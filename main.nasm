@@ -211,7 +211,7 @@ task_three_entry:
 
 	SECTION	.data
 hi:
-	db	"Hellow from task three !", 10, 10
+	db	"Hello from task three !", 10, 10
 hie:
 bi:
 	db	"Goodbye from task three !", 10, 10
