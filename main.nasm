@@ -4,15 +4,13 @@
 ;; ./main
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%include "vp.nasm"
-%include "code.nasm"
-%include "list.nasm"
-%include "heap.nasm"
-%include "mail.nasm"
-%include "task.nasm"
-
-%include "syscall.nasm"
-%include "util.nasm"
+%include "vp.inc"
+%include "code.inc"
+%include "list.inc"
+%include "heap.inc"
+%include "mail.inc"
+%include "task.inc"
+%include "syscall.inc"
 
 ;;;;;;;;;;;;;
 ; entry point
@@ -74,7 +72,7 @@ _main:
 			;check if any mail
 			vp_lea [r15 + TK_NODE_MAILBOX], r0
 			ml_check r0, r1
-			breakif r1, e, 0
+			breakif r1, ==, 0
 
 			;handle kernel request and reply
 			vp_call ml_receive_mail
@@ -85,9 +83,9 @@ _main:
 			vp_cpy r2, [r0 + (ML_MSG_DEST + 8)]
 			vp_cpy [r0 + (ML_MSG_DATA + ML_DATA_KERNEL_FUNC)], r1
 			switch
-			case r1, e, 0
+			case r1, ==, 0
 				break
-			case r1, e, 1
+			case r1, ==, 1
 				break
 			default
 			endswitch
@@ -101,7 +99,7 @@ _main:
 		vp_cpy tk_task_list, r0
 		lh_get_head r0, r1
 		lh_get_tail r0, r0
-	until r1, e, r0
+	until r1, ==, r0
 
 	;free the task heap
 	vp_cpy tk_task_heap, r0
@@ -205,6 +203,17 @@ task_three_entry:
 	sys_write_string 1, r0, bie-bi
 	vp_call tk_stop_task
 
+;;;;;;;;;;;;;;;;;;;
+; kernel call table
+;;;;;;;;;;;;;;;;;;;
+
+	SECTION	.data
+kernel_table:
+	dq	ml_alloc_mail
+	dq	ml_free_mail
+	dq	ml_send_mail
+	dq	ml_receive_mail
+
 ;;;;;;;;;;;
 ; test data
 ;;;;;;;;;;;
@@ -216,3 +225,9 @@ hie:
 bi:
 	db	"Goodbye from task three !", 10, 10
 bie:
+
+%include "list.nasm"
+%include "heap.nasm"
+%include "mail.nasm"
+%include "task.nasm"
+%include "util.nasm"

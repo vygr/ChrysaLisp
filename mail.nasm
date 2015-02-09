@@ -1,60 +1,4 @@
-%ifndef MAIL_1234
-    %define MAIL_1234
-
-%include "vp.nasm"
-%include "code.nasm"
-%include "list.nasm"
-
-;;;;;;;;;;;;;;;;;
-; mail structures
-;;;;;;;;;;;;;;;;;
-
-	struc ML_MAILBOX
-		ML_MAILBOX_LIST:		resb LH_LIST_SIZE
-		ML_MAILBOX_TCB:			resq 1
-		ML_MAILBOX_SIZE:
-	endstruc
-
-	struc ML_MSG
-		ML_MSG_NODE:			resb LN_NODE_SIZE
-		ML_MSG_DEST:			resq 2
-		ML_MSG_DATA:			resb 256
-		ML_MSG_SIZE:
-	endstruc
-
-	struc ML_DATA_KERNEL
-		ML_DATA_KERNEL_REPLY:	resq 2
-		ML_DATA_KERNEL_FUNC:	resq 1
-		ML_DATA_KERNEL_SIZE:
-	endstruc
-
-;;;;;;;;;;;;;
-; mail macros
-;;;;;;;;;;;;;
-
-	%macro ml_init 2
-		;inputs
-		;%1 = mailbox
-		;%2 = temp
-		;outputs
-		;%1 = mailbox
-		;trashes
-		;%2
-
-		lh_init %1, %2
-		vp_cpy 0, long[%1 + ML_MAILBOX_TCB]
-	%endmacro
-
-	%macro ml_check 2
-		;inputs
-		;%1 = mailbox
-		;%2 = temp
-		;outputs
-		;%1 = mailbox
-		;%2 = 0 if no mail
-
-		lh_is_empty %1, %2
-	%endmacro
+%include "mail.inc"
 
 ;;;;;;;;;;;
 ; mail code
@@ -90,14 +34,14 @@ ml_send_mail:
 	;r0-r2
 
 	vp_cpy [r0 + ML_MSG_DEST], r1
-	if r1, e, 0
+	if r1, ==, 0
 		;mail for kernel !
 		vp_cpy ml_kernel_mailbox, r1
 		vp_cpy [r1], r1
 	endif
 	lh_add_at_head r1, r0, r2
 	vp_cpy [r1 + ML_MAILBOX_TCB], r0
-	if r0, ne, 0
+	if r0, !=, 0
 		vp_cpy 0, long[r1 + ML_MAILBOX_TCB]
 		vp_call tk_resume_task
 	endif
@@ -113,7 +57,7 @@ ml_receive_mail:
 	;r0-r2
 
 	lh_is_empty r0, r1
-	if r1, e, 0
+	if r1, ==, 0
 		vp_cpy r15, [r0 + ML_MAILBOX_TCB]
 		vp_call tk_suspend_task
 	endif
@@ -129,5 +73,3 @@ ml_receive_mail:
 	hp_heap_object ml_mail_heap
 ml_kernel_mailbox:
 	dq	0
-
-%endif

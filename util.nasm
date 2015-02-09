@@ -1,9 +1,6 @@
-%ifndef UTIL_1234
-    %define UTIL_1234
-
-%include "vp.nasm"
-%include "code.nasm"
-%include "syscall.nasm"
+%include "vp.inc"
+%include "code.inc"
+%include "syscall.inc"
 
 ;;;;;;;;;;;
 ; util code
@@ -24,12 +21,12 @@ print_num:
 		vp_xor r2, r2
 		vp_div r3
 		vp_push r2
-	until r0, e, 0
+	until r0, ==, 0
 	repeat
 		vp_pop r0
 		vp_add '0', r0
 		sys_write_char r1, r0
-	until r5, e, r4
+	until r5, ==, r4
 	vp_ret
 
 print_list_head:
@@ -129,9 +126,7 @@ read_line:
 		sys_read_char r2
 		vp_cpy r0l, byte[r5]
 		vp_inc r5
-	until r0, e, 10
+	until r0, ==, 10
 	vp_cpy r5, r0
 	vp_sub r3, r0
 	vp_ret
-
-%endif

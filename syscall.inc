@@ -1,7 +1,7 @@
 %ifndef SYSCALL_1234
     %define SYSCALL_1234
 
-%include "vp.nasm"
+%include "vp.inc"
 
 ;;;;;;;;;;;;;;;;;
 ; syscall numbers

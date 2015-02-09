@@ -1,23 +1,4 @@
-%ifndef TASK_1234
-    %define TASK_1234
-
-%include "vp.nasm"
-%include "code.nasm"
-%include "list.nasm"
-%include "heap.nasm"
-%include "mail.nasm"
-
-;;;;;;;;;;;;;;;;;
-; task structures
-;;;;;;;;;;;;;;;;;
-
-	struc TK_NODE
-		TK_NODE_NODE:		resb	LN_NODE_SIZE
-		TK_NODE_STACK:		resq	1
-		TK_NODE_MAILBOX:	resb	ML_MAILBOX_SIZE
-		TK_NODE_STACKSPACE:	resb	1024*4
-		TK_NODE_SIZE:
-	endstruc
+%include "task.inc"
 
 ;;;;;;;;;;;
 ; task code
@@ -54,7 +35,7 @@ tk_deshedule:
 tk_restore_task:
 	;restore next task
 	ln_get_succ r15, r0
-	if r0, e, 0
+	if r0, ==, 0
 		vp_cpy tk_task_list, r0
 		lh_get_head r0, r15
 	endif
@@ -99,6 +80,10 @@ tk_start_task:
 	;initialise task mailbox
 	vp_lea [r1 + TK_NODE_MAILBOX], r0
 	ml_init r0, r2
+
+	;fill in kernel table address
+	vp_cpy kernel_table, r0
+	vp_cpy r0, [r1 + TK_NODE_KERNEL]
 
 	;set task control block stack and return address
 	vp_lea [r1 + TK_NODE_SIZE], r0
@@ -190,5 +175,3 @@ tk_resume_task:
 	hp_heap_object tk_task_heap
 	lh_list_object tk_task_list
 	lh_list_object tk_task_suspend_list
-
-%endif
