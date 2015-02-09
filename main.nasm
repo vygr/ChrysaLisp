@@ -50,12 +50,12 @@ _main:
 ; test code
 ;;;;;;;;;;;
 
-	;start task two, save mailbox
+	;start task one, save mailbox
 	vp_cpy task_one_entry, r0
 	vp_call tk_start_task
 	vp_cpy r0, r14
 
-	;alloc mail message, send to task two
+	;alloc mail message, send to task one
 	vp_call ml_alloc_mail
 	vp_cpy r14, [r0 + ML_MSG_DEST]
 	vp_call ml_send_mail
