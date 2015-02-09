@@ -25,13 +25,20 @@
 ;;;;;;;;;;;;;;;;;
 
 	struc FN_HEADER
-		FN_HEADER_LENGHTH:	resq 1
-		FN_HEADER_NAME:
+		FN_HEADER_LENGTH:	resq 1
+		FN_HEADER_ENTRY:	resq 1
+		FN_HEADER_PATHNAME:
 	endstruc
 
 ;;;;;;;;;;;;;
 ; func macros
 ;;;;;;;;;;;;;
+
+	%macro fn_call 1
+		;inputs
+		;%1 = function path name
+		vp_call [rel %$func_end]
+	%endmacro
 
 	%macro fn_function 1
 		;inputs
@@ -41,8 +48,11 @@
 			align 8
 		%$func_start:
 			dq	%$func_end-%$func_start
-			db	%1, 0
+			dq	%$func_entry-%$func_start
+			db	%1
+			db	0
 			align 8
+		%$func_entry:
 	%endmacro
 
 	%macro fn_function_end 0
