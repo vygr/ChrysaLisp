@@ -6,7 +6,7 @@
 
 	SECTION .text
 
-tk_deshedule:
+tk_deshedule_task:
 	;inputs
 	;r15 = task control node
 

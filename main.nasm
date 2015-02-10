@@ -65,7 +65,7 @@ _main:
 	;loop till no other tasks running
 	repeat
 		;allow all other tasks to run
-		vp_call tk_deshedule
+		vp_call tk_deshedule_task
 
 		;service all kernel mail
 		loopstart
@@ -141,7 +141,7 @@ task_one_entry:
 		next
 		sys_write_char 1, 10
 
-		vp_call tk_deshedule
+		vp_call tk_deshedule_task
 	next
 	vp_call tk_stop_task
 
@@ -161,7 +161,7 @@ task_two_entry:
 		vp_cpy r14, [r0 + ML_MSG_DEST]
 		vp_call ml_send_mail
 
-		vp_call tk_deshedule
+		vp_call tk_deshedule_task
 	next
 
 	for r11, 0, 10, 1
@@ -178,7 +178,7 @@ task_two_entry:
 		next
 		sys_write_char 1, 10
 
-		vp_call tk_deshedule
+		vp_call tk_deshedule_task
 	next
 	vp_call tk_stop_task
 
@@ -213,6 +213,11 @@ kernel_table:
 	dq	ml_free_mail
 	dq	ml_send_mail
 	dq	ml_receive_mail
+	dq	tk_start_task
+	dq	tk_stop_task
+	dq	tk_suspend_task
+	dq	tk_resume_task
+	dq	tk_deshedule_task
 	dq	print_num
 
 ;;;;;;;;;;;
