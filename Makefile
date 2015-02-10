@@ -4,7 +4,8 @@ main: main.o
 		ld -macosx_version_min 10.6 -o main -e _main main.o
 
 main.o: main.nasm vp.inc code.inc list.inc heap.inc mail.inc task.inc \
-  		syscall.inc list.nasm heap.nasm mail.nasm task.nasm util.nasm
+		syscall.inc list.nasm heap.nasm mail.nasm task.nasm load.nasm \
+		func.inc util.nasm
 		nasm -f macho64 main.nasm
 
 tests:	tests/test1 tests/test2

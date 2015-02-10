@@ -30,14 +30,14 @@ lh_enumerate_forwards:
 		;r2 = user data pointer
 		;r5 = status
 		;can trash
-		;r3, r7-r15
+		;r3, r7-r14
 
 	vp_xor r5, r5
 	lh_get_head r0, r6
 	repeat
 		vp_cpy r6, r3
 		ln_get_succ r6, r6
-		breakif r6, e, 0
+		breakif r6, ==, 0
 		vp_call r1
 	until r5, !=, 0
 	vp_ret
@@ -66,14 +66,14 @@ lh_enumerate_backwards:
 		;r2 = user data pointer
 		;r5 = status
 		;can trash
-		;r3, r7-r15
+		;r3, r7-r14
 
 	vp_xor r5, r5
 	lh_get_tail r0, r6
 	repeat
 		vp_cpy r6, r3
 		ln_get_pred r6, r6
-		breakif r6, e, 0
+		breakif r6, ==, 0
 		vp_call r1
 	until r5, !=, 0
 	vp_ret

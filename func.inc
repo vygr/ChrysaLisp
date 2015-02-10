@@ -7,16 +7,16 @@
 ; kernel calls
 ;;;;;;;;;;;;;;
 
-	KERNEL_ALLOC_MAIL		equ 1
-	KERNEL_FREE_MAIL		equ 2
-	KERNEL_SEND_MAIL		equ 3
-	KERNEL_RECEIVE_MAIL		equ 4
-	KERNEL_START_TASK		equ 5
-	KERNEL_STOP_TASK		equ 6
-	KERNEL_SUSPEND_TASK		equ 7
-	KERNEL_RESUME_TASK		equ 8
-	KERNEL_DESHEDULE_TASK	equ 9
-	KERNEL_PRINT_NUM		equ 10
+	KERNEL_ALLOC_MAIL		equ 0
+	KERNEL_FREE_MAIL		equ 1
+	KERNEL_SEND_MAIL		equ 2
+	KERNEL_RECEIVE_MAIL		equ 3
+	KERNEL_START_TASK		equ 4
+	KERNEL_STOP_TASK		equ 5
+	KERNEL_SUSPEND_TASK		equ 6
+	KERNEL_RESUME_TASK		equ 7
+	KERNEL_DESHEDULE_TASK	equ 8
+	KERNEL_PRINT_NUM		equ 9
 
 	%macro kn_call 1
 		;inputs
@@ -31,10 +31,10 @@
 ;;;;;;;;;;;;;;;;;
 
 	struc FN_HEADER
-		FN_HEADER_NODE:		resb LN_NODE_SIZE
-		FN_HEADER_LENGTH:	resq 1
-		FN_HEADER_ENTRY:	resq 1
-		FN_HEADER_LINKS:	resq 1
+		FN_HEADER_NODE:			resb LN_NODE_SIZE
+		FN_HEADER_LENGTH:		resq 1
+		FN_HEADER_ENTRY:		resq 1
+		FN_HEADER_LINKS:		resq 1
 		FN_HEADER_PATHNAME:
 	endstruc
 
@@ -88,12 +88,13 @@
 			%assign %$__i 0
 			%rep %$__ftotal
 			%$func%$__i:
-				dq	0
+				dq	-1
 				db	%$func_str%$__i
 				db	0
 				align 8, db 0
 				%assign %$__i %$__i+1
 			%endrep
+			dq	0
 		%$func_end:
 			%pop func
 	%endmacro

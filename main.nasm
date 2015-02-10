@@ -20,23 +20,14 @@
 
 	global _main
 _main:
-	;init task control block heap
-	vp_cpy tk_task_heap, r0
-	vp_cpy TK_NODE_SIZE, r1
-	vp_cpy TK_NODE_SIZE*8, r2
-	vp_call hp_init
+	;init tasker
+	vp_call tk_init_tasker
 
-	;init mail message heap
-	vp_cpy ml_mail_heap, r0
-	vp_cpy ML_MSG_SIZE, r1
-	vp_cpy ML_MSG_SIZE*256, r2
-	vp_call hp_init
+	;init loader
+	vp_call ld_init_loader
 
-	;init task lists
-	vp_cpy tk_task_list, r0
-	lh_init r0, r1
-	vp_cpy tk_task_suspend_list, r0
-	lh_init r0, r1
+	;init mailer
+	vp_call ml_init_mailer
 
 	;start kernel task and save mailbox for others
 	vp_call tk_start_task
@@ -44,19 +35,10 @@ _main:
 	vp_cpy ml_kernel_mailbox, r1
 	vp_cpy r0, [r1]
 
-;;;;;;;;;;;
-; test code
-;;;;;;;;;;;
-
-	;start task one, save mailbox
-	vp_cpy task_one_entry, r0
+	;test load and start test1 task
+	vp_cpy test1, r0
+	vp_call ld_load_function
 	vp_call tk_start_task
-	vp_cpy r0, r14
-
-	;alloc mail message, send to task one
-	vp_call ml_alloc_mail
-	vp_cpy r14, [r0 + ML_MSG_DEST]
-	vp_call ml_send_mail
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernal task loop
@@ -101,113 +83,24 @@ _main:
 		lh_get_tail r0, r0
 	until r1, ==, r0
 
-	;free the task heap
-	vp_cpy tk_task_heap, r0
-	vp_call hp_free_heap
-	vp_call hp_deinit
+	;deinit mailer
+	vp_call ml_deinit_mailer
+
+	;deinit loader
+	vp_call ld_deinit_loader
+
+	;deinit tasker
+	vp_call tk_deinit_tasker
 
 	;exit !
 	sys_exit 0
-
-;;;;;;;;;;;
-; test code
-;;;;;;;;;;;
-
-;;;;;;;;;;
-; task one
-;;;;;;;;;;
-
-task_one_entry:
-	;read my mail for go message, then free
-	vp_lea [r15 + TK_NODE_MAILBOX], r0
-	vp_call ml_receive_mail
-	vp_call ml_free_mail
-
-	;start task two
-	vp_cpy task_two_entry, r0
-	vp_call tk_start_task
-
-	for r11, 0, 10, 1
-		;print lower case ascii table
-		for r8, 0, 10, 1
-			for r9, 0, 10, 1
-				vp_cpy r8, r10
-				vp_add r9,r10
-				vp_add 'a', r10
-				sys_write_char 1, r10
-				sys_write_char 1, ' '
-			next
-			sys_write_char 1, 10
-		next
-		sys_write_char 1, 10
-
-		vp_call tk_deshedule_task
-	next
-	vp_call tk_stop_task
-
-;;;;;;;;;;
-; task two
-;;;;;;;;;;
-
-task_two_entry:
-	;start task three
-	vp_cpy task_three_entry, r0
-	vp_call tk_start_task
-	vp_cpy r0, r14
-
-	;alloc 1000000 mail messages, send to task four
-	for r8, 0, 1000000, 1
-		vp_call ml_alloc_mail
-		vp_cpy r14, [r0 + ML_MSG_DEST]
-		vp_call ml_send_mail
-
-		vp_call tk_deshedule_task
-	next
-
-	for r11, 0, 10, 1
-		;print lower case ascii table
-		for r8, 0, 10, 1
-			for r9, 0, 10, 1
-				vp_cpy r8, r10
-				vp_add r9,r10
-				vp_add 'A', r10
-				sys_write_char 1, r10
-				sys_write_char 1, ' '
-			next
-			sys_write_char 1, 10
-		next
-		sys_write_char 1, 10
-
-		vp_call tk_deshedule_task
-	next
-	vp_call tk_stop_task
-
-;;;;;;;;;;;;
-; task three
-;;;;;;;;;;;;
-
-task_three_entry:
-	;say hello
-	vp_cpy hi, r0
-	sys_write_string 1, r0, hie-hi
-
-	;read my mail for 1000000 messages
-	for r8, 0, 1000000, 1
-		vp_lea [r15 + TK_NODE_MAILBOX], r0
-		vp_call ml_receive_mail
-		vp_call ml_free_mail
-	next
-
-	;wave goodbye
-	vp_cpy bi, r0
-	sys_write_string 1, r0, bie-bi
-	vp_call tk_stop_task
 
 ;;;;;;;;;;;;;;;;;;;
 ; kernel call table
 ;;;;;;;;;;;;;;;;;;;
 
 	SECTION	.data
+	align 8, db 0
 kernel_table:
 	dq	ml_alloc_mail
 	dq	ml_free_mail
@@ -225,15 +118,14 @@ kernel_table:
 ;;;;;;;;;;;
 
 	SECTION	.data
-hi:
-	db	"Hello from task three !", 10, 10
-hie:
-bi:
-	db	"Goodbye from task three !", 10, 10
-bie:
+test1:
+	db	"tests/test1", 0
+test2:
+	db	"tests/test2", 0
 
 %include "list.nasm"
 %include "heap.nasm"
 %include "mail.nasm"
 %include "task.nasm"
+%include "load.nasm"
 %include "util.nasm"

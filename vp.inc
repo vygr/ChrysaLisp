@@ -84,7 +84,7 @@
 	%endmacro
 
 	%macro vp_xor 2
-		or %2, %1
+		xor %2, %1
 	%endmacro
 
 %endif

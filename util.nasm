@@ -12,9 +12,12 @@ print_num:
 	;inputs
 	;r0 = number
 	;r1 = fd
-	;trashes
-	;r0-r3, r5
 
+	vp_push r0
+	vp_push r1
+	vp_push r2
+	vp_push r3
+	vp_push r5
 	vp_cpy 10, r3	;base
 	vp_cpy r4, r5	;stack location
 	repeat
@@ -27,6 +30,11 @@ print_num:
 		vp_add '0', r0
 		sys_write_char r1, r0
 	until r5, ==, r4
+	vp_pop r5
+	vp_pop r3
+	vp_pop r2
+	vp_pop r1
+	vp_pop r0
 	vp_ret
 
 print_list_head:
@@ -116,7 +124,7 @@ read_line:
 	;outputs
 	;r0 = chars read
 	;trashes
-	;r0, r1, r2, r3, r5
+	;r0-r3, r5
 
 	vp_cpy r0, r3
 	vp_cpy r0, r5
@@ -129,4 +137,59 @@ read_line:
 	until r0, ==, 10
 	vp_cpy r5, r0
 	vp_sub r3, r0
+	vp_ret
+
+string_compare:
+	;inputs
+	;r0 = string1
+	;r1 = string2
+	;outputs
+	;r0 = 0 if not same
+	;trashes
+	;r0-r3
+
+	repeat
+		vp_cpy byte[r0], r2l
+		vp_cpy byte[r1], r3l
+		vp_and 0xff, r2
+		vp_and 0xff, r3
+		if r2, ==, 0
+			if r3, ==, 0
+				vp_cpy 1, r0
+				vp_ret
+			endif
+			vp_xor r0, r0
+			vp_ret
+		endif
+		if r3, ==, 0
+			if r2, ==, 0
+				vp_cpy 1, r0
+				vp_ret
+			endif
+			vp_xor r0, r0
+			vp_ret
+		endif
+		vp_add 1, r0
+		vp_add 1, r1
+	until r2, !=, r3
+	vp_xor r0, r0
+	vp_ret
+
+string_length:
+	;inputs
+	;r0 = string
+	;outputs
+	;r0 = string
+	;r1 = string len
+	;trashes
+	;r2
+
+	vp_cpy r0, r1
+	loopstart
+		vp_cpy byte[r1], r2l
+		vp_and 0xff, r2
+		breakif r2, ==, 0
+		vp_add 1, r1
+	loopend
+	vp_sub r0, r1
 	vp_ret

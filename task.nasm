@@ -6,6 +6,27 @@
 
 	SECTION .text
 
+tk_init_tasker:
+	;init task control block heap
+	vp_cpy tk_task_heap, r0
+	vp_cpy TK_NODE_SIZE, r1
+	vp_cpy TK_NODE_SIZE*8, r2
+	vp_call hp_init
+
+	;init task lists
+	vp_cpy tk_task_list, r0
+	lh_init r0, r1
+	vp_cpy tk_task_suspend_list, r0
+	lh_init r0, r1
+	vp_ret
+
+tk_deinit_tasker:
+	;free the task heap
+	vp_cpy tk_task_heap, r0
+	vp_call hp_free_heap
+	vp_call hp_deinit
+	vp_ret
+
 tk_deshedule_task:
 	;inputs
 	;r15 = task control node

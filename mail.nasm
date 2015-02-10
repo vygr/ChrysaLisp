@@ -6,6 +6,21 @@
 
 	SECTION .text
 
+ml_init_mailer:
+	;init mail message heap
+	vp_cpy ml_mail_heap, r0
+	vp_cpy ML_MSG_SIZE, r1
+	vp_cpy ML_MSG_SIZE*256, r2
+	vp_call hp_init
+	vp_ret
+
+ml_deinit_mailer:
+	;deinit mail message heap
+	vp_cpy ml_mail_heap, r0
+	vp_call hp_free_heap
+	vp_call hp_deinit
+	vp_ret
+
 ml_alloc_mail:
 	;outputs
 	;r0 = mail message
