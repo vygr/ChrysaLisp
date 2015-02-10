@@ -1,3 +1,4 @@
-test
+tests/test1
+tests/test2
 main
 main.o

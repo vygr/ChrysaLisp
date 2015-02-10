@@ -213,6 +213,7 @@ kernel_table:
 	dq	ml_free_mail
 	dq	ml_send_mail
 	dq	ml_receive_mail
+	dq	print_num
 
 ;;;;;;;;;;;
 ; test data

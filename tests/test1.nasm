@@ -1,0 +1,11 @@
+%include "func.inc"
+
+;;;;;;;;;;;;;;;
+; test function
+;;;;;;;;;;;;;;;
+
+	fn_function "tests/test1"
+		vp_cpy 1234567890, r0
+		fn_call tests/test2
+		vp_ret
+	fn_function_end
