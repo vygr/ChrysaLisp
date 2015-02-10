@@ -5,21 +5,19 @@
 ; test function
 ;;;;;;;;;;;;;;;
 
-	fn_function "tests/test2"
-		;function called by test1
-		;trashes
-		;r0-r3, r5
+	fn_function "tests/test3"
+		;task started by test1
 
 		for r8, 0, 10, 1
 			for r9, 0, 10, 1
 				vp_cpy r8, r0
-				vp_mul r9,r0
-				vp_cpy 1, r1
-				kn_call KERNEL_PRINT_NUM
+				vp_add r9,r0
+				vp_add 'a', r0
+				sys_write_char 1, r0
 				sys_write_char 1, ' '
 			next
 			sys_write_char 1, 10
 		next
-		vp_ret
+		kn_call KERNEL_STOP_TASK
 
 	fn_function_end

@@ -35,7 +35,7 @@ _main:
 	vp_cpy ml_kernel_mailbox, r1
 	vp_cpy r0, [r1]
 
-	;test load and start test1 task
+	;load and run test1 task
 	vp_cpy test1, r0
 	vp_call ld_load_function
 	vp_call tk_start_task
@@ -111,6 +111,7 @@ kernel_table:
 	dq	tk_suspend_task
 	dq	tk_resume_task
 	dq	tk_deshedule_task
+	dq	ld_load_function
 	dq	print_num
 
 ;;;;;;;;;;;
@@ -120,8 +121,6 @@ kernel_table:
 	SECTION	.data
 test1:
 	db	"tests/test1", 0
-test2:
-	db	"tests/test2", 0
 
 %include "list.nasm"
 %include "heap.nasm"
