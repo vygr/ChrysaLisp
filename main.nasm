@@ -57,7 +57,7 @@ _main:
 			breakif r1, ==, 0
 
 			;handle kernel request and reply
-			vp_call ml_receive_mail
+			vp_call ml_read_mail
 			vp_cpy r1, r0
 			vp_cpy [r0 + (ML_MSG_DATA + ML_DATA_KERNEL_REPLY)], r1
 			vp_cpy [r0 + (ML_MSG_DATA + ML_DATA_KERNEL_REPLY + 8)], r2
@@ -105,14 +105,18 @@ kernel_table:
 	dq	ml_alloc_mail
 	dq	ml_free_mail
 	dq	ml_send_mail
-	dq	ml_receive_mail
+	dq	ml_read_mail
 	dq	tk_start_task
 	dq	tk_stop_task
 	dq	tk_suspend_task
 	dq	tk_resume_task
 	dq	tk_deshedule_task
 	dq	ld_load_function
-	dq	print_num
+	dq	print_char
+	dq	print_string
+	dq	print_number
+	dq	string_compare
+	dq	string_length
 
 ;;;;;;;;;;;
 ; test data

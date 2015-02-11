@@ -62,7 +62,7 @@ ml_send_mail:
 	endif
 	vp_ret
 
-ml_receive_mail:
+ml_read_mail:
 	;inputs
 	;r0 = mailbox address
 	;outputs
