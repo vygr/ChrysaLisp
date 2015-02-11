@@ -21,14 +21,14 @@
 					vp_add r9,r0
 					vp_add 'a', r0
 					vp_cpy 1, r1
-					kn_call KERNEL_PRINT_CHAR
+					kn_call KERNEL_WRITE_CHAR
 					vp_cpy ' ', r0
-					kn_call KERNEL_PRINT_CHAR
+					kn_call KERNEL_WRITE_CHAR
 				next
 				vp_cpy 10, r0
-				kn_call KERNEL_PRINT_CHAR
+				kn_call KERNEL_WRITE_CHAR
 			next
-			kn_call KERNEL_PRINT_CHAR
+			kn_call KERNEL_WRITE_CHAR
 			kn_call KERNEL_DESHEDULE_TASK
 		next
 

@@ -8,7 +8,7 @@
 
 	SECTION .text
 
-print_char:
+write_char:
 	;inputs
 	;r0 = char
 	;r1 = fd
@@ -16,7 +16,7 @@ print_char:
 	sys_write_char r1, r0
 	vp_ret
 
-print_string:
+write_string:
 	;inputs
 	;r0 = string
 	;r1 = fd
@@ -28,7 +28,7 @@ print_string:
 	sys_write_string r3, r0, r1
 	vp_ret
 
-print_number:
+write_number:
 	;inputs
 	;r0 = number
 	;r1 = fd

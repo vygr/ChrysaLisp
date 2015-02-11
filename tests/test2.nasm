@@ -17,19 +17,19 @@
 					if r11, < , 10
 						vp_cpy ' ', r0
 						vp_cpy 1, r1
-						kn_call KERNEL_PRINT_CHAR
+						kn_call KERNEL_WRITE_CHAR
 					endif
 					vp_cpy r11, r0
 					vp_cpy 1, r1
-					kn_call KERNEL_PRINT_NUMBER
+					kn_call KERNEL_WRITE_NUMBER
 					vp_cpy ' ', r0
 					vp_cpy 1, r1
-					kn_call KERNEL_PRINT_CHAR
+					kn_call KERNEL_WRITE_CHAR
 				next
 				vp_cpy 10, r0
-				kn_call KERNEL_PRINT_CHAR
+				kn_call KERNEL_WRITE_CHAR
 			next
-			kn_call KERNEL_PRINT_CHAR
+			kn_call KERNEL_WRITE_CHAR
 			kn_call KERNEL_DESHEDULE_TASK
 		next
 		vp_ret

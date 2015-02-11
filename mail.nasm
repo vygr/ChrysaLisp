@@ -51,8 +51,7 @@ ml_send_mail:
 	vp_cpy [r0 + ML_MSG_DEST], r1
 	if r1, ==, 0
 		;mail for kernel !
-		vp_cpy ml_kernel_mailbox, r1
-		vp_cpy [r1], r1
+		vp_cpy [rel ml_kernel_mailbox], r1
 	endif
 	lh_add_at_head r1, r0, r2
 	vp_cpy [r1 + ML_MAILBOX_TCB], r0

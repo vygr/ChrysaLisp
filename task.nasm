@@ -103,7 +103,7 @@ tk_start_task:
 	ml_init r0, r2
 
 	;fill in kernel table address
-	vp_cpy kernel_table, r0
+	vp_lea [rel kernel_table], r0
 	vp_cpy r0, [r1 + TK_NODE_KERNEL]
 
 	;set task control block stack and return address

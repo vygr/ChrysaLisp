@@ -17,9 +17,9 @@
 	KERNEL_RESUME_TASK		equ 7
 	KERNEL_DESHEDULE_TASK	equ 8
 	KERNEL_LOAD_FUNCTION	equ 9
-	KERNEL_PRINT_CHAR		equ 10
-	KERNEL_PRINT_STRING		equ 11
-	KERNEL_PRINT_NUMBER		equ 12
+	KERNEL_WRITE_CHAR		equ 10
+	KERNEL_WRITE_STRING		equ 11
+	KERNEL_WRITE_NUMBER		equ 12
 	KERNEL_STRING_COMPARE	equ 13
 	KERNEL_STRING_LENGTH	equ 14
 
@@ -36,7 +36,7 @@
 ;;;;;;;;;;;;;;;;;
 
 	struc FN_HEADER
-		FN_HEADER_NODE:			resb LN_NODE_SIZE
+		FN_HEADER_NEXT:			resq 1
 		FN_HEADER_LENGTH:		resq 1
 		FN_HEADER_ENTRY:		resq 1
 		FN_HEADER_LINKS:		resq 1
@@ -77,7 +77,7 @@
 			%assign %$__ftotal 0
 			align 8, db 0
 		%$func_start:
-			times LN_NODE_SIZE db 0xff
+			dq	-1
 			dq	%$func_end-%$func_start
 			dq	%$func_entry-%$func_start
 			dq	%$func_links-%$func_start

@@ -3,3 +3,7 @@ tests/test2
 tests/test3
 main
 main.o
+sys/enumerate_backwards
+sys/enumerate_forwards
+sys/get_index_of_node
+sys/get_node_at_index

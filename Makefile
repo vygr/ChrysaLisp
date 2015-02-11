@@ -1,4 +1,4 @@
-all : main tests
+all : main sys tests
 
 main: main.o
 		ld -macosx_version_min 10.6 -o main -e _main main.o
@@ -7,6 +7,20 @@ main.o: main.nasm vp.inc code.inc list.inc heap.inc mail.inc task.inc \
 		syscall.inc list.nasm heap.nasm mail.nasm task.nasm load.nasm \
 		func.inc util.nasm
 		nasm -f macho64 main.nasm
+
+sys:	sys/enumerate_backwards sys/enumerate_forwards sys/get_index_of_node sys/get_node_at_index
+
+sys/enumerate_backwards: sys/enumerate_backwards.nasm func.inc task.inc list.inc vp.inc code.inc mail.inc
+		nasm -f bin sys/enumerate_backwards.nasm
+
+sys/enumerate_forwards: sys/enumerate_forwards.nasm func.inc task.inc list.inc vp.inc code.inc mail.inc
+		nasm -f bin sys/enumerate_forwards.nasm
+
+sys/get_index_of_node: sys/get_index_of_node.nasm func.inc task.inc list.inc vp.inc code.inc mail.inc
+		nasm -f bin sys/get_index_of_node.nasm
+
+sys/get_node_at_index: sys/get_node_at_index.nasm func.inc task.inc list.inc vp.inc code.inc mail.inc
+		nasm -f bin sys/get_node_at_index.nasm
 
 tests:	tests/test1 tests/test2 tests/test3
 
