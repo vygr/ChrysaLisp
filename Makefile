@@ -22,6 +22,7 @@ clean:
 	tests/test1 \
 	tests/test2 \
 	tests/test3 \
+	sys/boot \
 	sys/enumerate_backwards \
 	sys/enumerate_forwards \
 	sys/get_index_of_node \

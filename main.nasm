@@ -35,8 +35,8 @@ _main:
 	vp_cpy ml_kernel_mailbox, r1
 	vp_cpy r0, [r1]
 
-	;load and run test1 task
-	vp_cpy test1, r0
+	;load and run boot task
+	vp_cpy boot_task, r0
 	vp_call ld_load_function
 	vp_call tk_start_task
 
@@ -118,10 +118,6 @@ kernel_table:
 %include "task.nasm"
 %include "load.nasm"
 
-;;;;;;;;;;;
-; test data
-;;;;;;;;;;;
-
 	SECTION	.data
-test1:
-	db	"tests/test1", 0
+boot_task:
+	db	"sys/boot", 0
