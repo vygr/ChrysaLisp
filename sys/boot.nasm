@@ -9,11 +9,11 @@
 
 		;start test1 task
 		vp_lea [rel task_one], r0
-		kn_call KERNEL_LOAD_FUNCTION
-		kn_call KERNEL_START_TASK
+		kn_call KERNEL_FUNCTION_LOAD
+		kn_call KERNEL_TASK_START
 
 		;stop this task
-		kn_call KERNEL_STOP_TASK
+		kn_call KERNEL_TASK_STOP
 
 	task_one:
 		db 'tests/test1', 0

@@ -12,7 +12,7 @@ sys:	$(patsubst %.nasm, %, $(wildcard sys/*.nasm))
 tests:	$(patsubst %.nasm, %, $(wildcard tests/*.nasm))
 
 %:	%.nasm Makefile sys/write_char.nasm func.inc task.inc list.inc vp.inc \
-	code.inc mail.inc syscall.inc
+	code.inc mail.inc syscall.inc heap.inc
 	nasm -f bin $< -o $@
 
 clean:
@@ -22,6 +22,7 @@ clean:
 	tests/test1 \
 	tests/test2 \
 	tests/test3 \
+	tests/test4 \
 	sys/boot \
 	sys/enumerate_backwards \
 	sys/enumerate_forwards \

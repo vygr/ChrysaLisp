@@ -6,7 +6,7 @@
 		;r0 = number
 		;r1 = fd
 		;trashes
-		;r0-r3, r5
+		;r0, r2-r3, r5
 
 		vp_cpy 10, r3	;base
 		vp_cpy r4, r5	;stack location

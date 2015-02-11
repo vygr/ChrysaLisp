@@ -30,7 +30,7 @@
 				fn_call sys/write_char
 			next
 			fn_call sys/write_char
-			kn_call KERNEL_DESHEDULE_TASK
+			kn_call KERNEL_TASK_DESHEDULE
 		next
 		vp_ret
 

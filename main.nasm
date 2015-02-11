@@ -112,6 +112,10 @@ kernel_table:
 	dq	tk_resume_task
 	dq	tk_deshedule_task
 	dq	ld_load_function
+	dq	hp_init
+	dq	hp_deinit
+	dq	hp_free_heap
+	dq	hp_alloc_cell
 
 %include "heap.nasm"
 %include "mail.nasm"

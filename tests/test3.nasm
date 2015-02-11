@@ -10,8 +10,8 @@
 		;read and free 1000000 messages
 		for r8, 0, 1000000, 1
 			vp_lea [r15 + TK_NODE_MAILBOX], r0
-			kn_call KERNEL_READ_MAIL
-			kn_call KERNEL_FREE_MAIL
+			kn_call KERNEL_MAIL_READ
+			kn_call KERNEL_MAIL_FREE
 		next
 
 		for r10, 0, 10, 1
@@ -29,10 +29,10 @@
 				fn_call sys/write_char
 			next
 			fn_call sys/write_char
-			kn_call KERNEL_DESHEDULE_TASK
+			kn_call KERNEL_TASK_DESHEDULE
 		next
 
 		;stop this task
-		kn_call KERNEL_STOP_TASK
+		kn_call KERNEL_TASK_STOP
 
 	fn_function_end

@@ -140,7 +140,7 @@ ld_load_function:
 		vp_cpy r1, [r0 - 8]
 		vp_call ld_string_length + 0x38
 		vp_add r1, r0
-		vp_add 7, r0
+		vp_add 8, r0	;7 plus string nul !
 		vp_and -8, r0
 	loopend
 
