@@ -77,7 +77,7 @@ _main:
 		;check if no other tasks
 		vp_cpy tk_task_suspend_list, r0
 		lh_is_empty r0, r0
-		continueif r0, ne, 0
+		continueif r0, !=, 0
 		vp_cpy tk_task_list, r0
 		lh_get_head r0, r1
 		lh_get_tail r0, r0
@@ -118,6 +118,13 @@ kernel_table:
 	dq	string_compare
 	dq	string_length
 
+%include "list.nasm"
+%include "heap.nasm"
+%include "mail.nasm"
+%include "task.nasm"
+%include "load.nasm"
+%include "util.nasm"
+
 ;;;;;;;;;;;
 ; test data
 ;;;;;;;;;;;
@@ -125,10 +132,3 @@ kernel_table:
 	SECTION	.data
 test1:
 	db	"tests/test1", 0
-
-%include "list.nasm"
-%include "heap.nasm"
-%include "mail.nasm"
-%include "task.nasm"
-%include "load.nasm"
-%include "util.nasm"
