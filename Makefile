@@ -63,4 +63,6 @@ tests/test3: tests/test3.nasm func.inc task.inc list.inc vp.inc code.inc mail.in
 		nasm -f bin tests/test3.nasm
 
 clean:
-	rm -rf main main.o tests/test1 tests/test2 tests/test3
+	rm -rf main main.o tests/test1 tests/test2 tests/test3 \
+	sys/enumerate_backwards sys/string_compare sys/enumerate_forwards sys/string_length \
+	sys/get_index_of_node sys/write_char sys/get_node_at_index sys/write_number sys/read_line sys/write_string
