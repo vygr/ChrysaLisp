@@ -19,7 +19,7 @@
 		;allocate 100 objects and print addresses
 		for r8, 0, 100, 1
 			vp_cpy r4, r0
-			kn_call KERNEL_HEAP_ALLOCCELL
+			fn_call sys/heap_alloccell
 			vp_cpy r1, r0
 			vp_cpy 1, r1
 			fn_call sys/write_number

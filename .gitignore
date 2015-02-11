@@ -1,5 +1,7 @@
 main
 main.o
+sys/boot
+sys/heap_alloccell
 sys/enumerate_backwards
 sys/enumerate_forwards
 sys/get_index_of_node
@@ -13,3 +15,4 @@ sys/string_length
 tests/test1
 tests/test2
 tests/test3
+tests/test4
