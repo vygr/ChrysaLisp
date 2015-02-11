@@ -21,10 +21,10 @@
 		vp_cpy r0, r5
 		vp_cpy 0, r6
 		for r8, 0, 1000000, 1
-			kn_call KERNEL_MAIL_ALLOC
+			fn_call sys/mail_alloc
 			vp_cpy r5, [r0 + ML_MSG_DEST]
 			vp_cpy r6, [r0 + (ML_MSG_DEST + 8)]
-			kn_call KERNEL_MAIL_SEND
+			fn_call sys/mail_send
 			kn_call KERNEL_TASK_DESHEDULE
 		next
 

@@ -10,8 +10,8 @@
 		;read and free 1000000 messages
 		for r8, 0, 1000000, 1
 			vp_lea [r15 + TK_NODE_MAILBOX], r0
-			kn_call KERNEL_MAIL_READ
-			kn_call KERNEL_MAIL_FREE
+			fn_call sys/mail_read
+			fn_call sys/mail_free
 		next
 
 		for r10, 0, 10, 1

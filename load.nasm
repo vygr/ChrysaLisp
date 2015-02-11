@@ -32,9 +32,8 @@ ld_init_loader:
 	loopend
 
 	;bind all function intra references
-	vp_lea [rel ld_function_list], r3
+	vp_cpy [rel ld_function_list], r3
 	loopstart
-		vp_cpy [r3], r3
 		breakif r3, ==, 0
 		vp_cpy r3, r0
 		vp_add [r3 + FN_HEADER_LINKS], r0
@@ -54,6 +53,7 @@ ld_init_loader:
 			vp_add 8, r0	;7 plus string nul !
 			vp_and -8, r0
 		loopend
+		vp_cpy [r3], r3
 	loopend
 	vp_ret
 
@@ -85,14 +85,13 @@ ld_load_function:
 	repeat
 		breakif r6, ==, 0
 		vp_cpy r7, r0
-		vp_cpy r6, r1
-		vp_add [r6 + FN_HEADER_ENTRY], r1
+		vp_lea [r6 + FN_HEADER_PATHNAME], r1
 		vp_call ld_string_compare + 0x38
 		if r0, !=, 0
 			vp_cpy r6, r5
 			vp_add [r6 + FN_HEADER_ENTRY], r5
 		endif
-		vp_cpy [r6],r6
+		vp_cpy [r6], r6
 	until r5, !=, 0
 	if r5, !=, 0
 		;found function allready loaded
@@ -196,15 +195,33 @@ ld_stat_buffer:
 
 	align 8, db 0
 ld_prebound:
+
 ld_string_compare:
 	incbin	'sys/string_compare'
 ld_string_length:
 	incbin	'sys/string_length'
+
 ld_heap_init:
 	incbin	'sys/heap_init'
 ld_heap_deinit:
 	incbin	'sys/heap_deinit'
 ld_heap_alloccell:
 	incbin	'sys/heap_alloccell'
+
+ld_mail_mailheap:
+	incbin	'sys/mail_mailheap'
+ld_mail_init_mailer:
+	incbin	'sys/mail_init_mailer'
+ld_mail_deinit_mailer:
+	incbin	'sys/mail_deinit_mailer'
+ld_mail_alloc:
+	incbin	'sys/mail_alloc'
+ld_mail_free:
+	incbin	'sys/mail_free'
+ld_mail_send:
+	incbin	'sys/mail_send'
+ld_mail_read:
+	incbin	'sys/mail_read'
+
 ld_prebounde:
 	dq 0

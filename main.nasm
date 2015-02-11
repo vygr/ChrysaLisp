@@ -26,13 +26,12 @@ _main:
 	vp_call tk_init_tasker
 
 	;init mailer
-	vp_call ml_init_mailer
+	vp_call ld_mail_init_mailer + 0x38
 
 	;start kernel task and save mailbox for others
 	vp_call tk_start_task
 	vp_cpy r1, r15
-	vp_cpy ml_kernel_mailbox, r1
-	vp_cpy r0, [r1]
+	vp_cpy r0, [rel ml_kernel_mailbox]
 
 	;load and run boot task
 	vp_cpy boot_task, r0
@@ -56,7 +55,7 @@ _main:
 			breakif r1, ==, 0
 
 			;handle kernel request and reply
-			vp_call ml_read_mail
+			vp_call ld_mail_read + 0x30
 			vp_cpy r1, r0
 			vp_cpy [r0 + (ML_MSG_DATA + ML_DATA_KERNEL_REPLY)], r1
 			vp_cpy [r0 + (ML_MSG_DATA + ML_DATA_KERNEL_REPLY + 8)], r2
@@ -70,7 +69,7 @@ _main:
 				break
 			default
 			endswitch
-			vp_call ml_send_mail
+			vp_call ld_mail_send + 0x30
 		loopend
 
 		;check if no other tasks
@@ -83,7 +82,7 @@ _main:
 	until r1, ==, r0
 
 	;deinit mailer
-	vp_call ml_deinit_mailer
+	vp_call ld_mail_deinit_mailer + 0x38
 
 	;deinit tasker
 	vp_call tk_deinit_tasker
@@ -94,17 +93,17 @@ _main:
 	;exit !
 	sys_exit 0
 
-;;;;;;;;;;;;;;;;;;;
-; kernel call table
-;;;;;;;;;;;;;;;;;;;
+%include "task.nasm"
+%include "load.nasm"
+
+;;;;;;;;;;;;;
+; kernel data
+;;;;;;;;;;;;;
 
 	SECTION	.data
+
 	align 8, db 0
 kernel_table:
-	dq	ml_alloc_mail
-	dq	ml_free_mail
-	dq	ml_send_mail
-	dq	ml_read_mail
 	dq	tk_start_task
 	dq	tk_stop_task
 	dq	tk_suspend_task
@@ -112,10 +111,7 @@ kernel_table:
 	dq	tk_deshedule_task
 	dq	ld_load_function
 
-%include "mail.nasm"
-%include "task.nasm"
-%include "load.nasm"
-
-	SECTION	.data
+ml_kernel_mailbox:
+	dq	0
 boot_task:
 	db	"sys/boot", 0
