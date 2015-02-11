@@ -25,7 +25,7 @@
 		vp_cpy [r15 + TK_NODE_KERNEL], r14
 		vp_call [r14 + (%1 *8)]
 	%endmacro
-		
+
 ;;;;;;;;;;;;;;;;;
 ; func structures
 ;;;;;;;;;;;;;;;;;
