@@ -172,5 +172,11 @@ ld_string_compare:
 	incbin	'sys/string_compare'
 ld_string_length:
 	incbin	'sys/string_length'
+ld_heap_init:
+	incbin	'sys/heap_init'
+ld_heap_deinit:
+	incbin	'sys/heap_deinit'
+ld_heap_alloccell:
+	incbin	'sys/heap_alloccell'
 ld_prebounde:
 	dq 0

@@ -4,8 +4,9 @@ main:	main.o
 		ld -macosx_version_min 10.6 -o main -e _main main.o
 
 main.o:	main.nasm vp.inc code.inc list.inc heap.inc mail.inc task.inc \
-		syscall.inc heap.nasm mail.nasm task.nasm load.nasm func.inc \
-		sys/string_compare sys/string_length
+		syscall.inc mail.nasm task.nasm load.nasm func.inc \
+		sys/string_compare sys/string_length sys/heap_init \
+		sys/heap_deinit sys/heap_alloccell
 		nasm -f macho64 main.nasm
 
 sys:	$(patsubst %.nasm, %, $(wildcard sys/*.nasm))
@@ -24,6 +25,10 @@ clean:
 	tests/test3 \
 	tests/test4 \
 	sys/boot \
+	sys/heap_init \
+	sys/heap_deinit \
+	sys/heap_alloccell \
+	sys/heap_freeheap \
 	sys/enumerate_backwards \
 	sys/enumerate_forwards \
 	sys/get_index_of_node \

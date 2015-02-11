@@ -20,11 +20,11 @@
 
 	global _main
 _main:
-	;init tasker
-	vp_call tk_init_tasker
-
 	;init loader
 	vp_call ld_init_loader
+
+	;init tasker
+	vp_call tk_init_tasker
 
 	;init mailer
 	vp_call ml_init_mailer
@@ -86,11 +86,11 @@ _main:
 	;deinit mailer
 	vp_call ml_deinit_mailer
 
-	;deinit loader
-	vp_call ld_deinit_loader
-
 	;deinit tasker
 	vp_call tk_deinit_tasker
+
+	;deinit loader
+	vp_call ld_deinit_loader
 
 	;exit !
 	sys_exit 0
@@ -112,12 +112,7 @@ kernel_table:
 	dq	tk_resume_task
 	dq	tk_deshedule_task
 	dq	ld_load_function
-	dq	hp_init
-	dq	hp_deinit
-	dq	hp_free_heap
-	dq	hp_alloc_cell
 
-%include "heap.nasm"
 %include "mail.nasm"
 %include "task.nasm"
 %include "load.nasm"

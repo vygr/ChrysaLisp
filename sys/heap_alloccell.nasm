@@ -37,6 +37,6 @@
 				vp_add [r0 + HP_HEAP_CELLSIZE], r1
 			until r1, >=, r3
 			vp_cpy r2, [r0 + HP_HEAP_FREELIST]
-		endloop
+		loopend
 
 	fn_function_end

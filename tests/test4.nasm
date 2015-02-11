@@ -14,7 +14,7 @@
 		vp_cpy r4, r0
 		vp_cpy 16, r1
 		vp_cpy 16*16, r2
-		kn_call KERNEL_HEAP_INIT
+		fn_call sys/heap_init
 
 		;allocate 100 objects and print addresses
 		for r8, 0, 100, 1
@@ -32,10 +32,10 @@
 
 		;free all objects
 		vp_cpy r4, r0
-		kn_call KERNEL_HEAP_FREEHEAP
+		fn_call sys/heap_freeheap
 
 		;deinit heap
-		kn_call KERNEL_HEAP_DEINIT
+		fn_call sys/heap_deinit
 		vp_add HP_HEAP_SIZE, r4
 
 		;stop this task

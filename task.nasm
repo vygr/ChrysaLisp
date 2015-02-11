@@ -11,7 +11,7 @@ tk_init_tasker:
 	vp_cpy tk_task_heap, r0
 	vp_cpy TK_NODE_SIZE, r1
 	vp_cpy TK_NODE_SIZE*8, r2
-	vp_call hp_init
+	vp_call ld_heap_init + 0x30
 
 	;init task lists
 	vp_cpy tk_task_list, r0
@@ -23,8 +23,7 @@ tk_init_tasker:
 tk_deinit_tasker:
 	;free the task heap
 	vp_cpy tk_task_heap, r0
-	vp_call hp_free_heap
-	vp_call hp_deinit
+	vp_call ld_heap_deinit + 0x30
 	vp_ret
 
 tk_deshedule_task:
@@ -94,7 +93,7 @@ tk_start_task:
 
 	;create new task control block and task
 	vp_cpy tk_task_heap, r0
-	vp_call hp_alloc_cell
+	vp_call ld_heap_alloccell + 0x38
 	vp_cpy tk_task_list, r0
 	lh_add_at_head r0, r1, r2
 

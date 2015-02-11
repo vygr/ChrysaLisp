@@ -11,14 +11,13 @@ ml_init_mailer:
 	vp_cpy ml_mail_heap, r0
 	vp_cpy ML_MSG_SIZE, r1
 	vp_cpy ML_MSG_SIZE*256, r2
-	vp_call hp_init
+	vp_call ld_heap_init + 0x30
 	vp_ret
 
 ml_deinit_mailer:
 	;deinit mail message heap
 	vp_cpy ml_mail_heap, r0
-	vp_call hp_free_heap
-	vp_call hp_deinit
+	vp_call ld_heap_deinit + 0x30
 	vp_ret
 
 ml_alloc_mail:
@@ -28,7 +27,7 @@ ml_alloc_mail:
 	;r1-r3
 
 	vp_cpy ml_mail_heap, r0
-	vp_call hp_alloc_cell
+	vp_call ld_heap_alloccell + 0x38
 	vp_cpy r1, r0
 	vp_ret
 		
