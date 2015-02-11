@@ -17,11 +17,6 @@
 	KERNEL_RESUME_TASK		equ 7
 	KERNEL_DESHEDULE_TASK	equ 8
 	KERNEL_LOAD_FUNCTION	equ 9
-	KERNEL_WRITE_CHAR		equ 10
-	KERNEL_WRITE_STRING		equ 11
-	KERNEL_WRITE_NUMBER		equ 12
-	KERNEL_STRING_COMPARE	equ 13
-	KERNEL_STRING_LENGTH	equ 14
 
 	%macro kn_call 1
 		;inputs
@@ -51,57 +46,55 @@
 		;inputs
 		;%1 = function path name
 
-		%assign %$__fnew -1
-		%assign %$__i 0
-		%rep %$__ftotal
-			%deftok %$__path %$func_str%$__i
-			%ifidn %$__path, %1
-				%assign %$__fnew %$__i
+		%assign %%__f -1
+		%assign %%__i 0
+		%rep __ftotal
+			%deftok %%__path __func_str%[%%__i]
+			%ifidn %%__path, %1
+				%assign %%__f %%__i
 				%exitrep
 			%endif
-			%assign %$__i %$__i+1
+			%assign %%__i %%__i+1
 		%endrep
-		%if %$__fnew = -1
-			%assign %$__fnew %$__ftotal
-			%assign %$__ftotal %$__ftotal+1
-			%defstr %$func_str%$__fnew %1
+		%if %%__f = -1
+			%assign %%__f __ftotal
+			%assign __ftotal __ftotal+1
+			%defstr __func_str%[%%__f] %1
 		%endif
-		vp_call [rel %$func%$__fnew]
+		vp_call [rel __func%[%%__f]]
 	%endmacro
 
 	%macro fn_function 1
 		;inputs
 		;%1 = function path name
 			BITS 64
-			%push func
-			%assign %$__ftotal 0
+			%assign __ftotal 0
 			align 8, db 0
-		%$func_start:
+		__func_start:
 			dq	-1
-			dq	%$func_end-%$func_start
-			dq	%$func_entry-%$func_start
-			dq	%$func_links-%$func_start
+			dq	__func_end - __func_start
+			dq	__func_entry - __func_start
+			dq	__func_links - __func_start
 			db	%1
 			db	0
 			align 8, db 0
-		%$func_entry:
+		__func_entry:
 	%endmacro
 
 	%macro fn_function_end 0
 			align 8, db 0
-		%$func_links:
-			%assign %$__i 0
-			%rep %$__ftotal
-			%$func%$__i:
+		__func_links:
+			%assign %%__i 0
+			%rep __ftotal
+			__func%[%%__i]:
 				dq	-1
-				db	%$func_str%$__i
+				db	__func_str%[%%__i]
 				db	0
 				align 8, db 0
-				%assign %$__i %$__i+1
+				%assign %%__i %%__i+1
 			%endrep
 			dq	0
-		%$func_end:
-			%pop func
+		__func_end:
 	%endmacro
 
 %endif

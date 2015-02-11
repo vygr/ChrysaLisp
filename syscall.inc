@@ -7,14 +7,15 @@
 ; syscall numbers
 ;;;;;;;;;;;;;;;;;
 
-	SYS_EXIT	equ 0x2000001	;void exit(int rval)
-	SYS_READ	equ 0x2000003	;user_ssize_t read(int fd, user_addr_t cbuf, user_size_t nbyte)
-	SYS_WRITE	equ 0x2000004	;user_ssize_t write(int fd, user_addr_t cbuf, user_size_t nbyte)
-	SYS_OPEN	equ 0x2000005	;int open(user_addr_t path, int flags, int mode)
-	SYS_CLOSE	equ 0x2000006	;int close(int fd)
-	SYS_MUNMAP	equ 0x2000049	;int munmap(caddr_t addr, size_t len)
-	SYS_MMAP	equ 0x20000c5	;user_addr_t mmap(caddr_t addr, size_t len, int prot, int flags, int fd, off_t pos)
-	SYS_STAT	equ 0x20000bc	;int stat(user_addr_t path, user_addr_t ub)
+	SYS_EXIT		equ 0x2000001	;void exit(int rval)
+	SYS_READ		equ 0x2000003	;user_ssize_t read(int fd, user_addr_t cbuf, user_size_t nbyte)
+	SYS_WRITE		equ 0x2000004	;user_ssize_t write(int fd, user_addr_t cbuf, user_size_t nbyte)
+	SYS_OPEN		equ 0x2000005	;int open(user_addr_t path, int flags, int mode)
+	SYS_CLOSE		equ 0x2000006	;int close(int fd)
+	SYS_MUNMAP		equ 0x2000049	;int munmap(caddr_t addr, size_t len)
+	SYS_MPROTECT	equ 0x200004a	;int mprotect(caddr_t addr, size_t len, int prot)
+	SYS_MMAP		equ 0x20000c5	;user_addr_t mmap(caddr_t addr, size_t len, int prot, int flags, int fd, off_t pos)
+	SYS_STAT		equ 0x20000bc	;int stat(user_addr_t path, user_addr_t ub)
 
 	PROT_NONE	equ 0x0
 	PROT_READ	equ 0x1
@@ -176,6 +177,17 @@
 		vp_cpy %5, r8		;file descriptor
 		vp_cpy %6, r9		;offset
 		vp_cpy SYS_MMAP, r0
+		vp_syscall
+		pop_trashed
+	%endmacro
+
+	%macro sys_mprotect 3
+		;addr, len, prot
+		push_trashed
+		vp_cpy %1, r7		;addr
+		vp_cpy %2, r6		;size
+		vp_cpy %3, r2		;read only etc
+		vp_cpy SYS_MPROTECT, r0
 		vp_syscall
 		pop_trashed
 	%endmacro

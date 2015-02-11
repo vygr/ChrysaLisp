@@ -112,17 +112,11 @@ kernel_table:
 	dq	tk_resume_task
 	dq	tk_deshedule_task
 	dq	ld_load_function
-	dq	write_char
-	dq	write_string
-	dq	write_number
-	dq	string_compare
-	dq	string_length
 
 %include "heap.nasm"
 %include "mail.nasm"
 %include "task.nasm"
 %include "load.nasm"
-%include "util.nasm"
 
 ;;;;;;;;;;;
 ; test data

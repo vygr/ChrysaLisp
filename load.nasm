@@ -10,8 +10,23 @@
 	SECTION .text
 
 	LD_BLOCK_SIZE	equ 16384
+	LD_PAGE_SIZE	equ 4096
 
 ld_init_loader:
+	vp_lea [rel ld_prebound], r0
+	vp_and -LD_PAGE_SIZE, r0
+	vp_lea [rel ld_prebounde], r1
+	vp_sub r0, r1
+	sys_mprotect r0, r1, PROT_READ|PROT_WRITE|PROT_EXEC
+	vp_lea [rel ld_prebound], r1
+	loopstart
+		vp_cpy [r1], r0
+		breakif r0, ==, 0
+		vp_cpy [rel ld_function_list], r0
+		vp_cpy r0, [r1]
+		vp_cpy r1, [rel ld_function_list]
+		vp_add [r1 + FN_HEADER_LENGTH], r1
+	loopend
 	vp_ret
 
 ld_deinit_loader:
@@ -44,7 +59,7 @@ ld_load_function:
 		vp_cpy r7, r0
 		vp_cpy r6, r1
 		vp_add [r6 + FN_HEADER_ENTRY], r1
-		vp_call string_compare
+		vp_call ld_string_compare + 0x38
 		if r0, !=, 0
 			vp_cpy r6, r5
 			vp_add [r6 + FN_HEADER_ENTRY], r5
@@ -123,7 +138,7 @@ ld_load_function:
 		vp_pop r3
 		vp_pop r0
 		vp_cpy r1, [r0 - 8]
-		vp_call string_length
+		vp_call ld_string_length + 0x38
 		vp_add r1, r0
 		vp_add 7, r0
 		vp_and -8, r0
@@ -150,3 +165,12 @@ ld_block_end:
 	dq	0
 ld_stat_buffer:
 	times STAT_SIZE db 0
+
+	align 8, db 0
+ld_prebound:
+ld_string_compare:
+	incbin	'sys/string_compare'
+ld_string_length:
+	incbin	'sys/string_length'
+ld_prebounde:
+	dq 0
