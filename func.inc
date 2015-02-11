@@ -22,6 +22,14 @@
 		vp_call [r14 + (%1 *8)]
 	%endmacro
 
+	%macro kn_jmp 1
+		;inputs
+		;r15 = task control node
+		
+		vp_cpy [r15 + TK_NODE_KERNEL], r14
+		vp_jmp [r14 + (%1 *8)]
+	%endmacro
+
 ;;;;;;;;;;;;;;;;;
 ; func structures
 ;;;;;;;;;;;;;;;;;
@@ -58,6 +66,28 @@
 			%defstr __func_str%[%%__f] %1
 		%endif
 		vp_call [rel __func%[%%__f]]
+	%endmacro
+
+	%macro fn_jmp 1
+		;inputs
+		;%1 = function path name
+
+		%assign %%__f -1
+		%assign %%__i 0
+		%rep __ftotal
+			%deftok %%__path __func_str%[%%__i]
+			%ifidn %%__path, %1
+				%assign %%__f %%__i
+				%exitrep
+			%endif
+			%assign %%__i %%__i+1
+		%endrep
+		%if %%__f = -1
+			%assign %%__f __ftotal
+			%assign __ftotal __ftotal+1
+			%defstr __func_str%[%%__f] %1
+		%endif
+		vp_jmp [rel __func%[%%__f]]
 	%endmacro
 
 	%macro fn_function 1

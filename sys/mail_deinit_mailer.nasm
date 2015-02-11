@@ -4,7 +4,6 @@
 
 		;deinit mail message heap
 		fn_call sys/mail_mailheap
-		fn_call sys/heap_deinit
-		vp_ret
+		fn_jmp sys/heap_deinit
 
 	fn_function_end

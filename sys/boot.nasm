@@ -13,7 +13,7 @@
 		kn_call KERNEL_TASK_START
 
 		;stop this task
-		kn_call KERNEL_TASK_STOP
+		kn_jmp KERNEL_TASK_STOP
 
 	task_one:
 		db 'tests/test1', 0
