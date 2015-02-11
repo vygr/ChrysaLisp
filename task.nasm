@@ -1,4 +1,5 @@
 %include "task.inc"
+%include "heap.inc"
 
 ;;;;;;;;;;;
 ; task code

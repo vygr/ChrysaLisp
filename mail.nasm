@@ -1,4 +1,5 @@
 %include "mail.inc"
+%include "heap.inc"
 
 ;;;;;;;;;;;
 ; mail code

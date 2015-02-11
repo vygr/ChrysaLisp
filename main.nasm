@@ -7,7 +7,6 @@
 %include "vp.inc"
 %include "code.inc"
 %include "list.inc"
-%include "heap.inc"
 %include "mail.inc"
 %include "task.inc"
 %include "syscall.inc"

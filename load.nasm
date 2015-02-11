@@ -13,11 +13,14 @@
 	LD_PAGE_SIZE	equ 4096
 
 ld_init_loader:
+	;set prebound functions as executable
 	vp_lea [rel ld_prebound], r0
 	vp_and -LD_PAGE_SIZE, r0
 	vp_lea [rel ld_prebounde], r1
 	vp_sub r0, r1
 	sys_mprotect r0, r1, PROT_READ|PROT_WRITE|PROT_EXEC
+
+	;add all to function list
 	vp_lea [rel ld_prebound], r1
 	loopstart
 		vp_cpy [r1], r0
@@ -26,6 +29,31 @@ ld_init_loader:
 		vp_cpy r0, [r1]
 		vp_cpy r1, [rel ld_function_list]
 		vp_add [r1 + FN_HEADER_LENGTH], r1
+	loopend
+
+	;bind all function intra references
+	vp_lea [rel ld_function_list], r3
+	loopstart
+		vp_cpy [r3], r3
+		breakif r3, ==, 0
+		vp_cpy r3, r0
+		vp_add [r3 + FN_HEADER_LINKS], r0
+		loopstart
+			vp_cpy [r0], r1
+			breakif r1, ==, 0
+			vp_lea [r0 + 8], r0
+			vp_push r0
+			vp_push r3
+			vp_call ld_load_function
+			vp_cpy r0, r1
+			vp_pop r3
+			vp_pop r0
+			vp_cpy r1, [r0 - 8]
+			vp_call ld_string_length + 0x38
+			vp_add r1, r0
+			vp_add 8, r0	;7 plus string nul !
+			vp_and -8, r0
+		loopend
 	loopend
 	vp_ret
 
