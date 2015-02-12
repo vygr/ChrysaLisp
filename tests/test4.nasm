@@ -38,6 +38,40 @@
 		fn_call sys/heap_deinit
 		vp_add HP_HEAP_SIZE, r4
 
+		;deshedule
+		fn_call sys/task_deshedule
+
+		for r10, 0, 10, 1
+			;allocate 1MB general ram
+			vp_cpy 0x100000, r0
+			fn_call sys/mem_alloc
+			vp_cpy r0, r8
+			vp_cpy r1, r9
+
+			;print address and length
+			vp_cpy 1, r1
+			fn_call sys/write_number
+			vp_cpy ':', r0
+			fn_call sys/write_char
+			vp_cpy r9, r0
+			fn_call sys/write_number
+			vp_cpy 10, r0
+			fn_call sys/write_char
+
+			;write to all locations
+			vp_lea [r8 + r9], r12
+			for r11, r8, r12, 8
+				vp_cpy r8, [r11]
+			next
+
+			;free general ram
+			vp_cpy r8, r0
+			fn_call sys/mem_free
+		next
+		vp_cpy 1, r1
+		vp_cpy 10, r0
+		fn_call sys/write_char
+
 		;stop this task
 		fn_jmp sys/task_stop
 

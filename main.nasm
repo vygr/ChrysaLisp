@@ -35,6 +35,9 @@ _main:
 	;init mailer
 	vp_call ld_mail_init_mailer + 0x38
 
+	;init allocator
+	vp_call ld_mem_init_allocator + 0x38
+
 	;start kernel task and patch mailbox
 	vp_call ld_task_start + 0x30
 	vp_cpy r1, r15
@@ -145,6 +148,9 @@ ld_task_deshedule:
 	incbin	'sys/task_deshedule'
 ld_task_start:
 	incbin	'sys/task_start'
+
+ld_mem_init_allocator:
+	incbin	'sys/mem_init_allocator'
 
 ld_prebounde:
 	dq 0

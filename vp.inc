@@ -87,4 +87,8 @@
 		xor %2, %1
 	%endmacro
 
+	%macro vp_shr 2
+		shr %2, %1
+	%endmacro
+
 %endif

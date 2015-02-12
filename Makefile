@@ -6,14 +6,11 @@ main:	main.o
 main.o:	main.nasm vp.inc code.inc list.inc mail.inc task.inc heap.inc \
 		load.inc syscall.inc sys/load_init_loader \
 		sys/load_function_load sys/load_get_statics \
-		sys/load_deinit_loader sys/string_compare sys/string_length \
-		sys/heap_init sys/heap_deinit sys/heap_alloccell \
-		sys/mail_get_statics sys/mail_init_mailer \
-		sys/mail_deinit_mailer sys/mail_alloc sys/mail_free \
-		sys/mail_send sys/mail_read sys/task_get_statics \
-		sys/task_init_tasker sys/task_deinit_tasker sys/task_start \
-		sys/task_stop sys/task_suspend sys/task_resume \
-		sys/task_deshedule sys/task_restore
+		sys/load_deinit_loader sys/mail_init_mailer \
+		sys/mail_deinit_mailer sys/mail_send sys/mail_read \
+		sys/task_get_statics sys/task_init_tasker \
+		sys/task_deinit_tasker sys/task_deshedule sys/task_start \
+		sys/mem_init_allocator
 		nasm -f macho64 main.nasm
 
 sys:	$(patsubst %.nasm, %, $(wildcard sys/*.nasm))
@@ -47,6 +44,11 @@ clean:
 	sys/mail_init_mailer \
 	sys/mail_read \
 	sys/mail_send \
+	sys/mem_alloc \
+	sys/mem_deinit_allocator \
+	sys/mem_free \
+	sys/mem_get_statics \
+	sys/mem_init_allocator \
 	sys/read_line \
 	sys/string_compare \
 	sys/string_length \

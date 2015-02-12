@@ -20,6 +20,11 @@ sys/mail_get_statics
 sys/mail_init_mailer
 sys/mail_read
 sys/mail_send
+sys/mem_alloc
+sys/mem_deinit_allocator
+sys/mem_free
+sys/mem_get_statics
+sys/mem_init_allocator
 sys/read_line
 sys/string_compare
 sys/string_length
