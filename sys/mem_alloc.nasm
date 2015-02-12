@@ -10,12 +10,13 @@
 		;trashes
 		;r2-r3, r5
 
-		if r0, >, 0x800000
+		if r0, >, 0x800000 - 8
 			;error
 			vp_xor r0, r0
 			vp_xor r1, r1
 			vp_ret
 		endif
+		vp_add 8, r0		;extra 8 bytes for heap pointer
 		vp_add 0x400-1, r0
 		vp_and -0x400, r0	;at least 1KB bytes !
 
@@ -45,7 +46,7 @@
 		fn_call sys/mem_get_statics
 
 		;point to object heap
-		vp_sub HP_HEAP_SIZE*9, r0
+		vp_sub HP_HEAP_SIZE*10, r0
 		vp_cpy r1, r5
 		repeat
 			vp_add HP_HEAP_SIZE, r0
@@ -56,7 +57,7 @@
 		fn_call sys/heap_alloccell
 		vp_cpy r0, [r1]
 		vp_lea [r1 + 8], r0
-		vp_cpy r5, r1
+		vp_lea [r5 - 8], r1
 		vp_ret
 
 	fn_function_end

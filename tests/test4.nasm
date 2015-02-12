@@ -42,8 +42,8 @@
 		fn_call sys/task_deshedule
 
 		for r10, 0, 10, 1
-			;allocate 1MB general ram
-			vp_cpy 0x100000, r0
+			;allocate 8MB - 8 general ram
+			vp_cpy 0x800000 - 8, r0
 			fn_call sys/mem_alloc
 			vp_cpy r0, r8
 			vp_cpy r1, r9

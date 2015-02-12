@@ -93,6 +93,9 @@ _main:
 		lh_get_tail r0, r0
 	until r1, ==, r0
 
+	;deinit allocator
+	vp_call ld_mem_deinit_allocator + 0x38
+
 	;deinit mailer
 	vp_call ld_mail_deinit_mailer + 0x38
 
@@ -151,6 +154,8 @@ ld_task_start:
 
 ld_mem_init_allocator:
 	incbin	'sys/mem_init_allocator'
+ld_mem_deinit_allocator:
+	incbin	'sys/mem_deinit_allocator'
 
 ld_prebounde:
 	dq 0
