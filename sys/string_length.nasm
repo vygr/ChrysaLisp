@@ -14,7 +14,7 @@
 			vp_cpy byte[r1], r2l
 			vp_and 0xff, r2
 			breakif r2, ==, 0
-			vp_add 1, r1
+			vp_inc r1
 		loopend
 		vp_sub r0, r1
 		vp_ret

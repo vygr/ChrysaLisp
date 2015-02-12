@@ -121,37 +121,18 @@ boot_task:
 	align 8, db 0
 ld_prebound:
 
-ld_load_init_loader:				;must be first function !
-	incbin	'sys/load_init_loader'
-ld_load_function_load:				;must be second function
-	incbin	'sys/load_function_load'
-ld_load_get_statics:				;must be third function !
-	incbin	'sys/load_get_statics'
+ld_load_init_loader:
+	incbin	'sys/load_init_loader'		;must be first function !
+ld_load_function_load:
+	incbin	'sys/load_function_load'	;must be second function !
+	incbin	'sys/load_get_statics'		;must be third function !
 ld_load_deinit_loader:
 	incbin	'sys/load_deinit_loader'
 
-ld_string_compare:
-	incbin	'sys/string_compare'
-ld_string_length:
-	incbin	'sys/string_length'
-
-ld_heap_init:
-	incbin	'sys/heap_init'
-ld_heap_deinit:
-	incbin	'sys/heap_deinit'
-ld_heap_alloccell:
-	incbin	'sys/heap_alloccell'
-
-ld_mail_get_statics:
-	incbin	'sys/mail_get_statics'
 ld_mail_init_mailer:
 	incbin	'sys/mail_init_mailer'
 ld_mail_deinit_mailer:
 	incbin	'sys/mail_deinit_mailer'
-ld_mail_alloc:
-	incbin	'sys/mail_alloc'
-ld_mail_free:
-	incbin	'sys/mail_free'
 ld_mail_send:
 	incbin	'sys/mail_send'
 ld_mail_read:
@@ -163,18 +144,10 @@ ld_task_init_tasker:
 	incbin	'sys/task_init_tasker'
 ld_task_deinit_tasker:
 	incbin	'sys/task_deinit_tasker'
-ld_task_start:
-	incbin	'sys/task_start'
-ld_task_stop:
-	incbin	'sys/task_stop'
-ld_task_suspend:
-	incbin	'sys/task_suspend'
-ld_task_resume:
-	incbin	'sys/task_resume'
 ld_task_deshedule:
 	incbin	'sys/task_deshedule'
-ld_task_restore:
-	incbin	'sys/task_restore'
+ld_task_start:
+	incbin	'sys/task_start'
 
 ld_prebounde:
 	dq 0

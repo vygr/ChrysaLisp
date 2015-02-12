@@ -132,8 +132,8 @@
 				vp_cpy 1, r0
 				vp_ret
 			endif
-			vp_add 1, r0
-			vp_add 1, r1
+			vp_inc r0
+			vp_inc r1
 		loopend
 		vp_xor r0, r0
 		vp_ret
