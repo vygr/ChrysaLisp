@@ -10,7 +10,6 @@
 %include "mail.inc"
 %include "task.inc"
 %include "load.inc"
-%include "syscall.inc"
 
 ;;;;;;;;;;;;;
 ; entry point
@@ -36,10 +35,10 @@ _main:
 	;init mailer
 	vp_call ld_mail_init_mailer + 0x38
 
-	;start kernel task and save mailbox for others
+	;start kernel task and patch mailbox
 	vp_call ld_task_start + 0x30
 	vp_cpy r1, r15
-	vp_cpy r0, [rel ml_kernel_mailbox]
+	vp_cpy r0, [rel ld_mail_send + 0x70]
 
 	;load and run boot task
 	vp_cpy boot_task, r0
@@ -109,8 +108,6 @@ _main:
 
 	SECTION	.data
 
-ml_kernel_mailbox:
-	dq	0
 boot_task:
 	db	"sys/boot", 0
 
