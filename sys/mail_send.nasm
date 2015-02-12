@@ -5,12 +5,12 @@
 		;inputs
 		;r0 = mail message
 		;trashes
-		;r0-r2, r14
+		;r0-r2
 
 		vp_cpy [r0 + ML_MSG_DEST], r1
 		if r1, ==, 0
 			;mail for kernel !
-			vp_cpy [rel kernel_mailbox], r1	;filled in by bootstrap
+			vp_cpy [rel kernel_mailbox], r1
 		endif
 		lh_add_at_head r1, r0, r2
 		vp_cpy [r1 + ML_MAILBOX_TCB], r0
@@ -22,6 +22,6 @@
 
 		align 8, db 0
 	kernel_mailbox:
-		dq	-1
+		dq	-1	;filled in by bootstrap
 
 	fn_function_end

@@ -8,7 +8,7 @@
 		;r0 = mailbox address
 		;r1 = mail address
 		;trashes
-		;r0-r2, r14
+		;r0-r2
 
 		lh_is_empty r0, r1
 		if r1, ==, 0
