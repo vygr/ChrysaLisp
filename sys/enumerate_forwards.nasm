@@ -1,4 +1,5 @@
 %include "func.inc"
+%include "list.inc"
 
 	fn_function "sys/enumerate_forwards"
 		;inputs

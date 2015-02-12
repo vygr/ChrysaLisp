@@ -1,4 +1,5 @@
 %include "func.inc"
+%include "mail.inc"
 
 	fn_function "sys/mail_read"
 		;inputs
@@ -12,7 +13,7 @@
 		lh_is_empty r0, r1
 		if r1, ==, 0
 			vp_cpy r15, [r0 + ML_MAILBOX_TCB]
-			kn_call KERNEL_TASK_SUSPEND
+			fn_call sys/task_suspend
 		endif
 		lh_remove_tail r0, r1, r2
 		vp_ret

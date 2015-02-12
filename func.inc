@@ -1,34 +1,9 @@
 %ifndef FUNC_1234
     %define FUNC_1234
 
-%include "task.inc"
-
-;;;;;;;;;;;;;;
-; kernel calls
-;;;;;;;;;;;;;;
-
-	KERNEL_TASK_START		equ 0
-	KERNEL_TASK_STOP		equ 1
-	KERNEL_TASK_SUSPEND		equ 2
-	KERNEL_TASK_RESUME		equ 3
-	KERNEL_TASK_DESHEDULE	equ 4
-	KERNEL_FUNCTION_LOAD	equ 5
-
-	%macro kn_call 1
-		;inputs
-		;r15 = task control node
-		
-		vp_cpy [r15 + TK_NODE_KERNEL], r14
-		vp_call [r14 + (%1 *8)]
-	%endmacro
-
-	%macro kn_jmp 1
-		;inputs
-		;r15 = task control node
-		
-		vp_cpy [r15 + TK_NODE_KERNEL], r14
-		vp_jmp [r14 + (%1 *8)]
-	%endmacro
+%include 'vp.inc'
+%include 'code.inc'
+%include 'syscall.inc'
 
 ;;;;;;;;;;;;;;;;;
 ; func structures

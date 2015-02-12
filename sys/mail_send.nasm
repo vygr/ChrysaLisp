@@ -1,4 +1,5 @@
 %include "func.inc"
+%include "mail.inc"
 
 	fn_function "sys/mail_send"
 		;inputs
@@ -15,7 +16,7 @@
 		vp_cpy [r1 + ML_MAILBOX_TCB], r0
 		if r0, !=, 0
 			vp_cpy 0, long[r1 + ML_MAILBOX_TCB]
-			kn_call KERNEL_TASK_RESUME
+			fn_call sys/task_resume
 		endif
 		vp_ret
 

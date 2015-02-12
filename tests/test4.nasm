@@ -39,6 +39,6 @@
 		vp_add HP_HEAP_SIZE, r4
 
 		;stop this task
-		kn_call KERNEL_TASK_STOP
+		fn_jmp sys/task_stop
 
 	fn_function_end

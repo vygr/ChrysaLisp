@@ -1,4 +1,5 @@
 %include "func.inc"
+%include "task.inc"
 
 ;;;;;;;;;;;
 ; test code
@@ -7,8 +8,8 @@
 	fn_function "tests/test3"
 		;task started by test1
 
-		;read and free 1000000 messages
-		for r8, 0, 1000000, 1
+		;read and free 1000 messages
+		for r8, 0, 1000, 1
 			vp_lea [r15 + TK_NODE_MAILBOX], r0
 			fn_call sys/mail_read
 			fn_call sys/mail_free
@@ -29,10 +30,10 @@
 				fn_call sys/write_char
 			next
 			fn_call sys/write_char
-			kn_call KERNEL_TASK_DESHEDULE
+			fn_call sys/task_deshedule
 		next
 
 		;stop this task
-		kn_call KERNEL_TASK_STOP
+		fn_jmp sys/task_stop
 
 	fn_function_end

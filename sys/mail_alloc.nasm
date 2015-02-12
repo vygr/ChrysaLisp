@@ -6,7 +6,7 @@
 		;trashes
 		;r1-r3
 
-		fn_call sys/mail_mailheap
+		fn_call sys/mail_get_statics
 		fn_call sys/heap_alloccell
 		vp_cpy r1, r0
 		vp_ret

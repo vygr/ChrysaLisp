@@ -1,5 +1,4 @@
 %include "func.inc"
-%include "syscall.inc"
 
 	fn_function "sys/string_compare"
 		;inputs
