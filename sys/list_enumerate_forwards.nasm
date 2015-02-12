@@ -1,7 +1,7 @@
 %include "func.inc"
 %include "list.inc"
 
-	fn_function "sys/enumerate_forwards"
+	fn_function "sys/list_enumerate_forwards"
 		;inputs
 		;r0 = list head
 		;r1 = user callback

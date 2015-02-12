@@ -1,7 +1,7 @@
 %include "func.inc"
 %include "list.inc"
 
-	fn_function "sys/get_index_of_node"
+	fn_function "sys/list_get_index_of_node"
 		;inputs
 		;r0 = list head
 		;r1 = list node
