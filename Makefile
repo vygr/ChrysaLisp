@@ -10,7 +10,7 @@ main.o:	main.nasm vp.inc code.inc list.inc mail.inc task.inc heap.inc \
 		sys/mail_deinit_mailer sys/mail_send sys/mail_read \
 		sys/task_get_statics sys/task_init_tasker \
 		sys/task_deinit_tasker sys/task_deshedule sys/task_start \
-		sys/mem_init_allocator
+		sys/mem_init_allocator sys/mem_deinit_allocator
 		nasm -f macho64 main.nasm
 
 sys:	$(patsubst %.nasm, %, $(wildcard sys/*.nasm))
