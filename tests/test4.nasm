@@ -10,7 +10,7 @@
 
 		;sleep for 5 seconds
 		vp_cpy 5000000, r0
-		fn_call sys/task_sleep
+;		fn_call sys/task_sleep
 
 		;init heap instance from stack
 		;16 byte objects from 16 objects per block
