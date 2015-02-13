@@ -17,6 +17,8 @@
 		lh_init r0, r1
 		vp_lea [r3 + TK_STATICS_TASK_SUSPEND_LIST], r0
 		lh_init r0, r1
+		vp_lea [r3 + TK_STATICS_TASK_TIMER_LIST], r0
+		lh_init r0, r1
 		vp_ret
 
 	fn_function_end

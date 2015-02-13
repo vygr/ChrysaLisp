@@ -53,6 +53,7 @@ clean:
 	sys/string_compare \
 	sys/string_length \
 	sys/task_deinit_tasker \
+	sys/task_sleep \
 	sys/task_deshedule \
 	sys/task_get_statics \
 	sys/task_init_tasker \

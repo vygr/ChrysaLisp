@@ -8,6 +8,10 @@
 	fn_function "tests/test4"
 		;task started by test1
 
+		;sleep for 5 seconds
+;		vp_cpy 5000000, r0
+;		fn_call sys/task_sleep
+
 		;init heap instance from stack
 		;16 byte objects from 16 objects per block
 		vp_sub HP_HEAP_SIZE, r4

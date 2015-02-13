@@ -7,15 +7,16 @@
 ; syscall numbers
 ;;;;;;;;;;;;;;;;;
 
-	SYS_EXIT		equ 0x2000001	;void exit(int rval)
-	SYS_READ		equ 0x2000003	;user_ssize_t read(int fd, user_addr_t cbuf, user_size_t nbyte)
-	SYS_WRITE		equ 0x2000004	;user_ssize_t write(int fd, user_addr_t cbuf, user_size_t nbyte)
-	SYS_OPEN		equ 0x2000005	;int open(user_addr_t path, int flags, int mode)
-	SYS_CLOSE		equ 0x2000006	;int close(int fd)
-	SYS_MUNMAP		equ 0x2000049	;int munmap(caddr_t addr, size_t len)
-	SYS_MPROTECT	equ 0x200004a	;int mprotect(caddr_t addr, size_t len, int prot)
-	SYS_MMAP		equ 0x20000c5	;user_addr_t mmap(caddr_t addr, size_t len, int prot, int flags, int fd, off_t pos)
-	SYS_STAT		equ 0x20000bc	;int stat(user_addr_t path, user_addr_t ub)
+	SYS_EXIT			equ 0x2000001	;void exit(int rval)
+	SYS_READ			equ 0x2000003	;user_ssize_t read(int fd, user_addr_t cbuf, user_size_t nbyte)
+	SYS_WRITE			equ 0x2000004	;user_ssize_t write(int fd, user_addr_t cbuf, user_size_t nbyte)
+	SYS_OPEN			equ 0x2000005	;int open(user_addr_t path, int flags, int mode)
+	SYS_CLOSE			equ 0x2000006	;int close(int fd)
+	SYS_MUNMAP			equ 0x2000049	;int munmap(caddr_t addr, size_t len)
+	SYS_MPROTECT		equ 0x200004a	;int mprotect(caddr_t addr, size_t len, int prot)
+	SYS_GETTIMEOFDAY	equ 0x2000074	;int gettimeofday(struct timeval *tp, struct timezone *tzp)
+	SYS_MMAP			equ 0x20000c5	;user_addr_t mmap(caddr_t addr, size_t len, int prot, int flags, int fd, off_t pos)
+	SYS_STAT			equ 0x20000bc	;int stat(user_addr_t path, user_addr_t ub)
 
 	PROT_NONE	equ 0x0
 	PROT_READ	equ 0x1
@@ -59,25 +60,37 @@
 	S_ISVTX		equ 0x0001000		;save swapped text even after use
 
 	struc STAT
-		STAT_DEV:			resq 1	;ID of device containing file
-		STAT_MODE:			resq 1	;Mode of file
-		STAT_NLINK:			resq 1	;Number of hard links
-		STAT_INO:			resd 1	;File serial number
-		STAT_UID:			resd 1	;User ID of the file
-		STAT_GID:			resd 1	;Group ID of the file
-		STAT_RDEV:			resd 1	;Device ID
-		STAT_ATIMESPEC:		resq 1	;time of last access
-		STAT_MTIMESPEC:		resq 1	;time of last data modification
-		STAT_CTIMESPEC:		resq 1	;time of last status change
-		STAT_BIRTHTIMESPEC:	resq 1	;time of file creation(birth)
-		STAT_FSIZE:			resq 1	;file size, in bytes
-		STAT_BLOCKS:		resq 1	;blocks allocated for file
-		STAT_BLKSIZE:		resq 1	;optimal blocksize for I/O
-		STAT_FLAGS:			resq 1	;user defined flags for file
-		STAT_GEN:			resq 1	;file generation number
-		STAT_LSPARE:		resq 1	;reserved
-		STAT_QSPARE:		resq 1	;reserved
+		STAT_DEV:				resq 1	;ID of device containing file
+		STAT_MODE:				resq 1	;Mode of file
+		STAT_NLINK:				resq 1	;Number of hard links
+		STAT_INO:				resd 1	;File serial number
+		STAT_UID:				resd 1	;User ID of the file
+		STAT_GID:				resd 1	;Group ID of the file
+		STAT_RDEV:				resd 1	;Device ID
+		STAT_ATIMESPEC:			resq 1	;time of last access
+		STAT_MTIMESPEC:			resq 1	;time of last data modification
+		STAT_CTIMESPEC:			resq 1	;time of last status change
+		STAT_BIRTHTIMESPEC:		resq 1	;time of file creation(birth)
+		STAT_FSIZE:				resq 1	;file size, in bytes
+		STAT_BLOCKS:			resq 1	;blocks allocated for file
+		STAT_BLKSIZE:			resq 1	;optimal blocksize for I/O
+		STAT_FLAGS:				resq 1	;user defined flags for file
+		STAT_GEN:				resq 1	;file generation number
+		STAT_LSPARE:			resq 1	;reserved
+		STAT_QSPARE:			resq 1	;reserved
 		STAT_SIZE:
+	endstruc
+
+	struc TIMEVAL
+		TIMEVAL_SEC:			resq 1
+		TIMEVAL_USEC:			resq 1
+		TIMEVAL_SIZE:
+	endstruc
+
+	struc TIMEZONE
+		TIMEVAL_MINUTESWEST:	resd 1
+		TIMEVAL_DSTTIME:		resd 1
+		TIMEZONE_SIZE:
 	endstruc
 
 ;;;;;;;;;;;;;;;;
@@ -228,6 +241,16 @@
 		push_trashed
 		vp_cpy %1, r7		;fd
 		vp_cpy SYS_CLOSE, r0
+		vp_syscall
+		pop_trashed
+	%endmacro
+
+	%macro sys_gettimeofday 2
+		;time, timezone
+		push_trashed
+		vp_cpy %1, r7		;time struct
+		vp_cpy %2, r6		;timezone struct
+		vp_cpy SYS_GETTIMEOFDAY, r0
 		vp_syscall
 		pop_trashed
 	%endmacro

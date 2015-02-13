@@ -37,6 +37,7 @@ sys/task_resume
 sys/task_start
 sys/task_stop
 sys/task_suspend
+sys/task_sleep
 sys/write_char
 sys/write_number
 sys/write_string

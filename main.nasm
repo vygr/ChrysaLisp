@@ -10,6 +10,7 @@
 %include "mail.inc"
 %include "task.inc"
 %include "load.inc"
+%include "syscall.inc"
 
 ;;;;;;;;;;;;;
 ; entry point
@@ -82,9 +83,43 @@ _main:
 			vp_call ld_mail_send + 0x30
 		loopend
 
-		;check if no other tasks
+		;check if any timer delayed tasks
 		vp_call ld_task_get_statics + 0x38
 		vp_cpy r0, r2
+		vp_lea [r2 + TK_STATICS_TASK_TIMER_LIST], r0
+		lh_is_empty r0, r0
+		if r0, !=, 0
+			;get time and start any tasks ready
+			vp_sub TIMEVAL_SIZE, r4
+			vp_xor r0, r0
+			vp_cpy r0, [r4 + TIMEVAL_SEC]
+			vp_cpy r0, [r4 + TIMEVAL_USEC]
+			vp_cpy r4, r0
+			sys_gettimeofday r0, 0
+			vp_cpy [r4 + TIMEVAL_SEC], r3
+			vp_mul 1000000, r3
+			vp_add [r4 + TIMEVAL_USEC], r3
+			vp_add TIMEVAL_SIZE, r4
+			vp_cpy [r2 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
+			loopstart
+				vp_cpy r0, r1
+				ln_get_succ r0, r0
+				breakif r0, ==, 0
+				vp_cpy [r1 + TK_NODE_TIME], r5
+				if r5, <=, r3
+					;task ready, remove from timer list and place on ready list
+					vp_cpy r1, r5
+					ln_remove_node r5, r6
+					vp_lea [r2 + TK_STATICS_TASK_LIST], r5
+					lh_add_at_head r5, r1, r6
+				endif
+			loopend
+		endif
+
+		;check if no other tasks available
+		vp_lea [r2 + TK_STATICS_TASK_TIMER_LIST], r0
+		lh_is_empty r0, r0
+		continueif r0, !=, 0
 		vp_lea [r2 + TK_STATICS_TASK_SUSPEND_LIST], r0
 		lh_is_empty r0, r0
 		continueif r0, !=, 0
@@ -116,6 +151,7 @@ _main:
 
 boot_task:
 	db	"sys/boot", 0
+	align 8, db 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; prebound function data
