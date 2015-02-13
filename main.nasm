@@ -89,7 +89,7 @@ _main:
 		vp_lea [r2 + TK_STATICS_TASK_TIMER_LIST], r0
 		lh_is_empty r0, r0
 		if r0, !=, 0
-			;get time and start any tasks ready
+			;get time
 			vp_sub TIMEVAL_SIZE, r4
 			vp_xor r0, r0
 			vp_cpy r0, [r4 + TIMEVAL_SEC]
@@ -100,6 +100,8 @@ _main:
 			vp_mul 1000000, r3
 			vp_add [r4 + TIMEVAL_USEC], r3
 			vp_add TIMEVAL_SIZE, r4
+
+			;start any tasks ready
 			vp_cpy [r2 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
 			loopstart
 				vp_cpy r0, r1
