@@ -8,17 +8,15 @@
 		;trashes
 		;r0-r2
 
+		;save timeout
+		vp_cpy r0, r1
+
 		;calculate wake time
 		vp_sub TIMEVAL_SIZE, r4
-		vp_cpy r0, r1
-		vp_xor r0, r0
-		vp_cpy r0, [r4 + TIMEVAL_SEC]
-		vp_cpy r0, [r4 + TIMEVAL_USEC]
 		vp_cpy r4, r0
 		sys_gettimeofday r0, 0
-		vp_cpy [r4 + TIMEVAL_SEC], r2
-		vp_mul 1000000, r2
-		vp_add [r4 + TIMEVAL_USEC], r2
+		vp_mul 1000000, r0
+		vp_add r0, r2
 		vp_add r1, r2
 		vp_cpy r2, [r15 + TK_NODE_TIME]
 		vp_add TIMEVAL_SIZE, r4
