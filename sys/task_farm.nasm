@@ -9,7 +9,7 @@
 		;outputs
 		;r0, r1 = new task mailbox ID
 		;trashes
-		;r2-r3, r5-r
+		;r2-r3, r5-r9
 
 		;save task info
 		vp_cpy r0, r6

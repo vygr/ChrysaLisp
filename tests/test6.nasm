@@ -22,6 +22,6 @@
 		fn_jmp sys/task_stop
 
 	hello:
-		db "Hello for farm worker !", 10, 0
+		db "Hello from farm worker !", 10, 0
 
 	fn_function_end
