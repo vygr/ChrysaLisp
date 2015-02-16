@@ -9,17 +9,17 @@
 		;task started by test1
 
 		;read and free 1000 messages
-		for r8, 0, 1000, 1
+		for r14, 0, 1000, 1
 			vp_lea [r15 + TK_NODE_MAILBOX], r0
 			fn_call sys/mail_read
 			fn_call sys/mail_free
 		next
 
-		for r10, 0, 10, 1
-			for r9, 0, 10, 1
-				for r8, 0, 10, 1
-					vp_cpy r8, r0
-					vp_add r9,r0
+		for r14, 0, 10, 1
+			for r13, 0, 10, 1
+				for r12, 0, 10, 1
+					vp_cpy r12, r0
+					vp_add r13,r0
 					vp_add 'a', r0
 					vp_cpy 1, r1
 					fn_call sys/write_char

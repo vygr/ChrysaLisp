@@ -5,6 +5,45 @@
 %include 'code.inc'
 %include 'syscall.inc'
 
+;;;;;;;;;;;;;;;;;;;;;;
+; kernel mail funcions
+;;;;;;;;;;;;;;;;;;;;;;
+
+	struc KN_CALL
+		KN_CALL_TASK_OPEN:			resb 1
+		KN_CALL_TASK_CHILD:			resb 1
+	endstruc
+
+;;;;;;;;;;;;;;;;;;
+; kernel mail data
+;;;;;;;;;;;;;;;;;;
+
+	struc KN_DATA
+		KN_DATA_KERNEL_REPLY:		resq 2
+		KN_DATA_KERNEL_FUNCTION:	resq 1
+		KN_DATA_KERNEL_SIZE:
+	endstruc
+
+	struc KN_DATA_TASK_OPEN
+		KN_DATA_TASK_OPEN_HEADER:	resb KN_DATA_KERNEL_SIZE
+		KN_DATA_TASK_OPEN_PATHNAME:
+	endstruc
+
+	struc KN_DATA_TASK_OPEN_REPLY
+		KN_DATA_TASK_OPEN_REPLY_MAILBOXID:	resq 2
+		KN_DATA_TASK_OPEN_REPLY_SIZE:
+	endstruc
+
+	struc KN_DATA_TASK_CHILD
+		KN_DATA_TASK_CHILD_HEADER:	resb KN_DATA_KERNEL_SIZE
+		KN_DATA_TASK_CHILD_PATHNAME:
+	endstruc
+
+	struc KN_DATA_TASK_CHILD_REPLY
+		KN_DATA_TASK_CHILD_REPLY_MAILBOXID:	resq 2
+		KN_DATA_TASK_CHILD_REPLY_SIZE:
+	endstruc
+
 ;;;;;;;;;;;;;;;;;
 ; func structures
 ;;;;;;;;;;;;;;;;;

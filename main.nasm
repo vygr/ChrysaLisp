@@ -11,6 +11,7 @@
 %include "task.inc"
 %include "load.inc"
 %include "syscall.inc"
+%include "func.inc"
 
 ;;;;;;;;;;;;;
 ; entry point
@@ -65,21 +66,40 @@ _main:
 			ml_check r0, r1
 			breakif r1, ==, 0
 
-			;handle kernel request and reply
+			;read waiting mail
 			vp_call ld_mail_read + 0x30
-			vp_cpy r1, r0
-			vp_cpy [r0 + (ML_MSG_DATA + ML_DATA_KERNEL_REPLY)], r1
-			vp_cpy [r0 + (ML_MSG_DATA + ML_DATA_KERNEL_REPLY + 8)], r2
-			vp_cpy r1, [r0 + ML_MSG_DEST]
-			vp_cpy r2, [r0 + (ML_MSG_DEST + 8)]
-			vp_cpy [r0 + (ML_MSG_DATA + ML_DATA_KERNEL_FUNC)], r1
+			vp_cpy r1, r14
+
+			;fill in reply ID
+			vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)], r1
+			vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)], r2
+			vp_cpy r1, [r14 + ML_MSG_DEST]
+			vp_cpy r2, [r14 + (ML_MSG_DEST + 8)]
+
+			;switch on kernel call number
+			vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)], r1
 			switch
-			case r1, ==, 0
+			case r1, ==, KN_CALL_TASK_OPEN
+				;open single task and return mailbox ID
+				vp_lea [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_PATHNAME)], r0
+				vp_call ld_load_function_load + 0x38
+				vp_call ld_task_start + 0x30
+				vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID)]
+				vp_cpy 0, long[r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID + 8)]
+				vp_cpy ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_SIZE, long[r14 + ML_MSG_LENGTH]
 				break
-			case r1, ==, 1
+			case r1, ==, KN_CALL_TASK_CHILD
+				;open single task and return mailbox ID
+				vp_lea [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_PATHNAME)], r0
+				vp_call ld_load_function_load + 0x38
+				vp_call ld_task_start + 0x30
+				vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID)]
+				vp_cpy 0, long[r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID + 8)]
+				vp_cpy ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_SIZE, long[r14 + ML_MSG_LENGTH]
 				break
 			default
 			endswitch
+			vp_cpy r14, r0
 			vp_call ld_mail_send + 0x30
 		loopend
 

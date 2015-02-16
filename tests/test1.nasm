@@ -8,23 +8,25 @@
 	fn_function "tests/test1"
 		;task started by test kernel
 
-		;start test4 task
-		vp_lea [rel task_four], r0
-		fn_call sys/load_function_load
-		fn_call sys/task_start
+		;open test5 task, off chip
+		vp_lea [rel task_five], r0
+		fn_call sys/task_child
 
-		;start test3 task
+		;open test4 task, on chip
+		vp_lea [rel task_four], r0
+		fn_call sys/task_open
+
+		;open test3 child task, off chip
 		vp_lea [rel task_three], r0
-		fn_call sys/load_function_load
-		fn_call sys/task_start
+		fn_call sys/task_child
 
 		;send test3 task 1000 messages
-		vp_cpy r0, r5
-		vp_cpy 0, r6
-		for r8, 0, 1000, 1
+		vp_cpy r0, r8
+		vp_cpy r1, r9
+		for r14, 0, 1000, 1
 			fn_call sys/mail_alloc
-			vp_cpy r5, [r0 + ML_MSG_DEST]
-			vp_cpy r6, [r0 + (ML_MSG_DEST + 8)]
+			vp_cpy r8, [r0 + ML_MSG_DEST]
+			vp_cpy r9, [r0 + (ML_MSG_DEST + 8)]
 			fn_call sys/mail_send
 			fn_call sys/task_deshedule
 		next
@@ -39,5 +41,7 @@
 		db 'tests/test3', 0
 	task_four:
 		db 'tests/test4', 0
+	task_five:
+		db 'tests/test5', 0
 
 	fn_function_end

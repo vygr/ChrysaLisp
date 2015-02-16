@@ -17,15 +17,10 @@
 
 	struc ML_MSG
 		ML_MSG_NODE:			resb LN_NODE_SIZE
+		ML_MSG_LENGTH:			resq 1
 		ML_MSG_DEST:			resq 2
 		ML_MSG_DATA:			resb 256
 		ML_MSG_SIZE:
-	endstruc
-
-	struc ML_DATA_KERNEL
-		ML_DATA_KERNEL_REPLY:	resq 2
-		ML_DATA_KERNEL_FUNC:	resq 1
-		ML_DATA_KERNEL_SIZE:
 	endstruc
 
 ;;;;;;;;;;;;;

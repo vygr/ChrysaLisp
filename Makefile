@@ -52,6 +52,7 @@ clean:
 	sys/read_line \
 	sys/string_compare \
 	sys/string_length \
+	sys/string_copy \
 	sys/task_deinit_tasker \
 	sys/task_sleep \
 	sys/task_deshedule \
@@ -62,10 +63,15 @@ clean:
 	sys/task_start \
 	sys/task_stop \
 	sys/task_suspend \
+	sys/task_open \
+	sys/task_child \
+	sys/task_farm \
 	sys/write_char \
 	sys/write_number \
 	sys/write_string \
 	tests/test1 \
 	tests/test2 \
 	tests/test3 \
-	tests/test4
+	tests/test4 \
+	tests/test5 \
+	tests/test6

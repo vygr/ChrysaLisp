@@ -23,7 +23,8 @@
 		lh_add_at_head r0, r1, r2
 
 		;initialise task mailbox
-		vp_lea [r1 + TK_NODE_MAILBOX], r0
+		vp_cpy 0, long[r1 + TK_NODE_MAILBOX + ML_MAILBOX_TCB]
+		vp_lea [r1 + TK_NODE_MAILBOX + ML_MAILBOX_LIST], r0
 		ml_init r0, r2
 
 		;set task control block stack and return address
