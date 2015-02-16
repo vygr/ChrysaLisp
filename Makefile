@@ -69,6 +69,7 @@ clean:
 	sys/write_char \
 	sys/write_number \
 	sys/write_string \
+	sys/math_random \
 	tests/test1 \
 	tests/test2 \
 	tests/test3 \

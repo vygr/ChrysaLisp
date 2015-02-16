@@ -3,6 +3,7 @@
 
 	fn_function "sys/task_restore"
 		;restore next task
+
 		ln_get_succ r15, r0
 		if r0, ==, 0
 			vp_cpy [r15 - LH_LIST_TAIL], r15

@@ -103,23 +103,20 @@ _main:
 			vp_call ld_mail_send + 0x30
 		loopend
 
-		;check if any timer delayed tasks
+		;start any tasks ready to restart
 		vp_call ld_task_get_statics + 0x38
 		vp_cpy r0, r3
-		vp_lea [r3 + TK_STATICS_TASK_TIMER_LIST], r0
+		vp_lea [r0 + TK_STATICS_TASK_TIMER_LIST], r0
 		lh_is_empty r0, r0
 		if r0, !=, 0
 			;get time
 			vp_sub TIMEVAL_SIZE, r4
-			vp_cpy r0, r1
 			vp_cpy r4, r0
 			sys_gettimeofday r0, 0
 			vp_mul 1000000, r0
 			vp_add r0, r2
-			vp_add r1, r2
 			vp_add TIMEVAL_SIZE, r4
 
-			;start any tasks ready
 			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
 			loopstart
 				vp_cpy r0, r1
