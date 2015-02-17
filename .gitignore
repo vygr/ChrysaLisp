@@ -1,10 +1,10 @@
 main
 main.o
 sys/boot
-sys/enumerate_backwards
-sys/enumerate_forwards
-sys/get_index_of_node
-sys/get_node_at_index
+sys/list_enumerate_backwards
+sys/list_enumerate_forwards
+sys/list_get_index_of_node
+sys/list_get_node_at_index
 sys/heap_alloccell
 sys/heap_deinit
 sys/heap_freeheap
