@@ -1,7 +1,7 @@
 %include "func.inc"
 %include "mail.inc"
 
-	fn_function "sys/task_child"
+	fn_function "sys/task_open_child"
 		;inputs
 		;r0 = new task function name
 		;outputs

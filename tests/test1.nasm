@@ -10,7 +10,7 @@
 
 		;open test5 task, off chip
 		vp_lea [rel task_five], r0
-		fn_call sys/task_child
+		fn_call sys/task_open_child
 
 		;open test4 task, on chip
 		vp_lea [rel task_four], r0
@@ -18,7 +18,7 @@
 
 		;open test3 child task, off chip
 		vp_lea [rel task_three], r0
-		fn_call sys/task_child
+		fn_call sys/task_open_child
 
 		;send test3 task 1000 messages
 		vp_cpy r0, r8

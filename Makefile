@@ -64,8 +64,8 @@ clean:
 	sys/task_stop \
 	sys/task_suspend \
 	sys/task_open \
-	sys/task_child \
-	sys/task_farm \
+	sys/task_open_child \
+	sys/task_open_farm \
 	sys/write_char \
 	sys/write_number \
 	sys/write_string \
