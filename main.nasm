@@ -70,7 +70,7 @@ _main:
 			vp_call ld_mail_read + 0x30
 			vp_cpy r1, r14
 
-			;fill in reply ID
+			;fill in reply ID, user field is left alone !
 			vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)], r1
 			vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)], r2
 			vp_cpy r1, [r14 + ML_MSG_DEST]

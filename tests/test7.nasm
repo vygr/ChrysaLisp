@@ -5,24 +5,23 @@
 ; test code
 ;;;;;;;;;;;
 
-	FARM_SIZE equ 25
+	ARRAY_SIZE equ 16
 
-	fn_function "tests/test5"
+	fn_function "tests/test7"
 		;task started by test1
 
 		;allocate temp array for mailbox ID's
-		vp_cpy 16*FARM_SIZE, r0
+		vp_cpy 16*ARRAY_SIZE, r0
 		fn_call sys/mem_alloc
 		vp_cpy r0, r14
 
-		;open test6 farm, off chip
-		vp_cpy FARM_SIZE, r2
+		;open test8 array, off chip
 		vp_cpy r14, r1
-		vp_lea [rel task_six], r0
-		fn_call sys/task_open_farm
+		vp_lea [rel task_eights], r0
+		fn_call sys/task_open_array
 
 		;send exit messages etc
-		for r13, 0, FARM_SIZE, 1
+		for r13, 0, ARRAY_SIZE, 1
 			fn_call sys/mail_alloc
 			vp_cpy r13, r3
 			vp_mul 16, r3
@@ -41,7 +40,23 @@
 		;stop this task
 		fn_jmp sys/task_stop
 
-	task_six:
-		db 'tests/test6', 0
+	task_eights:
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 'tests/test8', 0
+		db 0
 
 	fn_function_end

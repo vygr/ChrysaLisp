@@ -34,7 +34,7 @@
 
 		;copy task name
 		vp_cpy r5, r0
-		vp_lea [r3 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_PATHNAME)], r1
+		vp_lea [r3 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_PATHNAME)], r1
 		fn_call sys/string_copy
 		
 		;fill in total message length
@@ -48,8 +48,8 @@
 		fn_call sys/mail_read
 
 		;save reply mailbox ID
-		vp_cpy [r1 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID)], r5
-		vp_cpy [r1 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID + 8)], r6
+		vp_cpy [r1 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID)], r5
+		vp_cpy [r1 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID + 8)], r6
 
 		;free reply mail and temp mailbox
 		fn_call sys/mail_free

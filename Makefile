@@ -66,6 +66,7 @@ clean:
 	sys/task_open \
 	sys/task_open_child \
 	sys/task_open_farm \
+	sys/task_open_array \
 	sys/write_char \
 	sys/write_number \
 	sys/write_string \
@@ -75,4 +76,6 @@ clean:
 	tests/test3 \
 	tests/test4 \
 	tests/test5 \
-	tests/test6
+	tests/test6 \
+	tests/test7 \
+	tests/test8

@@ -37,6 +37,8 @@ sys/task_init_tasker
 sys/task_open
 sys/task_open_child
 sys/task_open_farm
+sys/task_open_array
+sys/task_open_pipe
 sys/task_restore
 sys/task_resume
 sys/task_sleep
@@ -52,3 +54,7 @@ tests/test3
 tests/test4
 tests/test5
 tests/test6
+tests/test7
+tests/test8
+tests/test9
+tests/test10
