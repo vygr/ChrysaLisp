@@ -8,6 +8,10 @@
 	fn_function "tests/test1"
 		;task started by test kernel
 
+		;open test9 task, off chip
+		vp_lea [rel task_nine], r0
+		fn_call sys/task_open_child
+
 		;open test7 task, off chip
 		vp_lea [rel task_seven], r0
 		fn_call sys/task_open_child
@@ -49,5 +53,7 @@
 		db 'tests/test5', 0
 	task_seven:
 		db 'tests/test7', 0
+	task_nine:
+		db 'tests/test9', 0
 
 	fn_function_end
