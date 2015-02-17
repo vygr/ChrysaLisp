@@ -48,6 +48,7 @@ sys/task_suspend
 sys/write_char
 sys/write_number
 sys/write_string
+sys/get_cpu_id
 tests/test1
 tests/test2
 tests/test3

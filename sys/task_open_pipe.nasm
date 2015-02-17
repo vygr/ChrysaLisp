@@ -22,7 +22,8 @@
 		lh_init r0, r1
 
 		;start all tasks, starting with kernel of this chip
-		vp_xor r8, r8	;FIXME needs a sys/get_cpu_id call !
+		fn_call sys/get_cpu_id
+		vp_cpy r0, r8
 		repeat
 			;allocate mail message
 			fn_call sys/mail_alloc
@@ -32,7 +33,8 @@
 			vp_cpy 0, long[r3 + ML_MSG_DEST]
 			vp_cpy r8, [r3 + (ML_MSG_DEST + 8)]
 			vp_cpy r5, [r3 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)]
-			vp_cpy 0, long[r3 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)]	;FIXME needs a sys/get_cpu_id call !
+			fn_call sys/get_cpu_id
+			vp_cpy r0, long[r3 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)]
 			vp_cpy KN_CALL_TASK_CHILD, long[r3 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)]
 
 			;copy task name, move to next task name
