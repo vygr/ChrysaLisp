@@ -6,8 +6,6 @@
 		;r0 = new task function name
 		;r1 = mailbox array pointer
 		;r2 = farm size, in tasks
-		;outputs
-		;r0, r1 = new task mailbox ID
 		;trashes
 		;r2-r3, r5-r9
 

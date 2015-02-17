@@ -5,8 +5,6 @@
 		;inputs
 		;r0 = new task function names
 		;r1 = mailbox array pointer
-		;outputs
-		;r0, r1 = new task mailbox ID
 		;trashes
 		;r2-r3, r5-r8
 
