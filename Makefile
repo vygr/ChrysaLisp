@@ -72,6 +72,7 @@ clean:
 	sys/write_number \
 	sys/write_string \
 	sys/math_random \
+	sys/get_cpu_id \
 	tests/test1 \
 	tests/test2 \
 	tests/test3 \

@@ -29,11 +29,12 @@
 			vp_cpy r0, r3
 
 			;fill in destination, reply, function and user
+			fn_call sys/get_cpu_id
 			vp_cpy 0, long[r3 + ML_MSG_DEST]
-			vp_cpy 0, long[r3 + (ML_MSG_DEST + 8)]
-			vp_cpy r7, [r3 + (ML_MSG_DATA + KN_DATA_KERNEL_USER)]
+			vp_cpy r0, [r3 + (ML_MSG_DEST + 8)]
 			vp_cpy r5, [r3 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)]
-			vp_cpy 0, long[r3 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)]
+			vp_cpy r0, [r3 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)]
+			vp_cpy r7, [r3 + (ML_MSG_DATA + KN_DATA_KERNEL_USER)]
 			vp_cpy KN_CALL_TASK_CHILD, long[r3 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)]
 
 			;copy task name, move to next task name
