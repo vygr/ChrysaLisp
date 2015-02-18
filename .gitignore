@@ -26,6 +26,8 @@ sys/mem_deinit_allocator
 sys/mem_free
 sys/mem_get_statics
 sys/mem_init_allocator
+sys/mem_clear
+sys/mem_copy
 sys/read_line
 sys/string_compare
 sys/string_copy
