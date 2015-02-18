@@ -45,6 +45,34 @@ _main:
 	vp_cpy r1, r15
 	vp_cpy r0, [rel ld_mail_send + 0x70]
 
+	;process command options
+	vp_add 8, r4
+	vp_cpy r4, r14
+	loopstart
+		vp_cpy [r14], r13
+		breakif r13, ==, 0
+		vp_lea [rel options_table], r12
+		loopstart
+			vp_cpy [r12], r11
+			breakif r11, ==, 0
+			vp_add 8, r12
+			vp_cpy r12, r0
+			vp_cpy r13, r1
+			vp_call ld_string_compare + 0x38
+			if r0, !=, 0
+				vp_call r11
+				vp_jmp next_arg
+			endif
+			vp_cpy r12, r0
+			vp_call ld_string_length + 0x38
+			vp_add r0, r12
+			vp_add 8, r12
+			vp_and -8, r12
+		loopend
+	next_arg:
+		vp_add 8, r14
+	loopend
+
 	;load and run boot task
 	vp_cpy boot_task, r0
 	vp_call ld_load_function_load + 0x38
@@ -160,6 +188,25 @@ _main:
 	;exit !
 	sys_exit 0
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; kernel option processors
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+opt_cpu:
+	;inputs
+	;r14 = arg pointer
+	;outputs
+	;r14 = arg pointer updated
+
+	vp_add 8, r14
+	vp_cpy [r14], r0
+	if r0, !=, 0
+		vp_cpy 10, r1
+		vp_call ld_string_parse_int + 0x38
+		vp_cpy r0, [rel (ld_get_cpu_id + 0x38)]
+	endif
+	vp_ret
+
 ;;;;;;;;;;;;;
 ; kernel data
 ;;;;;;;;;;;;;
@@ -168,7 +215,13 @@ _main:
 
 boot_task:
 	db	"sys/boot", 0
+
 	align 8, db 0
+options_table:
+	dq	opt_cpu
+	db	"-cpu", 0
+	align 8, db 0
+	dq	0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; prebound function data
@@ -209,6 +262,16 @@ ld_mem_init_allocator:
 	incbin	'sys/mem_init_allocator'
 ld_mem_deinit_allocator:
 	incbin	'sys/mem_deinit_allocator'
+
+ld_string_compare:
+	incbin	'sys/string_compare'
+ld_string_length:
+	incbin	'sys/string_length'
+ld_string_parse_int:
+	incbin	'sys/string_parse_int'
+
+ld_get_cpu_id:
+	incbin	'sys/get_cpu_id'
 
 ld_prebounde:
 	dq 0

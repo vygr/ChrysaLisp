@@ -4,7 +4,11 @@
 		;outputs
 		;r0 = cpu ID
 
-		vp_cpy 0, r0
+		vp_cpy [rel cpu_id], r0
 		vp_ret
+
+		align 8, db 0
+	cpu_id:
+		dq	0
 
 	fn_function_end

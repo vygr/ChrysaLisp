@@ -49,6 +49,7 @@ sys/write_char
 sys/write_number
 sys/write_string
 sys/get_cpu_id
+sys/string_parse_int
 tests/test1
 tests/test2
 tests/test3

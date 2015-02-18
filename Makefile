@@ -4,13 +4,15 @@ main:	main.o
 		ld -macosx_version_min 10.6 -o main -e _main main.o
 
 main.o:	main.nasm vp.inc code.inc list.inc mail.inc task.inc heap.inc \
-		load.inc syscall.inc sys/load_init_loader \
+		load.inc syscall.inc func.inc sys/load_init_loader \
 		sys/load_function_load sys/load_get_statics \
 		sys/load_deinit_loader sys/mail_init_mailer \
 		sys/mail_deinit_mailer sys/mail_send sys/mail_read \
 		sys/task_get_statics sys/task_init_tasker \
 		sys/task_deinit_tasker sys/task_deshedule sys/task_start \
-		sys/mem_init_allocator sys/mem_deinit_allocator
+		sys/mem_init_allocator sys/mem_deinit_allocator \
+		sys/string_compare sys/string_length sys/string_parse_int \
+		sys/get_cpu_id
 		nasm -f macho64 main.nasm
 
 sys:	$(patsubst %.nasm, %, $(wildcard sys/*.nasm))
