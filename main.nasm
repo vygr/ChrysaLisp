@@ -65,18 +65,13 @@ _main:
 			endif
 			vp_cpy r12, r0
 			vp_call ld_string_length + 0x38
-			vp_add r0, r12
+			vp_add r1, r12
 			vp_add 8, r12
 			vp_and -8, r12
 		loopend
 	next_arg:
 		vp_add 8, r14
 	loopend
-
-	;load and run boot task
-	vp_cpy boot_task, r0
-	vp_call ld_load_function_load + 0x38
-	vp_call ld_task_start + 0x30
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernal task loop
@@ -198,6 +193,7 @@ opt_cpu:
 	;outputs
 	;r14 = arg pointer updated
 
+	;set cpu ID
 	vp_add 8, r14
 	vp_cpy [r14], r0
 	if r0, !=, 0
@@ -207,20 +203,35 @@ opt_cpu:
 	endif
 	vp_ret
 
+opt_boot:
+	;inputs
+	;r14 = arg pointer
+	;outputs
+	;r14 = arg pointer updated
+
+	;load and run boot task
+	vp_add 8, r14
+	vp_cpy [r14], r0
+	if r0, !=, 0
+		vp_call ld_load_function_load + 0x38
+		vp_call ld_task_start + 0x30
+	endif
+	vp_ret
+
 ;;;;;;;;;;;;;
 ; kernel data
 ;;;;;;;;;;;;;
 
 	SECTION	.data
 
-boot_task:
-	db	"sys/boot", 0
-
 	align 8, db 0
 options_table:
 	dq	opt_cpu
-	db	"-cpu", 0
-	align 8, db 0
+		db	"-cpu", 0
+		align 8, db 0
+	dq	opt_boot
+		db	"-boot", 0
+		align 8, db 0
 	dq	0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
