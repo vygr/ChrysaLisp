@@ -9,4 +9,4 @@ make
 
 Run with:
 
-./main
+./run.sh
