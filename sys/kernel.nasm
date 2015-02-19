@@ -51,6 +51,8 @@
 				vp_and -8, r12
 			loopend
 		next_arg:
+			vp_cpy [r14], r0
+			breakif r0, ==, 0
 			vp_add 8, r14
 		loopend
 
@@ -195,7 +197,9 @@
 		vp_cpy [r14], r0
 		if r0, !=, 0
 			fn_call sys/load_function_load
-			fn_call sys/task_start
+			if r0, !=, 0
+				fn_call sys/task_start
+			endif
 		endif
 		vp_ret
 
