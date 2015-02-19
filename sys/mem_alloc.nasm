@@ -43,7 +43,7 @@
 		vp_lea [r0 + 1], r1
 
 		;get statics
-		fn_call sys/mem_get_statics
+		fn_bind sys/mem_statics, r0
 
 		;point to object heap
 		vp_sub HP_HEAP_SIZE*10, r0

@@ -3,7 +3,7 @@
 
 	fn_function "sys/task_init_tasker"
 		;get task statics
-		fn_call sys/task_get_statics
+		fn_bind sys/task_statics, r0
 		vp_cpy r0, r3
 
 		;init task control block heap

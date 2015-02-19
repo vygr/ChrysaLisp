@@ -45,7 +45,7 @@
 		ln_remove_node r0, r15
 
 		;get statics
-		fn_call sys/task_get_statics
+		fn_bind sys/task_statics, r0
 
 		;add to timer list and restore next
 		vp_lea [r0 + TK_STATICS_TASK_TIMER_LIST], r0

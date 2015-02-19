@@ -13,7 +13,7 @@
 		vp_cpy r0,r5
 
 		;get statics
-		fn_call sys/task_get_statics
+		fn_bind sys/task_statics, r0
 		vp_cpy	r0, r6
 
 		;create new task control block and task

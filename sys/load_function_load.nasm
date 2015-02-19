@@ -14,11 +14,9 @@
 		vp_cpy r0, r7
 
 		;get loader statics !
-		vp_lea [rel __func_start], r0
-		vp_add [r0 + FN_HEADER_LENGTH], r0
-		vp_add [r0 + FN_HEADER_ENTRY], r0
-		vp_call r0
-		vp_cpy r0, r8
+		vp_lea [rel __func_start], r8
+		vp_add [r8 + FN_HEADER_LENGTH], r8
+		vp_add [r8 + FN_HEADER_ENTRY], r8
 
 		;check if function allready present !
 		vp_xor r5, r5

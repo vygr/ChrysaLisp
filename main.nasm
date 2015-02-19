@@ -127,7 +127,7 @@ _main:
 		loopend
 
 		;start any tasks ready to restart
-		vp_call ld_task_get_statics + 0x38
+		vp_lea [rel (ld_task_statics + 0x38)], r0
 		vp_cpy r0, r3
 		vp_lea [r0 + TK_STATICS_TASK_TIMER_LIST], r0
 		lh_is_empty r0, r0
@@ -245,7 +245,7 @@ ld_load_init_loader:
 	incbin	'sys/load_init_loader'		;must be first function !
 ld_load_function_load:
 	incbin	'sys/load_function_load'	;must be second function !
-	incbin	'sys/load_get_statics'		;must be third function !
+	incbin	'sys/load_statics'		;must be third function !
 ld_load_deinit_loader:
 	incbin	'sys/load_deinit_loader'
 
@@ -258,8 +258,8 @@ ld_mail_send:
 ld_mail_read:
 	incbin	'sys/mail_read'
 
-ld_task_get_statics:
-	incbin	'sys/task_get_statics'
+ld_task_statics:
+	incbin	'sys/task_statics'
 ld_task_init_tasker:
 	incbin	'sys/task_init_tasker'
 ld_task_deinit_tasker:

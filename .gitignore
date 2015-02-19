@@ -11,12 +11,12 @@ sys/list_get_index_of_node
 sys/list_get_node_at_index
 sys/load_deinit_loader
 sys/load_function_load
-sys/load_get_statics
+sys/load_statics
 sys/load_init_loader
 sys/mail_alloc
 sys/mail_deinit_mailer
 sys/mail_free
-sys/mail_get_statics
+sys/mail_statics
 sys/mail_init_mailer
 sys/mail_read
 sys/mail_send
@@ -24,7 +24,7 @@ sys/math_random
 sys/mem_alloc
 sys/mem_deinit_allocator
 sys/mem_free
-sys/mem_get_statics
+sys/mem_statics
 sys/mem_init_allocator
 sys/mem_clear
 sys/mem_copy
@@ -34,7 +34,7 @@ sys/string_copy
 sys/string_length
 sys/task_deinit_tasker
 sys/task_deshedule
-sys/task_get_statics
+sys/task_statics
 sys/task_init_tasker
 sys/task_open
 sys/task_open_child

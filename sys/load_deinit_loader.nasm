@@ -3,7 +3,7 @@
 
 	fn_function "sys/load_deinit_loader"
 		;get statics
-		fn_call sys/load_get_statics
+		fn_bind sys/load_statics, r0
 
 		;free all function blocks
 		vp_cpy [r0 + LD_STATICS_BLOCK_LIST], r1

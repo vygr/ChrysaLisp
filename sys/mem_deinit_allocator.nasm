@@ -3,7 +3,7 @@
 
 	fn_function "sys/mem_deinit_allocator"
 		;get statics
-		fn_call sys/mem_get_statics
+		fn_bind sys/mem_statics, r0
 		vp_cpy r0, r5
 
 		;14 heaps, from 1KB bytes to 8MB

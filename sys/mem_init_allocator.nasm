@@ -5,7 +5,7 @@
 
 	fn_function "sys/mem_init_allocator"
 		;get statics
-		fn_call sys/mem_get_statics
+		fn_bind sys/mem_statics, r0
 
 		;MEM_SLOTS heaps, from 1KB bytes to 8MB
 		vp_cpy 0x400, r1				;start object size

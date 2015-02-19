@@ -13,7 +13,7 @@
 		ln_remove_node r0, r15
 
 		;get statics
-		fn_call sys/task_get_statics
+		fn_bind sys/task_statics, r0
 
 		;free our task control block
 		vp_lea [r0 + TK_STATICS_TASK_HEAP], r0

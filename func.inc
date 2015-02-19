@@ -63,6 +63,29 @@
 ; func macros
 ;;;;;;;;;;;;;
 
+	%macro fn_bind 2
+		;inputs
+		;%1 = function path name
+		;%2 = register
+
+		%assign %%__f -1
+		%assign %%__i 0
+		%rep __ftotal
+			%deftok %%__path __func_str%[%%__i]
+			%ifidn %%__path, %1
+				%assign %%__f %%__i
+				%exitrep
+			%endif
+			%assign %%__i %%__i+1
+		%endrep
+		%if %%__f = -1
+			%assign %%__f __ftotal
+			%assign __ftotal __ftotal+1
+			%defstr __func_str%[%%__f] %1
+		%endif
+		vp_cpy [rel __func%[%%__f]], %2
+	%endmacro
+
 	%macro fn_call 1
 		;inputs
 		;%1 = function path name

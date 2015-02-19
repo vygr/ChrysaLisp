@@ -7,7 +7,7 @@
 		;trashes
 		;r1-r3
 
-		fn_call sys/mail_get_statics
+		fn_bind sys/mail_statics, r0
 		fn_call sys/heap_alloccell
 		vp_cpy ML_MSG_DATA, long[r1 + ML_MSG_SIZE]
 		vp_cpy r1, r0

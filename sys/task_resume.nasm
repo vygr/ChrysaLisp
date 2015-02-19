@@ -19,7 +19,7 @@
 		ln_remove_node r0, r1
 
 		;get statics
-		fn_call sys/task_get_statics
+		fn_bind sys/task_statics, r0
 
 		;add to task list
 		vp_lea [r0 + TK_STATICS_TASK_LIST], r1
