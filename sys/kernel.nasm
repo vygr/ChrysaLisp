@@ -18,6 +18,9 @@
 		;init allocator
 		fn_call sys/mem_init_allocator
 
+		;init linker
+		fn_call sys/link_init_linker
+
 		;start kernel task and patch mailbox
 		fn_call sys/task_start
 		vp_cpy r1, r15

@@ -1,0 +1,12 @@
+%include "func.inc"
+%include "link.inc"
+
+	fn_function "sys/link_init_linker"
+		;get statics
+		fn_bind sys/link_statics, r0
+
+		vp_lea [r0 + LK_STATICS_LINK_LIST], r0
+		lh_init r0, r1
+		vp_ret
+
+	fn_function_end

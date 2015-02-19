@@ -2,6 +2,8 @@ main
 main.o
 sys/kernel
 sys/link
+sys/link_init_linker
+sys/link_statics
 sys/heap_alloccell
 sys/heap_deinit
 sys/heap_freeheap

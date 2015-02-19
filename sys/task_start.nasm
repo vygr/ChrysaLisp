@@ -16,6 +16,11 @@
 		fn_bind sys/task_statics, r0
 		vp_cpy	r0, r6
 
+		;increment task count
+		vp_cpy [r6 + TK_STATICS_TASK_COUNT], r0
+		vp_inc r0
+		vp_cpy r0, [r6 + TK_STATICS_TASK_COUNT]
+
 		;create new task control block and task
 		vp_lea [r6 + TK_STATICS_TASK_HEAP], r0
 		fn_call sys/heap_alloccell

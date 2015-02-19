@@ -3,7 +3,7 @@ all:	main sys tests
 main:	main.o
 		ld -macosx_version_min 10.6 -o main -e _main main.o
 
-main.o:	main.nasm vp.inc load.inc syscall.inc sys/load_init_loader \
+main.o:	main.nasm vp.inc load.inc syscall.inc link.inc sys/load_init_loader \
 		sys/load_function_load sys/load_statics \
 		sys/load_deinit_loader sys/kernel
 		nasm -f macho64 main.nasm
@@ -12,7 +12,7 @@ sys:	$(patsubst %.nasm, %, $(wildcard sys/*.nasm))
 tests:	$(patsubst %.nasm, %, $(wildcard tests/*.nasm))
 
 %:	%.nasm Makefile func.inc task.inc list.inc vp.inc \
-		code.inc mail.inc syscall.inc heap.inc
+		code.inc mail.inc syscall.inc heap.inc link.inc
 		nasm -f bin $< -o $@
 
 clean:
@@ -20,11 +20,14 @@ clean:
 	main \
 	main.o \
 	sys/kernel \
+	sys/link \
 	sys/get_cpu_id \
 	sys/heap_alloccell \
 	sys/heap_deinit \
 	sys/heap_freeheap \
 	sys/heap_init \
+	sys/link_statics \
+	sys/link_init_linker \
 	sys/list_enumerate_backwards \
 	sys/list_enumerate_forwards \
 	sys/list_get_index_of_node \
