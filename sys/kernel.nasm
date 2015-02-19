@@ -7,6 +7,7 @@
 ;;;;;;;;;;;;;
 
 	fn_function "sys/kernel"
+		;loader is allready initialized when we get here !
 
 		;init tasker
 		fn_call sys/task_init_tasker
@@ -183,13 +184,13 @@
 		endif
 		vp_ret
 
-	opt_boot:
+	opt_run:
 		;inputs
 		;r14 = arg pointer
 		;outputs
 		;r14 = arg pointer updated
 
-		;load and run boot task
+		;load and run task
 		vp_add 8, r14
 		vp_cpy [r14], r0
 		if r0, !=, 0
@@ -207,8 +208,8 @@
 		dq	opt_cpu - options_table
 			db	"-cpu", 0
 			align 8, db 0
-		dq	opt_boot - options_table
-			db	"-boot", 0
+		dq	opt_run - options_table
+			db	"-run", 0
 			align 8, db 0
 		dq	0
 
