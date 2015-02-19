@@ -1,6 +1,7 @@
 main
 main.o
 sys/kernel
+sys/link
 sys/heap_alloccell
 sys/heap_deinit
 sys/heap_freeheap

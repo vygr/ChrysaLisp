@@ -17,6 +17,9 @@
 	SYS_GETTIMEOFDAY	equ 0x2000074	;int gettimeofday(struct timeval *tp, struct timezone *tzp)
 	SYS_MMAP			equ 0x20000c5	;user_addr_t mmap(caddr_t addr, size_t len, int prot, int flags, int fd, off_t pos)
 	SYS_STAT			equ 0x20000bc	;int stat(user_addr_t path, user_addr_t ub)
+	SYS_FTRUNCATE		equ 0x20000c9	;int ftruncate(int fd, off_t length)
+	SYS_SHMOPEN			equ 0x200010a	;int shm_open(const char *name, int oflag, int mode)
+	SYS_SHMUNLINK		equ 0x200010b	;int shm_unlink(const char *name)
 
 	PROT_NONE	equ 0x0
 	PROT_READ	equ 0x1
@@ -43,21 +46,21 @@
 	O_EVTONLY	equ 0x0008000			;descriptor requested for event notifications only
 	O_CLOEXEC	equ 0x1000000			;mark as close-on-exec
 
-	S_IRWXU		equ 0x0000700		;RWX mask for owner
-	S_IRUSR		equ 0x0000400		;R for owner
-	S_IWUSR		equ 0x0000200		;W for owner
-	S_IXUSR		equ 0x0000100		;X for owner
-	S_IRWXG		equ 0x0000070		;RWX mask for group
-	S_IRGRP		equ 0x0000040		;R for group
-	S_IWGRP		equ 0x0000020		;W for group
-	S_IXGRP		equ 0x0000010		;X for group
+	S_IRWXU		equ 0x00001c0		;RWX mask for owner
+	S_IRUSR		equ 0x0000100		;R for owner
+	S_IWUSR		equ 0x0000080		;W for owner
+	S_IXUSR		equ 0x0000040		;X for owner
+	S_IRWXG		equ 0x0000038		;RWX mask for group
+	S_IRGRP		equ 0x0000020		;R for group
+	S_IWGRP		equ 0x0000010		;W for group
+	S_IXGRP		equ 0x0000008		;X for group
 	S_IRWXO		equ 0x0000007		;RWX mask for other
-	S_IROTH		equ 0x0000004		;R for other
+	S_IROTH		equ 0x0000003		;R for other
 	S_IWOTH		equ 0x0000002		;W for other
 	S_IXOTH		equ 0x0000001		;X for other
-	S_ISUID		equ 0x0004000		;set user id on execution
-	S_ISGID		equ 0x0002000		;set group id on execution
-	S_ISVTX		equ 0x0001000		;save swapped text even after use
+	S_ISUID		equ 0x0000800		;set user id on execution
+	S_ISGID		equ 0x0000400		;set group id on execution
+	S_ISVTX		equ 0x0000200		;save swapped text even after use
 
 	struc STAT
 		STAT_DEV:				resq 1	;ID of device containing file
@@ -263,6 +266,36 @@
 		push_trashed_1
 		vp_cpy %1, r7		;fd
 		vp_cpy SYS_CLOSE, r0
+		vp_syscall
+		pop_trashed_1
+	%endmacro
+
+	%macro sys_ftruncate 2
+		;fd, offset
+		push_trashed_1
+		vp_cpy %1, r7		;fd
+		vp_cpy %2, r6		;offset
+		vp_cpy SYS_FTRUNCATE, r0
+		vp_syscall
+		pop_trashed_1
+	%endmacro
+
+	%macro sys_shmopen 3
+		;name, flag, mode
+		push_trashed_1
+		vp_cpy %1, r7		;name
+		vp_cpy %2, r6		;flag
+		vp_cpy %3, r2		;mode
+		vp_cpy SYS_SHMOPEN, r0
+		vp_syscall
+		pop_trashed_1
+	%endmacro
+
+	%macro sys_shmunlink 1
+		;name
+		push_trashed_1
+		vp_cpy %1, r7		;name
+		vp_cpy SYS_SHMUNLINK, r0
 		vp_syscall
 		pop_trashed_1
 	%endmacro

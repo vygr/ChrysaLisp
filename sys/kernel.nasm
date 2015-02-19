@@ -203,6 +203,44 @@
 		endif
 		vp_ret
 
+	opt_link:
+		;inputs
+		;r14 = arg pointer
+		;outputs
+		;r14 = arg pointer updated
+
+		;start link task
+		vp_add 8, r14
+		vp_cpy [r14], r0
+		if r0, !=, 0
+			;start link
+			fn_bind sys/link, r0
+			fn_call sys/task_start
+			vp_cpy r0, r5
+			fn_call sys/get_cpu_id
+			vp_cpy r0, r6
+
+			;allocate params message
+			fn_call sys/mail_alloc
+			vp_cpy r0, r7
+
+			;fill in destination
+			vp_cpy r5, [r0 + ML_MSG_DEST]
+			vp_cpy r6, [r0 + (ML_MSG_DEST + 8)]
+
+			;fill in paramaters and set length
+			vp_cpy [r14], r0
+			vp_lea [r7 + ML_MSG_DATA], r1
+			fn_call sys/string_copy
+			vp_sub r7, r1
+			vp_cpy r1, [r7 + ML_MSG_LENGTH]
+
+			;send to link task
+			vp_cpy r7, r0
+			fn_call sys/mail_send
+		endif
+		vp_ret
+
 ;;;;;;;;;;;;;
 ; kernel data
 ;;;;;;;;;;;;;
@@ -214,6 +252,9 @@
 			align 8, db 0
 		dq	opt_run - options_table
 			db	"-run", 0
+			align 8, db 0
+		dq	opt_link - options_table
+			db	"-l", 0
 			align 8, db 0
 		dq	0
 
