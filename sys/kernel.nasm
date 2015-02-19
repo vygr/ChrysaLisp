@@ -93,7 +93,7 @@
 					vp_cpy ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_SIZE, long[r14 + ML_MSG_LENGTH]
 					break
 				case r1, ==, KN_CALL_TASK_CHILD
-					;open single task and return mailbox ID
+					;distribute single task and return mailbox ID
 					vp_lea [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_PATHNAME)], r0
 					fn_call sys/load_function_load
 					fn_call sys/task_start
