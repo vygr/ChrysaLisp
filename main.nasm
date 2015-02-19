@@ -5,13 +5,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 %include "vp.inc"
-%include "code.inc"
-%include "list.inc"
-%include "mail.inc"
-%include "task.inc"
 %include "load.inc"
 %include "syscall.inc"
-%include "func.inc"
 
 ;;;;;;;;;;;;;
 ; entry point
@@ -21,7 +16,7 @@
 
 	global _main
 _main:
-	;set prebound functions as executable
+	;set prebound functions as read/write/executable
 	vp_lea [rel ld_prebound], r0
 	vp_and -LD_PAGE_SIZE, r0
 	vp_lea [rel ld_prebounde], r1
@@ -31,258 +26,23 @@ _main:
 	;init loader
 	vp_call ld_load_init_loader + 0x38
 
-	;init tasker
-	vp_call ld_task_init_tasker + 0x38
+	;jump to kernel task
+	vp_jmp ld_kernel + 0x30
 
-	;init mailer
-	vp_call ld_mail_init_mailer + 0x38
-
-	;init allocator
-	vp_call ld_mem_init_allocator + 0x38
-
-	;start kernel task and patch mailbox
-	vp_call ld_task_start + 0x30
-	vp_cpy r1, r15
-	vp_cpy r0, [rel ld_mail_send + 0x70]
-
-	;process command options
-	vp_add 8, r4
-	vp_cpy r4, r14
-	loopstart
-		vp_cpy [r14], r13
-		breakif r13, ==, 0
-		vp_lea [rel options_table], r12
-		loopstart
-			vp_cpy [r12], r11
-			breakif r11, ==, 0
-			vp_add 8, r12
-			vp_cpy r12, r0
-			vp_cpy r13, r1
-			vp_call ld_string_compare + 0x38
-			if r0, !=, 0
-				vp_call r11
-				vp_jmp next_arg
-			endif
-			vp_cpy r12, r0
-			vp_call ld_string_length + 0x38
-			vp_add r1, r12
-			vp_add 8, r12
-			vp_and -8, r12
-		loopend
-	next_arg:
-		vp_add 8, r14
-	loopend
-
-;;;;;;;;;;;;;;;;;;;;;;;
-; main kernal task loop
-;;;;;;;;;;;;;;;;;;;;;;;
-
-	;loop till no other tasks running
-	repeat
-		;allow all other tasks to run
-		vp_call ld_task_deshedule + 0x38
-
-		;service all kernel mail
-		loopstart
-			;check if any mail
-			vp_lea [r15 + TK_NODE_MAILBOX], r0
-			ml_check r0, r1
-			breakif r1, ==, 0
-
-			;read waiting mail
-			vp_call ld_mail_read + 0x30
-			vp_cpy r1, r14
-
-			;fill in reply ID, user field is left alone !
-			vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)], r1
-			vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)], r2
-			vp_cpy r1, [r14 + ML_MSG_DEST]
-			vp_cpy r2, [r14 + (ML_MSG_DEST + 8)]
-
-			;switch on kernel call number
-			vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)], r1
-			switch
-			case r1, ==, KN_CALL_TASK_OPEN
-				;open single task and return mailbox ID
-				vp_lea [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_PATHNAME)], r0
-				vp_call ld_load_function_load + 0x38
-				vp_call ld_task_start + 0x30
-				vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID)]
-				vp_cpy 0, long[r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID + 8)]
-				vp_cpy ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_SIZE, long[r14 + ML_MSG_LENGTH]
-				break
-			case r1, ==, KN_CALL_TASK_CHILD
-				;open single task and return mailbox ID
-				vp_lea [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_PATHNAME)], r0
-				vp_call ld_load_function_load + 0x38
-				vp_call ld_task_start + 0x30
-				vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID)]
-				vp_cpy 0, long[r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID + 8)]
-				vp_cpy ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_SIZE, long[r14 + ML_MSG_LENGTH]
-				break
-			default
-			endswitch
-			vp_cpy r14, r0
-			vp_call ld_mail_send + 0x30
-		loopend
-
-		;start any tasks ready to restart
-		vp_lea [rel (ld_task_statics + 0x38)], r0
-		vp_cpy r0, r3
-		vp_lea [r0 + TK_STATICS_TASK_TIMER_LIST], r0
-		lh_is_empty r0, r0
-		if r0, !=, 0
-			;get time
-			vp_sub TIMEVAL_SIZE, r4
-			vp_cpy r4, r0
-			sys_gettimeofday r0, 0
-			vp_mul 1000000, r0
-			vp_add r0, r2
-			vp_add TIMEVAL_SIZE, r4
-
-			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
-			loopstart
-				vp_cpy r0, r1
-				ln_get_succ r0, r0
-				breakif r0, ==, 0
-				vp_cpy [r1 + TK_NODE_TIME], r5
-				if r5, <=, r2
-					;task ready, remove from timer list and place on ready list
-					vp_cpy r1, r5
-					ln_remove_node r5, r6
-					vp_lea [r3 + TK_STATICS_TASK_LIST], r5
-					lh_add_at_head r5, r1, r6
-				endif
-			loopend
-		endif
-
-		;check if no other tasks available
-		vp_lea [r3 + TK_STATICS_TASK_TIMER_LIST], r0
-		lh_is_empty r0, r0
-		continueif r0, !=, 0
-		vp_lea [r3 + TK_STATICS_TASK_SUSPEND_LIST], r0
-		lh_is_empty r0, r0
-		continueif r0, !=, 0
-		vp_lea [r3 + TK_STATICS_TASK_LIST], r0
-		lh_get_head r0, r1
-		lh_get_tail r0, r0
-	until r1, ==, r0
-
-	;deinit allocator
-	vp_call ld_mem_deinit_allocator + 0x38
-
-	;deinit mailer
-	vp_call ld_mail_deinit_mailer + 0x38
-
-	;deinit tasker
-	vp_call ld_task_deinit_tasker + 0x38
-
-	;deinit loader
-	vp_call ld_load_deinit_loader + 0x38
-
-	;exit !
-	sys_exit 0
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-; kernel option processors
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-opt_cpu:
-	;inputs
-	;r14 = arg pointer
-	;outputs
-	;r14 = arg pointer updated
-
-	;set cpu ID
-	vp_add 8, r14
-	vp_cpy [r14], r0
-	if r0, !=, 0
-		vp_cpy 10, r1
-		vp_call ld_string_parse_int + 0x38
-		vp_cpy r0, [rel (ld_get_cpu_id + 0x38)]
-	endif
-	vp_ret
-
-opt_boot:
-	;inputs
-	;r14 = arg pointer
-	;outputs
-	;r14 = arg pointer updated
-
-	;load and run boot task
-	vp_add 8, r14
-	vp_cpy [r14], r0
-	if r0, !=, 0
-		vp_call ld_load_function_load + 0x38
-		vp_call ld_task_start + 0x30
-	endif
-	vp_ret
-
-;;;;;;;;;;;;;
-; kernel data
-;;;;;;;;;;;;;
-
-	SECTION	.data
-
-	align 8, db 0
-options_table:
-	dq	opt_cpu
-		db	"-cpu", 0
-		align 8, db 0
-	dq	opt_boot
-		db	"-boot", 0
-		align 8, db 0
-	dq	0
-
-;;;;;;;;;;;;;;;;;;;;;;;;
-; prebound function data
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
+; prebound functions
+;;;;;;;;;;;;;;;;;;;;
 
 	align 8, db 0
 ld_prebound:
 
 ld_load_init_loader:
 	incbin	'sys/load_init_loader'		;must be first function !
-ld_load_function_load:
 	incbin	'sys/load_function_load'	;must be second function !
-	incbin	'sys/load_statics'		;must be third function !
-ld_load_deinit_loader:
-	incbin	'sys/load_deinit_loader'
-
-ld_mail_init_mailer:
-	incbin	'sys/mail_init_mailer'
-ld_mail_deinit_mailer:
-	incbin	'sys/mail_deinit_mailer'
-ld_mail_send:
-	incbin	'sys/mail_send'
-ld_mail_read:
-	incbin	'sys/mail_read'
-
-ld_task_statics:
-	incbin	'sys/task_statics'
-ld_task_init_tasker:
-	incbin	'sys/task_init_tasker'
-ld_task_deinit_tasker:
-	incbin	'sys/task_deinit_tasker'
-ld_task_deshedule:
-	incbin	'sys/task_deshedule'
-ld_task_start:
-	incbin	'sys/task_start'
-
-ld_mem_init_allocator:
-	incbin	'sys/mem_init_allocator'
-ld_mem_deinit_allocator:
-	incbin	'sys/mem_deinit_allocator'
-
-ld_string_compare:
-	incbin	'sys/string_compare'
-ld_string_length:
-	incbin	'sys/string_length'
-ld_string_parse_int:
-	incbin	'sys/string_parse_int'
-
-ld_get_cpu_id:
-	incbin	'sys/get_cpu_id'
+	incbin	'sys/load_statics'			;must be third function !
+	incbin	'sys/load_deinit_loader'	;must be included !
+ld_kernel:
+	incbin	'sys/kernel'				;must be included !
 
 ld_prebounde:
 	dq 0
