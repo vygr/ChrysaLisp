@@ -19,7 +19,6 @@ clean:
 	rm -rf \
 	main \
 	main.o \
-	sys/boot \
 	sys/kernel \
 	sys/get_cpu_id \
 	sys/heap_alloccell \
