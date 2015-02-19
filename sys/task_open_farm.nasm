@@ -7,7 +7,7 @@
 		;r1 = mailbox array pointer
 		;r2 = farm size, in tasks
 		;trashes
-		;r2-r3, r5-r9
+		;r0-r3, r5-r9
 
 		;save task info
 		vp_cpy r0, r6

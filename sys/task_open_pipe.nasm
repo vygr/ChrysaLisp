@@ -6,7 +6,7 @@
 		;r0 = new task function names
 		;r1 = mailbox array pointer
 		;trashes
-		;r2-r3, r5-r8
+		;r0-r3, r5-r8
 
 		;save task info
 		vp_cpy r0, r6
@@ -63,7 +63,7 @@
 			;free reply mail
 			fn_call sys/mail_free
 
-			;next array worker
+			;next pipe worker
 			vp_add 16, r7
 			vp_cpy byte[r6], r0l
 			vp_and 0xff, r0

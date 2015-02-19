@@ -6,7 +6,7 @@
 		;r0 = new task function names
 		;r1 = mailbox array pointer
 		;trashes
-		;r2-r3, r5-r8
+		;r0-r3, r5-r8
 
 		;save task info
 		vp_cpy r0, r6
