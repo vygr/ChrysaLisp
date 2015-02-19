@@ -2,6 +2,7 @@
     %define LINK_1234
 
 %include "list.inc"
+%include "mail.inc"
 
 ;;;;;;;;;;;;;;;;;
 ; link structures
@@ -15,8 +16,18 @@
 	endstruc
 
 	struc LK_STATICS
-		LK_STATICS_LINK_LIST:	resb	LH_LIST_SIZE
+		LK_STATICS_LINKS_LIST:	resb	LH_LIST_SIZE
 		LK_STATICS_SIZE:
+	endstruc
+
+	struc LK_BUFFER
+		LK_BUFFER_OUT_STATUS:		resq	1
+		LK_BUFFER_OUT_TASK_COUNT:	resq	1
+		LK_BUFFER_OUT_MSG:			resb	ML_MSG_SIZE
+		LK_BUFFER_IN_STATUS:		resq	1
+		LK_BUFFER_IN_TASK_COUNT:	resq	1
+		LK_BUFFER_IN_MSG:			resb	ML_MSG_SIZE
+		LK_BUFFER_SIZE:
 	endstruc
 
 %endif
