@@ -67,9 +67,7 @@
 		fn_call sys/task_sleep
 
 		;read and write messages through the shared buffer in r12
-		;allways read task count from neibour
-		;allways write task count to neibour
-		;r10 is input channel, r11 is output channel
+		;r11 is input channel, r10 is output channel
 		vp_add r12, r10
 		vp_add r12, r11
 		vp_xor r9, r9
@@ -83,8 +81,9 @@
 
 			;check if we need to grab a new message
 			if r9, ==, 0
+			more_output:
 				;no outgoing message so see if any offchip mail for me
-				fn_call sys/get_cpu_id
+				vp_cpy [r4 + LK_NODE_CPU_ID], r0
 				fn_bind sys/mail_statics, r8
 				vp_lea [r8 + ML_STATICS_OFFCHIP_LIST], r8
 				lh_get_head r8, r8
@@ -114,9 +113,10 @@
 					vp_cpy r9, r1
 					fn_call sys/mail_free
 
-					;busy status
+					;busy status, check for more output
 					vp_cpy LK_CHAN_STATUS_BUSY, long[r10 + LK_CHAN_STATUS]
 					vp_xor r9, r9
+					vp_jmp more_output
 				endif
 			endif
 
@@ -139,7 +139,7 @@
 				vp_cpy LK_CHAN_STATUS_READY, long[r11 + LK_CHAN_STATUS]
 			endif
 
-			;exit if signaled by kernel, else deshedule and loop
+			;exit if signaled by kernel
 			vp_cpy [r4 + LK_NODE_CPU_ID], r0
 			breakif r0, ==, -1
 			fn_call sys/task_deshedule

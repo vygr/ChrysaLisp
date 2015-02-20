@@ -1,6 +1,7 @@
 %include "func.inc"
 %include "mail.inc"
 %include "task.inc"
+%include "link.inc"
 
 ;;;;;;;;;;;;;
 ; kernel task
@@ -25,7 +26,7 @@
 		fn_call sys/task_start
 		vp_cpy r1, r15
 		fn_bind sys/mail_send, r1
-		vp_cpy r0, [r1 + 0x40]
+		vp_cpy r0, [r1 + 0x68]
 
 		;process command options
 		vp_add 8, r4
@@ -79,32 +80,62 @@
 				fn_call sys/mail_read
 				vp_cpy r1, r14
 
-				;fill in reply ID, user field is left alone !
-				vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)], r1
-				vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)], r2
-				vp_cpy r1, [r14 + ML_MSG_DEST]
-				vp_cpy r2, [r14 + (ML_MSG_DEST + 8)]
-
 				;switch on kernel call number
 				vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)], r1
 				switch
 				case r1, ==, KN_CALL_TASK_OPEN
+					;fill in reply ID, user field is left alone !
+					vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)], r1
+					vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)], r2
+					vp_cpy r1, [r14 + ML_MSG_DEST]
+					vp_cpy r2, [r14 + (ML_MSG_DEST + 8)]
+
 					;open single task and return mailbox ID
 					vp_lea [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_PATHNAME)], r0
 					fn_call sys/load_function_load
 					fn_call sys/task_start
 					vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID)]
-					vp_cpy 0, long[r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID + 8)]
+					fn_call sys/get_cpu_id
+					vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID + 8)]
 					vp_cpy ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_SIZE, long[r14 + ML_MSG_LENGTH]
 					break
 				case r1, ==, KN_CALL_TASK_CHILD
-					;distribute single task and return mailbox ID
-					vp_lea [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_PATHNAME)], r0
-					fn_call sys/load_function_load
-					fn_call sys/task_start
-					vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID)]
-					vp_cpy 0, long[r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID + 8)]
-					vp_cpy ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_SIZE, long[r14 + ML_MSG_LENGTH]
+					;find best cpu to run task
+					fn_call sys/get_cpu_id
+					vp_cpy r0, r5
+					fn_bind sys/task_statics, r1
+					vp_cpy [r1 + TK_STATICS_TASK_COUNT], r1
+					fn_bind sys/link_statics, r2
+					vp_lea [r2 + LK_STATICS_LINKS_LIST], r2
+					lh_get_head r2, r2
+					loopstart
+						vp_cpy r2, r3
+						ln_get_succ r2, r2
+						breakif r2, ==, 0
+						if r1, >, [r3 + LK_NODE_TASK_COUNT]
+							vp_cpy [r3 + LK_NODE_CPU_ID], r0
+							vp_cpy [r3 + LK_NODE_TASK_COUNT], r1
+						endif
+					loopend
+					if r0, ==, r5
+						;fill in reply ID, user field is left alone !
+						vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)], r1
+						vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)], r2
+						vp_cpy r1, [r14 + ML_MSG_DEST]
+						vp_cpy r2, [r14 + (ML_MSG_DEST + 8)]
+
+						;I'm best so run here
+						vp_lea [r14 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_PATHNAME)], r0
+						fn_call sys/load_function_load
+						fn_call sys/task_start
+						vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID)]
+						fn_call sys/get_cpu_id
+						vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID + 8)]
+						vp_cpy ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_SIZE, long[r14 + ML_MSG_LENGTH]
+					else
+						;send to better kernel
+						vp_cpy r0, [r14 + (ML_MSG_DEST + 8)]
+					endif
 					break
 				default
 				endswitch
