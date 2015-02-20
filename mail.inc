@@ -4,6 +4,7 @@
 %include "vp.inc"
 %include "code.inc"
 %include "list.inc"
+%include "heap.inc"
 
 ;;;;;;;;;;;;;;;;;
 ; mail structures
@@ -21,6 +22,12 @@
 		ML_MSG_DEST:			resq 2
 		ML_MSG_DATA:			resb 256
 		ML_MSG_SIZE:
+	endstruc
+
+	struc ML_STATICS
+		ML_STATICS_OFFCHIP_LIST:	resb LH_LIST_SIZE
+		ML_STATICS_HEAP:			resb HP_HEAP_SIZE
+		ML_STATICS_SIZE:
 	endstruc
 
 ;;;;;;;;;;;;;
