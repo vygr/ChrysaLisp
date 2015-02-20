@@ -5,7 +5,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	PIPE_SIZE equ 20
+	PIPE_SIZE equ 8
 
 	fn_function "tests/test9"
 		;task started by test1
@@ -41,18 +41,6 @@
 		fn_jmp sys/task_stop
 
 	task_tens:
-		db 'tests/test10', 0
-		db 'tests/test10', 0
-		db 'tests/test10', 0
-		db 'tests/test10', 0
-		db 'tests/test10', 0
-		db 'tests/test10', 0
-		db 'tests/test10', 0
-		db 'tests/test10', 0
-		db 'tests/test10', 0
-		db 'tests/test10', 0
-		db 'tests/test10', 0
-		db 'tests/test10', 0
 		db 'tests/test10', 0
 		db 'tests/test10', 0
 		db 'tests/test10', 0

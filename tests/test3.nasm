@@ -15,7 +15,7 @@
 			fn_call sys/mail_free
 		next
 
-		for r14, 0, 10, 1
+		for r14, 0, 2, 1
 			for r13, 0, 10, 1
 				for r12, 0, 10, 1
 					vp_cpy r12, r0

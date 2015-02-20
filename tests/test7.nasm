@@ -5,7 +5,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	ARRAY_SIZE equ 16
+	ARRAY_SIZE equ 8
 
 	fn_function "tests/test7"
 		;task started by test1
@@ -41,14 +41,6 @@
 		fn_jmp sys/task_stop
 
 	task_eights:
-		db 'tests/test8', 0
-		db 'tests/test8', 0
-		db 'tests/test8', 0
-		db 'tests/test8', 0
-		db 'tests/test8', 0
-		db 'tests/test8', 0
-		db 'tests/test8', 0
-		db 'tests/test8', 0
 		db 'tests/test8', 0
 		db 'tests/test8', 0
 		db 'tests/test8', 0

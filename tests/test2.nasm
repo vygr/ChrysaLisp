@@ -9,7 +9,7 @@
 		;trashes
 		;r0-r3, r5
 
-		for r10, 0, 10, 1
+		for r10, 0, 2, 1
 			for r9, 0, 10, 1
 				for r8, 0, 10, 1
 					vp_cpy r8, r11

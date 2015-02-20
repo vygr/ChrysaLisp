@@ -92,9 +92,8 @@
 					ln_get_succ r8, r8
 					breakif r8, ==, 0
 					continueif r0, !=, [r7 + (ML_MSG_DEST + 8)]
-					vp_cpy r7, r0
 					vp_cpy r7, r9
-					ln_remove_node r0, r1
+					ln_remove_node r7, r1
 					break
 				loopend
 			endif
@@ -120,7 +119,7 @@
 				endif
 			endif
 
-			;check for recived message
+			;check for received message
 			vp_cpy [r11 + LK_CHAN_STATUS], r0
 			if r0, ==, LK_CHAN_STATUS_BUSY
 				;allocate msg, copy over data

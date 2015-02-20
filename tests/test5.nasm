@@ -5,7 +5,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	FARM_SIZE equ 25
+	FARM_SIZE equ 8
 
 	fn_function "tests/test5"
 		;task started by test1
