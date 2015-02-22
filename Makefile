@@ -42,6 +42,7 @@ clean:
 	sys/mail_statics \
 	sys/mail_init_mailer \
 	sys/mail_read \
+	sys/mail_read_mymail \
 	sys/mail_send \
 	sys/math_random \
 	sys/mem_alloc \

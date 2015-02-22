@@ -1,5 +1,4 @@
 %include "func.inc"
-%include "task.inc"
 
 ;;;;;;;;;;;
 ; test code
@@ -9,8 +8,7 @@
 		;pipe task started by test9
 
 		;read exit command etc
-		vp_lea [r15 + TK_NODE_MAILBOX], r0
-		fn_call sys/mail_read
+		fn_call sys/mail_read_mymail
 		fn_call sys/mail_free
 
 		;wait a bit

@@ -1,5 +1,5 @@
 %include "func.inc"
-%include "task.inc"
+%include "mail.inc"
 
 ;;;;;;;;;;;
 ; test code
