@@ -163,10 +163,8 @@
 					switch
 					case r3, ==, 0
 						;never seen, so better route
-sys_write_char 1, '-'
 						vp_jmp better_route
 					case r2, <, r3
-sys_write_char 1, '*'
 					better_route:
 						;new hops is less, so better route
 						vp_cpy r2, [r0 + r10]
@@ -201,8 +199,6 @@ sys_write_char 1, '*'
 						break
 					case r2, ==, r3
 						;new hops is equal, so additional route
-sys_write_char 1, '+'
-						;fill in via route
 						vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r12
 						fn_bind sys/link_statics, r13
 						vp_lea [r13 + LK_STATICS_LINKS_LIST], r13
