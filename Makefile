@@ -48,6 +48,7 @@ clean:
 	sys/mem_alloc \
 	sys/mem_clear \
 	sys/mem_copy \
+	sys/mem_grow \
 	sys/mem_deinit_allocator \
 	sys/mem_free \
 	sys/mem_statics \

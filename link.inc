@@ -11,10 +11,17 @@
 	LK_CHAN_STATUS_READY	equ 0
 	LK_CHAN_STATUS_BUSY		equ 1
 
+	struc LK_TABLE
+		LK_TABLE_ARRAY:			resq	1
+		LK_TABLE_ARRAY_SIZE:	resq	1
+		LK_TABLE_SIZE:
+	endstruc
+
 	struc LK_NODE
-		LK_NODE_NODE:			resb	LN_NODE_SIZE
-		LK_NODE_CPU_ID:			resq	1
-		LK_NODE_TASK_COUNT:		resq	1
+		LK_NODE_NODE:				resb	LN_NODE_SIZE
+		LK_NODE_TABLE:				resb	LK_TABLE_SIZE
+		LK_NODE_CPU_ID:				resq	1
+		LK_NODE_TASK_COUNT:			resq	1
 		LK_NODE_SIZE:
 	endstruc
 
@@ -34,6 +41,11 @@
 		LK_BUFFER_CHAN_1:	resb	LK_CHAN_SIZE
 		LK_BUFFER_CHAN_2:	resb	LK_CHAN_SIZE
 		LK_BUFFER_SIZE:
+	endstruc
+
+	struc LK_ROUTE
+		LK_ROUTE_HOPS:		resq	1
+		LK_ROUTE_SIZE:
 	endstruc
 
 %endif

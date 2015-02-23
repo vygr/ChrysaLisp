@@ -66,3 +66,5 @@ tests/test7
 tests/test8
 tests/test9
 tests/test10
+
+sys/mem_grow

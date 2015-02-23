@@ -64,6 +64,25 @@
 			%endif
 	%endmacro
 
+	%macro jmpif 4
+			cmp %1, %3
+			%ifidn %2, ==
+				je %4
+			%elifidn %2, !=
+				jne %4
+			%elifidn %2, <
+				jl %4
+			%elifidn %2, >
+				jg %4
+			%elifidn %2, <=
+				jle %4
+			%elifidn %2, >=
+				jge %4
+			%else
+				j%+2 %4
+			%endif
+	%endmacro
+
 	%macro repeat 0
 			%push repeat
 		%$loop_start:

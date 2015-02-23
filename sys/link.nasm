@@ -8,14 +8,15 @@
 
 		;allocate link node on stack and link to links list
 		vp_sub LK_NODE_SIZE, r4
+		vp_cpy 0, long[r4 + LK_NODE_TABLE + LK_TABLE_ARRAY]
+		vp_cpy 0, long[r4 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE]
 		vp_lea [r4 + LK_NODE_NODE], r0
 		fn_bind sys/link_statics, r1
 		vp_lea [r1 + LK_STATICS_LINKS_LIST], r1
 		lh_add_at_head r1, r0, r2
 
 		;read params msg from kernel
-		vp_lea [r15 + TK_NODE_MAILBOX], r0
-		fn_call sys/mail_read
+		fn_call sys/mail_read_mymail
 		vp_cpy r1, r14
 
 		;init link node cpu id and task count
@@ -46,6 +47,22 @@
 		endif
 		vp_cpy r1, [r4 + LK_NODE_CPU_ID]
 		vp_cpy 0, long[r4 + LK_NODE_TASK_COUNT]
+
+		;send link routing message to neighbour kernel
+		vp_cpy r0, r8
+		vp_cpy r1, r9
+		fn_call sys/mail_alloc
+		vp_cpy 0, long[r0 + ML_MSG_DEST]
+		vp_cpy r9, [r0 + (ML_MSG_DEST + 8)]
+		vp_cpy 0, long[r0 + ML_MSG_DATA + KN_DATA_KERNEL_USER]
+		vp_cpy 0, long[r0 + ML_MSG_DATA + KN_DATA_KERNEL_REPLY]
+		vp_cpy 0, long[r0 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)]
+		vp_cpy KN_CALL_LINK_ROUTE, long[r0 + ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION]
+		vp_cpy r8, [r0 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN]
+		vp_cpy r8, [r0 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA]
+		vp_cpy 1, long[r0 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS]
+		vp_cpy ML_MSG_DATA + KN_DATA_LINK_ROUTE_SIZE, long[r0 + ML_MSG_LENGTH]
+		fn_call sys/mail_send
 
 		;open shared memory region
 		vp_lea [r14 + ML_MSG_DATA], r0
@@ -88,10 +105,18 @@
 				vp_lea [r8 + ML_STATICS_OFFCHIP_LIST], r8
 				lh_get_head r8, r8
 				loopstart
+				next_msg:
 					vp_cpy r8, r7
 					ln_get_succ r8, r8
 					breakif r8, ==, 0
-					continueif r0, !=, [r7 + (ML_MSG_DEST + 8)]
+					vp_cpy [r7 + (ML_MSG_DEST + 8)], r2
+					if r0, !=, r2
+						vp_cpy [r4 + LK_NODE_TABLE + LK_TABLE_ARRAY], r1
+						jmpif r1, ==, 0, next_msg
+						vp_mul LK_ROUTE_SIZE, r2
+						vp_cpy [r1 + r2 + LK_ROUTE_HOPS], r1
+						jmpif r1, ==, 0, next_msg
+					endif
 					vp_cpy r7, r9
 					ln_remove_node r7, r1
 					break
@@ -156,6 +181,8 @@
 		fn_call sys/mail_free
 
 		;remove from links list and deallocate link node on stack
+		vp_cpy [r4 + LK_NODE_TABLE], r0
+		fn_call sys/mem_free
 		vp_lea [r4 + LK_NODE_NODE], r0
 		ln_remove_node r0, r1
 		vp_add LK_NODE_SIZE, r4

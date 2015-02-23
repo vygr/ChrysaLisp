@@ -60,6 +60,11 @@
 			vp_add 8, r14
 		loopend
 
+		;allocate for kernel routing table
+		vp_sub LK_TABLE_SIZE, r4
+		vp_cpy 0, long[r4 + LK_TABLE_ARRAY]
+		vp_cpy 0, long[r4 + LK_TABLE_ARRAY_SIZE]
+
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernal task loop
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -98,6 +103,8 @@
 					fn_call sys/get_cpu_id
 					vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID + 8)]
 					vp_cpy ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_SIZE, long[r14 + ML_MSG_LENGTH]
+					vp_cpy r14, r0
+					fn_call sys/mail_send
 					break
 				case r1, ==, KN_CALL_TASK_CHILD
 					;find best cpu to run task
@@ -136,11 +143,81 @@
 						;send to better kernel
 						vp_cpy r0, [r14 + (ML_MSG_DEST + 8)]
 					endif
+					vp_cpy r14, r0
+					fn_call sys/mail_send
+					break
+				case r1, ==, KN_CALL_LINK_ROUTE
+					;new kernel routing table ?
+					vp_cpy [r4 + LK_TABLE_ARRAY], r0
+					vp_cpy [r4 + LK_TABLE_ARRAY_SIZE], r1
+					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN], r2
+					vp_mul LK_ROUTE_SIZE, r2
+					vp_add LK_ROUTE_SIZE, r2
+					vp_call grow_table
+					vp_cpy r0, [r4 + LK_TABLE_ARRAY]
+					vp_cpy r1, [r4 + LK_TABLE_ARRAY_SIZE]
+sys_write_char 1, '*'
+
+					;compare hop counts
+					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN], r1
+					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
+					vp_mul LK_ROUTE_SIZE, r1
+					vp_cpy [r0 + r1], r3
+					switch
+					case r3, ==, 0
+						;never seen, so better route
+						vp_jmp better_route
+					case r2, <, r3
+					better_route:
+						;new hops is less, so better route
+						vp_cpy r2, [r0 + r1]
+						break
+					case r2, ==, r3
+						;new hops is equal, so additional route
+						break
+					default
+						;new hops is greater, so worse route
+						vp_jmp drop_msg
+					endswitch
+
+					;increment hop count
+					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r1
+					vp_inc r1
+					vp_cpy r1, [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS]
+
+					;get current via, set via to my cpu id
+					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r13
+					fn_call sys/get_cpu_id
+					vp_cpy r0, [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA]
+
+					;copy and send to all neighbours apart from old via
+					fn_bind sys/link_statics, r12
+					vp_lea [r12 + LK_STATICS_LINKS_LIST], r12
+					lh_get_head r12, r12
+					loopstart
+						vp_cpy r12, r11
+						ln_get_succ r12, r12
+						breakif r12, ==, 0
+						vp_cpy [r11 + LK_NODE_CPU_ID], r10
+						continueif r10, ==, r13
+sys_write_char 1, '+'
+						fn_call sys/mail_alloc
+						vp_cpy r0, r5
+						vp_cpy r0, r1
+						vp_cpy r14, r0
+						vp_cpy [r14 + ML_MSG_LENGTH], r2
+						fn_call sys/mem_copy
+						vp_cpy r10, [r5 + (ML_MSG_DEST + 8)]
+						vp_cpy r5, r0
+						fn_call sys/mail_send
+					loopend
+				drop_msg:
+					vp_cpy r14, r1
+					fn_call sys/mail_free
+sys_write_char 1, '-'
 					break
 				default
 				endswitch
-				vp_cpy r14, r0
-				fn_call sys/mail_send
 			loopend
 
 			;start any tasks ready to restart
@@ -184,6 +261,11 @@
 			lh_get_tail r0, r0
 		until r1, ==, r0
 
+		;free any kernel routing table
+		vp_cpy [r4 + LK_TABLE_ARRAY], r0
+		fn_call sys/mem_free
+		vp_add LK_TABLE_SIZE, r4
+ 
 		;deinit allocator
 		fn_call sys/mem_deinit_allocator
 
@@ -198,6 +280,53 @@
 
 		;exit !
 		sys_exit 0
+
+;;;;;;;;;;;;;;;;;;;;
+; grow routing table
+;;;;;;;;;;;;;;;;;;;;
+
+	grow_table:
+		;inputs
+		;r0 = array
+		;r1 = array size
+		;r2 = new array size
+		;outputs
+		;r0 = new array
+		;r1 = new array size
+		;trashes
+		;r2-r3, r5-r9
+
+		vp_cpy r0, r6
+		vp_cpy r1, r7
+		if r2, >, r1
+			;alloc new table
+			vp_cpy r2, r0
+			fn_call sys/mem_alloc
+			vp_cpy r0, r8
+			vp_cpy r1, r9
+
+			;clear it to empty
+			for r2, 0, r1, 8
+				vp_cpy 0, long[r0 + r2]
+			next
+
+			if r6, !=, 0
+				;copy over old data
+				vp_cpy r6, r0
+				vp_cpy r8, r1
+				vp_cpy r7, r2
+				fn_call sys/mem_copy
+
+				;free existing
+				vp_cpy r6, r0
+				fn_call sys/mem_free
+			endif
+		
+			;save new table
+			vp_cpy r8, r0
+			vp_cpy r9, r1
+		endif
+		vp_ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; kernel option processors
