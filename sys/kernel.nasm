@@ -113,8 +113,7 @@
 					fn_bind sys/task_statics, r1
 					vp_cpy [r1 + TK_STATICS_TASK_COUNT], r1
 					fn_bind sys/link_statics, r2
-					vp_lea [r2 + LK_STATICS_LINKS_LIST], r2
-					lh_get_head r2, r2
+					vp_cpy [r2 + LK_STATICS_LINKS_LIST + LH_LIST_HEAD], r2
 					loopstart
 						vp_cpy r2, r3
 						ln_get_succ r2, r2
@@ -159,7 +158,7 @@
 
 					;compare hop counts
 					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
-					vp_cpy [r0 + r10], r3
+					vp_cpy [r0 + r10 + LK_ROUTE_HOPS], r3
 					switch
 					case r3, ==, 0
 						;never seen, so better route
@@ -172,8 +171,7 @@
 						;fill in via route and remove other routes
 						vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r12
 						fn_bind sys/link_statics, r13
-						vp_lea [r13 + LK_STATICS_LINKS_LIST], r13
-						lh_get_head r13, r13
+						vp_cpy [r13 + LK_STATICS_LINKS_LIST + LH_LIST_HEAD], r13
 						loopstart
 							vp_cpy r13, r11
 							ln_get_succ r13, r13
@@ -187,13 +185,13 @@
 							vp_cpy r0, [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY]
 							vp_cpy r1, [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE]
 
-							vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
 							if [r11 + LK_NODE_CPU_ID], ==, r12
 								;via route
-								vp_cpy r2, [r0 + r10]
+								vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
+								vp_cpy r2, [r0 + r10 + LK_ROUTE_HOPS]
 							else
 								;none via route
-								vp_cpy 0, long[r0 + r10]
+								vp_cpy 0, long[r0 + r10 + LK_ROUTE_HOPS]
 							endif
 						loopend
 						break
@@ -201,8 +199,7 @@
 						;new hops is equal, so additional route
 						vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r12
 						fn_bind sys/link_statics, r13
-						vp_lea [r13 + LK_STATICS_LINKS_LIST], r13
-						lh_get_head r13, r13
+						vp_cpy [r13 + LK_STATICS_LINKS_LIST + LH_LIST_HEAD], r13
 						loopstart
 							vp_cpy r13, r11
 							ln_get_succ r13, r13
@@ -216,9 +213,10 @@
 							vp_cpy r0, [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY]
 							vp_cpy r1, [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE]
 
-							vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
 							if [r11 + LK_NODE_CPU_ID], ==, r12
-								vp_cpy r2, [r0 + r10]
+								;via route
+								vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
+								vp_cpy r2, [r0 + r10 + LK_ROUTE_HOPS]
 							endif
 						loopend
 						break
@@ -239,12 +237,12 @@
 
 					;copy and send to all neighbours apart from old via
 					fn_bind sys/link_statics, r12
-					vp_lea [r12 + LK_STATICS_LINKS_LIST], r12
-					lh_get_head r12, r12
+					vp_cpy [r12 + LK_STATICS_LINKS_LIST + LH_LIST_HEAD], r12
 					loopstart
 						vp_cpy r12, r11
 						ln_get_succ r12, r12
 						breakif r12, ==, 0
+
 						vp_cpy [r11 + LK_NODE_CPU_ID], r10
 						continueif r10, ==, r13
 						fn_call sys/mail_alloc
@@ -267,8 +265,8 @@
 
 			;start any tasks ready to restart
 			fn_bind sys/task_statics, r3
-			vp_lea [r3 + TK_STATICS_TASK_TIMER_LIST], r0
-			lh_is_empty r0, r0
+			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
+			ln_get_succ r0, r0
 			if r0, !=, 0
 				;get time
 				vp_sub TIMEVAL_SIZE, r4
@@ -295,15 +293,14 @@
 			endif
 
 			;check if no other tasks available
-			vp_lea [r3 + TK_STATICS_TASK_TIMER_LIST], r0
-			lh_is_empty r0, r0
+			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
+			ln_get_succ r0, r0
 			continueif r0, !=, 0
-			vp_lea [r3 + TK_STATICS_TASK_SUSPEND_LIST], r0
-			lh_is_empty r0, r0
+			vp_cpy [r3 + TK_STATICS_TASK_SUSPEND_LIST + LH_LIST_HEAD], r0
+			ln_get_succ r0, r0
 			continueif r0, !=, 0
-			vp_lea [r3 + TK_STATICS_TASK_LIST], r0
-			lh_get_head r0, r1
-			lh_get_tail r0, r0
+			vp_cpy [r3 + TK_STATICS_TASK_LIST + LH_LIST_HEAD], r0
+			vp_cpy [r3 + TK_STATICS_TASK_LIST + LH_LIST_TAILPRED], r1
 		until r1, ==, r0
 
 		;free any kernel routing table

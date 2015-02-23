@@ -102,8 +102,7 @@
 				;no outgoing message so see if any offchip mail for me
 				vp_cpy [r4 + LK_NODE_CPU_ID], r0
 				fn_bind sys/mail_statics, r8
-				vp_lea [r8 + ML_STATICS_OFFCHIP_LIST], r8
-				lh_get_head r8, r8
+				vp_cpy [r8 + ML_STATICS_OFFCHIP_LIST + LH_LIST_HEAD], r8
 				loopstart
 				next_msg:
 					vp_cpy r8, r7
