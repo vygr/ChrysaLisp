@@ -150,30 +150,81 @@
 					;new kernel routing table ?
 					vp_cpy [r4 + LK_TABLE_ARRAY], r0
 					vp_cpy [r4 + LK_TABLE_ARRAY_SIZE], r1
-					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN], r2
-					vp_mul LK_ROUTE_SIZE, r2
-					vp_add LK_ROUTE_SIZE, r2
-					vp_call grow_table
+					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN], r10
+					vp_mul LK_ROUTE_SIZE, r10
+					vp_lea [r10 + LK_ROUTE_SIZE], r2
+					fn_call sys/mem_grow
 					vp_cpy r0, [r4 + LK_TABLE_ARRAY]
 					vp_cpy r1, [r4 + LK_TABLE_ARRAY_SIZE]
-sys_write_char 1, '*'
 
 					;compare hop counts
-					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN], r1
 					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
-					vp_mul LK_ROUTE_SIZE, r1
-					vp_cpy [r0 + r1], r3
+					vp_cpy [r0 + r10], r3
 					switch
 					case r3, ==, 0
 						;never seen, so better route
+sys_write_char 1, '-'
 						vp_jmp better_route
 					case r2, <, r3
+sys_write_char 1, '*'
 					better_route:
 						;new hops is less, so better route
-						vp_cpy r2, [r0 + r1]
+						vp_cpy r2, [r0 + r10]
+
+						;fill in via route and remove other routes
+						vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r12
+						fn_bind sys/link_statics, r13
+						vp_lea [r13 + LK_STATICS_LINKS_LIST], r13
+						lh_get_head r13, r13
+						loopstart
+							vp_cpy r13, r11
+							ln_get_succ r13, r13
+							breakif r13, ==, 0
+							
+							;new link route table ?
+							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
+							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
+							vp_lea [r10 + LK_ROUTE_SIZE], r2
+							fn_call sys/mem_grow
+							vp_cpy r0, [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY]
+							vp_cpy r1, [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE]
+
+							vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
+							if [r11 + LK_NODE_CPU_ID], ==, r12
+								;via route
+								vp_cpy r2, [r0 + r10]
+							else
+								;none via route
+								vp_cpy 0, long[r0 + r10]
+							endif
+						loopend
 						break
 					case r2, ==, r3
 						;new hops is equal, so additional route
+sys_write_char 1, '+'
+						;fill in via route
+						vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r12
+						fn_bind sys/link_statics, r13
+						vp_lea [r13 + LK_STATICS_LINKS_LIST], r13
+						lh_get_head r13, r13
+						loopstart
+							vp_cpy r13, r11
+							ln_get_succ r13, r13
+							breakif r13, ==, 0
+							
+							;new link route table ?
+							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
+							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
+							vp_lea [r10 + LK_ROUTE_SIZE], r2
+							fn_call sys/mem_grow
+							vp_cpy r0, [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY]
+							vp_cpy r1, [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE]
+
+							vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
+							if [r11 + LK_NODE_CPU_ID], ==, r12
+								vp_cpy r2, [r0 + r10]
+							endif
+						loopend
 						break
 					default
 						;new hops is greater, so worse route
@@ -200,7 +251,6 @@ sys_write_char 1, '*'
 						breakif r12, ==, 0
 						vp_cpy [r11 + LK_NODE_CPU_ID], r10
 						continueif r10, ==, r13
-sys_write_char 1, '+'
 						fn_call sys/mail_alloc
 						vp_cpy r0, r5
 						vp_cpy r0, r1
@@ -214,7 +264,6 @@ sys_write_char 1, '+'
 				drop_msg:
 					vp_cpy r14, r1
 					fn_call sys/mail_free
-sys_write_char 1, '-'
 					break
 				default
 				endswitch
@@ -280,53 +329,6 @@ sys_write_char 1, '-'
 
 		;exit !
 		sys_exit 0
-
-;;;;;;;;;;;;;;;;;;;;
-; grow routing table
-;;;;;;;;;;;;;;;;;;;;
-
-	grow_table:
-		;inputs
-		;r0 = array
-		;r1 = array size
-		;r2 = new array size
-		;outputs
-		;r0 = new array
-		;r1 = new array size
-		;trashes
-		;r2-r3, r5-r9
-
-		vp_cpy r0, r6
-		vp_cpy r1, r7
-		if r2, >, r1
-			;alloc new table
-			vp_cpy r2, r0
-			fn_call sys/mem_alloc
-			vp_cpy r0, r8
-			vp_cpy r1, r9
-
-			;clear it to empty
-			for r2, 0, r1, 8
-				vp_cpy 0, long[r0 + r2]
-			next
-
-			if r6, !=, 0
-				;copy over old data
-				vp_cpy r6, r0
-				vp_cpy r8, r1
-				vp_cpy r7, r2
-				fn_call sys/mem_copy
-
-				;free existing
-				vp_cpy r6, r0
-				fn_call sys/mem_free
-			endif
-		
-			;save new table
-			vp_cpy r8, r0
-			vp_cpy r9, r1
-		endif
-		vp_ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; kernel option processors
