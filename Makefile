@@ -8,12 +8,15 @@ main.o:	main.nasm vp.inc load.inc syscall.inc link.inc sys/load_init_loader \
 		sys/load_deinit_loader sys/kernel
 		nasm -f macho64 main.nasm
 
-sys:	$(patsubst %.nasm, %, $(wildcard sys/*.nasm))
-tests:	$(patsubst %.nasm, %, $(wildcard tests/*.nasm))
+sys_objects = $(patsubst %.nasm, %, $(wildcard sys/*.nasm))
+tests_objects = $(patsubst %.nasm, %, $(wildcard tests/*.nasm))
+
+sys:	$(sys_objects)
+tests:	$(tests_objects)
 
 %:	%.nasm Makefile func.inc task.inc list.inc vp.inc \
 		code.inc mail.inc syscall.inc heap.inc link.inc
 		nasm -f bin $< -o $@
 
 clean:
-	rm main main.o $(patsubst %.nasm, %, $(wildcard sys/*.nasm)) $(patsubst %.nasm, %, $(wildcard tests/*.nasm))
+	rm main main.o $(sys_objects) $(tests_objects)
