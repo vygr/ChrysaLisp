@@ -61,6 +61,7 @@
 				vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)], r1
 				switch
 				case r1, ==, KN_CALL_TASK_OPEN
+				run_here:
 					;fill in reply ID, user field is left alone !
 					vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)], r1
 					vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)], r2
@@ -95,25 +96,10 @@
 							vp_cpy [r3 + LK_NODE_TASK_COUNT], r1
 						endif
 					loopend
-					if r0, ==, r5
-						;fill in reply ID, user field is left alone !
-						vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)], r1
-						vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)], r2
-						vp_cpy r1, [r14 + ML_MSG_DEST]
-						vp_cpy r2, [r14 + (ML_MSG_DEST + 8)]
+					jmpif r0, ==, r5, run_here
 
-						;I'm best so run here
-						vp_lea [r14 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_PATHNAME)], r0
-						fn_call sys/load_function_load
-						fn_call sys/task_start
-						vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID)]
-						fn_call sys/get_cpu_id
-						vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID + 8)]
-						vp_cpy ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_SIZE, long[r14 + ML_MSG_LENGTH]
-					else
-						;send to better kernel
-						vp_cpy r0, [r14 + (ML_MSG_DEST + 8)]
-					endif
+					;send to better kernel
+					vp_cpy r0, [r14 + (ML_MSG_DEST + 8)]
 					vp_cpy r14, r0
 					fn_call sys/mail_send
 					break
@@ -191,6 +177,7 @@
 								vp_cpy r2, [r0 + r10 + LK_ROUTE_HOPS]
 							endif
 						loopend
+						;drop through to discard message !
 					default
 						;new hops is greater, so worse route
 						vp_jmp drop_msg
