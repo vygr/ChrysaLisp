@@ -219,7 +219,6 @@
 								vp_cpy r2, [r0 + r10 + LK_ROUTE_HOPS]
 							endif
 						loopend
-						break
 					default
 						;new hops is greater, so worse route
 						vp_jmp drop_msg
