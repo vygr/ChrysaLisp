@@ -70,3 +70,7 @@ tests/test10
 sys/mem_grow
 
 sys/opt_process
+
+*.o
+
+gui

@@ -29,7 +29,7 @@
 		vp_cpy r0, [r1 + 0x68]
 
 		;process command options
-		vp_lea [r4 + 8], r0
+		vp_lea [r4 + 16], r0
 		fn_call sys/opt_process
 
 		;allocate for kernel routing table
