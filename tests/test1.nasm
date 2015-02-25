@@ -8,6 +8,14 @@
 	fn_function "tests/test1"
 		;task started by test kernel
 
+		;delay for a while to let the network routing finish
+		vp_cpy 1000000, r0
+		fn_call sys/task_sleep
+
+		;open test11 task, off chip
+		vp_lea [rel task_eleven], r0
+		fn_call sys/task_open_child
+
 		;open test9 task, off chip
 		vp_lea [rel task_nine], r0
 		fn_call sys/task_open_child
@@ -55,5 +63,7 @@
 		db 'tests/test7', 0
 	task_nine:
 		db 'tests/test9', 0
+	task_eleven:
+		db 'tests/test11', 0
 
 	fn_function_end

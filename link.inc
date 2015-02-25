@@ -18,10 +18,10 @@
 	endstruc
 
 	struc LK_NODE
-		LK_NODE_NODE:				resb	LN_NODE_SIZE
-		LK_NODE_TABLE:				resb	LK_TABLE_SIZE
-		LK_NODE_CPU_ID:				resq	1
-		LK_NODE_TASK_COUNT:			resq	1
+		LK_NODE_NODE:			resb	LN_NODE_SIZE
+		LK_NODE_TABLE:			resb	LK_TABLE_SIZE
+		LK_NODE_CPU_ID:			resq	1
+		LK_NODE_TASK_COUNT:		resq	1
 		LK_NODE_SIZE:
 	endstruc
 

@@ -11,7 +11,7 @@
 
 	global _main
 _main:
-	vp_sub 8, r4
+	vp_sub 8, r4	;needed for SDL !!!
 
 	;init sdl2
 	sdl_setmainready

@@ -12,8 +12,10 @@
 	extern _SDL_Init
 	extern _SDL_Quit
 	extern _SDL_CreateWindow
+	extern _SDL_CreateWindowAndRenderer
 	extern _SDL_DestroyWindow
 	extern _SDL_Delay
+	extern _SDL_CreateRenderer
 
 	SDL_INIT_TIMER			equ 0x00000001
 	SDL_INIT_AUDIO			equ 0x00000010
@@ -51,6 +53,11 @@
 	%define	SDL_WINDOWPOS_CENTERED				SDL_WINDOWPOS_CENTERED_DISPLAY(0)
 	%define	SDL_WINDOWPOS_ISCENTERED(X)			(((X)&0xFFFF0000) == SDL_WINDOWPOS_CENTERED_MASK)
 
+	SDL_RENDERER_SOFTWARE		equ 0x00000001
+	SDL_RENDERER_ACCELERATED	equ 0x00000002
+	SDL_RENDERER_PRESENTVSYNC	equ 0x00000004
+	SDL_RENDERER_TARGETTEXTURE	equ 0x00000008
+
 ;;;;;;;;;;;;;
 ; sdl2 macros
 ;;;;;;;;;;;;;
@@ -86,10 +93,28 @@
 		vp_call _SDL_CreateWindow
 	%endmacro
 
+	%macro sdl_createwindowandrenderer 5
+		;w, h, flags, window**, renderer**
+		vp_cpy %1, r7		;w
+		vp_cpy %2, r6		;h
+		vp_cpy %3, r2		;flags
+		vp_cpy %4, r1		;window**
+		vp_cpy %5, r8		;renderer**
+		vp_call _SDL_CreateWindowAndRenderer
+	%endmacro
+
 	%macro sdl_destroywindow 1
 		;window
 		vp_cpy %1, r7
 		vp_call _SDL_DestroyWindow
+	%endmacro
+
+	%macro sdl_createrenderer 3
+		;window*, index, flags
+		vp_cpy %1, r7		;window*
+		vp_cpy %2, r6		;index
+		vp_cpy %3, r2		;flags
+		vp_call _SDL_CreateRenderer
 	%endmacro
 
 %endif

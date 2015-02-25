@@ -80,7 +80,7 @@
 		for r0, 0, LK_BUFFER_SIZE, 8
 			vp_cpy 0, long[r12 + r0]
 		next
-		vp_cpy 1000000, r0
+		vp_cpy 500000, r0
 		fn_call sys/task_sleep
 
 		;read and write messages through the shared buffer in r12

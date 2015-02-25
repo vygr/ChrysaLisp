@@ -74,3 +74,7 @@ sys/opt_process
 *.o
 
 gui
+
+tests/test11
+
+tests/test12

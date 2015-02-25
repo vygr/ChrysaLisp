@@ -104,6 +104,14 @@
 					fn_call sys/mail_send
 					break
 				case r1, ==, KN_CALL_LINK_ROUTE
+					;increase size of network
+					fn_bind sys/task_statics, r0
+					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN], r1
+					vp_inc r1
+					if r1, >, [r0 + TK_STATICS_TASK_NUM_CPU]
+						vp_cpy r1, [r0 + TK_STATICS_TASK_NUM_CPU]
+					endif
+					
 					;new kernel routing table ?
 					vp_cpy [r4 + LK_TABLE_ARRAY], r0
 					vp_cpy [r4 + LK_TABLE_ARRAY_SIZE], r1
