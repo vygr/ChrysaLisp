@@ -11,7 +11,7 @@ main.o:	main.nasm vp.inc load.inc syscall.inc link.inc sys/load_init_loader \
 sdl_ldflags := $(shell sdl2-config --libs)
 
 gui:	gui.o
-		gcc -o gui -e _main gui.o $(sdl_ldflags)
+		clang -o gui -e _main gui.o $(sdl_ldflags)
 
 gui.o:	gui.nasm sdl2.inc vp.inc load.inc syscall.inc link.inc sys/load_init_loader \
 		sys/load_function_load sys/load_statics \
@@ -29,4 +29,4 @@ tests:	$(tests_objects)
 		nasm -f bin $< -o $@
 
 clean:
-	rm main main.o gui gui.o $(sys_objects) $(tests_objects)
+	rm main gui *.o $(sys_objects) $(tests_objects)
