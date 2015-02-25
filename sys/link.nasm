@@ -76,17 +76,11 @@
 		sys_mmap 0, LK_BUFFER_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, r13, 0
 		vp_cpy r0, r12
 
-		;clear region and sleep small amount of time for other end to sync up
-		for r0, 0, LK_BUFFER_SIZE, 8
-			vp_cpy 0, long[r12 + r0]
-		next
-		vp_cpy 500000, r0
-		fn_call sys/task_sleep
-
-		;read and write messages through the shared buffer in r12
-		;r11 is input channel, r10 is output channel
+		;r10 is tx channel, r11 is rx channel
 		vp_add r12, r10
 		vp_add r12, r11
+
+		;read and write messages through the shared buffer in r12
 		vp_xor r9, r9
 		loopstart
 			;exchange task counts
