@@ -10,11 +10,11 @@
 		;r1-r3, r5-r6
 
 		;save prog counter
-		vp_cpy r0,r5
+		vp_cpy r0, r5
 
 		;get statics
 		fn_bind sys/task_statics, r0
-		vp_cpy	r0, r6
+		vp_cpy r0, r6
 
 		;increment task count
 		vp_cpy [r6 + TK_STATICS_TASK_COUNT], r0
