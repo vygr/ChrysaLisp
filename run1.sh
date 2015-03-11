@@ -1,2 +1,2 @@
 #!/bin/bash
-./main -cpu 0 -run tests/test1 &
+./gui -cpu 0 -run tests/test1 &

@@ -21,6 +21,7 @@ _main:
 	vp_call ld_load_init_loader + 0x38
 
 	;jump to kernel task
+	vp_lea [r4 + 16], r0
 	vp_jmp ld_kernel + 0x30
 
 ;;;;;;;;;;;;;;;;;;;;

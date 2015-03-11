@@ -12,6 +12,9 @@
 
 	global _main
 _main:
+	;called by sdl !!!!!!!
+	vp_push r6
+
 	;set prebound functions as read/write/executable
 	vp_lea [rel ld_prebound], r0
 	vp_and -LD_PAGE_SIZE, r0
@@ -27,6 +30,7 @@ _main:
 	vp_call ld_gui_init_gui + 0x38
 
 	;jump to kernel task
+	vp_pop r0
 	vp_jmp ld_kernel + 0x30
 
 ;;;;;;;;;;;;;;;;;;;;

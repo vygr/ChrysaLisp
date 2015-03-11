@@ -9,6 +9,11 @@
 
 	fn_function "sys/kernel"
 		;loader is allready initialized when we get here !
+		;inputs
+		;r0 = argv pointer
+
+		;save argv
+		vp_push r0
 
 		;init tasker
 		fn_call sys/task_init_tasker
@@ -29,7 +34,7 @@
 		vp_cpy r0, [r1 + 0x68]
 
 		;process command options
-		vp_lea [r4 + 16], r0
+		vp_pop r0
 		fn_call sys/opt_process
 
 		;allocate for kernel routing table
