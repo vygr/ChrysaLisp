@@ -15,7 +15,7 @@ gui:	gui.o
 
 gui.o:	gui.nasm sdl2.inc vp.inc load.inc syscall.inc link.inc sys/load_init_loader \
 		sys/load_function_load sys/load_statics \
-		sys/load_deinit_loader sys/kernel
+		sys/load_deinit_loader sys/kernel sys/gui_init_gui
 		nasm -f macho64 gui.nasm
 
 sys_objects := $(patsubst %.nasm, %, $(wildcard sys/*.nasm))

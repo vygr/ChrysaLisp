@@ -19,6 +19,9 @@
 		lh_init r0, r1
 		vp_lea [r3 + TK_STATICS_TASK_TIMER_LIST], r0
 		lh_init r0, r1
+
+		;init cpu count
+		vp_cpy 1, qword[r3 + TK_STATICS_TASK_NUM_CPU]
 		vp_ret
 
 	fn_function_end

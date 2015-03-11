@@ -22,7 +22,7 @@
 
 			;clear it to empty
 			for r2, 0, r1, 8
-				vp_cpy 0, long[r0 + r2]
+				vp_cpy 0, qword[r0 + r2]
 			next
 
 			if r6, !=, 0

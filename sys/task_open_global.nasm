@@ -20,7 +20,7 @@
 		vp_cpy r4, r5
 
 		;initialise temp mailbox
-		vp_cpy 0, long[r5 + ML_MAILBOX_TCB]
+		vp_cpy 0, qword[r5 + ML_MAILBOX_TCB]
 		vp_lea [r5 + ML_MAILBOX_LIST], r0
 		lh_init r0, r1
 
@@ -33,11 +33,11 @@
 			;fill in destination, reply and function
 			fn_call sys/get_cpu_id
 			vp_dec r8
-			vp_cpy 0, long[r3 + ML_MSG_DEST]
+			vp_cpy 0, qword[r3 + ML_MSG_DEST]
 			vp_cpy r8, [r3 + (ML_MSG_DEST + 8)]
 			vp_cpy r5, [r3 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)]
 			vp_cpy r0, [r3 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)]
-			vp_cpy KN_CALL_TASK_OPEN, long[r3 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)]
+			vp_cpy KN_CALL_TASK_OPEN, qword[r3 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)]
 
 			;copy task name
 			vp_cpy r6, r0

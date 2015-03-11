@@ -8,8 +8,8 @@
 
 		;allocate link node on stack and link to links list
 		vp_sub LK_NODE_SIZE, r4
-		vp_cpy 0, long[r4 + LK_NODE_TABLE + LK_TABLE_ARRAY]
-		vp_cpy 0, long[r4 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE]
+		vp_cpy 0, qword[r4 + LK_NODE_TABLE + LK_TABLE_ARRAY]
+		vp_cpy 0, qword[r4 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE]
 		vp_lea [r4 + LK_NODE_NODE], r0
 		fn_bind sys/link_statics, r1
 		vp_lea [r1 + LK_STATICS_LINKS_LIST], r1
@@ -46,22 +46,22 @@
 			vp_cpy LK_BUFFER_CHAN_1, r11
 		endif
 		vp_cpy r1, [r4 + LK_NODE_CPU_ID]
-		vp_cpy 0, long[r4 + LK_NODE_TASK_COUNT]
+		vp_cpy 0, qword[r4 + LK_NODE_TASK_COUNT]
 
 		;send link routing message to neighbour kernel
 		vp_cpy r0, r8
 		vp_cpy r1, r9
 		fn_call sys/mail_alloc
-		vp_cpy 0, long[r0 + ML_MSG_DEST]
+		vp_cpy 0, qword[r0 + ML_MSG_DEST]
 		vp_cpy r9, [r0 + (ML_MSG_DEST + 8)]
-		vp_cpy 0, long[r0 + ML_MSG_DATA + KN_DATA_KERNEL_USER]
-		vp_cpy 0, long[r0 + ML_MSG_DATA + KN_DATA_KERNEL_REPLY]
-		vp_cpy 0, long[r0 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)]
-		vp_cpy KN_CALL_LINK_ROUTE, long[r0 + ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION]
+		vp_cpy 0, qword[r0 + ML_MSG_DATA + KN_DATA_KERNEL_USER]
+		vp_cpy 0, qword[r0 + ML_MSG_DATA + KN_DATA_KERNEL_REPLY]
+		vp_cpy 0, qword[r0 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)]
+		vp_cpy KN_CALL_LINK_ROUTE, qword[r0 + ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION]
 		vp_cpy r8, [r0 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN]
 		vp_cpy r8, [r0 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA]
-		vp_cpy 1, long[r0 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS]
-		vp_cpy ML_MSG_DATA + KN_DATA_LINK_ROUTE_SIZE, long[r0 + ML_MSG_LENGTH]
+		vp_cpy 1, qword[r0 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS]
+		vp_cpy ML_MSG_DATA + KN_DATA_LINK_ROUTE_SIZE, qword[r0 + ML_MSG_LENGTH]
 		fn_call sys/mail_send
 
 		;open shared memory region
@@ -131,7 +131,7 @@
 					fn_call sys/mail_free
 
 					;busy status, check for more output
-					vp_cpy LK_CHAN_STATUS_BUSY, long[r10 + LK_CHAN_STATUS]
+					vp_cpy LK_CHAN_STATUS_BUSY, qword[r10 + LK_CHAN_STATUS]
 					vp_xor r9, r9
 					vp_jmp more_output
 				endif
@@ -153,7 +153,7 @@
 				fn_call sys/mail_send
 
 				;clear status
-				vp_cpy LK_CHAN_STATUS_READY, long[r11 + LK_CHAN_STATUS]
+				vp_cpy LK_CHAN_STATUS_READY, qword[r11 + LK_CHAN_STATUS]
 			endif
 
 			;exit if signaled by kernel

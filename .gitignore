@@ -71,3 +71,5 @@ tests/test6
 tests/test7
 tests/test8
 tests/test9
+sys/gui_init_gui
+sys/gui_statics

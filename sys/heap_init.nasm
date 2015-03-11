@@ -11,8 +11,8 @@
 		;r1 = cell size
 		;r2 = block size
 
-		vp_cpy 0, long[r0 + HP_HEAP_FREELIST]
-		vp_cpy 0, long[r0 + HP_HEAP_BLOCKLIST]
+		vp_cpy 0, qword[r0 + HP_HEAP_FREELIST]
+		vp_cpy 0, qword[r0 + HP_HEAP_BLOCKLIST]
 		vp_add HP_CELL_SIZE - 1, r1
 		vp_and -HP_CELL_SIZE, r1
 		vp_cpy r1, [r0 + HP_HEAP_CELLSIZE]

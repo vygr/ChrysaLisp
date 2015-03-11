@@ -3,6 +3,7 @@
 
 %include "vp.inc"
 %include "code.inc"
+%include "gui.inc"
 
 ;;;;;;;;;;;;;;;;;
 ; sdl2 structures
@@ -16,6 +17,15 @@
 	extern _SDL_DestroyWindow
 	extern _SDL_Delay
 	extern _SDL_CreateRenderer
+
+	SDL_SETMAINREADY			equ 0
+	SDL_INIT					equ 1
+	SDL_QUIT					equ 2
+	SDL_CREATEWINDOW			equ 3
+	SDL_CREATEWINDOWANDRENDERER	equ 4
+	SDL_DESTROYWINDOW			equ 5
+	SDL_DELAY					equ 6
+	SDL_CREATERENDERER			equ 7
 
 	SDL_INIT_TIMER			equ 0x00000001
 	SDL_INIT_AUDIO			equ 0x00000010
@@ -63,23 +73,31 @@
 ;;;;;;;;;;;;;
 
 	%macro sdl_setmainready 0
-		vp_call _SDL_SetMainReady
+		fn_bind sys/gui_statics, r0
+		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
+		vp_call [r0 + (SDL_SETMAINREADY * 8)]
 	%endmacro
 
 	%macro sdl_init 1
 		;flags
 		vp_cpy %1, r7
-		vp_call _SDL_Init
+		fn_bind sys/gui_statics, r0
+		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
+		vp_call [r0 + (SDL_INIT * 8)]
 	%endmacro
 
 	%macro sdl_delay 1
 		;time
 		vp_cpy %1, r7
-		vp_call _SDL_Delay
+		fn_bind sys/gui_statics, r0
+		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
+		vp_call [r0 + (SDL_DELAY * 8)]
 	%endmacro
 
 	%macro sdl_quit 0
-		vp_call _SDL_Quit
+		fn_bind sys/gui_statics, r0
+		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
+		vp_call [r0 + (SDL_QUIT * 8)]
 	%endmacro
 
 	%macro sdl_createwindow 6
@@ -90,7 +108,9 @@
 		vp_cpy %4, r1		;w
 		vp_cpy %5, r8		;h
 		vp_cpy %6, r9		;flags
-		vp_call _SDL_CreateWindow
+		fn_bind sys/gui_statics, r0
+		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
+		vp_call [r0 + (SDL_CREATEWINDOW * 8)]
 	%endmacro
 
 	%macro sdl_createwindowandrenderer 5
@@ -100,13 +120,17 @@
 		vp_cpy %3, r2		;flags
 		vp_cpy %4, r1		;window**
 		vp_cpy %5, r8		;renderer**
-		vp_call _SDL_CreateWindowAndRenderer
+		fn_bind sys/gui_statics, r0
+		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
+		vp_call [r0 + (SDL_CREATEWINDOWANDRENDERER * 8)]
 	%endmacro
 
 	%macro sdl_destroywindow 1
 		;window
 		vp_cpy %1, r7
-		vp_call _SDL_DestroyWindow
+		fn_bind sys/gui_statics, r0
+		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
+		vp_call [r0 + (SDL_DESTROYWINDOW * 8)]
 	%endmacro
 
 	%macro sdl_createrenderer 3
@@ -114,7 +138,9 @@
 		vp_cpy %1, r7		;window*
 		vp_cpy %2, r6		;index
 		vp_cpy %3, r2		;flags
-		vp_call _SDL_CreateRenderer
+		fn_bind sys/gui_statics, r0
+		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
+		vp_call [r0 + (SDL_CREATERENDERER * 8)]
 	%endmacro
 
 %endif

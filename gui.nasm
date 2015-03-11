@@ -1,5 +1,6 @@
 %include "vp.inc"
 %include "code.inc"
+%include "load.inc"
 %include "syscall.inc"
 %include "sdl2.inc"
 
@@ -11,30 +12,52 @@
 
 	global _main
 _main:
-	vp_sub 8, r4	;needed for SDL !!!
+	;set prebound functions as read/write/executable
+	vp_lea [rel ld_prebound], r0
+	vp_and -LD_PAGE_SIZE, r0
+	vp_lea [rel ld_prebounde], r1
+	vp_sub r0, r1
+	sys_mprotect r0, r1, PROT_READ|PROT_WRITE|PROT_EXEC
 
-	;init sdl2
-	sdl_setmainready
-	sdl_init SDL_INIT_VIDEO
+	;init loader
+	vp_call ld_load_init_loader + 0x38
 
-	;create window
-	vp_lea [rel title], r14
-	sdl_createwindow r14, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL
-	vp_cpy r0, r14
+	;init gui
+	vp_lea [rel sdl_func_table], r0
+	vp_call ld_gui_init_gui + 0x38
 
-	;wait 1 second
-	sdl_delay 1000
+	;jump to kernel task
+	vp_jmp ld_kernel + 0x30
 
-	;destroy window
-	sdl_destroywindow r14
+;;;;;;;;;;;;;;;;;;;;
+; prebound functions
+;;;;;;;;;;;;;;;;;;;;
 
-	;deinit sdl2
-	sdl_quit
+	align 8, db 0
+ld_prebound:
 
-	;exit
-	sys_exit 0
+ld_load_init_loader:
+	incbin	'sys/load_init_loader'		;must be first function !
+	incbin	'sys/load_function_load'	;must be second function !
+	incbin	'sys/load_statics'			;must be third function !
+	incbin	'sys/load_deinit_loader'	;must be included !
+ld_gui_init_gui:
+	incbin	'sys/gui_init_gui'			;must be included !
+ld_kernel:
+	incbin	'sys/kernel'				;must be included !
+
+ld_prebounde:
+	dq 0
 
 	SECTION .data
 
-title:
-	db "Test Window", 0
+	align 8
+sdl_func_table:
+	dq _SDL_SetMainReady
+	dq _SDL_Init
+	dq _SDL_Quit
+	dq _SDL_CreateWindow
+	dq _SDL_CreateWindowAndRenderer
+	dq _SDL_DestroyWindow
+	dq _SDL_Delay
+	dq _SDL_CreateRenderer

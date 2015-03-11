@@ -51,6 +51,7 @@
 		vp_add 8, r14
 		vp_cpy [r14], r0
 		if r0, !=, 0
+sys_write_char 1, 'C'
 			vp_cpy 10, r1
 			fn_call sys/string_parse_int
 			fn_bind sys/get_cpu_id, r1
@@ -68,6 +69,7 @@
 		vp_add 8, r14
 		vp_cpy [r14], r0
 		if r0, !=, 0
+sys_write_char 1, 'R'
 			fn_call sys/load_function_load
 			if r0, !=, 0
 				fn_call sys/task_start
@@ -85,6 +87,7 @@
 		vp_add 8, r14
 		vp_cpy [r14], r0
 		if r0, !=, 0
+sys_write_char 1, 'L'
 			;start link
 			fn_bind sys/link, r0
 			fn_call sys/task_start

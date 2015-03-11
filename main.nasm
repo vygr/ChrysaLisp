@@ -1,9 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; nasm -f macho64 main.nasm
-;; ld -macosx_version_min 10.6 -o main -e _main main.o
-;; ./main
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 %include "vp.inc"
 %include "load.inc"
 %include "syscall.inc"

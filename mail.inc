@@ -44,7 +44,7 @@
 		;%2
 
 		lh_init %1, %2
-		vp_cpy 0, long[%1 + ML_MAILBOX_TCB]
+		vp_cpy 0, qword[%1 + ML_MAILBOX_TCB]
 	%endmacro
 
 	%macro ml_check 2
