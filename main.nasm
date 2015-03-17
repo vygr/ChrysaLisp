@@ -1,6 +1,8 @@
 %include "vp.inc"
+%include "code.inc"
 %include "load.inc"
 %include "syscall.inc"
+%include "sdl2.inc"
 
 ;;;;;;;;;;;;;
 ; entry point
@@ -10,6 +12,9 @@
 
 	global _main
 _main:
+	;called by sdl !!!!!!!
+	vp_push r6
+
 	;set prebound functions as read/write/executable
 	vp_lea [rel ld_prebound], r0
 	vp_and -LD_PAGE_SIZE, r0
@@ -20,8 +25,12 @@ _main:
 	;init loader
 	vp_call ld_load_init_loader + 0x38
 
+	;init gui
+	vp_lea [rel sdl_func_table], r0
+	vp_call ld_gui_init_gui + 0x38
+
 	;jump to kernel task
-	vp_lea [r4 + 16], r0
+	vp_pop r0
 	vp_jmp ld_kernel + 0x30
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -36,8 +45,23 @@ ld_load_init_loader:
 	incbin	'sys/load_function_load'	;must be second function !
 	incbin	'sys/load_statics'			;must be third function !
 	incbin	'sys/load_deinit_loader'	;must be included !
+ld_gui_init_gui:
+	incbin	'sys/gui_init_gui'			;must be included !
 ld_kernel:
 	incbin	'sys/kernel'				;must be included !
 
 ld_prebounde:
 	dq 0
+
+	SECTION .data
+
+	align 8
+sdl_func_table:
+	dq _SDL_SetMainReady
+	dq _SDL_Init
+	dq _SDL_Quit
+	dq _SDL_CreateWindow
+	dq _SDL_CreateWindowAndRenderer
+	dq _SDL_DestroyWindow
+	dq _SDL_Delay
+	dq _SDL_CreateRenderer
