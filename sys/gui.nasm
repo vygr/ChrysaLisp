@@ -1,36 +1,20 @@
 %include "func.inc"
-%include "sdl2.inc"
-%include "syscall.inc"
+%include "mail.inc"
 
 	fn_function "sys/gui"
 
-		;sdl needs this !!!!!
-		vp_sub 8, r4
+		;allocate mail message
+		fn_call sys/mail_alloc
 
-		;init sdl2
-		sdl_setmainready
-		sdl_init SDL_INIT_VIDEO
+		;fill in destination, function
+		vp_cpy 0, qword[r0 + ML_MSG_DEST]
+		vp_cpy 0, qword[r0 + (ML_MSG_DEST + 8)]
+		vp_cpy KN_CALL_GUI_UPDATE, qword[r0 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)]
 
-		;create window
-		vp_lea [rel title], r14
-		sdl_createwindow r14, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL
-		vp_cpy r0, r14
-
-		;wait 5 seconds
-		vp_cpy 5000000, r0
-		fn_call sys/task_sleep
-
-		;destroy window
-		sdl_destroywindow r14
-
-		;deinit sdl2
-		sdl_quit
+		;send mail to kernel
+		fn_call sys/mail_send
 
 		;stop this task
-		vp_add 8, r4
 		fn_jmp sys/task_stop
-
-	title:
-		db "Test Window", 0
 
 	fn_function_end

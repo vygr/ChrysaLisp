@@ -13,6 +13,7 @@
 		KN_CALL_TASK_OPEN:					resb 1
 		KN_CALL_TASK_CHILD:					resb 1
 		KN_CALL_LINK_ROUTE:					resb 1
+		KN_CALL_GUI_UPDATE:					resb 1
 	endstruc
 
 ;;;;;;;;;;;;;;;;;;

@@ -2,6 +2,8 @@
 %include "mail.inc"
 %include "task.inc"
 %include "link.inc"
+%include "gui.inc"
+%include "sdl2.inc"
 
 ;;;;;;;;;;;;;
 ; kernel task
@@ -230,6 +232,31 @@
 					vp_cpy r14, r1
 					fn_call sys/mail_free
 					break
+				case r1, ==, KN_CALL_GUI_UPDATE
+					;free update message
+					vp_cpy r14, r1
+					fn_call sys/mail_free
+
+					;update screen
+					fn_bind sys/gui_statics, r14
+					vp_cpy [r14 + GUI_STATICS_SCREEN], r13 
+					if r13, ==, 0
+						;sdl needs this !!!!!
+						vp_sub 8, r4
+
+						;init sdl2
+						sdl_setmainready
+						sdl_init SDL_INIT_VIDEO
+
+						;create window
+						vp_lea [rel title], r13
+						sdl_createwindow r13, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL
+						vp_cpy r0, [r14 + GUI_STATICS_SCREEN]
+
+						;sdl needs this !!!!!
+						vp_add 8, r4
+					endif
+					break
 				default
 				endswitch
 			loopend
@@ -274,6 +301,9 @@
 			vp_cpy [r3 + TK_STATICS_TASK_LIST + LH_LIST_TAILPRED], r1
 		until r1, ==, r0
 
+		;deinit gui
+		fn_call sys/gui_deinit_gui
+
 		;free any kernel routing table
 		vp_cpy [r4 + LK_TABLE_ARRAY], r0
 		fn_call sys/mem_free
@@ -293,5 +323,8 @@
 
 		;exit !
 		sys_exit 0
+
+	title:
+		db "GUI Window", 0
 
 	fn_function_end
