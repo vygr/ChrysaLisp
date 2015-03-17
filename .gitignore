@@ -1,6 +1,15 @@
 *.o
 main
 sys/get_cpu_id
+sys/gui
+sys/gui_add_view
+sys/gui_alloc_view
+sys/gui_deinit_gui
+sys/gui_deinit_gui
+sys/gui_free_view
+sys/gui_init_gui
+sys/gui_statics
+sys/gui_sub_view
 sys/heap_alloccell
 sys/heap_deinit
 sys/heap_freeheap
@@ -47,6 +56,7 @@ sys/task_open
 sys/task_open_array
 sys/task_open_child
 sys/task_open_farm
+sys/task_open_global
 sys/task_open_pipe
 sys/task_restore
 sys/task_resume
@@ -70,11 +80,3 @@ tests/test6
 tests/test7
 tests/test8
 tests/test9
-sys/gui_init_gui
-sys/gui_statics
-sys/gui_alloc_view
-sys/gui_deinit_gui
-sys/gui_free_view
-sys/gui_sub_view
-sys/gui
-sys/gui_deinit_gui
