@@ -237,9 +237,9 @@
 					vp_cpy r14, r1
 					fn_call sys/mail_free
 
-					;update screen
+					;create screen window ?
 					fn_bind sys/gui_statics, r14
-					vp_cpy [r14 + GUI_STATICS_WINDOW], r13 
+					vp_cpy [r14 + GUI_STATICS_WINDOW], r13
 					if r13, ==, 0
 						;sdl needs this !!!!!
 						vp_sub 8, r4
@@ -258,6 +258,17 @@
 						vp_cpy r0, [r14 + GUI_STATICS_RENDERER]
 
 						;sdl needs this !!!!!
+						vp_add 8, r4
+					endif
+
+					;update screen
+					vp_cpy [r14 + GUI_STATICS_SCREEN], r0
+					if r0, !=, 0
+						vp_cpy [r14 + GUI_STATICS_RENDERER], r1
+						vp_call draw_view
+
+						vp_sub 8, r4
+						sdl_renderpresent r1
 						vp_add 8, r4
 					endif
 					break
@@ -327,6 +338,30 @@
 
 		;exit !
 		sys_exit 0
+
+	draw_view:
+		;inputs
+		;r0 = view object
+		;r1 = renderer
+
+		;draw myself
+		vp_push r0
+		vp_push r1
+		vp_call [r0 + GUI_VIEW_DRAW]
+		vp_pop r1
+		vp_pop r0
+
+		;draw child views
+		vp_cpy [r0 + GUI_VIEW_LIST + LH_LIST_HEAD], r2
+		loopstart
+			vp_cpy r2, r0
+			ln_get_succ r2, r2
+			breakif r2, ==, 0
+			vp_push r2
+			vp_call draw_view
+			vp_pop r2
+		loopend
+		vp_ret
 
 	title:
 		db "GUI Window", 0

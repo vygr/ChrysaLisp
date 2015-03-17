@@ -65,3 +65,9 @@ sdl_func_table:
 	dq _SDL_DestroyWindow
 	dq _SDL_Delay
 	dq _SDL_CreateRenderer
+	dq _SDL_SetRenderDrawColor
+	dq _SDL_RenderFillRect
+	dq _SDL_RenderPresent
+
+
+

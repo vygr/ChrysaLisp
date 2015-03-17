@@ -17,6 +17,9 @@
 	extern _SDL_DestroyWindow
 	extern _SDL_Delay
 	extern _SDL_CreateRenderer
+	extern _SDL_SetRenderDrawColor
+	extern _SDL_RenderFillRect
+	extern _SDL_RenderPresent
 
 	SDL_SETMAINREADY			equ 0
 	SDL_INIT					equ 1
@@ -26,6 +29,9 @@
 	SDL_DESTROYWINDOW			equ 5
 	SDL_DELAY					equ 6
 	SDL_CREATERENDERER			equ 7
+	SDL_SETRENDERDRAWCOLOR		equ 8
+	SDL_RENDERFILLRECT			equ 9
+	SDL_RENDERPRESENT			equ 10
 
 	SDL_INIT_TIMER			equ 0x00000001
 	SDL_INIT_AUDIO			equ 0x00000010
@@ -67,6 +73,14 @@
 	SDL_RENDERER_ACCELERATED	equ 0x00000002
 	SDL_RENDERER_PRESENTVSYNC	equ 0x00000004
 	SDL_RENDERER_TARGETTEXTURE	equ 0x00000008
+
+	struc SDL_RECT
+		SDL_RECT_X:			resd	1
+		SDL_RECT_Y:			resd	1
+		SDL_RECT_W:			resd	1
+		SDL_RECT_H:			resd	1
+		SDL_RECT_SIZE:
+	endstruc
 
 ;;;;;;;;;;;;;
 ; sdl2 macros
@@ -141,6 +155,35 @@
 		fn_bind sys/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_CREATERENDERER * 8)]
+	%endmacro
+
+	%macro sdl_setrenderdrawcolor 5
+		;renderer**, r, g, b, a
+		vp_cpy %1, r7		;renderer**
+		vp_cpy %2, r6		;r
+		vp_cpy %3, r2		;g
+		vp_cpy %4, r1		;b
+		vp_cpy %5, r8		;a
+		fn_bind sys/gui_statics, r0
+		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
+		vp_call [r0 + (SDL_SETRENDERDRAWCOLOR * 8)]
+	%endmacro
+
+	%macro sdl_renderfillrect 2
+		;renderer**, rect*
+		vp_cpy %1, r7		;renderer**
+		vp_cpy %2, r6		;rect*
+		fn_bind sys/gui_statics, r0
+		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
+		vp_call [r0 + (SDL_RENDERFILLRECT * 8)]
+	%endmacro
+
+	%macro sdl_renderpresent 1
+		;renderer**
+		vp_cpy %1, r7		;renderer**
+		fn_bind sys/gui_statics, r0
+		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
+		vp_call [r0 + (SDL_RENDERPRESENT * 8)]
 	%endmacro
 
 %endif
