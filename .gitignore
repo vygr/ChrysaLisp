@@ -76,7 +76,5 @@ sys/gui_alloc_view
 sys/gui_deinit_gui
 sys/gui_free_view
 sys/gui_sub_view
-
 sys/gui
-
 sys/gui_deinit_gui
