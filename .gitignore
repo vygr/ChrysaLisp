@@ -1,5 +1,4 @@
 *.o
-gui
 main
 sys/get_cpu_id
 sys/heap_alloccell
@@ -73,15 +72,11 @@ tests/test8
 tests/test9
 sys/gui_init_gui
 sys/gui_statics
-
 sys/gui_alloc_view
-
 sys/gui_deinit_gui
-
 sys/gui_free_view
-
 sys/gui_sub_view
 
-sys/gui_deinit_gui
+sys/gui
 
 sys/gui_deinit_gui
