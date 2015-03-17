@@ -38,7 +38,7 @@
 		times HP_HEAP_SIZE db 0
 	%endmacro
 
-	%macro hp_free_cell 3
+	%macro hp_freecell 3
 		;inputs
 		;%1 = heap
 		;%2 = cell

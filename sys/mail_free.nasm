@@ -9,7 +9,7 @@
 
 		fn_bind sys/mail_statics, r0
 		vp_lea [r0 + ML_STATICS_HEAP], r0
-		hp_free_cell r0, r1, r2
+		hp_freecell r0, r1, r2
 		vp_ret
 
 	fn_function_end

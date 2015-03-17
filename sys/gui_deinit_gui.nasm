@@ -9,8 +9,12 @@
 		vp_lea [r14 + GUI_STATICS_PATCH_HEAP], r0
 		fn_call sys/heap_deinit
 
+		;deinit view heap
+		vp_lea [r14 + GUI_STATICS_VIEW_HEAP], r0
+		fn_call sys/heap_deinit
+
 		;destroy any window
-		vp_cpy [r14 + GUI_STATICS_SCREEN], r13
+		vp_cpy [r14 + GUI_STATICS_WINDOW], r13
 		if r13, !=, 0
 			sdl_destroywindow r13
 

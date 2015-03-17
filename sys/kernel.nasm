@@ -239,7 +239,7 @@
 
 					;update screen
 					fn_bind sys/gui_statics, r14
-					vp_cpy [r14 + GUI_STATICS_SCREEN], r13 
+					vp_cpy [r14 + GUI_STATICS_WINDOW], r13 
 					if r13, ==, 0
 						;sdl needs this !!!!!
 						vp_sub 8, r4
@@ -251,7 +251,11 @@
 						;create window
 						vp_lea [rel title], r13
 						sdl_createwindow r13, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL
-						vp_cpy r0, [r14 + GUI_STATICS_SCREEN]
+						vp_cpy r0, [r14 + GUI_STATICS_WINDOW]
+
+						;create renderer
+						sdl_createrenderer r0, -1, SDL_RENDERER_ACCELERATED
+						vp_cpy r0, [r14 + GUI_STATICS_RENDERER]
 
 						;sdl needs this !!!!!
 						vp_add 8, r4
