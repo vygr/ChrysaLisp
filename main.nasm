@@ -46,7 +46,7 @@ ld_load_init_loader:
 	incbin	'sys/load_statics'			;must be third function !
 	incbin	'sys/load_deinit_loader'	;must be included !
 ld_gui_init_gui:
-	incbin	'sys/gui_init_gui'			;must be included !
+	incbin	'gui/gui_init_gui'			;must be included !
 ld_kernel:
 	incbin	'sys/kernel'				;must be included !
 

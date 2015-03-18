@@ -2,10 +2,10 @@
 %include "gui.inc"
 %include "sdl2.inc"
 
-	fn_function "sys/gui_deinit_gui"
+	fn_function "gui/gui_deinit_gui"
 
 		;deinit patch heap
-		fn_bind sys/gui_statics, r14
+		fn_bind gui/gui_statics, r14
 		vp_lea [r14 + GUI_STATICS_PATCH_HEAP], r0
 		fn_call sys/heap_deinit
 

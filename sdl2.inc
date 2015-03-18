@@ -87,7 +87,7 @@
 ;;;;;;;;;;;;;
 
 	%macro sdl_setmainready 0
-		fn_bind sys/gui_statics, r0
+		fn_bind gui/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_SETMAINREADY * 8)]
 	%endmacro
@@ -95,7 +95,7 @@
 	%macro sdl_init 1
 		;flags
 		vp_cpy %1, r7
-		fn_bind sys/gui_statics, r0
+		fn_bind gui/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_INIT * 8)]
 	%endmacro
@@ -103,13 +103,13 @@
 	%macro sdl_delay 1
 		;time
 		vp_cpy %1, r7
-		fn_bind sys/gui_statics, r0
+		fn_bind gui/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_DELAY * 8)]
 	%endmacro
 
 	%macro sdl_quit 0
-		fn_bind sys/gui_statics, r0
+		fn_bind gui/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_QUIT * 8)]
 	%endmacro
@@ -122,7 +122,7 @@
 		vp_cpy %4, r1		;w
 		vp_cpy %5, r8		;h
 		vp_cpy %6, r9		;flags
-		fn_bind sys/gui_statics, r0
+		fn_bind gui/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_CREATEWINDOW * 8)]
 	%endmacro
@@ -134,7 +134,7 @@
 		vp_cpy %3, r2		;flags
 		vp_cpy %4, r1		;window**
 		vp_cpy %5, r8		;renderer**
-		fn_bind sys/gui_statics, r0
+		fn_bind gui/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_CREATEWINDOWANDRENDERER * 8)]
 	%endmacro
@@ -142,7 +142,7 @@
 	%macro sdl_destroywindow 1
 		;window
 		vp_cpy %1, r7
-		fn_bind sys/gui_statics, r0
+		fn_bind gui/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_DESTROYWINDOW * 8)]
 	%endmacro
@@ -152,7 +152,7 @@
 		vp_cpy %1, r7		;window*
 		vp_cpy %2, r6		;index
 		vp_cpy %3, r2		;flags
-		fn_bind sys/gui_statics, r0
+		fn_bind gui/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_CREATERENDERER * 8)]
 	%endmacro
@@ -164,7 +164,7 @@
 		vp_cpy %3, r2		;g
 		vp_cpy %4, r1		;b
 		vp_cpy %5, r8		;a
-		fn_bind sys/gui_statics, r0
+		fn_bind gui/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_SETRENDERDRAWCOLOR * 8)]
 	%endmacro
@@ -173,7 +173,7 @@
 		;renderer**, rect*
 		vp_cpy %1, r7		;renderer**
 		vp_cpy %2, r6		;rect*
-		fn_bind sys/gui_statics, r0
+		fn_bind gui/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_RENDERFILLRECT * 8)]
 	%endmacro
@@ -181,7 +181,7 @@
 	%macro sdl_renderpresent 1
 		;renderer**
 		vp_cpy %1, r7		;renderer**
-		fn_bind sys/gui_statics, r0
+		fn_bind gui/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_RENDERPRESENT * 8)]
 	%endmacro

@@ -1,12 +1,12 @@
 %include "func.inc"
 %include "gui.inc"
 
-	fn_function "sys/gui_init_gui"
+	fn_function "gui/gui_init_gui"
 		;inputs
 		;r0 = sdl function table
 
 		;init sdl function table
-		fn_bind sys/gui_statics, r3
+		fn_bind gui/gui_statics, r3
 		vp_cpy r0, [r3 + GUI_STATICS_SDL_FUNCS]
 
 		;init patch heap

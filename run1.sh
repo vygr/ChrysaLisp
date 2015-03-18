@@ -1,2 +1,2 @@
 #!/bin/bash
-./main -cpu 0 -run sys/gui &
+./main -cpu 0 -run gui/gui &

@@ -13,7 +13,7 @@
 		vp_push r0
 
 		;sub view from any parent
-		fn_call sys/gui_sub_view
+		fn_call gui/gui_sub_view
 
 		;free any child views
 		vp_cpy [r0 + GUI_VIEW_LIST + LH_LIST_HEAD], r1

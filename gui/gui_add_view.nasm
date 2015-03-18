@@ -2,7 +2,7 @@
 %include "list.inc"
 %include "gui.inc"
 
-	fn_function "sys/gui_add_view"
+	fn_function "gui/gui_add_view"
 		;inputs
 		;r0 = view object
 		;r1 = parent view object
@@ -13,7 +13,7 @@
 
 		;remove from any existing parent
 		vp_cpy r1, r3
-		fn_call sys/gui_sub_view
+		fn_call gui/gui_sub_view
 
 		;add to parent
 		vp_cpy r3, [r0 + GUI_VIEW_PARENT]

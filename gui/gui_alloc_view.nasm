@@ -2,14 +2,14 @@
 %include "list.inc"
 %include "gui.inc"
 
-	fn_function "sys/gui_alloc_view"
+	fn_function "gui/gui_alloc_view"
 		;outputs
 		;r0 = view object
 		;trashes
 		;r1-r3
 
 		;alloc view objects
-		fn_bind sys/gui_statics, r0
+		fn_bind gui/gui_statics, r0
 		vp_lea [r0 + GUI_STATICS_VIEW_HEAP], r0
 		fn_call sys/heap_alloccell
 		vp_cpy r1, r0
