@@ -82,7 +82,7 @@
 
 		;read and write messages through the shared buffer in r12
 		vp_xor r9, r9
-		loopstart
+		repeat
 			;exchange task counts
 			fn_bind sys/task_statics, r0
 			vp_cpy [r0 + TK_STATICS_TASK_COUNT], r0
@@ -156,11 +156,28 @@
 				vp_cpy LK_CHAN_STATUS_READY, qword[r11 + LK_CHAN_STATUS]
 			endif
 
+			;let other links run
+			fn_call sys/task_deshedule
+
+			;are we in a quite period
+			vp_cpy [r11 + LK_CHAN_STATUS], r0
+			continueif r0, ==, LK_CHAN_STATUS_BUSY
+			vp_cpy 0, r1
+			vp_cpy [r10 + LK_CHAN_STATUS], r0
+			if r0, ==, LK_CHAN_STATUS_READY
+				if r9, !=, 0
+					vp_cpy 1, r1
+				endif
+			endif
+			continueif r1, !=, 0
+
+			;small sleep if so
+			vp_cpy 1000, r0
+			fn_call sys/task_sleep
+
 			;exit if signaled by kernel
 			vp_cpy [r4 + LK_NODE_CPU_ID], r0
-			breakif r0, ==, -1
-			fn_call sys/task_deshedule
-		loopend
+		until r0, ==, -1
 
 		;unmap object
 		sys_munmap r12, LK_BUFFER_SIZE

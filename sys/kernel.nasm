@@ -269,47 +269,50 @@
 				endswitch
 			loopend
 
+			;get time
+			vp_sub TIMEVAL_SIZE, r4
+			vp_cpy r4, r0
+			sys_gettimeofday r0, 0
+			vp_mul 1000000, r0
+			vp_add r0, r2
+			vp_add TIMEVAL_SIZE, r4
+
 			;start any tasks ready to restart
 			fn_bind sys/task_statics, r3
 			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
 			ln_get_succ r0, r0
 			if r0, !=, 0
-				;get time
-				vp_sub TIMEVAL_SIZE, r4
-				vp_cpy r4, r0
-				sys_gettimeofday r0, 0
-				vp_mul 1000000, r0
-				vp_add r0, r2
-				vp_add TIMEVAL_SIZE, r4
-
 				vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
 				loopstart
 					vp_cpy r0, r1
 					ln_get_succ r0, r0
 					breakif r0, ==, 0
 					vp_cpy [r1 + TK_NODE_TIME], r5
-					if r5, <=, r2
-						;task ready, remove from timer list and place on ready list
-						vp_cpy r1, r5
-						ln_remove_node r5, r6
-						vp_lea [r3 + TK_STATICS_TASK_LIST], r5
-						lh_add_at_head r5, r1, r6
-					endif
+					breakif r5, >, r2
+					;task ready, remove from timer list and place on ready list
+					vp_cpy r1, r5
+					ln_remove_node r5, r6
+					vp_lea [r3 + TK_STATICS_TASK_LIST], r5
+					lh_add_at_head r5, r1, r6
 				loopend
 			endif
 
-			;check if no other tasks available, break out if none
-			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
-			ln_get_succ r0, r0
-			continueif r0, !=, 0
-			vp_cpy [r3 + TK_STATICS_TASK_SUSPEND_LIST + LH_LIST_HEAD], r0
-			ln_get_succ r0, r0
-			continueif r0, !=, 0
+			;next task if other ready tasks
 			vp_cpy [r3 + TK_STATICS_TASK_LIST + LH_LIST_HEAD], r0
 			vp_cpy [r3 + TK_STATICS_TASK_LIST + LH_LIST_TAILPRED], r1
-			breakif r0, ==, r1
+			continueif r0, !=, r1
 
-			;sleep as nothing is ready yet
+			;exit if no task waiting for timer
+			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
+			ln_get_succ r0, r1
+			breakif r1, ==, 0
+
+			;sleep till next wake time
+			;vp_cpy [r0 + TK_NODE_TIME], r0
+			;vp_sub r2, r0
+			;vp_cpy 1000, r3
+			;vp_xor r2, r2
+			;vp_div r3
 			sdl_delay 1
 		loopend
 
