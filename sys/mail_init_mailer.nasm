@@ -3,11 +3,11 @@
 
 	fn_function "sys/mail_init_mailer"
 
-		;init offchip list
+		;init off chip list
 		fn_bind sys/mail_statics, r0
 		vp_lea [r0 + ML_STATICS_OFFCHIP_LIST], r1
 		lh_init r1, r2
-		
+
 		;init mail message heap
 		vp_lea [r0 + ML_STATICS_HEAP], r0
 		vp_cpy ML_MSG_SIZE, r1

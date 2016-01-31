@@ -55,7 +55,7 @@ ld_prebounde:
 
 	SECTION .data
 
-	align 8
+	align 8, db 0
 sdl_func_table:
 	dq _SDL_SetMainReady
 	dq _SDL_Init
@@ -68,6 +68,3 @@ sdl_func_table:
 	dq _SDL_SetRenderDrawColor
 	dq _SDL_RenderFillRect
 	dq _SDL_RenderPresent
-
-
-

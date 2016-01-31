@@ -48,7 +48,7 @@
 		vp_cpy r1, [r4 + LK_NODE_CPU_ID]
 		vp_cpy 0, qword[r4 + LK_NODE_TASK_COUNT]
 
-		;send link routing message to neighbour kernel
+		;send link routing message to neighbor kernel
 		vp_cpy r0, r8
 		vp_cpy r1, r9
 		fn_call sys/mail_alloc
@@ -93,7 +93,7 @@
 			;check if we need to grab a new message
 			if r9, ==, 0
 			more_output:
-				;no outgoing message so see if any offchip mail for me
+				;no outgoing message so see if any off chip mail for me
 				vp_cpy [r4 + LK_NODE_CPU_ID], r0
 				fn_bind sys/mail_statics, r8
 				vp_cpy [r8 + ML_STATICS_OFFCHIP_LIST + LH_LIST_HEAD], r8

@@ -10,7 +10,7 @@
 ;;;;;;;;;;;;;
 
 	fn_function "sys/kernel"
-		;loader is allready initialized when we get here !
+		;loader is already initialized when we get here !
 		;inputs
 		;r0 = argv pointer
 
@@ -45,7 +45,7 @@
 		vp_cpy 0, qword[r4 + LK_TABLE_ARRAY_SIZE]
 
 ;;;;;;;;;;;;;;;;;;;;;;;
-; main kernal task loop
+; main kernel task loop
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 		;loop till no other tasks running
@@ -118,7 +118,7 @@
 					if r1, >, [r0 + TK_STATICS_TASK_NUM_CPU]
 						vp_cpy r1, [r0 + TK_STATICS_TASK_NUM_CPU]
 					endif
-					
+
 					;new kernel routing table ?
 					vp_cpy [r4 + LK_TABLE_ARRAY], r0
 					vp_cpy [r4 + LK_TABLE_ARRAY_SIZE], r1
@@ -149,7 +149,7 @@
 							vp_cpy r13, r11
 							ln_get_succ r13, r13
 							breakif r13, ==, 0
-							
+
 							;new link route table ?
 							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
 							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
@@ -177,7 +177,7 @@
 							vp_cpy r13, r11
 							ln_get_succ r13, r13
 							breakif r13, ==, 0
-							
+
 							;new link route table ?
 							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
 							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
@@ -208,7 +208,7 @@
 					fn_call sys/get_cpu_id
 					vp_cpy r0, [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA]
 
-					;copy and send to all neighbours apart from old via
+					;copy and send to all neighbors apart from old via
 					fn_bind sys/link_statics, r12
 					vp_cpy [r12 + LK_STATICS_LINKS_LIST + LH_LIST_HEAD], r12
 					loopstart
@@ -324,7 +324,7 @@
 		vp_cpy [r4 + LK_TABLE_ARRAY], r0
 		fn_call sys/mem_free
 		vp_add LK_TABLE_SIZE, r4
- 
+
 		;deinit allocator
 		fn_call sys/mem_deinit_allocator
 

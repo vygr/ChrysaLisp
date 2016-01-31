@@ -18,7 +18,7 @@
 		vp_add [r8 + FN_HEADER_LENGTH], r8
 		vp_add [r8 + FN_HEADER_ENTRY], r8
 
-		;check if function allready present !
+		;check if function already present !
 		vp_xor r5, r5
 		vp_cpy [r8 + LD_STATICS_FUNCTION_LIST], r6
 		repeat
@@ -33,7 +33,7 @@
 			vp_cpy [r6], r6
 		until r5, !=, 0
 		if r5, !=, 0
-			;found function allready loaded
+			;found function already loaded
 			vp_cpy r5, r0
 			vp_ret
 		endif
@@ -54,7 +54,7 @@
 		vp_lea [r8 + LD_STATICS_STAT_BUFFER], r0
 		vp_cpy [r0 + STAT_FSIZE], r0
 		if r2, <, r0
-			;not enough so allcate new function buffer
+			;not enough so allocate new function buffer
 			sys_mmap 0, LD_BLOCK_SIZE, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0
 
 			;add to block list for freeing
