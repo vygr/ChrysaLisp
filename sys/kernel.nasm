@@ -30,6 +30,8 @@
 		fn_call sys/link_init_linker
 
 		;start kernel task and patch mailbox
+		fn_bind sys/task_statics, r15
+		vp_lea [r15 + TK_STATICS_TASK_LIST + LH_LIST_TAIL], r15
 		fn_call sys/task_start
 		vp_cpy r1, r15
 		fn_bind sys/mail_send, r1
@@ -289,11 +291,11 @@
 					breakif r0, ==, 0
 					vp_cpy [r1 + TK_NODE_TIME], r5
 					breakif r5, >, r2
+
 					;task ready, remove from timer list and place on ready list
 					vp_cpy r1, r5
 					ln_remove_node r5, r6
-					vp_lea [r3 + TK_STATICS_TASK_LIST], r5
-					lh_add_at_tail r5, r1, r6
+					ln_add_node_before r15, r1, r6
 				loopend
 			endif
 
@@ -313,6 +315,9 @@
 			vp_cpy 1000, r3
 			vp_xor r2, r2
 			vp_div r3
+			if r0, <, 1
+				vp_cpy 1, r0
+			endif
 			sdl_delay r0
 		loopend
 
