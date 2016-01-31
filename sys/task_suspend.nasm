@@ -26,15 +26,9 @@
 
 		;remove task control block
 		vp_cpy r15, r0
-		vp_cpy r15, r1
 		ln_remove_node r0, r15
 
-		;get statics
-		fn_bind sys/task_statics, r0
-
-		;add to suspend list and restore next
-		vp_lea [r0 + TK_STATICS_TASK_SUSPEND_LIST], r0
-		lh_add_at_head r0, r1, r2
+		;restore next task
 		fn_jmp sys/task_restore
 
 	fn_function_end
