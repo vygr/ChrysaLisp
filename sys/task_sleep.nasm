@@ -49,18 +49,12 @@
 
 		;add to timer list and restore next task
 		vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
-		loopstart
+		repeat
 			vp_cpy r0, r5
 			ln_get_succ r0, r0
 			breakif r0, ==, 0
-			if r2, <, [r5 + TK_NODE_TIME]
-				;insert task
-				ln_add_node_before r5, r1, r2
-				fn_jmp sys/task_restore
-			endif
-		loopend
-		vp_lea [r3 + TK_STATICS_TASK_TIMER_LIST], r0
-		lh_add_at_tail r0, r1, r2
+		until r2, <, [r5 + TK_NODE_TIME]
+		ln_add_node_before r5, r1, r2
 		fn_jmp sys/task_restore
 
 	fn_function_end
