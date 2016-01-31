@@ -16,10 +16,14 @@
 		;destroy any window
 		vp_cpy [r14 + GUI_STATICS_WINDOW], r13
 		if r13, !=, 0
-			sdl_destroywindow r13
+			;align stack on 16 byte boundary
+			vp_cpy r4, r14
+			vp_and -16, r4
 
-			;deinit sdl2
+			sdl_destroywindow r13
 			sdl_quit
+
+			vp_cpy r14, r4
 		endif
 		vp_ret
 

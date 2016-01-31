@@ -14,7 +14,7 @@
 		;inputs
 		;r0 = argv pointer
 
-		;save argv
+		;save argv on stack
 		vp_push r0
 
 		;init tasker
@@ -36,7 +36,7 @@
 		vp_cpy r0, [r1 + 0x68]
 
 		;process command options
-		vp_pop r0
+		vp_cpy [r4], r0
 		fn_call sys/opt_process
 
 		;allocate for kernel routing table
@@ -49,7 +49,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 		;loop till no other tasks running
-		repeat
+		loopstart
 			;allow all other tasks to run
 			fn_call sys/task_deshedule
 
@@ -241,9 +241,6 @@
 					fn_bind gui/gui_statics, r14
 					vp_cpy [r14 + GUI_STATICS_WINDOW], r13
 					if r13, ==, 0
-						;sdl needs this !!!!!
-						vp_sub 8, r4
-
 						;init sdl2
 						sdl_setmainready
 						sdl_init SDL_INIT_VIDEO
@@ -256,9 +253,6 @@
 						;create renderer
 						sdl_createrenderer r0, -1, SDL_RENDERER_ACCELERATED
 						vp_cpy r0, [r14 + GUI_STATICS_RENDERER]
-
-						;sdl needs this !!!!!
-						vp_add 8, r4
 					endif
 
 					;update screen
@@ -267,10 +261,8 @@
 						vp_cpy [r14 + GUI_STATICS_RENDERER], r0
 						vp_call draw_view
 
-						vp_sub 8, r4
 						fn_bind gui/gui_statics, r0
 						sdl_renderpresent [r0 + GUI_STATICS_RENDERER]
-						vp_add 8, r4
 					endif
 					break
 				default
@@ -306,7 +298,7 @@
 				loopend
 			endif
 
-			;check if no other tasks available
+			;check if no other tasks available, break out if none
 			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
 			ln_get_succ r0, r0
 			continueif r0, !=, 0
@@ -315,7 +307,11 @@
 			continueif r0, !=, 0
 			vp_cpy [r3 + TK_STATICS_TASK_LIST + LH_LIST_HEAD], r0
 			vp_cpy [r3 + TK_STATICS_TASK_LIST + LH_LIST_TAILPRED], r1
-		until r1, ==, r0
+			breakif r0, ==, r1
+
+			;sleep as nothing is ready yet
+			sdl_delay 1
+		loopend
 
 		;deinit gui
 		fn_call gui/gui_deinit_gui
@@ -337,7 +333,8 @@
 		;deinit loader
 		fn_call sys/load_deinit_loader
 
-		;exit !
+		;pop argv and exit !
+		vp_add 8, r4
 		sys_exit 0
 
 	draw_view:
