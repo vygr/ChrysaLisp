@@ -293,7 +293,7 @@
 					vp_cpy r1, r5
 					ln_remove_node r5, r6
 					vp_lea [r3 + TK_STATICS_TASK_LIST], r5
-					lh_add_at_head r5, r1, r6
+					lh_add_at_tail r5, r1, r6
 				loopend
 			endif
 
@@ -308,12 +308,12 @@
 			breakif r1, ==, 0
 
 			;sleep till next wake time
-			;vp_cpy [r0 + TK_NODE_TIME], r0
-			;vp_sub r2, r0
-			;vp_cpy 1000, r3
-			;vp_xor r2, r2
-			;vp_div r3
-			sdl_delay 1
+			vp_cpy [r0 + TK_NODE_TIME], r0
+			vp_sub r2, r0
+			vp_cpy 1000, r3
+			vp_xor r2, r2
+			vp_div r3
+			sdl_delay r0
 		loopend
 
 		;deinit gui
