@@ -1,7 +1,9 @@
 Asm_Kernel
 ==========
 
-Asmembler x86_64 multi tasking kernel. Curently for OSX/BSD but will eventually run on Linux too.
+Assembler x86_64 multi tasking kernel. Currently for OSX/BSD but will eventually run on Linux too.
+
+Allows modeling of various network topologies with point to point links.
 
 Make with:
 
@@ -10,6 +12,9 @@ make
 Run with:
 
 ./run.sh
+./run1.sh
+./run3.sh
+./run8.sh
 
 Stop with:
 
