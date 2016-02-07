@@ -1,6 +1,7 @@
 *.o
 main
 sys/get_cpu_id
+sys/get_cpu_time
 gui/gui
 gui/gui_add_view
 gui/gui_alloc_view
