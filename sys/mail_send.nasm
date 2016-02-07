@@ -27,7 +27,7 @@
 			;yes off chip
 			fn_bind sys/mail_statics, r1
 			vp_lea [r1 + ML_STATICS_OFFCHIP_LIST], r1
-			lh_add_at_head r1, r2, r0
+			lh_add_at_tail r1, r2, r0
 		endif
 		vp_ret
 

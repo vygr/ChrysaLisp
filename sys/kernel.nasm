@@ -35,7 +35,7 @@
 		fn_call sys/task_start
 		vp_cpy r1, r15
 		fn_bind sys/mail_send, r1
-		vp_cpy r0, [r1 + 0x68]
+		vp_cpy r0, [r1 + 0x70]
 
 		;process command options
 		vp_cpy [r4], r0
