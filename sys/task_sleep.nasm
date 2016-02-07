@@ -1,6 +1,5 @@
 %include "func.inc"
 %include "task.inc"
-%include "syscall.inc"
 
 	fn_function "sys/task_sleep"
 		;inputs
@@ -30,31 +29,26 @@
 		vp_cpy r0, r1
 
 		;calculate wake time
-		vp_sub TIMEVAL_SIZE, r4
-		vp_cpy r4, r0
-		sys_gettimeofday r0, 0
-		vp_mul 1000000, r0
-		vp_add r0, r2
-		vp_add r1, r2
-		vp_cpy r2, [r15 + TK_NODE_TIME]
-		vp_add TIMEVAL_SIZE, r4
+		fn_call sys/get_cpu_time
+		vp_add r1, r0
+		vp_cpy r0, [r15 + TK_NODE_TIME]
 
 		;remove task control block
-		vp_cpy r15, r0
+		vp_cpy r15, r2
 		vp_cpy r15, r1
-		ln_remove_node r0, r15
+		ln_remove_node r2, r15
 
 		;get statics
 		fn_bind sys/task_statics, r3
 
 		;add to timer list and restore next task
-		vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
+		vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r2
 		repeat
-			vp_cpy r0, r5
-			ln_get_succ r0, r0
-			breakif r0, ==, 0
-		until r2, <, [r5 + TK_NODE_TIME]
-		ln_add_node_before r5, r1, r2
+			vp_cpy r2, r5
+			ln_get_succ r2, r2
+			breakif r2, ==, 0
+		until r0, <, [r5 + TK_NODE_TIME]
+		ln_add_node_before r5, r1, r0
 		fn_jmp sys/task_restore
 
 	fn_function_end

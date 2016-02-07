@@ -272,25 +272,20 @@
 			loopend
 
 			;get time
-			vp_sub TIMEVAL_SIZE, r4
-			vp_cpy r4, r0
-			sys_gettimeofday r0, 0
-			vp_mul 1000000, r0
-			vp_add r0, r2
-			vp_add TIMEVAL_SIZE, r4
+			fn_call sys/get_cpu_time
 
 			;start any tasks ready to restart
 			fn_bind sys/task_statics, r3
-			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
-			ln_get_succ r0, r0
-			if r0, !=, 0
-				vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
+			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r2
+			ln_get_succ r2, r2
+			if r2, !=, 0
+				vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r2
 				loopstart
-					vp_cpy r0, r1
-					ln_get_succ r0, r0
-					breakif r0, ==, 0
+					vp_cpy r2, r1
+					ln_get_succ r2, r2
+					breakif r2, ==, 0
 					vp_cpy [r1 + TK_NODE_TIME], r5
-					breakif r5, >, r2
+					breakif r5, >, r0
 
 					;task ready, remove from timer list and place on ready list
 					vp_cpy r1, r5
@@ -300,16 +295,17 @@
 			endif
 
 			;next task if other ready tasks
-			vp_cpy [r3 + TK_STATICS_TASK_LIST + LH_LIST_HEAD], r0
+			vp_cpy [r3 + TK_STATICS_TASK_LIST + LH_LIST_HEAD], r2
 			vp_cpy [r3 + TK_STATICS_TASK_LIST + LH_LIST_TAILPRED], r1
-			continueif r0, !=, r1
+			continueif r2, !=, r1
 
 			;exit if no task waiting for timer
-			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r0
-			ln_get_succ r0, r1
+			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r2
+			ln_get_succ r2, r1
 			breakif r1, ==, 0
 
 			;sleep till next wake time
+			vp_xchg r0, r2
 			vp_cpy [r0 + TK_NODE_TIME], r0
 			vp_sub r2, r0
 			vp_cpy 1000, r3

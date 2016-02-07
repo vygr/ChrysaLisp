@@ -15,7 +15,11 @@
 	;r6 rsi
 	;r7 rdi
 
-	%macro vp_div 1
+    %macro vp_xchg 2
+		xchg %1, %2
+	%endmacro
+
+    %macro vp_div 1
 		idiv %1
 	%endmacro
 
