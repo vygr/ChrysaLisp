@@ -35,7 +35,7 @@
 		fn_call sys/task_start
 		vp_cpy r1, r15
 		fn_bind sys/mail_send, r1
-		vp_cpy r0, [r1 + 0x70]
+		vp_cpy r0, [r1 + 0x80]
 
 		;process command options
 		vp_cpy [r4], r0
@@ -95,11 +95,7 @@
 					fn_bind sys/task_statics, r1
 					vp_cpy [r1 + TK_STATICS_TASK_COUNT], r1
 					fn_bind sys/link_statics, r2
-					vp_cpy [r2 + LK_STATICS_LINKS_LIST + LH_LIST_HEAD], r2
-					loopstart
-						vp_cpy r2, r3
-						ln_get_succ r2, r2
-						breakif r2, ==, 0
+					loopstart_list_forwards r2 + LK_STATICS_LINKS_LIST, r2, r3
 						if r1, >, [r3 + LK_NODE_TASK_COUNT]
 							vp_cpy [r3 + LK_NODE_CPU_ID], r0
 							vp_cpy [r3 + LK_NODE_TASK_COUNT], r1
@@ -146,12 +142,7 @@
 						;fill in via route and remove other routes
 						vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r12
 						fn_bind sys/link_statics, r13
-						vp_cpy [r13 + LK_STATICS_LINKS_LIST + LH_LIST_HEAD], r13
-						loopstart
-							vp_cpy r13, r11
-							ln_get_succ r13, r13
-							breakif r13, ==, 0
-
+						loopstart_list_forwards r13 + LK_STATICS_LINKS_LIST, r13, r11
 							;new link route table ?
 							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
 							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
@@ -174,12 +165,7 @@
 						;new hops is equal, so additional route
 						vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r12
 						fn_bind sys/link_statics, r13
-						vp_cpy [r13 + LK_STATICS_LINKS_LIST + LH_LIST_HEAD], r13
-						loopstart
-							vp_cpy r13, r11
-							ln_get_succ r13, r13
-							breakif r13, ==, 0
-
+						loopstart_list_forwards r13 + LK_STATICS_LINKS_LIST, r13, r11
 							;new link route table ?
 							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
 							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
@@ -212,12 +198,7 @@
 
 					;copy and send to all neighbors apart from old via
 					fn_bind sys/link_statics, r12
-					vp_cpy [r12 + LK_STATICS_LINKS_LIST + LH_LIST_HEAD], r12
-					loopstart
-						vp_cpy r12, r11
-						ln_get_succ r12, r12
-						breakif r12, ==, 0
-
+					loopstart_list_forwards r12 + LK_STATICS_LINKS_LIST, r12, r11
 						vp_cpy [r11 + LK_NODE_CPU_ID], r10
 						continueif r10, ==, r13
 						fn_call sys/mail_alloc
@@ -279,11 +260,7 @@
 			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r2
 			ln_get_succ r2, r2
 			if r2, !=, 0
-				vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r2
-				loopstart
-					vp_cpy r2, r1
-					ln_get_succ r2, r2
-					breakif r2, ==, 0
+				loopstart_list_forwards r3 + TK_STATICS_TASK_TIMER_LIST, r2, r1
 					vp_cpy [r1 + TK_NODE_TIME], r5
 					breakif r5, >, r0
 
@@ -354,11 +331,7 @@
 		vp_pop r0
 
 		;draw child views
-		vp_cpy [r1 + GUI_VIEW_LIST + LH_LIST_HEAD], r2
-		loopstart
-			vp_cpy r2, r1
-			ln_get_succ r2, r2
-			breakif r2, ==, 0
+		loopstart_list_forwards r1 + GUI_VIEW_LIST, r2, r1
 			vp_push r0
 			vp_push r2
 			vp_call draw_view

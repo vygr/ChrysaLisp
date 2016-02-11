@@ -16,11 +16,7 @@
 		fn_call gui/gui_sub_view
 
 		;free any child views
-		vp_cpy [r0 + GUI_VIEW_LIST + LH_LIST_HEAD], r1
-		loopstart
-			vp_cpy r1, r0
-			ln_get_succ r1, r1
-			breakif r1, ==, 0
+		loopstart_list_forwards r0 + GUI_VIEW_LIST, r1, r0
 			vp_push r1
 			fn_call sys/gui_free_view
 			vp_pop r1

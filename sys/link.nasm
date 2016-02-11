@@ -96,24 +96,18 @@
 				;no outgoing message so see if any off chip mail for me
 				vp_cpy [r4 + LK_NODE_CPU_ID], r0
 				fn_bind sys/mail_statics, r8
-				vp_cpy [r8 + ML_STATICS_OFFCHIP_LIST + LH_LIST_HEAD], r8
-				loopstart
-				next_msg:
-					vp_cpy r8, r7
-					ln_get_succ r8, r8
-					breakif r8, ==, 0
+				loopstart_list_forwards r8 + ML_STATICS_OFFCHIP_LIST, r8, r7
 					vp_cpy [r7 + (ML_MSG_DEST + 8)], r2
-					if r0, !=, r2
-						vp_cpy [r4 + LK_NODE_TABLE + LK_TABLE_ARRAY], r1
-						jmpif r1, ==, 0, next_msg
-						vp_mul LK_ROUTE_SIZE, r2
-						vp_cpy [r1 + r2 + LK_ROUTE_HOPS], r1
-						jmpif r1, ==, 0, next_msg
-					endif
+					breakif r0, ==, r2
+					vp_cpy [r4 + LK_NODE_TABLE + LK_TABLE_ARRAY], r1
+					continueif r1, ==, 0
+					vp_mul LK_ROUTE_SIZE, r2
+					vp_cpy [r1 + r2 + LK_ROUTE_HOPS], r1
+				until r1, !=, 0
+				if r8, !=, 0
 					vp_cpy r7, r9
 					ln_remove_node r7, r1
-					break
-				loopend
+				endif
 			endif
 
 			;if we have a message to send then see if we can send it

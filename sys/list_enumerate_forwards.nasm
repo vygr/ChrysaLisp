@@ -28,11 +28,7 @@
 			;r3, r7-r14
 
 		vp_xor r5, r5
-		lh_get_head r0, r6
-		repeat
-			vp_cpy r6, r3
-			ln_get_succ r6, r6
-			breakif r6, ==, 0
+		loopstart_list_forwards r0, r6, r3
 			vp_call r1
 		until r5, !=, 0
 		vp_ret

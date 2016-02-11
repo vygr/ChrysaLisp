@@ -17,7 +17,7 @@
 				;mail for kernel !
 				vp_cpy [rel kernel_mailbox], r1
 			endif
-			lh_add_at_head r1, r2, r0
+			lh_add_at_tail r1, r2, r0
 			vp_cpy [r1 + ML_MAILBOX_TCB], r0
 			if r0, !=, 0
 				vp_cpy 0, qword[r1 + ML_MAILBOX_TCB]

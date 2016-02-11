@@ -42,11 +42,7 @@
 		fn_bind sys/task_statics, r3
 
 		;add to timer list and restore next task
-		vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r2
-		repeat
-			vp_cpy r2, r5
-			ln_get_succ r2, r2
-			breakif r2, ==, 0
+		loopstart_list_forwards r3 + TK_STATICS_TASK_TIMER_LIST, r2, r5
 		until r0, <, [r5 + TK_NODE_TIME]
 		ln_add_node_before r5, r1, r0
 		fn_jmp sys/task_restore
