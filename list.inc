@@ -52,7 +52,7 @@
 
         ln_get_pred %1, %2
         if %2, ==, 0
-            vp_cpy [%1 + LH_LIST_HEAD], %1
+            ln_get_tail %1, %1
         endif
     %endmacro
 
