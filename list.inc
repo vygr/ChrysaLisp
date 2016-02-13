@@ -26,6 +26,36 @@
 ; list node macros
 ;;;;;;;;;;;;;;;;;;
 
+    %macro ln_get_forward 2
+        ;inputs
+        ;%1 = list node
+        ;%2 = temp
+        ;outputs
+        ;%1 = list node
+        ;trashes
+        ;%2
+
+        ln_get_succ %1, %2
+        if %2, ==, 0
+            vp_cpy [%1 - LH_LIST_TAIL], %1
+        endif
+    %endmacro
+
+    %macro ln_get_backward 2
+        ;inputs
+        ;%1 = list node
+        ;%2 = temp
+        ;outputs
+        ;%1 = list node
+        ;trashes
+        ;%2
+
+        ln_get_pred %1, %2
+        if %2, ==, 0
+            vp_cpy [%1 - LH_LIST_HEAD], %1
+        endif
+    %endmacro
+
 	%macro ln_set_object 2
 		;inputs
 		;%1 = list node
