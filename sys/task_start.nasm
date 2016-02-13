@@ -36,7 +36,7 @@
 		vp_lea [r1 + TK_NODE_SIZE], r0
 		vp_sub 8, r0
 		vp_cpy r5, [r0]
-		vp_sub 14*8, r0
+		vp_sub TK_STATE_SIZE, r0
 		vp_cpy r0, [r1 + TK_NODE_STACK]
 
 		;return mailbox pointer
