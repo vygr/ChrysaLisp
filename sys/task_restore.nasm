@@ -3,8 +3,9 @@
 
 	fn_function "sys/task_restore"
 		;restore next task
+		;r15 = control block
 
-		;round robin to next task
+		;round robin past any list head
 		ln_get_forward r15, r0
 
 		;restore old stack pointer
