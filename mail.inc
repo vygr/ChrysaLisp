@@ -58,4 +58,20 @@
 		lh_is_empty %1, %2
 	%endmacro
 
+    %macro ml_temp_create 1
+		;inputs
+		;%1 = temp
+		;outputs
+		;r4 = mailbox
+		;trashes
+        ;%1
+
+        vp_sub ML_MAILBOX_SIZE, r4
+        ml_init r4, %1
+	%endmacro
+
+    %macro ml_temp_destroy 0
+        vp_add ML_MAILBOX_SIZE, r4
+	%endmacro
+
 %endif

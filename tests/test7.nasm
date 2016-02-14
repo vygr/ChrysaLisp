@@ -5,7 +5,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	ARRAY_SIZE equ 8
+	ARRAY_SIZE equ 16
 
 	fn_function "tests/test7"
 		;task started by test1
@@ -25,7 +25,7 @@
 			fn_call sys/mail_alloc
 			vp_cpy r13, r3
 			vp_mul 16, r3
-			vp_cpy [r14 + r3], r1 
+			vp_cpy [r14 + r3], r1
 			vp_cpy [r14 + r3 + 8], r2
 			vp_cpy r1, [r0 + ML_MSG_DEST]
 			vp_cpy r2, [r0 + (ML_MSG_DEST + 8)]
@@ -41,14 +41,9 @@
 		fn_jmp sys/task_stop
 
 	task_eights:
+		%rep ARRAY_SIZE
 		db 'tests/test8', 0
-		db 'tests/test8', 0
-		db 'tests/test8', 0
-		db 'tests/test8', 0
-		db 'tests/test8', 0
-		db 'tests/test8', 0
-		db 'tests/test8', 0
-		db 'tests/test8', 0
+		%endrep
 		db 0
 
 	fn_function_end
