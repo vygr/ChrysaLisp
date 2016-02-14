@@ -12,9 +12,10 @@
 		vp_cpy 1000000, r0
 		fn_call sys/task_sleep
 
-		;open test11 task, off chip
+		;open test11 task, remotely
 		vp_lea [rel task_eleven], r0
-		fn_call sys/task_open_child
+		vp_cpy 0, r1
+		fn_call sys/task_open_remote
 
 		;open test9 task, off chip
 		vp_lea [rel task_nine], r0
@@ -32,9 +33,10 @@
 		vp_lea [rel task_four], r0
 		fn_call sys/task_open
 
-		;open test3 child task, off chip
+		;open test3 child task, on device
 		vp_lea [rel task_three], r0
-		fn_call sys/task_open_child
+		vp_cpy 0, r1
+		fn_call sys/task_open_device
 
 		;send test3 task 1000 messages
 		vp_cpy r0, r8
