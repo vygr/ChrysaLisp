@@ -41,6 +41,12 @@
 		vp_cpy [r4], r0
 		fn_call sys/opt_process
 
+		;fill in num cpu's with at least mine + 1
+		fn_call sys/get_cpu_id
+		vp_inc r0
+		fn_bind sys/task_statics, r1
+		vp_cpy r0, [r1 + TK_STATICS_TASK_NUM_CPU]
+
 		;allocate for kernel routing table
 		vp_sub LK_TABLE_SIZE, r4
 		vp_cpy 0, qword[r4 + LK_TABLE_ARRAY]
@@ -109,7 +115,7 @@
 					fn_call sys/mail_send
 					break
 				case r1, ==, KN_CALL_LINK_ROUTE
-					;increase size of network
+					;increase size of network ?
 					fn_bind sys/task_statics, r0
 					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN], r1
 					vp_inc r1
