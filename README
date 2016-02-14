@@ -11,11 +11,7 @@ make
 
 Run with:
 
-./run.sh
-./run1.sh
-./run3.sh
-./run4.sh
-./run8.sh
+./run.sh <num_cpus>
 
 Stop with:
 

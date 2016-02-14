@@ -1,9 +1,48 @@
 #!/bin/bash
-./main -cpu 7 -l /00-07 -l /01-07 -l /02-07 -l /03-07 -l /04-07 -l /05-07 -l /06-07 &
-./main -cpu 6 -l /06-07 -l /00-06 -l /01-06 -l /02-06 -l /03-06 -l /04-06 -l /05-06 &
-./main -cpu 5 -l /05-06 -l /05-07 -l /00-05 -l /01-05 -l /02-05 -l /03-05 -l /04-05 &
-./main -cpu 4 -l /04-05 -l /04-06 -l /04-07 -l /00-04 -l /01-04 -l /02-04 -l /03-04 &
-./main -cpu 3 -l /03-04 -l /03-05 -l /03-06 -l /03-07 -l /00-03 -l /01-03 -l /02-03 &
-./main -cpu 2 -l /02-03 -l /02-04 -l /02-05 -l /02-06 -l /02-07 -l /00-02 -l /01-02 &
-./main -cpu 1 -l /01-02 -l /01-03 -l /01-04 -l /01-05 -l /01-06 -l /01-07 -l /00-01 &
-./main -cpu 0 -l /00-01 -l /00-02 -l /00-03 -l /00-04 -l /00-05 -l /00-06 -l /00-07 -run tests/test1 &
+
+#have we got a paramater ?
+if [ -z ${1+x} ]
+then
+	num_cpu=8
+else
+	num_cpu=$1
+fi
+
+#not greater then 100
+if [ $num_cpu -gt 100 ]
+then
+	num_cpu=100
+fi
+
+for ((cpu=$num_cpu-1; cpu>=0; cpu--))
+do
+	links=""
+	for ((lcpu=0; lcpu<$num_cpu; lcpu++))
+	do
+		c1=$cpu
+		c2=$lcpu
+		if [ $c1 -lt 10 ]
+		then
+			c1="0$c1"
+		fi
+		if [ $c2 -lt 10 ]
+		then
+			c2="0$c2"
+		fi
+		if [ $lcpu != $cpu ]
+		then
+			if [ $cpu -lt $lcpu ]
+			then
+				links+="-l /$c1-$c2 "
+			else
+				links+="-l /$c2-$c1 "
+			fi
+		fi
+	done
+	if [ $cpu == 0 ]
+	then
+		./main -cpu $cpu $links -run tests/test1 &
+	else
+		./main -cpu $cpu $links &
+	fi
+done
