@@ -27,7 +27,7 @@
 		vp_cpy r0, [r3 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)]
 		vp_cpy 0, qword[r3 + ML_MSG_DEST]
 		vp_cpy r6, [r3 + (ML_MSG_DEST + 8)]
-		vp_cpy KN_CALL_TASK_OPEN, qword[r3 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)]
+		vp_cpy KN_CALL_TASK_CHILD, qword[r3 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)]
 
 		;copy task name
 		vp_cpy r5, r0
