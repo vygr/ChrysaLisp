@@ -8,10 +8,11 @@ else
 	num_cpu=$1
 fi
 
-#less than 1 cpu ?
-if [ $num_cpu -lt 1 ]
+#less than 3 cpu ?
+if [ $num_cpu -lt 3 ]
 then
-	num_cpu=1
+	./run.sh $1
+	exit
 fi
 
 #not greater then 100
@@ -23,10 +24,19 @@ fi
 for ((cpu=$num_cpu-1; cpu>=0; cpu--))
 do
 	links=""
-	for ((lcpu=0; lcpu<$num_cpu; lcpu++))
+	for ((lcpu=$cpu-1; lcpu<=$cpu+1; lcpu++))
 	do
 		c1=$cpu
 		c2=$lcpu
+		if [ $c2 == -1 ]
+		then
+			c2=$(($num_cpu-1))
+		fi
+		if [ $c2 == $num_cpu ]
+		then
+			c2=0
+		fi
+
 		if [ $c1 -lt 10 ]
 		then
 			c1="0$c1"

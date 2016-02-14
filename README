@@ -12,6 +12,8 @@ make
 Run with:
 
 ./run.sh <num_cpus>
+./run_ring.sh <num_cpus>
+./run_mesh.sh <num_cpus on a side>
 
 Stop with:
 
