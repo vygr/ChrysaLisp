@@ -15,9 +15,8 @@ are loaded and bound on demand as tasks are created and distributed. Currently
 functions are loaded from the cpu file system on which the task finds itself,
 but these will eventually come from the server object that the task was created
 with and functions will be transported across the network as required. Functions
-are shared between all tasks that share the same server object id, so only a
-single copy of a function is loaded regardless of how many task are running that
-use that function.
+are shared between all tasks that share the same server object, so only a single
+copy of a function is loaded regardless of how many tasks use that function.
 
 Allows modeling of various network topologies with point to point links. Each
 cpu in the network is modeled as a separate host process, point to point links
