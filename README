@@ -14,7 +14,10 @@ Has function level dynamic binding and loading. Individual assembler functions
 are loaded and bound on demand as tasks are created and distributed. Currently
 functions are loaded from the cpu file system on which the task finds itself,
 but these will eventually come from the server object that the task was created
-with and functions will be transported across the network as required.
+with and functions will be transported across the network as required. Functions
+are shared between all tasks that share the same server object id, so only a
+single copy of a function is loaded regardless of how many task are running that
+use that function.
 
 Allows modeling of various network topologies with point to point links. Each
 cpu in the network is modeled as a separate host process, point to point links
@@ -59,6 +62,10 @@ An example network viewed with ps looks like this for a 4x4 mesh network:
 Make with:
 
 make
+
+Requires NASM and the SDL2 library to be installed. SDL2 is for the experimental
+gui. Please note that there is a bug in NASM 2.11 that may not be fixed yet and
+so NASM 2.10 should be used until further notice.
 
 Run with:
 
