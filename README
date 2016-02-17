@@ -1,9 +1,44 @@
 Asm_Kernel
 ==========
 
-Assembler x86_64 multi tasking kernel. Currently for OSX/BSD but will eventually run on Linux too.
+Assembler 64 bit multi process, multi thread kernel.
 
-Allows modeling of various network topologies with point to point links.
+Currently for OSX/BSD but will eventually run on Linux too. Could move to bare metal eventually
+but it's useful for now to run hosted while experimenting.
+
+Uses a virtual cpu instruction macro set to avoid use of x86 native instructions. Couple of things
+to tidy up here with the vp_div and vp_cpy macros as they are currently too x86 specific.
+
+Has function level dynamic binding and loading. Individual assembler functions are loaded and bound on
+demand as tasks are created and distributed. Currently functions are loaded from the cpu file system
+on which the task finds itself, but these will eventually come from the server object that the task was
+created with and functions will be transported across the network as required.
+
+Allows modeling of various network topologies with point to point links. Each cpu in the network is
+modeled as a separate host process, point to point links use shared memory to simulate cpu to cpu
+point to point bi directional connections. There is no global bus based networking on purpose.
+
+The -run command option launches tasks, such as the test suit or experimental gui (a work in progress,
+-run gui/gui).
+
+An example network viewed with ps looks like this for a 4x4 mesh network:
+
+6027 ttys001    0:00.48 ./main -cpu 15 -l /11-15 -l /03-15 -l /14-15 -l /12-15
+6028 ttys001    0:00.50 ./main -cpu 14 -l /10-14 -l /02-14 -l /13-14 -l /14-15
+6029 ttys001    0:00.50 ./main -cpu 13 -l /09-13 -l /01-13 -l /12-13 -l /13-14
+6030 ttys001    0:00.50 ./main -cpu 12 -l /08-12 -l /00-12 -l /12-15 -l /12-13
+6031 ttys001    0:00.49 ./main -cpu 11 -l /07-11 -l /11-15 -l /10-11 -l /08-11
+6032 ttys001    0:00.49 ./main -cpu 10 -l /06-10 -l /10-14 -l /09-10 -l /10-11
+6033 ttys001    0:00.51 ./main -cpu 9 -l /05-09 -l /09-13 -l /08-09 -l /09-10
+6034 ttys001    0:00.51 ./main -cpu 8 -l /04-08 -l /08-12 -l /08-11 -l /08-09
+6035 ttys001    0:00.51 ./main -cpu 7 -l /03-07 -l /07-11 -l /06-07 -l /04-07
+6036 ttys001    0:00.50 ./main -cpu 6 -l /02-06 -l /06-10 -l /05-06 -l /06-07
+6037 ttys001    0:00.49 ./main -cpu 5 -l /01-05 -l /05-09 -l /04-05 -l /05-06
+6038 ttys001    0:00.52 ./main -cpu 4 -l /00-04 -l /04-08 -l /04-07 -l /04-05
+6039 ttys001    0:00.49 ./main -cpu 3 -l /03-15 -l /03-07 -l /02-03 -l /00-03
+6040 ttys001    0:00.50 ./main -cpu 2 -l /02-14 -l /02-06 -l /01-02 -l /02-03
+6041 ttys001    0:00.49 ./main -cpu 1 -l /01-13 -l /01-05 -l /00-01 -l /01-02
+6042 ttys001    0:00.50 ./main -cpu 0 -l /00-12 -l /00-04 -l /00-03 -l /00-01 -run tests/test1
 
 Make with:
 
