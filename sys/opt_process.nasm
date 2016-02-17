@@ -53,8 +53,8 @@
 		if r0, !=, 0
 			vp_cpy 10, r1
 			fn_call sys/string_parse_int
-			fn_bind sys/get_cpu_id, r1
-			vp_cpy r0, [r1 + 0x8]
+			fn_bind sys/task_statics, r1
+			vp_cpy r0, [r1 + TK_STATICS_CPU_ID]
 		endif
 		vp_ret
 

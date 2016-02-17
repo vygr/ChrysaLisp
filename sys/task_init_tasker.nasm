@@ -3,8 +3,7 @@
 
 	fn_function "sys/task_init_tasker"
 		;get task statics
-		fn_bind sys/task_statics, r0
-		vp_cpy r0, r3
+		fn_bind sys/task_statics, r3
 
 		;init task control block heap
 		vp_lea [r3 + TK_STATICS_TASK_HEAP], r0
@@ -15,11 +14,12 @@
 		;init task lists
 		vp_lea [r3 + TK_STATICS_TASK_LIST], r0
 		lh_init r0, r1
-		vp_lea [r3 + TK_STATICS_TASK_TIMER_LIST], r0
+		vp_lea [r3 + TK_STATICS_TIMER_LIST], r0
 		lh_init r0, r1
 
-		;init cpu count
-		vp_cpy 1, qword[r3 + TK_STATICS_TASK_NUM_CPU]
+		;init cpu count and id
+		vp_cpy 1, qword[r3 + TK_STATICS_CPU_TOTAL]
+		vp_cpy 0, qword[r3 + TK_STATICS_CPU_ID]
 		vp_ret
 
 	fn_function_end

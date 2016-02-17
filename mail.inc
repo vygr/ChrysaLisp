@@ -20,13 +20,14 @@
 		ML_MSG_NODE:			resb LN_NODE_SIZE
 		ML_MSG_LENGTH:			resq 1
 		ML_MSG_DEST:			resq 2
-		ML_MSG_DATA:			resb 256
+		ML_MSG_DATA:		    resb 256
 		ML_MSG_SIZE:
 	endstruc
 
 	struc ML_STATICS
 		ML_STATICS_OFFCHIP_LIST:	resb LH_LIST_SIZE
 		ML_STATICS_HEAP:			resb HP_HEAP_SIZE
+        ML_STATICS_KERNEL_MAILBOX:	resq 1
 		ML_STATICS_SIZE:
 	endstruc
 

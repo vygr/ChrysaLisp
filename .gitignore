@@ -11,6 +11,7 @@ gui/gui_set_color
 gui/gui_statics
 gui/gui_sub_view
 sys/get_cpu_id
+sys/get_cpu_total
 sys/get_cpu_time
 sys/heap_alloccell
 sys/heap_deinit

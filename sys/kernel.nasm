@@ -20,9 +20,6 @@
 		;init tasker
 		fn_call sys/task_init_tasker
 
-		;init mailer
-		fn_call sys/mail_init_mailer
-
 		;init allocator
 		fn_call sys/mem_init_allocator
 
@@ -34,8 +31,9 @@
 		vp_lea [r15 + TK_STATICS_TASK_LIST + LH_LIST_TAIL], r15
 		fn_call sys/task_start
 		vp_cpy r1, r15
-		fn_bind sys/mail_send, r1
-		vp_cpy r0, [r1 + 0x80]
+
+		;init mailer, r0 = kernel mailbox !
+		fn_call sys/mail_init_mailer
 
 		;process command options
 		vp_cpy [r4], r0
@@ -45,7 +43,7 @@
 		fn_call sys/get_cpu_id
 		vp_inc r0
 		fn_bind sys/task_statics, r1
-		vp_cpy r0, [r1 + TK_STATICS_TASK_NUM_CPU]
+		vp_cpy r0, [r1 + TK_STATICS_CPU_TOTAL]
 
 		;allocate for kernel routing table
 		vp_sub LK_TABLE_SIZE, r4
@@ -119,8 +117,8 @@
 					fn_bind sys/task_statics, r0
 					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN], r1
 					vp_inc r1
-					if r1, >, [r0 + TK_STATICS_TASK_NUM_CPU]
-						vp_cpy r1, [r0 + TK_STATICS_TASK_NUM_CPU]
+					if r1, >, [r0 + TK_STATICS_CPU_TOTAL]
+						vp_cpy r1, [r0 + TK_STATICS_CPU_TOTAL]
 					endif
 
 					;new kernel routing table ?
@@ -263,10 +261,10 @@
 
 			;start any tasks ready to restart
 			fn_bind sys/task_statics, r3
-			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r2
+			vp_cpy [r3 + TK_STATICS_TIMER_LIST + LH_LIST_HEAD], r2
 			ln_get_succ r2, r2
 			if r2, !=, 0
-				loopstart_list_forwards r3 + TK_STATICS_TASK_TIMER_LIST, r2, r1
+				loopstart_list_forwards r3 + TK_STATICS_TIMER_LIST, r2, r1
 					vp_cpy [r1 + TK_NODE_TIME], r5
 					breakif r5, >, r0
 
@@ -283,7 +281,7 @@
 			continueif r2, !=, r1
 
 			;exit if no task waiting for timer
-			vp_cpy [r3 + TK_STATICS_TASK_TIMER_LIST + LH_LIST_HEAD], r2
+			vp_cpy [r3 + TK_STATICS_TIMER_LIST + LH_LIST_HEAD], r2
 			ln_get_succ r2, r1
 			breakif r1, ==, 0
 
