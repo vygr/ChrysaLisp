@@ -3,23 +3,26 @@ Asm_Kernel
 
 Assembler 64 bit multi process, multi thread kernel.
 
-Currently for OSX/BSD but will eventually run on Linux too. Could move to bare metal eventually
-but it's useful for now to run hosted while experimenting.
+Currently for OSX/BSD but will eventually run on Linux too. Could move to bare
+metal eventually but it's useful for now to run hosted while experimenting.
 
-Uses a virtual cpu instruction macro set to avoid use of x86 native instructions. Couple of things
-to tidy up here with the vp_div and vp_cpy macros as they are currently too x86 specific.
+Uses a virtual cpu instruction macro set to avoid use of x86 native
+instructions. Couple of things to tidy up here with the vp_div and vp_cpy macros
+as they are currently too x86 specific.
 
-Has function level dynamic binding and loading. Individual assembler functions are loaded and bound on
-demand as tasks are created and distributed. Currently functions are loaded from the cpu file system
-on which the task finds itself, but these will eventually come from the server object that the task was
-created with and functions will be transported across the network as required.
+Has function level dynamic binding and loading. Individual assembler functions
+are loaded and bound on demand as tasks are created and distributed. Currently
+functions are loaded from the cpu file system on which the task finds itself,
+but these will eventually come from the server object that the task was created
+with and functions will be transported across the network as required.
 
-Allows modeling of various network topologies with point to point links. Each cpu in the network is
-modeled as a separate host process, point to point links use shared memory to simulate cpu to cpu
-point to point bi directional connections. There is no global bus based networking on purpose.
+Allows modeling of various network topologies with point to point links. Each
+cpu in the network is modeled as a separate host process, point to point links
+use shared memory to simulate cpu to cpu point to point bi directional
+connections. There is no global bus based networking on purpose.
 
-The -run command option launches tasks, such as the test suit or experimental gui (a work in progress,
--run gui/gui).
+The -run command option launches tasks, such as the test suit or experimental
+gui (a work in progress, -run gui/gui).
 
 An example network viewed with ps looks like this for a 4x4 mesh network:
 
