@@ -17,7 +17,7 @@
 		fn_call sys/mem_alloc
 		vp_cpy r0, r14
 
-		;open test12 pipe, off chip
+		;open test12 global farm, off chip
 		vp_lea [rel task_twelve], r0
 		vp_cpy r14, r1
 		vp_cpy r12, r2
@@ -47,6 +47,5 @@
 
 	task_twelve:
 		db 'tests/test12', 0
-		db 0
 
 	fn_function_end
