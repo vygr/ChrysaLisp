@@ -2,9 +2,6 @@
 %include "task.inc"
 
 	fn_function "sys/task_stop"
-		;trashes
-		;r0-r15
-
 		;remove task control block
 		fn_bind sys/task_statics, r0
 		vp_cpy [r0 + TK_STATICS_CURRENT_TCB], r1
