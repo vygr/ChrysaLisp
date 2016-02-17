@@ -16,9 +16,13 @@ function add_link
 	then
 		if [ $1 -lt $2 ]
 		then
-			links+="-l /$1-$2 "
+			nl=$1-$2
 		else
-			links+="-l /$2-$1 "
+			nl=$2-$1
+		fi
+		if [[ "$links" != *"$nl"* ]]
+		then
+			links+="-l /$nl "
 		fi
 	fi
 }
@@ -26,7 +30,7 @@ function add_link
 function wrap
 {
 	wp=$(($1 % $num_cpu))
-	if [ $1 -lt 0 ]
+	if [ $wp -lt 0 ]
 	then
 		wp=$(($wp + $num_cpu))
 	fi

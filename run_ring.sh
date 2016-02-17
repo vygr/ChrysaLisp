@@ -8,13 +8,6 @@ else
 	num_cpu=$1
 fi
 
-#less than 3 cpu ?
-if [ $num_cpu -lt 3 ]
-then
-	./run.sh $1
-	exit
-fi
-
 #not greater then 100
 if [ $num_cpu -gt 100 ]
 then

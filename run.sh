@@ -8,12 +8,6 @@ else
 	num_cpu=$1
 fi
 
-#less than 1 cpu ?
-if [ $num_cpu -lt 1 ]
-then
-	num_cpu=1
-fi
-
 #not greater then 100
 if [ $num_cpu -gt 100 ]
 then
