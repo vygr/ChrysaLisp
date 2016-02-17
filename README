@@ -21,8 +21,21 @@ cpu in the network is modeled as a separate host process, point to point links
 use shared memory to simulate cpu to cpu point to point bi directional
 connections. There is no global bus based networking on purpose.
 
-The -run command option launches tasks, such as the test suit or experimental
-gui (a work in progress, -run gui/gui).
+Network link routing tables are created on booting a link, and the process is
+distributed in nature, each link starts a flood fill that eventually reaches all
+the cpus and along the way has marked all the routes from one cpu to another.
+All shortest routes are found, messages going off cpu are assigned to a link as
+the link become free and multiple links can and do route messages over parallel
+routes simultaneously.
+
+The -run command line option launches tasks on booting that cpu, such as the
+test suit or experimental gui (a work in progress, -run gui/gui).
+
+The -l command line option creates a link, currently up to 100 cpu's are allowed
+but that is easy to adjust in the sys/link.nasm file and is due to the very
+simple link parameter parsing. The lower numbered cpu always comes first !
+
+The -cpu command line option just labels the cpu with it's ID.
 
 An example network viewed with ps looks like this for a 4x4 mesh network:
 
