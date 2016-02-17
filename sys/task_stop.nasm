@@ -2,18 +2,14 @@
 %include "task.inc"
 
 	fn_function "sys/task_stop"
-		;inputs
-		;r15 = task control node
 		;trashes
 		;r0-r15
 
 		;remove task control block
-		vp_cpy r15, r0
-		vp_cpy r15, r1
-		ln_remove_node r0, r15
-
-		;get statics
 		fn_bind sys/task_statics, r0
+		vp_cpy [r0 + TK_STATICS_CURRENT_TCB], r1
+		vp_cpy r1, r2
+		ln_remove_node r2, r15
 
 		;decrement task count
 		vp_cpy [r0 + TK_STATICS_TASK_COUNT], r2

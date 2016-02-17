@@ -26,10 +26,10 @@
 		;init linker
 		fn_call sys/link_init_linker
 
-		;start kernel task and patch mailbox
-		fn_bind sys/task_statics, r15
-		vp_lea [r15 + TK_STATICS_TASK_LIST + LH_LIST_TAIL], r15
+		;start kernel task
 		fn_call sys/task_start
+		fn_bind sys/task_statics, r2
+		vp_cpy r1, [r2 + TK_STATICS_CURRENT_TCB]
 		vp_cpy r1, r15
 
 		;init mailer, r0 = kernel mailbox !

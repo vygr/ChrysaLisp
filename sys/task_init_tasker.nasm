@@ -2,8 +2,10 @@
 %include "task.inc"
 
 	fn_function "sys/task_init_tasker"
-		;get task statics
+		;set up current tcb
 		fn_bind sys/task_statics, r3
+		vp_lea [r3 + TK_STATICS_TASK_LIST + LH_LIST_TAIL], r15
+		vp_cpy r15, [r3 + TK_STATICS_CURRENT_TCB]
 
 		;init task control block heap
 		vp_lea [r3 + TK_STATICS_TASK_HEAP], r0

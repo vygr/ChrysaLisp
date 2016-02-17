@@ -2,13 +2,12 @@
 %include "task.inc"
 
 	fn_function "sys/task_deshedule"
-		;inputs
-		;r15 = task control node
-
 		;push task state
 		tk_save_state
 
 		;save old stack pointer
+		fn_bind sys/task_statics, r15
+		vp_cpy [r15 + TK_STATICS_CURRENT_TCB], r15
 		vp_cpy r4, [r15 + TK_NODE_STACK]
 
 		;get next task control block

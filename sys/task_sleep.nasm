@@ -3,13 +3,14 @@
 
 	fn_function "sys/task_sleep"
 		;inputs
-		;r15 = task control node
 		;r0 = time delay in usec
 
 		;push task state
 		tk_save_state
 
 		;save stack pointer
+		fn_bind sys/task_statics, r3
+		vp_cpy [r3 + TK_STATICS_CURRENT_TCB], r15
 		vp_cpy r4, [r15 + TK_NODE_STACK]
 
 		;save timeout
@@ -24,9 +25,6 @@
 		vp_cpy r15, r2
 		vp_cpy r15, r1
 		ln_remove_node r2, r15
-
-		;get statics
-		fn_bind sys/task_statics, r3
 
 		;add to timer list
 		loopstart_list_forwards r3 + TK_STATICS_TIMER_LIST, r2, r5

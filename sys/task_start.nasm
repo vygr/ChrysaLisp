@@ -3,7 +3,6 @@
 
 	fn_function "sys/task_start"
 		;inputs
-		;r15 = task control node
 		;r0 = new task program counter
 		;outputs
 		;r0 = new task mailbox
@@ -25,7 +24,9 @@
 		;create new task control block and task
 		vp_lea [r6 + TK_STATICS_TASK_HEAP], r0
 		fn_call sys/heap_alloccell
-		ln_add_node_before r15, r1, r2
+		fn_bind sys/task_statics, r0
+		vp_cpy [r0 + TK_STATICS_CURRENT_TCB], r0
+		ln_add_node_before r0, r1, r2
 
 		;initialise task mailbox
 		vp_cpy 0, qword[r1 + TK_NODE_MAILBOX + ML_MAILBOX_TCB]

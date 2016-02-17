@@ -2,17 +2,15 @@
 %include "task.inc"
 
 	fn_function "sys/task_suspend"
-		;inputs
-		;r15 = task control node
-
 		;push task state
 		tk_save_state
 
 		;save stack pointer
-		vp_cpy r4, [r15 + TK_NODE_STACK]
+		fn_bind sys/task_statics, r0
+		vp_cpy [r0 + TK_STATICS_CURRENT_TCB], r0
+		vp_cpy r4, [r0 + TK_NODE_STACK]
 
 		;remove task control block
-		vp_cpy r15, r0
 		ln_remove_node r0, r15
 
 		;restore next task
