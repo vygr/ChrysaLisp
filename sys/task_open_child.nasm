@@ -1,4 +1,5 @@
 %include "func.inc"
+%include "task.inc"
 
 	fn_function "sys/task_open_child"
 		;inputs
@@ -8,15 +9,8 @@
 		;trashes
 		;r2-r3, r5-r6
 
-		;save name
-		vp_cpy r0, r2
-
-		;get local cpu id
-		fn_call sys/get_cpu_id
-		vp_cpy r0, r1
-
-		;restore name and launch task
-		vp_cpy r2, r0
+		fn_bind sys/task_statics, r1
+		vp_cpy [r1 + TK_STATICS_CPU_ID], r1
 		fn_jmp sys/task_open_remote
 
 	fn_function_end
