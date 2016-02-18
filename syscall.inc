@@ -1,5 +1,5 @@
 %ifndef SYSCALL_1234
-    %define SYSCALL_1234
+	%define SYSCALL_1234
 
 %include "vp.inc"
 

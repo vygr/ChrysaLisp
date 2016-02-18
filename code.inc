@@ -1,5 +1,5 @@
 %ifndef CODE_1234
-    %define CODE_1234
+	%define CODE_1234
 
 %include "vp.inc"
 

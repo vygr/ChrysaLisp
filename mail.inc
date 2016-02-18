@@ -1,5 +1,5 @@
 %ifndef MAIL_1234
-    %define MAIL_1234
+	%define MAIL_1234
 
 %include "vp.inc"
 %include "code.inc"
@@ -20,14 +20,14 @@
 		ML_MSG_NODE:			resb LN_NODE_SIZE
 		ML_MSG_LENGTH:			resq 1
 		ML_MSG_DEST:			resq 2
-		ML_MSG_DATA:		    resb 256
+		ML_MSG_DATA:			resb 256
 		ML_MSG_SIZE:
 	endstruc
 
 	struc ML_STATICS
 		ML_STATICS_OFFCHIP_LIST:	resb LH_LIST_SIZE
 		ML_STATICS_HEAP:			resb HP_HEAP_SIZE
-        ML_STATICS_KERNEL_MAILBOX:	resq 1
+		ML_STATICS_KERNEL_MAILBOX:	resq 1
 		ML_STATICS_SIZE:
 	endstruc
 
@@ -59,20 +59,20 @@
 		lh_is_empty %1, %2
 	%endmacro
 
-    %macro ml_temp_create 1
+	%macro ml_temp_create 1
 		;inputs
 		;%1 = temp
 		;outputs
 		;r4 = mailbox
 		;trashes
-        ;%1
+		;%1
 
-        vp_sub ML_MAILBOX_SIZE, r4
-        ml_init r4, %1
+		vp_sub ML_MAILBOX_SIZE, r4
+		ml_init r4, %1
 	%endmacro
 
-    %macro ml_temp_destroy 0
-        vp_add ML_MAILBOX_SIZE, r4
+	%macro ml_temp_destroy 0
+		vp_add ML_MAILBOX_SIZE, r4
 	%endmacro
 
 %endif

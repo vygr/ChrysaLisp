@@ -1,5 +1,5 @@
 %ifndef LIST_1234
-    %define LIST_1234
+	%define LIST_1234
 
 %include "vp.inc"
 %include "code.inc"
@@ -26,35 +26,35 @@
 ; list node macros
 ;;;;;;;;;;;;;;;;;;
 
-    %macro ln_get_forward 2
-        ;inputs
-        ;%1 = list node
-        ;%2 = temp
-        ;outputs
-        ;%1 = list node
-        ;trashes
-        ;%2
+	%macro ln_get_forward 2
+		;inputs
+		;%1 = list node
+		;%2 = temp
+		;outputs
+		;%1 = list node
+		;trashes
+		;%2
 
-        ln_get_succ %1, %2
-        if %2, ==, 0
-            vp_cpy [%1 - LH_LIST_TAIL], %1
-        endif
-    %endmacro
+		ln_get_succ %1, %2
+		if %2, ==, 0
+			vp_cpy [%1 - LH_LIST_TAIL], %1
+		endif
+	%endmacro
 
-    %macro ln_get_backward 2
-        ;inputs
-        ;%1 = list node
-        ;%2 = temp
-        ;outputs
-        ;%1 = list node
-        ;trashes
-        ;%2
+	%macro ln_get_backward 2
+		;inputs
+		;%1 = list node
+		;%2 = temp
+		;outputs
+		;%1 = list node
+		;trashes
+		;%2
 
-        ln_get_pred %1, %2
-        if %2, ==, 0
-            ln_get_tail %1, %1
-        endif
-    %endmacro
+		ln_get_pred %1, %2
+		if %2, ==, 0
+			ln_get_tail %1, %1
+		endif
+	%endmacro
 
 	%macro ln_set_object 2
 		;inputs
@@ -350,38 +350,38 @@
 ; list loop macros
 ;;;;;;;;;;;;;;;;;;
 
-    %macro loopstart_list_forwards 3
-        ;inputs
-        ;%1 = list head
-        ;%2 = list node look ahead
-        ;%3 = list node
-        ;outputs
-        ;%1 = list head
-        ;%2 = list node look ahead
-        ;%3 = list node
+	%macro loopstart_list_forwards 3
+		;inputs
+		;%1 = list head
+		;%2 = list node look ahead
+		;%3 = list node
+		;outputs
+		;%1 = list head
+		;%2 = list node look ahead
+		;%3 = list node
 
-        lh_get_head %1, %2
-        loopstart
-            vp_cpy %2, %3
-            ln_get_succ %2, %2
-            breakif %2, ==, 0
-    %endmacro
+		lh_get_head %1, %2
+		loopstart
+			vp_cpy %2, %3
+			ln_get_succ %2, %2
+			breakif %2, ==, 0
+	%endmacro
 
-    %macro loopstart_list_backwards 3
-        ;inputs
-        ;%1 = list head
-        ;%2 = list node look ahead
-        ;%3 = list node
-        ;outputs
-        ;%1 = list head
-        ;%2 = list node look ahead
-        ;%3 = list node
+	%macro loopstart_list_backwards 3
+		;inputs
+		;%1 = list head
+		;%2 = list node look ahead
+		;%3 = list node
+		;outputs
+		;%1 = list head
+		;%2 = list node look ahead
+		;%3 = list node
 
-        lh_get_tail %1, %2
-        loopstart
-            vp_cpy %2, %3
-            ln_get_pred %2, %2
-            breakif %2, ==, 0
-    %endmacro
+		lh_get_tail %1, %2
+		loopstart
+			vp_cpy %2, %3
+			ln_get_pred %2, %2
+			breakif %2, ==, 0
+	%endmacro
 
 %endif

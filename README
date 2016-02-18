@@ -6,9 +6,9 @@ Assembler 64 bit multi process, multi thread kernel.
 Currently for OSX/BSD but will eventually run on Linux too. Could move to bare
 metal eventually but it's useful for now to run hosted while experimenting.
 
-Uses a virtual cpu instruction macro set to avoid use of x86 native
+Uses a virtual cpu instruction macro set to avoid use of x64 native
 instructions. Couple of things to tidy up here with the vp_div and vp_cpy macros
-as they are currently too x86 specific.
+as they are currently too x64 specific.
 
 Has function level dynamic binding and loading. Individual assembler functions
 are loaded and bound on demand as tasks are created and distributed. Currently
@@ -27,7 +27,7 @@ Network link routing tables are created on booting a link, and the process is
 distributed in nature, each link starts a flood fill that eventually reaches all
 the cpus and along the way has marked all the routes from one cpu to another.
 All shortest routes are found, messages going off cpu are assigned to a link as
-the link become free and multiple links can and do route messages over parallel
+the link becomes free and multiple links can and do route messages over parallel
 routes simultaneously.
 
 The -run command line option launches tasks on booting that cpu, such as the

@@ -1,5 +1,5 @@
 %ifndef SDL2_1234
-    %define SDL2_1234
+	%define SDL2_1234
 
 %include "vp.inc"
 %include "code.inc"
