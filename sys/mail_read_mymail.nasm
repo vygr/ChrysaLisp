@@ -6,12 +6,17 @@
 		;r0 = mailbox address
 		;r1 = mail address
 		;trashes
-		;r0-r2
+		;r2
 
-		fn_bind sys/task_statics, r0
-		vp_cpy [r0 + TK_STATICS_CURRENT_TCB], r0
-		vp_lea [r0 + TK_NODE_MAILBOX], r0
-		fn_call sys/mail_read
+		fn_bind sys/task_statics, r1
+		vp_cpy [r1 + TK_STATICS_CURRENT_TCB], r1
+		vp_lea [r1 + TK_NODE_MAILBOX], r0
+		lh_is_empty r0, r2
+		if r2, ==, 0
+			vp_cpy r1, [r0 + ML_MAILBOX_TCB]
+			fn_call sys/task_suspend
+		endif
+		lh_remove_head r0, r1, r2
 		vp_ret
 
 	fn_function_end
