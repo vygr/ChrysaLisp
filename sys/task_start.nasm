@@ -31,7 +31,7 @@
 		;initialise task mailbox
 		vp_cpy 0, qword[r1 + TK_NODE_MAILBOX + ML_MAILBOX_TCB]
 		vp_lea [r1 + TK_NODE_MAILBOX + ML_MAILBOX_LIST], r0
-		ml_init r0, r2
+		ml_init r0, r2, r3
 
 		;set task control block stack and return address's
 		vp_lea [r1 + TK_NODE_SIZE], r0

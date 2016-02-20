@@ -12,6 +12,7 @@
 
 	struc ML_MAILBOX
 		ML_MAILBOX_LIST:		resb LH_LIST_SIZE
+		ML_MAILBOX_PARCEL_LIST:	resb LH_LIST_SIZE
 		ML_MAILBOX_TCB:			resq 1
 		ML_MAILBOX_SIZE:
 	endstruc
@@ -37,17 +38,20 @@
 ; mail macros
 ;;;;;;;;;;;;;
 
-	%macro ml_init 2
+	%macro ml_init 3
 		;inputs
 		;%1 = mailbox
 		;%2 = temp
+		;%3 = temp
 		;outputs
 		;%1 = mailbox
 		;trashes
-		;%2
+		;%2, %3
 
-		lh_init %1, %2
 		vp_cpy 0, qword[%1 + ML_MAILBOX_TCB]
+		lh_init %1, %2
+		vp_lea [%1 + ML_MAILBOX_PARCEL_LIST], %2
+		lh_init %2, %3
 	%endmacro
 
 	%macro ml_check 2
@@ -61,16 +65,17 @@
 		lh_is_empty %1, %2
 	%endmacro
 
-	%macro ml_temp_create 1
+	%macro ml_temp_create 2
 		;inputs
 		;%1 = temp
+		;%2 = temp
 		;outputs
 		;r4 = mailbox
 		;trashes
-		;%1
+		;%1, %2
 
 		vp_sub ML_MAILBOX_SIZE, r4
-		ml_init r4, %1
+		ml_init r4, %1, %2
 	%endmacro
 
 	%macro ml_temp_destroy 0

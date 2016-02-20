@@ -15,7 +15,7 @@
 		vp_cpy r1, r6
 
 		;create temp mailbox
-		ml_temp_create r0
+		ml_temp_create r0, r1
 
 		;allocate mail message
 		fn_call sys/mail_alloc
