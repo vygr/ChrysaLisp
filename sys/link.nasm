@@ -151,7 +151,7 @@
 			endif
 
 			;let other links run
-			fn_call sys/task_deshedule
+			fn_call sys/task_yield
 
 			;are we in a quite period
 			vp_cpy [r11 + LK_CHAN_STATUS], r0

@@ -57,7 +57,7 @@
 		;loop till no other tasks running
 		loopstart
 			;allow all other tasks to run
-			fn_call sys/task_deshedule
+			fn_call sys/task_yield
 
 			;service all kernel mail
 			loopstart

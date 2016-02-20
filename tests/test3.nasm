@@ -28,7 +28,7 @@
 				fn_call sys/write_char
 			next
 			fn_call sys/write_char
-			fn_call sys/task_deshedule
+			fn_call sys/task_yield
 		next
 		vp_ret
 

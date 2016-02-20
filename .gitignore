@@ -52,7 +52,7 @@ sys/string_copy
 sys/string_length
 sys/string_parse_int
 sys/task_deinit_tasker
-sys/task_deshedule
+sys/task_yield
 sys/task_init_tasker
 sys/task_open
 sys/task_open_array

@@ -30,7 +30,7 @@
 			vp_cpy r1, [r0 + ML_MSG_DEST]
 			vp_cpy r2, [r0 + (ML_MSG_DEST + 8)]
 			fn_call sys/mail_send
-			fn_call sys/task_deshedule
+			fn_call sys/task_yield
 		next
 
 		;free ID array and return

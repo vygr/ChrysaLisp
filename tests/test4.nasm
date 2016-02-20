@@ -43,7 +43,7 @@
 		vp_add HP_HEAP_SIZE, r4
 
 		;deshedule
-		fn_call sys/task_deshedule
+		fn_call sys/task_yield
 
 		for r10, 0, 10, 1
 			;allocate 8MB - 8 general ram
