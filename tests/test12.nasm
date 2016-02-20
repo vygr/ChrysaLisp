@@ -22,7 +22,6 @@
 					vp_lea [rel failed], r0
 					vp_cpy 1, r1
 					fn_jmp sys/write_string
-					vp_ret
 				endif
 			next
 			fn_call sys/mem_free
