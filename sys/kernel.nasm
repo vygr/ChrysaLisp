@@ -68,7 +68,7 @@
 
 				;read waiting mail
 				fn_call sys/mail_read
-				vp_cpy r1, r14
+				vp_cpy r0, r14
 
 				;switch on kernel call number
 				vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)], r1

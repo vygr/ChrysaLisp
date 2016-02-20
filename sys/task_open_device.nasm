@@ -45,11 +45,10 @@
 		fn_call sys/mail_read
 
 		;save reply mailbox ID
-		vp_cpy [r1 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID)], r3
-		vp_cpy [r1 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID + 8)], r5
+		vp_cpy [r0 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID)], r3
+		vp_cpy [r0 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID + 8)], r5
 
 		;free reply mail and temp mailbox
-		vp_cpy r1, r0
 		fn_call sys/mem_free
 		ml_temp_destroy
 

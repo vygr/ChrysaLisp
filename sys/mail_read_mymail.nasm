@@ -15,7 +15,9 @@
 			vp_cpy r0, [r1 + ML_MAILBOX_TCB]
 			fn_call sys/task_suspend
 		endif
-		lh_remove_head r1, r0, r2
+		vp_cpy [r1 + ML_MAILBOX_LIST + LH_LIST_HEAD], r0
+		vp_cpy r0, r1
+		ln_remove_node r1, r2
 		vp_ret
 
 	fn_function_end

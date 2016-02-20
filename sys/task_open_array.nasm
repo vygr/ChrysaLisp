@@ -58,14 +58,13 @@
 			fn_call sys/mail_read
 
 			;save reply mailbox ID in user address
-			vp_cpy [r1 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_USER)], r6
-			vp_cpy [r1 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID)], r2
-			vp_cpy [r1 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID + 8)], r3
+			vp_cpy [r0 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_USER)], r6
+			vp_cpy [r0 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID)], r2
+			vp_cpy [r0 + (ML_MSG_DATA + KN_DATA_TASK_CHILD_REPLY_MAILBOXID + 8)], r3
 			vp_cpy r2, [r6]
 			vp_cpy r3, [r6 + 8]
 
 			;free reply mail
-			vp_cpy r1, r0
 			fn_call sys/mem_free
 
 			;next mailbox
