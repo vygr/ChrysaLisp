@@ -9,7 +9,6 @@
 
 		;read exit command etc
 		fn_call sys/mail_read_mymail
-		vp_cpy r1, r0
 		fn_call sys/mem_free
 
 		;wait a bit

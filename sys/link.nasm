@@ -17,7 +17,7 @@
 
 		;read params msg from kernel
 		fn_call sys/mail_read_mymail
-		vp_cpy r1, r14
+		vp_cpy r0, r14
 
 		;init link node cpu id and task count
 		vp_cpy byte[r14 + ML_MSG_DATA + 1], r1l
