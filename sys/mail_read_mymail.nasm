@@ -9,15 +9,7 @@
 
 		fn_bind sys/task_statics, r0
 		vp_cpy [r0 + TK_STATICS_CURRENT_TCB], r0
-		vp_lea [r0 + TK_NODE_MAILBOX], r1
-		lh_is_empty r1, r2
-		if r2, ==, 0
-			vp_cpy r0, [r1 + ML_MAILBOX_TCB]
-			fn_call sys/task_suspend
-		endif
-		vp_cpy [r1 + ML_MAILBOX_LIST + LH_LIST_HEAD], r0
-		vp_cpy r0, r1
-		ln_remove_node r1, r2
-		vp_ret
+		vp_lea [r0 + TK_NODE_MAILBOX], r0
+		fn_jmp sys/mail_read
 
 	fn_function_end
