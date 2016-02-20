@@ -18,6 +18,7 @@
 				fn_bind sys/mail_statics, r1
 				vp_cpy [r1 + ML_STATICS_KERNEL_MAILBOX], r1
 			endif
+		post_it:
 			lh_add_at_tail r1, r2, r0
 			vp_cpy [r1 + ML_MAILBOX_TCB], r0
 			if r0, !=, 0
@@ -27,8 +28,16 @@
 		else
 			;yes off chip
 			fn_bind sys/mail_statics, r1
-			vp_lea [r1 + ML_STATICS_OFFCHIP_LIST], r1
-			lh_add_at_tail r1, r2, r0
+			vp_cpy [r2 + ML_MSG_LENGTH], r0
+			if r0, >, ML_MSG_SIZE
+				;must use postman task
+				vp_cpy [r1 + ML_STATICS_OUT_MAILBOX], r1
+				vp_jmp post_it
+			else
+				;queue it on the outgoing packet list
+				vp_lea [r1 + ML_STATICS_OFFCHIP_LIST], r1
+				lh_add_at_tail r1, r2, r0
+			endif
 		endif
 		vp_ret
 
