@@ -32,6 +32,7 @@ sys/load_statics
 sys/mail_in
 sys/mail_out
 sys/mail_alloc
+sys/mail_alloc_parcel
 sys/mail_deinit_mailer
 sys/mail_init_mailer
 sys/mail_read

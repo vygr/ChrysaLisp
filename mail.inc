@@ -21,7 +21,11 @@
 		ML_MSG_NODE:			resb LN_NODE_SIZE
 		ML_MSG_LENGTH:			resq 1
 		ML_MSG_DEST:			resq 2
-		ML_MSG_DATA:			resb 256
+		ML_MSG_PARCEL_ID:		resq 2
+		ML_MSG_PARCEL_SIZE:		resq 1
+		ML_MSG_PARCEL_TOTAL:	resq 1
+		ML_MSG_PARCEL_FRAG:		resq 1
+		ML_MSG_DATA:			resb 512
 		ML_MSG_SIZE:
 	endstruc
 
@@ -31,6 +35,7 @@
 		ML_STATICS_KERNEL_MAILBOX:	resq 1
 		ML_STATICS_IN_MAILBOX:		resq 1
 		ML_STATICS_OUT_MAILBOX:		resq 1
+		ML_STATICS_PARCEL_ID:		resq 1
 		ML_STATICS_SIZE:
 	endstruc
 

@@ -26,6 +26,7 @@
 		fn_bind sys/mail_out, r0
 		fn_call sys/task_start
 		vp_cpy r0, [r7 + ML_STATICS_OUT_MAILBOX]
+		vp_cpy 0, qword[r7 + ML_STATICS_PARCEL_ID]
 		vp_ret
 
 	fn_function_end

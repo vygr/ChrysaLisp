@@ -5,6 +5,8 @@
 ; test code
 ;;;;;;;;;;;
 
+	TEST_SIZE equ 1000
+
 	fn_function "tests/test11"
 		;task started by test1
 
@@ -26,7 +28,11 @@
 		;send messages etc
 		for r11, 0, 10, 1
 			for r13, 0, r12, 1
-				fn_call sys/mail_alloc
+				vp_cpy (TEST_SIZE * 8), r0
+				fn_call sys/mail_alloc_parcel
+				for r15, 0, TEST_SIZE, 1
+					vp_cpy r15, [r0 + (r15 * 8) + ML_MSG_DATA]
+				next
 				vp_cpy r13, r3
 				vp_mul 16, r3
 				vp_cpy [r14 + r3], r1

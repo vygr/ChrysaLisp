@@ -13,6 +13,7 @@
 		vp_cpy r0, qword[r1]
 		vp_lea [r1 + 8], r0
 		vp_cpy ML_MSG_DATA, qword[r0 + ML_MSG_LENGTH]
+		vp_cpy 0, qword[r0 + ML_MSG_PARCEL_SIZE]
 		vp_ret
 
 	fn_function_end
