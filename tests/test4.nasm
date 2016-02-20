@@ -72,11 +72,10 @@
 			vp_cpy r8, r0
 			fn_call sys/mem_free
 		next
+
+		;print lf and return
 		vp_cpy 1, r1
 		vp_cpy 10, r0
-		fn_call sys/write_char
-
-		;stop this task
-		fn_jmp sys/task_stop
+		fn_jmp sys/write_char
 
 	fn_function_end

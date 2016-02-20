@@ -17,13 +17,10 @@
 		vp_add 2000000, r0
 		fn_call sys/task_sleep
 
-		;print Hello
+		;print Hello and return
 		vp_lea [rel hello], r0
 		vp_cpy 1, r1
-		fn_call sys/write_string
-
-		;stop this task
-		fn_jmp sys/task_stop
+		fn_jmp sys/write_string
 
 	hello:
 		db "Hello from farm worker !", 10, 0

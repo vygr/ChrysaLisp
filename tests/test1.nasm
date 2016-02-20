@@ -49,11 +49,8 @@
 			fn_call sys/task_deshedule
 		next
 
-		;make test2 function call
-		fn_call tests/test2
-
-		;stop this task
-		fn_jmp sys/task_stop
+		;make test2 function call and return
+		fn_jmp tests/test2
 
 	task_three:
 		db 'tests/test3', 0

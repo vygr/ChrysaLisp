@@ -46,12 +46,9 @@
 		;send mail to kernel
 		fn_call sys/mail_send
 
-		;wait 5 seconds
+		;wait 5 seconds and return
 		vp_cpy 5000000, r0
-		fn_call sys/task_sleep
-
-		;stop this task
-		fn_jmp sys/task_stop
+		fn_jmp sys/task_sleep
 
 	draw_background:
 		;inputs

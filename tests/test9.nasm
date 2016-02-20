@@ -33,12 +33,9 @@
 			fn_call sys/task_deshedule
 		next
 
-		;free ID array
+		;free ID array and return
 		vp_cpy r14, r0
-		fn_call sys/mem_free
-
-		;stop this task
-		fn_jmp sys/task_stop
+		fn_jmp sys/mem_free
 
 	task_tens:
 		%rep PIPE_SIZE

@@ -30,8 +30,6 @@
 			fn_call sys/write_char
 			fn_call sys/task_deshedule
 		next
-
-		;stop this task
-		fn_jmp sys/task_stop
+		vp_ret
 
 	fn_function_end

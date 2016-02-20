@@ -33,12 +33,13 @@
 		vp_lea [r1 + TK_NODE_MAILBOX + ML_MAILBOX_LIST], r0
 		ml_init r0, r2
 
-		;set task control block stack and return address
+		;set task control block stack and return address's
 		vp_lea [r1 + TK_NODE_SIZE], r0
-		vp_sub 8, r0
-		vp_cpy r5, [r0]
-		vp_sub TK_STATE_SIZE, r0
+		vp_sub TK_STATE_SIZE + 16, r0
 		vp_cpy r0, [r1 + TK_NODE_STACK]
+		fn_bind sys/task_stop, r2
+		vp_cpy r2, [r0 + TK_STATE_SIZE + 8]
+		vp_cpy r5, [r0 + TK_STATE_SIZE]
 
 		;return mailbox pointer
 		vp_lea [r1 + TK_NODE_MAILBOX], r0

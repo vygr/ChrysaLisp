@@ -190,8 +190,6 @@
 		vp_lea [r4 + LK_NODE_NODE], r0
 		ln_remove_node r0, r1
 		vp_add LK_NODE_SIZE, r4
-
-		;stop this task
-		fn_jmp sys/task_stop
+		vp_ret
 
 	fn_function_end
