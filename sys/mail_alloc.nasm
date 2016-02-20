@@ -10,8 +10,9 @@
 		fn_bind sys/mail_statics, r0
 		vp_lea [r0 + ML_STATICS_HEAP], r0
 		fn_call sys/heap_alloccell
-		vp_cpy ML_MSG_DATA, qword[r1 + ML_MSG_LENGTH]
-		vp_cpy r1, r0
+		vp_cpy r0, qword[r1]
+		vp_lea [r1 + 8], r0
+		vp_cpy ML_MSG_DATA, qword[r0 + ML_MSG_LENGTH]
 		vp_ret
 
 	fn_function_end

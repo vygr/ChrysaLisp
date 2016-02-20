@@ -216,13 +216,13 @@
 						fn_call sys/mail_send
 					loopend
 				drop_msg:
-					vp_cpy r14, r1
-					fn_call sys/mail_free
+					vp_cpy r14, r0
+					fn_call sys/mem_free
 					break
 				case r1, ==, KN_CALL_GUI_UPDATE
 					;free update message
-					vp_cpy r14, r1
-					fn_call sys/mail_free
+					vp_cpy r14, r0
+					fn_call sys/mem_free
 
 					;create screen window ?
 					fn_bind gui/gui_statics, r14

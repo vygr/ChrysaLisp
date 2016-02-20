@@ -55,7 +55,8 @@
 			vp_cpy r3, r7	;near this cpu next
 
 			;free reply mail
-			fn_call sys/mail_free
+			vp_cpy r1, r0
+			fn_call sys/mem_free
 
 			;next pipe worker
 			vp_add 16, r6

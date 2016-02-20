@@ -15,8 +15,8 @@
 
 		;init mail message heap
 		vp_lea [r1 + ML_STATICS_HEAP], r0
-		vp_cpy ML_MSG_SIZE, r1
-		vp_cpy ML_MSG_SIZE*256, r2
+		vp_cpy ML_MSG_SIZE + 8, r1
+		vp_cpy (ML_MSG_SIZE + 8) * 256, r2
 		fn_jmp sys/heap_init
 
 	fn_function_end

@@ -121,8 +121,8 @@
 					fn_call sys/mem_copy
 
 					;free message
-					vp_cpy r9, r1
-					fn_call sys/mail_free
+					vp_cpy r9, r0
+					fn_call sys/mem_free
 
 					;busy status, check for more output
 					vp_cpy LK_CHAN_STATUS_BUSY, qword[r10 + LK_CHAN_STATUS]
@@ -181,8 +181,8 @@
 		sys_shmunlink r0
 
 		;free params msg
-		vp_cpy r14, r1
-		fn_call sys/mail_free
+		vp_cpy r14, r0
+		fn_call sys/mem_free
 
 		;remove from links list and deallocate link node on stack
 		vp_cpy [r4 + LK_NODE_TABLE], r0

@@ -14,7 +14,8 @@
 		;read 10 mail commands
 		for r14, 0, 10, 1
 			fn_call sys/mail_read_mymail
-			fn_call sys/mail_free
+			vp_cpy r1, r0
+			fn_call sys/mem_free
 		next
 
 		;print Hello

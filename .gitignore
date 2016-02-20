@@ -31,7 +31,6 @@ sys/load_init_loader
 sys/load_statics
 sys/mail_alloc
 sys/mail_deinit_mailer
-sys/mail_free
 sys/mail_init_mailer
 sys/mail_read
 sys/mail_read_mymail

@@ -10,7 +10,8 @@
 		;read and free 1000 messages
 		for r14, 0, 1000, 1
 			fn_call sys/mail_read_mymail
-			fn_call sys/mail_free
+			vp_cpy r1, r0
+			fn_call sys/mem_free
 		next
 
 		for r14, 0, 2, 1
