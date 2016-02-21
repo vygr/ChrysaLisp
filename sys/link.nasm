@@ -80,6 +80,11 @@
 		vp_add r12, r10
 		vp_add r12, r11
 
+		;clear tx channel
+		vp_cpy r10, r0
+		vp_cpy LK_CHAN_SIZE, r1
+		fn_call sys/mem_clear
+
 		;read and write messages through the shared buffer in r12
 		vp_xor r9, r9
 		repeat
