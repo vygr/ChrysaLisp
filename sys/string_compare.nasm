@@ -9,7 +9,7 @@
 		;trashes
 		;r0-r3
 
-		loopstart
+		loop_start
 			vp_cpy byte[r0], r2l
 			vp_cpy byte[r1], r3l
 			vp_and 0xff, r2
@@ -21,7 +21,7 @@
 			endif
 			vp_inc r0
 			vp_inc r1
-		loopend
+		loop_end
 		vp_xor r0, r0
 		vp_ret
 

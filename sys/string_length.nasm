@@ -10,12 +10,12 @@
 		;r2
 
 		vp_cpy r0, r1
-		loopstart
+		loop_start
 			vp_cpy byte[r1], r2l
 			vp_and 0xff, r2
 			breakif r2, ==, 0
 			vp_inc r1
-		loopend
+		loop_end
 		vp_sub r0, r1
 		vp_ret
 

@@ -27,8 +27,8 @@
 		ln_remove_node r2, r15
 
 		;add to timer list
-		loopstart_list_forwards r3 + TK_STATICS_TIMER_LIST, r2, r5
-		until r0, <, [r5 + TK_NODE_TIME]
+		loop_list_forwards r3 + TK_STATICS_TIMER_LIST, r2, r5
+		loop_until r0, <, [r5 + TK_NODE_TIME]
 		ln_add_node_before r5, r1, r0
 
 		;restore next task

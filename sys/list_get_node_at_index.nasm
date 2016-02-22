@@ -11,7 +11,7 @@
 		;r1, r2
 
 		lh_get_head r0, r2
-		loopstart
+		loop_start
 			vp_cpy r2, r0
 			ln_get_succ r2, r2
 			if r2, ==, 0
@@ -20,7 +20,7 @@
 			endif
 			breakif r1, ==, 0
 			vp_dec r1
-		loopend
+		loop_end
 		vp_ret
 
 	fn_function_end

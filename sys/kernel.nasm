@@ -55,12 +55,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 		;loop till no other tasks running
-		loopstart
+		loop_start
 			;allow all other tasks to run
 			fn_call sys/task_yield
 
 			;service all kernel mail
-			loopstart
+			loop_start
 				;check if any mail
 				vp_lea [r15 + TK_NODE_MAILBOX], r0
 				ml_check r0, r1
@@ -99,12 +99,12 @@
 					fn_bind sys/task_statics, r1
 					vp_cpy [r1 + TK_STATICS_TASK_COUNT], r1
 					fn_bind sys/link_statics, r2
-					loopstart_list_forwards r2 + LK_STATICS_LINKS_LIST, r2, r3
+					loop_list_forwards r2 + LK_STATICS_LINKS_LIST, r2, r3
 						if r1, >, [r3 + LK_NODE_TASK_COUNT]
 							vp_cpy [r3 + LK_NODE_CPU_ID], r0
 							vp_cpy [r3 + LK_NODE_TASK_COUNT], r1
 						endif
-					loopend
+					loop_end
 					jmpif r0, ==, r5, run_here
 
 					;send to better kernel
@@ -146,7 +146,7 @@
 						;fill in via route and remove other routes
 						vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r12
 						fn_bind sys/link_statics, r13
-						loopstart_list_forwards r13 + LK_STATICS_LINKS_LIST, r13, r11
+						loop_list_forwards r13 + LK_STATICS_LINKS_LIST, r13, r11
 							;new link route table ?
 							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
 							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
@@ -163,13 +163,13 @@
 								;none via route
 								vp_cpy 0, qword[r0 + r10 + LK_ROUTE_HOPS]
 							endif
-						loopend
+						loop_end
 						break
 					case r2, ==, r3
 						;new hops is equal, so additional route
 						vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r12
 						fn_bind sys/link_statics, r13
-						loopstart_list_forwards r13 + LK_STATICS_LINKS_LIST, r13, r11
+						loop_list_forwards r13 + LK_STATICS_LINKS_LIST, r13, r11
 							;new link route table ?
 							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
 							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
@@ -183,7 +183,7 @@
 								vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
 								vp_cpy r2, [r0 + r10 + LK_ROUTE_HOPS]
 							endif
-						loopend
+						loop_end
 						;drop through to discard message !
 					default
 						;new hops is greater, so worse route
@@ -202,7 +202,7 @@
 
 					;copy and send to all neighbors apart from old via
 					fn_bind sys/link_statics, r12
-					loopstart_list_forwards r12 + LK_STATICS_LINKS_LIST, r12, r11
+					loop_list_forwards r12 + LK_STATICS_LINKS_LIST, r12, r11
 						vp_cpy [r11 + LK_NODE_CPU_ID], r10
 						continueif r10, ==, r13
 						fn_call sys/mail_alloc
@@ -214,7 +214,7 @@
 						vp_cpy r10, [r5 + (ML_MSG_DEST + 8)]
 						vp_cpy r5, r0
 						fn_call sys/mail_send
-					loopend
+					loop_end
 				drop_msg:
 					vp_cpy r14, r0
 					fn_call sys/mem_free
@@ -254,7 +254,7 @@
 					break
 				default
 				endswitch
-			loopend
+			loop_end
 
 			;get time
 			fn_call sys/get_cpu_time
@@ -264,7 +264,7 @@
 			vp_cpy [r3 + TK_STATICS_TIMER_LIST + LH_LIST_HEAD], r2
 			ln_get_succ r2, r2
 			if r2, !=, 0
-				loopstart_list_forwards r3 + TK_STATICS_TIMER_LIST, r2, r1
+				loop_list_forwards r3 + TK_STATICS_TIMER_LIST, r2, r1
 					vp_cpy [r1 + TK_NODE_TIME], r5
 					breakif r5, >, r0
 
@@ -272,7 +272,7 @@
 					vp_cpy r1, r5
 					ln_remove_node r5, r6
 					ln_add_node_before r15, r1, r6
-				loopend
+				loop_end
 			endif
 
 			;next task if other ready tasks
@@ -296,7 +296,7 @@
 				vp_cpy 1, r0
 			endif
 			sdl_delay r0
-		loopend
+		loop_end
 
 		;deinit gui
 		fn_call gui/gui_deinit_gui
@@ -335,13 +335,13 @@
 		vp_pop r0
 
 		;draw child views
-		loopstart_list_forwards r1 + GUI_VIEW_LIST, r2, r1
+		loop_list_forwards r1 + GUI_VIEW_LIST, r2, r1
 			vp_push r0
 			vp_push r2
 			vp_call draw_view
 			vp_pop r2
 			vp_pop r0
-		loopend
+		loop_end
 		vp_ret
 
 	title:

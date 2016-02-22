@@ -19,7 +19,7 @@
 		ml_temp_create r0, r1
 
 		;start all tasks
-		loopstart
+		loop_start
 			;allocate mail message
 			fn_call sys/mail_alloc
 			vp_cpy r0, r3
@@ -47,10 +47,10 @@
 
 			;next farm worker
 			vp_dec r7
-		until r7, ==, 0
+		loop_until r7, ==, 0
 
 		;wait for all replies
-		loopstart
+		loop_start
 			vp_cpy r4, r0
 			fn_call sys/mail_read
 
@@ -66,7 +66,7 @@
 			;next mailbox
 			vp_add 16, r6
 			vp_dec r8
-		until r8, ==, 0
+		loop_until r8, ==, 0
 
 		;free temp mailbox
 		ml_temp_destroy

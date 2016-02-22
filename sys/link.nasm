@@ -87,7 +87,7 @@
 
 		;read and write messages through the shared buffer in r12
 		vp_xor r9, r9
-		loopstart
+		loop_start
 			;exchange task counts
 			fn_bind sys/task_statics, r0
 			vp_cpy [r0 + TK_STATICS_TASK_COUNT], r0
@@ -101,14 +101,14 @@
 				;no outgoing message so see if any off chip mail for me
 				vp_cpy [r4 + LK_NODE_CPU_ID], r0
 				fn_bind sys/mail_statics, r8
-				loopstart_list_forwards r8 + ML_STATICS_OFFCHIP_LIST, r8, r7
+				loop_list_forwards r8 + ML_STATICS_OFFCHIP_LIST, r8, r7
 					vp_cpy [r7 + (ML_MSG_DEST + 8)], r2
 					breakif r0, ==, r2
 					vp_cpy [r4 + LK_NODE_TABLE + LK_TABLE_ARRAY], r1
 					continueif r1, ==, 0
 					vp_mul LK_ROUTE_SIZE, r2
 					vp_cpy [r1 + r2 + LK_ROUTE_HOPS], r1
-				until r1, !=, 0
+				loop_until r1, !=, 0
 				if r8, !=, 0
 					vp_cpy r7, r9
 					ln_remove_node r7, r1
@@ -176,7 +176,7 @@
 
 			;exit if signaled by kernel
 			vp_cpy [r4 + LK_NODE_CPU_ID], r0
-		until r0, ==, -1
+		loop_until r0, ==, -1
 
 		;unmap object
 		sys_munmap r12, LK_BUFFER_SIZE

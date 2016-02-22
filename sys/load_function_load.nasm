@@ -21,7 +21,7 @@
 		;check if function already present !
 		vp_xor r5, r5
 		vp_cpy [r8 + LD_STATICS_FUNCTION_LIST], r6
-		loopstart
+		loop_start
 			breakif r6, ==, 0
 			vp_cpy r7, r0
 			vp_lea [r6 + FN_HEADER_PATHNAME], r1
@@ -31,7 +31,7 @@
 				vp_add [r6 + FN_HEADER_ENTRY], r5
 			endif
 			vp_cpy [r6], r6
-		until r5, !=, 0
+		loop_until r5, !=, 0
 		if r5, !=, 0
 			;found function already loaded
 			vp_cpy r5, r0
@@ -94,7 +94,7 @@
 		;load and link function references
 		vp_cpy r3, r0
 		vp_add [r3 + FN_HEADER_LINKS], r0
-		loopstart
+		loop_start
 			vp_cpy [r0], r1
 			breakif r1, ==, 0
 			vp_lea [r0 + 8], r0
@@ -105,14 +105,14 @@
 			vp_pop r3
 			vp_pop r0
 			vp_cpy r1, [r0 - 8]
-			loopstart
+			loop_start
 				vp_cpy byte[r0], r1l
 				vp_inc r0
 				vp_and 0xff, r1
-			until r1, ==, 0
+			loop_until r1, ==, 0
 			vp_add 7, r0
 			vp_and -8, r0
-		loopend
+		loop_end
 
 		;return function address
 		vp_cpy r3, r0
@@ -120,7 +120,7 @@
 		vp_ret
 
 	string_compare:
-		loopstart
+		loop_start
 			vp_cpy byte[r0], r2l
 			vp_cpy byte[r1], r3l
 			vp_and 0xff, r2
@@ -132,7 +132,7 @@
 			endif
 			vp_inc r0
 			vp_inc r1
-		loopend
+		loop_end
 		vp_xor r0, r0
 		vp_ret
 

@@ -16,11 +16,11 @@
 		fn_call gui/gui_sub_view
 
 		;free any child views
-		loopstart_list_forwards r0 + GUI_VIEW_LIST, r1, r0
+		loop_list_forwards r0 + GUI_VIEW_LIST, r1, r0
 			vp_push r1
 			fn_call sys/gui_free_view
 			vp_pop r1
-		loopend
+		loop_end
 
 		;free view object
 		vp_pop r0

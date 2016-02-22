@@ -11,7 +11,7 @@
 
 		vp_cpy r0, r2
 		vp_xor r0, r0
-		loopstart
+		loop_start
 			vp_cpy byte[r2], r3l
 			vp_and 0xff, r3
 			breakif r3, ==, 0
@@ -25,7 +25,7 @@
 			vp_mul r1, r0
 			vp_add r3, r0
 			vp_inc r2
-		loopend
+		loop_end
 		vp_ret
 
 	fn_function_end

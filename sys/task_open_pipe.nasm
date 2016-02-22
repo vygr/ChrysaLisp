@@ -18,7 +18,7 @@
 		;start all tasks, starting with kernel of this chip
 		fn_call sys/get_cpu_id
 		vp_cpy r0, r7
-		loopstart
+		loop_start
 			;allocate mail message
 			fn_call sys/mail_alloc
 			vp_cpy r0, r3
@@ -61,7 +61,7 @@
 			vp_add 16, r6
 			vp_cpy byte[r5], r0l
 			vp_and 0xff, r0
-		until r0, ==, 0
+		loop_until r0, ==, 0
 
 		;free temp mailbox
 		ml_temp_destroy

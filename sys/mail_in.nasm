@@ -4,7 +4,7 @@
 	fn_function "sys/mail_in"
 		;parcel fragments arriving on chip task
 
-		loopstart
+		loop_start
 			;read parcel fragment
 			fn_call sys/mail_read_mymail
 			vp_cpy r0, r15
@@ -13,9 +13,9 @@
 			vp_cpy [r15 + ML_MSG_PARCEL_ID], r6
 			vp_cpy [r15 + ML_MSG_PARCEL_ID + 8], r7
 			vp_cpy [r15 + ML_MSG_DEST], r13
-			loopstart_list_forwards r13 + ML_MAILBOX_PARCEL_LIST, r1, r0
+			loop_list_forwards r13 + ML_MAILBOX_PARCEL_LIST, r1, r0
 				continueif r6, !=, [r0 + ML_MSG_PARCEL_ID]
-			until r7, ==, [r0 + ML_MSG_PARCEL_ID + 8]
+			loop_until r7, ==, [r0 + ML_MSG_PARCEL_ID + 8]
 			if r1, ==, 0
 				;new parcel
 				vp_cpy [r15 + ML_MSG_PARCEL_SIZE], r12
@@ -67,7 +67,7 @@
 			;free fragment
 			vp_cpy r15, r0
 			fn_call sys/mem_free
-		loopend
+		loop_end
 		vp_ret
 
 	fn_function_end

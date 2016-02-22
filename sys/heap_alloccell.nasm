@@ -11,7 +11,7 @@
 		;trashes
 		;r2-r3
 
-		loopstart
+		loop_start
 			vp_cpy [r0 + HP_HEAP_FREELIST], r1
 			if r1, !=, 0
 				vp_cpy [r1 + HP_CELL_NEXT], r2
@@ -31,12 +31,12 @@
 			vp_cpy r1, r3
 			vp_add [r0 + HP_HEAP_BLOCKSIZE], r3
 			vp_xor r2, r2
-			loopstart
+			loop_start
 				vp_cpy r2, [r3 + HP_CELL_NEXT]
 				vp_cpy r1, r2
 				vp_add [r0 + HP_HEAP_CELLSIZE], r1
-			until r1, >=, r3
+			loop_until r1, >=, r3
 			vp_cpy r2, [r0 + HP_HEAP_FREELIST]
-		loopend
+		loop_end
 
 	fn_function_end

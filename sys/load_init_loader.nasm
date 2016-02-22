@@ -12,22 +12,22 @@
 
 		;add all to function list
 		vp_lea [rel __func_start], r1
-		loopstart
+		loop_start
 			vp_cpy [r1], r0
 			breakif r0, ==, 0
 			vp_cpy [r6 + LD_STATICS_FUNCTION_LIST], r0
 			vp_cpy r0, [r1]
 			vp_cpy r1, [r6 + LD_STATICS_FUNCTION_LIST]
 			vp_add [r1 + FN_HEADER_LENGTH], r1
-		loopend
+		loop_end
 
 		;bind all function intra references
 		vp_cpy [r6 + LD_STATICS_FUNCTION_LIST], r2
-		loopstart
+		loop_start
 			breakif r2, ==, 0
 			vp_cpy r2, r0
 			vp_add [r2 + FN_HEADER_LINKS], r0
-			loopstart
+			loop_start
 				vp_cpy [r0], r1
 				breakif r1, ==, 0
 				vp_lea [r0 + 8], r0
@@ -40,16 +40,16 @@
 				vp_pop r2
 				vp_pop r0
 				vp_cpy r1, [r0 - 8]
-				loopstart
+				loop_start
 					vp_cpy byte[r0], r1l
 					vp_inc r0
 					vp_and 0xff, r1
-				until r1, ==, 0
+				loop_until r1, ==, 0
 				vp_add 7, r0
 				vp_and -8, r0
-			loopend
+			loop_end
 			vp_cpy [r2], r2
-		loopend
+		loop_end
 		vp_ret
 
 	fn_function_end

@@ -350,7 +350,7 @@
 ; list loop macros
 ;;;;;;;;;;;;;;;;;;
 
-	%macro loopstart_list_forwards 3
+	%macro loop_list_forwards 3
 		;inputs
 		;%1 = list head
 		;%2 = list node look ahead
@@ -361,13 +361,13 @@
 		;%3 = list node
 
 		lh_get_head %1, %2
-		loopstart
+		loop_start
 			vp_cpy %2, %3
 			ln_get_succ %2, %2
 			breakif %2, ==, 0
 	%endmacro
 
-	%macro loopstart_list_backwards 3
+	%macro loop_list_backwards 3
 		;inputs
 		;%1 = list head
 		;%2 = list node look ahead
@@ -378,7 +378,7 @@
 		;%3 = list node
 
 		lh_get_tail %1, %2
-		loopstart
+		loop_start
 			vp_cpy %2, %3
 			ln_get_pred %2, %2
 			breakif %2, ==, 0

@@ -7,12 +7,12 @@
 ; some NASM codeing macros
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-	%macro loopstart 0
+	%macro loop_start 0
 			%push loop_begin
 		%$loop_begin:
 	%endmacro
 
-	%macro loopend 0
+	%macro loop_end 0
 			continue
 		%$loop_exit:
 			%pop
@@ -83,7 +83,7 @@
 			%endif
 	%endmacro
 
-	%macro until 3
+	%macro loop_until 3
 				cmp %1, %3
 			%ifidn %2, ==
 				jne %$loop_begin
@@ -102,6 +102,27 @@
 			%endif
 		%$loop_exit:
 			%pop
+	%endmacro
+
+	%macro loop_while 3
+			%push loop_begin
+		%$loop_begin:
+				cmp %1, %3
+			%ifidn %2, ==
+				jne %$loop_exit
+			%elifidn %2, !=
+				je %$loop_exit
+			%elifidn %2, <
+				jge %$loop_exit
+			%elifidn %2, >
+				jle %$loop_exit
+			%elifidn %2, <=
+				jg %$loop_exit
+			%elifidn %2, >=
+				jl %$loop_exit
+			%else
+				j%-2 %$loop_exit
+			%endif
 	%endmacro
 
 	%macro if 3
@@ -148,7 +169,7 @@
 
 	%macro for 4
 			vp_cpy %2, %1
-			loopstart
+			loop_start
 				%define %$__reg %1
 				%define %$__step %4
 				breakif %1, ge, %3
@@ -156,7 +177,7 @@
 
 	%macro next 0
 				vp_add %$__step, %$__reg
-			loopend
+			loop_end
 	%endmacro
 
 	%macro switch 0

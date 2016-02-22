@@ -4,7 +4,7 @@
 	fn_function "sys/mail_out"
 		;parcels going off chip task
 
-		loopstart
+		loop_start
 			;read parcel
 			fn_call sys/mail_read_mymail
 			vp_cpy r0,r15
@@ -22,7 +22,7 @@
 			vp_cpy [r15 + ML_MSG_LENGTH], r11
 			vp_cpy [r15 + ML_MSG_DEST], r12
 			vp_cpy [r15 + ML_MSG_DEST + 8], r13
-			loopstart
+			loop_start
 				;create fragment
 				fn_call sys/mail_alloc
 				vp_cpy r0, r14
@@ -57,7 +57,7 @@
 				fn_bind sys/mail_statics, r0
 				vp_lea [r0 + ML_STATICS_OFFCHIP_LIST], r0
 				lh_add_at_tail r0, r14, r1
-			until r10, ==, r11
+			loop_until r10, ==, r11
 
 			;free parcel
 			vp_cpy r15, r0
@@ -65,7 +65,7 @@
 
 			;let links get at some packets
 			fn_call sys/task_yield
-		loopend
+		loop_end
 		vp_ret
 
 	fn_function_end

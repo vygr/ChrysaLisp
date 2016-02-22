@@ -11,11 +11,11 @@
 		;r0-r3, r5-r14
 
 		vp_cpy r0, r14
-		loopstart
+		loop_start
 			vp_cpy [r14], r13
 			breakif r13, ==, 0
 			vp_lea [rel options_table], r12
-			loopstart
+			loop_start
 				vp_cpy [r12], r11
 				breakif r11, ==, 0
 				vp_add 8, r12
@@ -33,12 +33,12 @@
 				vp_add r1, r12
 				vp_add 8, r12
 				vp_and -8, r12
-			loopend
+			loop_end
 		next_arg:
 			vp_cpy [r14], r0
 			breakif r0, ==, 0
 			vp_add 8, r14
-		loopend
+		loop_end
 		vp_ret
 
 	opt_cpu:

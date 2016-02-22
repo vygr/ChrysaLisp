@@ -13,7 +13,7 @@
 
 		lh_get_head r0, r2
 		vp_xor r0, r0
-		loopstart
+		loop_start
 			vp_cpy r2, r3
 			ln_get_succ r2, r2
 			if r2, ==, 0
@@ -22,7 +22,7 @@
 			endif
 			breakif r3, ==, r1
 			vp_inc r0
-		loopend
+		loop_end
 		vp_ret
 
 	fn_function_end
