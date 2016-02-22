@@ -1,6 +1,7 @@
 %include "vp.inc"
 %include "code.inc"
 %include "load.inc"
+%include "func.inc"
 %include "syscall.inc"
 %include "sdl2.inc"
 
@@ -23,15 +24,21 @@ _main:
 	sys_mprotect r0, r1, PROT_READ|PROT_WRITE|PROT_EXEC
 
 	;init loader
-	vp_call ld_load_init_loader + 0x38
+	vp_lea [rel ld_load_init_loader], r1
+	vp_add [r1 + FN_HEADER_ENTRY], r1
+	vp_call r1
 
 	;init gui
 	vp_lea [rel sdl_func_table], r0
-	vp_call ld_gui_init_gui + 0x38
+	vp_lea [rel ld_gui_init_gui], r1
+	vp_add [r1 + FN_HEADER_ENTRY], r1
+	vp_call r1
 
 	;jump to kernel task
 	vp_pop r0
-	vp_jmp ld_kernel + 0x30
+	vp_lea [rel ld_kernel], r1
+	vp_add [r1 + FN_HEADER_ENTRY], r1
+	vp_jmp r1
 
 ;;;;;;;;;;;;;;;;;;;;
 ; prebound functions

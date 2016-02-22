@@ -14,8 +14,7 @@
 		vp_cpy r0, r3
 		vp_cpy r0, r5
 		vp_add r0, r1
-		loop_start
-			breakif r5, e, r1
+		loop_while r5, !=, r1
 			sys_read_char r2
 			vp_cpy r0l, byte[r5]
 			vp_inc r5

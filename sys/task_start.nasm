@@ -24,8 +24,7 @@
 		;create new task control block and task
 		vp_lea [r6 + TK_STATICS_TASK_HEAP], r0
 		fn_call sys/heap_alloccell
-		fn_bind sys/task_statics, r0
-		vp_cpy [r0 + TK_STATICS_CURRENT_TCB], r0
+		vp_cpy [r6 + TK_STATICS_CURRENT_TCB], r0
 		ln_add_node_before r0, r1, r2
 
 		;initialise task mailbox

@@ -21,8 +21,7 @@
 		;check if function already present !
 		vp_xor r5, r5
 		vp_cpy [r8 + LD_STATICS_FUNCTION_LIST], r6
-		loop_start
-			breakif r6, ==, 0
+		loop_while r6, !=, 0
 			vp_cpy r7, r0
 			vp_lea [r6 + FN_HEADER_PATHNAME], r1
 			vp_call string_compare
