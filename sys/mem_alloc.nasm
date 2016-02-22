@@ -17,13 +17,9 @@
 			vp_ret
 		endif
 		vp_lea [r0 + 8], r1		;extra 8 bytes for heap pointer
-		vp_add 0x400-1, r1
-		vp_and -0x400, r1	;at least 1KB bytes !
-
-		;get statics
-		fn_bind sys/mem_statics, r0
 
 		;find object heap
+		fn_bind sys/mem_statics, r0
 		loop_while r1, >, [r0 + HP_HEAP_CELLSIZE]
 			vp_add HP_HEAP_SIZE, r0
 		loop_end
