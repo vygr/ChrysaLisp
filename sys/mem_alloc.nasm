@@ -48,7 +48,7 @@
 		;point to object heap
 		vp_sub HP_HEAP_SIZE*10, r0
 		vp_cpy r1, r5
-		repeat
+		loopstart
 			vp_add HP_HEAP_SIZE, r0
 			vp_shr 1, r1
 		until r1, ==, 1

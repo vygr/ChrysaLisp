@@ -87,7 +87,7 @@
 
 		;read and write messages through the shared buffer in r12
 		vp_xor r9, r9
-		repeat
+		loopstart
 			;exchange task counts
 			fn_bind sys/task_statics, r0
 			vp_cpy [r0 + TK_STATICS_TASK_COUNT], r0

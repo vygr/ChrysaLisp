@@ -31,7 +31,7 @@
 			vp_cpy r1, r3
 			vp_add [r0 + HP_HEAP_BLOCKSIZE], r3
 			vp_xor r2, r2
-			repeat
+			loopstart
 				vp_cpy r2, [r3 + HP_CELL_NEXT]
 				vp_cpy r1, r2
 				vp_add [r0 + HP_HEAP_CELLSIZE], r1

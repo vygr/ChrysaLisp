@@ -18,7 +18,7 @@
 		;start all tasks, starting with kernel of this chip
 		fn_call sys/get_cpu_id
 		vp_cpy r0, r7
-		repeat
+		loopstart
 			;allocate mail message
 			fn_call sys/mail_alloc
 			vp_cpy r0, r3

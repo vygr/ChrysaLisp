@@ -40,7 +40,7 @@
 				vp_pop r2
 				vp_pop r0
 				vp_cpy r1, [r0 - 8]
-				repeat
+				loopstart
 					vp_cpy byte[r0], r1l
 					vp_inc r0
 					vp_and 0xff, r1

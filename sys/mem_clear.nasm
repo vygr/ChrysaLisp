@@ -9,7 +9,7 @@
 
 		vp_add r0, r1
 		vp_xor r2, r2
-		repeat
+		loopstart
 			vp_cpy r2l, byte[r0]
 			vp_inc r0
 		until r0, ==, r1

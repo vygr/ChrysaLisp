@@ -9,7 +9,7 @@
 		;r0-r3
 
 		vp_add r0, r2
-		repeat
+		loopstart
 			vp_cpy byte[r0], r3l
 			vp_cpy r3l, byte[r1]
 			vp_inc r0

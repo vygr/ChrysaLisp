@@ -10,12 +10,12 @@
 
 		vp_cpy 10, r3	;base
 		vp_cpy r4, r5	;stack location
-		repeat
+		loopstart
 			vp_xor r2, r2
 			vp_div r3
 			vp_push r2
 		until r0, ==, 0
-		repeat
+		loopstart
 			vp_pop r0
 			vp_add '0', r0
 			sys_write_char r1, r0

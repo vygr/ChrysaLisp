@@ -8,8 +8,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	%macro loopstart 0
-			%push loopstart
-		%$loop_start:
+			%push loop_begin
+		%$loop_begin:
 	%endmacro
 
 	%macro loopend 0
@@ -18,31 +18,31 @@
 			%pop
 	%endmacro
 
+	%macro break 0
+			vp_jmp %$loop_exit
+	%endmacro
+
 	%macro continue 0
-			vp_jmp %$loop_start
+			vp_jmp %$loop_begin
 	%endmacro
 
 	%macro continueif 3
 			cmp %1, %3
 			%ifidn %2, ==
-				je %$loop_start
+				je %$loop_begin
 			%elifidn %2, !=
-				jne %$loop_start
+				jne %$loop_begin
 			%elifidn %2, <
-				jl %$loop_start
+				jl %$loop_begin
 			%elifidn %2, >
-				jg %$loop_start
+				jg %$loop_begin
 			%elifidn %2, <=
-				jle %$loop_start
+				jle %$loop_begin
 			%elifidn %2, >=
-				jge %$loop_start
+				jge %$loop_begin
 			%else
-				j%+2 %$loop_start
+				j%+2 %$loop_begin
 			%endif
-	%endmacro
-
-	%macro break 0
-			vp_jmp %$loop_exit
 	%endmacro
 
 	%macro breakif 3
@@ -83,27 +83,22 @@
 			%endif
 	%endmacro
 
-	%macro repeat 0
-			%push repeat
-		%$loop_start:
-	%endmacro
-
 	%macro until 3
 				cmp %1, %3
 			%ifidn %2, ==
-				jne %$loop_start
+				jne %$loop_begin
 			%elifidn %2, !=
-				je %$loop_start
+				je %$loop_begin
 			%elifidn %2, <
-				jge %$loop_start
+				jge %$loop_begin
 			%elifidn %2, >
-				jle %$loop_start
+				jle %$loop_begin
 			%elifidn %2, <=
-				jg %$loop_start
+				jg %$loop_begin
 			%elifidn %2, >=
-				jl %$loop_start
+				jl %$loop_begin
 			%else
-				j%-2 %$loop_start
+				j%-2 %$loop_begin
 			%endif
 		%$loop_exit:
 			%pop

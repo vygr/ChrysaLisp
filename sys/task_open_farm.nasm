@@ -19,7 +19,7 @@
 		ml_temp_create r0, r1
 
 		;start all tasks
-		repeat
+		loopstart
 			;allocate mail message
 			fn_call sys/mail_alloc
 			vp_cpy r0, r3
@@ -50,7 +50,7 @@
 		until r7, ==, 0
 
 		;wait for all replies
-		repeat
+		loopstart
 			vp_cpy r4, r0
 			fn_call sys/mail_read
 

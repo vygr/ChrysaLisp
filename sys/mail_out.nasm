@@ -22,7 +22,7 @@
 			vp_cpy [r15 + ML_MSG_LENGTH], r11
 			vp_cpy [r15 + ML_MSG_DEST], r12
 			vp_cpy [r15 + ML_MSG_DEST + 8], r13
-			repeat
+			loopstart
 				;create fragment
 				fn_call sys/mail_alloc
 				vp_cpy r0, r14

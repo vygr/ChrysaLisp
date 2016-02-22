@@ -10,7 +10,7 @@
 		;trashes
 		;r2
 
-		repeat
+		loopstart
 			vp_cpy byte[r0], r2l
 			vp_cpy r2l, byte[r1]
 			vp_inc r0

@@ -21,7 +21,7 @@
 		;check if function already present !
 		vp_xor r5, r5
 		vp_cpy [r8 + LD_STATICS_FUNCTION_LIST], r6
-		repeat
+		loopstart
 			breakif r6, ==, 0
 			vp_cpy r7, r0
 			vp_lea [r6 + FN_HEADER_PATHNAME], r1
@@ -105,7 +105,7 @@
 			vp_pop r3
 			vp_pop r0
 			vp_cpy r1, [r0 - 8]
-			repeat
+			loopstart
 				vp_cpy byte[r0], r1l
 				vp_inc r0
 				vp_and 0xff, r1
