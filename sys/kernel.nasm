@@ -210,6 +210,8 @@
 						vp_cpy r0, r1
 						vp_cpy r14, r0
 						vp_cpy [r14 + ML_MSG_LENGTH], r2
+						vp_add 7, r2
+						vp_and -8, r2
 						fn_call sys/mem_copy
 						vp_cpy r10, [r5 + (ML_MSG_DEST + 8)]
 						vp_cpy r5, r0

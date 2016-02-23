@@ -50,7 +50,9 @@
 				vp_lea [r2 + ML_MSG_DATA], r3
 				vp_cpy r3, [r14 + ML_MSG_LENGTH]
 
-				;copy data block
+				;copy data block, round up for speed
+				vp_add 7, r2
+				vp_and -8, r2
 				fn_call sys/mem_copy
 
 				;queue it on the outgoing packet list

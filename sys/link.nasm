@@ -120,9 +120,12 @@
 				vp_cpy [r10 + LK_CHAN_STATUS], r0
 				if r0, ==, LK_CHAN_STATUS_READY
 					;copy message data
+					;round up to next 8 byte boundary for speed
 					vp_cpy r9, r0
 					vp_lea [r10 + LK_CHAN_MSG], r1
 					vp_cpy [r9 + ML_MSG_LENGTH], r2
+					vp_add 7, r2
+					vp_and -8, r2
 					fn_call sys/mem_copy
 
 					;free message
@@ -140,11 +143,14 @@
 			vp_cpy [r11 + LK_CHAN_STATUS], r0
 			if r0, ==, LK_CHAN_STATUS_BUSY
 				;allocate msg, copy over data
+				;round up to next 8 byte boundary for speed
 				fn_call sys/mail_alloc
 				vp_cpy r0, r8
 				vp_cpy r0, r1
 				vp_lea [r11 + LK_CHAN_MSG], r0
 				vp_cpy [r0 + ML_MSG_LENGTH], r2
+				vp_add 7, r2
+				vp_and -8, r2
 				fn_call sys/mem_copy
 
 				;send onwards

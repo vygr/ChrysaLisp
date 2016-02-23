@@ -49,7 +49,9 @@
 			vp_cpy [r14 + ML_MSG_PARCEL_TOTAL], r13
 			vp_add r2, r13
 
-			;copy fragment data
+			;copy fragment data, round up for speed
+			vp_add 7, r2
+			vp_and -8, r2
 			fn_call sys/mem_copy
 
 			;got all needed ?

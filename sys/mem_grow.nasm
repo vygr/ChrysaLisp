@@ -21,9 +21,7 @@
 			vp_cpy r1, r8
 
 			;clear it to empty
-			for r2, 0, r1, 8
-				vp_cpy 0, qword[r0 + r2]
-			next
+			fn_call sys/mem_clear
 
 			if r6, !=, 0
 				;copy over old data
