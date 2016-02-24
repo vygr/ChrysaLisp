@@ -3,8 +3,8 @@ Asm_Kernel
 
 Assembler 64 bit multi process, multi thread kernel.
 
-Currently for OSX/BSD but will eventually run on Linux too. Could move to bare
-metal eventually but it's useful for now to run hosted while experimenting.
+Runs on OSX or Linux. Could move to bare metal eventually but it's useful for
+now to run hosted while experimenting.
 
 Uses a virtual cpu instruction macro set to avoid use of x64 native
 instructions. Couple of things to tidy up here with the vp_div and vp_cpy macros
