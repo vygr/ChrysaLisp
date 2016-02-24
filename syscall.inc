@@ -563,14 +563,10 @@
 	%macro sys_gettimeofday 2
 		;time, timezone
 		push_trashed_1
-		vp_push %1
 		vp_cpy %1, r7		;time struct
 		vp_cpy %2, r6		;timezone struct
 		vp_cpy SYS_GETTIMEOFDAY, r0
 		vp_syscall
-		vp_pop r1
-		vp_cpy r0, [r1 + TIMEVAL_SEC]
-		vp_cpy r2, [r1 + TIMEVAL_USEC]
 		pop_trashed_1
 	%endmacro
 %endif
