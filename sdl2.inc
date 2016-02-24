@@ -9,6 +9,7 @@
 ; sdl2 structures
 ;;;;;;;;;;;;;;;;;
 
+%ifidn OS, Darwin
 	extern _SDL_SetMainReady
 	extern _SDL_Init
 	extern _SDL_Quit
@@ -20,7 +21,19 @@
 	extern _SDL_SetRenderDrawColor
 	extern _SDL_RenderFillRect
 	extern _SDL_RenderPresent
-
+%elifidn OS, Linux
+	extern SDL_SetMainReady
+	extern SDL_Init
+	extern SDL_Quit
+	extern SDL_CreateWindow
+	extern SDL_CreateWindowAndRenderer
+	extern SDL_DestroyWindow
+	extern SDL_Delay
+	extern SDL_CreateRenderer
+	extern SDL_SetRenderDrawColor
+	extern SDL_RenderFillRect
+	extern SDL_RenderPresent
+%endif
 	SDL_SETMAINREADY			equ 0
 	SDL_INIT					equ 1
 	SDL_QUIT					equ 2

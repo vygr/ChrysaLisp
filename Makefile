@@ -5,7 +5,7 @@ all:	main sys gui tests
 sdl_ldflags := $(shell sdl2-config --libs)
 
 main:	main.o
-		clang -o main -e _main main.o $(sdl_ldflags)
+		clang -o main -e main main.o $(sdl_ldflags)
 
 main.o:	main.nasm sdl2.inc gui.inc vp.inc load.inc syscall.inc link.inc sys/load_init_loader \
 		sys/load_function_load sys/load_statics \
@@ -14,7 +14,7 @@ ifeq ($(OS),Darwin)
 		nasm -f macho64 main.nasm -dOS=$(OS)
 endif
 ifeq ($(OS),Linux)
-		nasm -f elf main.nasm -dOS=$(OS)
+		nasm -f elf64 main.nasm -dOS=$(OS)
 endif
 
 sys_objects := $(patsubst %.nasm, %, $(wildcard sys/*.nasm))

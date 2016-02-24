@@ -11,8 +11,8 @@
 
 	SECTION .text
 
-	global _main
-_main:
+	global main
+main:
 	;called by sdl !!!!!!!
 	vp_push r6
 
@@ -64,6 +64,7 @@ ld_prebounde:
 
 	align 8, db 0
 sdl_func_table:
+%ifidn OS, Darwin
 	dq _SDL_SetMainReady
 	dq _SDL_Init
 	dq _SDL_Quit
@@ -75,3 +76,17 @@ sdl_func_table:
 	dq _SDL_SetRenderDrawColor
 	dq _SDL_RenderFillRect
 	dq _SDL_RenderPresent
+%elifidn OS, Linux
+	dq SDL_SetMainReady
+	dq SDL_Init
+	dq SDL_Quit
+	dq SDL_CreateWindow
+	dq SDL_CreateWindowAndRenderer
+	dq SDL_DestroyWindow
+	dq SDL_Delay
+	dq SDL_CreateRenderer
+	dq SDL_SetRenderDrawColor
+	dq SDL_RenderFillRect
+	dq SDL_RenderPresent
+%endif
+
