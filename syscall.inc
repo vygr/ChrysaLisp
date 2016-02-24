@@ -102,7 +102,7 @@
 ; syscall macros
 ;;;;;;;;;;;;;;;;
 
-	%macro push_trashed_1 0
+	%macro push_trashed 0
 		;pushes onto r4 (rsp)
 		vp_push r1
 		vp_push r2
@@ -114,7 +114,7 @@
 		vp_push r11
 	%endmacro
 
-	%macro pop_trashed_1 0
+	%macro pop_trashed 0
 		;pops from r4 (rsp)
 		vp_pop r11
 		vp_pop r10
@@ -135,18 +135,18 @@
 
 	%macro sys_read 3
 		;fd, buffer, length
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7
 		vp_cpy %2, r6
 		vp_cpy %3, r2
 		vp_cpy SYS_READ, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_read_char 1
 		;fd
-		push_trashed_1
+		push_trashed
 		vp_push 0
 		vp_cpy %1, r7
 		vp_cpy r4, r6
@@ -154,12 +154,12 @@
 		vp_cpy SYS_READ, r0
 		vp_syscall
 		vp_pop r0
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_write_string 3
 		;fd, string, length
-		push_trashed_1
+		push_trashed
 		vp_push r0
 		vp_cpy %1, r7
 		vp_cpy %2, r6
@@ -167,12 +167,12 @@
 		vp_cpy SYS_WRITE, r0
 		vp_syscall
 		vp_pop r0
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_write_char 2
 		;fd, char
-		push_trashed_1
+		push_trashed
 		vp_push r0
 		vp_push %2
 		vp_cpy %1, r7
@@ -182,12 +182,12 @@
 		vp_syscall
 		vp_add 8, r4
 		vp_pop r0
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_mmap 6
 		;addr, len, prot, flags, fd, pos
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;addr
 		vp_cpy %2, r6		;size of the file
 		vp_cpy %3, r2		;read only etc
@@ -196,93 +196,93 @@
 		vp_cpy %6, r9		;offset
 		vp_cpy SYS_MMAP, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_mprotect 3
 		;addr, len, prot
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;addr
 		vp_cpy %2, r6		;size
 		vp_cpy %3, r2		;read only etc
 		vp_cpy SYS_MPROTECT, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_munmap 2
 		;addr, len
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;addr
 		vp_cpy %2, r6		;size of the file
 		vp_cpy SYS_MUNMAP, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_stat 2
 		;path, buffer
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;path
 		vp_cpy %2, r6		;stat buffer
 		vp_cpy SYS_STAT, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_open 3
 		;path, flags, mode
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;path
 		vp_cpy %2, r6		;flags
 		vp_cpy %3, r2		;mode
 		vp_cpy SYS_OPEN, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_close 1
 		;fd
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;fd
 		vp_cpy SYS_CLOSE, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_ftruncate 2
 		;fd, offset
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;fd
 		vp_cpy %2, r6		;offset
 		vp_cpy SYS_FTRUNCATE, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_shmopen 3
 		;name, flag, mode
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;name
 		vp_cpy %2, r6		;flag
 		vp_cpy %3, r2		;mode
 		vp_cpy SYS_SHMOPEN, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_shmunlink 1
 		;name
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;name
 		vp_cpy SYS_SHMUNLINK, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_gettimeofday 2
 		;time, timezone
-		push_trashed_1
+		push_trashed
 		vp_push %1
 		vp_cpy %1, r7		;time struct
 		vp_cpy %2, r6		;timezone struct
@@ -291,7 +291,7 @@
 		vp_pop r1
 		vp_cpy r0, [r1 + TIMEVAL_SEC]
 		vp_cpy r2, [r1 + TIMEVAL_USEC]
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 %elifidn OS, Linux
@@ -382,7 +382,7 @@
 ; syscall macros
 ;;;;;;;;;;;;;;;;
 
-	%macro push_trashed_1 0
+	%macro push_trashed 0
 		;pushes onto r4 (rsp)
 		vp_push r1
 		vp_push r2
@@ -394,7 +394,7 @@
 		vp_push r11
 	%endmacro
 
-	%macro pop_trashed_1 0
+	%macro pop_trashed 0
 		;pops from r4 (rsp)
 		vp_pop r11
 		vp_pop r10
@@ -415,18 +415,18 @@
 
 	%macro sys_read 3
 		;fd, buffer, length
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7
 		vp_cpy %2, r6
 		vp_cpy %3, r2
 		vp_cpy SYS_READ, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_read_char 1
 		;fd
-		push_trashed_1
+		push_trashed
 		vp_push 0
 		vp_cpy %1, r7
 		vp_cpy r4, r6
@@ -434,12 +434,12 @@
 		vp_cpy SYS_READ, r0
 		vp_syscall
 		vp_pop r0
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_write_string 3
 		;fd, string, length
-		push_trashed_1
+		push_trashed
 		vp_push r0
 		vp_cpy %1, r7
 		vp_cpy %2, r6
@@ -447,12 +447,12 @@
 		vp_cpy SYS_WRITE, r0
 		vp_syscall
 		vp_pop r0
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_write_char 2
 		;fd, char
-		push_trashed_1
+		push_trashed
 		vp_push r0
 		vp_push %2
 		vp_cpy %1, r7
@@ -462,12 +462,12 @@
 		vp_syscall
 		vp_add 8, r4
 		vp_pop r0
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_mmap 6
 		;addr, len, prot, flags, fd, pos
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;addr
 		vp_cpy %2, r6		;size of the file
 		vp_cpy %3, r2		;read only etc
@@ -476,98 +476,98 @@
 		vp_cpy %6, r9		;offset
 		vp_cpy SYS_MMAP, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_mprotect 3
 		;addr, len, prot
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;addr
 		vp_cpy %2, r6		;size
 		vp_cpy %3, r2		;read only etc
 		vp_cpy SYS_MPROTECT, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_munmap 2
 		;addr, len
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;addr
 		vp_cpy %2, r6		;size of the file
 		vp_cpy SYS_MUNMAP, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_stat 2
 		;path, buffer
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;path
 		vp_cpy %2, r6		;stat buffer
 		vp_cpy SYS_STAT, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_open 3
 		;path, flags, mode
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;path
 		vp_cpy %2, r6		;flags
 		vp_cpy %3, r2		;mode
 		vp_cpy SYS_OPEN, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_close 1
 		;fd
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;fd
 		vp_cpy SYS_CLOSE, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_ftruncate 2
 		;fd, offset
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;fd
 		vp_cpy %2, r6		;offset
 		vp_cpy SYS_FTRUNCATE, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_shmopen 3
 		;name, flag, mode
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;name
 		vp_cpy %2, r6		;flag
 		vp_cpy %3, r2		;mode
 		vp_cpy SYS_SHMOPEN, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_shmunlink 1
 		;name
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;name
 		vp_cpy SYS_SHMUNLINK, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 
 	%macro sys_gettimeofday 2
 		;time, timezone
-		push_trashed_1
+		push_trashed
 		vp_cpy %1, r7		;time struct
 		vp_cpy %2, r6		;timezone struct
 		vp_cpy SYS_GETTIMEOFDAY, r0
 		vp_syscall
-		pop_trashed_1
+		pop_trashed
 	%endmacro
 %endif
 
