@@ -126,28 +126,6 @@
 		vp_pop r1
 	%endmacro
 
-	%macro push_trashed_2 0
-		;pushes onto r4 (rsp)
-		vp_push r1
-		vp_push r6
-		vp_push r7
-		vp_push r8
-		vp_push r9
-		vp_push r10
-		vp_push r11
-	%endmacro
-
-	%macro pop_trashed_2 0
-		;pops from r4 (rsp)
-		vp_pop r11
-		vp_pop r10
-		vp_pop r9
-		vp_pop r8
-		vp_pop r7
-		vp_pop r6
-		vp_pop r1
-	%endmacro
-
 	%macro sys_exit 1
 		;return code
 		vp_cpy %1, r7
@@ -304,12 +282,16 @@
 
 	%macro sys_gettimeofday 2
 		;time, timezone
-		push_trashed_2
+		push_trashed_1
+		vp_push %1
 		vp_cpy %1, r7		;time struct
 		vp_cpy %2, r6		;timezone struct
 		vp_cpy SYS_GETTIMEOFDAY, r0
 		vp_syscall
-		pop_trashed_2
+		vp_pop r1
+		vp_cpy r0, [r1 + TIMEVAL_SEC]
+		vp_cpy r2, [r1 + TIMEVAL_USEC]
+		pop_trashed_1
 	%endmacro
 
 %elifidn OS, Linux
@@ -424,28 +406,6 @@
 		vp_pop r1
 	%endmacro
 
-	%macro push_trashed_2 0
-		;pushes onto r4 (rsp)
-		vp_push r1
-		vp_push r6
-		vp_push r7
-		vp_push r8
-		vp_push r9
-		vp_push r10
-		vp_push r11
-	%endmacro
-
-	%macro pop_trashed_2 0
-		;pops from r4 (rsp)
-		vp_pop r11
-		vp_pop r10
-		vp_pop r9
-		vp_pop r8
-		vp_pop r7
-		vp_pop r6
-		vp_pop r1
-	%endmacro
-
 	%macro sys_exit 1
 		;return code
 		vp_cpy %1, r7
@@ -602,12 +562,16 @@
 
 	%macro sys_gettimeofday 2
 		;time, timezone
-		push_trashed_2
+		push_trashed_1
+		vp_push %1
 		vp_cpy %1, r7		;time struct
 		vp_cpy %2, r6		;timezone struct
 		vp_cpy SYS_GETTIMEOFDAY, r0
 		vp_syscall
-		pop_trashed_2
+		vp_pop r1
+		vp_cpy r0, [r1 + TIMEVAL_SEC]
+		vp_cpy r2, [r1 + TIMEVAL_USEC]
+		pop_trashed_1
 	%endmacro
 %endif
 
