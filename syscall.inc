@@ -20,8 +20,7 @@
 	SYS_MMAP			equ 0x20000c5	;user_addr_t mmap(caddr_t addr, size_t len, int prot, int flags, int fd, off_t pos)
 	SYS_STAT			equ 0x20000bc	;int stat(user_addr_t path, user_addr_t ub)
 	SYS_FTRUNCATE		equ 0x20000c9	;int ftruncate(int fd, off_t length)
-	SYS_SHMOPEN			equ 0x200010a	;int shm_open(const char *name, int oflag, int mode)
-	SYS_SHMUNLINK		equ 0x200010b	;int shm_unlink(const char *name)
+	SYS_UNLINK			equ 0x200000a	;int unlink(const char *name)
 
 	PROT_NONE	equ 0x0
 	PROT_READ	equ 0x1
@@ -260,22 +259,11 @@
 		pop_trashed
 	%endmacro
 
-	%macro sys_shmopen 3
-		;name, flag, mode
-		push_trashed
-		vp_cpy %1, r7		;name
-		vp_cpy %2, r6		;flag
-		vp_cpy %3, r2		;mode
-		vp_cpy SYS_SHMOPEN, r0
-		vp_syscall
-		pop_trashed
-	%endmacro
-
-	%macro sys_shmunlink 1
+	%macro sys_unlink 1
 		;name
 		push_trashed
 		vp_cpy %1, r7		;name
-		vp_cpy SYS_SHMUNLINK, r0
+		vp_cpy SYS_UNLINK, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -305,14 +293,13 @@
 	SYS_WRITE			equ	0x1
 	SYS_OPEN			equ	0x2
 	SYS_CLOSE			equ	0x3
+	SYS_UNLINK			equ	0x57
 	SYS_FTRUNCATE		equ	0x4d
 	SYS_STAT			equ	0x4
 	SYS_MMAP			equ	0x9
 	SYS_MUNMAP			equ	0xb
 	SYS_MPROTECT		equ	0xa
 	SYS_GETTIMEOFDAY	equ	0x60
-	SYS_SHMOPEN			equ 0x200010a	;int shm_open(const char *name, int oflag, int mode)
-	SYS_SHMUNLINK		equ 0x200010b	;int shm_unlink(const char *name)
 
 	PROT_NONE			equ	0x0
 	PROT_READ			equ	0x1
@@ -540,22 +527,11 @@
 		pop_trashed
 	%endmacro
 
-	%macro sys_shmopen 3
-		;name, flag, mode
-		push_trashed
-		vp_cpy %1, r7		;name
-		vp_cpy %2, r6		;flag
-		vp_cpy %3, r2		;mode
-		vp_cpy SYS_SHMOPEN, r0
-		vp_syscall
-		pop_trashed
-	%endmacro
-
-	%macro sys_shmunlink 1
+	%macro sys_unlink 1
 		;name
 		push_trashed
 		vp_cpy %1, r7		;name
-		vp_cpy SYS_SHMUNLINK, r0
+		vp_cpy SYS_UNLINK, r0
 		vp_syscall
 		pop_trashed
 	%endmacro

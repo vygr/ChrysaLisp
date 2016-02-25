@@ -20,16 +20,16 @@
 		vp_cpy r0, r14
 
 		;init link node cpu id and task count
-		vp_cpy byte[r14 + ML_MSG_DATA + 1], r1l
-		vp_cpy byte[r14 + ML_MSG_DATA + 2], r2l
+		vp_cpy byte[r14 + ML_MSG_DATA + 5], r1l
+		vp_cpy byte[r14 + ML_MSG_DATA + 6], r2l
 		vp_and 0xff, r1
 		vp_and 0xff, r2
 		vp_sub '0', r1
 		vp_sub '0', r2
 		vp_mul 10, r1
 		vp_add r2, r1
-		vp_cpy byte[r14 + ML_MSG_DATA + 4], r2l
-		vp_cpy byte[r14 + ML_MSG_DATA + 5], r3l
+		vp_cpy byte[r14 + ML_MSG_DATA + 8], r2l
+		vp_cpy byte[r14 + ML_MSG_DATA + 9], r3l
 		vp_and 0xff, r2
 		vp_and 0xff, r3
 		vp_sub '0', r2
@@ -64,9 +64,9 @@
 		vp_cpy ML_MSG_DATA + KN_DATA_LINK_ROUTE_SIZE, qword[r0 + ML_MSG_LENGTH]
 		fn_call sys/mail_send
 
-		;open shared memory region
+		;open shared memory file
 		vp_lea [r14 + ML_MSG_DATA], r0
-		sys_shmopen r0, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR
+		sys_open r0, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR
 		vp_cpy r0, r13
 
 		;set size of region
@@ -189,7 +189,7 @@
 
 		;unlink shared object
 		vp_lea [r14 + ML_MSG_DATA], r0
-		sys_shmunlink r0
+		sys_unlink r0
 
 		;free params msg
 		vp_cpy r14, r0

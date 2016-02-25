@@ -22,7 +22,7 @@ function add_link
 		fi
 		if [[ "$links" != *"$nl"* ]]
 		then
-			links+="-l /$nl "
+			links+="-l $nl "
 		fi
 	fi
 }

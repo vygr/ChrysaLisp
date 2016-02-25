@@ -101,8 +101,11 @@
 			vp_cpy r6, [r0 + (ML_MSG_DEST + 8)]
 
 			;fill in paramaters and set length
-			vp_cpy [r14], r0
+			vp_lea [rel link_path], r0
 			vp_lea [r7 + ML_MSG_DATA], r1
+			fn_call sys/string_copy
+			vp_cpy [r14], r0
+			vp_dec r1
 			fn_call sys/string_copy
 			vp_sub r7, r1
 			vp_cpy r1, [r7 + ML_MSG_LENGTH]
@@ -112,6 +115,9 @@
 			fn_call sys/mail_send
 		endif
 		vp_ret
+
+	link_path:
+		db "/tmp/", 0
 
 		align 8, db 0
 	options_table:
