@@ -71,8 +71,16 @@ so NASM 2.10 should be used until further notice.
 Run with:
 
 ./run.sh <num_cpus>
+
+Fully connected network. Each cpu has links to every other cpu.
+
 ./run_ring.sh <num_cpus>
+
+Ring connected network. Each cpu has links to the next and previous cpus.
+
 ./run_mesh.sh <num_cpus on a side>
+
+Mesh connected network. Each cpu has links to 4 adjacent cpus.
 
 Stop with:
 
