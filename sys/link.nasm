@@ -20,21 +20,31 @@
 		vp_cpy r0, r14
 
 		;init link node cpu id and task count
-		vp_cpy byte[r14 + ML_MSG_DATA + 5], r1l
-		vp_cpy byte[r14 + ML_MSG_DATA + 6], r2l
+		vp_cpy byte[r14 + ML_MSG_DATA + 5], r0l
+		vp_cpy byte[r14 + ML_MSG_DATA + 6], r1l
+		vp_cpy byte[r14 + ML_MSG_DATA + 7], r2l
+		vp_and 0xff, r0
 		vp_and 0xff, r1
 		vp_and 0xff, r2
+		vp_sub '0', r0
 		vp_sub '0', r1
 		vp_sub '0', r2
+		vp_mul 100, r0
 		vp_mul 10, r1
+		vp_add r0, r1
 		vp_add r2, r1
-		vp_cpy byte[r14 + ML_MSG_DATA + 8], r2l
-		vp_cpy byte[r14 + ML_MSG_DATA + 9], r3l
+		vp_cpy byte[r14 + ML_MSG_DATA + 9], r0l
+		vp_cpy byte[r14 + ML_MSG_DATA + 10], r2l
+		vp_cpy byte[r14 + ML_MSG_DATA + 11], r3l
+		vp_and 0xff, r0
 		vp_and 0xff, r2
 		vp_and 0xff, r3
+		vp_sub '0', r0
 		vp_sub '0', r2
 		vp_sub '0', r3
+		vp_mul 100, r0
 		vp_mul 10, r2
+		vp_add r0, r2
 		vp_add r3, r2
 		fn_call sys/get_cpu_id
 		if r1, ==, r0

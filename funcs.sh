@@ -2,11 +2,15 @@
 
 function zero_pad
 {
-	if [ $1 -lt 10 ]
+	if [ $1 -lt 100 ]
 	then
 		zp="0$1"
 	else
 		zp=$1
+	fi
+	if [ $zp -lt 10 ]
+	then
+		zp="0$zp"
 	fi
 }
 

@@ -33,32 +33,32 @@ routes simultaneously.
 The -run command line option launches tasks on booting that cpu, such as the
 test suit or experimental gui (a work in progress, -run gui/gui).
 
-The -l command line option creates a link, currently up to 100 cpu's are allowed
-but that is easy to adjust in the sys/link.nasm file and is due to the very
-simple link parameter parsing. The lower numbered cpu always comes first ! The
-shared memory link files are created in /tmp, so for example /tmp/00-01 would
-be the link file for the link between cpu 00 and 01.
+The -l command line option creates a link, currently up to 1000 cpu's are
+allowed but that is easy to adjust in the sys/link.nasm file and is due to the
+very simple link parameter parsing. The lower numbered cpu always comes first !
+The shared memory link files are created in /tmp, so for example /tmp/000-001
+would be the link file for the link between cpu 000 and 001.
 
 The -cpu command line option just labels the cpu with it's ID.
 
 An example network viewed with ps looks like this for a 4x4 mesh network:
 
-13818 ttys001    0:00.55 ./main -cpu 15 -l 11-15 -l 03-15 -l 14-15 -l 12-15
-13819 ttys001    0:00.54 ./main -cpu 14 -l 10-14 -l 02-14 -l 13-14 -l 14-15
-13820 ttys001    0:00.53 ./main -cpu 13 -l 09-13 -l 01-13 -l 12-13 -l 13-14
-13821 ttys001    0:00.54 ./main -cpu 12 -l 08-12 -l 00-12 -l 12-15 -l 12-13
-13822 ttys001    0:00.53 ./main -cpu 11 -l 07-11 -l 11-15 -l 10-11 -l 08-11
-13823 ttys001    0:00.53 ./main -cpu 10 -l 06-10 -l 10-14 -l 09-10 -l 10-11
-13824 ttys001    0:00.53 ./main -cpu 9 -l 05-09 -l 09-13 -l 08-09 -l 09-10
-13825 ttys001    0:00.53 ./main -cpu 8 -l 04-08 -l 08-12 -l 08-11 -l 08-09
-13826 ttys001    0:00.52 ./main -cpu 7 -l 03-07 -l 07-11 -l 06-07 -l 04-07
-13827 ttys001    0:00.55 ./main -cpu 6 -l 02-06 -l 06-10 -l 05-06 -l 06-07
-13828 ttys001    0:00.54 ./main -cpu 5 -l 01-05 -l 05-09 -l 04-05 -l 05-06
-13829 ttys001    0:00.53 ./main -cpu 4 -l 00-04 -l 04-08 -l 04-07 -l 04-05
-13830 ttys001    0:00.54 ./main -cpu 3 -l 03-15 -l 03-07 -l 02-03 -l 00-03
-13831 ttys001    0:00.54 ./main -cpu 2 -l 02-14 -l 02-06 -l 01-02 -l 02-03
-13832 ttys001    0:00.56 ./main -cpu 1 -l 01-13 -l 01-05 -l 00-01 -l 01-02
-13833 ttys001    0:00.54 ./main -cpu 0 -l 00-12 -l 00-04 -l 00-03 -l 00-01 -run tests/test1
+./main -cpu 15 -l 011-015 -l 003-015 -l 014-015 -l 012-015
+./main -cpu 14 -l 010-014 -l 002-014 -l 013-014 -l 014-015
+./main -cpu 13 -l 009-013 -l 001-013 -l 012-013 -l 013-014
+./main -cpu 12 -l 008-012 -l 000-012 -l 012-015 -l 012-013
+./main -cpu 11 -l 007-011 -l 011-015 -l 010-011 -l 008-011
+./main -cpu 10 -l 006-010 -l 010-014 -l 009-010 -l 010-011
+./main -cpu 9 -l 005-009 -l 009-013 -l 008-009 -l 009-010
+./main -cpu 8 -l 004-008 -l 008-012 -l 008-011 -l 008-009
+./main -cpu 7 -l 003-007 -l 007-011 -l 006-007 -l 004-007
+./main -cpu 6 -l 002-006 -l 006-010 -l 005-006 -l 006-007
+./main -cpu 5 -l 001-005 -l 005-009 -l 004-005 -l 005-006
+./main -cpu 4 -l 000-004 -l 004-008 -l 004-007 -l 004-005
+./main -cpu 3 -l 003-015 -l 003-007 -l 002-003 -l 000-003
+./main -cpu 2 -l 002-014 -l 002-006 -l 001-002 -l 002-003
+./main -cpu 1 -l 001-013 -l 001-005 -l 000-001 -l 001-002
+./main -cpu 0 -l 000-012 -l 000-004 -l 000-003 -l 000-001 -run tests/test1
 
 Make with:
 

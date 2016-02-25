@@ -3,15 +3,15 @@
 #have we got a paramater ?
 if [ -z ${1+x} ]
 then
-	num_cpu=8
+	num_cpu=10
 else
 	num_cpu=$1
 fi
 
-#not greater then 100
-if [ $num_cpu -gt 100 ]
+#not greater then 1000
+if [ $num_cpu -gt 1000 ]
 then
-	num_cpu=100
+	num_cpu=1000
 fi
 
 source funcs.sh
