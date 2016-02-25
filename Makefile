@@ -11,10 +11,10 @@ main.o:	main.nasm sdl2.inc gui.inc vp.inc load.inc syscall.inc link.inc sys/load
 		sys/load_function_load sys/load_statics \
 		sys/load_deinit_loader sys/kernel gui/gui_init_gui
 ifeq ($(OS),Darwin)
-		nasm -f macho64 main.nasm -dOS=$(OS)
+		nasm -dOS=$(OS) -f macho64 main.nasm
 endif
 ifeq ($(OS),Linux)
-		nasm -f elf64 main.nasm -dOS=$(OS)
+		nasm -dOS=$(OS) -f elf64 main.nasm
 endif
 
 sys_objects := $(patsubst %.nasm, %, $(wildcard sys/*.nasm))
@@ -27,7 +27,7 @@ tests:	$(tests_objects)
 
 %:	%.nasm Makefile gui.inc func.inc task.inc list.inc vp.inc \
 		code.inc mail.inc syscall.inc heap.inc link.inc
-		nasm -f bin $< -o $@ -dOS=$(OS)
+		nasm -dOS=$(OS) -f bin $< -o $@
 
 clean:
 	rm main *.o $(sys_objects) $(gui_objects) $(tests_objects)
