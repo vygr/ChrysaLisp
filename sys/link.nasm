@@ -187,6 +187,9 @@
 		;unmap object
 		sys_munmap r12, LK_BUFFER_SIZE
 
+		;close it
+		sys_close r13
+
 		;unlink shared object
 		vp_lea [r14 + ML_MSG_DATA], r0
 		sys_unlink r0
