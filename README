@@ -35,7 +35,9 @@ test suit or experimental gui (a work in progress, -run gui/gui).
 
 The -l command line option creates a link, currently up to 100 cpu's are allowed
 but that is easy to adjust in the sys/link.nasm file and is due to the very
-simple link parameter parsing. The lower numbered cpu always comes first !
+simple link parameter parsing. The lower numbered cpu always comes first ! The
+shared memory link files are created in /tmp, so for example /tmp/00-01 would
+be the link file for the link between cpu 00 and 01.
 
 The -cpu command line option just labels the cpu with it's ID.
 
