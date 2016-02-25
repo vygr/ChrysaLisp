@@ -59,27 +59,8 @@
 	S_ISGID				equ	0x400
 	S_ISVTX				equ	0x200
 
-	struc STAT
-		STAT_DEV:				resq 1	;ID of device containing file
-		STAT_MODE:				resq 1	;Mode of file
-		STAT_NLINK:				resq 1	;Number of hard links
-		STAT_INO:				resd 1	;File serial number
-		STAT_UID:				resd 1	;User ID of the file
-		STAT_GID:				resd 1	;Group ID of the file
-		STAT_RDEV:				resd 1	;Device ID
-		STAT_ATIMESPEC:			resq 1	;time of last access
-		STAT_MTIMESPEC:			resq 1	;time of last data modification
-		STAT_CTIMESPEC:			resq 1	;time of last status change
-		STAT_BIRTHTIMESPEC:		resq 1	;time of file creation(birth)
-		STAT_FSIZE:				resq 1	;file size, in bytes
-		STAT_BLOCKS:			resq 1	;blocks allocated for file
-		STAT_BLKSIZE:			resq 1	;optimal blocksize for I/O
-		STAT_FLAGS:				resq 1	;user defined flags for file
-		STAT_GEN:				resq 1	;file generation number
-		STAT_LSPARE:			resq 1	;reserved
-		STAT_QSPARE:			resq 1	;reserved
-		STAT_SIZE:
-	endstruc
+	STAT_FSIZE			equ 0x48
+	STAT_SIZE			equ 0x100
 
 	struc TIMEVAL
 		TIMEVAL_SEC:			resq 1
@@ -334,20 +315,8 @@
 	S_ISGID				equ	0x400
 	S_ISVTX				equ	0x200
 
-	STAT_DEV		equ	0x0
-	STAT_INO		equ	0x8
-	STAT_MODE		equ	0x18
-	STAT_NLINK		equ	0x10
-	STAT_UID		equ	0x1c
-	STAT_GID		equ	0x20
-	STAT_RDEV		equ	0x28
-	STAT_FSIZE		equ	0x30
-	STAT_BLKSIZE	equ	0x38
-	STAT_BLOCKS		equ	0x40
-	STAT_ATIME		equ	0x48
-	STAT_MTIME		equ	0x58
-	STAT_CTIME		equ	0x68
-	STAT_SIZE		equ	0x90
+	STAT_FSIZE			equ	0x30
+	STAT_SIZE			equ	0x100
 
 	struc TIMEVAL
 		TIMEVAL_SEC:			resq 1

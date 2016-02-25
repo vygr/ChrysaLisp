@@ -1,11 +1,11 @@
 #include <sys/mman.h>
 #include <stdio.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/time.h>
 #include <fcntl.h>
 #include <sys/syscall.h>
 #include <stddef.h>
+#include <sys/stat.h>
 
 int main() {
 	printf("\tSYS_EXIT\tequ\t0x%x\n", SYS_exit);
@@ -59,18 +59,21 @@ int main() {
 	printf("\tS_ISVTX\tequ\t0x%x\n\n", S_ISVTX);
 
 	printf("\tSTAT_DEV\tequ\t0x%lx\n", offsetof(struct stat, st_dev));
-	printf("\tSTAT_INO\tequ\t0x%lx\n", offsetof(struct stat, st_ino));
 	printf("\tSTAT_MODE\tequ\t0x%lx\n", offsetof(struct stat, st_mode));
 	printf("\tSTAT_NLINK\tequ\t0x%lx\n", offsetof(struct stat, st_nlink));
+	printf("\tSTAT_INO\tequ\t0x%lx\n", offsetof(struct stat, st_ino));
 	printf("\tSTAT_UID\tequ\t0x%lx\n", offsetof(struct stat, st_uid));
 	printf("\tSTAT_GID\tequ\t0x%lx\n", offsetof(struct stat, st_gid));
 	printf("\tSTAT_RDEV\tequ\t0x%lx\n", offsetof(struct stat, st_rdev));
-	printf("\tSTAT_FSIZE\tequ\t0x%lx\n", offsetof(struct stat, st_size));
-	printf("\tSTAT_BLKSIZE\tequ\t0x%lx\n", offsetof(struct stat, st_blksize));
-	printf("\tSTAT_BLOCKS\tequ\t0x%lx\n", offsetof(struct stat, st_blocks));
 	printf("\tSTAT_ATIME\tequ\t0x%lx\n", offsetof(struct stat, st_atime));
 	printf("\tSTAT_MTIME\tequ\t0x%lx\n", offsetof(struct stat, st_mtime));
 	printf("\tSTAT_CTIME\tequ\t0x%lx\n", offsetof(struct stat, st_ctime));
+	printf("\tSTAT_BTIME\tequ\t0x%lx\n", offsetof(struct stat, st_birthtime));
+	printf("\tSTAT_FSIZE\tequ\t0x%lx\n", offsetof(struct stat, st_size));
+	printf("\tSTAT_BLOCKS\tequ\t0x%lx\n", offsetof(struct stat, st_blocks));
+	printf("\tSTAT_BLKSIZE\tequ\t0x%lx\n", offsetof(struct stat, st_blksize));
+	printf("\tSTAT_FLAGS\tequ\t0x%lx\n", offsetof(struct stat, st_flags));
+	printf("\tSTAT_GEN\tequ\t0x%lx\n", offsetof(struct stat, st_gen));
 	printf("\tSTAT_SIZE\tequ\t0x%lx\n\n", sizeof(struct stat));
 
 	return 0;
