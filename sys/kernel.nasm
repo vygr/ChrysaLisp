@@ -18,13 +18,13 @@
 		vp_push r0
 
 		;init tasker
-		fn_call sys/task_init_tasker
+		fn_call sys/task_init
 
 		;init allocator
-		fn_call sys/mem_init_allocator
+		fn_call sys/mem_init
 
 		;init linker
-		fn_call sys/link_init_linker
+		fn_call sys/link_init
 
 		;start kernel task
 		fn_call sys/task_start
@@ -32,7 +32,7 @@
 		vp_cpy r1, [r2 + TK_STATICS_CURRENT_TCB]
 
 		;init mailer, r0 = kernel mailbox !
-		fn_call sys/mail_init_mailer
+		fn_call sys/mail_init
 
 		;process command options
 		vp_cpy [r4], r0
@@ -84,7 +84,7 @@
 
 					;open single task and return mailbox ID
 					vp_lea [r15 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_PATHNAME)], r0
-					fn_call sys/load_function_load
+					fn_call sys/load_bind
 					fn_call sys/task_start
 					vp_cpy r0, [r15 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID)]
 					fn_call sys/cpu_get_id
@@ -316,16 +316,16 @@
 		vp_add LK_TABLE_SIZE, r4
 
 		;deinit allocator
-		fn_call sys/mem_deinit_allocator
+		fn_call sys/mem_deinit
 
 		;deinit mailer
-		fn_call sys/mail_deinit_mailer
+		fn_call sys/mail_deinit
 
 		;deinit tasker
-		fn_call sys/task_deinit_tasker
+		fn_call sys/task_deinit
 
 		;deinit loader
-		fn_call sys/load_deinit_loader
+		fn_call sys/load_deinit
 
 		;pop argv and exit !
 		vp_add 8, r4

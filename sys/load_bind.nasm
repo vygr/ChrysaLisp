@@ -1,7 +1,7 @@
 %include "func.inc"
 %include "load.inc"
 
-	fn_function "sys/load_function_load"
+	fn_function "sys/load_bind"
 		;input
 		;r0 = function path name
 		;output

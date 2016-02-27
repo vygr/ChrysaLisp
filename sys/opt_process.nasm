@@ -68,7 +68,7 @@
 		vp_add 8, r14
 		vp_cpy [r14], r0
 		if r0, !=, 0
-			fn_call sys/load_function_load
+			fn_call sys/load_bind
 			if r0, !=, 0
 				fn_call sys/task_start
 			endif

@@ -1,7 +1,7 @@
 %include "func.inc"
 %include "link.inc"
 
-	fn_function "sys/link_init_linker"
+	fn_function "sys/link_init"
 		;get statics
 		fn_bind sys/link_statics, r0
 

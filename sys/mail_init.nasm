@@ -1,7 +1,7 @@
 %include "func.inc"
 %include "mail.inc"
 
-	fn_function "sys/mail_init_mailer"
+	fn_function "sys/mail_init"
 		;inputs
 		;r0 = kernel mailbox
 

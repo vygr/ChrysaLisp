@@ -1,6 +1,6 @@
 %include "func.inc"
 
-	fn_function "sys/mail_deinit_mailer"
+	fn_function "sys/mail_deinit"
 
 		;deinit mail message heap
 		fn_bind sys/mail_statics, r0

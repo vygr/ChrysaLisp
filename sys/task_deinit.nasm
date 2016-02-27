@@ -1,7 +1,7 @@
 %include "func.inc"
 %include "task.inc"
 
-	fn_function "sys/task_deinit_tasker"
+	fn_function "sys/task_deinit"
 		;get task statics
 		fn_bind sys/task_statics, r0
 

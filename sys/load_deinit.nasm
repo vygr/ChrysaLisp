@@ -1,7 +1,7 @@
 %include "func.inc"
 %include "load.inc"
 
-	fn_function "sys/load_deinit_loader"
+	fn_function "sys/load_deinit"
 		;get statics
 		fn_bind sys/load_statics, r0
 

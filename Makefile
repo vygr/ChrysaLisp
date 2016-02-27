@@ -7,9 +7,9 @@ sdl_ldflags := $(shell sdl2-config --libs)
 main:	main.o
 		clang -o main -e main main.o $(sdl_ldflags)
 
-main.o:	main.nasm sdl2.inc gui.inc vp.inc load.inc syscall.inc link.inc sys/load_init_loader \
-		sys/load_function_load sys/load_statics \
-		sys/load_deinit_loader sys/kernel gui/gui_init
+main.o:	main.nasm sdl2.inc gui.inc vp.inc load.inc syscall.inc link.inc sys/load_init \
+		sys/load_bind sys/load_statics \
+		sys/load_deinit sys/kernel gui/gui_init
 ifeq ($(OS),Darwin)
 		nasm -dOS=$(OS) -f macho64 main.nasm
 endif
