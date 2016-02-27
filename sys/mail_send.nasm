@@ -9,7 +9,7 @@
 
 		;on or off chip ?
 		vp_cpy r0, r2
-		fn_call sys/get_cpu_id
+		fn_call sys/cpu_get_id
 		if r0, ==, [r2 + (ML_MSG_DEST + 8)]
 			;on this chip
 			vp_cpy [r2 + ML_MSG_PARCEL_SIZE], r1

@@ -1,7 +1,7 @@
 %include "func.inc"
 %include "task.inc"
 
-	fn_function "sys/get_cpu_id"
+	fn_function "sys/cpu_get_id"
 		;outputs
 		;r0 = cpu ID
 

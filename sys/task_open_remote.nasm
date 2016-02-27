@@ -22,7 +22,7 @@
 		vp_cpy r0, r3
 
 		;fill in destination, reply and function
-		fn_call sys/get_cpu_id
+		fn_call sys/cpu_get_id
 		vp_cpy r4, [r3 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)]
 		vp_cpy r0, [r3 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)]
 		vp_cpy 0, qword[r3 + ML_MSG_DEST]

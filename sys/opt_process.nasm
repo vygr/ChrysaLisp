@@ -89,7 +89,7 @@
 			fn_bind sys/link, r0
 			fn_call sys/task_start
 			vp_cpy r0, r5
-			fn_call sys/get_cpu_id
+			fn_call sys/cpu_get_id
 			vp_cpy r0, r6
 
 			;allocate params message

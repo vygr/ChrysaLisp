@@ -39,7 +39,7 @@
 		fn_call sys/opt_process
 
 		;fill in num cpu's with at least mine + 1
-		fn_call sys/get_cpu_id
+		fn_call sys/cpu_get_id
 		vp_inc r0
 		fn_bind sys/task_statics, r1
 		vp_cpy r0, [r1 + TK_STATICS_CPU_TOTAL]
@@ -87,7 +87,7 @@
 					fn_call sys/load_function_load
 					fn_call sys/task_start
 					vp_cpy r0, [r15 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID)]
-					fn_call sys/get_cpu_id
+					fn_call sys/cpu_get_id
 					vp_cpy r0, [r15 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID + 8)]
 					vp_cpy ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_SIZE, qword[r15 + ML_MSG_LENGTH]
 					vp_cpy r15, r0
@@ -95,7 +95,7 @@
 					break
 				case r1, ==, KN_CALL_TASK_CHILD
 					;find best cpu to run task
-					fn_call sys/get_cpu_id
+					fn_call sys/cpu_get_id
 					vp_cpy r0, r5
 					fn_bind sys/task_statics, r1
 					vp_cpy [r1 + TK_STATICS_TASK_COUNT], r1
@@ -198,7 +198,7 @@
 
 					;get current via, set via to my cpu id
 					vp_cpy [r15 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r14
-					fn_call sys/get_cpu_id
+					fn_call sys/cpu_get_id
 					vp_cpy r0, [r15 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA]
 
 					;copy and send to all neighbors apart from old via
@@ -266,7 +266,7 @@
 			loop_end
 
 			;get time
-			fn_call sys/get_cpu_time
+			fn_call sys/cpu_get_time
 
 			;start any tasks ready to restart
 			fn_bind sys/task_statics, r3

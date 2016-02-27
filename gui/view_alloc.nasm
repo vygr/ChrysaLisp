@@ -2,7 +2,7 @@
 %include "list.inc"
 %include "gui.inc"
 
-	fn_function "gui/gui_view_alloc"
+	fn_function "gui/view_alloc"
 		;outputs
 		;r0 = view object
 		;trashes

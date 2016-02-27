@@ -8,7 +8,7 @@
 		FBOX_SIZE:
 	endstruc
 
-	fn_function "gui/gui_ctx_filled_box"
+	fn_function "gui/ctx_filled_box"
 		;inputs
 		;r0 = ctx
 		;r8 = x
@@ -42,7 +42,7 @@
 			vp_cpy [r1 + GUI_PATCH_W], r10
 			vp_cpy [r1 + GUI_PATCH_H], r11
 			vp_cpy [r4 + FBOX_CTX], r0
-			fn_call gui/gui_ctx_set_clip
+			fn_call gui/ctx_set_clip
 
 			;draw the rectangle
 			vp_cpy [r4 + FBOX_CTX], r0

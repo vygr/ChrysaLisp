@@ -5,7 +5,7 @@
 	fn_function "gui/gui"
 
 		;allocate background view
-		fn_call gui/gui_view_alloc
+		fn_call gui/view_alloc
 
 		;fill in sizes etc
 		vp_cpy 0, qword[r0 + GUI_VIEW_X]
@@ -21,7 +21,7 @@
 		vp_push r0
 
 		;allocate sub view
-		fn_call gui/gui_view_alloc
+		fn_call gui/view_alloc
 
 		;fill in sizes etc
 		vp_cpy 128, qword[r0 + GUI_VIEW_X]
@@ -33,7 +33,7 @@
 
 		;add as sub view
 		vp_pop r1
-		fn_call gui/gui_view_add
+		fn_call gui/view_add
 
 		;allocate mail message
 		fn_call sys/mail_alloc
@@ -65,7 +65,7 @@
 		vp_cpy 0, r9
 		vp_cpy 0, r10
 		vp_cpy 255, r11
-		fn_call gui/gui_ctx_set_color
+		fn_call gui/ctx_set_color
 
 		vp_cpy [r4 + 0], r0
 		vp_cpy [r4 + 8], r1
@@ -73,7 +73,7 @@
 		vp_xor r9, r9
 		vp_cpy [r1 + GUI_VIEW_W], r10
 		vp_cpy [r1 + GUI_VIEW_H], r11
-		fn_call gui/gui_ctx_filled_box
+		fn_call gui/ctx_filled_box
 
 		vp_add 16, r4
 		vp_ret
@@ -93,7 +93,7 @@
 		vp_cpy 255, r9
 		vp_cpy 0, r10
 		vp_cpy 255, r11
-		fn_call gui/gui_ctx_set_color
+		fn_call gui/ctx_set_color
 
 		vp_cpy [r4 + 0], r0
 		vp_cpy [r4 + 8], r1
@@ -101,7 +101,7 @@
 		vp_xor r9, r9
 		vp_cpy [r1 + GUI_VIEW_W], r10
 		vp_cpy [r1 + GUI_VIEW_H], r11
-		fn_call gui/gui_ctx_filled_box
+		fn_call gui/ctx_filled_box
 
 		vp_add 16, r4
 		vp_ret

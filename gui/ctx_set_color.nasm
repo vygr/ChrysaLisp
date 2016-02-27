@@ -1,7 +1,7 @@
 %include "func.inc"
 %include "sdl2.inc"
 
-	fn_function "gui/gui_ctx_set_color"
+	fn_function "gui/ctx_set_color"
 		;inputs
 		;r0 = ctx
 		;r8 = r

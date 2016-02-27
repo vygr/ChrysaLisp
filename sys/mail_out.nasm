@@ -10,7 +10,7 @@
 			vp_cpy r0,r15
 
 			;create next parcel id
-			fn_call sys/get_cpu_id
+			fn_call sys/cpu_get_id
 			vp_cpy r0, r6
 			fn_bind sys/mail_statics, r1
 			vp_cpy [r1 + ML_STATICS_PARCEL_ID], r7
