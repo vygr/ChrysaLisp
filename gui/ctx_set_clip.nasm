@@ -12,8 +12,8 @@
 		;r0 = ctx
 		;r8 = x
 		;r9 = y
-		;r10 = x1
-		;r11 = y1
+		;r10 = width
+		;r11 = height
 		;trashes
 		;r0-r3, r5-r15
 
@@ -22,8 +22,6 @@
 		vp_and -16, r4
 		vp_cpy r1, [r4 + CLIP_OLD_STACK]
 
-		vp_sub r8, r10
-		vp_sub r9, r11
 		vp_add [r0 + GUI_CTX_X], r8
 		vp_add [r0 + GUI_CTX_Y], r9
 

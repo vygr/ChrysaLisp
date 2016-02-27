@@ -14,8 +14,8 @@
 		;r0 = ctx
 		;r8 = x
 		;r9 = y
-		;r10 = w
-		;r11 = h
+		;r10 = width
+		;r11 = height
 		;trashes
 		;r0-r3, r5-r15
 
@@ -45,6 +45,8 @@
 			vp_cpy [r0 + GUI_PATCH_Y], r9
 			vp_cpy [r0 + GUI_PATCH_X1], r10
 			vp_cpy [r0 + GUI_PATCH_Y1], r11
+			vp_sub r8, r10
+			vp_sub r9, r11
 			vp_cpy [r4 + FBOX_CTX], r0
 			fn_call gui/ctx_set_clip
 
