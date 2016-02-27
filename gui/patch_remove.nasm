@@ -4,20 +4,23 @@
 
 	fn_function "gui/patch_remove"
 		;inputs
-		;r0 = patch r0 pointer
+		;r0 = patch heap pointer
 		;r1 = source patch listhead pointer
-		;r8 = r8 (pixels)
-		;r9 = r9 (pixels)
+		;r8 = x (pixels)
+		;r9 = y (pixels)
 		;r10 = width (pixels)
 		;r11 = height (pixels)
+		;trashes
+		;r1-r2, r5-r15
 
 		;check for any obvious errors in inputs
 		if r10, >, 0
 			if r11, >, 0
 				vp_add r8, r10
-				vp_add r8, r11
+				vp_add r9, r11
 
 				;run through source patch list
+				vp_cpy r1, r5
 				vp_cpy r1, r7
 				loop_start
 					nextpatch r7, r6
@@ -44,28 +47,28 @@
 					vp_cpy r11, [r7 + GUI_PATCH_Y]
 					;right part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r10, [r5 + GUI_PATCH_X]
-					vp_cpy r9, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r10, [r1 + GUI_PATCH_X]
+					vp_cpy r9, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					;left part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r9, [r5 + GUI_PATCH_Y]
-					vp_cpy r8, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r9, [r1 + GUI_PATCH_Y]
+					vp_cpy r8, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					;top part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r9, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r9, [r1 + GUI_PATCH_Y1]
 					continue
 
 				rem_split1:
@@ -80,20 +83,20 @@
 					vp_cpy r11, [r7 + GUI_PATCH_Y]
 					;right part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r10, [r5 + GUI_PATCH_X]
-					vp_cpy r9, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r10, [r1 + GUI_PATCH_X]
+					vp_cpy r9, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					;top part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r9, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r9, [r1 + GUI_PATCH_Y1]
 					continue
 
 				rem_split2:
@@ -107,20 +110,20 @@
 					vp_cpy r11, [r7 + GUI_PATCH_Y]
 					;right part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r10, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r10, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					;left part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r8, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r8, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					continue
 
 				rem_split3:
@@ -134,12 +137,12 @@
 					vp_cpy r11, [r7 + GUI_PATCH_Y]
 					;right part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r10, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r10, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					continue
 
 				rem_split4:
@@ -152,20 +155,20 @@
 					vp_cpy r11, [r7 + GUI_PATCH_Y]
 					;left part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r9, [r5 + GUI_PATCH_Y]
-					vp_cpy r8, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r9, [r1 + GUI_PATCH_Y]
+					vp_cpy r8, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					;top part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r9, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r9, [r1 + GUI_PATCH_Y1]
 					continue
 
 				rem_split5:
@@ -178,12 +181,12 @@
 					vp_cpy r11, [r7 + GUI_PATCH_Y]
 					;top part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r9, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r9, [r1 + GUI_PATCH_Y1]
 					continue
 
 				rem_split6:
@@ -196,12 +199,12 @@
 					vp_cpy r11, [r7 + GUI_PATCH_Y]
 					;left part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r8, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r8, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					continue
 
 				rem_split7:
@@ -221,27 +224,27 @@
 					vp_cpy r8, [r7 + GUI_PATCH_X1]
 					;right part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r10, [r5 + GUI_PATCH_X]
-					vp_cpy r9, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r15, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r10, [r1 + GUI_PATCH_X]
+					vp_cpy r9, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r15, [r1 + GUI_PATCH_Y1]
 					;top part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r9, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r9, [r1 + GUI_PATCH_Y1]
 					continue
 
 				rem_encl:
 					;patch is enclosed
-					vp_cpy r7, r5
+					vp_cpy r7, r1
 					removepatch r7, r6
-					hp_freecell r0, r5, r3
+					hp_freecell r0, r1, r2
 					continue
 
 				rem_x:
@@ -263,12 +266,12 @@
 					vp_cpy r8, [r7 + GUI_PATCH_X1]
 					;top part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r9, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r9, [r1 + GUI_PATCH_Y1]
 					continue
 
 				rem_x1:
@@ -283,12 +286,12 @@
 					vp_cpy r10, [r7 + GUI_PATCH_X]
 					;left part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r8, [r5 + GUI_PATCH_X1]
-					vp_cpy r15, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r8, [r1 + GUI_PATCH_X1]
+					vp_cpy r15, [r1 + GUI_PATCH_Y1]
 					continue
 
 				rem_yx1:
@@ -298,12 +301,12 @@
 					vp_cpy r9, [r7 + GUI_PATCH_Y]
 					;top part
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r1, r5, r3
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r9, [r5 + GUI_PATCH_Y1]
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r9, [r1 + GUI_PATCH_Y1]
 				loop_end
 			endif
 		endif

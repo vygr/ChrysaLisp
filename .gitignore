@@ -6,6 +6,11 @@ gui/gui
 gui/gui_deinit
 gui/gui_init
 gui/gui_statics
+gui/patch_clip
+gui/patch_copy
+gui/patch_cut
+gui/patch_paste
+gui/patch_remove
 gui/view_add
 gui/view_alloc
 gui/view_draw
@@ -91,13 +96,3 @@ tests/test6
 tests/test7
 tests/test8
 tests/test9
-
-gui/patch_clip
-
-gui/patch_copy
-
-gui/patch_cut
-
-gui/patch_paste
-
-gui/patch_remove

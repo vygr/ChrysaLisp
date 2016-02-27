@@ -10,6 +10,8 @@
 		;r9 = y (pixels)
 		;r10 = width (pixels)
 		;r11 = height (pixels)
+		;trashes
+		;r1-r3, r5-r15
 
 		;check for any obvious errors in inputs
 		if r10, >, 0
