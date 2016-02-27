@@ -20,11 +20,11 @@
 	endstruc
 
 	struc GUI_PATCH
-		GUI_PATCH_NODE:		resb	LN_NODE_SIZE
+		GUI_PATCH_NEXT:		resq	1
 		GUI_PATCH_X:		resq	1
 		GUI_PATCH_Y:		resq	1
-		GUI_PATCH_W:		resq	1
-		GUI_PATCH_H:		resq	1
+		GUI_PATCH_X1:		resq	1
+		GUI_PATCH_Y1:		resq	1
 		GUI_PATCH_SIZE:
 	endstruc
 
@@ -32,7 +32,7 @@
 		GUI_VIEW_NODE:			resb	LN_NODE_SIZE
 		GUI_VIEW_PARENT:		resq	1
 		GUI_VIEW_LIST:			resb	LH_LIST_SIZE
-		GUI_VIEW_DIRTY_LIST:	resb	LH_LIST_SIZE
+		GUI_VIEW_DIRTY_LIST:	resq	1
 		GUI_VIEW_X:				resq	1
 		GUI_VIEW_Y:				resq	1
 		GUI_VIEW_W:				resq	1
@@ -48,5 +48,40 @@
 		GUI_CTX_Y:				resq	1
 		GUI_CTX_SIZE:
 	endstruc
+
+;;;;;;;;;;;;
+; gui macros
+;;;;;;;;;;;;
+
+	%macro nextpatch 2
+		;inputs
+		;%1 = node
+		;%2 = last
+
+		vp_cpy %1, %2
+		vp_cpy [%1 + GUI_PATCH_NEXT], %1
+		breakif %1, ==, 0
+	%endmacro
+
+	%macro removepatch 2
+		;inputs
+		;%1 = node
+		;%2 = last
+
+		vp_cpy [%1 + GUI_PATCH_NEXT], %1
+		vp_cpy %1, [%2 + GUI_PATCH_NEXT]
+		vp_cpy %2, %1
+	%endmacro
+
+	%macro addpatch 3
+		;inputs
+		;%1 = list
+		;%2 = node
+		;%3 = temp
+
+		vp_cpy [%1 + GUI_PATCH_NEXT], %3
+		vp_cpy %3, [%2 + GUI_PATCH_NEXT]
+		vp_cpy %2, [%1 + GUI_PATCH_NEXT]
+	%endmacro
 
 %endif

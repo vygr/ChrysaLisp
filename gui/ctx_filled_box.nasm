@@ -34,15 +34,19 @@
 		vp_cpy r11d, [r4 + FBOX_RECT + SDL_RECT_H]
 
 		;for each patch on the dirty list
-		vp_cpy [r0 + GUI_CTX_DIRTY_REGION], r1
-		loop_list_forwards r1, r2, r1
-			vp_cpy r2, [r4 + FBOX_NEXT]
+		vp_cpy [r0 + GUI_CTX_DIRTY_REGION], r0
+		loop_start
+			vp_cpy [r0 + GUI_PATCH_NEXT], r0
+			breakif r0, ==, 0
+			vp_cpy r0, [r4 + FBOX_NEXT]
 
 			;set clip region to this patch
-			vp_cpy [r1 + GUI_PATCH_X], r8
-			vp_cpy [r1 + GUI_PATCH_Y], r9
-			vp_cpy [r1 + GUI_PATCH_W], r10
-			vp_cpy [r1 + GUI_PATCH_H], r11
+			vp_cpy [r0 + GUI_PATCH_X], r8
+			vp_cpy [r0 + GUI_PATCH_Y], r9
+			vp_cpy [r0 + GUI_PATCH_X1], r10
+			vp_cpy [r0 + GUI_PATCH_Y1], r11
+			vp_sub r8, r10
+			vp_sub r9, r11
 			vp_cpy [r4 + FBOX_CTX], r0
 			fn_call gui/ctx_set_clip
 
@@ -51,7 +55,7 @@
 			vp_cpy [r0+ GUI_CTX_SDL_CTX], r0
 			sdl_renderfillrect r0, r4
 
-			vp_cpy [r4 + FBOX_NEXT], r2
+			vp_cpy [r4 + FBOX_NEXT], r0
 		loop_end
 
 		vp_cpy [r4 + FBOX_OLD_STACK], r4
