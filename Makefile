@@ -9,7 +9,7 @@ main:	main.o
 
 main.o:	main.nasm sdl2.inc gui.inc vp.inc load.inc syscall.inc link.inc sys/load_init_loader \
 		sys/load_function_load sys/load_statics \
-		sys/load_deinit_loader sys/kernel gui/gui_init_gui
+		sys/load_deinit_loader sys/kernel gui/gui_init
 ifeq ($(OS),Darwin)
 		nasm -dOS=$(OS) -f macho64 main.nasm
 endif

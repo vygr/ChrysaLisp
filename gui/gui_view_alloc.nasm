@@ -2,7 +2,7 @@
 %include "list.inc"
 %include "gui.inc"
 
-	fn_function "gui/gui_alloc_view"
+	fn_function "gui/gui_view_alloc"
 		;outputs
 		;r0 = view object
 		;trashes
@@ -17,6 +17,8 @@
 		;init child list etc
 		vp_cpy 0, qword[r0 + GUI_VIEW_PARENT]
 		vp_lea [r0 + GUI_VIEW_LIST], r1
+		lh_init r1, r2
+		vp_lea [r0 + GUI_DIRTY_LIST], r1
 		lh_init r1, r2
 
 		;init draw callback to null

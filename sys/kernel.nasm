@@ -248,8 +248,14 @@
 					;update screen
 					vp_cpy [r15 + GUI_STATICS_SCREEN], r1
 					if r1, !=, 0
-						vp_cpy [r15 + GUI_STATICS_RENDERER], r0
+						vp_sub GUI_CTX_SIZE, r4
+						vp_cpy r4, r0
+						vp_cpy [r15 + GUI_STATICS_RENDERER], r2
+						vp_cpy r2, [r0 + GUI_CTX_SDL_CTX]
+						vp_cpy 0, qword[r0 + GUI_CTX_X]
+						vp_cpy 0, qword[r0 + GUI_CTX_Y]
 						vp_call draw_view
+						vp_add GUI_CTX_SIZE, r4
 
 						fn_bind gui/gui_statics, r0
 						sdl_renderpresent [r0 + GUI_STATICS_RENDERER]
@@ -302,7 +308,7 @@
 		loop_end
 
 		;deinit gui
-		fn_call gui/gui_deinit_gui
+		fn_call gui/gui_deinit
 
 		;free any kernel routing table
 		vp_cpy [r4 + LK_TABLE_ARRAY], r0
@@ -332,21 +338,40 @@
 		;trashes
 		;r0-r3, r5-r15
 
+		vp_sub 24, r4
+		vp_cpy r0, [r4 + 0]
+		vp_cpy r1, [r4 + 8]
+
 		;draw myself
-		vp_push r0
-		vp_push r1
+		vp_lea [r1 + GUI_DIRTY_LIST], r2
+		vp_cpy r2, [r0 + GUI_CTX_DIRTY_REGION]
 		vp_call [r1 + GUI_VIEW_DRAW]
-		vp_pop r1
-		vp_pop r0
+		vp_cpy [r4 + 0], r0
+		vp_cpy [r4 + 8], r1
 
 		;draw child views
 		loop_list_forwards r1 + GUI_VIEW_LIST, r2, r1
-			vp_push r0
-			vp_push r2
+			vp_cpy [r0 + GUI_CTX_X], r5
+			vp_cpy [r0 + GUI_CTX_Y], r6
+			vp_add [r1 + GUI_VIEW_X], r5
+			vp_add [r1 + GUI_VIEW_Y], r6
+			vp_cpy r5, [r0 + GUI_CTX_X]
+			vp_cpy r6, [r0 + GUI_CTX_Y]
+			vp_cpy r0, [r4 + 0]
+			vp_cpy r1, [r4 + 8]
+			vp_cpy r2, [r4 + 16]
 			vp_call draw_view
-			vp_pop r2
-			vp_pop r0
+			vp_cpy [r4 + 0], r0
+			vp_cpy [r4 + 8], r1
+			vp_cpy [r4 + 16], r2
+			vp_cpy [r0 + GUI_CTX_X], r5
+			vp_cpy [r0 + GUI_CTX_Y], r6
+			vp_sub [r1 + GUI_VIEW_X], r5
+			vp_sub [r1 + GUI_VIEW_Y], r6
+			vp_cpy r5, [r0 + GUI_CTX_X]
+			vp_cpy r6, [r0 + GUI_CTX_Y]
 		loop_end
+		vp_add 24, r4
 		vp_ret
 
 	title:

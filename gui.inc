@@ -32,12 +32,21 @@
 		GUI_VIEW_NODE:		resb	LN_NODE_SIZE
 		GUI_VIEW_PARENT:	resq	1
 		GUI_VIEW_LIST:		resb	LH_LIST_SIZE
+		GUI_DIRTY_LIST:		resb	LH_LIST_SIZE
 		GUI_VIEW_X:			resq	1
 		GUI_VIEW_Y:			resq	1
 		GUI_VIEW_W:			resq	1
 		GUI_VIEW_H:			resq	1
 		GUI_VIEW_DRAW:		resq	1
 		GUI_VIEW_SIZE:
+	endstruc
+
+	struc GUI_CTX
+		GUI_CTX_SDL_CTX:		resq	1
+		GUI_CTX_DIRTY_REGION:	resq	1
+		GUI_CTX_X:				resq	1
+		GUI_CTX_Y:				resq	1
+		GUI_CTX_SIZE:
 	endstruc
 
 %endif

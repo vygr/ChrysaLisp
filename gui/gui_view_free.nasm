@@ -3,7 +3,7 @@
 %include "heap.inc"
 %include "gui.inc"
 
-	fn_function "sys/gui_free_view"
+	fn_function "gui/gui_view_free"
 		;inputs
 		;r0 = view object
 		;trashes
@@ -13,12 +13,12 @@
 		vp_push r0
 
 		;sub view from any parent
-		fn_call gui/gui_sub_view
+		fn_call gui/gui_view_sub
 
 		;free any child views
 		loop_list_forwards r0 + GUI_VIEW_LIST, r1, r0
 			vp_push r1
-			fn_call sys/gui_free_view
+			fn_call sys/gui_view_free
 			vp_pop r1
 		loop_end
 

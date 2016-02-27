@@ -1,7 +1,7 @@
 %include "func.inc"
 %include "sdl2.inc"
 
-	fn_function "gui/gui_filled_box"
+	fn_function "gui/gui_ctx_set_clip"
 		;inputs
 		;r0 = ctx
 		;r8 = x
@@ -14,12 +14,16 @@
 		vp_cpy r4, r15
 		vp_and -16, r4
 
+		vp_add [r0 + GUI_CTX_X], r8
+		vp_add [r0 + GUI_CTX_Y], r9
+
 		vp_sub SDL_RECT_SIZE, r4
 		vp_cpy r8d, [r4 + SDL_RECT_X]
 		vp_cpy r9d, [r4 + SDL_RECT_Y]
 		vp_cpy r10d, [r4 + SDL_RECT_W]
 		vp_cpy r11d, [r4 + SDL_RECT_H]
-		sdl_renderfillrect r0, r4
+		vp_cpy [r0 + GUI_CTX_SDL_CTX], r0
+		sdl_rendersetcliprect r0, r4
 
 		vp_cpy r15, r4
 		vp_ret
