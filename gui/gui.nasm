@@ -32,13 +32,15 @@
 		vp_cpy 256, qword[r0 + GUI_VIEW_H]
 		vp_lea [rel draw_view], r1
 		vp_cpy r1, [r0 + GUI_VIEW_DRAW]
-
-		;add as sub view
-		vp_pop r1
-		fn_call gui/view_add
+		vp_push r0
 
 		;mark for update
 		fn_call gui/view_update
+
+		;add as sub view
+		vp_pop r0
+		vp_pop r1
+		fn_call gui/view_add
 
 		;allocate mail message
 		fn_call sys/mail_alloc

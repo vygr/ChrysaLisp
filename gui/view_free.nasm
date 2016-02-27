@@ -7,7 +7,7 @@
 		;inputs
 		;r0 = view object
 		;trashes
-		;r0-r2
+		;r0-r5
 
 		;save view object
 		vp_push r0
@@ -16,18 +16,24 @@
 		fn_call gui/view_sub
 
 		;free any child views
+		vp_cpy [r4], r0
 		loop_list_forwards r0 + GUI_VIEW_LIST, r1, r0
 			vp_push r1
-			fn_call sys/gui_view_free
+			fn_call gui/view_free
 			vp_pop r1
 		loop_end
 
-		;free view object
-		vp_pop r0
-		fn_bind sys/gui_statics, r1
-		vp_lea [r1 + GUI_STATICS_VIEW_HEAP], r1
-		hp_freecell r1, r0, r2
+		;free view object data
+		vp_cpy [r4], r0
+		vp_lea [r0 + GUI_VIEW_DIRTY_LIST], r1
+		fn_bind gui/gui_statics, r5
+		vp_lea [r5 + GUI_STATICS_PATCH_HEAP], r0
+		fn_call gui/patch_free
 
+		;free view object
+		vp_pop r1
+		vp_lea [r5 + GUI_STATICS_VIEW_HEAP], r0
+		hp_freecell r0, r1, r2
 		vp_ret
 
 	fn_function_end

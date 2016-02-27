@@ -4,13 +4,15 @@
 
 	fn_function "gui/patch_copy"
 		;inputs
-		;r0 = patch r0 pointer
+		;r0 = patch heap pointer
 		;r1 = source patch listhead pointer
 		;r2 = dest patch listhead pointer
-		;r8 = r8 (pixels)
-		;r9 = r9 (pixels)
+		;r8 = x (pixels)
+		;r9 = y (pixels)
 		;r10 = width (pixels)
 		;r11 = height (pixels)
+		;trashes
+		;r1-r2, r5-r15
 
 		;check for any obvious errors in inputs
 		if r10, >, 0
@@ -19,6 +21,7 @@
 				vp_add r9, r11
 
 				;run through source patch list
+				vp_cpy r2, r5
 				vp_cpy r1, r7
 				loop_start
 					nextpatch r7, r6
@@ -34,8 +37,8 @@
 					continueif r9, >=, r15
 
 					fn_call sys/heap_alloccell
-					continueif r5, ==, 0
-					addpatch r2, r5, r3
+					continueif r1, ==, 0
+					addpatch r5, r1, r2
 
 					;jump to correct splitting code
 					jmpif r12, >=, r8, copy_split1
@@ -45,10 +48,10 @@
 
 				copy_xyx1y1:
 					;r8 + r9 + r10 + r11 inside
-					vp_cpy r8, [r5 + GUI_PATCH_X]
-					vp_cpy r9, [r5 + GUI_PATCH_Y]
-					vp_cpy r10, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					vp_cpy r8, [r1 + GUI_PATCH_X]
+					vp_cpy r9, [r1 + GUI_PATCH_Y]
+					vp_cpy r10, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_split1:
@@ -59,10 +62,10 @@
 
 				copy_yx1y1:
 					;r9 + r10 + r11 inside
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r9, [r5 + GUI_PATCH_Y]
-					vp_cpy r10, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r9, [r1 + GUI_PATCH_Y]
+					vp_cpy r10, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_split2:
@@ -72,10 +75,10 @@
 
 				copy_xx1y1:
 					;r8 + r10 + r11 inside
-					vp_cpy r8, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r10, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					vp_cpy r8, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r10, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_split3:
@@ -85,10 +88,10 @@
 
 				copy_x1y1:
 					;r10 + r11 inside
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r10, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r10, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_split4:
@@ -97,10 +100,10 @@
 
 				copy_xyy1:
 					;r8 + r9 + r11 inside
-					vp_cpy r8, [r5 + GUI_PATCH_X]
-					vp_cpy r9, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					vp_cpy r8, [r1 + GUI_PATCH_X]
+					vp_cpy r9, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_split5:
@@ -109,10 +112,10 @@
 
 				copy_yy1:
 					;r9 + r11 inside
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r9, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r9, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_split6:
@@ -121,10 +124,10 @@
 
 				copy_xy1:
 					;r8 + r11 inside
-					vp_cpy r8, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					vp_cpy r8, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_split7:
@@ -133,74 +136,74 @@
 
 				copy_y1:
 					;r11 inside
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r11, [r5 + GUI_PATCH_Y1]
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r11, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_xyx1:
 					;r8 + r9 + r10 inside
-					vp_cpy r8, [r5 + GUI_PATCH_X]
-					vp_cpy r9, [r5 + GUI_PATCH_Y]
-					vp_cpy r10, [r5 + GUI_PATCH_X1]
-					vp_cpy r15, [r5 + GUI_PATCH_Y1]
+					vp_cpy r8, [r1 + GUI_PATCH_X]
+					vp_cpy r9, [r1 + GUI_PATCH_Y]
+					vp_cpy r10, [r1 + GUI_PATCH_X1]
+					vp_cpy r15, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_encl:
 					;patch is enclosed
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r15, [r5 + GUI_PATCH_Y1]
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r15, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_x:
 					;r8 inside
-					vp_cpy r8, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r15, [r5 + GUI_PATCH_Y1]
+					vp_cpy r8, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r15, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_y:
 					;r9 inside
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r9, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r15, [r5 + GUI_PATCH_Y1]
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r9, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r15, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_xy:
 					;r8 + r9 inside
-					vp_cpy r8, [r5 + GUI_PATCH_X]
-					vp_cpy r9, [r5 + GUI_PATCH_Y]
-					vp_cpy r14, [r5 + GUI_PATCH_X1]
-					vp_cpy r15, [r5 + GUI_PATCH_Y1]
+					vp_cpy r8, [r1 + GUI_PATCH_X]
+					vp_cpy r9, [r1 + GUI_PATCH_Y]
+					vp_cpy r14, [r1 + GUI_PATCH_X1]
+					vp_cpy r15, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_x1:
 					;r10 inside
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r10, [r5 + GUI_PATCH_X1]
-					vp_cpy r15, [r5 + GUI_PATCH_Y1]
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r10, [r1 + GUI_PATCH_X1]
+					vp_cpy r15, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_xx1:
 					;r8 + r10 inside
-					vp_cpy r8, [r5 + GUI_PATCH_X]
-					vp_cpy r13, [r5 + GUI_PATCH_Y]
-					vp_cpy r10, [r5 + GUI_PATCH_X1]
-					vp_cpy r15, [r5 + GUI_PATCH_Y1]
+					vp_cpy r8, [r1 + GUI_PATCH_X]
+					vp_cpy r13, [r1 + GUI_PATCH_Y]
+					vp_cpy r10, [r1 + GUI_PATCH_X1]
+					vp_cpy r15, [r1 + GUI_PATCH_Y1]
 					continue
 
 				copy_yx1:
 					;r9 + r10 inside
-					vp_cpy r12, [r5 + GUI_PATCH_X]
-					vp_cpy r9, [r5 + GUI_PATCH_Y]
-					vp_cpy r10, [r5 + GUI_PATCH_X1]
-					vp_cpy r15, [r5 + GUI_PATCH_Y1]
+					vp_cpy r12, [r1 + GUI_PATCH_X]
+					vp_cpy r9, [r1 + GUI_PATCH_Y]
+					vp_cpy r10, [r1 + GUI_PATCH_X1]
+					vp_cpy r15, [r1 + GUI_PATCH_Y1]
 				loop_end
 			endif
 		endif

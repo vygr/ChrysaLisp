@@ -3,9 +3,15 @@
 %include "sdl2.inc"
 
 	fn_function "gui/gui_deinit"
+		;free any screen
+		fn_bind gui/gui_statics, r15
+		vp_cpy [r15 + GUI_STATICS_SCREEN], r0
+		if r0, !=, 0
+			vp_cpy 0, qword[r15 + GUI_STATICS_SCREEN]
+			fn_call gui/view_free
+		endif
 
 		;deinit patch heap
-		fn_bind gui/gui_statics, r15
 		vp_lea [r15 + GUI_STATICS_PATCH_HEAP], r0
 		fn_call sys/heap_deinit
 

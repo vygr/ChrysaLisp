@@ -57,6 +57,8 @@
 		;inputs
 		;%1 = node
 		;%2 = last
+		;trashes
+		;%1, %2
 
 		vp_cpy %1, %2
 		vp_cpy [%1 + GUI_PATCH_NEXT], %1
@@ -67,6 +69,8 @@
 		;inputs
 		;%1 = node
 		;%2 = last
+		;trashes
+		;%1
 
 		vp_cpy [%1 + GUI_PATCH_NEXT], %1
 		vp_cpy %1, [%2 + GUI_PATCH_NEXT]
@@ -78,6 +82,8 @@
 		;%1 = list
 		;%2 = node
 		;%3 = temp
+		;trashes
+		;%3
 
 		vp_cpy [%1 + GUI_PATCH_NEXT], %3
 		vp_cpy %3, [%2 + GUI_PATCH_NEXT]
