@@ -76,6 +76,7 @@ sdl_func_table:
 	dq _SDL_SetRenderDrawColor
 	dq _SDL_RenderFillRect
 	dq _SDL_RenderPresent
+	dq _SDL_RenderSetClipRect
 %elifidn OS, Linux
 	dq SDL_SetMainReady
 	dq SDL_Init
@@ -88,5 +89,5 @@ sdl_func_table:
 	dq SDL_SetRenderDrawColor
 	dq SDL_RenderFillRect
 	dq SDL_RenderPresent
+	dq SDL_RenderSetClipRect
 %endif
-
