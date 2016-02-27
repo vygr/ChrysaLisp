@@ -11,6 +11,7 @@ gui/view_alloc
 gui/view_draw
 gui/view_free
 gui/view_sub
+gui/view_update
 main
 sys/cpu_get_id
 sys/cpu_get_time
