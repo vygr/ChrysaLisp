@@ -21,6 +21,7 @@
 	extern _SDL_SetRenderDrawColor
 	extern _SDL_RenderFillRect
 	extern _SDL_RenderPresent
+	extern _SDL_RenderSetClipRect
 %elifidn OS, Linux
 	extern SDL_SetMainReady
 	extern SDL_Init
@@ -33,6 +34,7 @@
 	extern SDL_SetRenderDrawColor
 	extern SDL_RenderFillRect
 	extern SDL_RenderPresent
+	extern _SDL_RenderSetClipRect
 %endif
 	SDL_SETMAINREADY			equ 0
 	SDL_INIT					equ 1
@@ -45,6 +47,7 @@
 	SDL_SETRENDERDRAWCOLOR		equ 8
 	SDL_RENDERFILLRECT			equ 9
 	SDL_RENDERPRESENT			equ 10
+	SDL_RENDERSETCLIPRECT		equ 11
 
 	SDL_INIT_TIMER			equ 0x00000001
 	SDL_INIT_AUDIO			equ 0x00000010
@@ -197,6 +200,15 @@
 		fn_bind gui/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_RENDERPRESENT * 8)]
+	%endmacro
+
+	%macro sdl_rendersetcliprect 2
+		;renderer**, rect*
+		vp_cpy %1, r7		;renderer**
+		vp_cpy %2, r6		;rect*
+		fn_bind gui/gui_statics, r0
+		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
+		vp_call [r0 + (SDL_RENDERSETCLIPRECT * 8)]
 	%endmacro
 
 %endif

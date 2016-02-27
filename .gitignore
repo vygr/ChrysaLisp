@@ -4,10 +4,11 @@ gui/gui
 gui/gui_add_view
 gui/gui_alloc_view
 gui/gui_deinit_gui
-gui/gui_fbox
+gui/gui_filled_box
 gui/gui_free_view
 gui/gui_init_gui
 gui/gui_set_color
+gui/gui_set_clip
 gui/gui_statics
 gui/gui_sub_view
 sys/get_cpu_id

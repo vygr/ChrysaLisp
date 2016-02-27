@@ -9,14 +9,14 @@
 		;r10 = b
 		;r11 = a
 		;trashes
-		;r0-r3, r5-r14
+		;r0-r3, r5-r15
 
-		vp_cpy r4, r14
+		vp_cpy r4, r15
 		vp_and -16, r4
 
 		sdl_setrenderdrawcolor r0, r8, r9, r10, r11
 
-		vp_cpy r14, r4
+		vp_cpy r15, r4
 		vp_ret
 
 	fn_function_end

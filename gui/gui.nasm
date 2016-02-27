@@ -55,7 +55,7 @@
 		;r0 = ctx
 		;r1 = view object
 		;trashes
-		;r0-r3, r5-r14
+		;r0-r3, r5-r15
 
 		vp_push r0
 		vp_push r1
@@ -70,7 +70,7 @@
 		vp_cpy [r1 + GUI_VIEW_Y], r9
 		vp_cpy [r1 + GUI_VIEW_W], r10
 		vp_cpy [r1 + GUI_VIEW_H], r11
-		fn_call gui/gui_fbox
+		fn_call gui/gui_filled_box
 		vp_ret
 
 	draw_view:
@@ -78,7 +78,7 @@
 		;r0 = ctx
 		;r1 = view object
 		;trashes
-		;r0-r3, r5-r14
+		;r0-r3, r5-r15
 
 		vp_push r0
 		vp_push r1
@@ -93,7 +93,7 @@
 		vp_cpy [r1 + GUI_VIEW_Y], r9
 		vp_cpy [r1 + GUI_VIEW_W], r10
 		vp_cpy [r1 + GUI_VIEW_H], r11
-		fn_call gui/gui_fbox
+		fn_call gui/gui_filled_box
 		vp_ret
 
 	fn_function_end

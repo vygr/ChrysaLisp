@@ -30,7 +30,6 @@
 		fn_call sys/task_start
 		fn_bind sys/task_statics, r2
 		vp_cpy r1, [r2 + TK_STATICS_CURRENT_TCB]
-		vp_cpy r1, r15
 
 		;init mailer, r0 = kernel mailbox !
 		fn_call sys/mail_init_mailer
@@ -62,7 +61,9 @@
 			;service all kernel mail
 			loop_start
 				;check if any mail
-				vp_lea [r15 + TK_NODE_MAILBOX], r0
+				fn_bind sys/task_statics, r0
+				vp_cpy [r0 + TK_STATICS_CURRENT_TCB], r0
+				vp_lea [r0 + TK_NODE_MAILBOX], r0
 				ml_check r0, r1
 				breakif r1, ==, 0
 
@@ -328,6 +329,8 @@
 		;inputs
 		;r0 = ctx
 		;r1 = view object
+		;trashes
+		;r0-r3, r5-r15
 
 		;draw myself
 		vp_push r0
