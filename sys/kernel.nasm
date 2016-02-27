@@ -254,7 +254,7 @@
 						vp_cpy r2, [r0 + GUI_CTX_SDL_CTX]
 						vp_cpy 0, qword[r0 + GUI_CTX_X]
 						vp_cpy 0, qword[r0 + GUI_CTX_Y]
-						vp_call draw_view
+						fn_call gui/view_draw
 						vp_add GUI_CTX_SIZE, r4
 
 						fn_bind gui/gui_statics, r0
@@ -330,49 +330,6 @@
 		;pop argv and exit !
 		vp_add 8, r4
 		sys_exit 0
-
-	draw_view:
-		;inputs
-		;r0 = ctx
-		;r1 = view object
-		;trashes
-		;r0-r3, r5-r15
-
-		vp_sub 24, r4
-		vp_cpy r0, [r4 + 0]
-		vp_cpy r1, [r4 + 8]
-
-		;draw myself
-		vp_lea [r1 + GUI_DIRTY_LIST], r2
-		vp_cpy r2, [r0 + GUI_CTX_DIRTY_REGION]
-		vp_call [r1 + GUI_VIEW_DRAW]
-		vp_cpy [r4 + 0], r0
-		vp_cpy [r4 + 8], r1
-
-		;draw child views
-		loop_list_forwards r1 + GUI_VIEW_LIST, r2, r1
-			vp_cpy [r0 + GUI_CTX_X], r5
-			vp_cpy [r0 + GUI_CTX_Y], r6
-			vp_add [r1 + GUI_VIEW_X], r5
-			vp_add [r1 + GUI_VIEW_Y], r6
-			vp_cpy r5, [r0 + GUI_CTX_X]
-			vp_cpy r6, [r0 + GUI_CTX_Y]
-			vp_cpy r0, [r4 + 0]
-			vp_cpy r1, [r4 + 8]
-			vp_cpy r2, [r4 + 16]
-			vp_call draw_view
-			vp_cpy [r4 + 0], r0
-			vp_cpy [r4 + 8], r1
-			vp_cpy [r4 + 16], r2
-			vp_cpy [r0 + GUI_CTX_X], r5
-			vp_cpy [r0 + GUI_CTX_Y], r6
-			vp_sub [r1 + GUI_VIEW_X], r5
-			vp_sub [r1 + GUI_VIEW_Y], r6
-			vp_cpy r5, [r0 + GUI_CTX_X]
-			vp_cpy r6, [r0 + GUI_CTX_Y]
-		loop_end
-		vp_add 24, r4
-		vp_ret
 
 	title:
 		db "Asm Kernel GUI Window", 0

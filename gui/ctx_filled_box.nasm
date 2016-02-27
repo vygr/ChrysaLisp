@@ -2,9 +2,10 @@
 %include "sdl2.inc"
 
 	struc FBOX
-		FBOX_RECT:	resb SDL_RECT_SIZE
-		FBOX_CTX:	resq 1
-		FBOX_NEXT:	resq 1
+		FBOX_RECT:		resb SDL_RECT_SIZE
+		FBOX_CTX:		resq 1
+		FBOX_NEXT:		resq 1
+		FBOX_OLD_STACK:	resq 1
 		FBOX_SIZE:
 	endstruc
 
@@ -18,9 +19,10 @@
 		;trashes
 		;r0-r3, r5-r15
 
-		vp_cpy r4, r15
+		vp_cpy r4, r1
 		vp_sub FBOX_SIZE, r4
 		vp_and -16, r4
+		vp_cpy r1, [r4 + FBOX_OLD_STACK]
 
 		;save draw rectangle info
 		vp_cpy r0, [r4 + FBOX_CTX]
@@ -52,7 +54,7 @@
 			vp_cpy [r4 + FBOX_NEXT], r2
 		loop_end
 
-		vp_cpy r15, r4
+		vp_cpy [r4 + FBOX_OLD_STACK], r4
 		vp_ret
 
 	fn_function_end

@@ -11,7 +11,7 @@
 		;task started by test1
 
 		;get max cpu num
-		fn_call sys/get_cpu_total
+		fn_call sys/cpu_get_total
 		vp_cpy r0, r12
 
 		;allocate temp array for mailbox ID's
