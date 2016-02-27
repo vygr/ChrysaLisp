@@ -4,7 +4,7 @@
 	struc FBOX
 		FBOX_RECT:		resb SDL_RECT_SIZE
 		FBOX_CTX:		resq 1
-		FBOX_NEXT:		resq 1
+		FBOX_PATCH:		resq 1
 		FBOX_OLD_STACK:	resq 1
 		FBOX_SIZE:
 	endstruc
@@ -38,15 +38,13 @@
 		loop_start
 			vp_cpy [r0 + GUI_PATCH_NEXT], r0
 			breakif r0, ==, 0
-			vp_cpy r0, [r4 + FBOX_NEXT]
+			vp_cpy r0, [r4 + FBOX_PATCH]
 
 			;set clip region to this patch
 			vp_cpy [r0 + GUI_PATCH_X], r8
 			vp_cpy [r0 + GUI_PATCH_Y], r9
 			vp_cpy [r0 + GUI_PATCH_X1], r10
 			vp_cpy [r0 + GUI_PATCH_Y1], r11
-			vp_sub r8, r10
-			vp_sub r9, r11
 			vp_cpy [r4 + FBOX_CTX], r0
 			fn_call gui/ctx_set_clip
 
@@ -55,7 +53,7 @@
 			vp_cpy [r0+ GUI_CTX_SDL_CTX], r0
 			sdl_renderfillrect r0, r4
 
-			vp_cpy [r4 + FBOX_NEXT], r0
+			vp_cpy [r4 + FBOX_PATCH], r0
 		loop_end
 
 		vp_cpy [r4 + FBOX_OLD_STACK], r4
