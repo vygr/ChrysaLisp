@@ -69,28 +69,28 @@
 
 				;read waiting mail
 				fn_call sys/mail_read
-				vp_cpy r0, r14
+				vp_cpy r0, r15
 
 				;switch on kernel call number
-				vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)], r1
+				vp_cpy [r15 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)], r1
 				switch
 				case r1, ==, KN_CALL_TASK_OPEN
 				run_here:
 					;fill in reply ID, user field is left alone !
-					vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)], r1
-					vp_cpy [r14 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)], r2
-					vp_cpy r1, [r14 + ML_MSG_DEST]
-					vp_cpy r2, [r14 + (ML_MSG_DEST + 8)]
+					vp_cpy [r15 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)], r1
+					vp_cpy [r15 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)], r2
+					vp_cpy r1, [r15 + ML_MSG_DEST]
+					vp_cpy r2, [r15 + (ML_MSG_DEST + 8)]
 
 					;open single task and return mailbox ID
-					vp_lea [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_PATHNAME)], r0
+					vp_lea [r15 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_PATHNAME)], r0
 					fn_call sys/load_function_load
 					fn_call sys/task_start
-					vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID)]
+					vp_cpy r0, [r15 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID)]
 					fn_call sys/get_cpu_id
-					vp_cpy r0, [r14 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID + 8)]
-					vp_cpy ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_SIZE, qword[r14 + ML_MSG_LENGTH]
-					vp_cpy r14, r0
+					vp_cpy r0, [r15 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID + 8)]
+					vp_cpy ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_SIZE, qword[r15 + ML_MSG_LENGTH]
+					vp_cpy r15, r0
 					fn_call sys/mail_send
 					break
 				case r1, ==, KN_CALL_TASK_CHILD
@@ -109,14 +109,14 @@
 					jmpif r0, ==, r5, run_here
 
 					;send to better kernel
-					vp_cpy r0, [r14 + (ML_MSG_DEST + 8)]
-					vp_cpy r14, r0
+					vp_cpy r0, [r15 + (ML_MSG_DEST + 8)]
+					vp_cpy r15, r0
 					fn_call sys/mail_send
 					break
 				case r1, ==, KN_CALL_LINK_ROUTE
 					;increase size of network ?
 					fn_bind sys/task_statics, r0
-					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN], r1
+					vp_cpy [r15 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN], r1
 					vp_inc r1
 					if r1, >, [r0 + TK_STATICS_CPU_TOTAL]
 						vp_cpy r1, [r0 + TK_STATICS_CPU_TOTAL]
@@ -125,16 +125,16 @@
 					;new kernel routing table ?
 					vp_cpy [r4 + LK_TABLE_ARRAY], r0
 					vp_cpy [r4 + LK_TABLE_ARRAY_SIZE], r1
-					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN], r10
-					vp_mul LK_ROUTE_SIZE, r10
-					vp_lea [r10 + LK_ROUTE_SIZE], r2
+					vp_cpy [r15 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN], r11
+					vp_mul LK_ROUTE_SIZE, r11
+					vp_lea [r11 + LK_ROUTE_SIZE], r2
 					fn_call sys/mem_grow
 					vp_cpy r0, [r4 + LK_TABLE_ARRAY]
 					vp_cpy r1, [r4 + LK_TABLE_ARRAY_SIZE]
 
 					;compare hop counts
-					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
-					vp_cpy [r0 + r10 + LK_ROUTE_HOPS], r3
+					vp_cpy [r15 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
+					vp_cpy [r0 + r11 + LK_ROUTE_HOPS], r3
 					switch
 					case r3, ==, 0
 						;never seen, so better route
@@ -142,47 +142,47 @@
 					case r2, <, r3
 					better_route:
 						;new hops is less, so better route
-						vp_cpy r2, [r0 + r10]
+						vp_cpy r2, [r0 + r11]
 
 						;fill in via route and remove other routes
-						vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r12
-						fn_bind sys/link_statics, r13
-						loop_list_forwards r13 + LK_STATICS_LINKS_LIST, r13, r11
+						vp_cpy [r15 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r13
+						fn_bind sys/link_statics, r14
+						loop_list_forwards r14 + LK_STATICS_LINKS_LIST, r14, r12
 							;new link route table ?
-							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
-							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
-							vp_lea [r10 + LK_ROUTE_SIZE], r2
+							vp_cpy [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
+							vp_cpy [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
+							vp_lea [r11 + LK_ROUTE_SIZE], r2
 							fn_call sys/mem_grow
-							vp_cpy r0, [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY]
-							vp_cpy r1, [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE]
+							vp_cpy r0, [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY]
+							vp_cpy r1, [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE]
 
-							if [r11 + LK_NODE_CPU_ID], ==, r12
+							if [r12 + LK_NODE_CPU_ID], ==, r13
 								;via route
-								vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
-								vp_cpy r2, [r0 + r10 + LK_ROUTE_HOPS]
+								vp_cpy [r15 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
+								vp_cpy r2, [r0 + r11 + LK_ROUTE_HOPS]
 							else
 								;none via route
-								vp_cpy 0, qword[r0 + r10 + LK_ROUTE_HOPS]
+								vp_cpy 0, qword[r0 + r11 + LK_ROUTE_HOPS]
 							endif
 						loop_end
 						break
 					case r2, ==, r3
 						;new hops is equal, so additional route
-						vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r12
-						fn_bind sys/link_statics, r13
-						loop_list_forwards r13 + LK_STATICS_LINKS_LIST, r13, r11
+						vp_cpy [r15 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r13
+						fn_bind sys/link_statics, r14
+						loop_list_forwards r14 + LK_STATICS_LINKS_LIST, r14, r12
 							;new link route table ?
-							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
-							vp_cpy [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
-							vp_lea [r10 + LK_ROUTE_SIZE], r2
+							vp_cpy [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
+							vp_cpy [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
+							vp_lea [r11 + LK_ROUTE_SIZE], r2
 							fn_call sys/mem_grow
-							vp_cpy r0, [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY]
-							vp_cpy r1, [r11 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE]
+							vp_cpy r0, [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY]
+							vp_cpy r1, [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE]
 
-							if [r11 + LK_NODE_CPU_ID], ==, r12
+							if [r12 + LK_NODE_CPU_ID], ==, r13
 								;via route
-								vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
-								vp_cpy r2, [r0 + r10 + LK_ROUTE_HOPS]
+								vp_cpy [r15 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r2
+								vp_cpy r2, [r0 + r11 + LK_ROUTE_HOPS]
 							endif
 						loop_end
 						;drop through to discard message !
@@ -192,63 +192,63 @@
 					endswitch
 
 					;increment hop count
-					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r1
+					vp_cpy [r15 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS], r1
 					vp_inc r1
-					vp_cpy r1, [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS]
+					vp_cpy r1, [r15 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS]
 
 					;get current via, set via to my cpu id
-					vp_cpy [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r13
+					vp_cpy [r15 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA], r14
 					fn_call sys/get_cpu_id
-					vp_cpy r0, [r14 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA]
+					vp_cpy r0, [r15 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA]
 
 					;copy and send to all neighbors apart from old via
-					fn_bind sys/link_statics, r12
-					loop_list_forwards r12 + LK_STATICS_LINKS_LIST, r12, r11
-						vp_cpy [r11 + LK_NODE_CPU_ID], r10
-						continueif r10, ==, r13
+					fn_bind sys/link_statics, r13
+					loop_list_forwards r13 + LK_STATICS_LINKS_LIST, r13, r12
+						vp_cpy [r12 + LK_NODE_CPU_ID], r11
+						continueif r11, ==, r14
 						fn_call sys/mail_alloc
 						vp_cpy r0, r5
 						vp_cpy r0, r1
-						vp_cpy r14, r0
-						vp_cpy [r14 + ML_MSG_LENGTH], r2
+						vp_cpy r15, r0
+						vp_cpy [r15 + ML_MSG_LENGTH], r2
 						vp_add 7, r2
 						vp_and -8, r2
 						fn_call sys/mem_copy
-						vp_cpy r10, [r5 + (ML_MSG_DEST + 8)]
+						vp_cpy r11, [r5 + (ML_MSG_DEST + 8)]
 						vp_cpy r5, r0
 						fn_call sys/mail_send
 					loop_end
 				drop_msg:
-					vp_cpy r14, r0
+					vp_cpy r15, r0
 					fn_call sys/mem_free
 					break
 				case r1, ==, KN_CALL_GUI_UPDATE
 					;free update message
-					vp_cpy r14, r0
+					vp_cpy r15, r0
 					fn_call sys/mem_free
 
 					;create screen window ?
-					fn_bind gui/gui_statics, r14
-					vp_cpy [r14 + GUI_STATICS_WINDOW], r13
-					if r13, ==, 0
+					fn_bind gui/gui_statics, r15
+					vp_cpy [r15 + GUI_STATICS_WINDOW], r14
+					if r14, ==, 0
 						;init sdl2
 						sdl_setmainready
 						sdl_init SDL_INIT_VIDEO
 
 						;create window
-						vp_lea [rel title], r13
-						sdl_createwindow r13, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL
-						vp_cpy r0, [r14 + GUI_STATICS_WINDOW]
+						vp_lea [rel title], r14
+						sdl_createwindow r14, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL
+						vp_cpy r0, [r15 + GUI_STATICS_WINDOW]
 
 						;create renderer
 						sdl_createrenderer r0, -1, SDL_RENDERER_ACCELERATED
-						vp_cpy r0, [r14 + GUI_STATICS_RENDERER]
+						vp_cpy r0, [r15 + GUI_STATICS_RENDERER]
 					endif
 
 					;update screen
-					vp_cpy [r14 + GUI_STATICS_SCREEN], r1
+					vp_cpy [r15 + GUI_STATICS_SCREEN], r1
 					if r1, !=, 0
-						vp_cpy [r14 + GUI_STATICS_RENDERER], r0
+						vp_cpy [r15 + GUI_STATICS_RENDERER], r0
 						vp_call draw_view
 
 						fn_bind gui/gui_statics, r0
