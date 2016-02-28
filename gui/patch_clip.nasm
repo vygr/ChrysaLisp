@@ -8,17 +8,14 @@
 		;r1 = source patch listhead pointer
 		;r8 = x (pixels)
 		;r9 = y (pixels)
-		;r10 = width (pixels)
-		;r11 = height (pixels)
+		;r10 = x1 (pixels)
+		;r11 = y1 (pixels)
 		;trashes
 		;r5-r15
 
 		;check for any obvious errors in inputs
-		if r10, >, 0
-			if r11, >, 0
-				vp_add r8, r10
-				vp_add r9, r11
-
+		if r10, >, r8
+			if r11, >, r9
 				;run through source patch list
 				vp_cpy r1, r7
 				loop_start

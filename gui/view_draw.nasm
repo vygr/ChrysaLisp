@@ -71,6 +71,8 @@
 			vp_cpy [r0 + GUI_VIEW_CTX_Y], r9
 			vp_cpy [r0 + GUI_VIEW_W], r10
 			vp_cpy [r0 + GUI_VIEW_H], r11
+			vp_add r8, r10
+			vp_add r9, r11
 			vp_lea [r4 + DRAW_VIEW_PATCH_LIST], r1
 			fn_bind gui/gui_statics, r0
 			vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
@@ -86,6 +88,8 @@
 			vp_cpy [r2 + GUI_VIEW_CTX_Y], r9
 			vp_cpy [r2 + GUI_VIEW_W], r10
 			vp_cpy [r2 + GUI_VIEW_H], r11
+			vp_add r8, r10
+			vp_add r9, r11
 			vp_add GUI_VIEW_DIRTY_LIST, r1
 			fn_call gui/patch_clip
 
@@ -135,6 +139,8 @@
 			vp_cpy [r0 + GUI_VIEW_CTX_Y], r9
 			vp_cpy [r0 + GUI_VIEW_W], r10
 			vp_cpy [r0 + GUI_VIEW_H], r11
+			vp_add r8, r10
+			vp_add r9, r11
 			vp_lea [r4 + DRAW_VIEW_PATCH_LIST], r1
 			vp_lea [r0 + GUI_VIEW_DIRTY_LIST], r2
 			fn_bind gui/gui_statics, r0

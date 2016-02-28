@@ -29,8 +29,6 @@
 			vp_cpy [r1 + GUI_PATCH_Y], r9
 			vp_cpy [r1 + GUI_PATCH_X1], r10
 			vp_cpy [r1 + GUI_PATCH_Y1], r11
-			vp_sub r8, r10
-			vp_sub r9, r11
 			vp_cpy [r4 + PASTE_DLIST], r1
 			fn_call gui/patch_paste
 			vp_cpy [r4 + PASTE_NEXT], r1
