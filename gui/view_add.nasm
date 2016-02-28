@@ -17,7 +17,7 @@
 		;add to parent
 		vp_cpy r3, [r2 + GUI_VIEW_PARENT]
 		vp_lea [r3 + GUI_VIEW_LIST], r0
-		lh_add_at_head r0, r2, r1
+		lh_add_at_tail r0, r2, r1
 		vp_ret
 
 	fn_function_end

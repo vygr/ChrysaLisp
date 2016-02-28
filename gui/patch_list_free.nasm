@@ -2,7 +2,7 @@
 %include "gui.inc"
 %include "heap.inc"
 
-	fn_function "gui/patch_free"
+	fn_function "gui/patch_list_free"
 		;inputs
 		;r0 = patch heap pointer
 		;r1 = source patch listhead pointer

@@ -28,7 +28,7 @@
 		vp_lea [r0 + GUI_VIEW_DIRTY_LIST], r1
 		fn_bind gui/gui_statics, r5
 		vp_lea [r5 + GUI_STATICS_PATCH_HEAP], r0
-		fn_call gui/patch_free
+		fn_call gui/patch_list_free
 
 		;free view object
 		vp_pop r1

@@ -248,14 +248,7 @@
 					;update screen
 					vp_cpy [r15 + GUI_STATICS_SCREEN], r0
 					if r0, !=, 0
-						vp_sub GUI_CTX_SIZE, r4
-						vp_cpy r4, r1
-						vp_cpy [r15 + GUI_STATICS_RENDERER], r2
-						vp_cpy r2, [r1 + GUI_CTX_SDL_CTX]
-						vp_cpy 0, qword[r1 + GUI_CTX_X]
-						vp_cpy 0, qword[r1 + GUI_CTX_Y]
 						fn_call gui/view_draw
-						vp_add GUI_CTX_SIZE, r4
 
 						fn_bind gui/gui_statics, r0
 						sdl_renderpresent [r0 + GUI_STATICS_RENDERER]

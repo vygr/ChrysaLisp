@@ -37,6 +37,8 @@
 		GUI_VIEW_Y:				resq	1
 		GUI_VIEW_W:				resq	1
 		GUI_VIEW_H:				resq	1
+		GUI_VIEW_CTX_X:			resq	1
+		GUI_VIEW_CTX_Y:			resq	1
 		GUI_VIEW_DRAW:			resq	1
 		GUI_VIEW_SIZE:
 	endstruc

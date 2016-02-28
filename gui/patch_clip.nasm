@@ -11,7 +11,7 @@
 		;r10 = width (pixels)
 		;r11 = height (pixels)
 		;trashes
-		;r1-r3, r5-r15
+		;r5-r15
 
 		;check for any obvious errors in inputs
 		if r10, >, 0
@@ -55,7 +55,7 @@
 					;patch is outside
 					vp_cpy r7, r5
 					removepatch r7, r6
-					hp_freecell r0, r5, r3
+					hp_freecell r0, r5, r6
 				loop_end
 			endif
 		endif

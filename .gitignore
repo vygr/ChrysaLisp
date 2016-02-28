@@ -7,7 +7,8 @@ gui/gui_init
 gui/gui_statics
 gui/patch_clip
 gui/patch_copy
-gui/patch_free
+gui/patch_list_free
+gui/patch_list_paste
 gui/patch_cut
 gui/patch_paste
 gui/patch_remove
