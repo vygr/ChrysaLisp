@@ -2,10 +2,11 @@
 %include "sdl2.inc"
 
 	struc FBOX
-		FBOX_RECT:		resb SDL_RECT_SIZE
-		FBOX_CTX:		resq 1
-		FBOX_PATCH:		resq 1
-		FBOX_OLD_STACK:	resq 1
+		FBOX_RECT:			resb SDL_RECT_SIZE
+		FBOX_CLIP_RECT:		resb SDL_RECT_SIZE
+		FBOX_CTX:			resq 1
+		FBOX_PATCH:			resq 1
+		FBOX_OLD_STACK:		resq 1
 		FBOX_SIZE:
 	endstruc
 
@@ -47,13 +48,20 @@
 			vp_cpy [r0 + GUI_PATCH_Y1], r11
 			vp_sub r8, r10
 			vp_sub r9, r11
+			vp_cpy r8d, [r4 + FBOX_CLIP_RECT + SDL_RECT_X]
+			vp_cpy r9d, [r4 + FBOX_CLIP_RECT + SDL_RECT_Y]
+			vp_cpy r10d, [r4 + FBOX_CLIP_RECT + SDL_RECT_W]
+			vp_cpy r11d, [r4 + FBOX_CLIP_RECT + SDL_RECT_H]
 			vp_cpy [r4 + FBOX_CTX], r0
-			fn_call gui/ctx_set_clip
+			vp_cpy [r0+ GUI_CTX_SDL_CTX], r0
+			vp_lea [r4 + FBOX_CLIP_RECT], r1
+			sdl_rendersetcliprect r0, r1
 
 			;draw the rectangle
 			vp_cpy [r4 + FBOX_CTX], r0
 			vp_cpy [r0+ GUI_CTX_SDL_CTX], r0
-			sdl_renderfillrect r0, r4
+			vp_lea [r4 + FBOX_RECT], r1
+			sdl_renderfillrect r0, r1
 
 			vp_cpy [r4 + FBOX_PATCH], r0
 		loop_end

@@ -1,6 +1,5 @@
 *.o
 gui/ctx_filled_box
-gui/ctx_set_clip
 gui/ctx_set_color
 gui/gui
 gui/gui_deinit
@@ -12,6 +11,7 @@ gui/patch_free
 gui/patch_cut
 gui/patch_paste
 gui/patch_remove
+gui/view_get_abs
 gui/view_add
 gui/view_alloc
 gui/view_draw

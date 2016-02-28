@@ -19,9 +19,6 @@
 		vp_cpy r0, [r1 + GUI_STATICS_SCREEN]
 		vp_push r0
 
-		;mark for update
-		fn_call gui/view_update
-
 		;allocate sub view
 		fn_call gui/view_alloc
 
@@ -34,13 +31,18 @@
 		vp_cpy r1, [r0 + GUI_VIEW_DRAW]
 		vp_push r0
 
+		;add as sub view
+		vp_cpy [r4 + 8], r1
+		vp_cpy [r4], r0
+		fn_call gui/view_add
+
 		;mark for update
+		vp_pop r0
 		fn_call gui/view_update
 
-		;add as sub view
+		;mark for update
 		vp_pop r0
-		vp_pop r1
-		fn_call gui/view_add
+		fn_call gui/view_update
 
 		;allocate mail message
 		fn_call sys/mail_alloc
