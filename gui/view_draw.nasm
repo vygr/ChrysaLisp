@@ -67,16 +67,19 @@
 			vp_cpy r0, [r4 + DRAW_VIEW_NODE]
 
 			;if opaque view remove from global dirty list
-			vp_cpy [r0 + GUI_VIEW_CTX_X], r8
-			vp_cpy [r0 + GUI_VIEW_CTX_Y], r9
-			vp_cpy [r0 + GUI_VIEW_W], r10
-			vp_cpy [r0 + GUI_VIEW_H], r11
-			vp_add r8, r10
-			vp_add r9, r11
-			vp_lea [r4 + DRAW_VIEW_PATCH_LIST], r1
-			fn_bind gui/gui_statics, r0
-			vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
-			fn_call gui/patch_remove
+			vp_cpy [r0 + GUI_VIEW_TRANSPARENT_LIST], r1
+			if r1, ==, 0
+				vp_cpy [r0 + GUI_VIEW_CTX_X], r8
+				vp_cpy [r0 + GUI_VIEW_CTX_Y], r9
+				vp_cpy [r0 + GUI_VIEW_W], r10
+				vp_cpy [r0 + GUI_VIEW_H], r11
+				vp_add r8, r10
+				vp_add r9, r11
+				vp_lea [r4 + DRAW_VIEW_PATCH_LIST], r1
+				fn_bind gui/gui_statics, r0
+				vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
+				fn_call gui/patch_remove
+			endif
 
 			;clip local dirty list with parent bounds
 			vp_cpy [r4 + DRAW_VIEW_NODE], r1
@@ -134,18 +137,28 @@
 			;save node
 			vp_cpy r0, [r4 + DRAW_VIEW_NODE]
 
-			;if opaque view cut else copy
-			vp_cpy [r0 + GUI_VIEW_CTX_X], r8
-			vp_cpy [r0 + GUI_VIEW_CTX_Y], r9
-			vp_cpy [r0 + GUI_VIEW_W], r10
-			vp_cpy [r0 + GUI_VIEW_H], r11
-			vp_add r8, r10
-			vp_add r9, r11
-			vp_lea [r4 + DRAW_VIEW_PATCH_LIST], r1
-			vp_lea [r0 + GUI_VIEW_DIRTY_LIST], r2
-			fn_bind gui/gui_statics, r0
-			vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
-			fn_call gui/patch_cut
+			;if opaque cut view else copy transparent patches
+			vp_cpy [r0 + GUI_VIEW_TRANSPARENT_LIST], r1
+			if r1, ==, 0
+				vp_cpy [r0 + GUI_VIEW_CTX_X], r8
+				vp_cpy [r0 + GUI_VIEW_CTX_Y], r9
+				vp_cpy [r0 + GUI_VIEW_W], r10
+				vp_cpy [r0 + GUI_VIEW_H], r11
+				vp_add r8, r10
+				vp_add r9, r11
+				vp_lea [r4 + DRAW_VIEW_PATCH_LIST], r1
+				vp_lea [r0 + GUI_VIEW_DIRTY_LIST], r2
+				fn_bind gui/gui_statics, r0
+				vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
+				fn_call gui/patch_cut
+			else
+				vp_lea [r4 + DRAW_VIEW_PATCH_LIST], r1
+				vp_lea [r0 + GUI_VIEW_DIRTY_LIST], r2
+				vp_lea [r0 + GUI_VIEW_TRANSPARENT_LIST], r3
+				fn_bind gui/gui_statics, r0
+				vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
+				fn_call gui/patch_copy
+			endif
 
 			;restore node
 			vp_cpy [r4 + DRAW_VIEW_NODE], r0

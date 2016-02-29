@@ -29,17 +29,18 @@
 	endstruc
 
 	struc GUI_VIEW
-		GUI_VIEW_NODE:			resb	LN_NODE_SIZE
-		GUI_VIEW_PARENT:		resq	1
-		GUI_VIEW_LIST:			resb	LH_LIST_SIZE
-		GUI_VIEW_DIRTY_LIST:	resq	1
-		GUI_VIEW_X:				resq	1
-		GUI_VIEW_Y:				resq	1
-		GUI_VIEW_W:				resq	1
-		GUI_VIEW_H:				resq	1
-		GUI_VIEW_CTX_X:			resq	1
-		GUI_VIEW_CTX_Y:			resq	1
-		GUI_VIEW_DRAW:			resq	1
+		GUI_VIEW_NODE:				resb	LN_NODE_SIZE
+		GUI_VIEW_PARENT:			resq	1
+		GUI_VIEW_LIST:				resb	LH_LIST_SIZE
+		GUI_VIEW_DIRTY_LIST:		resq	1
+		GUI_VIEW_TRANSPARENT_LIST:	resq	1
+		GUI_VIEW_X:					resq	1
+		GUI_VIEW_Y:					resq	1
+		GUI_VIEW_W:					resq	1
+		GUI_VIEW_H:					resq	1
+		GUI_VIEW_CTX_X:				resq	1
+		GUI_VIEW_CTX_Y:				resq	1
+		GUI_VIEW_DRAW:				resq	1
 		GUI_VIEW_SIZE:
 	endstruc
 

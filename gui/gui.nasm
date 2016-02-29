@@ -53,17 +53,19 @@
 		vp_cpy [r4], r0
 		fn_call gui/view_add
 
-		;mark for update for cyan view
+		;mark for update and as transparent for cyan view
+		vp_cpy [r4], r0
+;		fn_call gui/view_transparent
 		vp_pop r0
-		fn_call gui/view_update
+		fn_call gui/view_dirty
 
 		;mark for update for yellow view
 		vp_pop r0
-		fn_call gui/view_update
+		fn_call gui/view_dirty
 
 		;mark for update for background
 		vp_pop r0
-		fn_call gui/view_update
+		fn_call gui/view_dirty
 
 		;allocate mail message
 		fn_call sys/mail_alloc

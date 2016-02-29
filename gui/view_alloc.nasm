@@ -19,6 +19,7 @@
 		vp_lea [r0 + GUI_VIEW_LIST], r1
 		lh_init r1, r2
 		vp_cpy 0, qword[r0 + GUI_VIEW_DIRTY_LIST]
+		vp_cpy 0, qword[r0 + GUI_VIEW_TRANSPARENT_LIST]
 
 		;init draw callback to null
 		vp_lea [rel myret], r1
