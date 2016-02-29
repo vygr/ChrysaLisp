@@ -243,6 +243,9 @@
 						;create renderer
 						sdl_createrenderer r0, -1, SDL_RENDERER_ACCELERATED
 						vp_cpy r0, [r15 + GUI_STATICS_RENDERER]
+
+						;set bland mode
+						sdl_setrenderdrawblendmode r0, SDL_BLENDMODE_BLEND
 					endif
 
 					;update screen

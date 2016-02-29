@@ -22,6 +22,7 @@
 	extern _SDL_RenderFillRect
 	extern _SDL_RenderPresent
 	extern _SDL_RenderSetClipRect
+	extern _SDL_SetRenderDrawBlendMode
 %elifidn OS, Linux
 	extern SDL_SetMainReady
 	extern SDL_Init
@@ -34,7 +35,8 @@
 	extern SDL_SetRenderDrawColor
 	extern SDL_RenderFillRect
 	extern SDL_RenderPresent
-	extern _SDL_RenderSetClipRect
+	extern SDL_RenderSetClipRect
+	extern SDL_SetRenderDrawBlendMode
 %endif
 	SDL_SETMAINREADY			equ 0
 	SDL_INIT					equ 1
@@ -48,6 +50,7 @@
 	SDL_RENDERFILLRECT			equ 9
 	SDL_RENDERPRESENT			equ 10
 	SDL_RENDERSETCLIPRECT		equ 11
+	SDL_SETRENDERDRAWBLENDMODE	equ 12
 
 	SDL_INIT_TIMER			equ 0x00000001
 	SDL_INIT_AUDIO			equ 0x00000010
@@ -89,6 +92,11 @@
 	SDL_RENDERER_ACCELERATED	equ 0x00000002
 	SDL_RENDERER_PRESENTVSYNC	equ 0x00000004
 	SDL_RENDERER_TARGETTEXTURE	equ 0x00000008
+
+	SDL_BLENDMODE_NONE		equ 0
+	SDL_BLENDMODE_BLEND		equ 1
+	SDL_BLENDMODE_ADD		equ 2
+	SDL_BLENDMODE_MOD		equ 3
 
 	struc SDL_RECT
 		SDL_RECT_X:			resd	1
@@ -209,6 +217,15 @@
 		fn_bind gui/gui_statics, r0
 		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
 		vp_call [r0 + (SDL_RENDERSETCLIPRECT * 8)]
+	%endmacro
+
+	%macro sdl_setrenderdrawblendmode 2
+		;renderer**, mode
+		vp_cpy %1, r7		;renderer**
+		vp_cpy %2, r6		;mode
+		fn_bind gui/gui_statics, r0
+		vp_cpy [r0 + GUI_STATICS_SDL_FUNCS], r0
+		vp_call [r0 + (SDL_SETRENDERDRAWBLENDMODE * 8)]
 	%endmacro
 
 %endif

@@ -55,7 +55,7 @@
 
 		;mark for update and as transparent for cyan view
 		vp_cpy [r4], r0
-;		fn_call gui/view_transparent
+		fn_call gui/view_transparent
 		vp_pop r0
 		fn_call gui/view_dirty
 
@@ -172,7 +172,7 @@
 		vp_cpy 0, r8
 		vp_cpy 255, r9
 		vp_cpy 255, r10
-		vp_cpy 255, r11
+		vp_cpy 192, r11
 		vp_cpy r1, r0
 		fn_call gui/ctx_set_color
 

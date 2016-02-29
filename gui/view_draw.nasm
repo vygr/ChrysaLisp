@@ -66,18 +66,21 @@
 			;save node
 			vp_cpy r0, [r4 + DRAW_VIEW_NODE]
 
+			;patch heap
+			fn_bind gui/gui_statics, r0
+			vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
+
 			;if opaque view remove from global dirty list
-			vp_cpy [r0 + GUI_VIEW_TRANSPARENT_LIST], r1
-			if r1, ==, 0
-				vp_cpy [r0 + GUI_VIEW_CTX_X], r8
-				vp_cpy [r0 + GUI_VIEW_CTX_Y], r9
-				vp_cpy [r0 + GUI_VIEW_W], r10
-				vp_cpy [r0 + GUI_VIEW_H], r11
+			vp_cpy [r4 + DRAW_VIEW_NODE], r1
+			vp_cpy [r1 + GUI_VIEW_TRANSPARENT_LIST], r2
+			if r2, ==, 0
+				vp_cpy [r1 + GUI_VIEW_CTX_X], r8
+				vp_cpy [r1 + GUI_VIEW_CTX_Y], r9
+				vp_cpy [r1 + GUI_VIEW_W], r10
+				vp_cpy [r1 + GUI_VIEW_H], r11
 				vp_add r8, r10
 				vp_add r9, r11
 				vp_lea [r4 + DRAW_VIEW_PATCH_LIST], r1
-				fn_bind gui/gui_statics, r0
-				vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
 				fn_call gui/patch_remove
 			endif
 
@@ -157,7 +160,7 @@
 				vp_lea [r0 + GUI_VIEW_TRANSPARENT_LIST], r3
 				fn_bind gui/gui_statics, r0
 				vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
-				fn_call gui/patch_copy
+				fn_call gui/patch_list_copy
 			endif
 
 			;restore node
