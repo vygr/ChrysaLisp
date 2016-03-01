@@ -1,6 +1,6 @@
-%include "func.inc"
-%include "list.inc"
-%include "task.inc"
+%include "inc/func.inc"
+%include "inc/list.inc"
+%include "inc/task.inc"
 
 	fn_function "sys/task_resume"
 		;inputs

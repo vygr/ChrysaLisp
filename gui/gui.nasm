@@ -1,6 +1,6 @@
-%include "func.inc"
-%include "mail.inc"
-%include "gui.inc"
+%include "inc/func.inc"
+%include "inc/mail.inc"
+%include "inc/gui.inc"
 
 	fn_function "gui/gui"
 		;allocate background view

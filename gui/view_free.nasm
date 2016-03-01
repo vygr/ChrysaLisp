@@ -1,7 +1,7 @@
-%include "func.inc"
-%include "list.inc"
-%include "heap.inc"
-%include "gui.inc"
+%include "inc/func.inc"
+%include "inc/list.inc"
+%include "inc/heap.inc"
+%include "inc/gui.inc"
 
 	fn_function "gui/view_free"
 		;inputs

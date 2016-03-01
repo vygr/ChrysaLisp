@@ -1,6 +1,6 @@
-%include "func.inc"
-%include "gui.inc"
-%include "heap.inc"
+%include "inc/func.inc"
+%include "inc/gui.inc"
+%include "inc/heap.inc"
 
 	struc PASTE
 		PASTE_NEXT:		resq 1

@@ -1,5 +1,5 @@
-%include "func.inc"
-%include "mail.inc"
+%include "inc/func.inc"
+%include "inc/mail.inc"
 
 ;;;;;;;;;;;
 ; test code

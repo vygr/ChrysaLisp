@@ -1,5 +1,5 @@
-%include "func.inc"
-%include "heap.inc"
+%include "inc/func.inc"
+%include "inc/heap.inc"
 
 	MEM_SLOTS equ 14
 

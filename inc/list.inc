@@ -1,8 +1,8 @@
 %ifndef LIST_1234
 	%define LIST_1234
 
-%include "vp.inc"
-%include "code.inc"
+%include "inc/vp.inc"
+%include "inc/code.inc"
 
 ;;;;;;;;;;;;;;;;;
 ; list structures

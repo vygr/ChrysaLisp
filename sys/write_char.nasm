@@ -1,5 +1,5 @@
-%include "func.inc"
-%include "syscall.inc"
+%include "inc/func.inc"
+%include "inc/syscall.inc"
 
 	fn_function "sys/write_char"
 		;inputs

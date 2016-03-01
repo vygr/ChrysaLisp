@@ -1,9 +1,9 @@
 %ifndef SDL2_1234
 	%define SDL2_1234
 
-%include "vp.inc"
-%include "code.inc"
-%include "gui.inc"
+%include "inc/vp.inc"
+%include "inc/code.inc"
+%include "inc/gui.inc"
 
 ;;;;;;;;;;;;;;;;;
 ; sdl2 structures

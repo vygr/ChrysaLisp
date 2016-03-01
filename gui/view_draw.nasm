@@ -1,6 +1,6 @@
-%include "func.inc"
-%include "list.inc"
-%include "gui.inc"
+%include "inc/func.inc"
+%include "inc/list.inc"
+%include "inc/gui.inc"
 
 	struc DRAW_VIEW
 		DRAW_VIEW_CTX:			resb GUI_CTX_SIZE

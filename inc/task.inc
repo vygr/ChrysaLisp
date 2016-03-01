@@ -1,9 +1,9 @@
 %ifndef TASK_1234
 	%define TASK_1234
 
-%include "list.inc"
-%include "mail.inc"
-%include "heap.inc"
+%include "inc/list.inc"
+%include "inc/mail.inc"
+%include "inc/heap.inc"
 
 ;;;;;;;;;;;;;;;;;
 ; task structures

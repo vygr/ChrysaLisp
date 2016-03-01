@@ -1,5 +1,5 @@
-%include "func.inc"
-%include "load.inc"
+%include "inc/func.inc"
+%include "inc/load.inc"
 
 	fn_function "sys/load_init"
 		;get loader statics and load function !

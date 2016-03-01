@@ -1,5 +1,5 @@
-%include "func.inc"
-%include "sdl2.inc"
+%include "inc/func.inc"
+%include "inc/sdl2.inc"
 
 	struc COLOR
 		COLOR_OLD_STACK:	resq 1

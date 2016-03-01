@@ -1,7 +1,7 @@
 %ifndef LOAD_1234
 	%define LOAD_1234
 
-%include "syscall.inc"
+%include "inc/syscall.inc"
 
 ;;;;;;;;;;;;;;;;;
 ; load structures

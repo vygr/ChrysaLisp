@@ -1,4 +1,4 @@
-%include "func.inc"
+%include "inc/func.inc"
 
 	fn_function "sys/mem_grow"
 		;inputs

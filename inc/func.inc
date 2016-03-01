@@ -1,9 +1,9 @@
 %ifndef FUNC_1234
 	%define FUNC_1234
 
-%include 'vp.inc'
-%include 'code.inc'
-%include 'syscall.inc'
+%include 'inc/vp.inc'
+%include 'inc/code.inc'
+%include 'inc/syscall.inc'
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail funcions

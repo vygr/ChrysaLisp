@@ -1,9 +1,9 @@
-%include "func.inc"
-%include "mail.inc"
-%include "task.inc"
-%include "link.inc"
-%include "gui.inc"
-%include "sdl2.inc"
+%include "inc/func.inc"
+%include "inc/mail.inc"
+%include "inc/task.inc"
+%include "inc/link.inc"
+%include "inc/gui.inc"
+%include "inc/sdl2.inc"
 
 ;;;;;;;;;;;;;
 ; kernel task

@@ -1,9 +1,9 @@
-%include "vp.inc"
-%include "code.inc"
-%include "load.inc"
-%include "func.inc"
-%include "syscall.inc"
-%include "sdl2.inc"
+%include "inc/vp.inc"
+%include "inc/code.inc"
+%include "inc/load.inc"
+%include "inc/func.inc"
+%include "inc/syscall.inc"
+%include "inc/sdl2.inc"
 
 ;;;;;;;;;;;;;
 ; entry point

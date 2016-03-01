@@ -1,5 +1,5 @@
-%include "func.inc"
-%include "gui.inc"
+%include "inc/func.inc"
+%include "inc/gui.inc"
 
 	fn_function "gui/gui_statics"
 

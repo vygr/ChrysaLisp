@@ -1,5 +1,5 @@
-%include "func.inc"
-%include "task.inc"
+%include "inc/func.inc"
+%include "inc/task.inc"
 
 	fn_function "sys/task_deinit"
 		;get task statics

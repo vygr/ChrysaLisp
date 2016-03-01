@@ -1,6 +1,6 @@
-%include "func.inc"
-%include "gui.inc"
-%include "heap.inc"
+%include "inc/func.inc"
+%include "inc/gui.inc"
+%include "inc/heap.inc"
 
 	fn_function "gui/patch_paste"
 		;inputs
