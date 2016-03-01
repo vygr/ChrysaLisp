@@ -17,7 +17,7 @@ ifeq ($(OS),Linux)
 			nasm -dOS=$(OS) -f elf64 $<
 endif
 
-class/%:	class/%.nasm Makefile class/obj.inc class/ref.inc class/view.inc
+class/%:	class/%.nasm Makefile class/obj.inc class/ref.inc class/view1.inc
 			nasm -dOS=$(OS) -f bin $< -o $@
 
 %:			%.nasm Makefile inc/gui.inc inc/func.inc inc/task.inc inc/list.inc inc/vp.inc \

@@ -1,3 +1,6 @@
+%ifndef CLASS_OBJ_1234
+	%define CLASS_OBJ_1234
+
 %include 'inc/func.inc'
 
 	%assign _method_num 0
@@ -43,3 +46,5 @@
     def_method obj_delete, class/obj/delete
     def_method obj_init, class/obj/init
     def_method obj_deinit, class/obj/deinit
+
+%endif
