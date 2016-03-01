@@ -1,7 +1,7 @@
-%include 'ref.inc'
+%include 'class/ref.inc'
 
-	redef_method init, class/view/init
-	redef_method deinit, class/view/deinit
+	redef_method obj_init, class/view/init
+	redef_method obj_deinit, class/view/deinit
 
-	def_method add, class/view/add
-	def_method sub, class/view/sub
+	def_method view_add, class/view/add
+	def_method view_sub, class/view/sub
