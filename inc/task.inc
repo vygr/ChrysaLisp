@@ -36,37 +36,11 @@
 	TK_STATE_SIZE 	equ 14*8
 
 	%macro tk_save_state 0
-		vp_push r0
-		vp_push r1
-		vp_push r2
-		vp_push r3
-		vp_push r5
-		vp_push r6
-		vp_push r7
-		vp_push r8
-		vp_push r9
-		vp_push r10
-		vp_push r11
-		vp_push r12
-		vp_push r13
-		vp_push r14
+		vp_push r0, r1, r2, r3, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14
 	%endmacro
 
 	%macro tk_load_state 0
-		vp_pop r14
-		vp_pop r13
-		vp_pop r12
-		vp_pop r11
-		vp_pop r10
-		vp_pop r9
-		vp_pop r8
-		vp_pop r7
-		vp_pop r6
-		vp_pop r5
-		vp_pop r3
-		vp_pop r2
-		vp_pop r1
-		vp_pop r0
+		vp_pop r0, r1, r2, r3, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14
 	%endmacro
 
 %endif

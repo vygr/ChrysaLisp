@@ -4,7 +4,7 @@
 		;outputs
 		;r0 = 0 if error, else object
 
-		;allways error
+		;always error
 		vp_xor r0, r0
 		vp_ret
 

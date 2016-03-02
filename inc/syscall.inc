@@ -80,26 +80,12 @@
 
 	%macro push_trashed 0
 		;pushes onto r4 (rsp)
-		vp_push r1
-		vp_push r2
-		vp_push r6
-		vp_push r7
-		vp_push r8
-		vp_push r9
-		vp_push r10
-		vp_push r11
+		vp_push r1, r2, r6, r7, r8, r9, r10, r11
 	%endmacro
 
 	%macro pop_trashed 0
 		;pops from r4 (rsp)
-		vp_pop r11
-		vp_pop r10
-		vp_pop r9
-		vp_pop r8
-		vp_pop r7
-		vp_pop r6
-		vp_pop r2
-		vp_pop r1
+		vp_pop r1, r2, r6, r7, r8, r9, r10, r11
 	%endmacro
 
 	%macro sys_exit 1
@@ -149,8 +135,7 @@
 	%macro sys_write_char 2
 		;fd, char
 		push_trashed
-		vp_push r0
-		vp_push %2
+		vp_push r0, %2
 		vp_cpy %1, r7
 		vp_cpy r4, r6
 		vp_cpy 1, r2
@@ -336,26 +321,12 @@
 
 	%macro push_trashed 0
 		;pushes onto r4 (rsp)
-		vp_push r1
-		vp_push r2
-		vp_push r6
-		vp_push r7
-		vp_push r8
-		vp_push r9
-		vp_push r10
-		vp_push r11
+		vp_push r1, r2, r6, r7, r8, r9, r10, r11
 	%endmacro
 
 	%macro pop_trashed 0
 		;pops from r4 (rsp)
-		vp_pop r11
-		vp_pop r10
-		vp_pop r9
-		vp_pop r8
-		vp_pop r7
-		vp_pop r6
-		vp_pop r2
-		vp_pop r1
+		vp_pop r1, r2, r6, r7, r8, r9, r10, r11
 	%endmacro
 
 	%macro sys_exit 1
@@ -405,8 +376,7 @@
 	%macro sys_write_char 2
 		;fd, char
 		push_trashed
-		vp_push r0
-		vp_push %2
+		vp_push r0, %2
 		vp_cpy %1, r7
 		vp_cpy r4, r6
 		vp_cpy 1, r2

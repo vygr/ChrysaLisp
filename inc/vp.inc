@@ -43,12 +43,18 @@
 		jmp %1
 	%endmacro
 
-	%macro vp_push 1
-		push %1
+	%macro vp_push 1-*
+		%rep %0
+			push %1
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro vp_pop 1
-		pop %1
+	%macro vp_pop 1-*
+		%rep %0
+			%rotate -1
+			pop %1
+		%endrep
 	%endmacro
 
 	%macro vp_lea 2
