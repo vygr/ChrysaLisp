@@ -1,5 +1,5 @@
-%include 'class/obj.inc'
+%include 'class/class_obj.inc'
 
 	fn_function 'class/class_obj'
-		method_impl_vtable
+		vtable_emit obj
 	fn_function_end

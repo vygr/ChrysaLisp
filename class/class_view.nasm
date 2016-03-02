@@ -1,5 +1,5 @@
-%include 'class/view.inc'
+%include 'class/class_view.inc'
 
 	fn_function 'class/class_view'
-		method_impl_vtable
+		vtable_emit view
 	fn_function_end

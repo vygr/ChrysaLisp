@@ -1,5 +1,5 @@
-%include 'class/ref.inc'
+%include 'class/class_ref.inc'
 
 	fn_function 'class/class_ref'
-		method_impl_vtable
+		vtable_emit ref
 	fn_function_end
