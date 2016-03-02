@@ -120,7 +120,7 @@
     def_method obj, create, class/obj/create
     def_method obj, destroy, class/obj/destroy
     def_method obj, new, class/obj/new
-    def_method obj, delete, class/obj/delete
+    def_method obj, delete, sys/mem_free
     def_method obj, init, class/obj/init
     def_method obj, deinit, class/obj/deinit
 

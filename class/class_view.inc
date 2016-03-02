@@ -4,7 +4,8 @@
 %include 'class/class_ref.inc'
 
     def_class view, ref
-    def_method_override view, new, class/view/new
+	def_method_override view, create, class/view/create
+	def_method_override view, new, class/view/new
     def_method_override view, init, class/view/init
     def_method_override view, deinit, class/view/deinit
     def_method view, add, class/view/add

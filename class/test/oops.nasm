@@ -4,9 +4,10 @@
 
 		;create a view object
 		function_call view, create
-
-		;deref it
-		method_call ref, deref
+		if r0, !=, 0
+			;deref it
+			method_call ref, deref
+		endif
 		ret
 
 	fn_function_end

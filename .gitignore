@@ -4,7 +4,6 @@ class/class_ref
 class/class_view
 class/obj/create
 class/obj/deinit
-class/obj/delete
 class/obj/destroy
 class/obj/init
 class/ref/init
