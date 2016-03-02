@@ -6,6 +6,8 @@ class/obj/create
 class/obj/deinit
 class/obj/destroy
 class/obj/init
+class/obj/new
+class/ref/deref
 class/ref/init
 class/ref/ref
 class/test/oops
