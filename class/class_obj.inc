@@ -92,7 +92,8 @@
             ;no such method
             %fatal No such method %2
         %else
-            %warning Method index %2 is %%_n
+            vp_cpy [r0 + OBJ_VTABLE], r15
+			vp_call [r15 + (%%_n * 6)]
         %endif
     %endmacro
 
@@ -111,7 +112,6 @@
             ;no such method
             %fatal No such method %2
         %else
-            %warning Method function %2 is _vtable_%[%1]_func_%[%%_n]
             fn_call _vtable_%[%1]_func_%[%%_n]
         %endif
     %endmacro
@@ -123,5 +123,10 @@
     def_method obj, delete, class/obj/delete
     def_method obj, init, class/obj/init
     def_method obj, deinit, class/obj/deinit
+
+	struc OBJ
+		OBJ_VTABLE:		resq 1
+		OBJ_SIZE:
+	endstruc
 
 %endif

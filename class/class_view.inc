@@ -10,4 +10,9 @@
     def_method view, add, class/view/add
     def_method view, sub, class/view/sub
 
+	struc VIEW
+		VIEW_PARENT:	resb REF_SIZE
+		VIEW_SIZE:
+	endstruc
+
 %endif
