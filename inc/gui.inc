@@ -15,31 +15,31 @@
 		gui_statics_view_list:			resb	lh_list_size
 		gui_statics_window:				resq	1
 		gui_statics_screen:				resq	1
-		GUI_STATICS_RENDERER:			resq	1
+		gui_statics_renderer:			resq	1
 		gui_statics_size:
 	endstruc
 
 	struc GUI_PATCH
 		gui_patch_next:		resq	1
-		GUI_PATCH_X:		resq	1
-		GUI_PATCH_Y:		resq	1
-		GUI_PATCH_X1:		resq	1
-		GUI_PATCH_Y1:		resq	1
+		gui_patch_x:		resq	1
+		gui_patch_y:		resq	1
+		gui_patch_x1:		resq	1
+		gui_patch_y1:		resq	1
 		GUI_PATCH_SIZE:
 	endstruc
 
 	struc GUI_VIEW
-		GUI_VIEW_NODE:				resb	ln_node_size
-		GUI_VIEW_PARENT:			resq	1
-		GUI_VIEW_LIST:				resb	lh_list_size
-		GUI_VIEW_DIRTY_LIST:		resq	1
-		GUI_VIEW_TRANSPARENT_LIST:	resq	1
+		gui_view_node:				resb	ln_node_size
+		gui_view_parent:			resq	1
+		gui_view_list:				resb	lh_list_size
+		gui_view_dirty_list:		resq	1
+		gui_view_transparent_list:	resq	1
 		gui_view_x:					resq	1
 		gui_view_y:					resq	1
 		gui_view_w:					resq	1
 		gui_view_h:					resq	1
-		GUI_VIEW_CTX_X:				resq	1
-		GUI_VIEW_CTX_Y:				resq	1
+		gui_view_ctx_x:				resq	1
+		gui_view_ctx_y:				resq	1
 		gui_view_draw:				resq	1
 		GUI_VIEW_SIZE:
 	endstruc
@@ -49,7 +49,7 @@
 		gui_ctx_dirty_region:	resq	1
 		GUI_CTX_X:				resq	1
 		GUI_CTX_Y:				resq	1
-		GUI_CTX_SIZE:
+		gui_ctx_size:
 	endstruc
 
 ;;;;;;;;;;;;

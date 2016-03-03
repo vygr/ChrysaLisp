@@ -15,8 +15,8 @@
 		fn_call gui/view_sub
 
 		;add to parent
-		vp_cpy r3, [r2 + GUI_VIEW_PARENT]
-		vp_lea [r3 + GUI_VIEW_LIST], r0
+		vp_cpy r3, [r2 + gui_view_parent]
+		vp_lea [r3 + gui_view_list], r0
 		lh_add_at_tail r0, r2, r1
 		vp_ret
 

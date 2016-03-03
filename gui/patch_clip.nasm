@@ -24,27 +24,27 @@
 
 					switch
 					default
-						vp_cpy [r7 + GUI_PATCH_X], r12
+						vp_cpy [r7 + gui_patch_x], r12
 						breakif r12, >=, r10
-						vp_cpy [r7 + GUI_PATCH_Y], r13
+						vp_cpy [r7 + gui_patch_y], r13
 						breakif r13, >=, r11
-						vp_cpy [r7 + GUI_PATCH_X1], r14
+						vp_cpy [r7 + gui_patch_x1], r14
 						breakif r14, <=, r8
-						vp_cpy [r7 + GUI_PATCH_Y1], r15
+						vp_cpy [r7 + gui_patch_y1], r15
 						breakif r15, <=, r9
 
 						;clip patch
 						if r12, <, r8
-							vp_cpy r8, [r7 + GUI_PATCH_X]
+							vp_cpy r8, [r7 + gui_patch_x]
 						endif
 						if r13, <, r9
-							vp_cpy r9, [r7 + GUI_PATCH_Y]
+							vp_cpy r9, [r7 + gui_patch_y]
 						endif
 						if r14, >, r10
-							vp_cpy r10, [r7 + GUI_PATCH_X1]
+							vp_cpy r10, [r7 + gui_patch_x1]
 						endif
 						if r15, >, r11
-							vp_cpy r11, [r7 + GUI_PATCH_Y1]
+							vp_cpy r11, [r7 + gui_patch_y1]
 						endif
 						vp_jmp loop
 					endswitch

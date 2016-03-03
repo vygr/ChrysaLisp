@@ -17,7 +17,7 @@
 
 		;free any child views
 		vp_cpy [r4], r0
-		loop_list_forwards r0 + GUI_VIEW_LIST, r1, r0
+		loop_list_forwards r0 + gui_view_list, r1, r0
 			vp_push r1
 			fn_call gui/view_free
 			vp_pop r1
@@ -25,11 +25,11 @@
 
 		;free view object data
 		vp_cpy [r4], r0
-		vp_lea [r0 + GUI_VIEW_DIRTY_LIST], r1
+		vp_lea [r0 + gui_view_dirty_list], r1
 		fn_bind gui/gui_statics, r5
 		vp_lea [r5 + gui_statics_patch_heap], r0
 		fn_call gui/patch_list_free
-		vp_lea [r0 + GUI_VIEW_TRANSPARENT_LIST], r1
+		vp_lea [r0 + gui_view_transparent_list], r1
 		fn_call gui/patch_list_free
 
 		;free view object

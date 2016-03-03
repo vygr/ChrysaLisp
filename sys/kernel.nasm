@@ -242,7 +242,7 @@
 
 						;create renderer
 						sdl_createrenderer r0, -1, SDL_RENDERER_ACCELERATED
-						vp_cpy r0, [r15 + GUI_STATICS_RENDERER]
+						vp_cpy r0, [r15 + gui_statics_renderer]
 
 						;set blend mode
 						sdl_setrenderdrawblendmode r0, SDL_BLENDMODE_BLEND
@@ -253,7 +253,7 @@
 					if r0, !=, 0
 						fn_call gui/view_draw
 						fn_bind gui/gui_statics, r0
-						sdl_renderpresent [r0 + GUI_STATICS_RENDERER]
+						sdl_renderpresent [r0 + gui_statics_renderer]
 					endif
 					break
 				default

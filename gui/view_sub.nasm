@@ -9,10 +9,10 @@
 		;r0-r1
 
 		;test parent
-		vp_cpy [r0 + GUI_VIEW_PARENT], r1
+		vp_cpy [r0 + gui_view_parent], r1
 		if r1, !=, 0
 			;clear parent field
-			vp_cpy 0, qword[r0 + GUI_VIEW_PARENT]
+			vp_cpy 0, qword[r0 + gui_view_parent]
 
 			;remove from parent list
 			ln_remove_node r0, r1

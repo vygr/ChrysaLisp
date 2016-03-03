@@ -41,10 +41,10 @@
 			vp_cpy r0, [r4 + fbox_patch]
 
 			;set clip region to this patch
-			vp_cpy [r0 + GUI_PATCH_X], r8
-			vp_cpy [r0 + GUI_PATCH_Y], r9
-			vp_cpy [r0 + GUI_PATCH_X1], r10
-			vp_cpy [r0 + GUI_PATCH_Y1], r11
+			vp_cpy [r0 + gui_patch_x], r8
+			vp_cpy [r0 + gui_patch_y], r9
+			vp_cpy [r0 + gui_patch_x1], r10
+			vp_cpy [r0 + gui_patch_y1], r11
 			vp_sub r8, r10
 			vp_sub r9, r11
 			vp_cpy r8d, [r4 + fbox_clip_rect + sdl_rect_x]

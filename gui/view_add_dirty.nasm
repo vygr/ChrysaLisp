@@ -14,7 +14,7 @@
 		;paste dirty patch
 		vp_cpy r8, r12
 		vp_cpy r9, r13
-		vp_lea [r0 + GUI_VIEW_DIRTY_LIST], r1
+		vp_lea [r0 + gui_view_dirty_list], r1
 		fn_call gui/view_get_abs
 		vp_add r12, r8
 		vp_add r13, r9

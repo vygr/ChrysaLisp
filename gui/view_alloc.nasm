@@ -15,11 +15,11 @@
 		vp_cpy r1, r0
 
 		;init child list etc
-		vp_cpy 0, qword[r0 + GUI_VIEW_PARENT]
-		vp_lea [r0 + GUI_VIEW_LIST], r1
+		vp_cpy 0, qword[r0 + gui_view_parent]
+		vp_lea [r0 + gui_view_list], r1
 		lh_init r1, r2
-		vp_cpy 0, qword[r0 + GUI_VIEW_DIRTY_LIST]
-		vp_cpy 0, qword[r0 + GUI_VIEW_TRANSPARENT_LIST]
+		vp_cpy 0, qword[r0 + gui_view_dirty_list]
+		vp_cpy 0, qword[r0 + gui_view_transparent_list]
 
 		;init draw callback to null
 		vp_lea [rel myret], r1
