@@ -265,7 +265,7 @@
 
 			;start any tasks ready to restart
 			fn_bind sys/task_statics, r3
-			vp_cpy [r3 + TK_STATICS_TIMER_LIST + LH_LIST_HEAD], r2
+			vp_cpy [r3 + TK_STATICS_TIMER_LIST + lh_list_head], r2
 			ln_get_succ r2, r2
 			if r2, !=, 0
 				loop_list_forwards r3 + TK_STATICS_TIMER_LIST, r2, r1
@@ -280,12 +280,12 @@
 			endif
 
 			;next task if other ready tasks
-			vp_cpy [r3 + TK_STATICS_TASK_LIST + LH_LIST_HEAD], r2
-			vp_cpy [r3 + TK_STATICS_TASK_LIST + LH_LIST_TAILPRED], r1
+			vp_cpy [r3 + TK_STATICS_TASK_LIST + lh_list_head], r2
+			vp_cpy [r3 + TK_STATICS_TASK_LIST + lh_list_tailpred], r1
 			continueif r2, !=, r1
 
 			;exit if no task waiting for timer
-			vp_cpy [r3 + TK_STATICS_TIMER_LIST + LH_LIST_HEAD], r2
+			vp_cpy [r3 + TK_STATICS_TIMER_LIST + lh_list_head], r2
 			ln_get_succ r2, r1
 			breakif r1, ==, 0
 

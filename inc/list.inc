@@ -8,18 +8,16 @@
 ; list structures
 ;;;;;;;;;;;;;;;;;
 
-	struc LH_LIST
-		LH_LIST_HEAD:		resq 1
-		LH_LIST_TAIL:		resq 1
-		LH_LIST_TAILPRED:	resq 1
-		lh_list_size:
+	struc lh_list
+		lh_list_head:		resq 1
+		lh_list_tail:		resq 1
+		lh_list_tailpred:	resq 1
 	endstruc
 
-	struc LN_NODE
-		LN_NODE_SUCC:		resq 1
-		LN_NODE_PRED:		resq 1
-		LN_NODE_OBJ:		resq 1
-		ln_node_size:
+	struc ln_node
+		ln_node_succ:		resq 1
+		ln_node_pred:		resq 1
+		ln_node_obj:		resq 1
 	endstruc
 
 ;;;;;;;;;;;;;;;;;;
@@ -37,7 +35,7 @@
 
 		ln_get_succ %1, %2
 		if %2, ==, 0
-			vp_cpy [%1 - LH_LIST_TAIL], %1
+			vp_cpy [%1 - lh_list_tail], %1
 		endif
 	%endmacro
 
@@ -64,7 +62,7 @@
 		;%1 = list node
 		;%2 = object
 
-		vp_cpy %2, [%1 + LN_NODE_OBJ]
+		vp_cpy %2, [%1 + ln_node_obj]
 	%endmacro
 
 	%macro ln_get_object 2
@@ -75,7 +73,7 @@
 		;%1 = list node
 		;%2 = object
 
-		vp_cpy [%1 + LN_NODE_OBJ], %2
+		vp_cpy [%1 + ln_node_obj], %2
 	%endmacro
 
 	%macro ln_set_succ 2
@@ -86,7 +84,7 @@
 		;%1 = list node1
 		;%2 = list node2
 
-		vp_cpy %2, [%1 + LN_NODE_SUCC]
+		vp_cpy %2, [%1 + ln_node_succ]
 	%endmacro
 
 	%macro ln_set_pred 2
@@ -97,7 +95,7 @@
 		;%1 = list node1
 		;%2 = list node2
 
-		vp_cpy %2, [%1 + LN_NODE_PRED]
+		vp_cpy %2, [%1 + ln_node_pred]
 	%endmacro
 
 	%macro ln_get_succ 2
@@ -108,7 +106,7 @@
 		;%1 = list node
 		;%2 = succ
 
-		vp_cpy [%1 + LN_NODE_SUCC], %2
+		vp_cpy [%1 + ln_node_succ], %2
 	%endmacro
 
 	%macro ln_get_pred 2
@@ -119,7 +117,7 @@
 		;%1 = list node
 		;%2 = pred
 
-		vp_cpy [%1 + LN_NODE_PRED], %2
+		vp_cpy [%1 + ln_node_pred], %2
 	%endmacro
 
 	%macro ln_add_node_after 3
@@ -212,9 +210,9 @@
 		;%1 = list head
 		;%2 = list tail
 
-		vp_cpy 0, qword[%1 + LH_LIST_TAIL]
+		vp_cpy 0, qword[%1 + lh_list_tail]
 		lh_set_tail %1, %1
-		vp_lea [%1 + LH_LIST_TAIL], %2
+		vp_lea [%1 + lh_list_tail], %2
 		lh_set_head %1, %2
 	%endmacro
 
@@ -226,7 +224,7 @@
 		;%1 = list head
 		;%2 = list node
 
-		vp_cpy %2, [%1 + LH_LIST_HEAD]
+		vp_cpy %2, [%1 + lh_list_head]
 	%endmacro
 
 	%macro lh_set_tail 2
@@ -237,7 +235,7 @@
 		;%1 = list head
 		;%2 = list node
 
-		vp_cpy %2, [%1 + LH_LIST_TAILPRED]
+		vp_cpy %2, [%1 + lh_list_tailpred]
 	%endmacro
 
 	%macro lh_get_head 2
@@ -248,7 +246,7 @@
 		;%1 = list head
 		;%2 = list node
 
-		vp_cpy [%1 + LH_LIST_HEAD], %2
+		vp_cpy [%1 + lh_list_head], %2
 	%endmacro
 
 	%macro lh_get_tail 2
@@ -259,7 +257,7 @@
 		;%1 = list head
 		;%2 = list node
 
-		vp_cpy [%1 + LH_LIST_TAILPRED], %2
+		vp_cpy [%1 + lh_list_tailpred], %2
 	%endmacro
 
 	%macro lh_add_at_head 3
@@ -285,9 +283,9 @@
 		;%2 = list node
 		;%3 = list node pred
 
-		vp_lea [%1 + LH_LIST_TAIL], %1
+		vp_lea [%1 + lh_list_tail], %1
 		ln_add_node_before %1, %2, %3
-		vp_lea [%1 - LH_LIST_TAIL], %1
+		vp_lea [%1 - lh_list_tail], %1
 	%endmacro
 
 	%macro lh_remove_head 3

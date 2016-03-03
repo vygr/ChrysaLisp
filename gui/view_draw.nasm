@@ -41,7 +41,7 @@
 			;down to child
 			lh_get_head r0 + GUI_VIEW_LIST, r1
 			vp_sub GUI_VIEW_NODE, r1
-		loop_until qword[r1 + GUI_VIEW_NODE + LN_NODE_SUCC], ==, 0
+		loop_until qword[r1 + GUI_VIEW_NODE + ln_node_succ], ==, 0
 		loop_while r0, !=, [r4 + DRAW_VIEW_ROOT]
 			;context abs cords
 			vp_sub [r0 + GUI_VIEW_X], r8
@@ -50,7 +50,7 @@
 			;across to sibling
 			ln_get_succ r0 + GUI_VIEW_NODE, r1
 			vp_sub GUI_VIEW_NODE, r1
-			jmpif qword[r1 + GUI_VIEW_NODE + LN_NODE_SUCC], !=, 0, down_loop_ctx
+			jmpif qword[r1 + GUI_VIEW_NODE + ln_node_succ], !=, 0, down_loop_ctx
 
 			;up to parent
 			vp_cpy [r0 + GUI_VIEW_PARENT], r0
@@ -114,12 +114,12 @@
 			;down to child
 			lh_get_head r0 + GUI_VIEW_LIST, r1
 			vp_sub GUI_VIEW_NODE, r1
-		loop_until qword[r1 + GUI_VIEW_NODE + LN_NODE_SUCC], ==, 0
+		loop_until qword[r1 + GUI_VIEW_NODE + ln_node_succ], ==, 0
 		loop_while r0, !=, [r4 + DRAW_VIEW_ROOT]
 			;across to sibling
 			ln_get_succ r0 + GUI_VIEW_NODE, r1
 			vp_sub GUI_VIEW_NODE, r1
-			jmpif qword[r1 + GUI_VIEW_NODE + LN_NODE_SUCC], !=, 0, down_loop_back_to_front
+			jmpif qword[r1 + GUI_VIEW_NODE + ln_node_succ], !=, 0, down_loop_back_to_front
 
 			;up to parent
 			vp_cpy [r0 + GUI_VIEW_PARENT], r0
@@ -135,7 +135,7 @@
 			;down to child
 			lh_get_tail r0 + GUI_VIEW_LIST, r1
 			vp_sub GUI_VIEW_NODE, r1
-		loop_until qword[r1 + GUI_VIEW_NODE + LN_NODE_PRED], ==, 0
+		loop_until qword[r1 + GUI_VIEW_NODE + ln_node_pred], ==, 0
 		loop_while r0, !=, [r4 + DRAW_VIEW_ROOT]
 			;save node
 			vp_cpy r0, [r4 + DRAW_VIEW_NODE]
@@ -169,7 +169,7 @@
 			;across to sibling
 			ln_get_pred r0 + GUI_VIEW_NODE, r1
 			vp_sub GUI_VIEW_NODE, r1
-			jmpif qword[r1 + GUI_VIEW_NODE + LN_NODE_PRED], !=, 0, down_loop_front_to_back
+			jmpif qword[r1 + GUI_VIEW_NODE + ln_node_pred], !=, 0, down_loop_front_to_back
 
 			;up to parent
 			vp_cpy [r0 + GUI_VIEW_PARENT], r0
@@ -213,12 +213,12 @@
 			;down to child
 			lh_get_head r0 + GUI_VIEW_LIST, r1
 			vp_sub GUI_VIEW_NODE, r1
-		loop_until qword[r1 + GUI_VIEW_NODE + LN_NODE_SUCC], ==, 0
+		loop_until qword[r1 + GUI_VIEW_NODE + ln_node_succ], ==, 0
 		loop_while r0, !=, [r4 + DRAW_VIEW_ROOT]
 			;across to sibling
 			ln_get_succ r0 + GUI_VIEW_NODE, r1
 			vp_sub GUI_VIEW_NODE, r1
-			jmpif qword[r1 + GUI_VIEW_NODE + LN_NODE_SUCC], !=, 0, down_loop_draw
+			jmpif qword[r1 + GUI_VIEW_NODE + ln_node_succ], !=, 0, down_loop_draw
 
 			;up to parent
 			vp_cpy [r0 + GUI_VIEW_PARENT], r0
