@@ -12,7 +12,7 @@
 		GUI_STATICS_SDL_FUNCS:			resq	1
 		GUI_STATICS_PATCH_HEAP:			resb	hp_heap_size
 		GUI_STATICS_VIEW_HEAP:			resb	hp_heap_size
-		GUI_STATICS_VIEW_LIST:			resb	LH_LIST_SIZE
+		GUI_STATICS_VIEW_LIST:			resb	lh_list_size
 		GUI_STATICS_WINDOW:				resq	1
 		GUI_STATICS_SCREEN:				resq	1
 		GUI_STATICS_RENDERER:			resq	1
@@ -29,9 +29,9 @@
 	endstruc
 
 	struc GUI_VIEW
-		GUI_VIEW_NODE:				resb	LN_NODE_SIZE
+		GUI_VIEW_NODE:				resb	ln_node_size
 		GUI_VIEW_PARENT:			resq	1
-		GUI_VIEW_LIST:				resb	LH_LIST_SIZE
+		GUI_VIEW_LIST:				resb	lh_list_size
 		GUI_VIEW_DIRTY_LIST:		resq	1
 		GUI_VIEW_TRANSPARENT_LIST:	resq	1
 		GUI_VIEW_X:					resq	1

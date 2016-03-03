@@ -45,9 +45,9 @@
 		vp_cpy r0, [r1 + TK_STATICS_CPU_TOTAL]
 
 		;allocate for kernel routing table
-		vp_sub LK_TABLE_SIZE, r4
-		vp_cpy 0, qword[r4 + LK_TABLE_ARRAY]
-		vp_cpy 0, qword[r4 + LK_TABLE_ARRAY_SIZE]
+		vp_sub lk_table_size, r4
+		vp_cpy 0, qword[r4 + lk_table_array]
+		vp_cpy 0, qword[r4 + lk_table_array_size]
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernel task loop
@@ -100,10 +100,10 @@
 					fn_bind sys/task_statics, r1
 					vp_cpy [r1 + TK_STATICS_TASK_COUNT], r1
 					fn_bind sys/link_statics, r2
-					loop_list_forwards r2 + LK_STATICS_LINKS_LIST, r2, r3
-						if r1, >, [r3 + LK_NODE_TASK_COUNT]
-							vp_cpy [r3 + LK_NODE_CPU_ID], r0
-							vp_cpy [r3 + LK_NODE_TASK_COUNT], r1
+					loop_list_forwards r2 + lk_statics_links_list, r2, r3
+						if r1, >, [r3 + lk_node_task_count]
+							vp_cpy [r3 + lk_node_cpu_id], r0
+							vp_cpy [r3 + lk_node_task_count], r1
 						endif
 					loop_end
 					jmpif r0, ==, r5, run_here
@@ -123,18 +123,18 @@
 					endif
 
 					;new kernel routing table ?
-					vp_cpy [r4 + LK_TABLE_ARRAY], r0
-					vp_cpy [r4 + LK_TABLE_ARRAY_SIZE], r1
+					vp_cpy [r4 + lk_table_array], r0
+					vp_cpy [r4 + lk_table_array_size], r1
 					vp_cpy [r15 + ML_MSG_DATA + kn_data_link_route_origin], r11
-					vp_mul LK_ROUTE_SIZE, r11
-					vp_lea [r11 + LK_ROUTE_SIZE], r2
+					vp_mul lk_route_size, r11
+					vp_lea [r11 + lk_route_size], r2
 					fn_call sys/mem_grow
-					vp_cpy r0, [r4 + LK_TABLE_ARRAY]
-					vp_cpy r1, [r4 + LK_TABLE_ARRAY_SIZE]
+					vp_cpy r0, [r4 + lk_table_array]
+					vp_cpy r1, [r4 + lk_table_array_size]
 
 					;compare hop counts
 					vp_cpy [r15 + ML_MSG_DATA + kn_data_link_route_hops], r2
-					vp_cpy [r0 + r11 + LK_ROUTE_HOPS], r3
+					vp_cpy [r0 + r11 + lk_route_hops], r3
 					switch
 					case r3, ==, 0
 						;never seen, so better route
@@ -147,22 +147,22 @@
 						;fill in via route and remove other routes
 						vp_cpy [r15 + ML_MSG_DATA + kn_data_link_route_via], r13
 						fn_bind sys/link_statics, r14
-						loop_list_forwards r14 + LK_STATICS_LINKS_LIST, r14, r12
+						loop_list_forwards r14 + lk_statics_links_list, r14, r12
 							;new link route table ?
-							vp_cpy [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
-							vp_cpy [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
-							vp_lea [r11 + LK_ROUTE_SIZE], r2
+							vp_cpy [r12 + lk_node_table + lk_table_array], r0
+							vp_cpy [r12 + lk_node_table + lk_table_array_size], r1
+							vp_lea [r11 + lk_route_size], r2
 							fn_call sys/mem_grow
-							vp_cpy r0, [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY]
-							vp_cpy r1, [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE]
+							vp_cpy r0, [r12 + lk_node_table + lk_table_array]
+							vp_cpy r1, [r12 + lk_node_table + lk_table_array_size]
 
-							if [r12 + LK_NODE_CPU_ID], ==, r13
+							if [r12 + lk_node_cpu_id], ==, r13
 								;via route
 								vp_cpy [r15 + ML_MSG_DATA + kn_data_link_route_hops], r2
-								vp_cpy r2, [r0 + r11 + LK_ROUTE_HOPS]
+								vp_cpy r2, [r0 + r11 + lk_route_hops]
 							else
 								;none via route
-								vp_cpy 0, qword[r0 + r11 + LK_ROUTE_HOPS]
+								vp_cpy 0, qword[r0 + r11 + lk_route_hops]
 							endif
 						loop_end
 						break
@@ -170,19 +170,19 @@
 						;new hops is equal, so additional route
 						vp_cpy [r15 + ML_MSG_DATA + kn_data_link_route_via], r13
 						fn_bind sys/link_statics, r14
-						loop_list_forwards r14 + LK_STATICS_LINKS_LIST, r14, r12
+						loop_list_forwards r14 + lk_statics_links_list, r14, r12
 							;new link route table ?
-							vp_cpy [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY], r0
-							vp_cpy [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE], r1
-							vp_lea [r11 + LK_ROUTE_SIZE], r2
+							vp_cpy [r12 + lk_node_table + lk_table_array], r0
+							vp_cpy [r12 + lk_node_table + lk_table_array_size], r1
+							vp_lea [r11 + lk_route_size], r2
 							fn_call sys/mem_grow
-							vp_cpy r0, [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY]
-							vp_cpy r1, [r12 + LK_NODE_TABLE + LK_TABLE_ARRAY_SIZE]
+							vp_cpy r0, [r12 + lk_node_table + lk_table_array]
+							vp_cpy r1, [r12 + lk_node_table + lk_table_array_size]
 
-							if [r12 + LK_NODE_CPU_ID], ==, r13
+							if [r12 + lk_node_cpu_id], ==, r13
 								;via route
 								vp_cpy [r15 + ML_MSG_DATA + kn_data_link_route_hops], r2
-								vp_cpy r2, [r0 + r11 + LK_ROUTE_HOPS]
+								vp_cpy r2, [r0 + r11 + lk_route_hops]
 							endif
 						loop_end
 						;drop through to discard message !
@@ -203,8 +203,8 @@
 
 					;copy and send to all neighbors apart from old via
 					fn_bind sys/link_statics, r13
-					loop_list_forwards r13 + LK_STATICS_LINKS_LIST, r13, r12
-						vp_cpy [r12 + LK_NODE_CPU_ID], r11
+					loop_list_forwards r13 + lk_statics_links_list, r13, r12
+						vp_cpy [r12 + lk_node_cpu_id], r11
 						continueif r11, ==, r14
 						fn_call sys/mail_alloc
 						vp_cpy r0, r5
@@ -306,9 +306,9 @@
 		fn_call gui/gui_deinit
 
 		;free any kernel routing table
-		vp_cpy [r4 + LK_TABLE_ARRAY], r0
+		vp_cpy [r4 + lk_table_array], r0
 		fn_call sys/mem_free
-		vp_add LK_TABLE_SIZE, r4
+		vp_add lk_table_size, r4
 
 		;deinit allocator
 		fn_call sys/mem_deinit

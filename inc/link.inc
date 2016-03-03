@@ -8,44 +8,38 @@
 ; link structures
 ;;;;;;;;;;;;;;;;;
 
-	LK_CHAN_STATUS_READY	equ 0
-	LK_CHAN_STATUS_BUSY		equ 1
+	lk_chan_status_ready	equ 0
+	lk_chan_status_busy		equ 1
 
-	struc LK_TABLE
-		LK_TABLE_ARRAY:			resq	1
-		LK_TABLE_ARRAY_SIZE:	resq	1
-		LK_TABLE_SIZE:
+	struc lk_table
+		lk_table_array:			resq	1
+		lk_table_array_size:	resq	1
 	endstruc
 
-	struc LK_NODE
-		LK_NODE_NODE:			resb	LN_NODE_SIZE
-		LK_NODE_TABLE:			resb	LK_TABLE_SIZE
-		LK_NODE_CPU_ID:			resq	1
-		LK_NODE_TASK_COUNT:		resq	1
-		LK_NODE_SIZE:
+	struc lk_node
+		lk_node_node:			resb	ln_node_size
+		lk_node_table:			resb	lk_table_size
+		lk_node_cpu_id:			resq	1
+		lk_node_task_count:		resq	1
 	endstruc
 
-	struc LK_STATICS
-		LK_STATICS_LINKS_LIST:	resb	LH_LIST_SIZE
-		LK_STATICS_SIZE:
+	struc lk_statics
+		lk_statics_links_list:	resb	lh_list_size
 	endstruc
 
-	struc LK_CHAN
-		LK_CHAN_STATUS:		resq	1
-		LK_CHAN_TASK_COUNT:	resq	1
-		LK_CHAN_MSG:		resb	ML_MSG_SIZE
-		LK_CHAN_SIZE:
+	struc lk_chan
+		lk_chan_status:		resq	1
+		lk_chan_task_count:	resq	1
+		lk_chan_msg:		resb	ml_msg_size
 	endstruc
 
-	struc LK_BUFFER
-		LK_BUFFER_CHAN_1:	resb	LK_CHAN_SIZE
-		LK_BUFFER_CHAN_2:	resb	LK_CHAN_SIZE
-		LK_BUFFER_SIZE:
+	struc lk_buffer
+		lk_buffer_chan_1:	resb	lk_chan_size
+		lk_buffer_chan_2:	resb	lk_chan_size
 	endstruc
 
-	struc LK_ROUTE
-		LK_ROUTE_HOPS:		resq	1
-		LK_ROUTE_SIZE:
+	struc lk_route
+		lk_route_hops:		resq	1
 	endstruc
 
 %endif

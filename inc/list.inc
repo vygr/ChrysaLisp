@@ -12,14 +12,14 @@
 		LH_LIST_HEAD:		resq 1
 		LH_LIST_TAIL:		resq 1
 		LH_LIST_TAILPRED:	resq 1
-		LH_LIST_SIZE:
+		lh_list_size:
 	endstruc
 
 	struc LN_NODE
 		LN_NODE_SUCC:		resq 1
 		LN_NODE_PRED:		resq 1
 		LN_NODE_OBJ:		resq 1
-		LN_NODE_SIZE:
+		ln_node_size:
 	endstruc
 
 ;;;;;;;;;;;;;;;;;;
@@ -201,7 +201,7 @@
 	%macro lh_list_object 1
 		align 8
 	%1:
-		times LH_LIST_SIZE db 0
+		times lh_list_size db 0
 	%endmacro
 
 	%macro lh_init 2

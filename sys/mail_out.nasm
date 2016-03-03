@@ -40,7 +40,7 @@
 				vp_lea [r14 + ML_MSG_DATA], r1
 
 				;length of fragment data
-				vp_cpy ML_MSG_SIZE - ML_MSG_DATA, r2
+				vp_cpy ml_msg_size - ML_MSG_DATA, r2
 				vp_add r2, r10
 				if r10, >, r11
 					vp_sub r11, r10

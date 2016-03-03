@@ -15,8 +15,8 @@
 
 		;init mail message heap
 		vp_lea [r7 + ML_STATICS_HEAP], r0
-		vp_cpy ML_MSG_SIZE + 8, r1
-		vp_cpy (ML_MSG_SIZE + 8) * 256, r2
+		vp_cpy ml_msg_size + 8, r1
+		vp_cpy (ml_msg_size + 8) * 256, r2
 		fn_call sys/heap_init
 
 		;init in and out postmen tasks

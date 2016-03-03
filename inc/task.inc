@@ -10,7 +10,7 @@
 ;;;;;;;;;;;;;;;;;
 
 	struc TK_NODE
-		TK_NODE_NODE:		resb	LN_NODE_SIZE
+		TK_NODE_NODE:		resb	ln_node_size
 		TK_NODE_STACK:		resq	1
 		TK_NODE_TIME:		resq	1
 		TK_NODE_MAILBOX:	resb	ML_MAILBOX_SIZE
@@ -21,8 +21,8 @@
 	struc TK_STATICS
 		TK_STATICS_CURRENT_TCB:	resq	1
 		TK_STATICS_TASK_HEAP:	resb	hp_heap_size
-		TK_STATICS_TASK_LIST:	resb	LH_LIST_SIZE
-		TK_STATICS_TIMER_LIST:	resb	LH_LIST_SIZE
+		TK_STATICS_TASK_LIST:	resb	lh_list_size
+		TK_STATICS_TIMER_LIST:	resb	lh_list_size
 		TK_STATICS_TASK_COUNT:	resq	1
 		TK_STATICS_CPU_TOTAL:	resq	1
 		TK_STATICS_CPU_ID:		resq	1

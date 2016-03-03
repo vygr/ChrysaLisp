@@ -11,14 +11,14 @@
 ;;;;;;;;;;;;;;;;;
 
 	struc ML_MAILBOX
-		ML_MAILBOX_LIST:		resb LH_LIST_SIZE
-		ML_MAILBOX_PARCEL_LIST:	resb LH_LIST_SIZE
+		ML_MAILBOX_LIST:		resb lh_list_size
+		ML_MAILBOX_PARCEL_LIST:	resb lh_list_size
 		ML_MAILBOX_TCB:			resq 1
 		ML_MAILBOX_SIZE:
 	endstruc
 
 	struc ML_MSG
-		ML_MSG_NODE:			resb LN_NODE_SIZE
+		ML_MSG_NODE:			resb ln_node_size
 		ML_MSG_LENGTH:			resq 1
 		ML_MSG_DEST:			resq 2
 		ML_MSG_PARCEL_ID:		resq 2
@@ -26,11 +26,11 @@
 		ML_MSG_PARCEL_TOTAL:	resq 1
 		ML_MSG_PARCEL_FRAG:		resq 1
 		ML_MSG_DATA:			resb 512
-		ML_MSG_SIZE:
+		ml_msg_size:
 	endstruc
 
 	struc ML_STATICS
-		ML_STATICS_OFFCHIP_LIST:	resb LH_LIST_SIZE
+		ML_STATICS_OFFCHIP_LIST:	resb lh_list_size
 		ML_STATICS_HEAP:			resb hp_heap_size
 		ML_STATICS_KERNEL_MAILBOX:	resq 1
 		ML_STATICS_IN_MAILBOX:		resq 1

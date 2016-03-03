@@ -3,6 +3,6 @@
 
 	fn_function sys/link_statics
 
-		times LK_STATICS_SIZE db 0
+		times lk_statics_size db 0
 
 	fn_function_end

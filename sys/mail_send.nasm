@@ -36,7 +36,7 @@
 			;going off chip
 			fn_bind sys/mail_statics, r1
 			vp_cpy [r2 + ML_MSG_LENGTH], r0
-			if r0, >, ML_MSG_SIZE
+			if r0, >, ml_msg_size
 				;must use postman task
 				vp_cpy [r1 + ML_STATICS_OUT_MAILBOX], r1
 				vp_jmp post_it
