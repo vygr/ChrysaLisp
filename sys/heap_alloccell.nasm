@@ -12,31 +12,31 @@
 		;r2-r3
 
 		loop_start
-			vp_cpy [r0 + HP_HEAP_FREELIST], r1
+			vp_cpy [r0 + hp_heap_freelist], r1
 			if r1, !=, 0
-				vp_cpy [r1 + HP_CELL_NEXT], r2
-				vp_cpy r2, [r0 + HP_HEAP_FREELIST]
+				vp_cpy [r1 + hp_cell_next], r2
+				vp_cpy r2, [r0 + hp_heap_freelist]
 				vp_ret
 			endif
-			vp_cpy [r0 + HP_HEAP_BLOCKSIZE], r1
-			vp_add HP_BLOCK_SIZE, r1
+			vp_cpy [r0 + hp_heap_blocksize], r1
+			vp_add hp_block_size, r1
 			vp_cpy r0, r2
 			sys_mmap 0, r1, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, -1, 0
 			vp_cpy r0, r1
 			vp_cpy r2, r0
-			vp_cpy [r0 + HP_HEAP_BLOCKLIST], r2
-			vp_cpy r2, [r1 + HP_BLOCK_NEXT]
-			vp_cpy r1, [r0 + HP_HEAP_BLOCKLIST]
-			vp_add HP_BLOCK_SIZE, r1
+			vp_cpy [r0 + hp_heap_blocklist], r2
+			vp_cpy r2, [r1 + hp_block_next]
+			vp_cpy r1, [r0 + hp_heap_blocklist]
+			vp_add hp_block_size, r1
 			vp_cpy r1, r3
-			vp_add [r0 + HP_HEAP_BLOCKSIZE], r3
+			vp_add [r0 + hp_heap_blocksize], r3
 			vp_xor r2, r2
 			loop_start
-				vp_cpy r2, [r3 + HP_CELL_NEXT]
+				vp_cpy r2, [r3 + hp_cell_next]
 				vp_cpy r1, r2
-				vp_add [r0 + HP_HEAP_CELLSIZE], r1
+				vp_add [r0 + hp_heap_cellsize], r1
 			loop_until r1, >=, r3
-			vp_cpy r2, [r0 + HP_HEAP_FREELIST]
+			vp_cpy r2, [r0 + hp_heap_freelist]
 		loop_end
 
 	fn_function_end

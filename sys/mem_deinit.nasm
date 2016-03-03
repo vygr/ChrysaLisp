@@ -10,7 +10,7 @@
 		for r6, 0, 14, 1
 			vp_cpy r5, r0
 			fn_call sys/heap_deinit
-			vp_add HP_HEAP_SIZE, r5
+			vp_add hp_heap_size, r5
 		next
 		vp_ret
 

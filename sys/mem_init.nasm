@@ -14,7 +14,7 @@
 			vp_sub r3, r2				;from MEM_SLOTS to 1 objects per slot
 			vp_mul r1, r2
 			fn_call sys/heap_init
-			vp_add HP_HEAP_SIZE, r0
+			vp_add hp_heap_size, r0
 			vp_add r1, r1				;double object size
 		next
 		vp_ret

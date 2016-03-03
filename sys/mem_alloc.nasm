@@ -20,15 +20,15 @@
 
 		;find object heap
 		fn_bind sys/mem_statics, r0
-		loop_while r1, >, [r0 + HP_HEAP_CELLSIZE]
-			vp_add HP_HEAP_SIZE, r0
+		loop_while r1, >, [r0 + hp_heap_cellsize]
+			vp_add hp_heap_size, r0
 		loop_end
 
 		;allocate object from this heap
 		fn_call sys/heap_alloccell
 		vp_cpy r0, [r1]
 		vp_xchg r0, r1
-		vp_cpy [r1 + HP_HEAP_CELLSIZE], r1
+		vp_cpy [r1 + hp_heap_cellsize], r1
 		vp_add 8, r0
 		vp_sub 8, r1
 		vp_ret

@@ -14,7 +14,7 @@
 
 		;init heap instance from stack
 		;16 byte objects from 16 objects per block
-		vp_sub HP_HEAP_SIZE, r4
+		vp_sub hp_heap_size, r4
 		vp_cpy r4, r0
 		vp_cpy 16, r1
 		vp_cpy 16*16, r2
@@ -40,7 +40,7 @@
 
 		;deinit heap
 		fn_call sys/heap_deinit
-		vp_add HP_HEAP_SIZE, r4
+		vp_add hp_heap_size, r4
 
 		;deshedule
 		fn_call sys/task_yield
