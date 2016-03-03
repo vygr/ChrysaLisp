@@ -21,8 +21,7 @@
 		vp_and -16, r4
 		vp_cpy r1, [r4 + COLOR_OLD_STACK]
 
-		vp_cpy [r0 + GUI_CTX_SDL_CTX], r0
-		sdl_setrenderdrawcolor r0, r8, r9, r10, r11
+		sdl_setrenderdrawcolor [r0 + GUI_CTX_SDL_CTX], r8, r9, r10, r11
 
 		vp_cpy [r4 + COLOR_OLD_STACK], r4
 		vp_ret
