@@ -18,7 +18,7 @@
 		for r14, 0, 10, 1
 			fn_call sys/mail_read_mymail
 			for r15, 0, TEST_SIZE, 1
-				if r15, !=, [r0 + (r15 * 8) + ML_MSG_DATA]
+				if r15, !=, [r0 + (r15 * 8) + ml_msg_data]
 					vp_lea [rel failed], r0
 					vp_cpy 1, r1
 					fn_jmp sys/write_string

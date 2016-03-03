@@ -8,10 +8,10 @@
 		;round robin past any list head
 		ln_get_forward r15, r0
 		fn_bind sys/task_statics, r0
-		vp_cpy r15, [r0 + TK_STATICS_CURRENT_TCB]
+		vp_cpy r15, [r0 + tk_statics_current_tcb]
 
 		;restore old stack pointer
-		vp_cpy [r15 + TK_NODE_STACK], r4
+		vp_cpy [r15 + tk_node_stack], r4
 
 		;pop task state
 		tk_load_state

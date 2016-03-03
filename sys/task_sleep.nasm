@@ -10,8 +10,8 @@
 
 		;save stack pointer
 		fn_bind sys/task_statics, r3
-		vp_cpy [r3 + TK_STATICS_CURRENT_TCB], r15
-		vp_cpy r4, [r15 + TK_NODE_STACK]
+		vp_cpy [r3 + tk_statics_current_tcb], r15
+		vp_cpy r4, [r15 + tk_node_stack]
 
 		;save timeout
 		vp_cpy r0, r1
@@ -19,7 +19,7 @@
 		;calculate wake time
 		fn_call sys/cpu_get_time
 		vp_add r1, r0
-		vp_cpy r0, [r15 + TK_NODE_TIME]
+		vp_cpy r0, [r15 + tk_node_time]
 
 		;remove task control block
 		vp_cpy r15, r2
@@ -27,8 +27,8 @@
 		ln_remove_node r2, r15
 
 		;add to timer list
-		loop_list_forwards r3 + TK_STATICS_TIMER_LIST, r2, r5
-		loop_until r0, <, [r5 + TK_NODE_TIME]
+		loop_list_forwards r3 + tk_statics_timer_list, r2, r5
+		loop_until r0, <, [r5 + tk_node_time]
 		ln_add_node_before r5, r1, r0
 
 		;restore next task

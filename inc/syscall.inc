@@ -9,28 +9,28 @@
 ; syscall for OSX
 ;;;;;;;;;;;;;;;;;
 
-	SYS_EXIT			equ	0x1
-	SYS_READ			equ	0x3
-	SYS_WRITE			equ	0x4
-	SYS_OPEN			equ	0x5
-	SYS_CLOSE			equ	0x6
-	SYS_UNLINK			equ	0xa
-	SYS_FTRUNCATE		equ	0xc9
-	SYS_STAT			equ	0xbc
-	SYS_MMAP			equ	0xc5
-	SYS_MUNMAP			equ	0x49
-	SYS_MPROTECT		equ	0x4a
-	SYS_GETTIMEOFDAY	equ	0x74
+	sys_exit			equ	0x1
+	sys_read			equ	0x3
+	sys_write			equ	0x4
+	sys_open			equ	0x5
+	sys_close			equ	0x6
+	sys_unlink			equ	0xa
+	sys_ftruncate		equ	0xc9
+	sys_stat			equ	0xbc
+	sys_mmap			equ	0xc5
+	sys_munmap			equ	0x49
+	sys_mprotect		equ	0x4a
+	sys_gettimeofday	equ	0x74
 
-	PROT_NONE			equ	0x0
-	PROT_READ			equ	0x1
-	PROT_WRITE			equ	0x2
-	PROT_EXEC			equ	0x4
+	prot_none			equ	0x0
+	prot_read			equ	0x1
+	prot_write			equ	0x2
+	prot_exec			equ	0x4
 
-	MAP_SHARED			equ	0x1
-	MAP_PRIVATE			equ	0x2
-	MAP_FIXED			equ	0x10
-	MAP_ANON			equ	0x1000
+	map_shared			equ	0x1
+	map_private			equ	0x2
+	map_fixed			equ	0x10
+	map_anon			equ	0x1000
 
 	O_RDONLY			equ	0x0
 	O_WRONLY			equ	0x1
@@ -59,19 +59,17 @@
 	S_ISGID				equ	0x400
 	S_ISVTX				equ	0x200
 
-	STAT_FSIZE			equ 0x48
+	stat_fsize			equ 0x48
 	stat_size			equ 0x100
 
-	struc TIMEVAL
-		TIMEVAL_SEC:			resq 1
-		TIMEVAL_USEC:			resq 1
-		TIMEVAL_SIZE:
+	struc timeval
+		timeval_sec:			resq 1
+		timeval_usec:			resq 1
 	endstruc
 
-	struc TIMEZONE
-		TIMEVAL_MINUTESWEST:	resd 1
-		TIMEVAL_DSTTIME:		resd 1
-		TIMEZONE_SIZE:
+	struc timezone
+		timeval_minuteswest:	resd 1
+		timeval_dsttime:		resd 1
 	endstruc
 
 ;;;;;;;;;;;;;;;;
@@ -91,7 +89,7 @@
 	%macro sys_exit 1
 		;return code
 		vp_cpy %1, r7
-		vp_cpy SYS_EXIT + 0x2000000, r0
+		vp_cpy sys_exit + 0x2000000, r0
 		vp_syscall
 	%endmacro
 
@@ -101,7 +99,7 @@
 		vp_cpy %1, r7
 		vp_cpy %2, r6
 		vp_cpy %3, r2
-		vp_cpy SYS_READ + 0x2000000, r0
+		vp_cpy sys_read + 0x2000000, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -113,7 +111,7 @@
 		vp_cpy %1, r7
 		vp_cpy r4, r6
 		vp_cpy 1, r2
-		vp_cpy SYS_READ + 0x2000000, r0
+		vp_cpy sys_read + 0x2000000, r0
 		vp_syscall
 		vp_pop r0
 		pop_trashed
@@ -126,7 +124,7 @@
 		vp_cpy %1, r7
 		vp_cpy %2, r6
 		vp_cpy %3, r2
-		vp_cpy SYS_WRITE + 0x2000000, r0
+		vp_cpy sys_write + 0x2000000, r0
 		vp_syscall
 		vp_pop r0
 		pop_trashed
@@ -139,7 +137,7 @@
 		vp_cpy %1, r7
 		vp_cpy r4, r6
 		vp_cpy 1, r2
-		vp_cpy SYS_WRITE + 0x2000000, r0
+		vp_cpy sys_write + 0x2000000, r0
 		vp_syscall
 		vp_add 8, r4
 		vp_pop r0
@@ -155,7 +153,7 @@
 		vp_cpy %4, r10		;shared etc
 		vp_cpy %5, r8		;file descriptor
 		vp_cpy %6, r9		;offset
-		vp_cpy SYS_MMAP + 0x2000000, r0
+		vp_cpy sys_mmap + 0x2000000, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -166,7 +164,7 @@
 		vp_cpy %1, r7		;addr
 		vp_cpy %2, r6		;size
 		vp_cpy %3, r2		;read only etc
-		vp_cpy SYS_MPROTECT + 0x2000000, r0
+		vp_cpy sys_mprotect + 0x2000000, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -176,7 +174,7 @@
 		push_trashed
 		vp_cpy %1, r7		;addr
 		vp_cpy %2, r6		;size of the file
-		vp_cpy SYS_MUNMAP + 0x2000000, r0
+		vp_cpy sys_munmap + 0x2000000, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -186,7 +184,7 @@
 		push_trashed
 		vp_cpy %1, r7		;path
 		vp_cpy %2, r6		;stat buffer
-		vp_cpy SYS_STAT + 0x2000000, r0
+		vp_cpy sys_stat + 0x2000000, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -197,7 +195,7 @@
 		vp_cpy %1, r7		;path
 		vp_cpy %2, r6		;flags
 		vp_cpy %3, r2		;mode
-		vp_cpy SYS_OPEN + 0x2000000, r0
+		vp_cpy sys_open + 0x2000000, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -206,7 +204,7 @@
 		;fd
 		push_trashed
 		vp_cpy %1, r7		;fd
-		vp_cpy SYS_CLOSE + 0x2000000, r0
+		vp_cpy sys_close + 0x2000000, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -216,7 +214,7 @@
 		push_trashed
 		vp_cpy %1, r7		;fd
 		vp_cpy %2, r6		;offset
-		vp_cpy SYS_FTRUNCATE + 0x2000000, r0
+		vp_cpy sys_ftruncate + 0x2000000, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -225,7 +223,7 @@
 		;name
 		push_trashed
 		vp_cpy %1, r7		;name
-		vp_cpy SYS_UNLINK + 0x2000000, r0
+		vp_cpy sys_unlink + 0x2000000, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -236,11 +234,11 @@
 		vp_push %1
 		vp_cpy %1, r7		;time struct
 		vp_cpy %2, r6		;timezone struct
-		vp_cpy SYS_GETTIMEOFDAY + 0x2000000, r0
+		vp_cpy sys_gettimeofday + 0x2000000, r0
 		vp_syscall
 		vp_pop r1
-		vp_cpy r0, [r1 + TIMEVAL_SEC]
-		vp_cpy r2, [r1 + TIMEVAL_USEC]
+		vp_cpy r0, [r1 + timeval_sec]
+		vp_cpy r2, [r1 + timeval_usec]
 		pop_trashed
 	%endmacro
 
@@ -250,28 +248,28 @@
 ; syscall for Linux
 ;;;;;;;;;;;;;;;;;;;
 
-	SYS_EXIT			equ	0x3c
-	SYS_READ			equ	0x0
-	SYS_WRITE			equ	0x1
-	SYS_OPEN			equ	0x2
-	SYS_CLOSE			equ	0x3
-	SYS_UNLINK			equ	0x57
-	SYS_FTRUNCATE		equ	0x4d
-	SYS_STAT			equ	0x4
-	SYS_MMAP			equ	0x9
-	SYS_MUNMAP			equ	0xb
-	SYS_MPROTECT		equ	0xa
-	SYS_GETTIMEOFDAY	equ	0x60
+	sys_exit			equ	0x3c
+	sys_read			equ	0x0
+	sys_write			equ	0x1
+	sys_open			equ	0x2
+	sys_close			equ	0x3
+	sys_unlink			equ	0x57
+	sys_ftruncate		equ	0x4d
+	sys_stat			equ	0x4
+	sys_mmap			equ	0x9
+	sys_munmap			equ	0xb
+	sys_mprotect		equ	0xa
+	sys_gettimeofday	equ	0x60
 
-	PROT_NONE			equ	0x0
-	PROT_READ			equ	0x1
-	PROT_WRITE			equ	0x2
-	PROT_EXEC			equ	0x4
+	prot_none			equ	0x0
+	prot_read			equ	0x1
+	prot_write			equ	0x2
+	prot_exec			equ	0x4
 
-	MAP_SHARED			equ	0x1
-	MAP_PRIVATE			equ	0x2
-	MAP_FIXED			equ	0x10
-	MAP_ANON			equ	0x20
+	map_shared			equ	0x1
+	map_private			equ	0x2
+	map_fixed			equ	0x10
+	map_anon			equ	0x20
 
 	O_RDONLY			equ	0x0
 	O_WRONLY			equ	0x1
@@ -300,19 +298,17 @@
 	S_ISGID				equ	0x400
 	S_ISVTX				equ	0x200
 
-	STAT_FSIZE			equ	0x30
+	stat_fsize			equ	0x30
 	stat_size			equ	0x100
 
-	struc TIMEVAL
-		TIMEVAL_SEC:			resq 1
-		TIMEVAL_USEC:			resq 1
-		TIMEVAL_SIZE:
+	struc timeval
+		timeval_sec:			resq 1
+		timeval_usec:			resq 1
 	endstruc
 
-	struc TIMEZONE
-		TIMEVAL_MINUTESWEST:	resd 1
-		TIMEVAL_DSTTIME:		resd 1
-		TIMEZONE_SIZE:
+	struc timezone
+		timeval_minuteswest:	resd 1
+		timeval_dsttime:		resd 1
 	endstruc
 
 ;;;;;;;;;;;;;;;;
@@ -332,7 +328,7 @@
 	%macro sys_exit 1
 		;return code
 		vp_cpy %1, r7
-		vp_cpy SYS_EXIT, r0
+		vp_cpy sys_exit, r0
 		vp_syscall
 	%endmacro
 
@@ -342,7 +338,7 @@
 		vp_cpy %1, r7
 		vp_cpy %2, r6
 		vp_cpy %3, r2
-		vp_cpy SYS_READ, r0
+		vp_cpy sys_read, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -354,7 +350,7 @@
 		vp_cpy %1, r7
 		vp_cpy r4, r6
 		vp_cpy 1, r2
-		vp_cpy SYS_READ, r0
+		vp_cpy sys_read, r0
 		vp_syscall
 		vp_pop r0
 		pop_trashed
@@ -367,7 +363,7 @@
 		vp_cpy %1, r7
 		vp_cpy %2, r6
 		vp_cpy %3, r2
-		vp_cpy SYS_WRITE, r0
+		vp_cpy sys_write, r0
 		vp_syscall
 		vp_pop r0
 		pop_trashed
@@ -380,7 +376,7 @@
 		vp_cpy %1, r7
 		vp_cpy r4, r6
 		vp_cpy 1, r2
-		vp_cpy SYS_WRITE, r0
+		vp_cpy sys_write, r0
 		vp_syscall
 		vp_add 8, r4
 		vp_pop r0
@@ -396,7 +392,7 @@
 		vp_cpy %4, r10		;shared etc
 		vp_cpy %5, r8		;file descriptor
 		vp_cpy %6, r9		;offset
-		vp_cpy SYS_MMAP, r0
+		vp_cpy sys_mmap, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -407,7 +403,7 @@
 		vp_cpy %1, r7		;addr
 		vp_cpy %2, r6		;size
 		vp_cpy %3, r2		;read only etc
-		vp_cpy SYS_MPROTECT, r0
+		vp_cpy sys_mprotect, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -417,7 +413,7 @@
 		push_trashed
 		vp_cpy %1, r7		;addr
 		vp_cpy %2, r6		;size of the file
-		vp_cpy SYS_MUNMAP, r0
+		vp_cpy sys_munmap, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -427,7 +423,7 @@
 		push_trashed
 		vp_cpy %1, r7		;path
 		vp_cpy %2, r6		;stat buffer
-		vp_cpy SYS_STAT, r0
+		vp_cpy sys_stat, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -438,7 +434,7 @@
 		vp_cpy %1, r7		;path
 		vp_cpy %2, r6		;flags
 		vp_cpy %3, r2		;mode
-		vp_cpy SYS_OPEN, r0
+		vp_cpy sys_open, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -447,7 +443,7 @@
 		;fd
 		push_trashed
 		vp_cpy %1, r7		;fd
-		vp_cpy SYS_CLOSE, r0
+		vp_cpy sys_close, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -457,7 +453,7 @@
 		push_trashed
 		vp_cpy %1, r7		;fd
 		vp_cpy %2, r6		;offset
-		vp_cpy SYS_FTRUNCATE, r0
+		vp_cpy sys_ftruncate, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -466,7 +462,7 @@
 		;name
 		push_trashed
 		vp_cpy %1, r7		;name
-		vp_cpy SYS_UNLINK, r0
+		vp_cpy sys_unlink, r0
 		vp_syscall
 		pop_trashed
 	%endmacro
@@ -476,7 +472,7 @@
 		push_trashed
 		vp_cpy %1, r7		;time struct
 		vp_cpy %2, r6		;timezone struct
-		vp_cpy SYS_GETTIMEOFDAY, r0
+		vp_cpy sys_gettimeofday, r0
 		vp_syscall
 		pop_trashed
 	%endmacro

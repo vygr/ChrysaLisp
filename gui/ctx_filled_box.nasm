@@ -2,8 +2,8 @@
 %include 'inc/sdl2.inc'
 
 	struc FBOX
-		FBOX_RECT:			resb SDL_RECT_SIZE
-		FBOX_CLIP_RECT:		resb SDL_RECT_SIZE
+		FBOX_RECT:			resb sdl_rect_size
+		FBOX_CLIP_RECT:		resb sdl_rect_size
 		FBOX_CTX:			resq 1
 		FBOX_PATCH:			resq 1
 		FBOX_OLD_STACK:		resq 1
@@ -29,10 +29,10 @@
 		vp_cpy r0, [r4 + FBOX_CTX]
 		vp_add [r0 + GUI_CTX_X], r8
 		vp_add [r0 + GUI_CTX_Y], r9
-		vp_cpy r8d, [r4 + FBOX_RECT + SDL_RECT_X]
-		vp_cpy r9d, [r4 + FBOX_RECT + SDL_RECT_Y]
-		vp_cpy r10d, [r4 + FBOX_RECT + SDL_RECT_W]
-		vp_cpy r11d, [r4 + FBOX_RECT + SDL_RECT_H]
+		vp_cpy r8d, [r4 + FBOX_RECT + sdl_rect_x]
+		vp_cpy r9d, [r4 + FBOX_RECT + sdl_rect_y]
+		vp_cpy r10d, [r4 + FBOX_RECT + sdl_rect_w]
+		vp_cpy r11d, [r4 + FBOX_RECT + sdl_rect_h]
 
 		;for each patch on the dirty list
 		vp_cpy [r0 + GUI_CTX_DIRTY_REGION], r0
@@ -48,10 +48,10 @@
 			vp_cpy [r0 + GUI_PATCH_Y1], r11
 			vp_sub r8, r10
 			vp_sub r9, r11
-			vp_cpy r8d, [r4 + FBOX_CLIP_RECT + SDL_RECT_X]
-			vp_cpy r9d, [r4 + FBOX_CLIP_RECT + SDL_RECT_Y]
-			vp_cpy r10d, [r4 + FBOX_CLIP_RECT + SDL_RECT_W]
-			vp_cpy r11d, [r4 + FBOX_CLIP_RECT + SDL_RECT_H]
+			vp_cpy r8d, [r4 + FBOX_CLIP_RECT + sdl_rect_x]
+			vp_cpy r9d, [r4 + FBOX_CLIP_RECT + sdl_rect_y]
+			vp_cpy r10d, [r4 + FBOX_CLIP_RECT + sdl_rect_w]
+			vp_cpy r11d, [r4 + FBOX_CLIP_RECT + sdl_rect_h]
 			vp_cpy [r4 + FBOX_CTX], r0
 			vp_lea [r4 + FBOX_CLIP_RECT], r1
 			sdl_rendersetcliprect [r0+ GUI_CTX_SDL_CTX], r1

@@ -21,7 +21,7 @@ main:
 	vp_and -ld_page_size, r0
 	vp_lea [rel ld_prebounde], r1
 	vp_sub r0, r1
-	sys_mprotect r0, r1, PROT_READ|PROT_WRITE|PROT_EXEC
+	sys_mprotect r0, r1, prot_read|prot_write|prot_exec
 
 	;init loader
 	vp_lea [rel ld_load_init_loader], r1

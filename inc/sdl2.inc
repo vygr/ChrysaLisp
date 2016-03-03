@@ -98,12 +98,11 @@
 	SDL_BLENDMODE_ADD		equ 2
 	SDL_BLENDMODE_MOD		equ 3
 
-	struc SDL_RECT
-		SDL_RECT_X:			resd	1
-		SDL_RECT_Y:			resd	1
-		SDL_RECT_W:			resd	1
-		SDL_RECT_H:			resd	1
-		SDL_RECT_SIZE:
+	struc sdl_rect
+		sdl_rect_x:			resd	1
+		sdl_rect_y:			resd	1
+		sdl_rect_w:			resd	1
+		sdl_rect_h:			resd	1
 	endstruc
 
 ;;;;;;;;;;;;;

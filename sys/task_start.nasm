@@ -17,31 +17,31 @@
 		fn_bind sys/task_statics, r6
 
 		;increment task count
-		vp_cpy [r6 + TK_STATICS_TASK_COUNT], r0
+		vp_cpy [r6 + tk_statics_task_count], r0
 		vp_inc r0
-		vp_cpy r0, [r6 + TK_STATICS_TASK_COUNT]
+		vp_cpy r0, [r6 + tk_statics_task_count]
 
 		;create new task control block and task
-		vp_lea [r6 + TK_STATICS_TASK_HEAP], r0
+		vp_lea [r6 + tk_statics_task_heap], r0
 		fn_call sys/heap_alloccell
-		vp_cpy [r6 + TK_STATICS_CURRENT_TCB], r0
+		vp_cpy [r6 + tk_statics_current_tcb], r0
 		ln_add_node_before r0, r1, r2
 
 		;initialise task mailbox
-		vp_cpy 0, qword[r1 + TK_NODE_MAILBOX + ML_MAILBOX_TCB]
-		vp_lea [r1 + TK_NODE_MAILBOX + ML_MAILBOX_LIST], r0
+		vp_cpy 0, qword[r1 + tk_node_mailbox + ml_mailbox_tcb]
+		vp_lea [r1 + tk_node_mailbox + ml_mailbox_list], r0
 		ml_init r0, r2, r3
 
 		;set task control block stack and return address's
-		vp_lea [r1 + TK_NODE_SIZE], r0
+		vp_lea [r1 + tk_node_size], r0
 		vp_sub TK_STATE_SIZE + 16, r0
-		vp_cpy r0, [r1 + TK_NODE_STACK]
+		vp_cpy r0, [r1 + tk_node_stack]
 		fn_bind sys/task_stop, r2
 		vp_cpy r2, [r0 + TK_STATE_SIZE + 8]
 		vp_cpy r5, [r0 + TK_STATE_SIZE]
 
 		;return mailbox pointer
-		vp_lea [r1 + TK_NODE_MAILBOX], r0
+		vp_lea [r1 + tk_node_mailbox], r0
 		vp_ret
 
 	fn_function_end

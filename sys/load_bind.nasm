@@ -51,10 +51,10 @@
 		vp_cpy [r8 + ld_statics_block_end], r2
 		vp_sub r1, r2
 		vp_lea [r8 + ld_statics_stat_buffer], r0
-		vp_cpy [r0 + STAT_FSIZE], r0
+		vp_cpy [r0 + stat_fsize], r0
 		if r2, <, r0
 			;not enough so allocate new function buffer
-			sys_mmap 0, ld_block_size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0
+			sys_mmap 0, ld_block_size, prot_read|prot_write|prot_exec, map_private|map_anon, -1, 0
 
 			;add to block list for freeing
 			vp_cpy [r8 + ld_statics_block_list], r3
@@ -75,7 +75,7 @@
 		;read into buffer
 		vp_cpy [r8 + ld_statics_block_start], r3
 		vp_lea [r8 + ld_statics_stat_buffer], r2
-		sys_read r12, r3, [r2 + STAT_FSIZE]
+		sys_read r12, r3, [r2 + stat_fsize]
 
 		;close function file
 		sys_close r12
@@ -87,7 +87,7 @@
 
 		;adjust block start
 		vp_cpy r3, r0
-		vp_add [r2 + STAT_FSIZE], r0
+		vp_add [r2 + stat_fsize], r0
 		vp_cpy r0, [r8 + ld_statics_block_start]
 
 		;load and link function references

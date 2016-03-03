@@ -3,6 +3,6 @@
 
 	fn_function sys/task_statics
 
-		times TK_STATICS_SIZE db 0
+		times tk_statics_size db 0
 
 	fn_function_end

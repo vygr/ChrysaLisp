@@ -6,7 +6,7 @@
 		fn_bind sys/task_statics, r0
 
 		;free the task heap
-		vp_lea [r0 + TK_STATICS_TASK_HEAP], r0
+		vp_lea [r0 + tk_statics_task_heap], r0
 		fn_jmp sys/heap_deinit
 
 	fn_function_end

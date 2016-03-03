@@ -9,11 +9,11 @@
 		;trashes
 		;r1-r3, r5
 
-		vp_add ML_MSG_DATA, r0
+		vp_add ml_msg_data, r0
 		vp_cpy r0, r5
 		fn_call sys/mem_alloc
-		vp_cpy r5, qword[r0 + ML_MSG_LENGTH]
-		vp_cpy 0, qword[r0 + ML_MSG_PARCEL_SIZE]
+		vp_cpy r5, qword[r0 + ml_msg_length]
+		vp_cpy 0, qword[r0 + ml_msg_parcel_size]
 		vp_ret
 
 	fn_function_end

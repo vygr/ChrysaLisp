@@ -21,7 +21,7 @@
 			vp_cpy [r0 + hp_heap_blocksize], r1
 			vp_add hp_block_size, r1
 			vp_cpy r0, r2
-			sys_mmap 0, r1, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, -1, 0
+			sys_mmap 0, r1, prot_read|prot_write, map_private|map_anon, -1, 0
 			vp_cpy r0, r1
 			vp_cpy r2, r0
 			vp_cpy [r0 + hp_heap_blocklist], r2

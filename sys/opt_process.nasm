@@ -54,7 +54,7 @@
 			vp_cpy 10, r1
 			fn_call sys/string_parse_int
 			fn_bind sys/task_statics, r1
-			vp_cpy r0, [r1 + TK_STATICS_CPU_ID]
+			vp_cpy r0, [r1 + tk_statics_cpu_id]
 		endif
 		vp_ret
 
@@ -97,18 +97,18 @@
 			vp_cpy r0, r7
 
 			;fill in destination
-			vp_cpy r5, [r0 + ML_MSG_DEST]
-			vp_cpy r6, [r0 + (ML_MSG_DEST + 8)]
+			vp_cpy r5, [r0 + ml_msg_dest]
+			vp_cpy r6, [r0 + (ml_msg_dest + 8)]
 
 			;fill in paramaters and set length
 			vp_lea [rel link_path], r0
-			vp_lea [r7 + ML_MSG_DATA], r1
+			vp_lea [r7 + ml_msg_data], r1
 			fn_call sys/string_copy
 			vp_cpy [r14], r0
 			vp_dec r1
 			fn_call sys/string_copy
 			vp_sub r7, r1
-			vp_cpy r1, [r7 + ML_MSG_LENGTH]
+			vp_cpy r1, [r7 + ml_msg_length]
 
 			;send to link task
 			vp_cpy r7, r0

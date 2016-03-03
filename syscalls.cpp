@@ -21,15 +21,15 @@ int main() {
 	printf("\tSYS_MPROTECT\tequ\t0x%x\n", SYS_mprotect);
 	printf("\tSYS_GETTIMEOFDAY\tequ\t0x%x\n\n", SYS_gettimeofday);
 
-	printf("\tPROT_NONE\tequ\t0x%x\n", PROT_NONE);
-	printf("\tPROT_READ\tequ\t0x%x\n", PROT_READ);
-	printf("\tPROT_WRITE\tequ\t0x%x\n", PROT_WRITE);
-	printf("\tPROT_EXEC\tequ\t0x%x\n\n", PROT_EXEC);
+	printf("\tPROT_NONE\tequ\t0x%x\n", prot_none);
+	printf("\tPROT_READ\tequ\t0x%x\n", prot_read);
+	printf("\tPROT_WRITE\tequ\t0x%x\n", prot_write);
+	printf("\tPROT_EXEC\tequ\t0x%x\n\n", prot_exec);
 
-	printf("\tMAP_SHARED\tequ\t0x%x\n", MAP_SHARED);
-	printf("\tMAP_PRIVATE\tequ\t0x%x\n", MAP_PRIVATE);
-	printf("\tMAP_FIXED\tequ\t0x%x\n", MAP_FIXED);
-	printf("\tMAP_ANON\tequ\t0x%x\n\n", MAP_ANON);
+	printf("\tMAP_SHARED\tequ\t0x%x\n", map_shared);
+	printf("\tMAP_PRIVATE\tequ\t0x%x\n", map_private);
+	printf("\tMAP_FIXED\tequ\t0x%x\n", map_fixed);
+	printf("\tMAP_ANON\tequ\t0x%x\n\n", map_anon);
 
 	printf("\tO_RDONLY\tequ\t0x%x\n", O_RDONLY);
 	printf("\tO_WRONLY\tequ\t0x%x\n", O_WRONLY);

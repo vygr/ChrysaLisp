@@ -28,8 +28,8 @@
 			vp_mul 16, r3
 			vp_cpy [r14 + r3], r1
 			vp_cpy [r14 + r3 + 8], r2
-			vp_cpy r1, [r0 + ML_MSG_DEST]
-			vp_cpy r2, [r0 + (ML_MSG_DEST + 8)]
+			vp_cpy r1, [r0 + ml_msg_dest]
+			vp_cpy r2, [r0 + (ml_msg_dest + 8)]
 			fn_call sys/mail_send
 			fn_call sys/task_yield
 		next

@@ -25,21 +25,21 @@
 
 			;fill in destination, reply, function
 			fn_call sys/cpu_get_id
-			vp_cpy 0, qword[r3 + ML_MSG_DEST]
-			vp_cpy r7, [r3 + (ML_MSG_DEST + 8)]
-			vp_cpy r4, [r3 + (ML_MSG_DATA + kn_data_kernel_reply)]
-			vp_cpy r0, [r3 + (ML_MSG_DATA + kn_data_kernel_reply + 8)]
-			vp_cpy fn_call_task_child, qword[r3 + (ML_MSG_DATA + kn_data_kernel_function)]
+			vp_cpy 0, qword[r3 + ml_msg_dest]
+			vp_cpy r7, [r3 + (ml_msg_dest + 8)]
+			vp_cpy r4, [r3 + (ml_msg_data + kn_data_kernel_reply)]
+			vp_cpy r0, [r3 + (ml_msg_data + kn_data_kernel_reply + 8)]
+			vp_cpy fn_call_task_child, qword[r3 + (ml_msg_data + kn_data_kernel_function)]
 
 			;copy task name, move to next task name
 			vp_cpy r5, r0
-			vp_lea [r3 + (ML_MSG_DATA + kn_data_task_child_pathname)], r1
+			vp_lea [r3 + (ml_msg_data + kn_data_task_child_pathname)], r1
 			fn_call sys/string_copy
 			vp_cpy r0, r5
 
 			;fill in total message length
 			vp_sub r3, r1
-			vp_cpy r1, [r3 + ML_MSG_LENGTH]
+			vp_cpy r1, [r3 + ml_msg_length]
 
 			;send mail to a kernel, wait for reply
 			vp_cpy r3, r0
@@ -48,8 +48,8 @@
 			fn_call sys/mail_read
 
 			;save reply mailbox ID
-			vp_cpy [r0 + (ML_MSG_DATA + kn_data_task_child_reply_mailboxid)], r2
-			vp_cpy [r0 + (ML_MSG_DATA + kn_data_task_child_reply_mailboxid + 8)], r3
+			vp_cpy [r0 + (ml_msg_data + kn_data_task_child_reply_mailboxid)], r2
+			vp_cpy [r0 + (ml_msg_data + kn_data_task_child_reply_mailboxid + 8)], r3
 			vp_cpy r2, [r6]
 			vp_cpy r3, [r6 + 8]
 			vp_cpy r3, r7	;near this cpu next

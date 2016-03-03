@@ -10,33 +10,30 @@
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-	struc ML_MAILBOX
-		ML_MAILBOX_LIST:		resb lh_list_size
-		ML_MAILBOX_PARCEL_LIST:	resb lh_list_size
-		ML_MAILBOX_TCB:			resq 1
-		ML_MAILBOX_SIZE:
+	struc ml_mailbox
+		ml_mailbox_list:		resb lh_list_size
+		ml_mailbox_parcel_list:	resb lh_list_size
+		ml_mailbox_tcb:			resq 1
 	endstruc
 
-	struc ML_MSG
-		ML_MSG_NODE:			resb ln_node_size
-		ML_MSG_LENGTH:			resq 1
-		ML_MSG_DEST:			resq 2
-		ML_MSG_PARCEL_ID:		resq 2
-		ML_MSG_PARCEL_SIZE:		resq 1
-		ML_MSG_PARCEL_TOTAL:	resq 1
-		ML_MSG_PARCEL_FRAG:		resq 1
-		ML_MSG_DATA:			resb 512
-		ml_msg_size:
+	struc ml_msg
+		ml_msg_node:			resb ln_node_size
+		ml_msg_length:			resq 1
+		ml_msg_dest:			resq 2
+		ml_msg_parcel_id:		resq 2
+		ml_msg_parcel_size:		resq 1
+		ml_msg_parcel_total:	resq 1
+		ml_msg_parcel_frag:		resq 1
+		ml_msg_data:			resb 512
 	endstruc
 
-	struc ML_STATICS
-		ML_STATICS_OFFCHIP_LIST:	resb lh_list_size
-		ML_STATICS_HEAP:			resb hp_heap_size
-		ML_STATICS_KERNEL_MAILBOX:	resq 1
-		ML_STATICS_IN_MAILBOX:		resq 1
-		ML_STATICS_OUT_MAILBOX:		resq 1
-		ML_STATICS_PARCEL_ID:		resq 1
-		ML_STATICS_SIZE:
+	struc ml_statics
+		ml_statics_offchip_list:	resb lh_list_size
+		ml_statics_heap:			resb hp_heap_size
+		ml_statics_kernel_mailbox:	resq 1
+		ml_statics_in_mailbox:		resq 1
+		ml_statics_out_mailbox:		resq 1
+		ml_statics_parcel_id:		resq 1
 	endstruc
 
 ;;;;;;;;;;;;;
@@ -53,9 +50,9 @@
 		;trashes
 		;%2, %3
 
-		vp_cpy 0, qword[%1 + ML_MAILBOX_TCB]
+		vp_cpy 0, qword[%1 + ml_mailbox_tcb]
 		lh_init %1, %2
-		vp_lea [%1 + ML_MAILBOX_PARCEL_LIST], %2
+		vp_lea [%1 + ml_mailbox_parcel_list], %2
 		lh_init %2, %3
 	%endmacro
 
@@ -79,12 +76,12 @@
 		;trashes
 		;%1, %2
 
-		vp_sub ML_MAILBOX_SIZE, r4
+		vp_sub ml_mailbox_size, r4
 		ml_init r4, %1, %2
 	%endmacro
 
 	%macro ml_temp_destroy 0
-		vp_add ML_MAILBOX_SIZE, r4
+		vp_add ml_mailbox_size, r4
 	%endmacro
 
 %endif

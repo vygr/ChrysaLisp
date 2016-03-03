@@ -10,7 +10,7 @@
 
 		;add to task list
 		fn_bind sys/task_statics, r1
-		vp_cpy [r1 + TK_STATICS_CURRENT_TCB], r1
+		vp_cpy [r1 + tk_statics_current_tcb], r1
 		ln_add_node_before r1, r0, r2
 		vp_ret
 
