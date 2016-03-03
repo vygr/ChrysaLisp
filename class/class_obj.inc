@@ -34,9 +34,10 @@
 		%define _super_class_%[%1] %2
     %endmacro
 
-    %macro def_method 2
+    %macro def_method 2-3 declare
         ;%1 = <member name>
         ;%2 = <member function>
+		;%3 = mode (declare/override)
         %assign %%_n 0
         %rep _map_%[_class_]_size
             %ifidn _map_%[_class_]_name_%[%%_n], %1
@@ -47,33 +48,26 @@
         %endrep
         %if %%_n = _map_%[_class_]_size
             ;new method
-            %assign _map_%[_class_]_size %%_n + 1
-            %define _map_%[_class_]_name_%[%%_n] %1
-            %define _map_%[_class_]_func_%[%%_n] %2
+			%ifidn %3, declare
+				%assign _map_%[_class_]_size %%_n + 1
+				%define _map_%[_class_]_name_%[%%_n] %1
+				%define _map_%[_class_]_func_%[%%_n] %2
+			%elifidn %3, override
+				%fatal Method %1 does not exist, use declare ?
+			%else
+				%fatal Must use declare or override !
+			%endif
         %else
             ;existing method
-            %fatal Method %1 allready exists, use def_method_override ?
-        %endif
-    %endmacro
-
-    %macro def_method_override 2
-        ;%1 = <member name>
-        ;%2 = <member function>
-        %assign %%_n 0
-        %rep _map_%[_class_]_size
-            %ifidn _map_%[_class_]_name_%[%%_n], %1
-                %exitrep
-            %else
-                %assign %%_n %%_n + 1
-            %endif
-        %endrep
-        %if %%_n = _map_%[_class_]_size
-            ;new method
-            %fatal Method %1 dose not exist, use def_method ?
-        %else
-            ;existing method
-            %define _map_%[_class_]_name_%[%%_n] %1
-            %define _map_%[_class_]_func_%[%%_n] %2
+			%ifidn %3, declare
+            	%fatal Method %1 allready exists, use override ?
+			%elifidn %3, override
+				;existing method
+	            %define _map_%[_class_]_name_%[%%_n] %1
+	            %define _map_%[_class_]_func_%[%%_n] %2
+			%else
+				%fatal Must use declare or override !
+			%endif
         %endif
     %endmacro
 

@@ -4,7 +4,7 @@
 %include 'class/class_obj.inc'
 
     def_class ref, obj
-	def_method_override init, class/ref/init
+	def_method init, class/ref/init, override
 	def_method ref, class/ref/ref
 	def_method deref, class/ref/deref
 
