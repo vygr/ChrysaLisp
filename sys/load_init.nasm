@@ -3,7 +3,7 @@
 
 	fn_function "sys/load_init"
 		;get loader statics and load function !
-		vp_lea [rel __func_start], r6
+		vp_lea [rel _func_start], r6
 		vp_add [r6 + FN_HEADER_LENGTH], r6
 		vp_cpy r6, r5
 		vp_add [r6 + FN_HEADER_LENGTH], r6
@@ -11,7 +11,7 @@
 		vp_add [r5 + FN_HEADER_ENTRY], r5
 
 		;add all to function list
-		vp_lea [rel __func_start], r1
+		vp_lea [rel _func_start], r1
 		loop_start
 			vp_cpy [r1], r0
 			breakif r0, ==, 0

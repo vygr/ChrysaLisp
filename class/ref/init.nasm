@@ -8,10 +8,10 @@
 		;r1 = 0 if error, else ok
 
 		;init parent
-		function_call obj, init
+		super_call ref, init
 		if r1, !=, 0
 			;init myself
-			vp_cpy 1, qword[r0 + REF_COUNT]
+			vp_cpy 1, qword[r0 + ref_count]
 		endif
 		vp_ret
 

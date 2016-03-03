@@ -14,7 +14,7 @@
 		vp_cpy r0, r7
 
 		;get loader statics !
-		vp_lea [rel __func_start], r8
+		vp_lea [rel _func_start], r8
 		vp_add [r8 + FN_HEADER_LENGTH], r8
 		vp_add [r8 + FN_HEADER_ENTRY], r8
 

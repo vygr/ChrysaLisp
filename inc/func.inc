@@ -78,99 +78,93 @@
 		;%1 = function path name
 		;%2 = register
 
-		%assign %%__f -1
-		%assign %%__i 0
-		%rep __ftotal
-			%deftok %%__path __func_str%[%%__i]
-			%ifidn %%__path, %1
-				%assign %%__f %%__i
+		%assign %%_i 0
+		%rep _ftotal
+			%deftok %%_path _func_str%[%%_i]
+			%ifidn %%_path, %1
 				%exitrep
+			%else
+				%assign %%_i %%_i+1
 			%endif
-			%assign %%__i %%__i+1
 		%endrep
-		%if %%__f = -1
-			%assign %%__f __ftotal
-			%assign __ftotal __ftotal+1
-			%defstr __func_str%[%%__f] %1
+		%if %%_i = _ftotal
+			%assign _ftotal _ftotal+1
+			%defstr _func_str%[%%_i] %1
 		%endif
-		vp_cpy [rel __func%[%%__f]], %2
+		vp_cpy [rel __func%[%%_i]], %2
 	%endmacro
 
 	%macro fn_call 1
 		;inputs
 		;%1 = function path name
 
-		%assign %%__f -1
-		%assign %%__i 0
-		%rep __ftotal
-			%deftok %%__path __func_str%[%%__i]
-			%ifidn %%__path, %1
-				%assign %%__f %%__i
+		%assign %%_i 0
+		%rep _ftotal
+			%deftok %%_path _func_str%[%%_i]
+			%ifidn %%_path, %1
 				%exitrep
+			%else
+				%assign %%_i %%_i+1
 			%endif
-			%assign %%__i %%__i+1
 		%endrep
-		%if %%__f = -1
-			%assign %%__f __ftotal
-			%assign __ftotal __ftotal+1
-			%defstr __func_str%[%%__f] %1
+		%if %%_i = _ftotal
+			%assign _ftotal _ftotal+1
+			%defstr _func_str%[%%_i] %1
 		%endif
-		vp_call [rel __func%[%%__f]]
+		vp_call [rel __func%[%%_i]]
 	%endmacro
 
 	%macro fn_jmp 1
 		;inputs
 		;%1 = function path name
 
-		%assign %%__f -1
-		%assign %%__i 0
-		%rep __ftotal
-			%deftok %%__path __func_str%[%%__i]
-			%ifidn %%__path, %1
-				%assign %%__f %%__i
+		%assign %%_i 0
+		%rep _ftotal
+			%deftok %%_path _func_str%[%%_i]
+			%ifidn %%_path, %1
 				%exitrep
+			%else
+				%assign %%_i %%_i+1
 			%endif
-			%assign %%__i %%__i+1
 		%endrep
-		%if %%__f = -1
-			%assign %%__f __ftotal
-			%assign __ftotal __ftotal+1
-			%defstr __func_str%[%%__f] %1
+		%if %%_i = _ftotal
+			%assign _ftotal _ftotal+1
+			%defstr _func_str%[%%_i] %1
 		%endif
-		vp_jmp [rel __func%[%%__f]]
+		vp_jmp [rel __func%[%%_i]]
 	%endmacro
 
 	%macro fn_function 1
 		;inputs
 		;%1 = function path name
 			BITS 64
-			%assign __ftotal 0
+			%assign _ftotal 0
 			align 8, db 0
-		__func_start:
+		_func_start:
 			dq	-1
-			dq	__func_end - __func_start
-			dq	__func_entry - __func_start
-			dq	__func_links - __func_start
+			dq	_func_end - _func_start
+			dq	_func_entry - _func_start
+			dq	_func_links - _func_start
 			db	%1
 			db	0
 			align 8, db 0
-		__func_entry:
+		_func_entry:
 	%endmacro
 
 	%macro fn_function_end 0
 			align 8, db 0
-		__func_links:
-			%assign %%__i 0
-			%rep __ftotal
-			__func%[%%__i]:
+		_func_links:
+			%assign %%_i 0
+			%rep _ftotal
+			__func%[%%_i]:
 				dq	-1
-				db	__func_str%[%%__i]
+				db	_func_str%[%%_i]
 				db	0
 				align 8, db 0
-				%assign %%__i %%__i+1
+				%assign %%_i %%_i+1
 			%endrep
 			dq	0
-		__func_end:
+		_func_end:
 	%endmacro
 
 %endif

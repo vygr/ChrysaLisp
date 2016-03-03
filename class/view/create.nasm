@@ -7,11 +7,11 @@
 		;r1-r3
 
 		;create new view object
-		function_call view, new
+		class_call view, new
 		if r0, !=, 0
 			;init the object
 			fn_bind class/class_view, r1
-			function_call view, init
+			class_call view, init
 			if r1, ==, 0
 				;error with init
 				method_call obj, delete

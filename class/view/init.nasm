@@ -8,7 +8,7 @@
 		;r1 = 0 if error, else ok
 
 		;init parent
-		function_call ref, init
+		super_call view, init
 		if r1, !=, 0
 			;init myself
 		endif

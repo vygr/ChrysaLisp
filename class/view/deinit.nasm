@@ -7,7 +7,7 @@
 		;deinit myself
 
 		;deinit parent
-		function_call ref, deinit
+		super_call view, deinit
 		vp_ret
 
 	fn_function_end

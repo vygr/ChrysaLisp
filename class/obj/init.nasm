@@ -8,7 +8,7 @@
 		;r1 = 0 if error, else ok
 
 		;init the object
-		vp_cpy r1, [r0 + OBJ_VTABLE]
+		vp_cpy r1, [r0 + obj_vtable]
 		vp_ret
 
 	fn_function_end

@@ -3,7 +3,7 @@
 	fn_function 'class/test/oops'
 
 		;create a view object
-		function_call view, create
+		class_call view, create
 		if r0, !=, 0
 			;deref it
 			method_call ref, deref

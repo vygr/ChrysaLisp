@@ -4,7 +4,7 @@
 		;inputs
 		;r0 = object
 
-		vp_cpy 0, qword[r0 + OBJ_VTABLE]
+		vp_cpy 0, qword[r0 + obj_vtable]
 		vp_ret
 
 	fn_function_end
