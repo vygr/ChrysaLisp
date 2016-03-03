@@ -67,7 +67,7 @@
 		vp_cpy 0, qword[r0 + ML_MSG_DATA + kn_data_kernel_user]
 		vp_cpy 0, qword[r0 + ML_MSG_DATA + kn_data_kernel_reply]
 		vp_cpy 0, qword[r0 + (ML_MSG_DATA + kn_data_kernel_reply + 8)]
-		vp_cpy KN_CALL_LINK_ROUTE, qword[r0 + ML_MSG_DATA + kn_data_kernel_function]
+		vp_cpy fn_call_task_route, qword[r0 + ML_MSG_DATA + kn_data_kernel_function]
 		vp_cpy r8, [r0 + ML_MSG_DATA + kn_data_link_route_origin]
 		vp_cpy r8, [r0 + ML_MSG_DATA + kn_data_link_route_via]
 		vp_cpy 1, qword[r0 + ML_MSG_DATA + kn_data_link_route_hops]

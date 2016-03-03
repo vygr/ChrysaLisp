@@ -29,7 +29,7 @@
 			vp_cpy r7, [r3 + (ML_MSG_DEST + 8)]
 			vp_cpy r4, [r3 + (ML_MSG_DATA + kn_data_kernel_reply)]
 			vp_cpy r0, [r3 + (ML_MSG_DATA + kn_data_kernel_reply + 8)]
-			vp_cpy KN_CALL_TASK_CHILD, qword[r3 + (ML_MSG_DATA + kn_data_kernel_function)]
+			vp_cpy fn_call_task_child, qword[r3 + (ML_MSG_DATA + kn_data_kernel_function)]
 
 			;copy task name, move to next task name
 			vp_cpy r5, r0

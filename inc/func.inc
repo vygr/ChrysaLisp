@@ -9,11 +9,11 @@
 ; kernel mail funcions
 ;;;;;;;;;;;;;;;;;;;;;;
 
-	struc KN_CALL
-		KN_CALL_TASK_OPEN:					resb 1
-		KN_CALL_TASK_CHILD:					resb 1
-		KN_CALL_LINK_ROUTE:					resb 1
-		KN_CALL_GUI_UPDATE:					resb 1
+	struc kn_call
+		fn_call_task_open:					resb 1
+		fn_call_task_child:					resb 1
+		fn_call_task_route:					resb 1
+		fn_call_gui_update:					resb 1
 	endstruc
 
 ;;;;;;;;;;;;;;;;;;
@@ -55,12 +55,12 @@
 ; func structures
 ;;;;;;;;;;;;;;;;;
 
-	struc FN_HEADER
-		FN_HEADER_NEXT:			resq 1
-		FN_HEADER_LENGTH:		resq 1
-		FN_HEADER_ENTRY:		resq 1
-		FN_HEADER_LINKS:		resq 1
-		FN_HEADER_PATHNAME:
+	struc fn_header
+		fn_header_next:			resq 1
+		fn_header_length:		resq 1
+		fn_header_entry:		resq 1
+		fn_header_links:		resq 1
+		fn_header_pathname:
 	endstruc
 
 ;;;;;;;;;;;;;

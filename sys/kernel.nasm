@@ -74,7 +74,7 @@
 				;switch on kernel call number
 				vp_cpy [r15 + (ML_MSG_DATA + kn_data_kernel_function)], r1
 				switch
-				case r1, ==, KN_CALL_TASK_OPEN
+				case r1, ==, fn_call_task_open
 				run_here:
 					;fill in reply ID, user field is left alone !
 					vp_cpy [r15 + (ML_MSG_DATA + kn_data_kernel_reply)], r1
@@ -93,7 +93,7 @@
 					vp_cpy r15, r0
 					fn_call sys/mail_send
 					break
-				case r1, ==, KN_CALL_TASK_CHILD
+				case r1, ==, fn_call_task_child
 					;find best cpu to run task
 					fn_call sys/cpu_get_id
 					vp_cpy r0, r5
@@ -113,7 +113,7 @@
 					vp_cpy r15, r0
 					fn_call sys/mail_send
 					break
-				case r1, ==, KN_CALL_LINK_ROUTE
+				case r1, ==, fn_call_task_route
 					;increase size of network ?
 					fn_bind sys/task_statics, r0
 					vp_cpy [r15 + ML_MSG_DATA + kn_data_link_route_origin], r1
@@ -222,7 +222,7 @@
 					vp_cpy r15, r0
 					fn_call sys/mem_free
 					break
-				case r1, ==, KN_CALL_GUI_UPDATE
+				case r1, ==, fn_call_gui_update
 					;free update message
 					vp_cpy r15, r0
 					fn_call sys/mem_free

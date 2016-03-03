@@ -25,19 +25,19 @@ main:
 
 	;init loader
 	vp_lea [rel ld_load_init_loader], r1
-	vp_add [r1 + FN_HEADER_ENTRY], r1
+	vp_add [r1 + fn_header_entry], r1
 	vp_call r1
 
 	;init gui
 	vp_lea [rel sdl_func_table], r0
 	vp_lea [rel ld_gui_init_gui], r1
-	vp_add [r1 + FN_HEADER_ENTRY], r1
+	vp_add [r1 + fn_header_entry], r1
 	vp_call r1
 
 	;jump to kernel task
 	vp_pop r0
 	vp_lea [rel ld_kernel], r1
-	vp_add [r1 + FN_HEADER_ENTRY], r1
+	vp_add [r1 + fn_header_entry], r1
 	vp_jmp r1
 
 ;;;;;;;;;;;;;;;;;;;;

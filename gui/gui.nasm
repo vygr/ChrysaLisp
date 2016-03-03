@@ -73,7 +73,7 @@
 		;fill in destination, function
 		vp_cpy 0, qword[r0 + ML_MSG_DEST]
 		vp_cpy 0, qword[r0 + (ML_MSG_DEST + 8)]
-		vp_cpy KN_CALL_GUI_UPDATE, qword[r0 + (ML_MSG_DATA + kn_data_kernel_function)]
+		vp_cpy fn_call_gui_update, qword[r0 + (ML_MSG_DATA + kn_data_kernel_function)]
 
 		;send mail to kernel
 		fn_call sys/mail_send

@@ -15,19 +15,19 @@
 
 		;get loader statics !
 		vp_lea [rel _func_start], r8
-		vp_add [r8 + FN_HEADER_LENGTH], r8
-		vp_add [r8 + FN_HEADER_ENTRY], r8
+		vp_add [r8 + fn_header_length], r8
+		vp_add [r8 + fn_header_entry], r8
 
 		;check if function already present !
 		vp_xor r5, r5
 		vp_cpy [r8 + LD_STATICS_FUNCTION_LIST], r6
 		loop_while r6, !=, 0
 			vp_cpy r7, r0
-			vp_lea [r6 + FN_HEADER_PATHNAME], r1
+			vp_lea [r6 + fn_header_pathname], r1
 			vp_call string_compare
 			if r0, !=, 0
 				vp_cpy r6, r5
-				vp_add [r6 + FN_HEADER_ENTRY], r5
+				vp_add [r6 + fn_header_entry], r5
 			endif
 			vp_cpy [r6], r6
 		loop_until r5, !=, 0
@@ -92,7 +92,7 @@
 
 		;load and link function references
 		vp_cpy r3, r0
-		vp_add [r3 + FN_HEADER_LINKS], r0
+		vp_add [r3 + fn_header_links], r0
 		loop_start
 			vp_cpy [r0], r1
 			breakif r1, ==, 0
@@ -115,7 +115,7 @@
 
 		;return function address
 		vp_cpy r3, r0
-		vp_add [r3 + FN_HEADER_ENTRY], r0
+		vp_add [r3 + fn_header_entry], r0
 		vp_ret
 
 	string_compare:
