@@ -101,4 +101,12 @@
 		shr %2, %1
 	%endmacro
 
+	%macro vp_asr 2
+		asr %2, %1
+	%endmacro
+
+	%macro vp_shl 2
+		shl %2, %1
+	%endmacro
+
 %endif
