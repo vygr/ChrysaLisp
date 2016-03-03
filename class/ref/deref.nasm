@@ -13,7 +13,7 @@
 
 		;destroy if 0
 		if r1, ==, 0
-			method_call obj, destroy
+			method_call ref, destroy
 		endif
 		vp_ret
 

@@ -14,7 +14,7 @@
 			class_call view, init
 			if r1, ==, 0
 				;error with init
-				method_call obj, delete
+				method_call view, delete
 				vp_xor r0, r0
 			endif
 		endif

@@ -6,7 +6,7 @@
 		class_call view, create
 		if r0, !=, 0
 			;deref it
-			method_call ref, deref
+			method_call view, deref
 		endif
 		ret
 
