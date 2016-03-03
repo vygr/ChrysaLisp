@@ -49,13 +49,13 @@ ld_prebound:
 
 ld_load_init_loader:
 	incbin	'sys/load_init'		;must be first function !
-	incbin	'sys/load_bind'	;must be second function !
-	incbin	'sys/load_statics'			;must be third function !
+	incbin	'sys/load_bind'		;must be second function !
+	incbin	'sys/load_statics'	;must be third function !
 	incbin	'sys/load_deinit'	;must be included !
 ld_gui_init_gui:
-	incbin	'gui/gui_init'			;must be included !
+	incbin	'gui/gui_init'		;must be included !
 ld_kernel:
-	incbin	'sys/kernel'				;must be included !
+	incbin	'sys/kernel'		;must be included !
 
 ld_prebounde:
 	dq 0

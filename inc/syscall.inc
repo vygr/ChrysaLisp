@@ -32,32 +32,32 @@
 	map_fixed			equ	0x10
 	map_anon			equ	0x1000
 
-	O_RDONLY			equ	0x0
-	O_WRONLY			equ	0x1
-	O_RDWR				equ	0x2
-	O_TRUNC				equ	0x400
-	O_APPEND			equ	0x8
-	O_NONBLOCK			equ	0x4
-	O_CREAT				equ	0x200
-	O_EXCL				equ	0x800
-	O_NOFOLLOW			equ	0x100
-	O_CLOEXEC			equ	0x1000000
+	o_rdonly			equ	0x0
+	o_wronly			equ	0x1
+	o_rdwr				equ	0x2
+	o_trunc				equ	0x400
+	o_append			equ	0x8
+	o_nonblock			equ	0x4
+	o_creat				equ	0x200
+	o_excl				equ	0x800
+	o_nofollow			equ	0x100
+	o_cloexec			equ	0x1000000
 
-	S_IRWXU				equ	0x1c0
-	S_IRUSR				equ	0x100
-	S_IWUSR				equ	0x80
-	S_IXUSR				equ	0x40
-	S_IRWXG				equ	0x38
-	S_IRGRP				equ	0x20
-	S_IWGRP				equ	0x10
-	S_IXGRP				equ	0x8
-	S_IRWXO				equ	0x7
-	S_IROTH				equ	0x4
-	S_IWOTH				equ	0x2
-	S_IXOTH				equ	0x1
-	S_ISUID				equ	0x800
-	S_ISGID				equ	0x400
-	S_ISVTX				equ	0x200
+	s_irwxu				equ	0x1c0
+	s_irusr				equ	0x100
+	s_iwusr				equ	0x80
+	s_ixusr				equ	0x40
+	s_irwxg				equ	0x38
+	s_irgrp				equ	0x20
+	s_iwgrp				equ	0x10
+	s_ixgrp				equ	0x8
+	s_irwxo				equ	0x7
+	s_iroth				equ	0x4
+	s_iwoth				equ	0x2
+	s_ixoth				equ	0x1
+	s_isuid				equ	0x800
+	s_isgid				equ	0x400
+	s_isvtx				equ	0x200
 
 	stat_fsize			equ 0x48
 	stat_size			equ 0x100
@@ -271,32 +271,32 @@
 	map_fixed			equ	0x10
 	map_anon			equ	0x20
 
-	O_RDONLY			equ	0x0
-	O_WRONLY			equ	0x1
-	O_RDWR				equ	0x2
-	O_TRUNC				equ	0x200
-	O_APPEND			equ	0x400
-	O_NONBLOCK			equ	0x800
-	O_CREAT				equ	0x40
-	O_EXCL				equ	0x80
-	O_NOFOLLOW			equ	0x20000
-	O_CLOEXEC			equ	0x80000
+	o_rdonly			equ	0x0
+	o_wronly			equ	0x1
+	o_rdwr				equ	0x2
+	o_trunc				equ	0x200
+	o_append			equ	0x400
+	o_nonblock			equ	0x800
+	o_creat				equ	0x40
+	o_excl				equ	0x80
+	o_nofollow			equ	0x20000
+	o_cloexec			equ	0x80000
 
-	S_IRWXU				equ	0x1c0
-	S_IRUSR				equ	0x100
-	S_IWUSR				equ	0x80
-	S_IXUSR				equ	0x40
-	S_IRWXG				equ	0x38
-	S_IRGRP				equ	0x20
-	S_IWGRP				equ	0x10
-	S_IXGRP				equ	0x8
-	S_IRWXO				equ	0x7
-	S_IROTH				equ	0x4
-	S_IWOTH				equ	0x2
-	S_IXOTH				equ	0x1
-	S_ISUID				equ	0x800
-	S_ISGID				equ	0x400
-	S_ISVTX				equ	0x200
+	s_irwxu				equ	0x1c0
+	s_irusr				equ	0x100
+	s_iwusr				equ	0x80
+	s_ixusr				equ	0x40
+	s_irwxg				equ	0x38
+	s_irgrp				equ	0x20
+	s_iwgrp				equ	0x10
+	s_ixgrp				equ	0x8
+	s_irwxo				equ	0x7
+	s_iroth				equ	0x4
+	s_iwoth				equ	0x2
+	s_ixoth				equ	0x1
+	s_isuid				equ	0x800
+	s_isgid				equ	0x400
+	s_isvtx				equ	0x200
 
 	stat_fsize			equ	0x30
 	stat_size			equ	0x100

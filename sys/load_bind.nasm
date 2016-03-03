@@ -69,7 +69,7 @@
 		endif
 
 		;open function file
-		sys_open r7, O_RDONLY, 0
+		sys_open r7, o_rdonly, 0
 		vp_cpy r0, r12
 
 		;read into buffer

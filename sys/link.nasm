@@ -76,7 +76,7 @@
 
 		;open shared memory file
 		vp_lea [r14 + ml_msg_data], r0
-		sys_open r0, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR
+		sys_open r0, o_creat | o_rdwr, s_irusr | s_iwusr
 		vp_cpy r0, r13
 
 		;set size of region
