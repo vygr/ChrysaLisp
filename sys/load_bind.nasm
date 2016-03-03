@@ -42,6 +42,14 @@
 		sys_stat r7, r0
 		if r0, !=, 0
 			;no such file
+			vp_lea [rel bind_error], r0
+			sys_write_string 1, r0, bind_error_end-bind_error
+			vp_cpy r7, r0
+			vp_call string_length
+			vp_cpy r1, r2
+			sys_write_string 1, r0, r2
+			sys_write_char 1, 10
+
 			xor r0, r0
 			vp_ret
 		endif
@@ -134,5 +142,20 @@
 		loop_end
 		vp_xor r0, r0
 		vp_ret
+
+	string_length:
+		vp_cpy r0, r1
+		loop_start
+			vp_cpy byte[r1], r2l
+			vp_and 0xff, r2
+			breakif r2, ==, 0
+			vp_inc r1
+		loop_end
+		vp_sub r0, r1
+		vp_ret
+
+	bind_error:
+		db 'Bind error: '
+	bind_error_end:
 
 	fn_function_end
