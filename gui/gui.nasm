@@ -7,40 +7,40 @@
 		fn_call gui/view_alloc
 
 		;fill in sizes etc
-		vp_cpy 0, qword[r0 + GUI_VIEW_X]
-		vp_cpy 0, qword[r0 + GUI_VIEW_Y]
-		vp_cpy 1024, qword[r0 + GUI_VIEW_W]
-		vp_cpy 768, qword[r0 + GUI_VIEW_H]
-		vp_lea [rel draw_background], r1
-		vp_cpy r1, [r0 + GUI_VIEW_DRAW]
+		vp_cpy 0, qword[r0 + gui_view_x]
+		vp_cpy 0, qword[r0 + gui_view_y]
+		vp_cpy 1024, qword[r0 + gui_view_w]
+		vp_cpy 768, qword[r0 + gui_view_h]
+		vp_lea [rel draw_background_code], r1
+		vp_cpy r1, [r0 + gui_view_draw]
 
 		;add as gui screen view
 		fn_bind gui/gui_statics, r1
-		vp_cpy r0, [r1 + GUI_STATICS_SCREEN]
+		vp_cpy r0, [r1 + gui_statics_screen]
 		vp_push r0
 
 		;allocate sub view
 		fn_call gui/view_alloc
 
 		;fill in sizes etc
-		vp_cpy 128, qword[r0 + GUI_VIEW_X]
-		vp_cpy 128, qword[r0 + GUI_VIEW_Y]
-		vp_cpy 512, qword[r0 + GUI_VIEW_W]
-		vp_cpy 256, qword[r0 + GUI_VIEW_H]
-		vp_lea [rel draw_view1], r1
-		vp_cpy r1, [r0 + GUI_VIEW_DRAW]
+		vp_cpy 128, qword[r0 + gui_view_x]
+		vp_cpy 128, qword[r0 + gui_view_y]
+		vp_cpy 512, qword[r0 + gui_view_w]
+		vp_cpy 256, qword[r0 + gui_view_h]
+		vp_lea [rel draw_view1_code], r1
+		vp_cpy r1, [r0 + gui_view_draw]
 		vp_push r0
 
 		;allocate sub view
 		fn_call gui/view_alloc
 
 		;fill in sizes etc
-		vp_cpy 256, qword[r0 + GUI_VIEW_X]
-		vp_cpy 256, qword[r0 + GUI_VIEW_Y]
-		vp_cpy 512, qword[r0 + GUI_VIEW_W]
-		vp_cpy 256, qword[r0 + GUI_VIEW_H]
-		vp_lea [rel draw_view2], r1
-		vp_cpy r1, [r0 + GUI_VIEW_DRAW]
+		vp_cpy 256, qword[r0 + gui_view_x]
+		vp_cpy 256, qword[r0 + gui_view_y]
+		vp_cpy 512, qword[r0 + gui_view_w]
+		vp_cpy 256, qword[r0 + gui_view_h]
+		vp_lea [rel draw_view2_code], r1
+		vp_cpy r1, [r0 + gui_view_draw]
 		vp_push r0
 
 		;add as sub view
@@ -82,22 +82,21 @@
 		vp_cpy 5000000, r0
 		fn_jmp sys/task_sleep
 
-	draw_background:
+	draw_background_code:
 		;inputs
 		;r0 = view object
 		;r1 = ctx
 		;trashes
 		;r0-r3, r5-r15
 
-		struc DRAW_BACKGROUND
-			DRAW_BACKGROUND_VIEW:	resq 1
-			DRAW_BACKGROUND_CTX:	resq 1
-			DRAW_BACKGROUND_SIZE:
+		struc draw_background
+			draw_background_view:	resq 1
+			draw_background_ctx:	resq 1
 		endstruc
 
-		vp_sub DRAW_BACKGROUND_SIZE, r4
-		vp_cpy r0, [r4 + DRAW_BACKGROUND_VIEW]
-		vp_cpy r1, [r4 + DRAW_BACKGROUND_CTX]
+		vp_sub draw_background_size, r4
+		vp_cpy r0, [r4 + draw_background_view]
+		vp_cpy r1, [r4 + draw_background_ctx]
 
 		vp_cpy 0, r8
 		vp_cpy 0, r9
@@ -106,33 +105,32 @@
 		vp_cpy r1, r0
 		fn_call gui/ctx_set_color
 
-		vp_cpy [r4 + DRAW_BACKGROUND_VIEW], r1
-		vp_cpy [r4 + DRAW_BACKGROUND_CTX], r0
+		vp_cpy [r4 + draw_background_view], r1
+		vp_cpy [r4 + draw_background_ctx], r0
 		vp_xor r8, r8
 		vp_xor r9, r9
-		vp_cpy [r1 + GUI_VIEW_W], r10
-		vp_cpy [r1 + GUI_VIEW_H], r11
+		vp_cpy [r1 + gui_view_w], r10
+		vp_cpy [r1 + gui_view_h], r11
 		fn_call gui/ctx_filled_box
 
-		vp_add DRAW_BACKGROUND_SIZE, r4
+		vp_add draw_background_size, r4
 		vp_ret
 
-	draw_view1:
+	draw_view1_code:
 		;inputs
 		;r0 = view object
 		;r1 = ctx
 		;trashes
 		;r0-r3, r5-r15
 
-		struc DRAW_VIEW1
-			DRAW_VIEW1_VIEW:	resq 1
-			DRAW_VIEW1_CTX:		resq 1
-			DRAW_VIEW1_SIZE:
+		struc draw_view1
+			draw_view1_view:	resq 1
+			draw_view1_ctx:		resq 1
 		endstruc
 
-		vp_sub DRAW_VIEW1_SIZE, r4
-		vp_cpy r0, [r4 + DRAW_VIEW1_VIEW]
-		vp_cpy r1, [r4 + DRAW_VIEW1_CTX]
+		vp_sub draw_view1_size, r4
+		vp_cpy r0, [r4 + draw_view1_view]
+		vp_cpy r1, [r4 + draw_view1_ctx]
 
 		vp_cpy 255, r8
 		vp_cpy 255, r9
@@ -141,33 +139,32 @@
 		vp_cpy r1, r0
 		fn_call gui/ctx_set_color
 
-		vp_cpy [r4 + DRAW_VIEW1_VIEW], r1
-		vp_cpy [r4 + DRAW_VIEW1_CTX], r0
+		vp_cpy [r4 + draw_view1_view], r1
+		vp_cpy [r4 + draw_view1_ctx], r0
 		vp_xor r8, r8
 		vp_xor r9, r9
-		vp_cpy [r1 + GUI_VIEW_W], r10
-		vp_cpy [r1 + GUI_VIEW_H], r11
+		vp_cpy [r1 + gui_view_w], r10
+		vp_cpy [r1 + gui_view_h], r11
 		fn_call gui/ctx_filled_box
 
-		vp_add DRAW_VIEW1_SIZE, r4
+		vp_add draw_view1_size, r4
 		vp_ret
 
-	draw_view2:
+	draw_view2_code:
 		;inputs
 		;r0 = view object
 		;r1 = ctx
 		;trashes
 		;r0-r3, r5-r15
 
-		struc DRAW_VIEW2
-			DRAW_VIEW2_VIEW:	resq 1
-			DRAW_VIEW2_CTX:		resq 1
-			DRAW_VIEW2_SIZE:
+		struc draw_view2
+			draw_view2_view:	resq 1
+			draw_view2_ctx:		resq 1
 		endstruc
 
-		vp_sub DRAW_VIEW2_SIZE, r4
-		vp_cpy r0, [r4 + DRAW_VIEW2_VIEW]
-		vp_cpy r1, [r4 + DRAW_VIEW2_CTX]
+		vp_sub draw_view2_size, r4
+		vp_cpy r0, [r4 + draw_view2_view]
+		vp_cpy r1, [r4 + draw_view2_ctx]
 
 		vp_cpy 0, r8
 		vp_cpy 255, r9
@@ -176,15 +173,15 @@
 		vp_cpy r1, r0
 		fn_call gui/ctx_set_color
 
-		vp_cpy [r4 + DRAW_VIEW2_VIEW], r1
-		vp_cpy [r4 + DRAW_VIEW2_CTX], r0
+		vp_cpy [r4 + draw_view2_view], r1
+		vp_cpy [r4 + draw_view2_ctx], r0
 		vp_xor r8, r8
 		vp_xor r9, r9
-		vp_cpy [r1 + GUI_VIEW_W], r10
-		vp_cpy [r1 + GUI_VIEW_H], r11
+		vp_cpy [r1 + gui_view_w], r10
+		vp_cpy [r1 + gui_view_h], r11
 		fn_call gui/ctx_filled_box
 
-		vp_add DRAW_VIEW2_SIZE, r4
+		vp_add draw_view2_size, r4
 		vp_ret
 
 	fn_function_end

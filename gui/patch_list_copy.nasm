@@ -28,7 +28,7 @@
 		;run through copy patch list
 		vp_cpy [r3], r1
 		loop_while r1, !=, 0
-			vp_cpy [r1 + GUI_PATCH_NEXT], r2
+			vp_cpy [r1 + gui_patch_next], r2
 			vp_cpy r2, [r4 + COPY_NEXT]
 			vp_cpy [r1 + GUI_PATCH_X], r8
 			vp_cpy [r1 + GUI_PATCH_Y], r9

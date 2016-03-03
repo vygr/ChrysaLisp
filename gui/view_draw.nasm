@@ -20,7 +20,7 @@
 		vp_cpy r0, [r4 + DRAW_VIEW_ROOT]
 		fn_bind gui/gui_statics, r1
 		vp_cpy [r1 + GUI_STATICS_RENDERER], r1
-		vp_cpy r1, [r4 + DRAW_VIEW_CTX + GUI_CTX_SDL_CTX]
+		vp_cpy r1, [r4 + DRAW_VIEW_CTX + gui_ctx_sdl_ctx]
 		vp_cpy 0, qword[r4 + DRAW_VIEW_PATCH_LIST]
 
 		;iterate through views back to front
@@ -33,8 +33,8 @@
 			vp_cpy r1, r0
 
 			;context abs cords
-			vp_add [r0 + GUI_VIEW_X], r8
-			vp_add [r0 + GUI_VIEW_Y], r9
+			vp_add [r0 + gui_view_x], r8
+			vp_add [r0 + gui_view_y], r9
 			vp_cpy r8, [r0 + GUI_VIEW_CTX_X]
 			vp_cpy r9, [r0 + GUI_VIEW_CTX_Y]
 
@@ -44,8 +44,8 @@
 		loop_until qword[r1 + GUI_VIEW_NODE + ln_node_succ], ==, 0
 		loop_while r0, !=, [r4 + DRAW_VIEW_ROOT]
 			;context abs cords
-			vp_sub [r0 + GUI_VIEW_X], r8
-			vp_sub [r0 + GUI_VIEW_Y], r9
+			vp_sub [r0 + gui_view_x], r8
+			vp_sub [r0 + gui_view_y], r9
 
 			;across to sibling
 			ln_get_succ r0 + GUI_VIEW_NODE, r1
@@ -68,7 +68,7 @@
 
 			;patch heap
 			fn_bind gui/gui_statics, r0
-			vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
+			vp_lea [r0 + gui_statics_patch_heap], r0
 
 			;if opaque view remove from global dirty list
 			vp_cpy [r4 + DRAW_VIEW_NODE], r1
@@ -76,8 +76,8 @@
 			if r2, ==, 0
 				vp_cpy [r1 + GUI_VIEW_CTX_X], r8
 				vp_cpy [r1 + GUI_VIEW_CTX_Y], r9
-				vp_cpy [r1 + GUI_VIEW_W], r10
-				vp_cpy [r1 + GUI_VIEW_H], r11
+				vp_cpy [r1 + gui_view_w], r10
+				vp_cpy [r1 + gui_view_h], r11
 				vp_add r8, r10
 				vp_add r9, r11
 				vp_lea [r4 + DRAW_VIEW_PATCH_LIST], r1
@@ -92,8 +92,8 @@
 			endif
 			vp_cpy [r2 + GUI_VIEW_CTX_X], r8
 			vp_cpy [r2 + GUI_VIEW_CTX_Y], r9
-			vp_cpy [r2 + GUI_VIEW_W], r10
-			vp_cpy [r2 + GUI_VIEW_H], r11
+			vp_cpy [r2 + gui_view_w], r10
+			vp_cpy [r2 + gui_view_h], r11
 			vp_add r8, r10
 			vp_add r9, r11
 			vp_add GUI_VIEW_DIRTY_LIST, r1
@@ -145,21 +145,21 @@
 			if r1, ==, 0
 				vp_cpy [r0 + GUI_VIEW_CTX_X], r8
 				vp_cpy [r0 + GUI_VIEW_CTX_Y], r9
-				vp_cpy [r0 + GUI_VIEW_W], r10
-				vp_cpy [r0 + GUI_VIEW_H], r11
+				vp_cpy [r0 + gui_view_w], r10
+				vp_cpy [r0 + gui_view_h], r11
 				vp_add r8, r10
 				vp_add r9, r11
 				vp_lea [r4 + DRAW_VIEW_PATCH_LIST], r1
 				vp_lea [r0 + GUI_VIEW_DIRTY_LIST], r2
 				fn_bind gui/gui_statics, r0
-				vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
+				vp_lea [r0 + gui_statics_patch_heap], r0
 				fn_call gui/patch_cut
 			else
 				vp_lea [r4 + DRAW_VIEW_PATCH_LIST], r1
 				vp_lea [r0 + GUI_VIEW_DIRTY_LIST], r2
 				vp_lea [r0 + GUI_VIEW_TRANSPARENT_LIST], r3
 				fn_bind gui/gui_statics, r0
-				vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
+				vp_lea [r0 + gui_statics_patch_heap], r0
 				fn_call gui/patch_list_copy
 			endif
 
@@ -195,16 +195,16 @@
 			vp_lea [r0 + GUI_VIEW_DIRTY_LIST], r2
 			vp_cpy [r0 + GUI_VIEW_CTX_X], r8
 			vp_cpy [r0 + GUI_VIEW_CTX_Y], r9
-			vp_cpy r2, [r1 + GUI_CTX_DIRTY_REGION]
+			vp_cpy r2, [r1 + gui_ctx_dirty_region]
 			vp_cpy r8, [r1 + GUI_CTX_X]
 			vp_cpy r9, [r1 + GUI_CTX_Y]
-			vp_call [r0 + GUI_VIEW_DRAW]
+			vp_call [r0 + gui_view_draw]
 
 			;free local dirty list
 			vp_cpy [r4 + DRAW_VIEW_NODE], r1
 			vp_lea [r1 + GUI_VIEW_DIRTY_LIST], r1
 			fn_bind gui/gui_statics, r0
-			vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
+			vp_lea [r0 + gui_statics_patch_heap], r0
 			fn_call gui/patch_list_free
 
 			;restore node

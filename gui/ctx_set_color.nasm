@@ -1,9 +1,8 @@
 %include 'inc/func.inc'
 %include 'inc/sdl2.inc'
 
-	struc COLOR
-		COLOR_OLD_STACK:	resq 1
-		COLOR_SIZE:
+	struc color
+		color_old_stack:	resq 1
 	endstruc
 
 	fn_function gui/ctx_set_color
@@ -17,13 +16,13 @@
 		;r0-r3, r5-r15
 
 		vp_cpy r4, r1
-		vp_sub COLOR_SIZE, r4
+		vp_sub color_size, r4
 		vp_and -16, r4
-		vp_cpy r1, [r4 + COLOR_OLD_STACK]
+		vp_cpy r1, [r4 + color_old_stack]
 
-		sdl_setrenderdrawcolor [r0 + GUI_CTX_SDL_CTX], r8, r9, r10, r11
+		sdl_setrenderdrawcolor [r0 + gui_ctx_sdl_ctx], r8, r9, r10, r11
 
-		vp_cpy [r4 + COLOR_OLD_STACK], r4
+		vp_cpy [r4 + color_old_stack], r4
 		vp_ret
 
 	fn_function_end

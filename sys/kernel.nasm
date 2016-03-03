@@ -229,7 +229,7 @@
 
 					;create screen window ?
 					fn_bind gui/gui_statics, r15
-					vp_cpy [r15 + GUI_STATICS_WINDOW], r14
+					vp_cpy [r15 + gui_statics_window], r14
 					if r14, ==, 0
 						;init sdl2
 						sdl_setmainready
@@ -238,7 +238,7 @@
 						;create window
 						vp_lea [rel title], r14
 						sdl_createwindow r14, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL
-						vp_cpy r0, [r15 + GUI_STATICS_WINDOW]
+						vp_cpy r0, [r15 + gui_statics_window]
 
 						;create renderer
 						sdl_createrenderer r0, -1, SDL_RENDERER_ACCELERATED
@@ -249,7 +249,7 @@
 					endif
 
 					;update screen
-					vp_cpy [r15 + GUI_STATICS_SCREEN], r0
+					vp_cpy [r15 + gui_statics_screen], r0
 					if r0, !=, 0
 						fn_call gui/view_draw
 						fn_bind gui/gui_statics, r0

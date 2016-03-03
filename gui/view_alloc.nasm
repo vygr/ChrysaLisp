@@ -10,7 +10,7 @@
 
 		;alloc view objects
 		fn_bind gui/gui_statics, r0
-		vp_lea [r0 + GUI_STATICS_VIEW_HEAP], r0
+		vp_lea [r0 + gui_statics_view_heap], r0
 		fn_call sys/heap_alloccell
 		vp_cpy r1, r0
 
@@ -23,7 +23,7 @@
 
 		;init draw callback to null
 		vp_lea [rel myret], r1
-		vp_cpy r1, [r0 + GUI_VIEW_DRAW]
+		vp_cpy r1, [r0 + gui_view_draw]
 	myret:
 		vp_ret
 

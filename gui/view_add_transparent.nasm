@@ -21,7 +21,7 @@
 		vp_add r8, r10
 		vp_add r9, r11
 		fn_bind gui/gui_statics, r0
-		vp_lea [r0 + GUI_STATICS_PATCH_HEAP], r0
+		vp_lea [r0 + gui_statics_patch_heap], r0
 		fn_jmp gui/patch_paste
 
 	fn_function_end
