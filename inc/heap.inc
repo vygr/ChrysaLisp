@@ -1,8 +1,8 @@
 %ifndef HEAP_1234
 	%define HEAP_1234
 
-%include "inc/vp.inc"
-%include "inc/code.inc"
+%include 'inc/vp.inc'
+%include 'inc/code.inc'
 
 ;;;;;;;;;;;;;;;;;
 ; heap structures

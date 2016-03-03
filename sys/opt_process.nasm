@@ -1,7 +1,7 @@
-%include "inc/func.inc"
-%include "inc/mail.inc"
-%include "inc/task.inc"
-%include "inc/link.inc"
+%include 'inc/func.inc'
+%include 'inc/mail.inc'
+%include 'inc/task.inc'
+%include 'inc/link.inc'
 
 	fn_function "sys/opt_process"
 		;process command options

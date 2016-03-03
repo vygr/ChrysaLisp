@@ -1,7 +1,7 @@
 %ifndef CODE_1234
 	%define CODE_1234
 
-%include "inc/vp.inc"
+%include 'inc/vp.inc'
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; some NASM codeing macros

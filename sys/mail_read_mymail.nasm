@@ -1,5 +1,5 @@
-%include "inc/func.inc"
-%include "inc/task.inc"
+%include 'inc/func.inc'
+%include 'inc/task.inc'
 
 	fn_function "sys/mail_read_mymail"
 		;outputs

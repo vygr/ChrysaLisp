@@ -1,6 +1,6 @@
-%include "inc/func.inc"
-%include "inc/list.inc"
-%include "inc/gui.inc"
+%include 'inc/func.inc'
+%include 'inc/list.inc'
+%include 'inc/gui.inc'
 
 	fn_function "gui/view_get_abs"
 		;inputs

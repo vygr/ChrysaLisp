@@ -1,10 +1,10 @@
 %ifndef MAIL_1234
 	%define MAIL_1234
 
-%include "inc/vp.inc"
-%include "inc/code.inc"
-%include "inc/list.inc"
-%include "inc/heap.inc"
+%include 'inc/vp.inc'
+%include 'inc/code.inc'
+%include 'inc/list.inc'
+%include 'inc/heap.inc'
 
 ;;;;;;;;;;;;;;;;;
 ; mail structures

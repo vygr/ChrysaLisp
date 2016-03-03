@@ -1,5 +1,5 @@
-%include "inc/func.inc"
-%include "inc/sdl2.inc"
+%include 'inc/func.inc'
+%include 'inc/sdl2.inc'
 
 	struc FBOX
 		FBOX_RECT:			resb SDL_RECT_SIZE

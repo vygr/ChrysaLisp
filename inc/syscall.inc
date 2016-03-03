@@ -1,7 +1,7 @@
 %ifndef SYSCALL_1234
 	%define SYSCALL_1234
 
-%include "inc/vp.inc"
+%include 'inc/vp.inc'
 
 %ifidn OS, Darwin
 

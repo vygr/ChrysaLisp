@@ -1,5 +1,5 @@
-%include "inc/func.inc"
-%include "inc/gui.inc"
+%include 'inc/func.inc'
+%include 'inc/gui.inc'
 
 	fn_function "gui/view_transparent"
 		;inputs

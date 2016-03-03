@@ -1,5 +1,5 @@
-%include "inc/func.inc"
-%include "inc/heap.inc"
+%include 'inc/func.inc'
+%include 'inc/heap.inc'
 
 	fn_function "sys/mem_alloc"
 		;inputs

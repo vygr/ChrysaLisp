@@ -1,5 +1,5 @@
-%include "inc/func.inc"
-%include "inc/heap.inc"
+%include 'inc/func.inc'
+%include 'inc/heap.inc'
 
 ;;;;;;;;;;;
 ; test code

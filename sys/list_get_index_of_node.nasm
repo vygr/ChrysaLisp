@@ -1,5 +1,5 @@
-%include "inc/func.inc"
-%include "inc/list.inc"
+%include 'inc/func.inc'
+%include 'inc/list.inc'
 
 	fn_function "sys/list_get_index_of_node"
 		;inputs

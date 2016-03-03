@@ -1,4 +1,4 @@
-%include "inc/func.inc"
+%include 'inc/func.inc'
 
 ;;;;;;;;;;;
 ; test code

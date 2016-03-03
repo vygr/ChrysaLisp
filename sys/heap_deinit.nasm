@@ -1,6 +1,6 @@
-%include "inc/func.inc"
-%include "inc/heap.inc"
-%include "inc/syscall.inc"
+%include 'inc/func.inc'
+%include 'inc/heap.inc'
+%include 'inc/syscall.inc'
 
 	fn_function "sys/heap_deinit"
 		;inputs
