@@ -87,7 +87,8 @@
             %fatal No such method %2
         %else
             vp_cpy [r0 + obj_vtable], r15
-			vp_call [r15 + (%%_n * 6)]
+			vp_add (%%_n * 6), r15
+			vp_call r15
         %endif
     %endmacro
 

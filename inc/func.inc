@@ -162,4 +162,21 @@
 		_func_end:
 	%endmacro
 
+	%macro fn_debug 1
+		;%1 debug string
+		%defstr _debug_string_ %1
+			vp_jmp %%over_end
+		%%over:
+			db ': ', _debug_string_, 10, 0
+		%%over_end:
+			vp_push r0, r1, r2, r3
+			vp_lea [rel _func_start + fn_header_pathname], r0
+			vp_cpy 1, r1
+			fn_call sys/write_string
+			vp_lea [rel %%over], r0
+			vp_cpy 1, r1
+			fn_call sys/write_string
+			vp_pop r0, r1, r2, r3
+	%endmacro
+
 %endif
