@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'inc/heap.inc'
 
-	fn_function "gui/patch_clip"
+	fn_function gui/patch_clip
 		;inputs
 		;r0 = patch heap pointer
 		;r1 = source patch listhead pointer

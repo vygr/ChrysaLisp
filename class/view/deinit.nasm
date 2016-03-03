@@ -1,6 +1,6 @@
 %include 'class/class_view.inc'
 
-	fn_function 'class/view/deinit'
+	fn_function class/view/deinit
 		;inputs
 		;r0 = object
 

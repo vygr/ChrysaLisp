@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	fn_function "sys/mail_alloc"
+	fn_function sys/mail_alloc
 		;outputs
 		;r0 = mail message
 		;trashes

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	fn_function "gui/view_transparent"
+	fn_function gui/view_transparent
 		;inputs
 		;r0 = view object
 		;trashes

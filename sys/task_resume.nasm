@@ -2,7 +2,7 @@
 %include 'inc/list.inc'
 %include 'inc/task.inc'
 
-	fn_function "sys/task_resume"
+	fn_function sys/task_resume
 		;inputs
 		;r0 = task control node (to resume)
 		;trashes

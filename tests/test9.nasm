@@ -7,7 +7,7 @@
 
 	PIPE_SIZE equ 16
 
-	fn_function "tests/test9"
+	fn_function tests/test9
 		;task started by test1
 
 		;allocate temp array for mailbox ID's

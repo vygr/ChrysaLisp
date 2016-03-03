@@ -2,7 +2,7 @@
 %include 'inc/heap.inc'
 %include 'inc/syscall.inc'
 
-	fn_function "sys/heap_alloccell"
+	fn_function sys/heap_alloccell
 		;inputs
 		;r0 = heap
 		;outputs

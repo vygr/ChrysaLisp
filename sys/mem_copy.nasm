@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	fn_function "sys/mem_copy"
+	fn_function sys/mem_copy
 		;inputs
 		;r0 = source address
 		;r1 = destination address

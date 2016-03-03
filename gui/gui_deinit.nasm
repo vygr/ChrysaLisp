@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'inc/sdl2.inc'
 
-	fn_function "gui/gui_deinit"
+	fn_function gui/gui_deinit
 		;free any screen
 		fn_bind gui/gui_statics, r15
 		vp_cpy [r15 + GUI_STATICS_SCREEN], r0

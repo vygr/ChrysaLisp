@@ -2,7 +2,7 @@
 %include 'inc/list.inc'
 %include 'inc/gui.inc'
 
-	fn_function "gui/view_get_abs"
+	fn_function gui/view_get_abs
 		;inputs
 		;r0 = view object
 		;outputs

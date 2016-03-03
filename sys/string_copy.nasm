@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	fn_function "sys/string_copy"
+	fn_function sys/string_copy
 		;inputs
 		;r0 = string
 		;r1 = string copy

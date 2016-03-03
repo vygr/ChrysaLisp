@@ -3,7 +3,7 @@
 %include 'inc/heap.inc'
 %include 'inc/gui.inc'
 
-	fn_function "gui/view_free"
+	fn_function gui/view_free
 		;inputs
 		;r0 = view object
 		;trashes

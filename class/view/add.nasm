@@ -1,6 +1,6 @@
 %include 'class/class_view.inc'
 
-	fn_function 'class/view/add'
+	fn_function class/view/add
 		;inputs
 		;r0 = object
 

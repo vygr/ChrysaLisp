@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function "sys/task_yield"
+	fn_function sys/task_yield
 		;push task state
 		tk_save_state
 

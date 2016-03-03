@@ -2,7 +2,7 @@
 %include 'inc/list.inc'
 %include 'inc/gui.inc'
 
-	fn_function "gui/view_add"
+	fn_function gui/view_add
 		;inputs
 		;r0 = view object
 		;r1 = parent view object

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	fn_function "gui/gui_init"
+	fn_function gui/gui_init
 		;inputs
 		;r0 = sdl function table
 

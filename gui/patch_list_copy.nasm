@@ -10,7 +10,7 @@
 		COPY_SIZE:
 	endstruc
 
-	fn_function "gui/patch_list_copy"
+	fn_function gui/patch_list_copy
 		;inputs
 		;r0 = patch heap pointer
 		;r1 = source patch listhead pointer

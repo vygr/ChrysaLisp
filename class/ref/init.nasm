@@ -1,6 +1,6 @@
 %include 'class/class_ref.inc'
 
-	fn_function 'class/ref/init'
+	fn_function class/ref/init
 		;inputs
 		;r0 = object
 		;r1 = vtable pointer

@@ -4,7 +4,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function "tests/test8"
+	fn_function tests/test8
 		;array task started by test7
 
 		;read exit command etc
@@ -23,6 +23,6 @@
 		fn_jmp sys/write_string
 
 	hello:
-		db "Hello from array worker !", 10, 0
+		db 'Hello from array worker !', 10, 0
 
 	fn_function_end

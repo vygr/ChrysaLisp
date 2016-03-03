@@ -4,7 +4,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function "tests/test6"
+	fn_function tests/test6
 		;farm task started by test5
 
 		;read exit command etc
@@ -23,6 +23,6 @@
 		fn_jmp sys/write_string
 
 	hello:
-		db "Hello from farm worker !", 10, 0
+		db 'Hello from farm worker !', 10, 0
 
 	fn_function_end

@@ -1,6 +1,6 @@
 %include 'class/class_obj.inc'
 
-	fn_function 'class/obj/new'
+	fn_function class/obj/new
 		;outputs
 		;r0 = 0 if error, else object
 

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function "sys/cpu_get_total"
+	fn_function sys/cpu_get_total
 		;outputs
 		;r0 = cpu total
 

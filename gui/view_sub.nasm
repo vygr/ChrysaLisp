@@ -2,7 +2,7 @@
 %include 'inc/list.inc'
 %include 'inc/gui.inc'
 
-	fn_function "gui/view_sub"
+	fn_function gui/view_sub
 		;inputs
 		;r0 = view object
 		;trashes

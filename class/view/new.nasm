@@ -1,6 +1,6 @@
 %include 'class/class_view.inc'
 
-	fn_function 'class/view/new'
+	fn_function class/view/new
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes

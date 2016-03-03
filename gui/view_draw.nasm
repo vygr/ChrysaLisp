@@ -10,7 +10,7 @@
 		DRAW_VIEW_SIZE:
 	endstruc
 
-	fn_function "gui/view_draw"
+	fn_function gui/view_draw
 		;inputs
 		;r0 = view object
 		;trashes

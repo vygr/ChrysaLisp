@@ -3,7 +3,7 @@
 %include 'inc/task.inc'
 %include 'inc/link.inc'
 
-	fn_function "sys/link"
+	fn_function sys/link
 		;started by kernel for each link
 
 		;allocate link node on stack and link to links list

@@ -7,7 +7,7 @@
 
 	TEST_SIZE equ 1000
 
-	fn_function "tests/test11"
+	fn_function tests/test11
 		;task started by test1
 
 		;get max cpu num

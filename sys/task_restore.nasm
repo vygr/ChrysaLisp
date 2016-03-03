@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function "sys/task_restore"
+	fn_function sys/task_restore
 		;restore next task
 		;r15 = control block to restore
 

@@ -1,6 +1,6 @@
 %include 'class/class_obj.inc'
 
-	fn_function 'class/obj/destroy'
+	fn_function class/obj/destroy
 		;inputs
 		;r0 = object
 

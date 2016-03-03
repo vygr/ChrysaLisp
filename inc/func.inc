@@ -137,6 +137,7 @@
 	%macro fn_function 1
 		;inputs
 		;%1 = function path name
+		%defstr _func_name %1
 			BITS 64
 			%assign _ftotal 0
 			align 8, db 0
@@ -145,7 +146,7 @@
 			dq	_func_end - _func_start
 			dq	_func_entry - _func_start
 			dq	_func_links - _func_start
-			db	%1
+			db	_func_name
 			db	0
 			align 8, db 0
 		_func_entry:

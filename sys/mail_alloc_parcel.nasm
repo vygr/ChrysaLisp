@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	fn_function "sys/mail_alloc_parcel"
+	fn_function sys/mail_alloc_parcel
 		;inputs
 		;r0 = parcel data size
 		;outputs

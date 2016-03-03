@@ -3,7 +3,7 @@
 %include 'inc/task.inc'
 %include 'inc/link.inc'
 
-	fn_function "sys/opt_process"
+	fn_function sys/opt_process
 		;process command options
 		;inputs
 		;r0 = argv array
@@ -117,18 +117,18 @@
 		vp_ret
 
 	link_path:
-		db "/tmp/", 0
+		db '/tmp/', 0
 
 		align 8, db 0
 	options_table:
 		dq	opt_cpu - options_table
-			db	"-cpu", 0
+			db	'-cpu', 0
 			align 8, db 0
 		dq	opt_run - options_table
-			db	"-run", 0
+			db	'-run', 0
 			align 8, db 0
 		dq	opt_link - options_table
-			db	"-l", 0
+			db	'-l', 0
 			align 8, db 0
 		dq	0
 

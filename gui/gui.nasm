@@ -2,7 +2,7 @@
 %include 'inc/mail.inc'
 %include 'inc/gui.inc'
 
-	fn_function "gui/gui"
+	fn_function gui/gui
 		;allocate background view
 		fn_call gui/view_alloc
 

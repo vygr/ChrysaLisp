@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	fn_function "sys/task_open_array"
+	fn_function sys/task_open_array
 		;inputs
 		;r0 = new task function names
 		;r1 = mailbox array pointer

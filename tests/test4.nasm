@@ -5,7 +5,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function "tests/test4"
+	fn_function tests/test4
 		;task started by test1
 
 		;sleep for 5 seconds

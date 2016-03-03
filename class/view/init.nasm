@@ -1,6 +1,6 @@
 %include 'class/class_view.inc'
 
-	fn_function 'class/view/init'
+	fn_function class/view/init
 		;inputs
 		;r0 = object
 		;r1 = vtable pointer

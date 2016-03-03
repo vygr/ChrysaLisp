@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	fn_function "sys/mem_grow"
+	fn_function sys/mem_grow
 		;inputs
 		;r0 = array
 		;r1 = array size

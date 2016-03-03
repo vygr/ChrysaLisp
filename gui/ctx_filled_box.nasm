@@ -10,7 +10,7 @@
 		FBOX_SIZE:
 	endstruc
 
-	fn_function "gui/ctx_filled_box"
+	fn_function gui/ctx_filled_box
 		;inputs
 		;r0 = ctx
 		;r8 = x

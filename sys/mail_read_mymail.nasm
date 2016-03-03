@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function "sys/mail_read_mymail"
+	fn_function sys/mail_read_mymail
 		;outputs
 		;r0 = mail address
 		;trashes

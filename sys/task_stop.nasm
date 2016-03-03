@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function "sys/task_stop"
+	fn_function sys/task_stop
 		;remove task control block
 		fn_bind sys/task_statics, r0
 		vp_cpy [r0 + TK_STATICS_CURRENT_TCB], r1

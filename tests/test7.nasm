@@ -7,7 +7,7 @@
 
 	ARRAY_SIZE equ 16
 
-	fn_function "tests/test7"
+	fn_function tests/test7
 		;task started by test1
 
 		;allocate temp array for mailbox ID's

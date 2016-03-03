@@ -3,7 +3,7 @@
 
 	MEM_SLOTS equ 14
 
-	fn_function "sys/mem_init"
+	fn_function sys/mem_init
 		;get statics
 		fn_bind sys/mem_statics, r0
 

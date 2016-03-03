@@ -4,7 +4,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function "tests/test3"
+	fn_function tests/test3
 		;task started by test1
 
 		;read and free 1000 messages

@@ -8,7 +8,7 @@
 		PASTE_SIZE:
 	endstruc
 
-	fn_function "gui/patch_list_paste"
+	fn_function gui/patch_list_paste
 		;inputs
 		;r0 = patch heap pointer
 		;r1 = source patch listhead pointer

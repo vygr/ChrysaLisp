@@ -4,7 +4,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function "tests/test2"
+	fn_function tests/test2
 		;function called by test1
 		;trashes
 		;r0-r3, r5

@@ -1,6 +1,6 @@
 %include 'class/class_ref.inc'
 
-	fn_function 'class/ref/ref'
+	fn_function class/ref/ref
 		;inputs
 		;r0 = object
 		;trashes

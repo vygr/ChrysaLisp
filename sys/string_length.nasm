@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	fn_function "sys/string_length"
+	fn_function sys/string_length
 		;inputs
 		;r0 = string
 		;outputs

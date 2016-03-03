@@ -1,6 +1,6 @@
 %include 'class/class_obj.inc'
 
-	fn_function 'class/obj/deinit'
+	fn_function class/obj/deinit
 		;inputs
 		;r0 = object
 

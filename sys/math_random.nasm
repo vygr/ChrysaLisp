@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function "sys/math_random"
+	fn_function sys/math_random
 		;inputs
 		;r0 = random range
 		;outputs

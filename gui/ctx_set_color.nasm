@@ -6,7 +6,7 @@
 		COLOR_SIZE:
 	endstruc
 
-	fn_function "gui/ctx_set_color"
+	fn_function gui/ctx_set_color
 		;inputs
 		;r0 = ctx
 		;r8 = r

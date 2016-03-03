@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	fn_function "gui/view_add_dirty"
+	fn_function gui/view_add_dirty
 		;inputs
 		;r0 = view object
 		;r8 = x

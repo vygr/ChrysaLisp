@@ -7,7 +7,7 @@
 
 	TEST_SIZE equ 1000
 
-	fn_function "tests/test12"
+	fn_function tests/test12
 		;pipe task started by test11
 
 		;wait a bit
@@ -33,8 +33,8 @@
 		fn_jmp sys/write_string
 
 	hello:
-		db "Hello from global worker !", 10, 0
+		db 'Hello from global worker !', 10, 0
 	failed:
-		db "Failed to verify data !", 10, 0
+		db 'Failed to verify data !', 10, 0
 
 	fn_function_end

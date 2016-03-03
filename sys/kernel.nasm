@@ -9,7 +9,7 @@
 ; kernel task
 ;;;;;;;;;;;;;
 
-	fn_function "sys/kernel"
+	fn_function sys/kernel
 		;loader is already initialized when we get here !
 		;inputs
 		;r0 = argv pointer
@@ -327,6 +327,6 @@
 		sys_exit 0
 
 	title:
-		db "Asm Kernel GUI Window", 0
+		db 'Asm Kernel GUI Window', 0
 
 	fn_function_end

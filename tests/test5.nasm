@@ -7,7 +7,7 @@
 
 	FARM_SIZE equ 16
 
-	fn_function "tests/test5"
+	fn_function tests/test5
 		;task started by test1
 
 		;allocate temp array for mailbox ID's

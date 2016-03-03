@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/heap.inc'
 
-	fn_function "sys/mem_alloc"
+	fn_function sys/mem_alloc
 		;inputs
 		;r0 = minimum amount in bytes
 		;outputs

@@ -5,7 +5,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function "tests/test1"
+	fn_function tests/test1
 		;task started by test kernel
 
 		;delay for a while to let the network routing finish

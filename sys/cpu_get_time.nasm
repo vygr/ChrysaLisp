@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/syscall.inc'
 
-	fn_function "sys/cpu_get_time"
+	fn_function sys/cpu_get_time
 		;outputs
 		;r0 = time in usec
 
