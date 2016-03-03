@@ -29,13 +29,13 @@
 			vp_dec r7
 			vp_cpy 0, qword[r3 + ML_MSG_DEST]
 			vp_cpy r7, [r3 + (ML_MSG_DEST + 8)]
-			vp_cpy r4, [r3 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY)]
-			vp_cpy r0, [r3 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)]
-			vp_cpy KN_CALL_TASK_OPEN, qword[r3 + (ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION)]
+			vp_cpy r4, [r3 + (ML_MSG_DATA + kn_data_kernel_reply)]
+			vp_cpy r0, [r3 + (ML_MSG_DATA + kn_data_kernel_reply + 8)]
+			vp_cpy KN_CALL_TASK_OPEN, qword[r3 + (ML_MSG_DATA + kn_data_kernel_function)]
 
 			;copy task name
 			vp_cpy r5, r0
-			vp_lea [r3 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_PATHNAME)], r1
+			vp_lea [r3 + (ML_MSG_DATA + kn_data_task_open_pathname)], r1
 			fn_call sys/string_copy
 
 			;fill in total message length
@@ -53,8 +53,8 @@
 			fn_call sys/mail_read
 
 			;save reply mailbox ID
-			vp_cpy [r0 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID)], r2
-			vp_cpy [r0 + (ML_MSG_DATA + KN_DATA_TASK_OPEN_REPLY_MAILBOXID + 8)], r3
+			vp_cpy [r0 + (ML_MSG_DATA + kn_data_task_open_reply_mailboxid)], r2
+			vp_cpy [r0 + (ML_MSG_DATA + kn_data_task_open_reply_mailboxid + 8)], r3
 			vp_cpy r2, [r6]
 			vp_cpy r3, [r6 + 8]
 

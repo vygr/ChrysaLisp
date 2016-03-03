@@ -20,41 +20,35 @@
 ; kernel mail data
 ;;;;;;;;;;;;;;;;;;
 
-	struc KN_DATA
-		KN_DATA_KERNEL_USER:				resq 1
-		KN_DATA_KERNEL_REPLY:				resq 2
-		KN_DATA_KERNEL_FUNCTION:			resq 1
-		KN_DATA_KERNEL_SIZE:
+	struc kn_data
+		kn_data_kernel_user:				resq 1
+		kn_data_kernel_reply:				resq 2
+		kn_data_kernel_function:			resq 1
 	endstruc
 
-	struc KN_DATA_TASK_OPEN
-		KN_DATA_TASK_OPEN_HEADER:			resb KN_DATA_KERNEL_SIZE
-		KN_DATA_TASK_OPEN_PATHNAME:
+	struc kn_data_task_open, kn_data_size
+		kn_data_task_open_pathname:
 	endstruc
 
-	struc KN_DATA_TASK_OPEN_REPLY
-		KN_DATA_TASK_OPEN_REPLY_USER:		resq 1
-		KN_DATA_TASK_OPEN_REPLY_MAILBOXID:	resq 2
-		KN_DATA_TASK_OPEN_REPLY_SIZE:
+	struc kn_data_task_open_reply
+		kn_data_task_open_reply_user:		resq 1
+		kn_data_task_open_reply_mailboxid:	resq 2
 	endstruc
 
-	struc KN_DATA_TASK_CHILD
-		KN_DATA_TASK_CHILD_HEADER:			resb KN_DATA_KERNEL_SIZE
-		KN_DATA_TASK_CHILD_PATHNAME:
+	struc kn_data_task_child, kn_data_size
+		kn_data_task_child_pathname:
 	endstruc
 
-	struc KN_DATA_TASK_CHILD_REPLY
-		KN_DATA_TASK_CHILD_REPLY_USER:		resq 1
-		KN_DATA_TASK_CHILD_REPLY_MAILBOXID:	resq 2
-		KN_DATA_TASK_CHILD_REPLY_SIZE:
+	struc kn_data_task_child_reply
+		kn_data_task_child_reply_user:		resq 1
+		kn_data_task_child_reply_mailboxid:	resq 2
 	endstruc
 
-	struc KN_DATA_LINK_ROUTE
-		KN_DATA_LINK_ROUTE_HEADER:			resb KN_DATA_KERNEL_SIZE
-		KN_DATA_LINK_ROUTE_ORIGIN:			resq 1
-		KN_DATA_LINK_ROUTE_VIA:				resq 1
-		KN_DATA_LINK_ROUTE_HOPS:			resq 1
-		KN_DATA_LINK_ROUTE_SIZE:
+	struc kn_data_link_route
+		kn_data_link_route_header:			resb kn_data_size
+		kn_data_link_route_origin:			resq 1
+		kn_data_link_route_via:				resq 1
+		kn_data_link_route_hops:			resq 1
 	endstruc
 
 ;;;;;;;;;;;;;;;;;

@@ -64,14 +64,14 @@
 		fn_call sys/mail_alloc
 		vp_cpy 0, qword[r0 + ML_MSG_DEST]
 		vp_cpy r9, [r0 + (ML_MSG_DEST + 8)]
-		vp_cpy 0, qword[r0 + ML_MSG_DATA + KN_DATA_KERNEL_USER]
-		vp_cpy 0, qword[r0 + ML_MSG_DATA + KN_DATA_KERNEL_REPLY]
-		vp_cpy 0, qword[r0 + (ML_MSG_DATA + KN_DATA_KERNEL_REPLY + 8)]
-		vp_cpy KN_CALL_LINK_ROUTE, qword[r0 + ML_MSG_DATA + KN_DATA_KERNEL_FUNCTION]
-		vp_cpy r8, [r0 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_ORIGIN]
-		vp_cpy r8, [r0 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_VIA]
-		vp_cpy 1, qword[r0 + ML_MSG_DATA + KN_DATA_LINK_ROUTE_HOPS]
-		vp_cpy ML_MSG_DATA + KN_DATA_LINK_ROUTE_SIZE, qword[r0 + ML_MSG_LENGTH]
+		vp_cpy 0, qword[r0 + ML_MSG_DATA + kn_data_kernel_user]
+		vp_cpy 0, qword[r0 + ML_MSG_DATA + kn_data_kernel_reply]
+		vp_cpy 0, qword[r0 + (ML_MSG_DATA + kn_data_kernel_reply + 8)]
+		vp_cpy KN_CALL_LINK_ROUTE, qword[r0 + ML_MSG_DATA + kn_data_kernel_function]
+		vp_cpy r8, [r0 + ML_MSG_DATA + kn_data_link_route_origin]
+		vp_cpy r8, [r0 + ML_MSG_DATA + kn_data_link_route_via]
+		vp_cpy 1, qword[r0 + ML_MSG_DATA + kn_data_link_route_hops]
+		vp_cpy ML_MSG_DATA + kn_data_link_route_size, qword[r0 + ML_MSG_LENGTH]
 		fn_call sys/mail_send
 
 		;open shared memory file
