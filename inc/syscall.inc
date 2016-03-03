@@ -60,7 +60,7 @@
 	S_ISVTX				equ	0x200
 
 	STAT_FSIZE			equ 0x48
-	STAT_SIZE			equ 0x100
+	stat_size			equ 0x100
 
 	struc TIMEVAL
 		TIMEVAL_SEC:			resq 1
@@ -301,7 +301,7 @@
 	S_ISVTX				equ	0x200
 
 	STAT_FSIZE			equ	0x30
-	STAT_SIZE			equ	0x100
+	stat_size			equ	0x100
 
 	struc TIMEVAL
 		TIMEVAL_SEC:			resq 1

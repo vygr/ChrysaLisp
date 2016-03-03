@@ -20,7 +20,7 @@
 
 		;check if function already present !
 		vp_xor r5, r5
-		vp_cpy [r8 + LD_STATICS_FUNCTION_LIST], r6
+		vp_cpy [r8 + ld_statics_function_list], r6
 		loop_while r6, !=, 0
 			vp_cpy r7, r0
 			vp_lea [r6 + fn_header_pathname], r1
@@ -38,7 +38,7 @@
 		endif
 
 		;get length of function on disk
-		vp_lea [r8 + LD_STATICS_STAT_BUFFER], r0
+		vp_lea [r8 + ld_statics_stat_buffer], r0
 		sys_stat r7, r0
 		if r0, !=, 0
 			;no such file
@@ -47,25 +47,25 @@
 		endif
 
 		;ensure space for new function
-		vp_cpy [r8 + LD_STATICS_BLOCK_START], r1
-		vp_cpy [r8 + LD_STATICS_BLOCK_END], r2
+		vp_cpy [r8 + ld_statics_block_start], r1
+		vp_cpy [r8 + ld_statics_block_end], r2
 		vp_sub r1, r2
-		vp_lea [r8 + LD_STATICS_STAT_BUFFER], r0
+		vp_lea [r8 + ld_statics_stat_buffer], r0
 		vp_cpy [r0 + STAT_FSIZE], r0
 		if r2, <, r0
 			;not enough so allocate new function buffer
-			sys_mmap 0, LD_BLOCK_SIZE, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0
+			sys_mmap 0, ld_block_size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0
 
 			;add to block list for freeing
-			vp_cpy [r8 + LD_STATICS_BLOCK_LIST], r3
+			vp_cpy [r8 + ld_statics_block_list], r3
 			vp_cpy r3, [r0]
-			vp_cpy r0, [r8 + LD_STATICS_BLOCK_LIST]
+			vp_cpy r0, [r8 + ld_statics_block_list]
 
 			;set block pointers for loading
 			vp_add 8, r0
-			vp_cpy r0, [r8 + LD_STATICS_BLOCK_START]
-			vp_add LD_BLOCK_SIZE - 8, r0
-			vp_cpy r0, [r8 + LD_STATICS_BLOCK_END]
+			vp_cpy r0, [r8 + ld_statics_block_start]
+			vp_add ld_block_size - 8, r0
+			vp_cpy r0, [r8 + ld_statics_block_end]
 		endif
 
 		;open function file
@@ -73,22 +73,22 @@
 		vp_cpy r0, r12
 
 		;read into buffer
-		vp_cpy [r8 + LD_STATICS_BLOCK_START], r3
-		vp_lea [r8 + LD_STATICS_STAT_BUFFER], r2
+		vp_cpy [r8 + ld_statics_block_start], r3
+		vp_lea [r8 + ld_statics_stat_buffer], r2
 		sys_read r12, r3, [r2 + STAT_FSIZE]
 
 		;close function file
 		sys_close r12
 
 		;add to function list
-		vp_cpy [r8 + LD_STATICS_FUNCTION_LIST], r0
+		vp_cpy [r8 + ld_statics_function_list], r0
 		vp_cpy r0, [r3]
-		vp_cpy r3, [r8 + LD_STATICS_FUNCTION_LIST]
+		vp_cpy r3, [r8 + ld_statics_function_list]
 
 		;adjust block start
 		vp_cpy r3, r0
 		vp_add [r2 + STAT_FSIZE], r0
-		vp_cpy r0, [r8 + LD_STATICS_BLOCK_START]
+		vp_cpy r0, [r8 + ld_statics_block_start]
 
 		;load and link function references
 		vp_cpy r3, r0

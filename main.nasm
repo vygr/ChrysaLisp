@@ -18,7 +18,7 @@ main:
 
 	;set prebound functions as read/write/executable
 	vp_lea [rel ld_prebound], r0
-	vp_and -LD_PAGE_SIZE, r0
+	vp_and -ld_page_size, r0
 	vp_lea [rel ld_prebounde], r1
 	vp_sub r0, r1
 	sys_mprotect r0, r1, PROT_READ|PROT_WRITE|PROT_EXEC

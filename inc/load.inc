@@ -7,16 +7,15 @@
 ; load structures
 ;;;;;;;;;;;;;;;;;
 
-	LD_BLOCK_SIZE	equ 16384
-	LD_PAGE_SIZE	equ 4096
+	ld_block_size	equ 16384
+	ld_page_size	equ 4096
 
-	struc LD_STATICS
-		LD_STATICS_FUNCTION_LIST:	resq 1
-		LD_STATICS_BLOCK_LIST:		resq 1
-		LD_STATICS_BLOCK_START:		resq 1
-		LD_STATICS_BLOCK_END:		resq 1
-		LD_STATICS_STAT_BUFFER:		resb STAT_SIZE
-		LD_STATICS_SIZE:
+	struc ld_statics
+		ld_statics_function_list:	resq 1
+		ld_statics_block_list:		resq 1
+		ld_statics_block_start:		resq 1
+		ld_statics_block_end:		resq 1
+		ld_statics_stat_buffer:		resb stat_size
 	endstruc
 
 %endif

@@ -15,14 +15,14 @@
 		loop_start
 			vp_cpy [r1], r0
 			breakif r0, ==, 0
-			vp_cpy [r6 + LD_STATICS_FUNCTION_LIST], r0
+			vp_cpy [r6 + ld_statics_function_list], r0
 			vp_cpy r0, [r1]
-			vp_cpy r1, [r6 + LD_STATICS_FUNCTION_LIST]
+			vp_cpy r1, [r6 + ld_statics_function_list]
 			vp_add [r1 + fn_header_length], r1
 		loop_end
 
 		;bind all function intra references
-		vp_cpy [r6 + LD_STATICS_FUNCTION_LIST], r2
+		vp_cpy [r6 + ld_statics_function_list], r2
 		loop_start
 			breakif r2, ==, 0
 			vp_cpy r2, r0
