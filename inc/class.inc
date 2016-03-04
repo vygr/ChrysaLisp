@@ -9,7 +9,7 @@
 		;%1 = <class name>
 		%assign %%_n 0
 		%rep _map_%[%1]_size
-			fn_jmp _map_%[%1]_func_%[%%_n]
+			fn_add_link _map_%[%1]_func_%[%%_n]
 			%assign %%_n %%_n + 1
 		%endrep
 	%endmacro
@@ -89,8 +89,7 @@
 			%fatal No such method %2
 		%else
 			vp_cpy [%3 + obj_vtable], %4
-			vp_add (%%_n * 6), %4
-			vp_call %4
+			vp_call [%4 + %%_n * 8]
 		%endif
 	%endmacro
 

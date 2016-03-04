@@ -44,17 +44,23 @@
 			loop_start
 				vp_cpy [r0], r1
 				breakif r1, ==, 0
-				vp_lea [r0 + 8], r0
 				vp_push r0, r2, r5
+				vp_add r1, r0
 				vp_call r5		;sys/load_function
 				if r0, ==, 0
 					;no such function
 					vp_lea [rel bind_error], r0
 					sys_write_string 1, r0, bind_error_end-bind_error
 					vp_cpy [r4 + 16], r0
-					vp_call string_skip
+					vp_add [r0], r0
+					loop_start
+						vp_cpy byte[r0], r1l
+						vp_inc r0
+						vp_and 0xff, r1
+					loop_until r1, ==, 0
 					vp_lea [r0 - 1], r1
 					vp_cpy [r4 + 16], r0
+					vp_add [r0], r0
 					vp_sub r0, r1
 					sys_write_string 1, r0, r1
 					sys_write_char 1, 10
@@ -62,20 +68,10 @@
 				endif
 				vp_cpy r0, r1
 				vp_pop r0, r2, r5
-				vp_cpy r1, [r0 - 8]
-				vp_call string_skip
-				vp_add 7, r0
-				vp_and -8, r0
+				vp_cpy r1, [r0]
+				vp_add 8, r0
 			loop_end
 		loop_end
-		vp_ret
-
-	string_skip:
-		loop_start
-			vp_cpy byte[r0], r1l
-			vp_inc r0
-			vp_and 0xff, r1
-		loop_until r1, ==, 0
 		vp_ret
 
 	bind_error:

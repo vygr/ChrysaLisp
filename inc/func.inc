@@ -70,65 +70,48 @@
 ; func macros
 ;;;;;;;;;;;;;
 
+	%macro fn_add_link 1
+		;inputs
+		;%1 = function path name
+
+		%assign _link_num 0
+		%rep _link_total
+			%deftok %%_path _func_str%[_link_num]
+			%ifidn %%_path, %1
+				%exitrep
+			%else
+				%assign _link_num _link_num + 1
+			%endif
+		%endrep
+		%if _link_num = _link_total
+			%assign _link_total _link_total + 1
+			%defstr _func_str%[_link_num] %1
+		%endif
+	%endmacro
+
 	%macro fn_bind 2
 		;inputs
 		;%1 = function path name
 		;%2 = register
 
-		%assign %%_i 0
-		%rep _ftotal
-			%deftok %%_path _func_str%[%%_i]
-			%ifidn %%_path, %1
-				%exitrep
-			%else
-				%assign %%_i %%_i+1
-			%endif
-		%endrep
-		%if %%_i = _ftotal
-			%assign _ftotal _ftotal+1
-			%defstr _func_str%[%%_i] %1
-		%endif
-		vp_cpy [rel __func%[%%_i]], %2
+		fn_add_link %1
+		vp_cpy [rel __func%[_link_num]], %2
 	%endmacro
 
 	%macro fn_call 1
 		;inputs
 		;%1 = function path name
 
-		%assign %%_i 0
-		%rep _ftotal
-			%deftok %%_path _func_str%[%%_i]
-			%ifidn %%_path, %1
-				%exitrep
-			%else
-				%assign %%_i %%_i+1
-			%endif
-		%endrep
-		%if %%_i = _ftotal
-			%assign _ftotal _ftotal+1
-			%defstr _func_str%[%%_i] %1
-		%endif
-		vp_call [rel __func%[%%_i]]
+		fn_add_link %1
+		vp_call [rel __func%[_link_num]]
 	%endmacro
 
 	%macro fn_jmp 1
 		;inputs
 		;%1 = function path name
 
-		%assign %%_i 0
-		%rep _ftotal
-			%deftok %%_path _func_str%[%%_i]
-			%ifidn %%_path, %1
-				%exitrep
-			%else
-				%assign %%_i %%_i+1
-			%endif
-		%endrep
-		%if %%_i = _ftotal
-			%assign _ftotal _ftotal+1
-			%defstr _func_str%[%%_i] %1
-		%endif
-		vp_jmp [rel __func%[%%_i]]
+		fn_add_link %1
+		vp_jmp [rel __func%[_link_num]]
 	%endmacro
 
 	%macro fn_function 1-2 debug_enter
@@ -137,7 +120,7 @@
 		;%2 = debug option
 		%defstr _func_name %1
 			BITS 64
-			%assign _ftotal 0
+			%assign _link_total 0
 			align 8, db 0
 		_func_start:
 			dq	-1
@@ -162,15 +145,19 @@
 			align 8, db 0
 		_func_links:
 			%assign %%_i 0
-			%rep _ftotal
+			%rep _link_total
 			__func%[%%_i]:
-				dq	-1
-				db	_func_str%[%%_i]
-				db	0
-				align 8, db 0
+				dq	__func%[%%_i]_name - $
 				%assign %%_i %%_i+1
 			%endrep
 			dq	0
+			%assign %%_i 0
+			%rep _link_total
+			__func%[%%_i]_name:
+				db	_func_str%[%%_i]
+				db	0
+				%assign %%_i %%_i+1
+			%endrep
 		_func_end:
 	%endmacro
 
