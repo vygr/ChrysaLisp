@@ -89,16 +89,21 @@
 			if r2, ==, 0
 				vp_cpy r1, r2
 			endif
-			vp_cpy [r2 + gui_view_ctx_x], r8
-			vp_cpy [r2 + gui_view_ctx_y], r9
+			vp_cpy [r1 + gui_view_x], r8
+			vp_cpy [r1 + gui_view_y], r9
 			vp_cpy [r2 + gui_view_w], r10
 			vp_cpy [r2 + gui_view_h], r11
+			vp_mul -1, r8
+			vp_mul -1, r9
 			vp_add r8, r10
 			vp_add r9, r11
 			vp_add gui_view_dirty_list, r1
 			fn_call gui/patch_clip
 
 			;paste local dirty list onto global dirty list
+			vp_cpy [r4 + draw_view_node], r2
+			vp_cpy [r2 + gui_view_ctx_x], r8
+			vp_cpy [r2 + gui_view_ctx_y], r9
 			vp_lea [r4 + draw_view_patch_list], r2
 			fn_call gui/patch_list_paste
 
