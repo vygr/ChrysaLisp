@@ -170,44 +170,44 @@
 	%macro for 4
 			vp_cpy %2, %1
 			loop_start
-				%define %$__reg %1
-				%define %$__step %4
+				%define %$_reg %1
+				%define %$_step %4
 				breakif %1, ge, %3
 	%endmacro
 
 	%macro next 0
-				vp_add %$__step, %$__reg
+				vp_add %$_step, %$_reg
 			loop_end
 	%endmacro
 
 	%macro switch 0
 			%push switch
-			%assign %$__curr 1
+			%assign %$_curr 1
 	%endmacro
 
 	%macro case 3
-		%$loc%$__curr:
-			%assign %$__curr %$__curr+1
+		%$loc%$_curr:
+			%assign %$_curr %$_curr+1
 			cmp %1, %3
 			%ifidn %2, ==
-				jne %$loc%$__curr
+				jne %$loc%$_curr
 			%elifidn %2, !=
-				je %$loc%$__curr
+				je %$loc%$_curr
 			%elifidn %2, <
-				jge %$loc%$__curr
+				jge %$loc%$_curr
 			%elifidn %2, >
-				jle %$loc%$__curr
+				jle %$loc%$_curr
 			%elifidn %2, <=
-				jg %$loc%$__curr
+				jg %$loc%$_curr
 			%elifidn %2, >=
-				jl %$loc%$__curr
+				jl %$loc%$_curr
 			%else
-				j%-2 %$loc%$__curr
+				j%-2 %$loc%$_curr
 			%endif
 	%endmacro
 
 	%macro default 0
-		%$loc%$__curr:
+		%$loc%$_curr:
 	%endmacro
 
 	%macro endswitch 0

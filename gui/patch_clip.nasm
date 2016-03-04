@@ -23,7 +23,6 @@
 					nextpatch r7, r6
 
 					switch
-					default
 						vp_cpy [r7 + gui_patch_x], r12
 						breakif r12, >=, r10
 						vp_cpy [r7 + gui_patch_y], r13

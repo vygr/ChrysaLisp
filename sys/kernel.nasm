@@ -255,7 +255,6 @@
 						fn_bind gui/gui_statics, r0
 						sdl_renderpresent [r0 + gui_statics_renderer]
 					endif
-					break
 				default
 				endswitch
 			loop_end

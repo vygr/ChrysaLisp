@@ -213,11 +213,11 @@
 
 				;create new patch ?
 				switch
-				breakif r8, ==, r10
-				breakif r9, ==, r11
-				fn_call sys/heap_alloccell
-				breakif r1, ==, 0
-				default
+					breakif r8, ==, r10
+					breakif r9, ==, r11
+					fn_call sys/heap_alloccell
+					breakif r1, ==, 0
+
 					addpatch r5, r1, r2
 					vp_cpy r8, [r1 + gui_patch_x]
 					vp_cpy r9, [r1 + gui_patch_y]
