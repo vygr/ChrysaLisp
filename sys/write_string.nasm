@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/syscall.inc'
 
-	fn_function sys/write_string
+	fn_function sys/write_string, no_debug_enter
 		;inputs
 		;r0 = string
 		;r1 = fd

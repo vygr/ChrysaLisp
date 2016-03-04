@@ -9,7 +9,7 @@
 ; kernel task
 ;;;;;;;;;;;;;
 
-	fn_function sys/kernel
+	fn_function sys/kernel, no_debug_enter
 		;loader is already initialized when we get here !
 		;inputs
 		;r0 = argv pointer

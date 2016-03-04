@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	fn_function sys/mail_out
+	fn_function sys/mail_out, no_debug_enter
 		;parcels going off chip task
 
 		loop_start

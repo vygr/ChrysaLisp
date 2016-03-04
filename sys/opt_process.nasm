@@ -3,7 +3,7 @@
 %include 'inc/task.inc'
 %include 'inc/link.inc'
 
-	fn_function sys/opt_process
+	fn_function sys/opt_process, no_debug_enter
 		;process command options
 		;inputs
 		;r0 = argv array

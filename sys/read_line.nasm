@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/syscall.inc'
 
-	fn_function sys/read_line
+	fn_function sys/read_line, no_debug_enter
 		;inputs
 		;r0 = buffer address
 		;r1 = buffer size

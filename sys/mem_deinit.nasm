@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/heap.inc'
 
-	fn_function sys/mem_deinit
+	fn_function sys/mem_deinit, no_debug_enter
 		;get statics
 		fn_bind sys/mem_statics, r0
 		vp_cpy r0, r5

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	fn_function sys/mail_send
+	fn_function sys/mail_send, no_debug_enter
 		;inputs
 		;r0 = mail message
 		;trashes

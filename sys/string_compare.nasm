@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	fn_function sys/string_compare
+	fn_function sys/string_compare, no_debug_enter
 		;inputs
 		;r0 = string1
 		;r1 = string2

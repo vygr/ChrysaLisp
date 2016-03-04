@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/heap.inc'
 
-	fn_function sys/heap_init
+	fn_function sys/heap_init, no_debug_enter
 		;inputs
 		;r0 = heap
 		;r1 = cell size

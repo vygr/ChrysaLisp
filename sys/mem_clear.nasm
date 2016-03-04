@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	fn_function sys/mem_clear
+	fn_function sys/mem_clear, no_debug_enter
 		;inputs
 		;r0 = address
 		;r1 = length in bytes

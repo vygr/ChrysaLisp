@@ -5,6 +5,8 @@
 %include 'inc/code.inc'
 %include 'inc/syscall.inc'
 
+	;%define debug_function_enter
+
 ;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail funcions
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -128,9 +130,10 @@
 		vp_jmp [rel __func%[%%_i]]
 	%endmacro
 
-	%macro fn_function 1
+	%macro fn_function 1-2 debug_enter
 		;inputs
 		;%1 = function path name
+		;%2 = debug option
 		%defstr _func_name %1
 			BITS 64
 			%assign _ftotal 0
@@ -144,6 +147,14 @@
 			db	0
 			align 8, db 0
 		_func_entry:
+			%ifdef debug_function_enter
+				%ifidn %2, debug_enter
+					fn_debug enter
+				%elifidn %2, no_debug_enter
+				%else
+					%fatal No such debug setting, use debug_enter or no_debug_enter
+				%endif
+			%endif
 	%endmacro
 
 	%macro fn_function_end 0

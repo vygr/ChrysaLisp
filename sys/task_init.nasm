@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_init
+	fn_function sys/task_init, no_debug_enter
 		;set up current tcb
 		fn_bind sys/task_statics, r3
 		vp_lea [r3 + tk_statics_task_list + lh_list_tail], r15

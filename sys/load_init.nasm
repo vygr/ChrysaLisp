@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/load.inc'
 
-	fn_function sys/load_init
+	fn_function sys/load_init, no_debug_enter
 		;get loader statics and load function !
 		vp_lea [rel _func_start], r6
 		vp_add [r6 + fn_header_length], r6

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/heap.inc'
 
-	fn_function sys/mem_statics
+	fn_function sys/mem_statics, no_debug_enter
 
 		times hp_heap_size db 0	;0x0000000000000400	byte blocks
 		times hp_heap_size db 0	;0x0000000000000800	byte blocks
