@@ -84,34 +84,56 @@
 		vp_cpy r0, [r3]
 		vp_cpy r3, [r8 + ld_statics_function_list]
 
+		;relocate vtable so we can discard paths
+		vp_cpy [r8 + ld_statics_reloc_stack], r1
+		vp_cpy r1, r6
+		vp_cpy r3, r5
+		vp_add [r3 + fn_header_links], r5
+		loop_start
+		 	vp_cpy [r5], r0
+			breakif r0, ==, 0
+			vp_add r5, r0
+			vp_cpy r1, [r5]
+			vp_call string_copy
+			vp_add 8, r5
+		loop_end
+		vp_add 15, r1
+		vp_and -8, r1
+		vp_cpy r6, [r1 - 8]
+		vp_cpy r1, [r8 + ld_statics_reloc_stack]
+
+		;overflow check
+		vp_lea [r8 + ld_statics_size], r7
+		if r1, >, r7
+			vp_lea [rel reloc_error], r0
+			sys_write_string 1, r0, reloc_error_end-reloc_error
+			sys_exit 1
+		endif
+
 		;adjust block start
-		vp_cpy r3, r0
-		vp_add [r2 + stat_fsize], r0
-		vp_cpy r0, [r8 + ld_statics_block_start]
+		vp_add 8, r5
+		vp_cpy r5, [r8 + ld_statics_block_start]
 
 		;load and link function references
+		;now actual addresses of strings in the reloc buffer
 		vp_cpy r3, r0
 		vp_add [r3 + fn_header_links], r0
 		loop_start
 			vp_cpy [r0], r1
 			breakif r1, ==, 0
 			vp_push r0, r3
-			vp_add r1, r0
+			vp_cpy r1, r0
 			vp_call ld_load_function
 			if r0, ==, 0
 				;no such file
 				vp_lea [rel bind_error], r0
 				sys_write_string 1, r0, bind_error_end-bind_error
 				vp_cpy [r4 + 8], r0
-				vp_add [r0], r0
-				loop_start
-					vp_cpy byte[r0], r1l
-					vp_inc r0
-					vp_and 0xff, r1
-				loop_until r1, ==, 0
+				vp_cpy [r0], r0
+				vp_call string_skip
 				vp_lea [r0 - 1], r1
 				vp_cpy [r4 + 8], r0
-				vp_add [r0], r0
+				vp_cpy [r0], r0
 				vp_sub r0, r1
 				sys_write_string 1, r0, r1
 				sys_write_char 1, 10
@@ -122,6 +144,16 @@
 			vp_cpy r1, [r0]
 			vp_add 8, r0
 		loop_end
+
+		;get loader statics !
+		vp_lea [rel _func_start], r8
+		vp_add [r8 + fn_header_length], r8
+		vp_add [r8 + fn_header_entry], r8
+
+		;pop reloc buffer
+		vp_cpy [r8 + ld_statics_reloc_stack], r0
+		vp_cpy [r0 - 8], r0
+		vp_cpy r0, [r8 + ld_statics_reloc_stack]
 
 		;return function address
 		vp_cpy r3, r0
@@ -145,8 +177,30 @@
 		vp_xor r0, r0
 		vp_ret
 
+	string_copy:
+		loop_start
+			vp_cpy byte[r0], r2l
+			vp_cpy r2l, byte[r1]
+			vp_inc r0
+			vp_inc r1
+			vp_and 0xff, r2
+		loop_until r2, ==, 0
+		vp_ret
+
+	string_skip:
+		loop_start
+			vp_cpy byte[r0], r1l
+			vp_inc r0
+			vp_and 0xff, r1
+		loop_until r1, ==, 0
+		ret
+
 	bind_error:
 		db 'Bind error: '
 	bind_error_end:
+
+	reloc_error:
+		db 'Reloc buffer overflow !', 10
+	reloc_error_end:
 
 	fn_function_end

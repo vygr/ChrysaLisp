@@ -22,6 +22,10 @@
 		vp_add [r6 + fn_header_entry], r6
 		vp_add [r5 + fn_header_entry], r5
 
+		;init reloc buffer address
+		vp_lea [r6 + ld_statics_reloc_buffer], r1
+		vp_cpy r1, [r6 + ld_statics_reloc_stack]
+
 		;add all prebound functions to function list
 		vp_lea [rel _func_start], r1
 		loop_start
@@ -53,11 +57,7 @@
 					sys_write_string 1, r0, bind_error_end-bind_error
 					vp_cpy [r4 + 16], r0
 					vp_add [r0], r0
-					loop_start
-						vp_cpy byte[r0], r1l
-						vp_inc r0
-						vp_and 0xff, r1
-					loop_until r1, ==, 0
+					vp_call string_skip
 					vp_lea [r0 - 1], r1
 					vp_cpy [r4 + 16], r0
 					vp_add [r0], r0
@@ -73,6 +73,14 @@
 			loop_end
 		loop_end
 		vp_ret
+
+	string_skip:
+		loop_start
+			vp_cpy byte[r0], r1l
+			vp_inc r0
+			vp_and 0xff, r1
+		loop_until r1, ==, 0
+		ret
 
 	bind_error:
 		db 'Prebind error: '
