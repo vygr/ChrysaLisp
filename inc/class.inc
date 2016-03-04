@@ -71,9 +71,11 @@
 		%endif
 	%endmacro
 
-	%macro method_call 2
+	%macro method_call 2-4 r0, r15
 		;%1 = <class name>
 		;%2 = <member name>
+		;%3 = instance pointer reg
+		;%4 = dispatch reg
 		%assign %%_n 0
 		%rep _map_%[%1]_size
 			%ifidn _map_%[%1]_name_%[%%_n], %2
@@ -86,9 +88,9 @@
 			;no such method
 			%fatal No such method %2
 		%else
-			vp_cpy [r0 + obj_vtable], r15
-			vp_add (%%_n * 6), r15
-			vp_call r15
+			vp_cpy [%3 + obj_vtable], %4
+			vp_add (%%_n * 6), %4
+			vp_call %4
 		%endif
 	%endmacro
 
