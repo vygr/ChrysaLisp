@@ -154,6 +154,8 @@
 				vp_lea [r0 + gui_statics_patch_heap], r0
 				fn_call gui/patch_cut
 			else
+				vp_cpy [r0 + gui_view_ctx_x], r8
+				vp_cpy [r0 + gui_view_ctx_y], r9
 				vp_lea [r4 + draw_view_patch_list], r1
 				vp_lea [r0 + gui_view_dirty_list], r2
 				vp_lea [r0 + gui_view_transparent_list], r3
