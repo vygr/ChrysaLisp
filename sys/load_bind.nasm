@@ -41,15 +41,6 @@
 		vp_lea [r8 + ld_statics_stat_buffer], r0
 		sys_stat r7, r0
 		if r0, !=, 0
-			;no such file
-			vp_lea [rel bind_error], r0
-			sys_write_string 1, r0, bind_error_end-bind_error
-			vp_cpy r7, r0
-			vp_call string_length
-			vp_cpy r1, r2
-			sys_write_string 1, r0, r2
-			sys_write_char 1, 10
-
 			xor r0, r0
 			vp_ret
 		endif
@@ -105,18 +96,25 @@
 			vp_cpy [r0], r1
 			breakif r1, ==, 0
 			vp_lea [r0 + 8], r0
-			vp_push r0
-			vp_push r3
+			vp_push r0, r3
 			vp_call ld_load_function
+			if r0, ==, 0
+				;no such file
+				vp_lea [rel bind_error], r0
+				sys_write_string 1, r0, bind_error_end-bind_error
+				vp_cpy [r4 + 8], r0
+				vp_call string_skip
+				vp_lea [r0 - 1], r1
+				vp_cpy [r4 + 8], r0
+				vp_sub r0, r1
+				sys_write_string 1, r0, r1
+				sys_write_char 1, 10
+				sys_exit 1
+			endif
 			vp_cpy r0, r1
-			vp_pop r3
-			vp_pop r0
+			vp_pop r0, r3
 			vp_cpy r1, [r0 - 8]
-			loop_start
-				vp_cpy byte[r0], r1l
-				vp_inc r0
-				vp_and 0xff, r1
-			loop_until r1, ==, 0
+			vp_call string_skip
 			vp_add 7, r0
 			vp_and -8, r0
 		loop_end
@@ -143,15 +141,12 @@
 		vp_xor r0, r0
 		vp_ret
 
-	string_length:
-		vp_cpy r0, r1
+	string_skip:
 		loop_start
-			vp_cpy byte[r1], r2l
-			vp_and 0xff, r2
-			breakif r2, ==, 0
-			vp_inc r1
-		loop_end
-		vp_sub r0, r1
+			vp_cpy byte[r0], r1l
+			vp_inc r0
+			vp_and 0xff, r1
+		loop_until r1, ==, 0
 		vp_ret
 
 	bind_error:

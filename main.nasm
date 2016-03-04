@@ -1,8 +1,4 @@
-%include 'inc/vp.inc'
-%include 'inc/code.inc'
-%include 'inc/load.inc'
 %include 'inc/func.inc'
-%include 'inc/syscall.inc'
 %include 'inc/sdl2.inc'
 
 ;;;;;;;;;;;;;
@@ -15,13 +11,6 @@
 main:
 	;called by sdl !!!!!!!
 	vp_push r6
-
-	;set prebound functions as read/write/executable
-	vp_lea [rel ld_prebound], r0
-	vp_and -ld_page_size, r0
-	vp_lea [rel ld_prebounde], r1
-	vp_sub r0, r1
-	sys_mprotect r0, r1, prot_read|prot_write|prot_exec
 
 	;init loader
 	vp_lea [rel ld_load_init_loader], r1
@@ -45,7 +34,6 @@ main:
 ;;;;;;;;;;;;;;;;;;;;
 
 	align 8, db 0
-ld_prebound:
 
 ld_load_init_loader:
 	incbin	'sys/load_init'		;must be first function !
@@ -56,9 +44,7 @@ ld_gui_init_gui:
 	incbin	'gui/gui_init'		;must be included !
 ld_kernel:
 	incbin	'sys/kernel'		;must be included !
-
-ld_prebounde:
-	dq 0
+	dq 0, 0						;must mark end
 
 	SECTION .data
 
