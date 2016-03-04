@@ -7,7 +7,7 @@ all_objects := $(patsubst %.nasm, %, $(all_nasms))
 all:		$(all_objects)
 
 main:		main.o
-			ld -o main -e main main.o $(sdl_ldflags)
+			clang -o main -e main main.o $(sdl_ldflags)
 
 %.o:		%.nasm Makefile $(all_incs) \
 			sys/load_init sys/load_bind sys/load_statics sys/load_deinit sys/kernel gui/gui_init
