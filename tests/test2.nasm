@@ -21,9 +21,9 @@
 					endif
 					vp_cpy r11, r0
 					vp_cpy 1, r1
+					vp_cpy 10, r2
 					fn_call sys/write_number
 					vp_cpy ' ', r0
-					vp_cpy 1, r1
 					fn_call sys/write_char
 				next
 				vp_cpy 10, r0

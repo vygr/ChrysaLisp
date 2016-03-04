@@ -6,7 +6,7 @@
 		;r0 = string
 		;r1 = fd
 		;trashes
-		;r2-r3
+		;r1-r3
 
 		vp_cpy r1, r3
 		fn_call sys/string_length

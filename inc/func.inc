@@ -4,6 +4,7 @@
 %include 'inc/vp.inc'
 %include 'inc/code.inc'
 %include 'inc/syscall.inc'
+%include 'inc/task.inc'
 
 	;%define debug_function_enter
 
@@ -173,21 +174,46 @@
 		_func_end:
 	%endmacro
 
-	%macro fn_debug 1
+	%macro fn_debug 1-2 0
 		;%1 debug string
+		;%2 debug value
 		%defstr _debug_string_ %1
 			vp_jmp %%over_end
 		%%over:
-			db ': ', _debug_string_, 10, 0
+			db ': ', _debug_string_, ' -> ', 0
 		%%over_end:
-			vp_push r0, r1, r2, r3
+			vp_push r0, r1, r2, r3, r5
+			vp_push %2
+
+			;tab in by stack depth
+			fn_bind sys/task_statics, r2
+			vp_cpy [r2 + tk_statics_current_tcb], r2
+			vp_add tk_node_size - (7*8), r2
+			vp_sub r4, r2
+			if r2, >, tk_stack_size
+				;must be kernel or stack extented
+				vp_xor r2, r2
+			endif
+			vp_cpy ' ', r0
+			vp_cpy 1, r1
+			loop_while r2, >, 0
+				fn_call sys/write_char
+				vp_sub 8, r2
+			loop_end
+
 			vp_lea [rel _func_start + fn_header_pathname], r0
 			vp_cpy 1, r1
 			fn_call sys/write_string
 			vp_lea [rel %%over], r0
 			vp_cpy 1, r1
 			fn_call sys/write_string
-			vp_pop r0, r1, r2, r3
+			vp_pop r0
+			vp_cpy 1, r1
+			vp_cpy 16, r2
+			fn_call sys/write_number
+			vp_cpy 10, r0
+			fn_call sys/write_char
+			vp_pop r0, r1, r2, r3, r5
 	%endmacro
 
 %endif

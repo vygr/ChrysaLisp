@@ -34,11 +34,11 @@
 
 		;set task control block stack and return address's
 		vp_lea [r1 + tk_node_size], r0
-		vp_sub TK_STATE_SIZE + 16, r0
+		vp_sub tk_state_size + 16, r0
 		vp_cpy r0, [r1 + tk_node_stack]
 		fn_bind sys/task_stop, r2
-		vp_cpy r2, [r0 + TK_STATE_SIZE + 8]
-		vp_cpy r5, [r0 + TK_STATE_SIZE]
+		vp_cpy r2, [r0 + tk_state_size + 8]
+		vp_cpy r5, [r0 + tk_state_size]
 
 		;return mailbox pointer
 		vp_lea [r1 + tk_node_mailbox], r0

@@ -12,7 +12,7 @@ main:
 	;called by sdl !!!!!!!
 	vp_push r6
 
-	;init loader
+	;init loader and prebind
 	vp_lea [rel ld_load_init_loader], r1
 	vp_add [r1 + fn_header_entry], r1
 	vp_call r1
@@ -39,7 +39,7 @@ ld_load_init_loader:
 	incbin	'sys/load_init'		;must be first function !
 	incbin	'sys/load_bind'		;must be second function !
 	incbin	'sys/load_statics'	;must be third function !
-	incbin	'sys/load_deinit'	;must be included !
+	incbin	'sys/load_deinit'	;must be included ! Because it unmaps all function blocks
 ld_gui_init_gui:
 	incbin	'gui/gui_init'		;must be included !
 ld_kernel:

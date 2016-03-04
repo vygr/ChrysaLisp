@@ -25,7 +25,8 @@
 			vp_cpy r4, r0
 			fn_call sys/heap_alloccell
 			vp_cpy r1, r0
-			vp_cpy 1, r1
+			vp_cpy 10, r1
+			vp_cpy 1, r2
 			fn_call sys/write_number
 			vp_cpy ' ', r0
 			fn_call sys/write_char
@@ -54,10 +55,12 @@
 
 			;print address and length
 			vp_cpy 1, r1
+			vp_cpy 10, r2
 			fn_call sys/write_number
 			vp_cpy ':', r0
 			fn_call sys/write_char
 			vp_cpy r9, r0
+			vp_cpy 10, r2
 			fn_call sys/write_number
 			vp_cpy 10, r0
 			fn_call sys/write_char
