@@ -167,7 +167,8 @@
 		%defstr _debug_string_ %1
 			vp_jmp %%over_end
 		%%over:
-			db ': ', _debug_string_, ' -> ', 0
+			%defstr %%_l __LINE__
+			db ': ', %%_l, ' : ', _debug_string_, ' -> ', 0
 		%%over_end:
 			vp_push r0, r1, r2, r3, r5
 			vp_push %2

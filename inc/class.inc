@@ -29,6 +29,9 @@
 	%macro def_class 2
 		;%1 = <class name>
 		;%2 = <super class name>
+		%ifdef _map_%[%1]_size
+			%fatal Class %1 allready exits !
+		%endif
 		map_copy %2, %1
 		%define _class_ %1
 		%define _super_class_%[%1] %2
