@@ -20,14 +20,14 @@
 					vp_add r13,r0
 					vp_add 'a', r0
 					vp_cpy 1, r1
-					fn_call sys/write_char
+					class_call write, char
 					vp_cpy ' ', r0
-					fn_call sys/write_char
+					class_call write, char
 				next
 				vp_cpy 10, r0
-				fn_call sys/write_char
+				class_call write, char
 			next
-			fn_call sys/write_char
+			class_call write, char
 			class_call task, yield
 		next
 		vp_ret

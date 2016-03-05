@@ -1,7 +1,16 @@
 %ifndef SYSCALL_1234
 	%define SYSCALL_1234
 
-%include 'inc/vp.inc'
+%include 'inc/class.inc'
+
+;;;;;;;;;;;;;;;;;;;;;;
+; syscall static class
+;;;;;;;;;;;;;;;;;;;;;;
+
+	def_class write
+	def_method char, sys/write_char
+	def_method string, sys/write_string
+	def_method number, sys/write_number
 
 %ifidn OS, Darwin
 

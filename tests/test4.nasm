@@ -27,13 +27,13 @@
 			vp_cpy r1, r0
 			vp_cpy 10, r1
 			vp_cpy 1, r2
-			fn_call sys/write_number
+			class_call write, number
 			vp_cpy ' ', r0
-			fn_call sys/write_char
+			class_call write, char
 		next
 		vp_cpy 10, r0
-		fn_call sys/write_char
-		fn_call sys/write_char
+		class_call write, char
+		class_call write, char
 
 		;free all objects
 		vp_cpy r4, r0
@@ -50,20 +50,21 @@
 			;allocate 8MB - 8 general ram
 			vp_cpy 0x800000 - 8, r0
 			class_call mem, alloc
+			fn_assert r0, !=, 0
 			vp_cpy r0, r8
 			vp_cpy r1, r9
 
 			;print address and length
 			vp_cpy 1, r1
 			vp_cpy 10, r2
-			fn_call sys/write_number
+			class_call write, number
 			vp_cpy ':', r0
-			fn_call sys/write_char
+			class_call write, char
 			vp_cpy r9, r0
 			vp_cpy 10, r2
-			fn_call sys/write_number
+			class_call write, number
 			vp_cpy 10, r0
-			fn_call sys/write_char
+			class_call write, char
 
 			;write to all locations
 			vp_lea [r8 + r9], r12

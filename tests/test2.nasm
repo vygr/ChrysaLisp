@@ -17,19 +17,19 @@
 					if r11, < , 10
 						vp_cpy ' ', r0
 						vp_cpy 1, r1
-						fn_call sys/write_char
+						class_call write, char
 					endif
 					vp_cpy r11, r0
 					vp_cpy 1, r1
 					vp_cpy 10, r2
-					fn_call sys/write_number
+					class_call write, number
 					vp_cpy ' ', r0
-					fn_call sys/write_char
+					class_call write, char
 				next
 				vp_cpy 10, r0
-				fn_call sys/write_char
+				class_call write, char
 			next
-			fn_call sys/write_char
+			class_call write, char
 			class_call task, yield
 		next
 		vp_ret

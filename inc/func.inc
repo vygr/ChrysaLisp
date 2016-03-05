@@ -191,22 +191,22 @@
 			vp_cpy ' ', r0
 			vp_cpy 1, r1
 			loop_while r2, >, 0
-				fn_call sys/write_char
+				class_call write, char
 				vp_sub 8, r2
 			loop_end
 
 			vp_lea [rel _func_start + fn_header_pathname], r0
 			vp_cpy 1, r1
-			fn_call sys/write_string
+			class_call write, string
 			vp_lea [rel %%over], r0
 			vp_cpy 1, r1
-			fn_call sys/write_string
+			class_call write, string
 			vp_pop r0
 			vp_cpy 1, r1
 			vp_cpy 16, r2
-			fn_call sys/write_number
+			class_call write, number
 			vp_cpy 10, r0
-			fn_call sys/write_char
+			class_call write, char
 			vp_pop r0, r1, r2, r3, r5
 		%endif
 	%endmacro
