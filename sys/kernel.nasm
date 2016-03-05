@@ -25,7 +25,7 @@
 		class_call mem, init
 
 		;init linker
-		fn_call sys/link_init
+		class_call link, init
 
 		;start kernel task
 		class_call task, start
@@ -100,7 +100,7 @@
 					vp_cpy r0, r5
 					class_bind task, statics, r1
 					vp_cpy [r1 + tk_statics_task_count], r1
-					fn_bind sys/link_statics, r2
+					class_bind link, statics, r2
 					loop_list_forwards r2 + lk_statics_links_list, r2, r3
 						if r1, >, [r3 + lk_node_task_count]
 							vp_cpy [r3 + lk_node_cpu_id], r0
@@ -147,7 +147,7 @@
 
 						;fill in via route and remove other routes
 						vp_cpy [r15 + ml_msg_data + kn_data_link_route_via], r13
-						fn_bind sys/link_statics, r14
+						class_bind link, statics, r14
 						loop_list_forwards r14 + lk_statics_links_list, r14, r12
 							;new link route table ?
 							vp_cpy [r12 + lk_node_table + lk_table_array], r0
@@ -170,7 +170,7 @@
 					case r2, ==, r3
 						;new hops is equal, so additional route
 						vp_cpy [r15 + ml_msg_data + kn_data_link_route_via], r13
-						fn_bind sys/link_statics, r14
+						class_bind link, statics, r14
 						loop_list_forwards r14 + lk_statics_links_list, r14, r12
 							;new link route table ?
 							vp_cpy [r12 + lk_node_table + lk_table_array], r0
@@ -203,7 +203,7 @@
 					vp_cpy r0, [r15 + ml_msg_data + kn_data_link_route_via]
 
 					;copy and send to all neighbors apart from old via
-					fn_bind sys/link_statics, r13
+					class_bind link, statics, r13
 					loop_list_forwards r13 + lk_statics_links_list, r13, r12
 						vp_cpy [r12 + lk_node_cpu_id], r11
 						continueif r11, ==, r14

@@ -88,7 +88,7 @@
 		vp_cpy [r14], r0
 		if r0, !=, 0
 			;start link
-			fn_bind sys/link, r0
+			class_bind link, link, r0
 			class_call task, start
 			vp_cpy r0, r5
 			fn_call sys/cpu_get_id

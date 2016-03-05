@@ -3,6 +3,12 @@
 
 %include 'inc/list.inc'
 %include 'inc/mail.inc'
+%include 'inc/class.inc'
+
+	def_class link
+	def_method statics, sys/link_statics
+	def_method init, sys/link_init
+	def_method link, sys/link
 
 ;;;;;;;;;;;;;;;;;
 ; link structures

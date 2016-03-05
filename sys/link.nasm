@@ -11,7 +11,7 @@
 		vp_cpy 0, qword[r4 + lk_node_table + lk_table_array]
 		vp_cpy 0, qword[r4 + lk_node_table + lk_table_array_size]
 		vp_lea [r4 + lk_node_node], r0
-		fn_bind sys/link_statics, r1
+		class_bind link, statics, r1
 		vp_lea [r1 + lk_statics_links_list], r1
 		lh_add_at_head r1, r0, r2
 
