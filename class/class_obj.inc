@@ -3,7 +3,7 @@
 
 %include 'inc/class.inc'
 
-    def_class obj, null
+    def_class obj
     def_method create, class/obj/create
     def_method destroy, class/obj/destroy
     def_method new, class/obj/new

@@ -1,5 +1,5 @@
 %include 'inc/func.inc'
-%include 'inc/mail.inc'
+%include 'inc/task.inc'
 
 ;;;;;;;;;;;
 ; test code
@@ -10,33 +10,33 @@
 
 		;delay for a while to let the network routing finish
 		vp_cpy 1000000, r0
-		fn_call sys/task_sleep
+		class_call task, sleep
 
 		;open test11 task, remotely
 		vp_lea [rel task_eleven], r0
 		vp_cpy 0, r1
-		fn_call sys/task_open_remote
+		class_call task, remote
 
 		;open test9 task, off chip
 		vp_lea [rel task_nine], r0
-		fn_call sys/task_open_child
+		class_call task, child
 
 		;open test7 task, off chip
 		vp_lea [rel task_seven], r0
-		fn_call sys/task_open_child
+		class_call task, child
 
 		;open test5 task, off chip
 		vp_lea [rel task_five], r0
-		fn_call sys/task_open_child
+		class_call task, child
 
 		;open test4 task, on chip
 		vp_lea [rel task_four], r0
-		fn_call sys/task_open
+		class_call task, open
 
 		;open test3 child task, on device
 		vp_lea [rel task_three], r0
 		vp_cpy 0, r1
-		fn_call sys/task_open_device
+		class_call task, device
 
 		;send test3 task 1000 messages
 		vp_cpy r0, r8
@@ -46,7 +46,7 @@
 			vp_cpy r8, [r0 + ml_msg_dest]
 			vp_cpy r9, [r0 + (ml_msg_dest + 8)]
 			fn_call sys/mail_send
-			fn_call sys/task_yield
+			class_call task, yield
 		next
 
 		;make test2 function call and return

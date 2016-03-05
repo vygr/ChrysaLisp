@@ -1,3 +1,4 @@
+%include 'inc/func.inc'
 %include 'class/class_obj.inc'
 
 	fn_function class/obj/init

@@ -53,7 +53,7 @@
 		if r0, !=, 0
 			vp_cpy 10, r1
 			fn_call sys/string_parse_int
-			fn_bind sys/task_statics, r1
+			class_bind task, statics, r1
 			vp_cpy r0, [r1 + tk_statics_cpu_id]
 		endif
 		vp_ret
@@ -70,7 +70,7 @@
 		if r0, !=, 0
 			fn_call sys/load_bind
 			if r0, !=, 0
-				fn_call sys/task_start
+				class_call task, start
 			endif
 		endif
 		vp_ret
@@ -87,7 +87,7 @@
 		if r0, !=, 0
 			;start link
 			fn_bind sys/link, r0
-			fn_call sys/task_start
+			class_call task, start
 			vp_cpy r0, r5
 			fn_call sys/cpu_get_id
 			vp_cpy r0, r6

@@ -17,13 +17,14 @@
 		;allocate temp array for mailbox ID's
 		vp_mul 16, r0
 		fn_call sys/mem_alloc
+		fn_assert r0, !=, 0
 		vp_cpy r0, r14
 
 		;open test12 global farm, off chip
 		vp_lea [rel task_twelve], r0
 		vp_cpy r14, r1
 		vp_cpy r12, r2
-		fn_call sys/task_open_global
+		class_call task, global
 
 		;send messages etc
 		for r11, 0, 10, 1
@@ -40,7 +41,7 @@
 				vp_cpy r1, [r0 + ml_msg_dest]
 				vp_cpy r2, [r0 + (ml_msg_dest + 8)]
 				fn_call sys/mail_send
-				fn_call sys/task_yield
+				class_call task, yield
 			next
 		next
 

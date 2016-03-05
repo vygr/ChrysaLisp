@@ -67,7 +67,7 @@
 			fn_call sys/mem_free
 
 			;let links get at some packets
-			fn_call sys/task_yield
+			class_call task, yield
 		loop_end
 		vp_ret
 

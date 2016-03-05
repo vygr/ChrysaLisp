@@ -99,7 +99,7 @@
 		vp_xor r9, r9
 		loop_start
 			;exchange task counts
-			fn_bind sys/task_statics, r0
+			class_bind task, statics, r0
 			vp_cpy [r0 + tk_statics_task_count], r0
 			vp_cpy r0, [r10 + lk_chan_task_count]
 			vp_cpy [r11 + lk_chan_task_count], r0
@@ -172,7 +172,7 @@
 			endif
 
 			;let other links run
-			fn_call sys/task_yield
+			class_call task, yield
 
 			;are we in a quite period
 			vp_cpy [r11 + lk_chan_status], r0
@@ -188,7 +188,7 @@
 
 			;small sleep if so
 			vp_cpy 1000, r0
-			fn_call sys/task_sleep
+			class_call task, sleep
 
 			;exit if signaled by kernel
 			vp_cpy [r4 + lk_node_cpu_id], r0

@@ -1,9 +1,34 @@
 %ifndef TASK_1234
 	%define TASK_1234
 
+%include 'inc/class.inc'
 %include 'inc/list.inc'
-%include 'inc/mail.inc'
 %include 'inc/heap.inc'
+%include 'inc/mail.inc'
+
+;;;;;;;;;;;;;;;;;;;
+; task static class
+;;;;;;;;;;;;;;;;;;;
+
+	def_class task
+	def_method statics, sys/task_statics
+	def_method init, sys/task_init
+	def_method deinit, sys/task_deinit
+	def_method start, sys/task_start
+	def_method stop, sys/task_stop
+	def_method restore, sys/task_restore
+	def_method yield, sys/task_yield
+	def_method sleep, sys/task_sleep
+	def_method suspend, sys/task_suspend
+	def_method resume, sys/task_resume
+	def_method open, sys/task_open
+	def_method child, sys/task_open_child
+	def_method device, sys/task_open_device
+	def_method remote, sys/task_open_remote
+	def_method array, sys/task_open_array
+	def_method farm, sys/task_open_farm
+	def_method pipe, sys/task_open_pipe
+	def_method global, sys/task_open_global
 
 ;;;;;;;;;;;;;;;;;
 ; task structures

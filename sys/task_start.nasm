@@ -14,7 +14,7 @@
 		vp_cpy r0, r5
 
 		;get statics
-		fn_bind sys/task_statics, r6
+		class_bind task, statics, r6
 
 		;increment task count
 		vp_cpy [r6 + tk_statics_task_count], r0

@@ -18,7 +18,7 @@
 		vp_push r0
 
 		;init tasker
-		fn_call sys/task_init
+		class_call task, init
 
 		;init allocator
 		fn_call sys/mem_init
@@ -27,8 +27,8 @@
 		fn_call sys/link_init
 
 		;start kernel task
-		fn_call sys/task_start
-		fn_bind sys/task_statics, r2
+		class_call task, start
+		class_bind task, statics, r2
 		vp_cpy r1, [r2 + tk_statics_current_tcb]
 
 		;init mailer, r0 = kernel mailbox !
@@ -41,7 +41,7 @@
 		;fill in num cpu's with at least mine + 1
 		fn_call sys/cpu_get_id
 		vp_inc r0
-		fn_bind sys/task_statics, r1
+		class_bind task, statics, r1
 		vp_cpy r0, [r1 + tk_statics_cpu_total]
 
 		;allocate for kernel routing table
@@ -56,12 +56,12 @@
 		;loop till no other tasks running
 		loop_start
 			;allow all other tasks to run
-			fn_call sys/task_yield
+			class_call task, yield
 
 			;service all kernel mail
 			loop_start
 				;check if any mail
-				fn_bind sys/task_statics, r0
+				class_bind task, statics, r0
 				vp_cpy [r0 + tk_statics_current_tcb], r0
 				vp_lea [r0 + tk_node_mailbox], r0
 				ml_check r0, r1
@@ -85,7 +85,7 @@
 					;open single task and return mailbox ID
 					vp_lea [r15 + (ml_msg_data + kn_data_task_open_pathname)], r0
 					fn_call sys/load_bind
-					fn_call sys/task_start
+					class_call task, start
 					vp_cpy r0, [r15 + (ml_msg_data + kn_data_task_open_reply_mailboxid)]
 					fn_call sys/cpu_get_id
 					vp_cpy r0, [r15 + (ml_msg_data + kn_data_task_open_reply_mailboxid + 8)]
@@ -97,7 +97,7 @@
 					;find best cpu to run task
 					fn_call sys/cpu_get_id
 					vp_cpy r0, r5
-					fn_bind sys/task_statics, r1
+					class_bind task, statics, r1
 					vp_cpy [r1 + tk_statics_task_count], r1
 					fn_bind sys/link_statics, r2
 					loop_list_forwards r2 + lk_statics_links_list, r2, r3
@@ -115,7 +115,7 @@
 					break
 				case r1, ==, fn_call_task_route
 					;increase size of network ?
-					fn_bind sys/task_statics, r0
+					class_bind task, statics, r0
 					vp_cpy [r15 + ml_msg_data + kn_data_link_route_origin], r1
 					vp_inc r1
 					if r1, >, [r0 + tk_statics_cpu_total]
@@ -263,7 +263,7 @@
 			fn_call sys/cpu_get_time
 
 			;start any tasks ready to restart
-			fn_bind sys/task_statics, r3
+			class_bind task, statics, r3
 			vp_cpy [r3 + tk_statics_timer_list + lh_list_head], r2
 			ln_get_succ r2, r2
 			if r2, !=, 0
@@ -316,7 +316,7 @@
 		fn_call sys/mail_deinit
 
 		;deinit tasker
-		fn_call sys/task_deinit
+		class_call task, deinit
 
 		;deinit loader
 		fn_call sys/load_deinit

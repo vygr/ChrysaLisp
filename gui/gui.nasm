@@ -1,5 +1,5 @@
 %include 'inc/func.inc'
-%include 'inc/mail.inc'
+%include 'inc/task.inc'
 %include 'inc/gui.inc'
 
 	fn_function gui/gui
@@ -80,7 +80,7 @@
 
 		;wait 5 seconds and return
 		vp_cpy 5000000, r0
-		fn_jmp sys/task_sleep
+		class_jmp task, sleep
 
 	draw_background_code:
 		;inputs

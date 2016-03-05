@@ -10,7 +10,7 @@
 
 		;sleep for 5 seconds
 		vp_cpy 5000000, r0
-		fn_call sys/task_sleep
+		class_call task, sleep
 
 		;init heap instance from stack
 		;16 byte objects from 16 objects per block
@@ -44,7 +44,7 @@
 		vp_add hp_heap_size, r4
 
 		;deshedule
-		fn_call sys/task_yield
+		class_call task, yield
 
 		for r10, 0, 10, 1
 			;allocate 8MB - 8 general ram

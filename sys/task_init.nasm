@@ -3,7 +3,7 @@
 
 	fn_function sys/task_init, no_debug_enter
 		;set up current tcb
-		fn_bind sys/task_statics, r3
+		class_bind task, statics, r3
 		vp_lea [r3 + tk_statics_task_list + lh_list_tail], r15
 		vp_cpy r15, [r3 + tk_statics_current_tcb]
 

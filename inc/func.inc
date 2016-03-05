@@ -186,7 +186,7 @@
 			vp_push %2
 
 			;tab in by stack depth
-			fn_bind sys/task_statics, r2
+			class_bind task, statics, r2
 			vp_cpy [r2 + tk_statics_current_tcb], r2
 			vp_add tk_node_size - (7*8), r2
 			vp_sub r4, r2

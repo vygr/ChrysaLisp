@@ -21,10 +21,10 @@
 
 		;init in and out postmen tasks
 		fn_bind sys/mail_in, r0
-		fn_call sys/task_start
+		class_call task, start
 		vp_cpy r0, [r7 + ml_statics_in_mailbox]
 		fn_bind sys/mail_out, r0
-		fn_call sys/task_start
+		class_call task, start
 		vp_cpy r0, [r7 + ml_statics_out_mailbox]
 		vp_cpy 0, qword[r7 + ml_statics_parcel_id]
 		vp_ret

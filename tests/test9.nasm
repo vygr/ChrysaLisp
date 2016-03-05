@@ -13,12 +13,13 @@
 		;allocate temp array for mailbox ID's
 		vp_cpy 16*PIPE_SIZE, r0
 		fn_call sys/mem_alloc
+		fn_assert r0, !=, 0
 		vp_cpy r0, r14
 
 		;open test10 pipe, off chip
 		vp_cpy r14, r1
 		vp_lea [rel task_tens], r0
-		fn_call sys/task_open_pipe
+		class_call task, pipe
 
 		;send exit messages etc
 		for r13, 0, PIPE_SIZE, 1
@@ -30,7 +31,7 @@
 			vp_cpy r1, [r0 + ml_msg_dest]
 			vp_cpy r2, [r0 + (ml_msg_dest + 8)]
 			fn_call sys/mail_send
-			fn_call sys/task_yield
+			class_call task, yield
 		next
 
 		;free ID array and return

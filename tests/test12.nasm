@@ -12,7 +12,7 @@
 
 		;wait a bit
 		vp_cpy 12000000, r0
-		fn_call sys/task_sleep
+		class_call task, sleep
 
 		;read 10 mail commands
 		for r14, 0, 10, 1

@@ -1,10 +1,6 @@
 %ifndef CLASS_1234
 	%define CLASS_1234
 
-%include 'inc/func.inc'
-
-	%assign _map_null_size 0
-
 	%macro vtable_emit 1
 		;%1 = <class name>
 		%assign %%_n 0
@@ -14,27 +10,31 @@
 		%endrep
 	%endmacro
 
-	%macro map_copy 2
-		;%1 = <source class name>
-		;%2 = <dest class name>
+	%macro class_add 2
+		;%1 = <dest class name>
+		;%2 = <source class name>
+		%ifndef _map_%[%1]_size
+			%assign _map_%[%1]_size 0
+		%endif
+		%ifndef _map_%[%2]_size
+			%assign _map_%[%2]_size 0
+		%endif
 		%assign %%_n 0
-		%rep _map_%[%1]_size
-			%define _map_%[%2]_name_%[%%_n] _map_%[%1]_name_%[%%_n]
-			%define _map_%[%2]_func_%[%%_n] _map_%[%1]_func_%[%%_n]
+		%rep _map_%[%2]_size
+			def_method _map_%[%2]_name_%[%%_n], _map_%[%2]_func_%[%%_n]
 			%assign %%_n %%_n + 1
 		%endrep
-		%assign _map_%[%2]_size _map_%[%1]_size
 	%endmacro
 
-	%macro def_class 2
+	%macro def_class 1-2 null
 		;%1 = <class name>
 		;%2 = <super class name>
 		%ifdef _map_%[%1]_size
 			%fatal Class %1 allready exits !
 		%endif
-		map_copy %2, %1
 		%define _class_ %1
 		%define _super_class_%[%1] %2
+		class_add %1, %2
 	%endmacro
 
 	%macro def_method 2-3 declare
@@ -74,45 +74,81 @@
 		%endif
 	%endmacro
 
+	%macro method_lookup 2
+		;%1 = <class name>
+		;%2 = <member name>
+		%assign %%_n 0
+		%rep _map_%[%1]_size
+			%ifidn _map_%[%1]_name_%[%%_n], %2
+				%exitrep
+			%else
+				%assign %%_n %%_n + 1
+			%endif
+		%endrep
+		%if %%_n = _map_%[%1]_size
+			;no such method
+			%fatal No such method %2
+		%else
+			%assign _method_ %%_n
+		%endif
+	%endmacro
+
 	%macro method_call 2-4 r0, r15
 		;%1 = <class name>
 		;%2 = <member name>
 		;%3 = instance pointer reg
 		;%4 = dispatch reg
-		%assign %%_n 0
-		%rep _map_%[%1]_size
-			%ifidn _map_%[%1]_name_%[%%_n], %2
-				%exitrep
-			%else
-				%assign %%_n %%_n + 1
-			%endif
-		%endrep
-		%if %%_n = _map_%[%1]_size
-			;no such method
-			%fatal No such method %2
-		%else
-			vp_cpy [%3 + obj_vtable], %4
-			vp_call [%4 + %%_n * 8]
-		%endif
+
+		method_lookup %1, %2
+		vp_cpy [%3 + obj_vtable], %4
+		vp_call [%4 + _method_ * 8]
+	%endmacro
+
+	%macro method_jmp 2-4 r0, r15
+		;%1 = <class name>
+		;%2 = <member name>
+		;%3 = instance pointer reg
+		;%4 = dispatch reg
+
+		method_lookup %1, %2
+		vp_cpy [%3 + obj_vtable], %4
+		vp_jmp [%4 + _method_ * 8]
+	%endmacro
+
+	%macro method_bind 2-4 r0, r15
+		;%1 = <class name>
+		;%2 = <member name>
+		;%3 = instance pointer reg
+		;%4 = dispatch reg
+
+		method_lookup %1, %2
+		vp_cpy [%3 + obj_vtable], %4
+		vp_cpy [%4 + _method_ * 8], %4
 	%endmacro
 
 	%macro class_call 2
 		;%1 = <class name>
 		;%2 = <member name>
-		%assign %%_n 0
-		%rep _map_%[%1]_size
-			%ifidn _map_%[%1]_name_%[%%_n], %2
-				%exitrep
-			%else
-				%assign %%_n %%_n + 1
-			%endif
-		%endrep
-		%if %%_n = _map_%[%1]_size
-			;no such method
-			%fatal No such method %2
-		%else
-			fn_call _map_%[%1]_func_%[%%_n]
-		%endif
+
+		method_lookup %1, %2
+		fn_call _map_%[%1]_func_%[_method_]
+	%endmacro
+
+	%macro class_jmp 2
+		;%1 = <class name>
+		;%2 = <member name>
+
+		method_lookup %1, %2
+		fn_jmp _map_%[%1]_func_%[_method_]
+	%endmacro
+
+	%macro class_bind 3
+		;%1 = <class name>
+		;%2 = <member name>
+		;%3 = reg
+
+		method_lookup %1, %2
+		fn_bind _map_%[%1]_func_%[_method_], %3
 	%endmacro
 
 	%macro super_call 2

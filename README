@@ -62,7 +62,7 @@ An example network viewed with ps looks like this for a 4x4 mesh network:
 
 Make with:
 
-make
+make -j
 
 Requires NASM and the SDL2 library to be installed. SDL2 is for the experimental
 gui. Please note that there is a bug in NASM 2.11 that may not be fixed yet and

@@ -1,3 +1,4 @@
+%include 'inc/func.inc'
 %include 'class/class_ref.inc'
 
 	fn_function class/ref/ref

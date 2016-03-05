@@ -1,3 +1,4 @@
+%include 'inc/func.inc'
 %include 'class/class_view.inc'
 
 	fn_function class/class_view, no_debug_enter

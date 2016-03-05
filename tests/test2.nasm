@@ -30,7 +30,7 @@
 				fn_call sys/write_char
 			next
 			fn_call sys/write_char
-			fn_call sys/task_yield
+			class_call task, yield
 		next
 		vp_ret
 

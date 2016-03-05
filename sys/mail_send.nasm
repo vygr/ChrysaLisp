@@ -30,7 +30,7 @@
 			vp_cpy [r1 + ml_mailbox_tcb], r0
 			if r0, !=, 0
 				vp_cpy 0, qword[r1 + ml_mailbox_tcb]
-				fn_call sys/task_resume
+				class_call task, resume
 			endif
 		else
 			;going off chip
