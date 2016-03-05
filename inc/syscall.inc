@@ -16,6 +16,7 @@
 	def_method id, sys/cpu_get_id
 	def_method time, sys/cpu_get_time
 	def_method total, sys/cpu_get_total
+	def_method opts, sys/opt_process
 
 %ifidn OS, Darwin
 

@@ -37,7 +37,7 @@
 
 		;process command options
 		vp_cpy [r4], r0
-		fn_call sys/opt_process
+		class_call cpu, opts
 
 		;fill in num cpu's with at least mine + 1
 		class_call cpu, id
