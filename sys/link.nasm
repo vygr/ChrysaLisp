@@ -79,10 +79,6 @@
 		sys_open r0, o_creat | o_rdwr, s_irusr | s_iwusr
 		vp_cpy r0, r13
 
-		;free params msg
-		vp_cpy r14, r0
-		class_call mem, free
-
 		;set size of region
 		sys_ftruncate r13, lk_buffer_size
 
@@ -208,6 +204,10 @@
 		;unlink shared object
 		vp_lea [r14 + ml_msg_data], r0
 		sys_unlink r0
+
+		;free params msg
+		vp_cpy r14, r0
+		class_call mem, free
 
 		;remove from links list and deallocate link node on stack
 		vp_cpy [r4 + lk_node_table], r0
