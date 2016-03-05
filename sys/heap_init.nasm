@@ -13,8 +13,8 @@
 
 		vp_cpy 0, qword[r0 + hp_heap_freelist]
 		vp_cpy 0, qword[r0 + hp_heap_blocklist]
-		vp_add hp_cell_size - 1, r1
-		vp_and -hp_cell_size, r1
+		vp_add 7, r1
+		vp_and -8, r1
 		vp_cpy r1, [r0 + hp_heap_cellsize]
 		vp_cpy r2, [r0 + hp_heap_blocksize]
 		vp_ret
