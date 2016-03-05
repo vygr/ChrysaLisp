@@ -21,6 +21,7 @@
 		loop_start
 			;allocate mail message
 			class_call mail, alloc
+			fn_assert r0, !=, 0
 			vp_cpy r0, r3
 
 			;fill in destination, reply, function and user

@@ -62,6 +62,7 @@
 		vp_cpy r0, r8
 		vp_cpy r1, r9
 		class_call mail, alloc
+		fn_assert r0, !=, 0
 		vp_cpy 0, qword[r0 + ml_msg_dest]
 		vp_cpy r9, [r0 + (ml_msg_dest + 8)]
 		vp_cpy 0, qword[r0 + ml_msg_data + kn_data_kernel_user]
@@ -156,6 +157,7 @@
 				;allocate msg, copy over data
 				;round up to next 8 byte boundary for speed
 				class_call mail, alloc
+				fn_assert r0, !=, 0
 				vp_cpy r0, r8
 				vp_cpy r0, r1
 				vp_lea [r11 + lk_chan_msg], r0

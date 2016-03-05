@@ -24,6 +24,7 @@
 		;send exit messages etc
 		for r13, 0, ARRAY_SIZE, 1
 			class_call mail, alloc
+			fn_assert r0, !=, 0
 			vp_cpy r13, r3
 			vp_mul 16, r3
 			vp_cpy [r14 + r3], r1

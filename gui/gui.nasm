@@ -69,6 +69,7 @@
 
 		;allocate mail message
 		class_call mail, alloc
+		fn_assert r0, !=, 0
 
 		;fill in destination, function
 		vp_cpy 0, qword[r0 + ml_msg_dest]

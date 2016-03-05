@@ -43,6 +43,7 @@
 		vp_cpy r1, r9
 		for r14, 0, 1000, 1
 			class_call mail, alloc
+			fn_assert r0, !=, 0
 			vp_cpy r8, [r0 + ml_msg_dest]
 			vp_cpy r9, [r0 + (ml_msg_dest + 8)]
 			class_call mail, send
