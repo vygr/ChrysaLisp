@@ -17,7 +17,7 @@
 		vp_cpy r0, r1
 
 		;calculate wake time
-		fn_call sys/cpu_get_time
+		class_call cpu, time
 		vp_add r1, r0
 		vp_cpy r0, [r15 + tk_node_time]
 

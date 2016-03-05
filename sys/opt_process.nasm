@@ -91,7 +91,7 @@
 			class_bind link, link, r0
 			class_call task, start
 			vp_cpy r0, r5
-			fn_call sys/cpu_get_id
+			class_call cpu, id
 			vp_cpy r0, r6
 
 			;allocate params message

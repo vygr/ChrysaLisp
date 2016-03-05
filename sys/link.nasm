@@ -46,7 +46,7 @@
 		vp_mul 10, r2
 		vp_add r0, r2
 		vp_add r3, r2
-		fn_call sys/cpu_get_id
+		class_call cpu, id
 		if r1, ==, r0
 			vp_cpy r2, r1
 			vp_cpy lk_buffer_chan_1, r10

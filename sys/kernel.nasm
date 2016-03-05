@@ -40,7 +40,7 @@
 		fn_call sys/opt_process
 
 		;fill in num cpu's with at least mine + 1
-		fn_call sys/cpu_get_id
+		class_call cpu, id
 		vp_inc r0
 		class_bind task, statics, r1
 		vp_cpy r0, [r1 + tk_statics_cpu_total]
@@ -88,7 +88,7 @@
 					class_call load, bind
 					class_call task, start
 					vp_cpy r0, [r15 + (ml_msg_data + kn_data_task_open_reply_mailboxid)]
-					fn_call sys/cpu_get_id
+					class_call cpu, id
 					vp_cpy r0, [r15 + (ml_msg_data + kn_data_task_open_reply_mailboxid + 8)]
 					vp_cpy ml_msg_data + kn_data_task_open_reply_size, qword[r15 + ml_msg_length]
 					vp_cpy r15, r0
@@ -96,7 +96,7 @@
 					break
 				case r1, ==, fn_call_task_child
 					;find best cpu to run task
-					fn_call sys/cpu_get_id
+					class_call cpu, id
 					vp_cpy r0, r5
 					class_bind task, statics, r1
 					vp_cpy [r1 + tk_statics_task_count], r1
@@ -199,7 +199,7 @@
 
 					;get current via, set via to my cpu id
 					vp_cpy [r15 + ml_msg_data + kn_data_link_route_via], r14
-					fn_call sys/cpu_get_id
+					class_call cpu, id
 					vp_cpy r0, [r15 + ml_msg_data + kn_data_link_route_via]
 
 					;copy and send to all neighbors apart from old via
@@ -261,7 +261,7 @@
 			loop_end
 
 			;get time
-			fn_call sys/cpu_get_time
+			class_call cpu, time
 
 			;start any tasks ready to restart
 			class_bind task, statics, r3

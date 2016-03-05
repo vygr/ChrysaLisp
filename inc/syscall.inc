@@ -12,6 +12,11 @@
 	def_method string, sys/write_string
 	def_method number, sys/write_number
 
+	def_class cpu
+	def_method id, sys/cpu_get_id
+	def_method time, sys/cpu_get_time
+	def_method total, sys/cpu_get_total
+
 %ifidn OS, Darwin
 
 ;;;;;;;;;;;;;;;;;
