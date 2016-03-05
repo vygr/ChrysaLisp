@@ -53,8 +53,8 @@ sys/kernel
 sys/link
 sys/link_init
 sys/link_statics
-sys/list_enumerate_backwards
-sys/list_enumerate_forwards
+sys/list_enum_backward
+sys/list_enum_forward
 sys/list_get_index_of_node
 sys/list_get_node_at_index
 sys/load_bind

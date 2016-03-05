@@ -9,8 +9,8 @@
 ;;;;;;;;;;;;;;;;;;;
 
 	def_class list
-	def_method enumerate_forwards, sys/list_enumerate_forwards
-	def_method enumerate_backwards, sys/list_enumerate_backwards
+	def_method enum_forward, sys/list_enum_forward
+	def_method enum_backward, sys/list_enum_backward
 	def_method index_of, sys/list_get_index_of_node
 	def_method node_at, sys/list_get_node_at_index
 
