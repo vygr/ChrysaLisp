@@ -77,6 +77,9 @@
 	%macro method_lookup 2
 		;%1 = <class name>
 		;%2 = <member name>
+		%ifndef _map_%[%1]_size
+			%fatal Class %1 not defined !
+		%endif
 		%assign %%_n 0
 		%rep _map_%[%1]_size
 			%ifidn _map_%[%1]_name_%[%%_n], %2
@@ -87,7 +90,7 @@
 		%endrep
 		%if %%_n = _map_%[%1]_size
 			;no such method
-			%fatal No such method %2
+			%fatal No such method %2 in class %1 !
 		%else
 			%assign _method_ %%_n
 		%endif

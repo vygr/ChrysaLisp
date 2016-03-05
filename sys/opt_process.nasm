@@ -2,6 +2,7 @@
 %include 'inc/mail.inc'
 %include 'inc/task.inc'
 %include 'inc/link.inc'
+%include 'inc/string.inc'
 
 	fn_function sys/opt_process, no_debug_enter
 		;process command options
@@ -21,7 +22,7 @@
 				vp_add 8, r12
 				vp_cpy r12, r0
 				vp_cpy r13, r1
-				fn_call sys/string_compare
+				class_call string, compare
 				if r0, !=, 0
 					vp_lea [rel options_table], r0
 					vp_add r11, r0
@@ -29,7 +30,7 @@
 					vp_jmp next_arg
 				endif
 				vp_cpy r12, r0
-				fn_call sys/string_length
+				class_call string, length
 				vp_add r1, r12
 				vp_add 8, r12
 				vp_and -8, r12
@@ -52,7 +53,7 @@
 		vp_cpy [r14], r0
 		if r0, !=, 0
 			vp_cpy 10, r1
-			fn_call sys/string_parse_int
+			class_call string, int
 			class_bind task, statics, r1
 			vp_cpy r0, [r1 + tk_statics_cpu_id]
 		endif
@@ -103,10 +104,10 @@
 			;fill in paramaters and set length
 			vp_lea [rel link_path], r0
 			vp_lea [r7 + ml_msg_data], r1
-			fn_call sys/string_copy
+			class_call string, copy
 			vp_cpy [r14], r0
 			vp_dec r1
-			fn_call sys/string_copy
+			class_call string, copy
 			vp_sub r7, r1
 			vp_cpy r1, [r7 + ml_msg_length]
 

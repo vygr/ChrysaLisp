@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
+%include 'inc/string.inc'
 
 	fn_function sys/task_open_device, no_debug_enter
 		;inputs
@@ -32,7 +33,7 @@
 		;copy task name
 		vp_cpy r5, r0
 		vp_lea [r3 + (ml_msg_data + kn_data_task_child_pathname)], r1
-		fn_call sys/string_copy
+		class_call string, copy
 
 		;fill in total message length
 		vp_sub r3, r1
