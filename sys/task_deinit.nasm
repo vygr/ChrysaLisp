@@ -7,6 +7,6 @@
 
 		;free the task heap
 		vp_lea [r0 + tk_statics_task_heap], r0
-		fn_jmp sys/heap_deinit
+		class_jmp heap, deinit
 
 	fn_function_end

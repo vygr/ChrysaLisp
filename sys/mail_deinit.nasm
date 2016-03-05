@@ -4,6 +4,6 @@
 
 		;deinit mail message heap
 		class_bind mail, statics, r0
-		fn_jmp sys/heap_deinit
+		class_jmp heap, deinit
 
 	fn_function_end

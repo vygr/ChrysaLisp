@@ -14,7 +14,7 @@
 		vp_sub r0, r1
 		sys_mprotect r0, r1, prot_read|prot_write|prot_exec
 
-		;get loader statics and load function !
+		;get loader statics and bind function !
 		vp_lea [rel _func_start], r6
 		vp_add [r6 + fn_header_length], r6
 		vp_cpy r6, r5

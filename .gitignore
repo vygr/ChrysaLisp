@@ -68,7 +68,7 @@ sys/mail_in
 sys/mail_init
 sys/mail_out
 sys/mail_read
-sys/mail_read_mymail
+sys/mail_mymail
 sys/mail_send
 sys/mail_statics
 sys/math_random
@@ -85,7 +85,7 @@ sys/read_line
 sys/string_compare
 sys/string_copy
 sys/string_length
-sys/string_parse_int
+sys/string_int
 sys/task_deinit
 sys/task_init
 sys/task_open

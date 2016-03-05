@@ -15,7 +15,7 @@
 	def_method parcel, sys/mail_alloc_parcel
 	def_method send, sys/mail_send
 	def_method read, sys/mail_read
-	def_method mymail, sys/mail_read_mymail
+	def_method mymail, sys/mail_mymail
 	def_method in, sys/mail_in
 	def_method out, sys/mail_out
 
