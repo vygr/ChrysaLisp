@@ -27,13 +27,13 @@
 			vp_cpy r1, r0
 			vp_cpy 10, r1
 			vp_cpy 1, r2
-			class_call write, number
+			class_call io, number
 			vp_cpy ' ', r0
-			class_call write, char
+			class_call io, char
 		next
 		vp_cpy 10, r0
-		class_call write, char
-		class_call write, char
+		class_call io, char
+		class_call io, char
 
 		;free all objects
 		vp_cpy r4, r0
@@ -57,14 +57,14 @@
 			;print address and length
 			vp_cpy 1, r1
 			vp_cpy 10, r2
-			class_call write, number
+			class_call io, number
 			vp_cpy ':', r0
-			class_call write, char
+			class_call io, char
 			vp_cpy r9, r0
 			vp_cpy 10, r2
-			class_call write, number
+			class_call io, number
 			vp_cpy 10, r0
-			class_call write, char
+			class_call io, char
 
 			;write to all locations
 			vp_lea [r8 + r9], r12

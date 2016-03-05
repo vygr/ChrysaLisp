@@ -17,19 +17,19 @@
 					if r11, < , 10
 						vp_cpy ' ', r0
 						vp_cpy 1, r1
-						class_call write, char
+						class_call io, char
 					endif
 					vp_cpy r11, r0
 					vp_cpy 1, r1
 					vp_cpy 10, r2
-					class_call write, number
+					class_call io, number
 					vp_cpy ' ', r0
-					class_call write, char
+					class_call io, char
 				next
 				vp_cpy 10, r0
-				class_call write, char
+				class_call io, char
 			next
-			class_call write, char
+			class_call io, char
 			class_call task, yield
 		next
 		vp_ret
