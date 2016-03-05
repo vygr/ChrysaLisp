@@ -55,8 +55,8 @@ sys/link_init
 sys/link_statics
 sys/list_enum_backward
 sys/list_enum_forward
-sys/list_get_index_of_node
-sys/list_get_node_at_index
+sys/list_index_of
+sys/list_node_at
 sys/load_bind
 sys/load_deinit
 sys/load_init

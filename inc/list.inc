@@ -11,8 +11,8 @@
 	def_class list
 	def_method enum_forward, sys/list_enum_forward
 	def_method enum_backward, sys/list_enum_backward
-	def_method index_of, sys/list_get_index_of_node
-	def_method node_at, sys/list_get_node_at_index
+	def_method index_of, sys/list_index_of
+	def_method node_at, sys/list_node_at
 
 ;;;;;;;;;;;;;;;;;
 ; list structures
