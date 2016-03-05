@@ -41,7 +41,7 @@
 		vp_lea [r8 + ld_statics_stat_buffer], r0
 		sys_stat r7, r0
 		if r0, !=, 0
-			xor r0, r0
+			vp_xor r0, r0
 			vp_ret
 		endif
 
