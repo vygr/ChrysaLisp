@@ -10,7 +10,7 @@
 	def_class heap
 	def_method init, sys/heap_init
 	def_method deinit, sys/heap_deinit
-	def_method alloc, sys/heap_alloccell
+	def_method alloc, sys/heap_alloc
 	def_method reset, sys/heap_reset
 
 	def_class mem

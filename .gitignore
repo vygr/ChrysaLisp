@@ -45,7 +45,7 @@ main
 sys/cpu_get_id
 sys/cpu_get_time
 sys/cpu_get_total
-sys/heap_alloccell
+sys/heap_alloc
 sys/heap_deinit
 sys/heap_reset
 sys/heap_init
