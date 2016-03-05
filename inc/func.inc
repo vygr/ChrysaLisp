@@ -14,10 +14,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 	struc kn_call
-		fn_call_task_open:					resb 1
-		fn_call_task_child:					resb 1
-		fn_call_task_route:					resb 1
-		fn_call_gui_update:					resb 1
+		kn_call_task_open:					resb 1
+		kn_call_task_child:					resb 1
+		kn_call_task_route:					resb 1
+		kn_call_gui_update:					resb 1
 	endstruc
 
 ;;;;;;;;;;;;;;;;;;
