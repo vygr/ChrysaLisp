@@ -49,7 +49,7 @@
 		for r10, 0, 10, 1
 			;allocate 8MB - 8 general ram
 			vp_cpy 0x800000 - 8, r0
-			fn_call sys/mem_alloc
+			class_call mem, alloc
 			vp_cpy r0, r8
 			vp_cpy r1, r9
 
@@ -73,7 +73,7 @@
 
 			;free general ram
 			vp_cpy r8, r0
-			fn_call sys/mem_free
+			class_call mem, free
 		next
 
 		;print lf and return

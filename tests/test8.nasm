@@ -9,7 +9,7 @@
 
 		;read exit command etc
 		class_call mail, mymail
-		fn_call sys/mem_free
+		class_call mem, free
 
 		;wait a bit
 		vp_cpy 2000000, r0

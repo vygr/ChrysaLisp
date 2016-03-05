@@ -5,7 +5,7 @@
 
 	fn_function sys/mem_init, no_debug_enter
 		;get statics
-		fn_bind sys/mem_statics, r0
+		class_bind mem, statics, r0
 
 		;MEM_SLOTS heaps, from 1KB bytes to 8MB
 		vp_cpy 0x400, r1				;start object size

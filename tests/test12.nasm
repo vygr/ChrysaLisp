@@ -24,7 +24,7 @@
 					fn_jmp sys/write_string
 				endif
 			next
-			fn_call sys/mem_free
+			class_call mem, free
 		next
 
 		;print Hello and return

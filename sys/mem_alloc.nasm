@@ -19,7 +19,7 @@
 		vp_lea [r0 + 8], r1		;extra 8 bytes for heap pointer
 
 		;find object heap
-		fn_bind sys/mem_statics, r0
+		class_bind mem, statics, r0
 		loop_while r1, >, [r0 + hp_heap_cellsize]
 			vp_add hp_heap_size, r0
 		loop_end

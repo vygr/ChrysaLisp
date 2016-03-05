@@ -16,24 +16,24 @@
 		if r2, >, r1
 			;alloc new table
 			vp_cpy r2, r0
-			fn_call sys/mem_alloc
+			class_call mem, alloc
 			fn_assert r0, !=, 0
 			vp_cpy r0, r7
 			vp_cpy r1, r8
 
 			;clear it to empty
-			fn_call sys/mem_clear
+			class_call mem, clear
 
 			if r6, !=, 0
 				;copy over old data
 				vp_cpy r5, r0
 				vp_cpy r7, r1
 				vp_cpy r6, r2
-				fn_call sys/mem_copy
+				class_call mem, copy
 
 				;free existing
 				vp_cpy r5, r0
-				fn_call sys/mem_free
+				class_call mem, free
 			endif
 
 			;save new table

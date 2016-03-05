@@ -16,7 +16,7 @@
 
 		;allocate temp array for mailbox ID's
 		vp_mul 16, r0
-		fn_call sys/mem_alloc
+		class_call mem, alloc
 		fn_assert r0, !=, 0
 		vp_cpy r0, r14
 

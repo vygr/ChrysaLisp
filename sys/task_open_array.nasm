@@ -65,7 +65,7 @@
 			vp_cpy r3, [r6 + 8]
 
 			;free reply mail
-			fn_call sys/mem_free
+			class_call mem, free
 
 			;next mailbox
 			vp_dec r7

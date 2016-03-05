@@ -93,7 +93,7 @@
 		;clear tx channel
 		vp_cpy r10, r0
 		vp_cpy lk_chan_size, r1
-		fn_call sys/mem_clear
+		class_call mem, clear
 
 		;read and write messages through the shared buffer in r12
 		vp_xor r9, r9
@@ -136,11 +136,11 @@
 					vp_cpy [r9 + ml_msg_length], r2
 					vp_add 7, r2
 					vp_and -8, r2
-					fn_call sys/mem_copy
+					class_call mem, copy
 
 					;free message
 					vp_cpy r9, r0
-					fn_call sys/mem_free
+					class_call mem, free
 
 					;busy status, check for more output
 					vp_cpy lk_chan_status_busy, qword[r10 + lk_chan_status]
@@ -161,7 +161,7 @@
 				vp_cpy [r0 + ml_msg_length], r2
 				vp_add 7, r2
 				vp_and -8, r2
-				fn_call sys/mem_copy
+				class_call mem, copy
 
 				;send onwards
 				vp_cpy r8, r0
@@ -206,11 +206,11 @@
 
 		;free params msg
 		vp_cpy r14, r0
-		fn_call sys/mem_free
+		class_call mem, free
 
 		;remove from links list and deallocate link node on stack
 		vp_cpy [r4 + lk_node_table], r0
-		fn_call sys/mem_free
+		class_call mem, free
 		vp_lea [r4 + lk_node_node], r0
 		ln_remove_node r0, r1
 		vp_add lk_node_size, r4

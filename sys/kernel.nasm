@@ -21,7 +21,7 @@
 		class_call task, init
 
 		;init allocator
-		fn_call sys/mem_init
+		class_call mem, init
 
 		;init linker
 		fn_call sys/link_init
@@ -128,7 +128,7 @@
 					vp_cpy [r15 + ml_msg_data + kn_data_link_route_origin], r11
 					vp_mul lk_route_size, r11
 					vp_lea [r11 + lk_route_size], r2
-					fn_call sys/mem_grow
+					class_call mem, grow
 					vp_cpy r0, [r4 + lk_table_array]
 					vp_cpy r1, [r4 + lk_table_array_size]
 
@@ -152,7 +152,7 @@
 							vp_cpy [r12 + lk_node_table + lk_table_array], r0
 							vp_cpy [r12 + lk_node_table + lk_table_array_size], r1
 							vp_lea [r11 + lk_route_size], r2
-							fn_call sys/mem_grow
+							class_call mem, grow
 							vp_cpy r0, [r12 + lk_node_table + lk_table_array]
 							vp_cpy r1, [r12 + lk_node_table + lk_table_array_size]
 
@@ -175,7 +175,7 @@
 							vp_cpy [r12 + lk_node_table + lk_table_array], r0
 							vp_cpy [r12 + lk_node_table + lk_table_array_size], r1
 							vp_lea [r11 + lk_route_size], r2
-							fn_call sys/mem_grow
+							class_call mem, grow
 							vp_cpy r0, [r12 + lk_node_table + lk_table_array]
 							vp_cpy r1, [r12 + lk_node_table + lk_table_array_size]
 
@@ -213,19 +213,19 @@
 						vp_cpy [r15 + ml_msg_length], r2
 						vp_add 7, r2
 						vp_and -8, r2
-						fn_call sys/mem_copy
+						class_call mem, copy
 						vp_cpy r11, [r5 + (ml_msg_dest + 8)]
 						vp_cpy r5, r0
 						class_call mail, send
 					loop_end
 				drop_msg:
 					vp_cpy r15, r0
-					fn_call sys/mem_free
+					class_call mem, free
 					break
 				case r1, ==, fn_call_gui_update
 					;free update message
 					vp_cpy r15, r0
-					fn_call sys/mem_free
+					class_call mem, free
 
 					;create screen window ?
 					fn_bind gui/gui_statics, r15
@@ -306,11 +306,11 @@
 
 		;free any kernel routing table
 		vp_cpy [r4 + lk_table_array], r0
-		fn_call sys/mem_free
+		class_call mem, free
 		vp_add lk_table_size, r4
 
 		;deinit allocator
-		fn_call sys/mem_deinit
+		class_call mem, deinit
 
 		;deinit mailer
 		class_call mail, deinit

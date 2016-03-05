@@ -54,7 +54,7 @@
 				;copy data block, round up for speed
 				vp_add 7, r2
 				vp_and -8, r2
-				fn_call sys/mem_copy
+				class_call mem, copy
 
 				;queue it on the outgoing packet list
 				class_bind mail, statics, r0
@@ -64,7 +64,7 @@
 
 			;free parcel
 			vp_cpy r15, r0
-			fn_call sys/mem_free
+			class_call mem, free
 
 			;let links get at some packets
 			class_call task, yield
