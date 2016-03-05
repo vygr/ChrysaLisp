@@ -33,7 +33,7 @@
 			%fatal Class %1 allready exits !
 		%endif
 		%define _class_ %1
-		%define _super_class_%[%1] %2
+		%define _super_class_%[%1]_ %2
 		class_add %1, %2
 	%endmacro
 
@@ -157,7 +157,7 @@
 	%macro super_call 2
 		;%1 = <class name>
 		;%2 = <member name>
-		class_call _super_class_%[%1], %2
+		class_call _super_class_%[%1]_, %2
 	%endmacro
 
 %endif
