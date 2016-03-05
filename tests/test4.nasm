@@ -80,6 +80,6 @@
 		;print lf and return
 		vp_cpy 1, r1
 		vp_cpy 10, r0
-		fn_jmp sys/write_char
+		class_jmp io, char
 
 	fn_function_end
