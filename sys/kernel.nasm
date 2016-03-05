@@ -18,7 +18,7 @@
 		;save argv on stack
 		vp_push r0
 
-		;init tasker
+		;init tasks
 		class_call task, init
 
 		;init allocator
@@ -316,7 +316,7 @@
 		;deinit mailer
 		class_call mail, deinit
 
-		;deinit tasker
+		;deinit tasks
 		class_call task, deinit
 
 		;deinit loader
