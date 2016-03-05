@@ -17,6 +17,7 @@
 			;alloc new table
 			vp_cpy r2, r0
 			fn_call sys/mem_alloc
+			fn_assert r0, !=, 0
 			vp_cpy r0, r7
 			vp_cpy r1, r8
 

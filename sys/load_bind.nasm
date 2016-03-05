@@ -54,6 +54,7 @@
 		if r2, <, r0
 			;not enough so allocate new function buffer
 			sys_mmap 0, ld_block_size, prot_read|prot_write|prot_exec, map_private|map_anon, -1, 0
+			fn_assert r0, !=, 0
 
 			;add to block list for freeing
 			vp_cpy [r8 + ld_statics_block_list], r3

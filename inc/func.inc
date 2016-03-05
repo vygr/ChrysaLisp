@@ -6,7 +6,8 @@
 %include 'inc/syscall.inc'
 %include 'inc/task.inc'
 
-	;%define debug_function_enter
+;%define debug_function_enter
+%define debug_mode
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail funcions
@@ -172,8 +173,9 @@
 	%endmacro
 
 	%macro fn_debug 1-2 0
-		;%1 debug string
-		;%2 debug value
+		;%1 = debug string
+		;%2 = debug value
+		%ifdef debug_mode
 		%defstr _debug_string_ %1
 			vp_jmp %%over_end
 		%%over:
@@ -212,6 +214,22 @@
 			vp_cpy 10, r0
 			fn_call sys/write_char
 			vp_pop r0, r1, r2, r3, r5
+		%endif
+	%endmacro
+
+	%macro fn_assert 3-4 Assert Failure !
+		;%1 = val1
+		;%2 = condition
+		;%3 = val2
+		;%4 = debug string
+
+		%ifdef debug_mode
+			if %1, %2, %3
+			else
+				fn_debug %4
+				sys_exit 1
+			endif
+		%endif
 	%endmacro
 
 %endif
