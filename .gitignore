@@ -99,6 +99,7 @@ sys/task_open_remote
 sys/task_restore
 sys/task_resume
 sys/task_sleep
+sys/task_stack_depth
 sys/task_start
 sys/task_statics
 sys/task_stop

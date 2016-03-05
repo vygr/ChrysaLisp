@@ -186,14 +186,8 @@
 			vp_push %2
 
 			;tab in by stack depth
-			class_bind task, statics, r2
-			vp_cpy [r2 + tk_statics_current_tcb], r2
-			vp_add tk_node_size - (7*8), r2
-			vp_sub r4, r2
-			if r2, >, tk_stack_size
-				;must be kernel or stack extented
-				vp_xor r2, r2
-			endif
+			class_call task, depth
+			vp_lea [r0 - (8*8)], r2
 			vp_cpy ' ', r0
 			vp_cpy 1, r1
 			loop_while r2, >, 0

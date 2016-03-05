@@ -29,6 +29,7 @@
 	def_method farm, sys/task_open_farm
 	def_method pipe, sys/task_open_pipe
 	def_method global, sys/task_open_global
+	def_method depth, sys/task_stack_depth
 
 ;;;;;;;;;;;;;;;;;
 ; task structures
