@@ -38,7 +38,7 @@
 
 		;free ID array and return
 		vp_cpy r14, r0
-		fn_jmp sys/mem_free
+		class_jmp mem, free
 
 	task_six:
 		db 'tests/test6', 0

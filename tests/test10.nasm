@@ -20,7 +20,7 @@
 		;print Hello and return
 		vp_lea [rel hello], r0
 		vp_cpy 1, r1
-		fn_jmp sys/write_string
+		class_jmp io, string
 
 	hello:
 		db 'Hello from pipe worker !', 10, 0

@@ -37,7 +37,7 @@
 
 		;free ID array and return
 		vp_cpy r14, r0
-		fn_jmp sys/mem_free
+		class_jmp mem, free
 
 	task_eights:
 		%rep ARRAY_SIZE

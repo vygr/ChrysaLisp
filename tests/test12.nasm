@@ -21,7 +21,7 @@
 				if r15, !=, [r0 + (r15 * 8) + ml_msg_data]
 					vp_lea [rel failed], r0
 					vp_cpy 1, r1
-					fn_jmp sys/write_string
+					class_jmp io, string
 				endif
 			next
 			class_call mem, free
@@ -30,7 +30,7 @@
 		;print Hello and return
 		vp_lea [rel hello], r0
 		vp_cpy 1, r1
-		fn_jmp sys/write_string
+		class_jmp io, string
 
 	hello:
 		db 'Hello from global worker !', 10, 0
