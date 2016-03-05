@@ -73,7 +73,7 @@
 					;bottom part
 					vp_cpy r11, [r7 + gui_patch_y]
 					;right part
-					fn_call sys/heap_alloccell
+					class_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r10, [r1 + gui_patch_x]
@@ -100,7 +100,7 @@
 					;bottom part
 					vp_cpy r11, [r7 + gui_patch_y]
 					;top part
-					fn_call sys/heap_alloccell
+					class_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -118,7 +118,7 @@
 					;bottom part
 					vp_cpy r11, [r7 + gui_patch_y]
 					;left part
-					fn_call sys/heap_alloccell
+					class_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -167,7 +167,7 @@
 					vp_cpy r9, [r7 + gui_patch_y]
 					vp_cpy r8, [r7 + gui_patch_x1]
 					;top part
-					fn_call sys/heap_alloccell
+					class_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -187,7 +187,7 @@
 					;right part
 					vp_cpy r10, [r7 + gui_patch_x]
 					;left part
-					fn_call sys/heap_alloccell
+					class_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -202,7 +202,7 @@
 					vp_cpy r10, [r7 + gui_patch_x]
 					vp_cpy r9, [r7 + gui_patch_y]
 					;top part
-					fn_call sys/heap_alloccell
+					class_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -215,7 +215,7 @@
 				switch
 					breakif r8, ==, r10
 					breakif r9, ==, r11
-					fn_call sys/heap_alloccell
+					class_call heap, alloc
 					breakif r1, ==, 0
 
 					addpatch r5, r1, r2

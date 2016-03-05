@@ -17,7 +17,7 @@
 		vp_lea [r7 + ml_statics_heap], r0
 		vp_cpy ml_msg_size + 8, r1
 		vp_cpy (ml_msg_size + 8) * 256, r2
-		fn_call sys/heap_init
+		class_call heap, init
 
 		;init in and out postmen tasks
 		class_bind mail, in, r0

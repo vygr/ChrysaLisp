@@ -11,7 +11,7 @@
 		vp_lea [r3 + tk_statics_task_heap], r0
 		vp_cpy tk_node_size, r1
 		vp_cpy tk_node_size*8, r2
-		fn_call sys/heap_init
+		class_call heap, init
 
 		;init task lists
 		vp_lea [r3 + tk_statics_task_list], r0

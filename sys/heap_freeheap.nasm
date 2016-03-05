@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/heap.inc'
 
-	fn_function sys/heap_freeheap, no_debug_enter
+	fn_function sys/heap_reset, no_debug_enter
 		;inputs
 		;r0 = heap
 		;outputs

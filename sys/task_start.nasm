@@ -23,7 +23,7 @@
 
 		;create new task control block and task
 		vp_lea [r6 + tk_statics_task_heap], r0
-		fn_call sys/heap_alloccell
+		class_call heap, alloc
 		vp_cpy [r6 + tk_statics_current_tcb], r0
 		ln_add_node_before r0, r1, r2
 

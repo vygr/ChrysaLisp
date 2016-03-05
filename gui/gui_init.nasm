@@ -13,13 +13,13 @@
 		vp_lea [r3 + gui_statics_patch_heap], r0
 		vp_cpy GUI_PATCH_SIZE, r1
 		vp_cpy GUI_PATCH_SIZE*32, r2
-		fn_call sys/heap_init
+		class_call heap, init
 
 		;init view heap
 		vp_lea [r3 + gui_statics_view_heap], r0
 		vp_cpy GUI_VIEW_SIZE, r1
 		vp_cpy GUI_VIEW_SIZE*8, r2
-		fn_call sys/heap_init
+		class_call heap, init
 
 		;init view list
 		vp_lea [r3 + gui_statics_view_list], r0

@@ -25,7 +25,7 @@
 		loop_end
 
 		;allocate object from this heap
-		fn_call sys/heap_alloccell
+		class_call heap, alloc
 		vp_cpy r0, [r1]
 		vp_xchg r0, r1
 		vp_cpy [r1 + hp_heap_cellsize], r1

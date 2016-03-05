@@ -13,11 +13,11 @@
 
 		;deinit patch heap
 		vp_lea [r15 + gui_statics_patch_heap], r0
-		fn_call sys/heap_deinit
+		class_call heap, deinit
 
 		;deinit view heap
 		vp_lea [r15 + gui_statics_view_heap], r0
-		fn_call sys/heap_deinit
+		class_call heap, deinit
 
 		;destroy any window
 		vp_cpy [r15 + gui_statics_window], r14

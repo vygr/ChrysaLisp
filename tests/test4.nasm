@@ -18,12 +18,12 @@
 		vp_cpy r4, r0
 		vp_cpy 16, r1
 		vp_cpy 16*16, r2
-		fn_call sys/heap_init
+		class_call heap, init
 
 		;allocate 100 objects and print addresses
 		for r8, 0, 100, 1
 			vp_cpy r4, r0
-			fn_call sys/heap_alloccell
+			class_call heap, alloc
 			vp_cpy r1, r0
 			vp_cpy 10, r1
 			vp_cpy 1, r2
@@ -37,10 +37,10 @@
 
 		;free all objects
 		vp_cpy r4, r0
-		fn_call sys/heap_freeheap
+		class_call heap, reset
 
 		;deinit heap
-		fn_call sys/heap_deinit
+		class_call heap, deinit
 		vp_add hp_heap_size, r4
 
 		;deshedule

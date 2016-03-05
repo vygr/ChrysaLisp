@@ -1,8 +1,17 @@
 %ifndef HEAP_1234
 	%define HEAP_1234
 
-%include 'inc/vp.inc'
-%include 'inc/code.inc'
+%include 'inc/class.inc'
+
+;;;;;;;;;;;;;;;;;;;
+; heap static class
+;;;;;;;;;;;;;;;;;;;
+
+	def_class heap
+	def_method init, sys/heap_init
+	def_method deinit, sys/heap_deinit
+	def_method alloc, sys/heap_alloccell
+	def_method reset, sys/heap_reset
 
 ;;;;;;;;;;;;;;;;;
 ; heap structures

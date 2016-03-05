@@ -13,7 +13,7 @@
 			vp_cpy MEM_SLOTS, r2
 			vp_sub r3, r2				;from MEM_SLOTS to 1 objects per slot
 			vp_mul r1, r2
-			fn_call sys/heap_init
+			class_call heap, init
 			vp_add hp_heap_size, r0
 			vp_add r1, r1				;double object size
 		next
