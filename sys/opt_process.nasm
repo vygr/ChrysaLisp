@@ -3,6 +3,7 @@
 %include 'inc/task.inc'
 %include 'inc/link.inc'
 %include 'inc/string.inc'
+%include 'inc/load.inc'
 
 	fn_function sys/opt_process, no_debug_enter
 		;process command options
@@ -69,7 +70,7 @@
 		vp_add 8, r14
 		vp_cpy [r14], r0
 		if r0, !=, 0
-			fn_call sys/load_bind
+			class_call load, bind
 			if r0, !=, 0
 				class_call task, start
 			endif

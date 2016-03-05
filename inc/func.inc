@@ -122,7 +122,7 @@
 		;r0 = 0, else function entry point
 
 		vp_cpy %1, r0
-		fn_call sys/load_bind
+		class_call load, bind
 	%endmacro
 
 	%macro fn_function 1-2 debug_enter

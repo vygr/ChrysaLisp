@@ -1,6 +1,18 @@
 %ifndef LOAD_1234
 	%define LOAD_1234
 
+%include 'inc/class.inc'
+
+;;;;;;;;;;;;;;;;;;;
+; load static class
+;;;;;;;;;;;;;;;;;;;
+
+	def_class load
+	def_method statics, sys/load_statics
+	def_method init, sys/load_init
+	def_method deinit, sys/load_deinit
+	def_method bind, sys/load_bind
+
 ;;;;;;;;;;;;;;;;;
 ; load structures
 ;;;;;;;;;;;;;;;;;

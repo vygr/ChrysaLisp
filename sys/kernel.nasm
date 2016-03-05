@@ -4,6 +4,7 @@
 %include 'inc/link.inc'
 %include 'inc/gui.inc'
 %include 'inc/sdl2.inc'
+%include 'inc/load.inc'
 
 ;;;;;;;;;;;;;
 ; kernel task
@@ -84,7 +85,7 @@
 
 					;open single task and return mailbox ID
 					vp_lea [r15 + (ml_msg_data + kn_data_task_open_pathname)], r0
-					fn_call sys/load_bind
+					class_call load, bind
 					class_call task, start
 					vp_cpy r0, [r15 + (ml_msg_data + kn_data_task_open_reply_mailboxid)]
 					fn_call sys/cpu_get_id
@@ -319,7 +320,7 @@
 		class_call task, deinit
 
 		;deinit loader
-		fn_call sys/load_deinit
+		class_call load, deinit
 
 		;pop argv and exit !
 		vp_add 8, r4
