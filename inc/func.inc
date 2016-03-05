@@ -95,7 +95,7 @@
 		;%2 = register
 
 		fn_add_link %1
-		vp_cpy [rel __func%[_link_num]], %2
+		vp_cpy [rel _func%[_link_num]], %2
 	%endmacro
 
 	%macro fn_call 1
@@ -103,7 +103,7 @@
 		;%1 = function path name
 
 		fn_add_link %1
-		vp_call [rel __func%[_link_num]]
+		vp_call [rel _func%[_link_num]]
 	%endmacro
 
 	%macro fn_jmp 1
@@ -111,7 +111,17 @@
 		;%1 = function path name
 
 		fn_add_link %1
-		vp_jmp [rel __func%[_link_num]]
+		vp_jmp [rel _func%[_link_num]]
+	%endmacro
+
+	%macro fn_find 1
+		;inputs
+		;%1 = function path name
+		;outputs
+		;r0 = 0, else function entry point
+
+		vp_cpy %1, r0
+		fn_call sys/load_bind
 	%endmacro
 
 	%macro fn_function 1-2 debug_enter
@@ -146,14 +156,14 @@
 		_func_links:
 			%assign %%_i 0
 			%rep _link_total
-			__func%[%%_i]:
-				dq	__func%[%%_i]_name - $
+			_func%[%%_i]:
+				dq	_func%[%%_i]_name - $
 				%assign %%_i %%_i+1
 			%endrep
 			dq	0
 			%assign %%_i 0
 			%rep _link_total
-			__func%[%%_i]_name:
+			_func%[%%_i]_name:
 				db	_func_str%[%%_i]
 				db	0
 				%assign %%_i %%_i+1

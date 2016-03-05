@@ -8,8 +8,6 @@
 ; heap structures
 ;;;;;;;;;;;;;;;;;
 
-	hp_page_size	equ 4*1024
-
 	struc hp_heap
 		hp_heap_freelist:	resq 1
 		hp_heap_blocklist:	resq 1
