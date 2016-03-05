@@ -160,4 +160,17 @@
 		class_call _super_class_%[%1]_, %2
 	%endmacro
 
+	%macro super_jmp 2
+		;%1 = <class name>
+		;%2 = <member name>
+		class_jmp _super_class_%[%1]_, %2
+	%endmacro
+
+	%macro super_bind 3
+		;%1 = <class name>
+		;%2 = <member name>
+		;%3 = reg
+		class_bind _super_class_%[%1]_, %2, %3
+	%endmacro
+
 %endif
