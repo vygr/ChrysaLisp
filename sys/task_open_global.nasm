@@ -21,7 +21,7 @@
 		;start all tasks one per cpu
 		loop_start
 			;allocate mail message
-			fn_call sys/mail_alloc
+			class_call mail, alloc
 			vp_cpy r0, r3
 
 			;fill in destination, reply and function
@@ -44,13 +44,13 @@
 
 			;send mail to kernel
 			vp_cpy r3, r0
-			fn_call sys/mail_send
+			class_call mail, send
 		loop_until r7, ==, 0
 
 		;wait for all replies
 		loop_start
 			vp_cpy r4, r0
-			fn_call sys/mail_read
+			class_call mail, read
 
 			;save reply mailbox ID
 			vp_cpy [r0 + (ml_msg_data + kn_data_task_open_reply_mailboxid)], r2

@@ -1,10 +1,23 @@
 %ifndef MAIL_1234
 	%define MAIL_1234
 
-%include 'inc/vp.inc'
-%include 'inc/code.inc'
-%include 'inc/list.inc'
-%include 'inc/heap.inc'
+%include 'inc/class.inc'
+
+;;;;;;;;;;;;;;;;;;;
+; mail static class
+;;;;;;;;;;;;;;;;;;;
+
+	def_class mail
+	def_method statics, sys/mail_statics
+	def_method init, sys/mail_init
+	def_method deinit, sys/mail_deinit
+	def_method alloc, sys/mail_alloc
+	def_method parcel, sys/mail_alloc_parcel
+	def_method send, sys/mail_send
+	def_method read, sys/mail_read
+	def_method mymail, sys/mail_read_mymail
+	def_method in, sys/mail_in
+	def_method out, sys/mail_out
 
 ;;;;;;;;;;;;;;;;;
 ; mail structures

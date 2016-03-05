@@ -6,7 +6,7 @@
 		;r0 = kernel mailbox
 
 		;save kernel mailbox
-		fn_bind sys/mail_statics, r7
+		class_bind mail, statics, r7
 		vp_cpy r0, [r7 + ml_statics_kernel_mailbox]
 
 		;init off chip list
@@ -20,10 +20,10 @@
 		fn_call sys/heap_init
 
 		;init in and out postmen tasks
-		fn_bind sys/mail_in, r0
+		class_bind mail, in, r0
 		class_call task, start
 		vp_cpy r0, [r7 + ml_statics_in_mailbox]
-		fn_bind sys/mail_out, r0
+		class_bind mail, out, r0
 		class_call task, start
 		vp_cpy r0, [r7 + ml_statics_out_mailbox]
 		vp_cpy 0, qword[r7 + ml_statics_parcel_id]

@@ -8,7 +8,7 @@
 		;pipe task started by test9
 
 		;read exit command etc
-		fn_call sys/mail_read_mymail
+		class_call mail, mymail
 		fn_call sys/mem_free
 
 		;wait a bit

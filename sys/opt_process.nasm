@@ -93,7 +93,7 @@
 			vp_cpy r0, r6
 
 			;allocate params message
-			fn_call sys/mail_alloc
+			class_call mail, alloc
 			vp_cpy r0, r7
 
 			;fill in destination
@@ -112,7 +112,7 @@
 
 			;send to link task
 			vp_cpy r7, r0
-			fn_call sys/mail_send
+			class_call mail, send
 		endif
 		vp_ret
 

@@ -32,7 +32,7 @@
 		vp_cpy r1, [r2 + tk_statics_current_tcb]
 
 		;init mailer, r0 = kernel mailbox !
-		fn_call sys/mail_init
+		class_call mail, init
 
 		;process command options
 		vp_cpy [r4], r0
@@ -68,7 +68,7 @@
 				breakif r1, ==, 0
 
 				;read waiting mail
-				fn_call sys/mail_read
+				class_call mail, read
 				vp_cpy r0, r15
 
 				;switch on kernel call number
@@ -91,7 +91,7 @@
 					vp_cpy r0, [r15 + (ml_msg_data + kn_data_task_open_reply_mailboxid + 8)]
 					vp_cpy ml_msg_data + kn_data_task_open_reply_size, qword[r15 + ml_msg_length]
 					vp_cpy r15, r0
-					fn_call sys/mail_send
+					class_call mail, send
 					break
 				case r1, ==, fn_call_task_child
 					;find best cpu to run task
@@ -111,7 +111,7 @@
 					;send to better kernel
 					vp_cpy r0, [r15 + (ml_msg_dest + 8)]
 					vp_cpy r15, r0
-					fn_call sys/mail_send
+					class_call mail, send
 					break
 				case r1, ==, fn_call_task_route
 					;increase size of network ?
@@ -206,7 +206,7 @@
 					loop_list_forwards r13 + lk_statics_links_list, r13, r12
 						vp_cpy [r12 + lk_node_cpu_id], r11
 						continueif r11, ==, r14
-						fn_call sys/mail_alloc
+						class_call mail, alloc
 						vp_cpy r0, r5
 						vp_cpy r0, r1
 						vp_cpy r15, r0
@@ -216,7 +216,7 @@
 						fn_call sys/mem_copy
 						vp_cpy r11, [r5 + (ml_msg_dest + 8)]
 						vp_cpy r5, r0
-						fn_call sys/mail_send
+						class_call mail, send
 					loop_end
 				drop_msg:
 					vp_cpy r15, r0
@@ -313,7 +313,7 @@
 		fn_call sys/mem_deinit
 
 		;deinit mailer
-		fn_call sys/mail_deinit
+		class_call mail, deinit
 
 		;deinit tasker
 		class_call task, deinit

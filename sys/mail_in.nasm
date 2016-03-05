@@ -6,7 +6,7 @@
 
 		loop_start
 			;read parcel fragment
-			fn_call sys/mail_read_mymail
+			class_call mail, mymail
 			vp_cpy r0, r15
 
 			;look up parcel in mailbox
@@ -61,7 +61,7 @@
 				vp_cpy r14, r1
 				ln_remove_node r1, r2
 				vp_cpy r14, r0
-				fn_call sys/mail_send
+				class_call mail, send
 			else
 				;no, update total so far
 				vp_cpy r13, [r14 + ml_msg_parcel_total]

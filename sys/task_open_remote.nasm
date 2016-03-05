@@ -18,7 +18,7 @@
 		ml_temp_create r0, r1
 
 		;allocate mail message
-		fn_call sys/mail_alloc
+		class_call mail, alloc
 		vp_cpy r0, r3
 
 		;fill in destination, reply and function
@@ -40,9 +40,9 @@
 
 		;send mail to kernel then wait for reply
 		vp_cpy r3, r0
-		fn_call sys/mail_send
+		class_call mail, send
 		vp_cpy r4, r0
-		fn_call sys/mail_read
+		class_call mail, read
 
 		;save reply mailbox ID
 		vp_cpy [r0 + (ml_msg_data + kn_data_task_child_reply_mailboxid)], r3

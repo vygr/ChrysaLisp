@@ -9,7 +9,7 @@
 
 		;read and free 1000 messages
 		for r14, 0, 1000, 1
-			fn_call sys/mail_read_mymail
+			class_call mail, mymail
 			fn_call sys/mem_free
 		next
 

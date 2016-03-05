@@ -23,14 +23,14 @@
 
 		;send exit messages etc
 		for r13, 0, ARRAY_SIZE, 1
-			fn_call sys/mail_alloc
+			class_call mail, alloc
 			vp_cpy r13, r3
 			vp_mul 16, r3
 			vp_cpy [r14 + r3], r1
 			vp_cpy [r14 + r3 + 8], r2
 			vp_cpy r1, [r0 + ml_msg_dest]
 			vp_cpy r2, [r0 + (ml_msg_dest + 8)]
-			fn_call sys/mail_send
+			class_call mail, send
 			class_call task, yield
 		next
 

@@ -6,13 +6,13 @@
 
 		loop_start
 			;read parcel
-			fn_call sys/mail_read_mymail
+			class_call mail, mymail
 			vp_cpy r0,r15
 
 			;create next parcel id
 			fn_call sys/cpu_get_id
 			vp_cpy r0, r6
-			fn_bind sys/mail_statics, r1
+			class_bind mail, statics, r1
 			vp_cpy [r1 + ml_statics_parcel_id], r7
 			vp_inc r7
 			vp_cpy r7, [r1 + ml_statics_parcel_id]
@@ -24,7 +24,7 @@
 			vp_cpy [r15 + ml_msg_dest + 8], r13
 			loop_start
 				;create fragment
-				fn_call sys/mail_alloc
+				class_call mail, alloc
 				fn_assert r0, !=, 0
 				vp_cpy r0, r14
 
@@ -57,7 +57,7 @@
 				fn_call sys/mem_copy
 
 				;queue it on the outgoing packet list
-				fn_bind sys/mail_statics, r0
+				class_bind mail, statics, r0
 				vp_lea [r0 + ml_statics_offchip_list], r0
 				lh_add_at_tail r0, r14, r1
 			loop_until r10, ==, r11

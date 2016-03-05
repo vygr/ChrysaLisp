@@ -7,7 +7,7 @@
 		;trashes
 		;r1-r3
 
-		fn_bind sys/mail_statics, r0
+		class_bind mail, statics, r0
 		vp_lea [r0 + ml_statics_heap], r0
 		fn_call sys/heap_alloccell
 		vp_cpy r0, qword[r1]

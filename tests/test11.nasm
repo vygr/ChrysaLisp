@@ -30,7 +30,7 @@
 		for r11, 0, 10, 1
 			for r13, 0, r12, 1
 				vp_cpy (TEST_SIZE * 8), r0
-				fn_call sys/mail_alloc_parcel
+				class_call mail, parcel
 				for r15, 0, TEST_SIZE, 1
 					vp_cpy r15, [r0 + (r15 * 8) + ml_msg_data]
 				next
@@ -40,7 +40,7 @@
 				vp_cpy [r14 + r3 + 8], r2
 				vp_cpy r1, [r0 + ml_msg_dest]
 				vp_cpy r2, [r0 + (ml_msg_dest + 8)]
-				fn_call sys/mail_send
+				class_call mail, send
 				class_call task, yield
 			next
 		next

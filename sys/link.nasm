@@ -16,7 +16,7 @@
 		lh_add_at_head r1, r0, r2
 
 		;read params msg from kernel
-		fn_call sys/mail_read_mymail
+		class_call mail, mymail
 		vp_cpy r0, r14
 
 		;init link node cpu id and task count
@@ -61,7 +61,7 @@
 		;send link routing message to neighbor kernel
 		vp_cpy r0, r8
 		vp_cpy r1, r9
-		fn_call sys/mail_alloc
+		class_call mail, alloc
 		vp_cpy 0, qword[r0 + ml_msg_dest]
 		vp_cpy r9, [r0 + (ml_msg_dest + 8)]
 		vp_cpy 0, qword[r0 + ml_msg_data + kn_data_kernel_user]
@@ -72,7 +72,7 @@
 		vp_cpy r8, [r0 + ml_msg_data + kn_data_link_route_via]
 		vp_cpy 1, qword[r0 + ml_msg_data + kn_data_link_route_hops]
 		vp_cpy ml_msg_data + kn_data_link_route_size, qword[r0 + ml_msg_length]
-		fn_call sys/mail_send
+		class_call mail, send
 
 		;open shared memory file
 		vp_lea [r14 + ml_msg_data], r0
@@ -110,7 +110,7 @@
 			more_output:
 				;no outgoing message so see if any off chip mail for me
 				vp_cpy [r4 + lk_node_cpu_id], r0
-				fn_bind sys/mail_statics, r8
+				class_bind mail, statics, r8
 				loop_list_forwards r8 + ml_statics_offchip_list, r8, r7
 					vp_cpy [r7 + (ml_msg_dest + 8)], r2
 					breakif r0, ==, r2
@@ -154,7 +154,7 @@
 			if r0, ==, lk_chan_status_busy
 				;allocate msg, copy over data
 				;round up to next 8 byte boundary for speed
-				fn_call sys/mail_alloc
+				class_call mail, alloc
 				vp_cpy r0, r8
 				vp_cpy r0, r1
 				vp_lea [r11 + lk_chan_msg], r0
@@ -165,7 +165,7 @@
 
 				;send onwards
 				vp_cpy r8, r0
-				fn_call sys/mail_send
+				class_call mail, send
 
 				;clear status
 				vp_cpy lk_chan_status_ready, qword[r11 + lk_chan_status]
