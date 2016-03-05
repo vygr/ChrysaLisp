@@ -85,6 +85,7 @@
 		;map shared object
 		sys_mmap 0, lk_buffer_size, prot_read | prot_write, map_shared, r13, 0
 		vp_cpy r0, r12
+		fn_assert r0, !=, 0
 
 		;r10 is tx channel, r11 is rx channel
 		vp_add r12, r10
