@@ -54,7 +54,7 @@
 				if r0, ==, 0
 					;no such function
 					vp_lea [rel bind_error], r0
-					sys_write_string 1, r0, bind_error_end-bind_error
+					sys_write_string 2, r0, bind_error_end-bind_error
 					vp_cpy [r4 + 16], r0
 					vp_add [r0], r0
 					vp_call string_skip
@@ -62,8 +62,8 @@
 					vp_cpy [r4 + 16], r0
 					vp_add [r0], r0
 					vp_sub r0, r1
-					sys_write_string 1, r0, r1
-					sys_write_char 1, 10
+					sys_write_string 2, r0, r1
+					sys_write_char 2, 10
 					sys_exit 1
 				endif
 				vp_cpy r0, r1

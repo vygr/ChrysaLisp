@@ -189,20 +189,20 @@
 			class_call task, depth
 			vp_lea [r0 - (8*8)], r2
 			vp_cpy ' ', r0
-			vp_cpy 1, r1
+			vp_cpy 2, r1
 			loop_while r2, >, 0
 				class_call io, char
 				vp_sub 8, r2
 			loop_end
 
 			vp_lea [rel _func_start + fn_header_pathname], r0
-			vp_cpy 1, r1
+			vp_cpy 2, r1
 			class_call io, string
 			vp_lea [rel %%over], r0
-			vp_cpy 1, r1
+			vp_cpy 2, r1
 			class_call io, string
 			vp_pop r0
-			vp_cpy 1, r1
+			vp_cpy 2, r1
 			vp_cpy 16, r2
 			class_call io, number
 			vp_cpy 10, r0
