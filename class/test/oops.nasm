@@ -4,7 +4,7 @@
 	fn_function class/test/oops
 
 		;create a view object
-		class_call view, create
+		static_call view, create
 		if r0, !=, 0
 			;deref it
 			fn_debug calling_deref

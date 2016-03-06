@@ -43,7 +43,7 @@
 					;bottom part
 					vp_cpy r11, [r7 + gui_patch_y]
 					;right part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r10, [r1 + gui_patch_x]
@@ -51,7 +51,7 @@
 					vp_cpy r14, [r1 + gui_patch_x1]
 					vp_cpy r11, [r1 + gui_patch_y1]
 					;left part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -59,7 +59,7 @@
 					vp_cpy r8, [r1 + gui_patch_x1]
 					vp_cpy r11, [r1 + gui_patch_y1]
 					;top part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -79,7 +79,7 @@
 					;bottom part
 					vp_cpy r11, [r7 + gui_patch_y]
 					;right part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r10, [r1 + gui_patch_x]
@@ -87,7 +87,7 @@
 					vp_cpy r14, [r1 + gui_patch_x1]
 					vp_cpy r11, [r1 + gui_patch_y1]
 					;top part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -106,7 +106,7 @@
 					;bottom part
 					vp_cpy r11, [r7 + gui_patch_y]
 					;right part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r10, [r1 + gui_patch_x]
@@ -114,7 +114,7 @@
 					vp_cpy r14, [r1 + gui_patch_x1]
 					vp_cpy r11, [r1 + gui_patch_y1]
 					;left part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -133,7 +133,7 @@
 					;bottom part
 					vp_cpy r11, [r7 + gui_patch_y]
 					;right part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r10, [r1 + gui_patch_x]
@@ -151,7 +151,7 @@
 					;bottom part
 					vp_cpy r11, [r7 + gui_patch_y]
 					;left part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -159,7 +159,7 @@
 					vp_cpy r8, [r1 + gui_patch_x1]
 					vp_cpy r11, [r1 + gui_patch_y1]
 					;top part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -177,7 +177,7 @@
 					;bottom part
 					vp_cpy r11, [r7 + gui_patch_y]
 					;top part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -195,7 +195,7 @@
 					;bottom part
 					vp_cpy r11, [r7 + gui_patch_y]
 					;left part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -220,7 +220,7 @@
 					vp_cpy r9, [r7 + gui_patch_y]
 					vp_cpy r8, [r7 + gui_patch_x1]
 					;right part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r10, [r1 + gui_patch_x]
@@ -228,7 +228,7 @@
 					vp_cpy r14, [r1 + gui_patch_x1]
 					vp_cpy r15, [r1 + gui_patch_y1]
 					;top part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -262,7 +262,7 @@
 					vp_cpy r9, [r7 + gui_patch_y]
 					vp_cpy r8, [r7 + gui_patch_x1]
 					;top part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -282,7 +282,7 @@
 					;right part
 					vp_cpy r10, [r7 + gui_patch_x]
 					;left part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]
@@ -297,7 +297,7 @@
 					vp_cpy r10, [r7 + gui_patch_x]
 					vp_cpy r9, [r7 + gui_patch_y]
 					;top part
-					class_call heap, alloc
+					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_patch_x]

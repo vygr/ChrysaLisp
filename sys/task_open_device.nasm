@@ -19,12 +19,12 @@
 		ml_temp_create r0, r1
 
 		;allocate mail message
-		class_call mail, alloc
+		static_call mail, alloc
 		fn_assert r0, !=, 0
 		vp_cpy r0, r3
 
 		;fill in destination, reply and function
-		class_call cpu, id
+		static_call cpu, id
 		vp_cpy r4, [r3 + (ml_msg_data + kn_data_kernel_reply)]
 		vp_cpy r0, [r3 + (ml_msg_data + kn_data_kernel_reply + 8)]
 		vp_cpy 0, qword[r3 + ml_msg_dest]
@@ -34,7 +34,7 @@
 		;copy task name
 		vp_cpy r5, r0
 		vp_lea [r3 + (ml_msg_data + kn_data_task_child_pathname)], r1
-		class_call string, copy
+		static_call string, copy
 
 		;fill in total message length
 		vp_sub r3, r1
@@ -42,16 +42,16 @@
 
 		;send mail to kernel then wait for reply
 		vp_cpy r3, r0
-		class_call mail, send
+		static_call mail, send
 		vp_cpy r4, r0
-		class_call mail, read
+		static_call mail, read
 
 		;save reply mailbox ID
 		vp_cpy [r0 + (ml_msg_data + kn_data_task_child_reply_mailboxid)], r3
 		vp_cpy [r0 + (ml_msg_data + kn_data_task_child_reply_mailboxid + 8)], r5
 
 		;free reply mail and temp mailbox
-		class_call mem, free
+		static_call mem, free
 		ml_temp_destroy
 
 		;return mailbox ID

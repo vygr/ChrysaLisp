@@ -6,13 +6,13 @@
 
 		loop_start
 			;read parcel
-			class_call mail, mymail
+			static_call mail, mymail
 			vp_cpy r0,r15
 
 			;create next parcel id
-			class_call cpu, id
+			static_call cpu, id
 			vp_cpy r0, r6
-			class_bind mail, statics, r1
+			static_bind mail, statics, r1
 			vp_cpy [r1 + ml_statics_parcel_id], r7
 			vp_inc r7
 			vp_cpy r7, [r1 + ml_statics_parcel_id]
@@ -24,7 +24,7 @@
 			vp_cpy [r15 + ml_msg_dest + 8], r13
 			loop_start
 				;create fragment
-				class_call mail, alloc
+				static_call mail, alloc
 				fn_assert r0, !=, 0
 				vp_cpy r0, r14
 
@@ -54,20 +54,20 @@
 				;copy data block, round up for speed
 				vp_add 7, r2
 				vp_and -8, r2
-				class_call mem, copy
+				static_call mem, copy
 
 				;queue it on the outgoing packet list
-				class_bind mail, statics, r0
+				static_bind mail, statics, r0
 				vp_lea [r0 + ml_statics_offchip_list], r0
 				lh_add_at_tail r0, r14, r1
 			loop_until r10, ==, r11
 
 			;free parcel
 			vp_cpy r15, r0
-			class_call mem, free
+			static_call mem, free
 
 			;let links get at some packets
-			class_call task, yield
+			static_call task, yield
 		loop_end
 		vp_ret
 

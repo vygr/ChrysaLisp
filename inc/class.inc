@@ -5,7 +5,9 @@
 		;%1 = <class name>
 		%assign %%_n 0
 		%rep _map_%[%1]_size
-			fn_add_link _map_%[%1]_func_%[%%_n]
+			%ifidn _map_%[%1]_type_%[%%_n], virtual
+				fn_add_link _map_%[%1]_func_%[%%_n]
+			%endif
 			%assign %%_n %%_n + 1
 		%endrep
 	%endmacro
@@ -21,7 +23,7 @@
 		%endif
 		%assign %%_n 0
 		%rep _map_%[%2]_size
-			def_method _map_%[%2]_name_%[%%_n], _map_%[%2]_func_%[%%_n]
+			def_method _map_%[%2]_name_%[%%_n], _map_%[%2]_func_%[%%_n], _map_%[%2]_type_%[%%_n]
 			%assign %%_n %%_n + 1
 		%endrep
 	%endmacro
@@ -37,10 +39,10 @@
 		class_add %1, %2
 	%endmacro
 
-	%macro def_method 2-3 declare
+	%macro def_method 2-3 nonvirtual
 		;%1 = <member name>
 		;%2 = <member function>
-		;%3 = mode (declare/override)
+		;%3 = mode (nonvirtual/virtual/override)
 		%assign %%_n 0
 		%rep _map_%[_class_]_size
 			%ifidn _map_%[_class_]_name_%[%%_n], %1
@@ -51,25 +53,39 @@
 		%endrep
 		%if %%_n = _map_%[_class_]_size
 			;new method
-			%ifidn %3, declare
+			%ifidn %3, nonvirtual
 				%assign _map_%[_class_]_size %%_n + 1
 				%define _map_%[_class_]_name_%[%%_n] %1
 				%define _map_%[_class_]_func_%[%%_n] %2
+				%define _map_%[_class_]_type_%[%%_n] %3
+			%elifidn %3, virtual
+				%assign _map_%[_class_]_size %%_n + 1
+				%define _map_%[_class_]_name_%[%%_n] %1
+				%define _map_%[_class_]_func_%[%%_n] %2
+				%define _map_%[_class_]_type_%[%%_n] %3
 			%elifidn %3, override
-				%fatal Method %1 does not exist, use declare ?
+				%fatal Method %1 does not exist !
 			%else
-				%fatal Must use declare or override !
+				%fatal Must use nonvirtual, virtual or override !
 			%endif
 		%else
 			;existing method
-			%ifidn %3, declare
-				%fatal Method %1 allready exists, use override ?
+			%ifidn %3, nonvirtual
+				%ifidn _map_%[_class_]_type_%[%%_n], nonvirtual
+					%define _map_%[_class_]_func_%[%%_n] %2
+				%else
+					%fatal Virtual method %1 allready exists !
+				%endif
+			%elifidn %3, virtual
+				%fatal Method %1 allready exists !, use override ?
 			%elifidn %3, override
-				;existing method
-				%define _map_%[_class_]_name_%[%%_n] %1
-				%define _map_%[_class_]_func_%[%%_n] %2
+				%ifidn _map_%[_class_]_type_%[%%_n], virtual
+					%define _map_%[_class_]_func_%[%%_n] %2
+				%else
+					%fatal Nonvirtual %1 allready exists !
+				%endif
 			%else
-				%fatal Must use declare or override !
+				%fatal Must use nonvirtual, virtual or override !
 			%endif
 		%endif
 	%endmacro
@@ -80,19 +96,21 @@
 		%ifndef _map_%[%1]_size
 			%fatal Class %1 not defined !
 		%endif
-		%assign %%_n 0
+		%assign _virtual_ 0
+		%assign _nonvirtual_ 0
 		%rep _map_%[%1]_size
-			%ifidn _map_%[%1]_name_%[%%_n], %2
+			%ifidn _map_%[%1]_name_%[_nonvirtual_], %2
 				%exitrep
+			%elifidn _map_%[%1]_type_%[_nonvirtual_], virtual
+				%assign _virtual_ _virtual_ + 1
+				%assign _nonvirtual_ _nonvirtual_ + 1
 			%else
-				%assign %%_n %%_n + 1
+				%assign _nonvirtual_ _nonvirtual_ + 1
 			%endif
 		%endrep
-		%if %%_n = _map_%[%1]_size
+		%if _nonvirtual_ = _map_%[%1]_size
 			;no such method
 			%fatal No such method %2 in class %1 !
-		%else
-			%assign _method_ %%_n
 		%endif
 	%endmacro
 
@@ -104,7 +122,7 @@
 
 		method_lookup %1, %2
 		vp_cpy [%3 + obj_vtable], %4
-		vp_call [%4 + _method_ * 8]
+		vp_call [%4 + _virtual_ * 8]
 	%endmacro
 
 	%macro method_jmp 2-4 r0, r15
@@ -115,7 +133,7 @@
 
 		method_lookup %1, %2
 		vp_cpy [%3 + obj_vtable], %4
-		vp_jmp [%4 + _method_ * 8]
+		vp_jmp [%4 + _virtual_ * 8]
 	%endmacro
 
 	%macro method_bind 2-4 r0, r15
@@ -126,51 +144,51 @@
 
 		method_lookup %1, %2
 		vp_cpy [%3 + obj_vtable], %4
-		vp_cpy [%4 + _method_ * 8], %4
+		vp_cpy [%4 + _virtual_ * 8], %4
 	%endmacro
 
-	%macro class_call 2
+	%macro static_call 2
 		;%1 = <class name>
 		;%2 = <member name>
 
 		method_lookup %1, %2
-		fn_call _map_%[%1]_func_%[_method_]
+		fn_call _map_%[%1]_func_%[_nonvirtual_]
 	%endmacro
 
-	%macro class_jmp 2
+	%macro static_jmp 2
 		;%1 = <class name>
 		;%2 = <member name>
 
 		method_lookup %1, %2
-		fn_jmp _map_%[%1]_func_%[_method_]
+		fn_jmp _map_%[%1]_func_%[_nonvirtual_]
 	%endmacro
 
-	%macro class_bind 3
+	%macro static_bind 3
 		;%1 = <class name>
 		;%2 = <member name>
 		;%3 = reg
 
 		method_lookup %1, %2
-		fn_bind _map_%[%1]_func_%[_method_], %3
+		fn_bind _map_%[%1]_func_%[_nonvirtual_], %3
 	%endmacro
 
 	%macro super_call 2
 		;%1 = <class name>
 		;%2 = <member name>
-		class_call _super_class_%[%1]_, %2
+		static_call _super_class_%[%1]_, %2
 	%endmacro
 
 	%macro super_jmp 2
 		;%1 = <class name>
 		;%2 = <member name>
-		class_jmp _super_class_%[%1]_, %2
+		static_jmp _super_class_%[%1]_, %2
 	%endmacro
 
 	%macro super_bind 3
 		;%1 = <class name>
 		;%2 = <member name>
 		;%3 = reg
-		class_bind _super_class_%[%1]_, %2, %3
+		static_bind _super_class_%[%1]_, %2, %3
 	%endmacro
 
 %endif

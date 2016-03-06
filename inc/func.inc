@@ -122,7 +122,7 @@
 		;r0 = 0, else function entry point
 
 		vp_cpy %1, r0
-		class_call load, bind
+		static_call load, bind
 	%endmacro
 
 	%macro fn_function 1-2 debug_enter
@@ -186,27 +186,27 @@
 			vp_push %2
 
 			;tab in by stack depth
-			class_call task, depth
+			static_call task, depth
 			vp_lea [r0 - (8*8)], r2
 			vp_cpy ' ', r0
 			vp_cpy 2, r1
 			loop_while r2, >, 0
-				class_call io, char
+				static_call io, char
 				vp_sub 8, r2
 			loop_end
 
 			vp_lea [rel _func_start + fn_header_pathname], r0
 			vp_cpy 2, r1
-			class_call io, string
+			static_call io, string
 			vp_lea [rel %%over], r0
 			vp_cpy 2, r1
-			class_call io, string
+			static_call io, string
 			vp_pop r0
 			vp_cpy 2, r1
 			vp_cpy 16, r2
-			class_call io, number
+			static_call io, number
 			vp_cpy 10, r0
-			class_call io, char
+			static_call io, char
 			vp_pop r0, r1, r2, r3, r5
 		%endif
 	%endmacro

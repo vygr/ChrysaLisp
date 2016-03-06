@@ -6,7 +6,7 @@
 
 		loop_start
 			;read parcel fragment
-			class_call mail, mymail
+			static_call mail, mymail
 			vp_cpy r0, r15
 
 			;look up parcel in mailbox
@@ -21,7 +21,7 @@
 				vp_cpy [r15 + ml_msg_parcel_size], r12
 				vp_cpy [r15 + ml_msg_dest + 8], r14
 				vp_cpy r12, r0
-				class_call mem, alloc
+				static_call mem, alloc
 				fn_assert r0, !=, 0
 				vp_cpy r12, [r0 + ml_msg_length]
 				vp_cpy r13, [r0 + ml_msg_dest]
@@ -53,7 +53,7 @@
 			;copy fragment data, round up for speed
 			vp_add 7, r2
 			vp_and -8, r2
-			class_call mem, copy
+			static_call mem, copy
 
 			;got all needed ?
 			if r13, ==, [r14 + ml_msg_length]
@@ -61,7 +61,7 @@
 				vp_cpy r14, r1
 				ln_remove_node r1, r2
 				vp_cpy r14, r0
-				class_call mail, send
+				static_call mail, send
 			else
 				;no, update total so far
 				vp_cpy r13, [r14 + ml_msg_parcel_total]
@@ -69,7 +69,7 @@
 
 			;free fragment
 			vp_cpy r15, r0
-			class_call mem, free
+			static_call mem, free
 		loop_end
 		vp_ret
 

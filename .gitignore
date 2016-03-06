@@ -3,10 +3,10 @@ class/class_obj
 class/class_ref
 class/class_view
 class/obj/create
-class/obj/deinit
 class/obj/destroy
 class/obj/init
 class/obj/new
+class/obj/null
 class/ref/deref
 class/ref/init
 class/ref/ref
@@ -14,6 +14,7 @@ class/test/oops
 class/view/add
 class/view/create
 class/view/deinit
+class/view/draw
 class/view/init
 class/view/new
 class/view/sub
@@ -21,6 +22,7 @@ gui/ctx_filled_box
 gui/ctx_set_color
 gui/gui
 gui/gui_deinit
+gui/gui_draw
 gui/gui_init
 gui/gui_statics
 gui/patch_clip
@@ -36,7 +38,6 @@ gui/view_add_dirty
 gui/view_add_transparent
 gui/view_alloc
 gui/view_dirty
-gui/gui_draw
 gui/view_free
 gui/view_get_abs
 gui/view_sub
@@ -47,8 +48,8 @@ sys/cpu_get_time
 sys/cpu_get_total
 sys/heap_alloc
 sys/heap_deinit
-sys/heap_reset
 sys/heap_init
+sys/heap_reset
 sys/kernel
 sys/link
 sys/link_init
@@ -66,9 +67,9 @@ sys/mail_alloc_parcel
 sys/mail_deinit
 sys/mail_in
 sys/mail_init
+sys/mail_mymail
 sys/mail_out
 sys/mail_read
-sys/mail_mymail
 sys/mail_send
 sys/mail_statics
 sys/math_random
@@ -84,8 +85,8 @@ sys/opt_process
 sys/read_line
 sys/string_compare
 sys/string_copy
-sys/string_length
 sys/string_int
+sys/string_length
 sys/task_deinit
 sys/task_init
 sys/task_open

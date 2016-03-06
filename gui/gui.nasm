@@ -15,7 +15,7 @@
 		vp_cpy r1, [r0 + gui_view_draw]
 
 		;add as gui screen view
-		class_bind gui, statics, r1
+		static_bind gui, statics, r1
 		vp_cpy r0, [r1 + gui_statics_screen]
 		vp_push r0
 
@@ -68,7 +68,7 @@
 		fn_call gui/view_dirty
 
 		;allocate mail message
-		class_call mail, alloc
+		static_call mail, alloc
 		fn_assert r0, !=, 0
 
 		;fill in destination, function
@@ -77,11 +77,11 @@
 		vp_cpy kn_call_gui_update, qword[r0 + (ml_msg_data + kn_data_kernel_function)]
 
 		;send mail to kernel
-		class_call mail, send
+		static_call mail, send
 
 		;wait 5 seconds and return
 		vp_cpy 5000000, r0
-		class_jmp task, sleep
+		static_jmp task, sleep
 
 	draw_background_code:
 		;inputs
@@ -104,7 +104,7 @@
 		vp_cpy 0, r10
 		vp_cpy 255, r11
 		vp_cpy r1, r0
-		class_call ctx, set_color
+		static_call ctx, set_color
 
 		vp_cpy [r4 + draw_background_view], r1
 		vp_cpy [r4 + draw_background_ctx], r0
@@ -112,7 +112,7 @@
 		vp_xor r9, r9
 		vp_cpy [r1 + gui_view_w], r10
 		vp_cpy [r1 + gui_view_h], r11
-		class_call ctx, filled_box
+		static_call ctx, filled_box
 
 		vp_add draw_background_size, r4
 		vp_ret
@@ -138,7 +138,7 @@
 		vp_cpy 0, r10
 		vp_cpy 255, r11
 		vp_cpy r1, r0
-		class_call ctx, set_color
+		static_call ctx, set_color
 
 		vp_cpy [r4 + draw_view1_view], r1
 		vp_cpy [r4 + draw_view1_ctx], r0
@@ -146,7 +146,7 @@
 		vp_xor r9, r9
 		vp_cpy [r1 + gui_view_w], r10
 		vp_cpy [r1 + gui_view_h], r11
-		class_call ctx, filled_box
+		static_call ctx, filled_box
 
 		vp_add draw_view1_size, r4
 		vp_ret
@@ -172,7 +172,7 @@
 		vp_cpy 255, r10
 		vp_cpy 192, r11
 		vp_cpy r1, r0
-		class_call ctx, set_color
+		static_call ctx, set_color
 
 		vp_cpy [r4 + draw_view2_view], r1
 		vp_cpy [r4 + draw_view2_ctx], r0
@@ -180,7 +180,7 @@
 		vp_xor r9, r9
 		vp_cpy [r1 + gui_view_w], r10
 		vp_cpy [r1 + gui_view_h], r11
-		class_call ctx, filled_box
+		static_call ctx, filled_box
 
 		vp_add draw_view2_size, r4
 		vp_ret

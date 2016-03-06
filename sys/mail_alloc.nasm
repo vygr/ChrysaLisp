@@ -7,9 +7,9 @@
 		;trashes
 		;r1-r3
 
-		class_bind mail, statics, r0
+		static_bind mail, statics, r0
 		vp_lea [r0 + ml_statics_heap], r0
-		class_call heap, alloc
+		static_call heap, alloc
 		vp_cpy r0, qword[r1]
 		vp_lea [r1 + 8], r0
 		vp_cpy ml_msg_data, qword[r0 + ml_msg_length]

@@ -17,7 +17,7 @@
 
 		vp_sub draw_view_size, r4
 		vp_cpy r0, [r4 + draw_view_root]
-		class_bind gui, statics, r1
+		static_bind gui, statics, r1
 		vp_cpy [r1 + gui_statics_renderer], r1
 		vp_cpy r1, [r4 + draw_view_ctx + gui_ctx_sdl_ctx]
 		vp_cpy 0, qword[r4 + draw_view_patch_list]
@@ -66,7 +66,7 @@
 			vp_cpy r0, [r4 + draw_view_node]
 
 			;patch heap
-			class_bind gui, statics, r0
+			static_bind gui, statics, r0
 			vp_lea [r0 + gui_statics_patch_heap], r0
 
 			;if opaque view remove from global dirty list
@@ -80,7 +80,7 @@
 				vp_add r8, r10
 				vp_add r9, r11
 				vp_lea [r4 + draw_view_patch_list], r1
-				class_call patch, remove
+				static_call patch, remove
 			endif
 
 			;clip local dirty list with parent bounds
@@ -98,19 +98,19 @@
 			vp_add r8, r10
 			vp_add r9, r11
 			vp_add gui_view_dirty_list, r1
-			class_call patch, clip
+			static_call patch, clip
 
 			;paste local dirty list onto global dirty list
 			vp_cpy [r4 + draw_view_node], r2
 			vp_cpy [r2 + gui_view_ctx_x], r8
 			vp_cpy [r2 + gui_view_ctx_y], r9
 			vp_lea [r4 + draw_view_patch_list], r2
-			class_call patch, list_paste
+			static_call patch, list_paste
 
 			;free local dirty list
 			vp_cpy [r4 + draw_view_node], r1
 			vp_lea [r1 + gui_view_dirty_list], r1
-			class_call patch, list_free
+			static_call patch, list_free
 
 			;restore node
 			vp_cpy [r4 + draw_view_node], r0
@@ -150,17 +150,17 @@
 			vp_cpy [r0 + gui_view_ctx_y], r9
 			vp_lea [r4 + draw_view_patch_list], r1
 			vp_lea [r0 + gui_view_dirty_list], r2
-			class_bind gui, statics, r0
+			static_bind gui, statics, r0
 			vp_lea [r0 + gui_statics_patch_heap], r0
 			if qword[r3 + gui_view_transparent_list], ==, 0
 				vp_cpy [r3 + gui_view_w], r10
 				vp_cpy [r3 + gui_view_h], r11
 				vp_add r8, r10
 				vp_add r9, r11
-				class_call patch, cut
+				static_call patch, cut
 			else
 				vp_add gui_view_transparent_list, r3
-				class_call patch, list_copy
+				static_call patch, list_copy
 			endif
 
 			;restore node
@@ -203,9 +203,9 @@
 			;free local dirty list
 			vp_cpy [r4 + draw_view_node], r1
 			vp_lea [r1 + gui_view_dirty_list], r1
-			class_bind gui, statics, r0
+			static_bind gui, statics, r0
 			vp_lea [r0 + gui_statics_patch_heap], r0
-			class_call patch, list_free
+			static_call patch, list_free
 
 			;restore node
 			vp_cpy [r4 + draw_view_node], r0

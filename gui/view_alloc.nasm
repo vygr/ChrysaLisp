@@ -9,9 +9,9 @@
 		;r1-r3
 
 		;alloc view objects
-		class_bind gui, statics, r0
+		static_bind gui, statics, r0
 		vp_lea [r0 + gui_statics_view_heap], r0
-		class_call heap, alloc
+		static_call heap, alloc
 		vp_cpy r1, r0
 
 		;init child list etc

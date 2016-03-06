@@ -47,7 +47,7 @@
 			vp_add r13, r11
 			vp_cpy [r4 + copy_slist], r1
 			vp_cpy [r4 + copy_dlist], r2
-			class_call patch, copy
+			static_call patch, copy
 			vp_cpy [r4 + copy_next], r1
 		loop_end
 		vp_add copy_size, r4

@@ -20,12 +20,12 @@
 		;start all tasks
 		loop_start
 			;allocate mail message
-			class_call mail, alloc
+			static_call mail, alloc
 			fn_assert r0, !=, 0
 			vp_cpy r0, r3
 
 			;fill in destination, reply, function and user
-			class_call cpu, id
+			static_call cpu, id
 			vp_cpy 0, qword[r3 + ml_msg_dest]
 			vp_cpy r0, [r3 + (ml_msg_dest + 8)]
 			vp_cpy r4, [r3 + (ml_msg_data + kn_data_kernel_reply)]
@@ -36,7 +36,7 @@
 			;copy task name, move to next task name
 			vp_cpy r5, r0
 			vp_lea [r3 + (ml_msg_data + kn_data_task_child_pathname)], r1
-			class_call string, copy
+			static_call string, copy
 			vp_cpy r0, r5
 
 			;fill in total message length
@@ -45,7 +45,7 @@
 
 			;send mail to kernel
 			vp_cpy r3, r0
-			class_call mail, send
+			static_call mail, send
 
 			;next array worker
 			vp_add 16, r6
@@ -57,7 +57,7 @@
 		;wait for all replies
 		loop_start
 			vp_cpy r4, r0
-			class_call mail, read
+			static_call mail, read
 
 			;save reply mailbox ID in user address
 			vp_cpy [r0 + (ml_msg_data + kn_data_task_child_reply_user)], r6
@@ -67,7 +67,7 @@
 			vp_cpy r3, [r6 + 8]
 
 			;free reply mail
-			class_call mem, free
+			static_call mem, free
 
 			;next mailbox
 			vp_dec r7

@@ -12,25 +12,25 @@
 
 		;wait a bit
 		vp_cpy 12000000, r0
-		class_call task, sleep
+		static_call task, sleep
 
 		;read 10 mail commands
 		for r14, 0, 10, 1
-			class_call mail, mymail
+			static_call mail, mymail
 			for r15, 0, TEST_SIZE, 1
 				if r15, !=, [r0 + (r15 * 8) + ml_msg_data]
 					vp_lea [rel failed], r0
 					vp_cpy 1, r1
-					class_jmp io, string
+					static_jmp io, string
 				endif
 			next
-			class_call mem, free
+			static_call mem, free
 		next
 
 		;print Hello and return
 		vp_lea [rel hello], r0
 		vp_cpy 1, r1
-		class_jmp io, string
+		static_jmp io, string
 
 	hello:
 		db 'Hello from global worker !', 10, 0

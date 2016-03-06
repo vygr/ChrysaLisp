@@ -9,12 +9,12 @@
 
 		;allocate new view object
 		vp_cpy view_size, r0
-		class_call mem, alloc
+		static_call mem, alloc
 		if r0, !=, 0
 			;clear object memory
 			vp_cpy r0, r3
 			vp_cpy view_size, r1
-			class_call mem, clear
+			static_call mem, clear
 			vp_cpy r3, r0
 		endif
 		vp_ret

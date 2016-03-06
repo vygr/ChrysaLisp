@@ -4,7 +4,7 @@
 
 	fn_function gui/gui_deinit
 		;free any screen
-		class_bind gui, statics, r15
+		static_bind gui, statics, r15
 		vp_cpy [r15 + gui_statics_screen], r0
 		if r0, !=, 0
 			vp_cpy 0, qword[r15 + gui_statics_screen]
@@ -13,11 +13,11 @@
 
 		;deinit patch heap
 		vp_lea [r15 + gui_statics_patch_heap], r0
-		class_call heap, deinit
+		static_call heap, deinit
 
 		;deinit view heap
 		vp_lea [r15 + gui_statics_view_heap], r0
-		class_call heap, deinit
+		static_call heap, deinit
 
 		;destroy any window
 		vp_cpy [r15 + gui_statics_window], r14

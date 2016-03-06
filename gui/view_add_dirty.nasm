@@ -15,7 +15,7 @@
 		vp_add r8, r10
 		vp_add r9, r11
 		vp_lea [r0 + gui_view_dirty_list], r1
-		class_bind gui, statics, r0
+		static_bind gui, statics, r0
 		vp_lea [r0 + gui_statics_patch_heap], r0
 		fn_jmp gui/patch_paste
 

@@ -5,7 +5,7 @@
 		;outputs
 		;r0 = cpu total
 
-		class_bind task, statics, r0
+		static_bind task, statics, r0
 		vp_cpy [r0 + tk_statics_cpu_total], r0
 		vp_ret
 

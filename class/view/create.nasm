@@ -8,11 +8,11 @@
 		;r1-r3
 
 		;create new view object
-		class_call view, new
+		static_call view, new
 		if r0, !=, 0
 			;init the object
 			fn_bind class/class_view, r1
-			class_call view, init
+			static_call view, init
 			if r1, ==, 0
 				;error with init
 				method_call view, delete

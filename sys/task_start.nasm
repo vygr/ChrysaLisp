@@ -14,7 +14,7 @@
 		vp_cpy r0, r5
 
 		;get statics
-		class_bind task, statics, r6
+		static_bind task, statics, r6
 
 		;increment task count
 		vp_cpy [r6 + tk_statics_task_count], r0
@@ -23,7 +23,7 @@
 
 		;create new task control block and task
 		vp_lea [r6 + tk_statics_task_heap], r0
-		class_call heap, alloc
+		static_call heap, alloc
 		vp_cpy [r6 + tk_statics_current_tcb], r0
 		ln_add_node_before r0, r1, r2
 

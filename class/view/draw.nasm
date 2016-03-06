@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
-%include 'class/class_obj.inc'
+%include 'class/class_view.inc'
 
-	fn_function class/obj/deinit
+	fn_function class/view/draw
 		;inputs
 		;r0 = object
 
