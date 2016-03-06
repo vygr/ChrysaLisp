@@ -145,27 +145,21 @@
 			vp_cpy r0, [r4 + draw_view_node]
 
 			;if opaque cut view else copy transparent patches
-			vp_cpy [r0 + gui_view_transparent_list], r1
-			if r1, ==, 0
-				vp_cpy [r0 + gui_view_ctx_x], r8
-				vp_cpy [r0 + gui_view_ctx_y], r9
-				vp_cpy [r0 + gui_view_w], r10
-				vp_cpy [r0 + gui_view_h], r11
+			vp_cpy r0, r3
+			vp_cpy [r0 + gui_view_ctx_x], r8
+			vp_cpy [r0 + gui_view_ctx_y], r9
+			vp_lea [r4 + draw_view_patch_list], r1
+			vp_lea [r0 + gui_view_dirty_list], r2
+			class_bind gui, statics, r0
+			vp_lea [r0 + gui_statics_patch_heap], r0
+			if qword[r3 + gui_view_transparent_list], ==, 0
+				vp_cpy [r3 + gui_view_w], r10
+				vp_cpy [r3 + gui_view_h], r11
 				vp_add r8, r10
 				vp_add r9, r11
-				vp_lea [r4 + draw_view_patch_list], r1
-				vp_lea [r0 + gui_view_dirty_list], r2
-				class_bind gui, statics, r0
-				vp_lea [r0 + gui_statics_patch_heap], r0
 				class_call patch, cut
 			else
-				vp_cpy [r0 + gui_view_ctx_x], r8
-				vp_cpy [r0 + gui_view_ctx_y], r9
-				vp_lea [r4 + draw_view_patch_list], r1
-				vp_lea [r0 + gui_view_dirty_list], r2
-				vp_lea [r0 + gui_view_transparent_list], r3
-				class_bind gui, statics, r0
-				vp_lea [r0 + gui_statics_patch_heap], r0
+				vp_add gui_view_transparent_list, r3
 				class_call patch, list_copy
 			endif
 
