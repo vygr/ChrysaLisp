@@ -6,7 +6,7 @@
 		;r0 = sdl function table
 
 		;init sdl function table
-		fn_bind gui/gui_statics, r3
+		class_bind gui, statics, r3
 		vp_cpy r0, [r3 + gui_statics_sdl_funcs]
 
 		;init patch heap

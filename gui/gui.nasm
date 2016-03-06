@@ -15,7 +15,7 @@
 		vp_cpy r1, [r0 + gui_view_draw]
 
 		;add as gui screen view
-		fn_bind gui/gui_statics, r1
+		class_bind gui, statics, r1
 		vp_cpy r0, [r1 + gui_statics_screen]
 		vp_push r0
 

@@ -36,7 +36,7 @@ gui/view_add_dirty
 gui/view_add_transparent
 gui/view_alloc
 gui/view_dirty
-gui/view_draw
+gui/gui_draw
 gui/view_free
 gui/view_get_abs
 gui/view_sub

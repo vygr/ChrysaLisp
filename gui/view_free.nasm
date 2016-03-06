@@ -26,11 +26,11 @@
 		;free view object data
 		vp_cpy [r4], r0
 		vp_lea [r0 + gui_view_dirty_list], r1
-		fn_bind gui/gui_statics, r5
+		class_bind gui, statics, r5
 		vp_lea [r5 + gui_statics_patch_heap], r0
-		fn_call gui/patch_list_free
+		class_call patch, list_free
 		vp_lea [r0 + gui_view_transparent_list], r1
-		fn_call gui/patch_list_free
+		class_call patch, list_free
 
 		;free view object
 		vp_pop r1

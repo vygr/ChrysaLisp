@@ -4,6 +4,27 @@
 %include 'inc/list.inc'
 %include 'inc/heap.inc'
 
+;;;;;;;;;;;;;;;;;;;;;
+; gui statics classes
+;;;;;;;;;;;;;;;;;;;;;
+
+	def_class gui
+	def_method statics, gui/gui_statics
+	def_method init, gui/gui_init
+	def_method deinit, gui/gui_deinit
+	def_method draw, gui/gui_draw
+	def_method gui, gui/gui
+
+	def_class patch
+	def_method clip, gui/patch_clip
+	def_method remove, gui/patch_remove
+	def_method cut, gui/patch_cut
+	def_method copy,  gui/patch_copy
+	def_method paste, gui/patch_paste
+	def_method list_copy, gui/patch_list_copy
+	def_method list_free, gui/patch_list_free
+	def_method list_paste, gui/patch_list_paste
+
 ;;;;;;;;;;;;;;;;
 ; gui structures
 ;;;;;;;;;;;;;;;;

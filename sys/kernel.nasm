@@ -230,7 +230,7 @@
 					class_call mem, free
 
 					;create screen window ?
-					fn_bind gui/gui_statics, r15
+					class_bind gui, statics, r15
 					vp_cpy [r15 + gui_statics_window], r14
 					if r14, ==, 0
 						;init sdl2
@@ -253,8 +253,8 @@
 					;update screen
 					vp_cpy [r15 + gui_statics_screen], r0
 					if r0, !=, 0
-						fn_call gui/view_draw
-						fn_bind gui/gui_statics, r0
+						class_call gui, draw
+						class_bind gui, statics, r0
 						sdl_renderpresent [r0 + gui_statics_renderer]
 					endif
 				default
@@ -304,7 +304,7 @@
 		loop_end
 
 		;deinit gui
-		fn_call gui/gui_deinit
+		class_call gui, deinit
 
 		;free any kernel routing table
 		vp_cpy [r4 + lk_table_array], r0

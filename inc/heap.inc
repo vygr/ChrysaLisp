@@ -46,12 +46,6 @@
 ; heap macros
 ;;;;;;;;;;;;;
 
-	%macro hp_heap_object 1
-		align 8
-	%1:
-		times hp_heap_size db 0
-	%endmacro
-
 	%macro hp_freecell 3
 		;inputs
 		;%1 = heap

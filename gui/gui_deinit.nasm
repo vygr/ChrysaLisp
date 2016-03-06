@@ -4,7 +4,7 @@
 
 	fn_function gui/gui_deinit
 		;free any screen
-		fn_bind gui/gui_statics, r15
+		class_bind gui, statics, r15
 		vp_cpy [r15 + gui_statics_screen], r0
 		if r0, !=, 0
 			vp_cpy 0, qword[r15 + gui_statics_screen]
