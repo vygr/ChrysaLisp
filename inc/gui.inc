@@ -25,6 +25,10 @@
 	def_method list_free, gui/patch_list_free
 	def_method list_paste, gui/patch_list_paste
 
+	def_class ctx
+	def_method filled_box, gui/ctx_filled_box
+	def_method set_color, gui/ctx_set_color
+
 ;;;;;;;;;;;;;;;;
 ; gui structures
 ;;;;;;;;;;;;;;;;

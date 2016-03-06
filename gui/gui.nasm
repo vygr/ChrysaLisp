@@ -104,7 +104,7 @@
 		vp_cpy 0, r10
 		vp_cpy 255, r11
 		vp_cpy r1, r0
-		fn_call gui/ctx_set_color
+		class_call ctx, set_color
 
 		vp_cpy [r4 + draw_background_view], r1
 		vp_cpy [r4 + draw_background_ctx], r0
@@ -112,7 +112,7 @@
 		vp_xor r9, r9
 		vp_cpy [r1 + gui_view_w], r10
 		vp_cpy [r1 + gui_view_h], r11
-		fn_call gui/ctx_filled_box
+		class_call ctx, filled_box
 
 		vp_add draw_background_size, r4
 		vp_ret
@@ -138,7 +138,7 @@
 		vp_cpy 0, r10
 		vp_cpy 255, r11
 		vp_cpy r1, r0
-		fn_call gui/ctx_set_color
+		class_call ctx, set_color
 
 		vp_cpy [r4 + draw_view1_view], r1
 		vp_cpy [r4 + draw_view1_ctx], r0
@@ -146,7 +146,7 @@
 		vp_xor r9, r9
 		vp_cpy [r1 + gui_view_w], r10
 		vp_cpy [r1 + gui_view_h], r11
-		fn_call gui/ctx_filled_box
+		class_call ctx, filled_box
 
 		vp_add draw_view1_size, r4
 		vp_ret
@@ -172,7 +172,7 @@
 		vp_cpy 255, r10
 		vp_cpy 192, r11
 		vp_cpy r1, r0
-		fn_call gui/ctx_set_color
+		class_call ctx, set_color
 
 		vp_cpy [r4 + draw_view2_view], r1
 		vp_cpy [r4 + draw_view2_ctx], r0
@@ -180,7 +180,7 @@
 		vp_xor r9, r9
 		vp_cpy [r1 + gui_view_w], r10
 		vp_cpy [r1 + gui_view_h], r11
-		fn_call gui/ctx_filled_box
+		class_call ctx, filled_box
 
 		vp_add draw_view2_size, r4
 		vp_ret
