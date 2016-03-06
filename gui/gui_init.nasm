@@ -11,20 +11,9 @@
 
 		;init patch heap
 		vp_lea [r3 + gui_statics_patch_heap], r0
-		vp_cpy GUI_PATCH_SIZE, r1
-		vp_cpy GUI_PATCH_SIZE*32, r2
-		static_call heap, init
-
-		;init view heap
-		vp_lea [r3 + gui_statics_view_heap], r0
-		vp_cpy GUI_VIEW_SIZE, r1
-		vp_cpy GUI_VIEW_SIZE*8, r2
-		static_call heap, init
-
-		;init view list
-		vp_lea [r3 + gui_statics_view_list], r0
-		lh_init r0, r1
-
+		vp_cpy gui_patch_size, r1
+		vp_cpy gui_patch_size*32, r2
+		static_jmp heap, init
 		vp_ret
 
 	fn_function_end

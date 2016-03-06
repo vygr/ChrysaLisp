@@ -1,22 +1,20 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 %include 'inc/sdl2.inc'
+%include 'class/class_view.inc'
 
 	fn_function gui/gui_deinit
 		;free any screen
-		static_bind gui, statics, r15
-		vp_cpy [r15 + gui_statics_screen], r0
+		static_bind gui, statics, r1
+		vp_cpy [r1 + gui_statics_screen], r0
 		if r0, !=, 0
-			vp_cpy 0, qword[r15 + gui_statics_screen]
-			fn_call gui/view_free
+			vp_cpy 0, qword[r1 + gui_statics_screen]
+			static_call view, deref
 		endif
 
 		;deinit patch heap
+		static_bind gui, statics, r15
 		vp_lea [r15 + gui_statics_patch_heap], r0
-		static_call heap, deinit
-
-		;deinit view heap
-		vp_lea [r15 + gui_statics_view_heap], r0
 		static_call heap, deinit
 
 		;destroy any window

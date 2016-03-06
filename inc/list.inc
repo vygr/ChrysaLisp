@@ -27,7 +27,6 @@
 	struc ln_node
 		ln_node_succ:		resq 1
 		ln_node_pred:		resq 1
-		ln_node_obj:		resq 1
 	endstruc
 
 ;;;;;;;;;;;;;;;;;;

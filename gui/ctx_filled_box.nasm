@@ -26,8 +26,8 @@
 
 		;save draw rectangle info
 		vp_cpy r0, [r4 + fbox_ctx]
-		vp_add [r0 + GUI_CTX_X], r8
-		vp_add [r0 + GUI_CTX_Y], r9
+		vp_add [r0 + gui_ctx_x], r8
+		vp_add [r0 + gui_ctx_y], r9
 		vp_cpy r8d, [r4 + fbox_rect + sdl_rect_x]
 		vp_cpy r9d, [r4 + fbox_rect + sdl_rect_y]
 		vp_cpy r10d, [r4 + fbox_rect + sdl_rect_w]

@@ -12,6 +12,11 @@
 		super_call view, init
 		if r1, !=, 0
 			;init myself
+			vp_cpy 0, qword[r0 + view_parent]
+			vp_lea [r0 + view_list], r1
+			lh_init r1, r2
+			vp_cpy 0, qword[r0 + view_dirty_list]
+			vp_cpy 0, qword[r0 + view_transparent_list]
 		endif
 		vp_ret
 

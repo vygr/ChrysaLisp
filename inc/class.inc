@@ -7,6 +7,7 @@
 		%rep _map_%[%1]_size
 			%ifidn _map_%[%1]_type_%[%%_n], virtual
 				fn_add_link _map_%[%1]_func_%[%%_n]
+				;%warning class %1 vtable entry _map_%[%1]_name_%[%%_n]
 			%endif
 			%assign %%_n %%_n + 1
 		%endrep
@@ -121,6 +122,9 @@
 		;%4 = dispatch reg
 
 		method_lookup %1, %2
+		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
+			%fatal Class %1 method %2 is nonvirtual ! Use static_call ?
+		%endif
 		vp_cpy [%3 + obj_vtable], %4
 		vp_call [%4 + _virtual_ * 8]
 	%endmacro
@@ -132,6 +136,9 @@
 		;%4 = dispatch reg
 
 		method_lookup %1, %2
+		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
+			%fatal Class %1 method %2 is nonvirtual ! Use static_jmp ?
+		%endif
 		vp_cpy [%3 + obj_vtable], %4
 		vp_jmp [%4 + _virtual_ * 8]
 	%endmacro
@@ -143,6 +150,9 @@
 		;%4 = dispatch reg
 
 		method_lookup %1, %2
+		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
+			%fatal Class %1 method %2 is nonvirtual ! Use static_bind ?
+		%endif
 		vp_cpy [%3 + obj_vtable], %4
 		vp_cpy [%4 + _virtual_ * 8], %4
 	%endmacro
@@ -152,6 +162,13 @@
 		;%2 = <member name>
 
 		method_lookup %1, %2
+		%ifidn _map_%[%1]_type_%[_nonvirtual_], virtual
+			%ifidn _map_%[%1]_name_%[_nonvirtual_], init
+				;exeption for init
+			%else
+				%fatal Class %1 method %2 is virtual ! Use method_call ?
+			%endif
+		%endif
 		fn_call _map_%[%1]_func_%[_nonvirtual_]
 	%endmacro
 
@@ -160,6 +177,9 @@
 		;%2 = <member name>
 
 		method_lookup %1, %2
+		%ifidn _map_%[%1]_type_%[_nonvirtual_], virtual
+			%fatal Class %1 method %2 is virtual ! Use method_jmp ?
+		%endif
 		fn_jmp _map_%[%1]_func_%[_nonvirtual_]
 	%endmacro
 
@@ -169,26 +189,44 @@
 		;%3 = reg
 
 		method_lookup %1, %2
+		%ifidn _map_%[%1]_type_%[_nonvirtual_], virtual
+			%fatal Class %1 method %2 is virtual ! Use method_bind ?
+		%endif
 		fn_bind _map_%[%1]_func_%[_nonvirtual_], %3
 	%endmacro
 
 	%macro super_call 2
 		;%1 = <class name>
 		;%2 = <member name>
-		static_call _super_class_%[%1]_, %2
+
+		method_lookup _super_class_%[%1]_, %2
+		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], nonvirtual
+			%fatal Class _super_class_%[%1]_ method %2 is nonvirtual !
+		%endif
+		fn_call _map_%[_super_class_%[%1]_]_func_%[_nonvirtual_]
 	%endmacro
 
 	%macro super_jmp 2
 		;%1 = <class name>
 		;%2 = <member name>
-		static_jmp _super_class_%[%1]_, %2
+
+		method_lookup _super_class_%[%1]_, %2
+		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], nonvirtual
+			%fatal Class _super_class_%[%1]_ method %2 is nonvirtual !
+		%endif
+		fn_jmp _map_%[_super_class_%[%1]_]_func_%[_nonvirtual_]
 	%endmacro
 
 	%macro super_bind 3
 		;%1 = <class name>
 		;%2 = <member name>
 		;%3 = reg
-		static_bind _super_class_%[%1]_, %2, %3
+
+		method_lookup _super_class_%[%1]_, %2
+		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], nonvirtual
+			%fatal Class _super_class_%[%1]_ method %2 is nonvirtual !
+		%endif
+		fn_bind _map_%[_super_class_%[%1]_]_func_%[_nonvirtual_], %3
 	%endmacro
 
 %endif

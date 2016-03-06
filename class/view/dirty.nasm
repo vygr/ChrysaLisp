@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
-%include 'inc/gui.inc'
+%include 'class/class_view.inc'
 
-	fn_function gui/view_dirty
+	fn_function class/view/dirty
 		;inputs
 		;r0 = view object
 		;trashes
@@ -10,8 +10,8 @@
 		;paste dirty patch
 		vp_xor r8, r8
 		vp_xor r9, r9
-		vp_cpy [r0 + gui_view_w], r10
-		vp_cpy [r0 + gui_view_h], r11
-		fn_jmp gui/view_add_dirty
+		vp_cpy [r0 + view_w], r10
+		vp_cpy [r0 + view_h], r11
+		static_jmp view, add_dirty
 
 	fn_function_end
