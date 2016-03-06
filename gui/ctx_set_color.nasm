@@ -13,7 +13,7 @@
 		;r10 = b
 		;r11 = a
 		;trashes
-		;r0-r3, r5-r15
+		;all but r4
 
 		vp_cpy r4, r1
 		vp_sub color_size, r4

@@ -17,7 +17,7 @@
 		;r10 = width
 		;r11 = height
 		;trashes
-		;r0-r3, r5-r15
+		;all but r4
 
 		vp_cpy r4, r1
 		vp_sub fbox_size, r4

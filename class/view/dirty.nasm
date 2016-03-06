@@ -5,7 +5,7 @@
 		;inputs
 		;r0 = view object
 		;trashes
-		;r0-r3, r5-r15
+		;all but r4
 
 		;paste dirty patch
 		vp_xor r8, r8

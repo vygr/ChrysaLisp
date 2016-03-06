@@ -6,6 +6,8 @@
 		;inputs
 		;r0 = view object
 		;r1 = ctx object
+		;trashes
+		;all but r4
 
 		struc draw_view
 			draw_view_view:	resq 1

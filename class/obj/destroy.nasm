@@ -4,6 +4,8 @@
 	fn_function class/obj/destroy
 		;inputs
 		;r0 = object
+		;trashes
+		;all but r4
 
 		method_call obj, deinit
 		method_call obj, delete

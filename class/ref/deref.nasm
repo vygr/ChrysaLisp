@@ -5,7 +5,7 @@
 		;inputs
 		;r0 = object
 		;trashes
-		;r1
+		;all but r4
 
 		;dec ref count
 		vp_cpy [r0 + ref_count], r1

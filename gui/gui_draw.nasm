@@ -14,7 +14,7 @@
 		;inputs
 		;r0 = view object
 		;trashes
-		;r0-r3, r5-r15
+		;all but r4
 
 		vp_sub draw_view_size, r4
 		vp_cpy r0, [r4 + draw_view_root]

@@ -10,7 +10,7 @@
 		;r10 = width
 		;r11 = height
 		;trashes
-		;r0-r3, r5-r15
+		;all but r4
 
 		;paste transparent patch
 		vp_add r8, r10
