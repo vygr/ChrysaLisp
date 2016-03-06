@@ -18,6 +18,17 @@ with and functions will be transported across the network as required. Functions
 are shared between all tasks that share the same server object, so only a single
 copy of a function is loaded regardless of how many tasks use that function.
 
+There is a powerful object and class system, not just for an assembler, but
+quite as capable as a high level language. Static classes or virtual classes with
+virtual, nonvirtual and overridable methods can be defined. Calls are type
+checked to ensure consistency across the class hierarchy. The GUI is constructed
+using the class system.
+
+The interface to the system functions is provided as a set of static classes,
+easing use and removing the need to remember static function locations, plus
+decoupling the source from changes at the system level. Look in the inc/
+directory to see the interface definitions.
+
 Allows modeling of various network topologies with point to point links. Each
 cpu in the network is modeled as a separate host process, point to point links
 use shared memory to simulate cpu to cpu point to point bi directional
@@ -31,7 +42,7 @@ the link becomes free and multiple links can and do route messages over parallel
 routes simultaneously.
 
 The -run command line option launches tasks on booting that cpu, such as the
-test suit or experimental gui (a work in progress, -run gui/gui).
+test suit or experimental GUI (a work in progress, -run gui/gui).
 
 The -l command line option creates a link, currently up to 1000 cpu's are
 allowed but that is easy to adjust in the sys/link.nasm file and is due to the
