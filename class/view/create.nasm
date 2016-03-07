@@ -5,7 +5,7 @@
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
-		;r1-r3, r15
+		;r1-r3
 
 		;create new view object
 		static_call view, new
@@ -15,7 +15,7 @@
 			static_call view, init
 			if r1, ==, 0
 				;error with init
-				method_call view, delete
+				method_call view, delete, r1
 				vp_xor r0, r0
 			endif
 		endif
