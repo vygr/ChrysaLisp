@@ -13,6 +13,7 @@
 	def_method get_abs, class/view/get_abs
 	def_method dirty, class/view/dirty
 	def_method transparent, class/view/transparent
+	def_method enumerate, class/view/enumerate
 	def_method init, class/view/init, override
 	def_method deinit, class/view/deinit, override
 	def_method draw, class/view/draw, virtual
