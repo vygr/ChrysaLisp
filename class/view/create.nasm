@@ -5,7 +5,7 @@
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
-		;r1-r3
+		;r1-r3, r15
 
 		;create new view object
 		static_call view, new
