@@ -2,7 +2,7 @@
 	%define CLASS_1234
 
 	%macro vtable_emit 1
-		;%1 = <class name>
+		;%1 = class name
 		%assign %%_n 0
 		%rep _map_%[%1]_size
 			%ifidn _map_%[%1]_type_%[%%_n], virtual
@@ -14,8 +14,8 @@
 	%endmacro
 
 	%macro class_add 2
-		;%1 = <dest class name>
-		;%2 = <source class name>
+		;%1 = dest class name
+		;%2 = source class name
 		%ifndef _map_%[%1]_size
 			%assign _map_%[%1]_size 0
 		%endif
@@ -30,8 +30,8 @@
 	%endmacro
 
 	%macro def_class 1-2 null
-		;%1 = <class name>
-		;%2 = <super class name>
+		;%1 = class name
+		;%2 = super class name
 		%ifdef _map_%[%1]_size
 			%fatal Class %1 allready exits !
 		%endif
@@ -41,8 +41,8 @@
 	%endmacro
 
 	%macro def_method 2-3 nonvirtual
-		;%1 = <member name>
-		;%2 = <member function>
+		;%1 = member name
+		;%2 = member function
 		;%3 = mode (nonvirtual/virtual/override)
 		%assign %%_n 0
 		%rep _map_%[_class_]_size
@@ -92,8 +92,8 @@
 	%endmacro
 
 	%macro method_lookup 2
-		;%1 = <class name>
-		;%2 = <member name>
+		;%1 = class name
+		;%2 = member name
 		%ifndef _map_%[%1]_size
 			%fatal Class %1 not defined !
 		%endif
@@ -116,8 +116,8 @@
 	%endmacro
 
 	%macro method_call 2-4 r15, r0
-		;%1 = <class name>
-		;%2 = <member name>
+		;%1 = class name
+		;%2 = member name
 		;%3 = dispatch reg
 		;%4 = instance pointer reg
 
@@ -130,8 +130,8 @@
 	%endmacro
 
 	%macro method_jmp 2-4 r15, r0
-		;%1 = <class name>
-		;%2 = <member name>
+		;%1 = class name
+		;%2 = member name
 		;%3 = dispatch reg
 		;%4 = instance pointer reg
 
@@ -144,8 +144,8 @@
 	%endmacro
 
 	%macro method_bind 2-4 r15, r0
-		;%1 = <class name>
-		;%2 = <member name>
+		;%1 = class name
+		;%2 = member name
 		;%3 = dispatch reg
 		;%4 = instance pointer reg
 
@@ -158,8 +158,8 @@
 	%endmacro
 
 	%macro static_call 2
-		;%1 = <class name>
-		;%2 = <member name>
+		;%1 = class name
+		;%2 = member name
 
 		method_lookup %1, %2
 		%ifidn _map_%[%1]_type_%[_nonvirtual_], virtual
@@ -173,8 +173,8 @@
 	%endmacro
 
 	%macro static_jmp 2
-		;%1 = <class name>
-		;%2 = <member name>
+		;%1 = class name
+		;%2 = member name
 
 		method_lookup %1, %2
 		%ifidn _map_%[%1]_type_%[_nonvirtual_], virtual
@@ -184,8 +184,8 @@
 	%endmacro
 
 	%macro static_bind 3
-		;%1 = <class name>
-		;%2 = <member name>
+		;%1 = class name
+		;%2 = member name
 		;%3 = reg
 
 		method_lookup %1, %2
@@ -196,8 +196,8 @@
 	%endmacro
 
 	%macro super_call 2
-		;%1 = <class name>
-		;%2 = <member name>
+		;%1 = class name
+		;%2 = member name
 
 		method_lookup _super_class_%[%1]_, %2
 		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], nonvirtual
@@ -207,8 +207,8 @@
 	%endmacro
 
 	%macro super_jmp 2
-		;%1 = <class name>
-		;%2 = <member name>
+		;%1 = class name
+		;%2 = member name
 
 		method_lookup _super_class_%[%1]_, %2
 		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], nonvirtual
@@ -218,8 +218,8 @@
 	%endmacro
 
 	%macro super_bind 3
-		;%1 = <class name>
-		;%2 = <member name>
+		;%1 = class name
+		;%2 = member name
 		;%3 = reg
 
 		method_lookup _super_class_%[%1]_, %2

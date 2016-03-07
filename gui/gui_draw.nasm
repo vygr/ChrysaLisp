@@ -4,9 +4,9 @@
 %include 'class/class_view.inc'
 
 	struc draw_view
-		draw_view_ctx:			resb gui_ctx_size
-		draw_view_root:			resq 1
-		draw_view_node:			resq 1
+		draw_view_ctx:				resb gui_ctx_size
+		draw_view_root:				resq 1
+		draw_view_node:				resq 1
 		draw_view_patch_list:	resq 1
 	endstruc
 
