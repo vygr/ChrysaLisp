@@ -47,13 +47,10 @@
 
 		;any remaining patches are the root views
 		;so splice over
-		vp_cpy r0, r1
-		vp_cpy [r4 + draw_view_patch_list], r0
-		vp_cpy r0, [r1 + view_dirty_list]
-		vp_cpy 0, qword[r4 + draw_view_patch_list]
+		vp_cpy [r4 + draw_view_patch_list], r1
+		vp_cpy r1, [r0 + view_dirty_list]
 
 		;iterate through views back to front drawing
-		vp_cpy [r4 + draw_view_root], r0
 		vp_lea [r4 + draw_view_ctx], r1
 		vp_lea [rel draw_down_callback], r2
 		vp_lea [rel null_func], r3
