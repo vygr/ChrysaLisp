@@ -2,20 +2,20 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/enumerate
+	fn_function class/view/enum_forward
 		;inputs
 		;r0 = view object
 		;r1 = user data pointer
 		;r2 = down callback
 		;r3 = up callback
+		;outputs
+		;r0 = view object
 		;trashes
-		;all but r4
+		;dependant on callbacks
 			;callback api
 			;inputs
 			;r0 = view object
 			;r1 = user data pointer
-			;trashes
-			;dependant on callbacks
 
 		struc enum
 			enum_root:	resq 1
@@ -30,6 +30,7 @@
 		vp_cpy r1, [r4 + enum_data]
 		vp_cpy r2, [r4 + enum_down]
 		vp_cpy r3, [r4 + enum_up]
+		vp_cpy r0, r1
 		loop_start
 		down_loop_ctx:
 			vp_cpy r1, r0

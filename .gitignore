@@ -17,6 +17,8 @@ class/view/create
 class/view/deinit
 class/view/dirty
 class/view/draw
+class/view/enum_backward
+class/view/enum_forward
 class/view/get_abs
 class/view/init
 class/view/new
@@ -31,11 +33,11 @@ gui/gui_init
 gui/gui_statics
 gui/region_clip_rect
 gui/region_copy_rect
-gui/region_cut_rect
 gui/region_copy_region
+gui/region_cut_rect
 gui/region_free
-gui/region_paste_region
 gui/region_paste_rect
+gui/region_paste_region
 gui/region_remove_rect
 main
 sys/cpu_get_id
@@ -117,5 +119,3 @@ tests/test6
 tests/test7
 tests/test8
 tests/test9
-
-class/view/enumerate
