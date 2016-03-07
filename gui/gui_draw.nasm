@@ -57,7 +57,7 @@
 		loop_end
 
 		;iterate through views back to front
-		;create visible patch list
+		;create visible region list
 		vp_cpy [r4 + draw_view_root], r1
 		loop_start
 		down_loop_back_to_front:
@@ -66,9 +66,9 @@
 			;save node
 			vp_cpy r0, [r4 + draw_view_node]
 
-			;patch heap
+			;region heap
 			static_bind gui, statics, r0
-			vp_lea [r0 + gui_statics_patch_heap], r0
+			vp_lea [r0 + gui_statics_rect_heap], r0
 
 			;if opaque view remove from global dirty list
 			vp_cpy [r4 + draw_view_node], r1
@@ -81,7 +81,7 @@
 				vp_add r8, r10
 				vp_add r9, r11
 				vp_lea [r4 + draw_view_patch_list], r1
-				static_call patch, remove
+				static_call region, remove
 			endif
 
 			;clip local dirty list with parent bounds
@@ -99,19 +99,19 @@
 			vp_add r8, r10
 			vp_add r9, r11
 			vp_add view_dirty_list, r1
-			static_call patch, clip
+			static_call region, clip
 
 			;paste local dirty list onto global dirty list
 			vp_cpy [r4 + draw_view_node], r2
 			vp_cpy [r2 + view_ctx_x], r8
 			vp_cpy [r2 + view_ctx_y], r9
 			vp_lea [r4 + draw_view_patch_list], r2
-			static_call patch, list_paste
+			static_call region, paste_region
 
 			;free local dirty list
 			vp_cpy [r4 + draw_view_node], r1
 			vp_lea [r1 + view_dirty_list], r1
-			static_call patch, list_free
+			static_call region, free
 
 			;restore node
 			vp_cpy [r4 + draw_view_node], r0
@@ -131,7 +131,7 @@
 		loop_end
 
 		;iterate through views front to back
-		;distribute visible patch list
+		;distribute visible region list
 		vp_cpy [r4 + draw_view_root], r1
 		loop_start
 		down_loop_front_to_back:
@@ -152,16 +152,16 @@
 			vp_lea [r4 + draw_view_patch_list], r1
 			vp_lea [r0 + view_dirty_list], r2
 			static_bind gui, statics, r0
-			vp_lea [r0 + gui_statics_patch_heap], r0
+			vp_lea [r0 + gui_statics_rect_heap], r0
 			if qword[r3 + view_transparent_list], ==, 0
 				vp_cpy [r3 + view_w], r10
 				vp_cpy [r3 + view_h], r11
 				vp_add r8, r10
 				vp_add r9, r11
-				static_call patch, cut
+				static_call region, cut
 			else
 				vp_add view_transparent_list, r3
-				static_call patch, list_copy
+				static_call region, copy_region
 			endif
 
 			;restore node
@@ -205,8 +205,8 @@
 			vp_cpy [r4 + draw_view_node], r1
 			vp_lea [r1 + view_dirty_list], r1
 			static_bind gui, statics, r0
-			vp_lea [r0 + gui_statics_patch_heap], r0
-			static_call patch, list_free
+			vp_lea [r0 + gui_statics_rect_heap], r0
+			static_call region, free
 
 			;restore node
 			vp_cpy [r4 + draw_view_node], r0

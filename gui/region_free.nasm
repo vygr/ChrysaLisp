@@ -2,19 +2,19 @@
 %include 'inc/gui.inc'
 %include 'inc/heap.inc'
 
-	fn_function gui/patch_list_free
+	fn_function gui/region_free
 		;inputs
-		;r0 = patch heap pointer
-		;r1 = source patch listhead pointer
+		;r0 = region heap pointer
+		;r1 = source region listhead pointer
 		;trashes
 		;r1-r3
 
-		;run through source patch list
+		;run through source region list
 		vp_cpy [r1], r2
 		vp_cpy 0, qword[r1]
 		loop_while r2, !=, 0
 			vp_cpy r2, r1
-			vp_cpy [r2 + gui_patch_next], r2
+			vp_cpy [r2 + gui_rect_next], r2
 			hp_freecell r0, r1, r3
 		loop_end
 		vp_ret

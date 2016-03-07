@@ -7,7 +7,7 @@
 		;trashes
 		;all but r4
 
-		;paste dirty patch
+		;paste dirty region
 		vp_xor r8, r8
 		vp_xor r9, r9
 		vp_cpy [r0 + view_w], r10

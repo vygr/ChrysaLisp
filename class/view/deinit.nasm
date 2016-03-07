@@ -28,11 +28,11 @@
 		vp_cpy [r4], r0
 		vp_lea [r0 + view_dirty_list], r1
 		static_bind gui, statics, r0
-		vp_lea [r0 + gui_statics_patch_heap], r0
-		static_call patch, list_free
+		vp_lea [r0 + gui_statics_rect_heap], r0
+		static_call region, free
 		vp_cpy [r4], r1
 		vp_lea [r1 + view_transparent_list], r1
-		static_call patch, list_free
+		static_call region, free
 
 		;deinit parent
 		vp_pop r0

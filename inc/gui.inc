@@ -15,15 +15,15 @@
 	def_method draw, gui/gui_draw
 	def_method gui, gui/gui
 
-	def_class patch
-	def_method clip, gui/patch_clip
-	def_method remove, gui/patch_remove
-	def_method cut, gui/patch_cut
-	def_method copy,  gui/patch_copy
-	def_method paste, gui/patch_paste
-	def_method list_copy, gui/patch_list_copy
-	def_method list_free, gui/patch_list_free
-	def_method list_paste, gui/patch_list_paste
+	def_class region
+	def_method clip, gui/region_clip_rect
+	def_method remove, gui/region_remove_rect
+	def_method cut, gui/region_cut_rect
+	def_method copy,  gui/region_copy_rect
+	def_method paste, gui/region_paste_rect
+	def_method copy_region, gui/region_copy_region
+	def_method free, gui/region_free
+	def_method paste_region, gui/region_paste_region
 
 	def_class ctx
 	def_method filled_box, gui/ctx_filled_box
@@ -35,18 +35,18 @@
 
 	struc gui_statics
 		gui_statics_sdl_funcs:			resq 1
-		gui_statics_patch_heap:			resb hp_heap_size
+		gui_statics_rect_heap:			resb hp_heap_size
 		gui_statics_window:				resq 1
 		gui_statics_screen:				resq 1
 		gui_statics_renderer:			resq 1
 	endstruc
 
-	struc gui_patch
-		gui_patch_next:		resq 1
-		gui_patch_x:		resq 1
-		gui_patch_y:		resq 1
-		gui_patch_x1:		resq 1
-		gui_patch_y1:		resq 1
+	struc gui_rect
+		gui_rect_next:		resq 1
+		gui_rect_x:			resq 1
+		gui_rect_y:			resq 1
+		gui_rect_x1:		resq 1
+		gui_rect_y1:		resq 1
 	endstruc
 
 	struc gui_ctx
@@ -68,7 +68,7 @@
 		;%1, %2
 
 		vp_cpy %1, %2
-		vp_cpy [%1 + gui_patch_next], %1
+		vp_cpy [%1 + gui_rect_next], %1
 		breakif %1, ==, 0
 	%endmacro
 
@@ -79,8 +79,8 @@
 		;trashes
 		;%1
 
-		vp_cpy [%1 + gui_patch_next], %1
-		vp_cpy %1, [%2 + gui_patch_next]
+		vp_cpy [%1 + gui_rect_next], %1
+		vp_cpy %1, [%2 + gui_rect_next]
 		vp_cpy %2, %1
 	%endmacro
 
@@ -92,9 +92,9 @@
 		;trashes
 		;%3
 
-		vp_cpy [%1 + gui_patch_next], %3
-		vp_cpy %3, [%2 + gui_patch_next]
-		vp_cpy %2, [%1 + gui_patch_next]
+		vp_cpy [%1 + gui_rect_next], %3
+		vp_cpy %3, [%2 + gui_rect_next]
+		vp_cpy %2, [%1 + gui_rect_next]
 	%endmacro
 
 %endif

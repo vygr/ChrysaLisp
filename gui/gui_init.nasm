@@ -9,10 +9,10 @@
 		static_bind gui, statics, r3
 		vp_cpy r0, [r3 + gui_statics_sdl_funcs]
 
-		;init patch heap
-		vp_lea [r3 + gui_statics_patch_heap], r0
-		vp_cpy gui_patch_size, r1
-		vp_cpy gui_patch_size*32, r2
+		;init region heap
+		vp_lea [r3 + gui_statics_rect_heap], r0
+		vp_cpy gui_rect_size, r1
+		vp_cpy gui_rect_size*32, r2
 		static_jmp heap, init
 
 	fn_function_end

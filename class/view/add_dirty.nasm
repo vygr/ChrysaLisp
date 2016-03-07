@@ -12,12 +12,12 @@
 		;trashes
 		;all but r4
 
-		;paste dirty patch
+		;paste dirty region
 		vp_add r8, r10
 		vp_add r9, r11
 		vp_lea [r0 + view_dirty_list], r1
 		static_bind gui, statics, r0
-		vp_lea [r0 + gui_statics_patch_heap], r0
-		static_jmp patch, paste
+		vp_lea [r0 + gui_statics_rect_heap], r0
+		static_jmp region, paste
 
 	fn_function_end

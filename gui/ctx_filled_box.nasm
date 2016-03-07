@@ -33,18 +33,18 @@
 		vp_cpy r10d, [r4 + fbox_rect + sdl_rect_w]
 		vp_cpy r11d, [r4 + fbox_rect + sdl_rect_h]
 
-		;for each patch on the dirty list
+		;for each region on the dirty list
 		vp_cpy [r0 + gui_ctx_dirty_region], r0
 		loop_start
-			vp_cpy [r0 + gui_patch_next], r0
+			vp_cpy [r0 + gui_rect_next], r0
 			breakif r0, ==, 0
 			vp_cpy r0, [r4 + fbox_patch]
 
-			;set clip region to this patch
-			vp_cpy [r0 + gui_patch_x], r8
-			vp_cpy [r0 + gui_patch_y], r9
-			vp_cpy [r0 + gui_patch_x1], r10
-			vp_cpy [r0 + gui_patch_y1], r11
+			;set clip region to this region
+			vp_cpy [r0 + gui_rect_x], r8
+			vp_cpy [r0 + gui_rect_y], r9
+			vp_cpy [r0 + gui_rect_x1], r10
+			vp_cpy [r0 + gui_rect_y1], r11
 			vp_sub r8, r10
 			vp_sub r9, r11
 			vp_cpy r8d, [r4 + fbox_clip_rect + sdl_rect_x]

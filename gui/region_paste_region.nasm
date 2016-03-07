@@ -9,11 +9,11 @@
 		paste_dy:		resq 1
 	endstruc
 
-	fn_function gui/patch_list_paste
+	fn_function gui/region_paste_region
 		;inputs
-		;r0 = patch heap pointer
-		;r1 = source patch listhead pointer
-		;r2 = dest patch listhead pointer
+		;r0 = region heap pointer
+		;r1 = source region listhead pointer
+		;r2 = dest region listhead pointer
 		;r8 = x translation
 		;r9 = y translation
 		;trashes
@@ -25,15 +25,15 @@
 		vp_cpy r8, [r4 + paste_dx]
 		vp_cpy r9, [r4 + paste_dy]
 
-		;run through source patch list
+		;run through source region list
 		vp_cpy [r1], r1
 		loop_while r1, !=, 0
-			vp_cpy [r1 + gui_patch_next], r2
+			vp_cpy [r1 + gui_rect_next], r2
 			vp_cpy r2, [r4 + paste_next]
-			vp_cpy [r1 + gui_patch_x], r8
-			vp_cpy [r1 + gui_patch_y], r9
-			vp_cpy [r1 + gui_patch_x1], r10
-			vp_cpy [r1 + gui_patch_y1], r11
+			vp_cpy [r1 + gui_rect_x], r8
+			vp_cpy [r1 + gui_rect_y], r9
+			vp_cpy [r1 + gui_rect_x1], r10
+			vp_cpy [r1 + gui_rect_y1], r11
 			vp_cpy [r4 + paste_dx], r12
 			vp_cpy [r4 + paste_dy], r13
 			vp_add r12, r8
@@ -41,7 +41,7 @@
 			vp_add r12, r10
 			vp_add r13, r11
 			vp_cpy [r4 + paste_dlist], r1
-			fn_call gui/patch_paste
+			fn_call gui/region_paste_rect
 			vp_cpy [r4 + paste_next], r1
 		loop_end
 		vp_add paste_size, r4

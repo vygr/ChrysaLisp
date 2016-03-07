@@ -2,10 +2,10 @@
 %include 'inc/gui.inc'
 %include 'inc/heap.inc'
 
-	fn_function gui/patch_remove
+	fn_function gui/region_remove_rect
 		;inputs
-		;r0 = patch heap pointer
-		;r1 = source patch listhead pointer
+		;r0 = region heap pointer
+		;r1 = source region listhead pointer
 		;r8 = x (pixels)
 		;r9 = y (pixels)
 		;r10 = x1 (pixels)
@@ -16,20 +16,20 @@
 		;check for any obvious errors in inputs
 		if r10, >, r8
 			if r11, >, r9
-				;run through source patch list
+				;run through source region list
 				vp_cpy r1, r5
 				vp_cpy r1, r7
 				loop_start
 					nextpatch r7, r6
 
 					;not in contact ?
-					vp_cpy [r7 + gui_patch_x], r12
+					vp_cpy [r7 + gui_rect_x], r12
 					continueif r12, >=, r10
-					vp_cpy [r7 + gui_patch_y], r13
+					vp_cpy [r7 + gui_rect_y], r13
 					continueif r13, >=, r11
-					vp_cpy [r7 + gui_patch_x1], r14
+					vp_cpy [r7 + gui_rect_x1], r14
 					continueif r8, >=, r14
-					vp_cpy [r7 + gui_patch_y1], r15
+					vp_cpy [r7 + gui_rect_y1], r15
 					continueif r9, >=, r15
 
 					;jump to correct splitting code
@@ -41,31 +41,31 @@
 				rem_xyx1y1:
 					;r8 + r9 + r10 + r11 inside
 					;bottom part
-					vp_cpy r11, [r7 + gui_patch_y]
+					vp_cpy r11, [r7 + gui_rect_y]
 					;right part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r10, [r1 + gui_patch_x]
-					vp_cpy r9, [r1 + gui_patch_y]
-					vp_cpy r14, [r1 + gui_patch_x1]
-					vp_cpy r11, [r1 + gui_patch_y1]
+					vp_cpy r10, [r1 + gui_rect_x]
+					vp_cpy r9, [r1 + gui_rect_y]
+					vp_cpy r14, [r1 + gui_rect_x1]
+					vp_cpy r11, [r1 + gui_rect_y1]
 					;left part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r12, [r1 + gui_patch_x]
-					vp_cpy r9, [r1 + gui_patch_y]
-					vp_cpy r8, [r1 + gui_patch_x1]
-					vp_cpy r11, [r1 + gui_patch_y1]
+					vp_cpy r12, [r1 + gui_rect_x]
+					vp_cpy r9, [r1 + gui_rect_y]
+					vp_cpy r8, [r1 + gui_rect_x1]
+					vp_cpy r11, [r1 + gui_rect_y1]
 					;top part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r12, [r1 + gui_patch_x]
-					vp_cpy r13, [r1 + gui_patch_y]
-					vp_cpy r14, [r1 + gui_patch_x1]
-					vp_cpy r9, [r1 + gui_patch_y1]
+					vp_cpy r12, [r1 + gui_rect_x]
+					vp_cpy r13, [r1 + gui_rect_y]
+					vp_cpy r14, [r1 + gui_rect_x1]
+					vp_cpy r9, [r1 + gui_rect_y1]
 					continue
 
 				rem_split1:
@@ -77,23 +77,23 @@
 				rem_yx1y1:
 					;r9 + r10 + r11 inside
 					;bottom part
-					vp_cpy r11, [r7 + gui_patch_y]
+					vp_cpy r11, [r7 + gui_rect_y]
 					;right part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r10, [r1 + gui_patch_x]
-					vp_cpy r9, [r1 + gui_patch_y]
-					vp_cpy r14, [r1 + gui_patch_x1]
-					vp_cpy r11, [r1 + gui_patch_y1]
+					vp_cpy r10, [r1 + gui_rect_x]
+					vp_cpy r9, [r1 + gui_rect_y]
+					vp_cpy r14, [r1 + gui_rect_x1]
+					vp_cpy r11, [r1 + gui_rect_y1]
 					;top part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r12, [r1 + gui_patch_x]
-					vp_cpy r13, [r1 + gui_patch_y]
-					vp_cpy r14, [r1 + gui_patch_x1]
-					vp_cpy r9, [r1 + gui_patch_y1]
+					vp_cpy r12, [r1 + gui_rect_x]
+					vp_cpy r13, [r1 + gui_rect_y]
+					vp_cpy r14, [r1 + gui_rect_x1]
+					vp_cpy r9, [r1 + gui_rect_y1]
 					continue
 
 				rem_split2:
@@ -104,23 +104,23 @@
 				rem_xx1y1:
 					;r8 + r10 + r11 inside
 					;bottom part
-					vp_cpy r11, [r7 + gui_patch_y]
+					vp_cpy r11, [r7 + gui_rect_y]
 					;right part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r10, [r1 + gui_patch_x]
-					vp_cpy r13, [r1 + gui_patch_y]
-					vp_cpy r14, [r1 + gui_patch_x1]
-					vp_cpy r11, [r1 + gui_patch_y1]
+					vp_cpy r10, [r1 + gui_rect_x]
+					vp_cpy r13, [r1 + gui_rect_y]
+					vp_cpy r14, [r1 + gui_rect_x1]
+					vp_cpy r11, [r1 + gui_rect_y1]
 					;left part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r12, [r1 + gui_patch_x]
-					vp_cpy r13, [r1 + gui_patch_y]
-					vp_cpy r8, [r1 + gui_patch_x1]
-					vp_cpy r11, [r1 + gui_patch_y1]
+					vp_cpy r12, [r1 + gui_rect_x]
+					vp_cpy r13, [r1 + gui_rect_y]
+					vp_cpy r8, [r1 + gui_rect_x1]
+					vp_cpy r11, [r1 + gui_rect_y1]
 					continue
 
 				rem_split3:
@@ -131,15 +131,15 @@
 				rem_x1y1:
 					;r10 + r11 inside
 					;bottom part
-					vp_cpy r11, [r7 + gui_patch_y]
+					vp_cpy r11, [r7 + gui_rect_y]
 					;right part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r10, [r1 + gui_patch_x]
-					vp_cpy r13, [r1 + gui_patch_y]
-					vp_cpy r14, [r1 + gui_patch_x1]
-					vp_cpy r11, [r1 + gui_patch_y1]
+					vp_cpy r10, [r1 + gui_rect_x]
+					vp_cpy r13, [r1 + gui_rect_y]
+					vp_cpy r14, [r1 + gui_rect_x1]
+					vp_cpy r11, [r1 + gui_rect_y1]
 					continue
 
 				rem_split4:
@@ -149,23 +149,23 @@
 				rem_xyy1:
 					;r8 + r9 + r11 inside
 					;bottom part
-					vp_cpy r11, [r7 + gui_patch_y]
+					vp_cpy r11, [r7 + gui_rect_y]
 					;left part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r12, [r1 + gui_patch_x]
-					vp_cpy r9, [r1 + gui_patch_y]
-					vp_cpy r8, [r1 + gui_patch_x1]
-					vp_cpy r11, [r1 + gui_patch_y1]
+					vp_cpy r12, [r1 + gui_rect_x]
+					vp_cpy r9, [r1 + gui_rect_y]
+					vp_cpy r8, [r1 + gui_rect_x1]
+					vp_cpy r11, [r1 + gui_rect_y1]
 					;top part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r12, [r1 + gui_patch_x]
-					vp_cpy r13, [r1 + gui_patch_y]
-					vp_cpy r14, [r1 + gui_patch_x1]
-					vp_cpy r9, [r1 + gui_patch_y1]
+					vp_cpy r12, [r1 + gui_rect_x]
+					vp_cpy r13, [r1 + gui_rect_y]
+					vp_cpy r14, [r1 + gui_rect_x1]
+					vp_cpy r9, [r1 + gui_rect_y1]
 					continue
 
 				rem_split5:
@@ -175,15 +175,15 @@
 				rem_yy1:
 					;r9 + r11 inside
 					;bottom part
-					vp_cpy r11, [r7 + gui_patch_y]
+					vp_cpy r11, [r7 + gui_rect_y]
 					;top part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r12, [r1 + gui_patch_x]
-					vp_cpy r13, [r1 + gui_patch_y]
-					vp_cpy r14, [r1 + gui_patch_x1]
-					vp_cpy r9, [r1 + gui_patch_y1]
+					vp_cpy r12, [r1 + gui_rect_x]
+					vp_cpy r13, [r1 + gui_rect_y]
+					vp_cpy r14, [r1 + gui_rect_x1]
+					vp_cpy r9, [r1 + gui_rect_y1]
 					continue
 
 				rem_split6:
@@ -193,15 +193,15 @@
 				rem_xy1:
 					;r8 + r11 inside
 					;bottom part
-					vp_cpy r11, [r7 + gui_patch_y]
+					vp_cpy r11, [r7 + gui_rect_y]
 					;left part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r12, [r1 + gui_patch_x]
-					vp_cpy r13, [r1 + gui_patch_y]
-					vp_cpy r8, [r1 + gui_patch_x1]
-					vp_cpy r11, [r1 + gui_patch_y1]
+					vp_cpy r12, [r1 + gui_rect_x]
+					vp_cpy r13, [r1 + gui_rect_y]
+					vp_cpy r8, [r1 + gui_rect_x1]
+					vp_cpy r11, [r1 + gui_rect_y1]
 					continue
 
 				rem_split7:
@@ -211,34 +211,34 @@
 				rem_y1:
 					;r11 inside
 					;bottom part
-					vp_cpy r11, [r7 + gui_patch_y]
+					vp_cpy r11, [r7 + gui_rect_y]
 					continue
 
 				rem_xyx1:
 					;r8 + r9 + r10 inside
 					;left part
-					vp_cpy r9, [r7 + gui_patch_y]
-					vp_cpy r8, [r7 + gui_patch_x1]
+					vp_cpy r9, [r7 + gui_rect_y]
+					vp_cpy r8, [r7 + gui_rect_x1]
 					;right part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r10, [r1 + gui_patch_x]
-					vp_cpy r9, [r1 + gui_patch_y]
-					vp_cpy r14, [r1 + gui_patch_x1]
-					vp_cpy r15, [r1 + gui_patch_y1]
+					vp_cpy r10, [r1 + gui_rect_x]
+					vp_cpy r9, [r1 + gui_rect_y]
+					vp_cpy r14, [r1 + gui_rect_x1]
+					vp_cpy r15, [r1 + gui_rect_y1]
 					;top part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r12, [r1 + gui_patch_x]
-					vp_cpy r13, [r1 + gui_patch_y]
-					vp_cpy r14, [r1 + gui_patch_x1]
-					vp_cpy r9, [r1 + gui_patch_y1]
+					vp_cpy r12, [r1 + gui_rect_x]
+					vp_cpy r13, [r1 + gui_rect_y]
+					vp_cpy r14, [r1 + gui_rect_x1]
+					vp_cpy r9, [r1 + gui_rect_y1]
 					continue
 
 				rem_encl:
-					;patch is enclosed
+					;region is enclosed
 					vp_cpy r7, r1
 					removepatch r7, r6
 					hp_freecell r0, r1, r2
@@ -247,63 +247,63 @@
 				rem_x:
 					;r8 inside
 					;left part
-					vp_cpy r8, [r7 + gui_patch_x1]
+					vp_cpy r8, [r7 + gui_rect_x1]
 					continue
 
 				rem_y:
 					;r9 inside
 					;top part
-					vp_cpy r9, [r7 + gui_patch_y1]
+					vp_cpy r9, [r7 + gui_rect_y1]
 					continue
 
 				rem_xy:
 					;r8 + r9 inside
 					;left part
-					vp_cpy r9, [r7 + gui_patch_y]
-					vp_cpy r8, [r7 + gui_patch_x1]
+					vp_cpy r9, [r7 + gui_rect_y]
+					vp_cpy r8, [r7 + gui_rect_x1]
 					;top part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r12, [r1 + gui_patch_x]
-					vp_cpy r13, [r1 + gui_patch_y]
-					vp_cpy r14, [r1 + gui_patch_x1]
-					vp_cpy r9, [r1 + gui_patch_y1]
+					vp_cpy r12, [r1 + gui_rect_x]
+					vp_cpy r13, [r1 + gui_rect_y]
+					vp_cpy r14, [r1 + gui_rect_x1]
+					vp_cpy r9, [r1 + gui_rect_y1]
 					continue
 
 				rem_x1:
 					;r10 inside
 					;right part
-					vp_cpy r10, [r7 + gui_patch_x]
+					vp_cpy r10, [r7 + gui_rect_x]
 					continue
 
 				rem_xx1:
 					;r8 + r10 inside
 					;right part
-					vp_cpy r10, [r7 + gui_patch_x]
+					vp_cpy r10, [r7 + gui_rect_x]
 					;left part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r12, [r1 + gui_patch_x]
-					vp_cpy r13, [r1 + gui_patch_y]
-					vp_cpy r8, [r1 + gui_patch_x1]
-					vp_cpy r15, [r1 + gui_patch_y1]
+					vp_cpy r12, [r1 + gui_rect_x]
+					vp_cpy r13, [r1 + gui_rect_y]
+					vp_cpy r8, [r1 + gui_rect_x1]
+					vp_cpy r15, [r1 + gui_rect_y1]
 					continue
 
 				rem_yx1:
 					;r9 + r10 inside
 					;right part
-					vp_cpy r10, [r7 + gui_patch_x]
-					vp_cpy r9, [r7 + gui_patch_y]
+					vp_cpy r10, [r7 + gui_rect_x]
+					vp_cpy r9, [r7 + gui_rect_y]
 					;top part
 					static_call heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
-					vp_cpy r12, [r1 + gui_patch_x]
-					vp_cpy r13, [r1 + gui_patch_y]
-					vp_cpy r14, [r1 + gui_patch_x1]
-					vp_cpy r9, [r1 + gui_patch_y1]
+					vp_cpy r12, [r1 + gui_rect_x]
+					vp_cpy r13, [r1 + gui_rect_y]
+					vp_cpy r14, [r1 + gui_rect_x1]
+					vp_cpy r9, [r1 + gui_rect_y1]
 				loop_end
 			endif
 		endif

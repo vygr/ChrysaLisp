@@ -2,10 +2,10 @@
 %include 'inc/gui.inc'
 %include 'inc/heap.inc'
 
-	fn_function gui/patch_clip
+	fn_function gui/region_clip_rect
 		;inputs
-		;r0 = patch heap pointer
-		;r1 = source patch listhead pointer
+		;r0 = region heap pointer
+		;r1 = source region listhead pointer
 		;r8 = x (pixels)
 		;r9 = y (pixels)
 		;r10 = x1 (pixels)
@@ -16,39 +16,39 @@
 		;check for any obvious errors in inputs
 		if r10, >, r8
 			if r11, >, r9
-				;run through source patch list
+				;run through source region list
 				vp_cpy r1, r7
 				loop_start
 				loop:
 					nextpatch r7, r6
 
 					switch
-						vp_cpy [r7 + gui_patch_x], r12
+						vp_cpy [r7 + gui_rect_x], r12
 						breakif r12, >=, r10
-						vp_cpy [r7 + gui_patch_y], r13
+						vp_cpy [r7 + gui_rect_y], r13
 						breakif r13, >=, r11
-						vp_cpy [r7 + gui_patch_x1], r14
+						vp_cpy [r7 + gui_rect_x1], r14
 						breakif r14, <=, r8
-						vp_cpy [r7 + gui_patch_y1], r15
+						vp_cpy [r7 + gui_rect_y1], r15
 						breakif r15, <=, r9
 
-						;clip patch
+						;clip region
 						if r12, <, r8
-							vp_cpy r8, [r7 + gui_patch_x]
+							vp_cpy r8, [r7 + gui_rect_x]
 						endif
 						if r13, <, r9
-							vp_cpy r9, [r7 + gui_patch_y]
+							vp_cpy r9, [r7 + gui_rect_y]
 						endif
 						if r14, >, r10
-							vp_cpy r10, [r7 + gui_patch_x1]
+							vp_cpy r10, [r7 + gui_rect_x1]
 						endif
 						if r15, >, r11
-							vp_cpy r11, [r7 + gui_patch_y1]
+							vp_cpy r11, [r7 + gui_rect_y1]
 						endif
 						vp_jmp loop
 					endswitch
 
-					;patch is outside
+					;region is outside
 					vp_cpy r7, r5
 					removepatch r7, r6
 					hp_freecell r0, r5, r6

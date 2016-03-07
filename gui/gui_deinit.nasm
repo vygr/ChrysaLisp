@@ -12,9 +12,9 @@
 			static_call view, deref
 		endif
 
-		;deinit patch heap
+		;deinit region heap
 		static_bind gui, statics, r15
-		vp_lea [r15 + gui_statics_patch_heap], r0
+		vp_lea [r15 + gui_statics_rect_heap], r0
 		static_call heap, deinit
 
 		;destroy any window
