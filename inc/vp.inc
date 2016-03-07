@@ -16,7 +16,9 @@
 	;r7 rdi
 
 	%macro vp_xchg 2
-		xchg %1, %2
+		%ifnidn %1, %2
+			xchg %1, %2
+		%endif
 	%endmacro
 
 	%macro vp_div 1
@@ -62,7 +64,9 @@
 	%endmacro
 
 	%macro vp_cpy 2
-		mov %2, %1
+		%ifnidn %1, %2
+			mov %2, %1
+		%endif
 	%endmacro
 
 	%macro vp_inc 1
@@ -86,11 +90,15 @@
 	%endmacro
 
 	%macro vp_and 2
-		and %2, %1
+		%ifnidn %1, %2
+			and %2, %1
+		%endif
 	%endmacro
 
 	%macro vp_or 2
-		or %2, %1
+		%ifnidn %1, %2
+			or %2, %1
+		%endif
 	%endmacro
 
 	%macro vp_xor 2
