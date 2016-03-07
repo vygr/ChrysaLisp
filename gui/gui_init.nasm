@@ -14,6 +14,5 @@
 		vp_cpy gui_patch_size, r1
 		vp_cpy gui_patch_size*32, r2
 		static_jmp heap, init
-		vp_ret
 
 	fn_function_end
