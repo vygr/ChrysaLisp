@@ -3,18 +3,18 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
-	struc draw_view
-		draw_view_ctx:				resb gui_ctx_size
-		draw_view_root:				resq 1
-		draw_view_node:				resq 1
-		draw_view_patch_list:	resq 1
-	endstruc
-
 	fn_function gui/gui_draw
 		;inputs
 		;r0 = view object
 		;trashes
 		;all but r4
+
+		struc draw_view
+			draw_view_ctx:			resb gui_ctx_size
+			draw_view_root:			resq 1
+			draw_view_node:			resq 1
+			draw_view_patch_list:	resq 1
+		endstruc
 
 		vp_sub draw_view_size, r4
 		vp_cpy r0, [r4 + draw_view_root]
@@ -29,23 +29,24 @@
 		vp_xor r9, r9
 		vp_lea [rel abs_down_callback], r2
 		vp_lea [rel abs_up_callback], r3
-		static_call view, forward
+		static_call view, backward
 
 		;iterate through views back to front
 		;create visible region list
 		vp_lea [r4 + draw_view_patch_list], r1
 		vp_lea [rel visible_down_callback], r2
 		vp_lea [rel null_func], r3
-		static_call view, forward
+		static_call view, backward
 
 		;iterate through views front to back
 		;distribute visible region list
 		vp_lea [r4 + draw_view_patch_list], r1
 		vp_lea [rel null_func], r2
 		vp_lea [rel distribute_up_callback], r3
-		static_call view, backward
+		static_call view, forward
 
-		;any remaining patches are root views
+		;any remaining patches are the root views
+		;so splice over
 		vp_cpy r0, r1
 		vp_cpy [r4 + draw_view_patch_list], r0
 		vp_cpy r0, [r1 + view_dirty_list]
@@ -129,7 +130,7 @@
 		vp_ret
 
 	distribute_up_callback:
-		;if opaque cut view else copy transparent patches
+		;if opaque cut view, else copy transparent patches
 		vp_cpy r0, r3
 		vp_cpy [r0 + view_ctx_x], r8
 		vp_cpy [r0 + view_ctx_y], r9

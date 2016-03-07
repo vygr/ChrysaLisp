@@ -46,9 +46,9 @@
 			vp_cpy [r4 + enum_node], r0
 
 			;down to child
-			lh_get_head r0 + view_list, r1
+			lh_get_tail r0 + view_list, r1
 			vp_sub view_node, r1
-		loop_until qword[r1 + view_node + ln_node_succ], ==, 0
+		loop_until qword[r1 + view_node + ln_node_pred], ==, 0
 		loop_while r0, !=, [r4 + enum_root]
 
 			;save node
@@ -62,9 +62,9 @@
 			vp_cpy [r4 + enum_node], r0
 
 			;across to sibling
-			ln_get_succ r0 + view_node, r1
+			ln_get_pred r0 + view_node, r1
 			vp_sub view_node, r1
-			jmpif qword[r1 + view_node + ln_node_succ], !=, 0, down_loop_ctx
+			jmpif qword[r1 + view_node + ln_node_pred], !=, 0, down_loop_ctx
 
 			;up to parent
 			vp_cpy [r0 + view_parent], r0
