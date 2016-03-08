@@ -129,54 +129,55 @@
 		;inputs
 		;%1 = function path name
 		;%2 = debug option
+
+		BITS 64
 		%defstr _func_name %1
-			BITS 64
-			%assign _link_total 0
-			align 8, db 0
-		_func_start:
-			dq	-1
-			dq	_func_end - _func_start
-			dq	_func_entry - _func_start
-			dq	_func_links - _func_start
-			db	_func_name
-			db	0
-			align 8, db 0
-		_func_entry:
-			%ifdef debug_function_enter
-				%ifidn %2, debug_enter
-					fn_debug enter
-				%elifidn %2, no_debug_enter
-				%else
-					%fatal No such debug setting, use debug_enter or no_debug_enter
-				%endif
+		%assign _link_total 0
+		align 8, db 0
+	_func_start:
+		dq	-1
+		dq	_func_end - _func_start
+		dq	_func_entry - _func_start
+		dq	_func_links - _func_start
+		db	_func_name
+		db	0
+		align 8, db 0
+	_func_entry:
+		%ifdef debug_function_enter
+			%ifidn %2, debug_enter
+				fn_debug enter
+			%elifidn %2, no_debug_enter
+			%else
+				%fatal No such debug setting, use debug_enter or no_debug_enter
 			%endif
+		%endif
 	%endmacro
 
 	%macro fn_function_end 0
-			align 8, db 0
-		_func_links:
-			%assign %%_i 0
-			%rep _link_total
-			_func%[%%_i]:
-				dq	_func%[%%_i]_name - $
-				%assign %%_i %%_i+1
-			%endrep
-			dq	0
-			%assign %%_i 0
-			%rep _link_total
-			_func%[%%_i]_name:
-				db	_func_str%[%%_i]
-				db	0
-				%assign %%_i %%_i+1
-			%endrep
-		_func_end:
+		align 8, db 0
+	_func_links:
+		%assign %%_i 0
+		%rep _link_total
+	_func%[%%_i]:
+			dq	_func%[%%_i]_name - $
+			%assign %%_i %%_i+1
+		%endrep
+		dq	0
+		%assign %%_i 0
+		%rep _link_total
+	_func%[%%_i]_name:
+			db	_func_str%[%%_i]
+			db	0
+			%assign %%_i %%_i+1
+		%endrep
+	_func_end:
 	%endmacro
 
 	%macro fn_debug 1-2 0
 		;%1 = debug string
 		;%2 = debug value
 		%ifdef debug_mode
-		%defstr _debug_string_ %1
+			%defstr _debug_string_ %1
 			vp_jmp %%over_end
 		%%over:
 			%defstr %%_l __LINE__
