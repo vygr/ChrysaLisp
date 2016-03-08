@@ -6,7 +6,7 @@
 %include 'inc/syscall.inc'
 %include 'inc/task.inc'
 
-%define debug_function_enter
+;%define debug_function_enter
 %define debug_mode
 
 ;;;;;;;;;;;;;;;;;;;;;;
