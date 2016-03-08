@@ -9,10 +9,10 @@
 	def_method add, class/view/add
 	def_method sub, class/view/sub
 	def_method add_dirty, class/view/add_dirty
-	def_method add_transparent, class/view/add_transparent
+	def_method add_opaque, class/view/add_opaque
 	def_method get_abs, class/view/get_abs
 	def_method dirty, class/view/dirty
-	def_method transparent, class/view/transparent
+	def_method opaque, class/view/opaque
 	def_method forward, class/view/enum_forward
 	def_method backward, class/view/enum_backward
 	def_method init, class/view/init, override
@@ -23,8 +23,8 @@
 		view_node:				resb ln_node_size
 		view_parent:			resq 1
 		view_list:				resb lh_list_size
-		view_dirty_list:		resq 1
-		view_transparent_list:	resq 1
+		view_dirty_region:		resq 1
+		view_opaque_region:		resq 1
 		view_x:					resq 1
 		view_y:					resq 1
 		view_w:					resq 1

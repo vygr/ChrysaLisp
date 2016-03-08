@@ -33,7 +33,7 @@
 		vp_cpy r10d, [r4 + fbox_rect + sdl_rect_w]
 		vp_cpy r11d, [r4 + fbox_rect + sdl_rect_h]
 
-		;for each region on the dirty list
+		;for each region on the dirty region
 		vp_cpy [r0 + gui_ctx_dirty_region], r0
 		loop_start
 			vp_cpy [r0 + gui_rect_next], r0

@@ -26,12 +26,12 @@
 
 		;free view object data
 		vp_cpy [r4], r0
-		vp_lea [r0 + view_dirty_list], r1
+		vp_lea [r0 + view_dirty_region], r1
 		static_bind gui, statics, r0
 		vp_lea [r0 + gui_statics_rect_heap], r0
 		static_call region, free
 		vp_cpy [r4], r1
-		vp_lea [r1 + view_transparent_list], r1
+		vp_lea [r1 + view_opaque_region], r1
 		static_call region, free
 
 		;deinit parent

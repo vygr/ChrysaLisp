@@ -19,11 +19,12 @@
 	def_method clip, gui/region_clip_rect
 	def_method remove, gui/region_remove_rect
 	def_method cut, gui/region_cut_rect
-	def_method copy,  gui/region_copy_rect
+	def_method copy, gui/region_copy_rect
 	def_method paste, gui/region_paste_rect
-	def_method copy_region, gui/region_copy_region
 	def_method free, gui/region_free
+	def_method copy_region, gui/region_copy_region
 	def_method paste_region, gui/region_paste_region
+	def_method remove_region, gui/region_remove_region
 
 	def_class ctx
 	def_method filled_box, gui/ctx_filled_box

@@ -12,7 +12,7 @@ class/ref/init
 class/ref/ref
 class/view/add
 class/view/add_dirty
-class/view/add_transparent
+class/view/add_opaque
 class/view/create
 class/view/deinit
 class/view/dirty
@@ -22,8 +22,8 @@ class/view/enum_forward
 class/view/get_abs
 class/view/init
 class/view/new
+class/view/opaque
 class/view/sub
-class/view/transparent
 gui/ctx_filled_box
 gui/ctx_set_color
 gui/gui
@@ -39,6 +39,7 @@ gui/region_free
 gui/region_paste_rect
 gui/region_paste_region
 gui/region_remove_rect
+gui/region_remove_region
 main
 sys/cpu_get_id
 sys/cpu_get_time

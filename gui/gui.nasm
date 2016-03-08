@@ -60,13 +60,13 @@
 		vp_cpy [r4], r0
 		static_call view, add
 
-		;mark for update and as transparent for cyan view
-		vp_cpy [r4], r0
-		static_call view, transparent
+		;mark for update for cyan view
 		vp_pop r0
 		static_call view, dirty
 
-		;mark for update for yellow view
+		;mark for update and opaque for yellow view
+		vp_cpy [r4], r0
+		static_call view, opaque
 		vp_pop r0
 		static_call view, dirty
 

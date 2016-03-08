@@ -15,8 +15,8 @@
 			vp_cpy 0, qword[r0 + view_parent]
 			vp_lea [r0 + view_list], r1
 			lh_init r1, r2
-			vp_cpy 0, qword[r0 + view_dirty_list]
-			vp_cpy 0, qword[r0 + view_transparent_list]
+			vp_cpy 0, qword[r0 + view_dirty_region]
+			vp_cpy 0, qword[r0 + view_opaque_region]
 		endif
 		vp_ret
 
