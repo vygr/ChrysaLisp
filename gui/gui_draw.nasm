@@ -5,7 +5,7 @@
 
 	fn_function gui/gui_draw
 		;inputs
-		;r0 = view object
+		;r0 = root view object
 		;trashes
 		;all but r4
 
@@ -27,27 +27,28 @@
 		static_call view, backward
 
 		;iterate through views back to front
-		;create visible region list at root
+		;create visible region at root
 		vp_cpy r0, r1
 		vp_lea [rel visible_down_callback], r2
-		vp_lea [rel null_func], r3
+		vp_lea [rel null_func_callback], r3
 		static_call view, backward
 
 		;iterate through views front to back
-		;distribute visible region list
+		;distribute visible region
 		vp_cpy r0, r1
-		vp_lea [rel null_func], r2
+		vp_lea [rel null_func_callback], r2
 		vp_lea [rel distribute_up_callback], r3
 		static_call view, forward
 
-		;iterate through views back to front drawing
+		;iterate through views back to front
+		;drawing each view
 		vp_lea [r4 + draw_view_ctx], r1
 		vp_lea [rel draw_down_callback], r2
-		vp_lea [rel null_func], r3
+		vp_lea [rel null_func_callback], r3
 		static_call view, backward
 
 		vp_add draw_view_size, r4
-	null_func:
+	null_func_callback:
 		vp_ret
 
 	abs_down_callback:
@@ -154,12 +155,12 @@
 		vp_push r0
 
 		;draw myself
-		vp_lea [r0 + view_dirty_region], r2
 		vp_cpy [r0 + view_ctx_x], r8
 		vp_cpy [r0 + view_ctx_y], r9
-		vp_cpy r2, [r1 + gui_ctx_dirty_region]
+		vp_lea [r0 + view_dirty_region], r2
 		vp_cpy r8, [r1 + gui_ctx_x]
 		vp_cpy r9, [r1 + gui_ctx_y]
+		vp_cpy r2, [r1 + gui_ctx_dirty_region]
 		method_call view, draw
 
 		;free local dirty region
