@@ -19,7 +19,7 @@ class/view/dirty
 class/view/draw
 class/view/enum_backward
 class/view/enum_forward
-class/view/get_abs
+class/view/get_relative
 class/view/init
 class/view/new
 class/view/opaque

@@ -10,7 +10,7 @@
 	def_method sub, class/view/sub
 	def_method add_dirty, class/view/add_dirty
 	def_method add_opaque, class/view/add_opaque
-	def_method get_abs, class/view/get_abs
+	def_method relative, class/view/get_relative
 	def_method dirty, class/view/dirty
 	def_method opaque, class/view/opaque
 	def_method forward, class/view/enum_forward
