@@ -126,14 +126,14 @@
 
 		;copy view from root if not root
 		vp_cpy [r4], r2
-		if r2, !=, [r4 + 8]
+		vp_cpy [r4 + 8], r1
+		if r2, !=, r1
 			vp_cpy [r2 + view_ctx_x], r8
 			vp_cpy [r2 + view_ctx_y], r9
 			vp_cpy [r2 + view_w], r10
 			vp_cpy [r2 + view_h], r11
 			vp_add r8, r10
 			vp_add r9, r11
-			vp_cpy [r4 + 8], r1
 			vp_add view_dirty_region, r1
 			vp_add view_dirty_region, r2
 			static_call region, copy
