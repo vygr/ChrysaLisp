@@ -3,7 +3,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
-	fn_function gui/gui_draw
+	fn_function gui/gui_update
 		;inputs
 		;r0 = root view object
 		;trashes

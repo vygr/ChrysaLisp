@@ -12,7 +12,7 @@
 	def_method statics, gui/gui_statics
 	def_method init, gui/gui_init
 	def_method deinit, gui/gui_deinit
-	def_method draw, gui/gui_draw
+	def_method draw, gui/gui_update
 	def_method gui, gui/gui
 
 	def_class region

@@ -28,7 +28,7 @@ gui/ctx_filled_box
 gui/ctx_set_color
 gui/gui
 gui/gui_deinit
-gui/gui_draw
+gui/gui_update
 gui/gui_init
 gui/gui_statics
 gui/region_clip_rect
