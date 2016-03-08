@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/list.inc'
 
-	fn_function sys/list_enum_forward, no_debug_enter
+	fn_function sys/list_backward, no_debug_enter
 		;inputs
 		;r0 = list head
 		;r1 = user callback
@@ -28,7 +28,7 @@
 			;r3, r7-r14
 
 		vp_xor r5, r5
-		loop_list_forwards r0, r6, r3
+		loop_list_backwards r0, r6, r3
 			vp_call r1
 		loop_until r5, !=, 0
 		vp_ret

@@ -13,8 +13,8 @@
 	def_method relative, class/view/get_relative
 	def_method dirty, class/view/dirty
 	def_method opaque, class/view/opaque
-	def_method forward, class/view/enum_forward
-	def_method backward, class/view/enum_backward
+	def_method forward, class/view/forward
+	def_method backward, class/view/backward
 	def_method init, class/view/init, override
 	def_method deinit, class/view/deinit, override
 	def_method draw, class/view/draw, virtual

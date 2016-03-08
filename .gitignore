@@ -17,8 +17,8 @@ class/view/create
 class/view/deinit
 class/view/dirty
 class/view/draw
-class/view/enum_backward
-class/view/enum_forward
+class/view/backward
+class/view/forward
 class/view/get_relative
 class/view/init
 class/view/new
@@ -52,8 +52,8 @@ sys/kernel
 sys/link
 sys/link_init
 sys/link_statics
-sys/list_enum_backward
-sys/list_enum_forward
+sys/list_backward
+sys/list_forward
 sys/list_index_of
 sys/list_node_at
 sys/load_bind
