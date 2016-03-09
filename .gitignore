@@ -13,11 +13,12 @@ class/ref/ref
 class/view/add
 class/view/add_dirty
 class/view/add_opaque
+class/view/backward
 class/view/create
 class/view/deinit
 class/view/dirty
+class/view/dirty_all
 class/view/draw
-class/view/backward
 class/view/forward
 class/view/get_relative
 class/view/init
@@ -28,9 +29,9 @@ gui/ctx_filled_box
 gui/ctx_set_color
 gui/gui
 gui/gui_deinit
-gui/gui_update
 gui/gui_init
 gui/gui_statics
+gui/gui_update
 gui/region_clip_rect
 gui/region_copy_rect
 gui/region_copy_region

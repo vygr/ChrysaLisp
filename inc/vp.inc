@@ -110,7 +110,7 @@
 	%endmacro
 
 	%macro vp_asr 2
-		asr %2, %1
+		sar %2, %1
 	%endmacro
 
 	%macro vp_shl 2

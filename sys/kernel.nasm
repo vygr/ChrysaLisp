@@ -256,6 +256,14 @@
 						;pump sdl events
 						sdl_pumpevents
 
+						;get mouse state
+						static_bind gui, statics, r0
+						vp_lea [r0 + gui_statics_x_pos], r1
+						vp_lea [r0 + gui_statics_y_pos], r2
+						vp_lea [r0 + gui_statics_buttons], r3
+						sdl_getmousestate r1, r2
+						vp_cpy r0, [r3]
+
 						;update the screen
 						static_bind gui, statics, r0
 						vp_cpy [r0 + gui_statics_screen], r0

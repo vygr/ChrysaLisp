@@ -24,6 +24,7 @@
 	extern _SDL_RenderSetClipRect
 	extern _SDL_SetRenderDrawBlendMode
 	extern _SDL_PumpEvents
+	extern _SDL_GetMouseState
 %elifidn OS, Linux
 	extern SDL_SetMainReady
 	extern SDL_Init
@@ -39,6 +40,7 @@
 	extern SDL_RenderSetClipRect
 	extern SDL_SetRenderDrawBlendMode
 	extern SDL_PumpEvents
+	extern SDL_GetMouseState
 %endif
 	SDL_SETMAINREADY			equ 0
 	SDL_INIT					equ 1
@@ -54,6 +56,7 @@
 	SDL_RENDERSETCLIPRECT		equ 11
 	SDL_SETRENDERDRAWBLENDMODE	equ 12
 	SDL_PUMPEVENTS				equ 13
+	SDL_GETMOUSESTATE			equ 14
 
 	SDL_INIT_TIMER			equ 0x00000001
 	SDL_INIT_AUDIO			equ 0x00000010
@@ -234,6 +237,15 @@
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (SDL_PUMPEVENTS * 8)]
+	%endmacro
+
+	%macro sdl_getmousestate 2
+		;x*, y*
+		vp_cpy %1, r7		;x*
+		vp_cpy %2, r6		;y*
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (SDL_GETMOUSESTATE * 8)]
 	%endmacro
 
 %endif

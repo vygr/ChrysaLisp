@@ -12,6 +12,7 @@
 	def_method add_opaque, class/view/add_opaque
 	def_method relative, class/view/get_relative
 	def_method dirty, class/view/dirty
+	def_method dirty_all, class/view/dirty_all
 	def_method opaque, class/view/opaque
 	def_method forward, class/view/forward
 	def_method backward, class/view/backward
