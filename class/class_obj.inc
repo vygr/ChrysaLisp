@@ -5,9 +5,9 @@
 
 	def_class obj
 	def_method create, class/obj/create
+	def_method destroy, class/obj/destroy
 	def_method new, class/obj/new
 	def_method init, class/obj/init, virtual
-	def_method destroy, class/obj/destroy, virtual
 	def_method delete, sys/mem_free, virtual
 	def_method deinit, class/obj/null, virtual
 

@@ -253,7 +253,15 @@
 					;update screen
 					vp_cpy [r15 + gui_statics_screen], r0
 					if r0, !=, 0
+						;pump sdl events
+						sdl_pumpevents
+
+						;update the screen
+						static_bind gui, statics, r0
+						vp_cpy [r0 + gui_statics_screen], r0
 						static_call gui, draw
+
+						;refresh the window
 						static_bind gui, statics, r0
 						sdl_renderpresent [r0 + gui_statics_renderer]
 					endif

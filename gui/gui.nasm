@@ -74,20 +74,48 @@
 		vp_pop r0
 		static_call view, dirty
 
-		;allocate mail message
-		static_call mail, alloc
-		fn_assert r0, !=, 0
+		for r15, 0, 2, 1
+			vp_push r15
+				;allocate mail message
+				static_call mail, alloc
+				fn_assert r0, !=, 0
 
-		;fill in destination, function
-		vp_cpy 0, qword[r0 + ml_msg_dest]
-		vp_cpy 0, qword[r0 + (ml_msg_dest + 8)]
-		vp_cpy kn_call_gui_update, qword[r0 + (ml_msg_data + kn_data_kernel_function)]
+				;fill in destination, function
+				vp_cpy 0, qword[r0 + ml_msg_dest]
+				vp_cpy 0, qword[r0 + (ml_msg_dest + 8)]
+				vp_cpy kn_call_gui_update, qword[r0 + (ml_msg_data + kn_data_kernel_function)]
 
-		;send mail to kernel
-		static_call mail, send
+				;send mail to kernel
+				static_call mail, send
 
-		;wait 5 seconds and return
-		vp_cpy 5000000, r0
-		static_jmp task, sleep
+				;wait till window alive
+				vp_cpy 2000000, r0
+				static_call task, sleep
+			vp_pop r15
+		next
+
+		;gui event loop
+		for r15, 0, 1000, 1
+			vp_push r15
+
+			;allocate mail message
+			static_call mail, alloc
+			fn_assert r0, !=, 0
+
+			;fill in destination, function
+			vp_cpy 0, qword[r0 + ml_msg_dest]
+			vp_cpy 0, qword[r0 + (ml_msg_dest + 8)]
+			vp_cpy kn_call_gui_update, qword[r0 + (ml_msg_data + kn_data_kernel_function)]
+
+			;send mail to kernel
+			static_call mail, send
+
+			;60 Hz update rate
+			vp_cpy 1000000 / 60, r0
+			static_call task, sleep
+
+			vp_pop r15
+		next
+		vp_ret
 
 	fn_function_end
