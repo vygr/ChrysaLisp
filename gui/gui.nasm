@@ -3,6 +3,9 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
+%define SCREEN_WIDTH 1024*2
+%define SCREEN_HEIGHT 768*2
+
 	fn_function gui/gui
 		;allocate background view
 		static_call view, create
@@ -10,8 +13,8 @@
 		;fill in sizes etc
 		vp_cpy 0, qword[r0 + view_x]
 		vp_cpy 0, qword[r0 + view_y]
-		vp_cpy 1024, qword[r0 + view_w]
-		vp_cpy 768, qword[r0 + view_h]
+		vp_cpy SCREEN_WIDTH, qword[r0 + view_w]
+		vp_cpy SCREEN_HEIGHT, qword[r0 + view_h]
 		vp_cpy 0, qword[r0 + view_red]
 		vp_cpy 0, qword[r0 + view_green]
 		vp_cpy 0, qword[r0 + view_blue]
@@ -93,7 +96,7 @@
 		next
 
 		;gui event loop
-		for r15, 0, 300, 1
+		for r15, 0, 500, 1
 			vp_push r15
 
 			;allocate mail message
@@ -108,15 +111,16 @@
 			;send mail to kernel
 			static_call mail, send
 
-			;30 Hz update rate
-			vp_cpy 1000000 / 30, r0
-			static_call task, sleep
+			;yield to other tasks
+			static_call task, yield
 
 			;get mouse info
 			static_bind gui, statics, r3
 			vp_cpy [r3 + gui_statics_x_pos], r8
 			vp_cpy [r3 + gui_statics_y_pos], r9
-;			vp_cpy [r3 + gui_statics_buttons], r3
+			vp_cpy [r3 + gui_statics_buttons], r10
+			vp_mul 2, r8
+			vp_mul 2, r9
 
 			vp_cpy [r3 + gui_statics_screen], r0
 			lh_get_head r0 + view_list, r0

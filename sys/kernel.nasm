@@ -230,28 +230,31 @@
 					static_call mem, free
 
 					;create screen window ?
-					static_bind gui, statics, r15
-					vp_cpy [r15 + gui_statics_window], r14
-					if r14, ==, 0
+					static_bind gui, statics, r0
+					vp_cpy [r0 + gui_statics_window], r1
+					if r1, ==, 0
 						;init sdl2
 						sdl_setmainready
 						sdl_init SDL_INIT_VIDEO
 
 						;create window
-						vp_lea [rel title], r14
-						sdl_createwindow r14, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL
-						vp_cpy r0, [r15 + gui_statics_window]
+						vp_lea [rel title], r0
+						sdl_createwindow r0, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
+						static_bind gui, statics, r1
+						vp_cpy r0, [r1 + gui_statics_window]
 
 						;create renderer
-						sdl_createrenderer r0, -1, SDL_RENDERER_ACCELERATED
-						vp_cpy r0, [r15 + gui_statics_renderer]
+						sdl_createrenderer r0, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+						static_bind gui, statics, r1
+						vp_cpy r0, [r1 + gui_statics_renderer]
 
 						;set blend mode
 						sdl_setrenderdrawblendmode r0, SDL_BLENDMODE_BLEND
 					endif
 
 					;update screen
-					vp_cpy [r15 + gui_statics_screen], r0
+					static_bind gui, statics, r0
+					vp_cpy [r0 + gui_statics_screen], r0
 					if r0, !=, 0
 						;pump sdl events
 						sdl_pumpevents
@@ -260,9 +263,10 @@
 						static_bind gui, statics, r0
 						vp_lea [r0 + gui_statics_x_pos], r1
 						vp_lea [r0 + gui_statics_y_pos], r2
-						vp_lea [r0 + gui_statics_buttons], r3
 						sdl_getmousestate r1, r2
-						vp_cpy r0, [r3]
+						static_bind gui, statics, r1
+						vp_add gui_statics_buttons, r1
+						vp_cpy r0, [r1]
 
 						;update the screen
 						static_bind gui, statics, r0
