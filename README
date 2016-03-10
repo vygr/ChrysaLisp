@@ -76,8 +76,8 @@ Make with:
 make -j
 
 Requires NASM and the SDL2 library to be installed. SDL2 is for the experimental
-gui. Please note that there is a bug in NASM 2.11 that may not be fixed yet and
-so NASM 2.10 should be used until further notice.
+gui. Seams to be some strange crashes using SDL at the moment, hopefully a fix
+will be issued, until then we make progress with what we have.
 
 Run with:
 
