@@ -22,6 +22,7 @@ class/view/draw
 class/view/forward
 class/view/get_relative
 class/view/init
+class/view/move
 class/view/new
 class/view/opaque
 class/view/sub

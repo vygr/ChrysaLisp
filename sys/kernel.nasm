@@ -239,7 +239,7 @@
 
 						;create window
 						vp_lea [rel title], r0
-						sdl_createwindow r0, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
+						sdl_createwindow r0, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL
 						static_bind gui, statics, r1
 						vp_cpy r0, [r1 + gui_statics_window]
 

@@ -3,8 +3,8 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
-%define SCREEN_WIDTH 1024*2
-%define SCREEN_HEIGHT 768*2
+%define SCREEN_WIDTH 1024
+%define SCREEN_HEIGHT 768
 
 	fn_function gui/gui
 		;allocate background view
@@ -70,6 +70,11 @@
 
 		vp_add 3*8, r4
 
+		;dirty all
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_screen], r0
+		static_call view, dirty_all
+
 		for r15, 0, 2, 1
 			vp_push r15
 				;allocate mail message
@@ -87,11 +92,6 @@
 				;wait till window alive
 				vp_cpy 2000000, r0
 				static_call task, sleep
-
-				;dirty all
-				static_bind gui, statics, r0
-				vp_cpy [r0 + gui_statics_screen], r0
-				static_call view, dirty_all
 			vp_pop r15
 		next
 
@@ -120,8 +120,6 @@
 			vp_cpy [r3 + gui_statics_x_pos], r8
 			vp_cpy [r3 + gui_statics_y_pos], r9
 			vp_cpy [r3 + gui_statics_buttons], r10
-			vp_mul 2, r8
-			vp_mul 2, r9
 
 			vp_cpy [r3 + gui_statics_screen], r0
 			lh_get_head r0 + view_list, r0
@@ -132,13 +130,9 @@
 			vp_asr 1, r11
 			vp_sub r10, r8
 			vp_sub r11, r9
-			vp_cpy r8, [r0 + view_x]
-			vp_cpy r9, [r0 + view_y]
-
-			;dirty all
-			static_bind gui, statics, r0
-			vp_cpy [r0 + gui_statics_screen], r0
-			static_call view, dirty_all
+			vp_cpy [r0 + view_w], r10
+			vp_cpy [r0 + view_h], r11
+			static_call view, move
 
 			vp_pop r15
 		next

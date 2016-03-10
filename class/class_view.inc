@@ -16,6 +16,7 @@
 	def_method opaque, class/view/opaque
 	def_method forward, class/view/forward
 	def_method backward, class/view/backward
+	def_method move, class/view/move
 	def_method init, class/view/init, override
 	def_method deinit, class/view/deinit, override
 	def_method draw, class/view/draw, virtual
@@ -26,12 +27,12 @@
 		view_list:				resb lh_list_size
 		view_dirty_region:		resq 1
 		view_opaque_region:		resq 1
+		view_ctx_x:				resq 1
+		view_ctx_y:				resq 1
 		view_x:					resq 1
 		view_y:					resq 1
 		view_w:					resq 1
 		view_h:					resq 1
-		view_ctx_x:				resq 1
-		view_ctx_y:				resq 1
 		view_red:				resq 1
 		view_green:				resq 1
 		view_blue:				resq 1

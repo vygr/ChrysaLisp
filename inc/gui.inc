@@ -40,6 +40,7 @@
 		gui_statics_window:				resq 1
 		gui_statics_screen:				resq 1
 		gui_statics_renderer:			resq 1
+		gui_statics_old_region			resq 1
 		gui_statics_x_pos:				resq 1
 		gui_statics_y_pos:				resq 1
 		gui_statics_buttons:			resq 1

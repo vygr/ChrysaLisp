@@ -3,6 +3,8 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
+%define dual_buffers
+
 	fn_function gui/gui_update
 		;inputs
 		;r0 = root view object
@@ -32,6 +34,39 @@
 		vp_lea [rel visible_down_callback], r2
 		vp_lea [rel null_func_callback], r3
 		static_call view, backward
+
+%ifdef dual_buffers
+		;copy visable region to new region
+		vp_xor r8, r8
+		vp_xor r9, r9
+		vp_push r0, r8
+		vp_cpy [r0 + view_w], r10
+		vp_cpy [r0 + view_h], r11
+		vp_lea [r0 + view_dirty_region], r1
+		vp_cpy r4, r2
+		static_bind gui, statics, r0
+		vp_lea [r0 + gui_statics_rect_heap], r0
+		static_call region, copy
+
+		;paste old visable region into root
+		vp_cpy [r4 + 8], r0
+		vp_xor r8, r8
+		vp_xor r9, r9
+		vp_lea [r0 + view_dirty_region], r2
+		static_bind gui, statics, r1
+		vp_lea [r1 + gui_statics_rect_heap], r0
+		vp_lea [r1 + gui_statics_old_region], r1
+		static_call region, paste_region
+
+		;free old region and splice over new region
+		static_bind gui, statics, r5
+		vp_lea [r5 + gui_statics_rect_heap], r0
+		vp_lea [r5 + gui_statics_old_region], r1
+		static_call region, free
+		vp_pop r1
+		vp_cpy r1, [r5 + gui_statics_old_region]
+		vp_pop r0
+%endif
 
 		;iterate through views front to back
 		;distribute visible region

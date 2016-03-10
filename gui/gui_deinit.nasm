@@ -12,13 +12,17 @@
 			static_call view, deref
 		endif
 
+		;free old region
+		static_bind gui, statics, r5
+		vp_lea [r5 + gui_statics_rect_heap], r0
+		vp_lea [r5 + gui_statics_old_region], r1
+		static_call region, free
+
 		;deinit region heap
-		static_bind gui, statics, r15
-		vp_lea [r15 + gui_statics_rect_heap], r0
 		static_call heap, deinit
 
 		;destroy any window
-		vp_cpy [r15 + gui_statics_window], r14
+		vp_cpy [r5 + gui_statics_window], r14
 		if r14, !=, 0
 			;align stack on 16 byte boundary
 			vp_cpy r4, r15

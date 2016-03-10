@@ -9,6 +9,9 @@
 		static_bind gui, statics, r3
 		vp_cpy r0, [r3 + gui_statics_sdl_funcs]
 
+		;init old region
+		vp_cpy 0, qword[r3 + gui_statics_old_region]
+
 		;init region heap
 		vp_lea [r3 + gui_statics_rect_heap], r0
 		vp_cpy gui_rect_size, r1
