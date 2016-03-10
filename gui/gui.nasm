@@ -112,7 +112,8 @@
 			static_call mail, send
 
 			;yield to other tasks
-			static_call task, yield
+			vp_cpy 1000000 / 60, r0
+			static_call task, sleep
 
 			;get mouse info
 			static_bind gui, statics, r3
