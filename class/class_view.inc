@@ -17,9 +17,11 @@
 	def_method forward, class/view/forward
 	def_method backward, class/view/backward
 	def_method move, class/view/move
+	def_method hit_tree, class/view/hit_tree
 	def_method init, class/view/init, override
 	def_method deinit, class/view/deinit, override
 	def_method draw, class/view/draw, virtual
+	def_method hit, class/view/hit, virtual
 
 	struc view, ref_size
 		view_node:				resb ln_node_size

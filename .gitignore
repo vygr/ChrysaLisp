@@ -21,6 +21,8 @@ class/view/dirty_all
 class/view/draw
 class/view/forward
 class/view/get_relative
+class/view/hit
+class/view/hit_tree
 class/view/init
 class/view/move
 class/view/new

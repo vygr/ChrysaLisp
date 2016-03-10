@@ -96,7 +96,7 @@
 		next
 
 		;gui event loop
-		for r15, 0, 500, 1
+		for r15, 0, 1000, 1
 			vp_push r15
 
 			;allocate mail message
@@ -116,23 +116,44 @@
 			static_call task, sleep
 
 			;get mouse info
-			static_bind gui, statics, r3
-			vp_cpy [r3 + gui_statics_x_pos], r8
-			vp_cpy [r3 + gui_statics_y_pos], r9
-			vp_cpy [r3 + gui_statics_buttons], r10
-
-			vp_cpy [r3 + gui_statics_screen], r0
-			lh_get_head r0 + view_list, r0
-			vp_sub view_node, r0
-			vp_cpy [r0 + view_w], r10
-			vp_cpy [r0 + view_h], r11
-			vp_asr 1, r10
-			vp_asr 1, r11
-			vp_sub r10, r8
-			vp_sub r11, r9
-			vp_cpy [r0 + view_w], r10
-			vp_cpy [r0 + view_h], r11
-			static_call view, move
+			static_bind gui, statics, r5
+			vp_cpy [r5 + gui_statics_x_pos], r8
+			vp_cpy [r5 + gui_statics_y_pos], r9
+			vp_cpy [r5 + gui_statics_buttons], r10
+			vp_cpy [r5 + gui_statics_screen], r0
+			static_call view, hit_tree
+			vp_cpy 1, r1
+			if r0, ==, [r5 + gui_statics_screen]
+				vp_xor r1, r1
+			endif
+			if r0, ==, 0
+				vp_xor r1, r1
+			endif
+			switch
+			case r1, ==, 0
+				;no hit
+			case r10, ==, 0
+				;no buttons
+				vp_xor r1, r1
+				vp_cpy r1, [r5 + gui_statics_last_view]
+				break
+			case qword[r5 + gui_statics_last_view], !=, 0
+				;move
+				vp_cpy [r5 + gui_statics_x_pos], r8
+				vp_cpy [r5 + gui_statics_y_pos], r9
+				vp_sub [r5 + gui_statics_last_x_pos], r8
+				vp_sub [r5 + gui_statics_last_y_pos], r9
+				vp_cpy [r5 + gui_statics_last_view], r0
+				vp_cpy [r0 + view_w], r10
+				vp_cpy [r0 + view_h], r11
+				static_call view, move
+				break
+			default
+				;down
+				vp_cpy r0, [r5 + gui_statics_last_view]
+				vp_cpy r8, [r5 + gui_statics_last_x_pos]
+				vp_cpy r9, [r5 + gui_statics_last_y_pos]
+			endswitch
 
 			vp_pop r15
 		next

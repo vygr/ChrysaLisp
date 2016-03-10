@@ -12,6 +12,9 @@
 		;init old region
 		vp_cpy 0, qword[r3 + gui_statics_old_region]
 
+		;init last view
+		vp_cpy 0, qword[r3 + gui_statics_last_view]
+
 		;init region heap
 		vp_lea [r3 + gui_statics_rect_heap], r0
 		vp_cpy gui_rect_size, r1

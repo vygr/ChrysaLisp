@@ -44,6 +44,9 @@
 		gui_statics_x_pos:				resq 1
 		gui_statics_y_pos:				resq 1
 		gui_statics_buttons:			resq 1
+		gui_statics_last_x_pos:			resq 1
+		gui_statics_last_y_pos:			resq 1
+		gui_statics_last_view:			resq 1
 	endstruc
 
 	struc gui_rect
