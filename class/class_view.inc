@@ -18,6 +18,7 @@
 	def_method backward, class/view/backward
 	def_method move, class/view/move
 	def_method hit_tree, class/view/hit_tree
+	def_method owner, class/view/find_tcb
 	def_method init, class/view/init, override
 	def_method deinit, class/view/deinit, override
 	def_method draw, class/view/draw, virtual
@@ -25,6 +26,7 @@
 
 	struc view, ref_size
 		view_node:				resb ln_node_size
+		view_tcb:				resq 1
 		view_parent:			resq 1
 		view_list:				resb lh_list_size
 		view_dirty_region:		resq 1

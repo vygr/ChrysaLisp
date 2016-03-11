@@ -19,6 +19,7 @@ class/view/deinit
 class/view/dirty
 class/view/dirty_all
 class/view/draw
+class/view/find_tcb
 class/view/forward
 class/view/get_relative
 class/view/hit
@@ -31,6 +32,7 @@ class/view/sub
 gui/ctx_filled_box
 gui/ctx_set_color
 gui/gui
+gui/gui_add
 gui/gui_deinit
 gui/gui_init
 gui/gui_statics
@@ -107,11 +109,14 @@ sys/task_start
 sys/task_statics
 sys/task_stop
 sys/task_suspend
+sys/task_tcb
 sys/task_yield
 sys/write_char
 sys/write_number
 sys/write_string
 syscalls
+tests/gui1
+tests/gui2
 tests/test1
 tests/test10
 tests/test11

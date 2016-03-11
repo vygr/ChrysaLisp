@@ -23,58 +23,14 @@
 		;add as gui screen view
 		static_bind gui, statics, r1
 		vp_cpy r0, [r1 + gui_statics_screen]
-		vp_push r0
 		static_call view, opaque
-
-		;allocate sub view
-		static_call view, create
-
-		;fill in sizes etc
-		vp_cpy 128, qword[r0 + view_x]
-		vp_cpy 128, qword[r0 + view_y]
-		vp_cpy 512, qword[r0 + view_w]
-		vp_cpy 256, qword[r0 + view_h]
-		vp_cpy 255, qword[r0 + view_red]
-		vp_cpy 0, qword[r0 + view_green]
-		vp_cpy 0, qword[r0 + view_blue]
-		vp_cpy 255, qword[r0 + view_alpha]
-		vp_push r0
-
-		;allocate sub view
-		static_call view, create
-
-		;fill in sizes etc
-		vp_cpy 256, qword[r0 + view_x]
-		vp_cpy 256, qword[r0 + view_y]
-		vp_cpy 512, qword[r0 + view_w]
-		vp_cpy 256, qword[r0 + view_h]
-		vp_cpy 0, qword[r0 + view_red]
-		vp_cpy 255, qword[r0 + view_green]
-		vp_cpy 0, qword[r0 + view_blue]
-		vp_cpy 128, qword[r0 + view_alpha]
-		vp_push r0
-
-		;add as sub view
-		vp_cpy [r4 + 16], r1
-		vp_cpy [r4 + 8], r0
-		static_call view, add
-
-		;add as sub view
-		vp_cpy [r4 + 16], r1
-		vp_cpy [r4], r0
-		static_call view, add
-
-		;opaque for red view
-		vp_cpy [r4 + 8], r0
-		static_call view, opaque
-
-		vp_add 3*8, r4
 
 		;dirty all
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_screen], r0
 		static_call view, dirty_all
 
+		;god knows why we need this, but SDL just crashes without it
 		for r15, 0, 2, 1
 			vp_push r15
 				;allocate mail message
@@ -95,10 +51,15 @@
 			vp_pop r15
 		next
 
-		;gui event loop
-		for r15, 0, 1000, 1
-			vp_push r15
+		;for now fire up the two test apps
+		;this might be an gui auto run list eventually
+		fn_bind tests/gui2, r0
+		static_call task, start
+		fn_bind tests/gui1, r0
+		static_call task, start
 
+		;gui event loop
+		loop_start
 			;allocate mail message
 			static_call mail, alloc
 			fn_assert r0, !=, 0
@@ -111,52 +72,78 @@
 			;send mail to kernel
 			static_call mail, send
 
-			;yield to other tasks
-			vp_cpy 1000000 / 60, r0
+			;frame rate of gui updates
+			vp_cpy 1000000 / 30, r0
 			static_call task, sleep
 
 			;get mouse info
+			;dispatch to task and target view
 			static_bind gui, statics, r5
-			vp_cpy [r5 + gui_statics_x_pos], r8
-			vp_cpy [r5 + gui_statics_y_pos], r9
+			vp_cpy [r5 + gui_statics_last_view], r6
 			vp_cpy [r5 + gui_statics_buttons], r10
-			vp_cpy [r5 + gui_statics_screen], r0
-			static_call view, hit_tree
-			vp_cpy 1, r1
-			if r0, ==, [r5 + gui_statics_screen]
-				vp_xor r1, r1
-			endif
-			if r0, ==, 0
-				vp_xor r1, r1
-			endif
-			switch
-			case r1, ==, 0
-				;no hit
-			case r10, ==, 0
-				;no buttons
-				vp_xor r1, r1
-				vp_cpy r1, [r5 + gui_statics_last_view]
-				break
-			case qword[r5 + gui_statics_last_view], !=, 0
-				;move
-				vp_cpy [r5 + gui_statics_x_pos], r8
-				vp_cpy [r5 + gui_statics_y_pos], r9
-				vp_sub [r5 + gui_statics_last_x_pos], r8
-				vp_sub [r5 + gui_statics_last_y_pos], r9
-				vp_cpy [r5 + gui_statics_last_view], r0
-				vp_cpy [r0 + view_w], r10
-				vp_cpy [r0 + view_h], r11
-				static_call view, move
-				break
-			default
-				;down
-				vp_cpy r0, [r5 + gui_statics_last_view]
-				vp_cpy r8, [r5 + gui_statics_last_x_pos]
-				vp_cpy r9, [r5 + gui_statics_last_y_pos]
-			endswitch
+			if r6, !=, 0
+			send_mouse:
+				;do we need to wait till button goes up ?
+				if r6, !=, -1
+					;lookup view owner
+					vp_cpy r6, r0
+					static_call view, owner
+					if r1, !=, 0
+						;save owner mailbox
+						static_call cpu, id
+						vp_lea [r1 + tk_node_mailbox], r14
+						vp_cpy r0, r15
 
-			vp_pop r15
-		next
+						;allocate mail message
+						static_call mail, alloc
+						fn_assert r0, !=, 0
+
+						;fill in data
+						vp_cpy r14, [r0 + ml_msg_dest]
+						vp_cpy r15, [r0 + (ml_msg_dest + 8)]
+						vp_cpy [r5 + gui_statics_x_pos], r8
+						vp_cpy [r5 + gui_statics_y_pos], r9
+						vp_cpy ev_type_mouse, qword[r0 + (ml_msg_data + ev_data_type)]
+						vp_cpy r6, [r0 + (ml_msg_data + ev_data_view)]
+						vp_cpy r8, [r0 + (ml_msg_data + ev_data_x)]
+						vp_cpy r9, [r0 + (ml_msg_data + ev_data_y)]
+						vp_cpy r10, [r0 + (ml_msg_data + ev_data_buttons)]
+						vp_sub [r6 + view_ctx_x], r8
+						vp_sub [r6 + view_ctx_y], r9
+						vp_cpy r8, [r0 + (ml_msg_data + ev_data_rx)]
+						vp_cpy r9, [r0 + (ml_msg_data + ev_data_ry)]
+
+						;send mail to owner
+						static_call mail, send
+					endif
+				endif
+
+				;if button went up then clear locked view
+				if r10, ==, 0
+					vp_cpy r10, [r5 + gui_statics_last_view]
+				endif
+			else
+				;button down ?
+				if r10, !=, 0
+					;find view
+					vp_cpy [r5 + gui_statics_screen], r0
+					vp_cpy [r5 + gui_statics_x_pos], r8
+					vp_cpy [r5 + gui_statics_y_pos], r9
+					static_call view, hit_tree
+					if r0, ==, [r5 + gui_statics_screen]
+						vp_xor r0, r0
+					endif
+					if r0, ==, 0
+						vp_cpy -1, r0
+					endif
+					vp_cpy r0, [r5 + gui_statics_last_view]
+					vp_cpy r0, r6
+					vp_jmp send_mouse
+				else
+					;hover
+				endif
+			endif
+		loop_end
 		vp_ret
 
 	fn_function_end

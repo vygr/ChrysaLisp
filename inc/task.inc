@@ -14,6 +14,7 @@
 	def_method statics, sys/task_statics
 	def_method init, sys/task_init
 	def_method deinit, sys/task_deinit
+	def_method tcb, sys/task_tcb
 	def_method start, sys/task_start
 	def_method stop, sys/task_stop
 	def_method restore, sys/task_restore

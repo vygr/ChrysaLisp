@@ -188,26 +188,30 @@
 
 			;tab in by stack depth
 			static_call task, depth
-			vp_lea [r0 - (8*8)], r2
-			vp_cpy ' ', r0
-			vp_cpy 2, r1
-			loop_while r2, >, 0
-				static_call io, char
-				vp_sub 8, r2
-			loop_end
+			if r0, >, 0
+				vp_lea [r0 - (8*8)], r2
+				vp_cpy ' ', r0
+				vp_cpy 2, r1
+				loop_while r2, >, 0
+					static_call io, char
+					vp_sub 8, r2
+				loop_end
 
-			vp_lea [rel _func_start + fn_header_pathname], r0
-			vp_cpy 2, r1
-			static_call io, string
-			vp_lea [rel %%over], r0
-			vp_cpy 2, r1
-			static_call io, string
-			vp_pop r0
-			vp_cpy 2, r1
-			vp_cpy 16, r2
-			static_call io, number
-			vp_cpy 10, r0
-			static_call io, char
+				vp_lea [rel _func_start + fn_header_pathname], r0
+				vp_cpy 2, r1
+				static_call io, string
+				vp_lea [rel %%over], r0
+				vp_cpy 2, r1
+				static_call io, string
+				vp_pop r0
+				vp_cpy 2, r1
+				vp_cpy 16, r2
+				static_call io, number
+				vp_cpy 10, r0
+				static_call io, char
+			else
+				vp_pop r0
+			endif
 			vp_pop r0, r1, r2, r3, r5
 		%endif
 	%endmacro

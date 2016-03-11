@@ -13,6 +13,7 @@
 	def_method init, gui/gui_init
 	def_method deinit, gui/gui_deinit
 	def_method draw, gui/gui_update
+	def_method add, gui/gui_add
 	def_method gui, gui/gui
 
 	def_class region
@@ -44,8 +45,6 @@
 		gui_statics_x_pos:				resq 1
 		gui_statics_y_pos:				resq 1
 		gui_statics_buttons:			resq 1
-		gui_statics_last_x_pos:			resq 1
-		gui_statics_last_y_pos:			resq 1
 		gui_statics_last_view:			resq 1
 	endstruc
 
@@ -62,6 +61,26 @@
 		gui_ctx_dirty_region:	resq 1
 		gui_ctx_x:				resq 1
 		gui_ctx_y:				resq 1
+	endstruc
+
+;;;;;;;;;;;;;;;
+; gui mail data
+;;;;;;;;;;;;;;;
+
+	struc ev_type
+		ev_type_mouse:		resb 1
+		ev_type_key:		resb 1
+	endstruc
+
+	struc ev_data
+		ev_data_type:		resq 1
+		ev_data_view:		resq 1
+		ev_data_x:			resq 1
+		ev_data_y:			resq 1
+		ev_data_rx:			resq 1
+		ev_data_ry:			resq 1
+		ev_data_buttons:	resq 1
+		ev_data_key:		resq 1
 	endstruc
 
 ;;;;;;;;;;;;
