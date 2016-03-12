@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/get_tcb
+	fn_function class/view/find_tcb
 		;inputs
 		;r0 = view object
 		;outputs
