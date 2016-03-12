@@ -25,6 +25,7 @@
 	%endmacro
 
 	%macro def_structure_end 0
+		def_align long
 		%assign %[_struct_]_size _offset_
 	%endmacro
 
@@ -42,19 +43,35 @@
 	%macro def_long 1
 		;inputs
 		;%1 = field name
+		def_align long
 		def_struct %1, long
 	%endmacro
 
 	%macro def_int 1
 		;inputs
 		;%1 = field name
+		def_align int
 		def_struct %1, int
+	%endmacro
+
+	%macro def_short 1
+		;inputs
+		;%1 = field name
+		def_align short
+		def_struct %1, short
 	%endmacro
 
 	%macro def_byte 1
 		;inputs
 		;%1 = field name
 		def_struct %1, byte
+	%endmacro
+
+	%macro def_align 1
+		;inputs
+		;%1 = alignment
+		%assign _offset_ _offset_ + (%[%1]_size - 1)
+		%assign _offset_ _offset_ & -(%[%1]_size)
 	%endmacro
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
