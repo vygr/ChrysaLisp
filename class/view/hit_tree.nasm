@@ -17,7 +17,7 @@
 		vp_cpy r4, r1
 		vp_lea [rel hit_down_callback], r2
 		vp_lea [rel hit_up_callback], r3
-		static_call view, forward
+		static_call view, forward_tree
 		vp_xor r0, r0
 		vp_ret
 

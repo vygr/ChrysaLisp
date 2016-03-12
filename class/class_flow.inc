@@ -1,0 +1,21 @@
+%ifndef CLASS_FLOW_1234
+	%define CLASS_FLOW_1234
+
+%include 'class/class_view.inc'
+
+	def_class flow, view
+	def_method create, class/flow/create
+	def_method new, class/flow/new
+	def_method pref_size, class/flow/pref_size, override
+	def_method layout, class/flow/layout, override
+
+	flow_flag_left	equ 1
+	flow_flag_right	equ 2
+	flow_flag_up	equ 4
+	flow_flag_down	equ 8
+
+	def_structure flow, view
+		def_long	flow_flags
+	def_structure_end
+
+%endif

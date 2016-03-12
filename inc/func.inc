@@ -71,22 +71,49 @@
 ; func macros
 ;;;;;;;;;;;;;
 
+	%macro fn_add_path 1
+		;inputs
+		;%1 = function path name
+
+		%assign _path_num_ 0
+		%rep _path_total_
+			%deftok %%_path_ _path_str_%[_path_num_]_
+			%ifidn %%_path_, %1
+				%exitrep
+			%else
+				%assign _path_num_ _path_num_ + 1
+			%endif
+		%endrep
+		%if _path_num_ = _path_total_
+			%defstr _path_str_%[_path_num_]_ %1
+			%assign _path_total_ _path_total_ + 1
+		%endif
+	%endmacro
+
 	%macro fn_add_link 1
 		;inputs
 		;%1 = function path name
 
-		%assign _link_num 0
-		%rep _link_total
-			%deftok %%_path _func_str%[_link_num]
-			%ifidn %%_path, %1
+		fn_add_path %1
+		%assign _link_%[_link_total_]_path_num_ _path_num_
+		%assign _link_total_ _link_total_ + 1
+	%endmacro
+
+	%macro fn_find_link 1
+		;inputs
+		;%1 = function path name
+
+		%assign _link_num_ 0
+		%rep _link_total_
+			%deftok %%_path_ _path_str_%[_link_%[_link_num_]_path_num_]_
+			%ifidn %%_path_, %1
 				%exitrep
 			%else
-				%assign _link_num _link_num + 1
+				%assign _link_num_ _link_num_ + 1
 			%endif
 		%endrep
-		%if _link_num = _link_total
-			%assign _link_total _link_total + 1
-			%defstr _func_str%[_link_num] %1
+		%if _link_num_ = _link_total_
+			fn_add_link %1
 		%endif
 	%endmacro
 
@@ -95,24 +122,24 @@
 		;%1 = function path name
 		;%2 = register
 
-		fn_add_link %1
-		vp_cpy [rel _func%[_link_num]], %2
+		fn_find_link %1
+		vp_cpy [rel _func_%[_link_num_]], %2
 	%endmacro
 
 	%macro fn_call 1
 		;inputs
 		;%1 = function path name
 
-		fn_add_link %1
-		vp_call [rel _func%[_link_num]]
+		fn_find_link %1
+		vp_call [rel _func_%[_link_num_]]
 	%endmacro
 
 	%macro fn_jmp 1
 		;inputs
 		;%1 = function path name
 
-		fn_add_link %1
-		vp_jmp [rel _func%[_link_num]]
+		fn_find_link %1
+		vp_jmp [rel _func_%[_link_num_]]
 	%endmacro
 
 	%macro fn_find 1
@@ -132,7 +159,8 @@
 
 		BITS 64
 		%defstr _func_name %1
-		%assign _link_total 0
+		%assign _link_total_ 0
+		%assign _path_total_ 0
 		align 8, db 0
 	_func_start:
 		dq	-1
@@ -157,16 +185,16 @@
 		align 8, db 0
 	_func_links:
 		%assign %%_i 0
-		%rep _link_total
-	_func%[%%_i]:
-			dq	_func%[%%_i]_name - $
+		%rep _link_total_
+	_func_%[%%_i]:
+			dq	_func_%[_link_%[%%_i]_path_num_]_path - $
 			%assign %%_i %%_i+1
 		%endrep
 		dq	0
 		%assign %%_i 0
-		%rep _link_total
-	_func%[%%_i]_name:
-			db	_func_str%[%%_i]
+		%rep _path_total_
+	_func_%[%%_i]_path:
+			db	_path_str_%[%%_i]_
 			db	0
 			%assign %%_i %%_i+1
 		%endrep

@@ -7,7 +7,7 @@
 		%rep _map_%[%1]_size
 			%ifidn _map_%[%1]_type_%[%%_n], virtual
 				fn_add_link _map_%[%1]_func_%[%%_n]
-				;%warning class %1 vtable entry _map_%[%1]_name_%[%%_n]
+				;%warning _map_%[%1]_name_%[%%_n], _map_%[%1]_func_%[%%_n]
 			%endif
 			%assign %%_n %%_n + 1
 		%endrep
@@ -127,6 +127,7 @@
 		%endif
 		vp_cpy [%4 + obj_vtable], %3
 		vp_call [%3 + _virtual_ * 8]
+		;%warning Method %2 is index _virtual_
 	%endmacro
 
 	%macro method_jmp 2-4 r15, r0
@@ -140,7 +141,8 @@
 			%fatal Class %1 method %2 is nonvirtual ! Use static_jmp ?
 		%endif
 		vp_cpy [%4 + obj_vtable], %3
-		vp_call [%3 + _virtual_ * 8]
+		vp_jmp [%3 + _virtual_ * 8]
+		;%warning Method %2 is index _virtual_
 	%endmacro
 
 	%macro method_bind 2-4 r15, r0
@@ -154,7 +156,8 @@
 			%fatal Class %1 method %2 is nonvirtual ! Use static_bind ?
 		%endif
 		vp_cpy [%4 + obj_vtable], %3
-		vp_call [%3 + _virtual_ * 8]
+		vp_cpy [%3 + _virtual_ * 8], %3
+		;%warning Method %2 is index _virtual_
 	%endmacro
 
 	%macro static_call 2

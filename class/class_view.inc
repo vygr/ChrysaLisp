@@ -16,6 +16,8 @@
 	def_method opaque, class/view/opaque
 	def_method forward, class/view/forward
 	def_method backward, class/view/backward
+	def_method forward_tree, class/view/forward_tree
+	def_method backward_tree, class/view/backward_tree
 	def_method move, class/view/move
 	def_method hit_tree, class/view/hit_tree
 	def_method owner, class/view/find_tcb
@@ -23,6 +25,8 @@
 	def_method deinit, class/view/deinit, override
 	def_method draw, class/view/draw, virtual
 	def_method hit, class/view/hit, virtual
+	def_method pref_size, class/view/pref_size, virtual
+	def_method layout, class/obj/null, virtual
 	def_method event, class/view/event, virtual
 	def_method mouse_down, class/obj/null, virtual
 	def_method mouse_up, class/obj/null, virtual

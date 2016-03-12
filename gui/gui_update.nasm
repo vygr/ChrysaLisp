@@ -26,14 +26,14 @@
 		vp_xor r9, r9
 		vp_lea [rel abs_down_callback], r2
 		vp_lea [rel abs_up_callback], r3
-		static_call view, backward
+		static_call view, backward_tree
 
 		;iterate through views back to front
 		;create visible region at root
 		vp_cpy r0, r1
 		vp_lea [rel visible_down_callback], r2
 		vp_lea [rel null_func_callback], r3
-		static_call view, backward
+		static_call view, backward_tree
 
 %ifdef dual_buffers
 		;copy visable region to new region
@@ -73,14 +73,14 @@
 		vp_cpy r0, r1
 		vp_lea [rel null_func_callback], r2
 		vp_lea [rel distribute_up_callback], r3
-		static_call view, forward
+		static_call view, forward_tree
 
 		;iterate through views back to front
 		;drawing each view
 		vp_lea [r4 + draw_view_ctx], r1
 		vp_lea [rel draw_down_callback], r2
 		vp_lea [rel null_func_callback], r3
-		static_call view, backward
+		static_call view, backward_tree
 
 		vp_add draw_view_size, r4
 	null_func_callback:

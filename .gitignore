@@ -1,7 +1,13 @@
 *.o
+class/class_flow
 class/class_obj
 class/class_ref
+class/class_title
 class/class_view
+class/flow/create
+class/flow/layout
+class/flow/new
+class/flow/pref_size
 class/obj/create
 class/obj/destroy
 class/obj/init
@@ -10,10 +16,14 @@ class/obj/null
 class/ref/deref
 class/ref/init
 class/ref/ref
+class/title/create
+class/title/new
+class/title/pref_size
 class/view/add
 class/view/add_dirty
 class/view/add_opaque
 class/view/backward
+class/view/backward_tree
 class/view/create
 class/view/deinit
 class/view/dirty
@@ -22,6 +32,7 @@ class/view/draw
 class/view/event
 class/view/find_tcb
 class/view/forward
+class/view/forward_tree
 class/view/get_relative
 class/view/hit
 class/view/hit_tree
@@ -29,6 +40,7 @@ class/view/init
 class/view/move
 class/view/new
 class/view/opaque
+class/view/pref_size
 class/view/sub
 gui/ctx_filled_box
 gui/ctx_set_color

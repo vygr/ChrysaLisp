@@ -11,7 +11,7 @@
 		;dirty all
 		vp_lea [rel dirty_down_callback], r2
 		vp_lea [rel null_up_callback], r3
-		static_jmp view, forward
+		static_jmp view, forward_tree
 
 	dirty_down_callback:
 		vp_push r0
