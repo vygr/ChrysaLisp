@@ -29,24 +29,24 @@
 	def_method mouse_move, class/obj/null, virtual
 	def_method mouse_hover, class/obj/null, virtual
 
-	struc view, ref_size
-		view_node:				resb ln_node_size
-		view_tcb:				resq 1
-		view_parent:			resq 1
-		view_list:				resb lh_list_size
-		view_dirty_region:		resq 1
-		view_opaque_region:		resq 1
-		view_ctx_x:				resq 1
-		view_ctx_y:				resq 1
-		view_x:					resq 1
-		view_y:					resq 1
-		view_w:					resq 1
-		view_h:					resq 1
-		view_last_buttons:		resq 1
-		view_red:				resq 1
-		view_green:				resq 1
-		view_blue:				resq 1
-		view_alpha:				resq 1
-	endstruc
+	def_structure view, ref
+		def_struct	view_node, ln_node
+		def_struct	view_list, lh_list
+		def_long	view_parent
+		def_long	view_tcb
+		def_long	view_dirty_region
+		def_long	view_opaque_region
+		def_long	view_ctx_x
+		def_long	view_ctx_y
+		def_long	view_x
+		def_long	view_y
+		def_long	view_w
+		def_long	view_h
+		def_long	view_last_buttons
+		def_long	view_red
+		def_long	view_green
+		def_long	view_blue
+		def_long	view_alpha
+	def_structure_end
 
 %endif

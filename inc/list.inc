@@ -18,16 +18,16 @@
 ; list structures
 ;;;;;;;;;;;;;;;;;
 
-	struc lh_list
-		lh_list_head:		resq 1
-		lh_list_tail:		resq 1
-		lh_list_tailpred:	resq 1
-	endstruc
+	def_structure lh_list
+		def_long	lh_list_head
+		def_long	lh_list_tail
+		def_long	lh_list_tailpred
+	def_structure_end
 
-	struc ln_node
-		ln_node_succ:		resq 1
-		ln_node_pred:		resq 1
-	endstruc
+	def_structure ln_node
+		def_long	ln_node_succ
+		def_long	ln_node_pred
+	def_structure_end
 
 ;;;;;;;;;;;;;;;;;;
 ; list node macros

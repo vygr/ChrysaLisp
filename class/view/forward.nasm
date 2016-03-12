@@ -19,12 +19,12 @@
 			;outputs
 			;r0 = view object
 
-		struc enum
-			enum_root:	resq 1
-			enum_data:	resq 1
-			enum_down:	resq 1
-			enum_up:	resq 1
-		endstruc
+		def_structure enum
+			def_long	enum_root
+			def_long	enum_data
+			def_long	enum_down
+			def_long	enum_up
+		def_structure_end
 
 		vp_sub enum_size, r4
 		vp_cpy r0, [r4 + enum_root]

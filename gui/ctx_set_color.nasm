@@ -1,9 +1,9 @@
 %include 'inc/func.inc'
 %include 'inc/sdl2.inc'
 
-	struc color
-		color_old_stack:	resq 1
-	endstruc
+	def_structure color
+		def_long	color_old_stack
+	def_structure_end
 
 	fn_function gui/ctx_set_color
 		;inputs

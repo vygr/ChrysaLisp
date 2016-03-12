@@ -2,14 +2,14 @@
 %include 'inc/gui.inc'
 %include 'inc/heap.inc'
 
-	struc copy
-		copy_next:	resq 1
-		copy_slist:	resq 1
-		copy_dlist:	resq 1
-		copy_clist:	resq 1
-		copy_dx:	resq 1
-		copy_dy:	resq 1
-	endstruc
+	def_structure copy
+		def_long	copy_next
+		def_long	copy_slist
+		def_long	copy_dlist
+		def_long	copy_clist
+		def_long	copy_dx
+		def_long	copy_dy
+	def_structure_end
 
 	fn_function gui/region_copy_region
 		;inputs

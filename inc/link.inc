@@ -17,35 +17,35 @@
 	lk_chan_status_ready	equ 0
 	lk_chan_status_busy		equ 1
 
-	struc lk_table
-		lk_table_array:			resq 1
-		lk_table_array_size:	resq 1
-	endstruc
+	def_structure lk_table
+		def_long	lk_table_array
+		def_long	lk_table_array_size
+	def_structure_end
 
-	struc lk_node
-		lk_node_node:			resb ln_node_size
-		lk_node_table:			resb lk_table_size
-		lk_node_cpu_id:			resq 1
-		lk_node_task_count:		resq 1
-	endstruc
+	def_structure lk_node
+		def_struct	lk_node_node, ln_node
+		def_struct	lk_node_table, lk_table
+		def_long	lk_node_cpu_id
+		def_long	lk_node_task_count
+	def_structure_end
 
-	struc lk_statics
-		lk_statics_links_list:	resb lh_list_size
-	endstruc
+	def_structure lk_statics
+		def_struct	lk_statics_links_list, lh_list
+	def_structure_end
 
-	struc lk_chan
-		lk_chan_status:		resq 1
-		lk_chan_task_count:	resq 1
-		lk_chan_msg:		resb ml_msg_size
-	endstruc
+	def_structure lk_chan
+		def_long	lk_chan_status
+		def_long	lk_chan_task_count
+		def_struct	lk_chan_msg, ml_msg
+	def_structure_end
 
-	struc lk_buffer
-		lk_buffer_chan_1:	resb lk_chan_size
-		lk_buffer_chan_2:	resb lk_chan_size
-	endstruc
+	def_structure lk_buffer
+		def_struct	lk_buffer_chan_1, lk_chan
+		def_struct	lk_buffer_chan_2, lk_chan
+	def_structure_end
 
-	struc lk_route
-		lk_route_hops:		resq 1
-	endstruc
+	def_structure lk_route
+		def_long	lk_route_hops
+	def_structure_end
 
 %endif

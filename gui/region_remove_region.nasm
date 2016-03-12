@@ -2,12 +2,12 @@
 %include 'inc/gui.inc'
 %include 'inc/heap.inc'
 
-	struc remove
-		remove_next:	resq 1
-		remove_dlist:	resq 1
-		remove_dx:		resq 1
-		remove_dy:		resq 1
-	endstruc
+	def_structure remove
+		def_long	remove_next
+		def_long	remove_dlist
+		def_long	remove_dx
+		def_long	remove_dy
+	def_structure_end
 
 	fn_function gui/region_remove_region
 		;inputs

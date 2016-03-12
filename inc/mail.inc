@@ -23,31 +23,34 @@
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-	struc ml_mailbox
-		ml_mailbox_list:		resb lh_list_size
-		ml_mailbox_parcel_list:	resb lh_list_size
-		ml_mailbox_tcb:			resq 1
-	endstruc
+	%assign mailbox_id_size 16
+	%assign mail_data_size 512
 
-	struc ml_msg
-		ml_msg_node:			resb ln_node_size
-		ml_msg_length:			resq 1
-		ml_msg_dest:			resq 2
-		ml_msg_parcel_id:		resq 2
-		ml_msg_parcel_size:		resq 1
-		ml_msg_parcel_total:	resq 1
-		ml_msg_parcel_frag:		resq 1
-		ml_msg_data:			resb 512
-	endstruc
+	def_structure ml_mailbox
+		def_struct	ml_mailbox_list, lh_list
+		def_struct	ml_mailbox_parcel_list, lh_list
+		def_long	ml_mailbox_tcb
+	def_structure_end
 
-	struc ml_statics
-		ml_statics_offchip_list:	resb lh_list_size
-		ml_statics_heap:			resb hp_heap_size
-		ml_statics_kernel_mailbox:	resq 1
-		ml_statics_in_mailbox:		resq 1
-		ml_statics_out_mailbox:		resq 1
-		ml_statics_parcel_id:		resq 1
-	endstruc
+	def_structure ml_msg
+		def_struct	ml_msg_node, ln_node
+		def_long	ml_msg_length
+		def_struct	ml_msg_dest, mailbox_id
+		def_struct	ml_msg_parcel_id, mailbox_id
+		def_long	ml_msg_parcel_size
+		def_long	ml_msg_parcel_total
+		def_long	ml_msg_parcel_frag
+		def_struct	ml_msg_data, mail_data
+	def_structure_end
+
+	def_structure ml_statics
+		def_struct	ml_statics_offchip_list, lh_list
+		def_struct	ml_statics_heap, hp_heap
+		def_long	ml_statics_kernel_mailbox
+		def_long	ml_statics_in_mailbox
+		def_long	ml_statics_out_mailbox
+		def_long	ml_statics_parcel_id
+	def_structure_end
 
 ;;;;;;;;;;;;;
 ; mail macros

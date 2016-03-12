@@ -17,18 +17,18 @@
 ; load structures
 ;;;;;;;;;;;;;;;;;
 
-	ld_block_size	equ 16384
-	ld_page_size	equ 4096
-	ld_reloc_size	equ 1024
+	%assign	ld_block_size	16384
+	%assign	ld_page_size	4096
+	%assign	ld_reloc_size	1024
 
-	struc ld_statics
-		ld_statics_function_list:	resq 1
-		ld_statics_block_list:		resq 1
-		ld_statics_block_start:		resq 1
-		ld_statics_block_end:		resq 1
-		ld_statics_reloc_stack:		resq 1
-		ld_statics_stat_buffer:		resb stat_size
-		ld_statics_reloc_buffer:	resb ld_reloc_size
-	endstruc
+	def_structure ld_statics
+		def_long	ld_statics_function_list
+		def_long	ld_statics_block_list
+		def_long	ld_statics_block_start
+		def_long	ld_statics_block_end
+		def_long	ld_statics_reloc_stack
+		def_struct	ld_statics_stat_buffer, stat
+		def_struct	ld_statics_reloc_buffer, ld_reloc
+	def_structure_end
 
 %endif

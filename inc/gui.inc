@@ -35,53 +35,53 @@
 ; gui structures
 ;;;;;;;;;;;;;;;;
 
-	struc gui_statics
-		gui_statics_sdl_funcs:			resq 1
-		gui_statics_rect_heap:			resb hp_heap_size
-		gui_statics_window:				resq 1
-		gui_statics_screen:				resq 1
-		gui_statics_renderer:			resq 1
-		gui_statics_old_region			resq 1
-		gui_statics_x_pos:				resq 1
-		gui_statics_y_pos:				resq 1
-		gui_statics_buttons:			resq 1
-		gui_statics_last_view:			resq 1
-	endstruc
+	def_structure gui_statics
+		def_long	gui_statics_sdl_funcs
+		def_struct	gui_statics_rect_heap, hp_heap
+		def_long	gui_statics_window
+		def_long	gui_statics_screen
+		def_long	gui_statics_renderer
+		def_long	gui_statics_old_region
+		def_long	gui_statics_x_pos
+		def_long	gui_statics_y_pos
+		def_long	gui_statics_buttons
+		def_long	gui_statics_last_view
+	def_structure_end
 
-	struc gui_rect
-		gui_rect_next:		resq 1
-		gui_rect_x:			resq 1
-		gui_rect_y:			resq 1
-		gui_rect_x1:		resq 1
-		gui_rect_y1:		resq 1
-	endstruc
+	def_structure gui_rect
+		def_long	gui_rect_next
+		def_long	gui_rect_x
+		def_long	gui_rect_y
+		def_long	gui_rect_x1
+		def_long	gui_rect_y1
+	def_structure_end
 
-	struc gui_ctx
-		gui_ctx_sdl_ctx:		resq 1
-		gui_ctx_dirty_region:	resq 1
-		gui_ctx_x:				resq 1
-		gui_ctx_y:				resq 1
-	endstruc
+	def_structure gui_ctx
+		def_long	gui_ctx_sdl_ctx
+		def_long	gui_ctx_dirty_region
+		def_long	gui_ctx_x
+		def_long	gui_ctx_y
+	def_structure_end
 
 ;;;;;;;;;;;;;;;
 ; gui mail data
 ;;;;;;;;;;;;;;;
 
-	struc ev_type
-		ev_type_mouse:		resb 1
-		ev_type_key:		resb 1
-	endstruc
+	def_structure ev_type
+		def_byte	ev_type_mouse
+		def_byte	ev_type_key
+	def_structure_end
 
-	struc ev_data
-		ev_data_type:		resq 1
-		ev_data_view:		resq 1
-		ev_data_x:			resq 1
-		ev_data_y:			resq 1
-		ev_data_rx:			resq 1
-		ev_data_ry:			resq 1
-		ev_data_buttons:	resq 1
-		ev_data_key:		resq 1
-	endstruc
+	def_structure ev_data
+		def_long	ev_data_type
+		def_long	ev_data_view
+		def_long	ev_data_x
+		def_long	ev_data_y
+		def_long	ev_data_rx
+		def_long	ev_data_ry
+		def_long	ev_data_buttons
+		def_long	ev_data_key
+	def_structure_end
 
 ;;;;;;;;;;;;
 ; gui macros

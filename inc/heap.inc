@@ -27,20 +27,20 @@
 ; heap structures
 ;;;;;;;;;;;;;;;;;
 
-	struc hp_heap
-		hp_heap_freelist:	resq 1
-		hp_heap_blocklist:	resq 1
-		hp_heap_cellsize:	resq 1
-		hp_heap_blocksize:	resq 1
-	endstruc
+	def_structure hp_heap
+		def_long	hp_heap_freelist
+		def_long	hp_heap_blocklist
+		def_long	hp_heap_cellsize
+		def_long	hp_heap_blocksize
+	def_structure_end
 
-	struc hp_cell
-		hp_cell_next:	resq 1
-	endstruc
+	def_structure hp_cell
+		def_long	hp_cell_next
+	def_structure_end
 
-	struc hp_block
-		hp_block_next:	resq 1
-	endstruc
+	def_structure hp_block
+		def_long	hp_block_next
+	def_structure_end
 
 ;;;;;;;;;;;;;
 ; heap macros

@@ -11,9 +11,9 @@
 		;trashes
 		;all but r4
 
-		struc draw_view
-			draw_view_ctx:	resb gui_ctx_size
-		endstruc
+		def_structure draw_view
+			def_struct	draw_view_ctx, gui_ctx
+		def_structure_end
 
 		vp_sub draw_view_size, r4
 		static_bind gui, statics, r1

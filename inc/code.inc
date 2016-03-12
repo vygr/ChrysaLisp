@@ -3,6 +3,60 @@
 
 %include 'inc/vp.inc'
 
+;;;;;;;;;;;;;;;;;;;;;;;
+; some NASM data macros
+;;;;;;;;;;;;;;;;;;;;;;;
+
+	%assign null_size 0
+	%assign byte_size 1
+	%assign short_size 2
+	%assign int_size 4
+	%assign long_size 8
+
+	%macro def_structure 1-2 null
+		;inputs
+		;%1 = structure name
+		;%2 = super structure name
+		%ifndef %[%2]_size
+			%fatal Structure %2 not defined !
+		%endif
+		%define _struct_ %1
+		%assign _offset_ %[%2]_size
+	%endmacro
+
+	%macro def_structure_end 0
+		%assign %[_struct_]_size _offset_
+	%endmacro
+
+	%macro def_struct 2
+		;inputs
+		;%1 = field name
+		;%2 = struct name
+		%ifndef %[%2]_size
+			%fatal Structure %2 not defined !
+		%endif
+		%assign %1 _offset_
+		%assign _offset_ _offset_ + %[%2]_size
+	%endmacro
+
+	%macro def_long 1
+		;inputs
+		;%1 = field name
+		def_struct %1, long
+	%endmacro
+
+	%macro def_int 1
+		;inputs
+		;%1 = field name
+		def_struct %1, int
+	%endmacro
+
+	%macro def_byte 1
+		;inputs
+		;%1 = field name
+		def_struct %1, byte
+	%endmacro
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; some NASM codeing macros
 ;;;;;;;;;;;;;;;;;;;;;;;;;;

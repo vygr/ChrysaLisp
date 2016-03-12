@@ -2,12 +2,12 @@
 %include 'inc/gui.inc'
 %include 'inc/heap.inc'
 
-	struc paste
-		paste_next:		resq 1
-		paste_dlist:	resq 1
-		paste_dx:		resq 1
-		paste_dy:		resq 1
-	endstruc
+	def_structure paste
+		def_long	paste_next
+		def_long	paste_dlist
+		def_long	paste_dx
+		def_long	paste_dy
+	def_structure_end
 
 	fn_function gui/region_paste_region
 		;inputs

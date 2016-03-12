@@ -76,17 +76,17 @@
 	s_isvtx				equ	0x200
 
 	stat_fsize			equ 0x48
-	stat_size			equ 0x100
+	%assign stat_size	0x100
 
-	struc timeval
-		timeval_sec:			resq 1
-		timeval_usec:			resq 1
-	endstruc
+	def_structure timeval
+		def_long	timeval_sec
+		def_long	timeval_usec
+	def_structure_end
 
-	struc timezone
-		timeval_minuteswest:	resd 1
-		timeval_dsttime:		resd 1
-	endstruc
+	def_structure timezone
+		def_int	timeval_minuteswest
+		def_int	timeval_dsttime
+	def_structure_end
 
 ;;;;;;;;;;;;;;;;
 ; syscall macros
@@ -315,17 +315,17 @@
 	s_isvtx				equ	0x200
 
 	stat_fsize			equ	0x30
-	stat_size			equ	0x100
+	%assign stat_size	0x100
 
-	struc timeval
-		timeval_sec:			resq 1
-		timeval_usec:			resq 1
-	endstruc
+	def_structure timeval
+		def_long	timeval_sec
+		def_long	timeval_usec
+	def_structure_end
 
-	struc timezone
-		timeval_minuteswest:	resd 1
-		timeval_dsttime:		resd 1
-	endstruc
+	def_structure timezone
+		def_int	timeval_minuteswest
+		def_int	timeval_dsttime
+	def_structure_end
 
 ;;;;;;;;;;;;;;;;
 ; syscall macros

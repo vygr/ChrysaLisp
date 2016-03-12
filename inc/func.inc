@@ -13,59 +13,59 @@
 ; kernel mail funcions
 ;;;;;;;;;;;;;;;;;;;;;;
 
-	struc kn_call
-		kn_call_task_open:					resb 1
-		kn_call_task_child:					resb 1
-		kn_call_task_route:					resb 1
-		kn_call_gui_update:					resb 1
-	endstruc
+	def_structure kn_call
+		def_byte	kn_call_task_open
+		def_byte	kn_call_task_child
+		def_byte	kn_call_task_route
+		def_byte	kn_call_gui_update
+	def_structure_end
 
 ;;;;;;;;;;;;;;;;;;
 ; kernel mail data
 ;;;;;;;;;;;;;;;;;;
 
-	struc kn_data
-		kn_data_kernel_user:				resq 1
-		kn_data_kernel_reply:				resq 2
-		kn_data_kernel_function:			resq 1
-	endstruc
+	def_structure kn_data
+		def_long	kn_data_kernel_user
+		def_struct	kn_data_kernel_reply, mailbox_id
+		def_long	kn_data_kernel_function
+	def_structure_end
 
-	struc kn_data_task_open, kn_data_size
-		kn_data_task_open_pathname:
-	endstruc
+	def_structure kn_data_task_open, kn_data
+		def_struct	kn_data_task_open_pathname, null
+	def_structure_end
 
-	struc kn_data_task_open_reply
-		kn_data_task_open_reply_user:		resq 1
-		kn_data_task_open_reply_mailboxid:	resq 2
-	endstruc
+	def_structure kn_data_task_open_reply
+		def_long	kn_data_task_open_reply_user
+		def_struct	kn_data_task_open_reply_mailboxid, mailbox_id
+	def_structure_end
 
-	struc kn_data_task_child, kn_data_size
-		kn_data_task_child_pathname:
-	endstruc
+	def_structure kn_data_task_child, kn_data
+		def_struct	kn_data_task_child_pathname, null
+	def_structure_end
 
-	struc kn_data_task_child_reply
-		kn_data_task_child_reply_user:		resq 1
-		kn_data_task_child_reply_mailboxid:	resq 2
-	endstruc
+	def_structure kn_data_task_child_reply
+		def_long	kn_data_task_child_reply_user
+		def_struct	kn_data_task_child_reply_mailboxid, mailbox_id
+	def_structure_end
 
-	struc kn_data_link_route
-		kn_data_link_route_header:			resb kn_data_size
-		kn_data_link_route_origin:			resq 1
-		kn_data_link_route_via:				resq 1
-		kn_data_link_route_hops:			resq 1
-	endstruc
+	def_structure kn_data_link_route
+		def_struct	kn_data_link_route_header, kn_data
+		def_long	kn_data_link_route_origin
+		def_long	kn_data_link_route_via
+		def_long	kn_data_link_route_hops
+	def_structure_end
 
 ;;;;;;;;;;;;;;;;;
 ; func structures
 ;;;;;;;;;;;;;;;;;
 
-	struc fn_header
-		fn_header_next:			resq 1
-		fn_header_length:		resq 1
-		fn_header_entry:		resq 1
-		fn_header_links:		resq 1
-		fn_header_pathname:
-	endstruc
+	def_structure fn_header
+		def_long	fn_header_next
+		def_long	fn_header_length
+		def_long	fn_header_entry
+		def_long	fn_header_links
+		def_struct	fn_header_pathname, null
+	def_structure_end
 
 ;;;;;;;;;;;;;
 ; func macros

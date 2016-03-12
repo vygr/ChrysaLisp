@@ -19,6 +19,7 @@ class/view/deinit
 class/view/dirty
 class/view/dirty_all
 class/view/draw
+class/view/event
 class/view/find_tcb
 class/view/forward
 class/view/get_relative
@@ -116,7 +117,16 @@ sys/write_number
 sys/write_string
 syscalls
 tests/gui/gui1/app
+tests/gui/gui1/class_window
+tests/gui/gui1/window/create
+tests/gui/gui1/window/mouse_down
+tests/gui/gui1/window/mouse_move
+tests/gui/gui1/window/new
 tests/gui/gui2/app
+tests/gui/gui2/class_window
+tests/gui/gui2/window/create
+tests/gui/gui2/window/mouse_move
+tests/gui/gui2/window/new
 tests/test1
 tests/test10
 tests/test11
@@ -129,5 +139,3 @@ tests/test6
 tests/test7
 tests/test8
 tests/test9
-
-class/view/event

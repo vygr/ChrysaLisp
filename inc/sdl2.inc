@@ -104,12 +104,12 @@
 	SDL_BLENDMODE_ADD		equ 2
 	SDL_BLENDMODE_MOD		equ 3
 
-	struc sdl_rect
-		sdl_rect_x:			resd 1
-		sdl_rect_y:			resd 1
-		sdl_rect_w:			resd 1
-		sdl_rect_h:			resd 1
-	endstruc
+	def_structure sdl_rect
+		def_int	sdl_rect_x
+		def_int	sdl_rect_y
+		def_int	sdl_rect_w
+		def_int	sdl_rect_h
+	def_structure_end
 
 ;;;;;;;;;;;;;
 ; sdl2 macros

@@ -1,13 +1,13 @@
 %include 'inc/func.inc'
 %include 'inc/sdl2.inc'
 
-	struc fbox
-		fbox_rect:			resb sdl_rect_size
-		fbox_clip_rect:		resb sdl_rect_size
-		fbox_ctx:			resq 1
-		fbox_patch:			resq 1
-		fbox_old_stack:		resq 1
-	endstruc
+	def_structure fbox
+		def_struct	fbox_rect, sdl_rect
+		def_struct	fbox_clip_rect, sdl_rect
+		def_long	fbox_ctx
+		def_long	fbox_patch
+		def_long	fbox_old_stack
+	def_structure_end
 
 	fn_function gui/ctx_filled_box
 		;inputs

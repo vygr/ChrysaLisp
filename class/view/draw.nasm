@@ -9,10 +9,10 @@
 		;trashes
 		;all but r4
 
-		struc draw_view
-			draw_view_view:	resq 1
-			draw_view_ctx:	resq 1
-		endstruc
+		def_structure draw_view
+			def_long	draw_view_view
+			def_long	draw_view_ctx
+		def_structure_end
 
 		vp_sub draw_view_size, r4
 		vp_cpy r0, [r4 + draw_view_view]

@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
-%include 'class/class_view.inc'
+%include 'tests/gui/gui1/class_window.inc'
 
 ;;;;;;;;;;;
 ; test code
@@ -8,20 +8,16 @@
 
 	fn_function tests/gui/gui1/app
 
-		struc app
-			app_window:			resq 1
-			app_last_x:			resq 1
-			app_last_y:			resq 1
-			app_last_buttons:	resq 1
-			app_last_event:		resq 1
-		endstruc
+		def_structure app
+			def_long	app_window
+			def_long	app_last_event
+		def_structure_end
 
 		;init app vars
 		vp_sub app_size, r4
-		vp_cpy 0, qword[r4 + app_last_buttons]
 
-		;allocate view
-		static_call view, create
+		;create my window
+		static_call window, create
 		vp_cpy r0, [r4 + app_window]
 
 		;fill in sizes etc
@@ -50,44 +46,10 @@
 			static_call mail, mymail
 			vp_cpy r0, [r4 + app_last_event]
 
-			;what type of event ?
-			vp_cpy [r0 + (ml_msg_data + ev_data_type)], r1
-			switch
-			case r1, ==, ev_type_mouse
-				;so what state are we in ?
-				vp_cpy [r0 + (ml_msg_data + ev_data_buttons)], r10
-				if qword[r4 + app_last_buttons], !=, 0
-					;was down previously
-					if r10, !=, 0
-						;is down now, so move
-						vp_cpy [r0 + (ml_msg_data + ev_data_x)], r8
-						vp_cpy [r0 + (ml_msg_data + ev_data_y)], r9
-						vp_sub [r4 + app_last_x], r8
-						vp_sub [r4 + app_last_y], r9
-						vp_cpy [r0 + (ml_msg_data + ev_data_view)], r0
-						vp_cpy [r0 + view_w], r10
-						vp_cpy [r0 + view_h], r11
-						static_call view, move
-					else
-						;is not down now, so release
-						vp_cpy r10, [r4 + app_last_buttons]
-					endif
-				else
-					;was not down previously
-					if r10, !=, 0
-						;is down now, so first down
-						vp_cpy r10, [r4 + app_last_buttons]
-						vp_cpy [r0 + (ml_msg_data + ev_data_rx)], r8
-						vp_cpy [r0 + (ml_msg_data + ev_data_ry)], r9
-						vp_cpy r8, [r4 + app_last_x]
-						vp_cpy r9, [r4 + app_last_y]
-					else
-						;is not down now, so hover
-					endif
-				endif
-				break
-			default
-			endswitch
+			;dispatch event to view
+			vp_cpy r0, r1
+			vp_cpy [r1 + (ml_msg_data + ev_data_view)], r0
+			method_call view, event
 
 			;free event message
 			vp_cpy [r4 + app_last_event], r0
