@@ -53,9 +53,9 @@
 
 		;for now fire up the two test apps
 		;this might be an gui auto run list eventually
-		fn_bind tests/gui2, r0
+		fn_bind tests/gui/gui2/app, r0
 		static_call task, start
-		fn_bind tests/gui1, r0
+		fn_bind tests/gui/gui1/app, r0
 		static_call task, start
 
 		;gui event loop

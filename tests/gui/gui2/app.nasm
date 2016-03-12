@@ -6,7 +6,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function tests/gui2
+	fn_function tests/gui/gui2/app
 
 		struc app
 			app_window:			resq 1

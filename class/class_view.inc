@@ -23,6 +23,11 @@
 	def_method deinit, class/view/deinit, override
 	def_method draw, class/view/draw, virtual
 	def_method hit, class/view/hit, virtual
+	def_method event, class/view/event, virtual
+	def_method mouse_down, class/obj/null, virtual
+	def_method mouse_up, class/obj/null, virtual
+	def_method mouse_move, class/obj/null, virtual
+	def_method mouse_hover, class/obj/null, virtual
 
 	struc view, ref_size
 		view_node:				resb ln_node_size
@@ -37,6 +42,7 @@
 		view_y:					resq 1
 		view_w:					resq 1
 		view_h:					resq 1
+		view_last_buttons:		resq 1
 		view_red:				resq 1
 		view_green:				resq 1
 		view_blue:				resq 1

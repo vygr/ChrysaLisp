@@ -115,8 +115,8 @@ sys/write_char
 sys/write_number
 sys/write_string
 syscalls
-tests/gui1
-tests/gui2
+tests/gui/gui1/app
+tests/gui/gui2/app
 tests/test1
 tests/test10
 tests/test11
@@ -129,3 +129,5 @@ tests/test6
 tests/test7
 tests/test8
 tests/test9
+
+class/view/event
