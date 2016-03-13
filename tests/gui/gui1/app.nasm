@@ -26,8 +26,9 @@
 
 		;set owner
 		static_call task, tcb
-		vp_cpy [r4 + app_window], r1
-		vp_cpy r0, [r1 + view_tcb]
+		vp_cpy r0, r1
+		vp_cpy [r4 + app_window], r0
+		static_call window, set_owner
 
 		;add 4 buttons to the window panel
 		static_call button, create
@@ -100,7 +101,7 @@
 		;deref window
 		vp_cpy [r4 + app_window], r0
 		static_call window, deref
-		
+
 		vp_add app_size, r4
 		vp_ret
 

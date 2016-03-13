@@ -89,7 +89,7 @@
 				if r6, !=, -1
 					;lookup view owner
 					vp_cpy r6, r0
-					static_call view, owner
+					static_call view, find_owner
 					if r1, !=, 0
 						;save owner mailbox
 						static_call cpu, id

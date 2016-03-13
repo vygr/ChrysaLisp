@@ -46,6 +46,7 @@ class/view/forward
 class/view/forward_tree
 class/view/get_color
 class/view/get_relative
+class/view/get_tcb
 class/view/hit
 class/view/hit_tree
 class/view/init
@@ -54,6 +55,7 @@ class/view/new
 class/view/opaque
 class/view/pref_size
 class/view/set_color
+class/view/set_tcb
 class/view/sub
 class/window/create
 class/window/deinit
