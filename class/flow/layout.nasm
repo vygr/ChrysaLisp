@@ -31,7 +31,7 @@
 
 		vp_cpy r4, r1
 		vp_lea [rel callback], r2
-		static_call flow, forward
+		static_call flow, backward
 
 		vp_add layout_size, r4
 		vp_ret
@@ -39,14 +39,12 @@
 	callback:
 		vp_push r1, r0
 		method_call view, pref_size
-
 		vp_cpy [r4], r0
 		vp_cpy [r4 + 8], r1
 		vp_cpy [r1 + layout_x], r8
 		vp_cpy [r1 + layout_y], r9
 		vp_cpy r8, r12
 		vp_cpy r9, r13
-
 		vp_cpy [r0 + view_parent], r2
 		vp_cpy [r2 + flow_flags], r3
 		vp_and flow_flag_down, r3
@@ -74,10 +72,69 @@
 			vp_sub r10, r8
 			vp_cpy r8, r12
 		endif
+		vp_cpy [r2 + flow_flags], r3
+		vp_and flow_flag_fillw, r3
+		if r3, !=, 0
+			;fill width of parent
+			vp_cpy [r2 + view_w], r10
+			vp_xor r8, r8
+		endif
+		vp_cpy [r2 + flow_flags], r3
+		vp_and flow_flag_fillh, r3
+		if r3, !=, 0
+			;fill height of parent
+			vp_cpy [r2 + view_h], r11
+			vp_xor r9, r9
+		endif
+		vp_cpy [r2 + flow_flags], r3
+		vp_and flow_flag_lastw, r3
+		if r3, !=, 0
+			;last one fills width gap of parent
+			ln_is_last r0 + view_node, r3
+			if r3, ==, 0
+				vp_cpy [r2 + flow_flags], r3
+				vp_and flow_flag_right, r3
+				if r3, !=, 0
+					;flow right
+					vp_lea [r8 + r10], r15
+					vp_sub [r2 + view_w], r15
+					vp_sub r15, r10
+				endif
+				vp_cpy [r2 + flow_flags], r3
+				vp_and flow_flag_left, r3
+				if r3, !=, 0
+					;flow left
+					vp_add r8, r10
+					vp_xor r8, r8
+				endif
+			endif
+		endif
+		vp_cpy [r2 + flow_flags], r3
+		vp_and flow_flag_lasth, r3
+		if r3, !=, 0
+			;last one fills height gap of parent
+			ln_is_last r0 + view_node, r3
+			if r3, ==, 0
+				vp_cpy [r2 + flow_flags], r3
+				vp_and flow_flag_down, r3
+				if r3, !=, 0
+					;flow down
+					vp_lea [r9 + r11], r15
+					vp_sub [r2 + view_h], r15
+					vp_sub r15, r11
+				endif
+				vp_cpy [r2 + flow_flags], r3
+				vp_and flow_flag_up, r3
+				if r3, !=, 0
+					;flow up
+					vp_add r9, r11
+					vp_xor r9, r9
+				endif
+			endif
+		endif
 		vp_cpy r12, [r1 + layout_x]
 		vp_cpy r13, [r1 + layout_y]
-		static_call view, move
-
+		static_call view, change
 		vp_pop r1, r0
 		vp_ret
 

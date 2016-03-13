@@ -1,8 +1,8 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
-%include 'class/class_title.inc'
+%include 'class/class_button.inc'
 
-	fn_function class/title/pref_size
+	fn_function class/button/pref_size
 		;inputs
 		;r0 = flow object
 		;outputs
@@ -11,7 +11,7 @@
 		;trashes
 		;all but r4
 
-		vp_cpy 128, r10
+		vp_cpy 32, r10
 		vp_cpy 32, r11
 		vp_ret
 

@@ -1,4 +1,9 @@
 *.o
+class/button/create
+class/button/draw
+class/button/new
+class/button/pref_size
+class/class_button
 class/class_flow
 class/class_obj
 class/class_ref
@@ -17,6 +22,8 @@ class/ref/deref
 class/ref/init
 class/ref/ref
 class/title/create
+class/title/draw
+class/title/mouse_move
 class/title/new
 class/title/pref_size
 class/view/add
@@ -24,11 +31,13 @@ class/view/add_dirty
 class/view/add_opaque
 class/view/backward
 class/view/backward_tree
+class/view/change
 class/view/create
 class/view/deinit
 class/view/dirty
 class/view/dirty_all
 class/view/draw
+class/view/draw_panel
 class/view/event
 class/view/find_tcb
 class/view/forward
@@ -134,11 +143,6 @@ tests/gui/gui1/window/create
 tests/gui/gui1/window/mouse_down
 tests/gui/gui1/window/mouse_move
 tests/gui/gui1/window/new
-tests/gui/gui2/app
-tests/gui/gui2/class_window
-tests/gui/gui2/window/create
-tests/gui/gui2/window/mouse_move
-tests/gui/gui2/window/new
 tests/test1
 tests/test10
 tests/test11

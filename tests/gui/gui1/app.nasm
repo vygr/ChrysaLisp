@@ -2,6 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_flow.inc'
 %include 'class/class_title.inc'
+%include 'class/class_button.inc'
 %include 'tests/gui/gui1/class_window.inc'
 
 ;;;;;;;;;;;
@@ -11,8 +12,10 @@
 	fn_function tests/gui/gui1/app
 
 		def_structure app
-			def_long	app_window
 			def_long	app_last_event
+			def_long	app_window
+			def_long	app_title
+			def_long	app_panel
 		def_structure_end
 
 		;init app vars
@@ -21,61 +24,77 @@
 		;create my window
 		static_call flow, create
 		vp_cpy r0, [r4 + app_window]
-		vp_cpy flow_flag_down, qword[r0 + flow_flags]
-		vp_cpy 128, qword[r0 + view_x]
-		vp_cpy 128, qword[r0 + view_y]
-		vp_cpy 128, qword[r0 + view_w]
-		vp_cpy 128, qword[r0 + view_h]
+		vp_cpy flow_flag_down | flow_flag_fillw | flow_flag_lasth, qword[r0 + flow_flags]
 		vp_cpy 255, qword[r0 + view_red]
 		vp_cpy 255, qword[r0 + view_green]
-		vp_cpy 0, qword[r0 + view_blue]
-		vp_cpy 192, qword[r0 + view_alpha]
+		vp_cpy 255, qword[r0 + view_blue]
+		vp_cpy 255, qword[r0 + view_alpha]
 
 		;set owner
 		static_call task, tcb
 		vp_cpy [r4 + app_window], r1
 		vp_cpy r0, [r1 + view_tcb]
 
-		;add 4 titles
+		;add my title
 		static_call title, create
+		vp_cpy r0, [r4 + app_title]
 		vp_cpy 255, qword[r0 + view_red]
 		vp_cpy 0, qword[r0 + view_green]
 		vp_cpy 0, qword[r0 + view_blue]
-		vp_cpy 192, qword[r0 + view_alpha]
+		vp_cpy 255, qword[r0 + view_alpha]
 		vp_cpy [r4 + app_window], r1
 		static_call view, add
 
-		static_call title, create
+		;add my panel
+		static_call flow, create
+		vp_cpy r0, [r4 + app_panel]
+		vp_cpy flow_flag_right | flow_flag_down | flow_flag_lastw | flow_flag_lasth, qword[r0 + flow_flags]
 		vp_cpy 0, qword[r0 + view_red]
+		vp_cpy 0, qword[r0 + view_green]
+		vp_cpy 0, qword[r0 + view_blue]
+		vp_cpy 0, qword[r0 + view_alpha]
+		vp_cpy [r4 + app_window], r1
+		static_call view, add
+
+		;add 4 buttons to panel
+		static_call button, create
+		vp_cpy 255, qword[r0 + view_red]
 		vp_cpy 255, qword[r0 + view_green]
 		vp_cpy 0, qword[r0 + view_blue]
 		vp_cpy 192, qword[r0 + view_alpha]
-		vp_cpy [r4 + app_window], r1
+		vp_cpy [r4 + app_panel], r1
 		static_call view, add
-
-		static_call title, create
+		static_call button, create
 		vp_cpy 0, qword[r0 + view_red]
-		vp_cpy 0, qword[r0 + view_green]
-		vp_cpy 255, qword[r0 + view_blue]
-		vp_cpy 192, qword[r0 + view_alpha]
-		vp_cpy [r4 + app_window], r1
-		static_call view, add
-
-		static_call title, create
-		vp_cpy 255, qword[r0 + view_red]
 		vp_cpy 255, qword[r0 + view_green]
 		vp_cpy 255, qword[r0 + view_blue]
 		vp_cpy 192, qword[r0 + view_alpha]
-		vp_cpy [r4 + app_window], r1
+		vp_cpy [r4 + app_panel], r1
+		static_call view, add
+		static_call button, create
+		vp_cpy 255, qword[r0 + view_red]
+		vp_cpy 0, qword[r0 + view_green]
+		vp_cpy 255, qword[r0 + view_blue]
+		vp_cpy 192, qword[r0 + view_alpha]
+		vp_cpy [r4 + app_panel], r1
+		static_call view, add
+		static_call button, create
+		vp_cpy 0, qword[r0 + view_red]
+		vp_cpy 0, qword[r0 + view_green]
+		vp_cpy 0, qword[r0 + view_blue]
+		vp_cpy 192, qword[r0 + view_alpha]
+		vp_cpy [r4 + app_panel], r1
 		static_call view, add
 
-		;get pref size and layout
+		;set to pref size
 		vp_cpy [r4 + app_window], r0
 		method_call view, pref_size
 		vp_cpy [r4 + app_window], r0
-		vp_cpy r10, [r0 + view_w]
-		vp_cpy r11, [r0 + view_h]
-		method_call view, layout
+		vp_cpy 32, r8
+		vp_cpy 32, r9
+		vp_mul 2, r10
+		vp_mul 2, r11
+		static_call view, change
 
 		;add to screen and dirty
 		vp_cpy [r4 + app_window], r0
