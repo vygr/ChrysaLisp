@@ -29,7 +29,7 @@
 		vp_cpy [r4 + app_window], r1
 		vp_cpy r0, [r1 + view_tcb]
 
-		;add 4 buttons to thw window panel
+		;add 4 buttons to the window panel
 		static_call button, create
 		vp_cpy 255, r8
 		vp_cpy 255, r9
@@ -97,6 +97,10 @@
 			static_call mem, free
 		loop_end
 
+		;deref window
+		vp_cpy [r4 + app_window], r0
+		static_call window, deref
+		
 		vp_add app_size, r4
 		vp_ret
 

@@ -25,11 +25,8 @@
 
 		if r2, !=, 0
 			;fill middle
-			vp_cpy [r0 + view_red], r8
-			vp_cpy [r0 + view_green], r9
-			vp_cpy [r0 + view_blue], r10
-			vp_cpy [r0 + view_alpha], r11
-			vp_cpy r1, r0
+			static_call view, get_color
+			vp_cpy [r4 + draw_panel_ctx], r0
 			static_call ctx, set_color
 
 			vp_cpy [r4 + draw_panel_view], r0
@@ -45,10 +42,7 @@
 
 		;brighter colour
 		vp_cpy [r4 + draw_panel_view], r0
-		vp_cpy [r0 + view_red], r8
-		vp_cpy [r0 + view_green], r9
-		vp_cpy [r0 + view_blue], r10
-		vp_cpy [r0 + view_alpha], r11
+		static_call view, get_color
 		vp_shr 1, r8
 		vp_shr 1, r9
 		vp_shr 1, r10
@@ -78,10 +72,7 @@
 
 		;darker colour
 		vp_cpy [r4 + draw_panel_view], r0
-		vp_cpy [r0 + view_red], r8
-		vp_cpy [r0 + view_green], r9
-		vp_cpy [r0 + view_blue], r10
-		vp_cpy [r0 + view_alpha], r11
+		static_call view, get_color
 		vp_shr 1, r8
 		vp_shr 1, r9
 		vp_shr 1, r10
