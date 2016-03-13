@@ -1,5 +1,5 @@
 %ifndef CLASS_VIEW_1234
-	%define CLASS_VIEW_1234
+%define CLASS_VIEW_1234
 
 %include 'class/class_ref.inc'
 

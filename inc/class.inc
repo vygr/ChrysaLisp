@@ -1,5 +1,5 @@
 %ifndef CLASS_1234
-	%define CLASS_1234
+%define CLASS_1234
 
 	%macro vtable_emit 1
 		;%1 = class name

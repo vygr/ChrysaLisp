@@ -1,5 +1,5 @@
 %ifndef LINK_1234
-	%define LINK_1234
+%define LINK_1234
 
 %include 'inc/list.inc'
 %include 'inc/mail.inc'

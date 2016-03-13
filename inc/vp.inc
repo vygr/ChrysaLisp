@@ -1,5 +1,5 @@
 %ifndef VP_1234
-	%define VP_1234
+%define VP_1234
 
 ;;;;;;;;;;;;;;;;
 ; vp code macros

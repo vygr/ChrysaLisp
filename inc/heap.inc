@@ -1,5 +1,5 @@
 %ifndef HEAP_1234
-	%define HEAP_1234
+%define HEAP_1234
 
 %include 'inc/class.inc'
 

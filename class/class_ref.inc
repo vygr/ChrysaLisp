@@ -1,5 +1,5 @@
 %ifndef CLASS_REF_1234
-	%define CLASS_REF_1234
+%define CLASS_REF_1234
 
 %include 'class/class_obj.inc'
 

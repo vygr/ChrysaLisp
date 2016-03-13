@@ -1,5 +1,5 @@
 %ifndef STRING_1234
-	%define STRING_1234
+%define STRING_1234
 
 %include 'inc/class.inc'
 

@@ -1,5 +1,5 @@
 %ifndef CLASS_FLOW_1234
-	%define CLASS_FLOW_1234
+%define CLASS_FLOW_1234
 
 %include 'class/class_view.inc'
 

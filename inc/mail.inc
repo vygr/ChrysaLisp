@@ -1,5 +1,5 @@
 %ifndef MAIL_1234
-	%define MAIL_1234
+%define MAIL_1234
 
 %include 'inc/class.inc'
 

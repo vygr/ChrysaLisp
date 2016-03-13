@@ -1,5 +1,5 @@
 %ifndef LIST_1234
-	%define LIST_1234
+%define LIST_1234
 
 %include 'inc/vp.inc'
 %include 'inc/code.inc'

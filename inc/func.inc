@@ -1,5 +1,5 @@
 %ifndef FUNC_1234
-	%define FUNC_1234
+%define FUNC_1234
 
 %include 'inc/vp.inc'
 %include 'inc/code.inc'

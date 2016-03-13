@@ -1,5 +1,5 @@
 %ifndef LOAD_1234
-	%define LOAD_1234
+%define LOAD_1234
 
 %include 'inc/class.inc'
 

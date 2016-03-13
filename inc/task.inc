@@ -1,5 +1,5 @@
 %ifndef TASK_1234
-	%define TASK_1234
+%define TASK_1234
 
 %include 'inc/class.inc'
 %include 'inc/list.inc'

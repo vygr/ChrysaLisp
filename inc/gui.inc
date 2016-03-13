@@ -1,5 +1,5 @@
 %ifndef GUI_1234
-	%define GUI_1234
+%define GUI_1234
 
 %include 'inc/list.inc'
 %include 'inc/heap.inc'
