@@ -9,6 +9,7 @@ class/class_obj
 class/class_ref
 class/class_title
 class/class_view
+class/class_window
 class/flow/create
 class/flow/layout
 class/flow/new
@@ -23,8 +24,8 @@ class/ref/init
 class/ref/ref
 class/title/create
 class/title/draw
-class/title/mouse_move
 class/title/mouse_down
+class/title/mouse_move
 class/title/new
 class/title/pref_size
 class/view/add
@@ -43,6 +44,7 @@ class/view/event
 class/view/find_tcb
 class/view/forward
 class/view/forward_tree
+class/view/get_color
 class/view/get_relative
 class/view/hit
 class/view/hit_tree
@@ -51,7 +53,13 @@ class/view/move
 class/view/new
 class/view/opaque
 class/view/pref_size
+class/view/set_color
 class/view/sub
+class/window/create
+class/window/deinit
+class/window/get_panel
+class/window/init
+class/window/new
 gui/ctx_filled_box
 gui/ctx_set_color
 gui/gui
@@ -151,13 +159,3 @@ tests/test6
 tests/test7
 tests/test8
 tests/test9
-
-class/class_window
-
-class/window/create
-
-class/window/deinit
-
-class/window/init
-
-class/window/new

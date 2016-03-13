@@ -6,6 +6,7 @@
 	def_class window, flow
 	def_method create, class/window/create
 	def_method new, class/window/new
+	def_method panel, class/window/get_panel
 
 	def_method init, class/window/init, override
 	def_method deinit, class/window/deinit, override

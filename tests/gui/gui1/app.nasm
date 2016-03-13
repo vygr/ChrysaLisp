@@ -12,6 +12,7 @@
 		def_structure app
 			def_long	app_last_event
 			def_long	app_window
+			def_long	app_window_panel
 		def_structure_end
 
 		;init app vars
@@ -19,46 +20,51 @@
 
 		;create my window
 		static_call window, create
+		static_call window, panel
 		vp_cpy r0, [r4 + app_window]
+		vp_cpy r1, [r4 + app_window_panel]
 
 		;set owner
 		static_call task, tcb
 		vp_cpy [r4 + app_window], r1
 		vp_cpy r0, [r1 + view_tcb]
 
-		;add 4 buttons to panel
+		;add 4 buttons to thw window panel
 		static_call button, create
-		vp_cpy 255, qword[r0 + view_red]
-		vp_cpy 255, qword[r0 + view_green]
-		vp_cpy 0, qword[r0 + view_blue]
-		vp_cpy 192, qword[r0 + view_alpha]
-		vp_cpy [r4 + app_window], r1
-		vp_cpy [r1 + window_panel], r1
-		static_call view, add
+		vp_cpy 255, r8
+		vp_cpy 255, r9
+		vp_cpy 0, r10
+		vp_cpy 192, r11
+		static_call button, set_color
+		vp_cpy [r4 + app_window_panel], r1
+		static_call button, add
+
 		static_call button, create
-		vp_cpy 0, qword[r0 + view_red]
-		vp_cpy 255, qword[r0 + view_green]
-		vp_cpy 255, qword[r0 + view_blue]
-		vp_cpy 192, qword[r0 + view_alpha]
-		vp_cpy [r4 + app_window], r1
-		vp_cpy [r1 + window_panel], r1
-		static_call view, add
+		vp_cpy 0, r8
+		vp_cpy 255, r9
+		vp_cpy 255, r10
+		vp_cpy 192, r11
+		static_call button, set_color
+		vp_cpy [r4 + app_window_panel], r1
+		static_call button, add
+
 		static_call button, create
-		vp_cpy 255, qword[r0 + view_red]
-		vp_cpy 0, qword[r0 + view_green]
-		vp_cpy 255, qword[r0 + view_blue]
-		vp_cpy 192, qword[r0 + view_alpha]
-		vp_cpy [r4 + app_window], r1
-		vp_cpy [r1 + window_panel], r1
-		static_call view, add
+		vp_cpy 255, r8
+		vp_cpy 0, r9
+		vp_cpy 255, r10
+		vp_cpy 192, r11
+		static_call button, set_color
+		vp_cpy [r4 + app_window_panel], r1
+		static_call button, add
+
 		static_call button, create
-		vp_cpy 0, qword[r0 + view_red]
-		vp_cpy 0, qword[r0 + view_green]
-		vp_cpy 0, qword[r0 + view_blue]
-		vp_cpy 192, qword[r0 + view_alpha]
-		vp_cpy [r4 + app_window], r1
-		vp_cpy [r1 + window_panel], r1
-		static_call view, add
+		vp_cpy 0, r8
+		vp_cpy 0, r9
+		vp_cpy 0, r10
+		vp_cpy 192, r11
+		static_call button, set_color
+		vp_cpy [r4 + app_window_panel], r1
+		static_call button, add
 
 		;set to pref size
 		vp_cpy [r4 + app_window], r0

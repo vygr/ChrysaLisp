@@ -23,6 +23,8 @@
 	def_method hit_tree, class/view/hit_tree
 	def_method owner, class/view/find_tcb
 	def_method draw_panel, class/view/draw_panel
+	def_method set_color, class/view/set_color
+	def_method get_color, class/view/get_color
 
 	def_method init, class/view/init, override
 	def_method deinit, class/view/deinit, override
