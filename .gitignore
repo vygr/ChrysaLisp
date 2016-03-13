@@ -24,6 +24,7 @@ class/ref/ref
 class/title/create
 class/title/draw
 class/title/mouse_move
+class/title/mouse_down
 class/title/new
 class/title/pref_size
 class/view/add
@@ -138,11 +139,6 @@ sys/write_number
 sys/write_string
 syscalls
 tests/gui/gui1/app
-tests/gui/gui1/class_window
-tests/gui/gui1/window/create
-tests/gui/gui1/window/mouse_down
-tests/gui/gui1/window/mouse_move
-tests/gui/gui1/window/new
 tests/test1
 tests/test10
 tests/test11
@@ -155,3 +151,13 @@ tests/test6
 tests/test7
 tests/test8
 tests/test9
+
+class/class_window
+
+class/window/create
+
+class/window/deinit
+
+class/window/init
+
+class/window/new

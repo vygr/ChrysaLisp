@@ -11,7 +11,7 @@
 		;trashes
 		;all but r4
 
-		vp_cpy 128, r10
+		vp_cpy 256, r10
 		vp_cpy 32, r11
 		vp_ret
 

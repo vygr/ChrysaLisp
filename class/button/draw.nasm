@@ -9,6 +9,7 @@
 		;trashes
 		;all but r4
 
+		vp_cpy 1, r2
 		static_call button, draw_panel
 		vp_ret
 

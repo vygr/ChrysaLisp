@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
-%include 'tests/gui/gui1/class_window.inc'
+%include 'class/class_window.inc'
 
-	fn_function tests/gui/gui1/window/create
+	fn_function class/window/create
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
@@ -11,7 +11,7 @@
 		static_call window, new
 		if r0, !=, 0
 			;init the object
-			fn_bind tests/gui/gui1/class_window, r1
+			fn_bind class/class_window, r1
 			static_call window, init
 			if r1, ==, 0
 				;error with init
