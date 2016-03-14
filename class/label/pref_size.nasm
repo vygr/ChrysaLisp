@@ -1,10 +1,10 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
-%include 'class/class_button.inc'
+%include 'class/class_label.inc'
 
-	fn_function class/button/pref_size
+	fn_function class/label/pref_size
 		;inputs
-		;r0 = button object
+		;r0 = label object
 		;outputs
 		;r10 = prefered width
 		;r11 = prefered height

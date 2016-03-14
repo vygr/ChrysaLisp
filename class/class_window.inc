@@ -14,6 +14,7 @@
 	def_structure window, flow
 		def_long	window_border
 		def_long	window_title
+		def_long	window_status
 		def_long	window_panel
 	def_structure_end
 

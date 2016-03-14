@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 %include 'class/class_window.inc'
+%include 'class/class_flow.inc'
 %include 'class/class_button.inc'
 
 ;;;;;;;;;;;
@@ -80,7 +81,7 @@
 		static_call button, create
 		fn_assert r0, !=, 0
 		vp_cpy 0, r8
-		vp_cpy 0, r9
+		vp_cpy 255, r9
 		vp_cpy 0, r10
 		vp_cpy 192, r11
 		static_call button, set_color

@@ -5,6 +5,7 @@ class/button/new
 class/button/pref_size
 class/class_button
 class/class_flow
+class/class_label
 class/class_obj
 class/class_ref
 class/class_title
@@ -15,6 +16,10 @@ class/flow/layout
 class/flow/new
 class/flow/pref_size
 class/flow/set_flags
+class/label/create
+class/label/draw
+class/label/new
+class/label/pref_size
 class/obj/create
 class/obj/destroy
 class/obj/init
