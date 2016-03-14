@@ -13,6 +13,7 @@
 			def_long	app_last_event
 			def_long	app_window
 			def_long	app_window_panel
+			def_long	app_panel
 		def_structure_end
 
 		;init app vars
@@ -20,6 +21,7 @@
 
 		;create my window
 		static_call window, create
+		fn_assert r0, !=, 0
 		static_call window, panel
 		vp_cpy r0, [r4 + app_window]
 		vp_cpy r1, [r4 + app_window_panel]
@@ -30,41 +32,59 @@
 		vp_cpy [r4 + app_window], r0
 		static_call window, set_owner
 
-		;add 4 buttons to the window panel
+		;add my button panel
+		static_call flow, create
+		fn_assert r0, !=, 0
+		vp_cpy r0, [r4 + app_panel]
+		vp_cpy flow_flag_right | flow_flag_down, r8
+		static_call flow, set_flags
+		vp_xor r8, r8
+		vp_xor r9, r9
+		vp_xor r10, r10
+		vp_xor r11, r11
+		static_call view, set_color
+		vp_cpy [r4 + app_window_panel], r1
+		static_call flow, add
+
+		;add 4 buttons to my app panel
 		static_call button, create
+		fn_assert r0, !=, 0
 		vp_cpy 255, r8
 		vp_cpy 255, r9
 		vp_cpy 0, r10
 		vp_cpy 192, r11
 		static_call button, set_color
-		vp_cpy [r4 + app_window_panel], r1
+		vp_cpy [r4 + app_panel], r1
 		static_call button, add
 
 		static_call button, create
+		fn_assert r0, !=, 0
 		vp_cpy 0, r8
 		vp_cpy 255, r9
 		vp_cpy 255, r10
 		vp_cpy 192, r11
 		static_call button, set_color
-		vp_cpy [r4 + app_window_panel], r1
+		vp_cpy [r4 + app_panel], r1
 		static_call button, add
 
 		static_call button, create
+		fn_assert r0, !=, 0
 		vp_cpy 255, r8
 		vp_cpy 0, r9
 		vp_cpy 255, r10
 		vp_cpy 192, r11
 		static_call button, set_color
-		vp_cpy [r4 + app_window_panel], r1
+		vp_cpy [r4 + app_panel], r1
 		static_call button, add
 
 		static_call button, create
+		fn_assert r0, !=, 0
 		vp_cpy 0, r8
 		vp_cpy 0, r9
 		vp_cpy 0, r10
 		vp_cpy 192, r11
 		static_call button, set_color
-		vp_cpy [r4 + app_window_panel], r1
+		vp_cpy [r4 + app_panel], r1
 		static_call button, add
 
 		;set to pref size
@@ -73,8 +93,6 @@
 		vp_cpy [r4 + app_window], r0
 		vp_cpy 32, r8
 		vp_cpy 32, r9
-		vp_mul 2, r10
-		vp_mul 2, r11
 		static_call window, change
 
 		;add to screen and dirty

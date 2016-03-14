@@ -10,19 +10,21 @@
 		;allocate background view
 		static_call view, create
 
-		;fill in sizes etc
-		vp_cpy 0, qword[r0 + view_x]
-		vp_cpy 0, qword[r0 + view_y]
-		vp_cpy SCREEN_WIDTH, qword[r0 + view_w]
-		vp_cpy SCREEN_HEIGHT, qword[r0 + view_h]
-		vp_cpy 0, qword[r0 + view_red]
-		vp_cpy 0, qword[r0 + view_green]
-		vp_cpy 0, qword[r0 + view_blue]
-		vp_cpy 255, qword[r0 + view_alpha]
-
-		;add as gui screen view
+		;set as gui screen view
 		static_bind gui, statics, r1
 		vp_cpy r0, [r1 + gui_statics_screen]
+
+		;size and color and opaque
+		vp_xor r8, r8
+		vp_xor r9, r9
+		vp_cpy SCREEN_WIDTH, r10
+		vp_cpy SCREEN_HEIGHT, r11
+		static_call view, change
+		vp_xor r8, r8
+		vp_xor r9, r9
+		vp_xor r10, r10
+		vp_cpy 255, r11
+		static_call view, set_color
 		static_call view, opaque
 
 		;dirty all

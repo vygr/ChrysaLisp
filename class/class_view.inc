@@ -22,7 +22,6 @@
 	def_method change, class/view/change
 	def_method hit_tree, class/view/hit_tree
 	def_method set_owner, class/view/set_tcb
-	def_method get_owner, class/view/get_tcb
 	def_method find_owner, class/view/find_tcb
 	def_method draw_panel, class/view/draw_panel
 	def_method set_color, class/view/set_color

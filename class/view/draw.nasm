@@ -18,10 +18,7 @@
 		vp_cpy r0, [r4 + draw_view_view]
 		vp_cpy r1, [r4 + draw_view_ctx]
 
-		vp_cpy [r0 + view_red], r8
-		vp_cpy [r0 + view_green], r9
-		vp_cpy [r0 + view_blue], r10
-		vp_cpy [r0 + view_alpha], r11
+		static_call view, get_color
 		vp_cpy r1, r0
 		static_call ctx, set_color
 

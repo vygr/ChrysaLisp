@@ -16,21 +16,24 @@
 		super_call window, init
 		if r1, !=, 0
 			;init myself
-			vp_cpy flow_flag_down | flow_flag_fillw | flow_flag_lasth, qword[r0 + flow_flags]
-			vp_cpy 255, qword[r0 + view_red]
-			vp_cpy 255, qword[r0 + view_green]
-			vp_cpy 255, qword[r0 + view_blue]
-			vp_cpy 255, qword[r0 + view_alpha]
+			vp_cpy flow_flag_down | flow_flag_fillw | flow_flag_lasth, r8
+			static_call flow, set_flags
+			vp_cpy 255, r8
+			vp_cpy 255, r9
+			vp_cpy 255, r10
+			vp_cpy 255, r11
+			static_call view, set_color
 
 			;add my title
 			static_call title, create
 			fn_assert r0, !=, 0
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_title]
-			vp_cpy 255, qword[r0 + view_red]
-			vp_cpy 0, qword[r0 + view_green]
-			vp_cpy 0, qword[r0 + view_blue]
-			vp_cpy 255, qword[r0 + view_alpha]
+			vp_cpy 255, r8
+			vp_xor r9, r9
+			vp_xor r10, r10
+			vp_cpy 255, r11
+			static_call view, set_color
 			static_call view, add
 
 			;add my panel
@@ -38,11 +41,12 @@
 			fn_assert r0, !=, 0
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_panel]
-			vp_cpy flow_flag_right | flow_flag_down | flow_flag_lastw | flow_flag_lasth, qword[r0 + flow_flags]
-			vp_cpy 0, qword[r0 + view_red]
-			vp_cpy 0, qword[r0 + view_green]
-			vp_cpy 0, qword[r0 + view_blue]
-			vp_cpy 0, qword[r0 + view_alpha]
+			vp_cpy flow_flag_fillw | flow_flag_fillh, qword[r0 + flow_flags]
+			vp_cpy 255, r8
+			vp_cpy 255, r9
+			vp_cpy 255, r10
+			vp_cpy 255, r11
+			static_call view, set_color
 			static_call view, add
 		endif
 		vp_pop r0

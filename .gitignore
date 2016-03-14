@@ -14,6 +14,7 @@ class/flow/create
 class/flow/layout
 class/flow/new
 class/flow/pref_size
+class/flow/set_flags
 class/obj/create
 class/obj/destroy
 class/obj/init
@@ -46,7 +47,6 @@ class/view/forward
 class/view/forward_tree
 class/view/get_color
 class/view/get_relative
-class/view/get_tcb
 class/view/hit
 class/view/hit_tree
 class/view/init
