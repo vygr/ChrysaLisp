@@ -4,14 +4,13 @@
 
 	fn_function class/button/draw
 		;inputs
-		;r0 = view object
+		;r0 = window object
 		;r1 = ctx object
 		;trashes
 		;all but r4
 
 		vp_cpy 1, r2
-		vp_cpy 1, r3
-		static_call button, draw_panel
-		vp_ret
+		vp_cpy button_border_size, r3
+		static_jmp button, draw_panel
 
 	fn_function_end

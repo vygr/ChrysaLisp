@@ -3,6 +3,8 @@
 
 %include 'class/class_label.inc'
 
+%define button_border_size 2
+
 	def_class button, label
 	def_method create, class/button/create
 	def_method new, class/button/new

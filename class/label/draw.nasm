@@ -11,7 +11,6 @@
 
 		vp_cpy 1, r2
 		vp_xor r3, r3
-		static_call label, draw_panel
-		vp_ret
+		static_jmp label, draw_panel
 
 	fn_function_end

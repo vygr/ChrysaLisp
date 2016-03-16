@@ -5,6 +5,8 @@
 		;inputs
 		;r0 = view object
 		;r1 = ansestor view object
+		;r8 = view x
+		;r9 = view y
 		;outputs
 		;r8 = relative x
 		;r9 = relative y
@@ -12,8 +14,6 @@
 		;r2
 
 		;walk up tree to parent
-		vp_xor r8, r8
-		vp_xor r9, r9
 		vp_cpy r0, r2
 		loop_while r2, !=, r1
 			fn_assert qword[r2 + view_parent], !=, 0
