@@ -23,7 +23,7 @@
 			vp_cpy 255, r9
 			vp_cpy 255, r10
 			vp_cpy 255, r11
-			static_call view, set_color
+			static_call flow, set_color
 
 			;add my title
 			static_call title, create

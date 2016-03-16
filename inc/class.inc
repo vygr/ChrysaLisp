@@ -166,11 +166,7 @@
 
 		method_lookup %1, %2
 		%ifidn _map_%[%1]_type_%[_nonvirtual_], virtual
-			%ifidn _map_%[%1]_name_%[_nonvirtual_], init
-				;exeption for init
-			%else
-				%fatal Class %1 method %2 is virtual ! Use method_call ?
-			%endif
+			%fatal Class %1 method %2 is virtual ! Use method_call ?
 		%endif
 		fn_call _map_%[%1]_func_%[_nonvirtual_]
 	%endmacro
@@ -204,7 +200,11 @@
 
 		method_lookup _super_class_%[%1]_, %2
 		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], nonvirtual
-			%fatal Class _super_class_%[%1]_ method %2 is nonvirtual !
+			%ifidn _map_%[_super_class_%[%1]_]_name_%[_nonvirtual_], init
+				;exeption for init
+			%else
+				%fatal Class _super_class_%[%1]_ method %2 is nonvirtual !
+			%endif
 		%endif
 		fn_call _map_%[_super_class_%[%1]_]_func_%[_nonvirtual_]
 	%endmacro

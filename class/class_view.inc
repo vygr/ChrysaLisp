@@ -6,6 +6,7 @@
 	def_class view, ref
 	def_method create, class/view/create
 	def_method new, class/view/new
+	def_method init, class/view/init
 	def_method add, class/view/add
 	def_method sub, class/view/sub
 	def_method add_dirty, class/view/add_dirty
@@ -27,7 +28,6 @@
 	def_method set_color, class/view/set_color
 	def_method get_color, class/view/get_color
 
-	def_method init, class/view/init, override
 	def_method deinit, class/view/deinit, override
 
 	def_method draw, class/view/draw, virtual

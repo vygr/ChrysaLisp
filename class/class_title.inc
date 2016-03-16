@@ -6,6 +6,7 @@
 	def_class title, view
 	def_method create, class/title/create
 	def_method new, class/title/new
+
 	def_method pref_size, class/title/pref_size, override
 	def_method draw, class/title/draw, override
 	def_method mouse_down, class/title/mouse_down, override

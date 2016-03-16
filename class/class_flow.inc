@@ -7,6 +7,7 @@
 	def_method create, class/flow/create
 	def_method new, class/flow/new
 	def_method set_flags, class/flow/set_flags
+
 	def_method pref_size, class/flow/pref_size, override
 	def_method layout, class/flow/layout, override
 
