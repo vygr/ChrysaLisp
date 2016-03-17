@@ -1,2 +1,2 @@
 #!/bin/bash
-killall main
+killall main -KILL

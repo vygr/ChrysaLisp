@@ -44,7 +44,7 @@ function boot_cpu
 {
 	if [ $1 == 0 ]
 	then
-		./main -cpu $1 $2 -run tests/test1 &
+		./main -cpu $1 $2 -run gui/gui &
 	else
 		./main -cpu $1 $2 &
 	fi

@@ -66,6 +66,7 @@ sdl_func_table:
 	dq _SDL_SetRenderDrawBlendMode
 	dq _SDL_PumpEvents
 	dq _SDL_GetMouseState
+	dq _SDL_RenderDrawRect
 %elifidn OS, Linux
 	dq SDL_SetMainReady
 	dq SDL_Init
@@ -82,4 +83,5 @@ sdl_func_table:
 	dq SDL_SetRenderDrawBlendMode
 	dq SDL_PumpEvents
 	dq SDL_GetMouseState
+	dq SDL_RenderDrawRect
 %endif

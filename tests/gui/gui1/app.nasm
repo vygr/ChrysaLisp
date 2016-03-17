@@ -3,6 +3,7 @@
 %include 'class/class_window.inc'
 %include 'class/class_flow.inc'
 %include 'class/class_button.inc'
+%include 'class/class_progress.inc'
 
 ;;;;;;;;;;;
 ; test code
@@ -15,6 +16,7 @@
 			def_long	app_window
 			def_long	app_window_panel
 			def_long	app_panel
+			def_long	app_cpu_total
 		def_structure_end
 
 		;init app vars
@@ -33,11 +35,11 @@
 		vp_cpy [r4 + app_window], r0
 		static_call window, set_owner
 
-		;add my button panel
+		;add my panel
 		static_call flow, create
 		fn_assert r0, !=, 0
 		vp_cpy r0, [r4 + app_panel]
-		vp_cpy flow_flag_right | flow_flag_down, r8
+		vp_cpy flow_flag_right, r8
 		static_call flow, set_flags
 		vp_xor r8, r8
 		vp_xor r9, r9
@@ -47,46 +49,24 @@
 		vp_cpy [r4 + app_window_panel], r1
 		static_call flow, add
 
-		;add 4 buttons to my app panel
-		static_call button, create
-		fn_assert r0, !=, 0
-		vp_cpy 255, r8
-		vp_cpy 255, r9
-		vp_cpy 0, r10
-		vp_cpy 192, r11
-		static_call button, set_color
-		vp_cpy [r4 + app_panel], r1
-		static_call button, add
+		;add num cpus progress bars to my app panel
+		static_call cpu, total
+		loop_while r0, !=, 0
+			vp_cpy r0, [r4 + app_cpu_total]
 
-		static_call button, create
-		fn_assert r0, !=, 0
-		vp_cpy 0, r8
-		vp_cpy 255, r9
-		vp_cpy 255, r10
-		vp_cpy 192, r11
-		static_call button, set_color
-		vp_cpy [r4 + app_panel], r1
-		static_call button, add
+			static_call progress, create
+			fn_assert r0, !=, 0
+			vp_cpy 0, r8
+			vp_cpy 255, r9
+			vp_cpy 0, r10
+			vp_cpy 255, r11
+			static_call progress, set_color
+			vp_cpy [r4 + app_panel], r1
+			static_call progress, add
 
-		static_call button, create
-		fn_assert r0, !=, 0
-		vp_cpy 255, r8
-		vp_cpy 0, r9
-		vp_cpy 255, r10
-		vp_cpy 192, r11
-		static_call button, set_color
-		vp_cpy [r4 + app_panel], r1
-		static_call button, add
-
-		static_call button, create
-		fn_assert r0, !=, 0
-		vp_cpy 0, r8
-		vp_cpy 255, r9
-		vp_cpy 0, r10
-		vp_cpy 192, r11
-		static_call button, set_color
-		vp_cpy [r4 + app_panel], r1
-		static_call button, add
+			vp_cpy [r4 + app_cpu_total], r0
+			vp_dec r0
+		loop_end
 
 		;set to pref size
 		vp_cpy [r4 + app_window], r0
