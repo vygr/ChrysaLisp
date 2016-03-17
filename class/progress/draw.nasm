@@ -47,13 +47,12 @@
 		vp_cpy progress_border_size, r9
 		vp_sub progress_border_size * 2, r10
 		vp_sub progress_border_size * 2, r11
-		vp_cpy r11, r12
-		vp_mul [r0 + progress_percent], r11
-		vp_shr progress_fixed_point, r11
-		vp_cpy r11, [r4 + draw_fill_complete]
-		vp_sub r11, r12
+		vp_cpy r10, r12
+		vp_mul [r0 + progress_percent], r10
+		vp_shr progress_fixed_point, r10
+		vp_cpy r10, [r4 + draw_fill_complete]
+		vp_sub r10, r12
 		vp_cpy r12, [r4 + draw_fill_remain]
-		vp_add r12, r9
 		vp_cpy [r4 + draw_ctx], r0
 		static_call ctx, filled_box
 
@@ -71,8 +70,9 @@
 		static_call progress, get_bounds
 		vp_cpy progress_border_size, r8
 		vp_cpy progress_border_size, r9
-		vp_sub progress_border_size * 2, r10
-		vp_cpy [r4 + draw_fill_remain], r11
+		vp_cpy [r4 + draw_fill_remain], r10
+		vp_sub progress_border_size * 2, r11
+		vp_add [r4 + draw_fill_complete], r8
 		vp_cpy [r4 + draw_ctx], r0
 		vp_add draw_size, r4
 		static_jmp ctx, filled_box

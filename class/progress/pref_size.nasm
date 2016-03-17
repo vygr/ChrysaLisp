@@ -11,8 +11,8 @@
 		;trashes
 		;all but r4
 
-		vp_cpy 8, r10
-		vp_cpy 256, r11
+		vp_cpy 256, r10
+		vp_cpy 10, r11
 		vp_ret
 
 	fn_function_end
