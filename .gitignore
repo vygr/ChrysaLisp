@@ -50,15 +50,16 @@ class/view/event
 class/view/find_tcb
 class/view/forward
 class/view/forward_tree
+class/view/get_bounds
 class/view/get_color
 class/view/get_relative
 class/view/hit
 class/view/hit_tree
 class/view/init
-class/view/move
 class/view/new
 class/view/opaque
 class/view/pref_size
+class/view/set_bounds
 class/view/set_color
 class/view/set_tcb
 class/view/sub

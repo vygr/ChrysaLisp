@@ -19,7 +19,6 @@
 	def_method backward, class/view/backward
 	def_method forward_tree, class/view/forward_tree
 	def_method backward_tree, class/view/backward_tree
-	def_method move, class/view/move
 	def_method change, class/view/change
 	def_method hit_tree, class/view/hit_tree
 	def_method set_owner, class/view/set_tcb
@@ -27,6 +26,8 @@
 	def_method draw_panel, class/view/draw_panel
 	def_method set_color, class/view/set_color
 	def_method get_color, class/view/get_color
+	def_method get_bounds, class/view/get_bounds
+	def_method set_bounds, class/view/set_bounds
 
 	def_method deinit, class/view/deinit, override
 

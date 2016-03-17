@@ -18,10 +18,7 @@
 		vp_cpy [r0 + view_h], r15
 
 		;set new info
-		vp_cpy r8, [r0 + view_x]
-		vp_cpy r9, [r0 + view_y]
-		vp_cpy r10, [r0 + view_w]
-		vp_cpy r11, [r0 + view_h]
+		static_call view, set_bounds
 
 		;layout if changed size
 		if r10, ==, r14

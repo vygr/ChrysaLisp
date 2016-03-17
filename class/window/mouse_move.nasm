@@ -30,10 +30,7 @@
 
 		;save old values
 		vp_cpy [r4 + move_window], r0
-		vp_cpy [r0 + view_x], r8
-		vp_cpy [r0 + view_y], r9
-		vp_cpy [r0 + view_w], r10
-		vp_cpy [r0 + view_h], r11
+		static_call window, get_bounds
 		vp_cpy r8, [r4 + move_old_x]
 		vp_cpy r9, [r4 + move_old_y]
 		vp_cpy r10, [r4 + move_old_w]
@@ -113,9 +110,7 @@
 		vp_cpy [r4 + move_old_h], r11
 		vp_sub [r0 + view_x], r8
 		vp_sub [r0 + view_y], r9
-		static_call window, add_dirty
-
 		vp_add move_size, r4
-		vp_ret
+		static_jmp window, add_dirty
 
 	fn_function_end
