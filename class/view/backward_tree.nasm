@@ -19,7 +19,7 @@
 		;outputs
 		;r0 = view object
 
-		def_structure enum
+		def_structure	enum
 			def_long	enum_root
 			def_long	enum_data
 			def_long	enum_down

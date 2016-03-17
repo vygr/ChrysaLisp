@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'inc/heap.inc'
 
-	def_structure paste
+	def_structure	paste
 		def_long	paste_next
 		def_long	paste_dlist
 		def_long	paste_dx

@@ -78,12 +78,12 @@
 	stat_fsize			equ 0x48
 	%assign stat_size	0x100
 
-	def_structure timeval
+	def_structure	timeval
 		def_long	timeval_sec
 		def_long	timeval_usec
 	def_structure_end
 
-	def_structure timezone
+	def_structure	timezone
 		def_int	timeval_minuteswest
 		def_int	timeval_dsttime
 	def_structure_end
@@ -317,12 +317,12 @@
 	stat_fsize			equ	0x30
 	%assign stat_size	0x100
 
-	def_structure timeval
+	def_structure	timeval
 		def_long	timeval_sec
 		def_long	timeval_usec
 	def_structure_end
 
-	def_structure timezone
+	def_structure	timezone
 		def_int	timeval_minuteswest
 		def_int	timeval_dsttime
 	def_structure_end

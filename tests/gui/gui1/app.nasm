@@ -11,7 +11,7 @@
 
 	fn_function tests/gui/gui1/app
 
-		def_structure app
+		def_structure	app
 			def_long	app_last_event
 			def_long	app_window
 			def_long	app_window_panel
@@ -56,6 +56,8 @@
 
 			static_call progress, create
 			fn_assert r0, !=, 0
+			vp_cpy 60, r1
+			static_call progress, set_percent
 			vp_cpy 0, r8
 			vp_cpy 255, r9
 			vp_cpy 0, r10

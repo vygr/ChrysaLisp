@@ -16,7 +16,7 @@
 			;outputs
 			;r0 = child view object
 
-		def_structure enum
+		def_structure	enum
 			def_long	enum_data
 			def_long	enum_callback
 		def_structure_end

@@ -13,7 +13,7 @@
 ; kernel mail funcions
 ;;;;;;;;;;;;;;;;;;;;;;
 
-	def_structure kn_call
+	def_structure	kn_call
 		def_byte	kn_call_task_open
 		def_byte	kn_call_task_child
 		def_byte	kn_call_task_route
@@ -24,31 +24,31 @@
 ; kernel mail data
 ;;;;;;;;;;;;;;;;;;
 
-	def_structure kn_data
+	def_structure	kn_data
 		def_long	kn_data_kernel_user
 		def_struct	kn_data_kernel_reply, mailbox_id
 		def_long	kn_data_kernel_function
 	def_structure_end
 
-	def_structure kn_data_task_open, kn_data
+	def_structure	kn_data_task_open, kn_data
 		def_struct	kn_data_task_open_pathname, null
 	def_structure_end
 
-	def_structure kn_data_task_open_reply
+	def_structure	kn_data_task_open_reply
 		def_long	kn_data_task_open_reply_user
 		def_struct	kn_data_task_open_reply_mailboxid, mailbox_id
 	def_structure_end
 
-	def_structure kn_data_task_child, kn_data
+	def_structure	kn_data_task_child, kn_data
 		def_struct	kn_data_task_child_pathname, null
 	def_structure_end
 
-	def_structure kn_data_task_child_reply
+	def_structure	kn_data_task_child_reply
 		def_long	kn_data_task_child_reply_user
 		def_struct	kn_data_task_child_reply_mailboxid, mailbox_id
 	def_structure_end
 
-	def_structure kn_data_link_route
+	def_structure	kn_data_link_route
 		def_struct	kn_data_link_route_header, kn_data
 		def_long	kn_data_link_route_origin
 		def_long	kn_data_link_route_via
@@ -59,7 +59,7 @@
 ; func structures
 ;;;;;;;;;;;;;;;;;
 
-	def_structure fn_header
+	def_structure	fn_header
 		def_long	fn_header_next
 		def_long	fn_header_length
 		def_long	fn_header_entry

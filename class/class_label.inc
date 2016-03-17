@@ -10,7 +10,7 @@
 	def_method pref_size, class/label/pref_size, override
 	def_method draw, class/label/draw, override
 
-	def_structure label, view
+	def_structure	label, view
 	def_structure_end
 
 %endif

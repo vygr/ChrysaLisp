@@ -38,7 +38,7 @@
 
 	%assign tk_stack_size	1024 * 4
 
-	def_structure tk_node
+	def_structure	tk_node
 		def_struct	tk_node_node, ln_node
 		def_long	tk_node_stack
 		def_long	tk_node_time
@@ -46,7 +46,7 @@
 		def_struct	tk_node_stackspace, tk_stack
 	def_structure_end
 
-	def_structure tk_statics
+	def_structure	tk_statics
 		def_long	tk_statics_current_tcb
 		def_struct	tk_statics_task_heap, hp_heap
 		def_struct	tk_statics_task_list, lh_list

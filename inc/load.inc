@@ -21,7 +21,7 @@
 	%assign	ld_page_size	4096
 	%assign	ld_reloc_size	2048
 
-	def_structure ld_statics
+	def_structure	ld_statics
 		def_long	ld_statics_function_list
 		def_long	ld_statics_block_list
 		def_long	ld_statics_block_start

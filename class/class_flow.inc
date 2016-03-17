@@ -20,7 +20,7 @@
 	flow_flag_lastw	equ 1 << 6
 	flow_flag_lasth	equ 1 << 7
 
-	def_structure flow, view
+	def_structure	flow, view
 		def_long	flow_flags
 	def_structure_end
 

@@ -41,7 +41,7 @@
 	def_method mouse_move, class/obj/null, virtual
 	def_method mouse_hover, class/obj/null, virtual
 
-	def_structure view, ref
+	def_structure	view, ref
 		def_struct	view_node, ln_node
 		def_struct	view_list, lh_list
 		def_long	view_parent

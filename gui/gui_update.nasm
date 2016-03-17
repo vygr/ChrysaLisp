@@ -11,7 +11,7 @@
 		;trashes
 		;all but r4
 
-		def_structure draw_view
+		def_structure	draw_view
 			def_struct	draw_view_ctx, gui_ctx
 		def_structure_end
 

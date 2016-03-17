@@ -8,11 +8,13 @@
 	def_class progress, view
 	def_method create, class/progress/create
 	def_method new, class/progress/new
+	def_method set_percent, class/progress/set_percent
 
 	def_method pref_size, class/progress/pref_size, override
 	def_method draw, class/progress/draw, override
 
-	def_structure progress, view
+	def_structure	progress, view
+		def_long	progress_percent
 	def_structure_end
 
 %endif

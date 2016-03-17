@@ -36,7 +36,7 @@
 ; gui structures
 ;;;;;;;;;;;;;;;;
 
-	def_structure gui_statics
+	def_structure	gui_statics
 		def_long	gui_statics_sdl_funcs
 		def_struct	gui_statics_rect_heap, hp_heap
 		def_long	gui_statics_window
@@ -49,7 +49,7 @@
 		def_long	gui_statics_last_view
 	def_structure_end
 
-	def_structure gui_rect
+	def_structure	gui_rect
 		def_long	gui_rect_next
 		def_long	gui_rect_x
 		def_long	gui_rect_y
@@ -57,7 +57,7 @@
 		def_long	gui_rect_y1
 	def_structure_end
 
-	def_structure gui_ctx
+	def_structure	gui_ctx
 		def_long	gui_ctx_sdl_ctx
 		def_long	gui_ctx_dirty_region
 		def_long	gui_ctx_x
@@ -68,12 +68,12 @@
 ; gui mail data
 ;;;;;;;;;;;;;;;
 
-	def_structure ev_type
+	def_structure	ev_type
 		def_byte	ev_type_mouse
 		def_byte	ev_type_key
 	def_structure_end
 
-	def_structure ev_data
+	def_structure	ev_data
 		def_long	ev_data_type
 		def_long	ev_data_view
 		def_long	ev_data_x

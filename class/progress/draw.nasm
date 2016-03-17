@@ -9,7 +9,7 @@
 		;trashes
 		;all but r4
 
-		def_structure draw
+		def_structure	draw
 			def_long	draw_view
 			def_long	draw_ctx
 		def_structure_end

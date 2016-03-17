@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/sdl2.inc'
 
-	def_structure fbox
+	def_structure	fbox
 		def_struct	fbox_rect, sdl_rect
 		def_struct	fbox_clip_rect, sdl_rect
 		def_long	fbox_ctx

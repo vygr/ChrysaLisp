@@ -22,7 +22,7 @@
 	def_method mouse_down, class/window/mouse_down, override
 	def_method mouse_move, class/window/mouse_move, override
 
-	def_structure window, view
+	def_structure	window, view
 		def_long	window_border
 		def_long	window_title
 		def_long	window_status

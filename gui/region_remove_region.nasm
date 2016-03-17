@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'inc/heap.inc'
 
-	def_structure remove
+	def_structure	remove
 		def_long	remove_next
 		def_long	remove_dlist
 		def_long	remove_dx

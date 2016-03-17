@@ -12,7 +12,7 @@
 	def_method mouse_down, class/title/mouse_down, override
 	def_method mouse_move, class/title/mouse_move, override
 
-	def_structure title, view
+	def_structure	title, view
 		def_long	title_last_x
 		def_long	title_last_y
 	def_structure_end

@@ -26,13 +26,13 @@
 	%assign mailbox_id_size 16
 	%assign mail_data_size 512
 
-	def_structure ml_mailbox
+	def_structure	ml_mailbox
 		def_struct	ml_mailbox_list, lh_list
 		def_struct	ml_mailbox_parcel_list, lh_list
 		def_long	ml_mailbox_tcb
 	def_structure_end
 
-	def_structure ml_msg
+	def_structure	ml_msg
 		def_struct	ml_msg_node, ln_node
 		def_long	ml_msg_length
 		def_struct	ml_msg_dest, mailbox_id
@@ -43,7 +43,7 @@
 		def_struct	ml_msg_data, mail_data
 	def_structure_end
 
-	def_structure ml_statics
+	def_structure	ml_statics
 		def_struct	ml_statics_offchip_list, lh_list
 		def_struct	ml_statics_heap, hp_heap
 		def_long	ml_statics_kernel_mailbox

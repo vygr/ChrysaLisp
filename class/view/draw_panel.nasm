@@ -11,7 +11,7 @@
 		;trashes
 		;all but r4
 
-		def_structure draw_panel
+		def_structure	draw_panel
 			def_long	draw_panel_view
 			def_long	draw_panel_ctx
 			def_long	draw_panel_flags

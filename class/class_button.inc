@@ -12,7 +12,7 @@
 	def_method pref_size, class/button/pref_size, override
 	def_method draw, class/button/draw, override
 
-	def_structure button, label
+	def_structure	button, label
 	def_structure_end
 
 %endif

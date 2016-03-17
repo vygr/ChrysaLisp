@@ -107,7 +107,7 @@
 	SDL_BLENDMODE_ADD		equ 2
 	SDL_BLENDMODE_MOD		equ 3
 
-	def_structure sdl_rect
+	def_structure	sdl_rect
 		def_int	sdl_rect_x
 		def_int	sdl_rect_y
 		def_int	sdl_rect_w

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/sdl2.inc'
 
-	def_structure color
+	def_structure	color
 		def_long	color_old_stack
 	def_structure_end
 

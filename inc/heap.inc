@@ -27,18 +27,18 @@
 ; heap structures
 ;;;;;;;;;;;;;;;;;
 
-	def_structure hp_heap
+	def_structure	hp_heap
 		def_long	hp_heap_freelist
 		def_long	hp_heap_blocklist
 		def_long	hp_heap_cellsize
 		def_long	hp_heap_blocksize
 	def_structure_end
 
-	def_structure hp_cell
+	def_structure	hp_cell
 		def_long	hp_cell_next
 	def_structure_end
 
-	def_structure hp_block
+	def_structure	hp_block
 		def_long	hp_block_next
 	def_structure_end
 
