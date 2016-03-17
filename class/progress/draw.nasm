@@ -12,6 +12,8 @@
 		def_structure	draw
 			def_long	draw_view
 			def_long	draw_ctx
+			def_long	draw_fill_remain
+			def_long	draw_fill_complete
 		def_structure_end
 
 		vp_sub draw_size, r4
@@ -45,6 +47,32 @@
 		vp_cpy progress_border_size, r9
 		vp_sub progress_border_size * 2, r10
 		vp_sub progress_border_size * 2, r11
+		vp_cpy r11, r12
+		vp_mul [r0 + progress_percent], r11
+		vp_shr progress_fixed_point, r11
+		vp_cpy r11, [r4 + draw_fill_complete]
+		vp_sub r11, r12
+		vp_cpy r12, [r4 + draw_fill_remain]
+		vp_add r12, r9
+		vp_cpy [r4 + draw_ctx], r0
+		static_call ctx, filled_box
+
+		;very darker colour
+		vp_cpy [r4 + draw_view], r0
+		static_call view, get_color
+		vp_shr 2, r8
+		vp_shr 2, r9
+		vp_shr 2, r10
+		vp_cpy [r4 + draw_ctx], r0
+		static_call ctx, set_color
+
+		;draw middle
+		vp_cpy [r4 + draw_view], r0
+		static_call progress, get_bounds
+		vp_cpy progress_border_size, r8
+		vp_cpy progress_border_size, r9
+		vp_sub progress_border_size * 2, r10
+		vp_cpy [r4 + draw_fill_remain], r11
 		vp_cpy [r4 + draw_ctx], r0
 		vp_add draw_size, r4
 		static_jmp ctx, filled_box

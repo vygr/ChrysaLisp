@@ -5,7 +5,7 @@
 	fn_function class/progress/set_percent
 		;inputs
 		;r0 = progress object
-		;r1 = percent (0-100)
+		;r1 = percent
 
 		vp_cpy r1, [r0 + progress_percent]
 		vp_ret

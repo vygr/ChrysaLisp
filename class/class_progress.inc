@@ -4,6 +4,7 @@
 %include 'class/class_view.inc'
 
 %define progress_border_size 1
+%define progress_fixed_point 16
 
 	def_class progress, view
 	def_method create, class/progress/create

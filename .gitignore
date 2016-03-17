@@ -29,6 +29,7 @@ class/obj/null
 class/progress/create
 class/progress/draw
 class/progress/new
+class/progress/set_percent
 class/ref/deref
 class/ref/init
 class/ref/ref
@@ -177,5 +178,3 @@ tests/test6
 tests/test7
 tests/test8
 tests/test9
-
-class/progress/set_percent

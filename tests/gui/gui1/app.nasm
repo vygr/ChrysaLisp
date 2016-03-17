@@ -56,7 +56,7 @@
 
 			static_call progress, create
 			fn_assert r0, !=, 0
-			vp_cpy 60, r1
+			vp_cpy (1 << (progress_fixed_point - 1)) + (1 << (progress_fixed_point - 2)), r1
 			static_call progress, set_percent
 			vp_cpy 0, r8
 			vp_cpy 255, r9
