@@ -3,9 +3,6 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
-%define SCREEN_WIDTH 1024
-%define SCREEN_HEIGHT 768
-
 	fn_function gui/gui
 		;allocate background view
 		static_call view, create
