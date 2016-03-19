@@ -32,6 +32,7 @@
 			vp_cpy r0, [r3 + (ml_msg_dest + 8)]
 			vp_cpy r4, [r3 + (ml_msg_data + kn_data_kernel_reply)]
 			vp_cpy r0, [r3 + (ml_msg_data + kn_data_kernel_reply + 8)]
+			vp_cpy r6, [r3 + (ml_msg_data + kn_data_kernel_user)]
 			vp_cpy kn_call_task_child, qword[r3 + (ml_msg_data + kn_data_kernel_function)]
 
 			;copy task name
@@ -48,6 +49,7 @@
 			static_call mail, send
 
 			;next farm worker
+			vp_add mailbox_id_size, r6
 			vp_dec r7
 		loop_until r7, ==, 0
 
@@ -57,6 +59,7 @@
 			static_call mail, read
 
 			;save reply mailbox ID
+			vp_cpy [r0 + (ml_msg_data + kn_data_task_child_reply_user)], r6
 			vp_cpy [r0 + (ml_msg_data + kn_data_task_child_reply_mailboxid)], r2
 			vp_cpy [r0 + (ml_msg_data + kn_data_task_child_reply_mailboxid + 8)], r3
 			vp_cpy r2, [r6]
@@ -66,7 +69,6 @@
 			static_call mem, free
 
 			;next mailbox
-			vp_add 16, r6
 			vp_dec r8
 		loop_until r8, ==, 0
 

@@ -48,7 +48,7 @@
 			static_call mail, send
 
 			;next array worker
-			vp_add 16, r6
+			vp_add mailbox_id_size, r6
 			vp_inc r7
 			vp_cpy byte[r5], r0l
 			vp_and 0xff, r0

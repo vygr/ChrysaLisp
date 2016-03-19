@@ -5,13 +5,13 @@
 ; test code
 ;;;;;;;;;;;
 
-	FARM_SIZE equ 16
+	FARM_SIZE equ 128
 
 	fn_function tests/test5
 		;task started by test1
 
 		;allocate temp array for mailbox ID's
-		vp_cpy 16*FARM_SIZE, r0
+		vp_cpy mailbox_id_size * FARM_SIZE, r0
 		static_call mem, alloc
 		fn_assert r0, !=, 0
 		vp_cpy r0, r14
@@ -27,13 +27,12 @@
 			static_call mail, alloc
 			fn_assert r0, !=, 0
 			vp_cpy r13, r3
-			vp_mul 16, r3
+			vp_mul mailbox_id_size, r3
 			vp_cpy [r14 + r3], r1
 			vp_cpy [r14 + r3 + 8], r2
 			vp_cpy r1, [r0 + ml_msg_dest]
 			vp_cpy r2, [r0 + (ml_msg_dest + 8)]
 			static_call mail, send
-			static_call task, yield
 		next
 
 		;free ID array and return

@@ -204,6 +204,9 @@
 			;free event message
 			vp_cpy [r4 + app_last_event], r0
 			static_call mem, free
+
+			;be friendly
+			static_call task, yield
 		loop_end
 
 		;wait for outstanding replys

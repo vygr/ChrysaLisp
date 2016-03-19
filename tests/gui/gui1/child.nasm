@@ -29,6 +29,9 @@
 				vp_cpy r1, r0
 				static_call mail, send
 			endif
+
+			;be friendly
+			static_call task, yield
 		loop_end
 
 	fn_function_end

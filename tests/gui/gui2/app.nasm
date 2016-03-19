@@ -18,6 +18,8 @@
 			def_long	app_panel
 			def_long	app_button1
 			def_long	app_button2
+			def_long	app_button3
+			def_long	app_button4
 		def_structure_end
 
 		;init app vars
@@ -73,6 +75,28 @@
 		static_call button, add
 		vp_cpy r0, [r4 + app_button2]
 
+		static_call button, create
+		fn_assert r0, !=, 0
+		vp_cpy 255, r8
+		vp_cpy 255, r9
+		vp_cpy 0, r10
+		vp_cpy 255, r11
+		static_call button, set_color
+		vp_cpy [r4 + app_panel], r1
+		static_call button, add
+		vp_cpy r0, [r4 + app_button3]
+
+		static_call button, create
+		fn_assert r0, !=, 0
+		vp_cpy 255, r8
+		vp_cpy 255, r9
+		vp_cpy 0, r10
+		vp_cpy 255, r11
+		static_call button, set_color
+		vp_cpy [r4 + app_panel], r1
+		static_call button, add
+		vp_cpy r0, [r4 + app_button4]
+
 		;set to pref size
 		vp_cpy [r4 + app_window], r0
 		method_call window, pref_size
@@ -112,6 +136,16 @@
 					vp_lea [rel child_task2], r0
 					static_call task, child
 					break
+				case r1, ==, [r4 + app_button3]
+					fn_debug start task3
+					vp_lea [rel child_task3], r0
+					static_call task, child
+					break
+				case r1, ==, [r4 + app_button4]
+					fn_debug start task4
+					vp_lea [rel child_task4], r0
+					static_call task, child
+					break
 				default
 				endswitch
 			endif
@@ -129,8 +163,12 @@
 		vp_ret
 
 	child_task1:
-		db 'tests/test11', 0
+		db 'tests/test5', 0
 	child_task2:
+		db 'tests/test7', 0
+	child_task3:
+		db 'tests/test9', 0
+	child_task4:
 		db 'tests/test11', 0
 
 	fn_function_end

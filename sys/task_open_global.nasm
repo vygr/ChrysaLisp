@@ -14,12 +14,12 @@
 		vp_cpy r0, r5
 		vp_cpy r1, r6
 		vp_cpy r2, r7
-		vp_cpy r2, r8
 
 		;create temp mailbox
 		ml_temp_create r0, r1
 
 		;start all tasks one per cpu
+		vp_xor r8, r8
 		loop_start
 			;allocate mail message
 			static_call mail, alloc
@@ -28,11 +28,11 @@
 
 			;fill in destination, reply and function
 			static_call cpu, id
-			vp_dec r7
 			vp_cpy 0, qword[r3 + ml_msg_dest]
-			vp_cpy r7, [r3 + (ml_msg_dest + 8)]
+			vp_cpy r8, [r3 + (ml_msg_dest + 8)]
 			vp_cpy r4, [r3 + (ml_msg_data + kn_data_kernel_reply)]
 			vp_cpy r0, [r3 + (ml_msg_data + kn_data_kernel_reply + 8)]
+			vp_cpy r6, [r3 + (ml_msg_data + kn_data_kernel_user)]
 			vp_cpy kn_call_task_open, qword[r3 + (ml_msg_data + kn_data_kernel_function)]
 
 			;copy task name
@@ -47,14 +47,20 @@
 			;send mail to kernel
 			vp_cpy r3, r0
 			static_call mail, send
-		loop_until r7, ==, 0
+
+			;next worker
+			vp_add mailbox_id_size, r6
+			vp_inc r8
+		loop_until r7, ==, r8
 
 		;wait for all replies
+		vp_xor r8, r8
 		loop_start
 			vp_cpy r4, r0
 			static_call mail, read
 
 			;save reply mailbox ID
+			vp_cpy [r0 + (ml_msg_data + kn_data_task_open_reply_user)], r6
 			vp_cpy [r0 + (ml_msg_data + kn_data_task_open_reply_mailboxid)], r2
 			vp_cpy [r0 + (ml_msg_data + kn_data_task_open_reply_mailboxid + 8)], r3
 			vp_cpy r2, [r6]
@@ -64,9 +70,8 @@
 			static_call mem, free
 
 			;next mailbox
-			vp_add 16, r6
-			vp_dec r8
-		loop_until r8, ==, 0
+			vp_inc r8
+		loop_until r7, ==, r8
 
 		;free temp mailbox
 		ml_temp_destroy

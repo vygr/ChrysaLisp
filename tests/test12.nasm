@@ -10,7 +10,11 @@
 	fn_function tests/test12
 		;gloabl task started by test11
 
-		fn_debug Started task 12
+		;wait a bit
+		vp_cpy 1000000, r0
+		fn_call sys/math_random
+		vp_add 1000000, r0
+		static_call task, sleep
 
 		;read 10 mail commands
 		for r14, 0, 10, 1
@@ -22,14 +26,9 @@
 				endif
 			next
 			static_call mem, free
-			static_call task, yield
 		next
 
-		;wait a bit
-		vp_cpy 10000000, r0
-		static_call task, sleep
-
-		fn_debug Exit task 12
+		fn_debug Hello from global worker !
 		vp_ret
 
 	fn_function_end

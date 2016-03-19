@@ -60,7 +60,7 @@
 			static_call mem, free
 
 			;next pipe worker
-			vp_add 16, r6
+			vp_add mailbox_id_size, r6
 			vp_cpy byte[r5], r0l
 			vp_and 0xff, r0
 		loop_until r0, ==, 0
