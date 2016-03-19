@@ -101,7 +101,7 @@
 		;add to screen and dirty
 		vp_cpy [r4 + app_window], r0
 		static_call gui, add
-;		static_call window, dirty_all
+		static_call window, dirty_all
 
 		;allocate array for child mailbox ID's
 		vp_cpy [r4 + app_cpu_total], r0

@@ -31,8 +31,8 @@
 		;iterate through views back to front
 		;create visible region at root
 		vp_cpy r0, r1
-		vp_lea [rel visible_down_callback], r2
-		vp_lea [rel null_func_callback], r3
+		vp_lea [rel null_func_callback], r2
+		vp_lea [rel visible_up_callback], r3
 		static_call view, backward_tree
 
 %ifdef dual_buffers
@@ -98,7 +98,7 @@
 		vp_sub [r0 + view_y], r9
 		vp_ret
 
-	visible_down_callback:
+	visible_up_callback:
 		vp_push r1, r0
 
 		;region heap
