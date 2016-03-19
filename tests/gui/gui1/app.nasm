@@ -206,6 +206,37 @@
 			static_call mem, free
 		loop_end
 
+		;wait for outstanding replys
+		vp_cpy [r4 + app_cpu_count], r5
+		loop_while r5, !=, [r4 + app_cpu_total]
+			vp_cpy [r4 + app_select2], r0
+			static_call mail, read
+			static_call mem, free
+			vp_inc r5
+		loop_end
+
+		;send out exit commands
+		vp_xor r5, r5
+		loop_start
+			static_call mail, alloc
+			fn_assert r0, !=, 0
+			vp_cpy 0, qword[r0 + ml_msg_data + app_mail_command]
+			vp_cpy ml_msg_data + app_mail_size, qword[r0 + ml_msg_length]
+
+			vp_cpy [r4 + app_task_mailboxes], r2
+			vp_cpy r5, r1
+			vp_mul mailbox_id_size, r1
+			vp_cpy [r2 + r1 + 8], r3
+			vp_cpy [r2 + r1], r2
+			vp_cpy r2, [r0 + ml_msg_dest]
+			vp_cpy r3, [r0 + ml_msg_dest + 8]
+
+			;send command
+			static_call mail, send
+
+			vp_inc r5
+		loop_until r5, ==, [r4 + app_cpu_total]
+
 		;free arrays
 		vp_cpy [r4 + app_task_mailboxes], r0
 		static_call mem, free
