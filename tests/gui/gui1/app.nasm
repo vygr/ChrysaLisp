@@ -156,7 +156,7 @@
 					vp_cpy r3, [r5 + ml_msg_dest + 8]
 
 					static_call task, mailbox
-					vp_lea [r4 + app_task_mailbox], r0
+					vp_cpy [r4 + app_select2], r0
 					vp_cpy r0, [r5 + ml_msg_data + app_mail_reply_id]
 					vp_cpy r1, [r5 + ml_msg_data + app_mail_reply_id + 8]
 

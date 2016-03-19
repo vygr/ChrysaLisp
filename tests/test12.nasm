@@ -8,33 +8,28 @@
 	TEST_SIZE equ 1000
 
 	fn_function tests/test12
-		;pipe task started by test11
+		;gloabl task started by test11
 
-		;wait a bit
-		vp_cpy 12000000, r0
-		static_call task, sleep
+		fn_debug Started task 12
 
 		;read 10 mail commands
 		for r14, 0, 10, 1
 			static_call mail, mymail
 			for r15, 0, TEST_SIZE, 1
 				if r15, !=, [r0 + (r15 * 8) + ml_msg_data]
-					vp_lea [rel failed], r0
-					vp_cpy 1, r1
-					static_jmp io, string
+					fn_debug Failed to verify data !
+					vp_ret
 				endif
 			next
 			static_call mem, free
+			static_call task, yield
 		next
 
-		;print Hello and return
-		vp_lea [rel hello], r0
-		vp_cpy 1, r1
-		static_jmp io, string
+		;wait a bit
+		vp_cpy 10000000, r0
+		static_call task, sleep
 
-	hello:
-		db 'Hello from global worker !', 10, 0
-	failed:
-		db 'Failed to verify data !', 10, 0
+		fn_debug Exit task 12
+		vp_ret
 
 	fn_function_end

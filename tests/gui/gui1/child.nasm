@@ -28,9 +28,6 @@
 				vp_cpy r3, [r1 + ml_msg_dest + 8]
 				vp_cpy r1, r0
 				static_call mail, send
-
-				vp_cpy 10000, r0
-				static_call task, sleep
 			endif
 		loop_end
 
