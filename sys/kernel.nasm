@@ -286,6 +286,7 @@
 
 			;start any tasks ready to restart
 			static_bind task, statics, r3
+			vp_cpy [r3 + tk_statics_current_tcb], r15
 			vp_cpy [r3 + tk_statics_timer_list + lh_list_head], r2
 			ln_get_succ r2, r2
 			if r2, !=, 0
