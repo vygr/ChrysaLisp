@@ -53,17 +53,14 @@
 			vp_pop r15
 		next
 
-		;for now fire up the test apps
+		;for now fire up the test app
 		;this might be an gui auto run list eventually
-		fn_bind tests/gui/gui1/app, r0
-		static_call task, start
-		fn_bind tests/gui/gui1/app, r0
-		static_call task, start
 		fn_bind tests/gui/gui1/app, r0
 		static_call task, start
 
 		;gui event loop
 		loop_start
+		next_frame:
 			;allocate mail message
 			static_call mail, alloc
 			fn_assert r0, !=, 0
@@ -80,11 +77,25 @@
 			vp_cpy 1000000 / 30, r0
 			static_call task, sleep
 
-			;get mouse info
-			;dispatch to task and target view
+			;get mouse info, see if any change
 			static_bind gui, statics, r5
-			vp_cpy [r5 + gui_statics_last_view], r6
+			vp_cpy [r5 + gui_statics_x_pos], r8
+			vp_cpy [r5 + gui_statics_y_pos], r9
 			vp_cpy [r5 + gui_statics_buttons], r10
+			if r8, ==, [r5 + gui_statics_last_x_pos]
+				if r9, ==, [r5 + gui_statics_last_y_pos]
+					if r10, ==, [r5 + gui_statics_last_buttons]
+						;same as last time
+						vp_jmp next_frame
+					endif
+				endif
+			endif
+			vp_cpy r8, [r5 + gui_statics_last_x_pos]
+			vp_cpy r9, [r5 + gui_statics_last_y_pos]
+			vp_cpy r10, [r5 + gui_statics_last_buttons]
+
+			;dispatch to task and target view
+			vp_cpy [r5 + gui_statics_last_view], r6
 			if r6, !=, 0
 			send_mouse:
 				;do we need to wait till button goes up ?

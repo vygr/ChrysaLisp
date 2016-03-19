@@ -46,6 +46,9 @@
 		def_long	gui_statics_x_pos
 		def_long	gui_statics_y_pos
 		def_long	gui_statics_buttons
+		def_long	gui_statics_last_x_pos
+		def_long	gui_statics_last_y_pos
+		def_long	gui_statics_last_buttons
 		def_long	gui_statics_last_view
 	def_structure_end
 

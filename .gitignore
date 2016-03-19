@@ -124,8 +124,10 @@ sys/mail_init
 sys/mail_mymail
 sys/mail_out
 sys/mail_read
+sys/mail_select
 sys/mail_send
 sys/mail_statics
+sys/mail_try_read
 sys/math_random
 sys/mem_alloc
 sys/mem_clear
@@ -141,8 +143,10 @@ sys/string_compare
 sys/string_copy
 sys/string_int
 sys/string_length
+sys/task_count
 sys/task_deinit
 sys/task_init
+sys/task_mailbox
 sys/task_open
 sys/task_open_array
 sys/task_open_child
@@ -166,6 +170,7 @@ sys/write_number
 sys/write_string
 syscalls
 tests/gui/gui1/app
+tests/gui/gui1/child
 tests/test1
 tests/test10
 tests/test11

@@ -19,9 +19,10 @@
 		vp_lea [r3 + tk_statics_timer_list], r0
 		lh_init r0, r1
 
-		;init cpu count and id
+		;init cpu count, task count and id
 		vp_cpy 1, qword[r3 + tk_statics_cpu_total]
 		vp_cpy 0, qword[r3 + tk_statics_cpu_id]
+		vp_cpy 0, qword[r3 + tk_statics_task_count]
 		vp_ret
 
 	fn_function_end

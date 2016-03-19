@@ -12,7 +12,10 @@
 		;init old region
 		vp_cpy 0, qword[r3 + gui_statics_old_region]
 
-		;init last view
+		;init last view etc
+		vp_cpy 0, qword[r3 + gui_statics_last_x_pos]
+		vp_cpy 0, qword[r3 + gui_statics_last_y_pos]
+		vp_cpy 0, qword[r3 + gui_statics_last_buttons]
 		vp_cpy 0, qword[r3 + gui_statics_last_view]
 
 		;init region heap

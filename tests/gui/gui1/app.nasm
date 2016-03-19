@@ -1,9 +1,11 @@
 %include 'inc/func.inc'
+%include 'inc/mail.inc'
 %include 'inc/gui.inc'
 %include 'class/class_window.inc'
 %include 'class/class_flow.inc'
 %include 'class/class_button.inc'
 %include 'class/class_progress.inc'
+%include 'tests/gui/gui1/app.inc'
 
 ;;;;;;;;;;;
 ; test code
@@ -17,6 +19,12 @@
 			def_long	app_window_panel
 			def_long	app_panel
 			def_long	app_cpu_total
+			def_long	app_cpu_count
+			def_long	app_task_mailboxes
+			def_long	app_task_progress
+			def_struct	app_task_mailbox, ml_mailbox
+			def_long	app_select1
+			def_long	app_select2
 		def_structure_end
 
 		;init app vars
@@ -49,14 +57,21 @@
 		vp_cpy [r4 + app_window_panel], r1
 		static_call flow, add
 
-		;add num cpus progress bars to my app panel
+		;allocate array for progress bars
 		static_call cpu, total
-		loop_while r0, !=, 0
-			vp_cpy r0, [r4 + app_cpu_total]
+		vp_cpy r0, [r4 + app_cpu_total]
+		vp_mul 8, r0
+		static_call mem, alloc
+		fn_assert r0, !=, 0
+		vp_cpy r0, [r4 + app_task_progress]
 
+		;add num cpus progress bars to my app panel
+		vp_xor r1, r1
+		vp_cpy r1, [r4 + app_cpu_count]
+		loop_start
 			static_call progress, create
 			fn_assert r0, !=, 0
-			vp_cpy (1 << (progress_fixed_point - 1)) + (1 << (progress_fixed_point - 2)), r1
+			vp_xor r1, r1
 			static_call progress, set_percent
 			vp_cpy 0, r8
 			vp_cpy 255, r9
@@ -66,9 +81,14 @@
 			vp_cpy [r4 + app_panel], r1
 			static_call progress, add
 
-			vp_cpy [r4 + app_cpu_total], r0
-			vp_dec r0
-		loop_end
+			;save progress bar for this cpu
+			vp_cpy [r4 + app_cpu_count], r1
+			vp_cpy [r4 + app_task_progress], r2
+			vp_cpy r0, [r2 + r1 * 8]
+
+			vp_inc r1
+			vp_cpy r1, [r4 + app_cpu_count]
+		loop_until r1, ==, [r4 + app_cpu_total]
 
 		;set to pref size
 		vp_cpy [r4 + app_window], r0
@@ -81,23 +101,116 @@
 		;add to screen and dirty
 		vp_cpy [r4 + app_window], r0
 		static_call gui, add
-		static_call window, dirty_all
+;		static_call window, dirty_all
+
+		;allocate array for child mailbox ID's
+		vp_cpy [r4 + app_cpu_total], r0
+		vp_mul mailbox_id_size, r0
+		static_call mem, alloc
+		fn_assert r0, !=, 0
+		vp_cpy r0, [r4 + app_task_mailboxes]
+
+		;open global farm
+		vp_cpy r0, r1
+		vp_lea [rel child_task], r0
+		vp_cpy [r4 + app_cpu_total], r2
+		static_call task, global
+
+		;init task mailbox
+		vp_lea [r4 + app_task_mailbox], r0
+		ml_init r0, r1, r2
+
+		;set up mailbox select array
+		vp_cpy r0, [r4 + app_select2]
+		static_call task, mailbox
+		vp_cpy r0, [r4 + app_select1]
 
 		;app event loop
 		loop_start
-			;read events
-			static_call mail, mymail
-			vp_cpy r0, [r4 + app_last_event]
+			;new round of samples ?
+			vp_cpy [r4 + app_cpu_count], r0
+			if r0, ==, [r4 + app_cpu_total]
+				;send out sample commands
+				loop_start
+					static_call mail, alloc
+					fn_assert r0, !=, 0
+					vp_cpy r0, r5
 
-			;dispatch event to view
-			vp_cpy r0, r1
-			vp_cpy [r1 + (ml_msg_data + ev_data_view)], r0
-			method_call view, event
+					;child task num
+					vp_cpy [r4 + app_cpu_count], r0
+					vp_dec r0
+					vp_cpy r0, [r4 + app_cpu_count]
+
+					vp_cpy 1, qword[r5 + ml_msg_data + app_mail_command]
+					vp_cpy ml_msg_data + app_mail_size, qword[r5 + ml_msg_length]
+
+					vp_cpy [r4 + app_task_progress], r1
+					vp_cpy [r1 + r0 * 8], r1
+					vp_cpy r1, [r5 + ml_msg_data + app_mail_progress]
+
+					vp_cpy [r4 + app_task_mailboxes], r1
+					vp_mul mailbox_id_size, r0
+					vp_cpy [r1 + r0], r2
+					vp_cpy [r1 + r0 + 8], r3
+					vp_cpy r2, [r5 + ml_msg_dest]
+					vp_cpy r3, [r5 + ml_msg_dest + 8]
+
+					static_call task, mailbox
+					vp_lea [r4 + app_task_mailbox], r0
+					vp_cpy r0, [r5 + ml_msg_data + app_mail_reply_id]
+					vp_cpy r1, [r5 + ml_msg_data + app_mail_reply_id + 8]
+
+					;send command
+					vp_cpy r5, r0
+					static_call mail, send
+
+					vp_cpy [r4 + app_cpu_count], r0
+				loop_until r0, ==, 0
+			endif
+
+			;select on 2 mailboxes
+			vp_lea [r4 + app_select1], r0
+			vp_cpy 2, r1
+			static_call mail, select
+
+			;which mailbox has mail ?
+			if r0, ==, [r4 + app_select1]
+				;main mailbox
+				static_call mail, read
+				vp_cpy r0, [r4 + app_last_event]
+
+				;dispatch event to view
+				vp_cpy r0, r1
+				vp_cpy [r1 + (ml_msg_data + ev_data_view)], r0
+				method_call view, event
+			else
+				;task mailbox
+				static_call mail, read
+				vp_cpy r0, [r4 + app_last_event]
+
+				;update progress bar
+				vp_cpy [r0 + ml_msg_data + app_mail_task_count], r1
+				vp_cpy [r0 + ml_msg_data + app_mail_progress], r0
+				vp_shl progress_fixed_point - 5, r1
+				static_call progress, set_percent
+				static_call progress, dirty
+
+				;count up replies
+				vp_cpy [r4 + app_cpu_count], r0
+				vp_inc r0
+				vp_cpy r0, [r4 + app_cpu_count]
+			endif
 
 			;free event message
 			vp_cpy [r4 + app_last_event], r0
 			static_call mem, free
 		loop_end
+
+		;free arrays
+		vp_cpy [r4 + app_task_mailboxes], r0
+		static_call mem, free
+		vp_cpy [r4 + app_task_progress], r0
+		static_call mem, free
 
 		;deref window
 		vp_cpy [r4 + app_window], r0
@@ -105,5 +218,8 @@
 
 		vp_add app_size, r4
 		vp_ret
+
+	child_task:
+		db 'tests/gui/gui1/child', 0
 
 	fn_function_end

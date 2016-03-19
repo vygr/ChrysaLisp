@@ -15,10 +15,12 @@
 	def_method init, sys/task_init
 	def_method deinit, sys/task_deinit
 	def_method tcb, sys/task_tcb
+	def_method mailbox, sys/task_mailbox
 	def_method start, sys/task_start
 	def_method stop, sys/task_stop
 	def_method restore, sys/task_restore
 	def_method yield, sys/task_yield
+	def_method count, sys/task_count
 	def_method sleep, sys/task_sleep
 	def_method suspend, sys/task_suspend
 	def_method resume, sys/task_resume
