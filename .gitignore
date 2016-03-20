@@ -1,6 +1,10 @@
 *.o
 class/button/create
 class/button/draw
+class/button/init
+class/button/mouse_down
+class/button/mouse_move
+class/button/mouse_up
 class/button/new
 class/button/pref_size
 class/class_button
