@@ -26,7 +26,7 @@
 		static_call task, global
 
 		;send messages etc
-		for r11, 0, 1, 1
+		for r11, 0, 10, 1
 			for r13, 0, r12, 1
 				vp_cpy (TEST_SIZE * 8), r0
 				static_call mail, parcel

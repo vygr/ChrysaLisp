@@ -16,7 +16,7 @@
 		static_call task, sleep
 
 		;read mail commands
-		for r14, 0, 1, 1
+		for r14, 0, 10, 1
 			static_call mail, mymail
 			for r15, 0, TEST_SIZE, 1
 				if r15, !=, [r0 + (r15 * 8) + ml_msg_data]
