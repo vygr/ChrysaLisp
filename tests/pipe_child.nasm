@@ -4,8 +4,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function tests/test6
-		;farm task started by test5
+	fn_function tests/pipe_child
 
 		;read exit command etc
 		static_call mail, mymail
@@ -18,7 +17,7 @@
 		static_call task, sleep
 
 		;print Hello and return
-		fn_debug Hello from farm worker !
+		fn_debug Hello from pipe worker !
 		vp_ret
 
 	fn_function_end

@@ -60,14 +60,14 @@
 				static_bind mail, statics, r0
 				vp_lea [r0 + ml_statics_offchip_list], r0
 				lh_add_at_tail r0, r14, r1
+
+				;let links get at some packets
+				static_call task, yield
 			loop_until r10, ==, r11
 
 			;free parcel
 			vp_cpy r15, r0
 			static_call mem, free
-
-			;let links get at some packets
-			static_call task, yield
 		loop_end
 		vp_ret
 

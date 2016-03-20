@@ -62,14 +62,14 @@
 ; task macros
 ;;;;;;;;;;;;;
 
-	tk_state_size 	equ 14*8
+	tk_state_size 	equ 15 * 8
 
 	%macro tk_save_state 0
-		vp_push r0, r1, r2, r3, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14
+		vp_push r0, r1, r2, r3, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
 	%endmacro
 
 	%macro tk_load_state 0
-		vp_pop r0, r1, r2, r3, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14
+		vp_pop r0, r1, r2, r3, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
 	%endmacro
 
 %endif

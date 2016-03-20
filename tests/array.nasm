@@ -5,24 +5,23 @@
 ; test code
 ;;;;;;;;;;;
 
-	PIPE_SIZE equ 128
+	ARRAY_SIZE equ 128
 
-	fn_function tests/test9
-		;task started by test1
+	fn_function tests/array
 
 		;allocate temp array for mailbox ID's
-		vp_cpy mailbox_id_size * PIPE_SIZE, r0
+		vp_cpy mailbox_id_size * ARRAY_SIZE, r0
 		static_call mem, alloc
 		fn_assert r0, !=, 0
 		vp_cpy r0, r14
 
-		;open test10 pipe, off chip
+		;open test8 array, off chip
 		vp_cpy r14, r1
-		vp_lea [rel task_tens], r0
-		static_call task, pipe
+		vp_lea [rel task_eights], r0
+		static_call task, array
 
 		;send exit messages etc
-		for r13, 0, PIPE_SIZE, 1
+		for r13, 0, ARRAY_SIZE, 1
 			static_call mail, alloc
 			fn_assert r0, !=, 0
 			vp_cpy r13, r3
@@ -39,9 +38,9 @@
 		vp_cpy r14, r0
 		static_jmp mem, free
 
-	task_tens:
-		%rep PIPE_SIZE
-		db 'tests/test10', 0
+	task_eights:
+		%rep ARRAY_SIZE
+		db 'tests/array_child', 0
 		%endrep
 		db 0
 

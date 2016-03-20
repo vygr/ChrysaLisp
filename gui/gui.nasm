@@ -52,7 +52,7 @@
 			static_call mail, send
 
 			;frame rate of gui updates
-			vp_cpy 1000000 / 30, r0
+			vp_cpy 1000000 / 60, r0
 			static_call task, sleep
 
 			;get mouse info, see if any change

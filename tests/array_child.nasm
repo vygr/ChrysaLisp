@@ -4,8 +4,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function tests/test10
-		;pipe task started by test9
+	fn_function tests/array_child
 
 		;read exit command etc
 		static_call mail, mymail
@@ -18,7 +17,7 @@
 		static_call task, sleep
 
 		;print Hello and return
-		fn_debug Hello from pipe worker !
+		fn_debug Hello from array worker !
 		vp_ret
 
 	fn_function_end

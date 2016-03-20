@@ -163,12 +163,12 @@
 		vp_ret
 
 	child_task1:
-		db 'tests/test5', 0
+		db 'tests/farm', 0
 	child_task2:
-		db 'tests/test7', 0
+		db 'tests/array', 0
 	child_task3:
-		db 'tests/test9', 0
+		db 'tests/pipe', 0
 	child_task4:
-		db 'tests/test11', 0
+		db 'tests/global', 0
 
 	fn_function_end

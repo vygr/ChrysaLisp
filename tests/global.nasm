@@ -7,8 +7,7 @@
 
 	TEST_SIZE equ 1000
 
-	fn_function tests/test11
-		;task started by test1
+	fn_function tests/global
 
 		;get max cpu num
 		static_call cpu, total
@@ -27,7 +26,7 @@
 		static_call task, global
 
 		;send messages etc
-		for r11, 0, 10, 1
+		for r11, 0, 1, 1
 			for r13, 0, r12, 1
 				vp_cpy (TEST_SIZE * 8), r0
 				static_call mail, parcel
@@ -50,6 +49,6 @@
 		static_jmp mem, free
 
 	task_twelve:
-		db 'tests/test12', 0
+		db 'tests/global_child', 0
 
 	fn_function_end
