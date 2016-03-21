@@ -13,8 +13,8 @@
 		vp_cpy r0, r5
 		static_call mem, alloc
 		fn_assert r0, !=, 0
-		vp_cpy r5, qword[r0 + ml_msg_length]
-		vp_cpy 0, qword[r0 + ml_msg_parcel_size]
+		vp_cpy r5, [r0 + ml_msg_length]
+		vp_cpy_cl 0, [r0 + ml_msg_parcel_size]
 		vp_ret
 
 	fn_function_end

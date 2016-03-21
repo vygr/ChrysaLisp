@@ -27,11 +27,11 @@
 
 			;fill in destination, reply, function
 			static_call cpu, id
-			vp_cpy 0, qword[r3 + ml_msg_dest]
+			vp_cpy_cl 0, [r3 + ml_msg_dest]
 			vp_cpy r7, [r3 + (ml_msg_dest + 8)]
 			vp_cpy r4, [r3 + (ml_msg_data + kn_data_kernel_reply)]
 			vp_cpy r0, [r3 + (ml_msg_data + kn_data_kernel_reply + 8)]
-			vp_cpy kn_call_task_child, qword[r3 + (ml_msg_data + kn_data_kernel_function)]
+			vp_cpy_cl kn_call_task_child, [r3 + (ml_msg_data + kn_data_kernel_function)]
 
 			;copy task name, move to next task name
 			vp_cpy r5, r0

@@ -29,7 +29,7 @@
 			lh_add_at_tail r1, r2, r0
 			vp_cpy [r1 + ml_mailbox_tcb], r0
 			if r0, !=, 0
-				vp_cpy 0, qword[r1 + ml_mailbox_tcb]
+				vp_cpy_cl 0, [r1 + ml_mailbox_tcb]
 				static_call task, resume
 			endif
 		else

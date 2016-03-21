@@ -68,7 +68,7 @@
 		;trashes
 		;%2, %3
 
-		vp_cpy 0, qword[%1 + ml_mailbox_tcb]
+		vp_cpy_cl 0, [%1 + ml_mailbox_tcb]
 		lh_init %1, %2
 		vp_lea [%1 + ml_mailbox_parcel_list], %2
 		lh_init %2, %3

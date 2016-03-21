@@ -26,7 +26,7 @@
 		static_bind mail, out, r0
 		static_call task, start
 		vp_cpy r0, [r7 + ml_statics_out_mailbox]
-		vp_cpy 0, qword[r7 + ml_statics_parcel_id]
+		vp_cpy_cl 0, [r7 + ml_statics_parcel_id]
 		vp_ret
 
 	fn_function_end

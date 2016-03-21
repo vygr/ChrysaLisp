@@ -41,13 +41,13 @@
 		%endrep
 	%endmacro
 
-	%macro reg_w? 1-9 r0, ax, r1, cx, r2, dx, r3, bx
+	%macro reg_s? 1-9 r0, ax, r1, cx, r2, dx, r3, bx
 		%define _test %1
-		%define _reg_w %1x
+		%define _reg_s %1x
 		%rep %0 - 1
 			%rotate 1
 			%ifidn %1, _test
-				%define _reg_w %2
+				%define _reg_s %2
 				%exitrep
 			%endif
 		%endrep
@@ -88,7 +88,7 @@
 		%endif
 	%endmacro
 
-	%macro vp_cpy_w 2
+	%macro vp_cpy_s 2
 		reg? %1
 		%if _reg < 0
 			;source not register
@@ -98,22 +98,33 @@
 				%fatal Not valid VP mode
 			%else
 				;dest is register
-				reg_w? %2
-				mov _reg_w, word %1
+				reg_s? %2
+				mov _reg_s, word %1
 			%endif
 		%else
 			;source is register
-			reg_w? %1
-			%define _src_w _reg_w
+			reg_s? %1
+			%define _src_w _reg_s
 			reg? %2
 			%if _reg < 0
 				;dest not register
 				mov word %2, _src_w
 			%else
 				;dest is register
-				reg_w? %2
-				mov _reg_w, _src_w
+				reg_s? %2
+				mov _reg_s, _src_w
 			%endif
+		%endif
+	%endmacro
+
+	%macro vp_cpy_cl 2
+		reg? %2
+		%if _reg < 0
+			;dest not register
+			mov qword %2, %1
+		%else
+			;dest is register
+			mov %2, %1
 		%endif
 	%endmacro
 

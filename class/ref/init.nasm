@@ -12,7 +12,7 @@
 		super_call ref, init
 		if r1, !=, 0
 			;init myself
-			vp_cpy 1, qword[r0 + ref_count]
+			vp_cpy_cl 1, [r0 + ref_count]
 		endif
 		vp_ret
 

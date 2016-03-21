@@ -11,7 +11,7 @@
 
 		;run through source region list
 		vp_cpy [r1], r2
-		vp_cpy 0, qword[r1]
+		vp_cpy_cl 0, [r1]
 		loop_while r2, !=, 0
 			vp_cpy r2, r1
 			vp_cpy [r2 + gui_rect_next], r2

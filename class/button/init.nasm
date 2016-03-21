@@ -15,7 +15,7 @@
 		super_call button, init
 		if r1, !=, 0
 			;init myself
-			vp_cpy 0, qword[r0 + button_state]
+			vp_cpy_cl 0, [r0 + button_state]
 		endif
 		vp_pop r0
 		vp_ret

@@ -141,8 +141,8 @@
 					vp_dec r0
 					vp_cpy r0, [r4 + app_cpu_count]
 
-					vp_cpy 1, qword[r5 + ml_msg_data + app_mail_command]
-					vp_cpy ml_msg_data + app_mail_size, qword[r5 + ml_msg_length]
+					vp_cpy_cl 1, [r5 + ml_msg_data + app_mail_command]
+					vp_cpy_cl ml_msg_data + app_mail_size, [r5 + ml_msg_length]
 
 					vp_cpy [r4 + app_task_progress], r1
 					vp_cpy [r1 + r0 * 8], r1
@@ -223,8 +223,8 @@
 		loop_start
 			static_call mail, alloc
 			fn_assert r0, !=, 0
-			vp_cpy 0, qword[r0 + ml_msg_data + app_mail_command]
-			vp_cpy ml_msg_data + app_mail_size, qword[r0 + ml_msg_length]
+			vp_cpy_cl 0, [r0 + ml_msg_data + app_mail_command]
+			vp_cpy_cl ml_msg_data + app_mail_size, [r0 + ml_msg_length]
 
 			vp_cpy [r4 + app_task_mailboxes], r2
 			vp_cpy r5, r1

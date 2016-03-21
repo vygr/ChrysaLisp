@@ -10,13 +10,13 @@
 		vp_cpy r0, [r3 + gui_statics_sdl_funcs]
 
 		;init old region
-		vp_cpy 0, qword[r3 + gui_statics_old_region]
+		vp_cpy_cl 0, [r3 + gui_statics_old_region]
 
 		;init last view etc
-		vp_cpy 0, qword[r3 + gui_statics_last_x_pos]
-		vp_cpy 0, qword[r3 + gui_statics_last_y_pos]
-		vp_cpy 0, qword[r3 + gui_statics_last_buttons]
-		vp_cpy 0, qword[r3 + gui_statics_last_view]
+		vp_cpy_cl 0, [r3 + gui_statics_last_x_pos]
+		vp_cpy_cl 0, [r3 + gui_statics_last_y_pos]
+		vp_cpy_cl 0, [r3 + gui_statics_last_buttons]
+		vp_cpy_cl 0, [r3 + gui_statics_last_view]
 
 		;init region heap
 		vp_lea [r3 + gui_statics_rect_heap], r0

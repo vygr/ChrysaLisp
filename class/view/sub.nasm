@@ -11,7 +11,7 @@
 		vp_cpy [r0 + view_parent], r1
 		if r1, !=, 0
 			;clear parent field
-			vp_cpy 0, qword[r0 + view_parent]
+			vp_cpy_cl 0, [r0 + view_parent]
 
 			;remove from parent list
 			vp_lea [r0 + view_node], r2

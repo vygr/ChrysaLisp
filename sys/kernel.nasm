@@ -47,8 +47,8 @@
 
 		;allocate for kernel routing table
 		vp_sub lk_table_size, r4
-		vp_cpy 0, qword[r4 + lk_table_array]
-		vp_cpy 0, qword[r4 + lk_table_array_size]
+		vp_cpy_cl 0, [r4 + lk_table_array]
+		vp_cpy_cl 0, [r4 + lk_table_array_size]
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernel task loop
@@ -90,7 +90,7 @@
 					vp_cpy r0, [r15 + (ml_msg_data + kn_data_task_open_reply_mailboxid)]
 					static_call cpu, id
 					vp_cpy r0, [r15 + (ml_msg_data + kn_data_task_open_reply_mailboxid + 8)]
-					vp_cpy ml_msg_data + kn_data_task_open_reply_size, qword[r15 + ml_msg_length]
+					vp_cpy_cl ml_msg_data + kn_data_task_open_reply_size, [r15 + ml_msg_length]
 					vp_cpy r15, r0
 					static_call mail, send
 					break
@@ -163,7 +163,7 @@
 								vp_cpy r2, [r0 + r11 + lk_route_hops]
 							else
 								;none via route
-								vp_cpy 0, qword[r0 + r11 + lk_route_hops]
+								vp_cpy_cl 0, [r0 + r11 + lk_route_hops]
 							endif
 						loop_end
 						break

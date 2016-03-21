@@ -44,9 +44,9 @@
 			fn_assert r0, !=, 0
 
 			;fill in destination, function
-			vp_cpy 0, qword[r0 + ml_msg_dest]
-			vp_cpy 0, qword[r0 + (ml_msg_dest + 8)]
-			vp_cpy kn_call_gui_update, qword[r0 + (ml_msg_data + kn_data_kernel_function)]
+			vp_cpy_cl 0, [r0 + ml_msg_dest]
+			vp_cpy_cl 0, [r0 + (ml_msg_dest + 8)]
+			vp_cpy_cl kn_call_gui_update, [r0 + (ml_msg_data + kn_data_kernel_function)]
 
 			;send mail to kernel
 			static_call mail, send
@@ -96,7 +96,7 @@
 						vp_cpy r15, [r0 + (ml_msg_dest + 8)]
 						vp_cpy [r5 + gui_statics_x_pos], r8
 						vp_cpy [r5 + gui_statics_y_pos], r9
-						vp_cpy ev_type_mouse, qword[r0 + (ml_msg_data + ev_data_type)]
+						vp_cpy_cl ev_type_mouse, [r0 + (ml_msg_data + ev_data_type)]
 						vp_cpy r6, [r0 + (ml_msg_data + ev_data_view)]
 						vp_cpy r8, [r0 + (ml_msg_data + ev_data_x)]
 						vp_cpy r9, [r0 + (ml_msg_data + ev_data_y)]

@@ -219,7 +219,7 @@
 		;%1 = list head
 		;%2 = list tail
 
-		vp_cpy 0, qword[%1 + lh_list_tail]
+		vp_cpy_cl 0, [%1 + lh_list_tail]
 		lh_set_tail %1, %1
 		vp_lea [%1 + lh_list_tail], %2
 		lh_set_head %1, %2

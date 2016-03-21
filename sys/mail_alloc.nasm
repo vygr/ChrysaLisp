@@ -10,10 +10,10 @@
 		static_bind mail, statics, r0
 		vp_lea [r0 + ml_statics_heap], r0
 		static_call heap, alloc
-		vp_cpy r0, qword[r1]
+		vp_cpy r0, [r1]
 		vp_lea [r1 + 8], r0
-		vp_cpy ml_msg_data, qword[r0 + ml_msg_length]
-		vp_cpy 0, qword[r0 + ml_msg_parcel_size]
+		vp_cpy_cl ml_msg_data, [r0 + ml_msg_length]
+		vp_cpy_cl 0, [r0 + ml_msg_parcel_size]
 		vp_ret
 
 	fn_function_end

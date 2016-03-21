@@ -12,7 +12,7 @@
 		super_call view, init
 		if r1, !=, 0
 			;init myself
-			vp_cpy 0, qword[r0 + view_parent]
+			vp_cpy_cl 0, [r0 + view_parent]
 			vp_lea [r0 + view_list], r1
 			lh_init r1, r2
 		endif

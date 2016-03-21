@@ -8,7 +8,7 @@
 		static_bind gui, statics, r1
 		vp_cpy [r1 + gui_statics_screen], r0
 		if r0, !=, 0
-			vp_cpy 0, qword[r1 + gui_statics_screen]
+			vp_cpy_cl 0, [r1 + gui_statics_screen]
 			static_call view, deref
 		endif
 

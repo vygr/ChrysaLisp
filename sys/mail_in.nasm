@@ -28,8 +28,8 @@
 				vp_cpy r14, [r0 + ml_msg_dest + 8]
 				vp_cpy r6, [r0 + ml_msg_parcel_id]
 				vp_cpy r7, [r0 + ml_msg_parcel_id + 8]
-				vp_cpy ml_msg_data, qword[r0 + ml_msg_parcel_total]
-				vp_cpy 0, qword[r0 + ml_msg_parcel_size]
+				vp_cpy_cl ml_msg_data, [r0 + ml_msg_parcel_total]
+				vp_cpy_cl 0, [r0 + ml_msg_parcel_size]
 				vp_add ml_mailbox_parcel_list, r13
 				lh_add_at_tail r13, r0, r1
 			endif

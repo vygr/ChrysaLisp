@@ -8,8 +8,8 @@
 
 		;allocate link node on stack and link to links list
 		vp_sub lk_node_size, r4
-		vp_cpy 0, qword[r4 + lk_node_table + lk_table_array]
-		vp_cpy 0, qword[r4 + lk_node_table + lk_table_array_size]
+		vp_cpy_cl 0, [r4 + lk_node_table + lk_table_array]
+		vp_cpy_cl 0, [r4 + lk_node_table + lk_table_array_size]
 		vp_lea [r4 + lk_node_node], r0
 		static_bind link, statics, r1
 		vp_lea [r1 + lk_statics_links_list], r1
@@ -56,23 +56,23 @@
 			vp_cpy lk_buffer_chan_1, r11
 		endif
 		vp_cpy r1, [r4 + lk_node_cpu_id]
-		vp_cpy 0, qword[r4 + lk_node_task_count]
+		vp_cpy_cl 0, [r4 + lk_node_task_count]
 
 		;send link routing message to neighbor kernel
 		vp_cpy r0, r8
 		vp_cpy r1, r9
 		static_call mail, alloc
 		fn_assert r0, !=, 0
-		vp_cpy 0, qword[r0 + ml_msg_dest]
+		vp_cpy_cl 0, [r0 + ml_msg_dest]
 		vp_cpy r9, [r0 + (ml_msg_dest + 8)]
-		vp_cpy 0, qword[r0 + ml_msg_data + kn_data_kernel_user]
-		vp_cpy 0, qword[r0 + ml_msg_data + kn_data_kernel_reply]
-		vp_cpy 0, qword[r0 + (ml_msg_data + kn_data_kernel_reply + 8)]
-		vp_cpy kn_call_task_route, qword[r0 + ml_msg_data + kn_data_kernel_function]
+		vp_cpy_cl 0, [r0 + ml_msg_data + kn_data_kernel_user]
+		vp_cpy_cl 0, [r0 + ml_msg_data + kn_data_kernel_reply]
+		vp_cpy_cl 0, [r0 + (ml_msg_data + kn_data_kernel_reply + 8)]
+		vp_cpy_cl kn_call_task_route, [r0 + ml_msg_data + kn_data_kernel_function]
 		vp_cpy r8, [r0 + ml_msg_data + kn_data_link_route_origin]
 		vp_cpy r8, [r0 + ml_msg_data + kn_data_link_route_via]
-		vp_cpy 1, qword[r0 + ml_msg_data + kn_data_link_route_hops]
-		vp_cpy ml_msg_data + kn_data_link_route_size, qword[r0 + ml_msg_length]
+		vp_cpy_cl 1, [r0 + ml_msg_data + kn_data_link_route_hops]
+		vp_cpy_cl ml_msg_data + kn_data_link_route_size, [r0 + ml_msg_length]
 		static_call mail, send
 
 		;open shared memory file
@@ -145,7 +145,7 @@
 					static_call mem, free
 
 					;busy status, check for more output
-					vp_cpy lk_chan_status_busy, qword[r10 + lk_chan_status]
+					vp_cpy_cl lk_chan_status_busy, [r10 + lk_chan_status]
 					vp_xor r9, r9
 					vp_jmp more_output
 				endif
@@ -171,7 +171,7 @@
 				static_call mail, send
 
 				;clear status
-				vp_cpy lk_chan_status_ready, qword[r11 + lk_chan_status]
+				vp_cpy_cl lk_chan_status_ready, [r11 + lk_chan_status]
 			endif
 
 			;let other links run

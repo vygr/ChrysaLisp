@@ -28,7 +28,7 @@
 		ln_add_node_before r0, r1, r2
 
 		;initialise task mailbox
-		vp_cpy 0, qword[r1 + tk_node_mailbox + ml_mailbox_tcb]
+		vp_cpy_cl 0, [r1 + tk_node_mailbox + ml_mailbox_tcb]
 		vp_lea [r1 + tk_node_mailbox + ml_mailbox_list], r0
 		ml_init r0, r2, r3
 

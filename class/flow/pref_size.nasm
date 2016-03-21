@@ -17,8 +17,8 @@
 		def_structure_end
 
 		vp_sub flow_size, r4
-		vp_cpy 0, qword[r4 + flow_w]
-		vp_cpy 0, qword[r4 + flow_h]
+		vp_cpy_cl 0, [r4 + flow_w]
+		vp_cpy_cl 0, [r4 + flow_h]
 
 		vp_cpy r4, r1
 		vp_lea [rel callback], r2

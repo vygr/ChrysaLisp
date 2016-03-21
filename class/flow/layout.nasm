@@ -14,8 +14,8 @@
 		def_structure_end
 
 		vp_sub layout_size, r4
-		vp_cpy 0, qword[r4 + layout_x]
-		vp_cpy 0, qword[r4 + layout_y]
+		vp_cpy_cl 0, [r4 + layout_x]
+		vp_cpy_cl 0, [r4 + layout_y]
 		vp_cpy [r0 + flow_flags], r1
 		vp_and flow_flag_left, r1
 		if r1, !=, 0
