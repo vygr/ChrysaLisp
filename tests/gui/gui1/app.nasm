@@ -53,7 +53,7 @@
 		vp_xor r9, r9
 		vp_xor r10, r10
 		vp_xor r11, r11
-		static_call view, set_color
+		static_call flow, set_color
 		vp_cpy [r4 + app_window_panel], r1
 		static_call flow, add
 
