@@ -29,8 +29,8 @@ easing use and removing the need to remember static function locations, plus
 decoupling the source from changes at the system level. Look in the inc/
 directory to see the interface definitions.
 
-Allows modeling of various network topologies with point to point links. Each
-cpu in the network is modeled as a separate host process, point to point links
+Allows modelling of various network topologies with point to point links. Each
+cpu in the network is modelled as a separate host process, point to point links
 use shared memory to simulate cpu to cpu point to point bi directional
 connections. There is no global bus based networking on purpose.
 
@@ -76,14 +76,15 @@ Make with:
 make -j
 
 Requires NASM and the SDL2 library to be installed. SDL2 is for the experimental
-gui. Seams to be some strange crashes using SDL at the moment, hopefully a fix
-will be issued, until then we make progress with what we have.
+gui.
 
 Run with:
 
 ./run.sh <num_cpus>
 
-Fully connected network. Each cpu has links to every other cpu.
+Fully connected network. Each cpu has links to every other cpu. Careful with
+this as you can end up with a very large number of link files and shared mem
+regions.
 
 ./run_ring.sh <num_cpus>
 
@@ -91,7 +92,8 @@ Ring connected network. Each cpu has links to the next and previous cpus.
 
 ./run_mesh.sh <num_cpus on a side>
 
-Mesh connected network. Each cpu has links to 4 adjacent cpus.
+Mesh connected network. Each cpu has links to 4 adjacent cpus. Best overall
+connectivity for good task distribution and packet switching.
 
 Stop with:
 
