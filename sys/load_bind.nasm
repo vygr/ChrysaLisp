@@ -163,8 +163,8 @@
 
 	string_compare:
 		loop_start
-			vp_cpy byte[r0], r2l
-			vp_cpy byte[r1], r3l
+			vp_cpy_b [r0], r2
+			vp_cpy_b [r1], r3
 			vp_and 0xff, r2
 			vp_and 0xff, r3
 			breakif r2, !=, r3
@@ -180,8 +180,8 @@
 
 	string_copy:
 		loop_start
-			vp_cpy byte[r0], r2l
-			vp_cpy r2l, byte[r1]
+			vp_cpy_b [r0], r2
+			vp_cpy_b r2, [r1]
 			vp_inc r0
 			vp_inc r1
 			vp_and 0xff, r2
@@ -190,7 +190,7 @@
 
 	string_skip:
 		loop_start
-			vp_cpy byte[r0], r1l
+			vp_cpy_b [r0], r1
 			vp_inc r0
 			vp_and 0xff, r1
 		loop_until r1, ==, 0

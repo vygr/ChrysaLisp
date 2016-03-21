@@ -20,9 +20,9 @@
 		vp_cpy r0, r14
 
 		;init link node cpu id and task count
-		vp_cpy byte[r14 + ml_msg_data + 5], r0l
-		vp_cpy byte[r14 + ml_msg_data + 6], r1l
-		vp_cpy byte[r14 + ml_msg_data + 7], r2l
+		vp_cpy_b [r14 + ml_msg_data + 5], r0
+		vp_cpy_b [r14 + ml_msg_data + 6], r1
+		vp_cpy_b [r14 + ml_msg_data + 7], r2
 		vp_and 0xff, r0
 		vp_and 0xff, r1
 		vp_and 0xff, r2
@@ -33,9 +33,9 @@
 		vp_mul 10, r1
 		vp_add r0, r1
 		vp_add r2, r1
-		vp_cpy byte[r14 + ml_msg_data + 9], r0l
-		vp_cpy byte[r14 + ml_msg_data + 10], r2l
-		vp_cpy byte[r14 + ml_msg_data + 11], r3l
+		vp_cpy_b [r14 + ml_msg_data + 9], r0
+		vp_cpy_b [r14 + ml_msg_data + 10], r2
+		vp_cpy_b [r14 + ml_msg_data + 11], r3
 		vp_and 0xff, r0
 		vp_and 0xff, r2
 		vp_and 0xff, r3

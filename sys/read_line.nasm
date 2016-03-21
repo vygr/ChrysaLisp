@@ -16,7 +16,7 @@
 		vp_add r0, r1
 		loop_while r5, !=, r1
 			sys_read_char r2
-			vp_cpy r0l, byte[r5]
+			vp_cpy_b r0, [r5]
 			vp_inc r5
 		loop_until r0, ==, 10
 		vp_cpy r5, r0

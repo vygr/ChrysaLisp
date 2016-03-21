@@ -50,7 +50,7 @@
 			;next array worker
 			vp_add mailbox_id_size, r6
 			vp_inc r7
-			vp_cpy byte[r5], r0l
+			vp_cpy_b [r5], r0
 			vp_and 0xff, r0
 		loop_until r0, ==, 0
 

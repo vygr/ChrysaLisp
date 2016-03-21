@@ -12,7 +12,7 @@
 		vp_cpy r0, r2
 		vp_xor r0, r0
 		loop_start
-			vp_cpy byte[r2], r3l
+			vp_cpy_b [r2], r3
 			vp_and 0xff, r3
 			breakif r3, ==, 0
 			if r3, >=, 'a'
