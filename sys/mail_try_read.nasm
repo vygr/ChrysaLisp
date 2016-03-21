@@ -9,14 +9,13 @@
 		;trashes
 		;r1-r2
 
-		lh_is_empty r0, r2
-		if r2, ==, 0
-			vp_cpy r2, r0
-			vp_ret
-		endif
-		vp_cpy [r0 + ml_mailbox_list + lh_list_head], r0
 		vp_cpy r0, r1
-		ln_remove_node r1, r2
+		lh_is_empty r0, r0
+		if r0, !=, 0
+			vp_cpy [r1 + ml_mailbox_list + lh_list_head], r0
+			vp_cpy r0, r1
+			ln_remove_node r1, r2
+		endif
 		vp_ret
 
 	fn_function_end
