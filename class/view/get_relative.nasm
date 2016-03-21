@@ -16,10 +16,10 @@
 		;walk up tree to parent
 		vp_cpy r0, r2
 		loop_while r2, !=, r1
-			fn_assert qword[r2 + view_parent], !=, 0
 			vp_add [r2 + view_x], r8
 			vp_add [r2 + view_y], r9
 			vp_cpy [r2 + view_parent], r2
+			fn_assert r2, !=, 0
 		loop_end
 		vp_ret
 

@@ -43,7 +43,9 @@
 			;down to child
 			lh_get_head r0 + view_list, r1
 			vp_sub view_node, r1
-		loop_until qword[r1 + view_node + ln_node_succ], ==, 0
+
+			ln_get_succ r1 + view_node, r2
+		loop_until r2, ==, 0
 		loop_start
 			;up callback
 			vp_cpy [r4 + enum_data], r1
@@ -55,7 +57,9 @@
 			;across to sibling
 			ln_get_succ r0 + view_node, r1
 			vp_sub view_node, r1
-			jmpif qword[r1 + view_node + ln_node_succ], !=, 0, down_loop_ctx
+
+			ln_get_succ r1 + view_node, r2
+			jmpif r2, !=, 0, down_loop_ctx
 
 			;up to parent
 			vp_cpy [r0 + view_parent], r0

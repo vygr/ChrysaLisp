@@ -26,14 +26,17 @@
 		vp_cpy r2, [r4 + enum_callback]
 
 		lh_get_tail r0 + view_list, r0
-		loop_while qword[r0 + ln_node_pred], !=, 0
+		loop_start
+		 	ln_get_pred r0, r1
+			breakif r1, ==, 0
+
 			;callback
 			vp_sub view_node, r0
 			vp_cpy [r4 + enum_data], r1
 			vp_call [r4 + enum_callback]
 
 			;across to sibling
-			vp_cpy [r0 + view_node + ln_node_pred], r0
+			ln_get_pred r0 + view_node, r0
 		loop_end
 		vp_add enum_size, r4
 		vp_ret

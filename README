@@ -7,8 +7,8 @@ Runs on OSX or Linux. Could move to bare metal eventually but it's useful for
 now to run hosted while experimenting.
 
 Uses a virtual cpu instruction macro set to avoid use of x64 native
-instructions. Couple of things to tidy up here with the vp_div and vp_cpy macros
-as they are currently too x64 specific.
+instructions. Couple of things to tidy up here with the vp_div macro it is
+currently too x64 specific.
 
 Has function level dynamic binding and loading. Individual assembler functions
 are loaded and bound on demand as tasks are created and distributed. Currently

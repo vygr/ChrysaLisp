@@ -15,7 +15,8 @@
 		case r2, ==, ev_type_mouse
 			;so what state are we in ?
 			vp_cpy [r1 + (ml_msg_data + ev_data_buttons)], r2
-			if qword[r0 + view_last_buttons], !=, 0
+			vp_cpy [r0 + view_last_buttons], r3
+			if r3, !=, 0
 				;was down previously
 				if r2, !=, 0
 					;is down now, so move
