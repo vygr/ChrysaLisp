@@ -32,24 +32,26 @@
 	%macro reg_b? 1-9 r0, al, r1, cl, r2, dl, r3, bl
 		%define _test %1
 		%define _reg_b %1l
+		%rotate 1
 		%rep %0 - 1
-			%rotate 1
 			%ifidn %1, _test
 				%define _reg_b %2
 				%exitrep
 			%endif
+			%rotate 2
 		%endrep
 	%endmacro
 
 	%macro reg_s? 1-9 r0, ax, r1, cx, r2, dx, r3, bx
 		%define _test %1
 		%define _reg_s %1x
+		%rotate 1
 		%rep %0 - 1
-			%rotate 1
 			%ifidn %1, _test
 				%define _reg_s %2
 				%exitrep
 			%endif
+			%rotate 2
 		%endrep
 	%endmacro
 
