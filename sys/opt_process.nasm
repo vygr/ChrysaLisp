@@ -90,8 +90,8 @@
 			;start link
 			static_bind link, link, r0
 			static_call task, start
-			vp_cpy r0, r5
 			static_call cpu, id
+			vp_cpy r1, r5
 			vp_cpy r0, r6
 
 			;allocate params message

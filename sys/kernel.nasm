@@ -30,9 +30,9 @@
 		;start kernel task
 		static_call task, start
 		static_bind task, statics, r2
-		vp_cpy r1, [r2 + tk_statics_current_tcb]
+		vp_cpy r0, [r2 + tk_statics_current_tcb]
 
-		;init mailer, r0 = kernel mailbox !
+		;init mailer, r1 = kernel mailbox !
 		static_call mail, init
 
 		;process command options
@@ -87,8 +87,8 @@
 					vp_lea [r15 + (ml_msg_data + kn_data_task_open_pathname)], r0
 					static_call load, bind
 					static_call task, start
-					vp_cpy r0, [r15 + (ml_msg_data + kn_data_task_open_reply_mailboxid)]
 					static_call cpu, id
+					vp_cpy r1, [r15 + (ml_msg_data + kn_data_task_open_reply_mailboxid)]
 					vp_cpy r0, [r15 + (ml_msg_data + kn_data_task_open_reply_mailboxid + 8)]
 					vp_cpy_cl ml_msg_data + kn_data_task_open_reply_size, [r15 + ml_msg_length]
 					vp_cpy r15, r0
