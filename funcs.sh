@@ -48,4 +48,5 @@ function boot_cpu
 	else
 		./main -cpu $1 $2 &
 	fi
+	echo -cpu $1 $2
 }

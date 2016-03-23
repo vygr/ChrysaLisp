@@ -71,7 +71,7 @@
 		loop_start
 			static_call progress, create
 			fn_assert r0, !=, 0
-			vp_cpy 32, r1
+			vp_cpy 48, r1
 			static_call progress, set_max
 			vp_cpy 0, r8
 			vp_cpy 255, r9
