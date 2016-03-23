@@ -29,7 +29,11 @@
 		vp_cpy [r0 + gui_statics_screen], r0
 		static_call view, dirty_all
 
-		;for now fire up the test app
+		;sleep just a moment to let all routing finish
+		vp_cpy 1000000, r0
+		static_call task, sleep
+
+		;for now fire up the test apps
 		;this might be an gui auto run list eventually
 		fn_bind tests/gui/gui1/app, r0
 		static_call task, start
@@ -44,11 +48,14 @@
 			fn_assert r0, !=, 0
 
 			;fill in destination, function
+			vp_cpy r0, r1
+			static_call cpu, id
+			vp_xchg r0, r1
 			vp_cpy_cl 0, [r0 + ml_msg_dest]
-			vp_cpy_cl 0, [r0 + (ml_msg_dest + 8)]
+			vp_cpy_cl r1, [r0 + (ml_msg_dest + 8)]
 			vp_cpy_cl kn_call_gui_update, [r0 + (ml_msg_data + kn_data_kernel_function)]
 
-			;send mail to kernel
+			;send mail to this kernel
 			static_call mail, send
 
 			;frame rate of gui updates

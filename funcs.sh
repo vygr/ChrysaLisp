@@ -42,7 +42,7 @@ function wrap
 
 function boot_cpu
 {
-	if [ $1 == 0 ]
+	if [ $1 -lt 1 ]
 	then
 		./main -cpu $1 $2 -run gui/gui &
 	else
