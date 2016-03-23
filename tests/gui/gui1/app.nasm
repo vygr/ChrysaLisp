@@ -71,8 +71,8 @@
 		loop_start
 			static_call progress, create
 			fn_assert r0, !=, 0
-			vp_xor r1, r1
-			static_call progress, set_percent
+			vp_cpy 32, r1
+			static_call progress, set_max
 			vp_cpy 0, r8
 			vp_cpy 255, r9
 			vp_cpy 0, r10
@@ -191,8 +191,7 @@
 				;update progress bar
 				vp_cpy [r0 + ml_msg_data + app_mail_task_count], r1
 				vp_cpy [r0 + ml_msg_data + app_mail_progress], r0
-				vp_shl progress_fixed_point - 5, r1
-				static_call progress, set_percent
+				static_call progress, set_val
 				static_call progress, dirty
 
 				;count up replies

@@ -33,7 +33,8 @@ class/obj/null
 class/progress/create
 class/progress/draw
 class/progress/new
-class/progress/set_percent
+class/progress/set_max
+class/progress/set_val
 class/ref/deref
 class/ref/init
 class/ref/ref

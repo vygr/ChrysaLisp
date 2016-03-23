@@ -47,10 +47,15 @@
 		vp_cpy progress_border_size, r9
 		vp_sub progress_border_size * 2, r10
 		vp_sub progress_border_size * 2, r11
+		vp_cpy [r0 + progress_val], r2
+		vp_cpy [r0 + progress_max], r1
 		vp_cpy r10, r12
-		vp_mul [r0 + progress_percent], r10
-		vp_shr progress_fixed_point, r10
-		vp_cpy r10, [r4 + draw_fill_complete]
+		vp_cpy r10, r0
+		vp_mul r2, r0
+		vp_xor r2, r2
+		vp_div r1, r2, r0
+		vp_cpy r0, [r4 + draw_fill_complete]
+		vp_cpy r0, r10
 		vp_sub r10, r12
 		vp_cpy r12, [r4 + draw_fill_remain]
 		vp_cpy [r4 + draw_ctx], r0
