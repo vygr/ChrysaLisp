@@ -20,6 +20,7 @@
 	def_method gui, gui/gui
 
 	def_class region
+	def_method translate, gui/region_translate
 	def_method clip, gui/region_clip_rect
 	def_method remove, gui/region_remove_rect
 	def_method cut, gui/region_cut_rect
