@@ -317,7 +317,7 @@
 			vp_sub r2, r0
 			vp_cpy 1000, r3
 			vp_xor r2, r2
-			vp_div r3
+			vp_div r3, r2, r0
 			if r0, <, 1
 				vp_cpy 1, r0
 			endif

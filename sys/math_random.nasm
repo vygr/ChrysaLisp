@@ -16,7 +16,7 @@
 		vp_xor r2, r0
 		vp_cpy r0, [rel seed]
 		vp_xor r2, r2
-		vp_div r1
+		vp_div r1, r2, r0
 		vp_cpy r2, r0
 		vp_ret
 

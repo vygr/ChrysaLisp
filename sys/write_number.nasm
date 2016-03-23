@@ -13,7 +13,7 @@
 		vp_cpy r4, r5	;stack location
 		loop_start
 			vp_xor r2, r2
-			vp_div r3
+			vp_div r3, r2, r0
 			vp_push r2
 		loop_until r0, ==, 0
 		loop_start

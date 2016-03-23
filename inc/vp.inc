@@ -136,8 +136,50 @@
 		%endif
 	%endmacro
 
-	%macro vp_div 1
-		idiv %1
+	%macro vp_div 3
+		;inputs
+		;%1 = divider
+		;%2:%3 = dividend high/low
+		;outputs
+		;%2 = remainder
+		;%3 = quotient
+
+		reg? %2
+		%if _reg = 2
+			;high in r2
+			reg? %3
+			%if _reg = 0
+				;low in r0
+				idiv %1
+			%else
+				;low not in r0
+				vp_push r0
+				vp_cpy %3, r0
+				idiv %1
+				vp_cpy r0, %3
+				vp_pop r0
+			%endif
+		%else
+			;high not in r2
+			reg? %3
+			%if _reg = 0
+				;low in r0
+				vp_push r2
+				vp_cpy %2, r2
+				idiv %1
+				vp_cpy r2, %2
+				vp_pop r2
+			%else
+				;low not in r0
+				vp_push r0, r2
+				vp_cpy %2, r2
+				vp_cpy %3, r0
+				idiv %1
+				vp_cpy r0, %3
+				vp_cpy r2, %2
+				vp_pop r0, r2
+			%endif
+		%endif
 	%endmacro
 
 	%macro vp_mul 2
