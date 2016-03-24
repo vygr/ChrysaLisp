@@ -26,6 +26,12 @@
 	extern _SDL_PumpEvents
 	extern _SDL_GetMouseState
 	extern _SDL_RenderDrawRect
+	extern _SDL_FreeSurface
+	extern _SDL_CreateTextureFromSurface
+	extern _SDL_DestroyTexture
+	extern _SDL_RenderCopy
+	extern _SDL_SetTextureBlendMode
+	extern _SDL_SetTextureColorMod
 
 	extern _TTF_Init
 	extern _TTF_Quit
@@ -53,6 +59,12 @@
 	extern SDL_PumpEvents
 	extern SDL_GetMouseState
 	extern SDL_RenderDrawRect
+	extern SDL_FreeSurface
+	extern SDL_CreateTextureFromSurface
+	extern SDL_DestroyTexture
+	extern SDL_RenderCopy
+	extern SDL_SetTextureBlendMode
+	extern SDL_SetTextureColorMod
 
 	extern TTF_Init
 	extern TTF_Quit
@@ -81,6 +93,12 @@
 		def_byte	SDL_PUMPEVENTS
 		def_byte	SDL_GetMouseState
 		def_byte	SDL_RenderDrawRect
+		def_byte	SDL_FreeSurface
+		def_byte	SDL_CreateTextureFromSurface
+		def_byte	SDL_DestroyTexture
+		def_byte	SDL_RenderCopy
+		def_byte	SDL_SetTextureBlendMode
+		def_byte	SDL_SetTextureColorMod
 
 		def_byte	TTF_Init
 		def_byte	TTF_Quit
@@ -289,6 +307,62 @@
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (SDL_GetMouseState * 8)]
+	%endmacro
+
+	%macro sdl_free_surface 1
+		;surface*
+		vp_cpy %1, r7		;surface*
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (SDL_FreeSurface * 8)]
+	%endmacro
+
+	%macro sdl_create_texture_from_surface 2
+		;renderer**, surface*
+		vp_cpy %1, r7		;renderer**
+		vp_cpy %2, r6		;surface*
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (SDL_CreateTextureFromSurface * 8)]
+	%endmacro
+
+	%macro sdl_destroy_texture 1
+		;texture*
+		vp_cpy %1, r7		;texture*
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (SDL_DestroyTexture * 8)]
+	%endmacro
+
+	%macro sdl_render_copy 2
+		;renderer**, texture*, srect*, drect*
+		vp_cpy %1, r7		;renderer**
+		vp_cpy %2, r6		;texture*
+		vp_cpy %3, r2		;srect*
+		vp_cpy %4, r1		;drect*
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (SDL_RenderCopy * 8)]
+	%endmacro
+
+	%macro sdl_set_texture_blend_mode 2
+		;texture*, blendmode
+		vp_cpy %1, r7		;texture*
+		vp_cpy %2, r6		;blendmode
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (SDL_SetTextureBlendMode * 8)]
+	%endmacro
+
+	%macro sdl_set_texture_color_mod 4
+		;texture*, byte r, byte g, byte b
+		vp_cpy %1, r7		;texture*
+		vp_cpy %2, r6		;r
+		vp_cpy %3, r2		;g
+		vp_cpy %4, r1		;b
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (SDL_SetTextureColorMod * 8)]
 	%endmacro
 
 	%macro ttf_init 0

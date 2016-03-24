@@ -67,6 +67,12 @@ sdl_func_table:
 	dq _SDL_PumpEvents
 	dq _SDL_GetMouseState
 	dq _SDL_RenderDrawRect
+	dq _SDL_FreeSurface
+	dq _SDL_CreateTextureFromSurface
+	dq _SDL_DestroyTexture
+	dq _SDL_RenderCopy
+	dq _SDL_SetTextureBlendMode
+	dq _SDL_SetTextureColorMod
 
 	dq _TTF_Init
 	dq _TTF_Quit
@@ -94,6 +100,12 @@ sdl_func_table:
 	dq SDL_PumpEvents
 	dq SDL_GetMouseState
 	dq SDL_RenderDrawRect
+	dq SDL_FreeSurface
+	dq SDL_CreateTextureFromSurface
+	dq SDL_DestroyTexture
+	dq SDL_RenderCopy
+	dq SDL_SetTextureBlendMode
+	dq SDL_SetTextureColorMod
 
 	dq TTF_Init
 	dq TTF_Quit
