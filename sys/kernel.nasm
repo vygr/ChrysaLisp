@@ -5,6 +5,7 @@
 %include 'inc/gui.inc'
 %include 'inc/sdl2.inc'
 %include 'inc/load.inc'
+%include 'inc/font.inc'
 
 ;;;;;;;;;;;;;
 ; kernel task
@@ -26,6 +27,9 @@
 
 		;init linker
 		static_call link, init
+
+		;init font
+		static_call font, init
 
 		;start kernel task
 		static_call task, start
@@ -101,7 +105,7 @@
 					static_bind task, statics, r1
 					vp_cpy [r1 + tk_statics_task_count], r1
 					static_bind link, statics, r2
-					loop_list_forwards r2 + lk_statics_links_list, r2, r3
+					loop_list_forward r2 + lk_statics_links_list, r2, r3
 						if r1, >, [r3 + lk_node_task_count]
 							vp_cpy [r3 + lk_node_cpu_id], r0
 							vp_cpy [r3 + lk_node_task_count], r1
@@ -148,7 +152,7 @@
 						;fill in via route and remove other routes
 						vp_cpy [r15 + ml_msg_data + kn_data_link_route_via], r13
 						static_bind link, statics, r14
-						loop_list_forwards r14 + lk_statics_links_list, r14, r12
+						loop_list_forward r14 + lk_statics_links_list, r14, r12
 							;new link route table ?
 							vp_cpy [r12 + lk_node_table + lk_table_array], r0
 							vp_cpy [r12 + lk_node_table + lk_table_array_size], r1
@@ -171,7 +175,7 @@
 						;new hops is equal, so additional route
 						vp_cpy [r15 + ml_msg_data + kn_data_link_route_via], r13
 						static_bind link, statics, r14
-						loop_list_forwards r14 + lk_statics_links_list, r14, r12
+						loop_list_forward r14 + lk_statics_links_list, r14, r12
 							;new link route table ?
 							vp_cpy [r12 + lk_node_table + lk_table_array], r0
 							vp_cpy [r12 + lk_node_table + lk_table_array_size], r1
@@ -204,7 +208,7 @@
 
 					;copy and send to all neighbors apart from old via
 					static_bind link, statics, r13
-					loop_list_forwards r13 + lk_statics_links_list, r13, r12
+					loop_list_forward r13 + lk_statics_links_list, r13, r12
 						vp_cpy [r12 + lk_node_cpu_id], r11
 						continueif r11, ==, r14
 						static_call mail, alloc
@@ -291,7 +295,7 @@
 			vp_cpy [r3 + tk_statics_timer_list + lh_list_head], r2
 			ln_get_succ r2, r2
 			if r2, !=, 0
-				loop_list_forwards r3 + tk_statics_timer_list, r2, r1
+				loop_list_forward r3 + tk_statics_timer_list, r2, r1
 					vp_cpy [r1 + tk_node_time], r5
 					breakif r5, >, r0
 
@@ -324,6 +328,9 @@
 			endif
 			sdl_delay r0
 		loop_end
+
+		;deinit font
+		static_call font, deinit
 
 		;deinit gui
 		static_call gui, deinit

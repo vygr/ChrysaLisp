@@ -105,6 +105,9 @@ main
 sys/cpu_get_id
 sys/cpu_get_time
 sys/cpu_get_total
+sys/font_deinit
+sys/font_init
+sys/font_statics
 sys/heap_alloc
 sys/heap_deinit
 sys/heap_init

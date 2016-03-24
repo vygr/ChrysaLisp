@@ -28,7 +28,7 @@
 			;r3, r7-r14
 
 		vp_xor r5, r5
-		loop_list_backwards r0, r6, r3
+		loop_list_backward r0, r6, r3
 			vp_call r1
 		loop_until r5, !=, 0
 		vp_ret

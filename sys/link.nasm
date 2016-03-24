@@ -113,7 +113,7 @@
 				;no outgoing message so see if any off chip mail for me
 				vp_cpy [r4 + lk_node_cpu_id], r0
 				static_bind mail, statics, r8
-				loop_list_forwards r8 + ml_statics_offchip_list, r8, r7
+				loop_list_forward r8 + ml_statics_offchip_list, r8, r7
 					vp_cpy [r7 + (ml_msg_dest + 8)], r2
 					breakif r0, ==, r2
 					vp_cpy [r4 + lk_node_table + lk_table_array], r1

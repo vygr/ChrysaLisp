@@ -357,7 +357,7 @@
 ; list loop macros
 ;;;;;;;;;;;;;;;;;;
 
-	%macro loop_list_forwards 3
+	%macro loop_list_forward 3
 		;inputs
 		;%1 = list head
 		;%2 = list node look ahead
@@ -374,7 +374,7 @@
 			breakif %2, ==, 0
 	%endmacro
 
-	%macro loop_list_backwards 3
+	%macro loop_list_backward 3
 		;inputs
 		;%1 = list head
 		;%2 = list node look ahead
