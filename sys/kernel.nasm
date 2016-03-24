@@ -234,22 +234,23 @@
 					vp_cpy [r0 + gui_statics_window], r1
 					if r1, ==, 0
 						;init sdl2
-						sdl_setmainready
+						sdl_set_main_ready
 						sdl_init SDL_INIT_VIDEO
+						ttf_init
 
 						;create window
 						vp_lea [rel title], r0
-						sdl_createwindow r0, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL
+						sdl_create_window r0, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL
 						static_bind gui, statics, r1
 						vp_cpy r0, [r1 + gui_statics_window]
 
 						;create renderer
-						sdl_createrenderer r0, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+						sdl_create_renderer r0, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
 						static_bind gui, statics, r1
 						vp_cpy r0, [r1 + gui_statics_renderer]
 
 						;set blend mode
-						sdl_setrenderdrawblendmode r0, SDL_BLENDMODE_BLEND
+						sdl_set_render_draw_blend_mode r0, SDL_BLENDMODE_BLEND
 					endif
 
 					;update screen
@@ -257,13 +258,13 @@
 					vp_cpy [r0 + gui_statics_screen], r0
 					if r0, !=, 0
 						;pump sdl events
-						sdl_pumpevents
+						sdl_pump_events
 
 						;get mouse state
 						static_bind gui, statics, r0
 						vp_lea [r0 + gui_statics_x_pos], r1
 						vp_lea [r0 + gui_statics_y_pos], r2
-						sdl_getmousestate r1, r2
+						sdl_get_mouse_state r1, r2
 						static_bind gui, statics, r1
 						vp_add gui_statics_buttons, r1
 						vp_cpy r0, [r1]
@@ -275,7 +276,7 @@
 
 						;refresh the window
 						static_bind gui, statics, r0
-						sdl_renderpresent [r0 + gui_statics_renderer]
+						sdl_render_present [r0 + gui_statics_renderer]
 					endif
 				default
 				endswitch

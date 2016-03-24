@@ -28,7 +28,8 @@
 			vp_cpy r4, r15
 			vp_and -16, r4
 
-			sdl_destroywindow r14
+			sdl_destroy_window r14
+			ttf_quit
 			sdl_quit
 
 			vp_cpy r15, r4

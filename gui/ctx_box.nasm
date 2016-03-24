@@ -53,12 +53,12 @@
 			vp_cpy r11d, [r4 + fbox_clip_rect + sdl_rect_h]
 			vp_cpy [r4 + fbox_ctx], r0
 			vp_lea [r4 + fbox_clip_rect], r1
-			sdl_rendersetcliprect [r0+ gui_ctx_sdl_ctx], r1
+			sdl_render_set_clip_rect [r0+ gui_ctx_sdl_ctx], r1
 
 			;draw the rectangle
 			vp_cpy [r4 + fbox_ctx], r0
 			vp_lea [r4 + fbox_rect], r1
-			sdl_renderdrawrect [r0+ gui_ctx_sdl_ctx], r1
+			sdl_render_draw_rect [r0+ gui_ctx_sdl_ctx], r1
 
 			vp_cpy [r4 + fbox_patch], r0
 		loop_end

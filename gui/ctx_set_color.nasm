@@ -20,7 +20,7 @@
 		vp_and -16, r4
 		vp_cpy r1, [r4 + color_old_stack]
 
-		sdl_setrenderdrawcolor [r0 + gui_ctx_sdl_ctx], r8, r9, r10, r11
+		sdl_set_render_draw_color [r0 + gui_ctx_sdl_ctx], r8, r9, r10, r11
 
 		vp_cpy [r4 + color_old_stack], r4
 		vp_ret

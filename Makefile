@@ -7,7 +7,12 @@ all_objects := $(patsubst %.nasm, %, $(all_nasms))
 all:		$(all_objects)
 
 main:		main.o
+ifeq ($(OS),Darwin)
+			clang -o main -e main main.o -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
+endif
+ifeq ($(OS),Linux)
 			clang -o main -e main main.o $(sdl_ldflags)
+endif
 
 %.o:		%.nasm Makefile $(all_incs) \
 			sys/load_init sys/load_bind sys/load_statics sys/load_deinit sys/kernel gui/gui_init

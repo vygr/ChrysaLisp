@@ -26,6 +26,16 @@
 	extern _SDL_PumpEvents
 	extern _SDL_GetMouseState
 	extern _SDL_RenderDrawRect
+
+	extern _TTF_Init
+	extern _TTF_Quit
+	extern _TTF_OpenFont
+	extern _TTF_CloseFont
+	extern _TTF_SizeUTF8
+	extern _TTF_FontAscent
+	extern _TTF_FontDescent
+	extern _TTF_FontHeight
+	extern _TTF_RenderUTF8_Blended
 %elifidn OS, Linux
 	extern SDL_SetMainReady
 	extern SDL_Init
@@ -43,23 +53,44 @@
 	extern SDL_PumpEvents
 	extern SDL_GetMouseState
 	extern SDL_RenderDrawRect
+
+	extern TTF_Init
+	extern TTF_Quit
+	extern TTF_OpenFont
+	extern TTF_CloseFont
+	extern TTF_SizeUTF8
+	extern TTF_FontAscent
+	extern TTF_FontDescent
+	extern TTF_FontHeight
+	extern TTF_RenderUTF8_Blended
 %endif
-	SDL_SETMAINREADY			equ 0
-	SDL_INIT					equ 1
-	SDL_QUIT					equ 2
-	SDL_CREATEWINDOW			equ 3
-	SDL_CREATEWINDOWANDRENDERER	equ 4
-	SDL_DESTROYWINDOW			equ 5
-	SDL_DELAY					equ 6
-	SDL_CREATERENDERER			equ 7
-	SDL_SETRENDERDRAWCOLOR		equ 8
-	SDL_RENDERFILLRECT			equ 9
-	SDL_RENDERPRESENT			equ 10
-	SDL_RENDERSETCLIPRECT		equ 11
-	SDL_SETRENDERDRAWBLENDMODE	equ 12
-	SDL_PUMPEVENTS				equ 13
-	SDL_GETMOUSESTATE			equ 14
-	SDL_RENDERDRAWRECT			equ 15
+	def_structure	sdl
+		def_byte	SDL_SetMainReady
+		def_byte	SDL_Init
+		def_byte	SDL_Quit
+		def_byte	SDL_CreateWindow
+		def_byte	SDL_CreateWindowAndRenderer
+		def_byte	SDL_DestroyWindow
+		def_byte	SDL_Delay
+		def_byte	SDL_CreateRenderer
+		def_byte	SDL_SetRenderDrawColor
+		def_byte	SDL_RenderFillRect
+		def_byte	SDL_RenderPresent
+		def_byte	SDL_RenderSetClipRect
+		def_byte	SDL_SetRenderDrawBlendMode
+		def_byte	SDL_PUMPEVENTS
+		def_byte	SDL_GetMouseState
+		def_byte	SDL_RenderDrawRect
+
+		def_byte	TTF_Init
+		def_byte	TTF_Quit
+		def_byte	TTF_OpenFont
+		def_byte	TTF_CloseFont
+		def_byte	TTF_SizeUTF8
+		def_byte	TTF_FontAscent
+		def_byte	TTF_FontDescent
+		def_byte	TTF_RenderUTF8_Blended
+	def_structure_end
 
 	SDL_INIT_TIMER			equ 0x00000001
 	SDL_INIT_AUDIO			equ 0x00000010
@@ -118,10 +149,10 @@
 ; sdl2 macros
 ;;;;;;;;;;;;;
 
-	%macro sdl_setmainready 0
+	%macro sdl_set_main_ready 0
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_SETMAINREADY * 8)]
+		vp_call [r0 + (SDL_SetMainReady * 8)]
 	%endmacro
 
 	%macro sdl_init 1
@@ -129,7 +160,7 @@
 		vp_cpy %1, r7
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_INIT * 8)]
+		vp_call [r0 + (SDL_Init * 8)]
 	%endmacro
 
 	%macro sdl_delay 1
@@ -137,16 +168,16 @@
 		vp_cpy %1, r7
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_DELAY * 8)]
+		vp_call [r0 + (SDL_Delay * 8)]
 	%endmacro
 
 	%macro sdl_quit 0
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_QUIT * 8)]
+		vp_call [r0 + (SDL_Quit * 8)]
 	%endmacro
 
-	%macro sdl_createwindow 6
+	%macro sdl_create_window 6
 		;title, x, y, w, h, flags
 		vp_cpy %1, r7		;title
 		vp_cpy %2, r6		;x
@@ -156,10 +187,10 @@
 		vp_cpy %6, r9		;flags
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_CREATEWINDOW * 8)]
+		vp_call [r0 + (SDL_CreateWindow * 8)]
 	%endmacro
 
-	%macro sdl_createwindowandrenderer 5
+	%macro sdl_create_window_and_renderer 5
 		;w, h, flags, window**, renderer**
 		vp_cpy %1, r7		;w
 		vp_cpy %2, r6		;h
@@ -168,28 +199,28 @@
 		vp_cpy %5, r8		;renderer**
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_CREATEWINDOWANDRENDERER * 8)]
+		vp_call [r0 + (SDL_CreateWindowAndRenderer * 8)]
 	%endmacro
 
-	%macro sdl_destroywindow 1
+	%macro sdl_destroy_window 1
 		;window
 		vp_cpy %1, r7
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_DESTROYWINDOW * 8)]
+		vp_call [r0 + (SDL_DestroyWindow * 8)]
 	%endmacro
 
-	%macro sdl_createrenderer 3
+	%macro sdl_create_renderer 3
 		;window*, index, flags
 		vp_cpy %1, r7		;window*
 		vp_cpy %2, r6		;index
 		vp_cpy %3, r2		;flags
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_CREATERENDERER * 8)]
+		vp_call [r0 + (SDL_CreateRenderer * 8)]
 	%endmacro
 
-	%macro sdl_setrenderdrawcolor 5
+	%macro sdl_set_render_draw_color 5
 		;renderer**, r, g, b, a
 		vp_cpy %1, r7		;renderer**
 		vp_cpy %2, r6		;r
@@ -198,66 +229,140 @@
 		vp_cpy %5, r8		;a
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_SETRENDERDRAWCOLOR * 8)]
+		vp_call [r0 + (SDL_SetRenderDrawColor * 8)]
 	%endmacro
 
-	%macro sdl_renderfillrect 2
+	%macro sdl_render_fill_rect 2
 		;renderer**, rect*
 		vp_cpy %1, r7		;renderer**
 		vp_cpy %2, r6		;rect*
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_RENDERFILLRECT * 8)]
+		vp_call [r0 + (SDL_RenderFillRect * 8)]
 	%endmacro
 
-	%macro sdl_renderdrawrect 2
+	%macro sdl_render_draw_rect 2
 		;renderer**, rect*
 		vp_cpy %1, r7		;renderer**
 		vp_cpy %2, r6		;rect*
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_RENDERDRAWRECT * 8)]
+		vp_call [r0 + (SDL_RenderDrawRect * 8)]
 	%endmacro
 
-	%macro sdl_renderpresent 1
+	%macro sdl_render_present 1
 		;renderer**
 		vp_cpy %1, r7		;renderer**
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_RENDERPRESENT * 8)]
+		vp_call [r0 + (SDL_RenderPresent * 8)]
 	%endmacro
 
-	%macro sdl_rendersetcliprect 2
+	%macro sdl_render_set_clip_rect 2
 		;renderer**, rect*
 		vp_cpy %1, r7		;renderer**
 		vp_cpy %2, r6		;rect*
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_RENDERSETCLIPRECT * 8)]
+		vp_call [r0 + (SDL_RenderSetClipRect * 8)]
 	%endmacro
 
-	%macro sdl_setrenderdrawblendmode 2
+	%macro sdl_set_render_draw_blend_mode 2
 		;renderer**, mode
 		vp_cpy %1, r7		;renderer**
 		vp_cpy %2, r6		;mode
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_SETRENDERDRAWBLENDMODE * 8)]
+		vp_call [r0 + (SDL_SetRenderDrawBlendMode * 8)]
 	%endmacro
 
-	%macro sdl_pumpevents 0
+	%macro sdl_pump_events 0
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (SDL_PUMPEVENTS * 8)]
 	%endmacro
 
-	%macro sdl_getmousestate 2
+	%macro sdl_get_mouse_state 2
 		;x*, y*
 		vp_cpy %1, r7		;x*
 		vp_cpy %2, r6		;y*
 		static_bind gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_GETMOUSESTATE * 8)]
+		vp_call [r0 + (SDL_GetMouseState * 8)]
+	%endmacro
+
+	%macro ttf_init 0
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (TTF_Init * 8)]
+	%endmacro
+
+	%macro ttf_quit 0
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (TTF_Quit * 8)]
+	%endmacro
+
+	%macro ttf_open_font 2
+		;name*, pointsize
+		vp_cpy %1, r7		;name*
+		vp_cpy %2, r6		;pointsize
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (TTF_OpenFont * 8)]
+	%endmacro
+
+	%macro ttf_close_font 1
+		;font*
+		vp_cpy %1, r7		;font*
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (TTF_CloseFont * 8)]
+	%endmacro
+
+	%macro ttf_size_utf8 4
+		;font*, text*, int *w, int *h
+		vp_cpy %1, r7		;font*
+		vp_cpy %2, r6		;text*
+		vp_cpy %3, r2		;w*
+		vp_cpy %4, r1		;h*
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (TTF_SizeUTF8 * 8)]
+	%endmacro
+
+	%macro ttf_font_ascent 1
+		;font*
+		vp_cpy %1, r7		;font*
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (TTF_FontAscent * 8)]
+	%endmacro
+
+	%macro ttf_font_descent 1
+		;font*
+		vp_cpy %1, r7		;font*
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (TTF_FontDescent * 8)]
+	%endmacro
+
+	%macro ttf_font_height 1
+		;font*
+		vp_cpy %1, r7		;font*
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (TTF_FontHeight * 8)]
+	%endmacro
+
+	%macro ttf_render_utf8_blended 3
+		;font*, text*, color
+		vp_cpy %1, r7		;font*
+		vp_cpy %2, r6		;text*
+		vp_cpy %3, r2		;color
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_sdl_funcs], r0
+		vp_call [r0 + (TTF_RenderUTF8_Blended * 8)]
 	%endmacro
 
 %endif

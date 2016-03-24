@@ -67,6 +67,16 @@ sdl_func_table:
 	dq _SDL_PumpEvents
 	dq _SDL_GetMouseState
 	dq _SDL_RenderDrawRect
+
+	dq _TTF_Init
+	dq _TTF_Quit
+	dq _TTF_OpenFont
+	dq _TTF_CloseFont
+	dq _TTF_SizeUTF8
+	dq _TTF_FontAscent
+	dq _TTF_FontDescent
+	dq _TTF_FontHeight
+	dq _TTF_RenderUTF8_Blended
 %elifidn OS, Linux
 	dq SDL_SetMainReady
 	dq SDL_Init
@@ -84,4 +94,14 @@ sdl_func_table:
 	dq SDL_PumpEvents
 	dq SDL_GetMouseState
 	dq SDL_RenderDrawRect
+
+	dq TTF_Init
+	dq TTF_Quit
+	dq TTF_OpenFont
+	dq TTF_CloseFont
+	dq TTF_SizeUTF8
+	dq TTF_FontAscent
+	dq TTF_FontDescent
+	dq TTF_FontHeight
+	dq TTF_RenderUTF8_Blended
 %endif
