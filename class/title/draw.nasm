@@ -32,8 +32,8 @@
 			vp_cpy [r0 + label_font], r0
 			static_call font, text
 			if r0, !=, 0
-				vp_xor r8, r8
-				vp_xor r9, r9
+				vp_cpy 1, r8
+				vp_cpy 1, r9
 				vp_cpy [r0 + ft_text_width], r10
 				vp_cpy [r0 + ft_text_height], r11
 				vp_cpy [r0 + ft_text_texture], r1

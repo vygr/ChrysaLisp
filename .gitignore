@@ -86,6 +86,8 @@ class/window/mouse_down
 class/window/mouse_move
 class/window/new
 class/window/pref_size
+class/window/set_status
+class/window/set_title
 gui/ctx_blit
 gui/ctx_box
 gui/ctx_filled_box

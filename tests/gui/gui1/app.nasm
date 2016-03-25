@@ -36,6 +36,11 @@
 		static_call window, panel
 		vp_cpy r0, [r4 + app_window]
 		vp_cpy r1, [r4 + app_window_panel]
+		vp_lea [rel title], r1
+		static_call window, set_title
+		vp_cpy [r4 + app_window], r0
+		vp_lea [rel status], r1
+		static_call window, set_status
 
 		;set owner
 		static_call task, tcb
@@ -252,6 +257,10 @@
 		vp_add app_size, r4
 		vp_ret
 
+	title:
+		db 'Network Task Monitor', 0
+	status:
+		db 'Status Text', 0
 	child_task:
 		db 'tests/gui/gui1/child', 0
 
