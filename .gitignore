@@ -23,6 +23,7 @@ class/flow/pref_size
 class/flow/set_flags
 class/label/create
 class/label/draw
+class/label/init
 class/label/new
 class/label/pref_size
 class/obj/create
@@ -107,6 +108,7 @@ sys/cpu_get_time
 sys/cpu_get_total
 sys/font_deinit
 sys/font_init
+sys/font_open
 sys/font_statics
 sys/heap_alloc
 sys/heap_deinit
@@ -151,6 +153,7 @@ sys/string_compare
 sys/string_copy
 sys/string_int
 sys/string_length
+sys/task_callback
 sys/task_count
 sys/task_deinit
 sys/task_init

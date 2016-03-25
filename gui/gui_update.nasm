@@ -11,14 +11,14 @@
 		;trashes
 		;all but r4
 
-		def_structure	draw_view
-			def_struct	draw_view_ctx, gui_ctx
+		def_structure	local
+			def_struct	local_ctx, gui_ctx
 		def_structure_end
 
-		vp_sub draw_view_size, r4
+		vp_sub local_size, r4
 		static_bind gui, statics, r1
 		vp_cpy [r1 + gui_statics_renderer], r1
-		vp_cpy r1, [r4 + draw_view_ctx + gui_ctx_sdl_ctx]
+		vp_cpy r1, [r4 + local_ctx + gui_ctx_sdl_ctx]
 
 		;iterate through views back to front
 		;setting abs cords
@@ -77,12 +77,12 @@
 
 		;iterate through views back to front
 		;drawing each view
-		vp_lea [r4 + draw_view_ctx], r1
+		vp_lea [r4 + local_ctx], r1
 		vp_lea [rel draw_down_callback], r2
 		vp_lea [rel null_func_callback], r3
 		static_call view, backward_tree
 
-		vp_add draw_view_size, r4
+		vp_add local_size, r4
 	null_func_callback:
 		vp_ret
 

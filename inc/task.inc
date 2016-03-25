@@ -16,6 +16,7 @@
 	def_method deinit, sys/task_deinit
 	def_method tcb, sys/task_tcb
 	def_method mailbox, sys/task_mailbox
+	def_method callback, sys/task_callback
 	def_method start, sys/task_start
 	def_method stop, sys/task_stop
 	def_method restore, sys/task_restore

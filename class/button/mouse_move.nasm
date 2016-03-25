@@ -10,13 +10,13 @@
 		;trashes
 		;all but r4
 
-		def_structure	move
-			def_long	move_button
+		def_structure	local
+			def_long	local_button
 		def_structure_end
 
 		;save info
-		vp_sub move_size, r4
-		vp_cpy r0, [r4 + move_button]
+		vp_sub local_size, r4
+		vp_cpy r0, [r4 + local_button]
 
 		;hit ?
 		vp_cpy [r1 + (ml_msg_data + ev_data_rx)], r8
@@ -25,7 +25,7 @@
 		vp_cpy r0, r8
 
 		;is mouse over button ?
-		vp_cpy [r4 + move_button], r0
+		vp_cpy [r4 + local_button], r0
 		vp_cpy [r0 + button_state], r1
 		vp_cpy r1, r2
 		if r8, !=, 0
@@ -42,7 +42,7 @@
 			static_call button, dirty
 		endif
 
-		vp_add move_size, r4
+		vp_add local_size, r4
 		vp_ret
 
 	fn_function_end

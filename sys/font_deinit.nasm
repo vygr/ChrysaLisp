@@ -15,7 +15,7 @@
 
 		;free all fonts in the cache
 		loop_list_forward r15 + ft_statics_font_list, r13, r14
-			ttf_close_font [r14 + ft_font_font]
+			ttf_close_font [r14 + ft_font_handle]
 			vp_cpy r14, r0
 			static_call mem, free
 		loop_end

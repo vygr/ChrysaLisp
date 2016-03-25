@@ -3,9 +3,9 @@
 %include 'inc/task.inc'
 %include 'inc/link.inc'
 %include 'inc/gui.inc'
-%include 'inc/sdl2.inc'
 %include 'inc/load.inc'
 %include 'inc/font.inc'
+%include 'inc/sdl2.inc'
 
 ;;;;;;;;;;;;;
 ; kernel task
@@ -66,14 +66,9 @@
 			;service all kernel mail
 			loop_start
 				;check if any mail
-				static_bind task, statics, r0
-				vp_cpy [r0 + tk_statics_current_tcb], r0
-				vp_lea [r0 + tk_node_mailbox], r0
-				ml_check r0, r1
-				breakif r1, ==, 0
-
-				;read waiting mail
-				static_call mail, read
+				static_call task, mailbox
+				static_call mail, try_read
+				breakif r0, ==, 0
 				vp_cpy r0, r15
 
 				;switch on kernel call number
@@ -228,60 +223,20 @@
 					vp_cpy r15, r0
 					static_call mem, free
 					break
-				case r1, ==, kn_call_gui_update
-					;free update message
-					vp_cpy r15, r0
-					static_call mem, free
+				case r1, ==, kn_call_callback
+					;call callback with this thread/stack
+					vp_push r15
+					vp_cpy [r15 + (ml_msg_data + kn_data_kernel_user)], r0
+					vp_call [r15 + (ml_msg_data + kn_data_callback_addr)]
 
-					;create screen window ?
-					static_bind gui, statics, r0
-					vp_cpy [r0 + gui_statics_window], r1
-					if r1, ==, 0
-						;init sdl2
-						sdl_set_main_ready
-						sdl_init SDL_INIT_VIDEO
-						ttf_init
-
-						;create window
-						vp_lea [rel title], r0
-						sdl_create_window r0, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL
-						static_bind gui, statics, r1
-						vp_cpy r0, [r1 + gui_statics_window]
-
-						;create renderer
-						sdl_create_renderer r0, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
-						static_bind gui, statics, r1
-						vp_cpy r0, [r1 + gui_statics_renderer]
-
-						;set blend mode
-						sdl_set_render_draw_blend_mode r0, SDL_BLENDMODE_BLEND
-					endif
-
-					;update screen
-					static_bind gui, statics, r0
-					vp_cpy [r0 + gui_statics_screen], r0
-					if r0, !=, 0
-						;pump sdl events
-						sdl_pump_events
-
-						;get mouse state
-						static_bind gui, statics, r0
-						vp_lea [r0 + gui_statics_x_pos], r1
-						vp_lea [r0 + gui_statics_y_pos], r2
-						sdl_get_mouse_state r1, r2
-						static_bind gui, statics, r1
-						vp_add gui_statics_buttons, r1
-						vp_cpy r0, [r1]
-
-						;update the screen
-						static_bind gui, statics, r0
-						vp_cpy [r0 + gui_statics_screen], r0
-						static_call gui, draw
-
-						;refresh the window
-						static_bind gui, statics, r0
-						sdl_render_present [r0 + gui_statics_renderer]
-					endif
+					;reply to originator
+					vp_pop r0
+					vp_cpy [r0 + (ml_msg_data + kn_data_kernel_reply)], r1
+					vp_cpy [r0 + (ml_msg_data + kn_data_kernel_reply + 8)], r2
+					vp_cpy r1, [r0 + ml_msg_dest]
+					vp_cpy r2, [r0 + (ml_msg_dest + 8)]
+					static_call mail, send
+					break
 				default
 				endswitch
 			loop_end
@@ -355,8 +310,5 @@
 		;pop argv and exit !
 		vp_add 8, r4
 		sys_exit 0
-
-	title:
-		db 'Asm Kernel GUI Window', 0
 
 	fn_function_end

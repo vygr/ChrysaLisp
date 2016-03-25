@@ -1,5 +1,4 @@
 OS := $(shell uname)
-sdl_ldflags := $(shell sdl2-config --libs)
 all_nasms := $(shell find . -type f -name '*.nasm')
 all_incs := $(shell find . -type f -name '*.inc')
 all_objects := $(patsubst %.nasm, %, $(all_nasms))
@@ -11,7 +10,7 @@ ifeq ($(OS),Darwin)
 			clang -o main -e main main.o -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
 endif
 ifeq ($(OS),Linux)
-			clang -o main -e main main.o $(sdl_ldflags)
+			clang -o main -e main main.o $(shell sdl2-config --libs)
 endif
 
 %.o:		%.nasm Makefile $(all_incs) \

@@ -1,6 +1,8 @@
 %ifndef CLASS_1234
 %define CLASS_1234
 
+	%assign _map_null_size 0
+
 	%macro vtable_emit 1
 		;%1 = class name
 		%assign %%_n 0
@@ -16,12 +18,6 @@
 	%macro class_add 2
 		;%1 = dest class name
 		;%2 = source class name
-		%ifndef _map_%[%1]_size
-			%assign _map_%[%1]_size 0
-		%endif
-		%ifndef _map_%[%2]_size
-			%assign _map_%[%2]_size 0
-		%endif
 		%assign %%_n 0
 		%rep _map_%[%2]_size
 			def_method _map_%[%2]_name_%[%%_n], _map_%[%2]_func_%[%%_n], _map_%[%2]_type_%[%%_n]
@@ -33,8 +29,12 @@
 		;%1 = class name
 		;%2 = super class name
 		%ifdef _map_%[%1]_size
-			%fatal Class %1 allready exits !
+			%fatal Class %1 allready defined !
 		%endif
+		%ifndef _map_%[%2]_size
+			%fatal Class %2 not defined !
+		%endif
+		%assign _map_%[%1]_size 0
 		%define _class_ %1
 		%define _super_class_%[%1]_ %2
 		class_add %1, %2

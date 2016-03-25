@@ -17,6 +17,9 @@
 		;inputs
 		;%1 = structure name
 		;%2 = super structure name
+		%ifdef %[%1]_size
+			%fatal Structure %1 allready defined !
+		%endif
 		%ifndef %[%2]_size
 			%fatal Structure %2 not defined !
 		%endif

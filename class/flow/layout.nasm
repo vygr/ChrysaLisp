@@ -8,32 +8,32 @@
 		;trashes
 		;all but r4
 
-		def_structure	layout
-			def_long	layout_x
-			def_long	layout_y
+		def_structure	local
+			def_long	local_x
+			def_long	local_y
 		def_structure_end
 
-		vp_sub layout_size, r4
-		vp_cpy_cl 0, [r4 + layout_x]
-		vp_cpy_cl 0, [r4 + layout_y]
+		vp_sub local_size, r4
+		vp_cpy_cl 0, [r4 + local_x]
+		vp_cpy_cl 0, [r4 + local_y]
 		vp_cpy [r0 + flow_flags], r1
 		vp_and flow_flag_left, r1
 		if r1, !=, 0
 			vp_cpy [r0 + view_w], r1
-			vp_cpy r1, [r4 + layout_x]
+			vp_cpy r1, [r4 + local_x]
 		endif
 		vp_cpy [r0 + flow_flags], r1
 		vp_and flow_flag_up, r1
 		if r1, !=, 0
 			vp_cpy [r0 + view_h], r1
-			vp_cpy r1, [r4 + layout_y]
+			vp_cpy r1, [r4 + local_y]
 		endif
 
 		vp_cpy r4, r1
 		vp_lea [rel callback], r2
 		static_call flow, backward
 
-		vp_add layout_size, r4
+		vp_add local_size, r4
 		vp_ret
 
 	callback:
@@ -41,8 +41,8 @@
 		method_call view, pref_size
 		vp_cpy [r4], r0
 		vp_cpy [r4 + 8], r1
-		vp_cpy [r1 + layout_x], r8
-		vp_cpy [r1 + layout_y], r9
+		vp_cpy [r1 + local_x], r8
+		vp_cpy [r1 + local_y], r9
 		vp_cpy r8, r12
 		vp_cpy r9, r13
 		vp_cpy [r0 + view_parent], r2
@@ -132,8 +132,8 @@
 				endif
 			endif
 		endif
-		vp_cpy r12, [r1 + layout_x]
-		vp_cpy r13, [r1 + layout_y]
+		vp_cpy r12, [r1 + local_x]
+		vp_cpy r13, [r1 + local_y]
 		static_call view, change
 		vp_pop r1, r0
 		vp_ret

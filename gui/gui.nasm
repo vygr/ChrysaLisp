@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 %include 'inc/gui.inc'
+%include 'inc/sdl2.inc'
 %include 'class/class_view.inc'
 
 	fn_function gui/gui
@@ -43,20 +44,9 @@
 		;gui event loop
 		loop_start
 		next_frame:
-			;allocate mail message
-			static_call mail, alloc
-			fn_assert r0, !=, 0
-
-			;fill in destination, function
-			vp_cpy r0, r1
-			static_call cpu, id
-			vp_xchg r0, r1
-			vp_cpy_cl 0, [r0 + ml_msg_dest]
-			vp_cpy_cl r1, [r0 + (ml_msg_dest + 8)]
-			vp_cpy_cl kn_call_gui_update, [r0 + (ml_msg_data + kn_data_kernel_function)]
-
-			;send mail to this kernel
-			static_call mail, send
+			;kernel callback for update
+			vp_lea [rel kernel_callback], r0
+			static_call task, callback
 
 			;frame rate of gui updates
 			vp_cpy 1000000 / 60, r0
@@ -145,5 +135,75 @@
 			endif
 		loop_end
 		vp_ret
+
+	kernel_callback:
+		;inputs
+		;r0 = user data
+
+		def_structure	local
+			def_long	local_old_stack
+		def_structure_end
+
+		;align stack
+		vp_cpy r4, r1
+		vp_sub local_size, r4
+		vp_and -16, r4
+		vp_cpy r1, [r4 + local_old_stack]
+
+		;create screen window ?
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_window], r1
+		if r1, ==, 0
+			;init sdl2
+			sdl_set_main_ready
+			sdl_init SDL_INIT_VIDEO
+			ttf_init
+
+			;create window
+			vp_lea [rel title], r0
+			sdl_create_window r0, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL
+			static_bind gui, statics, r1
+			vp_cpy r0, [r1 + gui_statics_window]
+
+			;create renderer
+			sdl_create_renderer r0, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+			static_bind gui, statics, r1
+			vp_cpy r0, [r1 + gui_statics_renderer]
+
+			;set blend mode
+			sdl_set_render_draw_blend_mode r0, SDL_BLENDMODE_BLEND
+		endif
+
+		;update screen
+		static_bind gui, statics, r0
+		vp_cpy [r0 + gui_statics_screen], r0
+		if r0, !=, 0
+			;pump sdl events
+			sdl_pump_events
+
+			;get mouse state
+			static_bind gui, statics, r0
+			vp_lea [r0 + gui_statics_x_pos], r1
+			vp_lea [r0 + gui_statics_y_pos], r2
+			sdl_get_mouse_state r1, r2
+			static_bind gui, statics, r1
+			vp_add gui_statics_buttons, r1
+			vp_cpy r0, [r1]
+
+			;update the screen
+			static_bind gui, statics, r0
+			vp_cpy [r0 + gui_statics_screen], r0
+			static_call gui, update
+
+			;refresh the window
+			static_bind gui, statics, r0
+			sdl_render_present [r0 + gui_statics_renderer]
+		endif
+
+		vp_cpy [r4 + local_old_stack], r4
+		vp_ret
+
+	title:
+		db 'Asm Kernel GUI Window', 0
 
 	fn_function_end

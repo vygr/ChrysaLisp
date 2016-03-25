@@ -11,7 +11,6 @@
 		lh_init r0, r1
 		vp_lea [r3 + ft_statics_word_list], r0
 		lh_init r0, r1
-
 		vp_ret
 
 	fn_function_end

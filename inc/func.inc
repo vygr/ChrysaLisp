@@ -14,10 +14,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 	def_structure	kn_call
+		def_byte	kn_call_callback
 		def_byte	kn_call_task_open
 		def_byte	kn_call_task_child
 		def_byte	kn_call_task_route
-		def_byte	kn_call_gui_update
 	def_structure_end
 
 ;;;;;;;;;;;;;;;;;;
@@ -28,6 +28,10 @@
 		def_long	kn_data_kernel_user
 		def_struct	kn_data_kernel_reply, mailbox_id
 		def_long	kn_data_kernel_function
+	def_structure_end
+
+	def_structure	kn_data_callback, kn_data
+		def_long	kn_data_callback_addr
 	def_structure_end
 
 	def_structure	kn_data_task_open, kn_data

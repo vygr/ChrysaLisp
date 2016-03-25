@@ -16,7 +16,6 @@
 			vp_and 0xff, r3
 			breakif r2, !=, r3
 			if r2, ==, 0
-				vp_cpy 1, r0
 				vp_ret
 			endif
 			vp_inc r0
