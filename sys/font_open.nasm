@@ -15,22 +15,22 @@
 
 		def_structure	local
 			def_long	local_font
-			def_long	local_point_size
+			def_long	local_points
 			def_long	local_handle
 		def_structure_end
 
 		;save inputs
 		vp_sub local_size, r4
 		vp_cpy r0, [r4 + local_font]
-		vp_cpy r1, [r4 + local_point_size]
+		vp_cpy r1, [r4 + local_points]
 
 		;get font statics
 		static_bind font, statics, r5
 
 		;search font list
 		loop_list_forward r5 + ft_statics_font_list, r6, r5
-			vp_cpy [r4 + local_point_size], r0
-			continueif r0, !=, [r5 + ft_font_point_size]
+			vp_cpy [r4 + local_points], r0
+			continueif r0, !=, [r5 + ft_font_points]
 			vp_lea [r5 + ft_font_name], r0
 			vp_cpy [r4 + local_font], r1
 			static_call string, compare
@@ -61,7 +61,7 @@
 		;save input
 		vp_cpy r0, r14
 
-		ttf_open_font [r14 + local_font], [r14 + local_point_size]
+		ttf_open_font [r14 + local_font], [r14 + local_points]
 		if r0, !=, 0
 			vp_cpy r0, r5
 			vp_cpy [r14 + local_font], r0
@@ -69,14 +69,24 @@
 			vp_lea	[r1 + ft_font_size + 1], r0
 			static_call mem, alloc
 			fn_assert r0, !=, 0
-			vp_cpy r0, r6
-			vp_cpy [r14 + local_point_size], r0
-			vp_cpy r0, [r6 + ft_font_point_size]
-			vp_cpy r5, [r6 + ft_font_handle]
-			vp_lea [r6 + ft_font_name], r1
+			vp_cpy r0, r13
+
+			vp_cpy [r14 + local_points], r0
+			vp_cpy r0, [r13 + ft_font_points]
+			vp_cpy r5, [r13 + ft_font_handle]
+			vp_lea [r13 + ft_font_name], r1
 			vp_cpy [r14 + local_font], r0
 			static_call string, copy
-			vp_cpy r6, r0
+
+			;fill in ascent, descent and height
+			ttf_font_ascent [r13 + ft_font_handle]
+			vp_cpy r0, [r13 + ft_font_ascent]
+			ttf_font_descent [r13 + ft_font_handle]
+			vp_cpy r0, [r13 + ft_font_descent]
+			ttf_font_height [r13 + ft_font_handle]
+			vp_cpy r0, [r13 + ft_font_height]
+
+			vp_cpy r13, r0
 			static_bind font, statics, r5
 			vp_add ft_statics_font_list, r5
 			lh_add_at_tail r5, r0, r1

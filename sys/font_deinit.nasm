@@ -6,9 +6,9 @@
 		;get font statics
 		static_bind font, statics, r15
 
-		;free all words in the cache
-		loop_list_forward r15 + ft_statics_word_list, r13, r14
-			sdl_destroy_texture [r14 + ft_word_texture]
+		;free all text in the cache
+		loop_list_forward r15 + ft_statics_text_list, r13, r14
+			sdl_destroy_texture [r14 + ft_text_texture]
 			vp_cpy r14, r0
 			static_call mem, free
 		loop_end

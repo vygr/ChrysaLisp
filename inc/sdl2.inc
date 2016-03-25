@@ -107,6 +107,7 @@
 		def_byte	TTF_SizeUTF8
 		def_byte	TTF_FontAscent
 		def_byte	TTF_FontDescent
+		def_byte	TTF_FontHeight
 		def_byte	TTF_RenderUTF8_Blended
 	def_structure_end
 
@@ -157,10 +158,25 @@
 	SDL_BLENDMODE_MOD		equ 3
 
 	def_structure	sdl_rect
-		def_int	sdl_rect_x
-		def_int	sdl_rect_y
-		def_int	sdl_rect_w
-		def_int	sdl_rect_h
+		def_int		sdl_rect_x
+		def_int		sdl_rect_y
+		def_int		sdl_rect_w
+		def_int		sdl_rect_h
+	def_structure_end
+
+	def_structure 	sdl_surface
+		def_int		sdl_flags
+		def_long	sdl_surface_format
+		def_int		sdl_surface_w
+		def_int		sdl_surface_h
+		def_int		sdl_surface_pitch
+		def_long	sdl_surface_pixels
+		def_long	sdl_surface_userdata
+		def_int		sdl_surface_locked
+		def_long	sdl_surface_lockdata
+		def_struct	sdl_surface_clip, sdl_rect
+		def_long	sdl_surface_map
+		def_int		sdl_surface_ref
 	def_structure_end
 
 ;;;;;;;;;;;;;
@@ -334,7 +350,7 @@
 		vp_call [r0 + (SDL_DestroyTexture * 8)]
 	%endmacro
 
-	%macro sdl_render_copy 2
+	%macro sdl_render_copy 4
 		;renderer**, texture*, srect*, drect*
 		vp_cpy %1, r7		;renderer**
 		vp_cpy %2, r6		;texture*

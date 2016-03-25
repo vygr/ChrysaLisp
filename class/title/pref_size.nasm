@@ -11,8 +11,9 @@
 		;trashes
 		;all but r4
 
-		vp_cpy 256, r10
-		vp_cpy 32, r11
+		super_call title, pref_size
+		vp_add 2, r10
+		vp_add 2, r11
 		vp_ret
 
 	fn_function_end

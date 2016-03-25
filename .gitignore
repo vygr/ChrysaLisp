@@ -26,6 +26,8 @@ class/label/draw
 class/label/init
 class/label/new
 class/label/pref_size
+class/label/set_text
+class/label/set_text_color
 class/obj/create
 class/obj/destroy
 class/obj/init
@@ -84,6 +86,7 @@ class/window/mouse_down
 class/window/mouse_move
 class/window/new
 class/window/pref_size
+gui/ctx_blit
 gui/ctx_box
 gui/ctx_filled_box
 gui/ctx_set_color
@@ -106,10 +109,12 @@ main
 sys/cpu_get_id
 sys/cpu_get_time
 sys/cpu_get_total
+sys/font_bounds
 sys/font_deinit
 sys/font_init
 sys/font_open
 sys/font_statics
+sys/font_text
 sys/heap_alloc
 sys/heap_deinit
 sys/heap_init

@@ -41,13 +41,15 @@
 			;add my title
 			static_call title, create
 			fn_assert r0, !=, 0
-			vp_cpy [r4], r1
-			vp_cpy r0, [r1 + window_title]
 			vp_cpy 192, r8
 			vp_cpy 192, r9
 			vp_cpy 192, r10
 			vp_cpy 255, r11
 			static_call title, set_color
+			vp_lea [rel title], r1
+			static_call label, set_text
+			vp_cpy [r4], r1
+			vp_cpy r0, [r1 + window_title]
 			vp_cpy [r1 + window_flow], r1
 			static_call title, add
 
@@ -69,17 +71,24 @@
 			;add my status label
 			static_call label, create
 			fn_assert r0, !=, 0
-			vp_cpy [r4], r1
-			vp_cpy r0, [r1 + window_status]
 			vp_cpy 128, r8
 			vp_cpy 128, r9
 			vp_cpy 128, r10
 			vp_cpy 255, r11
 			static_call label, set_color
+			vp_lea [rel status], r1
+			static_call label, set_text
+			vp_cpy [r4], r1
+			vp_cpy r0, [r1 + window_status]
 			vp_cpy [r1 + window_panel], r1
 			static_call label, add
 		endif
 		vp_pop r0
 		vp_ret
+
+	title:
+		db 'Title Text Goes Here', 0
+	status:
+		db 'Status Text Goes Here', 0
 
 	fn_function_end

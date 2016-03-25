@@ -60,6 +60,8 @@
 		vp_cpy 0, r10
 		vp_cpy 255, r11
 		static_call button, set_color
+		vp_lea [rel child_task1], r1
+		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
 		vp_cpy r0, [r4 + app_button1]
@@ -71,6 +73,8 @@
 		vp_cpy 0, r10
 		vp_cpy 255, r11
 		static_call button, set_color
+		vp_lea [rel child_task2], r1
+		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
 		vp_cpy r0, [r4 + app_button2]
@@ -82,6 +86,8 @@
 		vp_cpy 0, r10
 		vp_cpy 255, r11
 		static_call button, set_color
+		vp_lea [rel child_task3], r1
+		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
 		vp_cpy r0, [r4 + app_button3]
@@ -93,6 +99,8 @@
 		vp_cpy 0, r10
 		vp_cpy 255, r11
 		static_call button, set_color
+		vp_lea [rel child_task4], r1
+		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
 		vp_cpy r0, [r4 + app_button4]
@@ -162,6 +170,10 @@
 		vp_add app_size, r4
 		vp_ret
 
+	title:
+		db 'Test Runner', 0
+	status:
+		db 'Status Text', 0
 	child_task1:
 		db 'tests/farm', 0
 	child_task2:

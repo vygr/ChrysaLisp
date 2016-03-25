@@ -17,11 +17,14 @@
 		if r1, !=, 0
 			;init myself
 			vp_lea [rel font_name], r0
-			vp_cpy 12, r1
+			vp_cpy 32, r1
 			static_call font, open
 			fn_assert r0, !=, 0
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + label_font]
+			vp_xor r0, r0
+			vp_cpy r0, [r1 + label_text]
+			vp_cpy r0, [r1 + label_text_color]
 		endif
 		vp_pop r0
 		vp_ret

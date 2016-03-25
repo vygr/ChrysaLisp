@@ -34,6 +34,7 @@
 	def_class ctx
 	def_method box, gui/ctx_box
 	def_method filled_box, gui/ctx_filled_box
+	def_method blit, gui/ctx_blit
 	def_method set_color, gui/ctx_set_color
 
 ;;;;;;;;;;;;;;;;

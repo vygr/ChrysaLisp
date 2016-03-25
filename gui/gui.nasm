@@ -34,6 +34,10 @@
 		vp_cpy 1000000, r0
 		static_call task, sleep
 
+		;kernel callback for first update
+		vp_lea [rel kernel_callback], r0
+		static_call task, callback
+
 		;for now fire up the test apps
 		;this might be an gui auto run list eventually
 		fn_bind tests/gui/gui1/app, r0

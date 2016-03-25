@@ -31,9 +31,9 @@
 
 	%macro reg_b? 1-9 r0, al, r1, cl, r2, dl, r3, bl
 		%define _test %1
-		%define _reg_b %1l
+		%define _reg_b %1b
 		%rotate 1
-		%rep %0 - 1
+		%rep (%0 - 1) / 2
 			%ifidn %1, _test
 				%define _reg_b %2
 				%exitrep
@@ -44,11 +44,24 @@
 
 	%macro reg_s? 1-9 r0, ax, r1, cx, r2, dx, r3, bx
 		%define _test %1
-		%define _reg_s %1x
+		%define _reg_s %1w
 		%rotate 1
-		%rep %0 - 1
+		%rep (%0 - 1) / 2
 			%ifidn %1, _test
 				%define _reg_s %2
+				%exitrep
+			%endif
+			%rotate 2
+		%endrep
+	%endmacro
+
+	%macro reg_i? 1-9 r0, eax, r1, ecx, r2, edx, r3, ebx
+		%define _test %1
+		%define _reg_i %1d
+		%rotate 1
+		%rep (%0 - 1) / 2
+			%ifidn %1, _test
+				%define _reg_i %2
 				%exitrep
 			%endif
 			%rotate 2
@@ -106,15 +119,44 @@
 		%else
 			;source is register
 			reg_s? %1
-			%define _src_w _reg_s
+			%define _src_s _reg_s
 			reg? %2
 			%if _reg < 0
 				;dest not register
-				mov word %2, _src_w
+				mov word %2, _src_s
 			%else
 				;dest is register
 				reg_s? %2
-				mov _reg_s, _src_w
+				mov _reg_s, _src_s
+			%endif
+		%endif
+	%endmacro
+
+	%macro vp_cpy_i 2
+		reg? %1
+		%if _reg < 0
+			;source not register
+			reg? %2
+			%if _reg < 0
+				;dest not register
+				%fatal Not valid VP mode
+			%else
+				;dest is register
+				reg_i? %2
+				mov _reg_i, dword %1
+			%endif
+		%else
+			;source is register
+			reg_i? %1
+			%define _src_i _reg_i
+			reg? %2
+			%if _reg < 0
+				;dest not register
+				mov dword %2, _src_i
+			%else
+				;dest is register
+				reg_i? %2
+				mov _reg_i, _src_i
 			%endif
 		%endif
 	%endmacro

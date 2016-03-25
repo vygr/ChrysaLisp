@@ -1,9 +1,11 @@
 %include 'inc/func.inc'
 %include 'inc/sdl2.inc'
 
-	fn_function gui/ctx_box
+	fn_function gui/ctx_blit
 		;inputs
 		;r0 = ctx
+		;r1 = texture
+		;r2 = color mod
 		;r8 = x
 		;r9 = y
 		;r10 = width
@@ -12,9 +14,11 @@
 		;all but r4
 
 		def_structure	local
-			def_struct	local_rect, sdl_rect
+			def_struct	local_drect, sdl_rect
+			def_struct	local_srect, sdl_rect
 			def_struct	local_clip_rect, sdl_rect
 			def_long	local_ctx
+			def_long	local_texture
 			def_long	local_dirty_rect
 			def_long	local_old_stack
 		def_structure_end
@@ -26,14 +30,31 @@
 
 		;save draw rectangle info
 		vp_cpy r0, [r4 + local_ctx]
+		vp_cpy r1, [r4 + local_texture]
 		vp_add [r0 + gui_ctx_x], r8
 		vp_add [r0 + gui_ctx_y], r9
-		vp_cpy_i r8, [r4 + local_rect + sdl_rect_x]
-		vp_cpy_i r9, [r4 + local_rect + sdl_rect_y]
-		vp_cpy_i r10, [r4 + local_rect + sdl_rect_w]
-		vp_cpy_i r11, [r4 + local_rect + sdl_rect_h]
+		vp_cpy_i r8, [r4 + local_drect + sdl_rect_x]
+		vp_cpy_i r9, [r4 + local_drect + sdl_rect_y]
+		vp_cpy_i r10, [r4 + local_drect + sdl_rect_w]
+		vp_cpy_i r11, [r4 + local_drect + sdl_rect_h]
+		vp_xor r8, r8
+		vp_cpy_i r8, [r4 + local_srect + sdl_rect_x]
+		vp_cpy_i r8, [r4 + local_srect + sdl_rect_y]
+		vp_cpy_i r10, [r4 + local_srect + sdl_rect_w]
+		vp_cpy_i r11, [r4 + local_srect + sdl_rect_h]
+
+		;set the color mod
+		vp_cpy r2, r3
+		vp_cpy r2, r1
+		vp_shr 16, r3
+		vp_shr 8, r2
+		vp_and 0xff, r3
+		vp_and 0xff, r2
+		vp_and 0xff, r1
+		sdl_set_texture_color_mod [r4 + local_texture], r3, r2, r1
 
 		;for each region on the dirty region
+		vp_cpy [r4 + local_ctx], r0
 		vp_cpy [r0 + gui_ctx_dirty_region], r0
 		loop_start
 			vp_cpy [r0 + gui_rect_next], r0
@@ -55,10 +76,11 @@
 			vp_lea [r4 + local_clip_rect], r1
 			sdl_render_set_clip_rect [r0 + gui_ctx_sdl_ctx], r1
 
-			;draw the rectangle
+			;blit the texture
 			vp_cpy [r4 + local_ctx], r0
-			vp_lea [r4 + local_rect], r1
-			sdl_render_draw_rect [r0 + gui_ctx_sdl_ctx], r1
+			vp_lea [r4 + local_srect], r2
+			vp_lea [r4 + local_drect], r1
+			sdl_render_copy [r0 + gui_ctx_sdl_ctx], [r4 + local_texture], r2, r1
 
 			vp_cpy [r4 + local_dirty_rect], r0
 		loop_end
