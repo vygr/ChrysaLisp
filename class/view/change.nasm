@@ -9,7 +9,7 @@
 		;r10 = new w
 		;r11 = new h
 		;trashes
-		;all but r4
+		;all but r0, r4
 
 		;save old info
 		vp_cpy [r0 + view_x], r12

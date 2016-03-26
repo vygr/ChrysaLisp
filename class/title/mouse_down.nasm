@@ -7,7 +7,7 @@
 		;r0 = window object
 		;r1 = mouse event message
 		;trashes
-		;all but r4
+		;all but r0, r4
 
 		vp_cpy [r1 + (ml_msg_data + ev_data_rx)], r8
 		vp_cpy [r1 + (ml_msg_data + ev_data_ry)], r9

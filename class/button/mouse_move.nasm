@@ -8,40 +8,29 @@
 		;r0 = button object
 		;r1 = mouse event message
 		;trashes
-		;all but r4
-
-		def_structure	local
-			def_long	local_button
-		def_structure_end
-
-		;save info
-		vp_sub local_size, r4
-		vp_cpy r0, [r4 + local_button]
+		;all but r0, r4
 
 		;hit ?
 		vp_cpy [r1 + (ml_msg_data + ev_data_rx)], r8
 		vp_cpy [r1 + (ml_msg_data + ev_data_ry)], r9
 		method_call button, hit
-		vp_cpy r1, r8
 
 		;is mouse over button ?
-		vp_cpy [r0 + button_state], r1
-		vp_cpy r1, r2
-		if r8, !=, 0
+		vp_cpy [r0 + button_state], r2
+		vp_cpy r2, r3
+		if r1, !=, 0
 			;state pressed
-			vp_or button_state_pressed, r1
+			vp_or button_state_pressed, r2
 		else
 			;state not pressed
-			vp_and ~button_state_pressed, r1
+			vp_and ~button_state_pressed, r2
 		endif
-		vp_cpy r1, [r0 + button_state]
+		vp_cpy r2, [r0 + button_state]
 
 		;if state changed then dirty
-		if r1, !=, r2
+		if r2, !=, r3
 			static_call button, dirty
 		endif
-
-		vp_add local_size, r4
 		vp_ret
 
 	fn_function_end

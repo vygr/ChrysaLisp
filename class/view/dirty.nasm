@@ -5,7 +5,7 @@
 		;inputs
 		;r0 = view object
 		;trashes
-		;all but r4
+		;all but r0, r4
 
 		;paste dirty region
 		vp_xor r8, r8

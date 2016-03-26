@@ -9,7 +9,7 @@
 		;outputs
 		;r1 = 0 if error, else ok
 
-		;save object
+		;save inputs
 		vp_push r0
 
 		;init parent
@@ -26,6 +26,7 @@
 			vp_cpy r0, [r1 + string_text]
 			vp_cpy r0, [r1 + string_text_color]
 		endif
+
 		vp_pop r0
 		vp_ret
 

@@ -7,24 +7,24 @@
 		;r0 = window object
 		;r1 = ctx object
 		;trashes
-		;all but r4
+		;all but r0, r4
 
 		def_structure	local
-			def_long	local_view
+			def_long	local_inst
 			def_long	local_ctx
 			def_long	local_fill_remain
 			def_long	local_fill_complete
 		def_structure_end
 
 		vp_sub local_size, r4
-		vp_cpy r0, [r4 + local_view]
+		vp_cpy r0, [r4 + local_inst]
 		vp_cpy r1, [r4 + local_ctx]
 
 		;draw outline
 		static_call view, get_color
 		vp_cpy [r4 + local_ctx], r0
 		static_call gui_ctx, set_color
-		vp_cpy [r4 + local_view], r0
+		vp_cpy [r4 + local_inst], r0
 		static_call progress, get_bounds
 		vp_xor r8, r8
 		vp_xor r9, r9
@@ -32,7 +32,7 @@
 		static_call gui_ctx, box
 
 		;darker colour
-		vp_cpy [r4 + local_view], r0
+		vp_cpy [r4 + local_inst], r0
 		static_call view, get_color
 		vp_shr 1, r8
 		vp_shr 1, r9
@@ -41,7 +41,7 @@
 		static_call gui_ctx, set_color
 
 		;draw middle
-		vp_cpy [r4 + local_view], r0
+		vp_cpy [r4 + local_inst], r0
 		static_call progress, get_bounds
 		vp_cpy progress_border_size, r8
 		vp_cpy progress_border_size, r9
@@ -62,7 +62,7 @@
 		static_call gui_ctx, filled_box
 
 		;very darker colour
-		vp_cpy [r4 + local_view], r0
+		vp_cpy [r4 + local_inst], r0
 		static_call view, get_color
 		vp_shr 2, r8
 		vp_shr 2, r9
@@ -71,7 +71,7 @@
 		static_call gui_ctx, set_color
 
 		;draw middle
-		vp_cpy [r4 + local_view], r0
+		vp_cpy [r4 + local_inst], r0
 		static_call progress, get_bounds
 		vp_cpy progress_border_size, r8
 		vp_cpy progress_border_size, r9
@@ -79,7 +79,10 @@
 		vp_sub progress_border_size * 2, r11
 		vp_add [r4 + local_fill_complete], r8
 		vp_cpy [r4 + local_ctx], r0
+		static_call gui_ctx, filled_box
+
+		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
-		static_jmp gui_ctx, filled_box
+		vp_ret
 
 	fn_function_end

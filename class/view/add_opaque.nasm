@@ -10,7 +10,15 @@
 		;r10 = width
 		;r11 = height
 		;trashes
-		;all but r4
+		;all but r0, r4
+
+		def_structure	local
+			def_long	local_inst
+		def_structure_end
+
+		;save inputs
+		vp_sub	local_size, r4
+		vp_cpy r0, [r4 + local_inst]
 
 		;paste opaque region
 		vp_add r8, r10
@@ -18,6 +26,10 @@
 		vp_lea [r0 + view_opaque_region], r1
 		static_bind gui_gui, statics, r0
 		vp_lea [r0 + gui_statics_rect_heap], r0
-		static_jmp gui_region, paste
+		static_call gui_region, paste
+
+		vp_cpy [r4 + local_inst], r0
+		vp_add local_size, r4
+		vp_ret
 
 	fn_function_end

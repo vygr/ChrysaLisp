@@ -8,11 +8,11 @@
 		;r0 = window object
 		;r1 = mouse event message
 		;trashes
-		;all but r4
+		;all but r0, r4
 
 		def_structure	local
+			def_long	local_inst
 			def_long	local_window
-			def_long	local_title
 			def_long	local_event
 			def_long	local_old_x
 			def_long	local_old_y
@@ -20,7 +20,7 @@
 
 		;save old window bounds
 		vp_sub local_size, r4
-		vp_cpy r0, [r4 + local_title]
+		vp_cpy r0, [r4 + local_inst]
 		vp_cpy r1, [r4 + local_event]
 		vp_cpy [r0 + view_parent], r0
 		vp_cpy [r0 + view_parent], r0
@@ -34,7 +34,7 @@
 		static_call window, dirty
 
 		;get new window position
-		vp_cpy [r4 + local_title], r0
+		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r4 + local_window], r1
 		vp_cpy [r0 + title_last_x], r8
 		vp_cpy [r0 + title_last_y], r9
@@ -58,7 +58,10 @@
 		vp_add view_dirty_region, r0
 		static_call gui_region, translate
 		vp_cpy [r4 + local_window], r0
+		static_call window, dirty_all
+
+		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
-		static_jmp window, dirty_all
+		vp_ret
 
 	fn_function_end

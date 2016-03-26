@@ -7,6 +7,8 @@
 		;r0 = view object
 		;r1 = user data pointer
 		;r2 = callback
+		;outputs
+		;r0 = view object
 		;trashes
 		;dependant on callback
 			;callback api
@@ -17,11 +19,13 @@
 			;r0 = child view object
 
 		def_structure	local
+			def_long	local_inst
 			def_long	local_data
 			def_long	local_callback
 		def_structure_end
 
 		vp_sub local_size, r4
+		vp_cpy r0, [r4 + local_inst]
 		vp_cpy r1, [r4 + local_data]
 		vp_cpy r2, [r4 + local_callback]
 
@@ -38,6 +42,8 @@
 			;across to sibling
 			ln_get_succ r0 + view_node, r0
 		loop_end
+
+		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 

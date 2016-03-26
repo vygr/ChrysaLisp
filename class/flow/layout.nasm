@@ -6,7 +6,7 @@
 		;inputs
 		;r0 = flow object
 		;trashes
-		;all but r4
+		;all but r0, r4
 
 		def_structure	local
 			def_long	local_x
@@ -37,10 +37,9 @@
 		vp_ret
 
 	callback:
-		vp_push r1, r0
+		vp_push r1
 		method_call view, pref_size
-		vp_cpy [r4], r0
-		vp_cpy [r4 + 8], r1
+		vp_pop r1
 		vp_cpy [r1 + local_x], r8
 		vp_cpy [r1 + local_y], r9
 		vp_cpy r8, r12
@@ -135,7 +134,6 @@
 		vp_cpy r12, [r1 + local_x]
 		vp_cpy r13, [r1 + local_y]
 		static_call view, change
-		vp_pop r1, r0
 		vp_ret
 
 	fn_function_end

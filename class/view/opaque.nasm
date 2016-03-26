@@ -5,9 +5,9 @@
 		;inputs
 		;r0 = view object
 		;trashes
-		;all but r4
+		;all but r0, r4
 
-		;paste dirty region
+		;paste opaque region
 		vp_xor r8, r8
 		vp_xor r9, r9
 		vp_cpy [r0 + view_w], r10

@@ -7,7 +7,7 @@
 		;r0 = button object
 		;r1 = mouse event message
 		;trashes
-		;all but r4
+		;all but r0, r4
 
 		vp_cpy [r0 + button_state], r1
 		vp_cpy r1, r2

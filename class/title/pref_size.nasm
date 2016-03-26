@@ -9,7 +9,7 @@
 		;r10 = prefered width
 		;r11 = prefered height
 		;trashes
-		;all but r4
+		;all but r0, r4
 
 		super_call title, pref_size
 		vp_add 2, r10

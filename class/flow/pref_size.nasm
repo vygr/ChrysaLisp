@@ -9,7 +9,7 @@
 		;r10 = prefered width
 		;r11 = prefered height
 		;trashes
-		;all but r4
+		;all but r0, r4
 
 		def_structure	local
 			def_long	local_w
@@ -30,10 +30,9 @@
 		vp_ret
 
 	callback:
-		vp_push r1, r0
+		vp_push r1
 		method_call view, pref_size
-		vp_cpy [r4], r0
-		vp_cpy [r4 + 8], r1
+		vp_pop r1
 		vp_cpy [r0 + view_parent], r2
 		vp_cpy [r2 + flow_flags], r3
 		vp_and flow_flag_up | flow_flag_down, r3
@@ -53,7 +52,6 @@
 		if r11, >, [r1 + local_h]
 			vp_cpy r11, [r1 + local_h]
 		endif
-		vp_pop r1, r0
 		vp_ret
 
 	fn_function_end
