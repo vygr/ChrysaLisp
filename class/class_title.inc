@@ -3,6 +3,8 @@
 
 %include 'class/class_label.inc'
 
+%define title_border_size 1
+
 	def_class title, label
 	def_method create, class/title/create
 	def_method new, class/title/new
