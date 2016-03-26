@@ -224,3 +224,5 @@ gui/region_translate
 class/progress/pref_size
 
 class/view/set_flags
+
+class/button/layout
