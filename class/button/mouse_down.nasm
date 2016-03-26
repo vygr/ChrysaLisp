@@ -12,6 +12,7 @@
 		vp_cpy [r0 + button_state], r1
 		vp_or button_state_pressed, r1
 		vp_cpy r1, [r0 + button_state]
+		method_call button, layout
 		static_jmp button, dirty
 
 	fn_function_end

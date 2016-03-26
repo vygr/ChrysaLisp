@@ -31,7 +31,7 @@
 		;iterate through views back to front
 		;create visible region at root
 		vp_cpy r0, r1
-		vp_lea [rel null_func_callback], r2
+		vp_lea [rel null_func_down_callback], r2
 		vp_lea [rel visible_up_callback], r3
 		static_call view, backward_tree
 
@@ -71,7 +71,7 @@
 		;iterate through views front to back
 		;distribute visible region
 		vp_cpy r0, r1
-		vp_lea [rel null_func_callback], r2
+		vp_lea [rel null_func_down_callback], r2
 		vp_lea [rel distribute_up_callback], r3
 		static_call view, forward_tree
 
@@ -79,11 +79,13 @@
 		;drawing each view
 		vp_lea [r4 + local_ctx], r1
 		vp_lea [rel draw_down_callback], r2
-		vp_lea [rel null_func_callback], r3
+		vp_lea [rel null_func_up_callback], r3
 		static_call view, backward_tree
 
 		vp_add local_size, r4
-	null_func_callback:
+	null_func_down_callback:
+		vp_cpy r0, r1
+	null_func_up_callback:
 		vp_ret
 
 	abs_down_callback:
@@ -91,6 +93,7 @@
 		vp_add [r0 + view_y], r9
 		vp_cpy r8, [r0 + view_ctx_x]
 		vp_cpy r9, [r0 + view_ctx_y]
+		vp_cpy r0, r1
 		vp_ret
 
 	abs_up_callback:
@@ -206,6 +209,7 @@
 		static_call gui_region, free
 
 		vp_pop r0
+		vp_cpy r0, r1
 		vp_ret
 
 	fn_function_end

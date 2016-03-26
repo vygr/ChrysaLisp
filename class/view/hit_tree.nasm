@@ -42,6 +42,8 @@
 	hit_down_callback:
 		vp_sub [r0 + view_x], r8
 		vp_sub [r0 + view_y], r9
+		vp_cpy [r0 + view_flags], r1
+		vp_and view_flag_solid, r1
 		vp_ret
 
 	hit_up_callback:

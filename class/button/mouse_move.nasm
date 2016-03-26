@@ -29,6 +29,7 @@
 
 		;if state changed then dirty
 		if r2, !=, r3
+			method_call button, layout
 			static_call button, dirty
 		endif
 		vp_ret

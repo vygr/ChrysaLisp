@@ -14,6 +14,7 @@
 		vp_and ~button_state_pressed, r1
 		vp_cpy r1, [r0 + button_state]
 		if r1, !=, r2
+			method_call button, layout
 			static_call button, dirty
 		endif
 		vp_ret

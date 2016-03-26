@@ -22,6 +22,12 @@
 		vp_cpy [r0 + view_h], r11
 		vp_sub button_border_size * 2, r10
 		vp_sub button_border_size * 2, r11
+		vp_cpy [r0 + button_state], r1
+		vp_and button_state_pressed, r1
+		if r1, !=, 0
+			vp_add button_border_size, r8
+			vp_add button_border_size, r9
+		endif
 		vp_cpy [r0 + label_flow], r0
 		static_call flow, change
 

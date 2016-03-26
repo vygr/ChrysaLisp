@@ -15,6 +15,7 @@
 
 	dirty_down_callback:
 		static_call view, dirty
+		vp_xor r1, r1
 	null_up_callback:
 		vp_ret
 

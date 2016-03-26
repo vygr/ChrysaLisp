@@ -18,6 +18,7 @@
 			;r1 = user data pointer
 			;outputs
 			;r0 = view object
+			;r1 = 0 if should not decend after down callback
 
 		def_structure	local
 			def_long	local_inst
@@ -39,6 +40,7 @@
 			;down callback
 			vp_cpy [r4 + local_data], r1
 			vp_call [r4 + local_down]
+			breakif r1, ==, 0
 
 			;down to child
 			lh_get_tail r0 + view_list, r1
