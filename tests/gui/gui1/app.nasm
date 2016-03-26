@@ -52,7 +52,7 @@
 		static_call flow, create
 		fn_assert r0, !=, 0
 		vp_cpy r0, [r4 + app_panel]
-		vp_cpy flow_flag_down | flow_flag_fillw, r8
+		vp_cpy flow_flag_down | flow_flag_fillw, r1
 		static_call flow, set_flow_flags
 		vp_xor r8, r8
 		vp_xor r9, r9

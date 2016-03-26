@@ -4,9 +4,9 @@
 	fn_function class/flow/set_flow_flags
 		;inputs
 		;r0 = view object
-		;r8 = flags
+		;r1 = flags
 
-		vp_cpy r8, [r0 + flow_flags]
+		vp_cpy r1, [r0 + flow_flags]
 		vp_ret
 
 	fn_function_end
