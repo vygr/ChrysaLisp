@@ -77,38 +77,38 @@
 	extern TTF_RenderUTF8_Blended
 %endif
 	def_structure	sdl
-		def_byte	SDL_SetMainReady
-		def_byte	SDL_Init
-		def_byte	SDL_Quit
-		def_byte	SDL_CreateWindow
-		def_byte	SDL_CreateWindowAndRenderer
-		def_byte	SDL_DestroyWindow
-		def_byte	SDL_Delay
-		def_byte	SDL_CreateRenderer
-		def_byte	SDL_SetRenderDrawColor
-		def_byte	SDL_RenderFillRect
-		def_byte	SDL_RenderPresent
-		def_byte	SDL_RenderSetClipRect
-		def_byte	SDL_SetRenderDrawBlendMode
-		def_byte	SDL_PUMPEVENTS
-		def_byte	SDL_GetMouseState
-		def_byte	SDL_RenderDrawRect
-		def_byte	SDL_FreeSurface
-		def_byte	SDL_CreateTextureFromSurface
-		def_byte	SDL_DestroyTexture
-		def_byte	SDL_RenderCopy
-		def_byte	SDL_SetTextureBlendMode
-		def_byte	SDL_SetTextureColorMod
+		def_byte	sdl_SDL_SetMainReady
+		def_byte	sdl_SDL_Init
+		def_byte	sdl_SDL_Quit
+		def_byte	sdl_SDL_CreateWindow
+		def_byte	sdl_SDL_CreateWindowAndRenderer
+		def_byte	sdl_SDL_DestroyWindow
+		def_byte	sdl_SDL_Delay
+		def_byte	sdl_SDL_CreateRenderer
+		def_byte	sdl_SDL_SetRenderDrawColor
+		def_byte	sdl_SDL_RenderFillRect
+		def_byte	sdl_SDL_RenderPresent
+		def_byte	sdl_SDL_RenderSetClipRect
+		def_byte	sdl_SDL_SetRenderDrawBlendMode
+		def_byte	sdl_SDL_PUMPEVENTS
+		def_byte	sdl_SDL_GetMouseState
+		def_byte	sdl_SDL_RenderDrawRect
+		def_byte	sdl_SDL_FreeSurface
+		def_byte	sdl_SDL_CreateTextureFromSurface
+		def_byte	sdl_SDL_DestroyTexture
+		def_byte	sdl_SDL_RenderCopy
+		def_byte	sdl_SDL_SetTextureBlendMode
+		def_byte	sdl_SDL_SetTextureColorMod
 
-		def_byte	TTF_Init
-		def_byte	TTF_Quit
-		def_byte	TTF_OpenFont
-		def_byte	TTF_CloseFont
-		def_byte	TTF_SizeUTF8
-		def_byte	TTF_FontAscent
-		def_byte	TTF_FontDescent
-		def_byte	TTF_FontHeight
-		def_byte	TTF_RenderUTF8_Blended
+		def_byte	sdl_TTF_Init
+		def_byte	sdl_TTF_Quit
+		def_byte	sdl_TTF_OpenFont
+		def_byte	sdl_TTF_CloseFont
+		def_byte	sdl_TTF_SizeUTF8
+		def_byte	sdl_TTF_FontAscent
+		def_byte	sdl_TTF_FontDescent
+		def_byte	sdl_TTF_FontHeight
+		def_byte	sdl_TTF_RenderUTF8_Blended
 	def_structure_end
 
 	SDL_INIT_TIMER			equ 0x00000001
@@ -186,7 +186,7 @@
 	%macro sdl_set_main_ready 0
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_SetMainReady * 8)]
+		vp_call [r0 + (sdl_SDL_SetMainReady * 8)]
 	%endmacro
 
 	%macro sdl_init 1
@@ -194,7 +194,7 @@
 		vp_cpy %1, r7
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_Init * 8)]
+		vp_call [r0 + (sdl_SDL_Init * 8)]
 	%endmacro
 
 	%macro sdl_delay 1
@@ -202,13 +202,13 @@
 		vp_cpy %1, r7
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_Delay * 8)]
+		vp_call [r0 + (sdl_SDL_Delay * 8)]
 	%endmacro
 
 	%macro sdl_quit 0
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_Quit * 8)]
+		vp_call [r0 + (sdl_SDL_Quit * 8)]
 	%endmacro
 
 	%macro sdl_create_window 6
@@ -221,7 +221,7 @@
 		vp_cpy %6, r9		;flags
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_CreateWindow * 8)]
+		vp_call [r0 + (sdl_SDL_CreateWindow * 8)]
 	%endmacro
 
 	%macro sdl_create_window_and_renderer 5
@@ -233,7 +233,7 @@
 		vp_cpy %5, r8		;renderer**
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_CreateWindowAndRenderer * 8)]
+		vp_call [r0 + (sdl_SDL_CreateWindowAndRenderer * 8)]
 	%endmacro
 
 	%macro sdl_destroy_window 1
@@ -241,7 +241,7 @@
 		vp_cpy %1, r7
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_DestroyWindow * 8)]
+		vp_call [r0 + (sdl_SDL_DestroyWindow * 8)]
 	%endmacro
 
 	%macro sdl_create_renderer 3
@@ -251,7 +251,7 @@
 		vp_cpy %3, r2		;flags
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_CreateRenderer * 8)]
+		vp_call [r0 + (sdl_SDL_CreateRenderer * 8)]
 	%endmacro
 
 	%macro sdl_set_render_draw_color 5
@@ -263,7 +263,7 @@
 		vp_cpy %5, r8		;a
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_SetRenderDrawColor * 8)]
+		vp_call [r0 + (sdl_SDL_SetRenderDrawColor * 8)]
 	%endmacro
 
 	%macro sdl_render_fill_rect 2
@@ -272,7 +272,7 @@
 		vp_cpy %2, r6		;rect*
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_RenderFillRect * 8)]
+		vp_call [r0 + (sdl_SDL_RenderFillRect * 8)]
 	%endmacro
 
 	%macro sdl_render_draw_rect 2
@@ -281,7 +281,7 @@
 		vp_cpy %2, r6		;rect*
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_RenderDrawRect * 8)]
+		vp_call [r0 + (sdl_SDL_RenderDrawRect * 8)]
 	%endmacro
 
 	%macro sdl_render_present 1
@@ -289,7 +289,7 @@
 		vp_cpy %1, r7		;renderer**
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_RenderPresent * 8)]
+		vp_call [r0 + (sdl_SDL_RenderPresent * 8)]
 	%endmacro
 
 	%macro sdl_render_set_clip_rect 2
@@ -298,7 +298,7 @@
 		vp_cpy %2, r6		;rect*
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_RenderSetClipRect * 8)]
+		vp_call [r0 + (sdl_SDL_RenderSetClipRect * 8)]
 	%endmacro
 
 	%macro sdl_set_render_draw_blend_mode 2
@@ -307,13 +307,13 @@
 		vp_cpy %2, r6		;mode
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_SetRenderDrawBlendMode * 8)]
+		vp_call [r0 + (sdl_SDL_SetRenderDrawBlendMode * 8)]
 	%endmacro
 
 	%macro sdl_pump_events 0
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_PUMPEVENTS * 8)]
+		vp_call [r0 + (sdl_SDL_PUMPEVENTS * 8)]
 	%endmacro
 
 	%macro sdl_get_mouse_state 2
@@ -322,7 +322,7 @@
 		vp_cpy %2, r6		;y*
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_GetMouseState * 8)]
+		vp_call [r0 + (sdl_SDL_GetMouseState * 8)]
 	%endmacro
 
 	%macro sdl_free_surface 1
@@ -330,7 +330,7 @@
 		vp_cpy %1, r7		;surface*
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_FreeSurface * 8)]
+		vp_call [r0 + (sdl_SDL_FreeSurface * 8)]
 	%endmacro
 
 	%macro sdl_create_texture_from_surface 2
@@ -339,7 +339,7 @@
 		vp_cpy %2, r6		;surface*
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_CreateTextureFromSurface * 8)]
+		vp_call [r0 + (sdl_SDL_CreateTextureFromSurface * 8)]
 	%endmacro
 
 	%macro sdl_destroy_texture 1
@@ -347,7 +347,7 @@
 		vp_cpy %1, r7		;texture*
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_DestroyTexture * 8)]
+		vp_call [r0 + (sdl_SDL_DestroyTexture * 8)]
 	%endmacro
 
 	%macro sdl_render_copy 4
@@ -358,7 +358,7 @@
 		vp_cpy %4, r1		;drect*
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_RenderCopy * 8)]
+		vp_call [r0 + (sdl_SDL_RenderCopy * 8)]
 	%endmacro
 
 	%macro sdl_set_texture_blend_mode 2
@@ -367,7 +367,7 @@
 		vp_cpy %2, r6		;blendmode
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_SetTextureBlendMode * 8)]
+		vp_call [r0 + (sdl_SDL_SetTextureBlendMode * 8)]
 	%endmacro
 
 	%macro sdl_set_texture_color_mod 4
@@ -378,19 +378,19 @@
 		vp_cpy %4, r1		;b
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (SDL_SetTextureColorMod * 8)]
+		vp_call [r0 + (sdl_SDL_SetTextureColorMod * 8)]
 	%endmacro
 
 	%macro ttf_init 0
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (TTF_Init * 8)]
+		vp_call [r0 + (sdl_TTF_Init * 8)]
 	%endmacro
 
 	%macro ttf_quit 0
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (TTF_Quit * 8)]
+		vp_call [r0 + (sdl_TTF_Quit * 8)]
 	%endmacro
 
 	%macro ttf_open_font 2
@@ -399,7 +399,7 @@
 		vp_cpy %2, r6		;pointsize
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (TTF_OpenFont * 8)]
+		vp_call [r0 + (sdl_TTF_OpenFont * 8)]
 	%endmacro
 
 	%macro ttf_close_font 1
@@ -407,7 +407,7 @@
 		vp_cpy %1, r7		;font*
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (TTF_CloseFont * 8)]
+		vp_call [r0 + (sdl_TTF_CloseFont * 8)]
 	%endmacro
 
 	%macro ttf_size_utf8 4
@@ -418,7 +418,7 @@
 		vp_cpy %4, r1		;h*
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (TTF_SizeUTF8 * 8)]
+		vp_call [r0 + (sdl_TTF_SizeUTF8 * 8)]
 	%endmacro
 
 	%macro ttf_font_ascent 1
@@ -426,7 +426,7 @@
 		vp_cpy %1, r7		;font*
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (TTF_FontAscent * 8)]
+		vp_call [r0 + (sdl_TTF_FontAscent * 8)]
 	%endmacro
 
 	%macro ttf_font_descent 1
@@ -434,7 +434,7 @@
 		vp_cpy %1, r7		;font*
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (TTF_FontDescent * 8)]
+		vp_call [r0 + (sdl_TTF_FontDescent * 8)]
 	%endmacro
 
 	%macro ttf_font_height 1
@@ -442,7 +442,7 @@
 		vp_cpy %1, r7		;font*
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (TTF_FontHeight * 8)]
+		vp_call [r0 + (sdl_TTF_FontHeight * 8)]
 	%endmacro
 
 	%macro ttf_render_utf8_blended 3
@@ -452,7 +452,7 @@
 		vp_cpy %3, r2		;color
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (TTF_RenderUTF8_Blended * 8)]
+		vp_call [r0 + (sdl_TTF_RenderUTF8_Blended * 8)]
 	%endmacro
 
 %endif
