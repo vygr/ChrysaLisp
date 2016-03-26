@@ -22,10 +22,9 @@
 		vp_cpy [r1 + (ml_msg_data + ev_data_rx)], r8
 		vp_cpy [r1 + (ml_msg_data + ev_data_ry)], r9
 		method_call button, hit
-		vp_cpy r0, r8
+		vp_cpy r1, r8
 
 		;is mouse over button ?
-		vp_cpy [r4 + local_button], r0
 		vp_cpy [r0 + button_state], r1
 		vp_cpy r1, r2
 		if r8, !=, 0

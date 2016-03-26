@@ -27,14 +27,13 @@
 		vp_ret
 
 	hit_up_callback:
-		vp_cpy r0, r2
+		vp_cpy r1, r2
 		method_call view, hit
-		if r0, !=, 0
+		if r1, !=, 0
 			;early exit back to caller !
-			vp_cpy r1, r4
+			vp_cpy r2, r4
 			vp_ret
 		endif
-		vp_cpy r2, r0
 		vp_add [r0 + view_x], r8
 		vp_add [r0 + view_y], r9
 		vp_ret

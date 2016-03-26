@@ -20,6 +20,8 @@
 			;add my flow
 			static_call flow, create
 			fn_assert r0, !=, 0
+			vp_xor	r1, r1
+			static_call flow, set_flags
 			vp_cpy flow_flag_down, r1
 			static_call flow, set_flow_flags
 			vp_xor r8, r8
