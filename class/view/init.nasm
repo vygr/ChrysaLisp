@@ -12,7 +12,10 @@
 		super_call view, init
 		if r1, !=, 0
 			;init myself
-			vp_cpy_cl 0, [r0 + view_parent]
+			vp_cpy view_flag_solid, r1
+			vp_cpy r1, [r0 + view_flags]
+			vp_xor r1, r1
+			vp_cpy r1, [r0 + view_parent]
 			vp_lea [r0 + view_list], r1
 			lh_init r1, r2
 		endif

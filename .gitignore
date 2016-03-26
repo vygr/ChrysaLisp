@@ -218,3 +218,7 @@ class/string/set_text_color
 class/label/layout
 
 class/string/pref_size
+
+gui/region_translate
+
+class/progress/pref_size

@@ -41,6 +41,8 @@
 	def_method mouse_move, class/obj/null, virtual
 	def_method mouse_hover, class/obj/null, virtual
 
+	view_flag_solid	equ 1 << 0
+
 	def_structure	view, ref
 		def_struct	view_node, ln_node
 		def_struct	view_list, lh_list
@@ -55,6 +57,7 @@
 		def_long	view_w
 		def_long	view_h
 		def_long	view_last_buttons
+		def_long	view_flags
 		def_long	view_red
 		def_long	view_green
 		def_long	view_blue
