@@ -7,7 +7,7 @@
 		;r0 = window object
 		;r1 = ctx object
 		;trashes
-		;all but r4
+		;all but r0, r4
 
 		vp_xor r2, r2
 		vp_cpy window_border_size, r3

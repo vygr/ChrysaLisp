@@ -7,10 +7,10 @@
 		;r0 = window object
 		;r1 = mouse event message
 		;trashes
-		;all but r4
+		;all but r0, r4
 
 		def_structure	local
-			def_long	local_window
+			def_long	local_inst
 			def_long	local_event
 			def_long	local_old_x
 			def_long	local_old_y
@@ -18,20 +18,18 @@
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r0, [r4 + local_window]
+		vp_cpy r0, [r4 + local_inst]
 		vp_cpy r1, [r4 + local_event]
 
 		;dirty old area
 		static_call window, dirty
 
 		;get smallest size
-		vp_cpy [r4 + local_window], r0
 		method_call window, pref_size
 		vp_cpy r10, r12
 		vp_cpy r11, r13
 
 		;save old bounds
-		vp_cpy [r4 + local_window], r0
 		static_call window, get_bounds
 		vp_cpy r8, [r4 + local_old_x]
 		vp_cpy r9, [r4 + local_old_y]
@@ -101,14 +99,13 @@
 		static_call window, change
 
 		;translate old dirty area and dirty all
-		vp_cpy [r4 + local_window], r0
 		vp_cpy [r4 + local_old_x], r8
 		vp_cpy [r4 + local_old_y], r9
 		vp_sub [r0 + view_x], r8
 		vp_sub [r0 + view_y], r9
 		vp_add view_dirty_region, r0
 		static_call gui_region, translate
-		vp_cpy [r4 + local_window], r0
+		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		static_jmp window, dirty_all
 

@@ -7,7 +7,7 @@
 		;r0 = view object
 		;r1 = event message
 		;trashes
-		;all but r4
+		;all but r0, r4
 
 		;what type of event ?
 		vp_cpy [r1 + (ml_msg_data + ev_data_type)], r2

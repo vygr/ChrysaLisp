@@ -6,13 +6,9 @@
 		;inputs
 		;r0 = window object
 		;trashes
-		;r1-r3, r5-r15
-
-		;save object
-		vp_push r0
+		;all but r0, r4
 
 		;deinit parent
-		vp_pop r0
 		super_call window, deinit
 		vp_ret
 

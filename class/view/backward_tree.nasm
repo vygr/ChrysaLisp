@@ -20,14 +20,14 @@
 		;r0 = view object
 
 		def_structure	local
-			def_long	local_root
+			def_long	local_inst
 			def_long	local_data
 			def_long	local_down
 			def_long	local_up
 		def_structure_end
 
 		vp_sub local_size, r4
-		vp_cpy r0, [r4 + local_root]
+		vp_cpy r0, [r4 + local_inst]
 		vp_cpy r1, [r4 + local_data]
 		vp_cpy r2, [r4 + local_down]
 		vp_cpy r3, [r4 + local_up]
@@ -52,7 +52,7 @@
 			vp_call [r4 + local_up]
 
 			;back at root ?
-			breakif r0, ==, [r4 + local_root]
+			breakif r0, ==, [r4 + local_inst]
 
 			;across to sibling
 			ln_get_succ r0 + view_node, r1
@@ -64,6 +64,7 @@
 			;up to parent
 			vp_cpy [r0 + view_parent], r0
 		loop_end
+
 		vp_add local_size, r4
 		vp_ret
 

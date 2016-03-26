@@ -25,7 +25,7 @@
 		vp_add r9, r11
 		vp_lea [r0 + view_dirty_region], r1
 		static_bind gui_gui, statics, r0
-		vp_lea [r0 + gui_statics_rect_heap], r0
+		vp_add gui_statics_rect_heap, r0
 		static_call gui_region, paste
 
 		vp_cpy [r4 + local_inst], r0
