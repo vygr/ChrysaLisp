@@ -11,6 +11,7 @@
 
 	def_method pref_size, class/title/pref_size, override
 	def_method draw, class/title/draw, override
+	def_method layout, class/title/layout, override
 	def_method mouse_down, class/title/mouse_down, override
 	def_method mouse_move, class/title/mouse_move, override
 
