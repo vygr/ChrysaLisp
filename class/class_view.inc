@@ -28,6 +28,7 @@
 	def_method get_color, class/view/get_color
 	def_method get_bounds, class/view/get_bounds
 	def_method set_bounds, class/view/set_bounds
+	def_method set_flags, class/view/set_flags
 
 	def_method deinit, class/view/deinit, override
 

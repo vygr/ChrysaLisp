@@ -30,7 +30,7 @@
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_flow]
 			vp_cpy flow_flag_down | flow_flag_fillw | flow_flag_lasth, r8
-			static_call flow, set_flags
+			static_call flow, set_flow_flags
 			vp_cpy 255, r8
 			vp_cpy 255, r9
 			vp_cpy 255, r10
@@ -59,7 +59,7 @@
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_panel]
 			vp_cpy flow_flag_up | flow_flag_fillw | flow_flag_lasth, r8
-			static_call flow, set_flags
+			static_call flow, set_flow_flags
 			vp_cpy 255, r8
 			vp_cpy 255, r9
 			vp_cpy 255, r10

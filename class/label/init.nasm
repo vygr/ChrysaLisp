@@ -23,7 +23,7 @@
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + label_flow]
 			vp_cpy flow_flag_down, r8
-			static_call flow, set_flags
+			static_call flow, set_flow_flags
 			vp_xor r8, r8
 			vp_xor r9, r9
 			vp_xor r10, r10

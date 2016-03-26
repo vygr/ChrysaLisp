@@ -20,7 +20,7 @@ class/flow/create
 class/flow/layout
 class/flow/new
 class/flow/pref_size
-class/flow/set_flags
+class/flow/set_flow_flags
 class/label/create
 class/label/draw
 class/label/init
@@ -222,3 +222,5 @@ class/string/pref_size
 gui/region_translate
 
 class/progress/pref_size
+
+class/view/set_flags

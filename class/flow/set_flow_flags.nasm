@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_flow.inc'
 
-	fn_function class/flow/set_flags
+	fn_function class/flow/set_flow_flags
 		;inputs
 		;r0 = view object
 		;r8 = flags

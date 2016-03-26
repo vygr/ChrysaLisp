@@ -124,14 +124,14 @@
 					vp_cpy [r5 + gui_statics_x_pos], r8
 					vp_cpy [r5 + gui_statics_y_pos], r9
 					static_call view, hit_tree
-					if r1, ==, [r5 + gui_statics_screen]
-						vp_xor r1, r1
+					if r0, ==, [r5 + gui_statics_screen]
+						vp_xor r0, r0
 					endif
-					if r1, ==, 0
-						vp_cpy -1, r1
+					if r0, ==, 0
+						vp_cpy -1, r0
 					endif
-					vp_cpy r1, [r5 + gui_statics_last_view]
-					vp_cpy r1, r6
+					vp_cpy r0, [r5 + gui_statics_last_view]
+					vp_cpy r0, r6
 					vp_jmp send_mouse
 				else
 					;hover
