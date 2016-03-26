@@ -17,7 +17,7 @@
 		if r1, !=, 0
 			;init myself
 			vp_lea [rel font_name], r0
-			vp_cpy 16, r1
+			vp_cpy 18, r1
 			static_call sys_font, open
 			fn_assert r0, !=, 0
 			vp_cpy [r4], r1
@@ -31,6 +31,6 @@
 		vp_ret
 
 	font_name:
-		db 'fonts/NimbusRomNo9L-Reg.otf', 0
+		db 'fonts/OpenSans-Regular.ttf', 0
 
 	fn_function_end

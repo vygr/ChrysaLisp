@@ -83,6 +83,8 @@
 		static_call view, backward_tree
 
 		vp_add local_size, r4
+		vp_ret
+
 	null_func_down_callback:
 		vp_cpy r0, r1
 	null_func_up_callback:

@@ -44,6 +44,7 @@
 		vp_cpy [r1 + local_y], r9
 		vp_cpy r8, r12
 		vp_cpy r9, r13
+
 		vp_cpy [r0 + view_parent], r2
 		vp_cpy [r2 + flow_flags], r3
 		vp_and flow_flag_down, r3
@@ -51,6 +52,7 @@
 			;flow down
 			vp_lea [r9 + r11], r13
 		endif
+
 		vp_cpy [r2 + flow_flags], r3
 		vp_and flow_flag_up, r3
 		if r3, !=, 0
@@ -58,12 +60,14 @@
 			vp_sub r11, r9
 			vp_cpy r9, r13
 		endif
+
 		vp_cpy [r2 + flow_flags], r3
 		vp_and flow_flag_right, r3
 		if r3, !=, 0
 			;flow right
 			vp_lea [r8 + r10], r12
 		endif
+
 		vp_cpy [r2 + flow_flags], r3
 		vp_and flow_flag_left, r3
 		if r3, !=, 0
@@ -71,6 +75,7 @@
 			vp_sub r10, r8
 			vp_cpy r8, r12
 		endif
+
 		vp_cpy [r2 + flow_flags], r3
 		vp_and flow_flag_fillw, r3
 		if r3, !=, 0
@@ -78,6 +83,7 @@
 			vp_cpy [r2 + view_w], r10
 			vp_xor r8, r8
 		endif
+
 		vp_cpy [r2 + flow_flags], r3
 		vp_and flow_flag_fillh, r3
 		if r3, !=, 0
@@ -85,6 +91,7 @@
 			vp_cpy [r2 + view_h], r11
 			vp_xor r9, r9
 		endif
+
 		vp_cpy [r2 + flow_flags], r3
 		vp_and flow_flag_lastw, r3
 		if r3, !=, 0
@@ -108,6 +115,7 @@
 				endif
 			endif
 		endif
+
 		vp_cpy [r2 + flow_flags], r3
 		vp_and flow_flag_lasth, r3
 		if r3, !=, 0
@@ -131,6 +139,39 @@
 				endif
 			endif
 		endif
+
+		vp_cpy [r2 + flow_flags], r3
+		vp_and flow_flag_align_hcenter | flow_flag_align_hleft | flow_flag_align_hright, r3
+		if r3, !=, 0
+			vp_cpy [r2 + view_w], r8
+			vp_sub r10, r8
+			switch
+			case r3, ==, flow_flag_align_hcenter
+				vp_shr 1, r8
+				break
+			case r3, ==, flow_flag_align_hleft
+				vp_xor r8, r8
+				break
+			default
+			endswitch
+		endif
+
+		vp_cpy [r2 + flow_flags], r3
+		vp_and flow_flag_align_vcenter | flow_flag_align_vtop | flow_flag_align_vbottom, r3
+		if r3, !=, 0
+			vp_cpy [r2 + view_h], r9
+			vp_sub r11, r9
+			switch
+			case r3, ==, flow_flag_align_vcenter
+				vp_shr 1, r9
+				break
+			case r3, ==, flow_flag_align_vtop
+				vp_xor r9, r9
+				break
+			default
+			endswitch
+		endif
+
 		vp_cpy r12, [r1 + local_x]
 		vp_cpy r13, [r1 + local_y]
 		static_call view, change

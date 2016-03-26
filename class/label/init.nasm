@@ -22,7 +22,7 @@
 			fn_assert r0, !=, 0
 			vp_xor	r1, r1
 			static_call flow, set_flags
-			vp_cpy flow_flag_down, r1
+			vp_cpy flow_flag_right | flow_flag_align_vcenter, r1
 			static_call flow, set_flow_flags
 			vp_xor r8, r8
 			vp_xor r9, r9
