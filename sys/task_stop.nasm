@@ -3,7 +3,7 @@
 
 	fn_function sys/task_stop, no_debug_enter
 		;remove task control block
-		static_bind task, statics, r0
+		static_bind sys_task, statics, r0
 		vp_cpy [r0 + tk_statics_current_tcb], r1
 		vp_cpy r1, r2
 		ln_remove_node r2, r15
@@ -16,6 +16,6 @@
 		;free our task control block
 		vp_lea [r0 + tk_statics_task_heap], r0
 		hp_freecell r0, r1, r2
-		static_jmp task, restore
+		static_jmp sys_task, restore
 
 	fn_function_end

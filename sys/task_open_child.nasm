@@ -9,8 +9,8 @@
 		;trashes
 		;r2-r3, r5-r6
 
-		static_bind task, statics, r1
+		static_bind sys_task, statics, r1
 		vp_cpy [r1 + tk_statics_cpu_id], r1
-		static_jmp task, remote
+		static_jmp sys_task, remote
 
 	fn_function_end

@@ -17,7 +17,7 @@
 		if r1, !=, 0
 			vp_cpy [r0 + string_font], r0
 			if r0, !=, 0
-				static_jmp font, bounds
+				static_jmp sys_font, bounds
 			endif
 		endif
 		vp_ret

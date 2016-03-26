@@ -7,13 +7,13 @@
 ; syscall static class
 ;;;;;;;;;;;;;;;;;;;;;;
 
-	def_class io
+	def_class sys_io
 	def_method char, sys/write_char
 	def_method string, sys/write_string
 	def_method number, sys/write_number
 	def_method read, sys/read_line
 
-	def_class cpu
+	def_class sys_cpu
 	def_method id, sys/cpu_get_id
 	def_method time, sys/cpu_get_time
 	def_method total, sys/cpu_get_total

@@ -9,19 +9,19 @@
 
 		;on or off chip ?
 		vp_cpy r0, r2
-		static_call cpu, id
+		static_call sys_cpu, id
 		if r0, ==, [r2 + (ml_msg_dest + 8)]
 			;on this chip
 			vp_cpy [r2 + ml_msg_parcel_size], r1
 			if r1, !=, 0
 				;mail for postman !
-				static_bind mail, statics, r1
+				static_bind sys_mail, statics, r1
 				vp_cpy [r1 + ml_statics_in_mailbox], r1
 			else
 				vp_cpy [r2 + ml_msg_dest], r1
 				if r1, ==, 0
 					;mail for kernel !
-					static_bind mail, statics, r1
+					static_bind sys_mail, statics, r1
 					vp_cpy [r1 + ml_statics_kernel_mailbox], r1
 				endif
 			endif
@@ -30,11 +30,11 @@
 			vp_cpy [r1 + ml_mailbox_tcb], r0
 			if r0, !=, 0
 				vp_cpy_cl 0, [r1 + ml_mailbox_tcb]
-				static_call task, resume
+				static_call sys_task, resume
 			endif
 		else
 			;going off chip
-			static_bind mail, statics, r1
+			static_bind sys_mail, statics, r1
 			vp_cpy [r2 + ml_msg_length], r0
 			if r0, >, ml_msg_size
 				;must use postman task

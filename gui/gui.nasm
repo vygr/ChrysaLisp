@@ -9,7 +9,7 @@
 		static_call view, create
 
 		;set as gui screen view
-		static_bind gui, statics, r1
+		static_bind gui_gui, statics, r1
 		vp_cpy r0, [r1 + gui_statics_screen]
 
 		;size and color and opaque
@@ -26,38 +26,38 @@
 		static_call view, opaque
 
 		;dirty all
-		static_bind gui, statics, r0
+		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_screen], r0
 		static_call view, dirty_all
 
 		;sleep just a moment to let all routing finish
 		vp_cpy 1000000, r0
-		static_call task, sleep
+		static_call sys_task, sleep
 
 		;kernel callback for first update
 		vp_lea [rel kernel_callback], r0
-		static_call task, callback
+		static_call sys_task, callback
 
 		;for now fire up the test apps
 		;this might be an gui auto run list eventually
 		fn_bind tests/gui/gui1/app, r0
-		static_call task, start
+		static_call sys_task, start
 		fn_bind tests/gui/gui2/app, r0
-		static_call task, start
+		static_call sys_task, start
 
 		;gui event loop
 		loop_start
 		next_frame:
 			;kernel callback for update
 			vp_lea [rel kernel_callback], r0
-			static_call task, callback
+			static_call sys_task, callback
 
 			;frame rate of gui updates
 			vp_cpy 1000000 / 60, r0
-			static_call task, sleep
+			static_call sys_task, sleep
 
 			;get mouse info, see if any change
-			static_bind gui, statics, r5
+			static_bind gui_gui, statics, r5
 			vp_cpy [r5 + gui_statics_x_pos], r8
 			vp_cpy [r5 + gui_statics_y_pos], r9
 			vp_cpy [r5 + gui_statics_buttons], r10
@@ -84,12 +84,12 @@
 					static_call view, find_owner
 					if r1, !=, 0
 						;save owner mailbox
-						static_call cpu, id
+						static_call sys_cpu, id
 						vp_lea [r1 + tk_node_mailbox], r14
 						vp_cpy r0, r15
 
 						;allocate mail message
-						static_call mail, alloc
+						static_call sys_mail, alloc
 						fn_assert r0, !=, 0
 
 						;fill in data
@@ -108,7 +108,7 @@
 						vp_cpy r9, [r0 + (ml_msg_data + ev_data_ry)]
 
 						;send mail to owner
-						static_call mail, send
+						static_call sys_mail, send
 					endif
 				endif
 
@@ -155,7 +155,7 @@
 		vp_cpy r1, [r4 + local_old_stack]
 
 		;create screen window ?
-		static_bind gui, statics, r0
+		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_window], r1
 		if r1, ==, 0
 			;init sdl2
@@ -166,12 +166,12 @@
 			;create window
 			vp_lea [rel title], r0
 			sdl_create_window r0, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL
-			static_bind gui, statics, r1
+			static_bind gui_gui, statics, r1
 			vp_cpy r0, [r1 + gui_statics_window]
 
 			;create renderer
 			sdl_create_renderer r0, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
-			static_bind gui, statics, r1
+			static_bind gui_gui, statics, r1
 			vp_cpy r0, [r1 + gui_statics_renderer]
 
 			;set blend mode
@@ -179,28 +179,28 @@
 		endif
 
 		;update screen
-		static_bind gui, statics, r0
+		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_screen], r0
 		if r0, !=, 0
 			;pump sdl events
 			sdl_pump_events
 
 			;get mouse state
-			static_bind gui, statics, r0
+			static_bind gui_gui, statics, r0
 			vp_lea [r0 + gui_statics_x_pos], r1
 			vp_lea [r0 + gui_statics_y_pos], r2
 			sdl_get_mouse_state r1, r2
-			static_bind gui, statics, r1
+			static_bind gui_gui, statics, r1
 			vp_add gui_statics_buttons, r1
 			vp_cpy r0, [r1]
 
 			;update the screen
-			static_bind gui, statics, r0
+			static_bind gui_gui, statics, r0
 			vp_cpy [r0 + gui_statics_screen], r0
-			static_call gui, update
+			static_call gui_gui, update
 
 			;refresh the window
-			static_bind gui, statics, r0
+			static_bind gui_gui, statics, r0
 			sdl_render_present [r0 + gui_statics_renderer]
 		endif
 

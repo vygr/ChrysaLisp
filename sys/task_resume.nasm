@@ -12,7 +12,7 @@
 		vp_cpy [r0 + tk_node_node], r1
 		if r1, ==, 0
 			;add to task list
-			static_bind task, statics, r1
+			static_bind sys_task, statics, r1
 			vp_cpy [r1 + tk_statics_current_tcb], r1
 			ln_add_node_before r1, r0, r2
 		endif

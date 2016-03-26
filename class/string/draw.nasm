@@ -26,7 +26,7 @@
 		if r1, !=, 0
 			vp_cpy [r0 + string_font], r0
 			if r0, !=, 0
-				static_call font, text
+				static_call sys_font, text
 				if r0, !=, 0
 					vp_xor r8, r8
 					vp_xor r9, r9
@@ -36,7 +36,7 @@
 					vp_cpy [r4 + local_view], r2
 					vp_cpy [r2 + string_text_color], r2
 					vp_cpy [r4 + local_ctx], r0
-					static_call ctx, blit
+					static_call gui_ctx, blit
 				endif
 			endif
 		endif

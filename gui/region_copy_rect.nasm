@@ -33,7 +33,7 @@
 					vp_cpy [r7 + gui_rect_y1], r15
 					continueif r9, >=, r15
 
-					static_call heap, alloc
+					static_call sys_heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 

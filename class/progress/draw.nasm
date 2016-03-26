@@ -23,13 +23,13 @@
 		;draw outline
 		static_call view, get_color
 		vp_cpy [r4 + local_ctx], r0
-		static_call ctx, set_color
+		static_call gui_ctx, set_color
 		vp_cpy [r4 + local_view], r0
 		static_call progress, get_bounds
 		vp_xor r8, r8
 		vp_xor r9, r9
 		vp_cpy [r4 + local_ctx], r0
-		static_call ctx, box
+		static_call gui_ctx, box
 
 		;darker colour
 		vp_cpy [r4 + local_view], r0
@@ -38,7 +38,7 @@
 		vp_shr 1, r9
 		vp_shr 1, r10
 		vp_cpy [r4 + local_ctx], r0
-		static_call ctx, set_color
+		static_call gui_ctx, set_color
 
 		;draw middle
 		vp_cpy [r4 + local_view], r0
@@ -59,7 +59,7 @@
 		vp_sub r10, r12
 		vp_cpy r12, [r4 + local_fill_remain]
 		vp_cpy [r4 + local_ctx], r0
-		static_call ctx, filled_box
+		static_call gui_ctx, filled_box
 
 		;very darker colour
 		vp_cpy [r4 + local_view], r0
@@ -68,7 +68,7 @@
 		vp_shr 2, r9
 		vp_shr 2, r10
 		vp_cpy [r4 + local_ctx], r0
-		static_call ctx, set_color
+		static_call gui_ctx, set_color
 
 		;draw middle
 		vp_cpy [r4 + local_view], r0
@@ -80,6 +80,6 @@
 		vp_add [r4 + local_fill_complete], r8
 		vp_cpy [r4 + local_ctx], r0
 		vp_add local_size, r4
-		static_jmp ctx, filled_box
+		static_jmp gui_ctx, filled_box
 
 	fn_function_end

@@ -3,7 +3,7 @@
 
 	fn_function sys/load_deinit, no_debug_enter
 		;get statics
-		static_bind load, statics, r0
+		static_bind sys_load, statics, r0
 
 		;free all function blocks
 		vp_cpy [r0 + ld_statics_block_list], r1

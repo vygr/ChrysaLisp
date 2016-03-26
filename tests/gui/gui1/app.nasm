@@ -43,7 +43,7 @@
 		static_call window, set_status
 
 		;set owner
-		static_call task, tcb
+		static_call sys_task, tcb
 		vp_cpy r0, r1
 		vp_cpy [r4 + app_window], r0
 		static_call window, set_owner
@@ -63,10 +63,10 @@
 		static_call flow, add
 
 		;allocate array for progress bars
-		static_call cpu, total
+		static_call sys_cpu, total
 		vp_cpy r0, [r4 + app_cpu_total]
 		vp_mul 8, r0
-		static_call mem, alloc
+		static_call sys_mem, alloc
 		fn_assert r0, !=, 0
 		vp_cpy r0, [r4 + app_task_progress]
 
@@ -105,13 +105,13 @@
 
 		;add to screen and dirty
 		vp_cpy [r4 + app_window], r0
-		static_call gui, add
+		static_call gui_gui, add
 		static_call window, dirty_all
 
 		;allocate array for child mailbox ID's
 		vp_cpy [r4 + app_cpu_total], r0
 		vp_mul mailbox_id_size, r0
-		static_call mem, alloc
+		static_call sys_mem, alloc
 		fn_assert r0, !=, 0
 		vp_cpy r0, [r4 + app_task_mailboxes]
 
@@ -119,7 +119,7 @@
 		vp_cpy r0, r1
 		vp_lea [rel child_task], r0
 		vp_cpy [r4 + app_cpu_total], r2
-		static_call task, global
+		static_call sys_task, global
 
 		;init task mailbox
 		vp_lea [r4 + app_task_mailbox], r0
@@ -127,7 +127,7 @@
 
 		;set up mailbox select array
 		vp_cpy r0, [r4 + app_select2]
-		static_call task, mailbox
+		static_call sys_task, mailbox
 		vp_cpy r0, [r4 + app_select1]
 
 		;app event loop
@@ -137,7 +137,7 @@
 			if r0, ==, [r4 + app_cpu_total]
 				;send out sample commands
 				loop_start
-					static_call mail, alloc
+					static_call sys_mail, alloc
 					fn_assert r0, !=, 0
 					vp_cpy r0, r5
 
@@ -160,14 +160,14 @@
 					vp_cpy r2, [r5 + ml_msg_dest]
 					vp_cpy r3, [r5 + ml_msg_dest + 8]
 
-					static_call task, mailbox
+					static_call sys_task, mailbox
 					vp_cpy [r4 + app_select2], r0
 					vp_cpy r0, [r5 + ml_msg_data + app_mail_reply_id]
 					vp_cpy r1, [r5 + ml_msg_data + app_mail_reply_id + 8]
 
 					;send command
 					vp_cpy r5, r0
-					static_call mail, send
+					static_call sys_mail, send
 
 					vp_cpy [r4 + app_cpu_count], r0
 				loop_until r0, ==, 0
@@ -176,12 +176,12 @@
 			;select on 2 mailboxes
 			vp_lea [r4 + app_select1], r0
 			vp_cpy 2, r1
-			static_call mail, select
+			static_call sys_mail, select
 
 			;which mailbox has mail ?
 			if r0, ==, [r4 + app_select1]
 				;main mailbox
-				static_call mail, read
+				static_call sys_mail, read
 				vp_cpy r0, [r4 + app_last_event]
 
 				;dispatch event to view
@@ -190,7 +190,7 @@
 				method_call view, event
 			else
 				;task mailbox
-				static_call mail, read
+				static_call sys_mail, read
 				vp_cpy r0, [r4 + app_last_event]
 
 				;update progress bar
@@ -207,25 +207,25 @@
 
 			;free event message
 			vp_cpy [r4 + app_last_event], r0
-			static_call mem, free
+			static_call sys_mem, free
 
 			;be friendly
-			static_call task, yield
+			static_call sys_task, yield
 		loop_end
 
 		;wait for outstanding replys
 		vp_cpy [r4 + app_cpu_count], r5
 		loop_while r5, !=, [r4 + app_cpu_total]
 			vp_cpy [r4 + app_select2], r0
-			static_call mail, read
-			static_call mem, free
+			static_call sys_mail, read
+			static_call sys_mem, free
 			vp_inc r5
 		loop_end
 
 		;send out exit commands
 		vp_xor r5, r5
 		loop_start
-			static_call mail, alloc
+			static_call sys_mail, alloc
 			fn_assert r0, !=, 0
 			vp_cpy_cl 0, [r0 + ml_msg_data + app_mail_command]
 			vp_cpy_cl ml_msg_data + app_mail_size, [r0 + ml_msg_length]
@@ -239,16 +239,16 @@
 			vp_cpy r3, [r0 + ml_msg_dest + 8]
 
 			;send command
-			static_call mail, send
+			static_call sys_mail, send
 
 			vp_inc r5
 		loop_until r5, ==, [r4 + app_cpu_total]
 
 		;free arrays
 		vp_cpy [r4 + app_task_mailboxes], r0
-		static_call mem, free
+		static_call sys_mem, free
 		vp_cpy [r4 + app_task_progress], r0
-		static_call mem, free
+		static_call sys_mem, free
 
 		;deref window
 		vp_cpy [r4 + app_window], r0

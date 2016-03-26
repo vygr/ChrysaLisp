@@ -7,7 +7,7 @@
 
 		;round robin past any list head
 		ln_get_forward r15, r0
-		static_bind task, statics, r0
+		static_bind sys_task, statics, r0
 		vp_cpy r15, [r0 + tk_statics_current_tcb]
 
 		;restore old stack pointer

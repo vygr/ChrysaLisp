@@ -14,14 +14,14 @@
 		vp_cpy r0, r5
 
 		;increment task count
-		static_bind task, statics, r0
+		static_bind sys_task, statics, r0
 		vp_cpy [r0 + tk_statics_task_count], r1
 		vp_inc r1
 		vp_cpy r1, [r0 + tk_statics_task_count]
 
 		;create new task control block and task
 		vp_add tk_statics_task_heap, r0
-		static_call heap, alloc
+		static_call sys_heap, alloc
 		vp_cpy r1, r0
 
 		;initialise task mailbox etc
@@ -39,7 +39,7 @@
 		vp_cpy r5, [r1 + tk_state_size]
 
 		;resume new task
-		static_call task, resume
+		static_call sys_task, resume
 
 		;return mailbox pointer
 		vp_lea [r0 + tk_node_mailbox], r1

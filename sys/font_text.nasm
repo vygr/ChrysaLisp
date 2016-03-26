@@ -28,7 +28,7 @@
 		vp_cpy r1, [r4 + local_text]
 
 		;get font statics
-		static_bind font, statics, r5
+		static_bind sys_font, statics, r5
 
 		;search text list
 		loop_list_forward r5 + ft_statics_text_list, r6, r5
@@ -36,7 +36,7 @@
 			continueif r0, !=, [r5 + ft_text_font]
 			vp_lea [r5 + ft_text_name], r0
 			vp_cpy [r4 + local_text], r1
-			static_call string, compare
+			static_call sys_string, compare
 		loop_until r0, !=, 0
 
 		;did we find it ?
@@ -45,7 +45,7 @@
 			;no so try create it
 			vp_lea [rel kernel_callback], r0
 			vp_cpy r4, r1
-			static_call task, callback
+			static_call sys_task, callback
 			vp_cpy [r4 + local_handle], r0
 		endif
 
@@ -77,15 +77,15 @@
 			vp_cpy r11, [r14 + local_height]
 
 			;create texture
-			static_bind gui, statics, r0
+			static_bind gui_gui, statics, r0
 			sdl_create_texture_from_surface [r0 + gui_statics_renderer], [r14 + local_surface]
 			if r0, !=, 0
 				vp_cpy r0, r5
 
 				vp_cpy [r14 + local_text], r0
-				static_call string, length
+				static_call sys_string, length
 				vp_lea	[r1 + ft_text_size + 1], r0
-				static_call mem, alloc
+				static_call sys_mem, alloc
 				fn_assert r0, !=, 0
 				vp_cpy r0, r13
 
@@ -94,7 +94,7 @@
 				vp_cpy r5, [r13 + ft_text_texture]
 				vp_lea [r13 + ft_text_name], r1
 				vp_cpy [r14 + local_text], r0
-				static_call string, copy
+				static_call sys_string, copy
 
 				;fill in width and height
 				vp_cpy [r14 + local_width], r10
@@ -106,7 +106,7 @@
 				sdl_set_texture_blend_mode [r13 + ft_text_texture], SDL_BLENDMODE_BLEND
 
 				vp_cpy r13, r0
-				static_bind font, statics, r5
+				static_bind sys_font, statics, r5
 				vp_add ft_statics_text_list, r5
 				lh_add_at_tail r5, r0, r1
 			endif

@@ -107,7 +107,7 @@
 		vp_sub [r0 + view_x], r8
 		vp_sub [r0 + view_y], r9
 		vp_add view_dirty_region, r0
-		static_call region, translate
+		static_call gui_region, translate
 		vp_cpy [r4 + local_window], r0
 		vp_add local_size, r4
 		static_jmp window, dirty_all

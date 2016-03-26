@@ -25,7 +25,7 @@
 		vp_cpy r1, [r4 + local_points]
 
 		;get font statics
-		static_bind font, statics, r5
+		static_bind sys_font, statics, r5
 
 		;search font list
 		loop_list_forward r5 + ft_statics_font_list, r6, r5
@@ -33,7 +33,7 @@
 			continueif r0, !=, [r5 + ft_font_points]
 			vp_lea [r5 + ft_font_name], r0
 			vp_cpy [r4 + local_font], r1
-			static_call string, compare
+			static_call sys_string, compare
 		loop_until r0, !=, 0
 
 		;did we find it ?
@@ -42,7 +42,7 @@
 			;no so try open it
 			vp_lea [rel kernel_callback], r0
 			vp_cpy r4, r1
-			static_call task, callback
+			static_call sys_task, callback
 			vp_cpy [r4 + local_handle], r0
 		endif
 		vp_add local_size, r4
@@ -65,9 +65,9 @@
 		if r0, !=, 0
 			vp_cpy r0, r5
 			vp_cpy [r14 + local_font], r0
-			static_call string, length
+			static_call sys_string, length
 			vp_lea	[r1 + ft_font_size + 1], r0
-			static_call mem, alloc
+			static_call sys_mem, alloc
 			fn_assert r0, !=, 0
 			vp_cpy r0, r13
 
@@ -76,7 +76,7 @@
 			vp_cpy r5, [r13 + ft_font_handle]
 			vp_lea [r13 + ft_font_name], r1
 			vp_cpy [r14 + local_font], r0
-			static_call string, copy
+			static_call sys_string, copy
 
 			;fill in ascent, descent and height
 			ttf_font_ascent [r13 + ft_font_handle]
@@ -87,7 +87,7 @@
 			vp_cpy r0, [r13 + ft_font_height]
 
 			vp_cpy r13, r0
-			static_bind font, statics, r5
+			static_bind sys_font, statics, r5
 			vp_add ft_statics_font_list, r5
 			lh_add_at_tail r5, r0, r1
 		endif

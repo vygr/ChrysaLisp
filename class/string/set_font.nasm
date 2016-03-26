@@ -21,7 +21,7 @@
 		;open font
 		vp_cpy r1, r0
 		vp_cpy r2, r1
-		static_call font, open
+		static_call sys_font, open
 
 		vp_cpy [r4 + local_view], r1
 		vp_cpy r0, [r1 + string_font]

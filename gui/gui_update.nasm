@@ -16,7 +16,7 @@
 		def_structure_end
 
 		vp_sub local_size, r4
-		static_bind gui, statics, r1
+		static_bind gui_gui, statics, r1
 		vp_cpy [r1 + gui_statics_renderer], r1
 		vp_cpy r1, [r4 + local_ctx + gui_ctx_sdl_ctx]
 
@@ -44,25 +44,25 @@
 		vp_cpy [r0 + view_h], r11
 		vp_lea [r0 + view_dirty_region], r1
 		vp_cpy r4, r2
-		static_bind gui, statics, r0
+		static_bind gui_gui, statics, r0
 		vp_lea [r0 + gui_statics_rect_heap], r0
-		static_call region, copy
+		static_call gui_region, copy
 
 		;paste old visable region into root
 		vp_cpy [r4 + 8], r0
 		vp_xor r8, r8
 		vp_xor r9, r9
 		vp_lea [r0 + view_dirty_region], r2
-		static_bind gui, statics, r1
+		static_bind gui_gui, statics, r1
 		vp_lea [r1 + gui_statics_rect_heap], r0
 		vp_lea [r1 + gui_statics_old_region], r1
-		static_call region, paste_region
+		static_call gui_region, paste_region
 
 		;free old region and splice over new region
-		static_bind gui, statics, r5
+		static_bind gui_gui, statics, r5
 		vp_lea [r5 + gui_statics_rect_heap], r0
 		vp_lea [r5 + gui_statics_old_region], r1
-		static_call region, free
+		static_call gui_region, free
 		vp_pop r1
 		vp_cpy r1, [r5 + gui_statics_old_region]
 		vp_pop r0
@@ -102,7 +102,7 @@
 		vp_push r1, r0
 
 		;region heap
-		static_bind gui, statics, r0
+		static_bind gui_gui, statics, r0
 		vp_lea [r0 + gui_statics_rect_heap], r0
 
 		;remove opaque region from parent if not root
@@ -113,7 +113,7 @@
 			vp_cpy [r1 + view_parent], r2
 			vp_add view_opaque_region, r1
 			vp_add view_dirty_region, r2
-			static_call region, remove_region
+			static_call gui_region, remove_region
 		endif
 
 		;clip local dirty region with parent bounds if not root
@@ -131,7 +131,7 @@
 		vp_add r8, r10
 		vp_add r9, r11
 		vp_add view_dirty_region, r1
-		static_call region, clip
+		static_call gui_region, clip
 
 		;paste local dirty region onto parent if not root
 		vp_cpy [r4], r1
@@ -141,12 +141,12 @@
 			vp_cpy [r1 + view_parent], r2
 			vp_add view_dirty_region, r1
 			vp_add view_dirty_region, r2
-			static_call region, paste_region
+			static_call gui_region, paste_region
 
 			;free local dirty region
 			vp_cpy [r4], r1
 			vp_add view_dirty_region, r1
-			static_call region, free
+			static_call gui_region, free
 		endif
 
 		vp_pop r1, r0
@@ -156,7 +156,7 @@
 		vp_push r1, r0
 
 		;region heap
-		static_bind gui, statics, r0
+		static_bind gui_gui, statics, r0
 		vp_lea [r0 + gui_statics_rect_heap], r0
 
 		;copy view from root if not root
@@ -171,7 +171,7 @@
 			vp_add r9, r11
 			vp_add view_dirty_region, r1
 			vp_add view_dirty_region, r2
-			static_call region, copy
+			static_call gui_region, copy
 
 			;remove opaque region
 			vp_cpy [r4], r1
@@ -180,7 +180,7 @@
 			vp_cpy [r1 + view_ctx_y], r9
 			vp_add view_opaque_region, r1
 			vp_add view_dirty_region, r2
-			static_call region, remove_region
+			static_call gui_region, remove_region
 		endif
 
 		vp_pop r1, r0
@@ -201,9 +201,9 @@
 		;free local dirty region
 		vp_cpy [r4], r1
 		vp_add view_dirty_region, r1
-		static_bind gui, statics, r0
+		static_bind gui_gui, statics, r0
 		vp_lea [r0 + gui_statics_rect_heap], r0
-		static_call region, free
+		static_call gui_region, free
 
 		vp_pop r0
 		vp_ret

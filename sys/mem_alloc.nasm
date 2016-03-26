@@ -19,13 +19,13 @@
 		vp_lea [r0 + 8], r1		;extra 8 bytes for heap pointer
 
 		;find object heap
-		static_bind mem, statics, r0
+		static_bind sys_mem, statics, r0
 		loop_while r1, >, [r0 + hp_heap_cellsize]
 			vp_add hp_heap_size, r0
 		loop_end
 
 		;allocate object from this heap
-		static_call heap, alloc
+		static_call sys_heap, alloc
 		vp_cpy r0, [r1]
 		vp_xchg r0, r1
 		vp_cpy [r1 + hp_heap_cellsize], r1

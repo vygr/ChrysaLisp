@@ -7,13 +7,13 @@
 ; heap static class
 ;;;;;;;;;;;;;;;;;;;
 
-	def_class heap
+	def_class sys_heap
 	def_method init, sys/heap_init
 	def_method deinit, sys/heap_deinit
 	def_method alloc, sys/heap_alloc
 	def_method reset, sys/heap_reset
 
-	def_class mem
+	def_class sys_mem
 	def_method statics, sys/mem_statics
 	def_method init, sys/mem_init
 	def_method deinit, sys/mem_deinit

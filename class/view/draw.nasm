@@ -20,7 +20,7 @@
 
 		static_call view, get_color
 		vp_cpy r1, r0
-		static_call ctx, set_color
+		static_call gui_ctx, set_color
 
 		vp_cpy [r4 + local_view], r1
 		vp_cpy [r4 + local_ctx], r0
@@ -28,7 +28,7 @@
 		vp_xor r9, r9
 		vp_cpy [r1 + view_w], r10
 		vp_cpy [r1 + view_h], r11
-		static_call ctx, filled_box
+		static_call gui_ctx, filled_box
 
 		vp_add local_size, r4
 		vp_ret

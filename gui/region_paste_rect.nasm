@@ -73,7 +73,7 @@
 					;bottom part
 					vp_cpy r11, [r7 + gui_rect_y]
 					;right part
-					static_call heap, alloc
+					static_call sys_heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r10, [r1 + gui_rect_x]
@@ -100,7 +100,7 @@
 					;bottom part
 					vp_cpy r11, [r7 + gui_rect_y]
 					;top part
-					static_call heap, alloc
+					static_call sys_heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
@@ -118,7 +118,7 @@
 					;bottom part
 					vp_cpy r11, [r7 + gui_rect_y]
 					;left part
-					static_call heap, alloc
+					static_call sys_heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
@@ -167,7 +167,7 @@
 					vp_cpy r9, [r7 + gui_rect_y]
 					vp_cpy r8, [r7 + gui_rect_x1]
 					;top part
-					static_call heap, alloc
+					static_call sys_heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
@@ -187,7 +187,7 @@
 					;right part
 					vp_cpy r10, [r7 + gui_rect_x]
 					;left part
-					static_call heap, alloc
+					static_call sys_heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
@@ -202,7 +202,7 @@
 					vp_cpy r10, [r7 + gui_rect_x]
 					vp_cpy r9, [r7 + gui_rect_y]
 					;top part
-					static_call heap, alloc
+					static_call sys_heap, alloc
 					continueif r1, ==, 0
 					addpatch r5, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
@@ -215,7 +215,7 @@
 				switch
 					breakif r8, ==, r10
 					breakif r9, ==, r11
-					static_call heap, alloc
+					static_call sys_heap, alloc
 					breakif r1, ==, 0
 
 					addpatch r5, r1, r2

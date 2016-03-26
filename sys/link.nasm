@@ -11,12 +11,12 @@
 		vp_cpy_cl 0, [r4 + lk_node_table + lk_table_array]
 		vp_cpy_cl 0, [r4 + lk_node_table + lk_table_array_size]
 		vp_lea [r4 + lk_node_node], r0
-		static_bind link, statics, r1
+		static_bind sys_link, statics, r1
 		vp_lea [r1 + lk_statics_links_list], r1
 		lh_add_at_head r1, r0, r2
 
 		;read params msg from kernel
-		static_call mail, mymail
+		static_call sys_mail, mymail
 		vp_cpy r0, r14
 
 		;init link node cpu id and task count
@@ -46,7 +46,7 @@
 		vp_mul 10, r2
 		vp_add r0, r2
 		vp_add r3, r2
-		static_call cpu, id
+		static_call sys_cpu, id
 		if r1, ==, r0
 			vp_cpy r2, r1
 			vp_cpy lk_buffer_chan_1, r10
@@ -61,7 +61,7 @@
 		;send link routing message to neighbor kernel
 		vp_cpy r0, r8
 		vp_cpy r1, r9
-		static_call mail, alloc
+		static_call sys_mail, alloc
 		fn_assert r0, !=, 0
 		vp_cpy_cl 0, [r0 + ml_msg_dest]
 		vp_cpy r9, [r0 + (ml_msg_dest + 8)]
@@ -73,7 +73,7 @@
 		vp_cpy r8, [r0 + ml_msg_data + kn_data_link_route_via]
 		vp_cpy_cl 1, [r0 + ml_msg_data + kn_data_link_route_hops]
 		vp_cpy_cl ml_msg_data + kn_data_link_route_size, [r0 + ml_msg_length]
-		static_call mail, send
+		static_call sys_mail, send
 
 		;open shared memory file
 		vp_lea [r14 + ml_msg_data], r0
@@ -95,13 +95,13 @@
 		;clear tx channel
 		vp_cpy r10, r0
 		vp_cpy lk_chan_size, r1
-		static_call mem, clear
+		static_call sys_mem, clear
 
 		;read and write messages through the shared buffer in r12
 		vp_xor r9, r9
 		loop_start
 			;exchange task counts
-			static_bind task, statics, r0
+			static_bind sys_task, statics, r0
 			vp_cpy [r0 + tk_statics_task_count], r0
 			vp_cpy r0, [r10 + lk_chan_task_count]
 			vp_cpy [r11 + lk_chan_task_count], r0
@@ -112,7 +112,7 @@
 			more_output:
 				;no outgoing message so see if any off chip mail for me
 				vp_cpy [r4 + lk_node_cpu_id], r0
-				static_bind mail, statics, r8
+				static_bind sys_mail, statics, r8
 				loop_list_forward r8 + ml_statics_offchip_list, r8, r7
 					vp_cpy [r7 + (ml_msg_dest + 8)], r2
 					breakif r0, ==, r2
@@ -138,11 +138,11 @@
 					vp_cpy [r9 + ml_msg_length], r2
 					vp_add 7, r2
 					vp_and -8, r2
-					static_call mem, copy
+					static_call sys_mem, copy
 
 					;free message
 					vp_cpy r9, r0
-					static_call mem, free
+					static_call sys_mem, free
 
 					;busy status, check for more output
 					vp_cpy_cl lk_chan_status_busy, [r10 + lk_chan_status]
@@ -156,7 +156,7 @@
 			if r0, ==, lk_chan_status_busy
 				;allocate msg, copy over data
 				;round up to next 8 byte boundary for speed
-				static_call mail, alloc
+				static_call sys_mail, alloc
 				fn_assert r0, !=, 0
 				vp_cpy r0, r8
 				vp_cpy r0, r1
@@ -164,18 +164,18 @@
 				vp_cpy [r0 + ml_msg_length], r2
 				vp_add 7, r2
 				vp_and -8, r2
-				static_call mem, copy
+				static_call sys_mem, copy
 
 				;send onwards
 				vp_cpy r8, r0
-				static_call mail, send
+				static_call sys_mail, send
 
 				;clear status
 				vp_cpy_cl lk_chan_status_ready, [r11 + lk_chan_status]
 			endif
 
 			;let other links run
-			static_call task, yield
+			static_call sys_task, yield
 
 			;are we in a quite period
 			vp_cpy [r11 + lk_chan_status], r0
@@ -191,7 +191,7 @@
 
 			;small sleep if so
 			vp_cpy 1000, r0
-			static_call task, sleep
+			static_call sys_task, sleep
 
 			;exit if signaled by kernel
 			vp_cpy [r4 + lk_node_cpu_id], r0
@@ -209,11 +209,11 @@
 
 		;free params msg
 		vp_cpy r14, r0
-		static_call mem, free
+		static_call sys_mem, free
 
 		;remove from links list and deallocate link node on stack
 		vp_cpy [r4 + lk_node_table], r0
-		static_call mem, free
+		static_call sys_mem, free
 		vp_lea [r4 + lk_node_node], r0
 		ln_remove_node r0, r1
 		vp_add lk_node_size, r4

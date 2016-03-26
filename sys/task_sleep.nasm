@@ -9,7 +9,7 @@
 		tk_save_state
 
 		;save stack pointer
-		static_bind task, statics, r3
+		static_bind sys_task, statics, r3
 		vp_cpy [r3 + tk_statics_current_tcb], r15
 		vp_cpy r4, [r15 + tk_node_stack]
 
@@ -17,7 +17,7 @@
 		vp_cpy r0, r1
 
 		;calculate wake time
-		static_call cpu, time
+		static_call sys_cpu, time
 		vp_add r1, r0
 		vp_cpy r0, [r15 + tk_node_time]
 
@@ -32,6 +32,6 @@
 		ln_add_node_before r5, r1, r0
 
 		;restore next task
-		static_jmp task, restore
+		static_jmp sys_task, restore
 
 	fn_function_end

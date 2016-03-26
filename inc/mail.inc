@@ -7,7 +7,7 @@
 ; mail static class
 ;;;;;;;;;;;;;;;;;;;
 
-	def_class mail
+	def_class sys_mail
 	def_method statics, sys/mail_statics
 	def_method init, sys/mail_init
 	def_method deinit, sys/mail_deinit

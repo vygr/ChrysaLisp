@@ -7,7 +7,7 @@
 ; load static class
 ;;;;;;;;;;;;;;;;;;;
 
-	def_class load
+	def_class sys_load
 	def_method statics, sys/load_statics
 	def_method init, sys/load_init
 	def_method deinit, sys/load_deinit

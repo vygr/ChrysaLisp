@@ -6,7 +6,7 @@
 		tk_save_state
 
 		;save stack pointer
-		static_bind task, statics, r0
+		static_bind sys_task, statics, r0
 		vp_cpy [r0 + tk_statics_current_tcb], r0
 		vp_cpy r4, [r0 + tk_node_stack]
 
@@ -17,6 +17,6 @@
 		vp_cpy r1, [r0 + tk_node_node]
 
 		;restore next task
-		static_jmp task, restore
+		static_jmp sys_task, restore
 
 	fn_function_end

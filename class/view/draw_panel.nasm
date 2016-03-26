@@ -28,7 +28,7 @@
 			;fill middle
 			static_call view, get_color
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, set_color
+			static_call gui_ctx, set_color
 
 			vp_cpy [r4 + local_depth],r12
 			vp_cpy [r4 + local_view], r0
@@ -40,7 +40,7 @@
 			vp_sub r12, r10
 			vp_sub r12, r11
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, filled_box
+			static_call gui_ctx, filled_box
 		endif
 
 		vp_cpy [r4 + local_depth],r12
@@ -55,7 +55,7 @@
 			vp_add 128, r9
 			vp_add 128, r10
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, set_color
+			static_call gui_ctx, set_color
 
 			;fill left edge and top
 			vp_cpy [r4 + local_view], r0
@@ -64,7 +64,7 @@
 			vp_cpy [r0 + view_w], r10
 			vp_cpy [r4 + local_depth], r11
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, filled_box
+			static_call gui_ctx, filled_box
 
 			vp_cpy [r4 + local_view], r0
 			vp_cpy [r4 + local_depth],r12
@@ -74,7 +74,7 @@
 			vp_cpy [r0 + view_h], r11
 			vp_sub r12, r11
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, filled_box
+			static_call gui_ctx, filled_box
 
 			;darker colour
 			vp_cpy [r4 + local_view], r0
@@ -83,7 +83,7 @@
 			vp_shr 1, r9
 			vp_shr 1, r10
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, set_color
+			static_call gui_ctx, set_color
 
 			;fill bottom edge and right
 			vp_cpy [r4 + local_view], r0
@@ -95,7 +95,7 @@
 			vp_sub r12, r10
 			vp_cpy r12, r11
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, filled_box
+			static_call gui_ctx, filled_box
 
 			vp_cpy [r4 + local_view], r0
 			vp_cpy [r4 + local_depth],r12
@@ -107,7 +107,7 @@
 			vp_shl 1, r12
 			vp_sub r12, r11
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, filled_box
+			static_call gui_ctx, filled_box
 		else
 			;sunken panel
 			vp_mul -1, r12
@@ -120,7 +120,7 @@
 			vp_shr 1, r9
 			vp_shr 1, r10
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, set_color
+			static_call gui_ctx, set_color
 
 			;fill left edge and top
 			vp_cpy [r4 + local_view], r0
@@ -129,7 +129,7 @@
 			vp_cpy [r0 + view_w], r10
 			vp_cpy [r4 + local_depth], r11
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, filled_box
+			static_call gui_ctx, filled_box
 
 			vp_cpy [r4 + local_view], r0
 			vp_cpy [r4 + local_depth],r12
@@ -139,7 +139,7 @@
 			vp_cpy [r0 + view_h], r11
 			vp_sub r12, r11
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, filled_box
+			static_call gui_ctx, filled_box
 
 			;brighter colour
 			vp_cpy [r4 + local_view], r0
@@ -151,7 +151,7 @@
 			vp_add 128, r9
 			vp_add 128, r10
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, set_color
+			static_call gui_ctx, set_color
 
 			;fill bottom edge and right
 			vp_cpy [r4 + local_view], r0
@@ -163,7 +163,7 @@
 			vp_sub r12, r10
 			vp_cpy r12, r11
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, filled_box
+			static_call gui_ctx, filled_box
 
 			vp_cpy [r4 + local_view], r0
 			vp_cpy [r4 + local_depth],r12
@@ -175,7 +175,7 @@
 			vp_shl 1, r12
 			vp_sub r12, r11
 			vp_cpy [r4 + local_ctx], r0
-			static_call ctx, filled_box
+			static_call gui_ctx, filled_box
 		endif
 
 		vp_add local_size, r4

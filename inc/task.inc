@@ -10,7 +10,7 @@
 ; task static class
 ;;;;;;;;;;;;;;;;;;;
 
-	def_class task
+	def_class sys_task
 	def_method statics, sys/task_statics
 	def_method init, sys/task_init
 	def_method deinit, sys/task_deinit

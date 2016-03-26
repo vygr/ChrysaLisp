@@ -38,7 +38,7 @@
 		static_call window, set_status
 
 		;set owner
-		static_call task, tcb
+		static_call sys_task, tcb
 		vp_cpy r0, r1
 		vp_cpy [r4 + app_window], r0
 		static_call window, set_owner
@@ -120,12 +120,12 @@
 
 		;add to screen and dirty
 		vp_cpy [r4 + app_window], r0
-		static_call gui, add
+		static_call gui_gui, add
 		static_call window, dirty_all
 
 		;app event loop
 		loop_start
-			static_call mail, mymail
+			static_call sys_mail, mymail
 			vp_cpy r0, [r4 + app_last_event]
 
 			;dispatch event to view
@@ -142,22 +142,22 @@
 				case r1, ==, [r4 + app_button1]
 					fn_debug start task1
 					vp_lea [rel child_task1], r0
-					static_call task, child
+					static_call sys_task, child
 					break
 				case r1, ==, [r4 + app_button2]
 					fn_debug start task2
 					vp_lea [rel child_task2], r0
-					static_call task, child
+					static_call sys_task, child
 					break
 				case r1, ==, [r4 + app_button3]
 					fn_debug start task3
 					vp_lea [rel child_task3], r0
-					static_call task, child
+					static_call sys_task, child
 					break
 				case r1, ==, [r4 + app_button4]
 					fn_debug start task4
 					vp_lea [rel child_task4], r0
-					static_call task, child
+					static_call sys_task, child
 					break
 				default
 				endswitch
@@ -165,7 +165,7 @@
 
 			;free event message
 			vp_cpy [r4 + app_last_event], r0
-			static_call mem, free
+			static_call sys_mem, free
 		loop_end
 
 		;deref window

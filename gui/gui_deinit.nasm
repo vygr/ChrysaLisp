@@ -5,7 +5,7 @@
 
 	fn_function gui/gui_deinit
 		;free any screen
-		static_bind gui, statics, r1
+		static_bind gui_gui, statics, r1
 		vp_cpy [r1 + gui_statics_screen], r0
 		if r0, !=, 0
 			vp_cpy_cl 0, [r1 + gui_statics_screen]
@@ -13,13 +13,13 @@
 		endif
 
 		;free old region
-		static_bind gui, statics, r5
+		static_bind gui_gui, statics, r5
 		vp_lea [r5 + gui_statics_rect_heap], r0
 		vp_lea [r5 + gui_statics_old_region], r1
-		static_call region, free
+		static_call gui_region, free
 
 		;deinit region heap
-		static_call heap, deinit
+		static_call sys_heap, deinit
 
 		;destroy any window
 		vp_cpy [r5 + gui_statics_window], r14

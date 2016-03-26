@@ -16,8 +16,8 @@
 		vp_add r8, r10
 		vp_add r9, r11
 		vp_lea [r0 + view_opaque_region], r1
-		static_bind gui, statics, r0
+		static_bind gui_gui, statics, r0
 		vp_lea [r0 + gui_statics_rect_heap], r0
-		static_jmp region, paste
+		static_jmp gui_region, paste
 
 	fn_function_end

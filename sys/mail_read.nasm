@@ -11,10 +11,10 @@
 
 		lh_is_empty r0, r2
 		if r2, ==, 0
-			static_bind task, statics, r1
+			static_bind sys_task, statics, r1
 			vp_cpy [r1 + tk_statics_current_tcb], r1
 			vp_cpy r1, [r0 + ml_mailbox_tcb]
-			static_call task, suspend
+			static_call sys_task, suspend
 		endif
 		vp_cpy [r0 + ml_mailbox_list + lh_list_head], r0
 		vp_cpy r0, r1

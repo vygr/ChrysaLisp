@@ -10,12 +10,12 @@
 
 		;allocate new window object
 		vp_cpy window_size, r0
-		static_call mem, alloc
+		static_call sys_mem, alloc
 		if r0, !=, 0
 			;clear object memory
 			vp_cpy r0, r3
 			vp_cpy window_size, r1
-			static_call mem, clear
+			static_call sys_mem, clear
 			vp_cpy r3, r0
 		endif
 		vp_ret

@@ -4,7 +4,7 @@
 	fn_function sys/font_init, no_debug_enter
 
 		;get font statics
-		static_bind font, statics, r3
+		static_bind sys_font, statics, r3
 
 		;init font lists
 		vp_lea [r3 + ft_statics_font_list], r0

@@ -8,7 +8,7 @@
 ; font static class
 ;;;;;;;;;;;;;;;;;;;
 
-	def_class font
+	def_class sys_font
 	def_method statics, sys/font_statics
 	def_method init, sys/font_init
 	def_method deinit, sys/font_deinit

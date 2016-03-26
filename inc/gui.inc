@@ -11,7 +11,7 @@
 ; gui statics classes
 ;;;;;;;;;;;;;;;;;;;;;
 
-	def_class gui
+	def_class gui_gui
 	def_method statics, gui/gui_statics
 	def_method init, gui/gui_init
 	def_method deinit, gui/gui_deinit
@@ -19,7 +19,7 @@
 	def_method add, gui/gui_add
 	def_method gui, gui/gui
 
-	def_class region
+	def_class gui_region
 	def_method translate, gui/region_translate
 	def_method clip, gui/region_clip_rect
 	def_method remove, gui/region_remove_rect
@@ -31,7 +31,7 @@
 	def_method paste_region, gui/region_paste_region
 	def_method remove_region, gui/region_remove_region
 
-	def_class ctx
+	def_class gui_ctx
 	def_method box, gui/ctx_box
 	def_method filled_box, gui/ctx_filled_box
 	def_method blit, gui/ctx_blit

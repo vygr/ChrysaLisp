@@ -16,12 +16,12 @@
 		ml_temp_create r0, r1
 
 		;allocate mail message
-		static_call mail, alloc
+		static_call sys_mail, alloc
 		fn_assert r0, !=, 0
 		vp_cpy r0, r3
 
 		;fill in destination, reply and function
-		static_call cpu, id
+		static_call sys_cpu, id
 		vp_cpy r4, [r3 + (ml_msg_data + kn_data_kernel_reply)]
 		vp_cpy r0, [r3 + (ml_msg_data + kn_data_kernel_reply + 8)]
 		vp_cpy_cl 0, [r3 + ml_msg_dest]
@@ -33,12 +33,12 @@
 
 		;send mail to kernel then wait for reply
 		vp_cpy r3, r0
-		static_call mail, send
+		static_call sys_mail, send
 		vp_cpy r4, r0
-		static_call mail, read
+		static_call sys_mail, read
 
 		;free reply mail and temp mailbox
 		ml_temp_destroy
-		static_jmp mem, free
+		static_jmp sys_mem, free
 
 	fn_function_end
