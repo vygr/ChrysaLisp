@@ -68,14 +68,14 @@ An example network viewed with ps looks like this for a 4x4 mesh network:
 ./main -cpu 3 -l 003-015 -l 003-007 -l 002-003 -l 000-003
 ./main -cpu 2 -l 002-014 -l 002-006 -l 001-002 -l 002-003
 ./main -cpu 1 -l 001-013 -l 001-005 -l 000-001 -l 001-002
-./main -cpu 0 -l 000-012 -l 000-004 -l 000-003 -l 000-001 -run tests/test1
+./main -cpu 0 -l 000-012 -l 000-004 -l 000-003 -l 000-001 -run gui/gui
 
 Make with:
 
 make -j
 
-Requires NASM and the SDL2 library to be installed. SDL2 is for the experimental
-gui.
+Requires NASM, SDL2 and the SDL2_ttf library to be installed. SDL2 and SDL2_ttf
+is for the experimental gui.
 
 Run with:
 
