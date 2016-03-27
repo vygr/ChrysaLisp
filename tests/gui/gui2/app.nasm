@@ -122,22 +122,18 @@
 			if r2, ==, 0
 				switch
 				case r1, ==, [r4 + app_button1]
-					fn_debug start task1
 					vp_lea [rel child_task1], r0
 					static_call sys_task, open_child
 					break
 				case r1, ==, [r4 + app_button2]
-					fn_debug start task2
 					vp_lea [rel child_task2], r0
 					static_call sys_task, open_child
 					break
 				case r1, ==, [r4 + app_button3]
-					fn_debug start task3
 					vp_lea [rel child_task3], r0
 					static_call sys_task, open_child
 					break
 				case r1, ==, [r4 + app_button4]
-					fn_debug start task4
 					vp_lea [rel child_task4], r0
 					static_call sys_task, open_child
 					break
