@@ -11,7 +11,7 @@
 		static_call button, new
 		if r0, !=, 0
 			;init the object
-			fn_bind class/class_button, r1
+			static_bind class, button, r1
 			static_call button, init
 			if r1, ==, 0
 				;error with init

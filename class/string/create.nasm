@@ -11,7 +11,7 @@
 		static_call string, new
 		if r0, !=, 0
 			;init the object
-			fn_bind class/class_string, r1
+			static_bind class, string, r1
 			static_call string, init
 			if r1, ==, 0
 				;error with init

@@ -11,7 +11,7 @@
 		static_call progress, new
 		if r0, !=, 0
 			;init the object
-			fn_bind class/class_progress, r1
+			static_bind class, progress, r1
 			static_call progress, init
 			if r1, ==, 0
 				;error with init

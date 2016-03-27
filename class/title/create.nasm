@@ -11,7 +11,7 @@
 		static_call title, new
 		if r0, !=, 0
 			;init the object
-			fn_bind class/class_title, r1
+			static_bind class, title, r1
 			static_call title, init
 			if r1, ==, 0
 				;error with init

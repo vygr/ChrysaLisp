@@ -11,7 +11,7 @@
 		static_call label, new
 		if r0, !=, 0
 			;init the object
-			fn_bind class/class_label, r1
+			static_bind class, label, r1
 			static_call label, init
 			if r1, ==, 0
 				;error with init

@@ -232,4 +232,16 @@
 		fn_bind _map_%[_super_class_%[%1]_]_func_%[_nonvirtual_], %3
 	%endmacro
 
+	def_class class
+	def_method obj, class/class_obj
+	def_method ref, class/class_ref
+	def_method string, class/class_string
+	def_method view, class/class_view
+	def_method label, class/class_label
+	def_method button, class/class_button
+	def_method flow, class/class_flow
+	def_method window, class/class_window
+	def_method progress, class/class_progress
+	def_method title, class/class_title
+
 %endif

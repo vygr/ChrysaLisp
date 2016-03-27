@@ -11,7 +11,7 @@
 		static_call window, new
 		if r0, !=, 0
 			;init the object
-			fn_bind class/class_window, r1
+			static_bind class, window, r1
 			static_call window, init
 			if r1, ==, 0
 				;error with init
