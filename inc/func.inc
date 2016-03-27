@@ -65,9 +65,10 @@
 
 	def_structure	fn_header
 		def_long	fn_header_next
-		def_long	fn_header_length
-		def_long	fn_header_entry
-		def_long	fn_header_links
+		def_int		fn_header_length
+		def_int		fn_header_entry
+		def_int		fn_header_links
+		def_int		fn_header_paths
 		def_struct	fn_header_pathname, null
 	def_structure_end
 
@@ -168,9 +169,10 @@
 		align 8, db 0
 	_func_start:
 		dq	-1
-		dq	_func_end - _func_start
-		dq	_func_entry - _func_start
-		dq	_func_links - _func_start
+		dd	_func_end - _func_start
+		dd	_func_entry - _func_start
+		dd	_func_links - _func_start
+		dd	_func_paths - _func_start
 		db	_func_name
 		db	0
 		align 8, db 0
@@ -195,6 +197,7 @@
 			%assign %%_i %%_i+1
 		%endrep
 		dq	0
+	_func_paths:
 		%assign %%_i 0
 		%rep _path_total_
 	_func_%[%%_i]_path:

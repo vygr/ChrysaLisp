@@ -15,8 +15,11 @@
 
 		;get loader statics !
 		vp_lea [rel _func_start], r8
-		vp_add [r8 + fn_header_length], r8
-		vp_add [r8 + fn_header_entry], r8
+		vp_xor r0, r0
+		vp_cpy_i [r8 + fn_header_length], r0
+		vp_add r0, r8
+		vp_cpy_i [r8 + fn_header_entry], r0
+		vp_add r0, r8
 
 		;check if function already present !
 		vp_xor r5, r5
@@ -26,8 +29,9 @@
 			vp_lea [r6 + fn_header_pathname], r1
 			vp_call string_compare
 			if r0, !=, 0
-				vp_cpy r6, r5
-				vp_add [r6 + fn_header_entry], r5
+				vp_xor r0, r0
+				vp_cpy_i [r6 + fn_header_entry], r0
+				vp_lea [r6 + r0], r5
 			endif
 			vp_cpy [r6], r6
 		loop_until r5, !=, 0
@@ -88,8 +92,9 @@
 		;relocate vtable so we can discard paths
 		vp_cpy [r8 + ld_statics_reloc_stack], r1
 		vp_cpy r1, r6
-		vp_cpy r3, r5
-		vp_add [r3 + fn_header_links], r5
+		vp_xor r0, r0
+		vp_cpy_i [r3 + fn_header_links], r0
+		vp_lea [r3 + r0], r5
 		loop_start
 		 	vp_cpy [r5], r0
 			breakif r0, ==, 0
@@ -117,8 +122,9 @@
 
 		;load and link function references
 		;now actual addresses of strings in the reloc buffer
-		vp_cpy r3, r0
-		vp_add [r3 + fn_header_links], r0
+		vp_xor r0, r0
+		vp_cpy_i [r3 + fn_header_links], r0
+		vp_add r3, r0
 		loop_start
 			vp_cpy [r0], r1
 			breakif r1, ==, 0
@@ -148,8 +154,11 @@
 
 		;get loader statics !
 		vp_lea [rel _func_start], r8
-		vp_add [r8 + fn_header_length], r8
-		vp_add [r8 + fn_header_entry], r8
+		vp_xor r0, r0
+		vp_cpy_i [r8 + fn_header_length], r0
+		vp_add r0, r8
+		vp_cpy_i [r8 + fn_header_entry], r0
+		vp_add r0, r8
 
 		;pop reloc buffer
 		vp_cpy [r8 + ld_statics_reloc_stack], r0
@@ -157,8 +166,9 @@
 		vp_cpy r0, [r8 + ld_statics_reloc_stack]
 
 		;return function address
-		vp_cpy r3, r0
-		vp_add [r3 + fn_header_entry], r0
+		vp_xor r0, r0
+		vp_cpy_i [r3 + fn_header_entry], r0
+		vp_add r3, r0
 		vp_ret
 
 	string_compare:
