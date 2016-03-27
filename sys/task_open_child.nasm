@@ -11,6 +11,6 @@
 
 		static_bind sys_task, statics, r1
 		vp_cpy [r1 + tk_statics_cpu_id], r1
-		static_jmp sys_task, remote
+		static_jmp sys_task, open_remote
 
 	fn_function_end

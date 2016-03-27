@@ -18,7 +18,7 @@
 		;open test8 array, off chip
 		vp_cpy r14, r1
 		vp_lea [rel task_eights], r0
-		static_call sys_task, array
+		static_call sys_task, open_array
 
 		;send exit messages etc
 		for r13, 0, ARRAY_SIZE, 1

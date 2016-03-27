@@ -46,7 +46,7 @@
 		vp_cpy r4, r2
 		static_bind gui_gui, statics, r0
 		vp_lea [r0 + gui_statics_rect_heap], r0
-		static_call gui_region, copy
+		static_call gui_region, copy_rect
 
 		;paste old visable region into root
 		vp_cpy [r4 + 8], r0
@@ -136,7 +136,7 @@
 		vp_add r8, r10
 		vp_add r9, r11
 		vp_add view_dirty_region, r1
-		static_call gui_region, clip
+		static_call gui_region, clip_rect
 
 		;paste local dirty region onto parent if not root
 		vp_cpy [r4], r1
@@ -176,7 +176,7 @@
 			vp_add r9, r11
 			vp_add view_dirty_region, r1
 			vp_add view_dirty_region, r2
-			static_call gui_region, copy
+			static_call gui_region, copy_rect
 
 			;remove opaque region
 			vp_cpy [r4], r1

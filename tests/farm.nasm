@@ -19,7 +19,7 @@
 		vp_cpy FARM_SIZE, r2
 		vp_cpy r14, r1
 		vp_lea [rel task_six], r0
-		static_call sys_task, farm
+		static_call sys_task, open_farm
 
 		;send exit messages etc
 		for r13, 0, FARM_SIZE, 1

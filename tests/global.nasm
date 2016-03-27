@@ -23,13 +23,13 @@
 		vp_lea [rel task_twelve], r0
 		vp_cpy r14, r1
 		vp_cpy r12, r2
-		static_call sys_task, global
+		static_call sys_task, open_global
 
 		;send messages etc
 		for r11, 0, 10, 1
 			for r13, 0, r12, 1
 				vp_cpy (TEST_SIZE * 8), r0
-				static_call sys_mail, parcel
+				static_call sys_mail, alloc_parcel
 				for r15, 0, TEST_SIZE, 1
 					vp_cpy r15, [r0 + (r15 * 8) + ml_msg_data]
 				next

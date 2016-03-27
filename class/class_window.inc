@@ -13,7 +13,7 @@
 	def_method create, class/window/create
 	def_method new, class/window/new
 	def_method init, class/window/init
-	def_method panel, class/window/get_panel
+	def_method get_panel, class/window/get_panel
 	def_method set_title, class/window/set_title
 	def_method set_status, class/window/set_status
 

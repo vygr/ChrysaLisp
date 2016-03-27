@@ -60,7 +60,7 @@ class/view/dirty_all
 class/view/draw
 class/view/draw_panel
 class/view/event
-class/view/find_tcb
+class/view/find_owner
 class/view/forward
 class/view/forward_tree
 class/view/get_bounds
@@ -74,7 +74,7 @@ class/view/opaque
 class/view/pref_size
 class/view/set_bounds
 class/view/set_color
-class/view/set_tcb
+class/view/set_owner
 class/view/sub
 class/window/create
 class/window/deinit

@@ -12,7 +12,7 @@
 	def_method init, sys/mail_init
 	def_method deinit, sys/mail_deinit
 	def_method alloc, sys/mail_alloc
-	def_method parcel, sys/mail_alloc_parcel
+	def_method alloc_parcel, sys/mail_alloc_parcel
 	def_method send, sys/mail_send
 	def_method read, sys/mail_read
 	def_method try_read, sys/mail_try_read

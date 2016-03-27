@@ -41,7 +41,7 @@
 			vp_add r12, r10
 			vp_add r13, r11
 			vp_cpy [r4 + local_dlist], r1
-			static_call gui_region, paste
+			static_call gui_region, paste_rect
 			vp_cpy [r4 + local_next], r1
 		loop_end
 		vp_add local_size, r4

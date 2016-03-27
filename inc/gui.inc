@@ -21,11 +21,11 @@
 
 	def_class gui_region
 	def_method translate, gui/region_translate
-	def_method clip, gui/region_clip_rect
-	def_method remove, gui/region_remove_rect
-	def_method cut, gui/region_cut_rect
-	def_method copy, gui/region_copy_rect
-	def_method paste, gui/region_paste_rect
+	def_method clip_rect, gui/region_clip_rect
+	def_method remove_rect, gui/region_remove_rect
+	def_method cut_rect, gui/region_cut_rect
+	def_method copy_rect, gui/region_copy_rect
+	def_method paste_rect, gui/region_paste_rect
 	def_method free, gui/region_free
 	def_method copy_region, gui/region_copy_region
 	def_method paste_region, gui/region_paste_region

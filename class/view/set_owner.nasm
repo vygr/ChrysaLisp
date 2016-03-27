@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/set_tcb
+	fn_function class/view/set_owner
 		;inputs
 		;r0 = view object
 		;r1 = task tcb

@@ -38,7 +38,7 @@
 		vp_cpy [r4 + local_window], r1
 		vp_cpy [r0 + title_last_x], r8
 		vp_cpy [r0 + title_last_y], r9
-		static_call title, relative
+		static_call title, get_relative
 		vp_cpy [r4 + local_event], r1
 		vp_sub [r1 + (ml_msg_data + ev_data_x)], r8
 		vp_sub [r1 + (ml_msg_data + ev_data_y)], r9

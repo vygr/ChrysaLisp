@@ -26,14 +26,14 @@
 	def_method suspend, sys/task_suspend
 	def_method resume, sys/task_resume
 	def_method open, sys/task_open
-	def_method child, sys/task_open_child
-	def_method device, sys/task_open_device
-	def_method remote, sys/task_open_remote
-	def_method array, sys/task_open_array
-	def_method farm, sys/task_open_farm
-	def_method pipe, sys/task_open_pipe
-	def_method global, sys/task_open_global
-	def_method depth, sys/task_stack_depth
+	def_method open_child, sys/task_open_child
+	def_method open_device, sys/task_open_device
+	def_method open_remote, sys/task_open_remote
+	def_method open_array, sys/task_open_array
+	def_method open_farm, sys/task_open_farm
+	def_method open_pipe, sys/task_open_pipe
+	def_method open_global, sys/task_open_global
+	def_method stack_depth, sys/task_stack_depth
 
 ;;;;;;;;;;;;;;;;;
 ; task structures

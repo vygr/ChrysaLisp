@@ -219,7 +219,7 @@
 			vp_push %2
 
 			;tab in by stack depth
-			static_call sys_task, depth
+			static_call sys_task, stack_depth
 			if r0, >, 0
 				vp_lea [r0 - (8*8)], r2
 				vp_cpy ' ', r0

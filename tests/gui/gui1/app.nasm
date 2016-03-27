@@ -34,7 +34,7 @@
 		static_call window, create
 		fn_assert r0, !=, 0
 		vp_cpy r0, [r4 + app_window]
-		static_call window, panel
+		static_call window, get_panel
 		vp_cpy r1, [r4 + app_window_panel]
 		vp_lea [rel title], r1
 		static_call window, set_title
@@ -110,7 +110,7 @@
 		vp_cpy r0, r1
 		vp_lea [rel child_task], r0
 		vp_cpy [r4 + app_cpu_total], r2
-		static_call sys_task, global
+		static_call sys_task, open_global
 
 		;init task mailbox
 		vp_lea [r4 + app_task_mailbox], r0

@@ -29,7 +29,7 @@
 		static_call window, create
 		fn_assert r0, !=, 0
 		vp_cpy r0, [r4 + app_window]
-		static_call window, panel
+		static_call window, get_panel
 		vp_cpy r1, [r4 + app_window_panel]
 		vp_lea [rel title], r1
 		static_call window, set_title
@@ -124,22 +124,22 @@
 				case r1, ==, [r4 + app_button1]
 					fn_debug start task1
 					vp_lea [rel child_task1], r0
-					static_call sys_task, child
+					static_call sys_task, open_child
 					break
 				case r1, ==, [r4 + app_button2]
 					fn_debug start task2
 					vp_lea [rel child_task2], r0
-					static_call sys_task, child
+					static_call sys_task, open_child
 					break
 				case r1, ==, [r4 + app_button3]
 					fn_debug start task3
 					vp_lea [rel child_task3], r0
-					static_call sys_task, child
+					static_call sys_task, open_child
 					break
 				case r1, ==, [r4 + app_button4]
 					fn_debug start task4
 					vp_lea [rel child_task4], r0
-					static_call sys_task, child
+					static_call sys_task, open_child
 					break
 				default
 				endswitch

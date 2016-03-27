@@ -11,7 +11,7 @@
 	def_method sub, class/view/sub
 	def_method add_dirty, class/view/add_dirty
 	def_method add_opaque, class/view/add_opaque
-	def_method relative, class/view/get_relative
+	def_method get_relative, class/view/get_relative
 	def_method dirty, class/view/dirty
 	def_method dirty_all, class/view/dirty_all
 	def_method opaque, class/view/opaque
@@ -21,8 +21,8 @@
 	def_method backward_tree, class/view/backward_tree
 	def_method change, class/view/change
 	def_method hit_tree, class/view/hit_tree
-	def_method set_owner, class/view/set_tcb
-	def_method find_owner, class/view/find_tcb
+	def_method set_owner, class/view/set_owner
+	def_method find_owner, class/view/find_owner
 	def_method draw_panel, class/view/draw_panel
 	def_method set_color, class/view/set_color
 	def_method get_color, class/view/get_color
