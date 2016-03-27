@@ -6,7 +6,16 @@
 		;r0 = callback address
 		;r1 = user data address
 		;trashes
-		;r2-r3, r5-r6
+		;all but r4
+
+		;test if we are the kernel task
+		static_bind sys_task, statics, r3
+		vp_cpy [r3 + tk_statics_kernel_tcb], r2
+		if r2, ==, r3
+			;yes we can just do local call
+			vp_xchg r0, r1
+			vp_jmp r1
+		endif
 
 		;save task info
 		vp_cpy r0, r5

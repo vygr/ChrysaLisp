@@ -51,6 +51,7 @@
 
 	def_structure	tk_statics
 		def_long	tk_statics_current_tcb
+		def_long	tk_statics_kernel_tcb
 		def_struct	tk_statics_task_heap, hp_heap
 		def_struct	tk_statics_task_list, lh_list
 		def_struct	tk_statics_timer_list, lh_list

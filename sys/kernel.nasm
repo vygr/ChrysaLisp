@@ -35,6 +35,7 @@
 		static_call sys_task, start
 		static_bind sys_task, statics, r2
 		vp_cpy r0, [r2 + tk_statics_current_tcb]
+		vp_cpy r0, [r2 + tk_statics_kernel_tcb]
 
 		;init mailer, r1 = kernel mailbox !
 		static_call sys_mail, init
