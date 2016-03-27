@@ -25,8 +25,9 @@
 		vp_cpy r1, r0
 
 		;initialise task mailbox etc
-		vp_cpy_cl 0, [r0 + tk_node_node]
-		vp_cpy_cl 0, [r0 + tk_node_mailbox + ml_mailbox_tcb]
+		vp_xor r1, r1
+		vp_cpy r1, [r0 + tk_node_node]
+		vp_cpy r1, [r0 + tk_node_mailbox + ml_mailbox_tcb]
 		vp_lea [r0 + tk_node_mailbox + ml_mailbox_list], r1
 		ml_init r1, r2, r3
 

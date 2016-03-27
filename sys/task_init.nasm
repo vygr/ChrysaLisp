@@ -20,9 +20,10 @@
 		lh_init r0, r1
 
 		;init cpu count, task count and id
+		vp_xor r1, r1
 		vp_cpy_cl 1, [r3 + tk_statics_cpu_total]
-		vp_cpy_cl 0, [r3 + tk_statics_cpu_id]
-		vp_cpy_cl 0, [r3 + tk_statics_task_count]
+		vp_cpy r1, [r3 + tk_statics_cpu_id]
+		vp_cpy r1, [r3 + tk_statics_task_count]
 		vp_ret
 
 	fn_function_end

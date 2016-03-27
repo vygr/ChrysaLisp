@@ -8,8 +8,9 @@
 
 		;allocate link node on stack and link to links list
 		vp_sub lk_node_size, r4
-		vp_cpy_cl 0, [r4 + lk_node_table + lk_table_array]
-		vp_cpy_cl 0, [r4 + lk_node_table + lk_table_array_size]
+		vp_xor r1, r1
+		vp_cpy r1, [r4 + lk_node_table + lk_table_array]
+		vp_cpy r1, [r4 + lk_node_table + lk_table_array_size]
 		vp_lea [r4 + lk_node_node], r0
 		static_bind sys_link, statics, r1
 		vp_lea [r1 + lk_statics_links_list], r1
@@ -63,11 +64,12 @@
 		vp_cpy r1, r9
 		static_call sys_mail, alloc
 		fn_assert r0, !=, 0
-		vp_cpy_cl 0, [r0 + ml_msg_dest]
+		vp_xor r1, r1
+		vp_cpy r1, [r0 + ml_msg_dest]
 		vp_cpy r9, [r0 + (ml_msg_dest + 8)]
-		vp_cpy_cl 0, [r0 + ml_msg_data + kn_data_kernel_user]
-		vp_cpy_cl 0, [r0 + ml_msg_data + kn_data_kernel_reply]
-		vp_cpy_cl 0, [r0 + (ml_msg_data + kn_data_kernel_reply + 8)]
+		vp_cpy r1, [r0 + ml_msg_data + kn_data_kernel_user]
+		vp_cpy r1, [r0 + ml_msg_data + kn_data_kernel_reply]
+		vp_cpy r1, [r0 + (ml_msg_data + kn_data_kernel_reply + 8)]
 		vp_cpy_cl kn_call_task_route, [r0 + ml_msg_data + kn_data_kernel_function]
 		vp_cpy r8, [r0 + ml_msg_data + kn_data_link_route_origin]
 		vp_cpy r8, [r0 + ml_msg_data + kn_data_link_route_via]

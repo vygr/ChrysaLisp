@@ -52,8 +52,9 @@
 
 		;allocate for kernel routing table
 		vp_sub lk_table_size, r4
-		vp_cpy_cl 0, [r4 + lk_table_array]
-		vp_cpy_cl 0, [r4 + lk_table_array_size]
+		vp_xor r1, r1
+		vp_cpy r1, [r4 + lk_table_array]
+		vp_cpy r1, [r4 + lk_table_array_size]
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernel task loop

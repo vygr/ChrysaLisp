@@ -14,8 +14,9 @@
 		def_structure_end
 
 		vp_sub local_size, r4
-		vp_cpy_cl 0, [r4 + local_x]
-		vp_cpy_cl 0, [r4 + local_y]
+		vp_xor r1, r1
+		vp_cpy r1, [r4 + local_x]
+		vp_cpy r1, [r4 + local_y]
 		vp_cpy [r0 + flow_flags], r1
 		vp_and flow_flag_left, r1
 		if r1, !=, 0

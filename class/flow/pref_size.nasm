@@ -17,8 +17,9 @@
 		def_structure_end
 
 		vp_sub local_size, r4
-		vp_cpy_cl 0, [r4 + local_w]
-		vp_cpy_cl 0, [r4 + local_h]
+		vp_xor r1, r1
+		vp_cpy r1, [r4 + local_w]
+		vp_cpy r1, [r4 + local_h]
 
 		vp_cpy r4, r1
 		vp_lea [rel callback], r2
