@@ -27,10 +27,8 @@ do
 			for ((lcpu_z=$cpu_z-1; lcpu_z<=$cpu_z+1; lcpu_z++))
 			do
 				wrap $lcpu_z
-
 				c1=$cpu
 				c2=$(($wp*$num_cpu*$num_cpu + $cpu_y*$num_cpu + $cpu_x))
-
 				zero_pad $c1
 				c1=$zp
 				zero_pad $c2
@@ -40,10 +38,8 @@ do
 			for ((lcpu_y=$cpu_y-1; lcpu_y<=$cpu_y+1; lcpu_y++))
 			do
 				wrap $lcpu_y
-
 				c1=$cpu
 				c2=$(($cpu_z*$num_cpu*$num_cpu + $wp*$num_cpu + $cpu_x))
-
 				zero_pad $c1
 				c1=$zp
 				zero_pad $c2
@@ -53,10 +49,8 @@ do
 			for ((lcpu_x=$cpu_x-1; lcpu_x<=$cpu_x+1; lcpu_x++))
 			do
 				wrap $lcpu_x
-
 				c1=$cpu
 				c2=$(($cpu_z*$num_cpu*$num_cpu + $cpu_y*$num_cpu + $wp))
-
 				zero_pad $c1
 				c1=$zp
 				zero_pad $c2

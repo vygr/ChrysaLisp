@@ -22,14 +22,12 @@ do
 	links=""
 	c1=$cpu
 	c2=0
-
 	zero_pad $c1
 	c1=$zp
 	zero_pad $c2
 	c2=$zp
 	add_link $c1 $c2
 	links_to_0+="$links"
-
 	boot_cpu $cpu "$links"
 done
 boot_cpu $cpu "$links_to_0"

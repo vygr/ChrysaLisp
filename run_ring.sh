@@ -24,7 +24,6 @@ do
 		c1=$cpu
 		wrap $lcpu
 		c2=$wp
-
 		zero_pad $c1
 		c1=$zp
 		zero_pad $c2
