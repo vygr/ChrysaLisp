@@ -228,3 +228,5 @@ class/view/set_flags
 class/button/layout
 
 class/title/layout
+
+sys/string_hash
