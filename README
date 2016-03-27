@@ -85,6 +85,10 @@ Fully connected network. Each cpu has links to every other cpu. Careful with
 this as you can end up with a very large number of link files and shared mem
 regions.
 
+./run_star.sh <num_cpus>
+
+Star connected network. Each cpu has a link to the first cpu.
+
 ./run_ring.sh <num_cpus>
 
 Ring connected network. Each cpu has links to the next and previous cpus.
