@@ -3,8 +3,8 @@
 
 %include 'class/class_label.inc'
 
-%define button_border_size 2
-%define button_state_pressed 1 << 0
+	button_border_size		equ 2
+	button_state_pressed	equ 1 << 0
 
 	def_class button, label
 	def_method create, class/button/create

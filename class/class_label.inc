@@ -3,7 +3,7 @@
 
 %include 'class/class_view.inc'
 
-%define label_border_size 0
+	label_border_size	equ 0
 
 	def_class label, view
 	def_method create, class/label/create

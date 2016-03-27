@@ -3,11 +3,11 @@
 
 %include 'class/class_view.inc'
 
-%define window_border_size 8
-%define window_drag_left 1 << 0
-%define window_drag_right 1 << 1
-%define window_drag_top 1 << 2
-%define window_drag_bottom 1 << 3
+	window_border_size	equ 8
+	window_drag_left	equ 1 << 0
+	window_drag_right	equ 1 << 1
+	window_drag_top		equ 1 << 2
+	window_drag_bottom	equ 1 << 3
 
 	def_class window, view
 	def_method create, class/window/create

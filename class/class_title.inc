@@ -3,7 +3,7 @@
 
 %include 'class/class_label.inc'
 
-%define title_border_size 1
+	title_border_size	equ 1
 
 	def_class title, label
 	def_method create, class/title/create

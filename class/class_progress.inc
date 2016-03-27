@@ -3,7 +3,7 @@
 
 %include 'class/class_view.inc'
 
-%define progress_border_size 1
+	progress_border_size	equ 1
 
 	def_class progress, view
 	def_method create, class/progress/create
