@@ -54,7 +54,7 @@
 		vp_and 0xff, r1
 		sdl_set_texture_color_mod [r4 + local_texture], r3, r2, r1
 
-		;for each region on the dirty region
+		;for each rect on the dirty region
 		vp_cpy [r4 + local_ctx], r0
 		vp_cpy [r0 + gui_ctx_dirty_region], r0
 		loop_start

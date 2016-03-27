@@ -34,7 +34,7 @@
 		vp_cpy_i r10, [r4 + local_rect + sdl_rect_w]
 		vp_cpy_i r11, [r4 + local_rect + sdl_rect_h]
 
-		;for each region on the dirty region
+		;for each rect on the dirty region
 		vp_cpy [r0 + gui_ctx_dirty_region], r0
 		loop_start
 			vp_cpy [r0 + gui_rect_next], r0
