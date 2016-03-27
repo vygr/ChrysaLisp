@@ -74,15 +74,15 @@
 
 		;open function file
 		sys_open r7, o_rdonly, 0
-		vp_cpy r0, r12
+		vp_cpy r0, r7
 
 		;read into buffer
 		vp_cpy [r8 + ld_statics_block_start], r3
 		vp_lea [r8 + ld_statics_stat_buffer], r2
-		sys_read r12, r3, [r2 + stat_fsize]
+		sys_read r7, r3, [r2 + stat_fsize]
 
 		;close function file
-		sys_close r12
+		sys_close r7
 
 		;check loaded length equals file size
 		vp_xor r0, r0

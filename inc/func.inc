@@ -152,6 +152,8 @@
 		;%1 = function path name
 		;outputs
 		;r0 = 0, else function entry point
+		;trashes
+		;r1-r3, r5-r8
 
 		vp_cpy %1, r0
 		static_call sys_load, bind
