@@ -27,7 +27,7 @@
 		vp_cpy [r0 + gui_statics_screen], r0
 		static_call view, dirty_all
 
-		;sleep just a moment to let all routing finish
+		;sleep just a moment to let all routeing finish
 		vp_cpy 1000000, r0
 		static_call sys_task, sleep
 

@@ -10,18 +10,19 @@
 		vp_cpy r0, [r3 + gui_statics_sdl_funcs]
 
 		;init old region
-		vp_cpy_cl 0, [r3 + gui_statics_old_region]
+		vp_xor r0, r0
+		vp_cpy r0, [r3 + gui_statics_old_region]
 
 		;init last view etc
-		vp_cpy_cl 0, [r3 + gui_statics_last_x_pos]
-		vp_cpy_cl 0, [r3 + gui_statics_last_y_pos]
-		vp_cpy_cl 0, [r3 + gui_statics_last_buttons]
-		vp_cpy_cl 0, [r3 + gui_statics_last_view]
+		vp_cpy r0, [r3 + gui_statics_last_x_pos]
+		vp_cpy r0, [r3 + gui_statics_last_y_pos]
+		vp_cpy r0, [r3 + gui_statics_last_buttons]
+		vp_cpy r0, [r3 + gui_statics_last_view]
 
 		;init region heap
 		vp_lea [r3 + gui_statics_rect_heap], r0
 		vp_cpy gui_rect_size, r1
-		vp_cpy gui_rect_size*32, r2
+		vp_cpy gui_rect_size * 32, r2
 		static_jmp sys_heap, init
 
 	fn_function_end

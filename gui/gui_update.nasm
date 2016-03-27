@@ -192,25 +192,28 @@
 		vp_ret
 
 	draw_down_callback:
-		vp_push r0
-
-		;draw myself
-		vp_cpy [r0 + view_ctx_x], r8
-		vp_cpy [r0 + view_ctx_y], r9
 		vp_lea [r0 + view_dirty_region], r2
-		vp_cpy r8, [r1 + gui_ctx_x]
-		vp_cpy r9, [r1 + gui_ctx_y]
-		vp_cpy r2, [r1 + gui_ctx_dirty_region]
-		method_call view, draw
+		vp_cpy [r2], r3
+		if r3, !=, 0
+			vp_push r0
 
-		;free local dirty region
-		vp_cpy [r4], r1
-		vp_add view_dirty_region, r1
-		static_bind gui_gui, statics, r0
-		vp_lea [r0 + gui_statics_rect_heap], r0
-		static_call gui_region, free
+			;draw myself
+			vp_cpy [r0 + view_ctx_x], r8
+			vp_cpy [r0 + view_ctx_y], r9
+			vp_cpy r8, [r1 + gui_ctx_x]
+			vp_cpy r9, [r1 + gui_ctx_y]
+			vp_cpy r2, [r1 + gui_ctx_dirty_region]
+			method_call view, draw
 
-		vp_pop r0
+			;free local dirty region
+			vp_cpy [r4], r1
+			vp_add view_dirty_region, r1
+			static_bind gui_gui, statics, r0
+			vp_lea [r0 + gui_statics_rect_heap], r0
+			static_call gui_region, free
+
+			vp_pop r0
+		endif
 		vp_cpy r0, r1
 		vp_ret
 

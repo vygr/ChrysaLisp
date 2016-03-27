@@ -96,7 +96,7 @@
 ; gui macros
 ;;;;;;;;;;;;
 
-	%macro nextpatch 2
+	%macro next_rect 2
 		;inputs
 		;%1 = node
 		;%2 = last
@@ -108,7 +108,7 @@
 		breakif %1, ==, 0
 	%endmacro
 
-	%macro removepatch 2
+	%macro remove_rect 2
 		;inputs
 		;%1 = node
 		;%2 = last
@@ -120,7 +120,7 @@
 		vp_cpy %2, %1
 	%endmacro
 
-	%macro addpatch 3
+	%macro add_rect 3
 		;inputs
 		;%1 = list
 		;%2 = node

@@ -21,7 +21,7 @@
 				vp_cpy r2, r5
 				vp_cpy r1, r7
 				loop_start
-					nextpatch r7, r6
+					next_rect r7, r6
 
 					;not in contact ?
 					vp_cpy [r7 + gui_rect_x], r12
@@ -35,7 +35,7 @@
 
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					addpatch r5, r1, r2
+					add_rect r5, r1, r2
 
 					;jump to correct splitting code
 					jmpif r12, >=, r8, copy_split1

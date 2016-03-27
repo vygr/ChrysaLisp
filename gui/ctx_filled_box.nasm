@@ -19,6 +19,7 @@
 			def_long	local_old_stack
 		def_structure_end
 
+		;align stack to 16 bytes for SDl
 		vp_cpy r4, r15
 		vp_sub local_size, r4
 		vp_and -16, r4

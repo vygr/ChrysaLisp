@@ -12,8 +12,8 @@
 		;all but r0, r4
 
 		super_call title, pref_size
-		vp_add 2, r10
-		vp_add 2, r11
+		vp_add title_border_size * 2, r10
+		vp_add title_border_size * 2, r11
 		vp_ret
 
 	fn_function_end

@@ -20,7 +20,7 @@
 				vp_cpy r1, r7
 				loop_start
 				loop:
-					nextpatch r7, r6
+					next_rect r7, r6
 
 					switch
 						vp_cpy [r7 + gui_rect_x], r12
@@ -50,7 +50,7 @@
 
 					;region is outside
 					vp_cpy r7, r5
-					removepatch r7, r6
+					remove_rect r7, r6
 					hp_freecell r0, r5, r6
 				loop_end
 			endif
