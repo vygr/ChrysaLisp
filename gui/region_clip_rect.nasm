@@ -1,6 +1,5 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
-%include 'inc/heap.inc'
 
 	fn_function gui/region_clip_rect
 		;inputs
