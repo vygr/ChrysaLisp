@@ -59,10 +59,7 @@
 		def_long	view_h
 		def_long	view_last_buttons
 		def_long	view_flags
-		def_long	view_red
-		def_long	view_green
-		def_long	view_blue
-		def_long	view_alpha
+		def_long	view_color
 	def_structure_end
 
 %endif

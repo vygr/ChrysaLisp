@@ -18,10 +18,7 @@
 		vp_cpy SCREEN_WIDTH, r10
 		vp_cpy SCREEN_HEIGHT, r11
 		static_call view, change
-		vp_xor r8, r8
-		vp_xor r9, r9
-		vp_xor r10, r10
-		vp_cpy 255, r11
+		vp_cpy 0xff000000, r1
 		static_call view, set_color
 		static_call view, opaque
 

@@ -19,11 +19,11 @@
 		vp_cpy r1, [r4 + local_ctx]
 
 		static_call view, get_color
-		vp_cpy r1, r0
+		vp_cpy [r4 + local_ctx], r0
 		static_call gui_ctx, set_color
 
-		vp_cpy [r4 + local_inst], r1
 		vp_cpy [r4 + local_ctx], r0
+		vp_cpy [r4 + local_inst], r1
 		vp_xor r8, r8
 		vp_xor r9, r9
 		vp_cpy [r1 + view_w], r10

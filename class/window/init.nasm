@@ -18,10 +18,7 @@
 		super_call window, init
 		if r1, !=, 0
 			;init myself
-			vp_cpy 192, r8
-			vp_cpy 192, r9
-			vp_cpy 192, r10
-			vp_cpy 255, r11
+			vp_cpy 0xffc0c0c0, r1
 			static_call window, set_color
 
 			;add my flow panel
@@ -29,10 +26,7 @@
 			fn_assert r0, !=, 0
 			vp_cpy flow_flag_down | flow_flag_fillw | flow_flag_lasth, r1
 			static_call flow, set_flow_flags
-			vp_cpy 255, r8
-			vp_cpy 255, r9
-			vp_cpy 255, r10
-			vp_cpy 255, r11
+			vp_cpy 0xffffffff, r1
 			static_call flow, set_color
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_flow]
@@ -41,10 +35,7 @@
 			;add my title
 			static_call title, create
 			fn_assert r0, !=, 0
-			vp_cpy 192, r8
-			vp_cpy 192, r9
-			vp_cpy 192, r10
-			vp_cpy 255, r11
+			vp_cpy 0xffc0c0c0, r1
 			static_call title, set_color
 			vp_lea [rel title], r1
 			static_call label, set_text
@@ -58,10 +49,7 @@
 			fn_assert r0, !=, 0
 			vp_cpy flow_flag_up | flow_flag_fillw | flow_flag_lasth, r1
 			static_call flow, set_flow_flags
-			vp_cpy 255, r8
-			vp_cpy 255, r9
-			vp_cpy 255, r10
-			vp_cpy 255, r11
+			vp_cpy 0xffffffff, r1
 			static_call flow, set_color
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_panel]
@@ -71,10 +59,7 @@
 			;add my status label
 			static_call label, create
 			fn_assert r0, !=, 0
-			vp_cpy 128, r8
-			vp_cpy 128, r9
-			vp_cpy 128, r10
-			vp_cpy 255, r11
+			vp_cpy 0xff808080, r1
 			static_call label, set_color
 			vp_lea [rel status], r1
 			static_call label, set_text

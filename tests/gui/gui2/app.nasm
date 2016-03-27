@@ -28,20 +28,13 @@
 		;create my window
 		static_call window, create
 		fn_assert r0, !=, 0
-		static_call window, panel
 		vp_cpy r0, [r4 + app_window]
+		static_call window, panel
 		vp_cpy r1, [r4 + app_window_panel]
 		vp_lea [rel title], r1
 		static_call window, set_title
-		vp_cpy [r4 + app_window], r0
 		vp_lea [rel status], r1
 		static_call window, set_status
-
-		;set owner
-		static_call sys_task, tcb
-		vp_cpy r0, r1
-		vp_cpy [r4 + app_window], r0
-		static_call window, set_owner
 
 		;add my panel
 		static_call flow, create
@@ -49,10 +42,7 @@
 		vp_cpy r0, [r4 + app_panel]
 		vp_cpy flow_flag_down | flow_flag_fillw, r1
 		static_call flow, set_flow_flags
-		vp_xor r8, r8
-		vp_xor r9, r9
-		vp_xor r10, r10
-		vp_xor r11, r11
+		vp_xor r1, r1
 		static_call flow, set_color
 		vp_cpy [r4 + app_window_panel], r1
 		static_call flow, add
@@ -60,66 +50,58 @@
 		;add launch buttons to my app panel
 		static_call button, create
 		fn_assert r0, !=, 0
-		vp_cpy 255, r8
-		vp_cpy 255, r9
-		vp_cpy 0, r10
-		vp_cpy 255, r11
+		vp_cpy r0, [r4 + app_button1]
+		vp_cpy 0xffffff00, r1
 		static_call button, set_color
 		vp_lea [rel child_task1], r1
 		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
-		vp_cpy r0, [r4 + app_button1]
 
 		static_call button, create
 		fn_assert r0, !=, 0
-		vp_cpy 255, r8
-		vp_cpy 255, r9
-		vp_cpy 0, r10
-		vp_cpy 255, r11
+		vp_cpy r0, [r4 + app_button2]
+		vp_cpy 0xffffff00, r1
 		static_call button, set_color
 		vp_lea [rel child_task2], r1
 		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
-		vp_cpy r0, [r4 + app_button2]
 
 		static_call button, create
 		fn_assert r0, !=, 0
-		vp_cpy 255, r8
-		vp_cpy 255, r9
-		vp_cpy 0, r10
-		vp_cpy 255, r11
+		vp_cpy r0, [r4 + app_button3]
+		vp_cpy 0xffffff00, r1
 		static_call button, set_color
 		vp_lea [rel child_task3], r1
 		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
-		vp_cpy r0, [r4 + app_button3]
 
 		static_call button, create
 		fn_assert r0, !=, 0
-		vp_cpy 255, r8
-		vp_cpy 255, r9
-		vp_cpy 0, r10
-		vp_cpy 255, r11
+		vp_cpy r0, [r4 + app_button4]
+		vp_cpy 0xffffff00, r1
 		static_call button, set_color
 		vp_lea [rel child_task4], r1
 		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
-		vp_cpy r0, [r4 + app_button4]
 
 		;set to pref size
 		vp_cpy [r4 + app_window], r0
 		method_call window, pref_size
-		vp_cpy [r4 + app_window], r0
 		vp_cpy 256, r8
 		vp_cpy 256, r9
 		static_call window, change
 
-		;add to screen and dirty
+		;set owner
+		static_call sys_task, tcb
+		vp_cpy r0, r1
 		vp_cpy [r4 + app_window], r0
+		static_call window, set_owner
+
+		;add to screen and dirty
 		static_call gui_gui, add
 		static_call window, dirty_all
 

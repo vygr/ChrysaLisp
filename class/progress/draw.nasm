@@ -34,9 +34,12 @@
 		;darker colour
 		vp_cpy [r4 + local_inst], r0
 		static_call view, get_color
-		vp_shr 1, r8
-		vp_shr 1, r9
-		vp_shr 1, r10
+		vp_cpy r1, r2
+		vp_cpy 0xff000000, r3
+		vp_and r3, r1
+		vp_and 0x00fefefe, r2
+		vp_shr 1, r2
+		vp_add r2, r1
 		vp_cpy [r4 + local_ctx], r0
 		static_call gui_ctx, set_color
 
@@ -64,9 +67,12 @@
 		;very darker colour
 		vp_cpy [r4 + local_inst], r0
 		static_call view, get_color
-		vp_shr 2, r8
-		vp_shr 2, r9
-		vp_shr 2, r10
+		vp_cpy r1, r2
+		vp_cpy 0xff000000, r3
+		vp_and r3, r1
+		vp_and 0x00fcfcfc, r2
+		vp_shr 2, r2
+		vp_add r2, r1
 		vp_cpy [r4 + local_ctx], r0
 		static_call gui_ctx, set_color
 

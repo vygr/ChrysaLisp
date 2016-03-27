@@ -24,10 +24,7 @@
 			static_call flow, set_flags
 			vp_cpy flow_flag_right | flow_flag_align_vcenter, r1
 			static_call flow, set_flow_flags
-			vp_xor r8, r8
-			vp_xor r9, r9
-			vp_xor r10, r10
-			vp_xor r11, r11
+			vp_xor r1, r1
 			static_call flow, set_color
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + label_flow]
@@ -38,11 +35,9 @@
 			fn_assert r0, !=, 0
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + label_string]
-			vp_xor r8, r8
-			vp_xor r9, r9
-			vp_xor r10, r10
-			vp_xor r11, r11
+			vp_xor r1, r1
 			static_call string, set_color
+			vp_cpy [r4], r1
 			vp_cpy [r1 + label_flow], r1
 			static_call string, add
 		endif
