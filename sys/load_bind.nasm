@@ -84,6 +84,15 @@
 		;close function file
 		sys_close r12
 
+		;check loaded length equals file size
+		vp_xor r0, r0
+		vp_cpy_i [r3 + fn_header_length], r0
+		if r0, !=, [r2 + stat_fsize]
+			vp_lea [rel size_error], r0
+			sys_write_string 2, r0, size_error_end-size_error
+			sys_exit 1
+		endif
+
 		;add to function list
 		vp_cpy [r8 + ld_statics_function_list], r0
 		vp_cpy r0, [r3]
@@ -92,33 +101,54 @@
 		;relocate vtable so we can discard paths
 		vp_cpy [r8 + ld_statics_reloc_stack], r1
 		vp_cpy r1, r6
+
+		;copy paths to reloc buffer
 		vp_xor r0, r0
-		vp_cpy_i [r3 + fn_header_links], r0
-		vp_lea [r3 + r0], r5
-		loop_start
-		 	vp_cpy [r5], r0
-			breakif r0, ==, 0
-			vp_add r5, r0
-			vp_cpy r1, [r5]
-			vp_call string_copy
-			vp_add 8, r5
+		vp_xor r2, r2
+		vp_cpy_i [r3 + fn_header_paths], r0
+		vp_cpy_i [r3 + fn_header_length], r2
+		vp_add r3, r0
+		vp_add r3, r2
+		loop_while r0, <, r2
+		 	vp_cpy [r0], r5
+			vp_cpy r5, [r1]
+			vp_add 8, r0
+			vp_add 8, r1
 		loop_end
-		vp_add 15, r1
-		vp_and -8, r1
+
+		;push reloc buffer entry
+		vp_add 8, r1
 		vp_cpy r6, [r1 - 8]
 		vp_cpy r1, [r8 + ld_statics_reloc_stack]
 
 		;overflow check
-		vp_lea [r8 + ld_statics_size], r7
-		if r1, >, r7
+		vp_lea [r8 + ld_statics_size], r2
+		if r1, >, r2
 			vp_lea [rel reloc_error], r0
 			sys_write_string 2, r0, reloc_error_end-reloc_error
 			sys_exit 1
 		endif
 
+		;bind links to paths in reloc buffer
+		vp_xor r0, r0
+		vp_xor r2, r2
+		vp_cpy_i [r3 + fn_header_links], r0
+		vp_cpy_i [r3 + fn_header_paths], r2
+		vp_add r3, r0
+		vp_add r3, r2
+		vp_sub r2, r6
+		loop_start
+		 	vp_cpy [r0], r2
+			breakif r2, ==, 0
+			vp_add r0, r2
+			vp_add r6, r2
+			vp_cpy r2, [r0]
+			vp_add 8, r0
+		loop_end
+
 		;adjust block start
-		vp_add 8, r5
-		vp_cpy r5, [r8 + ld_statics_block_start]
+		vp_add 8, r0
+		vp_cpy r0, [r8 + ld_statics_block_start]
 
 		;load and link function references
 		;now actual addresses of strings in the reloc buffer
@@ -188,16 +218,6 @@
 		vp_xor r0, r0
 		vp_ret
 
-	string_copy:
-		loop_start
-			vp_cpy_b [r0], r2
-			vp_cpy_b r2, [r1]
-			vp_inc r0
-			vp_inc r1
-			vp_and 0xff, r2
-		loop_until r2, ==, 0
-		vp_ret
-
 	string_skip:
 		loop_start
 			vp_cpy_b [r0], r1
@@ -213,5 +233,9 @@
 	reloc_error:
 		db 'Reloc buffer overflow !', 10
 	reloc_error_end:
+
+	size_error:
+		db 'Length field error !', 10
+	size_error_end:
 
 	fn_function_end
