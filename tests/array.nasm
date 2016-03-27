@@ -17,7 +17,7 @@
 
 		;open test8 array, off chip
 		vp_cpy r14, r1
-		vp_lea [rel task_eights], r0
+		vp_lea [rel child_tasks], r0
 		static_call sys_task, open_array
 
 		;send exit messages etc
@@ -38,7 +38,7 @@
 		vp_cpy r14, r0
 		static_jmp sys_mem, free
 
-	task_eights:
+	child_tasks:
 		%rep ARRAY_SIZE
 		db 'tests/array_child', 0
 		%endrep

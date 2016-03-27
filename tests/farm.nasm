@@ -18,7 +18,7 @@
 		;open test6 farm, off chip
 		vp_cpy FARM_SIZE, r2
 		vp_cpy r14, r1
-		vp_lea [rel task_six], r0
+		vp_lea [rel child_tasks], r0
 		static_call sys_task, open_farm
 
 		;send exit messages etc
@@ -38,7 +38,7 @@
 		vp_cpy r14, r0
 		static_jmp sys_mem, free
 
-	task_six:
+	child_tasks:
 		db 'tests/farm_child', 0
 
 	fn_function_end

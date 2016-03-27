@@ -17,7 +17,7 @@
 
 		;open test10 pipe, off chip
 		vp_cpy r14, r1
-		vp_lea [rel task_tens], r0
+		vp_lea [rel child_tasks], r0
 		static_call sys_task, open_pipe
 
 		;send exit messages etc
@@ -38,7 +38,7 @@
 		vp_cpy r14, r0
 		static_jmp sys_mem, free
 
-	task_tens:
+	child_tasks:
 		%rep PIPE_SIZE
 		db 'tests/pipe_child', 0
 		%endrep
