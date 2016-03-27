@@ -4,8 +4,8 @@
 %include 'inc/list.inc'
 %include 'inc/heap.inc'
 
-%define SCREEN_WIDTH 1280
-%define SCREEN_HEIGHT 960
+	SCREEN_WIDTH	equ 1280
+	SCREEN_HEIGHT	equ 960
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; gui statics classes

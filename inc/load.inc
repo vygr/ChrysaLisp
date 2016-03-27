@@ -17,9 +17,10 @@
 ; load structures
 ;;;;;;;;;;;;;;;;;
 
-	%assign	ld_block_size	16384
-	%assign	ld_page_size	4096
-	%assign	ld_reloc_size	2048
+	ld_block_size	equ 16384
+	ld_page_size	equ 4096
+
+	%assign ld_reloc_size 2048
 
 	def_structure	ld_statics
 		def_long	ld_statics_function_list

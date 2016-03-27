@@ -39,7 +39,7 @@
 ; task structures
 ;;;;;;;;;;;;;;;;;
 
-	%assign tk_stack_size	1024 * 4
+	%assign tk_stack_size 1024 * 4
 
 	def_structure	tk_node
 		def_struct	tk_node_node, ln_node

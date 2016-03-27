@@ -7,13 +7,13 @@
 ; some NASM data macros
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-	%assign null_size 0
-	%assign byte_size 1
-	%assign short_size 2
-	%assign int_size 4
-	%assign long_size 8
+	%assign null_size	0
+	%assign byte_size	1
+	%assign short_size	2
+	%assign int_size	4
+	%assign long_size	8
 
-	%macro def_structure	1-2 null
+	%macro def_structure 1-2 null
 		;inputs
 		;%1 = structure name
 		;%2 = super structure name
