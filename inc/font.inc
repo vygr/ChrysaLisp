@@ -8,13 +8,13 @@
 ; font static class
 ;;;;;;;;;;;;;;;;;;;
 
-	def_class sys_font
-	def_method statics, sys/font_statics
-	def_method init, sys/font_init
-	def_method deinit, sys/font_deinit
-	def_method open, sys/font_open
-	def_method text, sys/font_text
-	def_method bounds, sys/font_bounds
+	def_class gui_font
+	def_method statics, gui/font_statics
+	def_method init, gui/font_init
+	def_method deinit, gui/font_deinit
+	def_method open, gui/font_open
+	def_method text, gui/font_text
+	def_method bounds, gui/font_bounds
 
 ;;;;;;;;;;;;;;;;;
 ; font structures

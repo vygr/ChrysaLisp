@@ -18,7 +18,7 @@
 			;init myself
 			vp_lea [rel font_name], r0
 			vp_cpy 18, r1
-			static_call sys_font, open
+			static_call gui_font, open
 			fn_assert r0, !=, 0
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + string_font]

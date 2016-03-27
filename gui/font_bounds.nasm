@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/font.inc'
 
-	fn_function sys/font_bounds, no_debug_enter
+	fn_function gui/font_bounds, no_debug_enter
 		;inputs
 		;r0 = font entry
 		;r1 = text
@@ -12,7 +12,7 @@
 		;trashes
 		;r1-r3, r5-r6
 
-		static_call sys_font, text
+		static_call gui_font, text
 		if r0, ==, 0
 			vp_xor r10, r10
 			vp_xor r11, r11

@@ -4,7 +4,7 @@
 %include 'inc/sdl2.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/font_open, no_debug_enter
+	fn_function gui/font_open, no_debug_enter
 		;inputs
 		;r0 = font name
 		;r1 = point size
@@ -25,7 +25,7 @@
 		vp_cpy r1, [r4 + local_points]
 
 		;get font statics
-		static_bind sys_font, statics, r5
+		static_bind gui_font, statics, r5
 
 		;search font list
 		loop_list_forward r5 + ft_statics_font_list, r6, r5
@@ -87,7 +87,7 @@
 			vp_cpy r0, [r13 + ft_font_height]
 
 			vp_cpy r13, r0
-			static_bind sys_font, statics, r5
+			static_bind gui_font, statics, r5
 			vp_add ft_statics_font_list, r5
 			lh_add_at_tail r5, r0, r1
 		endif

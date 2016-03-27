@@ -4,7 +4,7 @@
 %include 'inc/sdl2.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/font_text, no_debug_enter
+	fn_function gui/font_text, no_debug_enter
 		;inputs
 		;r0 = font entry
 		;r1 = text
@@ -28,7 +28,7 @@
 		vp_cpy r1, [r4 + local_text]
 
 		;get font statics
-		static_bind sys_font, statics, r5
+		static_bind gui_font, statics, r5
 
 		;search text list
 		loop_list_forward r5 + ft_statics_text_list, r6, r5
@@ -106,7 +106,7 @@
 				sdl_set_texture_blend_mode [r13 + ft_text_texture], SDL_BLENDMODE_BLEND
 
 				vp_cpy r13, r0
-				static_bind sys_font, statics, r5
+				static_bind gui_font, statics, r5
 				vp_add ft_statics_text_list, r5
 				lh_add_at_tail r5, r0, r1
 			endif

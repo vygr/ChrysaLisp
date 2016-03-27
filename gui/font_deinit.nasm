@@ -2,9 +2,9 @@
 %include 'inc/font.inc'
 %include 'inc/sdl2.inc'
 
-	fn_function sys/font_deinit, no_debug_enter
+	fn_function gui/font_deinit, no_debug_enter
 		;get font statics
-		static_bind sys_font, statics, r15
+		static_bind gui_font, statics, r15
 
 		;free all text in the cache
 		loop_list_forward r15 + ft_statics_text_list, r13, r14

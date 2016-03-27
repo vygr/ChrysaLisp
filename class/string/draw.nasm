@@ -25,7 +25,7 @@
 		if r1, !=, 0
 			vp_cpy [r0 + string_font], r0
 			if r0, !=, 0
-				static_call sys_font, text
+				static_call gui_font, text
 				if r0, !=, 0
 					vp_xor r8, r8
 					vp_xor r9, r9

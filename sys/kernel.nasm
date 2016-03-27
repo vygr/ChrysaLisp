@@ -29,7 +29,7 @@
 		static_call sys_link, init
 
 		;init font
-		static_call sys_font, init
+		static_call gui_font, init
 
 		;start kernel task
 		static_call sys_task, start
@@ -285,7 +285,7 @@
 		loop_end
 
 		;deinit font
-		static_call sys_font, deinit
+		static_call gui_font, deinit
 
 		;deinit gui
 		static_call gui_gui, deinit
