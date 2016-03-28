@@ -405,7 +405,9 @@
 		;%2 = list node
 		;%3 = list last
 
-		vp_lea [%1], %2
+		%ifnidn %1, %2
+			vp_lea [%1], %2
+		%endif
 		loop_start
 			next_fnode %2, %3
 	%endmacro
