@@ -395,6 +395,21 @@
 			breakif %2, ==, 0
 	%endmacro
 
+	%macro loop_flist_forward 3
+		;inputs
+		;%1 = list head
+		;%2 = list node
+		;%3 = list last
+		;outputs
+		;%1 = list head
+		;%2 = list node
+		;%3 = list last
+
+		vp_lea [%1], %2
+		loop_start
+			next_fnode %2, %3
+	%endmacro
+
 ;;;;;;;;;;;;;;;;;;;;;
 ; forward list macros
 ;;;;;;;;;;;;;;;;;;;;;

@@ -6,12 +6,10 @@
 		static_bind sys_load, statics, r0
 
 		;free all function blocks
-		vp_cpy [r0 + ld_statics_block_list], r1
-		loop_start
-			breakif r1, ==, 0
-			vp_cpy [r1], r3
-			sys_munmap r1, ld_block_size
-			vp_cpy r3, r1
+		loop_flist_forward r0 + ld_statics_block_list, r1, r2
+			vp_cpy r1, r0
+			remove_fnode r1, r2
+			sys_munmap r0, ld_block_size
 		loop_end
 		vp_ret
 

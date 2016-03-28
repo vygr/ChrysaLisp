@@ -17,11 +17,8 @@
 				;run through source region list
 				vp_cpy r2, r5
 				vp_cpy r1, r6
-				vp_cpy r1, r7
 				vp_sub 8, r4
-				loop_start
-					next_fnode r7, [r4]
-
+				loop_flist_forward r1, r7, [r4]
 					;not in contact ?
 					vp_cpy [r7 + gui_rect_x], r12
 					continueif r12, >=, r10

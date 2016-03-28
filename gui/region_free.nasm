@@ -9,12 +9,10 @@
 		;r1-r3
 
 		;run through source region list
-		vp_cpy [r1], r2
-		vp_cpy_cl 0, [r1]
-		loop_while r2, !=, 0
-			vp_cpy r2, r1
-			vp_cpy [r2 + ln_fnode_next], r2
-			hp_freecell r0, r1, r3
+		loop_flist_forward r1, r1, r2
+			vp_cpy r1, r3
+			remove_fnode r1, r2
+			hp_freecell r0, r3, r2
 		loop_end
 		vp_ret
 

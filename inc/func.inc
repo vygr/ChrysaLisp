@@ -63,8 +63,7 @@
 ; func structures
 ;;;;;;;;;;;;;;;;;
 
-	def_structure	fn_header
-		def_long	fn_header_next
+	def_structure	fn_header, ln_fnode
 		def_int		fn_header_length
 		def_int		fn_header_entry
 		def_int		fn_header_links
