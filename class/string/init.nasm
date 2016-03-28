@@ -16,7 +16,7 @@
 		super_call string, init
 		if r1, !=, 0
 			;init myself
-			vp_lea [rel font_name], r0
+			vp_adr font_name, r0
 			vp_cpy 18, r1
 			static_call gui_font, open
 			fn_assert r0, !=, 0

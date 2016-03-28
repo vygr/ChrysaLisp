@@ -18,7 +18,7 @@
 		;open test6 farm, off chip
 		vp_cpy FARM_SIZE, r2
 		vp_cpy r14, r1
-		vp_lea [rel child_tasks], r0
+		vp_adr child_tasks, r0
 		static_call sys_task, open_farm
 
 		;send exit messages etc

@@ -14,7 +14,7 @@
 		vp_cpy r0, r7
 
 		;get loader statics !
-		vp_lea [rel _func_start], r8
+		vp_adr _func_start, r8
 		vp_xor r0, r0
 		vp_cpy_i [r8 + fn_header_length], r0
 		vp_add r0, r8
@@ -84,7 +84,7 @@
 		vp_xor r0, r0
 		vp_cpy_i [r3 + fn_header_length], r0
 		if r0, !=, [r2 + stat_fsize]
-			vp_lea [rel size_error], r0
+			vp_adr size_error, r0
 			sys_write_string 2, r0, size_error_end-size_error
 			sys_exit 1
 		endif
@@ -118,7 +118,7 @@
 		;overflow check
 		vp_lea [r8 + ld_statics_size], r2
 		if r1, >, r2
-			vp_lea [rel reloc_error], r0
+			vp_adr reloc_error, r0
 			sys_write_string 2, r0, reloc_error_end-reloc_error
 			sys_exit 1
 		endif
@@ -157,7 +157,7 @@
 			vp_call ld_load_function
 			if r0, ==, 0
 				;no such file
-				vp_lea [rel bind_error], r0
+				vp_adr bind_error, r0
 				sys_write_string 2, r0, bind_error_end-bind_error
 				vp_cpy [r4 + 8], r0
 				vp_cpy [r0], r0
@@ -177,7 +177,7 @@
 		loop_end
 
 		;get loader statics !
-		vp_lea [rel _func_start], r8
+		vp_adr _func_start, r8
 		vp_xor r0, r0
 		vp_cpy_i [r8 + fn_header_length], r0
 		vp_add r0, r8

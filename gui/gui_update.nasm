@@ -24,15 +24,15 @@
 		;setting abs cords
 		vp_xor r8, r8
 		vp_xor r9, r9
-		vp_lea [rel abs_down_callback], r2
-		vp_lea [rel abs_up_callback], r3
+		vp_adr abs_down_callback, r2
+		vp_adr abs_up_callback, r3
 		static_call view, backward_tree
 
 		;iterate through views back to front
 		;create visible region at root
 		vp_cpy r0, r1
-		vp_lea [rel null_func_down_callback], r2
-		vp_lea [rel visible_up_callback], r3
+		vp_adr null_func_down_callback, r2
+		vp_adr visible_up_callback, r3
 		static_call view, backward_tree
 
 %ifdef dual_buffers
@@ -71,15 +71,15 @@
 		;iterate through views front to back
 		;distribute visible region
 		vp_cpy r0, r1
-		vp_lea [rel null_func_down_callback], r2
-		vp_lea [rel distribute_up_callback], r3
+		vp_adr null_func_down_callback, r2
+		vp_adr distribute_up_callback, r3
 		static_call view, forward_tree
 
 		;iterate through views back to front
 		;drawing each view
 		vp_lea [r4 + local_ctx], r1
-		vp_lea [rel draw_down_callback], r2
-		vp_lea [rel null_func_up_callback], r3
+		vp_adr draw_down_callback, r2
+		vp_adr null_func_up_callback, r3
 		static_call view, backward_tree
 
 		vp_add local_size, r4

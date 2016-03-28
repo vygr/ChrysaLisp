@@ -17,7 +17,7 @@
 
 		;open test10 pipe, off chip
 		vp_cpy r14, r1
-		vp_lea [rel child_tasks], r0
+		vp_adr child_tasks, r0
 		static_call sys_task, open_pipe
 
 		;send exit messages etc

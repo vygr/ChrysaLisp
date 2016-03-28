@@ -36,9 +36,9 @@
 		vp_cpy r0, [r4 + app_window]
 		static_call window, get_panel
 		vp_cpy r1, [r4 + app_window_panel]
-		vp_lea [rel title], r1
+		vp_adr title, r1
 		static_call window, set_title
-		vp_lea [rel status], r1
+		vp_adr status, r1
 		static_call window, set_status
 
 		;add my panel
@@ -108,7 +108,7 @@
 
 		;open global farm
 		vp_cpy r0, r1
-		vp_lea [rel child_task], r0
+		vp_adr child_task, r0
 		vp_cpy [r4 + app_cpu_total], r2
 		static_call sys_task, open_global
 

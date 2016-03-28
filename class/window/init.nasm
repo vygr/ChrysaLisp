@@ -37,7 +37,7 @@
 			fn_assert r0, !=, 0
 			vp_cpy 0xffc0c0c0, r1
 			static_call title, set_color
-			vp_lea [rel title], r1
+			vp_adr title, r1
 			static_call label, set_text
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_title]
@@ -61,7 +61,7 @@
 			fn_assert r0, !=, 0
 			vp_cpy 0xff808080, r1
 			static_call label, set_color
-			vp_lea [rel status], r1
+			vp_adr status, r1
 			static_call label, set_text
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_status]

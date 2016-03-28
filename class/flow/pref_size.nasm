@@ -22,7 +22,7 @@
 		vp_cpy r1, [r4 + local_h]
 
 		vp_cpy r4, r1
-		vp_lea [rel callback], r2
+		vp_adr callback, r2
 		static_call flow, backward
 
 		vp_cpy [r4 + local_w], r10

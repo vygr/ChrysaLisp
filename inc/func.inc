@@ -233,10 +233,10 @@
 					vp_sub 8, r2
 				loop_end
 
-				vp_lea [rel _func_start + fn_header_pathname], r0
+				vp_adr _func_start + fn_header_pathname, r0
 				vp_cpy 2, r1
 				static_call sys_io, string
-				vp_lea [rel %%over], r0
+				vp_adr %%over, r0
 				vp_cpy 2, r1
 				static_call sys_io, string
 				vp_pop r0

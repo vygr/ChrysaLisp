@@ -20,7 +20,7 @@
 		vp_cpy r0, r14
 
 		;open test12 global farm, off chip
-		vp_lea [rel child_tasks], r0
+		vp_adr child_tasks, r0
 		vp_cpy r14, r1
 		vp_cpy r12, r2
 		static_call sys_task, open_global

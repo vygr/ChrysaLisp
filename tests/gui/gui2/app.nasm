@@ -31,9 +31,9 @@
 		vp_cpy r0, [r4 + app_window]
 		static_call window, get_panel
 		vp_cpy r1, [r4 + app_window_panel]
-		vp_lea [rel title], r1
+		vp_adr title, r1
 		static_call window, set_title
-		vp_lea [rel status], r1
+		vp_adr status, r1
 		static_call window, set_status
 
 		;add my panel
@@ -53,7 +53,7 @@
 		vp_cpy r0, [r4 + app_button1]
 		vp_cpy 0xffffff00, r1
 		static_call button, set_color
-		vp_lea [rel child_task1], r1
+		vp_adr child_task1, r1
 		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
@@ -63,7 +63,7 @@
 		vp_cpy r0, [r4 + app_button2]
 		vp_cpy 0xffffff00, r1
 		static_call button, set_color
-		vp_lea [rel child_task2], r1
+		vp_adr child_task2, r1
 		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
@@ -73,7 +73,7 @@
 		vp_cpy r0, [r4 + app_button3]
 		vp_cpy 0xffffff00, r1
 		static_call button, set_color
-		vp_lea [rel child_task3], r1
+		vp_adr child_task3, r1
 		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
@@ -83,7 +83,7 @@
 		vp_cpy r0, [r4 + app_button4]
 		vp_cpy 0xffffff00, r1
 		static_call button, set_color
-		vp_lea [rel child_task4], r1
+		vp_adr child_task4, r1
 		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
@@ -122,19 +122,19 @@
 			if r2, ==, 0
 				switch
 				case r1, ==, [r4 + app_button1]
-					vp_lea [rel child_task1], r0
+					vp_adr child_task1, r0
 					static_call sys_task, open_child
 					break
 				case r1, ==, [r4 + app_button2]
-					vp_lea [rel child_task2], r0
+					vp_adr child_task2, r0
 					static_call sys_task, open_child
 					break
 				case r1, ==, [r4 + app_button3]
-					vp_lea [rel child_task3], r0
+					vp_adr child_task3, r0
 					static_call sys_task, open_child
 					break
 				case r1, ==, [r4 + app_button4]
-					vp_lea [rel child_task4], r0
+					vp_adr child_task4, r0
 					static_call sys_task, open_child
 					break
 				default

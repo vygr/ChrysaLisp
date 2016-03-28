@@ -24,13 +24,13 @@
 		vp_sub	local_size, r4
 		vp_cpy r0, [r4 + local_inst]
 		vp_cpy_cl 0, [r4 + local_hit]
-		vp_lea [rel early_ret], r1
+		vp_adr early_ret, r1
 		vp_cpy r1, [r4 + local_jump]
 
 		;iterate through views front to back
 		vp_cpy r4, r1
-		vp_lea [rel hit_down_callback], r2
-		vp_lea [rel hit_up_callback], r3
+		vp_adr hit_down_callback, r2
+		vp_adr hit_up_callback, r3
 		static_call view, forward_tree
 
 	early_ret:

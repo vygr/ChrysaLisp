@@ -13,15 +13,15 @@ main:
 	vp_push r6
 
 	;init loader and prebind
-	vp_lea [rel ld_load_init_loader], r1
+	vp_adr ld_load_init_loader, r1
 	vp_xor r2, r2
 	vp_cpy_i [r1 + fn_header_entry], r2
 	vp_add r2, r1
 	vp_call r1
 
 	;init gui
-	vp_lea [rel sdl_func_table], r0
-	vp_lea [rel ld_gui_init_gui], r1
+	vp_adr sdl_func_table, r0
+	vp_adr ld_gui_init_gui, r1
 	vp_xor r2, r2
 	vp_cpy_i [r1 + fn_header_entry], r2
 	vp_add r2, r1
@@ -29,7 +29,7 @@ main:
 
 	;jump to kernel task
 	vp_pop r0
-	vp_lea [rel ld_kernel], r1
+	vp_adr ld_kernel, r1
 	vp_xor r2, r2
 	vp_cpy_i [r1 + fn_header_entry], r2
 	vp_add r2, r1

@@ -43,7 +43,7 @@
 		vp_cpy r5, r0
 		if r6, ==, 0
 			;no so try create it
-			vp_lea [rel kernel_callback], r0
+			vp_adr kernel_callback, r0
 			vp_cpy r4, r1
 			static_call sys_task, callback
 			vp_cpy [r4 + local_handle], r0

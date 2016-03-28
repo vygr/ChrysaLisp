@@ -262,6 +262,10 @@
 		lea %2, %1
 	%endmacro
 
+	%macro vp_adr 2
+		lea %2, [rel %1]
+	%endmacro
+
 	%macro vp_inc 1
 		inc %1
 	%endmacro
