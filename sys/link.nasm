@@ -6,6 +6,13 @@
 	fn_function sys/link, no_debug_enter
 		;started by kernel for each link
 
+		;decrement task count
+		;don't count links in load balencing
+		static_bind sys_task, statics, r0
+		vp_cpy [r0 + tk_statics_task_count], r1
+		vp_dec r1
+		vp_cpy r1, [r0 + tk_statics_task_count]
+
 		;allocate link node on stack and link to links list
 		vp_sub lk_node_size, r4
 		vp_xor r1, r1
@@ -219,6 +226,12 @@
 		vp_lea [r4 + lk_node_node], r0
 		ln_remove_node r0, r1
 		vp_add lk_node_size, r4
+
+		;increment task count
+		static_bind sys_task, statics, r0
+		vp_cpy [r0 + tk_statics_task_count], r1
+		vp_inc r1
+		vp_cpy r1, [r0 + tk_statics_task_count]
 		vp_ret
 
 	fn_function_end
