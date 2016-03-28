@@ -7,10 +7,10 @@
 		;r8 = x translation
 		;r9 = y translation
 		;trashes
-		;r0, r1
+		;r0
 
 		;run through source region list
-		loop_flist_forward r0, r0, r1
+		loop_flist_forward r0, r0, r0
 			vp_add r8, [r0 + gui_rect_x]
 			vp_add r9, [r0 + gui_rect_y]
 			vp_add r8, [r0 + gui_rect_x1]

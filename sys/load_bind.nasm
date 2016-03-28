@@ -23,7 +23,7 @@
 
 		;check if function already present !
 		vp_xor r5, r5
-		loop_flist_forward r8 + ld_statics_function_list, r6, r0
+		loop_flist_forward r8 + ld_statics_function_list, r6, r6
 			vp_cpy r7, r0
 			vp_lea [r6 + fn_header_pathname], r1
 			vp_call string_compare
