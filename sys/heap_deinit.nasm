@@ -10,13 +10,11 @@
 		;trashes
 		;r0-r3
 
-		vp_cpy r0, r2
-		vp_cpy [r2 + hp_heap_blocklist], r1
-		loop_start
-			breakif r1, ==, 0
-			vp_cpy [r1 + hp_block_next], r3
-			sys_munmap r1, [r2 + hp_heap_blocksize]
-			vp_cpy r3, r1
+		vp_cpy r0, r1
+		loop_flist_forward r0 + hp_heap_blocklist, r2, r3
+			vp_cpy r2, r0
+			remove_fnode r2, r3
+			sys_munmap r0, [r1 + hp_heap_blocksize]
 		loop_end
 		vp_ret
 

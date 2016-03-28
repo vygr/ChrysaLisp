@@ -34,14 +34,6 @@
 		def_long	hp_heap_blocksize
 	def_structure_end
 
-	def_structure	hp_cell
-		def_long	hp_cell_next
-	def_structure_end
-
-	def_structure	hp_block
-		def_long	hp_block_next
-	def_structure_end
-
 ;;;;;;;;;;;;;
 ; heap macros
 ;;;;;;;;;;;;;
@@ -56,9 +48,7 @@
 		;%2 = cell
 		;%3 = old first cell
 
-		vp_cpy [%1 + hp_heap_freelist], %3
-		vp_cpy %2, [%1 + hp_heap_freelist]
-		vp_cpy %3, [%2 + hp_cell_next]
+		add_fnode %1 + hp_heap_freelist, %2, %3
 	%endmacro
 
 %endif
