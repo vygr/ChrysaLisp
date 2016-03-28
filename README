@@ -93,6 +93,11 @@ Star connected network. Each cpu has a link to the first cpu.
 
 Ring connected network. Each cpu has links to the next and previous cpus.
 
+./run_tree.sh <num_cpus>
+
+Tree connected network. Each cpu has links to its parent cpu and up to two
+children cpus.
+
 ./run_mesh.sh <num_cpus on a side>
 
 Mesh connected network. Each cpu has links to 4 adjacent cpus.
