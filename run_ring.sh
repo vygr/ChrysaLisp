@@ -21,12 +21,10 @@ do
 	links=""
 	for ((lcpu=$cpu-1; lcpu<=$cpu+1; lcpu++))
 	do
-		c1=$cpu
 		wrap $lcpu
-		c2=$wp
-		zero_pad $c1
+		zero_pad $cpu
 		c1=$zp
-		zero_pad $c2
+		zero_pad $wp
 		c2=$zp
 		add_link $c1 $c2
 	done

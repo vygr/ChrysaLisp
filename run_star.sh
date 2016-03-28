@@ -20,11 +20,9 @@ links_to_0=""
 for ((cpu=$num_cpu-1; cpu>0; cpu--))
 do
 	links=""
-	c1=$cpu
-	c2=0
-	zero_pad $c1
+	zero_pad $cpu
 	c1=$zp
-	zero_pad $c2
+	zero_pad 0
 	c2=$zp
 	add_link $c1 $c2
 	links_to_0+="$links"
