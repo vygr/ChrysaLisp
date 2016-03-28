@@ -21,6 +21,10 @@
 		;deinit region heap
 		static_call sys_heap, deinit
 
+		;deinit signal heap
+		vp_lea [r5 + gui_statics_signal_heap], r0
+		static_call sys_heap, deinit
+
 		;destroy any window
 		vp_cpy [r5 + gui_statics_window], r14
 		if r14, !=, 0

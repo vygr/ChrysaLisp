@@ -34,8 +34,7 @@
 		def_long	ml_mailbox_tcb
 	def_structure_end
 
-	def_structure	ml_msg
-		def_struct	ml_msg_node, ln_node
+	def_structure	ml_msg, ln_node
 		def_long	ml_msg_length
 		def_struct	ml_msg_dest, mailbox_id
 		def_struct	ml_msg_parcel_id, mailbox_id

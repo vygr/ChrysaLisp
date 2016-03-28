@@ -16,7 +16,7 @@
 			vp_add r9, [r0 + gui_rect_y]
 			vp_add r8, [r0 + gui_rect_x1]
 			vp_add r9, [r0 + gui_rect_y1]
-			vp_cpy [r0 + gui_rect_next], r0
+			vp_cpy [r0 + ln_fnode_next], r0
 		loop_end
 		vp_ret
 

@@ -20,7 +20,7 @@
 				vp_cpy r1, r7
 				vp_sub 8, r4
 				loop_start
-					next_rect r7, [r4]
+					next_fnode r7, [r4]
 
 					;not in contact ?
 					vp_cpy [r7 + gui_rect_x], r12
@@ -45,7 +45,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r8, [r1 + gui_rect_x]
 					vp_cpy r9, [r1 + gui_rect_y]
 					vp_cpy r10, [r1 + gui_rect_x1]
@@ -53,7 +53,7 @@
 					;right part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r10, [r1 + gui_rect_x]
 					vp_cpy r9, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -61,7 +61,7 @@
 					;left part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r9, [r1 + gui_rect_y]
 					vp_cpy r8, [r1 + gui_rect_x1]
@@ -69,7 +69,7 @@
 					;top part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -89,7 +89,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r9, [r1 + gui_rect_y]
 					vp_cpy r10, [r1 + gui_rect_x1]
@@ -97,7 +97,7 @@
 					;right part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r10, [r1 + gui_rect_x]
 					vp_cpy r9, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -105,7 +105,7 @@
 					;top part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -124,7 +124,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r8, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r10, [r1 + gui_rect_x1]
@@ -132,7 +132,7 @@
 					;right part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r10, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -140,7 +140,7 @@
 					;left part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r8, [r1 + gui_rect_x1]
@@ -159,7 +159,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r10, [r1 + gui_rect_x1]
@@ -167,7 +167,7 @@
 					;right part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r10, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -185,7 +185,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r8, [r1 + gui_rect_x]
 					vp_cpy r9, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -193,7 +193,7 @@
 					;left part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r9, [r1 + gui_rect_y]
 					vp_cpy r8, [r1 + gui_rect_x1]
@@ -201,7 +201,7 @@
 					;top part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -219,7 +219,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r9, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -227,7 +227,7 @@
 					;top part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -245,7 +245,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r8, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -253,7 +253,7 @@
 					;left part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r8, [r1 + gui_rect_x1]
@@ -271,7 +271,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -286,7 +286,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r8, [r1 + gui_rect_x]
 					vp_cpy r9, [r1 + gui_rect_y]
 					vp_cpy r10, [r1 + gui_rect_x1]
@@ -294,7 +294,7 @@
 					;right part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r10, [r1 + gui_rect_x]
 					vp_cpy r9, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -302,7 +302,7 @@
 					;top part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -313,8 +313,8 @@
 					;region is enclosed
 					vp_cpy r7, r1
 					vp_cpy [r4], r2
-					remove_rect r7, r2
-					add_rect r5, r1, r2
+					remove_fnode r7, r2
+					add_fnode r5, r1, r2
 					continue
 
 				cut_x:
@@ -324,7 +324,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r8, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -338,7 +338,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r9, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -353,7 +353,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r8, [r1 + gui_rect_x]
 					vp_cpy r9, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -361,7 +361,7 @@
 					;top part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]
@@ -375,7 +375,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r10, [r1 + gui_rect_x1]
@@ -389,7 +389,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r8, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r10, [r1 + gui_rect_x1]
@@ -397,7 +397,7 @@
 					;left part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r8, [r1 + gui_rect_x1]
@@ -412,7 +412,7 @@
 					;cut part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r5, r1, r2
+					add_fnode r5, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r9, [r1 + gui_rect_y]
 					vp_cpy r10, [r1 + gui_rect_x1]
@@ -420,7 +420,7 @@
 					;top part
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_rect r6, r1, r2
+					add_fnode r6, r1, r2
 					vp_cpy r12, [r1 + gui_rect_x]
 					vp_cpy r13, [r1 + gui_rect_y]
 					vp_cpy r14, [r1 + gui_rect_x1]

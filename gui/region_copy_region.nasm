@@ -32,7 +32,7 @@
 		;run through copy region list
 		vp_cpy [r3], r1
 		loop_while r1, !=, 0
-			vp_cpy [r1 + gui_rect_next], r2
+			vp_cpy [r1 + ln_fnode_next], r2
 			vp_cpy r2, [r4 + local_next]
 			vp_cpy [r1 + gui_rect_x], r8
 			vp_cpy [r1 + gui_rect_y], r9

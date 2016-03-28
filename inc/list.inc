@@ -29,6 +29,10 @@
 		def_long	ln_node_pred
 	def_structure_end
 
+	def_structure	ln_fnode
+		def_long	ln_fnode_next
+	def_structure_end
+
 ;;;;;;;;;;;;;;;;;;
 ; list node macros
 ;;;;;;;;;;;;;;;;;;
@@ -389,6 +393,47 @@
 			vp_cpy %2, %3
 			ln_get_pred %2, %2
 			breakif %2, ==, 0
+	%endmacro
+
+;;;;;;;;;;;;;;;;;;;;;
+; forward list macros
+;;;;;;;;;;;;;;;;;;;;;
+
+	%macro next_fnode 2
+		;inputs
+		;%1 = node
+		;%2 = last
+		;trashes
+		;%1, %2
+
+		vp_cpy %1, %2
+		vp_cpy [%1 + ln_fnode_next], %1
+		breakif %1, ==, 0
+	%endmacro
+
+	%macro remove_fnode 2
+		;inputs
+		;%1 = node
+		;%2 = last
+		;trashes
+		;%1
+
+		vp_cpy [%1 + ln_fnode_next], %1
+		vp_cpy %1, [%2 + ln_fnode_next]
+		vp_cpy %2, %1
+	%endmacro
+
+	%macro add_fnode 3
+		;inputs
+		;%1 = list
+		;%2 = node
+		;%3 = temp
+		;trashes
+		;%3
+
+		vp_cpy [%1 + ln_fnode_next], %3
+		vp_cpy %3, [%2 + ln_fnode_next]
+		vp_cpy %2, [%1 + ln_fnode_next]
 	%endmacro
 
 %endif

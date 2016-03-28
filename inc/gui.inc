@@ -44,6 +44,7 @@
 	def_structure	gui_statics
 		def_long	gui_statics_sdl_funcs
 		def_struct	gui_statics_rect_heap, hp_heap
+		def_struct	gui_statics_signal_heap, hp_heap
 		def_long	gui_statics_window
 		def_long	gui_statics_screen
 		def_long	gui_statics_renderer
@@ -57,8 +58,7 @@
 		def_long	gui_statics_last_view
 	def_structure_end
 
-	def_structure	gui_rect
-		def_long	gui_rect_next
+	def_structure	gui_rect, ln_fnode
 		def_long	gui_rect_x
 		def_long	gui_rect_y
 		def_long	gui_rect_x1
@@ -70,6 +70,12 @@
 		def_long	gui_ctx_dirty_region
 		def_long	gui_ctx_x
 		def_long	gui_ctx_y
+	def_structure_end
+
+	def_structure	gui_signal, ln_fnode
+		def_long	gui_signal_next
+		def_long	gui_signal_inst
+		def_long	gui_signal_method
 	def_structure_end
 
 ;;;;;;;;;;;;;;;
@@ -91,46 +97,5 @@
 		def_long	ev_data_buttons
 		def_long	ev_data_key
 	def_structure_end
-
-;;;;;;;;;;;;
-; gui macros
-;;;;;;;;;;;;
-
-	%macro next_rect 2
-		;inputs
-		;%1 = node
-		;%2 = last
-		;trashes
-		;%1, %2
-
-		vp_cpy %1, %2
-		vp_cpy [%1 + gui_rect_next], %1
-		breakif %1, ==, 0
-	%endmacro
-
-	%macro remove_rect 2
-		;inputs
-		;%1 = node
-		;%2 = last
-		;trashes
-		;%1
-
-		vp_cpy [%1 + gui_rect_next], %1
-		vp_cpy %1, [%2 + gui_rect_next]
-		vp_cpy %2, %1
-	%endmacro
-
-	%macro add_rect 3
-		;inputs
-		;%1 = list
-		;%2 = node
-		;%3 = temp
-		;trashes
-		;%3
-
-		vp_cpy [%1 + gui_rect_next], %3
-		vp_cpy %3, [%2 + gui_rect_next]
-		vp_cpy %2, [%1 + gui_rect_next]
-	%endmacro
 
 %endif
