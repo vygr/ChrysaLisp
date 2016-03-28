@@ -25,7 +25,7 @@
 		vp_cpy r9, [r4 + local_dy]
 
 		;run through source region list
-		loop_flist_forward r1, r1, r2
+		loop_flist_forward r1, r1, r1
 			vp_cpy r1, [r4 + local_node]
 
 			vp_cpy [r1 + gui_rect_x], r8
