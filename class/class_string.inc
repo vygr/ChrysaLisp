@@ -9,6 +9,7 @@
 	def_method init, class/string/init
 	def_method set_font, class/string/set_font
 	def_method set_text, class/string/set_text
+	def_method get_text, class/string/get_text
 	def_method set_text_color, class/string/set_text_color
 
 	def_method pref_size, class/string/pref_size, override

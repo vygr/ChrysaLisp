@@ -75,21 +75,47 @@
 ; func macros
 ;;;;;;;;;;;;;
 
+	%macro fn_add_string 1
+		;inputs
+		;%1 = string
+
+		%assign _string_num_ 0
+		%rep _string_total_
+			%ifidn _string_str_%[_string_num_]_, %1
+				%exitrep
+			%else
+				%assign _string_num_ _string_num_ + 1
+			%endif
+		%endrep
+		%if _string_num_ = _string_total_
+			%define _string_str_%[_string_num_]_ %1
+			%assign _string_total_ _string_total_ + 1
+		%endif
+	%endmacro
+
+	%macro fn_string 2
+		;inputs
+		;%1 = string
+		;%2 = register
+
+		fn_add_string %1
+		vp_adr _ref_%[_string_num_]_string, %2
+	%endmacro
+
 	%macro fn_add_path 1
 		;inputs
 		;%1 = function path name
 
 		%assign _path_num_ 0
 		%rep _path_total_
-			%deftok %%_path_ _path_str_%[_path_num_]_
-			%ifidn %%_path_, %1
+			%ifidn _path_str_%[_path_num_]_, %1
 				%exitrep
 			%else
 				%assign _path_num_ _path_num_ + 1
 			%endif
 		%endrep
 		%if _path_num_ = _path_total_
-			%defstr _path_str_%[_path_num_]_ %1
+			%define _path_str_%[_path_num_]_ %1
 			%assign _path_total_ _path_total_ + 1
 		%endif
 	%endmacro
@@ -109,8 +135,7 @@
 
 		%assign _link_num_ 0
 		%rep _link_total_
-			%deftok %%_path_ _path_str_%[_link_%[_link_num_]_path_num_]_
-			%ifidn %%_path_, %1
+			%ifidn _path_str_%[_link_%[_link_num_]_path_num_]_, %1
 				%exitrep
 			%else
 				%assign _link_num_ _link_num_ + 1
@@ -127,7 +152,7 @@
 		;%2 = register
 
 		fn_find_link %1
-		vp_cpy [rel _func_%[_link_num_]], %2
+		vp_cpy [rel _ref_%[_link_num_]_link], %2
 	%endmacro
 
 	%macro fn_call 1
@@ -135,7 +160,7 @@
 		;%1 = function path name
 
 		fn_find_link %1
-		vp_call [rel _func_%[_link_num_]]
+		vp_call [rel _ref_%[_link_num_]_link]
 	%endmacro
 
 	%macro fn_jmp 1
@@ -143,7 +168,7 @@
 		;%1 = function path name
 
 		fn_find_link %1
-		vp_jmp [rel _func_%[_link_num_]]
+		vp_jmp [rel _ref_%[_link_num_]_link]
 	%endmacro
 
 	%macro fn_function 1-2 debug_enter
@@ -155,6 +180,7 @@
 		%defstr _func_name %1
 		%assign _link_total_ 0
 		%assign _path_total_ 0
+		%assign _string_total_ 0
 		align 8, db 0
 	_func_start:
 		dq	-1
@@ -177,20 +203,28 @@
 	%endmacro
 
 	%macro fn_function_end 0
+		%assign %%_i 0
+		%rep _string_total_
+	_ref_%[%%_i]_string:
+			db	_string_str_%[%%_i]_
+			db	0
+			%assign %%_i %%_i+1
+		%endrep
 		align 8, db 0
 	_func_links:
 		%assign %%_i 0
 		%rep _link_total_
-	_func_%[%%_i]:
-			dq	_func_%[_link_%[%%_i]_path_num_]_path - $
+	_ref_%[%%_i]_link:
+			dq	_ref_%[_link_%[%%_i]_path_num_]_path - $
 			%assign %%_i %%_i+1
 		%endrep
 		dq	0
 	_func_paths:
 		%assign %%_i 0
 		%rep _path_total_
-	_func_%[%%_i]_path:
-			db	_path_str_%[%%_i]_
+	_ref_%[%%_i]_path:
+			%defstr %%path _path_str_%[%%_i]_
+			db	%%path
 			db	0
 			%assign %%_i %%_i+1
 		%endrep

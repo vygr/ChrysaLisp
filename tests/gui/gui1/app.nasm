@@ -36,9 +36,9 @@
 		vp_cpy r0, [r4 + app_window]
 		static_call window, get_panel
 		vp_cpy r1, [r4 + app_window_panel]
-		vp_adr title, r1
+		fn_string 'Network Task Monitor', r1
 		static_call window, set_title
-		vp_adr status, r1
+		fn_string 'Status Text', r1
 		static_call window, set_status
 
 		;add my panel
@@ -108,7 +108,7 @@
 
 		;open global farm
 		vp_cpy r0, r1
-		vp_adr child_task, r0
+		fn_string 'tests/gui/gui1/child', r0
 		vp_cpy [r4 + app_cpu_total], r2
 		static_call sys_task, open_global
 
@@ -247,12 +247,5 @@
 
 		vp_add app_size, r4
 		vp_ret
-
-	title:
-		db 'Network Task Monitor', 0
-	status:
-		db 'Status Text', 0
-	child_task:
-		db 'tests/gui/gui1/child', 0
 
 	fn_function_end

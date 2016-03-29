@@ -16,10 +16,6 @@
 			def_long	app_window
 			def_long	app_window_panel
 			def_long	app_panel
-			def_long	app_button1
-			def_long	app_button2
-			def_long	app_button3
-			def_long	app_button4
 		def_structure_end
 
 		;init app vars
@@ -31,9 +27,9 @@
 		vp_cpy r0, [r4 + app_window]
 		static_call window, get_panel
 		vp_cpy r1, [r4 + app_window_panel]
-		vp_adr title, r1
+		fn_string 'Test Runner', r1
 		static_call window, set_title
-		vp_adr status, r1
+		fn_string 'Status Text', r1
 		static_call window, set_status
 
 		;add my panel
@@ -50,40 +46,36 @@
 		;add launch buttons to my app panel
 		static_call button, create
 		fn_assert r0, !=, 0
-		vp_cpy r0, [r4 + app_button1]
 		vp_cpy 0xffffff00, r1
 		static_call button, set_color
-		vp_adr child_task1, r1
+		fn_string 'tests/farm', r1
 		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
 
 		static_call button, create
 		fn_assert r0, !=, 0
-		vp_cpy r0, [r4 + app_button2]
 		vp_cpy 0xffffff00, r1
 		static_call button, set_color
-		vp_adr child_task2, r1
+		fn_string 'tests/array', r1
 		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
 
 		static_call button, create
 		fn_assert r0, !=, 0
-		vp_cpy r0, [r4 + app_button3]
 		vp_cpy 0xffffff00, r1
 		static_call button, set_color
-		vp_adr child_task3, r1
+		fn_string 'tests/pipe', r1
 		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
 
 		static_call button, create
 		fn_assert r0, !=, 0
-		vp_cpy r0, [r4 + app_button4]
 		vp_cpy 0xffffff00, r1
 		static_call button, set_color
-		vp_adr child_task4, r1
+		fn_string 'tests/global', r1
 		static_call button, set_text
 		vp_cpy [r4 + app_panel], r1
 		static_call button, add
@@ -120,25 +112,13 @@
 			vp_cpy [r0 + (ml_msg_data + ev_data_view)], r1
 			vp_cpy [r0 + (ml_msg_data + ev_data_buttons)], r2
 			if r2, ==, 0
-				switch
-				case r1, ==, [r4 + app_button1]
-					vp_adr child_task1, r0
+				vp_cpy [r1 + view_parent], r0
+				if r0, ==, [r4 + app_panel]
+					vp_cpy r1, r0
+					static_call button, get_text
+					vp_cpy r1, r0
 					static_call sys_task, open_child
-					break
-				case r1, ==, [r4 + app_button2]
-					vp_adr child_task2, r0
-					static_call sys_task, open_child
-					break
-				case r1, ==, [r4 + app_button3]
-					vp_adr child_task3, r0
-					static_call sys_task, open_child
-					break
-				case r1, ==, [r4 + app_button4]
-					vp_adr child_task4, r0
-					static_call sys_task, open_child
-					break
-				default
-				endswitch
+				endif
 			endif
 
 			;free event message
@@ -152,18 +132,5 @@
 
 		vp_add app_size, r4
 		vp_ret
-
-	title:
-		db 'Test Runner', 0
-	status:
-		db 'Status Text', 0
-	child_task1:
-		db 'tests/farm', 0
-	child_task2:
-		db 'tests/array', 0
-	child_task3:
-		db 'tests/pipe', 0
-	child_task4:
-		db 'tests/global', 0
 
 	fn_function_end
