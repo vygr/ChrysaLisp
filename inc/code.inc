@@ -81,6 +81,44 @@
 ; some NASM codeing macros
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+	%macro jmpif 4
+			cmp %1, %3
+		%ifidn %2, ==
+			je %4
+		%elifidn %2, !=
+			jne %4
+		%elifidn %2, <
+			jl %4
+		%elifidn %2, >
+			jg %4
+		%elifidn %2, <=
+			jle %4
+		%elifidn %2, >=
+			jge %4
+		%else
+			%fatal No such conditional %2 !
+		%endif
+	%endmacro
+
+	%macro jmpifnot 4
+			cmp %1, %3
+		%ifidn %2, ==
+			jne %4
+		%elifidn %2, !=
+			je %4
+		%elifidn %2, <
+			jge %4
+		%elifidn %2, >
+			jle %4
+		%elifidn %2, <=
+			jg %4
+		%elifidn %2, >=
+			jl %4
+		%else
+			%fatal No such conditional %2 !
+		%endif
+	%endmacro
+
 	%macro loop_start 0
 		%push loop_begin
 	%$loop_begin:
@@ -101,79 +139,15 @@
 	%endmacro
 
 	%macro continueif 3
-		cmp %1, %3
-		%ifidn %2, ==
-			je %$loop_begin
-		%elifidn %2, !=
-			jne %$loop_begin
-		%elifidn %2, <
-			jl %$loop_begin
-		%elifidn %2, >
-			jg %$loop_begin
-		%elifidn %2, <=
-			jle %$loop_begin
-		%elifidn %2, >=
-			jge %$loop_begin
-		%else
-			j%+2 %$loop_begin
-		%endif
+		jmpif %1, %2, %3, %$loop_begin
 	%endmacro
 
 	%macro breakif 3
-		cmp %1, %3
-		%ifidn %2, ==
-			je %$loop_exit
-		%elifidn %2, !=
-			jne %$loop_exit
-		%elifidn %2, <
-			jl %$loop_exit
-		%elifidn %2, >
-			jg %$loop_exit
-		%elifidn %2, <=
-			jle %$loop_exit
-		%elifidn %2, >=
-			jge %$loop_exit
-		%else
-			j%+2 %$loop_exit
-		%endif
-	%endmacro
-
-	%macro jmpif 4
-		cmp %1, %3
-		%ifidn %2, ==
-			je %4
-		%elifidn %2, !=
-			jne %4
-		%elifidn %2, <
-			jl %4
-		%elifidn %2, >
-			jg %4
-		%elifidn %2, <=
-			jle %4
-		%elifidn %2, >=
-			jge %4
-		%else
-			j%+2 %4
-		%endif
+		jmpif %1, %2, %3, %$loop_exit
 	%endmacro
 
 	%macro loop_until 3
-			cmp %1, %3
-		%ifidn %2, ==
-			jne %$loop_begin
-		%elifidn %2, !=
-			je %$loop_begin
-		%elifidn %2, <
-			jge %$loop_begin
-		%elifidn %2, >
-			jle %$loop_begin
-		%elifidn %2, <=
-			jg %$loop_begin
-		%elifidn %2, >=
-			jl %$loop_begin
-		%else
-			j%-2 %$loop_begin
-		%endif
+		jmpifnot %1, %2, %3, %$loop_begin
 	%$loop_exit:
 		%pop
 	%endmacro
@@ -181,42 +155,17 @@
 	%macro loop_while 3
 		%push loop_begin
 	%$loop_begin:
-			cmp %1, %3
-		%ifidn %2, ==
-			jne %$loop_exit
-		%elifidn %2, !=
-			je %$loop_exit
-		%elifidn %2, <
-			jge %$loop_exit
-		%elifidn %2, >
-			jle %$loop_exit
-		%elifidn %2, <=
-			jg %$loop_exit
-		%elifidn %2, >=
-			jl %$loop_exit
-		%else
-			j%-2 %$loop_exit
-		%endif
+		jmpifnot %1, %2, %3, %$loop_exit
 	%endmacro
 
 	%macro if 3
 		%push if
-			cmp %1, %3
-		%ifidn %2, ==
-			jne %$ifnot
-		%elifidn %2, !=
-			je %$ifnot
-		%elifidn %2, <
-			jge %$ifnot
-		%elifidn %2, >
-			jle %$ifnot
-		%elifidn %2, <=
-			jg %$ifnot
-		%elifidn %2, >=
-			jl %$ifnot
-		%else
-			j%-2 %$ifnot
-		%endif
+		jmpifnot %1, %2, %3, %$ifnot
+	%endmacro
+
+	%macro ifnot 3
+		%push if
+		jmpif %1, %2, %3, %$ifnot
 	%endmacro
 
 	%macro else 0
@@ -246,7 +195,7 @@
 		loop_start
 			%define %$_reg %1
 			%define %$_step %4
-			breakif %1, ge, %3
+			breakif %1, >=, %3
 	%endmacro
 
 	%macro next 0
@@ -262,22 +211,7 @@
 	%macro case 3
 	%$loc%$_curr:
 		%assign %$_curr %$_curr+1
-		cmp %1, %3
-		%ifidn %2, ==
-			jne %$loc%$_curr
-		%elifidn %2, !=
-			je %$loc%$_curr
-		%elifidn %2, <
-			jge %$loc%$_curr
-		%elifidn %2, >
-			jle %$loc%$_curr
-		%elifidn %2, <=
-			jg %$loc%$_curr
-		%elifidn %2, >=
-			jl %$loc%$_curr
-		%else
-			j%-2 %$loc%$_curr
-		%endif
+		jmpifnot %1, %2, %3, %$loc%$_curr
 	%endmacro
 
 	%macro default 0
