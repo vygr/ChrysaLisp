@@ -28,8 +28,7 @@
 	%assign mailbox_id_size 16
 	%assign mail_data_size 512
 
-	def_structure	ml_mailbox
-		def_struct	ml_mailbox_list, lh_list
+	def_structure	ml_mailbox, lh_list
 		def_struct	ml_mailbox_parcel_list, lh_list
 		def_long	ml_mailbox_tcb
 	def_structure_end
@@ -41,6 +40,7 @@
 		def_long	ml_msg_parcel_size
 		def_long	ml_msg_parcel_total
 		def_long	ml_msg_parcel_frag
+		def_struct	ml_msg_header_size, null
 		def_struct	ml_msg_data, mail_data
 	def_structure_end
 

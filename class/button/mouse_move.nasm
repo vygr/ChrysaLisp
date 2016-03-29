@@ -11,8 +11,8 @@
 		;all but r0, r4
 
 		;hit ?
-		vp_cpy [r1 + (ml_msg_data + ev_data_rx)], r8
-		vp_cpy [r1 + (ml_msg_data + ev_data_ry)], r9
+		vp_cpy [r1 + ev_data_rx], r8
+		vp_cpy [r1 + ev_data_ry], r9
 		method_call button, hit
 
 		;is mouse over button ?

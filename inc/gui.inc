@@ -73,7 +73,6 @@
 	def_structure_end
 
 	def_structure	gui_signal, ln_fnode
-		def_long	gui_signal_next
 		def_long	gui_signal_inst
 		def_long	gui_signal_method
 	def_structure_end
@@ -87,7 +86,7 @@
 		def_byte	ev_type_key
 	def_structure_end
 
-	def_structure	ev_data
+	def_structure	ev_data, ml_msg_header
 		def_long	ev_data_type
 		def_long	ev_data_view
 		def_long	ev_data_x

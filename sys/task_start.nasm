@@ -28,7 +28,7 @@
 		vp_xor r1, r1
 		vp_cpy r1, [r0 + tk_node_node]
 		vp_cpy r1, [r0 + tk_node_mailbox + ml_mailbox_tcb]
-		vp_lea [r0 + tk_node_mailbox + ml_mailbox_list], r1
+		vp_lea [r0 + tk_node_mailbox], r1
 		ml_init r1, r2, r3
 
 		;set task control block stack and return address's

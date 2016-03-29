@@ -11,8 +11,8 @@
 
 		vp_cpy r0, r1
 		loop_start
+			vp_xor r2, r2
 			vp_cpy_b [r1], r2
-			vp_and 0xff, r2
 			breakif r2, ==, 0
 			vp_inc r1
 		loop_end

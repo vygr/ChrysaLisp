@@ -44,7 +44,7 @@
 		vp_and window_drag_left, r15
 		if r15, !=, 0
 			;drag left edge
-			vp_cpy [r1 + (ml_msg_data + ev_data_x)], r8
+			vp_cpy [r1 + ev_data_x], r8
 			vp_sub [r0 + window_offset_x], r8
 			vp_cpy r10, r15
 			vp_sub r8, r15
@@ -57,7 +57,7 @@
 		vp_and window_drag_right, r15
 		if r15, !=, 0
 			;drag right edge
-			vp_cpy [r1 + (ml_msg_data + ev_data_x)], r10
+			vp_cpy [r1 + ev_data_x], r10
 			vp_sub [r0 + window_offset_x], r10
 			vp_cpy r10, r15
 			vp_sub r8, r15
@@ -70,7 +70,7 @@
 		vp_and window_drag_top, r15
 		if r15, !=, 0
 			;drag top edge
-			vp_cpy [r1 + (ml_msg_data + ev_data_y)], r9
+			vp_cpy [r1 + ev_data_y], r9
 			vp_sub [r0 + window_offset_y], r9
 			vp_cpy r11, r15
 			vp_sub r9, r15
@@ -83,7 +83,7 @@
 		vp_and window_drag_bottom, r15
 		if r15, !=, 0
 			;drag bottom edge
-			vp_cpy [r1 + (ml_msg_data + ev_data_y)], r11
+			vp_cpy [r1 + ev_data_y], r11
 			vp_sub [r0 + window_offset_y], r11
 			vp_cpy r11, r15
 			vp_sub r9, r15

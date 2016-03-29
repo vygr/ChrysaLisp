@@ -94,15 +94,15 @@
 						vp_cpy r15, [r0 + (ml_msg_dest + 8)]
 						vp_cpy [r5 + gui_statics_x_pos], r8
 						vp_cpy [r5 + gui_statics_y_pos], r9
-						vp_cpy_cl ev_type_mouse, [r0 + (ml_msg_data + ev_data_type)]
-						vp_cpy r6, [r0 + (ml_msg_data + ev_data_view)]
-						vp_cpy r8, [r0 + (ml_msg_data + ev_data_x)]
-						vp_cpy r9, [r0 + (ml_msg_data + ev_data_y)]
-						vp_cpy r10, [r0 + (ml_msg_data + ev_data_buttons)]
+						vp_cpy_cl ev_type_mouse, [r0 + ev_data_type]
+						vp_cpy r6, [r0 + ev_data_view]
+						vp_cpy r8, [r0 + ev_data_x]
+						vp_cpy r9, [r0 + ev_data_y]
+						vp_cpy r10, [r0 + ev_data_buttons]
 						vp_sub [r6 + view_ctx_x], r8
 						vp_sub [r6 + view_ctx_y], r9
-						vp_cpy r8, [r0 + (ml_msg_data + ev_data_rx)]
-						vp_cpy r9, [r0 + (ml_msg_data + ev_data_ry)]
+						vp_cpy r8, [r0 + ev_data_rx]
+						vp_cpy r9, [r0 + ev_data_ry]
 
 						;send mail to owner
 						static_call sys_mail, send

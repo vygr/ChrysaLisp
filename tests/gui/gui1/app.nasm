@@ -137,12 +137,12 @@
 					vp_dec r0
 					vp_cpy r0, [r4 + app_cpu_count]
 
-					vp_cpy_cl 1, [r5 + ml_msg_data + app_mail_command]
-					vp_cpy_cl ml_msg_data + app_mail_size, [r5 + ml_msg_length]
+					vp_cpy_cl 1, [r5 + app_mail_command]
+					vp_cpy_cl app_mail_size, [r5 + ml_msg_length]
 
 					vp_cpy [r4 + app_task_progress], r1
 					vp_cpy [r1 + r0 * 8], r1
-					vp_cpy r1, [r5 + ml_msg_data + app_mail_progress]
+					vp_cpy r1, [r5 + app_mail_progress]
 
 					vp_cpy [r4 + app_task_mailboxes], r1
 					vp_mul mailbox_id_size, r0
@@ -153,8 +153,8 @@
 
 					static_call sys_task, mailbox
 					vp_cpy [r4 + app_select2], r0
-					vp_cpy r0, [r5 + ml_msg_data + app_mail_reply_id]
-					vp_cpy r1, [r5 + ml_msg_data + app_mail_reply_id + 8]
+					vp_cpy r0, [r5 + app_mail_reply_id]
+					vp_cpy r1, [r5 + app_mail_reply_id + 8]
 
 					;send command
 					vp_cpy r5, r0
@@ -177,7 +177,7 @@
 
 				;dispatch event to view
 				vp_cpy r0, r1
-				vp_cpy [r1 + (ml_msg_data + ev_data_view)], r0
+				vp_cpy [r1 + ev_data_view], r0
 				method_call view, event
 			else
 				;task mailbox
@@ -185,8 +185,8 @@
 				vp_cpy r0, [r4 + app_last_event]
 
 				;update progress bar
-				vp_cpy [r0 + ml_msg_data + app_mail_task_count], r1
-				vp_cpy [r0 + ml_msg_data + app_mail_progress], r0
+				vp_cpy [r0 + app_mail_task_count], r1
+				vp_cpy [r0 + app_mail_progress], r0
 				static_call progress, set_val
 				static_call progress, dirty
 
@@ -218,8 +218,8 @@
 		loop_start
 			static_call sys_mail, alloc
 			fn_assert r0, !=, 0
-			vp_cpy_cl 0, [r0 + ml_msg_data + app_mail_command]
-			vp_cpy_cl ml_msg_data + app_mail_size, [r0 + ml_msg_length]
+			vp_cpy_cl 0, [r0 + app_mail_command]
+			vp_cpy_cl app_mail_size, [r0 + ml_msg_length]
 
 			vp_cpy [r4 + app_task_mailboxes], r2
 			vp_cpy r5, r1

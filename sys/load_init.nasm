@@ -85,9 +85,9 @@
 
 	string_skip:
 		loop_start
+			vp_xor r1, r1
 			vp_cpy_b [r0], r1
 			vp_inc r0
-			vp_and 0xff, r1
 		loop_until r1, ==, 0
 		ret
 

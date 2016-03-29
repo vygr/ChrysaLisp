@@ -9,8 +9,8 @@
 		;trashes
 		;all but r0, r4
 
-		vp_cpy [r1 + (ml_msg_data + ev_data_rx)], r8
-		vp_cpy [r1 + (ml_msg_data + ev_data_ry)], r9
+		vp_cpy [r1 + ev_data_rx], r8
+		vp_cpy [r1 + ev_data_ry], r9
 		vp_cpy r8, [r0 + title_last_x]
 		vp_cpy r9, [r0 + title_last_y]
 		vp_ret

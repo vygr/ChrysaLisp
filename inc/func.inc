@@ -24,7 +24,7 @@
 ; kernel mail data
 ;;;;;;;;;;;;;;;;;;
 
-	def_structure	kn_data
+	def_structure	kn_data, ml_msg_header
 		def_long	kn_data_kernel_user
 		def_struct	kn_data_kernel_reply, mailbox_id
 		def_long	kn_data_kernel_function
@@ -38,7 +38,7 @@
 		def_struct	kn_data_task_open_pathname, null
 	def_structure_end
 
-	def_structure	kn_data_task_open_reply
+	def_structure	kn_data_task_open_reply, ml_msg_header
 		def_long	kn_data_task_open_reply_user
 		def_struct	kn_data_task_open_reply_mailboxid, mailbox_id
 	def_structure_end
@@ -47,13 +47,12 @@
 		def_struct	kn_data_task_child_pathname, null
 	def_structure_end
 
-	def_structure	kn_data_task_child_reply
+	def_structure	kn_data_task_child_reply, ml_msg_header
 		def_long	kn_data_task_child_reply_user
 		def_struct	kn_data_task_child_reply_mailboxid, mailbox_id
 	def_structure_end
 
-	def_structure	kn_data_link_route
-		def_struct	kn_data_link_route_header, kn_data
+	def_structure	kn_data_link_route, kn_data
 		def_long	kn_data_link_route_origin
 		def_long	kn_data_link_route_via
 		def_long	kn_data_link_route_hops
@@ -235,12 +234,6 @@
 		;%1 = debug string
 		;%2 = debug value
 		%ifdef debug_mode
-			%defstr _debug_string_ %1
-			vp_jmp %%over_end
-		%%over:
-			%defstr %%_l __LINE__
-			db ': ', %%_l, ' : ', _debug_string_, ' -> ', 0
-		%%over_end:
 			vp_push r0, r1, r2, r3, r5
 			vp_push %2
 
@@ -258,7 +251,8 @@
 				vp_adr _func_start + fn_header_pathname, r0
 				vp_cpy 2, r1
 				static_call sys_io, string
-				vp_adr %%over, r0
+				%defstr _debug_string_ : __LINE__ : %1 ->
+				fn_string _debug_string_, r0
 				vp_cpy 2, r1
 				static_call sys_io, string
 				vp_pop r0

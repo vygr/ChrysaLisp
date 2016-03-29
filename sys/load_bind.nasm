@@ -22,20 +22,16 @@
 		vp_add r0, r8
 
 		;check if function already present !
-		vp_xor r5, r5
 		loop_flist_forward r8 + ld_statics_function_list, r6, r6
 			vp_cpy r7, r0
 			vp_lea [r6 + fn_header_pathname], r1
 			vp_call string_compare
-			if r0, !=, 0
-				vp_xor r0, r0
-				vp_cpy_i [r6 + fn_header_entry], r0
-				vp_lea [r6 + r0], r5
-			endif
-		loop_until r5, !=, 0
-		if r5, !=, 0
+		loop_until r0, !=, 0
+		if r6, !=, 0
 			;found function already loaded
-			vp_cpy r5, r0
+			vp_xor r0, r0
+			vp_cpy_i [r6 + fn_header_entry], r0
+			vp_add r6, r0
 			vp_ret
 		endif
 
@@ -149,21 +145,22 @@
 		vp_xor r0, r0
 		vp_cpy_i [r3 + fn_header_links], r0
 		vp_add r3, r0
+		vp_push r3
 		loop_start
 			vp_cpy [r0], r1
 			breakif r1, ==, 0
-			vp_push r0, r3
+			vp_push r0
 			vp_cpy r1, r0
 			vp_call ld_load_function
 			if r0, ==, 0
 				;no such file
 				vp_adr bind_error, r0
 				sys_write_string 2, r0, bind_error_end-bind_error
-				vp_cpy [r4 + 8], r0
+				vp_cpy [r4], r0
 				vp_cpy [r0], r0
 				vp_call string_skip
 				vp_lea [r0 - 1], r1
-				vp_cpy [r4 + 8], r0
+				vp_cpy [r4], r0
 				vp_cpy [r0], r0
 				vp_sub r0, r1
 				sys_write_string 2, r0, r1
@@ -171,10 +168,11 @@
 				sys_exit 1
 			endif
 			vp_cpy r0, r1
-			vp_pop r0, r3
+			vp_pop r0
 			vp_cpy r1, [r0]
 			vp_add 8, r0
 		loop_end
+		vp_pop r3
 
 		;get loader statics !
 		vp_adr _func_start, r8
@@ -197,13 +195,12 @@
 
 	string_compare:
 		loop_start
+			vp_xor r2, r2
+			vp_xor r3, r3
 			vp_cpy_b [r0], r2
 			vp_cpy_b [r1], r3
-			vp_and 0xff, r2
-			vp_and 0xff, r3
 			breakif r2, !=, r3
 			if r2, ==, 0
-				vp_cpy 1, r0
 				vp_ret
 			endif
 			vp_inc r0
@@ -214,9 +211,9 @@
 
 	string_skip:
 		loop_start
+			vp_xor r1, r1
 			vp_cpy_b [r0], r1
 			vp_inc r0
-			vp_and 0xff, r1
 		loop_until r1, ==, 0
 		ret
 

@@ -16,7 +16,7 @@
 			vp_cpy r1, [r0 + ml_mailbox_tcb]
 			static_call sys_task, suspend
 		endif
-		vp_cpy [r0 + ml_mailbox_list + lh_list_head], r0
+		lh_get_head r0, r0
 		vp_cpy r0, r1
 		ln_remove_node r1, r2
 		vp_ret

@@ -28,14 +28,14 @@
 			;fill in destination, reply, function
 			static_call sys_cpu, id
 			vp_cpy_cl 0, [r3 + ml_msg_dest]
-			vp_cpy r7, [r3 + (ml_msg_dest + 8)]
-			vp_cpy r4, [r3 + (ml_msg_data + kn_data_kernel_reply)]
-			vp_cpy r0, [r3 + (ml_msg_data + kn_data_kernel_reply + 8)]
-			vp_cpy_cl kn_call_task_child, [r3 + (ml_msg_data + kn_data_kernel_function)]
+			vp_cpy r7, [r3 + ml_msg_dest + 8]
+			vp_cpy r4, [r3 + kn_data_kernel_reply]
+			vp_cpy r0, [r3 + kn_data_kernel_reply + 8]
+			vp_cpy_cl kn_call_task_child, [r3 + kn_data_kernel_function]
 
 			;copy task name, move to next task name
 			vp_cpy r5, r0
-			vp_lea [r3 + (ml_msg_data + kn_data_task_child_pathname)], r1
+			vp_lea [r3 + kn_data_task_child_pathname], r1
 			static_call sys_string, copy
 			vp_cpy r0, r5
 
@@ -50,8 +50,8 @@
 			static_call sys_mail, read
 
 			;save reply mailbox ID
-			vp_cpy [r0 + (ml_msg_data + kn_data_task_child_reply_mailboxid)], r2
-			vp_cpy [r0 + (ml_msg_data + kn_data_task_child_reply_mailboxid + 8)], r3
+			vp_cpy [r0 + kn_data_task_child_reply_mailboxid], r2
+			vp_cpy [r0 + kn_data_task_child_reply_mailboxid + 8], r3
 			vp_cpy r2, [r6]
 			vp_cpy r3, [r6 + 8]
 			vp_cpy r3, r7	;near this cpu next
@@ -61,8 +61,8 @@
 
 			;next pipe worker
 			vp_add mailbox_id_size, r6
+			vp_xor r0, r0
 			vp_cpy_b [r5], r0
-			vp_and 0xff, r0
 		loop_until r0, ==, 0
 
 		;free temp mailbox

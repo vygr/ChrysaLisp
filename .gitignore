@@ -25,6 +25,7 @@ class/flow/pref_size
 class/flow/set_flow_flags
 class/label/create
 class/label/draw
+class/label/get_text
 class/label/init
 class/label/layout
 class/label/new
@@ -47,6 +48,7 @@ class/ref/init
 class/ref/ref
 class/string/create
 class/string/draw
+class/string/get_text
 class/string/init
 class/string/new
 class/string/pref_size
@@ -214,7 +216,3 @@ tests/gui/gui1/child
 tests/gui/gui2/app
 tests/pipe
 tests/pipe_child
-
-class/label/get_text
-
-class/string/get_text

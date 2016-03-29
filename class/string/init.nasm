@@ -16,7 +16,7 @@
 		super_call string, init
 		if r1, !=, 0
 			;init myself
-			vp_adr font_name, r0
+			fn_string 'fonts/OpenSans-Regular.ttf', r0
 			vp_cpy 18, r1
 			static_call gui_font, open
 			fn_assert r0, !=, 0
@@ -29,8 +29,5 @@
 
 		vp_pop r0
 		vp_ret
-
-	font_name:
-		db 'fonts/OpenSans-Regular.ttf', 0
 
 	fn_function_end

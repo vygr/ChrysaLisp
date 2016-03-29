@@ -9,11 +9,11 @@
 		;trashes
 		;r1-r2
 
+		lh_get_head r0, r0
 		vp_cpy r0, r1
-		lh_is_empty r0, r0
+		ln_get_succ r0, r0
 		if r0, !=, 0
-			vp_cpy [r1 + ml_mailbox_list + lh_list_head], r0
-			vp_cpy r0, r1
+			vp_cpy r1, r0
 			ln_remove_node r1, r2
 		endif
 		vp_ret

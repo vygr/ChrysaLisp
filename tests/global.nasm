@@ -20,7 +20,7 @@
 		vp_cpy r0, r14
 
 		;open test12 global farm, off chip
-		vp_adr child_tasks, r0
+		fn_string 'tests/global_child', r0
 		vp_cpy r14, r1
 		vp_cpy r12, r2
 		static_call sys_task, open_global
@@ -38,7 +38,7 @@
 				vp_cpy [r14 + r3], r1
 				vp_cpy [r14 + r3 + 8], r2
 				vp_cpy r1, [r0 + ml_msg_dest]
-				vp_cpy r2, [r0 + (ml_msg_dest + 8)]
+				vp_cpy r2, [r0 + ml_msg_dest + 8]
 				static_call sys_mail, send
 				static_call sys_task, yield
 			next
@@ -47,8 +47,5 @@
 		;free ID array and return
 		vp_cpy r14, r0
 		static_jmp sys_mem, free
-
-	child_tasks:
-		db 'tests/global_child', 0
 
 	fn_function_end
