@@ -14,7 +14,7 @@
 		vp_cpy r0, r1
 		ln_remove_node r1, r15
 		vp_xor r1, r1
-		vp_cpy r1, [r0 + tk_node_node]
+		vp_cpy r1, [r0]
 
 		;restore next task
 		static_jmp sys_task, restore

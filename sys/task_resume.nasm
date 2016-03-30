@@ -9,7 +9,7 @@
 		;r1-r2
 
 		;are we in suspend state ?
-		vp_cpy [r0 + tk_node_node], r1
+		vp_cpy [r0], r1
 		if r1, ==, 0
 			;add to task list
 			static_bind sys_task, statics, r1

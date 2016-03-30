@@ -41,8 +41,7 @@
 
 	%assign tk_stack_size 1024 * 4
 
-	def_structure	tk_node
-		def_struct	tk_node_node, ln_node
+	def_structure	tk_node, ln_node
 		def_long	tk_node_stack
 		def_long	tk_node_time
 		def_struct	tk_node_mailbox, ml_mailbox
