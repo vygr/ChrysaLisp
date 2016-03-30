@@ -31,7 +31,7 @@
 
 					static_call sys_heap, alloc
 					continueif r1, ==, 0
-					add_fnode r5, r1, r2
+					ln_add_fnode r5, r1, r2
 
 					;jump to correct splitting code
 					jmpif r12, >=, r8, copy_split1

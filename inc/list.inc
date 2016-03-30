@@ -409,14 +409,14 @@
 			vp_lea [%1], %2
 		%endif
 		loop_start
-			next_fnode %2, %3
+			ln_next_fnode %2, %3
 	%endmacro
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; forward list macros
 ;;;;;;;;;;;;;;;;;;;;;
 
-	%macro next_fnode 2
+	%macro ln_next_fnode 2
 		;inputs
 		;%1 = node
 		;%2 = last
@@ -428,7 +428,7 @@
 		breakif %1, ==, 0
 	%endmacro
 
-	%macro remove_fnode 2
+	%macro ln_remove_fnode 2
 		;inputs
 		;%1 = node
 		;%2 = last
@@ -440,7 +440,7 @@
 		vp_cpy %2, %1
 	%endmacro
 
-	%macro add_fnode 3
+	%macro ln_add_fnode 3
 		;inputs
 		;%1 = list
 		;%2 = node

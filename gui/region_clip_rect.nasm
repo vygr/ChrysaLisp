@@ -19,7 +19,7 @@
 				vp_cpy r1, r7
 				loop_start
 				loop:
-					next_fnode r7, r6
+					ln_next_fnode r7, r6
 
 					switch
 						vp_cpy [r7 + gui_rect_x], r12
@@ -49,7 +49,7 @@
 
 					;region is outside
 					vp_cpy r7, r5
-					remove_fnode r7, r6
+					ln_remove_fnode r7, r6
 					hp_freecell r0, r5, r6
 				loop_end
 			endif

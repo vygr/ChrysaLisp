@@ -11,7 +11,7 @@
 		;outputs
 		;r0 = 0 if error, else font cache entry
 		;trashes
-		;r1-r3, r5-r6
+		;r1-r3, r5
 
 		def_structure	local
 			def_long	local_font
@@ -28,7 +28,7 @@
 		static_bind gui_font, statics, r5
 
 		;search font list
-		loop_list_forward r5 + ft_statics_font_list, r5, r6
+		loop_flist_forward r5 + ft_statics_font_list, r5, r5
 			vp_cpy [r4 + local_points], r0
 			continueif r0, !=, [r5 + ft_font_points]
 			vp_lea [r5 + ft_font_name], r0
@@ -38,7 +38,7 @@
 
 		;did we find it ?
 		vp_cpy r5, r0
-		if r6, ==, 0
+		if r5, ==, 0
 			;no so try open it
 			vp_adr kernel_callback, r0
 			vp_cpy r4, r1
@@ -88,8 +88,7 @@
 
 			vp_cpy r13, r0
 			static_bind gui_font, statics, r5
-			vp_add ft_statics_font_list, r5
-			lh_add_at_tail r5, r0, r1
+			ln_add_fnode r5 + ft_statics_font_list, r0, r1
 		endif
 		vp_cpy r0, [r14 + local_handle]
 

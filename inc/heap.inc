@@ -48,7 +48,7 @@
 		;%2 = cell
 		;%3 = old first cell
 
-		add_fnode %1 + hp_heap_freelist, %2, %3
+		ln_add_fnode %1 + hp_heap_freelist, %2, %3
 	%endmacro
 
 %endif

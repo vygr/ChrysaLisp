@@ -25,7 +25,7 @@
 			fn_assert r0, !=, 0
 			vp_cpy r0, r1
 			vp_cpy r2, r0
-			add_fnode r0 + hp_heap_blocklist, r1, r2
+			ln_add_fnode r0 + hp_heap_blocklist, r1, r2
 			vp_add ln_fnode_size, r1
 			vp_cpy r1, r3
 			vp_add [r0 + hp_heap_blocksize], r3

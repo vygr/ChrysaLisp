@@ -40,8 +40,8 @@
 	def_structure_end
 
 	def_structure	ft_statics
-		def_struct	ft_statics_font_list, lh_list
-		def_struct	ft_statics_text_list, lh_list
+		def_long	ft_statics_font_list
+		def_long	ft_statics_text_list
 	def_structure_end
 
 %endif
