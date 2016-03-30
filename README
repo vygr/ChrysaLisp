@@ -7,21 +7,22 @@ Runs on OSX or Linux. Could move to bare metal eventually but it's useful for
 now to run hosted while experimenting.
 
 Uses a virtual cpu instruction macro set to avoid use of x64 native
-instructions.
+instructions. It will eventual run on ARM Linux for machines such as Raspberry
+PI and BeagleBone with no source modification.
 
-Has function level dynamic binding and loading. Individual assembler functions
-are loaded and bound on demand as tasks are created and distributed. Currently
-functions are loaded from the cpu file system on which the task finds itself,
-but these will eventually come from the server object that the task was created
-with and functions will be transported across the network as required. Functions
-are shared between all tasks that share the same server object, so only a single
+Has function level dynamic binding and loading. Individual functions are loaded
+and bound on demand as tasks are created and distributed. Currently functions
+are loaded from the cpu file system on which the task finds itself, but these
+will eventually come from the server object that the task was created with and
+functions will be transported across the network as required. Functions are
+shared between all tasks that share the same server object, so only a single
 copy of a function is loaded regardless of how many tasks use that function.
 
 There is a powerful object and class system, not just for an assembler, but
-quite as capable as a high level language. Static classes or virtual classes with
-virtual, nonvirtual and overridable methods can be defined. Calls are type
+quite as capable as a high level language. Static classes or virtual classes
+with virtual, nonvirtual and overridable methods can be defined. Calls are type
 checked to ensure consistency across the class hierarchy. The GUI is constructed
-using the class system.
+using this class system.
 
 The interface to the system functions is provided as a set of static classes,
 easing use and removing the need to remember static function locations, plus
@@ -30,7 +31,7 @@ directory to see the interface definitions.
 
 Allows modelling of various network topologies with point to point links. Each
 cpu in the network is modelled as a separate host process, point to point links
-use shared memory to simulate cpu to cpu point to point bi directional
+use shared memory to simulate cpu to cpu, point to point, bi directional
 connections. There is no global bus based networking on purpose.
 
 Network link routing tables are created on booting a link, and the process is
@@ -75,14 +76,14 @@ Make with:
 make -j
 
 Requires NASM, SDL2 and the SDL2_ttf library to be installed. SDL2 and SDL2_ttf
-is for the experimental gui.
+are for the experimental gui.
 
 Run with:
 
 ./run.sh <num_cpus>
 
 Fully connected network. Each cpu has links to every other cpu. Careful with
-this as you can end up with a very large number of link files and shared mem
+this as you can end up with a very large number of link files and shared memory
 regions.
 
 ./run_star.sh <num_cpus>
@@ -96,15 +97,17 @@ Ring connected network. Each cpu has links to the next and previous cpus.
 ./run_tree.sh <num_cpus>
 
 Tree connected network. Each cpu has links to its parent cpu and up to two
-children cpus.
+child cpus.
 
 ./run_mesh.sh <num_cpus on a side>
 
-Mesh connected network. Each cpu has links to 4 adjacent cpus.
+Mesh connected network. Each cpu has links to 4 adjacent cpus. This is similar
+to Transputer meshes.
 
 ./run_cube.sh <num_cpus on a side>
 
-Cube connected network. Each cpu has links to 6 adjacent cpus.
+Cube connected network. Each cpu has links to 6 adjacent cpus. This is similar
+to TMS320C40 meshes.
 
 Stop with:
 
