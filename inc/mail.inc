@@ -73,17 +73,6 @@
 		lh_init %2, %3
 	%endmacro
 
-	%macro ml_check 2
-		;inputs
-		;%1 = mailbox
-		;%2 = temp
-		;outputs
-		;%1 = mailbox
-		;%2 = 0 if no mail
-
-		lh_is_empty %1, %2
-	%endmacro
-
 	%macro ml_temp_create 2
 		;inputs
 		;%1 = temp
