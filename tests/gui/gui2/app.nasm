@@ -108,13 +108,11 @@
 			method_call view, event
 
 			;launch button ?
-			vp_cpy [r4 + app_last_event], r0
-			vp_cpy [r0 + ev_data_view], r1
-			vp_cpy [r0 + ev_data_buttons], r2
-			if r2, ==, 0
-				vp_cpy [r1 + view_parent], r0
-				if r0, ==, [r4 + app_panel]
-					vp_cpy r1, r0
+			vp_cpy [r4 + app_last_event], r1
+			vp_cpy [r1 + ev_data_buttons], r1
+			if r1, ==, 0
+				static_call view, get_parent
+				if r1, ==, [r4 + app_panel]
 					static_call button, get_text
 					vp_cpy r1, r0
 					static_call sys_task, open_child

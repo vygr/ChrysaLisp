@@ -29,6 +29,7 @@
 	def_method get_bounds, class/view/get_bounds
 	def_method set_bounds, class/view/set_bounds
 	def_method set_flags, class/view/set_flags
+	def_method get_parent, class/view/get_parent
 
 	def_method deinit, class/view/deinit, override
 
