@@ -151,7 +151,7 @@
 		;%2 = register
 
 		fn_find_link %1
-		vp_cpy [rel _ref_%[_link_num_]_link], %2
+		vp_cpy_rel _ref_%[_link_num_]_link, %2
 	%endmacro
 
 	%macro fn_call 1
@@ -159,7 +159,7 @@
 		;%1 = function path name
 
 		fn_find_link %1
-		vp_call [rel _ref_%[_link_num_]_link]
+		vp_call_rel _ref_%[_link_num_]_link
 	%endmacro
 
 	%macro fn_jmp 1
@@ -167,7 +167,7 @@
 		;%1 = function path name
 
 		fn_find_link %1
-		vp_jmp [rel _ref_%[_link_num_]_link]
+		vp_jmp_rel _ref_%[_link_num_]_link
 	%endmacro
 
 	%macro fn_function 1-2 debug_enter

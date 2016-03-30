@@ -262,10 +262,6 @@
 		lea %2, %1
 	%endmacro
 
-	%macro vp_adr 2
-		lea %2, [rel %1]
-	%endmacro
-
 	%macro vp_inc 1
 		inc %1
 	%endmacro
@@ -312,6 +308,43 @@
 
 	%macro vp_shl 2
 		shl %2, %1
+	%endmacro
+
+	%macro vp_cpy_rel 2
+		reg? %1
+		%if _reg < 0
+			;source not register
+			reg? %2
+			%if _reg < 0
+				;dest not register
+				%fatal Not valid VP mode
+			%else
+				;dest is register
+				mov %2, [rel %1]
+			%endif
+		%else
+			;source is register
+			reg? %2
+			%if _reg < 0
+				;dest not register
+				mov [rel %2], %1
+			%else
+				;dest is register
+				%fatal Not valid VP mode
+			%endif
+		%endif
+	%endmacro
+
+	%macro vp_call_rel 1
+		call [rel %1]
+	%endmacro
+
+	%macro vp_jmp_rel 1
+		jmp [rel %1]
+	%endmacro
+
+	%macro vp_adr 2
+		lea %2, [rel %1]
 	%endmacro
 
 %endif
