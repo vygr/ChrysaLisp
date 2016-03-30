@@ -32,7 +32,7 @@
 		static_call sys_task, sleep
 
 		;kernel callback for first update
-		vp_adr kernel_callback, r0
+		vp_rel kernel_callback, r0
 		static_call sys_task, callback
 
 		;for now fire up the test apps
@@ -46,7 +46,7 @@
 		loop_start
 		next_frame:
 			;kernel callback for update
-			vp_adr kernel_callback, r0
+			vp_rel kernel_callback, r0
 			static_call sys_task, callback
 
 			;frame rate of gui updates
@@ -161,7 +161,7 @@
 			ttf_init
 
 			;create window
-			vp_adr title, r0
+			vp_rel title, r0
 			sdl_create_window r0, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL
 			static_bind gui_gui, statics, r1
 			vp_cpy r0, [r1 + gui_statics_window]

@@ -98,7 +98,7 @@
 		;%2 = register
 
 		fn_add_string %1
-		vp_adr _ref_%[_string_num_]_string, %2
+		vp_rel _ref_%[_string_num_]_string, %2
 	%endmacro
 
 	%macro fn_add_path 1
@@ -236,7 +236,7 @@
 
 		%ifdef debug_mode
 			vp_push r0, r1, r2, r3
-			vp_adr _func_start + fn_header_pathname, r0
+			vp_rel _func_start + fn_header_pathname, r0
 			vp_cpy __LINE__, r1
 			fn_string %1, r2
 			vp_cpy %2, r3

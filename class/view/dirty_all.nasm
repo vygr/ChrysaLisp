@@ -9,8 +9,8 @@
 
 		;iterate through views
 		;dirty all
-		vp_adr dirty_down_callback, r2
-		vp_adr null_up_callback, r3
+		vp_rel dirty_down_callback, r2
+		vp_rel null_up_callback, r3
 		static_jmp view, forward_tree
 
 	dirty_down_callback:

@@ -31,7 +31,7 @@
 		endif
 
 		vp_cpy r4, r1
-		vp_adr callback, r2
+		vp_rel callback, r2
 		static_call flow, backward
 
 		vp_add local_size, r4

@@ -16,7 +16,7 @@
 		loop_start
 			vp_cpy [r14], r13
 			breakif r13, ==, 0
-			vp_adr options_table, r12
+			vp_rel options_table, r12
 			loop_start
 				vp_cpy [r12], r11
 				breakif r11, ==, 0
@@ -25,7 +25,7 @@
 				vp_cpy r13, r1
 				static_call sys_string, compare
 				if r0, !=, 0
-					vp_adr options_table, r0
+					vp_rel options_table, r0
 					vp_add r11, r0
 					vp_call r0
 					vp_jmp next_arg
@@ -104,7 +104,7 @@
 			vp_cpy r6, [r0 + (ml_msg_dest + 8)]
 
 			;fill in paramaters and set length
-			vp_adr link_path, r0
+			vp_rel link_path, r0
 			vp_lea [r7 + ml_msg_data], r1
 			static_call sys_string, copy
 			vp_cpy [r14], r0

@@ -343,7 +343,7 @@
 		jmp [rel %1]
 	%endmacro
 
-	%macro vp_adr 2
+	%macro vp_rel 2
 		lea %2, [rel %1]
 	%endmacro
 
