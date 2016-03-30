@@ -31,7 +31,7 @@
 		static_bind gui_font, statics, r5
 
 		;search text list
-		loop_list_forward r5 + ft_statics_text_list, r6, r5
+		loop_list_forward r5 + ft_statics_text_list, r5, r6
 			vp_cpy [r4 + local_font], r0
 			continueif r0, !=, [r5 + ft_text_font]
 			vp_lea [r5 + ft_text_name], r0

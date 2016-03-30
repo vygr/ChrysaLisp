@@ -364,35 +364,35 @@
 	%macro loop_list_forward 3
 		;inputs
 		;%1 = list head
-		;%2 = list node look ahead
-		;%3 = list node
+		;%2 = list node
+		;%3 = list node look ahead
 		;outputs
 		;%1 = list head
-		;%2 = list node look ahead
-		;%3 = list node
+		;%2 = list node
+		;%3 = list node look ahead
 
-		lh_get_head %1, %2
+		lh_get_head %1, %3
 		loop_start
-			vp_cpy %2, %3
-			ln_get_succ %2, %2
-			breakif %2, ==, 0
+			vp_cpy %3, %2
+			ln_get_succ %3, %3
+			breakif %3, ==, 0
 	%endmacro
 
 	%macro loop_list_backward 3
 		;inputs
 		;%1 = list head
-		;%2 = list node look ahead
-		;%3 = list node
+		;%2 = list node
+		;%3 = list node look ahead
 		;outputs
 		;%1 = list head
-		;%2 = list node look ahead
-		;%3 = list node
+		;%2 = list node
+		;%3 = list node look ahead
 
-		lh_get_tail %1, %2
+		lh_get_tail %1, %3
 		loop_start
-			vp_cpy %2, %3
-			ln_get_pred %2, %2
-			breakif %2, ==, 0
+			vp_cpy %3, %2
+			ln_get_pred %3, %3
+			breakif %3, ==, 0
 	%endmacro
 
 	%macro loop_flist_forward 3

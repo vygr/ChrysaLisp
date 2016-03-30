@@ -16,7 +16,7 @@
 
 		;deref any child views
 		vp_cpy [r4], r0
-		loop_list_forward r0 + view_list, r1, r0
+		loop_list_forward r0 + view_list, r0, r1
 			vp_sub view_node, r0
 			vp_push r1
 			static_call view, sub

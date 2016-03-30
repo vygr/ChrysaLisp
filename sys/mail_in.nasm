@@ -13,7 +13,7 @@
 			vp_cpy [r15 + ml_msg_parcel_id], r6
 			vp_cpy [r15 + ml_msg_parcel_id + 8], r7
 			vp_cpy [r15 + ml_msg_dest], r13
-			loop_list_forward r13 + ml_mailbox_parcel_list, r1, r0
+			loop_list_forward r13 + ml_mailbox_parcel_list, r0, r1
 				continueif r6, !=, [r0 + ml_msg_parcel_id]
 			loop_until r7, ==, [r0 + ml_msg_parcel_id + 8]
 			if r1, ==, 0
