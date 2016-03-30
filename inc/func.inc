@@ -6,7 +6,7 @@
 %include 'inc/syscall.inc'
 %include 'inc/task.inc'
 
-;%define debug_function_enter
+%define debug_function_enter
 %define debug_mode
 
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -193,7 +193,7 @@
 	_func_entry:
 		%ifdef debug_function_enter
 			%ifidn %2, debug_enter
-				fn_debug enter
+				fn_debug 'enter'
 			%elifidn %2, no_debug_enter
 			%else
 				%fatal No such debug setting, use debug_enter or no_debug_enter
@@ -233,42 +233,19 @@
 	%macro fn_debug 1-2 0
 		;%1 = debug string
 		;%2 = debug value
+
 		%ifdef debug_mode
-			vp_push r0, r1, r2, r3, r5
-			vp_push %2
-
-			;tab in by stack depth
-			static_call sys_task, stack_depth
-			if r0, >, 0
-				vp_lea [r0 - (8*8)], r2
-				vp_cpy ' ', r0
-				vp_cpy 2, r1
-				loop_while r2, >, 0
-					static_call sys_io, char
-					vp_sub 8, r2
-				loop_end
-
-				vp_adr _func_start + fn_header_pathname, r0
-				vp_cpy 2, r1
-				static_call sys_io, string
-				%defstr _debug_string_ : __LINE__ : %1 ->
-				fn_string _debug_string_, r0
-				vp_cpy 2, r1
-				static_call sys_io, string
-				vp_pop r0
-				vp_cpy 2, r1
-				vp_cpy 16, r2
-				static_call sys_io, number
-				vp_cpy 10, r0
-				static_call sys_io, char
-			else
-				vp_pop r0
-			endif
-			vp_pop r0, r1, r2, r3, r5
+			vp_push r0, r1, r2, r3
+			vp_adr _func_start + fn_header_pathname, r0
+			vp_cpy __LINE__, r1
+			fn_string %1, r2
+			vp_cpy %2, r3
+			static_call sys_io, debug
+			vp_pop r0, r1, r2, r3
 		%endif
 	%endmacro
 
-	%macro fn_assert 3-4 Assert Failure !
+	%macro fn_assert 3-4 'Assert Failure !'
 		;%1 = val1
 		;%2 = condition
 		;%3 = val2

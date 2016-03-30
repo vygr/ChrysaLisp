@@ -17,7 +17,7 @@
 		static_call sys_task, sleep
 
 		;print Hello and return
-		fn_debug Hello from array worker !
+		fn_debug 'Hello from array worker !'
 		vp_ret
 
 	fn_function_end

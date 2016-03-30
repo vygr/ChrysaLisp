@@ -12,6 +12,7 @@
 	def_method string, sys/write_string
 	def_method number, sys/write_number
 	def_method read, sys/read_line
+	def_method debug, sys/write_debug
 
 	def_class sys_cpu
 	def_method id, sys/cpu_get_id
