@@ -22,8 +22,7 @@
 		def_long	lk_table_array_size
 	def_structure_end
 
-	def_structure	lk_node
-		def_struct	lk_node_node, ln_node
+	def_structure	lk_node, ln_node
 		def_struct	lk_node_table, lk_table
 		def_long	lk_node_cpu_id
 		def_long	lk_node_task_count

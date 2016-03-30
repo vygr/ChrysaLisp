@@ -18,10 +18,9 @@
 		vp_xor r1, r1
 		vp_cpy r1, [r4 + lk_node_table + lk_table_array]
 		vp_cpy r1, [r4 + lk_node_table + lk_table_array_size]
-		vp_lea [r4 + lk_node_node], r0
 		static_bind sys_link, statics, r1
 		vp_lea [r1 + lk_statics_links_list], r1
-		lh_add_at_head r1, r0, r2
+		lh_add_at_head r1, r4, r2
 
 		;read params msg from kernel
 		static_call sys_mail, mymail
@@ -223,7 +222,7 @@
 		;remove from links list and deallocate link node on stack
 		vp_cpy [r4 + lk_node_table], r0
 		static_call sys_mem, free
-		vp_lea [r4 + lk_node_node], r0
+		vp_cpy r4, r0
 		ln_remove_node r0, r1
 		vp_add lk_node_size, r4
 
