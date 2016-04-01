@@ -26,9 +26,9 @@
 		static_call sys_heap, init
 
 		;init signal heap
-		vp_lea [r3 + gui_statics_signal_heap], r0
-		vp_cpy gui_signal_size, r1
-		vp_cpy gui_signal_size * 32, r2
+		vp_lea [r3 + gui_statics_sigslot_heap], r0
+		vp_cpy gui_sigslot_size, r1
+		vp_cpy gui_sigslot_size * 32, r2
 		static_jmp sys_heap, init
 
 	fn_function_end

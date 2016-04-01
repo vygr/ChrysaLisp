@@ -44,7 +44,7 @@
 	def_structure	gui_statics
 		def_long	gui_statics_sdl_funcs
 		def_struct	gui_statics_rect_heap, hp_heap
-		def_struct	gui_statics_signal_heap, hp_heap
+		def_struct	gui_statics_sigslot_heap, hp_heap
 		def_long	gui_statics_window
 		def_long	gui_statics_screen
 		def_long	gui_statics_renderer
@@ -72,9 +72,11 @@
 		def_long	gui_ctx_y
 	def_structure_end
 
-	def_structure	gui_signal, ln_fnode
-		def_long	gui_signal_inst
-		def_long	gui_signal_method
+	def_structure	gui_sigslot
+		def_struct	gui_sigslot_sig_node, ln_node
+		def_struct	gui_sigslot_slot_node, ln_node
+		def_long	gui_sigslot_inst
+		def_long	gui_sigslot_addr
 	def_structure_end
 
 ;;;;;;;;;;;;;;;

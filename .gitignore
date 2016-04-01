@@ -1,5 +1,6 @@
 *.o
 class/button/create
+class/button/deinit
 class/button/draw
 class/button/init
 class/button/layout
@@ -32,8 +33,13 @@ class/label/new
 class/label/pref_size
 class/label/set_text
 class/label/set_text_color
+class/obj/connect
 class/obj/create
+class/obj/deinit
 class/obj/destroy
+class/obj/disconnect_sig
+class/obj/disconnect_slot
+class/obj/emit
 class/obj/init
 class/obj/new
 class/obj/null

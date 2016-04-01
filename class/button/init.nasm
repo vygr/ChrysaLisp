@@ -17,6 +17,8 @@
 		if r1, !=, 0
 			;init myself
 			vp_cpy_cl 0, [r0 + button_state]
+			vp_lea [r0 + button_pressed_signal], r1
+			lh_init r1, r2
 
 			vp_cpy [r0 + label_flow], r0
 			vp_cpy flow_flag_down | flow_flag_align_hcenter, r1

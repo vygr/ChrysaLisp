@@ -20,6 +20,7 @@
 
 	def_structure	button, label
 		def_long	button_state
+		def_struct	button_pressed_signal, lh_list
 	def_structure_end
 
 %endif

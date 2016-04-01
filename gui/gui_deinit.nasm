@@ -22,7 +22,7 @@
 		static_call sys_heap, deinit
 
 		;deinit signal heap
-		vp_lea [r5 + gui_statics_signal_heap], r0
+		vp_lea [r5 + gui_statics_sigslot_heap], r0
 		static_call sys_heap, deinit
 
 		;destroy any window

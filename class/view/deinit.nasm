@@ -6,7 +6,7 @@
 		;inputs
 		;r0 = view object
 		;trashes
-		;r1-r3, r5-r15
+		;all but r0, r4
 
 		;save object
 		vp_push r0
