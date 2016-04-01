@@ -7,7 +7,7 @@ Runs on OSX or Linux. Could move to bare metal eventually but it's useful for
 now to run hosted while experimenting.
 
 Uses a virtual cpu instruction macro set to avoid use of x64 native
-instructions. It will eventual run on ARM Linux for machines such as Raspberry
+instructions. It will eventually run on ARM Linux for machines such as Raspberry
 PI and BeagleBone with no source modification.
 
 Has function level dynamic binding and loading. Individual functions are loaded
@@ -76,7 +76,7 @@ Make with:
 make -j
 
 Requires NASM, SDL2 and the SDL2_ttf library to be installed. SDL2 and SDL2_ttf
-are for the experimental gui.
+are for the experimental GUI.
 
 Run with:
 
