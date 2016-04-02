@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 %include 'inc/gui.inc'
+%include 'inc/string.inc'
 %include 'class/class_window.inc'
 %include 'class/class_flow.inc'
 %include 'class/class_button.inc'
@@ -11,15 +12,19 @@
 
 	fn_function tests/gui/gui2/app
 
-		def_structure	local
+		def_structure	local, obj
 			def_long	local_last_event
 			def_long	local_window
 			def_long	local_window_panel
 			def_long	local_panel
+			def_long	local_next
 		def_structure_end
 
 		;init app vars
 		vp_sub local_size, r4
+		vp_cpy r4, r0
+		static_bind class, obj, r1
+		static_call obj, init
 
 		;create my window
 		static_call window, create
@@ -32,7 +37,7 @@
 		fn_string 'Status Text', r1
 		static_call window, set_status
 
-		;add my panel
+		;add my app panel
 		static_call flow, create
 		fn_assert r0, !=, 0
 		vp_cpy r0, [r4 + local_panel]
@@ -44,50 +49,39 @@
 		static_call flow, add
 
 		;add launch buttons to my app panel
-		static_call button, create
-		fn_assert r0, !=, 0
-		vp_cpy 0xffffff00, r1
-		static_call button, set_color
-		fn_string 'tests/farm', r1
-		static_call button, set_text
-		vp_cpy [r4 + local_panel], r1
-		static_call button, add
+		vp_rel launch_list, r0
+		loop_start
+			vp_xor r1, r1
+			vp_cpy_b [r0], r1
+			breakif r1, ==, 0
+			vp_cpy r0, [r4 + local_next]
 
-		static_call button, create
-		fn_assert r0, !=, 0
-		vp_cpy 0xffffff00, r1
-		static_call button, set_color
-		fn_string 'tests/array', r1
-		static_call button, set_text
-		vp_cpy [r4 + local_panel], r1
-		static_call button, add
+			static_call button, create
+			fn_assert r0, !=, 0
+			vp_cpy 0xffffff00, r1
+			static_call button, set_color
+			vp_cpy [r4 + local_next], r1
+			static_call button, set_text
+			vp_cpy [r4 + local_panel], r1
+			static_call button, add
+			vp_lea [r0 + button_pressed_signal], r1
+			vp_cpy r4, r2
+			vp_rel on_press, r3
+			static_call button, connect
 
-		static_call button, create
-		fn_assert r0, !=, 0
-		vp_cpy 0xffffff00, r1
-		static_call button, set_color
-		fn_string 'tests/pipe', r1
-		static_call button, set_text
-		vp_cpy [r4 + local_panel], r1
-		static_call button, add
-
-		static_call button, create
-		fn_assert r0, !=, 0
-		vp_cpy 0xffffff00, r1
-		static_call button, set_color
-		fn_string 'tests/global', r1
-		static_call button, set_text
-		vp_cpy [r4 + local_panel], r1
-		static_call button, add
+			vp_cpy [r4 + local_next], r0
+			static_call sys_string, length
+			vp_lea [r0 + r1 + 1], r0
+		loop_end
 
 		;set to pref size
 		vp_cpy [r4 + local_window], r0
 		method_call window, pref_size
-		vp_cpy 256, r8
+		vp_cpy 320, r8
 		vp_cpy 256, r9
 		static_call window, change
 
-		;set owner
+		;set window owner
 		static_call sys_task, tcb
 		vp_cpy r0, r1
 		vp_cpy [r4 + local_window], r0
@@ -107,18 +101,6 @@
 			vp_cpy [r1 + ev_data_view], r0
 			method_call view, event
 
-			;launch button ?
-			vp_cpy [r4 + local_last_event], r1
-			vp_cpy [r1 + ev_data_buttons], r1
-			if r1, ==, 0
-				static_call view, get_parent
-				if r1, ==, [r4 + local_panel]
-					static_call button, get_text
-					vp_cpy r1, r0
-					static_call sys_task, open_child
-				endif
-			endif
-
 			;free event message
 			vp_cpy [r4 + local_last_event], r0
 			static_call sys_mem, free
@@ -128,7 +110,26 @@
 		vp_cpy [r4 + local_window], r0
 		static_call window, deref
 
+		vp_cpy r4, r0
+		method_call obj, deinit
 		vp_add local_size, r4
 		vp_ret
+
+	on_press:
+		;inputs
+		;r0 = app local object
+		;r1 = button object
+
+		vp_cpy r1, r0
+		static_call button, get_text
+		vp_cpy r1, r0
+		static_jmp sys_task, open_child
+
+	launch_list:
+		db 'tests/farm', 0
+		db 'tests/array', 0
+		db 'tests/pipe', 0
+		db 'tests/global', 0
+		db 0
 
 	fn_function_end

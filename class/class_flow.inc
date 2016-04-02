@@ -10,6 +10,7 @@
 
 	def_method pref_size, class/flow/pref_size, override
 	def_method layout, class/flow/layout, override
+	def_method draw, class/obj/null, override
 
 	flow_flag_left			equ 1 << 0
 	flow_flag_right			equ 1 << 1

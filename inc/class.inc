@@ -232,18 +232,13 @@
 		fn_bind _map_%[_super_class_%[%1]_]_func_%[_nonvirtual_], %3
 	%endmacro
 
-	%macro slot_bind 2-4 r3, r2
+	%macro slot_bind 3
 		;%1 = class name
 		;%2 = slot method name
-		;%3 = dispatch reg
-		;%4 = instance pointer reg
+		;%3 = reg
 
 		method_lookup %1, %2
-		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
-			static_bind %1, %2, %3
-		%else
-			method_bind %1, %2, %3, %4
-		%endif
+		fn_bind _map_%[%1]_func_%[_nonvirtual_], %3
 	%endmacro
 
 	def_class class
