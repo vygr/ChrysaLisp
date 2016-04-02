@@ -193,7 +193,7 @@
 	_func_entry:
 		%ifdef debug_function_enter
 			%ifidn %2, debug_enter
-				fn_debug 'enter'
+				fn_debug_str 'enter'
 			%elifidn %2, no_debug_enter
 			%else
 				%fatal No such debug setting, use debug_enter or no_debug_enter
@@ -230,9 +230,9 @@
 	_func_end:
 	%endmacro
 
-	%macro fn_debug 1-2 0
+	%macro fn_debug_long 1-2 0
 		;%1 = debug string
-		;%2 = debug value
+		;%2 = debug int
 
 		%ifdef debug_mode
 			vp_push r0, r1, r2, r3
@@ -240,7 +240,26 @@
 			vp_cpy __LINE__, r1
 			fn_string %1, r2
 			vp_cpy %2, r3
-			static_call sys_io, debug
+			static_call sys_io, debug_long
+			vp_pop r0, r1, r2, r3
+		%endif
+	%endmacro
+
+	%macro fn_debug_str 1-2 ''
+		;%1 = debug string
+		;%2 = debug string
+
+		%ifdef debug_mode
+			vp_push r0, r1, r2, r3
+			vp_rel _func_start + fn_header_pathname, r0
+			vp_cpy __LINE__, r1
+			fn_string %1, r2
+			%ifidn %2, ''
+				fn_string '', r3
+			%else
+				vp_cpy %2, r3
+			%endif
+			static_call sys_io, debug_str
 			vp_pop r0, r1, r2, r3
 		%endif
 	%endmacro
@@ -253,7 +272,7 @@
 
 		%ifdef debug_mode
 			ifnot %1, %2, %3
-				fn_debug %4
+				fn_debug_str %4
 				sys_exit 1
 			endif
 		%endif

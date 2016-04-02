@@ -2,11 +2,16 @@
 %include 'inc/task.inc'
 %include 'inc/gui.inc'
 %include 'inc/sdl2.inc'
-%include 'class/class_view.inc'
+%include 'class/class_label.inc'
 
 	fn_function gui/gui
+		;kernel callback for first update
+		;this will init SDL etc
+		vp_rel kernel_callback, r0
+		static_call sys_task, callback
+
 		;allocate background view
-		static_call view, create
+		static_call label, create
 
 		;set as gui screen view
 		static_bind gui_gui, statics, r1
@@ -17,23 +22,15 @@
 		vp_xor r9, r9
 		vp_cpy SCREEN_WIDTH, r10
 		vp_cpy SCREEN_HEIGHT, r11
-		static_call view, change
+		static_call label, change
 		vp_cpy 0xff000000, r1
-		static_call view, set_color
-		static_call view, opaque
-
-		;dirty all
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_screen], r0
-		static_call view, dirty_all
+		static_call label, set_color
+		static_call label, opaque
+		static_call label, dirty_all
 
 		;sleep just a moment to let all routeing finish
 		vp_cpy 1000000, r0
 		static_call sys_task, sleep
-
-		;kernel callback for first update
-		vp_rel kernel_callback, r0
-		static_call sys_task, callback
 
 		;for now fire up the test apps
 		;this might be an gui auto run list eventually

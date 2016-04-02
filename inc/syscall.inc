@@ -12,7 +12,8 @@
 	def_method string, sys/write_string
 	def_method number, sys/write_number
 	def_method read, sys/read_line
-	def_method debug, sys/write_debug
+	def_method debug_long, sys/write_debug_long
+	def_method debug_str, sys/write_debug_str
 
 	def_class sys_cpu
 	def_method id, sys/cpu_get_id

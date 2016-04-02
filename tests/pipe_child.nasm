@@ -17,7 +17,7 @@
 		static_call sys_task, sleep
 
 		;print Hello and return
-		fn_debug 'Hello from pipe worker !'
+		fn_debug_str 'Hello from pipe worker !'
 		vp_ret
 
 	fn_function_end

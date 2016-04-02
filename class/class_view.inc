@@ -33,7 +33,7 @@
 
 	def_method deinit, class/view/deinit, override
 
-	def_method draw, class/view/draw, virtual
+	def_method draw, class/obj/null, virtual
 	def_method hit, class/view/hit, virtual
 	def_method pref_size, class/view/pref_size, virtual
 	def_method layout, class/obj/null, virtual

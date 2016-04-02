@@ -209,7 +209,10 @@ sys/task_suspend
 sys/task_tcb
 sys/task_yield
 sys/write_char
-sys/write_debug
+sys/write_debug_long
+sys/write_debug_long
+sys/write_debug_str
+sys/write_debug_str
 sys/write_number
 sys/write_string
 syscalls
