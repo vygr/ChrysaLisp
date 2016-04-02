@@ -61,34 +61,50 @@
 		;save input
 		vp_cpy r0, r14
 
-		ttf_open_font [r14 + local_font], [r14 + local_points]
-		if r0, !=, 0
-			vp_cpy r0, r5
-			vp_cpy [r14 + local_font], r0
-			static_call sys_string, length
-			vp_lea	[r1 + ft_font_size + 1], r0
-			static_call sys_mem, alloc
-			fn_assert r0, !=, 0
-			vp_cpy r0, r13
+		;get font statics
+		static_bind gui_font, statics, r5
 
+		;search font list
+		loop_flist_forward r5 + ft_statics_font_list, r5, r5
 			vp_cpy [r14 + local_points], r0
-			vp_cpy r0, [r13 + ft_font_points]
-			vp_cpy r5, [r13 + ft_font_handle]
-			vp_lea [r13 + ft_font_name], r1
-			vp_cpy [r14 + local_font], r0
-			static_call sys_string, copy
+			continueif r0, !=, [r5 + ft_font_points]
+			vp_lea [r5 + ft_font_name], r0
+			vp_cpy [r14 + local_font], r1
+			static_call sys_string, compare
+		loop_until r0, !=, 0
 
-			;fill in ascent, descent and height
-			ttf_font_ascent [r13 + ft_font_handle]
-			vp_cpy r0, [r13 + ft_font_ascent]
-			ttf_font_descent [r13 + ft_font_handle]
-			vp_cpy r0, [r13 + ft_font_descent]
-			ttf_font_height [r13 + ft_font_handle]
-			vp_cpy r0, [r13 + ft_font_height]
+		;did we find it ?
+		vp_cpy r5, r0
+		if r5, ==, 0
+			ttf_open_font [r14 + local_font], [r14 + local_points]
+			if r0, !=, 0
+				vp_cpy r0, r5
+				vp_cpy [r14 + local_font], r0
+				static_call sys_string, length
+				vp_lea	[r1 + ft_font_size + 1], r0
+				static_call sys_mem, alloc
+				fn_assert r0, !=, 0
+				vp_cpy r0, r13
 
-			vp_cpy r13, r0
-			static_bind gui_font, statics, r5
-			ln_add_fnode r5 + ft_statics_font_list, r0, r1
+				vp_cpy [r14 + local_points], r0
+				vp_cpy r0, [r13 + ft_font_points]
+				vp_cpy r5, [r13 + ft_font_handle]
+				vp_lea [r13 + ft_font_name], r1
+				vp_cpy [r14 + local_font], r0
+				static_call sys_string, copy
+
+				;fill in ascent, descent and height
+				ttf_font_ascent [r13 + ft_font_handle]
+				vp_cpy r0, [r13 + ft_font_ascent]
+				ttf_font_descent [r13 + ft_font_handle]
+				vp_cpy r0, [r13 + ft_font_descent]
+				ttf_font_height [r13 + ft_font_handle]
+				vp_cpy r0, [r13 + ft_font_height]
+
+				vp_cpy r13, r0
+				static_bind gui_font, statics, r5
+				ln_add_fnode r5 + ft_statics_font_list, r0, r1
+			endif
 		endif
 		vp_cpy r0, [r14 + local_handle]
 
