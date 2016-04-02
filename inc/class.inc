@@ -249,6 +249,7 @@
 	def_method label, class/class_label
 	def_method button, class/class_button
 	def_method flow, class/class_flow
+	def_method grid, class/class_grid
 	def_method window, class/class_window
 	def_method progress, class/class_progress
 	def_method title, class/class_title

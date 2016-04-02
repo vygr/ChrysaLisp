@@ -38,6 +38,8 @@
 		static_call sys_task, start
 		fn_bind tests/gui/gui2/app, r0
 		static_call sys_task, start
+		fn_bind tests/gui/gui3/app, r0
+		static_call sys_task, start
 
 		;gui event loop
 		loop_start

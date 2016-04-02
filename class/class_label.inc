@@ -13,6 +13,7 @@
 	def_method set_text, class/label/set_text
 	def_method get_text, class/label/get_text
 	def_method set_text_color, class/label/set_text_color
+	def_method set_flow_flags, class/label/set_flow_flags
 
 	def_method pref_size, class/label/pref_size, override
 	def_method draw, class/label/draw, override

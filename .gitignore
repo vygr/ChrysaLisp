@@ -11,6 +11,7 @@ class/button/new
 class/button/pref_size
 class/class_button
 class/class_flow
+class/class_grid
 class/class_label
 class/class_obj
 class/class_progress
@@ -20,10 +21,18 @@ class/class_title
 class/class_view
 class/class_window
 class/flow/create
+class/flow/init
 class/flow/layout
 class/flow/new
 class/flow/pref_size
 class/flow/set_flow_flags
+class/grid/create
+class/grid/init
+class/grid/layout
+class/grid/new
+class/grid/pref_size
+class/grid/set_grid
+class/grid/set_grid_flags
 class/label/create
 class/label/draw
 class/label/get_text
@@ -31,6 +40,8 @@ class/label/init
 class/label/layout
 class/label/new
 class/label/pref_size
+class/label/set_flow_flags
+class/label/set_font
 class/label/set_text
 class/label/set_text_color
 class/obj/connect
@@ -225,5 +236,6 @@ tests/global_child
 tests/gui/gui1/app
 tests/gui/gui1/child
 tests/gui/gui2/app
+tests/gui/gui3/app
 tests/pipe
 tests/pipe_child

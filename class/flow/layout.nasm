@@ -175,7 +175,6 @@
 
 		vp_cpy r12, [r1 + local_x]
 		vp_cpy r13, [r1 + local_y]
-		static_call view, change
-		vp_ret
+		static_jmp view, change
 
 	fn_function_end
