@@ -11,12 +11,11 @@
 		;outputs
 		;r1 = 0 if error, else ok
 
-		;save object
-		vp_push r0
-
 		;init parent
 		super_call window, init
 		if r1, !=, 0
+			vp_push r0
+
 			;init myself
 			vp_cpy 0xffc0c0c0, r1
 			static_call window, set_color
@@ -67,8 +66,9 @@
 			vp_cpy r0, [r1 + window_status]
 			vp_cpy [r1 + window_panel], r1
 			static_call label, add
+
+			vp_pop r0
 		endif
-		vp_pop r0
 		vp_ret
 
 	fn_function_end

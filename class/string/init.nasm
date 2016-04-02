@@ -9,12 +9,11 @@
 		;outputs
 		;r1 = 0 if error, else ok
 
-		;save inputs
-		vp_push r0
-
 		;init parent
 		super_call string, init
 		if r1, !=, 0
+			vp_push r0
+
 			;init myself
 			fn_string 'fonts/OpenSans-Regular.ttf', r0
 			vp_cpy 18, r1
@@ -25,9 +24,9 @@
 			vp_xor r0, r0
 			vp_cpy r0, [r1 + string_text]
 			vp_cpy r0, [r1 + string_text_color]
-		endif
 
-		vp_pop r0
+			vp_pop r0
+		endif
 		vp_ret
 
 	fn_function_end

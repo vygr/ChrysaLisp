@@ -10,12 +10,11 @@
 		;outputs
 		;r1 = 0 if error, else ok
 
-		;save object
-		vp_push r0
-
 		;init parent
 		super_call label, init
 		if r1, !=, 0
+			vp_push r0
+
 			;init myself
 			;add my flow
 			static_call flow, create
@@ -40,8 +39,9 @@
 			vp_cpy [r4], r1
 			vp_cpy [r1 + label_flow], r1
 			static_call string, add
+
+			vp_pop r0
 		endif
-		vp_pop r0
 		vp_ret
 
 	fn_function_end
