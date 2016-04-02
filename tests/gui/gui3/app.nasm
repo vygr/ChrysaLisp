@@ -109,8 +109,14 @@
 		;set to pref size
 		vp_cpy [r4 + local_window], r0
 		method_call window, pref_size
-		vp_cpy 320, r8
-		vp_cpy 256, r9
+		vp_cpy r10, r12
+		vp_cpy r11, r13
+		vp_shr 1, r12
+		vp_shr 1, r13
+		vp_cpy 920, r8
+		vp_cpy 48, r9
+		vp_add r12, r10
+		vp_add r13, r11
 		static_call window, change
 
 		;set window owner
