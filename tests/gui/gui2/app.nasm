@@ -25,6 +25,7 @@
 		vp_cpy r4, r0
 		static_bind class, obj, r1
 		static_call obj, init
+		fn_assert r1, !=, 0
 
 		;create my window
 		static_call window, create
