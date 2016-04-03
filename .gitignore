@@ -193,9 +193,10 @@ sys/opt_process
 sys/read_line
 sys/string_compare
 sys/string_copy
+sys/string_from_long
 sys/string_hash
-sys/string_int
 sys/string_length
+sys/string_to_long
 sys/task_callback
 sys/task_count
 sys/task_deinit

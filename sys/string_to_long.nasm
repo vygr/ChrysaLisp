@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	fn_function sys/string_int, no_debug_enter
+	fn_function sys/string_to_long, no_debug_enter
 		;inputs
 		;r0 = string
 		;r1 = base

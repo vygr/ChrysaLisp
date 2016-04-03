@@ -13,6 +13,8 @@
 
 	fn_function tests/gui/gui3/app
 
+		%define string_buf_size 64
+
 		def_structure	local, obj
 			def_long	local_last_event
 			def_long	local_window
@@ -20,6 +22,8 @@
 			def_long	local_flow_panel
 			def_long	local_grid_panel
 			def_long	local_next
+			def_long	local_accum
+			def_struct	local_buffer, string_buf
 		def_structure_end
 
 		;init app vars
@@ -28,6 +32,11 @@
 		static_bind class, obj, r1
 		static_call obj, init
 		fn_assert r1, !=, 0
+		vp_xor r0, r0
+		vp_cpy r0, [r4 + local_accum]
+		vp_lea [r4 + local_buffer], r1
+		vp_cpy 10, r2
+		static_call sys_string, from_long
 
 		;create my window
 		static_call window, create
@@ -61,7 +70,7 @@
 		fn_string 'fonts/OpenSans-Regular.ttf', r1
 		vp_cpy 24, r2
 		static_call label, set_font
-		fn_string '0', r1
+		vp_lea [r4 + local_buffer], r1
 		static_call label, set_text
 		vp_cpy [r4 + local_flow_panel], r1
 		static_call label, add
