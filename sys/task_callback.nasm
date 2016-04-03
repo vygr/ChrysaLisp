@@ -10,8 +10,8 @@
 
 		;test if we are the kernel task
 		static_bind sys_task, statics, r3
-		vp_cpy [r3 + tk_statics_kernel_tcb], r2
-		if r2, ==, r3
+		vp_cpy [r3 + tk_statics_current_tcb], r2
+		if r2, ==, [r3 + tk_statics_kernel_tcb]
 			;yes we can just do local call
 			vp_xchg r0, r1
 			vp_jmp r1

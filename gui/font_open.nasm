@@ -11,7 +11,7 @@
 		;outputs
 		;r0 = 0 if error, else font cache entry
 		;trashes
-		;r1-r3, r5
+		;all but r4
 
 		def_structure	local
 			def_long	local_font
