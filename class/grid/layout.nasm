@@ -20,12 +20,14 @@
 
 		vp_xor r10, r10
 		vp_cpy [r0 + view_w], r9
+		vp_shl 32, r9
 		vp_cpy [r0 + grid_width], r8
 		vp_div r8, r10, r9
 		vp_cpy r9, [r4 + local_cell_w]
 
 		vp_xor r10, r10
 		vp_cpy [r0 + view_h], r9
+		vp_shl 32, r9
 		vp_cpy [r0 + grid_height], r8
 		vp_div r8, r10, r9
 		vp_cpy r9, [r4 + local_cell_h]
@@ -47,6 +49,14 @@
 		vp_cpy [r1 + local_cell_h], r11
 		vp_mul r10, r8
 		vp_mul r11, r9
+		vp_add r8, r10
+		vp_add r9, r11
+		vp_shr 32, r8
+		vp_shr 32, r9
+		vp_shr 32, r10
+		vp_shr 32, r11
+		vp_sub r8, r10
+		vp_sub r9, r11
 
 		vp_cpy [r1 + local_count], r2
 		vp_inc r2

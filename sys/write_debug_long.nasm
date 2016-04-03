@@ -8,6 +8,8 @@
 		;r1 = line number
 		;r2 = debug string
 		;r3 = debug int
+		;trashes
+		;r0-r3, r5
 
 		def_structure	local
 			def_long	local_name

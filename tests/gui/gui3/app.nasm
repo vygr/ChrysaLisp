@@ -13,7 +13,7 @@
 
 	fn_function tests/gui/gui3/app
 
-		%define string_buf_size 64
+		%define string_buf_size 32
 
 		def_structure	local, obj
 			def_long	local_last_event
@@ -21,6 +21,7 @@
 			def_long	local_window_panel
 			def_long	local_flow_panel
 			def_long	local_grid_panel
+			def_long	local_display
 			def_long	local_next
 			def_long	local_accum
 			def_struct	local_buffer, string_buf
@@ -63,6 +64,7 @@
 		;add my display label
 		static_call label, create
 		fn_assert r0, !=, 0
+		vp_cpy r0, [r4 +local_display]
 		vp_cpy -1, r1
 		static_call label, set_color
 		vp_cpy flow_flag_align_hright | flow_flag_align_vcenter, r1
@@ -167,6 +169,27 @@
 		;r0 = app local object
 		;r1 = button object
 
+		vp_push r0, r1, r2, r3, r5, r6, r0
+
+		vp_cpy r1, r0
+		static_call button, get_text
+
+		vp_cpy r1, r0
+		vp_cpy 10, r1
+		static_call sys_string, to_long
+
+		vp_cpy [r4], r6
+		vp_cpy r0, [r6 + local_accum]
+
+		vp_cpy [r6 + local_accum], r0
+		vp_lea [r6 + local_buffer], r1
+		vp_cpy 10, r2
+;		static_call sys_string, from_long
+
+		vp_cpy [r6 + local_display], r0
+		static_call label, dirty
+
+		vp_pop r0, r1, r2, r3, r5, r6, r0
 		vp_ret
 
 	button_list:
