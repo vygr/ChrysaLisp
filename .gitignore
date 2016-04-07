@@ -16,6 +16,7 @@ class/class_label
 class/class_obj
 class/class_progress
 class/class_ref
+class/class_string
 class/class_text
 class/class_title
 class/class_view
@@ -63,6 +64,9 @@ class/progress/set_val
 class/ref/deref
 class/ref/init
 class/ref/ref
+class/string/create
+class/string/init
+class/string/new
 class/text/create
 class/text/draw
 class/text/get_text
