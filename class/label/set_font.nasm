@@ -1,5 +1,5 @@
 %include 'inc/func.inc'
-%include 'class/class_string.inc'
+%include 'class/class_text.inc'
 %include 'class/class_label.inc'
 
 	fn_function class/label/set_font
@@ -13,7 +13,7 @@
 		vp_push r0
 
 		vp_cpy [r0 + label_string], r0
-		static_call string, set_font
+		static_call text, set_font
 
 		vp_pop r0
 		vp_ret

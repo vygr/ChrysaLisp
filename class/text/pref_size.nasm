@@ -1,10 +1,10 @@
 %include 'inc/func.inc'
 %include 'inc/font.inc'
-%include 'class/class_string.inc'
+%include 'class/class_text.inc'
 
-	fn_function class/string/pref_size
+	fn_function class/text/pref_size
 		;inputs
-		;r0 = string object
+		;r0 = text object
 		;outputs
 		;r10 = prefered width
 		;r11 = prefered height
@@ -19,11 +19,11 @@
 		vp_sub local_size, r4
 		vp_cpy r0, [r4 + local_inst]
 
-		vp_cpy [r0 + string_text], r1
+		vp_cpy [r0 + text_text], r1
 		vp_xor r10, r10
 		vp_xor r11, r11
 		if r1, !=, 0
-			vp_cpy [r0 + string_font], r0
+			vp_cpy [r0 + text_font], r0
 			if r0, !=, 0
 				static_call gui_font, bounds
 			endif

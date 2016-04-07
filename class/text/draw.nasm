@@ -1,9 +1,9 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 %include 'inc/font.inc'
-%include 'class/class_string.inc'
+%include 'class/class_text.inc'
 
-	fn_function class/string/draw
+	fn_function class/text/draw
 		;inputs
 		;r0 = view object
 		;r1 = ctx object
@@ -21,9 +21,9 @@
 		vp_cpy r1, [r4 + local_ctx]
 
 		;draw text
-		vp_cpy [r0 + string_text], r1
+		vp_cpy [r0 + text_text], r1
 		if r1, !=, 0
-			vp_cpy [r0 + string_font], r0
+			vp_cpy [r0 + text_font], r0
 			if r0, !=, 0
 				static_call gui_font, text
 				if r0, !=, 0
@@ -33,7 +33,7 @@
 					vp_cpy [r0 + ft_text_height], r11
 					vp_cpy [r0 + ft_text_texture], r1
 					vp_cpy [r4 + local_inst], r2
-					vp_cpy [r2 + string_text_color], r2
+					vp_cpy [r2 + text_text_color], r2
 					vp_cpy [r4 + local_ctx], r0
 					static_call gui_ctx, blit
 				endif

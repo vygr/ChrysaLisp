@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_flow.inc'
-%include 'class/class_string.inc'
+%include 'class/class_text.inc'
 %include 'class/class_label.inc'
 
 	fn_function class/label/init
@@ -30,15 +30,15 @@
 			static_call flow, add
 
 			;add my string
-			static_call string, create
+			static_call text, create
 			fn_assert r0, !=, 0
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + label_string]
 			vp_xor r1, r1
-			static_call string, set_color
+			static_call text, set_color
 			vp_cpy [r4], r1
 			vp_cpy [r1 + label_flow], r1
-			static_call string, add
+			static_call text, add
 
 			vp_pop r0
 		endif
