@@ -10,7 +10,7 @@
 		;trashes
 		;r2-r3
 
-		if r0, >, 0x800000 - 8
+		if r0, >, mem_block_max_size - 8
 			;error
 			vp_xor r0, r0
 			vp_xor r1, r1

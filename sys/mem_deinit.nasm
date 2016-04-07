@@ -6,12 +6,14 @@
 		static_bind sys_mem, statics, r0
 		vp_cpy r0, r5
 
-		;14 heaps, from 1KB bytes to 8MB
-		for r6, 0, 14, 1
+		;free memory heaps
+		vp_cpy mem_block_min_size, r6	;start object size
+		loop_start
 			vp_cpy r5, r0
 			static_call sys_heap, deinit
 			vp_add hp_heap_size, r5
-		next
+			vp_add r6, r6
+		loop_until r6, >, mem_block_max_size
 		vp_ret
 
 	fn_function_end

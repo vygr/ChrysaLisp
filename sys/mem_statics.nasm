@@ -3,19 +3,13 @@
 
 	fn_function sys/mem_statics, no_debug_enter
 
-		times hp_heap_size db 0	;0x0000000000000400	byte blocks
-		times hp_heap_size db 0	;0x0000000000000800	byte blocks
-		times hp_heap_size db 0	;0x0000000000001000	byte blocks
-		times hp_heap_size db 0	;0x0000000000002000	byte blocks
-		times hp_heap_size db 0	;0x0000000000004000	byte blocks
-		times hp_heap_size db 0	;0x0000000000008000	byte blocks
-		times hp_heap_size db 0	;0x0000000000010000	byte blocks
-		times hp_heap_size db 0	;0x0000000000020000	byte blocks
-		times hp_heap_size db 0	;0x0000000000040000	byte blocks
-		times hp_heap_size db 0	;0x0000000000080000	byte blocks
-		times hp_heap_size db 0	;0x0000000000100000	byte blocks
-		times hp_heap_size db 0	;0x0000000000200000	byte blocks
-		times hp_heap_size db 0	;0x0000000000400000	byte blocks
-		times hp_heap_size db 0	;0x0000000000800000	byte blocks
+		%assign blk_size mem_block_min_size
+		%rep 1000
+			times hp_heap_size db 0
+			%assign blk_size blk_size * 2
+			%if blk_size > mem_block_max_size
+				%exitrep
+			%endif
+		%endrep
 
 	fn_function_end

@@ -13,6 +13,9 @@
 	def_method alloc, sys/heap_alloc
 	def_method reset, sys/heap_reset
 
+	mem_block_min_size	equ 0x000040
+	mem_block_max_size	equ 0x800000
+
 	def_class sys_mem
 	def_method statics, sys/mem_statics
 	def_method init, sys/mem_init
