@@ -5,8 +5,11 @@
 		;r0 = source address
 		;r1 = destination address
 		;r2 = length in bytes
+		;outputs
+		;r0 = source address end
+		;r1 = destination address end
 		;trashes
-		;r0-r3
+		;r2-r3
 
 		if r2, !=, 0
 			;not zero length

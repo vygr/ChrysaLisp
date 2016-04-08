@@ -7,6 +7,8 @@
 	def_method create, class/string/create
 	def_method new, class/string/new
 	def_method init, class/string/init
+	def_method init1, class/string/init1
+	def_method add, class/string/add
 
 	def_structure	string, ref
 		def_long	string_length
