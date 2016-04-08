@@ -36,8 +36,6 @@
 			fn_assert r0, !=, 0
 			vp_cpy 0xffc0c0c0, r1
 			static_call title, set_color
-			fn_string 'Title Text Goes Here', r1
-			static_call label, set_text
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_title]
 			vp_cpy [r1 + window_flow], r1
@@ -60,8 +58,6 @@
 			fn_assert r0, !=, 0
 			vp_cpy 0xff808080, r1
 			static_call label, set_color
-			fn_string 'Status Text Goes Here', r1
-			static_call label, set_text
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_status]
 			vp_cpy [r1 + window_panel], r1

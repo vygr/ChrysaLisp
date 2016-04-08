@@ -70,6 +70,7 @@ class/string/init
 class/string/init1
 class/string/new
 class/text/create
+class/text/deinit
 class/text/draw
 class/text/get_text
 class/text/init

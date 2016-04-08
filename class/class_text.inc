@@ -12,12 +12,13 @@
 	def_method get_text, class/text/get_text
 	def_method set_text_color, class/text/set_text_color
 
+	def_method deinit, class/text/deinit, override
 	def_method pref_size, class/text/pref_size, override
 	def_method draw, class/text/draw, override
 
 	def_structure	text, view
 		def_long	text_font
-		def_long	text_text
+		def_long	text_string
 		def_long	text_text_color
 	def_structure_end
 

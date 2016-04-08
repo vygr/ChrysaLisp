@@ -7,39 +7,30 @@
 ; some NASM data macros
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-	%assign null_size	0
-	%assign byte_size	1
-	%assign short_size	2
-	%assign int_size	4
-	%assign long_size	8
+	null_size	equ 0
+	byte_size	equ 1
+	short_size	equ 2
+	int_size	equ 4
+	long_size	equ 8
 
 	%macro def_structure 1-2 null
 		;inputs
 		;%1 = structure name
 		;%2 = super structure name
-		%ifdef %[%1]_size
-			%fatal Structure %1 allready defined !
-		%endif
-		%ifndef %[%2]_size
-			%fatal Structure %2 not defined !
-		%endif
 		%define _struct_ %1
 		%assign _offset_ %[%2]_size
 	%endmacro
 
 	%macro def_structure_end 0
 		def_align long
-		%assign %[_struct_]_size _offset_
+		%[_struct_]_size equ _offset_
 	%endmacro
 
 	%macro def_struct 2
 		;inputs
 		;%1 = field name
 		;%2 = struct name
-		%ifndef %[%2]_size
-			%fatal Structure %2 not defined !
-		%endif
-		%assign %1 _offset_
+		%1 equ _offset_
 		%assign _offset_ _offset_ + %[%2]_size
 	%endmacro
 

@@ -6,6 +6,7 @@
 %include 'class/class_flow.inc'
 %include 'class/class_grid.inc'
 %include 'class/class_button.inc'
+%include 'class/class_string.inc'
 
 ;;;;;;;;;;;
 ; test code
@@ -23,6 +24,7 @@
 			def_long	local_grid_panel
 			def_long	local_display
 			def_long	local_next
+			def_long	local_button
 			def_long	local_accum
 			def_struct	local_buffer, string_buf
 		def_structure_end
@@ -45,9 +47,17 @@
 		vp_cpy r0, [r4 + local_window]
 		static_call window, get_panel
 		vp_cpy r1, [r4 + local_window_panel]
-		fn_string 'Calculator', r1
+		fn_string 'Calculator', r0
+		static_call string, create
+		fn_assert r0, !=, 0
+		vp_cpy r0, r1
+		vp_cpy [r4 + local_window], r0
 		static_call window, set_title
-		fn_string 'Status Text', r1
+		fn_string 'Status Text', r0
+		static_call string, create
+		fn_assert r0, !=, 0
+		vp_cpy r0, r1
+		vp_cpy [r4 + local_window], r0
 		static_call window, set_status
 
 		;add my app flow panel
@@ -72,8 +82,6 @@
 		fn_string 'fonts/OpenSans-Regular.ttf', r1
 		vp_cpy 24, r2
 		static_call label, set_font
-		vp_lea [r4 + local_buffer], r1
-		static_call label, set_text
 		vp_cpy [r4 + local_flow_panel], r1
 		static_call label, add
 
@@ -99,9 +107,14 @@
 
 			static_call button, create
 			fn_assert r0, !=, 0
+			vp_cpy r0, [r4 + local_button]
 			vp_cpy 0xffffff00, r1
 			static_call button, set_color
-			vp_cpy [r4 + local_next], r1
+			vp_cpy [r4 + local_next], r0
+			static_call string, create
+			fn_assert r0, !=, 0
+			vp_cpy r0, r1
+			vp_cpy [r4 + local_button], r0
 			static_call button, set_text
 			vp_cpy flow_flag_align_hcenter | flow_flag_align_vcenter, r1
 			static_call button, set_flow_flags
@@ -171,26 +184,26 @@
 
 		vp_push r1, r0
 
-		vp_cpy r1, r0
-		static_call button, get_text
+;		vp_cpy r1, r0
+;		static_call button, get_text
 
-		vp_cpy r1, r0
-		vp_cpy 10, r1
-		static_call sys_string, to_long
+;		vp_cpy r1, r0
+;		vp_cpy 10, r1
+;		static_call sys_string, to_long
 
-		vp_cpy [r4], r6
-		vp_cpy r0, [r6 + local_accum]
+;		vp_cpy [r4], r6
+;		vp_cpy r0, [r6 + local_accum]
 
-		vp_cpy [r6 + local_accum], r0
-		vp_cpy 123456789, r0
-		vp_lea [r6 + local_buffer], r1
-		vp_cpy 10, r2
-		static_call sys_string, from_long
+;		vp_cpy [r6 + local_accum], r0
+;		vp_cpy 123456789, r0
+;		vp_lea [r6 + local_buffer], r1
+;		vp_cpy 10, r2
+;		static_call sys_string, from_long
 
-		vp_cpy [r6 + local_display], r0
-		vp_lea [r6 + local_buffer], r1
-		static_call label, set_text
-		static_call label, dirty
+;		vp_cpy [r6 + local_display], r0
+;		vp_lea [r6 + local_buffer], r1
+;		static_call label, set_text
+;		static_call label, dirty
 
 		vp_pop r1, r0
 		vp_ret

@@ -25,8 +25,8 @@
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-	%assign mailbox_id_size 16
-	%assign mail_data_size 512
+	mailbox_id_size	equ 16
+	mail_data_size	equ 512
 
 	def_structure	ml_mailbox, lh_list
 		def_struct	ml_mailbox_parcel_list, lh_list

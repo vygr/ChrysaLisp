@@ -12,7 +12,7 @@
 
 		vp_push r0
 
-		vp_cpy [r0 + label_string], r0
+		vp_cpy [r0 + label_text], r0
 		static_call text, set_font
 
 		vp_pop r0

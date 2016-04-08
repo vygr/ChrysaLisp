@@ -5,7 +5,7 @@
 	fn_function class/window/set_title
 		;inputs
 		;r0 = window object
-		;r1 = title string
+		;r1 = 0, else title string object
 
 		def_structure	local
 			def_long	local_inst
@@ -16,7 +16,7 @@
 		vp_cpy r0, [r4 + local_inst]
 
 		vp_cpy [r0 + window_title], r0
-		static_call label, set_text
+		static_call title, set_text
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4

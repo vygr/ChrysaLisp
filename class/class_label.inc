@@ -21,7 +21,7 @@
 
 	def_structure	label, view
 		def_long	label_flow
-		def_long	label_string
+		def_long	label_text
 	def_structure_end
 
 %endif

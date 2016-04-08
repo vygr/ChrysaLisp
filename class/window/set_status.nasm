@@ -5,7 +5,7 @@
 	fn_function class/window/set_status
 		;inputs
 		;r0 = window object
-		;r1 = status string
+		;r1 = 0, else status string object
 
 		def_structure	local
 			def_long	local_inst

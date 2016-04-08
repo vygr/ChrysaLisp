@@ -29,11 +29,11 @@
 			vp_cpy r0, [r1 + label_flow]
 			static_call flow, add
 
-			;add my string
+			;add my text
 			static_call text, create
 			fn_assert r0, !=, 0
 			vp_cpy [r4], r1
-			vp_cpy r0, [r1 + label_string]
+			vp_cpy r0, [r1 + label_text]
 			vp_xor r1, r1
 			static_call text, set_color
 			vp_cpy [r4], r1

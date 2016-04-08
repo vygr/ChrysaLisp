@@ -5,6 +5,7 @@
 %include 'class/class_window.inc'
 %include 'class/class_flow.inc'
 %include 'class/class_button.inc'
+%include 'class/class_string.inc'
 
 ;;;;;;;;;;;
 ; test code
@@ -18,6 +19,7 @@
 			def_long	local_window_panel
 			def_long	local_panel
 			def_long	local_next
+			def_long	local_button
 		def_structure_end
 
 		;init app vars
@@ -33,9 +35,17 @@
 		vp_cpy r0, [r4 + local_window]
 		static_call window, get_panel
 		vp_cpy r1, [r4 + local_window_panel]
-		fn_string 'Test Runner', r1
+		fn_string 'Test Runner', r0
+		static_call string, create
+		fn_assert r0, !=, 0
+		vp_cpy r0, r1
+		vp_cpy [r4 + local_window], r0
 		static_call window, set_title
-		fn_string 'Status Text', r1
+		fn_string 'Status Text', r0
+		static_call string, create
+		fn_assert r0, !=, 0
+		vp_cpy r0, r1
+		vp_cpy [r4 + local_window], r0
 		static_call window, set_status
 
 		;add my app panel
@@ -59,9 +69,14 @@
 
 			static_call button, create
 			fn_assert r0, !=, 0
+			vp_cpy r0, [r4 + local_button]
 			vp_cpy 0xffffff00, r1
 			static_call button, set_color
-			vp_cpy [r4 + local_next], r1
+			vp_cpy [r4 + local_next], r0
+			static_call string, create
+			fn_assert r0, !=, 0
+			vp_cpy r0, r1
+			vp_cpy [r4 + local_button], r0
 			static_call button, set_text
 			vp_cpy [r4 + local_panel], r1
 			static_call button, add
@@ -124,7 +139,7 @@
 
 		vp_cpy r1, r0
 		static_call button, get_text
-		vp_cpy r1, r0
+		vp_lea [r1 + string_data], r0
 		static_jmp sys_task, open_child
 
 	launch_list:

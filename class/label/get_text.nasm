@@ -7,7 +7,7 @@
 		;r0 = label object
 		;outputs
 		;r0 = label object
-		;r1 = string pointer
+		;r1 = 0, else string object
 
 		def_structure	local
 			def_long	local_inst
@@ -17,7 +17,7 @@
 		vp_sub local_size, r4
 		vp_cpy r0, [r4 + local_inst]
 
-		vp_cpy [r0 + label_string], r0
+		vp_cpy [r0 + label_text], r0
 		static_call text, get_text
 
 		vp_cpy [r4 + local_inst], r0

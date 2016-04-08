@@ -5,6 +5,7 @@
 %include 'class/class_flow.inc'
 %include 'class/class_button.inc'
 %include 'class/class_progress.inc'
+%include 'class/class_string.inc'
 %include 'tests/gui/gui1/app.inc'
 
 ;;;;;;;;;;;
@@ -36,9 +37,17 @@
 		vp_cpy r0, [r4 + local_window]
 		static_call window, get_panel
 		vp_cpy r1, [r4 + local_window_panel]
-		fn_string 'Network Task Monitor', r1
+		fn_string 'Network Task Monitor', r0
+		static_call string, create
+		fn_assert r0, !=, 0
+		vp_cpy r0, r1
+		vp_cpy [r4 + local_window], r0
 		static_call window, set_title
-		fn_string 'Status Text', r1
+		fn_string 'Status Text', r0
+		static_call string, create
+		fn_assert r0, !=, 0
+		vp_cpy r0, r1
+		vp_cpy [r4 + local_window], r0
 		static_call window, set_status
 
 		;add my panel

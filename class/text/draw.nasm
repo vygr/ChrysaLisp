@@ -2,6 +2,7 @@
 %include 'inc/gui.inc'
 %include 'inc/font.inc'
 %include 'class/class_text.inc'
+%include 'class/class_string.inc'
 
 	fn_function class/text/draw
 		;inputs
@@ -21,10 +22,11 @@
 		vp_cpy r1, [r4 + local_ctx]
 
 		;draw text
-		vp_cpy [r0 + text_text], r1
+		vp_cpy [r0 + text_string], r1
 		if r1, !=, 0
 			vp_cpy [r0 + text_font], r0
 			if r0, !=, 0
+				vp_add string_data, r1
 				static_call gui_font, text
 				if r0, !=, 0
 					vp_xor r8, r8
