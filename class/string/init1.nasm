@@ -27,17 +27,17 @@
 			vp_cpy r0, [r4 + local_inst]
 
 			;init myself
-			vp_cpy [r4 + local_string1], r2
-			vp_cpy [r4 + local_string2], r3
-			vp_cpy [r2 + string_length], r1
-			vp_add [r3 + string_length], r1
+			vp_cpy [r4 + local_string1], r6
+			vp_cpy [r4 + local_string2], r7
+			vp_cpy [r6 + string_length], r1
+			vp_add [r7 + string_length], r1
 			vp_cpy r1, [r0 + string_length]
 			vp_lea [r0 + string_data], r1
-			vp_lea [r2 + string_data], r0
-			vp_cpy [r2 + string_length], r2
+			vp_lea [r6 + string_data], r0
+			vp_cpy [r6 + string_length], r2
 			static_call sys_mem, copy
-			vp_lea [r3 + string_data], r0
-			vp_cpy [r3 + string_length], r2
+			vp_lea [r7 + string_data], r0
+			vp_cpy [r7 + string_length], r2
 			vp_inc r2
 			static_call sys_mem, copy
 

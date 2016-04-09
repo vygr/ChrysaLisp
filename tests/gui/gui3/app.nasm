@@ -82,6 +82,12 @@
 		fn_string 'fonts/OpenSans-Regular.ttf', r1
 		vp_cpy 24, r2
 		static_call label, set_font
+		fn_string '0', r0
+		static_call string, create
+		fn_assert r0, !=, 0
+		vp_cpy r0, r1
+		vp_cpy [r4 + local_display], r0
+		static_call label, set_text
 		vp_cpy [r4 + local_flow_panel], r1
 		static_call label, add
 
@@ -182,30 +188,54 @@
 		;r0 = app local object
 		;r1 = button object
 
-		vp_push r1, r0
+		def_structure	on_press
+			def_long	on_press_inst
+			def_long	on_press_button
+			def_long	on_press_string1
+			def_long	on_press_string2
+		def_structure_end
 
-;		vp_cpy r1, r0
-;		static_call button, get_text
+		;save inputs
+		vp_sub on_press_size, r4
+		vp_cpy r0, [r4 + on_press_inst]
+		vp_cpy r1, [r4 + on_press_button]
+
+		vp_cpy r1, r0
+		static_call button, get_text
+		vp_cpy r1, [r4 + on_press_string1]
+
+		vp_cpy [r4 + on_press_inst], r0
+		vp_cpy [r0 + local_display], r0
+		static_call label, get_text
+		vp_cpy r1, [r4 + on_press_string2]
+
+		vp_cpy r1, r0
+		vp_cpy [r4 + on_press_string1], r1
+		static_call string, add
+		fn_assert r0, !=, 0
+		vp_cpy r0, r1
+		vp_cpy [r4 + on_press_inst], r0
+		vp_cpy [r0 + local_display], r0
+		static_call label, set_text
+		static_call label, dirty
+
+		vp_cpy [r4 + on_press_string1], r0
+		static_call string, deref
+		vp_cpy [r4 + on_press_string2], r0
+		static_call string, deref
 
 ;		vp_cpy r1, r0
 ;		vp_cpy 10, r1
 ;		static_call sys_string, to_long
-
 ;		vp_cpy [r4], r6
 ;		vp_cpy r0, [r6 + local_accum]
-
 ;		vp_cpy [r6 + local_accum], r0
 ;		vp_cpy 123456789, r0
 ;		vp_lea [r6 + local_buffer], r1
 ;		vp_cpy 10, r2
 ;		static_call sys_string, from_long
 
-;		vp_cpy [r6 + local_display], r0
-;		vp_lea [r6 + local_buffer], r1
-;		static_call label, set_text
-;		static_call label, dirty
-
-		vp_pop r1, r0
+		vp_add on_press_size, r4
 		vp_ret
 
 	button_list:

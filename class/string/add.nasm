@@ -18,7 +18,7 @@
 		;get size of strings
 		vp_cpy [r0 + string_length], r0
 		vp_add [r1 + string_length], r0
-		vp_inc r0
+		vp_add string_size + 1, r0
 
 		;create new string object
 		static_call string, new
