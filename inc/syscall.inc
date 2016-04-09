@@ -78,7 +78,7 @@
 	s_isvtx				equ	0x200
 
 	stat_fsize			equ 0x48
-	%assign stat_size	0x100
+	stat_size			equ 0x100
 
 	def_structure	timeval
 		def_long	timeval_sec
@@ -317,7 +317,7 @@
 	s_isvtx				equ	0x200
 
 	stat_fsize			equ	0x30
-	%assign stat_size	0x100
+	stat_size			equ 0x100
 
 	def_structure	timeval
 		def_long	timeval_sec

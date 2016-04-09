@@ -19,16 +19,13 @@
 		vp_cpy r0, [r4 + local_inst]
 		vp_cpy r1, [r4 + local_string]
 
-		;reference the new string, deref the old
-		vp_cpy r1, r0
-		if r0, !=, 0
-			static_call string, ref
-		endif
-		vp_cpy [r4 + local_inst], r0
+		;deref the old string
 		vp_cpy [r0 + text_string], r0
 		if r0, !=, 0
 			static_call string, deref
 		endif
+
+		;transfer reference to new string
 		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r4 + local_string], r1
 		vp_cpy r1, [r0 + text_string]

@@ -14,7 +14,7 @@
 
 	fn_function tests/gui/gui3/app
 
-		%assign string_buf_size 32
+		string_buf_size	equ 32
 
 		def_structure	local, obj
 			def_long	local_last_event
