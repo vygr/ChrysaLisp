@@ -114,47 +114,44 @@
 		%endif
 	%endmacro
 
-	%macro method_call 2-4 r15, r0
+	%macro method_call 2-3 r15
 		;%1 = class name
 		;%2 = member name
 		;%3 = dispatch reg
-		;%4 = instance pointer reg
 
 		method_lookup %1, %2
 		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
 			%fatal Class %1 method %2 is nonvirtual ! Use static_call ?
 		%endif
-		vp_cpy [%4 + obj_vtable], %3
+		vp_cpy [r0 + obj_vtable], %3
 		vp_call [%3 + _virtual_ * 8]
 		;%warning Method %2 is index _virtual_
 	%endmacro
 
-	%macro method_jmp 2-4 r15, r0
+	%macro method_jmp 2-3 r15
 		;%1 = class name
 		;%2 = member name
 		;%3 = dispatch reg
-		;%4 = instance pointer reg
 
 		method_lookup %1, %2
 		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
 			%fatal Class %1 method %2 is nonvirtual ! Use static_jmp ?
 		%endif
-		vp_cpy [%4 + obj_vtable], %3
+		vp_cpy [r0 + obj_vtable], %3
 		vp_jmp [%3 + _virtual_ * 8]
 		;%warning Method %2 is index _virtual_
 	%endmacro
 
-	%macro method_bind 2-4 r15, r0
+	%macro method_bind 2-3 r15
 		;%1 = class name
 		;%2 = member name
 		;%3 = dispatch reg
-		;%4 = instance pointer reg
 
 		method_lookup %1, %2
 		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
 			%fatal Class %1 method %2 is nonvirtual ! Use static_bind ?
 		%endif
-		vp_cpy [%4 + obj_vtable], %3
+		vp_cpy [r0 + obj_vtable], %3
 		vp_cpy [%3 + _virtual_ * 8], %3
 		;%warning Method %2 is index _virtual_
 	%endmacro
