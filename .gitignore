@@ -118,7 +118,6 @@ class/view/set_flags
 class/view/set_owner
 class/view/sub
 class/window/create
-class/window/deinit
 class/window/draw
 class/window/get_panel
 class/window/init

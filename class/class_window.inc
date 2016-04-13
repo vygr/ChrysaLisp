@@ -17,7 +17,6 @@
 	def_method set_title, class/window/set_title
 	def_method set_status, class/window/set_status
 
-	def_method deinit, class/window/deinit, override
 	def_method pref_size, class/window/pref_size, override
 	def_method layout, class/window/layout, override
 	def_method draw, class/window/draw, override
