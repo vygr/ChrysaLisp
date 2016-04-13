@@ -18,7 +18,6 @@
 
 		;deinit parent
 		vp_pop r0
-		super_call text, deinit
-		vp_ret
+		super_jmp text, deinit
 
 	fn_function_end

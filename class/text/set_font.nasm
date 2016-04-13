@@ -26,7 +26,7 @@
 		vp_cpy [r4 + local_inst], r1
 		vp_cpy r0, [r1 + text_font]
 
-		vp_cpy [r4 + local_inst], r1
+		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 

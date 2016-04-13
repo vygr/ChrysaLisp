@@ -24,9 +24,9 @@
 		if r0, !=, 0
 			static_call string, ref
 		endif
-		vp_cpy [r4 + local_inst], r0
-		vp_cpy [r0 + text_string], r1
+		vp_cpy r0, r1
 
+		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 
