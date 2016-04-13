@@ -1,9 +1,9 @@
 %ifndef CLASS_VIEW_1234
 %define CLASS_VIEW_1234
 
-%include 'class/class_ref.inc'
+%include 'class/class_component.inc'
 
-	def_class view, ref
+	def_class view, component
 	def_method create, class/view/create
 	def_method new, class/view/new
 	def_method init, class/view/init
@@ -45,7 +45,7 @@
 
 	view_flag_solid	equ 1 << 0
 
-	def_structure	view, ref
+	def_structure	view, component
 		def_struct	view_node, ln_node
 		def_struct	view_list, lh_list
 		def_long	view_parent

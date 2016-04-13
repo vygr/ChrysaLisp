@@ -1,10 +1,10 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
-%include 'class/class_obj.inc'
+%include 'class/class_component.inc'
 
-	fn_function class/obj/disconnect_sig
+	fn_function class/component/disconnect_sig
 		;inputs
-		;r0 = object
+		;r0 = component object
 		;r1 = signal list
 		;trashes
 		;all but r0, r4

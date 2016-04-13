@@ -1,12 +1,12 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
-%include 'class/class_obj.inc'
+%include 'class/class_component.inc'
 
-	fn_function class/obj/connect
+	fn_function class/component/connect
 		;inputs
-		;r0 = object
+		;r0 = component object
 		;r1 = signal list
-		;r2 = target object
+		;r2 = target component object
 		;r3 = target address
 		;trashes
 		;all but r0, r4
@@ -33,7 +33,7 @@
 		vp_lea [r1 + gui_sigslot_sig_node], r2
 		lh_add_at_tail r6, r2, r3
 		vp_lea [r1 + gui_sigslot_slot_node], r2
-		vp_lea [r5 + obj_slot_list], r6
+		vp_lea [r5 + component_slot_list], r6
 		lh_add_at_tail r6, r2, r3
 
 		;restore inst

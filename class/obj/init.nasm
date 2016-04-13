@@ -10,8 +10,6 @@
 
 		;init the object
 		vp_cpy r1, [r0 + obj_vtable]
-		vp_lea [r0 + obj_slot_list], r1
-		lh_init r1, r2
 		vp_ret
 
 	fn_function_end

@@ -36,7 +36,6 @@
 
 		;deinit parent
 		vp_pop r0
-		super_call view, deinit
-		vp_ret
+		super_jmp view, deinit
 
 	fn_function_end

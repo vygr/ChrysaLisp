@@ -1,11 +1,13 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
-%include 'class/class_obj.inc'
+%include 'class/class_component.inc'
 
-	fn_function class/obj/emit
+	fn_function class/component/emit
 		;inputs
-		;r0 = object
+		;r0 = component object
 		;r1 = signal list
+		;trashes
+		;all but r0, r4
 			;callback api
 			;r0 = target inst
 			;r1 = source inst
@@ -13,8 +15,6 @@
 			;rest as passed by call to emit
 			;callback should normally save register the signal sends
 			;but it could filter or adjust them for fancy reasons !
-		;trashes
-		;all but r0, r4
 
 		def_structure	local
 			def_long	local_inst
@@ -29,7 +29,7 @@
 		loop_list_forward r1, r0, r1
 			vp_cpy r1, [r4 + local_next]
 
-			;call method on target object
+			;call method on target component object
 			vp_cpy [r0 + gui_sigslot_addr], r15
 			vp_cpy [r0 + gui_sigslot_inst], r0
 			vp_cpy [r4 + local_inst], r1

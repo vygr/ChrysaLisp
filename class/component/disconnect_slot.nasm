@@ -1,10 +1,10 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
-%include 'class/class_obj.inc'
+%include 'class/class_component.inc'
 
-	fn_function class/obj/disconnect_slot
+	fn_function class/component/disconnect_slot
 		;inputs
-		;r0 = object
+		;r0 = component object
 		;r1 = 0 for all, else target address
 		;trashes
 		;all but r0, r4
@@ -18,7 +18,7 @@
 		vp_add gui_statics_sigslot_heap, r0
 
 		;disconnect slots
-		loop_list_forward r7 + obj_slot_list, r2, r3
+		loop_list_forward r7 + component_slot_list, r2, r3
 			jmpif r6, ==, 0, freeit
 			continueif r6, !=, [r2 + gui_sigslot_addr]
 		freeit:

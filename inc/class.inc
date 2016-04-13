@@ -243,6 +243,7 @@
 	def_class class
 	def_method obj, class/class_obj
 	def_method ref, class/class_ref
+	def_method component, class/class_component
 	def_method string, class/class_string
 	def_method text, class/class_text
 	def_method view, class/class_view

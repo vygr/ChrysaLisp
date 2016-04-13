@@ -10,6 +10,7 @@ class/button/mouse_up
 class/button/new
 class/button/pref_size
 class/class_button
+class/class_component
 class/class_flow
 class/class_grid
 class/class_label
@@ -21,6 +22,12 @@ class/class_text
 class/class_title
 class/class_view
 class/class_window
+class/component/connect
+class/component/deinit
+class/component/disconnect_sig
+class/component/disconnect_slot
+class/component/emit
+class/component/init
 class/flow/create
 class/flow/init
 class/flow/layout
@@ -45,13 +52,9 @@ class/label/set_flow_flags
 class/label/set_font
 class/label/set_text
 class/label/set_text_color
-class/obj/connect
 class/obj/create
 class/obj/deinit
 class/obj/destroy
-class/obj/disconnect_sig
-class/obj/disconnect_slot
-class/obj/emit
 class/obj/init
 class/obj/new
 class/obj/null
