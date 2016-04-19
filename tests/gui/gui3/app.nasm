@@ -64,12 +64,9 @@
 		static_call flow, create
 		fn_assert r0, !=, 0
 		vp_cpy r0, [r4 + local_flow_panel]
-		vp_cpy flow_flag_down | flow_flag_fillw | flow_flag_lasth, r1
-		static_call flow, set_flow_flags
-		vp_xor r1, r1
-		static_call flow, set_color
-		vp_cpy [r4 + local_window_panel], r1
-		static_call flow, add
+		static_call flow, set_flow_flags, 'r0, flow_flag_down | flow_flag_fillw | flow_flag_lasth'
+		static_call flow, set_color, 'r0, 0x00000000'
+		static_call flow, add, 'r0, [r4 + local_window_panel]'
 
 		;add my display label
 		static_call label, create

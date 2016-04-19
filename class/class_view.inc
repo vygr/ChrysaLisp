@@ -7,7 +7,7 @@
 	def_method create, class/view/create
 	def_method new, class/view/new
 	def_method init, class/view/init
-	def_method add, class/view/add
+	def_method add, class/view/add, nonvirtual, 'r0, r1'
 	def_method sub, class/view/sub
 	def_method add_dirty, class/view/add_dirty
 	def_method add_opaque, class/view/add_opaque
@@ -24,7 +24,7 @@
 	def_method set_owner, class/view/set_owner
 	def_method find_owner, class/view/find_owner
 	def_method draw_panel, class/view/draw_panel
-	def_method set_color, class/view/set_color
+	def_method set_color, class/view/set_color, nonvirtual, 'r0, r1'
 	def_method get_color, class/view/get_color
 	def_method get_bounds, class/view/get_bounds
 	def_method set_bounds, class/view/set_bounds
