@@ -83,8 +83,12 @@
 			%ifidn %3, nonvirtual
 				%ifidn _map_%[_class_]_type_%[%%_n], nonvirtual
 					%define _map_%[_class_]_slot_%[%%_n] %2
-					%define _map_%[_class_]_in_%[%%_n] %4
-					%define _map_%[_class_]_out_%[%%_n] %5
+					%ifnidn %4, ''
+						%define _map_%[_class_]_in_%[%%_n] %4
+					%endif
+					%ifnidn %5, ''
+						%define _map_%[_class_]_out_%[%%_n] %5
+					%endif
 				%else
 					%fatal Virtual method %1 allready exists !
 				%endif
@@ -93,8 +97,12 @@
 			%elifidn %3, override
 				%ifidn _map_%[_class_]_type_%[%%_n], virtual
 					%define _map_%[_class_]_slot_%[%%_n] %2
-					%define _map_%[_class_]_in_%[%%_n] %4
-					%define _map_%[_class_]_out_%[%%_n] %5
+					%ifnidn %4, ''
+						%define _map_%[_class_]_in_%[%%_n] %4
+					%endif
+					%ifnidn %5, ''
+						%define _map_%[_class_]_out_%[%%_n] %5
+					%endif
 				%else
 					%fatal Nonvirtual %1 allready exists !
 				%endif
@@ -194,7 +202,7 @@
 		;_param...
 		;_reg...
 		%if _reg_cnt != _param_cnt
-			%fatal Mismatching number of paramaters and registers !
+			%fatal Mismatching number of input paramaters !
 		%else
 			%assign _cnt 0
 			%rep _param_cnt
@@ -202,6 +210,59 @@
 				vp_cpy _param_%[_cnt], _reg_%[_cnt]
 				%assign _cnt _cnt + 1
 			%endrep
+		%endif
+	%endmacro
+
+	%macro map_regs_to_params 0
+		;_param...
+		;_reg...
+		%if _reg_cnt != _param_cnt
+			%fatal Mismatching number of output paramaters !
+		%else
+			%assign _cnt 0
+			%rep _param_cnt
+				;%warning _reg_%[_cnt] => _param_%[_cnt]
+				vp_cpy _reg_%[_cnt], _param_%[_cnt]
+				%assign _cnt _cnt + 1
+			%endrep
+		%endif
+	%endmacro
+
+	%macro map_inputs 4
+		;%1 = class name
+		;%2 = member name
+		;%3 = paramaters
+		;%4 = slot num
+
+		%ifnidn %3, ''
+			%ifidn _map_%[%1]_in_%[%4], ''
+				%fatal Class %1 method %2 inputs not defined !
+			%else
+				%deftok _params %3
+				%deftok _regs _map_%[%1]_in_%[%4]
+				set_params _params
+				set_regs _regs
+				map_params_to_regs
+			%endif
+		%endif
+	%endmacro
+
+	%macro map_outputs 4
+		;%1 = class name
+		;%2 = member name
+		;%3 = paramaters
+		;%4 = slot num
+
+		%ifnidn %3, ''
+			%ifidn _map_%[%1]_out_%[%4], ''
+				%fatal Class %1 method %2 outputs not defined !
+			%else
+				%deftok _params %3
+				%deftok _regs _map_%[%1]_out_%[%4]
+				set_params _params
+				set_regs _regs
+				map_regs_to_params
+			%endif
 		%endif
 	%endmacro
 
@@ -215,23 +276,9 @@
 		%ifidn _map_%[%1]_type_%[_nonvirtual_], virtual
 			%fatal Class %1 method %2 is virtual ! Use method_call ?
 		%endif
-		%ifnidn %3, ''
-			%ifidn _map_%[%1]_in_%[_nonvirtual_], ''
-				%fatal Class %1 method %2 inputs not defined !
-			%else
-				%deftok _params %3
-				%deftok _regs _map_%[%1]_in_%[_nonvirtual_]
-				set_params _params
-				set_regs _regs
-				map_params_to_regs
-			%endif
-		%endif
-		%ifnidn %4, ''
-			%ifnidn _map_%[%1]_out_%[_nonvirtual_], ''
-				%fatal Class %1 method %2 outputs not defined !
-			%endif
-		%endif
+		map_inputs %1, %2, %3, _nonvirtual_
 		fn_call _map_%[%1]_slot_%[_nonvirtual_]
+		map_outputs %1, %2, %4, _nonvirtual_
 	%endmacro
 
 	%macro static_jmp 2

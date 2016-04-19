@@ -13,9 +13,9 @@
 	def_method create, class/window/create
 	def_method new, class/window/new
 	def_method init, class/window/init
-	def_method get_panel, class/window/get_panel
-	def_method set_title, class/window/set_title
-	def_method set_status, class/window/set_status
+	def_method get_panel, class/window/get_panel, nonvirtual, 'r0', 'r1'
+	def_method set_title, class/window/set_title, nonvirtual, 'r0, r1'
+	def_method set_status, class/window/set_status, nonvirtual, 'r0, r1'
 
 	def_method pref_size, class/window/pref_size, override
 	def_method layout, class/window/layout, override

@@ -42,11 +42,9 @@
 		static_call sys_string, from_long
 
 		;create my window
-		static_call window, create
+		static_call window, create, '', '[r4 + local_window]'
 		fn_assert r0, !=, 0
-		vp_cpy r0, [r4 + local_window]
-		static_call window, get_panel
-		vp_cpy r1, [r4 + local_window_panel]
+		static_call window, get_panel, 'r0', '[r4 + local_window_panel]'
 		fn_string 'Calculator', r0
 		static_call string, create
 		fn_assert r0, !=, 0
@@ -61,9 +59,8 @@
 		static_call window, set_status
 
 		;add my app flow panel
-		static_call flow, create
+		static_call flow, create, '', '[r4 + local_flow_panel]'
 		fn_assert r0, !=, 0
-		vp_cpy r0, [r4 + local_flow_panel]
 		static_call flow, set_flow_flags, 'r0, flow_flag_down | flow_flag_fillw | flow_flag_lasth'
 		static_call flow, set_color, 'r0, 0x00000000'
 		static_call flow, add, 'r0, [r4 + local_window_panel]'
