@@ -107,8 +107,7 @@
 			vp_rel on_press, r3
 			static_call button, connect
 
-			vp_cpy [r4 + local_next], r0
-			static_call sys_string, length
+			static_call sys_string, length, '[r4 + local_next]'
 			vp_lea [r0 + r1 + 1], r0
 		loop_end
 

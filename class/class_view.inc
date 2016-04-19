@@ -35,7 +35,7 @@
 
 	def_method draw, class/obj/null, virtual
 	def_method hit, class/view/hit, virtual
-	def_method pref_size, class/view/pref_size, virtual
+	def_method pref_size, class/view/pref_size, virtual, 'r0', 'r10, r11'
 	def_method layout, class/obj/null, virtual
 	def_method event, class/view/event, virtual
 	def_method mouse_down, class/obj/null, virtual
