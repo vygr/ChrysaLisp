@@ -9,11 +9,11 @@
 	def_method create, class/label/create
 	def_method new, class/label/new
 	def_method init, class/label/init
-	def_method set_font, class/label/set_font
-	def_method set_text, class/label/set_text
-	def_method get_text, class/label/get_text
-	def_method set_text_color, class/label/set_text_color
-	def_method set_flow_flags, class/label/set_flow_flags
+	def_method set_font, class/label/set_font, nonvirtual, 'r0, r1'
+	def_method set_text, class/label/set_text, nonvirtual, 'r0, r1'
+	def_method get_text, class/label/get_text, nonvirtual, 'r0', 'r1'
+	def_method set_text_color, class/label/set_text_color, nonvirtual, 'r0, r1'
+	def_method set_flow_flags, class/label/set_flow_flags, nonvirtual, 'r0, r1'
 
 	def_method pref_size, class/label/pref_size, override
 	def_method draw, class/label/draw, override

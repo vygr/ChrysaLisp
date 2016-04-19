@@ -4,11 +4,11 @@
 %include 'class/class_ref.inc'
 
 	def_class string, ref
-	def_method create, class/string/create
-	def_method new, class/string/new
-	def_method init, class/string/init
-	def_method init1, class/string/init1
-	def_method add, class/string/add
+	def_method create, class/string/create, nonvirtual, 'r0', 'r0'
+	def_method new, class/string/new, nonvirtual, 'r0', 'r0'
+	def_method init, class/string/init, nonvirtual, 'r0, r1, r2, r3', 'r1'
+	def_method init1, class/string/init1, nonvirtual, 'r0, r1, r2, r3', 'r1'
+	def_method add, class/string/add, nonvirtual, 'r0, r1', 'r0'
 
 	def_structure	string, ref
 		def_long	string_length

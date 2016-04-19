@@ -46,17 +46,15 @@
 		fn_assert r0, !=, 0
 		static_call window, get_panel, 'r0', '[r4 + local_window_panel]'
 		fn_string 'Calculator', r0
-		static_call string, create
+		static_call string, create, 'r0'
 		fn_assert r0, !=, 0
 		vp_cpy r0, r1
-		vp_cpy [r4 + local_window], r0
-		static_call window, set_title
+		static_call window, set_title, '[r4 + local_window], r1'
 		fn_string 'Status Text', r0
-		static_call string, create
+		static_call string, create, 'r0'
 		fn_assert r0, !=, 0
 		vp_cpy r0, r1
-		vp_cpy [r4 + local_window], r0
-		static_call window, set_status
+		static_call window, set_status, '[r4 + local_window], r1'
 
 		;add my app flow panel
 		static_call flow, create, '', '[r4 + local_flow_panel]'
@@ -66,36 +64,26 @@
 		static_call flow, add, 'r0, [r4 + local_window_panel]'
 
 		;add my display label
-		static_call label, create
+		static_call label, create, '', '[r4 +local_display]'
 		fn_assert r0, !=, 0
-		vp_cpy r0, [r4 +local_display]
-		vp_cpy -1, r1
-		static_call label, set_color
-		vp_cpy flow_flag_align_hright | flow_flag_align_vcenter, r1
-		static_call label, set_flow_flags
+		static_call label, set_color, 'r0, -1'
+		static_call label, set_flow_flags, 'r0, flow_flag_align_hright | flow_flag_align_vcenter'
 		fn_string 'fonts/OpenSans-Regular.ttf', r1
 		vp_cpy 24, r2
 		static_call label, set_font
 		fn_string '0', r0
-		static_call string, create
+		static_call string, create, 'r0'
 		fn_assert r0, !=, 0
 		vp_cpy r0, r1
-		vp_cpy [r4 + local_display], r0
-		static_call label, set_text
-		vp_cpy [r4 + local_flow_panel], r1
-		static_call label, add
+		static_call label, set_text, '[r4 + local_display], r1'
+		static_call label, add, 'r0, [r4 + local_flow_panel]'
 
 		;add my app grid panel
-		static_call grid, create
+		static_call grid, create, '', '[r4 + local_grid_panel]'
 		fn_assert r0, !=, 0
-		vp_cpy r0, [r4 + local_grid_panel]
-		vp_xor r1, r1
-		static_call grid, set_color
-		vp_cpy 4, r10
-		vp_cpy 4, r11
-		static_call grid, set_grid
-		vp_cpy [r4 + local_flow_panel], r1
-		static_call grid, add
+		static_call grid, set_color, 'r0, 0x00000000'
+		static_call grid, set_grid, 'r0, 4, 4'
+		static_call grid, add, 'r0, [r4 + local_flow_panel]'
 
 		;add buttons to my grid panel
 		vp_rel button_list, r0
@@ -105,21 +93,15 @@
 			breakif r1, ==, 0
 			vp_cpy r0, [r4 + local_next]
 
-			static_call button, create
+			static_call button, create, '', '[r4 + local_button]'
 			fn_assert r0, !=, 0
-			vp_cpy r0, [r4 + local_button]
-			vp_cpy 0xffffff00, r1
-			static_call button, set_color
-			vp_cpy [r4 + local_next], r0
-			static_call string, create
+			static_call button, set_color, 'r0, 0xffffff00'
+			static_call string, create, '[r4 + local_next]'
 			fn_assert r0, !=, 0
 			vp_cpy r0, r1
-			vp_cpy [r4 + local_button], r0
-			static_call button, set_text
-			vp_cpy flow_flag_align_hcenter | flow_flag_align_vcenter, r1
-			static_call button, set_flow_flags
-			vp_cpy [r4 + local_grid_panel], r1
-			static_call button, add
+			static_call button, set_text, '[r4 + local_button], r1'
+			static_call button, set_flow_flags, 'r0, flow_flag_align_hcenter | flow_flag_align_vcenter'
+			static_call button, add, 'r0, [r4 + local_grid_panel]'
 			vp_lea [r0 + button_pressed_signal], r1
 			vp_cpy r4, r2
 			vp_rel on_press, r3
