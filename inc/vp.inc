@@ -225,7 +225,11 @@
 	%endmacro
 
 	%macro vp_mul 2
-		imul %2, %1
+		%ifidn %1, -1
+			neg %2
+		%else
+			imul %2, %1
+		%endif
 	%endmacro
 
 	%macro vp_syscall 0

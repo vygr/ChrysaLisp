@@ -11,8 +11,8 @@
 
 		vp_cpy r0, r2
 		vp_xor r0, r0
+		vp_xor r3, r3
 		loop_start
-			vp_xor r3, r3
 			vp_cpy_b [r2], r3
 			breakif r3, ==, 0
 			if r3, >=, 'a'

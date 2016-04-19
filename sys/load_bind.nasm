@@ -194,9 +194,9 @@
 		vp_ret
 
 	string_compare:
+		vp_xor r2, r2
+		vp_xor r3, r3
 		loop_start
-			vp_xor r2, r2
-			vp_xor r3, r3
 			vp_cpy_b [r0], r2
 			vp_cpy_b [r1], r3
 			breakif r2, !=, r3
@@ -210,8 +210,8 @@
 		vp_ret
 
 	string_skip:
+		vp_xor r1, r1
 		loop_start
-			vp_xor r1, r1
 			vp_cpy_b [r0], r1
 			vp_inc r0
 		loop_until r1, ==, 0

@@ -9,9 +9,9 @@
 		;trashes
 		;r0-r3
 
+		vp_xor r2, r2
+		vp_xor r3, r3
 		loop_start
-			vp_xor r2, r2
-			vp_xor r3, r3
 			vp_cpy_b [r0], r2
 			vp_cpy_b [r1], r3
 			breakif r2, !=, r3
