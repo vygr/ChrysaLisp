@@ -237,6 +237,7 @@ sys/write_debug_str
 sys/write_number
 sys/write_string
 syscalls
+test
 tests/array
 tests/array_child
 tests/farm
@@ -249,5 +250,3 @@ tests/gui/gui2/app
 tests/gui/gui3/app
 tests/pipe
 tests/pipe_child
-
-test
