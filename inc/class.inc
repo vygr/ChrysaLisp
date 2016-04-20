@@ -131,99 +131,109 @@
 			%endif
 		%endrep
 		%if _nonvirtual_ = _map_%[%1]_slots_
-			;no such method
 			%fatal No such method %2 in class %1 !
 		%endif
 	%endmacro
 
-	%macro method_call 2-3 r15
-		;%1 = class name
-		;%2 = member name
-		;%3 = dispatch reg
-
-		method_lookup %1, %2
-		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
-			%fatal Class %1 method %2 is nonvirtual ! Use static_call ?
-		%endif
-		vp_cpy [r0 + obj_vtable], %3
-		vp_call [%3 + _virtual_ * 8]
-		;%warning Method %2 is index _virtual_
-	%endmacro
-
-	%macro method_jmp 2-3 r15
-		;%1 = class name
-		;%2 = member name
-		;%3 = dispatch reg
-
-		method_lookup %1, %2
-		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
-			%fatal Class %1 method %2 is nonvirtual ! Use static_jmp ?
-		%endif
-		vp_cpy [r0 + obj_vtable], %3
-		vp_jmp [%3 + _virtual_ * 8]
-		;%warning Method %2 is index _virtual_
-	%endmacro
-
-	%macro method_bind 2-3 r15
-		;%1 = class name
-		;%2 = member name
-		;%3 = dispatch reg
-
-		method_lookup %1, %2
-		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
-			%fatal Class %1 method %2 is nonvirtual ! Use static_bind ?
-		%endif
-		vp_cpy [r0 + obj_vtable], %3
-		vp_cpy [%3 + _virtual_ * 8], %3
-		;%warning Method %2 is index _virtual_
-	%endmacro
-
-	%macro set_params 1-*
+	%macro set_src 1-*
 		;%1... = paramaters
-		%assign _param_cnt 0
+		%assign _src_cnt 0
 		%rep %0
-			%define _param_%[_param_cnt] %1
-			%assign _param_cnt _param_cnt + 1
+			%define _src_%[_src_cnt] %1
+			%assign _src_cnt _src_cnt + 1
 			%rotate 1
 		%endrep
 	%endmacro
 
-	%macro set_regs 1-*
-		;%1... = registers
-		%assign _reg_cnt 0
+	%macro set_dst 1-*
+		;%1... = paramaters
+		%assign _dst_cnt 0
 		%rep %0
-			%define _reg_%[_reg_cnt] %1
-			%assign _reg_cnt _reg_cnt + 1
+			%define _dst_%[_dst_cnt] %1
+			%assign _dst_cnt _dst_cnt + 1
 			%rotate 1
 		%endrep
 	%endmacro
 
-	%macro map_params_to_regs 0
-		;_param...
-		;_reg...
-		%if _reg_cnt != _param_cnt
-			%fatal Mismatching number of input paramaters !
-		%else
-			%assign _cnt 0
-			%rep _param_cnt
-				;%warning _param_%[_cnt] => _reg_%[_cnt]
-				vp_cpy _param_%[_cnt], _reg_%[_cnt]
-				%assign _cnt _cnt + 1
+	%macro map_print 0
+		%warning src => dst
+		%assign %%i 0
+		%rep _src_cnt
+			%warning map entry %%i: _src_%[%%i] => _dst_%[%%i]
+			%assign %%i %%i + 1
+		%endrep
+	%endmacro
+
+	%macro map_rotate 2
+		;%1 = dst index
+		;%2 = src index
+		%assign %%i 0
+		%rep _src_cnt
+			%xdefine %%s_%[%%i] _src_%[%%i]
+			%xdefine %%d_%[%%i] _dst_%[%%i]
+			%assign %%i %%i + 1
+		%endrep
+		%assign %%j %2
+		%rep %2 - %1
+			%assign %%i %%j - 1
+			%define _src_%[%%j] %%s_%[%%i]
+			%define _dst_%[%%j] %%d_%[%%i]
+			%assign %%j %%i
+		%endrep
+		%define _src_%[%1] %%s_%[%2]
+		%define _dst_%[%1] %%d_%[%2]
+	%endmacro
+
+	%macro find_src 1
+		;%1 = param to find
+		%assign _idx 0
+		%rep _src_cnt
+			%ifidn _src_%[_idx], %1
+				%exitrep
+			%else
+				%assign _idx _idx + 1
+			%endif
+		%endrep
+	%endmacro
+
+	%macro map_sort 0
+		%assign %%c 1000
+		%rep %%c
+			%assign %%f 0
+			%assign %%d 0
+			%rep _dst_cnt
+				find_src _dst_%[%%d]
+				%if _idx != _src_cnt
+					%if %%d < _idx
+						map_rotate %%d, _idx
+						%assign %%f 1
+						%exitrep
+					%endif
+				%else
+					%assign %%d %%d + 1
+				%endif
 			%endrep
+			%if %%f = 0
+				%exitrep
+			%else
+				%assign %%c %%c - 1
+			%endif
+		%endrep
+		%if %%c = 0
+			%fatal Copy cycle detected !
 		%endif
 	%endmacro
 
-	%macro map_regs_to_params 0
-		;_param...
-		;_reg...
-		%if _reg_cnt != _param_cnt
-			%fatal Mismatching number of output paramaters !
+	%macro map_src_to_dst 0
+		%if _dst_cnt != _src_cnt
+			%fatal Mismatching number of src/dst paramaters !
 		%else
-			%assign _cnt 0
-			%rep _param_cnt
-				;%warning _reg_%[_cnt] => _param_%[_cnt]
-				vp_cpy _reg_%[_cnt], _param_%[_cnt]
-				%assign _cnt _cnt + 1
+			map_sort
+			%assign %%i 0
+			%rep _src_cnt
+				;%warning _src_%[%%i] => _dst_%[%%i]
+				vp_cpy _src_%[%%i], _dst_%[%%i]
+				%assign %%i %%i + 1
 			%endrep
 		%endif
 	%endmacro
@@ -235,14 +245,14 @@
 		;%4 = slot num
 
 		%ifnidn %3, ''
-			%ifidn _map_%[%1]_in_%[%4], ''
+			%ifidn _map_%1_in_%4, ''
 				%fatal Class %1 method %2 inputs not defined !
 			%else
-				%deftok _params %3
-				%deftok _regs _map_%[%1]_in_%[%4]
-				set_params _params
-				set_regs _regs
-				map_params_to_regs
+				%deftok %%s %3
+				%deftok %%d _map_%1_in_%4
+				set_src %%s
+				set_dst %%d
+				map_src_to_dst
 			%endif
 		%endif
 	%endmacro
@@ -254,14 +264,14 @@
 		;%4 = slot num
 
 		%ifnidn %3, ''
-			%ifidn _map_%[%1]_out_%[%4], ''
+			%ifidn _map_%1_out_%4, ''
 				%fatal Class %1 method %2 outputs not defined !
 			%else
-				%deftok _params %3
-				%deftok _regs _map_%[%1]_out_%[%4]
-				set_params _params
-				set_regs _regs
-				map_regs_to_params
+				%deftok %%s _map_%1_out_%4
+				%deftok %%d %3
+				set_src %%s
+				set_dst %%d
+				map_src_to_dst
 			%endif
 		%endif
 	%endmacro
@@ -281,14 +291,17 @@
 		map_outputs %1, %2, %4, _nonvirtual_
 	%endmacro
 
-	%macro static_jmp 2
+	%macro static_jmp 2-4 '', ''
 		;%1 = class name
 		;%2 = member name
+		;%3 = in paramaters
+		;%4 = out paramaters
 
 		method_lookup %1, %2
 		%ifidn _map_%[%1]_type_%[_nonvirtual_], virtual
 			%fatal Class %1 method %2 is virtual ! Use method_jmp ?
 		%endif
+		map_inputs %1, %2, %3, _nonvirtual_
 		fn_jmp _map_%[%1]_slot_%[_nonvirtual_]
 	%endmacro
 
@@ -304,9 +317,11 @@
 		fn_bind _map_%[%1]_slot_%[_nonvirtual_], %3
 	%endmacro
 
-	%macro super_call 2
+	%macro super_call 2-4 '', ''
 		;%1 = class name
 		;%2 = member name
+		;%3 = in paramaters
+		;%4 = out paramaters
 
 		method_lookup _super_class_%[%1]_, %2
 		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], nonvirtual
@@ -316,17 +331,22 @@
 				%fatal Class _super_class_%[%1]_ method %2 is nonvirtual !
 			%endif
 		%endif
+		map_inputs %1, %2, %3, _nonvirtual_
 		fn_call _map_%[_super_class_%[%1]_]_slot_%[_nonvirtual_]
+		map_outputs %1, %2, %4, _nonvirtual_
 	%endmacro
 
-	%macro super_jmp 2
+	%macro super_jmp 2-4 '', ''
 		;%1 = class name
 		;%2 = member name
+		;%3 = in paramaters
+		;%4 = out paramaters
 
 		method_lookup _super_class_%[%1]_, %2
 		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], nonvirtual
 			%fatal Class _super_class_%[%1]_ method %2 is nonvirtual !
 		%endif
+		map_inputs %1, %2, %3, _nonvirtual_
 		fn_jmp _map_%[_super_class_%[%1]_]_slot_%[_nonvirtual_]
 	%endmacro
 
@@ -340,6 +360,45 @@
 			%fatal Class _super_class_%[%1]_ method %2 is nonvirtual !
 		%endif
 		fn_bind _map_%[_super_class_%[%1]_]_slot_%[_nonvirtual_], %3
+	%endmacro
+
+	%macro method_call 2-3 r15
+		;%1 = class name
+		;%2 = member name
+		;%3 = dispatch reg
+
+		method_lookup %1, %2
+		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
+			%fatal Class %1 method %2 is nonvirtual ! Use static_call ?
+		%endif
+		vp_cpy [r0 + obj_vtable], %3
+		vp_call [%3 + _virtual_ * 8]
+	%endmacro
+
+	%macro method_jmp 2-3 r15
+		;%1 = class name
+		;%2 = member name
+		;%3 = dispatch reg
+
+		method_lookup %1, %2
+		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
+			%fatal Class %1 method %2 is nonvirtual ! Use static_jmp ?
+		%endif
+		vp_cpy [r0 + obj_vtable], %3
+		vp_jmp [%3 + _virtual_ * 8]
+	%endmacro
+
+	%macro method_bind 2-3 r15
+		;%1 = class name
+		;%2 = member name
+		;%3 = dispatch reg
+
+		method_lookup %1, %2
+		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
+			%fatal Class %1 method %2 is nonvirtual ! Use static_bind ?
+		%endif
+		vp_cpy [r0 + obj_vtable], %3
+		vp_cpy [%3 + _virtual_ * 8], %3
 	%endmacro
 
 	%macro slot_bind 3

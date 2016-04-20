@@ -48,13 +48,11 @@
 		fn_string 'Calculator', r0
 		static_call string, create, 'r0'
 		fn_assert r0, !=, 0
-		vp_cpy r0, r1
-		static_call window, set_title, '[r4 + local_window], r1'
+		static_call window, set_title, '[r4 + local_window], r0'
 		fn_string 'Status Text', r0
 		static_call string, create, 'r0'
 		fn_assert r0, !=, 0
-		vp_cpy r0, r1
-		static_call window, set_status, '[r4 + local_window], r1'
+		static_call window, set_status, '[r4 + local_window], r0'
 
 		;add my app flow panel
 		static_call flow, create, '', '[r4 + local_flow_panel]'
@@ -74,8 +72,7 @@
 		fn_string '0', r0
 		static_call string, create, 'r0'
 		fn_assert r0, !=, 0
-		vp_cpy r0, r1
-		static_call label, set_text, '[r4 + local_display], r1'
+		static_call label, set_text, '[r4 + local_display], r0'
 		static_call label, add, 'r0, [r4 + local_flow_panel]'
 
 		;add my app grid panel
@@ -98,8 +95,7 @@
 			static_call button, set_color, 'r0, 0xffffff00'
 			static_call string, create, '[r4 + local_next]'
 			fn_assert r0, !=, 0
-			vp_cpy r0, r1
-			static_call button, set_text, '[r4 + local_button], r1'
+			static_call button, set_text, '[r4 + local_button], r0'
 			static_call button, set_flow_flags, 'r0, flow_flag_align_hcenter | flow_flag_align_vcenter'
 			static_call button, add, 'r0, [r4 + local_grid_panel]'
 			vp_lea [r0 + button_pressed_signal], r1
@@ -126,9 +122,7 @@
 
 		;set window owner
 		static_call sys_task, tcb
-		vp_cpy r0, r1
-		vp_cpy [r4 + local_window], r0
-		static_call window, set_owner
+		static_call window, set_owner, '[r4 + local_window], r0'
 
 		;add to screen and dirty
 		static_call gui_gui, add

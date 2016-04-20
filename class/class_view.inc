@@ -21,7 +21,7 @@
 	def_method backward_tree, class/view/backward_tree
 	def_method change, class/view/change
 	def_method hit_tree, class/view/hit_tree
-	def_method set_owner, class/view/set_owner
+	def_method set_owner, class/view/set_owner, nonvirtual, 'r0, r1'
 	def_method find_owner, class/view/find_owner
 	def_method draw_panel, class/view/draw_panel
 	def_method set_color, class/view/set_color, nonvirtual, 'r0, r1'
