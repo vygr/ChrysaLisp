@@ -8,40 +8,40 @@
 	def_method new, class/view/new
 	def_method init, class/view/init
 	def_method add, class/view/add, nonvirtual, 'r0, r1'
-	def_method sub, class/view/sub
-	def_method add_dirty, class/view/add_dirty
-	def_method add_opaque, class/view/add_opaque
-	def_method get_relative, class/view/get_relative
-	def_method dirty, class/view/dirty
-	def_method dirty_all, class/view/dirty_all
-	def_method opaque, class/view/opaque
-	def_method forward, class/view/forward
-	def_method backward, class/view/backward
-	def_method forward_tree, class/view/forward_tree
-	def_method backward_tree, class/view/backward_tree
-	def_method change, class/view/change
-	def_method hit_tree, class/view/hit_tree
+	def_method sub, class/view/sub, nonvirtual, 'r0'
+	def_method add_dirty, class/view/add_dirty, nonvirtual, 'r0, r8, r9, r10, r11'
+	def_method add_opaque, class/view/add_opaque, nonvirtual, 'r0, r8, r9, r10, r11'
+	def_method get_relative, class/view/get_relative, nonvirtual, 'r0, r1, r8, r9', 'r8, r9'
+	def_method dirty, class/view/dirty, nonvirtual, 'r0'
+	def_method dirty_all, class/view/dirty_all, nonvirtual, 'r0'
+	def_method opaque, class/view/opaque, nonvirtual, 'r0'
+	def_method forward, class/view/forward, nonvirtual, 'r0, r1, r2'
+	def_method backward, class/view/backward, nonvirtual, 'r0, r1, r2'
+	def_method forward_tree, class/view/forward_tree, nonvirtual, 'r0, r1, r2, r3'
+	def_method backward_tree, class/view/backward_tree, nonvirtual, 'r0, r1, r2, r3'
+	def_method change, class/view/change, nonvirtual, 'r0, r8, r9, r10, r11'
+	def_method hit_tree, class/view/hit_tree, nonvirtual, 'r0, r8, r9', 'r1, r8, r9'
 	def_method set_owner, class/view/set_owner, nonvirtual, 'r0, r1'
-	def_method find_owner, class/view/find_owner
-	def_method draw_panel, class/view/draw_panel
+	def_method find_owner, class/view/find_owner, nonvirtual, 'r0', 'r1'
+	def_method draw_panel, class/view/draw_panel, nonvirtual, 'r0, r1, r2, r3'
 	def_method set_color, class/view/set_color, nonvirtual, 'r0, r1'
-	def_method get_color, class/view/get_color
-	def_method get_bounds, class/view/get_bounds
-	def_method set_bounds, class/view/set_bounds
-	def_method set_flags, class/view/set_flags
-	def_method get_parent, class/view/get_parent
+	def_method get_color, class/view/get_color, nonvirtual, 'r0', 'r1'
+	def_method get_bounds, class/view/get_bounds, nonvirtual, 'r0', 'r8, r9, r10, r11'
+	def_method set_bounds, class/view/set_bounds, nonvirtual, 'r0, r8, r9, r10, r11'
+	def_method set_flags, class/view/set_flags, nonvirtual, 'r0, r1'
+	def_method get_parent, class/view/get_parent, nonvirtual, 'r0', 'r1'
 
 	def_method deinit, class/view/deinit, override
 
-	def_method draw, class/obj/null, virtual
-	def_method hit, class/view/hit, virtual
+	def_method draw, class/obj/null, virtual, 'r0'
+	def_method hit, class/view/hit, virtual, 'r0, r8, r9', 'r1'
 	def_method pref_size, class/view/pref_size, virtual, 'r0', 'r10, r11'
-	def_method layout, class/obj/null, virtual
-	def_method event, class/view/event, virtual
-	def_method mouse_down, class/obj/null, virtual
-	def_method mouse_up, class/obj/null, virtual
-	def_method mouse_move, class/obj/null, virtual
-	def_method mouse_hover, class/obj/null, virtual
+	def_method layout, class/obj/null, virtual, 'r0'
+	def_method event, class/view/event, virtual, 'r0, r1'
+	def_method mouse_down, class/obj/null, virtual, 'r0, r1'
+	def_method mouse_up, class/obj/null, virtual, 'r0, r1'
+	def_method mouse_move, class/obj/null, virtual, 'r0, r1'
+	def_method mouse_hover, class/obj/null, virtual, 'r0, r1'
 
 	view_flag_solid	equ 1 << 0
 

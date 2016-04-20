@@ -50,5 +50,5 @@
 set_src 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 set_dst a, b, c, d, e, f, g, h, i, j
 map_print
-map_rotate 2, 8
+map_rotate 2, 7
 map_print

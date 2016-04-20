@@ -6,7 +6,7 @@
 		;r0 = view object
 		;r8 = x
 		;r9 = y
-		;inputs
+		;outputs
 		;r0 = view object
 		;r1 = 0 if not hit, else hit view
 		;r8 = x relative to hit
