@@ -9,7 +9,7 @@
 	def_method create, class/label/create
 	def_method new, class/label/new
 	def_method init, class/label/init
-	def_method set_font, class/label/set_font, nonvirtual, 'r0, r1'
+	def_method set_font, class/label/set_font, nonvirtual, 'r0, r1, r2'
 	def_method set_text, class/label/set_text, nonvirtual, 'r0, r1'
 	def_method get_text, class/label/get_text, nonvirtual, 'r0', 'r1'
 	def_method set_text_color, class/label/set_text_color, nonvirtual, 'r0, r1'

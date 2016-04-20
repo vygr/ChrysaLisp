@@ -67,8 +67,7 @@
 		static_call label, set_color, 'r0, -1'
 		static_call label, set_flow_flags, 'r0, flow_flag_align_hright | flow_flag_align_vcenter'
 		fn_string 'fonts/OpenSans-Regular.ttf', r1
-		vp_cpy 24, r2
-		static_call label, set_font
+		static_call label, set_font, 'r0, r1, 24'
 		fn_string '0', r0
 		static_call string, create, 'r0'
 		fn_assert r0, !=, 0
@@ -99,11 +98,10 @@
 			static_call button, set_flow_flags, 'r0, flow_flag_align_hcenter | flow_flag_align_vcenter'
 			static_call button, add, 'r0, [r4 + local_grid_panel]'
 			vp_lea [r0 + button_pressed_signal], r1
-			vp_cpy r4, r2
 			vp_rel on_press, r3
-			static_call button, connect
+			static_call button, connect, 'r0, r1, r4, r3'
 
-			static_call sys_string, length, '[r4 + local_next]'
+			static_call sys_string, length, '[r4 + local_next]', 'r1'
 			vp_lea [r0 + r1 + 1], r0
 		loop_end
 
@@ -114,11 +112,9 @@
 		vp_cpy r11, r13
 		vp_shr 1, r12
 		vp_shr 1, r13
-		vp_cpy 920, r8
-		vp_cpy 48, r9
 		vp_add r12, r10
 		vp_add r13, r11
-		static_call window, change
+		static_call window, change, 'r0, 920, 48, r10, r11'
 
 		;set window owner
 		static_call sys_task, tcb
@@ -130,8 +126,7 @@
 
 		;app event loop
 		loop_start
-			static_call sys_mail, mymail
-			vp_cpy r0, [r4 + local_last_event]
+			static_call sys_mail, mymail, '', '[r4 + local_last_event]'
 
 			;dispatch event to view
 			vp_cpy r0, r1
@@ -139,13 +134,11 @@
 			method_call view, event
 
 			;free event message
-			vp_cpy [r4 + local_last_event], r0
-			static_call sys_mem, free
+			static_call sys_mem, free, '[r4 + local_last_event]'
 		loop_end
 
 		;deref window
-		vp_cpy [r4 + local_window], r0
-		static_call window, deref
+		static_call window, deref, '[r4 + local_window]'
 
 		vp_cpy r4, r0
 		method_call obj, deinit
@@ -169,18 +162,12 @@
 		vp_cpy r0, [r4 + on_press_inst]
 		vp_cpy r1, [r4 + on_press_button]
 
-		vp_cpy r1, r0
-		static_call button, get_text
-		vp_cpy r1, [r4 + on_press_string1]
+		static_call button, get_text, 'r1', '[r4 + on_press_string1]'
 
 		vp_cpy [r4 + on_press_inst], r0
 		vp_cpy [r0 + local_display], r0
-		static_call label, get_text
-		vp_cpy r1, [r4 + on_press_string2]
-
-		vp_cpy r1, r0
-		vp_cpy [r4 + on_press_string1], r1
-		static_call string, add
+		static_call label, get_text, '', '[r4 + on_press_string2]'
+		static_call string, add, '[r4 + on_press_string2], [r4 + on_press_string1]'
 		fn_assert r0, !=, 0
 		vp_cpy r0, r1
 		vp_cpy [r4 + on_press_inst], r0
@@ -188,10 +175,8 @@
 		static_call label, set_text
 		static_call label, dirty
 
-		vp_cpy [r4 + on_press_string1], r0
-		static_call string, deref
-		vp_cpy [r4 + on_press_string2], r0
-		static_call string, deref
+		static_call string, deref, '[r4 + on_press_string1]'
+		static_call string, deref, '[r4 + on_press_string2]'
 
 ;		vp_cpy r1, r0
 ;		vp_cpy 10, r1
