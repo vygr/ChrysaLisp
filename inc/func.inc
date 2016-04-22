@@ -6,8 +6,8 @@
 %include 'inc/syscall.inc'
 %include 'inc/task.inc'
 
-;%define debug_function_enter
-%define debug_mode
+;%xdefine debug_function_enter
+%xdefine debug_mode
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail funcions
@@ -87,7 +87,7 @@
 			%endif
 		%endrep
 		%if _string_num_ = _string_total_
-			%define _string_str_%[_string_num_]_ %1
+			%xdefine _string_str_%[_string_num_]_ %1
 			%assign _string_total_ _string_total_ + 1
 		%endif
 	%endmacro
@@ -114,7 +114,7 @@
 			%endif
 		%endrep
 		%if _path_num_ = _path_total_
-			%define _path_str_%[_path_num_]_ %1
+			%xdefine _path_str_%[_path_num_]_ %1
 			%assign _path_total_ _path_total_ + 1
 		%endif
 	%endmacro
@@ -202,30 +202,30 @@
 	%endmacro
 
 	%macro fn_function_end 0
-		%assign %%_i 0
+		%assign %%i 0
 		%rep _string_total_
-	_ref_%[%%_i]_string:
-			db	_string_str_%[%%_i]_
+	_ref_%[%%i]_string:
+			db	_string_str_%[%%i]_
 			db	0
-			%assign %%_i %%_i+1
+			%assign %%i %%i + 1
 		%endrep
 		align 8, db 0
 	_func_links:
-		%assign %%_i 0
+		%assign %%i 0
 		%rep _link_total_
-	_ref_%[%%_i]_link:
-			dq	_ref_%[_link_%[%%_i]_path_num_]_path - $
-			%assign %%_i %%_i+1
+	_ref_%[%%i]_link:
+			dq	_ref_%[_link_%[%%i]_path_num_]_path - $
+			%assign %%i %%i + 1
 		%endrep
 		dq	0
 	_func_paths:
-		%assign %%_i 0
+		%assign %%i 0
 		%rep _path_total_
-	_ref_%[%%_i]_path:
-			%defstr %%path _path_str_%[%%_i]_
-			db	%%path
+	_ref_%[%%i]_path:
+			%defstr %%p _path_str_%[%%i]_
+			db	%%p
 			db	0
-			%assign %%_i %%_i+1
+			%assign %%i %%i + 1
 		%endrep
 	_func_end:
 	%endmacro
@@ -270,6 +270,13 @@
 		%endif
 	%endmacro
 
+	%macro fn_abort 0-1 'Abort !'
+		;%1 = debug string
+
+		fn_debug_str %1
+		sys_exit 1
+	%endmacro
+
 	%macro fn_assert 3-4 'Assert Failure !'
 		;%1 = val1
 		;%2 = condition
@@ -278,8 +285,7 @@
 
 		%ifdef debug_mode
 			ifnot %1, %2, %3
-				fn_debug_str %4
-				sys_exit 1
+				fn_abort %4
 			endif
 		%endif
 	%endmacro

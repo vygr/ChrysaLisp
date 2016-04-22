@@ -38,8 +38,8 @@
 			%fatal Class %2 not defined !
 		%endif
 		%assign _map_%1_slots_ 0
-		%define _class_ %1
-		%define _super_class_%1_ %2
+		%xdefine _class_ %1
+		%xdefine _super_class_%1_ %2
 		class_add %1, %2
 	%endmacro
 
@@ -61,18 +61,18 @@
 			;new method
 			%ifidn %3, static
 				%assign _map_%[_class_]_slots_ %%n + 1
-				%define _map_%[_class_]_name_%[%%n] %1
-				%define _map_%[_class_]_slot_%[%%n] %2
-				%define _map_%[_class_]_type_%[%%n] %3
-				%define _map_%[_class_]_in_%[%%n] %4
-				%define _map_%[_class_]_out_%[%%n] %5
+				%xdefine _map_%[_class_]_name_%[%%n] %1
+				%xdefine _map_%[_class_]_slot_%[%%n] %2
+				%xdefine _map_%[_class_]_type_%[%%n] %3
+				%xdefine _map_%[_class_]_in_%[%%n] %4
+				%xdefine _map_%[_class_]_out_%[%%n] %5
 			%elifidn %3, virtual
 				%assign _map_%[_class_]_slots_ %%n + 1
-				%define _map_%[_class_]_name_%[%%n] %1
-				%define _map_%[_class_]_slot_%[%%n] %2
-				%define _map_%[_class_]_type_%[%%n] %3
-				%define _map_%[_class_]_in_%[%%n] %4
-				%define _map_%[_class_]_out_%[%%n] %5
+				%xdefine _map_%[_class_]_name_%[%%n] %1
+				%xdefine _map_%[_class_]_slot_%[%%n] %2
+				%xdefine _map_%[_class_]_type_%[%%n] %3
+				%xdefine _map_%[_class_]_in_%[%%n] %4
+				%xdefine _map_%[_class_]_out_%[%%n] %5
 			%elifidn %3, override
 				%fatal Method %1 does not exist !
 			%else
@@ -82,12 +82,12 @@
 			;existing method
 			%ifidn %3, static
 				%ifidn _map_%[_class_]_type_%[%%n], static
-					%define _map_%[_class_]_slot_%[%%n] %2
+					%xdefine _map_%[_class_]_slot_%[%%n] %2
 					%ifnidn %4, ''
-						%define _map_%[_class_]_in_%[%%n] %4
+						%xdefine _map_%[_class_]_in_%[%%n] %4
 					%endif
 					%ifnidn %5, ''
-						%define _map_%[_class_]_out_%[%%n] %5
+						%xdefine _map_%[_class_]_out_%[%%n] %5
 					%endif
 				%else
 					%fatal Virtual method %1 allready exists !
@@ -96,12 +96,12 @@
 				%fatal Method %1 allready exists !, use override ?
 			%elifidn %3, override
 				%ifidn _map_%[_class_]_type_%[%%n], virtual
-					%define _map_%[_class_]_slot_%[%%n] %2
+					%xdefine _map_%[_class_]_slot_%[%%n] %2
 					%ifnidn %4, ''
-						%define _map_%[_class_]_in_%[%%n] %4
+						%xdefine _map_%[_class_]_in_%[%%n] %4
 					%endif
 					%ifnidn %5, ''
-						%define _map_%[_class_]_out_%[%%n] %5
+						%xdefine _map_%[_class_]_out_%[%%n] %5
 					%endif
 				%else
 					%fatal Static %1 allready exists !
@@ -119,18 +119,18 @@
 			%fatal Class %1 not defined !
 		%endif
 		%assign _virtual_ 0
-		%assign _nonvirtual_ 0
+		%assign _static_ 0
 		%rep _map_%1_slots_
-			%ifidn _map_%1_name_%[_nonvirtual_], %2
+			%ifidn _map_%1_name_%[_static_], %2
 				%exitrep
-			%elifidn _map_%1_type_%[_nonvirtual_], virtual
+			%elifidn _map_%1_type_%[_static_], virtual
 				%assign _virtual_ _virtual_ + 1
-				%assign _nonvirtual_ _nonvirtual_ + 1
+				%assign _static_ _static_ + 1
 			%else
-				%assign _nonvirtual_ _nonvirtual_ + 1
+				%assign _static_ _static_ + 1
 			%endif
 		%endrep
-		%if _nonvirtual_ = _map_%1_slots_
+		%if _static_ = _map_%1_slots_
 			%fatal No such method %2 in class %1 !
 		%endif
 	%endmacro
@@ -139,7 +139,7 @@
 		;%1... = paramaters
 		%assign _src_total 0
 		%rep %0
-			%define _src_%[_src_total] %1
+			%xdefine _src_%[_src_total] %1
 			%assign _src_total _src_total + 1
 			%rotate 1
 		%endrep
@@ -149,7 +149,7 @@
 		;%1... = paramaters
 		%assign _dst_total 0
 		%rep %0
-			%define _dst_%[_dst_total] %1
+			%xdefine _dst_%[_dst_total] %1
 			%assign _dst_total _dst_total + 1
 			%rotate 1
 		%endrep
@@ -167,21 +167,17 @@
 	%macro map_rotate 2
 		;%1 = dst index
 		;%2 = src index
-		%assign %%i 0
-		%rep _src_total
-			%xdefine %%s_%[%%i] _src_%[%%i]
-			%xdefine %%d_%[%%i] _dst_%[%%i]
-			%assign %%i %%i + 1
-		%endrep
+		%xdefine %%s _src_%[%2]
+		%xdefine %%d _dst_%[%2]
 		%assign %%j %2
 		%rep %2 - %1
 			%assign %%i %%j - 1
-			%define _src_%[%%j] %%s_%[%%i]
-			%define _dst_%[%%j] %%d_%[%%i]
+			%xdefine _src_%[%%j] _src_%[%%i]
+			%xdefine _dst_%[%%j] _dst_%[%%i]
 			%assign %%j %%i
 		%endrep
-		%define _src_%1 %%s_%2
-		%define _dst_%1 %%d_%2
+		%xdefine _src_%1 %%s
+		%xdefine _dst_%1 %%d
 	%endmacro
 
 	%macro find_src 1
@@ -283,12 +279,12 @@
 		;%4 = out paramaters
 
 		method_lookup %1, %2
-		%ifidn _map_%1_type_%[_nonvirtual_], virtual
+		%ifidn _map_%1_type_%[_static_], virtual
 			%fatal Class %1 method %2 is virtual ! Use method_call ?
 		%endif
-		map_inputs %1, %2, %3, _nonvirtual_
-		fn_call _map_%1_slot_%[_nonvirtual_]
-		map_outputs %1, %2, %4, _nonvirtual_
+		map_inputs %1, %2, %3, _static_
+		fn_call _map_%1_slot_%[_static_]
+		map_outputs %1, %2, %4, _static_
 	%endmacro
 
 	%macro static_jmp 2-4 '', ''
@@ -298,11 +294,11 @@
 		;%4 = out paramaters
 
 		method_lookup %1, %2
-		%ifidn _map_%1_type_%[_nonvirtual_], virtual
+		%ifidn _map_%1_type_%[_static_], virtual
 			%fatal Class %1 method %2 is virtual ! Use method_jmp ?
 		%endif
-		map_inputs %1, %2, %3, _nonvirtual_
-		fn_jmp _map_%1_slot_%[_nonvirtual_]
+		map_inputs %1, %2, %3, _static_
+		fn_jmp _map_%1_slot_%[_static_]
 	%endmacro
 
 	%macro static_bind 3
@@ -311,10 +307,10 @@
 		;%3 = reg
 
 		method_lookup %1, %2
-		%ifidn _map_%1_type_%[_nonvirtual_], virtual
+		%ifidn _map_%1_type_%[_static_], virtual
 			%fatal Class %1 method %2 is virtual ! Use method_bind ?
 		%endif
-		fn_bind _map_%1_slot_%[_nonvirtual_], %3
+		fn_bind _map_%1_slot_%[_static_], %3
 	%endmacro
 
 	%macro super_call 2-4 '', ''
@@ -324,16 +320,16 @@
 		;%4 = out paramaters
 
 		method_lookup _super_class_%1_, %2
-		%ifidn _map_%[_super_class_%1_]_type_%[_nonvirtual_], static
-			%ifidn _map_%[_super_class_%1_]_name_%[_nonvirtual_], init
+		%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
+			%ifidn _map_%[_super_class_%1_]_name_%[_static_], init
 				;exeption for init
 			%else
 				%fatal Class _super_class_%1_ method %2 is static !
 			%endif
 		%endif
-		map_inputs %1, %2, %3, _nonvirtual_
-		fn_call _map_%[_super_class_%1_]_slot_%[_nonvirtual_]
-		map_outputs %1, %2, %4, _nonvirtual_
+		map_inputs %1, %2, %3, _static_
+		fn_call _map_%[_super_class_%1_]_slot_%[_static_]
+		map_outputs %1, %2, %4, _static_
 	%endmacro
 
 	%macro super_jmp 2-4 '', ''
@@ -343,11 +339,11 @@
 		;%4 = out paramaters
 
 		method_lookup _super_class_%1_, %2
-		%ifidn _map_%[_super_class_%1_]_type_%[_nonvirtual_], static
+		%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
 			%fatal Class _super_class_%1_ method %2 is static !
 		%endif
-		map_inputs %1, %2, %3, _nonvirtual_
-		fn_jmp _map_%[_super_class_%1_]_slot_%[_nonvirtual_]
+		map_inputs %1, %2, %3, _static_
+		fn_jmp _map_%[_super_class_%1_]_slot_%[_static_]
 	%endmacro
 
 	%macro super_bind 3
@@ -356,10 +352,10 @@
 		;%3 = reg
 
 		method_lookup _super_class_%1_, %2
-		%ifidn _map_%[_super_class_%1_]_type_%[_nonvirtual_], static
+		%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
 			%fatal Class _super_class_%1_ method %2 is static !
 		%endif
-		fn_bind _map_%[_super_class_%1_]_slot_%[_nonvirtual_], %3
+		fn_bind _map_%[_super_class_%1_]_slot_%[_static_], %3
 	%endmacro
 
 	%macro method_call 2-3 r15
@@ -368,7 +364,7 @@
 		;%3 = dispatch reg
 
 		method_lookup %1, %2
-		%ifidn _map_%1_type_%[_nonvirtual_], static
+		%ifidn _map_%1_type_%[_static_], static
 			%fatal Class %1 method %2 is static ! Use static_call ?
 		%endif
 		vp_cpy [r0 + obj_vtable], %3
@@ -381,7 +377,7 @@
 		;%3 = dispatch reg
 
 		method_lookup %1, %2
-		%ifidn _map_%1_type_%[_nonvirtual_], static
+		%ifidn _map_%1_type_%[_static_], static
 			%fatal Class %1 method %2 is static ! Use static_jmp ?
 		%endif
 		vp_cpy [r0 + obj_vtable], %3
@@ -394,7 +390,7 @@
 		;%3 = dispatch reg
 
 		method_lookup %1, %2
-		%ifidn _map_%1_type_%[_nonvirtual_], static
+		%ifidn _map_%1_type_%[_static_], static
 			%fatal Class %1 method %2 is static ! Use static_bind ?
 		%endif
 		vp_cpy [r0 + obj_vtable], %3
@@ -407,7 +403,7 @@
 		;%3 = reg
 
 		method_lookup %1, %2
-		fn_bind _map_%1_slot_%[_nonvirtual_], %3
+		fn_bind _map_%1_slot_%[_static_], %3
 	%endmacro
 
 	def_class class
