@@ -4,6 +4,7 @@
 %include 'inc/vp.inc'
 %include 'inc/code.inc'
 %include 'inc/gui.inc'
+%include 'inc/class.inc'
 
 ;;;;;;;;;;;;;;;;;
 ; sdl2 structures
@@ -213,12 +214,9 @@
 
 	%macro sdl_create_window 6
 		;title, x, y, w, h, flags
-		vp_cpy %1, r7		;title
-		vp_cpy %2, r6		;x
-		vp_cpy %3, r2		;y
-		vp_cpy %4, r1		;w
-		vp_cpy %5, r8		;h
-		vp_cpy %6, r9		;flags
+		set_src %1, %2, %3, %4, %5, %6
+		set_dst r7, r6, r2, r1, r8, r9
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_SDL_CreateWindow * 8)]
@@ -226,11 +224,9 @@
 
 	%macro sdl_create_window_and_renderer 5
 		;w, h, flags, window**, renderer**
-		vp_cpy %1, r7		;w
-		vp_cpy %2, r6		;h
-		vp_cpy %3, r2		;flags
-		vp_cpy %4, r1		;window**
-		vp_cpy %5, r8		;renderer**
+		set_src %1, %2, %3, %4, %5
+		set_dst r7, r6, r2, r1, r8
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_SDL_CreateWindowAndRenderer * 8)]
@@ -246,9 +242,9 @@
 
 	%macro sdl_create_renderer 3
 		;window*, index, flags
-		vp_cpy %1, r7		;window*
-		vp_cpy %2, r6		;index
-		vp_cpy %3, r2		;flags
+		set_src %1, %2, %3
+		set_dst r7, r6, r2
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_SDL_CreateRenderer * 8)]
@@ -256,11 +252,9 @@
 
 	%macro sdl_set_render_draw_color 5
 		;renderer**, r, g, b, a
-		vp_cpy %1, r7		;renderer**
-		vp_cpy %2, r6		;r
-		vp_cpy %3, r2		;g
-		vp_cpy %4, r1		;b
-		vp_cpy %5, r8		;a
+		set_src %1, %2, %3, %4, %5
+		set_dst r7, r6, r2, r1, r8
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_SDL_SetRenderDrawColor * 8)]
@@ -268,8 +262,9 @@
 
 	%macro sdl_render_fill_rect 2
 		;renderer**, rect*
-		vp_cpy %1, r7		;renderer**
-		vp_cpy %2, r6		;rect*
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_SDL_RenderFillRect * 8)]
@@ -277,8 +272,9 @@
 
 	%macro sdl_render_draw_rect 2
 		;renderer**, rect*
-		vp_cpy %1, r7		;renderer**
-		vp_cpy %2, r6		;rect*
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_SDL_RenderDrawRect * 8)]
@@ -294,8 +290,9 @@
 
 	%macro sdl_render_set_clip_rect 2
 		;renderer**, rect*
-		vp_cpy %1, r7		;renderer**
-		vp_cpy %2, r6		;rect*
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_SDL_RenderSetClipRect * 8)]
@@ -303,8 +300,9 @@
 
 	%macro sdl_set_render_draw_blend_mode 2
 		;renderer**, mode
-		vp_cpy %1, r7		;renderer**
-		vp_cpy %2, r6		;mode
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_SDL_SetRenderDrawBlendMode * 8)]
@@ -318,8 +316,9 @@
 
 	%macro sdl_get_mouse_state 2
 		;x*, y*
-		vp_cpy %1, r7		;x*
-		vp_cpy %2, r6		;y*
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_SDL_GetMouseState * 8)]
@@ -335,8 +334,9 @@
 
 	%macro sdl_create_texture_from_surface 2
 		;renderer**, surface*
-		vp_cpy %1, r7		;renderer**
-		vp_cpy %2, r6		;surface*
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_SDL_CreateTextureFromSurface * 8)]
@@ -352,10 +352,9 @@
 
 	%macro sdl_render_copy 4
 		;renderer**, texture*, srect*, drect*
-		vp_cpy %1, r7		;renderer**
-		vp_cpy %2, r6		;texture*
-		vp_cpy %3, r2		;srect*
-		vp_cpy %4, r1		;drect*
+		set_src %1, %2, %3, %4
+		set_dst r7, r6, r2, r1
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_SDL_RenderCopy * 8)]
@@ -363,8 +362,9 @@
 
 	%macro sdl_set_texture_blend_mode 2
 		;texture*, blendmode
-		vp_cpy %1, r7		;texture*
-		vp_cpy %2, r6		;blendmode
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_SDL_SetTextureBlendMode * 8)]
@@ -372,10 +372,9 @@
 
 	%macro sdl_set_texture_color_mod 4
 		;texture*, byte r, byte g, byte b
-		vp_cpy %1, r7		;texture*
-		vp_cpy %2, r6		;r
-		vp_cpy %3, r2		;g
-		vp_cpy %4, r1		;b
+		set_src %1, %2, %3, %4
+		set_dst r7, r6, r2, r1
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_SDL_SetTextureColorMod * 8)]
@@ -395,8 +394,9 @@
 
 	%macro ttf_open_font 2
 		;name*, pointsize
-		vp_cpy %1, r7		;name*
-		vp_cpy %2, r6		;pointsize
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_TTF_OpenFont * 8)]
@@ -412,10 +412,9 @@
 
 	%macro ttf_size_utf8 4
 		;font*, text*, int *w, int *h
-		vp_cpy %1, r7		;font*
-		vp_cpy %2, r6		;text*
-		vp_cpy %3, r2		;w*
-		vp_cpy %4, r1		;h*
+		set_src %1, %2, %3, %4
+		set_dst r7, r6, r2, r1
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_TTF_SizeUTF8 * 8)]
@@ -447,9 +446,9 @@
 
 	%macro ttf_render_utf8_blended 3
 		;font*, text*, color
-		vp_cpy %1, r7		;font*
-		vp_cpy %2, r6		;text*
-		vp_cpy %3, r2		;color
+		set_src %1, %2, %3
+		set_dst r7, r6, r2
+		map_src_to_dst
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (sdl_TTF_RenderUTF8_Blended * 8)]
