@@ -22,7 +22,7 @@
 				vp_cpy [r15 + ml_msg_dest + 8], r14
 				vp_cpy r12, r0
 				static_call sys_mem, alloc
-				fn_assert r0, !=, 0
+				assert r0, !=, 0
 				vp_cpy r12, [r0 + ml_msg_length]
 				vp_cpy r13, [r0 + ml_msg_dest]
 				vp_cpy r14, [r0 + ml_msg_dest + 8]

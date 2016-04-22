@@ -209,7 +209,7 @@
 						vp_cpy [r12 + lk_node_cpu_id], r11
 						continueif r11, ==, r14
 						static_call sys_mail, alloc
-						fn_assert r0, !=, 0
+						assert r0, !=, 0
 						vp_cpy r0, r5
 						vp_cpy r0, r1
 						vp_cpy r15, r0

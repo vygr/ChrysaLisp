@@ -22,7 +22,7 @@
 
 			;add my flow panel
 			static_call flow, create
-			fn_assert r0, !=, 0
+			assert r0, !=, 0
 			vp_cpy flow_flag_down | flow_flag_fillw | flow_flag_lasth, r1
 			static_call flow, set_flow_flags
 			vp_cpy 0xffffffff, r1
@@ -33,7 +33,7 @@
 
 			;add my title
 			static_call title, create
-			fn_assert r0, !=, 0
+			assert r0, !=, 0
 			vp_cpy 0xffc0c0c0, r1
 			static_call title, set_color
 			vp_cpy [r4], r1
@@ -43,7 +43,7 @@
 
 			;add my status panel
 			static_call flow, create
-			fn_assert r0, !=, 0
+			assert r0, !=, 0
 			vp_cpy flow_flag_up | flow_flag_fillw | flow_flag_lasth, r1
 			static_call flow, set_flow_flags
 			vp_cpy 0xffffffff, r1
@@ -55,7 +55,7 @@
 
 			;add my status label
 			static_call label, create
-			fn_assert r0, !=, 0
+			assert r0, !=, 0
 			vp_cpy 0xff808080, r1
 			static_call label, set_color
 			vp_cpy [r4], r1

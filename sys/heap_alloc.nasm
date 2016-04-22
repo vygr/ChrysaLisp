@@ -22,7 +22,7 @@
 			vp_add ln_fnode_size, r1
 			vp_cpy r0, r2
 			sys_mmap 0, r1, prot_read|prot_write, map_private|map_anon, -1, 0
-			fn_assert r0, !=, 0
+			assert r0, !=, 0
 			vp_cpy r0, r1
 			vp_cpy r2, r0
 			ln_add_fnode r0 + hp_heap_blocklist, r1, r2

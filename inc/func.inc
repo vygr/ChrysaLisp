@@ -270,14 +270,14 @@
 		%endif
 	%endmacro
 
-	%macro fn_abort 0-1 'Abort !'
+	%macro abort 0-1 'Abort !'
 		;%1 = debug string
 
 		fn_debug_str %1
 		sys_exit 1
 	%endmacro
 
-	%macro fn_assert 3-4 'Assert Failure !'
+	%macro assert 3-4 'Assert Failure !'
 		;%1 = val1
 		;%2 = condition
 		;%3 = val2
@@ -285,7 +285,7 @@
 
 		%ifdef debug_mode
 			ifnot %1, %2, %3
-				fn_abort %4
+				abort %4
 			endif
 		%endif
 	%endmacro

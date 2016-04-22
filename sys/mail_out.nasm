@@ -25,7 +25,7 @@
 			loop_start
 				;create fragment
 				static_call sys_mail, alloc
-				fn_assert r0, !=, 0
+				assert r0, !=, 0
 				vp_cpy r0, r14
 
 				;fill in fragment header

@@ -86,7 +86,7 @@
 
 						;allocate mail message
 						static_call sys_mail, alloc
-						fn_assert r0, !=, 0
+						assert r0, !=, 0
 
 						;fill in data
 						vp_cpy r14, [r0 + ml_msg_dest]

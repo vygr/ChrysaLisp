@@ -12,7 +12,7 @@
 		;allocate temp array for mailbox ID's
 		vp_cpy mailbox_id_size * FARM_SIZE, r0
 		static_call sys_mem, alloc
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		vp_cpy r0, r14
 
 		;open test6 farm, off chip
@@ -24,7 +24,7 @@
 		;send exit messages etc
 		for r13, 0, FARM_SIZE, 1
 			static_call sys_mail, alloc
-			fn_assert r0, !=, 0
+			assert r0, !=, 0
 			vp_cpy r13, r3
 			vp_mul mailbox_id_size, r3
 			vp_cpy [r14 + r3], r1

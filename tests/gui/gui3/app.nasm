@@ -34,7 +34,7 @@
 		vp_cpy r4, r0
 		static_bind class, obj, r1
 		static_call obj, init
-		fn_assert r1, !=, 0
+		assert r1, !=, 0
 		vp_xor r0, r0
 		vp_cpy r0, [r4 + local_accum]
 		vp_lea [r4 + local_buffer], r1
@@ -43,37 +43,37 @@
 
 		;create my window
 		static_call window, create, '', '[r4 + local_window]'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		static_call window, get_panel, 'r0', '[r4 + local_window_panel]'
 		static_call string, create, '"Calculator"'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		static_call window, set_title, '[r4 + local_window], r0'
 		static_call string, create, '"Status Text"'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		static_call window, set_status, '[r4 + local_window], r0'
 
 		;add my app flow panel
 		static_call flow, create, '', '[r4 + local_flow_panel]'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		static_call flow, set_flow_flags, 'r0, flow_flag_down | flow_flag_fillw | flow_flag_lasth'
 		static_call flow, set_color, 'r0, 0x00000000'
 		static_call flow, add, 'r0, [r4 + local_window_panel]'
 
 		;add my display label
 		static_call label, create, '', '[r4 +local_display]'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		static_call label, set_color, 'r0, -1'
 		static_call label, set_flow_flags, 'r0, flow_flag_align_hright | flow_flag_align_vcenter'
 		static_call label, set_font, 'r0, "fonts/OpenSans-Regular.ttf", 24'
 		fn_string '0', r0
 		static_call string, create, 'r0'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		static_call label, set_text, '[r4 + local_display], r0'
 		static_call label, add, 'r0, [r4 + local_flow_panel]'
 
 		;add my app grid panel
 		static_call grid, create, '', '[r4 + local_grid_panel]'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		static_call grid, set_color, 'r0, 0x00000000'
 		static_call grid, set_grid, 'r0, 4, 4'
 		static_call grid, add, 'r0, [r4 + local_flow_panel]'
@@ -87,10 +87,10 @@
 			vp_cpy r0, [r4 + local_next]
 
 			static_call button, create, '', '[r4 + local_button]'
-			fn_assert r0, !=, 0
+			assert r0, !=, 0
 			static_call button, set_color, 'r0, 0xffffff00'
 			static_call string, create, '[r4 + local_next]'
-			fn_assert r0, !=, 0
+			assert r0, !=, 0
 			static_call button, set_text, '[r4 + local_button], r0'
 			static_call button, set_flow_flags, 'r0, flow_flag_align_hcenter | flow_flag_align_vcenter'
 			static_call button, add, 'r0, [r4 + local_grid_panel]'
@@ -165,7 +165,7 @@
 		vp_cpy [r0 + local_display], r0
 		static_call label, get_text, '', '[r4 + on_press_string2]'
 		static_call string, add, '[r4 + on_press_string2], [r4 + on_press_string1]'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		vp_cpy r0, r1
 		vp_cpy [r4 + on_press_inst], r0
 		vp_cpy [r0 + local_display], r0

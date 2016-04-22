@@ -96,7 +96,7 @@
 
 			;allocate params message
 			static_call sys_mail, alloc
-			fn_assert r0, !=, 0
+			assert r0, !=, 0
 			vp_cpy r0, r7
 
 			;fill in destination

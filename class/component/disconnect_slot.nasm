@@ -22,7 +22,7 @@
 			jmpif r6, ==, 0, freeit
 			continueif r6, !=, [r2 + gui_sigslot_addr]
 		freeit:
-			fn_assert r7, ==, [r2 + gui_sigslot_inst]
+			assert r7, ==, [r2 + gui_sigslot_inst]
 
 			;remove from slot list
 			vp_cpy r2, r1

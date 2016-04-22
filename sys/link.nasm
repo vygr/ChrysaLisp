@@ -69,7 +69,7 @@
 		vp_cpy r0, r8
 		vp_cpy r1, r9
 		static_call sys_mail, alloc
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		vp_xor r1, r1
 		vp_cpy r1, [r0 + ml_msg_dest]
 		vp_cpy r9, [r0 + (ml_msg_dest + 8)]
@@ -94,7 +94,7 @@
 		;map shared object
 		sys_mmap 0, lk_buffer_size, prot_read | prot_write, map_shared, r13, 0
 		vp_cpy r0, r12
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 
 		;r10 is tx channel, r11 is rx channel
 		vp_add r12, r10
@@ -165,7 +165,7 @@
 				;allocate msg, copy over data
 				;round up to next 8 byte boundary for speed
 				static_call sys_mail, alloc
-				fn_assert r0, !=, 0
+				assert r0, !=, 0
 				vp_cpy r0, r8
 				vp_cpy r0, r1
 				vp_lea [r11 + lk_chan_msg], r0

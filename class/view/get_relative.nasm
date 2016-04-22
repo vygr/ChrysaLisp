@@ -19,7 +19,7 @@
 			vp_add [r2 + view_x], r8
 			vp_add [r2 + view_y], r9
 			vp_cpy [r2 + view_parent], r2
-			fn_assert r2, !=, 0
+			assert r2, !=, 0
 		loop_end
 		vp_ret
 

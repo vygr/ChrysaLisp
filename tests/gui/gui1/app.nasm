@@ -33,18 +33,18 @@
 
 		;create my window
 		static_call window, create, '', '[r4 + local_window]'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		static_call window, get_panel, 'r0', '[r4 + local_window_panel]'
 		static_call string, create, '"Network Task Monitor"'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		static_call window, set_title, '[r4 + local_window], r0'
 		static_call string, create, '"Status Text"'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		static_call window, set_status, '[r4 + local_window], r0'
 
 		;add my panel
 		static_call flow, create, '', '[r4 + local_panel]'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 		static_call flow, set_flow_flags, 'r0, flow_flag_down | flow_flag_fillw'
 		static_call flow, set_color, 'r0, 0'
 		static_call flow, add, 'r0, [r4 + local_window_panel]'
@@ -53,14 +53,14 @@
 		static_call sys_cpu, total, '', '[r4 + local_cpu_total]'
 		vp_mul 8, r0
 		static_call sys_mem, alloc, 'r0', '[r4 + local_task_progress], r1'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 
 		;add num cpus progress bars to my app panel
 		vp_xor r1, r1
 		vp_cpy r1, [r4 + local_cpu_count]
 		loop_start
 			static_call progress, create
-			fn_assert r0, !=, 0
+			assert r0, !=, 0
 			static_call progress, set_max, 'r0, 48'
 			static_call progress, set_color, 'r0, 0xff00ff00'
 			static_call progress, add, 'r0, [r4 + local_panel]'
@@ -91,7 +91,7 @@
 		vp_cpy [r4 + local_cpu_total], r0
 		vp_mul mailbox_id_size, r0
 		static_call sys_mem, alloc, '', '[r4 + local_task_mailboxes], r1'
-		fn_assert r0, !=, 0
+		assert r0, !=, 0
 
 		;open global farm
 		static_call sys_task, open_global, '"tests/gui/gui1/child", r0, [r4 + local_cpu_total]'
@@ -112,7 +112,7 @@
 				;send out sample commands
 				loop_start
 					static_call sys_mail, alloc, '', 'r5'
-					fn_assert r0, !=, 0
+					assert r0, !=, 0
 
 					;child task num
 					vp_cpy [r4 + local_cpu_count], r0
@@ -192,7 +192,7 @@
 		vp_xor r5, r5
 		loop_start
 			static_call sys_mail, alloc
-			fn_assert r0, !=, 0
+			assert r0, !=, 0
 			vp_cpy_cl 0, [r0 + sample_mail_command]
 			vp_cpy_cl sample_mail_size, [r0 + ml_msg_length]
 

@@ -86,7 +86,7 @@
 				static_call sys_string, length
 				vp_lea	[r1 + ft_text_size + 1], r0
 				static_call sys_mem, alloc
-				fn_assert r0, !=, 0
+				assert r0, !=, 0
 				vp_cpy r0, r13
 
 				vp_cpy [r14 + local_font], r0

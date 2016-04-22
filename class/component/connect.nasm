@@ -23,7 +23,7 @@
 
 		;create sigslot record
 		static_call sys_heap, alloc
-		fn_assert r1, !=, 0
+		assert r1, !=, 0
 
 		;fill in target and method
 		vp_cpy r7, [r1 + gui_sigslot_inst]
