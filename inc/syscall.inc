@@ -8,18 +8,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 	def_class sys_io
-	def_method char, sys/write_char
-	def_method string, sys/write_string
-	def_method number, sys/write_number
-	def_method read, sys/read_line
-	def_method debug_long, sys/write_debug_long
-	def_method debug_str, sys/write_debug_str
+	def_method char, sys/write_char, static, 'r0, r1'
+	def_method string, sys/write_string, static, 'r0, r1'
+	def_method number, sys/write_number, static, 'r0, r1, r2'
+	def_method read, sys/read_line, static, 'r0, r1, r2', 'r0'
+	def_method debug_long, sys/write_debug_long, static, 'r0, r1, r2, r3'
+	def_method debug_str, sys/write_debug_str, static, 'r0, r1, r2, r3'
 
 	def_class sys_cpu
 	def_method id, sys/cpu_get_id, static, '', 'r0'
 	def_method time, sys/cpu_get_time, static, '', 'r0'
 	def_method total, sys/cpu_get_total, static, '', 'r0'
-	def_method opts, sys/opt_process
+	def_method opts, sys/opt_process,static, 'r0'
 
 %ifidn OS, Darwin
 
@@ -114,9 +114,9 @@
 	%macro sys_read 3
 		;fd, buffer, length
 		push_trashed
-		vp_cpy %1, r7
-		vp_cpy %2, r6
-		vp_cpy %3, r2
+		set_src %1, %2, %3
+		set_dst r7, r6, r2
+		map_src_to_dst
 		vp_cpy sys_read + 0x2000000, r0
 		vp_syscall
 		pop_trashed
@@ -139,9 +139,9 @@
 		;fd, string, length
 		push_trashed
 		vp_push r0
-		vp_cpy %1, r7
-		vp_cpy %2, r6
-		vp_cpy %3, r2
+		set_src %1, %2, %3
+		set_dst r7, r6, r2
+		map_src_to_dst
 		vp_cpy sys_write + 0x2000000, r0
 		vp_syscall
 		vp_pop r0
@@ -165,12 +165,9 @@
 	%macro sys_mmap 6
 		;addr, len, prot, flags, fd, pos
 		push_trashed
-		vp_cpy %1, r7		;addr
-		vp_cpy %2, r6		;size of the file
-		vp_cpy %3, r2		;read only etc
-		vp_cpy %4, r10		;shared etc
-		vp_cpy %5, r8		;file descriptor
-		vp_cpy %6, r9		;offset
+		set_src %1, %2, %3, %4, %5, %6
+		set_dst r7, r6, r2, r10, r8, r9
+		map_src_to_dst
 		vp_cpy sys_mmap + 0x2000000, r0
 		vp_syscall
 		pop_trashed
@@ -179,9 +176,9 @@
 	%macro sys_mprotect 3
 		;addr, len, prot
 		push_trashed
-		vp_cpy %1, r7		;addr
-		vp_cpy %2, r6		;size
-		vp_cpy %3, r2		;read only etc
+		set_src %1, %2, %3
+		set_dst r7, r6, r2
+		map_src_to_dst
 		vp_cpy sys_mprotect + 0x2000000, r0
 		vp_syscall
 		pop_trashed
@@ -190,8 +187,9 @@
 	%macro sys_munmap 2
 		;addr, len
 		push_trashed
-		vp_cpy %1, r7		;addr
-		vp_cpy %2, r6		;size of the file
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		vp_cpy sys_munmap + 0x2000000, r0
 		vp_syscall
 		pop_trashed
@@ -200,8 +198,9 @@
 	%macro sys_stat 2
 		;path, buffer
 		push_trashed
-		vp_cpy %1, r7		;path
-		vp_cpy %2, r6		;stat buffer
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		vp_cpy sys_stat + 0x2000000, r0
 		vp_syscall
 		pop_trashed
@@ -210,9 +209,9 @@
 	%macro sys_open 3
 		;path, flags, mode
 		push_trashed
-		vp_cpy %1, r7		;path
-		vp_cpy %2, r6		;flags
-		vp_cpy %3, r2		;mode
+		set_src %1, %2, %3
+		set_dst r7, r6, r2
+		map_src_to_dst
 		vp_cpy sys_open + 0x2000000, r0
 		vp_syscall
 		pop_trashed
@@ -230,8 +229,9 @@
 	%macro sys_ftruncate 2
 		;fd, offset
 		push_trashed
-		vp_cpy %1, r7		;fd
-		vp_cpy %2, r6		;offset
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		vp_cpy sys_ftruncate + 0x2000000, r0
 		vp_syscall
 		pop_trashed
@@ -250,8 +250,9 @@
 		;time, timezone
 		push_trashed
 		vp_push %1
-		vp_cpy %1, r7		;time struct
-		vp_cpy %2, r6		;timezone struct
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		vp_cpy sys_gettimeofday + 0x2000000, r0
 		vp_syscall
 		vp_pop r1
@@ -353,9 +354,9 @@
 	%macro sys_read 3
 		;fd, buffer, length
 		push_trashed
-		vp_cpy %1, r7
-		vp_cpy %2, r6
-		vp_cpy %3, r2
+		set_src %1, %2, %3
+		set_dst r7, r6, r2
+		map_src_to_dst
 		vp_cpy sys_read, r0
 		vp_syscall
 		pop_trashed
@@ -378,9 +379,9 @@
 		;fd, string, length
 		push_trashed
 		vp_push r0
-		vp_cpy %1, r7
-		vp_cpy %2, r6
-		vp_cpy %3, r2
+		set_src %1, %2, %3
+		set_dst r7, r6, r2
+		map_src_to_dst
 		vp_cpy sys_write, r0
 		vp_syscall
 		vp_pop r0
@@ -404,12 +405,9 @@
 	%macro sys_mmap 6
 		;addr, len, prot, flags, fd, pos
 		push_trashed
-		vp_cpy %1, r7		;addr
-		vp_cpy %2, r6		;size of the file
-		vp_cpy %3, r2		;read only etc
-		vp_cpy %4, r10		;shared etc
-		vp_cpy %5, r8		;file descriptor
-		vp_cpy %6, r9		;offset
+		set_src %1, %2, %3, %4, %5, %6
+		set_dst r7, r6, r2, r10, r8, r9
+		map_src_to_dst
 		vp_cpy sys_mmap, r0
 		vp_syscall
 		pop_trashed
@@ -418,9 +416,9 @@
 	%macro sys_mprotect 3
 		;addr, len, prot
 		push_trashed
-		vp_cpy %1, r7		;addr
-		vp_cpy %2, r6		;size
-		vp_cpy %3, r2		;read only etc
+		set_src %1, %2, %3
+		set_dst r7, r6, r2
+		map_src_to_dst
 		vp_cpy sys_mprotect, r0
 		vp_syscall
 		pop_trashed
@@ -429,8 +427,9 @@
 	%macro sys_munmap 2
 		;addr, len
 		push_trashed
-		vp_cpy %1, r7		;addr
-		vp_cpy %2, r6		;size of the file
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		vp_cpy sys_munmap, r0
 		vp_syscall
 		pop_trashed
@@ -439,8 +438,9 @@
 	%macro sys_stat 2
 		;path, buffer
 		push_trashed
-		vp_cpy %1, r7		;path
-		vp_cpy %2, r6		;stat buffer
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		vp_cpy sys_stat, r0
 		vp_syscall
 		pop_trashed
@@ -449,9 +449,9 @@
 	%macro sys_open 3
 		;path, flags, mode
 		push_trashed
-		vp_cpy %1, r7		;path
-		vp_cpy %2, r6		;flags
-		vp_cpy %3, r2		;mode
+		set_src %1, %2, %3
+		set_dst r7, r6, r2
+		map_src_to_dst
 		vp_cpy sys_open, r0
 		vp_syscall
 		pop_trashed
@@ -469,8 +469,9 @@
 	%macro sys_ftruncate 2
 		;fd, offset
 		push_trashed
-		vp_cpy %1, r7		;fd
-		vp_cpy %2, r6		;offset
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		vp_cpy sys_ftruncate, r0
 		vp_syscall
 		pop_trashed
@@ -488,8 +489,9 @@
 	%macro sys_gettimeofday 2
 		;time, timezone
 		push_trashed
-		vp_cpy %1, r7		;time struct
-		vp_cpy %2, r6		;timezone struct
+		set_src %1, %2
+		set_dst r7, r6
+		map_src_to_dst
 		vp_cpy sys_gettimeofday, r0
 		vp_syscall
 		pop_trashed
