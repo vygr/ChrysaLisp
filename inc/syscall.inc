@@ -16,9 +16,9 @@
 	def_method debug_str, sys/write_debug_str
 
 	def_class sys_cpu
-	def_method id, sys/cpu_get_id
-	def_method time, sys/cpu_get_time
-	def_method total, sys/cpu_get_total
+	def_method id, sys/cpu_get_id, static, '', 'r0'
+	def_method time, sys/cpu_get_time, static, '', 'r0'
+	def_method total, sys/cpu_get_total, static, '', 'r0'
 	def_method opts, sys/opt_process
 
 %ifidn OS, Darwin

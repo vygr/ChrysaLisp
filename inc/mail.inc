@@ -11,12 +11,12 @@
 	def_method statics, sys/mail_statics
 	def_method init, sys/mail_init
 	def_method deinit, sys/mail_deinit
-	def_method alloc, sys/mail_alloc
-	def_method alloc_parcel, sys/mail_alloc_parcel
-	def_method send, sys/mail_send
-	def_method read, sys/mail_read
-	def_method try_read, sys/mail_try_read
-	def_method select, sys/mail_select
+	def_method alloc, sys/mail_alloc, static, '', 'r0'
+	def_method alloc_parcel, sys/mail_alloc_parcel, static, 'r0', 'r0'
+	def_method send, sys/mail_send, static, 'r0'
+	def_method read, sys/mail_read, static, 'r0', 'r0'
+	def_method try_read, sys/mail_try_read, static, 'r0', 'r0'
+	def_method select, sys/mail_select, static, 'r0, r1', 'r0'
 	def_method mymail, sys/mail_mymail, static, '', 'r0'
 	def_method in, sys/mail_in
 	def_method out, sys/mail_out

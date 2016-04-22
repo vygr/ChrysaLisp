@@ -8,8 +8,8 @@
 	def_class progress, view
 	def_method create, class/progress/create
 	def_method new, class/progress/new
-	def_method set_max, class/progress/set_max
-	def_method set_val, class/progress/set_val
+	def_method set_max, class/progress/set_max, static, 'r0, r1'
+	def_method set_val, class/progress/set_val, static, 'r0, r1'
 
 	def_method pref_size, class/progress/pref_size, override
 	def_method draw, class/progress/draw, override

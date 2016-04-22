@@ -20,7 +20,7 @@
 	def_method statics, sys/mem_statics
 	def_method init, sys/mem_init
 	def_method deinit, sys/mem_deinit
-	def_method alloc, sys/mem_alloc
+	def_method alloc, sys/mem_alloc, static, 'r0', 'r0, r1'
 	def_method free, sys/mem_free, static, 'r0'
 	def_method clear, sys/mem_clear
 	def_method copy, sys/mem_copy

@@ -32,42 +32,28 @@
 		vp_sub local_size, r4
 
 		;create my window
-		static_call window, create
+		static_call window, create, '', '[r4 + local_window]'
 		fn_assert r0, !=, 0
-		vp_cpy r0, [r4 + local_window]
-		static_call window, get_panel
-		vp_cpy r1, [r4 + local_window_panel]
-		fn_string 'Network Task Monitor', r0
-		static_call string, create
+		static_call window, get_panel, 'r0', '[r4 + local_window_panel]'
+		static_call string, create, '"Network Task Monitor"'
 		fn_assert r0, !=, 0
-		vp_cpy r0, r1
-		vp_cpy [r4 + local_window], r0
-		static_call window, set_title
-		fn_string 'Status Text', r0
-		static_call string, create
+		static_call window, set_title, '[r4 + local_window], r0'
+		static_call string, create, '"Status Text"'
 		fn_assert r0, !=, 0
-		vp_cpy r0, r1
-		vp_cpy [r4 + local_window], r0
-		static_call window, set_status
+		static_call window, set_status, '[r4 + local_window], r0'
 
 		;add my panel
-		static_call flow, create
+		static_call flow, create, '', '[r4 + local_panel]'
 		fn_assert r0, !=, 0
-		vp_cpy r0, [r4 + local_panel]
-		vp_cpy flow_flag_down | flow_flag_fillw, r1
-		static_call flow, set_flow_flags
-		vp_xor r1, r1
-		static_call flow, set_color
-		vp_cpy [r4 + local_window_panel], r1
-		static_call flow, add
+		static_call flow, set_flow_flags, 'r0, flow_flag_down | flow_flag_fillw'
+		static_call flow, set_color, 'r0, 0'
+		static_call flow, add, 'r0, [r4 + local_window_panel]'
 
 		;allocate array for progress bars
-		static_call sys_cpu, total
-		vp_cpy r0, [r4 + local_cpu_total]
+		static_call sys_cpu, total, '', '[r4 + local_cpu_total]'
 		vp_mul 8, r0
-		static_call sys_mem, alloc
+		static_call sys_mem, alloc, 'r0', '[r4 + local_task_progress], r1'
 		fn_assert r0, !=, 0
-		vp_cpy r0, [r4 + local_task_progress]
 
 		;add num cpus progress bars to my app panel
 		vp_xor r1, r1
@@ -75,12 +61,9 @@
 		loop_start
 			static_call progress, create
 			fn_assert r0, !=, 0
-			vp_cpy 48, r1
-			static_call progress, set_max
-			vp_cpy 0xff00ff00, r1
-			static_call progress, set_color
-			vp_cpy [r4 + local_panel], r1
-			static_call progress, add
+			static_call progress, set_max, 'r0, 48'
+			static_call progress, set_color, 'r0, 0xff00ff00'
+			static_call progress, add, 'r0, [r4 + local_panel]'
 
 			;save progress bar for this cpu
 			vp_cpy [r4 + local_cpu_count], r1
@@ -94,15 +77,11 @@
 		;set to pref size
 		vp_cpy [r4 + local_window], r0
 		method_call window, pref_size
-		vp_cpy 32, r8
-		vp_cpy 32, r9
-		static_call window, change
+		static_call window, change, 'r0, 32, 32, r10, r11'
 
 		;set owner
 		static_call sys_task, tcb
-		vp_cpy r0, r1
-		vp_cpy [r4 + local_window], r0
-		static_call window, set_owner
+		static_call window, set_owner, '[r4 + local_window], r0'
 
 		;add to screen and dirty
 		static_call gui_gui, add
@@ -111,15 +90,11 @@
 		;allocate array for child mailbox ID's
 		vp_cpy [r4 + local_cpu_total], r0
 		vp_mul mailbox_id_size, r0
-		static_call sys_mem, alloc
+		static_call sys_mem, alloc, '', '[r4 + local_task_mailboxes], r1'
 		fn_assert r0, !=, 0
-		vp_cpy r0, [r4 + local_task_mailboxes]
 
 		;open global farm
-		vp_cpy r0, r1
-		fn_string 'tests/gui/gui1/child', r0
-		vp_cpy [r4 + local_cpu_total], r2
-		static_call sys_task, open_global
+		static_call sys_task, open_global, '"tests/gui/gui1/child", r0, [r4 + local_cpu_total]'
 
 		;init task mailbox
 		vp_lea [r4 + local_task_mailbox], r0
@@ -127,8 +102,7 @@
 
 		;set up mailbox select array
 		vp_cpy r0, [r4 + local_select2]
-		static_call sys_task, mailbox
-		vp_cpy r0, [r4 + local_select1]
+		static_call sys_task, mailbox, '', '[r4 + local_select1], r1'
 
 		;app event loop
 		loop_start
@@ -137,9 +111,8 @@
 			if r0, ==, [r4 + local_cpu_total]
 				;send out sample commands
 				loop_start
-					static_call sys_mail, alloc
+					static_call sys_mail, alloc, '', 'r5'
 					fn_assert r0, !=, 0
-					vp_cpy r0, r5
 
 					;child task num
 					vp_cpy [r4 + local_cpu_count], r0
@@ -160,14 +133,12 @@
 					vp_cpy r2, [r5 + ml_msg_dest]
 					vp_cpy r3, [r5 + ml_msg_dest + 8]
 
-					static_call sys_task, mailbox
+					static_call sys_cpu, id, '', '[r5 + sample_mail_reply_id + 8]'
 					vp_cpy [r4 + local_select2], r0
 					vp_cpy r0, [r5 + sample_mail_reply_id]
-					vp_cpy r1, [r5 + sample_mail_reply_id + 8]
 
 					;send command
-					vp_cpy r5, r0
-					static_call sys_mail, send
+					static_call sys_mail, send, 'r5'
 
 					vp_cpy [r4 + local_cpu_count], r0
 				loop_until r0, ==, 0
@@ -175,14 +146,12 @@
 
 			;select on 2 mailboxes
 			vp_lea [r4 + local_select1], r0
-			vp_cpy 2, r1
-			static_call sys_mail, select
+			static_call sys_mail, select, 'r0, 2'
 
 			;which mailbox has mail ?
 			if r0, ==, [r4 + local_select1]
 				;main mailbox
-				static_call sys_mail, read
-				vp_cpy r0, [r4 + local_last_event]
+				static_call sys_mail, read, '', '[r4 + local_last_event]'
 
 				;dispatch event to view
 				vp_cpy r0, r1
@@ -190,8 +159,7 @@
 				method_call view, event
 			else
 				;task mailbox
-				static_call sys_mail, read
-				vp_cpy r0, [r4 + local_last_event]
+				static_call sys_mail, read, '', '[r4 + local_last_event]'
 
 				;update progress bar
 				vp_cpy [r0 + sample_mail_task_count], r1
@@ -206,8 +174,7 @@
 			endif
 
 			;free event message
-			vp_cpy [r4 + local_last_event], r0
-			static_call sys_mem, free
+			static_call sys_mem, free, '[r4 + local_last_event]'
 
 			;be friendly
 			static_call sys_task, yield
@@ -216,9 +183,8 @@
 		;wait for outstanding replys
 		vp_cpy [r4 + local_cpu_count], r5
 		loop_while r5, !=, [r4 + local_cpu_total]
-			vp_cpy [r4 + local_select2], r0
-			static_call sys_mail, read
-			static_call sys_mem, free
+			static_call sys_mail, read, '[r4 + local_select2]', 'r0'
+			static_call sys_mem, free, 'r0'
 			vp_inc r5
 		loop_end
 
@@ -245,14 +211,11 @@
 		loop_until r5, ==, [r4 + local_cpu_total]
 
 		;free arrays
-		vp_cpy [r4 + local_task_mailboxes], r0
-		static_call sys_mem, free
-		vp_cpy [r4 + local_task_progress], r0
-		static_call sys_mem, free
+		static_call sys_mem, free, '[r4 + local_task_mailboxes]'
+		static_call sys_mem, free, '[r4 + local_task_progress]'
 
 		;deref window
-		vp_cpy [r4 + local_window], r0
-		static_call window, deref
+		static_call window, deref, '[r4 + local_window]'
 
 		vp_add local_size, r4
 		vp_ret
