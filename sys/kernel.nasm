@@ -41,8 +41,7 @@
 		static_call sys_mail, init
 
 		;process command options
-		vp_cpy [r4], r0
-		static_call sys_cpu, opts
+		static_call sys_cpu, opts, '[r4]'
 
 		;fill in num cpu's with at least mine + 1
 		static_call sys_cpu, id
@@ -92,13 +91,11 @@
 					vp_cpy r1, [r15 + kn_data_task_open_reply_mailboxid]
 					vp_cpy r0, [r15 + kn_data_task_open_reply_mailboxid + 8]
 					vp_cpy_cl kn_data_task_open_reply_size, [r15 + ml_msg_length]
-					vp_cpy r15, r0
-					static_call sys_mail, send
+					static_call sys_mail, send, 'r15'
 					break
 				case r1, ==, kn_call_task_child
 					;find best cpu to run task
-					static_call sys_cpu, id
-					vp_cpy r0, r5
+					static_call sys_cpu, id, '', 'r5'
 					static_bind sys_task, statics, r1
 					vp_cpy [r1 + tk_statics_task_count], r1
 					static_bind sys_link, statics, r2
@@ -112,8 +109,7 @@
 
 					;send to better kernel
 					vp_cpy r0, [r15 + (ml_msg_dest + 8)]
-					vp_cpy r15, r0
-					static_call sys_mail, send
+					static_call sys_mail, send, 'r15'
 					break
 				case r1, ==, kn_call_task_route
 					;increase size of network ?
@@ -125,14 +121,11 @@
 					endif
 
 					;new kernel routing table ?
-					vp_cpy [r4 + lk_table_array], r0
-					vp_cpy [r4 + lk_table_array_size], r1
 					vp_cpy [r15 + kn_data_link_route_origin], r11
 					vp_mul lk_route_size, r11
 					vp_lea [r11 + lk_route_size], r2
-					static_call sys_mem, grow
-					vp_cpy r0, [r4 + lk_table_array]
-					vp_cpy r1, [r4 + lk_table_array_size]
+					static_call sys_mem, grow, '[r4 + lk_table_array], [r4 + lk_table_array_size], r2', \
+												'[r4 + lk_table_array], [r4 + lk_table_array_size]'
 
 					;compare hop counts
 					vp_cpy [r15 + kn_data_link_route_hops], r2
@@ -151,12 +144,9 @@
 						static_bind sys_link, statics, r14
 						loop_list_forward r14 + lk_statics_links_list, r12, r14
 							;new link route table ?
-							vp_cpy [r12 + lk_node_table + lk_table_array], r0
-							vp_cpy [r12 + lk_node_table + lk_table_array_size], r1
 							vp_lea [r11 + lk_route_size], r2
-							static_call sys_mem, grow
-							vp_cpy r0, [r12 + lk_node_table + lk_table_array]
-							vp_cpy r1, [r12 + lk_node_table + lk_table_array_size]
+							static_call sys_mem, grow, '[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], r2', \
+														'[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]'
 
 							if [r12 + lk_node_cpu_id], ==, r13
 								;via route
@@ -174,12 +164,9 @@
 						static_bind sys_link, statics, r14
 						loop_list_forward r14 + lk_statics_links_list, r12, r14
 							;new link route table ?
-							vp_cpy [r12 + lk_node_table + lk_table_array], r0
-							vp_cpy [r12 + lk_node_table + lk_table_array_size], r1
 							vp_lea [r11 + lk_route_size], r2
-							static_call sys_mem, grow
-							vp_cpy r0, [r12 + lk_node_table + lk_table_array]
-							vp_cpy r1, [r12 + lk_node_table + lk_table_array_size]
+							static_call sys_mem, grow, '[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], r2', \
+														'[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]'
 
 							if [r12 + lk_node_cpu_id], ==, r13
 								;via route
@@ -200,8 +187,7 @@
 
 					;get current via, set via to my cpu id
 					vp_cpy [r15 + kn_data_link_route_via], r14
-					static_call sys_cpu, id
-					vp_cpy r0, [r15 + kn_data_link_route_via]
+					static_call sys_cpu, id, '', '[r15 + kn_data_link_route_via]'
 
 					;copy and send to all neighbors apart from old via
 					static_bind sys_link, statics, r13
@@ -218,12 +204,10 @@
 						vp_and -8, r2
 						static_call sys_mem, copy
 						vp_cpy r11, [r5 + ml_msg_dest + 8]
-						vp_cpy r5, r0
-						static_call sys_mail, send
+						static_call sys_mail, send, 'r5'
 					loop_end
 				drop_msg:
-					vp_cpy r15, r0
-					static_call sys_mem, free
+					static_call sys_mem, free, 'r15'
 					break
 				case r1, ==, kn_call_callback
 					;call callback with this thread/stack
@@ -293,8 +277,7 @@
 		static_call gui_gui, deinit
 
 		;free any kernel routing table
-		vp_cpy [r4 + lk_table_array], r0
-		static_call sys_mem, free
+		static_call sys_mem, free, '[r4 + lk_table_array]'
 		vp_add lk_table_size, r4
 
 		;deinit allocator

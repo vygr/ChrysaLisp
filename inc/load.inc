@@ -11,7 +11,7 @@
 	def_method statics, sys/load_statics
 	def_method init, sys/load_init
 	def_method deinit, sys/load_deinit
-	def_method bind, sys/load_bind
+	def_method bind, sys/load_bind, static, 'r0', 'r0'
 
 ;;;;;;;;;;;;;;;;;
 ; load structures
