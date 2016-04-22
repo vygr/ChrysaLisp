@@ -5,26 +5,26 @@
 
 	%macro vtable_emit 1
 		;%1 = class name
-		%assign %%_n 0
-		%rep _map_%[%1]_slots_
-			%ifidn _map_%[%1]_type_%[%%_n], virtual
-				fn_add_link _map_%[%1]_slot_%[%%_n]
+		%assign %%n 0
+		%rep _map_%1_slots_
+			%ifidn _map_%1_type_%[%%n], virtual
+				fn_add_link _map_%1_slot_%[%%n]
 			%endif
-			%assign %%_n %%_n + 1
+			%assign %%n %%n + 1
 		%endrep
 	%endmacro
 
 	%macro class_add 2
 		;%1 = dest class name
 		;%2 = source class name
-		%assign %%_n 0
+		%assign %%n 0
 		%rep _map_%[%2]_slots_
-			def_method	_map_%[%2]_name_%[%%_n], \
-						_map_%[%2]_slot_%[%%_n], \
-						_map_%[%2]_type_%[%%_n], \
-						_map_%[%2]_in_%[%%_n], \
-						_map_%[%2]_out_%[%%_n]
-			%assign %%_n %%_n + 1
+			def_method	_map_%[%2]_name_%[%%n], \
+						_map_%[%2]_slot_%[%%n], \
+						_map_%[%2]_type_%[%%n], \
+						_map_%[%2]_in_%[%%n], \
+						_map_%[%2]_out_%[%%n]
+			%assign %%n %%n + 1
 		%endrep
 	%endmacro
 
@@ -49,30 +49,30 @@
 		;%3 = mode (static/virtual/override)
 		;%4 = in regs
 		;%5 = out regs
-		%assign %%_n 0
+		%assign %%n 0
 		%rep _map_%[_class_]_slots_
-			%ifidn _map_%[_class_]_name_%[%%_n], %1
+			%ifidn _map_%[_class_]_name_%[%%n], %1
 				%exitrep
 			%else
-				%assign %%_n %%_n + 1
+				%assign %%n %%n + 1
 			%endif
 		%endrep
-		%if %%_n = _map_%[_class_]_slots_
+		%if %%n = _map_%[_class_]_slots_
 			;new method
 			%ifidn %3, static
-				%assign _map_%[_class_]_slots_ %%_n + 1
-				%define _map_%[_class_]_name_%[%%_n] %1
-				%define _map_%[_class_]_slot_%[%%_n] %2
-				%define _map_%[_class_]_type_%[%%_n] %3
-				%define _map_%[_class_]_in_%[%%_n] %4
-				%define _map_%[_class_]_out_%[%%_n] %5
+				%assign _map_%[_class_]_slots_ %%n + 1
+				%define _map_%[_class_]_name_%[%%n] %1
+				%define _map_%[_class_]_slot_%[%%n] %2
+				%define _map_%[_class_]_type_%[%%n] %3
+				%define _map_%[_class_]_in_%[%%n] %4
+				%define _map_%[_class_]_out_%[%%n] %5
 			%elifidn %3, virtual
-				%assign _map_%[_class_]_slots_ %%_n + 1
-				%define _map_%[_class_]_name_%[%%_n] %1
-				%define _map_%[_class_]_slot_%[%%_n] %2
-				%define _map_%[_class_]_type_%[%%_n] %3
-				%define _map_%[_class_]_in_%[%%_n] %4
-				%define _map_%[_class_]_out_%[%%_n] %5
+				%assign _map_%[_class_]_slots_ %%n + 1
+				%define _map_%[_class_]_name_%[%%n] %1
+				%define _map_%[_class_]_slot_%[%%n] %2
+				%define _map_%[_class_]_type_%[%%n] %3
+				%define _map_%[_class_]_in_%[%%n] %4
+				%define _map_%[_class_]_out_%[%%n] %5
 			%elifidn %3, override
 				%fatal Method %1 does not exist !
 			%else
@@ -81,13 +81,13 @@
 		%else
 			;existing method
 			%ifidn %3, static
-				%ifidn _map_%[_class_]_type_%[%%_n], static
-					%define _map_%[_class_]_slot_%[%%_n] %2
+				%ifidn _map_%[_class_]_type_%[%%n], static
+					%define _map_%[_class_]_slot_%[%%n] %2
 					%ifnidn %4, ''
-						%define _map_%[_class_]_in_%[%%_n] %4
+						%define _map_%[_class_]_in_%[%%n] %4
 					%endif
 					%ifnidn %5, ''
-						%define _map_%[_class_]_out_%[%%_n] %5
+						%define _map_%[_class_]_out_%[%%n] %5
 					%endif
 				%else
 					%fatal Virtual method %1 allready exists !
@@ -95,13 +95,13 @@
 			%elifidn %3, virtual
 				%fatal Method %1 allready exists !, use override ?
 			%elifidn %3, override
-				%ifidn _map_%[_class_]_type_%[%%_n], virtual
-					%define _map_%[_class_]_slot_%[%%_n] %2
+				%ifidn _map_%[_class_]_type_%[%%n], virtual
+					%define _map_%[_class_]_slot_%[%%n] %2
 					%ifnidn %4, ''
-						%define _map_%[_class_]_in_%[%%_n] %4
+						%define _map_%[_class_]_in_%[%%n] %4
 					%endif
 					%ifnidn %5, ''
-						%define _map_%[_class_]_out_%[%%_n] %5
+						%define _map_%[_class_]_out_%[%%n] %5
 					%endif
 				%else
 					%fatal Static %1 allready exists !
@@ -137,20 +137,20 @@
 
 	%macro set_src 1-*
 		;%1... = paramaters
-		%assign _src_cnt 0
+		%assign _src_total 0
 		%rep %0
-			%define _src_%[_src_cnt] %1
-			%assign _src_cnt _src_cnt + 1
+			%define _src_%[_src_total] %1
+			%assign _src_total _src_total + 1
 			%rotate 1
 		%endrep
 	%endmacro
 
 	%macro set_dst 1-*
 		;%1... = paramaters
-		%assign _dst_cnt 0
+		%assign _dst_total 0
 		%rep %0
-			%define _dst_%[_dst_cnt] %1
-			%assign _dst_cnt _dst_cnt + 1
+			%define _dst_%[_dst_total] %1
+			%assign _dst_total _dst_total + 1
 			%rotate 1
 		%endrep
 	%endmacro
@@ -158,7 +158,7 @@
 	%macro map_print 0
 		%warning src => dst
 		%assign %%i 0
-		%rep _src_cnt
+		%rep _src_total
 			%warning map entry %%i: _src_%[%%i] => _dst_%[%%i]
 			%assign %%i %%i + 1
 		%endrep
@@ -168,7 +168,7 @@
 		;%1 = dst index
 		;%2 = src index
 		%assign %%i 0
-		%rep _src_cnt
+		%rep _src_total
 			%xdefine %%s_%[%%i] _src_%[%%i]
 			%xdefine %%d_%[%%i] _dst_%[%%i]
 			%assign %%i %%i + 1
@@ -187,7 +187,7 @@
 	%macro find_src 1
 		;%1 = param to find
 		%assign _idx 0
-		%rep _src_cnt
+		%rep _src_total
 			%ifidn _src_%[_idx], %1
 				%exitrep
 			%else
@@ -201,9 +201,9 @@
 		%rep %%c
 			%assign %%f 0
 			%assign %%d 0
-			%rep _dst_cnt
+			%rep _dst_total
 				find_src _dst_%[%%d]
-				%if _idx != _src_cnt
+				%if _idx != _src_total
 					%if %%d < _idx
 						map_rotate %%d, _idx
 						%assign %%f 1
@@ -220,18 +220,18 @@
 			%endif
 		%endrep
 		%if %%c = 0
+			map_print
 			%fatal Copy cycle detected !
 		%endif
 	%endmacro
 
 	%macro map_src_to_dst 0
-		%if _dst_cnt != _src_cnt
+		%if _dst_total != _src_total
 			%fatal Mismatching number of src/dst paramaters !
 		%else
 			map_sort
 			%assign %%i 0
-			%rep _src_cnt
-				;%warning _src_%[%%i] => _dst_%[%%i]
+			%rep _src_total
 				vp_cpy _src_%[%%i], _dst_%[%%i]
 				%assign %%i %%i + 1
 			%endrep
