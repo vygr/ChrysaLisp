@@ -45,12 +45,10 @@
 		static_call window, create, '', '[r4 + local_window]'
 		fn_assert r0, !=, 0
 		static_call window, get_panel, 'r0', '[r4 + local_window_panel]'
-		fn_string 'Calculator', r0
-		static_call string, create, 'r0'
+		static_call string, create, '"Calculator"'
 		fn_assert r0, !=, 0
 		static_call window, set_title, '[r4 + local_window], r0'
-		fn_string 'Status Text', r0
-		static_call string, create, 'r0'
+		static_call string, create, '"Status Text"'
 		fn_assert r0, !=, 0
 		static_call window, set_status, '[r4 + local_window], r0'
 
@@ -66,8 +64,7 @@
 		fn_assert r0, !=, 0
 		static_call label, set_color, 'r0, -1'
 		static_call label, set_flow_flags, 'r0, flow_flag_align_hright | flow_flag_align_vcenter'
-		fn_string 'fonts/OpenSans-Regular.ttf', r1
-		static_call label, set_font, 'r0, r1, 24'
+		static_call label, set_font, 'r0, "fonts/OpenSans-Regular.ttf", 24'
 		fn_string '0', r0
 		static_call string, create, 'r0'
 		fn_assert r0, !=, 0

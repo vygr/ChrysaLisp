@@ -228,7 +228,11 @@
 			map_sort
 			%assign %%i 0
 			%rep _src_total
-				vp_cpy _src_%[%%i], _dst_%[%%i]
+				%ifstr _src_%[%%i]
+					fn_string _src_%[%%i], _dst_%[%%i]
+				%else
+					vp_cpy _src_%[%%i], _dst_%[%%i]
+				%endif
 				%assign %%i %%i + 1
 			%endrep
 		%endif
