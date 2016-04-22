@@ -107,8 +107,7 @@
 	%macro sys_exit 1
 		;return code
 		vp_cpy %1, r7
-		vp_cpy sys_exit + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_exit + 0x2000000
 	%endmacro
 
 	%macro sys_read 3
@@ -117,8 +116,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_cpy sys_read + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_read + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -129,8 +127,7 @@
 		vp_cpy %1, r7
 		vp_cpy r4, r6
 		vp_cpy 1, r2
-		vp_cpy sys_read + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_read + 0x2000000
 		vp_pop r0
 		pop_trashed
 	%endmacro
@@ -142,8 +139,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_cpy sys_write + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_write + 0x2000000
 		vp_pop r0
 		pop_trashed
 	%endmacro
@@ -155,8 +151,7 @@
 		vp_cpy %1, r7
 		vp_cpy r4, r6
 		vp_cpy 1, r2
-		vp_cpy sys_write + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_write + 0x2000000
 		vp_add 8, r4
 		vp_pop r0
 		pop_trashed
@@ -168,8 +163,7 @@
 		set_src %1, %2, %3, %4, %5, %6
 		set_dst r7, r6, r2, r10, r8, r9
 		map_src_to_dst
-		vp_cpy sys_mmap + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_mmap + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -179,8 +173,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_cpy sys_mprotect + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_mprotect + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -190,8 +183,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_cpy sys_munmap + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_munmap + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -201,8 +193,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_cpy sys_stat + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_stat + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -212,8 +203,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_cpy sys_open + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_open + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -221,8 +211,7 @@
 		;fd
 		push_trashed
 		vp_cpy %1, r7		;fd
-		vp_cpy sys_close + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_close + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -232,8 +221,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_cpy sys_ftruncate + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_ftruncate + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -241,8 +229,7 @@
 		;name
 		push_trashed
 		vp_cpy %1, r7		;name
-		vp_cpy sys_unlink + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_unlink + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -253,8 +240,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_cpy sys_gettimeofday + 0x2000000, r0
-		vp_syscall
+		vp_syscall sys_gettimeofday + 0x2000000
 		vp_pop r1
 		vp_cpy r0, [r1 + timeval_sec]
 		vp_cpy r2, [r1 + timeval_usec]
@@ -347,8 +333,7 @@
 	%macro sys_exit 1
 		;return code
 		vp_cpy %1, r7
-		vp_cpy sys_exit, r0
-		vp_syscall
+		vp_syscall sys_exit
 	%endmacro
 
 	%macro sys_read 3
@@ -357,8 +342,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_cpy sys_read, r0
-		vp_syscall
+		vp_syscall sys_read
 		pop_trashed
 	%endmacro
 
@@ -369,8 +353,7 @@
 		vp_cpy %1, r7
 		vp_cpy r4, r6
 		vp_cpy 1, r2
-		vp_cpy sys_read, r0
-		vp_syscall
+		vp_syscall sys_read
 		vp_pop r0
 		pop_trashed
 	%endmacro
@@ -382,8 +365,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_cpy sys_write, r0
-		vp_syscall
+		vp_syscall sys_write
 		vp_pop r0
 		pop_trashed
 	%endmacro
@@ -395,8 +377,7 @@
 		vp_cpy %1, r7
 		vp_cpy r4, r6
 		vp_cpy 1, r2
-		vp_cpy sys_write, r0
-		vp_syscall
+		vp_syscall sys_write
 		vp_add 8, r4
 		vp_pop r0
 		pop_trashed
@@ -408,8 +389,7 @@
 		set_src %1, %2, %3, %4, %5, %6
 		set_dst r7, r6, r2, r10, r8, r9
 		map_src_to_dst
-		vp_cpy sys_mmap, r0
-		vp_syscall
+		vp_syscall sys_mmap
 		pop_trashed
 	%endmacro
 
@@ -419,8 +399,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_cpy sys_mprotect, r0
-		vp_syscall
+		vp_syscall sys_mprotect
 		pop_trashed
 	%endmacro
 
@@ -430,8 +409,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_cpy sys_munmap, r0
-		vp_syscall
+		vp_syscall sys_munmap
 		pop_trashed
 	%endmacro
 
@@ -441,8 +419,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_cpy sys_stat, r0
-		vp_syscall
+		vp_syscall sys_stat
 		pop_trashed
 	%endmacro
 
@@ -452,8 +429,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_cpy sys_open, r0
-		vp_syscall
+		vp_syscall sys_open
 		pop_trashed
 	%endmacro
 
@@ -461,8 +437,7 @@
 		;fd
 		push_trashed
 		vp_cpy %1, r7		;fd
-		vp_cpy sys_close, r0
-		vp_syscall
+		vp_syscall sys_close
 		pop_trashed
 	%endmacro
 
@@ -472,8 +447,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_cpy sys_ftruncate, r0
-		vp_syscall
+		vp_syscall sys_ftruncate
 		pop_trashed
 	%endmacro
 
@@ -481,8 +455,7 @@
 		;name
 		push_trashed
 		vp_cpy %1, r7		;name
-		vp_cpy sys_unlink, r0
-		vp_syscall
+		vp_syscall sys_unlink
 		pop_trashed
 	%endmacro
 
@@ -492,8 +465,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_cpy sys_gettimeofday, r0
-		vp_syscall
+		vp_syscall sys_gettimeofday
 		pop_trashed
 	%endmacro
 %endif
