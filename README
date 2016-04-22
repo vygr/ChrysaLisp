@@ -20,7 +20,7 @@ copy of a function is loaded regardless of how many tasks use that function.
 
 There is a powerful object and class system, not just for an assembler, but
 quite as capable as a high level language. Static classes or virtual classes
-with virtual, nonvirtual and overridable methods can be defined. Calls are type
+with virtual, static and overridable methods can be defined. Calls are type
 checked to ensure consistency across the class hierarchy. The GUI is constructed
 using this class system.
 

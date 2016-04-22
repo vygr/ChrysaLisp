@@ -17,7 +17,7 @@
 	def_method read, sys/mail_read
 	def_method try_read, sys/mail_try_read
 	def_method select, sys/mail_select
-	def_method mymail, sys/mail_mymail, nonvirtual, '', 'r0'
+	def_method mymail, sys/mail_mymail, static, '', 'r0'
 	def_method in, sys/mail_in
 	def_method out, sys/mail_out
 

@@ -43,10 +43,10 @@
 		class_add %1, %2
 	%endmacro
 
-	%macro def_method 2-5 nonvirtual, '', ''
+	%macro def_method 2-5 static, '', ''
 		;%1 = member name
 		;%2 = member function
-		;%3 = mode (nonvirtual/virtual/override)
+		;%3 = mode (static/virtual/override)
 		;%4 = in regs
 		;%5 = out regs
 		%assign %%_n 0
@@ -59,7 +59,7 @@
 		%endrep
 		%if %%_n = _map_%[_class_]_slots_
 			;new method
-			%ifidn %3, nonvirtual
+			%ifidn %3, static
 				%assign _map_%[_class_]_slots_ %%_n + 1
 				%define _map_%[_class_]_name_%[%%_n] %1
 				%define _map_%[_class_]_slot_%[%%_n] %2
@@ -76,12 +76,12 @@
 			%elifidn %3, override
 				%fatal Method %1 does not exist !
 			%else
-				%fatal Must use nonvirtual, virtual or override !
+				%fatal Must use static, virtual or override !
 			%endif
 		%else
 			;existing method
-			%ifidn %3, nonvirtual
-				%ifidn _map_%[_class_]_type_%[%%_n], nonvirtual
+			%ifidn %3, static
+				%ifidn _map_%[_class_]_type_%[%%_n], static
 					%define _map_%[_class_]_slot_%[%%_n] %2
 					%ifnidn %4, ''
 						%define _map_%[_class_]_in_%[%%_n] %4
@@ -104,10 +104,10 @@
 						%define _map_%[_class_]_out_%[%%_n] %5
 					%endif
 				%else
-					%fatal Nonvirtual %1 allready exists !
+					%fatal Static %1 allready exists !
 				%endif
 			%else
-				%fatal Must use nonvirtual, virtual or override !
+				%fatal Must use static, virtual or override !
 			%endif
 		%endif
 	%endmacro
@@ -324,11 +324,11 @@
 		;%4 = out paramaters
 
 		method_lookup _super_class_%[%1]_, %2
-		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], nonvirtual
+		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], static
 			%ifidn _map_%[_super_class_%[%1]_]_name_%[_nonvirtual_], init
 				;exeption for init
 			%else
-				%fatal Class _super_class_%[%1]_ method %2 is nonvirtual !
+				%fatal Class _super_class_%[%1]_ method %2 is static !
 			%endif
 		%endif
 		map_inputs %1, %2, %3, _nonvirtual_
@@ -343,8 +343,8 @@
 		;%4 = out paramaters
 
 		method_lookup _super_class_%[%1]_, %2
-		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], nonvirtual
-			%fatal Class _super_class_%[%1]_ method %2 is nonvirtual !
+		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], static
+			%fatal Class _super_class_%[%1]_ method %2 is static !
 		%endif
 		map_inputs %1, %2, %3, _nonvirtual_
 		fn_jmp _map_%[_super_class_%[%1]_]_slot_%[_nonvirtual_]
@@ -356,8 +356,8 @@
 		;%3 = reg
 
 		method_lookup _super_class_%[%1]_, %2
-		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], nonvirtual
-			%fatal Class _super_class_%[%1]_ method %2 is nonvirtual !
+		%ifidn _map_%[_super_class_%[%1]_]_type_%[_nonvirtual_], static
+			%fatal Class _super_class_%[%1]_ method %2 is static !
 		%endif
 		fn_bind _map_%[_super_class_%[%1]_]_slot_%[_nonvirtual_], %3
 	%endmacro
@@ -368,8 +368,8 @@
 		;%3 = dispatch reg
 
 		method_lookup %1, %2
-		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
-			%fatal Class %1 method %2 is nonvirtual ! Use static_call ?
+		%ifidn _map_%[%1]_type_%[_nonvirtual_], static
+			%fatal Class %1 method %2 is static ! Use static_call ?
 		%endif
 		vp_cpy [r0 + obj_vtable], %3
 		vp_call [%3 + _virtual_ * 8]
@@ -381,8 +381,8 @@
 		;%3 = dispatch reg
 
 		method_lookup %1, %2
-		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
-			%fatal Class %1 method %2 is nonvirtual ! Use static_jmp ?
+		%ifidn _map_%[%1]_type_%[_nonvirtual_], static
+			%fatal Class %1 method %2 is static ! Use static_jmp ?
 		%endif
 		vp_cpy [r0 + obj_vtable], %3
 		vp_jmp [%3 + _virtual_ * 8]
@@ -394,8 +394,8 @@
 		;%3 = dispatch reg
 
 		method_lookup %1, %2
-		%ifidn _map_%[%1]_type_%[_nonvirtual_], nonvirtual
-			%fatal Class %1 method %2 is nonvirtual ! Use static_bind ?
+		%ifidn _map_%[%1]_type_%[_nonvirtual_], static
+			%fatal Class %1 method %2 is static ! Use static_bind ?
 		%endif
 		vp_cpy [r0 + obj_vtable], %3
 		vp_cpy [%3 + _virtual_ * 8], %3
