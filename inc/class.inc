@@ -180,14 +180,14 @@
 		%xdefine _dst_%1 %%d
 	%endmacro
 
-	%macro find_src 1
+	%macro find_last_src 1
 		;%1 = param to find
-		%assign _idx 0
+		%assign _idx _src_total - 1
 		%rep _src_total
 			%ifidn _src_%[_idx], %1
 				%exitrep
 			%else
-				%assign _idx _idx + 1
+				%assign _idx _idx - 1
 			%endif
 		%endrep
 	%endmacro
@@ -198,8 +198,8 @@
 			%assign %%f 0
 			%assign %%d 0
 			%rep _dst_total
-				find_src _dst_%[%%d]
-				%if _idx != _src_total
+				find_last_src _dst_%[%%d]
+				%if _idx != -1
 					%if %%d < _idx
 						map_rotate %%d, _idx
 						%assign %%f 1
