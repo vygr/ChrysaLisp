@@ -16,26 +16,26 @@
 	;r7 rdi
 
 	%macro reg? 1-17 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
-		%define _test %1
+		%xdefine %%t %1
 		%assign _reg -1
-		%assign _cnt 0
+		%assign %%c 0
 		%rep %0 - 1
 			%rotate 1
-			%ifidn %1, _test
-				%assign _reg _cnt
+			%ifidn %1, %%t
+				%assign _reg %%c
 				%exitrep
 			%endif
-			%assign _cnt _cnt + 1
+			%assign %%c %%c + 1
 		%endrep
 	%endmacro
 
 	%macro reg_b? 1-9 r0, al, r1, cl, r2, dl, r3, bl
-		%define _test %1
-		%define _reg_b %1b
+		%xdefine %%t %1
+		%xdefine _reg_b %1b
 		%rotate 1
 		%rep (%0 - 1) / 2
-			%ifidn %1, _test
-				%define _reg_b %2
+			%ifidn %1, %%t
+				%xdefine _reg_b %2
 				%exitrep
 			%endif
 			%rotate 2
@@ -43,12 +43,12 @@
 	%endmacro
 
 	%macro reg_s? 1-9 r0, ax, r1, cx, r2, dx, r3, bx
-		%define _test %1
-		%define _reg_s %1w
+		%xdefine %%t %1
+		%xdefine _reg_s %1w
 		%rotate 1
 		%rep (%0 - 1) / 2
-			%ifidn %1, _test
-				%define _reg_s %2
+			%ifidn %1, %%t
+				%xdefine _reg_s %2
 				%exitrep
 			%endif
 			%rotate 2
@@ -56,12 +56,12 @@
 	%endmacro
 
 	%macro reg_i? 1-9 r0, eax, r1, ecx, r2, edx, r3, ebx
-		%define _test %1
-		%define _reg_i %1d
+		%xdefine %%t %1
+		%xdefine _reg_i %1d
 		%rotate 1
 		%rep (%0 - 1) / 2
-			%ifidn %1, _test
-				%define _reg_i %2
+			%ifidn %1, %%t
+				%xdefine _reg_i %2
 				%exitrep
 			%endif
 			%rotate 2
@@ -90,15 +90,15 @@
 		%else
 			;source is register
 			reg_b? %1
-			%define _src_b _reg_b
+			%xdefine %%s _reg_b
 			reg? %2
 			%if _reg < 0
 				;dest not register
-				mov byte %2, _src_b
+				mov byte %2, %%s
 			%else
 				;dest is register
 				reg_b? %2
-				mov _reg_b, _src_b
+				mov _reg_b, %%s
 			%endif
 		%endif
 	%endmacro
@@ -119,15 +119,15 @@
 		%else
 			;source is register
 			reg_s? %1
-			%define _src_s _reg_s
+			%xdefine %%s _reg_s
 			reg? %2
 			%if _reg < 0
 				;dest not register
-				mov word %2, _src_s
+				mov word %2, %%s
 			%else
 				;dest is register
 				reg_s? %2
-				mov _reg_s, _src_s
+				mov _reg_s, %%s
 			%endif
 		%endif
 	%endmacro
@@ -148,15 +148,15 @@
 		%else
 			;source is register
 			reg_i? %1
-			%define _src_i _reg_i
+			%xdefine %%s _reg_i
 			reg? %2
 			%if _reg < 0
 				;dest not register
-				mov dword %2, _src_i
+				mov dword %2, %%s
 			%else
 				;dest is register
 				reg_i? %2
-				mov _reg_i, _src_i
+				mov _reg_i, %%s
 			%endif
 		%endif
 	%endmacro

@@ -18,7 +18,7 @@
 		;%1 = structure name
 		;%2 = super structure name
 		%define _struct_ %1
-		%assign _offset_ %[%2]_size
+		%assign _offset_ %2_size
 	%endmacro
 
 	%macro def_structure_end 0
@@ -31,7 +31,7 @@
 		;%1 = field name
 		;%2 = struct name
 		%1 equ _offset_
-		%assign _offset_ _offset_ + %[%2]_size
+		%assign _offset_ _offset_ + %2_size
 	%endmacro
 
 	%macro def_long 1
@@ -64,8 +64,8 @@
 	%macro def_align 1
 		;inputs
 		;%1 = alignment
-		%assign _offset_ _offset_ + (%[%1]_size - 1)
-		%assign _offset_ _offset_ & -(%[%1]_size)
+		%assign _offset_ _offset_ + (%1_size - 1)
+		%assign _offset_ _offset_ & -(%1_size)
 	%endmacro
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
