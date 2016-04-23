@@ -21,6 +21,11 @@
 	def_method total, sys/cpu_get_total, static, '', 'r0'
 	def_method opts, sys/opt_process,static, 'r0'
 
+	%macro sys_call 1
+		vp_cpy %1, r0
+		syscall
+	%endmacro
+
 %ifidn OS, Darwin
 
 ;;;;;;;;;;;;;;;;;
@@ -109,7 +114,7 @@
 		set_src %1
 		set_dst r7
 		map_src_to_dst
-		vp_syscall sys_exit + 0x2000000
+		sys_call sys_exit + 0x2000000
 	%endmacro
 
 	%macro sys_read 3
@@ -118,7 +123,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_syscall sys_read + 0x2000000
+		sys_call sys_read + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -131,7 +136,7 @@
 		map_src_to_dst
 		vp_cpy r4, r6
 		vp_cpy 1, r2
-		vp_syscall sys_read + 0x2000000
+		sys_call sys_read + 0x2000000
 		vp_pop r0
 		pop_trashed
 	%endmacro
@@ -143,7 +148,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_syscall sys_write + 0x2000000
+		sys_call sys_write + 0x2000000
 		vp_pop r0
 		pop_trashed
 	%endmacro
@@ -157,7 +162,7 @@
 		map_src_to_dst
 		vp_cpy r4, r6
 		vp_cpy 1, r2
-		vp_syscall sys_write + 0x2000000
+		sys_call sys_write + 0x2000000
 		vp_add 8, r4
 		vp_pop r0
 		pop_trashed
@@ -169,7 +174,7 @@
 		set_src %1, %2, %3, %4, %5, %6
 		set_dst r7, r6, r2, r10, r8, r9
 		map_src_to_dst
-		vp_syscall sys_mmap + 0x2000000
+		sys_call sys_mmap + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -179,7 +184,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_syscall sys_mprotect + 0x2000000
+		sys_call sys_mprotect + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -189,7 +194,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_syscall sys_munmap + 0x2000000
+		sys_call sys_munmap + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -199,7 +204,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_syscall sys_stat + 0x2000000
+		sys_call sys_stat + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -209,7 +214,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_syscall sys_open + 0x2000000
+		sys_call sys_open + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -219,7 +224,7 @@
 		set_src %1
 		set_dst r7
 		map_src_to_dst
-		vp_syscall sys_close + 0x2000000
+		sys_call sys_close + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -229,7 +234,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_syscall sys_ftruncate + 0x2000000
+		sys_call sys_ftruncate + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -239,7 +244,7 @@
 		set_src %1
 		set_dst r7
 		map_src_to_dst
-		vp_syscall sys_unlink + 0x2000000
+		sys_call sys_unlink + 0x2000000
 		pop_trashed
 	%endmacro
 
@@ -250,7 +255,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_syscall sys_gettimeofday + 0x2000000
+		sys_call sys_gettimeofday + 0x2000000
 		vp_pop r1
 		vp_cpy r0, [r1 + timeval_sec]
 		vp_cpy r2, [r1 + timeval_usec]
@@ -345,7 +350,7 @@
 		set_src %1
 		set_dst r7
 		map_src_to_dst
-		vp_syscall sys_exit
+		sys_call sys_exit
 	%endmacro
 
 	%macro sys_read 3
@@ -354,7 +359,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_syscall sys_read
+		sys_call sys_read
 		pop_trashed
 	%endmacro
 
@@ -367,7 +372,7 @@
 		map_src_to_dst
 		vp_cpy r4, r6
 		vp_cpy 1, r2
-		vp_syscall sys_read
+		sys_call sys_read
 		vp_pop r0
 		pop_trashed
 	%endmacro
@@ -379,7 +384,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_syscall sys_write
+		sys_call sys_write
 		vp_pop r0
 		pop_trashed
 	%endmacro
@@ -393,7 +398,7 @@
 		map_src_to_dst
 		vp_cpy r4, r6
 		vp_cpy 1, r2
-		vp_syscall sys_write
+		sys_call sys_write
 		vp_add 8, r4
 		vp_pop r0
 		pop_trashed
@@ -405,7 +410,7 @@
 		set_src %1, %2, %3, %4, %5, %6
 		set_dst r7, r6, r2, r10, r8, r9
 		map_src_to_dst
-		vp_syscall sys_mmap
+		sys_call sys_mmap
 		pop_trashed
 	%endmacro
 
@@ -415,7 +420,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_syscall sys_mprotect
+		sys_call sys_mprotect
 		pop_trashed
 	%endmacro
 
@@ -425,7 +430,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_syscall sys_munmap
+		sys_call sys_munmap
 		pop_trashed
 	%endmacro
 
@@ -435,7 +440,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_syscall sys_stat
+		sys_call sys_stat
 		pop_trashed
 	%endmacro
 
@@ -445,7 +450,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		vp_syscall sys_open
+		sys_call sys_open
 		pop_trashed
 	%endmacro
 
@@ -455,7 +460,7 @@
 		set_src %1
 		set_dst r7
 		map_src_to_dst
-		vp_syscall sys_close
+		sys_call sys_close
 		pop_trashed
 	%endmacro
 
@@ -465,7 +470,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_syscall sys_ftruncate
+		sys_call sys_ftruncate
 		pop_trashed
 	%endmacro
 
@@ -475,7 +480,7 @@
 		set_src %1
 		set_dst r7
 		map_src_to_dst
-		vp_syscall sys_unlink
+		sys_call sys_unlink
 		pop_trashed
 	%endmacro
 
@@ -485,7 +490,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		vp_syscall sys_gettimeofday
+		sys_call sys_gettimeofday
 		pop_trashed
 	%endmacro
 %endif

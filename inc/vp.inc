@@ -232,11 +232,6 @@
 		%endif
 	%endmacro
 
-	%macro vp_syscall 1
-		vp_cpy %1, r0
-		syscall
-	%endmacro
-
 	%macro vp_call 1
 		call %1
 	%endmacro
