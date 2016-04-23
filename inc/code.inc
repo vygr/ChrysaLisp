@@ -17,7 +17,7 @@
 		;inputs
 		;%1 = structure name
 		;%2 = super structure name
-		%define _struct_ %1
+		%xdefine _struct_ %1
 		%assign _offset_ %2_size
 	%endmacro
 
