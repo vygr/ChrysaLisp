@@ -106,7 +106,9 @@
 
 	%macro sys_exit 1
 		;return code
-		vp_cpy %1, r7
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		vp_syscall sys_exit + 0x2000000
 	%endmacro
 
@@ -124,7 +126,9 @@
 		;fd
 		push_trashed
 		vp_push 0
-		vp_cpy %1, r7
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		vp_cpy r4, r6
 		vp_cpy 1, r2
 		vp_syscall sys_read + 0x2000000
@@ -148,7 +152,9 @@
 		;fd, char
 		push_trashed
 		vp_push r0, %2
-		vp_cpy %1, r7
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		vp_cpy r4, r6
 		vp_cpy 1, r2
 		vp_syscall sys_write + 0x2000000
@@ -210,7 +216,9 @@
 	%macro sys_close 1
 		;fd
 		push_trashed
-		vp_cpy %1, r7		;fd
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		vp_syscall sys_close + 0x2000000
 		pop_trashed
 	%endmacro
@@ -228,7 +236,9 @@
 	%macro sys_unlink 1
 		;name
 		push_trashed
-		vp_cpy %1, r7		;name
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		vp_syscall sys_unlink + 0x2000000
 		pop_trashed
 	%endmacro
@@ -332,7 +342,9 @@
 
 	%macro sys_exit 1
 		;return code
-		vp_cpy %1, r7
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		vp_syscall sys_exit
 	%endmacro
 
@@ -350,7 +362,9 @@
 		;fd
 		push_trashed
 		vp_push 0
-		vp_cpy %1, r7
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		vp_cpy r4, r6
 		vp_cpy 1, r2
 		vp_syscall sys_read
@@ -374,7 +388,9 @@
 		;fd, char
 		push_trashed
 		vp_push r0, %2
-		vp_cpy %1, r7
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		vp_cpy r4, r6
 		vp_cpy 1, r2
 		vp_syscall sys_write
@@ -436,7 +452,9 @@
 	%macro sys_close 1
 		;fd
 		push_trashed
-		vp_cpy %1, r7		;fd
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		vp_syscall sys_close
 		pop_trashed
 	%endmacro
@@ -454,7 +472,9 @@
 	%macro sys_unlink 1
 		;name
 		push_trashed
-		vp_cpy %1, r7		;name
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		vp_syscall sys_unlink
 		pop_trashed
 	%endmacro

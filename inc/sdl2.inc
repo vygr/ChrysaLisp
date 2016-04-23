@@ -196,13 +196,17 @@
 
 	%macro sdl_init 1
 		;flags
-		vp_cpy %1, r7
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		sdl_call sdl_SDL_Init
 	%endmacro
 
 	%macro sdl_delay 1
 		;time
-		vp_cpy %1, r7
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		sdl_call sdl_SDL_Delay
 	%endmacro
 
@@ -228,7 +232,9 @@
 
 	%macro sdl_destroy_window 1
 		;window
-		vp_cpy %1, r7
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		sdl_call sdl_SDL_DestroyWindow
 	%endmacro
 
@@ -266,7 +272,9 @@
 
 	%macro sdl_render_present 1
 		;renderer**
-		vp_cpy %1, r7		;renderer**
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		sdl_call sdl_SDL_RenderPresent
 	%endmacro
 
@@ -300,7 +308,9 @@
 
 	%macro sdl_free_surface 1
 		;surface*
-		vp_cpy %1, r7		;surface*
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		sdl_call sdl_SDL_FreeSurface
 	%endmacro
 
@@ -314,7 +324,9 @@
 
 	%macro sdl_destroy_texture 1
 		;texture*
-		vp_cpy %1, r7		;texture*
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		sdl_call sdl_SDL_DestroyTexture
 	%endmacro
 
@@ -360,7 +372,9 @@
 
 	%macro ttf_close_font 1
 		;font*
-		vp_cpy %1, r7		;font*
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		sdl_call sdl_TTF_CloseFont
 	%endmacro
 
@@ -374,19 +388,25 @@
 
 	%macro ttf_font_ascent 1
 		;font*
-		vp_cpy %1, r7		;font*
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		sdl_call sdl_TTF_FontAscent
 	%endmacro
 
 	%macro ttf_font_descent 1
 		;font*
-		vp_cpy %1, r7		;font*
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		sdl_call sdl_TTF_FontDescent
 	%endmacro
 
 	%macro ttf_font_height 1
 		;font*
-		vp_cpy %1, r7		;font*
+		set_src %1
+		set_dst r7
+		map_src_to_dst
 		sdl_call sdl_TTF_FontHeight
 	%endmacro
 
