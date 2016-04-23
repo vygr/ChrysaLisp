@@ -91,7 +91,7 @@
 		def_byte	sdl_SDL_RenderPresent
 		def_byte	sdl_SDL_RenderSetClipRect
 		def_byte	sdl_SDL_SetRenderDrawBlendMode
-		def_byte	sdl_SDL_PUMPEVENTS
+		def_byte	sdl_SDL_PumpEvents
 		def_byte	sdl_SDL_GetMouseState
 		def_byte	sdl_SDL_RenderDrawRect
 		def_byte	sdl_SDL_FreeSurface
@@ -184,32 +184,30 @@
 ; sdl2 macros
 ;;;;;;;;;;;;;
 
-	%macro sdl_set_main_ready 0
+	%macro sdl_call 1
 		static_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_SetMainReady * 8)]
+		vp_call [r0 + (%1 * 8)]
+	%endmacro
+
+	%macro sdl_set_main_ready 0
+		sdl_call sdl_SDL_SetMainReady
 	%endmacro
 
 	%macro sdl_init 1
 		;flags
 		vp_cpy %1, r7
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_Init * 8)]
+		sdl_call sdl_SDL_Init
 	%endmacro
 
 	%macro sdl_delay 1
 		;time
 		vp_cpy %1, r7
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_Delay * 8)]
+		sdl_call sdl_SDL_Delay
 	%endmacro
 
 	%macro sdl_quit 0
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_Quit * 8)]
+		sdl_call sdl_SDL_Quit
 	%endmacro
 
 	%macro sdl_create_window 6
@@ -217,9 +215,7 @@
 		set_src %1, %2, %3, %4, %5, %6
 		set_dst r7, r6, r2, r1, r8, r9
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_CreateWindow * 8)]
+		sdl_call sdl_SDL_CreateWindow
 	%endmacro
 
 	%macro sdl_create_window_and_renderer 5
@@ -227,17 +223,13 @@
 		set_src %1, %2, %3, %4, %5
 		set_dst r7, r6, r2, r1, r8
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_CreateWindowAndRenderer * 8)]
+		sdl_call sdl_SDL_CreateWindowAndRenderer
 	%endmacro
 
 	%macro sdl_destroy_window 1
 		;window
 		vp_cpy %1, r7
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_DestroyWindow * 8)]
+		sdl_call sdl_SDL_DestroyWindow
 	%endmacro
 
 	%macro sdl_create_renderer 3
@@ -245,9 +237,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_CreateRenderer * 8)]
+		sdl_call sdl_SDL_CreateRenderer
 	%endmacro
 
 	%macro sdl_set_render_draw_color 5
@@ -255,9 +245,7 @@
 		set_src %1, %2, %3, %4, %5
 		set_dst r7, r6, r2, r1, r8
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_SetRenderDrawColor * 8)]
+		sdl_call sdl_SDL_SetRenderDrawColor
 	%endmacro
 
 	%macro sdl_render_fill_rect 2
@@ -265,9 +253,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_RenderFillRect * 8)]
+		sdl_call sdl_SDL_RenderFillRect
 	%endmacro
 
 	%macro sdl_render_draw_rect 2
@@ -275,17 +261,13 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_RenderDrawRect * 8)]
+		sdl_call sdl_SDL_RenderDrawRect
 	%endmacro
 
 	%macro sdl_render_present 1
 		;renderer**
 		vp_cpy %1, r7		;renderer**
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_RenderPresent * 8)]
+		sdl_call sdl_SDL_RenderPresent
 	%endmacro
 
 	%macro sdl_render_set_clip_rect 2
@@ -293,9 +275,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_RenderSetClipRect * 8)]
+		sdl_call sdl_SDL_RenderSetClipRect
 	%endmacro
 
 	%macro sdl_set_render_draw_blend_mode 2
@@ -303,15 +283,11 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_SetRenderDrawBlendMode * 8)]
+		sdl_call sdl_SDL_SetRenderDrawBlendMode
 	%endmacro
 
 	%macro sdl_pump_events 0
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_PUMPEVENTS * 8)]
+		sdl_call sdl_SDL_PumpEvents
 	%endmacro
 
 	%macro sdl_get_mouse_state 2
@@ -319,17 +295,13 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_GetMouseState * 8)]
+		sdl_call sdl_SDL_GetMouseState
 	%endmacro
 
 	%macro sdl_free_surface 1
 		;surface*
 		vp_cpy %1, r7		;surface*
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_FreeSurface * 8)]
+		sdl_call sdl_SDL_FreeSurface
 	%endmacro
 
 	%macro sdl_create_texture_from_surface 2
@@ -337,17 +309,13 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_CreateTextureFromSurface * 8)]
+		sdl_call sdl_SDL_CreateTextureFromSurface
 	%endmacro
 
 	%macro sdl_destroy_texture 1
 		;texture*
 		vp_cpy %1, r7		;texture*
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_DestroyTexture * 8)]
+		sdl_call sdl_SDL_DestroyTexture
 	%endmacro
 
 	%macro sdl_render_copy 4
@@ -355,9 +323,7 @@
 		set_src %1, %2, %3, %4
 		set_dst r7, r6, r2, r1
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_RenderCopy * 8)]
+		sdl_call sdl_SDL_RenderCopy
 	%endmacro
 
 	%macro sdl_set_texture_blend_mode 2
@@ -365,9 +331,7 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_SetTextureBlendMode * 8)]
+		sdl_call sdl_SDL_SetTextureBlendMode
 	%endmacro
 
 	%macro sdl_set_texture_color_mod 4
@@ -375,21 +339,15 @@
 		set_src %1, %2, %3, %4
 		set_dst r7, r6, r2, r1
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_SDL_SetTextureColorMod * 8)]
+		sdl_call sdl_SDL_SetTextureColorMod
 	%endmacro
 
 	%macro ttf_init 0
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_TTF_Init * 8)]
+		sdl_call sdl_TTF_Init
 	%endmacro
 
 	%macro ttf_quit 0
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_TTF_Quit * 8)]
+		sdl_call sdl_TTF_Quit
 	%endmacro
 
 	%macro ttf_open_font 2
@@ -397,17 +355,13 @@
 		set_src %1, %2
 		set_dst r7, r6
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_TTF_OpenFont * 8)]
+		sdl_call sdl_TTF_OpenFont
 	%endmacro
 
 	%macro ttf_close_font 1
 		;font*
 		vp_cpy %1, r7		;font*
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_TTF_CloseFont * 8)]
+		sdl_call sdl_TTF_CloseFont
 	%endmacro
 
 	%macro ttf_size_utf8 4
@@ -415,33 +369,25 @@
 		set_src %1, %2, %3, %4
 		set_dst r7, r6, r2, r1
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_TTF_SizeUTF8 * 8)]
+		sdl_call sdl_TTF_SizeUTF8
 	%endmacro
 
 	%macro ttf_font_ascent 1
 		;font*
 		vp_cpy %1, r7		;font*
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_TTF_FontAscent * 8)]
+		sdl_call sdl_TTF_FontAscent
 	%endmacro
 
 	%macro ttf_font_descent 1
 		;font*
 		vp_cpy %1, r7		;font*
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_TTF_FontDescent * 8)]
+		sdl_call sdl_TTF_FontDescent
 	%endmacro
 
 	%macro ttf_font_height 1
 		;font*
 		vp_cpy %1, r7		;font*
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_TTF_FontHeight * 8)]
+		sdl_call sdl_TTF_FontHeight
 	%endmacro
 
 	%macro ttf_render_utf8_blended 3
@@ -449,9 +395,7 @@
 		set_src %1, %2, %3
 		set_dst r7, r6, r2
 		map_src_to_dst
-		static_bind gui_gui, statics, r0
-		vp_cpy [r0 + gui_statics_sdl_funcs], r0
-		vp_call [r0 + (sdl_TTF_RenderUTF8_Blended * 8)]
+		sdl_call sdl_TTF_RenderUTF8_Blended
 	%endmacro
 
 %endif
