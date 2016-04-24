@@ -11,10 +11,7 @@
 		;all but r0, r4
 
 		vp_push r0
-
-		vp_cpy [r0 + label_text], r0
-		static_call text, set_font
-
+		static_call text, set_font, '[r0 + label_text], r1'
 		vp_pop r0
 		vp_ret
 

@@ -25,9 +25,7 @@
 		if r0, !=, 0
 			;init the object
 			static_bind class, string, r1
-			vp_cpy r6, r2
-			vp_cpy r7, r3
-			static_call string, init1
+			static_call string, init1, 'r0, r1, r6, r7'
 			if r1, ==, 0
 				;error with init
 				method_call string, delete, '', '', r1

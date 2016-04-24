@@ -15,8 +15,7 @@
 		if r0, !=, 0
 			;clear object memory
 			vp_cpy r0, r3
-			vp_cpy r5, r1
-			static_call sys_mem, clear
+			static_call sys_mem, clear, 'r0, r5'
 			vp_cpy r3, r0
 		endif
 		vp_ret

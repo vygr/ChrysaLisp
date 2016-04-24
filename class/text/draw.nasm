@@ -29,15 +29,9 @@
 				vp_add string_data, r1
 				static_call gui_font, text
 				if r0, !=, 0
-					vp_xor r8, r8
-					vp_xor r9, r9
-					vp_cpy [r0 + ft_text_width], r10
-					vp_cpy [r0 + ft_text_height], r11
-					vp_cpy [r0 + ft_text_texture], r1
 					vp_cpy [r4 + local_inst], r2
-					vp_cpy [r2 + text_text_color], r2
-					vp_cpy [r4 + local_ctx], r0
-					static_call gui_ctx, blit
+					static_call gui_ctx, blit, '[r4 + local_ctx], [r0 + ft_text_texture], [r2 + text_text_color], \
+												0, 0, [r0 + ft_text_width], [r0 + ft_text_height]'
 				endif
 			endif
 		endif

@@ -8,10 +8,6 @@
 		;all but r0, r4
 
 		;paste dirty region
-		vp_xor r8, r8
-		vp_xor r9, r9
-		vp_cpy [r0 + view_w], r10
-		vp_cpy [r0 + view_h], r11
-		static_jmp view, add_dirty
+		static_jmp view, add_dirty, 'r0, 0, 0, [r0 + view_w], [r0 + view_h]'
 
 	fn_function_end

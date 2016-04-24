@@ -8,10 +8,7 @@
 		;r1 = flags
 
 		vp_push r0
-
-		vp_cpy [r0 + label_flow], r0
-		static_call flow, set_flow_flags
-
+		static_call flow, set_flow_flags, '[r0 + label_flow], r1'
 		vp_pop r0
 		vp_ret
 

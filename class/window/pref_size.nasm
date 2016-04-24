@@ -19,8 +19,7 @@
 		vp_sub local_size, r4
 		vp_cpy r0, [r4 + local_inst]
 
-		vp_cpy [r0 + window_flow], r0
-		method_call flow, pref_size
+		method_call flow, pref_size, '[r0 + window_flow]'
 		vp_add window_border_size * 2, r10
 		vp_add window_border_size * 2, r11
 

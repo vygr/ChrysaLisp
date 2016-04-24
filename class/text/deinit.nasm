@@ -13,8 +13,7 @@
 		vp_push r0
 
 		;deref any string object
-		vp_cpy [r0 + text_string], r0
-		static_call string, deref
+		static_call string, deref, '[r0 + text_string]'
 
 		;deinit parent
 		vp_pop r0

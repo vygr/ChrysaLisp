@@ -28,8 +28,7 @@
 			vp_add button_border_size, r8
 			vp_add button_border_size, r9
 		endif
-		vp_cpy [r0 + label_flow], r0
-		static_call flow, change
+		static_call flow, change, '[r0 + label_flow], r8, r9, r10, r11'
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
