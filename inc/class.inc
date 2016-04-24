@@ -201,13 +201,15 @@
 		%endif
 	%endmacro
 
-	%macro find_last_src 1
-		;%1 = param to find
+	%macro find_later_src 1
+		;%1 = index of dst
 		%assign _idx -1
 		%assign %%i _src_total - 1
-		%rep _src_total
-			%ifid _src_%[%%i]
-				sub_string %1, _src_%[%%i]
+		%rep %%i - %1
+			%ifstr _src_%[%%i]
+			%elifnum _src_%[%%i]
+			%else
+				sub_string _dst_%1, _src_%[%%i]
 				%if _pos != -1
 					%assign _idx %%i
 					%exitrep
@@ -220,27 +222,24 @@
 	%macro map_sort 0
 		%assign %%c 1000
 		%rep %%c
-			%assign %%f 0
-			%assign %%d 0
+			%assign %%i 0
 			%rep _dst_total
-				find_last_src _dst_%[%%d]
-				%if _idx != -1
-					%if %%d < _idx
-						map_rotate %%d, _idx
-						%assign %%f 1
-						%exitrep
-					%endif
+				find_later_src %%i
+				%if _idx > %%i
+					map_rotate %%i, _idx
+					%exitrep
+				%else
+					%assign %%i %%i + 1
 				%endif
-				%assign %%d %%d + 1
 			%endrep
-			%if %%f = 0
+			%if %%i = _dst_total
 				%exitrep
 			%endif
 			%assign %%c %%c - 1
 		%endrep
 		%if %%c = 0
 			map_print
-			%fatal Copy cycle detected !
+			%error Copy cycle detected !
 		%endif
 	%endmacro
 
@@ -385,30 +384,37 @@
 		fn_bind _map_%[_super_class_%1_]_slot_%[_static_], %3
 	%endmacro
 
-	%macro method_call 2-3 r15
+	%macro method_call 2-5 '', '', r15
 		;%1 = class name
 		;%2 = member name
-		;%3 = dispatch reg
+		;%3 = in paramaters
+		;%4 = out paramaters
+		;%5 = dispatch reg
 
 		method_lookup %1, %2
 		%ifidn _map_%1_type_%[_static_], static
 			%fatal Class %1 method %2 is static ! Use static_call ?
 		%endif
-		vp_cpy [r0 + obj_vtable], %3
-		vp_call [%3 + _virtual_ * 8]
+		map_inputs %1, %2, %3, _static_
+		vp_cpy [r0 + obj_vtable], %5
+		vp_call [%5 + _virtual_ * 8]
+		map_outputs %1, %2, %4, _static_
 	%endmacro
 
-	%macro method_jmp 2-3 r15
+	%macro method_jmp 2-5 '', '', r15
 		;%1 = class name
 		;%2 = member name
-		;%3 = dispatch reg
+		;%3 = in paramaters
+		;%4 = out paramaters
+		;%5 = dispatch reg
 
 		method_lookup %1, %2
 		%ifidn _map_%1_type_%[_static_], static
 			%fatal Class %1 method %2 is static ! Use static_jmp ?
 		%endif
-		vp_cpy [r0 + obj_vtable], %3
-		vp_jmp [%3 + _virtual_ * 8]
+		map_inputs %1, %2, %3, _static_
+		vp_cpy [r0 + obj_vtable], %5
+		vp_jmp [%5 + _virtual_ * 8]
 	%endmacro
 
 	%macro method_bind 2-3 r15

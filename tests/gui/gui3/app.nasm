@@ -126,9 +126,7 @@
 			static_call sys_mail, mymail, '', '[r4 + local_last_event]'
 
 			;dispatch event to view
-			vp_cpy r0, r1
-			vp_cpy [r1 + ev_data_view], r0
-			method_call view, event
+			method_call view, event, '[r0 + ev_data_view], r0'
 
 			;free event message
 			static_call sys_mem, free, '[r4 + local_last_event]'
