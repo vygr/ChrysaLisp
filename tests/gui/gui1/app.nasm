@@ -75,8 +75,7 @@
 		loop_until r1, ==, [r4 + local_cpu_total]
 
 		;set to pref size
-		vp_cpy [r4 + local_window], r0
-		method_call window, pref_size
+		method_call window, pref_size, '[r4 + local_window]'
 		static_call window, change, 'r0, 32, 32, r10, r11'
 
 		;set owner
@@ -154,17 +153,13 @@
 				static_call sys_mail, read, '', '[r4 + local_last_event]'
 
 				;dispatch event to view
-				vp_cpy r0, r1
-				vp_cpy [r1 + ev_data_view], r0
-				method_call view, event
+				method_call view, event, '[r0 + ev_data_view], r0'
 			else
 				;task mailbox
 				static_call sys_mail, read, '', '[r4 + local_last_event]'
 
 				;update progress bar
-				vp_cpy [r0 + sample_mail_task_count], r1
-				vp_cpy [r0 + sample_mail_progress], r0
-				static_call progress, set_val
+				static_call progress, set_val, '[r0 + sample_mail_progress], [r0 + sample_mail_task_count]'
 				static_call progress, dirty
 
 				;count up replies

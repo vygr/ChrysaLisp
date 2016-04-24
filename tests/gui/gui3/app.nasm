@@ -31,15 +31,13 @@
 
 		;init app vars
 		vp_sub local_size, r4
-		vp_cpy r4, r0
 		static_bind class, obj, r1
-		static_call obj, init
+		static_call obj, init, 'r4, r1'
 		assert r1, !=, 0
 		vp_xor r0, r0
 		vp_cpy r0, [r4 + local_accum]
 		vp_lea [r4 + local_buffer], r1
-		vp_cpy 10, r2
-		static_call sys_string, from_long
+		static_call sys_string, from_long, 'r0, r1, 10'
 
 		;create my window
 		static_call window, create, '', '[r4 + local_window]'
@@ -103,8 +101,7 @@
 		loop_end
 
 		;set to pref size
-		vp_cpy [r4 + local_window], r0
-		method_call window, pref_size
+		method_call window, pref_size, '[r4 + local_window]'
 		vp_cpy r10, r12
 		vp_cpy r11, r13
 		vp_shr 1, r12
@@ -135,8 +132,7 @@
 		;deref window
 		static_call window, deref, '[r4 + local_window]'
 
-		vp_cpy r4, r0
-		method_call obj, deinit
+		method_call obj, deinit, 'r4'
 		vp_add local_size, r4
 		vp_ret
 

@@ -70,8 +70,7 @@
 		loop_end
 
 		;set to pref size
-		vp_cpy [r4 + local_window], r0
-		method_call window, pref_size
+		method_call window, pref_size, '[r4 + local_window]'
 		vp_add 64, r10
 		static_call window, change, 'r0, 400, 256, r10, r11'
 
@@ -88,9 +87,7 @@
 			static_call sys_mail, mymail, '', '[r4 + local_last_event]'
 
 			;dispatch event to view
-			vp_cpy r0, r1
-			vp_cpy [r1 + ev_data_view], r0
-			method_call view, event
+			method_call view, event, '[r0 + ev_data_view], r0'
 
 			;free event message
 			static_call sys_mem, free, '[r4 + local_last_event]'
@@ -99,8 +96,7 @@
 		;deref window
 		static_call window, deref, '[r4 + local_window]'
 
-		vp_cpy r4, r0
-		method_call obj, deinit
+		method_call obj, deinit, 'r4'
 		vp_add local_size, r4
 		vp_ret
 
