@@ -32,8 +32,7 @@
 			vp_cpy [r4 + local_points], r0
 			continueif r0, !=, [r5 + ft_font_points]
 			vp_lea [r5 + ft_font_name], r0
-			vp_cpy [r4 + local_font], r1
-			static_call sys_string, compare
+			static_call sys_string, compare, 'r0, [r4 + local_font]'
 		loop_until r0, !=, 0
 
 		;did we find it ?
@@ -41,8 +40,7 @@
 		if r5, ==, 0
 			;no so try open it
 			vp_rel kernel_callback, r0
-			vp_cpy r4, r1
-			static_call sys_task, callback
+			static_call sys_task, callback, 'r0, r4'
 			vp_cpy [r4 + local_handle], r0
 		endif
 		vp_add local_size, r4
@@ -69,8 +67,7 @@
 			vp_cpy [r14 + local_points], r0
 			continueif r0, !=, [r5 + ft_font_points]
 			vp_lea [r5 + ft_font_name], r0
-			vp_cpy [r14 + local_font], r1
-			static_call sys_string, compare
+			static_call sys_string, compare, 'r0, [r14 + local_font]'
 		loop_until r0, !=, 0
 
 		;did we find it ?
@@ -79,19 +76,16 @@
 			ttf_open_font [r14 + local_font], [r14 + local_points]
 			if r0, !=, 0
 				vp_cpy r0, r5
-				vp_cpy [r14 + local_font], r0
-				static_call sys_string, length
+				static_call sys_string, length, '[r14 + local_font]'
 				vp_lea	[r1 + ft_font_size + 1], r0
-				static_call sys_mem, alloc
+				static_call sys_mem, alloc, '', 'r13, r1'
 				assert r0, !=, 0
-				vp_cpy r0, r13
 
 				vp_cpy [r14 + local_points], r0
 				vp_cpy r0, [r13 + ft_font_points]
 				vp_cpy r5, [r13 + ft_font_handle]
 				vp_lea [r13 + ft_font_name], r1
-				vp_cpy [r14 + local_font], r0
-				static_call sys_string, copy
+				static_call sys_string, copy, '[r14 + local_font], r1'
 
 				;fill in ascent, descent and height
 				ttf_font_ascent [r13 + ft_font_handle]

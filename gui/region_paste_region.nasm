@@ -38,8 +38,7 @@
 			vp_add r13, r9
 			vp_add r12, r10
 			vp_add r13, r11
-			vp_cpy [r4 + local_dlist], r1
-			static_call gui_region, paste_rect
+			static_call gui_region, paste_rect, 'r0, [r4 + local_dlist], r8, r9, r10, r11'
 
 			vp_cpy [r4 + local_node], r1
 		loop_end

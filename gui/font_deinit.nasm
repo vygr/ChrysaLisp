@@ -11,8 +11,7 @@
 			vp_cpy r14, r12
 			ln_remove_fnode r14, r13
 			sdl_destroy_texture [r12 + ft_text_texture]
-			vp_cpy r12, r0
-			static_call sys_mem, free
+			static_call sys_mem, free, 'r12'
 		loop_end
 
 		;free all fonts in the cache
@@ -20,8 +19,7 @@
 			vp_cpy r14, r12
 			ln_remove_fnode r14, r13
 			ttf_close_font [r12 + ft_font_handle]
-			vp_cpy r12, r0
-			static_call sys_mem, free
+			static_call sys_mem, free, 'r12'
 		loop_end
 		vp_ret
 
