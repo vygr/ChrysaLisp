@@ -39,7 +39,7 @@
 		static_call sys_io, string, '[r4 + local_name], 2'
 		static_call sys_io, string, '"< ", 2'
 		static_call sys_io, number, '[r4 + local_line], 2, 10'
-		static_call sys_io, string, '" >:", r1'
+		static_call sys_io, string, '" >: ", r1'
 		static_call sys_io, string, '[r4 + local_string], 2'
 		static_call sys_io, string, '" :-> 0x", 2'
 		static_call sys_io, number, '[r4 + local_long], 2, 16'
