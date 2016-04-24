@@ -180,15 +180,40 @@
 		%xdefine _dst_%1 %%d
 	%endmacro
 
+	%macro sub_string 2
+		;%1 = param to find
+		;%2 = param to search
+		%defstr %%s1 %1
+		%defstr %%s2 %2
+		%strlen %%l1 %%s1
+		%strlen %%l2 %%s2
+		%assign _pos -1
+		%if %%l1 <= %%l2
+			%assign _pos %%l2 - %%l1
+			%rep %%l2 + 1 - %%l1
+				%substr %%ss2 %%s2 _pos, %%l1
+				%ifidn %%ss2, %%s1
+					%exitrep
+				%else
+					%assign _pos _pos - 1
+				%endif
+			%endrep
+		%endif
+	%endmacro
+
 	%macro find_last_src 1
 		;%1 = param to find
-		%assign _idx _src_total - 1
+		%assign _idx -1
+		%assign %%i _src_total - 1
 		%rep _src_total
-			%ifidn _src_%[_idx], %1
-				%exitrep
-			%else
-				%assign _idx _idx - 1
+			%ifid _src_%[%%i]
+				sub_string %1, _src_%[%%i]
+				%if _pos != -1
+					%assign _idx %%i
+					%exitrep
+				%endif
 			%endif
+			%assign %%i %%i - 1
 		%endrep
 	%endmacro
 
@@ -205,15 +230,13 @@
 						%assign %%f 1
 						%exitrep
 					%endif
-				%else
-					%assign %%d %%d + 1
 				%endif
+				%assign %%d %%d + 1
 			%endrep
 			%if %%f = 0
 				%exitrep
-			%else
-				%assign %%c %%c - 1
 			%endif
+			%assign %%c %%c - 1
 		%endrep
 		%if %%c = 0
 			map_print
