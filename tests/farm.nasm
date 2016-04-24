@@ -13,7 +13,7 @@
 		static_call sys_mem, alloc, 'mailbox_id_size * FARM_SIZE', 'r14, r1'
 		assert r0, !=, 0
 
-		;open test6 farm, off chip
+		;open farm, off chip
 		static_call sys_task, open_farm, '"tests/farm_child", r14, FARM_SIZE'
 
 		;send exit messages etc

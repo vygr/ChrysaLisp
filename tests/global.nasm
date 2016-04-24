@@ -17,7 +17,7 @@
 		static_call sys_mem, alloc, '', 'r14, r1'
 		assert r0, !=, 0
 
-		;open test12 global farm, off chip
+		;open global farm, off chip
 		static_call sys_task, open_global, '"tests/global_child", r14, r12'
 
 		;send messages etc

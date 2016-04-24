@@ -13,7 +13,7 @@
 		static_call sys_mem, alloc, 'mailbox_id_size * ARRAY_SIZE', 'r14, r1'
 		assert r0, !=, 0
 
-		;open test8 array, off chip
+		;open array, off chip
 		vp_cpy r0, r1
 		vp_rel child_tasks, r0
 		static_call sys_task, open_array

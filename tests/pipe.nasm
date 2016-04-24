@@ -13,7 +13,7 @@
 		static_call sys_mem, alloc, 'mailbox_id_size * PIPE_SIZE', 'r14, r1'
 		assert r0, !=, 0
 
-		;open test10 pipe, off chip
+		;open pipe, off chip
 		vp_rel child_tasks, r0
 		static_call sys_task, open_pipe, 'r0, r14'
 
