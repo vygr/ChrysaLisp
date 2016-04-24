@@ -36,31 +36,14 @@
 				vp_sub 8, r2
 			loop_end
 		endif
-		vp_cpy [r4 + local_name], r0
-		vp_cpy 2, r1
-		static_call sys_io, string
-		fn_string '< ', r0
-		vp_cpy 2, r1
-		static_call sys_io, string
-		vp_cpy [r4 + local_line], r0
-		vp_cpy 2, r1
-		vp_cpy 10, r2
-		static_call sys_io, number
-		fn_string ' >: ', r0
-		static_call sys_io, string
-		vp_cpy [r4 + local_string], r0
-		vp_cpy 2, r1
-		static_call sys_io, string
-		fn_string ' :-> 0x', r0
-		vp_cpy 2, r1
-		static_call sys_io, string
-		vp_cpy [r4 + local_long], r0
-		vp_cpy 2, r1
-		vp_cpy 16, r2
-		static_call sys_io, number
-		vp_cpy 10, r0
-		vp_cpy 2, r1
-		static_call sys_io, char
+		static_call sys_io, string, '[r4 + local_name], 2'
+		static_call sys_io, string, '"< ", 2'
+		static_call sys_io, number, '[r4 + local_line], 2, 10'
+		static_call sys_io, string, '" >:", r1'
+		static_call sys_io, string, '[r4 + local_string], 2'
+		static_call sys_io, string, '" :-> 0x", 2'
+		static_call sys_io, number, '[r4 + local_long], 2, 16'
+		static_call sys_io, char, '10, 2'
 
 		vp_add local_size, r4
 		vp_ret

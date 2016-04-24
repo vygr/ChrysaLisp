@@ -19,9 +19,8 @@
 		ml_temp_create r0, r1
 
 		;allocate mail message
-		static_call sys_mail, alloc
+		static_call sys_mail, alloc, '', 'r3'
 		assert r0, !=, 0
-		vp_cpy r0, r3
 
 		;fill in destination, reply and function
 		static_call sys_cpu, id
@@ -34,17 +33,15 @@
 		;copy task name
 		vp_cpy r5, r0
 		vp_lea [r3 + kn_data_task_child_pathname], r1
-		static_call sys_string, copy
+		static_call sys_string, copy, 'r5, r1'
 
 		;fill in total message length
 		vp_sub r3, r1
 		vp_cpy r1, [r3 + ml_msg_length]
 
 		;send mail to kernel then wait for reply
-		vp_cpy r3, r0
-		static_call sys_mail, send
-		vp_cpy r4, r0
-		static_call sys_mail, read
+		static_call sys_mail, send, 'r3'
+		static_call sys_mail, read, 'r4'
 
 		;save reply mailbox ID
 		vp_cpy [r0 + kn_data_task_child_reply_mailboxid], r3

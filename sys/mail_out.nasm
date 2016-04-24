@@ -6,12 +6,10 @@
 
 		loop_start
 			;read parcel
-			static_call sys_mail, mymail
-			vp_cpy r0,r15
+			static_call sys_mail, mymail, '', 'r15'
 
 			;create next parcel id
-			static_call sys_cpu, id
-			vp_cpy r0, r6
+			static_call sys_cpu, id, '', 'r6'
 			static_bind sys_mail, statics, r1
 			vp_cpy [r1 + ml_statics_parcel_id], r7
 			vp_inc r7
@@ -24,9 +22,8 @@
 			vp_cpy [r15 + ml_msg_dest + 8], r13
 			loop_start
 				;create fragment
-				static_call sys_mail, alloc
+				static_call sys_mail, alloc, '', 'r14'
 				assert r0, !=, 0
-				vp_cpy r0, r14
 
 				;fill in fragment header
 				vp_cpy r12, [r14 + ml_msg_dest]
@@ -66,8 +63,7 @@
 			loop_until r10, ==, r11
 
 			;free parcel
-			vp_cpy r15, r0
-			static_call sys_mem, free
+			static_call sys_mem, free, 'r15'
 		loop_end
 		vp_ret
 

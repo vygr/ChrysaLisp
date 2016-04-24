@@ -9,9 +9,7 @@
 
 		;init task control block heap
 		vp_lea [r3 + tk_statics_task_heap], r0
-		vp_cpy tk_node_size, r1
-		vp_cpy tk_node_size * 16, r2
-		static_call sys_heap, init
+		static_call sys_heap, init, 'r0, tk_node_size, (tk_node_size * 16)'
 
 		;init task lists
 		vp_lea [r3 + tk_statics_task_list], r0

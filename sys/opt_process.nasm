@@ -21,17 +21,14 @@
 				vp_cpy [r12], r11
 				breakif r11, ==, 0
 				vp_add 8, r12
-				vp_cpy r12, r0
-				vp_cpy r13, r1
-				static_call sys_string, compare
+				static_call sys_string, compare, 'r12, r13'
 				if r0, !=, 0
 					vp_rel options_table, r0
 					vp_add r11, r0
 					vp_call r0
 					vp_jmp next_arg
 				endif
-				vp_cpy r12, r0
-				static_call sys_string, length
+				static_call sys_string, length, 'r12'
 				vp_add r1, r12
 				vp_add 8, r12
 				vp_and -8, r12
@@ -53,8 +50,7 @@
 		vp_add 8, r14
 		vp_cpy [r14], r0
 		if r0, !=, 0
-			vp_cpy 10, r1
-			static_call sys_string, to_long
+			static_call sys_string, to_long, 'r0, 10'
 			static_bind sys_task, statics, r1
 			vp_cpy r0, [r1 + tk_statics_cpu_id]
 		endif
@@ -89,15 +85,12 @@
 		if r0, !=, 0
 			;start link
 			static_bind sys_link, link, r0
-			static_call sys_task, start
-			static_call sys_cpu, id
-			vp_cpy r1, r5
-			vp_cpy r0, r6
+			static_call sys_task, start, 'r0', 'r0, r5'
+			static_call sys_cpu, id, '', 'r6'
 
 			;allocate params message
-			static_call sys_mail, alloc
+			static_call sys_mail, alloc, '', 'r7'
 			assert r0, !=, 0
-			vp_cpy r0, r7
 
 			;fill in destination
 			vp_cpy r5, [r0 + ml_msg_dest]
@@ -107,15 +100,13 @@
 			vp_rel link_path, r0
 			vp_lea [r7 + ml_msg_data], r1
 			static_call sys_string, copy
-			vp_cpy [r14], r0
 			vp_dec r1
-			static_call sys_string, copy
+			static_call sys_string, copy, '[r14], r1'
 			vp_sub r7, r1
 			vp_cpy r1, [r7 + ml_msg_length]
 
 			;send to link task
-			vp_cpy r7, r0
-			static_call sys_mail, send
+			static_call sys_mail, send, 'r7'
 		endif
 		vp_ret
 
