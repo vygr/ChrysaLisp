@@ -10,16 +10,11 @@
 	fn_function tests/farm
 
 		;allocate temp array for mailbox ID's
-		vp_cpy mailbox_id_size * FARM_SIZE, r0
-		static_call sys_mem, alloc
+		static_call sys_mem, alloc, 'mailbox_id_size * FARM_SIZE', 'r14, r1'
 		assert r0, !=, 0
-		vp_cpy r0, r14
 
 		;open test6 farm, off chip
-		vp_cpy FARM_SIZE, r2
-		vp_cpy r14, r1
-		fn_string 'tests/farm_child', r0
-		static_call sys_task, open_farm
+		static_call sys_task, open_farm, '"tests/farm_child", r14, FARM_SIZE'
 
 		;send exit messages etc
 		for r13, 0, FARM_SIZE, 1
@@ -35,7 +30,6 @@
 		next
 
 		;free ID array and return
-		vp_cpy r14, r0
-		static_jmp sys_mem, free
+		static_jmp sys_mem, free, 'r14'
 
 	fn_function_end

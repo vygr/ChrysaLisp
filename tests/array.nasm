@@ -10,13 +10,11 @@
 	fn_function tests/array
 
 		;allocate temp array for mailbox ID's
-		vp_cpy mailbox_id_size * ARRAY_SIZE, r0
-		static_call sys_mem, alloc
+		static_call sys_mem, alloc, 'mailbox_id_size * ARRAY_SIZE', 'r14, r1'
 		assert r0, !=, 0
-		vp_cpy r0, r14
 
 		;open test8 array, off chip
-		vp_cpy r14, r1
+		vp_cpy r0, r1
 		vp_rel child_tasks, r0
 		static_call sys_task, open_array
 
@@ -35,8 +33,7 @@
 		next
 
 		;free ID array and return
-		vp_cpy r14, r0
-		static_jmp sys_mem, free
+		static_jmp sys_mem, free, 'r14'
 
 	child_tasks:
 		%rep ARRAY_SIZE

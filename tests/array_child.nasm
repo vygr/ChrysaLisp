@@ -1,4 +1,5 @@
 %include 'inc/func.inc'
+%include 'inc/math.inc'
 
 ;;;;;;;;;;;
 ; test code
@@ -11,8 +12,7 @@
 		static_call sys_mem, free
 
 		;wait a bit
-		vp_cpy 1000000, r0
-		fn_call sys/math_random
+		static_call sys_math, random, '1000000'
 		vp_add 1000000, r0
 		static_call sys_task, sleep
 

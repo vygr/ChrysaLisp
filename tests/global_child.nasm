@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
+%include 'inc/math.inc'
 
 ;;;;;;;;;;;
 ; test code
@@ -10,8 +11,7 @@
 	fn_function tests/global_child
 
 		;wait a bit
-		vp_cpy 1000000, r0
-		fn_call sys/math_random
+		static_call sys_math, random, '1000000'
 		vp_add 1000000, r0
 		static_call sys_task, sleep
 
