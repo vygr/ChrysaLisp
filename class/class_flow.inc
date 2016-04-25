@@ -7,7 +7,7 @@
 	def_method create, class/flow/create
 	def_method new, class/flow/new
 	def_method init, class/flow/init
-	def_method set_flow_flags, class/flow/set_flow_flags, static, 'r0, r1'
+	def_method set_flow_flags, class/flow/set_flow_flags, static, {r0, r1}
 
 	def_method pref_size, class/flow/pref_size, override
 	def_method layout, class/flow/layout, override

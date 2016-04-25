@@ -19,9 +19,9 @@
 			;add my flow
 			static_call flow, create
 			assert r0, !=, 0
-			static_call flow, set_flags, 'r0, 0'
-			static_call flow, set_flow_flags, 'r0, flow_flag_right | flow_flag_align_vcenter'
-			static_call flow, set_color, 'r0, 0'
+			static_call flow, set_flags, {r0, 0}
+			static_call flow, set_flow_flags, {r0, flow_flag_right | flow_flag_align_vcenter}
+			static_call flow, set_color, {r0, 0}
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + label_flow]
 			static_call flow, add
@@ -31,9 +31,9 @@
 			assert r0, !=, 0
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + label_text]
-			static_call text, set_color, 'r0, 0'
+			static_call text, set_color, {r0, 0}
 			vp_cpy [r4], r1
-			static_call text, add, 'r0, [r1 + label_flow]'
+			static_call text, add, {r0, [r1 + label_flow]}
 
 			vp_pop r0
 		endif

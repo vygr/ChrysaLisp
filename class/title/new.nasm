@@ -9,11 +9,11 @@
 		;r1-r3
 
 		;allocate new title object
-		static_call sys_mem, alloc, 'title_size'
+		static_call sys_mem, alloc, {title_size}
 		if r0, !=, 0
 			;clear object memory
 			vp_cpy r0, r3
-			static_call sys_mem, clear, 'r0, title_size'
+			static_call sys_mem, clear, {r0, title_size}
 			vp_cpy r3, r0
 		endif
 		vp_ret

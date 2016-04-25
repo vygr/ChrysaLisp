@@ -36,14 +36,14 @@
 				vp_sub 8, r2
 			loop_end
 		endif
-		static_call sys_io, string, '[r4 + local_name], 2'
-		static_call sys_io, string, '"< ", 2'
-		static_call sys_io, number, '[r4 + local_line], 2, 10'
-		static_call sys_io, string, '" >: ", r1'
-		static_call sys_io, string, '[r4 + local_string], 2'
-		static_call sys_io, string, '" :-> 0x", 2'
-		static_call sys_io, number, '[r4 + local_long], 2, 16'
-		static_call sys_io, char, '10, 2'
+		static_call sys_io, string, {[r4 + local_name], 2}
+		static_call sys_io, string, {"< ", 2}
+		static_call sys_io, number, {[r4 + local_line], 2, 10}
+		static_call sys_io, string, {" >: ", r1}
+		static_call sys_io, string, {[r4 + local_string], 2}
+		static_call sys_io, string, {" :-> 0x", 2}
+		static_call sys_io, number, {[r4 + local_long], 2, 16}
+		static_call sys_io, char, {10, 2}
 
 		vp_add local_size, r4
 		vp_ret

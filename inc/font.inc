@@ -12,9 +12,9 @@
 	def_method statics, gui/font_statics
 	def_method init, gui/font_init
 	def_method deinit, gui/font_deinit
-	def_method open, gui/font_open, static, 'r0, r1', 'r0'
-	def_method text, gui/font_text, static, 'r0, r1', 'r0'
-	def_method bounds, gui/font_bounds, static, 'r0, r1', 'r10, r11'
+	def_method open, gui/font_open, static, {r0, r1}, {r0}
+	def_method text, gui/font_text, static, {r0, r1}, {r0}
+	def_method bounds, gui/font_bounds, static, {r0, r1}, {r10, r11}
 
 ;;;;;;;;;;;;;;;;;
 ; font structures

@@ -15,7 +15,7 @@
 		vp_sub local_size, r4
 		vp_cpy r0, [r4 + local_inst]
 
-		static_call label, set_text, '[r0 + window_status], r1'
+		static_call label, set_text, {[r0 + window_status], r1}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4

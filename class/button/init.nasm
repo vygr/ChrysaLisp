@@ -16,7 +16,7 @@
 			vp_cpy_cl 0, [r0 + button_state]
 			vp_lea [r0 + button_pressed_signal], r1
 			lh_init r1, r2
-			static_call button, set_flow_flags, 'r0, flow_flag_down | flow_flag_align_hcenter'
+			static_call button, set_flow_flags, {r0, flow_flag_down | flow_flag_align_hcenter}
 		endif
 		vp_ret
 

@@ -15,7 +15,7 @@
 			static_call title, init
 			if r1, ==, 0
 				;error with init
-				method_call title, delete, '', '', r1
+				method_call title, delete, {}, {}, r1
 				vp_xor r0, r0
 			endif
 		endif

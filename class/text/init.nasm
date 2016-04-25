@@ -15,7 +15,7 @@
 			vp_push r0
 
 			;init myself
-			static_call gui_font, open, '"fonts/OpenSans-Regular.ttf", 18'
+			static_call gui_font, open, {"fonts/OpenSans-Regular.ttf", 18}
 			assert r0, !=, 0
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + text_font]

@@ -15,7 +15,7 @@
 			static_call button, init
 			if r1, ==, 0
 				;error with init
-				method_call button, delete, '', '', r1
+				method_call button, delete, {}, {}, r1
 				vp_xor r0, r0
 			endif
 		endif

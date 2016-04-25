@@ -13,9 +13,9 @@
 	def_method create, class/window/create
 	def_method new, class/window/new
 	def_method init, class/window/init
-	def_method get_panel, class/window/get_panel, static, 'r0', 'r1'
-	def_method set_title, class/window/set_title, static, 'r0, r1'
-	def_method set_status, class/window/set_status, static, 'r0, r1'
+	def_method get_panel, class/window/get_panel, static, {r0}, {r1}
+	def_method set_title, class/window/set_title, static, {r0, r1}
+	def_method set_status, class/window/set_status, static, {r0, r1}
 
 	def_method pref_size, class/window/pref_size, override
 	def_method layout, class/window/layout, override

@@ -15,27 +15,27 @@
 	def_method statics, gui/gui_statics
 	def_method init, gui/gui_init
 	def_method deinit, gui/gui_deinit
-	def_method update, gui/gui_update, static, 'r0'
-	def_method add, gui/gui_add, static, 'r0'
+	def_method update, gui/gui_update, static, {r0}
+	def_method add, gui/gui_add, static, {r0}
 	def_method gui, gui/gui
 
 	def_class gui_region
-	def_method translate, gui/region_translate, static, 'r0, r8, r9'
-	def_method clip_rect, gui/region_clip_rect, static, 'r0, r1, r8, r9, r10, r11'
-	def_method remove_rect, gui/region_remove_rect, static, 'r0, r1, r8, r9, r10, r11'
-	def_method cut_rect, gui/region_cut_rect, static, 'r0, r1, r2, r8, r9, r10, r11'
-	def_method copy_rect, gui/region_copy_rect, static, 'r0, r1, r2, r8, r9, r10, r11'
-	def_method paste_rect, gui/region_paste_rect, static, 'r0, r1, r8, r9, r10, r11'
-	def_method free, gui/region_free, static, 'r0, r1'
-	def_method copy_region, gui/region_copy_region, static, 'r0, r1, r2, r3, r8, r9'
-	def_method paste_region, gui/region_paste_region, static, 'r0, r1, r2, r8, r9'
-	def_method remove_region, gui/region_remove_region, static, 'r0, r1, r2, r8, r9'
+	def_method translate, gui/region_translate, static, {r0, r8, r9}
+	def_method clip_rect, gui/region_clip_rect, static, {r0, r1, r8, r9, r10, r11}
+	def_method remove_rect, gui/region_remove_rect, static, {r0, r1, r8, r9, r10, r11}
+	def_method cut_rect, gui/region_cut_rect, static, {r0, r1, r2, r8, r9, r10, r11}
+	def_method copy_rect, gui/region_copy_rect, static, {r0, r1, r2, r8, r9, r10, r11}
+	def_method paste_rect, gui/region_paste_rect, static, {r0, r1, r8, r9, r10, r11}
+	def_method free, gui/region_free, static, {r0, r1}
+	def_method copy_region, gui/region_copy_region, static, {r0, r1, r2, r3, r8, r9}
+	def_method paste_region, gui/region_paste_region, static, {r0, r1, r2, r8, r9}
+	def_method remove_region, gui/region_remove_region, static, {r0, r1, r2, r8, r9}
 
 	def_class gui_ctx
-	def_method box, gui/ctx_box, static, 'r0, r8, r9, r10, r11'
-	def_method filled_box, gui/ctx_filled_box, static, 'r0, r8, r9, r10, r11'
-	def_method blit, gui/ctx_blit, static, 'r0, r1, r2, r8, r9, r10, r11'
-	def_method set_color, gui/ctx_set_color, static, 'r0, r1'
+	def_method box, gui/ctx_box, static, {r0, r8, r9, r10, r11}
+	def_method filled_box, gui/ctx_filled_box, static, {r0, r8, r9, r10, r11}
+	def_method blit, gui/ctx_blit, static, {r0, r1, r2, r8, r9, r10, r11}
+	def_method set_color, gui/ctx_set_color, static, {r0, r1}
 
 ;;;;;;;;;;;;;;;;
 ; gui structures

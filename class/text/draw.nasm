@@ -30,8 +30,8 @@
 				static_call gui_font, text
 				if r0, !=, 0
 					vp_cpy [r4 + local_inst], r2
-					static_call gui_ctx, blit, '[r4 + local_ctx], [r0 + ft_text_texture], [r2 + text_text_color], \
-												0, 0, [r0 + ft_text_width], [r0 + ft_text_height]'
+					static_call gui_ctx, blit, {[r4 + local_ctx], [r0 + ft_text_texture], [r2 + text_text_color], \
+												0, 0, [r0 + ft_text_width], [r0 + ft_text_height]}
 				endif
 			endif
 		endif

@@ -15,7 +15,7 @@
 			static_call progress, init
 			if r1, ==, 0
 				;error with init
-				method_call progress, delete, '', '', r1
+				method_call progress, delete, {}, {}, r1
 				vp_xor r0, r0
 			endif
 		endif

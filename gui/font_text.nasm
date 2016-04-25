@@ -35,7 +35,7 @@
 			vp_cpy [r4 + local_font], r0
 			continueif r0, !=, [r5 + ft_text_font]
 			vp_lea [r5 + ft_text_name], r0
-			static_call sys_string, compare, 'r0, [r4 + local_text]'
+			static_call sys_string, compare, {r0, [r4 + local_text]}
 		loop_until r0, !=, 0
 
 		;did we find it ?
@@ -43,7 +43,7 @@
 		if r5, ==, 0
 			;no so try create it
 			vp_rel kernel_callback, r0
-			static_call sys_task, callback, 'r0, r4'
+			static_call sys_task, callback, {r0, r4}
 			vp_cpy [r4 + local_handle], r0
 		endif
 
@@ -80,16 +80,16 @@
 			if r0, !=, 0
 				vp_cpy r0, r5
 
-				static_call sys_string, length, '[r14 + local_text]'
+				static_call sys_string, length, {[r14 + local_text]}
 				vp_lea	[r1 + ft_text_size + 1], r0
-				static_call sys_mem, alloc, '', 'r13, r1'
+				static_call sys_mem, alloc, {}, {r13, r1}
 				assert r0, !=, 0
 
 				vp_cpy [r14 + local_font], r0
 				vp_cpy r0, [r13 + ft_text_font]
 				vp_cpy r5, [r13 + ft_text_texture]
 				vp_lea [r13 + ft_text_name], r1
-				static_call sys_string, copy, '[r14 + local_text], r1'
+				static_call sys_string, copy, {[r14 + local_text], r1}
 
 				;fill in width and height
 				vp_cpy [r14 + local_width], r10

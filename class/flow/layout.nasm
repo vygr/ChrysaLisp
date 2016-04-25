@@ -31,7 +31,7 @@
 		endif
 
 		vp_rel callback, r2
-		static_call flow, backward, 'r0, r4, r2'
+		static_call flow, backward, {r0, r4, r2}
 
 		vp_add local_size, r4
 		vp_ret

@@ -25,10 +25,10 @@
 		if r0, !=, 0
 			;init the object
 			static_bind class, string, r1
-			static_call string, init1, 'r0, r1, r6, r7'
+			static_call string, init1, {r0, r1, r6, r7}
 			if r1, ==, 0
 				;error with init
-				method_call string, delete, '', '', r1
+				method_call string, delete, {}, {}, r1
 				vp_xor r0, r0
 			endif
 		endif

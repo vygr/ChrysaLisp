@@ -10,11 +10,11 @@
 	fn_function tests/farm
 
 		;allocate temp array for mailbox ID's
-		static_call sys_mem, alloc, 'mailbox_id_size * FARM_SIZE', 'r14, r1'
+		static_call sys_mem, alloc, {mailbox_id_size * FARM_SIZE}, {r14, r1}
 		assert r0, !=, 0
 
 		;open farm, off chip
-		static_call sys_task, open_farm, '"tests/farm_child", r14, FARM_SIZE'
+		static_call sys_task, open_farm, {"tests/farm_child", r14, FARM_SIZE}
 
 		;send exit messages etc
 		for r13, 0, FARM_SIZE, 1
@@ -30,6 +30,6 @@
 		next
 
 		;free ID array and return
-		static_jmp sys_mem, free, 'r14'
+		static_jmp sys_mem, free, {r14}
 
 	fn_function_end

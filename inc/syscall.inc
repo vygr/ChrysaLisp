@@ -8,18 +8,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 	def_class sys_io
-	def_method char, sys/write_char, static, 'r0, r1'
-	def_method string, sys/write_string, static, 'r0, r1'
-	def_method number, sys/write_number, static, 'r0, r1, r2'
-	def_method read, sys/read_line, static, 'r0, r1, r2', 'r0'
-	def_method debug_long, sys/write_debug_long, static, 'r0, r1, r2, r3'
-	def_method debug_str, sys/write_debug_str, static, 'r0, r1, r2, r3'
+	def_method char, sys/write_char, static, {r0, r1}
+	def_method string, sys/write_string, static, {r0, r1}
+	def_method number, sys/write_number, static, {r0, r1, r2}
+	def_method read, sys/read_line, static, {r0, r1, r2}, {r0}
+	def_method debug_long, sys/write_debug_long, static, {r0, r1, r2, r3}
+	def_method debug_str, sys/write_debug_str, static, {r0, r1, r2, r3}
 
 	def_class sys_cpu
-	def_method id, sys/cpu_get_id, static, '', 'r0'
-	def_method time, sys/cpu_get_time, static, '', 'r0'
-	def_method total, sys/cpu_get_total, static, '', 'r0'
-	def_method opts, sys/opt_process,static, 'r0'
+	def_method id, sys/cpu_get_id, static, {}, {r0}
+	def_method time, sys/cpu_get_time, static, {}, {r0}
+	def_method total, sys/cpu_get_total, static, {}, {r0}
+	def_method opts, sys/opt_process,static, {r0}
 
 	%macro sys_call 1
 		vp_cpy %1, r0

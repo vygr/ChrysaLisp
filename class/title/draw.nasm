@@ -11,6 +11,6 @@
 		;all but r0, r4
 
 		;draw panel
-		static_jmp title, draw_panel, 'r0, r1, 1, title_border_size'
+		static_jmp title, draw_panel, {r0, r1, 1, title_border_size}
 
 	fn_function_end

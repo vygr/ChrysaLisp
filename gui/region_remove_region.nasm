@@ -38,7 +38,7 @@
 			vp_add r13, r9
 			vp_add r12, r10
 			vp_add r13, r11
-			static_call gui_region, remove_rect, 'r0, [r4 + local_dlist], r8, r9, r10, r11'
+			static_call gui_region, remove_rect, {r0, [r4 + local_dlist], r8, r9, r10, r11}
 
 			vp_cpy [r4 + local_node], r1
 		loop_end

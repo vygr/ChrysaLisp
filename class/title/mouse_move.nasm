@@ -57,7 +57,7 @@
 		vp_mul -1, r9
 		vp_add view_dirty_region, r0
 		static_call gui_region, translate
-		static_call window, dirty_all, '[r4 + local_window]'
+		static_call window, dirty_all, {[r4 + local_window]}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4

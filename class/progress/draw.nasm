@@ -22,22 +22,22 @@
 
 		;draw outline
 		static_call view, get_color
-		static_call gui_ctx, set_color, '[r4 + local_ctx], r1'
-		static_call progress, get_bounds, '[r4 + local_inst]'
-		static_call gui_ctx, box, '[r4 + local_ctx], 0, 0, r10, r11'
+		static_call gui_ctx, set_color, {[r4 + local_ctx], r1}
+		static_call progress, get_bounds, {[r4 + local_inst]}
+		static_call gui_ctx, box, {[r4 + local_ctx], 0, 0, r10, r11}
 
 		;darker colour
-		static_call view, get_color, '[r4 + local_inst]'
+		static_call view, get_color, {[r4 + local_inst]}
 		vp_cpy r1, r2
 		vp_cpy 0xff000000, r3
 		vp_and r3, r1
 		vp_and 0x00fefefe, r2
 		vp_shr 1, r2
 		vp_add r2, r1
-		static_call gui_ctx, set_color, '[r4 + local_ctx], r1'
+		static_call gui_ctx, set_color, {[r4 + local_ctx], r1}
 
 		;draw middle
-		static_call progress, get_bounds, '[r4 + local_inst]'
+		static_call progress, get_bounds, {[r4 + local_inst]}
 		vp_cpy progress_border_size, r8
 		vp_cpy progress_border_size, r9
 		vp_sub progress_border_size * 2, r10
@@ -53,26 +53,26 @@
 		vp_cpy r0, r10
 		vp_sub r10, r12
 		vp_cpy r12, [r4 + local_fill_remain]
-		static_call gui_ctx, filled_box, '[r4 + local_ctx], r8, r9, r10, r11'
+		static_call gui_ctx, filled_box, {[r4 + local_ctx], r8, r9, r10, r11}
 
 		;very darker colour
-		static_call view, get_color, '[r4 + local_inst]'
+		static_call view, get_color, {[r4 + local_inst]}
 		vp_cpy r1, r2
 		vp_cpy 0xff000000, r3
 		vp_and r3, r1
 		vp_and 0x00fcfcfc, r2
 		vp_shr 2, r2
 		vp_add r2, r1
-		static_call gui_ctx, set_color, '[r4 + local_ctx], r1'
+		static_call gui_ctx, set_color, {[r4 + local_ctx], r1}
 
 		;draw middle
-		static_call progress, get_bounds, '[r4 + local_inst]'
+		static_call progress, get_bounds, {[r4 + local_inst]}
 		vp_cpy progress_border_size, r8
 		vp_cpy progress_border_size, r9
 		vp_cpy [r4 + local_fill_remain], r10
 		vp_sub progress_border_size * 2, r11
 		vp_add [r4 + local_fill_complete], r8
-		static_call gui_ctx, filled_box, '[r4 + local_ctx], r8, r9, r10, r11'
+		static_call gui_ctx, filled_box, {[r4 + local_ctx], r8, r9, r10, r11}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4

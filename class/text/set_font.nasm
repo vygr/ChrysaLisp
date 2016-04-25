@@ -19,7 +19,7 @@
 		vp_cpy r0, [r4 + local_inst]
 
 		;open font
-		static_call gui_font, open, 'r1, r2'
+		static_call gui_font, open, {r1, r2}
 
 		vp_cpy [r4 + local_inst], r1
 		vp_cpy r0, [r1 + text_font]

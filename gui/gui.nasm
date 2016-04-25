@@ -18,13 +18,13 @@
 		vp_cpy r0, [r1 + gui_statics_screen]
 
 		;size and color and opaque
-		static_call label, change, 'r0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT'
-		static_call label, set_color, 'r0, 0xff000000'
+		static_call label, change, {r0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}
+		static_call label, set_color, {r0, 0xff000000}
 		static_call label, opaque
 		static_call label, dirty_all
 
 		;sleep just a moment to let all routeing finish
-		static_call sys_task, sleep, '1000000'
+		static_call sys_task, sleep, {1000000}
 
 		;for now fire up the test apps
 		;this might be an gui auto run list eventually
@@ -43,7 +43,7 @@
 			static_call sys_task, callback
 
 			;frame rate of gui updates
-			static_call sys_task, sleep, '1000000 / 60'
+			static_call sys_task, sleep, {1000000 / 60}
 
 			;get mouse info, see if any change
 			static_bind gui_gui, statics, r5
@@ -69,10 +69,10 @@
 				;do we need to wait till button goes up ?
 				if r6, !=, -1
 					;lookup view owner
-					static_call view, find_owner, 'r6'
+					static_call view, find_owner, {r6}
 					if r1, !=, 0
 						;save owner mailbox
-						static_call sys_cpu, id, '', 'r15'
+						static_call sys_cpu, id, {}, {r15}
 						vp_lea [r1 + tk_node_mailbox], r14
 
 						;allocate mail message
@@ -107,9 +107,9 @@
 				;button down ?
 				if r10, !=, 0
 					;find view
-					static_call view, hit_tree, '[r5 + gui_statics_screen], \
+					static_call view, hit_tree, {[r5 + gui_statics_screen], \
 												[r5 + gui_statics_x_pos], \
-												[r5 + gui_statics_y_pos]'
+												[r5 + gui_statics_y_pos]}
 					if r1, ==, [r5 + gui_statics_screen]
 						vp_xor r1, r1
 					endif
@@ -182,7 +182,7 @@
 
 			;update the screen
 			static_bind gui_gui, statics, r0
-			static_call gui_gui, update, '[r0 + gui_statics_screen]'
+			static_call gui_gui, update, {[r0 + gui_statics_screen]}
 
 			;refresh the window
 			static_bind gui_gui, statics, r0

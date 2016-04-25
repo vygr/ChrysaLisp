@@ -8,6 +8,6 @@
 		;all but r0, r4
 
 		;paste dirty region
-		static_jmp view, add_dirty, 'r0, 0, 0, [r0 + view_w], [r0 + view_h]'
+		static_jmp view, add_dirty, {r0, 0, 0, [r0 + view_w], [r0 + view_h]}
 
 	fn_function_end

@@ -22,8 +22,8 @@
 			def_method	_map_%2_name_%[%%n], \
 						_map_%2_slot_%[%%n], \
 						_map_%2_type_%[%%n], \
-						_map_%2_in_%[%%n], \
-						_map_%2_out_%[%%n]
+						{_map_%2_in_%[%%n]}, \
+						{_map_%2_out_%[%%n]}
 			%assign %%n %%n + 1
 		%endrep
 	%endmacro
@@ -43,7 +43,7 @@
 		class_add %1, %2
 	%endmacro
 
-	%macro def_method 2-5 static, '', ''
+	%macro def_method 2-5 static, {}, {}
 		;%1 = member name
 		;%2 = member function
 		;%3 = mode (static/virtual/override)
@@ -83,10 +83,10 @@
 			%ifidn %3, static
 				%ifidn _map_%[_class_]_type_%[%%n], static
 					%xdefine _map_%[_class_]_slot_%[%%n] %2
-					%ifnidn %4, ''
+					%ifnempty %4
 						%xdefine _map_%[_class_]_in_%[%%n] %4
 					%endif
-					%ifnidn %5, ''
+					%ifnempty %5
 						%xdefine _map_%[_class_]_out_%[%%n] %5
 					%endif
 				%else
@@ -97,10 +97,10 @@
 			%elifidn %3, override
 				%ifidn _map_%[_class_]_type_%[%%n], virtual
 					%xdefine _map_%[_class_]_slot_%[%%n] %2
-					%ifnidn %4, ''
+					%ifnempty %4
 						%xdefine _map_%[_class_]_in_%[%%n] %4
 					%endif
-					%ifnidn %5, ''
+					%ifnempty %5
 						%xdefine _map_%[_class_]_out_%[%%n] %5
 					%endif
 				%else
@@ -266,14 +266,12 @@
 		;%3 = paramaters
 		;%4 = slot num
 
-		%ifnidn %3, ''
-			%ifidn _map_%1_in_%4, ''
+		%ifnempty %3
+			%ifempty _map_%1_in_%4
 				%fatal Class %1 method %2 inputs not defined !
 			%else
-				%deftok %%s %3
-				%deftok %%d _map_%1_in_%4
-				set_src %%s
-				set_dst %%d
+				set_src %3
+				set_dst _map_%1_in_%4
 				map_src_to_dst
 			%endif
 		%endif
@@ -285,20 +283,18 @@
 		;%3 = paramaters
 		;%4 = slot num
 
-		%ifnidn %3, ''
-			%ifidn _map_%1_out_%4, ''
+		%ifnempty %3
+			%ifempty _map_%1_out_%4
 				%fatal Class %1 method %2 outputs not defined !
 			%else
-				%deftok %%s _map_%1_out_%4
-				%deftok %%d %3
-				set_src %%s
-				set_dst %%d
+				set_src _map_%1_out_%4
+				set_dst %3
 				map_src_to_dst
 			%endif
 		%endif
 	%endmacro
 
-	%macro static_call 2-4 '', ''
+	%macro static_call 2-4 {}, {}
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters
@@ -308,22 +304,21 @@
 		%ifidn _map_%1_type_%[_static_], virtual
 			%fatal Class %1 method %2 is virtual ! Use method_call ?
 		%endif
-		map_inputs %1, %2, %3, _static_
+		map_inputs %1, %2, {%3}, _static_
 		fn_call _map_%1_slot_%[_static_]
-		map_outputs %1, %2, %4, _static_
+		map_outputs %1, %2, {%4}, _static_
 	%endmacro
 
-	%macro static_jmp 2-4 '', ''
+	%macro static_jmp 2-4 {}
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters
-		;%4 = out paramaters
 
 		method_lookup %1, %2
 		%ifidn _map_%1_type_%[_static_], virtual
 			%fatal Class %1 method %2 is virtual ! Use method_jmp ?
 		%endif
-		map_inputs %1, %2, %3, _static_
+		map_inputs %1, %2, {%3}, _static_
 		fn_jmp _map_%1_slot_%[_static_]
 	%endmacro
 
@@ -339,7 +334,7 @@
 		fn_bind _map_%1_slot_%[_static_], %3
 	%endmacro
 
-	%macro super_call 2-4 '', ''
+	%macro super_call 2-4 {}, {}
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters
@@ -353,22 +348,21 @@
 				%fatal Class _super_class_%1_ method %2 is static !
 			%endif
 		%endif
-		map_inputs %1, %2, %3, _static_
+		map_inputs %1, %2, {%3}, _static_
 		fn_call _map_%[_super_class_%1_]_slot_%[_static_]
-		map_outputs %1, %2, %4, _static_
+		map_outputs %1, %2, {%4}, _static_
 	%endmacro
 
-	%macro super_jmp 2-4 '', ''
+	%macro super_jmp 2-4 {}
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters
-		;%4 = out paramaters
 
 		method_lookup _super_class_%1_, %2
 		%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
 			%fatal Class _super_class_%1_ method %2 is static !
 		%endif
-		map_inputs %1, %2, %3, _static_
+		map_inputs %1, %2, {%3}, _static_
 		fn_jmp _map_%[_super_class_%1_]_slot_%[_static_]
 	%endmacro
 
@@ -384,7 +378,7 @@
 		fn_bind _map_%[_super_class_%1_]_slot_%[_static_], %3
 	%endmacro
 
-	%macro method_call 2-5 '', '', r15
+	%macro method_call 2-5 {}, {}, r15
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters
@@ -395,26 +389,25 @@
 		%ifidn _map_%1_type_%[_static_], static
 			%fatal Class %1 method %2 is static ! Use static_call ?
 		%endif
-		map_inputs %1, %2, %3, _static_
+		map_inputs %1, %2, {%3}, _static_
 		vp_cpy [r0 + obj_vtable], %5
 		vp_call [%5 + _virtual_ * 8]
-		map_outputs %1, %2, %4, _static_
+		map_outputs %1, %2, {%4}, _static_
 	%endmacro
 
-	%macro method_jmp 2-5 '', '', r15
+	%macro method_jmp 2-5 {}, r15
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters
-		;%4 = out paramaters
-		;%5 = dispatch reg
+		;%4 = dispatch reg
 
 		method_lookup %1, %2
 		%ifidn _map_%1_type_%[_static_], static
 			%fatal Class %1 method %2 is static ! Use static_jmp ?
 		%endif
-		map_inputs %1, %2, %3, _static_
-		vp_cpy [r0 + obj_vtable], %5
-		vp_jmp [%5 + _virtual_ * 8]
+		map_inputs %1, %2, {%3}, _static_
+		vp_cpy [r0 + obj_vtable], %4
+		vp_jmp [%4 + _virtual_ * 8]
 	%endmacro
 
 	%macro method_bind 2-3 r15

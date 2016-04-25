@@ -22,7 +22,7 @@
 		;start all tasks
 		loop_start
 			;allocate mail message
-			static_call sys_mail, alloc, '', 'r3'
+			static_call sys_mail, alloc, {}, {r3}
 			assert r0, !=, 0
 
 			;fill in destination, reply and function
@@ -36,14 +36,14 @@
 
 			;copy task name
 			vp_lea [r3 + kn_data_task_child_pathname], r1
-			static_call sys_string, copy, 'r5, r1'
+			static_call sys_string, copy, {r5, r1}
 
 			;fill in total message length
 			vp_sub r3, r1
 			vp_cpy r1, [r3 + ml_msg_length]
 
 			;send mail to kernel
-			static_call sys_mail, send, 'r3'
+			static_call sys_mail, send, {r3}
 
 			;next farm worker
 			vp_add mailbox_id_size, r6
@@ -52,7 +52,7 @@
 
 		;wait for all replies
 		loop_start
-			static_call sys_mail, read, 'r4'
+			static_call sys_mail, read, {r4}
 
 			;save reply mailbox ID
 			vp_cpy [r0 + kn_data_task_child_reply_user], r6

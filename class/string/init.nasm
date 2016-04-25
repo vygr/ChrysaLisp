@@ -31,7 +31,7 @@
 			vp_cpy r2, [r0 + string_length]
 			vp_lea [r0 + string_data], r1
 			vp_inc r2
-			static_call sys_mem, copy, '[r4 + local_data], r1, r2'
+			static_call sys_mem, copy, {[r4 + local_data], r1, r2}
 
 			vp_cpy [r4 + local_inst], r0
 		endif

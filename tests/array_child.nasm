@@ -12,7 +12,7 @@
 		static_call sys_mem, free
 
 		;wait a bit
-		static_call sys_math, random, '1000000'
+		static_call sys_math, random, {1000000}
 		vp_add 1000000, r0
 		static_call sys_task, sleep
 

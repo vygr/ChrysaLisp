@@ -10,12 +10,12 @@
 	fn_function tests/pipe
 
 		;allocate temp array for mailbox ID's
-		static_call sys_mem, alloc, 'mailbox_id_size * PIPE_SIZE', 'r14, r1'
+		static_call sys_mem, alloc, {mailbox_id_size * PIPE_SIZE}, {r14, r1}
 		assert r0, !=, 0
 
 		;open pipe, off chip
 		vp_rel child_tasks, r0
-		static_call sys_task, open_pipe, 'r0, r14'
+		static_call sys_task, open_pipe, {r0, r14}
 
 		;send exit messages etc
 		for r13, 0, PIPE_SIZE, 1
@@ -32,7 +32,7 @@
 		next
 
 		;free ID array and return
-		static_jmp sys_mem, free, 'r14'
+		static_jmp sys_mem, free, {r14}
 
 	child_tasks:
 		%rep PIPE_SIZE

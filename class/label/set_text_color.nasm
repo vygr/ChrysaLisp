@@ -17,7 +17,7 @@
 		vp_sub local_size, r4
 		vp_cpy r0, [r4 + local_inst]
 
-		static_call text, set_text_color, '[r0 + label_text], r1'
+		static_call text, set_text_color, {[r0 + label_text], r1}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
