@@ -14,8 +14,7 @@
 		lh_init r0, r1
 
 		;init mail message heap
-		vp_lea [r7 + ml_statics_heap], r0
-		static_call sys_heap, init, {r0, (ml_msg_size + 8), ((ml_msg_size + 8) * 256)}
+		static_call sys_heap, init, {&[r7 + ml_statics_heap], (ml_msg_size + 8), ((ml_msg_size + 8) * 256)}
 
 		;init in and out postmen tasks
 		static_bind sys_mail, in, r0

@@ -20,15 +20,9 @@
 		vp_cpy r0, [r3 + gui_statics_last_view]
 
 		;init region heap
-		vp_lea [r3 + gui_statics_rect_heap], r0
-		vp_cpy gui_rect_size, r1
-		vp_cpy gui_rect_size * 32, r2
-		static_call sys_heap, init
+		static_call sys_heap, init, {&[r3 + gui_statics_rect_heap], gui_rect_size, gui_rect_size * 32}
 
 		;init signal heap
-		vp_lea [r3 + gui_statics_sigslot_heap], r0
-		vp_cpy gui_sigslot_size, r1
-		vp_cpy gui_sigslot_size * 32, r2
-		static_jmp sys_heap, init
+		static_jmp sys_heap, init, {&[r3 + gui_statics_sigslot_heap], gui_sigslot_size, gui_sigslot_size * 32}
 
 	fn_function_end

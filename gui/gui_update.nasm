@@ -41,7 +41,7 @@
 		vp_cpy [r0 + view_w], r10
 		vp_cpy [r0 + view_h], r11
 		static_bind gui_gui, statics, r0
-		vp_lea [r0 + gui_statics_rect_heap], r0
+		vp_add gui_statics_rect_heap, r0
 		static_call gui_region, copy_rect, {r0, r1, r4, 0, 0, r10, r11}
 
 		;paste old visable region into root
@@ -54,9 +54,7 @@
 
 		;free old region and splice over new region
 		static_bind gui_gui, statics, r5
-		vp_lea [r5 + gui_statics_rect_heap], r0
-		vp_lea [r5 + gui_statics_old_region], r1
-		static_call gui_region, free
+		static_call gui_region, free, {&[r5 + gui_statics_rect_heap], &[r5 + gui_statics_old_region]}
 		vp_pop r1
 		vp_cpy r1, [r5 + gui_statics_old_region]
 		vp_pop r0
@@ -70,10 +68,9 @@
 
 		;iterate through views back to front
 		;drawing each view
-		vp_lea [r4 + local_ctx], r1
 		vp_rel draw_down_callback, r2
 		vp_rel null_func_up_callback, r3
-		static_call view, backward_tree
+		static_call view, backward_tree, {r0, &[r4 + local_ctx], r2, r3}
 
 		vp_add local_size, r4
 		vp_ret
@@ -101,7 +98,7 @@
 
 		;region heap
 		static_bind gui_gui, statics, r0
-		vp_lea [r0 + gui_statics_rect_heap], r0
+		vp_add gui_statics_rect_heap, r0
 
 		;remove opaque region from parent if not root
 		vp_cpy [r4], r1
@@ -155,7 +152,7 @@
 
 		;region heap
 		static_bind gui_gui, statics, r0
-		vp_lea [r0 + gui_statics_rect_heap], r0
+		vp_add gui_statics_rect_heap, r0
 
 		;copy view from root if not root
 		vp_cpy [r4], r2
@@ -202,7 +199,7 @@
 			vp_cpy [r4], r1
 			vp_add view_dirty_region, r1
 			static_bind gui_gui, statics, r0
-			vp_lea [r0 + gui_statics_rect_heap], r0
+			vp_add gui_statics_rect_heap, r0
 			static_call gui_region, free
 
 			vp_pop r0

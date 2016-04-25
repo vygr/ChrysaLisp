@@ -84,8 +84,7 @@
 					vp_cpy r2, [r15 + (ml_msg_dest + 8)]
 
 					;open single task and return mailbox ID
-					vp_lea [r15 + kn_data_task_open_pathname], r0
-					static_call sys_load, bind
+					static_call sys_load, bind, {&[r15 + kn_data_task_open_pathname]}
 					static_call sys_task, start
 					static_call sys_cpu, id
 					vp_cpy r1, [r15 + kn_data_task_open_reply_mailboxid]
@@ -123,8 +122,7 @@
 					;new kernel routing table ?
 					vp_cpy [r15 + kn_data_link_route_origin], r11
 					vp_mul lk_route_size, r11
-					vp_lea [r11 + lk_route_size], r2
-					static_call sys_mem, grow, {[r4 + lk_table_array], [r4 + lk_table_array_size], r2}, \
+					static_call sys_mem, grow, {[r4 + lk_table_array], [r4 + lk_table_array_size], &[r11 + lk_route_size]}, \
 												{[r4 + lk_table_array], [r4 + lk_table_array_size]}
 
 					;compare hop counts
@@ -144,8 +142,7 @@
 						static_bind sys_link, statics, r14
 						loop_list_forward r14 + lk_statics_links_list, r12, r14
 							;new link route table ?
-							vp_lea [r11 + lk_route_size], r2
-							static_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], r2}, \
+							static_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
 														{[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]}
 
 							if [r12 + lk_node_cpu_id], ==, r13
@@ -164,8 +161,7 @@
 						static_bind sys_link, statics, r14
 						loop_list_forward r14 + lk_statics_links_list, r12, r14
 							;new link route table ?
-							vp_lea [r11 + lk_route_size], r2
-							static_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], r2}, \
+							static_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
 														{[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]}
 
 							if [r12 + lk_node_cpu_id], ==, r13

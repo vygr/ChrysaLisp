@@ -14,16 +14,13 @@
 
 		;free old region
 		static_bind gui_gui, statics, r5
-		vp_lea [r5 + gui_statics_rect_heap], r0
-		vp_lea [r5 + gui_statics_old_region], r1
-		static_call gui_region, free
+		static_call gui_region, free, {&[r5 + gui_statics_rect_heap], &[r5 + gui_statics_old_region]}
 
 		;deinit region heap
 		static_call sys_heap, deinit
 
 		;deinit signal heap
-		vp_lea [r5 + gui_statics_sigslot_heap], r0
-		static_call sys_heap, deinit
+		static_call sys_heap, deinit, {&[r5 + gui_statics_sigslot_heap]}
 
 		;destroy any window
 		vp_cpy [r5 + gui_statics_window], r14

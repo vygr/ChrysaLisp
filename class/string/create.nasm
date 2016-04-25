@@ -14,10 +14,9 @@
 		static_call sys_string, length
 		vp_cpy r0, r6
 		vp_cpy r1, r7
-		vp_lea [r1 + string_size + 1], r0
 
 		;create new string object
-		static_call string, new
+		static_call string, new, {&[r1 + string_size + 1]}
 		if r0, !=, 0
 			;init the object
 			static_bind class, string, r1
