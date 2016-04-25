@@ -28,10 +28,10 @@
 		vp_cpy [r4], r0
 		vp_lea [r0 + view_dirty_region], r1
 		static_bind gui_gui, statics, r0
-		vp_lea [r0 + gui_statics_rect_heap], r0
+		vp_add gui_statics_rect_heap, r0
 		static_call gui_region, free
 		vp_cpy [r4], r1
-		vp_lea [r1 + view_opaque_region], r1
+		vp_add view_opaque_region, r1
 		static_call gui_region, free
 
 		;deinit parent

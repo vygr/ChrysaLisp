@@ -253,7 +253,15 @@
 				%ifstr _src_%[%%i]
 					fn_string _src_%[%%i], _dst_%[%%i]
 				%else
-					vp_cpy _src_%[%%i], _dst_%[%%i]
+					%defstr %%s _src_%[%%i]
+					%substr %%ss %%s 1, 1
+					%ifidn %%ss, '&'
+						%substr %%ss %%s 2, -1
+						%deftok %%p %%ss
+						vp_lea %%p, _dst_%[%%i]
+					%else
+						vp_cpy _src_%[%%i], _dst_%[%%i]
+					%endif
 				%endif
 				%assign %%i %%i + 1
 			%endrep

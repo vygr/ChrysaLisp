@@ -144,8 +144,7 @@
 			endif
 
 			;select on 2 mailboxes
-			vp_lea [r4 + local_select1], r0
-			static_call sys_mail, select, {r0, 2}
+			static_call sys_mail, select, {&[r4 + local_select1], 2}
 
 			;which mailbox has mail ?
 			if r0, ==, [r4 + local_select1]

@@ -36,8 +36,7 @@
 		assert r1, !=, 0
 		vp_xor r0, r0
 		vp_cpy r0, [r4 + local_accum]
-		vp_lea [r4 + local_buffer], r1
-		static_call sys_string, from_long, {r0, r1, 10}
+		static_call sys_string, from_long, {r0, &[r4 + local_buffer], 10}
 
 		;create my window
 		static_call window, create, {}, {[r4 + local_window]}
@@ -63,8 +62,7 @@
 		static_call label, set_color, {r0, -1}
 		static_call label, set_flow_flags, {r0, flow_flag_align_hright | flow_flag_align_vcenter}
 		static_call label, set_font, {r0, "fonts/OpenSans-Regular.ttf", 24}
-		fn_string '0', r0
-		static_call string, create, {r0}
+		static_call string, create, {"0"}
 		assert r0, !=, 0
 		static_call label, set_text, {[r4 + local_display], r0}
 		static_call label, add, {r0, [r4 + local_flow_panel]}
@@ -92,9 +90,8 @@
 			static_call button, set_text, {[r4 + local_button], r0}
 			static_call button, set_flow_flags, {r0, flow_flag_align_hcenter | flow_flag_align_vcenter}
 			static_call button, add, {r0, [r4 + local_grid_panel]}
-			vp_lea [r0 + button_pressed_signal], r1
 			vp_rel on_press, r3
-			static_call button, connect, {r0, r1, r4, r3}
+			static_call button, connect, {r0, &[r0 + button_pressed_signal], r4, r3}
 
 			static_call sys_string, length, {[r4 + local_next]}, {r1}
 			vp_lea [r0 + r1 + 1], r0
