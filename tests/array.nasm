@@ -14,9 +14,7 @@
 		assert r0, !=, 0
 
 		;open array, off chip
-		vp_cpy r0, r1
-		vp_rel child_tasks, r0
-		static_call sys_task, open_array
+		static_call sys_task, open_array, {$child_tasks, r0}
 
 		;send exit messages etc
 		for r13, 0, ARRAY_SIZE, 1

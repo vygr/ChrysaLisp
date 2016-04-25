@@ -7,8 +7,7 @@
 	fn_function gui/gui
 		;kernel callback for first update
 		;this will init SDL etc
-		vp_rel kernel_callback, r0
-		static_call sys_task, callback
+		static_call sys_task, callback, {$kernel_callback, r1}
 
 		;allocate background view
 		static_call label, create
@@ -36,8 +35,7 @@
 		loop_start
 		next_frame:
 			;kernel callback for update
-			vp_rel kernel_callback, r0
-			static_call sys_task, callback
+			static_call sys_task, callback, {$kernel_callback, r1}
 
 			;frame rate of gui updates
 			static_call sys_task, sleep, {1000000 / 60}
@@ -147,8 +145,7 @@
 			ttf_init
 
 			;create window
-			vp_rel title, r0
-			sdl_create_window r0, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL
+			sdl_create_window $title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL
 			static_bind gui_gui, statics, r1
 			vp_cpy r0, [r1 + gui_statics_window]
 

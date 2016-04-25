@@ -266,6 +266,11 @@
 						%substr %%ss %%s 2, -1
 						%deftok %%p %%ss
 						vp_lea %%p, _dst_%[%%i]
+					%elifidn %%ss, '$'
+						;label address
+						%substr %%ss %%s 2, -1
+						%deftok %%p %%ss
+						vp_rel %%p, _dst_%[%%i]
 					%else
 						;just a copy
 						vp_cpy _src_%[%%i], _dst_%[%%i]
@@ -455,6 +460,15 @@
 
 		method_lookup %1, %2
 		%xdefine %3 _map_%1_slot_%[_static_]
+	%endmacro
+
+	%macro super_function 2-3 _function_
+		;%1 = class name
+		;%2 = slot method name
+		;%3 = macro name
+
+		method_lookup _super_class_%1_, %2
+		%xdefine %3 _map_%[_super_class_%1_]_slot_%[_static_]
 	%endmacro
 
 	def_class class

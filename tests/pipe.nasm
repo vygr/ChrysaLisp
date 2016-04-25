@@ -14,8 +14,7 @@
 		assert r0, !=, 0
 
 		;open pipe, off chip
-		vp_rel child_tasks, r0
-		static_call sys_task, open_pipe, {r0, r14}
+		static_call sys_task, open_pipe, {$child_tasks, r14}
 
 		;send exit messages etc
 		for r13, 0, PIPE_SIZE, 1

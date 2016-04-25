@@ -51,13 +51,11 @@
 			vp_cpy_i r10, [r4 + local_clip_rect + sdl_rect_w]
 			vp_cpy_i r11, [r4 + local_clip_rect + sdl_rect_h]
 			vp_cpy [r4 + local_ctx], r0
-			vp_lea [r4 + local_clip_rect], r1
-			sdl_render_set_clip_rect [r0 + gui_ctx_sdl_ctx], r1
+			sdl_render_set_clip_rect [r0 + gui_ctx_sdl_ctx], &[r4 + local_clip_rect]
 
 			;draw the rectangle
 			vp_cpy [r4 + local_ctx], r0
-			vp_lea [r4 + local_rect], r1
-			sdl_render_fill_rect [r0 + gui_ctx_sdl_ctx], r1
+			sdl_render_fill_rect [r0 + gui_ctx_sdl_ctx], &[r4 + local_rect]
 
 			vp_cpy [r4 + local_dirty_rect], r0
 		loop_end

@@ -21,8 +21,7 @@
 		vp_cpy r1, [r4 + local_w]
 		vp_cpy r1, [r4 + local_h]
 
-		vp_rel callback, r2
-		static_call flow, backward, {r0, r4, r2}
+		static_call flow, backward, {r0, r4, $callback}
 
 		vp_cpy [r4 + local_w], r10
 		vp_cpy [r4 + local_h], r11

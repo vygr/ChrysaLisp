@@ -41,8 +41,7 @@
 		vp_cpy r5, r0
 		if r5, ==, 0
 			;no so try create it
-			vp_rel kernel_callback, r0
-			static_call sys_task, callback, {r0, r4}
+			static_call sys_task, callback, {$kernel_callback, r4}
 			vp_cpy [r4 + local_handle], r0
 		endif
 

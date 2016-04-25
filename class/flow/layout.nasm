@@ -30,8 +30,7 @@
 			vp_cpy r1, [r4 + local_y]
 		endif
 
-		vp_rel callback, r2
-		static_call flow, backward, {r0, r4, r2}
+		static_call flow, backward, {r0, r4, $callback}
 
 		vp_add local_size, r4
 		vp_ret

@@ -28,10 +28,7 @@
 		vp_cpy r1, [r4 + local_jump]
 
 		;iterate through views front to back
-		vp_cpy r4, r1
-		vp_rel hit_down_callback, r2
-		vp_rel hit_up_callback, r3
-		static_call view, forward_tree
+		static_call view, forward_tree, {r0, r4, $hit_down_callback, $hit_up_callback}
 
 	early_ret:
 		vp_cpy [r4 + local_inst], r0

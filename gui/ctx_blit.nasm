@@ -72,14 +72,11 @@
 			vp_cpy_i r10, [r4 + local_clip_rect + sdl_rect_w]
 			vp_cpy_i r11, [r4 + local_clip_rect + sdl_rect_h]
 			vp_cpy [r4 + local_ctx], r0
-			vp_lea [r4 + local_clip_rect], r1
-			sdl_render_set_clip_rect [r0 + gui_ctx_sdl_ctx], r1
+			sdl_render_set_clip_rect [r0 + gui_ctx_sdl_ctx], &[r4 + local_clip_rect]
 
 			;blit the texture
 			vp_cpy [r4 + local_ctx], r0
-			vp_lea [r4 + local_srect], r2
-			vp_lea [r4 + local_drect], r1
-			sdl_render_copy [r0 + gui_ctx_sdl_ctx], [r4 + local_texture], r2, r1
+			sdl_render_copy [r0 + gui_ctx_sdl_ctx], [r4 + local_texture], &[r4 + local_srect], &[r4 + local_drect]
 
 			vp_cpy [r4 + local_dirty_rect], r0
 		loop_end

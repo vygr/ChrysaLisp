@@ -9,9 +9,7 @@
 
 		;iterate through views
 		;dirty all
-		vp_rel dirty_down_callback, r2
-		vp_rel null_up_callback, r3
-		static_jmp view, forward_tree
+		static_jmp view, forward_tree, {r0, r1, $dirty_down_callback, $null_up_callback}
 
 	dirty_down_callback:
 		static_call view, dirty
