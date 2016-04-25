@@ -61,8 +61,7 @@
 			assert r0, !=, 0
 			static_call button, set_text, {[r4 + local_button], r0}
 			static_call button, add, {r0, [r4 + local_panel]}
-			vp_rel on_press, r3
-			static_call button, connect, {r0, &[r0 + button_pressed_signal], r4, r3}
+			static_call button, connect, {r0, &[r0 + button_pressed_signal], r4, $on_press}
 
 			static_call sys_string, length, {[r4 + local_next]}
 			vp_lea [r0 + r1 + 1], r0

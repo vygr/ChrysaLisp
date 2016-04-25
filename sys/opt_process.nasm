@@ -97,8 +97,7 @@
 			vp_cpy r6, [r0 + (ml_msg_dest + 8)]
 
 			;fill in paramaters and set length
-			vp_rel link_path, r0
-			static_call sys_string, copy, {r0, &[r7 + ml_msg_data]}
+			static_call sys_string, copy, {$link_path, &[r7 + ml_msg_data]}
 			vp_dec r1
 			static_call sys_string, copy, {[r14], r1}
 			vp_sub r7, r1
