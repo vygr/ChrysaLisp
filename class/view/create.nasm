@@ -11,8 +11,8 @@
 		static_call view, new
 		if r0, !=, 0
 			;init the object
-			static_bind class, view, r1
-			static_call view, init
+			slot_function class, view
+			static_call view, init, {r0, @_function_}
 			if r1, ==, 0
 				;error with init
 				method_call view, delete, {}, {}, r1

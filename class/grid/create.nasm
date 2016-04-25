@@ -11,8 +11,8 @@
 		static_call grid, new
 		if r0, !=, 0
 			;init the object
-			static_bind class, grid, r1
-			static_call grid, init
+			slot_function class, grid
+			static_call grid, init, {r0, @_function_}
 			if r1, ==, 0
 				;error with init
 				method_call grid, delete, {}, {}, r1

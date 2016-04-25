@@ -19,8 +19,8 @@
 		static_call string, new, {&[r1 + string_size + 1]}
 		if r0, !=, 0
 			;init the object
-			static_bind class, string, r1
-			static_call string, init, {r0, r1, r6, r7}
+			slot_function class, string
+			static_call string, init, {r0, @_function_, r6, r7}
 			if r1, ==, 0
 				;error with init
 				method_call string, delete, {}, {}, r1

@@ -11,8 +11,8 @@
 		static_call flow, new
 		if r0, !=, 0
 			;init the object
-			static_bind class, flow, r1
-			static_call flow, init
+			slot_function class, flow
+			static_call flow, init, {r0, @_function_}
 			if r1, ==, 0
 				;error with init
 				method_call flow, delete, {}, {}, r1

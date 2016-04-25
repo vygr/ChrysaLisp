@@ -11,8 +11,8 @@
 		static_call progress, new
 		if r0, !=, 0
 			;init the object
-			static_bind class, progress, r1
-			static_call progress, init
+			slot_function class, progress
+			static_call progress, init, {r0, @_function_}
 			if r1, ==, 0
 				;error with init
 				method_call progress, delete, {}, {}, r1

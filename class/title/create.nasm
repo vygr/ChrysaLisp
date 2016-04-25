@@ -11,8 +11,8 @@
 		static_call title, new
 		if r0, !=, 0
 			;init the object
-			static_bind class, title, r1
-			static_call title, init
+			slot_function class, title
+			static_call title, init, {r0, @_function_}
 			if r1, ==, 0
 				;error with init
 				method_call title, delete, {}, {}, r1

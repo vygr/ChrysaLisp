@@ -24,8 +24,8 @@
 
 		;init app vars
 		vp_sub local_size, r4
-		static_bind class, obj, r1
-		static_call obj, init, {r4, r1}
+		slot_function class, obj
+		static_call obj, init, {r4, @_function_}
 		assert r1, !=, 0
 
 		;create my window

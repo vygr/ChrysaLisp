@@ -11,8 +11,8 @@
 		static_call window, new
 		if r0, !=, 0
 			;init the object
-			static_bind class, window, r1
-			static_call window, init
+			slot_function class, window
+			static_call window, init, {r0, @_function_}
 			if r1, ==, 0
 				;error with init
 				method_call window, delete, {}, {}, r1

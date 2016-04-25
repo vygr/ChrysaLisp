@@ -11,8 +11,8 @@
 		static_call text, new
 		if r0, !=, 0
 			;init the object
-			static_bind class, text, r1
-			static_call text, init
+			slot_function class, text
+			static_call text, init, {r0, @_function_}
 			if r1, ==, 0
 				;error with init
 				method_call text, delete, {}, {}, r1

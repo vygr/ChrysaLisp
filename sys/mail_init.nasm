@@ -17,10 +17,10 @@
 		static_call sys_heap, init, {&[r7 + ml_statics_heap], (ml_msg_size + 8), ((ml_msg_size + 8) * 256)}
 
 		;init in and out postmen tasks
-		static_bind sys_mail, in, r0
-		static_call sys_task, start, {r0}, {r0, [r7 + ml_statics_in_mailbox]}
-		static_bind sys_mail, out, r0
-		static_call sys_task, start, {r0}, {r0, [r7 + ml_statics_out_mailbox]}
+		slot_function sys_mail, in
+		static_call sys_task, start, {@_function_}, {r0, [r7 + ml_statics_in_mailbox]}
+		slot_function sys_mail, out
+		static_call sys_task, start, {@_function_}, {r0, [r7 + ml_statics_out_mailbox]}
 		vp_cpy_cl 0, [r7 + ml_statics_parcel_id]
 		vp_ret
 

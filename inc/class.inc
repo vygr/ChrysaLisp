@@ -206,13 +206,13 @@
 		%assign _idx -1
 		%assign %%i _src_total - 1
 		%rep %%i - %1
-			%ifstr _src_%[%%i]
-			%elifnum _src_%[%%i]
-			%else
-				sub_string _dst_%1, _src_%[%%i]
-				%if _pos != -1
-					%assign _idx %%i
-					%exitrep
+			%ifnstr _src_%[%%i]
+				%ifnnum _src_%[%%i]
+					sub_string _dst_%1, _src_%[%%i]
+					%if _pos != -1
+						%assign _idx %%i
+						%exitrep
+					%endif
 				%endif
 			%endif
 			%assign %%i %%i - 1
@@ -251,15 +251,23 @@
 			%assign %%i 0
 			%rep _src_total
 				%ifstr _src_%[%%i]
+					;string
 					fn_string _src_%[%%i], _dst_%[%%i]
 				%else
 					%defstr %%s _src_%[%%i]
 					%substr %%ss %%s 1, 1
-					%ifidn %%ss, '&'
+					%ifidn %%ss, '@'
+						;bind function
+						%substr %%ss %%s 2, -1
+						%deftok %%p %%ss
+						fn_bind %%p, _dst_%[%%i]
+					%elifidn %%ss, '&'
+						;address of
 						%substr %%ss %%s 2, -1
 						%deftok %%p %%ss
 						vp_lea %%p, _dst_%[%%i]
 					%else
+						;just a copy
 						vp_cpy _src_%[%%i], _dst_%[%%i]
 					%endif
 				%endif
@@ -438,6 +446,15 @@
 
 		method_lookup %1, %2
 		fn_bind _map_%1_slot_%[_static_], %3
+	%endmacro
+
+	%macro slot_function 2-3 _function_
+		;%1 = class name
+		;%2 = slot method name
+		;%3 = macro name
+
+		method_lookup %1, %2
+		%xdefine %3 _map_%1_slot_%[_static_]
 	%endmacro
 
 	def_class class

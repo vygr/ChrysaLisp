@@ -11,8 +11,8 @@
 		static_call label, new
 		if r0, !=, 0
 			;init the object
-			static_bind class, label, r1
-			static_call label, init
+			slot_function class, label
+			static_call label, init, {r0, @_function_}
 			if r1, ==, 0
 				;error with init
 				method_call label, delete, {}, {}, r1

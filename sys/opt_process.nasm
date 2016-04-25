@@ -84,8 +84,8 @@
 		vp_cpy [r14], r0
 		if r0, !=, 0
 			;start link
-			static_bind sys_link, link, r0
-			static_call sys_task, start, {r0}, {r0, r5}
+			slot_function sys_link, link
+			static_call sys_task, start, {@_function_}, {r0, r5}
 			static_call sys_cpu, id, {}, {r6}
 
 			;allocate params message

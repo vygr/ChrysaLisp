@@ -31,8 +31,8 @@
 
 		;init app vars
 		vp_sub local_size, r4
-		static_bind class, obj, r1
-		static_call obj, init, {r4, r1}
+		slot_function class, obj
+		static_call obj, init, {r4, @_function_}
 		assert r1, !=, 0
 		vp_xor r0, r0
 		vp_cpy r0, [r4 + local_accum]

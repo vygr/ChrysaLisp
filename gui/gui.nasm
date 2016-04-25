@@ -28,12 +28,9 @@
 
 		;for now fire up the test apps
 		;this might be an gui auto run list eventually
-		fn_bind tests/gui/gui1/app, r0
-		static_call sys_task, start
-		fn_bind tests/gui/gui2/app, r0
-		static_call sys_task, start
-		fn_bind tests/gui/gui3/app, r0
-		static_call sys_task, start
+		static_call sys_task, start, {@tests/gui/gui1/app}
+		static_call sys_task, start, {@tests/gui/gui2/app}
+		static_call sys_task, start, {@tests/gui/gui3/app}
 
 		;gui event loop
 		loop_start
