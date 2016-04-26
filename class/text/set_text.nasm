@@ -16,8 +16,9 @@
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r0, .inst
-		vp_cpy r1, .string
+		set_src r0, r1
+		set_dst .inst, .string
+		map_src_to_dst
 
 		;deref the old string
 		vp_cpy [r0 + text_string], r0

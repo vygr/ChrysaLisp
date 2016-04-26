@@ -13,7 +13,9 @@
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r0, .inst
+		set_src r0
+		set_dst .inst
+		map_src_to_dst
 
 		static_call title, set_text, {[r0 + window_title], r1}
 

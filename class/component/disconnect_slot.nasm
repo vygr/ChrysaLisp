@@ -10,8 +10,9 @@
 		;all but r0, r4
 
 		;save inputs
-		vp_cpy r0, r7
-		vp_cpy r1, r6
+		set_src r0, r1
+		set_dst r7, r6
+		map_src_to_dst
 
 		;gui sigslot heap
 		static_bind gui_gui, statics, r0

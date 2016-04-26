@@ -17,7 +17,9 @@
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r0, .inst
+		set_src r0
+		set_dst .inst
+		map_src_to_dst
 
 		method_call flow, pref_size, {[r0 + label_flow]}
 		vp_add label_border_size * 2, r10

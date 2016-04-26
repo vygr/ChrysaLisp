@@ -24,8 +24,9 @@
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r0, .font
-		vp_cpy r1, .text
+		set_src r0, r1
+		set_dst .font, .text
+		map_src_to_dst
 
 		;get font statics
 		static_bind gui_font, statics, r5

@@ -23,7 +23,9 @@
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r0, .inst
+		set_src r0
+		set_dst .inst
+		map_src_to_dst
 
 		;emit the signal
 		loop_list_forward r1, r0, r1

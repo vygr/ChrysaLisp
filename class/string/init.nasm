@@ -18,8 +18,9 @@
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r2, .data
-		vp_cpy r3, .length
+		set_src r2, r3
+		set_dst .data, .length
+		map_src_to_dst
 
 		;init parent
 		super_call string, init

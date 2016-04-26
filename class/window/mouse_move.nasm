@@ -18,8 +18,9 @@
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r0, .inst
-		vp_cpy r1, .event
+		set_src r0, r1
+		set_dst .inst, .event
+		map_src_to_dst
 
 		;dirty old area
 		static_call window, dirty

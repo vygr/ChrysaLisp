@@ -12,8 +12,9 @@
 		;r1-r3, r5-r7
 
 		;save inputs
-		vp_cpy r0, r6
-		vp_cpy r1, r7
+		set_src r0, r1
+		set_dst r6, r7
+		map_src_to_dst
 
 		;get size of strings
 		vp_cpy [r0 + string_length], r0
