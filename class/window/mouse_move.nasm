@@ -9,17 +9,17 @@
 		;trashes
 		;all but r0, r4
 
-		def_structure	local
-			def_long	local_inst
-			def_long	local_event
-			def_long	local_old_x
-			def_long	local_old_y
-		def_structure_end
+		def_local
+			def_local_long	inst
+			def_local_long	event
+			def_local_long	old_x
+			def_local_long	old_y
+		def_local_end
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r0, [r4 + local_inst]
-		vp_cpy r1, [r4 + local_event]
+		vp_cpy r0, .inst
+		vp_cpy r1, .event
 
 		;dirty old area
 		static_call window, dirty
@@ -31,15 +31,15 @@
 
 		;save old bounds
 		static_call window, get_bounds
-		vp_cpy r8, [r4 + local_old_x]
-		vp_cpy r9, [r4 + local_old_y]
+		vp_cpy r8, .old_x
+		vp_cpy r9, .old_y
 
 		;get abolute cords of corners
 		vp_add r8, r10
 		vp_add r9, r11
 
 		;drag edges
-		vp_cpy [r4 + local_event], r1
+		vp_cpy .event, r1
 		vp_cpy [r0 + window_drag_mode], r15
 		vp_and window_drag_left, r15
 		if r15, !=, 0
@@ -99,13 +99,13 @@
 		static_call window, change
 
 		;translate old dirty area and dirty all
-		vp_cpy [r4 + local_old_x], r8
-		vp_cpy [r4 + local_old_y], r9
+		vp_cpy .old_x, r8
+		vp_cpy .old_y, r9
 		vp_sub [r0 + view_x], r8
 		vp_sub [r0 + view_y], r9
 		vp_add view_dirty_region, r0
 		static_call gui_region, translate
-		vp_cpy [r4 + local_inst], r0
+		vp_cpy .inst, r0
 		vp_add local_size, r4
 		static_jmp window, dirty_all
 

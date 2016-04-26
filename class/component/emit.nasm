@@ -16,30 +16,30 @@
 			;callback should normally save register the signal sends
 			;but it could filter or adjust them for fancy reasons !
 
-		def_structure	local
-			def_long	local_inst
-			def_long	local_next
-		def_structure_end
+		def_local
+			def_local_long	inst
+			def_local_long	next
+		def_local_end
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r0, [r4 + local_inst]
+		vp_cpy r0, .inst
 
 		;emit the signal
 		loop_list_forward r1, r0, r1
-			vp_cpy r1, [r4 + local_next]
+			vp_cpy r1, .next
 
 			;call method on target component object
 			vp_cpy [r0 + gui_sigslot_addr], r15
 			vp_cpy [r0 + gui_sigslot_inst], r0
-			vp_cpy [r4 + local_inst], r1
+			vp_cpy .inst, r1
 			vp_call r15
 
-			vp_cpy [r4 + local_next], r1
+			vp_cpy .next, r1
 		loop_end
 
 		;restore inst
-		vp_cpy [r4 + local_inst], r0
+		vp_cpy .inst, r0
 		vp_add local_size, r4
 		vp_ret
 

@@ -13,25 +13,25 @@
 		;trashes
 		;all but r4
 
-		def_structure	local
-			def_long	local_font
-			def_long	local_points
-			def_long	local_handle
-		def_structure_end
+		def_local
+			def_local_long	font
+			def_local_long	points
+			def_local_long	handle
+		def_local_end
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r0, [r4 + local_font]
-		vp_cpy r1, [r4 + local_points]
+		vp_cpy r0, .font
+		vp_cpy r1, .points
 
 		;get font statics
 		static_bind gui_font, statics, r5
 
 		;search font list
 		loop_flist_forward r5 + ft_statics_font_list, r5, r5
-			vp_cpy [r4 + local_points], r0
+			vp_cpy .points, r0
 			continueif r0, !=, [r5 + ft_font_points]
-			static_call sys_string, compare, {&[r5 + ft_font_name], [r4 + local_font]}
+			static_call sys_string, compare, {&[r5 + ft_font_name], .font}
 		loop_until r0, !=, 0
 
 		;did we find it ?
@@ -39,7 +39,7 @@
 		if r5, ==, 0
 			;no so try open it
 			static_call sys_task, callback, {$kernel_callback, r4}
-			vp_cpy [r4 + local_handle], r0
+			vp_cpy .handle, r0
 		endif
 		vp_add local_size, r4
 		vp_ret

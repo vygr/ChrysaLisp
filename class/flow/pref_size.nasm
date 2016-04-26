@@ -11,20 +11,20 @@
 		;trashes
 		;all but r0, r4
 
-		def_structure	local
-			def_long	local_w
-			def_long	local_h
+		def_local
+			def_local_long	w
+			def_local_long	h
 		def_structure_end
 
 		vp_sub local_size, r4
 		vp_xor r1, r1
-		vp_cpy r1, [r4 + local_w]
-		vp_cpy r1, [r4 + local_h]
+		vp_cpy r1, .w
+		vp_cpy r1, .h
 
 		static_call flow, backward, {r0, r4, $callback}
 
-		vp_cpy [r4 + local_w], r10
-		vp_cpy [r4 + local_h], r11
+		vp_cpy .w, r10
+		vp_cpy .h, r11
 		vp_add local_size, r4
 		vp_ret
 

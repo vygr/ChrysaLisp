@@ -16,18 +16,18 @@
 
 		string_buf_size	equ 32
 
-		def_structure	local, obj
-			def_long	local_last_event
-			def_long	local_window
-			def_long	local_window_panel
-			def_long	local_flow_panel
-			def_long	local_grid_panel
-			def_long	local_display
-			def_long	local_next
-			def_long	local_button
-			def_long	local_accum
-			def_struct	local_buffer, string_buf
-		def_structure_end
+		def_local local, obj
+			def_local_long		last_event
+			def_local_long		window
+			def_local_long		window_panel
+			def_local_long		flow_panel
+			def_local_long		grid_panel
+			def_local_long		display
+			def_local_long		next
+			def_local_long		button
+			def_local_long		accum
+			def_local_struct	buffer, string_buf
+		def_local_end
 
 		;init app vars
 		vp_sub local_size, r4
@@ -35,44 +35,44 @@
 		static_call obj, init, {r4, @_function_}
 		assert r1, !=, 0
 		vp_xor r0, r0
-		vp_cpy r0, [r4 + local_accum]
-		static_call sys_string, from_long, {r0, &[r4 + local_buffer], 10}
+		vp_cpy r0, .accum
+		static_call sys_string, from_long, {r0, &.buffer, 10}
 
 		;create my window
-		static_call window, create, {}, {[r4 + local_window]}
+		static_call window, create, {}, {.window}
 		assert r0, !=, 0
-		static_call window, get_panel, {r0}, {[r4 + local_window_panel]}
+		static_call window, get_panel, {r0}, {.window_panel}
 		static_call string, create, {"Calculator"}
 		assert r0, !=, 0
-		static_call window, set_title, {[r4 + local_window], r0}
+		static_call window, set_title, {.window, r0}
 		static_call string, create, {"Status Text"}
 		assert r0, !=, 0
-		static_call window, set_status, {[r4 + local_window], r0}
+		static_call window, set_status, {.window, r0}
 
 		;add my app flow panel
-		static_call flow, create, {}, {[r4 + local_flow_panel]}
+		static_call flow, create, {}, {.flow_panel}
 		assert r0, !=, 0
 		static_call flow, set_flow_flags, {r0, flow_flag_down | flow_flag_fillw | flow_flag_lasth}
 		static_call flow, set_color, {r0, 0x00000000}
-		static_call flow, add, {r0, [r4 + local_window_panel]}
+		static_call flow, add, {r0, .window_panel}
 
 		;add my display label
-		static_call label, create, {}, {[r4 +local_display]}
+		static_call label, create, {}, {.display}
 		assert r0, !=, 0
 		static_call label, set_color, {r0, -1}
 		static_call label, set_flow_flags, {r0, flow_flag_align_hright | flow_flag_align_vcenter}
 		static_call label, set_font, {r0, "fonts/OpenSans-Regular.ttf", 24}
 		static_call string, create, {"0"}
 		assert r0, !=, 0
-		static_call label, set_text, {[r4 + local_display], r0}
-		static_call label, add, {r0, [r4 + local_flow_panel]}
+		static_call label, set_text, {.display, r0}
+		static_call label, add, {r0, .flow_panel}
 
 		;add my app grid panel
-		static_call grid, create, {}, {[r4 + local_grid_panel]}
+		static_call grid, create, {}, {.grid_panel}
 		assert r0, !=, 0
 		static_call grid, set_color, {r0, 0x00000000}
 		static_call grid, set_grid, {r0, 4, 4}
-		static_call grid, add, {r0, [r4 + local_flow_panel]}
+		static_call grid, add, {r0, .flow_panel}
 
 		;add buttons to my grid panel
 		vp_rel button_list, r0
@@ -80,24 +80,24 @@
 			vp_xor r1, r1
 			vp_cpy_b [r0], r1
 			breakif r1, ==, 0
-			vp_cpy r0, [r4 + local_next]
+			vp_cpy r0, .next
 
-			static_call button, create, {}, {[r4 + local_button]}
+			static_call button, create, {}, {.button}
 			assert r0, !=, 0
 			static_call button, set_color, {r0, 0xffffff00}
-			static_call string, create, {[r4 + local_next]}
+			static_call string, create, {.next}
 			assert r0, !=, 0
-			static_call button, set_text, {[r4 + local_button], r0}
+			static_call button, set_text, {.button, r0}
 			static_call button, set_flow_flags, {r0, flow_flag_align_hcenter | flow_flag_align_vcenter}
-			static_call button, add, {r0, [r4 + local_grid_panel]}
+			static_call button, add, {r0, .grid_panel}
 			static_call button, connect, {r0, &[r0 + button_pressed_signal], r4, $on_press}
 
-			static_call sys_string, length, {[r4 + local_next]}, {r1}
+			static_call sys_string, length, {.next}, {r1}
 			vp_lea [r0 + r1 + 1], r0
 		loop_end
 
 		;set to pref size
-		method_call window, pref_size, {[r4 + local_window]}
+		method_call window, pref_size, {.window}
 		vp_cpy r10, r12
 		vp_cpy r11, r13
 		vp_shr 1, r12
@@ -108,7 +108,7 @@
 
 		;set window owner
 		static_call sys_task, tcb
-		static_call window, set_owner, {[r4 + local_window], r0}
+		static_call window, set_owner, {.window, r0}
 
 		;add to screen and dirty
 		static_call gui_gui, add
@@ -116,17 +116,17 @@
 
 		;app event loop
 		loop_start
-			static_call sys_mail, mymail, {}, {[r4 + local_last_event]}
+			static_call sys_mail, mymail, {}, {.last_event}
 
 			;dispatch event to view
 			method_call view, event, {[r0 + ev_data_view], r0}
 
 			;free event message
-			static_call sys_mem, free, {[r4 + local_last_event]}
+			static_call sys_mem, free, {.last_event}
 		loop_end
 
 		;deref window
-		static_call window, deref, {[r4 + local_window]}
+		static_call window, deref, {.window}
 
 		method_call obj, deinit, {r4}
 		vp_add local_size, r4
@@ -137,44 +137,34 @@
 		;r0 = app local object
 		;r1 = button object
 
-		def_structure	on_press
-			def_long	on_press_inst
-			def_long	on_press_button
-			def_long	on_press_string1
-			def_long	on_press_string2
-		def_structure_end
+		def_local on_press
+			def_local_long	inst
+			def_local_long	button
+			def_local_long	string1
+			def_local_long	string2
+		def_local_end
 
 		;save inputs
 		vp_sub on_press_size, r4
-		vp_cpy r0, [r4 + on_press_inst]
-		vp_cpy r1, [r4 + on_press_button]
+		set_src r0, r1
+		set_dst .inst, .button
+		map_src_to_dst
 
-		static_call button, get_text, {r1}, {[r4 + on_press_string1]}
+		static_call button, get_text, {r1}, {.string1}
 
-		vp_cpy [r4 + on_press_inst], r0
+		vp_cpy .inst, r0
 		vp_cpy [r0 + local_display], r0
-		static_call label, get_text, {}, {[r4 + on_press_string2]}
-		static_call string, add, {[r4 + on_press_string2], [r4 + on_press_string1]}
+		static_call label, get_text, {}, {.string2}
+		static_call string, add, {.string2, .string1}
 		assert r0, !=, 0
 		vp_cpy r0, r1
-		vp_cpy [r4 + on_press_inst], r0
+		vp_cpy .inst, r0
 		vp_cpy [r0 + local_display], r0
 		static_call label, set_text
 		static_call label, dirty
 
-		static_call string, deref, {[r4 + on_press_string1]}
-		static_call string, deref, {[r4 + on_press_string2]}
-
-;		vp_cpy r1, r0
-;		vp_cpy 10, r1
-;		static_call sys_string, to_long
-;		vp_cpy [r4], r6
-;		vp_cpy r0, [r6 + local_accum]
-;		vp_cpy [r6 + local_accum], r0
-;		vp_cpy 123456789, r0
-;		vp_lea [r6 + local_buffer], r1
-;		vp_cpy 10, r2
-;		static_call sys_string, from_long
+		static_call string, deref, {.string1}
+		static_call string, deref, {.string2}
 
 		vp_add on_press_size, r4
 		vp_ret

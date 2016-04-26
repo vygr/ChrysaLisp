@@ -68,6 +68,28 @@
 		%assign _offset_ _offset_ & -(%1_size)
 	%endmacro
 
+	%macro def_local 0-2 local, null
+		def_structure %1, %2
+		%xdefine _local_ %1
+	%endmacro
+
+	%macro def_local_long 1
+		;%1 name
+		def_long %[_local_]_%1
+		%xdefine .%1 [r4 + %[_local_]_%1]
+	%endmacro
+
+	%macro def_local_struct 2
+		;%1 name
+		;%2 size
+		def_struct %[_local_]_%1, %2
+		%xdefine .%1 [r4 + %[_local_]_%1]
+	%endmacro
+
+	%macro def_local_end 0
+		def_structure_end
+	%endmacro
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; some NASM codeing macros
 ;;;;;;;;;;;;;;;;;;;;;;;;;;

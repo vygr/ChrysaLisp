@@ -20,26 +20,26 @@
 			;r0 = view object
 			;r1 = 0 if should not decend after down callback
 
-		def_structure	local
-			def_long	local_inst
-			def_long	local_data
-			def_long	local_down
-			def_long	local_up
-		def_structure_end
+		def_local
+			def_local_long	inst
+			def_local_long	data
+			def_local_long	down
+			def_local_long	up
+		def_local_end
 
 		vp_sub local_size, r4
-		vp_cpy r0, [r4 + local_inst]
-		vp_cpy r1, [r4 + local_data]
-		vp_cpy r2, [r4 + local_down]
-		vp_cpy r3, [r4 + local_up]
+		vp_cpy r0, .inst
+		vp_cpy r1, .data
+		vp_cpy r2, .down
+		vp_cpy r3, .up
 		vp_cpy r0, r1
 		loop_start
 		down_loop_ctx:
 			vp_cpy r1, r0
 
 			;down callback
-			vp_cpy [r4 + local_data], r1
-			vp_call [r4 + local_down]
+			vp_cpy .data, r1
+			vp_call .down
 			breakif r1, ==, 0
 
 			;down to child
@@ -50,11 +50,11 @@
 		loop_until r2, ==, 0
 		loop_start
 			;up callback
-			vp_cpy [r4 + local_data], r1
-			vp_call [r4 + local_up]
+			vp_cpy .data, r1
+			vp_call .up
 
 			;back at root ?
-			breakif r0, ==, [r4 + local_inst]
+			breakif r0, ==, .inst
 
 			;across to sibling
 			ln_get_succ r0 + view_node, r1

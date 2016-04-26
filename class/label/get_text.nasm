@@ -9,17 +9,17 @@
 		;r0 = label object
 		;r1 = 0, else string object
 
-		def_structure	local
-			def_long	local_inst
-		def_structure_end
+		def_local
+			def_local_long	inst
+		def_local_end
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r0, [r4 + local_inst]
+		vp_cpy r0, .inst
 
 		static_call text, get_text, {[r0 + label_text]}
 
-		vp_cpy [r4 + local_inst], r0
+		vp_cpy .inst, r0
 		vp_add local_size, r4
 		vp_ret
 
