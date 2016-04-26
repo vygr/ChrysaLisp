@@ -31,9 +31,7 @@
 		vp_cpy r11, r13
 
 		;save old bounds
-		static_call window, get_bounds
-		vp_cpy r8, .old_x
-		vp_cpy r9, .old_y
+		static_call window, get_bounds, {r0}, {.old_x, .old_y, r10, r11}
 
 		;get abolute cords of corners
 		vp_add r8, r10

@@ -79,7 +79,7 @@
 			if r0, !=, 0
 				vp_cpy r0, r5
 
-				static_call sys_string, length, {[r14 + local_text]}
+				static_call sys_string, length, {[r14 + local_text]}, {r1}
 				static_call sys_mem, alloc, {&[r1 + ft_text_size + 1]}, {r13, r1}
 				assert r0, !=, 0
 

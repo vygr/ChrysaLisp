@@ -21,7 +21,7 @@
 		set_dst .inst
 		map_src_to_dst
 
-		method_call flow, pref_size, {[r0 + window_flow]}
+		method_call flow, pref_size, {[r0 + window_flow]}, {r10, r11}
 		vp_add window_border_size * 2, r10
 		vp_add window_border_size * 2, r11
 
