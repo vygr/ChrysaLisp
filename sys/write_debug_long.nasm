@@ -20,10 +20,9 @@
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r0, .name
-		vp_cpy r1, .line
-		vp_cpy r2, .string
-		vp_cpy r3, .long
+		set_src r0, r1, r2, r3
+		set_dst .name, .line, .string, .long
+		map_src_to_dst
 
 		;tab in by stack depth
 		static_call sys_task, stack_depth

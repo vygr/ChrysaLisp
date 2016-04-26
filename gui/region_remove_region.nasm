@@ -20,9 +20,9 @@
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r2, .dlist
-		vp_cpy r8, .dx
-		vp_cpy r9, .dy
+		set_src r2, r8, r9
+		set_dst .dlist, .dx, .dy
+		map_src_to_dst
 
 		;run through source region list
 		loop_flist_forward r1, r1, r1
