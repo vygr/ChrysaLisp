@@ -26,7 +26,7 @@
 			static_call flow, set_color, {r0, -1}
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_flow]
-			static_call flow, add
+			static_call flow, add, {r0, r1}
 
 			;add my title
 			static_call title, create, {}, {r0}

@@ -61,7 +61,7 @@
 			vp_cpy r3, [r6 + 8]
 
 			;free reply mail
-			static_call sys_mem, free
+			static_call sys_mem, free, {r0}
 
 			;next mailbox
 			vp_dec r7

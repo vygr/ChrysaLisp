@@ -83,13 +83,13 @@
 		static_call window, set_owner, {.window, r0}
 
 		;add to screen and dirty
-		static_call gui_gui, add
-		static_call window, dirty_all
+		static_call gui_gui, add, {r0}
+		static_call window, dirty_all, {r0}
 
 		;allocate array for child mailbox ID's
 		vp_cpy .cpu_total, r0
 		vp_mul mailbox_id_size, r0
-		static_call sys_mem, alloc, {}, {.task_mailboxes, r1}
+		static_call sys_mem, alloc, {r0}, {.task_mailboxes, r1}
 		assert r0, !=, 0
 
 		;open global farm
@@ -149,17 +149,17 @@
 			;which mailbox has mail ?
 			if r0, ==, .select1
 				;main mailbox
-				static_call sys_mail, read, {}, {.last_event}
+				static_call sys_mail, read, {r0}, {.last_event}
 
 				;dispatch event to view
 				method_call view, event, {[r0 + ev_data_view], r0}
 			else
 				;task mailbox
-				static_call sys_mail, read, {}, {.last_event}
+				static_call sys_mail, read, {r0}, {.last_event}
 
 				;update progress bar
 				static_call progress, set_val, {[r0 + sample_mail_progress], [r0 + sample_mail_task_count]}
-				static_call progress, dirty
+				static_call progress, dirty, {r0}
 
 				;count up replies
 				vp_cpy .cpu_count, r0
@@ -199,7 +199,7 @@
 			vp_cpy r3, [r0 + ml_msg_dest + 8]
 
 			;send command
-			static_call sys_mail, send
+			static_call sys_mail, send, {r0}
 
 			vp_inc r5
 		loop_until r5, ==, .cpu_total

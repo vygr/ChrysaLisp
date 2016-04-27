@@ -10,7 +10,7 @@
 
 		;remove from any existing parent
 		vp_cpy r1, r3
-		static_call view, sub
+		static_call view, sub, {r0}
 
 		;add to parent
 		vp_cpy r3, [r0 + view_parent]

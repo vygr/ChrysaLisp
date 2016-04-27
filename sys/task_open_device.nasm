@@ -46,7 +46,7 @@
 		vp_cpy [r0 + kn_data_task_child_reply_mailboxid + 8], r5
 
 		;free reply mail and temp mailbox
-		static_call sys_mem, free
+		static_call sys_mem, free, {r0}
 		ml_temp_destroy
 
 		;return mailbox ID

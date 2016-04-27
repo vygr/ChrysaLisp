@@ -18,7 +18,7 @@
 		vp_cpy [r0 + view_h], r15
 
 		;set new info
-		static_call view, set_bounds
+		static_call view, set_bounds, {r0, r8, r9, r10, r11}
 
 		;layout if changed size
 		if r10, ==, r14
@@ -26,6 +26,6 @@
 				vp_ret
 			endif
 		endif
-		method_jmp view, layout
+		method_jmp view, layout, {r0}
 
 	fn_function_end

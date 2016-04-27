@@ -17,6 +17,6 @@
 
 		;deinit parent
 		vp_pop r0
-		super_jmp text, deinit
+		super_jmp text, deinit, {r0}
 
 	fn_function_end

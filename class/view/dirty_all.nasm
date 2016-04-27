@@ -12,7 +12,7 @@
 		static_jmp view, forward_tree, {r0, r1, $dirty_down_callback, $null_up_callback}
 
 	dirty_down_callback:
-		static_call view, dirty
+		static_call view, dirty, {r0}
 		vp_xor r1, r1
 	null_up_callback:
 		vp_ret

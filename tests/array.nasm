@@ -26,7 +26,7 @@
 			vp_cpy [r14 + r3 + 8], r2
 			vp_cpy r1, [r0 + ml_msg_dest]
 			vp_cpy r2, [r0 + (ml_msg_dest + 8)]
-			static_call sys_mail, send
+			static_call sys_mail, send, {r0}
 			static_call sys_task, yield
 		next
 

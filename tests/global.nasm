@@ -14,7 +14,7 @@
 
 		;allocate temp array for mailbox ID's
 		vp_mul mailbox_id_size, r0
-		static_call sys_mem, alloc, {}, {r14, r1}
+		static_call sys_mem, alloc, {r0}, {r14, r1}
 		assert r0, !=, 0
 
 		;open global farm, off chip

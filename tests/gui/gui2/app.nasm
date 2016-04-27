@@ -77,8 +77,8 @@
 		static_call window, set_owner, {.window, r0}
 
 		;add to screen and dirty
-		static_call gui_gui, add
-		static_call window, dirty_all
+		static_call gui_gui, add, {r0}
+		static_call window, dirty_all, {r0}
 
 		;app event loop
 		loop_start

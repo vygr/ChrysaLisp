@@ -23,7 +23,7 @@
 		map_src_to_dst
 
 		;dirty old area
-		static_call window, dirty
+		static_call window, dirty, {r0}
 
 		;get smallest size
 		method_call window, pref_size, {r0}, {r10, r11}
@@ -95,7 +95,7 @@
 		vp_sub r9, r11
 
 		;change window size
-		static_call window, change
+		static_call window, change, {r0, r8, r9, r10, r11}
 
 		;translate old dirty area and dirty all
 		vp_cpy .old_x, r8
@@ -103,9 +103,9 @@
 		vp_sub [r0 + view_x], r8
 		vp_sub [r0 + view_y], r9
 		vp_add view_dirty_region, r0
-		static_call gui_region, translate
+		static_call gui_region, translate, {r0, r8, r9}
 		vp_cpy .inst, r0
 		vp_add local_size, r4
-		static_jmp window, dirty_all
+		static_jmp window, dirty_all, {r0}
 
 	fn_function_end

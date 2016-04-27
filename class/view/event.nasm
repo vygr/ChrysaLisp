@@ -20,21 +20,21 @@
 				;was down previously
 				if r2, !=, 0
 					;is down now, so move
-					method_jmp view, mouse_move
+					method_jmp view, mouse_move, {r0, r1}
 				else
 					;is not down now, so release
 					vp_cpy r2, [r0 + view_last_buttons]
-					method_jmp view, mouse_up
+					method_jmp view, mouse_up, {r0, r1}
 				endif
 			else
 				;was not down previously
 				if r2, !=, 0
 					;is down now, so first down
 					vp_cpy r2, [r0 + view_last_buttons]
-					method_jmp view, mouse_down
+					method_jmp view, mouse_down, {r0, r1}
 				else
 					;is not down now, so hover
-					method_jmp view, mouse_hover
+					method_jmp view, mouse_hover, {r0, r1}
 				endif
 			endif
 			break

@@ -28,7 +28,7 @@
 			vp_cpy [r0 + text_font], r0
 			if r0, !=, 0
 				vp_add string_data, r1
-				static_call gui_font, text, {}, {r0}
+				static_call gui_font, text, {r0, r1}, {r0}
 				if r0, !=, 0
 					vp_cpy .inst, r2
 					static_call gui_ctx, blit, {.ctx, [r0 + ft_text_texture], [r2 + text_text_color], \

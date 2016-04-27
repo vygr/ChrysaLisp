@@ -23,7 +23,7 @@
 		map_src_to_dst
 
 		;init parent
-		super_call string, init, {}, {r1}
+		super_call string, init, {r0, r1, r2, r3}, {r1}
 		if r1, !=, 0
 			vp_cpy r0, .inst
 

@@ -9,7 +9,6 @@
 		;r1-r3
 
 		static_bind gui_gui, statics, r1
-		vp_cpy [r1 + gui_statics_screen], r1
-		static_jmp view, add
+		static_jmp view, add, {r0, [r1 + gui_statics_screen]}
 
 	fn_function_end

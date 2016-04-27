@@ -80,7 +80,7 @@
 		vp_cpy r8, [r0 + kn_data_link_route_via]
 		vp_cpy_cl 1, [r0 + kn_data_link_route_hops]
 		vp_cpy_cl kn_data_link_route_size, [r0 + ml_msg_length]
-		static_call sys_mail, send
+		static_call sys_mail, send, {r0}
 
 		;open shared memory file
 		vp_lea [r14 + ml_msg_data], r0

@@ -12,15 +12,15 @@
 		vp_push r0
 
 		;sub view from any parent
-		static_call view, sub
+		static_call view, sub, {r0}
 
 		;deref any child views
 		vp_cpy [r4], r0
 		loop_list_forward r0 + view_list, r0, r1
 			vp_sub view_node, r0
 			vp_push r1
-			static_call view, sub
-			static_call view, deref
+			static_call view, sub, {r0}
+			static_call view, deref, {r0}
 			vp_pop r1
 		loop_end
 
@@ -29,13 +29,13 @@
 		vp_lea [r0 + view_dirty_region], r1
 		static_bind gui_gui, statics, r0
 		vp_add gui_statics_rect_heap, r0
-		static_call gui_region, free
+		static_call gui_region, free, {r0, r1}
 		vp_cpy [r4], r1
 		vp_add view_opaque_region, r1
-		static_call gui_region, free
+		static_call gui_region, free, {r0, r1}
 
 		;deinit parent
 		vp_pop r0
-		super_jmp view, deinit
+		super_jmp view, deinit, {r0}
 
 	fn_function_end

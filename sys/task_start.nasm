@@ -40,7 +40,7 @@
 		vp_cpy r5, [r1 + tk_state_size]
 
 		;resume new task
-		static_call sys_task, resume
+		static_call sys_task, resume, {r0}
 
 		;return mailbox pointer
 		vp_lea [r0 + tk_node_mailbox], r1

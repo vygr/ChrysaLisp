@@ -31,7 +31,7 @@
 			vp_cpy ' ', r0
 			vp_cpy 2, r1
 			loop_while r2, >, 0
-				static_call sys_io, char
+				static_call sys_io, char, {r0, r1}
 				vp_sub 8, r2
 			loop_end
 		endif

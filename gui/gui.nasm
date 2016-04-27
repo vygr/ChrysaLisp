@@ -19,8 +19,8 @@
 		;size and color and opaque
 		static_call label, change, {r0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}
 		static_call label, set_color, {r0, 0xff000000}
-		static_call label, opaque
-		static_call label, dirty_all
+		static_call label, opaque, {r0}
+		static_call label, dirty_all, {r0}
 
 		;sleep just a moment to let all routeing finish
 		static_call sys_task, sleep, {1000000}
@@ -90,7 +90,7 @@
 						vp_cpy r9, [r0 + ev_data_ry]
 
 						;send mail to owner
-						static_call sys_mail, send
+						static_call sys_mail, send, {r0}
 					endif
 				endif
 

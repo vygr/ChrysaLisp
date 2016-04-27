@@ -31,7 +31,7 @@
 		vp_cpy r9, .old_y
 
 		;dirty old area
-		static_call window, dirty
+		static_call window, dirty, {r0}
 
 		;get new window position
 		vp_cpy .inst, r0
@@ -53,7 +53,7 @@
 		vp_mul -1, r8
 		vp_mul -1, r9
 		vp_add view_dirty_region, r0
-		static_call gui_region, translate
+		static_call gui_region, translate, {r0, r8, r9}
 		static_call window, dirty_all, {.window}
 
 		vp_cpy .inst, r0

@@ -100,7 +100,7 @@
 			vp_cpy [r1 + view_parent], r2
 			vp_add view_opaque_region, r1
 			vp_add view_dirty_region, r2
-			static_call gui_region, remove_region
+			static_call gui_region, remove_region, {r0, r1, r2, r8, r9}
 		endif
 
 		;clip local dirty region with parent bounds if not root
@@ -118,7 +118,7 @@
 		vp_add r8, r10
 		vp_add r9, r11
 		vp_add view_dirty_region, r1
-		static_call gui_region, clip_rect
+		static_call gui_region, clip_rect, {r0, r1, r8, r9, r10, r11}
 
 		;paste local dirty region onto parent if not root
 		vp_cpy [r4], r1
@@ -128,12 +128,12 @@
 			vp_cpy [r1 + view_parent], r2
 			vp_add view_dirty_region, r1
 			vp_add view_dirty_region, r2
-			static_call gui_region, paste_region
+			static_call gui_region, paste_region, {r0, r1, r2, r8, r9}
 
 			;free local dirty region
 			vp_cpy [r4], r1
 			vp_add view_dirty_region, r1
-			static_call gui_region, free
+			static_call gui_region, free, {r0, r1}
 		endif
 
 		vp_pop r1, r0
@@ -158,7 +158,7 @@
 			vp_add r9, r11
 			vp_add view_dirty_region, r1
 			vp_add view_dirty_region, r2
-			static_call gui_region, copy_rect
+			static_call gui_region, copy_rect, {r0, r1, r2, r8, r9, r10, r11}
 
 			;remove opaque region
 			vp_cpy [r4], r1
@@ -167,7 +167,7 @@
 			vp_cpy [r1 + view_ctx_y], r9
 			vp_add view_opaque_region, r1
 			vp_add view_dirty_region, r2
-			static_call gui_region, remove_region
+			static_call gui_region, remove_region, {r0, r1, r2, r8, r9}
 		endif
 
 		vp_pop r1, r0
@@ -185,14 +185,14 @@
 			vp_cpy r8, [r1 + gui_ctx_x]
 			vp_cpy r9, [r1 + gui_ctx_y]
 			vp_cpy r2, [r1 + gui_ctx_dirty_region]
-			method_call view, draw
+			method_call view, draw, {r0, r1}
 
 			;free local dirty region
 			vp_cpy [r4], r1
 			vp_add view_dirty_region, r1
 			static_bind gui_gui, statics, r0
 			vp_add gui_statics_rect_heap, r0
-			static_call gui_region, free
+			static_call gui_region, free, {r0, r1}
 
 			vp_pop r0
 		endif

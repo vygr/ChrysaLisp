@@ -111,8 +111,8 @@
 		static_call window, set_owner, {.window, r0}
 
 		;add to screen and dirty
-		static_call gui_gui, add
-		static_call window, dirty_all
+		static_call gui_gui, add, {r0}
+		static_call window, dirty_all, {r0}
 
 		;app event loop
 		loop_start
@@ -159,7 +159,7 @@
 		vp_cpy r0, r1
 		vp_cpy .inst, r0
 		static_call label, set_text, {[r0 + local_display], r1}
-		static_call label, dirty
+		static_call label, dirty, {r0}
 
 		static_call string, deref, {.string1}
 		static_call string, deref, {.string2}

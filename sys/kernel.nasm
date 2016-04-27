@@ -217,7 +217,7 @@
 					vp_cpy [r0 + kn_data_kernel_reply + 8], r2
 					vp_cpy r1, [r0 + ml_msg_dest]
 					vp_cpy r2, [r0 + ml_msg_dest + 8]
-					static_call sys_mail, send
+					static_call sys_mail, send, {r0}
 					break
 				default
 				endswitch

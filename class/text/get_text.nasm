@@ -24,7 +24,7 @@
 		;reference the string
 		vp_cpy [r0 + text_string], r0
 		if r0, !=, 0
-			static_call string, ref
+			static_call string, ref, {r0}
 		endif
 		vp_cpy r0, r1
 

@@ -30,7 +30,7 @@
 			vp_cpy [r1 + ml_mailbox_tcb], r0
 			if r0, !=, 0
 				vp_cpy_cl 0, [r1 + ml_mailbox_tcb]
-				static_call sys_task, resume
+				static_call sys_task, resume, {r0}
 			endif
 		else
 			;going off chip
