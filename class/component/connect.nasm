@@ -21,7 +21,7 @@
 		vp_add gui_statics_sigslot_heap, r0
 
 		;create sigslot record
-		static_call sys_heap, alloc
+		static_call sys_heap, alloc, {r0}, {r1}
 		assert r1, !=, 0
 
 		;fill in target and method

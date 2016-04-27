@@ -37,7 +37,7 @@
 
 	callback:
 		vp_push r1
-		method_call view, pref_size
+		method_call view, pref_size, {r0}, {r10, r11}
 		vp_pop r1
 		vp_cpy [r1 + local_x], r8
 		vp_cpy [r1 + local_y], r9

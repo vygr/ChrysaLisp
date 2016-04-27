@@ -10,7 +10,7 @@
 		;r1 = 0 if error, else ok
 
 		;init parent
-		super_call button, init
+		super_call button, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			;init myself
 			vp_cpy_cl 0, [r0 + button_state]

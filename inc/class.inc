@@ -304,15 +304,9 @@
 		;%3 = paramaters
 		;%4 = slot num
 
-		%ifnempty %3
-			%ifempty _map_%1_out_%4
-				%fatal Class %1 method %2 outputs not defined !
-			%else
-				set_src _map_%1_out_%4
-				set_dst %3
-				map_src_to_dst
-			%endif
-		%endif
+		set_src _map_%1_out_%4
+		set_dst %3
+		map_src_to_dst
 	%endmacro
 
 	%macro static_call 2-4 {}, {}

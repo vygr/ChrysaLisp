@@ -153,14 +153,12 @@
 		static_call button, get_text, {r1}, {.string1}
 
 		vp_cpy .inst, r0
-		vp_cpy [r0 + local_display], r0
-		static_call label, get_text, {}, {.string2}
+		static_call label, get_text, {[r0 + local_display]}, {.string2}
 		static_call string, add, {.string2, .string1}
 		assert r0, !=, 0
 		vp_cpy r0, r1
 		vp_cpy .inst, r0
-		vp_cpy [r0 + local_display], r0
-		static_call label, set_text
+		static_call label, set_text, {[r0 + local_display], r1}
 		static_call label, dirty
 
 		static_call string, deref, {.string1}

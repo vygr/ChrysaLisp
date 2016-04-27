@@ -30,7 +30,7 @@
 
 	callback:
 		vp_push r1
-		method_call view, pref_size
+		method_call view, pref_size, {r0}, {r10, r11}
 		vp_pop r1
 		vp_cpy [r0 + view_parent], r2
 		vp_cpy [r2 + flow_flags], r3

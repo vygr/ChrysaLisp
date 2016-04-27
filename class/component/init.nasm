@@ -9,7 +9,7 @@
 		;r1 = 0 if error, else ok
 
 		;init parent
-		super_call component, init
+		super_call component, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			;init myself
 			vp_lea [r0 + component_slot_list], r1
