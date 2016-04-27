@@ -29,7 +29,7 @@
 			vp_cpy [r0 + text_font], r0
 			if r0, !=, 0
 				vp_add string_data, r1
-				static_call gui_font, bounds
+				static_call gui_font, bounds, {r0, r1}, {r10, r11}
 			endif
 		endif
 

@@ -21,14 +21,14 @@
 				vp_cpy [r12], r11
 				breakif r11, ==, 0
 				vp_add 8, r12
-				static_call sys_string, compare, {r12, r13}
+				static_call sys_string, compare, {r12, r13}, {r0}
 				if r0, !=, 0
 					vp_rel options_table, r0
 					vp_add r11, r0
 					vp_call r0
 					vp_jmp next_arg
 				endif
-				static_call sys_string, length, {r12}
+				static_call sys_string, length, {r12}, {r1}
 				vp_add r1, r12
 				vp_add 8, r12
 				vp_and -8, r12
@@ -50,7 +50,7 @@
 		vp_add 8, r14
 		vp_cpy [r14], r0
 		if r0, !=, 0
-			static_call sys_string, to_long, {r0, 10}
+			static_call sys_string, to_long, {r0, 10}, {r0}
 			static_bind sys_task, statics, r1
 			vp_cpy r0, [r1 + tk_statics_cpu_id]
 		endif
@@ -66,9 +66,9 @@
 		vp_add 8, r14
 		vp_cpy [r14], r0
 		if r0, !=, 0
-			static_call sys_load, bind
+			static_call sys_load, bind, {r0}, {r0}
 			if r0, !=, 0
-				static_call sys_task, start
+				static_call sys_task, start, {r0}, {r0, r1}
 			endif
 		endif
 		vp_ret
@@ -97,9 +97,9 @@
 			vp_cpy r6, [r0 + (ml_msg_dest + 8)]
 
 			;fill in paramaters and set length
-			static_call sys_string, copy, {$link_path, &[r7 + ml_msg_data]}
+			static_call sys_string, copy, {$link_path, &[r7 + ml_msg_data]}, {r0, r1}
 			vp_dec r1
-			static_call sys_string, copy, {[r14], r1}
+			static_call sys_string, copy, {[r14], r1}, {r0, r1}
 			vp_sub r7, r1
 			vp_cpy r1, [r7 + ml_msg_length]
 

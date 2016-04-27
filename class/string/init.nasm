@@ -23,7 +23,7 @@
 		map_src_to_dst
 
 		;init parent
-		super_call string, init
+		super_call string, init, {}, {r1}
 		if r1, !=, 0
 			vp_cpy r0, .inst
 
@@ -31,7 +31,7 @@
 			vp_cpy .length, r2
 			vp_cpy r2, [r0 + string_length]
 			vp_inc r2
-			static_call sys_mem, copy, {.data, &[r0 + string_data], r2}
+			static_call sys_mem, copy, {.data, &[r0 + string_data], r2}, {r0, r1}
 
 			vp_cpy .inst, r0
 		endif

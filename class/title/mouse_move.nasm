@@ -35,10 +35,7 @@
 
 		;get new window position
 		vp_cpy .inst, r0
-		vp_cpy .window, r1
-		vp_cpy [r0 + title_last_x], r8
-		vp_cpy [r0 + title_last_y], r9
-		static_call title, get_relative
+		static_call title, get_relative, {r0, .window, [r0 + title_last_x], [r0 + title_last_y]}, {r8, r9}
 		vp_cpy .event, r1
 		vp_sub [r1 + ev_data_x], r8
 		vp_sub [r1 + ev_data_y], r9

@@ -24,7 +24,7 @@
 			assert r0, !=, 0
 
 			;fill in destination, reply, function and user
-			static_call sys_cpu, id
+			static_call sys_cpu, id, {}, {r0}
 			vp_cpy_cl 0, [r3 + ml_msg_dest]
 			vp_cpy r0, [r3 + ml_msg_dest + 8]
 			vp_cpy r4, [r3 + kn_data_kernel_reply]
@@ -51,7 +51,7 @@
 
 		;wait for all replies
 		loop_start
-			static_call sys_mail, read, {r4}
+			static_call sys_mail, read, {r4}, {r0}
 
 			;save reply mailbox ID in user address
 			vp_cpy [r0 + kn_data_task_child_reply_user], r6

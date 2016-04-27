@@ -17,17 +17,17 @@
 
 			;init myself
 			;add my flow
-			static_call flow, create
+			static_call flow, create, {}, {r0}
 			assert r0, !=, 0
 			static_call flow, set_flags, {r0, 0}
 			static_call flow, set_flow_flags, {r0, flow_flag_right | flow_flag_align_vcenter}
 			static_call flow, set_color, {r0, 0}
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + label_flow]
-			static_call flow, add
+			static_call flow, add, {r0, r1}
 
 			;add my text
-			static_call text, create
+			static_call text, create, {}, {r0}
 			assert r0, !=, 0
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + label_text]

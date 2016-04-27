@@ -26,7 +26,7 @@
 			assert r0, !=, 0
 
 			;fill in destination, reply and function
-			static_call sys_cpu, id
+			static_call sys_cpu, id, {}, {r0}
 			vp_cpy_cl 0, [r3 + ml_msg_dest]
 			vp_cpy r8, [r3 + ml_msg_dest + 8]
 			vp_cpy r4, [r3 + kn_data_kernel_reply]
@@ -35,7 +35,7 @@
 			vp_cpy_cl kn_call_task_open, [r3 + kn_data_kernel_function]
 
 			;copy task name
-			static_call sys_string, copy, {r5, &[r3 + kn_data_task_open_pathname]}
+			static_call sys_string, copy, {r5, &[r3 + kn_data_task_open_pathname]}, {r0, r1}
 
 			;fill in total message length
 			vp_sub r3, r1
@@ -52,7 +52,7 @@
 		;wait for all replies
 		vp_xor r8, r8
 		loop_start
-			static_call sys_mail, read, {r4}
+			static_call sys_mail, read, {r4}, {r0}
 
 			;save reply mailbox ID
 			vp_cpy [r0 + kn_data_task_open_reply_user], r6
@@ -62,7 +62,7 @@
 			vp_cpy r3, [r6 + 8]
 
 			;free reply mail
-			static_call sys_mem, free
+			static_call sys_mem, free, {r0}
 
 			;next mailbox
 			vp_inc r8

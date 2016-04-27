@@ -7,7 +7,7 @@
 		;trashes
 		;r1-r2
 
-		static_call sys_task, mailbox
-		static_jmp sys_mail, read
+		static_call sys_task, mailbox, {}, {r0, r1}
+		static_jmp sys_mail, read, {r0}, {r0}
 
 	fn_function_end

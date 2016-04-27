@@ -14,7 +14,7 @@
 
 		;destroy if 0
 		if r1, ==, 0
-			static_call ref, destroy
+			static_call ref, destroy, {r0}
 		endif
 		vp_ret
 

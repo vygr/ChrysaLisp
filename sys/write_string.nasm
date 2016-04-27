@@ -10,7 +10,7 @@
 		;r1-r3
 
 		vp_cpy r1, r3
-		static_call sys_string, length
+		static_call sys_string, length, {r0}, {r1}
 		sys_write_string r3, r0, r1
 		vp_ret
 

@@ -9,7 +9,7 @@
 		;r1-r3
 
 		;allocate new progress object
-		static_call sys_mem, alloc, {progress_size}
+		static_call sys_mem, alloc, {progress_size}, {r0, r1}
 		if r0, !=, 0
 			;clear object memory
 			vp_cpy r0, r3

@@ -26,7 +26,7 @@
 
 		if r2, !=, 0
 			;fill middle
-			static_call view, get_color
+			static_call view, get_color, {r0}, {r1}
 			static_call gui_ctx, set_color, {.ctx, r1}
 
 			vp_cpy .depth,r12
@@ -44,7 +44,7 @@
 		vp_cpy .depth,r12
 		if r12, >, 0
 			;brighter colour
-			static_call view, get_color, {.inst}
+			static_call view, get_color, {.inst}, {r1}
 			vp_cpy r1, r2
 			vp_cpy 0xff000000, r3
 			vp_and r3, r1
@@ -65,7 +65,7 @@
 			static_call gui_ctx, filled_box, {.ctx, 0, r12, r12, r11}
 
 			;darker colour
-			static_call view, get_color, {.inst}
+			static_call view, get_color, {.inst}, {r1}
 			vp_cpy r1, r2
 			vp_cpy 0xff000000, r3
 			vp_and r3, r1
@@ -99,7 +99,7 @@
 			vp_cpy r12, .depth
 
 			;darker colour
-			static_call view, get_color, {.inst}
+			static_call view, get_color, {.inst}, {r1}
 			vp_cpy r1, r2
 			vp_cpy 0xff000000, r3
 			vp_and r3, r1
@@ -120,7 +120,7 @@
 			static_call gui_ctx, filled_box, {.ctx, 0, r12, r12, r11}
 
 			;brighter colour
-			static_call view, get_color, {.inst}
+			static_call view, get_color, {.inst}, {r1}
 			vp_cpy r1, r2
 			vp_cpy 0xff000000, r3
 			vp_and r3, r1

@@ -10,12 +10,12 @@
 
 		loop_start
 			;read mail command
-			static_call sys_mail, mymail
+			static_call sys_mail, mymail, {}, {r0}
 
 			vp_cpy [r0 + sample_mail_command], r1
 			if r1, ==, 0
 				;exit command
-				static_call sys_mem, free
+				static_call sys_mem, free, {r0}
 				vp_ret
 			else
 				;sample command

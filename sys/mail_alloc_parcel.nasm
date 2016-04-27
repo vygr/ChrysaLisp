@@ -11,7 +11,7 @@
 
 		vp_add ml_msg_data, r0
 		vp_cpy r0, r5
-		static_call sys_mem, alloc
+		static_call sys_mem, alloc, {r0}, {r0, r1}
 		assert r0, !=, 0
 		vp_cpy r5, [r0 + ml_msg_length]
 		vp_cpy_cl 0, [r0 + ml_msg_parcel_size]

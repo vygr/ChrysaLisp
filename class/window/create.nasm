@@ -8,11 +8,11 @@
 		;r1-r3
 
 		;create new window object
-		static_call window, new
+		static_call window, new, {}, {r0}
 		if r0, !=, 0
 			;init the object
 			slot_function class, window
-			static_call window, init, {r0, @_function_}
+			static_call window, init, {r0, @_function_}, {r1}
 			if r1, ==, 0
 				;error with init
 				method_call window, delete, {r0}, {}, r1

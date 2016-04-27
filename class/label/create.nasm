@@ -8,11 +8,11 @@
 		;r1-r3
 
 		;create new label object
-		static_call label, new
+		static_call label, new, {}, {r0}
 		if r0, !=, 0
 			;init the object
 			slot_function class, label
-			static_call label, init, {r0, @_function_}
+			static_call label, init, {r0, @_function_}, {r1}
 			if r1, ==, 0
 				;error with init
 				method_call label, delete, {r0}, {}, r1

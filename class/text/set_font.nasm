@@ -21,7 +21,7 @@
 		map_src_to_dst
 
 		;open font
-		static_call gui_font, open, {r1, r2}
+		static_call gui_font, open, {r1, r2}, {r0}
 
 		vp_cpy .inst, r1
 		vp_cpy r0, [r1 + text_font]

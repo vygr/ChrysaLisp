@@ -12,7 +12,7 @@
 		;trashes
 		;r1-r3, r5-r6
 
-		static_call gui_font, text
+		static_call gui_font, text, {r0, r1}, {r0}
 		if r0, ==, 0
 			vp_xor r10, r10
 			vp_xor r11, r11

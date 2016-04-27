@@ -7,8 +7,8 @@
 		;trashes
 		;all but r4
 
-		method_call obj, deinit
-		method_call obj, delete
+		method_call obj, deinit, {r0}
+		method_call obj, delete, {r0}
 		vp_ret
 
 	fn_function_end

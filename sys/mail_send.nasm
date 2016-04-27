@@ -9,7 +9,7 @@
 
 		;on or off chip ?
 		vp_cpy r0, r2
-		static_call sys_cpu, id
+		static_call sys_cpu, id, {}, {r0}
 		if r0, ==, [r2 + (ml_msg_dest + 8)]
 			;on this chip
 			vp_cpy [r2 + ml_msg_parcel_size], r1

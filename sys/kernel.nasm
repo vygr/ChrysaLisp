@@ -32,7 +32,7 @@
 		static_call gui_font, init
 
 		;start kernel task
-		static_call sys_task, start
+		static_call sys_task, start, {r0}, {r0, r1}
 		static_bind sys_task, statics, r2
 		vp_cpy r0, [r2 + tk_statics_current_tcb]
 		vp_cpy r0, [r2 + tk_statics_kernel_tcb]
@@ -44,7 +44,7 @@
 		static_call sys_cpu, opts, {[r4]}
 
 		;fill in num cpu's with at least mine + 1
-		static_call sys_cpu, id
+		static_call sys_cpu, id, {}, {r0}
 		vp_inc r0
 		static_bind sys_task, statics, r1
 		vp_cpy r0, [r1 + tk_statics_cpu_total]
@@ -67,8 +67,8 @@
 			;service all kernel mail
 			loop_start
 				;check if any mail
-				static_call sys_task, mailbox
-				static_call sys_mail, try_read
+				static_call sys_task, mailbox, {}, {r0, r1}
+				static_call sys_mail, try_read, {r0}, {r0}
 				breakif r0, ==, 0
 				vp_cpy r0, r15
 
@@ -84,9 +84,9 @@
 					vp_cpy r2, [r15 + (ml_msg_dest + 8)]
 
 					;open single task and return mailbox ID
-					static_call sys_load, bind, {&[r15 + kn_data_task_open_pathname]}
-					static_call sys_task, start
-					static_call sys_cpu, id
+					static_call sys_load, bind, {&[r15 + kn_data_task_open_pathname]}, {r0}
+					static_call sys_task, start, {r0}, {r0, r1}
+					static_call sys_cpu, id, {}, {r0}
 					vp_cpy r1, [r15 + kn_data_task_open_reply_mailboxid]
 					vp_cpy r0, [r15 + kn_data_task_open_reply_mailboxid + 8]
 					vp_cpy_cl kn_data_task_open_reply_size, [r15 + ml_msg_length]
@@ -190,7 +190,7 @@
 					loop_list_forward r13 + lk_statics_links_list, r12, r13
 						vp_cpy [r12 + lk_node_cpu_id], r11
 						continueif r11, ==, r14
-						static_call sys_mail, alloc
+						static_call sys_mail, alloc, {}, {r0}
 						assert r0, !=, 0
 						vp_cpy r0, r5
 						vp_cpy r0, r1
@@ -198,7 +198,7 @@
 						vp_cpy [r15 + ml_msg_length], r2
 						vp_add 7, r2
 						vp_and -8, r2
-						static_call sys_mem, copy
+						static_call sys_mem, copy, {r0, r1, r2}, {r0, r1}
 						vp_cpy r11, [r5 + ml_msg_dest + 8]
 						static_call sys_mail, send, {r5}
 					loop_end
@@ -224,7 +224,7 @@
 			loop_end
 
 			;get time
-			static_call sys_cpu, time
+			static_call sys_cpu, time, {}, {r0}
 
 			;start any tasks ready to restart
 			static_bind sys_task, statics, r3

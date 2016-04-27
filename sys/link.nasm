@@ -52,7 +52,7 @@
 		vp_mul 10, r2
 		vp_add r0, r2
 		vp_add r3, r2
-		static_call sys_cpu, id
+		static_call sys_cpu, id, {}, {r0}
 		if r1, ==, r0
 			vp_cpy r2, r1
 			vp_cpy lk_buffer_chan_1, r10
@@ -67,7 +67,7 @@
 		;send link routing message to neighbor kernel
 		vp_cpy r0, r8
 		vp_cpy r1, r9
-		static_call sys_mail, alloc
+		static_call sys_mail, alloc, {}, {r0}
 		assert r0, !=, 0
 		vp_xor r1, r1
 		vp_cpy r1, [r0 + ml_msg_dest]
@@ -142,7 +142,7 @@
 					vp_cpy [r9 + ml_msg_length], r2
 					vp_add 7, r2
 					vp_and -8, r2
-					static_call sys_mem, copy, {r9, r1, r2}
+					static_call sys_mem, copy, {r9, r1, r2}, {r0, r1}
 
 					;free message
 					static_call sys_mem, free, {r9}
@@ -159,7 +159,7 @@
 			if r0, ==, lk_chan_status_busy
 				;allocate msg, copy over data
 				;round up to next 8 byte boundary for speed
-				static_call sys_mail, alloc
+				static_call sys_mail, alloc, {}, {r0}
 				assert r0, !=, 0
 				vp_cpy r0, r8
 				vp_cpy r0, r1
@@ -167,7 +167,7 @@
 				vp_cpy [r0 + ml_msg_length], r2
 				vp_add 7, r2
 				vp_and -8, r2
-				static_call sys_mem, copy
+				static_call sys_mem, copy, {r0, r1, r2}, {r0, r1}
 
 				;send onwards
 				static_call sys_mail, send, {r8}

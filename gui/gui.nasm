@@ -10,7 +10,7 @@
 		static_call sys_task, callback, {$kernel_callback, r1}
 
 		;allocate background view
-		static_call label, create
+		static_call label, create, {}, {r0}
 
 		;set as gui screen view
 		static_bind gui_gui, statics, r1
@@ -27,9 +27,9 @@
 
 		;for now fire up the test apps
 		;this might be an gui auto run list eventually
-		static_call sys_task, start, {@tests/gui/gui1/app}
-		static_call sys_task, start, {@tests/gui/gui2/app}
-		static_call sys_task, start, {@tests/gui/gui3/app}
+		static_call sys_task, start, {@tests/gui/gui1/app}, {r0, r1}
+		static_call sys_task, start, {@tests/gui/gui2/app}, {r0, r1}
+		static_call sys_task, start, {@tests/gui/gui3/app}, {r0, r1}
 
 		;gui event loop
 		loop_start
@@ -64,14 +64,14 @@
 				;do we need to wait till button goes up ?
 				if r6, !=, -1
 					;lookup view owner
-					static_call view, find_owner, {r6}
+					static_call view, find_owner, {r6}, {r1}
 					if r1, !=, 0
 						;save owner mailbox
 						static_call sys_cpu, id, {}, {r15}
 						vp_lea [r1 + tk_node_mailbox], r14
 
 						;allocate mail message
-						static_call sys_mail, alloc
+						static_call sys_mail, alloc, {}, {r0}
 						assert r0, !=, 0
 
 						;fill in data
@@ -104,7 +104,7 @@
 					;find view
 					static_call view, hit_tree, {[r5 + gui_statics_screen], \
 												[r5 + gui_statics_x_pos], \
-												[r5 + gui_statics_y_pos]}
+												[r5 + gui_statics_y_pos]}, {r1, r8, r9}
 					if r1, ==, [r5 + gui_statics_screen]
 						vp_xor r1, r1
 					endif

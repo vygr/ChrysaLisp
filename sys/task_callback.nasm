@@ -29,7 +29,7 @@
 		assert r0, !=, 0
 
 		;fill in destination, reply and function
-		static_call sys_cpu, id
+		static_call sys_cpu, id, {}, {r0}
 		vp_cpy r4, [r3 + kn_data_kernel_reply]
 		vp_cpy r0, [r3 + kn_data_kernel_reply + 8]
 		vp_cpy_cl 0, [r3 + ml_msg_dest]
@@ -41,10 +41,10 @@
 
 		;send mail to kernel then wait for reply
 		static_call sys_mail, send, {r3}
-		static_call sys_mail, read, {r4}
+		static_call sys_mail, read, {r4}, {r0}
 
 		;free reply mail and temp mailbox
 		ml_temp_destroy
-		static_jmp sys_mem, free
+		static_jmp sys_mem, free, {r0}
 
 	fn_function_end

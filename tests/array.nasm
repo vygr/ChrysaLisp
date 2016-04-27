@@ -18,7 +18,7 @@
 
 		;send exit messages etc
 		for r13, 0, ARRAY_SIZE, 1
-			static_call sys_mail, alloc
+			static_call sys_mail, alloc, {}, {r0}
 			assert r0, !=, 0
 			vp_cpy r13, r3
 			vp_mul mailbox_id_size, r3

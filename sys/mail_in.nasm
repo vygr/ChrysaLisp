@@ -19,7 +19,7 @@
 				;new parcel
 				vp_cpy [r15 + ml_msg_parcel_size], r12
 				vp_cpy [r15 + ml_msg_dest + 8], r14
-				static_call sys_mem, alloc, {r12}
+				static_call sys_mem, alloc, {r12}, {r0, r1}
 				assert r0, !=, 0
 				vp_cpy r12, [r0 + ml_msg_length]
 				vp_cpy r13, [r0 + ml_msg_dest]
@@ -51,7 +51,7 @@
 			;copy fragment data, round up for speed
 			vp_add 7, r2
 			vp_and -8, r2
-			static_call sys_mem, copy
+			static_call sys_mem, copy, {r0, r1, r2}, {r0, r1}
 
 			;got all needed ?
 			if r13, ==, [r14 + ml_msg_length]

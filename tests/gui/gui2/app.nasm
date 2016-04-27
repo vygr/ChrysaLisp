@@ -25,17 +25,17 @@
 		;init app vars
 		vp_sub local_size, r4
 		slot_function class, obj
-		static_call obj, init, {r4, @_function_}
+		static_call obj, init, {r4, @_function_}, {r1}
 		assert r1, !=, 0
 
 		;create my window
 		static_call window, create, {}, {.window}
 		assert r0, !=, 0
 		static_call window, get_panel, {r0}, {.window_panel}
-		static_call string, create, {"Test Runner"}
+		static_call string, create, {"Test Runner"}, {r0}
 		assert r0, !=, 0
 		static_call window, set_title, {.window, r0}
-		static_call string, create, {"Status Text"}
+		static_call string, create, {"Status Text"}, {r0}
 		assert r0, !=, 0
 		static_call window, set_status, {.window, r0}
 
@@ -57,23 +57,23 @@
 			static_call button, create, {}, {.button}
 			assert r0, !=, 0
 			static_call button, set_color, {r0, 0xffffff00}
-			static_call string, create, {.next}
+			static_call string, create, {.next}, {r0}
 			assert r0, !=, 0
 			static_call button, set_text, {.button, r0}
 			static_call button, add, {r0, .panel}
 			static_call button, connect, {r0, &[r0 + button_pressed_signal], r4, $on_press}
 
-			static_call sys_string, length, {.next}
+			static_call sys_string, length, {.next}, {r1}
 			vp_lea [r0 + r1 + 1], r0
 		loop_end
 
 		;set to pref size
-		method_call window, pref_size, {.window}
+		method_call window, pref_size, {.window}, {r10, r11}
 		vp_add 64, r10
 		static_call window, change, {r0, 400, 256, r10, r11}
 
 		;set window owner
-		static_call sys_task, tcb
+		static_call sys_task, tcb, {}, {r0}
 		static_call window, set_owner, {.window, r0}
 
 		;add to screen and dirty
@@ -103,7 +103,7 @@
 		;r0 = app local object
 		;r1 = button object
 
-		static_call button, get_text, {r1}
+		static_call button, get_text, {r1}, {r1}
 		static_jmp sys_task, open_child, {&[r1 + string_data]}
 
 	launch_list:

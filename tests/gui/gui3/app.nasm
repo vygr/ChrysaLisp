@@ -32,7 +32,7 @@
 		;init app vars
 		vp_sub local_size, r4
 		slot_function class, obj
-		static_call obj, init, {r4, @_function_}
+		static_call obj, init, {r4, @_function_}, {r1}
 		assert r1, !=, 0
 		vp_xor r0, r0
 		vp_cpy r0, .accum
@@ -42,10 +42,10 @@
 		static_call window, create, {}, {.window}
 		assert r0, !=, 0
 		static_call window, get_panel, {r0}, {.window_panel}
-		static_call string, create, {"Calculator"}
+		static_call string, create, {"Calculator"}, {r0}
 		assert r0, !=, 0
 		static_call window, set_title, {.window, r0}
-		static_call string, create, {"Status Text"}
+		static_call string, create, {"Status Text"}, {r0}
 		assert r0, !=, 0
 		static_call window, set_status, {.window, r0}
 
@@ -62,7 +62,7 @@
 		static_call label, set_color, {r0, -1}
 		static_call label, set_flow_flags, {r0, flow_flag_align_hright | flow_flag_align_vcenter}
 		static_call label, set_font, {r0, "fonts/OpenSans-Regular.ttf", 24}
-		static_call string, create, {"0"}
+		static_call string, create, {"0"}, {r0}
 		assert r0, !=, 0
 		static_call label, set_text, {.display, r0}
 		static_call label, add, {r0, .flow_panel}
@@ -85,7 +85,7 @@
 			static_call button, create, {}, {.button}
 			assert r0, !=, 0
 			static_call button, set_color, {r0, 0xffffff00}
-			static_call string, create, {.next}
+			static_call string, create, {.next}, {r0}
 			assert r0, !=, 0
 			static_call button, set_text, {.button, r0}
 			static_call button, set_flow_flags, {r0, flow_flag_align_hcenter | flow_flag_align_vcenter}
@@ -97,7 +97,7 @@
 		loop_end
 
 		;set to pref size
-		method_call window, pref_size, {.window}
+		method_call window, pref_size, {.window}, {r10, r11}
 		vp_cpy r10, r12
 		vp_cpy r11, r13
 		vp_shr 1, r12
@@ -107,7 +107,7 @@
 		static_call window, change, {r0, 920, 48, r10, r11}
 
 		;set window owner
-		static_call sys_task, tcb
+		static_call sys_task, tcb, {}, {r0}
 		static_call window, set_owner, {.window, r0}
 
 		;add to screen and dirty
@@ -154,7 +154,7 @@
 
 		vp_cpy .inst, r0
 		static_call label, get_text, {[r0 + local_display]}, {.string2}
-		static_call string, add, {.string2, .string1}
+		static_call string, add, {.string2, .string1}, {r0}
 		assert r0, !=, 0
 		vp_cpy r0, r1
 		vp_cpy .inst, r0

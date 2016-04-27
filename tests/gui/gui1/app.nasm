@@ -35,10 +35,10 @@
 		static_call window, create, {}, {.window}
 		assert r0, !=, 0
 		static_call window, get_panel, {r0}, {.window_panel}
-		static_call string, create, {"Network Task Monitor"}
+		static_call string, create, {"Network Task Monitor"}, {r0}
 		assert r0, !=, 0
 		static_call window, set_title, {.window, r0}
-		static_call string, create, {"Status Text"}
+		static_call string, create, {"Status Text"}, {r0}
 		assert r0, !=, 0
 		static_call window, set_status, {.window, r0}
 
@@ -59,7 +59,7 @@
 		vp_xor r1, r1
 		vp_cpy r1, .cpu_count
 		loop_start
-			static_call progress, create
+			static_call progress, create, {}, {r0}
 			assert r0, !=, 0
 			static_call progress, set_max, {r0, 48}
 			static_call progress, set_color, {r0, 0xff00ff00}
@@ -75,11 +75,11 @@
 		loop_until r1, ==, .cpu_total
 
 		;set to pref size
-		method_call window, pref_size, {.window}
+		method_call window, pref_size, {.window}, {r10, r11}
 		static_call window, change, {r0, 32, 32, r10, r11}
 
 		;set owner
-		static_call sys_task, tcb
+		static_call sys_task, tcb, {}, {r0}
 		static_call window, set_owner, {.window, r0}
 
 		;add to screen and dirty
@@ -144,7 +144,7 @@
 			endif
 
 			;select on 2 mailboxes
-			static_call sys_mail, select, {&.select1, 2}
+			static_call sys_mail, select, {&.select1, 2}, {r0}
 
 			;which mailbox has mail ?
 			if r0, ==, .select1
@@ -185,7 +185,7 @@
 		;send out exit commands
 		vp_xor r5, r5
 		loop_start
-			static_call sys_mail, alloc
+			static_call sys_mail, alloc, {}, {r0}
 			assert r0, !=, 0
 			vp_cpy_cl 0, [r0 + sample_mail_command]
 			vp_cpy_cl sample_mail_size, [r0 + ml_msg_length]

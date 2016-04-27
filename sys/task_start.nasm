@@ -21,7 +21,7 @@
 
 		;create new task control block and task
 		vp_add tk_statics_task_heap, r0
-		static_call sys_heap, alloc
+		static_call sys_heap, alloc, {r0}, {r1}
 		vp_cpy r1, r0
 
 		;initialise task mailbox etc

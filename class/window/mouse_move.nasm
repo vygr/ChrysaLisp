@@ -26,7 +26,7 @@
 		static_call window, dirty
 
 		;get smallest size
-		method_call window, pref_size
+		method_call window, pref_size, {r0}, {r10, r11}
 		vp_cpy r10, r12
 		vp_cpy r11, r13
 

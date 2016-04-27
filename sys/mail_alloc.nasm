@@ -9,7 +9,7 @@
 
 		static_bind sys_mail, statics, r0
 		vp_add ml_statics_heap, r0
-		static_call sys_heap, alloc
+		static_call sys_heap, alloc, {r0}, {r1}
 		vp_cpy r0, [r1]
 		vp_lea [r1 + 8], r0
 		vp_cpy_cl ml_msg_data, [r0 + ml_msg_length]

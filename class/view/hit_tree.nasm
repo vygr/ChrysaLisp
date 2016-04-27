@@ -45,7 +45,7 @@
 
 	hit_up_callback:
 		vp_cpy r1, r2
-		method_call view, hit
+		method_call view, hit, {r0, r8, r9}, {r1}
 		if r1, !=, 0
 			;early exit back to caller !
 			vp_cpy r2, r4

@@ -35,7 +35,7 @@
 		loop_flist_forward r5 + ft_statics_text_list, r5, r5
 			vp_cpy .font, r0
 			continueif r0, !=, [r5 + ft_text_font]
-			static_call sys_string, compare, {&[r5 + ft_text_name], .text}
+			static_call sys_string, compare, {&[r5 + ft_text_name], .text}, {r0}
 		loop_until r0, !=, 0
 
 		;did we find it ?
@@ -86,7 +86,7 @@
 				vp_cpy [r14 + local_font], r0
 				vp_cpy r0, [r13 + ft_text_font]
 				vp_cpy r5, [r13 + ft_text_texture]
-				static_call sys_string, copy, {[r14 + local_text], &[r13 + ft_text_name]}
+				static_call sys_string, copy, {[r14 + local_text], &[r13 + ft_text_name]}, {r0, r1}
 
 				;fill in width and height
 				vp_cpy [r14 + local_width], r10

@@ -12,7 +12,7 @@
 		;r1 = 0 if error, else ok
 
 		;init parent
-		super_call window, init
+		super_call window, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			vp_push r0
 
@@ -20,7 +20,7 @@
 			static_call window, set_color, {r0, 0xffc0c0c0}
 
 			;add my flow panel
-			static_call flow, create
+			static_call flow, create, {}, {r0}
 			assert r0, !=, 0
 			static_call flow, set_flow_flags, {r0, flow_flag_down | flow_flag_fillw | flow_flag_lasth}
 			static_call flow, set_color, {r0, -1}
@@ -29,7 +29,7 @@
 			static_call flow, add
 
 			;add my title
-			static_call title, create
+			static_call title, create, {}, {r0}
 			assert r0, !=, 0
 			static_call title, set_color, {r0, 0xffc0c0c0}
 			vp_cpy [r4], r1
@@ -37,7 +37,7 @@
 			static_call title, add, {r0, [r1 + window_flow]}
 
 			;add my status panel
-			static_call flow, create
+			static_call flow, create, {}, {r0}
 			assert r0, !=, 0
 			static_call flow, set_flow_flags, {r0, flow_flag_up | flow_flag_fillw | flow_flag_lasth}
 			static_call flow, set_color, {r0, -1}
@@ -46,7 +46,7 @@
 			static_call flow, add, {r0, [r1 + window_flow]}
 
 			;add my status label
-			static_call label, create
+			static_call label, create, {}, {r0}
 			assert r0, !=, 0
 			static_call label, set_color, {r0, 0xff808080}
 			vp_cpy [r4], r1
