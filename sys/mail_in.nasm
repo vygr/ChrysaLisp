@@ -19,7 +19,7 @@
 				;new parcel
 				vp_cpy [r15 + ml_msg_parcel_size], r12
 				vp_cpy [r15 + ml_msg_dest + 8], r14
-				static_call sys_mem, alloc, {r12}, {r0, r1}
+				static_call sys_mem, alloc, {r12}, {r0, _}
 				assert r0, !=, 0
 				vp_cpy r12, [r0 + ml_msg_length]
 				vp_cpy r13, [r0 + ml_msg_dest]

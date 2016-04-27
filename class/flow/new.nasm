@@ -9,7 +9,7 @@
 		;r1-r3
 
 		;allocate new flow object
-		static_call sys_mem, alloc, {flow_size}, {r0, r1}
+		static_call sys_mem, alloc, {flow_size}, {r0, _}
 		if r0, !=, 0
 			;clear object memory
 			vp_cpy r0, r3

@@ -180,6 +180,28 @@
 		%xdefine _dst_%1 %%d
 	%endmacro
 
+	%macro map_remove_ignored 0
+		%assign %%i 0
+		%assign %%j 0
+		%rep _dst_total
+			%ifnidn _dst_%[%%j], _
+				%ifnidn _src_%[%%j], _dst_%[%%j]
+					%if %%i != %%j
+						%xdefine _src_%[%%i] _src_%[%%j]
+						%xdefine _dst_%[%%i] _dst_%[%%j]
+					%endif
+					%assign %%i %%i + 1
+				%endif
+			%endif
+			%assign %%j %%j + 1
+			%if %%j = _dst_total
+				%exitrep
+			%endif
+		%endrep
+		%assign _src_total %%i
+		%assign _dst_total %%i
+	%endmacro
+
 	%macro sub_string 2
 		;%1 = param to find
 		;%2 = param to search
@@ -247,6 +269,7 @@
 		%if _dst_total != _src_total
 			%fatal Mismatching number of src/dst paramaters !
 		%else
+			map_remove_ignored
 			map_sort
 			%assign %%i 0
 			%rep _src_total

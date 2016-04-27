@@ -9,7 +9,7 @@
 		;r1-r3
 
 		;allocate new grid object
-		static_call sys_mem, alloc, {grid_size}, {r0, r1}
+		static_call sys_mem, alloc, {grid_size}, {r0, _}
 		if r0, !=, 0
 			;clear object memory
 			vp_cpy r0, r3
