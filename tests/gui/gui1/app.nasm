@@ -52,7 +52,7 @@
 		;allocate array for progress bars
 		static_call sys_cpu, total, {}, {.cpu_total}
 		vp_mul 8, r0
-		static_call sys_mem, alloc, {r0}, {.task_progress, r1}
+		static_call sys_mem, alloc, {r0}, {.task_progress, _}
 		assert r0, !=, 0
 
 		;add num cpus progress bars to my app panel
@@ -89,7 +89,7 @@
 		;allocate array for child mailbox ID's
 		vp_cpy .cpu_total, r0
 		vp_mul mailbox_id_size, r0
-		static_call sys_mem, alloc, {r0}, {.task_mailboxes, r1}
+		static_call sys_mem, alloc, {r0}, {.task_mailboxes, _}
 		assert r0, !=, 0
 
 		;open global farm

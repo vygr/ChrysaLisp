@@ -75,7 +75,7 @@
 			if r0, !=, 0
 				vp_cpy r0, r5
 				static_call sys_string, length, {[r14 + local_font]}, {r1}
-				static_call sys_mem, alloc, {&[r1 + ft_font_size + 1]}, {r13, r1}
+				static_call sys_mem, alloc, {&[r1 + ft_font_size + 1]}, {r13, _}
 				assert r0, !=, 0
 
 				vp_cpy [r14 + local_points], r0

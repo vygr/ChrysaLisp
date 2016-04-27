@@ -12,17 +12,15 @@
 		;all but r0, r4
 
 		;save old info
-		vp_cpy [r0 + view_x], r12
-		vp_cpy [r0 + view_y], r13
-		vp_cpy [r0 + view_w], r14
-		vp_cpy [r0 + view_h], r15
+		vp_cpy [r0 + view_w], r12
+		vp_cpy [r0 + view_h], r13
 
 		;set new info
 		static_call view, set_bounds, {r0, r8, r9, r10, r11}
 
 		;layout if changed size
-		if r10, ==, r14
-			if r11, ==, r15
+		if r10, ==, r12
+			if r11, ==, r13
 				vp_ret
 			endif
 		endif

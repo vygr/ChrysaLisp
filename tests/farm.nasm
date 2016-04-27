@@ -10,7 +10,7 @@
 	fn_function tests/farm
 
 		;allocate temp array for mailbox ID's
-		static_call sys_mem, alloc, {mailbox_id_size * FARM_SIZE}, {r14, r1}
+		static_call sys_mem, alloc, {mailbox_id_size * FARM_SIZE}, {r14, _}
 		assert r0, !=, 0
 
 		;open farm, off chip
