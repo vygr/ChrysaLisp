@@ -15,7 +15,7 @@
 			static_call button, init, {r0, @_function_}, {r1}
 			if r1, ==, 0
 				;error with init
-				method_call button, delete, {}, {}, r1
+				method_call button, delete, {r0}, {}, r1
 				vp_xor r0, r0
 			endif
 		endif

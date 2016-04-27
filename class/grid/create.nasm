@@ -15,7 +15,7 @@
 			static_call grid, init, {r0, @_function_}, {r1}
 			if r1, ==, 0
 				;error with init
-				method_call grid, delete, {}, {}, r1
+				method_call grid, delete, {r0}, {}, r1
 				vp_xor r0, r0
 			endif
 		endif

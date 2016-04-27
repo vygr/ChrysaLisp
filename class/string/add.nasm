@@ -29,7 +29,7 @@
 			static_call string, init1, {r0, @_function_, r6, r7}
 			if r1, ==, 0
 				;error with init
-				method_call string, delete, {}, {}, r1
+				method_call string, delete, {r0}, {}, r1
 				vp_xor r0, r0
 			endif
 		endif

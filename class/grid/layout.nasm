@@ -59,6 +59,6 @@
 		vp_cpy [r1 + local_count], r2
 		vp_inc r2
 		vp_cpy r2, [r1 + local_count]
-		static_jmp view, change
+		static_jmp view, change, {r0, r8, r9, r10, r11}
 
 	fn_function_end

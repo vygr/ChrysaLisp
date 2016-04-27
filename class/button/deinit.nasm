@@ -11,6 +11,6 @@
 		static_call button, disconnect_sig, {r0, &[r0 + button_pressed_signal]}
 
 		;parent deinit
-		super_jmp button, deinit
+		super_jmp button, deinit, {r0}
 
 	fn_function_end

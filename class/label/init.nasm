@@ -11,7 +11,7 @@
 		;r1 = 0 if error, else ok
 
 		;init parent
-		super_call label, init
+		super_call label, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			vp_push r0
 

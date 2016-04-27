@@ -240,7 +240,7 @@
 			vp_cpy __LINE__, r1
 			fn_string %1, r2
 			vp_pop r3
-			static_call sys_io, debug_long
+			static_call sys_io, debug_long, {r0, r1, r2, r3}
 			vp_pop r0, r1, r2, r3, r5
 		%endif
 	%endmacro
@@ -256,7 +256,7 @@
 				vp_cpy __LINE__, r1
 				fn_string %1, r2
 				fn_string '', r3
-				static_call sys_io, debug_str
+				static_call sys_io, debug_str, {r0, r1, r2, r3}
 				vp_pop r0, r1, r2, r3, r5
 			%else
 				vp_push r0, r1, r2, r3, r5, %2
@@ -264,7 +264,7 @@
 				vp_cpy __LINE__, r1
 				fn_string %1, r2
 				vp_pop r3
-				static_call sys_io, debug_str
+				static_call sys_io, debug_str, {r0, r1, r2, r3}
 				vp_pop r0, r1, r2, r3, r5
 			%endif
 		%endif

@@ -15,7 +15,7 @@
 			static_call label, init, {r0, @_function_}
 			if r1, ==, 0
 				;error with init
-				method_call label, delete, {}, {}, r1
+				method_call label, delete, {r0}, {}, r1
 				vp_xor r0, r0
 			endif
 		endif

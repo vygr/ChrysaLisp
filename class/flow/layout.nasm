@@ -173,6 +173,6 @@
 
 		vp_cpy r12, [r1 + local_x]
 		vp_cpy r13, [r1 + local_y]
-		static_jmp view, change
+		static_jmp view, change, {r0, r8, r9, r10, r11}
 
 	fn_function_end
