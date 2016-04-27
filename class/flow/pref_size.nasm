@@ -14,7 +14,7 @@
 		def_local
 			def_local_long	w
 			def_local_long	h
-		def_structure_end
+		def_local_end
 
 		vp_sub local_size, r4
 		vp_xor r1, r1
