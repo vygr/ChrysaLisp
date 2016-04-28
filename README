@@ -22,12 +22,21 @@ There is a powerful object and class system, not just for an assembler, but
 quite as capable as a high level language. Static classes or virtual classes
 with virtual, static and overridable methods can be defined. Calls are type
 checked to ensure consistency across the class hierarchy. The GUI is constructed
-using this class system.
+using this class system. A signals and slots system is provided for object
+composition.
 
 The interface to the system functions is provided as a set of static classes,
 easing use and removing the need to remember static function locations, plus
 decoupling the source from changes at the system level. Look in the inc/
 directory to see the interface definitions.
+
+Register juggling for parameter passing is eliminated by having all functions
+use a defined interface and parameter source and destinations are mapped
+automatically using a topological sort. None DAG mappings are detected so the
+user can break them with a temporary if required. Operators are provided to
+simplify binding of parameters to dynamic bound functions, relative addresses,
+auto defined string pools, references and local stack frame values. Unused
+output parameters can be ignored with a _.
 
 Allows modelling of various network topologies with point to point links. Each
 cpu in the network is modelled as a separate host process, point to point links
