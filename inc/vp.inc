@@ -70,7 +70,15 @@
 
 	%macro vp_cpy 2
 		%ifnidn %1, %2
-			mov %2, %1
+			%ifnum %1
+				%if %1 = 0
+					xor %2, %2
+				%else
+					mov %2, %1
+				%endif
+			%else
+				mov %2, %1
+			%endif
 		%endif
 	%endmacro
 

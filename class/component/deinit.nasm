@@ -9,8 +9,7 @@
 		;all but r0, r4
 
 		;disconnnect all slots
-		vp_xor r1, r1
-		static_call component, disconnect_slot, {r0, r1}
+		static_call component, disconnect_slot, {r0, 0}
 
 		;deinit parent
 		super_jmp component, deinit, {r0}
