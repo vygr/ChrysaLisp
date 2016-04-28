@@ -81,7 +81,7 @@
 				vp_cpy [r14 + local_points], r0
 				vp_cpy r0, [r13 + ft_font_points]
 				vp_cpy r5, [r13 + ft_font_handle]
-				static_call sys_string, copy, {[r14 + local_font], &[r13 + ft_font_name]}, {r0, r1}
+				static_call sys_string, copy, {[r14 + local_font], &[r13 + ft_font_name]}, {_, _}
 
 				;fill in ascent, descent and height
 				ttf_font_ascent [r13 + ft_font_handle]

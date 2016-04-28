@@ -25,7 +25,7 @@
 
 			if r6, !=, 0
 				;copy over old data
-				static_call sys_mem, copy, {r5, r7, r6}, {r0, r1}
+				static_call sys_mem, copy, {r5, r7, r6}, {_, _}
 
 				;free existing
 				static_call sys_mem, free, {r5}

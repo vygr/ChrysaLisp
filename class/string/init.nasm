@@ -31,7 +31,7 @@
 			vp_cpy .length, r2
 			vp_cpy r2, [r0 + string_length]
 			vp_inc r2
-			static_call sys_mem, copy, {.data, &[r0 + string_data], r2}, {r0, r1}
+			static_call sys_mem, copy, {.data, &[r0 + string_data], r2}, {_, _}
 
 			vp_cpy .inst, r0
 		endif

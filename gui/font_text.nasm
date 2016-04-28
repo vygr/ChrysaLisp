@@ -86,7 +86,7 @@
 				vp_cpy [r14 + local_font], r0
 				vp_cpy r0, [r13 + ft_text_font]
 				vp_cpy r5, [r13 + ft_text_texture]
-				static_call sys_string, copy, {[r14 + local_text], &[r13 + ft_text_name]}, {r0, r1}
+				static_call sys_string, copy, {[r14 + local_text], &[r13 + ft_text_name]}, {_, _}
 
 				;fill in width and height
 				vp_cpy [r14 + local_width], r10

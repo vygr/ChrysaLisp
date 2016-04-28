@@ -51,7 +51,7 @@
 			;copy fragment data, round up for speed
 			vp_add 7, r2
 			vp_and -8, r2
-			static_call sys_mem, copy, {r0, r1, r2}, {r0, r1}
+			static_call sys_mem, copy, {r0, r1, r2}, {_, _}
 
 			;got all needed ?
 			if r13, ==, [r14 + ml_msg_length]

@@ -18,20 +18,6 @@
 		%endrep
 	%endmacro
 
-	%macro class_add 2
-		;%1 = dest class name
-		;%2 = source class name
-		%assign %%n 0
-		%rep _map_%2_slots_
-			def_method	_map_%2_name_%[%%n], \
-						_map_%2_slot_%[%%n], \
-						_map_%2_type_%[%%n], \
-						{_map_%2_in_%[%%n]}, \
-						{_map_%2_out_%[%%n]}
-			%assign %%n %%n + 1
-		%endrep
-	%endmacro
-
 	%macro def_class 1-2 null
 		;%1 = class name
 		;%2 = super class name
@@ -44,7 +30,15 @@
 		%assign _map_%1_slots_ 0
 		%xdefine _class_ %1
 		%xdefine _super_class_%1_ %2
-		class_add %1, %2
+		%assign %%n 0
+		%rep _map_%2_slots_
+			def_method	_map_%2_name_%[%%n], \
+						_map_%2_slot_%[%%n], \
+						_map_%2_type_%[%%n], \
+						{_map_%2_in_%[%%n]}, \
+						{_map_%2_out_%[%%n]}
+			%assign %%n %%n + 1
+		%endrep
 	%endmacro
 
 	%macro def_method 2-5 static, {}, {}

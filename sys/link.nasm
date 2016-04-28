@@ -142,7 +142,7 @@
 					vp_cpy [r9 + ml_msg_length], r2
 					vp_add 7, r2
 					vp_and -8, r2
-					static_call sys_mem, copy, {r9, r1, r2}, {r0, r1}
+					static_call sys_mem, copy, {r9, r1, r2}, {_, _}
 
 					;free message
 					static_call sys_mem, free, {r9}
@@ -167,7 +167,7 @@
 				vp_cpy [r0 + ml_msg_length], r2
 				vp_add 7, r2
 				vp_and -8, r2
-				static_call sys_mem, copy, {r0, r1, r2}, {r0, r1}
+				static_call sys_mem, copy, {r0, r1, r2}, {_, _}
 
 				;send onwards
 				static_call sys_mail, send, {r8}

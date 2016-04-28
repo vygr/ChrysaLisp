@@ -198,7 +198,7 @@
 						vp_cpy [r15 + ml_msg_length], r2
 						vp_add 7, r2
 						vp_and -8, r2
-						static_call sys_mem, copy, {r0, r1, r2}, {r0, r1}
+						static_call sys_mem, copy, {r0, r1, r2}, {_, _}
 						vp_cpy r11, [r5 + ml_msg_dest + 8]
 						static_call sys_mail, send, {r5}
 					loop_end
