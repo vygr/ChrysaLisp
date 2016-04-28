@@ -340,4 +340,55 @@
 	def_method progress, class/class_progress
 	def_method title, class/class_title
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; generic class construction
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+	%macro class_macro_class 1
+		;%1 = class name
+		fn_function class/class_%1, no_debug_enter
+			vtable_emit %1
+		fn_function_end
+	%endmacro
+
+	%macro class_macro_create 1
+		;%1 = class name
+		fn_function class/%1/create
+			;outputs
+			;r0 = 0 if error, else object
+			;trashes
+			;r1-r3
+			static_call %1, new, {}, {r0}
+			if r0, !=, 0
+				;init the object
+				slot_function class, %1
+				static_call %1, init, {r0, @_function_}, {r1}
+				if r1, ==, 0
+					;error with init
+					method_call %1, delete, {r0}, {}, r1
+					vp_xor r0, r0
+				endif
+			endif
+			vp_ret
+		fn_function_end
+	%endmacro
+
+	%macro class_macro_new 1
+		;%1 = class name
+		fn_function class/%1/new
+			;outputs
+			;r0 = 0 if error, else object
+			;trashes
+			;r1-r3
+			static_call sys_mem, alloc, {%1_size}, {r0, _}
+			if r0, !=, 0
+				;clear object memory
+				vp_cpy r0, r3
+				static_call sys_mem, clear, {r0, %1_size}
+				vp_cpy r3, r0
+			endif
+			vp_ret
+		fn_function_end
+	%endmacro
+
 %endif

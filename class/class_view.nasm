@@ -1,6 +1,4 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/class_view, no_debug_enter
-		vtable_emit view
-	fn_function_end
+	class_macro_class view
