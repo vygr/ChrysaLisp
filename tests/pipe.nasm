@@ -35,7 +35,7 @@
 
 	child_tasks:
 		%rep PIPE_SIZE
-		db 'tests/pipe_child', 0
+			db 'tests/pipe_child', 0
 		%endrep
 		db 0
 

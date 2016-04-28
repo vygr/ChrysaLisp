@@ -35,7 +35,7 @@
 
 	child_tasks:
 		%rep ARRAY_SIZE
-		db 'tests/array_child', 0
+			db 'tests/array_child', 0
 		%endrep
 		db 0
 
