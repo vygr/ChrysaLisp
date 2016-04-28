@@ -17,7 +17,6 @@
 		if r2, !=, 0
 			vp_mul -1, r3
 		endif
-		static_call button, draw_panel, {r0, r1, 1, r3}
-		vp_ret
+		static_jmp button, draw_panel, {r0, r1, 1, r3}
 
 	fn_function_end

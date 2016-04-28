@@ -17,7 +17,6 @@
 		vp_cpy r0, .inst
 
 		vp_cpy button_border_size, r8
-		vp_cpy button_border_size, r9
 		vp_cpy [r0 + view_w], r10
 		vp_cpy [r0 + view_h], r11
 		vp_sub button_border_size * 2, r10
@@ -26,9 +25,8 @@
 		vp_and button_state_pressed, r1
 		if r1, !=, 0
 			vp_add button_border_size, r8
-			vp_add button_border_size, r9
 		endif
-		static_call flow, change, {[r0 + label_flow], r8, r9, r10, r11}
+		static_call flow, change, {[r0 + label_flow], r8, r8, r10, r11}
 
 		vp_cpy .inst, r0
 		vp_add local_size, r4
