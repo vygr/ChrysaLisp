@@ -310,22 +310,28 @@
 	%macro sub_string 2
 		;%1 = param to find
 		;%2 = param to search
-		%defstr %%s1 %1
-		%defstr %%s2 %2
-		%strlen %%l1 %%s1
-		%strlen %%l2 %%s2
-		%assign _pos -1
+		%strlen %%l1 %1
+		%strlen %%l2 %2
+		%assign _pos 0
 		%if %%l1 <= %%l2
-			%assign _pos %%l2 - %%l1
-			%rep %%l2 + 1 - %%l1
-				%substr %%ss2 %%s2 _pos, %%l1
-				%ifidn %%ss2, %%s1
+			%assign _pos %%l2 + 1 - %%l1
+			%rep _pos
+				%substr %%ss2 %2 _pos, %%l1
+				%ifidn %%ss2, %1
 					%exitrep
 				%else
 					%assign _pos _pos - 1
 				%endif
 			%endrep
 		%endif
+	%endmacro
+
+	%macro sub_token 2
+		;%1 = param to find
+		;%2 = param to search
+		%defstr %%s1 %1
+		%defstr %%s2 %2
+		sub_string %%s1, %%s2
 	%endmacro
 
 	%macro find_later_src 1
@@ -335,8 +341,8 @@
 		%rep %%i - %1
 			%ifnstr _src_%[%%i]
 				%ifnnum _src_%[%%i]
-					sub_string _dst_%1, _src_%[%%i]
-					%if _pos != -1
+					sub_token _dst_%1, _src_%[%%i]
+					%if _pos != 0
 						%assign _idx %%i
 						%exitrep
 					%endif
