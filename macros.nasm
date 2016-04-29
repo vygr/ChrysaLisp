@@ -55,6 +55,11 @@
 	%endif
 %endmacro
 
+%macro push_token 1
+	%xdefine _token_%[_token_total] %1
+	%assign _token_total _token_total + 1
+%endmacro
+
 %macro set_token_list 1
 	%defstr %%s %1
 	%strlen %%l %%s
@@ -68,13 +73,11 @@
 		%if %%m = 0
 			%if _pos > 2
 				%ifnempty %%p
-					%xdefine _token_%[_token_total] %%p
-					%assign _token_total _token_total + 1
+					push_token %%p
 					%xdefine %%p
 				%endif
 				%deftok %%t %%ss
-				%xdefine _token_%[_token_total] %%t
-				%assign _token_total _token_total + 1
+				push_token %%t
 			%elif _pos = 0
 				%deftok %%t %%ss
 				%xdefine %%p %[%%p]%[%%t]
@@ -93,8 +96,7 @@
 		%assign %%i %%i + 1
 	%endrep
 	%ifnempty %%p
-		%xdefine _token_%[_token_total] %%p
-		%assign _token_total _token_total + 1
+		push_token %%p
 	%endif
 %endmacro
 
@@ -104,6 +106,11 @@
 		%warning token %%n: _token_%[%%n]
 		%assign %%n %%n + 1
 	%endrep
+%endmacro
+
+%macro push_rpn 1
+	%xdefine _rpn_%[_rpn_total] %1
+	%assign _rpn_total _rpn_total + 1
 %endmacro
 
 %macro token_to_rpn 0
@@ -121,8 +128,7 @@
 					%ifidn _op_%[%%o], (
 						%exitrep
 					%else
-						%xdefine _rpn_%[_rpn_total] _op_%[%%o]
-						%assign _rpn_total _rpn_total + 1
+						push_rpn _op_%[%%o]
 					%endif
 				%endrep
 			%else
@@ -132,8 +138,7 @@
 					%assign %%o %%o - 1
 					get_op_presidence _op_%[%%o]
 					%if %%t > _op
-						%xdefine _rpn_%[_rpn_total] _op_%[%%o]
-						%assign _rpn_total _rpn_total + 1
+						push_rpn _op_%[%%o]
 					%else
 						%assign %%o %%o + 1
 						%exitrep
@@ -143,15 +148,13 @@
 				%assign %%o %%o + 1
 			%endif
 		%else
-			%xdefine _rpn_%[_rpn_total] _token_%[%%n]
-			%assign _rpn_total _rpn_total + 1
+			push_rpn _token_%[%%n]
 		%endif
 		%assign %%n %%n + 1
 	%endrep
 	%rep %%o
 		%assign %%o %%o - 1
-		%xdefine _rpn_%[_rpn_total] _op_%[%%o]
-		%assign _rpn_total _rpn_total + 1
+		push_rpn _op_%[%%o]
 	%endrep
 %endmacro
 
