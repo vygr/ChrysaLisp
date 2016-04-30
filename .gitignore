@@ -9,6 +9,7 @@ class/button/mouse_move
 class/button/mouse_up
 class/button/new
 class/button/pref_size
+class/button/sig_pressed
 class/class_button
 class/class_component
 class/class_flow
@@ -157,6 +158,7 @@ gui/region_paste_region
 gui/region_remove_rect
 gui/region_remove_region
 gui/region_translate
+macros
 main
 sys/cpu_get_id
 sys/cpu_get_time
@@ -250,5 +252,3 @@ tests/gui/gui2/app
 tests/gui/gui3/app
 tests/pipe
 tests/pipe_child
-
-macros

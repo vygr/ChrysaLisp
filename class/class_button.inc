@@ -10,6 +10,7 @@
 	def_method create, class/button/create
 	def_method new, class/button/new
 	def_method init, class/button/init
+	def_method sig_pressed, class/button/sig_pressed, static, {r0}, {r1}
 
 	def_method pref_size, class/button/pref_size, override
 	def_method draw, class/button/draw, override
