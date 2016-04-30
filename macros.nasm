@@ -12,6 +12,6 @@ fn_function macros
 		def_local_long	ry
 	def_local_end
 
-	static_call_assign gui_region, copy_region, {.heap, .slist, .dlist, .clist, .rx * .ry / 70, .ry * 80}, {}
+	s_call gui_region, copy_region, {.heap, .slist, .dlist, .clist, .rx * .ry / 70, .ry * 80}, {}
 
 fn_function_end

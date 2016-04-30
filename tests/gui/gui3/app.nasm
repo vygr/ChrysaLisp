@@ -25,94 +25,83 @@
 			def_local_long		display
 			def_local_long		next
 			def_local_long		button
-			def_local_long		accum
 			def_local_struct	buffer, string_buf
+
+			def_local_long		owner
+			def_local_long		pressed
+			def_local_long		width
+			def_local_long		height
+			def_local_long		string
+			def_local_long		length
 		def_local_end
 
 		;init app vars
 		vp_sub local_size, r4
 		slot_function class, obj
-		static_call obj, init, {r4, @_function_}, {r1}
-		assert r1, !=, 0
-		vp_xor r0, r0
-		vp_cpy r0, .accum
-		static_call sys_string, from_long, {r0, :.buffer, 10}
+		s_call obj, init, {r4, @_function_}, {_}
+		s_call sys_string, from_long, {0, :.buffer, 10}
 
 		;create my window
-		static_call window, create, {}, {.window}
-		assert r0, !=, 0
-		static_call window, get_panel, {r0}, {.window_panel}
-		static_call string, create, {"Calculator"}, {r0}
-		assert r0, !=, 0
-		static_call window, set_title, {.window, r0}
-		static_call string, create, {"Status Text"}, {r0}
-		assert r0, !=, 0
-		static_call window, set_status, {.window, r0}
+		s_call window, create, {}, {.window}
+		s_call window, get_panel, {.window}, {.window_panel}
+		s_call string, create, {"Calculator"}, {.string}
+		s_call window, set_title, {.window, .string}
+		s_call string, create, {"Status Text"}, {.string}
+		s_call window, set_status, {.window, .string}
 
 		;add my app flow panel
-		static_call flow, create, {}, {.flow_panel}
-		assert r0, !=, 0
-		static_call flow, set_flow_flags, {r0, flow_flag_down | flow_flag_fillw | flow_flag_lasth}
-		static_call flow, set_color, {r0, 0x00000000}
-		static_call flow, add, {r0, .window_panel}
+		s_call flow, create, {}, {.flow_panel}
+		s_call flow, set_flow_flags, {.flow_panel, flow_flag_down | flow_flag_fillw | flow_flag_lasth}
+		s_call flow, set_color, {.flow_panel, 0x00000000}
+		s_call flow, add, {.flow_panel, .window_panel}
 
 		;add my display label
-		static_call label, create, {}, {.display}
-		assert r0, !=, 0
-		static_call label, set_color, {r0, -1}
-		static_call label, set_flow_flags, {r0, flow_flag_align_hright | flow_flag_align_vcenter}
-		static_call label, set_font, {r0, "fonts/OpenSans-Regular.ttf", 24}
-		static_call string, create, {"0"}, {r0}
-		assert r0, !=, 0
-		static_call label, set_text, {.display, r0}
-		static_call label, add, {r0, .flow_panel}
+		s_call label, create, {}, {.display}
+		s_call label, set_color, {.display, 0xffffffff}
+		s_call label, set_flow_flags, {.display, flow_flag_align_hright | flow_flag_align_vcenter}
+		s_call label, set_font, {.display, "fonts/OpenSans-Regular.ttf", 24}
+		s_call string, create, {"0"}, {.string}
+		s_call label, set_text, {.display, .string}
+		s_call label, add, {.display, .flow_panel}
 
 		;add my app grid panel
-		static_call grid, create, {}, {.grid_panel}
-		assert r0, !=, 0
-		static_call grid, set_color, {r0, 0x00000000}
-		static_call grid, set_grid, {r0, 4, 4}
-		static_call grid, add, {r0, .flow_panel}
+		s_call grid, create, {}, {.grid_panel}
+		s_call grid, set_color, {.grid_panel, 0x00000000}
+		s_call grid, set_grid, {.grid_panel, 4, 4}
+		s_call grid, add, {.grid_panel, .flow_panel}
 
 		;add buttons to my grid panel
-		vp_rel button_list, r0
+		assign {$button_list}, {r0}
 		loop_start
 			vp_xor r1, r1
 			vp_cpy_b [r0], r1
 			breakif r1, ==, 0
 			vp_cpy r0, .next
 
-			static_call button, create, {}, {.button}
-			assert r0, !=, 0
-			static_call button, set_color, {r0, 0xffffff00}
-			static_call string, create, {.next}, {r0}
-			assert r0, !=, 0
-			static_call button, set_text, {.button, r0}
-			static_call button, set_flow_flags, {r0, flow_flag_align_hcenter | flow_flag_align_vcenter}
-			static_call button, add, {r0, .grid_panel}
-			static_call button, connect, {r0, :[r0 + button_pressed_signal], r4, $on_press}
+			s_call button, create, {}, {.button}
+			s_call button, set_color, {.button, 0xffffff00}
+			s_call string, create, {.next}, {.string}
+			s_call button, set_text, {.button, .string}
+			s_call button, set_flow_flags, {.button, flow_flag_align_hcenter | flow_flag_align_vcenter}
+			s_call button, add, {.button, .grid_panel}
+			s_call button, sig_pressed, {.button}, {.pressed}
+			s_call button, connect, {.button, .pressed, r4, $on_press}
 
-			static_call sys_string, length, {.next}, {r1}
-			vp_lea [r0 + r1 + 1], r0
+			static_call sys_string, length, {.next}, {.length}
+			assign {.next + .length + 1}, {r0}
 		loop_end
 
 		;set to pref size
-		method_call window, pref_size, {.window}, {r10, r11}
-		vp_cpy r10, r12
-		vp_cpy r11, r13
-		vp_shr 1, r12
-		vp_shr 1, r13
-		vp_add r12, r10
-		vp_add r13, r11
-		static_call window, change, {r0, 920, 48, r10, r11}
+		method_call window, pref_size, {.window}, {.width, .height}
+		s_call window, change, {.window, 920, 48, .width / 2 + .width, .height / 2 + .height}
 
 		;set window owner
-		static_call sys_task, tcb, {}, {r0}
-		static_call window, set_owner, {.window, r0}
+		s_call sys_task, tcb, {}, {.owner}
+		s_call window, set_owner, {.window, .owner}
 
 		;add to screen and dirty
-		static_call gui_gui, add, {r0}
-		static_call window, dirty_all, {r0}
+		s_call gui_gui, add, {.window}
+		s_call window, dirty_all, {.window}
 
 		;app event loop
 		loop_start
@@ -142,27 +131,24 @@
 			def_local_long	button
 			def_local_long	string1
 			def_local_long	string2
+			def_local_long	string
+			def_local_long	display
 		def_local_end
 
 		;save inputs
 		vp_sub on_press_size, r4
-		set_src r0, r1
-		set_dst .inst, .button
+		vp_cpy [r0 + local_display], r2
+		set_src r0, r1, r2
+		set_dst .inst, .button, .display
 		map_src_to_dst
 
-		static_call button, get_text, {r1}, {.string1}
-
-		vp_cpy .inst, r0
-		static_call label, get_text, {[r0 + local_display]}, {.string2}
-		static_call string, add, {.string2, .string1}, {r0}
-		assert r0, !=, 0
-		vp_cpy r0, r1
-		vp_cpy .inst, r0
-		static_call label, set_text, {[r0 + local_display], r1}
-		static_call label, dirty, {r0}
-
-		static_call string, deref, {.string1}
-		static_call string, deref, {.string2}
+		s_call button, get_text, {.button}, {.string1}
+		s_call label, get_text, {.display}, {.string2}
+		s_call string, add, {.string2, .string1}, {.string}
+		s_call label, set_text, {.display, .string}
+		s_call label, dirty, {.display}
+		s_call string, deref, {.string1}
+		s_call string, deref, {.string2}
 
 		vp_add on_press_size, r4
 		vp_ret

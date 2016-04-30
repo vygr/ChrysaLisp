@@ -747,6 +747,7 @@
 	%endmacro
 
 	%macro assign 2
+		%warning ---------------
 		set_src %1
 		set_dst %2
 		%if _dst_total != _src_total
