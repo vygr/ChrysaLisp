@@ -174,6 +174,21 @@
 		map_outputs %1, %2, {%4}, _static_
 	%endmacro
 
+	%macro static_call_assign 2-4 {}, {}
+		;%1 = class name
+		;%2 = member name
+		;%3 = in paramaters
+		;%4 = out paramaters
+
+		method_lookup %1, %2
+		%ifidn _map_%1_type_%[_static_], virtual
+			%fatal Class %1 method %2 is virtual ! Use method_call ?
+		%endif
+		assign {%3}, {_map_%1_in_%[_static_]}
+		fn_call _map_%1_slot_%[_static_]
+		map_outputs %1, %2, {%4}, _static_
+	%endmacro
+
 	%macro static_jmp 2-4 {}
 		;%1 = class name
 		;%2 = member name
