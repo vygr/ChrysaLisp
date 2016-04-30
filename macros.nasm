@@ -22,4 +22,9 @@ fn_function macros
 
 	assign {-11 * -.a * -11}, {r0}
 
+	assign {.a * .b + .c * .d, .a * (.b + .c) * .d, -.a * -.b - .c * -.d, \
+	 		-.a * -(-.b / -.c) * -.d}, {r8, r9, r10, r11}
+
+	assign {@this/path, "a string", :.f * :.b}, {r0, r1, r2}
+
 fn_function_end
