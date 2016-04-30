@@ -144,7 +144,7 @@
 			endif
 
 			;select on 2 mailboxes
-			static_call sys_mail, select, {&.select1, 2}, {r0}
+			static_call sys_mail, select, {:.select1, 2}, {r0}
 
 			;which mailbox has mail ?
 			if r0, ==, .select1

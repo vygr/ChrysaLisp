@@ -35,7 +35,7 @@
 			vp_cpy_cl kn_call_task_child, [r3 + kn_data_kernel_function]
 
 			;copy task name
-			static_call sys_string, copy, {r5, &[r3 + kn_data_task_child_pathname]}, {_, r1}
+			static_call sys_string, copy, {r5, :[r3 + kn_data_task_child_pathname]}, {_, r1}
 
 			;fill in total message length
 			vp_sub r3, r1

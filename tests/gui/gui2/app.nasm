@@ -61,7 +61,7 @@
 			assert r0, !=, 0
 			static_call button, set_text, {.button, r0}
 			static_call button, add, {r0, .panel}
-			static_call button, connect, {r0, &[r0 + button_pressed_signal], r4, $on_press}
+			static_call button, connect, {r0, :[r0 + button_pressed_signal], r4, $on_press}
 
 			static_call sys_string, length, {.next}, {r1}
 			vp_lea [r0 + r1 + 1], r0
@@ -104,7 +104,7 @@
 		;r1 = button object
 
 		static_call button, get_text, {r1}, {r1}
-		static_jmp sys_task, open_child, {&[r1 + string_data]}
+		static_jmp sys_task, open_child, {:[r1 + string_data]}
 
 	launch_list:
 		db 'tests/farm', 0

@@ -36,7 +36,7 @@
 		assert r1, !=, 0
 		vp_xor r0, r0
 		vp_cpy r0, .accum
-		static_call sys_string, from_long, {r0, &.buffer, 10}
+		static_call sys_string, from_long, {r0, :.buffer, 10}
 
 		;create my window
 		static_call window, create, {}, {.window}
@@ -90,7 +90,7 @@
 			static_call button, set_text, {.button, r0}
 			static_call button, set_flow_flags, {r0, flow_flag_align_hcenter | flow_flag_align_vcenter}
 			static_call button, add, {r0, .grid_panel}
-			static_call button, connect, {r0, &[r0 + button_pressed_signal], r4, $on_press}
+			static_call button, connect, {r0, :[r0 + button_pressed_signal], r4, $on_press}
 
 			static_call sys_string, length, {.next}, {r1}
 			vp_lea [r0 + r1 + 1], r0

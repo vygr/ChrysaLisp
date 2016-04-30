@@ -395,7 +395,7 @@
 						%substr %%ss %%s 2, -1
 						%deftok %%p %%ss
 						fn_bind %%p, _dst_%[%%i]
-					%elifidn %%ss, '&'
+					%elifidn %%ss, ':'
 						;address of
 						%substr %%ss %%s 2, -1
 						%deftok %%p %%ss

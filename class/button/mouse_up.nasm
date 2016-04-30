@@ -24,7 +24,7 @@
 		vp_pop r1
 		vp_and button_state_pressed, r1
 		if r1, !=, 0
-			static_jmp button, emit, {r0, &[r0 + button_pressed_signal]}
+			static_jmp button, emit, {r0, :[r0 + button_pressed_signal]}
 		endif
 		vp_ret
 

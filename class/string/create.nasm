@@ -16,7 +16,7 @@
 		vp_cpy r1, r7
 
 		;create new string object
-		static_call string, new, {&[r1 + string_size + 1]}, {r0}
+		static_call string, new, {:[r1 + string_size + 1]}, {r0}
 		if r0, !=, 0
 			;init the object
 			slot_function class, string

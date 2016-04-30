@@ -50,7 +50,7 @@
 
 		;free old region and splice over new region
 		static_bind gui_gui, statics, r5
-		static_call gui_region, free, {&[r5 + gui_statics_rect_heap], &[r5 + gui_statics_old_region]}
+		static_call gui_region, free, {:[r5 + gui_statics_rect_heap], :[r5 + gui_statics_old_region]}
 		vp_pop r1
 		vp_cpy r1, [r5 + gui_statics_old_region]
 		vp_pop r0
@@ -62,7 +62,7 @@
 
 		;iterate through views back to front
 		;drawing each view
-		static_call view, backward_tree, {r0, &.ctx, $draw_down_callback, $null_func_up_callback}
+		static_call view, backward_tree, {r0, :.ctx, $draw_down_callback, $null_func_up_callback}
 
 		vp_add local_size, r4
 		vp_ret
