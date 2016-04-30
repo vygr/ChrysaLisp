@@ -87,7 +87,7 @@
 			s_call button, sig_pressed, {.button}, {.pressed}
 			s_call button, connect, {.button, .pressed, r4, $on_press}
 
-			static_call sys_string, length, {.next}, {.length}
+			s_call sys_string, length, {.next}, {.length}
 			assign {.next + .length + 1}, {r0}
 		loop_end
 

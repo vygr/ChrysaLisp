@@ -418,6 +418,20 @@
 ; expression compilation
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
+	%macro inc_reg_sp 0
+		%assign _reg_sp _reg_sp + 1
+		%if _reg_sp = _reg_total
+			%error Register stack overflow !
+		%endif
+	%endmacro
+
+	%macro dec_reg_sp 0
+		%assign _reg_sp _reg_sp - 1
+		%if _reg_sp = -1
+			%error Register stack underflow !
+		%endif
+	%endmacro
+
 	%macro set_reg 2
 		%xdefine _reg_%[%1] %2
 	%endmacro
@@ -426,18 +440,9 @@
 		%xdefine _reg _reg_%[%1]
 	%endmacro
 
-	%macro push_reg 0
-		%assign _reg_sp _reg_sp + 1
-		%if _reg_sp = _reg_total
-			%error Register stack overflow !
-		%endif
-	%endmacro
-
 	%macro pop_reg 0
-		%assign _reg_sp _reg_sp - 1
-		%if _reg_sp = -1
-			%error Register stack underflow !
-		%endif
+		dec_reg_sp
+		get_reg _reg_sp
 	%endmacro
 
 	%macro reset_reg_stack 0
@@ -489,24 +494,26 @@
 	%endmacro
 
 	%macro get_op_presidence 1
-		%ifidn %1, *
-			%assign _op 3
+		%ifidn %1, _
+			%assign _op 0
+		%elifidn %1, *
+			%assign _op 1
 		%elifidn %1, /
-			%assign _op 3
+			%assign _op 1
 		%elifidn %1, %
-			%assign _op 3
+			%assign _op 1
 		%elifidn %1, +
-			%assign _op 4
+			%assign _op 2
 		%elifidn %1, -
-			%assign _op 4
+			%assign _op 2
 		%elifidn %1, &
-			%assign _op 8
+			%assign _op 3
 		%elifidn %1, ^
-			%assign _op 9
+			%assign _op 4
 		%elifidn %1, |
-			%assign _op 10
+			%assign _op 5
 		%elifidn %1, (
-			%assign _op 100
+			%assign _op 6
 		%else
 			%error Unknown operator %1
 		%endif
@@ -525,23 +532,44 @@
 		%assign _token_total 0
 		%defstr %%p
 		%assign %%m -1
+		%assign %%u 1
 		%assign %%i 1
 		%rep %%l
 			%substr %%ss %%s %%i, 1
-			sub_string %%ss, '[":@$] ()+-*/%&^|'
+			sub_string %%ss, '[":@$] -+*/%&^|()'
 			%if %%m = -1
-				;building a ...
 				%if _pos = 0
+					;none
 					%strcat %%p %%p %%ss
-				%elif _pos = 7
-					%ifnidn %%p, ''
-						push_token %%p, %%m
-						%defstr %%p
-					%endif
-				%elif _pos > 7
-					push_token %%ss, 0
-				%else
 					%assign %%m _pos
+					%assign %%u 0
+				%elif _pos = 7
+					;space
+				%elif _pos = 8
+					;-
+					%if %%u = 1
+						push_token '_', %%m
+					%else
+						push_token %%ss, %%m
+						%assign %%u 1
+					%endif
+				%elif _pos > 8
+					;+*/%&^|()
+					push_token %%ss, %%m
+					%assign %%u 1
+				%else
+					;[":@$]
+					%assign %%m _pos
+					%assign %%u 0
+				%endif
+			%elif %%m = 0
+				;building a ...
+				%strcat %%p %%p %%ss
+				%if _pos = 7
+					%strcat %%p %%p
+					push_token %%p, %%m
+					%defstr %%p
+					%assign %%m -1
 				%endif
 			%elif %%m = 1
 				;building a [...]
@@ -604,7 +632,7 @@
 		%assign %%o 0
 		%assign %%n 0
 		%rep _token_total
-			%if _token_type_%[%%n] = 0
+			%if _token_type_%[%%n] = -1
 				%ifidn _token_%[%%n], (
 					%xdefine _op_%[%%o] _token_%[%%n]
 					%assign %%o %%o + 1
@@ -614,20 +642,24 @@
 						%ifidn _op_%[%%o], (
 							%exitrep
 						%else
-							push_rpn _op_%[%%o], 0
+							push_rpn _op_%[%%o], -1
 						%endif
 					%endrep
 				%else
 					get_op_presidence _token_%[%%n]
 					%assign %%t _op
+					%if _op = 0
+						;unary -
+						%assign %%t -1
+					%endif
 					%rep %%o
 						%assign %%o %%o - 1
 						get_op_presidence _op_%[%%o]
-						%if %%t >= _op
-							push_rpn _op_%[%%o], 0
-						%else
+						%if %%t < _op
 							%assign %%o %%o + 1
 							%exitrep
+						%else
+							push_rpn _op_%[%%o], -1
 						%endif
 					%endrep
 					%xdefine _op_%[%%o] _token_%[%%n]
@@ -640,7 +672,7 @@
 		%endrep
 		%rep %%o
 			%assign %%o %%o - 1
-			push_rpn _op_%[%%o], 0
+			push_rpn _op_%[%%o], -1
 		%endrep
 	%endmacro
 
@@ -655,99 +687,118 @@
 	%macro emit_rpn_list 0
 		%assign %%n 0
 		%rep _rpn_total
-			%if _rpn_type_%[%%n] = 0
-				pop_reg
-				get_reg _reg_sp
-				%xdefine %%r1 _reg
-				pop_reg
-				get_reg _reg_sp
-				%xdefine %%r0 _reg
-				%ifidn _rpn_%[%%n], +
+			%if _rpn_type_%[%%n] = -1
+				%ifidn _rpn_%[%%n], _
+					pop_reg
+					%xdefine %%r0 _reg
+					%warning vp_mul -1, %%r0
+					vp_mul -1, %%r0
+				%elifidn _rpn_%[%%n], +
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
 					%warning vp_add %%r1, %%r0
 					vp_add %%r1, %%r0
-					push_reg
 				%elifidn _rpn_%[%%n], -
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
 					%warning vp_sub %%r1, %%r0
 					vp_sub %%r1, %%r0
-					push_reg
 				%elifidn _rpn_%[%%n], *
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
 					%warning vp_mul %%r1, %%r0
 					vp_mul %%r1, %%r0
-					push_reg
 				%elifidn _rpn_%[%%n], &
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
 					%warning vp_and %%r1, %%r0
 					vp_and %%r1, %%r0
-					push_reg
 				%elifidn _rpn_%[%%n], ^
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
 					%warning vp_xor %%r1, %%r0
 					vp_xor %%r1, %%r0
-					push_reg
 				%elifidn _rpn_%[%%n], |
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
 					%warning vp_or %%r1, %%r0
 					vp_or %%r1, %%r0
-					push_reg
 				%elifidn _rpn_%[%%n], /
-					push_reg
-					push_reg
 					get_reg _reg_sp
-					%warning vp_xor _reg, _reg
-					%warning vp_div %%r1, _reg, %%r0
-					vp_xor _reg, _reg
-					vp_div %%r1, _reg, %%r0
+					%xdefine %%r2 _reg
 					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
+					%warning vp_xor %%r2, %%r2
+					%warning vp_div %%r1, %%r2, %%r0
+					vp_xor %%r2, %%r2
+					vp_div %%r1, %%r2, %%r0
 				%elifidn _rpn_%[%%n], %
-					push_reg
-					push_reg
 					get_reg _reg_sp
-					%warning vp_xor _reg, _reg
-					%warning vp_div %%r1, _reg, %%r0
-					%warning vp_cpy _reg, %%r0
-					vp_xor _reg, _reg
-					vp_div %%r1, _reg, %%r0
-					vp_cpy _reg, %%r0
+					%xdefine %%r2 _reg
 					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
+					%warning vp_xor %%r2, %%r2
+					%warning vp_div %%r1, %%r2, %%r0
+					%warning vp_cpy %%r2, %%r0
+					vp_xor %%r2, %%r2
+					vp_div %%r1, %%r2, %%r0
+					vp_cpy %%r2, %%r0
 				%else
 					%error Unknown operator _rpn_%[%%n]
 				%endif
 			%elif _rpn_type_%[%%n] = 2
 				;"..."
 				get_reg _reg_sp
-				push_reg
 				%warning fn_string _rpn_%[%%n], _reg
 				fn_string _rpn_%[%%n], _reg
 			%elif _rpn_type_%[%%n] = 3
 				;:[...]
 				get_reg _reg_sp
-				push_reg
 				%warning vp_lea _rpn_%[%%n], _reg
 				vp_lea _rpn_%[%%n], _reg
 			%elif _rpn_type_%[%%n] = 4
 				;@...
 				get_reg _reg_sp
-				push_reg
 				%warning fn_bind _rpn_%[%%n], _reg
 				fn_bind _rpn_%[%%n], _reg
 			%elif _rpn_type_%[%%n] = 5
 				;$...
 				get_reg _reg_sp
-				push_reg
 				%warning vp_rel _rpn_%[%%n], _reg
 				vp_rel _rpn_%[%%n], _reg
 			%else
 				;...
 				get_reg _reg_sp
-				push_reg
 				%ifnidn _rpn_%[%%n], _reg
 					%warning vp_cpy _rpn_%[%%n], _reg
 					vp_cpy _rpn_%[%%n], _reg
 				%endif
 			%endif
+			inc_reg_sp
 			%assign %%n %%n + 1
 		%endrep
 	%endmacro
 
 	%macro assign 2
-		%warning ---------------
+		%warning --------------------------------------
+		%warning {%1}, {%2}
+		%warning --------------------------------------
 		set_src %1
 		set_dst %2
 		%if _dst_total != _src_total

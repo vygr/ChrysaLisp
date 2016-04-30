@@ -4,14 +4,22 @@
 fn_function macros
 
 	def_local
-		def_local_long	heap
-		def_local_long	slist
-		def_local_long	dlist
-		def_local_long	clist
-		def_local_long	rx
-		def_local_long	ry
+		def_local_long	a
+		def_local_long	b
+		def_local_long	c
+		def_local_long	d
+		def_local_long	e
+		def_local_long	f
 	def_local_end
 
-	s_call gui_region, copy_region, {.heap, .slist, .dlist, .clist, .rx * .ry / 70, .ry * 80}, {}
+	assign {.a * .b + .c * .d}, {r0}
+
+	assign {.a * (.b + .c) * .d}, {r1}
+
+	assign {.a * .b + .c * .d, .a * (.b + .c) * .d}, {r0, r1}
+
+	assign {-.a * -.b - .c * -.d, -.a * -(-.b / -.c) * -.d}, {r8, r9}
+
+	assign {-11 * -.a * -11}, {r0}
 
 fn_function_end
