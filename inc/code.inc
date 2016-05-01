@@ -566,7 +566,6 @@
 				;building a ...
 				%strcat %%p %%p %%ss
 				%if _pos = 7
-					%strcat %%p %%p
 					push_token %%p, %%m
 					%defstr %%p
 					%assign %%m -1
