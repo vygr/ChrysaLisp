@@ -1,51 +1,148 @@
+;;;;;;;;;;;;;;;;;;;;;
+; variable allocation
+;;;;;;;;;;;;;;;;;;;;;
+
+	null_size	equ 0
+	byte_size	equ 1
+	short_size	equ 2
+	int_size	equ 4
+	long_size	equ 8
+
+	%assign _var_sp 0
+
+	%macro struct 2-3 1
+		;inputs
+		;%1 = field name
+		;%2 = struct name
+		;%3 = sign
+		def_sym %1, _sym_var, _var_sp, %2_size * %3
+		%assign _var_sp _var_sp + %2_size
+	%endmacro
+
+	%macro long 1
+		;inputs
+		;%1 = field name
+		local_align long
+		struct %1, long, -1
+	%endmacro
+
+	%macro ulong 1
+		;inputs
+		;%1 = field name
+		local_align long
+		struct %1, long
+	%endmacro
+
+	%macro int 1
+		;inputs
+		;%1 = field name
+		local_align int
+		struct %1, int, -1
+	%endmacro
+
+	%macro uint 1
+		;inputs
+		;%1 = field name
+		local_align int
+		struct %1, int
+	%endmacro
+
+	%macro short 1
+		;inputs
+		;%1 = field name
+		local_align short
+		struct %1, short, -1
+	%endmacro
+
+	%macro ushort 1
+		;inputs
+		;%1 = field name
+		local_align short
+		struct %1, short
+	%endmacro
+
+	%macro byte 1
+		;inputs
+		;%1 = field name
+		struct %1, byte, -1
+	%endmacro
+
+	%macro ubyte 1
+		;inputs
+		;%1 = field name
+		struct %1, byte
+	%endmacro
+
+	%macro local_align 1
+		;inputs
+		;%1 = alignment
+		%assign _var_sp _var_sp + (%1_size - 1)
+		%assign _var_sp _var_sp & -(%1_size)
+	%endmacro
+
 ;;;;;;;;;;;;;;
 ; symbol table
 ;;;;;;;;;;;;;;
 
-	%assign _sym_total 0
-	%assign _scope_total 0
+	%assign _sym_sp 0
+	%assign _scope_sp 0
 	_sym_op		equ 0
 	_sym_const	equ 1
 	_sym_var	equ 2
 
-	%macro push_scope 1
-		%assign _scope_offset_%[_scope_total] %1
-		%assign _scope_sympos_%[_scope_total] _sym_total
-		%assign _scope_total _scope_total + 1
+	%macro push_scope 0
+		%assign _scope_sym_%[_scope_sp] _sym_sp
+		%assign _scope_var_%[_scope_sp] _var_sp
+		%assign _scope_sp _scope_sp + 1
+		%assign _var_sp 0
 	%endmacro
 
 	%macro pop_scope 0
-		%assign _scope_total _scope_total - 1
-		%assign _sym_total _scope_sympos_%[_scope_total]
+		%assign _scope_sp _scope_sp - 1
+		%assign _sym_sp _scope_sym_%[_scope_sp]
+		%assign _var_sp _scope_var_%[_scope_sp]
 	%endmacro
 
-	%macro def_sym 3
+	%macro get_scope_offset 1
+		;%1 scope to accsess
+		%assign _scope_offset 0
+		%assign %%n _scope_sp - 1
+		%rep %%n - %1
+			%assign _scope_offset _scope_offset + _scope_var_%[%%n]
+			%assign %%n %%n - 1
+		%endrep
+	%endmacro
+
+	%macro def_sym 3-4 0
 		;%1 name
 		;%2 type
 		;%3 value
-		%assign %%s _scope_total - 1
-		%assign %%n _scope_sympos_%[%%s]
-		%rep _sym_total - %%n
+		;%4 size
+		%assign %%s _scope_sp - 1
+		%assign %%n _scope_sym_%[%%s]
+		%rep _sym_sp - %%n
 			%ifidn _sym_name_%[%%n], %1
 				%exitrep
+			%else
+				%assign %%n %%n + 1
 			%endif
-			%assign %%n %%n + 1
 		%endrep
-		%if %%n != _sym_total
-			%error Symbol %1 redefined !
+		%if %%n != _sym_sp
+			%fatal Symbol %1 redefined !
 		%else
 			%xdefine _sym_name_%[%%n] %1
 			%assign _sym_type_%[%%n] %2
 			%assign _sym_value_%[%%n] %3
+			%assign _sym_size_%[%%n] %4
 			%assign _sym_scope_%[%%n] %%s
-			%assign _sym_total _sym_total + 1
+			%assign _sym_sp _sym_sp + 1
 		%endif
 	%endmacro
 
 	%macro get_sym 1
 		;%1 name
-		%assign _sym _sym_total - 1
-		%rep _sym_total
+		%assign _sym _sym_sp - 1
+		%rep _sym_sp
 			%ifidn _sym_name_%[_sym], %1
 				%exitrep
 			%else
@@ -56,10 +153,22 @@
 
 	%macro print_sym 0
 		%assign %%n 0
-		%rep _sym_total
-			%warning s: _sym_scope_%[%%n] t: _sym_type_%[%%n] n: _sym_name_%[%%n] v: _sym_value_%[%%n]
+		%rep _sym_sp
+			%warning sc: _sym_scope_%[%%n] t: _sym_type_%[%%n] n: _sym_name_%[%%n] v: _sym_value_%[%%n] s: _sym_size_%[%%n]
 			%assign %%n %%n + 1
 		%endrep
+	%endmacro
+
+	%macro def_const 2
+		;%1 name
+		;%2 value
+		def_sym %1, _sym_const, %2
+	%endmacro
+
+	%macro def_op 2
+		;%1 name
+		;%2 precidence
+		def_sym %1, _sym_op, %2
 	%endmacro
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -246,14 +355,14 @@
 
 	%macro push_token 1
 		%deftok %%t %1
-		%xdefine _token_%[_token_total] %%t
-		%assign _token_total _token_total + 1
+		%xdefine _token_%[_token_sp] %%t
+		%assign _token_sp _token_sp + 1
 	%endmacro
 
 	%macro set_token_list 1
 		%defstr %%s %1
 		%strlen %%l %%s
-		%assign _token_total 0
+		%assign _token_sp 0
 		%defstr %%p
 		%assign %%m -1
 		%assign %%u 1
@@ -340,7 +449,7 @@
 
 	%macro print_token_list 0
 		%assign %%n 0
-		%rep _token_total
+		%rep _token_sp
 			%warning token %%n: _token_%[%%n]
 			%assign %%n %%n + 1
 		%endrep
@@ -351,15 +460,15 @@
 ;;;;;;;;;;;;;;;;
 
 	%macro push_rpn 1
-		%xdefine _rpn_%[_rpn_total] %1
-		%assign _rpn_total _rpn_total + 1
+		%xdefine _rpn_%[_rpn_sp] %1
+		%assign _rpn_sp _rpn_sp + 1
 	%endmacro
 
 	%macro token_to_rpn 0
-		%assign _rpn_total 0
+		%assign _rpn_sp 0
 		%assign %%o 0
 		%assign %%n 0
-		%rep _token_total
+		%rep _token_sp
 			%ifnstr _token_%[%%n]
 				;not string
 				get_sym _token_%[%%n]
@@ -418,7 +527,7 @@
 
 	%macro print_rpn_list 0
 		%assign %%n 0
-		%rep _rpn_total
+		%rep _rpn_sp
 			%warning rpn token %%n: _rpn_%[%%n]
 			%assign %%n %%n + 1
 		%endrep
@@ -505,7 +614,7 @@
 
 	%macro compile_rpn_list 0
 		%assign %%n 0
-		%rep _rpn_total
+		%rep _rpn_sp
 			%ifnstr _rpn_%[%%n]
 				;not string
 				get_sym _rpn_%[%%n]
@@ -578,7 +687,32 @@
 				%elif _sym_type_%[_sym] = _sym_var
 					;variable
 					get_reg _reg_sp
-					%warning vp_cpy [r4 + _scope_offset_%[_sym_scope_%[_sym]] + _sym_value_%[_sym]], _reg
+					get_scope_offset _sym_scope_%[_sym]
+					%if _sym_size_%[_sym] = -1
+						%warning vp_cpy_b [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+						%warning vp_sex_b _reg, _reg
+					%elif _sym_size_%[_sym] = -2
+						%warning vp_cpy_s [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+						%warning vp_sex_s _reg, _reg
+					%elif _sym_size_%[_sym] = -4
+						%warning vp_cpy_i [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+						%warning vp_sex_i _reg, _reg
+					%elif _sym_size_%[_sym] = -8
+						%warning vp_cpy [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+					%elif _sym_size_%[_sym] = 1
+						%warning vp_xor _reg, _reg
+						%warning vp_cpy_b [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+					%elif _sym_size_%[_sym] = 2
+						%warning vp_xor _reg, _reg
+						%warning vp_cpy_s [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+					%elif _sym_size_%[_sym] = 4
+						%warning vp_xor _reg, _reg
+						%warning vp_cpy_i [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+					%elif _sym_size_%[_sym] = 8
+						%warning vp_cpy [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+					%else
+						%error Variable too big !
+					%endif
 				%endif
 			%else
 				;string
@@ -625,55 +759,44 @@
 ; test code
 ;;;;;;;;;;;
 
-	push_scope 0
-
 	;define the operators
 	;value is precidence
-	def_sym	_, _sym_op, 0
-	def_sym	*, _sym_op, 1
-	def_sym	/, _sym_op, 1
-	def_sym	%, _sym_op, 1
-	def_sym	+, _sym_op, 2
-	def_sym	-, _sym_op, 2
-	def_sym	&, _sym_op, 3
-	def_sym	^, _sym_op, 4
-	def_sym	|, _sym_op, 5
-	def_sym	(, _sym_op, 6
-	def_sym	), _sym_op, 6
-
-	push_scope 0
+	push_scope
+	def_op	_, 0
+	def_op	*, 1
+	def_op	/, 1
+	def_op	%, 1
+	def_op	+, 2
+	def_op	-, 2
+	def_op	&, 3
+	def_op	^, 4
+	def_op	|, 5
+	def_op	(, 6
+	def_op	), 6
 
 	;define constants
-	def_sym	a, _sym_const, 0
-	def_sym	b, _sym_const, 1
-	def_sym	c, _sym_const, 2
-	def_sym	d, _sym_const, 3
-	def_sym	e, _sym_const, 4
-	def_sym	f, _sym_const, 5
+	def_const a, 0
+	def_const b, 1
+	def_const c, 2
+	def_const d, 3
+	def_const e, 4
+	def_const f, 5
 
 	;define variables
-	def_sym	xxx, _sym_var, 16
-	def_sym	yyy, _sym_var, 32
-	def_sym	zzz, _sym_var, 48
-
-	push_scope 100
+	short xxx
+	int yyy
+	long zzz
+	assign {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
 
 	;define variables
-	def_sym	xxx, _sym_var, 160
-	def_sym	yyy, _sym_var, 320
-	def_sym	zzz, _sym_var, 480
-
-	print_sym
-
-	assign {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
-
+	push_scope
+		ushort xxx
+		uint yyy
+		assign {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
 	pop_scope
-	print_sym
 
-	assign {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
-
+	;define variables
+	push_scope
+		byte zzz
+		assign {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
 	pop_scope
-	print_sym
-
-	pop_scope
-	print_sym
