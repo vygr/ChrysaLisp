@@ -3,16 +3,29 @@
 ;;;;;;;;;;;;;;
 
 	%assign _sym_total 0
+	%assign _scope_total 0
 	_sym_op		equ 0
 	_sym_const	equ 1
 	_sym_var	equ 2
+
+	%macro push_scope 1
+		%assign _scope_offset_%[_scope_total] %1
+		%assign _scope_sympos_%[_scope_total] _sym_total
+		%assign _scope_total _scope_total + 1
+	%endmacro
+
+	%macro pop_scope 0
+		%assign _scope_total _scope_total - 1
+		%assign _sym_total _scope_sympos_%[_scope_total]
+	%endmacro
 
 	%macro def_sym 3
 		;%1 name
 		;%2 type
 		;%3 value
-		%assign %%n 0
-		%rep _sym_total
+		%assign %%s _scope_total - 1
+		%assign %%n _scope_sympos_%[%%s]
+		%rep _sym_total - %%n
 			%ifidn _sym_name_%[%%n], %1
 				%exitrep
 			%endif
@@ -24,47 +37,27 @@
 			%xdefine _sym_name_%[%%n] %1
 			%assign _sym_type_%[%%n] %2
 			%assign _sym_value_%[%%n] %3
+			%assign _sym_scope_%[%%n] %%s
 			%assign _sym_total _sym_total + 1
-		%endif
-	%endmacro
-
-	%macro redef_sym 3
-		;%1 name
-		;%2 type
-		;%3 value
-		%assign %%n 0
-		%rep _sym_total
-			%ifidn _sym_name_%[%%n], %1
-				%exitrep
-			%endif
-			%assign %%n %%n + 1
-		%endrep
-		%if %%n = _sym_total
-			%error Symbol %1 not found !
-		%else
-			%xdefine _sym_name_%[%%n] %1
-			%assign _sym_type_%[%%n] %2
-			%assign _sym_value_%[%%n] %3
 		%endif
 	%endmacro
 
 	%macro get_sym 1
 		;%1 name
-		%assign %%n 0
-		%assign _sym -1
+		%assign _sym _sym_total - 1
 		%rep _sym_total
-			%ifidn _sym_name_%[%%n], %1
-				%assign _sym %%n
+			%ifidn _sym_name_%[_sym], %1
 				%exitrep
+			%else
+				%assign _sym _sym - 1
 			%endif
-			%assign %%n %%n + 1
 		%endrep
 	%endmacro
 
 	%macro print_sym 0
 		%assign %%n 0
 		%rep _sym_total
-			%warning _sym_name_%[%%n], _sym_type_%[%%n], _sym_value_%[%%n]
+			%warning s: _sym_scope_%[%%n] t: _sym_type_%[%%n] n: _sym_name_%[%%n] v: _sym_value_%[%%n]
 			%assign %%n %%n + 1
 		%endrep
 	%endmacro
@@ -585,7 +578,7 @@
 				%elif _sym_type_%[_sym] = _sym_var
 					;variable
 					get_reg _reg_sp
-					%warning vp_cpy [r4 + _sym_value_%[_sym]], _reg
+					%warning vp_cpy [r4 + _scope_offset_%[_sym_scope_%[_sym]] + _sym_value_%[_sym]], _reg
 				%endif
 			%else
 				;string
@@ -632,6 +625,8 @@
 ; test code
 ;;;;;;;;;;;
 
+	push_scope 0
+
 	;define the operators
 	;value is precidence
 	def_sym	_, _sym_op, 0
@@ -646,6 +641,8 @@
 	def_sym	(, _sym_op, 6
 	def_sym	), _sym_op, 6
 
+	push_scope 0
+
 	;define constants
 	def_sym	a, _sym_const, 0
 	def_sym	b, _sym_const, 1
@@ -659,6 +656,24 @@
 	def_sym	yyy, _sym_var, 32
 	def_sym	zzz, _sym_var, 48
 
+	push_scope 100
+
+	;define variables
+	def_sym	xxx, _sym_var, 160
+	def_sym	yyy, _sym_var, 320
+	def_sym	zzz, _sym_var, 480
+
 	print_sym
 
-	assign {a + b * xxx}, {r0}
+	assign {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
+
+	pop_scope
+	print_sym
+
+	assign {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
+
+	pop_scope
+	print_sym
+
+	pop_scope
+	print_sym
