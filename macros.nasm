@@ -12,7 +12,7 @@
 
 	%macro struct 2-3 1
 		;inputs
-		;%1 = field name
+		;%1 = var name
 		;%2 = struct name
 		;%3 = sign
 		def_sym %1, _sym_var, _var_sp, %2_size * %3
@@ -21,55 +21,55 @@
 
 	%macro long 1
 		;inputs
-		;%1 = field name
+		;%1 = var name
 		local_align long
 		struct %1, long, -1
 	%endmacro
 
 	%macro ulong 1
 		;inputs
-		;%1 = field name
+		;%1 = var name
 		local_align long
 		struct %1, long
 	%endmacro
 
 	%macro int 1
 		;inputs
-		;%1 = field name
+		;%1 = var name
 		local_align int
 		struct %1, int, -1
 	%endmacro
 
 	%macro uint 1
 		;inputs
-		;%1 = field name
+		;%1 = var name
 		local_align int
 		struct %1, int
 	%endmacro
 
 	%macro short 1
 		;inputs
-		;%1 = field name
+		;%1 = var name
 		local_align short
 		struct %1, short, -1
 	%endmacro
 
 	%macro ushort 1
 		;inputs
-		;%1 = field name
+		;%1 = var name
 		local_align short
 		struct %1, short
 	%endmacro
 
 	%macro byte 1
 		;inputs
-		;%1 = field name
+		;%1 = var name
 		struct %1, byte, -1
 	%endmacro
 
 	%macro ubyte 1
 		;inputs
-		;%1 = field name
+		;%1 = var name
 		struct %1, byte
 	%endmacro
 
@@ -129,14 +129,13 @@
 		%endrep
 		%if %%n != _sym_sp
 			%fatal Symbol %1 redefined !
-		%else
-			%xdefine _sym_name_%[%%n] %1
-			%assign _sym_type_%[%%n] %2
-			%assign _sym_value_%[%%n] %3
-			%assign _sym_size_%[%%n] %4
-			%assign _sym_scope_%[%%n] %%s
-			%assign _sym_sp _sym_sp + 1
 		%endif
+		%xdefine _sym_name_%[%%n] %1
+		%assign _sym_type_%[%%n] %2
+		%assign _sym_value_%[%%n] %3
+		%assign _sym_size_%[%%n] %4
+		%assign _sym_scope_%[%%n] %%s
+		%assign _sym_sp _sym_sp + 1
 	%endmacro
 
 	%macro get_sym 1
@@ -154,7 +153,11 @@
 	%macro print_sym 0
 		%assign %%n 0
 		%rep _sym_sp
-			%warning sc: _sym_scope_%[%%n] t: _sym_type_%[%%n] n: _sym_name_%[%%n] v: _sym_value_%[%%n] s: _sym_size_%[%%n]
+			%warning sc: _sym_scope_%[%%n] \
+					t: _sym_type_%[%%n] \
+					n: _sym_name_%[%%n] \
+					v: _sym_value_%[%%n] \
+					s: _sym_size_%[%%n]
 			%assign %%n %%n + 1
 		%endrep
 	%endmacro
@@ -353,9 +356,10 @@
 ; token parser
 ;;;;;;;;;;;;;;
 
-	%macro push_token 1
+	%macro push_token 2
 		%deftok %%t %1
 		%xdefine _token_%[_token_sp] %%t
+		%assign _token_type_%[_token_sp] %2
 		%assign _token_sp _token_sp + 1
 	%endmacro
 
@@ -369,88 +373,63 @@
 		%assign %%i 1
 		%rep %%l
 			%substr %%ss %%s %%i, 1
-			sub_string %%ss, '"-+*/%&^|[]() '
+			sub_string %%ss, '"@$:-+*/%&^|[]() '
 			%if %%m = -1
 				;op mode
 				%ifnidn %%ss, ' '
-					%if _pos = 0
-						;none
+					%if _pos < 5
+						;string or symbol
 						%strcat %%p %%p %%ss
 						%assign %%m _pos
-					%elif _pos = 1
-						;"
-						%strcat %%p %%p %%ss
-						%assign %%m _pos
-					%elif _pos = 2
+					%elif _pos = 5
 						;-
 						%if %%u = 1
-							push_token '_'
+							push_token '_', %%m
 						%else
-							push_token %%ss
+							push_token %%ss, %%m
 							%assign %%u 1
 						%endif
 					%else
-						;+*/%&^|[]()
-						push_token %%ss
+						;operator
+						push_token %%ss, %%m
 						%assign %%u 1
 					%endif
 				%endif
-			%elif %%m = 0
-				;symbol mode
-				%if _pos = 0
-					%strcat %%p %%p %%ss
-				%else
-					push_token %%p
+			%elif %%m = 1
+				;" mode
+				%strcat %%p %%p %%ss
+				%ifidn %%ss, '"'
+					push_token %%p, %%m
 					%defstr %%p
 					%assign %%u 0
 					%assign %%m -1
-
-					;op mode
-					%ifnidn %%ss, ' '
-						%if _pos = 0
-							;none
-							%strcat %%p %%p %%ss
-							%assign %%m _pos
-						%elif _pos = 1
-							;"
-							%strcat %%p %%p %%ss
-							%assign %%m _pos
-						%elif _pos = 2
-							;-
-							%if %%u = 1
-								push_token '_'
-							%else
-								push_token %%ss
-								%assign %%u 1
-							%endif
-						%else
-							;+*/%&^|[]()
-							push_token %%ss
-							%assign %%u 1
-						%endif
-					%endif
 				%endif
 			%else
-				;string mode
-				%strcat %%p %%p %%ss
-				%if _pos = 1
-					push_token %%p
+				;symbol mode
+				%if _pos < 13
+					%strcat %%p %%p %%ss
+				%else
+					;'[]() '
+					push_token %%p, %%m
 					%defstr %%p
 					%assign %%u 0
 					%assign %%m -1
+					%ifnidn %%ss, ' '
+						push_token %%ss, -1
+					%endif
 				%endif
 			%endif
 			%assign %%i %%i + 1
 		%endrep
 		%ifnidn %%p, ''
-			push_token %%p
+			push_token %%p, %%m
 		%endif
 	%endmacro
 
 	%macro print_token_list 0
 		%assign %%n 0
 		%rep _token_sp
-			%warning token %%n: _token_%[%%n]
+			%warning token %%n: n: _token_%[%%n] t:_token_type_%[%%n]
 			%assign %%n %%n + 1
 		%endrep
 	%endmacro
@@ -459,8 +438,9 @@
 ; reverse polish
 ;;;;;;;;;;;;;;;;
 
-	%macro push_rpn 1
+	%macro push_rpn 2
 		%xdefine _rpn_%[_rpn_sp] %1
+		%assign _rpn_type_%[_rpn_sp] %2
 		%assign _rpn_sp _rpn_sp + 1
 	%endmacro
 
@@ -469,66 +449,59 @@
 		%assign %%o 0
 		%assign %%n 0
 		%rep _token_sp
-			%ifnstr _token_%[%%n]
-				;not string
-				get_sym _token_%[%%n]
-				%if _sym = -1
-					%fatal Symbol _token_%[%%n] not found !
-				%endif
-				%if _sym_type_%[_sym] = _sym_op
-					;operator
-					%ifidn _token_%[%%n], (
-						%xdefine _op_%[%%o] _token_%[%%n]
-						%assign %%o %%o + 1
-					%elifidn _token_%[%%n], )
-						%rep %%o
-							%assign %%o %%o - 1
-							%ifidn _op_%[%%o], (
-								%exitrep
-							%else
-								push_rpn _op_%[%%o]
-							%endif
-						%endrep
-					%else
-						;precidence
-						%assign %%t _sym_value_%[_sym]
-						%if %%t = 0
-							;unary -
-							%assign %%t -1
+			%xdefine %%t _token_%[%%n]
+			%assign %%tt _token_type_%[%%n]
+			%if %%tt = -1
+				;operator
+				%ifidn %%t, (
+					%xdefine _op_%[%%o] %%t
+					%assign %%o %%o + 1
+				%elifidn %t, )
+					%rep %%o
+						%assign %%o %%o - 1
+						%ifidn _op_%[%%o], (
+							%exitrep
+						%else
+							push_rpn _op_%[%%o], -1
 						%endif
-						%rep %%o
-							%assign %%o %%o - 1
-							get_sym _op_%[%%o]
-							%if %%t < _sym_value_%[_sym]
-								%assign %%o %%o + 1
-								%exitrep
-							%else
-								push_rpn _op_%[%%o]
-							%endif
-						%endrep
-						%xdefine _op_%[%%o] _token_%[%%n]
-						%assign %%o %%o + 1
-					%endif
+					%endrep
 				%else
-					;symbol
-					push_rpn _token_%[%%n]
+					;precidence
+					get_sym %%t
+					%assign %%v _sym_value_%[_sym]
+					%if %%v = 0
+						;unary -
+						%assign %%v -1
+					%endif
+					%rep %%o
+						%assign %%o %%o - 1
+						get_sym _op_%[%%o]
+						%if %%v < _sym_value_%[_sym]
+							%assign %%o %%o + 1
+							%exitrep
+						%else
+							push_rpn _op_%[%%o], -1
+						%endif
+					%endrep
+					%xdefine _op_%[%%o] %%t
+					%assign %%o %%o + 1
 				%endif
-			%else
-				;string
-				push_rpn _token_%[%%n]
+			%elif
+				;string or symbol
+				push_rpn %%t, %%tt
 			%endif
 			%assign %%n %%n + 1
 		%endrep
 		%rep %%o
 			%assign %%o %%o - 1
-			push_rpn _op_%[%%o]
+			push_rpn _op_%[%%o], -1
 		%endrep
 	%endmacro
 
 	%macro print_rpn_list 0
 		%assign %%n 0
 		%rep _rpn_sp
-			%warning rpn token %%n: _rpn_%[%%n]
+			%warning rpn token %%n: n: _rpn_%[%%n] t: _rpn_type_%[%%n]
 			%assign %%n %%n + 1
 		%endrep
 	%endmacro
@@ -615,71 +588,75 @@
 	%macro compile_rpn_list 0
 		%assign %%n 0
 		%rep _rpn_sp
-			%ifnstr _rpn_%[%%n]
-				;not string
-				get_sym _rpn_%[%%n]
-				%if _sym_type_%[_sym] = _sym_op
-					;operator
-					%ifidn _rpn_%[%%n], _
-						pop_reg
-						%xdefine %%r0 _reg
-						%warning vp_mul -1, %%r0
-					%elifidn _rpn_%[%%n], +
-						pop_reg
-						%xdefine %%r1 _reg
-						pop_reg
-						%xdefine %%r0 _reg
-						%warning vp_add %%r1, %%r0
-					%elifidn _rpn_%[%%n], -
-						pop_reg
-						%xdefine %%r1 _reg
-						pop_reg
-						%xdefine %%r0 _reg
-						%warning vp_sub %%r1, %%r0
-					%elifidn _rpn_%[%%n], *
-						pop_reg
-						%xdefine %%r1 _reg
-						pop_reg
-						%xdefine %%r0 _reg
-						%warning vp_mul %%r1, %%r0
-					%elifidn _rpn_%[%%n], &
-						pop_reg
-						%xdefine %%r1 _reg
-						pop_reg
-						%xdefine %%r0 _reg
-						%warning vp_and %%r1, %%r0
-					%elifidn _rpn_%[%%n], ^
-						pop_reg
-						%xdefine %%r1 _reg
-						pop_reg
-						%xdefine %%r0 _reg
-						%warning vp_xor %%r1, %%r0
-					%elifidn _rpn_%[%%n], |
-						pop_reg
-						%xdefine %%r1 _reg
-						pop_reg
-						%xdefine %%r0 _reg
-						%warning vp_or %%r1, %%r0
-					%elifidn _rpn_%[%%n], /
-						get_reg _reg_sp
-						%xdefine %%r2 _reg
-						pop_reg
-						%xdefine %%r1 _reg
-						pop_reg
-						%xdefine %%r0 _reg
-						%warning vp_xor %%r2, %%r2
-						%warning vp_div %%r1, %%r2, %%r0
-					%elifidn _rpn_%[%%n], %
-						get_reg _reg_sp
-						%xdefine %%r2 _reg
-						pop_reg
-						%xdefine %%r1 _reg
-						pop_reg
-						%xdefine %%r0 _reg
-						%warning vp_xor %%r2, %%r2
-						%warning vp_div %%r1, %%r2, %%r0
-						%warning vp_cpy %%r2, %%r0
-					%endif
+			%xdefine %%t _rpn_%[%%n]
+			%assign %%tt _rpn_type_%[%%n]
+			%if %%tt = -1
+				;operator
+				%ifidn %%t, _
+					pop_reg
+					%xdefine %%r0 _reg
+					%warning vp_mul -1, %%r0
+				%elifidn %%t, +
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
+					%warning vp_add %%r1, %%r0
+				%elifidn %%t, -
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
+					%warning vp_sub %%r1, %%r0
+				%elifidn %%t, *
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
+					%warning vp_mul %%r1, %%r0
+				%elifidn %%t, &
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
+					%warning vp_and %%r1, %%r0
+				%elifidn %%t, ^
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
+					%warning vp_xor %%r1, %%r0
+				%elifidn %%t, |
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
+					%warning vp_or %%r1, %%r0
+				%elifidn %%t, /
+					get_reg _reg_sp
+					%xdefine %%r2 _reg
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
+					%warning vp_xor %%r2, %%r2
+					%warning vp_div %%r1, %%r2, %%r0
+				%elifidn %%t, %
+					get_reg _reg_sp
+					%xdefine %%r2 _reg
+					pop_reg
+					%xdefine %%r1 _reg
+					pop_reg
+					%xdefine %%r0 _reg
+					%warning vp_xor %%r2, %%r2
+					%warning vp_div %%r1, %%r2, %%r0
+					%warning vp_cpy %%r2, %%r0
+				%endif
+			%elif %%tt = 0
+				;...
+				get_sym %%t
+				%if _sym = -1
+					%error Symbol %%t not defined !
 				%elif _sym_type_%[_sym] = _sym_const
 					;constant
 					get_reg _reg_sp
@@ -714,10 +691,37 @@
 						%error Variable too big !
 					%endif
 				%endif
-			%else
-				;string
+			%elif %%tt = 4
+				;:...
+				%defstr %%s %%t
+				%substr %%ss %%s 2, -1
+				%deftok %%t %%ss
+				get_sym %%t
+				%if _sym = -1
+					%error Symbol %%t not defined !
+				%elif _sym_type_%[_sym] = _sym_const
+					;constant
+					%error Taking address of constant %%t !
+				%elif _sym_type_%[_sym] = _sym_var
+					;variable
+					get_reg _reg_sp
+					get_scope_offset _sym_scope_%[_sym]
+					%warning vp_lea [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+				%endif
+			%elif %%tt = 1
+				;"..."
 				get_reg _reg_sp
-				%warning fn_string _rpn_%[%%n], _reg
+				%warning fn_string %%t, _reg
+			%elif %%tt = 2
+				;@...
+				get_reg _reg_sp
+				%warning fn_bind %%t, _reg
+			%elif %%tt = 3
+				;$...
+				get_reg _reg_sp
+				%warning vp_rel %%t, _reg
+			%else
+				%error Unknown token type %%t !
 			%endif
 			inc_reg_sp
 			%assign %%n %%n + 1
@@ -798,5 +802,5 @@
 	;define variables
 	push_scope
 		byte zzz
-		assign {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
+		assign {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * :xxx + yyy * @test/path}, {r0, r1}
 	pop_scope
