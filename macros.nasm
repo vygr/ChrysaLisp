@@ -654,41 +654,47 @@
 				%endif
 			%elif %%tt = 0
 				;...
-				get_sym %%t
-				%if _sym = -1
-					%error Symbol %%t not defined !
-				%elif _sym_type_%[_sym] = _sym_const
-					;constant
+				%ifnum %%t
+					;bare constant
 					get_reg _reg_sp
-					%warning vp_cpy _sym_value_%[_sym], _reg
-				%elif _sym_type_%[_sym] = _sym_var
-					;variable
-					get_reg _reg_sp
-					get_scope_offset _sym_scope_%[_sym]
-					%if _sym_size_%[_sym] = -1
-						%warning vp_cpy_b [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-						%warning vp_sex_b _reg, _reg
-					%elif _sym_size_%[_sym] = -2
-						%warning vp_cpy_s [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-						%warning vp_sex_s _reg, _reg
-					%elif _sym_size_%[_sym] = -4
-						%warning vp_cpy_i [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-						%warning vp_sex_i _reg, _reg
-					%elif _sym_size_%[_sym] = -8
-						%warning vp_cpy [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-					%elif _sym_size_%[_sym] = 1
-						%warning vp_xor _reg, _reg
-						%warning vp_cpy_b [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-					%elif _sym_size_%[_sym] = 2
-						%warning vp_xor _reg, _reg
-						%warning vp_cpy_s [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-					%elif _sym_size_%[_sym] = 4
-						%warning vp_xor _reg, _reg
-						%warning vp_cpy_i [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-					%elif _sym_size_%[_sym] = 8
-						%warning vp_cpy [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-					%else
-						%error Variable too big !
+					%warning vp_cpy %%t, _reg
+				%else
+					get_sym %%t
+					%if _sym = -1
+						%error Symbol %%t not defined !
+					%elif _sym_type_%[_sym] = _sym_const
+						;constant
+						get_reg _reg_sp
+						%warning vp_cpy _sym_value_%[_sym], _reg
+					%elif _sym_type_%[_sym] = _sym_var
+						;variable
+						get_reg _reg_sp
+						get_scope_offset _sym_scope_%[_sym]
+						%if _sym_size_%[_sym] = -1
+							%warning vp_cpy_b [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+							%warning vp_sex_b _reg, _reg
+						%elif _sym_size_%[_sym] = -2
+							%warning vp_cpy_s [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+							%warning vp_sex_s _reg, _reg
+						%elif _sym_size_%[_sym] = -4
+							%warning vp_cpy_i [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+							%warning vp_sex_i _reg, _reg
+						%elif _sym_size_%[_sym] = -8
+							%warning vp_cpy [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+						%elif _sym_size_%[_sym] = 1
+							%warning vp_xor _reg, _reg
+							%warning vp_cpy_b [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+						%elif _sym_size_%[_sym] = 2
+							%warning vp_xor _reg, _reg
+							%warning vp_cpy_s [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+						%elif _sym_size_%[_sym] = 4
+							%warning vp_xor _reg, _reg
+							%warning vp_cpy_i [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+						%elif _sym_size_%[_sym] = 8
+							%warning vp_cpy [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+						%else
+							%fatal Variable %%t too big !
+						%endif
 					%endif
 				%endif
 			%elif %%tt = 4
@@ -696,12 +702,16 @@
 				%defstr %%s %%t
 				%substr %%ss %%s 2, -1
 				%deftok %%t %%ss
+				%ifnum %%t
+					;bare constant
+					%fatal Taking address of constant %%t !
+				%endif
 				get_sym %%t
 				%if _sym = -1
-					%error Symbol %%t not defined !
+					%fatal Symbol %%t not defined !
 				%elif _sym_type_%[_sym] = _sym_const
 					;constant
-					%error Taking address of constant %%t !
+					%fatal Taking address of constant %%t !
 				%elif _sym_type_%[_sym] = _sym_var
 					;variable
 					get_reg _reg_sp
@@ -790,7 +800,7 @@
 	short xxx
 	int yyy
 	long zzz
-	assign {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
+	assign {(a + b) ^ zzz * -xxx / yyy, "test" % 56 * xxx + yyy * yyy}, {r0, r1}
 
 	;define variables
 	push_scope
@@ -802,5 +812,6 @@
 	;define variables
 	push_scope
 		byte zzz
-		assign {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * :xxx + yyy * @test/path}, {r0, r1}
+		struct qqq, long
+		assign {(a + b) ^ zzz * -xxx / yyy, "test" % qqq * :xxx + yyy * @test/path}, {r0, r1}
 	pop_scope
