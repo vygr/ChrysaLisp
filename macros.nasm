@@ -591,7 +591,7 @@
 	%macro compile_null 0
 	%endmacro
 
-	%macro compile_unary_minus 0
+	%macro compile_uminus 0
 		pop_reg
 		%warning vp_mul -1, _reg
 	%endmacro
@@ -669,7 +669,7 @@
 		_sym_aux_%[_sym]
 	%endmacro
 
-	%macro compile_sym 1
+	%macro compile_var 1
 		get_sym %1
 		%if _sym = -1
 			%error Symbol %1 not defined !
@@ -708,7 +708,7 @@
 		%endif
 	%endmacro
 
-	%macro compile_address 1
+	%macro compile_addr 1
 		%ifnum %1
 			;bare constant
 			%fatal Taking address of constant %1 !
@@ -761,14 +761,14 @@
 					;bare constant
 					compile_const %%t
 				%else
-					compile_sym %%t
+					compile_var %%t
 				%endif
 			%elif %%tt = 4
 				;:...
 				%defstr %%s %%t
 				%substr %%ss %%s 2, -1
 				%deftok %%t %%ss
-				compile_address %%t
+				compile_addr %%t
 			%elif %%tt = 1
 				;"..."
 				compile_string %%t
@@ -824,7 +824,7 @@
 	;define the operators
 	;value is precidence
 	push_scope
-	def_op	_, 0, compile_unary_minus
+	def_op	_, 0, compile_uminus
 	def_op	*, 1, compile_mul
 	def_op	/, 1, compile_div
 	def_op	%, 1, compile_rem
