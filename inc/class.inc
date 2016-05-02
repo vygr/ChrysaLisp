@@ -186,7 +186,7 @@
 		%endif
 		assign {%3}, {_map_%1_in_%[_static_]}
 		fn_call _map_%1_slot_%[_static_]
-		map_outputs %1, %2, {%4}, _static_
+		retire {_map_%1_out_%[_static_]}, {%4}
 	%endmacro
 
 	%macro static_jmp 2-4 {}

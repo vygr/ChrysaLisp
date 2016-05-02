@@ -199,9 +199,25 @@
 				%fatal No such debug setting, use debug_enter or no_debug_enter
 			%endif
 		%endif
+
+		;define the operators
+		;value is precidence
+		push_scope
+		def_op	_, 0, compile_uminus
+		def_op	*, 1, compile_mul
+		def_op	/, 1, compile_div
+		def_op	%, 1, compile_rem
+		def_op	+, 2, compile_plus
+		def_op	-, 2, compile_minus
+		def_op	&, 3, compile_and
+		def_op	^, 4, compile_xor
+		def_op	|, 5, compile_or
+		def_op	(, 6
+		def_op	), 6
 	%endmacro
 
 	%macro fn_function_end 0
+		pop_scope
 		%assign %%i 0
 		%rep _string_total_
 	_ref_%[%%i]_string:

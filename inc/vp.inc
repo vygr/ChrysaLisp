@@ -17,12 +17,12 @@
 
 	%macro reg? 1-17 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
 		%xdefine %%t %1
-		%assign _reg -1
+		%assign _r -1
 		%assign %%c 0
 		%rep %0 - 1
 			%rotate 1
 			%ifidn %1, %%t
-				%assign _reg %%c
+				%assign _r %%c
 				%exitrep
 			%endif
 			%assign %%c %%c + 1
@@ -31,11 +31,11 @@
 
 	%macro reg_b? 1-9 r0, al, r1, cl, r2, dl, r3, bl
 		%xdefine %%t %1
-		%xdefine _reg_b %1b
+		%xdefine _rb %1b
 		%rotate 1
 		%rep (%0 - 1) / 2
 			%ifidn %1, %%t
-				%xdefine _reg_b %2
+				%xdefine _rb %2
 				%exitrep
 			%endif
 			%rotate 2
@@ -44,11 +44,11 @@
 
 	%macro reg_s? 1-9 r0, ax, r1, cx, r2, dx, r3, bx
 		%xdefine %%t %1
-		%xdefine _reg_s %1w
+		%xdefine _rs %1w
 		%rotate 1
 		%rep (%0 - 1) / 2
 			%ifidn %1, %%t
-				%xdefine _reg_s %2
+				%xdefine _rs %2
 				%exitrep
 			%endif
 			%rotate 2
@@ -57,11 +57,11 @@
 
 	%macro reg_i? 1-9 r0, eax, r1, ecx, r2, edx, r3, ebx
 		%xdefine %%t %1
-		%xdefine _reg_i %1d
+		%xdefine _ri %1d
 		%rotate 1
 		%rep (%0 - 1) / 2
 			%ifidn %1, %%t
-				%xdefine _reg_i %2
+				%xdefine _ri %2
 				%exitrep
 			%endif
 			%rotate 2
@@ -84,94 +84,94 @@
 
 	%macro vp_cpy_b 2
 		reg? %1
-		%if _reg < 0
+		%if _r < 0
 			;source not register
 			reg? %2
-			%if _reg < 0
+			%if _r < 0
 				;dest not register
 				%fatal Not valid VP mode
 			%else
 				;dest is register
 				reg_b? %2
-				mov _reg_b, byte %1
+				mov _rb, %1
 			%endif
 		%else
 			;source is register
 			reg_b? %1
-			%xdefine %%s _reg_b
+			%xdefine %%s _rb
 			reg? %2
-			%if _reg < 0
+			%if _r < 0
 				;dest not register
-				mov byte %2, %%s
+				mov %2, %%s
 			%else
 				;dest is register
 				reg_b? %2
-				mov _reg_b, %%s
+				mov _rb, %%s
 			%endif
 		%endif
 	%endmacro
 
 	%macro vp_cpy_s 2
 		reg? %1
-		%if _reg < 0
+		%if _r < 0
 			;source not register
 			reg? %2
-			%if _reg < 0
+			%if _r < 0
 				;dest not register
 				%fatal Not valid VP mode
 			%else
 				;dest is register
 				reg_s? %2
-				mov _reg_s, word %1
+				mov _rs, word %1
 			%endif
 		%else
 			;source is register
 			reg_s? %1
-			%xdefine %%s _reg_s
+			%xdefine %%s _rs
 			reg? %2
-			%if _reg < 0
+			%if _r < 0
 				;dest not register
 				mov word %2, %%s
 			%else
 				;dest is register
 				reg_s? %2
-				mov _reg_s, %%s
+				mov _rs, %%s
 			%endif
 		%endif
 	%endmacro
 
 	%macro vp_cpy_i 2
 		reg? %1
-		%if _reg < 0
+		%if _r < 0
 			;source not register
 			reg? %2
-			%if _reg < 0
+			%if _r < 0
 				;dest not register
 				%fatal Not valid VP mode
 			%else
 				;dest is register
 				reg_i? %2
-				mov _reg_i, dword %1
+				mov _ri, dword %1
 			%endif
 		%else
 			;source is register
 			reg_i? %1
-			%xdefine %%s _reg_i
+			%xdefine %%s _ri
 			reg? %2
-			%if _reg < 0
+			%if _r < 0
 				;dest not register
 				mov dword %2, %%s
 			%else
 				;dest is register
 				reg_i? %2
-				mov _reg_i, %%s
+				mov _ri, %%s
 			%endif
 		%endif
 	%endmacro
 
 	%macro vp_cpy_cl 2
 		reg? %2
-		%if _reg < 0
+		%if _r < 0
 			;dest not register
 			mov qword %2, %1
 		%else
@@ -195,10 +195,10 @@
 		;%3 = quotient
 
 		reg? %2
-		%if _reg = 2
+		%if _r = 2
 			;high in r2
 			reg? %3
-			%if _reg = 0
+			%if _r = 0
 				;low in r0
 				idiv %1
 			%else
@@ -212,7 +212,7 @@
 		%else
 			;high not in r2
 			reg? %3
-			%if _reg = 0
+			%if _r = 0
 				;low in r0
 				vp_push r2
 				vp_cpy %2, r2
@@ -320,10 +320,10 @@
 
 	%macro vp_cpy_rel 2
 		reg? %1
-		%if _reg < 0
+		%if _r < 0
 			;source not register
 			reg? %2
-			%if _reg < 0
+			%if _r < 0
 				;dest not register
 				%fatal Not valid VP mode
 			%else
@@ -333,7 +333,7 @@
 		%else
 			;source is register
 			reg? %2
-			%if _reg < 0
+			%if _r < 0
 				;dest not register
 				mov [rel %2], %1
 			%else
@@ -353,6 +353,18 @@
 
 	%macro vp_rel 2
 		lea %2, [rel %1]
+	%endmacro
+
+	%macro vp_sex_b 1
+;		and %1, 0xff
+	%endmacro
+
+	%macro vp_sex_s 1
+;		and %1, 0xffff
+	%endmacro
+
+	%macro vp_sex_i 1
+;		and %1, 0xffffffff
 	%endmacro
 
 %endif

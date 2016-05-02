@@ -29,7 +29,7 @@
 		;this might be an gui auto run list eventually
 		static_call sys_task, start, {@tests/gui/gui1/app}, {r0, r1}
 		static_call sys_task, start, {@tests/gui/gui2/app}, {r0, r1}
-		static_call sys_task, start, {@tests/gui/gui3/app}, {r0, r1}
+;		static_call sys_task, start, {@tests/gui/gui3/app}, {r0, r1}
 
 		;gui event loop
 		loop_start
