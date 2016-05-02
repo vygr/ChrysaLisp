@@ -202,6 +202,19 @@
 		fn_jmp _map_%1_slot_%[_static_]
 	%endmacro
 
+	%macro s_jmp 2-4 {}
+		;%1 = class name
+		;%2 = member name
+		;%3 = in paramaters
+
+		method_lookup %1, %2
+		%ifidn _map_%1_type_%[_static_], virtual
+			%fatal Class %1 method %2 is virtual ! Use m_jmp ?
+		%endif
+		assign {%3}, {_map_%1_in_%[_static_]}
+		fn_jmp _map_%1_slot_%[_static_]
+	%endmacro
+
 	%macro static_bind 3
 		;%1 = class name
 		;%2 = member name
@@ -233,6 +246,25 @@
 		map_outputs %1, %2, {%4}, _static_
 	%endmacro
 
+	%macro p_call 2-4 {}, {}
+		;%1 = class name
+		;%2 = member name
+		;%3 = in paramaters
+		;%4 = out paramaters
+
+		method_lookup _super_class_%1_, %2
+		%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
+			%ifidn _map_%[_super_class_%1_]_name_%[_static_], init
+				;exeption for init
+			%else
+				%fatal Class _super_class_%1_ method %2 is static !
+			%endif
+		%endif
+		assign {%3}, {_map_%[_super_class_%1_]_in_%[_static_]}
+		fn_call _map_%[_super_class_%1_]_slot_%[_static_]
+		retire {_map_%[_super_class_%1_]_out_%[_static_]}, {%4}
+	%endmacro
+
 	%macro super_jmp 2-4 {}
 		;%1 = class name
 		;%2 = member name
@@ -243,6 +275,19 @@
 			%fatal Class _super_class_%1_ method %2 is static !
 		%endif
 		map_inputs %1, %2, {%3}, _static_
+		fn_jmp _map_%[_super_class_%1_]_slot_%[_static_]
+	%endmacro
+
+	%macro p_jmp 2-4 {}
+		;%1 = class name
+		;%2 = member name
+		;%3 = in paramaters
+
+		method_lookup _super_class_%1_, %2
+		%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
+			%fatal Class _super_class_%1_ method %2 is static !
+		%endif
+		assign {%3}, {_map_%[_super_class_%1_]_in_%[_static_]}
 		fn_jmp _map_%[_super_class_%1_]_slot_%[_static_]
 	%endmacro
 
@@ -275,6 +320,23 @@
 		map_outputs %1, %2, {%4}, _static_
 	%endmacro
 
+	%macro m_call 2-5 {}, {}, r15
+		;%1 = class name
+		;%2 = member name
+		;%3 = in paramaters
+		;%4 = out paramaters
+		;%5 = dispatch reg
+
+		method_lookup %1, %2
+		%ifidn _map_%1_type_%[_static_], static
+			%fatal Class %1 method %2 is static ! Use static_call ?
+		%endif
+		assign {%5, %3}, {%5, _map_%1_in_%[_static_]}
+		vp_cpy [r0 + obj_vtable], %5
+		vp_call [%5 + _virtual_ * 8]
+		retire {_map_%1_out_%[_static_]}, {%4}
+	%endmacro
+
 	%macro method_jmp 2-5 {}, r15
 		;%1 = class name
 		;%2 = member name
@@ -286,6 +348,21 @@
 			%fatal Class %1 method %2 is static ! Use static_jmp ?
 		%endif
 		map_inputs %1, %2, {%3}, _static_
+		vp_cpy [r0 + obj_vtable], %4
+		vp_jmp [%4 + _virtual_ * 8]
+	%endmacro
+
+	%macro m_jmp 2-5 {}, r15
+		;%1 = class name
+		;%2 = member name
+		;%3 = in paramaters
+		;%4 = dispatch reg
+
+		method_lookup %1, %2
+		%ifidn _map_%1_type_%[_static_], static
+			%fatal Class %1 method %2 is static ! Use static_jmp ?
+		%endif
+		assign {%4, %3}, {%4, _map_%1_in_%[_static_]}
 		vp_cpy [r0 + obj_vtable], %4
 		vp_jmp [%4 + _virtual_ * 8]
 	%endmacro

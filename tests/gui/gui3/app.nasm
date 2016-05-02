@@ -49,14 +49,14 @@
 
 		;add my app flow panel
 		s_call flow, create, {}, {flow_panel}
-;		s_call flow, set_flow_flags, {flow_panel, flow_flag_down | flow_flag_fillw | flow_flag_lasth}
+		s_call flow, set_flow_flags, {flow_panel, flow_flag_down | flow_flag_fillw | flow_flag_lasth}
 		s_call flow, set_color, {flow_panel, 0x00000000}
 		s_call flow, add, {flow_panel, window_panel}
 
 		;add my display label
 		s_call label, create, {}, {display}
 		s_call label, set_color, {display, 0xffffffff}
-;		s_call label, set_flow_flags, {display, flow_flag_align_hright | flow_flag_align_vcenter}
+		s_call label, set_flow_flags, {display, flow_flag_align_hright | flow_flag_align_vcenter}
 		s_call label, set_font, {display, "fonts/OpenSans-Regular.ttf", 24}
 		s_call string, create, {"0"}, {string}
 		s_call label, set_text, {display, string}
@@ -80,7 +80,7 @@
 			s_call button, set_color, {button, 0xffffff00}
 			s_call string, create, {next}, {string}
 			s_call button, set_text, {button, string}
-;			s_call button, set_flow_flags, {button, flow_flag_align_hcenter | flow_flag_align_vcenter}
+			s_call button, set_flow_flags, {button, flow_flag_align_hcenter | flow_flag_align_vcenter}
 			s_call button, add, {button, grid_panel}
 			s_call button, sig_pressed, {button}, {pressed}
 			s_call button, connect, {button, pressed, :myapp, $on_press}
@@ -90,7 +90,7 @@
 		loop_end
 
 		;set to pref size
-;		method_call window, pref_size, {window}, {width, height}
+		m_call window, pref_size, {window}, {width, height}
 		s_call window, change, {window, 920, 48, width / 2 + width, height / 2 + height}
 
 		;set window owner
@@ -106,7 +106,7 @@
 			s_call sys_mail, mymail, {}, {last_event}
 
 			;dispatch event to view
-;			method_call view, event, {[r0 + ev_data_view], r0}
+			m_call view, event, {last_event + ev_data_view, last_event}
 
 			;free event message
 			s_call sys_mem, free, {last_event}
@@ -115,7 +115,7 @@
 		;deref window
 		s_call window, deref, {window}
 
-;		method_call obj, deinit, {:myapp}
+		m_call obj, deinit, {:myapp}
 		free_vars
 		vp_ret
 

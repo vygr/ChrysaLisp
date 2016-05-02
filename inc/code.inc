@@ -924,7 +924,8 @@
 	%macro compile_lvar 1
 		get_sym %1
 		%if _sym = -1
-			%error Symbol %1 not defined !
+			;try letting NASM handle it
+			compile_const %1
 		%elif _sym_type_%[_sym] = _sym_const
 			;constant
 			compile_const _sym_value_%[_sym]
@@ -977,7 +978,7 @@
 	%macro compile_rvar 1
 		get_sym %1
 		%if _sym = -1
-			%error Symbol %1 not defined !
+			%fatal Symbol %1 not defined !
 		%elif _sym_type_%[_sym] = _sym_const
 			;constant
 			%error Constant %1 as destination !
@@ -1055,8 +1056,10 @@
 
 	%macro compile_const 1
 		get_reg _reg_sp
-		%warning vp_cpy %1, _reg
-		vp_cpy %1, _reg
+		%ifnid %1, _reg
+			%warning vp_cpy %1, _reg
+			vp_cpy %1, _reg
+		%endif
 	%endmacro
 
 	%macro compile_rpn_list 0
