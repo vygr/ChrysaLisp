@@ -113,11 +113,12 @@
 		%endrep
 	%endmacro
 
-	%macro def_sym 3-4 0
+	%macro def_sym 3-5 0, ''
 		;%1 name
 		;%2 type
 		;%3 value
 		;%4 size
+		;%5 aux data
 		%assign %%s _scope_sp - 1
 		%assign %%n _scope_sym_%[%%s]
 		%rep _sym_sp - %%n
@@ -130,11 +131,12 @@
 		%if %%n != _sym_sp
 			%fatal Symbol %1 redefined !
 		%endif
+		%assign _sym_scope_%[%%n] %%s
 		%xdefine _sym_name_%[%%n] %1
 		%assign _sym_type_%[%%n] %2
 		%assign _sym_value_%[%%n] %3
 		%assign _sym_size_%[%%n] %4
-		%assign _sym_scope_%[%%n] %%s
+		%xdefine _sym_aux_%[%%n] %5
 		%assign _sym_sp _sym_sp + 1
 	%endmacro
 
@@ -168,10 +170,11 @@
 		def_sym %1, _sym_const, %2
 	%endmacro
 
-	%macro def_op 2
+	%macro def_op 2-3 compile_null
 		;%1 name
 		;%2 precidence
-		def_sym %1, _sym_op, %2
+		;%3 compile macro
+		def_sym %1, _sym_op, %2, 0, %3
 	%endmacro
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -456,7 +459,7 @@
 				%ifidn %%t, (
 					%xdefine _op_%[%%o] %%t
 					%assign %%o %%o + 1
-				%elifidn %t, )
+				%elifidn %%t, )
 					%rep %%o
 						%assign %%o %%o - 1
 						%ifidn _op_%[%%o], (
@@ -501,7 +504,7 @@
 	%macro print_rpn_list 0
 		%assign %%n 0
 		%rep _rpn_sp
-			%warning rpn token %%n: n: _rpn_%[%%n] t: _rpn_type_%[%%n]
+			%warning rpn token %%n: t: _rpn_type_%[%%n] n: _rpn_%[%%n]
 			%assign %%n %%n + 1
 		%endrep
 	%endmacro
@@ -585,6 +588,165 @@
 		%endrep
 	%endmacro
 
+	%macro compile_null 0
+	%endmacro
+
+	%macro compile_unary_minus 0
+		pop_reg
+		%warning vp_mul -1, _reg
+	%endmacro
+
+	%macro compile_plus 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning vp_add %%r, _reg
+	%endmacro
+
+	%macro compile_minus 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning vp_sub %%r, _reg
+	%endmacro
+
+	%macro compile_mul 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning vp_mul %%r, _reg
+	%endmacro
+
+	%macro compile_div 0
+		get_reg _reg_sp
+		%xdefine %%r2 _reg
+		pop_reg
+		%xdefine %%r1 _reg
+		pop_reg
+		%warning vp_xor %%r2, %%r2
+		%warning vp_div %%r1, %%r2, _reg
+	%endmacro
+
+	%macro compile_rem 0
+		get_reg _reg_sp
+		%xdefine %%r2 _reg
+		pop_reg
+		%xdefine %%r1 _reg
+		pop_reg
+		%warning vp_xor %%r2, %%r2
+		%warning vp_div %%r1, %%r2, _reg
+		%warning vp_cpy %%r2, _reg
+	%endmacro
+
+	%macro compile_and 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning vp_and %%r, _reg
+	%endmacro
+
+	%macro compile_xor 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning vp_xor %%r, _reg
+	%endmacro
+
+	%macro compile_or 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning vp_or %%r, _reg
+	%endmacro
+
+	%macro compile_operator 1
+		get_sym %1
+		%if _sym = -1
+			%error Operator %1 not defined !
+		%elif _sym_type_%[_sym] != _sym_op
+			%error %1 not an operator !
+		%endif
+		_sym_aux_%[_sym]
+	%endmacro
+
+	%macro compile_sym 1
+		get_sym %1
+		%if _sym = -1
+			%error Symbol %1 not defined !
+		%elif _sym_type_%[_sym] = _sym_const
+			;constant
+			compile_const _sym_value_%[_sym]
+		%elif _sym_type_%[_sym] = _sym_var
+			;variable
+			get_reg _reg_sp
+			get_scope_offset _sym_scope_%[_sym]
+			%if _sym_size_%[_sym] = -1
+				%warning vp_cpy_b [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+				%warning vp_sex_b _reg, _reg
+			%elif _sym_size_%[_sym] = -2
+				%warning vp_cpy_s [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+				%warning vp_sex_s _reg, _reg
+			%elif _sym_size_%[_sym] = -4
+				%warning vp_cpy_i [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+				%warning vp_sex_i _reg, _reg
+			%elif _sym_size_%[_sym] = -8
+				%warning vp_cpy [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+			%elif _sym_size_%[_sym] = 1
+				%warning vp_xor _reg, _reg
+				%warning vp_cpy_b [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+			%elif _sym_size_%[_sym] = 2
+				%warning vp_xor _reg, _reg
+				%warning vp_cpy_s [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+			%elif _sym_size_%[_sym] = 4
+				%warning vp_xor _reg, _reg
+				%warning vp_cpy_i [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+			%elif _sym_size_%[_sym] = 8
+				%warning vp_cpy [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+			%else
+				%fatal Variable %1 too big !
+			%endif
+		%endif
+	%endmacro
+
+	%macro compile_address 1
+		%ifnum %1
+			;bare constant
+			%fatal Taking address of constant %1 !
+		%endif
+		get_sym %1
+		%if _sym = -1
+			%fatal Symbol %1 not defined !
+		%elif _sym_type_%[_sym] = _sym_const
+			;constant
+			%fatal Taking address of constant %1 !
+		%elif _sym_type_%[_sym] = _sym_var
+			;variable
+			get_reg _reg_sp
+			get_scope_offset _sym_scope_%[_sym]
+			%warning vp_lea [r4 - _scope_offset + _sym_value_%[_sym]], _reg
+		%endif
+	%endmacro
+
+	%macro compile_string 1
+		get_reg _reg_sp
+		%warning fn_string %1, _reg
+	%endmacro
+
+	%macro compile_bind 1
+		get_reg _reg_sp
+		%warning fn_bind %1, _reg
+	%endmacro
+
+	%macro compile_label 1
+		get_reg _reg_sp
+		%warning vp_rel %1, _reg
+	%endmacro
+
+	%macro compile_const 1
+		get_reg _reg_sp
+		%warning vp_cpy %1, _reg
+	%endmacro
+
 	%macro compile_rpn_list 0
 		%assign %%n 0
 		%rep _rpn_sp
@@ -592,144 +754,30 @@
 			%assign %%tt _rpn_type_%[%%n]
 			%if %%tt = -1
 				;operator
-				%ifidn %%t, _
-					pop_reg
-					%xdefine %%r0 _reg
-					%warning vp_mul -1, %%r0
-				%elifidn %%t, +
-					pop_reg
-					%xdefine %%r1 _reg
-					pop_reg
-					%xdefine %%r0 _reg
-					%warning vp_add %%r1, %%r0
-				%elifidn %%t, -
-					pop_reg
-					%xdefine %%r1 _reg
-					pop_reg
-					%xdefine %%r0 _reg
-					%warning vp_sub %%r1, %%r0
-				%elifidn %%t, *
-					pop_reg
-					%xdefine %%r1 _reg
-					pop_reg
-					%xdefine %%r0 _reg
-					%warning vp_mul %%r1, %%r0
-				%elifidn %%t, &
-					pop_reg
-					%xdefine %%r1 _reg
-					pop_reg
-					%xdefine %%r0 _reg
-					%warning vp_and %%r1, %%r0
-				%elifidn %%t, ^
-					pop_reg
-					%xdefine %%r1 _reg
-					pop_reg
-					%xdefine %%r0 _reg
-					%warning vp_xor %%r1, %%r0
-				%elifidn %%t, |
-					pop_reg
-					%xdefine %%r1 _reg
-					pop_reg
-					%xdefine %%r0 _reg
-					%warning vp_or %%r1, %%r0
-				%elifidn %%t, /
-					get_reg _reg_sp
-					%xdefine %%r2 _reg
-					pop_reg
-					%xdefine %%r1 _reg
-					pop_reg
-					%xdefine %%r0 _reg
-					%warning vp_xor %%r2, %%r2
-					%warning vp_div %%r1, %%r2, %%r0
-				%elifidn %%t, %
-					get_reg _reg_sp
-					%xdefine %%r2 _reg
-					pop_reg
-					%xdefine %%r1 _reg
-					pop_reg
-					%xdefine %%r0 _reg
-					%warning vp_xor %%r2, %%r2
-					%warning vp_div %%r1, %%r2, %%r0
-					%warning vp_cpy %%r2, %%r0
-				%endif
+				compile_operator %%t
 			%elif %%tt = 0
 				;...
 				%ifnum %%t
 					;bare constant
-					get_reg _reg_sp
-					%warning vp_cpy %%t, _reg
+					compile_const %%t
 				%else
-					get_sym %%t
-					%if _sym = -1
-						%error Symbol %%t not defined !
-					%elif _sym_type_%[_sym] = _sym_const
-						;constant
-						get_reg _reg_sp
-						%warning vp_cpy _sym_value_%[_sym], _reg
-					%elif _sym_type_%[_sym] = _sym_var
-						;variable
-						get_reg _reg_sp
-						get_scope_offset _sym_scope_%[_sym]
-						%if _sym_size_%[_sym] = -1
-							%warning vp_cpy_b [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-							%warning vp_sex_b _reg, _reg
-						%elif _sym_size_%[_sym] = -2
-							%warning vp_cpy_s [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-							%warning vp_sex_s _reg, _reg
-						%elif _sym_size_%[_sym] = -4
-							%warning vp_cpy_i [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-							%warning vp_sex_i _reg, _reg
-						%elif _sym_size_%[_sym] = -8
-							%warning vp_cpy [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-						%elif _sym_size_%[_sym] = 1
-							%warning vp_xor _reg, _reg
-							%warning vp_cpy_b [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-						%elif _sym_size_%[_sym] = 2
-							%warning vp_xor _reg, _reg
-							%warning vp_cpy_s [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-						%elif _sym_size_%[_sym] = 4
-							%warning vp_xor _reg, _reg
-							%warning vp_cpy_i [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-						%elif _sym_size_%[_sym] = 8
-							%warning vp_cpy [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-						%else
-							%fatal Variable %%t too big !
-						%endif
-					%endif
+					compile_sym %%t
 				%endif
 			%elif %%tt = 4
 				;:...
 				%defstr %%s %%t
 				%substr %%ss %%s 2, -1
 				%deftok %%t %%ss
-				%ifnum %%t
-					;bare constant
-					%fatal Taking address of constant %%t !
-				%endif
-				get_sym %%t
-				%if _sym = -1
-					%fatal Symbol %%t not defined !
-				%elif _sym_type_%[_sym] = _sym_const
-					;constant
-					%fatal Taking address of constant %%t !
-				%elif _sym_type_%[_sym] = _sym_var
-					;variable
-					get_reg _reg_sp
-					get_scope_offset _sym_scope_%[_sym]
-					%warning vp_lea [r4 - _scope_offset + _sym_value_%[_sym]], _reg
-				%endif
+				compile_address %%t
 			%elif %%tt = 1
 				;"..."
-				get_reg _reg_sp
-				%warning fn_string %%t, _reg
+				compile_string %%t
 			%elif %%tt = 2
 				;@...
-				get_reg _reg_sp
-				%warning fn_bind %%t, _reg
+				compile_bind %%t
 			%elif %%tt = 3
 				;$...
-				get_reg _reg_sp
-				%warning vp_rel %%t, _reg
+				compile_label %%t
 			%else
 				%error Unknown token type %%t !
 			%endif
@@ -776,15 +824,15 @@
 	;define the operators
 	;value is precidence
 	push_scope
-	def_op	_, 0
-	def_op	*, 1
-	def_op	/, 1
-	def_op	%, 1
-	def_op	+, 2
-	def_op	-, 2
-	def_op	&, 3
-	def_op	^, 4
-	def_op	|, 5
+	def_op	_, 0, compile_unary_minus
+	def_op	*, 1, compile_mul
+	def_op	/, 1, compile_div
+	def_op	%, 1, compile_rem
+	def_op	+, 2, compile_plus
+	def_op	-, 2, compile_minus
+	def_op	&, 3, compile_and
+	def_op	^, 4, compile_xor
+	def_op	|, 5, compile_or
 	def_op	(, 6
 	def_op	), 6
 
