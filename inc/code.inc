@@ -635,6 +635,11 @@
 							;')('
 							push_token %%c, _pos
 							%assign %%u _pos - 21
+						%elif _pos = 0
+							%strcat %%p %%p %%c
+							%assign %%m _pos
+						%elif _pos < 4
+							%assign %%m _pos
 						%else
 							%strcat %%p %%p %%c
 							%assign %%m _pos
@@ -1287,9 +1292,6 @@
 				%endif
 			%elif %%tt = 1
 				;:...
-				%defstr %%s %%t
-				%substr %%ss %%s 2, -1
-				%deftok %%t %%ss
 				compile_addr %%t
 			%elif %%tt = 2
 				;@...

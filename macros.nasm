@@ -19,14 +19,14 @@
 		int yyy
 		long zzz
 
-		set_token_list (a + b) * (d + e)
-		print_token_list
-		token_to_rpn
-		print_rpn_list
+;		set_token_list (a + b) * (d + e)
+;		print_token_list
+;		token_to_rpn
+;		print_rpn_list
 
 		;define variables
 		push_vars
-;			eval {(a + b) * (d + e)}, {r0}
+			eval {@zzz}, {r0}
 
 			;define variables
 			ushort xxx

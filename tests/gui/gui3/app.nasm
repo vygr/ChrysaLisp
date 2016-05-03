@@ -106,7 +106,7 @@
 			s_call sys_mail, mymail, {}, {last_event}
 
 			;dispatch event to view
-			m_call view, event, {last_event + ev_data_view, last_event}
+			m_call view, event, {last_event . ev_data_view, last_event}
 
 			;free event message
 			s_call sys_mem, free, {last_event}
@@ -114,7 +114,6 @@
 
 		;deref window
 		s_call window, deref, {window}
-
 		m_call obj, deinit, {:myapp}
 		pop_vars
 		vp_ret
