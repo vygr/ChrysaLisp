@@ -419,11 +419,12 @@
 		def_sym %1, _sym_const, %2
 	%endmacro
 
-	%macro def_op 2-3 compile_null
+	%macro def_op 2-4 0, compile_null
 		;%1 name
 		;%2 precidence
-		;%3 compile macro
-		def_sym %1, _sym_op, %2, 0, %3
+		;%3 asociativity
+		;%4 compile macro
+		def_sym %1, _sym_op, %2 * 2, %3, %4
 	%endmacro
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -619,59 +620,84 @@
 		%defstr %%s %1
 		%strlen %%l %%s
 		%assign _token_sp 0
-		%defstr %%p
+		%defstr %%c
 		%assign %%m -1
 		%assign %%u 1
 		%assign %%i 1
-		%rep %%l
-			%substr %%ss %%s %%i, 1
-			sub_string %%ss, '"@$:-+*/%&^|[]() '
-			%if %%m = -1
-				;op mode
-				%ifnidn %%ss, ' '
-					%if _pos < 5
-						;string or symbol
-						%strcat %%p %%p %%ss
-						%assign %%m _pos
-					%elif _pos = 5
-						;-
-						%if %%u = 1
-							push_token '_', %%m
+		%rep %%l * 2
+			%ifnidn %%c, ''
+				sub_string %%c, ':@$"-*~!+/%&^|<=>.? )('
+				%if %%m = -1
+					;scanning
+					%ifnidn %%c, ' '
+						%if _pos > 20
+							;')('
+							push_token %%c, _pos
+							%assign %%u _pos - 21
 						%else
-							push_token %%ss, %%m
+							%defstr %%p
+							%strcat %%p %%p %%c
+							%assign %%m _pos
+						%endif
+					%endif
+					%defstr %%c
+				%elif %%m > 4
+					;op mode
+					%if _pos > 19
+						;' )('
+						%if %%u = 1
+							;unary operator
+							%ifidn %%p, '-'
+								push_token '_', %%m
+							%elifidn %%p, '*'
+								push_token '#', %%m
+							%elifidn %%p, '~'
+								push_token %%p, %%m
+							%elifidn %%p, '!'
+								push_token %%p, %%m
+							%else
+								%fatal Unknown unary operator %%p !
+							%endif
+						%else
+							;binary operator
+							push_token %%p, %%m
 							%assign %%u 1
 						%endif
+						%assign %%m -1
 					%else
-						;operator
-						push_token %%ss, %%m
-						%assign %%u 1
+						%strcat %%p %%p %%c
+						%defstr %%c
 					%endif
-				%endif
-			%elif %%m = 1
-				;" mode
-				%strcat %%p %%p %%ss
-				%ifidn %%ss, '"'
-					push_token %%p, %%m
-					%defstr %%p
-					%assign %%u 0
-					%assign %%m -1
-				%endif
-			%else
-				;symbol mode
-				%if _pos < 13
-					%strcat %%p %%p %%ss
+				%elif %m < 4
+					;symbol mode
+					%if _pos > 19
+						;' )('
+						push_token %%p, %%m
+						%assign %%u 0
+						%assign %%m -1
+					%else
+						%strcat %%p %%p %%c
+						%defstr %%c
+					%endif
 				%else
-					;'[]() '
-					push_token %%p, %%m
-					%defstr %%p
-					%assign %%u 0
-					%assign %%m -1
-					%ifnidn %%ss, ' '
-						push_token %%ss, -1
+					;" mode
+					%strcat %%p %%p %%c
+					%ifidn %%c, '"'
+						push_token %%p, %%m
+						%assign %%u 0
+						%assign %%m -1
 					%endif
+					%defstr %%c
 				%endif
 			%endif
-			%assign %%i %%i + 1
+			%ifidn %%c, ''
+				%if %%i > %%l
+					%exitrep
+				%else
+					%substr %%c %%s %%i, 1
+					%assign %%i %%i + 1
+				%endif
+			%endif
 		%endrep
 		%ifnidn %%p, ''
 			push_token %%p, %%m
@@ -703,7 +729,7 @@
 		%rep _token_sp
 			%xdefine %%t _token_%[%%n]
 			%assign %%tt _token_type_%[%%n]
-			%if %%tt = -1
+			%if %%tt > 4
 				;operator
 				%ifidn %%t, (
 					%xdefine _op_%[%%o] %%t
@@ -720,19 +746,15 @@
 				%else
 					;precidence
 					get_sym %%t
-					%assign %%v _sym_value_%[_sym]
-					%if %%v = 0
-						;unary -
-						%assign %%v -1
-					%endif
+					%assign %%v _sym_value_%[_sym] - _sym_size_%[_sym]
 					%rep %%o
 						%assign %%o %%o - 1
 						get_sym _op_%[%%o]
-						%if %%v < _sym_value_%[_sym]
+						%if %%v >= _sym_value_%[_sym]
+							push_rpn _op_%[%%o], -1
+						%else
 							%assign %%o %%o + 1
 							%exitrep
-						%else
-							push_rpn _op_%[%%o], -1
 						%endif
 					%endrep
 					%xdefine _op_%[%%o] %%t
@@ -838,12 +860,185 @@
 	%endmacro
 
 	%macro compile_null 0
+		%fatal Compilation code not found !
+	%endmacro
+
+	%macro compile_field 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning vp_cpy [_reg + %%r], _reg
+		vp_cpy [_reg + %%r], _reg
 	%endmacro
 
 	%macro compile_uminus 0
 		pop_reg
 		%warning vp_mul -1, _reg
 		vp_mul -1, _reg
+	%endmacro
+
+	%macro compile_uderef 0
+		pop_reg
+		%warning vp_cpy [_reg], _reg
+		vp_cpy [_reg], _reg
+	%endmacro
+
+	%macro compile_unot 0
+		pop_reg
+		%warning vp_xor -1, _reg
+		vp_xor -1, _reg
+	%endmacro
+
+	%macro compile_ulnot 0
+		pop_reg
+		%warning vp_xor 1, _reg
+		vp_xor 1, _reg
+	%endmacro
+
+	%macro compile_land 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning vp_and %%r, _reg
+		vp_and %%r, _reg
+	%endmacro
+
+	%macro compile_lor 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning vp_or %%r, _reg
+		vp_or %%r, _reg
+	%endmacro
+
+	%macro compile_ternary 0
+		pop_reg
+		%xdefine %%r2 _reg
+		pop_reg
+		%xdefine %%r1 _reg
+		pop_reg
+		%warning if _reg, !=, 0
+		%warning 	vp_cpy %%r1, _reg
+		%warning else
+		%warning 	vp_cpy %%r2, _reg
+		%warning endif
+		if _reg, !=, 0
+			vp_cpy %%r1, _reg
+		else
+			vp_cpy %%r2, _reg
+		endif
+	%endmacro
+
+	%macro compile_gt 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning if _reg, >, %%r
+		%warning 	vp_cpy 1, _reg
+		%warning else
+		%warning 	vp_xor _reg, _reg
+		%warning endif
+		if _reg, >, %%r
+			vp_cpy 1, _reg
+		else
+			vp_xor _reg, _reg
+		endif
+	%endmacro
+
+	%macro compile_lt 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning if _reg, <, %%r
+		%warning 	vp_cpy 1, _reg
+		%warning else
+		%warning 	vp_xor _reg, _reg
+		%warning endif
+		if _reg, <, %%r
+			vp_cpy 1, _reg
+		else
+			vp_xor _reg, _reg
+		endif
+	%endmacro
+
+	%macro compile_ge 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning if _reg, >=, %%r
+		%warning 	vp_cpy 1, _reg
+		%warning else
+		%warning 	vp_xor _reg, _reg
+		%warning endif
+		if _reg, >=, %%r
+			vp_cpy 1, _reg
+		else
+			vp_xor _reg, _reg
+		endif
+	%endmacro
+
+	%macro compile_le 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning if _reg, <=, %%r
+		%warning 	vp_cpy 1, _reg
+		%warning else
+		%warning 	vp_xor _reg, _reg
+		%warning endif
+		if _reg, <=, %%r
+			vp_cpy 1, _reg
+		else
+			vp_xor _reg, _reg
+		endif
+	%endmacro
+
+	%macro compile_eq 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning if _reg, ==, %%r
+		%warning 	vp_cpy 1, _reg
+		%warning else
+		%warning 	vp_xor _reg, _reg
+		%warning endif
+		if _reg, ==, %%r
+			vp_cpy 1, _reg
+		else
+			vp_xor _reg, _reg
+		endif
+	%endmacro
+
+	%macro compile_ne 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning if _reg, !=, %%r
+		%warning 	vp_cpy 1, _reg
+		%warning else
+		%warning 	vp_xor _reg, _reg
+		%warning endif
+		if _reg, !=, %%r
+			vp_cpy 1, _reg
+		else
+			vp_xor _reg, _reg
+		endif
+	%endmacro
+
+	%macro compile_lshift 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning vp_shl %%r, _reg
+		vp_shl %%r, _reg
+	%endmacro
+
+	%macro compile_rshift 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning vp_shr %%r, _reg
+		vp_shr %%r, _reg
 	%endmacro
 
 	%macro compile_plus 0
@@ -921,6 +1116,7 @@
 	%endmacro
 
 	%macro compile_operator 1
+		%warning op = %1
 		get_sym %1
 		%if _sym = -1
 			%error Operator %1 not defined !
@@ -1089,21 +1285,21 @@
 				%else
 					compile_rvar %%t
 				%endif
-			%elif %%tt = 4
+			%elif %%tt = 1
 				;:...
 				%defstr %%s %%t
 				%substr %%ss %%s 2, -1
 				%deftok %%t %%ss
 				compile_addr %%t
-			%elif %%tt = 1
-				;"..."
-				compile_string %%t
 			%elif %%tt = 2
 				;@...
 				compile_bind %%t
 			%elif %%tt = 3
 				;$...
 				compile_label %%t
+			%elif %%tt = 4
+				;"..."
+				compile_string %%t
 			%else
 				%error Unknown token type %%t !
 			%endif

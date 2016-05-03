@@ -201,19 +201,34 @@
 		%endif
 
 		;define the operators
-		;value is precidence
+		;values are precidence, assoiciativity
 		push_scope
-		def_op	_, 0, compile_uminus
-		def_op	*, 1, compile_mul
-		def_op	/, 1, compile_div
-		def_op	%, 1, compile_rem
-		def_op	+, 2, compile_plus
-		def_op	-, 2, compile_minus
-		def_op	&, 3, compile_and
-		def_op	^, 4, compile_xor
-		def_op	|, 5, compile_or
-		def_op	(, 6
-		def_op	), 6
+		def_op	., 1, 0, compile_field
+		def_op	_, 2, 1, compile_uminus
+		def_op	#, 2, 1, compile_uderef
+		def_op	~, 2, 1, compile_unot
+		def_op	!, 2, 1, compile_ulnot
+		def_op	*, 3, 0, compile_mul
+		def_op	/, 3, 0, compile_div
+		def_op	%, 3, 0, compile_rem
+		def_op	+, 4, 0, compile_plus
+		def_op	-, 4, 0, compile_minus
+		def_op	<<, 5, 0, compile_lshift
+		def_op	>>, 5, 0, compile_rshift
+		def_op	<, 6, 0, compile_lt
+		def_op	>, 6, 0, compile_gt
+		def_op	<=, 6, 0, compile_le
+		def_op	>=, 6, 0, compile_ge
+		def_op	==, 7, 0, compile_eq
+		def_op	!=, 7, 0, compile_ne
+		def_op	&, 8, 0, compile_and
+		def_op	^, 9, 0, compile_xor
+		def_op	|, 10, 0, compile_or
+		def_op	&&, 11, 0, compile_land
+		def_op	||, 12, 0, compile_lor
+		def_op	?, 13, 0, compile_ternary
+		def_op	(, 14
+		def_op	), 14
 		push_scope
 	%endmacro
 

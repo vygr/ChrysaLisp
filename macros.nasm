@@ -21,20 +21,20 @@
 
 		;define variables
 		push_vars
-			eval {(a + b) ^ zzz * -xxx / yyy, "test" % 56 * xxx + yyy * yyy}, {r0, r1}
+			eval {(a + b) * (d + e)}, {r0}
 
 			;define variables
 			ushort xxx
 			uint yyy
 			push_vars
-				eval {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
+;				eval {(a + b) ^ zzz * - xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
 			pop_vars
 
 			;define variables
 			byte zzz
 			struct qqq, long
 			push_vars
-				eval {(a + b) ^ zzz * -xxx / yyy, "test" % qqq * :xxx + yyy * @test/path}, {r0, r1}
+;				eval {(a + b) ^ zzz * - xxx / yyy, "test" % qqq * :xxx + yyy * @test/path}, {r0, r1}
 			pop_vars
 		pop_vars
 		vp_ret
