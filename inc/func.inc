@@ -214,9 +214,11 @@
 		def_op	|, 5, compile_or
 		def_op	(, 6
 		def_op	), 6
+		push_scope
 	%endmacro
 
 	%macro fn_function_end 0
+		pop_scope
 		pop_scope
 		%assign %%i 0
 		%rep _string_total_

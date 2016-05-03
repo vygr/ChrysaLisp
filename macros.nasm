@@ -18,20 +18,25 @@
 		short xxx
 		int yyy
 		long zzz
-		eval {(a + b) ^ zzz * -xxx / yyy, "test" % 56 * xxx + yyy * yyy}, {r0, r1}
 
 		;define variables
-		push_scope
+		push_vars
+			eval {(a + b) ^ zzz * -xxx / yyy, "test" % 56 * xxx + yyy * yyy}, {r0, r1}
+
+			;define variables
 			ushort xxx
 			uint yyy
-			eval {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
-		pop_scope
+			push_vars
+				eval {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
+			pop_vars
 
-		;define variables
-		push_scope
+			;define variables
 			byte zzz
 			struct qqq, long
-			eval {(a + b) ^ zzz * -xxx / yyy, "test" % qqq * :xxx + yyy * @test/path}, {r0, r1}
-		pop_scope
+			push_vars
+				eval {(a + b) ^ zzz * -xxx / yyy, "test" % qqq * :xxx + yyy * @test/path}, {r0, r1}
+			pop_vars
+		pop_vars
+		vp_ret
 
 	fn_function_end

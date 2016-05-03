@@ -34,7 +34,7 @@
 		long length
 
 		;init app vars
-		alloc_vars
+		push_vars
 		slot_function class, obj
 		s_call obj, init, {:myapp, @_function_}, {_}
 		s_call sys_string, from_long, {0, :buffer, 10}
@@ -116,7 +116,7 @@
 		s_call window, deref, {window}
 
 		m_call obj, deinit, {:myapp}
-		free_vars
+		pop_vars
 		vp_ret
 
 	on_press:
