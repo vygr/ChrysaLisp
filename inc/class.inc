@@ -184,7 +184,7 @@
 		%ifidn _map_%1_type_%[_static_], virtual
 			%fatal Class %1 method %2 is virtual ! Use m_call ?
 		%endif
-		assign {%3}, {_map_%1_in_%[_static_]}
+		eval {%3}, {_map_%1_in_%[_static_]}
 		fn_call _map_%1_slot_%[_static_]
 		retire {_map_%1_out_%[_static_]}, {%4}
 	%endmacro
@@ -211,7 +211,7 @@
 		%ifidn _map_%1_type_%[_static_], virtual
 			%fatal Class %1 method %2 is virtual ! Use m_jmp ?
 		%endif
-		assign {%3}, {_map_%1_in_%[_static_]}
+		eval {%3}, {_map_%1_in_%[_static_]}
 		fn_jmp _map_%1_slot_%[_static_]
 	%endmacro
 
@@ -260,7 +260,7 @@
 				%fatal Class _super_class_%1_ method %2 is static !
 			%endif
 		%endif
-		assign {%3}, {_map_%[_super_class_%1_]_in_%[_static_]}
+		eval {%3}, {_map_%[_super_class_%1_]_in_%[_static_]}
 		fn_call _map_%[_super_class_%1_]_slot_%[_static_]
 		retire {_map_%[_super_class_%1_]_out_%[_static_]}, {%4}
 	%endmacro
@@ -287,7 +287,7 @@
 		%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
 			%fatal Class _super_class_%1_ method %2 is static !
 		%endif
-		assign {%3}, {_map_%[_super_class_%1_]_in_%[_static_]}
+		eval {%3}, {_map_%[_super_class_%1_]_in_%[_static_]}
 		fn_jmp _map_%[_super_class_%1_]_slot_%[_static_]
 	%endmacro
 
@@ -331,7 +331,7 @@
 		%ifidn _map_%1_type_%[_static_], static
 			%fatal Class %1 method %2 is static ! Use static_call ?
 		%endif
-		assign {%5, %3}, {%5, _map_%1_in_%[_static_]}
+		eval {%5, %3}, {%5, _map_%1_in_%[_static_]}
 		vp_cpy [r0 + obj_vtable], %5
 		vp_call [%5 + _virtual_ * 8]
 		retire {_map_%1_out_%[_static_]}, {%4}
@@ -362,7 +362,7 @@
 		%ifidn _map_%1_type_%[_static_], static
 			%fatal Class %1 method %2 is static ! Use static_jmp ?
 		%endif
-		assign {%4, %3}, {%4, _map_%1_in_%[_static_]}
+		eval {%4, %3}, {%4, _map_%1_in_%[_static_]}
 		vp_cpy [r0 + obj_vtable], %4
 		vp_jmp [%4 + _virtual_ * 8]
 	%endmacro

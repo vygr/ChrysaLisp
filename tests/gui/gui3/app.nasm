@@ -69,7 +69,7 @@
 		s_call grid, add, {grid_panel, flow_panel}
 
 		;add buttons to my grid panel
-		assign {$button_list}, {r0}
+		eval {$button_list}, {r0}
 		loop_start
 			vp_xor r1, r1
 			vp_cpy_b [r0], r1
@@ -86,7 +86,7 @@
 			s_call button, connect, {button, pressed, :myapp, $on_press}
 
 			s_call sys_string, length, {next}, {length}
-			assign {next + length + 1}, {r0}
+			eval {next + length + 1}, {r0}
 		loop_end
 
 		;set to pref size

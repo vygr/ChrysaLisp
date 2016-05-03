@@ -925,7 +925,11 @@
 		get_sym %1
 		%if _sym = -1
 			;try letting NASM handle it
-			compile_const %1
+			get_reg _reg_sp
+			%ifnid %1, _reg
+				%warning vp_cpy %1, _reg
+				vp_cpy %1, _reg
+			%endif
 		%elif _sym_type_%[_sym] = _sym_const
 			;constant
 			compile_const _sym_value_%[_sym]
@@ -1056,10 +1060,8 @@
 
 	%macro compile_const 1
 		get_reg _reg_sp
-		%ifnid %1, _reg
-			%warning vp_cpy %1, _reg
-			vp_cpy %1, _reg
-		%endif
+		%warning vp_cpy %1, _reg
+		vp_cpy %1, _reg
 	%endmacro
 
 	%macro compile_rpn_list 0
@@ -1105,7 +1107,7 @@
 ; assignment
 ;;;;;;;;;;;;
 
-	%macro assign 2
+	%macro eval 2
 		%warning --------------------------------------
 		%warning {%1}, {%2}
 		%warning --------------------------------------

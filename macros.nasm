@@ -18,20 +18,20 @@
 		short xxx
 		int yyy
 		long zzz
-		assign {(a + b) ^ zzz * -xxx / yyy, "test" % 56 * xxx + yyy * yyy}, {r0, r1}
+		eval {(a + b) ^ zzz * -xxx / yyy, "test" % 56 * xxx + yyy * yyy}, {r0, r1}
 
 		;define variables
 		push_scope
 			ushort xxx
 			uint yyy
-			assign {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
+			eval {(a + b) ^ zzz * -xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
 		pop_scope
 
 		;define variables
 		push_scope
 			byte zzz
 			struct qqq, long
-			assign {(a + b) ^ zzz * -xxx / yyy, "test" % qqq * :xxx + yyy * @test/path}, {r0, r1}
+			eval {(a + b) ^ zzz * -xxx / yyy, "test" % qqq * :xxx + yyy * @test/path}, {r0, r1}
 		pop_scope
 
 	fn_function_end
