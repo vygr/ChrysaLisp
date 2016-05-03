@@ -630,12 +630,12 @@
 				%if %%m = -1
 					;scanning
 					%ifnidn %%c, ' '
+						%defstr %%p
 						%if _pos > 20
 							;')('
 							push_token %%c, _pos
 							%assign %%u _pos - 21
 						%else
-							%defstr %%p
 							%strcat %%p %%p %%c
 							%assign %%m _pos
 						%endif
