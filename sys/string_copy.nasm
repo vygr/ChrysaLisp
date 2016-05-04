@@ -12,8 +12,8 @@
 
 		vp_xor r2, r2
 		loop_start
-			vp_cpy_b [r0], r2
-			vp_cpy_b r2, [r1]
+			vp_cpy_ub [r0], r2
+			vp_cpy_ub r2, [r1]
 			vp_inc r0
 			vp_inc r1
 		loop_until r2, ==, 0

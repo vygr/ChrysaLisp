@@ -56,7 +56,7 @@
 			;next pipe worker
 			vp_add mailbox_id_size, r6
 			vp_xor r0, r0
-			vp_cpy_b [r5], r0
+			vp_cpy_ub [r5], r0
 		loop_until r0, ==, 0
 
 		;free temp mailbox

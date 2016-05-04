@@ -29,9 +29,9 @@
 		vp_xor r0, r0
 		vp_xor r1, r1
 		vp_xor r2, r2
-		vp_cpy_b [r14 + ml_msg_data + 5], r0
-		vp_cpy_b [r14 + ml_msg_data + 6], r1
-		vp_cpy_b [r14 + ml_msg_data + 7], r2
+		vp_cpy_ub [r14 + ml_msg_data + 5], r0
+		vp_cpy_ub [r14 + ml_msg_data + 6], r1
+		vp_cpy_ub [r14 + ml_msg_data + 7], r2
 		vp_sub '0', r0
 		vp_sub '0', r1
 		vp_sub '0', r2
@@ -42,9 +42,9 @@
 		vp_xor r0, r0
 		vp_xor r2, r2
 		vp_xor r3, r3
-		vp_cpy_b [r14 + ml_msg_data + 9], r0
-		vp_cpy_b [r14 + ml_msg_data + 10], r2
-		vp_cpy_b [r14 + ml_msg_data + 11], r3
+		vp_cpy_ub [r14 + ml_msg_data + 9], r0
+		vp_cpy_ub [r14 + ml_msg_data + 10], r2
+		vp_cpy_ub [r14 + ml_msg_data + 11], r3
 		vp_sub '0', r0
 		vp_sub '0', r2
 		vp_sub '0', r3

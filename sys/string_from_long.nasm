@@ -17,17 +17,17 @@
 			if r2, >, '9'
 				vp_add 'A' - ':', r2
 			endif
-			vp_cpy_b r2, [r5]
+			vp_cpy_ub r2, [r5]
 			vp_inc r5
 		loop_until r0, ==, 0
-		vp_cpy_b r0, [r5]
+		vp_cpy_ub r0, [r5]
 		loop_start
 			vp_dec r5
 			breakif r5, ==, r1
-			vp_cpy_b [r1], r2
-			vp_cpy_b [r5], r3
-			vp_cpy_b r3, [r1]
-			vp_cpy_b r2, [r5]
+			vp_cpy_ub [r1], r2
+			vp_cpy_ub [r5], r3
+			vp_cpy_ub r3, [r1]
+			vp_cpy_ub r2, [r5]
 			vp_inc r1
 		loop_until r1, ==, r5
 		vp_ret

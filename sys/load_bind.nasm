@@ -16,9 +16,9 @@
 		;get loader statics !
 		vp_rel _func_start, r8
 		vp_xor r0, r0
-		vp_cpy_i [r8 + fn_header_length], r0
+		vp_cpy_ui [r8 + fn_header_length], r0
 		vp_add r0, r8
-		vp_cpy_i [r8 + fn_header_entry], r0
+		vp_cpy_ui [r8 + fn_header_entry], r0
 		vp_add r0, r8
 
 		;check if function already present !
@@ -30,7 +30,7 @@
 		if r6, !=, 0
 			;found function already loaded
 			vp_xor r0, r0
-			vp_cpy_i [r6 + fn_header_entry], r0
+			vp_cpy_ui [r6 + fn_header_entry], r0
 			vp_add r6, r0
 			vp_ret
 		endif
@@ -78,7 +78,7 @@
 
 		;check loaded length equals file size
 		vp_xor r0, r0
-		vp_cpy_i [r3 + fn_header_length], r0
+		vp_cpy_ui [r3 + fn_header_length], r0
 		if r0, !=, [r2 + stat_fsize]
 			vp_rel size_error, r0
 			sys_write_string 2, r0, size_error_end-size_error
@@ -95,8 +95,8 @@
 		;copy paths to reloc buffer
 		vp_xor r0, r0
 		vp_xor r2, r2
-		vp_cpy_i [r3 + fn_header_paths], r0
-		vp_cpy_i [r3 + fn_header_length], r2
+		vp_cpy_ui [r3 + fn_header_paths], r0
+		vp_cpy_ui [r3 + fn_header_length], r2
 		vp_add r3, r0
 		vp_add r3, r2
 		loop_while r0, <, r2
@@ -122,8 +122,8 @@
 		;bind links to paths in reloc buffer
 		vp_xor r0, r0
 		vp_xor r2, r2
-		vp_cpy_i [r3 + fn_header_links], r0
-		vp_cpy_i [r3 + fn_header_paths], r2
+		vp_cpy_ui [r3 + fn_header_links], r0
+		vp_cpy_ui [r3 + fn_header_paths], r2
 		vp_add r3, r0
 		vp_add r3, r2
 		vp_sub r2, r6
@@ -143,7 +143,7 @@
 		;load and link function references
 		;now actual addresses of strings in the reloc buffer
 		vp_xor r0, r0
-		vp_cpy_i [r3 + fn_header_links], r0
+		vp_cpy_ui [r3 + fn_header_links], r0
 		vp_add r3, r0
 		vp_push r3
 		loop_start
@@ -177,9 +177,9 @@
 		;get loader statics !
 		vp_rel _func_start, r8
 		vp_xor r0, r0
-		vp_cpy_i [r8 + fn_header_length], r0
+		vp_cpy_ui [r8 + fn_header_length], r0
 		vp_add r0, r8
-		vp_cpy_i [r8 + fn_header_entry], r0
+		vp_cpy_ui [r8 + fn_header_entry], r0
 		vp_add r0, r8
 
 		;pop reloc buffer
@@ -189,7 +189,7 @@
 
 		;return function address
 		vp_xor r0, r0
-		vp_cpy_i [r3 + fn_header_entry], r0
+		vp_cpy_ui [r3 + fn_header_entry], r0
 		vp_add r3, r0
 		vp_ret
 
@@ -197,8 +197,8 @@
 		vp_xor r2, r2
 		vp_xor r3, r3
 		loop_start
-			vp_cpy_b [r0], r2
-			vp_cpy_b [r1], r3
+			vp_cpy_ub [r0], r2
+			vp_cpy_ub [r1], r3
 			breakif r2, !=, r3
 			if r2, ==, 0
 				vp_ret
@@ -212,7 +212,7 @@
 	string_skip:
 		vp_xor r1, r1
 		loop_start
-			vp_cpy_b [r0], r1
+			vp_cpy_ub [r0], r1
 			vp_inc r0
 		loop_until r1, ==, 0
 		ret

@@ -72,7 +72,7 @@
 		eval {$button_list}, {r0}
 		loop_start
 			vp_xor r1, r1
-			vp_cpy_b [r0], r1
+			vp_cpy_ub [r0], r1
 			breakif r1, ==, 0
 			retire {r0}, {next}
 

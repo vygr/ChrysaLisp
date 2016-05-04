@@ -68,8 +68,8 @@
 			vp_cpy r0, [r14 + local_surface]
 			vp_xor r10, r10
 			vp_xor r11, r11
-			vp_cpy_i [r0 + sdl_surface_w], r10
-			vp_cpy_i [r0 + sdl_surface_h], r11
+			vp_cpy_ui [r0 + sdl_surface_w], r10
+			vp_cpy_ui [r0 + sdl_surface_h], r11
 			vp_cpy r10, [r14 + local_width]
 			vp_cpy r11, [r14 + local_height]
 

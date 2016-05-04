@@ -1154,37 +1154,25 @@
 			get_scope_offset _sym_scope_%[_sym]
 			%if _sym_size_%[_sym] = -1
 				%warning vp_cpy_b [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				%warning vp_sex_b _reg
 				vp_cpy_b [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				vp_sex_b _reg
 			%elif _sym_size_%[_sym] = -2
 				%warning vp_cpy_s [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				%warning vp_sex_s _reg
 				vp_cpy_s [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				vp_sex_s _reg
 			%elif _sym_size_%[_sym] = -4
 				%warning vp_cpy_i [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				%warning vp_sex_i _reg
 				vp_cpy_i [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				vp_sex_i _reg
 			%elif _sym_size_%[_sym] = -8
 				%warning vp_cpy [r4 + _scope_offset + _sym_value_%[_sym]], _reg
 				vp_cpy [r4 + _scope_offset + _sym_value_%[_sym]], _reg
 			%elif _sym_size_%[_sym] = 1
-				%warning vp_xor _reg, _reg
-				%warning vp_cpy_b [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				vp_xor _reg, _reg
-				vp_cpy_b [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+				%warning vp_cpy_ub [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+				vp_cpy_ub [r4 + _scope_offset + _sym_value_%[_sym]], _reg
 			%elif _sym_size_%[_sym] = 2
-				%warning vp_xor _reg, _reg
-				%warning vp_cpy_s [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				vp_xor _reg, _reg
-				vp_cpy_s [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+				%warning vp_cpy_us [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+				vp_cpy_us [r4 + _scope_offset + _sym_value_%[_sym]], _reg
 			%elif _sym_size_%[_sym] = 4
-				%warning vp_xor _reg, _reg
-				%warning vp_cpy_i [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				vp_xor _reg, _reg
-				vp_cpy_i [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+				%warning vp_cpy_ui [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+				vp_cpy_ui [r4 + _scope_offset + _sym_value_%[_sym]], _reg
 			%elif _sym_size_%[_sym] = 8
 				%warning vp_cpy [r4 + _scope_offset + _sym_value_%[_sym]], _reg
 				vp_cpy [r4 + _scope_offset + _sym_value_%[_sym]], _reg
@@ -1206,26 +1194,26 @@
 			get_reg _reg_sp
 			get_scope_offset _sym_scope_%[_sym]
 			%if _sym_size_%[_sym] = -1
-				%warning vp_cpy_b _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-				vp_cpy_b _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				%warning vp_cpy_ub _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				vp_cpy_ub _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
 			%elif _sym_size_%[_sym] = -2
-				%warning vp_cpy_s _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-				vp_cpy_s _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				%warning vp_cpy_us _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				vp_cpy_us _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
 			%elif _sym_size_%[_sym] = -4
-				%warning vp_cpy_i _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-				vp_cpy_i _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				%warning vp_cpy_ui _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				vp_cpy_ui _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
 			%elif _sym_size_%[_sym] = -8
 				%warning vp_cpy _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
 				vp_cpy _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
 			%elif _sym_size_%[_sym] = 1
-				%warning vp_cpy_b _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-				vp_cpy_b _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				%warning vp_cpy_ub _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				vp_cpy_ub _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
 			%elif _sym_size_%[_sym] = 2
-				%warning vp_cpy_s _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-				vp_cpy_s _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				%warning vp_cpy_us _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				vp_cpy_us _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
 			%elif _sym_size_%[_sym] = 4
-				%warning vp_cpy_i _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-				vp_cpy_i _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				%warning vp_cpy_ui _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				vp_cpy_ui _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
 			%elif _sym_size_%[_sym] = 8
 				%warning vp_cpy _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
 				vp_cpy _reg, [r4 + _scope_offset + _sym_value_%[_sym]]

@@ -37,8 +37,8 @@
 			;something not aligned so byte copy
 			vp_add r0, r2
 			loop_start
-				vp_cpy_b [r0], r3
-				vp_cpy_b r3, [r1]
+				vp_cpy_ub [r0], r3
+				vp_cpy_ub r3, [r1]
 				vp_inc r0
 				vp_inc r1
 			loop_until r0, ==, r2

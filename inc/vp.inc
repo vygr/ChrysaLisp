@@ -92,8 +92,7 @@
 				%fatal Not valid VP mode
 			%else
 				;dest is register
-				reg_b? %2
-				mov _rb, %1
+				movsx %2, byte %1
 			%endif
 		%else
 			;source is register
@@ -105,8 +104,34 @@
 				mov %2, %%s
 			%else
 				;dest is register
-				reg_b? %2
-				mov _rb, %%s
+				%fatal Not valid VP mode
+			%endif
+		%endif
+	%endmacro
+
+	%macro vp_cpy_ub 2
+		reg? %1
+		%if _r < 0
+			;source not register
+			reg? %2
+			%if _r < 0
+				;dest not register
+				%fatal Not valid VP mode
+			%else
+				;dest is register
+				movzx %2, byte %1
+			%endif
+		%else
+			;source is register
+			reg_b? %1
+			%xdefine %%s _rb
+			reg? %2
+			%if _r < 0
+				;dest not register
+				mov %2, %%s
+			%else
+				;dest is register
+				%fatal Not valid VP mode
 			%endif
 		%endif
 	%endmacro
@@ -121,8 +146,7 @@
 				%fatal Not valid VP mode
 			%else
 				;dest is register
-				reg_s? %2
-				mov _rs, word %1
+				movsx %2, word %1
 			%endif
 		%else
 			;source is register
@@ -134,13 +158,66 @@
 				mov word %2, %%s
 			%else
 				;dest is register
-				reg_s? %2
-				mov _rs, %%s
+				%fatal Not valid VP mode
+			%endif
+		%endif
+	%endmacro
+
+	%macro vp_cpy_us 2
+		reg? %1
+		%if _r < 0
+			;source not register
+			reg? %2
+			%if _r < 0
+				;dest not register
+				%fatal Not valid VP mode
+			%else
+				;dest is register
+				movzx %2, word %1
+			%endif
+		%else
+			;source is register
+			reg_s? %1
+			%xdefine %%s _rs
+			reg? %2
+			%if _r < 0
+				;dest not register
+				mov word %2, %%s
+			%else
+				;dest is register
+				%fatal Not valid VP mode
 			%endif
 		%endif
 	%endmacro
 
 	%macro vp_cpy_i 2
+		reg? %1
+		%if _r < 0
+			;source not register
+			reg? %2
+			%if _r < 0
+				;dest not register
+				%fatal Not valid VP mode
+			%else
+				;dest is register
+				movsx %2, dword %1
+			%endif
+		%else
+			;source is register
+			reg_i? %1
+			%xdefine %%s _ri
+			reg? %2
+			%if _r < 0
+				;dest not register
+				mov dword %2, %%s
+			%else
+				;dest is register
+				%fatal Not valid VP mode
+			%endif
+		%endif
+	%endmacro
+
+	%macro vp_cpy_ui 2
 		reg? %1
 		%if _r < 0
 			;source not register
@@ -163,8 +240,7 @@
 				mov dword %2, %%s
 			%else
 				;dest is register
-				reg_i? %2
-				mov _ri, %%s
+				%fatal Not valid VP mode
 			%endif
 		%endif
 	%endmacro

@@ -12,7 +12,7 @@
 		vp_cpy r0, r1
 		vp_xor r2, r2
 		loop_start
-			vp_cpy_b [r1], r2
+			vp_cpy_ub [r1], r2
 			breakif r2, ==, 0
 			vp_inc r1
 		loop_end

@@ -28,7 +28,7 @@
 			vp_add r0, r1
 			vp_xor r2, r2
 			loop_start
-				vp_cpy_b r2, [r0]
+				vp_cpy_ub r2, [r0]
 				vp_inc r0
 			loop_until r0, ==, r1
 		endif

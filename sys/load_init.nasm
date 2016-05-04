@@ -7,7 +7,7 @@
 		vp_cpy r0, r1
 		loop_start
 			vp_xor r2, r2
-		 	vp_cpy_i [r1 + fn_header_length], r2
+		 	vp_cpy_ui [r1 + fn_header_length], r2
 			breakif r2, ==, 0
 			vp_add r2, r1
 		loop_end
@@ -18,14 +18,14 @@
 		;get loader statics and bind function !
 		vp_rel _func_start, r6
 		vp_xor r0, r0
-		vp_cpy_i [r6 + fn_header_length], r0
+		vp_cpy_ui [r6 + fn_header_length], r0
 		vp_add r0, r6
 		vp_cpy r6, r5
-		vp_cpy_i [r6 + fn_header_length], r0
+		vp_cpy_ui [r6 + fn_header_length], r0
 		vp_add r0, r6
-		vp_cpy_i [r6 + fn_header_entry], r0
+		vp_cpy_ui [r6 + fn_header_entry], r0
 		vp_add r0, r6
-		vp_cpy_i [r5 + fn_header_entry], r0
+		vp_cpy_ui [r5 + fn_header_entry], r0
 		vp_add r0, r5
 
 		;init reloc buffer address
@@ -36,7 +36,7 @@
 		vp_rel _func_start, r1
 		loop_start
 			vp_xor r2, r2
-		 	vp_cpy_i [r1 + fn_header_length], r2
+		 	vp_cpy_ui [r1 + fn_header_length], r2
 			breakif r2, ==, 0
 			vp_cpy [r6 + ld_statics_function_list], r0
 			vp_cpy r0, [r1]
@@ -48,10 +48,10 @@
 		vp_rel _func_start, r2
 		loop_start
 			vp_xor r1, r1
-			vp_cpy_i [r2 + fn_header_length], r1
+			vp_cpy_ui [r2 + fn_header_length], r1
 			breakif r1, ==, 0
 			vp_xor r0, r0
-			vp_cpy_i [r2 + fn_header_links], r0
+			vp_cpy_ui [r2 + fn_header_links], r0
 			vp_add r2, r0
 			vp_add r1, r2
 			loop_start
@@ -86,7 +86,7 @@
 	string_skip:
 		vp_xor r1, r1
 		loop_start
-			vp_cpy_b [r0], r1
+			vp_cpy_ub [r0], r1
 			vp_inc r0
 		loop_until r1, ==, 0
 		ret

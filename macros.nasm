@@ -15,9 +15,14 @@
 		def_const f, 5
 
 		;define variables
-		short xxx
-		int yyy
-		long zzz
+		byte bbb
+		ubyte ubbb
+		short sss
+		ushort usss
+		int iii
+		uint uiii
+		long lll
+		ulong ulll
 
 ;		set_token_list @zzz >> :xxx + "bert"
 ;		print_token_list
@@ -26,7 +31,7 @@
 
 		;define variables
 		push_vars
-			eval {@zzz >>> :xxx + "bert"}, {r0}
+			eval {bbb}, {r0}
 
 			;define variables
 			ushort xxx

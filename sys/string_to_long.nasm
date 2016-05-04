@@ -13,7 +13,7 @@
 		vp_xor r0, r0
 		vp_xor r3, r3
 		loop_start
-			vp_cpy_b [r2], r3
+			vp_cpy_ub [r2], r3
 			breakif r3, ==, 0
 			if r3, >=, 'a'
 				vp_sub 'a' - 'A', r3
