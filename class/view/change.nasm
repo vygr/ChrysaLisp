@@ -24,6 +24,6 @@
 				vp_ret
 			endif
 		endif
-		method_jmp view, layout, {r0}
+		m_jmp view, layout, {r0}
 
 	fn_function_end

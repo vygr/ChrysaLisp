@@ -196,7 +196,7 @@
 
 		method_lookup %1, %2
 		%ifidn _map_%1_type_%[_static_], virtual
-			%fatal Class %1 method %2 is virtual ! Use method_jmp ?
+			%fatal Class %1 method %2 is virtual ! Use m_jmp ?
 		%endif
 		map_inputs %1, %2, {%3}, _static_
 		fn_jmp _map_%1_slot_%[_static_]
@@ -209,7 +209,7 @@
 
 		method_lookup %1, %2
 		%ifidn _map_%1_type_%[_static_], virtual
-			%fatal Class %1 method %2 is virtual ! Use m_jmp ?
+			%fatal Class %1 method %2 is virtual ! Use method_jmp ?
 		%endif
 		eval {%3}, {_map_%1_in_%[_static_]}
 		fn_jmp _map_%1_slot_%[_static_]
@@ -265,7 +265,7 @@
 		retire {_map_%[_super_class_%1_]_out_%[_static_]}, {%4}
 	%endmacro
 
-	%macro super_jmp 2-4 {}
+	%macro p_jmp 2-4 {}
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters
@@ -278,7 +278,7 @@
 		fn_jmp _map_%[_super_class_%1_]_slot_%[_static_]
 	%endmacro
 
-	%macro p_jmp 2-4 {}
+	%macro super_jmp 2-4 {}
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters
@@ -337,7 +337,7 @@
 		retire {_map_%1_out_%[_static_]}, {%4}
 	%endmacro
 
-	%macro method_jmp 2-5 {}, r15
+	%macro m_jmp 2-5 {}, r15
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters
@@ -352,7 +352,7 @@
 		vp_jmp [%4 + _virtual_ * 8]
 	%endmacro
 
-	%macro m_jmp 2-5 {}, r15
+	%macro method_jmp 2-5 {}, r15
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters

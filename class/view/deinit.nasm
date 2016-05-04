@@ -36,6 +36,6 @@
 
 		;deinit parent
 		vp_pop r0
-		super_jmp view, deinit, {r0}
+		p_jmp view, deinit, {r0}
 
 	fn_function_end
