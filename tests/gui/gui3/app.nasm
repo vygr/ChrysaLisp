@@ -14,15 +14,19 @@
 
 	fn_function tests/gui/gui3/app
 
+		def_structure shared, obj
+			def_long shared_display
+		def_structure_end
+
 		string_buf_size	equ 32
 
 		struct myapp, obj
+		long display
 		long last_event
 		long window
 		long window_panel
 		long flow_panel
 		long grid_panel
-		long display
 		long next
 		long button
 		struct buffer, string_buf
@@ -114,6 +118,7 @@
 		;deref window
 		static_call window, deref, {window}
 		method_call obj, deinit, {:myapp}
+
 		pop_vars
 		vp_ret
 
@@ -122,31 +127,28 @@
 		;r0 = app local object
 		;r1 = button object
 
-;		def_local on_press
-;			def_local_long	inst
-;			def_local_long	button
-;			def_local_long	string1
-;			def_local_long	string2
-;			def_local_long	string
-;			def_local_long	display
-;		def_local_end
+		push_scope
+
+		long inst
+		long button
+		long string1
+		long string2
+		long string
 
 		;save inputs
-;		vp_sub on_press_size, r4
-;		vp_cpy [r0 + local_display], r2
-;		set_src r0, r1, r2
-;		set_dst .inst, .button, .display
-;		map_src_to_dst
+		push_vars
+		retire {r0, r1}, {inst, button}
 
-;		static_call button, get_text, {.button}, {.string1}
-;		static_call label, get_text, {.display}, {.string2}
-;		static_call string, add, {.string2, .string1}, {.string}
-;		static_call label, set_text, {.display, .string}
-;		static_call label, dirty, {.display}
-;		static_call string, deref, {.string1}
-;		static_call string, deref, {.string2}
+		static_call button, get_text, {button}, {string1}
+		static_call label, get_text, {inst.shared_display}, {string2}
+		static_call string, add, {string2, string1}, {string}
+		static_call label, set_text, {inst.shared_display, string}
+		static_call label, dirty, {inst.shared_display}
+		static_call string, deref, {string1}
+		static_call string, deref, {string2}
 
-;		vp_add on_press_size, r4
+		pop_vars
+		pop_scope
 		vp_ret
 
 	button_list:
