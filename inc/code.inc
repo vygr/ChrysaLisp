@@ -814,9 +814,14 @@
 		get_reg _reg_sp
 	%endmacro
 
-	%macro reset_reg_stack 0
+	%macro set_reg_stack 0-*
 		%assign _reg_sp 0
 		%assign _reg_total 0
+		%rep %0
+			set_reg _reg_total, %1
+			%assign _reg_total _reg_total + 1
+			%rotate 1
+		%endrep
 	%endmacro
 
 	%macro add_reg_stack 1
@@ -1309,16 +1314,10 @@
 		%warning {%1}, {%2}
 		%warning --------------------------------------
 		set_src %1
-		set_dst %2
-		%if _dst_total != _src_total
+		set_reg_stack %2
+		%if _src_total != _reg_total
 			%fatal Mismatching number of src/dst paramaters !
 		%endif
-		reset_reg_stack
-		%assign %%n 0
-		%rep _dst_total
-			add_reg_stack _dst_%[%%n]
-			%assign %%n %%n + 1
-		%endrep
 		fill_reg_stack
 		%assign %%n 0
 		%rep _src_total
@@ -1339,7 +1338,7 @@
 			%fatal Mismatching number of src/dst paramaters !
 		%endif
 		map_remove_ignored
-		reset_reg_stack
+		set_reg_stack
 		%assign %%n 0
 		%rep _src_total
 			add_reg_stack _src_%[%%n]
