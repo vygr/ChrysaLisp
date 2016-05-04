@@ -23,7 +23,7 @@
 		;deref the old string
 		vp_cpy [r0 + text_string], r0
 		if r0, !=, 0
-			static_call string, deref, {r0}
+			s_call string, deref, {r0}
 		endif
 
 		;transfer reference to new string

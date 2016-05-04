@@ -9,7 +9,7 @@
 		;r1 = 0 if error, else ok
 
 		;init parent
-		super_call grid, init, {r0, r1}, {r1}
+		p_call grid, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			;init myself
 			vp_cpy_cl 0, [r0 + grid_flags]

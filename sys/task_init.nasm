@@ -8,7 +8,7 @@
 		vp_cpy r15, [r3 + tk_statics_current_tcb]
 
 		;init task control block heap
-		static_call sys_heap, init, {:[r3 + tk_statics_task_heap], tk_node_size, (tk_node_size * 16)}
+		s_call sys_heap, init, {:[r3 + tk_statics_task_heap], tk_node_size, (tk_node_size * 16)}
 
 		;init task lists
 		vp_lea [r3 + tk_statics_task_list], r0

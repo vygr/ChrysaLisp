@@ -159,21 +159,6 @@
 		map_src_to_dst
 	%endmacro
 
-	%macro static_call 2-4 {}, {}
-		;%1 = class name
-		;%2 = member name
-		;%3 = in paramaters
-		;%4 = out paramaters
-
-		method_lookup %1, %2
-		%ifidn _map_%1_type_%[_static_], virtual
-			%fatal Class %1 method %2 is virtual ! Use method_call ?
-		%endif
-		map_inputs %1, %2, {%3}, _static_
-		fn_call _map_%1_slot_%[_static_]
-		map_outputs %1, %2, {%4}, _static_
-	%endmacro
-
 	%macro s_call 2-4 {}, {}
 		;%1 = class name
 		;%2 = member name
@@ -184,12 +169,27 @@
 		%ifidn _map_%1_type_%[_static_], virtual
 			%fatal Class %1 method %2 is virtual ! Use m_call ?
 		%endif
+		map_inputs %1, %2, {%3}, _static_
+		fn_call _map_%1_slot_%[_static_]
+		map_outputs %1, %2, {%4}, _static_
+	%endmacro
+
+	%macro static_call 2-4 {}, {}
+		;%1 = class name
+		;%2 = member name
+		;%3 = in paramaters
+		;%4 = out paramaters
+
+		method_lookup %1, %2
+		%ifidn _map_%1_type_%[_static_], virtual
+			%fatal Class %1 method %2 is virtual ! Use method_call ?
+		%endif
 		eval {%3}, {_map_%1_in_%[_static_]}
 		fn_call _map_%1_slot_%[_static_]
 		retire {_map_%1_out_%[_static_]}, {%4}
 	%endmacro
 
-	%macro static_jmp 2-4 {}
+	%macro s_jmp 2-4 {}
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters
@@ -202,7 +202,7 @@
 		fn_jmp _map_%1_slot_%[_static_]
 	%endmacro
 
-	%macro s_jmp 2-4 {}
+	%macro static_jmp 2-4 {}
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters
@@ -227,7 +227,7 @@
 		fn_bind _map_%1_slot_%[_static_], %3
 	%endmacro
 
-	%macro super_call 2-4 {}, {}
+	%macro p_call 2-4 {}, {}
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters
@@ -246,7 +246,7 @@
 		map_outputs %1, %2, {%4}, _static_
 	%endmacro
 
-	%macro p_call 2-4 {}, {}
+	%macro super_call 2-4 {}, {}
 		;%1 = class name
 		;%2 = member name
 		;%3 = in paramaters
@@ -303,23 +303,6 @@
 		fn_bind _map_%[_super_class_%1_]_slot_%[_static_], %3
 	%endmacro
 
-	%macro method_call 2-5 {}, {}, r15
-		;%1 = class name
-		;%2 = member name
-		;%3 = in paramaters
-		;%4 = out paramaters
-		;%5 = dispatch reg
-
-		method_lookup %1, %2
-		%ifidn _map_%1_type_%[_static_], static
-			%fatal Class %1 method %2 is static ! Use static_call ?
-		%endif
-		map_inputs %1, %2, {%3}, _static_
-		vp_cpy [r0 + obj_vtable], %5
-		vp_call [%5 + _virtual_ * 8]
-		map_outputs %1, %2, {%4}, _static_
-	%endmacro
-
 	%macro m_call 2-5 {}, {}, r15
 		;%1 = class name
 		;%2 = member name
@@ -329,7 +312,24 @@
 
 		method_lookup %1, %2
 		%ifidn _map_%1_type_%[_static_], static
-			%fatal Class %1 method %2 is static ! Use static_call ?
+			%fatal Class %1 method %2 is static ! Use s_call ?
+		%endif
+		map_inputs %1, %2, {%3}, _static_
+		vp_cpy [r0 + obj_vtable], %5
+		vp_call [%5 + _virtual_ * 8]
+		map_outputs %1, %2, {%4}, _static_
+	%endmacro
+
+	%macro method_call 2-5 {}, {}, r15
+		;%1 = class name
+		;%2 = member name
+		;%3 = in paramaters
+		;%4 = out paramaters
+		;%5 = dispatch reg
+
+		method_lookup %1, %2
+		%ifidn _map_%1_type_%[_static_], static
+			%fatal Class %1 method %2 is static ! Use s_call ?
 		%endif
 		eval {%5, %3}, {%5, _map_%1_in_%[_static_]}
 		vp_cpy [r0 + obj_vtable], %5
@@ -345,7 +345,7 @@
 
 		method_lookup %1, %2
 		%ifidn _map_%1_type_%[_static_], static
-			%fatal Class %1 method %2 is static ! Use static_jmp ?
+			%fatal Class %1 method %2 is static ! Use s_jmp ?
 		%endif
 		map_inputs %1, %2, {%3}, _static_
 		vp_cpy [r0 + obj_vtable], %4
@@ -360,7 +360,7 @@
 
 		method_lookup %1, %2
 		%ifidn _map_%1_type_%[_static_], static
-			%fatal Class %1 method %2 is static ! Use static_jmp ?
+			%fatal Class %1 method %2 is static ! Use s_jmp ?
 		%endif
 		eval {%4, %3}, {%4, _map_%1_in_%[_static_]}
 		vp_cpy [r0 + obj_vtable], %4
@@ -444,14 +444,14 @@
 			;r0 = 0 if error, else object
 			;trashes
 			;r1-r3
-			static_call %1, new, {}, {r0}
+			s_call %1, new, {}, {r0}
 			if r0, !=, 0
 				;init the object
 				slot_function class, %1
-				static_call %1, init, {r0, @_function_}, {r1}
+				s_call %1, init, {r0, @_function_}, {r1}
 				if r1, ==, 0
 					;error with init
-					method_call %1, delete, {r0}, {}, r1
+					m_call %1, delete, {r0}, {}, r1
 					vp_xor r0, r0
 				endif
 			endif
@@ -466,11 +466,11 @@
 			;r0 = 0 if error, else object
 			;trashes
 			;r1-r3
-			static_call sys_mem, alloc, {%1_size}, {r0, _}
+			s_call sys_mem, alloc, {%1_size}, {r0, _}
 			if r0, !=, 0
 				;clear object memory
 				vp_cpy r0, r3
-				static_call sys_mem, clear, {r0, %1_size}
+				s_call sys_mem, clear, {r0, %1_size}
 				vp_cpy r3, r0
 			endif
 			vp_ret

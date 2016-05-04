@@ -9,6 +9,6 @@
 		;all but r0, r4
 
 		;draw panel
-		static_jmp label, draw_panel, {r0, r1, 1, label_border_size}
+		s_jmp label, draw_panel, {r0, r1, 1, label_border_size}
 
 	fn_function_end

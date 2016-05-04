@@ -23,23 +23,23 @@
 		map_src_to_dst
 
 		;draw outline
-		static_call view, get_color, {r0}, {r1}
-		static_call gui_ctx, set_color, {.ctx, r1}
-		static_call progress, get_bounds, {.inst}, {_, _, r10, r11}
-		static_call gui_ctx, box, {.ctx, 0, 0, r10, r11}
+		s_call view, get_color, {r0}, {r1}
+		s_call gui_ctx, set_color, {.ctx, r1}
+		s_call progress, get_bounds, {.inst}, {_, _, r10, r11}
+		s_call gui_ctx, box, {.ctx, 0, 0, r10, r11}
 
 		;darker colour
-		static_call view, get_color, {.inst}, {r1}
+		s_call view, get_color, {.inst}, {r1}
 		vp_cpy r1, r2
 		vp_cpy 0xff000000, r3
 		vp_and r3, r1
 		vp_and 0x00fefefe, r2
 		vp_shr 1, r2
 		vp_add r2, r1
-		static_call gui_ctx, set_color, {.ctx, r1}
+		s_call gui_ctx, set_color, {.ctx, r1}
 
 		;draw middle
-		static_call progress, get_bounds, {.inst}, {_, _, r10, r11}
+		s_call progress, get_bounds, {.inst}, {_, _, r10, r11}
 		vp_sub progress_border_size * 2, r10
 		vp_sub progress_border_size * 2, r11
 		vp_cpy [r0 + progress_val], r2
@@ -53,24 +53,24 @@
 		vp_cpy r0, r10
 		vp_sub r10, r12
 		vp_cpy r12, .fill_remain
-		static_call gui_ctx, filled_box, {.ctx, progress_border_size, progress_border_size, r10, r11}
+		s_call gui_ctx, filled_box, {.ctx, progress_border_size, progress_border_size, r10, r11}
 
 		;very darker colour
-		static_call view, get_color, {.inst}, {r1}
+		s_call view, get_color, {.inst}, {r1}
 		vp_cpy r1, r2
 		vp_cpy 0xff000000, r3
 		vp_and r3, r1
 		vp_and 0x00fcfcfc, r2
 		vp_shr 2, r2
 		vp_add r2, r1
-		static_call gui_ctx, set_color, {.ctx, r1}
+		s_call gui_ctx, set_color, {.ctx, r1}
 
 		;draw middle
-		static_call progress, get_bounds, {.inst}, {_, _, _, r11}
+		s_call progress, get_bounds, {.inst}, {_, _, _, r11}
 		vp_cpy progress_border_size, r8
 		vp_sub progress_border_size * 2, r11
 		vp_add .fill_complete, r8
-		static_call gui_ctx, filled_box, {.ctx, r8, progress_border_size, .fill_remain, r11}
+		s_call gui_ctx, filled_box, {.ctx, r8, progress_border_size, .fill_remain, r11}
 
 		vp_cpy .inst, r0
 		vp_add local_size, r4

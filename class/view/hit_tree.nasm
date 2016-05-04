@@ -28,7 +28,7 @@
 		vp_cpy r1, .jump
 
 		;iterate through views front to back
-		static_call view, forward_tree, {r0, r4, $hit_down_callback, $hit_up_callback}
+		s_call view, forward_tree, {r0, r4, $hit_down_callback, $hit_up_callback}
 
 	early_ret:
 		vp_cpy .inst, r0
@@ -45,7 +45,7 @@
 
 	hit_up_callback:
 		vp_cpy r1, r2
-		method_call view, hit, {r0, r8, r9}, {r1}
+		m_call view, hit, {r0, r8, r9}, {r1}
 		if r1, !=, 0
 			;early exit back to caller !
 			vp_cpy r2, r4

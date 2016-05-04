@@ -347,11 +347,11 @@
 	%endmacro
 
 	%macro vp_inc 1
-		inc %1
+		add %1, 1
 	%endmacro
 
 	%macro vp_dec 1
-		dec %1
+		sub %1, 1
 	%endmacro
 
 	%macro vp_add 2
@@ -459,18 +459,6 @@
 
 	%macro vp_rel 2
 		lea %2, [rel %1]
-	%endmacro
-
-	%macro vp_sex_b 1
-;		and %1, 0xff
-	%endmacro
-
-	%macro vp_sex_s 1
-;		and %1, 0xffff
-	%endmacro
-
-	%macro vp_sex_i 1
-;		and %1, 0xffffffff
 	%endmacro
 
 %endif

@@ -17,7 +17,7 @@
 		set_dst .inst
 		map_src_to_dst
 
-		static_call label, set_text, {[r0 + window_status], r1}
+		s_call label, set_text, {[r0 + window_status], r1}
 
 		vp_cpy .inst, r0
 		vp_add local_size, r4

@@ -22,7 +22,7 @@
 		vp_cpy [r0 + view_h], r11
 		vp_sub window_border_size * 2, r10
 		vp_sub window_border_size * 2, r11
-		static_call flow, change, {[r0 + window_flow], window_border_size, window_border_size, r10, r11}
+		s_call flow, change, {[r0 + window_flow], window_border_size, window_border_size, r10, r11}
 
 		vp_cpy .inst, r0
 		vp_add local_size, r4

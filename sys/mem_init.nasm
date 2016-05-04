@@ -9,7 +9,7 @@
 		vp_cpy mem_block_min_size, r1	;start object size
 		vp_cpy mem_block_max_size, r3	;start block size
 		loop_start
-			static_call sys_heap, init, {r0, r1, r3}
+			s_call sys_heap, init, {r0, r1, r3}
 			vp_add hp_heap_size, r0
 			vp_add r1, r1				;double object size
 			vp_shr 1, r3				;half the block size

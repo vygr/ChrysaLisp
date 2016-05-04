@@ -16,6 +16,6 @@
 		;free our task control block
 		vp_lea [r0 + tk_statics_task_heap], r0
 		hp_freecell r0, r1, r2
-		static_jmp sys_task, restore
+		s_jmp sys_task, restore
 
 	fn_function_end

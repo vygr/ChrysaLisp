@@ -25,7 +25,7 @@
 		loop_end
 
 		;allocate object from this heap
-		static_call sys_heap, alloc, {r0}, {r1}
+		s_call sys_heap, alloc, {r0}, {r1}
 		vp_cpy r0, [r1]
 		vp_xchg r0, r1
 		vp_cpy [r1 + hp_heap_cellsize], r1

@@ -7,38 +7,38 @@
 	fn_function gui/gui
 		;kernel callback for first update
 		;this will init SDL etc
-		static_call sys_task, callback, {$kernel_callback, r1}
+		s_call sys_task, callback, {$kernel_callback, r1}
 
 		;allocate background view
-		static_call label, create, {}, {r0}
+		s_call label, create, {}, {r0}
 
 		;set as gui screen view
 		static_bind gui_gui, statics, r1
 		vp_cpy r0, [r1 + gui_statics_screen]
 
 		;size and color and opaque
-		static_call label, change, {r0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}
-		static_call label, set_color, {r0, 0xff000000}
-		static_call label, opaque, {r0}
-		static_call label, dirty_all, {r0}
+		s_call label, change, {r0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}
+		s_call label, set_color, {r0, 0xff000000}
+		s_call label, opaque, {r0}
+		s_call label, dirty_all, {r0}
 
 		;sleep just a moment to let all routeing finish
-		static_call sys_task, sleep, {1000000}
+		s_call sys_task, sleep, {1000000}
 
 		;for now fire up the test apps
 		;this might be an gui auto run list eventually
-		static_call sys_task, start, {@tests/gui/gui1/app}, {r0, r1}
-		static_call sys_task, start, {@tests/gui/gui2/app}, {r0, r1}
-;		static_call sys_task, start, {@tests/gui/gui3/app}, {r0, r1}
+		s_call sys_task, start, {@tests/gui/gui1/app}, {r0, r1}
+		s_call sys_task, start, {@tests/gui/gui2/app}, {r0, r1}
+		s_call sys_task, start, {@tests/gui/gui3/app}, {r0, r1}
 
 		;gui event loop
 		loop_start
 		next_frame:
 			;kernel callback for update
-			static_call sys_task, callback, {$kernel_callback, r1}
+			s_call sys_task, callback, {$kernel_callback, r1}
 
 			;frame rate of gui updates
-			static_call sys_task, sleep, {1000000 / 60}
+			s_call sys_task, sleep, {1000000 / 60}
 
 			;get mouse info, see if any change
 			static_bind gui_gui, statics, r5
@@ -64,14 +64,14 @@
 				;do we need to wait till button goes up ?
 				if r6, !=, -1
 					;lookup view owner
-					static_call view, find_owner, {r6}, {r1}
+					s_call view, find_owner, {r6}, {r1}
 					if r1, !=, 0
 						;save owner mailbox
-						static_call sys_cpu, id, {}, {r15}
+						s_call sys_cpu, id, {}, {r15}
 						vp_lea [r1 + tk_node_mailbox], r14
 
 						;allocate mail message
-						static_call sys_mail, alloc, {}, {r0}
+						s_call sys_mail, alloc, {}, {r0}
 						assert r0, !=, 0
 
 						;fill in data
@@ -90,7 +90,7 @@
 						vp_cpy r9, [r0 + ev_data_ry]
 
 						;send mail to owner
-						static_call sys_mail, send, {r0}
+						s_call sys_mail, send, {r0}
 					endif
 				endif
 
@@ -102,7 +102,7 @@
 				;button down ?
 				if r10, !=, 0
 					;find view
-					static_call view, hit_tree, {[r5 + gui_statics_screen], \
+					s_call view, hit_tree, {[r5 + gui_statics_screen], \
 												[r5 + gui_statics_x_pos], \
 												[r5 + gui_statics_y_pos]}, {r1, r8, r9}
 					if r1, ==, [r5 + gui_statics_screen]
@@ -176,7 +176,7 @@
 
 			;update the screen
 			static_bind gui_gui, statics, r0
-			static_call gui_gui, update, {[r0 + gui_statics_screen]}
+			s_call gui_gui, update, {[r0 + gui_statics_screen]}
 
 			;refresh the window
 			static_bind gui_gui, statics, r0

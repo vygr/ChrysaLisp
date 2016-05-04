@@ -21,7 +21,7 @@
 		set_dst .inst
 		map_src_to_dst
 
-		method_call flow, pref_size, {[r0 + label_flow]}, {r10, r11}
+		m_call flow, pref_size, {[r0 + label_flow]}, {r10, r11}
 		vp_add label_border_size * 2, r10
 		vp_add label_border_size * 2, r11
 

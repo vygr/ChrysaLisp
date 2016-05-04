@@ -14,13 +14,13 @@
 		lh_init r0, r1
 
 		;init mail message heap
-		static_call sys_heap, init, {:[r7 + ml_statics_heap], (ml_msg_size + 8), ((ml_msg_size + 8) * 256)}
+		s_call sys_heap, init, {:[r7 + ml_statics_heap], (ml_msg_size + 8), ((ml_msg_size + 8) * 256)}
 
 		;init in and out postmen tasks
 		slot_function sys_mail, in
-		static_call sys_task, start, {@_function_}, {r0, [r7 + ml_statics_in_mailbox]}
+		s_call sys_task, start, {@_function_}, {r0, [r7 + ml_statics_in_mailbox]}
 		slot_function sys_mail, out
-		static_call sys_task, start, {@_function_}, {r0, [r7 + ml_statics_out_mailbox]}
+		s_call sys_task, start, {@_function_}, {r0, [r7 + ml_statics_out_mailbox]}
 		vp_cpy_cl 0, [r7 + ml_statics_parcel_id]
 		vp_ret
 

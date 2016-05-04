@@ -31,7 +31,7 @@
 
 		;define variables
 		push_vars
-			eval {bbb}, {r0}
+			eval {bbb + 100}, {r0}
 
 			;define variables
 			ushort xxx

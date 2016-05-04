@@ -12,6 +12,6 @@
 
 		;get next task control block
 		ln_get_succ r15, r15
-		static_jmp sys_task, restore
+		s_jmp sys_task, restore
 
 	fn_function_end

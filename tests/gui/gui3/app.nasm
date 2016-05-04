@@ -36,37 +36,37 @@
 		;init app vars
 		push_vars
 		slot_function class, obj
-		s_call obj, init, {:myapp, @_function_}, {_}
-		s_call sys_string, from_long, {0, :buffer, 10}
+		static_call obj, init, {:myapp, @_function_}, {_}
+		static_call sys_string, from_long, {0, :buffer, 10}
 
 		;create my window
-		s_call window, create, {}, {window}
-		s_call window, get_panel, {window}, {window_panel}
-		s_call string, create, {"Calculator"}, {string}
-		s_call window, set_title, {window, string}
-		s_call string, create, {"Status Text"}, {string}
-		s_call window, set_status, {window, string}
+		static_call window, create, {}, {window}
+		static_call window, get_panel, {window}, {window_panel}
+		static_call string, create, {"Calculator"}, {string}
+		static_call window, set_title, {window, string}
+		static_call string, create, {"Status Text"}, {string}
+		static_call window, set_status, {window, string}
 
 		;add my app flow panel
-		s_call flow, create, {}, {flow_panel}
-		s_call flow, set_flow_flags, {flow_panel, flow_flag_down | flow_flag_fillw | flow_flag_lasth}
-		s_call flow, set_color, {flow_panel, 0x00000000}
-		s_call flow, add, {flow_panel, window_panel}
+		static_call flow, create, {}, {flow_panel}
+		static_call flow, set_flow_flags, {flow_panel, flow_flag_down | flow_flag_fillw | flow_flag_lasth}
+		static_call flow, set_color, {flow_panel, 0x00000000}
+		static_call flow, add, {flow_panel, window_panel}
 
 		;add my display label
-		s_call label, create, {}, {display}
-		s_call label, set_color, {display, 0xffffffff}
-		s_call label, set_flow_flags, {display, flow_flag_align_hright | flow_flag_align_vcenter}
-		s_call label, set_font, {display, "fonts/OpenSans-Regular.ttf", 24}
-		s_call string, create, {"0"}, {string}
-		s_call label, set_text, {display, string}
-		s_call label, add, {display, flow_panel}
+		static_call label, create, {}, {display}
+		static_call label, set_color, {display, 0xffffffff}
+		static_call label, set_flow_flags, {display, flow_flag_align_hright | flow_flag_align_vcenter}
+		static_call label, set_font, {display, "fonts/OpenSans-Regular.ttf", 24}
+		static_call string, create, {"0"}, {string}
+		static_call label, set_text, {display, string}
+		static_call label, add, {display, flow_panel}
 
 		;add my app grid panel
-		s_call grid, create, {}, {grid_panel}
-		s_call grid, set_color, {grid_panel, 0x00000000}
-		s_call grid, set_grid, {grid_panel, 4, 4}
-		s_call grid, add, {grid_panel, flow_panel}
+		static_call grid, create, {}, {grid_panel}
+		static_call grid, set_color, {grid_panel, 0x00000000}
+		static_call grid, set_grid, {grid_panel, 4, 4}
+		static_call grid, add, {grid_panel, flow_panel}
 
 		;add buttons to my grid panel
 		eval {$button_list}, {r0}
@@ -75,45 +75,45 @@
 			breakif r1, ==, 0
 			retire {r0}, {next}
 
-			s_call button, create, {}, {button}
-			s_call button, set_color, {button, 0xffffff00}
-			s_call string, create, {next}, {string}
-			s_call button, set_text, {button, string}
-			s_call button, set_flow_flags, {button, flow_flag_align_hcenter | flow_flag_align_vcenter}
-			s_call button, add, {button, grid_panel}
-			s_call button, sig_pressed, {button}, {pressed}
-			s_call button, connect, {button, pressed, :myapp, $on_press}
+			static_call button, create, {}, {button}
+			static_call button, set_color, {button, 0xffffff00}
+			static_call string, create, {next}, {string}
+			static_call button, set_text, {button, string}
+			static_call button, set_flow_flags, {button, flow_flag_align_hcenter | flow_flag_align_vcenter}
+			static_call button, add, {button, grid_panel}
+			static_call button, sig_pressed, {button}, {pressed}
+			static_call button, connect, {button, pressed, :myapp, $on_press}
 
-			s_call sys_string, length, {next}, {length}
+			static_call sys_string, length, {next}, {length}
 			eval {next + length + 1}, {r0}
 		loop_end
 
 		;set to pref size
-		m_call window, pref_size, {window}, {width, height}
-		s_call window, change, {window, 920, 48, width / 2 + width, height / 2 + height}
+		method_call window, pref_size, {window}, {width, height}
+		static_call window, change, {window, 920, 48, width / 2 + width, height / 2 + height}
 
 		;set window owner
-		s_call sys_task, tcb, {}, {owner}
-		s_call window, set_owner, {window, owner}
+		static_call sys_task, tcb, {}, {owner}
+		static_call window, set_owner, {window, owner}
 
 		;add to screen and dirty
-		s_call gui_gui, add, {window}
-		s_call window, dirty_all, {window}
+		static_call gui_gui, add, {window}
+		static_call window, dirty_all, {window}
 
 		;app event loop
 		loop_start
-			s_call sys_mail, mymail, {}, {last_event}
+			static_call sys_mail, mymail, {}, {last_event}
 
 			;dispatch event to view
-			m_call view, event, {last_event . ev_data_view, last_event}
+			method_call view, event, {last_event.ev_data_view, last_event}
 
 			;free event message
-			s_call sys_mem, free, {last_event}
+			static_call sys_mem, free, {last_event}
 		loop_end
 
 		;deref window
-		s_call window, deref, {window}
-		m_call obj, deinit, {:myapp}
+		static_call window, deref, {window}
+		method_call obj, deinit, {:myapp}
 		pop_vars
 		vp_ret
 
@@ -138,13 +138,13 @@
 ;		set_dst .inst, .button, .display
 ;		map_src_to_dst
 
-;		s_call button, get_text, {.button}, {.string1}
-;		s_call label, get_text, {.display}, {.string2}
-;		s_call string, add, {.string2, .string1}, {.string}
-;		s_call label, set_text, {.display, .string}
-;		s_call label, dirty, {.display}
-;		s_call string, deref, {.string1}
-;		s_call string, deref, {.string2}
+;		static_call button, get_text, {.button}, {.string1}
+;		static_call label, get_text, {.display}, {.string2}
+;		static_call string, add, {.string2, .string1}, {.string}
+;		static_call label, set_text, {.display, .string}
+;		static_call label, dirty, {.display}
+;		static_call string, deref, {.string1}
+;		static_call string, deref, {.string2}
 
 ;		vp_add on_press_size, r4
 		vp_ret

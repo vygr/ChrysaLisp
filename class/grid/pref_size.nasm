@@ -21,7 +21,7 @@
 		vp_cpy r1, .w
 		vp_cpy r1, .h
 
-		static_call grid, backward, {r0, r4, $callback}
+		s_call grid, backward, {r0, r4, $callback}
 
 		vp_cpy .w, r10
 		vp_cpy .h, r11
@@ -32,7 +32,7 @@
 
 	callback:
 		vp_push r1
-		method_call view, pref_size, {r0}, {r10, r11}
+		m_call view, pref_size, {r0}, {r10, r11}
 		vp_pop r1
 		if r10, >, [r1 + local_w]
 			vp_cpy r10, [r1 + local_w]

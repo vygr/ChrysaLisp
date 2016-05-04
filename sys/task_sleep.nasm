@@ -17,7 +17,7 @@
 		vp_cpy r0, r1
 
 		;calculate wake time
-		static_call sys_cpu, time, {}, {r0}
+		s_call sys_cpu, time, {}, {r0}
 		vp_add r1, r0
 		vp_cpy r0, [r15 + tk_node_time]
 
@@ -32,6 +32,6 @@
 		ln_add_node_before r5, r1, r0
 
 		;restore next task
-		static_jmp sys_task, restore
+		s_jmp sys_task, restore
 
 	fn_function_end

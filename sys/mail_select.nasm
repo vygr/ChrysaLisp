@@ -36,7 +36,7 @@
 				vp_add 8, r0
 			loop_until r0, ==, r1
 
-			static_call sys_task, suspend
+			s_call sys_task, suspend
 
 			;clear all tcb's
 			vp_xor r5, r5

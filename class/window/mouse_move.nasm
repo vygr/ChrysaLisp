@@ -23,15 +23,15 @@
 		map_src_to_dst
 
 		;dirty old area
-		static_call window, dirty, {r0}
+		s_call window, dirty, {r0}
 
 		;get smallest size
-		method_call window, pref_size, {r0}, {r10, r11}
+		m_call window, pref_size, {r0}, {r10, r11}
 		vp_cpy r10, r12
 		vp_cpy r11, r13
 
 		;save old bounds
-		static_call window, get_bounds, {r0}, {.old_x, .old_y, r10, r11}
+		s_call window, get_bounds, {r0}, {.old_x, .old_y, r10, r11}
 
 		;get abolute cords of corners
 		vp_add r8, r10
@@ -95,7 +95,7 @@
 		vp_sub r9, r11
 
 		;change window size
-		static_call window, change, {r0, r8, r9, r10, r11}
+		s_call window, change, {r0, r8, r9, r10, r11}
 
 		;translate old dirty area and dirty all
 		vp_cpy .old_x, r8
@@ -103,9 +103,9 @@
 		vp_sub [r0 + view_x], r8
 		vp_sub [r0 + view_y], r9
 		vp_add view_dirty_region, r0
-		static_call gui_region, translate, {r0, r8, r9}
+		s_call gui_region, translate, {r0, r8, r9}
 		vp_cpy .inst, r0
 		vp_add local_size, r4
-		static_jmp window, dirty_all, {r0}
+		s_jmp window, dirty_all, {r0}
 
 	fn_function_end

@@ -1152,30 +1152,31 @@
 			;variable
 			get_reg _reg_sp
 			get_scope_offset _sym_scope_%[_sym]
-			%if _sym_size_%[_sym] = -1
-				%warning vp_cpy_b [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				vp_cpy_b [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-			%elif _sym_size_%[_sym] = -2
-				%warning vp_cpy_s [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				vp_cpy_s [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-			%elif _sym_size_%[_sym] = -4
+			%assign %%s _sym_size_%[_sym]
+			%if %%s = -8
+				%warning vp_cpy [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+				vp_cpy [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+			%elif %%s = -4
 				%warning vp_cpy_i [r4 + _scope_offset + _sym_value_%[_sym]], _reg
 				vp_cpy_i [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-			%elif _sym_size_%[_sym] = -8
-				%warning vp_cpy [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				vp_cpy [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-			%elif _sym_size_%[_sym] = 1
+			%elif %%s = 1
 				%warning vp_cpy_ub [r4 + _scope_offset + _sym_value_%[_sym]], _reg
 				vp_cpy_ub [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-			%elif _sym_size_%[_sym] = 2
-				%warning vp_cpy_us [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				vp_cpy_us [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-			%elif _sym_size_%[_sym] = 4
-				%warning vp_cpy_ui [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-				vp_cpy_ui [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-			%elif _sym_size_%[_sym] = 8
+			%elif %%s = 8
 				%warning vp_cpy [r4 + _scope_offset + _sym_value_%[_sym]], _reg
 				vp_cpy [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+			%elif %%s = 4
+				%warning vp_cpy_ui [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+				vp_cpy_ui [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+			%elif %%s = -1
+				%warning vp_cpy_b [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+				vp_cpy_b [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+			%elif %%s = -2
+				%warning vp_cpy_s [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+				vp_cpy_s [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+			%elif %%s = 2
+				%warning vp_cpy_us [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+				vp_cpy_us [r4 + _scope_offset + _sym_value_%[_sym]], _reg
 			%else
 				%fatal Variable %1 too big !
 			%endif
@@ -1193,30 +1194,31 @@
 			;variable
 			get_reg _reg_sp
 			get_scope_offset _sym_scope_%[_sym]
-			%if _sym_size_%[_sym] = -1
-				%warning vp_cpy_ub _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-				vp_cpy_ub _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-			%elif _sym_size_%[_sym] = -2
-				%warning vp_cpy_us _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-				vp_cpy_us _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-			%elif _sym_size_%[_sym] = -4
-				%warning vp_cpy_ui _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-				vp_cpy_ui _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-			%elif _sym_size_%[_sym] = -8
+			%assign %%s _sym_size_%[_sym]
+			%if %%s = 8
 				%warning vp_cpy _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
 				vp_cpy _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-			%elif _sym_size_%[_sym] = 1
-				%warning vp_cpy_ub _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-				vp_cpy_ub _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-			%elif _sym_size_%[_sym] = 2
-				%warning vp_cpy_us _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-				vp_cpy_us _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-			%elif _sym_size_%[_sym] = 4
+			%elif %%s = -4
 				%warning vp_cpy_ui _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
 				vp_cpy_ui _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
-			%elif _sym_size_%[_sym] = 8
+			%elif %%s = -1
+				%warning vp_cpy_ub _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				vp_cpy_ub _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+			%elif %%s = -2
+				%warning vp_cpy_us _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				vp_cpy_us _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+			%elif %%s = -8
 				%warning vp_cpy _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
 				vp_cpy _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+			%elif %%s = 1
+				%warning vp_cpy_ub _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				vp_cpy_ub _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+			%elif %%s = 2
+				%warning vp_cpy_us _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				vp_cpy_us _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+			%elif %%s = 4
+				%warning vp_cpy_ui _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
+				vp_cpy_ui _reg, [r4 + _scope_offset + _sym_value_%[_sym]]
 			%else
 				%fatal Variable %1 too big !
 			%endif
@@ -1277,12 +1279,7 @@
 				compile_operator %%t
 			%elif %%tt = 0
 				;...
-				%ifnum %%t
-					;bare constant
-					compile_const %%t
-				%else
-					compile_rval %%t
-				%endif
+				compile_rval %%t
 			%elif %%tt = 1
 				;:...
 				compile_addr %%t
@@ -1338,6 +1335,9 @@
 		%warning --------------------------------------
 		set_src %1
 		set_dst %2
+		%if _dst_total != _src_total
+			%fatal Mismatching number of src/dst paramaters !
+		%endif
 		map_remove_ignored
 		reset_reg_stack
 		%assign %%n 0
@@ -1345,9 +1345,6 @@
 			add_reg_stack _src_%[%%n]
 			%assign %%n %%n + 1
 		%endrep
-		%if _dst_total != _src_total
-			%fatal Mismatching number of src/dst paramaters !
-		%endif
 		%rep _dst_total
 			compile_lval _dst_%[_reg_sp]
 			%assign _reg_sp _reg_sp + 1

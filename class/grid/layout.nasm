@@ -32,7 +32,7 @@
 		vp_div r8, r10, r9
 		vp_cpy r9, .cell_h
 
-		static_call grid, backward, {r0, r4, $callback}
+		s_call grid, backward, {r0, r4, $callback}
 
 		vp_add local_size, r4
 		vp_ret
@@ -59,6 +59,6 @@
 		vp_cpy [r1 + local_count], r2
 		vp_inc r2
 		vp_cpy r2, [r1 + local_count]
-		static_jmp view, change, {r0, r8, r9, r10, r11}
+		s_jmp view, change, {r0, r8, r9, r10, r11}
 
 	fn_function_end

@@ -11,11 +11,11 @@
 
 		;allocate new string object
 		vp_cpy r0, r5
-		static_call sys_mem, alloc, {r0}, {r0, _}
+		s_call sys_mem, alloc, {r0}, {r0, _}
 		if r0, !=, 0
 			;clear object memory
 			vp_cpy r0, r3
-			static_call sys_mem, clear, {r0, r5}
+			s_call sys_mem, clear, {r0, r5}
 			vp_cpy r3, r0
 		endif
 		vp_ret

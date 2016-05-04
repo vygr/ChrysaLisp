@@ -15,20 +15,20 @@
 		vp_cpy r1, r6
 		if r2, >, r1
 			;alloc new table
-			static_call sys_mem, alloc, {r2}, {r0, _}
+			s_call sys_mem, alloc, {r2}, {r0, _}
 			assert r0, !=, 0
 			vp_cpy r0, r7
 			vp_cpy r1, r8
 
 			;clear it to empty
-			static_call sys_mem, clear, {r0, r1}
+			s_call sys_mem, clear, {r0, r1}
 
 			if r6, !=, 0
 				;copy over old data
-				static_call sys_mem, copy, {r5, r7, r6}, {_, _}
+				s_call sys_mem, copy, {r5, r7, r6}, {_, _}
 
 				;free existing
-				static_call sys_mem, free, {r5}
+				s_call sys_mem, free, {r5}
 			endif
 
 			;save new table

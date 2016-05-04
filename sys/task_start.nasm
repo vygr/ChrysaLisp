@@ -21,7 +21,7 @@
 
 		;create new task control block and task
 		vp_add tk_statics_task_heap, r0
-		static_call sys_heap, alloc, {r0}, {r1}
+		s_call sys_heap, alloc, {r0}, {r1}
 		vp_cpy r1, r0
 
 		;initialise task mailbox etc
@@ -40,7 +40,7 @@
 		vp_cpy r5, [r1 + tk_state_size]
 
 		;resume new task
-		static_call sys_task, resume, {r0}
+		s_call sys_task, resume, {r0}
 
 		;return mailbox pointer
 		vp_lea [r0 + tk_node_mailbox], r1

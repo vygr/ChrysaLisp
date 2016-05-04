@@ -8,6 +8,6 @@
 		;all but r0, r4
 
 		;paste opaque region
-		static_jmp view, add_opaque, {r0, 0, 0, [r0 + view_w], [r0 + view_h]}
+		s_jmp view, add_opaque, {r0, 0, 0, [r0 + view_w], [r0 + view_h]}
 
 	fn_function_end

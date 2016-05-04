@@ -22,14 +22,14 @@
 		vp_add string_size + 1, r0
 
 		;create new string object
-		static_call string, new, {r0}, {r0}
+		s_call string, new, {r0}, {r0}
 		if r0, !=, 0
 			;init the object
 			slot_function class, string
-			static_call string, init1, {r0, @_function_, r6, r7}, {r1}
+			s_call string, init1, {r0, @_function_, r6, r7}, {r1}
 			if r1, ==, 0
 				;error with init
-				method_call string, delete, {r0}, {}, r1
+				m_call string, delete, {r0}, {}, r1
 				vp_xor r0, r0
 			endif
 		endif

@@ -31,11 +31,11 @@
 		vp_cpy r9, .old_y
 
 		;dirty old area
-		static_call window, dirty, {r0}
+		s_call window, dirty, {r0}
 
 		;get new window position
 		vp_cpy .inst, r0
-		static_call title, get_relative, {r0, .window, [r0 + title_last_x], [r0 + title_last_y]}, {r8, r9}
+		s_call title, get_relative, {r0, .window, [r0 + title_last_x], [r0 + title_last_y]}, {r8, r9}
 		vp_cpy .event, r1
 		vp_sub [r1 + ev_data_x], r8
 		vp_sub [r1 + ev_data_y], r9
@@ -53,8 +53,8 @@
 		vp_mul -1, r8
 		vp_mul -1, r9
 		vp_add view_dirty_region, r0
-		static_call gui_region, translate, {r0, r8, r9}
-		static_call window, dirty_all, {.window}
+		s_call gui_region, translate, {r0, r8, r9}
+		s_call window, dirty_all, {.window}
 
 		vp_cpy .inst, r0
 		vp_add local_size, r4

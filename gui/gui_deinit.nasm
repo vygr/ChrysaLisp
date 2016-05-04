@@ -9,18 +9,18 @@
 		vp_cpy [r1 + gui_statics_screen], r0
 		if r0, !=, 0
 			vp_cpy_cl 0, [r1 + gui_statics_screen]
-			static_call view, deref, {r0}
+			s_call view, deref, {r0}
 		endif
 
 		;free old region
 		static_bind gui_gui, statics, r5
-		static_call gui_region, free, {:[r5 + gui_statics_rect_heap], :[r5 + gui_statics_old_region]}
+		s_call gui_region, free, {:[r5 + gui_statics_rect_heap], :[r5 + gui_statics_old_region]}
 
 		;deinit region heap
-		static_call sys_heap, deinit, {r0}
+		s_call sys_heap, deinit, {r0}
 
 		;deinit signal heap
-		static_call sys_heap, deinit, {:[r5 + gui_statics_sigslot_heap]}
+		s_call sys_heap, deinit, {:[r5 + gui_statics_sigslot_heap]}
 
 		;destroy any window
 		vp_cpy [r5 + gui_statics_window], r14

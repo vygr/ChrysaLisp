@@ -10,6 +10,6 @@
 		;r2-r3, r5-r6
 
 		static_bind sys_task, statics, r1
-		static_jmp sys_task, open_remote, {r0, [r1 + tk_statics_cpu_id]}
+		s_jmp sys_task, open_remote, {r0, [r1 + tk_statics_cpu_id]}
 
 	fn_function_end

@@ -29,7 +29,7 @@
 					vp_cpy [r7 + gui_rect_y1], r15
 					continueif r9, >=, r15
 
-					static_call sys_heap, alloc, {r0}, {r1}
+					s_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 

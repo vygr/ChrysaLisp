@@ -35,14 +35,14 @@
 		loop_flist_forward r5 + ft_statics_text_list, r5, r5
 			vp_cpy .font, r0
 			continueif r0, !=, [r5 + ft_text_font]
-			static_call sys_string, compare, {:[r5 + ft_text_name], .text}, {r0}
+			s_call sys_string, compare, {:[r5 + ft_text_name], .text}, {r0}
 		loop_until r0, !=, 0
 
 		;did we find it ?
 		vp_cpy r5, r0
 		if r5, ==, 0
 			;no so try create it
-			static_call sys_task, callback, {$kernel_callback, r4}
+			s_call sys_task, callback, {$kernel_callback, r4}
 			vp_cpy .handle, r0
 		endif
 
@@ -77,14 +77,14 @@
 			if r0, !=, 0
 				vp_cpy r0, r5
 
-				static_call sys_string, length, {[r14 + local_text]}, {r1}
-				static_call sys_mem, alloc, {:[r1 + ft_text_size + 1]}, {r13, _}
+				s_call sys_string, length, {[r14 + local_text]}, {r1}
+				s_call sys_mem, alloc, {:[r1 + ft_text_size + 1]}, {r13, _}
 				assert r0, !=, 0
 
 				vp_cpy [r14 + local_font], r0
 				vp_cpy r0, [r13 + ft_text_font]
 				vp_cpy r5, [r13 + ft_text_texture]
-				static_call sys_string, copy, {[r14 + local_text], :[r13 + ft_text_name]}, {_, _}
+				s_call sys_string, copy, {[r14 + local_text], :[r13 + ft_text_name]}, {_, _}
 
 				;fill in width and height
 				vp_cpy [r14 + local_width], r10

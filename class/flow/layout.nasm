@@ -30,14 +30,14 @@
 			vp_cpy r1, .y
 		endif
 
-		static_call flow, backward, {r0, r4, $callback}
+		s_call flow, backward, {r0, r4, $callback}
 
 		vp_add local_size, r4
 		vp_ret
 
 	callback:
 		vp_push r1
-		method_call view, pref_size, {r0}, {r10, r11}
+		m_call view, pref_size, {r0}, {r10, r11}
 		vp_pop r1
 		vp_cpy [r1 + local_x], r8
 		vp_cpy [r1 + local_y], r9
@@ -173,6 +173,6 @@
 
 		vp_cpy r12, [r1 + local_x]
 		vp_cpy r13, [r1 + local_y]
-		static_jmp view, change, {r0, r8, r9, r10, r11}
+		s_jmp view, change, {r0, r8, r9, r10, r11}
 
 	fn_function_end

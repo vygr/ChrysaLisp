@@ -19,7 +19,7 @@
 		set_dst .inst
 		map_src_to_dst
 
-		static_call text, set_text_color, {[r0 + label_text], r1}
+		s_call text, set_text_color, {[r0 + label_text], r1}
 
 		vp_cpy .inst, r0
 		vp_add local_size, r4

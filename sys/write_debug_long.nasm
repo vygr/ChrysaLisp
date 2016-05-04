@@ -25,24 +25,24 @@
 		map_src_to_dst
 
 		;tab in by stack depth
-		static_call sys_task, stack_depth, {}, {r0}
+		s_call sys_task, stack_depth, {}, {r0}
 		if r0, >, 0
 			vp_lea [r0 - (12*8)], r2
 			vp_cpy ' ', r0
 			vp_cpy 2, r1
 			loop_while r2, >, 0
-				static_call sys_io, char, {r0, r1}
+				s_call sys_io, char, {r0, r1}
 				vp_sub 8, r2
 			loop_end
 		endif
-		static_call sys_io, string, {.name, 2}
-		static_call sys_io, string, {"< ", 2}
-		static_call sys_io, number, {.line, 2, 10}
-		static_call sys_io, string, {" >: ", r1}
-		static_call sys_io, string, {.string, 2}
-		static_call sys_io, string, {" :-> 0x", 2}
-		static_call sys_io, number, {.long, 2, 16}
-		static_call sys_io, char, {10, 2}
+		s_call sys_io, string, {.name, 2}
+		s_call sys_io, string, {"< ", 2}
+		s_call sys_io, number, {.line, 2, 10}
+		s_call sys_io, string, {" >: ", r1}
+		s_call sys_io, string, {.string, 2}
+		s_call sys_io, string, {" :-> 0x", 2}
+		s_call sys_io, number, {.long, 2, 16}
+		s_call sys_io, char, {10, 2}
 
 		vp_add local_size, r4
 		vp_ret

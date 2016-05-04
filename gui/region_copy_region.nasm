@@ -40,7 +40,7 @@
 			vp_add r13, r9
 			vp_add r12, r10
 			vp_add r13, r11
-			static_call gui_region, copy_rect, {r0, .slist, .dlist, \
+			s_call gui_region, copy_rect, {r0, .slist, .dlist, \
 												r8, r9, r10, r11}
 
 			vp_cpy .node, r1

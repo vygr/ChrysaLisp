@@ -17,6 +17,6 @@
 		vp_cpy r1, [r0]
 
 		;restore next task
-		static_jmp sys_task, restore
+		s_jmp sys_task, restore
 
 	fn_function_end

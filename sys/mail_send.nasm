@@ -9,7 +9,7 @@
 
 		;on or off chip ?
 		vp_cpy r0, r2
-		static_call sys_cpu, id, {}, {r0}
+		s_call sys_cpu, id, {}, {r0}
 		if r0, ==, [r2 + (ml_msg_dest + 8)]
 			;on this chip
 			vp_cpy [r2 + ml_msg_parcel_size], r1
@@ -30,7 +30,7 @@
 			vp_cpy [r1 + ml_mailbox_tcb], r0
 			if r0, !=, 0
 				vp_cpy_cl 0, [r1 + ml_mailbox_tcb]
-				static_call sys_task, resume, {r0}
+				s_call sys_task, resume, {r0}
 			endif
 		else
 			;going off chip

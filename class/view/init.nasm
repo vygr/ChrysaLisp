@@ -9,7 +9,7 @@
 		;r1 = 0 if error, else ok
 
 		;init parent
-		super_call view, init, {r0, r1}, {r1}
+		p_call view, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			;init myself
 			vp_cpy view_flag_solid, r1
