@@ -1141,7 +1141,7 @@
 		%if _sym = -1
 			;try letting NASM handle it
 			get_reg _reg_sp
-			%ifnid %1, _reg
+			%ifnidn %1, _reg
 				%warning vp_cpy %1, _reg
 				vp_cpy %1, _reg
 			%endif
