@@ -789,16 +789,10 @@
 
 	%macro inc_reg_sp 0
 		%assign _reg_sp _reg_sp + 1
-		%if _reg_sp = _reg_total
-			%error Register stack overflow !
-		%endif
 	%endmacro
 
 	%macro dec_reg_sp 0
 		%assign _reg_sp _reg_sp - 1
-		%if _reg_sp = -1
-			%error Register stack underflow !
-		%endif
 	%endmacro
 
 	%macro set_reg 2
@@ -806,6 +800,12 @@
 	%endmacro
 
 	%macro get_reg 1
+		%if _reg_sp = -1
+			%error Register stack underflow !
+		%endif
+		%if _reg_sp = _reg_total
+			%error Register stack overflow !
+		%endif
 		%xdefine _reg _reg_%[%1]
 	%endmacro
 
