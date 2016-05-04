@@ -15,7 +15,6 @@
 
 		;get loader statics !
 		vp_rel _func_start, r8
-		vp_xor r0, r0
 		vp_cpy_ui [r8 + fn_header_length], r0
 		vp_add r0, r8
 		vp_cpy_ui [r8 + fn_header_entry], r0
@@ -29,7 +28,6 @@
 		loop_until r0, !=, 0
 		if r6, !=, 0
 			;found function already loaded
-			vp_xor r0, r0
 			vp_cpy_ui [r6 + fn_header_entry], r0
 			vp_add r6, r0
 			vp_ret
@@ -77,7 +75,6 @@
 		sys_close r7
 
 		;check loaded length equals file size
-		vp_xor r0, r0
 		vp_cpy_ui [r3 + fn_header_length], r0
 		if r0, !=, [r2 + stat_fsize]
 			vp_rel size_error, r0
@@ -93,8 +90,6 @@
 		vp_cpy r1, r6
 
 		;copy paths to reloc buffer
-		vp_xor r0, r0
-		vp_xor r2, r2
 		vp_cpy_ui [r3 + fn_header_paths], r0
 		vp_cpy_ui [r3 + fn_header_length], r2
 		vp_add r3, r0
@@ -120,8 +115,6 @@
 		endif
 
 		;bind links to paths in reloc buffer
-		vp_xor r0, r0
-		vp_xor r2, r2
 		vp_cpy_ui [r3 + fn_header_links], r0
 		vp_cpy_ui [r3 + fn_header_paths], r2
 		vp_add r3, r0
@@ -142,7 +135,6 @@
 
 		;load and link function references
 		;now actual addresses of strings in the reloc buffer
-		vp_xor r0, r0
 		vp_cpy_ui [r3 + fn_header_links], r0
 		vp_add r3, r0
 		vp_push r3
@@ -176,7 +168,6 @@
 
 		;get loader statics !
 		vp_rel _func_start, r8
-		vp_xor r0, r0
 		vp_cpy_ui [r8 + fn_header_length], r0
 		vp_add r0, r8
 		vp_cpy_ui [r8 + fn_header_entry], r0
@@ -188,7 +179,6 @@
 		vp_cpy r0, [r8 + ld_statics_reloc_stack]
 
 		;return function address
-		vp_xor r0, r0
 		vp_cpy_ui [r3 + fn_header_entry], r0
 		vp_add r3, r0
 		vp_ret

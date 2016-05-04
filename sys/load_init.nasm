@@ -6,7 +6,6 @@
 		vp_rel _func_start, r0
 		vp_cpy r0, r1
 		loop_start
-			vp_xor r2, r2
 		 	vp_cpy_ui [r1 + fn_header_length], r2
 			breakif r2, ==, 0
 			vp_add r2, r1
@@ -17,7 +16,6 @@
 
 		;get loader statics and bind function !
 		vp_rel _func_start, r6
-		vp_xor r0, r0
 		vp_cpy_ui [r6 + fn_header_length], r0
 		vp_add r0, r6
 		vp_cpy r6, r5
@@ -35,7 +33,6 @@
 		;add all prebound functions to function list
 		vp_rel _func_start, r1
 		loop_start
-			vp_xor r2, r2
 		 	vp_cpy_ui [r1 + fn_header_length], r2
 			breakif r2, ==, 0
 			vp_cpy [r6 + ld_statics_function_list], r0
@@ -47,10 +44,8 @@
 		;bind all prebound function intra references
 		vp_rel _func_start, r2
 		loop_start
-			vp_xor r1, r1
 			vp_cpy_ui [r2 + fn_header_length], r1
 			breakif r1, ==, 0
-			vp_xor r0, r0
 			vp_cpy_ui [r2 + fn_header_links], r0
 			vp_add r2, r0
 			vp_add r1, r2
