@@ -84,7 +84,6 @@
 		vp_ret
 
 	string_skip:
-		vp_xor r1, r1
 		loop_start
 			vp_cpy_ub [r0], r1
 			vp_inc r0

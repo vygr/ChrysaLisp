@@ -9,8 +9,6 @@
 		;trashes
 		;r0-r3
 
-		vp_xor r2, r2
-		vp_xor r3, r3
 		loop_start
 			vp_cpy_ub [r0], r2
 			vp_cpy_ub [r1], r3

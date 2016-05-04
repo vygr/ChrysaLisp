@@ -9,7 +9,6 @@
 		;r0, r2
 
 		vp_cpy 5381, r1
-		vp_xor r2, r2
 		loop_start
 			vp_cpy_ub [r0], r2
 			breakif r2, ==, 0
