@@ -1136,7 +1136,7 @@
 		_sym_aux_%[_sym]
 	%endmacro
 
-	%macro compile_rvar 1
+	%macro compile_rval 1
 		get_sym %1
 		%if _sym = -1
 			;try letting NASM handle it
@@ -1194,7 +1194,7 @@
 		%endif
 	%endmacro
 
-	%macro compile_lvar 1
+	%macro compile_lval 1
 		get_sym %1
 		%if _sym = -1
 			%fatal Symbol %1 not defined !
@@ -1293,7 +1293,7 @@
 					;bare constant
 					compile_const %%t
 				%else
-					compile_rvar %%t
+					compile_rval %%t
 				%endif
 			%elif %%tt = 1
 				;:...
@@ -1361,7 +1361,7 @@
 			%fatal Mismatching number of src/dst paramaters !
 		%endif
 		%rep _dst_total
-			compile_lvar _dst_%[_reg_sp]
+			compile_lval _dst_%[_reg_sp]
 			%assign _reg_sp _reg_sp + 1
 		%endrep
 	%endmacro
