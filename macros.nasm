@@ -26,7 +26,7 @@
 
 		;define variables
 		push_vars
-			eval {@zzz >> :xxx + "bert"}, {r0}
+			eval {@zzz >>> :xxx + "bert"}, {r0}
 
 			;define variables
 			ushort xxx

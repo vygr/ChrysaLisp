@@ -1044,6 +1044,14 @@
 		vp_shr %%r, _reg
 	%endmacro
 
+	%macro compile_arshift 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		%warning vp_asr %%r, _reg
+		vp_asr %%r, _reg
+	%endmacro
+
 	%macro compile_plus 0
 		pop_reg
 		%xdefine %%r _reg

@@ -215,6 +215,7 @@
 		def_op	-, 4, 0, compile_minus
 		def_op	<<, 5, 0, compile_lshift
 		def_op	>>, 5, 0, compile_rshift
+		def_op	>>>, 5, 0, compile_arshift
 		def_op	<, 6, 0, compile_lt
 		def_op	>, 6, 0, compile_gt
 		def_op	<=, 6, 0, compile_le
