@@ -620,46 +620,41 @@
 		%defstr %%s %1
 		%strlen %%l %%s
 		%assign _token_sp 0
+		%defstr %%p
 		%defstr %%c
 		%assign %%m -1
 		%assign %%u 1
 		%assign %%i 1
 		%rep %%l * 2
 			%ifnidn %%c, ''
-				sub_string %%c, ':@$"-*~!+/%&^|<=>.? )('
+				sub_string %%c, ':@$"-*~!+.?^</%&|=> )('
 				%if %%m = -1
 					;scanning
 					%ifnidn %%c, ' '
-						%defstr %%p
-						%if _pos > 20
-							;')('
+						%if _pos >= 21
+							;)(
 							push_token %%c, _pos
 							%assign %%u _pos - 21
-						%elif _pos = 0
+						%elif (_pos = 0 || _pos >= 4)
+							;"-*~!+.?^</%&|=> or symbol
 							%strcat %%p %%p %%c
-							%assign %%m _pos
-						%elif _pos < 4
 							%assign %%m _pos
 						%else
-							%strcat %%p %%p %%c
+							;:@$
 							%assign %%m _pos
 						%endif
 					%endif
 					%defstr %%c
 				%elif %%m > 4
 					;op mode
-					%if _pos > 19
-						;' )('
+					%if _pos >= 20 || _pos < 13
+						;space, )( or not </%&|=>
 						%if %%u = 1
 							;unary operator
-							%ifidn %%p, '-'
-								push_token '_', %%m
-							%elifidn %%p, '*'
-								push_token '#', %%m
-							%elifidn %%p, '~'
-								push_token %%p, %%m
-							%elifidn %%p, '!'
-								push_token %%p, %%m
+							sub_string %%p, '-*~!'
+							%if _pos != 0
+								%substr %%o '_#~!' _pos, 1
+								push_token %%o, %%m
 							%else
 								%fatal Unknown unary operator %%p !
 							%endif
@@ -668,27 +663,30 @@
 							push_token %%p, %%m
 							%assign %%u 1
 						%endif
+						%defstr %%p
 						%assign %%m -1
 					%else
 						%strcat %%p %%p %%c
 						%defstr %%c
 					%endif
-				%elif %m < 4
+				%elif %%m < 4
 					;symbol mode
-					%if _pos > 19
-						;' )('
-						push_token %%p, %%m
-						%assign %%u 0
-						%assign %%m -1
-					%else
+					%if _pos = 0
+						;symbol
 						%strcat %%p %%p %%c
 						%defstr %%c
+					%else
+						push_token %%p, %%m
+						%defstr %%p
+						%assign %%u 0
+						%assign %%m -1
 					%endif
 				%else
 					;" mode
 					%strcat %%p %%p %%c
 					%ifidn %%c, '"'
 						push_token %%p, %%m
+						%defstr %%p
 						%assign %%u 0
 						%assign %%m -1
 					%endif
@@ -1121,7 +1119,6 @@
 	%endmacro
 
 	%macro compile_operator 1
-		%warning op = %1
 		get_sym %1
 		%if _sym = -1
 			%error Operator %1 not defined !

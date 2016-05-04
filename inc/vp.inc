@@ -307,15 +307,45 @@
 	%endmacro
 
 	%macro vp_shr 2
-		shr %2, %1
+		reg? %1
+		%if _r = 1
+			;source is r1
+			shr %2, cl
+		%else
+			;source is not r1
+			vp_push r1
+			vp_cpy %1, r1
+			shr %2, cl
+			vp_pop r1
+		%endif
 	%endmacro
 
 	%macro vp_asr 2
-		sar %2, %1
+		reg? %1
+		%if _r = 1
+			;source is r1
+			sar %2, cl
+		%else
+			;source is not r1
+			vp_push r1
+			vp_cpy %1, r1
+			sar %2, cl
+			vp_pop r1
+		%endif
 	%endmacro
 
 	%macro vp_shl 2
-		shl %2, %1
+		reg? %1
+		%if _r = 1
+			;source is r1
+			shl %2, cl
+		%else
+			;source is not r1
+			vp_push r1
+			vp_cpy %1, r1
+			shl %2, cl
+			vp_pop r1
+		%endif
 	%endmacro
 
 	%macro vp_cpy_rel 2
