@@ -38,7 +38,7 @@
 		long length
 
 		;init app vars
-		push_vars
+		push_scope
 		slot_function class, obj
 		static_call obj, init, {:myapp, @_function_}, {_}
 		static_call sys_string, from_long, {0, :buffer, 10}
@@ -119,15 +119,13 @@
 		static_call window, deref, {window}
 		method_call obj, deinit, {:myapp}
 
-		pop_vars
+		pop_scope
 		vp_ret
 
 	on_press:
 		;inputs
 		;r0 = app local object
 		;r1 = button object
-
-		push_scope
 
 		long inst
 		long button
@@ -136,7 +134,7 @@
 		long string
 
 		;save inputs
-		push_vars
+		push_scope
 		retire {r0, r1}, {inst, button}
 
 		static_call button, get_text, {button}, {string1}
@@ -147,7 +145,6 @@
 		static_call string, deref, {string1}
 		static_call string, deref, {string2}
 
-		pop_vars
 		pop_scope
 		vp_ret
 

@@ -30,23 +30,24 @@
 ;		print_rpn_list
 
 		;define variables
-		push_vars
+		push_scope
 			eval {bbb + 100}, {r0}
 
 			;define variables
 			ushort xxx
 			uint yyy
-			push_vars
+			push_scope
 ;				eval {(a + b) ^ zzz * - xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
-			pop_vars
+			pop_scope
 
 			;define variables
-			byte zzz
 			struct qqq, long
-			push_vars
+			byte zzz
+
+			push_scope
 ;				eval {(a + b) ^ zzz * - xxx / yyy, "test" % qqq * :xxx + yyy * @test/path}, {r0, r1}
-			pop_vars
-		pop_vars
+			pop_scope
+		pop_scope
 		vp_ret
 
 	fn_function_end

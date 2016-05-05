@@ -305,25 +305,11 @@
 		struct %1, byte
 	%endmacro
 
-	%macro local_align 1
+	%macro local_align 0-1 long
 		;inputs
 		;%1 = alignment
 		%assign _var_sp _var_sp + (%1_size - 1)
 		%assign _var_sp _var_sp & -(%1_size)
-	%endmacro
-
-	%macro push_vars 0
-		%if _var_sp != 0
-			vp_sub _var_sp, r4
-		%endif
-		push_scope
-	%endmacro
-
-	%macro pop_vars 0
-		pop_scope
-		%if _var_sp != 0
-			vp_add _var_sp, r4
-		%endif
 	%endmacro
 
 ;;;;;;;;;;;;;;
@@ -337,9 +323,14 @@
 	_sym_var	equ 2
 
 	%macro push_scope 0
+		local_align
 		%assign _scope_sym_%[_scope_sp] _sym_sp
 		%assign _scope_var_%[_scope_sp] _var_sp
 		%assign _scope_sp _scope_sp + 1
+		%if _var_sp != 0
+			%warning vp_sub _var_sp, r4
+			vp_sub _var_sp, r4
+		%endif
 		%assign _var_sp 0
 	%endmacro
 
@@ -347,6 +338,15 @@
 		%assign _scope_sp _scope_sp - 1
 		%assign _sym_sp _scope_sym_%[_scope_sp]
 		%assign _var_sp _scope_var_%[_scope_sp]
+		%if _var_sp != 0
+			%warning vp_add _var_sp, r4
+			vp_add _var_sp, r4
+		%endif
+		%assign _var_sp 0
+		%assign %%s _scope_sp - 1
+		%if %%s != -1
+			%assign _sym_sp _scope_sym_%[%%s]
+		%endif
 	%endmacro
 
 	%macro get_scope_offset 1
