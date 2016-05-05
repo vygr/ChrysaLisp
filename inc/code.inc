@@ -409,13 +409,13 @@
 		%endrep
 	%endmacro
 
-	%macro def_const 2
+	%macro const 2
 		;%1 name
 		;%2 value
 		def_sym %1, _sym_const, %2
 	%endmacro
 
-	%macro def_op 2-4 0, compile_null
+	%macro operator 2-4 0, compile_null
 		;%1 name
 		;%2 precidence
 		;%3 asociativity

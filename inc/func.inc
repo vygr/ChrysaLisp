@@ -203,33 +203,33 @@
 		;define the operators
 		;values are precidence, assoiciativity
 		push_scope
-		def_op	., 1, 0, compile_field
-		def_op	_, 2, 1, compile_uminus
-		def_op	#, 2, 1, compile_uderef
-		def_op	~, 2, 1, compile_unot
-		def_op	!, 2, 1, compile_ulnot
-		def_op	*, 3, 0, compile_mul
-		def_op	/, 3, 0, compile_div
-		def_op	%, 3, 0, compile_rem
-		def_op	+, 4, 0, compile_plus
-		def_op	-, 4, 0, compile_minus
-		def_op	<<, 5, 0, compile_lshift
-		def_op	>>, 5, 0, compile_rshift
-		def_op	>>>, 5, 0, compile_arshift
-		def_op	<, 6, 0, compile_lt
-		def_op	>, 6, 0, compile_gt
-		def_op	<=, 6, 0, compile_le
-		def_op	>=, 6, 0, compile_ge
-		def_op	==, 7, 0, compile_eq
-		def_op	!=, 7, 0, compile_ne
-		def_op	&, 8, 0, compile_and
-		def_op	^, 9, 0, compile_xor
-		def_op	|, 10, 0, compile_or
-		def_op	&&, 11, 0, compile_land
-		def_op	||, 12, 0, compile_lor
-		def_op	?, 13, 0, compile_ternary
-		def_op	(, 14
-		def_op	), 14
+		operator ., 1, 0, compile_field
+		operator _, 2, 1, compile_uminus
+		operator #, 2, 1, compile_uderef
+		operator ~, 2, 1, compile_unot
+		operator !, 2, 1, compile_ulnot
+		operator *, 3, 0, compile_mul
+		operator /, 3, 0, compile_div
+		operator %, 3, 0, compile_rem
+		operator +, 4, 0, compile_plus
+		operator -, 4, 0, compile_minus
+		operator <<, 5, 0, compile_lshift
+		operator >>, 5, 0, compile_rshift
+		operator >>>, 5, 0, compile_arshift
+		operator <, 6, 0, compile_lt
+		operator >, 6, 0, compile_gt
+		operator <=, 6, 0, compile_le
+		operator >=, 6, 0, compile_ge
+		operator ==, 7, 0, compile_eq
+		operator !=, 7, 0, compile_ne
+		operator &, 8, 0, compile_and
+		operator ^, 9, 0, compile_xor
+		operator |, 10, 0, compile_or
+		operator &&, 11, 0, compile_land
+		operator ||, 12, 0, compile_lor
+		operator ?, 13, 0, compile_ternary
+		operator (, 14
+		operator ), 14
 		push_scope
 	%endmacro
 

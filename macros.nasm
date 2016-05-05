@@ -7,12 +7,12 @@
 	fn_function 'test'
 
 		;define constants
-		def_const a, 0
-		def_const b, 1
-		def_const c, 2
-		def_const d, 3
-		def_const e, 4
-		def_const f, 5
+		const a, 0
+		const b, 1
+		const c, 2
+		const d, 3
+		const e, 4
+		const f, 5
 
 		;define variables
 		byte bbb
