@@ -40,8 +40,8 @@
 		;init app vars
 		push_scope
 		slot_function class, obj
-		static_call obj, init, {:myapp, @_function_}, {_}
-		static_call sys_string, from_long, {0, :buffer, 10}
+		static_call obj, init, {&myapp, @_function_}, {_}
+		static_call sys_string, from_long, {0, &buffer, 10}
 
 		;create my window
 		static_call window, create, {}, {window}
@@ -86,7 +86,7 @@
 			static_call button, set_flow_flags, {button, flow_flag_align_hcenter | flow_flag_align_vcenter}
 			static_call button, add, {button, grid_panel}
 			static_call button, sig_pressed, {button}, {pressed}
-			static_call button, connect, {button, pressed, :myapp, $on_press}
+			static_call button, connect, {button, pressed, &myapp, $on_press}
 
 			static_call sys_string, length, {next}, {length}
 			eval {next + length + 1}, {r0}
@@ -94,7 +94,7 @@
 
 		;set to pref size
 		method_call window, pref_size, {window}, {width, height}
-		static_call window, change, {window, 920, 48, width / 2 + width, height / 2 + height}
+		static_call window, change, {window, 920, 48, width + (width >> 1), height + (height >> 1)}
 
 		;set window owner
 		static_call sys_task, tcb, {}, {owner}
@@ -109,7 +109,7 @@
 			static_call sys_mail, mymail, {}, {last_event}
 
 			;dispatch event to view
-			method_call view, event, {last_event.ev_data_view, last_event}
+			method_call view, event, {last_event->ev_data_view, last_event}
 
 			;free event message
 			static_call sys_mem, free, {last_event}
@@ -117,7 +117,7 @@
 
 		;deref window
 		static_call window, deref, {window}
-		method_call obj, deinit, {:myapp}
+		method_call obj, deinit, {&myapp}
 
 		pop_scope
 		vp_ret
@@ -138,10 +138,10 @@
 		retire {r0, r1}, {inst, button}
 
 		static_call button, get_text, {button}, {string1}
-		static_call label, get_text, {inst.shared_display}, {string2}
+		static_call label, get_text, {inst->shared_display}, {string2}
 		static_call string, add, {string2, string1}, {string}
-		static_call label, set_text, {inst.shared_display, string}
-		static_call label, dirty, {inst.shared_display}
+		static_call label, set_text, {inst->shared_display, string}
+		static_call label, dirty, {inst->shared_display}
 		static_call string, deref, {string1}
 		static_call string, deref, {string2}
 

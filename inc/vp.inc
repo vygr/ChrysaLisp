@@ -384,43 +384,91 @@
 
 	%macro vp_shr 2
 		reg? %1
-		%if _r = 1
+		%if _r < 0
+			;source is not reg
+			shr %2, %1
+		%elif _r = 1
 			;source is r1
 			shr %2, cl
 		%else
 			;source is not r1
-			vp_push r1
-			vp_cpy %1, r1
-			shr %2, cl
-			vp_pop r1
+			reg? %2
+			%if _r < 0
+				;dest is not reg
+				%fatal Not valid VP mode
+			%elif _r = 1
+				;dest is r1
+				vp_push %1
+				vp_xchg %1, %2
+				shr %1, cl
+				vp_cpy %1, %2
+				vp_pop %1
+			%else
+				;dest is not r1
+				vp_xchg %1, r1
+				shr %2, cl
+				vp_xchg %1, r1
+			%endif
 		%endif
 	%endmacro
 
 	%macro vp_asr 2
 		reg? %1
-		%if _r = 1
+		%if _r < 0
+			;source is not reg
+			sar %2, %1
+		%elif _r = 1
 			;source is r1
 			sar %2, cl
 		%else
 			;source is not r1
-			vp_push r1
-			vp_cpy %1, r1
-			sar %2, cl
-			vp_pop r1
+			reg? %2
+			%if _r < 0
+				;dest is not reg
+				%fatal Not valid VP mode
+			%elif _r = 1
+				;dest is r1
+				vp_push %1
+				vp_xchg %1, %2
+				sar %1, cl
+				vp_cpy %1, %2
+				vp_pop %1
+			%else
+				;dest is not r1
+				vp_xchg %1, r1
+				sar %2, cl
+				vp_xchg %1, r1
+			%endif
 		%endif
 	%endmacro
 
 	%macro vp_shl 2
 		reg? %1
-		%if _r = 1
+		%if _r < 0
+			;source is not reg
+			shl %2, %1
+		%elif _r = 1
 			;source is r1
 			shl %2, cl
 		%else
 			;source is not r1
-			vp_push r1
-			vp_cpy %1, r1
-			shl %2, cl
-			vp_pop r1
+			reg? %2
+			%if _r < 0
+				;dest is not reg
+				%fatal Not valid VP mode
+			%elif _r = 1
+				;dest is r1
+				vp_push %1
+				vp_xchg %1, %2
+				shl %1, cl
+				vp_cpy %1, %2
+				vp_pop %1
+			%else
+				;dest is not r1
+				vp_xchg %1, r1
+				shl %2, cl
+				vp_xchg %1, r1
+			%endif
 		%endif
 	%endmacro
 

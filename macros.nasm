@@ -23,15 +23,16 @@
 		uint uiii
 		long lll
 		ulong ulll
+		struct qqq, long
 
-;		set_token_list @zzz >> :xxx + "bert"
+;		set_token_list zzz
 ;		print_token_list
 ;		token_to_rpn
 ;		print_rpn_list
 
 		;define variables
 		push_scope
-			assign {bbb + 100}, {iii}
+			assign {qqq -> 56, (a + b)}, {lll, ulll}
 
 			;define variables
 			ushort xxx
