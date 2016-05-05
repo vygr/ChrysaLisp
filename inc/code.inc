@@ -745,6 +745,9 @@
 				%else
 					;precidence
 					get_sym %%t
+					%if _sym = -1
+						%fatal Operator %%t not defined !
+					%endif
 					%assign %%v _sym_value_%[_sym] - _sym_size_%[_sym]
 					%rep %%o
 						%assign %%o %%o - 1
