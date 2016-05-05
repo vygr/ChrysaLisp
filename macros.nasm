@@ -31,7 +31,7 @@
 
 		;define variables
 		push_scope
-			eval {bbb + 100}, {r0}
+			assign {bbb + 100}, {iii}
 
 			;define variables
 			ushort xxx

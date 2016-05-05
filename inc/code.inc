@@ -1346,4 +1346,29 @@
 		%endrep
 	%endmacro
 
+	%macro assign 2
+		%warning --------------------------------------
+		%warning {%1}, {%2}
+		%warning --------------------------------------
+		set_src %1
+		set_dst %2
+		%if _dst_total != _src_total
+			%fatal Mismatching number of src/dst paramaters !
+		%endif
+		set_reg_stack
+		fill_reg_stack
+		%assign %%n 0
+		%rep _src_total
+			set_token_list _src_%[%%n]
+			token_to_rpn
+			compile_rpn_list
+			%assign %%n %%n + 1
+		%endrep
+		%assign _reg_sp 0
+		%rep _dst_total
+			compile_lval _dst_%[_reg_sp]
+			%assign _reg_sp _reg_sp + 1
+		%endrep
+	%endmacro
+
 %endif
