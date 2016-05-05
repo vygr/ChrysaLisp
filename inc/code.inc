@@ -372,14 +372,10 @@
 		%assign %%n _scope_sym_%[%%s]
 		%rep _sym_sp - %%n
 			%ifidn _sym_name_%[%%n], %1
-				%exitrep
-			%else
-				%assign %%n %%n + 1
+				%fatal Symbol %1 redefined !
 			%endif
+			%assign %%n %%n + 1
 		%endrep
-		%if %%n != _sym_sp
-			%fatal Symbol %1 redefined !
-		%endif
 		%assign _sym_scope_%[%%n] _scope_sp
 		%xdefine _sym_name_%[%%n] %1
 		%assign _sym_type_%[%%n] %2
