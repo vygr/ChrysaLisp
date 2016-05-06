@@ -13,19 +13,19 @@
 		;trashes
 		;all but r4
 
-		def_local
-			def_local_long	font
-			def_local_long	text
-			def_local_long	handle
-			def_local_long	surface
-			def_local_long	width
-			def_local_long	height
-		def_local_end
+		def_structure local
+			long local_font
+			long local_text
+			long local_handle
+			long local_surface
+			long local_width
+			long local_height
+		def_structure_end
 
 		;save inputs
 		vp_sub local_size, r4
 		set_src r0, r1
-		set_dst .font, .text
+		set_dst [r4 + local_font], [r4 + local_text]
 		map_src_to_dst
 
 		;get font statics
@@ -33,9 +33,9 @@
 
 		;search text list
 		loop_flist_forward r5 + ft_statics_text_list, r5, r5
-			vp_cpy .font, r0
+			vp_cpy [r4 + local_font], r0
 			continueif r0, !=, [r5 + ft_text_font]
-			s_call sys_string, compare, {:[r5 + ft_text_name], .text}, {r0}
+			s_call sys_string, compare, {:[r5 + ft_text_name], [r4 + local_text]}, {r0}
 		loop_until r0, !=, 0
 
 		;did we find it ?
@@ -43,7 +43,7 @@
 		if r5, ==, 0
 			;no so try create it
 			s_call sys_task, callback, {$kernel_callback, r4}
-			vp_cpy .handle, r0
+			vp_cpy [r4 + local_handle], r0
 		endif
 
 		vp_add local_size, r4

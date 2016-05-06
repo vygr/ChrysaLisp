@@ -11,9 +11,9 @@
 		;trashes
 		;all but r4
 
-		def_local
-			def_local_struct	ctx, gui_ctx
-		def_local_end
+		def_structure local
+			struct local_ctx, gui_ctx
+		def_structure_end
 
 		vp_sub local_size, r4
 		static_bind gui_gui, statics, r1
@@ -62,7 +62,7 @@
 
 		;iterate through views back to front
 		;drawing each view
-		s_call view, backward_tree, {r0, :.ctx, $draw_down_callback, $null_func_up_callback}
+		s_call view, backward_tree, {r0, :[r4 + local_ctx], $draw_down_callback, $null_func_up_callback}
 
 		vp_add local_size, r4
 		vp_ret

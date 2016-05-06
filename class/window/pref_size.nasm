@@ -11,21 +11,21 @@
 		;trashes
 		;all but r0, r4
 
-		def_local
-			def_local_long	inst
-		def_local_end
+		def_structure local
+			long local_inst
+		def_structure_end
 
 		;save inputs
 		vp_sub local_size, r4
 		set_src r0
-		set_dst .inst
+		set_dst [r4 + local_inst]
 		map_src_to_dst
 
 		m_call flow, pref_size, {[r0 + window_flow]}, {r10, r11}
 		vp_add window_border_size * 2, r10
 		vp_add window_border_size * 2, r11
 
-		vp_cpy .inst, r0
+		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 

@@ -11,15 +11,15 @@
 		;trashes
 		;all but r0, r4
 
-		def_local
-			def_local_long	inst
-			def_local_long	ctx
-		def_local_end
+		def_structure local
+			long local_inst
+			long local_ctx
+		def_structure_end
 
 		;save inputs
 		vp_sub local_size, r4
 		set_src r0, r1
-		set_dst .inst, .ctx
+		set_dst [r4 + local_inst], [r4 + local_ctx]
 		map_src_to_dst
 
 		;draw text
@@ -30,14 +30,14 @@
 				vp_add string_data, r1
 				s_call gui_font, text, {r0, r1}, {r0}
 				if r0, !=, 0
-					vp_cpy .inst, r2
-					s_call gui_ctx, blit, {.ctx, [r0 + ft_text_texture], [r2 + text_text_color], \
+					vp_cpy [r4 + local_inst], r2
+					s_call gui_ctx, blit, {[r4 + local_ctx], [r0 + ft_text_texture], [r2 + text_text_color], \
 												0, 0, [r0 + ft_text_width], [r0 + ft_text_height]}
 				endif
 			endif
 		endif
 
-		vp_cpy .inst, r0
+		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 

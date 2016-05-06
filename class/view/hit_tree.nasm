@@ -14,25 +14,25 @@
 		;trashes
 		;r1-r3
 
-		def_local
-			def_local_long	inst
-			def_local_long	hit
-			def_local_long	jump
-		def_local_end
+		def_structure local
+			long local_inst
+			long local_hit
+			long local_jump
+		def_structure_end
 
 		;save inputs
 		vp_sub	local_size, r4
-		vp_cpy r0, .inst
-		vp_cpy_cl 0, .hit
+		vp_cpy r0, [r4 + local_inst]
+		vp_cpy_cl 0, [r4 + local_hit]
 		vp_rel early_ret, r1
-		vp_cpy r1, .jump
+		vp_cpy r1, [r4 + local_jump]
 
 		;iterate through views front to back
 		s_call view, forward_tree, {r0, r4, $hit_down_callback, $hit_up_callback}
 
 	early_ret:
-		vp_cpy .inst, r0
-		vp_cpy .hit, r1
+		vp_cpy [r4 + local_inst], r0
+		vp_cpy [r4 + local_hit], r1
 		vp_add local_size, r4
 		vp_ret
 

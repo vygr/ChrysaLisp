@@ -8,13 +8,13 @@
 		;trashes
 		;all but r0, r4
 
-		def_local
-			def_local_long	inst
-		def_local_end
+		def_structure local
+			long local_inst
+		def_structure_end
 
 		;save inputs
 		vp_sub local_size, r4
-		vp_cpy r0, .inst
+		vp_cpy r0, [r4 + local_inst]
 
 		vp_cpy button_border_size, r8
 		vp_cpy [r0 + view_w], r10
@@ -28,7 +28,7 @@
 		endif
 		s_call flow, change, {[r0 + label_flow], r8, r8, r10, r11}
 
-		vp_cpy .inst, r0
+		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 

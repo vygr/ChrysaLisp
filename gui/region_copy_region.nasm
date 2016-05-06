@@ -12,38 +12,38 @@
 		;trashes
 		;r1-r3, r5-r15
 
-		def_local
-			def_local_long	node
-			def_local_long	slist
-			def_local_long	dlist
-			def_local_long	dx
-			def_local_long	dy
-		def_local_end
+		def_structure local
+			long local_node
+			long local_slist
+			long local_dlist
+			long local_dx
+			long local_dy
+		def_structure_end
 
 		;save inputs
 		vp_sub local_size, r4
 		set_src r1, r2, r8, r9
-		set_dst .slist, .dlist, .dx, .dy
+		set_dst [r4 + local_slist], [r4 + local_dlist], [r4 + local_dx], [r4 + local_dy]
 		map_src_to_dst
 
 		;run through copy region list
 		loop_flist_forward r3, r1, r1
-			vp_cpy r1, .node
+			vp_cpy r1, [r4 + local_node]
 
 			vp_cpy [r1 + gui_rect_x], r8
 			vp_cpy [r1 + gui_rect_y], r9
 			vp_cpy [r1 + gui_rect_x1], r10
 			vp_cpy [r1 + gui_rect_y1], r11
-			vp_cpy .dx, r12
-			vp_cpy .dy, r13
+			vp_cpy [r4 + local_dx], r12
+			vp_cpy [r4 + local_dy], r13
 			vp_add r12, r8
 			vp_add r13, r9
 			vp_add r12, r10
 			vp_add r13, r11
-			s_call gui_region, copy_rect, {r0, .slist, .dlist, \
+			s_call gui_region, copy_rect, {r0, [r4 + local_slist], [r4 + local_dlist], \
 												r8, r9, r10, r11}
 
-			vp_cpy .node, r1
+			vp_cpy [r4 + local_node], r1
 		loop_end
 		vp_add local_size, r4
 		vp_ret

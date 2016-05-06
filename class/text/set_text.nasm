@@ -9,15 +9,15 @@
 		;trashes
 		;all but r0, r4
 
-		def_local
-			def_local_long	inst
-			def_local_long	string
-		def_local_end
+		def_structure local
+			long local_inst
+			long local_string
+		def_structure_end
 
 		;save inputs
 		vp_sub local_size, r4
 		set_src r0, r1
-		set_dst .inst, .string
+		set_dst [r4 + local_inst], [r4 + local_string]
 		map_src_to_dst
 
 		;deref the old string
@@ -27,8 +27,8 @@
 		endif
 
 		;transfer reference to new string
-		vp_cpy .inst, r0
-		vp_cpy .string, r1
+		vp_cpy [r4 + local_inst], r0
+		vp_cpy [r4 + local_string], r1
 		vp_cpy r1, [r0 + text_string]
 
 		vp_add local_size, r4

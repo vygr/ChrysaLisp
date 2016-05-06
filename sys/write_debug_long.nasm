@@ -11,17 +11,17 @@
 		;trashes
 		;r0-r3, r5
 
-		def_local
-			def_local_long	name
-			def_local_long	line
-			def_local_long	string
-			def_local_long	long
-		def_local_end
+		def_structure local
+			long local_name
+			long local_line
+			long local_string
+			long local_long
+		def_structure_end
 
 		;save inputs
 		vp_sub local_size, r4
 		set_src r0, r1, r2, r3
-		set_dst .name, .line, .string, .long
+		set_dst [r4 + local_name], [r4 + local_line], [r4 + local_string], [r4 + local_long]
 		map_src_to_dst
 
 		;tab in by stack depth
@@ -35,13 +35,13 @@
 				vp_sub 8, r2
 			loop_end
 		endif
-		s_call sys_io, string, {.name, 2}
+		s_call sys_io, string, {[r4 + local_name], 2}
 		s_call sys_io, string, {"< ", 2}
-		s_call sys_io, number, {.line, 2, 10}
+		s_call sys_io, number, {[r4 + local_line], 2, 10}
 		s_call sys_io, string, {" >: ", r1}
-		s_call sys_io, string, {.string, 2}
+		s_call sys_io, string, {[r4 + local_string], 2}
 		s_call sys_io, string, {" :-> 0x", 2}
-		s_call sys_io, number, {.long, 2, 16}
+		s_call sys_io, number, {[r4 + local_long], 2, 16}
 		s_call sys_io, char, {10, 2}
 
 		vp_add local_size, r4

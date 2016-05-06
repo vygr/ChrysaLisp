@@ -125,15 +125,15 @@
 		;inputs
 		;r0 = user data
 
-		def_local
-			def_local_long	old_stack
-		def_local_end
+		def_structure local
+			long local_old_stack
+		def_structure_end
 
 		;align stack
 		vp_cpy r4, r1
 		vp_sub local_size, r4
 		vp_and -16, r4
-		vp_cpy r1, .old_stack
+		vp_cpy r1, [r4 + local_old_stack]
 
 		;create screen window ?
 		static_bind gui_gui, statics, r0
@@ -183,7 +183,7 @@
 			sdl_render_present [r0 + gui_statics_renderer]
 		endif
 
-		vp_cpy .old_stack, r4
+		vp_cpy [r4 + local_old_stack], r4
 		vp_ret
 
 	title:

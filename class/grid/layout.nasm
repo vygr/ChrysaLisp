@@ -8,29 +8,29 @@
 		;trashes
 		;all but r0, r4
 
-		def_local
-			def_local_long	count
-			def_local_long	cell_w
-			def_local_long	cell_h
-		def_local_end
+		def_structure local
+			long local_count
+			long local_cell_w
+			long local_cell_h
+		def_structure_end
 
 		vp_sub local_size, r4
 		vp_xor r1, r1
-		vp_cpy r1, .count
+		vp_cpy r1, [r4 + local_count]
 
 		vp_xor r10, r10
 		vp_cpy [r0 + view_w], r9
 		vp_shl 32, r9
 		vp_cpy [r0 + grid_width], r8
 		vp_div r8, r10, r9
-		vp_cpy r9, .cell_w
+		vp_cpy r9, [r4 + local_cell_w]
 
 		vp_xor r10, r10
 		vp_cpy [r0 + view_h], r9
 		vp_shl 32, r9
 		vp_cpy [r0 + grid_height], r8
 		vp_div r8, r10, r9
-		vp_cpy r9, .cell_h
+		vp_cpy r9, [r4 + local_cell_h]
 
 		s_call grid, backward, {r0, r4, $callback}
 

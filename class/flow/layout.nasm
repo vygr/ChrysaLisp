@@ -8,26 +8,26 @@
 		;trashes
 		;all but r0, r4
 
-		def_local
-			def_local_long	x
-			def_local_long	y
-		def_local_end
+		def_structure local
+			long local_x
+			long local_y
+		def_structure_end
 
 		vp_sub local_size, r4
 		vp_xor r1, r1
-		vp_cpy r1, .x
-		vp_cpy r1, .y
+		vp_cpy r1, [r4 + local_x]
+		vp_cpy r1, [r4 + local_y]
 		vp_cpy [r0 + flow_flags], r1
 		vp_and flow_flag_left, r1
 		if r1, !=, 0
 			vp_cpy [r0 + view_w], r1
-			vp_cpy r1, .x
+			vp_cpy r1, [r4 + local_x]
 		endif
 		vp_cpy [r0 + flow_flags], r1
 		vp_and flow_flag_up, r1
 		if r1, !=, 0
 			vp_cpy [r0 + view_h], r1
-			vp_cpy r1, .y
+			vp_cpy r1, [r4 + local_y]
 		endif
 
 		s_call flow, backward, {r0, r4, $callback}

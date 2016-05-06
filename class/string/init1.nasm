@@ -10,26 +10,26 @@
 		;outputs
 		;r1 = 0 if error, else ok
 
-		def_local
-			def_local_long	inst
-			def_local_long	string1
-			def_local_long	string2
-		def_local_end
+		def_structure local
+			long local_inst
+			long local_string1
+			long local_string2
+		def_structure_end
 
 		;save inputs
 		vp_sub local_size, r4
 		set_src r2, r3
-		set_dst .string1, .string2
+		set_dst [r4 + local_string1], [r4 + local_string2]
 		map_src_to_dst
 
 		;init parent
 		p_call string, init, {r0, r1, r2, r3}, {r1}
 		if r1, !=, 0
-			vp_cpy r0, .inst
+			vp_cpy r0, [r4 + local_inst]
 
 			;init myself
-			vp_cpy .string1, r6
-			vp_cpy .string2, r7
+			vp_cpy [r4 + local_string1], r6
+			vp_cpy [r4 + local_string2], r7
 			vp_cpy [r6 + string_length], r1
 			vp_add [r7 + string_length], r1
 			vp_cpy r1, [r0 + string_length]
@@ -38,7 +38,7 @@
 			vp_inc r2
 			s_call sys_mem, copy, {:[r7 + string_data], r1, r2}, {_, _}
 
-			vp_cpy .inst, r0
+			vp_cpy [r4 + local_inst], r0
 		endif
 
 		vp_add local_size, r4
