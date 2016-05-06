@@ -826,6 +826,11 @@
 		compile_deref?
 	%endmacro
 
+	%macro pop_value_final 0
+		pop_value
+		set_reg _reg_sp, _reg
+	%endmacro
+
 	%macro set_reg_stack 0-*
 		%assign _reg_sp 0
 		%assign _reg_total 0
@@ -990,7 +995,7 @@
 	%macro compile_uaddrof 0
 		dec_reg_sp
 		get_reg _reg_sp
-		set_reg _reg_sp, _reg, 0
+		set_reg _reg_sp, _reg
 	%endmacro
 
 	%macro compile_deref? 0
@@ -1006,45 +1011,45 @@
 	%endmacro
 
 	%macro compile_uminus 0
-		pop_value
+		pop_value_final
 		%warning vp_mul -1, _reg
 		vp_mul -1, _reg
 	%endmacro
 
 	%macro compile_unot 0
-		pop_value
+		pop_value_final
 		%warning vp_xor -1, _reg
 		vp_xor -1, _reg
 	%endmacro
 
 	%macro compile_ulnot 0
-		pop_value
+		pop_value_final
 		%warning vp_xor 1, _reg
 		vp_xor 1, _reg
 	%endmacro
 
 	%macro compile_land 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning vp_and %%r, _reg
 		vp_and %%r, _reg
 	%endmacro
 
 	%macro compile_lor 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning vp_or %%r, _reg
 		vp_or %%r, _reg
 	%endmacro
 
 	%macro compile_ternary 0
-		pop_value
+		pop_value_final
 		%xdefine %%r2 _reg
-		pop_value
+		pop_value_final
 		%xdefine %%r1 _reg
-		pop_value
+		pop_value_final
 		%warning if _reg, !=, 0
 		%warning 	vp_cpy %%r1, _reg
 		%warning else
@@ -1058,9 +1063,9 @@
 	%endmacro
 
 	%macro compile_gt 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning if _reg, >, %%r
 		%warning 	vp_cpy 1, _reg
 		%warning else
@@ -1074,9 +1079,9 @@
 	%endmacro
 
 	%macro compile_lt 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning if _reg, <, %%r
 		%warning 	vp_cpy 1, _reg
 		%warning else
@@ -1090,9 +1095,9 @@
 	%endmacro
 
 	%macro compile_ge 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning if _reg, >=, %%r
 		%warning 	vp_cpy 1, _reg
 		%warning else
@@ -1106,9 +1111,9 @@
 	%endmacro
 
 	%macro compile_le 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning if _reg, <=, %%r
 		%warning 	vp_cpy 1, _reg
 		%warning else
@@ -1122,9 +1127,9 @@
 	%endmacro
 
 	%macro compile_eq 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning if _reg, ==, %%r
 		%warning 	vp_cpy 1, _reg
 		%warning else
@@ -1138,9 +1143,9 @@
 	%endmacro
 
 	%macro compile_ne 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning if _reg, !=, %%r
 		%warning 	vp_cpy 1, _reg
 		%warning else
@@ -1154,50 +1159,49 @@
 	%endmacro
 
 	%macro compile_lshift 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning vp_shl %%r, _reg
 		vp_shl %%r, _reg
 	%endmacro
 
 	%macro compile_rshift 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning vp_shr %%r, _reg
 		vp_shr %%r, _reg
 	%endmacro
 
 	%macro compile_arshift 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning vp_asr %%r, _reg
 		vp_asr %%r, _reg
 	%endmacro
 
 	%macro compile_plus 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
-		set_reg _reg_sp, _reg
+		pop_value_final
 		%warning vp_add %%r, _reg
 		vp_add %%r, _reg
 	%endmacro
 
 	%macro compile_minus 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning vp_sub %%r, _reg
 		vp_sub %%r, _reg
 	%endmacro
 
 	%macro compile_mul 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning vp_mul %%r, _reg
 		vp_mul %%r, _reg
 	%endmacro
@@ -1205,9 +1209,9 @@
 	%macro compile_div 0
 		get_reg _reg_sp
 		%xdefine %%r2 _reg
-		pop_value
+		pop_value_final
 		%xdefine %%r1 _reg
-		pop_value
+		pop_value_final
 		%warning vp_xor %%r2, %%r2
 		%warning vp_div %%r1, %%r2, _reg
 		vp_xor %%r2, %%r2
@@ -1217,9 +1221,9 @@
 	%macro compile_rem 0
 		get_reg _reg_sp
 		%xdefine %%r2 _reg
-		pop_value
+		pop_value_final
 		%xdefine %%r1 _reg
-		pop_value
+		pop_value_final
 		%warning vp_xor %%r2, %%r2
 		%warning vp_div %%r1, %%r2, _reg
 		%warning vp_cpy %%r2, _reg
@@ -1229,25 +1233,25 @@
 	%endmacro
 
 	%macro compile_and 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning vp_and %%r, _reg
 		vp_and %%r, _reg
 	%endmacro
 
 	%macro compile_xor 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning vp_xor %%r, _reg
 		vp_xor %%r, _reg
 	%endmacro
 
 	%macro compile_or 0
-		pop_value
+		pop_value_final
 		%xdefine %%r _reg
-		pop_value
+		pop_value_final
 		%warning vp_or %%r, _reg
 		vp_or %%r, _reg
 	%endmacro
@@ -1264,21 +1268,21 @@
 
 	%macro compile_string 1
 		get_reg _reg_sp
-		set_reg _reg_sp, _reg, 0
+		set_reg _reg_sp, _reg
 		%warning fn_string %1, _reg
 		fn_string %1, _reg
 	%endmacro
 
 	%macro compile_bind 1
 		get_reg _reg_sp
-		set_reg _reg_sp, _reg, 0
+		set_reg _reg_sp, _reg
 		%warning fn_bind %1, _reg
 		fn_bind %1, _reg
 	%endmacro
 
 	%macro compile_label 1
 		get_reg _reg_sp
-		set_reg _reg_sp, _reg, 0
+		set_reg _reg_sp, _reg
 		%warning vp_rel %1, _reg
 		vp_rel %1, _reg
 	%endmacro
@@ -1337,7 +1341,7 @@
 			set_token_list _src_%[%%n]
 			token_to_rpn
 			compile_rpn_list
-			pop_value
+			pop_value_final
 			inc_reg_sp
 			%assign %%n %%n + 1
 		%endrep
