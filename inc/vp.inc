@@ -297,13 +297,20 @@
 				vp_pop r2
 			%else
 				;low not in r0
-				vp_push r0, r2
-				vp_cpy %2, r2
-				vp_cpy %3, r0
-				idiv %1
-				vp_cpy r0, %3
-				vp_cpy r2, %2
-				vp_pop r0, r2
+				reg? %1
+				%if _r = 2
+					;divider in r2
+					%fatal Divide case not written
+				%else
+					;divider not in r2
+					vp_push r0, r2
+					vp_cpy %2, r2
+					vp_cpy %3, r0
+					idiv %1
+					vp_cpy r0, %3
+					vp_cpy r2, %2
+					vp_pop r0, r2
+				%endif
 			%endif
 		%endif
 	%endmacro
