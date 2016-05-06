@@ -3,31 +3,6 @@
 
 %include 'inc/vp.inc'
 
-;;;;;;;;;;;;;;;;;
-; data structures
-;;;;;;;;;;;;;;;;;
-
-	null_size	equ 0
-	byte_size	equ 1
-	short_size	equ 2
-	int_size	equ 4
-	long_size	equ 8
-
-	%macro def_structure 1-2 null
-		;inputs
-		;%1 = structure name
-		;%2 = super structure name
-		%xdefine _struct_ %1
-		%assign _offset_ %2_size
-	%endmacro
-
-	%macro def_structure_end 0
-		local_align long
-		%[_struct_]_size equ _offset_
-		%undef _struct_
-		%undef _offset_
-	%endmacro
-
 ;;;;;;;;;;;;;;;;;;;;
 ; structured codeing
 ;;;;;;;;;;;;;;;;;;;;
@@ -174,11 +149,48 @@
 		%pop
 	%endmacro
 
+;;;;;;;;;;;;;;;;;
+; data structures
+;;;;;;;;;;;;;;;;;
+
+	null_size	equ 0
+	byte_size	equ 1
+	short_size	equ 2
+	int_size	equ 4
+	long_size	equ 8
+
+	%macro def_structure 1-2 null
+		;inputs
+		;%1 = structure name
+		;%2 = super structure name
+		%xdefine _struct_ %1
+		%assign _offset_ %2_size
+	%endmacro
+
+	%macro def_structure_end 0
+		local_align long
+		%[_struct_]_size equ _offset_
+		%undef _struct_
+		%undef _offset_
+	%endmacro
+
 ;;;;;;;;;;;;;;;;;;;;;
 ; variable allocation
 ;;;;;;;;;;;;;;;;;;;;;
 
 	%assign _var_sp 0
+
+	%macro local_align 0-1 long
+		;inputs
+		;%1 = alignment
+		%ifdef _struct_
+			%assign _offset_ _offset_ + (%1_size - 1)
+			%assign _offset_ _offset_ & -(%1_size)
+		%else
+			%assign _var_sp _var_sp + (%1_size - 1)
+			%assign _var_sp _var_sp & -(%1_size)
+		%endif
+	%endmacro
 
 	%macro struct 2-3 1
 		;inputs
@@ -248,18 +260,6 @@
 		struct %1, byte
 	%endmacro
 
-	%macro local_align 0-1 long
-		;inputs
-		;%1 = alignment
-		%ifdef _struct_
-			%assign _offset_ _offset_ + (%1_size - 1)
-			%assign _offset_ _offset_ & -(%1_size)
-		%else
-			%assign _var_sp _var_sp + (%1_size - 1)
-			%assign _var_sp _var_sp & -(%1_size)
-		%endif
-	%endmacro
-
 ;;;;;;;;;;;;;;
 ; symbol table
 ;;;;;;;;;;;;;;
@@ -278,8 +278,8 @@
 		%if _var_sp != 0
 			%warning vp_sub _var_sp, r4
 			vp_sub _var_sp, r4
+			%assign _var_sp 0
 		%endif
-		%assign _var_sp 0
 	%endmacro
 
 	%macro pop_scope 0
@@ -289,8 +289,8 @@
 		%if _var_sp != 0
 			%warning vp_add _var_sp, r4
 			vp_add _var_sp, r4
+			%assign _var_sp 0
 		%endif
-		%assign _var_sp 0
 		%assign %%s _scope_sp - 1
 		%if %%s != -1
 			%assign _sym_sp _scope_sym_%[%%s]
@@ -765,6 +765,11 @@
 		get_reg _reg_sp
 	%endmacro
 
+	%macro pop_value 0
+		pop_reg
+		compile_deref?
+	%endmacro
+
 	%macro set_reg_stack 0-*
 		%assign _reg_sp 0
 		%assign _reg_total 0
@@ -902,8 +907,7 @@
 
 	%macro compile_field 0
 		;FIXME needs to set size of field
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
 		pop_reg
 		%warning vp_lea [_reg + %%r], _reg
@@ -913,8 +917,7 @@
 
 	%macro compile_member 0
 		;FIXME needs to set size of member
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
 		pop_reg
 		compile_deref
@@ -942,55 +945,45 @@
 	%endmacro
 
 	%macro compile_uminus 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_mul -1, _reg
 		vp_mul -1, _reg
 	%endmacro
 
 	%macro compile_unot 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_xor -1, _reg
 		vp_xor -1, _reg
 	%endmacro
 
 	%macro compile_ulnot 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_xor 1, _reg
 		vp_xor 1, _reg
 	%endmacro
 
 	%macro compile_land 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_and %%r, _reg
 		vp_and %%r, _reg
 	%endmacro
 
 	%macro compile_lor 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_or %%r, _reg
 		vp_or %%r, _reg
 	%endmacro
 
 	%macro compile_ternary 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r2 _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r1 _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning if _reg, !=, 0
 		%warning 	vp_cpy %%r1, _reg
 		%warning else
@@ -1004,11 +997,9 @@
 	%endmacro
 
 	%macro compile_gt 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning if _reg, >, %%r
 		%warning 	vp_cpy 1, _reg
 		%warning else
@@ -1022,11 +1013,9 @@
 	%endmacro
 
 	%macro compile_lt 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning if _reg, <, %%r
 		%warning 	vp_cpy 1, _reg
 		%warning else
@@ -1040,11 +1029,9 @@
 	%endmacro
 
 	%macro compile_ge 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning if _reg, >=, %%r
 		%warning 	vp_cpy 1, _reg
 		%warning else
@@ -1058,11 +1045,9 @@
 	%endmacro
 
 	%macro compile_le 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning if _reg, <=, %%r
 		%warning 	vp_cpy 1, _reg
 		%warning else
@@ -1076,11 +1061,9 @@
 	%endmacro
 
 	%macro compile_eq 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning if _reg, ==, %%r
 		%warning 	vp_cpy 1, _reg
 		%warning else
@@ -1094,11 +1077,9 @@
 	%endmacro
 
 	%macro compile_ne 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning if _reg, !=, %%r
 		%warning 	vp_cpy 1, _reg
 		%warning else
@@ -1112,61 +1093,49 @@
 	%endmacro
 
 	%macro compile_lshift 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_shl %%r, _reg
 		vp_shl %%r, _reg
 	%endmacro
 
 	%macro compile_rshift 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_shr %%r, _reg
 		vp_shr %%r, _reg
 	%endmacro
 
 	%macro compile_arshift 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_asr %%r, _reg
 		vp_asr %%r, _reg
 	%endmacro
 
 	%macro compile_plus 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_add %%r, _reg
 		vp_add %%r, _reg
 	%endmacro
 
 	%macro compile_minus 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_sub %%r, _reg
 		vp_sub %%r, _reg
 	%endmacro
 
 	%macro compile_mul 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_mul %%r, _reg
 		vp_mul %%r, _reg
 	%endmacro
@@ -1174,11 +1143,9 @@
 	%macro compile_div 0
 		get_reg _reg_sp
 		%xdefine %%r2 _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r1 _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_xor %%r2, %%r2
 		%warning vp_div %%r1, %%r2, _reg
 		vp_xor %%r2, %%r2
@@ -1188,11 +1155,9 @@
 	%macro compile_rem 0
 		get_reg _reg_sp
 		%xdefine %%r2 _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r1 _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_xor %%r2, %%r2
 		%warning vp_div %%r1, %%r2, _reg
 		%warning vp_cpy %%r2, _reg
@@ -1202,31 +1167,25 @@
 	%endmacro
 
 	%macro compile_and 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_and %%r, _reg
 		vp_and %%r, _reg
 	%endmacro
 
 	%macro compile_xor 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_xor %%r, _reg
 		vp_xor %%r, _reg
 	%endmacro
 
 	%macro compile_or 0
-		pop_reg
-		compile_deref?
+		pop_value
 		%xdefine %%r _reg
-		pop_reg
-		compile_deref?
+		pop_value
 		%warning vp_or %%r, _reg
 		vp_or %%r, _reg
 	%endmacro
@@ -1315,8 +1274,7 @@
 			set_token_list _src_%[%%n]
 			token_to_rpn
 			compile_rpn_list
-			dec_reg_sp
-			compile_deref?
+			pop_value
 			inc_reg_sp
 			%assign %%n %%n + 1
 		%endrep
