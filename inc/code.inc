@@ -763,7 +763,7 @@
 					%xdefine _op_%[%%o] %%t
 					%assign %%o %%o + 1
 				%endif
-			%elif
+			%else
 				;string or symbol
 				push_rpn %%t, %%tt
 			%endif
