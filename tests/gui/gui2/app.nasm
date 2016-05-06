@@ -13,88 +13,83 @@
 
 	fn_function tests/gui/gui2/app
 
-		def_structure local, obj
-			long local_last_event
-			long local_window
-			long local_window_panel
-			long local_panel
-			long local_next
-			long local_button
-		def_structure_end
+		struct myapp, obj
+		long last_event
+		long window
+		long window_panel
+		long panel
+		pubyte next
+		long button
+		long string
+		long length
+		long pressed
+		long width
+		long height
+		long owner
 
 		;init app vars
-		vp_sub local_size, r4
+		push_scope
 		slot_function class, obj
-		s_call obj, init, {r4, @_function_}, {r1}
-		assert r1, !=, 0
+		static_call obj, init, {&myapp, @_function_}, {_}
 
 		;create my window
-		s_call window, create, {}, {[r4 + local_window]}
-		assert r0, !=, 0
-		s_call window, get_panel, {r0}, {[r4 + local_window_panel]}
-		s_call string, create, {"Test Runner"}, {r0}
-		assert r0, !=, 0
-		s_call window, set_title, {[r4 + local_window], r0}
-		s_call string, create, {"Status Text"}, {r0}
-		assert r0, !=, 0
-		s_call window, set_status, {[r4 + local_window], r0}
+		static_call window, create, {}, {window}
+		static_call window, get_panel, {window}, {window_panel}
+		static_call string, create, {"Test Runner"}, {string}
+		static_call window, set_title, {window, string}
+		static_call string, create, {"Status Text"}, {string}
+		static_call window, set_status, {window, string}
 
 		;add my app panel
-		s_call flow, create, {}, {[r4 + local_panel]}
-		assert r0, !=, 0
-		s_call flow, set_flow_flags, {r0, flow_flag_down | flow_flag_fillw}
-		s_call flow, set_color, {r0, 0}
-		s_call flow, add, {r0, [r4 + local_window_panel]}
+		static_call flow, create, {}, {panel}
+		static_call flow, set_flow_flags, {panel, flow_flag_down | flow_flag_fillw}
+		static_call flow, set_color, {panel, 0}
+		static_call flow, add, {panel, window_panel}
 
 		;add launch buttons to my app panel
-		vp_rel launch_list, r0
+		assign {$launch_list}, {next}
 		loop_start
-			vp_cpy_ub [r0], r1
-			breakif r1, ==, 0
-			vp_cpy r0, [r4 + local_next]
+			breakifnot {*next}
 
-			s_call button, create, {}, {[r4 + local_button]}
-			assert r0, !=, 0
-			s_call button, set_color, {r0, 0xffffff00}
-			s_call string, create, {[r4 + local_next]}, {r0}
-			assert r0, !=, 0
-			s_call button, set_text, {[r4 + local_button], r0}
-			s_call button, add, {r0, [r4 + local_panel]}
-			s_call button, connect, {r0, :[r0 + button_pressed_signal], r4, $on_press}
+			static_call button, create, {}, {button}
+			static_call button, set_color, {button, 0xffffff00}
+			static_call string, create, {next}, {string}
+			static_call button, set_text, {button, string}
+			static_call button, add, {button, panel}
+			static_call button, sig_pressed, {button}, {pressed}
+			static_call button, connect, {button, pressed, &myapp, $on_press}
 
-			s_call sys_string, length, {[r4 + local_next]}, {r1}
-			vp_lea [r0 + r1 + 1], r0
+			static_call sys_string, length, {next}, {length}
+			assign {next + length + 1}, {next}
 		loop_end
 
 		;set to pref size
-		m_call window, pref_size, {[r4 + local_window]}, {r10, r11}
-		vp_add 64, r10
-		s_call window, change, {r0, 400, 256, r10, r11}
+		method_call window, pref_size, {window}, {width, height}
+		static_call window, change, {window, 400, 256, width + 40, height}
 
 		;set window owner
-		s_call sys_task, tcb, {}, {r0}
-		s_call window, set_owner, {[r4 + local_window], r0}
+		static_call sys_task, tcb, {}, {owner}
+		static_call window, set_owner, {window, owner}
 
 		;add to screen and dirty
-		s_call gui_gui, add, {r0}
-		s_call window, dirty_all, {r0}
+		static_call gui_gui, add, {window}
+		static_call window, dirty_all, {window}
 
 		;app event loop
 		loop_start
-			s_call sys_mail, mymail, {}, {[r4 + local_last_event]}
+			static_call sys_mail, mymail, {}, {last_event}
 
 			;dispatch event to view
-			m_call view, event, {[r0 + ev_data_view], r0}
+			method_call view, event, {last_event->ev_data_view, last_event}
 
 			;free event message
-			s_call sys_mem, free, {[r4 + local_last_event]}
+			static_call sys_mem, free, {last_event}
 		loop_end
 
 		;deref window
-		s_call window, deref, {[r4 + local_window]}
-
-		m_call obj, deinit, {r4}
-		vp_add local_size, r4
+		static_call window, deref, {window}
+		method_call obj, deinit, {&myapp}
+		pop_scope
 		vp_ret
 
 	on_press:
@@ -102,8 +97,17 @@
 		;r0 = app local object
 		;r1 = button object
 
-		s_call button, get_text, {r1}, {r1}
-		s_jmp sys_task, open_child, {:[r1 + string_data]}
+		long inst
+		long button
+		long string
+
+		push_scope
+		retire {r0, r1}, {inst, button}
+		static_call button, get_text, {button}, {string}
+		static_call sys_task, open_child, {&string->string_data}, {_, _}
+		static_call string, deref, {string}
+		pop_scope
+		vp_ret
 
 	launch_list:
 		db 'tests/farm', 0

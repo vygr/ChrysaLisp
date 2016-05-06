@@ -129,7 +129,6 @@
 		;save inputs
 		push_scope
 		retire {r0, r1}, {inst, button}
-
 		static_call button, get_text, {button}, {string1}
 		static_call label, get_text, {inst->shared_display}, {string2}
 		static_call string, add, {string2, string1}, {string}
@@ -137,7 +136,6 @@
 		static_call label, dirty, {inst->shared_display}
 		static_call string, deref, {string1}
 		static_call string, deref, {string2}
-
 		pop_scope
 		vp_ret
 
