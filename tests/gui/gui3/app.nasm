@@ -24,7 +24,7 @@
 		long window_panel
 		long flow_panel
 		long grid_panel
-		long next
+		pubyte next
 		long button
 		long owner
 		long pressed
@@ -68,11 +68,9 @@
 		static_call grid, add, {grid_panel, flow_panel}
 
 		;add buttons to my grid panel
-		eval {$button_list}, {r0}
+		assign {$button_list}, {next}
 		loop_start
-			vp_cpy_ub [r0], r1
-			breakif r1, ==, 0
-			retire {r0}, {next}
+			breakifnot {*next}
 
 			static_call button, create, {}, {button}
 			static_call button, set_color, {button, 0xffffff00}
@@ -84,7 +82,7 @@
 			static_call button, connect, {button, pressed, &myapp, $on_press}
 
 			static_call sys_string, length, {next}, {length}
-			eval {next + length + 1}, {r0}
+			assign {next + length + 1}, {next}
 		loop_end
 
 		;set to pref size

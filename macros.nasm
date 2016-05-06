@@ -30,25 +30,6 @@
 ;		token_to_rpn
 ;		print_rpn_list
 
-		;define variables
-		push_scope
-			assign {qqq -> 56, (a + b)}, {lll, ulll}
-
-			;define variables
-			ushort xxx
-			uint yyy
-			push_scope
-;				eval {(a + b) ^ zzz * - xxx / yyy, "test" % xxx * xxx + yyy * yyy}, {r0, r1}
-			pop_scope
-
-			;define variables
-			struct qqq, long
-			byte zzz
-
-			push_scope
-;				eval {(a + b) ^ zzz * - xxx / yyy, "test" % qqq * :xxx + yyy * @test/path}, {r0, r1}
-			pop_scope
-		pop_scope
 		vp_ret
 
 	fn_function_end

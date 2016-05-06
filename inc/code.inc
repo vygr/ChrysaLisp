@@ -64,12 +64,34 @@
 		vp_jmp %$loop_begin
 	%endmacro
 
+	%macro continueif 1
+		eval {%1}, {r0}
+		jmpif r0, !=, 0, %$loop_begin
+	%endmacro
+
 	%macro continueif 3
 		jmpif %1, %2, %3, %$loop_begin
 	%endmacro
 
+	%macro breakif 1
+		eval {%1}, {r0}
+		jmpif r0, !=, 0, %$loop_exit
+	%endmacro
+
+	%macro breakifnot 1
+		eval {%1}, {r0}
+		jmpif r0, ==, 0, %$loop_exit
+	%endmacro
+
 	%macro breakif 3
 		jmpif %1, %2, %3, %$loop_exit
+	%endmacro
+
+	%macro loop_until 1
+		eval {%1}, {r0}
+		jmpifnot r0, !=, 0, %$loop_begin
+	%$loop_exit:
+		%pop
 	%endmacro
 
 	%macro loop_until 3
@@ -84,9 +106,28 @@
 		jmpifnot %1, %2, %3, %$loop_exit
 	%endmacro
 
+	%macro loop_while 1
+		%push loop_begin
+	%$loop_begin:
+		eval {%1}, {r0}
+		jmpifnot r0, !=, 0, %$loop_exit
+	%endmacro
+
+	%macro if 1
+		%push if
+		eval {%1}, {r0}
+		jmpifnot r0, !=, 0, %$ifnot
+	%endmacro
+
 	%macro if 3
 		%push if
 		jmpifnot %1, %2, %3, %$ifnot
+	%endmacro
+
+	%macro ifnot 1
+		%push if
+		eval {%1}, {r0}
+		jmpif r0, !=, 0, %$ifnot
 	%endmacro
 
 	%macro ifnot 3
@@ -158,6 +199,7 @@
 	short_size	equ 2
 	int_size	equ 4
 	long_size	equ 8
+	ptr_size	equ 8
 
 	%macro def_structure 1-2 null
 		;inputs
@@ -192,16 +234,17 @@
 		%endif
 	%endmacro
 
-	%macro struct 2-3 1
+	%macro struct 2-4 0, 0
 		;inputs
 		;%1 = var name
 		;%2 = struct name
-		;%3 = sign
+		;%3 = source type
+		;%4 = dest type
 		%ifdef _struct_
 			%1 equ _offset_
 			%assign _offset_ _offset_ + %2_size
 		%else
-			def_sym %1, _sym_var, _var_sp, %2_size * %3
+			def_sym %1, _sym_var, _var_sp, %3, %4
 			%assign _var_sp _var_sp + %2_size
 		%endif
 	%endmacro
@@ -210,42 +253,42 @@
 		;inputs
 		;%1 = var name
 		local_align long
-		struct %1, long, -1
+		struct %1, long, -8
 	%endmacro
 
 	%macro ulong 1
 		;inputs
 		;%1 = var name
 		local_align long
-		struct %1, long
+		struct %1, long, 8
 	%endmacro
 
 	%macro int 1
 		;inputs
 		;%1 = var name
 		local_align int
-		struct %1, int, -1
+		struct %1, int, -4
 	%endmacro
 
 	%macro uint 1
 		;inputs
 		;%1 = var name
 		local_align int
-		struct %1, int
+		struct %1, int, 4
 	%endmacro
 
 	%macro short 1
 		;inputs
 		;%1 = var name
 		local_align short
-		struct %1, short, -1
+		struct %1, short, -2
 	%endmacro
 
 	%macro ushort 1
 		;inputs
 		;%1 = var name
 		local_align short
-		struct %1, short
+		struct %1, short, 2
 	%endmacro
 
 	%macro byte 1
@@ -257,7 +300,13 @@
 	%macro ubyte 1
 		;inputs
 		;%1 = var name
-		struct %1, byte
+		struct %1, byte, 1
+	%endmacro
+
+	%macro pubyte 1
+		;inputs
+		;%1 = var name
+		struct %1, ptr, 1000000, 1
 	%endmacro
 
 ;;;;;;;;;;;;;;
@@ -310,12 +359,13 @@
 		%endrep
 	%endmacro
 
-	%macro def_sym 3-5 0, ''
+	%macro def_sym 3-6 0, 0, ''
 		;%1 name
 		;%2 type
 		;%3 value
-		;%4 size
-		;%5 aux data
+		;%4 source type (0, -1, 1, -2, 2, -4, 4, -8, 8, ...)
+		;%5 deref type (0, -1, 1, -2, 2, -4, 4, -8, 8, ...)
+		;%6 aux data
 		%assign %%s _scope_sp -1
 		%assign %%n _scope_sym_%[%%s]
 		%rep _sym_sp - %%n
@@ -328,8 +378,9 @@
 		%xdefine _sym_name_%[%%n] %1
 		%assign _sym_type_%[%%n] %2
 		%assign _sym_value_%[%%n] %3
-		%assign _sym_size_%[%%n] %4
-		%xdefine _sym_aux_%[%%n] %5
+		%assign _sym_stype_%[%%n] %4
+		%assign _sym_dtype_%[%%n] %5
+		%xdefine _sym_aux_%[%%n] %6
 		%assign _sym_sp _sym_sp + 1
 	%endmacro
 
@@ -352,7 +403,9 @@
 					t: _sym_type_%[%%n] \
 					n: _sym_name_%[%%n] \
 					v: _sym_value_%[%%n] \
-					s: _sym_size_%[%%n]
+					s: _sym_stype_%[%%n] \
+					d: _sym_dtype_%[%%n] \
+					x: _sym_aux_%[%%n]
 			%assign %%n %%n + 1
 		%endrep
 	%endmacro
@@ -368,7 +421,7 @@
 		;%2 precidence
 		;%3 asociativity
 		;%4 compile macro
-		def_sym %1, _sym_op, %2 * 2, %3, %4
+		def_sym %1, _sym_op, %2 * 2, %3, 0, %4
 	%endmacro
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -696,7 +749,7 @@
 					%if _sym = -1
 						%fatal Operator %%t not defined !
 					%endif
-					%assign %%v _sym_value_%[_sym] - _sym_size_%[_sym]
+					%assign %%v _sym_value_%[_sym] - _sym_stype_%[_sym]
 					%rep %%o
 						%assign %%o %%o - 1
 						get_sym _op_%[%%o]
@@ -742,11 +795,13 @@
 		%assign _reg_sp _reg_sp - 1
 	%endmacro
 
-	%macro set_reg 2-3 0
+	%macro set_reg 2-4 0, 0
 		;rxx
-		;type
+		;stype
+		;dtype
 		%xdefine _reg_%[%1] %2
-		%xdefine _reg_t_%[%1] %3
+		%assign _reg_st_%[%1] %3
+		%assign _reg_dt_%[%1] %4
 	%endmacro
 
 	%macro get_reg 1
@@ -757,7 +812,8 @@
 			%error Register stack overflow !
 		%endif
 		%xdefine _reg _reg_%[%1]
-		%xdefine _reg_t _reg_t_%[%1]
+		%assign _reg_st _reg_st_%[%1]
+		%assign _reg_dt _reg_dt_%[%1]
 	%endmacro
 
 	%macro pop_reg 0
@@ -818,7 +874,7 @@
 		%assign %%n 0
 		%rep _reg_sp
 			get_reg %%n
-			%warning param %%n: _reg, _reg_t
+			%warning param %%n: _reg, _reg_st, _reg_dt
 			%assign %%n %%n + 1
 		%endrep
 	%endmacro
@@ -832,7 +888,7 @@
 		%if _sym = -1
 			;try letting NASM handle it
 			get_reg _reg_sp
-			set_reg _reg_sp, _reg, 0
+			set_reg _reg_sp, _reg
 			%ifnidn %1, _reg
 				%warning vp_cpy %1, _reg
 				vp_cpy %1, _reg
@@ -843,51 +899,53 @@
 		%elif _sym_type_%[_sym] = _sym_var
 			;variable
 			get_reg _reg_sp
-			set_reg _reg_sp, _reg, _sym_size_%[_sym]
+			set_reg _reg_sp, _reg, _sym_stype_%[_sym], _sym_dtype_%[_sym]
 			get_scope_offset _sym_scope_%[_sym]
-			%warning vp_lea [r4 + _scope_offset + _sym_value_%[_sym]], _reg, _sym_size_%[_sym]
+			%warning vp_lea [r4 + _scope_offset + _sym_value_%[_sym]], _reg
 			vp_lea [r4 + _scope_offset + _sym_value_%[_sym]], _reg
 		%endif
 	%endmacro
 
 	%macro compile_deref 0
 		get_reg _reg_sp
-		%if _reg_t = -8
+		%if _reg_st = -8
 			%warning vp_cpy [_reg], _reg
 			vp_cpy [_reg], _reg
-		%elif _reg_t = -4
+		%elif _reg_st = -4
 			%warning vp_cpy_i [_reg], _reg
 			vp_cpy_i [_reg], _reg
-		%elif _reg_t = 1
+		%elif _reg_st = 1
 			%warning vp_cpy_ub [_reg], _reg
 			vp_cpy_ub [_reg], _reg
-		%elif _reg_t = 8
+		%elif _reg_st = 8
 			%warning vp_cpy [_reg], _reg
 			vp_cpy [_reg], _reg
-		%elif _reg_t = 4
+		%elif _reg_st = 4
 			%warning vp_cpy_ui [_reg], _reg
 			vp_cpy_ui [_reg], _reg
-		%elif _reg_t = -1
+		%elif _reg_st = -1
 			%warning vp_cpy_b [_reg], _reg
 			vp_cpy_b [_reg], _reg
-		%elif _reg_t = -2
+		%elif _reg_st = -2
 			%warning vp_cpy_s [_reg], _reg
 			vp_cpy_s [_reg], _reg
-		%elif _reg_t = 2
+		%elif _reg_st = 2
 			%warning vp_cpy_us [_reg], _reg
 			vp_cpy_us [_reg], _reg
+		%elif _reg_st = 1000000
+			%warning vp_cpy [_reg], _reg
+			vp_cpy [_reg], _reg
 		%else
 			%error Not a reference !
 		%endif
-		set_reg _reg_sp, _reg, 0
+		set_reg _reg_sp, _reg, _reg_dt
 	%endmacro
 
 	%macro compile_assign 0
 		pop_reg
 		%xdefine %%r _reg
-		%assign %%t _reg_t
-		pop_reg
-		compile_deref?
+		%assign %%t _reg_st
+		pop_value
 		%if %%t = -8 || %%t = 8
 			%warning vp_cpy _reg, [%%r]
 			vp_cpy _reg, [%%r]
@@ -900,6 +958,9 @@
 		%elif %%t = -1 || %%t = 1
 			%warning vp_cpy_ub [_reg], _reg
 			vp_cpy_ub [_reg], _reg
+		%elif %%t = 1000000
+			%warning vp_cpy _reg, [%%r]
+			vp_cpy _reg, [%%r]
 		%else
 			%error Not a reference !
 		%endif
@@ -934,13 +995,13 @@
 
 	%macro compile_deref? 0
 		get_reg _reg_sp
-		%if _reg_t != 0
+		%if _reg_st != 0
 			compile_deref
 		%endif
 	%endmacro
 
 	%macro compile_uderef 0
-		pop_reg
+		pop_value
 		compile_deref
 	%endmacro
 
@@ -1120,6 +1181,7 @@
 		pop_value
 		%xdefine %%r _reg
 		pop_value
+		set_reg _reg_sp, _reg
 		%warning vp_add %%r, _reg
 		vp_add %%r, _reg
 	%endmacro
@@ -1251,6 +1313,7 @@
 				%error Unknown token type %%t !
 			%endif
 			inc_reg_sp
+			;print_reg_stack
 			%assign %%n %%n + 1
 		%endrep
 	%endmacro
