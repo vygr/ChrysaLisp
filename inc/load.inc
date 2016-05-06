@@ -21,14 +21,14 @@
 	ld_page_size	equ 4096
 	ld_reloc_size	equ 2048
 
-	def_structure	ld_statics
-		long	ld_statics_function_list
-		long	ld_statics_block_list
-		long	ld_statics_block_start
-		long	ld_statics_block_end
-		long	ld_statics_reloc_stack
-		struct	ld_statics_stat_buffer, stat
-		struct	ld_statics_reloc_buffer, ld_reloc
+	def_structure ld_statics
+		long ld_statics_function_list
+		long ld_statics_block_list
+		long ld_statics_block_start
+		long ld_statics_block_end
+		long ld_statics_reloc_stack
+		struct ld_statics_stat_buffer, stat
+		struct ld_statics_reloc_buffer, ld_reloc
 	def_structure_end
 
 %endif

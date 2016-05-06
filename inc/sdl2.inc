@@ -77,39 +77,39 @@
 	extern TTF_FontHeight
 	extern TTF_RenderUTF8_Blended
 %endif
-	def_structure	sdl
-		byte	sdl_SDL_SetMainReady
-		byte	sdl_SDL_Init
-		byte	sdl_SDL_Quit
-		byte	sdl_SDL_CreateWindow
-		byte	sdl_SDL_CreateWindowAndRenderer
-		byte	sdl_SDL_DestroyWindow
-		byte	sdl_SDL_Delay
-		byte	sdl_SDL_CreateRenderer
-		byte	sdl_SDL_SetRenderDrawColor
-		byte	sdl_SDL_RenderFillRect
-		byte	sdl_SDL_RenderPresent
-		byte	sdl_SDL_RenderSetClipRect
-		byte	sdl_SDL_SetRenderDrawBlendMode
-		byte	sdl_SDL_PumpEvents
-		byte	sdl_SDL_GetMouseState
-		byte	sdl_SDL_RenderDrawRect
-		byte	sdl_SDL_FreeSurface
-		byte	sdl_SDL_CreateTextureFromSurface
-		byte	sdl_SDL_DestroyTexture
-		byte	sdl_SDL_RenderCopy
-		byte	sdl_SDL_SetTextureBlendMode
-		byte	sdl_SDL_SetTextureColorMod
+	def_structure sdl
+		byte sdl_SDL_SetMainReady
+		byte sdl_SDL_Init
+		byte sdl_SDL_Quit
+		byte sdl_SDL_CreateWindow
+		byte sdl_SDL_CreateWindowAndRenderer
+		byte sdl_SDL_DestroyWindow
+		byte sdl_SDL_Delay
+		byte sdl_SDL_CreateRenderer
+		byte sdl_SDL_SetRenderDrawColor
+		byte sdl_SDL_RenderFillRect
+		byte sdl_SDL_RenderPresent
+		byte sdl_SDL_RenderSetClipRect
+		byte sdl_SDL_SetRenderDrawBlendMode
+		byte sdl_SDL_PumpEvents
+		byte sdl_SDL_GetMouseState
+		byte sdl_SDL_RenderDrawRect
+		byte sdl_SDL_FreeSurface
+		byte sdl_SDL_CreateTextureFromSurface
+		byte sdl_SDL_DestroyTexture
+		byte sdl_SDL_RenderCopy
+		byte sdl_SDL_SetTextureBlendMode
+		byte sdl_SDL_SetTextureColorMod
 
-		byte	sdl_TTF_Init
-		byte	sdl_TTF_Quit
-		byte	sdl_TTF_OpenFont
-		byte	sdl_TTF_CloseFont
-		byte	sdl_TTF_SizeUTF8
-		byte	sdl_TTF_FontAscent
-		byte	sdl_TTF_FontDescent
-		byte	sdl_TTF_FontHeight
-		byte	sdl_TTF_RenderUTF8_Blended
+		byte sdl_TTF_Init
+		byte sdl_TTF_Quit
+		byte sdl_TTF_OpenFont
+		byte sdl_TTF_CloseFont
+		byte sdl_TTF_SizeUTF8
+		byte sdl_TTF_FontAscent
+		byte sdl_TTF_FontDescent
+		byte sdl_TTF_FontHeight
+		byte sdl_TTF_RenderUTF8_Blended
 	def_structure_end
 
 	SDL_INIT_TIMER			equ 0x00000001
@@ -158,26 +158,26 @@
 	SDL_BLENDMODE_ADD		equ 2
 	SDL_BLENDMODE_MOD		equ 3
 
-	def_structure	sdl_rect
-		int		sdl_rect_x
-		int		sdl_rect_y
-		int		sdl_rect_w
-		int		sdl_rect_h
+	def_structure sdl_rect
+		int sdl_rect_x
+		int sdl_rect_y
+		int sdl_rect_w
+		int sdl_rect_h
 	def_structure_end
 
-	def_structure 	sdl_surface
-		int		sdl_flags
-		long	sdl_surface_format
-		int		sdl_surface_w
-		int		sdl_surface_h
-		int		sdl_surface_pitch
-		long	sdl_surface_pixels
-		long	sdl_surface_userdata
-		int		sdl_surface_locked
-		long	sdl_surface_lockdata
-		struct	sdl_surface_clip, sdl_rect
-		long	sdl_surface_map
-		int		sdl_surface_ref
+	def_structure sdl_surface
+		int sdl_flags
+		long sdl_surface_format
+		int sdl_surface_w
+		int sdl_surface_h
+		int sdl_surface_pitch
+		long sdl_surface_pixels
+		long sdl_surface_userdata
+		int sdl_surface_locked
+		long sdl_surface_lockdata
+		struct sdl_surface_clip, sdl_rect
+		long sdl_surface_map
+		int sdl_surface_ref
 	def_structure_end
 
 ;;;;;;;;;;;;;

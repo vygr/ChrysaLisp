@@ -12,8 +12,8 @@
 	def_method delete, sys/mem_free, virtual, {r0}
 	def_method deinit, class/obj/null, virtual, {r0}
 
-	def_structure	obj
-		long	obj_vtable
+	def_structure obj
+		long obj_vtable
 	def_structure_end
 
 %endif

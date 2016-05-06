@@ -18,19 +18,19 @@
 ; list structures
 ;;;;;;;;;;;;;;;;;
 
-	def_structure	lh_list
-		long	lh_list_head
-		long	lh_list_tail
-		long	lh_list_tailpred
+	def_structure lh_list
+		long lh_list_head
+		long lh_list_tail
+		long lh_list_tailpred
 	def_structure_end
 
-	def_structure	ln_node
-		long	ln_node_succ
-		long	ln_node_pred
+	def_structure ln_node
+		long ln_node_succ
+		long ln_node_pred
 	def_structure_end
 
-	def_structure	ln_fnode
-		long	ln_fnode_next
+	def_structure ln_fnode
+		long ln_fnode_next
 	def_structure_end
 
 ;;;;;;;;;;;;;;;;;;

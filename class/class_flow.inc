@@ -27,8 +27,8 @@
 	flow_flag_align_vtop	equ 1 << 12
 	flow_flag_align_vbottom	equ 1 << 13
 
-	def_structure	flow, view
-		long	flow_flags
+	def_structure flow, view
+		long flow_flags
 	def_structure_end
 
 %endif

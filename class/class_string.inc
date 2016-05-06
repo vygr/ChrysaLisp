@@ -10,9 +10,9 @@
 	def_method init1, class/string/init1, static, {r0, r1, r2, r3}, {r1}
 	def_method add, class/string/add, static, {r0, r1}, {r0}
 
-	def_structure	string, ref
-		long	string_length
-		struct	string_data, null
+	def_structure string, ref
+		long string_length
+		struct string_data, null
 	def_structure_end
 
 %endif

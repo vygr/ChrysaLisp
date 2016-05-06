@@ -8,8 +8,8 @@
 	def_method deref, class/ref/deref, static, {r0}
 	def_method init, class/ref/init
 
-	def_structure	ref, obj
-		long	ref_count
+	def_structure ref, obj
+		long ref_count
 	def_structure_end
 
 %endif

@@ -20,28 +20,28 @@
 ; font structures
 ;;;;;;;;;;;;;;;;;
 
-	def_structure	ft_font
-		struct	ft_font_node, ln_node
-		long	ft_font_handle
-		long	ft_font_points
-		long	ft_font_ascent
-		long	ft_font_descent
-		long	ft_font_height
-		struct	ft_font_name, null
+	def_structure ft_font
+		struct ft_font_node, ln_node
+		long ft_font_handle
+		long ft_font_points
+		long ft_font_ascent
+		long ft_font_descent
+		long ft_font_height
+		struct ft_font_name, null
 	def_structure_end
 
-	def_structure	ft_text
-		struct	ft_text_node, ln_node
-		long	ft_text_font
-		long	ft_text_texture
-		long	ft_text_width
-		long	ft_text_height
-		struct	ft_text_name, null
+	def_structure ft_text
+		struct ft_text_node, ln_node
+		long ft_text_font
+		long ft_text_texture
+		long ft_text_width
+		long ft_text_height
+		struct ft_text_name, null
 	def_structure_end
 
-	def_structure	ft_statics
-		long	ft_statics_font_list
-		long	ft_statics_text_list
+	def_structure ft_statics
+		long ft_statics_font_list
+		long ft_statics_text_list
 	def_structure_end
 
 %endif

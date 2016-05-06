@@ -19,9 +19,9 @@
 	def_method draw, class/label/draw, override
 	def_method layout, class/label/layout, override
 
-	def_structure	label, view
-		long	label_flow
-		long	label_text
+	def_structure label, view
+		long label_flow
+		long label_text
 	def_structure_end
 
 %endif

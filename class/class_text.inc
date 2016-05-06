@@ -16,10 +16,10 @@
 	def_method pref_size, class/text/pref_size, override
 	def_method draw, class/text/draw, override
 
-	def_structure	text, view
-		long	text_font
-		long	text_string
-		long	text_text_color
+	def_structure text, view
+		long text_font
+		long text_string
+		long text_text_color
 	def_structure_end
 
 %endif
