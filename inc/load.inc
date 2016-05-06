@@ -22,13 +22,13 @@
 	ld_reloc_size	equ 2048
 
 	def_structure	ld_statics
-		def_long	ld_statics_function_list
-		def_long	ld_statics_block_list
-		def_long	ld_statics_block_start
-		def_long	ld_statics_block_end
-		def_long	ld_statics_reloc_stack
-		def_struct	ld_statics_stat_buffer, stat
-		def_struct	ld_statics_reloc_buffer, ld_reloc
+		long	ld_statics_function_list
+		long	ld_statics_block_list
+		long	ld_statics_block_start
+		long	ld_statics_block_end
+		long	ld_statics_reloc_stack
+		struct	ld_statics_stat_buffer, stat
+		struct	ld_statics_reloc_buffer, ld_reloc
 	def_structure_end
 
 %endif

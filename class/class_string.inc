@@ -11,8 +11,8 @@
 	def_method add, class/string/add, static, {r0, r1}, {r0}
 
 	def_structure	string, ref
-		def_long	string_length
-		def_struct	string_data, null
+		long	string_length
+		struct	string_data, null
 	def_structure_end
 
 %endif

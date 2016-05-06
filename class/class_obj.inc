@@ -13,7 +13,7 @@
 	def_method deinit, class/obj/null, virtual, {r0}
 
 	def_structure	obj
-		def_long	obj_vtable
+		long	obj_vtable
 	def_structure_end
 
 %endif

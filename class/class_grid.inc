@@ -16,9 +16,9 @@
 	grid_flag	equ 1 << 0
 
 	def_structure	grid, view
-		def_long	grid_flags
-		def_long	grid_width
-		def_long	grid_height
+		long	grid_flags
+		long	grid_width
+		long	grid_height
 	def_structure_end
 
 %endif

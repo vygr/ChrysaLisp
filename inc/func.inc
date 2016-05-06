@@ -14,10 +14,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 	def_structure	kn_call
-		def_byte	kn_call_callback
-		def_byte	kn_call_task_open
-		def_byte	kn_call_task_child
-		def_byte	kn_call_task_route
+		byte	kn_call_callback
+		byte	kn_call_task_open
+		byte	kn_call_task_child
+		byte	kn_call_task_route
 	def_structure_end
 
 ;;;;;;;;;;;;;;;;;;
@@ -25,37 +25,37 @@
 ;;;;;;;;;;;;;;;;;;
 
 	def_structure	kn_data, ml_msg_header
-		def_long	kn_data_kernel_user
-		def_struct	kn_data_kernel_reply, mailbox_id
-		def_long	kn_data_kernel_function
+		long	kn_data_kernel_user
+		struct	kn_data_kernel_reply, mailbox_id
+		long	kn_data_kernel_function
 	def_structure_end
 
 	def_structure	kn_data_callback, kn_data
-		def_long	kn_data_callback_addr
+		long	kn_data_callback_addr
 	def_structure_end
 
 	def_structure	kn_data_task_open, kn_data
-		def_struct	kn_data_task_open_pathname, null
+		struct	kn_data_task_open_pathname, null
 	def_structure_end
 
 	def_structure	kn_data_task_open_reply, ml_msg_header
-		def_long	kn_data_task_open_reply_user
-		def_struct	kn_data_task_open_reply_mailboxid, mailbox_id
+		long	kn_data_task_open_reply_user
+		struct	kn_data_task_open_reply_mailboxid, mailbox_id
 	def_structure_end
 
 	def_structure	kn_data_task_child, kn_data
-		def_struct	kn_data_task_child_pathname, null
+		struct	kn_data_task_child_pathname, null
 	def_structure_end
 
 	def_structure	kn_data_task_child_reply, ml_msg_header
-		def_long	kn_data_task_child_reply_user
-		def_struct	kn_data_task_child_reply_mailboxid, mailbox_id
+		long	kn_data_task_child_reply_user
+		struct	kn_data_task_child_reply_mailboxid, mailbox_id
 	def_structure_end
 
 	def_structure	kn_data_link_route, kn_data
-		def_long	kn_data_link_route_origin
-		def_long	kn_data_link_route_via
-		def_long	kn_data_link_route_hops
+		long	kn_data_link_route_origin
+		long	kn_data_link_route_via
+		long	kn_data_link_route_hops
 	def_structure_end
 
 ;;;;;;;;;;;;;;;;;
@@ -63,11 +63,11 @@
 ;;;;;;;;;;;;;;;;;
 
 	def_structure	fn_header, ln_fnode
-		def_int		fn_header_length
-		def_int		fn_header_entry
-		def_int		fn_header_links
-		def_int		fn_header_paths
-		def_struct	fn_header_pathname, null
+		int		fn_header_length
+		int		fn_header_entry
+		int		fn_header_links
+		int		fn_header_paths
+		struct	fn_header_pathname, null
 	def_structure_end
 
 ;;;;;;;;;;;;;

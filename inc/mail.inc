@@ -29,28 +29,28 @@
 	mail_data_size	equ 512
 
 	def_structure	ml_mailbox, lh_list
-		def_struct	ml_mailbox_parcel_list, lh_list
-		def_long	ml_mailbox_tcb
+		struct	ml_mailbox_parcel_list, lh_list
+		long	ml_mailbox_tcb
 	def_structure_end
 
 	def_structure	ml_msg, ln_node
-		def_long	ml_msg_length
-		def_struct	ml_msg_dest, mailbox_id
-		def_struct	ml_msg_parcel_id, mailbox_id
-		def_long	ml_msg_parcel_size
-		def_long	ml_msg_parcel_total
-		def_long	ml_msg_parcel_frag
-		def_struct	ml_msg_header_size, null
-		def_struct	ml_msg_data, mail_data
+		long	ml_msg_length
+		struct	ml_msg_dest, mailbox_id
+		struct	ml_msg_parcel_id, mailbox_id
+		long	ml_msg_parcel_size
+		long	ml_msg_parcel_total
+		long	ml_msg_parcel_frag
+		struct	ml_msg_header_size, null
+		struct	ml_msg_data, mail_data
 	def_structure_end
 
 	def_structure	ml_statics
-		def_struct	ml_statics_offchip_list, lh_list
-		def_struct	ml_statics_heap, hp_heap
-		def_long	ml_statics_kernel_mailbox
-		def_long	ml_statics_in_mailbox
-		def_long	ml_statics_out_mailbox
-		def_long	ml_statics_parcel_id
+		struct	ml_statics_offchip_list, lh_list
+		struct	ml_statics_heap, hp_heap
+		long	ml_statics_kernel_mailbox
+		long	ml_statics_in_mailbox
+		long	ml_statics_out_mailbox
+		long	ml_statics_parcel_id
 	def_structure_end
 
 ;;;;;;;;;;;;;

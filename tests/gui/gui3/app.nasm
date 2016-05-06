@@ -15,13 +15,10 @@
 	fn_function tests/gui/gui3/app
 
 		def_structure shared, obj
-			def_long shared_display
+			long shared_display
 		def_structure_end
 
-		string_buf_size	equ 32
-
-		struct myapp, obj
-		long display
+		struct myapp, shared
 		long last_event
 		long window
 		long window_panel
@@ -29,7 +26,6 @@
 		long grid_panel
 		long next
 		long button
-		struct buffer, string_buf
 		long owner
 		long pressed
 		long width
@@ -41,7 +37,6 @@
 		push_scope
 		slot_function class, obj
 		static_call obj, init, {&myapp, @_function_}, {_}
-		static_call sys_string, from_long, {0, &buffer, 10}
 
 		;create my window
 		static_call window, create, {}, {window}
@@ -58,13 +53,13 @@
 		static_call flow, add, {flow_panel, window_panel}
 
 		;add my display label
-		static_call label, create, {}, {display}
-		static_call label, set_color, {display, 0xffffffff}
-		static_call label, set_flow_flags, {display, flow_flag_align_hright | flow_flag_align_vcenter}
-		static_call label, set_font, {display, "fonts/OpenSans-Regular.ttf", 24}
+		static_call label, create, {}, {myapp.shared_display}
+		static_call label, set_color, {myapp.shared_display, 0xffffffff}
+		static_call label, set_flow_flags, {myapp.shared_display, flow_flag_align_hright | flow_flag_align_vcenter}
+		static_call label, set_font, {myapp.shared_display, "fonts/OpenSans-Regular.ttf", 24}
 		static_call string, create, {"0"}, {string}
-		static_call label, set_text, {display, string}
-		static_call label, add, {display, flow_panel}
+		static_call label, set_text, {myapp.shared_display, string}
+		static_call label, add, {myapp.shared_display, flow_panel}
 
 		;add my app grid panel
 		static_call grid, create, {}, {grid_panel}

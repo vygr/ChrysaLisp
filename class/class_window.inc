@@ -24,14 +24,14 @@
 	def_method mouse_move, class/window/mouse_move, override
 
 	def_structure	window, view
-		def_long	window_border
-		def_long	window_title
-		def_long	window_status
-		def_long	window_flow
-		def_long	window_panel
-		def_long	window_offset_x
-		def_long	window_offset_y
-		def_long	window_drag_mode
+		long	window_border
+		long	window_title
+		long	window_status
+		long	window_flow
+		long	window_panel
+		long	window_offset_x
+		long	window_offset_y
+		long	window_drag_mode
 	def_structure_end
 
 %endif

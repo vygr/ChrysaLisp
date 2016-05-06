@@ -13,7 +13,7 @@
 	def_method deinit, class/component/deinit, override
 
 	def_structure	component, ref
-		def_struct	component_slot_list, lh_list
+		struct	component_slot_list, lh_list
 	def_structure_end
 
 %endif

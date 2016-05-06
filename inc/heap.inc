@@ -31,10 +31,10 @@
 ;;;;;;;;;;;;;;;;;
 
 	def_structure	hp_heap
-		def_long	hp_heap_freelist
-		def_long	hp_heap_blocklist
-		def_long	hp_heap_cellsize
-		def_long	hp_heap_blocksize
+		long	hp_heap_freelist
+		long	hp_heap_blocklist
+		long	hp_heap_cellsize
+		long	hp_heap_blocksize
 	def_structure_end
 
 ;;;;;;;;;;;;;

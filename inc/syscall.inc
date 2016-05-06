@@ -86,13 +86,13 @@
 	stat_size			equ 0x100
 
 	def_structure	timeval
-		def_long	timeval_sec
-		def_long	timeval_usec
+		long	timeval_sec
+		long	timeval_usec
 	def_structure_end
 
 	def_structure	timezone
-		def_int	timeval_minuteswest
-		def_int	timeval_dsttime
+		int	timeval_minuteswest
+		int	timeval_dsttime
 	def_structure_end
 
 ;;;;;;;;;;;;;;;;
@@ -322,13 +322,13 @@
 	stat_size			equ 0x100
 
 	def_structure	timeval
-		def_long	timeval_sec
-		def_long	timeval_usec
+		long	timeval_sec
+		long	timeval_usec
 	def_structure_end
 
 	def_structure	timezone
-		def_int	timeval_minuteswest
-		def_int	timeval_dsttime
+		int	timeval_minuteswest
+		int	timeval_dsttime
 	def_structure_end
 
 ;;;;;;;;;;;;;;;;

@@ -22,50 +22,10 @@
 	%endmacro
 
 	%macro def_structure_end 0
-		def_align long
+		local_align long
 		%[_struct_]_size equ _offset_
-	%endmacro
-
-	%macro def_struct 2
-		;inputs
-		;%1 = field name
-		;%2 = struct name
-		%1 equ _offset_
-		%assign _offset_ _offset_ + %2_size
-	%endmacro
-
-	%macro def_long 1
-		;inputs
-		;%1 = field name
-		def_align long
-		def_struct %1, long
-	%endmacro
-
-	%macro def_int 1
-		;inputs
-		;%1 = field name
-		def_align int
-		def_struct %1, int
-	%endmacro
-
-	%macro def_short 1
-		;inputs
-		;%1 = field name
-		def_align short
-		def_struct %1, short
-	%endmacro
-
-	%macro def_byte 1
-		;inputs
-		;%1 = field name
-		def_struct %1, byte
-	%endmacro
-
-	%macro def_align 1
-		;inputs
-		;%1 = alignment
-		%assign _offset_ _offset_ + (%1_size - 1)
-		%assign _offset_ _offset_ & -(%1_size)
+		%undef _struct_
+		%undef _offset_
 	%endmacro
 
 	%macro def_local 0-2 local, null
@@ -75,14 +35,14 @@
 
 	%macro def_local_long 1
 		;%1 name
-		def_long %[_local_]_%1
+		long %[_local_]_%1
 		%xdefine .%1 [r4 + %[_local_]_%1]
 	%endmacro
 
 	%macro def_local_struct 2
 		;%1 name
 		;%2 size
-		def_struct %[_local_]_%1, %2
+		struct %[_local_]_%1, %2
 		%xdefine .%1 [r4 + %[_local_]_%1]
 	%endmacro
 
@@ -247,8 +207,13 @@
 		;%1 = var name
 		;%2 = struct name
 		;%3 = sign
-		def_sym %1, _sym_var, _var_sp, %2_size * %3
-		%assign _var_sp _var_sp + %2_size
+		%ifdef _struct_
+			%1 equ _offset_
+			%assign _offset_ _offset_ + %2_size
+		%else
+			def_sym %1, _sym_var, _var_sp, %2_size * %3
+			%assign _var_sp _var_sp + %2_size
+		%endif
 	%endmacro
 
 	%macro long 1
@@ -308,8 +273,13 @@
 	%macro local_align 0-1 long
 		;inputs
 		;%1 = alignment
-		%assign _var_sp _var_sp + (%1_size - 1)
-		%assign _var_sp _var_sp & -(%1_size)
+		%ifdef _struct_
+			%assign _offset_ _offset_ + (%1_size - 1)
+			%assign _offset_ _offset_ & -(%1_size)
+		%else
+			%assign _var_sp _var_sp + (%1_size - 1)
+			%assign _var_sp _var_sp & -(%1_size)
+		%endif
 	%endmacro
 
 ;;;;;;;;;;;;;;

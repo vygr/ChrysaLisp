@@ -16,8 +16,8 @@
 	def_method mouse_move, class/title/mouse_move, override
 
 	def_structure	title, label
-		def_long	title_last_x
-		def_long	title_last_y
+		long	title_last_x
+		long	title_last_y
 	def_structure_end
 
 %endif

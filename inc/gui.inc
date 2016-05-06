@@ -42,41 +42,41 @@
 ;;;;;;;;;;;;;;;;
 
 	def_structure	gui_statics
-		def_long	gui_statics_sdl_funcs
-		def_struct	gui_statics_rect_heap, hp_heap
-		def_struct	gui_statics_sigslot_heap, hp_heap
-		def_long	gui_statics_window
-		def_long	gui_statics_screen
-		def_long	gui_statics_renderer
-		def_long	gui_statics_old_region
-		def_long	gui_statics_x_pos
-		def_long	gui_statics_y_pos
-		def_long	gui_statics_buttons
-		def_long	gui_statics_last_x_pos
-		def_long	gui_statics_last_y_pos
-		def_long	gui_statics_last_buttons
-		def_long	gui_statics_last_view
+		long	gui_statics_sdl_funcs
+		struct	gui_statics_rect_heap, hp_heap
+		struct	gui_statics_sigslot_heap, hp_heap
+		long	gui_statics_window
+		long	gui_statics_screen
+		long	gui_statics_renderer
+		long	gui_statics_old_region
+		long	gui_statics_x_pos
+		long	gui_statics_y_pos
+		long	gui_statics_buttons
+		long	gui_statics_last_x_pos
+		long	gui_statics_last_y_pos
+		long	gui_statics_last_buttons
+		long	gui_statics_last_view
 	def_structure_end
 
 	def_structure	gui_rect, ln_fnode
-		def_long	gui_rect_x
-		def_long	gui_rect_y
-		def_long	gui_rect_x1
-		def_long	gui_rect_y1
+		long	gui_rect_x
+		long	gui_rect_y
+		long	gui_rect_x1
+		long	gui_rect_y1
 	def_structure_end
 
 	def_structure	gui_ctx
-		def_long	gui_ctx_sdl_ctx
-		def_long	gui_ctx_dirty_region
-		def_long	gui_ctx_x
-		def_long	gui_ctx_y
+		long	gui_ctx_sdl_ctx
+		long	gui_ctx_dirty_region
+		long	gui_ctx_x
+		long	gui_ctx_y
 	def_structure_end
 
 	def_structure	gui_sigslot
-		def_struct	gui_sigslot_sig_node, ln_node
-		def_struct	gui_sigslot_slot_node, ln_node
-		def_long	gui_sigslot_inst
-		def_long	gui_sigslot_addr
+		struct	gui_sigslot_sig_node, ln_node
+		struct	gui_sigslot_slot_node, ln_node
+		long	gui_sigslot_inst
+		long	gui_sigslot_addr
 	def_structure_end
 
 ;;;;;;;;;;;;;;;
@@ -84,19 +84,19 @@
 ;;;;;;;;;;;;;;;
 
 	def_structure	ev_type
-		def_byte	ev_type_mouse
-		def_byte	ev_type_key
+		byte	ev_type_mouse
+		byte	ev_type_key
 	def_structure_end
 
 	def_structure	ev_data, ml_msg_header
-		def_long	ev_data_type
-		def_long	ev_data_view
-		def_long	ev_data_x
-		def_long	ev_data_y
-		def_long	ev_data_rx
-		def_long	ev_data_ry
-		def_long	ev_data_buttons
-		def_long	ev_data_key
+		long	ev_data_type
+		long	ev_data_view
+		long	ev_data_x
+		long	ev_data_y
+		long	ev_data_rx
+		long	ev_data_ry
+		long	ev_data_buttons
+		long	ev_data_key
 	def_structure_end
 
 %endif

@@ -19,18 +19,18 @@
 ;;;;;;;;;;;;;;;;;
 
 	def_structure	lh_list
-		def_long	lh_list_head
-		def_long	lh_list_tail
-		def_long	lh_list_tailpred
+		long	lh_list_head
+		long	lh_list_tail
+		long	lh_list_tailpred
 	def_structure_end
 
 	def_structure	ln_node
-		def_long	ln_node_succ
-		def_long	ln_node_pred
+		long	ln_node_succ
+		long	ln_node_pred
 	def_structure_end
 
 	def_structure	ln_fnode
-		def_long	ln_fnode_next
+		long	ln_fnode_next
 	def_structure_end
 
 ;;;;;;;;;;;;;;;;;;

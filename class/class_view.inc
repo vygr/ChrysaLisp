@@ -46,21 +46,21 @@
 	view_flag_solid	equ 1 << 0
 
 	def_structure	view, component
-		def_struct	view_node, ln_node
-		def_struct	view_list, lh_list
-		def_long	view_parent
-		def_long	view_tcb
-		def_long	view_dirty_region
-		def_long	view_opaque_region
-		def_long	view_ctx_x
-		def_long	view_ctx_y
-		def_long	view_x
-		def_long	view_y
-		def_long	view_w
-		def_long	view_h
-		def_long	view_last_buttons
-		def_long	view_flags
-		def_long	view_color
+		struct	view_node, ln_node
+		struct	view_list, lh_list
+		long	view_parent
+		long	view_tcb
+		long	view_dirty_region
+		long	view_opaque_region
+		long	view_ctx_x
+		long	view_ctx_y
+		long	view_x
+		long	view_y
+		long	view_w
+		long	view_h
+		long	view_last_buttons
+		long	view_flags
+		long	view_color
 	def_structure_end
 
 %endif
