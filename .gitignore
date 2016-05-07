@@ -134,7 +134,10 @@ class/window/set_status
 class/window/set_title
 gui/ctx_blit
 gui/ctx_box
+gui/ctx_brighter
+gui/ctx_darker
 gui/ctx_filled_box
+gui/ctx_panel
 gui/ctx_set_color
 gui/font_bounds
 gui/font_deinit
@@ -252,5 +255,3 @@ tests/gui/gui2/app
 tests/gui/gui3/app
 tests/pipe
 tests/pipe_child
-
-gui/ctx_panel

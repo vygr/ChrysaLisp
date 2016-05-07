@@ -37,6 +37,8 @@
 	def_method blit, gui/ctx_blit, static, {r0, r1, r2, r8, r9, r10, r11}
 	def_method set_color, gui/ctx_set_color, static, {r0, r1}
 	def_method panel, gui/ctx_panel, static, {r0, r1, r2, r3, r8, r9, r10, r11}
+	def_method brighter, gui/ctx_brighter, static, {r1}, {r1}
+	def_method darker, gui/ctx_darker, static, {r1}, {r1}
 
 ;;;;;;;;;;;;;;;;
 ; gui structures

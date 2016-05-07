@@ -30,12 +30,7 @@
 
 		;darker colour
 		s_call view, get_color, {[r4 + local_inst]}, {r1}
-		vp_cpy r1, r2
-		vp_cpy 0xff000000, r3
-		vp_and r3, r1
-		vp_and 0x00fefefe, r2
-		vp_shr 1, r2
-		vp_add r2, r1
+		s_call gui_ctx, darker, {r1}, {r1}
 		s_call gui_ctx, set_color, {[r4 + local_ctx], r1}
 
 		;draw middle
@@ -57,12 +52,8 @@
 
 		;very darker colour
 		s_call view, get_color, {[r4 + local_inst]}, {r1}
-		vp_cpy r1, r2
-		vp_cpy 0xff000000, r3
-		vp_and r3, r1
-		vp_and 0x00fcfcfc, r2
-		vp_shr 2, r2
-		vp_add r2, r1
+		s_call gui_ctx, darker, {r1}, {r1}
+		s_call gui_ctx, darker, {r1}, {r1}
 		s_call gui_ctx, set_color, {[r4 + local_ctx], r1}
 
 		;draw middle

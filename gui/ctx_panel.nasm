@@ -50,14 +50,7 @@
 		vp_cpy [r4 + local_depth],r12
 		if r12, >, 0
 			;brighter colour
-			vp_cpy [r4 + local_color], r1
-			vp_cpy r1, r2
-			vp_cpy 0xff000000, r3
-			vp_and r3, r1
-			vp_and 0x00fefefe, r2
-			vp_shr 1, r2
-			vp_add 0x00808080, r2
-			vp_add r2, r1
+			s_call gui_ctx, brighter, {[r4 + local_color]}, {r1}
 			s_call gui_ctx, set_color, {[r4 + local_ctx], r1}
 
 			;fill left edge and top
@@ -69,13 +62,7 @@
 			s_call gui_ctx, filled_box, {[r4 + local_ctx], 0, r12, r12, r11}
 
 			;darker colour
-			vp_cpy [r4 + local_color], r1
-			vp_cpy r1, r2
-			vp_cpy 0xff000000, r3
-			vp_and r3, r1
-			vp_and 0x00fefefe, r2
-			vp_shr 1, r2
-			vp_add r2, r1
+			s_call gui_ctx, darker, {[r4 + local_color]}, {r1}
 			s_call gui_ctx, set_color, {[r4 + local_ctx], r1}
 
 			;fill bottom edge and right
@@ -101,13 +88,7 @@
 			vp_cpy r12, [r4 + local_depth]
 
 			;darker colour
-			vp_cpy [r4 + local_color], r1
-			vp_cpy r1, r2
-			vp_cpy 0xff000000, r3
-			vp_and r3, r1
-			vp_and 0x00fefefe, r2
-			vp_shr 1, r2
-			vp_add r2, r1
+			s_call gui_ctx, darker, {[r4 + local_color]}, {r1}
 			s_call gui_ctx, set_color, {[r4 + local_ctx], r1}
 
 			;fill left edge and top
@@ -119,14 +100,7 @@
 			s_call gui_ctx, filled_box, {[r4 + local_ctx], 0, r12, r12, r11}
 
 			;brighter colour
-			vp_cpy [r4 + local_color], r1
-			vp_cpy r1, r2
-			vp_cpy 0xff000000, r3
-			vp_and r3, r1
-			vp_and 0x00fefefe, r2
-			vp_shr 1, r2
-			vp_add 0x00808080, r2
-			vp_add r2, r1
+			s_call gui_ctx, brighter, {[r4 + local_color]}, {r1}
 			s_call gui_ctx, set_color, {[r4 + local_ctx], r1}
 
 			;fill bottom edge and right
