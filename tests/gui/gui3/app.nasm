@@ -19,7 +19,7 @@
 		def_structure_end
 
 		struct myapp, shared
-		long last_event
+		long msg
 		long window
 		long window_panel
 		long flow_panel
@@ -99,13 +99,13 @@
 
 		;app event loop
 		loop_start
-			static_call sys_mail, mymail, {}, {last_event}
+			static_call sys_mail, mymail, {}, {msg}
 
 			;dispatch event to view
-			method_call view, event, {last_event->ev_data_view, last_event}
+			method_call view, event, {msg->ev_data_view, msg}
 
 			;free event message
-			static_call sys_mem, free, {last_event}
+			static_call sys_mem, free, {msg}
 		loop_end
 
 		;deref window

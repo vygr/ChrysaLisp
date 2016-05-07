@@ -627,14 +627,14 @@
 		%assign %%i 1
 		%rep %%l * 2
 			%ifnidn %%c, ''
-				sub_string %%c, '@$"-*~!+.?^</%&|=> )('
+				sub_string %%c, '@$"-*~!+.?^[<]/%&|=> )('
 				%if %%m = -1
 					;scanning
 					%ifnidn %%c, ' '
-						%if _pos >= 20
+						%if _pos >= 21
 							;)(
 							push_token %%c, _pos
-							%assign %%u _pos - 20
+							%assign %%u _pos - 21
 						%elif (_pos = 0 || _pos >= 3)
 							;"-*~!+.?^</%&|=> or symbol
 							%strcat %%p %%p %%c
@@ -647,8 +647,8 @@
 					%defstr %%c
 				%elif %%m > 3
 					;op mode
-					%if _pos >= 19 || _pos < 12
-						;space, )( or not </%&|=>
+					%if _pos >= 21 || _pos < 13
+						;space, )( or not <]/%&|=>
 						%if %%u = 1
 							;unary operator
 							sub_string %%p, '-*&~!'
@@ -1018,6 +1018,15 @@
 		vp_lea [_reg + %%r], _reg
 ;		set_reg _reg_sp, _reg, %%t
 		set_reg _reg_sp, _reg, 'L'
+	%endmacro
+
+	%macro compile_index 0
+		pop_reg
+		%xdefine %%r _reg
+		pop_reg
+		compile_deref
+		%warning vp_lea [_reg + %%r], _reg
+		vp_lea [_reg + %%r], _reg
 	%endmacro
 
 	%macro compile_uaddrof 0

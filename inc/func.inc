@@ -205,6 +205,7 @@
 		push_scope
 		operator ., 1, 0, compile_field
 		operator ->, 1, 0, compile_member
+		operator [], 1, 0, compile_index
 		operator :, 2, 1, compile_uaddrof
 		operator _, 2, 1, compile_uminus
 		operator #, 2, 1, compile_uderef
