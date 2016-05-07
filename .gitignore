@@ -187,6 +187,7 @@ sys/mail_alloc_parcel
 sys/mail_deinit
 sys/mail_in
 sys/mail_init
+sys/mail_mailbox
 sys/mail_mymail
 sys/mail_out
 sys/mail_read

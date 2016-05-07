@@ -18,6 +18,7 @@
 	def_method try_read, sys/mail_try_read, static, {r0}, {r0}
 	def_method select, sys/mail_select, static, {r0, r1}, {r0}
 	def_method mymail, sys/mail_mymail, static, {}, {r0}
+	def_method mailbox, sys/mail_mailbox, static, {r0}
 	def_method in, sys/mail_in
 	def_method out, sys/mail_out
 

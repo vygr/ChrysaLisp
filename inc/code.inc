@@ -309,6 +309,12 @@
 		struct %1, ptr, 'pB'
 	%endmacro
 
+	%macro pulong 1
+		;inputs
+		;%1 = var name
+		struct %1, ptr, 'pL'
+	%endmacro
+
 ;;;;;;;;;;;;;;
 ; symbol table
 ;;;;;;;;;;;;;;
@@ -1010,7 +1016,8 @@
 		compile_deref
 		%warning vp_lea [_reg + %%r], _reg
 		vp_lea [_reg + %%r], _reg
-		set_reg _reg_sp, _reg, %%t
+;		set_reg _reg_sp, _reg, %%t
+		set_reg _reg_sp, _reg, 'L'
 	%endmacro
 
 	%macro compile_uaddrof 0
@@ -1045,16 +1052,40 @@
 
 	%macro compile_ulnot 0
 		pop_value_final
-		%warning vp_xor 1, _reg
-		vp_xor 1, _reg
+		%warning if _reg, ==, 0
+		%warning 	vp_cpy 1, _reg
+		%warning else
+		%warning 	vp_xor _reg, _reg
+		%warning endif
+		if _reg, ==, 0
+			vp_cpy 1, _reg
+		else
+			vp_xor _reg, _reg
+		endif
 	%endmacro
 
 	%macro compile_land 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning vp_and %%r, _reg
-		vp_and %%r, _reg
+		%warning if %%r, !=, 0
+		%warning 	if _reg, !=, 0
+		%warning 		vp_cpy 1, _reg
+		%warning 	else
+		%warning 		vp_xor _reg, _reg
+		%warning 	endif
+		%warning %else
+		%warning 	vp_xor _reg, _reg
+		%warning %endif
+		if %%r, !=, 0
+			if _reg, !=, 0
+				vp_cpy 1, _reg
+			else
+				vp_xor _reg, _reg
+			endif
+		else
+			vp_xor _reg, _reg
+		endif
 	%endmacro
 
 	%macro compile_lor 0

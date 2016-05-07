@@ -14,204 +14,152 @@
 
 	fn_function tests/gui/gui1/app
 
-		def_structure local
-			long local_last_event
-			long local_window
-			long local_window_panel
-			long local_panel
-			long local_cpu_total
-			long local_cpu_count
-			long local_task_mailboxes
-			long local_task_progress
-			struct local_task_mailbox, ml_mailbox
-			long local_select1
-			long local_select2
-		def_structure_end
+		long window
+		long window_panel
+		long panel
+		long cpu_total
+		long cpu_count
+		pulong task_progress
+
+		long msg
+		long select1
+		long select2
+		long mailbox
+		pulong task_mailboxes
+		struct task_mailbox, ml_mailbox
+
+		long string
+		long progress
+		long width
+		long height
+		long owner
 
 		;init app vars
-		vp_sub local_size, r4
+		push_scope
 
 		;create my window
-		s_call window, create, {}, {[r4 + local_window]}
-		assert r0, !=, 0
-		s_call window, get_panel, {r0}, {[r4 + local_window_panel]}
-		s_call string, create, {"Network Task Monitor"}, {r0}
-		assert r0, !=, 0
-		s_call window, set_title, {[r4 + local_window], r0}
-		s_call string, create, {"Status Text"}, {r0}
-		assert r0, !=, 0
-		s_call window, set_status, {[r4 + local_window], r0}
+		static_call window, create, {}, {window}
+		static_call window, get_panel, {window}, {window_panel}
+		static_call string, create, {"Network Task Monitor"}, {string}
+		static_call window, set_title, {window, string}
+		static_call string, create, {"Status Text"}, {string}
+		static_call window, set_status, {window, string}
 
 		;add my panel
-		s_call flow, create, {}, {[r4 + local_panel]}
-		assert r0, !=, 0
-		s_call flow, set_flow_flags, {r0, flow_flag_down | flow_flag_fillw}
-		s_call flow, set_color, {r0, 0}
-		s_call flow, add, {r0, [r4 + local_window_panel]}
+		static_call flow, create, {}, {panel}
+		static_call flow, set_flow_flags, {panel, flow_flag_down | flow_flag_fillw}
+		static_call flow, set_color, {panel, 0}
+		static_call flow, add, {panel, window_panel}
 
 		;allocate array for progress bars
-		s_call sys_cpu, total, {}, {[r4 + local_cpu_total]}
-		vp_mul 8, r0
-		s_call sys_mem, alloc, {r0}, {[r4 + local_task_progress], _}
-		assert r0, !=, 0
+		static_call sys_cpu, total, {}, {cpu_total}
+		static_call sys_mem, alloc, {cpu_total * long_size}, {task_progress, _}
 
 		;add num cpus progress bars to my app panel
-		vp_xor r1, r1
-		vp_cpy r1, [r4 + local_cpu_count]
+		assign {0}, {cpu_count}
 		loop_start
-			s_call progress, create, {}, {r0}
-			assert r0, !=, 0
-			s_call progress, set_max, {r0, 48}
-			s_call progress, set_color, {r0, 0xff00ff00}
-			s_call progress, add, {r0, [r4 + local_panel]}
-
-			;save progress bar for this cpu
-			vp_cpy [r4 + local_cpu_count], r1
-			vp_cpy [r4 + local_task_progress], r2
-			vp_cpy r0, [r2 + r1 * 8]
-
-			vp_inc r1
-			vp_cpy r1, [r4 + local_cpu_count]
-		loop_until r1, ==, [r4 + local_cpu_total]
+			static_call progress, create, {}, {progress}
+			static_call progress, set_max, {progress, 48}
+			static_call progress, set_color, {progress, 0xff00ff00}
+			static_call progress, add, {progress, panel}
+			assign {progress}, {task_progress->(cpu_count * long_size)}
+			assign {cpu_count + 1}, {cpu_count}
+		loop_until {cpu_count == cpu_total}
 
 		;set to pref size
-		m_call window, pref_size, {[r4 + local_window]}, {r10, r11}
-		s_call window, change, {r0, 32, 32, r10, r11}
+		method_call window, pref_size, {window}, {width, height}
+		static_call window, change, {window, 32, 32, width, height}
 
 		;set owner
-		s_call sys_task, tcb, {}, {r0}
-		s_call window, set_owner, {[r4 + local_window], r0}
+		static_call sys_task, tcb, {}, {owner}
+		static_call window, set_owner, {window, owner}
 
 		;add to screen and dirty
-		s_call gui_gui, add, {r0}
-		s_call window, dirty_all, {r0}
+		static_call gui_gui, add, {window}
+		static_call window, dirty_all, {window}
 
 		;allocate array for child mailbox ID's
-		vp_cpy [r4 + local_cpu_total], r0
-		vp_mul mailbox_id_size, r0
-		s_call sys_mem, alloc, {r0}, {[r4 + local_task_mailboxes], _}
-		assert r0, !=, 0
+		static_call sys_mem, alloc, {cpu_total * mailbox_id_size}, {task_mailboxes, _}
 
 		;open global farm
-		s_call sys_task, open_global, {"tests/gui/gui1/child", r0, [r4 + local_cpu_total]}
+		static_call sys_task, open_global, {"tests/gui/gui1/child", task_mailboxes, cpu_total}
 
 		;init task mailbox
-		vp_lea [r4 + local_task_mailbox], r0
-		ml_init r0, r1, r2
+		static_call sys_mail, mailbox, {&task_mailbox}
 
 		;set up mailbox select array
-		vp_cpy r0, [r4 + local_select2]
-		s_call sys_task, mailbox, {}, {[r4 + local_select1], r1}
+		static_call sys_task, mailbox, {}, {select1, _}
+		assign {&task_mailbox}, {select2}
 
 		;app event loop
 		loop_start
 			;new round of samples ?
-			vp_cpy [r4 + local_cpu_count], r0
-			if r0, ==, [r4 + local_cpu_total]
+			if {cpu_count ==  cpu_total}
 				;send out sample commands
 				loop_start
-					s_call sys_mail, alloc, {}, {r5}
-					assert r0, !=, 0
-
-					;child task num
-					vp_cpy [r4 + local_cpu_count], r0
-					vp_dec r0
-					vp_cpy r0, [r4 + local_cpu_count]
-
-					vp_cpy_cl 1, [r5 + sample_mail_command]
-					vp_cpy_cl sample_mail_size, [r5 + ml_msg_length]
-
-					vp_cpy [r4 + local_task_progress], r1
-					vp_cpy [r1 + r0 * 8], r1
-					vp_cpy r1, [r5 + sample_mail_progress]
-
-					vp_cpy [r4 + local_task_mailboxes], r1
-					vp_mul mailbox_id_size, r0
-					vp_cpy [r1 + r0], r2
-					vp_cpy [r1 + r0 + 8], r3
-					vp_cpy r2, [r5 + ml_msg_dest]
-					vp_cpy r3, [r5 + ml_msg_dest + 8]
-
-					s_call sys_cpu, id, {}, {[r5 + sample_mail_reply_id + 8]}
-					vp_cpy [r4 + local_select2], r0
-					vp_cpy r0, [r5 + sample_mail_reply_id]
-
-					;send command
-					s_call sys_mail, send, {r5}
-
-					vp_cpy [r4 + local_cpu_count], r0
-				loop_until r0, ==, 0
+					assign {cpu_count - 1}, {cpu_count}
+					static_call sys_mail, alloc, {}, {msg}
+					assign {1}, {msg->sample_mail_command}
+					assign {sample_mail_size}, {msg->ml_msg_length}
+					assign {task_progress->(cpu_count * long_size)}, {msg->sample_mail_progress}
+					assign {task_mailboxes->(cpu_count * mailbox_id_size)}, {msg->ml_msg_dest}
+					assign {task_mailboxes->(cpu_count * mailbox_id_size + long_size)}, {msg->(ml_msg_dest + long_size)}
+					assign {select2}, {msg->sample_mail_reply_id}
+					static_call sys_cpu, id, {}, {msg->(sample_mail_reply_id + long_size)}
+					static_call sys_mail, send, {msg}
+				loop_until {!cpu_count}
 			endif
 
 			;select on 2 mailboxes
-			s_call sys_mail, select, {:[r4 + local_select1], 2}, {r0}
+			static_call sys_mail, select, {&select1, 2}, {mailbox}
+			static_call sys_mail, read, {mailbox}, {msg}
 
-			;which mailbox has mail ?
-			if r0, ==, [r4 + local_select1]
-				;main mailbox
-				s_call sys_mail, read, {r0}, {[r4 + local_last_event]}
-
+			;which mailbox had mail ?
+			if {mailbox == select1}
 				;dispatch event to view
-				m_call view, event, {[r0 + ev_data_view], r0}
+				method_call view, event, {msg->ev_data_view, msg}
 			else
-				;task mailbox
-				s_call sys_mail, read, {r0}, {[r4 + local_last_event]}
-
 				;update progress bar
-				s_call progress, set_val, {[r0 + sample_mail_progress], [r0 + sample_mail_task_count]}
-				s_call progress, dirty, {r0}
+				static_call progress, set_val, {msg->sample_mail_progress, msg->sample_mail_task_count}
+				static_call progress, dirty, {msg->sample_mail_progress}
 
 				;count up replies
-				vp_cpy [r4 + local_cpu_count], r0
-				vp_inc r0
-				vp_cpy r0, [r4 + local_cpu_count]
+				assign {cpu_count + 1}, {cpu_count}
 			endif
 
 			;free event message
-			s_call sys_mem, free, {[r4 + local_last_event]}
+			static_call sys_mem, free, {msg}
 
 			;be friendly
-			s_call sys_task, yield
+			static_call sys_task, yield
 		loop_end
 
 		;wait for outstanding replys
-		vp_cpy [r4 + local_cpu_count], r5
-		loop_while r5, !=, [r4 + local_cpu_total]
-			s_call sys_mail, read, {[r4 + local_select2]}, {r0}
-			s_call sys_mem, free, {r0}
-			vp_inc r5
+		loop_while {cpu_count != cpu_total}
+			static_call sys_mail, read, {select2}, {msg}
+			static_call sys_mem, free, {msg}
+			assign {cpu_count + 1}, {cpu_count}
 		loop_end
 
 		;send out exit commands
-		vp_xor r5, r5
 		loop_start
-			s_call sys_mail, alloc, {}, {r0}
-			assert r0, !=, 0
-			vp_cpy_cl 0, [r0 + sample_mail_command]
-			vp_cpy_cl sample_mail_size, [r0 + ml_msg_length]
-
-			vp_cpy [r4 + local_task_mailboxes], r2
-			vp_cpy r5, r1
-			vp_mul mailbox_id_size, r1
-			vp_cpy [r2 + r1 + 8], r3
-			vp_cpy [r2 + r1], r2
-			vp_cpy r2, [r0 + ml_msg_dest]
-			vp_cpy r3, [r0 + ml_msg_dest + 8]
-
-			;send command
-			s_call sys_mail, send, {r0}
-
-			vp_inc r5
-		loop_until r5, ==, [r4 + local_cpu_total]
+			assign {cpu_count - 1}, {cpu_count}
+			static_call sys_mail, alloc, {}, {msg}
+			assign {0}, {msg->sample_mail_command}
+			assign {sample_mail_size}, {msg->ml_msg_length}
+			assign {task_mailboxes->(cpu_count * mailbox_id_size)}, {msg->ml_msg_dest}
+			assign {task_mailboxes->(cpu_count * mailbox_id_size + long_size)}, {msg->(ml_msg_dest + long_size)}
+			static_call sys_mail, send, {msg}
+		loop_until {!cpu_count}
 
 		;free arrays
-		s_call sys_mem, free, {[r4 + local_task_mailboxes]}
-		s_call sys_mem, free, {[r4 + local_task_progress]}
+		static_call sys_mem, free, {task_mailboxes}
+		static_call sys_mem, free, {task_progress}
 
 		;deref window
-		s_call window, deref, {[r4 + local_window]}
+		static_call window, deref, {window}
 
-		vp_add local_size, r4
+		pop_scope
 		vp_ret
 
 	fn_function_end
