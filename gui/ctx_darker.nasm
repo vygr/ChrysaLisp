@@ -6,7 +6,7 @@
 		;inputs
 		;r1 = darker colour
 		;trashes
-		;r1, r2
+		;r2, r3
 
 		vp_cpy r1, r2
 		vp_cpy 0xff000000, r3
