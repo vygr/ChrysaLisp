@@ -234,17 +234,17 @@
 		%endif
 	%endmacro
 
-	%macro struct 2-4 0, 0
+	%macro struct 2-3 ''
 		;inputs
 		;%1 = var name
 		;%2 = struct name
-		;%3 = source type
-		;%4 = dest type
+		;%3 = type 'pppi'
 		%ifdef _struct_
 			%1 equ _offset_
+			%xdefine %1_t %3
 			%assign _offset_ _offset_ + %2_size
 		%else
-			def_sym %1, _sym_var, _var_sp, %3, %4
+			def_sym %1, _sym_var, _var_sp, 0, %3
 			%assign _var_sp _var_sp + %2_size
 		%endif
 	%endmacro
@@ -253,60 +253,60 @@
 		;inputs
 		;%1 = var name
 		local_align long
-		struct %1, long, -8
+		struct %1, long, 'l'
 	%endmacro
 
 	%macro ulong 1
 		;inputs
 		;%1 = var name
 		local_align long
-		struct %1, long, 8
+		struct %1, long, 'L'
 	%endmacro
 
 	%macro int 1
 		;inputs
 		;%1 = var name
 		local_align int
-		struct %1, int, -4
+		struct %1, int, 'l'
 	%endmacro
 
 	%macro uint 1
 		;inputs
 		;%1 = var name
 		local_align int
-		struct %1, int, 4
+		struct %1, int, 'I'
 	%endmacro
 
 	%macro short 1
 		;inputs
 		;%1 = var name
 		local_align short
-		struct %1, short, -2
+		struct %1, short, 's'
 	%endmacro
 
 	%macro ushort 1
 		;inputs
 		;%1 = var name
 		local_align short
-		struct %1, short, 2
+		struct %1, short, 'S'
 	%endmacro
 
 	%macro byte 1
 		;inputs
 		;%1 = var name
-		struct %1, byte, -1
+		struct %1, byte, 'b'
 	%endmacro
 
 	%macro ubyte 1
 		;inputs
 		;%1 = var name
-		struct %1, byte, 1
+		struct %1, byte, 'B'
 	%endmacro
 
 	%macro pubyte 1
 		;inputs
 		;%1 = var name
-		struct %1, ptr, 1000000, 1
+		struct %1, ptr, 'pB'
 	%endmacro
 
 ;;;;;;;;;;;;;;
@@ -359,13 +359,12 @@
 		%endrep
 	%endmacro
 
-	%macro def_sym 3-6 0, 0, ''
+	%macro def_sym 3-5 0, ''
 		;%1 name
 		;%2 type
-		;%3 value
-		;%4 source type (0, -1, 1, -2, 2, -4, 4, -8, 8, ...)
-		;%5 deref type (0, -1, 1, -2, 2, -4, 4, -8, 8, ...)
-		;%6 aux data
+		;%3 value1
+		;%4 value2
+		;%5 aux data
 		%assign %%s _scope_sp -1
 		%assign %%n _scope_sym_%[%%s]
 		%rep _sym_sp - %%n
@@ -377,10 +376,9 @@
 		%assign _sym_scope_%[%%n] _scope_sp
 		%xdefine _sym_name_%[%%n] %1
 		%assign _sym_type_%[%%n] %2
-		%assign _sym_value_%[%%n] %3
-		%assign _sym_stype_%[%%n] %4
-		%assign _sym_dtype_%[%%n] %5
-		%xdefine _sym_aux_%[%%n] %6
+		%assign _sym_value1_%[%%n] %3
+		%assign _sym_value2_%[%%n] %4
+		%xdefine _sym_aux_%[%%n] %5
 		%assign _sym_sp _sym_sp + 1
 	%endmacro
 
@@ -402,9 +400,8 @@
 			%warning sc: _sym_scope_%[%%n] \
 					t: _sym_type_%[%%n] \
 					n: _sym_name_%[%%n] \
-					v: _sym_value_%[%%n] \
-					s: _sym_stype_%[%%n] \
-					d: _sym_dtype_%[%%n] \
+					v1: _sym_value1_%[%%n] \
+					v2: _sym_value2_%[%%n] \
 					x: _sym_aux_%[%%n]
 			%assign %%n %%n + 1
 		%endrep
@@ -421,7 +418,7 @@
 		;%2 precidence
 		;%3 asociativity
 		;%4 compile macro
-		def_sym %1, _sym_op, %2 * 2, %3, 0, %4
+		def_sym %1, _sym_op, %2 * 2, %3, %4
 	%endmacro
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -749,11 +746,11 @@
 					%if _sym = -1
 						%fatal Operator %%t not defined !
 					%endif
-					%assign %%v _sym_value_%[_sym] - _sym_stype_%[_sym]
+					%assign %%v _sym_value1_%[_sym] - _sym_value2_%[_sym]
 					%rep %%o
 						%assign %%o %%o - 1
 						get_sym _op_%[%%o]
-						%if %%v >= _sym_value_%[_sym]
+						%if %%v >= _sym_value1_%[_sym]
 							push_rpn _op_%[%%o], -1
 						%else
 							%assign %%o %%o + 1
@@ -795,13 +792,11 @@
 		%assign _reg_sp _reg_sp - 1
 	%endmacro
 
-	%macro set_reg 2-4 0, 0
+	%macro set_reg 2-3 ''
 		;rxx
-		;stype
-		;dtype
+		;type 'pppb'
 		%xdefine _reg_%[%1] %2
-		%assign _reg_st_%[%1] %3
-		%assign _reg_dt_%[%1] %4
+		%xdefine _reg_t_%[%1] %3
 	%endmacro
 
 	%macro get_reg 1
@@ -812,8 +807,7 @@
 			%error Register stack overflow !
 		%endif
 		%xdefine _reg _reg_%[%1]
-		%assign _reg_st _reg_st_%[%1]
-		%assign _reg_dt _reg_dt_%[%1]
+		%xdefine _reg_t _reg_t_%[%1]
 	%endmacro
 
 	%macro pop_reg 0
@@ -879,7 +873,7 @@
 		%assign %%n 0
 		%rep _reg_sp
 			get_reg %%n
-			%warning param %%n: _reg, _reg_st, _reg_dt
+			%warning param %%n: _reg, _reg_t, _reg_dt
 			%assign %%n %%n + 1
 		%endrep
 	%endmacro
@@ -891,79 +885,106 @@
 	%macro compile_ref 1
 		get_sym %1
 		%if _sym = -1
-			;try letting NASM handle it
+			;not in symbol table so figure out what it is
 			get_reg _reg_sp
-			set_reg _reg_sp, _reg
-			%ifnidn %1, _reg
+			%ifnum %1
+				;number
+				set_reg _reg_sp, _reg
 				%warning vp_cpy %1, _reg
 				vp_cpy %1, _reg
+			%elifstr %1_t
+				;field/member
+				set_reg _reg_sp, _reg, %1_t
+				%warning vp_cpy %1, _reg
+				vp_cpy %1, _reg
+			%else
+				;equate or register
+				set_reg _reg_sp, _reg
+				%ifnidn %1, _reg
+					%warning vp_cpy %1, _reg
+					vp_cpy %1, _reg
+				%endif
 			%endif
 		%elif _sym_type_%[_sym] = _sym_const
 			;constant
-			compile_const _sym_value_%[_sym]
+			compile_const _sym_value1_%[_sym]
 		%elif _sym_type_%[_sym] = _sym_var
 			;variable
 			get_reg _reg_sp
-			set_reg _reg_sp, _reg, _sym_stype_%[_sym], _sym_dtype_%[_sym]
+			set_reg _reg_sp, _reg, _sym_aux_%[_sym]
 			get_scope_offset _sym_scope_%[_sym]
-			%warning vp_lea [r4 + _scope_offset + _sym_value_%[_sym]], _reg
-			vp_lea [r4 + _scope_offset + _sym_value_%[_sym]], _reg
+			%warning vp_lea [r4 + _scope_offset + _sym_value1_%[_sym]], _reg
+			vp_lea [r4 + _scope_offset + _sym_value1_%[_sym]], _reg
 		%endif
 	%endmacro
 
 	%macro compile_deref 0
 		get_reg _reg_sp
-		%if _reg_st = -8
+		%substr %%t _reg_t 1, 1
+		%ifidn %%t, ''
+			%error Not a reference !
+		%elifidn %%t, 'l'
 			%warning vp_cpy [_reg], _reg
 			vp_cpy [_reg], _reg
-		%elif _reg_st = -4
+		%elifidn %%t, 'i'
 			%warning vp_cpy_i [_reg], _reg
 			vp_cpy_i [_reg], _reg
-		%elif _reg_st = 1
+		%elifidn %%t, 'B'
 			%warning vp_cpy_ub [_reg], _reg
 			vp_cpy_ub [_reg], _reg
-		%elif _reg_st = 8
+		%elifidn %%t, 'L'
 			%warning vp_cpy [_reg], _reg
 			vp_cpy [_reg], _reg
-		%elif _reg_st = 4
+		%elifidn %%t, 'I'
 			%warning vp_cpy_ui [_reg], _reg
 			vp_cpy_ui [_reg], _reg
-		%elif _reg_st = -1
+		%elifidn %%t, 'b'
 			%warning vp_cpy_b [_reg], _reg
 			vp_cpy_b [_reg], _reg
-		%elif _reg_st = -2
+		%elifidn %%t, 's'
 			%warning vp_cpy_s [_reg], _reg
 			vp_cpy_s [_reg], _reg
-		%elif _reg_st = 2
+		%elifidn %%t, 'S'
 			%warning vp_cpy_us [_reg], _reg
 			vp_cpy_us [_reg], _reg
-		%elif _reg_st = 1000000
+		%else
 			%warning vp_cpy [_reg], _reg
 			vp_cpy [_reg], _reg
-		%else
-			%error Not a reference !
 		%endif
-		set_reg _reg_sp, _reg, _reg_dt
+		%substr %%t _reg_t 2, -1
+		set_reg _reg_sp, _reg, %%t
 	%endmacro
 
 	%macro compile_assign 0
 		pop_reg
 		%xdefine %%r _reg
-		%assign %%t _reg_st
+		%substr %%t _reg_t 1, 1
 		pop_value
-		%if %%t = -8 || %%t = 8
+		%ifidn %%t, 'L'
 			%warning vp_cpy _reg, [%%r]
 			vp_cpy _reg, [%%r]
-		%elif %%t = -4 || %%t = 4
+		%elifidn %%t, 'l'
+			%warning vp_cpy _reg, [%%r]
+			vp_cpy _reg, [%%r]
+		%elifidn %%t, 'i'
 			%warning vp_cpy_ui _reg, [%%r]
 			vp_cpy_i _reg, [%%r]
-		%elif %%t = -2 || %%t = 2
+		%elifidn %%t, 'I'
+			%warning vp_cpy_ui _reg, [%%r]
+			vp_cpy_i _reg, [%%r]
+		%elifidn %%t, 's'
 			%warning vp_cpy_us [_reg], _reg
 			vp_cpy_ub [_reg], _reg
-		%elif %%t = -1 || %%t = 1
+		%elifidn %%t, 'S'
+			%warning vp_cpy_us [_reg], _reg
+			vp_cpy_ub [_reg], _reg
+		%elifidn %%t, 'b'
 			%warning vp_cpy_ub [_reg], _reg
 			vp_cpy_ub [_reg], _reg
-		%elif %%t = 1000000
+		%elifidn %%t, 'B'
+			%warning vp_cpy_ub [_reg], _reg
+			vp_cpy_ub [_reg], _reg
+		%elifidn %%t, 'p'
 			%warning vp_cpy _reg, [%%r]
 			vp_cpy _reg, [%%r]
 		%else
@@ -972,24 +993,24 @@
 	%endmacro
 
 	%macro compile_field 0
-		;FIXME needs to set size of field
-		pop_value
+		pop_reg
 		%xdefine %%r _reg
+		%xdefine %%t _reg_t
 		pop_reg
 		%warning vp_lea [_reg + %%r], _reg
 		vp_lea [_reg + %%r], _reg
-		set_reg _reg_sp, _reg, 8
+		set_reg _reg_sp, _reg, %%t
 	%endmacro
 
 	%macro compile_member 0
-		;FIXME needs to set size of member
-		pop_value
+		pop_reg
 		%xdefine %%r _reg
+		%xdefine %%t _reg_t
 		pop_reg
 		compile_deref
 		%warning vp_lea [_reg + %%r], _reg
 		vp_lea [_reg + %%r], _reg
-		set_reg _reg_sp, _reg, 8
+		set_reg _reg_sp, _reg, %%t
 	%endmacro
 
 	%macro compile_uaddrof 0
@@ -1000,7 +1021,7 @@
 
 	%macro compile_deref? 0
 		get_reg _reg_sp
-		%if _reg_st != 0
+		%ifnidn _reg_t, ''
 			compile_deref
 		%endif
 	%endmacro
@@ -1328,8 +1349,6 @@
 
 	%macro eval 2
 		%warning --------------------------------------
-		%warning {%1}, {%2}
-		%warning --------------------------------------
 		set_src %1
 		set_reg_stack %2
 		%if _src_total != _reg_total
@@ -1348,9 +1367,6 @@
 	%endmacro
 
 	%macro retire 2
-		%warning --------------------------------------
-		%warning {%1}, {%2}
-		%warning --------------------------------------
 		set_src %1
 		set_dst %2
 		%if _dst_total != _src_total
@@ -1375,9 +1391,6 @@
 	%endmacro
 
 	%macro assign 2
-		%warning --------------------------------------
-		%warning {%1}, {%2}
-		%warning --------------------------------------
 		set_src %1
 		set_dst %2
 		%if _dst_total != _src_total

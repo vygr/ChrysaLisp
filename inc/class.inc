@@ -185,6 +185,7 @@
 			%fatal Class %1 method %2 is virtual ! Use method_call ?
 		%endif
 		eval {%3}, {_map_%1_in_%[_static_]}
+		%warning static_call %1->%2
 		fn_call _map_%1_slot_%[_static_]
 		retire {_map_%1_out_%[_static_]}, {%4}
 	%endmacro
@@ -199,19 +200,6 @@
 			%fatal Class %1 method %2 is virtual ! Use m_jmp ?
 		%endif
 		map_inputs %1, %2, {%3}, _static_
-		fn_jmp _map_%1_slot_%[_static_]
-	%endmacro
-
-	%macro static_jmp 2-4 {}
-		;%1 = class name
-		;%2 = member name
-		;%3 = in paramaters
-
-		method_lookup %1, %2
-		%ifidn _map_%1_type_%[_static_], virtual
-			%fatal Class %1 method %2 is virtual ! Use method_jmp ?
-		%endif
-		eval {%3}, {_map_%1_in_%[_static_]}
 		fn_jmp _map_%1_slot_%[_static_]
 	%endmacro
 
@@ -278,19 +266,6 @@
 		fn_jmp _map_%[_super_class_%1_]_slot_%[_static_]
 	%endmacro
 
-	%macro super_jmp 2-4 {}
-		;%1 = class name
-		;%2 = member name
-		;%3 = in paramaters
-
-		method_lookup _super_class_%1_, %2
-		%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
-			%fatal Class _super_class_%1_ method %2 is static !
-		%endif
-		eval {%3}, {_map_%[_super_class_%1_]_in_%[_static_]}
-		fn_jmp _map_%[_super_class_%1_]_slot_%[_static_]
-	%endmacro
-
 	%macro super_bind 3
 		;%1 = class name
 		;%2 = member name
@@ -332,6 +307,7 @@
 			%fatal Class %1 method %2 is static ! Use s_call ?
 		%endif
 		eval {%5, %3}, {%5, _map_%1_in_%[_static_]}
+		%warning method_call %1->%2
 		vp_cpy [r0 + obj_vtable], %5
 		vp_call [%5 + _virtual_ * 8]
 		retire {_map_%1_out_%[_static_]}, {%4}
@@ -348,21 +324,6 @@
 			%fatal Class %1 method %2 is static ! Use s_jmp ?
 		%endif
 		map_inputs %1, %2, {%3}, _static_
-		vp_cpy [r0 + obj_vtable], %4
-		vp_jmp [%4 + _virtual_ * 8]
-	%endmacro
-
-	%macro method_jmp 2-5 {}, r15
-		;%1 = class name
-		;%2 = member name
-		;%3 = in paramaters
-		;%4 = dispatch reg
-
-		method_lookup %1, %2
-		%ifidn _map_%1_type_%[_static_], static
-			%fatal Class %1 method %2 is static ! Use s_jmp ?
-		%endif
-		eval {%4, %3}, {%4, _map_%1_in_%[_static_]}
 		vp_cpy [r0 + obj_vtable], %4
 		vp_jmp [%4 + _virtual_ * 8]
 	%endmacro
