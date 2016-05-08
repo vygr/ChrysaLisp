@@ -22,27 +22,27 @@
 					ln_next_fnode r7, r6
 
 					switch
-						vp_cpy [r7 + gui_rect_x], r12
+						vp_cpy_i [r7 + gui_rect_x], r12
 						breakif r12, >=, r10
-						vp_cpy [r7 + gui_rect_y], r13
+						vp_cpy_i [r7 + gui_rect_y], r13
 						breakif r13, >=, r11
-						vp_cpy [r7 + gui_rect_x1], r14
+						vp_cpy_i [r7 + gui_rect_x1], r14
 						breakif r14, <=, r8
-						vp_cpy [r7 + gui_rect_y1], r15
+						vp_cpy_i [r7 + gui_rect_y1], r15
 						breakif r15, <=, r9
 
 						;clip region
 						if r12, <, r8
-							vp_cpy r8, [r7 + gui_rect_x]
+							vp_cpy_i r8, [r7 + gui_rect_x]
 						endif
 						if r13, <, r9
-							vp_cpy r9, [r7 + gui_rect_y]
+							vp_cpy_i r9, [r7 + gui_rect_y]
 						endif
 						if r14, >, r10
-							vp_cpy r10, [r7 + gui_rect_x1]
+							vp_cpy_i r10, [r7 + gui_rect_x1]
 						endif
 						if r15, >, r11
-							vp_cpy r11, [r7 + gui_rect_y1]
+							vp_cpy_i r11, [r7 + gui_rect_y1]
 						endif
 						vp_jmp loop
 					endswitch

@@ -8,10 +8,11 @@
 	fn_function 'test'
 
 		;define variables
-		pulong array
+		pulong task_mailboxes
+		ulong cpu_count
 		push_scope
 
-		set_token_list array[(30*8)].mb_cpu
+		set_token_list task_mailboxes[cpu_count * mailbox_id_size].mb_mbox
 		print_token_list
 		token_to_rpn
 		print_rpn_list

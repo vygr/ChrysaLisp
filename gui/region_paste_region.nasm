@@ -28,10 +28,10 @@
 		loop_flist_forward r1, r1, r1
 			vp_cpy r1, [r4 + local_node]
 
-			vp_cpy [r1 + gui_rect_x], r8
-			vp_cpy [r1 + gui_rect_y], r9
-			vp_cpy [r1 + gui_rect_x1], r10
-			vp_cpy [r1 + gui_rect_y1], r11
+			vp_cpy_i [r1 + gui_rect_x], r8
+			vp_cpy_i [r1 + gui_rect_y], r9
+			vp_cpy_i [r1 + gui_rect_x1], r10
+			vp_cpy_i [r1 + gui_rect_y1], r11
 			vp_cpy [r4 + local_dx], r12
 			vp_cpy [r4 + local_dy], r13
 			vp_add r12, r8

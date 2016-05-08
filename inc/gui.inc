@@ -62,10 +62,10 @@
 	def_structure_end
 
 	def_structure gui_rect, ln_fnode
-		long gui_rect_x
-		long gui_rect_y
-		long gui_rect_x1
-		long gui_rect_y1
+		int gui_rect_x
+		int gui_rect_y
+		int gui_rect_x1
+		int gui_rect_y1
 	def_structure_end
 
 	def_structure gui_ctx

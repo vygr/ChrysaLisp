@@ -34,15 +34,15 @@
 		vp_cpy r1, [r4 + local_texture]
 		vp_add [r0 + gui_ctx_x], r8
 		vp_add [r0 + gui_ctx_y], r9
-		vp_cpy_ui r8, [r4 + local_drect + sdl_rect_x]
-		vp_cpy_ui r9, [r4 + local_drect + sdl_rect_y]
-		vp_cpy_ui r10, [r4 + local_drect + sdl_rect_w]
-		vp_cpy_ui r11, [r4 + local_drect + sdl_rect_h]
+		vp_cpy_i r8, [r4 + local_drect + sdl_rect_x]
+		vp_cpy_i r9, [r4 + local_drect + sdl_rect_y]
+		vp_cpy_i r10, [r4 + local_drect + sdl_rect_w]
+		vp_cpy_i r11, [r4 + local_drect + sdl_rect_h]
 		vp_xor r8, r8
-		vp_cpy_ui r8, [r4 + local_srect + sdl_rect_x]
-		vp_cpy_ui r8, [r4 + local_srect + sdl_rect_y]
-		vp_cpy_ui r10, [r4 + local_srect + sdl_rect_w]
-		vp_cpy_ui r11, [r4 + local_srect + sdl_rect_h]
+		vp_cpy_i r8, [r4 + local_srect + sdl_rect_x]
+		vp_cpy_i r8, [r4 + local_srect + sdl_rect_y]
+		vp_cpy_i r10, [r4 + local_srect + sdl_rect_w]
+		vp_cpy_i r11, [r4 + local_srect + sdl_rect_h]
 
 		;set the color mod
 		vp_cpy r2, r3
@@ -61,16 +61,16 @@
 			vp_cpy r0, [r4 + local_dirty_rect]
 
 			;set clip region to this region
-			vp_cpy [r0 + gui_rect_x], r8
-			vp_cpy [r0 + gui_rect_y], r9
-			vp_cpy [r0 + gui_rect_x1], r10
-			vp_cpy [r0 + gui_rect_y1], r11
+			vp_cpy_i [r0 + gui_rect_x], r8
+			vp_cpy_i [r0 + gui_rect_y], r9
+			vp_cpy_i [r0 + gui_rect_x1], r10
+			vp_cpy_i [r0 + gui_rect_y1], r11
 			vp_sub r8, r10
 			vp_sub r9, r11
-			vp_cpy_ui r8, [r4 + local_clip_rect + sdl_rect_x]
-			vp_cpy_ui r9, [r4 + local_clip_rect + sdl_rect_y]
-			vp_cpy_ui r10, [r4 + local_clip_rect + sdl_rect_w]
-			vp_cpy_ui r11, [r4 + local_clip_rect + sdl_rect_h]
+			vp_cpy_i r8, [r4 + local_clip_rect + sdl_rect_x]
+			vp_cpy_i r9, [r4 + local_clip_rect + sdl_rect_y]
+			vp_cpy_i r10, [r4 + local_clip_rect + sdl_rect_w]
+			vp_cpy_i r11, [r4 + local_clip_rect + sdl_rect_h]
 			vp_cpy [r4 + local_ctx], r0
 			sdl_render_set_clip_rect [r0 + gui_ctx_sdl_ctx], :[r4 + local_clip_rect]
 
