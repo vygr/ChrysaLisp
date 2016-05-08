@@ -1,4 +1,5 @@
 %include 'inc/func.inc'
+%include 'inc/mail.inc'
 
 ;;;;;;;;;;;
 ; test code
@@ -6,30 +7,20 @@
 
 	fn_function 'test'
 
-		;define constants
-		const a, 0
-		const b, 1
-		const c, 2
-		const d, 3
-		const e, 4
-		const f, 5
-
 		;define variables
-		byte bbb
-		ubyte ubbb
-		short sss
-		ushort usss
-		int iii
-		uint uiii
-		long lll
-		ulong ulll
-		struct qqq, long
+		pulong array
+		push_scope
 
-;		set_token_list zzz
-;		print_token_list
-;		token_to_rpn
-;		print_rpn_list
+		set_token_list array[(30*8)].mb_cpu
+		print_token_list
+		token_to_rpn
+		print_rpn_list
 
+		set_reg_stack
+		fill_reg_stack
+		compile_rpn_list
+
+		pop_scope
 		vp_ret
 
 	fn_function_end

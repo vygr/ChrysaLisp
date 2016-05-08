@@ -627,14 +627,14 @@
 		%assign %%i 1
 		%rep %%l * 2
 			%ifnidn %%c, ''
-				sub_string %%c, '@$"-*~!+.?^[<]/%&|=> )('
+				sub_string %%c, '@$"-*~!+.?^</%&|=> )(]['
 				%if %%m = -1
 					;scanning
 					%ifnidn %%c, ' '
-						%if _pos >= 21
+						%if _pos >= 20
 							;)(
 							push_token %%c, _pos
-							%assign %%u _pos - 21
+							%assign %%u (_pos - 20) & 1
 						%elif (_pos = 0 || _pos >= 3)
 							;"-*~!+.?^</%&|=> or symbol
 							%strcat %%p %%p %%c
@@ -647,8 +647,8 @@
 					%defstr %%c
 				%elif %%m > 3
 					;op mode
-					%if _pos >= 21 || _pos < 13
-						;space, )( or not <]/%&|=>
+					%if _pos >= 20 || _pos < 12
+						;space, )( or not </%&|=>
 						%if %%u = 1
 							;unary operator
 							sub_string %%p, '-*&~!'
@@ -737,6 +737,9 @@
 				%ifidn %%t, (
 					%xdefine _op_%[%%o] %%t
 					%assign %%o %%o + 1
+				%elifidn %%t, [
+					%xdefine _op_%[%%o] %%t
+					%assign %%o %%o + 1
 				%elifidn %%t, )
 					%rep %%o
 						%assign %%o %%o - 1
@@ -746,6 +749,16 @@
 							push_rpn _op_%[%%o], -1
 						%endif
 					%endrep
+				%elifidn %%t, ]
+					%rep %%o
+						%assign %%o %%o - 1
+						%ifidn _op_%[%%o], [
+							%exitrep
+						%else
+							push_rpn _op_%[%%o], -1
+						%endif
+					%endrep
+					push_rpn [], -1
 				%else
 					;precidence
 					get_sym %%t

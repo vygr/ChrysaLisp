@@ -233,6 +233,8 @@
 		operator ?, 13, 0, compile_ternary
 		operator (, 14
 		operator ), 14
+		operator [, 14
+		operator ], 14
 		push_scope
 	%endmacro
 
