@@ -61,6 +61,7 @@ class/obj/new
 class/obj/null
 class/progress/create
 class/progress/draw
+class/progress/layout
 class/progress/new
 class/progress/pref_size
 class/progress/set_max
@@ -121,6 +122,7 @@ class/view/set_color
 class/view/set_flags
 class/view/set_owner
 class/view/sub
+class/view/sub_opaque
 class/window/create
 class/window/draw
 class/window/get_panel

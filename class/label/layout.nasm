@@ -24,7 +24,7 @@
 		vp_sub label_border_size * 2, r11
 		s_call flow, change, {[r0 + label_flow], label_border_size, label_border_size, r10, r11}
 
-		vp_cpy [r4 + local_inst], r0
+		s_call label, opaque, {[r4 + local_inst]}
 		vp_add local_size, r4
 		vp_ret
 

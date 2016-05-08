@@ -28,7 +28,7 @@
 		endif
 		s_call flow, change, {[r0 + label_flow], r8, r8, r10, r11}
 
-		vp_cpy [r4 + local_inst], r0
+		s_call button, opaque, {[r4 + local_inst]}
 		vp_add local_size, r4
 		vp_ret
 

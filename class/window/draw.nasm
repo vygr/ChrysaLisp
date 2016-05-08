@@ -9,6 +9,6 @@
 		;trashes
 		;all but r0, r4
 
-		s_jmp window, draw_panel, {r0, r1, 0, window_border_size}
+		s_jmp window, draw_panel, {r0, r1, 1, window_border_size}
 
 	fn_function_end

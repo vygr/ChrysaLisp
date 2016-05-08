@@ -24,7 +24,7 @@
 		vp_sub window_border_size * 2, r11
 		s_call flow, change, {[r0 + window_flow], window_border_size, window_border_size, r10, r11}
 
-		vp_cpy [r4 + local_inst], r0
+		s_call window, opaque, {[r4 + local_inst]}
 		vp_add local_size, r4
 		vp_ret
 

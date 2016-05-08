@@ -11,6 +11,7 @@
 	def_method sub, class/view/sub, static, {r0}
 	def_method add_dirty, class/view/add_dirty, static, {r0, r8, r9, r10, r11}
 	def_method add_opaque, class/view/add_opaque, static, {r0, r8, r9, r10, r11}
+	def_method sub_opaque, class/view/sub_opaque, static, {r0, r8, r9, r10, r11}
 	def_method get_relative, class/view/get_relative, static, {r0, r1, r8, r9}, {r8, r9}
 	def_method dirty, class/view/dirty, static, {r0}
 	def_method dirty_all, class/view/dirty_all, static, {r0}

@@ -58,7 +58,7 @@
 
 		;iterate through views front to back
 		;distribute visible region
-		s_call view, forward_tree, {r0, r0, $null_func_down_callback, $distribute_up_callback}
+		s_call view, forward_tree, {r0, r0, $distribute_down_callback, $null_func_up_callback}
 
 		;iterate through views back to front
 		;drawing each view
@@ -139,17 +139,17 @@
 		vp_pop r1, r0
 		vp_ret
 
-	distribute_up_callback:
+	distribute_down_callback:
 		vp_push r1, r0
 
 		;region heap
 		static_bind gui_gui, statics, r0
 		vp_add gui_statics_rect_heap, r0
 
-		;copy view from root if not root
+		;copy view from parent if not root
 		vp_cpy [r4], r2
-		vp_cpy [r4 + 8], r1
-		if r2, !=, r1
+		if r2, !=, [r4 + 8]
+			vp_cpy [r2 + view_parent], r1
 			vp_cpy [r2 + view_ctx_x], r8
 			vp_cpy [r2 + view_ctx_y], r9
 			vp_cpy [r2 + view_w], r10
@@ -160,11 +160,11 @@
 			vp_add view_dirty_region, r2
 			s_call gui_region, copy_rect, {r0, r1, r2, r8, r9, r10, r11}
 
-			;remove opaque region
+			;remove my opaque region from parent
 			vp_cpy [r4], r1
-			vp_cpy [r4 + 8], r2
 			vp_cpy [r1 + view_ctx_x], r8
 			vp_cpy [r1 + view_ctx_y], r9
+			vp_cpy [r1 + view_parent], r2
 			vp_add view_opaque_region, r1
 			vp_add view_dirty_region, r2
 			s_call gui_region, remove_region, {r0, r1, r2, r8, r9}
