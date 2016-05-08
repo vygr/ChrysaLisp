@@ -26,12 +26,16 @@
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-	mailbox_id_size	equ 16
 	mail_data_size	equ 512
 
 	def_structure ml_mailbox, lh_list
 		struct ml_mailbox_parcel_list, lh_list
 		long ml_mailbox_tcb
+	def_structure_end
+
+	def_structure mailbox_id
+		ulong mb_mbox
+		ulong mb_cpu
 	def_structure_end
 
 	def_structure ml_msg, ln_node

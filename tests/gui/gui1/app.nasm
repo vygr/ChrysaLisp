@@ -102,10 +102,10 @@
 					assign {1}, {msg->sample_mail_command}
 					assign {sample_mail_size}, {msg->ml_msg_length}
 					assign {task_progress [] (cpu_count * long_size)}, {msg->sample_mail_progress}
-					assign {task_mailboxes [] (cpu_count * mailbox_id_size)}, {msg->ml_msg_dest}
-					assign {task_mailboxes [] (cpu_count * mailbox_id_size + long_size)}, {msg->(ml_msg_dest + long_size)}
-					assign {select2}, {msg->sample_mail_reply_id}
-					static_call sys_cpu, id, {}, {msg->(sample_mail_reply_id + long_size)}
+					assign {task_mailboxes [] (cpu_count * mailbox_id_size)}, {msg->ml_msg_dest.mb_mbox}
+					assign {task_mailboxes [] (cpu_count * mailbox_id_size + long_size)}, {msg->ml_msg_dest.mb_cpu}
+					assign {select2}, {msg->sample_mail_reply_id.mb_mbox}
+					static_call sys_cpu, id, {}, {msg->sample_mail_reply_id.mb_cpu}
 					static_call sys_mail, send, {msg}
 				loop_until {!cpu_count}
 			endif
@@ -147,8 +147,8 @@
 			static_call sys_mail, alloc, {}, {msg}
 			assign {0}, {msg->sample_mail_command}
 			assign {sample_mail_size}, {msg->ml_msg_length}
-			assign {task_mailboxes [] (cpu_count * mailbox_id_size)}, {msg->ml_msg_dest}
-			assign {task_mailboxes [] (cpu_count * mailbox_id_size + long_size)}, {msg->(ml_msg_dest + long_size)}
+			assign {task_mailboxes [] (cpu_count * mailbox_id_size)}, {msg->ml_msg_dest.mb_mbox}
+			assign {task_mailboxes [] (cpu_count * mailbox_id_size + long_size)}, {msg->ml_msg_dest.mb_cpu}
 			static_call sys_mail, send, {msg}
 		loop_until {!cpu_count}
 
