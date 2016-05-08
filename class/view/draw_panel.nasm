@@ -21,7 +21,7 @@
 
 		s_call view, get_bounds, {r0}, {r8, r9, r10, r11}
 		vp_cpy r0, r5
-		s_call gui_ctx, panel, {r1, [r5 + view_color], r2, r3, r8, r9, r10, r11}, {}
+		s_call gui_ctx, panel, {r1, [r5 + view_color], r2, r3, 0, 0, r10, r11}, {}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
