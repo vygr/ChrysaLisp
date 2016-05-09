@@ -986,23 +986,23 @@
 			%warning vp_cpy _reg, [%%r]
 			vp_cpy _reg, [%%r]
 		%elifidn %%t, 'i'
-			%warning vp_cpy_ui _reg, [%%r]
+			%warning vp_cpy_i _reg, [%%r]
 			vp_cpy_i _reg, [%%r]
 		%elifidn %%t, 'I'
 			%warning vp_cpy_ui _reg, [%%r]
-			vp_cpy_i _reg, [%%r]
+			vp_cpy_ui _reg, [%%r]
 		%elifidn %%t, 's'
-			%warning vp_cpy_us [_reg], _reg
-			vp_cpy_ub [_reg], _reg
+			%warning vp_cpy_s _reg, [%%r]
+			vp_cpy_s _reg, [%%r]
 		%elifidn %%t, 'S'
-			%warning vp_cpy_us [_reg], _reg
-			vp_cpy_ub [_reg], _reg
+			%warning vp_cpy_us _reg, [%%r]
+			vp_cpy_us _reg, [%%r]
 		%elifidn %%t, 'b'
-			%warning vp_cpy_ub [_reg], _reg
-			vp_cpy_ub [_reg], _reg
+			%warning vp_cpy_b _reg, [%%r]
+			vp_cpy_b _reg, [%%r]
 		%elifidn %%t, 'B'
 			%warning vp_cpy_ub [_reg], _reg
-			vp_cpy_ub [_reg], _reg
+			vp_cpy_ub _reg, [%%r]
 		%elifidn %%t, 'p'
 			%warning vp_cpy _reg, [%%r]
 			vp_cpy _reg, [%%r]
@@ -1444,6 +1444,7 @@
 	%endmacro
 
 	%macro assign 2
+		%warning --------------------------------------
 		set_src %1
 		set_dst %2
 		%if _dst_total != _src_total

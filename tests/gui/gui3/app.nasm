@@ -125,17 +125,40 @@
 		long string1
 		long string2
 		long string
+		pubyte charp
+		ubyte char
 
 		;save inputs
 		push_scope
 		retire {r0, r1}, {inst, button}
 		static_call button, get_text, {button}, {string1}
-		static_call label, get_text, {inst->shared_display}, {string2}
-		static_call string, add, {string2, string1}, {string}
-		static_call label, set_text, {inst->shared_display, string}
-		static_call label, dirty, {inst->shared_display}
+		if {string1->string_length == 2}
+			;AC
+			static_call string, create, {"0"}, {string}
+			static_call label, set_text, {inst->shared_display, string}
+		else
+			assign {&string1->string_data}, {charp}
+			assign {*charp}, {char}
+			if {char >= 48 && char <= 57}
+				;numeral
+				static_call label, get_text, {inst->shared_display}, {string2}
+				assign {&string2->string_data}, {charp}
+				assign {*charp}, {char}
+				if {char == 48}
+					;currently a '0' so clear it
+					static_call string, deref, {string2}
+					static_call string, create, {""}, {string2}
+				endif
+				;append numaral
+				static_call string, add, {string2, string1}, {string}
+				static_call label, set_text, {inst->shared_display, string}
+				static_call string, deref, {string2}
+			else
+				;operator
+			endif
+		endif
 		static_call string, deref, {string1}
-		static_call string, deref, {string2}
+		static_call label, dirty, {inst->shared_display}
 		pop_scope
 		vp_ret
 
