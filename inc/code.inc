@@ -1001,7 +1001,7 @@
 			%warning vp_cpy_b _reg, [%%r]
 			vp_cpy_b _reg, [%%r]
 		%elifidn %%t, 'B'
-			%warning vp_cpy_ub [_reg], _reg
+			%warning vp_cpy_ub _reg, [%%r]
 			vp_cpy_ub _reg, [%%r]
 		%elifidn %%t, 'p'
 			%warning vp_cpy _reg, [%%r]
@@ -1029,8 +1029,7 @@
 		compile_deref
 		%warning vp_lea [_reg + %%r], _reg
 		vp_lea [_reg + %%r], _reg
-;		set_reg _reg_sp, _reg, %%t
-		set_reg _reg_sp, _reg, 'L'
+		set_reg _reg_sp, _reg, %%t
 	%endmacro
 
 	%macro compile_index 0
@@ -1363,6 +1362,7 @@
 
 	%macro compile_const 1
 		get_reg _reg_sp
+		set_reg _reg_sp, _reg
 		%warning vp_cpy %1, _reg
 		vp_cpy %1, _reg
 	%endmacro
