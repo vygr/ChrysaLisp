@@ -99,7 +99,6 @@
 		vp_add [r0 + view_y], r9
 		vp_cpy r8, [r0 + view_ctx_x]
 		vp_cpy r9, [r0 + view_ctx_y]
-		vp_cpy r0, r1
 		vp_ret
 
 	abs_up_callback:
@@ -108,15 +107,23 @@
 		vp_ret
 
 	visible_up_callback:
-		vp_push r1, r0
+		def_structure vis
+			long vis_inst
+			long vis_root
+		def_structure_end
+
+		;save inputs
+		vp_sub vis_size, r4
+		vp_cpy r0, [r4 + vis_inst]
+		vp_cpy r1, [r4 + vis_root]
 
 		;region heap
 		static_bind gui_gui, statics, r0
 		vp_add gui_statics_rect_heap, r0
 
 		;remove opaque region from parent if not root
-		vp_cpy [r4], r1
-		if r1, !=, [r4 + 8]
+		vp_cpy [r4 + vis_inst], r1
+		if r1, !=, [r4 + vis_root]
 			vp_cpy [r1 + view_x], r8
 			vp_cpy [r1 + view_y], r9
 			vp_cpy [r1 + view_parent], r2
@@ -126,9 +133,9 @@
 		endif
 
 		;clip local dirty region with parent bounds if not root
-		vp_cpy [r4], r1
+		vp_cpy [r4 + vis_inst], r1
 		vp_cpy [r1 + view_parent], r2
-		if r1, ==, [r4 + 8]
+		if r1, ==, [r4 + vis_root]
 			vp_cpy r1, r2
 		endif
 		vp_cpy [r1 + view_x], r8
@@ -143,8 +150,8 @@
 		s_call gui_region, clip_rect, {r0, r1, r8, r9, r10, r11}
 
 		;paste local dirty region onto parent if not root
-		vp_cpy [r4], r1
-		if r1, !=, [r4 + 8]
+		vp_cpy [r4 + vis_inst], r1
+		if r1, !=, [r4 + vis_root]
 			vp_cpy [r1 + view_x], r8
 			vp_cpy [r1 + view_y], r9
 			vp_cpy [r1 + view_parent], r2
@@ -153,12 +160,13 @@
 			s_call gui_region, paste_region, {r0, r1, r2, r8, r9}
 
 			;free local dirty region
-			vp_cpy [r4], r1
+			vp_cpy [r4 + vis_inst], r1
 			vp_add view_dirty_region, r1
 			s_call gui_region, free, {r0, r1}
 		endif
 
-		vp_pop r1, r0
+		vp_cpy [r4 + vis_inst], r0
+		vp_add vis_size, r4
 		vp_ret
 
 	distribute_down_callback:
