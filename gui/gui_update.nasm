@@ -12,19 +12,21 @@
 		;all but r4
 
 		def_structure local
+			long local_root
+			long local_ctx_list
+			long local_ctx_next
 			struct local_ctx, gui_ctx
 		def_structure_end
 
+		;save inputs
 		vp_sub local_size, r4
-		static_bind gui_gui, statics, r1
-		vp_cpy [r1 + gui_statics_renderer], r1
-		vp_cpy r1, [r4 + local_ctx + gui_ctx_sdl_ctx]
+		vp_cpy r0, [r4 + local_root]
 
 		;iterate through views back to front
 		;setting abs cords
 		vp_xor r8, r8
 		vp_xor r9, r9
-		s_call view, backward_tree, {r0, r1, $abs_down_callback, $abs_up_callback}
+		s_call view, backward_tree, {r0, r0, $abs_down_callback, $abs_up_callback}
 
 		;iterate through views back to front
 		;create visible region at root
@@ -58,11 +60,31 @@
 
 		;iterate through views front to back
 		;distribute visible region
-		s_call view, forward_tree, {r0, r0, $distribute_down_callback, $null_func_up_callback}
+		vp_cpy_cl 0, [r4 + local_ctx_list]
+		s_call view, forward_tree, {r0, r4, $distribute_down_callback, $distribute_up_callback}
 
-		;iterate through views back to front
-		;drawing each view
-		s_call view, backward_tree, {r0, :[r4 + local_ctx], $draw_down_callback, $null_func_up_callback}
+		;draw all on draw list, and free dirty regions
+		static_bind gui_gui, statics, r1
+		vp_cpy [r1 + gui_statics_renderer], r1
+		vp_cpy r1, [r4 + local_ctx + gui_ctx_sdl_ctx]
+		loop_flist_forward r4 + local_ctx_list, r0, r0
+			vp_cpy r0, [r4 + local_ctx_next]
+			vp_sub view_ctx_node, r0
+			vp_cpy [r0 + view_ctx_x], r8
+			vp_cpy [r0 + view_ctx_y], r9
+			vp_lea [r4 + local_ctx], r1
+			vp_lea [r0 + view_dirty_region], r2
+			vp_cpy r8, [r1 + gui_ctx_x]
+			vp_cpy r9, [r1 + gui_ctx_y]
+			vp_cpy r2, [r1 + gui_ctx_dirty_region]
+			m_call view, draw, {r0, r1}
+			vp_cpy [r4 + local_ctx_next], r1
+			vp_sub view_ctx_node - view_dirty_region, r1
+			static_bind gui_gui, statics, r0
+			vp_add gui_statics_rect_heap, r0
+			s_call gui_region, free, {r0, r1}
+			vp_cpy [r4 + local_ctx_next], r0
+		loop_end
 
 		vp_add local_size, r4
 		vp_ret
@@ -140,15 +162,25 @@
 		vp_ret
 
 	distribute_down_callback:
-		vp_push r1, r0
+		def_structure dist
+			long dist_inst
+			long dist_data
+			long dist_next
+		def_structure_end
+
+		;save inputs
+		vp_sub dist_size, r4
+		vp_cpy r0, [r4 + dist_inst]
+		vp_cpy r1, [r4 + dist_data]
 
 		;region heap
 		static_bind gui_gui, statics, r0
 		vp_add gui_statics_rect_heap, r0
 
 		;copy view from parent if not root
-		vp_cpy [r4], r2
-		if r2, !=, [r4 + 8]
+		vp_cpy [r4 + dist_inst], r2
+		if r2, !=, [r1 + local_root]
+			;copy my area from parent
 			vp_cpy [r2 + view_parent], r1
 			vp_cpy [r2 + view_ctx_x], r8
 			vp_cpy [r2 + view_ctx_y], r9
@@ -160,43 +192,42 @@
 			vp_add view_dirty_region, r2
 			s_call gui_region, copy_rect, {r0, r1, r2, r8, r9, r10, r11}
 
-			;remove my opaque region from parent
-			vp_cpy [r4], r1
-			vp_cpy [r1 + view_ctx_x], r8
-			vp_cpy [r1 + view_ctx_y], r9
-			vp_cpy [r1 + view_parent], r2
-			vp_add view_opaque_region, r1
-			vp_add view_dirty_region, r2
-			s_call gui_region, remove_region, {r0, r1, r2, r8, r9}
+			;did we find any
+			vp_cpy [r4 + dist_inst], r1
+			vp_cpy [r1 + view_dirty_region], r1
+			if r1, !=, 0
+				;remove my opaque region from ancestors
+				vp_cpy [r4 + dist_inst], r2
+				loop_start
+					vp_cpy [r2 + view_parent], r2
+					vp_cpy r2, [r4 + dist_next]
+
+					vp_cpy [r4 + dist_inst], r1
+					vp_cpy [r1 + view_ctx_x], r8
+					vp_cpy [r1 + view_ctx_y], r9
+					vp_add view_opaque_region, r1
+					vp_add view_dirty_region, r2
+					s_call gui_region, remove_region, {r0, r1, r2, r8, r9}
+
+					vp_cpy [r4 + dist_next], r2
+					vp_cpy [r4 + dist_data], r1
+				loop_until r2, ==, [r1 + local_root]
+			endif
 		endif
 
-		vp_pop r1, r0
+		;r1 will be 0 or not depending on haveing any dirty region
+		vp_cpy [r4 + dist_inst], r0
+		vp_add dist_size, r4
 		vp_ret
 
-	draw_down_callback:
-		vp_lea [r0 + view_dirty_region], r2
-		vp_cpy [r2], r3
-		if r3, !=, 0
-			vp_push r0
-
-			;draw myself
-			vp_cpy [r0 + view_ctx_x], r8
-			vp_cpy [r0 + view_ctx_y], r9
-			vp_cpy r8, [r1 + gui_ctx_x]
-			vp_cpy r9, [r1 + gui_ctx_y]
-			vp_cpy r2, [r1 + gui_ctx_dirty_region]
-			m_call view, draw, {r0, r1}
-
-			;free local dirty region
-			vp_cpy [r4], r1
-			vp_add view_dirty_region, r1
-			static_bind gui_gui, statics, r0
-			vp_add gui_statics_rect_heap, r0
-			s_call gui_region, free, {r0, r1}
-
-			vp_pop r0
+	distribute_up_callback:
+		;add myself to draw list if not empty
+		vp_cpy [r0 + view_dirty_region], r2
+		if r2, !=, 0
+			vp_lea [r0 + view_ctx_node], r2
+			vp_add local_ctx_list, r1
+			ln_add_fnode r1, r2, r3
 		endif
-		vp_cpy r0, r1
 		vp_ret
 
 	fn_function_end

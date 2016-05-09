@@ -53,6 +53,7 @@
 		long view_tcb
 		long view_dirty_region
 		long view_opaque_region
+		long view_ctx_node
 		long view_ctx_x
 		long view_ctx_y
 		long view_x
