@@ -14,8 +14,14 @@
 
 	fn_function tests/gui/gui3/app
 
+		buffer_size equ 32
+
 		def_structure shared, obj
 			long shared_display
+			long shared_accum
+			struct shared_buffer, buffer
+			ubyte shared_last_op
+			ubyte shared_last_flag
 		def_structure_end
 
 		struct myapp, shared
@@ -37,6 +43,9 @@
 		push_scope
 		slot_function class, obj
 		static_call obj, init, {&myapp, @_function_}, {_}
+		assign {0}, {myapp.shared_accum}
+		assign {0}, {myapp.shared_last_op}
+		assign {0}, {myapp.shared_last_flag}
 
 		;create my window
 		static_call window, create, {}, {window}
@@ -120,44 +129,102 @@
 		;r0 = app local object
 		;r1 = button object
 
+		const char_zero, 48
+		const char_nine, 57
+		const char_equal, 61
+		const char_plus, 43
+		const char_minus, 45
+		const char_multiply, 42
+		const char_divide, 47
+
 		long inst
 		long button
-		long string1
-		long string2
+		long button_string
+		long display_string
 		long string
+		long value
 		pubyte charp
 		ubyte char
 
 		;save inputs
 		push_scope
 		retire {r0, r1}, {inst, button}
-		static_call button, get_text, {button}, {string1}
-		if {string1->string_length == 2}
+		static_call button, get_text, {button}, {button_string}
+		if {button_string->string_length == 2}
 			;AC
 			static_call string, create, {"0"}, {string}
 			static_call label, set_text, {inst->shared_display, string}
+			assign {0}, {inst->shared_accum}
+			assign {0}, {inst->shared_last_op}
+			assign {0}, {inst->shared_last_flag}
 		else
-			assign {&string1->string_data}, {charp}
+			static_call label, get_text, {inst->shared_display}, {display_string}
+			assign {&button_string->string_data}, {charp}
 			assign {*charp}, {char}
-			if {char >= 48 && char <= 57}
+			if {char >= char_zero && char <= char_nine}
 				;numeral
-				static_call label, get_text, {inst->shared_display}, {string2}
-				assign {&string2->string_data}, {charp}
+				assign {&display_string->string_data}, {charp}
 				assign {*charp}, {char}
-				if {char == 48}
-					;currently a '0' so clear it
-					static_call string, deref, {string2}
-					static_call string, create, {""}, {string2}
+				if {char == char_zero || inst->shared_last_flag != 0}
+					;currently a "0" so clear it
+					static_call string, deref, {display_string}
+					static_call string, create, {""}, {display_string}
+					assign {0}, {inst->shared_last_flag}
 				endif
-				;append numaral
-				static_call string, add, {string2, string1}, {string}
-				static_call label, set_text, {inst->shared_display, string}
-				static_call string, deref, {string2}
+				;append numeral
+				static_call string, add, {display_string, button_string}, {string}
 			else
 				;operator
+				static_call sys_string, to_long, {&display_string->string_data, 10}, {value}
+				if {char == char_plus}
+					;+
+					assign {value}, {inst->shared_accum}
+				else
+					if {char == char_minus}
+						;-
+						assign {value}, {inst->shared_accum}
+					else
+						if {char == char_multiply}
+							;*
+							assign {value}, {inst->shared_accum}
+						else
+							if {char == char_divide}
+								;/
+								assign {value}, {inst->shared_accum}
+							endif
+						endif
+					endif
+				endif
+				if {char == char_equal}
+					if {inst->shared_last_op == char_plus}
+						;+
+						assign {inst->shared_accum + value}, {inst->shared_accum}
+					else
+						if {inst->shared_last_op == char_minus}
+							;-
+							assign {inst->shared_accum - value}, {inst->shared_accum}
+						else
+							if {inst->shared_last_op == char_multiply}
+								;*
+								assign {inst->shared_accum * value}, {inst->shared_accum}
+							else
+								if {inst->shared_last_op == char_divide && value != 0}
+									;/
+									assign {inst->shared_accum / value}, {inst->shared_accum}
+								endif
+							endif
+						endif
+					endif
+				endif
+				assign {char}, {inst->shared_last_flag}
+				assign {char}, {inst->shared_last_op}
+				static_call sys_string, from_long, {inst->shared_accum, &inst->shared_buffer, 10}
+				static_call string, create, {&inst->shared_buffer}, {string}
 			endif
+			static_call label, set_text, {inst->shared_display, string}
+			static_call string, deref, {display_string}
 		endif
-		static_call string, deref, {string1}
+		static_call string, deref, {button_string}
 		static_call label, dirty, {inst->shared_display}
 		pop_scope
 		vp_ret
