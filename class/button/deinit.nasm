@@ -8,7 +8,7 @@
 		;all but r0, r4
 
 		;disconnnect all signals
-		s_call button, disconnect_sig, {r0, :[r0 + button_pressed_signal]}
+		s_call button, disconnect_sig, {r0, &[r0 + button_pressed_signal]}
 
 		;parent deinit
 		p_jmp button, deinit, {r0}

@@ -33,10 +33,10 @@
 			vp_cpy [r6 + string_length], r1
 			vp_add [r7 + string_length], r1
 			vp_cpy r1, [r0 + string_length]
-			s_call sys_mem, copy, {:[r6 + string_data], :[r0 + string_data], [r6 + string_length]}, {_, r1}
+			s_call sys_mem, copy, {&[r6 + string_data], &[r0 + string_data], [r6 + string_length]}, {_, r1}
 			vp_cpy [r7 + string_length], r2
 			vp_inc r2
-			s_call sys_mem, copy, {:[r7 + string_data], r1, r2}, {_, _}
+			s_call sys_mem, copy, {&[r7 + string_data], r1, r2}, {_, _}
 
 			vp_cpy [r4 + local_inst], r0
 		endif

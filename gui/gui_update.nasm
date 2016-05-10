@@ -52,7 +52,7 @@
 
 		;free old region and splice over new region
 		static_bind gui_gui, statics, r5
-		s_call gui_region, free, {:[r5 + gui_statics_rect_heap], :[r5 + gui_statics_old_region]}
+		s_call gui_region, free, {&[r5 + gui_statics_rect_heap], &[r5 + gui_statics_old_region]}
 		vp_pop r1
 		vp_cpy r1, [r5 + gui_statics_old_region]
 		vp_pop r0
