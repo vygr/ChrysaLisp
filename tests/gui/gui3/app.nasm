@@ -183,24 +183,18 @@
 				if {inst->shared_last_op == char_plus}
 					;+
 					assign {inst->shared_accum + inst->shared_value}, {inst->shared_accum}
+				elseif {inst->shared_last_op == char_minus}
+					;-
+					assign {inst->shared_accum - inst->shared_value}, {inst->shared_accum}
+				elseif {inst->shared_last_op == char_multiply}
+					;*
+					assign {inst->shared_accum * inst->shared_value}, {inst->shared_accum}
+				elseif {inst->shared_last_op == char_divide && inst->shared_value != 0}
+					;/
+					assign {inst->shared_accum / inst->shared_value}, {inst->shared_accum}
 				else
-					if {inst->shared_last_op == char_minus}
-						;-
-						assign {inst->shared_accum - inst->shared_value}, {inst->shared_accum}
-					else
-						if {inst->shared_last_op == char_multiply}
-							;*
-							assign {inst->shared_accum * inst->shared_value}, {inst->shared_accum}
-						else
-							if {inst->shared_last_op == char_divide && inst->shared_value != 0}
-								;/
-								assign {inst->shared_accum / inst->shared_value}, {inst->shared_accum}
-							else
-								;equals
-								assign {inst->shared_value}, {inst->shared_accum}
-							endif
-						endif
-					endif
+					;equals
+					assign {inst->shared_value}, {inst->shared_accum}
 				endif
 				if {char == char_equal}
 					assign {inst->shared_accum}, {inst->shared_value}

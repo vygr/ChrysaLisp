@@ -115,46 +115,48 @@
 
 	%macro if 1
 		%push if
+		%assign %$ifcnt 0
 		eval {%1}, {r0}
-		jmpifnot r0, !=, 0, %$ifnot
+		jmpif r0, ==, 0, %$if_%[%$ifcnt]
 	%endmacro
 
 	%macro if 3
 		%push if
-		jmpifnot %1, %2, %3, %$ifnot
-	%endmacro
-
-	%macro ifnot 1
-		%push if
-		eval {%1}, {r0}
-		jmpif r0, !=, 0, %$ifnot
+		%assign %$ifcnt 0
+		jmpifnot %1, %2, %3, %$if_%[%$ifcnt]
 	%endmacro
 
 	%macro ifnot 3
 		%push if
-		jmpif %1, %2, %3, %$ifnot
+		%assign %$ifcnt 0
+		jmpif %1, %2, %3, %$if_%[%$ifcnt]
+	%endmacro
+
+	%macro elseif 1
+		jmp %$if_end
+	%$if_%[%$ifcnt]:
+		%assign %$ifcnt %$ifcnt + 1
+		eval {%1}, {r0}
+		jmpif r0, ==, 0, %$if_%[%$ifcnt]
+	%endmacro
+
+	%macro elseif 3
+		jmp %$if_end
+	%$if_%[%$ifcnt]:
+		%assign %$ifcnt %$ifcnt + 1
+		jmpifnot %1, %2, %3, %$if_%[%$ifcnt]
 	%endmacro
 
 	%macro else 0
-		%ifctx if
-			%repl else
-			vp_jmp %$ifend
-		%$ifnot:
-		%else
-			%error "expected `if' before `else'"
-		%endif
+		jmp %$if_end
+	%$if_%[%$ifcnt]:
+		%assign %$ifcnt %$ifcnt + 1
 	%endmacro
 
 	%macro endif 0
-		%ifctx if
-		%$ifnot:
-			%pop
-		%elifctx else
-		%$ifend:
-			%pop
-		%else
-			%error "expected `if' or `else' before `endif'"
-		%endif
+	%$if_%[%$ifcnt]:
+	%$if_end:
+		%pop
 	%endmacro
 
 	%macro for 4
