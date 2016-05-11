@@ -196,11 +196,10 @@
 					;equals
 					assign {inst->shared_value}, {inst->shared_accum}
 				endif
-				if {char == char_equal}
-					assign {inst->shared_accum}, {inst->shared_value}
+				if {char != char_equal}
+					assign {char}, {inst->shared_last_op}
 				endif
 				assign {0}, {inst->shared_last_flag}
-				assign {char}, {inst->shared_last_op}
 				if {inst->shared_accum < 0}
 					;negative accum
 					static_call sys_string, from_long, {-inst->shared_accum, &inst->shared_buffer, 10}

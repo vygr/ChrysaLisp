@@ -5,7 +5,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function 'test'
+	fn_function 'macros'
 
 		;define variables
 		pulong task_mailboxes
