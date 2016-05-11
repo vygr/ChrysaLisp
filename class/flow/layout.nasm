@@ -150,8 +150,6 @@
 				break
 			case r3, ==, flow_flag_align_hleft
 				vp_xor r8, r8
-				break
-			default
 			endswitch
 		endif
 
@@ -166,8 +164,6 @@
 				break
 			case r3, ==, flow_flag_align_vtop
 				vp_xor r9, r9
-				break
-			default
 			endswitch
 		endif
 

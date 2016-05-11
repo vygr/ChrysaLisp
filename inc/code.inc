@@ -45,118 +45,155 @@
 		%endif
 	%endmacro
 
-	%macro loop_start 0
-		%push loop_begin
-	%$loop_begin:
+	%macro switch 0
+		%push scope
+		%assign %$_cnt 0
+	%$_begin:
 	%endmacro
 
-	%macro loop_end 0
-		continue
-	%$loop_exit:
+	%macro default 0
+	%$_loc_%$_cnt:
+		%assign %$_cnt %$_cnt + 1
+	%endmacro
+
+	%macro endswitch 0
+	%$_end:
+		default
 		%pop
 	%endmacro
 
-	%macro break 0
-		vp_jmp %$loop_exit
-	%endmacro
-
-	%macro continue 0
-		vp_jmp %$loop_begin
-	%endmacro
-
-	%macro continueif 1
+	%macro case 1
+		default
 		eval {%1}, {r0}
-		jmpif r0, !=, 0, %$loop_begin
+		jmpifnot r0, !=, 0, %$_loc_%$_cnt
 	%endmacro
 
-	%macro continueif 3
-		jmpif %1, %2, %3, %$loop_begin
+	%macro case 3
+		default
+		jmpifnot %1, %2, %3, %$_loc_%$_cnt
+	%endmacro
+
+	%macro casenot 1
+		default
+		eval {%1}, {r0}
+		jmpif r0, !=, 0, %$_loc_%$_cnt
+	%endmacro
+
+	%macro casenot 3
+		default
+		jmpif %1, %2, %3, %$_loc_%$_cnt
+	%endmacro
+
+	%macro break 0
+		jmp %$_end
+	%endmacro
+
+	%macro breakif 3
+		jmpif %1, %2, %3, %$_end
 	%endmacro
 
 	%macro breakif 1
 		eval {%1}, {r0}
-		jmpif r0, !=, 0, %$loop_exit
+		breakif r0, !=, 0
+	%endmacro
+
+	%macro breakifnot 3
+		jmpifnot %1, %2, %3, %$_end
 	%endmacro
 
 	%macro breakifnot 1
 		eval {%1}, {r0}
-		jmpif r0, ==, 0, %$loop_exit
+		breakifnot r0, !=, 0
 	%endmacro
 
-	%macro breakif 3
-		jmpif %1, %2, %3, %$loop_exit
+	%macro continue 0
+		jmp %$_begin
 	%endmacro
 
-	%macro loop_until 1
+	%macro continueif 3
+		jmpif %1, %2, %3, %$_begin
+	%endmacro
+
+	%macro continueif 1
 		eval {%1}, {r0}
-		jmpifnot r0, !=, 0, %$loop_begin
-	%$loop_exit:
-		%pop
+		continueif r0, !=, 0
 	%endmacro
 
-	%macro loop_until 3
-		jmpifnot %1, %2, %3, %$loop_begin
-	%$loop_exit:
-		%pop
+	%macro continueifnot 3
+		jmpifnot %1, %2, %3, %$_begin
+	%endmacro
+
+	%macro continueifnot 1
+		eval {%1}, {r0}
+		continueifnot r0, !=, 0
+	%endmacro
+
+	%macro loop_start 0
+		switch
 	%endmacro
 
 	%macro loop_while 3
-		%push loop_begin
-	%$loop_begin:
-		jmpifnot %1, %2, %3, %$loop_exit
+		switch
+		breakifnot %1, %2, %3
 	%endmacro
 
 	%macro loop_while 1
-		%push loop_begin
-	%$loop_begin:
-		eval {%1}, {r0}
-		jmpifnot r0, !=, 0, %$loop_exit
+		switch
+		breakifnot {%1}
+	%endmacro
+
+	%macro loop_end 0
+		continue
+		endswitch
+	%endmacro
+
+	%macro loop_until 1
+		continueifnot {%1}
+		endswitch
+	%endmacro
+
+	%macro loop_until 3
+		continueifnot %1, %2, %3
+		endswitch
 	%endmacro
 
 	%macro if 1
-		%push if
-		%assign %$ifcnt 0
-		eval {%1}, {r0}
-		jmpif r0, ==, 0, %$if_%[%$ifcnt]
+		switch
+		case {%1}
 	%endmacro
 
 	%macro if 3
-		%push if
-		%assign %$ifcnt 0
-		jmpifnot %1, %2, %3, %$if_%[%$ifcnt]
+		switch
+		case %1, %2, %3
+	%endmacro
+
+	%macro ifnot 1
+		switch
+		casenot {%1}
 	%endmacro
 
 	%macro ifnot 3
-		%push if
-		%assign %$ifcnt 0
-		jmpif %1, %2, %3, %$if_%[%$ifcnt]
+		switch
+		casenot %1, %2, %3
 	%endmacro
 
 	%macro elseif 1
-		jmp %$if_end
-	%$if_%[%$ifcnt]:
-		%assign %$ifcnt %$ifcnt + 1
-		eval {%1}, {r0}
-		jmpif r0, ==, 0, %$if_%[%$ifcnt]
+		break
+		case {%1}
 	%endmacro
 
 	%macro elseif 3
-		jmp %$if_end
-	%$if_%[%$ifcnt]:
-		%assign %$ifcnt %$ifcnt + 1
-		jmpifnot %1, %2, %3, %$if_%[%$ifcnt]
+		break
+		case %1, %2, %3
 	%endmacro
 
 	%macro else 0
-		jmp %$if_end
-	%$if_%[%$ifcnt]:
-		%assign %$ifcnt %$ifcnt + 1
+		break
+		default
 	%endmacro
 
 	%macro endif 0
-	%$if_%[%$ifcnt]:
-	%$if_end:
-		%pop
+		endswitch
 	%endmacro
 
 	%macro for 4
@@ -170,26 +207,6 @@
 	%macro next 0
 			vp_add %$_step, %$_reg
 		loop_end
-	%endmacro
-
-	%macro switch 0
-		%push switch
-		%assign %$_curr 1
-	%endmacro
-
-	%macro case 3
-	%$loc%$_curr:
-		%assign %$_curr %$_curr+1
-		jmpifnot %1, %2, %3, %$loc%$_curr
-	%endmacro
-
-	%macro default 0
-	%$loc%$_curr:
-	%endmacro
-
-	%macro endswitch 0
-	%$loop_exit:
-		%pop
 	%endmacro
 
 ;;;;;;;;;;;;;;;;;

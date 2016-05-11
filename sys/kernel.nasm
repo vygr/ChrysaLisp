@@ -218,8 +218,6 @@
 					vp_cpy r1, [r0 + ml_msg_dest]
 					vp_cpy r2, [r0 + ml_msg_dest + 8]
 					s_call sys_mail, send, {r0}
-					break
-				default
 				endswitch
 			loop_end
 
