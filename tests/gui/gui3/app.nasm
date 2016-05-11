@@ -131,13 +131,13 @@
 		;r0 = app local object
 		;r1 = button object
 
-		const char_zero, 48
-		const char_nine, 57
-		const char_equal, 61
-		const char_plus, 43
-		const char_minus, 45
-		const char_multiply, 42
-		const char_divide, 47
+		const char_zero, '0'
+		const char_nine, '9'
+		const char_equal, '='
+		const char_plus, '+'
+		const char_minus, '-'
+		const char_multiply, '*'
+		const char_divide, '/'
 
 		long inst
 		long button
