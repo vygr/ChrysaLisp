@@ -104,7 +104,7 @@
 							vp_cpy [r3 + lk_node_task_count], r1
 						endif
 					loop_end
-					jmpif r0, ==, r5, run_here
+					vp_jmpif r0, ==, r5, run_here
 
 					;send to better kernel
 					vp_cpy r0, [r15 + (ml_msg_dest + 8)]

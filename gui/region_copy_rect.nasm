@@ -34,10 +34,10 @@
 					ln_add_fnode r5, r1, r2
 
 					;jump to correct splitting code
-					jmpif r12, >=, r8, copy_split1
-					jmpif r13, >=, r9, copy_split2
-					jmpif r10, >=, r14, copy_split4
-					jmpif r11, >=, r15, copy_xyx1
+					vp_jmpif r12, >=, r8, copy_split1
+					vp_jmpif r13, >=, r9, copy_split2
+					vp_jmpif r10, >=, r14, copy_split4
+					vp_jmpif r11, >=, r15, copy_xyx1
 
 				copy_xyx1y1:
 					;r8 + r9 + r10 + r11 inside
@@ -49,9 +49,9 @@
 
 				copy_split1:
 					;jump to correct splitting code
-					jmpif r13, >=, r9, copy_split3
-					jmpif r10, >=, r14, copy_split5
-					jmpif r11, >=, r15, copy_yx1
+					vp_jmpif r13, >=, r9, copy_split3
+					vp_jmpif r10, >=, r14, copy_split5
+					vp_jmpif r11, >=, r15, copy_yx1
 
 				copy_yx1y1:
 					;r9 + r10 + r11 inside
@@ -63,8 +63,8 @@
 
 				copy_split2:
 					;jump to correct splitting code
-					jmpif r10, >=, r14, copy_split6
-					jmpif r11, >=, r15, copy_xx1
+					vp_jmpif r10, >=, r14, copy_split6
+					vp_jmpif r11, >=, r15, copy_xx1
 
 				copy_xx1y1:
 					;r8 + r10 + r11 inside
@@ -76,8 +76,8 @@
 
 				copy_split3:
 					;jump to correct splitting code
-					jmpif r10, >=, r14, copy_split7
-					jmpif r11, >=, r15, copy_x1
+					vp_jmpif r10, >=, r14, copy_split7
+					vp_jmpif r11, >=, r15, copy_x1
 
 				copy_x1y1:
 					;r10 + r11 inside
@@ -89,7 +89,7 @@
 
 				copy_split4:
 					;jump to correct splitting code
-					jmpif r11, >=, r15, copy_xy
+					vp_jmpif r11, >=, r15, copy_xy
 
 				copy_xyy1:
 					;r8 + r9 + r11 inside
@@ -101,7 +101,7 @@
 
 				copy_split5:
 					;jump to correct splitting code
-					jmpif r11, >=, r15, copy_y
+					vp_jmpif r11, >=, r15, copy_y
 
 				copy_yy1:
 					;r9 + r11 inside
@@ -113,7 +113,7 @@
 
 				copy_split6:
 					;jump to correct splitting code
-					jmpif r11, >=, r15, copy_x
+					vp_jmpif r11, >=, r15, copy_x
 
 				copy_xy1:
 					;r8 + r11 inside
@@ -125,7 +125,7 @@
 
 				copy_split7:
 					;jump to correct splitting code
-					jmpif r11, >=, r15, copy_encl
+					vp_jmpif r11, >=, r15, copy_encl
 
 				copy_y1:
 					;r11 inside

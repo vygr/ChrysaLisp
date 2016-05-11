@@ -335,6 +335,44 @@
 		jmp %1
 	%endmacro
 
+	%macro vp_jmpif 4
+			cmp %1, %3
+		%ifidn %2, ==
+			je %4
+		%elifidn %2, !=
+			jne %4
+		%elifidn %2, <
+			jl %4
+		%elifidn %2, >
+			jg %4
+		%elifidn %2, <=
+			jle %4
+		%elifidn %2, >=
+			jge %4
+		%else
+			%fatal No such conditional %2 !
+		%endif
+	%endmacro
+
+	%macro vp_jmpifnot 4
+			cmp %1, %3
+		%ifidn %2, ==
+			jne %4
+		%elifidn %2, !=
+			je %4
+		%elifidn %2, <
+			jge %4
+		%elifidn %2, >
+			jle %4
+		%elifidn %2, <=
+			jg %4
+		%elifidn %2, >=
+			jl %4
+		%else
+			%fatal No such conditional %2 !
+		%endif
+	%endmacro
+
 	%macro vp_push 1-*
 		%rep %0
 			push %1

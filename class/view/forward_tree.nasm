@@ -61,7 +61,7 @@
 			vp_sub view_node, r1
 
 			ln_get_pred r1 + view_node, r2
-			jmpif r2, !=, 0, down_loop_ctx
+			vp_jmpif r2, !=, 0, down_loop_ctx
 
 			;up to parent
 			vp_cpy [r0 + view_parent], r0

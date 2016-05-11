@@ -20,7 +20,7 @@
 
 		;disconnect slots
 		loop_list_forward r7 + component_slot_list, r2, r3
-			jmpif r6, ==, 0, freeit
+			vp_jmpif r6, ==, 0, freeit
 			continueif r6, !=, [r2 + gui_sigslot_addr]
 		freeit:
 			assert r7, ==, [r2 + gui_sigslot_inst]

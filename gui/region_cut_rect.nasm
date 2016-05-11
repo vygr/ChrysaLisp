@@ -30,10 +30,10 @@
 					continueif r9, >=, r15
 
 					;jump to correct splitting code
-					jmpif r12, >=, r8, cut_split1
-					jmpif r13, >=, r9, cut_split2
-					jmpif r10, >=, r14, cut_split4
-					jmpif r11, >=, r15, cut_xyx1
+					vp_jmpif r12, >=, r8, cut_split1
+					vp_jmpif r13, >=, r9, cut_split2
+					vp_jmpif r10, >=, r14, cut_split4
+					vp_jmpif r11, >=, r15, cut_xyx1
 
 				cut_xyx1y1:
 					;r8 + r9 + r10 + r11 inside
@@ -75,9 +75,9 @@
 
 				cut_split1:
 					;jump to correct splitting code
-					jmpif r13, >=, r9, cut_split3
-					jmpif r10, >=, r14, cut_split5
-					jmpif r11, >=, r15, cut_yx1
+					vp_jmpif r13, >=, r9, cut_split3
+					vp_jmpif r10, >=, r14, cut_split5
+					vp_jmpif r11, >=, r15, cut_yx1
 
 				cut_yx1y1:
 					;r9 + r10 + r11 inside
@@ -111,8 +111,8 @@
 
 				cut_split2:
 					;jump to correct splitting code
-					jmpif r10, >=, r14, cut_split6
-					jmpif r11, >=, r15, cut_xx1
+					vp_jmpif r10, >=, r14, cut_split6
+					vp_jmpif r11, >=, r15, cut_xx1
 
 				cut_xx1y1:
 					;r8 + r10 + r11 inside
@@ -146,8 +146,8 @@
 
 				cut_split3:
 					;jump to correct splitting code
-					jmpif r10, >=, r14, cut_split7
-					jmpif r11, >=, r15, cut_x1
+					vp_jmpif r10, >=, r14, cut_split7
+					vp_jmpif r11, >=, r15, cut_x1
 
 				cut_x1y1:
 					;r10 + r11 inside
@@ -173,7 +173,7 @@
 
 				cut_split4:
 					;jump to correct splitting code
-					jmpif r11, >=, r15, cut_xy
+					vp_jmpif r11, >=, r15, cut_xy
 
 				cut_xyy1:
 					;r8 + r9 + r11 inside
@@ -207,7 +207,7 @@
 
 				cut_split5:
 					;jump to correct splitting code
-					jmpif r11, >=, r15, cut_y
+					vp_jmpif r11, >=, r15, cut_y
 
 				cut_yy1:
 					;r9 + r11 inside
@@ -233,7 +233,7 @@
 
 				cut_split6:
 					;jump to correct splitting code
-					jmpif r11, >=, r15, cut_x
+					vp_jmpif r11, >=, r15, cut_x
 
 				cut_xy1:
 					;r8 + r11 inside
@@ -259,7 +259,7 @@
 
 				cut_split7:
 					;jump to correct splitting code
-					jmpif r11, >=, r15, cut_encl
+					vp_jmpif r11, >=, r15, cut_encl
 
 				cut_y1:
 					;r11 inside

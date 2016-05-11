@@ -7,44 +7,6 @@
 ; structured codeing
 ;;;;;;;;;;;;;;;;;;;;
 
-	%macro jmpif 4
-			cmp %1, %3
-		%ifidn %2, ==
-			je %4
-		%elifidn %2, !=
-			jne %4
-		%elifidn %2, <
-			jl %4
-		%elifidn %2, >
-			jg %4
-		%elifidn %2, <=
-			jle %4
-		%elifidn %2, >=
-			jge %4
-		%else
-			%fatal No such conditional %2 !
-		%endif
-	%endmacro
-
-	%macro jmpifnot 4
-			cmp %1, %3
-		%ifidn %2, ==
-			jne %4
-		%elifidn %2, !=
-			je %4
-		%elifidn %2, <
-			jge %4
-		%elifidn %2, >
-			jle %4
-		%elifidn %2, <=
-			jg %4
-		%elifidn %2, >=
-			jl %4
-		%else
-			%fatal No such conditional %2 !
-		%endif
-	%endmacro
-
 	%macro switch 0
 		%push scope
 		%assign %$_cnt 0
@@ -65,31 +27,31 @@
 	%macro case 1
 		default
 		eval {%1}, {r0}
-		jmpifnot r0, !=, 0, %$_loc_%$_cnt
+		vp_jmpifnot r0, !=, 0, %$_loc_%$_cnt
 	%endmacro
 
 	%macro case 3
 		default
-		jmpifnot %1, %2, %3, %$_loc_%$_cnt
+		vp_jmpifnot %1, %2, %3, %$_loc_%$_cnt
 	%endmacro
 
 	%macro casenot 1
 		default
 		eval {%1}, {r0}
-		jmpif r0, !=, 0, %$_loc_%$_cnt
+		vp_jmpif r0, !=, 0, %$_loc_%$_cnt
 	%endmacro
 
 	%macro casenot 3
 		default
-		jmpif %1, %2, %3, %$_loc_%$_cnt
+		vp_jmpif %1, %2, %3, %$_loc_%$_cnt
 	%endmacro
 
 	%macro break 0
-		jmp %$_end
+		vp_jmp %$_end
 	%endmacro
 
 	%macro breakif 3
-		jmpif %1, %2, %3, %$_end
+		vp_jmpif %1, %2, %3, %$_end
 	%endmacro
 
 	%macro breakif 1
@@ -98,7 +60,7 @@
 	%endmacro
 
 	%macro breakifnot 3
-		jmpifnot %1, %2, %3, %$_end
+		vp_jmpifnot %1, %2, %3, %$_end
 	%endmacro
 
 	%macro breakifnot 1
@@ -107,11 +69,11 @@
 	%endmacro
 
 	%macro continue 0
-		jmp %$_begin
+		vp_jmp %$_begin
 	%endmacro
 
 	%macro continueif 3
-		jmpif %1, %2, %3, %$_begin
+		vp_jmpif %1, %2, %3, %$_begin
 	%endmacro
 
 	%macro continueif 1
@@ -120,7 +82,7 @@
 	%endmacro
 
 	%macro continueifnot 3
-		jmpifnot %1, %2, %3, %$_begin
+		vp_jmpifnot %1, %2, %3, %$_begin
 	%endmacro
 
 	%macro continueifnot 1
