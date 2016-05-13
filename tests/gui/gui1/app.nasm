@@ -48,7 +48,6 @@
 		;add my panel
 		static_call flow, create, {}, {panel}
 		static_call flow, set_flow_flags, {panel, flow_flag_down | flow_flag_fillw}
-		static_call flow, set_color, {panel, 0}
 		static_call flow, add, {panel, window_panel}
 
 		;allocate array for progress bars

@@ -43,7 +43,6 @@
 		;add my app panel
 		static_call flow, create, {}, {panel}
 		static_call flow, set_flow_flags, {panel, flow_flag_down | flow_flag_fillw}
-		static_call flow, set_color, {panel, 0}
 		static_call flow, add, {panel, window_panel}
 
 		;add launch buttons to my app panel
@@ -104,7 +103,7 @@
 		push_scope
 		retire {r0, r1}, {inst, button}
 		static_call button, get_text, {button}, {string}
-		static_call sys_task, open_child, {&string->string_data}, {_, _}
+		static_call sys_task, open, {&string->string_data}, {_, _}
 		static_call string, deref, {string}
 		pop_scope
 		vp_ret
@@ -114,6 +113,9 @@
 		db 'tests/array', 0
 		db 'tests/pipe', 0
 		db 'tests/global', 0
+		db 'tests/gui/gui1/app',0
+		db 'tests/gui/gui3/app',0
+		db 'forth/forth', 0
 		db 0
 
 	fn_function_end

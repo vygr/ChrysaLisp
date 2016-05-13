@@ -23,7 +23,6 @@
 			s_call flow, create, {}, {r0}
 			assert r0, !=, 0
 			s_call flow, set_flow_flags, {r0, flow_flag_down | flow_flag_fillw | flow_flag_lasth}
-			s_call flow, set_color, {r0, -1}
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_flow]
 			s_call flow, add, {r0, r1}
@@ -40,7 +39,6 @@
 			s_call flow, create, {}, {r0}
 			assert r0, !=, 0
 			s_call flow, set_flow_flags, {r0, flow_flag_up | flow_flag_fillw | flow_flag_lasth}
-			s_call flow, set_color, {r0, -1}
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_panel]
 			s_call flow, add, {r0, [r1 + window_flow]}

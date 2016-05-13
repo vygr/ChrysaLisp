@@ -60,7 +60,6 @@
 		;add my app flow panel
 		static_call flow, create, {}, {flow_panel}
 		static_call flow, set_flow_flags, {flow_panel, flow_flag_down | flow_flag_fillw | flow_flag_lasth}
-		static_call flow, set_color, {flow_panel, 0x00000000}
 		static_call flow, add, {flow_panel, window_panel}
 
 		;add my display label
