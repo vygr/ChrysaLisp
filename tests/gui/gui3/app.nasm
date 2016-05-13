@@ -73,7 +73,6 @@
 
 		;add my app grid panel
 		static_call grid, create, {}, {grid_panel}
-		static_call grid, set_color, {grid_panel, 0x00000000}
 		static_call grid, set_grid, {grid_panel, 4, 4}
 		static_call grid, add, {grid_panel, flow_panel}
 
