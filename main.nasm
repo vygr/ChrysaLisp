@@ -69,6 +69,7 @@ sdl_func_table:
 	dq _SDL_SetRenderDrawBlendMode
 	dq _SDL_PumpEvents
 	dq _SDL_GetMouseState
+	dq _SDL_GetKeyboardState
 	dq _SDL_RenderDrawRect
 	dq _SDL_FreeSurface
 	dq _SDL_CreateTextureFromSurface
@@ -102,6 +103,7 @@ sdl_func_table:
 	dq SDL_SetRenderDrawBlendMode
 	dq SDL_PumpEvents
 	dq SDL_GetMouseState
+	dq SDL_GetKeyboardState
 	dq SDL_RenderDrawRect
 	dq SDL_FreeSurface
 	dq SDL_CreateTextureFromSurface

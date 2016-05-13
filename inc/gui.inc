@@ -59,6 +59,8 @@
 		long gui_statics_last_y_pos
 		long gui_statics_last_buttons
 		long gui_statics_last_view
+		long gui_statics_keymap
+		long gui_statics_keymap_size
 	def_structure_end
 
 	def_structure gui_rect, ln_fnode

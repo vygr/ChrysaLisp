@@ -27,9 +27,7 @@
 
 		;for now fire up the test apps
 		;this might be an gui auto run list eventually
-		s_call sys_task, start, {@tests/gui/gui1/app}, {r0, r1}
 		s_call sys_task, start, {@tests/gui/gui2/app}, {r0, r1}
-		s_call sys_task, start, {@tests/gui/gui3/app}, {r0, r1}
 
 		;gui event loop
 		loop_start
@@ -40,7 +38,32 @@
 			;frame rate of gui updates
 			s_call sys_task, sleep, {1000000 / 60}
 
-			;get mouse info, see if any change
+			;get keyboard info, see if any changes
+			static_bind gui_gui, statics, r5
+			vp_cpy [r5 + gui_statics_keymap], r0
+			vp_cpy [r5 + gui_statics_keymap_size], r1
+			vp_cpy_ub [r0 + 0xe1], r8
+			vp_cpy_ub [r0 + 0xe5], r9
+			vp_or r8, r9
+			loop_while r1, !=, 0
+				vp_dec r1
+				vp_cpy_ub [r0 + r1], r8
+				if r8, !=, 0
+;					fn_debug_long "Key Scancode = ", r1
+					vp_rel scan_codes, r2
+					vp_rel scan_codes_end, r3
+					loop_start
+						vp_cpy_ub [r2], r8
+						if r8, ==, r1
+							vp_cpy_ub [r2 + r9 + 1], r8
+							fn_debug_long "Key = ", r8
+						endif
+						vp_add 3, r2
+					loop_until r2, >=, r3
+				endif
+			loop_end
+
+			;get mouse info, see if any changes
 			static_bind gui_gui, statics, r5
 			vp_cpy [r5 + gui_statics_x_pos], r8
 			vp_cpy [r5 + gui_statics_y_pos], r9
@@ -174,6 +197,14 @@
 			vp_add gui_statics_buttons, r1
 			vp_cpy r0, [r1]
 
+			;get keyboard state
+			static_bind gui_gui, statics, r0
+			vp_lea [r0 + gui_statics_keymap_size], r1
+			sdl_get_keyboard_state r1
+			static_bind gui_gui, statics, r1
+			vp_add gui_statics_keymap, r1
+			vp_cpy r0, [r1]
+
 			;update the screen
 			static_bind gui_gui, statics, r0
 			s_call gui_gui, update, {[r0 + gui_statics_screen]}
@@ -188,5 +219,25 @@
 
 	title:
 		db 'Asm Kernel GUI Window', 0
+
+	scan_codes:
+		db 4, 'aA', 5, 'bB', 6, 'cC', 7, 'dD', 8, 'eE', 9, 'fF', 10, 'gG', 11, 'hH'
+		db 12, 'iI', 13, 'jJ', 14, 'kK', 15, 'lL', 16, 'mM', 17, 'nN', 18, 'oO', 19, 'pP'
+		db 20, 'qQ', 21, 'rR', 22, 'sS', 23, 'tT', 24, 'uU', 25, 'vV', 26, 'wW', 27, 'xX'
+		db 28, 'yY', 29, 'zZ', 30, '1!', 31, '2@', 32, '3#', 33, '4$', 34, '5%', 35, '6^'
+		db 36, '7&', 37, '8*', 38, '9(', 39, '0)', 45, '-_', 46, '=+', 47, '[{', 48, ']}'
+		db 49, '\|', 50, '  ', 51, ';:', 52, "'", '"', 53, '`~', 54, ',<', 55, '.>', 56, '/?'
+		db 40, 13, 13	;return
+		db 41, 27, 13	;escape
+		db 42, 128, 128	;backspace
+		db 43, 9, 9		;tab
+		db 44, 32, 32	;space
+		db 0xe1, 0, 0	;left shift
+		db 0xe5, 0, 0	;right shift
+		db 0x50, 0, 0	;left
+		db 0x4f, 0, 0	;right
+		db 0x52, 0, 0	;up
+		db 0x51, 0, 0	;down
+	scan_codes_end:
 
 	fn_function_end

@@ -26,6 +26,7 @@
 	extern _SDL_SetRenderDrawBlendMode
 	extern _SDL_PumpEvents
 	extern _SDL_GetMouseState
+	extern _SDL_GetKeyboardState
 	extern _SDL_RenderDrawRect
 	extern _SDL_FreeSurface
 	extern _SDL_CreateTextureFromSurface
@@ -59,6 +60,7 @@
 	extern SDL_SetRenderDrawBlendMode
 	extern SDL_PumpEvents
 	extern SDL_GetMouseState
+	extern SDL_GetKeyboardState
 	extern SDL_RenderDrawRect
 	extern SDL_FreeSurface
 	extern SDL_CreateTextureFromSurface
@@ -93,6 +95,7 @@
 		byte sdl_SDL_SetRenderDrawBlendMode
 		byte sdl_SDL_PumpEvents
 		byte sdl_SDL_GetMouseState
+		byte sdl_SDL_GetKeyboardState
 		byte sdl_SDL_RenderDrawRect
 		byte sdl_SDL_FreeSurface
 		byte sdl_SDL_CreateTextureFromSurface
@@ -304,6 +307,14 @@
 		set_dst r7, r6
 		map_src_to_dst
 		sdl_call sdl_SDL_GetMouseState
+	%endmacro
+
+	%macro sdl_get_keyboard_state 1
+		;*int
+		set_src %1
+		set_dst r7
+		map_src_to_dst
+		sdl_call sdl_SDL_GetKeyboardState
 	%endmacro
 
 	%macro sdl_free_surface 1

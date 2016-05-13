@@ -1,4 +1,98 @@
 %include 'inc/func.inc'
+%include 'inc/gui.inc'
+%include 'inc/string.inc'
+%include 'class/class_window.inc'
+%include 'class/class_flow.inc'
+%include 'class/class_label.inc'
+%include 'class/class_string.inc'
+
+	fn_function forth/forth
+
+		struct myapp, obj
+		long msg
+		long window
+		long window_panel
+		long label
+		long panel
+		pubyte next
+		long string
+		long length
+		long width
+		long height
+		long owner
+
+		;init app vars
+		push_scope
+		slot_function class, obj
+		static_call obj, init, {&myapp, @_function_}, {_}
+
+		;create my window
+		static_call window, create, {}, {window}
+		static_call window, get_panel, {window}, {window_panel}
+		static_call string, create, {"Terminal"}, {string}
+		static_call window, set_title, {window, string}
+		static_call string, create, {"Status Text"}, {string}
+		static_call window, set_status, {window, string}
+
+		;add my app panel
+		static_call flow, create, {}, {panel}
+		static_call flow, set_flow_flags, {panel, flow_flag_down | flow_flag_fillw}
+		static_call flow, add, {panel, window_panel}
+
+		;add terminal lines to my app panel
+		assign {$line_list}, {next}
+		loop_start
+			breakifnot {*next}
+
+			static_call label, create, {}, {label}
+			static_call string, create, {next}, {string}
+			static_call label, set_text, {label, string}
+			static_call label, set_color, {label, 0xff000000}
+			static_call label, set_text_color, {label, 0xff00ff00}
+			static_call label, set_font, {label, "fonts/OpenSans-Regular.ttf", 12}
+			static_call label, add, {label, panel}
+
+			static_call sys_string, length, {next}, {length}
+			assign {next + length + 1}, {next}
+		loop_end
+
+		;set to pref size
+		method_call window, pref_size, {window}, {width, height}
+		static_call window, change, {window, 0, 0, 640, height}
+
+		;set window owner
+		static_call sys_task, tcb, {}, {owner}
+		static_call window, set_owner, {window, owner}
+
+		;add to screen and dirty
+		static_call gui_gui, add, {window}
+		static_call window, dirty_all, {window}
+
+		;app event loop
+		loop_start
+			static_call sys_mail, mymail, {}, {msg}
+
+			;dispatch event to view
+			method_call view, event, {msg->ev_data_view, msg}
+
+			;free event message
+			static_call sys_mem, free, {msg}
+		loop_end
+
+		;deref window
+		static_call window, deref, {window}
+		method_call obj, deinit, {&myapp}
+		pop_scope
+		vp_ret
+
+	line_list:
+		%rep 37
+			db '>', 0
+		%endrep
+		db '>Forth Terminal', 0
+		db '>(C) C.A.Hinsley 2016', 0
+		db '>', 0
+		db 0
 
 ;;;;;;;;;;
 ; forth vm
@@ -99,12 +193,6 @@
 			vp_ret
 		defword_end
 	%endm
-
-;;;;;;;
-; forth
-;;;;;;;
-
-	fn_function forth/forth
 
 ;;;;;;;;;;;;;;
 ; memory words
