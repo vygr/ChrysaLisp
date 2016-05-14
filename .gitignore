@@ -260,3 +260,7 @@ tests/pipe
 tests/pipe_child
 
 forth/forth
+
+sys/mem_fill
+
+sys/mem_xor

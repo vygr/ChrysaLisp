@@ -94,7 +94,7 @@
 		vp_add r12, r11
 
 		;clear tx channel
-		s_call sys_mem, clear, {r10, lk_chan_size}
+		s_call sys_mem, clear, {r10, lk_chan_size}, {_}
 
 		;read and write messages through the shared buffer in r12
 		vp_xor r9, r9

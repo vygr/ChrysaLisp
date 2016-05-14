@@ -21,7 +21,7 @@
 			vp_cpy r1, r8
 
 			;clear it to empty
-			s_call sys_mem, clear, {r0, r1}
+			s_call sys_mem, clear, {r0, r1}, {_}
 
 			if r6, !=, 0
 				;copy over old data
