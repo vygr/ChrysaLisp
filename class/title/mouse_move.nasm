@@ -52,8 +52,8 @@
 		vp_sub [r4 + local_old_y], r9
 		vp_mul -1, r8
 		vp_mul -1, r9
-		vp_add view_dirty_region, r0
-		s_call gui_region, translate, {r0, r8, r9}
+		vp_lea [r0 + view_dirty_region], r1
+		s_call gui_region, translate, {r1, r8, r9}
 		s_call window, dirty_all, {[r4 + local_window]}
 
 		vp_cpy [r4 + local_inst], r0

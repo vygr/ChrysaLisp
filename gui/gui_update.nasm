@@ -110,6 +110,8 @@
 		def_structure vis
 			long vis_inst
 			long vis_root
+			long vis_next
+			long vis_region
 		def_structure_end
 
 		;save inputs
@@ -121,15 +123,59 @@
 		static_bind gui_gui, statics, r0
 		vp_add gui_statics_rect_heap, r0
 
-		;remove opaque region from parent if not root
+		;remove opaque region from ancestors if not root
 		vp_cpy [r4 + vis_inst], r1
 		if r1, !=, [r4 + vis_root]
+			;remove my opaque region from ancestors
+			vp_cpy_cl 0, [r4 + vis_region]
+
+			;first copy any opaque region
 			vp_cpy [r1 + view_x], r8
 			vp_cpy [r1 + view_y], r9
 			vp_cpy [r1 + view_parent], r2
+			vp_cpy [r2 + view_w], r10
+			vp_cpy [r2 + view_h], r11
+			vp_mul -1, r8
+			vp_mul -1, r9
+			vp_add r8, r10
+			vp_add r9, r11
 			vp_add view_opaque_region, r1
-			vp_add view_dirty_region, r2
-			s_call gui_region, remove_region, {r0, r1, r2, r8, r9}
+			vp_lea [r4 + vis_region], r2
+			s_call gui_region, copy_rect, {r0, r1, r2, r8, r9, r10, r11}
+
+			;remove from ancestors
+			vp_cpy [r4 + vis_inst], r1
+			loop_start
+				vp_cpy [r1 + view_parent], r2
+				vp_cpy r2, [r4 + vis_next]
+
+				;exit if clipped away
+				vp_cpy [r4 + vis_region], r3
+				breakif r3, ==, 0
+
+				;translate temp opaque region
+				vp_cpy [r1 + view_x], r8
+				vp_cpy [r1 + view_y], r9
+				vp_lea [r4 + vis_region], r1
+				s_call gui_region, translate, {r1, r8, r9}
+
+				;clip temp opaque region
+				vp_cpy [r4 + vis_next], r2
+				vp_lea [r4 + vis_region], r1
+				s_call gui_region, clip_rect, {r0, r1, 0, 0, [r2 + view_w], [r2 + view_h]}
+
+				;remove temp opaque region
+				vp_lea [r4 + vis_region], r1
+				vp_cpy [r4 + vis_next], r2
+				vp_add view_dirty_region, r2
+				s_call gui_region, remove_region, {r0, r1, r2, 0, 0}
+
+				vp_cpy [r4 + vis_next], r1
+			loop_until r1, ==, [r4 + vis_root]
+
+			;free any temp region
+			vp_lea [r4 + vis_region], r1
+			s_call gui_region, free, {r0, r1}
 		endif
 
 		;clip local dirty region with parent bounds if not root

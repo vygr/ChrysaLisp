@@ -20,7 +20,7 @@
 	def_method gui, gui/gui
 
 	def_class gui_region
-	def_method translate, gui/region_translate, static, {r0, r8, r9}
+	def_method translate, gui/region_translate, static, {r1, r8, r9}
 	def_method clip_rect, gui/region_clip_rect, static, {r0, r1, r8, r9, r10, r11}
 	def_method remove_rect, gui/region_remove_rect, static, {r0, r1, r8, r9, r10, r11}
 	def_method cut_rect, gui/region_cut_rect, static, {r0, r1, r2, r8, r9, r10, r11}
