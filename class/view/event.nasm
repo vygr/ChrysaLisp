@@ -38,7 +38,13 @@
 				endif
 			endif
 			break
-		default
+		case r2, ==, ev_type_key
+			vp_cpy [r1 + ev_data_keycode], r2
+			if r2, >=, 0
+				m_jmp view, key_down, {r0, r1}
+			else
+				m_jmp view, key_up, {r0, r1}
+			endif
 		endswitch
 		vp_ret
 

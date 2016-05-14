@@ -43,6 +43,8 @@
 	def_method mouse_up, class/obj/null, virtual, {r0, r1}
 	def_method mouse_move, class/obj/null, virtual, {r0, r1}
 	def_method mouse_hover, class/obj/null, virtual, {r0, r1}
+	def_method key_down, class/obj/null, virtual, {r0, r1}
+	def_method key_up, class/obj/null, virtual, {r0, r1}
 
 	view_flag_solid	equ 1 << 0
 

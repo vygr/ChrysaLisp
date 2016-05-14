@@ -12,8 +12,10 @@
 		long local_last_y_pos
 		long local_last_buttons
 		long local_last_view
+		long local_key_view
 		long local_keymap
 		uint local_keymap_size
+		long local_old_keymap
 	def_structure_end
 
 	fn_function gui/gui
@@ -24,6 +26,8 @@
 		vp_cpy r0, [r4 + local_last_y_pos]
 		vp_cpy r0, [r4 + local_last_buttons]
 		vp_cpy r0, [r4 + local_last_view]
+		vp_cpy r0, [r4 + local_key_view]
+		vp_cpy r0, [r4 + local_old_keymap]
 		static_bind gui_gui, statics, r1
 		vp_cpy r0, [r1 + gui_statics_screen]
 
@@ -59,26 +63,73 @@
 			s_call sys_task, sleep, {1000000 / 60}
 
 			;get keyboard info, see if any changes
+			vp_cpy [r4 + local_old_keymap], r1
+			if r1, ==, 0
+				;create old keymap
+				s_call sys_mem, alloc, {[r4 + local_keymap_size]}, {r0, _}
+				vp_cpy r0, [r4 + local_old_keymap]
+				s_call sys_mem, clear, {r0, [r4 + local_keymap_size]}, {_}
+				vp_cpy [r4 + local_old_keymap], r1
+			endif
 			vp_cpy [r4 + local_keymap], r0
-			vp_cpy_ui [r4 + local_keymap_size], r1
+			vp_cpy_ui [r4 + local_keymap_size], r2
+
+			;dispatch any key events
 			vp_cpy_ub [r0 + 0xe1], r8
-			vp_cpy_ub [r0 + 0xe5], r9
-			vp_or r8, r9
-			loop_while r1, !=, 0
-				vp_dec r1
-				vp_cpy_ub [r0 + r1], r8
-				if r8, !=, 0
-;					fn_debug_long "Key Scancode = ", r1
-					vp_rel scan_codes, r2
-					vp_rel scan_codes_end, r3
+			vp_cpy_ub [r0 + 0xe5], r10
+			vp_or r8, r10
+			loop_while r2, !=, 0
+				vp_dec r2
+				vp_cpy_ub [r0 + r2], r8
+				vp_cpy_ub [r1 + r2], r9
+				if r8, !=, r9
+					;set scan code, - for up
+					vp_cpy_ub r8, [r1 + r2]
+					vp_cpy r2, r11
+					if r8, ==, 0
+						vp_mul -1, r11
+					endif
+
+					;cook keycode
+					vp_rel scan_codes, r5
+					vp_rel scan_codes_end, r6
+					vp_xor r12, r12
 					loop_start
-						vp_cpy_ub [r2], r8
-						if r8, ==, r1
-							vp_cpy_ub [r2 + r9 + 1], r8
-							fn_debug_long "Key = ", r8
+						vp_cpy_ub [r5], r8
+						if r8, ==, r2
+							vp_cpy_ub [r5 + r10 + 1], r12
 						endif
-						vp_add 3, r2
-					loop_until r2, >=, r3
+						vp_add 3, r5
+					loop_until r5, >=, r6
+
+					;dispatch to task and target view
+					vp_cpy [r4 + local_key_view], r6
+					if r6, !=, 0
+						vp_push r0, r1, r2
+						;lookup view owner
+						s_call view, find_owner, {r6}, {r1}
+						if r1, !=, 0
+							;save owner mailbox
+							s_call sys_cpu, id, {}, {r15}
+							vp_lea [r1 + tk_node_mailbox], r14
+
+							;allocate mail message
+							s_call sys_mail, alloc, {}, {r0}
+							assert r0, !=, 0
+
+							;fill in data
+							vp_cpy r14, [r0 + ml_msg_dest]
+							vp_cpy r15, [r0 + (ml_msg_dest + 8)]
+							vp_cpy_cl ev_type_key, [r0 + ev_data_type]
+							vp_cpy r6, [r0 + ev_data_view]
+							vp_cpy r11, [r0 + ev_data_keycode]
+							vp_cpy r12, [r0 + ev_data_key]
+
+							;send mail to owner
+							s_call sys_mail, send, {r0}
+						endif
+						vp_pop r0, r1, r2
+					endif
 				endif
 			loop_end
 
@@ -158,9 +209,21 @@
 					vp_jmp send_mouse
 				else
 					;hover
+					;find view for keys
+					static_bind gui_gui, statics, r5
+					s_call view, hit_tree, {[r5 + gui_statics_screen], \
+												[r4 + local_x_pos], \
+												[r4 + local_y_pos]}, {r1, _, _}
+					vp_cpy r1, [r4 + local_key_view]
 				endif
 			endif
 		loop_end
+
+		;free old key map
+		vp_cpy [r4 + local_old_keymap], r0
+		if r0, !=, 0
+			s_call sys_mem, free, {r0}
+		endif
 
 		;deinit
 		s_call sys_task, callback, {$deinit_callback, r4}

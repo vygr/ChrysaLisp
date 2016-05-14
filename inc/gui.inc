@@ -92,6 +92,7 @@
 		long ev_data_rx
 		long ev_data_ry
 		long ev_data_buttons
+		long ev_data_keycode
 		long ev_data_key
 	def_structure_end
 
