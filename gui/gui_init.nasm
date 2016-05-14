@@ -13,12 +13,6 @@
 		vp_xor r0, r0
 		vp_cpy r0, [r3 + gui_statics_old_region]
 
-		;init last view etc
-		vp_cpy r0, [r3 + gui_statics_last_x_pos]
-		vp_cpy r0, [r3 + gui_statics_last_y_pos]
-		vp_cpy r0, [r3 + gui_statics_last_buttons]
-		vp_cpy r0, [r3 + gui_statics_last_view]
-
 		;init region heap
 		s_call sys_heap, init, {&[r3 + gui_statics_rect_heap], gui_rect_size, gui_rect_size * 32}
 

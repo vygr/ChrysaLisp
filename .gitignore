@@ -134,6 +134,7 @@ class/window/new
 class/window/pref_size
 class/window/set_status
 class/window/set_title
+forth/forth
 gui/ctx_blit
 gui/ctx_box
 gui/ctx_brighter
@@ -149,7 +150,6 @@ gui/font_statics
 gui/font_text
 gui/gui
 gui/gui_add
-gui/gui_deinit
 gui/gui_init
 gui/gui_statics
 gui/gui_update
@@ -202,10 +202,12 @@ sys/mem_alloc
 sys/mem_clear
 sys/mem_copy
 sys/mem_deinit
+sys/mem_fill
 sys/mem_free
 sys/mem_grow
 sys/mem_init
 sys/mem_statics
+sys/mem_xor
 sys/opt_process
 sys/read_line
 sys/string_compare
@@ -258,9 +260,3 @@ tests/gui/gui2/app
 tests/gui/gui3/app
 tests/pipe
 tests/pipe_child
-
-forth/forth
-
-sys/mem_fill
-
-sys/mem_xor

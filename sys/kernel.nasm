@@ -267,9 +267,6 @@
 		;deinit font
 		s_call gui_font, deinit
 
-		;deinit gui
-		s_call gui_gui, deinit
-
 		;free any kernel routing table
 		s_call sys_mem, free, {[r4 + lk_table_array]}
 		vp_add lk_table_size, r4

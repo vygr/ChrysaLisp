@@ -4,15 +4,35 @@
 %include 'inc/sdl2.inc'
 %include 'class/class_label.inc'
 
+	def_structure local
+		long local_x_pos
+		long local_y_pos
+		long local_buttons
+		long local_last_x_pos
+		long local_last_y_pos
+		long local_last_buttons
+		long local_last_view
+		long local_keymap
+		uint local_keymap_size
+	def_structure_end
+
 	fn_function gui/gui
+		;init vars
+		vp_sub local_size, r4
+		vp_xor r0, r0
+		vp_cpy r0, [r4 + local_last_x_pos]
+		vp_cpy r0, [r4 + local_last_y_pos]
+		vp_cpy r0, [r4 + local_last_buttons]
+		vp_cpy r0, [r4 + local_last_view]
+		static_bind gui_gui, statics, r1
+		vp_cpy r0, [r1 + gui_statics_screen]
+
 		;kernel callback for first update
 		;this will init SDL etc
-		s_call sys_task, callback, {$kernel_callback, r1}
+		s_call sys_task, callback, {$update_callback, r4}
 
-		;allocate background view
+		;allocate background view for screen
 		s_call label, create, {}, {r0}
-
-		;set as gui screen view
 		static_bind gui_gui, statics, r1
 		vp_cpy r0, [r1 + gui_statics_screen]
 
@@ -33,15 +53,14 @@
 		loop_start
 		next_frame:
 			;kernel callback for update
-			s_call sys_task, callback, {$kernel_callback, r1}
+			s_call sys_task, callback, {$update_callback, r4}
 
 			;frame rate of gui updates
 			s_call sys_task, sleep, {1000000 / 60}
 
 			;get keyboard info, see if any changes
-			static_bind gui_gui, statics, r5
-			vp_cpy [r5 + gui_statics_keymap], r0
-			vp_cpy [r5 + gui_statics_keymap_size], r1
+			vp_cpy [r4 + local_keymap], r0
+			vp_cpy_ui [r4 + local_keymap_size], r1
 			vp_cpy_ub [r0 + 0xe1], r8
 			vp_cpy_ub [r0 + 0xe5], r9
 			vp_or r8, r9
@@ -64,24 +83,23 @@
 			loop_end
 
 			;get mouse info, see if any changes
-			static_bind gui_gui, statics, r5
-			vp_cpy [r5 + gui_statics_x_pos], r8
-			vp_cpy [r5 + gui_statics_y_pos], r9
-			vp_cpy [r5 + gui_statics_buttons], r10
-			if r8, ==, [r5 + gui_statics_last_x_pos]
-				if r9, ==, [r5 + gui_statics_last_y_pos]
-					if r10, ==, [r5 + gui_statics_last_buttons]
+			vp_cpy [r4 + local_x_pos], r8
+			vp_cpy [r4 + local_y_pos], r9
+			vp_cpy [r4 + local_buttons], r10
+			if r8, ==, [r4 + local_last_x_pos]
+				if r9, ==, [r4 + local_last_y_pos]
+					if r10, ==, [r4 + local_last_buttons]
 						;same as last time
 						vp_jmp next_frame
 					endif
 				endif
 			endif
-			vp_cpy r8, [r5 + gui_statics_last_x_pos]
-			vp_cpy r9, [r5 + gui_statics_last_y_pos]
-			vp_cpy r10, [r5 + gui_statics_last_buttons]
+			vp_cpy r8, [r4 + local_last_x_pos]
+			vp_cpy r9, [r4 + local_last_y_pos]
+			vp_cpy r10, [r4 + local_last_buttons]
 
 			;dispatch to task and target view
-			vp_cpy [r5 + gui_statics_last_view], r6
+			vp_cpy [r4 + local_last_view], r6
 			if r6, !=, 0
 			send_mouse:
 				;do we need to wait till button goes up ?
@@ -100,8 +118,8 @@
 						;fill in data
 						vp_cpy r14, [r0 + ml_msg_dest]
 						vp_cpy r15, [r0 + (ml_msg_dest + 8)]
-						vp_cpy [r5 + gui_statics_x_pos], r8
-						vp_cpy [r5 + gui_statics_y_pos], r9
+						vp_cpy [r4 + local_x_pos], r8
+						vp_cpy [r4 + local_y_pos], r9
 						vp_cpy_cl ev_type_mouse, [r0 + ev_data_type]
 						vp_cpy r6, [r0 + ev_data_view]
 						vp_cpy r8, [r0 + ev_data_x]
@@ -119,22 +137,23 @@
 
 				;if button went up then clear locked view
 				if r10, ==, 0
-					vp_cpy r10, [r5 + gui_statics_last_view]
+					vp_cpy r10, [r4 + local_last_view]
 				endif
 			else
 				;button down ?
 				if r10, !=, 0
 					;find view
+					static_bind gui_gui, statics, r5
 					s_call view, hit_tree, {[r5 + gui_statics_screen], \
-												[r5 + gui_statics_x_pos], \
-												[r5 + gui_statics_y_pos]}, {r1, r8, r9}
+												[r4 + local_x_pos], \
+												[r4 + local_y_pos]}, {r1, r8, r9}
 					if r1, ==, [r5 + gui_statics_screen]
 						vp_xor r1, r1
 					endif
 					if r1, ==, 0
 						vp_cpy -1, r1
 					endif
-					vp_cpy r1, [r5 + gui_statics_last_view]
+					vp_cpy r1, [r4 + local_last_view]
 					vp_cpy r1, r6
 					vp_jmp send_mouse
 				else
@@ -142,21 +161,28 @@
 				endif
 			endif
 		loop_end
+
+		;deinit
+		s_call sys_task, callback, {$deinit_callback, r4}
+
+		vp_add local_size, r4
 		vp_ret
 
-	kernel_callback:
+	update_callback:
 		;inputs
 		;r0 = user data
 
-		def_structure local
-			long local_old_stack
+		def_structure klocal
+			long klocal_old_stack
+			long klocal_user
 		def_structure_end
 
 		;align stack
 		vp_cpy r4, r1
-		vp_sub local_size, r4
+		vp_sub klocal_size, r4
 		vp_and -16, r4
-		vp_cpy r1, [r4 + local_old_stack]
+		vp_cpy r1, [r4 + klocal_old_stack]
+		vp_cpy r0, [r4 + klocal_user]
 
 		;create screen window ?
 		static_bind gui_gui, statics, r0
@@ -189,21 +215,18 @@
 			sdl_pump_events
 
 			;get mouse state
-			static_bind gui_gui, statics, r0
-			vp_lea [r0 + gui_statics_x_pos], r1
-			vp_lea [r0 + gui_statics_y_pos], r2
+			vp_cpy [r4 + klocal_user], r0
+			vp_lea [r0 + local_x_pos], r1
+			vp_lea [r0 + local_y_pos], r2
 			sdl_get_mouse_state r1, r2
-			static_bind gui_gui, statics, r1
-			vp_add gui_statics_buttons, r1
-			vp_cpy r0, [r1]
+			vp_cpy [r4 + klocal_user], r1
+			vp_cpy r0, [r1 + local_buttons]
 
 			;get keyboard state
-			static_bind gui_gui, statics, r0
-			vp_lea [r0 + gui_statics_keymap_size], r1
+			vp_add local_keymap_size, r1
 			sdl_get_keyboard_state r1
-			static_bind gui_gui, statics, r1
-			vp_add gui_statics_keymap, r1
-			vp_cpy r0, [r1]
+			vp_cpy [r4 + klocal_user], r1
+			vp_cpy r0, [r1 + local_keymap]
 
 			;update the screen
 			static_bind gui_gui, statics, r0
@@ -214,7 +237,44 @@
 			sdl_render_present [r0 + gui_statics_renderer]
 		endif
 
-		vp_cpy [r4 + local_old_stack], r4
+		vp_cpy [r4 + klocal_old_stack], r4
+		vp_ret
+
+	deinit_callback:
+		;inputs
+		;r0 = user data
+
+		;free any screen
+		static_bind gui_gui, statics, r5
+		vp_cpy [r5 + gui_statics_screen], r0
+		if r0, !=, 0
+			vp_cpy_cl 0, [r5 + gui_statics_screen]
+			s_call view, deref, {r0}
+		endif
+
+		;free old region
+		static_bind gui_gui, statics, r5
+		s_call gui_region, free, {&[r5 + gui_statics_rect_heap], &[r5 + gui_statics_old_region]}
+
+		;deinit region heap
+		s_call sys_heap, deinit, {r0}
+
+		;deinit signal heap
+		s_call sys_heap, deinit, {&[r5 + gui_statics_sigslot_heap]}
+
+		;destroy any window
+		vp_cpy [r5 + gui_statics_window], r14
+		if r14, !=, 0
+			;align stack on 16 byte boundary
+			vp_cpy r4, r15
+			vp_and -16, r4
+
+			sdl_destroy_window r14
+			ttf_quit
+			sdl_quit
+
+			vp_cpy r15, r4
+		endif
 		vp_ret
 
 	title:
