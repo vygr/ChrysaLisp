@@ -79,10 +79,8 @@
 ; gui mail data
 ;;;;;;;;;;;;;;;
 
-	def_structure ev_type
-		byte ev_type_mouse
-		byte ev_type_key
-	def_structure_end
+	ev_type_mouse	equ 0
+	ev_type_key		equ 1
 
 	def_structure ev_data, ml_msg_header
 		long ev_data_type

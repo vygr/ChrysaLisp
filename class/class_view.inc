@@ -31,6 +31,8 @@
 	def_method set_bounds, class/view/set_bounds, static, {r0, r8, r9, r10, r11}
 	def_method set_flags, class/view/set_flags, static, {r0, r1}
 	def_method get_parent, class/view/get_parent, static, {r0}, {r1}
+	def_method get_first, class/view/get_first, static, {r0}, {r1}
+	def_method get_last, class/view/get_last, static, {r0}, {r1}
 
 	def_method deinit, class/view/deinit, override
 
