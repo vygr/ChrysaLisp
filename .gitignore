@@ -260,3 +260,7 @@ tests/gui/gui2/app
 tests/gui/gui3/app
 tests/pipe
 tests/pipe_child
+
+class/view/get_last
+
+class/view/get_first

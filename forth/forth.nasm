@@ -20,6 +20,10 @@
 		long width
 		long height
 		long owner
+		long keychar
+		long last_line
+		long line_string
+		long new_line_string
 
 		;init app vars
 		push_scope
@@ -74,6 +78,21 @@
 
 			;dispatch event to view
 			method_call view, event, {msg->ev_data_view, msg}
+
+			;if key event, then input to terminal
+			if {msg->ev_data_type == ev_type_key && msg->ev_data_keycode > 0}
+				assign {msg->ev_data_key}, {keychar}
+				static_call flow, get_last, {panel}, {last_line}
+				if {last_line != 0}
+					static_call string, create, {&keychar}, {string}
+					static_call label, get_text, {last_line}, {line_string}
+					static_call string, add, {line_string, string}, {new_line_string}
+					static_call string, deref, {line_string}
+					static_call string, deref, {string}
+					static_call label, set_text, {last_line, new_line_string}
+					static_call label, dirty, {last_line}
+				endif
+			endif
 
 			;free event message
 			static_call sys_mem, free, {msg}
