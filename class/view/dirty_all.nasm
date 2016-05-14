@@ -9,11 +9,11 @@
 
 		;iterate through views
 		;dirty all
-		s_jmp view, forward_tree, {r0, r1, $dirty_down_callback, $null_up_callback}
+		s_jmp view, forward_tree, {r0, r0, $dirty_down_callback, $null_up_callback}
 
 	dirty_down_callback:
 		s_call view, dirty, {r0}
-		vp_xor r1, r1
+		vp_cpy r0, r1
 	null_up_callback:
 		vp_ret
 

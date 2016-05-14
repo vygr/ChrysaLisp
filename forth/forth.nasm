@@ -21,7 +21,6 @@
 		long height
 		long owner
 		long keychar
-		long last_line
 		long line_string
 		long new_line_string
 
@@ -82,15 +81,25 @@
 			;if key event, then input to terminal
 			if {msg->ev_data_type == ev_type_key && msg->ev_data_keycode > 0}
 				assign {msg->ev_data_key}, {keychar}
-				static_call flow, get_last, {panel}, {last_line}
-				if {last_line != 0}
+				if {keychar == 13}
+					;scroll lines
+					static_call flow, get_first, {panel}, {label}
+					static_call label, sub, {label}
+					static_call label, add, {label, panel}
+					method_call flow, layout, {panel}
+					static_call string, create, {">"}, {string}
+					static_call label, set_text, {label, string}
+					static_call flow, dirty_all, {panel}
+				else
+					;append char
+					static_call flow, get_last, {panel}, {label}
 					static_call string, create, {&keychar}, {string}
-					static_call label, get_text, {last_line}, {line_string}
+					static_call label, get_text, {label}, {line_string}
 					static_call string, add, {line_string, string}, {new_line_string}
 					static_call string, deref, {line_string}
 					static_call string, deref, {string}
-					static_call label, set_text, {last_line, new_line_string}
-					static_call label, dirty, {last_line}
+					static_call label, set_text, {label, new_line_string}
+					static_call label, dirty, {label}
 				endif
 			endif
 
