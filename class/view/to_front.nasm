@@ -9,15 +9,10 @@
 		;trashes
 		;r2
 
-		;are we allready first ?
-		s_call view, get_first, {r0}, {r2}
-		s_call view, get_parent, {r0}, {r1}
-		if r1, !=, r2
-			;no so best jump forward then
-			vp_push r1
-			s_call view, sub, {r0}
-			vp_pop r1
-			s_call view, add, {r0, r1}
+		;are we allready front ?
+		ln_is_last r0 + view_node, r1
+		if r1, !=, 0
+			s_call view, add_front, {r0, [r0 + view_parent]}
 			s_jmp view, dirty_all, {r0}
 		endif
 		vp_ret

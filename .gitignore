@@ -93,7 +93,8 @@ class/title/mouse_down
 class/title/mouse_move
 class/title/new
 class/title/pref_size
-class/view/add
+class/view/add_back
+class/view/add_front
 class/view/add_dirty
 class/view/add_opaque
 class/view/backward

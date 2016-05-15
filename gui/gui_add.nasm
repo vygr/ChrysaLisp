@@ -9,6 +9,6 @@
 		;r1-r3
 
 		static_bind gui_gui, statics, r1
-		s_jmp view, add, {r0, [r1 + gui_statics_screen]}
+		s_jmp view, add_front, {r0, [r1 + gui_statics_screen]}
 
 	fn_function_end

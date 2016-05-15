@@ -48,7 +48,7 @@
 		;add my panel
 		static_call flow, create, {}, {panel}
 		static_call flow, set_flow_flags, {panel, flow_flag_down | flow_flag_fillw}
-		static_call flow, add, {panel, window_panel}
+		static_call flow, add_front, {panel, window_panel}
 
 		;allocate array for progress bars
 		static_call sys_cpu, total, {}, {cpu_total}
@@ -60,7 +60,7 @@
 			static_call progress, create, {}, {progress}
 			static_call progress, set_max, {progress, 48}
 			static_call progress, set_color, {progress, 0xff00ff00}
-			static_call progress, add, {progress, panel}
+			static_call progress, add_front, {progress, panel}
 			assign {progress}, {task_progress[cpu_count * long_size]}
 			assign {cpu_count + 1}, {cpu_count}
 		loop_until {cpu_count == cpu_total}

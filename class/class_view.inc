@@ -7,7 +7,8 @@
 	def_method create, class/view/create
 	def_method new, class/view/new
 	def_method init, class/view/init
-	def_method add, class/view/add, static, {r0, r1}
+	def_method add_front, class/view/add_front, static, {r0, r1}
+	def_method add_back, class/view/add_back, static, {r0, r1}
 	def_method sub, class/view/sub, static, {r0}
 	def_method to_front, class/view/to_front, static, {r0}
 	def_method add_dirty, class/view/add_dirty, static, {r0, r8, r9, r10, r11}

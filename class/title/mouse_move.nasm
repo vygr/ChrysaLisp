@@ -5,7 +5,7 @@
 
 	fn_function class/title/mouse_move
 		;inputs
-		;r0 = window object
+		;r0 = title object
 		;r1 = mouse event message
 		;trashes
 		;all but r0, r4

@@ -60,7 +60,7 @@
 		;add my app flow panel
 		static_call flow, create, {}, {flow_panel}
 		static_call flow, set_flow_flags, {flow_panel, flow_flag_down | flow_flag_fillw | flow_flag_lasth}
-		static_call flow, add, {flow_panel, window_panel}
+		static_call flow, add_front, {flow_panel, window_panel}
 
 		;add my display label
 		static_call label, create, {}, {myapp.shared_display}
@@ -69,12 +69,12 @@
 		static_call label, set_font, {myapp.shared_display, "fonts/OpenSans-Regular.ttf", 24}
 		static_call string, create, {"0"}, {string}
 		static_call label, set_text, {myapp.shared_display, string}
-		static_call label, add, {myapp.shared_display, flow_panel}
+		static_call label, add_front, {myapp.shared_display, flow_panel}
 
 		;add my app grid panel
 		static_call grid, create, {}, {grid_panel}
 		static_call grid, set_grid, {grid_panel, 4, 4}
-		static_call grid, add, {grid_panel, flow_panel}
+		static_call grid, add_front, {grid_panel, flow_panel}
 
 		;add buttons to my grid panel
 		assign {$button_list}, {next}
@@ -86,7 +86,7 @@
 			static_call string, create, {next}, {string}
 			static_call button, set_text, {button, string}
 			static_call button, set_flow_flags, {button, flow_flag_align_hcenter | flow_flag_align_vcenter}
-			static_call button, add, {button, grid_panel}
+			static_call button, add_front, {button, grid_panel}
 			static_call button, sig_pressed, {button}, {pressed}
 			static_call button, connect, {button, pressed, &myapp, $on_press}
 
