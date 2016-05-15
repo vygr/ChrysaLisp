@@ -30,7 +30,7 @@
 			vp_cpy r1, [r4 + local_y]
 		endif
 
-		s_call flow, backward, {r0, r4, $callback}
+		s_call flow, forward, {r0, r4, $callback}
 
 		vp_add local_size, r4
 		vp_ret

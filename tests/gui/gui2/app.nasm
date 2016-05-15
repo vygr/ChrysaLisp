@@ -43,7 +43,7 @@
 		;add my app panel
 		static_call flow, create, {}, {panel}
 		static_call flow, set_flow_flags, {panel, flow_flag_down | flow_flag_fillw}
-		static_call flow, add_front, {panel, window_panel}
+		static_call flow, add_back, {panel, window_panel}
 
 		;add launch buttons to my app panel
 		assign {$launch_list}, {next}
@@ -54,7 +54,7 @@
 			static_call button, set_color, {button, 0xffffff00}
 			static_call string, create, {next}, {string}
 			static_call button, set_text, {button, string}
-			static_call button, add_front, {button, panel}
+			static_call button, add_back, {button, panel}
 			static_call button, sig_pressed, {button}, {pressed}
 			static_call button, connect, {button, pressed, &myapp, $on_press}
 

@@ -16,7 +16,7 @@
 		vp_cpy r3, [r0 + view_parent]
 		vp_add view_list, r3
 		vp_lea [r0 + view_node], r2
-		lh_add_at_head r3, r2, r1
+		lh_add_at_tail r3, r2, r1
 		vp_ret
 
 	fn_function_end

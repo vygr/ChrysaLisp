@@ -32,7 +32,7 @@
 		vp_div r8, r10, r9
 		vp_cpy r9, [r4 + local_cell_h]
 
-		s_call grid, backward, {r0, r4, $callback}
+		s_call grid, forward, {r0, r4, $callback}
 
 		vp_add local_size, r4
 		vp_ret

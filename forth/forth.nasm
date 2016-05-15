@@ -40,7 +40,7 @@
 		;add my app panel
 		static_call flow, create, {}, {panel}
 		static_call flow, set_flow_flags, {panel, flow_flag_down | flow_flag_fillw}
-		static_call flow, add_front, {panel, window_panel}
+		static_call flow, add_back, {panel, window_panel}
 
 		;add terminal lines to my app panel
 		assign {$line_list}, {next}
@@ -53,7 +53,7 @@
 			static_call label, set_color, {label, 0xff000000}
 			static_call label, set_text_color, {label, 0xff00ff00}
 			static_call label, set_font, {label, "fonts/OpenSans-Regular.ttf", 12}
-			static_call label, add_front, {label, panel}
+			static_call label, add_back, {label, panel}
 
 			static_call sys_string, length, {next}, {length}
 			assign {next + length + 1}, {next}
@@ -84,7 +84,7 @@
 				if {keychar == 13}
 					;scroll lines
 					static_call flow, get_first, {panel}, {label}
-					static_call label, add_front, {label, panel}
+					static_call label, add_back, {label, panel}
 					method_call flow, layout, {panel}
 					static_call string, create, {">"}, {string}
 					static_call label, set_text, {label, string}
