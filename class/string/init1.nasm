@@ -23,7 +23,7 @@
 		map_src_to_dst
 
 		;init parent
-		p_call string, init, {r0, r1, r2, r3}, {r1}
+		p_call string, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			vp_cpy r0, [r4 + local_inst]
 

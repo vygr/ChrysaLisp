@@ -229,9 +229,9 @@
 				%fatal Class _super_class_%1_ method %2 is static !
 			%endif
 		%endif
-		map_inputs %1, %2, {%3}, _static_
+		map_inputs _super_class_%1_, %2, {%3}, _static_
 		fn_call _map_%[_super_class_%1_]_slot_%[_static_]
-		map_outputs %1, %2, {%4}, _static_
+		map_outputs _super_class_%1_, %2, {%4}, _static_
 	%endmacro
 
 	%macro super_call 2-4 {}, {}
@@ -262,7 +262,7 @@
 		%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
 			%fatal Class _super_class_%1_ method %2 is static !
 		%endif
-		map_inputs %1, %2, {%3}, _static_
+		map_inputs _super_class_%1_, %2, {%3}, _static_
 		fn_jmp _map_%[_super_class_%1_]_slot_%[_static_]
 	%endmacro
 
