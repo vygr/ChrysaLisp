@@ -9,6 +9,7 @@
 	def_method init, class/view/init
 	def_method add, class/view/add, static, {r0, r1}
 	def_method sub, class/view/sub, static, {r0}
+	def_method to_front, class/view/to_front, static, {r0}
 	def_method add_dirty, class/view/add_dirty, static, {r0, r8, r9, r10, r11}
 	def_method add_opaque, class/view/add_opaque, static, {r0, r8, r9, r10, r11}
 	def_method sub_opaque, class/view/sub_opaque, static, {r0, r8, r9, r10, r11}

@@ -127,6 +127,7 @@ class/view/set_flags
 class/view/set_owner
 class/view/sub
 class/view/sub_opaque
+class/view/to_front
 class/window/create
 class/window/draw
 class/window/get_panel
