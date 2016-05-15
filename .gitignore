@@ -71,8 +71,10 @@ class/ref/init
 class/ref/ref
 class/string/add
 class/string/create
+class/string/create_from_file
 class/string/init
 class/string/init1
+class/string/init2
 class/string/new
 class/text/create
 class/text/deinit
@@ -109,6 +111,8 @@ class/view/forward
 class/view/forward_tree
 class/view/get_bounds
 class/view/get_color
+class/view/get_first
+class/view/get_last
 class/view/get_parent
 class/view/get_relative
 class/view/hit
@@ -260,7 +264,3 @@ tests/gui/gui2/app
 tests/gui/gui3/app
 tests/pipe
 tests/pipe_child
-
-class/view/get_last
-
-class/view/get_first
