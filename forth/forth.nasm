@@ -84,7 +84,6 @@
 				if {keychar == 13}
 					;scroll lines
 					static_call flow, get_first, {panel}, {label}
-					static_call label, sub, {label}
 					static_call label, add_front, {label, panel}
 					method_call flow, layout, {panel}
 					static_call string, create, {">"}, {string}
