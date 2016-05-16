@@ -26,8 +26,7 @@
 
 		;create new string object
 		vp_cpy [r7 + stat_fsize], r1
-		vp_lea [r1 + string_size + 1], r1
-		s_call string, new, {r1}, {r0}
+		s_call string, new, {&[r1 + string_size + 1]}, {r0}
 		if r0, !=, 0
 			;init the object
 			slot_function class, string
