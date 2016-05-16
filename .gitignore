@@ -21,6 +21,7 @@ class/class_ref
 class/class_string
 class/class_text
 class/class_title
+class/class_vector
 class/class_view
 class/class_window
 class/component/connect
@@ -93,9 +94,18 @@ class/title/mouse_down
 class/title/mouse_move
 class/title/new
 class/title/pref_size
+class/vector/create
+class/vector/deinit
+class/vector/get_back
+class/vector/get_length
+class/vector/init
+class/vector/new
+class/vector/pop_back
+class/vector/push_back
+class/vector/set_capacity
 class/view/add_back
-class/view/add_front
 class/view/add_dirty
+class/view/add_front
 class/view/add_opaque
 class/view/backward
 class/view/backward_tree
