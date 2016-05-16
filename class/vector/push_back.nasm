@@ -31,14 +31,11 @@
 			s_call vector, set_capacity, {r0, r1}
 		endif
 
-		;ref object
-		s_call ref, ref, {[r4 + local_object]}
-
 		;save object
-		vp_cpy r0, r2
 		vp_cpy [r4 + local_inst], r0
-		vp_cpy [r0 + vector_length], r1
-		vp_cpy r2, [r0 + r1 - long_size]
+		vp_cpy [r4 + local_object], r1
+		vp_cpy [r0 + vector_length], r2
+		vp_cpy r1, [r0 + r2 - long_size]
 
 		vp_add local_size, r4
 		vp_ret
