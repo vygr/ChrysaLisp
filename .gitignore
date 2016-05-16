@@ -276,3 +276,5 @@ tests/gui/gui2/app
 tests/gui/gui3/app
 tests/pipe
 tests/pipe_child
+
+class/vector/get_capacity
