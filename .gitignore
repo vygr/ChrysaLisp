@@ -70,7 +70,7 @@ class/ref/deref
 class/ref/init
 class/ref/ref
 class/string/add
-class/string/create
+class/string/create_from_cstr
 class/string/create_from_file
 class/string/init
 class/string/init1

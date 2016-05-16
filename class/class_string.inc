@@ -4,7 +4,7 @@
 %include 'class/class_ref.inc'
 
 	def_class string, ref
-	def_method create, class/string/create, static, {r0}, {r0}
+	def_method create_from_cstr, class/string/create_from_cstr, static, {r0}, {r0}
 	def_method create_from_file, class/string/create_from_file, static, {r0}, {r0}
 	def_method new, class/string/new, static, {r0}, {r0}
 	def_method init, class/string/init, static, {r0, r1, r2, r3}, {r1}

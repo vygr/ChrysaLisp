@@ -2,7 +2,7 @@
 %include 'inc/string.inc'
 %include 'class/class_string.inc'
 
-	fn_function class/string/create
+	fn_function class/string/create_from_cstr
 		;inputs
 		;r0 = c string pointer
 		;outputs

@@ -52,9 +52,9 @@
 		;create my window
 		static_call window, create, {}, {window}
 		static_call window, get_panel, {window}, {window_panel}
-		static_call string, create, {"Calculator"}, {string}
+		static_call string, create_from_cstr, {"Calculator"}, {string}
 		static_call window, set_title, {window, string}
-		static_call string, create, {"Status Text"}, {string}
+		static_call string, create_from_cstr, {"Status Text"}, {string}
 		static_call window, set_status, {window, string}
 
 		;add my app flow panel
@@ -67,7 +67,7 @@
 		static_call label, set_color, {myapp.shared_display, 0xffffffff}
 		static_call label, set_flow_flags, {myapp.shared_display, flow_flag_align_hright | flow_flag_align_vcenter}
 		static_call label, set_font, {myapp.shared_display, "fonts/OpenSans-Regular.ttf", 24}
-		static_call string, create, {"0"}, {string}
+		static_call string, create_from_cstr, {"0"}, {string}
 		static_call label, set_text, {myapp.shared_display, string}
 		static_call label, add_back, {myapp.shared_display, flow_panel}
 
@@ -83,7 +83,7 @@
 
 			static_call button, create, {}, {button}
 			static_call button, set_color, {button, 0xffffff00}
-			static_call string, create, {next}, {string}
+			static_call string, create_from_cstr, {next}, {string}
 			static_call button, set_text, {button, string}
 			static_call button, set_flow_flags, {button, flow_flag_align_hcenter | flow_flag_align_vcenter}
 			static_call button, add_back, {button, grid_panel}
@@ -153,7 +153,7 @@
 		static_call button, get_text, {button}, {button_string}
 		if {button_string->string_length == 2}
 			;AC
-			static_call string, create, {"0"}, {string}
+			static_call string, create_from_cstr, {"0"}, {string}
 			static_call label, set_text, {inst->shared_display, string}
 			assign {0}, {inst->shared_accum}
 			assign {0}, {inst->shared_value}
@@ -170,7 +170,7 @@
 				if {char == char_zero || inst->shared_last_flag == 0}
 					;clear it
 					static_call string, deref, {display_string}
-					static_call string, create, {""}, {display_string}
+					static_call string, create_from_cstr, {""}, {display_string}
 					assign {1}, {inst->shared_last_flag}
 				endif
 				;append numeral
@@ -201,15 +201,15 @@
 				if {inst->shared_accum < 0}
 					;negative accum
 					static_call sys_string, from_long, {-inst->shared_accum, &inst->shared_buffer, 10}
-					static_call string, create, {"-"}, {string1}
-					static_call string, create, {&inst->shared_buffer}, {string2}
+					static_call string, create_from_cstr, {"-"}, {string1}
+					static_call string, create_from_cstr, {&inst->shared_buffer}, {string2}
 					static_call string, add, {string1, string2}, {string}
 					static_call string, deref, {string1}
 					static_call string, deref, {string2}
 				else
 					;positive accum
 					static_call sys_string, from_long, {inst->shared_accum, &inst->shared_buffer, 10}
-					static_call string, create, {&inst->shared_buffer}, {string}
+					static_call string, create_from_cstr, {&inst->shared_buffer}, {string}
 				endif
 			endif
 			static_call label, set_text, {inst->shared_display, string}

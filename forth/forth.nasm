@@ -32,9 +32,9 @@
 		;create my window
 		static_call window, create, {}, {window}
 		static_call window, get_panel, {window}, {window_panel}
-		static_call string, create, {"Terminal"}, {string}
+		static_call string, create_from_cstr, {"Terminal"}, {string}
 		static_call window, set_title, {window, string}
-		static_call string, create, {"Status Text"}, {string}
+		static_call string, create_from_cstr, {"Status Text"}, {string}
 		static_call window, set_status, {window, string}
 
 		;add my app panel
@@ -48,7 +48,7 @@
 			breakifnot {*next}
 
 			static_call label, create, {}, {label}
-			static_call string, create, {next}, {string}
+			static_call string, create_from_cstr, {next}, {string}
 			static_call label, set_text, {label, string}
 			static_call label, set_color, {label, 0xff000000}
 			static_call label, set_text_color, {label, 0xff00ff00}
@@ -86,13 +86,13 @@
 					static_call flow, get_first, {panel}, {label}
 					static_call label, add_back, {label, panel}
 					method_call flow, layout, {panel}
-					static_call string, create, {">"}, {string}
+					static_call string, create_from_cstr, {">"}, {string}
 					static_call label, set_text, {label, string}
 					static_call flow, dirty_all, {panel}
 				else
 					;append char
 					static_call flow, get_last, {panel}, {label}
-					static_call string, create, {&keychar}, {string}
+					static_call string, create_from_cstr, {&keychar}, {string}
 					static_call label, get_text, {label}, {line_string}
 					static_call string, add, {line_string, string}, {new_line_string}
 					static_call string, deref, {line_string}

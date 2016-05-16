@@ -35,9 +35,9 @@
 		;create my window
 		static_call window, create, {}, {window}
 		static_call window, get_panel, {window}, {window_panel}
-		static_call string, create, {"Test Runner"}, {string}
+		static_call string, create_from_cstr, {"Test Runner"}, {string}
 		static_call window, set_title, {window, string}
-		static_call string, create, {"Status Text"}, {string}
+		static_call string, create_from_cstr, {"Status Text"}, {string}
 		static_call window, set_status, {window, string}
 
 		;add my app panel
@@ -52,7 +52,7 @@
 
 			static_call button, create, {}, {button}
 			static_call button, set_color, {button, 0xffffff00}
-			static_call string, create, {next}, {string}
+			static_call string, create_from_cstr, {next}, {string}
 			static_call button, set_text, {button, string}
 			static_call button, add_back, {button, panel}
 			static_call button, sig_pressed, {button}, {pressed}

@@ -40,9 +40,9 @@
 		;create my window
 		static_call window, create, {}, {window}
 		static_call window, get_panel, {window}, {window_panel}
-		static_call string, create, {"Network Task Monitor"}, {string}
+		static_call string, create_from_cstr, {"Network Task Monitor"}, {string}
 		static_call window, set_title, {window, string}
-		static_call string, create, {"Status Text"}, {string}
+		static_call string, create_from_cstr, {"Status Text"}, {string}
 		static_call window, set_status, {window, string}
 
 		;add my panel
