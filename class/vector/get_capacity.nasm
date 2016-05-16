@@ -3,12 +3,13 @@
 
 	fn_function class/vector/get_capacity
 		;inputs
-		;r0 = text object
+		;r0 = vector object
 		;outputs
-		;r0 = text object
-		;r1 = vector length
+		;r0 = vector object
+		;r1 = vector capacity
 
-		vp_cpy [r0 + vector_capacity], r0
+		vp_cpy [r0 + vector_capacity], r1
+		vp_shr 3, r1
 		vp_ret
 
 	fn_function_end
