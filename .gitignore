@@ -97,6 +97,7 @@ class/title/pref_size
 class/vector/create
 class/vector/deinit
 class/vector/get_back
+class/vector/get_capacity
 class/vector/get_length
 class/vector/init
 class/vector/new
@@ -276,5 +277,3 @@ tests/gui/gui2/app
 tests/gui/gui3/app
 tests/pipe
 tests/pipe_child
-
-class/vector/get_capacity
