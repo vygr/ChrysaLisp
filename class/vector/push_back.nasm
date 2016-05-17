@@ -28,6 +28,7 @@
 		if r1, >, [r0 + vector_capacity]
 			;double the capacity
 			vp_add r1, r1
+			vp_shr 3, r1
 			s_call vector, set_capacity, {r0, r1}
 		endif
 

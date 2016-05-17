@@ -11,6 +11,7 @@
 	def_method get_capacity, class/vector/get_capacity, static, {r0}, {r1}
 	def_method set_capacity, class/vector/set_capacity, static, {r0, r1}
 	def_method get_back, class/vector/get_back, static, {r0}, {r1}
+	def_method get_element, class/vector/get_element, static, {r0, r1}, {r1}
 	def_method push_back, class/vector/push_back, static, {r0, r1}
 	def_method pop_back, class/vector/pop_back, static, {r0}
 

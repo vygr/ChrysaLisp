@@ -98,6 +98,7 @@ class/vector/create
 class/vector/deinit
 class/vector/get_back
 class/vector/get_capacity
+class/vector/get_element
 class/vector/get_length
 class/vector/init
 class/vector/new
