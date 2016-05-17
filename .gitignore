@@ -18,6 +18,7 @@ class/class_label
 class/class_obj
 class/class_progress
 class/class_ref
+class/class_stream
 class/class_string
 class/class_text
 class/class_title
@@ -70,6 +71,11 @@ class/progress/set_val
 class/ref/deref
 class/ref/init
 class/ref/ref
+class/stream/deinit
+class/stream/init
+class/stream/new
+class/stream/read_char
+class/stream/read_line
 class/string/add
 class/string/create_from_cstr
 class/string/create_from_file

@@ -1,5 +1,4 @@
 %include 'inc/func.inc'
-%include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
 	fn_function class/view/pref_size

@@ -168,15 +168,13 @@
 
 	;format of header
 	def_structure header
-		long header_llink
-		long header_hlink
+		long header_link
 		ubyte header_nsize
 		struct header_name, null
 	def_structure_end
 
 	;format of header backwards from code entry point
 	def_structure xt
-		long xt_offset
 		long xt_compile
 		long xt_length
 		long xt_body
@@ -187,8 +185,7 @@
 		%strlen %%l %1
 		align long_size
 	dic_%3:
-		dq 0				; LATEST list link
-		dq 0				; hash chain link
+		dq %$code_end - dic_%3	; LATEST list link
 		db %%l + %2			; flags + length byte
 		db %1				; the name
 		dq %3 - $			; body pointer
@@ -408,9 +405,9 @@
 		vp_ret
 	defword_end
 
-;;;;;;;;;;;;;;;;
-; inlining words
-;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;
+; compile words
+;;;;;;;;;;;;;;;
 
 	defword "call,", 0, word_call_comma, word_call_comma
 		vp_ret

@@ -1,5 +1,4 @@
 %include 'inc/func.inc'
-%include 'inc/gui.inc'
 %include 'inc/font.inc'
 %include 'class/class_title.inc'
 

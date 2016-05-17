@@ -2,7 +2,6 @@
 %include 'inc/mail.inc'
 %include 'inc/task.inc'
 %include 'inc/link.inc'
-%include 'inc/gui.inc'
 %include 'inc/load.inc'
 %include 'inc/font.inc'
 %include 'inc/sdl2.inc'

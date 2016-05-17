@@ -378,6 +378,7 @@
 	def_method component, class/class_component
 	def_method string, class/class_string
 	def_method vector, class/class_vector
+	def_method stream, class/class_stream
 	def_method text, class/class_text
 	def_method view, class/class_view
 	def_method label, class/class_label

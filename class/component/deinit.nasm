@@ -1,5 +1,4 @@
 %include 'inc/func.inc'
-%include 'inc/gui.inc'
 %include 'class/class_component.inc'
 
 	fn_function class/component/deinit
