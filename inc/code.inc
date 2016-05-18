@@ -784,6 +784,108 @@
 ; compilation
 ;;;;;;;;;;;;;
 
+	%macro add_inst 0-*
+		%assign _inst_0_%[_inst_total] %0
+		%assign %%i 1
+		%rep %0
+			%xdefine _inst_%[%%i]_%[_inst_total] %1
+			%assign %%i %%i + 1
+			%rotate 1
+		%endrep
+		%assign _inst_total _inst_total + 1
+	%endmacro
+
+	%macro opt_inst 0
+		%assign %%i 0
+		%rep _inst_total
+			%assign %%i1 %%i - 1
+			%assign %%i2 %%i - 2
+			%assign %%n _inst_0_%[%%i]
+			%if %%n = 4
+				%ifidn _inst_1_%[%%i], op_deref
+					%ifidn _inst_1_%[%%i1], op_ref
+						%ifidn _inst_3_%[%%i], _inst_3_%[%%i1]
+							;ref/deref => op_deref
+							%xdefine _inst_2_%[%%i] _inst_2_%[%%i1]
+							%assign _inst_0_%[%%i1] 0
+							%xdefine _inst_1_%[%%i1] op_null
+						%endif
+					%elifidn _inst_1_%[%%i2], op_ref
+						%ifidn _inst_3_%[%%i], _inst_3_%[%%i2]
+							;ref/deref => op_deref
+							%xdefine _inst_2_%[%%i] _inst_2_%[%%i2]
+							%assign _inst_0_%[%%i2] 0
+							%xdefine _inst_1_%[%%i2] op_null
+						%endif
+					%endif
+				%elifidn _inst_1_%[%%i], op_assign
+					%ifidn _inst_1_%[%%i1], op_ref
+						%ifidn _inst_3_%[%%i], [%[_inst_3_%[%%i1]]]
+							;ref/assign => op_assign
+							%xdefine _inst_3_%[%%i] _inst_2_%[%%i1]
+							%assign _inst_0_%[%%i1] 0
+							%xdefine _inst_1_%[%%i1] op_null
+						%endif
+					%endif
+				%endif
+			%endif
+			%assign %%i %%i + 1
+		%endrep
+	%endmacro
+
+	%macro emit_copy 3
+		%ifidn %3, 'i'
+			%xdefine %%t _i
+		%elifidn %3, 'I'
+			%xdefine %%t _ui
+		%elifidn %3, 's'
+			%xdefine %%t _s
+		%elifidn %3, 'S'
+			%xdefine %%t _us
+		%elifidn %3, 'b'
+			%xdefine %%t _b
+		%elifidn %3, 'B'
+			%xdefine %%t _ub
+		%else
+			%xdefine %%t
+		%endif
+		%warning vp_cpy%[%%t] %1, %2
+		vp_cpy%[%%t] %1, %2
+	%endmacro
+
+	%macro emit_inst 0
+		opt_inst
+		%assign %%i 0
+		%rep _inst_total
+			%assign %%n _inst_0_%[%%i]
+			%if %%n = 1
+				%warning _inst_1_%[%%i]
+				_inst_1_%[%%i]
+			%elif %%n = 2
+				%warning _inst_1_%[%%i], _inst_2_%[%%i]
+				_inst_1_%[%%i] _inst_2_%[%%i]
+			%elif %%n = 3
+				%ifidn _inst_1_%[%%i], op_ref
+					%warning vp_lea _inst_2_%[%%i], _inst_3_%[%%i]
+					vp_lea _inst_2_%[%%i], _inst_3_%[%%i]
+				%else
+					%warning _inst_1_%[%%i], _inst_2_%[%%i], _inst_3_%[%%i]
+					_inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i]
+				%endif
+			%elif %%n = 4
+				%ifidn _inst_1_%[%%i], op_deref
+					emit_copy _inst_2_%[%%i], _inst_3_%[%%i], _inst_4_%[%%i]
+				%elifidn _inst_1_%[%%i], op_assign
+					emit_copy _inst_2_%[%%i], _inst_3_%[%%i], _inst_4_%[%%i]
+				%else
+					%warning _inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i], _inst_4_%[%%i]
+					_inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i], _inst_4_%[%%i]
+				%endif
+			%endif
+			%assign %%i %%i + 1
+		%endrep
+	%endmacro
+
 	%macro inc_reg_sp 0
 		%assign _reg_sp _reg_sp + 1
 	%endmacro
@@ -828,6 +930,7 @@
 	%macro set_reg_stack 0-*
 		%assign _reg_sp 0
 		%assign _reg_total 0
+		%assign _inst_total 0
 		%rep %0
 			set_reg _reg_total, %1
 			%assign _reg_total _reg_total + 1
@@ -890,19 +993,16 @@
 			%ifnum %1
 				;number
 				set_reg _reg_sp, _reg
-				%warning vp_cpy %1, _reg
-				vp_cpy %1, _reg
+				add_inst vp_cpy, %1, _reg
 			%elifstr %1_t
 				;field/member
 				set_reg _reg_sp, _reg, %1_t
-				%warning vp_cpy %1, _reg
-				vp_cpy %1, _reg
+				add_inst vp_cpy, %1, _reg
 			%else
 				;equate or register
 				set_reg _reg_sp, _reg
 				%ifnidn %1, _reg
-					%warning vp_cpy %1, _reg
-					vp_cpy %1, _reg
+					add_inst vp_cpy, %1, _reg
 				%endif
 			%endif
 		%elif _sym_type_%[_sym] = _sym_const
@@ -913,8 +1013,7 @@
 			get_reg _reg_sp
 			set_reg _reg_sp, _reg, _sym_aux_%[_sym]
 			get_scope_offset _sym_scope_%[_sym]
-			%warning vp_lea [r4 + _scope_offset + _sym_value1_%[_sym]], _reg
-			vp_lea [r4 + _scope_offset + _sym_value1_%[_sym]], _reg
+			add_inst op_ref, [r4 + _scope_offset + _sym_value1_%[_sym]], _reg
 		%endif
 	%endmacro
 
@@ -923,34 +1022,8 @@
 		%substr %%t _reg_t 1, 1
 		%ifidn %%t, ''
 			%error Not a reference !
-		%elifidn %%t, 'l'
-			%warning vp_cpy [_reg], _reg
-			vp_cpy [_reg], _reg
-		%elifidn %%t, 'i'
-			%warning vp_cpy_i [_reg], _reg
-			vp_cpy_i [_reg], _reg
-		%elifidn %%t, 'B'
-			%warning vp_cpy_ub [_reg], _reg
-			vp_cpy_ub [_reg], _reg
-		%elifidn %%t, 'L'
-			%warning vp_cpy [_reg], _reg
-			vp_cpy [_reg], _reg
-		%elifidn %%t, 'I'
-			%warning vp_cpy_ui [_reg], _reg
-			vp_cpy_ui [_reg], _reg
-		%elifidn %%t, 'b'
-			%warning vp_cpy_b [_reg], _reg
-			vp_cpy_b [_reg], _reg
-		%elifidn %%t, 's'
-			%warning vp_cpy_s [_reg], _reg
-			vp_cpy_s [_reg], _reg
-		%elifidn %%t, 'S'
-			%warning vp_cpy_us [_reg], _reg
-			vp_cpy_us [_reg], _reg
-		%else
-			%warning vp_cpy [_reg], _reg
-			vp_cpy [_reg], _reg
 		%endif
+		add_inst op_deref, [_reg], _reg, %%t
 		%substr %%t _reg_t 2, -1
 		set_reg _reg_sp, _reg, %%t
 	%endmacro
@@ -960,36 +1033,10 @@
 		%xdefine %%r _reg
 		%substr %%t _reg_t 1, 1
 		pop_value
-		%ifidn %%t, 'L'
-			%warning vp_cpy _reg, [%%r]
-			vp_cpy _reg, [%%r]
-		%elifidn %%t, 'l'
-			%warning vp_cpy _reg, [%%r]
-			vp_cpy _reg, [%%r]
-		%elifidn %%t, 'i'
-			%warning vp_cpy_i _reg, [%%r]
-			vp_cpy_i _reg, [%%r]
-		%elifidn %%t, 'I'
-			%warning vp_cpy_ui _reg, [%%r]
-			vp_cpy_ui _reg, [%%r]
-		%elifidn %%t, 's'
-			%warning vp_cpy_s _reg, [%%r]
-			vp_cpy_s _reg, [%%r]
-		%elifidn %%t, 'S'
-			%warning vp_cpy_us _reg, [%%r]
-			vp_cpy_us _reg, [%%r]
-		%elifidn %%t, 'b'
-			%warning vp_cpy_b _reg, [%%r]
-			vp_cpy_b _reg, [%%r]
-		%elifidn %%t, 'B'
-			%warning vp_cpy_ub _reg, [%%r]
-			vp_cpy_ub _reg, [%%r]
-		%elifidn %%t, 'p'
-			%warning vp_cpy _reg, [%%r]
-			vp_cpy _reg, [%%r]
-		%else
+		%ifidn %%t, ''
 			%error Not a reference !
 		%endif
+		add_inst op_assign, _reg, [%%r], %%t
 	%endmacro
 
 	%macro compile_field 0
@@ -997,8 +1044,7 @@
 		%xdefine %%r _reg
 		%xdefine %%t _reg_t
 		pop_reg
-		%warning vp_lea [_reg + %%r], _reg
-		vp_lea [_reg + %%r], _reg
+		add_inst vp_lea, [_reg + %%r], _reg
 		set_reg _reg_sp, _reg, %%t
 	%endmacro
 
@@ -1008,8 +1054,7 @@
 		%xdefine %%t _reg_t
 		pop_reg
 		compile_deref
-		%warning vp_lea [_reg + %%r], _reg
-		vp_lea [_reg + %%r], _reg
+		add_inst vp_lea, [_reg + %%r], _reg
 		set_reg _reg_sp, _reg, %%t
 	%endmacro
 
@@ -1018,8 +1063,7 @@
 		%xdefine %%r _reg
 		pop_reg
 		compile_deref
-		%warning vp_lea [_reg + %%r], _reg
-		vp_lea [_reg + %%r], _reg
+		add_inst vp_lea, [_reg + %%r], _reg
 	%endmacro
 
 	%macro compile_uaddrof 0
@@ -1042,60 +1086,43 @@
 
 	%macro compile_uminus 0
 		pop_value_final
-		%warning vp_mul -1, _reg
-		vp_mul -1, _reg
+		add_inst vp_mul, -1, _reg
 	%endmacro
 
 	%macro compile_unot 0
 		pop_value_final
-		%warning vp_xor -1, _reg
-		vp_xor -1, _reg
+		add_inst vp_xor, -1, _reg
 	%endmacro
 
 	%macro compile_ulnot 0
 		pop_value_final
-		%warning if _reg, ==, 0
-		%warning 	vp_cpy 1, _reg
-		%warning else
-		%warning 	vp_xor _reg, _reg
-		%warning endif
-		if _reg, ==, 0
-			vp_cpy 1, _reg
-		else
-			vp_xor _reg, _reg
-		endif
+		add_inst if, _reg, ==, 0
+		add_inst 	vp_cpy, 1, _reg
+		add_inst else
+		add_inst 	vp_xor, _reg, _reg
+		add_inst endif
 	%endmacro
 
 	%macro compile_land 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning if %%r, !=, 0
-		%warning 	if _reg, !=, 0
-		%warning 		vp_cpy 1, _reg
-		%warning 	else
-		%warning 		vp_xor _reg, _reg
-		%warning 	endif
-		%warning %else
-		%warning 	vp_xor _reg, _reg
-		%warning %endif
-		if %%r, !=, 0
-			if _reg, !=, 0
-				vp_cpy 1, _reg
-			else
-				vp_xor _reg, _reg
-			endif
-		else
-			vp_xor _reg, _reg
-		endif
+		add_inst if, %%r, !=, 0
+		add_inst 	if, _reg, !=, 0
+		add_inst 		vp_cpy, 1, _reg
+		add_inst 	else
+		add_inst 		vp_xor, _reg, _reg
+		add_inst 	endif
+		add_inst else
+		add_inst 	vp_xor, _reg, _reg
+		add_inst endif
 	%endmacro
 
 	%macro compile_lor 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning vp_or %%r, _reg
-		vp_or %%r, _reg
+		add_inst vp_or, %%r, _reg
 	%endmacro
 
 	%macro compile_ternary 0
@@ -1104,160 +1131,119 @@
 		pop_value_final
 		%xdefine %%r1 _reg
 		pop_value_final
-		%warning if _reg, !=, 0
-		%warning 	vp_cpy %%r1, _reg
-		%warning else
-		%warning 	vp_cpy %%r2, _reg
-		%warning endif
-		if _reg, !=, 0
-			vp_cpy %%r1, _reg
-		else
-			vp_cpy %%r2, _reg
-		endif
+		add_inst if, _reg, !=, 0
+		add_inst 	vp_cpy, %%r1, _reg
+		add_inst else
+		add_inst 	vp_cpy, %%r2, _reg
+		add_inst endif
 	%endmacro
 
 	%macro compile_gt 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning if _reg, >, %%r
-		%warning 	vp_cpy 1, _reg
-		%warning else
-		%warning 	vp_xor _reg, _reg
-		%warning endif
-		if _reg, >, %%r
-			vp_cpy 1, _reg
-		else
-			vp_xor _reg, _reg
-		endif
+		add_inst if, _reg, >, %%r
+		add_inst 	vp_cpy, 1, _reg
+		add_inst else
+		add_inst 	vp_xor, _reg, _reg
+		add_inst endif
 	%endmacro
 
 	%macro compile_lt 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning if _reg, <, %%r
-		%warning 	vp_cpy 1, _reg
-		%warning else
-		%warning 	vp_xor _reg, _reg
-		%warning endif
-		if _reg, <, %%r
-			vp_cpy 1, _reg
-		else
-			vp_xor _reg, _reg
-		endif
+		add_inst if, _reg, <, %%r
+		add_inst 	vp_cpy, 1, _reg
+		add_inst else
+		add_inst 	vp_xor, _reg, _reg
+		add_inst endif
 	%endmacro
 
 	%macro compile_ge 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning if _reg, >=, %%r
-		%warning 	vp_cpy 1, _reg
-		%warning else
-		%warning 	vp_xor _reg, _reg
-		%warning endif
-		if _reg, >=, %%r
-			vp_cpy 1, _reg
-		else
-			vp_xor _reg, _reg
-		endif
+		add_inst if, _reg, >=, %%r
+		add_inst 	vp_cpy, 1, _reg
+		add_inst else
+		add_inst 	vp_xor, _reg, _reg
+		add_inst endif
 	%endmacro
 
 	%macro compile_le 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning if _reg, <=, %%r
-		%warning 	vp_cpy 1, _reg
-		%warning else
-		%warning 	vp_xor _reg, _reg
-		%warning endif
-		if _reg, <=, %%r
-			vp_cpy 1, _reg
-		else
-			vp_xor _reg, _reg
-		endif
+		add_inst if, _reg, <=, %%r
+		add_inst 	vp_cpy, 1, _reg
+		add_inst else
+		add_inst 	vp_xor, _reg, _reg
+		add_inst endif
 	%endmacro
 
 	%macro compile_eq 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning if _reg, ==, %%r
-		%warning 	vp_cpy 1, _reg
-		%warning else
-		%warning 	vp_xor _reg, _reg
-		%warning endif
-		if _reg, ==, %%r
-			vp_cpy 1, _reg
-		else
-			vp_xor _reg, _reg
-		endif
+		add_inst if, _reg, ==, %%r
+		add_inst 	vp_cpy, 1, _reg
+		add_inst else
+		add_inst 	vp_xor, _reg, _reg
+		add_inst endif
 	%endmacro
 
 	%macro compile_ne 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning if _reg, !=, %%r
-		%warning 	vp_cpy 1, _reg
-		%warning else
-		%warning 	vp_xor _reg, _reg
-		%warning endif
-		if _reg, !=, %%r
-			vp_cpy 1, _reg
-		else
-			vp_xor _reg, _reg
-		endif
+		add_inst if, _reg, !=, %%r
+		add_inst 	vp_cpy, 1, _reg
+		add_inst else
+		add_inst 	vp_xor, _reg, _reg
+		add_inst endif
 	%endmacro
 
 	%macro compile_lshift 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning vp_shl %%r, _reg
-		vp_shl %%r, _reg
+		add_inst vp_shl, %%r, _reg
 	%endmacro
 
 	%macro compile_rshift 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning vp_shr %%r, _reg
-		vp_shr %%r, _reg
+		add_inst vp_shr, %%r, _reg
 	%endmacro
 
 	%macro compile_arshift 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning vp_asr %%r, _reg
-		vp_asr %%r, _reg
+		add_inst vp_asr, %%r, _reg
 	%endmacro
 
 	%macro compile_plus 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning vp_add %%r, _reg
-		vp_add %%r, _reg
+		add_inst vp_add, %%r, _reg
 	%endmacro
 
 	%macro compile_minus 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning vp_sub %%r, _reg
-		vp_sub %%r, _reg
+		add_inst vp_sub, %%r, _reg
 	%endmacro
 
 	%macro compile_mul 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning vp_mul %%r, _reg
-		vp_mul %%r, _reg
+		add_inst vp_mul, %%r, _reg
 	%endmacro
 
 	%macro compile_div 0
@@ -1266,10 +1252,8 @@
 		pop_value_final
 		%xdefine %%r1 _reg
 		pop_value_final
-		%warning vp_xor %%r2, %%r2
-		%warning vp_div %%r1, %%r2, _reg
-		vp_xor %%r2, %%r2
-		vp_div %%r1, %%r2, _reg
+		add_inst vp_xor, %%r2, %%r2
+		add_inst vp_div, %%r1, %%r2, _reg
 	%endmacro
 
 	%macro compile_rem 0
@@ -1278,36 +1262,30 @@
 		pop_value_final
 		%xdefine %%r1 _reg
 		pop_value_final
-		%warning vp_xor %%r2, %%r2
-		%warning vp_div %%r1, %%r2, _reg
-		%warning vp_cpy %%r2, _reg
-		vp_xor %%r2, %%r2
-		vp_div %%r1, %%r2, _reg
-		vp_cpy %%r2, _reg
+		add_inst vp_xor, %%r2, %%r2
+		add_inst vp_div, %%r1, %%r2, _reg
+		add_inst vp_cpy, %%r2, _reg
 	%endmacro
 
 	%macro compile_and 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning vp_and %%r, _reg
-		vp_and %%r, _reg
+		add_inst vp_and, %%r, _reg
 	%endmacro
 
 	%macro compile_xor 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning vp_xor %%r, _reg
-		vp_xor %%r, _reg
+		add_inst vp_xor, %%r, _reg
 	%endmacro
 
 	%macro compile_or 0
 		pop_value_final
 		%xdefine %%r _reg
 		pop_value_final
-		%warning vp_or %%r, _reg
-		vp_or %%r, _reg
+		add_inst vp_or, %%r, _reg
 	%endmacro
 
 	%macro compile_operator 1
@@ -1323,29 +1301,25 @@
 	%macro compile_string 1
 		get_reg _reg_sp
 		set_reg _reg_sp, _reg
-		%warning fn_string %1, _reg
-		fn_string %1, _reg
+		add_inst fn_string, %1, _reg
 	%endmacro
 
 	%macro compile_bind 1
 		get_reg _reg_sp
 		set_reg _reg_sp, _reg
-		%warning fn_bind %1, _reg
-		fn_bind %1, _reg
+		add_inst fn_bind, %1, _reg
 	%endmacro
 
 	%macro compile_label 1
 		get_reg _reg_sp
 		set_reg _reg_sp, _reg
-		%warning vp_rel %1, _reg
-		vp_rel %1, _reg
+		add_inst vp_rel, %1, _reg
 	%endmacro
 
 	%macro compile_const 1
 		get_reg _reg_sp
 		set_reg _reg_sp, _reg
-		%warning vp_cpy %1, _reg
-		vp_cpy %1, _reg
+		add_inst vp_cpy, %1, _reg
 	%endmacro
 
 	%macro compile_rpn_list 0
@@ -1398,6 +1372,7 @@
 			inc_reg_sp
 			%assign %%n %%n + 1
 		%endrep
+		emit_inst
 	%endmacro
 
 	%macro retire 2
@@ -1422,6 +1397,7 @@
 			compile_rpn_list
 			compile_assign
 		%endrep
+		emit_inst
 	%endmacro
 
 	%macro assign 2
@@ -1448,6 +1424,7 @@
 			compile_rpn_list
 			compile_assign
 		%endrep
+		emit_inst
 	%endmacro
 
 %endif
