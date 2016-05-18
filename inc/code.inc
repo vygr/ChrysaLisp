@@ -780,11 +780,11 @@
 		%endrep
 	%endmacro
 
-;;;;;;;;;;;;;
-; compilation
-;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; instruction output buffer
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-	%macro add_inst 0-*
+	%macro add_inst 1-*
 		%assign _inst_0_%[_inst_total] %0
 		%assign %%i 1
 		%rep %0
@@ -886,7 +886,7 @@
 					%warning vp_lea _inst_2_%[%%i], _inst_3_%[%%i]
 					vp_lea _inst_2_%[%%i], _inst_3_%[%%i]
 				%else
-					%warning _inst_1_%[%%i], _inst_2_%[%%i], _inst_3_%[%%i]
+					%warning _inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i]
 					_inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i]
 				%endif
 			%elif %%n = 4
@@ -902,6 +902,10 @@
 			%assign %%i %%i + 1
 		%endrep
 	%endmacro
+
+;;;;;;;;;;;;;
+; compilation
+;;;;;;;;;;;;;
 
 	%macro inc_reg_sp 0
 		%assign _reg_sp _reg_sp + 1
