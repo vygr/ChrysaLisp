@@ -799,6 +799,14 @@
 		%assign _inst_total _inst_total + 1
 	%endmacro
 
+	%macro sub_inst 1
+		%assign _inst_0_%1 0
+		%xdefine _inst_1_%1
+		%xdefine _inst_2_%1
+		%xdefine _inst_3_%1
+		%xdefine _inst_4_%1
+	%endmacro
+
 	%macro opt_inst 0
 		%assign %%i 0
 		%rep _inst_total
@@ -811,8 +819,7 @@
 							%ifidn _inst_3_%[%%i], _inst_3_%[%%p]
 								;ref/deref => op_deref
 								%xdefine _inst_2_%[%%i] _inst_2_%[%%p]
-								%assign _inst_0_%[%%p] 0
-								%xdefine _inst_1_%[%%p] op_null
+								sub_inst %%p
 								%exitrep
 							%endif
 						%elifidn _inst_3_%[%%i], _inst_3_%[%%p]
@@ -828,8 +835,7 @@
 							%ifidn _inst_3_%[%%i], [%[_inst_3_%[%%p]]]
 								;ref/assign => op_assign
 								%xdefine _inst_3_%[%%i] _inst_2_%[%%p]
-								%assign _inst_0_%[%%p] 0
-								%xdefine _inst_1_%[%%p] op_null
+								sub_inst %%p
 								%exitrep
 							%endif
 						%elifidn _inst_3_%[%%i], [%[_inst_3_%[%%p]]]
