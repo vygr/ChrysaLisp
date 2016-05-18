@@ -792,41 +792,52 @@
 			%assign %%i %%i + 1
 			%rotate 1
 		%endrep
+		%rep 4 - %0
+			%xdefine _inst_%[%%i]_%[_inst_total]
+			%assign %%i %%i + 1
+		%endrep
 		%assign _inst_total _inst_total + 1
 	%endmacro
 
 	%macro opt_inst 0
 		%assign %%i 0
 		%rep _inst_total
-			%assign %%i1 %%i - 1
-			%assign %%i2 %%i - 2
 			%assign %%n _inst_0_%[%%i]
 			%if %%n = 4
 				%ifidn _inst_1_%[%%i], op_deref
-					%ifidn _inst_1_%[%%i1], op_ref
-						%ifidn _inst_3_%[%%i], _inst_3_%[%%i1]
-							;ref/deref => op_deref
-							%xdefine _inst_2_%[%%i] _inst_2_%[%%i1]
-							%assign _inst_0_%[%%i1] 0
-							%xdefine _inst_1_%[%%i1] op_null
+					%assign %%p %%i - 1
+					%rep %%i
+						%ifidn _inst_1_%[%%p], op_ref
+							%ifidn _inst_3_%[%%i], _inst_3_%[%%p]
+								;ref/deref => op_deref
+								%xdefine _inst_2_%[%%i] _inst_2_%[%%p]
+								%assign _inst_0_%[%%p] 0
+								%xdefine _inst_1_%[%%p] op_null
+								%exitrep
+							%endif
+						%elifidn _inst_3_%[%%i], _inst_3_%[%%p]
+							;dest write !
+							%exitrep
 						%endif
-					%elifidn _inst_1_%[%%i2], op_ref
-						%ifidn _inst_3_%[%%i], _inst_3_%[%%i2]
-							;ref/deref => op_deref
-							%xdefine _inst_2_%[%%i] _inst_2_%[%%i2]
-							%assign _inst_0_%[%%i2] 0
-							%xdefine _inst_1_%[%%i2] op_null
-						%endif
-					%endif
+						%assign %%p %%p - 1
+					%endrep
 				%elifidn _inst_1_%[%%i], op_assign
-					%ifidn _inst_1_%[%%i1], op_ref
-						%ifidn _inst_3_%[%%i], [%[_inst_3_%[%%i1]]]
-							;ref/assign => op_assign
-							%xdefine _inst_3_%[%%i] _inst_2_%[%%i1]
-							%assign _inst_0_%[%%i1] 0
-							%xdefine _inst_1_%[%%i1] op_null
+					%assign %%p %%i - 1
+					%rep %%i
+						%ifidn _inst_1_%[%%p], op_ref
+							%ifidn _inst_3_%[%%i], [%[_inst_3_%[%%p]]]
+								;ref/assign => op_assign
+								%xdefine _inst_3_%[%%i] _inst_2_%[%%p]
+								%assign _inst_0_%[%%p] 0
+								%xdefine _inst_1_%[%%p] op_null
+								%exitrep
+							%endif
+						%elifidn _inst_3_%[%%i], [%[_inst_3_%[%%p]]]
+							;dest write !
+							%exitrep
 						%endif
-					%endif
+						%assign %%p %%p - 1
+					%endrep
 				%endif
 			%endif
 			%assign %%i %%i + 1
