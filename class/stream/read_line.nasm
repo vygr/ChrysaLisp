@@ -20,8 +20,8 @@
 		vp_xor r3, r3
 		loop_while r3, !=, r6
 			s_call stream, read_char, {r0}, {r1}
-			continueif r1, ==, '/r'
-			breakif r1, ==, '/n'
+			continueif r1, ==, '\r'
+			breakif r1, ==, '\n'
 			breakif r1, ==, -1
 			vp_cpy_ub r1, [r5 + r3]
 			vp_inc r3
