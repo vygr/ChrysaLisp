@@ -7,15 +7,15 @@
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
-		;r1-r3, r5-r6
+		;r1-r3, r5
 
 		;create new string object
-		vp_cpy r0, r6
+		vp_cpy r0, r5
 		s_call stream, new, {}, {r0}
 		if r0, !=, 0
 			;init the object
 			slot_function class, stream
-			s_call stream, init, {r0, @_function_, r6}, {r1}
+			s_call stream, init, {r0, @_function_, r5}, {r1}
 			if r1, ==, 0
 				;error with init
 				m_call stream, delete, {r0}, {}, r1

@@ -7,6 +7,8 @@
 		;r1 = vtable pointer
 		;outputs
 		;r1 = 0 if error, else ok
+		;trashes
+		;all but r0, r4
 
 		;init parent
 		p_call vector, init, {r0, r1}, {r1}

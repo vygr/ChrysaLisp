@@ -9,6 +9,8 @@
 		;r2 = string object
 		;outputs
 		;r1 = 0 if error, else ok
+		;trashes
+		;all but r0, r4
 
 		;save inputs
 		set_src r2

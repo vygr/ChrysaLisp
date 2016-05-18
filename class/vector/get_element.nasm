@@ -8,8 +8,6 @@
 		;outputs
 		;r0 = vector object
 		;r1 = object
-		;trashes
-		;all but r0, r4
 
 		vp_push r0
 		vp_mul long_size, r1

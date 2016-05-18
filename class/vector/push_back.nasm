@@ -8,7 +8,7 @@
 		;outputs
 		;r0 = vector object
 		;trashes
-		;all but r0, r4
+		;r1-r3, r5-r8
 
 		def_structure local
 			long local_inst
