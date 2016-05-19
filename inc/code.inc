@@ -971,8 +971,9 @@
 	%endmacro
 
 	%macro set_reg 2-3 ''
-		;rxx
-		;type 'pppb'
+		;%1 = stack slot
+		;%2 = rX
+		;%3 = type 'pppb'
 		%xdefine _reg_%1 %2
 		%xdefine _reg_t_%1 %3
 	%endmacro
@@ -1052,7 +1053,7 @@
 		%assign %%n 0
 		%rep _reg_sp
 			get_reg %%n
-			%warning param %%n: _reg, _reg_t, _reg_dt
+			%warning param %%n: _reg, _reg_t
 			%assign %%n %%n + 1
 		%endrep
 	%endmacro
@@ -1115,10 +1116,10 @@
 		pop_reg
 		%xdefine %%r _reg
 		%substr %%t _reg_t 1, 1
-		pop_value
 		%ifidn %%t, ''
 			%error Not a reference !
 		%endif
+		pop_value
 		add_inst op_assign, _reg, %%r, %%t
 	%endmacro
 
