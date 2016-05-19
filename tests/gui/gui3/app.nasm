@@ -17,7 +17,7 @@
 		buffer_size equ 32
 
 		def_structure shared, obj
-			long shared_display
+			ptr shared_display
 			long shared_accum
 			long shared_value
 			struct shared_buffer, buffer
@@ -26,19 +26,19 @@
 		def_structure_end
 
 		struct myapp, shared
-		long msg
-		long window
-		long window_panel
-		long flow_panel
-		long grid_panel
+		ptr msg
+		ptr window
+		ptr window_panel
+		ptr flow_panel
+		ptr grid_panel
 		pubyte next
-		long button
-		long owner
-		long pressed
-		long width
-		long height
-		long string
-		long length
+		ptr button
+		ulong owner
+		ptr pressed
+		ptr string
+		int width
+		int height
+		ubyte length
 
 		;init app vars
 		push_scope
@@ -137,13 +137,13 @@
 		const char_multiply, '*'
 		const char_divide, '/'
 
-		long inst
-		long button
-		long button_string
-		long display_string
-		long string
-		long string1
-		long string2
+		ptr inst
+		ptr button
+		ptr button_string
+		ptr display_string
+		ptr string
+		ptr string1
+		ptr string2
 		pubyte charp
 		ubyte char
 

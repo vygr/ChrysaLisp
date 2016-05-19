@@ -14,18 +14,18 @@
 	fn_function tests/gui/gui2/app
 
 		struct myapp, obj
-		long msg
-		long window
-		long window_panel
-		long panel
+		ptr msg
+		ptr window
+		ptr window_panel
+		ptr panel
 		pubyte next
-		long button
-		long string
-		long length
-		long pressed
-		long width
-		long height
-		long owner
+		ptr button
+		ptr string
+		ptr pressed
+		ulong owner
+		int width
+		int height
+		ubyte length
 
 		;init app vars
 		push_scope

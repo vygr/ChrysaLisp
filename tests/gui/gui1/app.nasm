@@ -14,25 +14,25 @@
 
 	fn_function tests/gui/gui1/app
 
-		long window
-		long window_panel
-		long panel
-		long cpu_total
-		long cpu_count
-		pulong task_progress
+		ptr window
+		ptr window_panel
+		ptr panel
+		uint cpu_total
+		uint cpu_count
+		pptr task_progress
 
-		long msg
-		long select1
-		long select2
-		long mailbox
+		ptr msg
+		ulong select1
+		ulong select2
+		ulong mailbox
 		pulong task_mailboxes
 		struct task_mailbox, ml_mailbox
 
-		long string
-		long progress
-		long width
-		long height
-		long owner
+		ptr string
+		ptr progress
+		int width
+		int height
+		ulong owner
 
 		;init app vars
 		push_scope

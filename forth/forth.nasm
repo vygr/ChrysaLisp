@@ -9,20 +9,20 @@
 	fn_function forth/forth
 
 		struct myapp, obj
-		long msg
-		long window
-		long window_panel
-		long label
-		long panel
+		ptr msg
+		ptr window
+		ptr window_panel
+		ptr label
+		ptr panel
 		pubyte next
-		long string
-		long length
-		long width
-		long height
-		long owner
-		long keychar
-		long line_string
-		long new_line_string
+		ptr string
+		ulong owner
+		ulong keychar
+		ptr line_string
+		ptr new_line_string
+		int width
+		int height
+		ubyte length
 
 		;init app vars
 		push_scope

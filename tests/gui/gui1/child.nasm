@@ -8,7 +8,7 @@
 	fn_function tests/gui/gui1/child
 		;monitor task
 
-		long msg
+		ptr msg
 
 		push_scope
 		loop_start
