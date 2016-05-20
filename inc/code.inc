@@ -1492,7 +1492,6 @@
 			compile_rpn_list
 			%assign %%n %%n + 1
 		%endrep
-		%assign _reg_sp _src_total
 		%rep _dst_total
 			%assign %%r _reg_sp - 1
 			set_token_list _dst_%[%%r]
