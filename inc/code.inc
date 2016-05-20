@@ -556,12 +556,35 @@
 		%endif
 	%endmacro
 
+	%macro insert_string 4
+		;%1 = param to insert
+		;%2 = param to remove
+		;%3 = param to splice
+		;%4 = position to insert
+		%strlen %%l %2
+		%substr %%s1 %3 1, %4 - 1
+		%substr %%s2 %3 %4 + %%l, -1
+		%strcat _str %%s1 %1 %%s2
+	%endmacro
+
 	%macro sub_token 2
 		;%1 = param to find
 		;%2 = param to search
 		%defstr %%s1 %1
 		%defstr %%s2 %2
 		sub_string %%s1, %%s2
+	%endmacro
+
+	%macro insert_token 4
+		;%1 = param to insert
+		;%2 = param to remove
+		;%3 = param to splice
+		;%4 = position to insert
+		%defstr %%s1 %1
+		%defstr %%s2 %2
+		%defstr %%s3 %3
+		insert_string %%s1, %%s2, %%s3, %4
+		%deftok _tok _str
 	%endmacro
 
 	%macro find_later_src 1
@@ -866,6 +889,7 @@
 	%endmacro
 
 	%macro opt_inst 0
+		;reference pass
 		%assign %%i 0
 		%rep _inst_total
 			%ifidn _inst_1_%[%%i], op_ref
@@ -890,13 +914,50 @@
 					%endif
 					sub_token _inst_3_%[%%i], _inst_2_%[%%p]
 					%if _pos != 0
-						;use of ref in source
+						;use of ref as source
 						%exitrep
 					%endif
 					sub_token _inst_3_%[%%i], _inst_3_%[%%p]
 					%if _pos != 0
-						;use of ref in destination
+						;use of ref as destination
 						%exitrep
+					%endif
+					%assign %%p %%p + 1
+				%endrep
+			%endif
+			%assign %%i %%i + 1
+		%endrep
+
+		;constants pass
+		%assign %%i 0
+		%rep _inst_total
+			%ifidn _inst_1_%[%%i], op_const
+				%assign %%p %%i + 1
+				%rep _inst_total - %%p
+					sub_token _inst_3_%[%%i], _inst_2_%[%%p]
+					%if _pos != 0
+						;only if destination is register
+						reg? _inst_3_%[%%p]
+						%if _r >= 0
+							;op_const => op_imm
+							insert_token _inst_2_%[%%i], _inst_3_%[%%i], _inst_2_%[%%p], _pos
+							%xdefine _inst_2_%[%%p] _tok
+							sub_inst %%i
+						%endif
+						%exitrep
+					%else
+						sub_token _inst_3_%[%%i], _inst_3_%[%%p]
+						%if _pos != 0
+							;only if destination is not register
+							reg? _inst_3_%[%%p]
+							%if _r < 0
+								;op_const => op_imm
+								insert_token _inst_2_%[%%i], _inst_3_%[%%i], _inst_3_%[%%p], _pos
+								%xdefine _inst_3_%[%%p] _tok
+								sub_inst %%i
+							%endif
+							%exitrep
+						%endif
 					%endif
 					%assign %%p %%p + 1
 				%endrep
@@ -940,6 +1001,9 @@
 				%ifidn _inst_1_%[%%i], op_ref
 					%warning vp_lea [_inst_2_%[%%i]], _inst_3_%[%%i]
 					vp_lea [_inst_2_%[%%i]], _inst_3_%[%%i]
+				%elifidn _inst_1_%[%%i], op_const
+					%warning vp_cpy _inst_2_%[%%i], _inst_3_%[%%i]
+					vp_cpy _inst_2_%[%%i], _inst_3_%[%%i]
 				%else
 					%warning _inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i]
 					_inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i]
@@ -1070,15 +1134,20 @@
 			%ifnum %1
 				;number
 				set_reg _reg_sp, _reg
-				add_inst vp_cpy, %1, _reg
+				add_inst op_const, %1, _reg
 			%elifstr %1_t
 				;field/member
 				set_reg _reg_sp, _reg, %1_t
-				add_inst vp_cpy, %1, _reg
+				add_inst op_const, %1, _reg
 			%else
 				;equate or register
 				set_reg _reg_sp, _reg
-				%ifnidn %1, _reg
+				reg? %1
+				%if _r < 0
+					;equate
+					add_inst op_const, %1, _reg
+				%elifnidn %1, _reg
+					;register
 					add_inst vp_cpy, %1, _reg
 				%endif
 			%endif
@@ -1395,7 +1464,7 @@
 	%macro compile_const 1
 		get_reg _reg_sp
 		set_reg _reg_sp, _reg
-		add_inst vp_cpy, %1, _reg
+		add_inst op_const, %1, _reg
 	%endmacro
 
 	%macro compile_rpn_list 0
