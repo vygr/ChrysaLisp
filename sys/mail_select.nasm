@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/mail_select, no_debug_enter
+	fn_function sys/mail_select
 		;inputs
 		;r0 = mailbox address array
 		;r1 = mailbox count

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/list.inc'
 
-	fn_function sys/list_backward, no_debug_enter
+	fn_function sys/list_backward
 		;inputs
 		;r0 = list head
 		;r1 = user callback

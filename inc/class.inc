@@ -395,7 +395,7 @@
 
 	%macro class_macro_class 1
 		;%1 = class name
-		fn_function class/class_%1, no_debug_enter
+		fn_function class/class_%1
 			vtable_emit %1
 		fn_function_end
 	%endmacro

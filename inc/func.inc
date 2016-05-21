@@ -6,7 +6,6 @@
 %include 'inc/syscall.inc'
 %include 'inc/task.inc'
 
-;%xdefine debug_function_enter
 %xdefine debug_mode
 
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -170,10 +169,9 @@
 		vp_jmp_rel _ref_%[_link_num_]_link
 	%endmacro
 
-	%macro fn_function 1-2 debug_enter
+	%macro fn_function 1
 		;inputs
 		;%1 = function path name
-		;%2 = debug option
 
 		BITS 64
 		%defstr _func_name %1
@@ -191,15 +189,6 @@
 		db	0
 		align 8, db 0
 	_func_entry:
-		%ifdef debug_function_enter
-			%ifidn %2, debug_enter
-				fn_debug_str 'enter'
-			%elifidn %2, no_debug_enter
-			%else
-				%fatal No such debug setting, use debug_enter or no_debug_enter
-			%endif
-		%endif
-
 		;define the operators
 		;values are precidence, assoiciativity
 		push_scope

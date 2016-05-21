@@ -4,7 +4,7 @@
 %include 'inc/sdl2.inc'
 %include 'inc/task.inc'
 
-	fn_function gui/font_open, no_debug_enter
+	fn_function gui/font_open
 		;inputs
 		;r0 = font name
 		;r1 = point size

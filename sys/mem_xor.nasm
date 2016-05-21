@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	fn_function sys/mem_xor, no_debug_enter
+	fn_function sys/mem_xor
 		;inputs
 		;r0 = source address
 		;r1 = destination address

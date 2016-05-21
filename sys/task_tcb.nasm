@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_tcb, no_debug_enter
+	fn_function sys/task_tcb
 		;outputs
 		;r0 = current task tcb
 

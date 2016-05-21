@@ -2,7 +2,7 @@
 %include 'inc/mail.inc'
 %include 'inc/string.inc'
 
-	fn_function sys/task_open_remote, no_debug_enter
+	fn_function sys/task_open_remote
 		;inputs
 		;r0 = new task function name
 		;r1 = cpu id to start with

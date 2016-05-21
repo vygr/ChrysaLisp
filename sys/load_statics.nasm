@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/load.inc'
 
-	fn_function sys/load_statics, no_debug_enter
+	fn_function sys/load_statics
 
 		times ld_statics_size db 0
 

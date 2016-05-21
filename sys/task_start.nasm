@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_start, no_debug_enter
+	fn_function sys/task_start
 		;inputs
 		;r0 = new task program counter
 		;outputs

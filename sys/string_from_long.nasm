@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	fn_function sys/string_from_long, no_debug_enter
+	fn_function sys/string_from_long
 		;inputs
 		;r0 = number
 		;r1 = string buffer

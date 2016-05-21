@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_statics, no_debug_enter
+	fn_function sys/task_statics
 
 		times tk_statics_size db 0
 

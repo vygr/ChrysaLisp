@@ -2,7 +2,7 @@
 %include 'inc/syscall.inc'
 %include 'inc/string.inc'
 
-	fn_function sys/write_debug_long, no_debug_enter
+	fn_function sys/write_debug_long
 		;inputs
 		;r0 = function name
 		;r1 = line number

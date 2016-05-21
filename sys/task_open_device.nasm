@@ -2,7 +2,7 @@
 %include 'inc/mail.inc'
 %include 'inc/string.inc'
 
-	fn_function sys/task_open_device, no_debug_enter
+	fn_function sys/task_open_device
 		;inputs
 		;r0 = new task function name
 		;r1 = cpu id of task

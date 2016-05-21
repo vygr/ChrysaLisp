@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	fn_function sys/string_hash, no_debug_enter
+	fn_function sys/string_hash
 		;inputs
 		;r0 = string
 		;outputs

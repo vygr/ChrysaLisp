@@ -2,7 +2,7 @@
 %include 'inc/mail.inc'
 %include 'inc/string.inc'
 
-	fn_function sys/task_open_farm, no_debug_enter
+	fn_function sys/task_open_farm
 		;inputs
 		;r0 = new task function name
 		;r1 = mailbox array pointer

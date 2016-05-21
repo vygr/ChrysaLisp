@@ -2,7 +2,7 @@
 %include 'inc/font.inc'
 %include 'inc/sdl2.inc'
 
-	fn_function gui/font_deinit, no_debug_enter
+	fn_function gui/font_deinit
 		;get font statics
 		static_bind gui_font, statics, r15
 

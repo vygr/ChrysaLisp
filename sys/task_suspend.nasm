@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_suspend, no_debug_enter
+	fn_function sys/task_suspend
 		;push task state
 		tk_save_state
 

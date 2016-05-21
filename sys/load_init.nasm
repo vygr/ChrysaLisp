@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/load.inc'
 
-	fn_function sys/load_init, no_debug_enter
+	fn_function sys/load_init
 		;set prebound functions as read/write/executable
 		vp_rel _func_start, r0
 		vp_cpy r0, r1

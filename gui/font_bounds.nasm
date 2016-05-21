@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/font.inc'
 
-	fn_function gui/font_bounds, no_debug_enter
+	fn_function gui/font_bounds
 		;inputs
 		;r0 = font entry
 		;r1 = text

@@ -5,7 +5,7 @@
 %include 'inc/string.inc'
 %include 'inc/load.inc'
 
-	fn_function sys/opt_process, no_debug_enter
+	fn_function sys/opt_process
 		;process command options
 		;inputs
 		;r0 = argv array

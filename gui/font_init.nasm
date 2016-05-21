@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/font.inc'
 
-	fn_function gui/font_init, no_debug_enter
+	fn_function gui/font_init
 
 		;get font statics
 		static_bind gui_font, statics, r3

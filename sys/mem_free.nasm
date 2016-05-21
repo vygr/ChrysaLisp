@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/heap.inc'
 
-	fn_function sys/mem_free, no_debug_enter
+	fn_function sys/mem_free
 		;inputs
 		;r0 = address
 		;trashes

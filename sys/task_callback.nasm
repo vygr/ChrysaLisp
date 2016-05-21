@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	fn_function sys/task_callback, no_debug_enter
+	fn_function sys/task_callback
 		;inputs
 		;r0 = callback address
 		;r1 = user data address

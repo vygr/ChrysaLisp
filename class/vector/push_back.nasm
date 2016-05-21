@@ -36,7 +36,8 @@
 		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r4 + local_object], r1
 		vp_cpy [r0 + vector_length], r2
-		vp_cpy r1, [r0 + r2 - long_size]
+		vp_cpy [r0 + vector_array], r3
+		vp_cpy r1, [r3 + r2 - long_size]
 
 		vp_add local_size, r4
 		vp_ret

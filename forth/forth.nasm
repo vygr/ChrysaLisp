@@ -5,6 +5,8 @@
 %include 'class/class_flow.inc'
 %include 'class/class_label.inc'
 %include 'class/class_string.inc'
+%include 'class/class_stream.inc'
+%include 'class/class_vector.inc'
 
 	fn_function forth/forth
 
@@ -14,14 +16,14 @@
 		ptr window_panel
 		ptr label
 		ptr panel
+		ptr stream
+		ptr vector
 		pubyte next
 		ptr string
 		ulong owner
-		ulong keychar
-		ptr line_string
-		ptr new_line_string
 		int width
 		int height
+		int char
 		ubyte length
 
 		;init app vars
@@ -71,35 +73,38 @@
 		static_call gui_gui, add, {window}
 		static_call window, dirty_all, {window}
 
+		;set up input stream stack
+		static_call string, create_from_file, {"forth/forth.f"}, {string}
+		static_call stream, create_from_string, {string}, {stream}
+		static_call vector, create, {}, {vector}
+		static_call vector, push_back, {vector, stream}
+
 		;app event loop
 		loop_start
-			static_call sys_mail, mymail, {}, {msg}
+			;priority to stack input
+			loop_start
+				static_call vector, get_length, {vector}, {length}
+				breakif {length == 0}
+				static_call vector, get_back, {vector}, {stream}
+				static_call stream, read_char, {stream}, {char}
+				if {char == -1}
+					static_call vector, pop_back, {vector}
+				else
+					eval {panel, char}, {r0, r1}
+					vp_call terminal_input
+				endif
+				static_call stream, deref, {stream}
+				static_call sys_task, yield, {}
+			loop_end
 
 			;dispatch event to view
+			static_call sys_mail, mymail, {}, {msg}
 			method_call view, event, {msg->ev_data_view, msg}
 
 			;if key event, then input to terminal
 			if {msg->ev_data_type == ev_type_key && msg->ev_data_keycode > 0}
-				assign {msg->ev_data_key}, {keychar}
-				if {keychar == 13}
-					;scroll lines
-					static_call flow, get_first, {panel}, {label}
-					static_call label, add_back, {label, panel}
-					method_call flow, layout, {panel}
-					static_call string, create_from_cstr, {">"}, {string}
-					static_call label, set_text, {label, string}
-					static_call flow, dirty_all, {panel}
-				else
-					;append char
-					static_call flow, get_last, {panel}, {label}
-					static_call string, create_from_cstr, {&keychar}, {string}
-					static_call label, get_text, {label}, {line_string}
-					static_call string, add, {line_string, string}, {new_line_string}
-					static_call string, deref, {line_string}
-					static_call string, deref, {string}
-					static_call label, set_text, {label, new_line_string}
-					static_call label, dirty, {label}
-				endif
+				eval {panel, msg->ev_data_key}, {r0, r1}
+				vp_call terminal_input
 			endif
 
 			;free event message
@@ -109,6 +114,42 @@
 		;deref window
 		static_call window, deref, {window}
 		method_call obj, deinit, {&myapp}
+		pop_scope
+		vp_ret
+
+	terminal_input:
+		;inputs
+		;r0 = terminal
+		;r1 = char input
+
+		ptr terminal
+		ptr label
+		ptr string
+		ptr line_string
+		ptr new_line_string
+		ulong char
+
+		push_scope
+		retire {r0, r1}, {terminal, char}
+		if {char == 10 || char == 13}
+			;scroll lines
+			static_call flow, get_first, {terminal}, {label}
+			static_call label, add_back, {label, terminal}
+			method_call flow, layout, {terminal}
+			static_call string, create_from_cstr, {">"}, {string}
+			static_call label, set_text, {label, string}
+			static_call flow, dirty_all, {terminal}
+		else
+			;append char
+			static_call flow, get_last, {terminal}, {label}
+			static_call string, create_from_cstr, {&char}, {string}
+			static_call label, get_text, {label}, {line_string}
+			static_call string, add, {line_string, string}, {new_line_string}
+			static_call string, deref, {line_string}
+			static_call string, deref, {string}
+			static_call label, set_text, {label, new_line_string}
+			static_call label, dirty, {label}
+		endif
 		pop_scope
 		vp_ret
 

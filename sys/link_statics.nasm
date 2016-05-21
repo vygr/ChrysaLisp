@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/link.inc'
 
-	fn_function sys/link_statics, no_debug_enter
+	fn_function sys/link_statics
 
 		times lk_statics_size db 0
 

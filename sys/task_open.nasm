@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_open, no_debug_enter
+	fn_function sys/task_open
 		;inputs
 		;r0 = new task function name
 		;outputs

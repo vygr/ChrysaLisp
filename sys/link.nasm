@@ -3,7 +3,7 @@
 %include 'inc/task.inc'
 %include 'inc/link.inc'
 
-	fn_function sys/link, no_debug_enter
+	fn_function sys/link
 		;started by kernel for each link
 
 		;decrement task count

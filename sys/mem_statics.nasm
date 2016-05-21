@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/heap.inc'
 
-	fn_function sys/mem_statics, no_debug_enter
+	fn_function sys/mem_statics
 
 		%assign blk_size mem_block_min_size
 		%rep 1000

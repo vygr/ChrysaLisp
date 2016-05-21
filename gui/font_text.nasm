@@ -4,7 +4,7 @@
 %include 'inc/sdl2.inc'
 %include 'inc/task.inc'
 
-	fn_function gui/font_text, no_debug_enter
+	fn_function gui/font_text
 		;inputs
 		;r0 = font entry
 		;r1 = text

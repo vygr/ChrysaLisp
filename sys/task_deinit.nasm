@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_deinit, no_debug_enter
+	fn_function sys/task_deinit
 
 		;free the task heap
 		static_bind sys_task, statics, r0
