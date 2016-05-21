@@ -13,8 +13,7 @@
 
 		;save inputs
 		vp_push r0
-		vp_add string_data, r0
-		s_call sys_string, hash, {r0}, {r1}
+		s_call sys_string, hash, {&[r0 + string_data]}, {r1}
 		vp_pop r0
 		vp_ret
 
