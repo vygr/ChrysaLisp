@@ -185,7 +185,6 @@
 			%fatal Class %1 method %2 is virtual ! Use method_call ?
 		%endif
 		eval {%3}, {_map_%1_in_%[_static_]}
-		%warning static_call %1->%2
 		fn_call _map_%1_slot_%[_static_]
 		retire {_map_%1_out_%[_static_]}, {%4}
 	%endmacro
@@ -307,7 +306,6 @@
 			%fatal Class %1 method %2 is static ! Use s_call ?
 		%endif
 		eval {%5, %3}, {%5, _map_%1_in_%[_static_]}
-		%warning method_call %1->%2
 		vp_cpy [r0 + obj_vtable], %5
 		vp_call [%5 + _virtual_ * 8]
 		retire {_map_%1_out_%[_static_]}, {%4}

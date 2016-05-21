@@ -370,7 +370,7 @@
 		%assign _scope_var_%[_scope_sp] _var_sp
 		%assign _scope_sp _scope_sp + 1
 		%if _var_sp != 0
-			%warning vp_sub _var_sp, r4
+			;%warning vp_sub _var_sp, r4
 			vp_sub _var_sp, r4
 			%assign _var_sp 0
 		%endif
@@ -381,7 +381,7 @@
 		%assign _sym_sp _scope_sym_%[_scope_sp]
 		%assign _var_sp _scope_var_%[_scope_sp]
 		%if _var_sp != 0
-			%warning vp_add _var_sp, r4
+			;%warning vp_add _var_sp, r4
 			vp_add _var_sp, r4
 			%assign _var_sp 0
 		%endif
@@ -982,7 +982,7 @@
 		%else
 			%xdefine %%t
 		%endif
-		%warning vp_cpy%[%%t] %1, %2
+		;%warning vp_cpy%[%%t] %1, %2
 		vp_cpy%[%%t] %1, %2
 	%endmacro
 
@@ -992,20 +992,20 @@
 		%rep _inst_total
 			%assign %%n _inst_0_%[%%i]
 			%if %%n = 1
-				%warning _inst_1_%[%%i]
+				;%warning _inst_1_%[%%i]
 				_inst_1_%[%%i]
 			%elif %%n = 2
-				%warning _inst_1_%[%%i], _inst_2_%[%%i]
+				;%warning _inst_1_%[%%i], _inst_2_%[%%i]
 				_inst_1_%[%%i] _inst_2_%[%%i]
 			%elif %%n = 3
 				%ifidn _inst_1_%[%%i], op_ref
-					%warning vp_lea [_inst_2_%[%%i]], _inst_3_%[%%i]
+					;%warning vp_lea [_inst_2_%[%%i]], _inst_3_%[%%i]
 					vp_lea [_inst_2_%[%%i]], _inst_3_%[%%i]
 				%elifidn _inst_1_%[%%i], op_const
-					%warning vp_cpy _inst_2_%[%%i], _inst_3_%[%%i]
+					;%warning vp_cpy _inst_2_%[%%i], _inst_3_%[%%i]
 					vp_cpy _inst_2_%[%%i], _inst_3_%[%%i]
 				%else
-					%warning _inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i]
+					;%warning _inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i]
 					_inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i]
 				%endif
 			%elif %%n = 4
@@ -1014,7 +1014,7 @@
 				%elifidn _inst_1_%[%%i], op_assign
 					emit_copy _inst_2_%[%%i], [_inst_3_%[%%i]], _inst_4_%[%%i]
 				%else
-					%warning _inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i], _inst_4_%[%%i]
+					;%warning _inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i], _inst_4_%[%%i]
 					_inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i], _inst_4_%[%%i]
 				%endif
 			%endif
@@ -1501,7 +1501,7 @@
 ;;;;;;;;;;;;
 
 	%macro eval 2
-		%warning --------------------------------------
+		;%warning --------------------------------------
 		set_src %1
 		set_reg_stack %2
 		%if _src_total != _reg_total
@@ -1546,7 +1546,7 @@
 	%endmacro
 
 	%macro assign 2
-		%warning --------------------------------------
+		;%warning --------------------------------------
 		set_src %1
 		set_dst %2
 		%if _dst_total != _src_total
