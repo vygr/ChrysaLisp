@@ -58,6 +58,7 @@ class/label/set_text_color
 class/obj/create
 class/obj/deinit
 class/obj/destroy
+class/obj/hash
 class/obj/init
 class/obj/new
 class/obj/null
@@ -71,6 +72,7 @@ class/progress/set_val
 class/ref/deref
 class/ref/init
 class/ref/ref
+class/stream/create_from_string
 class/stream/deinit
 class/stream/init
 class/stream/new
@@ -79,6 +81,7 @@ class/stream/read_line
 class/string/add
 class/string/create_from_cstr
 class/string/create_from_file
+class/string/hash
 class/string/init
 class/string/init1
 class/string/init2
@@ -284,9 +287,3 @@ tests/gui/gui2/app
 tests/gui/gui3/app
 tests/pipe
 tests/pipe_child
-
-class/stream/create_from_string
-
-class/obj/hash
-
-class/string/hash
