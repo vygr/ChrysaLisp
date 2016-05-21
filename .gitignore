@@ -286,3 +286,7 @@ tests/pipe
 tests/pipe_child
 
 class/stream/create_from_string
+
+class/obj/hash
+
+class/string/hash

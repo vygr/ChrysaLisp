@@ -12,6 +12,8 @@
 	def_method init2, class/string/init2, static, {r0, r1, r2, r3}, {r1}
 	def_method add, class/string/add, static, {r0, r1}, {r0}
 
+	def_method hash, class/string/hash, override, {r0}, {r1}
+
 	def_structure string, ref
 		long string_length
 		struct string_data, null
