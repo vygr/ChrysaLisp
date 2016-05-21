@@ -90,8 +90,7 @@
 				if {char == -1}
 					static_call vector, pop_back, {vector}
 				else
-					eval {panel, char}, {r0, r1}
-					vp_call terminal_input
+					local_call terminal_input, {panel, char}, {r0, r1}
 				endif
 				static_call stream, deref, {stream}
 				static_call sys_task, yield, {}
@@ -103,8 +102,7 @@
 
 			;if key event, then input to terminal
 			if {msg->ev_data_type == ev_type_key && msg->ev_data_keycode > 0}
-				eval {panel, msg->ev_data_key}, {r0, r1}
-				vp_call terminal_input
+				local_call terminal_input, {panel, msg->ev_data_key}, {r0, r1}
 			endif
 
 			;free event message

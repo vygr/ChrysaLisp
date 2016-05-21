@@ -368,6 +368,18 @@
 		%xdefine %3 _map_%[_super_class_%1_]_slot_%[_static_]
 	%endmacro
 
+	%macro local_call 1-5 {}, {}, {}, {}
+		;%1 = label
+		;%2 = in paramaters
+		;%3 = in regs
+		;%4 = out paramaters
+		;%5 = out regs
+
+		eval {%2}, {%3}
+		vp_call %1
+		retire {%4}, {%5}
+	%endmacro
+
 ;;;;;;;;;;;;;;;;;
 ; virtual classes
 ;;;;;;;;;;;;;;;;;
