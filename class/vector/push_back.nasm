@@ -11,14 +11,13 @@
 		;r1-r3, r5-r8
 
 		def_structure local
-			long local_inst
 			long local_object
 		def_structure_end
 
 		;save inputs
 		vp_sub local_size, r4
-		set_src r0, r1
-		set_dst [r4 + local_inst], [r4 + local_object]
+		set_src r1
+		set_dst [r4 + local_object]
 		map_src_to_dst
 
 		;increase capacity ?
@@ -33,7 +32,6 @@
 		endif
 
 		;save object
-		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r4 + local_object], r1
 		vp_cpy [r0 + vector_length], r2
 		vp_cpy [r0 + vector_array], r3
