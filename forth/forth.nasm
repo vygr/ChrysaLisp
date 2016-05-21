@@ -54,7 +54,7 @@
 			static_call label, set_text, {label, string}
 			static_call label, set_color, {label, 0xff000000}
 			static_call label, set_text_color, {label, 0xff00ff00}
-			static_call label, set_font, {label, "fonts/OpenSans-Regular.ttf", 12}
+			static_call label, set_font, {label, "fonts/OpenSans-Regular.ttf", 16}
 			static_call label, add_back, {label, panel}
 
 			static_call sys_string, length, {next}, {length}
@@ -152,7 +152,7 @@
 		vp_ret
 
 	line_list:
-		%rep 37
+		%rep 27
 			db '>', 0
 		%endrep
 		db '>Forth Terminal', 0
