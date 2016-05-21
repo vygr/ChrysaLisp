@@ -14,9 +14,10 @@
 		;all but r4
 
 		def_structure local
-			long local_font
-			long local_text
-			long local_handle
+			ptr local_font
+			ptr local_text
+			ptr local_bucket
+			ulong local_handle
 			long local_surface
 			long local_width
 			long local_height
@@ -31,8 +32,16 @@
 		;get font statics
 		static_bind gui_font, statics, r5
 
-		;search text list
-		loop_flist_forward r5 + ft_statics_text_list, r5, r5
+		;string hash to bucket
+		s_call sys_string, hash, {r1}, {r0}
+		vp_cpy ft_num_buckets, r1
+		vp_xor r2, r2
+		vp_div r1, r2, r0
+		vp_lea [r5 + r2 * ptr_size], r5
+		vp_cpy r5, [r4 + local_bucket]
+
+		;search bucket
+		loop_flist_forward r5, r5, r5
 			vp_cpy [r4 + local_font], r0
 			continueif r0, !=, [r5 + ft_text_font]
 			s_call sys_string, compare, {&[r5 + ft_text_name], [r4 + local_text]}, {r0}
@@ -96,8 +105,8 @@
 				sdl_set_texture_blend_mode [r13 + ft_text_texture], SDL_BLENDMODE_BLEND
 
 				vp_cpy r13, r0
-				static_bind gui_font, statics, r5
-				ln_add_fnode r5 + ft_statics_text_list, r0, r1
+				vp_cpy [r14 + local_bucket], r5
+				ln_add_fnode r5, r0, r1
 			endif
 			vp_cpy r0, [r14 + local_handle]
 			sdl_free_surface [r14 + local_surface]

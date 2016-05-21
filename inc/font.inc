@@ -39,9 +39,12 @@
 		struct ft_text_name, null
 	def_structure_end
 
+	ft_num_buckets equ 61
+	ft_buckets_size equ ptr_size * ft_num_buckets
+
 	def_structure ft_statics
 		long ft_statics_font_list
-		long ft_statics_text_list
+		struct ft_statics_text_lists, ft_buckets
 	def_structure_end
 
 %endif
