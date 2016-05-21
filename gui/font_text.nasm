@@ -41,7 +41,7 @@
 		vp_cpy r5, [r4 + local_bucket]
 
 		;search bucket
-		loop_flist_forward r5, r5, r5
+		loop_flist_forward r5, r5, r6
 			vp_cpy [r4 + local_font], r0
 			continueif r0, !=, [r5 + ft_text_font]
 			s_call sys_string, compare, {&[r5 + ft_text_name], [r4 + local_text]}, {r0}
@@ -53,6 +53,11 @@
 			;no so try create it
 			s_call sys_task, callback, {$kernel_callback, r4}
 			vp_cpy [r4 + local_handle], r0
+		else
+			;yes so LRU to front
+			ln_remove_fnode r5, r6
+			vp_cpy [r4 + local_bucket], r5
+			ln_add_fnode r5, r0, r1
 		endif
 
 		vp_add local_size, r4
