@@ -888,7 +888,7 @@
 		%xdefine _inst_4_%1
 	%endmacro
 
-	%macro opt_inst 0
+	%macro opt_inst_list 0
 		;reference pass
 		%assign %%i 0
 		%rep _inst_total
@@ -937,7 +937,7 @@
 					sub_token _inst_3_%[%%i], _inst_2_%[%%p]
 					%if _pos != 0
 						;only if destination is register
-						reg? _inst_3_%[%%p]
+						is_reg _inst_3_%[%%p]
 						%if _r >= 0
 							;op_const => op_imm
 							insert_token _inst_2_%[%%i], _inst_3_%[%%i], _inst_2_%[%%p], _pos
@@ -949,7 +949,7 @@
 						sub_token _inst_3_%[%%i], _inst_3_%[%%p]
 						%if _pos != 0
 							;only if destination is not register
-							reg? _inst_3_%[%%p]
+							is_reg _inst_3_%[%%p]
 							%if _r < 0
 								;op_const => op_imm
 								insert_token _inst_2_%[%%i], _inst_3_%[%%i], _inst_3_%[%%p], _pos
@@ -986,8 +986,8 @@
 		vp_cpy%[%%t] %1, %2
 	%endmacro
 
-	%macro emit_inst 0
-		opt_inst
+	%macro emit_inst_list 0
+		opt_inst_list
 		%assign %%i 0
 		%rep _inst_total
 			%assign %%n _inst_0_%[%%i]
@@ -1051,6 +1051,17 @@
 		%endif
 		%xdefine _reg _reg_%1
 		%xdefine _reg_t _reg_t_%1
+	%endmacro
+
+	%macro is_reg 1
+		%assign _r _reg_total - 1
+		%rep _reg_total
+			%ifidn _reg_%[_r], %1
+				%exitrep
+			%else
+				%assign _r _r - 1
+			%endif
+		%endrep
 	%endmacro
 
 	%macro pop_reg 0
@@ -1517,7 +1528,7 @@
 			inc_reg_sp
 			%assign %%n %%n + 1
 		%endrep
-		emit_inst
+		emit_inst_list
 	%endmacro
 
 	%macro retire 2
@@ -1542,7 +1553,7 @@
 			compile_rpn_list
 			compile_assign
 		%endrep
-		emit_inst
+		emit_inst_list
 	%endmacro
 
 	%macro assign 2
@@ -1568,7 +1579,7 @@
 			compile_rpn_list
 			compile_assign
 		%endrep
-		emit_inst
+		emit_inst_list
 	%endmacro
 
 %endif
