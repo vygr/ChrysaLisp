@@ -966,6 +966,17 @@
 		%endrep
 	%endmacro
 
+	%macro emit_inst 1
+		;single point to emit the instruction stream
+		;%warning %1
+		%1
+	%endmacro
+
+	%macro emit_info 1
+		;single point to emit the instruction stream info
+		;%warning %1
+	%endmacro
+
 	%macro emit_copy 3
 		%ifidn %3, 'i'
 			%xdefine %%t _i
@@ -982,44 +993,41 @@
 		%else
 			%xdefine %%t
 		%endif
-		;%warning vp_cpy%[%%t] %1, %2
-		vp_cpy%[%%t] %1, %2
+		emit_inst {vp_cpy%[%%t] %1, %2}
 	%endmacro
 
-	%macro emit_inst_list 0
-		opt_inst_list
-		%assign %%i 0
-		%rep _inst_total
-			%assign %%n _inst_0_%[%%i]
-			%if %%n = 1
-				;%warning _inst_1_%[%%i]
-				_inst_1_%[%%i]
-			%elif %%n = 2
-				;%warning _inst_1_%[%%i], _inst_2_%[%%i]
-				_inst_1_%[%%i] _inst_2_%[%%i]
-			%elif %%n = 3
-				%ifidn _inst_1_%[%%i], op_ref
-					;%warning vp_lea [_inst_2_%[%%i]], _inst_3_%[%%i]
-					vp_lea [_inst_2_%[%%i]], _inst_3_%[%%i]
-				%elifidn _inst_1_%[%%i], op_const
-					;%warning vp_cpy _inst_2_%[%%i], _inst_3_%[%%i]
-					vp_cpy _inst_2_%[%%i], _inst_3_%[%%i]
-				%else
-					;%warning _inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i]
-					_inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i]
+	%macro emit_inst_list 1
+		;%1 info
+		%if _inst_total != 0
+			emit_info {%1}
+			opt_inst_list
+			%assign %%i 0
+			%rep _inst_total
+				%assign %%n _inst_0_%[%%i]
+				%if %%n = 1
+					emit_inst {_inst_1_%[%%i]}
+				%elif %%n = 2
+					emit_inst {_inst_1_%[%%i] _inst_2_%[%%i]}
+				%elif %%n = 3
+					%ifidn _inst_1_%[%%i], op_ref
+						emit_inst {vp_lea [_inst_2_%[%%i]], _inst_3_%[%%i]}
+					%elifidn _inst_1_%[%%i], op_const
+						emit_inst {vp_cpy _inst_2_%[%%i], _inst_3_%[%%i]}
+					%else
+						emit_inst {_inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i]}
+					%endif
+				%elif %%n = 4
+					%ifidn _inst_1_%[%%i], op_deref
+						emit_copy [_inst_2_%[%%i]], _inst_3_%[%%i], _inst_4_%[%%i]
+					%elifidn _inst_1_%[%%i], op_assign
+						emit_copy _inst_2_%[%%i], [_inst_3_%[%%i]], _inst_4_%[%%i]
+					%else
+						emit_inst {_inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i], _inst_4_%[%%i]}
+					%endif
 				%endif
-			%elif %%n = 4
-				%ifidn _inst_1_%[%%i], op_deref
-					emit_copy [_inst_2_%[%%i]], _inst_3_%[%%i], _inst_4_%[%%i]
-				%elifidn _inst_1_%[%%i], op_assign
-					emit_copy _inst_2_%[%%i], [_inst_3_%[%%i]], _inst_4_%[%%i]
-				%else
-					;%warning _inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i], _inst_4_%[%%i]
-					_inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i], _inst_4_%[%%i]
-				%endif
-			%endif
-			%assign %%i %%i + 1
-		%endrep
+				%assign %%i %%i + 1
+			%endrep
+		%endif
 	%endmacro
 
 ;;;;;;;;;;;;;
@@ -1037,7 +1045,7 @@
 	%macro set_reg 2-3 ''
 		;%1 = stack slot
 		;%2 = rX
-		;%3 = type 'pppb'
+		;%3 = type 'pppb' etc
 		%xdefine _reg_%1 %2
 		%xdefine _reg_t_%1 %3
 	%endmacro
@@ -1512,7 +1520,6 @@
 ;;;;;;;;;;;;
 
 	%macro eval 2
-		;%warning --------------------------------------
 		set_src %1
 		set_reg_stack %2
 		%if _src_total != _reg_total
@@ -1528,7 +1535,7 @@
 			inc_reg_sp
 			%assign %%n %%n + 1
 		%endrep
-		emit_inst_list
+		emit_inst_list {eval: %1 => %2}
 	%endmacro
 
 	%macro retire 2
@@ -1553,11 +1560,10 @@
 			compile_rpn_list
 			compile_assign
 		%endrep
-		emit_inst_list
+		emit_inst_list {retire: %1 => %2}
 	%endmacro
 
 	%macro assign 2
-		;%warning --------------------------------------
 		set_src %1
 		set_dst %2
 		%if _dst_total != _src_total
@@ -1579,7 +1585,7 @@
 			compile_rpn_list
 			compile_assign
 		%endrep
-		emit_inst_list
+		emit_inst_list {assign: %1 => %2}
 	%endmacro
 
 %endif
