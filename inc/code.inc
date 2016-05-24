@@ -1034,14 +1034,6 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-	%macro set_reg 2-3 ''
-		;%1 = stack slot
-		;%2 = rX
-		;%3 = type 'pppb' etc
-		%xdefine _%1 %2
-		%xdefine _%1_t %3
-	%endmacro
-
 	%macro is_reg 1
 		%assign _f _r_total - 1
 		%rep _r_total
@@ -1060,7 +1052,7 @@
 
 	%macro pop_value_final 0
 		pop_value
-		set_reg _s, _%[_s]
+		%xdefine _%[_s]_t ''
 	%endmacro
 
 	%macro set_reg_stack 0-*
@@ -1068,7 +1060,8 @@
 		%assign _r_total 0
 		%assign _i_total 0
 		%rep %0
-			set_reg _r_total, %1
+			%xdefine _%[_r_total] %1
+			%xdefine _%[_r_total]_t ''
 			%assign _r_total _r_total + 1
 			%rotate 1
 		%endrep
@@ -1084,7 +1077,8 @@
 			%endif
 		%endrep
 		%if %%n = _r_total
-			set_reg _r_total, %1
+			%xdefine _%[_r_total] %1
+			%xdefine _%[_r_total]_t ''
 			%assign _r_total _r_total + 1
 		%endif
 	%endmacro
@@ -1125,15 +1119,15 @@
 			;not in symbol table so figure out what it is
 			%ifnum %1
 				;number
-				set_reg _s, _%[_s]
+				%xdefine _%[_s]_t ''
 				add_inst op_const, %1, _%[_s]
 			%elifstr %1_t
 				;field/member
-				set_reg _s, _%[_s], %1_t
+				%xdefine _%[_s]_t %1_t
 				add_inst op_const, %1, _%[_s]
 			%else
 				;equate or register
-				set_reg _s, _%[_s]
+				%xdefine _%[_s]_t ''
 				is_reg %1
 				%if _f < 0
 					;equate
@@ -1148,7 +1142,7 @@
 			compile_const _sym_value1_%[_sym]
 		%elif _sym_type_%[_sym] = _sym_var
 			;variable
-			set_reg _s, _%[_s], _sym_aux_%[_sym]
+			%xdefine _%[_s]_t _sym_aux_%[_sym]
 			get_scope_offset _sym_scope_%[_sym]
 			add_inst op_ref, r4 + _scope_offset + _sym_value1_%[_sym], _%[_s]
 		%endif
@@ -1161,7 +1155,7 @@
 		%endif
 		add_inst op_deref, _%[_s], _%[_s], %%t
 		%substr %%t _%[_s]_t 2, -1
-		set_reg _s, _%[_s], %%t
+		%xdefine _%[_s]_t %%t
 	%endmacro
 
 	%macro compile_deref? 0
@@ -1185,7 +1179,7 @@
 		%assign %%s _s - 1
 		%assign _s _s - 2
 		add_inst op_ref, _%[_s] + _%[%%s], _%[_s]
-		set_reg _s, _%[_s], _%[%%s]_t
+		%xdefine _%[_s]_t _%[%%s]_t
 	%endmacro
 
 	%macro compile_member 0
@@ -1193,7 +1187,7 @@
 		%assign _s _s - 2
 		compile_deref
 		add_inst op_ref, _%[_s] + _%[%%s], _%[_s]
-		set_reg _s, _%[_s], _%[%%s]_t
+		%xdefine _%[_s]_t _%[%%s]_t
 	%endmacro
 
 	%macro compile_index 0
@@ -1206,7 +1200,7 @@
 
 	%macro compile_uaddrof 0
 		%assign _s _s - 1
-		set_reg _s, _%[_s]
+		%xdefine _%[_s]_t ''
 	%endmacro
 
 	%macro compile_uderef 0
@@ -1427,22 +1421,22 @@
 	%endmacro
 
 	%macro compile_string 1
-		set_reg _s, _%[_s]
+		%xdefine _%[_s]_t ''
 		add_inst fn_string, %1, _%[_s]
 	%endmacro
 
 	%macro compile_bind 1
-		set_reg _s, _%[_s]
+		%xdefine _%[_s]_t ''
 		add_inst fn_bind, %1, _%[_s]
 	%endmacro
 
 	%macro compile_label 1
-		set_reg _s, _%[_s]
+		%xdefine _%[_s]_t ''
 		add_inst vp_rel, %1, _%[_s]
 	%endmacro
 
 	%macro compile_const 1
-		set_reg _s, _%[_s]
+		%xdefine _%[_s]_t ''
 		add_inst op_const, %1, _%[_s]
 	%endmacro
 
