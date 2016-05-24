@@ -45,13 +45,13 @@
 ;;;;;;;;;;;;;;;;
 
 	def_structure gui_statics
-		long gui_statics_sdl_funcs
+		ptr gui_statics_sdl_funcs
 		struct gui_statics_rect_heap, hp_heap
 		struct gui_statics_sigslot_heap, hp_heap
-		long gui_statics_window
-		long gui_statics_screen
-		long gui_statics_renderer
-		long gui_statics_old_region
+		ptr gui_statics_window
+		ptr gui_statics_screen
+		ulong gui_statics_renderer
+		ptr gui_statics_old_region
 	def_structure_end
 
 	def_structure gui_rect, ln_fnode
@@ -62,17 +62,17 @@
 	def_structure_end
 
 	def_structure gui_ctx
-		long gui_ctx_sdl_ctx
-		long gui_ctx_dirty_region
-		long gui_ctx_x
-		long gui_ctx_y
+		ptr gui_ctx_sdl_ctx
+		ptr gui_ctx_dirty_region
+		ulong gui_ctx_x
+		ulong gui_ctx_y
 	def_structure_end
 
 	def_structure gui_sigslot
 		struct gui_sigslot_sig_node, ln_node
 		struct gui_sigslot_slot_node, ln_node
-		long gui_sigslot_inst
-		long gui_sigslot_addr
+		ptr gui_sigslot_inst
+		ptr gui_sigslot_addr
 	def_structure_end
 
 ;;;;;;;;;;;;;;;
@@ -83,15 +83,15 @@
 	ev_type_key		equ 1
 
 	def_structure ev_data, ml_msg_header
-		long ev_data_type
-		long ev_data_view
+		ulong ev_data_type
+		ptr ev_data_view
 		long ev_data_x
 		long ev_data_y
 		long ev_data_rx
 		long ev_data_ry
-		long ev_data_buttons
-		long ev_data_keycode
-		long ev_data_key
+		ulong ev_data_buttons
+		ulong ev_data_keycode
+		ulong ev_data_key
 	def_structure_end
 
 %endif

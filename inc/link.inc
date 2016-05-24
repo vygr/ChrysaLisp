@@ -18,14 +18,14 @@
 	lk_chan_status_busy		equ 1
 
 	def_structure lk_table
-		long lk_table_array
-		long lk_table_array_size
+		ptr lk_table_array
+		ulong lk_table_array_size
 	def_structure_end
 
 	def_structure lk_node, ln_node
 		struct lk_node_table, lk_table
-		long lk_node_cpu_id
-		long lk_node_task_count
+		ulong lk_node_cpu_id
+		ulong lk_node_task_count
 	def_structure_end
 
 	def_structure lk_statics
@@ -33,8 +33,8 @@
 	def_structure_end
 
 	def_structure lk_chan
-		long lk_chan_status
-		long lk_chan_task_count
+		ulong lk_chan_status
+		ulong lk_chan_task_count
 		struct lk_chan_msg, ml_msg
 	def_structure_end
 
@@ -44,7 +44,7 @@
 	def_structure_end
 
 	def_structure lk_route
-		long lk_route_hops
+		ulong lk_route_hops
 	def_structure_end
 
 %endif

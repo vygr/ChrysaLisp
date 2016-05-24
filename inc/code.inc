@@ -1161,7 +1161,7 @@
 			%else
 				;equate or register
 				set_reg _reg_sp, _reg
-				reg? %1
+				is_reg %1
 				%if _r < 0
 					;equate
 					add_inst op_const, %1, _reg

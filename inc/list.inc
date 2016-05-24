@@ -19,18 +19,18 @@
 ;;;;;;;;;;;;;;;;;
 
 	def_structure lh_list
-		long lh_list_head
-		long lh_list_tail
-		long lh_list_tailpred
+		ptr lh_list_head
+		ptr lh_list_tail
+		ptr lh_list_tailpred
 	def_structure_end
 
 	def_structure ln_node
-		long ln_node_succ
-		long ln_node_pred
+		ptr ln_node_succ
+		ptr ln_node_pred
 	def_structure_end
 
 	def_structure ln_fnode
-		long ln_fnode_next
+		ptr ln_fnode_next
 	def_structure_end
 
 ;;;;;;;;;;;;;;;;;;
@@ -65,28 +65,6 @@
 		if %2, ==, 0
 			ln_get_tail %1, %1
 		endif
-	%endmacro
-
-	%macro ln_set_object 2
-		;inputs
-		;%1 = list node
-		;%2 = object
-		;outputs
-		;%1 = list node
-		;%2 = object
-
-		vp_cpy %2, [%1 + ln_node_obj]
-	%endmacro
-
-	%macro ln_get_object 2
-		;inputs
-		;%1 = list node
-		;%2 = temp
-		;outputs
-		;%1 = list node
-		;%2 = object
-
-		vp_cpy [%1 + ln_node_obj], %2
 	%endmacro
 
 	%macro ln_set_succ 2

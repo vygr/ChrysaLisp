@@ -30,7 +30,7 @@
 
 	def_structure ml_mailbox, lh_list
 		struct ml_mailbox_parcel_list, lh_list
-		long ml_mailbox_tcb
+		ptr ml_mailbox_tcb
 	def_structure_end
 
 	def_structure mailbox_id
@@ -39,12 +39,12 @@
 	def_structure_end
 
 	def_structure ml_msg, ln_node
-		long ml_msg_length
+		ulong ml_msg_length
 		struct ml_msg_dest, mailbox_id
 		struct ml_msg_parcel_id, mailbox_id
-		long ml_msg_parcel_size
-		long ml_msg_parcel_total
-		long ml_msg_parcel_frag
+		ulong ml_msg_parcel_size
+		ulong ml_msg_parcel_total
+		ulong ml_msg_parcel_frag
 		struct ml_msg_header_size, null
 		struct ml_msg_data, mail_data
 	def_structure_end
@@ -52,10 +52,10 @@
 	def_structure ml_statics
 		struct ml_statics_offchip_list, lh_list
 		struct ml_statics_heap, hp_heap
-		long ml_statics_kernel_mailbox
-		long ml_statics_in_mailbox
-		long ml_statics_out_mailbox
-		long ml_statics_parcel_id
+		ptr ml_statics_kernel_mailbox
+		ptr ml_statics_in_mailbox
+		ptr ml_statics_out_mailbox
+		ulong ml_statics_parcel_id
 	def_structure_end
 
 ;;;;;;;;;;;;;

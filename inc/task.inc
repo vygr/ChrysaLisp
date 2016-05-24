@@ -42,21 +42,21 @@
 	tk_stack_size	equ 1024 * 4
 
 	def_structure tk_node, ln_node
-		long tk_node_stack
-		long tk_node_time
+		ptr tk_node_stack
+		ulong tk_node_time
 		struct tk_node_mailbox, ml_mailbox
 		struct tk_node_stackspace, tk_stack
 	def_structure_end
 
 	def_structure tk_statics
-		long tk_statics_current_tcb
-		long tk_statics_kernel_tcb
+		ptr tk_statics_current_tcb
+		ptr tk_statics_kernel_tcb
 		struct tk_statics_task_heap, hp_heap
 		struct tk_statics_task_list, lh_list
 		struct tk_statics_timer_list, lh_list
-		long tk_statics_task_count
-		long tk_statics_cpu_total
-		long tk_statics_cpu_id
+		ulong tk_statics_task_count
+		ulong tk_statics_cpu_total
+		ulong tk_statics_cpu_id
 	def_structure_end
 
 ;;;;;;;;;;;;;

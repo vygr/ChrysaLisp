@@ -22,20 +22,20 @@
 
 	def_structure ft_font
 		struct ft_font_node, ln_node
-		long ft_font_handle
-		long ft_font_points
-		long ft_font_ascent
-		long ft_font_descent
-		long ft_font_height
+		ulong ft_font_handle
+		ulong ft_font_points
+		ulong ft_font_ascent
+		ulong ft_font_descent
+		ulong ft_font_height
 		struct ft_font_name, null
 	def_structure_end
 
 	def_structure ft_text
 		struct ft_text_node, ln_node
-		long ft_text_font
-		long ft_text_texture
-		long ft_text_width
-		long ft_text_height
+		ulong ft_text_font
+		ulong ft_text_texture
+		ulong ft_text_width
+		ulong ft_text_height
 		struct ft_text_name, null
 	def_structure_end
 
@@ -43,7 +43,7 @@
 	ft_buckets_size equ ptr_size * ft_num_buckets
 
 	def_structure ft_statics
-		long ft_statics_font_list
+		ptr ft_statics_font_list
 		struct ft_statics_text_lists, ft_buckets
 	def_structure_end
 
