@@ -42,8 +42,8 @@ A full compiler, created entirely in assembler macros, is available for use if
 desired. test/gui/gui3/app.nasm demonstrates the use and syntax of the language.
 Variables with nested scopes can be defined and used in expressions with the
 compiler taking care of register assignment and expression compilation. Quite an
-achievement considering it's all done with macros. :) Currently there is no
-optimisation pass but that will come soon.
+achievement considering it's all done with macros. :) Currently there is an
+elementary optimise pass, more will be done.
 
 Allows modelling of various network topologies with point to point links. Each
 cpu in the network is modelled as a separate host process, point to point links
