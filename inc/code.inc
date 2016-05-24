@@ -866,58 +866,58 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	%macro add_inst 1-*
-		%assign _inst_0_%[_i_total] %0
+		%assign _i_0_%[_i_total] %0
 		%assign %%i 1
 		%rep %0
-			%xdefine _inst_%[%%i]_%[_i_total] %1
+			%xdefine _i_%[%%i]_%[_i_total] %1
 			%assign %%i %%i + 1
 			%rotate 1
 		%endrep
 		%rep 4 - %0
-			%xdefine _inst_%[%%i]_%[_i_total]
+			%xdefine _i_%[%%i]_%[_i_total]
 			%assign %%i %%i + 1
 		%endrep
 		%assign _i_total _i_total + 1
 	%endmacro
 
 	%macro sub_inst 1
-		%assign _inst_0_%1 0
-		%xdefine _inst_1_%1
-		%xdefine _inst_2_%1
-		%xdefine _inst_3_%1
-		%xdefine _inst_4_%1
+		%assign _i_0_%1 0
+		%xdefine _i_1_%1
+		%xdefine _i_2_%1
+		%xdefine _i_3_%1
+		%xdefine _i_4_%1
 	%endmacro
 
 	%macro opt_inst_list 0
 		;reference pass
 		%assign %%i 0
 		%rep _i_total
-			%ifidn _inst_1_%[%%i], op_ref
+			%ifidn _i_1_%[%%i], op_ref
 				%assign %%p %%i + 1
 				%rep _i_total - %%p
-					%ifidn _inst_1_%[%%p], op_deref
-						%ifidn _inst_3_%[%%p], _inst_3_%[%%i]
+					%ifidn _i_1_%[%%p], op_deref
+						%ifidn _i_3_%[%%p], _i_3_%[%%i]
 							;op_ref => op_deref
-							%assign _inst_0_%[%%i] _inst_0_%[%%p]
-							%xdefine _inst_1_%[%%i] _inst_1_%[%%p]
-							%xdefine _inst_4_%[%%i] _inst_4_%[%%p]
+							%assign _i_0_%[%%i] _i_0_%[%%p]
+							%xdefine _i_1_%[%%i] _i_1_%[%%p]
+							%xdefine _i_4_%[%%i] _i_4_%[%%p]
 							sub_inst %%p
 							%exitrep
 						%endif
-					%elifidn _inst_1_%[%%p], op_assign
-						%ifidn _inst_3_%[%%p], _inst_3_%[%%i]
+					%elifidn _i_1_%[%%p], op_assign
+						%ifidn _i_3_%[%%p], _i_3_%[%%i]
 							;op_ref => op_assign
-							%xdefine _inst_3_%[%%p] _inst_2_%[%%i]
+							%xdefine _i_3_%[%%p] _i_2_%[%%i]
 							sub_inst %%i
 							%exitrep
 						%endif
 					%endif
-					sub_token _inst_3_%[%%i], _inst_2_%[%%p]
+					sub_token _i_3_%[%%i], _i_2_%[%%p]
 					%if _pos != 0
 						;use of ref as source
 						%exitrep
 					%endif
-					sub_token _inst_3_%[%%i], _inst_3_%[%%p]
+					sub_token _i_3_%[%%i], _i_3_%[%%p]
 					%if _pos != 0
 						;use of ref as destination
 						%exitrep
@@ -931,29 +931,29 @@
 		;constants pass
 		%assign %%i 0
 		%rep _i_total
-			%ifidn _inst_1_%[%%i], op_const
+			%ifidn _i_1_%[%%i], op_const
 				%assign %%p %%i + 1
 				%rep _i_total - %%p
-					sub_token _inst_3_%[%%i], _inst_2_%[%%p]
+					sub_token _i_3_%[%%i], _i_2_%[%%p]
 					%if _pos != 0
 						;only if destination is register
-						is_reg _inst_3_%[%%p]
+						is_reg _i_3_%[%%p]
 						%if _f >= 0
 							;op_const => op_imm
-							insert_token _inst_2_%[%%i], _inst_3_%[%%i], _inst_2_%[%%p], _pos
-							%xdefine _inst_2_%[%%p] _tok
+							insert_token _i_2_%[%%i], _i_3_%[%%i], _i_2_%[%%p], _pos
+							%xdefine _i_2_%[%%p] _tok
 							sub_inst %%i
 						%endif
 						%exitrep
 					%else
-						sub_token _inst_3_%[%%i], _inst_3_%[%%p]
+						sub_token _i_3_%[%%i], _i_3_%[%%p]
 						%if _pos != 0
 							;only if destination is not register
-							is_reg _inst_3_%[%%p]
+							is_reg _i_3_%[%%p]
 							%if _f < 0
 								;op_const => op_imm
-								insert_token _inst_2_%[%%i], _inst_3_%[%%i], _inst_3_%[%%p], _pos
-								%xdefine _inst_3_%[%%p] _tok
+								insert_token _i_2_%[%%i], _i_3_%[%%i], _i_3_%[%%p], _pos
+								%xdefine _i_3_%[%%p] _tok
 								sub_inst %%i
 							%endif
 							%exitrep
@@ -1002,26 +1002,26 @@
 			emit_info {%1}
 			%assign %%i 0
 			%rep _i_total
-				%assign %%n _inst_0_%[%%i]
+				%assign %%n _i_0_%[%%i]
 				%if %%n = 1
-					emit_inst {_inst_1_%[%%i]}
+					emit_inst {_i_1_%[%%i]}
 				%elif %%n = 2
-					emit_inst {_inst_1_%[%%i] _inst_2_%[%%i]}
+					emit_inst {_i_1_%[%%i] _i_2_%[%%i]}
 				%elif %%n = 3
-					%ifidn _inst_1_%[%%i], op_ref
-						emit_inst {vp_lea [_inst_2_%[%%i]], _inst_3_%[%%i]}
-					%elifidn _inst_1_%[%%i], op_const
-						emit_inst {vp_cpy _inst_2_%[%%i], _inst_3_%[%%i]}
+					%ifidn _i_1_%[%%i], op_ref
+						emit_inst {vp_lea [_i_2_%[%%i]], _i_3_%[%%i]}
+					%elifidn _i_1_%[%%i], op_const
+						emit_inst {vp_cpy _i_2_%[%%i], _i_3_%[%%i]}
 					%else
-						emit_inst {_inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i]}
+						emit_inst {_i_1_%[%%i] _i_2_%[%%i], _i_3_%[%%i]}
 					%endif
 				%elif %%n = 4
-					%ifidn _inst_1_%[%%i], op_deref
-						emit_copy [_inst_2_%[%%i]], _inst_3_%[%%i], _inst_4_%[%%i]
-					%elifidn _inst_1_%[%%i], op_assign
-						emit_copy _inst_2_%[%%i], [_inst_3_%[%%i]], _inst_4_%[%%i]
+					%ifidn _i_1_%[%%i], op_deref
+						emit_copy [_i_2_%[%%i]], _i_3_%[%%i], _i_4_%[%%i]
+					%elifidn _i_1_%[%%i], op_assign
+						emit_copy _i_2_%[%%i], [_i_3_%[%%i]], _i_4_%[%%i]
 					%else
-						emit_inst {_inst_1_%[%%i] _inst_2_%[%%i], _inst_3_%[%%i], _inst_4_%[%%i]}
+						emit_inst {_i_1_%[%%i] _i_2_%[%%i], _i_3_%[%%i], _i_4_%[%%i]}
 					%endif
 				%endif
 				%assign %%i %%i + 1
