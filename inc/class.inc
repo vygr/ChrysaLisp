@@ -305,7 +305,7 @@
 		%ifidn _map_%1_type_%[_static_], static
 			%fatal Class %1 method %2 is static ! Use s_call ?
 		%endif
-		eval {%5, %3}, {%5, _map_%1_in_%[_static_]}
+		eval {RXX, %3}, {%5, _map_%1_in_%[_static_]}
 		vp_cpy [r0 + obj_vtable], %5
 		vp_call [%5 + _virtual_ * 8]
 		retire {_map_%1_out_%[_static_]}, {%4}
