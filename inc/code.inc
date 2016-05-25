@@ -1028,7 +1028,6 @@
 			%defstr _%[_s]_t
 			%assign _s _s + 1
 		%endrep
-		%assign _s %1
 		%assign _r_total 0
 		%assign _i_total 0
 	%endmacro
@@ -1051,7 +1050,7 @@
 	%macro def_reg_stack 0-*
 		%rep %0
 			%xdefine _%[_r_total] %1
-			%xdefine _%[_r_total]_t ''
+			%defstr _%[_r_total]_t
 			%assign _r_total _r_total + 1
 			%rotate 1
 		%endrep
