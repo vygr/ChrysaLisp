@@ -3,9 +3,9 @@
 
 %include 'inc/vp.inc'
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; things I wish Frank would add to NASM
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; things I wish sombody would add to NASM
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	%macro search_string 2
 		;%1 = param to find
