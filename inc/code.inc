@@ -26,7 +26,7 @@
 		%endif
 	%endmacro
 
-	%macro insert_string 4
+	%macro replace_string 4
 		;%1 = param to insert
 		;%2 = param to remove
 		;%3 = param to splice
@@ -924,7 +924,7 @@
 						is_reg _i_3_%[%%p]
 						%if _f >= 0
 							;op_const => op_imm
-							insert_string _i_2_%[%%i], _i_3_%[%%i], _i_2_%[%%p], _pos
+							replace_string _i_2_%[%%i], _i_3_%[%%i], _i_2_%[%%p], _pos
 							%xdefine _i_2_%[%%p] _str
 							sub_inst %%i
 						%endif
@@ -936,7 +936,7 @@
 							is_reg _i_3_%[%%p]
 							%if _f < 0
 								;op_const => op_imm
-								insert_string _i_2_%[%%i], _i_3_%[%%i], _i_3_%[%%p], _pos
+								replace_string _i_2_%[%%i], _i_3_%[%%i], _i_3_%[%%p], _pos
 								%xdefine _i_3_%[%%p] _str
 								sub_inst %%i
 							%endif
