@@ -474,7 +474,7 @@
 		;%1... = paramaters
 		%assign _src_total 0
 		%rep %0
-			%xdefine _src_%[_src_total] %1
+			%defstr _src_%[_src_total] %1
 			%assign _src_total _src_total + 1
 			%rotate 1
 		%endrep
@@ -484,7 +484,7 @@
 		;%1... = paramaters
 		%assign _dst_total 0
 		%rep %0
-			%xdefine _dst_%[_dst_total] %1
+			%defstr _dst_%[_dst_total] %1
 			%assign _dst_total _dst_total + 1
 			%rotate 1
 		%endrep
@@ -519,7 +519,7 @@
 		%assign %%i 0
 		%assign %%j 0
 		%rep _dst_total
-			%ifnidn _dst_%[%%j], _
+			%ifnidn _dst_%[%%j], '_'
 				%ifnidn _src_%[%%j], _dst_%[%%j]
 					%if %%i != %%j
 						%xdefine _src_%[%%i] _src_%[%%j]
@@ -567,34 +567,15 @@
 		%strcat _str %%s1 %1 %%s2
 	%endmacro
 
-	%macro sub_token 2
-		;%1 = param to find
-		;%2 = param to search
-		%defstr %%s1 %1
-		%defstr %%s2 %2
-		sub_string %%s1, %%s2
-	%endmacro
-
-	%macro insert_token 4
-		;%1 = param to insert
-		;%2 = param to remove
-		;%3 = param to splice
-		;%4 = position to insert
-		%defstr %%s1 %1
-		%defstr %%s2 %2
-		%defstr %%s3 %3
-		insert_string %%s1, %%s2, %%s3, %4
-		%deftok _tok _str
-	%endmacro
-
 	%macro find_later_src 1
 		;%1 = index of dst
 		%assign _idx -1
 		%assign %%i _src_total - 1
 		%rep %%i - %1
-			%ifnstr _src_%[%%i]
-				%ifnnum _src_%[%%i]
-					sub_token _dst_%1, _src_%[%%i]
+			%deftok %%s _src_%[%%i]
+			%ifnstr %%s
+				%ifnnum %%s
+					sub_string _dst_%1, _src_%[%%i]
 					%if _pos != 0
 						%assign _idx %%i
 						%exitrep
@@ -637,30 +618,31 @@
 		map_topology_sort
 		%assign %%i 0
 		%rep _src_total
-			%ifstr _src_%[%%i]
+			%deftok %%s _src_%[%%i]
+			%deftok %%d _dst_%[%%i]
+			%ifstr %%s
 				;string
-				fn_string _src_%[%%i], _dst_%[%%i]
+				fn_string %%s, %%d
 			%else
-				%defstr %%s _src_%[%%i]
-				%substr %%ss %%s 1, 1
+				%substr %%ss _src_%[%%i] 1, 1
 				%ifidn %%ss, '@'
 					;bind function
-					%substr %%ss %%s 2, -1
+					%substr %%ss _src_%[%%i] 2, -1
 					%deftok %%p %%ss
-					fn_bind %%p, _dst_%[%%i]
+					fn_bind %%p, %%d
 				%elifidn %%ss, '&'
 					;address of
-					%substr %%ss %%s 2, -1
+					%substr %%ss _src_%[%%i] 2, -1
 					%deftok %%p %%ss
-					vp_lea %%p, _dst_%[%%i]
+					vp_lea %%p, %%d
 				%elifidn %%ss, '$'
 					;label address
-					%substr %%ss %%s 2, -1
+					%substr %%ss _src_%[%%i] 2, -1
 					%deftok %%p %%ss
-					vp_rel %%p, _dst_%[%%i]
+					vp_rel %%p, %%d
 				%else
 					;just a copy
-					vp_cpy _src_%[%%i], _dst_%[%%i]
+					vp_cpy %%s, %%d
 				%endif
 			%endif
 			%assign %%i %%i + 1
@@ -672,15 +654,13 @@
 ;;;;;;;;;;;;;;
 
 	%macro push_token 2
-		%deftok %%t %1
-		%xdefine _token_%[_token_sp] %%t
+		%xdefine _token_%[_token_sp] %1
 		%assign _token_type_%[_token_sp] %2
 		%assign _token_sp _token_sp + 1
 	%endmacro
 
 	%macro set_token_list 1
-		%defstr %%s %1
-		%strlen %%l %%s
+		%strlen %%l %1
 		%assign _token_sp 0
 		%defstr %%p
 		%defstr %%c
@@ -759,7 +739,7 @@
 				%if %%i > %%l
 					%exitrep
 				%else
-					%substr %%c %%s %%i, 1
+					%substr %%c %1 %%i, 1
 					%assign %%i %%i + 1
 				%endif
 			%endif
@@ -792,7 +772,7 @@
 		%assign %%o 0
 		%assign %%n 0
 		%rep _token_sp
-			%xdefine %%t _token_%[%%n]
+			%deftok %%t _token_%[%%n]
 			%assign %%tt _token_type_%[%%n]
 			%if %%tt > 3
 				;operator
@@ -869,12 +849,12 @@
 		%assign _i_0_%[_i_total] %0
 		%assign %%i 1
 		%rep %0
-			%xdefine _i_%[%%i]_%[_i_total] %1
+			%defstr _i_%[%%i]_%[_i_total] %1
 			%assign %%i %%i + 1
 			%rotate 1
 		%endrep
 		%rep 4 - %0
-			%xdefine _i_%[%%i]_%[_i_total]
+			%defstr _i_%[%%i]_%[_i_total]
 			%assign %%i %%i + 1
 		%endrep
 		%assign _i_total _i_total + 1
@@ -882,20 +862,20 @@
 
 	%macro sub_inst 1
 		%assign _i_0_%1 0
-		%xdefine _i_1_%1
-		%xdefine _i_2_%1
-		%xdefine _i_3_%1
-		%xdefine _i_4_%1
+		%defstr _i_1_%1
+		%defstr _i_2_%1
+		%defstr _i_3_%1
+		%defstr _i_4_%1
 	%endmacro
 
 	%macro opt_inst_list 0
 		;reference pass
 		%assign %%i 0
 		%rep _i_total
-			%ifidn _i_1_%[%%i], op_ref
+			%ifidn _i_1_%[%%i], 'op_ref'
 				%assign %%p %%i + 1
 				%rep _i_total - %%p
-					%ifidn _i_1_%[%%p], op_deref
+					%ifidn _i_1_%[%%p], 'op_deref'
 						%ifidn _i_3_%[%%p], _i_3_%[%%i]
 							;op_ref => op_deref
 							%assign _i_0_%[%%i] _i_0_%[%%p]
@@ -904,7 +884,7 @@
 							sub_inst %%p
 							%exitrep
 						%endif
-					%elifidn _i_1_%[%%p], op_assign
+					%elifidn _i_1_%[%%p], 'op_assign'
 						%ifidn _i_3_%[%%p], _i_3_%[%%i]
 							;op_ref => op_assign
 							%xdefine _i_3_%[%%p] _i_2_%[%%i]
@@ -912,12 +892,12 @@
 							%exitrep
 						%endif
 					%endif
-					sub_token _i_3_%[%%i], _i_2_%[%%p]
+					sub_string _i_3_%[%%i], _i_2_%[%%p]
 					%if _pos != 0
 						;use of ref as source
 						%exitrep
 					%endif
-					sub_token _i_3_%[%%i], _i_3_%[%%p]
+					sub_string _i_3_%[%%i], _i_3_%[%%p]
 					%if _pos != 0
 						;use of ref as destination
 						%exitrep
@@ -931,29 +911,29 @@
 		;constants pass
 		%assign %%i 0
 		%rep _i_total
-			%ifidn _i_1_%[%%i], op_const
+			%ifidn _i_1_%[%%i], 'op_const'
 				%assign %%p %%i + 1
 				%rep _i_total - %%p
-					sub_token _i_3_%[%%i], _i_2_%[%%p]
+					sub_string _i_3_%[%%i], _i_2_%[%%p]
 					%if _pos != 0
 						;only if destination is register
 						is_reg _i_3_%[%%p]
 						%if _f >= 0
 							;op_const => op_imm
-							insert_token _i_2_%[%%i], _i_3_%[%%i], _i_2_%[%%p], _pos
-							%xdefine _i_2_%[%%p] _tok
+							insert_string _i_2_%[%%i], _i_3_%[%%i], _i_2_%[%%p], _pos
+							%xdefine _i_2_%[%%p] _str
 							sub_inst %%i
 						%endif
 						%exitrep
 					%else
-						sub_token _i_3_%[%%i], _i_3_%[%%p]
+						sub_string _i_3_%[%%i], _i_3_%[%%p]
 						%if _pos != 0
 							;only if destination is not register
 							is_reg _i_3_%[%%p]
 							%if _f < 0
 								;op_const => op_imm
-								insert_token _i_2_%[%%i], _i_3_%[%%i], _i_3_%[%%p], _pos
-								%xdefine _i_3_%[%%p] _tok
+								insert_string _i_2_%[%%i], _i_3_%[%%i], _i_3_%[%%p], _pos
+								%xdefine _i_3_%[%%p] _str
 								sub_inst %%i
 							%endif
 							%exitrep
@@ -1003,25 +983,29 @@
 			%assign %%i 0
 			%rep _i_total
 				%assign %%n _i_0_%[%%i]
+				%deftok %%1 _i_1_%[%%i]
+				%deftok %%2 _i_2_%[%%i]
+				%deftok %%3 _i_3_%[%%i]
+				%deftok %%4 _i_4_%[%%i]
 				%if %%n = 1
-					emit_inst {_i_1_%[%%i]}
+					emit_inst {%%1}
 				%elif %%n = 2
-					emit_inst {_i_1_%[%%i] _i_2_%[%%i]}
+					emit_inst {%%1 %%2}
 				%elif %%n = 3
-					%ifidn _i_1_%[%%i], op_ref
-						emit_inst {vp_lea [_i_2_%[%%i]], _i_3_%[%%i]}
-					%elifidn _i_1_%[%%i], op_const
-						emit_inst {vp_cpy _i_2_%[%%i], _i_3_%[%%i]}
+					%ifidn %%1, op_ref
+						emit_inst {vp_lea [%%2], %%3}
+					%elifidn %%1, op_const
+						emit_inst {vp_cpy %%2, %%3}
 					%else
-						emit_inst {_i_1_%[%%i] _i_2_%[%%i], _i_3_%[%%i]}
+						emit_inst {%%1 %%2, %%3}
 					%endif
 				%elif %%n = 4
-					%ifidn _i_1_%[%%i], op_deref
-						emit_copy [_i_2_%[%%i]], _i_3_%[%%i], _i_4_%[%%i]
-					%elifidn _i_1_%[%%i], op_assign
-						emit_copy _i_2_%[%%i], [_i_3_%[%%i]], _i_4_%[%%i]
+					%ifidn %%1, op_deref
+						emit_copy [%%2], %%3, %%4
+					%elifidn %%1, op_assign
+						emit_copy %%2, [%%3], %%4
 					%else
-						emit_inst {_i_1_%[%%i] _i_2_%[%%i], _i_3_%[%%i], _i_4_%[%%i]}
+						emit_inst {%%1 %%2, %%3, %%4}
 					%endif
 				%endif
 				%assign %%i %%i + 1
@@ -1037,7 +1021,7 @@
 		;%1 reserved slots
 		%assign _s 0
 		%rep %1
-			%xdefine _%[_s]_t ''
+			%defstr _%[_s]_t
 			%assign _s _s + 1
 		%endrep
 		%assign _s %1
@@ -1102,8 +1086,9 @@
 
 	%macro is_reg 1
 		%assign _f 16 - 1
+		%deftok %%t %1
 		%rep 16
-			%ifidn _%[_f], %1
+			%ifidn _%[_f], %%t
 				%exitrep
 			%else
 				%assign _f _f - 1
@@ -1118,7 +1103,7 @@
 
 	%macro pop_value_final 0
 		pop_value
-		%xdefine _%[_s]_t ''
+		%defstr _%[_s]_t
 	%endmacro
 
 	%macro compile_null 0
@@ -1131,7 +1116,7 @@
 			;not in symbol table so figure out what it is
 			%ifnum %1
 				;number
-				%xdefine _%[_s]_t ''
+				%defstr _%[_s]_t
 				add_inst op_const, %1, _%[_s]
 			%elifstr %1_t
 				;field/member
@@ -1139,10 +1124,10 @@
 				add_inst op_const, %1, _%[_s]
 			%elifidn %1, RXX
 				;reserved slot
-				%xdefine _%[_s]_t ''
+				%defstr _%[_s]_t
 			%else
 				;equate
-				%xdefine _%[_s]_t ''
+				%defstr _%[_s]_t
 				add_inst op_const, %1, _%[_s]
 			%endif
 		%elif _sym_type_%[_sym] = _sym_const
@@ -1208,7 +1193,7 @@
 
 	%macro compile_uaddrof 0
 		%assign _s _s - 1
-		%xdefine _%[_s]_t ''
+		%defstr _%[_s]_t
 	%endmacro
 
 	%macro compile_uderef 0
@@ -1429,22 +1414,22 @@
 	%endmacro
 
 	%macro compile_string 1
-		%xdefine _%[_s]_t ''
+		%defstr _%[_s]_t
 		add_inst fn_string, %1, _%[_s]
 	%endmacro
 
 	%macro compile_bind 1
-		%xdefine _%[_s]_t ''
+		%defstr _%[_s]_t
 		add_inst fn_bind, %1, _%[_s]
 	%endmacro
 
 	%macro compile_label 1
-		%xdefine _%[_s]_t ''
+		%defstr _%[_s]_t
 		add_inst vp_rel, %1, _%[_s]
 	%endmacro
 
 	%macro compile_const 1
-		%xdefine _%[_s]_t ''
+		%defstr _%[_s]_t
 		add_inst op_const, %1, _%[_s]
 	%endmacro
 
