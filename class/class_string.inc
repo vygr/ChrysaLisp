@@ -15,7 +15,7 @@
 	def_method hash, class/string/hash, override
 
 	def_structure string, ref
-		long string_length
+		ulong string_length
 		struct string_data, null
 	def_structure_end
 

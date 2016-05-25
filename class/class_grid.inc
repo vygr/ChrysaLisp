@@ -16,7 +16,7 @@
 	grid_flag	equ 1 << 0
 
 	def_structure grid, view
-		long grid_flags
+		ulong grid_flags
 		long grid_width
 		long grid_height
 	def_structure_end

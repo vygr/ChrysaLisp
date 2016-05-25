@@ -9,7 +9,7 @@
 	def_method init, class/ref/init
 
 	def_structure ref, obj
-		long ref_count
+		ulong ref_count
 	def_structure_end
 
 %endif

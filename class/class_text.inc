@@ -17,9 +17,9 @@
 	def_method draw, class/text/draw, override
 
 	def_structure text, view
-		long text_font
-		long text_string
-		long text_text_color
+		ptr text_font
+		ptr text_string
+		ulong text_text_color
 	def_structure_end
 
 %endif

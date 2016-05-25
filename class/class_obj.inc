@@ -14,7 +14,7 @@
 	def_method hash, class/obj/hash, virtual, {r0}, {r1}
 
 	def_structure obj
-		long obj_vtable
+		ptr obj_vtable
 	def_structure_end
 
 %endif

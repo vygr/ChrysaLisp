@@ -21,7 +21,7 @@
 	def_method mouse_move, class/button/mouse_move, override
 
 	def_structure button, label
-		long button_state
+		ulong button_state
 		struct button_pressed_signal, lh_list
 	def_structure_end
 

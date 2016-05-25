@@ -20,8 +20,8 @@
 	def_method layout, class/label/layout, override
 
 	def_structure label, view
-		long label_flow
-		long label_text
+		ptr label_flow
+		ptr label_text
 	def_structure_end
 
 %endif

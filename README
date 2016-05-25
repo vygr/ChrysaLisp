@@ -31,7 +31,7 @@ decoupling the source from changes at the system level. Look in the inc/
 directory to see the interface definitions.
 
 Register juggling for parameter passing is eliminated by having all functions
-use a defined interface and parameter source and destinations are mapped
+define their register interface and parameter source and destinations are mapped
 automatically using a topological sort. None DAG mappings are detected so the
 user can break them with a temporary if required. Operators are provided to
 simplify binding of parameters to dynamic bound functions, relative addresses,

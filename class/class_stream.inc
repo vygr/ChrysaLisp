@@ -11,9 +11,9 @@
 	def_method read_line, class/stream/read_line, static, {r0, r1, r2}, {r1}
 
 	def_structure stream, ref
-		long stream_object
-		long stream_bufp
-		long stream_bufe
+		ptr stream_object
+		ptr stream_bufp
+		ptr stream_bufe
 	def_structure_end
 
 %endif

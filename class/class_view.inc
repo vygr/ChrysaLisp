@@ -55,20 +55,20 @@
 	def_structure view, component
 		struct view_node, ln_node
 		struct view_list, lh_list
-		long view_parent
-		long view_tcb
-		long view_dirty_region
-		long view_opaque_region
-		long view_ctx_node
+		ptr view_parent
+		ptr view_tcb
+		ptr view_dirty_region
+		ptr view_opaque_region
+		ptr view_ctx_node
 		long view_ctx_x
 		long view_ctx_y
 		long view_x
 		long view_y
 		long view_w
 		long view_h
-		long view_last_buttons
-		long view_flags
-		long view_color
+		ulong view_last_buttons
+		ulong view_flags
+		ulong view_color
 	def_structure_end
 
 %endif
