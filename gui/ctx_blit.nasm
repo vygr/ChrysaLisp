@@ -17,7 +17,7 @@
 			struct local_drect, sdl_rect
 			struct local_srect, sdl_rect
 			struct local_clip_rect, sdl_rect
-			long local_ctx
+			ptr local_ctx
 			long local_texture
 			long local_dirty_rect
 			long local_old_stack

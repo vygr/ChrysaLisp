@@ -8,7 +8,7 @@
 		;all but r0, r4
 
 		def_structure local
-			long local_inst
+			ptr local_inst
 			long local_next
 			long local_end
 		def_structure_end

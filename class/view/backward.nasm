@@ -19,7 +19,7 @@
 			;r0 = child view object
 
 		def_structure local
-			long local_inst
+			ptr local_inst
 			long local_data
 			long local_callback
 		def_structure_end

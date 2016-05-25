@@ -17,7 +17,7 @@
 			;but it could filter or adjust them for fancy reasons !
 
 		def_structure local
-			long local_inst
+			ptr local_inst
 			long local_next
 		def_structure_end
 

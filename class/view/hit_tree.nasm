@@ -15,7 +15,7 @@
 		;r1-r3
 
 		def_structure local
-			long local_inst
+			ptr local_inst
 			long local_hit
 			long local_jump
 		def_structure_end

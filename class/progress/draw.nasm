@@ -10,8 +10,8 @@
 		;all but r0, r4
 
 		def_structure local
-			long local_inst
-			long local_ctx
+			ptr local_inst
+			ptr local_ctx
 			long local_fill_remain
 			long local_fill_complete
 		def_structure_end

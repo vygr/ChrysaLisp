@@ -15,7 +15,7 @@
 		;all r4
 
 		def_structure local
-			long local_ctx
+			ptr local_ctx
 			long local_color
 			long local_flags
 			long local_depth

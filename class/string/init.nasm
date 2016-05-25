@@ -11,7 +11,7 @@
 		;r1 = 0 if error, else ok
 
 		def_structure local
-			long local_inst
+			ptr local_inst
 			long local_data
 			long local_length
 		def_structure_end

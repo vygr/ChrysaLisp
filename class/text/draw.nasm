@@ -12,8 +12,8 @@
 		;all but r0, r4
 
 		def_structure local
-			long local_inst
-			long local_ctx
+			ptr local_inst
+			ptr local_ctx
 		def_structure_end
 
 		;save inputs

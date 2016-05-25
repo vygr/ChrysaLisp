@@ -21,7 +21,7 @@
 			;r1 = 0 if should not decend after down callback
 
 		def_structure local
-			long local_inst
+			ptr local_inst
 			long local_data
 			long local_down
 			long local_up

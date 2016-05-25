@@ -14,7 +14,7 @@
 		def_structure local
 			struct local_rect, sdl_rect
 			struct local_clip_rect, sdl_rect
-			long local_ctx
+			ptr local_ctx
 			long local_dirty_rect
 			long local_old_stack
 		def_structure_end

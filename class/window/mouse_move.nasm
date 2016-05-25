@@ -10,7 +10,7 @@
 		;all but r0, r4
 
 		def_structure local
-			long local_inst
+			ptr local_inst
 			long local_event
 			long local_old_x
 			long local_old_y
