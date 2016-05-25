@@ -3,6 +3,40 @@
 
 %include 'inc/vp.inc'
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; things I wish Frank would add to NASM
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+	%macro search_string 2
+		;%1 = param to find
+		;%2 = param to search
+		%strlen %%l1 %1
+		%strlen %%l2 %2
+		%assign _pos 0
+		%if %%l1 <= %%l2
+			%assign _pos %%l2 + 1 - %%l1
+			%rep _pos
+				%substr %%ss2 %2 _pos, %%l1
+				%ifidn %%ss2, %1
+					%exitrep
+				%else
+					%assign _pos _pos - 1
+				%endif
+			%endrep
+		%endif
+	%endmacro
+
+	%macro insert_string 4
+		;%1 = param to insert
+		;%2 = param to remove
+		;%3 = param to splice
+		;%4 = position to insert
+		%strlen %%l %2
+		%substr %%s1 %3 1, %4 - 1
+		%substr %%s2 %3 %4 + %%l, -1
+		%strcat _str %%s1 %1 %%s2
+	%endmacro
+
 ;;;;;;;;;;;;;;;;;;;;
 ; structured codeing
 ;;;;;;;;;;;;;;;;;;;;
@@ -537,36 +571,6 @@
 		%assign _dst_total %%i
 	%endmacro
 
-	%macro sub_string 2
-		;%1 = param to find
-		;%2 = param to search
-		%strlen %%l1 %1
-		%strlen %%l2 %2
-		%assign _pos 0
-		%if %%l1 <= %%l2
-			%assign _pos %%l2 + 1 - %%l1
-			%rep _pos
-				%substr %%ss2 %2 _pos, %%l1
-				%ifidn %%ss2, %1
-					%exitrep
-				%else
-					%assign _pos _pos - 1
-				%endif
-			%endrep
-		%endif
-	%endmacro
-
-	%macro insert_string 4
-		;%1 = param to insert
-		;%2 = param to remove
-		;%3 = param to splice
-		;%4 = position to insert
-		%strlen %%l %2
-		%substr %%s1 %3 1, %4 - 1
-		%substr %%s2 %3 %4 + %%l, -1
-		%strcat _str %%s1 %1 %%s2
-	%endmacro
-
 	%macro find_later_src 1
 		;%1 = index of dst
 		%assign _idx -1
@@ -575,7 +579,7 @@
 			%deftok %%s _src_%[%%i]
 			%ifnstr %%s
 				%ifnnum %%s
-					sub_string _dst_%1, _src_%[%%i]
+					search_string _dst_%1, _src_%[%%i]
 					%if _pos != 0
 						%assign _idx %%i
 						%exitrep
@@ -669,7 +673,7 @@
 		%assign %%i 1
 		%rep %%l * 2
 			%ifnidn %%c, ''
-				sub_string %%c, '@$"-*~!+.?^</%&|=> )(]['
+				search_string %%c, '@$"-*~!+.?^</%&|=> )(]['
 				%if %%m = -1
 					;scanning
 					%ifnidn %%c, ' '
@@ -693,7 +697,7 @@
 						;space, )( or not </%&|=>
 						%if %%u = 1
 							;unary operator
-							sub_string %%p, '-*&~!'
+							search_string %%p, '-*&~!'
 							%if _pos != 0
 								%substr %%o '_#:~!' _pos, 1
 								push_token %%o, %%m
@@ -892,12 +896,12 @@
 							%exitrep
 						%endif
 					%endif
-					sub_string _i_3_%[%%i], _i_2_%[%%p]
+					search_string _i_3_%[%%i], _i_2_%[%%p]
 					%if _pos != 0
 						;use of ref as source
 						%exitrep
 					%endif
-					sub_string _i_3_%[%%i], _i_3_%[%%p]
+					search_string _i_3_%[%%i], _i_3_%[%%p]
 					%if _pos != 0
 						;use of ref as destination
 						%exitrep
@@ -914,7 +918,7 @@
 			%ifidn _i_1_%[%%i], 'op_const'
 				%assign %%p %%i + 1
 				%rep _i_total - %%p
-					sub_string _i_3_%[%%i], _i_2_%[%%p]
+					search_string _i_3_%[%%i], _i_2_%[%%p]
 					%if _pos != 0
 						;only if destination is register
 						is_reg _i_3_%[%%p]
@@ -926,7 +930,7 @@
 						%endif
 						%exitrep
 					%else
-						sub_string _i_3_%[%%i], _i_3_%[%%p]
+						search_string _i_3_%[%%i], _i_3_%[%%p]
 						%if _pos != 0
 							;only if destination is not register
 							is_reg _i_3_%[%%p]
