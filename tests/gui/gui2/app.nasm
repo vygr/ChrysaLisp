@@ -96,9 +96,9 @@
 		;r0 = app local object
 		;r1 = button object
 
-		long inst
-		long button
-		long string
+		ptr inst
+		ptr button
+		ptr string
 
 		push_scope
 		retire {r0, r1}, {inst, button}
