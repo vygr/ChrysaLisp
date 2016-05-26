@@ -591,10 +591,9 @@
 	%endmacro
 
 	%macro map_topology_sort 0
-		%assign %%c 1000
-		%rep %%c
-			%assign %%i 0
-			%rep _dst_total
+		%assign %%i 0
+		%rep 1000
+			%rep _dst_total - %%i
 				find_later_src %%i
 				%if _idx > %%i
 					map_rotate %%i, _idx
@@ -606,9 +605,8 @@
 			%if %%i = _dst_total
 				%exitrep
 			%endif
-			%assign %%c %%c - 1
 		%endrep
-		%if %%c = 0
+		%if %%i != _dst_total
 			map_print
 			%error Copy cycle detected !
 		%endif
