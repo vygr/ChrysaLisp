@@ -2,25 +2,21 @@
 
 	fn_function test
 
-		const c2, 14
-		c1 equ 13
+		term_buffer_size equ 120
 
-		def_structure test
-			long f1
-			long f2
-			ubyte shared_last_op
+		def_structure term
+			pubyte term_bufp
+			ptr term_panel
+			struct term_buf, term_buffer
 		def_structure_end
 
-		ptr p1
-		ubyte a1
-		pshort a2
-		uint i
-		int j
+		ptr terminal
+		ubyte char
+		ptr buf
 
 		push_scope
-			assign {12 + 15 + c1 + c2, a1}, {p1->f1, p1->f2}
-			assign {p1->f2, p1->f1}, {p1->f1, p1->f2}
-			assign {0}, {p1->shared_last_op}
+			assign {char}, {*terminal->term_bufp}
+			assign {*terminal->term_bufp}, {buf}
 		pop_scope
 		vp_ret
 

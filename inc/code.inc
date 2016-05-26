@@ -1199,8 +1199,9 @@
 	%endmacro
 
 	%macro compile_uderef 0
-		pop_value
+		%assign _s _s - 1
 		compile_deref
+		add_inst op_ref, _%[_s], _%[_s]
 	%endmacro
 
 	%macro compile_uminus 0

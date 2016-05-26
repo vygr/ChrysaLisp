@@ -10,12 +10,20 @@
 
 	fn_function forth/forth
 
+		term_buffer_size equ 120
+
+		def_structure term
+			pubyte term_bufp
+			ptr term_panel
+			struct term_buf, term_buffer
+		def_structure_end
+
 		struct myapp, obj
+		struct terminal, term
 		ptr msg
 		ptr window
 		ptr window_panel
 		ptr label
-		ptr panel
 		ptr stream
 		ptr vector
 		pubyte next
@@ -40,9 +48,9 @@
 		static_call window, set_status, {window, string}
 
 		;add my app panel
-		static_call flow, create, {}, {panel}
-		static_call flow, set_flow_flags, {panel, flow_flag_down | flow_flag_fillw}
-		static_call flow, add_back, {panel, window_panel}
+		static_call flow, create, {}, {terminal.term_panel}
+		static_call flow, set_flow_flags, {terminal.term_panel, flow_flag_down | flow_flag_fillw}
+		static_call flow, add_back, {terminal.term_panel, window_panel}
 
 		;add terminal lines to my app panel
 		assign {$line_list}, {next}
@@ -55,7 +63,7 @@
 			static_call label, set_color, {label, 0xff000000}
 			static_call label, set_text_color, {label, 0xff00ff00}
 			static_call label, set_font, {label, "fonts/OpenSans-Regular.ttf", 16}
-			static_call label, add_back, {label, panel}
+			static_call label, add_back, {label, terminal.term_panel}
 
 			static_call sys_string, length, {next}, {length}
 			assign {next + length + 1}, {next}
@@ -73,11 +81,12 @@
 		static_call gui_gui, add, {window}
 		static_call window, dirty_all, {window}
 
-		;set up input stream stack
+		;set up input stream stack and terminal buffer
 		static_call string, create_from_file, {"forth/forth.f"}, {string}
 		static_call stream, create_from_string, {string}, {stream}
 		static_call vector, create, {}, {vector}
 		static_call vector, push_back, {vector, stream}
+		assign {&terminal.term_buf}, {terminal.term_bufp}
 
 		;app event loop
 		loop_start
@@ -90,7 +99,7 @@
 				if {char == -1}
 					static_call vector, pop_back, {vector}
 				else
-					local_call terminal_input, {panel, char}, {r0, r1}
+					local_call terminal_input, {&terminal, char}, {r0, r1}
 				endif
 				static_call stream, deref, {stream}
 				static_call sys_task, yield, {}
@@ -102,7 +111,7 @@
 
 			;if key event, then input to terminal
 			if {msg->ev_data_type == ev_type_key && msg->ev_data_keycode > 0}
-				local_call terminal_input, {panel, msg->ev_data_key}, {r0, r1}
+				local_call terminal_input, {&terminal, msg->ev_data_key}, {r0, r1}
 			endif
 
 			;free event message
@@ -121,6 +130,30 @@
 		;r1 = char input
 
 		ptr terminal
+		ubyte char
+
+		push_scope
+		retire {r0, r1}, {terminal, char}
+		local_call terminal_output, {terminal, char}, {r0, r1}
+		if {char == 10 || char == 13}
+			;interpret line
+
+			;reset buffer
+			assign {&terminal->term_buf}, {terminal->term_bufp}
+		else
+			;buffer char
+			assign {char}, {*terminal->term_bufp}
+			assign {terminal->term_bufp + 1}, {terminal->term_bufp}
+		endif
+		pop_scope
+		vp_ret
+
+	terminal_output:
+		;inputs
+		;r0 = terminal
+		;r1 = char output
+
+		ptr terminal
 		ptr label
 		ptr string
 		ptr line_string
@@ -131,15 +164,15 @@
 		retire {r0, r1}, {terminal, char}
 		if {char == 10 || char == 13}
 			;scroll lines
-			static_call flow, get_first, {terminal}, {label}
-			static_call label, add_back, {label, terminal}
-			method_call flow, layout, {terminal}
+			static_call flow, get_first, {terminal->term_panel}, {label}
+			static_call label, add_back, {label, terminal->term_panel}
+			method_call flow, layout, {terminal->term_panel}
 			static_call string, create_from_cstr, {">"}, {string}
 			static_call label, set_text, {label, string}
-			static_call flow, dirty_all, {terminal}
+			static_call flow, dirty_all, {terminal->term_panel}
 		else
 			;append char
-			static_call flow, get_last, {terminal}, {label}
+			static_call flow, get_last, {terminal->term_panel}, {label}
 			static_call string, create_from_cstr, {&char}, {string}
 			static_call label, get_text, {label}, {line_string}
 			static_call string, add, {line_string, string}, {new_line_string}
