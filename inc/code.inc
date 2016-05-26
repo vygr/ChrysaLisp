@@ -1101,10 +1101,6 @@
 	%macro pop_value 0
 		%assign _s _s - 1
 		compile_deref?
-	%endmacro
-
-	%macro pop_value_final 0
-		pop_value
 		%defstr _%[_s]_t
 	%endmacro
 
@@ -1205,17 +1201,17 @@
 	%endmacro
 
 	%macro compile_uminus 0
-		pop_value_final
+		pop_value
 		add_inst vp_mul, -1, _%[_s]
 	%endmacro
 
 	%macro compile_unot 0
-		pop_value_final
+		pop_value
 		add_inst vp_xor, -1, _%[_s]
 	%endmacro
 
 	%macro compile_ulnot 0
-		pop_value_final
+		pop_value
 		add_inst if, _%[_s], ==, 0
 		add_inst  vp_cpy, 1, _%[_s]
 		add_inst else
@@ -1224,9 +1220,9 @@
 	%endmacro
 
 	%macro compile_land 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst if, _%[%%s], !=, 0
 		add_inst  if, _%[_s], !=, 0
 		add_inst   vp_cpy, 1, _%[_s]
@@ -1239,18 +1235,18 @@
 	%endmacro
 
 	%macro compile_lor 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst vp_or, _%[%%s], _%[_s]
 	%endmacro
 
 	%macro compile_ternary 0
-		pop_value_final
+		pop_value
 		%assign %%s2 _s
-		pop_value_final
+		pop_value
 		%assign %%s1 _s
-		pop_value_final
+		pop_value
 		add_inst if, _%[_s], !=, 0
 		add_inst  vp_cpy, _%[%%s1], _%[_s]
 		add_inst else
@@ -1259,9 +1255,9 @@
 	%endmacro
 
 	%macro compile_gt 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst if, _%[_s], >, _%[%%s]
 		add_inst  vp_cpy, 1, _%[_s]
 		add_inst else
@@ -1270,9 +1266,9 @@
 	%endmacro
 
 	%macro compile_lt 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst if, _%[_s], <, _%[%%s]
 		add_inst  vp_cpy, 1, _%[_s]
 		add_inst else
@@ -1281,9 +1277,9 @@
 	%endmacro
 
 	%macro compile_ge 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst if, _%[_s], >=, _%[%%s]
 		add_inst  vp_cpy, 1, _%[_s]
 		add_inst else
@@ -1292,9 +1288,9 @@
 	%endmacro
 
 	%macro compile_le 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst if, _%[_s], <=, _%[%%s]
 		add_inst  vp_cpy, 1, _%[_s]
 		add_inst else
@@ -1303,9 +1299,9 @@
 	%endmacro
 
 	%macro compile_eq 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst if, _%[_s], ==, _%[%%s]
 		add_inst  vp_cpy, 1, _%[_s]
 		add_inst else
@@ -1314,9 +1310,9 @@
 	%endmacro
 
 	%macro compile_ne 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst if, _%[_s], !=, _%[%%s]
 		add_inst  vp_cpy, 1, _%[_s]
 		add_inst else
@@ -1325,84 +1321,84 @@
 	%endmacro
 
 	%macro compile_lshift 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst vp_shl, _%[%%s], _%[_s]
 	%endmacro
 
 	%macro compile_rshift 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst vp_shr, _%[%%s], _%[_s]
 	%endmacro
 
 	%macro compile_arshift 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst vp_asr, _%[%%s], _%[_s]
 	%endmacro
 
 	%macro compile_plus 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst vp_add, _%[%%s], _%[_s]
 	%endmacro
 
 	%macro compile_minus 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst vp_sub, _%[%%s], _%[_s]
 	%endmacro
 
 	%macro compile_mul 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst vp_mul, _%[%%s], _%[_s]
 	%endmacro
 
 	%macro compile_div 0
 		%assign %%s2 _s
-		pop_value_final
+		pop_value
 		%assign %%s1 _s
-		pop_value_final
+		pop_value
 		add_inst vp_xor, _%[%%s2], _%[%%s2]
 		add_inst vp_div, _%[%%s1], _%[%%s2], _%[_s]
 	%endmacro
 
 	%macro compile_rem 0
 		%assign %%s2 _s
-		pop_value_final
+		pop_value
 		%assign %%s1 _s
-		pop_value_final
+		pop_value
 		add_inst vp_xor, _%[%%s2], _%[%%s2]
 		add_inst vp_div, _%[%%s1], _%[%%s2], _%[_s]
 		add_inst vp_cpy, _%[%%s2], _%[_s]
 	%endmacro
 
 	%macro compile_and 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst vp_and, _%[%%s], _%[_s]
 	%endmacro
 
 	%macro compile_xor 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst vp_xor, _%[%%s], _%[_s]
 	%endmacro
 
 	%macro compile_or 0
-		pop_value_final
+		pop_value
 		%assign %%s _s
-		pop_value_final
+		pop_value
 		add_inst vp_or, _%[%%s], _%[_s]
 	%endmacro
 
@@ -1480,7 +1476,7 @@
 			set_token_list _src_%[_s]
 			token_to_rpn
 			compile_rpn_list
-			pop_value_final
+			pop_value
 			%assign _s _s + 1
 		%endrep
 		opt_inst_list
