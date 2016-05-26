@@ -1028,6 +1028,7 @@
 			%defstr _%[_s]_t
 			%assign _s _s + 1
 		%endrep
+		%assign _s %1
 		%assign _r_total 0
 		%assign _i_total 0
 	%endmacro
@@ -1050,7 +1051,7 @@
 	%macro def_reg_stack 0-*
 		%rep %0
 			%xdefine _%[_r_total] %1
-			%defstr _%[_r_total]_t
+			%xdefine _%[_r_total]_t ''
 			%assign _r_total _r_total + 1
 			%rotate 1
 		%endrep
@@ -1476,14 +1477,12 @@
 			%fatal Mismatching number of src/dst paramaters !
 		%endif
 		reset_reg_stack
-		%assign %%n 0
 		%rep _src_total
-			set_token_list _src_%[%%n]
+			set_token_list _src_%[_s]
 			token_to_rpn
 			compile_rpn_list
 			pop_value_final
 			%assign _s _s + 1
-			%assign %%n %%n + 1
 		%endrep
 		opt_inst_list
 		def_reg_stack %2
@@ -1500,8 +1499,8 @@
 		map_remove_ignored
 		reset_reg_stack _src_total
 		%rep _dst_total
-			%assign %%r _s - 1
-			set_token_list _dst_%[%%r]
+			%assign %%s _s - 1
+			set_token_list _dst_%[%%s]
 			token_to_rpn
 			compile_rpn_list
 			compile_assign
@@ -1519,12 +1518,10 @@
 			%fatal Mismatching number of src/dst paramaters !
 		%endif
 		reset_reg_stack
-		%assign %%n 0
 		%rep _src_total
-			set_token_list _src_%[%%n]
+			set_token_list _src_%[_s]
 			token_to_rpn
 			compile_rpn_list
-			%assign %%n %%n + 1
 		%endrep
 		%rep _dst_total
 			%assign %%s _s - 1
