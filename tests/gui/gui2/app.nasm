@@ -115,7 +115,7 @@
 		db 'tests/global', 0
 		db 'tests/gui/gui1/app',0
 		db 'tests/gui/gui3/app',0
-		db 'forth/forth', 0
+		db 'cmd/cmd', 0
 		db 0
 
 	fn_function_end

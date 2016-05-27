@@ -161,7 +161,8 @@ class/window/new
 class/window/pref_size
 class/window/set_status
 class/window/set_title
-forth/forth
+cmd/cmd
+cmd/forth
 gui/ctx_blit
 gui/ctx_box
 gui/ctx_brighter
