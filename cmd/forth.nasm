@@ -6,21 +6,15 @@
 
 	fn_function cmd/forth
 
-		linebuf_buffer_size equ 120
+		buffer_size equ 120
 
-		def_structure linebuf
-			pubyte linebuf_bufp
-			struct linebuf_buf, linebuf_buffer
-		def_structure_end
-
-		struct buffer, linebuf
+		struct buffer, buffer
 		ptr msg
 		ptr stream
 		ptr vector
 		ptr string
 		ulong length
 		pubyte charp
-		ubyte char
 
 		;init app vars
 		push_scope
@@ -31,9 +25,6 @@
 		static_call vector, create, {}, {vector}
 		static_call vector, push_back, {vector, stream}
 
-		;set up line buffer
-		assign {&buffer.linebuf_buf}, {buffer.linebuf_bufp}
-
 		;app event loop
 		loop_start
 			;priority to stack input
@@ -41,23 +32,21 @@
 				static_call vector, get_length, {vector}, {length}
 				breakif {length == 0}
 				static_call vector, get_back, {vector}, {stream}
-				static_call stream, read_char, {stream}, {char}
-				if {char == -1}
+				static_call stream, read_line, {stream, buffer, buffer_size - 1}, {length}
+				if {length == 0}
 					static_call vector, pop_back, {vector}
 				else
-					local_call input, {&buffer, char}, {r0, r1}
+					assign {&buffer + length}, {charp}
+					assign {0}, {*charp}
+					local_call input, {&buffer}, {r0}
 				endif
 				static_call stream, deref, {stream}
 				static_call sys_task, yield, {}
 			loop_end
 
-			;read linebufinal input
+			;read terminal input
 			static_call sys_mail, mymail, {}, {msg}
-			assign {&msg->cmd_mail_string}, {charp}
-			loop_while {*charp != 0}
-				local_call input, {&buffer, *charp}, {r0, r1}
-				assign {charp + 1}, {charp}
-			loop_end
+			local_call input, {&msg->cmd_mail_string}, {r0}
 
 			;free input stream mail
 			static_call sys_mem, free, {msg}
@@ -68,24 +57,12 @@
 
 	input:
 		;inputs
-		;r0 = buffer
-		;r1 = char input
+		;r0 = line buffer
 
-		ptr buffer
-		ubyte char
+		ptr string
 
 		push_scope
-		retire {r0, r1}, {buffer, char}
-		if {char == 10 || char == 13}
-			;interpret line
-
-			;reset buffer
-			assign {&buffer->linebuf_buf}, {buffer->linebuf_bufp}
-		else
-			;buffer char
-			assign {char}, {*buffer->linebuf_bufp}
-			assign {buffer->linebuf_bufp + 1}, {buffer->linebuf_bufp}
-		endif
+		retire {r0}, {string}
 		pop_scope
 		vp_ret
 

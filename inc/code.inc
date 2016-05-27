@@ -918,9 +918,8 @@
 				%rep _i_total - %%p
 					search_string _i_3_%[%%i], _i_2_%[%%p]
 					%if _pos != 0
-						;only if destination is register
-						is_reg _i_3_%[%%p]
-						%if _f >= 0
+						;only if not an assign
+						%ifnidn _i_1_%[%%p], 'op_assign'
 							;op_const => op_imm
 							replace_string _i_2_%[%%i], _i_3_%[%%i], _i_2_%[%%p], _pos
 							%xdefine _i_2_%[%%p] _str
