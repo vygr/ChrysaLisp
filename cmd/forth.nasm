@@ -20,7 +20,7 @@
 		push_scope
 
 		;set up input stream stack
-		static_call string, create_from_file, {"forth/forth.f"}, {string}
+		static_call string, create_from_file, {"cmd/forth.f"}, {string}
 		static_call stream, create_from_string, {string}, {stream}
 		static_call vector, create, {}, {vector}
 		static_call vector, push_back, {vector, stream}
