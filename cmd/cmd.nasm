@@ -9,16 +9,22 @@
 
 	fn_function cmd/cmd
 
-		term_buffer_size equ 120
+		buffer_size equ 120
 
 		def_structure term
 			pubyte term_bufp
 			ptr term_panel
-			struct term_buf, term_buffer
+			struct term_buf, buffer
+		def_structure_end
+
+		def_structure sel
+			ulong sel_select1
+			ulong sel_select2
 		def_structure_end
 
 		struct myapp, obj
 		struct terminal, term
+		struct select, sel
 		ptr msg
 		ptr window
 		ptr window_panel
@@ -26,15 +32,13 @@
 		pubyte next
 		ptr string
 		ulong owner
-		ulong select1
-		ulong select2
 		ulong mailbox
+		pubyte charp
 		struct task_mailbox, ml_mailbox
 		int width
 		int height
 		int char
 		ubyte length
-		pubyte charp
 
 		;init app vars
 		push_scope
@@ -90,17 +94,17 @@
 		static_call sys_mail, mailbox, {&task_mailbox}
 
 		;set up mailbox select array
-		static_call sys_task, mailbox, {}, {select1, _}
-		assign {&task_mailbox}, {select2}
+		static_call sys_task, mailbox, {}, {select.sel_select1, _}
+		assign {&task_mailbox}, {select.sel_select2}
 
 		;app event loop
 		loop_start
-			;select on 2 mailboxes
-			static_call sys_mail, select, {&select1, 2}, {mailbox}
+			;select on multiple mailboxes
+			static_call sys_mail, select, {&select, sel_size >> 3}, {mailbox}
 			static_call sys_mail, read, {mailbox}, {msg}
 
 			;which mailbox had mail ?
-			if {mailbox == select1}
+			if {mailbox == select.sel_select1}
 				;dispatch event to view
 				method_call view, event, {msg->ev_data_view, msg}
 

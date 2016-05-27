@@ -14,6 +14,12 @@
 
 	fn_function tests/gui/gui1/app
 
+		def_structure sel
+			ulong sel_select1
+			ulong sel_select2
+		def_structure_end
+
+		struct select, sel
 		ptr window
 		ptr window_panel
 		ptr panel
@@ -22,8 +28,6 @@
 		pptr task_progress
 
 		ptr msg
-		ulong select1
-		ulong select2
 		ulong mailbox
 		pulong task_mailboxes
 		struct task_mailbox, ml_mailbox
@@ -87,8 +91,8 @@
 		static_call sys_mail, mailbox, {&task_mailbox}
 
 		;set up mailbox select array
-		static_call sys_task, mailbox, {}, {select1, _}
-		assign {&task_mailbox}, {select2}
+		static_call sys_task, mailbox, {}, {select.sel_select1, _}
+		assign {&task_mailbox}, {select.sel_select2}
 
 		;app event loop
 		loop_start
@@ -103,18 +107,18 @@
 					assign {task_progress[cpu_count * long_size]}, {msg->sample_mail_progress}
 					assign {task_mailboxes[cpu_count * mailbox_id_size].mb_mbox}, {msg->ml_msg_dest.mb_mbox}
 					assign {task_mailboxes[cpu_count * mailbox_id_size].mb_cpu}, {msg->ml_msg_dest.mb_cpu}
-					assign {select2}, {msg->sample_mail_reply_id.mb_mbox}
+					assign {select.sel_select2}, {msg->sample_mail_reply_id.mb_mbox}
 					static_call sys_cpu, id, {}, {msg->sample_mail_reply_id.mb_cpu}
 					static_call sys_mail, send, {msg}
 				loop_until {!cpu_count}
 			endif
 
-			;select on 2 mailboxes
-			static_call sys_mail, select, {&select1, 2}, {mailbox}
+			;select on multiple mailboxes
+			static_call sys_mail, select, {&select, sel_size >> 3}, {mailbox}
 			static_call sys_mail, read, {mailbox}, {msg}
 
 			;which mailbox had mail ?
-			if {mailbox == select1}
+			if {mailbox == select.sel_select1}
 				;dispatch event to view
 				method_call view, event, {msg->ev_data_view, msg}
 			else
@@ -135,7 +139,7 @@
 
 		;wait for outstanding replys
 		loop_while {cpu_count != cpu_total}
-			static_call sys_mail, read, {select2}, {msg}
+			static_call sys_mail, read, {select.sel_select2}, {msg}
 			static_call sys_mem, free, {msg}
 			assign {cpu_count + 1}, {cpu_count}
 		loop_end

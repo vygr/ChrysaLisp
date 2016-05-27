@@ -44,7 +44,7 @@
 				static_call sys_task, yield, {}
 			loop_end
 
-			;read terminal input
+			;read stdin
 			static_call sys_mail, mymail, {}, {msg}
 			local_call input, {&msg->cmd_mail_string}, {r0}
 
