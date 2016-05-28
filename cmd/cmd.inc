@@ -16,7 +16,7 @@
 
 	def_structure cmd_mail_stream, ml_msg_header
 		ulong cmd_mail_stream_seqnum
-		struct cmd_mail_stream_string, null
+		struct cmd_mail_stream_data, null
 	def_structure_end
 
 	cmd_pipe_buffer_size equ 120

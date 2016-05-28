@@ -27,7 +27,7 @@
 		loop_end
 		assign {pipe->cmd_pipe_stdin_seqnum + 1}, {pipe->cmd_pipe_stdin_seqnum}
 		assign {msg->ml_msg_length - cmd_mail_stream_size}, {length}
-		static_call sys_mem, copy, {&msg->cmd_mail_stream_string, buffer, length}, {_, _}
+		static_call sys_mem, copy, {&msg->cmd_mail_stream_data, buffer, length}, {_, _}
 		static_call sys_mem, free, {msg}
 		eval {length}, {r0}
 		pop_scope

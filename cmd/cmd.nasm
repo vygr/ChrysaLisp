@@ -40,8 +40,7 @@
 		pubyte next
 		ptr string
 		ulong owner
-		ulong mailbox
-		pubyte charp
+		ptr mailbox
 		int width
 		int height
 		int char
@@ -142,24 +141,14 @@
 				static_call sys_mem, free, {msg}
 			elseif {mailbox == sel.sel_stderr}
 				;input from stderr
-				assign {&msg->cmd_mail_stream_string}, {charp}
-				loop_while {charp != (msg + msg->ml_msg_length)}
-					local_call terminal_output, {&shared, *charp}, {r0, r1}
-					assign {charp + 1}, {charp}
-				loop_end
-				static_call sys_mem, free, {msg}
+				local_call msg_output, {&shared, msg}, {r0, r1}
 			else
 				;input from stdout
 				loop_start
 					static_call cmd, next_msg, {&stdout_list, msg, stdout_seqnum}, {msg}
 					breakif {msg == 0}
+					local_call msg_output, {&shared, msg}, {r0, r1}
 					assign {stdout_seqnum + 1}, {stdout_seqnum}
-					assign {&msg->cmd_mail_stream_string}, {charp}
-					loop_while {charp != (msg + msg->ml_msg_length)}
-						local_call terminal_output, {&shared, *charp}, {r0, r1}
-						assign {charp + 1}, {charp}
-					loop_end
-					static_call sys_mem, free, {msg}
 					assign {0}, {msg}
 				loop_end
 			endif
@@ -168,6 +157,26 @@
 		;deref window
 		static_call window, deref, {window}
 		method_call obj, deinit, {&myapp}
+		pop_scope
+		vp_ret
+
+	msg_output:
+		;inputs
+		;r0 = shared
+		;r1 = msg
+
+		ptr shared
+		ptr msg
+		pubyte charp
+
+		push_scope
+		retire {r0, r1}, {shared, msg}
+		assign {&msg->cmd_mail_stream_data}, {charp}
+		loop_while {charp != (msg + msg->ml_msg_length)}
+			local_call terminal_output, {&shared, *charp}, {r0, r1}
+			assign {charp + 1}, {charp}
+		loop_end
+		static_call sys_mem, free, {msg}
 		pop_scope
 		vp_ret
 
@@ -198,7 +207,7 @@
 			assign {shared->shared_stdin_mailbox_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
 			assign {shared->shared_stdin_mailbox_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
 			assign {shared->shared_stdin_seqnum}, {msg->cmd_mail_stream_seqnum}
-			static_call sys_mem, copy, {&shared->shared_buffer, &msg->cmd_mail_stream_string, length}, {_, _}
+			static_call sys_mem, copy, {&shared->shared_buffer, &msg->cmd_mail_stream_data, length}, {_, _}
 			static_call sys_mail, send, {msg}
 			assign {shared->shared_stdin_seqnum + 1}, {shared->shared_stdin_seqnum}
 

@@ -20,7 +20,7 @@
 		assign {cmd_mail_stream_size + length}, {msg->ml_msg_length}
 		assign {pipe->cmd_pipe_stderr_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
 		assign {pipe->cmd_pipe_stderr_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
-		static_call sys_mem, copy, {buffer, &msg->cmd_mail_stream_string, length}, {_, _}
+		static_call sys_mem, copy, {buffer, &msg->cmd_mail_stream_data, length}, {_, _}
 		static_call sys_mail, send, {msg}
 		pop_scope
 		vp_ret
