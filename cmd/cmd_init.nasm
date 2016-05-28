@@ -23,8 +23,8 @@
 		static_call sys_string, copy, {&msg->cmd_mail_init_args, &pipe->cmd_pipe_args}, {_, _}
 
 		;send back ack
-		assign {msg->cmd_mail_init_reply_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
-		assign {msg->cmd_mail_init_reply_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
+		assign {msg->cmd_mail_init_stdout_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
+		assign {msg->cmd_mail_init_stdout_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
 		assign {ml_msg_data}, {msg->ml_msg_length}
 		static_call sys_mail, send, {msg}
 

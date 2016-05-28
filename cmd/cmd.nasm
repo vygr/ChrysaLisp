@@ -113,8 +113,6 @@
 		assign {cmd_mail_init_size + 6}, {msg->ml_msg_length}
 		assign {shared.shared_stdin_mailbox_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
 		assign {shared.shared_stdin_mailbox_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
-		assign {&stdout_mailbox}, {msg->cmd_mail_init_reply_id.mb_mbox}
-		static_call sys_cpu, id, {}, {msg->cmd_mail_init_reply_id.mb_cpu}
 		assign {&stdout_mailbox}, {msg->cmd_mail_init_stdout_id.mb_mbox}
 		static_call sys_cpu, id, {}, {msg->cmd_mail_init_stdout_id.mb_cpu}
 		assign {&stderr_mailbox}, {msg->cmd_mail_init_stderr_id.mb_mbox}

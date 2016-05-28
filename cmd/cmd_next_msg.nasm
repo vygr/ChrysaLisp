@@ -8,8 +8,6 @@
 		;r2 = seqnum
 		;outputs
 		;r0 = 0, else next stream msg
-		;trashes
-		;r1-r3
 
 		;save any new msg
 		if r1, !=, 0

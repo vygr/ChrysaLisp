@@ -9,7 +9,6 @@
 	def_method stderr, cmd/cmd_stderr, static, {r0, r1, r2}
 
 	def_structure cmd_mail_init, ml_msg_header
-		struct cmd_mail_init_reply_id, mailbox_id
 		struct cmd_mail_init_stdout_id, mailbox_id
 		struct cmd_mail_init_stderr_id, mailbox_id
 		struct cmd_mail_init_args, null

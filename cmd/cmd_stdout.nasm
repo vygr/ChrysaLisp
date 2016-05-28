@@ -7,6 +7,8 @@
 		;r0 = pipe
 		;r1 = buffer
 		;r2 = length
+		;trashes
+		;all but r4
 
 		ptr pipe
 		ptr buffer

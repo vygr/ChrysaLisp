@@ -8,6 +8,8 @@
 		;r2 = buffer length
 		;outputs
 		;r0 = amount read
+		;trashes
+		;all but r4
 
 		ptr pipe
 		ptr buffer
