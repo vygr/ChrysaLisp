@@ -173,7 +173,7 @@
 		retire {r0, r1}, {shared, msg}
 		assign {&msg->cmd_mail_stream_data}, {charp}
 		loop_while {charp != (msg + msg->ml_msg_length)}
-			local_call terminal_output, {&shared, *charp}, {r0, r1}
+			local_call terminal_output, {shared, *charp}, {r0, r1}
 			assign {charp + 1}, {charp}
 		loop_end
 		static_call sys_mem, free, {msg}
