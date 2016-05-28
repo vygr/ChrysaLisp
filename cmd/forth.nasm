@@ -1,4 +1,6 @@
 %include 'inc/func.inc'
+%include 'inc/string.inc'
+%include 'inc/list.inc'
 %include 'class/class_string.inc'
 %include 'class/class_stream.inc'
 %include 'class/class_vector.inc'
@@ -8,7 +10,16 @@
 
 		buffer_size equ 120
 
-		struct buffer, buffer
+		def_structure shared
+			struct shared_stdout_id, mailbox_id
+			struct shared_stderr_id, mailbox_id
+			ulong shared_stdout_seqnum
+			struct shared_buffer, buffer
+		def_structure_end
+
+		struct shared_data, shared
+		struct stdin_list, lh_list
+		ulong stdin_seqnum
 		ptr msg
 		ptr stream
 		ptr vector
@@ -18,6 +29,21 @@
 
 		;init app vars
 		push_scope
+		assign {0}, {shared_data.shared_stdout_seqnum}
+		assign {0}, {stdin_seqnum}
+		static_call sys_list, init, {&stdin_list}
+
+		;read stdout, stderr and command line msg
+		static_call sys_mail, mymail, {}, {msg}
+		assign {msg->cmd_mail_stdout_id.mb_mbox}, {shared_data.shared_stdout_id.mb_mbox}
+		assign {msg->cmd_mail_stdout_id.mb_cpu}, {shared_data.shared_stdout_id.mb_cpu}
+		assign {msg->cmd_mail_stderr_id.mb_mbox}, {shared_data.shared_stderr_id.mb_mbox}
+		assign {msg->cmd_mail_stderr_id.mb_cpu}, {shared_data.shared_stderr_id.mb_cpu}
+
+		;send back ack
+		assign {msg->cmd_mail_reply_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
+		assign {msg->cmd_mail_reply_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
+		static_call sys_mail, send, {msg}
 
 		;set up input stream stack
 		static_call string, create_from_file, {"cmd/forth.f"}, {string}
@@ -32,21 +58,26 @@
 				static_call vector, get_length, {vector}, {length}
 				breakif {length == 0}
 				static_call vector, get_back, {vector}, {stream}
-				static_call stream, read_line, {stream, buffer, buffer_size - 1}, {length}
+				static_call stream, read_line, {stream, shared_data.shared_buffer, buffer_size - 1}, {length}
 				if {length == 0}
 					static_call vector, pop_back, {vector}
 				else
-					assign {&buffer + length}, {charp}
+					assign {&shared_data.shared_buffer + length}, {charp}
 					assign {0}, {*charp}
-					local_call input, {&buffer}, {r0}
+					local_call stdin, {&shared_data}, {r0}
 				endif
 				static_call stream, deref, {stream}
 				static_call sys_task, yield, {}
 			loop_end
 
-			;read stdin
+			;read stdin, see if next in sequence
 			static_call sys_mail, mymail, {}, {msg}
-			local_call input, {&msg->cmd_mail_string}, {r0}
+			static_call cmd, next_msg, {&stdin_list, msg, stdin_seqnum}, {msg}
+			if {msg != 0}
+				;got next stdin message
+				local_call stdin, {&msg->cmd_mail_string}, {r0}
+				assign {stdin_seqnum + 1}, {stdin_seqnum}
+			endif
 
 			;free input stream mail
 			static_call sys_mem, free, {msg}
@@ -55,14 +86,60 @@
 		pop_scope
 		vp_ret
 
-	input:
+	stdin:
 		;inputs
-		;r0 = line buffer
+		;r0 = shared data
 
-		ptr string
+		ptr shared
 
 		push_scope
-		retire {r0}, {string}
+		retire {r0}, {shared}
+		pop_scope
+		vp_ret
+
+	stdout:
+		;inputs
+		;r0 = shared data
+		;r1 = cstr data
+
+		ptr shared
+		ptr data
+		ulong length
+		ptr msg
+
+		push_scope
+		retire {r0, r1}, {shared, data}
+		static_call sys_string, length, {data}, {length}
+		static_call sys_mail, alloc, {}, {msg}
+		assign {cmd_mail_size + length + 1}, {msg->ml_msg_length}
+		assign {shared->shared_stdout_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
+		assign {shared->shared_stdout_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
+		static_call sys_mem, copy, {data, &msg->ml_msg_data, length + 1}, {_, _}
+		assign {shared->shared_stdout_seqnum}, {msg->cmd_mail_seqnum}
+		assign {shared->shared_stdout_seqnum + 1}, {shared->shared_stdout_seqnum}
+		static_call sys_mail, send, {msg}
+		pop_scope
+		vp_ret
+
+	stderr:
+		;inputs
+		;r0 = shared data
+		;r1 = cstr data
+
+		ptr shared
+		ptr data
+		ulong length
+		ptr msg
+
+		push_scope
+		retire {r0, r1}, {shared, data}
+		static_call sys_string, length, {data}, {length}
+		static_call sys_mail, alloc, {}, {msg}
+		assign {cmd_mail_size + length + 1}, {msg->ml_msg_length}
+		assign {shared->shared_stderr_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
+		assign {shared->shared_stderr_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
+		static_call sys_mem, copy, {data, &msg->ml_msg_data, length + 1}, {_, _}
+		static_call sys_mail, send, {msg}
 		pop_scope
 		vp_ret
 

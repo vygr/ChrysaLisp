@@ -8,11 +8,12 @@
 ; list static class
 ;;;;;;;;;;;;;;;;;;;
 
-	def_class list
+	def_class sys_list
+	def_method init, sys/list_init, static, {r0}
+	def_method index_of, sys/list_index_of, static, {r0, r1}, {r1}
+	def_method node_at, sys/list_node_at, static, {r0, r1}, {r0}
 	def_method forward, sys/list_forward
 	def_method backward, sys/list_backward
-	def_method index_of, sys/list_index_of
-	def_method node_at, sys/list_node_at
 
 ;;;;;;;;;;;;;;;;;
 ; list structures

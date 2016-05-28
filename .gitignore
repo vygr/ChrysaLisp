@@ -162,6 +162,7 @@ class/window/pref_size
 class/window/set_status
 class/window/set_title
 cmd/cmd
+cmd/cmd_next_msg
 cmd/forth
 gui/ctx_blit
 gui/ctx_box
@@ -207,6 +208,7 @@ sys/link_statics
 sys/list_backward
 sys/list_forward
 sys/list_index_of
+sys/list_init
 sys/list_node_at
 sys/load_bind
 sys/load_deinit

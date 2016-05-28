@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 %include 'inc/string.inc'
+%include 'inc/list.inc'
 %include 'class/class_window.inc'
 %include 'class/class_flow.inc'
 %include 'class/class_label.inc'
@@ -18,13 +19,19 @@
 		def_structure_end
 
 		def_structure sel
-			ulong sel_select1
-			ulong sel_select2
+			ptr sel_event
+			ptr sel_stdout
+			ptr sel_stderr
 		def_structure_end
 
 		struct myapp, obj
 		struct terminal, term
 		struct select, sel
+		struct stdout_mailbox, ml_mailbox
+		struct stderr_mailbox, ml_mailbox
+		struct stdout_list, lh_list
+		ulong stdin_seqnum
+		ulong stdout_seqnum
 		ptr msg
 		ptr window
 		ptr window_panel
@@ -34,7 +41,6 @@
 		ulong owner
 		ulong mailbox
 		pubyte charp
-		struct task_mailbox, ml_mailbox
 		int width
 		int height
 		int char
@@ -44,6 +50,8 @@
 		push_scope
 		slot_function class, obj
 		static_call obj, init, {&myapp, @_function_}, {_}
+		assign {0, 0}, {stdin_seqnum, stdout_seqnum}
+		static_call sys_list, init, {&stdout_list}
 
 		;create my window
 		static_call window, create, {}, {window}
@@ -90,12 +98,13 @@
 		;set up terminal buffer
 		assign {&terminal.term_buf}, {terminal.term_bufp}
 
-		;init task mailbox
-		static_call sys_mail, mailbox, {&task_mailbox}
+		;init stdout and stderr mailboxes
+		static_call sys_mail, mailbox, {&stdout_mailbox}
+		static_call sys_mail, mailbox, {&stderr_mailbox}
 
 		;set up mailbox select array
-		static_call sys_task, mailbox, {}, {select.sel_select1, _}
-		assign {&task_mailbox}, {select.sel_select2}
+		static_call sys_task, mailbox, {}, {select.sel_event, _}
+		assign {&stdout_mailbox, &stderr_mailbox}, {select.sel_stdout, select.sel_stderr}
 
 		;app event loop
 		loop_start
@@ -104,7 +113,7 @@
 			static_call sys_mail, read, {mailbox}, {msg}
 
 			;which mailbox had mail ?
-			if {mailbox == select.sel_select1}
+			if {mailbox == select.sel_event}
 				;dispatch event to view
 				method_call view, event, {msg->ev_data_view, msg}
 
@@ -112,17 +121,30 @@
 				if {msg->ev_data_type == ev_type_key && msg->ev_data_keycode > 0}
 					local_call terminal_input, {&terminal, msg->ev_data_key}, {r0, r1}
 				endif
-			else
-				;input from stdout of command
+				static_call sys_mem, free, {msg}
+			elseif {mailbox == select.sel_stderr}
+				;input from stderr
 				assign {&msg->cmd_mail_string}, {charp}
 				loop_while {*charp != 0}
 					local_call terminal_output, {&terminal, *charp}, {r0, r1}
 					assign {charp + 1}, {charp}
 				loop_end
+				static_call sys_mem, free, {msg}
+			else
+				;input from stdout
+				loop_start
+					static_call cmd, next_msg, {&stdout_list, msg, stdout_seqnum}, {msg}
+					breakif {msg == 0}
+					assign {stdout_seqnum + 1}, {stdout_seqnum}
+					assign {&msg->cmd_mail_string}, {charp}
+					loop_while {*charp != 0}
+						local_call terminal_output, {&terminal, *charp}, {r0, r1}
+						assign {charp + 1}, {charp}
+					loop_end
+					static_call sys_mem, free, {msg}
+					assign {0}, {msg}
+				loop_end
 			endif
-
-			;free event message
-			static_call sys_mem, free, {msg}
 		loop_end
 
 		;deref window
@@ -143,7 +165,7 @@
 		retire {r0, r1}, {terminal, char}
 		local_call terminal_output, {terminal, char}, {r0, r1}
 		if {char == 10 || char == 13}
-			;send line to command inbox
+			;send line to command pipeline
 
 			;reset buffer
 			assign {&terminal->term_buf}, {terminal->term_bufp}
