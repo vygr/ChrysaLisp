@@ -691,8 +691,8 @@
 					%defstr %%c
 				%elif %%m > 3
 					;op mode
-					%if _pos >= 20 || _pos < 12
-						;space, )( or not </%&|=>
+					%if _pos > 18 || _pos < 12
+						;space, )([] or not </%&|=>
 						%if %%u = 1
 							;unary operator
 							search_string %%p, '-*&~!'

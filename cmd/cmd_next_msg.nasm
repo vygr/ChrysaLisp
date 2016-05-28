@@ -4,10 +4,10 @@
 	fn_function cmd/cmd_next_msg
 		;inputs
 		;r0 = list head
-		;r1 = 0, else new msg
+		;r1 = 0, else new stream msg
 		;r2 = seqnum
 		;outputs
-		;r0 = 0, else next msg
+		;r0 = 0, else next stream msg
 		;trashes
 		;r1-r3
 
@@ -18,7 +18,7 @@
 
 		;scan for seqnum
 		loop_list_forward r0, r0, r1
-		loop_until r2, ==, [r0 + cmd_mail_seqnum]
+		loop_until r2, ==, [r0 + cmd_mail_stream_seqnum]
 		if r1, ==, 0
 			;not found
 			vp_cpy r1, r0

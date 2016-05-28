@@ -162,7 +162,11 @@ class/window/pref_size
 class/window/set_status
 class/window/set_title
 cmd/cmd
+cmd/cmd_init
 cmd/cmd_next_msg
+cmd/cmd_stderr
+cmd/cmd_stdin
+cmd/cmd_stdout
 cmd/forth
 gui/ctx_blit
 gui/ctx_box
