@@ -32,7 +32,7 @@
 		ulong cmd_master_output_seqnum
 	def_structure_end
 
-	cmd_slave_buffer_size equ 120
+	cmd_args_buffer_size equ 120
 
 	def_structure cmd_slave
 		struct cmd_slave_stdin_list, lh_list
@@ -40,7 +40,7 @@
 		struct cmd_slave_stderr_id, mailbox_id
 		ulong cmd_slave_stdout_seqnum
 		ulong cmd_slave_stdin_seqnum
-		struct cmd_slave_args, cmd_slave_buffer
+		struct cmd_slave_args, cmd_args_buffer
 	def_structure_end
 
 %endif
