@@ -13,9 +13,8 @@
 		buffer_size equ 120
 
 		def_structure shared
+			struct pipe, cmd_master
 			ptr shared_panel
-			struct shared_stdin_mailbox_id, mailbox_id
-			ulong shared_stdin_seqnum
 			pubyte shared_bufp
 			struct shared_buffer, buffer
 		def_structure_end
@@ -29,10 +28,7 @@
 		struct myapp, obj
 		struct shared, shared
 		struct sel, sel
-		struct stdout_mailbox, ml_mailbox
-		struct stderr_mailbox, ml_mailbox
-		struct stdout_list, lh_list
-		ulong stdout_seqnum
+		struct buffer, buffer
 		ptr msg
 		ptr window
 		ptr window_panel
@@ -50,8 +46,7 @@
 		push_scope
 		slot_function class, obj
 		static_call obj, init, {&myapp, @_function_}, {_}
-		assign {0, 0}, {shared.shared_stdin_seqnum, stdout_seqnum}
-		static_call sys_list, init, {&stdout_list}
+		static_call cmd, master, {&shared.pipe}
 
 		;create my window
 		static_call window, create, {}, {window}
@@ -98,59 +93,50 @@
 		;set up term buffer
 		assign {&shared.shared_buffer}, {shared.shared_bufp}
 
-		;init stdout and stderr mailboxes
-		static_call sys_mail, mailbox, {&stdout_mailbox}
-		static_call sys_mail, mailbox, {&stderr_mailbox}
-
 		;set up mailbox select array
 		static_call sys_task, mailbox, {}, {sel.sel_event, _}
-		assign {&stdout_mailbox, &stderr_mailbox}, {sel.sel_stdout, sel.sel_stderr}
+		assign {&shared.pipe.cmd_master_output_mailbox}, {sel.sel_stdout}
+		assign {&shared.pipe.cmd_master_error_mailbox}, {sel.sel_stderr}
 
 		;launch forth as a test
-		static_call sys_task, open_child, {"cmd/forth"}, {shared.shared_stdin_mailbox_id.mb_mbox, shared.shared_stdin_mailbox_id.mb_cpu}
+		static_call sys_task, open_child, {"cmd/forth"}, {shared.pipe.cmd_master_input_mailbox_id.mb_mbox, shared.pipe.cmd_master_input_mailbox_id.mb_cpu}
 		static_call sys_mail, alloc, {}, {msg}
 		assign {cmd_mail_init_size + 6}, {msg->ml_msg_length}
-		assign {shared.shared_stdin_mailbox_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
-		assign {shared.shared_stdin_mailbox_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
-		assign {&stdout_mailbox}, {msg->cmd_mail_init_stdout_id.mb_mbox}
+		assign {shared.pipe.cmd_master_input_mailbox_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
+		assign {shared.pipe.cmd_master_input_mailbox_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
+		assign {&shared.pipe.cmd_master_output_mailbox}, {msg->cmd_mail_init_stdout_id.mb_mbox}
 		static_call sys_cpu, id, {}, {msg->cmd_mail_init_stdout_id.mb_cpu}
-		assign {&stderr_mailbox}, {msg->cmd_mail_init_stderr_id.mb_mbox}
+		assign {&shared.pipe.cmd_master_error_mailbox}, {msg->cmd_mail_init_stderr_id.mb_mbox}
 		static_call sys_cpu, id, {}, {msg->cmd_mail_init_stderr_id.mb_cpu}
 		static_call sys_string, copy, {"forth", &msg->cmd_mail_init_args}, {_, _}
 		static_call sys_mail, send, {msg}
 
 		;wait for acks
-		static_call sys_mail, read, {&stdout_mailbox}, {msg}
+		static_call sys_mail, read, {&shared.pipe.cmd_master_output_mailbox}, {msg}
 		static_call sys_mem, free, {msg}
 
 		;app event loop
 		loop_start
 			;select on multiple mailboxes
 			static_call sys_mail, select, {&sel, sel_size >> 3}, {mailbox}
-			static_call sys_mail, read, {mailbox}, {msg}
 
 			;which mailbox had mail ?
 			if {mailbox == sel.sel_event}
-				;dispatch event to view
+				;dispatch event to view and terminal
+				static_call sys_mail, read, {mailbox}, {msg}
 				method_call view, event, {msg->ev_data_view, msg}
-
-				;if key event, then input to command
 				if {msg->ev_data_type == ev_type_key && msg->ev_data_keycode > 0}
 					local_call terminal_input, {&shared, msg->ev_data_key}, {r0, r1}
 				endif
 				static_call sys_mem, free, {msg}
 			elseif {mailbox == sel.sel_stderr}
-				;input from stderr
-				local_call msg_output, {&shared, msg}, {r0, r1}
+				;output from stderr
+				static_call cmd, error, {&shared.pipe, &buffer, buffer_size}, {length}
+				local_call pipe_output, {&shared, buffer, length}, {r0, r1, r2}
 			else
-				;input from stdout
-				loop_start
-					static_call cmd, next_msg, {&stdout_list, msg, stdout_seqnum}, {msg}
-					breakif {msg == 0}
-					local_call msg_output, {&shared, msg}, {r0, r1}
-					assign {stdout_seqnum + 1}, {stdout_seqnum}
-					assign {0}, {msg}
-				loop_end
+				;output from stdout
+				static_call cmd, output, {&shared.pipe, &buffer, buffer_size}, {length}
+				local_call pipe_output, {&shared, buffer, length}, {r0, r1, r2}
 			endif
 		loop_end
 
@@ -160,23 +146,24 @@
 		pop_scope
 		vp_ret
 
-	msg_output:
+	pipe_output:
 		;inputs
 		;r0 = shared
-		;r1 = msg
+		;r1 = buffer
+		;r2 = length
 
 		ptr shared
-		ptr msg
+		ptr buffer
+		ulong length
 		pubyte charp
 
 		push_scope
-		retire {r0, r1}, {shared, msg}
-		assign {&msg->cmd_mail_stream_data}, {charp}
-		loop_while {charp != (msg + msg->ml_msg_length)}
+		retire {r0, r1, r2}, {shared, buffer, length}
+		assign {buffer}, {charp}
+		loop_while {charp != (buffer + length)}
 			local_call terminal_output, {shared, *charp}, {r0, r1}
 			assign {charp + 1}, {charp}
 		loop_end
-		static_call sys_mem, free, {msg}
 		pop_scope
 		vp_ret
 
@@ -202,16 +189,7 @@
 		if {char == 10 || char == 13}
 			;send line to command pipeline
 			assign {shared->shared_bufp - &shared->shared_buffer}, {length}
-			static_call sys_mail, alloc, {}, {msg}
-			assign {cmd_mail_stream_size + length}, {msg->ml_msg_length}
-			assign {shared->shared_stdin_mailbox_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
-			assign {shared->shared_stdin_mailbox_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
-			assign {shared->shared_stdin_seqnum}, {msg->cmd_mail_stream_seqnum}
-			static_call sys_mem, copy, {&shared->shared_buffer, &msg->cmd_mail_stream_data, length}, {_, _}
-			static_call sys_mail, send, {msg}
-			assign {shared->shared_stdin_seqnum + 1}, {shared->shared_stdin_seqnum}
-
-			;reset buffer
+			static_call cmd, input, {&shared->pipe, &shared->shared_buffer, length}
 			assign {&shared->shared_buffer}, {shared->shared_bufp}
 		endif
 		pop_scope

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'cmd/cmd.inc'
 
-	fn_function cmd/cmd_stdin
+	fn_function cmd/cmd_output
 		;inputs
 		;r0 = pipe
 		;r1 = buffer
@@ -20,11 +20,11 @@
 		retire {r0, r1, r2}, {pipe, buffer, length}
 		assign {0}, {msg}
 		loop_start
-			static_call cmd, next_msg, {&pipe->cmd_slave_stdin_list, msg, pipe->cmd_slave_stdin_seqnum}, {msg}
+			static_call cmd, next_msg, {&pipe->cmd_master_output_list, msg, pipe->cmd_master_output_seqnum}, {msg}
 			breakif {msg != 0}
-			static_call sys_mail, mymail, {}, {msg}
+			static_call sys_mail, read, {&pipe->cmd_master_output_mailbox}, {msg}
 		loop_end
-		assign {pipe->cmd_slave_stdin_seqnum + 1}, {pipe->cmd_slave_stdin_seqnum}
+		assign {pipe->cmd_master_output_seqnum + 1}, {pipe->cmd_master_output_seqnum}
 		assign {msg->ml_msg_length - cmd_mail_stream_size}, {length}
 		static_call sys_mem, copy, {&msg->cmd_mail_stream_data, buffer, length}, {_, _}
 		static_call sys_mem, free, {msg}

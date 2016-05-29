@@ -8,7 +8,7 @@
 
 		buffer_size equ 120
 
-		struct pipe, cmd_pipe
+		struct pipe, cmd_slave
 		struct buffer, buffer
 		ptr msg
 		ptr stream
@@ -20,7 +20,7 @@
 		push_scope
 
 		;initialise pipe details and command args
-		static_call cmd, init, {&pipe}
+		static_call cmd, slave, {&pipe}
 
 		;set up input stream stack
 		static_call string, create_from_file, {"cmd/forth.f"}, {string}

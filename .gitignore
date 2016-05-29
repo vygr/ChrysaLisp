@@ -162,8 +162,12 @@ class/window/pref_size
 class/window/set_status
 class/window/set_title
 cmd/cmd
-cmd/cmd_init
+cmd/cmd_error
+cmd/cmd_input
+cmd/cmd_master
 cmd/cmd_next_msg
+cmd/cmd_output
+cmd/cmd_slave
 cmd/cmd_stderr
 cmd/cmd_stdin
 cmd/cmd_stdout
