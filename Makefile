@@ -3,7 +3,10 @@ all_srcs := $(shell find . -type f -name '*.nasm')
 all_deps := $(shell find . -type f -name '*.d')
 all_objects := $(patsubst ./%.nasm, obj/%, $(all_srcs))
 
-all:		$(all_objects)
+all:		make_dirs $(all_objects)
+
+make_dirs:
+			mkdir -p $(sort $(dir $(all_objects)))
 
 obj/main:	obj/main.o
 ifeq ($(OS),Darwin)
@@ -24,7 +27,6 @@ ifeq ($(OS),Linux)
 endif
 
 obj/%:		%.nasm Makefile $(all_incs)
-			mkdir -p $(dir $@)
 			nasm -dOS=$(OS) -f bin $< -o $@ -MD $@.d
 
 -include	$(all_deps)
