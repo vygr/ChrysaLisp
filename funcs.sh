@@ -44,9 +44,9 @@ function boot_cpu
 {
 	if [ $1 -lt 1 ]
 	then
-		./main -cpu $1 $2 -run gui/gui &
+		./obj/main -cpu $1 $2 -run gui/gui &
 	else
-		./main -cpu $1 $2 &
+		./obj/main -cpu $1 $2 &
 	fi
 	echo -cpu $1 $2
 }

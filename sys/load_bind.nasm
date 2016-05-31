@@ -33,6 +33,15 @@
 			vp_ret
 		endif
 
+		;create filename
+		vp_rel obj_prefix, r0
+		vp_lea [r8 + ld_statics_name_buffer], r1
+		vp_call string_copy
+		vp_cpy r7, r0
+		vp_dec r1
+		vp_call string_copy
+		vp_lea [r8 + ld_statics_name_buffer], r7
+
 		;get length of function on disk
 		vp_lea [r8 + ld_statics_stat_buffer], r0
 		sys_stat r7, r0
@@ -197,6 +206,15 @@
 		vp_xor r0, r0
 		vp_ret
 
+	string_copy:
+		loop_start
+			vp_cpy_ub [r0], r2
+			vp_cpy_ub r2, [r1]
+			vp_inc r0
+			vp_inc r1
+		loop_until r2, ==, 0
+		vp_ret
+
 	string_skip:
 		loop_start
 			vp_cpy_ub [r0], r1
@@ -215,5 +233,8 @@
 	size_error:
 		db 'Length field error !', 10
 	size_error_end:
+
+	obj_prefix:
+		db 'obj/', 0
 
 	fn_function_end

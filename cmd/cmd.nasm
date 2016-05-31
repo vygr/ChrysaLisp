@@ -120,7 +120,7 @@
 			;select on multiple mailboxes
 			static_call sys_mail, select, {&sel, sel_size >> 3}, {mailbox}
 
-			;which mailbox had mail ?
+			;which mailbox has mail ?
 			if {mailbox == sel.sel_event}
 				;dispatch event to view and terminal
 				static_call sys_mail, read, {mailbox}, {msg}

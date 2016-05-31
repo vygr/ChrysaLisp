@@ -54,7 +54,7 @@
 				breakif r1, ==, 0
 				vp_push r0, r2, r5
 				vp_add r1, r0
-				vp_call r5		;sys/load_function
+				vp_call r5		;sys/load_bind
 				if r0, ==, 0
 					;no such function
 					vp_rel bind_error, r0
