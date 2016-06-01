@@ -21,7 +21,7 @@
 ;;;;;;;;;;;;;;;;;
 
 	def_structure ft_font
-		struct ft_font_node, ln_node
+		ptr ft_font_next
 		ulong ft_font_handle
 		ulong ft_font_points
 		ulong ft_font_ascent
@@ -31,7 +31,7 @@
 	def_structure_end
 
 	def_structure ft_text
-		struct ft_text_node, ln_node
+		ptr ft_text_next
 		ulong ft_text_font
 		ulong ft_text_texture
 		ulong ft_text_width

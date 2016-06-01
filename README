@@ -1,7 +1,7 @@
 Asm_Kernel
 ==========
 
-Assembler 64 bit multi process, multi thread kernel.
+Assembler 64 bit OS. MIMD, multi cpu, multi threaded, multi core, multi user.
 
 Runs on OSX or Linux. Could move to bare metal eventually but it's useful for
 now to run hosted while experimenting.

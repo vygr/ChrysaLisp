@@ -34,7 +34,7 @@
 		endif
 
 		;create filename
-		vp_rel obj_prefix, r0
+		fn_string "obj/", r0
 		vp_lea [r8 + ld_statics_name_buffer], r1
 		vp_call string_copy
 		vp_cpy r7, r0
@@ -233,8 +233,5 @@
 	size_error:
 		db 'Length field error !', 10
 	size_error_end:
-
-	obj_prefix:
-		db 'obj/', 0
 
 	fn_function_end

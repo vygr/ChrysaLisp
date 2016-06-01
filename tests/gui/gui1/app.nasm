@@ -15,8 +15,8 @@
 	fn_function tests/gui/gui1/app
 
 		def_structure sel
-			ulong sel_select1
-			ulong sel_select2
+			ptr sel_select1
+			ptr sel_select2
 		def_structure_end
 
 		struct select, sel
