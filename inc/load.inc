@@ -23,8 +23,8 @@
 	ld_name_size	equ 120
 
 	def_structure ld_statics
-		ptr ld_statics_function_list
-		ptr ld_statics_block_list
+		ptr ld_statics_function_flist
+		ptr ld_statics_block_flist
 		ptr ld_statics_block_start
 		ptr ld_statics_block_end
 		ptr ld_statics_reloc_stack

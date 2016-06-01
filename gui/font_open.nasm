@@ -29,7 +29,7 @@
 		static_bind gui_font, statics, r5
 
 		;search font list
-		loop_flist_forward r5 + ft_statics_font_list, r5, r5
+		loop_flist_forward r5 + ft_statics_font_flist, r5, r5
 			vp_cpy [r4 + local_points], r0
 			continueif r0, !=, [r5 + ft_font_points]
 			s_call sys_string, compare, {&[r5 + ft_font_name], [r4 + local_font]}, {r0}
@@ -62,7 +62,7 @@
 		static_bind gui_font, statics, r5
 
 		;search font list
-		loop_flist_forward r5 + ft_statics_font_list, r5, r5
+		loop_flist_forward r5 + ft_statics_font_flist, r5, r5
 			vp_cpy [r14 + local_points], r0
 			continueif r0, !=, [r5 + ft_font_points]
 			s_call sys_string, compare, {&[r5 + ft_font_name], [r14 + local_font]}, {r0}
@@ -93,7 +93,7 @@
 
 				vp_cpy r13, r0
 				static_bind gui_font, statics, r5
-				ln_add_fnode r5 + ft_statics_font_list, r0, r1
+				ln_add_fnode r5 + ft_statics_font_flist, r0, r1
 			endif
 		endif
 		vp_cpy r0, [r14 + local_handle]

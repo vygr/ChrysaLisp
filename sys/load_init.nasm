@@ -35,9 +35,9 @@
 		loop_start
 		 	vp_cpy_ui [r1 + fn_header_length], r2
 			breakif r2, ==, 0
-			vp_cpy [r6 + ld_statics_function_list], r0
+			vp_cpy [r6 + ld_statics_function_flist], r0
 			vp_cpy r0, [r1]
-			vp_cpy r1, [r6 + ld_statics_function_list]
+			vp_cpy r1, [r6 + ld_statics_function_flist]
 			vp_add r2, r1
 		loop_end
 

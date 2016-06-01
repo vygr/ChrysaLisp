@@ -21,7 +21,7 @@
 		vp_add r0, r8
 
 		;check if function already present !
-		loop_flist_forward r8 + ld_statics_function_list, r6, r6
+		loop_flist_forward r8 + ld_statics_function_flist, r6, r6
 			vp_cpy r7, r0
 			vp_lea [r6 + fn_header_pathname], r1
 			vp_call string_compare
@@ -62,7 +62,7 @@
 			assert r0, !=, 0
 
 			;add to block list for freeing
-			ln_add_fnode r8 + ld_statics_block_list, r0, r1
+			ln_add_fnode r8 + ld_statics_block_flist, r0, r1
 
 			;set block pointers for loading
 			vp_add 8, r0
@@ -92,7 +92,7 @@
 		endif
 
 		;add to function list
-		ln_add_fnode r8 + ld_statics_function_list, r3, r0
+		ln_add_fnode r8 + ld_statics_function_flist, r3, r0
 
 		;relocate vtable so we can discard paths
 		vp_cpy [r8 + ld_statics_reloc_stack], r1

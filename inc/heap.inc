@@ -33,8 +33,8 @@
 ;;;;;;;;;;;;;;;;;
 
 	def_structure hp_heap
-		ptr hp_heap_freelist
-		ptr hp_heap_blocklist
+		ptr hp_heap_free_flist
+		ptr hp_heap_block_flist
 		ulong hp_heap_cellsize
 		ulong hp_heap_blocksize
 	def_structure_end
@@ -53,7 +53,7 @@
 		;%2 = cell
 		;%3 = old first cell
 
-		ln_add_fnode %1 + hp_heap_freelist, %2, %3
+		ln_add_fnode %1 + hp_heap_free_flist, %2, %3
 	%endmacro
 
 %endif

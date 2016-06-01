@@ -13,7 +13,7 @@
 
 		def_structure local
 			long local_root
-			long local_ctx_list
+			long local_ctx_flist
 			long local_ctx_next
 			struct local_ctx, gui_ctx
 		def_structure_end
@@ -60,14 +60,14 @@
 
 		;iterate through views front to back
 		;distribute visible region
-		vp_cpy_cl 0, [r4 + local_ctx_list]
+		vp_cpy_cl 0, [r4 + local_ctx_flist]
 		s_call view, forward_tree, {r0, r4, $distribute_down_callback, $distribute_up_callback}
 
 		;draw all on draw list, and free dirty regions
 		static_bind gui_gui, statics, r1
 		vp_cpy [r1 + gui_statics_renderer], r1
 		vp_cpy r1, [r4 + local_ctx + gui_ctx_sdl_ctx]
-		loop_flist_forward r4 + local_ctx_list, r0, r0
+		loop_flist_forward r4 + local_ctx_flist, r0, r0
 			vp_cpy r0, [r4 + local_ctx_next]
 			vp_sub view_ctx_node, r0
 			vp_cpy [r0 + view_ctx_x], r8
@@ -279,7 +279,7 @@
 		vp_cpy [r0 + view_dirty_region], r2
 		if r2, !=, 0
 			vp_lea [r0 + view_ctx_node], r2
-			vp_add local_ctx_list, r1
+			vp_add local_ctx_flist, r1
 			ln_add_fnode r1, r2, r3
 		endif
 		vp_ret
