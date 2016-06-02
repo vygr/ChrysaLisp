@@ -40,6 +40,7 @@
 		struct cmd_slave_stderr_id, mailbox_id
 		ulong cmd_slave_stdout_seqnum
 		ulong cmd_slave_stdin_seqnum
+		ulong cmd_slave_args_length
 		struct cmd_slave_args, cmd_args_buffer
 	def_structure_end
 

@@ -1,5 +1,4 @@
 %include 'inc/func.inc'
-%include 'inc/string.inc'
 %include 'inc/mail.inc'
 %include 'cmd/cmd.inc'
 

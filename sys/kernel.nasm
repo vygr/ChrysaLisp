@@ -84,8 +84,14 @@
 
 					;open single task and return mailbox ID
 					s_call sys_load, bind, {&[r15 + kn_data_task_open_pathname]}, {r0}
-					s_call sys_task, start, {r0}, {r0, r1}
-					s_call sys_cpu, id, {}, {r0}
+					if r0, ==, 0
+						;error
+						vp_cpy r0, r1
+					else
+						;start this function as task
+						s_call sys_task, start, {r0}, {_, r1}
+						s_call sys_cpu, id, {}, {r0}
+					endif
 					vp_cpy r1, [r15 + kn_data_task_open_reply_mailboxid]
 					vp_cpy r0, [r15 + kn_data_task_open_reply_mailboxid + 8]
 					vp_cpy_cl kn_data_task_open_reply_size, [r15 + ml_msg_length]

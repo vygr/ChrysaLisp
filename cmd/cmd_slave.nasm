@@ -1,5 +1,4 @@
 %include 'inc/func.inc'
-%include 'inc/string.inc'
 %include 'inc/mail.inc'
 %include 'cmd/cmd.inc'
 
@@ -11,6 +10,7 @@
 
 		ptr pipe
 		ptr msg
+		ulong length
 
 		;read init args
 		push_scope
@@ -20,7 +20,9 @@
 		assign {msg->cmd_mail_init_stdout_id.mb_cpu}, {pipe->cmd_slave_stdout_id.mb_cpu}
 		assign {msg->cmd_mail_init_stderr_id.mb_mbox}, {pipe->cmd_slave_stderr_id.mb_mbox}
 		assign {msg->cmd_mail_init_stderr_id.mb_cpu}, {pipe->cmd_slave_stderr_id.mb_cpu}
-		static_call sys_string, copy, {&msg->cmd_mail_init_args, &pipe->cmd_slave_args}, {_, _}
+		assign {msg->ml_msg_length - cmd_mail_init_size}, {length}
+		assign {length}, {pipe->cmd_slave_args_length}
+		static_call sys_mem, copy, {&msg->cmd_mail_init_args, &pipe->cmd_slave_args, length}, {_, _}
 
 		;send back ack
 		assign {msg->cmd_mail_init_stdout_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}

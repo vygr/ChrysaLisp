@@ -15,6 +15,7 @@
 		def_structure shared
 			struct pipe, cmd_master
 			ptr shared_panel
+			ulong shared_mode
 			pubyte shared_bufp
 			struct shared_buffer, buffer
 		def_structure_end
@@ -47,6 +48,7 @@
 		slot_function class, obj
 		static_call obj, init, {&myapp, @_function_}, {_}
 		static_call cmd, master, {&shared.pipe}
+		assign {0}, {shared.shared_mode}
 
 		;create my window
 		static_call window, create, {}, {window}
@@ -97,23 +99,6 @@
 		static_call sys_task, mailbox, {}, {sel.sel_event, _}
 		assign {&shared.pipe.cmd_master_output_mailbox}, {sel.sel_stdout}
 		assign {&shared.pipe.cmd_master_error_mailbox}, {sel.sel_stderr}
-
-		;launch forth as a test
-		static_call sys_task, open_child, {"cmd/forth"}, {shared.pipe.cmd_master_input_mailbox_id.mb_mbox, shared.pipe.cmd_master_input_mailbox_id.mb_cpu}
-		static_call sys_mail, alloc, {}, {msg}
-		assign {cmd_mail_init_size + 6}, {msg->ml_msg_length}
-		assign {shared.pipe.cmd_master_input_mailbox_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
-		assign {shared.pipe.cmd_master_input_mailbox_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
-		assign {&shared.pipe.cmd_master_output_mailbox}, {msg->cmd_mail_init_stdout_id.mb_mbox}
-		static_call sys_cpu, id, {}, {msg->cmd_mail_init_stdout_id.mb_cpu}
-		assign {&shared.pipe.cmd_master_error_mailbox}, {msg->cmd_mail_init_stderr_id.mb_mbox}
-		static_call sys_cpu, id, {}, {msg->cmd_mail_init_stderr_id.mb_cpu}
-		static_call sys_string, copy, {"forth", &msg->cmd_mail_init_args}, {_, _}
-		static_call sys_mail, send, {msg}
-
-		;wait for acks
-		static_call sys_mail, read, {&shared.pipe.cmd_master_output_mailbox}, {msg}
-		static_call sys_mem, free, {msg}
 
 		;app event loop
 		loop_start
@@ -179,18 +164,53 @@
 
 		push_scope
 		retire {r0, r1}, {shared, char}
-		local_call terminal_output, {shared, char}, {r0, r1}
 
-		;buffer char
-		assign {char}, {*shared->shared_bufp}
-		assign {shared->shared_bufp + 1}, {shared->shared_bufp}
+		;echo char to terminal
+		local_call terminal_output, {shared, char}, {r0, r1}
 
 		;send line ?
 		if {char == 10 || char == 13}
-			;send line to command pipeline
-			assign {shared->shared_bufp - &shared->shared_buffer}, {length}
-			static_call cmd, input, {&shared->pipe, &shared->shared_buffer, length}
+			;what mode ?
+			if {shared->shared_mode == 0}
+				;buffer char
+				assign {0}, {*shared->shared_bufp}
+				assign {shared->shared_bufp - &shared->shared_buffer}, {length}
+
+				;create new pipeline
+				static_call sys_task, open_child, {&shared->shared_buffer}, {shared->pipe.cmd_master_input_mailbox_id.mb_mbox, shared->pipe.cmd_master_input_mailbox_id.mb_cpu}
+				if {shared->pipe.cmd_master_input_mailbox_id.mb_mbox != 0}
+					;no error with task bind
+					static_call sys_mail, alloc, {}, {msg}
+					assign {cmd_mail_init_size + length}, {msg->ml_msg_length}
+					assign {shared->pipe.cmd_master_input_mailbox_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
+					assign {shared->pipe.cmd_master_input_mailbox_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
+					assign {&shared->pipe.cmd_master_output_mailbox}, {msg->cmd_mail_init_stdout_id.mb_mbox}
+					static_call sys_cpu, id, {}, {msg->cmd_mail_init_stdout_id.mb_cpu}
+					assign {&shared->pipe.cmd_master_error_mailbox}, {msg->cmd_mail_init_stderr_id.mb_mbox}
+					static_call sys_cpu, id, {}, {msg->cmd_mail_init_stderr_id.mb_cpu}
+					static_call sys_mem, copy, {&shared->shared_buffer, &msg->cmd_mail_init_args, length}, {_, _}
+					static_call sys_mail, send, {msg}
+
+					;wait for acks
+					static_call sys_mail, read, {&shared->pipe.cmd_master_output_mailbox}, {msg}
+					static_call sys_mem, free, {msg}
+
+					;pipe is active
+					assign {1}, {shared->shared_mode}
+				endif
+			else
+				;buffer char
+				assign {char}, {*shared->shared_bufp}
+				assign {shared->shared_bufp + 1 - &shared->shared_buffer}, {length}
+
+				;feed active pipe
+				static_call cmd, input, {&shared->pipe, &shared->shared_buffer, length}
+			endif
 			assign {&shared->shared_buffer}, {shared->shared_bufp}
+		else
+			;buffer char
+			assign {char}, {*shared->shared_bufp}
+			assign {shared->shared_bufp + 1}, {shared->shared_bufp}
 		endif
 		pop_scope
 		vp_ret
