@@ -15,9 +15,9 @@
 		def_structure shared
 			struct pipe, cmd_master
 			ptr shared_panel
-			ulong shared_mode
 			pubyte shared_bufp
 			struct shared_buffer, buffer
+			ubyte shared_mode
 		def_structure_end
 
 		def_structure sel
@@ -38,10 +38,10 @@
 		ptr string
 		ulong owner
 		ptr mailbox
+		ulong length
 		int width
 		int height
 		int char
-		ubyte length
 
 		;init app vars
 		push_scope
@@ -160,7 +160,7 @@
 		ptr shared
 		ptr msg
 		ubyte char
-		ubyte length
+		ubyte flag
 
 		push_scope
 		retire {r0, r1}, {shared, char}
@@ -172,39 +172,16 @@
 		if {char == 10 || char == 13}
 			;what mode ?
 			if {shared->shared_mode == 0}
-				;buffer char
-				assign {0}, {*shared->shared_bufp}
-				assign {shared->shared_bufp - &shared->shared_buffer}, {length}
-
 				;create new pipeline
-				static_call sys_task, open_child, {&shared->shared_buffer}, {shared->pipe.cmd_master_input_mailbox_id.mb_mbox, shared->pipe.cmd_master_input_mailbox_id.mb_cpu}
-				if {shared->pipe.cmd_master_input_mailbox_id.mb_mbox != 0}
-					;no error with task bind
-					static_call sys_mail, alloc, {}, {msg}
-					assign {cmd_mail_init_size + length}, {msg->ml_msg_length}
-					assign {shared->pipe.cmd_master_input_mailbox_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
-					assign {shared->pipe.cmd_master_input_mailbox_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
-					assign {&shared->pipe.cmd_master_output_mailbox}, {msg->cmd_mail_init_stdout_id.mb_mbox}
-					static_call sys_cpu, id, {}, {msg->cmd_mail_init_stdout_id.mb_cpu}
-					assign {&shared->pipe.cmd_master_error_mailbox}, {msg->cmd_mail_init_stderr_id.mb_mbox}
-					static_call sys_cpu, id, {}, {msg->cmd_mail_init_stderr_id.mb_cpu}
-					static_call sys_mem, copy, {&shared->shared_buffer, &msg->cmd_mail_init_args, length}, {_, _}
-					static_call sys_mail, send, {msg}
-
-					;wait for acks
-					static_call sys_mail, read, {&shared->pipe.cmd_master_output_mailbox}, {msg}
-					static_call sys_mem, free, {msg}
-
-					;pipe is active
-					assign {1}, {shared->shared_mode}
-				endif
+				static_call cmd, create, {&shared->pipe, &shared->shared_buffer, \
+				 			{shared->shared_bufp - &shared->shared_buffer}}, {shared->shared_mode}
 			else
 				;buffer char
 				assign {char}, {*shared->shared_bufp}
-				assign {shared->shared_bufp + 1 - &shared->shared_buffer}, {length}
 
 				;feed active pipe
-				static_call cmd, input, {&shared->pipe, &shared->shared_buffer, length}
+				static_call cmd, input, {&shared->pipe, &shared->shared_buffer, \
+							{shared->shared_bufp + 1 - &shared->shared_buffer}}
 			endif
 			assign {&shared->shared_buffer}, {shared->shared_bufp}
 		else

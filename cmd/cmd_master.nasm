@@ -14,9 +14,6 @@
 		push_scope
 		retire {r0}, {pipe}
 
-		;init seqnums
-		assign {0, 0}, {pipe->cmd_master_input_seqnum, pipe->cmd_master_output_seqnum}
-
 		;init order lists
 		static_call sys_list, init, {&pipe->cmd_master_output_list}
 
