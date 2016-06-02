@@ -160,7 +160,6 @@
 		ptr shared
 		ptr msg
 		ubyte char
-		ubyte flag
 
 		push_scope
 		retire {r0, r1}, {shared, char}
@@ -172,16 +171,16 @@
 		if {char == 10 || char == 13}
 			;what mode ?
 			if {shared->shared_mode == 0}
-				;create new pipeline
+				;create new pipe
 				static_call cmd, create, {&shared->pipe, &shared->shared_buffer, \
-				 			{shared->shared_bufp - &shared->shared_buffer}}, {shared->shared_mode}
+				 			shared->shared_bufp - &shared->shared_buffer}, {shared->shared_mode}
 			else
 				;buffer char
 				assign {char}, {*shared->shared_bufp}
 
 				;feed active pipe
 				static_call cmd, input, {&shared->pipe, &shared->shared_buffer, \
-							{shared->shared_bufp + 1 - &shared->shared_buffer}}
+							shared->shared_bufp + 1 - &shared->shared_buffer}
 			endif
 			assign {&shared->shared_buffer}, {shared->shared_bufp}
 		else
