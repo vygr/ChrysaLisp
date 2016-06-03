@@ -167,6 +167,9 @@
 		;echo char to terminal
 		local_call terminal_output, {shared, char}, {r0, r1}
 
+		;buffer char
+		assign {char}, {*shared->shared_bufp}
+
 		;send line ?
 		if {char == 10 || char == 13}
 			;what mode ?
@@ -175,17 +178,15 @@
 				static_call cmd, create, {&shared->pipe, &shared->shared_buffer, \
 				 			shared->shared_bufp - &shared->shared_buffer}, {shared->shared_mode}
 			else
-				;buffer char
-				assign {char}, {*shared->shared_bufp}
-
 				;feed active pipe
 				static_call cmd, input, {&shared->pipe, &shared->shared_buffer, \
 							shared->shared_bufp + 1 - &shared->shared_buffer}
 			endif
+
+			;reset char pointer
 			assign {&shared->shared_buffer}, {shared->shared_bufp}
 		else
-			;buffer char
-			assign {char}, {*shared->shared_bufp}
+			;next char
 			assign {shared->shared_bufp + 1}, {shared->shared_bufp}
 		endif
 		pop_scope
