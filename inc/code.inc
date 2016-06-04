@@ -192,19 +192,6 @@
 		endswitch
 	%endmacro
 
-	%macro for 4
-		vp_cpy %2, %1
-		loop_start
-			%define %$_r %1
-			%define %$_step %4
-			breakif %1, >=, %3
-	%endmacro
-
-	%macro next 0
-			vp_add %$_step, %$_r
-		loop_end
-	%endmacro
-
 ;;;;;;;
 ; enums
 ;;;;;;;
