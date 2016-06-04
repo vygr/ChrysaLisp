@@ -5,7 +5,7 @@
 		;inputs
 		;r0 = name string object
 		;outputs
-		;r0, r1 = new task mailbox ID
+		;r0, r1 = mailbox id
 		;trashes
 		;all but r4
 

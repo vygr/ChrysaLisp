@@ -7,8 +7,7 @@
 		;r0 = name string object
 		;r1 = cpu target
 		;outputs
-		;r0 = mailbox id
-		;r1 = mailbox id
+		;r0, r1 = mailbox id
 		;trashes
 		;all but r4
 
