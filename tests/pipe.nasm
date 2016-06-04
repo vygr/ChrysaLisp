@@ -20,8 +20,8 @@
 		push_scope
 
 		;vector of tasks
-		assign {0}, {cnt}
 		static_call vector, create, {}, {tasks}
+		assign {0}, {cnt}
 		loop_while {cnt != num_child}
 			static_call string, create_from_cstr, {"tests/pipe_child"}, {name}
 			static_call vector, push_back, {tasks, name}
