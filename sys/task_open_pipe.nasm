@@ -43,7 +43,8 @@
 			assign {&mailbox}, {msg->kn_data_kernel_reply.mb_mbox}
 			static_call sys_cpu, id, {}, {msg->kn_data_kernel_reply.mb_cpu}
 			assign {kn_call_task_child}, {msg->kn_data_kernel_function}
-			static_call sys_mem, copy, {&name->string_data, &msg->kn_data_task_child_pathname, name->string_length + 1}, {_, _}
+			static_call sys_mem, copy, {&name->string_data, &msg->kn_data_task_child_pathname, \
+										name->string_length + 1}, {_, _}
 
 			;send mail to kernel, wait for reply
 			static_call sys_mail, send, {msg}

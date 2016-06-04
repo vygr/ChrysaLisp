@@ -42,7 +42,8 @@
 			assign {cpu}, {msg->kn_data_kernel_reply.mb_cpu}
 			assign {kn_call_task_child}, {msg->kn_data_kernel_function}
 			assign {&ids[index * mailbox_id_size]}, {msg->kn_data_kernel_user}
-			static_call sys_mem, copy, {&name->string_data, &msg->kn_data_task_child_pathname, name->string_length + 1}, {_, _}
+			static_call sys_mem, copy, {&name->string_data, &msg->kn_data_task_child_pathname, \
+										name->string_length + 1}, {_, _}
 			static_call sys_mail, send, {msg}
 			assign {index + 1}, {index}
 		loop_end
