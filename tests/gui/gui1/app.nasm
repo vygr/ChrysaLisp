@@ -81,11 +81,10 @@
 		static_call gui_gui, add, {window}
 		static_call window, dirty_all, {window}
 
-		;allocate array for child mailbox ID's
-		static_call sys_mem, alloc, {cpu_total * mailbox_id_size}, {task_mailboxes, _}
-
 		;open global farm
-		static_call sys_task, open_global, {"tests/gui/gui1/child", task_mailboxes, cpu_total}
+		static_call string, create_from_cstr, {"tests/gui/gui1/child"}, {string}
+		static_call sys_task, open_global, {string, cpu_total}, {task_mailboxes}
+		static_call string, deref, {string}
 
 		;init task mailbox
 		static_call sys_mail, mailbox, {&task_mailbox}

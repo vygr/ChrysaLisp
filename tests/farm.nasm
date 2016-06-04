@@ -1,35 +1,43 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
+%include 'class/class_string.inc'
 
 ;;;;;;;;;;;
 ; test code
 ;;;;;;;;;;;
 
-	FARM_SIZE equ 128
-
 	fn_function tests/farm
 
-		;allocate temp array for mailbox ID's
-		s_call sys_mem, alloc, {mailbox_id_size * FARM_SIZE}, {r14, _}
-		assert r0, !=, 0
+		const num_child, 128
 
-		;open farm, off chip
-		s_call sys_task, open_farm, {"tests/farm_child", r14, FARM_SIZE}
+		ptr name
+		ptr ids
+		ptr msg
+		ulong cnt
+
+		push_scope
+
+		;task
+		static_call string, create_from_cstr, {"tests/farm_child"}, {name}
+
+		;open farm
+		static_call sys_task, open_farm, {name, num_child}, {ids}
 
 		;send exit messages etc
-		for r13, 0, FARM_SIZE, 1
-			s_call sys_mail, alloc, {}, {r0}
-			assert r0, !=, 0
-			vp_cpy r13, r3
-			vp_mul mailbox_id_size, r3
-			vp_cpy [r14 + r3], r1
-			vp_cpy [r14 + r3 + 8], r2
-			vp_cpy r1, [r0 + ml_msg_dest]
-			vp_cpy r2, [r0 + (ml_msg_dest + 8)]
-			s_call sys_mail, send, {r0}
-		next
+		assign {0}, {cnt}
+		loop_while {cnt != num_child}
+			static_call sys_mail, alloc, {}, {msg}
+			assign {ids[cnt * mailbox_id_size].mb_mbox}, {msg->ml_msg_dest.mb_mbox}
+			assign {ids[cnt * mailbox_id_size].mb_cpu}, {msg->ml_msg_dest.mb_cpu}
+			static_call sys_mail, send, {msg}
+			static_call sys_task, yield
+			assign {cnt + 1}, {cnt}
+		loop_end
 
-		;free ID array and return
-		s_jmp sys_mem, free, {r14}
+		;free name and ID array
+		static_call string, deref, {name}
+		static_call sys_mem, free, {ids}
+		pop_scope
+		vp_ret
 
 	fn_function_end

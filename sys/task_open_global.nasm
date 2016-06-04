@@ -1,75 +1,63 @@
 %include 'inc/func.inc'
-%include 'inc/task.inc'
-%include 'inc/string.inc'
+%include 'inc/mail.inc'
+%include 'class/class_vector.inc'
+%include 'class/class_string.inc'
 
 	fn_function sys/task_open_global
 		;inputs
-		;r0 = new task function name
-		;r1 = mailbox array pointer
-		;r2 = number of tasks
+		;r0 = name string object
+		;r1 = number to spawn
+		;outputs
+		;r0 = array of mailbox id's
 		;trashes
-		;r0-r3, r5-r8
+		;all but r4
+
+		ptr name
+		ulong length
+		ptr ids
+		ptr msg
+		ulong index
+		struct mailbox, ml_mailbox
 
 		;save task info
-		vp_cpy r0, r5
-		vp_cpy r1, r6
-		vp_cpy r2, r7
+		push_scope
+		retire {r0, r1}, {name, length}
 
-		;create temp mailbox
-		ml_temp_create r0, r1
+		;create output array
+		static_call sys_mem, alloc, {length * mailbox_id_size}, {ids, _}
 
-		;start all tasks one per cpu
-		vp_xor r8, r8
-		loop_start
-			;allocate mail message
-			s_call sys_mail, alloc, {}, {r3}
-			assert r0, !=, 0
+		;init temp mailbox
+		static_call sys_mail, mailbox, {&mailbox}
 
-			;fill in destination, reply and function
-			s_call sys_cpu, id, {}, {r0}
-			vp_cpy_cl 0, [r3 + ml_msg_dest]
-			vp_cpy r8, [r3 + ml_msg_dest + 8]
-			vp_cpy r4, [r3 + kn_data_kernel_reply]
-			vp_cpy r0, [r3 + kn_data_kernel_reply + 8]
-			vp_cpy r6, [r3 + kn_data_kernel_user]
-			vp_cpy_cl kn_call_task_open, [r3 + kn_data_kernel_function]
+		;start all tasks in parallel
+		assign {0}, {index}
+		loop_while {index != length}
+			static_call sys_mail, alloc, {}, {msg}
+			assign {name->string_length + 1 + kn_data_task_open_size}, {msg->ml_msg_length}
+			assign {0}, {msg->ml_msg_dest.mb_mbox}
+			assign {index}, {msg->ml_msg_dest.mb_cpu}
+			assign {&mailbox}, {msg->kn_data_kernel_reply.mb_mbox}
+			static_call sys_cpu, id, {}, {msg->kn_data_kernel_reply.mb_cpu}
+			assign {kn_call_task_open}, {msg->kn_data_kernel_function}
+			assign {&ids[index * mailbox_id_size]}, {msg->kn_data_kernel_user}
+			static_call sys_mem, copy, {&name->string_data, &msg->kn_data_task_open_pathname, name->string_length + 1}, {_, _}
+			static_call sys_mail, send, {msg}
+			assign {index + 1}, {index}
+		loop_end
 
-			;copy task name
-			s_call sys_string, copy, {r5, &[r3 + kn_data_task_open_pathname]}, {_, r1}
+		;wait for replys
+		assign {0}, {index}
+		loop_while {index != length}
+			static_call sys_mail, read, {&mailbox}, {msg}
+			assign {msg->kn_data_task_open_reply_mailboxid.mb_mbox}, {msg->kn_data_kernel_user->mb_mbox}
+			assign {msg->kn_data_task_open_reply_mailboxid.mb_cpu}, {msg->kn_data_kernel_user->mb_cpu}
+			static_call sys_mem, free, {msg}
+			assign {index + 1}, {index}
+		loop_end
 
-			;fill in total message length
-			vp_sub r3, r1
-			vp_cpy r1, [r3 + ml_msg_length]
-
-			;send mail to kernel
-			s_call sys_mail, send, {r3}
-
-			;next worker
-			vp_add mailbox_id_size, r6
-			vp_inc r8
-		loop_until r7, ==, r8
-
-		;wait for all replies
-		vp_xor r8, r8
-		loop_start
-			s_call sys_mail, read, {r4}, {r0}
-
-			;save reply mailbox ID
-			vp_cpy [r0 + kn_data_task_open_reply_user], r6
-			vp_cpy [r0 + kn_data_task_open_reply_mailboxid], r2
-			vp_cpy [r0 + kn_data_task_open_reply_mailboxid + 8], r3
-			vp_cpy r2, [r6]
-			vp_cpy r3, [r6 + 8]
-
-			;free reply mail
-			s_call sys_mem, free, {r0}
-
-			;next mailbox
-			vp_inc r8
-		loop_until r7, ==, r8
-
-		;free temp mailbox
-		ml_temp_destroy
+		;return ids array
+		eval {ids}, {r0}
+		pop_scope
 		vp_ret
 
 	fn_function_end

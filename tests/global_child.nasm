@@ -6,28 +6,25 @@
 ; test code
 ;;;;;;;;;;;
 
-	TEST_SIZE equ 1000
-
 	fn_function tests/global_child
 
+		ptr msg
+		ulong num
+
+		push_scope
+
 		;wait a bit
-		s_call sys_math, random, {1000000}, {r0}
-		vp_add 1000000, r0
-		s_call sys_task, sleep, {r0}
+		static_call sys_math, random, {1000000}, {num}
+		static_call sys_task, sleep, {num + 1000000}
 
-		;read mail commands
-		for r14, 0, 10, 1
-			s_call sys_mail, mymail, {}, {r0}
-			for r15, 0, TEST_SIZE, 1
-				if r15, !=, [r0 + (r15 * 8) + ml_msg_data]
-					fn_debug_str 'Failed to verify data !'
-					vp_ret
-				endif
-			next
-			s_call sys_mem, free, {r0}
-		next
+		;read command
+		static_call sys_mail, mymail, {}, {msg}
+		static_call sys_mem, free, {msg}
 
+		;print Hello and return
 		fn_debug_str 'Hello from global worker !'
+
+		pop_scope
 		vp_ret
 
 	fn_function_end

@@ -1,44 +1,45 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
+%include 'class/class_string.inc'
 
 ;;;;;;;;;;;
 ; test code
 ;;;;;;;;;;;
 
-	TEST_SIZE equ 1000
-
 	fn_function tests/global
 
-		;get max cpu num
-		s_call sys_cpu, total, {}, {r12}
+		const test_size, 10000
 
-		;allocate temp array for mailbox ID's
-		vp_mul mailbox_id_size, r0
-		s_call sys_mem, alloc, {r0}, {r14, r1}
-		assert r0, !=, 0
+		ptr name
+		ptr ids
+		ptr msg
+		ulong cnt
+		ulong total
 
-		;open global farm, off chip
-		s_call sys_task, open_global, {"tests/global_child", r14, r12}
+		push_scope
 
-		;send messages etc
-		for r11, 0, 10, 1
-			for r13, 0, r12, 1
-				s_call sys_mail, alloc_parcel, {TEST_SIZE * 8}, {r0}
-				for r15, 0, TEST_SIZE, 1
-					vp_cpy r15, [r0 + (r15 * 8) + ml_msg_data]
-				next
-				vp_cpy r13, r3
-				vp_mul mailbox_id_size, r3
-				vp_cpy [r14 + r3], r1
-				vp_cpy [r14 + r3 + 8], r2
-				vp_cpy r1, [r0 + ml_msg_dest]
-				vp_cpy r2, [r0 + ml_msg_dest + 8]
-				s_call sys_mail, send, {r0}
-				s_call sys_task, yield
-			next
-		next
+		;task
+		static_call string, create_from_cstr, {"tests/global_child"}, {name}
 
-		;free ID array and return
-		s_jmp sys_mem, free, {r14}
+		;open global farm
+		static_call sys_cpu, total, {}, {total}
+		static_call sys_task, open_global, {name, total}, {ids}
+
+		;send exit messages etc
+		assign {0}, {cnt}
+		loop_while {cnt != total}
+			static_call sys_mail, alloc_parcel, {test_size}, {msg}
+			assign {ids[cnt * mailbox_id_size].mb_mbox}, {msg->ml_msg_dest.mb_mbox}
+			assign {ids[cnt * mailbox_id_size].mb_cpu}, {msg->ml_msg_dest.mb_cpu}
+			static_call sys_mail, send, {msg}
+			static_call sys_task, yield
+			assign {cnt + 1}, {cnt}
+		loop_end
+
+		;free name and ID array
+		static_call string, deref, {name}
+		static_call sys_mem, free, {ids}
+		pop_scope
+		vp_ret
 
 	fn_function_end

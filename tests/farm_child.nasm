@@ -7,17 +7,23 @@
 
 	fn_function tests/farm_child
 
+		ptr msg
+		ulong num
+
+		push_scope
+
 		;read exit command etc
-		s_call sys_mail, mymail, {}, {r0}
-		s_call sys_mem, free, {r0}
+		static_call sys_mail, mymail, {}, {msg}
+		static_call sys_mem, free, {msg}
 
 		;wait a bit
-		s_call sys_math, random, {1000000}, {r0}
-		vp_add 1000000, r0
-		s_call sys_task, sleep, {r0}
+		static_call sys_math, random, {1000000}, {num}
+		static_call sys_task, sleep, {num + 1000000}
 
 		;print Hello and return
 		fn_debug_str 'Hello from farm worker !'
+
+		pop_scope
 		vp_ret
 
 	fn_function_end
