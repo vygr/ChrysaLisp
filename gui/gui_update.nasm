@@ -12,9 +12,9 @@
 		;all but r4
 
 		def_structure local
-			long local_root
-			long local_ctx_flist
-			long local_ctx_next
+			ptr local_root
+			ptr local_ctx_flist
+			ptr local_ctx_next
 			struct local_ctx, gui_ctx
 		def_structure_end
 
