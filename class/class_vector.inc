@@ -18,7 +18,7 @@
 	def_method deinit, class/vector/deinit, override
 
 	def_structure vector, ref
-		ptr vector_array
+		pptr vector_array
 		ulong vector_length
 		ulong vector_capacity
 	def_structure_end

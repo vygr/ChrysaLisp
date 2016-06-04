@@ -12,25 +12,23 @@
 ; kernel mail funcions
 ;;;;;;;;;;;;;;;;;;;;;;
 
-	def_structure kn_call
-		byte kn_call_callback
-		byte kn_call_task_open
-		byte kn_call_task_child
-		byte kn_call_task_route
-	def_structure_end
+	kn_call_callback	equ 0
+	kn_call_task_open	equ 1
+	kn_call_task_child	equ 2
+	kn_call_task_route	equ 3
 
 ;;;;;;;;;;;;;;;;;;
 ; kernel mail data
 ;;;;;;;;;;;;;;;;;;
 
 	def_structure kn_data, ml_msg_header
-		long kn_data_kernel_user
+		ulong kn_data_kernel_user
 		struct kn_data_kernel_reply, mailbox_id
-		long kn_data_kernel_function
+		ulong kn_data_kernel_function
 	def_structure_end
 
 	def_structure kn_data_callback, kn_data
-		long kn_data_callback_addr
+		ptr kn_data_callback_addr
 	def_structure_end
 
 	def_structure kn_data_task_open, kn_data
@@ -38,7 +36,7 @@
 	def_structure_end
 
 	def_structure kn_data_task_open_reply, ml_msg_header
-		long kn_data_task_open_reply_user
+		ulong kn_data_task_open_reply_user
 		struct kn_data_task_open_reply_mailboxid, mailbox_id
 	def_structure_end
 
@@ -47,14 +45,14 @@
 	def_structure_end
 
 	def_structure kn_data_task_child_reply, ml_msg_header
-		long kn_data_task_child_reply_user
+		ulong kn_data_task_child_reply_user
 		struct kn_data_task_child_reply_mailboxid, mailbox_id
 	def_structure_end
 
 	def_structure kn_data_link_route, kn_data
-		long kn_data_link_route_origin
-		long kn_data_link_route_via
-		long kn_data_link_route_hops
+		ulong kn_data_link_route_origin
+		ulong kn_data_link_route_via
+		ulong kn_data_link_route_hops
 	def_structure_end
 
 ;;;;;;;;;;;;;;;;;
