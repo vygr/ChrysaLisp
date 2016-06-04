@@ -103,7 +103,7 @@
 		push_scope
 		retire {r0, r1}, {inst, button}
 		static_call button, get_text, {button}, {string}
-		static_call sys_task, open, {&string->string_data}, {_, _}
+		static_call sys_task, open, {string}, {_, _}
 		static_call string, deref, {string}
 		pop_scope
 		vp_ret

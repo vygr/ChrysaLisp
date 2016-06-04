@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'cmd/cmd.inc'
+%include 'class/class_string.inc'
 
 	fn_function cmd/cmd_create
 		;inputs
@@ -15,6 +16,7 @@
 		ptr buffer
 		ulong length
 		ptr msg
+		ptr string
 		pubyte charp
 
 		push_scope
@@ -23,7 +25,9 @@
 		;launch pipe
 		assign {buffer + length}, {charp}
 		assign {0}, {*charp}
-		static_call sys_task, open_child, {buffer}, {pipe->cmd_master_input_mailbox_id.mb_mbox, pipe->cmd_master_input_mailbox_id.mb_cpu}
+		static_call string, create_from_cstr, {buffer}, {string}
+		static_call sys_task, open_child, {string}, {pipe->cmd_master_input_mailbox_id.mb_mbox, pipe->cmd_master_input_mailbox_id.mb_cpu}
+		static_call string, deref, {string}
 		if {pipe->cmd_master_input_mailbox_id.mb_mbox != 0}
 			;send args
 			static_call sys_mail, alloc, {}, {msg}

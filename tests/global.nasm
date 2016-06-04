@@ -25,7 +25,7 @@
 		static_call sys_cpu, total, {}, {total}
 		static_call sys_task, open_global, {name, total}, {ids}
 
-		;send exit messages etc
+		;send exit parcels etc
 		assign {0}, {cnt}
 		loop_while {cnt != total}
 			static_call sys_mail, alloc_parcel, {test_size}, {msg}
