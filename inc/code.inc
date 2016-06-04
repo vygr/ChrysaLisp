@@ -205,6 +205,44 @@
 		loop_end
 	%endmacro
 
+;;;;;;;
+; enums
+;;;;;;;
+
+	%macro def_enum 0-1 0
+		;inputs
+		;%1 = start offset
+		%assign _enum_ %1
+	%endmacro
+
+	%macro def_enum_end 0
+		%undef _enum_
+	%endmacro
+
+	%macro enum 1
+		%1 equ _enum_
+		%assign _enum_ _enum_ + 1
+	%endmacro
+
+;;;;;;
+; bits
+;;;;;;
+
+	%macro def_bit 0-1 0
+		;inputs
+		;%1 = start bit
+		%assign _bit_ %1
+	%endmacro
+
+	%macro def_bit_end 0
+		%undef _bit_
+	%endmacro
+
+	%macro bit 1
+		%1 equ 1 << _bit_
+		%assign _bit_ _bit_ + 1
+	%endmacro
+
 ;;;;;;;;;;;;;;;;;
 ; data structures
 ;;;;;;;;;;;;;;;;;

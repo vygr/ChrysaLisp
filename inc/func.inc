@@ -12,10 +12,12 @@
 ; kernel mail funcions
 ;;;;;;;;;;;;;;;;;;;;;;
 
-	kn_call_callback	equ 0
-	kn_call_task_open	equ 1
-	kn_call_task_child	equ 2
-	kn_call_task_route	equ 3
+	def_enum
+		enum kn_call_callback
+		enum kn_call_task_open
+		enum kn_call_task_child
+		enum kn_call_task_route
+	def_enum_end
 
 ;;;;;;;;;;;;;;;;;;
 ; kernel mail data

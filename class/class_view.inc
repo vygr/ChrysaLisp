@@ -50,7 +50,9 @@
 	def_method key_down, class/obj/null, virtual, {r0, r1}
 	def_method key_up, class/obj/null, virtual, {r0, r1}
 
-	view_flag_solid	equ 1 << 0
+	def_bit
+		bit view_flag_solid
+	def_bit_end
 
 	def_structure view, component
 		struct view_node, ln_node

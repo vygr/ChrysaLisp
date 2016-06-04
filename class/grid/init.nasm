@@ -12,7 +12,6 @@
 		p_call grid, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			;init myself
-			vp_cpy_cl 0, [r0 + grid_flags]
 			vp_cpy 1, r1
 			vp_cpy r1, [r0 + grid_width]
 			vp_cpy r1, [r0 + grid_height]

@@ -4,10 +4,13 @@
 %include 'class/class_view.inc'
 
 	window_border_size	equ 8
-	window_drag_left	equ 1 << 0
-	window_drag_right	equ 1 << 1
-	window_drag_top		equ 1 << 2
-	window_drag_bottom	equ 1 << 3
+
+	def_bit
+		bit window_drag_left
+		bit window_drag_right
+		bit window_drag_top
+		bit window_drag_bottom
+	def_bit_end
 
 	def_class window, view
 	def_method create, class/window/create

@@ -79,8 +79,10 @@
 ; gui mail data
 ;;;;;;;;;;;;;;;
 
-	ev_type_mouse	equ 0
-	ev_type_key		equ 1
+	def_enum
+		enum ev_type_mouse
+		enum ev_type_key
+	def_enum
 
 	def_structure ev_data, ml_msg_header
 		ulong ev_data_type

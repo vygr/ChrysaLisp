@@ -14,8 +14,10 @@
 ; link structures
 ;;;;;;;;;;;;;;;;;
 
-	lk_chan_status_ready	equ 0
-	lk_chan_status_busy		equ 1
+	def_enum
+		enum lk_chan_status_ready
+		enum lk_chan_status_busy
+	def_enum_end
 
 	def_structure lk_table
 		ptr lk_table_array

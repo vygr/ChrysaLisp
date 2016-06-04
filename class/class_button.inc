@@ -4,7 +4,10 @@
 %include 'class/class_label.inc'
 
 	button_border_size		equ 2
-	button_state_pressed	equ 1 << 0
+
+	def_bit
+		bit button_state_pressed
+	def_bit_end
 
 	def_class button, label
 	def_method create, class/button/create
