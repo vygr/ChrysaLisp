@@ -28,7 +28,7 @@
 			assign {cnt + 1}, {cnt}
 		loop_end
 
-		;open pipe
+		;open array
 		static_call sys_task, open_array, {tasks}, {ids}
 
 		;send exit messages etc
@@ -37,6 +37,7 @@
 			static_call sys_mail, alloc, {}, {msg}
 			assign {ids[cnt * mailbox_id_size].mb_mbox}, {msg->ml_msg_dest.mb_mbox}
 			assign {ids[cnt * mailbox_id_size].mb_cpu}, {msg->ml_msg_dest.mb_cpu}
+			assign {ml_msg_header_size}, {msg->ml_msg_length}
 			static_call sys_mail, send, {msg}
 			static_call sys_task, yield
 			assign {cnt + 1}, {cnt}
