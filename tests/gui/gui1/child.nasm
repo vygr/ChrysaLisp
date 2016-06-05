@@ -14,12 +14,13 @@
 		loop_start
 			;read mail command
 			static_call sys_mail, mymail, {}, {msg}
-			breakif {!msg->sample_mail_command}
+			breakif {!msg->sample_msg_command}
 
 			;sample command
-			static_call sys_task, count, {}, {msg->sample_mail_task_count}
-			assign {msg->sample_mail_reply_id.id_mbox}, {msg->msg_dest.id_mbox}
-			assign {msg->sample_mail_reply_id.id_cpu}, {msg->msg_dest.id_cpu}
+			static_call sys_task, count, {}, {msg->sample_msg_task_count}
+			assign {msg->sample_msg_reply_id.id_mbox}, {msg->msg_dest.id_mbox}
+			assign {msg->sample_msg_reply_id.id_cpu}, {msg->msg_dest.id_cpu}
+			assign {sample_msg_reply_size}, {msg->msg_length}
 			static_call sys_mail, send, {msg}
 
 			;be friendly
