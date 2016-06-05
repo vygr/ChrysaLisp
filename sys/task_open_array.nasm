@@ -18,7 +18,7 @@
 		ulong cpu
 		ulong index
 		ulong length
-		struct mailbox, ml_mailbox
+		struct mailbox, mailbox
 
 		;save task info
 		push_scope
@@ -26,7 +26,7 @@
 
 		;create output array
 		static_call vector, get_length, {tasks}, {length}
-		static_call sys_mem, alloc, {length * mailbox_id_size}, {ids, _}
+		static_call sys_mem, alloc, {length * id_size}, {ids, _}
 
 		;init temp mailbox
 		static_call sys_mail, mailbox, {&mailbox}
@@ -37,14 +37,14 @@
 		loop_while {index != length}
 			static_call sys_mail, alloc, {}, {msg}
 			assign {(tasks->vector_array)[index * ptr_size]}, {name}
-			assign {name->string_length + 1 + kn_data_task_child_size}, {msg->ml_msg_length}
-			assign {0}, {msg->ml_msg_dest.mb_mbox}
-			assign {cpu}, {msg->ml_msg_dest.mb_cpu}
-			assign {&mailbox}, {msg->kn_data_kernel_reply.mb_mbox}
-			assign {cpu}, {msg->kn_data_kernel_reply.mb_cpu}
-			assign {kn_call_task_child}, {msg->kn_data_kernel_function}
-			assign {&ids[index * mailbox_id_size]}, {msg->kn_data_kernel_user}
-			static_call sys_mem, copy, {&name->string_data, &msg->kn_data_task_child_pathname, \
+			assign {name->string_length + 1 + kn_msg_child_size}, {msg->msg_length}
+			assign {0}, {msg->msg_dest.id_mbox}
+			assign {cpu}, {msg->msg_dest.id_cpu}
+			assign {&mailbox}, {msg->kn_msg_reply_id.id_mbox}
+			assign {cpu}, {msg->kn_msg_reply_id.id_cpu}
+			assign {kn_call_task_child}, {msg->kn_msg_function}
+			assign {&ids[index * id_size]}, {msg->kn_msg_user}
+			static_call sys_mem, copy, {&name->string_data, &msg->kn_msg_child_pathname, \
 			 							name->string_length + 1}, {_, _}
 			static_call sys_mail, send, {msg}
 			assign {index + 1}, {index}
@@ -54,8 +54,8 @@
 		assign {0}, {index}
 		loop_while {index != length}
 			static_call sys_mail, read, {&mailbox}, {msg}
-			assign {msg->kn_data_task_child_reply_mailboxid.mb_mbox}, {msg->kn_data_kernel_user->mb_mbox}
-			assign {msg->kn_data_task_child_reply_mailboxid.mb_cpu}, {msg->kn_data_kernel_user->mb_cpu}
+			assign {msg->kn_msg_reply_id.id_mbox}, {msg->kn_msg_user->id_mbox}
+			assign {msg->kn_msg_reply_id.id_cpu}, {msg->kn_msg_user->id_cpu}
 			static_call sys_mem, free, {msg}
 			assign {index + 1}, {index}
 		loop_end

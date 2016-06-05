@@ -30,7 +30,7 @@
 		ptr msg
 		ulong mailbox
 		pulong task_mailboxes
-		struct task_mailbox, ml_mailbox
+		struct task_mailbox, mailbox
 
 		ptr string
 		ptr progress
@@ -102,12 +102,12 @@
 					assign {cpu_count - 1}, {cpu_count}
 					static_call sys_mail, alloc, {}, {msg}
 					assign {1}, {msg->sample_mail_command}
-					assign {sample_mail_size}, {msg->ml_msg_length}
+					assign {sample_mail_size}, {msg->msg_length}
 					assign {task_progress[cpu_count * long_size]}, {msg->sample_mail_progress}
-					assign {task_mailboxes[cpu_count * mailbox_id_size].mb_mbox}, {msg->ml_msg_dest.mb_mbox}
-					assign {task_mailboxes[cpu_count * mailbox_id_size].mb_cpu}, {msg->ml_msg_dest.mb_cpu}
-					assign {select.sel_select2}, {msg->sample_mail_reply_id.mb_mbox}
-					static_call sys_cpu, id, {}, {msg->sample_mail_reply_id.mb_cpu}
+					assign {task_mailboxes[cpu_count * id_size].id_mbox}, {msg->msg_dest.id_mbox}
+					assign {task_mailboxes[cpu_count * id_size].id_cpu}, {msg->msg_dest.id_cpu}
+					assign {select.sel_select2}, {msg->sample_mail_reply_id.id_mbox}
+					static_call sys_cpu, id, {}, {msg->sample_mail_reply_id.id_cpu}
 					static_call sys_mail, send, {msg}
 				loop_until {!cpu_count}
 			endif
@@ -119,7 +119,7 @@
 			;which mailbox had mail ?
 			if {mailbox == select.sel_select1}
 				;dispatch event to view
-				method_call view, event, {msg->ev_data_view, msg}
+				method_call view, event, {msg->ev_msg_view, msg}
 			else
 				;update progress bar
 				static_call progress, set_val, {msg->sample_mail_progress, msg->sample_mail_task_count}
@@ -148,9 +148,9 @@
 			assign {cpu_count - 1}, {cpu_count}
 			static_call sys_mail, alloc, {}, {msg}
 			assign {0}, {msg->sample_mail_command}
-			assign {sample_mail_size}, {msg->ml_msg_length}
-			assign {task_mailboxes[cpu_count * mailbox_id_size].mb_mbox}, {msg->ml_msg_dest.mb_mbox}
-			assign {task_mailboxes[cpu_count * mailbox_id_size].mb_cpu}, {msg->ml_msg_dest.mb_cpu}
+			assign {sample_mail_size}, {msg->msg_length}
+			assign {task_mailboxes[cpu_count * id_size].id_mbox}, {msg->msg_dest.id_mbox}
+			assign {task_mailboxes[cpu_count * id_size].id_cpu}, {msg->msg_dest.id_cpu}
 			static_call sys_mail, send, {msg}
 		loop_until {!cpu_count}
 

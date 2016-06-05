@@ -109,9 +109,9 @@
 			if {mailbox == sel.sel_event}
 				;dispatch event to view and terminal
 				static_call sys_mail, read, {mailbox}, {msg}
-				method_call view, event, {msg->ev_data_view, msg}
-				if {msg->ev_data_type == ev_type_key && msg->ev_data_keycode > 0}
-					local_call terminal_input, {&shared, msg->ev_data_key}, {r0, r1}
+				method_call view, event, {msg->ev_msg_view, msg}
+				if {msg->ev_msg_type == ev_type_key && msg->ev_msg_keycode > 0}
+					local_call terminal_input, {&shared, msg->ev_msg_key}, {r0, r1}
 				endif
 				static_call sys_mem, free, {msg}
 			elseif {mailbox == sel.sel_stderr}

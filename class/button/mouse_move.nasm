@@ -10,7 +10,7 @@
 		;all but r0, r4
 
 		;hit ?
-		m_call button, hit, {r0, [r1 + ev_data_rx], [r1 + ev_data_ry]}, {r1}
+		m_call button, hit, {r0, [r1 + ev_msg_rx], [r1 + ev_msg_ry]}, {r1}
 
 		;is mouse over button ?
 		vp_cpy [r0 + button_state], r2

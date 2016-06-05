@@ -11,8 +11,8 @@
 		;all but r0, r4
 
 		vp_push r0
-		vp_cpy [r1 + ev_data_rx], r8
-		vp_cpy [r1 + ev_data_ry], r9
+		vp_cpy [r1 + ev_msg_rx], r8
+		vp_cpy [r1 + ev_msg_ry], r9
 		vp_cpy r8, [r0 + title_last_x]
 		vp_cpy r9, [r0 + title_last_y]
 		vp_cpy [r0 + view_parent], r0

@@ -17,9 +17,9 @@
 		push_scope
 		retire {r0, r1, r2}, {pipe, buffer, length}
 		static_call sys_mail, alloc, {}, {msg}
-		assign {cmd_mail_stream_size + length}, {msg->ml_msg_length}
-		assign {pipe->cmd_slave_stdout_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
-		assign {pipe->cmd_slave_stdout_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
+		assign {cmd_mail_stream_size + length}, {msg->msg_length}
+		assign {pipe->cmd_slave_stdout_id.id_mbox}, {msg->msg_dest.id_mbox}
+		assign {pipe->cmd_slave_stdout_id.id_cpu}, {msg->msg_dest.id_cpu}
 		static_call sys_mem, copy, {buffer, &msg->cmd_mail_stream_data, length}, {_, _}
 		assign {pipe->cmd_slave_stdout_seqnum}, {msg->cmd_mail_stream_seqnum}
 		assign {pipe->cmd_slave_stdout_seqnum + 1}, {pipe->cmd_slave_stdout_seqnum}

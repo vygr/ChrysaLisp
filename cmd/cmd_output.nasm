@@ -25,7 +25,7 @@
 			static_call sys_mail, read, {&pipe->cmd_master_output_mailbox}, {msg}
 		loop_end
 		assign {pipe->cmd_master_output_seqnum + 1}, {pipe->cmd_master_output_seqnum}
-		assign {msg->ml_msg_length - cmd_mail_stream_size}, {length}
+		assign {msg->msg_length - cmd_mail_stream_size}, {length}
 		static_call sys_mem, copy, {&msg->cmd_mail_stream_data, buffer, length}, {_, _}
 		static_call sys_mem, free, {msg}
 		eval {length}, {r0}

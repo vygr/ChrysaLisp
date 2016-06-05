@@ -26,9 +26,9 @@
 		s_call sys_mail, mymail, {}, {r14}
 
 		;init link node cpu id and task count
-		vp_cpy_ub [r14 + ml_msg_data + 5], r0
-		vp_cpy_ub [r14 + ml_msg_data + 6], r1
-		vp_cpy_ub [r14 + ml_msg_data + 7], r2
+		vp_cpy_ub [r14 + msg_data + 5], r0
+		vp_cpy_ub [r14 + msg_data + 6], r1
+		vp_cpy_ub [r14 + msg_data + 7], r2
 		vp_sub '0', r0
 		vp_sub '0', r1
 		vp_sub '0', r2
@@ -36,9 +36,9 @@
 		vp_mul 10, r1
 		vp_add r0, r1
 		vp_add r2, r1
-		vp_cpy_ub [r14 + ml_msg_data + 9], r0
-		vp_cpy_ub [r14 + ml_msg_data + 10], r2
-		vp_cpy_ub [r14 + ml_msg_data + 11], r3
+		vp_cpy_ub [r14 + msg_data + 9], r0
+		vp_cpy_ub [r14 + msg_data + 10], r2
+		vp_cpy_ub [r14 + msg_data + 11], r3
 		vp_sub '0', r0
 		vp_sub '0', r2
 		vp_sub '0', r3
@@ -64,20 +64,20 @@
 		s_call sys_mail, alloc, {}, {r0}
 		assert r0, !=, 0
 		vp_xor r1, r1
-		vp_cpy r1, [r0 + ml_msg_dest]
-		vp_cpy r9, [r0 + (ml_msg_dest + 8)]
-		vp_cpy r1, [r0 + kn_data_kernel_user]
-		vp_cpy r1, [r0 + kn_data_kernel_reply]
-		vp_cpy r1, [r0 + kn_data_kernel_reply + 8]
-		vp_cpy_cl kn_call_task_route, [r0 + kn_data_kernel_function]
-		vp_cpy r8, [r0 + kn_data_link_route_origin]
-		vp_cpy r8, [r0 + kn_data_link_route_via]
-		vp_cpy_cl 1, [r0 + kn_data_link_route_hops]
-		vp_cpy_cl kn_data_link_route_size, [r0 + ml_msg_length]
+		vp_cpy r1, [r0 + msg_dest]
+		vp_cpy r9, [r0 + (msg_dest + 8)]
+		vp_cpy r1, [r0 + kn_msg_user]
+		vp_cpy r1, [r0 + kn_msg_reply_id]
+		vp_cpy r1, [r0 + kn_msg_reply_id + 8]
+		vp_cpy_cl kn_call_task_route, [r0 + kn_msg_function]
+		vp_cpy r8, [r0 + kn_msg_link_route_origin]
+		vp_cpy r8, [r0 + kn_msg_link_route_via]
+		vp_cpy_cl 1, [r0 + kn_msg_link_route_hops]
+		vp_cpy_cl kn_msg_link_route_size, [r0 + msg_length]
 		s_call sys_mail, send, {r0}
 
 		;open shared memory file
-		vp_lea [r14 + ml_msg_data], r0
+		vp_lea [r14 + msg_data], r0
 		sys_open r0, o_creat | o_rdwr, s_irusr | s_iwusr
 		vp_cpy r0, r13
 
@@ -113,7 +113,7 @@
 				vp_cpy [r4 + lk_node_cpu_id], r0
 				static_bind sys_mail, statics, r8
 				loop_list_forward r8 + ml_statics_offchip_list, r7, r8
-					vp_cpy [r7 + (ml_msg_dest + 8)], r2
+					vp_cpy [r7 + (msg_dest + 8)], r2
 					breakif r0, ==, r2
 					vp_cpy [r4 + lk_node_table + lk_table_array], r1
 					continueif r1, ==, 0
@@ -133,7 +133,7 @@
 					;copy message data
 					;round up to next 8 byte boundary for speed
 					vp_lea [r10 + lk_chan_msg], r1
-					vp_cpy [r9 + ml_msg_length], r2
+					vp_cpy [r9 + msg_length], r2
 					vp_add 7, r2
 					vp_and -8, r2
 					s_call sys_mem, copy, {r9, r1, r2}, {_, _}
@@ -158,7 +158,7 @@
 				vp_cpy r0, r8
 				vp_cpy r0, r1
 				vp_lea [r11 + lk_chan_msg], r0
-				vp_cpy [r0 + ml_msg_length], r2
+				vp_cpy [r0 + msg_length], r2
 				vp_add 7, r2
 				vp_and -8, r2
 				s_call sys_mem, copy, {r0, r1, r2}, {_, _}
@@ -199,7 +199,7 @@
 		sys_close r13
 
 		;unlink shared object
-		vp_lea [r14 + ml_msg_data], r0
+		vp_lea [r14 + msg_data], r0
 		sys_unlink r0
 
 		;free params msg

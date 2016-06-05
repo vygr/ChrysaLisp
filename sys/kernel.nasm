@@ -72,18 +72,18 @@
 				vp_cpy r0, r15
 
 				;switch on kernel call number
-				vp_cpy [r15 + kn_data_kernel_function], r1
+				vp_cpy [r15 + kn_msg_function], r1
 				switch
 				case r1, ==, kn_call_task_open
 				run_here:
 					;fill in reply ID, user field is left alone !
-					vp_cpy [r15 + kn_data_kernel_reply], r1
-					vp_cpy [r15 + kn_data_kernel_reply + 8], r2
-					vp_cpy r1, [r15 + ml_msg_dest]
-					vp_cpy r2, [r15 + (ml_msg_dest + 8)]
+					vp_cpy [r15 + kn_msg_reply_id], r1
+					vp_cpy [r15 + kn_msg_reply_id + 8], r2
+					vp_cpy r1, [r15 + msg_dest]
+					vp_cpy r2, [r15 + (msg_dest + 8)]
 
 					;open single task and return mailbox ID
-					s_call sys_load, bind, {&[r15 + kn_data_task_open_pathname]}, {r0}
+					s_call sys_load, bind, {&[r15 + kn_msg_open_pathname]}, {r0}
 					if r0, ==, 0
 						;error
 						vp_cpy r0, r1
@@ -92,9 +92,9 @@
 						s_call sys_task, start, {r0}, {_, r1}
 						s_call sys_cpu, id, {}, {r0}
 					endif
-					vp_cpy r1, [r15 + kn_data_task_open_reply_mailboxid]
-					vp_cpy r0, [r15 + kn_data_task_open_reply_mailboxid + 8]
-					vp_cpy_cl kn_data_task_open_reply_size, [r15 + ml_msg_length]
+					vp_cpy r1, [r15 + kn_msg_reply_id]
+					vp_cpy r0, [r15 + kn_msg_reply_id + 8]
+					vp_cpy_cl kn_msg_reply_size, [r15 + msg_length]
 					s_call sys_mail, send, {r15}
 					break
 				case r1, ==, kn_call_task_child
@@ -112,26 +112,26 @@
 					vp_jmpif r0, ==, r5, run_here
 
 					;send to better kernel
-					vp_cpy r0, [r15 + (ml_msg_dest + 8)]
+					vp_cpy r0, [r15 + (msg_dest + 8)]
 					s_call sys_mail, send, {r15}
 					break
 				case r1, ==, kn_call_task_route
 					;increase size of network ?
 					static_bind sys_task, statics, r0
-					vp_cpy [r15 + kn_data_link_route_origin], r1
+					vp_cpy [r15 + kn_msg_link_route_origin], r1
 					vp_inc r1
 					if r1, >, [r0 + tk_statics_cpu_total]
 						vp_cpy r1, [r0 + tk_statics_cpu_total]
 					endif
 
 					;new kernel routing table ?
-					vp_cpy [r15 + kn_data_link_route_origin], r11
+					vp_cpy [r15 + kn_msg_link_route_origin], r11
 					vp_mul lk_route_size, r11
 					s_call sys_mem, grow, {[r4 + lk_table_array], [r4 + lk_table_array_size], &[r11 + lk_route_size]}, \
 												{[r4 + lk_table_array], [r4 + lk_table_array_size]}
 
 					;compare hop counts
-					vp_cpy [r15 + kn_data_link_route_hops], r2
+					vp_cpy [r15 + kn_msg_link_route_hops], r2
 					vp_cpy [r0 + r11 + lk_route_hops], r3
 					switch
 					case r3, ==, 0
@@ -143,7 +143,7 @@
 						vp_cpy r2, [r0 + r11]
 
 						;fill in via route and remove other routes
-						vp_cpy [r15 + kn_data_link_route_via], r13
+						vp_cpy [r15 + kn_msg_link_route_via], r13
 						static_bind sys_link, statics, r14
 						loop_list_forward r14 + lk_statics_links_list, r12, r14
 							;new link route table ?
@@ -152,7 +152,7 @@
 
 							if [r12 + lk_node_cpu_id], ==, r13
 								;via route
-								vp_cpy [r15 + kn_data_link_route_hops], r2
+								vp_cpy [r15 + kn_msg_link_route_hops], r2
 								vp_cpy r2, [r0 + r11 + lk_route_hops]
 							else
 								;none via route
@@ -162,7 +162,7 @@
 						break
 					case r2, ==, r3
 						;new hops is equal, so additional route
-						vp_cpy [r15 + kn_data_link_route_via], r13
+						vp_cpy [r15 + kn_msg_link_route_via], r13
 						static_bind sys_link, statics, r14
 						loop_list_forward r14 + lk_statics_links_list, r12, r14
 							;new link route table ?
@@ -171,7 +171,7 @@
 
 							if [r12 + lk_node_cpu_id], ==, r13
 								;via route
-								vp_cpy [r15 + kn_data_link_route_hops], r2
+								vp_cpy [r15 + kn_msg_link_route_hops], r2
 								vp_cpy r2, [r0 + r11 + lk_route_hops]
 							endif
 						loop_end
@@ -182,13 +182,13 @@
 					endswitch
 
 					;increment hop count
-					vp_cpy [r15 + kn_data_link_route_hops], r1
+					vp_cpy [r15 + kn_msg_link_route_hops], r1
 					vp_inc r1
-					vp_cpy r1, [r15 + kn_data_link_route_hops]
+					vp_cpy r1, [r15 + kn_msg_link_route_hops]
 
 					;get current via, set via to my cpu id
-					vp_cpy [r15 + kn_data_link_route_via], r14
-					s_call sys_cpu, id, {}, {[r15 + kn_data_link_route_via]}
+					vp_cpy [r15 + kn_msg_link_route_via], r14
+					s_call sys_cpu, id, {}, {[r15 + kn_msg_link_route_via]}
 
 					;copy and send to all neighbors apart from old via
 					static_bind sys_link, statics, r13
@@ -200,11 +200,11 @@
 						vp_cpy r0, r5
 						vp_cpy r0, r1
 						vp_cpy r15, r0
-						vp_cpy [r15 + ml_msg_length], r2
+						vp_cpy [r15 + msg_length], r2
 						vp_add 7, r2
 						vp_and -8, r2
 						s_call sys_mem, copy, {r0, r1, r2}, {_, _}
-						vp_cpy r11, [r5 + ml_msg_dest + 8]
+						vp_cpy r11, [r5 + msg_dest + 8]
 						s_call sys_mail, send, {r5}
 					loop_end
 				drop_msg:
@@ -213,15 +213,15 @@
 				case r1, ==, kn_call_callback
 					;call callback with this thread/stack
 					vp_push r15
-					vp_cpy [r15 + kn_data_kernel_user], r0
-					vp_call [r15 + kn_data_callback_addr]
+					vp_cpy [r15 + kn_msg_user], r0
+					vp_call [r15 + kn_msg_callback_addr]
 
 					;reply to originator
 					vp_pop r0
-					vp_cpy [r0 + kn_data_kernel_reply], r1
-					vp_cpy [r0 + kn_data_kernel_reply + 8], r2
-					vp_cpy r1, [r0 + ml_msg_dest]
-					vp_cpy r2, [r0 + ml_msg_dest + 8]
+					vp_cpy [r0 + kn_msg_reply_id], r1
+					vp_cpy [r0 + kn_msg_reply_id + 8], r2
+					vp_cpy r1, [r0 + msg_dest]
+					vp_cpy r2, [r0 + msg_dest + 8]
 					s_call sys_mail, send, {r0}
 				endswitch
 			loop_end

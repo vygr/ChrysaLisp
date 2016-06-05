@@ -118,12 +118,12 @@
 							assert r0, !=, 0
 
 							;fill in data
-							vp_cpy r14, [r0 + ml_msg_dest]
-							vp_cpy r15, [r0 + (ml_msg_dest + 8)]
-							vp_cpy_cl ev_type_key, [r0 + ev_data_type]
-							vp_cpy r6, [r0 + ev_data_view]
-							vp_cpy r11, [r0 + ev_data_keycode]
-							vp_cpy r12, [r0 + ev_data_key]
+							vp_cpy r14, [r0 + msg_dest]
+							vp_cpy r15, [r0 + (msg_dest + 8)]
+							vp_cpy_cl ev_type_key, [r0 + ev_msg_type]
+							vp_cpy r6, [r0 + ev_msg_view]
+							vp_cpy r11, [r0 + ev_msg_keycode]
+							vp_cpy r12, [r0 + ev_msg_key]
 
 							;send mail to owner
 							s_call sys_mail, send, {r0}
@@ -167,19 +167,19 @@
 						assert r0, !=, 0
 
 						;fill in data
-						vp_cpy r14, [r0 + ml_msg_dest]
-						vp_cpy r15, [r0 + (ml_msg_dest + 8)]
+						vp_cpy r14, [r0 + msg_dest]
+						vp_cpy r15, [r0 + (msg_dest + 8)]
 						vp_cpy [r4 + local_x_pos], r8
 						vp_cpy [r4 + local_y_pos], r9
-						vp_cpy_cl ev_type_mouse, [r0 + ev_data_type]
-						vp_cpy r6, [r0 + ev_data_view]
-						vp_cpy r8, [r0 + ev_data_x]
-						vp_cpy r9, [r0 + ev_data_y]
-						vp_cpy r10, [r0 + ev_data_buttons]
+						vp_cpy_cl ev_type_mouse, [r0 + ev_msg_type]
+						vp_cpy r6, [r0 + ev_msg_view]
+						vp_cpy r8, [r0 + ev_msg_x]
+						vp_cpy r9, [r0 + ev_msg_y]
+						vp_cpy r10, [r0 + ev_msg_buttons]
 						vp_sub [r6 + view_ctx_x], r8
 						vp_sub [r6 + view_ctx_y], r9
-						vp_cpy r8, [r0 + ev_data_rx]
-						vp_cpy r9, [r0 + ev_data_ry]
+						vp_cpy r8, [r0 + ev_msg_rx]
+						vp_cpy r9, [r0 + ev_msg_ry]
 
 						;send mail to owner
 						s_call sys_mail, send, {r0}

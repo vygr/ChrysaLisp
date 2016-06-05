@@ -84,16 +84,16 @@
 		enum ev_type_key
 	def_enum
 
-	def_structure ev_data, ml_msg_header
-		ulong ev_data_type
-		ptr ev_data_view
-		long ev_data_x
-		long ev_data_y
-		long ev_data_rx
-		long ev_data_ry
-		ulong ev_data_buttons
-		ulong ev_data_keycode
-		ulong ev_data_key
+	def_structure ev_msg, msg_header
+		ulong ev_msg_type
+		ptr ev_msg_view
+		long ev_msg_x
+		long ev_msg_y
+		long ev_msg_rx
+		long ev_msg_ry
+		ulong ev_msg_buttons
+		ulong ev_msg_keycode
+		ulong ev_msg_key
 	def_structure_end
 
 %endif

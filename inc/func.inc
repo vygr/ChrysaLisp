@@ -23,38 +23,29 @@
 ; kernel mail data
 ;;;;;;;;;;;;;;;;;;
 
-	def_structure kn_data, ml_msg_header
-		ulong kn_data_kernel_user
-		struct kn_data_kernel_reply, mailbox_id
-		ulong kn_data_kernel_function
+	def_structure kn_msg, msg_header
+		ulong kn_msg_user
+		struct kn_msg_reply_id, id
+		struct kn_msg_reply_size, null
+		ulong kn_msg_function
 	def_structure_end
 
-	def_structure kn_data_callback, kn_data
-		ptr kn_data_callback_addr
+	def_structure kn_msg_callback, kn_msg
+		ptr kn_msg_callback_addr
 	def_structure_end
 
-	def_structure kn_data_task_open, kn_data
-		struct kn_data_task_open_pathname, null
+	def_structure kn_msg_open, kn_msg
+		struct kn_msg_open_pathname, null
 	def_structure_end
 
-	def_structure kn_data_task_open_reply, ml_msg_header
-		ulong kn_data_task_open_reply_user
-		struct kn_data_task_open_reply_mailboxid, mailbox_id
+	def_structure kn_msg_child, kn_msg
+		struct kn_msg_child_pathname, null
 	def_structure_end
 
-	def_structure kn_data_task_child, kn_data
-		struct kn_data_task_child_pathname, null
-	def_structure_end
-
-	def_structure kn_data_task_child_reply, ml_msg_header
-		ulong kn_data_task_child_reply_user
-		struct kn_data_task_child_reply_mailboxid, mailbox_id
-	def_structure_end
-
-	def_structure kn_data_link_route, kn_data
-		ulong kn_data_link_route_origin
-		ulong kn_data_link_route_via
-		ulong kn_data_link_route_hops
+	def_structure kn_msg_link_route, kn_msg
+		ulong kn_msg_link_route_origin
+		ulong kn_msg_link_route_via
+		ulong kn_msg_link_route_hops
 	def_structure_end
 
 ;;;;;;;;;;;;;;;;;

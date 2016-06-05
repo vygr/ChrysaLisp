@@ -44,7 +44,7 @@
 	def_structure tk_node, ln_node
 		ptr tk_node_stack
 		ulong tk_node_time
-		struct tk_node_mailbox, ml_mailbox
+		struct tk_node_mailbox, mailbox
 		struct tk_node_stackspace, tk_stack
 	def_structure_end
 

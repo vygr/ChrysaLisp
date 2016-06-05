@@ -26,18 +26,18 @@
 		assign {buffer + length}, {charp}
 		assign {0}, {*charp}
 		static_call string, create_from_cstr, {buffer}, {string}
-		static_call sys_task, open_child, {string}, {pipe->cmd_master_input_mailbox_id.mb_mbox, pipe->cmd_master_input_mailbox_id.mb_cpu}
+		static_call sys_task, open_child, {string}, {pipe->cmd_master_input_id.id_mbox, pipe->cmd_master_input_id.id_cpu}
 		static_call string, deref, {string}
-		if {pipe->cmd_master_input_mailbox_id.mb_mbox != 0}
+		if {pipe->cmd_master_input_id.id_mbox != 0}
 			;send args
 			static_call sys_mail, alloc, {}, {msg}
-			assign {cmd_mail_init_size + length}, {msg->ml_msg_length}
-			assign {pipe->cmd_master_input_mailbox_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
-			assign {pipe->cmd_master_input_mailbox_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
-			assign {&pipe->cmd_master_output_mailbox}, {msg->cmd_mail_init_stdout_id.mb_mbox}
-			static_call sys_cpu, id, {}, {msg->cmd_mail_init_stdout_id.mb_cpu}
-			assign {&pipe->cmd_master_error_mailbox}, {msg->cmd_mail_init_stderr_id.mb_mbox}
-			static_call sys_cpu, id, {}, {msg->cmd_mail_init_stderr_id.mb_cpu}
+			assign {cmd_mail_init_size + length}, {msg->msg_length}
+			assign {pipe->cmd_master_input_id.id_mbox}, {msg->msg_dest.id_mbox}
+			assign {pipe->cmd_master_input_id.id_cpu}, {msg->msg_dest.id_cpu}
+			assign {&pipe->cmd_master_output_mailbox}, {msg->cmd_mail_init_stdout_id.id_mbox}
+			static_call sys_cpu, id, {}, {msg->cmd_mail_init_stdout_id.id_cpu}
+			assign {&pipe->cmd_master_error_mailbox}, {msg->cmd_mail_init_stderr_id.id_mbox}
+			static_call sys_cpu, id, {}, {msg->cmd_mail_init_stderr_id.id_cpu}
 			static_call sys_mem, copy, {&buffer, &msg->cmd_mail_init_args, length}, {_, _}
 			static_call sys_mail, send, {msg}
 

@@ -9,12 +9,12 @@
 		;trashes
 		;r1-r3, r5
 
-		vp_add ml_msg_data, r0
+		vp_add msg_data, r0
 		vp_cpy r0, r5
 		s_call sys_mem, alloc, {r0}, {r0, _}
 		assert r0, !=, 0
-		vp_cpy r5, [r0 + ml_msg_length]
-		vp_cpy_cl 0, [r0 + ml_msg_parcel_size]
+		vp_cpy r5, [r0 + msg_length]
+		vp_cpy_cl 0, [r0 + msg_parcel_size]
 		vp_ret
 
 	fn_function_end

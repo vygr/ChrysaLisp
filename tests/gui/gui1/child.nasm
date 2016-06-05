@@ -18,8 +18,8 @@
 
 			;sample command
 			static_call sys_task, count, {}, {msg->sample_mail_task_count}
-			assign {msg->sample_mail_reply_id.mb_mbox}, {msg->ml_msg_dest.mb_mbox}
-			assign {msg->sample_mail_reply_id.mb_cpu}, {msg->ml_msg_dest.mb_cpu}
+			assign {msg->sample_mail_reply_id.id_mbox}, {msg->msg_dest.id_mbox}
+			assign {msg->sample_mail_reply_id.id_cpu}, {msg->msg_dest.id_cpu}
 			static_call sys_mail, send, {msg}
 
 			;be friendly

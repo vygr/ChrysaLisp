@@ -28,25 +28,25 @@
 
 	mail_data_size	equ 512
 
-	def_structure ml_mailbox, lh_list
-		struct ml_mailbox_parcel_list, lh_list
-		ptr ml_mailbox_tcb
+	def_structure mailbox, lh_list
+		struct mailbox_parcel_list, lh_list
+		ptr mailbox_tcb
 	def_structure_end
 
-	def_structure mailbox_id
-		ulong mb_mbox
-		ulong mb_cpu
+	def_structure id
+		ulong id_mbox
+		ulong id_cpu
 	def_structure_end
 
-	def_structure ml_msg, ln_node
-		ulong ml_msg_length
-		struct ml_msg_dest, mailbox_id
-		struct ml_msg_parcel_id, mailbox_id
-		ulong ml_msg_parcel_size
-		ulong ml_msg_parcel_total
-		ulong ml_msg_parcel_frag
-		struct ml_msg_header_size, null
-		struct ml_msg_data, mail_data
+	def_structure msg, ln_node
+		ulong msg_length
+		struct msg_dest, id
+		struct msg_parcel_id, id
+		ulong msg_parcel_size
+		ulong msg_parcel_total
+		ulong msg_parcel_frag
+		struct msg_header_size, null
+		struct msg_data, mail_data
 	def_structure_end
 
 	def_structure ml_statics
@@ -72,9 +72,9 @@
 		;trashes
 		;%2, %3
 
-		vp_cpy_cl 0, [%1 + ml_mailbox_tcb]
+		vp_cpy_cl 0, [%1 + mailbox_tcb]
 		lh_init %1, %2
-		vp_lea [%1 + ml_mailbox_parcel_list], %2
+		vp_lea [%1 + mailbox_parcel_list], %2
 		lh_init %2, %3
 	%endmacro
 
@@ -87,12 +87,12 @@
 		;trashes
 		;%1, %2
 
-		vp_sub ml_mailbox_size, r4
+		vp_sub mailbox_size, r4
 		ml_init r4, %1, %2
 	%endmacro
 
 	%macro ml_temp_destroy 0
-		vp_add ml_mailbox_size, r4
+		vp_add mailbox_size, r4
 	%endmacro
 
 %endif

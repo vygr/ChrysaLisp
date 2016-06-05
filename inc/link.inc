@@ -37,7 +37,7 @@
 	def_structure lk_chan
 		ulong lk_chan_status
 		ulong lk_chan_task_count
-		struct lk_chan_msg, ml_msg
+		struct lk_chan_msg, msg
 	def_structure_end
 
 	def_structure lk_buffer

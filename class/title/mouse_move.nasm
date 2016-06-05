@@ -37,8 +37,8 @@
 		vp_cpy [r4 + local_inst], r0
 		s_call title, get_relative, {r0, [r4 + local_window], [r0 + title_last_x], [r0 + title_last_y]}, {r8, r9}
 		vp_cpy [r4 + local_event], r1
-		vp_sub [r1 + ev_data_x], r8
-		vp_sub [r1 + ev_data_y], r9
+		vp_sub [r1 + ev_msg_x], r8
+		vp_sub [r1 + ev_msg_y], r9
 		vp_mul -1, r8
 		vp_mul -1, r9
 

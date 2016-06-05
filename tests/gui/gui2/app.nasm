@@ -79,7 +79,7 @@
 			static_call sys_mail, mymail, {}, {msg}
 
 			;dispatch event to view
-			method_call view, event, {msg->ev_data_view, msg}
+			method_call view, event, {msg->ev_msg_view, msg}
 
 			;free event message
 			static_call sys_mem, free, {msg}

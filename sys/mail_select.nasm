@@ -32,7 +32,7 @@
 			vp_cpy r3, r0
 			loop_start
 				vp_cpy [r0], r2
-				vp_cpy r5, [r2 + ml_mailbox_tcb]
+				vp_cpy r5, [r2 + mailbox_tcb]
 				vp_add 8, r0
 			loop_until r0, ==, r1
 
@@ -43,7 +43,7 @@
 			vp_cpy r3, r0
 			loop_start
 				vp_cpy [r0], r2
-				vp_cpy r5, [r2 + ml_mailbox_tcb]
+				vp_cpy r5, [r2 + mailbox_tcb]
 				vp_add 8, r0
 			loop_until r0, ==, r1
 		loop_end
