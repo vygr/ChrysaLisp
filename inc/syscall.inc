@@ -86,7 +86,7 @@
 	s_ifdir				equ	0x4000
 	s_ifreg				equ	0x8000
 
-	stat_mode			equ	0x4
+	stat_mode			equ	0x8
 	stat_fsize			equ 0x48
 	stat_size			equ 0x100
 
