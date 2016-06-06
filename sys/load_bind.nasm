@@ -51,10 +51,13 @@
 			vp_ret
 		endif
 
+%ifidn OS, Darwin
+%elifidn OS, Linux
 		;test for regular file only
 		vp_cpy_us [r8 + ld_statics_stat_buffer + stat_mode], r0
 		vp_and s_ifmt, r0
 		vp_jmpif r0, !=, s_ifreg, exit
+%endif
 
 		;ensure space for new function
 		vp_cpy [r8 + ld_statics_block_start], r1
