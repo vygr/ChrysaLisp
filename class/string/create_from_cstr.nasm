@@ -12,21 +12,6 @@
 
 		;get size of string
 		s_call sys_string, length, {r0}, {r1}
-		vp_cpy r0, r6
-		vp_cpy r1, r7
-
-		;create new string object
-		s_call string, new, {&[r1 + string_size + 1]}, {r0}
-		if r0, !=, 0
-			;init the object
-			slot_function class, string
-			s_call string, init, {r0, @_function_, r6, r7}, {r1}
-			if r1, ==, 0
-				;error with init
-				m_call string, delete, {r0}, {}, r1
-				vp_xor r0, r0
-			endif
-		endif
-		vp_ret
+		s_jmp string, create_from_buffer, {r0, r1}, {r0}
 
 	fn_function_end
