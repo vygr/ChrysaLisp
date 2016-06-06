@@ -82,6 +82,10 @@
 	s_isgid				equ	0x400
 	s_isvtx				equ	0x200
 
+	s_ifmt				equ	0xf000
+	s_ifdir				equ	0x4000
+	s_ifreg				equ	0x8000
+
 	stat_fsize			equ 0x48
 	stat_size			equ 0x100
 
@@ -317,6 +321,10 @@
 	s_isuid				equ	0x800
 	s_isgid				equ	0x400
 	s_isvtx				equ	0x200
+
+	s_ifmt				equ	0xf000
+	s_ifdir				equ	0x4000
+	s_ifreg				equ	0x8000
 
 	stat_fsize			equ	0x30
 	stat_size			equ 0x100

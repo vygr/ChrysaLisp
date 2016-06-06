@@ -8,18 +8,18 @@
 #include <sys/stat.h>
 
 int main() {
-	printf("\tsys_exit\tequ\t0x%x\n", sys_exit);
-	printf("\tsys_read\tequ\t0x%x\n", sys_read);
-	printf("\tsys_write\tequ\t0x%x\n", sys_write);
-	printf("\tsys_open\tequ\t0x%x\n", sys_open);
-	printf("\tsys_close\tequ\t0x%x\n", sys_close);
-	printf("\tsys_unlink\tequ\t0x%x\n", sys_unlink);
-	printf("\tsys_ftruncate\tequ\t0x%x\n", sys_ftruncate);
-	printf("\tsys_stat\tequ\t0x%x\n", sys_stat);
-	printf("\tsys_mmap\tequ\t0x%x\n", sys_mmap);
-	printf("\tsys_munmap\tequ\t0x%x\n", sys_munmap);
-	printf("\tsys_mprotect\tequ\t0x%x\n", sys_mprotect);
-	printf("\tsys_gettimeofday\tequ\t0x%x\n\n", sys_gettimeofday);
+	printf("\tsys_exit\tequ\t0x%x\n", SYS_exit);
+	printf("\tsys_read\tequ\t0x%x\n", SYS_read);
+	printf("\tsys_write\tequ\t0x%x\n", SYS_write);
+	printf("\tsys_open\tequ\t0x%x\n", SYS_open);
+	printf("\tsys_close\tequ\t0x%x\n", SYS_close);
+	printf("\tsys_unlink\tequ\t0x%x\n", SYS_unlink);
+	printf("\tsys_ftruncate\tequ\t0x%x\n", SYS_ftruncate);
+	printf("\tsys_stat\tequ\t0x%x\n", SYS_stat);
+	printf("\tsys_mmap\tequ\t0x%x\n", SYS_mmap);
+	printf("\tsys_munmap\tequ\t0x%x\n", SYS_munmap);
+	printf("\tsys_mprotect\tequ\t0x%x\n", SYS_mprotect);
+	printf("\tsys_gettimeofday\tequ\t0x%x\n\n", SYS_gettimeofday);
 
 	printf("\tprot_none\tequ\t0x%x\n", PROT_NONE);
 	printf("\tprot_read\tequ\t0x%x\n", PROT_READ);
@@ -72,12 +72,12 @@ int main() {
 	printf("\tstat_atime\tequ\t0x%lx\n", offsetof(struct stat, st_atime));
 	printf("\tstat_mtime\tequ\t0x%lx\n", offsetof(struct stat, st_mtime));
 	printf("\tstat_ctime\tequ\t0x%lx\n", offsetof(struct stat, st_ctime));
-	printf("\tstat_btime\tequ\t0x%lx\n", offsetof(struct stat, st_birthtime));
+//	printf("\tstat_btime\tequ\t0x%lx\n", offsetof(struct stat, st_birthtime));
 	printf("\tstat_fsize\tequ\t0x%lx\n", offsetof(struct stat, st_size));
 	printf("\tstat_blocks\tequ\t0x%lx\n", offsetof(struct stat, st_blocks));
 	printf("\tstat_blksize\tequ\t0x%lx\n", offsetof(struct stat, st_blksize));
-	printf("\tstat_flags\tequ\t0x%lx\n", offsetof(struct stat, st_flags));
-	printf("\tstat_gen\tequ\t0x%lx\n", offsetof(struct stat, st_gen));
+//	printf("\tstat_flags\tequ\t0x%lx\n", offsetof(struct stat, st_flags));
+//	printf("\tstat_gen\tequ\t0x%lx\n", offsetof(struct stat, st_gen));
 	printf("\tstat_size\tequ\t0x%lx\n\n", sizeof(struct stat));
 
 	return 0;
