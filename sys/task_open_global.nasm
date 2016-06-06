@@ -47,13 +47,12 @@
 		loop_end
 
 		;wait for replys
-		assign {0}, {index}
-		loop_while {index != length}
+		loop_while {index != 0}
+			assign {index - 1}, {index}
 			static_call sys_mail, read, {&mailbox}, {msg}
 			assign {msg->kn_msg_reply_id.id_mbox}, {msg->kn_msg_user->id_mbox}
 			assign {msg->kn_msg_reply_id.id_cpu}, {msg->kn_msg_user->id_cpu}
 			static_call sys_mem, free, {msg}
-			assign {index + 1}, {index}
 		loop_end
 
 		;return ids array
