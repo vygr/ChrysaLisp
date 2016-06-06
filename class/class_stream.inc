@@ -14,8 +14,8 @@
 
 	def_structure stream, ref
 		ptr stream_object
-		ptr stream_bufp
-		ptr stream_bufe
+		pubyte stream_bufp
+		pubyte stream_bufe
 	def_structure_end
 
 %endif
