@@ -46,16 +46,21 @@
 		vp_lea [r8 + ld_statics_stat_buffer], r0
 		sys_stat r7, r0
 		if r0, !=, 0
+		exit:
 			vp_xor r0, r0
 			vp_ret
 		endif
+
+		;test for regular file only
+		vp_cpy_us [r8 + ld_statics_stat_buffer + stat_mode], r0
+		vp_and s_ifmt, r0
+		vp_jmpif r0, !=, s_ifreg, exit
 
 		;ensure space for new function
 		vp_cpy [r8 + ld_statics_block_start], r1
 		vp_cpy [r8 + ld_statics_block_end], r2
 		vp_sub r1, r2
-		vp_lea [r8 + ld_statics_stat_buffer], r0
-		vp_cpy [r0 + stat_fsize], r0
+		vp_cpy [r8 + ld_statics_stat_buffer + stat_fsize], r0
 		if r2, <, r0
 			;not enough so allocate new function buffer
 			sys_mmap 0, ld_block_size, prot_read|prot_write|prot_exec, map_private|map_anon, -1, 0
