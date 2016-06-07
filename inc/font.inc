@@ -27,7 +27,7 @@
 		ulong ft_font_ascent
 		ulong ft_font_descent
 		ulong ft_font_height
-		struct ft_font_name, null
+		offset ft_font_name
 	def_structure_end
 
 	def_structure ft_text
@@ -36,7 +36,7 @@
 		ulong ft_text_texture
 		ulong ft_text_width
 		ulong ft_text_height
-		struct ft_text_name, null
+		offset ft_text_name
 	def_structure_end
 
 	ft_num_buckets equ 61

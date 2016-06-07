@@ -45,7 +45,7 @@
 		ulong msg_parcel_size
 		ulong msg_parcel_total
 		ulong msg_parcel_frag
-		struct msg_header_size, null
+		offset msg_header_size
 		struct msg_data, mail_data
 	def_structure_end
 

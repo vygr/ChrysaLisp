@@ -18,7 +18,7 @@
 
 	def_structure string, ref
 		ulong string_length
-		struct string_data, null
+		offset string_data
 	def_structure_end
 
 %endif

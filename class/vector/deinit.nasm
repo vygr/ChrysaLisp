@@ -9,9 +9,11 @@
 
 		def_structure local
 			ptr local_inst
-			long local_next
-			long local_end
+			ptr local_next
+			ptr local_end
 		def_structure_end
+
+		fn_debug_str 'vector::deinit'
 
 		;save inputs
 		vp_sub local_size, r4
@@ -21,14 +23,17 @@
 
 		;deref elements
 		vp_cpy [r0 + vector_length], r1
+		fn_debug_long 'vector', r0
+		fn_debug_long 'length', r1
 		vp_cpy [r0 + vector_array], r0
+		fn_debug_long 'array', r0
 		vp_add r0, r1
 		vp_cpy r1, [r4 + local_end]
 		loop_while r0, !=, [r4 + local_end]
 			vp_cpy r0, [r4 + local_next]
 			s_call ref, deref, {[r0]}
 			vp_cpy [r4 + local_next], r0
-			vp_add long_size, r0
+			vp_add ptr_size, r0
 		loop_end
 
 		;free dynamic array

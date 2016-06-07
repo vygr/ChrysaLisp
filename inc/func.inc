@@ -26,7 +26,7 @@
 	def_structure kn_msg, msg_header
 		ulong kn_msg_user
 		struct kn_msg_reply_id, id
-		struct kn_msg_reply_size, null
+		offset kn_msg_reply_size
 		ulong kn_msg_function
 	def_structure_end
 
@@ -35,11 +35,11 @@
 	def_structure_end
 
 	def_structure kn_msg_open, kn_msg
-		struct kn_msg_open_pathname, null
+		offset kn_msg_open_pathname
 	def_structure_end
 
 	def_structure kn_msg_child, kn_msg
-		struct kn_msg_child_pathname, null
+		offset kn_msg_child_pathname
 	def_structure_end
 
 	def_structure kn_msg_link_route, kn_msg
@@ -57,7 +57,7 @@
 		int fn_header_entry
 		int fn_header_links
 		int fn_header_paths
-		struct fn_header_pathname, null
+		offset fn_header_pathname
 	def_structure_end
 
 ;;;;;;;;;;;;;

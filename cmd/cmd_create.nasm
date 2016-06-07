@@ -4,8 +4,6 @@
 %include 'class/class_stream.inc'
 %include 'class/class_vector.inc'
 
-%define debug_lines
-
 	fn_function cmd/cmd_create
 		;inputs
 		;r0 = pipe
@@ -25,8 +23,8 @@
 		ulong index
 		ptr msg
 		ptr string
-		ptr args
 		ptr commands
+		ptr args
 		ptr stream
 		pubyte start
 		ptr ids
@@ -36,7 +34,8 @@
 		retire {r0, r1, r2}, {pipe, buffer, length}
 
 		;split pipe into seperate commands and args
-		static_call stream, create, {0, 0, buffer, length}, {stream}
+;		static_call stream, create, {0, 0, buffer, length}, {stream}
+		static_call stream, create, {0, 0, "cmd/forth a b c | cmd/forth q w e | cmd/forth z y x", 51}, {stream}
 		static_call stream, split, {stream, pipe_char}, {args}
 		static_call stream, deref, {stream}
 
@@ -90,7 +89,19 @@
 		loop_end
 
 		;free ids and args
-;		static_call vector, deref, {args}
+		eval {args}, {r0}
+		fn_debug_long 'cmd args', r0
+		eval {args->ref_count}, {r0}
+		fn_debug_long 'cmd ref', r0
+		eval {args->vector_array}, {r0}
+		fn_debug_long 'cmd array', r0
+		eval {args->vector_length}, {r0}
+		fn_debug_long 'cmd length', r0
+
+		static_call vector, deref, {args}
+		eval {args}, {r0}
+		fn_call class/vector/deinit
+
 		static_call sys_mem, free, {ids}
 
 		;init seqnums

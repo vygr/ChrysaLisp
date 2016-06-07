@@ -289,6 +289,16 @@
 		%endif
 	%endmacro
 
+	%macro offset 1
+		;inputs
+		;%1 = var name
+		%ifdef _struct_
+			%1 equ _offset_
+		%else
+			%error Atempt to define offset into local stack
+		%endif
+	%endmacro
+
 	%macro ptr 1
 		;inputs
 		;%1 = var name

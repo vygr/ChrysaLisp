@@ -118,7 +118,7 @@
 	def_structure header
 		long header_link
 		ubyte header_nsize
-		struct header_name, null
+		offset header_name
 	def_structure_end
 
 	;format of header backwards from code entry point

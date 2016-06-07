@@ -14,7 +14,7 @@
 
 		;destroy if 0
 		if r1, ==, 0
-			s_call ref, destroy, {r0}
+			s_jmp ref, destroy, {r0}
 		endif
 		vp_ret
 

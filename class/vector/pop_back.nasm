@@ -11,7 +11,7 @@
 
 		vp_push r0
 		vp_cpy [r0 + vector_length], r1
-		vp_sub long_size, r1
+		vp_sub ptr_size, r1
 		vp_cpy r1, [r0 + vector_length]
 		s_call ref, deref, {[r0 + r1]}
 		vp_pop r0

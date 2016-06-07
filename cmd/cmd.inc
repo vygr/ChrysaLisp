@@ -16,12 +16,12 @@
 	def_structure cmd_mail_init, msg_header
 		struct cmd_mail_init_stdout_id, id
 		struct cmd_mail_init_stderr_id, id
-		struct cmd_mail_init_args, null
+		offset cmd_mail_init_args
 	def_structure_end
 
 	def_structure cmd_mail_stream, msg_header
 		ulong cmd_mail_stream_seqnum
-		struct cmd_mail_stream_data, null
+		offset cmd_mail_stream_data
 	def_structure_end
 
 	def_structure cmd_master

@@ -8,7 +8,6 @@
 		;all but r4
 
 		m_call obj, deinit, {r0}
-		m_call obj, delete, {r0}
-		vp_ret
+		m_jmp obj, delete, {r0}
 
 	fn_function_end

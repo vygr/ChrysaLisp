@@ -11,7 +11,7 @@
 		;r1-r3, r5-r8
 
 		def_structure local
-			long local_object
+			ptr local_object
 		def_structure_end
 
 		;save inputs

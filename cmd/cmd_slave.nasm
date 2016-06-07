@@ -27,7 +27,7 @@
 		;send back ack
 		assign {msg->cmd_mail_init_stderr_id.id_mbox}, {msg->msg_dest.id_mbox}
 		assign {msg->cmd_mail_init_stderr_id.id_cpu}, {msg->msg_dest.id_cpu}
-		assign {msg_data}, {msg->msg_length}
+		assign {msg_header_size}, {msg->msg_length}
 		static_call sys_mail, send, {msg}
 
 		;init seqnums

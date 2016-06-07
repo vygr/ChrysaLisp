@@ -11,7 +11,7 @@
 		;r1-r3, r5-r8
 
 		;do we allready have room ?
-		vp_mul long_size, r1
+		vp_mul ptr_size, r1
 		vp_cpy [r0 + vector_capacity], r2
 		if r1, >, r2
 			;grow the dynamic array
