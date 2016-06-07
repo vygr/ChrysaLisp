@@ -9,7 +9,7 @@
 		;r2-r3
 
 		vp_cpy [r0 + stream_bufp], r2
-		loop_while r2, ==, [r0 + stream_bufe]
+		loop_while r2, !=, [r0 + stream_bufe]
 			vp_cpy_ub [r2], r3
 			breakif r3, ==, r1
 			vp_inc r2

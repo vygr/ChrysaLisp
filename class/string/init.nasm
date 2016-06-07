@@ -5,8 +5,8 @@
 		;inputs
 		;r0 = string object
 		;r1 = vtable pointer
-		;r2 = c string pointer
-		;r3 = c string length
+		;r2 = buffer pointer
+		;r3 = buffer length
 		;outputs
 		;r1 = 0 if error, else ok
 
@@ -30,8 +30,9 @@
 			;init myself
 			vp_cpy [r4 + local_length], r2
 			vp_cpy r2, [r0 + string_length]
-			vp_inc r2
-			s_call sys_mem, copy, {[r4 + local_data], &[r0 + string_data], r2}, {_, _}
+			s_call sys_mem, copy, {[r4 + local_data], &[r0 + string_data], r2}, {_, r1}
+			vp_xor r0, r0
+			vp_cpy_ub r0, [r1]
 
 			vp_cpy [r4 + local_inst], r0
 		endif

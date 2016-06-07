@@ -6,26 +6,25 @@
 		;inputs
 		;r0 = stream object
 		;r1 = vtable pointer
-		;r2 = string object
+		;r2 = buffer object, 0 if none
+		;r3 = buffer pointer, 0 if none
+		;r5 = buffer start
+		;r6 = buffer length
 		;outputs
 		;r1 = 0 if error, else ok
 		;trashes
 		;all but r0, r4
 
 		;save inputs
-		set_src r2
-		set_dst [r0 + stream_object]
+		vp_add r5, r6
+		set_src r2, r3, r5, r6
+		set_dst [r0 + stream_object], [r0 + stream_buffer], [r0 + stream_bufp], [r0 + stream_bufe]
 		map_src_to_dst
 
 		;init parent
 		p_call stream, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			;init myself
-			vp_cpy [r0 + stream_object], r2
-			vp_lea [r2 + string_data], r1
-			vp_cpy r1, [r0 + stream_bufp]
-			vp_add [r2 + string_length], r1
-			vp_cpy r1, [r0 + stream_bufe]
 		endif
 		vp_ret
 

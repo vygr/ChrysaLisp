@@ -7,9 +7,16 @@
 		;trashes
 		;all but r0, r4
 
-		;deref object
+		;deref any buffer object
 		vp_push r0
-		s_call ref, deref, {[r0 + stream_object]}
+		vp_cpy [r0 + stream_object], r0
+		if r0, !=, 0
+			s_call ref, deref, {r0}
+		endif
+
+		;free any buffer
+		vp_cpy [r4], r0
+		s_call sys_mem, free, {[r0 + stream_buffer]}
 		vp_pop r0
 
 		;parent deinit

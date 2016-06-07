@@ -1,7 +1,8 @@
 %include 'inc/func.inc'
 %include 'class/class_string.inc'
 %include 'class/class_stream.inc'
-%include 'class/class_vector.inc'
+
+%define debug_lines
 
 	fn_function class/string/split
 		;inputs
@@ -14,31 +15,19 @@
 		;all but r0, r4
 
 		ptr inst
-		ptr stream
 		ptr splits
-		ptr string
-		pubyte start
-		ulong length
+		ptr stream
 		ubyte char
 
 		;save inputs
 		push_scope
 		retire {r0, r1}, {inst, char}
 
-		;create string stream and outout vector
-		static_call stream, create_from_string, {inst}, {stream}
-		static_call vector, create, {}, {splits}
+		;create string stream
+		static_call stream, create, {0, 0, &inst->string_data, inst->string_length}, {stream}
 
-		;fill vector with splits
-		loop_start
-			static_call stream, skip, {stream, char}
-			assign {stream->stream_bufp}, {start}
-			static_call stream, skip_not, {stream, char}
-			assign {stream->stream_bufe - start}, {length}
-			breakif {length == 0}
-			static_call string, create_from_buffer, {start, length}, {string}
-			static_call vector, push_back, {splits, string}
-		loop_end
+		;create string split
+		static_call stream, split, {stream, char}, {splits}
 		static_call stream, deref, {stream}
 
 		eval {inst, splits}, {r0, r1}

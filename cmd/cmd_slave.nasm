@@ -25,8 +25,8 @@
 		static_call sys_mem, copy, {&msg->cmd_mail_init_args, &pipe->cmd_slave_args, length}, {_, _}
 
 		;send back ack
-		assign {msg->cmd_mail_init_stdout_id.id_mbox}, {msg->msg_dest.id_mbox}
-		assign {msg->cmd_mail_init_stdout_id.id_cpu}, {msg->msg_dest.id_cpu}
+		assign {msg->cmd_mail_init_stderr_id.id_mbox}, {msg->msg_dest.id_mbox}
+		assign {msg->cmd_mail_init_stderr_id.id_cpu}, {msg->msg_dest.id_cpu}
 		assign {msg_data}, {msg->msg_length}
 		static_call sys_mail, send, {msg}
 

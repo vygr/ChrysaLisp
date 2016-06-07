@@ -1495,18 +1495,20 @@
 		%if _dst_total != _src_total
 			%fatal Mismatching number of src/dst paramaters !
 		%endif
-		reset_reg_stack
-		%rep _src_total
-			set_token_list _src_%[_s]
-			token_to_rpn
-			compile_rpn_list
-			pop_value
-			%assign _s _s + 1
-		%endrep
-		opt_inst_list
-		def_reg_stack %2
-		emit_inst_list {eval: %1 => %2}
-		undef_reg_stack
+		%if _dst_total != 0
+			reset_reg_stack
+			%rep _src_total
+				set_token_list _src_%[_s]
+				token_to_rpn
+				compile_rpn_list
+				pop_value
+				%assign _s _s + 1
+			%endrep
+			opt_inst_list
+			def_reg_stack %2
+			emit_inst_list {eval: %1 => %2}
+			undef_reg_stack
+		%endif
 	%endmacro
 
 	%macro retire 2
@@ -1516,18 +1518,23 @@
 			%fatal Mismatching number of src/dst paramaters !
 		%endif
 		map_remove_ignored
-		reset_reg_stack _src_total
-		%rep _dst_total
-			%assign %%s _s - 1
-			set_token_list _dst_%[%%s]
-			token_to_rpn
-			compile_rpn_list
-			compile_assign
-		%endrep
-		opt_inst_list
-		def_reg_stack %1
-		emit_inst_list {retire: %1 => %2}
-		undef_reg_stack
+		%if _dst_total != 0
+			reset_reg_stack _src_total
+			%rep _dst_total
+				%assign %%s _s - 1
+				set_token_list _dst_%[%%s]
+				token_to_rpn
+				compile_rpn_list
+				compile_assign
+			%endrep
+			opt_inst_list
+			def_reg_stack %1
+			emit_inst_list {retire: %1 => %2}
+			undef_reg_stack
+		%endif
+		%ifdef debug_lines
+			fn_debug_str 'done'
+		%endif
 	%endmacro
 
 	%macro assign 2
@@ -1553,6 +1560,9 @@
 		def_reg_stack
 		emit_inst_list {assign: %1 => %2}
 		undef_reg_stack
+		%ifdef debug_lines
+			fn_debug_str 'done'
+		%endif
 	%endmacro
 
 %endif
