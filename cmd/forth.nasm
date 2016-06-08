@@ -9,17 +9,18 @@
 		buffer_size equ 120
 
 		struct pipe, cmd_slave
-		struct buffer, buffer
 		ptr msg
 		ptr stream
 		ptr vector
 		ptr string
 		ulong length
+		pubyte charp
+		struct buffer, buffer
 
 		;init app vars
 		push_scope
 
-		;initialise pipe details and command args
+		;initialize pipe details and command args
 		static_call cmd, slave, {&pipe}
 
 		;set up input stream stack
@@ -40,7 +41,9 @@
 				if {length == 0}
 					static_call vector, pop_back, {vector}
 				else
-					local_call input, {&pipe, &buffer, length}, {r0, r1, r2}
+					assign {&buffer + length}, {charp}
+					assign {10}, {*charp}
+					local_call input, {&pipe, &buffer, length + 1}, {r0, r1, r2}
 				endif
 				static_call stream, deref, {stream}
 			loop_end
@@ -69,6 +72,7 @@
 		pop_scope
 		vp_ret
 
+%if 0
 ;;;;;;;;;;
 ; forth vm
 ;;;;;;;;;;
@@ -364,5 +368,6 @@
 	defword "inline,", 0, word_inline_comma, word_call_comma
 		vp_ret
 	defword_end
+%endif
 
 	fn_function_end

@@ -4,7 +4,7 @@
 
 	fn_function cmd/cmd_master
 		;inputs
-		;r0 = pipe struct pointer
+		;r0 = pipe master object
 		;trashes
 		;all but r4
 

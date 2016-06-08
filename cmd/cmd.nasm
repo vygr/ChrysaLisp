@@ -13,7 +13,7 @@
 		buffer_size equ 120
 
 		def_structure shared
-			struct pipe, cmd_master
+			struct shared_pipe, cmd_master
 			ptr shared_panel
 			pubyte shared_bufp
 			struct shared_buffer, buffer
@@ -47,7 +47,7 @@
 		push_scope
 		slot_function class, obj
 		static_call obj, init, {&myapp, @_function_}, {_}
-		static_call cmd, master, {&shared.pipe}
+		static_call cmd, master, {&shared.shared_pipe}
 		assign {0}, {shared.shared_mode}
 
 		;create my window
@@ -97,8 +97,8 @@
 
 		;set up mailbox select array
 		static_call sys_task, mailbox, {}, {sel.sel_event, _}
-		assign {&shared.pipe.cmd_master_output_mailbox}, {sel.sel_stdout}
-		assign {&shared.pipe.cmd_master_error_mailbox}, {sel.sel_stderr}
+		assign {&shared.shared_pipe.cmd_master_output_mailbox}, {sel.sel_stdout}
+		assign {&shared.shared_pipe.cmd_master_error_mailbox}, {sel.sel_stderr}
 
 		;app event loop
 		loop_start
@@ -116,11 +116,11 @@
 				static_call sys_mem, free, {msg}
 			elseif {mailbox == sel.sel_stderr}
 				;output from stderr
-				static_call cmd, error, {&shared.pipe, &buffer, buffer_size}, {length}
+				static_call cmd, error, {&shared.shared_pipe, &buffer, buffer_size}, {length}
 				local_call pipe_output, {&shared, buffer, length}, {r0, r1, r2}
 			else
 				;output from stdout
-				static_call cmd, output, {&shared.pipe, &buffer, buffer_size}, {length}
+				static_call cmd, output, {&shared.shared_pipe, &buffer, buffer_size}, {length}
 				local_call pipe_output, {&shared, buffer, length}, {r0, r1, r2}
 			endif
 		loop_end
@@ -175,11 +175,11 @@
 			;what mode ?
 			if {shared->shared_mode == 0}
 				;create new pipe
-				static_call cmd, create, {&shared->pipe, &shared->shared_buffer, \
+				static_call cmd, create, {&shared->shared_pipe, &shared->shared_buffer, \
 				 			shared->shared_bufp - &shared->shared_buffer}, {shared->shared_mode}
 			else
 				;feed active pipe
-				static_call cmd, input, {&shared->pipe, &shared->shared_buffer, \
+				static_call cmd, input, {&shared->shared_pipe, &shared->shared_buffer, \
 							shared->shared_bufp + 1 - &shared->shared_buffer}
 			endif
 

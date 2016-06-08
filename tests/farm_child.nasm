@@ -20,9 +20,6 @@
 		static_call sys_math, random, {1000000}, {num}
 		static_call sys_task, sleep, {num + 1000000}
 
-		;print Hello and return
-		fn_debug_str 'Hello from farm worker !'
-
 		pop_scope
 		vp_ret
 

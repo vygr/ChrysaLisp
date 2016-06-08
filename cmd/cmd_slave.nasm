@@ -1,16 +1,19 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
+%include 'class/class_stream.inc'
 %include 'cmd/cmd.inc'
 
 	fn_function cmd/cmd_slave
 		;inputs
-		;r0 = pipe struct pointer
+		;r0 = pipe slave object
 		;trashes
 		;all but r4
 
+		const space_char, ' '
+
 		ptr pipe
+		ptr stream
 		ptr msg
-		ulong length
 
 		;read init args
 		push_scope
@@ -20,9 +23,9 @@
 		assign {msg->cmd_mail_init_stdout_id.id_cpu}, {pipe->cmd_slave_stdout_id.id_cpu}
 		assign {msg->cmd_mail_init_stderr_id.id_mbox}, {pipe->cmd_slave_stderr_id.id_mbox}
 		assign {msg->cmd_mail_init_stderr_id.id_cpu}, {pipe->cmd_slave_stderr_id.id_cpu}
-		assign {msg->msg_length - cmd_mail_init_size}, {length}
-		assign {length}, {pipe->cmd_slave_args_length}
-		static_call sys_mem, copy, {&msg->cmd_mail_init_args, &pipe->cmd_slave_args, length}, {_, _}
+		static_call stream, create, {0, 0, &msg->cmd_mail_init_args, msg->msg_length - cmd_mail_init_size}, {stream}
+		static_call stream, split, {stream, space_char}, {pipe->cmd_slave_args}
+		static_call stream, deref, {stream}
 
 		;send back ack
 		assign {msg->cmd_mail_init_stderr_id.id_mbox}, {msg->msg_dest.id_mbox}
@@ -30,10 +33,8 @@
 		assign {msg_header_size}, {msg->msg_length}
 		static_call sys_mail, send, {msg}
 
-		;init seqnums
+		;init seqnums and order lists
 		assign {0, 0}, {pipe->cmd_slave_stdout_seqnum, pipe->cmd_slave_stdin_seqnum}
-
-		;init order lists
 		static_call sys_list, init, {&pipe->cmd_slave_stdin_list}
 
 		pop_scope

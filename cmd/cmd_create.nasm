@@ -6,11 +6,11 @@
 
 	fn_function cmd/cmd_create
 		;inputs
-		;r0 = pipe
+		;r0 = pipe master object
 		;r1 = buffer
 		;r2 = length
 		;outputs
-		;r0 = 0 if failed, else succsess
+		;r0 = 0 if failed, else success
 		;trashes
 		;all but r4
 
@@ -33,7 +33,7 @@
 		push_scope
 		retire {r0, r1, r2}, {pipe, buffer, length}
 
-		;split pipe into seperate commands and args
+		;split pipe into separate commands and args
 ;		static_call stream, create, {0, 0, buffer, length}, {stream}
 		static_call stream, create, {0, 0, "cmd/forth a b c | cmd/forth q w e | cmd/forth z y x", 51}, {stream}
 		static_call stream, split, {stream, pipe_char}, {args}
@@ -59,7 +59,7 @@
 		static_call sys_task, open_pipe, {commands}, {ids}
 		static_call vector, deref, {commands}
 
-		;send args to pipe elements, wireing up id's as we go
+		;send args to pipe elements, wiring up id's as we go
 		assign {&pipe->cmd_master_output_mailbox}, {nextid.id_mbox}
 		static_call sys_cpu, id, {}, {nextid.id_cpu}
 		loop_while {index != 0}
@@ -89,19 +89,7 @@
 		loop_end
 
 		;free ids and args
-		eval {args}, {r0}
-		fn_debug_long 'cmd args', r0
-		eval {args->ref_count}, {r0}
-		fn_debug_long 'cmd ref', r0
-		eval {args->vector_array}, {r0}
-		fn_debug_long 'cmd array', r0
-		eval {args->vector_length}, {r0}
-		fn_debug_long 'cmd length', r0
-
 		static_call vector, deref, {args}
-		eval {args}, {r0}
-		fn_call class/vector/deinit
-
 		static_call sys_mem, free, {ids}
 
 		;init seqnums

@@ -3,7 +3,7 @@
 
 	fn_function cmd/cmd_stderr
 		;inputs
-		;r0 = pipe
+		;r0 = pipe slave object
 		;r1 = buffer
 		;r2 = length
 		;trashes

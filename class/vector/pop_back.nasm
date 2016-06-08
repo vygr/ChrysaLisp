@@ -13,6 +13,7 @@
 		vp_cpy [r0 + vector_length], r1
 		vp_sub ptr_size, r1
 		vp_cpy r1, [r0 + vector_length]
+		vp_cpy [r0 + vector_array], r0
 		s_call ref, deref, {[r0 + r1]}
 		vp_pop r0
 		vp_ret

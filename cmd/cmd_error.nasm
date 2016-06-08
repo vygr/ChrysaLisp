@@ -3,7 +3,7 @@
 
 	fn_function cmd/cmd_error
 		;inputs
-		;r0 = pipe
+		;r0 = pipe master object
 		;r1 = buffer
 		;r2 = buffer length
 		;outputs

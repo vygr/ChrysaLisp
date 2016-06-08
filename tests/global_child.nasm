@@ -21,9 +21,6 @@
 		static_call sys_mail, mymail, {}, {msg}
 		static_call sys_mem, free, {msg}
 
-		;print Hello and return
-		fn_debug_str 'Hello from global worker !'
-
 		pop_scope
 		vp_ret
 

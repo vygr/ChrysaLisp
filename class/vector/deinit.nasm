@@ -13,8 +13,6 @@
 			ptr local_end
 		def_structure_end
 
-		fn_debug_str 'vector::deinit'
-
 		;save inputs
 		vp_sub local_size, r4
 		set_src r0
@@ -23,10 +21,7 @@
 
 		;deref elements
 		vp_cpy [r0 + vector_length], r1
-		fn_debug_long 'vector', r0
-		fn_debug_long 'length', r1
 		vp_cpy [r0 + vector_array], r0
-		fn_debug_long 'array', r0
 		vp_add r0, r1
 		vp_cpy r1, [r4 + local_end]
 		loop_while r0, !=, [r4 + local_end]

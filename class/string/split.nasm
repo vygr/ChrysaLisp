@@ -2,8 +2,6 @@
 %include 'class/class_string.inc'
 %include 'class/class_stream.inc'
 
-%define debug_lines
-
 	fn_function class/string/split
 		;inputs
 		;r0 = string object
@@ -23,10 +21,8 @@
 		push_scope
 		retire {r0, r1}, {inst, char}
 
-		;create string stream
-		static_call stream, create, {0, 0, &inst->string_data, inst->string_length}, {stream}
-
 		;create string split
+		static_call stream, create, {0, 0, &inst->string_data, inst->string_length}, {stream}
 		static_call stream, split, {stream, char}, {splits}
 		static_call stream, deref, {stream}
 

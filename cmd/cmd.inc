@@ -33,16 +33,13 @@
 		ulong cmd_master_output_seqnum
 	def_structure_end
 
-	cmd_args_buffer_size equ 120
-
 	def_structure cmd_slave
 		struct cmd_slave_stdin_list, lh_list
 		struct cmd_slave_stdout_id, id
 		struct cmd_slave_stderr_id, id
 		ulong cmd_slave_stdout_seqnum
 		ulong cmd_slave_stdin_seqnum
-		ulong cmd_slave_args_length
-		struct cmd_slave_args, cmd_args_buffer
+		ptr cmd_slave_args
 	def_structure_end
 
 %endif
