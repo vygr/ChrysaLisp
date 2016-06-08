@@ -3,7 +3,7 @@
 
 	def_class cmd
 	def_method master, cmd/cmd_master, static, {r0}
-	def_method slave, cmd/cmd_slave, static, {r0}
+	def_method slave, cmd/cmd_slave, static, {r0}, {r0}
 	def_method create, cmd/cmd_create, static, {r0, r1, r2}, {r0}
 	def_method next_msg, cmd/cmd_next_msg, static, {r0, r1, r2}, {r0}
 	def_method input, cmd/cmd_input, static, {r0, r1, r2}

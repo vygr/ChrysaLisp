@@ -20,39 +20,39 @@
 		;init app vars
 		push_scope
 
-		;initialize pipe details and command args
-		static_call cmd, slave, {&pipe}
+		;initialize pipe details and command args, abort on error
+		static_call cmd, slave, {&pipe}, {length}
+		if {length != 0}
+			;set up input stream stack
+			static_call string, create_from_file, {"cmd/forth.f"}, {string}
+			static_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
+			static_call vector, create, {}, {vector}
+			static_call vector, push_back, {vector, stream}
 
-		;set up input stream stack
-		static_call string, create_from_file, {"cmd/forth.f"}, {string}
-		static_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
-		static_call vector, create, {}, {vector}
-		static_call vector, push_back, {vector, stream}
-
-		;app event loop
-		loop_start
-			;priority to stack input
-			;this allows forth to push include files on this input stack
+			;app event loop
 			loop_start
-				static_call vector, get_length, {vector}, {length}
-				breakif {length == 0}
-				static_call vector, get_back, {vector}, {stream}
-				static_call stream, read_line, {stream, &buffer, buffer_size}, {length}
-				if {length == 0}
-					static_call vector, pop_back, {vector}
-				else
-					assign {&buffer + length}, {charp}
-					assign {10}, {*charp}
-					local_call input, {&pipe, &buffer, length + 1}, {r0, r1, r2}
-				endif
-				static_call stream, deref, {stream}
+				;priority to stack input
+				;this allows forth to push include files on this input stack
+				loop_start
+					static_call vector, get_length, {vector}, {length}
+					breakif {length == 0}
+					static_call vector, get_back, {vector}, {stream}
+					static_call stream, read_line, {stream, &buffer, buffer_size}, {length}
+					if {length == 0}
+						static_call vector, pop_back, {vector}
+					else
+						assign {&buffer + length}, {charp}
+						assign {10}, {*charp}
+						local_call input, {&pipe, &buffer, length + 1}, {r0, r1, r2}
+					endif
+					static_call stream, deref, {stream}
+				loop_end
+
+				;read stdin
+				static_call cmd, stdin, {&pipe, &buffer, buffer_size}, {length}
+				local_call input, {&pipe, &buffer, length}, {r0, r1, r2}
 			loop_end
-
-			;read stdin
-			static_call cmd, stdin, {&pipe, &buffer, buffer_size}, {length}
-			local_call input, {&pipe, &buffer, length}, {r0, r1, r2}
-		loop_end
-
+		endif
 		pop_scope
 		vp_ret
 
