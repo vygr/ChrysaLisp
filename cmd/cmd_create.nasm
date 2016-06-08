@@ -29,13 +29,16 @@
 		pubyte start
 		ptr ids
 		struct nextid, id
+		struct mailbox, mailbox
 
+		;init vars
 		push_scope
 		retire {r0, r1, r2}, {pipe, buffer, length}
+		static_call sys_mail, mailbox, {&mailbox}
 
 		;split pipe into separate commands and args
 ;		static_call stream, create, {0, 0, buffer, length}, {stream}
-		static_call stream, create, {0, 0, "cmd/forth a b c | cmd/forth q w e | cmd/forth z y x", 51}, {stream}
+		static_call stream, create, {0, 0, "cmd/forth a b c | cmd/forth a b c | cmd/forth a b c | cmd/forth a b c | cmd/forth a b c | cmd/forth a b c | cmd/forth a b c | cmd/forth a b c | cmd/forth q w e | cmd/forth z y x", 177}, {stream}
 		static_call stream, split, {stream, pipe_char}, {args}
 		static_call stream, deref, {stream}
 
@@ -72,6 +75,8 @@
 			assign {nextid.id_cpu}, {msg->cmd_mail_init_stdout_id.id_cpu}
 			assign {&pipe->cmd_master_error_mailbox}, {msg->cmd_mail_init_stderr_id.id_mbox}
 			static_call sys_cpu, id, {}, {msg->cmd_mail_init_stderr_id.id_cpu}
+			assign {&mailbox}, {msg->cmd_mail_init_ack_id.id_mbox}
+			static_call sys_cpu, id, {}, {msg->cmd_mail_init_ack_id.id_cpu}
 			assign {ids[index * id_size].id_mbox}, {nextid.id_mbox}
 			assign {ids[index * id_size].id_cpu}, {nextid.id_cpu}
 			assign {nextid.id_mbox}, {msg->msg_dest.id_mbox}
@@ -83,7 +88,7 @@
 
 		;wait for all acks
 		loop_while {index != length}
-			static_call sys_mail, read, {&pipe->cmd_master_error_mailbox}, {msg}
+			static_call sys_mail, read, {&mailbox}, {msg}
 			static_call sys_mem, free, {msg}
 			assign {index + 1}, {index}
 		loop_end

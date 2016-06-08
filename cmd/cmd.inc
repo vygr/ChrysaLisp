@@ -16,6 +16,7 @@
 	def_structure cmd_mail_init, msg_header
 		struct cmd_mail_init_stdout_id, id
 		struct cmd_mail_init_stderr_id, id
+		struct cmd_mail_init_ack_id, id
 		offset cmd_mail_init_args
 	def_structure_end
 
