@@ -117,7 +117,12 @@
 			else
 				;output from stdout
 				static_call master, output, {shared.shared_master, &buffer, buffer_size}, {length}
-				local_call pipe_output, {&shared, buffer, length}, {r0, r1, r2}
+				if {!length}
+					;EOF
+					static_call master, stop, {shared.shared_master}
+				else
+					local_call pipe_output, {&shared, buffer, length}, {r0, r1, r2}
+				endif
 			endif
 		loop_end
 
@@ -181,10 +186,12 @@
 				static_call master, input, {shared->shared_master, &shared->shared_buffer, \
 							shared->shared_bufp + 1 - &shared->shared_buffer}
 			endif
-
-			;reset char pointer
 			assign {&shared->shared_buffer}, {shared->shared_bufp}
-		else
+		elseif {char == 27}
+			;esc
+			static_call master, stop, {shared->shared_master}
+			assign {&shared->shared_buffer}, {shared->shared_bufp}
+		elseif {char >= 32 && char < 127}
 			;next char
 			assign {shared->shared_bufp + 1}, {shared->shared_bufp}
 		endif
@@ -213,7 +220,7 @@
 			static_call string, create_from_cstr, {">"}, {string}
 			static_call label, set_text, {label, string}
 			static_call flow, dirty_all, {shared->shared_panel}
-		else
+		elseif {char >= 32 && char < 127}
 			;append char
 			static_call flow, get_last, {shared->shared_panel}, {label}
 			static_call string, create_from_cstr, {&char}, {string}
