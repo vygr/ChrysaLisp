@@ -5,13 +5,13 @@
 
 	fn_function class/string/create_from_file
 		;inputs
-		;r0 = filename pointer
+		;r0 = c string pointer
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
 		;r1-r3, r5-r7
 
-		;save string pointer
+		;save c string pointer
 		vp_cpy r0, r6
 
 		;get size of string from file size
