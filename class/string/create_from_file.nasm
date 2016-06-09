@@ -19,10 +19,16 @@
 		vp_add ld_statics_stat_buffer, r7
 		sys_stat r0, r7
 		if r0, !=, 0
+		exit:
 			;no such file
 			vp_xor r0, r0
 			vp_ret
 		endif
+
+		;test for regular file only
+		vp_cpy_us [r7 + stat_mode], r0
+		vp_and s_ifmt, r0
+		vp_jmpif r0, !=, s_ifreg, exit
 
 		;create new string object
 		vp_cpy [r7 + stat_fsize], r1

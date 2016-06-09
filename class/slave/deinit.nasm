@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_slave.inc'
 %include 'class/class_master.inc'
+%include 'class/class_vector.inc'
 
 	fn_function class/slave/deinit
 		;inputs
@@ -35,6 +36,9 @@
 		assign {inst->slave_stdout_id.id_cpu}, {msg->msg_dest.id_cpu}
 		assign {inst->slave_stdout_seqnum}, {msg->slave_mail_stream_seqnum}
 		static_call sys_mail, send, {msg}
+
+		;free args
+		static_call vector, deref, {inst->slave_args}
 
 		eval {inst}, {r0}
 		pop_scope

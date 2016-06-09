@@ -6,7 +6,7 @@
 		;r0 = stream object
 		;outputs
 		;r0 = stream object
-		;r1 = -1, else char read
+		;r1 = -1 for EOF, else char read
 		;trashes
 		;r2
 

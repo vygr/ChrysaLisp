@@ -10,6 +10,7 @@
 	def_method stdin, class/slave/stdin, static, {r0, r1, r2}, {r1}
 	def_method stdout, class/slave/stdout, static, {r0, r1, r2}
 	def_method stderr, class/slave/stderr, static, {r0, r1, r2}
+	def_method get_args, class/slave/get_args, static, {r0}, {r1}
 	def_method next_seq, class/slave/next_seq, static, {r0, r1, r2}, {r0}
 
 	def_method deinit, class/slave/deinit, override

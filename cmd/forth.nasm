@@ -8,6 +8,8 @@
 
 		buffer_size equ 120
 
+		const char_lf, 10
+
 		ptr slave
 		ptr msg
 		ptr stream
@@ -35,14 +37,15 @@
 				;this allows forth to push include files on this input stack
 				loop_start
 					static_call vector, get_length, {vector}, {length}
-					breakif {length == 0}
+					breakif {!length}
 					static_call vector, get_back, {vector}, {stream}
 					static_call stream, read_line, {stream, &buffer, buffer_size}, {length}
-					if {length == 0}
+					if {length == -1}
+						;EOF
 						static_call vector, pop_back, {vector}
 					else
 						assign {&buffer + length}, {charp}
-						assign {10}, {*charp}
+						assign {char_lf}, {*charp}
 						local_call input, {slave, &buffer, length + 1}, {r0, r1, r2}
 					endif
 					static_call stream, deref, {stream}
