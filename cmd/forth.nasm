@@ -2,13 +2,13 @@
 %include 'class/class_string.inc'
 %include 'class/class_stream.inc'
 %include 'class/class_vector.inc'
-%include 'cmd/cmd.inc'
+%include 'class/class_slave.inc'
 
 	fn_function cmd/forth
 
 		buffer_size equ 120
 
-		struct pipe, cmd_slave
+		ptr slave
 		ptr msg
 		ptr stream
 		ptr vector
@@ -21,8 +21,8 @@
 		push_scope
 
 		;initialize pipe details and command args, abort on error
-		static_call cmd, slave, {&pipe}, {length}
-		if {length != 0}
+		static_call slave, create, {}, {slave}
+		if {slave != 0}
 			;set up input stream stack
 			static_call string, create_from_file, {"cmd/forth.f"}, {string}
 			static_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
@@ -43,32 +43,37 @@
 					else
 						assign {&buffer + length}, {charp}
 						assign {10}, {*charp}
-						local_call input, {&pipe, &buffer, length + 1}, {r0, r1, r2}
+						local_call input, {slave, &buffer, length + 1}, {r0, r1, r2}
 					endif
 					static_call stream, deref, {stream}
 				loop_end
 
-				;read stdin
-				static_call cmd, stdin, {&pipe, &buffer, buffer_size}, {length}
-				local_call input, {&pipe, &buffer, length}, {r0, r1, r2}
+				;read stdin, exit if EOF
+				static_call slave, stdin, {slave, &buffer, buffer_size}, {length}
+				breakif {!length}
+				local_call input, {slave, &buffer, length}, {r0, r1, r2}
 			loop_end
+
+			;clean up
+			static_call vector, deref, {vector}
+			static_call slave, deref, {slave}
 		endif
 		pop_scope
 		vp_ret
 
 	input:
 		;inputs
-		;r0 = pipe
+		;r0 = slave
 		;r1 = buffer
 		;r2 = length
 
-		ptr pipe
+		ptr slave
 		ptr buffer
 		ulong length
 
 		push_scope
-		retire {r0, r1, r2}, {pipe, buffer, length}
-		static_call cmd, stdout, {pipe, buffer, length}
+		retire {r0, r1, r2}, {slave, buffer, length}
+		static_call slave, stdout, {slave, buffer, length}
 		pop_scope
 		vp_ret
 

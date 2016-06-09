@@ -1,11 +1,11 @@
 %include 'inc/func.inc'
-%include 'cmd/cmd.inc'
+%include 'class/class_slave.inc'
 
-	fn_function cmd/cmd_next_msg
+	fn_function class/slave/next_seq
 		;inputs
 		;r0 = list head
 		;r1 = 0, else new stream msg
-		;r2 = seqnum
+		;r2 = -1 or seqnum
 		;outputs
 		;r0 = 0, else next stream msg
 
@@ -16,7 +16,8 @@
 
 		;scan for seqnum
 		loop_list_forward r0, r0, r1
-		loop_until r2, ==, [r0 + cmd_mail_stream_seqnum]
+			breakif r2, ==, -1
+		loop_until r2, ==, [r0 + slave_mail_stream_seqnum]
 		if r1, ==, 0
 			;not found
 			vp_cpy r1, r0

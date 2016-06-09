@@ -398,6 +398,8 @@
 	def_method window, class/class_window
 	def_method progress, class/class_progress
 	def_method title, class/class_title
+	def_method slave, class/class_slave
+	def_method master, class/class_master
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction

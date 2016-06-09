@@ -1,23 +1,21 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 %include 'inc/string.inc'
-%include 'inc/list.inc'
 %include 'class/class_window.inc'
 %include 'class/class_flow.inc'
 %include 'class/class_label.inc'
 %include 'class/class_string.inc'
-%include 'cmd/cmd.inc'
+%include 'class/class_master.inc'
 
 	fn_function cmd/cmd
 
 		buffer_size equ 120
 
 		def_structure shared
-			struct shared_pipe, cmd_master
+			ptr shared_master
 			ptr shared_panel
 			pubyte shared_bufp
 			struct shared_buffer, buffer
-			ubyte shared_mode
 		def_structure_end
 
 		def_structure sel
@@ -47,8 +45,7 @@
 		push_scope
 		slot_function class, obj
 		static_call obj, init, {&myapp, @_function_}, {_}
-		static_call cmd, master, {&shared.shared_pipe}
-		assign {0}, {shared.shared_mode}
+		static_call master, create, {}, {shared.shared_master}
 
 		;create my window
 		static_call window, create, {}, {window}
@@ -97,8 +94,7 @@
 
 		;set up mailbox select array
 		static_call sys_task, mailbox, {}, {sel.sel_event, _}
-		assign {&shared.shared_pipe.cmd_master_output_mailbox}, {sel.sel_stdout}
-		assign {&shared.shared_pipe.cmd_master_error_mailbox}, {sel.sel_stderr}
+		static_call master, get_mailboxes, {shared.shared_master}, {sel.sel_stdout, sel.sel_stderr}
 
 		;app event loop
 		loop_start
@@ -116,16 +112,17 @@
 				static_call sys_mem, free, {msg}
 			elseif {mailbox == sel.sel_stderr}
 				;output from stderr
-				static_call cmd, error, {&shared.shared_pipe, &buffer, buffer_size}, {length}
+				static_call master, error, {shared.shared_master, &buffer, buffer_size}, {length}
 				local_call pipe_output, {&shared, buffer, length}, {r0, r1, r2}
 			else
 				;output from stdout
-				static_call cmd, output, {&shared.shared_pipe, &buffer, buffer_size}, {length}
+				static_call master, output, {shared.shared_master, &buffer, buffer_size}, {length}
 				local_call pipe_output, {&shared, buffer, length}, {r0, r1, r2}
 			endif
 		loop_end
 
-		;deref window
+		;clean up
+		static_call master, deref, {shared.shared_master}
 		static_call window, deref, {window}
 		method_call obj, deinit, {&myapp}
 		pop_scope
@@ -160,6 +157,7 @@
 		ptr shared
 		ptr msg
 		ubyte char
+		ubyte state
 
 		push_scope
 		retire {r0, r1}, {shared, char}
@@ -172,14 +170,15 @@
 
 		;send line ?
 		if {char == 10 || char == 13}
-			;what mode ?
-			if {shared->shared_mode == 0}
-				;create new pipe
-				static_call cmd, create, {&shared->shared_pipe, &shared->shared_buffer, \
-				 			shared->shared_bufp - &shared->shared_buffer}, {shared->shared_mode}
+			;what state ?
+			static_call master, get_state, {shared->shared_master}, {state}
+			if {state == master_state_stopped}
+				;start new pipe
+				static_call master, start, {shared->shared_master, &shared->shared_buffer, \
+				 			shared->shared_bufp - &shared->shared_buffer}
 			else
 				;feed active pipe
-				static_call cmd, input, {&shared->shared_pipe, &shared->shared_buffer, \
+				static_call master, input, {shared->shared_master, &shared->shared_buffer, \
 							shared->shared_bufp + 1 - &shared->shared_buffer}
 			endif
 

@@ -1,18 +1,18 @@
 Asm_Kernel
 ==========
 
-Assembler 64 bit OS. MIMD, multi cpu, multi threaded, multi core, multi user.
+Assembler 64 bit OS. MIMD, multi CPU, multi threaded, multi core, multi user.
 
 Runs on OSX or Linux. Could move to bare metal eventually but it's useful for
 now to run hosted while experimenting.
 
-Uses a virtual cpu instruction macro set to avoid use of x64 native
+Uses a virtual CPU instruction macro set to avoid use of x64 native
 instructions. It will eventually run on ARM Linux for machines such as Raspberry
 PI and BeagleBone with no source modification.
 
 Has function level dynamic binding and loading. Individual functions are loaded
 and bound on demand as tasks are created and distributed. Currently functions
-are loaded from the cpu file system on which the task finds itself, but these
+are loaded from the CPU file system on which the task finds itself, but these
 will eventually come from the server object that the task was created with and
 functions will be transported across the network as required. Functions are
 shared between all tasks that share the same server object, so only a single
@@ -43,49 +43,49 @@ desired. test/gui/gui3/app.nasm demonstrates the use and syntax of the language.
 Variables with nested scopes can be defined and used in expressions with the
 compiler taking care of register assignment and expression compilation. Quite an
 achievement considering it's all done with macros. :) Currently there is an
-elementary optimise pass, more will be done.
+elementary optimize pass, more will be done.
 
-Allows modelling of various network topologies with point to point links. Each
-cpu in the network is modelled as a separate host process, point to point links
-use shared memory to simulate cpu to cpu, point to point, bi directional
+Allows modeling of various network topologies with point to point links. Each
+CPU in the network is modeled as a separate host process, point to point links
+use shared memory to simulate CPU to CPU, point to point, bi directional
 connections. There is no global bus based networking on purpose.
 
 Network link routing tables are created on booting a link, and the process is
 distributed in nature, each link starts a flood fill that eventually reaches all
-the cpus and along the way has marked all the routes from one cpu to another.
-All shortest routes are found, messages going off cpu are assigned to a link as
+the CPU's and along the way has marked all the routes from one CPU to another.
+All shortest routes are found, messages going off CPU are assigned to a link as
 the link becomes free and multiple links can and do route messages over parallel
 routes simultaneously.
 
-The -run command line option launches tasks on booting that cpu, such as the
+The -run command line option launches tasks on booting that CPU, such as the
 test suit or experimental GUI (a work in progress, -run gui/gui).
 
-The -l command line option creates a link, currently up to 1000 cpu's are
+The -l command line option creates a link, currently up to 1000 CPU's are
 allowed but that is easy to adjust in the sys/link.nasm file and is due to the
-very simple link parameter parsing. The lower numbered cpu always comes first !
+very simple link parameter parsing. The lower numbered CPU always comes first !
 The shared memory link files are created in /tmp, so for example /tmp/000-001
-would be the link file for the link between cpu 000 and 001.
+would be the link file for the link between CPU 000 and 001.
 
-The -cpu command line option just labels the cpu with it's ID.
+The -CPU command line option just labels the CPU with it's ID.
 
 An example network viewed with ps looks like this for a 4x4 mesh network:
 
-./main -cpu 15 -l 011-015 -l 003-015 -l 014-015 -l 012-015
-./main -cpu 14 -l 010-014 -l 002-014 -l 013-014 -l 014-015
-./main -cpu 13 -l 009-013 -l 001-013 -l 012-013 -l 013-014
-./main -cpu 12 -l 008-012 -l 000-012 -l 012-015 -l 012-013
-./main -cpu 11 -l 007-011 -l 011-015 -l 010-011 -l 008-011
-./main -cpu 10 -l 006-010 -l 010-014 -l 009-010 -l 010-011
-./main -cpu 9 -l 005-009 -l 009-013 -l 008-009 -l 009-010
-./main -cpu 8 -l 004-008 -l 008-012 -l 008-011 -l 008-009
-./main -cpu 7 -l 003-007 -l 007-011 -l 006-007 -l 004-007
-./main -cpu 6 -l 002-006 -l 006-010 -l 005-006 -l 006-007
-./main -cpu 5 -l 001-005 -l 005-009 -l 004-005 -l 005-006
-./main -cpu 4 -l 000-004 -l 004-008 -l 004-007 -l 004-005
-./main -cpu 3 -l 003-015 -l 003-007 -l 002-003 -l 000-003
-./main -cpu 2 -l 002-014 -l 002-006 -l 001-002 -l 002-003
-./main -cpu 1 -l 001-013 -l 001-005 -l 000-001 -l 001-002
-./main -cpu 0 -l 000-012 -l 000-004 -l 000-003 -l 000-001 -run gui/gui
+./main -CPU 15 -l 011-015 -l 003-015 -l 014-015 -l 012-015
+./main -CPU 14 -l 010-014 -l 002-014 -l 013-014 -l 014-015
+./main -CPU 13 -l 009-013 -l 001-013 -l 012-013 -l 013-014
+./main -CPU 12 -l 008-012 -l 000-012 -l 012-015 -l 012-013
+./main -CPU 11 -l 007-011 -l 011-015 -l 010-011 -l 008-011
+./main -CPU 10 -l 006-010 -l 010-014 -l 009-010 -l 010-011
+./main -CPU 9 -l 005-009 -l 009-013 -l 008-009 -l 009-010
+./main -CPU 8 -l 004-008 -l 008-012 -l 008-011 -l 008-009
+./main -CPU 7 -l 003-007 -l 007-011 -l 006-007 -l 004-007
+./main -CPU 6 -l 002-006 -l 006-010 -l 005-006 -l 006-007
+./main -CPU 5 -l 001-005 -l 005-009 -l 004-005 -l 005-006
+./main -CPU 4 -l 000-004 -l 004-008 -l 004-007 -l 004-005
+./main -CPU 3 -l 003-015 -l 003-007 -l 002-003 -l 000-003
+./main -CPU 2 -l 002-014 -l 002-006 -l 001-002 -l 002-003
+./main -CPU 1 -l 001-013 -l 001-005 -l 000-001 -l 001-002
+./main -CPU 0 -l 000-012 -l 000-004 -l 000-003 -l 000-001 -run gui/gui
 
 Make with:
 
@@ -98,31 +98,31 @@ Run with:
 
 ./run.sh <num_cpus>
 
-Fully connected network. Each cpu has links to every other cpu. Careful with
+Fully connected network. Each CPU has links to every other CPU. Careful with
 this as you can end up with a very large number of link files and shared memory
 regions.
 
 ./run_star.sh <num_cpus>
 
-Star connected network. Each cpu has a link to the first cpu.
+Star connected network. Each CPU has a link to the first CPU.
 
 ./run_ring.sh <num_cpus>
 
-Ring connected network. Each cpu has links to the next and previous cpus.
+Ring connected network. Each CPU has links to the next and previous cpus.
 
 ./run_tree.sh <num_cpus>
 
-Tree connected network. Each cpu has links to its parent cpu and up to two
+Tree connected network. Each CPU has links to its parent CPU and up to two
 child cpus.
 
 ./run_mesh.sh <num_cpus on a side>
 
-Mesh connected network. Each cpu has links to 4 adjacent cpus. This is similar
+Mesh connected network. Each CPU has links to 4 adjacent cpus. This is similar
 to Transputer meshes.
 
 ./run_cube.sh <num_cpus on a side>
 
-Cube connected network. Each cpu has links to 6 adjacent cpus. This is similar
+Cube connected network. Each CPU has links to 6 adjacent cpus. This is similar
 to TMS320C40 meshes.
 
 Stop with:
