@@ -1,22 +1,16 @@
 %include 'inc/func.inc'
 
+%define debug_emit
+
 	fn_function test
 
-		term_buffer_size equ 120
-
-		def_structure term
-			pubyte term_bufp
-			ptr term_panel
-			struct term_buf, term_buffer
-		def_structure_end
-
-		ptr terminal
-		ubyte char
-		ptr buf
+		ptr abc
+		ptr def
+		ptr xyz
+		ptr qwe
 
 		push_scope
-			assign {char}, {*terminal->term_bufp}
-			assign {*terminal->term_bufp}, {buf}
+			assign {abc, def}, {xyz, qwe}
 		pop_scope
 		vp_ret
 

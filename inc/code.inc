@@ -994,13 +994,17 @@
 
 	%macro emit_inst 1
 		;single point to emit the instruction stream
-		;%warning %1
+		%ifdef debug_emit
+			%warning %1
+		%endif
 		%1
 	%endmacro
 
 	%macro emit_info 1
 		;single point to emit the instruction stream info
-		;%warning %1
+		%ifdef debug_emit
+			%warning %1
+		%endif
 	%endmacro
 
 	%macro emit_copy 3
@@ -1569,6 +1573,7 @@
 			token_to_rpn
 			compile_rpn_list
 		%endrep
+		map_remove_ignored
 		%rep _dst_total
 			%assign %%s _s - 1
 			set_token_list _dst_%[%%s]
