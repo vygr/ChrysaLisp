@@ -17,7 +17,7 @@
 ; load structures
 ;;;;;;;;;;;;;;;;;
 
-	ld_block_size	equ 32768
+	ld_block_size	equ 64*1024
 	ld_page_size	equ 4096
 	ld_reloc_size	equ 2048
 	ld_name_size	equ 120
