@@ -18,8 +18,7 @@
 		push_scope
 		retire {r0, r1, r2}, {inst, buffer, length}
 
-		static_call sys_mail, alloc, {}, {msg}
-		assign {slave_mail_stream_size + length}, {msg->msg_length}
+		static_call sys_mail, alloc_parcel, {slave_mail_stream_size + length}, {msg}
 		assign {inst->master_input_id.id_mbox}, {msg->msg_dest.id_mbox}
 		assign {inst->master_input_id.id_cpu}, {msg->msg_dest.id_cpu}
 		assign {inst->master_input_seqnum}, {msg->slave_mail_stream_seqnum}

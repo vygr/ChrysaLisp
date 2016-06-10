@@ -124,6 +124,16 @@
 		continueifnot r0, !=, 0
 	%endmacro
 
+	%macro gotoif 2
+		eval {%1}, {r0}
+		vp_jmpif r0, !=, 0, %2
+	%endmacro
+
+	%macro gotoifnot 2
+		eval {%1}, {r0}
+		vp_jmpifnot r0, !=, 0, %2
+	%endmacro
+
 	%macro loop_start 0
 		switch
 	%endmacro
@@ -1174,10 +1184,10 @@
 	%endmacro
 
 	%macro compile_deref 0
-		%substr %%t _%[_s]_t 1, 1
-		%ifidn %%t, ''
-			%error Not a reference !
+		%ifidn _%[_s]_t, ''
+			%error No type info !
 		%endif
+		%substr %%t _%[_s]_t 1, 1
 		add_inst op_deref, _%[_s], _%[_s], %%t
 		%substr %%t _%[_s]_t 2, -1
 		%xdefine _%[_s]_t %%t
@@ -1192,10 +1202,10 @@
 	%macro compile_assign 0
 		%assign _s _s - 1
 		%assign %%s _s
-		%substr %%t _%[_s]_t 1, 1
-		%ifidn %%t, ''
-			%error Not a reference !
+		%ifidn _%[_s]_t, ''
+			%error No type info !
 		%endif
+		%substr %%t _%[_s]_t 1, 1
 		pop_value
 		add_inst op_assign, _%[_s], _%[%%s], %%t
 	%endmacro

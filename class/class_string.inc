@@ -13,6 +13,8 @@
 	def_method init2, class/string/init2, static, {r0, r1, r2, r3}, {r1}
 	def_method add, class/string/add, static, {r0, r1}, {r0}
 	def_method split, class/string/split, static, {r0, r1}, {r1}
+	def_method get_length, class/string/get_length, static, {r0}, {r1}
+	def_method compare, class/string/compare, static, {r0, r1}, {r1}
 
 	def_method hash, class/string/hash, override
 

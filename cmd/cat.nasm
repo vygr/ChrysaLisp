@@ -15,8 +15,7 @@
 		ulong argc
 		ulong index
 		ulong length
-		struct buffer1, buffer
-		struct buffer2, buffer
+		struct buffer, buffer
 
 		;init app vars
 		push_scope
@@ -32,20 +31,20 @@
 				assign {1}, {index}
 				loop_while {index != argc}
 					static_call vector, get_element, {args, index}, {arg}
-					local_call cat_string, {slave, arg, &buffer1}, {r0, r1, r2}
+					local_call cat_string, {slave, arg, &buffer}, {r0, r1, r2}
 					assign {index + 1}, {index}
 				loop_end
 			else
 				;names from stdin
 				loop_start
-					static_call slave, stdin, {slave, &buffer2, buffer_size - 1}, {length}
-					breakif {!length}
-					static_call stream, create, {0, 0, &buffer2, length}, {stream}
+					static_call slave, stdin, {slave}, {stream}
+					breakif {!stream}
 					loop_start
-						static_call stream, read_line, {stream, &buffer1, buffer_size - 1}, {length}
+						static_call stream, read_line, {stream, &buffer, buffer_size}, {length}
 						breakif {length == -1}
-						static_call string, create_from_buffer, {&buffer1, length}, {arg}
-						local_call cat_string, {slave, arg, &buffer1}, {r0, r1, r2}
+						continueif {!length}
+						static_call string, create_from_buffer, {&buffer, length}, {arg}
+						local_call cat_string, {slave, arg, &buffer}, {r0, r1, r2}
 					loop_end
 					static_call stream, deref, {stream}
 				loop_end
@@ -67,7 +66,7 @@
 		ptr slave
 		ptr arg
 		ptr buffer
-		ptr string
+		ptr file
 		ptr stream
 		pubyte charp
 		ulong length
@@ -75,10 +74,10 @@
 		push_scope
 		retire {r0, r1, r2}, {slave, arg, buffer}
 
-		static_call string, create_from_file, {&arg->string_data}, {string}
+		static_call string, create_from_file, {&arg->string_data}, {file}
 		static_call string, deref, {arg}
-		if {string}
-			static_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
+		if {file}
+			static_call stream, create, {file, 0, &file->string_data, file->string_length}, {stream}
 			loop_start
 				static_call stream, read_line, {stream, buffer, buffer_size - 1}, {length}
 				breakif {length == -1}

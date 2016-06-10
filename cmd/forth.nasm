@@ -6,18 +6,11 @@
 
 	fn_function cmd/forth
 
-		buffer_size equ 120
-
-		const char_lf, 10
-
 		ptr slave
-		ptr msg
 		ptr stream
 		ptr vector
 		ptr string
 		ulong length
-		pubyte charp
-		struct buffer, buffer
 
 		;init app vars
 		push_scope
@@ -39,22 +32,14 @@
 					static_call vector, get_length, {vector}, {length}
 					breakif {!length}
 					static_call vector, get_back, {vector}, {stream}
-					static_call stream, read_line, {stream, &buffer, buffer_size}, {length}
-					if {length == -1}
-						;EOF
-						static_call vector, pop_back, {vector}
-					else
-						assign {&buffer + length}, {charp}
-						assign {char_lf}, {*charp}
-						local_call input, {slave, &buffer, length + 1}, {r0, r1, r2}
-					endif
-					static_call stream, deref, {stream}
+					static_call vector, pop_back, {vector}
+					local_call input, {slave, stream}, {r0, r1}
 				loop_end
 
 				;read stdin, exit if EOF
-				static_call slave, stdin, {slave, &buffer, buffer_size}, {length}
-				breakif {!length}
-				local_call input, {slave, &buffer, length}, {r0, r1, r2}
+				static_call slave, stdin, {slave}, {stream}
+				breakif {!stream}
+				local_call input, {slave, stream}, {r0, r1}
 			loop_end
 
 			;clean up
@@ -67,16 +52,30 @@
 	input:
 		;inputs
 		;r0 = slave
-		;r1 = buffer
-		;r2 = length
+		;r1 = stream
+
+		buffer_size equ 120
+
+		const char_lf, 10
 
 		ptr slave
-		ptr buffer
+		ptr stream
+		pubyte charp
 		ulong length
+		struct buffer, buffer
 
 		push_scope
-		retire {r0, r1, r2}, {slave, buffer, length}
-		static_call slave, stdout, {slave, buffer, length}
+		retire {r0, r1}, {slave, stream}
+
+		loop_start
+			static_call stream, read_line, {stream, &buffer, buffer_size - 1}, {length}
+			breakif {length == -1}
+			assign {&buffer + length}, {charp}
+			assign {char_lf}, {*charp}
+			static_call slave, stdout, {slave, &buffer, length + 1}
+		loop_end
+		static_call stream, deref, {stream}
+
 		pop_scope
 		vp_ret
 

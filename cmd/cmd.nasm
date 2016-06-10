@@ -5,6 +5,8 @@
 %include 'class/class_flow.inc'
 %include 'class/class_label.inc'
 %include 'class/class_string.inc'
+%include 'class/class_vector.inc'
+%include 'class/class_stream.inc'
 %include 'class/class_master.inc'
 
 	fn_function cmd/cmd
@@ -14,6 +16,8 @@
 		def_structure shared
 			ptr shared_master
 			ptr shared_panel
+			ptr history
+			ulong history_index
 			pubyte shared_bufp
 			struct shared_buffer, buffer
 		def_structure_end
@@ -29,10 +33,10 @@
 		struct sel, sel
 		struct buffer, buffer
 		ptr msg
+		ptr stream
 		ptr window
 		ptr window_panel
 		ptr label
-		pubyte next
 		ptr string
 		ulong owner
 		ptr mailbox
@@ -46,6 +50,8 @@
 		slot_function class, obj
 		static_call obj, init, {&myapp, @_function_}, {_}
 		static_call master, create, {}, {shared.shared_master}
+		static_call vector, create, {}, {shared.history}
+		assign {0}, {shared.history_index}
 
 		;create my window
 		static_call window, create, {}, {window}
@@ -61,20 +67,16 @@
 		static_call flow, add_back, {shared.shared_panel, window_panel}
 
 		;add term lines to my app panel
-		assign {$line_list}, {next}
-		loop_start
-			breakifnot {*next}
-
+		assign {30}, {length}
+		loop_while {length}
+			assign {length - 1}, {length}
 			static_call label, create, {}, {label}
-			static_call string, create_from_cstr, {next}, {string}
+			static_call string, create_from_cstr, {">"}, {string}
 			static_call label, set_text, {label, string}
 			static_call label, set_color, {label, 0xff000000}
 			static_call label, set_text_color, {label, 0xff00ff00}
 			static_call label, set_font, {label, "fonts/OpenSans-Regular.ttf", 16}
 			static_call label, add_back, {label, shared.shared_panel}
-
-			static_call sys_string, length, {next}, {length}
-			assign {next + length + 1}, {next}
 		loop_end
 
 		;set to pref size
@@ -112,21 +114,23 @@
 				static_call sys_mem, free, {msg}
 			elseif {mailbox == sel.sel_stderr}
 				;output from stderr
-				static_call master, error, {shared.shared_master, &buffer, buffer_size}, {length}
-				local_call pipe_output, {&shared, buffer, length}, {r0, r1, r2}
+				static_call master, error, {shared.shared_master}, {stream}
+				breakif {!stream}
+				local_call pipe_output, {&shared, stream}, {r0, r1}
 			else
 				;output from stdout
-				static_call master, output, {shared.shared_master, &buffer, buffer_size}, {length}
-				if {!length}
+				static_call master, output, {shared.shared_master}, {stream}
+				if {!stream}
 					;EOF
 					static_call master, stop, {shared.shared_master}
 				else
-					local_call pipe_output, {&shared, buffer, length}, {r0, r1, r2}
+					local_call pipe_output, {&shared, stream}, {r0, r1}
 				endif
 			endif
 		loop_end
 
 		;clean up
+		static_call vector, deref, {shared.history}
 		static_call master, deref, {shared.shared_master}
 		static_call window, deref, {window}
 		method_call obj, deinit, {&myapp}
@@ -136,21 +140,23 @@
 	pipe_output:
 		;inputs
 		;r0 = shared
-		;r1 = buffer
-		;r2 = length
+		;r1 = stream
 
 		ptr shared
-		ptr buffer
+		ptr stream
 		ulong length
-		pubyte charp
+		ulong char
 
 		push_scope
-		retire {r0, r1, r2}, {shared, buffer, length}
-		assign {buffer}, {charp}
-		loop_while {charp != (buffer + length)}
-			local_call terminal_output, {shared, *charp}, {r0, r1}
-			assign {charp + 1}, {charp}
+		retire {r0, r1}, {shared, stream}
+
+		loop_start
+			static_call stream, read_char, {stream}, {char}
+			breakif {char == -1}
+			local_call terminal_output, {shared, char}, {r0, r1}
 		loop_end
+		static_call stream, deref, {stream}
+
 		pop_scope
 		vp_ret
 
@@ -160,7 +166,11 @@
 		;r1 = char input
 
 		ptr shared
-		ptr msg
+		ptr string
+		ptr last
+		ptr stream
+		ulong length
+		ulong same
 		ubyte char
 		ubyte state
 
@@ -172,21 +182,71 @@
 
 		;buffer char
 		assign {char}, {*shared->shared_bufp}
+		assign {shared->shared_bufp - &shared->shared_buffer}, {length}
 
 		;send line ?
 		if {char == 10 || char == 13}
 			;what state ?
 			static_call master, get_state, {shared->shared_master}, {state}
 			if {state == master_state_stopped}
+				;push new history entry if not same as last entry
+				breakif {!length}
+				static_call string, create_from_buffer, {&shared->shared_buffer, length}, {string}
+				static_call vector, get_length, {shared->history}, {shared->history_index}
+				if {!shared->history_index}
+				new_entry:
+					static_call vector, push_back, {shared->history, string}
+					static_call vector, get_length, {shared->history}, {shared->history_index}
+				else
+					static_call vector, get_back, {shared->history}, {last}
+					static_call string, compare, {string, last}, {same}
+					static_call string, deref, {last}
+					gotoifnot {same}, new_entry
+					static_call string, deref, {string}
+				endif
+
 				;start new pipe
-				static_call master, start, {shared->shared_master, &shared->shared_buffer, \
-				 			shared->shared_bufp - &shared->shared_buffer}
+				static_call master, start, {shared->shared_master, &shared->shared_buffer, length}
 			else
 				;feed active pipe
-				static_call master, input, {shared->shared_master, &shared->shared_buffer, \
-							shared->shared_bufp + 1 - &shared->shared_buffer}
+				static_call master, input, {shared->shared_master, &shared->shared_buffer, length + 1}
 			endif
 			assign {&shared->shared_buffer}, {shared->shared_bufp}
+		elseif {char == 128}
+			;backspace
+			if {length}
+				assign {shared->shared_bufp - 1}, {shared->shared_bufp}
+			endif
+		elseif {char == 129}
+			;cursor up
+			static_call vector, get_length, {shared->history}, {length}
+			breakif {!length}
+			if {shared->history_index}
+				assign {shared->history_index - 1}, {shared->history_index}
+			endif
+			static_call vector, get_element, {shared->history, shared->history_index}, {string}
+			static_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, \
+										{_, shared->shared_bufp}
+			assign {&shared->shared_buffer + string->string_length}, {shared->shared_bufp}
+			static_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
+			local_call pipe_output, {shared, stream}, {r0, r1}
+		elseif {char == 130}
+			;cursor down
+			static_call vector, get_length, {shared->history}, {length}
+			assign {shared->history_index + 1}, {shared->history_index}
+			if {shared->history_index > length}
+				assign {length}, {shared->history_index}
+			endif
+			if {shared->history_index == length}
+				static_call string, create_from_cstr, {""}, {string}
+			else
+				static_call vector, get_element, {shared->history, shared->history_index}, {string}
+			endif
+			static_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, \
+										{_, shared->shared_bufp}
+			assign {&shared->shared_buffer + string->string_length}, {shared->shared_bufp}
+			static_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
+			local_call pipe_output, {shared, stream}, {r0, r1}
 		elseif {char == 27}
 			;esc
 			static_call master, stop, {shared->shared_master}
@@ -208,6 +268,7 @@
 		ptr string
 		ptr line_string
 		ptr new_line_string
+		ulong length
 		ulong char
 
 		push_scope
@@ -217,6 +278,24 @@
 			static_call flow, get_first, {shared->shared_panel}, {label}
 			static_call label, add_back, {label, shared->shared_panel}
 			method_call flow, layout, {shared->shared_panel}
+			static_call string, create_from_cstr, {">"}, {string}
+			static_call label, set_text, {label, string}
+			static_call flow, dirty_all, {shared->shared_panel}
+		elseif {char == 128}
+			;backspace
+			static_call flow, get_last, {shared->shared_panel}, {label}
+			static_call label, get_text, {label}, {line_string}
+			static_call string, get_length, {line_string}, {length}
+			if {length > 1}
+				assign {length - 1}, {length}
+			endif
+			static_call string, create_from_buffer, {&line_string->string_data, length}, {new_line_string}
+			static_call string, deref, {line_string}
+			static_call label, set_text, {label, new_line_string}
+			static_call label, dirty, {label}
+		elseif {char == 129 || char == 130}
+			;cursor up/down
+			static_call flow, get_last, {shared->shared_panel}, {label}
 			static_call string, create_from_cstr, {">"}, {string}
 			static_call label, set_text, {label, string}
 			static_call flow, dirty_all, {shared->shared_panel}
@@ -233,14 +312,5 @@
 		endif
 		pop_scope
 		vp_ret
-
-	line_list:
-		%rep 27
-			db '>', 0
-		%endrep
-		db '>Terminal', 0
-		db '>(C) C.A.Hinsley 2016', 0
-		db '>', 0
-		db 0
 
 	fn_function_end

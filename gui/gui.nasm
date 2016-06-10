@@ -350,17 +350,17 @@
 		db 28, 'yY', 29, 'zZ', 30, '1!', 31, '2@', 32, '3#', 33, '4$', 34, '5%', 35, '6^'
 		db 36, '7&', 37, '8*', 38, '9(', 39, '0)', 45, '-_', 46, '=+', 47, '[{', 48, ']}'
 		db 49, '\|', 50, '  ', 51, ';:', 52, "'", '"', 53, '`~', 54, ',<', 55, '.>', 56, '/?'
-		db 40, 13, 13	;return
-		db 41, 27, 27	;escape
-		db 42, 128, 128	;backspace
-		db 43, 9, 9		;tab
-		db 44, 32, 32	;space
-		db 0xe1, 0, 0	;left shift
-		db 0xe5, 0, 0	;right shift
-		db 0x50, 0, 0	;left
-		db 0x4f, 0, 0	;right
-		db 0x52, 0, 0	;up
-		db 0x51, 0, 0	;down
+		db 40, 13, 13		;return
+		db 41, 27, 27		;escape
+		db 42, 128, 128		;backspace
+		db 43, 9, 9			;tab
+		db 44, 32, 32		;space
+		db 0xe1, 0, 0		;left shift
+		db 0xe5, 0, 0		;right shift
+		db 0x50, 0, 0		;left
+		db 0x4f, 0, 0		;right
+		db 0x52, 129, 129	;up
+		db 0x51, 130, 130	;down
 	scan_codes_end:
 
 	fn_function_end
