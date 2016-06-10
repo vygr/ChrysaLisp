@@ -1068,7 +1068,7 @@
 ;;;;;;;;;;;;;
 
 	%macro reset_reg_stack 0-1 0
-		;%1 reserved slots
+		;%1 = reserved slots
 		%assign _s 0
 		%rep %1
 			%defstr _%[_s]_t
@@ -1079,7 +1079,15 @@
 		%assign _i_total 0
 	%endmacro
 
-	%macro add_reg_stack 1
+	%macro res_reg_def 1
+		;%1 = 'rX'
+		%deftok _%[_r_total] %1
+		%defstr _%[_r_total]_t
+		%assign _r_total _r_total + 1
+	%endmacro
+
+	%macro add_reg_def 1
+		;%1 = rX
 		%assign %%n 0
 		%rep _r_total
 			%ifidn _%[%%n], %1
@@ -1094,31 +1102,25 @@
 		%endif
 	%endmacro
 
-	%macro def_reg_stack 0-*
-		%rep %0
-			%xdefine _%[_r_total] %1
-			%xdefine _%[_r_total]_t ''
-			%assign _r_total _r_total + 1
-			%rotate 1
-		%endrep
-		add_reg_stack r0
-		add_reg_stack r1
-		add_reg_stack r2
-		add_reg_stack r3
-		add_reg_stack r5
-		add_reg_stack r6
-		add_reg_stack r7
-		add_reg_stack r8
-		add_reg_stack r9
-		add_reg_stack r10
-		add_reg_stack r11
-		add_reg_stack r12
-		add_reg_stack r13
-		add_reg_stack r14
-		add_reg_stack r15
+	%macro fill_reg_def 0
+		add_reg_def r0
+		add_reg_def r1
+		add_reg_def r2
+		add_reg_def r3
+		add_reg_def r5
+		add_reg_def r6
+		add_reg_def r7
+		add_reg_def r8
+		add_reg_def r9
+		add_reg_def r10
+		add_reg_def r11
+		add_reg_def r12
+		add_reg_def r13
+		add_reg_def r14
+		add_reg_def r15
 	%endmacro
 
-	%macro undef_reg_stack 0
+	%macro undef_reg_def 0
 		%rep _r_total
 			%assign _r_total _r_total - 1
 			%undef _%[_r_total]
@@ -1519,6 +1521,7 @@
 		%if _dst_total != _src_total
 			%fatal Mismatching number of src/dst paramaters !
 		%endif
+		map_remove_ignored
 		%if _dst_total != 0
 			reset_reg_stack
 			%rep _src_total
@@ -1529,9 +1532,14 @@
 				%assign _s _s + 1
 			%endrep
 			opt_inst_list
-			def_reg_stack %2
+			%assign %%n 0
+			%rep _dst_total
+				res_reg_def _dst_%[%%n]
+				%assign %%n %%n + 1
+			%endrep
+			fill_reg_def
 			emit_inst_list {eval: %1 => %2}
-			undef_reg_stack
+			undef_reg_def
 		%endif
 	%endmacro
 
@@ -1552,9 +1560,14 @@
 				compile_assign
 			%endrep
 			opt_inst_list
-			def_reg_stack %1
+			%assign %%n 0
+			%rep _src_total
+				res_reg_def _src_%[%%n]
+				%assign %%n %%n + 1
+			%endrep
+			fill_reg_def
 			emit_inst_list {retire: %1 => %2}
-			undef_reg_stack
+			undef_reg_def
 		%endif
 		%ifdef debug_lines
 			fn_debug_str 'done'
@@ -1567,24 +1580,26 @@
 		%if _dst_total != _src_total
 			%fatal Mismatching number of src/dst paramaters !
 		%endif
-		reset_reg_stack
-		%rep _src_total
-			set_token_list _src_%[_s]
-			token_to_rpn
-			compile_rpn_list
-		%endrep
 		map_remove_ignored
-		%rep _dst_total
-			%assign %%s _s - 1
-			set_token_list _dst_%[%%s]
-			token_to_rpn
-			compile_rpn_list
-			compile_assign
-		%endrep
-		opt_inst_list
-		def_reg_stack
-		emit_inst_list {assign: %1 => %2}
-		undef_reg_stack
+		%if _dst_total != 0
+			reset_reg_stack
+			%rep _src_total
+				set_token_list _src_%[_s]
+				token_to_rpn
+				compile_rpn_list
+			%endrep
+			%rep _dst_total
+				%assign %%s _s - 1
+				set_token_list _dst_%[%%s]
+				token_to_rpn
+				compile_rpn_list
+				compile_assign
+			%endrep
+			opt_inst_list
+			fill_reg_def
+			emit_inst_list {assign: %1 => %2}
+			undef_reg_def
+		%endif
 		%ifdef debug_lines
 			fn_debug_str 'done'
 		%endif

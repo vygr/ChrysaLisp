@@ -227,7 +227,6 @@
 			static_call vector, get_element, {shared->history, shared->history_index}, {string}
 			static_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, \
 										{_, shared->shared_bufp}
-			assign {&shared->shared_buffer + string->string_length}, {shared->shared_bufp}
 			static_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
 			local_call pipe_output, {shared, stream}, {r0, r1}
 		elseif {char == 130}
@@ -244,7 +243,6 @@
 			endif
 			static_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, \
 										{_, shared->shared_bufp}
-			assign {&shared->shared_buffer + string->string_length}, {shared->shared_bufp}
 			static_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
 			local_call pipe_output, {shared, stream}, {r0, r1}
 		elseif {char == 27}
