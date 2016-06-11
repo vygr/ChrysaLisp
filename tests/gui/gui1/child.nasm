@@ -28,6 +28,6 @@
 		loop_end
 		static_call sys_mem, free, {msg}
 		pop_scope
-		vp_ret
+		return
 
 	fn_function_end

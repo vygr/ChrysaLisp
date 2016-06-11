@@ -3,6 +3,7 @@
 %include 'inc/font.inc'
 %include 'class/class_text.inc'
 %include 'class/class_string.inc'
+%include 'class/class_vector.inc'
 
 	fn_function class/text/draw
 		;inputs
@@ -11,34 +12,36 @@
 		;trashes
 		;all but r0, r4
 
-		def_structure local
-			ptr local_inst
-			ptr local_ctx
-		def_structure_end
+		ptr inst
+		ptr ctx
+		ptr txt
+		pptr words
+		ulong index
+		ulong length
+		long x
 
 		;save inputs
-		vp_sub local_size, r4
-		set_src r0, r1
-		set_dst [r4 + local_inst], [r4 + local_ctx]
-		map_src_to_dst
+		push_scope
+		retire {r0, r1}, {inst, ctx}
 
 		;draw text
-		vp_cpy [r0 + text_string], r1
-		if r1, !=, 0
-			vp_cpy [r0 + text_font], r0
-			if r0, !=, 0
-				vp_add string_data, r1
-				s_call gui_font, text, {r0, r1}, {r0}
-				if r0, !=, 0
-					vp_cpy [r4 + local_inst], r2
-					s_call gui_ctx, blit, {[r4 + local_ctx], [r0 + ft_text_texture], [r2 + text_text_color], \
-												0, 0, [r0 + ft_text_width], [r0 + ft_text_height]}
+		if {inst->text_string && inst->text_font}
+			assign {inst->text_words->vector_array}, {words}
+			static_call vector, get_length, {inst->text_words}, {length}
+			assign {0, 0}, {index, x}
+			loop_start
+				static_call gui_font, text, {inst->text_font, &words[index * ptr_size]->string_data}, {txt}
+				if {txt}
+					static_call gui_ctx, blit, {ctx, txt->ft_text_texture, inst->text_text_color, \
+												x, 0, txt->ft_text_width, txt->ft_text_height}
+					assign {x + txt->ft_text_width + (txt->ft_text_height >> 2)}, {x}
 				endif
-			endif
+				assign {index + 1}, {index}
+			loop_until {index == length}
 		endif
 
-		vp_cpy [r4 + local_inst], r0
-		vp_add local_size, r4
-		vp_ret
+		eval {inst}, {r0}
+		pop_scope
+		return
 
 	fn_function_end

@@ -89,7 +89,7 @@
 		static_call window, deref, {window}
 		method_call obj, deinit, {&myapp}
 		pop_scope
-		vp_ret
+		return
 
 	on_press:
 		;inputs
@@ -106,7 +106,7 @@
 		static_call sys_task, open, {string}, {_, _}
 		static_call string, deref, {string}
 		pop_scope
-		vp_ret
+		return
 
 	launch_list:
 		db 'tests/farm', 0

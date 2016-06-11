@@ -162,6 +162,6 @@
 		static_call window, deref, {window}
 
 		pop_scope
-		vp_ret
+		return
 
 	fn_function_end

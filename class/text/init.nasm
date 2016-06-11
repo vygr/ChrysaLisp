@@ -22,6 +22,7 @@
 			vp_xor r0, r0
 			vp_cpy r0, [r1 + text_string]
 			vp_cpy r0, [r1 + text_text_color]
+			vp_cpy r0, [r1 + text_words]
 
 			vp_pop r0
 		endif

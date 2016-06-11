@@ -39,6 +39,6 @@
 		static_call string, deref, {name}
 		static_call sys_mem, free, {ids}
 		pop_scope
-		vp_ret
+		return
 
 	fn_function_end

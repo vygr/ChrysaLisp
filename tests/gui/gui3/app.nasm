@@ -122,7 +122,7 @@
 		method_call obj, deinit, {&myapp}
 
 		pop_scope
-		vp_ret
+		return
 
 	on_press:
 		;inputs
@@ -218,7 +218,7 @@
 		static_call string, deref, {button_string}
 		static_call label, dirty, {inst->shared_display}
 		pop_scope
-		vp_ret
+		return
 
 	button_list:
 		db '7', 0

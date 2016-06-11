@@ -2,6 +2,7 @@
 %include 'inc/font.inc'
 %include 'class/class_text.inc'
 %include 'class/class_string.inc'
+%include 'class/class_vector.inc'
 
 	fn_function class/text/pref_size
 		;inputs
@@ -12,29 +13,34 @@
 		;trashes
 		;all but r0, r4
 
-		def_structure local
-			ptr local_inst
-		def_structure_end
+		ptr inst
+		pptr words
+		ulong index
+		ulong length
+		ulong width
+		ulong height
+		ulong word_w
 
 		;save inputs
-		vp_sub local_size, r4
-		set_src r0
-		set_dst [r4 + local_inst]
-		map_src_to_dst
+		push_scope
+		retire {r0}, {inst}
 
-		vp_cpy [r0 + text_string], r1
-		vp_xor r10, r10
-		vp_xor r11, r11
-		if r1, !=, 0
-			vp_cpy [r0 + text_font], r0
-			if r0, !=, 0
-				vp_add string_data, r1
-				s_call gui_font, bounds, {r0, r1}, {r10, r11}
-			endif
+		;bounds of text
+		assign {0, 0}, {width, height}
+		if {inst->text_string && inst->text_font}
+			assign {inst->text_words->vector_array}, {words}
+			static_call vector, get_length, {inst->text_words}, {length}
+			assign {0}, {index}
+			loop_start
+				static_call gui_font, bounds, {inst->text_font, &words[index * ptr_size]->string_data}, {word_w, height}
+				assign {width + word_w}, {width}
+				assign {index + 1}, {index}
+			loop_until {index == length}
+			assign {width + (length - 1) * (height >> 2)}, {width}
 		endif
 
-		vp_cpy [r4 + local_inst], r0
-		vp_add local_size, r4
-		vp_ret
+		eval {inst, width, height}, {r0, r10, r11}
+		pop_scope
+		return
 
 	fn_function_end

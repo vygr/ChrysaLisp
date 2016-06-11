@@ -20,6 +20,7 @@
 		ptr text_font
 		ptr text_string
 		ulong text_text_color
+		ptr text_words
 	def_structure_end
 
 %endif
