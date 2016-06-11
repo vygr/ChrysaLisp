@@ -53,6 +53,6 @@
 
 		eval {inst}, {r0}
 		pop_scope
-		vp_ret
+		return
 
 	fn_function_end

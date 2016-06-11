@@ -135,7 +135,7 @@
 		static_call window, deref, {window}
 		method_call obj, deinit, {&myapp}
 		pop_scope
-		vp_ret
+		return
 
 	pipe_output:
 		;inputs
@@ -158,7 +158,7 @@
 		static_call stream, deref, {stream}
 
 		pop_scope
-		vp_ret
+		return
 
 	terminal_input:
 		;inputs
@@ -254,7 +254,7 @@
 			assign {shared->shared_bufp + 1}, {shared->shared_bufp}
 		endif
 		pop_scope
-		vp_ret
+		return
 
 	terminal_output:
 		;inputs
@@ -309,6 +309,6 @@
 			static_call label, dirty, {label}
 		endif
 		pop_scope
-		vp_ret
+		return
 
 	fn_function_end

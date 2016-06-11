@@ -1,7 +1,5 @@
 %include 'inc/func.inc'
 
-%define debug_emit
-
 	fn_function test
 
 		ptr abc

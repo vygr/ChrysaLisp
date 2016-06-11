@@ -30,6 +30,6 @@
 
 		eval {inst, stream}, {r0, r1}
 		pop_scope
-		vp_ret
+		return
 
 	fn_function_end

@@ -47,7 +47,7 @@
 			static_call slave, deref, {slave}
 		endif
 		pop_scope
-		vp_ret
+		return
 
 	input:
 		;inputs
@@ -77,7 +77,7 @@
 		static_call stream, deref, {stream}
 
 		pop_scope
-		vp_ret
+		return
 
 %if 0
 ;;;;;;;;;;

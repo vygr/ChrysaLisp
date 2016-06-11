@@ -54,7 +54,7 @@
 			static_call slave, deref, {slave}
 		endif
 		pop_scope
-		vp_ret
+		return
 
 	cat_string:
 		;r0 = slave
@@ -90,6 +90,6 @@
 		endif
 
 		pop_scope
-		vp_ret
+		return
 
 	fn_function_end
