@@ -449,7 +449,9 @@
 		%assign _scope_var_%[_scope_sp] _var_sp
 		%assign _scope_sp _scope_sp + 1
 		%if _var_sp != 0
-			;%warning vp_sub _var_sp, r4
+			%ifdef debug_emit
+				%warning vp_sub _var_sp, r4
+			%endif
 			vp_sub _var_sp, r4
 			%assign _var_sp 0
 		%endif
@@ -460,7 +462,9 @@
 		%assign _sym_sp _scope_sym_%[_scope_sp]
 		%assign _var_sp _scope_var_%[_scope_sp]
 		%if _var_sp != 0
-			;%warning vp_add _var_sp, r4
+			%ifdef debug_emit
+				%warning vp_add _var_sp, r4
+			%endif
 			vp_add _var_sp, r4
 			%assign _var_sp 0
 		%endif
@@ -468,6 +472,24 @@
 		%if %%s != -1
 			%assign _sym_sp _scope_sym_%[%%s]
 		%endif
+	%endmacro
+
+	%macro unwind 0
+		get_scope_offset 0
+		%if _scope_offset != 0
+			%ifdef debug_emit
+				%warning vp_add _scope_offset, r4
+			%endif
+			vp_add _scope_offset, r4
+		%endif
+	%endmacro
+
+	%macro return 0
+		unwind
+		%ifdef debug_emit
+			%warning vp_ret
+		%endif
+		vp_ret
 	%endmacro
 
 	%macro get_scope_offset 1
