@@ -30,12 +30,13 @@
 			static_call vector, get_length, {inst->text_words}, {length}
 			assign {0, 0}, {index, x}
 			loop_start
-				static_call gui_font, text, {inst->text_font, &words[index * ptr_size]->string_data}, {txt}
+				static_call gui_font, text, {inst->text_font, &(*words)->string_data}, {txt}
 				if {txt}
 					static_call gui_ctx, blit, {ctx, txt->ft_text_texture, inst->text_text_color, \
 												x, 0, txt->ft_text_width, txt->ft_text_height}
 					assign {x + txt->ft_text_width + (txt->ft_text_height >> 2)}, {x}
 				endif
+				assign {words + ptr_size}, {words}
 				assign {index + 1}, {index}
 			loop_until {index == length}
 		endif

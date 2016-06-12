@@ -14,11 +14,11 @@
 		;all but r0, r4
 
 		ptr inst
+		ulong width
+		ulong height
 		pptr words
 		ulong index
 		ulong length
-		ulong width
-		ulong height
 		ulong word_w
 
 		;save inputs
@@ -32,7 +32,8 @@
 			static_call vector, get_length, {inst->text_words}, {length}
 			assign {0}, {index}
 			loop_start
-				static_call gui_font, bounds, {inst->text_font, &words[index * ptr_size]->string_data}, {word_w, height}
+				static_call gui_font, bounds, {inst->text_font, &(*words)->string_data}, {word_w, height}
+				assign {words + ptr_size}, {words}
 				assign {width + word_w}, {width}
 				assign {index + 1}, {index}
 			loop_until {index == length}

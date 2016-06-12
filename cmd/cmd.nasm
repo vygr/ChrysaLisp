@@ -196,7 +196,7 @@
 				if {!shared->history_index}
 				new_entry:
 					static_call vector, push_back, {shared->history, string}
-					static_call vector, get_length, {shared->history}, {shared->history_index}
+					assign {shared->history_index + 1}, {shared->history_index}
 				else
 					static_call vector, get_back, {shared->history}, {last}
 					static_call string, compare, {string, last}, {same}
