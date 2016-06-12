@@ -60,7 +60,7 @@
 			s_call sys_task, callback, {$update_callback, r4}
 
 			;frame rate of gui updates
-			s_call sys_task, sleep, {1000000 / 60}
+			s_call sys_task, sleep, {1000000 / 30}
 
 			;get keyboard info, see if any changes
 			vp_cpy [r4 + local_old_keymap], r1
