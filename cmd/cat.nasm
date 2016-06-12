@@ -37,7 +37,7 @@
 			else
 				;names from stdin
 				loop_start
-					static_call slave, stdin, {slave}, {stream}
+					static_call slave, stdin, {slave}, {stream, _}
 					breakif {!stream}
 					loop_start
 						static_call stream, read_line, {stream, &buffer, buffer_size}, {length}

@@ -14,7 +14,7 @@
 		push_scope
 		retire {r0}, {inst}
 		if {inst->master_state != master_state_stopped}
-			;send EOF
+			;send normal EOF
 			static_call master, input, {inst, 0, 0}
 
 			;send master EOF
@@ -34,8 +34,8 @@
 					breakif {msg}
 					static_call sys_mail, read, {&inst->master_output_mailbox}, {msg}
 				loop_end
-				assign {inst->master_output_seqnum + 1}, {inst->master_output_seqnum}
 				breakif {msg->slave_mail_stream_state == master_state_stopped}
+				assign {inst->master_output_seqnum + 1}, {inst->master_output_seqnum}
 				static_call sys_mem, free, {msg}
 			loop_end
 			static_call sys_mem, free, {msg}
