@@ -44,7 +44,7 @@
 		int width
 		int height
 		int char
-		ubyte more
+		ubyte ready
 
 		;init app vars
 		push_scope
@@ -121,14 +121,15 @@
 			else
 				;output from stdout
 				loop_start
-					static_call master, output, {shared.shared_master}, {stream, more}
+					static_call master, output, {shared.shared_master}, {stream}
 					if {!stream}
 						;EOF
 						static_call master, stop, {shared.shared_master}
 					else
 						local_call pipe_output, {&shared, stream}, {r0, r1}
 					endif
-				loop_until {!more}
+					static_call master, output_ready, {shared.shared_master}, {ready}
+				loop_until {!ready}
 			endif
 		loop_end
 

@@ -9,7 +9,6 @@
 		;outputs
 		;r0 = master object
 		;r1 = 0 if EOF, else stream object
-		;r2 = 0 if empty seq list
 		;trashes
 		;all but r0, r4
 
@@ -36,7 +35,7 @@
 			assign {0}, {stream}
 		endif
 
-		eval {inst, stream, inst->master_output_list.lh_list_head->ln_node_succ}, {r0, r1, r2}
+		eval {inst, stream}, {r0, r1}
 		pop_scope
 		return
 

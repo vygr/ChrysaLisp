@@ -37,7 +37,7 @@
 				loop_end
 
 				;read stdin, exit if EOF
-				static_call slave, stdin, {slave}, {stream, _}
+				static_call slave, stdin, {slave}, {stream}
 				breakif {!stream}
 				local_call input, {slave, stream}, {r0, r1}
 			loop_end
