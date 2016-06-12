@@ -16,7 +16,7 @@
 		ptr ctx
 		ptr txt
 		pptr words
-		ulong index
+		pptr words_end
 		ulong length
 		long x
 
@@ -28,7 +28,8 @@
 		if {inst->text_string && inst->text_font}
 			assign {inst->text_words->vector_array}, {words}
 			static_call vector, get_length, {inst->text_words}, {length}
-			assign {0, 0}, {index, x}
+			assign {&words[length * ptr_size]}, {words_end}
+			assign {0}, {x}
 			loop_start
 				static_call gui_font, text, {inst->text_font, &(*words)->string_data}, {txt}
 				if {txt}
@@ -37,8 +38,7 @@
 					assign {x + txt->ft_text_width + (txt->ft_text_height >> 2)}, {x}
 				endif
 				assign {words + ptr_size}, {words}
-				assign {index + 1}, {index}
-			loop_until {index == length}
+			loop_until {words == words_end}
 		endif
 
 		eval {inst}, {r0}
