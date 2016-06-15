@@ -66,26 +66,26 @@ very simple link parameter parsing. The lower numbered CPU always comes first !
 The shared memory link files are created in /tmp, so for example /tmp/000-001
 would be the link file for the link between CPU 000 and 001.
 
-The -CPU command line option just labels the CPU with it's ID.
+The -cpu command line option just labels the CPU with it's ID.
 
 An example network viewed with ps looks like this for a 4x4 mesh network:
 
-./main -CPU 15 -l 011-015 -l 003-015 -l 014-015 -l 012-015
-./main -CPU 14 -l 010-014 -l 002-014 -l 013-014 -l 014-015
-./main -CPU 13 -l 009-013 -l 001-013 -l 012-013 -l 013-014
-./main -CPU 12 -l 008-012 -l 000-012 -l 012-015 -l 012-013
-./main -CPU 11 -l 007-011 -l 011-015 -l 010-011 -l 008-011
-./main -CPU 10 -l 006-010 -l 010-014 -l 009-010 -l 010-011
-./main -CPU 9 -l 005-009 -l 009-013 -l 008-009 -l 009-010
-./main -CPU 8 -l 004-008 -l 008-012 -l 008-011 -l 008-009
-./main -CPU 7 -l 003-007 -l 007-011 -l 006-007 -l 004-007
-./main -CPU 6 -l 002-006 -l 006-010 -l 005-006 -l 006-007
-./main -CPU 5 -l 001-005 -l 005-009 -l 004-005 -l 005-006
-./main -CPU 4 -l 000-004 -l 004-008 -l 004-007 -l 004-005
-./main -CPU 3 -l 003-015 -l 003-007 -l 002-003 -l 000-003
-./main -CPU 2 -l 002-014 -l 002-006 -l 001-002 -l 002-003
-./main -CPU 1 -l 001-013 -l 001-005 -l 000-001 -l 001-002
-./main -CPU 0 -l 000-012 -l 000-004 -l 000-003 -l 000-001 -run gui/gui
+./main -cpu 15 -l 011-015 -l 003-015 -l 014-015 -l 012-015
+./main -cpu 14 -l 010-014 -l 002-014 -l 013-014 -l 014-015
+./main -cpu 13 -l 009-013 -l 001-013 -l 012-013 -l 013-014
+./main -cpu 12 -l 008-012 -l 000-012 -l 012-015 -l 012-013
+./main -cpu 11 -l 007-011 -l 011-015 -l 010-011 -l 008-011
+./main -cpu 10 -l 006-010 -l 010-014 -l 009-010 -l 010-011
+./main -cpu 9 -l 005-009 -l 009-013 -l 008-009 -l 009-010
+./main -cpu 8 -l 004-008 -l 008-012 -l 008-011 -l 008-009
+./main -cpu 7 -l 003-007 -l 007-011 -l 006-007 -l 004-007
+./main -cpu 6 -l 002-006 -l 006-010 -l 005-006 -l 006-007
+./main -cpu 5 -l 001-005 -l 005-009 -l 004-005 -l 005-006
+./main -cpu 4 -l 000-004 -l 004-008 -l 004-007 -l 004-005
+./main -cpu 3 -l 003-015 -l 003-007 -l 002-003 -l 000-003
+./main -cpu 2 -l 002-014 -l 002-006 -l 001-002 -l 002-003
+./main -cpu 1 -l 001-013 -l 001-005 -l 000-001 -l 001-002
+./main -cpu 0 -l 000-012 -l 000-004 -l 000-003 -l 000-001 -run gui/gui
 
 Make with:
 
@@ -108,21 +108,21 @@ Star connected network. Each CPU has a link to the first CPU.
 
 ./run_ring.sh <num_cpus>
 
-Ring connected network. Each CPU has links to the next and previous cpus.
+Ring connected network. Each CPU has links to the next and previous CPU's.
 
 ./run_tree.sh <num_cpus>
 
 Tree connected network. Each CPU has links to its parent CPU and up to two
-child cpus.
+child CPU's.
 
 ./run_mesh.sh <num_cpus on a side>
 
-Mesh connected network. Each CPU has links to 4 adjacent cpus. This is similar
+Mesh connected network. Each CPU has links to 4 adjacent CPU's. This is similar
 to Transputer meshes.
 
 ./run_cube.sh <num_cpus on a side>
 
-Cube connected network. Each CPU has links to 6 adjacent cpus. This is similar
+Cube connected network. Each CPU has links to 6 adjacent CPU's. This is similar
 to TMS320C40 meshes.
 
 Stop with:
