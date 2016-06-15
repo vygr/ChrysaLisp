@@ -35,7 +35,7 @@
 		push_scope
 		retire {r0, r1, r2}, {inst, buffer, length}
 		if {inst->master_state != master_state_started}
-			;split inst into separate commands and args
+			;split pipe into separate commands and args
 			static_call stream, create, {0, 0, buffer, length}, {stream}
 			static_call stream, split, {stream, pipe_char}, {args}
 			static_call stream, deref, {stream}
@@ -106,7 +106,7 @@
 					;no error
 					assign {master_state_started}, {inst->master_state}
 				else
-					;send abort to any started inst elements
+					;send abort to any started pipe elements
 					loop_while {index != 0}
 						assign {index - 1}, {index}
 						continueif {ids[index * id_size].id_mbox == 0}
