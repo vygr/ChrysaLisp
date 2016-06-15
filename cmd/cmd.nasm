@@ -300,7 +300,7 @@
 			static_call flow, get_last, {shared->shared_panel}, {label}
 			static_call string, create_from_cstr, {">"}, {string}
 			static_call label, set_text, {label, string}
-			static_call flow, dirty_all, {shared->shared_panel}
+			static_call label, dirty, {label}
 		elseif {char >= 32 && char < 127}
 			;append char
 			static_call flow, get_last, {shared->shared_panel}, {label}
