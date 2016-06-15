@@ -48,6 +48,7 @@
 				static_call sys_list, init, {&inst->slave_stdin_list}
 			else
 				;abort
+				static_call sys_mail, send, {msg}
 				assign {0}, {error}
 			endif
 		endif
