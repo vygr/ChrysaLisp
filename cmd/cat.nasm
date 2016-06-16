@@ -39,7 +39,7 @@
 			else
 				;names from stdin
 				loop_start
-					static_call stream, read_line, {slave->slave_stdin, &buffer, buffer_size -1}, {length}
+					static_call stream, read_line, {slave->slave_stdin, &buffer, buffer_size}, {length}
 					breakif {length == -1}
 					static_call string, create_from_buffer, {&buffer, length}, {arg}
 					local_call cat_string, {slave, arg, &buffer}, {r0, r1, r2}
