@@ -1,5 +1,4 @@
 %include 'inc/func.inc'
-%include 'class/class_string.inc'
 %include 'class/class_stream.inc'
 
 	fn_function class/stream/init

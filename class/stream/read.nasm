@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	fn_function class/stream/read_line
+	fn_function class/stream/read
 		;inputs
 		;r0 = stream object
 		;r1 = buffer
@@ -30,16 +30,15 @@
 		assign {buffer, buffer + buffer_end}, {start, buffer_end}
 		loop_start
 			static_call stream, read_char, {inst}, {char}
-			continueif {char == 13}
-			breakif {char == 10 || char < 0}
+			breakif {char < 0}
 			assign {char}, {*buffer}
 			assign {buffer + 1}, {buffer}
 		loop_until {buffer == buffer_end}
 
-		if {buffer == start && char < 0}
-			eval {inst, char}, {r0, r1}
-		else
+		if {buffer != start}
 			eval {inst, buffer - start}, {r0, r1}
+		else
+			eval {inst, char}, {r0, r1}
 		endif
 		pop_scope
 		return

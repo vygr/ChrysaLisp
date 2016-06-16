@@ -1,12 +1,12 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	fn_function class/stream/read_char
+	fn_function class/stream/write_char
 		;inputs
 		;r0 = stream object
+		;r1 = char
 		;outputs
 		;r0 = stream object
-		;r1 = -1 for EOF, else char read
 		;trashes
 		;all but r0, r4
 
@@ -14,19 +14,18 @@
 		long char
 
 		push_scope
-		retire {r0}, {inst}
+		retire {r0, r1}, {inst, char}
 
 		switch
 		case {inst->stream_bufp == inst->stream_bufe}
-			method_call stream, read_next, {inst}
-			assign {-1}, {char}
+			method_call stream, write_next, {inst}
 			breakif {inst->stream_bufp == inst->stream_bufe}
 		default
-			assign {*inst->stream_bufp}, {char}
+			assign {char}, {*inst->stream_bufp}
 			assign {inst->stream_bufp + 1}, {inst->stream_bufp}
 		endswitch
 
-		eval {inst, char}, {r0, r1}
+		eval {inst}, {r0}
 		pop_scope
 		return
 
