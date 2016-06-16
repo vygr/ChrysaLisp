@@ -1,5 +1,5 @@
 %include 'inc/func.inc'
-%include 'class/class_stream.inc'
+%include 'class/class_stream_msg_out.inc'
 %include 'class/class_string.inc'
 %include 'class/class_vector.inc'
 %include 'class/class_master.inc'
@@ -34,7 +34,7 @@
 		;init vars
 		push_scope
 		retire {r0, r1, r2}, {inst, buffer, length}
-		if {inst->master_state != master_state_started}
+		if {inst->master_state != stream_mail_state_started}
 			;split pipe into separate commands and args
 			static_call stream, create, {0, 0, buffer, length}, {stream}
 			static_call stream, split, {stream, pipe_char}, {args}
@@ -104,7 +104,7 @@
 					assign {0, 0}, {inst->master_input_seqnum, inst->master_output_seqnum}
 
 					;no error
-					assign {master_state_started}, {inst->master_state}
+					assign {stream_mail_state_started}, {inst->master_state}
 				else
 					;send abort to any started pipe elements
 					loop_while {index != 0}

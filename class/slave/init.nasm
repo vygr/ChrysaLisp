@@ -1,5 +1,5 @@
 %include 'inc/func.inc'
-%include 'class/class_stream.inc'
+%include 'class/class_stream_msg_out.inc'
 %include 'class/class_slave.inc'
 
 	fn_function class/slave/init
@@ -29,11 +29,12 @@
 			;init myself
 			static_call sys_mail, mymail, {}, {msg}
 			if {msg->msg_length != msg_header_size}
-				assign {msg->slave_mail_init_stdout_id.id_mbox}, {inst->slave_stdout_id.id_mbox}
-				assign {msg->slave_mail_init_stdout_id.id_cpu}, {inst->slave_stdout_id.id_cpu}
-				assign {msg->slave_mail_init_stderr_id.id_mbox}, {inst->slave_stderr_id.id_mbox}
-				assign {msg->slave_mail_init_stderr_id.id_cpu}, {inst->slave_stderr_id.id_cpu}
-				static_call stream, create, {0, 0, &msg->slave_mail_init_args, msg->msg_length - slave_mail_init_size}, {stream}
+				static_call stream_msg_out, create, {msg->slave_mail_init_stdout_id.id_mbox, \
+													msg->slave_mail_init_stdout_id.id_cpu}, {inst->slave_stdout}
+				static_call stream_msg_out, create, {msg->slave_mail_init_stderr_id.id_mbox, \
+													msg->slave_mail_init_stderr_id.id_cpu}, {inst->slave_stderr}
+				static_call stream, create, {0, 0, &msg->slave_mail_init_args, \
+											msg->msg_length - slave_mail_init_size}, {stream}
 				static_call stream, split, {stream, space_char}, {inst->slave_args}
 				static_call stream, deref, {stream}
 
@@ -43,8 +44,7 @@
 				assign {msg_header_size}, {msg->msg_length}
 				static_call sys_mail, send, {msg}
 
-				;init seqnums and order lists
-				assign {0, 0}, {inst->slave_stdout_seqnum, inst->slave_stdin_seqnum}
+				;init order lists
 				static_call sys_list, init, {&inst->slave_stdin_list}
 			else
 				;abort

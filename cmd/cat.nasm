@@ -68,7 +68,6 @@
 		ptr buffer
 		ptr file
 		ptr stream
-		pubyte charp
 		ulong length
 
 		push_scope
@@ -79,11 +78,11 @@
 		if {file}
 			static_call stream, create, {file, 0, &file->string_data, file->string_length}, {stream}
 			loop_start
-				static_call stream, read_line, {stream, buffer, buffer_size - 1}, {length}
+				static_call stream, read_line, {stream, buffer, buffer_size}, {length}
 				breakif {length == -1}
-				assign {buffer + length}, {charp}
-				assign {char_lf}, {*charp}
-				static_call slave, stdout, {slave, buffer, length + 1}
+				static_call stream, write, {slave->slave_stdout, buffer, length}
+				static_call stream, write_char, {slave->slave_stdout, char_lf}
+				method_call stream, write_flush, {slave->slave_stdout}
 				static_call sys_task, yield
 			loop_end
 			static_call stream, deref, {stream}

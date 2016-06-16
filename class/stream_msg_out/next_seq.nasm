@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
-%include 'class/class_slave.inc'
+%include 'class/class_stream_msg_out.inc'
 
-	fn_function class/slave/next_seq
+	fn_function class/stream_msg_out/next_seq
 		;inputs
 		;r0 = list head
 		;r1 = 0, else new stream msg
@@ -17,7 +17,7 @@
 		;scan for seqnum
 		loop_list_forward r0, r0, r1
 			breakif r2, ==, -1
-		loop_until r2, ==, [r0 + slave_mail_stream_seqnum]
+		loop_until r2, ==, [r0 + stream_mail_seqnum]
 		if r1, ==, 0
 			;not found
 			vp_cpy r1, r0

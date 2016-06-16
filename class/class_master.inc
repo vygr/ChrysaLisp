@@ -28,9 +28,4 @@
 		ulong master_state
 	def_structure_end
 
-	def_enum
-		enum master_state_started
-		enum master_state_stopped
-	def_enum_end
-
 %endif

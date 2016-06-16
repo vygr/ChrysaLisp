@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_master.inc'
+%include 'class/class_stream_msg_out.inc'
 
 	fn_function class/master/init
 		;inputs
@@ -29,7 +30,7 @@
 			static_call sys_mail, mailbox, {&inst->master_error_mailbox}
 
 			;init state
-			assign {master_state_stopped}, {inst->master_state}
+			assign {stream_mail_state_stopped}, {inst->master_state}
 		endif
 
 		eval {inst, error}, {r0, r1}

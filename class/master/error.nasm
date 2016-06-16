@@ -1,7 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_master.inc'
-%include 'class/class_slave.inc'
-%include 'class/class_stream.inc'
+%include 'class/class_stream_msg_out.inc'
 
 	fn_function class/master/error
 		;inputs
@@ -21,7 +20,7 @@
 		retire {r0}, {inst}
 
 		static_call sys_mail, read, {&inst->master_error_mailbox}, {msg}
-		static_call stream, create, {0, msg, &msg->slave_mail_stream_data, msg->msg_length - slave_mail_stream_size}, {stream}
+		static_call stream, create, {0, msg, &msg->stream_mail_data, msg->msg_length - stream_mail_size}, {stream}
 		static_call stream, available, {stream}, {length}
 		if {!length}
 			static_call stream, deref, {stream}

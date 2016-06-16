@@ -60,7 +60,6 @@
 
 		ptr slave
 		ptr stream
-		pubyte charp
 		ulong length
 		struct buffer, buffer
 
@@ -68,11 +67,11 @@
 		retire {r0, r1}, {slave, stream}
 
 		loop_start
-			static_call stream, read_line, {stream, &buffer, buffer_size - 1}, {length}
+			static_call stream, read_line, {stream, &buffer, buffer_size}, {length}
 			breakif {length == -1}
-			assign {&buffer + length}, {charp}
-			assign {char_lf}, {*charp}
-			static_call slave, stdout, {slave, &buffer, length + 1}
+			static_call stream, write, {slave->slave_stdout, buffer, length}
+			static_call stream, write_char, {slave->slave_stdout, char_lf}
+			method_call stream, write_flush, {slave->slave_stdout}
 		loop_end
 		static_call stream, deref, {stream}
 

@@ -4,9 +4,10 @@
 %include 'class/class_stream.inc'
 
 	def_class stream_msg_out, stream
-	def_method create, class/stream_msg_out/create, static, {r0, r1, r2}, {r0}
+	def_method create, class/stream_msg_out/create, static, {r0, r1}, {r0}
 	def_method new, class/stream_msg_out/new, static, {}, {r0}
 	def_method init, class/stream_msg_out/init, static, {r0, r1, r2, r3}, {r1}
+	def_method next_seq, class/stream_msg_out/next_seq, static, {r0, r1, r2}, {r0}
 
 	def_method write_flush, class/stream_msg_out/write_flush, override
 	def_method write_next, class/stream_msg_out/write_next, override

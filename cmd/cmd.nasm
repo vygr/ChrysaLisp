@@ -6,7 +6,7 @@
 %include 'class/class_label.inc'
 %include 'class/class_string.inc'
 %include 'class/class_vector.inc'
-%include 'class/class_stream.inc'
+%include 'class/class_stream_msg_out.inc'
 %include 'class/class_master.inc'
 
 	fn_function cmd/cmd
@@ -192,7 +192,7 @@
 		if {char == 10 || char == 13}
 			;what state ?
 			static_call master, get_state, {shared->shared_master}, {state}
-			if {state == master_state_stopped}
+			if {state == stream_mail_state_stopped}
 				;push new history entry if not same as last entry
 				breakif {!length}
 				static_call string, create_from_buffer, {&shared->shared_buffer, length}, {string}
