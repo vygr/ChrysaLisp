@@ -78,7 +78,6 @@
 				breakif {length == -1}
 				static_call stream, write, {slave->slave_stdout, buffer, length}
 				static_call stream, write_char, {slave->slave_stdout, char_lf}
-				method_call stream, write_flush, {slave->slave_stdout}
 				static_call sys_task, yield
 			loop_end
 			static_call stream, deref, {stream}
