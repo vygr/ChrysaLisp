@@ -213,7 +213,8 @@
 				static_call master, start, {shared->shared_master, &shared->shared_buffer, length}
 			else
 				;feed active pipe
-				static_call master, input, {shared->shared_master, &shared->shared_buffer, length + 1}
+				static_call stream, write, {shared->shared_master->master_input, &shared->shared_buffer, length + 1}
+				method_call stream, write_flush, {shared->shared_master->master_input}
 			endif
 			assign {&shared->shared_buffer}, {shared->shared_bufp}
 		elseif {char == 128}

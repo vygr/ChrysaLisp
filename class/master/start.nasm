@@ -97,11 +97,12 @@
 						static_call sys_mail, read, {&mailbox}, {msg}
 						static_call sys_mem, free, {msg}
 					loop_end
-					assign {nextid.id_mbox}, {inst->master_input_id.id_mbox}
-					assign {nextid.id_cpu}, {inst->master_input_id.id_cpu}
+
+					;create input stream
+					static_call stream_msg_out, create, {nextid.id_mbox, nextid.id_cpu}, {inst->master_input}
 
 					;init seqnums
-					assign {0, 0}, {inst->master_input_seqnum, inst->master_output_seqnum}
+					assign {0}, {inst->master_output_seqnum}
 
 					;no error
 					assign {stream_mail_state_started}, {inst->master_state}

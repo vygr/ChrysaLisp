@@ -15,16 +15,15 @@
 		retire {r0}, {inst}
 		if {inst->master_state != stream_mail_state_stopped}
 			;send normal EOF
-			static_call master, input, {inst, 0, 0}
+			method_call stream_msg_out, write_next, {inst->master_input}
+			method_call stream_msg_out, write_next, {inst->master_input}
 
 			;send master EOF
-			static_call sys_mail, alloc, {}, {msg}
-			assign {stream_mail_size}, {msg->msg_length}
-			assign {inst->master_input_id.id_mbox}, {msg->msg_dest.id_mbox}
-			assign {inst->master_input_id.id_cpu}, {msg->msg_dest.id_cpu}
-			assign {inst->master_input_seqnum}, {msg->stream_mail_seqnum}
-			assign {stream_mail_state_stopped}, {msg->stream_mail_state}
-			static_call sys_mail, send, {msg}
+			assign {stream_mail_state_stopped}, {inst->master_input->stream_msg_out_state}
+			method_call stream_msg_out, write_flush, {inst->master_input}
+
+			;free input stream
+			static_call stream_msg_out, deref, {inst->master_input}
 
 			;wait for master EOF
 			loop_start
