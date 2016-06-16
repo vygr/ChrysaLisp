@@ -1,11 +1,13 @@
 %include 'inc/func.inc'
 %include 'class/class_stream_msg_out.inc'
+%include 'class/class_stream_msg_in.inc'
 %include 'class/class_slave.inc'
 
 	fn_function class/slave/init
 		;inputs
 		;r0 = slave object
 		;r1 = vtable pointer
+		;r2 = input mailbox
 		;outputs
 		;r1 = 0 if error, else ok
 		;trashes
@@ -15,13 +17,14 @@
 
 		ptr inst
 		ptr vtable
+		ptr mailbox
 		ptr stream
 		ptr msg
 		ulong error
 
 		;read init args
 		push_scope
-		retire {r0, r1}, {inst, vtable}
+		retire {r0, r1, r2}, {inst, vtable, mailbox}
 
 		;init parent
 		super_call slave, init, {inst, vtable}, {error}
@@ -29,10 +32,14 @@
 			;init myself
 			static_call sys_mail, mymail, {}, {msg}
 			if {msg->msg_length != msg_header_size}
+				;create stdin, stdout, stderr
+				static_call stream_msg_in, create, {mailbox}, {inst->slave_stdin}
 				static_call stream_msg_out, create, {msg->slave_mail_init_stdout_id.id_mbox, \
 													msg->slave_mail_init_stdout_id.id_cpu}, {inst->slave_stdout}
 				static_call stream_msg_out, create, {msg->slave_mail_init_stderr_id.id_mbox, \
 													msg->slave_mail_init_stderr_id.id_cpu}, {inst->slave_stderr}
+
+				;create args
 				static_call stream, create, {0, 0, &msg->slave_mail_init_args, \
 											msg->msg_length - slave_mail_init_size}, {stream}
 				static_call stream, split, {stream, space_char}, {inst->slave_args}
@@ -43,9 +50,6 @@
 				assign {msg->slave_mail_init_ack_id.id_cpu}, {msg->msg_dest.id_cpu}
 				assign {msg_header_size}, {msg->msg_length}
 				static_call sys_mail, send, {msg}
-
-				;init order lists
-				static_call sys_list, init, {&inst->slave_stdin_list}
 			else
 				;abort
 				static_call sys_mail, send, {msg}

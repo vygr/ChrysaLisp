@@ -6,17 +6,22 @@
 
 	fn_function cmd/forth
 
+		buffer_size equ 120
+
 		ptr slave
 		ptr stream
 		ptr vector
 		ptr string
+		ptr mailbox
 		ulong length
+		struct buffer, buffer
 
 		;init app vars
 		push_scope
 
 		;initialize pipe details and command args, abort on error
-		static_call slave, create, {}, {slave}
+		static_call sys_task, mailbox, {}, {mailbox, _}
+		static_call slave, create, {mailbox}, {slave}
 		if {slave != 0}
 			;set up input stream stack
 			static_call string, create_from_file, {"cmd/forth.f"}, {string}
@@ -33,13 +38,18 @@
 					breakif {!length}
 					static_call vector, get_back, {vector}, {stream}
 					static_call vector, pop_back, {vector}
-					local_call input, {slave, stream}, {r0, r1}
+					loop_start
+						static_call stream, read_line, {stream, &buffer, buffer_size}, {length}
+						breakif {length == -1}
+						local_call input, {slave, &buffer, length}, {r0, r1, r2}
+					loop_end
+					static_call stream, deref, {stream}
 				loop_end
 
 				;read stdin, exit if EOF
-				static_call slave, stdin, {slave}, {stream}
-				breakif {!stream}
-				local_call input, {slave, stream}, {r0, r1}
+				static_call stream, read_line, {slave->slave_stdin, &buffer, buffer_size}, {length}
+				breakif {length == -1}
+				local_call input, {slave, &buffer, length}, {r0, r1, r2}
 			loop_end
 
 			;clean up
@@ -52,28 +62,21 @@
 	input:
 		;inputs
 		;r0 = slave
-		;r1 = stream
-
-		buffer_size equ 120
+		;r1 = buffer
+		;r2 = length
 
 		const char_lf, 10
 
 		ptr slave
-		ptr stream
+		ptr buffer
 		ulong length
-		struct buffer, buffer
 
 		push_scope
-		retire {r0, r1}, {slave, stream}
+		retire {r0, r1, r2}, {slave, buffer, length}
 
-		loop_start
-			static_call stream, read_line, {stream, &buffer, buffer_size}, {length}
-			breakif {length == -1}
-			static_call stream, write, {slave->slave_stdout, buffer, length}
-			static_call stream, write_char, {slave->slave_stdout, char_lf}
-			method_call stream, write_flush, {slave->slave_stdout}
-		loop_end
-		static_call stream, deref, {stream}
+		static_call stream, write, {slave->slave_stdout, buffer, length}
+		static_call stream, write_char, {slave->slave_stdout, char_lf}
+		method_call stream, write_flush, {slave->slave_stdout}
 
 		pop_scope
 		return

@@ -16,16 +16,13 @@
 		push_scope
 		retire {r0}, {inst}
 
-		switch
-		case {inst->stream_bufp == inst->stream_bufe}
-			method_call stream, read_next, {inst}
-			assign {-1}, {char}
-			breakif {inst->stream_bufp == inst->stream_bufe}
-		default
-			assign {*inst->stream_bufp}, {char}
-			assign {inst->stream_bufp + 1}, {inst->stream_bufp}
-		endswitch
-
+		loop_while {inst->stream_bufp == inst->stream_bufe}
+			method_call stream, read_next, {inst}, {char}
+			gotoif {char == -1}, exit
+		loop_end
+		assign {*inst->stream_bufp}, {char}
+		assign {inst->stream_bufp + 1}, {inst->stream_bufp}
+	exit:
 		eval {inst, char}, {r0, r1}
 		pop_scope
 		return

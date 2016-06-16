@@ -15,13 +15,15 @@
 		ulong argc
 		ulong index
 		ulong length
+		ptr mailbox
 		struct buffer, buffer
 
 		;init app vars
 		push_scope
 
 		;initialize pipe details and command args, abort on error
-		static_call slave, create, {}, {slave}
+		static_call sys_task, mailbox, {}, {mailbox, _}
+		static_call slave, create, {mailbox}, {slave}
 		if {slave != 0}
 			;cat files to stdout, arg 1 is command name
 			static_call slave, get_args, {slave}, {args}
@@ -37,16 +39,10 @@
 			else
 				;names from stdin
 				loop_start
-					static_call slave, stdin, {slave}, {stream}
-					breakif {!stream}
-					loop_start
-						static_call stream, read_line, {stream, &buffer, buffer_size}, {length}
-						breakif {length == -1}
-						continueif {!length}
-						static_call string, create_from_buffer, {&buffer, length}, {arg}
-						local_call cat_string, {slave, arg, &buffer}, {r0, r1, r2}
-					loop_end
-					static_call stream, deref, {stream}
+					static_call stream, read_line, {slave->slave_stdin, &buffer, buffer_size -1}, {length}
+					breakif {length == -1}
+					static_call string, create_from_buffer, {&buffer, length}, {arg}
+					local_call cat_string, {slave, arg, &buffer}, {r0, r1, r2}
 				loop_end
 			endif
 

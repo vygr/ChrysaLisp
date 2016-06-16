@@ -26,6 +26,7 @@
 
 	def_enum
 		enum stream_mail_state_started
+		enum stream_mail_state_stopping
 		enum stream_mail_state_stopped
 	def_enum_end
 
