@@ -12,6 +12,7 @@
 	def_method get_state, class/master/get_state, static, {r0}, {r1}
 	def_method get_stream, class/master/get_stream, static, {r0, r1}, {r1}
 	def_method select, class/master/select, static, {r0, r1}, {r1}
+	def_method get_input, class/master/get_input, static, {r0}, {r1}
 
 	def_method deinit, class/master/deinit, override
 

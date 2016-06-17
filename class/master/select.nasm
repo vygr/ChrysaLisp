@@ -10,6 +10,8 @@
 		;outputs
 		;r0 = master object
 		;r1 = mailbox with mail
+		;trashes
+		;all but r0, r4
 
 		ptr inst
 		ptr mailbox

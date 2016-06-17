@@ -19,7 +19,7 @@
 		retire {r0}, {inst}
 		if {inst->master_state != stream_mail_state_stopped}
 			;flush remaining
-			assign {*inst->master_streams->vector_array}, {stream}
+			static_call master, get_input, {inst}, {stream}
 			method_call stream_msg_out, write_flush, {stream}
 
 			;send stopping

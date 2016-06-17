@@ -9,6 +9,8 @@
 		;outputs
 		;r0 = master object
 		;r1 = stream object
+		;trashes
+		;all but r0, r4
 
 		ptr inst
 		ptr mailbox

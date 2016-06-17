@@ -39,7 +39,6 @@
 		long state
 		int width
 		int height
-		int char
 
 		;init app vars
 		push_scope
@@ -106,13 +105,14 @@
 				endif
 				static_call sys_mem, free, {msg}
 			else
-				;output from pipe elements
+				;output from pipe a element
 				static_call master, get_stream, {shared.shared_master, mailbox}, {stream}
 				local_call pipe_output, {&shared, stream}, {r0, r1}, {r0}, {state}
 				if {state == -1}
 					static_call master, stop, {shared.shared_master}
 				endif
 			endif
+			static_call sys_task, yield
 		loop_end
 
 		;clean up
@@ -198,7 +198,7 @@
 				static_call master, start, {shared->shared_master, &shared->shared_buffer, length}
 			else
 				;feed active pipe
-				assign {*shared->shared_master->master_streams->vector_array}, {stream}
+				static_call master, get_input, {shared->shared_master}, {stream}
 				static_call stream, write, {stream, &shared->shared_buffer, length}
 				static_call stream, write_char, {stream, 10}
 				method_call stream, write_flush, {stream}
