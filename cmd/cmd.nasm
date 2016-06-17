@@ -7,6 +7,7 @@
 %include 'class/class_string.inc'
 %include 'class/class_vector.inc'
 %include 'class/class_stream_msg_out.inc'
+%include 'class/class_stream_msg_in.inc'
 %include 'class/class_master.inc'
 
 	fn_function cmd/cmd
@@ -41,10 +42,10 @@
 		ulong owner
 		ptr mailbox
 		ulong length
+		long state
 		int width
 		int height
 		int char
-		ubyte ready
 
 		;init app vars
 		push_scope
@@ -115,21 +116,13 @@
 				static_call sys_mem, free, {msg}
 			elseif {mailbox == sel.sel_stderr}
 				;output from stderr
-				static_call master, error, {shared.shared_master}, {stream}
-				breakif {!stream}
-				local_call pipe_output, {&shared, stream}, {r0, r1}
+				local_call pipe_output, {&shared, shared.shared_master->master_error}, {r0, r1}
 			else
 				;output from stdout
-				loop_start
-					static_call master, output, {shared.shared_master}, {stream}
-					if {!stream}
-						;EOF
-						static_call master, stop, {shared.shared_master}
-					else
-						local_call pipe_output, {&shared, stream}, {r0, r1}
-					endif
-					static_call master, output_ready, {shared.shared_master}, {ready}
-				loop_until {!ready}
+				local_call pipe_output, {&shared, shared.shared_master->master_output}, {r0, r1}, {r0}, {state}
+				if {state == -1}
+					static_call master, stop, {shared.shared_master}
+				endif
 			endif
 		loop_end
 
@@ -145,22 +138,25 @@
 		;inputs
 		;r0 = shared
 		;r1 = stream
+		;outputs
+		;r0 = -1 if EOF
 
 		ptr shared
 		ptr stream
-		ulong length
-		ulong char
+		long char
+		ulong ready
 
 		push_scope
 		retire {r0, r1}, {shared, stream}
 
 		loop_start
-			static_call stream, read_char, {stream}, {char}
+ 			static_call stream, read_char, {stream}, {char}
 			breakif {char == -1}
 			local_call terminal_output, {shared, char}, {r0, r1}
-		loop_end
-		static_call stream, deref, {stream}
+			method_call stream, read_ready, {stream}, {ready}
+		loop_until {!ready}
 
+		eval {char}, {r0}
 		pop_scope
 		return
 

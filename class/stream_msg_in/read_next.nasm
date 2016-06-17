@@ -18,11 +18,14 @@
 		push_scope
 		retire {r0}, {inst}
 
-		loop_while {inst->stream_msg_in_state == stream_mail_state_started}
+		;while not stopped state
+		loop_while {inst->stream_msg_in_state != stream_mail_state_stopped}
+			;free any current msg
 			if {inst->stream_buffer}
 				static_call sys_mem, free, {inst->stream_buffer}
 			endif
 
+			;read next in sequence
 			assign {0}, {msg}
 			loop_start
 				static_call stream_msg_out, next_seq, {&inst->stream_msg_in_list, msg, \
@@ -32,12 +35,16 @@
 			loop_end
 			assign {inst->stream_msg_in_seqnum + 1}, {inst->stream_msg_in_seqnum}
 
+			;save msg buffer details
 			assign {msg}, {inst->stream_buffer}
 			assign {&msg->stream_mail_data}, {inst->stream_bufp}
 			assign {&(msg + msg->msg_length)}, {inst->stream_bufe}
 			assign {msg->stream_mail_state}, {inst->stream_msg_in_state}
+
+			breakif {inst->stream_msg_in_state != stream_mail_state_started}
 		loop_until {inst->stream_bufp != inst->stream_bufe}
 
+		;return -1 if not in started state
 		eval {inst, (inst->stream_msg_in_state == stream_mail_state_started) - 1}, {r0, r1}
 		pop_scope
 		return

@@ -8,6 +8,7 @@
 	def_method new, class/stream_msg_in/new, static, {}, {r0}
 	def_method init, class/stream_msg_in/init, static, {r0, r1, r2}, {r1}
 
+	def_method read_ready, class/stream_msg_in/read_ready, override
 	def_method read_next, class/stream_msg_in/read_next, override
 
 	def_structure stream_msg_in, stream

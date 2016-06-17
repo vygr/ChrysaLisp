@@ -22,9 +22,6 @@
 		;init parent
 		super_call master, init, {inst, vtable}, {error}
 		if {error != 0}
-			;init order lists
-			static_call sys_list, init, {&inst->master_output_list}
-
 			;init output and error mailboxes
 			static_call sys_mail, mailbox, {&inst->master_output_mailbox}
 			static_call sys_mail, mailbox, {&inst->master_error_mailbox}

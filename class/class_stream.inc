@@ -19,6 +19,7 @@
 
 	def_method deinit, class/stream/deinit, override
 
+	def_method read_ready, class/stream/read_ready, virtual, {r0}, {r1}
 	def_method read_next, class/stream/read_next, virtual, {r0}, {r1}
 	def_method write_next, class/stream/write_next, virtual, {r0}
 	def_method write_flush, class/stream/write_flush, virtual, {r0}

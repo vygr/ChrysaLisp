@@ -12,7 +12,6 @@
 
 		ptr inst
 		ptr msg
-		long state
 
 		push_scope
 		retire {r0}, {inst}
@@ -27,8 +26,8 @@
 
 		;wait for stopped
 		loop_start
-			method_call stream_msg_in, read_next, {inst->slave_stdin}, {state}
-		loop_until {state == -1}
+			method_call stream_msg_in, read_next, {inst->slave_stdin}, {_}
+		loop_until {inst->slave_stdin->stream_msg_in_state == stream_mail_state_stopped}
 
 		;send stopped
 		assign {stream_mail_state_stopped}, {inst->slave_stdout->stream_msg_out_state}

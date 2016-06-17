@@ -24,7 +24,8 @@
 			assign {inst->stream_msg_out_state}, {msg->stream_mail_state}
 			static_call sys_mail, send, {msg}
 			assign {inst->stream_msg_out_seqnum + 1}, {inst->stream_msg_out_seqnum}
-			assign {0, 0, 0}, {inst->stream_buffer, inst->stream_bufp, inst->stream_bufe}
+			assign {0}, {inst->stream_buffer}
+			super_call stream_msg_out, write_flush, {inst}
 		endif
 
 		eval {inst}, {r0}

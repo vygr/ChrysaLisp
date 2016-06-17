@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_stream_msg_out.inc'
+%include 'class/class_stream_msg_in.inc'
 %include 'class/class_string.inc'
 %include 'class/class_vector.inc'
 %include 'class/class_master.inc'
@@ -98,11 +99,10 @@
 						static_call sys_mem, free, {msg}
 					loop_end
 
-					;create input stream
+					;create input, output and error streams
 					static_call stream_msg_out, create, {nextid.id_mbox, nextid.id_cpu}, {inst->master_input}
-
-					;init seqnums
-					assign {0}, {inst->master_output_seqnum}
+					static_call stream_msg_in, create, {&inst->master_output_mailbox}, {inst->master_output}
+					static_call stream_msg_in, create, {&inst->master_error_mailbox}, {inst->master_error}
 
 					;no error
 					assign {stream_mail_state_started}, {inst->master_state}
