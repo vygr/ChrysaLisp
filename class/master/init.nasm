@@ -22,10 +22,6 @@
 		;init parent
 		super_call master, init, {inst, vtable}, {error}
 		if {error != 0}
-			;init output and error mailboxes
-			static_call sys_mail, mailbox, {&inst->master_output_mailbox}
-			static_call sys_mail, mailbox, {&inst->master_error_mailbox}
-
 			;init state
 			assign {stream_mail_state_stopped}, {inst->master_state}
 		endif

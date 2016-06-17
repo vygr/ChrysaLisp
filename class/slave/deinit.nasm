@@ -17,9 +17,10 @@
 		retire {r0}, {inst}
 
 		;flush remaining
+		method_call stream_msg_out, write_flush, {inst->slave_stderr}
 		method_call stream_msg_out, write_flush, {inst->slave_stdout}
 
-		;send stopping
+		;send stopping on stdout
 		assign {stream_mail_state_stopping}, {inst->slave_stdout->stream_msg_out_state}
 		method_call stream_msg_out, write_next, {inst->slave_stdout}
 		method_call stream_msg_out, write_flush, {inst->slave_stdout}
@@ -29,10 +30,13 @@
 			method_call stream_msg_in, read_next, {inst->slave_stdin}, {_}
 		loop_until {inst->slave_stdin->stream_msg_in_state == stream_mail_state_stopped}
 
-		;send stopped
+		;send stopped on stdout and stderr
 		assign {stream_mail_state_stopped}, {inst->slave_stdout->stream_msg_out_state}
+		assign {stream_mail_state_stopped}, {inst->slave_stderr->stream_msg_out_state}
 		method_call stream_msg_out, write_next, {inst->slave_stdout}
 		method_call stream_msg_out, write_flush, {inst->slave_stdout}
+		method_call stream_msg_out, write_next, {inst->slave_stderr}
+		method_call stream_msg_out, write_flush, {inst->slave_stderr}
 
 		;free stdin, stdout and stderr
 		static_call stream_msg_in, deref, {inst->slave_stdin}

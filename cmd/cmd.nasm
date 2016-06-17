@@ -23,15 +23,8 @@
 			struct shared_buffer, buffer
 		def_structure_end
 
-		def_structure sel
-			ptr sel_event
-			ptr sel_stdout
-			ptr sel_stderr
-		def_structure_end
-
 		struct myapp, obj
 		struct shared, shared
-		struct sel, sel
 		struct buffer, buffer
 		ptr msg
 		ptr stream
@@ -40,6 +33,7 @@
 		ptr label
 		ptr string
 		ulong owner
+		ptr mymailbox
 		ptr mailbox
 		ulong length
 		long state
@@ -96,17 +90,14 @@
 		;set up term buffer
 		assign {&shared.shared_buffer}, {shared.shared_bufp}
 
-		;set up mailbox select array
-		static_call sys_task, mailbox, {}, {sel.sel_event, _}
-		static_call master, get_mailboxes, {shared.shared_master}, {sel.sel_stdout, sel.sel_stderr}
-
 		;app event loop
+		static_call sys_task, mailbox, {}, {mymailbox, _}
 		loop_start
 			;select on multiple mailboxes
-			static_call sys_mail, select, {&sel, sel_size >> 3}, {mailbox}
+			static_call master, select, {shared.shared_master, mymailbox}, {mailbox}
 
 			;which mailbox has mail ?
-			if {mailbox == sel.sel_event}
+			if {mailbox == mymailbox}
 				;dispatch event to view and terminal
 				static_call sys_mail, read, {mailbox}, {msg}
 				method_call view, event, {msg->ev_msg_view, msg}
@@ -114,12 +105,10 @@
 					local_call terminal_input, {&shared, msg->ev_msg_key}, {r0, r1}
 				endif
 				static_call sys_mem, free, {msg}
-			elseif {mailbox == sel.sel_stderr}
-				;output from stderr
-				local_call pipe_output, {&shared, shared.shared_master->master_error}, {r0, r1}
 			else
-				;output from stdout
-				local_call pipe_output, {&shared, shared.shared_master->master_output}, {r0, r1}, {r0}, {state}
+				;output from pipe elements
+				static_call master, get_stream, {shared.shared_master, mailbox}, {stream}
+				local_call pipe_output, {&shared, stream}, {r0, r1}, {r0}, {state}
 				if {state == -1}
 					static_call master, stop, {shared.shared_master}
 				endif
@@ -209,9 +198,10 @@
 				static_call master, start, {shared->shared_master, &shared->shared_buffer, length}
 			else
 				;feed active pipe
-				static_call stream, write, {shared->shared_master->master_input, &shared->shared_buffer, length}
-				static_call stream, write_char, {shared->shared_master->master_input, 10}
-				method_call stream, write_flush, {shared->shared_master->master_input}
+				assign {*shared->shared_master->master_streams->vector_array}, {stream}
+				static_call stream, write, {stream, &shared->shared_buffer, length}
+				static_call stream, write_char, {stream, 10}
+				method_call stream, write_flush, {stream}
 			endif
 			assign {&shared->shared_buffer}, {shared->shared_bufp}
 		elseif {char == 128}
