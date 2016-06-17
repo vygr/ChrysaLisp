@@ -25,6 +25,13 @@ checked to ensure consistency across the class hierarchy. The GUI is constructed
 using this class system. A signals and slots system is provided for object
 composition.
 
+A command terminal with a familiar interface for pipe style command line
+applications is provided with args vector, stdin, stdout, stderr etc. Classes
+for easy construction of pipe masters and slaves, with arbitrary nesting of
+command line pipes. While this isn't the best way to create parallel
+applications it is very useful for the composition of tools and hides all the
+message passing behind a familiar streams based API.
+
 The interface to the system functions is provided as a set of static classes,
 easing use and removing the need to remember static function locations, plus
 decoupling the source from changes at the system level. Look in the inc/
@@ -43,10 +50,10 @@ desired. test/gui/gui3/app.nasm demonstrates the use and syntax of the language.
 Variables with nested scopes can be defined and used in expressions with the
 compiler taking care of register assignment and expression compilation. Quite an
 achievement considering it's all done with macros. :) Currently there is an
-elementary optimize pass, more will be done.
+elementary optimise pass, more will be done.
 
-Allows modeling of various network topologies with point to point links. Each
-CPU in the network is modeled as a separate host process, point to point links
+Allows modelling of various network topologies with point to point links. Each
+CPU in the network is modelled as a separate host process, point to point links
 use shared memory to simulate CPU to CPU, point to point, bi directional
 connections. There is no global bus based networking on purpose.
 
