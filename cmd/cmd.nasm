@@ -105,10 +105,11 @@
 				endif
 				static_call sys_mem, free, {msg}
 			else
-				;output from pipe a element
+				;output from a pipe element
 				static_call master, get_stream, {shared.shared_master, mailbox}, {stream}
 				local_call pipe_output, {&shared, stream}, {r0, r1}, {r0}, {state}
 				if {state == -1}
+					;EOF
 					static_call master, stop, {shared.shared_master}
 				endif
 			endif
