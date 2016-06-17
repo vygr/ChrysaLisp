@@ -45,6 +45,7 @@
 			if {length != 0}
 				;create command pipeline
 				static_call vector, create, {}, {commands}
+				static_call vector, set_capacity, {commands, length}
 				assign {0}, {index}
 				loop_while {index != length}
 					assign {(args->vector_array)[index * ptr_size]}, {string}
