@@ -46,7 +46,7 @@
 
 		;init app vars
 		push_scope
-		assign {0, mem_block_max_size * 32}, {max_tasks, max_memory}
+		assign {0, 1024 * 1024 * 4}, {max_tasks, max_memory}
 
 		;create my window
 		static_call window, create, {}, {window}
