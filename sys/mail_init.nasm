@@ -14,7 +14,7 @@
 		lh_init r0, r1
 
 		;init mail message heap
-		s_call sys_heap, init, {&[r7 + ml_statics_heap], (msg_size + 8), ((msg_size + 8) * 256)}
+		s_call sys_heap, init, {&[r7 + ml_statics_heap], (msg_size + ptr_size), ((msg_size + ptr_size) * 16)}
 
 		;init in and out postmen tasks
 		slot_function sys_mail, in
