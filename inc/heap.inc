@@ -14,7 +14,8 @@
 	def_method reset, sys/heap_reset, static, {r0}
 
 	mem_block_min_size	equ 0x000020
-	mem_block_max_size	equ 0x100000
+	mem_block_max_size	equ 0x800000
+	mem_block_blk_size	equ 16 * 1024
 
 	def_class sys_mem
 	def_method statics, sys/mem_statics
