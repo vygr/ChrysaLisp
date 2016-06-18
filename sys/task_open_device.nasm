@@ -22,7 +22,7 @@
 		retire {r0, r1}, {name, cpu}
 
 		;init temp mailbox
-		static_call sys_mail, mailbox, {&mailbox}
+		static_call sys_mail, init_mailbox, {&mailbox}
 
 		;start task
 		static_call sys_mail, alloc, {}, {msg}

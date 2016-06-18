@@ -87,7 +87,7 @@
 		static_call string, deref, {string}
 
 		;init task mailbox
-		static_call sys_mail, mailbox, {&task_mailbox}
+		static_call sys_mail, init_mailbox, {&task_mailbox}
 
 		;set up mailbox select array
 		static_call sys_task, mailbox, {}, {select.sel_select1, _}

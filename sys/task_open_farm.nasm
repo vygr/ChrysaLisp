@@ -28,7 +28,7 @@
 		static_call sys_mem, alloc, {length * id_size}, {ids, _}
 
 		;init temp mailbox
-		static_call sys_mail, mailbox, {&mailbox}
+		static_call sys_mail, init_mailbox, {&mailbox}
 
 		;start all tasks in parallel
 		static_call sys_cpu, id, {}, {cpu}

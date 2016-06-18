@@ -82,7 +82,7 @@
 					assign {0}, {index}
 					loop_while {index != (length + 2)}
 						assign {&(inst->master_mailbox_array)[index * mailbox_size]}, {mbox}
-						static_call sys_mail, mailbox, {mbox}
+						static_call sys_mail, init_mailbox, {mbox}
 						assign {mbox}, {(inst->master_select_array)[index * ptr_size]}
 						static_call stream_msg_in, create, {mbox}, {stream}
 						static_call vector, push_back, {inst->master_streams, stream}
@@ -90,7 +90,7 @@
 					loop_end
 
 					;send args to inst elements, wiring up id's as we go
-					static_call sys_mail, mailbox, {&mailbox}
+					static_call sys_mail, init_mailbox, {&mailbox}
 					assign {mbox}, {nextid.id_mbox}
 					static_call sys_cpu, id, {}, {nextid.id_cpu}
 					assign {index - 2}, {index}

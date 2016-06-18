@@ -15,7 +15,7 @@
 
 		ptr inst
 		ptr mailbox
-		ptr length
+		ulong length
 
 		push_scope
 		retire {r0, r1}, {inst, mailbox}

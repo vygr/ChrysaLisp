@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	fn_function sys/mail_mailbox
+	fn_function sys/mail_init_mailbox
 		;outputs
 		;r0 = mailbox address
 		;trashes
