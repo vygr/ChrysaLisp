@@ -18,6 +18,7 @@
 
 			;sample command
 			static_call sys_task, count, {}, {msg->sample_msg_task_count}
+			static_call sys_mem, used, {}, {msg->sample_msg_mem_used}
 			assign {msg->sample_msg_reply_id.id_mbox}, {msg->msg_dest.id_mbox}
 			assign {msg->sample_msg_reply_id.id_cpu}, {msg->msg_dest.id_cpu}
 			assign {sample_msg_reply_size}, {msg->msg_length}

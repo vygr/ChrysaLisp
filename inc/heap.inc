@@ -13,8 +13,8 @@
 	def_method alloc, sys/heap_alloc, static, {r0}, {r1}
 	def_method reset, sys/heap_reset, static, {r0}
 
-	mem_block_min_size	equ 0x000040
-	mem_block_max_size	equ 0x800000
+	mem_block_min_size	equ 0x000020
+	mem_block_max_size	equ 0x100000
 
 	def_class sys_mem
 	def_method statics, sys/mem_statics
@@ -27,6 +27,7 @@
 	def_method xor, sys/mem_xor, static, {r0, r1, r2}, {r0, r1}
 	def_method copy, sys/mem_copy, static, {r0, r1, r2}, {r0, r1}
 	def_method grow, sys/mem_grow, static, {r0, r1, r2}, {r0, r1}
+	def_method used, sys/mem_used, static, {}, {r0}
 
 ;;;;;;;;;;;;;;;;;
 ; heap structures

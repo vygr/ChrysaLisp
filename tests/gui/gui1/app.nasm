@@ -3,6 +3,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_window.inc'
 %include 'class/class_flow.inc'
+%include 'class/class_grid.inc'
 %include 'class/class_button.inc'
 %include 'class/class_progress.inc'
 %include 'class/class_string.inc'
@@ -23,9 +24,14 @@
 		ptr window
 		ptr window_panel
 		ptr panel
+		ptr left_panel
+		ptr right_panel
 		uint cpu_total
 		uint cpu_count
 		pptr task_progress
+		ulong value
+		ulong max_tasks
+		ulong max_memory
 
 		ptr msg
 		ulong mailbox
@@ -40,6 +46,7 @@
 
 		;init app vars
 		push_scope
+		assign {0, mem_block_max_size * 32}, {max_tasks, max_memory}
 
 		;create my window
 		static_call window, create, {}, {window}
@@ -49,23 +56,34 @@
 		static_call string, create_from_cstr, {"Status Text"}, {string}
 		static_call window, set_status, {window, string}
 
-		;add my panel
-		static_call flow, create, {}, {panel}
-		static_call flow, set_flow_flags, {panel, flow_flag_down | flow_flag_fillw}
-		static_call flow, add_back, {panel, window_panel}
+		;add my panels
+		static_call grid, create, {}, {panel}
+		static_call grid, set_grid, {panel, 2, 1}
+		static_call grid, add_back, {panel, window_panel}
+		static_call flow, create, {}, {left_panel}
+		static_call flow, set_flow_flags, {left_panel, flow_flag_down | flow_flag_fillw}
+		static_call flow, add_back, {left_panel, panel}
+		static_call flow, create, {}, {right_panel}
+		static_call flow, set_flow_flags, {right_panel, flow_flag_down | flow_flag_fillw}
+		static_call flow, add_back, {right_panel, panel}
 
 		;allocate array for progress bars
 		static_call sys_cpu, total, {}, {cpu_total}
-		static_call sys_mem, alloc, {cpu_total * long_size}, {task_progress, _}
+		static_call sys_mem, alloc, {cpu_total * ptr_size * 2}, {task_progress, _}
 
 		;add num cpus progress bars to my app panel
 		assign {0}, {cpu_count}
 		loop_start
 			static_call progress, create, {}, {progress}
-			static_call progress, set_max, {progress, 48}
+			static_call progress, set_max, {progress, 1}
 			static_call progress, set_color, {progress, 0xff00ff00}
-			static_call progress, add_back, {progress, panel}
-			assign {progress}, {task_progress[cpu_count * long_size]}
+			static_call progress, add_back, {progress, left_panel}
+			assign {progress}, {task_progress[cpu_count * ptr_size * 2]}
+			static_call progress, create, {}, {progress}
+			static_call progress, set_max, {progress, 1}
+			static_call progress, set_color, {progress, 0xffff0000}
+			static_call progress, add_back, {progress, right_panel}
+			assign {progress}, {task_progress[cpu_count * ptr_size * 2 + ptr_size]}
 			assign {cpu_count + 1}, {cpu_count}
 		loop_until {cpu_count == cpu_total}
 
@@ -103,7 +121,7 @@
 					static_call sys_mail, alloc, {}, {msg}
 					assign {1}, {msg->sample_msg_command}
 					assign {sample_msg_size}, {msg->msg_length}
-					assign {task_progress[cpu_count * long_size]}, {msg->sample_msg_progress}
+					assign {cpu_count * ptr_size * 2}, {msg->sample_msg_progress}
 					assign {task_mailboxes[cpu_count * id_size].id_mbox}, {msg->msg_dest.id_mbox}
 					assign {task_mailboxes[cpu_count * id_size].id_cpu}, {msg->msg_dest.id_cpu}
 					assign {select.sel_select2}, {msg->sample_msg_reply_id.id_mbox}
@@ -121,9 +139,24 @@
 				;dispatch event to view
 				method_call view, event, {msg->ev_msg_view, msg}
 			else
-				;update progress bar
-				static_call progress, set_val, {msg->sample_msg_progress, msg->sample_msg_task_count}
-				static_call progress, dirty, {msg->sample_msg_progress}
+				;update progress bars
+				assign {msg->sample_msg_task_count}, {value}
+				if {value > max_tasks}
+					assign {value}, {max_tasks}
+				endif
+				assign {task_progress[msg->sample_msg_progress]}, {progress}
+				static_call progress, set_max, {progress, max_tasks}
+				static_call progress, set_val, {progress, value}
+				static_call progress, dirty, {progress}
+
+				assign {msg->sample_msg_mem_used}, {value}
+;				if {value > max_memory}
+;					assign {value}, {max_memory}
+;				endif
+				assign {task_progress[msg->sample_msg_progress + ptr_size]}, {progress}
+				static_call progress, set_max, {progress, max_memory}
+				static_call progress, set_val, {progress, value}
+				static_call progress, dirty, {progress}
 
 				;count up replies
 				assign {cpu_count + 1}, {cpu_count}

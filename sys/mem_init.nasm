@@ -4,6 +4,7 @@
 	fn_function sys/mem_init
 		;get statics
 		static_bind sys_mem, statics, r0
+		vp_add long_size, r0
 
 		;mem_slots heaps
 		vp_cpy mem_block_min_size, r1	;start object size
