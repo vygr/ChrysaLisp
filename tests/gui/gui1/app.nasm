@@ -32,6 +32,7 @@
 		ulong value
 		ulong max_tasks
 		ulong max_memory
+		ulong total_memory
 
 		ptr msg
 		ulong mailbox
@@ -46,7 +47,7 @@
 
 		;init app vars
 		push_scope
-		assign {0, 1024 * 1024 * 4}, {max_tasks, max_memory}
+		assign {0}, {max_tasks}
 
 		;create my window
 		static_call window, create, {}, {window}
@@ -115,6 +116,10 @@
 		loop_start
 			;new round of samples ?
 			if {cpu_count ==  cpu_total}
+				;set max_memory level
+				assign {(total_memory * 3) / (cpu_total * 2) + 1}, {max_memory}
+				assign {0}, {total_memory}
+
 				;send out sample commands
 				loop_start
 					assign {cpu_count - 1}, {cpu_count}
@@ -150,9 +155,7 @@
 				static_call progress, dirty, {progress}
 
 				assign {msg->sample_msg_mem_used}, {value}
-;				if {value > max_memory}
-;					assign {value}, {max_memory}
-;				endif
+				assign {total_memory + value}, {total_memory}
 				assign {task_progress[msg->sample_msg_progress + ptr_size]}, {progress}
 				static_call progress, set_max, {progress, max_memory}
 				static_call progress, set_val, {progress, value}
