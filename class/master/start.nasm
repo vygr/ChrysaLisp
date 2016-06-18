@@ -96,9 +96,8 @@
 					assign {index - 2}, {index}
 					loop_while {index != 0}
 						assign {index - 1}, {index}
-						static_call sys_mail, alloc, {}, {msg}
 						assign {(args->vector_array)[index * ptr_size]}, {string}
-						assign {slave_mail_init_size + string->string_length}, {msg->msg_length}
+						static_call sys_mail, alloc_parcel, {slave_mail_init_size + string->string_length}, {msg}
 						static_call sys_mem, copy, {&string->string_data, &msg->slave_mail_init_args, string->string_length}, {_, _}
 						assign {nextid.id_mbox}, {msg->slave_mail_init_stdout_id.id_mbox}
 						assign {nextid.id_cpu}, {msg->slave_mail_init_stdout_id.id_cpu}
