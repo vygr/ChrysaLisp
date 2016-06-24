@@ -4,9 +4,9 @@
 %include 'class/class_ref.inc'
 
 	def_class slave, ref
-	def_method create, class/slave/create, static, {r0}, {r0}
+	def_method create, class/slave/create, static, {}, {r0}
 	def_method new, class/slave/new, static, {}, {r0}
-	def_method init, class/slave/init, static, {r0, r1, r2}, {r1}
+	def_method init, class/slave/init, static, {r0, r1}, {r1}
 	def_method get_args, class/slave/get_args, static, {r0}, {r1}
 
 	def_method deinit, class/slave/deinit, override

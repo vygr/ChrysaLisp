@@ -12,7 +12,6 @@
 		ptr stream
 		ptr vector
 		ptr string
-		ptr mymailbox
 		ulong length
 		struct buffer, buffer
 
@@ -20,8 +19,7 @@
 		push_scope
 
 		;initialize pipe details and command args, abort on error
-		static_call sys_task, mailbox, {}, {mymailbox, _}
-		static_call slave, create, {mymailbox}, {slave}
+		static_call slave, create, {}, {slave}
 		if {slave != 0}
 			;set up input stream stack
 			static_call string, create_from_file, {"cmd/forth.f"}, {string}

@@ -15,15 +15,13 @@
 		ulong argc
 		ulong index
 		ulong length
-		ptr mymailbox
 		struct buffer, buffer
 
 		;init app vars
 		push_scope
 
 		;initialize pipe details and command args, abort on error
-		static_call sys_task, mailbox, {}, {mymailbox, _}
-		static_call slave, create, {mymailbox}, {slave}
+		static_call slave, create, {}, {slave}
 		if {slave != 0}
 			;cat files to stdout, arg 1 is command name
 			static_call slave, get_args, {slave}, {args}

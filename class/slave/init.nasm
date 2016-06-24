@@ -7,7 +7,6 @@
 		;inputs
 		;r0 = slave object
 		;r1 = vtable pointer
-		;r2 = input mailbox
 		;outputs
 		;r1 = 0 if error, else ok
 		;trashes
@@ -17,23 +16,24 @@
 
 		ptr inst
 		ptr vtable
-		ptr mailbox
 		ptr stream
 		ptr msg
+		ptr mymailbox
 		ulong error
 
 		;read init args
 		push_scope
-		retire {r0, r1, r2}, {inst, vtable, mailbox}
+		retire {r0, r1}, {inst, vtable}
 
 		;init parent
 		super_call slave, init, {inst, vtable}, {error}
 		if {error != 0}
 			;init myself
-			static_call sys_mail, mymail, {}, {msg}
+			static_call sys_task, mailbox, {}, {mymailbox, _}
+			static_call sys_mail, read, {mymailbox}, {msg}
 			if {msg->msg_length != msg_header_size}
 				;create stdin, stdout, stderr
-				static_call stream_msg_in, create, {mailbox}, {inst->slave_stdin}
+				static_call stream_msg_in, create, {mymailbox}, {inst->slave_stdin}
 				static_call stream_msg_out, create, {msg->slave_mail_init_stdout_id.id_mbox, \
 													msg->slave_mail_init_stdout_id.id_cpu}, {inst->slave_stdout}
 				static_call stream_msg_out, create, {msg->slave_mail_init_stderr_id.id_mbox, \
