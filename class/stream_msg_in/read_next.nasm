@@ -21,9 +21,7 @@
 		;while not stopped state
 		loop_while {inst->stream_msg_in_state != stream_mail_state_stopped}
 			;free any current msg
-			if {inst->stream_buffer}
-				static_call sys_mem, free, {inst->stream_buffer}
-			endif
+			static_call sys_mem, free, {inst->stream_buffer}
 
 			;read next in sequence
 			assign {0}, {msg}
