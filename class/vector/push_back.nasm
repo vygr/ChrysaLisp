@@ -22,7 +22,7 @@
 
 		;increase capacity ?
 		vp_cpy [r0 + vector_length], r1
-		vp_add long_size, r1
+		vp_add ptr_size, r1
 		vp_cpy r1, [r0 + vector_length]
 		if r1, >, [r0 + vector_capacity]
 			;double the capacity
