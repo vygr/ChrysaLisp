@@ -126,7 +126,7 @@
 					static_call sys_mail, alloc, {}, {msg}
 					assign {1}, {msg->sample_msg_command}
 					assign {sample_msg_size}, {msg->msg_length}
-					assign {cpu_count * ptr_size * 2}, {msg->sample_msg_progress}
+					assign {cpu_count * ptr_size * 2}, {msg->sample_msg_index}
 					assign {task_mailboxes[cpu_count * id_size].id_mbox}, {msg->msg_dest.id_mbox}
 					assign {task_mailboxes[cpu_count * id_size].id_cpu}, {msg->msg_dest.id_cpu}
 					assign {select.sel_select2}, {msg->sample_msg_reply_id.id_mbox}
@@ -149,14 +149,14 @@
 				if {value > max_tasks}
 					assign {value}, {max_tasks}
 				endif
-				assign {task_progress[msg->sample_msg_progress]}, {progress}
+				assign {task_progress[msg->sample_msg_index]}, {progress}
 				static_call progress, set_max, {progress, max_tasks}
 				static_call progress, set_val, {progress, value}
 				static_call progress, dirty, {progress}
 
 				assign {msg->sample_msg_mem_used}, {value}
 				assign {total_memory + value}, {total_memory}
-				assign {task_progress[msg->sample_msg_progress + ptr_size]}, {progress}
+				assign {task_progress[msg->sample_msg_index + ptr_size]}, {progress}
 				static_call progress, set_max, {progress, max_memory}
 				static_call progress, set_val, {progress, value}
 				static_call progress, dirty, {progress}
