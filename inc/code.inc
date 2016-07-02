@@ -1439,7 +1439,7 @@
 		pop_value
 		%assign %%s1 _s
 		pop_value
-		add_inst vp_xor, _%[%%s2], _%[%%s2]
+		add_inst vp_ext, _%[_s], _%[%%s2]
 		add_inst vp_div, _%[%%s1], _%[%%s2], _%[_s]
 	%endmacro
 
@@ -1448,8 +1448,27 @@
 		pop_value
 		%assign %%s1 _s
 		pop_value
-		add_inst vp_xor, _%[%%s2], _%[%%s2]
+		add_inst vp_ext, _%[_s], _%[%%s2]
 		add_inst vp_div, _%[%%s1], _%[%%s2], _%[_s]
+		add_inst vp_cpy, _%[%%s2], _%[_s]
+	%endmacro
+
+	%macro compile_divu 0
+		%assign %%s2 _s
+		pop_value
+		%assign %%s1 _s
+		pop_value
+		add_inst vp_xor, _%[%%s2], _%[%%s2]
+		add_inst vp_div_u, _%[%%s1], _%[%%s2], _%[_s]
+	%endmacro
+
+	%macro compile_remu 0
+		%assign %%s2 _s
+		pop_value
+		%assign %%s1 _s
+		pop_value
+		add_inst vp_xor, _%[%%s2], _%[%%s2]
+		add_inst vp_div_u, _%[%%s1], _%[%%s2], _%[_s]
 		add_inst vp_cpy, _%[%%s2], _%[_s]
 	%endmacro
 

@@ -315,6 +315,81 @@
 		%endif
 	%endmacro
 
+	%macro vp_div_u 3
+		;inputs
+		;%1 = divider
+		;%2:%3 = dividend high/low
+		;outputs
+		;%2 = remainder
+		;%3 = quotient
+
+		reg? %2
+		%if _r = 2
+			;high in r2
+			reg? %3
+			%if _r = 0
+				;low in r0
+				div %1
+			%else
+				;low not in r0
+				vp_push r0
+				vp_cpy %3, r0
+				div %1
+				vp_cpy r0, %3
+				vp_pop r0
+			%endif
+		%else
+			;high not in r2
+			reg? %3
+			%if _r = 0
+				;low in r0
+				vp_push r2
+				vp_cpy %2, r2
+				div %1
+				vp_cpy r2, %2
+				vp_pop r2
+			%else
+				;low not in r0
+				reg? %1
+				%if _r = 2
+					;divider in r2
+					%fatal Unsigned divide case not written
+				%else
+					;divider not in r2
+					vp_push r0, r2
+					vp_cpy %2, r2
+					vp_cpy %3, r0
+					div %1
+					vp_cpy r0, %3
+					vp_cpy r2, %2
+					vp_pop r0, r2
+				%endif
+			%endif
+		%endif
+	%endmacro
+
+	%macro vp_ext 2
+		reg? %1
+		%if _r = 0
+			reg? %2
+			%if _r = 2
+				cdq
+			%else
+				if %1, <, 0
+					vp_cpy -1, %2
+				else
+					vp_xor %2, %2
+				endif
+			%endif
+		%else
+			if %1, <, 0
+				vp_cpy -1, %2
+			else
+				vp_xor %2, %2
+			endif
+		%endif
+	%endmacro
+
 	%macro vp_mul 2
 		%ifidn %1, -1
 			neg %2

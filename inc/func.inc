@@ -192,8 +192,10 @@
 		operator ~, 2, 1, compile_unot
 		operator !, 2, 1, compile_ulnot
 		operator *, 3, 0, compile_mul
-		operator /, 3, 0, compile_div
-		operator %, 3, 0, compile_rem
+		operator /, 3, 0, compile_divu
+		operator %, 3, 0, compile_remu
+		operator //, 3, 0, compile_div
+		operator %%, 3, 0, compile_rem
 		operator +, 4, 0, compile_plus
 		operator -, 4, 0, compile_minus
 		operator <<, 5, 0, compile_lshift
