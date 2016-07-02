@@ -185,9 +185,7 @@
 					assign {inst->shared_accum * inst->shared_value}, {inst->shared_accum}
 				elseif {inst->shared_last_op == char_divide && inst->shared_value != 0}
 					;/
-					%define debug_emit
 					assign {inst->shared_accum // inst->shared_value}, {inst->shared_accum}
-					%undef debug_emit
 				else
 					;equals
 					assign {inst->shared_value}, {inst->shared_accum}
