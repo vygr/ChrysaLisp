@@ -97,7 +97,7 @@
 		static_call window, dirty_all, {window}
 
 		;open global farm
-		static_call string, create_from_cstr, {"tests/gui/gui1/child"}, {string}
+		static_call string, create_from_cstr, {"apps/netmon/child"}, {string}
 		static_call sys_task, open_global, {string, cpu_total}, {task_mailboxes}
 		static_call string, deref, {string}
 
