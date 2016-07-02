@@ -373,7 +373,7 @@
 		%if _r = 0
 			reg? %2
 			%if _r = 2
-				cdq
+				cqo
 			%else
 				if %1, <, 0
 					vp_cpy -1, %2
