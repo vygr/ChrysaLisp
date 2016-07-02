@@ -8,11 +8,7 @@
 %include 'class/class_button.inc'
 %include 'class/class_string.inc'
 
-;;;;;;;;;;;
-; test code
-;;;;;;;;;;;
-
-	fn_function tests/gui/gui3/app
+	fn_function apps/calculator/app
 
 		buffer_size equ 32
 

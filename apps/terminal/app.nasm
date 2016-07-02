@@ -10,7 +10,7 @@
 %include 'class/class_stream_msg_in.inc'
 %include 'class/class_master.inc'
 
-	fn_function cmd/cmd
+	fn_function apps/terminal/app
 
 		buffer_size equ 120
 

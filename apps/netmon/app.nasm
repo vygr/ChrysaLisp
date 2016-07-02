@@ -7,13 +7,9 @@
 %include 'class/class_button.inc'
 %include 'class/class_progress.inc'
 %include 'class/class_string.inc'
-%include 'tests/gui/gui1/app.inc'
+%include 'apps/netmon/app.inc'
 
-;;;;;;;;;;;
-; test code
-;;;;;;;;;;;
-
-	fn_function tests/gui/gui1/app
+	fn_function apps/netmon/app
 
 		def_structure sel
 			ptr sel_select1
@@ -52,7 +48,7 @@
 		;create my window
 		static_call window, create, {}, {window}
 		static_call window, get_panel, {window}, {window_panel}
-		static_call string, create_from_cstr, {"Network Task Monitor"}, {string}
+		static_call string, create_from_cstr, {"Network Monitor"}, {string}
 		static_call window, set_title, {window, string}
 		static_call string, create_from_cstr, {"Status Text"}, {string}
 		static_call window, set_status, {window, string}

@@ -51,7 +51,7 @@
 
 		;for now fire up the test apps
 		;this might be an gui auto run list eventually
-		s_call sys_task, start, {@tests/gui/gui2/app}, {r0, r1}
+		s_call sys_task, start, {@apps/launcher/app}, {r0, r1}
 
 		;gui event loop
 		loop_start

@@ -1,11 +1,7 @@
 %include 'inc/func.inc'
-%include 'tests/gui/gui1/app.inc'
+%include 'apps/netmon/app.inc'
 
-;;;;;;;;;;;
-; test code
-;;;;;;;;;;;
-
-	fn_function tests/gui/gui1/child
+	fn_function apps/netmon/child
 		;monitor task
 
 		ptr msg

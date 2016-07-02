@@ -7,11 +7,7 @@
 %include 'class/class_button.inc'
 %include 'class/class_string.inc'
 
-;;;;;;;;;;;
-; test code
-;;;;;;;;;;;
-
-	fn_function tests/gui/gui2/app
+	fn_function apps/launcher/app
 
 		struct myapp, obj
 		ptr msg
@@ -35,7 +31,7 @@
 		;create my window
 		static_call window, create, {}, {window}
 		static_call window, get_panel, {window}, {window_panel}
-		static_call string, create_from_cstr, {"Test Runner"}, {string}
+		static_call string, create_from_cstr, {"Launcher"}, {string}
 		static_call window, set_title, {window, string}
 		static_call string, create_from_cstr, {"Status Text"}, {string}
 		static_call window, set_status, {window, string}
@@ -109,13 +105,13 @@
 		return
 
 	launch_list:
+		db 'apps/netmon/app',0
+		db 'apps/terminal/app', 0
+		db 'apps/calculator/app',0
 		db 'tests/farm', 0
 		db 'tests/array', 0
 		db 'tests/pipe', 0
 		db 'tests/global', 0
-		db 'tests/gui/gui1/app',0
-		db 'tests/gui/gui3/app',0
-		db 'cmd/cmd', 0
 		db 0
 
 	fn_function_end
