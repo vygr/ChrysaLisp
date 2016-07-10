@@ -16,6 +16,7 @@
 		ulong stream_msg_in_state
 		ptr stream_msg_in_mailbox
 		struct stream_msg_in_list, lh_list
+		struct stream_msg_in_ack_id, id
 	def_structure_end
 
 %endif

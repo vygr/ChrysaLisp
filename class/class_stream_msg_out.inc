@@ -16,11 +16,15 @@
 		ulong stream_msg_out_seqnum
 		ulong stream_msg_out_state
 		struct stream_msg_out_id, id
+		struct stream_msg_out_ack_mailbox, mailbox
+		struct stream_msg_out_ack_list, lh_list
 	def_structure_end
 
 	def_structure stream_mail, msg_header
 		ulong stream_mail_seqnum
 		ulong stream_mail_state
+		offset stream_mail_ack_data
+		struct stream_mail_ack_id, id
 		offset stream_mail_data
 	def_structure_end
 

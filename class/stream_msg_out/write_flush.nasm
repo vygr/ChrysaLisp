@@ -17,14 +17,29 @@
 
 		assign {inst->stream_buffer}, {msg}
 		if {msg}
+			;send current buffer
 			assign {inst->stream_bufp - msg}, {msg->msg_length}
 			assign {inst->stream_msg_out_id.id_mbox}, {msg->msg_dest.id_mbox}
 			assign {inst->stream_msg_out_id.id_cpu}, {msg->msg_dest.id_cpu}
 			assign {inst->stream_msg_out_seqnum}, {msg->stream_mail_seqnum}
 			assign {inst->stream_msg_out_state}, {msg->stream_mail_state}
+			assign {&inst->stream_msg_out_ack_mailbox}, {msg->stream_mail_ack_id.id_mbox}
+			static_call sys_cpu, id, {}, {msg->stream_mail_ack_id.id_cpu}
 			static_call sys_mail, send, {msg}
-			assign {inst->stream_msg_out_seqnum + 1}, {inst->stream_msg_out_seqnum}
 			assign {0}, {inst->stream_buffer}
+
+			;wait for ack
+			assign {0}, {msg}
+			loop_start
+				static_call stream_msg_out, next_seq, {inst->stream_msg_out_ack_list, msg, \
+													inst->stream_msg_out_seqnum}, {msg}
+				breakif {msg}
+				static_call sys_mail, read, {inst->stream_msg_out_ack_mailbox}, {msg}
+			loop_end
+			static_call sys_mem, free, {msg}
+
+			;next seqnum
+			assign {inst->stream_msg_out_seqnum + 1}, {inst->stream_msg_out_seqnum}
 			super_call stream_msg_out, write_flush, {inst}
 		endif
 
