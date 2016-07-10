@@ -36,9 +36,7 @@
 
 		;add launch buttons to my app panel
 		assign {$launch_list}, {next}
-		loop_start
-			breakifnot {*next}
-
+		loop_while {*next}
 			static_call button, create, {}, {button}
 			static_call button, set_color, {button, 0xffffff00}
 			static_call string, create_from_cstr, {next}, {string}
