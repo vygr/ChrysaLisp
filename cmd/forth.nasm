@@ -20,7 +20,7 @@
 
 		;initialize pipe details and command args, abort on error
 		static_call slave, create, {}, {slave}
-		if {slave != 0}
+		if {slave}
 			;set up input stream stack
 			static_call string, create_from_file, {"cmd/forth.f"}, {string}
 			static_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}

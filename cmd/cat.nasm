@@ -22,7 +22,7 @@
 
 		;initialize pipe details and command args, abort on error
 		static_call slave, create, {}, {slave}
-		if {slave != 0}
+		if {slave}
 			;cat files to stdout, arg 1 is command name
 			static_call slave, get_args, {slave}, {args}
 			static_call vector, get_length, {args}, {argc}
