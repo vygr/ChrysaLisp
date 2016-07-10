@@ -25,11 +25,13 @@
 		;send exit parcels etc
 		assign {0}, {cnt}
 		loop_while {cnt != total}
-			static_call sys_mail, alloc_parcel, {test_size}, {msg}
-			assign {ids[cnt * id_size].id_mbox}, {msg->msg_dest.id_mbox}
-			assign {ids[cnt * id_size].id_cpu}, {msg->msg_dest.id_cpu}
-			static_call sys_mail, send, {msg}
-			static_call sys_task, yield
+			if {ids[cnt * id_size].id_mbox}
+				static_call sys_mail, alloc_parcel, {test_size}, {msg}
+				assign {ids[cnt * id_size].id_mbox}, {msg->msg_dest.id_mbox}
+				assign {ids[cnt * id_size].id_cpu}, {msg->msg_dest.id_cpu}
+				static_call sys_mail, send, {msg}
+				static_call sys_task, yield
+			endif
 			assign {cnt + 1}, {cnt}
 		loop_end
 
