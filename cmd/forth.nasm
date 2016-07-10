@@ -8,10 +8,7 @@
 
 		buffer_size equ 120
 
-		ptr slave
-		ptr stream
-		ptr vector
-		ptr string
+		ptr slave, stream, vector, string
 		ulong length
 		struct buffer, buffer
 
@@ -65,8 +62,7 @@
 
 		const char_lf, 10
 
-		ptr slave
-		ptr buffer
+		ptr slave, buffer
 		ulong length
 
 		push_scope

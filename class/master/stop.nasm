@@ -10,9 +10,7 @@
 		;trashes
 		;all but r0, r4
 
-		ptr inst
-		ptr msg
-		ptr stream
+		ptr inst, msg, stream
 		ulong length
 
 		push_scope

@@ -7,8 +7,7 @@
 		;trashes
 		;all but r0, r4
 
-		ptr inst
-		ptr msg
+		ptr inst, msg
 
 		push_scope
 		retire {r0}, {inst}

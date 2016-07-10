@@ -22,18 +22,10 @@
 		def_structure_end
 
 		struct myapp, shared
-		ptr msg
-		ptr window
-		ptr window_panel
-		ptr flow_panel
-		ptr grid_panel
+		ptr msg, window, window_panel, flow_panel, grid_panel, button, pressed, string
 		pubyte next
-		ptr button
 		ulong owner
-		ptr pressed
-		ptr string
-		int width
-		int height
+		int width, height
 		ubyte length
 
 		;init app vars
@@ -133,13 +125,7 @@
 		const char_multiply, '*'
 		const char_divide, '/'
 
-		ptr inst
-		ptr button
-		ptr button_string
-		ptr display_string
-		ptr string
-		ptr string1
-		ptr string2
+		ptr inst, button, button_string, display_string, string, string1, string2
 		pubyte charp
 		ubyte char
 

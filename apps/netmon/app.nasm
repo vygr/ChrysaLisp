@@ -17,28 +17,18 @@
 		def_structure_end
 
 		struct select, sel
-		ptr window
-		ptr window_panel
-		ptr panel
-		ptr left_panel
-		ptr right_panel
-		uint cpu_total
-		uint cpu_count
+		ptr window, window_panel, panel, left_panel, right_panel
 		pptr task_progress
-		ulong value
-		ulong max_tasks
-		ulong max_memory
-		ulong total_memory
+		ulong value, max_tasks, max_memory, total_memory
+		uint cpu_total, cpu_count
 
 		ptr msg
 		ulong mailbox
 		pulong task_mailboxes
 		struct task_mailbox, mailbox
 
-		ptr string
-		ptr progress
-		int width
-		int height
+		ptr string, progress
+		int width, height
 		ulong owner
 
 		;init app vars

@@ -11,10 +11,8 @@
 		;trashes
 		;all but r0, r4
 
-		ptr inst
+		ptr inst, msg, ack_msg
 		long state
-		ptr msg
-		ptr ack_msg
 
 		push_scope
 		retire {r0}, {inst}

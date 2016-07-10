@@ -14,11 +14,7 @@
 
 		const space_char, ' '
 
-		ptr inst
-		ptr vtable
-		ptr stream
-		ptr msg
-		ptr mymailbox
+		ptr inst, vtable, stream, msg, mymailbox
 		ulong error
 
 		;read init args

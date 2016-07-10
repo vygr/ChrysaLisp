@@ -13,9 +13,7 @@
 		;trashes
 		;all but r0, r4
 
-		ptr inst
-		ptr splits
-		ptr string
+		ptr inst, splits, string
 		pubyte start
 		ulong length
 		ubyte char

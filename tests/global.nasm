@@ -10,11 +10,8 @@
 
 		const test_size, 10000
 
-		ptr name
-		ptr ids
-		ptr msg
-		ulong cnt
-		ulong total
+		ptr name, ids, msg
+		ulong cnt, total
 
 		push_scope
 

@@ -8,13 +8,8 @@
 
 		buffer_size equ 120
 
-		ptr slave
-		ptr arg
-		ptr args
-		ptr stream
-		ulong argc
-		ulong index
-		ulong length
+		ptr slave, arg, args, stream
+		ulong argc, index, length
 		struct buffer, buffer
 
 		;init app vars
@@ -57,11 +52,7 @@
 
 		const char_lf, 10
 
-		ptr slave
-		ptr arg
-		ptr buffer
-		ptr file
-		ptr stream
+		ptr slave, arg, buffer, file, stream
 		ulong length
 
 		push_scope

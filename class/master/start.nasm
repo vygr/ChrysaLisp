@@ -17,19 +17,9 @@
 		const pipe_char, '|'
 		const space_char, ' '
 
-		ptr inst
-		ptr buffer
-		ulong length
-		ulong index
-		ulong started
-		ptr msg
-		ptr string
-		ptr commands
-		ptr args
-		ptr stream
-		ptr mbox
+		ptr inst, buffer, msg, string, commands, args, stream, mbox, ids
 		pubyte start
-		ptr ids
+		ulong length, index, started
 		struct nextid, id
 		struct mailbox, mailbox
 

@@ -309,128 +309,182 @@
 		%endif
 	%endmacro
 
-	%macro ptr 1
+	%macro ptr 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align ptr
-		struct %1, ptr, 'p'
+		%rep %0
+			struct %1, ptr, 'p'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro long 1
+	%macro long 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align long
-		struct %1, long, 'l'
+		%rep %0
+			struct %1, long, 'l'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro ulong 1
+	%macro ulong 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align long
-		struct %1, long, 'L'
+		%rep %0
+			struct %1, long, 'L'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro int 1
+	%macro int 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align int
-		struct %1, int, 'i'
+		%rep %0
+			struct %1, int, 'i'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro uint 1
+	%macro uint 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align int
-		struct %1, int, 'I'
+		%rep %0
+			struct %1, int, 'I'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro short 1
+	%macro short 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align short
-		struct %1, short, 's'
+		%rep %0
+			struct %1, short, 's'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro ushort 1
+	%macro ushort 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align short
-		struct %1, short, 'S'
+		%rep %0
+			struct %1, short, 'S'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro byte 1
+	%macro byte 1-*
 		;inputs
-		;%1 = var name
-		struct %1, byte, 'b'
+		;%1 = var names
+		%rep %0
+			struct %1, byte, 'b'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro ubyte 1
+	%macro ubyte 1-*
 		;inputs
-		;%1 = var name
-		struct %1, byte, 'B'
+		;%1 = var names
+		%rep %0
+			struct %1, byte, 'B'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro pptr 1
+	%macro pptr 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align ptr
-		struct %1, ptr, 'pp'
+		%rep %0
+			struct %1, ptr, 'pp'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro pubyte 1
+	%macro pubyte 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align ptr
-		struct %1, ptr, 'pB'
+		%rep %0
+			struct %1, ptr, 'pB'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro pushort 1
+	%macro pushort 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align ptr
-		struct %1, ptr, 'pS'
+		%rep %0
+			struct %1, ptr, 'pS'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro puint 1
+	%macro puint 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align ptr
-		struct %1, ptr, 'pI'
+		%rep %0
+			struct %1, ptr, 'pI'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro pulong 1
+	%macro pulong 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align ptr
-		struct %1, ptr, 'pL'
+		%rep %0
+			struct %1, ptr, 'pL'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro pbyte 1
+	%macro pbyte 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align ptr
-		struct %1, ptr, 'pb'
+		%rep %0
+			struct %1, ptr, 'pb'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro pshort 1
+	%macro pshort 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align ptr
-		struct %1, ptr, 'ps'
+		%rep %0
+			struct %1, ptr, 'ps'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro pint 1
+	%macro pint 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align ptr
-		struct %1, ptr, 'pi'
+		%rep %0
+			struct %1, ptr, 'pi'
+			%rotate 1
+		%endrep
 	%endmacro
 
-	%macro plong 1
+	%macro plong 1-*
 		;inputs
-		;%1 = var name
+		;%1 = var names
 		local_align ptr
-		struct %1, ptr, 'pl'
+		%rep %0
+			struct %1, ptr, 'pl'
+			%rotate 1
+		%endrep
 	%endmacro
 
 ;;;;;;;;;;;;;;

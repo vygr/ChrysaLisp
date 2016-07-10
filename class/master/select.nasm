@@ -13,8 +13,7 @@
 		;trashes
 		;all but r0, r4
 
-		ptr inst
-		ptr mailbox
+		ptr inst, mailbox
 		ulong length
 
 		push_scope

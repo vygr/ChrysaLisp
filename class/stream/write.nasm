@@ -12,8 +12,7 @@
 		;all but r0, r4
 
 		ptr inst
-		pubyte buffer
-		pubyte buffer_end
+		pubyte buffer, buffer_end
 		long char
 
 		;save inputs

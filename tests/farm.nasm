@@ -10,9 +10,7 @@
 
 		const num_child, 128
 
-		ptr name
-		ptr ids
-		ptr msg
+		ptr name, ids, msg
 		ulong cnt
 
 		push_scope

@@ -15,9 +15,7 @@
 		buffer_size equ 120
 
 		def_structure shared
-			ptr shared_master
-			ptr shared_panel
-			ptr history
+			ptr shared_master, shared_panel, history
 			ulong history_index
 			pubyte shared_bufp
 			struct shared_buffer, buffer
@@ -26,19 +24,10 @@
 		struct myapp, obj
 		struct shared, shared
 		struct buffer, buffer
-		ptr msg
-		ptr stream
-		ptr window
-		ptr window_panel
-		ptr label
-		ptr string
-		ulong owner
-		ptr mymailbox
-		ptr mailbox
-		ulong length
+		ptr msg, stream, window, window_panel, label, string, mymailbox, mailbox
+		ulong owner, length
 		long state
-		int width
-		int height
+		int width, height
 
 		;init app vars
 		push_scope
@@ -131,8 +120,7 @@
 		;outputs
 		;r0 = -1 if EOF
 
-		ptr shared
-		ptr stream
+		ptr shared, stream
 		long char
 		ulong ready
 
@@ -155,14 +143,9 @@
 		;r0 = shared
 		;r1 = char input
 
-		ptr shared
-		ptr string
-		ptr last
-		ptr stream
-		ulong length
-		ulong same
-		ubyte char
-		ubyte state
+		ptr shared, string, last, stream
+		ulong length, same
+		ubyte char, state
 
 		push_scope
 		retire {r0, r1}, {shared, char}
@@ -254,13 +237,8 @@
 		;r0 = shared
 		;r1 = char output
 
-		ptr shared
-		ptr label
-		ptr string
-		ptr line_string
-		ptr new_line_string
-		ulong length
-		ulong char
+		ptr shared, label, string, line_string, new_line_string
+		ulong length, char
 
 		push_scope
 		retire {r0, r1}, {shared, char}

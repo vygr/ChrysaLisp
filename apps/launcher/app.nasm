@@ -10,17 +10,10 @@
 	fn_function apps/launcher/app
 
 		struct myapp, obj
-		ptr msg
-		ptr window
-		ptr window_panel
-		ptr panel
+		ptr msg, window, window_panel, panel, button, string, pressed
 		pubyte next
-		ptr button
-		ptr string
-		ptr pressed
 		ulong owner
-		int width
-		int height
+		int width, height
 		ubyte length
 
 		;init app vars
@@ -92,9 +85,7 @@
 		;r0 = app local object
 		;r1 = button object
 
-		ptr inst
-		ptr button
-		ptr string
+		ptr inst, button, string
 
 		push_scope
 		retire {r0, r1}, {inst, button}
