@@ -26,7 +26,7 @@
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-	mail_data_size equ 256
+	mail_data_size equ 512
 
 	def_structure mailbox, lh_list
 		struct mailbox_parcel_list, lh_list
