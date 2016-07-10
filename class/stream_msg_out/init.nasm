@@ -22,6 +22,7 @@
 		if r1, !=, 0
 			;init myself
 			vp_cpy_cl 0, [r0 + stream_msg_out_seqnum]
+			vp_cpy_cl 0, [r0 + stream_msg_out_ack_seqnum]
 			vp_cpy_cl stream_mail_state_started, [r0 + stream_msg_out_state]
 			vp_lea [r0 + stream_msg_out_ack_list], r1
 			lh_init r1, r2

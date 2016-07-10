@@ -27,19 +27,22 @@
 			static_call sys_cpu, id, {}, {msg->stream_mail_ack_id.id_cpu}
 			static_call sys_mail, send, {msg}
 			assign {0}, {inst->stream_buffer}
-
-			;wait for ack
-			assign {0}, {msg}
-			loop_start
-				static_call stream_msg_out, next_seq, {inst->stream_msg_out_ack_list, msg, \
-													inst->stream_msg_out_seqnum}, {msg}
-				breakif {msg}
-				static_call sys_mail, read, {inst->stream_msg_out_ack_mailbox}, {msg}
-			loop_end
-			static_call sys_mem, free, {msg}
-
-			;next seqnum
 			assign {inst->stream_msg_out_seqnum + 1}, {inst->stream_msg_out_seqnum}
+
+			;wait for an ack ?
+			loop_while {inst->stream_msg_out_seqnum - inst->stream_msg_out_ack_seqnum > stream_msg_out_ack_window}
+				assign {0}, {msg}
+				loop_start
+					static_call stream_msg_out, next_seq, {inst->stream_msg_out_ack_list, msg, \
+														inst->stream_msg_out_ack_seqnum}, {msg}
+					breakif {msg}
+					static_call sys_mail, read, {inst->stream_msg_out_ack_mailbox}, {msg}
+				loop_end
+				static_call sys_mem, free, {msg}
+				assign {inst->stream_msg_out_ack_seqnum + 1}, {inst->stream_msg_out_ack_seqnum}
+			loop_end
+
+			;parent actions
 			super_call stream_msg_out, write_flush, {inst}
 		endif
 

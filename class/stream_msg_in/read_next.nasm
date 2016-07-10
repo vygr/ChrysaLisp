@@ -14,6 +14,7 @@
 		ptr inst
 		long state
 		ptr msg
+		ptr ack_msg
 
 		push_scope
 		retire {r0}, {inst}
@@ -31,26 +32,21 @@
 				breakif {msg}
 				static_call sys_mail, read, {inst->stream_msg_in_mailbox}, {msg}
 			loop_end
+			assign {inst->stream_msg_in_seqnum + 1}, {inst->stream_msg_in_seqnum}
 
 			;save msg buffer details
 			assign {msg}, {inst->stream_buffer}
 			assign {&msg->stream_mail_data}, {inst->stream_bufp}
 			assign {&(msg + msg->msg_length)}, {inst->stream_bufe}
 			assign {msg->stream_mail_state}, {inst->stream_msg_in_state}
-			assign {msg->stream_mail_ack_id.id_mbox}, {inst->stream_msg_in_ack_id.id_mbox}
-			assign {msg->stream_mail_ack_id.id_cpu}, {inst->stream_msg_in_ack_id.id_cpu}
 
 			;send ack
-			static_call sys_mail, alloc, {}, {msg}
-			assign {stream_mail_ack_data}, {msg->msg_length}
-			assign {inst->stream_msg_in_ack_id.id_mbox}, {msg->msg_dest.id_mbox}
-			assign {inst->stream_msg_in_ack_id.id_cpu}, {msg->msg_dest.id_cpu}
-			assign {inst->stream_msg_in_seqnum}, {msg->stream_mail_seqnum}
-			assign {inst->stream_msg_in_state}, {msg->stream_mail_state}
-			static_call sys_mail, send, {msg}
-
-			;next seq num
-			assign {inst->stream_msg_in_seqnum + 1}, {inst->stream_msg_in_seqnum}
+			static_call sys_mail, alloc, {}, {ack_msg}
+			assign {stream_mail_ack_data}, {ack_msg->msg_length}
+			assign {msg->stream_mail_ack_id.id_mbox}, {ack_msg->msg_dest.id_mbox}
+			assign {msg->stream_mail_ack_id.id_cpu}, {ack_msg->msg_dest.id_cpu}
+			assign {msg->stream_mail_seqnum}, {ack_msg->stream_mail_seqnum}
+			static_call sys_mail, send, {ack_msg}
 
 			breakif {inst->stream_msg_in_state != stream_mail_state_started}
 		loop_until {inst->stream_bufp != inst->stream_bufe}
