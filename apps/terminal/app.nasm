@@ -15,8 +15,8 @@
 		buffer_size equ 120
 
 		def_structure shared
-			ptr shared_master, shared_panel, history
-			ulong history_index
+			ptr shared_master, shared_panel, shared_history, shared_window
+			ulong shared_history_index
 			pubyte shared_bufp
 			struct shared_buffer, buffer
 		def_structure_end
@@ -24,7 +24,7 @@
 		struct myapp, obj
 		struct shared, shared
 		struct buffer, buffer
-		ptr msg, stream, window, window_panel, label, string, mymailbox, mailbox
+		ptr msg, stream, window_panel, label, string, mymailbox, mailbox
 		ulong owner, length
 		long state
 		int width, height
@@ -34,16 +34,16 @@
 		slot_function class, obj
 		static_call obj, init, {&myapp, @_function_}, {_}
 		static_call master, create, {}, {shared.shared_master}
-		static_call vector, create, {}, {shared.history}
-		assign {0}, {shared.history_index}
+		static_call vector, create, {}, {shared.shared_history}
+		assign {0}, {shared.shared_history_index}
 
 		;create my window
-		static_call window, create, {}, {window}
-		static_call window, get_panel, {window}, {window_panel}
+		static_call window, create, {}, {shared.shared_window}
+		static_call window, get_panel, {shared.shared_window}, {window_panel}
 		static_call string, create_from_cstr, {"Terminal"}, {string}
-		static_call window, set_title, {window, string}
+		static_call window, set_title, {shared.shared_window, string}
 		static_call string, create_from_cstr, {"Ready"}, {string}
-		static_call window, set_status, {window, string}
+		static_call window, set_status, {shared.shared_window, string}
 
 		;add my app panel
 		static_call flow, create, {}, {shared.shared_panel}
@@ -64,16 +64,16 @@
 		loop_end
 
 		;set to pref size
-		method_call window, pref_size, {window}, {width, height}
-		static_call window, change, {window, 0, 0, 640, height}
+		method_call window, pref_size, {shared.shared_window}, {width, height}
+		static_call window, change, {shared.shared_window, 0, 0, 640, height}
 
 		;set window owner
 		static_call sys_task, tcb, {}, {owner}
-		static_call window, set_owner, {window, owner}
+		static_call window, set_owner, {shared.shared_window, owner}
 
 		;add to screen and dirty
-		static_call gui_gui, add, {window}
-		static_call window, dirty_all, {window}
+		static_call gui_gui, add, {shared.shared_window}
+		static_call window, dirty_all, {shared.shared_window}
 
 		;set up term buffer
 		assign {&shared.shared_buffer}, {shared.shared_bufp}
@@ -100,15 +100,17 @@
 				if {state == -1}
 					;EOF
 					static_call master, stop, {shared.shared_master}
+					static_call string, create_from_cstr, {"Ready"}, {string}
+					static_call window, set_status, {shared.shared_window, string}
 				endif
 			endif
 			static_call sys_task, yield
 		loop_end
 
 		;clean up
-		static_call vector, deref, {shared.history}
+		static_call vector, deref, {shared.shared_history}
 		static_call master, deref, {shared.shared_master}
-		static_call window, deref, {window}
+		static_call window, deref, {shared.shared_window}
 		method_call obj, deinit, {&myapp}
 		pop_scope
 		return
@@ -165,13 +167,13 @@
 				;push new history entry if not same as last entry
 				breakif {!length}
 				static_call string, create_from_buffer, {&shared->shared_buffer, length}, {string}
-				static_call vector, get_length, {shared->history}, {shared->history_index}
-				if {!shared->history_index}
+				static_call vector, get_length, {shared->shared_history}, {shared->shared_history_index}
+				if {!shared->shared_history_index}
 				new_entry:
-					static_call vector, push_back, {shared->history, string}
-					assign {shared->history_index + 1}, {shared->history_index}
+					static_call vector, push_back, {shared->shared_history, string}
+					assign {shared->shared_history_index + 1}, {shared->shared_history_index}
 				else
-					static_call vector, get_back, {shared->history}, {last}
+					static_call vector, get_back, {shared->shared_history}, {last}
 					static_call string, compare, {string, last}, {same}
 					static_call string, deref, {last}
 					gotoifnot {same}, new_entry
@@ -180,6 +182,8 @@
 
 				;start new pipe
 				static_call master, start, {shared->shared_master, &shared->shared_buffer, length}
+				static_call string, create_from_cstr, {"Busy"}, {string}
+				static_call window, set_status, {shared->shared_window, string}
 			else
 				;feed active pipe
 				static_call master, get_input, {shared->shared_master}, {stream}
@@ -195,27 +199,27 @@
 			endif
 		elseif {char == 129}
 			;cursor up
-			static_call vector, get_length, {shared->history}, {length}
+			static_call vector, get_length, {shared->shared_history}, {length}
 			breakif {!length}
-			if {shared->history_index}
-				assign {shared->history_index - 1}, {shared->history_index}
+			if {shared->shared_history_index}
+				assign {shared->shared_history_index - 1}, {shared->shared_history_index}
 			endif
-			static_call vector, get_element, {shared->history, shared->history_index}, {string}
+			static_call vector, get_element, {shared->shared_history, shared->shared_history_index}, {string}
 			static_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, \
 										{_, shared->shared_bufp}
 			static_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
 			local_call pipe_output, {shared, stream}, {r0, r1}
 		elseif {char == 130}
 			;cursor down
-			static_call vector, get_length, {shared->history}, {length}
-			assign {shared->history_index + 1}, {shared->history_index}
-			if {shared->history_index > length}
-				assign {length}, {shared->history_index}
+			static_call vector, get_length, {shared->shared_history}, {length}
+			assign {shared->shared_history_index + 1}, {shared->shared_history_index}
+			if {shared->shared_history_index > length}
+				assign {length}, {shared->shared_history_index}
 			endif
-			if {shared->history_index == length}
+			if {shared->shared_history_index == length}
 				static_call string, create_from_cstr, {""}, {string}
 			else
-				static_call vector, get_element, {shared->history, shared->history_index}, {string}
+				static_call vector, get_element, {shared->shared_history, shared->shared_history_index}, {string}
 			endif
 			static_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, \
 										{_, shared->shared_bufp}
@@ -224,6 +228,8 @@
 		elseif {char == 27}
 			;esc
 			static_call master, stop, {shared->shared_master}
+			static_call string, create_from_cstr, {"Ready"}, {string}
+			static_call window, set_status, {shared->shared_window, string}
 			assign {&shared->shared_buffer}, {shared->shared_bufp}
 		elseif {char >= 32 && char < 127}
 			;next char

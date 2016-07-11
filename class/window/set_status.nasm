@@ -18,6 +18,7 @@
 		map_src_to_dst
 
 		s_call label, set_text, {[r0 + window_status], r1}
+		s_call label, dirty, {r0}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
