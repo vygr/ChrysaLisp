@@ -17,7 +17,7 @@
 		const pipe_char, '|'
 		const space_char, ' '
 
-		ptr inst, buffer, msg, string, commands, args, stream, mbox, ids
+		ptr inst, buffer, msg, string, commands, args, stream, mbox, ids, prefix, cmd
 		pubyte start
 		ulong length, index, started
 		struct nextid, id
@@ -34,6 +34,7 @@
 			static_call vector, get_length, {args}, {length}
 			if {length != 0}
 				;create command pipeline
+				static_call string, create_from_cstr, {"cmd/"}, {prefix}
 				static_call vector, create, {}, {commands}
 				static_call vector, set_capacity, {commands, length}
 				assign {0}, {index}
@@ -44,10 +45,13 @@
 					assign {stream->stream_bufp}, {start}
 					static_call stream, skip_not, {stream, space_char}
 					static_call string, create_from_buffer, {start, stream->stream_bufp - start}, {string}
-					static_call vector, push_back, {commands, string}
+					static_call string, add, {prefix, string}, {cmd}
+					static_call vector, push_back, {commands, cmd}
+					static_call string, deref, {string}
 					static_call stream, deref, {stream}
 					assign {index + 1}, {index}
 				loop_end
+				static_call string, deref, {prefix}
 
 				;open command pipeline
 				static_call sys_task, open_pipe, {commands}, {ids}
