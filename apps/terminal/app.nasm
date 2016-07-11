@@ -182,6 +182,8 @@
 
 				;start new pipe
 				static_call master, start, {shared->shared_master, &shared->shared_buffer, length}
+				static_call master, get_state, {shared->shared_master}, {state}
+				breakif {state != stream_mail_state_started}
 				static_call string, create_from_cstr, {"Busy"}, {string}
 				static_call window, set_status, {shared->shared_window, string}
 			else
