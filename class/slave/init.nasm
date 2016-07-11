@@ -48,7 +48,7 @@
 				static_call sys_mail, send, {msg}
 			else
 				;abort
-				static_call sys_mail, send, {msg}
+				static_call sys_mem, free, {msg}
 				assign {0}, {error}
 			endif
 		endif
