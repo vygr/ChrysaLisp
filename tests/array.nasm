@@ -29,7 +29,6 @@
 		static_call sys_task, open_array, {tasks}, {ids}
 
 		;send exit messages etc
-		assign {num_child}, {cnt}
 		loop_while {cnt != 0}
 			assign {cnt - 1}, {cnt}
 			continueif {!ids[cnt * id_size].id_mbox}
