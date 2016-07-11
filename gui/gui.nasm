@@ -118,6 +118,7 @@
 							assert r0, !=, 0
 
 							;fill in data
+							vp_cpy_cl ev_msg_size, [r0 + msg_length]
 							vp_cpy r14, [r0 + msg_dest]
 							vp_cpy r15, [r0 + (msg_dest + 8)]
 							vp_cpy_cl ev_type_key, [r0 + ev_msg_type]
@@ -167,6 +168,7 @@
 						assert r0, !=, 0
 
 						;fill in data
+						vp_cpy_cl ev_msg_size, [r0 + msg_length]
 						vp_cpy r14, [r0 + msg_dest]
 						vp_cpy r15, [r0 + (msg_dest + 8)]
 						vp_cpy [r4 + local_x_pos], r8

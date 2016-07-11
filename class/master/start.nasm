@@ -124,7 +124,6 @@
 						assign {index - 1}, {index}
 						continueif {ids[index * id_size].id_mbox == 0}
 						static_call sys_mail, alloc, {}, {msg}
-						assign {msg_header_size}, {msg->msg_length}
 						assign {ids[index * id_size].id_mbox}, {msg->msg_dest.id_mbox}
 						assign {ids[index * id_size].id_cpu}, {msg->msg_dest.id_cpu}
 						static_call sys_mail, send, {msg}

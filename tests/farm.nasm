@@ -29,7 +29,6 @@
 			static_call sys_mail, alloc, {}, {msg}
 			assign {ids[cnt * id_size].id_mbox}, {msg->msg_dest.id_mbox}
 			assign {ids[cnt * id_size].id_cpu}, {msg->msg_dest.id_cpu}
-			assign {msg_header_size}, {msg->msg_length}
 			static_call sys_mail, send, {msg}
 			static_call sys_task, yield
 		loop_end

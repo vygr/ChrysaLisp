@@ -16,6 +16,7 @@
 
 		method_call stream, write_flush, {inst}
 		static_call sys_mail, alloc, {}, {msg}
+		assign {msg_size}, {msg->msg_length}
 		assign {&msg->stream_mail_data}, {inst->stream_bufp}
 		assign {&msg->msg_size}, {inst->stream_bufe}
 		assign {msg}, {inst->stream_buffer}
