@@ -24,8 +24,6 @@
 			vp_cpy_cl 0, [r0 + stream_msg_out_seqnum]
 			vp_cpy_cl 0, [r0 + stream_msg_out_ack_seqnum]
 			vp_cpy_cl stream_mail_state_started, [r0 + stream_msg_out_state]
-			vp_lea [r0 + stream_msg_out_ack_list], r1
-			lh_init r1, r2
 			vp_lea [r0 + stream_msg_out_ack_mailbox], r1
 			ml_init r1, r2, r3
 		endif

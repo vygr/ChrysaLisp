@@ -26,20 +26,16 @@
 			static_call sys_cpu, id, {}, {msg->stream_mail_ack_id.id_cpu}
 			static_call sys_mail, send, {msg}
 			assign {0}, {inst->stream_buffer}
-			assign {inst->stream_msg_out_seqnum + 1}, {inst->stream_msg_out_seqnum}
 
 			;wait for an ack ?
-			loop_while {inst->stream_msg_out_seqnum - inst->stream_msg_out_ack_seqnum > stream_msg_out_ack_window}
-				assign {0}, {msg}
-				loop_start
-					static_call stream_msg_out, next_seq, {inst->stream_msg_out_ack_list, msg, \
-														inst->stream_msg_out_ack_seqnum}, {msg}
-					breakif {msg}
-					static_call sys_mail, read, {inst->stream_msg_out_ack_mailbox}, {msg}
-				loop_end
+			if {inst->stream_msg_out_seqnum >> stream_msg_out_ack_shift != inst->stream_msg_out_ack_seqnum}
+				static_call sys_mail, read, {&inst->stream_msg_out_ack_mailbox}, {msg}
 				static_call sys_mem, free, {msg}
 				assign {inst->stream_msg_out_ack_seqnum + 1}, {inst->stream_msg_out_ack_seqnum}
-			loop_end
+			endif
+
+			;next seq num
+			assign {inst->stream_msg_out_seqnum + 1}, {inst->stream_msg_out_seqnum}
 
 			;parent actions
 			super_call stream_msg_out, write_flush, {inst}

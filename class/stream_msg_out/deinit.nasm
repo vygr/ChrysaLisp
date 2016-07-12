@@ -13,17 +13,8 @@
 		retire {r0}, {inst}
 
 		;wait for final ack
-		loop_while {inst->stream_msg_out_seqnum != inst->stream_msg_out_ack_seqnum}
-			assign {0}, {msg}
-			loop_start
-				static_call stream_msg_out, next_seq, {inst->stream_msg_out_ack_list, msg, \
-													inst->stream_msg_out_ack_seqnum}, {msg}
-				breakif {msg}
-				static_call sys_mail, read, {inst->stream_msg_out_ack_mailbox}, {msg}
-			loop_end
-			static_call sys_mem, free, {msg}
-			assign {inst->stream_msg_out_ack_seqnum + 1}, {inst->stream_msg_out_ack_seqnum}
-		loop_end
+		static_call sys_mail, read, {&inst->stream_msg_out_ack_mailbox}, {msg}
+		static_call sys_mem, free, {msg}
 
 		eval {inst}, {r0}
 		pop_scope

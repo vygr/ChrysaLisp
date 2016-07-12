@@ -19,18 +19,16 @@
 		struct stream_msg_out_id, id
 		ulong stream_msg_out_ack_seqnum
 		struct stream_msg_out_ack_mailbox, mailbox
-		struct stream_msg_out_ack_list, lh_list
 	def_structure_end
 
 	def_structure stream_mail, msg_header
 		ulong stream_mail_seqnum
-		offset stream_mail_ack_data
 		ulong stream_mail_state
 		struct stream_mail_ack_id, id
 		offset stream_mail_data
 	def_structure_end
 
-	stream_msg_out_ack_window equ 16
+	stream_msg_out_ack_shift equ 4
 
 	def_enum
 		enum stream_mail_state_started
