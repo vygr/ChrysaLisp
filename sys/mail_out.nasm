@@ -49,8 +49,8 @@
 				vp_cpy r3, [r14 + msg_length]
 
 				;copy data block, round up for speed
-				vp_add 7, r2
-				vp_and -8, r2
+				vp_add ptr_size - 1, r2
+				vp_and -ptr_size, r2
 				s_call sys_mem, copy, {r0, r1, r2}, {_, _}
 
 				;queue it on the outgoing packet list

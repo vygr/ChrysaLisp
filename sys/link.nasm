@@ -134,8 +134,8 @@
 					;round up to next 8 byte boundary for speed
 					vp_lea [r10 + lk_chan_msg], r1
 					vp_cpy [r9 + msg_length], r2
-					vp_add 7, r2
-					vp_and -8, r2
+					vp_add ptr_size - 1, r2
+					vp_and -ptr_size, r2
 					s_call sys_mem, copy, {r9, r1, r2}, {_, _}
 
 					;free message

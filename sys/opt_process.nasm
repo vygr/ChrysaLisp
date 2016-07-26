@@ -30,8 +30,8 @@
 				endif
 				s_call sys_string, length, {r12}, {r1}
 				vp_add r1, r12
-				vp_add 8, r12
-				vp_and -8, r12
+				vp_add ptr_size, r12
+				vp_and -ptr_size, r12
 			loop_end
 		next_arg:
 			vp_cpy [r14], r0
