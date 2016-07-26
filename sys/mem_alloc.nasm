@@ -10,13 +10,13 @@
 		;trashes
 		;r2-r3
 
-		if r0, >, mem_block_max_size - 8
+		if r0, >, mem_block_max_size - ptr_size
 			;error
 			vp_xor r0, r0
 			vp_xor r1, r1
 			vp_ret
 		endif
-		vp_lea [r0 + 8], r1		;extra 8 bytes for heap pointer
+		vp_lea [r0 + ptr_size], r1		;extra 8 bytes for heap pointer
 
 		;find object heap
 		static_bind sys_mem, statics, r0
@@ -30,8 +30,8 @@
 		vp_cpy r0, [r1]
 		vp_xchg r0, r1
 		vp_cpy [r1 + hp_heap_cellsize], r1
-		vp_add 8, r0
-		vp_sub 8, r1
+		vp_add ptr_size, r0
+		vp_sub ptr_size, r1
 		vp_ret
 
 	fn_function_end

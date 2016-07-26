@@ -12,16 +12,16 @@
 		if r1, !=, 0
 			;not zero length
 			vp_cpy r0, r2
-			vp_and 7, r2
+			vp_and ptr_size - 1, r2
 			if r2, ==, 0
 				vp_cpy r1, r2
-				vp_and 7, r2
+				vp_and ptr_size - 1, r2
 				if r2, ==, 0
 					;all aligned on 8 byte boundary
 					vp_add r0, r1
 					loop_start
 						vp_cpy r2, [r0]
-						vp_add 8, r0
+						vp_add ptr_size, r0
 					loop_until r0, ==, r1
 					vp_ret
 				endif
