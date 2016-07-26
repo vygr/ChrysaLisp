@@ -159,8 +159,8 @@
 				vp_cpy r0, r1
 				vp_lea [r11 + lk_chan_msg], r0
 				vp_cpy [r0 + msg_length], r2
-				vp_add 7, r2
-				vp_and -8, r2
+				vp_add ptr_size - 1, r2
+				vp_and -ptr_size, r2
 				s_call sys_mem, copy, {r0, r1, r2}, {_, _}
 
 				;send onwards

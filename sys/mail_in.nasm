@@ -49,8 +49,8 @@
 			vp_add r2, r13
 
 			;copy fragment data, round up for speed
-			vp_add 7, r2
-			vp_and -8, r2
+			vp_add ptr_size - 1, r2
+			vp_and -ptr_size, r2
 			s_call sys_mem, copy, {r0, r1, r2}, {_, _}
 
 			;got all needed ?
