@@ -108,10 +108,10 @@
 
 	visible_up_callback:
 		def_structure vis
-			long vis_inst
-			long vis_root
-			long vis_next
-			long vis_region
+			ptr vis_inst
+			ptr vis_root
+			ptr vis_next
+			ptr vis_region
 		def_structure_end
 
 		;save inputs
@@ -217,9 +217,9 @@
 
 	distribute_down_callback:
 		def_structure dist
-			long dist_inst
-			long dist_data
-			long dist_next
+			ptr dist_inst
+			ptr dist_data
+			ptr dist_next
 		def_structure_end
 
 		;save inputs

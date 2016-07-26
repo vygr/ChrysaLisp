@@ -13,9 +13,9 @@
 		;r1-r3, r5-r15
 
 		def_structure local
-			long local_node
-			long local_slist
-			long local_dlist
+			ptr local_node
+			ptr local_slist
+			ptr local_dlist
 			long local_dx
 			long local_dy
 		def_structure_end
