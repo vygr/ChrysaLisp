@@ -11,11 +11,11 @@
 		long local_last_x_pos
 		long local_last_y_pos
 		long local_last_buttons
-		long local_last_view
-		long local_key_view
-		long local_keymap
+		ptr local_last_view
+		ptr local_key_view
+		ptr local_keymap
 		uint local_keymap_size
-		long local_old_keymap
+		ptr local_old_keymap
 	def_structure_end
 
 	fn_function gui/gui
