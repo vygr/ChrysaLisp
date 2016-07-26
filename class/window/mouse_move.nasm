@@ -11,7 +11,7 @@
 
 		def_structure local
 			ptr local_inst
-			long local_event
+			ptr local_event
 			long local_old_x
 			long local_old_y
 		def_structure_end
