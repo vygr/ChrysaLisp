@@ -83,7 +83,7 @@
 						assign {index + 1}, {index}
 					loop_end
 
-					;send args to inst elements, wiring up id's as we go
+					;send args to pipe elements, wiring up id's as we go
 					static_call sys_mail, init_mailbox, {&mailbox}
 					assign {mbox}, {nextid.id_mbox}
 					static_call sys_cpu, id, {}, {nextid.id_cpu}
