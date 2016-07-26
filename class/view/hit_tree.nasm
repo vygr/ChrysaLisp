@@ -16,8 +16,8 @@
 
 		def_structure local
 			ptr local_inst
-			long local_hit
-			long local_jump
+			ptr local_hit
+			ptr local_jump
 		def_structure_end
 
 		;save inputs

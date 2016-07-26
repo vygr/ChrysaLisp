@@ -20,8 +20,8 @@
 
 		def_structure local
 			ptr local_inst
-			long local_data
-			long local_callback
+			ptr local_data
+			ptr local_callback
 		def_structure_end
 
 		vp_sub local_size, r4
