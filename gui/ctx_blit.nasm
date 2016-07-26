@@ -18,9 +18,9 @@
 			struct local_srect, sdl_rect
 			struct local_clip_rect, sdl_rect
 			ptr local_ctx
-			long local_texture
-			long local_dirty_rect
-			long local_old_stack
+			ulong local_texture
+			ptr local_dirty_rect
+			ptr local_old_stack
 		def_structure_end
 
 		;align stack to 16 bytes for SDl
