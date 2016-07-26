@@ -11,9 +11,8 @@
 		;trashes
 		;all but r4
 
-		ptr name
+		ptr name, msg
 		ulong cpu
-		ptr msg
 		struct id, id
 		struct mailbox, mailbox
 

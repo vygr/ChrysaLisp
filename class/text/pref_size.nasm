@@ -14,12 +14,8 @@
 		;all but r0, r4
 
 		ptr inst
-		ulong width
-		ulong height
-		pptr words
-		pptr words_end
-		ulong length
-		ulong word_w
+		pptr words, words_end
+		ulong width, height, length, word_w
 
 		;save inputs
 		push_scope

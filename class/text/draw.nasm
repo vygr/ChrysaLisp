@@ -12,11 +12,8 @@
 		;trashes
 		;all but r0, r4
 
-		ptr inst
-		ptr ctx
-		ptr txt
-		pptr words
-		pptr words_end
+		ptr inst, ctx, txt
+		pptr words, words_end
 		ulong length
 		long x
 

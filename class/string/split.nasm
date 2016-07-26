@@ -12,9 +12,7 @@
 		;trashes
 		;all but r0, r4
 
-		ptr inst
-		ptr splits
-		ptr stream
+		ptr inst, splits, stream
 		ubyte char
 
 		;save inputs

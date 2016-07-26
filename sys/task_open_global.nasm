@@ -12,11 +12,8 @@
 		;trashes
 		;all but r4
 
-		ptr name
-		ulong length
-		ptr ids
-		ptr msg
-		ulong index
+		ptr name, ids, msg
+		ulong length, index
 		struct mailbox, mailbox
 
 		;save task info
