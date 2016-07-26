@@ -21,12 +21,12 @@
 			method_call stream_msg_out, write_flush, {stream}
 
 			;send stopping
-			assign {stream_mail_state_stopping}, {stream->stream_msg_out_state}
+			static_call stream_msg_out, set_state, {stream, stream_mail_state_stopping}
 			method_call stream_msg_out, write_next, {stream}
 			method_call stream_msg_out, write_flush, {stream}
 
 			;send stopped
-			assign {stream_mail_state_stopped}, {stream->stream_msg_out_state}
+			static_call stream_msg_out, set_state, {stream, stream_mail_state_stopped}
 			method_call stream_msg_out, write_next, {stream}
 			method_call stream_msg_out, write_flush, {stream}
 

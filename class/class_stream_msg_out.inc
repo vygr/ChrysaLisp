@@ -8,6 +8,7 @@
 	def_method new, class/stream_msg_out/new, static, {}, {r0}
 	def_method init, class/stream_msg_out/init, static, {r0, r1, r2, r3}, {r1}
 	def_method next_seq, class/stream_msg_out/next_seq, static, {r0, r1, r2}, {r0}
+	def_method set_state, class/stream_msg_out/set_state, static, {r0, r1}
 
 	def_method deinit, class/stream_msg_out/deinit, override
 	def_method write_flush, class/stream_msg_out/write_flush, override

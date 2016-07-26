@@ -20,7 +20,7 @@
 		method_call stream_msg_out, write_flush, {inst->slave_stdout}
 
 		;send stopping on stdout
-		assign {stream_mail_state_stopping}, {inst->slave_stdout->stream_msg_out_state}
+		static_call stream_msg_out, set_state, {inst->slave_stdout, stream_mail_state_stopping}
 		method_call stream_msg_out, write_next, {inst->slave_stdout}
 		method_call stream_msg_out, write_flush, {inst->slave_stdout}
 
@@ -30,8 +30,8 @@
 		loop_until {inst->slave_stdin->stream_msg_in_state == stream_mail_state_stopped}
 
 		;send stopped on stdout and stderr
-		assign {stream_mail_state_stopped}, {inst->slave_stdout->stream_msg_out_state}
-		assign {stream_mail_state_stopped}, {inst->slave_stderr->stream_msg_out_state}
+		static_call stream_msg_out, set_state, {inst->slave_stdout, stream_mail_state_stopped}
+		static_call stream_msg_out, set_state, {inst->slave_stderr, stream_mail_state_stopped}
 		method_call stream_msg_out, write_next, {inst->slave_stdout}
 		method_call stream_msg_out, write_flush, {inst->slave_stdout}
 		method_call stream_msg_out, write_next, {inst->slave_stderr}
