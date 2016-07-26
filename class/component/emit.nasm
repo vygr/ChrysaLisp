@@ -18,7 +18,7 @@
 
 		def_structure local
 			ptr local_inst
-			long local_next
+			ptr local_next
 		def_structure_end
 
 		;save inputs
