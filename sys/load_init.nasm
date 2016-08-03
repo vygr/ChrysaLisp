@@ -59,11 +59,11 @@
 					;no such function
 					vp_rel bind_error, r0
 					sys_write_string 2, r0, bind_error_end-bind_error
-					vp_cpy [r4 + 16], r0
+					vp_cpy [r4 + (ptr_size * 2)], r0
 					vp_add [r0], r0
 					vp_call string_skip
 					vp_lea [r0 - 1], r1
-					vp_cpy [r4 + 16], r0
+					vp_cpy [r4 + (ptr_size * 2)], r0
 					vp_add [r0], r0
 					vp_sub r0, r1
 					sys_write_string 2, r0, r1
@@ -73,7 +73,7 @@
 				vp_cpy r0, r1
 				vp_pop r0, r2, r5
 				vp_cpy r1, [r0]
-				vp_add 8, r0
+				vp_add ptr_size, r0
 			loop_end
 		loop_end
 		vp_ret

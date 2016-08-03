@@ -70,7 +70,7 @@
 			ln_add_fnode r8 + ld_statics_block_flist, r0, r1
 
 			;set block pointers for loading
-			vp_add 8, r0
+			vp_add ptr_size, r0
 			vp_cpy r0, [r8 + ld_statics_block_start]
 			vp_add ld_block_size - 8, r0
 			vp_cpy r0, [r8 + ld_statics_block_end]
@@ -111,13 +111,13 @@
 		loop_while r0, <, r2
 		 	vp_cpy [r0], r5
 			vp_cpy r5, [r1]
-			vp_add 8, r0
-			vp_add 8, r1
+			vp_add ptr_size, r0
+			vp_add ptr_size, r1
 		loop_end
 
 		;push reloc buffer entry
-		vp_add 8, r1
-		vp_cpy r6, [r1 - 8]
+		vp_add ptr_size, r1
+		vp_cpy r6, [r1 - ptr_size]
 		vp_cpy r1, [r8 + ld_statics_reloc_stack]
 
 		;overflow check
@@ -140,11 +140,11 @@
 			vp_add r0, r2
 			vp_add r6, r2
 			vp_cpy r2, [r0]
-			vp_add 8, r0
+			vp_add ptr_size, r0
 		loop_end
 
 		;adjust block start
-		vp_add 8, r0
+		vp_add ptr_size, r0
 		vp_cpy r0, [r8 + ld_statics_block_start]
 
 		;load and link function references
@@ -176,7 +176,7 @@
 			vp_cpy r0, r1
 			vp_pop r0
 			vp_cpy r1, [r0]
-			vp_add 8, r0
+			vp_add ptr_size, r0
 		loop_end
 		vp_pop r3
 
@@ -189,7 +189,7 @@
 
 		;pop reloc buffer
 		vp_cpy [r8 + ld_statics_reloc_stack], r0
-		vp_cpy [r0 - 8], r0
+		vp_cpy [r0 - ptr_size], r0
 		vp_cpy r0, [r8 + ld_statics_reloc_stack]
 
 		;return function address
