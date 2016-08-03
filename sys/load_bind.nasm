@@ -72,7 +72,7 @@
 			;set block pointers for loading
 			vp_add ptr_size, r0
 			vp_cpy r0, [r8 + ld_statics_block_start]
-			vp_add ld_block_size - 8, r0
+			vp_add ld_block_size - ptr_size, r0
 			vp_cpy r0, [r8 + ld_statics_block_end]
 		endif
 
