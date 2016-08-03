@@ -1,6 +1,8 @@
 %include 'inc/func.inc'
 %include 'inc/load.inc'
 
+;%define list_loaded
+
 	fn_function sys/load_bind
 		;input
 		;r0 = function path name
@@ -75,6 +77,19 @@
 			vp_add ld_block_size - ptr_size, r0
 			vp_cpy r0, [r8 + ld_statics_block_end]
 		endif
+
+%ifdef list_loaded
+		;print loaded function name
+		vp_rel loaded_name, r0
+		sys_write_string 2, r0, loaded_name_end-loaded_name
+		vp_cpy r7, r0
+		vp_call string_skip
+		vp_lea [r0 - 1], r1
+		vp_sub r7, r1
+		sys_write_string 2, r7, r1
+		sys_write_char 2, "'"
+		sys_write_char 2, 10
+%endif
 
 		;open function file
 		sys_open r7, o_rdonly, 0
@@ -238,5 +253,9 @@
 	size_error:
 		db 'Length field error !', 10
 	size_error_end:
+
+	loaded_name:
+		db "incbin '"
+	loaded_name_end:
 
 	fn_function_end
