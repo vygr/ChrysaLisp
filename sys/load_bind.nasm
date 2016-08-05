@@ -254,8 +254,10 @@
 		db 'Length field error !', 10
 	size_error_end:
 
+%ifdef list_loaded
 	loaded_name:
 		db "incbin '"
 	loaded_name_end:
+%endif
 
 	fn_function_end
