@@ -53,10 +53,10 @@
 ;;;;;;;;;;;;;;;;;
 
 	def_structure fn_header, ln_fnode
-		int fn_header_length
-		int fn_header_entry
-		int fn_header_links
-		int fn_header_paths
+		uint fn_header_length
+		uint fn_header_entry
+		uint fn_header_links
+		uint fn_header_paths
 		offset fn_header_pathname
 	def_structure_end
 
