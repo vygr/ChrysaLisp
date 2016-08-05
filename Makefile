@@ -1,5 +1,5 @@
 OS := $(shell uname)
-all_srcs := $(shell find . -type f -name '*.nasm' -mindepth 2)
+all_srcs := $(shell find . -mindepth 2 -type f -name '*.nasm')
 all_deps := $(shell find . -type f -name '*.d')
 all_objects := $(patsubst ./%.nasm, obj/%, $(all_srcs))
 
