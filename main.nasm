@@ -39,14 +39,14 @@ main:
 	align 8, db 0
 
 ld_load_init_loader:
-	incbin	'obj/sys/load_init'		;must be first function !
-	incbin	'obj/sys/load_bind'		;must be second function !
-	incbin	'obj/sys/load_statics'	;must be third function !
-	incbin	'obj/sys/load_deinit'	;must be included ! Because it unmaps all function blocks
+	incbin 'obj/sys/load_init'		;must be first function !
+	incbin 'obj/sys/load_bind'		;must be second function !
+	incbin 'obj/sys/load_statics'	;must be third function !
+	incbin 'obj/sys/load_deinit'	;must be included ! Because it unmaps all function blocks
 ld_gui_init_gui:
-	incbin	'obj/gui/gui_init'		;must be included !
+	incbin 'obj/gui/gui_init'		;must be included !
 ld_kernel:
-	incbin	'obj/sys/kernel'		;must be included !
+	incbin 'obj/sys/kernel'		;must be included !
 
 	incbin 'obj/sys/string_length'
 	incbin 'obj/sys/write_number'
@@ -99,7 +99,7 @@ ld_kernel:
 	incbin 'obj/sys/write_debug_str'
 	incbin 'obj/sys/write_string'
 
-	dq 0, 0							;must mark end
+	dq 0,0	;must mark end
 
 	SECTION .data
 
