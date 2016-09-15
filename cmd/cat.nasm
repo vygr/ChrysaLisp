@@ -25,7 +25,7 @@
 				;names from command line
 				assign {1}, {index}
 				loop_while {index != argc}
-					static_call vector, get_element, {args, index}, {arg}
+					static_call vector, ref_element, {args, index}, {arg}
 					local_call cat_string, {slave, arg, &buffer}, {r0, r1, r2}
 					assign {index + 1}, {index}
 				loop_end

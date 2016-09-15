@@ -31,7 +31,7 @@
 				loop_start
 					static_call vector, get_length, {vector}, {length}
 					breakif {!length}
-					static_call vector, get_back, {vector}, {stream}
+					static_call vector, ref_back, {vector}, {stream}
 					static_call vector, pop_back, {vector}
 					loop_start
 						static_call stream, read_line, {stream, &buffer, buffer_size}, {length}

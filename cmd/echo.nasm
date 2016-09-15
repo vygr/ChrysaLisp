@@ -24,7 +24,7 @@
 				;strings from command line
 				assign {1}, {index}
 				loop_while {index != argc}
-					static_call vector, get_element, {args, index}, {arg}
+					static_call vector, ref_element, {args, index}, {arg}
 					static_call stream, write, {slave->slave_stdout, &arg->string_data, arg->string_length}
 					static_call stream, write_char, {slave->slave_stdout, char_lf}
 					static_call string, deref, {arg}

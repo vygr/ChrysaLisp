@@ -173,7 +173,7 @@
 					static_call vector, push_back, {shared->shared_history, string}
 					assign {shared->shared_history_index + 1}, {shared->shared_history_index}
 				else
-					static_call vector, get_back, {shared->shared_history}, {last}
+					static_call vector, ref_back, {shared->shared_history}, {last}
 					static_call string, compare, {string, last}, {same}
 					static_call string, deref, {last}
 					gotoifnot {same}, new_entry
@@ -206,7 +206,7 @@
 			if {shared->shared_history_index}
 				assign {shared->shared_history_index - 1}, {shared->shared_history_index}
 			endif
-			static_call vector, get_element, {shared->shared_history, shared->shared_history_index}, {string}
+			static_call vector, ref_element, {shared->shared_history, shared->shared_history_index}, {string}
 			static_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, \
 										{_, shared->shared_bufp}
 			static_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
@@ -221,7 +221,7 @@
 			if {shared->shared_history_index == length}
 				static_call string, create_from_cstr, {""}, {string}
 			else
-				static_call vector, get_element, {shared->shared_history, shared->shared_history_index}, {string}
+				static_call vector, ref_element, {shared->shared_history, shared->shared_history_index}, {string}
 			endif
 			static_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, \
 										{_, shared->shared_bufp}
