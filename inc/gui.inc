@@ -82,7 +82,7 @@
 	def_enum
 		enum ev_type_mouse
 		enum ev_type_key
-	def_enum
+	def_enum_end
 
 	def_structure ev_msg, msg_header
 		ulong ev_msg_type
