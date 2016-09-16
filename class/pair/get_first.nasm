@@ -6,7 +6,7 @@
 		;r0 = pair object
 		;outputs
 		;r0 = pair object
-		;r1 = 0, else object pointer
+		;r1 = object pointer
 
 		vp_cpy [r0 + pair_first], r1
 		vp_ret

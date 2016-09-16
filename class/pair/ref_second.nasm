@@ -6,7 +6,7 @@
 		;r0 = pair object
 		;outputs
 		;r0 = pair object
-		;r1 = 0, else object pointer
+		;r1 = object pointer
 
 		vp_push r0
 		s_call ref, ref, {[r0 + pair_second]}
