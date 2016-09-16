@@ -16,6 +16,7 @@
 	def_method get_element, class/vector/get_element, static, {r0, r1}, {r1}
 	def_method push_back, class/vector/push_back, static, {r0, r1}
 	def_method pop_back, class/vector/pop_back, static, {r0}
+	def_method clear, class/vector/clear, static, {r0}
 
 	def_method deinit, class/vector/deinit, override
 
