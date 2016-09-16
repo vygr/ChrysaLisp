@@ -5,21 +5,20 @@
 		;r0 = string1
 		;r1 = string2
 		;outputs
-		;r0 = 0 if not same
+		;r0 = 0 if same, else -, +
 		;trashes
 		;r0-r3
 
 		loop_start
 			vp_cpy_ub [r0], r2
 			vp_cpy_ub [r1], r3
-			breakif r2, !=, r3
-			if r2, ==, 0
-				vp_ret
-			endif
+			vp_sub r3, r2
+			breakif r2, !=, 0
+			breakif r3, ==, 0
 			vp_inc r0
 			vp_inc r1
 		loop_end
-		vp_xor r0, r0
+		vp_cpy r2, r0
 		vp_ret
 
 	fn_function_end

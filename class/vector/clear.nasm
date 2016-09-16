@@ -26,7 +26,7 @@
 
 	clear_callback:
 		s_call ref, deref, {r0}
-		vp_xor r1, r1
+		vp_cpy 1, r1
 		vp_ret
 
 	fn_function_end

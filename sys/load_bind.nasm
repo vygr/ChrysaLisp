@@ -27,7 +27,7 @@
 			vp_cpy r7, r0
 			vp_lea [r6 + fn_header_pathname], r1
 			vp_call string_compare
-		loop_until r0, !=, 0
+		loop_until r0, ==, 0
 		if r6, !=, 0
 			;found function already loaded
 			vp_cpy_ui [r6 + fn_header_entry], r0
@@ -216,14 +216,13 @@
 		loop_start
 			vp_cpy_ub [r0], r2
 			vp_cpy_ub [r1], r3
-			breakif r2, !=, r3
-			if r2, ==, 0
-				vp_ret
-			endif
+			vp_sub r3, r2
+			breakif r2, !=, 0
+			breakif r3, ==, 0
 			vp_inc r0
 			vp_inc r1
 		loop_end
-		vp_xor r0, r0
+		vp_cpy r2, r0
 		vp_ret
 
 	string_copy:

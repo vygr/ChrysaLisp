@@ -22,7 +22,7 @@
 				breakif r11, ==, 0
 				vp_add 8, r12
 				s_call sys_string, compare, {r12, r13}, {r0}
-				if r0, !=, 0
+				if r0, ==, 0
 					vp_rel options_table, r0
 					vp_add r11, r0
 					vp_call r0

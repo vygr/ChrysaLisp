@@ -16,7 +16,7 @@
 			;r0 = element object
 			;r1 = predicate data pointer
 			;outputs
-			;r1 = 0 if not break, else break
+			;r1 = 0 if break, else not
 			;trashes
 			;all but r0, r4
 
@@ -45,7 +45,7 @@
 			vp_cpy [r4 + local_predicate_data], r1
 			vp_call [r4 + local_predicate]
 			vp_cpy [r4 + local_next], r0
-			breakif r1, !=, 0
+			breakif r1, ==, 0
 			vp_add ptr_size, r0
 		loop_end
 

@@ -146,7 +146,7 @@
 		;r1 = char input
 
 		ptr shared, string, last, stream
-		ulong length, same
+		ulong length, notsame
 		ubyte char, state
 
 		push_scope
@@ -174,9 +174,9 @@
 					assign {shared->shared_history_index + 1}, {shared->shared_history_index}
 				else
 					static_call vector, ref_back, {shared->shared_history}, {last}
-					static_call string, compare, {string, last}, {same}
+					static_call string, compare, {string, last}, {notsame}
 					static_call string, deref, {last}
-					gotoifnot {same}, new_entry
+					gotoif {notsame}, new_entry
 					static_call string, deref, {string}
 				endif
 

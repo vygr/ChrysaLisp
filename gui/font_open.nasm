@@ -33,7 +33,7 @@
 			vp_cpy [r4 + local_points], r0
 			continueif r0, !=, [r5 + ft_font_points]
 			s_call sys_string, compare, {&[r5 + ft_font_name], [r4 + local_font]}, {r0}
-		loop_until r0, !=, 0
+		loop_until r0, ==, 0
 
 		;did we find it ?
 		vp_cpy r5, r0
@@ -66,7 +66,7 @@
 			vp_cpy [r14 + local_points], r0
 			continueif r0, !=, [r5 + ft_font_points]
 			s_call sys_string, compare, {&[r5 + ft_font_name], [r14 + local_font]}, {r0}
-		loop_until r0, !=, 0
+		loop_until r0, ==, 0
 
 		;did we find it ?
 		vp_cpy r5, r0
