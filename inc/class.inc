@@ -388,6 +388,7 @@
 	def_method component, class/class_component
 	def_method string, class/class_string
 	def_method vector, class/class_vector
+	def_method pair, class/class_pair
 	def_method stream, class/class_stream
 	def_method stream_msg_out, class/class_stream_msg_out
 	def_method stream_msg_in, class/class_stream_msg_in
