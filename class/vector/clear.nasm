@@ -39,7 +39,7 @@
 
 		;init myself
 		vp_xor r1, r1
-		vp_cpy [r4 +local_inst], r0
+		vp_cpy [r4 + local_inst], r0
 		vp_cpy r1, [r0 + vector_array]
 		vp_cpy r1, [r0 + vector_length]
 		vp_cpy r1, [r0 + vector_capacity]
