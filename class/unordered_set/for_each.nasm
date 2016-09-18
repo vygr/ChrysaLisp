@@ -25,6 +25,7 @@
 			ptr local_inst
 			ptr local_predicate
 			ptr local_predicate_data
+			ptr local_iter
 		def_structure_end
 
 		;save inputs
@@ -34,7 +35,9 @@
 		map_src_to_dst
 
 		;for all buckets
-		s_call vector, for_each, {[r0 + unordered_set_buckets], $bucket_callback, r4}, {r1}
+		s_call vector, for_each, {[r0 + unordered_set_buckets], $bucket_callback, r4}, {_}
+		vp_cpy [r4 + local_iter], r1
+		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 
@@ -45,7 +48,15 @@
 		;outputs
 		;r1 = 0 if break, else not
 
+		vp_push r1
 		s_call vector, for_each, {[r0], [r1 + local_predicate], [r1 + local_predicate_data]}, {r1}
+		vp_pop r0
+		vp_cpy r1, [r0 + local_iter]
+		if r1, ==, 0
+			vp_inc r1
+		else
+			vp_xor r1, r1
+		endif
 		vp_ret
 
 	fn_function_end
