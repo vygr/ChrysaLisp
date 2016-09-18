@@ -7,6 +7,7 @@
 		;r0 = unordered_set object
 		;r1 = vtable pointer
 		;r2 = num_buckets
+		;r3 = key compare callback
 		;outputs
 		;r1 = 0 if error, else ok
 		;trashes
@@ -14,6 +15,7 @@
 
 		;save inputs
 		vp_cpy r2, [r0 + unordered_set_num_buckets]
+		vp_cpy r3, [r0 + unordered_set_key_callback]
 
 		;init parent
 		p_call unordered_set, init, {r0, r1}, {r1}
