@@ -389,6 +389,8 @@
 	def_method string, class/class_string
 	def_method vector, class/class_vector
 	def_method pair, class/class_pair
+	def_method unordered_set, class/class_unordered_set
+	def_method unordered_map, class/class_unordered_map
 	def_method stream, class/class_stream
 	def_method stream_msg_out, class/class_stream_msg_out
 	def_method stream_msg_in, class/class_stream_msg_in

@@ -25,7 +25,13 @@
 		vp_ret
 
 	clear_callback:
-		s_call ref, deref, {r0}
+		;inputs
+		;r0 = element iterator
+		;r1 = predicate data pointer
+		;outputs
+		;r1 = 0 if break, else not
+
+		s_call ref, deref, {[r0]}
 		vp_cpy 1, r1
 		vp_ret
 

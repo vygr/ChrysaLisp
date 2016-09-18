@@ -13,7 +13,7 @@
 		;all but r0, r4
 			;callback predicate
 			;inputs
-			;r0 = element object
+			;r0 = element iterator
 			;r1 = predicate data pointer
 			;outputs
 			;r1 = 0 if break, else not
@@ -41,7 +41,6 @@
 		vp_cpy r1, [r4 + local_end]
 		loop_while r0, !=, [r4 + local_end]
 			vp_cpy r0, [r4 + local_next]
-			vp_cpy [r0], r0
 			vp_cpy [r4 + local_predicate_data], r1
 			vp_call [r4 + local_predicate]
 			vp_cpy [r4 + local_next], r0
