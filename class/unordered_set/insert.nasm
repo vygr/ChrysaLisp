@@ -2,13 +2,12 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/unordered_set/find
+	fn_function class/unordered_set/insert
 		;inputs
 		;r0 = unordered_set object
 		;r1 = key object
 		;outputs
 		;r0 = unordered_set object
-		;r1 = 0, else found iterator
 		;trashes
 		;all but r0, r4
 
@@ -32,11 +31,17 @@
 		vp_shl 3, r2
 		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r0 + unordered_set_buckets], r0
-		s_call vector, for_each, {[r0 + r2], $find_callback, r4}, {r1}
+		s_call vector, for_each, {[r0 + r2], $insert_callback, r4}, {r1}
+		if r1, ==, 0
+			;new key
+			vp_cpy r0, r2
+			s_call ref, ref, {[r4 + local_key]}
+			s_call vector, push_back, {r2, r0}
+		endif
 		vp_add local_size, r4
 		vp_ret
 
-	find_callback:
+	insert_callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer

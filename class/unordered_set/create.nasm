@@ -3,8 +3,8 @@
 
 fn_function class/unordered_set/create
 	;inputs
-	;r0 = num buckets
-	;r1 = key compare callback
+	;r0 = key compare callback
+	;r1 = num buckets
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes

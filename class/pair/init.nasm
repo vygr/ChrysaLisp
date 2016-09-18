@@ -17,15 +17,6 @@
 		vp_cpy r3, [r0 + pair_second]
 
 		;init parent
-		p_call pair, init, {r0, r1}, {r1}
-		if r1, !=, 0
-			;init myself
-			vp_push r0
-			s_call ref, ref, {[r0 + pair_first]}
-			vp_cpy [r4], r0
-			s_call ref, ref, {[r0 + pair_second]}
-			vp_pop r0
-		endif
-		vp_ret
+		p_jmp pair, init, {r0, r1}, {r1}
 
 	fn_function_end
