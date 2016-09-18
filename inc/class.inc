@@ -259,7 +259,11 @@
 
 		method_lookup _super_class_%1_, %2
 		%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
-			%fatal Class _super_class_%1_ method %2 is static !
+			%ifidn _map_%[_super_class_%1_]_name_%[_static_], init
+				;exeption for init
+			%else
+				%fatal Class _super_class_%1_ method %2 is static !
+			%endif
 		%endif
 		map_inputs _super_class_%1_, %2, {%3}, _static_
 		fn_jmp _map_%[_super_class_%1_]_slot_%[_static_]

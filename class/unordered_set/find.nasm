@@ -33,6 +33,7 @@
 		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r0 + unordered_set_buckets], r0
 		s_call vector, for_each, {[r0 + r2], $find_callback, r4}, {r1}
+		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 
