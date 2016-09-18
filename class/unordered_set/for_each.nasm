@@ -10,7 +10,7 @@
 		;outputs
 		;r0 = unordered_set object
 		;r1 = 0, else break iterator
-		;r2 = bucket vector
+		;r2 = 0, else bucket vector
 		;trashes
 		;all but r0, r4
 			;callback predicate
