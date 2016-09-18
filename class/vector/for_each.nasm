@@ -8,7 +8,7 @@
 		;r2 = predicate data pointer
 		;outputs
 		;r0 = vector object
-		;r1 = -1, else break index
+		;r1 = 0, else break iterator
 		;trashes
 		;all but r0, r4
 			;callback predicate
@@ -49,14 +49,13 @@
 			vp_add ptr_size, r0
 		loop_end
 
-		;index of break point, else -1
+		;iterator of break point, else 0
 		vp_cpy r0, r1
 		vp_cpy [r4 + local_inst], r0
-		vp_sub [r0 + vector_array], r1
-		if r1, ==, [r0 + vector_length]
-			vp_cpy -1, r1
-		else
-			vp_shr 3, r1
+		vp_cpy [r0 + vector_array], r2
+		vp_add [r0 + vector_length], r2
+		if r1, ==, r2
+			vp_xor r1, r1
 		endif
 		vp_add local_size, r4
 		vp_ret
