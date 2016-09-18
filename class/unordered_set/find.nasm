@@ -9,6 +9,7 @@
 		;outputs
 		;r0 = unordered_set object
 		;r1 = 0, else found iterator
+		;r2 = bucket vector
 		;trashes
 		;all but r0, r4
 
@@ -33,6 +34,7 @@
 		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r0 + unordered_set_buckets], r0
 		s_call vector, for_each, {[r0 + r2], $find_callback, r4}, {r1}
+		vp_cpy r0, r2
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret

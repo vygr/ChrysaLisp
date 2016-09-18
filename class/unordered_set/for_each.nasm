@@ -10,6 +10,7 @@
 		;outputs
 		;r0 = unordered_set object
 		;r1 = 0, else break iterator
+		;r2 = bucket vector
 		;trashes
 		;all but r0, r4
 			;callback predicate
@@ -35,7 +36,10 @@
 		map_src_to_dst
 
 		;for all buckets
-		s_call vector, for_each, {[r0 + unordered_set_buckets], $bucket_callback, r4}, {_}
+		s_call vector, for_each, {[r0 + unordered_set_buckets], $bucket_callback, r4}, {r2}
+		if r2, !=, 0
+			vp_cpy [r2], r2
+		endif
 		vp_cpy [r4 + local_iter], r1
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
