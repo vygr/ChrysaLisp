@@ -15,13 +15,13 @@
 			vp_cpy [r2 + msg_parcel_size], r1
 			if r1, !=, 0
 				;mail for postman !
-				static_bind sys_mail, statics, r1
+				s_bind sys_mail, statics, r1
 				vp_cpy [r1 + ml_statics_in_mailbox], r1
 			else
 				vp_cpy [r2 + msg_dest], r1
 				if r1, ==, 0
 					;mail for kernel !
-					static_bind sys_mail, statics, r1
+					s_bind sys_mail, statics, r1
 					vp_cpy [r1 + ml_statics_kernel_mailbox], r1
 				endif
 			endif
@@ -34,7 +34,7 @@
 			endif
 		else
 			;going off chip
-			static_bind sys_mail, statics, r1
+			s_bind sys_mail, statics, r1
 			vp_cpy [r2 + msg_length], r0
 			if r0, >, msg_size
 				;must use postman task

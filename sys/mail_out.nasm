@@ -10,7 +10,7 @@
 
 			;create next parcel id
 			s_call sys_cpu, id, {}, {r6}
-			static_bind sys_mail, statics, r1
+			s_bind sys_mail, statics, r1
 			vp_cpy [r1 + ml_statics_parcel_id], r7
 			vp_inc r7
 			vp_cpy r7, [r1 + ml_statics_parcel_id]
@@ -54,7 +54,7 @@
 				s_call sys_mem, copy, {r0, r1, r2}, {_, _}
 
 				;queue it on the outgoing packet list
-				static_bind sys_mail, statics, r0
+				s_bind sys_mail, statics, r0
 				vp_lea [r0 + ml_statics_offchip_list], r0
 				lh_add_at_tail r0, r14, r1
 

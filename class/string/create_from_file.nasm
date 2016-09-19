@@ -15,7 +15,7 @@
 		vp_cpy r0, r6
 
 		;get size of string from file size
-		static_bind sys_load, statics, r7
+		s_bind sys_load, statics, r7
 		vp_add ld_statics_stat_buffer, r7
 		sys_stat r0, r7
 		if r0, !=, 0

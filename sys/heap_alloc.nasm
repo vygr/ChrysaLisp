@@ -23,7 +23,7 @@
 			vp_cpy r0, r2
 			sys_mmap 0, r1, prot_read|prot_write, map_private|map_anon, -1, 0
 			assert r0, !=, 0
-			static_bind sys_mem, statics, r3
+			s_bind sys_mem, statics, r3
 			vp_add r1, [r3]
 			vp_cpy r0, r1
 			vp_cpy r2, r0

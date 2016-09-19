@@ -32,7 +32,7 @@
 
 		;start kernel task
 		s_call sys_task, start, {r0}, {r0, r1}
-		static_bind sys_task, statics, r2
+		s_bind sys_task, statics, r2
 		vp_cpy r0, [r2 + tk_statics_current_tcb]
 		vp_cpy r0, [r2 + tk_statics_kernel_tcb]
 
@@ -45,7 +45,7 @@
 		;fill in num cpu's with at least mine + 1
 		s_call sys_cpu, id, {}, {r0}
 		vp_inc r0
-		static_bind sys_task, statics, r1
+		s_bind sys_task, statics, r1
 		vp_cpy r0, [r1 + tk_statics_cpu_total]
 
 		;allocate for kernel routing table
@@ -100,9 +100,9 @@
 				case r1, ==, kn_call_task_child
 					;find best cpu to run task
 					s_call sys_cpu, id, {}, {r5}
-					static_bind sys_task, statics, r1
+					s_bind sys_task, statics, r1
 					vp_cpy [r1 + tk_statics_task_count], r1
-					static_bind sys_link, statics, r2
+					s_bind sys_link, statics, r2
 					loop_list_forward r2 + lk_statics_links_list, r3, r2
 						if r1, >, [r3 + lk_node_task_count]
 							vp_cpy [r3 + lk_node_cpu_id], r0
@@ -117,7 +117,7 @@
 					break
 				case r1, ==, kn_call_task_route
 					;increase size of network ?
-					static_bind sys_task, statics, r0
+					s_bind sys_task, statics, r0
 					vp_cpy [r15 + kn_msg_link_route_origin], r1
 					vp_inc r1
 					if r1, >, [r0 + tk_statics_cpu_total]
@@ -144,7 +144,7 @@
 
 						;fill in via route and remove other routes
 						vp_cpy [r15 + kn_msg_link_route_via], r13
-						static_bind sys_link, statics, r14
+						s_bind sys_link, statics, r14
 						loop_list_forward r14 + lk_statics_links_list, r12, r14
 							;new link route table ?
 							s_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
@@ -163,7 +163,7 @@
 					case r2, ==, r3
 						;new hops is equal, so additional route
 						vp_cpy [r15 + kn_msg_link_route_via], r13
-						static_bind sys_link, statics, r14
+						s_bind sys_link, statics, r14
 						loop_list_forward r14 + lk_statics_links_list, r12, r14
 							;new link route table ?
 							s_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
@@ -191,7 +191,7 @@
 					s_call sys_cpu, id, {}, {[r15 + kn_msg_link_route_via]}
 
 					;copy and send to all neighbors apart from old via
-					static_bind sys_link, statics, r13
+					s_bind sys_link, statics, r13
 					loop_list_forward r13 + lk_statics_links_list, r12, r13
 						vp_cpy [r12 + lk_node_cpu_id], r11
 						continueif r11, ==, r14
@@ -230,7 +230,7 @@
 			s_call sys_cpu, time, {}, {r0}
 
 			;start any tasks ready to restart
-			static_bind sys_task, statics, r3
+			s_bind sys_task, statics, r3
 			vp_cpy [r3 + tk_statics_current_tcb], r15
 			vp_cpy [r3 + tk_statics_timer_list + lh_list_head], r2
 			ln_get_succ r2, r2

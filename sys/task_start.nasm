@@ -14,7 +14,7 @@
 		vp_cpy r0, r5
 
 		;increment task count
-		static_bind sys_task, statics, r0
+		s_bind sys_task, statics, r0
 		vp_cpy [r0 + tk_statics_task_count], r1
 		vp_inc r1
 		vp_cpy r1, [r0 + tk_statics_task_count]

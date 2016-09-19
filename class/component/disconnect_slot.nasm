@@ -15,7 +15,7 @@
 		map_src_to_dst
 
 		;gui sigslot heap
-		static_bind gui_gui, statics, r0
+		s_bind gui_gui, statics, r0
 		vp_add gui_statics_sigslot_heap, r0
 
 		;disconnect slots

@@ -4,7 +4,7 @@
 
 	fn_function gui/font_deinit
 		;get font statics
-		static_bind gui_font, statics, r15
+		s_bind gui_font, statics, r15
 
 		;free all text in the cache
 		vp_lea [r15 + ft_statics_text_flists], r10

@@ -26,7 +26,7 @@
 		map_src_to_dst
 
 		;get font statics
-		static_bind gui_font, statics, r5
+		s_bind gui_font, statics, r5
 
 		;search font list
 		loop_flist_forward r5 + ft_statics_font_flist, r5, r5
@@ -59,7 +59,7 @@
 		vp_cpy r0, r14
 
 		;get font statics
-		static_bind gui_font, statics, r5
+		s_bind gui_font, statics, r5
 
 		;search font list
 		loop_flist_forward r5 + ft_statics_font_flist, r5, r5
@@ -92,7 +92,7 @@
 				vp_cpy r0, [r13 + ft_font_height]
 
 				vp_cpy r13, r0
-				static_bind gui_font, statics, r5
+				s_bind gui_font, statics, r5
 				ln_add_fnode r5 + ft_statics_font_flist, r0, r1
 			endif
 		endif

@@ -188,7 +188,7 @@
 ;;;;;;;;;;;;;
 
 	%macro sdl_call 1
-		static_bind gui_gui, statics, r0
+		s_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_sdl_funcs], r0
 		vp_call [r0 + (%1 * 8)]
 	%endmacro

@@ -6,7 +6,7 @@
 		;r0 = sdl function table
 
 		;init sdl function table
-		static_bind gui_gui, statics, r3
+		s_bind gui_gui, statics, r3
 		vp_cpy r0, [r3 + gui_statics_sdl_funcs]
 
 		;init old region

@@ -28,7 +28,7 @@
 		vp_cpy r0, [r4 + local_last_view]
 		vp_cpy r0, [r4 + local_key_view]
 		vp_cpy r0, [r4 + local_old_keymap]
-		static_bind gui_gui, statics, r1
+		s_bind gui_gui, statics, r1
 		vp_cpy r0, [r1 + gui_statics_screen]
 
 		;kernel callback for first update
@@ -37,7 +37,7 @@
 
 		;allocate background view for screen
 		s_call label, create, {}, {r0}
-		static_bind gui_gui, statics, r1
+		s_bind gui_gui, statics, r1
 		vp_cpy r0, [r1 + gui_statics_screen]
 
 		;size and color and opaque
@@ -196,7 +196,7 @@
 				;button down ?
 				if r10, !=, 0
 					;find view
-					static_bind gui_gui, statics, r5
+					s_bind gui_gui, statics, r5
 					s_call view, hit_tree, {[r5 + gui_statics_screen], \
 												[r4 + local_x_pos], \
 												[r4 + local_y_pos]}, {r1, r8, r9}
@@ -212,7 +212,7 @@
 				else
 					;hover
 					;find view for keys
-					static_bind gui_gui, statics, r5
+					s_bind gui_gui, statics, r5
 					s_call view, hit_tree, {[r5 + gui_statics_screen], \
 												[r4 + local_x_pos], \
 												[r4 + local_y_pos]}, {r1, _, _}
@@ -250,7 +250,7 @@
 		vp_cpy r0, [r4 + klocal_user]
 
 		;create screen window ?
-		static_bind gui_gui, statics, r0
+		s_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_window], r1
 		if r1, ==, 0
 			;init sdl2
@@ -260,12 +260,12 @@
 
 			;create window
 			sdl_create_window $title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL
-			static_bind gui_gui, statics, r1
+			s_bind gui_gui, statics, r1
 			vp_cpy r0, [r1 + gui_statics_window]
 
 			;create renderer
 			sdl_create_renderer r0, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
-			static_bind gui_gui, statics, r1
+			s_bind gui_gui, statics, r1
 			vp_cpy r0, [r1 + gui_statics_renderer]
 
 			;set blend mode
@@ -273,7 +273,7 @@
 		endif
 
 		;update screen
-		static_bind gui_gui, statics, r0
+		s_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_screen], r0
 		if r0, !=, 0
 			;pump sdl events
@@ -294,11 +294,11 @@
 			vp_cpy r0, [r1 + local_keymap]
 
 			;update the screen
-			static_bind gui_gui, statics, r0
+			s_bind gui_gui, statics, r0
 			s_call gui_gui, update, {[r0 + gui_statics_screen]}
 
 			;refresh the window
-			static_bind gui_gui, statics, r0
+			s_bind gui_gui, statics, r0
 			sdl_render_present [r0 + gui_statics_renderer]
 		endif
 
@@ -310,7 +310,7 @@
 		;r0 = user data
 
 		;free any screen
-		static_bind gui_gui, statics, r5
+		s_bind gui_gui, statics, r5
 		vp_cpy [r5 + gui_statics_screen], r0
 		if r0, !=, 0
 			vp_cpy_cl 0, [r5 + gui_statics_screen]
@@ -318,7 +318,7 @@
 		endif
 
 		;free old region
-		static_bind gui_gui, statics, r5
+		s_bind gui_gui, statics, r5
 		s_call gui_region, free, {&[r5 + gui_statics_rect_heap], &[r5 + gui_statics_old_region]}
 
 		;deinit region heap

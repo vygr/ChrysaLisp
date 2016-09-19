@@ -159,6 +159,28 @@
 		map_src_to_dst
 	%endmacro
 
+	%macro slot_function 2-3 _function_
+		;%1 = class name
+		;%2 = slot method name
+		;%3 = macro name
+
+		method_lookup %1, %2
+		%xdefine %3 _map_%1_slot_%[_static_]
+	%endmacro
+
+	%macro super_function 2-3 _function_
+		;%1 = class name
+		;%2 = slot method name
+		;%3 = macro name
+
+		method_lookup _super_class_%1_, %2
+		%xdefine %3 _map_%[_super_class_%1_]_slot_%[_static_]
+	%endmacro
+
+;;;;;;;;;;;;;;;;;
+; assembler level
+;;;;;;;;;;;;;;;;;
+
 	%macro s_call 2-4 {}, {}
 		;%1 = class name
 		;%2 = member name
@@ -174,21 +196,6 @@
 		map_outputs %1, %2, {%4}, _static_
 	%endmacro
 
-	%macro static_call 2-4 {}, {}
-		;%1 = class name
-		;%2 = member name
-		;%3 = in paramaters
-		;%4 = out paramaters
-
-		method_lookup %1, %2
-		%ifidn _map_%1_type_%[_static_], virtual
-			%fatal Class %1 method %2 is virtual ! Use method_call ?
-		%endif
-		eval {%3}, {_map_%1_in_%[_static_]}
-		fn_call _map_%1_slot_%[_static_]
-		retire {_map_%1_out_%[_static_]}, {%4}
-	%endmacro
-
 	%macro s_jmp 2-4 {}
 		;%1 = class name
 		;%2 = member name
@@ -202,14 +209,14 @@
 		fn_jmp _map_%1_slot_%[_static_]
 	%endmacro
 
-	%macro static_bind 3
+	%macro s_bind 3
 		;%1 = class name
 		;%2 = member name
 		;%3 = reg
 
 		method_lookup %1, %2
 		%ifidn _map_%1_type_%[_static_], virtual
-			%fatal Class %1 method %2 is virtual ! Use method_bind ?
+			%fatal Class %1 method %2 is virtual ! Use m_bind ?
 		%endif
 		fn_bind _map_%1_slot_%[_static_], %3
 	%endmacro
@@ -233,25 +240,6 @@
 		map_outputs _super_class_%1_, %2, {%4}, _static_
 	%endmacro
 
-	%macro super_call 2-4 {}, {}
-		;%1 = class name
-		;%2 = member name
-		;%3 = in paramaters
-		;%4 = out paramaters
-
-		method_lookup _super_class_%1_, %2
-		%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
-			%ifidn _map_%[_super_class_%1_]_name_%[_static_], init
-				;exeption for init
-			%else
-				%fatal Class _super_class_%1_ method %2 is static !
-			%endif
-		%endif
-		eval {%3}, {_map_%[_super_class_%1_]_in_%[_static_]}
-		fn_call _map_%[_super_class_%1_]_slot_%[_static_]
-		retire {_map_%[_super_class_%1_]_out_%[_static_]}, {%4}
-	%endmacro
-
 	%macro p_jmp 2-4 {}
 		;%1 = class name
 		;%2 = member name
@@ -269,7 +257,7 @@
 		fn_jmp _map_%[_super_class_%1_]_slot_%[_static_]
 	%endmacro
 
-	%macro super_bind 3
+	%macro p_bind 3
 		;%1 = class name
 		;%2 = member name
 		;%3 = reg
@@ -298,23 +286,6 @@
 		map_outputs %1, %2, {%4}, _static_
 	%endmacro
 
-	%macro method_call 2-5 {}, {}, r15
-		;%1 = class name
-		;%2 = member name
-		;%3 = in paramaters
-		;%4 = out paramaters
-		;%5 = dispatch reg
-
-		method_lookup %1, %2
-		%ifidn _map_%1_type_%[_static_], static
-			%fatal Class %1 method %2 is static ! Use s_call ?
-		%endif
-		eval {RXX, %3}, {%5, _map_%1_in_%[_static_]}
-		vp_cpy [r0 + obj_vtable], %5
-		vp_call [%5 + _virtual_ * 8]
-		retire {_map_%1_out_%[_static_]}, {%4}
-	%endmacro
-
 	%macro m_jmp 2-5 {}, r15
 		;%1 = class name
 		;%2 = member name
@@ -330,20 +301,20 @@
 		vp_jmp [%4 + _virtual_ * 8]
 	%endmacro
 
-	%macro method_bind 2-3 r15
+	%macro m_bind 2-3 r15
 		;%1 = class name
 		;%2 = member name
 		;%3 = dispatch reg
 
 		method_lookup %1, %2
 		%ifidn _map_%1_type_%[_static_], static
-			%fatal Class %1 method %2 is static ! Use static_bind ?
+			%fatal Class %1 method %2 is static ! Use s_bind ?
 		%endif
 		vp_cpy [r0 + obj_vtable], %3
 		vp_cpy [%3 + _virtual_ * 8], %3
 	%endmacro
 
-	%macro slot_bind 3
+	%macro t_bind 3
 		;%1 = class name
 		;%2 = slot method name
 		;%3 = reg
@@ -352,22 +323,59 @@
 		fn_bind _map_%1_slot_%[_static_], %3
 	%endmacro
 
-	%macro slot_function 2-3 _function_
+;;;;;;;;;;;;;;
+; script level
+;;;;;;;;;;;;;;
+
+	%macro static_call 2-4 {}, {}
 		;%1 = class name
-		;%2 = slot method name
-		;%3 = macro name
+		;%2 = member name
+		;%3 = in paramaters
+		;%4 = out paramaters
 
 		method_lookup %1, %2
-		%xdefine %3 _map_%1_slot_%[_static_]
+		%ifidn _map_%1_type_%[_static_], virtual
+			%fatal Class %1 method %2 is virtual ! Use method_call ?
+		%endif
+		eval {%3}, {_map_%1_in_%[_static_]}
+		fn_call _map_%1_slot_%[_static_]
+		retire {_map_%1_out_%[_static_]}, {%4}
 	%endmacro
 
-	%macro super_function 2-3 _function_
+	%macro super_call 2-4 {}, {}
 		;%1 = class name
-		;%2 = slot method name
-		;%3 = macro name
+		;%2 = member name
+		;%3 = in paramaters
+		;%4 = out paramaters
 
 		method_lookup _super_class_%1_, %2
-		%xdefine %3 _map_%[_super_class_%1_]_slot_%[_static_]
+		%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
+			%ifidn _map_%[_super_class_%1_]_name_%[_static_], init
+				;exeption for init
+			%else
+				%fatal Class _super_class_%1_ method %2 is static !
+			%endif
+		%endif
+		eval {%3}, {_map_%[_super_class_%1_]_in_%[_static_]}
+		fn_call _map_%[_super_class_%1_]_slot_%[_static_]
+		retire {_map_%[_super_class_%1_]_out_%[_static_]}, {%4}
+	%endmacro
+
+	%macro method_call 2-5 {}, {}, r15
+		;%1 = class name
+		;%2 = member name
+		;%3 = in paramaters
+		;%4 = out paramaters
+		;%5 = dispatch reg
+
+		method_lookup %1, %2
+		%ifidn _map_%1_type_%[_static_], static
+			%fatal Class %1 method %2 is static ! Use s_call ?
+		%endif
+		eval {RXX, %3}, {%5, _map_%1_in_%[_static_]}
+		vp_cpy [r0 + obj_vtable], %5
+		vp_call [%5 + _virtual_ * 8]
+		retire {_map_%1_out_%[_static_]}, {%4}
 	%endmacro
 
 	%macro local_call 1-5 {}, {}, {}, {}

@@ -7,7 +7,7 @@
 		;trashes
 		;r1-r3
 
-		static_bind sys_mail, statics, r0
+		s_bind sys_mail, statics, r0
 		vp_add ml_statics_heap, r0
 		s_call sys_heap, alloc, {r0}, {r1}
 		vp_cpy r0, [r1]

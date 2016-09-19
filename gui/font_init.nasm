@@ -4,7 +4,7 @@
 	fn_function gui/font_init
 
 		;get font statics
-		static_bind gui_font, statics, r1
+		s_bind gui_font, statics, r1
 
 		;init font lists
 		vp_xor r0, r0

@@ -3,7 +3,7 @@
 
 	fn_function sys/mem_deinit
 		;get statics
-		static_bind sys_mem, statics, r0
+		s_bind sys_mem, statics, r0
 		vp_cpy r0, r5
 
 		;free memory heaps

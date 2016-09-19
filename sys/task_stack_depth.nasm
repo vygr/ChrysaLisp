@@ -7,7 +7,7 @@
 		;trashes
 		;r0
 
-		static_bind sys_task, statics, r0
+		s_bind sys_task, statics, r0
 		vp_cpy [r0 + tk_statics_current_tcb], r0
 		vp_add tk_node_stackspace, r0
 		if r4, <, r0

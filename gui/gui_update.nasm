@@ -38,20 +38,20 @@
 		vp_lea [r0 + view_dirty_region], r1
 		vp_cpy [r0 + view_w], r10
 		vp_cpy [r0 + view_h], r11
-		static_bind gui_gui, statics, r0
+		s_bind gui_gui, statics, r0
 		vp_add gui_statics_rect_heap, r0
 		s_call gui_region, copy_rect, {r0, r1, r4, 0, 0, r10, r11}
 
 		;paste old visable region into root
 		vp_cpy [r4 + 8], r0
 		vp_lea [r0 + view_dirty_region], r2
-		static_bind gui_gui, statics, r1
+		s_bind gui_gui, statics, r1
 		vp_lea [r1 + gui_statics_rect_heap], r0
 		vp_add gui_statics_old_region, r1
 		s_call gui_region, paste_region, {r0, r1, r2, 0, 0}
 
 		;free old region and splice over new region
-		static_bind gui_gui, statics, r5
+		s_bind gui_gui, statics, r5
 		s_call gui_region, free, {&[r5 + gui_statics_rect_heap], &[r5 + gui_statics_old_region]}
 		vp_pop r1
 		vp_cpy r1, [r5 + gui_statics_old_region]
@@ -64,7 +64,7 @@
 		s_call view, forward_tree, {r0, r4, $distribute_down_callback, $distribute_up_callback}
 
 		;draw all on draw list, and free dirty regions
-		static_bind gui_gui, statics, r1
+		s_bind gui_gui, statics, r1
 		vp_cpy [r1 + gui_statics_renderer], r1
 		vp_cpy r1, [r4 + local_ctx + gui_ctx_sdl_ctx]
 		loop_flist_forward r4 + local_ctx_flist, r0, r0
@@ -80,7 +80,7 @@
 			m_call view, draw, {r0, r1}
 			vp_cpy [r4 + local_ctx_next], r1
 			vp_sub view_ctx_node - view_dirty_region, r1
-			static_bind gui_gui, statics, r0
+			s_bind gui_gui, statics, r0
 			vp_add gui_statics_rect_heap, r0
 			s_call gui_region, free, {r0, r1}
 			vp_cpy [r4 + local_ctx_next], r0
@@ -120,7 +120,7 @@
 		vp_cpy r1, [r4 + vis_root]
 
 		;region heap
-		static_bind gui_gui, statics, r0
+		s_bind gui_gui, statics, r0
 		vp_add gui_statics_rect_heap, r0
 
 		;remove opaque region from ancestors if not root
@@ -228,7 +228,7 @@
 		vp_cpy r1, [r4 + dist_data]
 
 		;region heap
-		static_bind gui_gui, statics, r0
+		s_bind gui_gui, statics, r0
 		vp_add gui_statics_rect_heap, r0
 
 		;copy view from parent if not root

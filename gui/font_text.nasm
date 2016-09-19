@@ -30,7 +30,7 @@
 		map_src_to_dst
 
 		;get font statics
-		static_bind gui_font, statics, r5
+		s_bind gui_font, statics, r5
 
 		;string hash to bucket
 		s_call sys_string, hash, {r1}, {r0}
@@ -86,7 +86,7 @@
 			vp_cpy r11, [r14 + local_height]
 
 			;create texture
-			static_bind gui_gui, statics, r0
+			s_bind gui_gui, statics, r0
 			sdl_create_texture_from_surface [r0 + gui_statics_renderer], [r14 + local_surface]
 			if r0, !=, 0
 				vp_cpy r0, r5

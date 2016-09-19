@@ -51,7 +51,7 @@
 		vp_cpy [r14], r0
 		if r0, !=, 0
 			s_call sys_string, to_long, {r0, 10}, {r0}
-			static_bind sys_task, statics, r1
+			s_bind sys_task, statics, r1
 			vp_cpy r0, [r1 + tk_statics_cpu_id]
 		endif
 		vp_ret

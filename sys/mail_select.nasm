@@ -27,7 +27,7 @@
 			loop_until r0, ==, r1
 
 			;fill in all tcb's and suspend
-			static_bind sys_task, statics, r5
+			s_bind sys_task, statics, r5
 			vp_cpy [r5 + tk_statics_current_tcb], r5
 			vp_cpy r3, r0
 			loop_start

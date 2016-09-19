@@ -3,7 +3,7 @@
 
 	fn_function sys/task_stop
 		;remove task control block
-		static_bind sys_task, statics, r0
+		s_bind sys_task, statics, r0
 		vp_cpy [r0 + tk_statics_current_tcb], r1
 		vp_cpy r1, r2
 		ln_remove_node r2, r15

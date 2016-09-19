@@ -6,7 +6,7 @@
 		;r1 = kernel mailbox
 
 		;save kernel mailbox
-		static_bind sys_mail, statics, r7
+		s_bind sys_mail, statics, r7
 		vp_cpy r1, [r7 + ml_statics_kernel_mailbox]
 
 		;init off chip list

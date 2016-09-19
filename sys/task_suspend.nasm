@@ -6,7 +6,7 @@
 		tk_save_state
 
 		;save stack pointer
-		static_bind sys_task, statics, r0
+		s_bind sys_task, statics, r0
 		vp_cpy [r0 + tk_statics_current_tcb], r0
 		vp_cpy r4, [r0 + tk_node_stack]
 

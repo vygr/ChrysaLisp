@@ -8,7 +8,7 @@
 
 		;decrement task count
 		;don't count links in load balencing
-		static_bind sys_task, statics, r0
+		s_bind sys_task, statics, r0
 		vp_cpy [r0 + tk_statics_task_count], r1
 		vp_dec r1
 		vp_cpy r1, [r0 + tk_statics_task_count]
@@ -18,7 +18,7 @@
 		vp_xor r1, r1
 		vp_cpy r1, [r4 + lk_node_table + lk_table_array]
 		vp_cpy r1, [r4 + lk_node_table + lk_table_array_size]
-		static_bind sys_link, statics, r1
+		s_bind sys_link, statics, r1
 		vp_lea [r1 + lk_statics_links_list], r1
 		lh_add_at_head r1, r4, r2
 
@@ -100,7 +100,7 @@
 		vp_xor r9, r9
 		loop_start
 			;exchange task counts
-			static_bind sys_task, statics, r0
+			s_bind sys_task, statics, r0
 			vp_cpy [r0 + tk_statics_task_count], r0
 			vp_cpy r0, [r10 + lk_chan_task_count]
 			vp_cpy [r11 + lk_chan_task_count], r0
@@ -111,7 +111,7 @@
 			more_output:
 				;no outgoing message so see if any off chip mail for me
 				vp_cpy [r4 + lk_node_cpu_id], r0
-				static_bind sys_mail, statics, r8
+				s_bind sys_mail, statics, r8
 				loop_list_forward r8 + ml_statics_offchip_list, r7, r8
 					vp_cpy [r7 + (msg_dest + 8)], r2
 					breakif r0, ==, r2
@@ -212,7 +212,7 @@
 		vp_add lk_node_size, r4
 
 		;increment task count
-		static_bind sys_task, statics, r0
+		s_bind sys_task, statics, r0
 		vp_cpy [r0 + tk_statics_task_count], r1
 		vp_inc r1
 		vp_cpy r1, [r0 + tk_statics_task_count]

@@ -26,7 +26,7 @@
 		vp_add r8, r10
 		vp_add r9, r11
 		vp_lea [r0 + view_opaque_region], r1
-		static_bind gui_gui, statics, r0
+		s_bind gui_gui, statics, r0
 		vp_add gui_statics_rect_heap, r0
 		s_call gui_region, paste_rect, {r0, r1, r8, r9, r10, r11}
 

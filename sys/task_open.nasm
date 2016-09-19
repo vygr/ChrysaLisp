@@ -9,7 +9,7 @@
 		;trashes
 		;all but r4
 
-		static_bind sys_task, statics, r1
+		s_bind sys_task, statics, r1
 		s_jmp sys_task, open_device, {r0, [r1 + tk_statics_cpu_id]}
 
 	fn_function_end
