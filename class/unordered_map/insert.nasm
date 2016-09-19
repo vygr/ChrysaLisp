@@ -27,9 +27,10 @@
 		map_src_to_dst
 
 		;search hash bucket
-		m_call obj, hash, {r1}, {r0}
-		vp_cpy [r4 + local_inst], r1
-		vp_cpy [r1 + unordered_set_num_buckets], r1
+		m_call obj, hash, {r1}, {r2}
+		vp_cpy [r4 + local_inst], r0
+		s_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
+		vp_cpy r2, r0
 		vp_xor r2, r2
 		vp_div r1, r2, r0
 		vp_cpy [r4 + local_inst], r0

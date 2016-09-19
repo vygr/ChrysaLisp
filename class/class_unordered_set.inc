@@ -17,7 +17,6 @@
 	def_structure unordered_set, ref
 		ptr unordered_set_buckets
 		ptr unordered_set_key_callback
-		ulong unordered_set_num_buckets
 	def_structure_end
 
 %endif
