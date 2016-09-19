@@ -30,6 +30,7 @@
 			vp_cpy r1, [r0 + vector_length]
 			s_call vector, for_each, {r0, $create_bucket, 0}, {_}
 			vp_pop r0
+			vp_cpy 1, r1
 		endif
 		vp_ret
 

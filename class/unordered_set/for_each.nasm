@@ -57,7 +57,7 @@
 		vp_pop r0
 		vp_cpy r1, [r0 + local_iter]
 		if r1, ==, 0
-			vp_inc r1
+			vp_cpy 1, r1
 		else
 			vp_xor r1, r1
 		endif

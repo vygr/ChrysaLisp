@@ -4,16 +4,10 @@
 
 	fn_function test
 
-		long abc
-		long def
-		long xyz
-		long qwe
+		ptr set
 
 		push_scope
-			assign {abc / def}, {xyz}
-			assign {abc % def}, {xyz}
-			assign {abc // def}, {xyz}
-			assign {abc %% def}, {xyz}
+			assign {@class/string/compare}, {set}
 		pop_scope
 		return
 

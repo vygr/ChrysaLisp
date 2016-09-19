@@ -836,7 +836,7 @@
 					%endif
 				%elif %%m < 3
 					;symbol mode
-					%if _pos = 0
+					%if (_pos = 0 || _pos = 13)
 						;symbol
 						%strcat %%p %%p %%c
 						%defstr %%c
