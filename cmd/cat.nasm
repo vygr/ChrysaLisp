@@ -69,6 +69,7 @@
 				static_call stream, write_char, {slave->slave_stdout, char_lf}
 				static_call sys_task, yield
 			loop_end
+			method_call stream, write_flush, {slave->slave_stdout}
 			static_call stream, deref, {stream}
 		endif
 
