@@ -18,6 +18,7 @@
 	def_method pop_back, class/vector/pop_back, static, {r0}
 	def_method clear, class/vector/clear, static, {r0}
 	def_method for_each, class/vector/for_each, static, {r0, r1, r2}, {r1}
+	def_method set_element, class/vector/set_element, static, {r0, r1, r2}
 
 	def_method deinit, class/vector/deinit, override
 
