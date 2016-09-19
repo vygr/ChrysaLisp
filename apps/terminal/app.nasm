@@ -229,7 +229,7 @@
 		elseif {char == 27}
 			;esc
 			static_call master, get_state, {shared->shared_master}, {state}
-			if {state != stream_mail_state_stopped}
+			if {state == stream_mail_state_started}
 				;feed active pipe, then EOF
 				static_call master, get_input, {shared->shared_master}, {stream}
 				static_call stream, write, {stream, &shared->shared_buffer, length}
