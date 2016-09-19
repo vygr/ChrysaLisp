@@ -7,7 +7,6 @@
 %include 'class/class_string.inc'
 %include 'class/class_vector.inc'
 %include 'class/class_stream_msg_out.inc'
-%include 'class/class_stream_msg_in.inc'
 %include 'class/class_master.inc'
 
 	fn_function apps/terminal/app
@@ -229,10 +228,19 @@
 			local_call pipe_output, {shared, stream}, {r0, r1}
 		elseif {char == 27}
 			;esc
-			static_call master, stop, {shared->shared_master}
-			static_call string, create_from_cstr, {"Ready"}, {string}
-			static_call window, set_status, {shared->shared_window, string}
-			assign {&shared->shared_buffer}, {shared->shared_bufp}
+			static_call master, get_state, {shared->shared_master}, {state}
+			if {state != stream_mail_state_stopped}
+				;feed active pipe, then EOF
+				static_call master, get_input, {shared->shared_master}, {stream}
+				static_call stream, write, {stream, &shared->shared_buffer, length}
+				method_call stream, write_flush, {stream}
+				assign {&shared->shared_buffer}, {shared->shared_bufp}
+
+				;send stopping
+				static_call stream_msg_out, set_state, {stream, stream_mail_state_stopping}
+				method_call stream, write_next, {stream}
+				method_call stream, write_flush, {stream}
+			endif
 		elseif {char >= 32 && char < 127}
 			;next char
 			assign {shared->shared_bufp + 1}, {shared->shared_bufp}
