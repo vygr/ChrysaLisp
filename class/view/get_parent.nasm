@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/get_parent
+	def_function class/view/get_parent
 		;inputs
 		;r0 = view object
 		;outputs
@@ -11,4 +11,4 @@
 		vp_cpy [r0 + view_parent], r1
 		vp_ret
 
-	fn_function_end
+	def_function_end

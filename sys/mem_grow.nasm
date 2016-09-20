@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	fn_function sys/mem_grow
+	def_function sys/mem_grow
 		;inputs
 		;r0 = array
 		;r1 = array size
@@ -37,4 +37,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

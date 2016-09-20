@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	fn_function gui/region_translate
+	def_function gui/region_translate
 		;inputs
 		;r1 = region listhead pointer
 		;r8 = x translation
@@ -26,4 +26,4 @@
 		loop_end
 		vp_ret
 
-	fn_function_end
+	def_function_end

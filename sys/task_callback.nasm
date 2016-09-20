@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	fn_function sys/task_callback
+	def_function sys/task_callback
 		;inputs
 		;r0 = callback address
 		;r1 = user data address
@@ -47,4 +47,4 @@
 		ml_temp_destroy
 		s_jmp sys_mem, free, {r0}
 
-	fn_function_end
+	def_function_end

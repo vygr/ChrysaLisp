@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_ref.inc'
 
-	fn_function class/ref/deref
+	def_function class/ref/deref
 		;inputs
 		;r0 = object
 		;trashes
@@ -18,4 +18,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

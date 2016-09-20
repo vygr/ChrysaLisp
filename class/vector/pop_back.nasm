@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/vector/pop_back
+	def_function class/vector/pop_back
 		;inputs
 		;r0 = vector object
 		;outputs
@@ -18,4 +18,4 @@
 		vp_pop r0
 		vp_ret
 
-	fn_function_end
+	def_function_end

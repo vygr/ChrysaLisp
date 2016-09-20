@@ -3,7 +3,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_string.inc'
 
-	fn_function sys/task_open_farm
+	def_function sys/task_open_farm
 		;inputs
 		;r0 = name string object
 		;r1 = number to spawn
@@ -58,4 +58,4 @@
 		pop_scope
 		vp_ret
 
-	fn_function_end
+	def_function_end

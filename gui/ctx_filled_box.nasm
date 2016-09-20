@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/sdl2.inc'
 
-	fn_function gui/ctx_filled_box
+	def_function gui/ctx_filled_box
 		;inputs
 		;r0 = ctx
 		;r8 = x
@@ -63,4 +63,4 @@
 		vp_cpy [r4 + local_old_stack], r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_flow.inc'
 
-	fn_function class/flow/layout
+	def_function class/flow/layout
 		;inputs
 		;r0 = flow object
 		;trashes
@@ -170,4 +170,4 @@
 		vp_cpy r13, [r1 + local_y]
 		s_jmp view, change, {r0, r8, r9, r10, r11}
 
-	fn_function_end
+	def_function_end

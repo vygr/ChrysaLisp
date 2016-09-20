@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/dirty_all
+	def_function class/view/dirty_all
 		;inputs
 		;r0 = view object
 		;trashes
@@ -17,4 +17,4 @@
 	null_up_callback:
 		vp_ret
 
-	fn_function_end
+	def_function_end

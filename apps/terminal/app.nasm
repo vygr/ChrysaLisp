@@ -9,7 +9,7 @@
 %include 'class/class_stream_msg_out.inc'
 %include 'class/class_master.inc'
 
-	fn_function apps/terminal/app
+	def_function apps/terminal/app
 
 		buffer_size equ 120
 
@@ -298,4 +298,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/forward
+	def_function class/view/forward
 		;inputs
 		;r0 = view object
 		;r1 = user data pointer
@@ -46,4 +46,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

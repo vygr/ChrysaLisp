@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_pair.inc'
 
-	fn_function class/pair/deinit
+	def_function class/pair/deinit
 		;inputs
 		;r0 = pair object
 		;trashes
@@ -16,4 +16,4 @@
 		vp_pop r0
 		p_jmp pair, deinit, {r0}
 
-	fn_function_end
+	def_function_end

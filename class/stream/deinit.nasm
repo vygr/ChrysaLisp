@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	fn_function class/stream/deinit
+	def_function class/stream/deinit
 		;inputs
 		;r0 = stream object
 		;trashes
@@ -22,4 +22,4 @@
 		;parent deinit
 		p_jmp stream, deinit, {r0}
 
-	fn_function_end
+	def_function_end

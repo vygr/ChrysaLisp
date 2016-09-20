@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	fn_function class/stream/write_next
+	def_function class/stream/write_next
 		;inputs
 		;r0 = stream object
 		;outputs
@@ -11,4 +11,4 @@
 
 		m_jmp stream, write_flush, {r0}
 
-	fn_function_end
+	def_function_end

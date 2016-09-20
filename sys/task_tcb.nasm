@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_tcb
+	def_function sys/task_tcb
 		;outputs
 		;r0 = current task tcb
 
@@ -9,4 +9,4 @@
 		vp_cpy [r0 + tk_statics_current_tcb], r0
 		vp_ret
 
-	fn_function_end
+	def_function_end

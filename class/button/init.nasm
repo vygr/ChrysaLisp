@@ -2,7 +2,7 @@
 %include 'class/class_button.inc'
 %include 'class/class_flow.inc'
 
-	fn_function class/button/init
+	def_function class/button/init
 		;inputs
 		;r0 = button object
 		;r1 = vtable pointer
@@ -20,4 +20,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

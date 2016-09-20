@@ -2,7 +2,7 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/unordered_set/for_each
+	def_function class/unordered_set/for_each
 		;inputs
 		;r0 = unordered_set object
 		;r1 = predicate function pointer
@@ -63,4 +63,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

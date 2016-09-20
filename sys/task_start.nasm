@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_start
+	def_function sys/task_start
 		;inputs
 		;r0 = new task program counter
 		;outputs
@@ -45,4 +45,4 @@
 		vp_lea [r0 + tk_node_mailbox], r1
 		vp_ret
 
-	fn_function_end
+	def_function_end

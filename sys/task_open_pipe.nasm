@@ -3,7 +3,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_string.inc'
 
-	fn_function sys/task_open_pipe
+	def_function sys/task_open_pipe
 		;inputs
 		;r0 = vector of strings
 		;outputs
@@ -60,4 +60,4 @@
 		pop_scope
 		vp_ret
 
-	fn_function_end
+	def_function_end

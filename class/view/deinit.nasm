@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/deinit
+	def_function class/view/deinit
 		;inputs
 		;r0 = view object
 		;trashes
@@ -38,4 +38,4 @@
 		vp_pop r0
 		p_jmp view, deinit, {r0}
 
-	fn_function_end
+	def_function_end

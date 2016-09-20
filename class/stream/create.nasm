@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	fn_function class/stream/create
+	def_function class/stream/create
 		;inputs
 		;r0 = object pointer, 0 if none
 		;r1 = buffer pointer, 0 if none
@@ -30,4 +30,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_sleep
+	def_function sys/task_sleep
 		;inputs
 		;r0 = time delay in usec
 
@@ -34,4 +34,4 @@
 		;restore next task
 		s_jmp sys_task, restore
 
-	fn_function_end
+	def_function_end

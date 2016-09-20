@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	fn_function sys/mail_send
+	def_function sys/mail_send
 		;inputs
 		;r0 = mail message
 		;trashes
@@ -48,4 +48,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

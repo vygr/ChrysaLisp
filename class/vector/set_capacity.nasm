@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/vector/set_capacity
+	def_function class/vector/set_capacity
 		;inputs
 		;r0 = vector object
 		;r1 = vector capacity
@@ -24,4 +24,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

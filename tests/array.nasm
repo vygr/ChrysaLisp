@@ -7,7 +7,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function tests/array
+	def_function tests/array
 
 		const num_child, 128
 
@@ -45,4 +45,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

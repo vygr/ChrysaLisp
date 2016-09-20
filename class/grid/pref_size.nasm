@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_grid.inc'
 
-	fn_function class/grid/pref_size
+	def_function class/grid/pref_size
 		;inputs
 		;r0 = grid object
 		;outputs
@@ -41,4 +41,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

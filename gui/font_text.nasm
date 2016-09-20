@@ -4,7 +4,7 @@
 %include 'inc/sdl2.inc'
 %include 'inc/task.inc'
 
-	fn_function gui/font_text
+	def_function gui/font_text
 		;inputs
 		;r0 = font entry
 		;r1 = text
@@ -122,4 +122,4 @@
 		vp_cpy r15, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

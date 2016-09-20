@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/add_back
+	def_function class/view/add_back
 		;inputs
 		;r0 = view object
 		;r1 = parent view object
@@ -19,4 +19,4 @@
 		lh_add_at_tail r3, r2, r1
 		vp_ret
 
-	fn_function_end
+	def_function_end

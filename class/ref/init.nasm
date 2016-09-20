@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_ref.inc'
 
-	fn_function class/ref/init
+	def_function class/ref/init
 		;inputs
 		;r0 = object
 		;r1 = vtable pointer
@@ -16,4 +16,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

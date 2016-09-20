@@ -2,7 +2,7 @@
 %include 'inc/syscall.inc'
 %include 'inc/string.inc'
 
-	fn_function sys/write_debug_str
+	def_function sys/write_debug_str
 		;inputs
 		;r0 = function name
 		;r1 = line number
@@ -36,4 +36,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/heap.inc'
 
-	fn_function sys/mem_statics
+	def_function sys/mem_statics
 
 		dq 0	;used
 		%assign blk_size mem_block_min_size
@@ -13,4 +13,4 @@
 			%endif
 		%endrep
 
-	fn_function_end
+	def_function_end

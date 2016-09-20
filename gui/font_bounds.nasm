@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/font.inc'
 
-	fn_function gui/font_bounds
+	def_function gui/font_bounds
 		;inputs
 		;r0 = font entry
 		;r1 = text
@@ -22,4 +22,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

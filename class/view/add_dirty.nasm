@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/add_dirty
+	def_function class/view/add_dirty
 		;inputs
 		;r0 = view object
 		;r8 = x
@@ -34,4 +34,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

@@ -2,7 +2,7 @@
 %include 'inc/font.inc'
 %include 'class/class_title.inc'
 
-	fn_function class/title/draw
+	def_function class/title/draw
 		;inputs
 		;r0 = view object
 		;r1 = ctx object
@@ -12,4 +12,4 @@
 		;draw panel
 		s_jmp title, draw_panel, {r0, r1, 1, title_border_size}
 
-	fn_function_end
+	def_function_end

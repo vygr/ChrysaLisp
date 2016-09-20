@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_flow.inc'
 
-	fn_function class/flow/pref_size
+	def_function class/flow/pref_size
 		;inputs
 		;r0 = flow object
 		;outputs
@@ -52,4 +52,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

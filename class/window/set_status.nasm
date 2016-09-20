@@ -2,7 +2,7 @@
 %include 'class/class_label.inc'
 %include 'class/class_window.inc'
 
-	fn_function class/window/set_status
+	def_function class/window/set_status
 		;inputs
 		;r0 = window object
 		;r1 = 0, else status string object
@@ -24,4 +24,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

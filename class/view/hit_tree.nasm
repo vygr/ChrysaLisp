@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/hit_tree
+	def_function class/view/hit_tree
 		;inputs
 		;r0 = view object
 		;r8 = x
@@ -56,4 +56,4 @@
 		vp_add [r0 + view_y], r9
 		vp_ret
 
-	fn_function_end
+	def_function_end

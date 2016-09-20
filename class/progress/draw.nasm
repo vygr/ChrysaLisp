@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_progress.inc'
 
-	fn_function class/progress/draw
+	def_function class/progress/draw
 		;inputs
 		;r0 = window object
 		;r1 = ctx object
@@ -67,4 +67,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_grid.inc'
 
-	fn_function class/grid/init
+	def_function class/grid/init
 		;inputs
 		;r0 = grid object
 		;r1 = vtable pointer
@@ -18,4 +18,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

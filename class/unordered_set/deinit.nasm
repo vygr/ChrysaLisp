@@ -2,7 +2,7 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/unordered_set/deinit
+	def_function class/unordered_set/deinit
 		;inputs
 		;r0 = unordered_set object
 		;trashes
@@ -13,4 +13,4 @@
 		vp_pop r0
 		p_jmp unordered_set, deinit, {r0}
 
-	fn_function_end
+	def_function_end

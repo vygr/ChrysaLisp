@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	fn_function sys/mail_alloc
+	def_function sys/mail_alloc
 		;outputs
 		;r0 = mail message
 		;trashes
@@ -16,4 +16,4 @@
 		vp_cpy_cl 0, [r0 + msg_parcel_size]
 		vp_ret
 
-	fn_function_end
+	def_function_end

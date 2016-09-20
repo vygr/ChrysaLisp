@@ -3,7 +3,7 @@
 %include 'class/class_text.inc'
 %include 'class/class_label.inc'
 
-	fn_function class/label/init
+	def_function class/label/init
 		;inputs
 		;r0 = label object
 		;r1 = vtable pointer
@@ -38,4 +38,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

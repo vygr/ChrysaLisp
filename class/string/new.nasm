@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_string.inc'
 
-	fn_function class/string/new
+	def_function class/string/new
 		;inputs
 		;r0 = object size
 		;outputs
@@ -20,4 +20,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

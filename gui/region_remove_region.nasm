@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	fn_function gui/region_remove_region
+	def_function gui/region_remove_region
 		;inputs
 		;r0 = region heap pointer
 		;r1 = source region listhead pointer
@@ -45,4 +45,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

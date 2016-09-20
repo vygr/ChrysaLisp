@@ -2,7 +2,7 @@
 %include 'class/class_window.inc'
 %include 'class/class_flow.inc'
 
-	fn_function class/window/pref_size
+	def_function class/window/pref_size
 		;inputs
 		;r0 = window object
 		;outputs
@@ -29,4 +29,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

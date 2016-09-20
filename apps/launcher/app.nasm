@@ -7,7 +7,7 @@
 %include 'class/class_button.inc'
 %include 'class/class_string.inc'
 
-	fn_function apps/launcher/app
+	def_function apps/launcher/app
 
 		struct myapp, obj
 		ptr msg, window, window_panel, panel, button, string, pressed
@@ -103,4 +103,4 @@
 		db 'tests/global', 0
 		db 0
 
-	fn_function_end
+	def_function_end

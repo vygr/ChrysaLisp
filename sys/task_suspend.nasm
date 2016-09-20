@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_suspend
+	def_function sys/task_suspend
 		;push task state
 		tk_save_state
 
@@ -19,4 +19,4 @@
 		;restore next task
 		s_jmp sys_task, restore
 
-	fn_function_end
+	def_function_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_pair.inc'
 
-fn_function class/pair/create
+def_function class/pair/create
 	;inputs
 	;r0 = first object
 	;r1 = second object
@@ -28,4 +28,4 @@ fn_function class/pair/create
 	endif
 	vp_ret
 
-fn_function_end
+def_function_end

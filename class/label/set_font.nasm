@@ -2,7 +2,7 @@
 %include 'class/class_text.inc'
 %include 'class/class_label.inc'
 
-	fn_function class/label/set_font
+	def_function class/label/set_font
 		;inputs
 		;r0 = label object
 		;r1 = font name
@@ -15,4 +15,4 @@
 		vp_pop r0
 		vp_ret
 
-	fn_function_end
+	def_function_end

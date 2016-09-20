@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_count
+	def_function sys/task_count
 		;outputs
 		;r0 = task count
 
@@ -9,4 +9,4 @@
 		vp_cpy [r0 + tk_statics_task_count], r0
 		vp_ret
 
-	fn_function_end
+	def_function_end

@@ -4,7 +4,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_slave.inc'
 
-	fn_function cmd/cat
+	def_function cmd/cat
 
 		buffer_size equ 120
 
@@ -76,4 +76,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

@@ -1665,7 +1665,7 @@
 			undef_reg_def
 		%endif
 		%ifdef debug_lines
-			fn_debug_str 'done'
+			debug_str 'done'
 		%endif
 	%endmacro
 
@@ -1696,7 +1696,7 @@
 			undef_reg_def
 		%endif
 		%ifdef debug_lines
-			fn_debug_str 'done'
+			debug_str 'done'
 		%endif
 	%endmacro
 

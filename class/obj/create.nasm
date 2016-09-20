@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_obj.inc'
 
-	fn_function class/obj/create
+	def_function class/obj/create
 		;outputs
 		;r0 = 0 if error, else object
 
@@ -9,4 +9,4 @@
 		vp_xor r0, r0
 		vp_ret
 
-	fn_function_end
+	def_function_end

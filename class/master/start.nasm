@@ -6,7 +6,7 @@
 %include 'class/class_master.inc'
 %include 'class/class_slave.inc'
 
-	fn_function class/master/start
+	def_function class/master/start
 		;inputs
 		;r0 = master object
 		;r1 = buffer
@@ -142,4 +142,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

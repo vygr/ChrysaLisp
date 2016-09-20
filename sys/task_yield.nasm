@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_yield
+	def_function sys/task_yield
 		;push task state
 		tk_save_state
 
@@ -14,4 +14,4 @@
 		ln_get_succ r15, r15
 		s_jmp sys_task, restore
 
-	fn_function_end
+	def_function_end

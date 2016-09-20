@@ -10,7 +10,7 @@
 ; kernel task
 ;;;;;;;;;;;;;
 
-	fn_function sys/kernel
+	def_function sys/kernel
 		;loader is already initialized when we get here !
 		;inputs
 		;r0 = argv pointer
@@ -292,4 +292,4 @@
 		vp_add 8, r4
 		sys_exit 0
 
-	fn_function_end
+	def_function_end

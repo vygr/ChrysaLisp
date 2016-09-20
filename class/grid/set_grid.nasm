@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_grid.inc'
 
-	fn_function class/grid/set_grid
+	def_function class/grid/set_grid
 		;inputs
 		;r0 = view object
 		;r10 = width
@@ -11,4 +11,4 @@
 		vp_cpy r11, [r0 + grid_height]
 		vp_ret
 
-	fn_function_end
+	def_function_end

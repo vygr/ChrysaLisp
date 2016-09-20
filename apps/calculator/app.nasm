@@ -8,7 +8,7 @@
 %include 'class/class_button.inc'
 %include 'class/class_string.inc'
 
-	fn_function apps/calculator/app
+	def_function apps/calculator/app
 
 		buffer_size equ 32
 
@@ -219,4 +219,4 @@
 		db '+', 0
 		db 0
 
-	fn_function_end
+	def_function_end

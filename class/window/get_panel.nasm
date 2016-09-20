@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_window.inc'
 
-	fn_function class/window/get_panel
+	def_function class/window/get_panel
 		;inputs
 		;r0 = window object
 		;outputs
@@ -11,4 +11,4 @@
 		vp_cpy [r0 + window_panel], r1
 		vp_ret
 
-	fn_function_end
+	def_function_end

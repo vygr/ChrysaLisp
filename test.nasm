@@ -2,7 +2,7 @@
 
 ;%define debug_emit
 
-	fn_function test
+	def_function test
 
 		ptr set
 
@@ -11,4 +11,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

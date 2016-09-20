@@ -2,7 +2,7 @@
 %include 'inc/font.inc'
 %include 'class/class_text.inc'
 
-	fn_function class/text/init
+	def_function class/text/init
 		;inputs
 		;r0 = text object
 		;r1 = vtable pointer
@@ -28,4 +28,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

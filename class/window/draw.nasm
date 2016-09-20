@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_window.inc'
 
-	fn_function class/window/draw
+	def_function class/window/draw
 		;inputs
 		;r0 = window object
 		;r1 = ctx object
@@ -10,4 +10,4 @@
 
 		s_jmp window, draw_panel, {r0, r1, 1, window_border_size}
 
-	fn_function_end
+	def_function_end

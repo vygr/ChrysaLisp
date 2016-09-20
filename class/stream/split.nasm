@@ -3,7 +3,7 @@
 %include 'class/class_string.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/stream/split
+	def_function class/stream/split
 		;inputs
 		;r0 = stream object
 		;r1 = split char
@@ -40,4 +40,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

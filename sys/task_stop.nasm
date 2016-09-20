@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_stop
+	def_function sys/task_stop
 		;remove task control block
 		s_bind sys_task, statics, r0
 		vp_cpy [r0 + tk_statics_current_tcb], r1
@@ -18,4 +18,4 @@
 		hp_freecell r0, r1, r2
 		s_jmp sys_task, restore
 
-	fn_function_end
+	def_function_end

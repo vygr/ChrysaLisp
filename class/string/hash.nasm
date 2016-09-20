@@ -2,7 +2,7 @@
 %include 'inc/string.inc'
 %include 'class/class_string.inc'
 
-	fn_function class/string/hash
+	def_function class/string/hash
 		;inputs
 		;r0 = string object
 		;outputs
@@ -17,4 +17,4 @@
 		vp_pop r0
 		vp_ret
 
-	fn_function_end
+	def_function_end

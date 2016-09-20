@@ -2,7 +2,7 @@
 %include 'inc/heap.inc'
 %include 'inc/syscall.inc'
 
-	fn_function sys/heap_deinit
+	def_function sys/heap_deinit
 		;inputs
 		;r0 = heap
 		;outputs
@@ -22,4 +22,4 @@
 		loop_end
 		vp_ret
 
-	fn_function_end
+	def_function_end

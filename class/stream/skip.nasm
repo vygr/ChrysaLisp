@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	fn_function class/stream/skip
+	def_function class/stream/skip
 		;inputs
 		;r0 = stream object
 		;r1 = char to skip
@@ -28,4 +28,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

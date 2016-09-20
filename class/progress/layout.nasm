@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_progress.inc'
 
-	fn_function class/progress/layout
+	def_function class/progress/layout
 		;inputs
 		;r0 = progress object
 		;trashes
@@ -9,4 +9,4 @@
 
 		s_jmp progress, opaque, {r0}
 
-	fn_function_end
+	def_function_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/get_relative
+	def_function class/view/get_relative
 		;inputs
 		;r0 = view object
 		;r1 = ansestor view object
@@ -23,4 +23,4 @@
 		loop_end
 		vp_ret
 
-	fn_function_end
+	def_function_end

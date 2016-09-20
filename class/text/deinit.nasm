@@ -3,7 +3,7 @@
 %include 'class/class_string.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/text/deinit
+	def_function class/text/deinit
 		;inputs
 		;r0 = text object
 		;trashes
@@ -24,4 +24,4 @@
 		vp_pop r0
 		p_jmp text, deinit, {r0}
 
-	fn_function_end
+	def_function_end

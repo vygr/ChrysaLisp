@@ -2,7 +2,7 @@
 %include 'class/class_string.inc'
 %include 'class/class_stream.inc'
 
-	fn_function class/string/split
+	def_function class/string/split
 		;inputs
 		;r0 = string object
 		;r1 = split char
@@ -28,4 +28,4 @@
 		pop_scope
 		vp_ret
 
-	fn_function_end
+	def_function_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/load.inc'
 
-	fn_function sys/load_deinit
+	def_function sys/load_deinit
 		;get statics
 		s_bind sys_load, statics, r0
 
@@ -13,4 +13,4 @@
 		loop_end
 		vp_ret
 
-	fn_function_end
+	def_function_end

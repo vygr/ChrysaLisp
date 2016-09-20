@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/mail_try_read
+	def_function sys/mail_try_read
 		;inputs
 		;r0 = mailbox address
 		;outputs
@@ -18,4 +18,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

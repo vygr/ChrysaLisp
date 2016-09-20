@@ -2,7 +2,7 @@
 %include 'inc/string.inc'
 %include 'class/class_string.inc'
 
-	fn_function class/string/compare
+	def_function class/string/compare
 		;inputs
 		;r0 = string object
 		;r1 = string object
@@ -21,4 +21,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

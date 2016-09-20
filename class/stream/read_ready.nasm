@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	fn_function class/stream/read_ready
+	def_function class/stream/read_ready
 		;inputs
 		;r0 = stream object
 		;outputs
@@ -12,4 +12,4 @@
 
 		s_jmp stream, available, {r0}
 
-	fn_function_end
+	def_function_end

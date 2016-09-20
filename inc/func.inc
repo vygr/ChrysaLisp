@@ -160,7 +160,7 @@
 		vp_jmp_rel _ref_%[_link_num_]_link
 	%endmacro
 
-	%macro fn_function 1
+	%macro def_function 1
 		;inputs
 		;%1 = function path name
 
@@ -220,7 +220,7 @@
 		push_scope
 	%endmacro
 
-	%macro fn_function_end 0
+	%macro def_function_end 0
 		pop_scope
 		pop_scope
 		%assign %%i 0
@@ -251,7 +251,7 @@
 	_func_end:
 	%endmacro
 
-	%macro fn_debug_long 1-2 0
+	%macro debug_long 1-2 0
 		;%1 = debug string
 		;%2 = debug int
 
@@ -266,7 +266,7 @@
 		%endif
 	%endmacro
 
-	%macro fn_debug_str 1-2 ''
+	%macro debug_str 1-2 ''
 		;%1 = debug string
 		;%2 = debug string
 
@@ -294,7 +294,7 @@
 	%macro abort 0-1 'Abort !'
 		;%1 = debug string
 
-		fn_debug_str %1
+		debug_str %1
 		sys_exit 1
 	%endmacro
 

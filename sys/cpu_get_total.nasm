@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/cpu_get_total
+	def_function sys/cpu_get_total
 		;outputs
 		;r0 = cpu total
 
@@ -9,4 +9,4 @@
 		vp_cpy [r0 + tk_statics_cpu_total], r0
 		vp_ret
 
-	fn_function_end
+	def_function_end

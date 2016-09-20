@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/event
+	def_function class/view/event
 		;inputs
 		;r0 = view object
 		;r1 = event message
@@ -48,4 +48,4 @@
 		endswitch
 		vp_ret
 
-	fn_function_end
+	def_function_end

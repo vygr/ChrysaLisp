@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_component.inc'
 
-	fn_function class/component/deinit
+	def_function class/component/deinit
 		;inputs
 		;r0 = component object
 		;trashes
@@ -13,4 +13,4 @@
 		;deinit parent
 		p_jmp component, deinit, {r0}
 
-	fn_function_end
+	def_function_end

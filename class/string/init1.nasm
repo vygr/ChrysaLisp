@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_string.inc'
 
-	fn_function class/string/init1
+	def_function class/string/init1
 		;inputs
 		;r0 = string object
 		;r1 = vtable pointer
@@ -44,4 +44,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

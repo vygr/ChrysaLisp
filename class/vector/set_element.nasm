@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/vector/set_element
+	def_function class/vector/set_element
 		;inputs
 		;r0 = vector object
 		;r1 = object
@@ -35,4 +35,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

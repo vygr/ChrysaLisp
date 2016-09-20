@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	fn_function gui/gui_init
+	def_function gui/gui_init
 		;inputs
 		;r0 = sdl function table
 
@@ -19,4 +19,4 @@
 		;init signal heap
 		s_jmp sys_heap, init, {&[r3 + gui_statics_sigslot_heap], gui_sigslot_size, gui_sigslot_size * 32}
 
-	fn_function_end
+	def_function_end

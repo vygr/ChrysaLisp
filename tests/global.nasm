@@ -6,7 +6,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function tests/global
+	def_function tests/global
 
 		const test_size, 10000
 
@@ -40,4 +40,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

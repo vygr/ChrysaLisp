@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/to_front
+	def_function class/view/to_front
 		;inputs
 		;r0 = view object
 		;outputs
@@ -17,4 +17,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

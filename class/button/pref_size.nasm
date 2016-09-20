@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_button.inc'
 
-	fn_function class/button/pref_size
+	def_function class/button/pref_size
 		;inputs
 		;r0 = button object
 		;outputs
@@ -15,4 +15,4 @@
 		vp_add button_border_size * 2, r11
 		vp_ret
 
-	fn_function_end
+	def_function_end

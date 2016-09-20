@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	fn_function class/stream/available
+	def_function class/stream/available
 		;inputs
 		;r0 = stream object
 		;outputs
@@ -12,4 +12,4 @@
 		vp_sub [r0 + stream_bufp], r1
 		vp_ret
 
-	fn_function_end
+	def_function_end

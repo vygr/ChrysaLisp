@@ -5,7 +5,7 @@
 %include 'class/class_slave.inc'
 %include 'class/class_unordered_set.inc'
 
-	fn_function cmd/unique
+	def_function cmd/unique
 
 		buffer_size equ 120
 
@@ -75,4 +75,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

@@ -2,7 +2,7 @@
 %include 'inc/syscall.inc'
 %include 'inc/string.inc'
 
-	fn_function sys/write_string
+	def_function sys/write_string
 		;inputs
 		;r0 = string
 		;r1 = fd
@@ -14,4 +14,4 @@
 		sys_write_string r3, r0, r1
 		vp_ret
 
-	fn_function_end
+	def_function_end

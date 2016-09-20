@@ -2,7 +2,7 @@
 %include 'inc/font.inc'
 %include 'class/class_text.inc'
 
-	fn_function class/text/set_font
+	def_function class/text/set_font
 		;inputs
 		;r0 = text object
 		;r1 = font name
@@ -30,4 +30,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

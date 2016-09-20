@@ -4,7 +4,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_slave.inc'
 
-	fn_function cmd/echo
+	def_function cmd/echo
 
 		const char_lf, 10
 
@@ -38,4 +38,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

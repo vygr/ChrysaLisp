@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_button.inc'
 
-	fn_function class/button/mouse_move
+	def_function class/button/mouse_move
 		;inputs
 		;r0 = button object
 		;r1 = mouse event message
@@ -31,4 +31,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

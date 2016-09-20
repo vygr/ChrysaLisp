@@ -2,7 +2,7 @@
 %include 'inc/heap.inc'
 %include 'inc/syscall.inc'
 
-	fn_function sys/heap_alloc
+	def_function sys/heap_alloc
 		;inputs
 		;r0 = heap
 		;outputs
@@ -40,4 +40,4 @@
 			vp_cpy r2, [r0 + hp_heap_free_flist]
 		loop_end
 
-	fn_function_end
+	def_function_end

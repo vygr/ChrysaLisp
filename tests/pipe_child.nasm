@@ -5,7 +5,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function tests/pipe_child
+	def_function tests/pipe_child
 
 		ptr msg
 		ulong num
@@ -23,4 +23,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

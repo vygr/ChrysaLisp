@@ -424,14 +424,14 @@
 
 	%macro class_macro_class 1
 		;%1 = class name
-		fn_function class/class_%1
+		def_function class/class_%1
 			vtable_emit %1
-		fn_function_end
+		def_function_end
 	%endmacro
 
 	%macro class_macro_create 1
 		;%1 = class name
-		fn_function class/%1/create
+		def_function class/%1/create
 			;outputs
 			;r0 = 0 if error, else object
 			;trashes
@@ -448,12 +448,12 @@
 				endif
 			endif
 			vp_ret
-		fn_function_end
+		def_function_end
 	%endmacro
 
 	%macro class_macro_new 1
 		;%1 = class name
-		fn_function class/%1/new
+		def_function class/%1/new
 			;outputs
 			;r0 = 0 if error, else object
 			;trashes
@@ -466,7 +466,7 @@
 				vp_cpy r3, r0
 			endif
 			vp_ret
-		fn_function_end
+		def_function_end
 	%endmacro
 
 %endif

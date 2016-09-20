@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_string.inc'
 
-	fn_function class/string/get_length
+	def_function class/string/get_length
 		;inputs
 		;r0 = string object
 		;outputs
@@ -11,4 +11,4 @@
 		vp_cpy [r0 + string_length], r1
 		vp_ret
 
-	fn_function_end
+	def_function_end

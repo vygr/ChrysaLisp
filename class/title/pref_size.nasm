@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_title.inc'
 
-	fn_function class/title/pref_size
+	def_function class/title/pref_size
 		;inputs
 		;r0 = flow object
 		;outputs
@@ -15,4 +15,4 @@
 		vp_add title_border_size * 2, r11
 		vp_ret
 
-	fn_function_end
+	def_function_end

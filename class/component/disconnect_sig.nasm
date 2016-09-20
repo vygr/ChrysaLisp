@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_component.inc'
 
-	fn_function class/component/disconnect_sig
+	def_function class/component/disconnect_sig
 		;inputs
 		;r0 = component object
 		;r1 = signal list
@@ -36,4 +36,4 @@
 		vp_cpy r7, r0
 		vp_ret
 
-	fn_function_end
+	def_function_end

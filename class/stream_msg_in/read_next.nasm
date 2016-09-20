@@ -2,7 +2,7 @@
 %include 'class/class_stream_msg_in.inc'
 %include 'class/class_stream_msg_out.inc'
 
-	fn_function class/stream_msg_in/read_next
+	def_function class/stream_msg_in/read_next
 		;inputs
 		;r0 = stream_msg_in object
 		;outputs
@@ -54,4 +54,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

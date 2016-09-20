@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/vector/get_element
+	def_function class/vector/get_element
 		;inputs
 		;r0 = vector object
 		;r1 = vector element
@@ -14,4 +14,4 @@
 		vp_cpy [r1], r1
 		vp_ret
 
-	fn_function_end
+	def_function_end

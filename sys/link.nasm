@@ -3,7 +3,7 @@
 %include 'inc/task.inc'
 %include 'inc/link.inc'
 
-	fn_function sys/link
+	def_function sys/link
 		;started by kernel for each link
 
 		;decrement task count
@@ -218,4 +218,4 @@
 		vp_cpy r1, [r0 + tk_statics_task_count]
 		vp_ret
 
-	fn_function_end
+	def_function_end

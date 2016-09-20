@@ -2,7 +2,7 @@
 %include 'class/class_text.inc'
 %include 'class/class_string.inc'
 
-	fn_function class/text/set_text
+	def_function class/text/set_text
 		;inputs
 		;r0 = text object
 		;r1 = 0, else string object
@@ -43,4 +43,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

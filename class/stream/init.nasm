@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	fn_function class/stream/init
+	def_function class/stream/init
 		;inputs
 		;r0 = stream object
 		;r1 = vtable pointer
@@ -27,4 +27,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

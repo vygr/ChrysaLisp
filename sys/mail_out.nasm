@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	fn_function sys/mail_out
+	def_function sys/mail_out
 		;parcels going off chip task
 
 		loop_start
@@ -67,4 +67,4 @@
 		loop_end
 		vp_ret
 
-	fn_function_end
+	def_function_end

@@ -5,7 +5,7 @@
 
 %define dual_buffers
 
-	fn_function gui/gui_update
+	def_function gui/gui_update
 		;inputs
 		;r0 = root view object
 		;trashes
@@ -284,4 +284,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

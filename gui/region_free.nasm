@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	fn_function gui/region_free
+	def_function gui/region_free
 		;inputs
 		;r0 = region heap pointer
 		;r1 = source region listhead pointer
@@ -16,4 +16,4 @@
 		loop_end
 		vp_ret
 
-	fn_function_end
+	def_function_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/vector/for_each
+	def_function class/vector/for_each
 		;inputs
 		;r0 = vector object
 		;r1 = predicate function pointer
@@ -59,4 +59,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

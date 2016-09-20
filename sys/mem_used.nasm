@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/heap.inc'
 
-	fn_function sys/mem_used
+	def_function sys/mem_used
 		;outputs
 		;r0 = amount in bytes
 
@@ -9,4 +9,4 @@
 		vp_cpy [r0], r0
 		vp_ret
 
-	fn_function_end
+	def_function_end

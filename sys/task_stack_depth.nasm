@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_stack_depth
+	def_function sys/task_stack_depth
 		;outputs
 		;r0 = stack depth (in bytes)
 		;trashes
@@ -23,4 +23,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

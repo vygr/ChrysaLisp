@@ -18,7 +18,7 @@
 		ptr local_old_keymap
 	def_structure_end
 
-	fn_function gui/gui
+	def_function gui/gui
 		;init vars
 		vp_sub local_size, r4
 		vp_xor r0, r0
@@ -365,4 +365,4 @@
 		db 0x51, 130, 130	;down
 	scan_codes_end:
 
-	fn_function_end
+	def_function_end

@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_window.inc'
 
-	fn_function class/window/mouse_move
+	def_function class/window/mouse_move
 		;inputs
 		;r0 = window object
 		;r1 = mouse event message
@@ -109,4 +109,4 @@
 		vp_add local_size, r4
 		s_jmp window, dirty_all, {r0}
 
-	fn_function_end
+	def_function_end

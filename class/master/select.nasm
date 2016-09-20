@@ -3,7 +3,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_stream_msg_out.inc'
 
-	fn_function class/master/select
+	def_function class/master/select
 		;inputs
 		;r0 = master object
 		;r1 = user mailbox
@@ -33,4 +33,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

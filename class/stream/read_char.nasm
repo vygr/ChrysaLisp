@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	fn_function class/stream/read_char
+	def_function class/stream/read_char
 		;inputs
 		;r0 = stream object
 		;outputs
@@ -27,4 +27,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

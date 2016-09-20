@@ -5,7 +5,7 @@
 %include 'class/class_string.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/text/draw
+	def_function class/text/draw
 		;inputs
 		;r0 = view object
 		;r1 = ctx object
@@ -42,4 +42,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

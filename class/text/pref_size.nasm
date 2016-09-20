@@ -4,7 +4,7 @@
 %include 'class/class_string.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/text/pref_size
+	def_function class/text/pref_size
 		;inputs
 		;r0 = text object
 		;outputs
@@ -39,4 +39,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

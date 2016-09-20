@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/opaque
+	def_function class/view/opaque
 		;inputs
 		;r0 = view object
 		;trashes
@@ -13,4 +13,4 @@
 		;paste opaque region
 		s_jmp view, add_opaque, {r0, 0, 0, [r0 + view_w], [r0 + view_h]}
 
-	fn_function_end
+	def_function_end

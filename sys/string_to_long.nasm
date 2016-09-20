@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	fn_function sys/string_to_long
+	def_function sys/string_to_long
 		;inputs
 		;r0 = string
 		;r1 = base
@@ -27,4 +27,4 @@
 		loop_end
 		vp_ret
 
-	fn_function_end
+	def_function_end

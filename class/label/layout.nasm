@@ -2,7 +2,7 @@
 %include 'class/class_label.inc'
 %include 'class/class_flow.inc'
 
-	fn_function class/label/layout
+	def_function class/label/layout
 		;inputs
 		;r0 = label object
 		;trashes
@@ -28,4 +28,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

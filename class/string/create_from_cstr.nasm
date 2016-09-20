@@ -2,7 +2,7 @@
 %include 'inc/string.inc'
 %include 'class/class_string.inc'
 
-	fn_function class/string/create_from_cstr
+	def_function class/string/create_from_cstr
 		;inputs
 		;r0 = c string pointer
 		;outputs
@@ -14,4 +14,4 @@
 		s_call sys_string, length, {r0}, {r1}
 		s_jmp string, create_from_buffer, {r0, r1}, {r0}
 
-	fn_function_end
+	def_function_end

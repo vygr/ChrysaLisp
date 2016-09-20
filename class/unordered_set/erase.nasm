@@ -2,7 +2,7 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/unordered_set/erase
+	def_function class/unordered_set/erase
 		;inputs
 		;r0 = unordered_set object
 		;r1 = iterator
@@ -41,4 +41,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

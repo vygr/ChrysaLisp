@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_pair.inc'
 
-	fn_function class/pair/get_second
+	def_function class/pair/get_second
 		;inputs
 		;r0 = pair object
 		;outputs
@@ -11,4 +11,4 @@
 		vp_cpy [r0 + pair_second], r1
 		vp_ret
 
-	fn_function_end
+	def_function_end

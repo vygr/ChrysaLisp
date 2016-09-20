@@ -4,7 +4,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_slave.inc'
 
-	fn_function cmd/forth
+	def_function cmd/forth
 
 		buffer_size equ 120
 
@@ -374,4 +374,4 @@
 	defword_end
 %endif
 
-	fn_function_end
+	def_function_end

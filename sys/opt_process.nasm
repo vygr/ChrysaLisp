@@ -5,7 +5,7 @@
 %include 'inc/string.inc'
 %include 'inc/load.inc'
 
-	fn_function sys/opt_process
+	def_function sys/opt_process
 		;process command options
 		;inputs
 		;r0 = argv array
@@ -124,4 +124,4 @@
 			align 8, db 0
 		dq	0
 
-	fn_function_end
+	def_function_end

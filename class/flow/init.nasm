@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_flow.inc'
 
-	fn_function class/flow/init
+	def_function class/flow/init
 		;inputs
 		;r0 = flow object
 		;r1 = vtable pointer
@@ -16,4 +16,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

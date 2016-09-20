@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_unordered_set.inc'
 
-fn_function class/unordered_set/create
+def_function class/unordered_set/create
 	;inputs
 	;r0 = key compare callback
 	;r1 = num buckets
@@ -28,4 +28,4 @@ fn_function class/unordered_set/create
 	endif
 	vp_ret
 
-fn_function_end
+def_function_end

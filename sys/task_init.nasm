@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_init
+	def_function sys/task_init
 		;set up current tcb
 		s_bind sys_task, statics, r3
 		vp_lea [r3 + tk_statics_task_list + lh_list_tail], r15
@@ -23,4 +23,4 @@
 		vp_cpy r1, [r3 + tk_statics_task_count]
 		vp_ret
 
-	fn_function_end
+	def_function_end

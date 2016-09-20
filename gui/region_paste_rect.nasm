@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	fn_function gui/region_paste_rect
+	def_function gui/region_paste_rect
 		;inputs
 		;r0 = region heap pointer
 		;r1 = dest region listhead pointer
@@ -224,4 +224,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

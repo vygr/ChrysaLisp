@@ -2,7 +2,7 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/unordered_set/init
+	def_function class/unordered_set/init
 		;inputs
 		;r0 = unordered_set object
 		;r1 = vtable pointer
@@ -55,4 +55,4 @@
 		vp_cpy r1, [r0]
 		vp_ret
 
-	fn_function_end
+	def_function_end

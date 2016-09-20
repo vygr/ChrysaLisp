@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	fn_function sys/mail_alloc_parcel
+	def_function sys/mail_alloc_parcel
 		;inputs
 		;r0 = parcel size
 		;outputs
@@ -19,4 +19,4 @@
 		vp_cpy r5, [r0 + msg_length]
 		vp_ret
 
-	fn_function_end
+	def_function_end

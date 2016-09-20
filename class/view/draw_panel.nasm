@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
-	fn_function class/view/draw_panel
+	def_function class/view/draw_panel
 		;inputs
 		;r0 = view object
 		;r1 = ctx object
@@ -27,4 +27,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

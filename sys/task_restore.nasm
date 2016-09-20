@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_restore
+	def_function sys/task_restore
 		;restore next task
 		;r15 = control block to restore
 
@@ -17,4 +17,4 @@
 		tk_load_state
 		vp_ret
 
-	fn_function_end
+	def_function_end

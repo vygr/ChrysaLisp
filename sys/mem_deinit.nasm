@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/heap.inc'
 
-	fn_function sys/mem_deinit
+	def_function sys/mem_deinit
 		;get statics
 		s_bind sys_mem, statics, r0
 		vp_cpy r0, r5
@@ -15,4 +15,4 @@
 		loop_until r6, >, mem_block_max_size
 		vp_ret
 
-	fn_function_end
+	def_function_end

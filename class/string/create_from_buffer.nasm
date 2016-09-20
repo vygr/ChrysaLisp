@@ -2,7 +2,7 @@
 %include 'inc/string.inc'
 %include 'class/class_string.inc'
 
-	fn_function class/string/create_from_buffer
+	def_function class/string/create_from_buffer
 		;inputs
 		;r0 = buffer pointer
 		;r1 = buffer length
@@ -29,4 +29,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

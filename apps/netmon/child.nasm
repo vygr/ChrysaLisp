@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'apps/netmon/app.inc'
 
-	fn_function apps/netmon/child
+	def_function apps/netmon/child
 		;monitor task
 
 		ptr msg
@@ -27,4 +27,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

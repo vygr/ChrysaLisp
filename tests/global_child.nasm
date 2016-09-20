@@ -6,7 +6,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function tests/global_child
+	def_function tests/global_child
 
 		ptr msg
 		ulong num
@@ -24,4 +24,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

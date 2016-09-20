@@ -2,7 +2,7 @@
 %include 'class/class_text.inc'
 %include 'class/class_string.inc'
 
-	fn_function class/text/get_text
+	def_function class/text/get_text
 		;inputs
 		;r0 = text object
 		;outputs
@@ -32,4 +32,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_master.inc'
 
-	fn_function class/master/deinit
+	def_function class/master/deinit
 		;inputs
 		;r0 = master object
 		;trashes
@@ -13,4 +13,4 @@
 		;deinit parent
 		p_jmp master, deinit, {r0}
 
-	fn_function_end
+	def_function_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/syscall.inc'
 
-	fn_function sys/write_number
+	def_function sys/write_number
 		;inputs
 		;r0 = number
 		;r1 = fd
@@ -26,4 +26,4 @@
 		loop_until r5, ==, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

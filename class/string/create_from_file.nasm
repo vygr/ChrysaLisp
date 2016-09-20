@@ -3,7 +3,7 @@
 %include 'inc/string.inc'
 %include 'class/class_string.inc'
 
-	fn_function class/string/create_from_file
+	def_function class/string/create_from_file
 		;inputs
 		;r0 = c string pointer
 		;outputs
@@ -45,4 +45,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

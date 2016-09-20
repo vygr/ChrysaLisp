@@ -6,7 +6,9 @@
 %include 'class/class_unordered_map.inc'
 %include 'class/class_slave.inc'
 
-	fn_function cmd/lisp
+%undef debug_mode
+
+	def_function cmd/lisp
 
 		def_structure globals
 			ptr globals_symbols
@@ -31,7 +33,7 @@
 
 			;REPL
 			static_call stream, read_char, {slave->slave_stdin}, {char}
-			fn_debug_long "repl: ", r1
+			debug_long "repl: ", r1
 			loop_start
 				local_call repl_read, {&globals, slave->slave_stdin, char}, {r0, r1, r2}, {r0, r1}, {ast, char}
 				breakif {!ast}
@@ -68,7 +70,7 @@
 		ptr globals, stream, ast
 		ulong char
 
-		fn_debug_long "repl_read: input ", r2
+		debug_long "repl_read: input ", r2
 
 		push_scope
 		retire {r0, r1, r2}, {globals, stream, char}
@@ -76,7 +78,7 @@
 		;skip white space
 		loop_while {char <= char_space && char != -1}
 			static_call stream, read_char, {stream}, {char}
-			fn_debug_long "repl_read: white space ", r1
+			debug_long "repl_read: white space ", r1
 		loop_end
 
 		;what are we reading ?
@@ -85,11 +87,11 @@
 			if {char == char_lb}
 				local_call repl_read_list, {globals, stream}, {r0, r1}, {r0}, {ast}
 				static_call stream, read_char, {stream}, {char}
-				fn_debug_long "repl_read: after list ", r1
+				debug_long "repl_read: after list ", r1
 			elseif {char == char_rb}
 				static_call string, create_from_cstr, {"Error: unexpected )"}, {ast}
 				static_call stream, read_char, {stream}, {char}
-				fn_debug_long "repl_read: after error", r1
+				debug_long "repl_read: after error", r1
 			else
 				local_call repl_read_symbol, {globals, stream, char}, {r0, r1, r2}, {r0, r1}, {ast, char}
 			endif
@@ -118,7 +120,7 @@
 		;skip white space
 		loop_start
 			static_call stream, read_char, {stream}, {char}
-			fn_debug_long "repl_read_list: white space 1", r1
+			debug_long "repl_read_list: white space 1", r1
 		loop_until {char > char_space || char == -1}
 
 		static_call vector, create, {}, {list}
@@ -126,12 +128,12 @@
 			local_call repl_read, {globals, stream, char}, {r0, r1, r2}, {r0, r1}, {ast, char}
 			breakif {!ast}
 			static_call vector, push_back, {list, ast}
-			fn_debug_long "repl_read_list: pushed ", r1
+			debug_long "repl_read_list: pushed ", r1
 
 			;skip white space
 			loop_while {char <= char_space && char != -1}
 				static_call stream, read_char, {stream}, {char}
-				fn_debug_long "repl_read_list: white space 2", r1
+				debug_long "repl_read_list: white space 2", r1
 			loop_end
 		loop_end
 
@@ -156,7 +158,7 @@
 		pptr iter
 		ulong char
 
-		fn_debug_long "repl_read_symbol: in ", r2
+		debug_long "repl_read_symbol: in ", r2
 
 		push_scope
 		retire {r0, r1, r2}, {globals, stream, char}
@@ -169,7 +171,7 @@
 			static_call ref, deref, {char_str}
 			static_call ref, deref, {tmp_str}
 			static_call stream, read_char, {stream}, {char}
-			fn_debug_long "repl_read_symbol: next char", r1
+			debug_long "repl_read_symbol: next char", r1
 		loop_end
 
 		;intern the symbol
@@ -250,4 +252,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

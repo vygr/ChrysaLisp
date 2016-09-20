@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_grid.inc'
 
-	fn_function class/grid/layout
+	def_function class/grid/layout
 		;inputs
 		;r0 = grid object
 		;trashes
@@ -60,4 +60,4 @@
 		vp_cpy r2, [r1 + local_count]
 		s_jmp view, change, {r0, r8, r9, r10, r11}
 
-	fn_function_end
+	def_function_end

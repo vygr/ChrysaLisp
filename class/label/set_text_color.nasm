@@ -2,7 +2,7 @@
 %include 'class/class_text.inc'
 %include 'class/class_label.inc'
 
-	fn_function class/label/set_text_color
+	def_function class/label/set_text_color
 		;inputs
 		;r0 = label object
 		;r1 = color
@@ -25,4 +25,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

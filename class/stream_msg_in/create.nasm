@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream_msg_in.inc'
 
-	fn_function class/stream_msg_in/create
+	def_function class/stream_msg_in/create
 		;inputs
 		;r0 = target mailbox
 		;outputs
@@ -27,4 +27,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

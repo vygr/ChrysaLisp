@@ -3,7 +3,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_pair.inc'
 
-	fn_function class/unordered_map/find
+	def_function class/unordered_map/find
 		;inputs
 		;r0 = unordered_map object
 		;r1 = key object
@@ -53,4 +53,4 @@
 		vp_cpy [r1 + local_key], r1
 		vp_jmp [r2 + unordered_set_key_callback]
 
-	fn_function_end
+	def_function_end

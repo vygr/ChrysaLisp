@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	fn_function sys/mail_init
+	def_function sys/mail_init
 		;inputs
 		;r1 = kernel mailbox
 
@@ -24,4 +24,4 @@
 		vp_cpy_cl 0, [r7 + ml_statics_parcel_id]
 		vp_ret
 
-	fn_function_end
+	def_function_end

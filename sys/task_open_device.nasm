@@ -2,7 +2,7 @@
 %include 'inc/mail.inc'
 %include 'class/class_string.inc'
 
-	fn_function sys/task_open_device
+	def_function sys/task_open_device
 		;inputs
 		;r0 = name string object
 		;r1 = cpu target
@@ -46,4 +46,4 @@
 		pop_scope
 		vp_ret
 
-	fn_function_end
+	def_function_end

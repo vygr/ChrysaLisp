@@ -4,7 +4,7 @@
 %include 'class/class_stream_msg_out.inc'
 %include 'class/class_stream_msg_in.inc'
 
-	fn_function class/master/stop
+	def_function class/master/stop
 		;inputs
 		;r0 = master object
 		;trashes
@@ -54,4 +54,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

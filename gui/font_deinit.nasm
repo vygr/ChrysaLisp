@@ -2,7 +2,7 @@
 %include 'inc/font.inc'
 %include 'inc/sdl2.inc'
 
-	fn_function gui/font_deinit
+	def_function gui/font_deinit
 		;get font statics
 		s_bind gui_font, statics, r15
 
@@ -28,4 +28,4 @@
 		loop_end
 		vp_ret
 
-	fn_function_end
+	def_function_end

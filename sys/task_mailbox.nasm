@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/task_mailbox
+	def_function sys/task_mailbox
 		;outputs
 		;r0, r1 = current task mailbox id
 
@@ -11,4 +11,4 @@
 		vp_add tk_node_mailbox, r0
 		vp_ret
 
-	fn_function_end
+	def_function_end

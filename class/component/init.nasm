@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_component.inc'
 
-	fn_function class/component/init
+	def_function class/component/init
 		;inputs
 		;r0 = component object
 		;r1 = vtable pointer
@@ -17,4 +17,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

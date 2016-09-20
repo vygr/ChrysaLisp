@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	fn_function sys/mail_read
+	def_function sys/mail_read
 		;inputs
 		;r0 = mailbox address
 		;outputs
@@ -21,4 +21,4 @@
 		ln_remove_node r1, r2
 		vp_ret
 
-	fn_function_end
+	def_function_end

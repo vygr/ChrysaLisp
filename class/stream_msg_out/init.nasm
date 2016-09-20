@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream_msg_out.inc'
 
-	fn_function class/stream_msg_out/init
+	def_function class/stream_msg_out/init
 		;inputs
 		;r0 = stream_msg_out object
 		;r1 = vtable pointer
@@ -29,4 +29,4 @@
 		endif
 		vp_ret
 
-	fn_function_end
+	def_function_end

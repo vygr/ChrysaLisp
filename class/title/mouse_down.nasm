@@ -3,7 +3,7 @@
 %include 'class/class_title.inc'
 %include 'class/class_window.inc'
 
-	fn_function class/title/mouse_down
+	def_function class/title/mouse_down
 		;inputs
 		;r0 = title object
 		;r1 = mouse event message
@@ -21,4 +21,4 @@
 		vp_pop r0
 		vp_ret
 
-	fn_function_end
+	def_function_end

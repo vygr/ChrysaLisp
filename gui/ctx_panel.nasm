@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	fn_function gui/ctx_panel
+	def_function gui/ctx_panel
 		;inputs
 		;r0 = ctx object
 		;r1 = color
@@ -151,4 +151,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	fn_function_end
+	def_function_end

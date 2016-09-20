@@ -2,7 +2,7 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	fn_function class/unordered_set/insert
+	def_function class/unordered_set/insert
 		;inputs
 		;r0 = unordered_set object
 		;r1 = key object
@@ -61,4 +61,4 @@
 		vp_cpy [r1 + local_key], r1
 		vp_jmp [r2 + unordered_set_key_callback]
 
-	fn_function_end
+	def_function_end

@@ -6,7 +6,7 @@
 ; test code
 ;;;;;;;;;;;
 
-	fn_function tests/farm
+	def_function tests/farm
 
 		const num_child, 128
 
@@ -39,4 +39,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

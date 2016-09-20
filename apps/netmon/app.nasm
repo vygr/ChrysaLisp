@@ -9,7 +9,7 @@
 %include 'class/class_string.inc'
 %include 'apps/netmon/app.inc'
 
-	fn_function apps/netmon/app
+	def_function apps/netmon/app
 
 		def_structure sel
 			ptr sel_select1
@@ -186,4 +186,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

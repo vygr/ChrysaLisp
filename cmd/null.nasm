@@ -2,7 +2,7 @@
 %include 'class/class_stream.inc'
 %include 'class/class_slave.inc'
 
-	fn_function cmd/null
+	def_function cmd/null
 
 		ptr slave
 		ulong eof
@@ -24,4 +24,4 @@
 		pop_scope
 		return
 
-	fn_function_end
+	def_function_end

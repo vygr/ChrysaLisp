@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_button.inc'
 
-	fn_function class/button/mouse_down
+	def_function class/button/mouse_down
 		;inputs
 		;r0 = button object
 		;r1 = mouse event message
@@ -14,4 +14,4 @@
 		m_call button, layout, {r0}
 		s_jmp button, dirty, {r0}
 
-	fn_function_end
+	def_function_end
