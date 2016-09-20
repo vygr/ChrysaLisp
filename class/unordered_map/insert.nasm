@@ -10,6 +10,8 @@
 		;r2 = value object
 		;outputs
 		;r0 = unordered_map object
+		;r1 = iterator
+		;r2 = bucket vector
 		;trashes
 		;all but r0, r4
 
@@ -17,7 +19,9 @@
 			ptr local_inst
 			ptr local_key
 			ptr local_value
-			ptr local_obj
+			ptr local_iter
+			ptr local_bucket
+			ptr local_pair
 		def_structure_end
 
 		;save inputs
@@ -36,23 +40,31 @@
 		vp_cpy [r4 + local_inst], r0
 		s_call vector, get_element, {[r0 + unordered_set_buckets], r2}, {r1}
 		s_call vector, for_each, {r1, $insert_callback, r4}, {r1}
+		vp_cpy r0, [r4 + local_bucket]
 		if r1, ==, 0
 			;new key
-			vp_cpy r0, [r4 + local_obj]
 			s_call ref, ref, {[r4 + local_value]}
 			s_call ref, ref, {[r4 + local_key]}
 			s_call pair, create, {r0, [r4 + local_value]}, {r0}
-			s_call vector, push_back, {[r4 + local_obj], r0}
+			s_call vector, push_back, {[r4 + local_bucket], r0}
+			vp_cpy r0, r2
+			vp_cpy [r0 + vector_length], r1
+			vp_cpy [r0 + vector_array], r0
+			vp_lea [r0 + r1 - ptr_size], r1
 		else
 			;old key
+			vp_cpy r1, [r4 + local_iter]
 			vp_cpy [r1], r2
-			vp_cpy r2, [r4 + local_obj]
+			vp_cpy r2, [r4 + local_pair]
 			s_call ref, ref, {[r4 + local_value]}
 			s_call ref, deref, {[r2 + pair_second]}
 			vp_cpy [r4 + local_value], r0
-			vp_cpy [r4 + local_obj], r2
+			vp_cpy [r4 + local_pair], r2
 			vp_cpy r0, [r2 + pair_second]
+			vp_cpy [r4 + local_iter], r1
+			vp_cpy [r4 + local_bucket], r2
 		endif
+
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret

@@ -30,7 +30,7 @@
 				assign {1}, {index}
 				loop_while {index != argc}
 					static_call vector, get_element, {args, index}, {arg}
-					static_call unordered_set, insert, {set, arg}
+					static_call unordered_set, insert, {set, arg}, {_, _}
 					assign {index + 1}, {index}
 				loop_end
 			else
@@ -39,7 +39,7 @@
 					static_call stream, read_line, {slave->slave_stdin, &buffer, buffer_size}, {length}
 					breakif {length == -1}
 					static_call string, create_from_buffer, {&buffer, length}, {arg}
-					static_call unordered_set, insert, {set, arg}
+					static_call unordered_set, insert, {set, arg}, {_, _}
 					static_call string, deref, {arg}
 				loop_end
 			endif
