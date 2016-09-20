@@ -145,7 +145,7 @@
 		;r1 = stream
 		;r2 = next char
 		;outputs
-		;r0 = 0, else symbol
+		;r0 = symbol
 		;r1 = next char
 
 		const char_space, ' '
@@ -166,6 +166,7 @@
 			assign {symbol}, {tmp_str}
 			static_call string, create_from_cstr, {&char}, {char_str}
 			static_call string, add, {symbol, char_str}, {symbol}
+			static_call ref, deref, {char_str}
 			static_call ref, deref, {tmp_str}
 			static_call stream, read_char, {stream}, {char}
 			fn_debug_long "repl_read_symbol: next char", r1
