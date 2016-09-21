@@ -11,6 +11,7 @@
 	def_method ref_second, class/pair/ref_second, static, {r0}, {r1}
 	def_method get_first, class/pair/get_first, static, {r0}, {r1}
 	def_method get_second, class/pair/get_second, static, {r0}, {r1}
+	def_method set_second, class/pair/set_second, static, {r0, r1}
 
 	def_method deinit, class/pair/deinit, override
 

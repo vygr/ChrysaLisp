@@ -13,6 +13,7 @@
 	def_method read, class/stream/read, static, {r0, r1, r2}, {r1}
 	def_method write_char, class/stream/write_char, static, {r0, r1}
 	def_method write, class/stream/write, static, {r0, r1, r2}
+	def_method write_cstr, class/stream/write_cstr, static, {r0, r1}
 	def_method skip, class/stream/skip, static, {r0, r1}
 	def_method skip_not, class/stream/skip_not, static, {r0, r1}
 	def_method split, class/stream/split, static, {r0, r1}, {r1}

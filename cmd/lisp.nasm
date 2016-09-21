@@ -4,6 +4,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_unordered_set.inc'
 %include 'class/class_unordered_map.inc'
+%include 'class/class_pair.inc'
 %include 'class/class_slave.inc'
 %include 'inc/string.inc'
 
@@ -148,7 +149,7 @@
 		const char_lb, '('
 		const char_rb, ')'
 
-		ptr globals, stream, ast, error
+		ptr globals, stream, ast
 		ulong char
 
 		debug_long "repl_read: input ", r2
@@ -170,10 +171,9 @@
 				static_call stream, read_char, {stream}, {char}
 				debug_long "repl_read: after list ", r1
 			elseif {char == char_rb}
-				static_call string, create_from_cstr, {"Error: unexpected )"}, {error}
-				static_call stream, write, {globals->globals_slave->slave_stderr, &error->string_data, error->string_length}
+				;unexpected ')' error
+				static_call stream, write_cstr, {globals->globals_slave->slave_stderr, $error_1}
 				method_call stream, write_flush, {globals->globals_slave->slave_stderr}
-				static_call string, deref, {error}
 				static_call stream, read_char, {stream}, {char}
 				debug_long "repl_read: after error", r1
 			else
@@ -276,12 +276,89 @@
 		;r0 = 0, else value
 
 		ptr globals, ast, value
+		ulong length
 
 		push_scope
 		retire {r0, r1}, {globals, ast}
 
-		assign {ast}, {value}
-		static_call ref, ref, {value}
+		;evaluate based on type
+		if {ast->obj_vtable == @class/class_string}
+			;symbol evals to self
+			assign {ast}, {value}
+			static_call ref, ref, {value}
+		elseif {ast->obj_vtable == @class/class_vector}
+			;list
+			static_call vector, get_length, {ast}, {length}
+			if {!length}
+				;null list evals to null
+				assign {ast}, {value}
+				static_call ref, ref, {value}
+			elseif {length == 1}
+				;one entry evals to that entry
+				static_call vector, get_element, {ast, 0}, {value}
+				local_call repl_eval, {globals, value}, {r0, r1}, {r0}, {value}
+			else
+				;more than one entry calls first as function on remaining
+				static_call vector, get_element, {ast, 0}, {value}
+				if {ast->obj_vtable == @class/class_string}
+					;built in ?
+					if {value == globals->globals_sym_def}
+						local_call repl_eval_def, {globals, ast}, {r0, r1}, {r0}, {value}
+					else
+						;not implamented error
+						static_call stream, write_cstr, {globals->globals_slave->slave_stderr, $error_2}
+						method_call stream, write_flush, {globals->globals_slave->slave_stderr}
+						assign {0}, {value}
+					endif
+				else
+					;not implamented error
+					static_call stream, write_cstr, {globals->globals_slave->slave_stderr, $error_2}
+					method_call stream, write_flush, {globals->globals_slave->slave_stderr}
+					assign {0}, {value}
+				endif
+			endif
+		endif
+
+		eval {value}, {r0}
+		pop_scope
+		return
+
+	repl_eval_def:
+		;inputs
+		;r0 = globals
+		;r1 = ast
+		;outputs
+		;r0 = 0, else value
+
+		ptr globals, ast, symbol, value
+		pptr iter
+		ulong length
+
+		push_scope
+		retire {r0, r1}, {globals, ast}
+
+		static_call vector, get_length, {ast}, {length}
+		if {length != 3}
+			;wrong number of args error
+			static_call stream, write_cstr, {globals->globals_slave->slave_stderr, $error_3}
+			method_call stream, write_flush, {globals->globals_slave->slave_stderr}
+			assign {0}, {value}
+		else
+			static_call vector, get_element, {ast, 1}, {symbol}
+			static_call vector, get_element, {ast, 2}, {value}
+			local_call repl_eval, {globals, symbol}, {r0, r1}, {r0}, {symbol}
+			local_call repl_eval, {globals, value}, {r0, r1}, {r0}, {value}
+			local_call env_find, {globals, symbol}, {r0, r1}, {r0, r1}, {iter, _}
+			if {iter}
+				;change existing value
+				static_call pair, set_second, {*iter, value}
+				static_call ref, ref, {value}
+			else
+				;new variable
+;				local_call env_var, {globals, symbol}, {r0, r1}, {r0, r1}, {iter, _}
+			endif
+			static_call ref, deref, {symbol}
+		endif
 
 		eval {value}, {r0}
 		pop_scope
@@ -349,5 +426,12 @@
 		db "_parent_", 0
 		db "def", 0
 		db 0
+
+	error_1:
+		db "Error_1: unexpected )", 10, 0
+	error_2:
+		db "Error_2: unimplamented", 10, 0
+	error_3:
+		db "Error_3: wrong number of args", 10, 0
 
 	def_function_end
