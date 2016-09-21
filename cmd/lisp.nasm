@@ -8,10 +8,19 @@
 %include 'class/class_slave.inc'
 %include 'inc/string.inc'
 
-%undef debug_mode
+;%undef debug_mode
 ;%xdefine debug_lines
 
 	def_function cmd/lisp
+
+		;push the contants scope
+		const char_space, ' '
+		const char_lf, 10
+		const char_lb, '('
+		const char_rb, ')'
+		const char_al, '<'
+		const char_ar, '>'
+		push_scope
 
 		def_structure globals
 			ptr globals_symbols
@@ -20,10 +29,11 @@
 
 			;same order as builtin table
 			ptr globals_sym_parent
+			ptr globals_sym_nil
+			ptr globals_sym_t
 			ptr globals_sym_def
+			ptr globals_sym_quote
 		def_structure_end
-
-		const char_lf, 10
 
 		struct globals, globals
 		ptr ast, value, symbol
@@ -52,19 +62,32 @@
 				assign {built_in + ptr_size}, {built_in}
 			loop_end
 
+			;standard self evaulating symbols
+			local_call env_set, {&globals, globals.globals_sym_nil, globals.globals_sym_nil}, {r0, r1, r2}
+			local_call env_set, {&globals, globals.globals_sym_t, globals.globals_sym_t}, {r0, r1, r2}
+			local_call env_set, {&globals, globals.globals_sym_def, globals.globals_sym_def}, {r0, r1, r2}
+			local_call env_set, {&globals, globals.globals_sym_quote, globals.globals_sym_quote}, {r0, r1, r2}
+
 			;REPL
 			static_call stream, read_char, {globals.globals_slave->slave_stdin}, {char}
-			debug_long "repl: ", r1
 			loop_start
+				method_call stream, write_flush, {globals.globals_slave->slave_stdout}
+				static_call sys_task, yield
+				method_call stream, write_flush, {globals.globals_slave->slave_stderr}
+
 				local_call repl_read, {&globals, globals.globals_slave->slave_stdin, char}, {r0, r1, r2}, {r0, r1}, {ast, char}
-				breakif {!ast}
+				breakif {char == -1}
+				continueif {!ast}
+
+				local_call repl_print, {&globals, ast}, {r0, r1}
+				static_call stream, write_char, {globals.globals_slave->slave_stdout, char_lf}
+
 				local_call repl_eval, {&globals, ast}, {r0, r1}, {r0}, {value}
 				static_call ref, deref, {ast}
-				breakif {!value}
+				continueif {!value}
 				local_call repl_print, {&globals, value}, {r0, r1}
 				static_call ref, deref, {value}
 				static_call stream, write_char, {globals.globals_slave->slave_stdout, char_lf}
-				method_call stream, write_flush, {globals.globals_slave->slave_stdout}
 			loop_end
 
 			;clean up
@@ -132,6 +155,57 @@
 		pop_scope
 		return
 
+	env_set:
+		;inputs
+		;r0 = globals
+		;r1 = symbol
+		;r2 = value
+
+		ptr globals, symbol, value
+		pptr iter
+
+		push_scope
+		retire {r0, r1, r2}, {globals, symbol, value}
+
+		local_call env_find, {globals, symbol}, {r0, r1}, {r0, r1}, {iter, _}
+		if {iter}
+			;change existing value
+			static_call ref, ref, {value}
+			static_call pair, set_second, {*iter, value}
+		else
+			;new variable
+			static_call unordered_map, insert, {globals->globals_enviroment, symbol, value}, {_, _}
+		endif
+
+		pop_scope
+		return
+
+	env_get:
+		;inputs
+		;r0 = globals
+		;r1 = symbol
+		;outputs
+		;r0 = 0, else value
+
+		ptr globals, symbol, value
+		pptr iter
+
+		push_scope
+		retire {r0, r1}, {globals, symbol}
+
+		local_call env_find, {globals, symbol}, {r0, r1}, {r0, r1}, {iter, _}
+		if {iter}
+			;found
+			static_call pair, ref_second, {*iter}, {value}
+		else
+			;not found
+			assign {0}, {value}
+		endif
+
+		eval {value}, {r0}
+		pop_scope
+		return
+
 ;;;;;;
 ; read
 ;;;;;;
@@ -145,14 +219,8 @@
 		;r0 = 0, else ast
 		;r1 = next char
 
-		const char_space, ' '
-		const char_lb, '('
-		const char_rb, ')'
-
 		ptr globals, stream, ast
 		ulong char
-
-		debug_long "repl_read: input ", r2
 
 		push_scope
 		retire {r0, r1, r2}, {globals, stream, char}
@@ -160,7 +228,6 @@
 		;skip white space
 		loop_while {char <= char_space && char != -1}
 			static_call stream, read_char, {stream}, {char}
-			debug_long "repl_read: white space ", r1
 		loop_end
 
 		;what are we reading ?
@@ -169,13 +236,15 @@
 			if {char == char_lb}
 				local_call repl_read_list, {globals, stream}, {r0, r1}, {r0}, {ast}
 				static_call stream, read_char, {stream}, {char}
-				debug_long "repl_read: after list ", r1
 			elseif {char == char_rb}
 				;unexpected ')' error
-				static_call stream, write_cstr, {globals->globals_slave->slave_stderr, $error_1}
-				method_call stream, write_flush, {globals->globals_slave->slave_stderr}
+				ptr stderr
+				push_scope
+				assign {globals->globals_slave->slave_stderr}, {stderr}
+				static_call stream, write_cstr, {stderr, "Error_1: unexpected )"}
+				static_call stream, write_char, {stderr, char_lf}
 				static_call stream, read_char, {stream}, {char}
-				debug_long "repl_read: after error", r1
+				pop_scope
 			else
 				local_call repl_read_symbol, {globals, stream, char}, {r0, r1, r2}, {r0, r1}, {ast, char}
 			endif
@@ -192,9 +261,6 @@
 		;outputs
 		;r0 = list
 
-		const char_space, ' '
-		const char_rb, ')'
-
 		ptr globals, stream, list, ast
 		ulong char
 
@@ -204,7 +270,6 @@
 		;skip white space
 		loop_start
 			static_call stream, read_char, {stream}, {char}
-			debug_long "repl_read_list: white space 1", r1
 		loop_until {char > char_space || char == -1}
 
 		static_call vector, create, {}, {list}
@@ -212,12 +277,10 @@
 			local_call repl_read, {globals, stream, char}, {r0, r1, r2}, {r0, r1}, {ast, char}
 			breakif {!ast}
 			static_call vector, push_back, {list, ast}
-			debug_long "repl_read_list: pushed ", r1
 
 			;skip white space
 			loop_while {char <= char_space && char != -1}
 				static_call stream, read_char, {stream}, {char}
-				debug_long "repl_read_list: white space 2", r1
 			loop_end
 		loop_end
 
@@ -234,14 +297,8 @@
 		;r0 = symbol
 		;r1 = next char
 
-		const char_space, ' '
-		const char_lb, '('
-		const char_rb, ')'
-
 		ptr globals, stream, symbol, char_str, tmp_str
 		ulong char
-
-		debug_long "repl_read_symbol: in ", r2
 
 		push_scope
 		retire {r0, r1, r2}, {globals, stream, char}
@@ -254,7 +311,6 @@
 			static_call ref, deref, {char_str}
 			static_call ref, deref, {tmp_str}
 			static_call stream, read_char, {stream}, {char}
-			debug_long "repl_read_symbol: next char", r1
 		loop_end
 
 		;intern the symbol
@@ -275,7 +331,7 @@
 		;outputs
 		;r0 = 0, else value
 
-		ptr globals, ast, value
+		ptr globals, ast, value, func
 		ulong length
 
 		push_scope
@@ -283,15 +339,26 @@
 
 		;evaluate based on type
 		if {ast->obj_vtable == @class/class_string}
-			;symbol evals to self
-			assign {ast}, {value}
-			static_call ref, ref, {value}
+			;symbol evals to its value
+			local_call env_get, {globals, ast}, {r0, r1}, {r0}, {value}
+			if {!value}
+				;not defined error
+				ptr stderr
+				push_scope
+				assign {globals->globals_slave->slave_stderr}, {stderr}
+				static_call stream, write_cstr, {stderr, "Error: variable not defined "}
+				static_call stream, write_char, {stderr, char_al}
+				static_call stream, write_cstr, {stderr, ast->string_data}
+				static_call stream, write_char, {stderr, char_ar}
+				static_call stream, write_char, {stderr, char_lf}
+				pop_scope
+			endif
 		elseif {ast->obj_vtable == @class/class_vector}
 			;list
 			static_call vector, get_length, {ast}, {length}
 			if {!length}
-				;null list evals to null
-				assign {ast}, {value}
+				;null list evals to nil
+				assign {globals->globals_sym_nil}, {value}
 				static_call ref, ref, {value}
 			elseif {length == 1}
 				;one entry evals to that entry
@@ -299,24 +366,68 @@
 				local_call repl_eval, {globals, value}, {r0, r1}, {r0}, {value}
 			else
 				;more than one entry calls first as function on remaining
-				static_call vector, get_element, {ast, 0}, {value}
-				if {ast->obj_vtable == @class/class_string}
-					;built in ?
-					if {value == globals->globals_sym_def}
-						local_call repl_eval_def, {globals, ast}, {r0, r1}, {r0}, {value}
+				static_call vector, get_element, {ast, 0}, {func}
+				local_call repl_eval, {globals, func}, {r0, r1}, {r0}, {func}
+				assign {0}, {value}
+				if (func)
+					if {func->obj_vtable == @class/class_string}
+						;built in ?
+						if {func == globals->globals_sym_quote}
+							local_call repl_eval_quote, {globals, ast}, {r0, r1}, {r0}, {value}
+						elseif {func == globals->globals_sym_def}
+							local_call repl_eval_def, {globals, ast}, {r0, r1}, {r0}, {value}
+						else
+							;not implamented error
+							ptr stderr
+							push_scope
+							assign {globals->globals_slave->slave_stderr}, {stderr}
+							static_call stream, write_cstr, {stderr, "Error: not implamented"}
+							static_call stream, write_char, {stderr, char_lf}
+							pop_scope
+						endif
 					else
 						;not implamented error
-						static_call stream, write_cstr, {globals->globals_slave->slave_stderr, $error_2}
-						method_call stream, write_flush, {globals->globals_slave->slave_stderr}
-						assign {0}, {value}
+						ptr stderr
+						push_scope
+						assign {globals->globals_slave->slave_stderr}, {stderr}
+						static_call stream, write_cstr, {stderr, "Error: not implamented"}
+						static_call stream, write_char, {stderr, char_lf}
+						pop_scope
 					endif
-				else
-					;not implamented error
-					static_call stream, write_cstr, {globals->globals_slave->slave_stderr, $error_2}
-					method_call stream, write_flush, {globals->globals_slave->slave_stderr}
-					assign {0}, {value}
+					static_call ref, deref, {func}
 				endif
 			endif
+		endif
+
+		eval {value}, {r0}
+		pop_scope
+		return
+
+	repl_eval_quote:
+		;inputs
+		;r0 = globals
+		;r1 = list
+		;outputs
+		;r0 = 0, else value
+
+		ptr globals, list, symbol, value
+		ulong length
+
+		push_scope
+		retire {r0, r1}, {globals, list}
+
+		static_call vector, get_length, {list}, {length}
+		if {length != 2}
+			;wrong number of args error
+			ptr stderr
+			push_scope
+			assign {globals->globals_slave->slave_stderr}, {stderr}
+			static_call stream, write_cstr, {stderr, "Error: (quote arg) wrong numbers of args"}
+			static_call stream, write_char, {stderr, char_lf}
+			assign {0}, {value}
+			pop_scope
+		else
+			static_call vector, ref_element, {list, 1}, {value}
 		endif
 
 		eval {value}, {r0}
@@ -326,38 +437,39 @@
 	repl_eval_def:
 		;inputs
 		;r0 = globals
-		;r1 = ast
+		;r1 = list
 		;outputs
 		;r0 = 0, else value
 
-		ptr globals, ast, symbol, value
-		pptr iter
+		ptr globals, list, symbol, value
 		ulong length
 
 		push_scope
-		retire {r0, r1}, {globals, ast}
+		retire {r0, r1}, {globals, list}
 
-		static_call vector, get_length, {ast}, {length}
+		static_call vector, get_length, {list}, {length}
 		if {length != 3}
 			;wrong number of args error
-			static_call stream, write_cstr, {globals->globals_slave->slave_stderr, $error_3}
-			method_call stream, write_flush, {globals->globals_slave->slave_stderr}
+			ptr stderr
+			push_scope
+			assign {globals->globals_slave->slave_stderr}, {stderr}
+			static_call stream, write_cstr, {stderr, "Error: (def var val) wrong numbers of args"}
+			static_call stream, write_char, {stderr, char_lf}
 			assign {0}, {value}
+			pop_scope
 		else
-			static_call vector, get_element, {ast, 1}, {symbol}
-			static_call vector, get_element, {ast, 2}, {value}
+			static_call vector, get_element, {list, 1}, {symbol}
 			local_call repl_eval, {globals, symbol}, {r0, r1}, {r0}, {symbol}
-			local_call repl_eval, {globals, value}, {r0, r1}, {r0}, {value}
-			local_call env_find, {globals, symbol}, {r0, r1}, {r0, r1}, {iter, _}
-			if {iter}
-				;change existing value
-				static_call pair, set_second, {*iter, value}
-				static_call ref, ref, {value}
+			if {!symbol}
+				assign {0}, {value}
 			else
-				;new variable
-;				local_call env_var, {globals, symbol}, {r0, r1}, {r0, r1}, {iter, _}
+				static_call vector, get_element, {list, 2}, {value}
+				local_call repl_eval, {globals, value}, {r0, r1}, {r0}, {value}
+				if {value}
+					local_call env_set, {globals, symbol, value}, {r0, r1, r2}
+				endif
+				static_call ref, deref, {symbol}
 			endif
-			static_call ref, deref, {symbol}
 		endif
 
 		eval {value}, {r0}
@@ -372,11 +484,6 @@
 		;inputs
 		;r0 = globals
 		;r1 = value
-
-		const char_space, 32
-		const char_lf, 10
-		const char_lb, '('
-		const char_rb, ')'
 
 		ptr globals, value, stream
 
@@ -424,14 +531,13 @@
 
 	built_ins:
 		db "_parent_", 0
+		db "nil", 0
+		db "t", 0
 		db "def", 0
+		db "quote", 0
 		db 0
 
-	error_1:
-		db "Error_1: unexpected )", 10, 0
-	error_2:
-		db "Error_2: unimplamented", 10, 0
-	error_3:
-		db "Error_3: wrong number of args", 10, 0
+		;pop the contants scope
+		pop_scope
 
 	def_function_end
