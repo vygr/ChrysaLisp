@@ -27,7 +27,7 @@
 			ptr globals_enviroment
 			ptr globals_slave
 
-			;same order as builtin table
+			;same order as built_in_symbols table
 			ptr globals_sym_parent
 			ptr globals_sym_nil
 			ptr globals_sym_t
@@ -206,19 +206,57 @@
 		;outputs
 		;r0 = 0, else value
 
-		ptr globals, symbol, value
+		ptr globals, symbol
 		pptr iter
 
 		push_scope
 		retire {r0, r1}, {globals, symbol}
 
 		local_call env_find, {globals, symbol}, {r0, r1}, {r0, r1}, {iter, _}
+		assign {0}, {symbol}
 		if {iter}
-			;found
-			static_call pair, ref_second, {*iter}, {value}
+			static_call pair, ref_second, {*iter}, {symbol}
+		endif
+
+		eval {symbol}, {r0}
+		pop_scope
+		return
+
+	env_set_list:
+		;inputs
+		;r0 = globals
+		;r1 = vars list
+		;r2 = vals list
+		;outputs
+		;r0 = 0 if error
+
+		ptr globals, vars, vals, symbol, value
+		ulong len1, len2
+
+		push_scope
+		retire {r0, r1, r2}, {globals, vars, vals}
+
+		assign {0}, {value}
+		if {vars->obj_vtable != @class/class_vector}
+			local_call error, {globals, "Error: (set vars vals): vars not a list"}, {r0, r1}
 		else
-			;not found
-			assign {0}, {value}
+			if {vals->obj_vtable != @class/class_vector}
+				local_call error, {globals, "Error: (set vars vals): vals not a list"}, {r0, r1}
+			else
+				static_call vector, get_length, {vars}, {len1}
+				static_call vector, get_length, {vals}, {len2}
+				if {len1 != len2}
+					local_call error, {globals, "Error: (set vars vals): non matching lengths"}, {r0, r1}
+				else
+					assign {0, 0}, {value, len1}
+					loop_while {len1 != len2}
+						static_call vector, get_element, {vars, len1}, {symbol}
+						static_call vector, get_element, {vals, len1}, {value}
+						local_call env_set, {globals, symbol, value}, {r0, r1, r2}
+						assign {len1 + 1}, {len1}
+					loop_end
+				endif
+			endif
 		endif
 
 		eval {value}, {r0}
@@ -506,46 +544,26 @@
 		;outputs
 		;r0 = 0, else value
 
-		ptr globals, list, value, symbol, vars, vals
-		ulong len1, len2
+		ptr globals, list, value, vars, vals
+		ulong length
 
 		push_scope
 		retire {r0, r1}, {globals, list}
 
 		assign {0}, {value}
-		static_call vector, get_length, {list}, {len1}
-		if {len1 != 3}
-			local_call error, {globals, "Error: (def (vars) (vals)) wrong numbers of args"}, {r0, r1}
+		static_call vector, get_length, {list}, {length}
+		if {length != 3}
+			local_call error, {globals, "Error: (def vars vals) wrong numbers of args"}, {r0, r1}
 		else
-			;eval args
-			static_call vector, slice, {list, 1, len1}, {list}
-			local_call repl_eval_list, {globals, list}, {r0, r1}, {r0}, {symbol}
-			if {symbol}
-				static_call vector, get_element, {list, 0}, {vars}
-				if {vars->obj_vtable != @class/class_vector}
-					local_call error, {globals, "Error: (def (vars) (vals)): (vars) not a list"}, {r0, r1}
-				else
-					static_call vector, get_element, {list, 1}, {vals}
-					if {vals->obj_vtable != @class/class_vector}
-						local_call error, {globals, "Error: (def (vars) (vals)): (vals) not a list"}, {r0, r1}
-					else
-						static_call vector, get_length, {vars}, {len1}
-						static_call vector, get_length, {vals}, {len2}
-						if {len1 != len2}
-							local_call error, {globals, "Error: (def (vars) (vals)): non matching lengths"}, {r0, r1}
-						else
-							assign {0}, {len1}
-							loop_while {len1 != len2}
-								static_call vector, get_element, {vars, len1}, {symbol}
-								static_call vector, get_element, {vals, len1}, {value}
-								local_call env_set, {globals, symbol, value}, {r0, r1, r2}
-								assign {len1 + 1}, {len1}
-							loop_end
-						endif
-					endif
-				endif
+			static_call vector, get_element, {list, 1}, {vars}
+			static_call vector, get_element, {list, 2}, {vals}
+			local_call repl_eval, {globals, vals}, {r0, r1}, {r0}, {value}
+			breakif {!value}
+			local_call env_set_list, {globals, vars, value}, {r0, r1, r2}, {r0}, {vals}
+			if {!vals}
+				static_call ref, deref, {value}
+				assign {0}, {value}
 			endif
-			static_call vector, deref, {list}
 		endif
 
 		eval {value}, {r0}
