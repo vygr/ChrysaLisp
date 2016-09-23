@@ -26,7 +26,7 @@
 		vp_cpy [r4 + local_obj], r1
 		vp_cpy r1, [r0 + pair_second]
 
-		vp_sub local_size, r4
+		vp_add local_size, r4
 		vp_ret
 
 	def_function_end
