@@ -9,6 +9,8 @@
 		;outputs
 		;r0 = vector object
 		;r1 = slice vector object
+		;trashes
+		;r1-r3, r5-r8
 
 		def_structure local
 			ptr local_inst
@@ -16,21 +18,6 @@
 			ulong local_start
 			ulong local_end
 		def_structure_end
-
-		;clip inputs
-		vp_cpy [r0 + vector_length], r3
-		vp_shr 3, r3
-		if r1, >, r3
-			vp_cpy r3, r1
-		endif
-		if r2, >, r3
-			vp_cpy r3, r2
-		endif
-		if r1, >, r2
-			vp_cpy r1, r3
-			vp_cpy r2, r1
-			vp_cpy r3, r2
-		endif
 
 		;save inputs
 		vp_sub local_size, r4

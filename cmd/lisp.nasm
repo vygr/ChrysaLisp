@@ -81,12 +81,17 @@
 				breakif {char == -1}
 				continueif {!ast}
 
+				static_call stream, write_cstr, {globals.globals_slave->slave_stdout, "--AST--"}
+				static_call stream, write_char, {globals.globals_slave->slave_stdout, char_lf}
 				local_call repl_print, {&globals, ast}, {r0, r1}
 				static_call stream, write_char, {globals.globals_slave->slave_stdout, char_lf}
 
 				local_call repl_eval, {&globals, ast}, {r0, r1}, {r0}, {value}
 				static_call ref, deref, {ast}
 				continueif {!value}
+
+				static_call stream, write_cstr, {globals.globals_slave->slave_stdout, "--Value--"}
+				static_call stream, write_char, {globals.globals_slave->slave_stdout, char_lf}
 				local_call repl_print, {&globals, value}, {r0, r1}
 				static_call ref, deref, {value}
 				static_call stream, write_char, {globals.globals_slave->slave_stdout, char_lf}
@@ -111,7 +116,9 @@
 		retire {r0, r1}, {globals, error}
 
 		assign {globals->globals_slave->slave_stderr}, {stderr}
+		static_call stream, write_cstr, {stderr, "Error: <"}
 		static_call stream, write_cstr, {stderr, error}
+		static_call stream, write_char, {stderr, char_ar}
 		static_call stream, write_char, {stderr, char_lf}
 
 		pop_scope
@@ -228,7 +235,7 @@
 		;r1 = vars list
 		;r2 = vals list
 		;outputs
-		;r0 = 0 if error
+		;r0 = 0, vals list
 
 		ptr globals, vars, vals, symbol, value
 		ulong len1, len2
@@ -238,23 +245,24 @@
 
 		assign {0}, {value}
 		if {vars->obj_vtable != @class/class_vector}
-			local_call error, {globals, "Error: (set vars vals): vars not a list"}, {r0, r1}
+			local_call error, {globals, "(set vars vals): vars not a list"}, {r0, r1}
 		else
 			if {vals->obj_vtable != @class/class_vector}
-				local_call error, {globals, "Error: (set vars vals): vals not a list"}, {r0, r1}
+				local_call error, {globals, "(set vars vals): vals not a list"}, {r0, r1}
 			else
 				static_call vector, get_length, {vars}, {len1}
 				static_call vector, get_length, {vals}, {len2}
 				if {len1 != len2}
-					local_call error, {globals, "Error: (set vars vals): non matching lengths"}, {r0, r1}
+					local_call error, {globals, "(set vars vals): non matching lengths"}, {r0, r1}
 				else
-					assign {0, 0}, {value, len1}
+					assign {0}, {len1}
 					loop_while {len1 != len2}
 						static_call vector, get_element, {vars, len1}, {symbol}
 						static_call vector, get_element, {vals, len1}, {value}
 						local_call env_set, {globals, symbol, value}, {r0, r1, r2}
 						assign {len1 + 1}, {len1}
 					loop_end
+					assign {vals}, {value}
 				endif
 			endif
 		endif
@@ -294,7 +302,7 @@
 				local_call repl_read_list, {globals, stream}, {r0, r1}, {r0}, {ast}
 				static_call stream, read_char, {stream}, {char}
 			elseif {char == char_rb}
-				local_call error, {globals, "Error: unexpected )"}, {r0, r1}
+				local_call error, {globals, "unexpected )"}, {r0, r1}
 				static_call stream, read_char, {stream}, {char}
 			else
 				local_call repl_read_symbol, {globals, stream, char}, {r0, r1, r2}, {r0, r1}, {ast, char}
@@ -382,7 +390,7 @@
 		;outputs
 		;r0 = 0, else value
 
-		ptr globals, ast, value, func
+		ptr globals, ast, value, func, args
 		ulong length
 
 		push_scope
@@ -393,7 +401,7 @@
 			;symbol evals to its value
 			local_call env_get, {globals, ast}, {r0, r1}, {r0}, {value}
 			breakif {value}
-			local_call error, {globals, "Error: variable not defined"}, {r0, r1}
+			local_call error, {globals, "variable not defined"}, {r0, r1}
 		elseif {ast->obj_vtable == @class/class_vector}
 			;list
 			static_call vector, get_length, {ast}, {length}
@@ -411,20 +419,22 @@
 				local_call repl_eval, {globals, func}, {r0, r1}, {r0}, {func}
 				assign {0}, {value}
 				if (func)
+					static_call vector, slice, {ast, 1, length}, {args}
 					if {func->obj_vtable == @class/class_string}
 						;built in ?
 						if {func == globals->globals_sym_quote}
-							local_call built_in_quote, {globals, ast}, {r0, r1}, {r0}, {value}
+							local_call built_in_quote, {globals, args}, {r0, r1}, {r0}, {value}
 						elseif {func == globals->globals_sym_def}
-							local_call built_in_def, {globals, ast}, {r0, r1}, {r0}, {value}
+							local_call built_in_def, {globals, args}, {r0, r1}, {r0}, {value}
 						elseif {func == globals->globals_sym_list}
-							local_call built_in_list, {globals, ast}, {r0, r1}, {r0}, {value}
+							local_call built_in_list, {globals, args}, {r0, r1}, {r0}, {value}
 						else
-							local_call error, {globals, "Error: not implamented"}, {r0, r1}
+							local_call error, {globals, "not implamented"}, {r0, r1}
 						endif
 					else
-						local_call error, {globals, "Error: not implamented"}, {r0, r1}
+						local_call error, {globals, "not implamented"}, {r0, r1}
 					endif
+					static_call ref, deref, {args}
 					static_call ref, deref, {func}
 				endif
 			endif
@@ -448,7 +458,7 @@
 		retire {r0, r1}, {globals, list}
 
 		if {list->obj_vtable != @class/class_vector}
-			local_call error, {globals, "Error: not a list"}, {r0, r1}
+			local_call error, {globals, "not a list"}, {r0, r1}
 			assign {0}, {list}
 		else
 			static_call vector, for_each, {list, $repl_eval_list_callback, globals}, {iter}
@@ -490,83 +500,79 @@
 	built_in_quote:
 		;inputs
 		;r0 = globals
-		;r1 = list
+		;r1 = args
 		;outputs
 		;r0 = 0, else value
 
-		ptr globals, list, symbol, value
+		ptr globals, args
 		ulong length
 
 		push_scope
-		retire {r0, r1}, {globals, list}
+		retire {r0, r1}, {globals, args}
 
-		static_call vector, get_length, {list}, {length}
-		if {length != 2}
-			local_call error, {globals, "Error: (quote arg) wrong numbers of args"}, {r0, r1}
-			assign {0}, {value}
+		static_call vector, get_length, {args}, {length}
+		if {length != 1}
+			local_call error, {globals, "(quote arg) wrong numbers of args"}, {r0, r1}
+			assign {0}, {args}
 		else
-			static_call vector, ref_element, {list, 1}, {value}
+			static_call vector, ref_element, {args, 0}, {args}
 		endif
 
-		eval {value}, {r0}
+		eval {args}, {r0}
 		pop_scope
 		return
 
 	built_in_list:
 		;inputs
 		;r0 = globals
-		;r1 = list
+		;r1 = args
 		;outputs
 		;r0 = 0, else value
 
-		ptr globals, list, value
-		ulong length
+		ptr globals, args
 
 		push_scope
-		retire {r0, r1}, {globals, list}
+		retire {r0, r1}, {globals, args}
 
 		;eval args
-		static_call vector, get_length, {list}, {length}
-		static_call vector, slice, {list, 1, length}, {list}
-		local_call repl_eval_list, {globals, list}, {r0, r1}, {r0}, {value}
-		if {!value}
-			static_call vector, deref, {list}
+		local_call repl_eval_list, {globals, args}, {r0, r1}, {r0}, {args}
+		if {args}
+			static_call ref, ref, {args}
 		endif
 
-		eval {value}, {r0}
+		eval {args}, {r0}
 		pop_scope
 		return
 
 	built_in_def:
 		;inputs
 		;r0 = globals
-		;r1 = list
+		;r1 = args
 		;outputs
 		;r0 = 0, else value
 
-		ptr globals, list, value, vars, vals
+		ptr globals, args, vars
 		ulong length
 
 		push_scope
-		retire {r0, r1}, {globals, list}
+		retire {r0, r1}, {globals, args}
 
-		assign {0}, {value}
-		static_call vector, get_length, {list}, {length}
-		if {length != 3}
-			local_call error, {globals, "Error: (def vars vals) wrong numbers of args"}, {r0, r1}
+		static_call vector, get_length, {args}, {length}
+		if {length != 2}
+			local_call error, {globals, "(def vars vals) wrong numbers of args"}, {r0, r1}
+			assign {0}, {args}
 		else
-			static_call vector, get_element, {list, 1}, {vars}
-			static_call vector, get_element, {list, 2}, {vals}
-			local_call repl_eval, {globals, vals}, {r0, r1}, {r0}, {value}
-			breakif {!value}
-			local_call env_set_list, {globals, vars, value}, {r0, r1, r2}, {r0}, {vals}
-			if {!vals}
-				static_call ref, deref, {value}
-				assign {0}, {value}
+			static_call vector, get_element, {args, 0}, {vars}
+			static_call vector, get_element, {args, 1}, {args}
+			local_call repl_eval_list, {globals, args}, {r0, r1}, {r0}, {args}
+			breakif {!args}
+			local_call env_set_list, {globals, vars, args}, {r0, r1, r2}, {r0}, {args}
+			if {args}
+				static_call ref, ref, {args}
 			endif
 		endif
 
-		eval {value}, {r0}
+		eval {args}, {r0}
 		pop_scope
 		return
 
