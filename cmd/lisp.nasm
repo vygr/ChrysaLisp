@@ -154,6 +154,43 @@
 ; enviroment
 ;;;;;;;;;;;;
 
+	env_push:
+		;inputs
+		;r0 = globals
+
+		ptr globals, env
+
+		push_scope
+		retire {r0}, {globals}
+
+		static_call unordered_map, create, {@class/string/compare, 1}, {env}
+		static_call unordered_map, insert, {env, globals->globals_sym_parent, globals->globals_enviroment}, {_, _}
+		assign {env}, {globals->globals_enviroment}
+
+		pop_scope
+		return
+
+	env_pop:
+		;inputs
+		;r0 = globals
+
+		ptr globals, env
+		pptr iter
+
+		push_scope
+		retire {r0}, {globals}
+
+		static_call unordered_map, find, {globals->globals_enviroment, globals->globals_sym_parent}, {iter, _}
+		if {iter}
+			assign {*iter}, {env}
+			static_call unordered_map, ref, {env}
+			static_call unordered_map, deref, {globals->globals_enviroment}
+			assign {env}, {globals->globals_enviroment}
+		endif
+
+		pop_scope
+		return
+
 	env_find:
 		;inputs
 		;r0 = globals
