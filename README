@@ -6,36 +6,14 @@ Assembler 64 bit OS. MIMD, multi CPU, multi threaded, multi core, multi user.
 Runs on OSX or Linux. Could move to bare metal eventually but it's useful for
 now to run hosted while experimenting.
 
+Allows modelling of various network topologies with point to point links. Each
+CPU in the network is modelled as a separate host process, point to point links
+use shared memory to simulate CPU to CPU, point to point, bi directional
+connections. There is no global bus based networking on purpose.
+
 Uses a virtual CPU instruction macro set to avoid use of x64 native
 instructions. It will eventually run on ARM Linux for machines such as Raspberry
 PI and BeagleBone with no source modification.
-
-Has function level dynamic binding and loading. Individual functions are loaded
-and bound on demand as tasks are created and distributed. Currently functions
-are loaded from the CPU file system on which the task finds itself, but these
-will eventually come from the server object that the task was created with and
-functions will be transported across the network as required. Functions are
-shared between all tasks that share the same server object, so only a single
-copy of a function is loaded regardless of how many tasks use that function.
-
-There is a powerful object and class system, not just for an assembler, but
-quite as capable as a high level language. Static classes or virtual classes
-with virtual, static and overridable methods can be defined. Calls are type
-checked to ensure consistency across the class hierarchy. The GUI is constructed
-using this class system. A signals and slots system is provided for object
-composition.
-
-A command terminal with a familiar interface for pipe style command line
-applications is provided with args vector, stdin, stdout, stderr etc. Classes
-for easy construction of pipe masters and slaves, with arbitrary nesting of
-command line pipes. While this isn't the best way to create parallel
-applications it is very useful for the composition of tools and hides all the
-message passing behind a familiar streams based API.
-
-The interface to the system functions is provided as a set of static classes,
-easing use and removing the need to remember static function locations, plus
-decoupling the source from changes at the system level. Look in the inc/
-directory to see the interface definitions.
 
 Register juggling for parameter passing is eliminated by having all functions
 define their register interface and parameter source and destinations are mapped
@@ -45,16 +23,43 @@ simplify binding of parameters to dynamic bound functions, relative addresses,
 auto defined string pools, references and local stack frame values. Unused
 output parameters can be ignored with a _.
 
-A full compiler, created entirely in assembler macros, is available for use if
-desired. Variables with nested scopes can be defined and used in expressions
+There is a powerful object and class system, not just for an assembler, but
+quite as capable as a high level language. Static classes or virtual classes
+with virtual, static and overridable methods can be defined. Calls are type
+checked to ensure consistency across the class hierarchy. The GUI is constructed
+using this class system. A signals and slots system is provided for object
+composition.
+
+Has function level dynamic binding and loading. Individual functions are loaded
+and bound on demand as tasks are created and distributed. Currently functions
+are loaded from the CPU file system on which the task finds itself, but these
+will eventually come from the server object that the task was created with and
+functions will be transported across the network as required. Functions are
+shared between all tasks that share the same server object, so only a single
+copy of a function is loaded regardless of how many tasks use that function.
+
+The interface to the system functions is provided as a set of static classes,
+easing use and removing the need to remember static function locations, plus
+decoupling the source from changes at the system level. Look in the inc/
+directory to see the interface definitions.
+
+A command terminal with a familiar interface for pipe style command line
+applications is provided with args vector, stdin, stdout, stderr etc. Classes
+for easy construction of pipe masters and slaves, with arbitrary nesting of
+command line pipes. While this isn't the best way to create parallel
+applications it is very useful for the composition of tools and hides all the
+message passing behind a familiar streams based API.
+
+A compiler, C-Script, created entirely in assembler macros, is available for use
+if desired. Variables with nested scopes can be defined and used in expressions
 with the compiler taking care of register assignment and expression compilation.
 Quite an achievement considering it's all done with macros. :) Currently there
 is an elementary optimise pass, more will be done.
 
-Allows modelling of various network topologies with point to point links. Each
-CPU in the network is modelled as a separate host process, point to point links
-use shared memory to simulate CPU to CPU, point to point, bi directional
-connections. There is no global bus based networking on purpose.
+A Common Lisp like interpreter is provided, written in the C-Script compiled
+language ! This is available from the command line, via the command 'lisp_repl',
+This will be expanded over time to provide self compilation and a replacement
+for NASM will be written in Lisp to remove the need for any external tooling.
 
 Network link routing tables are created on booting a link, and the process is
 distributed in nature, each link starts a flood fill that eventually reaches all
