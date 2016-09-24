@@ -417,6 +417,8 @@
 	def_method title, class/class_title
 	def_method slave, class/class_slave
 	def_method master, class/class_master
+	def_method boxed_ptr, class/class_boxed_ptr
+	def_method boxed_long, class/class_boxed_long
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction
