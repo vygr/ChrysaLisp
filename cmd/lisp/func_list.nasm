@@ -1,24 +1,26 @@
-%include 'cmd/lisp/lisp.inc'
+%include 'inc/func.inc'
+%include 'cmd/lisp/class_lisp.inc'
 
 	def_function cmd/lisp/func_list
 		;inputs
-		;r0 = globals
+		;r0 = lisp object
 		;r1 = args
 		;outputs
-		;r0 = 0, else value
+		;r0 = lisp object
+		;r1 = 0, else value
 
-		ptr globals, args
+		ptr this, args
 
 		push_scope
-		retire {r0, r1}, {globals, args}
+		retire {r0, r1}, {this, args}
 
 		;eval args
-		static_call lisp, repl_eval_list, {globals, args}, {args}
+		static_call lisp, repl_eval_list, {this, args}, {args}
 		if {args}
 			static_call ref, ref, {args}
 		endif
 
-		eval {args}, {r0}
+		eval {this, args}, {r0, r1}
 		pop_scope
 		return
 

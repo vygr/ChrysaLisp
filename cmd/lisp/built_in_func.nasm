@@ -1,21 +1,26 @@
-%include 'cmd/lisp/lisp.inc'
+%include 'inc/func.inc'
+%include 'class/class_boxed_ptr.inc'
+%include 'cmd/lisp/class_lisp.inc'
 
 	def_function cmd/lisp/built_in_func
 		;inputs
-		;r0 = lisp globals
+		;r0 = lisp object
 		;r1 = symbol
 		;r2 = function pointer
+		;outputs
+		;r0 = lisp object
 
-		ptr lisp, symbol, func_ptr, func
+		ptr this, symbol, func_ptr, func
 
 		push_scope
-		retire {r0, r1, r2}, {lisp, symbol, func_ptr}
+		retire {r0, r1, r2}, {this, symbol, func_ptr}
 
 		static_call boxed_ptr, create, {}, {func}
 		static_call boxed_ptr, set_value, {func, func_ptr}
-		static_call lisp, env_set, {lisp, symbol, func}
+		static_call lisp, env_set, {this, symbol, func}
 		static_call boxed_ptr, deref, {func}
 
+		eval {this}, {r0}
 		pop_scope
 		return
 

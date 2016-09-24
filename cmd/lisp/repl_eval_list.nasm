@@ -1,28 +1,31 @@
-%include 'cmd/lisp/lisp.inc'
+%include 'inc/func.inc'
+%include 'class/class_vector.inc'
+%include 'cmd/lisp/class_lisp.inc'
 
 	def_function cmd/lisp/repl_eval_list
 		;inputs
-		;r0 = lisp globals
+		;r0 = lisp object
 		;r1 = list
 		;outputs
-		;r0 = 0, else list
+		;r0 = lisp object
+		;r1 = 0, else list
 
-		ptr lisp, list
+		ptr this, list
 		pptr iter
 
 		push_scope
-		retire {r0, r1}, {lisp, list}
+		retire {r0, r1}, {this, list}
 
 		if {list->obj_vtable != @class/class_vector}
-			static_call lisp, error, {lisp, "not a list"}
+			static_call lisp, error, {this, "not a list"}
 			assign {0}, {list}
 		else
-			static_call vector, for_each, {list, $repl_eval_list_callback, lisp}, {iter}
+			static_call vector, for_each, {list, $repl_eval_list_callback, this}, {iter}
 			breakif {!iter}
 			assign {0}, {list}
 		endif
 
-		eval {list}, {r0}
+		eval {this, list}, {r0, r1}
 		pop_scope
 		return
 
@@ -34,18 +37,18 @@
 		;r1 = 0 if break, else not
 
 		pptr iter
-		ptr lisp
+		ptr this
 
 		push_scope
-		retire {r0, r1}, {iter, lisp}
+		retire {r0, r1}, {iter, this}
 
-		static_call lisp, repl_eval, {lisp, *iter}, {lisp}
-		if {lisp}
+		static_call lisp, repl_eval, {this, *iter}, {this}
+		if {this}
 			static_call ref, deref, {*iter}
-			assign {lisp}, {*iter}
+			assign {this}, {*iter}
 		endif
 
-		eval {lisp}, {r1}
+		eval {this}, {r1}
 		pop_scope
 		return
 

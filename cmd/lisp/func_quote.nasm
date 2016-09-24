@@ -1,27 +1,30 @@
-%include 'cmd/lisp/lisp.inc'
+%include 'inc/func.inc'
+%include 'class/class_vector.inc'
+%include 'cmd/lisp/class_lisp.inc'
 
 	def_function cmd/lisp/func_quote
 		;inputs
-		;r0 = globals
+		;r0 = lisp object
 		;r1 = args
 		;outputs
-		;r0 = 0, else value
+		;r0 = lisp object
+		;r1 = 0, else value
 
-		ptr globals, args
+		ptr this, args
 		ulong length
 
 		push_scope
-		retire {r0, r1}, {globals, args}
+		retire {r0, r1}, {this, args}
 
 		static_call vector, get_length, {args}, {length}
 		if {length != 1}
-			static_call lisp, error, {globals, "(quote arg) wrong numbers of args"}
+			static_call lisp, error, {this, "(quote arg) wrong numbers of args"}
 			assign {0}, {args}
 		else
 			static_call vector, ref_element, {args, 0}, {args}
 		endif
 
-		eval {args}, {r0}
+		eval {this, args}, {r0, r1}
 		pop_scope
 		return
 

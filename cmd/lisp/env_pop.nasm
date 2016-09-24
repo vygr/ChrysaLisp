@@ -1,23 +1,28 @@
-%include 'cmd/lisp/lisp.inc'
+%include 'inc/func.inc'
+%include 'class/class_unordered_map.inc'
+%include 'cmd/lisp/class_lisp.inc'
 
 	def_function cmd/lisp/env_pop
 		;inputs
-		;r0 = lisp globals
+		;r0 = lisp object
+		;outputs
+		;r0 = lisp object
 
-		ptr lisp, env
+		ptr this, env
 		pptr iter
 
 		push_scope
-		retire {r0}, {lisp}
+		retire {r0}, {this}
 
-		static_call unordered_map, find, {lisp->lisp_enviroment, lisp->lisp_sym_parent}, {iter, _}
+		static_call unordered_map, find, {this->lisp_enviroment, this->lisp_sym_parent}, {iter, _}
 		if {iter}
 			assign {*iter}, {env}
 			static_call unordered_map, ref, {env}
-			static_call unordered_map, deref, {lisp->lisp_enviroment}
-			assign {env}, {lisp->lisp_enviroment}
+			static_call unordered_map, deref, {this->lisp_enviroment}
+			assign {env}, {this->lisp_enviroment}
 		endif
 
+		eval {this}, {r0}
 		pop_scope
 		return
 

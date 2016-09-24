@@ -1,29 +1,32 @@
-%include 'cmd/lisp/lisp.inc'
+%include 'inc/func.inc'
+%include 'class/class_unordered_map.inc'
+%include 'cmd/lisp/class_lisp.inc'
 
 	def_function cmd/lisp/env_find
 		;inputs
-		;r0 = lisp globals
+		;r0 = lisp object
 		;r1 = symbol
 		;outputs
-		;r0 = 0, else iterator
-		;r1 = bucket vector
+		;r0 = lisp object
+		;r1 = 0, else iterator
+		;r2 = bucket vector
 
-		ptr lisp, symbol, bucket, env
+		ptr this, symbol, bucket, env
 		pptr iter
 
 		push_scope
-		retire {r0, r1}, {lisp, symbol}
+		retire {r0, r1}, {this, symbol}
 
-		assign {lisp->lisp_enviroment}, {env}
+		assign {this->lisp_enviroment}, {env}
 		loop_start
 			static_call unordered_map, find, {env, symbol}, {iter, bucket}
 			breakif {iter}
-			static_call unordered_map, find, {env, lisp->lisp_sym_parent}, {iter, bucket}
+			static_call unordered_map, find, {env, this->lisp_sym_parent}, {iter, bucket}
 			breakif {!iter}
 			assign {*iter}, {env}
 		loop_end
 
-		eval {iter, bucket}, {r0, r1}
+		eval {this, iter, bucket}, {r0, r1, r2}
 		pop_scope
 		return
 

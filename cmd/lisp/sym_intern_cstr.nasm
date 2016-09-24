@@ -1,22 +1,25 @@
-%include 'cmd/lisp/lisp.inc'
+%include 'inc/func.inc'
+%include 'class/class_string.inc'
+%include 'cmd/lisp/class_lisp.inc'
 
 	def_function cmd/lisp/sym_intern_cstr
 		;inputs
-		;r0 = lisp globals
+		;r0 = lisp object
 		;r1 = c string pointer
 		;outputs
-		;r0 = interned symbol
+		;r0 = lisp object
+		;r1 = interned symbol
 
-		ptr lisp, symbol
+		ptr this, symbol, intern
 
 		push_scope
-		retire {r0, r1}, {lisp, symbol}
+		retire {r0, r1}, {this, symbol}
 
 		static_call string, create_from_cstr, {symbol}, {symbol}
-		static_call lisp, sym_intern, {lisp, symbol}, {lisp}
+		static_call lisp, sym_intern, {this, symbol}, {intern}
 		static_call string, deref, {symbol}
 
-		eval {lisp}, {r0}
+		eval {this, intern}, {r0, r1}
 		pop_scope
 		return
 
