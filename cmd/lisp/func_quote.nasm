@@ -17,11 +17,11 @@
 		retire {r0, r1}, {this, args}
 
 		static_call vector, get_length, {args}, {length}
-		if {length != 1}
+		if {length != 2}
 			static_call lisp, error, {this, "(quote arg) wrong numbers of args"}
 			assign {0}, {args}
 		else
-			static_call vector, ref_element, {args, 0}, {args}
+			static_call vector, ref_element, {args, 1}, {args}
 		endif
 
 		eval {this, args}, {r0, r1}

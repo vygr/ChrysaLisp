@@ -54,6 +54,7 @@
 			static_call lisp, built_in_func, {this, this->lisp_sym_def, @cmd/lisp/func_def}
 			static_call lisp, built_in_func, {this, this->lisp_sym_quote, @cmd/lisp/func_quote}
 			static_call lisp, built_in_func, {this, this->lisp_sym_list, @cmd/lisp/func_list}
+			static_call lisp, built_in_func, {this, this->lisp_sym_lambda, @cmd/lisp/func_lambda}
 		endif
 
 		eval {this, ok}, {r0, r1}
