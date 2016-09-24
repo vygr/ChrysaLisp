@@ -33,9 +33,7 @@
 			;intern standard built in symbols
 			assign {$built_in_symbols, &lisp.lisp_sym_parent}, {next_byte, built_in}
 			loop_while {*next_byte}
-				static_call string, create_from_cstr, {next_byte}, {symbol}
-				static_call lisp, sym_intern, {&lisp, symbol}, {*built_in}
-				static_call string, deref, {symbol}
+				static_call lisp, sym_intern_cstr, {&lisp, next_byte}, {*built_in}
 				static_call sys_string, length, {next_byte}, {length}
 				assign {next_byte + length + 1}, {next_byte}
 				assign {built_in + ptr_size}, {built_in}
@@ -45,21 +43,10 @@
 			static_call lisp, env_set, {&lisp, lisp.lisp_sym_nil, lisp.lisp_sym_nil}
 			static_call lisp, env_set, {&lisp, lisp.lisp_sym_t, lisp.lisp_sym_t}
 
-			;standard built in functions
-			static_call boxed_ptr, create, {}, {symbol}
-			static_call boxed_ptr, set_value, {symbol, @cmd/lisp/def}
-			static_call lisp, env_set, {&lisp, lisp.lisp_sym_def, symbol}
-			static_call boxed_ptr, deref, {symbol}
-
-			static_call boxed_ptr, create, {}, {symbol}
-			static_call boxed_ptr, set_value, {symbol, @cmd/lisp/quote}
-			static_call lisp, env_set, {&lisp, lisp.lisp_sym_quote, symbol}
-			static_call boxed_ptr, deref, {symbol}
-
-			static_call boxed_ptr, create, {}, {symbol}
-			static_call boxed_ptr, set_value, {symbol, @cmd/lisp/list}
-			static_call lisp, env_set, {&lisp, lisp.lisp_sym_list, symbol}
-			static_call boxed_ptr, deref, {symbol}
+			;bind built in functions
+			static_call lisp, built_in_func, {&lisp, lisp.lisp_sym_def, @cmd/lisp/def}
+			static_call lisp, built_in_func, {&lisp, lisp.lisp_sym_quote, @cmd/lisp/quote}
+			static_call lisp, built_in_func, {&lisp, lisp.lisp_sym_list, @cmd/lisp/list}
 
 			;REPL
 			static_call stream, read_char, {lisp.lisp_slave->slave_stdin}, {char}
@@ -266,7 +253,6 @@
 		db "nil", 0
 		db "t", 0
 		db "lambda", 0
-		;these are also built in functions
 		db "def", 0
 		db "quote", 0
 		db "list", 0

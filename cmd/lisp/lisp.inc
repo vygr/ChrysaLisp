@@ -13,6 +13,8 @@
 	def_class lisp
 	def_method error, cmd/lisp/error, static, {r0, r1}
 	def_method sym_intern, cmd/lisp/sym_intern, static, {r0, r1}, {r0}
+	def_method sym_intern_cstr, cmd/lisp/sym_intern_cstr, static, {r0, r1}, {r0}
+	def_method built_in_func, cmd/lisp/built_in_func, static, {r0, r1, r2}
 	def_method env_set, cmd/lisp/env_set, static, {r0, r1, r2}
 	def_method env_get, cmd/lisp/env_get, static, {r0, r1}, {r0}
 	def_method env_find, cmd/lisp/env_find, static, {r0, r1}, {r0, r1}
@@ -36,7 +38,6 @@
 		ptr lisp_sym_nil
 		ptr lisp_sym_t
 		ptr lisp_sym_lambda
-		;same order as built_in_functions table !
 		ptr lisp_sym_def
 		ptr lisp_sym_quote
 		ptr lisp_sym_list
