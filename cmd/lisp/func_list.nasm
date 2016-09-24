@@ -1,6 +1,6 @@
 %include 'cmd/lisp/lisp.inc'
 
-	def_function cmd/lisp/list
+	def_function cmd/lisp/func_list
 		;inputs
 		;r0 = globals
 		;r1 = args

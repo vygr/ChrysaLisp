@@ -1,6 +1,6 @@
 %include 'cmd/lisp/lisp.inc'
 
-	def_function cmd/lisp/quote
+	def_function cmd/lisp/func_quote
 		;inputs
 		;r0 = globals
 		;r1 = args

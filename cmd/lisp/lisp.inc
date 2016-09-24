@@ -24,9 +24,9 @@
 	def_method repl_eval, cmd/lisp/repl_eval, static, {r0, r1}, {r0}
 	def_method repl_eval_list, cmd/lisp/repl_eval_list, static, {r0, r1}, {r0}
 
-	def_method def, cmd/lisp/def, static, {r0, r1}, {r0}
-	def_method list, cmd/lisp/list, static, {r0, r1}, {r0}
-	def_method quote, cmd/lisp/quote, static, {r0, r1}, {r0}
+	def_method func_def, cmd/lisp/func_def, static, {r0, r1}, {r0}
+	def_method func_list, cmd/lisp/func_list, static, {r0, r1}, {r0}
+	def_method func_quote, cmd/lisp/func_quote, static, {r0, r1}, {r0}
 
 	def_structure lisp
 		ptr lisp_symbols

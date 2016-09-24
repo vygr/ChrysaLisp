@@ -44,9 +44,9 @@
 			static_call lisp, env_set, {&lisp, lisp.lisp_sym_t, lisp.lisp_sym_t}
 
 			;bind built in functions
-			static_call lisp, built_in_func, {&lisp, lisp.lisp_sym_def, @cmd/lisp/def}
-			static_call lisp, built_in_func, {&lisp, lisp.lisp_sym_quote, @cmd/lisp/quote}
-			static_call lisp, built_in_func, {&lisp, lisp.lisp_sym_list, @cmd/lisp/list}
+			static_call lisp, built_in_func, {&lisp, lisp.lisp_sym_def, @cmd/lisp/func_def}
+			static_call lisp, built_in_func, {&lisp, lisp.lisp_sym_quote, @cmd/lisp/func_quote}
+			static_call lisp, built_in_func, {&lisp, lisp.lisp_sym_list, @cmd/lisp/func_list}
 
 			;REPL
 			static_call stream, read_char, {lisp.lisp_slave->slave_stdin}, {char}
