@@ -55,11 +55,11 @@
 			static_call lisp, built_in_func, {this, this->lisp_sym_quote, @cmd/lisp/func_quote}
 			static_call lisp, built_in_func, {this, this->lisp_sym_list, @cmd/lisp/func_list}
 			static_call lisp, built_in_func, {this, this->lisp_sym_lambda, @cmd/lisp/func_lambda}
-			static_call lisp, built_in_func, {this, this->lisp_sym_add, @cmd/lisp/func_math}
-			static_call lisp, built_in_func, {this, this->lisp_sym_sub, @cmd/lisp/func_math}
-			static_call lisp, built_in_func, {this, this->lisp_sym_mul, @cmd/lisp/func_math}
-			static_call lisp, built_in_func, {this, this->lisp_sym_div, @cmd/lisp/func_math}
-			static_call lisp, built_in_func, {this, this->lisp_sym_mod, @cmd/lisp/func_math}
+			static_call lisp, built_in_func, {this, this->lisp_sym_add, @cmd/lisp/func_add}
+			static_call lisp, built_in_func, {this, this->lisp_sym_sub, @cmd/lisp/func_sub}
+			static_call lisp, built_in_func, {this, this->lisp_sym_mul, @cmd/lisp/func_mul}
+			static_call lisp, built_in_func, {this, this->lisp_sym_div, @cmd/lisp/func_div}
+			static_call lisp, built_in_func, {this, this->lisp_sym_mod, @cmd/lisp/func_mod}
 		endif
 
 		eval {this, ok}, {r0, r1}

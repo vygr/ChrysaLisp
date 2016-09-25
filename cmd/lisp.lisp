@@ -1,8 +1,10 @@
-(def (squared) ((lambda (x) (mul x x))))
-(def (cubed) ((lambda (x) (mul x x x))))
+(def	(squared
+		cubed)
+	 	((lambda (x) (mul x x))
+		(lambda (x) (mul x x x))))
 
-(def (a b) (t nil))
-(def (fn1) ((lambda (f x) (f x))))
-(def (fn2) ((lambda (x) x)))
-(fn1 fn2 a)
-(fn1 fn2 b)
+(def (f) ((lambda (x) (mul x v))))
+(def (v) (2))
+(f 3)
+(def (v) (3))
+(f 3)
