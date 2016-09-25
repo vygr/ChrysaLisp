@@ -23,6 +23,7 @@
 	def_method repl_read, cmd/lisp/repl_read, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_read_list, cmd/lisp/repl_read_list, static, {r0, r1}, {r1}
 	def_method repl_read_sym, cmd/lisp/repl_read_sym, static, {r0, r1, r2}, {r1, r2}
+	def_method repl_read_num, cmd/lisp/repl_read_num, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_apply, cmd/lisp/repl_apply, static, {r0, r1}, {r1}
 	def_method repl_eval, cmd/lisp/repl_eval, static, {r0, r1}, {r1}
 	def_method repl_eval_list, cmd/lisp/repl_eval_list, static, {r0, r1}, {r1}
@@ -30,6 +31,7 @@
 	def_method func_def, cmd/lisp/func_def, static, {r0, r1}, {r1}
 	def_method func_list, cmd/lisp/func_list, static, {r0, r1}, {r1}
 	def_method func_quote, cmd/lisp/func_quote, static, {r0, r1}, {r1}
+	def_method func_math, cmd/lisp/func_math, static, {r0, r1}, {r1}
 
 	def_method deinit, cmd/lisp/deinit, override
 
@@ -48,6 +50,11 @@
 		ptr lisp_sym_def
 		ptr lisp_sym_quote
 		ptr lisp_sym_list
+		ptr lisp_sym_add
+		ptr lisp_sym_sub
+		ptr lisp_sym_mul
+		ptr lisp_sym_div
+		ptr lisp_sym_mod
 	def_structure_end
 
 %endif

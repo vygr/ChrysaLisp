@@ -20,7 +20,7 @@
 			static_call lisp, error, {this, "not a list"}
 			assign {0}, {list}
 		else
-			static_call vector, for_each, {list, $repl_eval_list_callback, this}, {iter}
+			static_call vector, for_each, {list, 0, $repl_eval_list_callback, this}, {iter}
 			breakif {!iter}
 			assign {0}, {list}
 		endif

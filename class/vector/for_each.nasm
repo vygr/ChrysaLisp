@@ -4,8 +4,9 @@
 	def_function class/vector/for_each
 		;inputs
 		;r0 = vector object
-		;r1 = predicate function pointer
-		;r2 = predicate data pointer
+		;r1 = start index
+		;r2 = predicate function pointer
+		;r3 = predicate data pointer
 		;outputs
 		;r0 = vector object
 		;r1 = 0, else break iterator
@@ -30,15 +31,17 @@
 
 		;save inputs
 		vp_sub local_size, r4
-		set_src r0, r1, r2
+		set_src r0, r2, r3
 		set_dst [r4 + local_inst], [r4 + local_predicate], [r4 + local_predicate_data]
 		map_src_to_dst
 
 		;process elements
-		vp_cpy [r0 + vector_length], r1
+		vp_cpy [r0 + vector_length], r2
 		vp_cpy [r0 + vector_array], r0
-		vp_add r0, r1
-		vp_cpy r1, [r4 + local_end]
+		vp_add r0, r2
+		vp_mul ptr_size, r1
+		vp_add r1, r0
+		vp_cpy r2, [r4 + local_end]
 		loop_while r0, !=, [r4 + local_end]
 			vp_cpy r0, [r4 + local_next]
 			vp_cpy [r4 + local_predicate_data], r1

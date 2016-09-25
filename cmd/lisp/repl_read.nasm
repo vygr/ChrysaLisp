@@ -15,6 +15,9 @@
 		const char_space, ' '
 		const char_lb, '('
 		const char_rb, ')'
+		const char_0, '0'
+		const char_9, '9'
+		const char_minus, '-'
 
 		ptr this, stream, ast
 		ulong char
@@ -36,6 +39,8 @@
 			elseif {char == char_rb}
 				static_call lisp, error, {this, "unexpected )"}
 				static_call stream, read_char, {stream}, {char}
+			elseif {char == char_minus || (char >= char_0 && char <= char_9)}
+				static_call lisp, repl_read_num, {this, stream, char}, {ast, char}
 			else
 				static_call lisp, repl_read_sym, {this, stream, char}, {ast, char}
 			endif

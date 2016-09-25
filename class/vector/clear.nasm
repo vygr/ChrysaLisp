@@ -10,7 +10,7 @@
 		;all but r0, r4
 
 		;deref all elements
-		s_call vector, for_each, {r0, $clear_callback, 0}, {_}
+		s_call vector, for_each, {r0, 0, $clear_callback, 0}, {_}
 
 		;free dynamic array
 		vp_push r0

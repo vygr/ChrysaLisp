@@ -1,3 +1,6 @@
+(def (squared) ((lambda (x) (mul x x))))
+(def (cubed) ((lambda (x) (mul x x x))))
+
 (def (a b) (t nil))
 (def (fn1) ((lambda (f x) (f x))))
 (def (fn2) ((lambda (x) x)))

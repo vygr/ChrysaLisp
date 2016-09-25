@@ -33,7 +33,7 @@
 		vp_div r1, r2, r0
 		vp_cpy [r4 + local_inst], r0
 		s_call vector, get_element, {[r0 + unordered_set_buckets], r2}, {r1}
-		s_call vector, for_each, {r1, $insert_callback, r4}, {r1}
+		s_call vector, for_each, {r1, 0, $insert_callback, r4}, {r1}
 		vp_cpy r0, r2
 		if r1, ==, 0
 			;new key

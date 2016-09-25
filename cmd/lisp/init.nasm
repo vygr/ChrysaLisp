@@ -55,6 +55,11 @@
 			static_call lisp, built_in_func, {this, this->lisp_sym_quote, @cmd/lisp/func_quote}
 			static_call lisp, built_in_func, {this, this->lisp_sym_list, @cmd/lisp/func_list}
 			static_call lisp, built_in_func, {this, this->lisp_sym_lambda, @cmd/lisp/func_lambda}
+			static_call lisp, built_in_func, {this, this->lisp_sym_add, @cmd/lisp/func_math}
+			static_call lisp, built_in_func, {this, this->lisp_sym_sub, @cmd/lisp/func_math}
+			static_call lisp, built_in_func, {this, this->lisp_sym_mul, @cmd/lisp/func_math}
+			static_call lisp, built_in_func, {this, this->lisp_sym_div, @cmd/lisp/func_math}
+			static_call lisp, built_in_func, {this, this->lisp_sym_mod, @cmd/lisp/func_math}
 		endif
 
 		eval {this, ok}, {r0, r1}
@@ -73,6 +78,11 @@
 		db "def", 0
 		db "quote", 0
 		db "list", 0
+		db "add", 0
+		db "sub", 0
+		db "mul", 0
+		db "div", 0
+		db "mod", 0
 		db 0
 
 	def_function_end
