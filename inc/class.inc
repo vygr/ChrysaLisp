@@ -419,6 +419,7 @@
 	def_method master, class/class_master
 	def_method boxed_ptr, class/class_boxed_ptr
 	def_method boxed_long, class/class_boxed_long
+	def_method lisp, class/class_lisp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction
