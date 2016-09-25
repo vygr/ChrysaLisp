@@ -28,7 +28,7 @@
 			continueif {!ast}
 
 			if {stream == this->lisp_stdin}
-				static_call stream, write_cstr, {this->lisp_stdout, "--AST--"}
+				static_call stream, write_cstr, {this->lisp_stdout, "--Ast--"}
 				static_call stream, write_char, {this->lisp_stdout, char_lf}
 				static_call lisp, repl_print, {this, this->lisp_stdout, ast}
 				static_call stream, write_char, {this->lisp_stdout, char_lf}
@@ -39,7 +39,7 @@
 			continueif {!value}
 
 			if {stream == this->lisp_stdin}
-				static_call stream, write_cstr, {this->lisp_stdout, "--Value--"}
+				static_call stream, write_cstr, {this->lisp_stdout, "--Eval--"}
 				static_call stream, write_char, {this->lisp_stdout, char_lf}
 				static_call lisp, repl_print, {this, this->lisp_stdout, value}
 				static_call stream, write_char, {this->lisp_stdout, char_lf}
