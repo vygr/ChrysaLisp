@@ -18,7 +18,7 @@
 
 		static_call vector, get_length, {args}, {length}
 		if {length != 3}
-			static_call lisp, error, {this, "(def vars vals) wrong numbers of args"}
+			static_call lisp, error, {this, "(def vars vals) wrong numbers of args", args}
 			assign {0}, {args}
 		else
 			static_call vector, get_element, {args, 1}, {vars}

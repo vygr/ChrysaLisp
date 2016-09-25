@@ -27,20 +27,25 @@
 			breakif {char == -1}
 			continueif {!ast}
 
-			static_call stream, write_cstr, {this->lisp_stdout, "--AST--"}
-			static_call stream, write_char, {this->lisp_stdout, char_lf}
-			static_call lisp, repl_print, {this, ast}
-			static_call stream, write_char, {this->lisp_stdout, char_lf}
+			if {stream == this->lisp_stdin}
+				static_call stream, write_cstr, {this->lisp_stdout, "--AST--"}
+				static_call stream, write_char, {this->lisp_stdout, char_lf}
+				static_call lisp, repl_print, {this, this->lisp_stdout, ast}
+				static_call stream, write_char, {this->lisp_stdout, char_lf}
+			endif
 
 			static_call lisp, repl_eval, {this, ast}, {value}
 			static_call ref, deref, {ast}
 			continueif {!value}
 
-			static_call stream, write_cstr, {this->lisp_stdout, "--Value--"}
-			static_call stream, write_char, {this->lisp_stdout, char_lf}
-			static_call lisp, repl_print, {this, value}
+			if {stream == this->lisp_stdin}
+				static_call stream, write_cstr, {this->lisp_stdout, "--Value--"}
+				static_call stream, write_char, {this->lisp_stdout, char_lf}
+				static_call lisp, repl_print, {this, this->lisp_stdout, value}
+				static_call stream, write_char, {this->lisp_stdout, char_lf}
+			endif
+
 			static_call ref, deref, {value}
-			static_call stream, write_char, {this->lisp_stdout, char_lf}
 		loop_end
 
 		eval {this}, {r0}

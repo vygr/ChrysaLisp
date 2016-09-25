@@ -23,7 +23,7 @@
 			;symbol evals to its value
 			static_call lisp, env_get, {this, ast}, {value}
 			breakif {value}
-			static_call lisp, error, {this, "variable not defined"}
+			static_call lisp, error, {this, "variable not defined", ast}
 		elseif {ast->obj_vtable == @class/class_boxed_ptr || ast->obj_vtable == @class/class_boxed_long}
 			;function pointer or long evals to itself
 			assign {ast}, {value}

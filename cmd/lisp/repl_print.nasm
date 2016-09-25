@@ -9,7 +9,8 @@
 	def_function cmd/lisp/repl_print
 		;inputs
 		;r0 = lisp object
-		;r1 = value
+		;r1 = stream
+		;r2 = value
 		;outputs
 		;r0 = lisp object
 
@@ -19,14 +20,18 @@
 		const char_rb, ')'
 		const char_minus, '-'
 
-		ptr this, value, stream
+		def_structure pdata
+			ptr pdata_this
+			ptr pdata_stream
+		def_structure_end
+
+		ptr this, stream, value
 		pubyte buffer
 		long num
 
 		push_scope
-		retire {r0, r1}, {this, value}
+		retire {r0, r1, r2}, {this, stream, value}
 
-		assign {this->lisp_stdout}, {stream}
 		if {value->obj_vtable == @class/class_string}
 			;symbol
 			static_call stream, write, {stream, &value->string_data, value->string_length}
@@ -46,10 +51,14 @@
 			static_call stream, write_cstr, {stream, "<function>"}
 		elseif {value->obj_vtable == @class/class_vector}
 			;list
+			struct pdata, pdata
+			push_scope
 			static_call stream, write_char, {stream, char_lb}
 			static_call stream, write_char, {stream, char_space}
-			static_call vector, for_each, {value, 0, $repl_print_callback, this}, {_}
+			assign {this, stream}, {pdata.pdata_this, pdata.pdata_stream}
+			static_call vector, for_each, {value, 0, $repl_print_callback, &pdata}, {_}
 			static_call stream, write_char, {stream, char_rb}
+			pop_scope
 		endif
 		static_call stream, write_char, {stream, char_space}
 
@@ -65,12 +74,12 @@
 		;r1 = 0 if break, else not
 
 		pptr iter
-		ptr this
+		ptr pdata
 
 		push_scope
-		retire {r0, r1}, {iter, this}
+		retire {r0, r1}, {iter, pdata}
 
-		static_call lisp, repl_print, {this, *iter}
+		static_call lisp, repl_print, {pdata->pdata_this, pdata->pdata_stream, *iter}
 
 		eval {1}, {r1}
 		pop_scope

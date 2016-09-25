@@ -9,7 +9,7 @@
 	def_method create, cmd/lisp/create, static, {r0, r1, r2}, {r0}
 	def_method new, cmd/lisp/new, static, {}, {r0}
 	def_method init, cmd/lisp/init, static, {r0, r1, r2, r3, r5}, {r1}
-	def_method error, cmd/lisp/error, static, {r0, r1}
+	def_method error, cmd/lisp/error, static, {r0, r1, r2}
 	def_method sym_intern, cmd/lisp/sym_intern, static, {r0, r1}, {r1}
 	def_method sym_intern_cstr, cmd/lisp/sym_intern_cstr, static, {r0, r1}, {r1}
 	def_method built_in_func, cmd/lisp/built_in_func, static, {r0, r1, r2}
@@ -27,7 +27,7 @@
 	def_method repl_apply, cmd/lisp/repl_apply, static, {r0, r1}, {r1}
 	def_method repl_eval, cmd/lisp/repl_eval, static, {r0, r1}, {r1}
 	def_method repl_eval_list, cmd/lisp/repl_eval_list, static, {r0, r1}, {r1}
-	def_method repl_print, cmd/lisp/repl_print, static, {r0, r1}
+	def_method repl_print, cmd/lisp/repl_print, static, {r0, r1, r2}
 	def_method func_def, cmd/lisp/func_def, static, {r0, r1}, {r1}
 	def_method func_list, cmd/lisp/func_list, static, {r0, r1}, {r1}
 	def_method func_quote, cmd/lisp/func_quote, static, {r0, r1}, {r1}

@@ -49,14 +49,14 @@
 						endif
 						static_call vector, deref, {args}
 					else
-						static_call lisp, error, {this, "(lambda vars body) not lambda"}
+						static_call lisp, error, {this, "(lambda vars body) not lambda", args}
 					endif
 				else
-					static_call lisp, error, {this, "(lambda vars body) wrong numbers of args"}
+					static_call lisp, error, {this, "(lambda vars body) wrong numbers of args", func}
 				endif
 				pop_scope
 			else
-				static_call lisp, error, {this, "(lambda vars body) not a lambda list"}
+				static_call lisp, error, {this, "(lambda vars body) not a lambda list", func}
 			endif
 			static_call ref, deref, {func}
 		endif

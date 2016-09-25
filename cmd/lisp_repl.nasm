@@ -19,6 +19,15 @@
 			;create lisp class
 			static_call lisp, create, {slave->slave_stdin, slave->slave_stdout, slave->slave_stderr}, {lisp}
 
+			;run any lisp.lisp
+			static_call string, create_from_file, {"cmd/lisp.lisp"}, {file}
+			if {file}
+				;REPL from file stream
+				static_call stream, create, {file, 0, &file->string_data, file->string_length}, {stream}
+				static_call lisp, repl, {lisp, stream}
+				static_call stream, deref, {stream}
+			endif
+
 			;run any files given as args
 			static_call slave, get_args, {slave}, {args}
 			static_call vector, get_length, {args}, {argc}

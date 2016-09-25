@@ -19,15 +19,15 @@
 
 		assign {0}, {value}
 		if {vars->obj_vtable != @class/class_vector}
-			static_call lisp, error, {this, "(set vars vals): vars not a list"}
+			static_call lisp, error, {this, "(set vars vals): vars not a list", vars}
 		else
 			if {vals->obj_vtable != @class/class_vector}
-				static_call lisp, error, {this, "(set vars vals): vals not a list"}
+				static_call lisp, error, {this, "(set vars vals): vals not a list", vals}
 			else
 				static_call vector, get_length, {vars}, {len1}
 				static_call vector, get_length, {vals}, {len2}
 				if {len1 != len2}
-					static_call lisp, error, {this, "(set vars vals): non matching lengths"}
+					static_call lisp, error, {this, "(set vars vals): non matching lengths", vars}
 				else
 					assign {0}, {len1}
 					loop_while {len1 != len2}

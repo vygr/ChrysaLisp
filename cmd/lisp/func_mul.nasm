@@ -32,15 +32,15 @@
 						static_call boxed_long, create, {}, {value}
 						static_call boxed_long, set_value, {value, length}
 					else
-						static_call lisp, error, {this, "(mul val val ...) vals are not all numbers"}
+						static_call lisp, error, {this, "(mul val val ...) vals are not all numbers", args}
 					endif
 				else
-					static_call lisp, error, {this, "(mul val val ...) vals are not all numbers"}
+					static_call lisp, error, {this, "(mul val val ...) vals are not all numbers", args}
 				endif
 			endif
 			static_call vector, deref, {args}
 		else
-			static_call lisp, error, {this, "(mul val val ...) not enough args"}
+			static_call lisp, error, {this, "(mul val val ...) not enough args", args}
 		endif
 
 		eval {this, value}, {r0, r1}

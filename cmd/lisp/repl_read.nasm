@@ -37,7 +37,7 @@
 				static_call lisp, repl_read_list, {this, stream}, {ast}
 				static_call stream, read_char, {stream}, {char}
 			elseif {char == char_rb}
-				static_call lisp, error, {this, "unexpected )"}
+				static_call lisp, error, {this, "unexpected )", ast}
 				static_call stream, read_char, {stream}, {char}
 			elseif {char == char_minus || (char >= char_0 && char <= char_9)}
 				static_call lisp, repl_read_num, {this, stream, char}, {ast, char}
