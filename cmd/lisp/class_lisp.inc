@@ -30,12 +30,15 @@
 	def_method repl_print, cmd/lisp/repl_print, static, {r0, r1, r2}
 	def_method func_def, cmd/lisp/func_def, static, {r0, r1}, {r1}
 	def_method func_list, cmd/lisp/func_list, static, {r0, r1}, {r1}
+	def_method func_lambda, cmd/lisp/func_lambda, static, {r0, r1}, {r1}
 	def_method func_quote, cmd/lisp/func_quote, static, {r0, r1}, {r1}
 	def_method func_add, cmd/lisp/func_add, static, {r0, r1}, {r1}
 	def_method func_sub, cmd/lisp/func_sub, static, {r0, r1}, {r1}
 	def_method func_mul, cmd/lisp/func_mul, static, {r0, r1}, {r1}
 	def_method func_div, cmd/lisp/func_div, static, {r0, r1}, {r1}
 	def_method func_mod, cmd/lisp/func_mod, static, {r0, r1}, {r1}
+	def_method func_eq, cmd/lisp/func_eq, static, {r0, r1}, {r1}
+	def_method func_cond, cmd/lisp/func_cond, static, {r0, r1}, {r1}
 
 	def_method deinit, cmd/lisp/deinit, override
 
@@ -59,6 +62,8 @@
 		ptr lisp_sym_mul
 		ptr lisp_sym_div
 		ptr lisp_sym_mod
+		ptr lisp_sym_eq
+		ptr lisp_sym_cond
 	def_structure_end
 
 %endif

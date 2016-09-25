@@ -51,15 +51,28 @@
 			static_call lisp, env_set, {this, this->lisp_sym_t, this->lisp_sym_t}
 
 			;bind built in functions
-			static_call lisp, built_in_func, {this, this->lisp_sym_def, @cmd/lisp/func_def}
-			static_call lisp, built_in_func, {this, this->lisp_sym_quote, @cmd/lisp/func_quote}
-			static_call lisp, built_in_func, {this, this->lisp_sym_list, @cmd/lisp/func_list}
-			static_call lisp, built_in_func, {this, this->lisp_sym_lambda, @cmd/lisp/func_lambda}
-			static_call lisp, built_in_func, {this, this->lisp_sym_add, @cmd/lisp/func_add}
-			static_call lisp, built_in_func, {this, this->lisp_sym_sub, @cmd/lisp/func_sub}
-			static_call lisp, built_in_func, {this, this->lisp_sym_mul, @cmd/lisp/func_mul}
-			static_call lisp, built_in_func, {this, this->lisp_sym_div, @cmd/lisp/func_div}
-			static_call lisp, built_in_func, {this, this->lisp_sym_mod, @cmd/lisp/func_mod}
+			slot_function lisp, func_def
+			static_call lisp, built_in_func, {this, this->lisp_sym_def, @_function_}
+			slot_function lisp, func_quote
+			static_call lisp, built_in_func, {this, this->lisp_sym_quote, @_function_}
+			slot_function lisp, func_list
+			static_call lisp, built_in_func, {this, this->lisp_sym_list, @_function_}
+			slot_function lisp, func_lambda
+			static_call lisp, built_in_func, {this, this->lisp_sym_lambda, @_function_}
+			slot_function lisp, func_add
+			static_call lisp, built_in_func, {this, this->lisp_sym_add, @_function_}
+			slot_function lisp, func_sub
+			static_call lisp, built_in_func, {this, this->lisp_sym_sub, @_function_}
+			slot_function lisp, func_mul
+			static_call lisp, built_in_func, {this, this->lisp_sym_mul, @_function_}
+			slot_function lisp, func_div
+			static_call lisp, built_in_func, {this, this->lisp_sym_div, @_function_}
+			slot_function lisp, func_mod
+			static_call lisp, built_in_func, {this, this->lisp_sym_mod, @_function_}
+			slot_function lisp, func_eq
+			static_call lisp, built_in_func, {this, this->lisp_sym_eq, @_function_}
+			slot_function lisp, func_cond
+			static_call lisp, built_in_func, {this, this->lisp_sym_cond, @_function_}
 		endif
 
 		eval {this, ok}, {r0, r1}
@@ -83,6 +96,8 @@
 		db "mul", 0
 		db "div", 0
 		db "mod", 0
+		db "eq", 0
+		db "cond", 0
 		db 0
 
 	def_function_end
