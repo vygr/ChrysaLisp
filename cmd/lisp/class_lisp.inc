@@ -23,6 +23,7 @@
 	def_method repl_read, cmd/lisp/repl_read, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_read_list, cmd/lisp/repl_read_list, static, {r0, r1}, {r1}
 	def_method repl_read_sym, cmd/lisp/repl_read_sym, static, {r0, r1, r2}, {r1, r2}
+	def_method repl_apply, cmd/lisp/repl_apply, static, {r0, r1}, {r1}
 	def_method repl_eval, cmd/lisp/repl_eval, static, {r0, r1}, {r1}
 	def_method repl_eval_list, cmd/lisp/repl_eval_list, static, {r0, r1}, {r1}
 	def_method repl_print, cmd/lisp/repl_print, static, {r0, r1}

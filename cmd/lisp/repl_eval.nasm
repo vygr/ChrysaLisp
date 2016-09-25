@@ -12,7 +12,7 @@
 		;r0 = lisp object
 		;r1 = 0, else value
 
-		ptr this, ast, value, func, args
+		ptr this, ast, value
 		ulong length
 
 		push_scope
@@ -40,21 +40,8 @@
 				static_call vector, get_element, {ast, 0}, {value}
 				static_call lisp, repl_eval, {this, value}, {value}
 			else
-				;more than one entry calls first as function
-				static_call vector, get_element, {ast, 0}, {func}
-				static_call lisp, repl_eval, {this, func}, {func}
-				assign {0}, {value}
-				if {func}
-					if {func->obj_vtable == @class/class_boxed_ptr}
-						;built in function
-						eval {this, ast, func}, {r0, r1, r2}
-						vp_call [r2 + boxed_ptr_value]
-						retire {r1}, {value}
-					else
-						static_call lisp, error, {this, "lambda not implamented yet"}
-					endif
-					static_call ref, deref, {func}
-				endif
+				;more than one entry applys a function
+				static_call lisp, repl_apply, {this, ast}, {value}
 			endif
 		endif
 

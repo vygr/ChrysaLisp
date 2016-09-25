@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_unordered_map.inc'
+%include 'class/class_pair.inc'
 %include 'cmd/lisp/class_lisp.inc'
 
 	def_function cmd/lisp/env_find
@@ -23,7 +24,7 @@
 			breakif {iter}
 			static_call unordered_map, find, {env, this->lisp_sym_parent}, {iter, bucket}
 			breakif {!iter}
-			assign {*iter}, {env}
+			static_call pair, get_second, {*iter}, {env}
 		loop_end
 
 		eval {this, iter, bucket}, {r0, r1, r2}

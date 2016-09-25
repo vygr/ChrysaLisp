@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_unordered_map.inc'
+%include 'class/class_pair.inc'
 %include 'cmd/lisp/class_lisp.inc'
 
 	def_function cmd/lisp/env_pop
@@ -16,8 +17,7 @@
 
 		static_call unordered_map, find, {this->lisp_enviroment, this->lisp_sym_parent}, {iter, _}
 		if {iter}
-			assign {*iter}, {env}
-			static_call unordered_map, ref, {env}
+			static_call pair, ref_second, {*iter}, {env}
 			static_call unordered_map, deref, {this->lisp_enviroment}
 			assign {env}, {this->lisp_enviroment}
 		endif

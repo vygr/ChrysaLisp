@@ -27,7 +27,7 @@
 			breakif {!args}
 			static_call lisp, env_set_list, {this, vars, args}, {args}
 			if {args}
-				static_call ref, ref, {args}
+				static_call vector, ref, {args}
 			endif
 		endif
 
