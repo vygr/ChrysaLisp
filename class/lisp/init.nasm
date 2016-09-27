@@ -81,6 +81,12 @@
 			static_call lisp, built_in_func, {this, this->lisp_sym_and, @_function_}
 			slot_function lisp, func_or
 			static_call lisp, built_in_func, {this, this->lisp_sym_or, @_function_}
+			slot_function lisp, func_when
+			static_call lisp, built_in_func, {this, this->lisp_sym_when, @_function_}
+			slot_function lisp, func_unless
+			static_call lisp, built_in_func, {this, this->lisp_sym_unless, @_function_}
+			slot_function lisp, func_if
+			static_call lisp, built_in_func, {this, this->lisp_sym_if, @_function_}
 		endif
 
 		eval {this, ok}, {r0, r1}
@@ -110,6 +116,9 @@
 		db "not", 0
 		db "and", 0
 		db "or", 0
+		db "when", 0
+		db "unless", 0
+		db "if", 0
 		db 0
 
 	def_function_end

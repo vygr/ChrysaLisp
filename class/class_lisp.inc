@@ -43,6 +43,9 @@
 	def_method func_not, class/lisp/func_not, static, {r0, r1}, {r1}
 	def_method func_and, class/lisp/func_and, static, {r0, r1}, {r1}
 	def_method func_or, class/lisp/func_or, static, {r0, r1}, {r1}
+	def_method func_when, class/lisp/func_when, static, {r0, r1}, {r1}
+	def_method func_unless, class/lisp/func_unless, static, {r0, r1}, {r1}
+	def_method func_if, class/lisp/func_if, static, {r0, r1}, {r1}
 
 	def_method deinit, class/lisp/deinit, override
 
@@ -72,6 +75,9 @@
 		ptr lisp_sym_not
 		ptr lisp_sym_and
 		ptr lisp_sym_or
+		ptr lisp_sym_when
+		ptr lisp_sym_unless
+		ptr lisp_sym_if
 	def_structure_end
 
 %endif
