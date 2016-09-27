@@ -48,25 +48,24 @@
 
 		if {(*iter)->obj_vtable == @class/class_vector}
 			static_call vector, get_length, {*iter}, {length}
-			if {length == 2}
+			if {length}
 				static_call vector, get_element, {*iter, 0}, {test}
 				static_call lisp, repl_eval, {pdata->pdata_this, test}, {test}
 				jmpifnot {test}, error
 				if {test != pdata->pdata_this->lisp_sym_nil}
 					static_call ref, deref, {test}
-					static_call vector, get_element, {*iter, 1}, {test}
-					static_call lisp, repl_eval, {pdata->pdata_this, test}, {pdata->pdata_value}
+					static_call lisp, func_progn, {pdata->pdata_this, *iter}, {pdata->pdata_value}
 					eval {0}, {r1}
 				else
 					static_call ref, deref, {test}
 					eval {1}, {r1}
 				endif
 			else
-				static_call lisp, error, {pdata->pdata_this, "(cond (tst exp) ...) clause wrong number of args", *iter}
+				static_call lisp, error, {pdata->pdata_this, "(cond (tst exp ...) ...) clause wrong number of args", *iter}
 				eval {0}, {r1}
 			endif
 		else
-			static_call lisp, error, {pdata->pdata_this, "(cond (tst exp) ...) clause not list", *iter}
+			static_call lisp, error, {pdata->pdata_this, "(cond (tst exp ...) ...) clause not list", *iter}
 		error:
 			eval {0}, {r1}
 		endif

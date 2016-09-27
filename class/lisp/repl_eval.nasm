@@ -35,12 +35,12 @@
 				;null list evals to nil
 				assign {this->lisp_sym_nil}, {value}
 				static_call ref, ref, {value}
-			elseif {length == 1}
-				;one entry evals to that entry
-				static_call vector, get_element, {ast, 0}, {value}
-				static_call lisp, repl_eval, {this, value}, {value}
+;			elseif {length == 1}
+;				;one entry evals to that entry
+;				static_call vector, get_element, {ast, 0}, {value}
+;				static_call lisp, repl_eval, {this, value}, {value}
 			else
-				;more than one entry applys a function
+				;applys a function
 				static_call lisp, repl_apply, {this, ast}, {value}
 			endif
 		endif
