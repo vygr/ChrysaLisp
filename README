@@ -57,9 +57,9 @@ Quite an achievement considering it's all done with macros. :) Currently there
 is an elementary optimise pass, more will be done.
 
 A Common Lisp like interpreter is provided, written in the C-Script compiled
-language ! This is available from the command line, via the command 'lisp_repl',
-This will be expanded over time to provide self compilation and a replacement
-for NASM will be written in Lisp to remove the need for any external tooling.
+language ! This is available from the command line, via the command 'lisp', This
+will be expanded over time to provide self compilation and a replacement for
+NASM will be written in Lisp to remove the need for any external tooling.
 
 Network link routing tables are created on booting a link, and the process is
 distributed in nature, each link starts a flood fill that eventually reaches all
