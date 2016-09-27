@@ -41,14 +41,13 @@
 
 		pptr iter
 		ptr pdata, test
-		ulong length
 
 		push_scope
 		retire {r0, r1}, {iter, pdata}
 
 		if {(*iter)->obj_vtable == @class/class_vector}
-			static_call vector, get_length, {*iter}, {length}
-			if {length}
+			static_call vector, get_length, {*iter}, {test}
+			if {test}
 				static_call vector, get_element, {*iter, 0}, {test}
 				static_call lisp, repl_eval, {pdata->pdata_this, test}, {test}
 				jmpifnot {test}, error
@@ -61,11 +60,11 @@
 					eval {1}, {r1}
 				endif
 			else
-				static_call lisp, error, {pdata->pdata_this, "(cond (tst exp ...) ...) clause wrong number of args", *iter}
+				static_call lisp, error, {pdata->pdata_this, "(cond (tst form ...) ...) clause wrong number of args", *iter}
 				eval {0}, {r1}
 			endif
 		else
-			static_call lisp, error, {pdata->pdata_this, "(cond (tst exp ...) ...) clause not list", *iter}
+			static_call lisp, error, {pdata->pdata_this, "(cond (tst form ...) ...) clause not list", *iter}
 		error:
 			eval {0}, {r1}
 		endif

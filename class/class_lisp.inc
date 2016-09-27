@@ -40,6 +40,9 @@
 	def_method func_eq, class/lisp/func_eq, static, {r0, r1}, {r1}
 	def_method func_cond, class/lisp/func_cond, static, {r0, r1}, {r1}
 	def_method func_progn, class/lisp/func_progn, static, {r0, r1}, {r1}
+	def_method func_not, class/lisp/func_not, static, {r0, r1}, {r1}
+	def_method func_and, class/lisp/func_and, static, {r0, r1}, {r1}
+	def_method func_or, class/lisp/func_or, static, {r0, r1}, {r1}
 
 	def_method deinit, class/lisp/deinit, override
 
@@ -66,6 +69,9 @@
 		ptr lisp_sym_eq
 		ptr lisp_sym_cond
 		ptr lisp_sym_progn
+		ptr lisp_sym_not
+		ptr lisp_sym_and
+		ptr lisp_sym_or
 	def_structure_end
 
 %endif
