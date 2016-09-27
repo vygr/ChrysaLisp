@@ -3,6 +3,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_string.inc'
 %include 'class/class_boxed_long.inc'
+%include 'class/class_boxed_ptr.inc'
 %include 'inc/string.inc'
 %include 'class/class_lisp.inc'
 
@@ -18,6 +19,7 @@
 		const char_lf, 10
 		const char_lb, '('
 		const char_rb, ')'
+		const char_ar, '>'
 		const char_minus, '-'
 
 		def_structure pdata
@@ -48,7 +50,11 @@
 			static_call stream, write_cstr, {stream, $buffer}
 		elseif {value->obj_vtable == @class/class_boxed_ptr}
 			;function pointer
-			static_call stream, write_cstr, {stream, "<function>"}
+			static_call stream, write_cstr, {stream, "<function 0x"}
+			static_call boxed_ptr, get_value, {value}, {num}
+			static_call sys_string, from_long, {num, $buffer, 16}
+			static_call stream, write_cstr, {stream, $buffer}
+			static_call stream, write_char, {stream, char_ar}
 		elseif {value->obj_vtable == @class/class_vector}
 			;list
 			struct pdata, pdata
