@@ -31,7 +31,7 @@
 				static_call ref, ref, {args}
 			endif
 		else
-			static_call lisp, error, {this, "(not form) wrong numbers of args", args}
+			static_call lisp, error, {this, "(not form) wrong number of args", args}
 			assign {0}, {args}
 		endif
 
