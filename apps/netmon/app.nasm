@@ -118,7 +118,7 @@
 					assign {select.sel_select2}, {msg->sample_msg_reply_id.id_mbox}
 					static_call sys_cpu, id, {}, {msg->sample_msg_reply_id.id_cpu}
 					static_call sys_mail, send, {msg}
-				loop_until {!cpu_count}
+				loop_untilnot {cpu_count}
 			endif
 
 			;select on multiple mailboxes
@@ -174,7 +174,7 @@
 			assign {task_mailboxes[cpu_count * id_size].id_mbox}, {msg->msg_dest.id_mbox}
 			assign {task_mailboxes[cpu_count * id_size].id_cpu}, {msg->msg_dest.id_cpu}
 			static_call sys_mail, send, {msg}
-		loop_until {!cpu_count}
+		loop_untilnot {cpu_count}
 
 		;free arrays
 		static_call sys_mem, free, {task_mailboxes}

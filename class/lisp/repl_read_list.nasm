@@ -28,7 +28,7 @@
 		static_call vector, create, {}, {list}
 		loop_while {char != -1 && char != char_rb}
 			static_call lisp, repl_read, {this, stream, char}, {ast, char}
-			breakif {!ast}
+			breakifnot {ast}
 			static_call vector, push_back, {list, ast}
 
 			;skip white space

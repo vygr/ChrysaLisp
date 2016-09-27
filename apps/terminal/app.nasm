@@ -133,7 +133,7 @@
 			breakif {char == -1}
 			local_call terminal_output, {shared, char}, {r0, r1}
 			method_call stream, read_ready, {stream}, {ready}
-		loop_until {!ready}
+		loop_untilnot {ready}
 
 		eval {char}, {r0}
 		pop_scope
@@ -164,10 +164,10 @@
 			static_call master, get_state, {shared->shared_master}, {state}
 			if {state == stream_mail_state_stopped}
 				;push new history entry if not same as last entry
-				breakif {!length}
+				breakifnot {length}
 				static_call string, create_from_buffer, {&shared->shared_buffer, length}, {string}
 				static_call vector, get_length, {shared->shared_history}, {shared->shared_history_index}
-				if {!shared->shared_history_index}
+				ifnot {shared->shared_history_index}
 				new_entry:
 					static_call vector, push_back, {shared->shared_history, string}
 					assign {shared->shared_history_index + 1}, {shared->shared_history_index}
@@ -201,7 +201,7 @@
 		elseif {char == 129}
 			;cursor up
 			static_call vector, get_length, {shared->shared_history}, {length}
-			breakif {!length}
+			breakifnot {length}
 			if {shared->shared_history_index}
 				assign {shared->shared_history_index - 1}, {shared->shared_history_index}
 			endif

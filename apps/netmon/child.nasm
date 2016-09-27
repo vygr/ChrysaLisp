@@ -10,7 +10,7 @@
 		loop_start
 			;read mail command
 			static_call sys_mail, mymail, {}, {msg}
-			breakif {!msg->sample_msg_command}
+			breakifnot {msg->sample_msg_command}
 
 			;sample command
 			static_call sys_task, count, {}, {msg->sample_msg_task_count}

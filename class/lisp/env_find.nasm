@@ -23,7 +23,7 @@
 			static_call unordered_map, find, {env, symbol}, {iter, bucket}
 			breakif {iter}
 			static_call unordered_map, find, {env, this->lisp_sym_parent}, {iter, bucket}
-			breakif {!iter}
+			breakifnot {iter}
 			static_call pair, get_second, {*iter}, {env}
 		loop_end
 

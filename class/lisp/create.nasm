@@ -22,7 +22,7 @@
 			;init the object
 			slot_function class, lisp
 			static_call lisp, init, {this, @_function_, stdin, stdout, stderr}, {ok}
-			if {!ok}
+			ifnot {ok}
 				;error with init
 				method_call lisp, delete, {this}, {}
 				assign {0}, {this}

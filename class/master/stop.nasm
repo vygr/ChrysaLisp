@@ -34,7 +34,7 @@
 			static_call vector, get_length, {inst->master_streams}, {length}
 			loop_start
 				assign {length - 1}, {length}
-				breakif {!length}
+				breakifnot {length}
 				assign {(inst->master_streams->vector_array)[length * ptr_size]}, {stream}
 				loop_start
 					method_call stream_msg_in, read_next, {stream}, {_}

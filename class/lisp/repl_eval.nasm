@@ -31,7 +31,7 @@
 		elseif {ast->obj_vtable == @class/class_vector}
 			;list
 			static_call vector, get_length, {ast}, {length}
-			if {!length}
+			ifnot {length}
 				;null list evals to nil
 				assign {this->lisp_sym_nil}, {value}
 				static_call ref, ref, {value}

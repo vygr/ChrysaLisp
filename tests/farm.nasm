@@ -25,7 +25,7 @@
 		assign {num_child}, {cnt}
 		loop_while {cnt != 0}
 			assign {cnt - 1}, {cnt}
-			continueif {!ids[cnt * id_size].id_mbox}
+			continueifnot {ids[cnt * id_size].id_mbox}
 			static_call sys_mail, alloc, {}, {msg}
 			assign {ids[cnt * id_size].id_mbox}, {msg->msg_dest.id_mbox}
 			assign {ids[cnt * id_size].id_cpu}, {msg->msg_dest.id_cpu}

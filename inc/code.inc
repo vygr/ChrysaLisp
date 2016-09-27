@@ -158,6 +158,11 @@
 		breakifnot {%1}
 	%endmacro
 
+	%macro loop_whilenot 1
+		switch
+		breakif {%1}
+	%endmacro
+
 	%macro loop_end 0
 		continue
 		endswitch
@@ -165,6 +170,11 @@
 
 	%macro loop_until 1
 		continueifnot {%1}
+		endswitch
+	%endmacro
+
+	%macro loop_untilnot 1
+		continueif {%1}
 		endswitch
 	%endmacro
 

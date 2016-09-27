@@ -22,7 +22,7 @@
 		if {length == 3}
 			static_call vector, slice, {args, 1, length}, {args}
 			static_call lisp, repl_eval_list, {this, args}, {length}
-			breakif {!length}
+			breakifnot {length}
 			static_call vector, get_element, {args, 0}, {arg1}
 			static_call vector, get_element, {args, 1}, {arg2}
 			assign {this->lisp_sym_nil}, {value}

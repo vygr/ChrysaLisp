@@ -20,7 +20,7 @@
 
 		loop_start
 			assign {*buffer}, {char}
-			breakif {!char}
+			breakifnot {char}
 			assign {buffer + 1}, {buffer}
 			static_call stream, write_char, {inst, char}
 		loop_end
