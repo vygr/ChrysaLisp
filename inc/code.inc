@@ -41,6 +41,16 @@
 ; structured codeing
 ;;;;;;;;;;;;;;;;;;;;
 
+	%macro jmpif 2
+		eval {%1}, {r0}
+		vp_jmpif r0, !=, 0, %2
+	%endmacro
+
+	%macro jmpifnot 2
+		eval {%1}, {r0}
+		vp_jmpif r0, ==, 0, %2
+	%endmacro
+
 	%macro switch 0
 		%push scope
 		%assign %$_cnt 0
