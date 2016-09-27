@@ -44,10 +44,10 @@
 
 		static_call ref, deref, {pdata->pdata_value}
 		static_call lisp, repl_eval, {pdata->pdata_this, *iter}, {pdata->pdata_value}
-		if {pdata->pdata_value == pdata->pdata_this->lisp_sym_nil}
-			eval {0}, {r1}
+		if {pdata->pdata_value}
+			eval {pdata->pdata_value != pdata->pdata_this->lisp_sym_nil}, {r1}
 		else
-			eval {1}, {r1}
+			eval {0}, {r1}
 		endif
 
 		pop_scope

@@ -20,14 +20,15 @@
 		if {length == 2}
 			static_call vector, get_element, {args, 1}, {args}
 			static_call lisp, repl_eval, {this, args}, {args}
-			if {args}
-				if {args == this->lisp_sym_nil}
-					assign {this->lisp_sym_t}, {args}
-					static_call ref, ref, {args}
-				else
-					assign {this->lisp_sym_nil}, {args}
-					static_call ref, ref, {args}
-				endif
+			breakifnot {args}
+			if {args == this->lisp_sym_nil}
+				static_call ref, deref, {args}
+				assign {this->lisp_sym_t}, {args}
+				static_call ref, ref, {args}
+			else
+				static_call ref, deref, {args}
+				assign {this->lisp_sym_nil}, {args}
+				static_call ref, ref, {args}
 			endif
 		else
 			static_call lisp, error, {this, "(not form) wrong numbers of args", args}
