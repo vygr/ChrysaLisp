@@ -18,17 +18,11 @@
 		retire {r0, r1, r2}, {this, vars, vals}
 
 		assign {0}, {value}
-		if {vars->obj_vtable != @class/class_vector}
-			static_call lisp, error, {this, "(set vars vals): vars not a list", vars}
-		else
-			if {vals->obj_vtable != @class/class_vector}
-				static_call lisp, error, {this, "(set vars vals): vals not a list", vals}
-			else
+		if {vars->obj_vtable == @class/class_vector}
+			if {vals->obj_vtable == @class/class_vector}
 				static_call vector, get_length, {vars}, {len1}
 				static_call vector, get_length, {vals}, {len2}
-				if {len1 != len2}
-					static_call lisp, error, {this, "(set vars vals): non matching lengths", vars}
-				else
+				if {len1 == len2}
 					assign {0}, {len1}
 					loop_while {len1 != len2}
 						static_call vector, get_element, {vars, len1}, {symbol}
@@ -37,8 +31,14 @@
 						assign {len1 + 1}, {len1}
 					loop_end
 					assign {vals}, {value}
+				else
+					static_call lisp, error, {this, "(set vars vals): non matching lengths", vars}
 				endif
+			else
+				static_call lisp, error, {this, "(set vars vals): vals not a list", vals}
 			endif
+		else
+			static_call lisp, error, {this, "(set vars vals): vars not a list", vars}
 		endif
 
 		eval {this, value}, {r0, r1}

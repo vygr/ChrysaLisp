@@ -16,7 +16,6 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		;eval args
 		static_call vector, get_length, {args}, {length}
 		static_call vector, slice, {args, 1, length}, {args}
 		static_call lisp, repl_eval_list, {this, args}, {length}

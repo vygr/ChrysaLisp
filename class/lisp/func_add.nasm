@@ -61,12 +61,12 @@
 		push_scope
 		retire {r0, r1}, {iter, pdata}
 
-		if {(*iter)->obj_vtable != @class/class_boxed_long}
-			eval {0}, {r1}
-		else
+		if {(*iter)->obj_vtable == @class/class_boxed_long}
 			static_call boxed_long, get_value, {*iter}, {val}
 			assign {*pdata + val}, {*pdata}
 			eval {1}, {r1}
+		else
+			eval {0}, {r1}
 		endif
 
 		pop_scope
