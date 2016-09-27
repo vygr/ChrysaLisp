@@ -16,7 +16,8 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		static_call lisp, error, {this, "(cond (clause val) (clause val) ...) not done yet", args}
+		assign {0}, {value}
+		static_call lisp, error, {this, "(cond (tst exp) (tst exp) ...) not done yet", args}
 
 		eval {this, value}, {r0, r1}
 		pop_scope

@@ -73,6 +73,8 @@
 			static_call lisp, built_in_func, {this, this->lisp_sym_eq, @_function_}
 			slot_function lisp, func_cond
 			static_call lisp, built_in_func, {this, this->lisp_sym_cond, @_function_}
+			slot_function lisp, func_progn
+			static_call lisp, built_in_func, {this, this->lisp_sym_progn, @_function_}
 		endif
 
 		eval {this, ok}, {r0, r1}
@@ -98,6 +100,7 @@
 		db "mod", 0
 		db "eq", 0
 		db "cond", 0
+		db "progn", 0
 		db 0
 
 	def_function_end

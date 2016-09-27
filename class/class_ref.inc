@@ -4,9 +4,11 @@
 %include 'class/class_obj.inc'
 
 	def_class ref, obj
+	def_method init, class/ref/init
 	def_method ref, class/ref/ref, static, {r0}
 	def_method deref, class/ref/deref, static, {r0}
-	def_method init, class/ref/init
+	def_method ref_if, class/ref/ref_if, static, {r0}
+	def_method deref_if, class/ref/deref_if, static, {r0}
 
 	def_structure ref, obj
 		ulong ref_count

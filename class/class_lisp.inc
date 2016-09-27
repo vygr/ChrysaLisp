@@ -39,6 +39,7 @@
 	def_method func_mod, class/lisp/func_mod, static, {r0, r1}, {r1}
 	def_method func_eq, class/lisp/func_eq, static, {r0, r1}, {r1}
 	def_method func_cond, class/lisp/func_cond, static, {r0, r1}, {r1}
+	def_method func_progn, class/lisp/func_progn, static, {r0, r1}, {r1}
 
 	def_method deinit, class/lisp/deinit, override
 
@@ -64,6 +65,7 @@
 		ptr lisp_sym_mod
 		ptr lisp_sym_eq
 		ptr lisp_sym_cond
+		ptr lisp_sym_progn
 	def_structure_end
 
 %endif
