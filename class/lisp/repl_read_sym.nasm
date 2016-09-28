@@ -16,6 +16,7 @@
 		const char_space, ' '
 		const char_lb, '('
 		const char_rb, ')'
+		const char_quote, "'"
 
 		ptr this, stream, symbol, char_str, tmp_str
 		ulong char
@@ -24,7 +25,7 @@
 		retire {r0, r1, r2}, {this, stream, char}
 
 		static_call string, create_from_cstr, {""}, {symbol}
-		loop_while {char > char_space && char != char_lb && char != char_rb}
+		loop_while {char > char_space && char != char_lb && char != char_rb && char != char_quote}
 			assign {symbol}, {tmp_str}
 			static_call string, create_from_cstr, {&char}, {char_str}
 			static_call string, add, {symbol, char_str}, {symbol}
