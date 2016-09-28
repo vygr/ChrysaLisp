@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
+%include 'class/class_vector.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/repl_read
@@ -18,8 +19,9 @@
 		const char_0, '0'
 		const char_9, '9'
 		const char_minus, '-'
+		const char_quote, "'"
 
-		ptr this, stream, ast
+		ptr this, stream, ast, elem
 		ulong char
 
 		push_scope
@@ -41,6 +43,14 @@
 				static_call stream, read_char, {stream}, {char}
 			elseif {char == char_minus || (char >= char_0 && char <= char_9)}
 				static_call lisp, repl_read_num, {this, stream, char}, {ast, char}
+			elseif {char == char_quote}
+				static_call vector, create, {}, {ast}
+				assign {this->lisp_sym_quote}, {elem}
+				static_call ref, ref, {elem}
+				static_call vector, push_back, {ast, elem}
+				static_call stream, read_char, {stream}, {char}
+				static_call lisp, repl_read, {this, stream, char}, {elem, char}
+				static_call vector, push_back, {ast, elem}
 			else
 				static_call lisp, repl_read_sym, {this, stream, char}, {ast, char}
 			endif
