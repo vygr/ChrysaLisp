@@ -12,8 +12,7 @@
 		;r0 = lisp object
 		;r1 = 0, else value
 
-		ptr this, ast, value
-		ulong length
+		ptr this, ast, value, func
 
 		push_scope
 		retire {r0, r1}, {this, ast}
@@ -30,14 +29,19 @@
 			static_call ref, ref, {value}
 		else
 			;list
-			static_call vector, get_length, {ast}, {length}
-			ifnot {length}
+			static_call vector, get_length, {ast}, {func}
+			ifnot {func}
 				;null list evals to nil
 				assign {this->lisp_sym_nil}, {value}
 				static_call ref, ref, {value}
 			else
-				;otherwise applys a function
-				static_call lisp, repl_apply, {this, ast}, {value}
+				;otherwise apply function
+				static_call vector, get_element, {ast, 0}, {func}
+				static_call lisp, repl_eval, {this, func}, {func}
+				if {func}
+					static_call lisp, repl_apply, {this, func, ast}, {value}
+					static_call ref, deref, {func}
+				endif
 			endif
 		endif
 

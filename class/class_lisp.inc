@@ -24,7 +24,7 @@
 	def_method repl_read_list, class/lisp/repl_read_list, static, {r0, r1}, {r1}
 	def_method repl_read_sym, class/lisp/repl_read_sym, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_read_num, class/lisp/repl_read_num, static, {r0, r1, r2}, {r1, r2}
-	def_method repl_apply, class/lisp/repl_apply, static, {r0, r1}, {r1}
+	def_method repl_apply, class/lisp/repl_apply, static, {r0, r1, r2}, {r1}
 	def_method repl_eval, class/lisp/repl_eval, static, {r0, r1}, {r1}
 	def_method repl_eval_list, class/lisp/repl_eval_list, static, {r0, r1}, {r1}
 	def_method repl_print, class/lisp/repl_print, static, {r0, r1, r2}
@@ -46,6 +46,7 @@
 	def_method func_when, class/lisp/func_when, static, {r0, r1}, {r1}
 	def_method func_unless, class/lisp/func_unless, static, {r0, r1}, {r1}
 	def_method func_if, class/lisp/func_if, static, {r0, r1}, {r1}
+	def_method func_map, class/lisp/func_map, static, {r0, r1}, {r1}
 
 	def_method deinit, class/lisp/deinit, override
 
@@ -78,6 +79,7 @@
 		ptr lisp_sym_when
 		ptr lisp_sym_unless
 		ptr lisp_sym_if
+		ptr lisp_sym_map
 	def_structure_end
 
 %endif
