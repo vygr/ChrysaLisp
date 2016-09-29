@@ -47,6 +47,10 @@
 	def_method func_unless, class/lisp/func_unless, static, {r0, r1}, {r1}
 	def_method func_if, class/lisp/func_if, static, {r0, r1}, {r1}
 	def_method func_map, class/lisp/func_map, static, {r0, r1}, {r1}
+	def_method func_some, class/lisp/func_some, static, {r0, r1}, {r1}
+	def_method func_every, class/lisp/func_every, static, {r0, r1}, {r1}
+	def_method func_notany, class/lisp/func_notany, static, {r0, r1}, {r1}
+	def_method func_notevery, class/lisp/func_notevery, static, {r0, r1}, {r1}
 
 	def_method deinit, class/lisp/deinit, override
 
@@ -57,7 +61,6 @@
 		ptr lisp_symbols
 		ptr lisp_enviroment
 
-		;same order as built_in_symbols table !
 		ptr lisp_sym_parent
 		ptr lisp_sym_nil
 		ptr lisp_sym_t
@@ -80,6 +83,10 @@
 		ptr lisp_sym_unless
 		ptr lisp_sym_if
 		ptr lisp_sym_map
+		ptr lisp_sym_some
+		ptr lisp_sym_every
+		ptr lisp_sym_notany
+		ptr lisp_sym_notevery
 	def_structure_end
 
 %endif
