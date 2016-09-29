@@ -21,13 +21,14 @@
 		const char_rb, ')'
 		const char_ar, '>'
 		const char_minus, '-'
+		const char_quote, "'"
 
 		def_structure pdata
 			ptr pdata_this
 			ptr pdata_stream
 		def_structure_end
 
-		ptr this, stream, value
+		ptr this, stream, value, elem
 		pubyte buffer
 		long num
 
@@ -57,14 +58,24 @@
 			static_call stream, write_char, {stream, char_ar}
 		elseif {value->obj_vtable == @class/class_vector}
 			;list
-			struct pdata, pdata
-			push_scope
-			static_call stream, write_char, {stream, char_lb}
-			static_call stream, write_char, {stream, char_space}
-			assign {this, stream}, {pdata.pdata_this, pdata.pdata_stream}
-			static_call vector, for_each, {value, 0, $repl_print_callback, &pdata}, {_}
-			static_call stream, write_char, {stream, char_rb}
-			pop_scope
+			static_call vector, get_length, {value}, {num}
+			if {num}
+				static_call vector, get_element, {value, 0}, {elem}
+				jmpif {elem != this->lisp_sym_quote}, notquote
+				static_call stream, write_char, {stream, char_quote}
+				static_call vector, get_element, {value, 1}, {elem}
+				static_call lisp, repl_print, {this, stream, elem}
+			else
+			notquote:
+				struct pdata, pdata
+				push_scope
+				static_call stream, write_char, {stream, char_lb}
+				static_call stream, write_char, {stream, char_space}
+				assign {this, stream}, {pdata.pdata_this, pdata.pdata_stream}
+				static_call vector, for_each, {value, 0, $repl_print_callback, &pdata}, {_}
+				static_call stream, write_char, {stream, char_rb}
+				pop_scope
+			endif
 		endif
 		static_call stream, write_char, {stream, char_space}
 

@@ -6,8 +6,9 @@
 		)
 )
 
-(def	(zip2 zip3 zip4)
+(def	(zip1 zip2 zip3 zip4)
 		(
+			(lambda (a) (map list a))
 			(lambda (a b) (map list a b))
 			(lambda (a b c) (map list a b c))
 			(lambda (a b c d) (map list a b c d))
