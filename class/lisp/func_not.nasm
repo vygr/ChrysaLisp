@@ -24,12 +24,11 @@
 			if {args == this->lisp_sym_nil}
 				static_call ref, deref, {args}
 				assign {this->lisp_sym_t}, {args}
-				static_call ref, ref, {args}
 			else
 				static_call ref, deref, {args}
 				assign {this->lisp_sym_nil}, {args}
-				static_call ref, ref, {args}
 			endif
+			static_call ref, ref, {args}
 		else
 			static_call lisp, error, {this, "(not form) wrong number of args", args}
 			assign {0}, {args}

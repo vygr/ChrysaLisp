@@ -113,9 +113,10 @@
 		built_in lisp_sym_if, "if", func_if
 		built_in lisp_sym_map, "map", func_map
 		built_in lisp_sym_some, "some", func_some
-;		built_in lisp_sym_every, "every", func_every
-;		built_in lisp_sym_notany, "notany", func_notany
-;		built_in lisp_sym_notevery, "notevery", func_notevery
+		built_in lisp_sym_every, "every", func_every
+		built_in lisp_sym_notany, "notany", func_notany
+		built_in lisp_sym_notevery, "notevery", func_notevery
+		built_in lisp_sym_length, "length", func_length
 		dw 0
 
 	def_function_end
