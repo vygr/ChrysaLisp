@@ -9,14 +9,14 @@
 	(lambda (a b c) (map list a b c))
 	(lambda (a b c d) (map list a b c d))))
 
-(def (times_table)
-	((lambda (w h)
+(def (f_xy)
+	((lambda (f w h)
 		(progn
-			(def (y) (1))
+			(def (y w h) (1 (add w 1) (add h 1)))
 			(while (not (eq y h))
 				(def (x) (1))
 				(while (not (eq x w))
-					(prin (mul x y))
+					(prin (f x y))
 					(def (x) ((add x 1))))
 				(def (y) ((add y 1)))
 				(print))))))
