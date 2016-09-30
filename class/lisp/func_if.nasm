@@ -22,15 +22,17 @@
 			static_call vector, get_element, {args, 1}, {value}
 			static_call lisp, repl_eval, {this, value}, {value}
 			breakifnot {value}
-			if {value != this->lisp_sym_nil}
+			switch
+			case {value != this->lisp_sym_nil}
 				static_call ref, deref, {value}
 				static_call vector, get_element, {args, 2}, {value}
-				static_call lisp, repl_eval, {this, value}, {value}
-			elseif {length == 4}
+				goto doeval
+			case {length == 4}
 				static_call ref, deref, {value}
 				static_call vector, get_element, {args, 3}, {value}
+			doeval:
 				static_call lisp, repl_eval, {this, value}, {value}
-			endif
+			endswitch
 		else
 			static_call lisp, error, {this, "(if tst form form) wrong number of args", args}
 		endif

@@ -41,6 +41,10 @@
 ; structured codeing
 ;;;;;;;;;;;;;;;;;;;;
 
+	%macro goto 1
+		vp_jmp %1
+	%endmacro
+
 	%macro jmpif 2
 		eval {%1}, {r0}
 		vp_jmpif r0, !=, 0, %2
