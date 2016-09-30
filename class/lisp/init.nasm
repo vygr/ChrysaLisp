@@ -117,6 +117,9 @@
 		built_in lisp_sym_notany, "notany", func_notany
 		built_in lisp_sym_notevery, "notevery", func_notevery
 		built_in lisp_sym_length, "length", func_length
+		built_in lisp_sym_while, "while", func_while
+		built_in lisp_sym_print, "print", func_print
+		built_in lisp_sym_prin, "prin", func_prin
 		dw 0
 
 	def_function_end

@@ -52,6 +52,9 @@
 	def_method func_notany, class/lisp/func_notany, static, {r0, r1}, {r1}
 	def_method func_notevery, class/lisp/func_notevery, static, {r0, r1}, {r1}
 	def_method func_length, class/lisp/func_length, static, {r0, r1}, {r1}
+	def_method func_while, class/lisp/func_while, static, {r0, r1}, {r1}
+	def_method func_print, class/lisp/func_print, static, {r0, r1}, {r1}
+	def_method func_prin, class/lisp/func_prin, static, {r0, r1}, {r1}
 
 	def_method deinit, class/lisp/deinit, override
 
@@ -89,6 +92,9 @@
 		ptr lisp_sym_notany
 		ptr lisp_sym_notevery
 		ptr lisp_sym_length
+		ptr lisp_sym_while
+		ptr lisp_sym_print
+		ptr lisp_sym_prin
 	def_structure_end
 
 %endif
