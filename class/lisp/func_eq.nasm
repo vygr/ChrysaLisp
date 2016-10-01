@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
+%include 'class/class_string.inc'
 %include 'class/class_boxed_ptr.inc'
 %include 'class/class_lisp.inc'
 
@@ -25,18 +26,22 @@
 			breakifnot {length}
 			static_call vector, get_element, {args, 0}, {arg1}
 			static_call vector, get_element, {args, 1}, {arg2}
+			jmpif {arg1 == arg2}, same
 			assign {this->lisp_sym_nil}, {value}
-			if {arg1 == arg2}
-				assign {this->lisp_sym_t}, {value}
-			elseif {arg1->obj_vtable != arg2->obj_vtable}
+			switch
+			breakif {arg1->obj_vtable != arg2->obj_vtable}
+			case {arg1->obj_vtable == @class/class_string}
+				static_call string, compare, {arg1, arg2}, {length}
+				jmpifnot {length}, same
 				break
-			elseif {(arg1->obj_vtable == @class/class_boxed_ptr \
-					|| arg1->obj_vtable == @class/class_boxed_long)}
+			case {(arg1->obj_vtable == @class/class_boxed_ptr \
+				|| arg1->obj_vtable == @class/class_boxed_long)}
 				static_call boxed_ptr, get_value, {arg1}, {v1}
 				static_call boxed_ptr, get_value, {arg2}, {v2}
 				breakif {v1 != v2}
+			same:
 				assign {this->lisp_sym_t}, {value}
-			endif
+			endswitch
 			static_call ref, ref, {value}
 		else
 			static_call lisp, error, {this, "(eq a1 a2) wrong number of args", args}
