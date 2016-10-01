@@ -39,6 +39,7 @@
 			default
 				static_call lisp, error, {this, "(str arg) arg is not stringable", args}
 			endswitch
+			static_call ref, deref, {args}
 		else
 			static_call lisp, error, {this, "(str arg) wrong numbers of args", args}
 		endif
