@@ -7,17 +7,11 @@
 
 (def (squared cubed divmod)
 	((lambda (x)
-		(progn
-			(print_env 'squared_env (env))
-			(mul x x)))
+		(mul x x))
 	(lambda (x)
-		(progn
-			(print_env 'cubed_env (env))
-			(mul x x x)))
+		(mul x x x))
 	(lambda (x y)
-		(progn
-			(print_env 'divmod_env (env))
-			(list (div x y) (mod x y))))))
+		(list (div x y) (mod x y)))))
 
 (def (zip1 zip2 zip3 zip4)
 	((lambda (a) (map list a))
@@ -27,15 +21,12 @@
 
 (def (fq)
 	((lambda (x y)
-	 	(progn
-			(print_env 'fq_env (env))
-			(mod (mul (cubed x) (squared y)) 10)))))
+		(mod (mul (cubed x) (squared y)) 10))))
 
 (def (f_xy)
 	((lambda (f w h)
 		(progn
 			(def (y w h) (1 (add w 1) (add h 1)))
-			(print_env 'f_xy_env (env))
 			(until (eq y h)
 				(def (x) (1))
 				(until (eq x w)
