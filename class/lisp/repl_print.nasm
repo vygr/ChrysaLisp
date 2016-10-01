@@ -20,8 +20,8 @@
 		def_structure pdata
 			ptr pdata_this
 			ptr pdata_stream
-			ptr pdata_index
-			ptr pdata_length
+			uint pdata_index
+			uint pdata_length
 		def_structure_end
 
 		const char_minus, "-"
