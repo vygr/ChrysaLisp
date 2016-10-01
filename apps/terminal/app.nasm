@@ -50,7 +50,7 @@
 		static_call flow, add_back, {shared.shared_panel, window_panel}
 
 		;add term lines to my app panel
-		assign {30}, {length}
+		assign {40}, {length}
 		loop_while {length}
 			assign {length - 1}, {length}
 			static_call label, create, {}, {label}
@@ -58,7 +58,7 @@
 			static_call label, set_text, {label, string}
 			static_call label, set_color, {label, 0xff000000}
 			static_call label, set_text_color, {label, 0xff00ff00}
-			static_call label, set_font, {label, "fonts/OpenSans-Regular.ttf", 16}
+			static_call label, set_font, {label, "fonts/Hack-Regular.ttf", 16}
 			static_call label, add_back, {label, shared.shared_panel}
 		loop_end
 

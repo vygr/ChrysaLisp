@@ -5,6 +5,15 @@
 			(map print e)
 			t))))
 
+(def (prin_num)
+	((lambda (n s)
+		(progn
+			(def (l) ((length (str n))))
+			(until (eq l s)
+				(prin '.)
+				(set (l) ((add l 1))))
+			(prin n)))))
+
 (def (squared cubed divmod)
 	((lambda (x)
 		(mul x x))
@@ -34,7 +43,7 @@
 			(until (eq y h)
 				(setl (x) (1))
 				(until (eq x w)
-					(prin (f x y))
+					(prin_num (f x y) 4)
 					(setl (x) ((add x 1))))
 				(setl (y) ((add y 1)))
 				(print))))))
