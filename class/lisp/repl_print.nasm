@@ -37,7 +37,6 @@
 		const char_rab, ">"
 
 		ptr this, stream, value, elem
-		pubyte buffer
 		long num
 
 		push_scope
