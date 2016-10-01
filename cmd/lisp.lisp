@@ -27,7 +27,7 @@
 	((lambda (x y)
 		(mod (mul (cubed x) (squared y)) 10))))
 
-(def (f_xy)
+(def (fxy)
 	((lambda (f w h)
 		(progn
 			(def (x y w h) (1 1 (add w 1) (add h 1)))

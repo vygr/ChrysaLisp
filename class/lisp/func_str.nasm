@@ -1,10 +1,10 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
-%include 'class/class_string.inc'
 %include 'class/class_boxed_long.inc'
+%include 'class/class_string.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/func_length
+	def_function class/lisp/func_str
 		;inputs
 		;r0 = lisp object
 		;r1 = args
@@ -12,7 +12,10 @@
 		;r0 = lisp object
 		;r1 = 0, else value
 
+		const char_minus, "-"
+
 		ptr this, args, value
+		pubyte buffer
 		ulong length
 
 		push_scope
@@ -26,20 +29,18 @@
 			breakifnot {args}
 			switch
 			case {args->obj_vtable == @class/class_string}
-				static_call string, get_length, {args}, {length}
-				goto create
-			case {args->obj_vtable == @class/class_vector}
-				static_call vector, get_length, {args}, {length}
-			create:
-				static_call boxed_long, create, {}, {value}
-				static_call boxed_long, set_value, {value, length}
+				assign {args}, {value}
+				static_call ref, ref, {value}
+				break
+			case {args->obj_vtable == @class/class_boxed_long}
+				static_call boxed_long, get_value, {args}, {length}
+				static_call string, create_from_long, {length, 10}, {value}
 				break
 			default
-				static_call lisp, error, {this, "(length seq) not a sequence", args}
+				static_call lisp, error, {this, "(str arg) arg is not stringable", args}
 			endswitch
-			static_call vector, deref, {args}
 		else
-			static_call lisp, error, {this, "(length seq) wrong number of args", args}
+			static_call lisp, error, {this, "(str arg) wrong numbers of args", args}
 		endif
 
 		eval {this, value}, {r0, r1}

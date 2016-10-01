@@ -7,7 +7,6 @@
 %include 'class/class_pair.inc'
 %include 'class/class_unordered_set.inc'
 %include 'class/class_unordered_map.inc'
-%include 'inc/string.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/repl_print
@@ -41,20 +40,16 @@
 			break
 		case {elem == @class/class_boxed_long}
 			static_call boxed_long, get_value, {value}, {num}
-			assign {$buffer}, {buffer}
-			if {num < 0}
-				assign {char_minus}, {*buffer}
-				assign {buffer + 1}, {buffer}
-				assign {-num}, {num}
-			endif
-			static_call sys_string, from_long, {num, buffer, 10}
-			static_call stream, write_cstr, {stream, $buffer}
+			static_call string, create_from_long, {num, 10}, {value}
+			static_call stream, write, {stream, &value->string_data, value->string_length}
+			static_call ref, deref, {value}
 			break
 		case {elem == @class/class_boxed_ptr}
 			static_call stream, write_cstr, {stream, "#0x"}
 			static_call boxed_ptr, get_value, {value}, {num}
-			static_call sys_string, from_long, {num, $buffer, 16}
-			static_call stream, write_cstr, {stream, $buffer}
+			static_call string, create_from_long, {num, 16}, {value}
+			static_call stream, write, {stream, &value->string_data, value->string_length}
+			static_call ref, deref, {value}
 			break
 		case {elem == @class/class_pair}
 			static_call stream, write_cstr, {stream, "< "}
@@ -125,10 +120,5 @@
 		eval {1}, {r1}
 		pop_scope
 		return
-
-	buffer:
-		;static buffer for number output
-		;bad idea, but we are co-op sheduled so don't yield during this !!
-		times 21 db 0
 
 	def_function_end
