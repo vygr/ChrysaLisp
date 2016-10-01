@@ -32,6 +32,8 @@
 				static_call stream, write_char, {this->lisp_stdout, char_lf}
 				static_call lisp, repl_print, {this, this->lisp_stdout, ast}
 				static_call stream, write_char, {this->lisp_stdout, char_lf}
+				static_call stream, write_cstr, {this->lisp_stdout, "--Eval--"}
+				static_call stream, write_char, {this->lisp_stdout, char_lf}
 			endif
 
 			static_call lisp, repl_eval, {this, ast}, {value}
@@ -39,8 +41,6 @@
 			continueifnot {value}
 
 			if {stream == this->lisp_stdin}
-				static_call stream, write_cstr, {this->lisp_stdout, "--Eval--"}
-				static_call stream, write_char, {this->lisp_stdout, char_lf}
 				static_call lisp, repl_print, {this, this->lisp_stdout, value}
 				static_call stream, write_char, {this->lisp_stdout, char_lf}
 			endif
