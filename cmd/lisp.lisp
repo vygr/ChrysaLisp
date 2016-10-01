@@ -11,7 +11,7 @@
 			(def (l) ((length (str n))))
 			(until (eq l p)
 				(prin c)
-				(set (l) ((add l 1))))
+				(setl (l) ((add l 1))))
 			(prin n)))))
 
 (def (squared cubed divmod)
