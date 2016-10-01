@@ -17,7 +17,7 @@
 
 		static_call boxed_ptr, create, {}, {func}
 		static_call boxed_ptr, set_value, {func, func_ptr}
-		static_call lisp, env_set, {this, symbol, func}
+		static_call lisp, env_def, {this, symbol, func}
 		static_call boxed_ptr, deref, {func}
 
 		eval {this}, {r0}

@@ -1,6 +1,5 @@
 %include 'inc/func.inc'
 %include 'class/class_pair.inc'
-%include 'class/class_unordered_map.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/env_set
@@ -10,6 +9,7 @@
 		;r2 = value
 		;outputs
 		;r0 = lisp object
+		;r1 = 0, else value
 
 		ptr this, symbol, value
 		pptr iter
@@ -23,11 +23,11 @@
 			static_call ref, ref, {value}
 			static_call pair, set_second, {*iter, value}
 		else
-			;new variable
-			static_call unordered_map, insert, {this->lisp_enviroment, symbol, value}, {_, _}
+			static_call lisp, error, {this, "no such variable", symbol}
+			assign {0}, {value}
 		endif
 
-		eval {this}, {r0}
+		eval {this, value}, {r0, r1}
 		pop_scope
 		return
 

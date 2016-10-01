@@ -38,7 +38,7 @@
 					if {vals}
 						static_call lisp, env_push, {this}
 						static_call vector, get_element, {func, 1}, {vars}
-						static_call lisp, env_set_list, {this, vars, vals}, {length}
+						static_call lisp, env_def_list, {this, vars, vals}, {length}
 						if {length}
 							static_call vector, get_element, {func, 2}, {body}
 							static_call lisp, repl_eval, {this, body}, {value}

@@ -2,7 +2,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/func_def
+	def_function class/lisp/func_set
 		;inputs
 		;r0 = lisp object
 		;r1 = args
@@ -26,7 +26,7 @@
 				static_call vector, slice, {args, 0, length}, {args}
 				static_call lisp, repl_eval_list, {this, args}, {vals}
 				jmpifnot {vals}, error
-				static_call lisp, env_def_list, {this, vars, vals}, {vals}
+				static_call lisp, env_set_list, {this, vars, vals}, {vals}
 				breakif {vals}
 			error:
 				static_call vector, deref, {args}

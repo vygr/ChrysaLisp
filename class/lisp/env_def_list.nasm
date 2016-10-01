@@ -2,7 +2,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/env_set_list
+	def_function class/lisp/env_def_list
 		;inputs
 		;r0 = lisp object
 		;r1 = vars list
@@ -27,8 +27,7 @@
 					loop_while {len1 != len2}
 						static_call vector, get_element, {vars, len1}, {symbol}
 						static_call vector, get_element, {vals, len1}, {value}
-						static_call lisp, env_set, {this, symbol, value}, {value}
-						jmpifnot {value}, error
+						static_call lisp, env_def, {this, symbol, value}
 						assign {len1 + 1}, {len1}
 					loop_end
 					assign {vals}, {value}
@@ -41,7 +40,7 @@
 		else
 			static_call lisp, error, {this, "(set vars vals): vars not a list", vars}
 		endif
-	error:
+
 		eval {this, value}, {r0, r1}
 		pop_scope
 		return

@@ -13,12 +13,14 @@
 	def_method sym_intern, class/lisp/sym_intern, static, {r0, r1}, {r1}
 	def_method sym_intern_cstr, class/lisp/sym_intern_cstr, static, {r0, r1}, {r1}
 	def_method built_in_func, class/lisp/built_in_func, static, {r0, r1, r2}
-	def_method env_set, class/lisp/env_set, static, {r0, r1, r2}
-	def_method env_get, class/lisp/env_get, static, {r0, r1}, {r1}
-	def_method env_find, class/lisp/env_find, static, {r0, r1}, {r1, r2}
-	def_method env_set_list, class/lisp/env_set_list, static, {r0, r1, r2}, {r1}
 	def_method env_push, class/lisp/env_push, static, {r0}
 	def_method env_pop, class/lisp/env_pop, static, {r0}
+	def_method env_def, class/lisp/env_def, static, {r0, r1, r2}
+	def_method env_def_list, class/lisp/env_def_list, static, {r0, r1, r2}, {r1}
+	def_method env_find, class/lisp/env_find, static, {r0, r1}, {r1, r2}
+	def_method env_set, class/lisp/env_set, static, {r0, r1, r2}, {r1}
+	def_method env_set_list, class/lisp/env_set_list, static, {r0, r1, r2}, {r1}
+	def_method env_get, class/lisp/env_get, static, {r0, r1}, {r1}
 	def_method repl, class/lisp/repl, static, {r0, r1}
 	def_method repl_read, class/lisp/repl_read, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_read_list, class/lisp/repl_read_list, static, {r0, r1}, {r1}
@@ -29,6 +31,7 @@
 	def_method repl_eval_list, class/lisp/repl_eval_list, static, {r0, r1}, {r1}
 	def_method repl_print, class/lisp/repl_print, static, {r0, r1, r2}
 	def_method func_def, class/lisp/func_def, static, {r0, r1}, {r1}
+	def_method func_set, class/lisp/func_set, static, {r0, r1}, {r1}
 	def_method func_list, class/lisp/func_list, static, {r0, r1}, {r1}
 	def_method func_lambda, class/lisp/func_lambda, static, {r0, r1}, {r1}
 	def_method func_quote, class/lisp/func_quote, static, {r0, r1}, {r1}
@@ -53,6 +56,7 @@
 	def_method func_notevery, class/lisp/func_notevery, static, {r0, r1}, {r1}
 	def_method func_length, class/lisp/func_length, static, {r0, r1}, {r1}
 	def_method func_while, class/lisp/func_while, static, {r0, r1}, {r1}
+	def_method func_until, class/lisp/func_until, static, {r0, r1}, {r1}
 	def_method func_print, class/lisp/func_print, static, {r0, r1}, {r1}
 	def_method func_prin, class/lisp/func_prin, static, {r0, r1}, {r1}
 	def_method func_env, class/lisp/func_env, static, {r0, r1}, {r1}
@@ -71,6 +75,7 @@
 		ptr lisp_sym_t
 		ptr lisp_sym_lambda
 		ptr lisp_sym_def
+		ptr lisp_sym_set
 		ptr lisp_sym_quote
 		ptr lisp_sym_list
 		ptr lisp_sym_add
@@ -94,6 +99,7 @@
 		ptr lisp_sym_notevery
 		ptr lisp_sym_length
 		ptr lisp_sym_while
+		ptr lisp_sym_until
 		ptr lisp_sym_print
 		ptr lisp_sym_prin
 		ptr lisp_sym_env

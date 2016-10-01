@@ -1,20 +1,23 @@
-(def (penv)
-	((lambda ()
+(def (print_env)
+	((lambda (l e)
 		(progn
-			(map print (env))
-			nil))))
+			(print '<= l '=>)
+			(map print e)
+			t))))
 
 (def (squared cubed divmod)
 	((lambda (x)
 		(progn
-			(print 'squared_env (penv))
+			(print_env 'squared_env (env))
 			(mul x x)))
 	(lambda (x)
 		(progn
-			(print 'cubed_env (penv))
+			(print_env 'cubed_env (env))
 			(mul x x x)))
 	(lambda (x y)
-		(list (div x y) (mod x y)))))
+		(progn
+			(print_env 'divmod_env (env))
+			(list (div x y) (mod x y))))))
 
 (def (zip1 zip2 zip3 zip4)
 	((lambda (a) (map list a))
@@ -23,16 +26,20 @@
 	(lambda (a b c d) (map list a b c d))))
 
 (def (fq)
-	((lambda (x y) (mod (mul (cubed x) (squared y)) 10))))
+	((lambda (x y)
+	 	(progn
+			(print_env 'fq_env (env))
+			(mod (mul (cubed x) (squared y)) 10)))))
 
 (def (f_xy)
 	((lambda (f w h)
 		(progn
 			(def (y w h) (1 (add w 1) (add h 1)))
-			(while (not (eq y h))
+			(print_env 'f_xy_env (env))
+			(until (eq y h)
 				(def (x) (1))
-				(while (not (eq x w))
+				(until (eq x w)
 					(prin (f x y))
-					(def (x) ((add x 1))))
-				(def (y) ((add y 1)))
+					(set (x) ((add x 1))))
+				(set (y) ((add y 1)))
 				(print))))))
