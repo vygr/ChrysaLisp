@@ -77,8 +77,8 @@
 			loop_end
 
 			;standard self evaulating symbols
-			static_call lisp, env_set, {this, this->lisp_sym_nil, this->lisp_sym_nil}
-			static_call lisp, env_set, {this, this->lisp_sym_t, this->lisp_sym_t}
+			static_call lisp, env_def, {this, this->lisp_sym_nil, this->lisp_sym_nil}
+			static_call lisp, env_def, {this, this->lisp_sym_t, this->lisp_sym_t}
 		endif
 
 		eval {this, ok}, {r0, r1}
@@ -95,6 +95,7 @@
 		built_in lisp_sym_t, "t"
 		built_in lisp_sym_lambda, "lambda", func_lambda
 		built_in lisp_sym_def, "def", func_def
+		built_in lisp_sym_set, "set", func_set
 		built_in lisp_sym_quote, "quote", func_quote
 		built_in lisp_sym_list, "list", func_list
 		built_in lisp_sym_add, "add", func_add
@@ -118,6 +119,7 @@
 		built_in lisp_sym_notevery, "notevery", func_notevery
 		built_in lisp_sym_length, "length", func_length
 		built_in lisp_sym_while, "while", func_while
+		built_in lisp_sym_until, "until", func_until
 		built_in lisp_sym_print, "print", func_print
 		built_in lisp_sym_prin, "prin", func_prin
 		built_in lisp_sym_env, "env", func_env
