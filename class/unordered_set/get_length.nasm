@@ -14,7 +14,7 @@
 		;count all buckets
 		vp_push r0, 0
 		s_call vector, for_each, {[r0 + unordered_set_buckets], 0, $callback, r4}, {_}
-		vp_pop r1, r0
+		vp_pop r0, r1
 		vp_ret
 
 	callback:
