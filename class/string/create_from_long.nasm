@@ -36,6 +36,6 @@
 	buffer:
 		;static buffer for number output
 		;bad idea, but we are co-op sheduled so don't yield during this !!
-		times 22 db 0
+		times 66 db 0
 
 	def_function_end
