@@ -2,6 +2,8 @@
 %include 'class/class_vector.inc'
 %include 'class/class_string.inc'
 %include 'class/class_boxed_long.inc'
+%include 'class/class_unordered_set.inc'
+%include 'class/class_unordered_map.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_length
@@ -27,6 +29,12 @@
 			switch
 			case {args->obj_vtable == @class/class_string}
 				static_call string, get_length, {args}, {length}
+				goto create
+			case {args->obj_vtable == @class/class_unordered_map}
+				static_call unordered_map, get_length, {args}, {length}
+				goto create
+			case {args->obj_vtable == @class/class_unordered_set}
+				static_call unordered_set, get_length, {args}, {length}
 				goto create
 			case {args->obj_vtable == @class/class_vector}
 				static_call vector, get_length, {args}, {length}

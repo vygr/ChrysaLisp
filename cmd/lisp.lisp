@@ -6,11 +6,11 @@
 			t))))
 
 (def (prin_num)
-	((lambda (n s)
+	((lambda (n p c)
 		(progn
 			(def (l) ((length (str n))))
-			(until (eq l s)
-				(prin '.)
+			(until (eq l p)
+				(prin c)
 				(set (l) ((add l 1))))
 			(prin n)))))
 
@@ -43,7 +43,7 @@
 			(until (eq y h)
 				(setl (x) (1))
 				(until (eq x w)
-					(prin_num (f x y) 4)
+					(prin_num (f x y) 4 '.)
 					(setl (x) ((add x 1))))
 				(setl (y) ((add y 1)))
 				(print))))))

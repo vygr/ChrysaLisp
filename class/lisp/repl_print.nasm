@@ -20,11 +20,21 @@
 		def_structure pdata
 			ptr pdata_this
 			ptr pdata_stream
+			ptr pdata_index
+			ptr pdata_length
 		def_structure_end
 
 		const char_minus, "-"
 		const char_quote, "'"
 		const char_space, " "
+		const char_lrb, "("
+		const char_rrb, ")"
+		const char_lcb, "{"
+		const char_rcb, "}"
+		const char_lsb, "["
+		const char_rsb, "]"
+		const char_lab, "<"
+		const char_rab, ">"
 
 		ptr this, stream, value, elem
 		pubyte buffer
@@ -52,29 +62,34 @@
 			static_call ref, deref, {value}
 			break
 		case {elem == @class/class_pair}
-			static_call stream, write_cstr, {stream, "< "}
+			static_call stream, write_char, {stream, char_lab}
 			static_call pair, get_first, {value}, {elem}
 			static_call lisp, repl_print, {this, stream, elem}
+			static_call stream, write_char, {stream, char_space}
 			static_call pair, get_second, {value}, {elem}
 			static_call lisp, repl_print, {this, stream, elem}
-			static_call stream, write_cstr, {stream, ">"}
+			static_call stream, write_char, {stream, char_rab}
 			break
 		case {elem == @class/class_unordered_set}
 			struct pdata, pdata
 			push_scope
-			static_call stream, write_cstr, {stream, "[ "}
-			assign {this, stream}, {pdata.pdata_this, pdata.pdata_stream}
-			static_call unordered_set, for_each, {value, $repl_print_callback, &pdata}, {_, _}
-			static_call stream, write_cstr, {stream, "]"}
+			static_call stream, write_char, {stream, char_lsb}
+			static_call unordered_set, get_length, {value}, {num}
+			assign {this, stream, 0, num}, {pdata.pdata_this, pdata.pdata_stream, \
+											pdata.pdata_index, pdata.pdata_length}
+			static_call unordered_set, for_each, {value, $callback, &pdata}, {_, _}
+			static_call stream, write_char, {stream, char_rsb}
 			pop_scope
 			break
 		case {elem == @class/class_unordered_map}
 			struct pdata, pdata
 			push_scope
-			static_call stream, write_cstr, {stream, "{ "}
-			assign {this, stream}, {pdata.pdata_this, pdata.pdata_stream}
-			static_call unordered_map, for_each, {value, $repl_print_callback, &pdata}, {_, _}
-			static_call stream, write_cstr, {stream, "}"}
+			static_call stream, write_char, {stream, char_lcb}
+			static_call unordered_map, get_length, {value}, {num}
+			assign {this, stream, 0, num}, {pdata.pdata_this, pdata.pdata_stream, \
+											pdata.pdata_index, pdata.pdata_length}
+			static_call unordered_map, for_each, {value, $callback, &pdata}, {_, _}
+			static_call stream, write_char, {stream, char_rcb}
 			pop_scope
 			break
 		case {elem == @class/class_vector}
@@ -89,25 +104,27 @@
 			notquote:
 				struct pdata, pdata
 				push_scope
-				static_call stream, write_cstr, {stream, "( "}
-				assign {this, stream}, {pdata.pdata_this, pdata.pdata_stream}
-				static_call vector, for_each, {value, 0, $repl_print_callback, &pdata}, {_}
-				static_call stream, write_cstr, {stream, ")"}
+				static_call stream, write_char, {stream, char_lrb}
+				assign {this, stream, 0, num}, {pdata.pdata_this, pdata.pdata_stream, \
+												pdata.pdata_index, pdata.pdata_length}
+				static_call vector, for_each, {value, 0, $callback, &pdata}, {_}
+				static_call stream, write_char, {stream, char_rrb}
 				pop_scope
 			endif
 		endswitch
-		static_call stream, write_char, {stream, char_space}
 
 		eval {this}, {r0}
 		pop_scope
 		return
 
-	repl_print_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer
 		;outputs
 		;r1 = 0 if break, else not
+
+		const char_space, " "
 
 		pptr iter
 		ptr pdata
@@ -116,6 +133,10 @@
 		retire {r0, r1}, {iter, pdata}
 
 		static_call lisp, repl_print, {pdata->pdata_this, pdata->pdata_stream, *iter}
+		assign {pdata->pdata_index + 1}, {pdata->pdata_index}
+		if {pdata->pdata_index != pdata->pdata_length}
+			static_call stream, write_char, {pdata->pdata_stream, char_space}
+		endif
 
 		eval {1}, {r1}
 		pop_scope
