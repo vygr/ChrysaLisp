@@ -96,6 +96,7 @@
 		built_in lisp_sym_lambda, "lambda", func_lambda
 		built_in lisp_sym_def, "def", func_def
 		built_in lisp_sym_set, "set", func_set
+		built_in lisp_sym_setl, "setl", func_setl
 		built_in lisp_sym_quote, "quote", func_quote
 		built_in lisp_sym_list, "list", func_list
 		built_in lisp_sym_add, "add", func_add

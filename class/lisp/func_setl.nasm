@@ -2,7 +2,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/func_set
+	def_function class/lisp/func_setl
 		;inputs
 		;r0 = lisp object
 		;r1 = args
@@ -26,15 +26,15 @@
 				static_call vector, slice, {args, 0, length}, {args}
 				static_call lisp, repl_eval_list, {this, args}, {vals}
 				jmpifnot {vals}, error
-				static_call lisp, env_set_list, {this, vars, vals}, {vals}
+				static_call lisp, env_setl_list, {this, vars, vals}, {vals}
 				breakif {vals}
 			error:
 				static_call vector, deref, {args}
 			else
-				static_call lisp, error, {this, "(set vars vals) vals is not a list", args}
+				static_call lisp, error, {this, "(setl vars vals) vals is not a list", args}
 			endif
 		else
-			static_call lisp, error, {this, "(set vars vals) wrong numbers of args", args}
+			static_call lisp, error, {this, "(setl vars vals) wrong numbers of args", args}
 		endif
 
 		eval {this, vals}, {r0, r1}
