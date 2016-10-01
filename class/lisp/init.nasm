@@ -120,6 +120,7 @@
 		built_in lisp_sym_while, "while", func_while
 		built_in lisp_sym_print, "print", func_print
 		built_in lisp_sym_prin, "prin", func_prin
+		built_in lisp_sym_env, "env", func_env
 		dw 0
 
 	def_function_end

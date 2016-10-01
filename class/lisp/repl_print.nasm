@@ -4,6 +4,9 @@
 %include 'class/class_string.inc'
 %include 'class/class_boxed_long.inc'
 %include 'class/class_boxed_ptr.inc'
+%include 'class/class_pair.inc'
+%include 'class/class_unordered_set.inc'
+%include 'class/class_unordered_map.inc'
 %include 'inc/string.inc'
 %include 'class/class_lisp.inc'
 
@@ -15,18 +18,14 @@
 		;outputs
 		;r0 = lisp object
 
-		const char_space, ' '
-		const char_lf, 10
-		const char_lb, '('
-		const char_rb, ')'
-		const char_ar, '>'
-		const char_minus, '-'
-		const char_quote, "'"
-
 		def_structure pdata
 			ptr pdata_this
 			ptr pdata_stream
 		def_structure_end
+
+		const char_minus, "-"
+		const char_quote, "'"
+		const char_space, " "
 
 		ptr this, stream, value, elem
 		pubyte buffer
@@ -35,11 +34,12 @@
 		push_scope
 		retire {r0, r1, r2}, {this, stream, value}
 
-		if {value->obj_vtable == @class/class_string}
-			;symbol
+		assign {value->obj_vtable}, {elem}
+		switch
+		case {elem == @class/class_string}
 			static_call stream, write, {stream, &value->string_data, value->string_length}
-		elseif {value->obj_vtable == @class/class_boxed_long}
-			;number
+			break
+		case {elem == @class/class_boxed_long}
 			static_call boxed_long, get_value, {value}, {num}
 			assign {$buffer}, {buffer}
 			if {num < 0}
@@ -49,15 +49,40 @@
 			endif
 			static_call sys_string, from_long, {num, buffer, 10}
 			static_call stream, write_cstr, {stream, $buffer}
-		elseif {value->obj_vtable == @class/class_boxed_ptr}
-			;function pointer
-			static_call stream, write_cstr, {stream, "<function 0x"}
+			break
+		case {elem == @class/class_boxed_ptr}
+			static_call stream, write_cstr, {stream, "#0x"}
 			static_call boxed_ptr, get_value, {value}, {num}
 			static_call sys_string, from_long, {num, $buffer, 16}
 			static_call stream, write_cstr, {stream, $buffer}
-			static_call stream, write_char, {stream, char_ar}
-		elseif {value->obj_vtable == @class/class_vector}
-			;list
+			break
+		case {elem == @class/class_pair}
+			static_call stream, write_cstr, {stream, "< "}
+			static_call pair, get_first, {value}, {elem}
+			static_call lisp, repl_print, {this, stream, elem}
+			static_call pair, get_second, {value}, {elem}
+			static_call lisp, repl_print, {this, stream, elem}
+			static_call stream, write_cstr, {stream, ">"}
+			break
+		case {elem == @class/class_unordered_set}
+			struct pdata, pdata
+			push_scope
+			static_call stream, write_cstr, {stream, "[ "}
+			assign {this, stream}, {pdata.pdata_this, pdata.pdata_stream}
+			static_call unordered_set, for_each, {value, $repl_print_callback, &pdata}, {_, _}
+			static_call stream, write_cstr, {stream, "]"}
+			pop_scope
+			break
+		case {elem == @class/class_unordered_map}
+			struct pdata, pdata
+			push_scope
+			static_call stream, write_cstr, {stream, "{ "}
+			assign {this, stream}, {pdata.pdata_this, pdata.pdata_stream}
+			static_call unordered_map, for_each, {value, $repl_print_callback, &pdata}, {_, _}
+			static_call stream, write_cstr, {stream, "}"}
+			pop_scope
+			break
+		case {elem == @class/class_vector}
 			static_call vector, get_length, {value}, {num}
 			if {num}
 				static_call vector, get_element, {value, 0}, {elem}
@@ -69,14 +94,13 @@
 			notquote:
 				struct pdata, pdata
 				push_scope
-				static_call stream, write_char, {stream, char_lb}
-				static_call stream, write_char, {stream, char_space}
+				static_call stream, write_cstr, {stream, "( "}
 				assign {this, stream}, {pdata.pdata_this, pdata.pdata_stream}
 				static_call vector, for_each, {value, 0, $repl_print_callback, &pdata}, {_}
-				static_call stream, write_char, {stream, char_rb}
+				static_call stream, write_cstr, {stream, ")"}
 				pop_scope
 			endif
-		endif
+		endswitch
 		static_call stream, write_char, {stream, char_space}
 
 		eval {this}, {r0}

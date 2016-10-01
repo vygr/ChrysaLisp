@@ -55,6 +55,7 @@
 	def_method func_while, class/lisp/func_while, static, {r0, r1}, {r1}
 	def_method func_print, class/lisp/func_print, static, {r0, r1}, {r1}
 	def_method func_prin, class/lisp/func_prin, static, {r0, r1}, {r1}
+	def_method func_env, class/lisp/func_env, static, {r0, r1}, {r1}
 
 	def_method deinit, class/lisp/deinit, override
 
@@ -95,6 +96,7 @@
 		ptr lisp_sym_while
 		ptr lisp_sym_print
 		ptr lisp_sym_prin
+		ptr lisp_sym_env
 	def_structure_end
 
 %endif

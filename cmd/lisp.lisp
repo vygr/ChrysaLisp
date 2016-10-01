@@ -9,6 +9,9 @@
 	(lambda (a b c) (map list a b c))
 	(lambda (a b c d) (map list a b c d))))
 
+(def (fq)
+	((lambda (x y) (mod (mul (cubed x) (squared y)) 10))))
+
 (def (f_xy)
 	((lambda (f w h)
 		(progn
@@ -20,3 +23,8 @@
 					(def (x) ((add x 1))))
 				(def (y) ((add y 1)))
 				(print))))))
+
+(def (penv)
+	((lambda ()
+		(progn
+			(map print (env)))))
