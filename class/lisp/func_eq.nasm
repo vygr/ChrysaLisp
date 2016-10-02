@@ -43,6 +43,7 @@
 				assign {this->lisp_sym_t}, {value}
 			endswitch
 			static_call ref, ref, {value}
+			static_call ref, deref, {args}
 		else
 			static_call lisp, error, {this, "(eq a1 a2) wrong number of args", args}
 		endif
