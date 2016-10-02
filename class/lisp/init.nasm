@@ -5,20 +5,20 @@
 %include 'class/class_lisp.inc'
 
 	def_structure built_in
-		ushort built_in_field
 		ushort built_in_symbol
+		ushort built_in_field
 		ushort built_in_function
 		offset built_in_hop
 		;built_in_size would be aligned to long !
 	def_structure_end
 
 	%macro built_in 2-3
-		;%1 = field
-		;%2 = symbol
+		;%1 = symbol
+		;%2 = field
 		;%3 = function
-		dw %1
-		fn_add_string %2
+		fn_add_string %1
 		dw _ref_%[_string_num_]_string - $
+		dw %2
 		%if %0 = 2
 			dw 0
 		%else
@@ -64,11 +64,13 @@
 			;intern standard built in symbols
 			;fixup built in functions
 			assign {$built_ins}, {table}
-			loop_while {table->built_in_field}
+			loop_while {table->built_in_symbol}
 				assign {&table->built_in_symbol + table->built_in_symbol}, {path_ptr}
 				static_call lisp, sym_intern_cstr, {this, path_ptr}, {symbol}
-				assign {this + table->built_in_field}, {field_ptr}
-				assign {symbol}, {*field_ptr}
+				if {table->built_in_field}
+					assign {this + table->built_in_field}, {field_ptr}
+					assign {symbol}, {*field_ptr}
+				endif
 				if {table->built_in_function}
 					assign {&table->built_in_function + table->built_in_function}, {path_ptr}
 					static_call lisp, built_in_func, {this, symbol, *path_ptr}
@@ -103,41 +105,41 @@
 
 		align 2, db 0
 	built_ins:
-		built_in lisp_sym_parent, "_parent_"
-		built_in lisp_sym_nil, "nil"
-		built_in lisp_sym_t, "t"
-		built_in lisp_sym_lambda, "lambda", func_lambda
-		built_in lisp_sym_def, "def", func_def
-		built_in lisp_sym_set, "set", func_set
-		built_in lisp_sym_setl, "setl", func_setl
-		built_in lisp_sym_quote, "quote", func_quote
-		built_in lisp_sym_list, "list", func_list
-		built_in lisp_sym_add, "add", func_add
-		built_in lisp_sym_sub, "sub", func_sub
-		built_in lisp_sym_mul, "mul", func_mul
-		built_in lisp_sym_div, "div", func_div
-		built_in lisp_sym_mod, "mod", func_mod
-		built_in lisp_sym_eq, "eq", func_eq
-		built_in lisp_sym_cond, "cond", func_cond
-		built_in lisp_sym_progn, "progn", func_progn
-		built_in lisp_sym_not, "not", func_not
-		built_in lisp_sym_and, "and", func_and
-		built_in lisp_sym_or, "or", func_or
-		built_in lisp_sym_when, "when", func_when
-		built_in lisp_sym_unless, "unless", func_unless
-		built_in lisp_sym_if, "if", func_if
-		built_in lisp_sym_map, "map", func_map
-		built_in lisp_sym_some, "some", func_some
-		built_in lisp_sym_every, "every", func_every
-		built_in lisp_sym_notany, "notany", func_notany
-		built_in lisp_sym_notevery, "notevery", func_notevery
-		built_in lisp_sym_length, "length", func_length
-		built_in lisp_sym_while, "while", func_while
-		built_in lisp_sym_until, "until", func_until
-		built_in lisp_sym_print, "print", func_print
-		built_in lisp_sym_prin, "prin", func_prin
-		built_in lisp_sym_env, "env", func_env
-		built_in lisp_sym_str, "str", func_str
+		built_in "_parent_", lisp_sym_parent
+		built_in "nil", lisp_sym_nil
+		built_in "t", lisp_sym_t
+		built_in "lambda", lisp_sym_lambda, func_lambda
+		built_in "quote", lisp_sym_quote, func_quote
+		built_in "def", 0, func_def
+		built_in "set", 0, func_set
+		built_in "setl", 0, func_setl
+		built_in "list", 0, func_list
+		built_in "add", 0, func_add
+		built_in "sub", 0, func_sub
+		built_in "mul", 0, func_mul
+		built_in "div", 0, func_div
+		built_in "mod", 0, func_mod
+		built_in "eq", 0, func_eq
+		built_in "cond", 0, func_cond
+		built_in "progn", 0, func_progn
+		built_in "not", 0, func_not
+		built_in "and", 0, func_and
+		built_in "or", 0, func_or
+		built_in "when", 0, func_when
+		built_in "unless", 0, func_unless
+		built_in "if", 0, func_if
+		built_in "map", 0, func_map
+		built_in "some", 0, func_some
+		built_in "every", 0, func_every
+		built_in "notany", 0, func_notany
+		built_in "notevery", 0, func_notevery
+		built_in "length", 0, func_length
+		built_in "while", 0, func_while
+		built_in "until", 0, func_until
+		built_in "print", 0, func_print
+		built_in "prin", 0, func_prin
+		built_in "env", 0, func_env
+		built_in "str", 0, func_str
 		dw 0
 
 	def_function_end

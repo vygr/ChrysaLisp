@@ -74,42 +74,11 @@
 		ptr lisp_stderr
 		ptr lisp_symbols
 		ptr lisp_enviroment
-
 		ptr lisp_sym_parent
 		ptr lisp_sym_nil
 		ptr lisp_sym_t
 		ptr lisp_sym_lambda
-		ptr lisp_sym_def
-		ptr lisp_sym_set
-		ptr lisp_sym_setl
 		ptr lisp_sym_quote
-		ptr lisp_sym_list
-		ptr lisp_sym_add
-		ptr lisp_sym_sub
-		ptr lisp_sym_mul
-		ptr lisp_sym_div
-		ptr lisp_sym_mod
-		ptr lisp_sym_eq
-		ptr lisp_sym_cond
-		ptr lisp_sym_progn
-		ptr lisp_sym_not
-		ptr lisp_sym_and
-		ptr lisp_sym_or
-		ptr lisp_sym_when
-		ptr lisp_sym_unless
-		ptr lisp_sym_if
-		ptr lisp_sym_map
-		ptr lisp_sym_some
-		ptr lisp_sym_every
-		ptr lisp_sym_notany
-		ptr lisp_sym_notevery
-		ptr lisp_sym_length
-		ptr lisp_sym_while
-		ptr lisp_sym_until
-		ptr lisp_sym_print
-		ptr lisp_sym_prin
-		ptr lisp_sym_env
-		ptr lisp_sym_str
 	def_structure_end
 
 %endif
