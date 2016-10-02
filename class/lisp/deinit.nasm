@@ -16,7 +16,7 @@
 		static_call ref, deref, {this->lisp_symbols}
 		static_call ref, deref, {this->lisp_enviroment}
 
-		;dinit parent
+		;deinit parent
 		super_call lisp, deinit, {this}
 
 		pop_scope
