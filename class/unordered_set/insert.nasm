@@ -30,7 +30,7 @@
 		s_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
 		vp_cpy r2, r0
 		vp_xor r2, r2
-		vp_div r1, r2, r0
+		vp_div_u r1, r2, r0
 		vp_cpy [r4 + local_inst], r0
 		s_call vector, get_element, {[r0 + unordered_set_buckets], r2}, {r1}
 		s_call vector, for_each, {r1, 0, $insert_callback, r4}, {r1}
