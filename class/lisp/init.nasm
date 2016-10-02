@@ -16,7 +16,6 @@
 		;%1 = field
 		;%2 = symbol
 		;%3 = function
-		align 2, db 0
 		dw %1
 		fn_add_string %2
 		dw _ref_%[_string_num_]_string - $
@@ -102,6 +101,7 @@
 ; built ins
 ;;;;;;;;;;;
 
+		align 2, db 0
 	built_ins:
 		built_in lisp_sym_parent, "_parent_"
 		built_in lisp_sym_nil, "nil"
