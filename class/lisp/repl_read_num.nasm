@@ -47,7 +47,7 @@
 			assign {-val}, {val}
 		endif
 		static_call boxed_long, set_value, {num, val}
-		static_call string, deref, {symbol}
+		static_call ref, deref, {symbol}
 
 		eval {this, num, char}, {r0, r1, r2}
 		pop_scope

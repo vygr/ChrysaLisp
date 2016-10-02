@@ -45,7 +45,7 @@
 			default
 				static_call lisp, error, {this, "(length seq) not a sequence", args}
 			endswitch
-			static_call vector, deref, {args}
+			static_call ref, deref, {args}
 		else
 			static_call lisp, error, {this, "(length seq) wrong number of args", args}
 		endif

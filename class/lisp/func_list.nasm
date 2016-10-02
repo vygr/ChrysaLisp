@@ -20,7 +20,7 @@
 		static_call vector, slice, {args, 1, length}, {args}
 		static_call lisp, repl_eval_list, {this, args}, {length}
 		ifnot {length}
-			static_call vector, deref, {args}
+			static_call ref, deref, {args}
 			assign {0}, {args}
 		endif
 

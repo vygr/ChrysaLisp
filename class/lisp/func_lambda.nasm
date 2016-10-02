@@ -1,5 +1,4 @@
 %include 'inc/func.inc'
-%include 'class/class_vector.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_lambda
@@ -15,7 +14,7 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		static_call vector, ref, {args}
+		static_call ref, ref, {args}
 
 		eval {this, args}, {r0, r1}
 		pop_scope

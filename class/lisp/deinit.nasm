@@ -1,6 +1,4 @@
 %include 'inc/func.inc'
-%include 'class/class_unordered_set.inc'
-%include 'class/class_unordered_map.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/deinit
@@ -15,8 +13,8 @@
 		retire {r0}, {this}
 
 		;deinit myself
-		static_call unordered_set, deref, {this->lisp_symbols}
-		static_call unordered_map, deref, {this->lisp_enviroment}
+		static_call ref, deref, {this->lisp_symbols}
+		static_call ref, deref, {this->lisp_enviroment}
 
 		;dinit parent
 		super_call lisp, deinit, {this}

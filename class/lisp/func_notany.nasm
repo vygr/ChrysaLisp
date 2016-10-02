@@ -55,12 +55,12 @@
 					endif
 					static_call ref, ref, {value}
 				error:
-					static_call vector, deref, {form}
+					static_call ref, deref, {form}
 				else
 					static_call lisp, error, {this, "(notany func list ...) not all lists", args}
 				endif
 			endif
-			static_call vector, deref, {args}
+			static_call ref, deref, {args}
 		else
 			static_call lisp, error, {this, "(notany func list ...) not enough args", args}
 		endif

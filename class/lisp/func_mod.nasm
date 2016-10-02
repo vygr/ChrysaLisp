@@ -36,7 +36,7 @@
 					static_call lisp, error, {this, "(mod val val ...) vals are not all numbers", args}
 				endif
 			endif
-			static_call vector, deref, {args}
+			static_call ref, deref, {args}
 		else
 			static_call lisp, error, {this, "(mod val val ...) not enough args", args}
 		endif

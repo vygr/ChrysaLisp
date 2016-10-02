@@ -29,7 +29,7 @@
 				static_call lisp, env_def_list, {this, vars, vals}, {vals}
 				breakif {vals}
 			error:
-				static_call vector, deref, {args}
+				static_call ref, deref, {args}
 			else
 				static_call lisp, error, {this, "(def vars vals) vals is not a list", args}
 			endif

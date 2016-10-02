@@ -1,5 +1,4 @@
 %include 'inc/func.inc'
-%include 'class/class_pair.inc'
 %include 'class/class_unordered_map.inc'
 %include 'class/class_lisp.inc'
 

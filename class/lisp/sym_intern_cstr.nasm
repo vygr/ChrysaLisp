@@ -17,7 +17,7 @@
 
 		static_call string, create_from_cstr, {symbol}, {symbol}
 		static_call lisp, sym_intern, {this, symbol}, {intern}
-		static_call string, deref, {symbol}
+		static_call ref, deref, {symbol}
 
 		eval {this, intern}, {r0, r1}
 		pop_scope

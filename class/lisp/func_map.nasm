@@ -45,15 +45,15 @@
 						assign {seq_num + 1}, {seq_num}
 					loop_until {seq_num == seq_length}
 					if {seq_num != seq_length}
-						static_call vector, deref, {value}
+						static_call ref, deref, {value}
 						assign {0}, {value}
 					endif
-					static_call vector, deref, {form}
+					static_call ref, deref, {form}
 				else
 					static_call lisp, error, {this, "(map func list ...) not all lists", args}
 				endif
 			endif
-			static_call vector, deref, {args}
+			static_call ref, deref, {args}
 		else
 			static_call lisp, error, {this, "(map func list ...) not enough args", args}
 		endif

@@ -46,12 +46,12 @@
 						breakif {value != this->lisp_sym_nil}
 						assign {seq_num + 1}, {seq_num}
 					loop_until {seq_num == seq_length}
-					static_call vector, deref, {form}
+					static_call ref, deref, {form}
 				else
 					static_call lisp, error, {this, "(some func list ...) not all lists", args}
 				endif
 			endif
-			static_call vector, deref, {args}
+			static_call ref, deref, {args}
 		else
 			static_call lisp, error, {this, "(some func list ...) not enough args", args}
 		endif
