@@ -47,3 +47,11 @@
 					(setl (x) ((add x 1))))
 				(setl (y) ((add y 1)))
 				(print))))))
+
+(def (repeat_fxy)
+	((lambda (l)
+		(progn
+			(def (c) (0))
+			(until (eq c l)
+				(fxy fq 10 20)
+				(setl (c) ((add c 1))))))))

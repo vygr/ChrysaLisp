@@ -15,6 +15,7 @@
 
 		static_call unordered_map, create, {this->lisp_enviroment->unordered_set_key_callback, 1}, {env}
 		static_call unordered_map, insert, {env, this->lisp_sym_parent, this->lisp_enviroment}, {_, _}
+		static_call ref, deref, {this->lisp_enviroment}
 		assign {env}, {this->lisp_enviroment}
 
 		eval {this}, {r0}
