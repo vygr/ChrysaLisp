@@ -8,7 +8,8 @@
 		ushort built_in_field
 		ushort built_in_symbol
 		ushort built_in_function
-		offset built_in_hop ;built_in_size would be aligned to long !
+		offset built_in_hop
+		;built_in_size would be aligned to long !
 	def_structure_end
 
 	%macro built_in 2-3
@@ -59,7 +60,7 @@
 			;interned symbols set and enviroment
 			slot_function string, compare
 			static_call unordered_set, create, {@_function_, 31}, {this->lisp_symbols}
-			static_call unordered_map, create, {@_function_, 31}, {this->lisp_enviroment}
+			static_call unordered_map, create, {$match_obj, 31}, {this->lisp_enviroment}
 
 			;intern standard built in symbols
 			;fixup built in functions
@@ -71,7 +72,7 @@
 				assign {symbol}, {*field_ptr}
 				if {table->built_in_function}
 					assign {&table->built_in_function + table->built_in_function}, {path_ptr}
-					static_call lisp, built_in_func, {this, *field_ptr, *path_ptr}
+					static_call lisp, built_in_func, {this, symbol, *path_ptr}
 				endif
 				assign {table + built_in_hop}, {table}
 			loop_end
@@ -84,6 +85,18 @@
 		eval {this, ok}, {r0, r1}
 		pop_scope
 		return
+
+	match_obj:
+		;inputs
+		;r0 = object 1
+		;r1 = object 2
+		;outputs
+		;r1 = 0 if match
+
+		if r0, ==, r1
+			vp_xor r1, r1
+		endif
+		vp_ret
 
 ;;;;;;;;;;;
 ; built ins
