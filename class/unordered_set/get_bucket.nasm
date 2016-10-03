@@ -14,14 +14,13 @@
 
 		def_structure local
 			ptr local_inst
-			ptr local_key
 			ptr local_length
 		def_structure_end
 
 		;save inputs
 		vp_sub local_size, r4
-		set_src r0, r1
-		set_dst [r4 + local_inst], [r4 + local_key]
+		set_src r0
+		set_dst [r4 + local_inst]
 		map_src_to_dst
 
 		;search hash bucket
