@@ -4,7 +4,7 @@
 	def_function gui/font_bounds
 		;inputs
 		;r0 = font entry
-		;r1 = text
+		;r1 = string object
 		;outputs
 		;r0 = 0 if error, else text entry
 		;r10 = width

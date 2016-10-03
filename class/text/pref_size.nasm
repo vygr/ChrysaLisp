@@ -28,7 +28,7 @@
 			static_call vector, get_length, {inst->text_words}, {length}
 			assign {&words[length * ptr_size]}, {words_end}
 			loop_start
-				static_call gui_font, bounds, {inst->text_font, &(*words)->string_data}, {word_w, height}
+				static_call gui_font, bounds, {inst->text_font, *words}, {word_w, height}
 				assign {words + ptr_size}, {words}
 				assign {width + word_w}, {width}
 			loop_until {words == words_end}

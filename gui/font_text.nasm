@@ -2,12 +2,12 @@
 %include 'inc/font.inc'
 %include 'inc/string.inc'
 %include 'inc/sdl2.inc'
-%include 'inc/task.inc'
+%include 'class/class_string.inc'
 
 	def_function gui/font_text
 		;inputs
 		;r0 = font entry
-		;r1 = text
+		;r1 = string object
 		;outputs
 		;r0 = 0 if error, else text entry
 		;trashes
@@ -24,8 +24,9 @@
 		def_structure_end
 
 		;save inputs
+		vp_lea [r1 + string_data], r2
 		vp_sub local_size, r4
-		set_src r0, r1
+		set_src r0, r2
 		set_dst [r4 + local_font], [r4 + local_text]
 		map_src_to_dst
 
@@ -33,7 +34,7 @@
 		s_bind gui_font, statics, r5
 
 		;string hash to bucket
-		s_call sys_string, hash, {r1}, {r0}
+		m_call string, hash, {r1}, {r0}
 		vp_cpy ft_num_buckets, r1
 		vp_xor r2, r2
 		vp_div r1, r2, r0

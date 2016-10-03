@@ -28,7 +28,7 @@
 			assign {&words[length * ptr_size]}, {words_end}
 			assign {0}, {x}
 			loop_start
-				static_call gui_font, text, {inst->text_font, &(*words)->string_data}, {txt}
+				static_call gui_font, text, {inst->text_font, *words}, {txt}
 				if {txt}
 					static_call gui_ctx, blit, {ctx, txt->ft_text_texture, inst->text_text_color, \
 												x, 0, txt->ft_text_width, txt->ft_text_height}
