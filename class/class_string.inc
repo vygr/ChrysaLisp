@@ -21,6 +21,7 @@
 
 	def_structure string, ref
 		ulong string_length
+		ulong string_hashcode
 		offset string_data
 	def_structure_end
 

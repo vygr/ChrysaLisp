@@ -25,9 +25,11 @@
 		;init parent
 		p_call string, init, {r0, r1}, {r1}
 		if r1, !=, 0
-			vp_cpy r0, [r4 + local_inst]
-
 			;init myself
+			vp_cpy r0, [r4 + local_inst]
+			vp_xor r1, r1
+			vp_cpy r1, [r0 + string_hashcode]
+
 			vp_cpy [r4 + local_string1], r6
 			vp_cpy [r4 + local_string2], r7
 			vp_cpy [r6 + string_length], r1

@@ -26,6 +26,8 @@
 		p_call string, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			vp_cpy r0, [r4 + local_inst]
+			vp_xor r1, r1
+			vp_cpy r1, [r0 + string_hashcode]
 
 			;init myself
 			vp_cpy [r4 + local_length], r2
