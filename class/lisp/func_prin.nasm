@@ -29,7 +29,7 @@
 		static_call ref, ref, {pdata.pdata_value}
 		static_call vector, get_length, {args}, {length}
 		if {length > 1}
-			static_call vector, for_each, {args, 1, $prin_callback, &pdata}, {_}
+			static_call vector, for_each, {args, 1, $callback, &pdata}, {_}
 		else
 			static_call stream, write_char, {pdata.pdata_this->lisp_stdout, char_space}
 		endif
@@ -38,7 +38,7 @@
 		pop_scope
 		return
 
-	prin_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer

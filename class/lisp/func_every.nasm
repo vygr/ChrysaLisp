@@ -25,7 +25,7 @@
 			if {func}
 				static_call vector, get_element, {args, 0}, {func}
 				assign {1000000}, {seq_length}
-				static_call vector, for_each, {args, 1, $seq_callback, &seq_length}, {iter}
+				static_call vector, for_each, {args, 1, $callback, &seq_length}, {iter}
 				ifnot {iter}
 					assign {this->lisp_sym_t}, {value}
 					static_call ref, ref, {value}
@@ -60,7 +60,7 @@
 		pop_scope
 		return
 
-	seq_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer

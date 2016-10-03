@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 %include 'class/class_vector.inc'
-%include 'class/class_string.inc'
+%include 'class/class_symbol.inc'
 %include 'class/class_boxed_long.inc'
 %include 'class/class_boxed_ptr.inc'
 %include 'class/class_pair.inc'
@@ -44,19 +44,19 @@
 
 		assign {value->obj_vtable}, {elem}
 		switch
-		case {elem == @class/class_string}
+		case {elem == @class/class_symbol}
 			static_call stream, write, {stream, &value->string_data, value->string_length}
 			break
 		case {elem == @class/class_boxed_long}
 			static_call boxed_long, get_value, {value}, {num}
-			static_call string, create_from_long, {num, 10}, {value}
+			static_call symbol, create_from_long, {num, 10}, {value}
 			static_call stream, write, {stream, &value->string_data, value->string_length}
 			static_call ref, deref, {value}
 			break
 		case {elem == @class/class_boxed_ptr}
 			static_call stream, write_cstr, {stream, "#0x"}
 			static_call boxed_ptr, get_value, {value}, {num}
-			static_call string, create_from_long, {num, 16}, {value}
+			static_call symbol, create_from_long, {num, 16}, {value}
 			static_call stream, write, {stream, &value->string_data, value->string_length}
 			static_call ref, deref, {value}
 			break

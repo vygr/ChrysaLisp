@@ -1,5 +1,5 @@
 %include 'inc/func.inc'
-%include 'class/class_string.inc'
+%include 'class/class_symbol.inc'
 %include 'class/class_stream.inc'
 %include 'class/class_lisp.inc'
 
@@ -24,11 +24,11 @@
 		push_scope
 		retire {r0, r1, r2}, {this, stream, char}
 
-		static_call string, create_from_cstr, {""}, {symbol}
+		static_call symbol, create_from_cstr, {""}, {symbol}
 		loop_while {char > char_space && char != char_lb && char != char_rb && char != char_quote}
 			assign {symbol}, {tmp_str}
-			static_call string, create_from_cstr, {&char}, {char_str}
-			static_call string, add, {symbol, char_str}, {symbol}
+			static_call symbol, create_from_cstr, {&char}, {char_str}
+			static_call symbol, add, {symbol, char_str}, {symbol}
 			static_call ref, deref, {char_str}
 			static_call ref, deref, {tmp_str}
 			static_call stream, read_char, {stream}, {char}

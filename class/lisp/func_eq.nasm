@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
-%include 'class/class_string.inc'
+%include 'class/class_symbol.inc'
 %include 'class/class_boxed_ptr.inc'
 %include 'class/class_lisp.inc'
 
@@ -30,8 +30,8 @@
 			assign {this->lisp_sym_nil}, {value}
 			switch
 			breakif {arg1->obj_vtable != arg2->obj_vtable}
-			case {arg1->obj_vtable == @class/class_string}
-				static_call string, compare, {arg1, arg2}, {length}
+			case {arg1->obj_vtable == @class/class_symbol}
+				static_call symbol, compare, {arg1, arg2}, {length}
 				jmpifnot {length}, same
 				break
 			case {(arg1->obj_vtable == @class/class_boxed_ptr \

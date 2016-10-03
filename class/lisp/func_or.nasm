@@ -23,13 +23,13 @@
 
 		assign {pdata.pdata_this->lisp_sym_nil}, {pdata.pdata_value}
 		static_call ref, ref, {pdata.pdata_value}
-		static_call vector, for_each, {args, 1, $or_callback, &pdata}, {args}
+		static_call vector, for_each, {args, 1, $callback, &pdata}, {args}
 
 		eval {pdata.pdata_this, pdata.pdata_value}, {r0, r1}
 		pop_scope
 		return
 
-	or_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer

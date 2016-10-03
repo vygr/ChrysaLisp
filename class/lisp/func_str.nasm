@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 %include 'class/class_boxed_long.inc'
-%include 'class/class_string.inc'
+%include 'class/class_symbol.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_str
@@ -28,13 +28,13 @@
 			static_call lisp, repl_eval, {this, args}, {args}
 			breakifnot {args}
 			switch
-			case {args->obj_vtable == @class/class_string}
+			case {args->obj_vtable == @class/class_symbol}
 				assign {args}, {value}
 				static_call ref, ref, {value}
 				break
 			case {args->obj_vtable == @class/class_boxed_long}
 				static_call boxed_long, get_value, {args}, {length}
-				static_call string, create_from_long, {length, 10}, {value}
+				static_call symbol, create_from_long, {length, 10}, {value}
 				break
 			default
 				static_call lisp, error, {this, "(str arg) arg is not stringable", args}

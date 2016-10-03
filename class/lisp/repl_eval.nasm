@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_boxed_ptr.inc'
 %include 'class/class_boxed_long.inc'
-%include 'class/class_string.inc'
+%include 'class/class_symbol.inc'
 %include 'class/class_vector.inc'
 %include 'class/class_unordered_set.inc'
 %include 'class/class_unordered_map.inc'
@@ -24,7 +24,7 @@
 		;evaluate based on type
 		assign {ast->obj_vtable}, {value}
 		switch
-		case {value == @class/class_string}
+		case {value == @class/class_symbol}
 			;eval to symbol value
 			static_call lisp, env_get, {this, ast}, {value}
 			breakif {value}

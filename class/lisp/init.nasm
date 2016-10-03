@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_unordered_set.inc'
 %include 'class/class_unordered_map.inc'
-%include 'class/class_string.inc'
+%include 'class/class_symbol.inc'
 %include 'class/class_lisp.inc'
 
 	def_structure built_in
@@ -57,7 +57,7 @@
 			assign {stderr}, {this->lisp_stderr}
 
 			;interned symbols set and enviroment
-			slot_function string, compare
+			slot_function symbol, compare
 			static_call unordered_set, create, {@_function_, 31}, {this->lisp_symbols}
 			static_call unordered_map, create, {$match_obj, 31}, {this->lisp_enviroment}
 

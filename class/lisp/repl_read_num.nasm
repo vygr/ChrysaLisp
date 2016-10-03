@@ -1,5 +1,5 @@
 %include 'inc/func.inc'
-%include 'class/class_string.inc'
+%include 'class/class_symbol.inc'
 %include 'class/class_stream.inc'
 %include 'class/class_boxed_long.inc'
 %include 'inc/string.inc'
@@ -30,11 +30,11 @@
 			static_call stream, read_char, {stream}, {char}
 		endif
 
-		static_call string, create_from_cstr, {""}, {symbol}
+		static_call symbol, create_from_cstr, {""}, {symbol}
 		loop_while {char >= char_0 && char <= char_9}
 			assign {symbol}, {tmp_str}
-			static_call string, create_from_cstr, {&char}, {char_str}
-			static_call string, add, {symbol, char_str}, {symbol}
+			static_call symbol, create_from_cstr, {&char}, {char_str}
+			static_call symbol, add, {symbol, char_str}, {symbol}
 			static_call ref, deref, {char_str}
 			static_call ref, deref, {tmp_str}
 			static_call stream, read_char, {stream}, {char}

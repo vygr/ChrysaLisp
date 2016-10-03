@@ -420,6 +420,7 @@
 	def_method boxed_ptr, class/class_boxed_ptr
 	def_method boxed_long, class/class_boxed_long
 	def_method lisp, class/class_lisp
+	def_method symbol, class/class_symbol
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction

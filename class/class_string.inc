@@ -8,11 +8,11 @@
 	def_method create_from_cstr, class/string/create_from_cstr, static, {r0}, {r0}
 	def_method create_from_file, class/string/create_from_file, static, {r0}, {r0}
 	def_method create_from_long, class/string/create_from_long, static, {r0, r1}, {r0}
+	def_method add, class/string/add, static, {r0, r1}, {r0}
 	def_method new, class/string/new, static, {r0}, {r0}
 	def_method init, class/string/init, static, {r0, r1, r2, r3}, {r1}
 	def_method init1, class/string/init1, static, {r0, r1, r2, r3}, {r1}
 	def_method init2, class/string/init2, static, {r0, r1, r2, r3}, {r1}
-	def_method add, class/string/add, static, {r0, r1}, {r0}
 	def_method split, class/string/split, static, {r0, r1}, {r1}
 	def_method get_length, class/string/get_length, static, {r0}, {r1}
 	def_method compare, class/string/compare, static, {r0, r1}, {r1}

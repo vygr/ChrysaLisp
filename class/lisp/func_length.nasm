@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
-%include 'class/class_string.inc'
+%include 'class/class_symbol.inc'
 %include 'class/class_boxed_long.inc'
 %include 'class/class_unordered_set.inc'
 %include 'class/class_unordered_map.inc'
@@ -27,8 +27,8 @@
 			static_call lisp, repl_eval, {this, args}, {args}
 			breakifnot {args}
 			switch
-			case {args->obj_vtable == @class/class_string}
-				static_call string, get_length, {args}, {length}
+			case {args->obj_vtable == @class/class_symbol}
+				static_call symbol, get_length, {args}, {length}
 				goto create
 			case {args->obj_vtable == @class/class_unordered_map}
 				static_call unordered_map, get_length, {args}, {length}

@@ -22,7 +22,7 @@
 		retire {r0, r1}, {pdata.pdata_this, args}
 
 		assign {0}, {pdata.pdata_value}
-		static_call vector, for_each, {args, 1, $cond_callback, &pdata}, {args}
+		static_call vector, for_each, {args, 1, $callback, &pdata}, {args}
 		ifnot {args}
 			assign {pdata.pdata_this->lisp_sym_nil}, {pdata.pdata_value}
 			static_call ref, ref, {pdata.pdata_value}
@@ -32,7 +32,7 @@
 		pop_scope
 		return
 
-	cond_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer
