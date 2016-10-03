@@ -27,7 +27,6 @@
 		s_call unordered_set, for_each, {[r4 + local_inst], $callback, r4}, {_, _}
 
 		vp_cpy [r4 + local_obj], r1
-		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 
@@ -38,8 +37,12 @@
 		;outputs
 		;r1 = 0 if break, else not
 
-		vp_cpy [r0], r2
-		s_call unordered_set, insert, {[r1 + local_obj], r2}, {_, _}
+		vp_cpy r1, r2
+		s_call ref, ref, {[r0]}
+		vp_push r0
+		s_call unordered_set, get_bucket, {[r2 + local_obj], r0}, {r0}
+		vp_pop r1
+		s_call vector, push_back, {r0, r1}
 		vp_cpy 1, r1
 		vp_ret
 
