@@ -42,7 +42,7 @@
 		;all
 
 		ptr this, vtable, stdin, stdout, stderr, symbol, table
-		pptr field_ptr, path_ptr
+		pptr path_ptr
 		ulong ok
 
 		push_scope
@@ -68,8 +68,8 @@
 				assign {&table->built_in_symbol + table->built_in_symbol}, {path_ptr}
 				static_call lisp, sym_intern_cstr, {this, path_ptr}, {symbol}
 				if {table->built_in_field}
-					assign {this + table->built_in_field}, {field_ptr}
-					assign {symbol}, {*field_ptr}
+					assign {this + table->built_in_field}, {path_ptr}
+					assign {symbol}, {*path_ptr}
 				endif
 				if {table->built_in_function}
 					assign {&table->built_in_function + table->built_in_function}, {path_ptr}
