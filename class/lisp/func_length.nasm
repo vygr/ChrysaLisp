@@ -27,7 +27,8 @@
 			static_call lisp, repl_eval, {this, args}, {args}
 			breakifnot {args}
 			switch
-			case {args->obj_vtable == @class/class_symbol}
+			case {args->obj_vtable == @class/class_symbol \
+				|| args->obj_vtable == @class/class_string}
 				static_call symbol, get_length, {args}, {length}
 				goto create
 			case {args->obj_vtable == @class/class_unordered_map}

@@ -33,6 +33,7 @@
 		case {value == @class/class_boxed_ptr \
 		 	|| value == @class/class_boxed_long \
 			|| value == @class/class_pair \
+			|| value == @class/class_string \
 			|| value == @class/class_unordered_set \
 			|| value == @class/class_unordered_map}
 			;eval to self

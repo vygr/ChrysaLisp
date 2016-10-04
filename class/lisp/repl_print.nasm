@@ -25,7 +25,8 @@
 		def_structure_end
 
 		const char_minus, "-"
-		const char_quote, "'"
+		const char_single_quote, "'"
+		const char_double_quote, '"'
 		const char_space, " "
 		const char_lrb, "("
 		const char_rrb, ")"
@@ -46,6 +47,11 @@
 		switch
 		case {elem == @class/class_symbol}
 			static_call stream, write, {stream, &value->string_data, value->string_length}
+			break
+		case {elem == @class/class_string}
+			static_call stream, write_char, {stream, char_double_quote}
+			static_call stream, write, {stream, &value->string_data, value->string_length}
+			static_call stream, write_char, {stream, char_double_quote}
 			break
 		case {elem == @class/class_boxed_long}
 			static_call boxed_long, get_value, {value}, {num}
@@ -96,7 +102,7 @@
 			if {num}
 				static_call vector, get_element, {value, 0}, {elem}
 				jmpif {elem != this->lisp_sym_quote}, notquote
-				static_call stream, write_char, {stream, char_quote}
+				static_call stream, write_char, {stream, char_single_quote}
 				static_call vector, get_element, {value, 1}, {elem}
 				static_call lisp, repl_print, {this, stream, elem}
 			else

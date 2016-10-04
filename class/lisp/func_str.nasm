@@ -28,7 +28,8 @@
 			static_call lisp, repl_eval, {this, args}, {args}
 			breakifnot {args}
 			switch
-			case {args->obj_vtable == @class/class_symbol}
+			case {args->obj_vtable == @class/class_symbol \
+				|| args->obj_vtable == @class/class_string}
 				assign {args}, {value}
 				static_call ref, ref, {value}
 				break

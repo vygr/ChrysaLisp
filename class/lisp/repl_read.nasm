@@ -19,7 +19,8 @@
 		const char_0, '0'
 		const char_9, '9'
 		const char_minus, '-'
-		const char_quote, "'"
+		const char_single_quote, "'"
+		const char_double_quote, '"'
 
 		ptr this, stream, ast, elem
 		ulong char
@@ -43,7 +44,7 @@
 				static_call stream, read_char, {stream}, {char}
 			elseif {char == char_minus || (char >= char_0 && char <= char_9)}
 				static_call lisp, repl_read_num, {this, stream, char}, {ast, char}
-			elseif {char == char_quote}
+			elseif {char == char_single_quote}
 				static_call vector, create, {}, {ast}
 				assign {this->lisp_sym_quote}, {elem}
 				static_call ref, ref, {elem}
@@ -51,6 +52,8 @@
 				static_call stream, read_char, {stream}, {char}
 				static_call lisp, repl_read, {this, stream, char}, {elem, char}
 				static_call vector, push_back, {ast, elem}
+			elseif {char == char_double_quote}
+				static_call lisp, repl_read_string, {this, stream, char}, {ast, char}
 			else
 				static_call lisp, repl_read_sym, {this, stream, char}, {ast, char}
 			endif
