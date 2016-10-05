@@ -1,3 +1,7 @@
+(def (eql)
+	((lambda (x y)
+		(eq (str x) (str y)))))
+
 (def (print_env)
 	((lambda (l e)
 		(progn
