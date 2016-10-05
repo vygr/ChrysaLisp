@@ -1,8 +1,9 @@
 %include 'inc/func.inc'
+%include 'inc/load.inc'
+%include 'inc/string.inc'
 %include 'class/class_symbol.inc'
 %include 'class/class_stream.inc'
 %include 'class/class_boxed_long.inc'
-%include 'inc/string.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/repl_read_num
@@ -19,7 +20,8 @@
 		const char_9, '9'
 		const char_minus, '-'
 
-		ptr this, stream, num, symbol, char_str, tmp_str
+		ptr this, stream, num
+		pubyte relloc, buffer
 		ulong char, sign
 		long val
 
@@ -30,24 +32,24 @@
 			static_call stream, read_char, {stream}, {char}
 		endif
 
-		static_call symbol, create_from_cstr, {""}, {symbol}
+		slot_function sys_load, statics
+		assign {@_function_.ld_statics_reloc_buffer}, {relloc}
+		assign {relloc}, {buffer}
+
 		loop_while {char >= char_0 && char <= char_9}
-			assign {symbol}, {tmp_str}
-			static_call symbol, create_from_cstr, {&char}, {char_str}
-			static_call symbol, add, {symbol, char_str}, {symbol}
-			static_call ref, deref, {char_str}
-			static_call ref, deref, {tmp_str}
+			assign {char}, {*buffer}
+			assign {buffer + 1}, {buffer}
 			static_call stream, read_char, {stream}, {char}
 		loop_end
+		assign {0}, {*buffer}
 
 		;create the number
 		static_call boxed_long, create, {}, {num}
-		static_call sys_string, to_long, {&symbol->string_data, 10}, {val}
+		static_call sys_string, to_long, {relloc, 10}, {val}
 		if {sign == char_minus}
 			assign {-val}, {val}
 		endif
 		static_call boxed_long, set_value, {num, val}
-		static_call ref, deref, {symbol}
 
 		eval {this, num, char}, {r0, r1, r2}
 		pop_scope
