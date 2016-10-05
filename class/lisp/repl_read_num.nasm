@@ -1,7 +1,6 @@
 %include 'inc/func.inc'
 %include 'inc/load.inc'
 %include 'inc/string.inc'
-%include 'class/class_symbol.inc'
 %include 'class/class_stream.inc'
 %include 'class/class_boxed_long.inc'
 %include 'class/class_lisp.inc'
