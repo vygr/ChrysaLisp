@@ -2,6 +2,7 @@
 %include 'class/class_slave.inc'
 %include 'class/class_vector.inc'
 %include 'class/class_stream.inc'
+%include 'class/class_stream_str.inc'
 %include 'class/class_string.inc'
 %include 'class/class_lisp.inc'
 
@@ -23,7 +24,7 @@
 			static_call string, create_from_file, {"cmd/lisp.lisp"}, {file}
 			if {file}
 				;REPL from file stream
-				static_call stream, create, {file, 0, &file->string_data, file->string_length}, {stream}
+				static_call stream_str, create, {file}, {stream}
 				static_call lisp, repl, {lisp, stream}
 				static_call stream, deref, {stream}
 			endif
@@ -37,7 +38,7 @@
 				static_call string, create_from_file, {&arg->string_data}, {file}
 				if {file}
 					;REPL from file stream
-					static_call stream, create, {file, 0, &file->string_data, file->string_length}, {stream}
+					static_call stream_str, create, {file}, {stream}
 					static_call lisp, repl, {lisp, stream}
 					static_call stream, deref, {stream}
 				endif

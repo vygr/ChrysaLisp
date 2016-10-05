@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_string.inc'
 %include 'class/class_stream.inc'
+%include 'class/class_stream_str.inc'
 %include 'class/class_vector.inc'
 %include 'class/class_slave.inc'
 
@@ -61,7 +62,7 @@
 		static_call string, create_from_file, {&arg->string_data}, {file}
 		static_call string, deref, {arg}
 		if {file}
-			static_call stream, create, {file, 0, &file->string_data, file->string_length}, {stream}
+			static_call stream_str, create, {file}, {stream}
 			loop_start
 				static_call stream, read_line, {stream, buffer, buffer_size}, {length}
 				breakif {length == -1}

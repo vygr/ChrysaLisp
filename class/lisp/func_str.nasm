@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
-%include 'class/class_boxed_long.inc'
-%include 'class/class_symbol.inc'
+%include 'class/class_string.inc'
+%include 'class/class_stream_str.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_str
@@ -14,8 +14,7 @@
 
 		const char_minus, "-"
 
-		ptr this, args, value
-		pubyte buffer
+		ptr this, args, value, stream
 		ulong length
 
 		push_scope
@@ -27,19 +26,11 @@
 			static_call vector, get_element, {args, 1}, {args}
 			static_call lisp, repl_eval, {this, args}, {args}
 			breakifnot {args}
-			switch
-			case {args->obj_vtable == @class/class_symbol \
-				|| args->obj_vtable == @class/class_string}
-				assign {args}, {value}
-				static_call ref, ref, {value}
-				break
-			case {args->obj_vtable == @class/class_boxed_long}
-				static_call boxed_long, get_value, {args}, {length}
-				static_call symbol, create_from_long, {length, 10}, {value}
-				break
-			default
-				static_call lisp, error, {this, "(str arg) arg is not stringable", args}
-			endswitch
+			static_call string, create_from_cstr, {"                "}, {value}
+			static_call stream_str, create, {value}, {stream}
+			static_call lisp, repl_print, {this, stream, args}
+			static_call stream_str, ref_string, {stream}, {value}
+			static_call ref, deref, {stream}
 			static_call ref, deref, {args}
 		else
 			static_call lisp, error, {this, "(str arg) wrong numbers of args", args}
