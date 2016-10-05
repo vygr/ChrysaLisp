@@ -4,7 +4,7 @@
 %include 'class/class_stream.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/repl_read_string
+	def_function class/lisp/repl_read_str
 		;inputs
 		;r0 = lisp object
 		;r1 = stream

@@ -53,7 +53,7 @@
 				static_call lisp, repl_read, {this, stream, char}, {elem, char}
 				static_call vector, push_back, {ast, elem}
 			elseif {char == char_double_quote}
-				static_call lisp, repl_read_string, {this, stream, char}, {ast, char}
+				static_call lisp, repl_read_str, {this, stream, char}, {ast, char}
 			else
 				static_call lisp, repl_read_sym, {this, stream, char}, {ast, char}
 			endif
