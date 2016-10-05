@@ -1,4 +1,5 @@
 %include 'inc/func.inc'
+%include 'inc/load.inc'
 %include 'class/class_symbol.inc'
 %include 'class/class_stream.inc'
 %include 'class/class_lisp.inc'
@@ -18,23 +19,25 @@
 		const char_rb, ')'
 		const char_quote, "'"
 
-		ptr this, stream, symbol, char_str, tmp_str
+		ptr this, stream, symbol
+		pubyte relloc, buffer
 		ulong char
 
 		push_scope
 		retire {r0, r1, r2}, {this, stream, char}
 
-		static_call symbol, create_from_cstr, {""}, {symbol}
+		slot_function sys_load, statics
+		assign {@_function_.ld_statics_reloc_buffer}, {relloc}
+		assign {relloc}, {buffer}
+
 		loop_while {char > char_space && char != char_lb && char != char_rb && char != char_quote}
-			assign {symbol}, {tmp_str}
-			static_call symbol, create_from_cstr, {&char}, {char_str}
-			static_call symbol, add, {symbol, char_str}, {symbol}
-			static_call ref, deref, {char_str}
-			static_call ref, deref, {tmp_str}
+			assign {char}, {*buffer}
+			assign {buffer + 1}, {buffer}
 			static_call stream, read_char, {stream}, {char}
 		loop_end
 
 		;intern the symbol
+		static_call symbol, create_from_buffer, {relloc, buffer - relloc}, {symbol}
 		static_call lisp, sym_intern, {this, symbol}, {symbol}
 
 		eval {this, symbol, char}, {r0, r1, r2}
