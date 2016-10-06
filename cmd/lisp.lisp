@@ -23,7 +23,7 @@
 (def (print_env)
 	((lambda (l e)
 		(progn
-			(print '<= l '=>)
+			(print '** l '**)
 			(map print e)
 			t))))
 
