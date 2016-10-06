@@ -7,28 +7,34 @@
 		;inputs
 		;r0 = lisp object
 		;r1 = stream
+		;r2 = next char
 		;outputs
 		;r0 = lisp object
-		;r1 = list
+		;r1 = 0, else list
+		;r2 = next char
 
 		const char_space, ' '
-		const char_rb, ')'
+		const char_rrb, ')'
 
 		ptr this, stream, list, ast
 		ulong char
 
 		push_scope
-		retire {r0, r1}, {this, stream}
+		retire {r0, r1, r2}, {this, stream, char}
 
-		;skip white space
+		;skip "(" and white space
 		loop_start
 			static_call stream, read_char, {stream}, {char}
 		loop_until {char > char_space || char == -1}
 
 		static_call vector, create, {}, {list}
-		loop_while {char != -1 && char != char_rb}
+		loop_while {char != -1 && char != char_rrb}
 			static_call lisp, repl_read, {this, stream, char}, {ast, char}
-			breakifnot {ast}
+			ifnot {ast}
+				static_call ref, deref, {list}
+				assign {0}, {list}
+				goto error
+			endif
 			static_call vector, push_back, {list, ast}
 
 			;skip white space
@@ -37,7 +43,11 @@
 			loop_end
 		loop_end
 
-		eval {this, list}, {r0, r1}
+		;skip ")"
+		static_call stream, read_char, {stream}, {char}
+
+	error:
+		eval {this, list, char}, {r0, r1, r2}
 		pop_scope
 		return
 

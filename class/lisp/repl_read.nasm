@@ -14,8 +14,10 @@
 		;r2 = next char
 
 		const char_space, ' '
-		const char_lb, '('
-		const char_rb, ')'
+		const char_lrb, '('
+		const char_rrb, ')'
+		const char_lab, '<'
+		const char_rab, '>'
 		const char_0, '0'
 		const char_9, '9'
 		const char_minus, '-'
@@ -36,15 +38,28 @@
 		;what are we reading ?
 		assign {0}, {ast}
 		if {char != -1}
-			if {char == char_lb}
-				static_call lisp, repl_read_list, {this, stream}, {ast}
-				static_call stream, read_char, {stream}, {char}
-			elseif {char == char_rb}
+			switch
+			case {char == char_rrb}
 				static_call lisp, error, {this, "unexpected )", ast}
+				goto next_char
+			case {char == char_rab}
+				static_call lisp, error, {this, "unexpected >", ast}
+			next_char:
 				static_call stream, read_char, {stream}, {char}
-			elseif {char == char_minus || (char >= char_0 && char <= char_9)}
+				break
+			case {char == char_lrb}
+				static_call lisp, repl_read_list, {this, stream, char}, {ast, char}
+				break
+			case {char == char_lab}
+				static_call lisp, repl_read_pair, {this, stream, char}, {ast, char}
+				break
+			case {char == char_minus || (char >= char_0 && char <= char_9)}
 				static_call lisp, repl_read_num, {this, stream, char}, {ast, char}
-			elseif {char == char_single_quote}
+				break
+			case {char == char_double_quote}
+				static_call lisp, repl_read_str, {this, stream, char}, {ast, char}
+				break
+			case {char == char_single_quote}
 				static_call vector, create, {}, {ast}
 				assign {this->lisp_sym_quote}, {elem}
 				static_call ref, ref, {elem}
@@ -52,11 +67,10 @@
 				static_call stream, read_char, {stream}, {char}
 				static_call lisp, repl_read, {this, stream, char}, {elem, char}
 				static_call vector, push_back, {ast, elem}
-			elseif {char == char_double_quote}
-				static_call lisp, repl_read_str, {this, stream, char}, {ast, char}
-			else
+				break
+			default
 				static_call lisp, repl_read_sym, {this, stream, char}, {ast, char}
-			endif
+			endswitch
 		endif
 
 		eval {this, ast, char}, {r0, r1, r2}

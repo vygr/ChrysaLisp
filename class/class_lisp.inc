@@ -26,7 +26,8 @@
 	def_method env_get, class/lisp/env_get, static, {r0, r1}, {r1}
 	def_method repl, class/lisp/repl, static, {r0, r1}
 	def_method repl_read, class/lisp/repl_read, static, {r0, r1, r2}, {r1, r2}
-	def_method repl_read_list, class/lisp/repl_read_list, static, {r0, r1}, {r1}
+	def_method repl_read_list, class/lisp/repl_read_list, static, {r0, r1, r2}, {r1, r2}
+	def_method repl_read_pair, class/lisp/repl_read_pair, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_read_sym, class/lisp/repl_read_sym, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_read_str, class/lisp/repl_read_str, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_read_num, class/lisp/repl_read_num, static, {r0, r1, r2}, {r1, r2}

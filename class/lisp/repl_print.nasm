@@ -43,8 +43,9 @@
 		push_scope
 		retire {r0, r1, r2}, {this, stream, value}
 
-		assign {value->obj_vtable}, {elem}
 		switch
+		breakifnot {value}
+		assign {value->obj_vtable}, {elem}
 		case {elem == @class/class_symbol}
 			static_call stream, write, {stream, &value->string_data, value->string_length}
 			break
