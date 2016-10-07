@@ -2,9 +2,9 @@
 	((lambda (x y)
 		(not (lt x y)))
 	(lambda (x y)
-		(or (eq x y) (lt x y)))
+		(or (lt x y) (eq x y)))
 	(lambda (x y)
-		(not (lte x y)))))
+		(not (or (lt x y) (eq x y))))))
 
 (def (eql)
 	((lambda (x y)
