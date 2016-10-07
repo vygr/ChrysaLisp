@@ -12,7 +12,7 @@
 		vp_cpy r1, r5	;buffer start
 		loop_start
 			vp_xor r2, r2
-			vp_div r3, r2, r0
+			vp_div_u r3, r2, r0
 			vp_add '0', r2
 			if r2, >, '9'
 				vp_add 'A' - ':', r2
