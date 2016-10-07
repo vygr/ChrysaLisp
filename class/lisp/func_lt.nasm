@@ -4,7 +4,7 @@
 %include 'class/class_boxed_ptr.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/func_eq
+	def_function class/lisp/func_lt
 		;inputs
 		;r0 = lisp object
 		;r1 = args
@@ -26,26 +26,29 @@
 			breakifnot {length}
 			static_call vector, get_element, {args, 0}, {arg1}
 			static_call vector, get_element, {args, 1}, {arg2}
-			jmpif {arg1 == arg2}, same
-			assign {this->lisp_sym_nil}, {value}
-			switch
-			breakif {arg1->obj_vtable != arg2->obj_vtable}
-			case {arg1->obj_vtable == @class/class_string}
-				static_call string, compare, {arg1, arg2}, {length}
-				jmpifnot {length}, same
-				break
-			case {arg1->obj_vtable == @class/class_boxed_ptr \
-				|| arg1->obj_vtable == @class/class_boxed_long}
-				static_call boxed_ptr, get_value, {arg1}, {v1}
-				static_call boxed_ptr, get_value, {arg2}, {v2}
-				breakif {v1 != v2}
-			same:
+			jmpif {arg1 == arg2}, notless
+			if {arg1->obj_vtable == arg2->obj_vtable}
 				assign {this->lisp_sym_t}, {value}
-			endswitch
-			static_call ref, ref, {value}
-			static_call ref, deref, {args}
+				switch
+				case {arg1->obj_vtable == @class/class_string \
+					|| arg1->obj_vtable == @class/class_symbol}
+					static_call string, compare, {arg1, arg2}, {length}
+					jmpif {length >= 0}, notless
+					break
+				case {arg1->obj_vtable == @class/class_boxed_long}
+					static_call boxed_ptr, get_value, {arg1}, {v1}
+					static_call boxed_ptr, get_value, {arg2}, {v2}
+					breakif {v1 < v2}
+				notless:
+					assign {this->lisp_sym_nil}, {value}
+				endswitch
+				static_call ref, ref, {value}
+				static_call ref, deref, {args}
+			else
+				static_call lisp, error, {this, "(lt exp exp) not same types", args}
+			endif
 		else
-			static_call lisp, error, {this, "(eq a1 a2) wrong number of args", args}
+			static_call lisp, error, {this, "(lt exp exp) wrong number of args", args}
 		endif
 
 		eval {this, value}, {r0, r1}

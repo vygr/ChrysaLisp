@@ -31,7 +31,7 @@
 	((lambda (n p c)
 		(progn
 			(def (l) ((length (str n))))
-			(until (eq l p)
+			(while (lt l p)
 				(prin c)
 				(setl (l) ((add l 1))))
 			(prin n)))))

@@ -120,6 +120,7 @@
 		built_in "div", 0, func_div
 		built_in "mod", 0, func_mod
 		built_in "eq", 0, func_eq
+		built_in "lt", 0, func_lt
 		built_in "cond", 0, func_cond
 		built_in "progn", 0, func_progn
 		built_in "not", 0, func_not

@@ -48,6 +48,7 @@
 	def_method func_div, class/lisp/func_div, static, {r0, r1}, {r1}
 	def_method func_mod, class/lisp/func_mod, static, {r0, r1}, {r1}
 	def_method func_eq, class/lisp/func_eq, static, {r0, r1}, {r1}
+	def_method func_lt, class/lisp/func_lt, static, {r0, r1}, {r1}
 	def_method func_cond, class/lisp/func_cond, static, {r0, r1}, {r1}
 	def_method func_progn, class/lisp/func_progn, static, {r0, r1}, {r1}
 	def_method func_not, class/lisp/func_not, static, {r0, r1}, {r1}
