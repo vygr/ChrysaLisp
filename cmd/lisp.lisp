@@ -1,13 +1,9 @@
-(def (gte)
+(def (gte lte gt)
 	((lambda (x y)
-		(not (lt x y)))))
-
-(def (lte)
-	((lambda (x y)
-		(or (eq x y) (lt x y)))))
-
-(def (gt)
-	((lambda (x y)
+		(not (lt x y)))
+	(lambda (x y)
+		(or (eq x y) (lt x y)))
+	(lambda (x y)
 		(not (lte x y)))))
 
 (def (eql)
