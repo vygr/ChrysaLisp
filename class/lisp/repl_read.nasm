@@ -24,7 +24,7 @@
 		const char_single_quote, "'"
 		const char_double_quote, '"'
 
-		ptr this, stream, ast, elem
+		ptr this, stream, ast
 		ulong char
 
 		push_scope
@@ -60,13 +60,7 @@
 				static_call lisp, repl_read_str, {this, stream, char}, {ast, char}
 				break
 			case {char == char_single_quote}
-				static_call vector, create, {}, {ast}
-				assign {this->lisp_sym_quote}, {elem}
-				static_call ref, ref, {elem}
-				static_call vector, push_back, {ast, elem}
-				static_call stream, read_char, {stream}, {char}
-				static_call lisp, repl_read, {this, stream, char}, {elem, char}
-				static_call vector, push_back, {ast, elem}
+				static_call lisp, repl_read_quote, {this, stream, char}, {ast, char}
 				break
 			default
 				static_call lisp, repl_read_sym, {this, stream, char}, {ast, char}
