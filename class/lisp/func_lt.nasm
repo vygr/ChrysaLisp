@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 %include 'class/class_string.inc'
-%include 'class/class_boxed_ptr.inc'
+%include 'class/class_boxed_long.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_lt
