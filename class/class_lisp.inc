@@ -58,6 +58,7 @@
 	def_method func_unless, class/lisp/func_unless, static, {r0, r1}, {r1}
 	def_method func_if, class/lisp/func_if, static, {r0, r1}, {r1}
 	def_method func_map, class/lisp/func_map, static, {r0, r1}, {r1}
+	def_method func_reduce, class/lisp/func_reduce, static, {r0, r1}, {r1}
 	def_method func_some, class/lisp/func_some, static, {r0, r1}, {r1}
 	def_method func_every, class/lisp/func_every, static, {r0, r1}, {r1}
 	def_method func_notany, class/lisp/func_notany, static, {r0, r1}, {r1}

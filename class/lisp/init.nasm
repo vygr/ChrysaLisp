@@ -130,6 +130,7 @@
 		built_in "unless", 0, func_unless
 		built_in "if", 0, func_if
 		built_in "map", 0, func_map
+		built_in "reduce", 0, func_reduce
 		built_in "some", 0, func_some
 		built_in "every", 0, func_every
 		built_in "notany", 0, func_notany
