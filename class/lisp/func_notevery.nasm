@@ -28,7 +28,7 @@
 				static_call ref, ref, {value}
 				breakifnot {seq_length}
 				assign {0}, {seq_num}
-				static_call vector, slice, {args, 0, length}, {form}
+				static_call vector, slice, {args, 1, length}, {form}
 				loop_start
 					static_call ref, deref, {value}
 					assign {2}, {list_num}
