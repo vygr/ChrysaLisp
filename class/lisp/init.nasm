@@ -142,6 +142,7 @@
 		built_in "prin", 0, func_prin
 		built_in "env", 0, func_env
 		built_in "str", 0, func_str
+		built_in "cat", 0, func_cat
 		dw 0
 
 	def_function_end

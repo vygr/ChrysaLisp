@@ -10,31 +10,33 @@
 		;r0 = lisp object
 		;r1 = 0, else value
 
-		ptr this, args, value, func, form, elem
+		ptr this, args, value, form, lists, func, elem
 		pptr iter
 		ulong length, seq_length, seq_num, list_num
 
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		assign {0}, {value}
+		assign {0, 0, 0}, {value, form, lists}
 		static_call vector, get_length, {args}, {length}
 		if {length >= 3}
-			static_call vector, slice, {args, 1, length}, {args}
-			static_call lisp, repl_eval_list, {this, args}, {elem}
+			static_call vector, slice, {args, 1, length}, {lists}
+			static_call lisp, repl_eval_list, {this, lists}, {elem}
 			if {elem}
-				static_call vector, get_element, {args, 0}, {func}
+				static_call vector, get_element, {lists, 0}, {func}
 				assign {1000000}, {seq_length}
-				static_call vector, for_each, {args, 1, $callback, &seq_length}, {iter}
+				static_call vector, for_each, {lists, 1, $callback, &seq_length}, {iter}
 				ifnot {iter}
 					static_call vector, create, {}, {value}
 					breakifnot {seq_length}
 					assign {length - 1, 0}, {length, seq_num}
-					static_call vector, slice, {args, 0, length}, {form}
+					static_call vector, slice, {lists, 0, length}, {form}
+					static_call ref, ref, {func}
+					static_call vector, set_element, {form, func, 0}
 					loop_start
 						assign {1}, {list_num}
 						loop_start
-							static_call vector, get_element, {args, list_num}, {elem}
+							static_call vector, get_element, {lists, list_num}, {elem}
 							static_call vector, ref_element, {elem, seq_num}, {elem}
 							static_call vector, set_element, {form, elem, list_num}
 							assign {list_num + 1}, {list_num}
@@ -48,15 +50,16 @@
 						static_call ref, deref, {value}
 						assign {0}, {value}
 					endif
-					static_call ref, deref, {form}
 				else
 					static_call lisp, error, {this, "(map func list ...) not all lists", args}
 				endif
 			endif
-			static_call ref, deref, {args}
 		else
 			static_call lisp, error, {this, "(map func list ...) not enough args", args}
 		endif
+
+		static_call ref, deref_if, {form}
+		static_call ref, deref_if, {lists}
 
 		eval {this, value}, {r0, r1}
 		pop_scope

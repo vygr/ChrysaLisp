@@ -70,6 +70,7 @@
 	def_method func_prin, class/lisp/func_prin, static, {r0, r1}, {r1}
 	def_method func_env, class/lisp/func_env, static, {r0, r1}, {r1}
 	def_method func_str, class/lisp/func_str, static, {r0, r1}, {r1}
+	def_method func_cat, class/lisp/func_cat, static, {r0, r1}, {r1}
 
 	def_method deinit, class/lisp/deinit, override
 
