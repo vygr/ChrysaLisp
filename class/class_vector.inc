@@ -20,6 +20,7 @@
 	def_method for_each, class/vector/for_each, static, {r0, r1, r2, r3}, {r1}
 	def_method set_element, class/vector/set_element, static, {r0, r1, r2}
 	def_method slice, class/vector/slice, static, {r0, r1, r2}, {r1}
+	def_method append, class/vector/append, static, {r0, r1, r2, r3}
 
 	def_method deinit, class/vector/deinit, override
 
