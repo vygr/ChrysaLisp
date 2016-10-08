@@ -124,11 +124,11 @@
 		built_in "cond", 0, func_cond, 1
 		built_in "set", 0, func_set, 1
 		built_in "setl", 0, func_setl, 1
-		built_in "some", 0, func_some, 1
-		built_in "every", 0, func_every, 1
-		built_in "notany", 0, func_notany, 1
-		built_in "notevery", 0, func_notevery, 1
 
+		built_in "some", 0, func_some
+		built_in "every", 0, func_every
+		built_in "notany", 0, func_notany
+		built_in "notevery", 0, func_notevery
 		built_in "progn", 0, func_progn
 		built_in "list", 0, func_list
 		built_in "add", 0, func_add
