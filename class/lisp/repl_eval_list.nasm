@@ -6,18 +6,20 @@
 		;inputs
 		;r0 = lisp object
 		;r1 = list
+		;r2 = start index
 		;outputs
 		;r0 = lisp object
 		;r1 = 0, else list
 
 		ptr this, list
 		pptr iter
+		ulong index
 
 		push_scope
-		retire {r0, r1}, {this, list}
+		retire {r0, r1, r2}, {this, list, index}
 
 		if {list->obj_vtable == @class/class_vector}
-			static_call vector, for_each, {list, 0, $repl_eval_list_callback, this}, {iter}
+			static_call vector, for_each, {list, index, $repl_eval_list_callback, this}, {iter}
 			breakifnot {iter}
 			assign {0}, {list}
 		else

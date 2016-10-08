@@ -59,7 +59,7 @@
 					static_call lisp, repl_apply, {this, func, ast}, {value}
 				else
 					static_call vector, slice, {ast, 0, length}, {args}
-					static_call lisp, repl_eval_list, {this, args}, {length}
+					static_call lisp, repl_eval_list, {this, args, 1}, {length}
 					if {length}
 						static_call lisp, repl_apply, {this, func, args}, {value}
 					endif

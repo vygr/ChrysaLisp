@@ -34,7 +34,7 @@
 				if {args == this->lisp_sym_lambda}
 					static_call vector, get_length, {ast}, {length}
 					static_call vector, slice, {ast, 1, length}, {args}
-					static_call lisp, repl_eval_list, {this, args}, {vals}
+					static_call lisp, repl_eval_list, {this, args, 0}, {vals}
 					if {vals}
 						static_call lisp, env_push, {this}
 						static_call vector, get_element, {func, 1}, {vars}
