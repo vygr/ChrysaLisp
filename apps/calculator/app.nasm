@@ -154,7 +154,7 @@
 					assign {1}, {inst->shared_last_flag}
 				endif
 				;append numeral
-				static_call string, add, {display_string, button_string}, {string}
+				static_call string, append, {display_string, button_string}, {string}
 				static_call sys_string, to_long, {&string->string_data, 10}, {inst->shared_value}
 			else
 				;operator
@@ -183,7 +183,7 @@
 					static_call sys_string, from_long, {-inst->shared_accum, &inst->shared_buffer, 10}
 					static_call string, create_from_cstr, {"-"}, {string1}
 					static_call string, create_from_cstr, {&inst->shared_buffer}, {string2}
-					static_call string, add, {string1, string2}, {string}
+					static_call string, append, {string1, string2}, {string}
 					static_call string, deref, {string1}
 					static_call string, deref, {string2}
 				else

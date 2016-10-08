@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_symbol.inc'
 
-	def_function class/symbol/add
+	def_function class/symbol/append
 		;inputs
 		;r0 = symbol object
 		;r1 = symbol object
@@ -10,7 +10,7 @@
 		;trashes
 		;r1-r3, r5-r7
 
-		static_call string, add, {r0, r1}, {r0}
+		static_call string, append, {r0, r1}, {r0}
 		if r0, !=, 0
 			slot_function class, symbol
 			fn_bind _function_, r1

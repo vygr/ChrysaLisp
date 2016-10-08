@@ -45,7 +45,7 @@
 					assign {stream->stream_bufp}, {start}
 					static_call stream, skip_not, {stream, space_char}
 					static_call string, create_from_buffer, {start, stream->stream_bufp - start}, {string}
-					static_call string, add, {prefix, string}, {cmd}
+					static_call string, append, {prefix, string}, {cmd}
 					static_call vector, push_back, {commands, cmd}
 					static_call string, deref, {string}
 					static_call stream, deref, {stream}

@@ -289,7 +289,7 @@
 			static_call flow, get_last, {shared->shared_panel}, {label}
 			static_call string, create_from_cstr, {&char}, {string}
 			static_call label, get_text, {label}, {line_string}
-			static_call string, add, {line_string, string}, {new_line_string}
+			static_call string, append, {line_string, string}, {new_line_string}
 			static_call string, deref, {line_string}
 			static_call string, deref, {string}
 			static_call label, set_text, {label, new_line_string}

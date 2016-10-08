@@ -2,7 +2,7 @@
 %include 'inc/string.inc'
 %include 'class/class_string.inc'
 
-	def_function class/string/add
+	def_function class/string/append
 		;inputs
 		;r0 = string object
 		;r1 = string object
