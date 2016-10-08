@@ -9,9 +9,12 @@
 	def_method init, class/boxed_ptr/init
 	def_method get_value, class/boxed_ptr/get_value, static, {r0}, {r1}
 	def_method set_value, class/boxed_ptr/set_value, static, {r0, r1}
+	def_method get_flags, class/boxed_ptr/get_flags, static, {r0}, {r1}
+	def_method set_flags, class/boxed_ptr/set_flags, static, {r0, r1}
 
 	def_structure boxed_ptr, ref
 		ptr boxed_ptr_value
+		ulong boxed_ptr_flags
 	def_structure_end
 
 %endif

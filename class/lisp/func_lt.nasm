@@ -21,11 +21,8 @@
 		assign {0}, {value}
 		static_call vector, get_length, {args}, {length}
 		if {length == 3}
-			static_call vector, slice, {args, 1, length}, {args}
-			static_call lisp, repl_eval_list, {this, args}, {length}
-			breakifnot {length}
-			static_call vector, get_element, {args, 0}, {arg1}
-			static_call vector, get_element, {args, 1}, {arg2}
+			static_call vector, get_element, {args, 1}, {arg1}
+			static_call vector, get_element, {args, 2}, {arg2}
 			jmpif {arg1 == arg2}, notless
 			if {arg1->obj_vtable == arg2->obj_vtable}
 				assign {this->lisp_sym_t}, {value}
@@ -43,7 +40,6 @@
 					assign {this->lisp_sym_nil}, {value}
 				endswitch
 				static_call ref, ref, {value}
-				static_call ref, deref, {args}
 			else
 				static_call lisp, error, {this, "(lt exp exp) not same types", args}
 			endif

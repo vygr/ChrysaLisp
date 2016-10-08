@@ -19,13 +19,9 @@
 		static_call vector, get_length, {args}, {length}
 		if {length == 2}
 			static_call vector, get_element, {args, 1}, {args}
-			static_call lisp, repl_eval, {this, args}, {args}
-			breakifnot {args}
 			if {args == this->lisp_sym_nil}
-				static_call ref, deref, {args}
 				assign {this->lisp_sym_t}, {args}
 			else
-				static_call ref, deref, {args}
 				assign {this->lisp_sym_nil}, {args}
 			endif
 			static_call ref, ref, {args}

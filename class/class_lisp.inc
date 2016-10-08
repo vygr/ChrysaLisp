@@ -12,7 +12,7 @@
 	def_method error, class/lisp/error, static, {r0, r1, r2}
 	def_method sym_intern, class/lisp/sym_intern, static, {r0, r1}, {r1}
 	def_method sym_intern_cstr, class/lisp/sym_intern_cstr, static, {r0, r1}, {r1}
-	def_method built_in_func, class/lisp/built_in_func, static, {r0, r1, r2}
+	def_method built_in_func, class/lisp/built_in_func, static, {r0, r1, r2, r3}
 	def_method env_push, class/lisp/env_push, static, {r0}
 	def_method env_pop, class/lisp/env_pop, static, {r0}
 	def_method env_def, class/lisp/env_def, static, {r0, r1, r2}

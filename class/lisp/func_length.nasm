@@ -24,8 +24,6 @@
 		static_call vector, get_length, {args}, {length}
 		if {length == 2}
 			static_call vector, get_element, {args, 1}, {args}
-			static_call lisp, repl_eval, {this, args}, {args}
-			breakifnot {args}
 			switch
 			case {args->obj_vtable == @class/class_symbol \
 				|| args->obj_vtable == @class/class_string}
@@ -46,7 +44,6 @@
 			default
 				static_call lisp, error, {this, "(length seq) not a sequence", args}
 			endswitch
-			static_call ref, deref, {args}
 		else
 			static_call lisp, error, {this, "(length seq) wrong number of args", args}
 		endif

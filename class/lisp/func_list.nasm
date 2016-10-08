@@ -18,11 +18,6 @@
 
 		static_call vector, get_length, {args}, {length}
 		static_call vector, slice, {args, 1, length}, {args}
-		static_call lisp, repl_eval_list, {this, args}, {length}
-		ifnot {length}
-			static_call ref, deref, {args}
-			assign {0}, {args}
-		endif
 
 		eval {this, args}, {r0, r1}
 		pop_scope

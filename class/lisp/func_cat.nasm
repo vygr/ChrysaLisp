@@ -27,14 +27,14 @@
 		static_call vector, get_length, {args}, {length}
 		if {length > 1}
 			static_call vector, get_element, {args, 1}, {pdata.pdata_value}
-			static_call lisp, repl_eval, {pdata.pdata_this, pdata.pdata_value}, {pdata.pdata_value}
-			breakifnot {pdata.pdata_value}
-			if {pdata.pdata_value->obj_vtable == @class/class_vector \
-				|| pdata.pdata_value->obj_vtable == @class/class_string}
+			if {pdata.pdata_value->obj_vtable == @class/class_vector}
+				static_call vector, create, {}, {pdata.pdata_value}
+				static_call vector, for_each, {args, 1, $callback, &pdata}, {_}
+			elseif {pdata.pdata_value->obj_vtable == @class/class_string}
+				static_call ref, ref, {pdata.pdata_value}
 				static_call vector, for_each, {args, 2, $callback, &pdata}, {_}
 			else
 				static_call lisp, error, {pdata.pdata_this, "(cat seq ...) not sequence type", pdata.pdata_value}
-				static_call ref, deref, {pdata.pdata_value}
 				assign {0}, {pdata.pdata_value}
 			endif
 		else
@@ -53,34 +53,26 @@
 		;r1 = 0 if break, else not
 
 		pptr iter
-		ptr pdata, elem, new_elem
+		ptr pdata, elem
 		ulong length
 
 		push_scope
 		retire {r0, r1}, {iter, pdata}
 
-		static_call lisp, repl_eval, {pdata->pdata_this, *iter}, {elem}
-		if {elem}
-			if {elem->obj_vtable == pdata->pdata_value->obj_vtable}
-				switch
-				case {elem->obj_vtable == @class/class_string}
-					static_call string, append, {pdata->pdata_value, elem}, {new_elem}
-					static_call ref, deref, {elem}
-					static_call ref, deref, {pdata->pdata_value}
-					assign {new_elem}, {pdata->pdata_value}
-					break
-				default
-					static_call vector, get_length, {elem}, {length}
-					static_call vector, append, {pdata->pdata_value, elem, 0, length}
-					static_call ref, deref, {elem}
-				endswitch
-			else
-				static_call lisp, error, {pdata->pdata_this, "(cat seq ...) none matching type", elem}
-				static_call ref, deref, {elem}
-				goto error1
-			endif
+		assign {*iter}, {elem}
+		if {elem->obj_vtable == pdata->pdata_value->obj_vtable}
+			switch
+			case {elem->obj_vtable == @class/class_string}
+				static_call string, append, {pdata->pdata_value, elem}, {elem}
+				static_call ref, deref, {pdata->pdata_value}
+				assign {elem}, {pdata->pdata_value}
+				break
+			default
+				static_call vector, get_length, {elem}, {length}
+				static_call vector, append, {pdata->pdata_value, elem, 0, length}
+			endswitch
 		else
-		error1:
+			static_call lisp, error, {pdata->pdata_this, "(cat seq ...) none matching type", elem}
 			static_call ref, deref, {pdata->pdata_value}
 			assign {0}, {pdata->pdata_value}
 		endif

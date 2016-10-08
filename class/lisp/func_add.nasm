@@ -21,22 +21,17 @@
 		assign {0}, {value}
 		static_call vector, get_length, {args}, {length}
 		if {length > 2}
-			static_call vector, slice, {args, 1, length}, {args}
-			static_call lisp, repl_eval_list, {this, args}, {length}
-			if {length}
-				static_call vector, get_element, {args, 0}, {first}
-				if {first->obj_vtable == @class/class_boxed_long}
-					static_call boxed_long, get_value, {first}, {length}
-					static_call vector, for_each, {args, 1, $callback, &length}, {iter}
-					jmpif {iter}, error
-					static_call boxed_long, create, {}, {value}
-					static_call boxed_long, set_value, {value, length}
-				else
-				error:
-					static_call lisp, error, {this, "(add val val ...) vals are not all numbers", args}
-				endif
+			static_call vector, get_element, {args, 1}, {first}
+			if {first->obj_vtable == @class/class_boxed_long}
+				static_call boxed_long, get_value, {first}, {length}
+				static_call vector, for_each, {args, 2, $callback, &length}, {iter}
+				jmpif {iter}, error
+				static_call boxed_long, create, {}, {value}
+				static_call boxed_long, set_value, {value, length}
+			else
+			error:
+				static_call lisp, error, {this, "(add val val ...) vals are not all numbers", args}
 			endif
-			static_call ref, deref, {args}
 		else
 			static_call lisp, error, {this, "(add val val ...) not enough args", args}
 		endif

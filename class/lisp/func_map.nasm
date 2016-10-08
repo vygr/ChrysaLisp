@@ -10,56 +10,50 @@
 		;r0 = lisp object
 		;r1 = 0, else value
 
-		ptr this, args, value, form, lists, func, elem
+		ptr this, args, value, form, func, elem
 		pptr iter
 		ulong length, seq_length, seq_num, list_num
 
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		assign {0, 0, 0}, {value, form, lists}
+		assign {0}, {value}
 		static_call vector, get_length, {args}, {length}
 		if {length >= 3}
-			static_call vector, slice, {args, 1, length}, {lists}
-			static_call lisp, repl_eval_list, {this, lists}, {elem}
-			if {elem}
-				static_call vector, get_element, {lists, 0}, {func}
-				assign {1000000}, {seq_length}
-				static_call vector, for_each, {lists, 1, $callback, &seq_length}, {iter}
-				ifnot {iter}
-					static_call vector, create, {}, {value}
-					breakifnot {seq_length}
-					assign {length - 1, 0}, {length, seq_num}
-					static_call vector, slice, {lists, 0, length}, {form}
-					static_call ref, ref, {func}
-					static_call vector, set_element, {form, func, 0}
+			static_call vector, get_element, {args, 1}, {func}
+			assign {1000000}, {seq_length}
+			static_call vector, for_each, {args, 2, $callback, &seq_length}, {iter}
+			ifnot {iter}
+				static_call vector, create, {}, {value}
+				breakifnot {seq_length}
+				assign {0}, {seq_num}
+				static_call vector, slice, {args, 1, length}, {form}
+				static_call ref, ref, {func}
+				static_call vector, set_element, {form, func, 0}
+				loop_start
+					assign {2}, {list_num}
 					loop_start
-						assign {1}, {list_num}
-						loop_start
-							static_call vector, get_element, {lists, list_num}, {elem}
-							static_call vector, ref_element, {elem, seq_num}, {elem}
-							static_call vector, set_element, {form, elem, list_num}
-							assign {list_num + 1}, {list_num}
-						loop_until {list_num == length}
-						static_call lisp, repl_apply, {this, func, form}, {elem}
-						breakifnot {elem}
-						static_call vector, push_back, {value, elem}
-						assign {seq_num + 1}, {seq_num}
-					loop_until {seq_num == seq_length}
-					if {seq_num != seq_length}
-						static_call ref, deref, {value}
-						assign {0}, {value}
-					endif
-				else
-					static_call lisp, error, {this, "(map func list ...) not all lists", args}
+						static_call vector, get_element, {args, list_num}, {elem}
+						static_call vector, ref_element, {elem, seq_num}, {elem}
+						static_call vector, set_element, {form, elem, list_num - 1}
+						assign {list_num + 1}, {list_num}
+					loop_until {list_num == length}
+					static_call lisp, repl_apply, {this, func, form}, {elem}
+					breakifnot {elem}
+					static_call vector, push_back, {value, elem}
+					assign {seq_num + 1}, {seq_num}
+				loop_until {seq_num == seq_length}
+				if {seq_num != seq_length}
+					static_call ref, deref, {value}
+					assign {0}, {value}
 				endif
+				static_call ref, deref, {form}
+			else
+				static_call lisp, error, {this, "(map func list ...) not all lists", args}
 			endif
 		else
 			static_call lisp, error, {this, "(map func list ...) not enough args", args}
 		endif
-
-		static_call ref, deref_if, {form}
-		static_call ref, deref_if, {lists}
 
 		eval {this, value}, {r0, r1}
 		pop_scope

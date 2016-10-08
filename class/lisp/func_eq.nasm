@@ -21,11 +21,8 @@
 		assign {0}, {value}
 		static_call vector, get_length, {args}, {length}
 		if {length == 3}
-			static_call vector, slice, {args, 1, length}, {args}
-			static_call lisp, repl_eval_list, {this, args}, {length}
-			breakifnot {length}
-			static_call vector, get_element, {args, 0}, {arg1}
-			static_call vector, get_element, {args, 1}, {arg2}
+			static_call vector, get_element, {args, 1}, {arg1}
+			static_call vector, get_element, {args, 2}, {arg2}
 			jmpif {arg1 == arg2}, same
 			assign {this->lisp_sym_nil}, {value}
 			switch
@@ -43,9 +40,8 @@
 				assign {this->lisp_sym_t}, {value}
 			endswitch
 			static_call ref, ref, {value}
-			static_call ref, deref, {args}
 		else
-			static_call lisp, error, {this, "(eq a1 a2) wrong number of args", args}
+			static_call lisp, error, {this, "(eq form form) wrong number of args", args}
 		endif
 
 		eval {this, value}, {r0, r1}

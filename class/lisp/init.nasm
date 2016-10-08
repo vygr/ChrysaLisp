@@ -8,24 +8,27 @@
 		ushort built_in_symbol
 		ushort built_in_field
 		ushort built_in_function
+		ushort built_in_flags
 		offset built_in_hop
 		;built_in_size would be aligned to long !
 	def_structure_end
 
-	%macro built_in 2-3
+	%macro built_in 2-4 "", 0
 		;%1 = symbol
 		;%2 = field
 		;%3 = function
+		;%4 = flags
 		fn_add_string %1
 		dw _ref_%[_string_num_]_string - $
 		dw %2
-		%if %0 = 2
+		%ifidn %3, ""
 			dw 0
 		%else
 			slot_function lisp, %3
 			fn_find_link _function_
 			dw _ref_%[_link_num_]_link - $
 		%endif
+		dw %4
 	%endmacro
 
 	def_function class/lisp/init
@@ -73,7 +76,7 @@
 				endif
 				if {table->built_in_function}
 					assign {&table->built_in_function + table->built_in_function}, {path_ptr}
-					static_call lisp, built_in_func, {this, symbol, *path_ptr}
+					static_call lisp, built_in_func, {this, symbol, *path_ptr, table->built_in_flags}
 				endif
 				assign {table + built_in_hop}, {table}
 			loop_end
@@ -108,11 +111,25 @@
 		built_in "_parent_", lisp_sym_parent
 		built_in "nil", lisp_sym_nil
 		built_in "t", lisp_sym_t
-		built_in "lambda", lisp_sym_lambda, func_lambda
-		built_in "quote", lisp_sym_quote, func_quote
-		built_in "def", 0, func_def
-		built_in "set", 0, func_set
-		built_in "setl", 0, func_setl
+		built_in "lambda", lisp_sym_lambda, func_lambda, 1
+		built_in "quote", lisp_sym_quote, func_quote, 1
+		built_in "if", 0, func_if, 1
+		built_in "while", 0, func_while, 1
+		built_in "until", 0, func_until, 1
+		built_in "when", 0, func_when, 1
+		built_in "unless", 0, func_unless, 1
+		built_in "and", 0, func_and, 1
+		built_in "or", 0, func_or, 1
+		built_in "def", 0, func_def, 1
+		built_in "cond", 0, func_cond, 1
+		built_in "set", 0, func_set, 1
+		built_in "setl", 0, func_setl, 1
+		built_in "some", 0, func_some, 1
+		built_in "every", 0, func_every, 1
+		built_in "notany", 0, func_notany, 1
+		built_in "notevery", 0, func_notevery, 1
+
+		built_in "progn", 0, func_progn
 		built_in "list", 0, func_list
 		built_in "add", 0, func_add
 		built_in "sub", 0, func_sub
@@ -121,23 +138,10 @@
 		built_in "mod", 0, func_mod
 		built_in "eq", 0, func_eq
 		built_in "lt", 0, func_lt
-		built_in "cond", 0, func_cond
-		built_in "progn", 0, func_progn
 		built_in "not", 0, func_not
-		built_in "and", 0, func_and
-		built_in "or", 0, func_or
-		built_in "when", 0, func_when
-		built_in "unless", 0, func_unless
-		built_in "if", 0, func_if
 		built_in "map", 0, func_map
 		built_in "reduce", 0, func_reduce
-		built_in "some", 0, func_some
-		built_in "every", 0, func_every
-		built_in "notany", 0, func_notany
-		built_in "notevery", 0, func_notevery
 		built_in "length", 0, func_length
-		built_in "while", 0, func_while
-		built_in "until", 0, func_until
 		built_in "print", 0, func_print
 		built_in "prin", 0, func_prin
 		built_in "env", 0, func_env

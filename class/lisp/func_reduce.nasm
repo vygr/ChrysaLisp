@@ -16,15 +16,11 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		assign {0, 0, 0, 0}, {value, func, form, list}
+		assign {0}, {value}
 		static_call vector, get_length, {args}, {length}
 		if {length == 3 || length == 4}
 			static_call vector, get_element, {args, 1}, {func}
-			static_call lisp, repl_eval, {this, func}, {func}
-			breakifnot {func}
 			static_call vector, get_element, {args, 2}, {list}
-			static_call lisp, repl_eval, {this, list}, {list}
-			breakifnot {list}
 			if {list->obj_vtable == @class/class_vector}
 				static_call vector, get_length, {list}, {list_length}
 				if {(length == 3 && list_length > 0) || length == 4}
@@ -49,6 +45,7 @@
 						breakifnot {value}
 						assign {seq_num + 1}, {seq_num}
 					loop_until {seq_num == list_length}
+					static_call ref, deref, {form}
 				else
 					static_call lisp, error, {this, "(reduce func list {init}) not enough elements", args}
 				endif
@@ -58,10 +55,6 @@
 		else
 			static_call lisp, error, {this, "(reduce func list {init}) wrong number of args", args}
 		endif
-
-		static_call ref, deref_if, {form}
-		static_call ref, deref_if, {list}
-		static_call ref, deref_if, {func}
 
 		eval {this, value}, {r0, r1}
 		pop_scope
