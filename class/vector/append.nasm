@@ -27,7 +27,7 @@
 
 		;extend existing vector
 		vp_sub r2, r3
-		vp_cpy [r0 +vector_length], r1
+		vp_cpy [r0 + vector_length], r1
 		vp_shr 3, r1
 		vp_add r3, r1
 		s_call vector, set_capacity, {r0, r1}

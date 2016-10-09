@@ -24,11 +24,16 @@
 		static_call vector, get_length, {args}, {length}
 		if {length == 2}
 			static_call vector, get_element, {args, 1}, {args}
-			static_call string, create_from_cstr, {"                "}, {value}
-			static_call stream_str, create, {value}, {stream}
-			static_call lisp, repl_print, {this, stream, args}
-			static_call stream_str, ref_string, {stream}, {value}
-			static_call ref, deref, {stream}
+			if {args->obj_vtable == @class/class_string}
+				assign {args}, {value}
+				static_call ref, ref, {value}
+			else
+				static_call string, create_from_cstr, {"                "}, {value}
+				static_call stream_str, create, {value}, {stream}
+				static_call lisp, repl_print, {this, stream, args}
+				static_call stream_str, ref_string, {stream}, {value}
+				static_call ref, deref, {stream}
+			endif
 		else
 			static_call lisp, error, {this, "(str arg) wrong numbers of args", args}
 		endif

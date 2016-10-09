@@ -50,7 +50,7 @@
 			if {test}
 				static_call vector, get_element, {*iter, 0}, {test}
 				static_call lisp, repl_eval, {pdata->pdata_this, test}, {test}
-				jmpifnot {test}, error
+				gotoifnot {test}, error
 				if {test != pdata->pdata_this->lisp_sym_nil}
 					static_call ref, deref, {test}
 					static_call lisp, func_progn, {pdata->pdata_this, *iter}, {pdata->pdata_value}

@@ -25,7 +25,7 @@
 			if {first->obj_vtable == @class/class_boxed_long}
 				static_call boxed_long, get_value, {first}, {length}
 				static_call vector, for_each, {args, 2, $callback, &length}, {iter}
-				jmpif {iter}, error
+				gotoif {iter}, error
 				static_call boxed_long, create, {}, {value}
 				static_call boxed_long, set_value, {value, length}
 			else

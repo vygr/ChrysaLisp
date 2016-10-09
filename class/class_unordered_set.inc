@@ -15,6 +15,8 @@
 	def_method erase, class/unordered_set/erase, static, {r0, r1, r2}
 	def_method get_length, class/unordered_set/get_length, static, {r0}, {r1}
 	def_method copy, class/unordered_set/copy, static, {r0, r1}, {r1}
+	def_method get_element, class/unordered_set/get_element, static, {r0, r1}, {r1}
+	def_method ref_element, class/unordered_set/ref_element, static, {r0, r1}, {r1}
 
 	def_method deinit, class/unordered_set/deinit, override
 

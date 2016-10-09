@@ -27,9 +27,9 @@
 
 		assign {0}, {pair}
 		static_call lisp, repl_read, {this, stream, char}, {first, char}
-		jmpifnot {first}, error
+		gotoifnot {first}, error
 		static_call lisp, repl_read, {this, stream, char}, {second, char}
-		jmpifnot {second}, error1
+		gotoifnot {second}, error1
 
 		;skip white space
 		loop_while {char <= char_space && char != -1}

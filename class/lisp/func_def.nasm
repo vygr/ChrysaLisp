@@ -25,8 +25,8 @@
 				static_call vector, get_length, {args}, {length}
 				static_call vector, slice, {args, 0, length}, {args}
 				static_call lisp, repl_eval_list, {this, args, 0}, {vals}
-				jmpifnot {vals}, error
-				static_call lisp, env_def_list, {this, vars, vals}, {vals}
+				gotoifnot {vals}, error
+				static_call lisp, env_def_list, {this, vars, vals, 0}, {vals}
 				breakif {vals}
 			error:
 				static_call ref, deref, {args}

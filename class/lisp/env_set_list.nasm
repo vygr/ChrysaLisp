@@ -28,12 +28,12 @@
 						static_call vector, get_element, {vars, len1}, {symbol}
 						static_call vector, get_element, {vals, len1}, {value}
 						static_call lisp, env_set, {this, symbol, value}, {value}
-						jmpifnot {value}, error
+						gotoifnot {value}, error
 						assign {len1 + 1}, {len1}
 					loop_end
 					assign {vals}, {value}
 				else
-					static_call lisp, error, {this, "(set vars vals): non matching lengths", vars}
+					static_call lisp, error, {this, "(set vars vals): not matching lengths", vars}
 				endif
 			else
 				static_call lisp, error, {this, "(set vars vals): vals not a list", vals}

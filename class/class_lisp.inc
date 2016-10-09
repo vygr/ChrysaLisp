@@ -10,13 +10,15 @@
 	def_method new, class/lisp/new, static, {}, {r0}
 	def_method init, class/lisp/init, static, {r0, r1, r2, r3, r5}, {r1}
 	def_method error, class/lisp/error, static, {r0, r1, r2}
+
 	def_method sym_intern, class/lisp/sym_intern, static, {r0, r1}, {r1}
 	def_method sym_intern_cstr, class/lisp/sym_intern_cstr, static, {r0, r1}, {r1}
 	def_method built_in_func, class/lisp/built_in_func, static, {r0, r1, r2, r3}
+
 	def_method env_push, class/lisp/env_push, static, {r0}
 	def_method env_pop, class/lisp/env_pop, static, {r0}
 	def_method env_def, class/lisp/env_def, static, {r0, r1, r2}
-	def_method env_def_list, class/lisp/env_def_list, static, {r0, r1, r2}, {r1}
+	def_method env_def_list, class/lisp/env_def_list, static, {r0, r1, r2, r3}, {r1}
 	def_method env_find, class/lisp/env_find, static, {r0, r1}, {r1, r2}
 	def_method env_set, class/lisp/env_set, static, {r0, r1, r2}, {r1}
 	def_method env_setl, class/lisp/env_setl, static, {r0, r1, r2}, {r1}
@@ -24,6 +26,7 @@
 	def_method env_set, class/lisp/env_set, static, {r0, r1, r2}, {r1}
 	def_method env_set_list, class/lisp/env_set_list, static, {r0, r1, r2}, {r1}
 	def_method env_get, class/lisp/env_get, static, {r0, r1}, {r1}
+
 	def_method repl, class/lisp/repl, static, {r0, r1}
 	def_method repl_read, class/lisp/repl_read, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_read_list, class/lisp/repl_read_list, static, {r0, r1, r2}, {r1, r2}
@@ -36,6 +39,11 @@
 	def_method repl_eval, class/lisp/repl_eval, static, {r0, r1}, {r1}
 	def_method repl_eval_list, class/lisp/repl_eval_list, static, {r0, r1, r2}, {r1}
 	def_method repl_print, class/lisp/repl_print, static, {r0, r1, r2}
+
+	def_method seq_is_seq, class/lisp/seq_is_seq, static, {r0, r1}, {r1}
+	def_method seq_get_length, class/lisp/seq_get_length, static, {r0, r1}, {r1}
+	def_method seq_ref_element, class/lisp/seq_ref_element, static, {r0, r1, r2}, {r1}
+
 	def_method func_def, class/lisp/func_def, static, {r0, r1}, {r1}
 	def_method func_set, class/lisp/func_set, static, {r0, r1}, {r1}
 	def_method func_setl, class/lisp/func_setl, static, {r0, r1}, {r1}
@@ -71,6 +79,7 @@
 	def_method func_env, class/lisp/func_env, static, {r0, r1}, {r1}
 	def_method func_str, class/lisp/func_str, static, {r0, r1}, {r1}
 	def_method func_cat, class/lisp/func_cat, static, {r0, r1}, {r1}
+	def_method func_elem, class/lisp/func_elem, static, {r0, r1}, {r1}
 
 	def_method deinit, class/lisp/deinit, override
 

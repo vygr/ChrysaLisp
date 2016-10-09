@@ -72,7 +72,7 @@
 				static_call vector, append, {pdata->pdata_value, elem, 0, length}
 			endswitch
 		else
-			static_call lisp, error, {pdata->pdata_this, "(cat seq ...) none matching type", elem}
+			static_call lisp, error, {pdata->pdata_this, "(cat seq ...) not matching type", elem}
 			static_call ref, deref, {pdata->pdata_value}
 			assign {0}, {pdata->pdata_value}
 		endif

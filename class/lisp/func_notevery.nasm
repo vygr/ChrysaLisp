@@ -39,7 +39,7 @@
 						assign {list_num + 1}, {list_num}
 					loop_until {list_num == length}
 					static_call lisp, repl_apply, {this, func, form}, {value}
-					jmpifnot {value}, error
+					gotoifnot {value}, error
 					breakif {value == this->lisp_sym_nil}
 					assign {seq_num + 1}, {seq_num}
 				loop_until {seq_num == seq_length}

@@ -107,7 +107,7 @@
 				static_call vector, get_length, {value}, {num}
 				if {num}
 					static_call vector, get_element, {value, 0}, {elem}
-					jmpif {elem != this->lisp_sym_quote}, notquote
+					gotoif {elem != this->lisp_sym_quote}, notquote
 					static_call stream, write_char, {stream, char_single_quote}
 					static_call vector, get_element, {value, 1}, {elem}
 					static_call lisp, repl_print, {this, stream, elem}

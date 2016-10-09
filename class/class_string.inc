@@ -16,6 +16,7 @@
 	def_method split, class/string/split, static, {r0, r1}, {r1}
 	def_method get_length, class/string/get_length, static, {r0}, {r1}
 	def_method compare, class/string/compare, static, {r0, r1}, {r1}
+	def_method ref_element, class/string/ref_element, static, {r0, r1}, {r1}
 
 	def_method hash, class/string/hash, override
 

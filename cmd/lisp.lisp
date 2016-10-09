@@ -20,6 +20,14 @@
 	(lambda (a b c d)
 		(map list a b c d))))
 
+(def (merge2 merge3 merge4)
+	((lambda (a b)
+		(reduce cat (zip2 a b)))
+	(lambda (a b c)
+		(reduce cat (zip3 a b c)))
+	(lambda (a b c d)
+		(reduce cat (zip4 a b c d)))))
+
 (def (squared cubed divmod)
 	((lambda (x)
 		(mul x x))
@@ -28,21 +36,28 @@
 	(lambda (x y)
 		(list (div x y) (mod x y)))))
 
+(def (print_map)
+	((lambda (m)
+		(progn
+			(map print m)
+			t))))
+
 (def (print_env)
 	((lambda (l e)
 		(progn
-			(print '** l '**)
-			(map print e)
+			(print "**" l "**")
+			(map print_map e)
 			t))))
 
 (def (prin_num)
 	((lambda (n p c)
 		(progn
-			(def (l) ((length (str n))))
+			(def (s) ((str n)))
+			(def (l) ((length s)))
 			(while (lt l p)
 				(prin c)
 				(setl (l) ((add l 1))))
-			(prin n)))))
+			(prin s)))))
 
 (def (fq)
 	((lambda (x y)
@@ -51,11 +66,11 @@
 (def (fxy)
 	((lambda (f w h)
 		(progn
-			(def (x y w h) (1 1 (add w 1) (add h 1)))
-			(until (eq y h)
+			(def (x y) (1 1))
+			(until (lt h y)
 				(setl (x) (1))
-				(until (eq x w)
-					(prin_num (f x y) 4 '.)
+				(until (lt w x)
+					(prin_num (f x y) 4 ".")
 					(setl (x) ((add x 1))))
 				(setl (y) ((add y 1)))
 				(print))))))
@@ -64,6 +79,6 @@
 	((lambda (l)
 		(progn
 			(def (c) (0))
-			(until (eq c l)
+			(while (lt c l)
 				(fxy fq 10 20)
 				(setl (c) ((add c 1))))))))

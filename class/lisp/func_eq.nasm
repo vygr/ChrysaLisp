@@ -23,13 +23,13 @@
 		if {length == 3}
 			static_call vector, get_element, {args, 1}, {arg1}
 			static_call vector, get_element, {args, 2}, {arg2}
-			jmpif {arg1 == arg2}, same
+			gotoif {arg1 == arg2}, same
 			assign {this->lisp_sym_nil}, {value}
 			switch
 			breakif {arg1->obj_vtable != arg2->obj_vtable}
 			case {arg1->obj_vtable == @class/class_string}
 				static_call string, compare, {arg1, arg2}, {length}
-				jmpifnot {length}, same
+				gotoifnot {length}, same
 				break
 			case {arg1->obj_vtable == @class/class_boxed_ptr \
 				|| arg1->obj_vtable == @class/class_boxed_long}

@@ -25,29 +25,23 @@
 			retire {r1}, {value}
 		elseif {func->obj_vtable == @class/class_vector}
 			;lambda
-			ptr vars, vals, body, args
+			ptr vars
 			ulong length
 			push_scope
 			static_call vector, get_length, {func}, {length}
 			if {length == 3}
-				static_call vector, get_element, {func, 0}, {args}
-				if {args == this->lisp_sym_lambda}
-					static_call vector, get_length, {ast}, {length}
-					static_call vector, slice, {ast, 1, length}, {args}
-					static_call lisp, repl_eval_list, {this, args, 0}, {vals}
-					if {vals}
-						static_call lisp, env_push, {this}
-						static_call vector, get_element, {func, 1}, {vars}
-						static_call lisp, env_def_list, {this, vars, vals}, {length}
-						if {length}
-							static_call vector, get_element, {func, 2}, {body}
-							static_call lisp, repl_eval, {this, body}, {value}
-						endif
-						static_call lisp, env_pop, {this}
+				static_call vector, get_element, {func, 0}, {vars}
+				if {vars == this->lisp_sym_lambda}
+					static_call lisp, env_push, {this}
+					static_call vector, get_element, {func, 1}, {vars}
+					static_call lisp, env_def_list, {this, vars, ast, 1}, {vars}
+					if {vars}
+						static_call vector, get_element, {func, 2}, {vars}
+						static_call lisp, repl_eval, {this, vars}, {value}
 					endif
-					static_call ref, deref, {args}
+					static_call lisp, env_pop, {this}
 				else
-					static_call lisp, error, {this, "(lambda vars body) not lambda", args}
+					static_call lisp, error, {this, "(lambda vars body) not lambda", vars}
 				endif
 			else
 				static_call lisp, error, {this, "(lambda vars body) wrong numbers of args", func}

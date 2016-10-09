@@ -45,14 +45,14 @@
 		vp_jmp %1
 	%endmacro
 
-	%macro jmpif 2
+	%macro gotoif 2
 		eval {%1}, {r0}
 		vp_jmpif r0, !=, 0, %2
 	%endmacro
 
-	%macro jmpifnot 2
+	%macro gotoifnot 2
 		eval {%1}, {r0}
-		vp_jmpif r0, ==, 0, %2
+		vp_jmpifnot r0, !=, 0, %2
 	%endmacro
 
 	%macro switch 0
@@ -136,16 +136,6 @@
 	%macro continueifnot 1
 		eval {%1}, {r0}
 		continueifnot r0, !=, 0
-	%endmacro
-
-	%macro gotoif 2
-		eval {%1}, {r0}
-		vp_jmpif r0, !=, 0, %2
-	%endmacro
-
-	%macro gotoifnot 2
-		eval {%1}, {r0}
-		vp_jmpifnot r0, !=, 0, %2
 	%endmacro
 
 	%macro loop_start 0
