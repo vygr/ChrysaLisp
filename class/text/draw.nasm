@@ -24,7 +24,7 @@
 		;draw text
 		if {inst->text_string && inst->text_font}
 			assign {inst->text_words->vector_array}, {words}
-			static_call vector, get_length, {inst->text_words}, {length}
+			slot_call vector, get_length, {inst->text_words}, {length}
 			assign {&words[length * ptr_size]}, {words_end}
 			assign {0}, {x}
 			loop_start

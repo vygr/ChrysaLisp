@@ -31,7 +31,7 @@
 			static_call stream, create, {0, 0, buffer, length}, {stream}
 			static_call stream, split, {stream, pipe_char}, {args}
 			static_call stream, deref, {stream}
-			static_call vector, get_length, {args}, {length}
+			slot_call vector, get_length, {args}, {length}
 			if {length != 0}
 				;create command pipeline
 				static_call string, create_from_cstr, {"cmd/"}, {prefix}

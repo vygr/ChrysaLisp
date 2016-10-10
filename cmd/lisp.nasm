@@ -31,7 +31,7 @@
 
 			;run any files given as args
 			static_call slave, get_args, {slave}, {args}
-			static_call vector, get_length, {args}, {argc}
+			slot_call vector, get_length, {args}, {argc}
 			assign {1}, {index}
 			loop_while {index != argc}
 				static_call vector, get_element, {args, index}, {arg}

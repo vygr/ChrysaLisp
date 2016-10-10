@@ -85,7 +85,7 @@
 				struct pdata, pdata
 				push_scope
 				static_call stream, write_char, {stream, char_lsb}
-				static_call unordered_set, get_length, {value}, {num}
+				slot_call unordered_set, get_length, {value}, {num}
 				assign {this, stream, 0, num}, {pdata.pdata_this, pdata.pdata_stream, \
 												pdata.pdata_index, pdata.pdata_length}
 				static_call unordered_set, for_each, {value, $callback, &pdata}, {_, _}
@@ -96,7 +96,7 @@
 				struct pdata, pdata
 				push_scope
 				static_call stream, write_char, {stream, char_lcb}
-				static_call unordered_map, get_length, {value}, {num}
+				slot_call unordered_map, get_length, {value}, {num}
 				assign {this, stream, 0, num}, {pdata.pdata_this, pdata.pdata_stream, \
 												pdata.pdata_index, pdata.pdata_length}
 				static_call unordered_map, for_each, {value, $callback, &pdata}, {_, _}
@@ -104,7 +104,7 @@
 				pop_scope
 				break
 			case {elem == @class/class_vector}
-				static_call vector, get_length, {value}, {num}
+				slot_call vector, get_length, {value}, {num}
 				if {num}
 					static_call vector, get_element, {value, 0}, {elem}
 					gotoif {elem != this->lisp_sym_quote}, notquote

@@ -21,12 +21,12 @@
 		if {slave}
 			;cat files to stdout, arg 1 is command name
 			static_call slave, get_args, {slave}, {args}
-			static_call vector, get_length, {args}, {argc}
+			slot_call vector, get_length, {args}, {argc}
 			if {argc != 1}
 				;names from command line
 				assign {1}, {index}
 				loop_while {index != argc}
-					static_call vector, ref_element, {args, index}, {arg}
+					slot_call vector, ref_element, {args, index}, {arg}
 					local_call cat_string, {slave, arg, &buffer}, {r0, r1, r2}
 					assign {index + 1}, {index}
 				loop_end

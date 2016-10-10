@@ -36,7 +36,7 @@
 		vp_cpy [r4 + local_start], r5
 		vp_cpy [r4 + local_end], r6
 		loop_while r5, !=, r6
-			s_call vector, ref_element, {[r4 + local_source], r5}, {r1}
+			t_call vector, ref_element, {[r4 + local_source], r5}, {r1}
 			s_call vector, push_back, {[r4 + local_inst], r1}
 			vp_inc r5
 		loop_end

@@ -166,7 +166,7 @@
 				;push new history entry if not same as last entry
 				breakifnot {length}
 				static_call string, create_from_buffer, {&shared->shared_buffer, length}, {string}
-				static_call vector, get_length, {shared->shared_history}, {shared->shared_history_index}
+				slot_call vector, get_length, {shared->shared_history}, {shared->shared_history_index}
 				ifnot {shared->shared_history_index}
 				new_entry:
 					static_call vector, push_back, {shared->shared_history, string}
@@ -200,19 +200,19 @@
 			endif
 		elseif {char == 129}
 			;cursor up
-			static_call vector, get_length, {shared->shared_history}, {length}
+			slot_call vector, get_length, {shared->shared_history}, {length}
 			breakifnot {length}
 			if {shared->shared_history_index}
 				assign {shared->shared_history_index - 1}, {shared->shared_history_index}
 			endif
-			static_call vector, ref_element, {shared->shared_history, shared->shared_history_index}, {string}
+			slot_call vector, ref_element, {shared->shared_history, shared->shared_history_index}, {string}
 			static_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, \
 										{_, shared->shared_bufp}
 			static_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
 			local_call pipe_output, {shared, stream}, {r0, r1}
 		elseif {char == 130}
 			;cursor down
-			static_call vector, get_length, {shared->shared_history}, {length}
+			slot_call vector, get_length, {shared->shared_history}, {length}
 			assign {shared->shared_history_index + 1}, {shared->shared_history_index}
 			if {shared->shared_history_index > length}
 				assign {length}, {shared->shared_history_index}
@@ -220,7 +220,7 @@
 			if {shared->shared_history_index == length}
 				static_call string, create_from_cstr, {""}, {string}
 			else
-				static_call vector, ref_element, {shared->shared_history, shared->shared_history_index}, {string}
+				slot_call vector, ref_element, {shared->shared_history, shared->shared_history_index}, {string}
 			endif
 			static_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, \
 										{_, shared->shared_bufp}
@@ -270,7 +270,7 @@
 			;backspace
 			static_call flow, get_last, {shared->shared_panel}, {label}
 			static_call label, get_text, {label}, {line_string}
-			static_call string, get_length, {line_string}, {length}
+			slot_call string, get_length, {line_string}, {length}
 			if {length > 1}
 				assign {length - 1}, {length}
 			endif

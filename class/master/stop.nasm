@@ -31,7 +31,7 @@
 			method_call stream_msg_out, write_flush, {stream}
 
 			;wait for all stopped, starting with the pipe output, then the error streams
-			static_call vector, get_length, {inst->master_streams}, {length}
+			slot_call vector, get_length, {inst->master_streams}, {length}
 			loop_start
 				assign {length - 1}, {length}
 				breakifnot {length}

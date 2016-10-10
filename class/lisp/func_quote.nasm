@@ -16,9 +16,9 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		static_call vector, get_length, {args}, {length}
+		slot_call vector, get_length, {args}, {length}
 		if {length == 2}
-			static_call vector, ref_element, {args, 1}, {args}
+			slot_call vector, ref_element, {args, 1}, {args}
 		else
 			static_call lisp, error, {this, "(quote arg) wrong numbers of args", args}
 			assign {0}, {args}

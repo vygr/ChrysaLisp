@@ -314,6 +314,28 @@
 		vp_cpy [%3 + _virtual_ * 8], %3
 	%endmacro
 
+	%macro t_call 2-4 {}, {}
+		;%1 = class name
+		;%2 = member name
+		;%3 = in paramaters
+		;%4 = out paramaters
+
+		method_lookup %1, %2
+		map_inputs %1, %2, {%3}, _static_
+		fn_call _map_%1_slot_%[_static_]
+		map_outputs %1, %2, {%4}, _static_
+	%endmacro
+
+	%macro t_jmp 2-4 {}
+		;%1 = class name
+		;%2 = member name
+		;%3 = in paramaters
+
+		method_lookup %1, %2
+		map_inputs %1, %2, {%3}, _static_
+		fn_jmp _map_%1_slot_%[_static_]
+	%endmacro
+
 	%macro t_bind 3
 		;%1 = class name
 		;%2 = slot method name
@@ -375,6 +397,18 @@
 		eval {RXX, %3}, {%5, _map_%1_in_%[_static_]}
 		vp_cpy [r0 + obj_vtable], %5
 		vp_call [%5 + _virtual_ * 8]
+		retire {_map_%1_out_%[_static_]}, {%4}
+	%endmacro
+
+	%macro slot_call 2-4 {}, {}
+		;%1 = class name
+		;%2 = member name
+		;%3 = in paramaters
+		;%4 = out paramaters
+
+		method_lookup %1, %2
+		eval {%3}, {_map_%1_in_%[_static_]}
+		fn_call _map_%1_slot_%[_static_]
 		retire {_map_%1_out_%[_static_]}, {%4}
 	%endmacro
 

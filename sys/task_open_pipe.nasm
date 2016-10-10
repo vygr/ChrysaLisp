@@ -20,7 +20,7 @@
 		retire {r0}, {tasks}
 
 		;create output array
-		static_call vector, get_length, {tasks}, {length}
+		slot_call vector, get_length, {tasks}, {length}
 		static_call sys_mem, alloc, {length * id_size}, {ids, _}
 
 		;init temp mailbox

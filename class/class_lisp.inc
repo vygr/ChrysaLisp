@@ -41,8 +41,6 @@
 	def_method repl_print, class/lisp/repl_print, static, {r0, r1, r2}
 
 	def_method seq_is_seq, class/lisp/seq_is_seq, static, {r0, r1}, {r1}
-	def_method seq_get_length, class/lisp/seq_get_length, static, {r0, r1}, {r1}
-	def_method seq_ref_element, class/lisp/seq_ref_element, static, {r0, r1, r2}, {r1}
 
 	def_method func_def, class/lisp/func_def, static, {r0, r1}, {r1}
 	def_method func_set, class/lisp/func_set, static, {r0, r1}, {r1}

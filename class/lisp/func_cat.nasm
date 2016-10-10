@@ -24,7 +24,7 @@
 		retire {r0, r1}, {pdata.pdata_this, args}
 
 		assign {0}, {pdata.pdata_value}
-		static_call vector, get_length, {args}, {length}
+		slot_call vector, get_length, {args}, {length}
 		if {length > 1}
 			static_call vector, get_element, {args, 1}, {pdata.pdata_value}
 			if {pdata.pdata_value->obj_vtable == @class/class_vector}
@@ -68,7 +68,7 @@
 				assign {elem}, {pdata->pdata_value}
 				break
 			default
-				static_call vector, get_length, {elem}, {length}
+				slot_call vector, get_length, {elem}, {length}
 				static_call vector, append, {pdata->pdata_value, elem, 0, length}
 			endswitch
 		else

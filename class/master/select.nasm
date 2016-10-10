@@ -25,7 +25,7 @@
 		else
 			;wait on user and pipe mailboxes
 			assign {mailbox}, {*inst->master_select_array}
-			static_call vector, get_length, {inst->master_streams}, {length}
+			slot_call vector, get_length, {inst->master_streams}, {length}
 			static_call sys_mail, select, {inst->master_select_array, length}, {mailbox}
 		endif
 

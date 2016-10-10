@@ -1,7 +1,5 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
-%include 'class/class_unordered_set.inc'
-%include 'class/class_unordered_map.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_map
@@ -13,24 +11,23 @@
 		;r1 = 0, else value
 
 		def_structure pdata
-			ptr pdata_this
 			ptr pdata_type
 			ulong pdata_length
 		def_structure_end
 
 		struct pdata, pdata
-		ptr args, value, form, func, elem
+		ptr this, args, value, form, func, elem
 		pptr iter
 		ulong length, seq_num, list_num
 
 		push_scope
-		retire {r0, r1}, {pdata.pdata_this, args}
+		retire {r0, r1}, {this, args}
 
 		assign {0}, {value}
-		static_call vector, get_length, {args}, {length}
+		slot_call vector, get_length, {args}, {length}
 		if {length >= 3}
 			static_call vector, get_element, {args, 2}, {func}
-			static_call lisp, seq_is_seq, {pdata.pdata_this, func}, {pdata.pdata_type}
+			static_call lisp, seq_is_seq, {this, func}, {pdata.pdata_type}
 			if {pdata.pdata_type}
 				assign {1000000}, {pdata.pdata_length}
 				static_call vector, get_element, {args, 1}, {func}
@@ -46,11 +43,11 @@
 						assign {2}, {list_num}
 						loop_start
 							static_call vector, get_element, {args, list_num}, {elem}
-							static_call lisp, seq_ref_element, {pdata.pdata_this, elem, seq_num}, {elem}
+							method_call sequence, ref_element, {elem, seq_num}, {elem}
 							static_call vector, set_element, {form, elem, list_num - 1}
 							assign {list_num + 1}, {list_num}
 						loop_until {list_num == length}
-						static_call lisp, repl_apply, {pdata.pdata_this, func, form}, {elem}
+						static_call lisp, repl_apply, {this, func, form}, {elem}
 						breakifnot {elem}
 						static_call vector, push_back, {value, elem}
 						assign {seq_num + 1}, {seq_num}
@@ -61,16 +58,16 @@
 					endif
 					static_call ref, deref, {form}
 				else
-					static_call lisp, error, {pdata.pdata_this, "(map func list ...) not matching types", args}
+					static_call lisp, error, {this, "(map func list ...) not matching types", args}
 				endif
 			else
-				static_call lisp, error, {pdata.pdata_this, "(map func list ...) not a sequence", args}
+				static_call lisp, error, {this, "(map func list ...) not a sequence", args}
 			endif
 		else
-			static_call lisp, error, {pdata.pdata_this, "(map func list ...) not enough args", args}
+			static_call lisp, error, {this, "(map func list ...) not enough args", args}
 		endif
 
-		eval {pdata.pdata_this, value}, {r0, r1}
+		eval {this, value}, {r0, r1}
 		pop_scope
 		return
 
@@ -90,7 +87,7 @@
 
 		assign {(*iter)->obj_vtable}, {type}
 		if {type == pdata->pdata_type}
-			static_call lisp, seq_get_length, {pdata->pdata_this, *iter}, {length}
+			method_call sequence, get_length, {*iter}, {length}
 			if {length < pdata->pdata_length}
 				assign {length}, {pdata->pdata_length}
 			endif

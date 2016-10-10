@@ -17,12 +17,12 @@
 		retire {r0, r1}, {this, args}
 
 		assign {0}, {vals}
-		static_call vector, get_length, {args}, {length}
+		slot_call vector, get_length, {args}, {length}
 		if {length == 3}
 			static_call vector, get_element, {args, 1}, {vars}
 			static_call vector, get_element, {args, 2}, {args}
 			if {args->obj_vtable == @class/class_vector}
-				static_call vector, get_length, {args}, {length}
+				slot_call vector, get_length, {args}, {length}
 				static_call vector, slice, {args, 0, length}, {args}
 				static_call lisp, repl_eval_list, {this, args, 0}, {vals}
 				gotoifnot {vals}, error

@@ -16,7 +16,7 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		static_call vector, get_length, {args}, {length}
+		slot_call vector, get_length, {args}, {length}
 		if {length == 2}
 			static_call vector, get_element, {args, 1}, {args}
 			if {args == this->lisp_sym_nil}

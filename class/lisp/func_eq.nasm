@@ -19,7 +19,7 @@
 		retire {r0, r1}, {this, args}
 
 		assign {0}, {value}
-		static_call vector, get_length, {args}, {length}
+		slot_call vector, get_length, {args}, {length}
 		if {length == 3}
 			static_call vector, get_element, {args, 1}, {arg1}
 			static_call vector, get_element, {args, 2}, {arg2}

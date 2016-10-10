@@ -22,7 +22,7 @@
 		retire {r0, r1}, {pdata.pdata_this, args}
 
 		assign {0}, {pdata.pdata_value}
-		static_call vector, get_length, {args}, {test}
+		slot_call vector, get_length, {args}, {test}
 		if {test >= 2}
 			static_call vector, get_element, {args, 1}, {test}
 			static_call lisp, repl_eval, {pdata.pdata_this, test}, {test}

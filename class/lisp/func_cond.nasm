@@ -46,7 +46,7 @@
 		retire {r0, r1}, {iter, pdata}
 
 		if {(*iter)->obj_vtable == @class/class_vector}
-			static_call vector, get_length, {*iter}, {test}
+			slot_call vector, get_length, {*iter}, {test}
 			if {test}
 				static_call vector, get_element, {*iter, 0}, {test}
 				static_call lisp, repl_eval, {pdata->pdata_this, test}, {test}

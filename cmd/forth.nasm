@@ -29,7 +29,7 @@
 				;priority to stack input
 				;this allows forth to push include files on this input stack
 				loop_start
-					static_call vector, get_length, {vector}, {length}
+					slot_call vector, get_length, {vector}, {length}
 					breakifnot {length}
 					static_call vector, ref_back, {vector}, {stream}
 					static_call vector, pop_back, {vector}

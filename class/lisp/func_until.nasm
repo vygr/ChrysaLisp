@@ -23,7 +23,7 @@
 		retire {r0, r1}, {pdata.pdata_this, args}
 
 		assign {0}, {pdata.pdata_value}
-		static_call vector, get_length, {args}, {length}
+		slot_call vector, get_length, {args}, {length}
 		if {length >= 2}
 			loop_start
 				static_call vector, get_element, {args, 1}, {pdata.pdata_value}

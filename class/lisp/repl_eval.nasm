@@ -43,7 +43,7 @@
 			static_call ref, ref, {value}
 			break
 		case {func == @class/class_vector}
-			static_call vector, get_length, {form}, {length}
+			slot_call vector, get_length, {form}, {length}
 			ifnot {length}
 				;eval to nil
 				assign {this->lisp_sym_nil}, {value}

@@ -1,9 +1,9 @@
 %ifndef CLASS_UNORDERED_SET_1234
 %define CLASS_UNORDERED_SET_1234
 
-%include 'class/class_ref.inc'
+%include 'class/class_sequence.inc'
 
-	def_class unordered_set, ref
+	def_class unordered_set, sequence
 	def_method create, class/unordered_set/create, static, {r0, r1}, {r0}
 	def_method new, class/unordered_set/new
 	def_method init, class/unordered_set/init, static, {r0, r1, r2, r3}, {r1}
@@ -13,14 +13,14 @@
 	def_method find, class/unordered_set/find, static, {r0, r1}, {r1, r2}
 	def_method insert, class/unordered_set/insert, static, {r0, r1}, {r1, r2}
 	def_method erase, class/unordered_set/erase, static, {r0, r1, r2}
-	def_method get_length, class/unordered_set/get_length, static, {r0}, {r1}
 	def_method copy, class/unordered_set/copy, static, {r0, r1}, {r1}
 	def_method get_element, class/unordered_set/get_element, static, {r0, r1}, {r1}
-	def_method ref_element, class/unordered_set/ref_element, static, {r0, r1}, {r1}
 
 	def_method deinit, class/unordered_set/deinit, override
+	def_method get_length, class/unordered_set/get_length, override
+	def_method ref_element, class/unordered_set/ref_element, override
 
-	def_structure unordered_set, ref
+	def_structure unordered_set, sequence
 		ptr unordered_set_buckets
 		ptr unordered_set_key_callback
 	def_structure_end

@@ -19,7 +19,7 @@
 		if {slave}
 			;echo args to stdout, arg 1 is command name
 			static_call slave, get_args, {slave}, {args}
-			static_call vector, get_length, {args}, {argc}
+			slot_call vector, get_length, {args}, {argc}
 			if {argc != 1}
 				;strings from command line
 				assign {1}, {index}

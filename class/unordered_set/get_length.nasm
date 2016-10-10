@@ -25,7 +25,7 @@
 		;r1 = 0 if break, else not
 
 		vp_push r1
-		s_call vector, get_length, {[r0]}, {r0}
+		t_call vector, get_length, {[r0]}, {r0}
 		vp_pop r1
 		vp_add [r1], r0
 		vp_cpy r0, [r1]

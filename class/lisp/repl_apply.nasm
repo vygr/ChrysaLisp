@@ -28,7 +28,7 @@
 			ptr vars
 			ulong length
 			push_scope
-			static_call vector, get_length, {func}, {length}
+			slot_call vector, get_length, {func}, {length}
 			if {length == 3}
 				static_call vector, get_element, {func, 0}, {vars}
 				if {vars == this->lisp_sym_lambda}

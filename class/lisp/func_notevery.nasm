@@ -18,7 +18,7 @@
 		retire {r0, r1}, {this, args}
 
 		assign {0}, {value}
-		static_call vector, get_length, {args}, {length}
+		slot_call vector, get_length, {args}, {length}
 		if {length >= 3}
 			static_call vector, get_element, {args, 1}, {func}
 			assign {1000000}, {seq_length}
@@ -34,7 +34,7 @@
 					assign {2}, {list_num}
 					loop_start
 						static_call vector, get_element, {args, list_num}, {value}
-						static_call vector, ref_element, {value, seq_num}, {value}
+						slot_call vector, ref_element, {value, seq_num}, {value}
 						static_call vector, set_element, {form, value, list_num - 1}
 						assign {list_num + 1}, {list_num}
 					loop_until {list_num == length}
@@ -79,7 +79,7 @@
 		retire {r0, r1}, {iter, pdata}
 
 		if {(*iter)->obj_vtable == @class/class_vector}
-			static_call vector, get_length, {*iter}, {length}
+			slot_call vector, get_length, {*iter}, {length}
 			if {length < *pdata}
 				assign {length}, {*pdata}
 			endif

@@ -1,7 +1,5 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
-%include 'class/class_unordered_set.inc'
-%include 'class/class_unordered_map.inc'
 %include 'class/class_boxed_long.inc'
 %include 'class/class_lisp.inc'
 
@@ -20,7 +18,7 @@
 		retire {r0, r1}, {this, args}
 
 		assign {0}, {value}
-		static_call vector, get_length, {args}, {length}
+		slot_call vector, get_length, {args}, {length}
 		if {length == 3}
 			static_call vector, get_element, {args, 1}, {index}
 			if {index->obj_vtable == @class/class_boxed_long}
@@ -28,9 +26,9 @@
 				static_call lisp, seq_is_seq, {this, seq}, {elem_index}
 				if {elem_index}
 					static_call boxed_long, get_value, {index}, {elem_index}
-					static_call lisp, seq_get_length, {this, seq}, {length}
+					method_call sequence, get_length, {seq}, {length}
 					if {elem_index >= 0 && elem_index < length}
-						static_call lisp, seq_ref_element, {this, seq, elem_index}, {value}
+						method_call sequence, ref_element, {seq, elem_index}, {value}
 					else
 						static_call lisp, error, {this, "(elem index seq) index out of bounds", args}
 					endif
