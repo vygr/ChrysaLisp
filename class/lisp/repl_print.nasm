@@ -3,7 +3,6 @@
 %include 'class/class_vector.inc'
 %include 'class/class_symbol.inc'
 %include 'class/class_boxed_long.inc'
-%include 'class/class_boxed_ptr.inc'
 %include 'class/class_pair.inc'
 %include 'class/class_unordered_set.inc'
 %include 'class/class_unordered_map.inc'
@@ -37,8 +36,10 @@
 		const char_lab, "<"
 		const char_rab, ">"
 		const char_lf, 10
+		const char_at, '@'
 
 		ptr this, stream, value, elem
+		pubyte name_offset
 		long num
 
 		push_scope
@@ -122,6 +123,12 @@
 					static_call stream, write_char, {stream, char_rrb}
 					pop_scope
 				endif
+				break
+			default
+				assign {elem - 1}, {name_offset}
+				assign {elem - *name_offset}, {elem}
+				static_call stream, write_char, {stream, char_at}
+				static_call stream, write_cstr, {stream, elem}
 			endswitch
 		endif
 
