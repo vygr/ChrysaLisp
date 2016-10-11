@@ -59,23 +59,17 @@
 				static_call stream, write_char, {stream, char_double_quote}
 				break
 			case {elem == @class/class_boxed_long}
-				long num
-				push_scope
-				static_call boxed_long, get_value, {value}, {num}
-				static_call symbol, create_from_long, {num, 10}, {value}
+				static_call boxed_long, get_value, {value}, {elem}
+				static_call symbol, create_from_long, {elem, 10}, {value}
 				static_call stream, write, {stream, &value->string_data, value->string_length}
 				static_call ref, deref, {value}
-				pop_scope
 				break
 			case {elem == @class/class_boxed_ptr}
-				long num
-				push_scope
 				static_call stream, write_cstr, {stream, "#0x"}
-				static_call boxed_ptr, get_value, {value}, {num}
-				static_call symbol, create_from_long, {num, 16}, {value}
+				static_call boxed_ptr, get_value, {value}, {elem}
+				static_call symbol, create_from_long, {elem, 16}, {value}
 				static_call stream, write, {stream, &value->string_data, value->string_length}
 				static_call ref, deref, {value}
-				pop_scope
 				break
 			case {elem == @class/class_pair}
 				static_call stream, write_char, {stream, char_lab}
