@@ -16,13 +16,6 @@
 		;outputs
 		;r0 = lisp object
 
-		def_structure pdata
-			ptr pdata_this
-			ptr pdata_stream
-			uint pdata_index
-			uint pdata_length
-		def_structure_end
-
 		const char_minus, "-"
 		const char_single_quote, "'"
 		const char_double_quote, '"'
@@ -38,9 +31,14 @@
 		const char_lf, 10
 		const char_at, '@'
 
+		def_structure pdata
+			ptr pdata_this
+			ptr pdata_stream
+			uint pdata_index
+			uint pdata_length
+		def_structure_end
+
 		ptr this, stream, value, elem
-		pubyte name_offset
-		long num
 
 		push_scope
 		retire {r0, r1, r2}, {this, stream, value}
@@ -61,17 +59,23 @@
 				static_call stream, write_char, {stream, char_double_quote}
 				break
 			case {elem == @class/class_boxed_long}
+				long num
+				push_scope
 				static_call boxed_long, get_value, {value}, {num}
 				static_call symbol, create_from_long, {num, 10}, {value}
 				static_call stream, write, {stream, &value->string_data, value->string_length}
 				static_call ref, deref, {value}
+				pop_scope
 				break
 			case {elem == @class/class_boxed_ptr}
+				long num
+				push_scope
 				static_call stream, write_cstr, {stream, "#0x"}
 				static_call boxed_ptr, get_value, {value}, {num}
 				static_call symbol, create_from_long, {num, 16}, {value}
 				static_call stream, write, {stream, &value->string_data, value->string_length}
 				static_call ref, deref, {value}
+				pop_scope
 				break
 			case {elem == @class/class_pair}
 				static_call stream, write_char, {stream, char_lab}
@@ -86,9 +90,8 @@
 				struct pdata, pdata
 				push_scope
 				static_call stream, write_char, {stream, char_lsb}
-				slot_call unordered_set, get_length, {value}, {num}
-				assign {this, stream, 0, num}, {pdata.pdata_this, pdata.pdata_stream, \
-												pdata.pdata_index, pdata.pdata_length}
+				slot_call unordered_set, get_length, {value}, {pdata.pdata_length}
+				assign {this, stream, 0}, {pdata.pdata_this, pdata.pdata_stream, pdata.pdata_index}
 				static_call unordered_set, for_each, {value, $callback, &pdata}, {_, _}
 				static_call stream, write_char, {stream, char_rsb}
 				pop_scope
@@ -97,16 +100,17 @@
 				struct pdata, pdata
 				push_scope
 				static_call stream, write_char, {stream, char_lcb}
-				slot_call unordered_map, get_length, {value}, {num}
-				assign {this, stream, 0, num}, {pdata.pdata_this, pdata.pdata_stream, \
-												pdata.pdata_index, pdata.pdata_length}
+				slot_call unordered_map, get_length, {value}, {pdata.pdata_length}
+				assign {this, stream, 0}, {pdata.pdata_this, pdata.pdata_stream, pdata.pdata_index}
 				static_call unordered_map, for_each, {value, $callback, &pdata}, {_, _}
 				static_call stream, write_char, {stream, char_rcb}
 				pop_scope
 				break
 			case {elem == @class/class_vector}
-				slot_call vector, get_length, {value}, {num}
-				if {num}
+				struct pdata, pdata
+				push_scope
+				slot_call vector, get_length, {value}, {pdata.pdata_length}
+				if {pdata.pdata_length}
 					static_call vector, get_element, {value, 0}, {elem}
 					gotoif {elem != this->lisp_sym_quote}, notquote
 					static_call stream, write_char, {stream, char_single_quote}
@@ -114,21 +118,21 @@
 					static_call lisp, repl_print, {this, stream, elem}
 				else
 				notquote:
-					struct pdata, pdata
-					push_scope
 					static_call stream, write_char, {stream, char_lrb}
-					assign {this, stream, 0, num}, {pdata.pdata_this, pdata.pdata_stream, \
-													pdata.pdata_index, pdata.pdata_length}
+					assign {this, stream, 0}, {pdata.pdata_this, pdata.pdata_stream, pdata.pdata_index}
 					static_call vector, for_each, {value, 0, $callback, &pdata}, {_}
 					static_call stream, write_char, {stream, char_rrb}
-					pop_scope
 				endif
+				pop_scope
 				break
 			default
+				pubyte name_offset
+				push_scope
 				assign {elem - 1}, {name_offset}
 				assign {elem - *name_offset}, {elem}
 				static_call stream, write_char, {stream, char_at}
 				static_call stream, write_cstr, {stream, elem}
+				pop_scope
 			endswitch
 		endif
 
