@@ -1,11 +1,7 @@
 %include 'inc/func.inc'
-%include 'class/class_boxed_ptr.inc'
-%include 'class/class_boxed_long.inc'
 %include 'class/class_symbol.inc'
 %include 'class/class_vector.inc'
-%include 'class/class_unordered_set.inc'
-%include 'class/class_unordered_map.inc'
-%include 'class/class_pair.inc'
+%include 'class/class_boxed_ptr.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/repl_eval
@@ -31,16 +27,6 @@
 			static_call lisp, env_get, {this, form}, {value}
 			breakif {value}
 			static_call lisp, error, {this, "variable not bound", form}
-			break
-		case {func == @class/class_boxed_ptr \
-		 	|| func == @class/class_boxed_long \
-			|| func == @class/class_pair \
-			|| func == @class/class_string \
-			|| func == @class/class_unordered_set \
-			|| func == @class/class_unordered_map}
-			;eval to self
-			assign {form}, {value}
-			static_call ref, ref, {value}
 			break
 		case {func == @class/class_vector}
 			slot_call vector, get_length, {form}, {length}
@@ -69,7 +55,9 @@
 			endif
 			break
 		default
-			static_call lisp, error, {this, "unknown type", form}
+			;eval to self
+			assign {form}, {value}
+			static_call ref, ref, {value}
 		endswitch
 
 		eval {this, value}, {r0, r1}
