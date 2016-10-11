@@ -27,7 +27,8 @@
 		slot_call vector, get_length, {args}, {length}
 		if {length >= 3}
 			static_call vector, get_element, {args, 2}, {func}
-			static_call lisp, seq_is_seq, {this, func}, {pdata.pdata_type}
+			slot_function class, sequence
+			static_call obj, inst_of, {func, @_function_}, {pdata.pdata_type}
 			if {pdata.pdata_type}
 				assign {1000000}, {pdata.pdata_length}
 				static_call vector, get_element, {args, 1}, {func}

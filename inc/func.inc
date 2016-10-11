@@ -176,9 +176,10 @@
 		dd	_func_entry - _func_start
 		dd	_func_links - _func_start
 		dd	_func_paths - _func_start
+	_func_name_start:
 		db	_func_name
-		db	0
-		align 8, db 0
+		db	0, _func_entry - _func_name_start
+		align 8, db _func_entry - _func_name_start
 	_func_entry:
 		;define the operators
 		;values are precidence, assoiciativity

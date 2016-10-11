@@ -21,7 +21,8 @@
 		if {length == 3 || length == 4}
 			static_call vector, get_element, {args, 1}, {func}
 			static_call vector, get_element, {args, 2}, {seq}
-			static_call lisp, seq_is_seq, {this, seq}, {form}
+			slot_function class, sequence
+			static_call obj, inst_of, {seq, @_function_}, {form}
 			if {form}
 				method_call sequence, get_length, {seq}, {seq_length}
 				if {(length == 3 && seq_length > 0) || length == 4}

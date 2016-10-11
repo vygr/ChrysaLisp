@@ -7,8 +7,14 @@
 
 	%assign _map_null_slots_ 0
 
-	%macro vtable_emit 1
+	%macro vtable_emit 1-2
 		;%1 = class name
+		;%2 = parent class name
+		%if %0 = 1
+			dq 0
+		%else
+			fn_add_link %2
+		%endif
 		%assign %%n 0
 		%rep _map_%1_slots_
 			%ifidn _map_%1_type_%[%%n], virtual
@@ -120,13 +126,13 @@
 		%ifndef _map_%1_slots_
 			%fatal Class %1 not defined !
 		%endif
-		%assign _virtual_ 0
+		%assign _virtual_ ptr_size
 		%assign _static_ 0
 		%rep _map_%1_slots_
 			%ifidn _map_%1_name_%[_static_], %2
 				%exitrep
 			%elifidn _map_%1_type_%[_static_], virtual
-				%assign _virtual_ _virtual_ + 1
+				%assign _virtual_ _virtual_ + ptr_size
 				%assign _static_ _static_ + 1
 			%else
 				%assign _static_ _static_ + 1
@@ -282,7 +288,7 @@
 		%endif
 		map_inputs %1, %2, {%3}, _static_
 		vp_cpy [r0 + obj_vtable], %5
-		vp_call [%5 + _virtual_ * 8]
+		vp_call [%5 + _virtual_]
 		map_outputs %1, %2, {%4}, _static_
 	%endmacro
 
@@ -298,7 +304,7 @@
 		%endif
 		map_inputs %1, %2, {%3}, _static_
 		vp_cpy [r0 + obj_vtable], %4
-		vp_jmp [%4 + _virtual_ * 8]
+		vp_jmp [%4 + _virtual_]
 	%endmacro
 
 	%macro m_bind 2-3 r15
@@ -311,7 +317,7 @@
 			%fatal Class %1 method %2 is static ! Use s_bind ?
 		%endif
 		vp_cpy [r0 + obj_vtable], %3
-		vp_cpy [%3 + _virtual_ * 8], %3
+		vp_cpy [%3 + _virtual_], %3
 	%endmacro
 
 	%macro t_call 2-4 {}, {}
@@ -396,7 +402,7 @@
 		%endif
 		eval {RXX, %3}, {%5, _map_%1_in_%[_static_]}
 		vp_cpy [r0 + obj_vtable], %5
-		vp_call [%5 + _virtual_ * 8]
+		vp_call [%5 + _virtual_]
 		retire {_map_%1_out_%[_static_]}, {%4}
 	%endmacro
 
@@ -456,6 +462,7 @@
 	def_method boxed_long, class/class_boxed_long
 	def_method lisp, class/class_lisp
 	def_method symbol, class/class_symbol
+	def_method sequence, class/class_sequence
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction
@@ -463,8 +470,14 @@
 
 	%macro class_macro_class 1
 		;%1 = class name
-		def_function class/class_%1
-			vtable_emit %1
+		slot_function class, %1
+		def_function _function_
+			%ifidn _super_class_%1_, null
+				vtable_emit %1
+			%else
+				slot_function class, _super_class_%1_
+				vtable_emit %1, _function_
+			%endif
 		def_function_end
 	%endmacro
 

@@ -23,7 +23,8 @@
 			static_call vector, get_element, {args, 1}, {index}
 			if {index->obj_vtable == @class/class_boxed_long}
 				static_call vector, get_element, {args, 2}, {seq}
-				static_call lisp, seq_is_seq, {this, seq}, {elem_index}
+				slot_function class, sequence
+				static_call obj, inst_of, {seq, @_function_}, {elem_index}
 				if {elem_index}
 					static_call boxed_long, get_value, {index}, {elem_index}
 					method_call sequence, get_length, {seq}, {length}
