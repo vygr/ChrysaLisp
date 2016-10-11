@@ -36,6 +36,7 @@
 				ifnot {iter}
 					static_call vector, create, {}, {value}
 					breakifnot {pdata.pdata_length}
+					static_call vector, set_capacity, {value, pdata.pdata_length}
 					assign {0}, {seq_num}
 					static_call vector, slice, {args, 1, length}, {form}
 					static_call ref, ref, {func}
