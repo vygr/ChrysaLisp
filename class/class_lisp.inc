@@ -29,15 +29,18 @@
 
 	def_method repl, class/lisp/repl, static, {r0, r1}
 	def_method repl_read, class/lisp/repl_read, static, {r0, r1, r2}, {r1, r2}
+	def_method repl_read_quote, class/lisp/repl_read_quote, static, {r0, r1, r2}, {r1, r2}
+	def_method repl_read_qquote, class/lisp/repl_read_qquote, static, {r0, r1, r2}, {r1, r2}
+	def_method repl_read_unquote, class/lisp/repl_read_unquote, static, {r0, r1, r2}, {r1, r2}
+	def_method repl_read_splicing, class/lisp/repl_read_splicing, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_read_list, class/lisp/repl_read_list, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_read_pair, class/lisp/repl_read_pair, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_read_sym, class/lisp/repl_read_sym, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_read_str, class/lisp/repl_read_str, static, {r0, r1, r2}, {r1, r2}
 	def_method repl_read_num, class/lisp/repl_read_num, static, {r0, r1, r2}, {r1, r2}
-	def_method repl_read_quote, class/lisp/repl_read_quote, static, {r0, r1, r2}, {r1, r2}
-	def_method repl_apply, class/lisp/repl_apply, static, {r0, r1, r2}, {r1}
 	def_method repl_eval, class/lisp/repl_eval, static, {r0, r1}, {r1}
 	def_method repl_eval_list, class/lisp/repl_eval_list, static, {r0, r1, r2}, {r1}
+	def_method repl_apply, class/lisp/repl_apply, static, {r0, r1, r2}, {r1}
 	def_method repl_print, class/lisp/repl_print, static, {r0, r1, r2}
 
 	def_method func_def, class/lisp/func_def, static, {r0, r1}, {r1}
@@ -46,6 +49,9 @@
 	def_method func_list, class/lisp/func_list, static, {r0, r1}, {r1}
 	def_method func_lambda, class/lisp/func_lambda, static, {r0, r1}, {r1}
 	def_method func_quote, class/lisp/func_quote, static, {r0, r1}, {r1}
+	def_method func_qquote, class/lisp/func_qquote, static, {r0, r1}, {r1}
+	def_method func_unquote, class/lisp/func_unquote, static, {r0, r1}, {r1}
+	def_method func_splicing, class/lisp/func_splicing, static, {r0, r1}, {r1}
 	def_method func_add, class/lisp/func_add, static, {r0, r1}, {r1}
 	def_method func_sub, class/lisp/func_sub, static, {r0, r1}, {r1}
 	def_method func_mul, class/lisp/func_mul, static, {r0, r1}, {r1}
@@ -90,6 +96,9 @@
 		ptr lisp_sym_t
 		ptr lisp_sym_lambda
 		ptr lisp_sym_quote
+		ptr lisp_sym_qquote
+		ptr lisp_sym_unquote
+		ptr lisp_sym_splicing
 	def_structure_end
 
 %endif

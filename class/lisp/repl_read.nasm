@@ -21,8 +21,11 @@
 		const char_0, '0'
 		const char_9, '9'
 		const char_minus, '-'
-		const char_single_quote, "'"
+		const char_quote, "'"
 		const char_double_quote, '"'
+		const char_quasi_quote, '`'
+		const char_unquote, ','
+		const char_splicing, '~'
 
 		ptr this, stream, ast
 		ulong char
@@ -59,8 +62,17 @@
 			case {char == char_double_quote}
 				static_call lisp, repl_read_str, {this, stream, char}, {ast, char}
 				break
-			case {char == char_single_quote}
+			case {char == char_quote}
 				static_call lisp, repl_read_quote, {this, stream, char}, {ast, char}
+				break
+			case {char == char_quasi_quote}
+				static_call lisp, repl_read_qquote, {this, stream, char}, {ast, char}
+				break
+			case {char == char_unquote}
+				static_call lisp, repl_read_unquote, {this, stream, char}, {ast, char}
+				break
+			case {char == char_splicing}
+				static_call lisp, repl_read_splicing, {this, stream, char}, {ast, char}
 				break
 			default
 				static_call lisp, repl_read_sym, {this, stream, char}, {ast, char}

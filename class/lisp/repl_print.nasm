@@ -17,8 +17,11 @@
 		;r0 = lisp object
 
 		const char_minus, "-"
-		const char_single_quote, "'"
+		const char_quote, "'"
 		const char_double_quote, '"'
+		const char_quasi_quote, '`'
+		const char_unquote, ','
+		const char_splicing, '~'
 		const char_space, " "
 		const char_lrb, "("
 		const char_rrb, ")"
@@ -106,8 +109,22 @@
 				slot_call vector, get_length, {value}, {pdata.pdata_length}
 				if {pdata.pdata_length}
 					static_call vector, get_element, {value, 0}, {elem}
-					gotoif {elem != this->lisp_sym_quote}, notquote
-					static_call stream, write_char, {stream, char_single_quote}
+					switch
+					case {elem == this->lisp_sym_quote}
+						static_call stream, write_char, {stream, char_quote}
+						break
+					case {elem == this->lisp_sym_qquote}
+						static_call stream, write_char, {stream, char_quasi_quote}
+						break
+					case {elem == this->lisp_sym_unquote}
+						static_call stream, write_char, {stream, char_unquote}
+						break
+					case {elem == this->lisp_sym_splicing}
+						static_call stream, write_char, {stream, char_splicing}
+						break
+					default
+						goto notquote
+					endswitch
 					static_call vector, get_element, {value, 1}, {elem}
 					static_call lisp, repl_print, {this, stream, elem}
 				else
