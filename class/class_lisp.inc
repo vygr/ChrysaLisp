@@ -99,6 +99,8 @@
 		ptr lisp_sym_qquote
 		ptr lisp_sym_unquote
 		ptr lisp_sym_splicing
+		ptr lisp_sym_cat
+		ptr lisp_sym_list
 	def_structure_end
 
 %endif

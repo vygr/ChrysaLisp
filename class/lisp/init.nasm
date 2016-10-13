@@ -129,14 +129,14 @@
 		built_in "when", 0, func_when, 1
 		built_in "while", 0, func_while, 1
 
+		built_in "cat", lisp_sym_cat, func_cat
+		built_in "list", lisp_sym_list, func_list
 		built_in "add", 0, func_add
-		built_in "cat", 0, func_cat
 		built_in "div", 0, func_div
 		built_in "env", 0, func_env
 		built_in "eq", 0, func_eq
 		built_in "every", 0, func_every
 		built_in "length", 0, func_length
-		built_in "list", 0, func_list
 		built_in "lt", 0, func_lt
 		built_in "map", 0, func_map
 		built_in "mod", 0, func_mod
