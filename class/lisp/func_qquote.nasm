@@ -35,14 +35,6 @@
 				static_call lisp, repl_eval, {pdata.pdata_this, pdata.pdata_list}, {value}
 				static_call ref, deref, {pdata.pdata_list}
 				break
-			case {args->obj_vtable == @class/class_symbol}
-				static_call vector, create, {}, {value}
-				assign {pdata.pdata_this->lisp_sym_quote}, {pdata.pdata_list}
-				static_call ref, ref, {pdata.pdata_list}
-				static_call vector, push_back, {value, pdata.pdata_list}
-				static_call ref, ref, {args}
-				static_call vector, push_back, {value, args}
-				break
 			default
 				static_call ref, ref, {args}
 				assign {args}, {value}
