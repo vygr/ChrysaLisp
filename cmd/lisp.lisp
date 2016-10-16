@@ -9,7 +9,7 @@
 	`(progn
 		(def (_l) (,s))
 		(while (lt _l ,e)
-			(~b _l)
+			,b
 			(setl (_l) ((add _l ,i))))))
 
 (defmacro do10 (f)
