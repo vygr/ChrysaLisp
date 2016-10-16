@@ -56,20 +56,20 @@
 
 	callback:
 		;inputs
-		;r0 = element iterator
-		;r1 = predicate data pointer
+		;r0 = predicate data pointer
+		;r1 = element iterator
 		;outputs
 		;r1 = 0 if break, else not
 
 		const char_lf, 10
 		pptr iter
-		ptr slave
+		ptr pdata
 
 		push_scope
-		retire {r0, r1}, {iter, slave}
+		retire {r0, r1}, {pdata, iter}
 
-		static_call stream, write, {slave->slave_stdout, &(*iter)->string_data, (*iter)->string_length}
-		static_call stream, write_char, {slave->slave_stdout, char_lf}
+		static_call stream, write, {pdata->slave_stdout, &(*iter)->string_data, (*iter)->string_length}
+		static_call stream, write_char, {pdata->slave_stdout, char_lf}
 
 		eval {1}, {r1}
 		pop_scope

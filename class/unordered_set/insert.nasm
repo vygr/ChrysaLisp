@@ -44,14 +44,14 @@
 
 	callback:
 		;inputs
-		;r0 = element iterator
-		;r1 = predicate data pointer
+		;r0 = predicate data pointer
+		;r1 = element iterator
 		;outputs
 		;r1 = 0 if break, else not
 
-		vp_cpy [r0], r0
-		vp_cpy [r1 + local_inst], r2
-		vp_cpy [r1 + local_key], r1
+		vp_cpy [r1], r1
+		vp_cpy [r0 + local_inst], r2
+		vp_cpy [r0 + local_key], r0
 		vp_jmp [r2 + unordered_set_key_callback]
 
 	def_function_end

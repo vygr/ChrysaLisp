@@ -18,12 +18,12 @@
 
 	callback:
 		;inputs
-		;r0 = element iterator
-		;r1 = predicate data pointer
+		;r0 = predicate data pointer
+		;r1 = element iterator
 		;outputs
 		;r1 = 0 if break, else not
 
-		s_call vector, clear, {[r0]}
+		s_call vector, clear, {[r1]}
 		vp_cpy 1, r1
 		vp_ret
 

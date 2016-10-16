@@ -34,27 +34,24 @@
 
 	callback:
 		;inputs
-		;r0 = element iterator
-		;r1 = predicate data pointer
+		;r0 = predicate data pointer
+		;r1 = element iterator
 		;outputs
 		;r1 = 0 if break, else not
 
-		vp_push r1
-		vp_cpy [r0], r0
+		vp_cpy r0, r5
+		vp_cpy [r1], r0
 		vp_cpy [r0 + vector_length], r2
 		vp_shr 3, r2
-		vp_cpy [r1 + local_index], r3
+		vp_cpy [r5 + local_index], r3
 		if r3, >=, r2
 			vp_sub r2, r3
-			vp_cpy r3, [r1 + local_index]
-			vp_cpy 1, r1
+			vp_cpy r3, [r5 + local_index]
 		else
 			s_call vector, get_element, {r0, r3}, {r1}
-			vp_cpy [r4], r0
-			vp_cpy r1, [r0 + local_elem]
+			vp_cpy r1, [r5 + local_elem]
 			vp_xor r1, r1
 		endif
-		vp_add ptr_size, r4
 		vp_ret
 
 	def_function_end

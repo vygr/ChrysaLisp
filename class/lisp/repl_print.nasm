@@ -153,8 +153,8 @@
 
 	callback:
 		;inputs
-		;r0 = element iterator
-		;r1 = predicate data pointer
+		;r0 = predicate data pointer
+		;r1 = element iterator
 		;outputs
 		;r1 = 0 if break, else not
 
@@ -164,7 +164,7 @@
 		ptr pdata
 
 		push_scope
-		retire {r0, r1}, {iter, pdata}
+		retire {r0, r1}, {pdata, iter}
 
 		static_call lisp, repl_print, {pdata->pdata_this, pdata->pdata_stream, *iter}
 		assign {pdata->pdata_index + 1}, {pdata->pdata_index}

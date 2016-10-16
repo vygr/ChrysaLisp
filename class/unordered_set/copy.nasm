@@ -32,13 +32,13 @@
 
 	callback:
 		;inputs
-		;r0 = element iterator
-		;r1 = predicate data pointer
+		;r0 = predicate data pointer
+		;r1 = element iterator
 		;outputs
 		;r1 = 0 if break, else not
 
-		vp_cpy r1, r2
-		s_call ref, ref, {[r0]}
+		vp_cpy r0, r2
+		s_call ref, ref, {[r1]}
 		vp_push r0
 		s_call unordered_set, get_bucket, {[r2 + local_obj], r0}, {r0}
 		vp_pop r1

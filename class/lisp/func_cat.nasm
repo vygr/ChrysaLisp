@@ -47,8 +47,8 @@
 
 	callback:
 		;inputs
-		;r0 = element iterator
-		;r1 = predicate data pointer
+		;r0 = predicate data pointer
+		;r1 = element iterator
 		;outputs
 		;r1 = 0 if break, else not
 
@@ -57,7 +57,7 @@
 		ulong length
 
 		push_scope
-		retire {r0, r1}, {iter, pdata}
+		retire {r0, r1}, {pdata, iter}
 
 		assign {*iter}, {elem}
 		if {elem->obj_vtable == pdata->pdata_value->obj_vtable}

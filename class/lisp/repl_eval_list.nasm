@@ -33,24 +33,24 @@
 
 	callback:
 		;inputs
-		;r0 = element iterator
-		;r1 = predicate data pointer
+		;r0 = predicate data pointer
+		;r1 = element iterator
 		;outputs
 		;r1 = 0 if break, else not
 
 		pptr iter
-		ptr this
+		ptr pdata
 
 		push_scope
-		retire {r0, r1}, {iter, this}
+		retire {r0, r1}, {pdata, iter}
 
-		static_call lisp, repl_eval, {this, *iter}, {this}
-		if {this}
+		static_call lisp, repl_eval, {pdata, *iter}, {pdata}
+		if {pdata}
 			static_call ref, deref, {*iter}
-			assign {this}, {*iter}
+			assign {pdata}, {*iter}
 		endif
 
-		eval {this}, {r1}
+		eval {pdata}, {r1}
 		pop_scope
 		return
 

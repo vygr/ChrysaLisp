@@ -46,7 +46,8 @@
 						return
 					endif
 				endif
-				static_call vector, for_each, {form, 0, $callback, this}, {iter}
+				slot_function lisp, repl_expand
+				static_call vector, for_each, {form, 0, @_function_, this}, {iter}
 				assign {!iter}, {iter}
 			endif
 		endif
@@ -54,15 +55,5 @@
 		eval {this, iter}, {r0, r1}
 		pop_scope
 		return
-
-	callback:
-		;inputs
-		;r0 = element iterator
-		;r1 = predicate data pointer
-		;outputs
-		;r1 = 0 if break, else not
-
-		vp_xchg r0, r1
-		s_jmp lisp, repl_expand, {r0, r1}
 
 	def_function_end

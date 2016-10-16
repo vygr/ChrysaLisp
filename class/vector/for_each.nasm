@@ -14,8 +14,8 @@
 		;all but r0, r4
 			;callback predicate
 			;inputs
-			;r0 = element iterator
-			;r1 = predicate data pointer
+			;r0 = predicate data pointer
+			;r1 = element iterator
 			;outputs
 			;r1 = 0 if break, else not
 			;trashes
@@ -40,19 +40,20 @@
 		vp_cpy [r0 + vector_array], r0
 		vp_add r0, r2
 		vp_mul ptr_size, r1
-		vp_add r1, r0
+		vp_add r0, r1
 		vp_cpy r2, [r4 + local_end]
-		loop_while r0, !=, [r4 + local_end]
-			vp_cpy r0, [r4 + local_next]
-			vp_cpy [r4 + local_predicate_data], r1
+		loop_start
+			vp_cpy r1, [r4 + local_next]
+			breakif r1, ==, [r4 + local_end]
+			vp_cpy [r4 + local_predicate_data], r0
 			vp_call [r4 + local_predicate]
-			vp_cpy [r4 + local_next], r0
 			breakif r1, ==, 0
-			vp_add ptr_size, r0
+			vp_cpy [r4 + local_next], r1
+			vp_add ptr_size, r1
 		loop_end
 
 		;iterator of break point, else 0
-		vp_cpy r0, r1
+		vp_cpy [r4 + local_next], r1
 		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r0 + vector_array], r2
 		vp_add [r0 + vector_length], r2

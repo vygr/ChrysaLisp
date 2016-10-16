@@ -34,8 +34,8 @@
 
 	callback:
 		;inputs
-		;r0 = element iterator
-		;r1 = predicate data pointer
+		;r0 = predicate data pointer
+		;r1 = element iterator
 		;outputs
 		;r1 = 0 if break, else not
 
@@ -43,7 +43,7 @@
 		ptr pdata, test
 
 		push_scope
-		retire {r0, r1}, {iter, pdata}
+		retire {r0, r1}, {pdata, iter}
 
 		if {(*iter)->obj_vtable == @class/class_vector}
 			slot_call vector, get_length, {*iter}, {test}

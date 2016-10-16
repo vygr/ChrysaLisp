@@ -19,16 +19,16 @@
 
 	callback:
 		;inputs
-		;r0 = element iterator
-		;r1 = predicate data pointer
+		;r0 = predicate data pointer
+		;r1 = element iterator
 		;outputs
 		;r1 = 0 if break, else not
 
-		vp_push r1
-		t_call vector, get_length, {[r0]}, {r0}
-		vp_pop r1
-		vp_add [r1], r0
-		vp_cpy r0, [r1]
+		vp_cpy [r1], r1
+		vp_cpy [r1 + vector_length], r2
+		vp_shr 3, r2
+		vp_add [r0], r2
+		vp_cpy r2, [r0]
 		vp_ret
 
 	def_function_end
