@@ -13,7 +13,6 @@
 		;r1 = 0, else value
 
 		ptr this, args
-		ulong length
 
 		push_scope
 		retire {r0, r1}, {this, args}

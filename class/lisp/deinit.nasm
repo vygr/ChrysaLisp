@@ -15,6 +15,7 @@
 		;deinit myself
 		static_call ref, deref, {this->lisp_symbols}
 		static_call ref, deref, {this->lisp_enviroment}
+		static_call ref, deref, {this->lisp_macros}
 
 		;deinit parent
 		super_call lisp, deinit, {this}

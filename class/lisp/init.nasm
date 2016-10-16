@@ -59,10 +59,11 @@
 			assign {stdout}, {this->lisp_stdout}
 			assign {stderr}, {this->lisp_stderr}
 
-			;interned symbols set and enviroment
+			;interned symbols set and enviroments
 			slot_function symbol, compare
 			static_call unordered_set, create, {@_function_, 31}, {this->lisp_symbols}
 			static_call unordered_map, create, {$match_obj, 31}, {this->lisp_enviroment}
+			static_call unordered_map, create, {$match_obj, 31}, {this->lisp_macros}
 
 			;intern standard built in symbols
 			;fixup built in functions
@@ -120,17 +121,24 @@
 		built_in "or", 0, func_or, 1
 		built_in "quote", lisp_sym_quote, func_quote, 1
 		built_in "quasi-quote", lisp_sym_qquote, func_qquote, 1
-		built_in "unquote", lisp_sym_unquote, func_unquote, 1
-		built_in "unquote-splicing", lisp_sym_splicing, func_splicing, 1
 		built_in "set", 0, func_set, 1
 		built_in "setl", 0, func_setl, 1
 		built_in "unless", 0, func_unless, 1
 		built_in "until", 0, func_until, 1
 		built_in "when", 0, func_when, 1
 		built_in "while", 0, func_while, 1
+		built_in "defmacro", 0, func_defmacro, 1
 
+		built_in "unquote", lisp_sym_unquote
+		built_in "unquote-splicing", lisp_sym_splicing
 		built_in "cat", lisp_sym_cat, func_cat
 		built_in "list", lisp_sym_list, func_list
+
+		built_in "macroexpand-1", 0, func_macroexpand_1
+		built_in "macroexpand", 0, func_macroexpand
+		built_in "m1", 0, func_macroexpand_1
+		built_in "m", 0, func_macroexpand
+		built_in "copy", 0, func_copy
 		built_in "add", 0, func_add
 		built_in "div", 0, func_div
 		built_in "env", 0, func_env

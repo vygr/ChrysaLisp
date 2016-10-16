@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
+%include 'class/class_vector.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/repl
@@ -11,7 +12,7 @@
 
 		const char_lf, 10
 
-		ptr this, stream, ast, value
+		ptr this, stream, ast, value, macro
 		ulong char
 
 		push_scope
@@ -19,21 +20,38 @@
 
 		static_call stream, read_char, {stream}, {char}
 		loop_start
-			method_call stream, write_flush, {this->lisp_stdout}
-			static_call sys_task, yield
 			method_call stream, write_flush, {this->lisp_stderr}
+			static_call sys_task, yield
+			method_call stream, write_flush, {this->lisp_stdout}
 
 			static_call lisp, repl_read, {this, stream, char}, {ast, char}
 			breakif {char == -1}
 			continueifnot {ast}
 
 			if {stream == this->lisp_stdin}
-				static_call stream, write_cstr, {this->lisp_stdout, "--Ast--"}
-				static_call stream, write_char, {this->lisp_stdout, char_lf}
-				static_call lisp, repl_print, {this, this->lisp_stdout, ast}
-				static_call stream, write_char, {this->lisp_stdout, char_lf}
-				static_call stream, write_cstr, {this->lisp_stdout, "--Eval--"}
-				static_call stream, write_char, {this->lisp_stdout, char_lf}
+				static_call stream, write_cstr, {this->lisp_stderr, "--Ast--"}
+				static_call stream, write_char, {this->lisp_stderr, char_lf}
+				static_call lisp, repl_print, {this, this->lisp_stderr, ast}
+				static_call stream, write_char, {this->lisp_stderr, char_lf}
+			endif
+
+			static_call vector, create, {}, {macro}
+			assign {this->lisp_sym_t}, {value}
+			static_call ref, ref, {value}
+			static_call vector, push_back, {macro, value}
+			static_call vector, push_back, {macro, ast}
+			static_call lisp, func_macroexpand, {this, macro}, {ast}
+			static_call ref, deref, {macro}
+			continueifnot {ast}
+
+			if {stream == this->lisp_stdin}
+				static_call stream, write_cstr, {this->lisp_stderr, "--Macro expanded--"}
+				static_call stream, write_char, {this->lisp_stderr, char_lf}
+				static_call lisp, repl_print, {this, this->lisp_stderr, ast}
+				static_call stream, write_char, {this->lisp_stderr, char_lf}
+
+				static_call stream, write_cstr, {this->lisp_stderr, "--Eval--"}
+				static_call stream, write_char, {this->lisp_stderr, char_lf}
 			endif
 
 			static_call lisp, repl_eval, {this, ast}, {value}

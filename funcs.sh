@@ -50,3 +50,5 @@ function boot_cpu
 	fi
 	echo -cpu $1 $2
 }
+
+./stop.sh

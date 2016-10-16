@@ -1,3 +1,21 @@
+(defmacro times (c b)
+	`(progn
+		(def (_l) (0))
+		(while (lt _l ,c)
+			,b
+			(setl (_l) ((add _l 1))))))
+
+(defmacro for (s e i f)
+	`(progn
+		(def (_l) (,s))
+		(while (lt _l ,e)
+			(,f _l)
+			(setl (_l) ((add _l ,i))))))
+
+(defmacro do10 (f)
+	`(progn
+		(for 0 10 1 ,f)))
+
 (def (gte lte gt)
 	((lambda (x y)
 		(not (lt x y)))

@@ -50,8 +50,6 @@
 	def_method func_lambda, class/lisp/func_lambda, static, {r0, r1}, {r1}
 	def_method func_quote, class/lisp/func_quote, static, {r0, r1}, {r1}
 	def_method func_qquote, class/lisp/func_qquote, static, {r0, r1}, {r1}
-	def_method func_unquote, class/lisp/func_unquote, static, {r0, r1}, {r1}
-	def_method func_splicing, class/lisp/func_splicing, static, {r0, r1}, {r1}
 	def_method func_add, class/lisp/func_add, static, {r0, r1}, {r1}
 	def_method func_sub, class/lisp/func_sub, static, {r0, r1}, {r1}
 	def_method func_mul, class/lisp/func_mul, static, {r0, r1}, {r1}
@@ -82,6 +80,10 @@
 	def_method func_str, class/lisp/func_str, static, {r0, r1}, {r1}
 	def_method func_cat, class/lisp/func_cat, static, {r0, r1}, {r1}
 	def_method func_elem, class/lisp/func_elem, static, {r0, r1}, {r1}
+	def_method func_macroexpand_1, class/lisp/func_macroexpand_1, static, {r0, r1}, {r1, r2}
+	def_method func_macroexpand, class/lisp/func_macroexpand, static, {r0, r1}, {r1}
+	def_method func_defmacro, class/lisp/func_defmacro, static, {r0, r1}, {r1}
+	def_method func_copy, class/lisp/func_copy, static, {r0, r1}, {r1}
 
 	def_method deinit, class/lisp/deinit, override
 
@@ -91,6 +93,7 @@
 		ptr lisp_stderr
 		ptr lisp_symbols
 		ptr lisp_enviroment
+		ptr lisp_macros
 		ptr lisp_sym_parent
 		ptr lisp_sym_nil
 		ptr lisp_sym_t
