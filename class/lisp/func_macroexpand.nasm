@@ -23,8 +23,6 @@
 			static_call lisp, func_copy, {this, args}, {value}
 			loop_start
 				static_call lisp, repl_expand, {this, &value}, {length}
-				static_call lisp, repl_print, {this, this->lisp_stderr, value}
-				static_call stream, write_char, {this->lisp_stderr, 10}
 			loop_until {length}
 		else
 			static_call lisp, error, {this, "(macroexpand form) wrong number of args", args}
