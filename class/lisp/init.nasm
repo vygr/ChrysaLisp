@@ -58,6 +58,7 @@
 			assign {stdin}, {this->lisp_stdin}
 			assign {stdout}, {this->lisp_stdout}
 			assign {stderr}, {this->lisp_stderr}
+			assign {0}, {this->lisp_nextsym}
 
 			;interned symbols set and enviroments
 			slot_function symbol, compare
@@ -136,6 +137,7 @@
 
 		built_in "macroexpand-1", 0, func_macroexpand_1
 		built_in "macroexpand", 0, func_macroexpand
+		built_in "gensym", 0, func_gensym
 		built_in "copy", 0, func_copy
 		built_in "add", 0, func_add
 		built_in "div", 0, func_div

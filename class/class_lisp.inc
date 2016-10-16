@@ -85,6 +85,7 @@
 	def_method func_macroexpand, class/lisp/func_macroexpand, static, {r0, r1}, {r1}
 	def_method func_defmacro, class/lisp/func_defmacro, static, {r0, r1}, {r1}
 	def_method func_copy, class/lisp/func_copy, static, {r0, r1}, {r1}
+	def_method func_gensym, class/lisp/func_gensym, static, {r0, r1}, {r1}
 
 	def_method deinit, class/lisp/deinit, override
 
@@ -95,6 +96,7 @@
 		ptr lisp_symbols
 		ptr lisp_enviroment
 		ptr lisp_macros
+		ulong lisp_nextsym
 		ptr lisp_sym_parent
 		ptr lisp_sym_nil
 		ptr lisp_sym_t
