@@ -57,33 +57,12 @@
 
 (defun prin_num (n p c)
 	(progn
-		(def (s) ((str n)))
-		(def (l) ((length s)))
+		(defvar s (str n))
+		(defvar l (length s))
 		(while (lt l p)
 			(prin c)
-			(setl (l) ((add l 1))))
+			(setlvar l (add l 1)))
 		(prin s)))
-
-(defun fq (x y)
-	(mod (mul (cubed x) (squared y)) 10))
-
-(defun fxy (f w h)
-	(progn
-		(def (x y) (1 1))
-		(until (lt h y)
-			(setl (x) (1))
-			(until (lt w x)
-				(prin_num (f x y) 4 ".")
-				(setl (x) ((add x 1))))
-			(setl (y) ((add y 1)))
-			(print))))
-
-(defun repeat_fxy (l)
-	(progn
-		(def (c) (0))
-		(while (lt c l)
-			(fxy fq 10 20)
-			(setl (c) ((add c 1))))))
 
 (defmacro for (s e i b)
 	(progn
@@ -93,3 +72,26 @@
 			(while (lt ,_l ,_e)
 				,b
 				(setlvar ,_l (add ,_l ,_i))))))
+
+"Some test code"
+
+(defun fq (x y)
+	(mod (mul (cubed x) (squared y)) 10))
+
+(defun fxy (f w h)
+	(progn
+		(def (x y) (1 1))
+		(until (lt h y)
+			(setlvar x 1)
+			(until (lt w x)
+				(prin_num (f x y) 4 ".")
+				(setlvar x (add x 1)))
+			(setlvar y (add y 1))
+			(print))))
+
+(defun repeat_fxy (l)
+	(progn
+		(defvar c 0)
+		(while (lt c l)
+			(fxy fq 10 20)
+			(setlvar c (add c 1)))))
