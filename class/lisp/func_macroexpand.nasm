@@ -20,15 +20,12 @@
 		assign {0}, {value}
 		slot_call vector, get_length, {args}, {length}
 		if (length == 2)
+			static_call lisp, func_copy, {this, args}, {value}
 			loop_start
-				static_call lisp, func_macroexpand_1, {this, args}, {value, length}
-				static_call vector, set_element, {args, value, 1}
-
+				static_call lisp, repl_expand, {this, &value}, {length}
 				static_call lisp, repl_print, {this, this->lisp_stderr, value}
 				static_call stream, write_char, {this->lisp_stderr, 10}
-
 			loop_until {length}
-			slot_call vector, ref_element, {args, 1}, {value}
 		else
 			static_call lisp, error, {this, "(macroexpand form) wrong number of args", args}
 		endif

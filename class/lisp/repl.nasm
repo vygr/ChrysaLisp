@@ -12,8 +12,8 @@
 
 		const char_lf, 10
 
-		ptr this, stream, ast, value, macro
-		ulong char
+		ptr this, stream, ast, value
+		ulong char, flag
 
 		push_scope
 		retire {r0, r1}, {this, stream}
@@ -33,23 +33,19 @@
 				static_call stream, write_char, {this->lisp_stderr, char_lf}
 				static_call lisp, repl_print, {this, this->lisp_stderr, ast}
 				static_call stream, write_char, {this->lisp_stderr, char_lf}
+				static_call stream, write_cstr, {this->lisp_stderr, "--Macro expanding--"}
+				static_call stream, write_char, {this->lisp_stderr, char_lf}
 			endif
 
-			static_call vector, create, {}, {macro}
-			assign {this->lisp_sym_t}, {value}
-			static_call ref, ref, {value}
-			static_call vector, push_back, {macro, value}
-			static_call vector, push_back, {macro, ast}
-			static_call lisp, func_macroexpand, {this, macro}, {ast}
-			static_call ref, deref, {macro}
-			continueifnot {ast}
+			loop_start
+				static_call lisp, repl_expand, {this, &ast}, {flag}
+				if {stream == this->lisp_stdin}
+					static_call lisp, repl_print, {this, this->lisp_stderr, ast}
+					static_call stream, write_char, {this->lisp_stderr, 10}
+				endif
+			loop_until {flag}
 
 			if {stream == this->lisp_stdin}
-				static_call stream, write_cstr, {this->lisp_stderr, "--Macro expanded--"}
-				static_call stream, write_char, {this->lisp_stderr, char_lf}
-				static_call lisp, repl_print, {this, this->lisp_stderr, ast}
-				static_call stream, write_char, {this->lisp_stderr, char_lf}
-
 				static_call stream, write_cstr, {this->lisp_stderr, "--Eval--"}
 				static_call stream, write_char, {this->lisp_stderr, char_lf}
 			endif

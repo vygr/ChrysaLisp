@@ -5,6 +5,9 @@
 			,b
 			(setl (_l) ((add _l 1))))))
 
+(defmacro do11 (f)
+	`(for 0 11 1 ,f))
+
 (defmacro for (s e i f)
 	`(progn
 		(def (_l) (,s))
@@ -13,8 +16,7 @@
 			(setl (_l) ((add _l ,i))))))
 
 (defmacro do10 (f)
-	`(progn
-		(for 0 10 1 ,f)))
+	`(for 0 10 1 ,f))
 
 (def (gte lte gt)
 	((lambda (x y)

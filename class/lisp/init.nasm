@@ -136,8 +136,6 @@
 
 		built_in "macroexpand-1", 0, func_macroexpand_1
 		built_in "macroexpand", 0, func_macroexpand
-		built_in "m1", 0, func_macroexpand_1
-		built_in "m", 0, func_macroexpand
 		built_in "copy", 0, func_copy
 		built_in "add", 0, func_add
 		built_in "div", 0, func_div
