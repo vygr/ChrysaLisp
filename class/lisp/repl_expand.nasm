@@ -24,7 +24,7 @@
 			slot_call vector, get_length, {form}, {length}
 			if {length}
 				static_call vector, get_element, {form, 0}, {macro}
-				breakif {macro == this->lisp_sym_defmacro}
+				breakif {macro == this->lisp_sym_qquote}
 				breakif {macro == this->lisp_sym_quote}
 				if {macro->obj_vtable == @class/class_symbol}
 					static_call unordered_map, find, {this->lisp_macros, macro}, {miter, _}
@@ -44,7 +44,7 @@
 						else
 							debug_str "error expanding macro"
 						endif
-						eval {this, 0}, {r0, r1}
+						eval {this, !form}, {r0, r1}
 						return
 					endif
 				endif
