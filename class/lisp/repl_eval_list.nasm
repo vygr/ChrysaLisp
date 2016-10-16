@@ -19,7 +19,7 @@
 		retire {r0, r1, r2}, {this, list, index}
 
 		if {list->obj_vtable == @class/class_vector}
-			static_call vector, for_each, {list, index, $repl_eval_list_callback, this}, {iter}
+			static_call vector, for_each, {list, index, $callback, this}, {iter}
 			breakifnot {iter}
 			assign {0}, {list}
 		else
@@ -31,7 +31,7 @@
 		pop_scope
 		return
 
-	repl_eval_list_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer

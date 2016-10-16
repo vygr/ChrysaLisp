@@ -36,7 +36,7 @@
 		map_src_to_dst
 
 		;for all buckets
-		s_call vector, for_each, {[r0 + unordered_set_buckets], 0, $bucket_callback, r4}, {r2}
+		s_call vector, for_each, {[r0 + unordered_set_buckets], 0, $callback, r4}, {r2}
 		if r2, !=, 0
 			vp_cpy [r2], r2
 		endif
@@ -45,7 +45,7 @@
 		vp_add local_size, r4
 		vp_ret
 
-	bucket_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer

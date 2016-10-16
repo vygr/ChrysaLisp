@@ -31,7 +31,7 @@
 				static_call ref, deref, {test}
 				assign {pdata.pdata_this->lisp_sym_nil}, {pdata.pdata_value}
 				static_call ref, ref, {pdata.pdata_value}
-				static_call vector, for_each, {args, 2, $when_callback, &pdata}, {_}
+				static_call vector, for_each, {args, 2, $callback, &pdata}, {_}
 			else
 				assign {test}, {pdata.pdata_value}
 			endif
@@ -43,7 +43,7 @@
 		pop_scope
 		return
 
-	when_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer

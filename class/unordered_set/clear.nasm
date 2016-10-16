@@ -12,11 +12,11 @@
 
 		;clear all buckets
 		vp_push r0
-		s_call vector, for_each, {[r0 + unordered_set_buckets], 0, $clear_callback, 0}, {_}
+		s_call vector, for_each, {[r0 + unordered_set_buckets], 0, $callback, 0}, {_}
 		vp_pop r0
 		vp_ret
 
-	clear_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer

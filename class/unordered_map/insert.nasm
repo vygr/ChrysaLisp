@@ -32,7 +32,7 @@
 
 		;search hash bucket
 		s_call unordered_map, get_bucket, {r0, r1}, {r1}
-		s_call vector, for_each, {r1, 0, $insert_callback, r4}, {r1}
+		s_call vector, for_each, {r1, 0, $callback, r4}, {r1}
 		vp_cpy r0, [r4 + local_bucket]
 		if r1, ==, 0
 			;new key
@@ -62,7 +62,7 @@
 		vp_add local_size, r4
 		vp_ret
 
-	insert_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer

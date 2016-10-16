@@ -26,13 +26,13 @@
 
 		;search hash bucket
 		s_call unordered_set, get_bucket, {r0, r1}, {r1}
-		s_call vector, for_each, {r1, 0, $find_callback, r4}, {r1}
+		s_call vector, for_each, {r1, 0, $callback, r4}, {r1}
 		vp_cpy r0, r2
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 
-	find_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer

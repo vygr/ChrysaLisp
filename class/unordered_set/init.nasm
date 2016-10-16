@@ -35,7 +35,7 @@
 			vp_cpy [r4 + local_num_buckets], r1
 			vp_shl 3, r1
 			vp_cpy r1, [r0 + vector_length]
-			s_call vector, for_each, {r0, 0, $create_bucket, 0}, {_}
+			s_call vector, for_each, {r0, 0, $callback, 0}, {_}
 			vp_cpy [r4 + local_inst], r0
 			vp_cpy 1, r1
 		endif
@@ -43,7 +43,7 @@
 		vp_add local_size, r4
 		vp_ret
 
-	create_bucket:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer

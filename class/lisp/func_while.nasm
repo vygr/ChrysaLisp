@@ -30,7 +30,7 @@
 				static_call lisp, repl_eval, {pdata.pdata_this, pdata.pdata_value}, {pdata.pdata_value}
 				breakifnot {pdata.pdata_value}
 				breakif {pdata.pdata_value == pdata.pdata_this->lisp_sym_nil}
-				static_call vector, for_each, {args, 2, $while_callback, &pdata}, {_}
+				static_call vector, for_each, {args, 2, $callback, &pdata}, {_}
 				breakifnot {pdata.pdata_value}
 				static_call ref, deref, {pdata.pdata_value}
 			loop_end
@@ -42,7 +42,7 @@
 		pop_scope
 		return
 
-	while_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer

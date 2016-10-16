@@ -45,7 +45,7 @@
 			endif
 
 			;output string set
-			static_call unordered_set, for_each, {set, $item_callback, slave}, {_, _}
+			static_call unordered_set, for_each, {set, $callback, slave}, {_, _}
 			static_call unordered_set, deref, {set}
 
 			;clean up
@@ -54,7 +54,7 @@
 		pop_scope
 		return
 
-	item_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer
