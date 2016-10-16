@@ -29,7 +29,7 @@
 			breakifnot {test}
 			if {test == pdata.pdata_this->lisp_sym_nil}
 				assign {test}, {pdata.pdata_value}
-				static_call vector, for_each, {args, 2, $unless_callback, &pdata}, {_}
+				static_call vector, for_each, {args, 2, $callback, &pdata}, {_}
 			else
 				static_call ref, deref, {test}
 				assign {pdata.pdata_this->lisp_sym_nil}, {pdata.pdata_value}
@@ -43,7 +43,7 @@
 		pop_scope
 		return
 
-	unless_callback:
+	callback:
 		;inputs
 		;r0 = element iterator
 		;r1 = predicate data pointer
