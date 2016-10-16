@@ -66,9 +66,9 @@
 
 (defmacro for (s e i b)
 	(progn
-		(def (_l _e _i) ((gensym) e i))
+		(def (_l _e _i) ((gensym) (gensym) (gensym)))
 		`(progn
-			(defvar ,_l ,s)
+			(def (,_l ,_e ,_i) (,s ,e ,i))
 			(while (lt ,_l ,_e)
 				,b
 				(setlvar ,_l (add ,_l ,_i))))))
