@@ -121,13 +121,13 @@
 		built_in "or", 0, func_or, 1
 		built_in "quote", lisp_sym_quote, func_quote, 1
 		built_in "quasi-quote", lisp_sym_qquote, func_qquote, 1
+		built_in "defmacro", lisp_sym_defmacro, func_defmacro, 1
 		built_in "set", 0, func_set, 1
 		built_in "setl", 0, func_setl, 1
 		built_in "unless", 0, func_unless, 1
 		built_in "until", 0, func_until, 1
 		built_in "when", 0, func_when, 1
 		built_in "while", 0, func_while, 1
-		built_in "defmacro", 0, func_defmacro, 1
 
 		built_in "unquote", lisp_sym_unquote
 		built_in "unquote-splicing", lisp_sym_splicing

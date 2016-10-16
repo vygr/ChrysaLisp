@@ -1,6 +1,5 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
-%include 'class/class_vector.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/repl

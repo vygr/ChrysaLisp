@@ -105,6 +105,7 @@
 		ptr lisp_sym_splicing
 		ptr lisp_sym_cat
 		ptr lisp_sym_list
+		ptr lisp_sym_defmacro
 	def_structure_end
 
 %endif

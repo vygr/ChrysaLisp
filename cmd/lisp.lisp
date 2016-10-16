@@ -5,14 +5,11 @@
 			,b
 			(setl (_l) ((add _l 1))))))
 
-(defmacro do11 (f)
-	`(for 0 11 1 ,f))
-
-(defmacro for (s e i f)
+(defmacro for (s e i b)
 	`(progn
 		(def (_l) (,s))
 		(while (lt _l ,e)
-			(,f _l)
+			(~b _l)
 			(setl (_l) ((add _l ,i))))))
 
 (defmacro do10 (f)
