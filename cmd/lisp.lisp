@@ -1,6 +1,15 @@
 (defmacro defun (n a b)
 	`(def (,n)
 		((lambda ,a ,b))))
+(defmacro defvar (n b)
+	`(def (,n)
+		(,b)))
+(defmacro setvar (n b)
+	`(set (,n)
+		(,b)))
+(defmacro setlvar (n b)
+	`(setl (,n)
+		(,b)))
 
 (defun gte (x y)
 	(not (lt x y)))
@@ -75,3 +84,12 @@
 		(while (lt c l)
 			(fxy fq 10 20)
 			(setl (c) ((add c 1))))))
+
+(defmacro for (s e i b)
+	(progn
+		(def (_l _e _i) ((gensym) e i))
+		`(progn
+			(defvar ,_l ,s)
+			(while (lt ,_l ,_e)
+				,b
+				(setlvar ,_l (add ,_l ,_i))))))
