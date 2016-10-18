@@ -18,7 +18,7 @@
 	def_method env_push, class/lisp/env_push, static, {r0}
 	def_method env_pop, class/lisp/env_pop, static, {r0}
 	def_method env_def, class/lisp/env_def, static, {r0, r1, r2}
-	def_method env_def_list, class/lisp/env_def_list, static, {r0, r1, r2, r3}, {r1}
+	def_method env_bind, class/lisp/env_bind, static, {r0, r1, r2, r3}, {r1}
 	def_method env_find, class/lisp/env_find, static, {r0, r1}, {r1, r2}
 	def_method env_set, class/lisp/env_set, static, {r0, r1, r2}, {r1}
 	def_method env_setl, class/lisp/env_setl, static, {r0, r1, r2}, {r1}
@@ -98,6 +98,8 @@
 		ptr lisp_macros
 		ulong lisp_nextsym
 		ptr lisp_sym_parent
+		ptr lisp_sym_optional
+		ptr lisp_sym_rest
 		ptr lisp_sym_nil
 		ptr lisp_sym_t
 		ptr lisp_sym_lambda

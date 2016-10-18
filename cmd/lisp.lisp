@@ -10,6 +10,12 @@
 (defmacro setlvar (n b)
 	`(setl (,n)
 		(,b)))
+(defmacro when (x &rest b)
+	`(if ,x
+		(progn ~b)))
+(defmacro unless (x &rest b)
+	`(if (not ,x)
+		(progn ~b)))
 
 (defun gte (x y)
 	(not (lt x y)))

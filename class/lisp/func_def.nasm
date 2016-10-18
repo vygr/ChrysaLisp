@@ -26,7 +26,7 @@
 				static_call vector, slice, {args, 0, length}, {args}
 				static_call lisp, repl_eval_list, {this, args, 0}, {vals}
 				gotoifnot {vals}, error
-				static_call lisp, env_def_list, {this, vars, vals, 0}, {vals}
+				static_call lisp, env_bind, {this, vars, vals, 0}, {vals}
 				breakif {vals}
 			error:
 				static_call ref, deref, {args}

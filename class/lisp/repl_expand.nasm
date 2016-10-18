@@ -32,7 +32,7 @@
 						static_call pair, get_second, {*miter}, {macro}
 						static_call lisp, env_push, {this}
 						static_call vector, get_element, {macro, 0}, {args}
-						static_call lisp, env_def_list, {this, args, form, 1}, {form}
+						static_call lisp, env_bind, {this, args, form, 1}, {form}
 						if {form}
 							static_call vector, get_element, {macro, 1}, {form}
 							static_call lisp, repl_eval, {this, form}, {form}

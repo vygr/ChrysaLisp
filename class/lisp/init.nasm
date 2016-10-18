@@ -111,6 +111,8 @@
 		align 2, db 0
 	built_ins:
 		built_in "_parent_", lisp_sym_parent
+		built_in "&rest", lisp_sym_rest
+		built_in "&optional", lisp_sym_optional
 		built_in "nil", lisp_sym_nil
 		built_in "t", lisp_sym_t
 
@@ -125,9 +127,7 @@
 		built_in "defmacro", lisp_sym_defmacro, func_defmacro, 1
 		built_in "set", 0, func_set, 1
 		built_in "setl", 0, func_setl, 1
-		built_in "unless", 0, func_unless, 1
 		built_in "until", 0, func_until, 1
-		built_in "when", 0, func_when, 1
 		built_in "while", 0, func_while, 1
 
 		built_in "unquote", lisp_sym_unquote
