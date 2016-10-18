@@ -37,7 +37,7 @@
 				,b
 				(setlvar ,_l (add ,_l ,_i))))))
 
-"Gather operations"
+"Map/Reduce operations"
 
 (defmacro zip (&rest l)
  	`(map list ~l))
