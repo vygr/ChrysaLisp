@@ -1,54 +1,76 @@
+"Definitions"
+
 (defmacro defun (n a b)
 	`(def (,n)
 		((lambda ,a ,b))))
+
 (defmacro defvar (n b)
 	`(def (,n)
 		(,b)))
+
+"Variable setting"
+
 (defmacro setvar (n b)
 	`(set (,n)
 		(,b)))
+
 (defmacro setlvar (n b)
 	`(setl (,n)
 		(,b)))
+
+"Control flow"
+
 (defmacro when (x &rest b)
 	`(if ,x
 		(progn ~b)))
+
 (defmacro unless (x &rest b)
 	`(if (not ,x)
 		(progn ~b)))
 
+(defmacro for (s e i b)
+	(progn
+		(def (_l _e _i) ((gensym) (gensym) (gensym)))
+		`(progn
+			(def (,_l ,_e ,_i) (,s ,e ,i))
+			(while (lt ,_l ,_e)
+				,b
+				(setlvar ,_l (add ,_l ,_i))))))
+
+"Gather operations"
+
+(defmacro zip (&rest l)
+ 	`(map list ~l))
+
+(defmacro merge (&rest l)
+	`(reduce cat (zip ~l)))
+
+"Comparision"
+
 (defun gte (x y)
 	(not (lt x y)))
+
 (defun lte (x y)
 	(or (lt x y) (eq x y)))
+
 (defun gt (x y)
 	(not (or (lt x y) (eq x y))))
 
 (defun eql (x y)
 	(eq (str x) (str y)))
 
-(defun zip1 (a)
- 	(map list a))
-(defun zip2 (a b)
- 	(map list a b))
-(defun zip3 (a b c)
- 	(map list a b c))
-(defun zip4 (a b c d)
- 	(map list a b c d))
-
-(defun merge2 (a b)
-	(reduce cat (zip2 a b)))
-(defun merge3 (a b c)
-	(reduce cat (zip3 a b c)))
-(defun merge4 (a b c d)
-	(reduce cat (zip4 a b c d)))
+"Math functions"
 
 (defun squared (x)
 	(mul x x))
+
 (defun cubed (x)
 	(mul x x x))
+
 (defun divmod (x y)
 	(list (div x y) (mod x y)))
+
+"Utilities"
 
 (defun print_map (m)
 	(progn
@@ -69,15 +91,6 @@
 			(prin c)
 			(setlvar l (add l 1)))
 		(prin s)))
-
-(defmacro for (s e i b)
-	(progn
-		(def (_l _e _i) ((gensym) (gensym) (gensym)))
-		`(progn
-			(def (,_l ,_e ,_i) (,s ,e ,i))
-			(while (lt ,_l ,_e)
-				,b
-				(setlvar ,_l (add ,_l ,_i))))))
 
 "Some test code"
 
