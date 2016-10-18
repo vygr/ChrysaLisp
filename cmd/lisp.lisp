@@ -28,6 +28,10 @@
 	`(if (not ,x)
 		(progn ~b)))
 
+(defmacro until (x &rest b)
+	`(while (not ,x)
+		(progn ~b)))
+
 (defmacro for (s e i b)
 	(progn
 		(def (_l _e _i) ((gensym) (gensym) (gensym)))

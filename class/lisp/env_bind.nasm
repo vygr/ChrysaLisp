@@ -40,8 +40,7 @@
 					endif
 					slot_call vector, get_element, {vals, index_vals}, {value}
 					static_call lisp, env_def, {this, symbol, value}
-					assign {index_vars + 1}, {index_vars}
-					assign {index_vals + 1}, {index_vals}
+					assign {index_vars + 1, index_vals + 1}, {index_vars, index_vals}
 				loop_end
 				assign {vals}, {value}
 				breakif {index_vals == len_vals}

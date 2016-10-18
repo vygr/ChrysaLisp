@@ -127,7 +127,6 @@
 		built_in "defmacro", lisp_sym_defmacro, func_defmacro, 1
 		built_in "set", 0, func_set, 1
 		built_in "setl", 0, func_setl, 1
-		built_in "until", 0, func_until, 1
 		built_in "while", 0, func_while, 1
 
 		built_in "unquote", lisp_sym_unquote

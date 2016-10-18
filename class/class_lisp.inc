@@ -64,7 +64,6 @@
 	def_method func_and, class/lisp/func_and, static, {r0, r1}, {r1}
 	def_method func_or, class/lisp/func_or, static, {r0, r1}, {r1}
 	def_method func_when, class/lisp/func_when, static, {r0, r1}, {r1}
-	def_method func_unless, class/lisp/func_unless, static, {r0, r1}, {r1}
 	def_method func_if, class/lisp/func_if, static, {r0, r1}, {r1}
 	def_method func_map, class/lisp/func_map, static, {r0, r1}, {r1}
 	def_method func_reduce, class/lisp/func_reduce, static, {r0, r1}, {r1}
@@ -74,7 +73,6 @@
 	def_method func_notevery, class/lisp/func_notevery, static, {r0, r1}, {r1}
 	def_method func_length, class/lisp/func_length, static, {r0, r1}, {r1}
 	def_method func_while, class/lisp/func_while, static, {r0, r1}, {r1}
-	def_method func_until, class/lisp/func_until, static, {r0, r1}, {r1}
 	def_method func_print, class/lisp/func_print, static, {r0, r1}, {r1}
 	def_method func_prin, class/lisp/func_prin, static, {r0, r1}, {r1}
 	def_method func_env, class/lisp/func_env, static, {r0, r1}, {r1}
