@@ -21,7 +21,8 @@
 "Control flow"
 
 (defmacro if (x y &rest b)
-	`(cond (,x ,y) (t ~b)))
+	(cond ((eq 0 (length b)) `(cond (,x ,y)))
+		(t `(cond (,x ,y) (t ~b)))))
 
 (defmacro when (x &rest b)
 	`(cond (,x ~b)))

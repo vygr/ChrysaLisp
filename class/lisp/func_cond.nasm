@@ -41,19 +41,25 @@
 
 		pptr iter
 		ptr pdata, test
+		ulong length
 
 		push_scope
 		retire {r0, r1}, {pdata, iter}
 
 		if {(*iter)->obj_vtable == @class/class_vector}
-			slot_call vector, get_length, {*iter}, {test}
-			if {test}
+			slot_call vector, get_length, {*iter}, {length}
+			if {length}
 				static_call vector, get_element, {*iter, 0}, {test}
 				static_call lisp, repl_eval, {pdata->pdata_this, test}, {test}
 				gotoifnot {test}, error
 				if {test != pdata->pdata_this->lisp_sym_nil}
 					static_call ref, deref, {test}
-					static_call lisp, func_progn, {pdata->pdata_this, *iter}, {pdata->pdata_value}
+					static_call vector, slice, {*iter, 0, length}, {test}
+					static_call lisp, repl_eval_list, {pdata->pdata_this, test, 1}, {pdata->pdata_value}
+					if {pdata->pdata_value}
+						static_call lisp, func_progn, {pdata->pdata_this, test}, {pdata->pdata_value}
+					endif
+					static_call ref, deref, {test}
 					eval {0}, {r1}
 				else
 					static_call ref, deref, {test}
