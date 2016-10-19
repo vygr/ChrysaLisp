@@ -38,6 +38,11 @@
 						static_call ref, deref, {value}
 						goto exit
 					endif
+					if {index_vals == len_vals}
+						static_call lisp, error, {this, "(bind vars vals): not enough vals", vars}
+						assign {0}, {value}
+						goto exit
+					endif
 					slot_call vector, get_element, {vals, index_vals}, {value}
 					static_call lisp, env_def, {this, symbol, value}
 					assign {index_vars + 1, index_vals + 1}, {index_vars, index_vals}
