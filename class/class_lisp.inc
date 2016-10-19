@@ -61,9 +61,6 @@
 	def_method func_cond, class/lisp/func_cond, static, {r0, r1}, {r1}
 	def_method func_progn, class/lisp/func_progn, static, {r0, r1}, {r1}
 	def_method func_not, class/lisp/func_not, static, {r0, r1}, {r1}
-	def_method func_and, class/lisp/func_and, static, {r0, r1}, {r1}
-	def_method func_or, class/lisp/func_or, static, {r0, r1}, {r1}
-	def_method func_when, class/lisp/func_when, static, {r0, r1}, {r1}
 	def_method func_if, class/lisp/func_if, static, {r0, r1}, {r1}
 	def_method func_map, class/lisp/func_map, static, {r0, r1}, {r1}
 	def_method func_reduce, class/lisp/func_reduce, static, {r0, r1}, {r1}

@@ -25,12 +25,24 @@
 		(progn ~b)))
 
 (defmacro unless (x &rest b)
-	`(if (not ,x)
+	`(if ,x t
 		(progn ~b)))
 
 (defmacro until (x &rest b)
 	`(while (not ,x)
 		(progn ~b)))
+
+(defmacro or (x &rest b)
+	(if (eq 0 (length b)) x
+		(progn
+			(defvar _x (gensym))
+			`(progn
+				(defvar ,_x ,x)
+				(if ,_x ,_x (or ~b))))))
+
+(defmacro and (x &rest b)
+	(if (eq 0 (length b)) x
+		`(if ,x (and ~b) nil)))
 
 (defmacro for (s e i b)
 	(progn
