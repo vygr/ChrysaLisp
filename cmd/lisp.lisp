@@ -20,17 +20,17 @@
 
 "Control flow"
 
+(defmacro if (x y &rest b)
+	`(cond (,x ,y) (t ~b)))
+
 (defmacro when (x &rest b)
-	`(if ,x
-		(progn ~b)))
+	`(cond (,x ~b)))
 
 (defmacro unless (x &rest b)
-	`(if ,x t
-		(progn ~b)))
+	`(cond ((not ,x) ~b)))
 
 (defmacro until (x &rest b)
-	`(while (not ,x)
-		(progn ~b)))
+	`(while (not ,x) ~b))
 
 (defmacro or (x &rest b)
 	(if (eq 0 (length b)) x

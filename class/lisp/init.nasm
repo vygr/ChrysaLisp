@@ -118,7 +118,6 @@
 
 		built_in "cond", 0, func_cond, 1
 		built_in "def", 0, func_def, 1
-		built_in "if", 0, func_if, 1
 		built_in "lambda", lisp_sym_lambda, func_lambda, 1
 		built_in "quote", lisp_sym_quote, func_quote, 1
 		built_in "quasi-quote", lisp_sym_qquote, func_qquote, 1
