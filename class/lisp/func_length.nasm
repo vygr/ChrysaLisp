@@ -1,9 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
-%include 'class/class_symbol.inc'
 %include 'class/class_boxed_long.inc'
-%include 'class/class_unordered_set.inc'
-%include 'class/class_unordered_map.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_length
@@ -20,32 +17,21 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		assign {0}, {value}
 		slot_call vector, get_length, {args}, {length}
 		if {length == 2}
 			static_call vector, get_element, {args, 1}, {args}
-			switch
-			case {args->obj_vtable == @class/class_symbol \
-				|| args->obj_vtable == @class/class_string}
-				slot_call symbol, get_length, {args}, {length}
-				goto create
-			case {args->obj_vtable == @class/class_unordered_map}
-				slot_call unordered_map, get_length, {args}, {length}
-				goto create
-			case {args->obj_vtable == @class/class_unordered_set}
-				slot_call unordered_set, get_length, {args}, {length}
-				goto create
-			case {args->obj_vtable == @class/class_vector}
-				slot_call vector, get_length, {args}, {length}
-			create:
+			slot_function class, sequence
+			static_call obj, inst_of, {args, @_function_}, {value}
+			if {value}
+				method_call sequence, get_length, {args}, {length}
 				static_call boxed_long, create, {}, {value}
 				static_call boxed_long, set_value, {value, length}
-				break
-			default
+			else
 				static_call lisp, error, {this, "(length seq) not a sequence", args}
-			endswitch
+			endif
 		else
 			static_call lisp, error, {this, "(length seq) wrong number of args", args}
+			assign {0}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}
