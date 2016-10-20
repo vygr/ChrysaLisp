@@ -54,12 +54,9 @@
 				gotoifnot {test}, error
 				if {test != pdata->pdata_this->lisp_sym_nil}
 					static_call ref, deref, {test}
-					static_call vector, slice, {*iter, 0, length}, {test}
-					static_call lisp, repl_eval_list, {pdata->pdata_this, test, 1}, {pdata->pdata_value}
-					if {pdata->pdata_value}
-						static_call lisp, func_progn, {pdata->pdata_this, test}, {pdata->pdata_value}
-					endif
-					static_call ref, deref, {test}
+					assign {pdata->pdata_this->lisp_sym_nil}, {pdata->pdata_value}
+					static_call ref, ref, {pdata->pdata_value}
+					static_call vector, for_each, {*iter, 1, $callback1, pdata}, {_}
 					eval {0}, {r1}
 				else
 					static_call ref, deref, {test}
@@ -75,6 +72,26 @@
 			eval {0}, {r1}
 		endif
 
+		pop_scope
+		return
+
+	callback1:
+		;inputs
+		;r0 = predicate data pointer
+		;r1 = element iterator
+		;outputs
+		;r1 = 0 if break, else not
+
+		pptr iter
+		ptr pdata
+
+		push_scope
+		retire {r0, r1}, {pdata, iter}
+
+		static_call ref, deref, {pdata->pdata_value}
+		static_call lisp, repl_eval, {pdata->pdata_this, *iter}, {pdata->pdata_value}
+
+		eval {pdata->pdata_value}, {r1}
 		pop_scope
 		return
 
