@@ -22,7 +22,6 @@
 		push_scope
 		retire {r0, r1}, {pdata.pdata_this, args}
 
-		assign {0}, {pdata.pdata_value}
 		slot_call vector, get_length, {args}, {length}
 		if {length >= 2}
 			loop_start
@@ -36,6 +35,7 @@
 			loop_end
 		else
 			static_call lisp, error, {pdata.pdata_this, "(while tst form ...) wrong number of args", args}
+			assign {0}, {pdata.pdata_value}
 		endif
 
 		eval {pdata.pdata_this, pdata.pdata_value}, {r0, r1}
