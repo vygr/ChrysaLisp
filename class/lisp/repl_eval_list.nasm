@@ -18,12 +18,8 @@
 		push_scope
 		retire {r0, r1, r2}, {this, list, index}
 
-		if {list->obj_vtable == @class/class_vector}
-			static_call vector, for_each, {list, index, $callback, this}, {iter}
-			breakifnot {iter}
-			assign {0}, {list}
-		else
-			static_call lisp, error, {this, "not a list", list}
+		static_call vector, for_each, {list, index, $callback, this}, {iter}
+		if {iter}
 			assign {0}, {list}
 		endif
 
