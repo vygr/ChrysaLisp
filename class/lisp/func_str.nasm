@@ -12,8 +12,6 @@
 		;r0 = lisp object
 		;r1 = 0, else value
 
-		const char_minus, "-"
-
 		ptr this, args, value, stream
 		ulong length
 
