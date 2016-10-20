@@ -19,14 +19,13 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		assign {0}, {value}
 		slot_call vector, get_length, {args}, {length}
 		if (length == 2)
 			static_call lisp, func_copy, {this, args}, {value}
 			static_call lisp, repl_expand, {this, &value}, {length}
 		else
 			static_call lisp, error, {this, "(macroexpand-1 form) wrong number of args", args}
-			assign {1}, {length}
+			assign {0, 1}, {value, length}
 		endif
 
 		eval {this, value, length}, {r0, r1, r2}
