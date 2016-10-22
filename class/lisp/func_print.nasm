@@ -8,7 +8,7 @@
 		;r1 = args
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else value
+		;r1 = value
 
 		const char_lf, 10
 

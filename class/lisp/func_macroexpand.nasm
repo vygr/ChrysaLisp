@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 %include 'class/class_stream.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_macroexpand
@@ -9,7 +10,7 @@
 		;r1 = args
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else value
+		;r1 = value
 
 		ptr this, args, value
 		ulong length
@@ -24,8 +25,7 @@
 				static_call lisp, repl_expand, {this, &value}, {length}
 			loop_until {length}
 		else
-			static_call lisp, error, {this, "(macroexpand form) wrong number of args", args}
-			assign {0}, {value}
+			static_call error, create, {"(macroexpand form) wrong number of args", args}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}

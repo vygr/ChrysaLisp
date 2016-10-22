@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_map
@@ -8,7 +9,7 @@
 		;r1 = args
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else value
+		;r1 = value
 
 		def_structure pdata
 			ptr pdata_type
@@ -23,7 +24,6 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		assign {0}, {value}
 		slot_call vector, get_length, {args}, {length}
 		if {length >= 3}
 			static_call vector, get_element, {args, 2}, {func}
@@ -50,23 +50,18 @@
 							assign {list_num + 1}, {list_num}
 						loop_until {list_num == length}
 						static_call lisp, repl_apply, {this, func, form}, {elem}
-						breakifnot {elem}
 						static_call vector, push_back, {value, elem}
 						assign {seq_num + 1}, {seq_num}
 					loop_until {seq_num == pdata.pdata_length}
-					if {seq_num != pdata.pdata_length}
-						static_call ref, deref, {value}
-						assign {0}, {value}
-					endif
 					static_call ref, deref, {form}
 				else
-					static_call lisp, error, {this, "(map func list ...) not matching types", args}
+					static_call error, create, {"(map func list ...) not matching types", args}, {value}
 				endif
 			else
-				static_call lisp, error, {this, "(map func list ...) not a sequence", args}
+				static_call error, create, {"(map func list ...) not a sequence", args}, {value}
 			endif
 		else
-			static_call lisp, error, {this, "(map func list ...) not enough args", args}
+			static_call error, create, {"(map func list ...) not enough args", args}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}

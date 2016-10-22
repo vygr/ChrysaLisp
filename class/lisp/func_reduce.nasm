@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_reduce
@@ -8,7 +9,7 @@
 		;r1 = args
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else value
+		;r1 = value
 
 		ptr this, args, value, func, form, seq
 		ulong length, seq_num, seq_length
@@ -16,7 +17,6 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		assign {0}, {value}
 		slot_call vector, get_length, {args}, {length}
 		if {length == 3 || length == 4}
 			static_call vector, get_element, {args, 1}, {func}
@@ -42,18 +42,18 @@
 						method_call sequence, ref_element, {seq, seq_num}, {value}
 						static_call vector, set_element, {form, value, 2}
 						static_call lisp, repl_apply, {this, func, form}, {value}
-						breakifnot {value}
+						breakif {value->obj_vtable == @class/class_error}
 						assign {seq_num + 1}, {seq_num}
 					loop_until {seq_num == seq_length}
 					static_call ref, deref, {form}
 				else
-					static_call lisp, error, {this, "(reduce func list {init}) not enough elements", args}
+					static_call error, create, {"(reduce func list {init}) not enough elements", args}, {value}
 				endif
 			else
-				static_call lisp, error, {this, "(reduce func list {init}) not a sequence", seq}
+				static_call error, create, {"(reduce func list {init}) not a sequence", seq}, {value}
 			endif
 		else
-			static_call lisp, error, {this, "(reduce func list {init}) wrong number of args", args}
+			static_call error, create, {"(reduce func list {init}) wrong number of args", args}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}

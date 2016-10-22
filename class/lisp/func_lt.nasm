@@ -2,6 +2,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_string.inc'
 %include 'class/class_boxed_long.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_lt
@@ -10,7 +11,7 @@
 		;r1 = args
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else value
+		;r1 = value
 
 		ptr this, args, value, arg1, arg2
 		ulong length, v1, v2
@@ -18,7 +19,6 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		assign {0}, {value}
 		slot_call vector, get_length, {args}, {length}
 		if {length == 3}
 			static_call vector, get_element, {args, 1}, {arg1}
@@ -41,10 +41,10 @@
 				endswitch
 				static_call ref, ref, {value}
 			else
-				static_call lisp, error, {this, "(lt exp exp) not same types", args}
+				static_call error, create, {"(lt exp exp) not same types", args}, {value}
 			endif
 		else
-			static_call lisp, error, {this, "(lt exp exp) wrong number of args", args}
+			static_call error, create, {"(lt exp exp) wrong number of args", args}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}

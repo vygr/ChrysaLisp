@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_quote
@@ -8,7 +9,7 @@
 		;r1 = args
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else value
+		;r1 = value
 
 		ptr this, args
 		ulong length
@@ -20,8 +21,7 @@
 		if {length == 2}
 			slot_call vector, ref_element, {args, 1}, {args}
 		else
-			static_call lisp, error, {this, "(quote arg) wrong numbers of args", args}
-			assign {0}, {args}
+			static_call error, create, {"(quote arg) wrong numbers of args", args}, {args}
 		endif
 
 		eval {this, args}, {r0, r1}

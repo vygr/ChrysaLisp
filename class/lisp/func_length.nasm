@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 %include 'class/class_boxed_long.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_length
@@ -9,7 +10,7 @@
 		;r1 = args
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else value
+		;r1 = else value
 
 		ptr this, args, value
 		ulong length
@@ -27,11 +28,10 @@
 				static_call boxed_long, create, {}, {value}
 				static_call boxed_long, set_value, {value, length}
 			else
-				static_call lisp, error, {this, "(length seq) not a sequence", args}
+				static_call error, create, {"(length seq) not a sequence", args}, {value}
 			endif
 		else
-			static_call lisp, error, {this, "(length seq) wrong number of args", args}
-			assign {0}, {value}
+			static_call error, create, {"(length seq) wrong number of args", args}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}

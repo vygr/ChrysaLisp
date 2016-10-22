@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_pair.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/env_get
@@ -8,7 +9,7 @@
 		;r1 = symbol
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else value
+		;r1 = value
 
 		ptr this, symbol
 		pptr iter
@@ -17,9 +18,10 @@
 		retire {r0, r1}, {this, symbol}
 
 		static_call lisp, env_find, {this, symbol}, {iter, _}
-		assign {0}, {symbol}
 		if {iter}
 			static_call pair, ref_second, {*iter}, {symbol}
+		else
+			static_call error, create, {"symbol not bound", symbol}, {symbol}
 		endif
 
 		eval {this, symbol}, {r0, r1}

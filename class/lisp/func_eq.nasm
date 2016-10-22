@@ -2,6 +2,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_string.inc'
 %include 'class/class_boxed_ptr.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_eq
@@ -18,7 +19,6 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		assign {0}, {value}
 		slot_call vector, get_length, {args}, {length}
 		if {length == 3}
 			static_call vector, get_element, {args, 1}, {arg1}
@@ -41,7 +41,7 @@
 			endswitch
 			static_call ref, ref, {value}
 		else
-			static_call lisp, error, {this, "(eq form form) wrong number of args", args}
+			static_call error, create, {"(eq form form) wrong number of args", args}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}

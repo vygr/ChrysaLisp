@@ -463,6 +463,7 @@
 	def_method lisp, class/class_lisp
 	def_method symbol, class/class_symbol
 	def_method sequence, class/class_sequence
+	def_method error, class/class_error
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction

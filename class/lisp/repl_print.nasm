@@ -6,6 +6,7 @@
 %include 'class/class_pair.inc'
 %include 'class/class_unordered_set.inc'
 %include 'class/class_unordered_map.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/repl_print
@@ -102,6 +103,17 @@
 				static_call unordered_map, for_each, {value, $callback, &pdata}, {_, _}
 				static_call stream, write_char, {stream, char_rcb}
 				pop_scope
+				break
+			case {elem == @class/class_error}
+				static_call stream, write_cstr, {stream, "Error: < "}
+				static_call error, get_description, {value}, {elem}
+				static_call stream, write, {stream, &elem->string_data, elem->string_length}
+				static_call stream, write_cstr, {stream, " >"}
+				static_call stream, write_char, {stream, char_lf}
+				static_call error, get_object, {value}, {elem}
+				static_call stream, write_cstr, {stream, "Ast: < "}
+				static_call lisp, repl_print, {this, stream, elem}
+				static_call stream, write_cstr, {stream, " >"}
 				break
 			case {elem == @class/class_vector}
 				struct pdata, pdata

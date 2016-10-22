@@ -9,7 +9,7 @@
 		;r2 = start index
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else list
+		;r1 = value
 
 		ptr this, list
 		pptr iter
@@ -20,8 +20,9 @@
 
 		static_call vector, for_each, {list, index, $callback, this}, {iter}
 		if {iter}
-			assign {0}, {list}
+			assign {*iter}, {list}
 		endif
+		static_call ref, ref, {list}
 
 		eval {this, list}, {r0, r1}
 		pop_scope
@@ -41,12 +42,10 @@
 		retire {r0, r1}, {pdata, iter}
 
 		static_call lisp, repl_eval, {pdata, *iter}, {pdata}
-		if {pdata}
-			static_call ref, deref, {*iter}
-			assign {pdata}, {*iter}
-		endif
+		static_call ref, deref, {*iter}
+		assign {pdata}, {*iter}
 
-		eval {pdata}, {r1}
+		eval {pdata->obj_vtable != @class/class_error}, {r1}
 		pop_scope
 		return
 

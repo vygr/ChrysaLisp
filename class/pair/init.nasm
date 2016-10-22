@@ -9,8 +9,6 @@
 		;r3 = second object
 		;outputs
 		;r1 = 0 if error, else ok
-		;trashes
-		;all but r0, r4
 
 		;save inputs
 		vp_cpy r2, [r0 + pair_first]

@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 %include 'class/class_unordered_map.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_defmacro
@@ -9,7 +10,7 @@
 		;r1 = args
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else value
+		;r1 = value
 
 		ptr this, args, vars, name
 		ulong length
@@ -17,7 +18,6 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		assign {0}, {name}
 		slot_call vector, get_length, {args}, {length}
 		if {length == 4}
 			static_call vector, get_element, {args, 2}, {vars}
@@ -29,14 +29,13 @@
 					static_call ref, deref, {args}
 					static_call ref, ref, {name}
 				else
-					static_call lisp, error, {this, "(defmacro name vars body) name is not a symbol", args}
-					assign {0}, {name}
+					static_call error, create, {"(defmacro name vars body) name is not a symbol", args}, {name}
 				endif
 			else
-				static_call lisp, error, {this, "(defmacro name vars body) vars is not a list", args}
+				static_call error, create, {"(defmacro name vars body) vars is not a list", args}, {name}
 			endif
 		else
-			static_call lisp, error, {this, "(defmacro name vars body) wrong numbers of args", args}
+			static_call error, create, {"(defmacro name vars body) wrong numbers of args", args}, {name}
 		endif
 
 		eval {this, name}, {r0, r1}

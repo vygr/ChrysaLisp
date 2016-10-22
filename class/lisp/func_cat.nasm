@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 %include 'class/class_string.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_cat
@@ -9,7 +10,7 @@
 		;r1 = args
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else value
+		;r1 = value
 
 		def_structure pdata
 			ptr pdata_this
@@ -23,7 +24,6 @@
 		push_scope
 		retire {r0, r1}, {pdata.pdata_this, args}
 
-		assign {0}, {pdata.pdata_value}
 		slot_call vector, get_length, {args}, {length}
 		if {length > 1}
 			static_call vector, get_element, {args, 1}, {pdata.pdata_value}
@@ -34,11 +34,10 @@
 				static_call ref, ref, {pdata.pdata_value}
 				static_call vector, for_each, {args, 2, $callback, &pdata}, {_}
 			else
-				static_call lisp, error, {pdata.pdata_this, "(cat seq ...) not sequence type", pdata.pdata_value}
-				assign {0}, {pdata.pdata_value}
+				static_call error, create, {"(cat seq ...) not sequence type", pdata.pdata_value}, {pdata.pdata_value}
 			endif
 		else
-			static_call lisp, error, {pdata.pdata_this, "(cat seq ...) wrong number of args", args}
+			static_call error, create, {"(cat seq ...) wrong number of args", args}, {pdata.pdata_value}
 		endif
 
 		eval {pdata.pdata_this, pdata.pdata_value}, {r0, r1}
@@ -71,13 +70,13 @@
 				slot_call vector, get_length, {elem}, {length}
 				static_call vector, append, {pdata->pdata_value, elem, 0, length}
 			endswitch
+			eval {1}, {r1}
 		else
-			static_call lisp, error, {pdata->pdata_this, "(cat seq ...) not matching type", elem}
 			static_call ref, deref, {pdata->pdata_value}
-			assign {0}, {pdata->pdata_value}
+			static_call error, create, {"(cat seq ...) not matching type", elem}, {pdata->pdata_value}
+			eval {0}, {r1}
 		endif
 
-		eval {pdata->pdata_value}, {r1}
 		pop_scope
 		return
 

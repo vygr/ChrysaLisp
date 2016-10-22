@@ -33,18 +33,15 @@
 						static_call lisp, env_push, {this}
 						static_call vector, get_element, {macro, 0}, {args}
 						static_call lisp, env_bind, {this, args, form, 1}, {form}
-						if {form}
+						if {form->obj_vtable != @class/class_error}
+							static_call ref, deref, {form}
 							static_call vector, get_element, {macro, 1}, {form}
 							static_call lisp, repl_eval, {this, form}, {form}
 						endif
 						static_call lisp, env_pop, {this}
-						if {form}
-							static_call ref, deref, {*iter}
-							assign {form}, {*iter}
-						else
-							debug_str "error expanding macro"
-						endif
-						eval {this, !form}, {r0, r1}
+						static_call ref, deref, {*iter}
+						assign {form}, {*iter}
+						eval {this, form->obj_vtable == @class/class_error}, {r0, r1}
 						return
 					endif
 				endif

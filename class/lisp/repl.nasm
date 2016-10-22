@@ -28,25 +28,25 @@
 			continueifnot {ast}
 
 			if {stream == this->lisp_stdin}
-				static_call stream, write_cstr, {this->lisp_stderr, "--Ast--"}
-				static_call stream, write_char, {this->lisp_stderr, char_lf}
-				static_call lisp, repl_print, {this, this->lisp_stderr, ast}
-				static_call stream, write_char, {this->lisp_stderr, char_lf}
-				static_call stream, write_cstr, {this->lisp_stderr, "--Macro expanding--"}
-				static_call stream, write_char, {this->lisp_stderr, char_lf}
+				static_call stream, write_cstr, {this->lisp_stdout, "--Ast--"}
+				static_call stream, write_char, {this->lisp_stdout, char_lf}
+				static_call lisp, repl_print, {this, this->lisp_stdout, ast}
+				static_call stream, write_char, {this->lisp_stdout, char_lf}
+				static_call stream, write_cstr, {this->lisp_stdout, "--Macro expanding--"}
+				static_call stream, write_char, {this->lisp_stdout, char_lf}
 			endif
 
 			loop_start
 				static_call lisp, repl_expand, {this, &ast}, {flag}
 				if {stream == this->lisp_stdin}
-					static_call lisp, repl_print, {this, this->lisp_stderr, ast}
-					static_call stream, write_char, {this->lisp_stderr, 10}
+					static_call lisp, repl_print, {this, this->lisp_stdout, ast}
+					static_call stream, write_char, {this->lisp_stdout, 10}
 				endif
 			loop_until {flag}
 
 			if {stream == this->lisp_stdin}
-				static_call stream, write_cstr, {this->lisp_stderr, "--Eval--"}
-				static_call stream, write_char, {this->lisp_stderr, char_lf}
+				static_call stream, write_cstr, {this->lisp_stdout, "--Eval--"}
+				static_call stream, write_char, {this->lisp_stdout, char_lf}
 			endif
 
 			static_call lisp, repl_eval, {this, ast}, {value}

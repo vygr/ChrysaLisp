@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/env_bind
@@ -10,7 +11,7 @@
 		;r3 = vals start index_vals
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, vars list
+		;r1 = value
 
 		ptr this, vars, vals, symbol, value
 		ushort len_vars, len_vals, index_vars, index_vals
@@ -18,44 +19,43 @@
 		push_scope
 		retire {r0, r1, r2, r3}, {this, vars, vals, index_vals}
 
-		assign {0}, {value}
 		if {vars->obj_vtable == @class/class_vector}
 			if {vals->obj_vtable == @class/class_vector}
 				assign {0}, {index_vars}
+				assign {this->lisp_sym_nil}, {value}
+				static_call ref, ref, {value}
 				slot_call vector, get_length, {vars}, {len_vars}
 				slot_call vector, get_length, {vals}, {len_vals}
 				loop_while {index_vars != len_vars}
+					static_call ref, deref, {value}
 					static_call vector, get_element, {vars, index_vars}, {symbol}
 					if {symbol == this->lisp_sym_rest}
 						assign {index_vars + 1}, {index_vars}
 						if {index_vars == len_vars}
-							static_call lisp, error, {this, "(bind vars vals): missing &rest var", vars}
+							static_call error, create, {"(bind vars vals): missing &rest var", vars}, {value}
 							goto exit
 						endif
 						static_call vector, get_element, {vars, index_vars}, {symbol}
 						static_call vector, slice, {vals, index_vals, len_vals}, {value}
 						static_call lisp, env_def, {this, symbol, value}
-						static_call ref, deref, {value}
 						goto exit
 					endif
 					if {index_vals == len_vals}
-						static_call lisp, error, {this, "(bind vars vals): not enough vals", vars}
-						assign {0}, {value}
+						static_call error, create, {"(bind vars vals): not enough vals", vars}, {value}
 						goto exit
 					endif
-					slot_call vector, get_element, {vals, index_vals}, {value}
+					slot_call vector, ref_element, {vals, index_vals}, {value}
 					static_call lisp, env_def, {this, symbol, value}
 					assign {index_vars + 1, index_vals + 1}, {index_vars, index_vals}
 				loop_end
-				assign {vals}, {value}
 				breakif {index_vals == len_vals}
-				static_call lisp, error, {this, "(bind vars vals): too many vals", vars}
-				assign {0}, {value}
+				static_call ref, deref, {value}
+				static_call error, create, {"(bind vars vals): too many vals", vars}, {value}
 			else
-				static_call lisp, error, {this, "(bind vars vals): vals not a list", vals}
+				static_call error, create, {"(bind vars vals): vals not a list", vals}, {value}
 			endif
 		else
-			static_call lisp, error, {this, "(bind vars vals): vars not a list", vars}
+			static_call error, create, {"(bind vars vals): vars not a list", vars}, {value}
 		endif
 	exit:
 		eval {this, value}, {r0, r1}
