@@ -3,7 +3,7 @@
 
 %include 'class/class_view.inc'
 
-	window_border_size	equ 8
+	window_border_size	equ 4
 
 	def_bit
 		bit window_drag_left
