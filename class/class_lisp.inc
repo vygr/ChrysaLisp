@@ -9,7 +9,6 @@
 	def_method create, class/lisp/create, static, {r0, r1, r2}, {r0}
 	def_method new, class/lisp/new, static, {}, {r0}
 	def_method init, class/lisp/init, static, {r0, r1, r2, r3, r5}, {r1}
-	def_method error, class/lisp/error, static, {r0, r1, r2}
 
 	def_method sym_intern, class/lisp/sym_intern, static, {r0, r1}, {r1}
 	def_method sym_intern_cstr, class/lisp/sym_intern_cstr, static, {r0, r1}, {r1}

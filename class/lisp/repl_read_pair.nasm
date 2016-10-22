@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 %include 'class/class_pair.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/repl_read_pair
@@ -10,7 +11,7 @@
 		;r2 = next char
 		;outputs
 		;r0 = lisp object
-		;r1 = list
+		;r1 = pair
 		;r2 = next char
 
 		const char_space, ' '
@@ -25,11 +26,17 @@
 		;skip "<"
 		static_call stream, read_char, {stream}, {char}
 
-		assign {0}, {pair}
 		static_call lisp, repl_read, {this, stream, char}, {first, char}
-		gotoifnot {first}, error
+		if {first->obj_vtable == @class/class_error}
+			assign {first}, {pair}
+			goto error
+		endif
 		static_call lisp, repl_read, {this, stream, char}, {second, char}
-		gotoifnot {second}, error1
+		if {second->obj_vtable == @class/class_error}
+			static_call ref, deref, {first}
+			assign {second}, {pair}
+			goto error
+		endif
 
 		;skip white space
 		loop_while {char <= char_space && char != -1}
@@ -41,11 +48,10 @@
 			static_call pair, create, {first, second}, {pair}
 		else
 			static_call ref, deref, {second}
-		error1:
 			static_call ref, deref, {first}
-		error:
+			static_call error, create, {"expected >", this->lisp_sym_nil}, {pair}
 		endif
-
+	error:
 		eval {this, pair, char}, {r0, r1, r2}
 		pop_scope
 		return

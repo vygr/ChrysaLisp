@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_notevery
@@ -8,7 +9,7 @@
 		;r1 = args
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else value
+		;r1 = value
 
 		ptr this, args, value, func, form
 		pptr iter
@@ -17,7 +18,6 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		assign {0}, {value}
 		slot_call vector, get_length, {args}, {length}
 		if {length >= 3}
 			static_call vector, get_element, {args, 1}, {func}
@@ -39,7 +39,7 @@
 						assign {list_num + 1}, {list_num}
 					loop_until {list_num == length}
 					static_call lisp, repl_apply, {this, func, form}, {value}
-					gotoifnot {value}, error
+					gotoif {value->obj_vtable == @class/class_error}, error
 					breakif {value == this->lisp_sym_nil}
 					assign {seq_num + 1}, {seq_num}
 				loop_until {seq_num == seq_length}
@@ -54,10 +54,10 @@
 			error:
 				static_call ref, deref, {form}
 			else
-				static_call lisp, error, {this, "(notevery func list ...) not all lists", args}
+				static_call error, create, {"(notevery func list ...) not all lists", args}, {value}
 			endif
 		else
-			static_call lisp, error, {this, "(notevery func list ...) not enough args", args}
+			static_call error, create, {"(notevery func list ...) not enough args", args}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}

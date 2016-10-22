@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 %include 'class/class_vector.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/repl_read_unquote
@@ -31,7 +32,7 @@
 			static_call vector, push_back, {list, elem}
 		else
 			static_call ref, deref, {list}
-			assign {0}, {list}
+			static_call error, create, {"read unquote error", this->lisp_sym_nil}, {list}
 		endif
 
 		eval {this, list, char}, {r0, r1, r2}

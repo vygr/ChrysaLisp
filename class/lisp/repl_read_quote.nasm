@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 %include 'class/class_vector.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/repl_read_quote
@@ -27,11 +28,11 @@
 		static_call ref, ref, {elem}
 		static_call vector, push_back, {list, elem}
 		static_call lisp, repl_read, {this, stream, char}, {elem, char}
-		if {elem}
+		if {elem->obj_vtable != @class/class_error}
 			static_call vector, push_back, {list, elem}
 		else
 			static_call ref, deref, {list}
-			assign {0}, {list}
+			assign {elem}, {list}
 		endif
 
 		eval {this, list, char}, {r0, r1, r2}

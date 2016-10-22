@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 %include 'class/class_vector.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/repl_read_list
@@ -10,7 +11,7 @@
 		;r2 = next char
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else list
+		;r1 = list
 		;r2 = next char
 
 		const char_space, ' '
@@ -30,9 +31,9 @@
 		static_call vector, create, {}, {list}
 		loop_while {char != -1 && char != char_rrb}
 			static_call lisp, repl_read, {this, stream, char}, {ast, char}
-			ifnot {ast}
+			if {ast->obj_vtable == @class/class_error}
 				static_call ref, deref, {list}
-				assign {0}, {list}
+				assign {ast}, {list}
 				goto error
 			endif
 			static_call vector, push_back, {list, ast}

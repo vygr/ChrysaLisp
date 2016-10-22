@@ -11,7 +11,7 @@
 		;r1 = args
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else value
+		;r1 = value
 
 		ptr this, args, value, arg1, arg2
 		ulong length, v1, v2

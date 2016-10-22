@@ -1,6 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 %include 'class/class_vector.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/repl_read
@@ -10,7 +11,7 @@
 		;r2 = next char
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else ast
+		;r1 = ast
 		;r2 = next char
 
 		const char_space, ' '
@@ -39,15 +40,14 @@
 		loop_end
 
 		;what are we reading ?
-		assign {0}, {ast}
 		if {char != -1}
 			switch
 			case {char == char_rrb}
-				static_call lisp, error, {this, "unexpected )", ast}
-				goto next_char
+				static_call error, create, {"unexpected )", this->lisp_sym_nil}, {ast}
+				static_call stream, read_char, {stream}, {char}
+				break
 			case {char == char_rab}
-				static_call lisp, error, {this, "unexpected >", ast}
-			next_char:
+				static_call error, create, {"unexpected >", this->lisp_sym_nil}, {ast}
 				static_call stream, read_char, {stream}, {char}
 				break
 			case {char == char_lrb}
@@ -77,6 +77,9 @@
 			default
 				static_call lisp, repl_read_sym, {this, stream, char}, {ast, char}
 			endswitch
+		else
+			assign {this->lisp_sym_nil}, {ast}
+			static_call ref, ref, {ast}
 		endif
 
 		eval {this, ast, char}, {r0, r1, r2}

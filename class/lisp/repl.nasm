@@ -25,7 +25,6 @@
 
 			static_call lisp, repl_read, {this, stream, char}, {ast, char}
 			breakif {char == -1}
-			continueifnot {ast}
 
 			if {stream == this->lisp_stdin}
 				static_call stream, write_cstr, {this->lisp_stdout, "--Ast--"}
@@ -51,7 +50,6 @@
 
 			static_call lisp, repl_eval, {this, ast}, {value}
 			static_call ref, deref, {ast}
-			continueifnot {value}
 
 			if {stream == this->lisp_stdin}
 				static_call lisp, repl_print, {this, this->lisp_stdout, value}

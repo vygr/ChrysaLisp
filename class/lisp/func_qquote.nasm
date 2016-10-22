@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
+%include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
 	def_function class/lisp/func_qquote
@@ -8,7 +9,7 @@
 		;r1 = args
 		;outputs
 		;r0 = lisp object
-		;r1 = 0, else value
+		;r1 = value
 
 		def_structure pdata
 			ptr pdata_this
@@ -36,12 +37,11 @@
 				static_call ref, deref, {pdata.pdata_cat_list}
 				break
 			default
-				static_call ref, ref, {args}
 				assign {args}, {value}
+				static_call ref, ref, {value}
 			endswitch
 		else
-			static_call lisp, error, {pdata.pdata_this, "(quasi-quote arg) wrong numbers of args", args}
-			assign {0}, {value}
+			static_call error, create, {"(quasi-quote arg) wrong numbers of args", args}, {value}
 		endif
 
 		eval {pdata.pdata_this, value}, {r0, r1}
