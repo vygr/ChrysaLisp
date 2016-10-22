@@ -19,7 +19,7 @@
 		retire {r0, r1, r2}, {this, func, ast}
 
 		if {func->obj_vtable == @class/class_boxed_ptr}
-			;built in
+			;built in or compiled function
 			eval {this, ast, func}, {r0, r1, r2}
 			vp_call [r2 + boxed_ptr_value]
 			retire {r1}, {value}
