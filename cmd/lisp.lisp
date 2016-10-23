@@ -64,10 +64,10 @@
 
 "Comparision"
 
-(defun gte (x y)
+(defun ge (x y)
 	(not (lt x y)))
 
-(defun lte (x y)
+(defun le (x y)
 	(or (lt x y) (eq x y)))
 
 (defun gt (x y)
