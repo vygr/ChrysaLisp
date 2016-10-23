@@ -17,15 +17,15 @@
 		const char_double_quote, '"'
 
 		ptr this, stream, string
-		pubyte relloc, buffer
+		pubyte reloc, buffer
 		ulong char
 
 		push_scope
 		retire {r0, r1, r2}, {this, stream, char}
 
 		slot_function sys_load, statics
-		assign {@_function_.ld_statics_reloc_buffer}, {relloc}
-		assign {relloc}, {buffer}
+		assign {@_function_.ld_statics_reloc_buffer}, {reloc}
+		assign {reloc}, {buffer}
 
 		static_call stream, read_char, {stream}, {char}
 		loop_while {char != -1 && char != char_double_quote}
@@ -35,7 +35,7 @@
 		loop_end
 		static_call stream, read_char, {stream}, {char}
 
-		static_call string, create_from_buffer, {relloc, buffer - relloc}, {string}
+		static_call string, create_from_buffer, {reloc, buffer - reloc}, {string}
 
 		eval {this, string, char}, {r0, r1, r2}
 		pop_scope

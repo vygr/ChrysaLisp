@@ -25,6 +25,8 @@
 			if {args->obj_vtable == @class/class_string}
 				assign {args}, {value}
 				static_call ref, ref, {value}
+			elseif {args->obj_vtable == @class/class_stream_str}
+				static_call stream_str, ref_string, {args}, {value}
 			else
 				static_call string, create_from_cstr, {"                "}, {value}
 				static_call stream_str, create, {value}, {stream}

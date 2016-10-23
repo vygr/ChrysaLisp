@@ -79,6 +79,13 @@
 	def_method func_defmacro, class/lisp/func_defmacro, static, {r0, r1}, {r1}
 	def_method func_copy, class/lisp/func_copy, static, {r0, r1}, {r1}
 	def_method func_gensym, class/lisp/func_gensym, static, {r0, r1}, {r1}
+	def_method func_filestream, class/lisp/func_filestream, static, {r0, r1}, {r1}
+	def_method func_strstream, class/lisp/func_strstream, static, {r0, r1}, {r1}
+	def_method func_readchar, class/lisp/func_readchar, static, {r0, r1}, {r1}
+	def_method func_readline, class/lisp/func_readline, static, {r0, r1}, {r1}
+	def_method func_writechar, class/lisp/func_writechar, static, {r0, r1}, {r1}
+	def_method func_writeline, class/lisp/func_writeline, static, {r0, r1}, {r1}
+	def_method func_write, class/lisp/func_write, static, {r0, r1}, {r1}
 
 	def_method deinit, class/lisp/deinit, override
 

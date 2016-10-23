@@ -20,7 +20,7 @@
 		const char_minus, '-'
 
 		ptr this, stream, num
-		pubyte relloc, buffer
+		pubyte reloc, buffer
 		ulong char, sign
 		long val
 
@@ -32,8 +32,8 @@
 		endif
 
 		slot_function sys_load, statics
-		assign {@_function_.ld_statics_reloc_buffer}, {relloc}
-		assign {relloc}, {buffer}
+		assign {@_function_.ld_statics_reloc_buffer}, {reloc}
+		assign {reloc}, {buffer}
 
 		loop_while {char >= char_0 && char <= char_9}
 			assign {char}, {*buffer}
@@ -44,7 +44,7 @@
 
 		;create the number
 		static_call boxed_long, create, {}, {num}
-		static_call sys_string, to_long, {relloc, 10}, {val}
+		static_call sys_string, to_long, {reloc, 10}, {val}
 		if {sign == char_minus}
 			assign {-val}, {val}
 		endif

@@ -15,22 +15,22 @@
 		const char_minus, "-"
 
 		ptr this
-		pubyte buffer, relloc
+		pubyte buffer, reloc
 		long num, base
 
 		push_scope
 		retire {r0, r1}, {num, base}
 
 		slot_function sys_load, statics
-		assign {@_function_.ld_statics_reloc_buffer}, {relloc}
-		assign {relloc}, {buffer}
+		assign {@_function_.ld_statics_reloc_buffer}, {reloc}
+		assign {reloc}, {buffer}
 		if {num < 0}
 			assign {char_minus}, {*buffer}
 			assign {buffer + 1}, {buffer}
 			assign {-num}, {num}
 		endif
 		static_call sys_string, from_long, {num, buffer, base}
-		static_call string, create_from_cstr, {relloc}, {this}
+		static_call string, create_from_cstr, {reloc}, {this}
 
 		eval {this}, {r0}
 		pop_scope

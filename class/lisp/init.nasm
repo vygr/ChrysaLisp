@@ -157,6 +157,13 @@
 		built_in "str", 0, func_str
 		built_in "sub", 0, func_sub
 		built_in "elem", 0, func_elem
+		built_in "file-stream", 0, func_filestream
+		built_in "string-stream", 0, func_strstream
+		built_in "read-char", 0, func_readchar
+		built_in "read-line", 0, func_readline
+		built_in "write-char", 0, func_writechar
+		built_in "write-line", 0, func_writeline
+		built_in "write", 0, func_write
 		dw 0
 
 	def_function_end
