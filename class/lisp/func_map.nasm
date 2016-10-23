@@ -25,24 +25,22 @@
 		retire {r0, r1}, {this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		if {length >= 3}
-			static_call vector, get_element, {args, 2}, {func}
+		if {length >= 2}
+			static_call vector, get_element, {args, 1}, {func}
 			slot_function class, sequence
 			static_call obj, inst_of, {func, @_function_}, {pdata.pdata_type}
 			if {pdata.pdata_type}
 				assign {1000000}, {pdata.pdata_length}
-				static_call vector, get_element, {args, 1}, {func}
-				static_call vector, for_each, {args, 2, $callback, &pdata}, {iter}
+				static_call vector, get_element, {args, 0}, {func}
+				static_call vector, for_each, {args, 1, $callback, &pdata}, {iter}
 				ifnot {iter}
 					static_call vector, create, {}, {value}
 					breakifnot {pdata.pdata_length}
 					static_call vector, set_capacity, {value, pdata.pdata_length}
 					assign {0}, {seq_num}
 					static_call vector, slice, {args, 1, length}, {form}
-					static_call ref, ref, {func}
-					static_call vector, set_element, {form, func, 0}
 					loop_start
-						assign {2}, {list_num}
+						assign {1}, {list_num}
 						loop_start
 							static_call vector, get_element, {args, list_num}, {elem}
 							method_call sequence, ref_element, {elem, seq_num}, {elem}

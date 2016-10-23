@@ -34,7 +34,7 @@
 				if {vars == this->lisp_sym_lambda}
 					static_call lisp, env_push, {this}
 					static_call vector, get_element, {func, 1}, {vars}
-					static_call lisp, env_bind, {this, vars, ast, 1}, {value}
+					static_call lisp, env_bind, {this, vars, ast, 0}, {value}
 					if {value->obj_vtable != @class/class_error}
 						static_call ref, deref, {value}
 						static_call vector, get_element, {func, 2}, {value}

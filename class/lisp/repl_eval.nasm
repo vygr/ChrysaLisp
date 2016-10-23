@@ -37,19 +37,27 @@
 				static_call lisp, repl_eval, {this, func}, {value}
 				breakif {value->obj_vtable == @class/class_error}
 				assign {value}, {func}
-				gotoif {func->obj_vtable != @class/class_boxed_ptr}, eval_args
-				if {func->boxed_ptr_flags}
-					static_call lisp, repl_apply, {this, func, form}, {value}
-				else
-				eval_args:
-					static_call vector, slice, {form, 0, length}, {args}
-					static_call lisp, repl_eval_list, {this, args, 1}, {value}
+				switch
+				case {func->obj_vtable == @class/class_boxed_ptr}
+					gotoifnot {func->boxed_ptr_flags}, args_eval_apply
+					if {func->boxed_ptr_flags == type_apply}
+						static_call lisp, repl_apply, {this, func, form}, {value}
+					else ;type_args_apply
+						static_call vector, slice, {form, 1, length}, {args}
+						static_call lisp, repl_apply, {this, func, args}, {value}
+						static_call ref, deref, {args}
+					endif
+					break
+				default
+				args_eval_apply:
+					static_call vector, slice, {form, 1, length}, {args}
+					static_call lisp, repl_eval_list, {this, args, 0}, {value}
 					if {value->obj_vtable != @class/class_error}
 						static_call ref, deref, {value}
 						static_call lisp, repl_apply, {this, func, args}, {value}
 					endif
 					static_call ref, deref, {args}
-				endif
+				endswitch
 				static_call ref, deref, {func}
 			endif
 			break

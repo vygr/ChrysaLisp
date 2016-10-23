@@ -17,7 +17,7 @@
 		retire {r0, r1}, {this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		static_call vector, slice, {args, 1, length}, {args}
+		static_call vector, slice, {args, 0, length}, {args}
 
 		eval {this, args}, {r0, r1}
 		pop_scope

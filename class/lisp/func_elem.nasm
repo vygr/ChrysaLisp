@@ -19,10 +19,10 @@
 		retire {r0, r1}, {this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		if {length == 3}
-			static_call vector, get_element, {args, 1}, {index}
+		if {length == 2}
+			static_call vector, get_element, {args, 0}, {index}
 			if {index->obj_vtable == @class/class_boxed_long}
-				static_call vector, get_element, {args, 2}, {seq}
+				static_call vector, get_element, {args, 1}, {seq}
 				slot_function class, sequence
 				static_call obj, inst_of, {seq, @_function_}, {elem_index}
 				if {elem_index}

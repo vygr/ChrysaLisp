@@ -17,7 +17,7 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		static_call vector, for_each, {args, 1, $callback, this}, {_}
+		static_call vector, for_each, {args, 0, $callback, this}, {_}
 		assign {this->lisp_sym_t}, {args}
 		static_call ref, ref, {args}
 

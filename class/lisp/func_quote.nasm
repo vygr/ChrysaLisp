@@ -18,8 +18,8 @@
 		retire {r0, r1}, {this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		if {length == 2}
-			slot_call vector, ref_element, {args, 1}, {args}
+		if {length == 1}
+			slot_call vector, ref_element, {args, 0}, {args}
 		else
 			static_call error, create, {"(quote arg) wrong numbers of args", args}, {args}
 		endif

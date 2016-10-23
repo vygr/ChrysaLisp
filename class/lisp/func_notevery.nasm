@@ -19,10 +19,10 @@
 		retire {r0, r1}, {this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		if {length >= 3}
-			static_call vector, get_element, {args, 1}, {func}
+		if {length >= 2}
+			static_call vector, get_element, {args, 0}, {func}
 			assign {1000000}, {seq_length}
-			static_call vector, for_each, {args, 2, $callback, &seq_length}, {iter}
+			static_call vector, for_each, {args, 1, $callback, &seq_length}, {iter}
 			ifnot {iter}
 				assign {this->lisp_sym_nil}, {value}
 				static_call ref, ref, {value}
@@ -31,7 +31,7 @@
 				static_call vector, slice, {args, 1, length}, {form}
 				loop_start
 					static_call ref, deref, {value}
-					assign {2}, {list_num}
+					assign {1}, {list_num}
 					loop_start
 						static_call vector, get_element, {args, list_num}, {value}
 						slot_call vector, ref_element, {value, seq_num}, {value}

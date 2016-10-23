@@ -21,7 +21,7 @@
 		retire {r0, r1}, {this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		if (length == 2)
+		if (length == 1)
 			static_call lisp, func_copy, {this, args}, {value}
 			static_call lisp, repl_expand, {this, &value}, {length}
 		else

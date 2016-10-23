@@ -13,7 +13,7 @@
 		;built_in_size would be aligned to long !
 	def_structure_end
 
-	%macro built_in 2-4 "", 0
+	%macro built_in 2-4 "", type_args_eval_apply
 		;%1 = symbol
 		;%2 = field
 		;%3 = function
@@ -116,15 +116,16 @@
 		built_in "nil", lisp_sym_nil
 		built_in "t", lisp_sym_t
 
-		built_in "cond", 0, func_cond, 1
-		built_in "def", 0, func_def, 1
-		built_in "lambda", lisp_sym_lambda, func_lambda, 1
-		built_in "quote", lisp_sym_quote, func_quote, 1
-		built_in "quasi-quote", lisp_sym_qquote, func_qquote, 1
-		built_in "defmacro", lisp_sym_defmacro, func_defmacro, 1
-		built_in "set", 0, func_set, 1
-		built_in "setl", 0, func_setl, 1
-		built_in "while", 0, func_while, 1
+		built_in "lambda", lisp_sym_lambda, func_lambda, type_apply
+
+		built_in "cond", 0, func_cond, type_args_apply
+		built_in "def", 0, func_def, type_args_apply
+		built_in "quote", lisp_sym_quote, func_quote, type_args_apply
+		built_in "quasi-quote", lisp_sym_qquote, func_qquote, type_args_apply
+		built_in "defmacro", lisp_sym_defmacro, func_defmacro, type_args_apply
+		built_in "set", 0, func_set, type_args_apply
+		built_in "setl", 0, func_setl, type_args_apply
+		built_in "while", 0, func_while, type_args_apply
 
 		built_in "unquote", lisp_sym_unquote
 		built_in "unquote-splicing", lisp_sym_splicing

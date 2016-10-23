@@ -18,9 +18,9 @@
 		retire {r0, r1}, {this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		if {length == 3}
-			static_call vector, get_element, {args, 1}, {vars}
-			static_call vector, get_element, {args, 2}, {args}
+		if {length == 2}
+			static_call vector, get_element, {args, 0}, {vars}
+			static_call vector, get_element, {args, 1}, {args}
 			if {args->obj_vtable == @class/class_vector}
 				slot_call vector, get_length, {args}, {length}
 				static_call vector, slice, {args, 0, length}, {args}

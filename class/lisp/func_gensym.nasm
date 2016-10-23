@@ -19,7 +19,7 @@
 		retire {r0, r1}, {this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		if {length == 1}
+		ifnot {length}
 			static_call symbol, create_from_long, {this->lisp_nextsym, 10}, {args}
 			static_call symbol, create_from_cstr, {"G"}, {prefix}
 			static_call symbol, append, {prefix, args}, {value}

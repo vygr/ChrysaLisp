@@ -82,6 +82,12 @@
 
 	def_method deinit, class/lisp/deinit, override
 
+	def_enum
+		enum type_args_eval_apply
+		enum type_args_apply
+		enum type_apply
+	def_enum_end
+
 	def_structure lisp, ref
 		ptr lisp_stdin
 		ptr lisp_stdout

@@ -18,8 +18,8 @@
 		retire {r0, r1}, {this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		if {length == 2}
-			static_call vector, get_element, {args, 1}, {args}
+		if {length == 1}
+			static_call vector, get_element, {args, 0}, {args}
 			if {args == this->lisp_sym_nil}
 				assign {this->lisp_sym_t}, {args}
 			else

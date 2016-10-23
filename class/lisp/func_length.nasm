@@ -19,8 +19,8 @@
 		retire {r0, r1}, {this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		if {length == 2}
-			static_call vector, get_element, {args, 1}, {args}
+		if {length == 1}
+			static_call vector, get_element, {args, 0}, {args}
 			slot_function class, sequence
 			static_call obj, inst_of, {args, @_function_}, {value}
 			if {value}

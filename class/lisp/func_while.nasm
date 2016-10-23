@@ -24,13 +24,13 @@
 		retire {r0, r1}, {pdata.pdata_this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		if {length >= 2}
+		if {length >= 1}
 			loop_start
-				static_call vector, get_element, {args, 1}, {pdata.pdata_value}
+				static_call vector, get_element, {args, 0}, {pdata.pdata_value}
 				static_call lisp, repl_eval, {pdata.pdata_this, pdata.pdata_value}, {pdata.pdata_value}
 				breakif {pdata.pdata_value->obj_vtable == @class/class_error}
 				breakif {pdata.pdata_value == pdata.pdata_this->lisp_sym_nil}
-				static_call vector, for_each, {args, 2, $callback, &pdata}, {_}
+				static_call vector, for_each, {args, 1, $callback, &pdata}, {_}
 				breakif {pdata.pdata_value->obj_vtable == @class/class_error}
 				static_call ref, deref, {pdata.pdata_value}
 			loop_end

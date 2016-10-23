@@ -18,8 +18,8 @@
 		retire {r0, r1}, {this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		if {length == 2}
-			static_call vector, get_element, {args, 1}, {args}
+		if {length == 1}
+			static_call vector, get_element, {args, 0}, {args}
 			if {args->obj_vtable == @class/class_vector}
 				slot_call vector, get_length, {args}, {length}
 				static_call vector, slice, {args, 0, length}, {args}

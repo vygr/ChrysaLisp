@@ -24,8 +24,8 @@
 		retire {r0, r1}, {pdata.pdata_this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		if {length == 2}
-			slot_call vector, get_element, {args, 1}, {args}
+		if {length == 1}
+			slot_call vector, get_element, {args, 0}, {args}
 			switch
 			case {args->obj_vtable == @class/class_vector}
 				static_call vector, create, {}, {pdata.pdata_cat_list}

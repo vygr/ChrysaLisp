@@ -20,9 +20,9 @@
 		retire {r0, r1}, {this, args}
 
 		slot_call vector, get_length, {args}, {length}
-		if {length == 3}
-			static_call vector, get_element, {args, 1}, {arg1}
-			static_call vector, get_element, {args, 2}, {arg2}
+		if {length == 2}
+			static_call vector, get_element, {args, 0}, {arg1}
+			static_call vector, get_element, {args, 1}, {arg2}
 			gotoif {arg1 == arg2}, same
 			assign {this->lisp_sym_nil}, {value}
 			switch
