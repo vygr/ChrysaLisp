@@ -29,14 +29,16 @@
 				assign {@_function_.ld_statics_reloc_buffer}, {reloc}
 				static_call stream_str, read_line, {value, reloc, ld_reloc_size}, {length}
 				if {length == -1}
-					assign {0}, {length}
+					assign {this->lisp_sym_nil}, {value}
+					static_call ref, ref, {value}
+				else
+					static_call string, create_from_buffer, {reloc, length}, {value}
 				endif
-				static_call string, create_from_buffer, {reloc, length}, {value}
 			else
 				static_call error, create, {"(read-line stream) not a stream", args}, {value}
 			endif
 		else
-			static_call error, create, {"(read-line stream) not enough args", args}, {value}
+			static_call error, create, {"(read-line stream) wrong number of args", args}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}

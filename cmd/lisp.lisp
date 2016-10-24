@@ -64,6 +64,9 @@
 
 "Comparision"
 
+(defun ne (x y)
+	(not (eq x y)))
+
 (defun ge (x y)
 	(not (lt x y)))
 
@@ -131,3 +134,12 @@
 		(while (lt c l)
 			(fxy fq 10 20)
 			(setlvar c (add c 1)))))
+
+(defun each-line (f b)
+	(progn
+		(def (s l) ((file-stream f) t))
+		(while (ne nil (setlvar l (read-line s)))
+			(b l))))
+
+(defun print-file (f)
+	(each-line f print))

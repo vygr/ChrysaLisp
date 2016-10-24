@@ -35,7 +35,7 @@
 				static_call error, create, {"(write-line stream str) not a stream", args}, {value}
 			endif
 		else
-			static_call error, create, {"(write-line stream str) not enough args", args}, {value}
+			static_call error, create, {"(write-line stream str) wrong number of args", args}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}
