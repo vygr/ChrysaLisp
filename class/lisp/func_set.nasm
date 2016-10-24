@@ -23,7 +23,7 @@
 			static_call vector, get_element, {args, 1}, {args}
 			if {args->obj_vtable == @class/class_vector}
 				slot_call vector, get_length, {args}, {length}
-				static_call vector, slice, {args, 0, length}, {args}
+				slot_call vector, slice, {args, 0, length}, {args}
 				static_call lisp, repl_eval_list, {this, args, 0}, {vals}
 				if {vals->obj_vtable != @class/class_error}
 					static_call ref, deref, {vals}

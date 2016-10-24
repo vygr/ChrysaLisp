@@ -34,7 +34,7 @@
 						assign {1}, {seq_num}
 					endif
 					breakif {seq_num >= seq_length}
-					static_call vector, slice, {args, 0, 2}, {form}
+					slot_call vector, slice, {args, 0, 2}, {form}
 					loop_start
 						static_call vector, set_element, {form, value, 0}
 						method_call sequence, ref_element, {seq, seq_num}, {value}

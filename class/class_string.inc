@@ -19,6 +19,7 @@
 	def_method hash, class/string/hash, override
 	def_method get_length, class/string/get_length, override
 	def_method ref_element, class/string/ref_element, override
+	def_method slice, class/string/slice, override
 
 	def_structure string, sequence
 		ulong string_length

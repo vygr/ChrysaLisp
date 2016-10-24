@@ -38,7 +38,7 @@
 					breakifnot {pdata.pdata_length}
 					static_call vector, set_capacity, {value, pdata.pdata_length}
 					assign {0}, {seq_num}
-					static_call vector, slice, {args, 1, length}, {form}
+					slot_call vector, slice, {args, 1, length}, {form}
 					loop_start
 						assign {1}, {list_num}
 						loop_start

@@ -36,7 +36,7 @@
 							goto exit
 						endif
 						static_call vector, get_element, {vars, index_vars}, {symbol}
-						static_call vector, slice, {vals, index_vals, len_vals}, {value}
+						slot_call vector, slice, {vals, index_vals, len_vals}, {value}
 						static_call lisp, env_def, {this, symbol, value}
 						goto exit
 					endif

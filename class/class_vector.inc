@@ -17,12 +17,12 @@
 	def_method clear, class/vector/clear, static, {r0}
 	def_method for_each, class/vector/for_each, static, {r0, r1, r2, r3}, {r1}
 	def_method set_element, class/vector/set_element, static, {r0, r1, r2}
-	def_method slice, class/vector/slice, static, {r0, r1, r2}, {r1}
 	def_method append, class/vector/append, static, {r0, r1, r2, r3}
 
 	def_method deinit, class/vector/deinit, override
 	def_method get_length, class/vector/get_length, override
 	def_method ref_element, class/vector/ref_element, override
+	def_method slice, class/vector/slice, override
 
 	def_structure vector, sequence
 		pptr vector_array

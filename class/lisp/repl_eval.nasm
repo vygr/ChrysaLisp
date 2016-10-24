@@ -43,14 +43,14 @@
 					if {func->boxed_ptr_flags == type_apply}
 						static_call lisp, repl_apply, {this, func, form}, {value}
 					else ;type_args_apply
-						static_call vector, slice, {form, 1, length}, {args}
+						slot_call vector, slice, {form, 1, length}, {args}
 						static_call lisp, repl_apply, {this, func, args}, {value}
 						static_call ref, deref, {args}
 					endif
 					break
 				default
 				args_eval_apply:
-					static_call vector, slice, {form, 1, length}, {args}
+					slot_call vector, slice, {form, 1, length}, {args}
 					static_call lisp, repl_eval_list, {this, args, 0}, {value}
 					if {value->obj_vtable != @class/class_error}
 						static_call ref, deref, {value}

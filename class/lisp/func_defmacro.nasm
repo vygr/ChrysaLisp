@@ -24,7 +24,7 @@
 			if {vars->obj_vtable == @class/class_vector}
 				static_call vector, get_element, {args, 0}, {name}
 				if {name->obj_vtable == @class/class_symbol}
-					static_call vector, slice, {args, 1, length}, {args}
+					slot_call vector, slice, {args, 1, length}, {args}
 					static_call unordered_map, insert, {this->lisp_macros, name, args}, {_, _}
 					static_call ref, deref, {args}
 					static_call ref, ref, {name}

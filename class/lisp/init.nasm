@@ -155,6 +155,7 @@
 		built_in "reduce", 0, func_reduce
 		built_in "some", 0, func_some
 		built_in "str", 0, func_str
+		built_in "slice", 0, func_slice
 		built_in "sub", 0, func_sub
 		built_in "elem", 0, func_elem
 		built_in "char", 0, func_char

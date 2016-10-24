@@ -20,9 +20,9 @@
 
 		slot_call vector, get_length, {args}, {length}
 		if {length == 2}
-			static_call vector, get_element, {args, 0}, {index}
+			static_call vector, get_element, {args, 1}, {index}
 			if {index->obj_vtable == @class/class_boxed_long}
-				static_call vector, get_element, {args, 1}, {seq}
+				static_call vector, get_element, {args, 0}, {seq}
 				slot_function class, sequence
 				static_call obj, inst_of, {seq, @_function_}, {elem_index}
 				if {elem_index}
@@ -30,17 +30,19 @@
 					method_call sequence, get_length, {seq}, {length}
 					if {elem_index >= 0 && elem_index < length}
 						method_call sequence, ref_element, {seq, elem_index}, {value}
+						eval {this, value}, {r0, r1}
+						return
 					else
-						static_call error, create, {"(elem index seq) index out of bounds", args}, {value}
+						static_call error, create, {"(elem seq index) index out of bounds", args}, {value}
 					endif
 				else
-					static_call error, create, {"(elem index seq) not a sequence", args}, {value}
+					static_call error, create, {"(elem seq index) not a sequence", args}, {value}
 				endif
 			else
-				static_call error, create, {"(elem index seq) not an index", args}, {value}
+				static_call error, create, {"(elem seq index) not an index", args}, {value}
 			endif
 		else
-			static_call error, create, {"(elem index seq) not enough args", args}, {value}
+			static_call error, create, {"(elem seq index) not enough args", args}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}

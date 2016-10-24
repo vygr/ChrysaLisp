@@ -22,7 +22,7 @@
 			static_call vector, get_element, {args, 0}, {args}
 			if {args->obj_vtable == @class/class_vector}
 				slot_call vector, get_length, {args}, {length}
-				static_call vector, slice, {args, 0, length}, {args}
+				slot_call vector, slice, {args, 0, length}, {args}
 				static_call vector, for_each, {args, 0, $callback, 0}, {_}
 			else
 				static_call ref, ref, {args}
@@ -52,7 +52,7 @@
 		assign {*iter}, {pdata}
 		if {pdata->obj_vtable == @class/class_vector}
 			slot_call vector, get_length, {pdata}, {length}
-			static_call vector, slice, {pdata, 0, length}, {pdata}
+			slot_call vector, slice, {pdata, 0, length}, {pdata}
 			static_call vector, for_each, {pdata, 0, $callback, 0}, {_}
 			static_call ref, deref, {*iter}
 			assign {pdata}, {*iter}
