@@ -5,8 +5,9 @@
 		;inputs
 		;r0 = vector object
 		;r1 = start index
-		;r2 = predicate function pointer
-		;r3 = predicate data pointer
+		;r2 = end index
+		;r3 = predicate function pointer
+		;r5 = predicate data pointer
 		;outputs
 		;r0 = vector object
 		;r1 = 0, else break iterator
@@ -31,16 +32,16 @@
 
 		;save inputs
 		vp_sub local_size, r4
-		set_src r0, r2, r3
+		set_src r0, r3, r5
 		set_dst [r4 + local_inst], [r4 + local_predicate], [r4 + local_predicate_data]
 		map_src_to_dst
 
 		;process elements
-		vp_cpy [r0 + vector_length], r2
 		vp_cpy [r0 + vector_array], r0
-		vp_add r0, r2
 		vp_mul ptr_size, r1
+		vp_mul ptr_size, r2
 		vp_add r0, r1
+		vp_add r0, r2
 		vp_cpy r2, [r4 + local_end]
 		loop_start
 			vp_cpy r1, [r4 + local_next]
@@ -55,9 +56,7 @@
 		;iterator of break point, else 0
 		vp_cpy [r4 + local_next], r1
 		vp_cpy [r4 + local_inst], r0
-		vp_cpy [r0 + vector_array], r2
-		vp_add [r0 + vector_length], r2
-		if r1, ==, r2
+		if r1, ==, [r4 + local_end]
 			vp_xor r1, r1
 		endif
 		vp_add local_size, r4

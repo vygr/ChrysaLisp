@@ -29,10 +29,10 @@
 			static_call vector, get_element, {args, 0}, {pdata.pdata_value}
 			if {pdata.pdata_value->obj_vtable == @class/class_vector}
 				static_call vector, create, {}, {pdata.pdata_value}
-				static_call vector, for_each, {args, 0, $callback, &pdata}, {_}
+				static_call vector, for_each, {args, 0, length, $callback, &pdata}, {_}
 			elseif {pdata.pdata_value->obj_vtable == @class/class_string}
 				static_call ref, ref, {pdata.pdata_value}
-				static_call vector, for_each, {args, 1, $callback, &pdata}, {_}
+				static_call vector, for_each, {args, 1, length, $callback, &pdata}, {_}
 			else
 				static_call error, create, {"(cat seq ...) not sequence type", pdata.pdata_value}, {pdata.pdata_value}
 			endif

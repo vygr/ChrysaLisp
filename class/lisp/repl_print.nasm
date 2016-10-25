@@ -143,7 +143,7 @@
 				notquote:
 					static_call stream, write_char, {stream, char_lrb}
 					assign {this, stream, 0}, {pdata.pdata_this, pdata.pdata_stream, pdata.pdata_index}
-					static_call vector, for_each, {value, 0, $callback, &pdata}, {_}
+					static_call vector, for_each, {value, 0, pdata.pdata_length, $callback, &pdata}, {_}
 					static_call stream, write_char, {stream, char_rrb}
 				endif
 				pop_scope

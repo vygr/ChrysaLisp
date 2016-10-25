@@ -36,7 +36,8 @@
 		map_src_to_dst
 
 		;for all buckets
-		s_call vector, for_each, {[r0 + unordered_set_buckets], 0, $callback, r4}, {r2}
+		t_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
+		s_call vector, for_each, {r0, 0, r1, $callback, r4}, {r2}
 		if r2, !=, 0
 			vp_cpy [r2], r2
 		endif
@@ -53,7 +54,9 @@
 		;r1 = 0 if break, else not
 
 		vp_push r0
-		s_call vector, for_each, {[r1], 0, [r0 + local_predicate], [r0 + local_predicate_data]}, {r1}
+		vp_cpy r0, r2
+		t_call vector, get_length, {[r1]}, {r1}
+		s_call vector, for_each, {r0, 0, r1, [r2 + local_predicate], [r2 + local_predicate_data]}, {r1}
 		vp_pop r0
 		vp_cpy r1, [r0 + local_iter]
 		if r1, ==, 0

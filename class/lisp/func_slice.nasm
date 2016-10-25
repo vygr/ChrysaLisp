@@ -14,7 +14,7 @@
 		;r1 = value
 
 		ptr this, args, seq, value
-		ulong length, start, end
+		int length, start, end
 
 		push_scope
 		retire {r0, r1}, {this, args}
@@ -23,8 +23,8 @@
 		if {length == 3}
 			static_call vector, get_element, {args, 0}, {seq}
 			slot_function class, sequence
-			static_call obj, inst_of, {seq, @_function_}, {length}
-			if {length}
+			static_call obj, inst_of, {seq, @_function_}, {value}
+			if {value}
 				static_call vector, get_element, {args, 1}, {value}
 				if {value->obj_vtable == @class/class_boxed_long}
 					static_call boxed_long, get_value, {value}, {start}

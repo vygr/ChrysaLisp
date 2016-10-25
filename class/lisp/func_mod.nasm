@@ -12,22 +12,22 @@
 		;r0 = lisp object
 		;r1 = value
 
-		ptr this, args, value, first
+		ptr this, args, value
 		pptr iter
-		ulong length
+		long length, accum
 
 		push_scope
 		retire {r0, r1}, {this, args}
 
 		slot_call vector, get_length, {args}, {length}
 		if {length > 1}
-			static_call vector, get_element, {args, 0}, {first}
-			if {first->obj_vtable == @class/class_boxed_long}
-				static_call boxed_long, get_value, {first}, {length}
-				static_call vector, for_each, {args, 1, $callback, &length}, {iter}
+			static_call vector, get_element, {args, 0}, {value}
+			if {value->obj_vtable == @class/class_boxed_long}
+				static_call boxed_long, get_value, {value}, {accum}
+				static_call vector, for_each, {args, 1, length, $callback, &accum}, {iter}
 				gotoif {iter}, error
 				static_call boxed_long, create, {}, {value}
-				static_call boxed_long, set_value, {value, length}
+				static_call boxed_long, set_value, {value, accum}
 			else
 			error:
 				static_call error, create, {"(mod val val ...) vals are not all numbers", args}, {value}

@@ -13,11 +13,13 @@
 		;r1 = value
 
 		ptr this, args
+		ulong length
 
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		static_call vector, for_each, {args, 0, $callback, this}, {_}
+		slot_call vector, get_length, {args}, {length}
+		static_call vector, for_each, {args, 0, length, $callback, this}, {_}
 		assign {this->lisp_sym_t}, {args}
 		static_call ref, ref, {args}
 

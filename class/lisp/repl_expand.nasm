@@ -46,7 +46,7 @@
 					endif
 				endif
 				slot_function lisp, repl_expand
-				static_call vector, for_each, {form, 0, @_function_, this}, {iter}
+				static_call vector, for_each, {form, 0, length, @_function_, this}, {iter}
 				assign {!iter}, {iter}
 			endif
 		endif

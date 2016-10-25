@@ -32,7 +32,7 @@
 			if {pdata.pdata_type}
 				assign {1000000}, {pdata.pdata_length}
 				static_call vector, get_element, {args, 0}, {func}
-				static_call vector, for_each, {args, 1, $callback, &pdata}, {iter}
+				static_call vector, for_each, {args, 1, length, $callback, &pdata}, {iter}
 				ifnot {iter}
 					static_call vector, create, {}, {value}
 					breakifnot {pdata.pdata_length}

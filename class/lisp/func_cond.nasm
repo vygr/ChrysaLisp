@@ -18,13 +18,15 @@
 
 		struct pdata, pdata
 		ptr args
+		ulong length
 
 		push_scope
 		retire {r0, r1}, {pdata.pdata_this, args}
 
 		assign {pdata.pdata_this->lisp_sym_nil}, {pdata.pdata_value}
 		static_call ref, ref, {pdata.pdata_value}
-		static_call vector, for_each, {args, 0, $callback, &pdata}, {_}
+		slot_call vector, get_length, {args}, {length}
+		static_call vector, for_each, {args, 0, length, $callback, &pdata}, {_}
 
 		eval {pdata.pdata_this, pdata.pdata_value}, {r0, r1}
 		pop_scope
@@ -57,7 +59,7 @@
 				endif
 				if {test != pdata->pdata_this->lisp_sym_nil}
 					static_call ref, deref, {test}
-					static_call vector, for_each, {*iter, 1, $callback1, pdata}, {_}
+					static_call vector, for_each, {*iter, 1, length, $callback1, pdata}, {_}
 					eval {0}, {r1}
 					return
 				else

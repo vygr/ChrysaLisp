@@ -25,8 +25,9 @@
 		map_src_to_dst
 
 		;search hash bucket
-		s_call unordered_set, get_bucket, {r0, r1}, {r1}
-		s_call vector, for_each, {r1, 0, $callback, r4}, {r1}
+		s_call unordered_set, get_bucket, {r0, r1}, {r0}
+		t_call vector, get_length, {r0}, {r1}
+		s_call vector, for_each, {r0, 0, r1, $callback, r4}, {r1}
 		vp_cpy r0, r2
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4

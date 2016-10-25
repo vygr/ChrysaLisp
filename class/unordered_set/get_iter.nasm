@@ -2,19 +2,21 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/unordered_set/get_element
+	def_function class/unordered_set/get_iter
 		;inputs
 		;r0 = unordered_set object
 		;r1 = element index
 		;outputs
 		;r0 = unordered_set object
-		;r1 = element
+		;r1 = element iterator
+		;r2 = bucket iterator
 		;trashes
-		;all but r0, r4
+		;r3, r5
 
 		def_structure local
 			ptr local_inst
-			ptr local_elem
+			ptr local_iter
+			ptr local_bucket
 			ulong local_index
 		def_structure_end
 
@@ -25,10 +27,12 @@
 		map_src_to_dst
 
 		;search hash buckets
-		s_call vector, for_each, {[r0 + unordered_set_buckets], 0, $callback, r4}, {r1}
+		t_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
+		s_call vector, for_each, {r0, 0, r1, $callback, r4}, {_}
 
 		vp_cpy [r4 + local_inst], r0
-		vp_cpy [r4 + local_elem], r1
+		vp_cpy [r4 + local_iter], r1
+		vp_cpy [r4 + local_bucket], r2
 		vp_add local_size, r4
 		vp_ret
 
@@ -48,8 +52,11 @@
 			vp_sub r2, r3
 			vp_cpy r3, [r5 + local_index]
 		else
-			s_call vector, get_element, {r0, r3}, {r1}
-			vp_cpy r1, [r5 + local_elem]
+			vp_cpy r1, [r5 + local_bucket]
+			vp_cpy [r0 + vector_array], r1
+			vp_mul ptr_size, r3
+			vp_add r3, r1
+			vp_cpy r1, [r5 + local_iter]
 			vp_xor r1, r1
 		endif
 		vp_ret

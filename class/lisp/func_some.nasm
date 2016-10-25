@@ -22,7 +22,7 @@
 		if {length >= 2}
 			static_call vector, get_element, {args, 0}, {func}
 			assign {1000000}, {seq_length}
-			static_call vector, for_each, {args, 1, $callback, &seq_length}, {iter}
+			static_call vector, for_each, {args, 1, length, $callback, &seq_length}, {iter}
 			ifnot {iter}
 				assign {this->lisp_sym_nil}, {value}
 				static_call ref, ref, {value}

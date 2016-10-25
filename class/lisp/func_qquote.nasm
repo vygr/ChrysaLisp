@@ -32,7 +32,8 @@
 				assign {pdata.pdata_this->lisp_sym_cat}, {value}
 				static_call ref, ref, {value}
 				static_call vector, push_back, {pdata.pdata_cat_list, value}
-				static_call vector, for_each, {args, 0, $callback, &pdata}, {_}
+				slot_call vector, get_length, {args}, {length}
+				static_call vector, for_each, {args, 0, length, $callback, &pdata}, {_}
 				static_call lisp, repl_eval, {pdata.pdata_this, pdata.pdata_cat_list}, {value}
 				static_call ref, deref, {pdata.pdata_cat_list}
 				break
@@ -87,7 +88,7 @@
 				assign {pdata->pdata_this->lisp_sym_cat}, {sym}
 				static_call ref, ref, {sym}
 				static_call vector, push_back, {pdata1.pdata_cat_list, sym}
-				static_call vector, for_each, {elem, 0, $callback, &pdata1}, {_}
+				static_call vector, for_each, {elem, 0, length, $callback, &pdata1}, {_}
 				static_call lisp, repl_eval, {pdata->pdata_this, pdata1.pdata_cat_list}, {elem}
 				static_call ref, deref, {pdata1.pdata_cat_list}
 				pop_scope

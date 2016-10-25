@@ -8,7 +8,7 @@ def_function class/unordered_set/create
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes
-	;r1-r3, r5-r7
+	;r1-r3, r5-r8
 
 	;save data
 	vp_cpy r0, r6

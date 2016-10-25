@@ -13,12 +13,13 @@
 
 		ptr this, list
 		pptr iter
-		ulong index
+		ulong index, length
 
 		push_scope
 		retire {r0, r1, r2}, {this, list, index}
 
-		static_call vector, for_each, {list, index, $callback, this}, {iter}
+		slot_call vector, get_length, {list}, {length}
+		static_call vector, for_each, {list, index, length, $callback, this}, {iter}
 		if {iter}
 			assign {*iter}, {list}
 		endif

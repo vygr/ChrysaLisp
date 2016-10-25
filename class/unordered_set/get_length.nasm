@@ -13,7 +13,8 @@
 
 		;count all buckets
 		vp_push r0, 0
-		s_call vector, for_each, {[r0 + unordered_set_buckets], 0, $callback, r4}, {_}
+		t_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
+		s_call vector, for_each, {r0, 0, r1, $callback, r4}, {_}
 		vp_pop r0, r1
 		vp_ret
 
