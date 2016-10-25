@@ -29,7 +29,7 @@
 					static_call boxed_long, get_value, {value}, {index}
 					method_call sequence, get_length, {seq}, {length}
 					if {index < 0}
-						assign {length + index}, {index}
+						assign {length + index + 1}, {index}
 					endif
 					if {index >= 0 && index < length}
 						method_call sequence, ref_element, {seq, index}, {value}

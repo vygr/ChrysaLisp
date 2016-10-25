@@ -33,30 +33,27 @@
 					static_call boxed_long, get_value, {value}, {end}
 					method_call sequence, get_length, {seq}, {length}
 					if {start < 0}
-						assign {length + start}, {start}
+						assign {length + start + 1}, {start}
 					endif
-					assign {start + end}, {end}
-					if {start > end}
-						assign {start}, {length}
-						assign {end}, {start}
-						assign {length}, {end}
+					if {end < 0}
+						assign {length + end + 1}, {end}
 					endif
 					if {start >= 0 && end <= length}
 						method_call sequence, slice, {seq, start, end}, {value}
 						eval {this, value}, {r0, r1}
 						return
 					else
-						static_call error, create, {"(slice seq start len) index out of bounds", args}, {value}
+						static_call error, create, {"(slice seq start end) index out of bounds", args}, {value}
 					endif
 				else
 				index_error:
-					static_call error, create, {"(slice seq start len) not an index", args}, {value}
+					static_call error, create, {"(slice seq start end) not an index", args}, {value}
 				endif
 			else
-				static_call error, create, {"(slice seq start len) not a sequence", args}, {value}
+				static_call error, create, {"(slice seq start end) not a sequence", args}, {value}
 			endif
 		else
-			static_call error, create, {"(slice seq start len) wrong number of args", args}, {value}
+			static_call error, create, {"(slice seq start end) wrong number of args", args}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}
