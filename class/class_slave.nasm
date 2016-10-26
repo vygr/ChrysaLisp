@@ -1,4 +1,4 @@
 %include 'inc/func.inc'
 %include 'class/class_slave.inc'
 
-	class_macro_class slave
+class_macro_class slave

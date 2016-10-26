@@ -1,4 +1,4 @@
 %include 'inc/func.inc'
 %include 'class/class_button.inc'
 
-	class_macro_class button
+class_macro_class button
