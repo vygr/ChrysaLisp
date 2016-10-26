@@ -1,30 +1,30 @@
 %include 'inc/func.inc'
 %include 'apps/netmon/app.inc'
 
-	def_func apps/netmon/child
-		;monitor task
+def_func apps/netmon/child
+	;monitor task
 
-		ptr msg
+	ptr msg
 
-		push_scope
-		loop_start
-			;read mail command
-			func_call sys_mail, mymail, {}, {msg}
-			breakifnot {msg->sample_msg_command}
+	push_scope
+	loop_start
+		;read mail command
+		func_call sys_mail, mymail, {}, {msg}
+		breakifnot {msg->sample_msg_command}
 
-			;sample command
-			func_call sys_task, count, {}, {msg->sample_msg_task_count}
-			func_call sys_mem, used, {}, {msg->sample_msg_mem_used}
-			assign {msg->sample_msg_reply_id.id_mbox}, {msg->msg_dest.id_mbox}
-			assign {msg->sample_msg_reply_id.id_cpu}, {msg->msg_dest.id_cpu}
-			assign {sample_msg_reply_size}, {msg->msg_length}
-			func_call sys_mail, send, {msg}
+		;sample command
+		func_call sys_task, count, {}, {msg->sample_msg_task_count}
+		func_call sys_mem, used, {}, {msg->sample_msg_mem_used}
+		assign {msg->sample_msg_reply_id.id_mbox}, {msg->msg_dest.id_mbox}
+		assign {msg->sample_msg_reply_id.id_cpu}, {msg->msg_dest.id_cpu}
+		assign {sample_msg_reply_size}, {msg->msg_length}
+		func_call sys_mail, send, {msg}
 
-			;be friendly
-			func_call sys_task, yield
-		loop_end
-		func_call sys_mem, free, {msg}
-		pop_scope
-		return
+		;be friendly
+		func_call sys_task, yield
+	loop_end
+	func_call sys_mem, free, {msg}
+	pop_scope
+	return
 
-	def_func_end
+def_func_end
