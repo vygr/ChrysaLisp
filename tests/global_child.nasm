@@ -6,22 +6,22 @@
 ; test code
 ;;;;;;;;;;;
 
-	def_func tests/global_child
+def_func tests/global_child
 
-		ptr msg
-		ulong num
+	ptr msg
+	ulong num
 
-		push_scope
+	push_scope
 
-		;wait a bit
-		func_call sys_math, random, {1000000}, {num}
-		func_call sys_task, sleep, {num + 1000000}
+	;wait a bit
+	func_call sys_math, random, {1000000}, {num}
+	func_call sys_task, sleep, {num + 1000000}
 
-		;read command
-		func_call sys_mail, mymail, {}, {msg}
-		func_call sys_mem, free, {msg}
+	;read command
+	func_call sys_mail, mymail, {}, {msg}
+	func_call sys_mem, free, {msg}
 
-		pop_scope
-		return
+	pop_scope
+	return
 
-	def_func_end
+def_func_end

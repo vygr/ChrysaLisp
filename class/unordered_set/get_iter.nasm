@@ -46,7 +46,6 @@
 		vp_cpy r0, r5
 		vp_cpy [r1], r0
 		vp_cpy [r0 + vector_length], r2
-		vp_shr 3, r2
 		vp_cpy [r5 + local_index], r3
 		if r3, >=, r2
 			vp_sub r2, r3

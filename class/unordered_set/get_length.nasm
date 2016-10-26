@@ -27,7 +27,6 @@
 
 		vp_cpy [r1], r1
 		vp_cpy [r1 + vector_length], r2
-		vp_shr 3, r2
 		vp_add [r0], r2
 		vp_cpy r2, [r0]
 		vp_ret

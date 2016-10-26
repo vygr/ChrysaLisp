@@ -9,7 +9,6 @@
 		;r1 = vector length
 
 		vp_cpy [r0 + vector_length], r1
-		vp_shr 3, r1
 		vp_ret
 
 	def_func_end

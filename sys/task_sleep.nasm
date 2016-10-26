@@ -1,37 +1,37 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	def_func sys/task_sleep
-		;inputs
-		;r0 = time delay in usec
+def_func sys/task_sleep
+	;inputs
+	;r0 = time delay in usec
 
-		;push task state
-		tk_save_state
+	;push task state
+	tk_save_state
 
-		;save stack pointer
-		f_bind sys_task, statics, r3
-		vp_cpy [r3 + tk_statics_current_tcb], r15
-		vp_cpy r4, [r15 + tk_node_stack]
+	;save stack pointer
+	f_bind sys_task, statics, r3
+	vp_cpy [r3 + tk_statics_current_tcb], r15
+	vp_cpy r4, [r15 + tk_node_stack]
 
-		;save timeout
-		vp_cpy r0, r1
+	;save timeout
+	vp_cpy r0, r1
 
-		;calculate wake time
-		f_call sys_cpu, time, {}, {r0}
-		vp_add r1, r0
-		vp_cpy r0, [r15 + tk_node_time]
+	;calculate wake time
+	f_call sys_cpu, time, {}, {r0}
+	vp_add r1, r0
+	vp_cpy r0, [r15 + tk_node_time]
 
-		;remove task control block
-		vp_cpy r15, r2
-		vp_cpy r15, r1
-		ln_remove_node r2, r15
+	;remove task control block
+	vp_cpy r15, r2
+	vp_cpy r15, r1
+	ln_remove_node r2, r15
 
-		;add to timer list
-		loop_list_forward r3 + tk_statics_timer_list, r5, r2
-		loop_until r0, <, [r5 + tk_node_time]
-		ln_add_node_before r5, r1, r0
+	;add to timer list
+	loop_list_forward r3 + tk_statics_timer_list, r5, r2
+	loop_until r0, <, [r5 + tk_node_time]
+	ln_add_node_before r5, r1, r0
 
-		;restore next task
-		f_jmp sys_task, restore
+	;restore next task
+	f_jmp sys_task, restore
 
-	def_func_end
+def_func_end

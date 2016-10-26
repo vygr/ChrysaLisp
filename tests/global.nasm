@@ -6,38 +6,38 @@
 ; test code
 ;;;;;;;;;;;
 
-	def_func tests/global
+def_func tests/global
 
-		const test_size, 10000
+	const test_size, 10000
 
-		ptr name, ids, msg
-		ulong cnt, total
+	ptr name, ids, msg
+	ulong cnt, total
 
-		push_scope
+	push_scope
 
-		;task
-		func_call string, create_from_cstr, {"tests/global_child"}, {name}
+	;task
+	func_call string, create_from_cstr, {"tests/global_child"}, {name}
 
-		;open global farm
-		func_call sys_cpu, total, {}, {total}
-		func_call sys_task, open_global, {name, total}, {ids}
+	;open global farm
+	func_call sys_cpu, total, {}, {total}
+	func_call sys_task, open_global, {name, total}, {ids}
 
-		;send exit parcels etc
-		assign {total}, {cnt}
-		loop_while {cnt != 0}
-			assign {cnt - 1}, {cnt}
-			continueifnot {ids[cnt * id_size].id_mbox}
-			func_call sys_mail, alloc_parcel, {test_size}, {msg}
-			assign {ids[cnt * id_size].id_mbox}, {msg->msg_dest.id_mbox}
-			assign {ids[cnt * id_size].id_cpu}, {msg->msg_dest.id_cpu}
-			func_call sys_mail, send, {msg}
-			func_call sys_task, yield
-		loop_end
+	;send exit parcels etc
+	assign {total}, {cnt}
+	loop_while {cnt != 0}
+		assign {cnt - 1}, {cnt}
+		continueifnot {ids[cnt * id_size].id_mbox}
+		func_call sys_mail, alloc_parcel, {test_size}, {msg}
+		assign {ids[cnt * id_size].id_mbox}, {msg->msg_dest.id_mbox}
+		assign {ids[cnt * id_size].id_cpu}, {msg->msg_dest.id_cpu}
+		func_call sys_mail, send, {msg}
+		func_call sys_task, yield
+	loop_end
 
-		;free name and ID array
-		func_call string, deref, {name}
-		func_call sys_mem, free, {ids}
-		pop_scope
-		return
+	;free name and ID array
+	func_call string, deref, {name}
+	func_call sys_mem, free, {ids}
+	pop_scope
+	return
 
-	def_func_end
+def_func_end

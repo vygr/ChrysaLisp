@@ -28,8 +28,9 @@
 		f_call ref, deref, {[r1]}
 		vp_cpy [r4 + local_bucket], r0
 		vp_cpy [r0 + vector_length], r1
-		vp_sub ptr_size, r1
+		vp_dec r1
 		vp_cpy r1, [r0 + vector_length]
+		vp_mul ptr_size, r1
 		vp_add [r0 + vector_array], r1
 		vp_cpy [r4 + local_iter], r0
 		if r1, !=, r0

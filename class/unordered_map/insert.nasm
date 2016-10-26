@@ -44,7 +44,7 @@
 			vp_cpy r0, r2
 			vp_cpy [r0 + vector_length], r1
 			vp_cpy [r0 + vector_array], r0
-			vp_lea [r0 + r1 - ptr_size], r1
+			vp_lea [r0 + (r1 * ptr_size) - ptr_size], r1
 		else
 			;old key
 			vp_cpy r1, [r4 + local_iter]

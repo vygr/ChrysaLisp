@@ -32,10 +32,8 @@
 			vp_cpy [r4 + local_inst], r1
 			vp_cpy r0, [r1 + unordered_set_buckets]
 			f_call vector, set_capacity, {r0, [r4 + local_num_buckets]}
-			vp_cpy [r4 + local_num_buckets], r2
-			vp_cpy r2, r1
-			vp_shl 3, r2
-			vp_cpy r2, [r0 + vector_length]
+			vp_cpy [r4 + local_num_buckets], r1
+			vp_cpy r1, [r0 + vector_length]
 			f_call vector, for_each, {r0, 0, r1, $callback, 0}, {_}
 			vp_cpy [r4 + local_inst], r0
 			vp_cpy 1, r1
