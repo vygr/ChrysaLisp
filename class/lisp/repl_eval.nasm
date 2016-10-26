@@ -4,71 +4,71 @@
 %include 'class/class_boxed_ptr.inc'
 %include 'class/class_lisp.inc'
 
-	def_func class/lisp/repl_eval
-		;inputs
-		;r0 = lisp object
-		;r1 = form
-		;outputs
-		;r0 = lisp object
-		;r1 = value
+def_func class/lisp/repl_eval
+	;inputs
+	;r0 = lisp object
+	;r1 = form
+	;outputs
+	;r0 = lisp object
+	;r1 = value
 
-		ptr this, form, value, func, args
-		ulong length
+	ptr this, form, value, func, args
+	ulong length
 
-		push_scope
-		retire {r0, r1}, {this, form}
+	push_scope
+	retire {r0, r1}, {this, form}
 
-		;evaluate based on type
-		assign {form->obj_vtable}, {func}
-		switch
-		case {func == @class/class_symbol}
-			;eval to symbol value
-			func_call lisp, env_get, {this, form}, {value}
-			break
-		case {func == @class/class_vector}
-			devirt_call vector, get_length, {form}, {length}
-			ifnot {length}
-				;eval to nil
-				assign {this->lisp_sym_nil}, {value}
-				func_call ref, ref, {value}
-			else
-				;apply function, eval args if needed
-				func_call vector, get_element, {form, 0}, {func}
-				func_call lisp, repl_eval, {this, func}, {value}
-				breakif {value->obj_vtable == @class/class_error}
-				assign {value}, {func}
-				switch
-				case {func->obj_vtable == @class/class_boxed_ptr}
-					gotoifnot {func->boxed_ptr_flags}, args_eval_apply
-					if {func->boxed_ptr_flags == type_apply}
-						func_call lisp, repl_apply, {this, func, form}, {value}
-					else ;type_args_apply
-						devirt_call vector, slice, {form, 1, length}, {args}
-						func_call lisp, repl_apply, {this, func, args}, {value}
-						func_call ref, deref, {args}
-					endif
-					break
-				default
-				args_eval_apply:
-					devirt_call vector, slice, {form, 1, length}, {args}
-					func_call lisp, repl_eval_list, {this, args, 0}, {value}
-					if {value->obj_vtable != @class/class_error}
-						func_call ref, deref, {value}
-						func_call lisp, repl_apply, {this, func, args}, {value}
-					endif
-					func_call ref, deref, {args}
-				endswitch
-				func_call ref, deref, {func}
-			endif
-			break
-		default
-			;eval to self
-			assign {form}, {value}
+	;evaluate based on type
+	assign {form->obj_vtable}, {func}
+	switch
+	case {func == @class/class_symbol}
+		;eval to symbol value
+		func_call lisp, env_get, {this, form}, {value}
+		break
+	case {func == @class/class_vector}
+		devirt_call vector, get_length, {form}, {length}
+		ifnot {length}
+			;eval to nil
+			assign {this->lisp_sym_nil}, {value}
 			func_call ref, ref, {value}
-		endswitch
+		else
+			;apply function, eval args if needed
+			func_call vector, get_element, {form, 0}, {func}
+			func_call lisp, repl_eval, {this, func}, {value}
+			breakif {value->obj_vtable == @class/class_error}
+			assign {value}, {func}
+			switch
+			case {func->obj_vtable == @class/class_boxed_ptr}
+				gotoifnot {func->boxed_ptr_flags}, args_eval_apply
+				if {func->boxed_ptr_flags == type_apply}
+					func_call lisp, repl_apply, {this, func, form}, {value}
+				else ;type_args_apply
+					devirt_call vector, slice, {form, 1, length}, {args}
+					func_call lisp, repl_apply, {this, func, args}, {value}
+					func_call ref, deref, {args}
+				endif
+				break
+			default
+			args_eval_apply:
+				devirt_call vector, slice, {form, 1, length}, {args}
+				func_call lisp, repl_eval_list, {this, args, 0}, {value}
+				if {value->obj_vtable != @class/class_error}
+					func_call ref, deref, {value}
+					func_call lisp, repl_apply, {this, func, args}, {value}
+				endif
+				func_call ref, deref, {args}
+			endswitch
+			func_call ref, deref, {func}
+		endif
+		break
+	default
+		;eval to self
+		assign {form}, {value}
+		func_call ref, ref, {value}
+	endswitch
 
-		eval {this, value}, {r0, r1}
-		pop_scope
-		return
+	eval {this, value}, {r0, r1}
+	pop_scope
+	return
 
-	def_func_end
+def_func_end
