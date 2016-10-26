@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_pair.inc'
 
-	def_function class/pair/ref_first
+	def_func class/pair/ref_first
 		;inputs
 		;r0 = pair object
 		;outputs
@@ -9,9 +9,9 @@
 		;r1 = object pointer
 
 		vp_push r0
-		s_call ref, ref, {[r0 + pair_second]}
+		f_call ref, ref, {[r0 + pair_second]}
 		vp_cpy r0, r1
 		vp_pop r0
 		vp_ret
 
-	def_function_end
+	def_func_end

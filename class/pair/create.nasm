@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_pair.inc'
 
-def_function class/pair/create
+def_func class/pair/create
 	;inputs
 	;r0 = first object
 	;r1 = second object
@@ -15,17 +15,17 @@ def_function class/pair/create
 	vp_cpy r1, r7
 
 	;create new string object
-	s_call pair, new, {}, {r0}
+	f_call pair, new, {}, {r0}
 	if r0, !=, 0
 		;init the object
-		slot_function class, pair
-		s_call pair, init, {r0, @_function_, r6, r7}, {r1}
+		func_path class, pair
+		f_call pair, init, {r0, @_function_, r6, r7}, {r1}
 		if r1, ==, 0
 			;error with init
-			m_call pair, delete, {r0}, {}, r1
+			v_call pair, delete, {r0}, {}, r1
 			vp_xor r0, r0
 		endif
 	endif
 	vp_ret
 
-def_function_end
+def_func_end

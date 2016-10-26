@@ -2,7 +2,7 @@
 %include 'inc/string.inc'
 %include 'class/class_string.inc'
 
-	def_function class/string/create_from_buffer
+	def_func class/string/create_from_buffer
 		;inputs
 		;r0 = buffer pointer
 		;r1 = buffer length
@@ -16,17 +16,17 @@
 		vp_cpy r1, r7
 
 		;create new string object
-		s_call string, new, {&[r1 + string_size + 1]}, {r0}
+		f_call string, new, {&[r1 + string_size + 1]}, {r0}
 		if r0, !=, 0
 			;init the object
-			slot_function class, string
-			s_call string, init, {r0, @_function_, r6, r7}, {r1}
+			func_path class, string
+			f_call string, init, {r0, @_function_, r6, r7}, {r1}
 			if r1, ==, 0
 				;error with init
-				m_call string, delete, {r0}, {}, r1
+				v_call string, delete, {r0}, {}, r1
 				vp_xor r0, r0
 			endif
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

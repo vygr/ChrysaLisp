@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	def_function gui/region_remove_rect
+	def_func gui/region_remove_rect
 		;inputs
 		;r0 = region heap pointer
 		;r1 = source region listhead pointer
@@ -39,7 +39,7 @@
 					;bottom part
 					vp_cpy_i r11, [r7 + gui_rect_y]
 					;right part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r10, [r1 + gui_rect_x]
@@ -47,7 +47,7 @@
 					vp_cpy_i r14, [r1 + gui_rect_x1]
 					vp_cpy_i r11, [r1 + gui_rect_y1]
 					;left part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -55,7 +55,7 @@
 					vp_cpy_i r8, [r1 + gui_rect_x1]
 					vp_cpy_i r11, [r1 + gui_rect_y1]
 					;top part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -75,7 +75,7 @@
 					;bottom part
 					vp_cpy_i r11, [r7 + gui_rect_y]
 					;right part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r10, [r1 + gui_rect_x]
@@ -83,7 +83,7 @@
 					vp_cpy_i r14, [r1 + gui_rect_x1]
 					vp_cpy_i r11, [r1 + gui_rect_y1]
 					;top part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -102,7 +102,7 @@
 					;bottom part
 					vp_cpy_i r11, [r7 + gui_rect_y]
 					;right part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r10, [r1 + gui_rect_x]
@@ -110,7 +110,7 @@
 					vp_cpy_i r14, [r1 + gui_rect_x1]
 					vp_cpy_i r11, [r1 + gui_rect_y1]
 					;left part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -129,7 +129,7 @@
 					;bottom part
 					vp_cpy_i r11, [r7 + gui_rect_y]
 					;right part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r10, [r1 + gui_rect_x]
@@ -147,7 +147,7 @@
 					;bottom part
 					vp_cpy_i r11, [r7 + gui_rect_y]
 					;left part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -155,7 +155,7 @@
 					vp_cpy_i r8, [r1 + gui_rect_x1]
 					vp_cpy_i r11, [r1 + gui_rect_y1]
 					;top part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -173,7 +173,7 @@
 					;bottom part
 					vp_cpy_i r11, [r7 + gui_rect_y]
 					;top part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -191,7 +191,7 @@
 					;bottom part
 					vp_cpy_i r11, [r7 + gui_rect_y]
 					;left part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -216,7 +216,7 @@
 					vp_cpy_i r9, [r7 + gui_rect_y]
 					vp_cpy_i r8, [r7 + gui_rect_x1]
 					;right part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r10, [r1 + gui_rect_x]
@@ -224,7 +224,7 @@
 					vp_cpy_i r14, [r1 + gui_rect_x1]
 					vp_cpy_i r15, [r1 + gui_rect_y1]
 					;top part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -258,7 +258,7 @@
 					vp_cpy_i r9, [r7 + gui_rect_y]
 					vp_cpy_i r8, [r7 + gui_rect_x1]
 					;top part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -278,7 +278,7 @@
 					;right part
 					vp_cpy_i r10, [r7 + gui_rect_x]
 					;left part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -293,7 +293,7 @@
 					vp_cpy_i r10, [r7 + gui_rect_x]
 					vp_cpy_i r9, [r7 + gui_rect_y]
 					;top part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -305,4 +305,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

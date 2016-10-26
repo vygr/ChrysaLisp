@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_button.inc'
 
-	def_function class/button/mouse_move
+	def_func class/button/mouse_move
 		;inputs
 		;r0 = button object
 		;r1 = mouse event message
@@ -10,7 +10,7 @@
 		;all but r0, r4
 
 		;hit ?
-		m_call button, hit, {r0, [r1 + ev_msg_rx], [r1 + ev_msg_ry]}, {r1}
+		v_call button, hit, {r0, [r1 + ev_msg_rx], [r1 + ev_msg_ry]}, {r1}
 
 		;is mouse over button ?
 		vp_cpy [r0 + button_state], r2
@@ -26,9 +26,9 @@
 
 		;if state changed then dirty
 		if r2, !=, r3
-			m_call button, layout, {r0}
-			s_jmp button, dirty, {r0}
+			v_call button, layout, {r0}
+			f_jmp button, dirty, {r0}
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

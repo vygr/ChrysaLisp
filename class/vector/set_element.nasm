@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/vector/set_element
+	def_func class/vector/set_element
 		;inputs
 		;r0 = vector object
 		;r1 = object
@@ -25,7 +25,7 @@
 		map_src_to_dst
 
 		vp_cpy [r0 + vector_array], r0
-		s_call ref, deref, {[r0 + r2]}
+		f_call ref, deref, {[r0 + r2]}
 		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r4 + local_obj], r1
 		vp_cpy [r4 + local_index], r2
@@ -35,4 +35,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

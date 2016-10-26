@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_unordered_set.inc'
 
-def_function class/unordered_set/create
+def_func class/unordered_set/create
 	;inputs
 	;r0 = key compare callback
 	;r1 = num buckets
@@ -15,17 +15,17 @@ def_function class/unordered_set/create
 	vp_cpy r1, r7
 
 	;create new string object
-	s_call unordered_set, new, {}, {r0}
+	f_call unordered_set, new, {}, {r0}
 	if r0, !=, 0
 		;init the object
-		slot_function class, unordered_set
-		s_call unordered_set, init, {r0, @_function_, r6, r7}, {r1}
+		func_path class, unordered_set
+		f_call unordered_set, init, {r0, @_function_, r6, r7}, {r1}
 		if r1, ==, 0
 			;error with init
-			m_call unordered_set, delete, {r0}, {}, r1
+			v_call unordered_set, delete, {r0}, {}, r1
 			vp_xor r0, r0
 		endif
 	endif
 	vp_ret
 
-def_function_end
+def_func_end

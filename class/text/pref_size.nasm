@@ -4,7 +4,7 @@
 %include 'class/class_string.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/text/pref_size
+	def_func class/text/pref_size
 		;inputs
 		;r0 = text object
 		;outputs
@@ -25,10 +25,10 @@
 		assign {0, 0}, {width, height}
 		if {inst->text_string && inst->text_font}
 			assign {inst->text_words->vector_array}, {words}
-			slot_call vector, get_length, {inst->text_words}, {length}
+			devirt_call vector, get_length, {inst->text_words}, {length}
 			assign {&words[length * ptr_size]}, {words_end}
 			loop_start
-				static_call gui_font, bounds, {inst->text_font, *words}, {word_w, height}
+				func_call gui_font, bounds, {inst->text_font, *words}, {word_w, height}
 				assign {words + ptr_size}, {words}
 				assign {width + word_w}, {width}
 			loop_until {words == words_end}
@@ -39,4 +39,4 @@
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

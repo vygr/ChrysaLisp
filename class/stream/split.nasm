@@ -3,7 +3,7 @@
 %include 'class/class_string.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/stream/split
+	def_func class/stream/split
 		;inputs
 		;r0 = stream object
 		;r1 = split char
@@ -23,21 +23,21 @@
 		retire {r0, r1}, {inst, char}
 
 		;create output vector
-		static_call vector, create, {}, {splits}
+		func_call vector, create, {}, {splits}
 
 		;fill vector with splits
 		loop_start
-			static_call stream, skip, {inst, char}
+			func_call stream, skip, {inst, char}
 			assign {inst->stream_bufp}, {start}
-			static_call stream, skip_not, {inst, char}
+			func_call stream, skip_not, {inst, char}
 			assign {inst->stream_bufp - start}, {length}
 			breakif {length == 0}
-			static_call string, create_from_buffer, {start, length}, {string}
-			static_call vector, push_back, {splits, string}
+			func_call string, create_from_buffer, {start, length}, {string}
+			func_call vector, push_back, {splits, string}
 		loop_end
 
 		eval {inst, splits}, {r0, r1}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

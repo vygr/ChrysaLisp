@@ -2,7 +2,7 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/unordered_set/slice_impl
+	def_func class/unordered_set/slice_impl
 		;inputs
 		;r0 = unordered_set object
 		;r1 = empty set/map object
@@ -29,8 +29,8 @@
 		set_dst [r4 + local_inst], [r4 + local_obj], [r4 + local_start_elem], [r4 + local_end_elem]
 		map_src_to_dst
 
-		s_call unordered_set, get_iter, {[r4 + local_inst], [r4 + local_start_elem]}, {r6, r7}
-		s_call unordered_set, get_iter, {r0, [r4 + local_end_elem]}, {r8, r9}
+		f_call unordered_set, get_iter, {[r4 + local_inst], [r4 + local_start_elem]}, {r6, r7}
+		f_call unordered_set, get_iter, {r0, [r4 + local_end_elem]}, {r8, r9}
 
 		vp_cpy [r7], r2
 		vp_cpy [r9], r3
@@ -53,21 +53,21 @@
 		vp_cpy r9, [r4 + local_end_bucket]
 
 		if r7, ==, r9
-			s_call vector, get_element, {[r0 + unordered_set_buckets], r7}, {r0}
-			s_call vector, for_each, {r0, [r4 + local_start_elem], [r4 + local_end_elem], $callback, r4}, {_}
+			f_call vector, get_element, {[r0 + unordered_set_buckets], r7}, {r0}
+			f_call vector, for_each, {r0, [r4 + local_start_elem], [r4 + local_end_elem], $callback, r4}, {_}
 		else
-			s_call vector, get_element, {[r0 + unordered_set_buckets], r7}, {r0}
-			t_call vector, get_length, {r0}, {r1}
-			s_call vector, for_each, {r0, [r4 + local_start_elem], r1, $callback, r4}, {_}
+			f_call vector, get_element, {[r0 + unordered_set_buckets], r7}, {r0}
+			d_call vector, get_length, {r0}, {r1}
+			f_call vector, for_each, {r0, [r4 + local_start_elem], r1, $callback, r4}, {_}
 
 			vp_cpy [r4 + local_start_bucket], r1
 			vp_inc r1
 			if r1, !=, [r4 + local_end_bucket]
-				s_call vector, for_each, {[r0 + unordered_set_buckets], [r4 + local_start_bucket], [r4 + local_end_bucket], $callback1, r4}, {_}
+				f_call vector, for_each, {[r0 + unordered_set_buckets], [r4 + local_start_bucket], [r4 + local_end_bucket], $callback1, r4}, {_}
 			endif
 
-			s_call vector, get_element, {[r0 + unordered_set_buckets], [r4 + local_end_bucket]}, {r0}
-			s_call vector, for_each, {r0, 0, [r4 + local_end_elem], $callback, r4}, {_}
+			f_call vector, get_element, {[r0 + unordered_set_buckets], [r4 + local_end_bucket]}, {r0}
+			f_call vector, for_each, {r0, 0, [r4 + local_end_elem], $callback, r4}, {_}
 		endif
 
 		vp_cpy [r4 + local_obj], r1
@@ -82,11 +82,11 @@
 		;r1 = 0 if break, else not
 
 		vp_cpy r0, r2
-		s_call ref, ref, {[r1]}
+		f_call ref, ref, {[r1]}
 		vp_push r0
-		s_call unordered_set, get_bucket, {[r2 + local_obj], r0}, {r0}
+		f_call unordered_set, get_bucket, {[r2 + local_obj], r0}, {r0}
 		vp_pop r1
-		s_call vector, push_back, {r0, r1}
+		f_call vector, push_back, {r0, r1}
 		vp_cpy 1, r1
 		vp_ret
 
@@ -98,10 +98,10 @@
 		;r1 = 0 if break, else not
 
 		vp_push r0
-		t_call vector, get_length, {[r1]}, {r1}
+		d_call vector, get_length, {[r1]}, {r1}
 		vp_pop r2
-		s_call vector, for_each, {r0, 0, r1, $callback, r2}, {r1}
+		f_call vector, for_each, {r0, 0, r1, $callback, r2}, {r1}
 		vp_cpy 1, r1
 		vp_ret
 
-	def_function_end
+	def_func_end

@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_window.inc'
 
-	def_function class/window/mouse_move
+	def_func class/window/mouse_move
 		;inputs
 		;r0 = window object
 		;r1 = mouse event message
@@ -23,15 +23,15 @@
 		map_src_to_dst
 
 		;dirty old area
-		s_call window, dirty, {r0}
+		f_call window, dirty, {r0}
 
 		;get smallest size
-		m_call window, pref_size, {r0}, {r10, r11}
+		v_call window, pref_size, {r0}, {r10, r11}
 		vp_cpy r10, r12
 		vp_cpy r11, r13
 
 		;save old bounds
-		s_call window, get_bounds, {r0}, {[r4 + local_old_x], [r4 + local_old_y], r10, r11}
+		f_call window, get_bounds, {r0}, {[r4 + local_old_x], [r4 + local_old_y], r10, r11}
 
 		;get abolute cords of corners
 		vp_add r8, r10
@@ -95,7 +95,7 @@
 		vp_sub r9, r11
 
 		;change window size
-		s_call window, change, {r0, r8, r9, r10, r11}
+		f_call window, change, {r0, r8, r9, r10, r11}
 
 		;translate old dirty area and dirty all
 		vp_cpy [r4 + local_old_x], r8
@@ -103,10 +103,10 @@
 		vp_sub [r0 + view_x], r8
 		vp_sub [r0 + view_y], r9
 		vp_lea [r0 + view_dirty_region], r1
-		s_call gui_region, translate, {r1, r8, r9}
+		f_call gui_region, translate, {r1, r8, r9}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
-		s_jmp window, dirty_all, {r0}
+		f_jmp window, dirty_all, {r0}
 
-	def_function_end
+	def_func_end

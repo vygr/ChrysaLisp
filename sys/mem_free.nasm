@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/heap.inc'
 
-	def_function sys/mem_free
+	def_func sys/mem_free
 		;inputs
 		;r0 = address
 		;trashes
@@ -14,4 +14,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

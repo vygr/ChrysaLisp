@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	def_function class/stream/read_char
+	def_func class/stream/read_char
 		;inputs
 		;r0 = stream object
 		;outputs
@@ -17,7 +17,7 @@
 		retire {r0}, {inst}
 
 		loop_while {inst->stream_bufp == inst->stream_bufe}
-			method_call stream, read_next, {inst}, {char}
+			virt_call stream, read_next, {inst}, {char}
 			gotoif {char == -1}, exit
 		loop_end
 		assign {*inst->stream_bufp}, {char}
@@ -27,4 +27,4 @@
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

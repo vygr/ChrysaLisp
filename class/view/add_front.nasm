@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	def_function class/view/add_front
+	def_func class/view/add_front
 		;inputs
 		;r0 = view object
 		;r1 = parent view object
@@ -10,7 +10,7 @@
 
 		;remove from any existing parent
 		vp_cpy r1, r3
-		s_call view, sub, {r0}
+		f_call view, sub, {r0}
 
 		;add to parent
 		vp_cpy r3, [r0 + view_parent]
@@ -19,4 +19,4 @@
 		lh_add_at_head r3, r2, r1
 		vp_ret
 
-	def_function_end
+	def_func_end

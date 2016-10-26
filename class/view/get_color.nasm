@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	def_function class/view/get_color
+	def_func class/view/get_color
 		;inputs
 		;r0 = view object
 		;outputs
@@ -12,4 +12,4 @@
 		vp_cpy [r0 + view_color], r1
 		vp_ret
 
-	def_function_end
+	def_func_end

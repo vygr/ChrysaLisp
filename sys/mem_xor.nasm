@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	def_function sys/mem_xor
+	def_func sys/mem_xor
 		;inputs
 		;r0 = source address
 		;r1 = destination address
@@ -49,4 +49,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	def_function class/stream/deinit
+	def_func class/stream/deinit
 		;inputs
 		;r0 = stream object
 		;trashes
@@ -11,15 +11,15 @@
 		vp_push r0
 		vp_cpy [r0 + stream_object], r0
 		if r0, !=, 0
-			s_call ref, deref, {r0}
+			f_call ref, deref, {r0}
 		endif
 
 		;free any buffer
 		vp_cpy [r4], r0
-		s_call sys_mem, free, {[r0 + stream_buffer]}
+		f_call sys_mem, free, {[r0 + stream_buffer]}
 		vp_pop r0
 
 		;parent deinit
-		p_jmp stream, deinit, {r0}
+		s_jmp stream, deinit, {r0}
 
-	def_function_end
+	def_func_end

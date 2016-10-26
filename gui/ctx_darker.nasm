@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	def_function gui/ctx_darker
+	def_func gui/ctx_darker
 		;inputs
 		;r1 = colour
 		;inputs
@@ -16,4 +16,4 @@
 		vp_add r2, r1
 		vp_ret
 
-	def_function_end
+	def_func_end

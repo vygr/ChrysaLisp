@@ -3,7 +3,7 @@
 %include 'class/class_string.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/text/deinit
+	def_func class/text/deinit
 		;inputs
 		;r0 = text object
 		;trashes
@@ -15,13 +15,13 @@
 		;deref any string and words objects
 		vp_cpy [r0 + text_string], r0
 		if r0, !=, 0
-			s_call string, deref, {r0}
+			f_call string, deref, {r0}
 			vp_cpy [r4], r0
-			s_call vector, deref, {[r0 + text_words]}
+			f_call vector, deref, {[r0 + text_words]}
 		endif
 
 		;deinit parent
 		vp_pop r0
-		p_jmp text, deinit, {r0}
+		s_jmp text, deinit, {r0}
 
-	def_function_end
+	def_func_end

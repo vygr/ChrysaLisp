@@ -2,7 +2,7 @@
 %include 'class/class_text.inc'
 %include 'class/class_label.inc'
 
-	def_function class/label/set_font
+	def_func class/label/set_font
 		;inputs
 		;r0 = label object
 		;r1 = font name
@@ -11,8 +11,8 @@
 		;all but r0, r4
 
 		vp_push r0
-		s_call text, set_font, {[r0 + label_text], r1, r2}
+		f_call text, set_font, {[r0 + label_text], r1, r2}
 		vp_pop r0
 		vp_ret
 
-	def_function_end
+	def_func_end

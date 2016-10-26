@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	def_function class/stream/write_char
+	def_func class/stream/write_char
 		;inputs
 		;r0 = stream object
 		;r1 = char
@@ -18,7 +18,7 @@
 
 		switch
 		case {inst->stream_bufp == inst->stream_bufe}
-			method_call stream, write_next, {inst}
+			virt_call stream, write_next, {inst}
 			breakif {inst->stream_bufp == inst->stream_bufe}
 		default
 			assign {char}, {*inst->stream_bufp}
@@ -29,4 +29,4 @@
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

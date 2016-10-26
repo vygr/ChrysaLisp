@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/vector/ref_element
+	def_func class/vector/ref_element
 		;inputs
 		;r0 = vector object
 		;r1 = vector element
@@ -12,9 +12,9 @@
 		vp_push r0
 		vp_mul ptr_size, r1
 		vp_cpy [r0 + vector_array], r0
-		s_call ref, ref, {[r0 + r1]}
+		f_call ref, ref, {[r0 + r1]}
 		vp_cpy r0, r1
 		vp_pop r0
 		vp_ret
 
-	def_function_end
+	def_func_end

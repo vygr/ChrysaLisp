@@ -2,7 +2,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/repl_eval_list
+	def_func class/lisp/repl_eval_list
 		;inputs
 		;r0 = lisp object
 		;r1 = list
@@ -18,12 +18,12 @@
 		push_scope
 		retire {r0, r1, r2}, {this, list, index}
 
-		slot_call vector, get_length, {list}, {length}
-		static_call vector, for_each, {list, index, length, $callback, this}, {iter}
+		devirt_call vector, get_length, {list}, {length}
+		func_call vector, for_each, {list, index, length, $callback, this}, {iter}
 		if {iter}
 			assign {*iter}, {list}
 		endif
-		static_call ref, ref, {list}
+		func_call ref, ref, {list}
 
 		eval {this, list}, {r0, r1}
 		pop_scope
@@ -42,12 +42,12 @@
 		push_scope
 		retire {r0, r1}, {pdata, iter}
 
-		static_call lisp, repl_eval, {pdata, *iter}, {pdata}
-		static_call ref, deref, {*iter}
+		func_call lisp, repl_eval, {pdata, *iter}, {pdata}
+		func_call ref, deref, {*iter}
 		assign {pdata}, {*iter}
 
 		eval {pdata->obj_vtable != @class/class_error}, {r1}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

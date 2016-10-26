@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_grid.inc'
 
-	def_function class/grid/pref_size
+	def_func class/grid/pref_size
 		;inputs
 		;r0 = grid object
 		;outputs
@@ -20,7 +20,7 @@
 		vp_cpy r1, [r4 + local_w]
 		vp_cpy r1, [r4 + local_h]
 
-		s_call grid, forward, {r0, r4, $callback}
+		f_call grid, forward, {r0, r4, $callback}
 
 		vp_cpy [r4 + local_w], r10
 		vp_cpy [r4 + local_h], r11
@@ -31,7 +31,7 @@
 
 	callback:
 		vp_push r1
-		m_call view, pref_size, {r0}, {r10, r11}
+		v_call view, pref_size, {r0}, {r10, r11}
 		vp_pop r1
 		if r10, >, [r1 + local_w]
 			vp_cpy r10, [r1 + local_w]
@@ -41,4 +41,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

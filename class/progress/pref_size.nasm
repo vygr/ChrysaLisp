@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_progress.inc'
 
-	def_function class/progress/pref_size
+	def_func class/progress/pref_size
 		;inputs
 		;r0 = progress object
 		;outputs
@@ -14,4 +14,4 @@
 		vp_cpy 10, r11
 		vp_ret
 
-	def_function_end
+	def_func_end

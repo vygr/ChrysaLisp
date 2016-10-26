@@ -3,7 +3,7 @@
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/func_map
+	def_func class/lisp/func_map
 		;inputs
 		;r0 = lisp object
 		;r1 = args
@@ -24,42 +24,42 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		slot_call vector, get_length, {args}, {length}
+		devirt_call vector, get_length, {args}, {length}
 		if {length >= 2}
-			static_call vector, get_element, {args, 1}, {func}
-			slot_function class, sequence
-			static_call obj, inst_of, {func, @_function_}, {pdata.pdata_type}
+			func_call vector, get_element, {args, 1}, {func}
+			func_path class, sequence
+			func_call obj, inst_of, {func, @_function_}, {pdata.pdata_type}
 			if {pdata.pdata_type}
 				assign {1000000}, {pdata.pdata_length}
-				static_call vector, get_element, {args, 0}, {func}
-				static_call vector, for_each, {args, 1, length, $callback, &pdata}, {iter}
+				func_call vector, get_element, {args, 0}, {func}
+				func_call vector, for_each, {args, 1, length, $callback, &pdata}, {iter}
 				ifnot {iter}
-					static_call vector, create, {}, {value}
+					func_call vector, create, {}, {value}
 					breakifnot {pdata.pdata_length}
-					static_call vector, set_capacity, {value, pdata.pdata_length}
+					func_call vector, set_capacity, {value, pdata.pdata_length}
 					assign {0}, {seq_num}
-					slot_call vector, slice, {args, 1, length}, {form}
+					devirt_call vector, slice, {args, 1, length}, {form}
 					loop_start
 						assign {1}, {list_num}
 						loop_start
-							static_call vector, get_element, {args, list_num}, {elem}
-							method_call sequence, ref_element, {elem, seq_num}, {elem}
-							static_call vector, set_element, {form, elem, list_num - 1}
+							func_call vector, get_element, {args, list_num}, {elem}
+							virt_call sequence, ref_element, {elem, seq_num}, {elem}
+							func_call vector, set_element, {form, elem, list_num - 1}
 							assign {list_num + 1}, {list_num}
 						loop_until {list_num == length}
-						static_call lisp, repl_apply, {this, func, form}, {elem}
-						static_call vector, push_back, {value, elem}
+						func_call lisp, repl_apply, {this, func, form}, {elem}
+						func_call vector, push_back, {value, elem}
 						assign {seq_num + 1}, {seq_num}
 					loop_until {seq_num == pdata.pdata_length}
-					static_call ref, deref, {form}
+					func_call ref, deref, {form}
 				else
-					static_call error, create, {"(map func list ...) not matching types", args}, {value}
+					func_call error, create, {"(map func list ...) not matching types", args}, {value}
 				endif
 			else
-				static_call error, create, {"(map func list ...) not a sequence", args}, {value}
+				func_call error, create, {"(map func list ...) not a sequence", args}, {value}
 			endif
 		else
-			static_call error, create, {"(map func list ...) not enough args", args}, {value}
+			func_call error, create, {"(map func list ...) not enough args", args}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}
@@ -82,7 +82,7 @@
 
 		assign {(*iter)->obj_vtable}, {type}
 		if {type == pdata->pdata_type}
-			method_call sequence, get_length, {*iter}, {length}
+			virt_call sequence, get_length, {*iter}, {length}
 			if {length < pdata->pdata_length}
 				assign {length}, {pdata->pdata_length}
 			endif
@@ -94,4 +94,4 @@
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

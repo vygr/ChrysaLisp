@@ -1,13 +1,13 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	def_function sys/task_restore
+	def_func sys/task_restore
 		;restore next task
 		;r15 = control block to restore
 
 		;round robin past any list head
 		ln_get_forward r15, r0
-		s_bind sys_task, statics, r0
+		f_bind sys_task, statics, r0
 		vp_cpy r15, [r0 + tk_statics_current_tcb]
 
 		;restore old stack pointer
@@ -17,4 +17,4 @@
 		tk_load_state
 		vp_ret
 
-	def_function_end
+	def_func_end

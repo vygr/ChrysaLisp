@@ -2,7 +2,7 @@
 %include 'class/class_button.inc'
 %include 'class/class_flow.inc'
 
-	def_function class/button/init
+	def_func class/button/init
 		;inputs
 		;r0 = button object
 		;r1 = vtable pointer
@@ -10,14 +10,14 @@
 		;r1 = 0 if error, else ok
 
 		;init parent
-		p_call button, init, {r0, r1}, {r1}
+		s_call button, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			;init myself
 			vp_cpy_cl 0, [r0 + button_state]
 			vp_lea [r0 + button_pressed_signal], r1
 			lh_init r1, r2
-			s_call button, set_flow_flags, {r0, flow_flag_down | flow_flag_align_hcenter}
+			f_call button, set_flow_flags, {r0, flow_flag_down | flow_flag_align_hcenter}
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

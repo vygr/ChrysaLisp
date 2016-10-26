@@ -2,7 +2,7 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/unordered_set/get_iter
+	def_func class/unordered_set/get_iter
 		;inputs
 		;r0 = unordered_set object
 		;r1 = element index
@@ -27,8 +27,8 @@
 		map_src_to_dst
 
 		;search hash buckets
-		t_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
-		s_call vector, for_each, {r0, 0, r1, $callback, r4}, {_}
+		d_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
+		f_call vector, for_each, {r0, 0, r1, $callback, r4}, {_}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r4 + local_iter], r1
@@ -61,4 +61,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

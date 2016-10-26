@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	def_function gui/region_remove_region
+	def_func gui/region_remove_region
 		;inputs
 		;r0 = region heap pointer
 		;r1 = source region listhead pointer
@@ -38,11 +38,11 @@
 			vp_add r13, r9
 			vp_add r12, r10
 			vp_add r13, r11
-			s_call gui_region, remove_rect, {r0, [r4 + local_dlist], r8, r9, r10, r11}
+			f_call gui_region, remove_rect, {r0, [r4 + local_dlist], r8, r9, r10, r11}
 
 			vp_cpy [r4 + local_node], r1
 		loop_end
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

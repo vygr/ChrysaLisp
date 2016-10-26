@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/font.inc'
 
-	def_function gui/font_bounds
+	def_func gui/font_bounds
 		;inputs
 		;r0 = font entry
 		;r1 = string object
@@ -12,7 +12,7 @@
 		;trashes
 		;r1-r3, r5-r6
 
-		s_call gui_font, text, {r0, r1}, {r0}
+		f_call gui_font, text, {r0, r1}, {r0}
 		if r0, ==, 0
 			vp_xor r10, r10
 			vp_xor r11, r11
@@ -22,4 +22,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

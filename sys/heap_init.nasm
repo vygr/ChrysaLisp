@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/heap.inc'
 
-	def_function sys/heap_init
+	def_func sys/heap_init
 		;inputs
 		;r0 = heap
 		;r1 = cell size
@@ -19,4 +19,4 @@
 		vp_cpy r2, [r0 + hp_heap_blocksize]
 		vp_ret
 
-	def_function_end
+	def_func_end

@@ -2,7 +2,7 @@
 %include 'class/class_stream.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/func_print
+	def_func class/lisp/func_print
 		;inputs
 		;r0 = lisp object
 		;r1 = args
@@ -17,11 +17,11 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		static_call lisp, func_prin, {this, args}, {args}
-		static_call stream, write_char, {this->lisp_stdout, char_lf}
+		func_call lisp, func_prin, {this, args}, {args}
+		func_call stream, write_char, {this->lisp_stdout, char_lf}
 
 		eval {this, args}, {r0, r1}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

@@ -3,7 +3,7 @@
 %include 'class/class_pair.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/env_find
+	def_func class/lisp/env_find
 		;inputs
 		;r0 = lisp object
 		;r1 = symbol
@@ -20,15 +20,15 @@
 
 		assign {this->lisp_enviroment}, {env}
 		loop_start
-			static_call unordered_map, find, {env, symbol}, {iter, bucket}
+			func_call unordered_map, find, {env, symbol}, {iter, bucket}
 			breakif {iter}
-			static_call unordered_map, find, {env, this->lisp_sym_parent}, {iter, bucket}
+			func_call unordered_map, find, {env, this->lisp_sym_parent}, {iter, bucket}
 			breakifnot {iter}
-			static_call pair, get_second, {*iter}, {env}
+			func_call pair, get_second, {*iter}, {env}
 		loop_end
 
 		eval {this, iter, bucket}, {r0, r1, r2}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

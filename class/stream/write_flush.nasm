@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	def_function class/stream/write_flush
+	def_func class/stream/write_flush
 		;inputs
 		;r0 = stream object
 		;outputs
@@ -14,4 +14,4 @@
 		vp_cpy r1, [r0 + stream_bufe]
 		vp_ret
 
-	def_function_end
+	def_func_end

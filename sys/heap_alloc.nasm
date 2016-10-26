@@ -2,7 +2,7 @@
 %include 'inc/heap.inc'
 %include 'inc/syscall.inc'
 
-	def_function sys/heap_alloc
+	def_func sys/heap_alloc
 		;inputs
 		;r0 = heap
 		;outputs
@@ -23,7 +23,7 @@
 			vp_cpy r0, r2
 			sys_mmap 0, r1, prot_read|prot_write, map_private|map_anon, -1, 0
 			assert r0, !=, 0
-			s_bind sys_mem, statics, r3
+			f_bind sys_mem, statics, r3
 			vp_add r1, [r3]
 			vp_cpy r0, r1
 			vp_cpy r2, r0
@@ -40,4 +40,4 @@
 			vp_cpy r2, [r0 + hp_heap_free_flist]
 		loop_end
 
-	def_function_end
+	def_func_end

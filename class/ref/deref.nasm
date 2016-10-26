@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_ref.inc'
 
-	def_function class/ref/deref
+	def_func class/ref/deref
 		;inputs
 		;r0 = object
 		;trashes
@@ -14,8 +14,8 @@
 
 		;destroy if 0
 		if r1, ==, 0
-			s_jmp ref, destroy, {r0}
+			f_jmp ref, destroy, {r0}
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

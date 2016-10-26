@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	def_function sys/string_copy
+	def_func sys/string_copy
 		;inputs
 		;r0 = string
 		;r1 = string copy
@@ -18,4 +18,4 @@
 		loop_until r2, ==, 0
 		vp_ret
 
-	def_function_end
+	def_func_end

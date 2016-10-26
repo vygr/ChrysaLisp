@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	def_function class/stream/skip
+	def_func class/stream/skip
 		;inputs
 		;r0 = stream object
 		;r1 = char to skip
@@ -17,7 +17,7 @@
 
 		loop_start
 			loop_while {inst->stream_bufp == inst->stream_bufe}
-				method_call stream, read_next, {inst}, {state}
+				virt_call stream, read_next, {inst}, {state}
 				gotoif {state == -1}, exit
 			loop_end
 			breakif {*inst->stream_bufp != skip_char}
@@ -28,4 +28,4 @@
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

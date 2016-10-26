@@ -3,7 +3,7 @@
 %include 'class/class_title.inc'
 %include 'class/class_window.inc'
 
-	def_function class/title/mouse_move
+	def_func class/title/mouse_move
 		;inputs
 		;r0 = title object
 		;r1 = mouse event message
@@ -31,11 +31,11 @@
 		vp_cpy r9, [r4 + local_old_y]
 
 		;dirty old area
-		s_call window, dirty, {r0}
+		f_call window, dirty, {r0}
 
 		;get new window position
 		vp_cpy [r4 + local_inst], r0
-		s_call title, get_relative, {r0, [r4 + local_window], [r0 + title_last_x], [r0 + title_last_y]}, {r8, r9}
+		f_call title, get_relative, {r0, [r4 + local_window], [r0 + title_last_x], [r0 + title_last_y]}, {r8, r9}
 		vp_cpy [r4 + local_event], r1
 		vp_sub [r1 + ev_msg_x], r8
 		vp_sub [r1 + ev_msg_y], r9
@@ -53,11 +53,11 @@
 		vp_mul -1, r8
 		vp_mul -1, r9
 		vp_lea [r0 + view_dirty_region], r1
-		s_call gui_region, translate, {r1, r8, r9}
-		s_call window, dirty_all, {[r4 + local_window]}
+		f_call gui_region, translate, {r1, r8, r9}
+		f_call window, dirty_all, {[r4 + local_window]}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

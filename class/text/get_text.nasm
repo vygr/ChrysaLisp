@@ -2,7 +2,7 @@
 %include 'class/class_text.inc'
 %include 'class/class_string.inc'
 
-	def_function class/text/get_text
+	def_func class/text/get_text
 		;inputs
 		;r0 = text object
 		;outputs
@@ -24,7 +24,7 @@
 		;reference the string
 		vp_cpy [r0 + text_string], r0
 		if r0, !=, 0
-			s_call string, ref, {r0}
+			f_call string, ref, {r0}
 		endif
 		vp_cpy r0, r1
 
@@ -32,4 +32,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

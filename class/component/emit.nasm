@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_component.inc'
 
-	def_function class/component/emit
+	def_func class/component/emit
 		;inputs
 		;r0 = component object
 		;r1 = signal list
@@ -45,4 +45,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

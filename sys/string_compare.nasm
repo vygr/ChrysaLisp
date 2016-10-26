@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	def_function sys/string_compare
+	def_func sys/string_compare
 		;inputs
 		;r0 = string1
 		;r1 = string2
@@ -21,4 +21,4 @@
 		vp_cpy r2, r0
 		vp_ret
 
-	def_function_end
+	def_func_end

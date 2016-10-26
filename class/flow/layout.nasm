@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_flow.inc'
 
-	def_function class/flow/layout
+	def_func class/flow/layout
 		;inputs
 		;r0 = flow object
 		;trashes
@@ -29,14 +29,14 @@
 			vp_cpy r1, [r4 + local_y]
 		endif
 
-		s_call flow, forward, {r0, r4, $callback}
+		f_call flow, forward, {r0, r4, $callback}
 
 		vp_add local_size, r4
 		vp_ret
 
 	callback:
 		vp_push r1
-		m_call view, pref_size, {r0}, {r10, r11}
+		v_call view, pref_size, {r0}, {r10, r11}
 		vp_pop r1
 		vp_cpy [r1 + local_x], r8
 		vp_cpy [r1 + local_y], r9
@@ -168,6 +168,6 @@
 
 		vp_cpy r12, [r1 + local_x]
 		vp_cpy r13, [r1 + local_y]
-		s_jmp view, change, {r0, r8, r9, r10, r11}
+		f_jmp view, change, {r0, r8, r9, r10, r11}
 
-	def_function_end
+	def_func_end

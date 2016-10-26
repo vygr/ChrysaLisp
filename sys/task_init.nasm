@@ -1,14 +1,14 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	def_function sys/task_init
+	def_func sys/task_init
 		;set up current tcb
-		s_bind sys_task, statics, r3
+		f_bind sys_task, statics, r3
 		vp_lea [r3 + tk_statics_task_list + lh_list_tail], r15
 		vp_cpy r15, [r3 + tk_statics_current_tcb]
 
 		;init task control block heap
-		s_call sys_heap, init, {&[r3 + tk_statics_task_heap], tk_node_size, (tk_node_size * 16)}
+		f_call sys_heap, init, {&[r3 + tk_statics_task_heap], tk_node_size, (tk_node_size * 16)}
 
 		;init task lists
 		vp_lea [r3 + tk_statics_task_list], r0
@@ -23,4 +23,4 @@
 		vp_cpy r1, [r3 + tk_statics_task_count]
 		vp_ret
 
-	def_function_end
+	def_func_end

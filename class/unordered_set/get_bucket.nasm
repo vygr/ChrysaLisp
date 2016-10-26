@@ -2,7 +2,7 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/unordered_set/get_bucket
+	def_func class/unordered_set/get_bucket
 		;inputs
 		;r0 = unordered_set object
 		;r1 = key object
@@ -29,7 +29,7 @@
 		vp_shr 3, r2
 		if r2, !=, 1
 			vp_cpy r2, [r4 + local_length]
-			m_call obj, hash, {r1}, {r0}
+			v_call obj, hash, {r1}, {r0}
 			vp_cpy [r4 + local_length], r1
 			vp_xor r2, r2
 			vp_div_u r1, r2, r0
@@ -37,10 +37,10 @@
 		else
 			vp_xor r2, r2
 		endif
-		s_call vector, get_element, {[r0 + unordered_set_buckets], r2}, {r1}
+		f_call vector, get_element, {[r0 + unordered_set_buckets], r2}, {r1}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

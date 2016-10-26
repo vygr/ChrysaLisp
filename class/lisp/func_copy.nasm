@@ -3,7 +3,7 @@
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/func_copy
+	def_func class/lisp/func_copy
 		;inputs
 		;r0 = lisp object
 		;r1 = args
@@ -17,18 +17,18 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		slot_call vector, get_length, {args}, {length}
+		devirt_call vector, get_length, {args}, {length}
 		if {length == 1}
-			static_call vector, get_element, {args, 0}, {args}
+			func_call vector, get_element, {args, 0}, {args}
 			if {args->obj_vtable == @class/class_vector}
-				slot_call vector, get_length, {args}, {length}
-				slot_call vector, slice, {args, 0, length}, {args}
-				static_call vector, for_each, {args, 0, length, $callback, 0}, {_}
+				devirt_call vector, get_length, {args}, {length}
+				devirt_call vector, slice, {args, 0, length}, {args}
+				func_call vector, for_each, {args, 0, length, $callback, 0}, {_}
 			else
-				static_call ref, ref, {args}
+				func_call ref, ref, {args}
 			endif
 		else
-			static_call error, create, {"(copy form) wrong number of args", args}, {args}
+			func_call error, create, {"(copy form) wrong number of args", args}, {args}
 		endif
 
 		eval {this, args}, {r0, r1}
@@ -51,10 +51,10 @@
 
 		assign {*iter}, {pdata}
 		if {pdata->obj_vtable == @class/class_vector}
-			slot_call vector, get_length, {pdata}, {length}
-			slot_call vector, slice, {pdata, 0, length}, {pdata}
-			static_call vector, for_each, {pdata, 0, length, $callback, 0}, {_}
-			static_call ref, deref, {*iter}
+			devirt_call vector, get_length, {pdata}, {length}
+			devirt_call vector, slice, {pdata, 0, length}, {pdata}
+			func_call vector, for_each, {pdata, 0, length, $callback, 0}, {_}
+			func_call ref, deref, {*iter}
 			assign {pdata}, {*iter}
 		endif
 
@@ -62,4 +62,4 @@
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

@@ -3,7 +3,7 @@
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/func_qquote
+	def_func class/lisp/func_qquote
 		;inputs
 		;r0 = lisp object
 		;r1 = args
@@ -23,26 +23,26 @@
 		push_scope
 		retire {r0, r1}, {pdata.pdata_this, args}
 
-		slot_call vector, get_length, {args}, {length}
+		devirt_call vector, get_length, {args}, {length}
 		if {length == 1}
-			slot_call vector, get_element, {args, 0}, {args}
+			func_call vector, get_element, {args, 0}, {args}
 			switch
 			case {args->obj_vtable == @class/class_vector}
-				static_call vector, create, {}, {pdata.pdata_cat_list}
+				func_call vector, create, {}, {pdata.pdata_cat_list}
 				assign {pdata.pdata_this->lisp_sym_cat}, {value}
-				static_call ref, ref, {value}
-				static_call vector, push_back, {pdata.pdata_cat_list, value}
-				slot_call vector, get_length, {args}, {length}
-				static_call vector, for_each, {args, 0, length, $callback, &pdata}, {_}
-				static_call lisp, repl_eval, {pdata.pdata_this, pdata.pdata_cat_list}, {value}
-				static_call ref, deref, {pdata.pdata_cat_list}
+				func_call ref, ref, {value}
+				func_call vector, push_back, {pdata.pdata_cat_list, value}
+				devirt_call vector, get_length, {args}, {length}
+				func_call vector, for_each, {args, 0, length, $callback, &pdata}, {_}
+				func_call lisp, repl_eval, {pdata.pdata_this, pdata.pdata_cat_list}, {value}
+				func_call ref, deref, {pdata.pdata_cat_list}
 				break
 			default
 				assign {args}, {value}
-				static_call ref, ref, {value}
+				func_call ref, ref, {value}
 			endswitch
 		else
-			static_call error, create, {"(quasi-quote arg) wrong numbers of args", args}, {value}
+			func_call error, create, {"(quasi-quote arg) wrong numbers of args", args}, {value}
 		endif
 
 		eval {pdata.pdata_this, value}, {r0, r1}
@@ -65,32 +65,32 @@
 
 		assign {*iter}, {elem}
 		if {elem->obj_vtable == @class/class_vector}
-			slot_call vector, get_length, {elem}, {length}
+			devirt_call vector, get_length, {elem}, {length}
 			gotoifnot {length}, list_quote
-			static_call vector, get_element, {elem, 0}, {sym}
+			func_call vector, get_element, {elem, 0}, {sym}
 			switch
 			case {sym == pdata->pdata_this->lisp_sym_unquote}
-				static_call vector, create, {}, {list}
+				func_call vector, create, {}, {list}
 				assign {pdata->pdata_this->lisp_sym_list}, {sym}
-				static_call ref, ref, {sym}
-				static_call vector, push_back, {list, sym}
-				slot_call vector, ref_element, {elem, 1}, {quote_list}
-				static_call vector, push_back, {list, quote_list}
+				func_call ref, ref, {sym}
+				func_call vector, push_back, {list, sym}
+				devirt_call vector, ref_element, {elem, 1}, {quote_list}
+				func_call vector, push_back, {list, quote_list}
 				break
 			case {sym == pdata->pdata_this->lisp_sym_splicing}
-				slot_call vector, ref_element, {elem, 1}, {list}
+				devirt_call vector, ref_element, {elem, 1}, {list}
 				break
 			default
 				struct pdata1, pdata
 				push_scope
 				assign {pdata->pdata_this}, {pdata1.pdata_this}
-				static_call vector, create, {}, {pdata1.pdata_cat_list}
+				func_call vector, create, {}, {pdata1.pdata_cat_list}
 				assign {pdata->pdata_this->lisp_sym_cat}, {sym}
-				static_call ref, ref, {sym}
-				static_call vector, push_back, {pdata1.pdata_cat_list, sym}
-				static_call vector, for_each, {elem, 0, length, $callback, &pdata1}, {_}
-				static_call lisp, repl_eval, {pdata->pdata_this, pdata1.pdata_cat_list}, {elem}
-				static_call ref, deref, {pdata1.pdata_cat_list}
+				func_call ref, ref, {sym}
+				func_call vector, push_back, {pdata1.pdata_cat_list, sym}
+				func_call vector, for_each, {elem, 0, length, $callback, &pdata1}, {_}
+				func_call lisp, repl_eval, {pdata->pdata_this, pdata1.pdata_cat_list}, {elem}
+				func_call ref, deref, {pdata1.pdata_cat_list}
 				pop_scope
 				gotoif {elem},list_quote1
 				eval {0}, {r1}
@@ -98,23 +98,23 @@
 			endswitch
 		else
 		list_quote:
-			static_call ref, ref, {elem}
+			func_call ref, ref, {elem}
 		list_quote1:
-			static_call vector, create, {}, {list}
+			func_call vector, create, {}, {list}
 			assign {pdata->pdata_this->lisp_sym_list}, {sym}
-			static_call ref, ref, {sym}
-			static_call vector, push_back, {list, sym}
-			static_call vector, create, {}, {quote_list}
+			func_call ref, ref, {sym}
+			func_call vector, push_back, {list, sym}
+			func_call vector, create, {}, {quote_list}
 			assign {pdata->pdata_this->lisp_sym_quote}, {sym}
-			static_call ref, ref, {sym}
-			static_call vector, push_back, {quote_list, sym}
-			static_call vector, push_back, {quote_list, elem}
-			static_call vector, push_back, {list, quote_list}
+			func_call ref, ref, {sym}
+			func_call vector, push_back, {quote_list, sym}
+			func_call vector, push_back, {quote_list, elem}
+			func_call vector, push_back, {list, quote_list}
 		endif
-		static_call vector, push_back, {pdata->pdata_cat_list, list}
+		func_call vector, push_back, {pdata->pdata_cat_list, list}
 
 		eval {1}, {r1}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

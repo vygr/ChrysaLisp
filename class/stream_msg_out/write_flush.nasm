@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream_msg_out.inc'
 
-	def_function class/stream_msg_out/write_flush
+	def_func class/stream_msg_out/write_flush
 		;inputs
 		;r0 = stream_msg_out object
 		;outputs
@@ -23,14 +23,14 @@
 			assign {inst->stream_msg_out_seqnum}, {msg->stream_mail_seqnum}
 			assign {inst->stream_msg_out_state}, {msg->stream_mail_state}
 			assign {&inst->stream_msg_out_ack_mailbox}, {msg->stream_mail_ack_id.id_mbox}
-			static_call sys_cpu, id, {}, {msg->stream_mail_ack_id.id_cpu}
-			static_call sys_mail, send, {msg}
+			func_call sys_cpu, id, {}, {msg->stream_mail_ack_id.id_cpu}
+			func_call sys_mail, send, {msg}
 			assign {0}, {inst->stream_buffer}
 
 			;wait for an ack ?
 			if {inst->stream_msg_out_seqnum >> stream_msg_out_ack_shift != inst->stream_msg_out_ack_seqnum}
-				static_call sys_mail, read, {&inst->stream_msg_out_ack_mailbox}, {msg}
-				static_call sys_mem, free, {msg}
+				func_call sys_mail, read, {&inst->stream_msg_out_ack_mailbox}, {msg}
+				func_call sys_mem, free, {msg}
 				assign {inst->stream_msg_out_ack_seqnum + 1}, {inst->stream_msg_out_ack_seqnum}
 			endif
 
@@ -45,4 +45,4 @@
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream_msg_out.inc'
 
-	def_function class/stream_msg_out/next_seq
+	def_func class/stream_msg_out/next_seq
 		;inputs
 		;r0 = list head
 		;r1 = 0, else new stream msg
@@ -28,4 +28,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	def_function sys/string_from_long
+	def_func sys/string_from_long
 		;inputs
 		;r0 = number
 		;r1 = string buffer
@@ -32,4 +32,4 @@
 		loop_until r1, ==, r5
 		vp_ret
 
-	def_function_end
+	def_func_end

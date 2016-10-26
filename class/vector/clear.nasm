@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/vector/clear
+	def_func class/vector/clear
 		;inputs
 		;r0 = vector object
 		;outputs
@@ -10,12 +10,12 @@
 		;all but r0, r4
 
 		;deref all elements
-		t_call vector, get_length, {r0}, {r1}
-		s_call vector, for_each, {r0, 0, r1, $callback, 0}, {_}
+		d_call vector, get_length, {r0}, {r1}
+		f_call vector, for_each, {r0, 0, r1, $callback, 0}, {_}
 
 		;free dynamic array
 		vp_push r0
-		s_call sys_mem, free, {[r0 + vector_array]}
+		f_call sys_mem, free, {[r0 + vector_array]}
 		vp_pop r0
 
 		;init myself
@@ -32,8 +32,8 @@
 		;outputs
 		;r1 = 0 if break, else not
 
-		s_call ref, deref, {[r1]}
+		f_call ref, deref, {[r1]}
 		vp_cpy 1, r1
 		vp_ret
 
-	def_function_end
+	def_func_end

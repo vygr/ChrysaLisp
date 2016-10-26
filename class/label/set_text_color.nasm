@@ -2,7 +2,7 @@
 %include 'class/class_text.inc'
 %include 'class/class_label.inc'
 
-	def_function class/label/set_text_color
+	def_func class/label/set_text_color
 		;inputs
 		;r0 = label object
 		;r1 = color
@@ -19,10 +19,10 @@
 		set_dst [r4 + local_inst]
 		map_src_to_dst
 
-		s_call text, set_text_color, {[r0 + label_text], r1}
+		f_call text, set_text_color, {[r0 + label_text], r1}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

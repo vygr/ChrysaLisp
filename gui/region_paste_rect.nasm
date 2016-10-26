@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	def_function gui/region_paste_rect
+	def_func gui/region_paste_rect
 		;inputs
 		;r0 = region heap pointer
 		;r1 = dest region listhead pointer
@@ -69,7 +69,7 @@
 					;bottom part
 					vp_cpy_i r11, [r7 + gui_rect_y]
 					;right part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r10, [r1 + gui_rect_x]
@@ -96,7 +96,7 @@
 					;bottom part
 					vp_cpy_i r11, [r7 + gui_rect_y]
 					;top part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -114,7 +114,7 @@
 					;bottom part
 					vp_cpy_i r11, [r7 + gui_rect_y]
 					;left part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -163,7 +163,7 @@
 					vp_cpy_i r9, [r7 + gui_rect_y]
 					vp_cpy_i r8, [r7 + gui_rect_x1]
 					;top part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -183,7 +183,7 @@
 					;right part
 					vp_cpy_i r10, [r7 + gui_rect_x]
 					;left part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -198,7 +198,7 @@
 					vp_cpy_i r10, [r7 + gui_rect_x]
 					vp_cpy_i r9, [r7 + gui_rect_y]
 					;top part
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 					vp_cpy_i r12, [r1 + gui_rect_x]
@@ -211,7 +211,7 @@
 				switch
 					breakif r8, ==, r10
 					breakif r9, ==, r11
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					breakif r1, ==, 0
 
 					ln_add_fnode r5, r1, r2
@@ -224,4 +224,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

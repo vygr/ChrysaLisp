@@ -10,7 +10,7 @@
 ; kernel task
 ;;;;;;;;;;;;;
 
-	def_function sys/kernel
+	def_func sys/kernel
 		;loader is already initialized when we get here !
 		;inputs
 		;r0 = argv pointer
@@ -19,33 +19,33 @@
 		vp_push r0
 
 		;init tasks
-		s_call sys_task, init
+		f_call sys_task, init
 
 		;init allocator
-		s_call sys_mem, init
+		f_call sys_mem, init
 
 		;init linker
-		s_call sys_link, init
+		f_call sys_link, init
 
 		;init font
-		s_call gui_font, init
+		f_call gui_font, init
 
 		;start kernel task
-		s_call sys_task, start, {r0}, {r0, r1}
-		s_bind sys_task, statics, r2
+		f_call sys_task, start, {r0}, {r0, r1}
+		f_bind sys_task, statics, r2
 		vp_cpy r0, [r2 + tk_statics_current_tcb]
 		vp_cpy r0, [r2 + tk_statics_kernel_tcb]
 
 		;init mailer, r1 = kernel mailbox !
-		s_call sys_mail, init
+		f_call sys_mail, init
 
 		;process command options
-		s_call sys_cpu, opts, {[r4]}
+		f_call sys_cpu, opts, {[r4]}
 
 		;fill in num cpu's with at least mine + 1
-		s_call sys_cpu, id, {}, {r0}
+		f_call sys_cpu, id, {}, {r0}
 		vp_inc r0
-		s_bind sys_task, statics, r1
+		f_bind sys_task, statics, r1
 		vp_cpy r0, [r1 + tk_statics_cpu_total]
 
 		;allocate for kernel routing table
@@ -61,13 +61,13 @@
 		;loop till no other tasks running
 		loop_start
 			;allow all other tasks to run
-			s_call sys_task, yield
+			f_call sys_task, yield
 
 			;service all kernel mail
 			loop_start
 				;check if any mail
-				s_call sys_task, mailbox, {}, {r0, r1}
-				s_call sys_mail, try_read, {r0}, {r0}
+				f_call sys_task, mailbox, {}, {r0, r1}
+				f_call sys_mail, try_read, {r0}, {r0}
 				breakif r0, ==, 0
 				vp_cpy r0, r15
 
@@ -83,26 +83,26 @@
 					vp_cpy r2, [r15 + (msg_dest + 8)]
 
 					;open single task and return mailbox ID
-					s_call sys_load, bind, {&[r15 + kn_msg_open_pathname]}, {r0}
+					f_call sys_load, bind, {&[r15 + kn_msg_open_pathname]}, {r0}
 					if r0, ==, 0
 						;error
 						vp_cpy r0, r1
 					else
 						;start this function as task
-						s_call sys_task, start, {r0}, {_, r1}
-						s_call sys_cpu, id, {}, {r0}
+						f_call sys_task, start, {r0}, {_, r1}
+						f_call sys_cpu, id, {}, {r0}
 					endif
 					vp_cpy r1, [r15 + kn_msg_reply_id]
 					vp_cpy r0, [r15 + kn_msg_reply_id + 8]
 					vp_cpy_cl kn_msg_reply_size, [r15 + msg_length]
-					s_call sys_mail, send, {r15}
+					f_call sys_mail, send, {r15}
 					break
 				case r1, ==, kn_call_task_child
 					;find best cpu to run task
-					s_call sys_cpu, id, {}, {r5}
-					s_bind sys_task, statics, r1
+					f_call sys_cpu, id, {}, {r5}
+					f_bind sys_task, statics, r1
 					vp_cpy [r1 + tk_statics_task_count], r1
-					s_bind sys_link, statics, r2
+					f_bind sys_link, statics, r2
 					loop_list_forward r2 + lk_statics_links_list, r3, r2
 						if r1, >, [r3 + lk_node_task_count]
 							vp_cpy [r3 + lk_node_cpu_id], r0
@@ -113,11 +113,11 @@
 
 					;send to better kernel
 					vp_cpy r0, [r15 + (msg_dest + 8)]
-					s_call sys_mail, send, {r15}
+					f_call sys_mail, send, {r15}
 					break
 				case r1, ==, kn_call_task_route
 					;increase size of network ?
-					s_bind sys_task, statics, r0
+					f_bind sys_task, statics, r0
 					vp_cpy [r15 + kn_msg_link_route_origin], r1
 					vp_inc r1
 					if r1, >, [r0 + tk_statics_cpu_total]
@@ -127,7 +127,7 @@
 					;new kernel routing table ?
 					vp_cpy [r15 + kn_msg_link_route_origin], r11
 					vp_mul lk_route_size, r11
-					s_call sys_mem, grow, {[r4 + lk_table_array], [r4 + lk_table_array_size], &[r11 + lk_route_size]}, \
+					f_call sys_mem, grow, {[r4 + lk_table_array], [r4 + lk_table_array_size], &[r11 + lk_route_size]}, \
 												{[r4 + lk_table_array], [r4 + lk_table_array_size]}
 
 					;compare hop counts
@@ -144,10 +144,10 @@
 
 						;fill in via route and remove other routes
 						vp_cpy [r15 + kn_msg_link_route_via], r13
-						s_bind sys_link, statics, r14
+						f_bind sys_link, statics, r14
 						loop_list_forward r14 + lk_statics_links_list, r12, r14
 							;new link route table ?
-							s_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
+							f_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
 														{[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]}
 
 							if [r12 + lk_node_cpu_id], ==, r13
@@ -163,10 +163,10 @@
 					case r2, ==, r3
 						;new hops is equal, so additional route
 						vp_cpy [r15 + kn_msg_link_route_via], r13
-						s_bind sys_link, statics, r14
+						f_bind sys_link, statics, r14
 						loop_list_forward r14 + lk_statics_links_list, r12, r14
 							;new link route table ?
-							s_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
+							f_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
 														{[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]}
 
 							if [r12 + lk_node_cpu_id], ==, r13
@@ -188,14 +188,14 @@
 
 					;get current via, set via to my cpu id
 					vp_cpy [r15 + kn_msg_link_route_via], r14
-					s_call sys_cpu, id, {}, {[r15 + kn_msg_link_route_via]}
+					f_call sys_cpu, id, {}, {[r15 + kn_msg_link_route_via]}
 
 					;copy and send to all neighbors apart from old via
-					s_bind sys_link, statics, r13
+					f_bind sys_link, statics, r13
 					loop_list_forward r13 + lk_statics_links_list, r12, r13
 						vp_cpy [r12 + lk_node_cpu_id], r11
 						continueif r11, ==, r14
-						s_call sys_mail, alloc, {}, {r0}
+						f_call sys_mail, alloc, {}, {r0}
 						assert r0, !=, 0
 						vp_cpy r0, r5
 						vp_cpy r0, r1
@@ -203,12 +203,12 @@
 						vp_cpy [r15 + msg_length], r2
 						vp_add ptr_size - 1, r2
 						vp_and -ptr_size, r2
-						s_call sys_mem, copy, {r0, r1, r2}, {_, _}
+						f_call sys_mem, copy, {r0, r1, r2}, {_, _}
 						vp_cpy r11, [r5 + msg_dest + 8]
-						s_call sys_mail, send, {r5}
+						f_call sys_mail, send, {r5}
 					loop_end
 				drop_msg:
-					s_call sys_mem, free, {r15}
+					f_call sys_mem, free, {r15}
 					break
 				case r1, ==, kn_call_callback
 					;call callback with this thread/stack
@@ -222,15 +222,15 @@
 					vp_cpy [r0 + kn_msg_reply_id + 8], r2
 					vp_cpy r1, [r0 + msg_dest]
 					vp_cpy r2, [r0 + msg_dest + 8]
-					s_call sys_mail, send, {r0}
+					f_call sys_mail, send, {r0}
 				endswitch
 			loop_end
 
 			;get time
-			s_call sys_cpu, time, {}, {r0}
+			f_call sys_cpu, time, {}, {r0}
 
 			;start any tasks ready to restart
-			s_bind sys_task, statics, r3
+			f_bind sys_task, statics, r3
 			vp_cpy [r3 + tk_statics_current_tcb], r15
 			vp_cpy [r3 + tk_statics_timer_list + lh_list_head], r2
 			ln_get_succ r2, r2
@@ -270,26 +270,26 @@
 		loop_end
 
 		;deinit font
-		s_call gui_font, deinit
+		f_call gui_font, deinit
 
 		;free any kernel routing table
-		s_call sys_mem, free, {[r4 + lk_table_array]}
+		f_call sys_mem, free, {[r4 + lk_table_array]}
 		vp_add lk_table_size, r4
 
 		;deinit allocator
-		s_call sys_mem, deinit
+		f_call sys_mem, deinit
 
 		;deinit mailer
-		s_call sys_mail, deinit
+		f_call sys_mail, deinit
 
 		;deinit tasks
-		s_call sys_task, deinit
+		f_call sys_task, deinit
 
 		;deinit loader
-		s_call sys_load, deinit
+		f_call sys_load, deinit
 
 		;pop argv and exit !
 		vp_add 8, r4
 		sys_exit 0
 
-	def_function_end
+	def_func_end

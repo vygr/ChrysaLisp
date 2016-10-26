@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_obj.inc'
 
-	def_function class/obj/inst_of
+	def_func class/obj/inst_of
 		;inputs
 		;r0 = object
 		;r1 = vtable pointer of tested type
@@ -19,4 +19,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

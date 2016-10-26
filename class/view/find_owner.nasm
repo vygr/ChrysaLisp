@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	def_function class/view/find_owner
+	def_func class/view/find_owner
 		;inputs
 		;r0 = view object
 		;outputs
@@ -20,4 +20,4 @@
 		vp_xor r1, r1
 		vp_ret
 
-	def_function_end
+	def_func_end

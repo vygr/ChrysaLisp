@@ -2,7 +2,7 @@
 %include 'class/class_master.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/master/get_input
+	def_func class/master/get_input
 		;inputs
 		;r0 = master object
 		;outputs
@@ -14,4 +14,4 @@
 		vp_cpy [r1], r1
 		vp_ret
 
-	def_function_end
+	def_func_end

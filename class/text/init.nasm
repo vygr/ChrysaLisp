@@ -2,7 +2,7 @@
 %include 'inc/font.inc'
 %include 'class/class_text.inc'
 
-	def_function class/text/init
+	def_func class/text/init
 		;inputs
 		;r0 = text object
 		;r1 = vtable pointer
@@ -10,12 +10,12 @@
 		;r1 = 0 if error, else ok
 
 		;init parent
-		p_call text, init, {r0, r1}, {r1}
+		s_call text, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			vp_push r0
 
 			;init myself
-			s_call gui_font, open, {"fonts/OpenSans-Regular.ttf", 18}, {r0}
+			f_call gui_font, open, {"fonts/OpenSans-Regular.ttf", 18}, {r0}
 			assert r0, !=, 0
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + text_font]
@@ -28,4 +28,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

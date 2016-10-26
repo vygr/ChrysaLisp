@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	def_function class/stream/read
+	def_func class/stream/read
 		;inputs
 		;r0 = stream object
 		;r1 = buffer
@@ -27,7 +27,7 @@
 
 		assign {buffer, buffer + buffer_end}, {start, buffer_end}
 		loop_start
-			static_call stream, read_char, {inst}, {char}
+			func_call stream, read_char, {inst}, {char}
 			breakif {char < 0}
 			assign {char}, {*buffer}
 			assign {buffer + 1}, {buffer}
@@ -41,4 +41,4 @@
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

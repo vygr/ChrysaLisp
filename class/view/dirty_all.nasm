@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	def_function class/view/dirty_all
+	def_func class/view/dirty_all
 		;inputs
 		;r0 = view object
 		;trashes
@@ -9,12 +9,12 @@
 
 		;iterate through views
 		;dirty all
-		s_jmp view, forward_tree, {r0, r0, $dirty_down_callback, $null_up_callback}
+		f_jmp view, forward_tree, {r0, r0, $dirty_down_callback, $null_up_callback}
 
 	dirty_down_callback:
-		s_call view, dirty, {r0}
+		f_call view, dirty, {r0}
 		vp_cpy r0, r1
 	null_up_callback:
 		vp_ret
 
-	def_function_end
+	def_func_end

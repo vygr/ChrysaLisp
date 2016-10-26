@@ -4,7 +4,7 @@
 %include 'inc/sdl2.inc'
 %include 'class/class_string.inc'
 
-	def_function gui/font_text
+	def_func gui/font_text
 		;inputs
 		;r0 = font entry
 		;r1 = string object
@@ -31,10 +31,10 @@
 		map_src_to_dst
 
 		;get font statics
-		s_bind gui_font, statics, r5
+		f_bind gui_font, statics, r5
 
 		;string hash to bucket
-		m_call string, hash, {r1}, {r0}
+		v_call string, hash, {r1}, {r0}
 		vp_cpy ft_num_buckets, r1
 		vp_xor r2, r2
 		vp_div r1, r2, r0
@@ -45,14 +45,14 @@
 		loop_flist_forward r5, r5, r6
 			vp_cpy [r4 + local_font], r0
 			continueif r0, !=, [r5 + ft_text_font]
-			s_call sys_string, compare, {&[r5 + ft_text_name], [r4 + local_text]}, {r0}
+			f_call sys_string, compare, {&[r5 + ft_text_name], [r4 + local_text]}, {r0}
 		loop_until r0, ==, 0
 
 		;did we find it ?
 		vp_cpy r5, r0
 		if r5, ==, 0
 			;no so try create it
-			s_call sys_task, callback, {$kernel_callback, r4}
+			f_call sys_task, callback, {$kernel_callback, r4}
 			vp_cpy [r4 + local_handle], r0
 		else
 			;yes so LRU to front
@@ -87,19 +87,19 @@
 			vp_cpy r11, [r14 + local_height]
 
 			;create texture
-			s_bind gui_gui, statics, r0
+			f_bind gui_gui, statics, r0
 			sdl_create_texture_from_surface [r0 + gui_statics_renderer], [r14 + local_surface]
 			if r0, !=, 0
 				vp_cpy r0, r5
 
-				s_call sys_string, length, {[r14 + local_text]}, {r1}
-				s_call sys_mem, alloc, {&[r1 + ft_text_size + 1]}, {r13, _}
+				f_call sys_string, length, {[r14 + local_text]}, {r1}
+				f_call sys_mem, alloc, {&[r1 + ft_text_size + 1]}, {r13, _}
 				assert r0, !=, 0
 
 				vp_cpy [r14 + local_font], r0
 				vp_cpy r0, [r13 + ft_text_font]
 				vp_cpy r5, [r13 + ft_text_texture]
-				s_call sys_string, copy, {[r14 + local_text], &[r13 + ft_text_name]}, {_, _}
+				f_call sys_string, copy, {[r14 + local_text], &[r13 + ft_text_name]}, {_, _}
 
 				;fill in width and height
 				vp_cpy [r14 + local_width], r10
@@ -123,4 +123,4 @@
 		vp_cpy r15, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

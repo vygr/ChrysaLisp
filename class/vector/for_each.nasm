@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/vector/for_each
+	def_func class/vector/for_each
 		;inputs
 		;r0 = vector object
 		;r1 = start index
@@ -62,4 +62,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

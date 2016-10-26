@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_pair.inc'
 
-	def_function class/pair/set_second
+	def_func class/pair/set_second
 		;inputs
 		;r0 = pair object
 		;r1 = object pointer
@@ -21,7 +21,7 @@
 		set_dst [r4 + local_inst], [r4 + local_obj]
 		map_src_to_dst
 
-		s_call ref, deref, {[r0 + pair_second]}
+		f_call ref, deref, {[r0 + pair_second]}
 		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r4 + local_obj], r1
 		vp_cpy r1, [r0 + pair_second]
@@ -29,4 +29,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

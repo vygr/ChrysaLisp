@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
-	def_function class/view/draw_panel
+	def_func class/view/draw_panel
 		;inputs
 		;r0 = view object
 		;r1 = ctx object
@@ -19,12 +19,12 @@
 		vp_sub local_size, r4
 		vp_cpy r0, [r4 + local_inst]
 
-		s_call view, get_bounds, {r0}, {r8, r9, r10, r11}
+		f_call view, get_bounds, {r0}, {r8, r9, r10, r11}
 		vp_cpy r0, r5
-		s_call gui_ctx, panel, {r1, [r5 + view_color], r2, r3, 0, 0, r10, r11}, {}
+		f_call gui_ctx, panel, {r1, [r5 + view_color], r2, r3, 0, 0, r10, r11}, {}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

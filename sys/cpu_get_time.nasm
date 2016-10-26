@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/syscall.inc'
 
-	def_function sys/cpu_get_time
+	def_func sys/cpu_get_time
 		;outputs
 		;r0 = time in usec
 
@@ -15,4 +15,4 @@
 		vp_add timeval_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

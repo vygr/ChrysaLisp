@@ -5,7 +5,7 @@
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/func_readchar
+	def_func class/lisp/func_readchar
 		;inputs
 		;r0 = lisp object
 		;r1 = args
@@ -19,22 +19,22 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		slot_call vector, get_length, {args}, {length}
+		devirt_call vector, get_length, {args}, {length}
 		if {length == 1}
-			static_call vector, get_element, {args, 0}, {value}
+			func_call vector, get_element, {args, 0}, {value}
 			if {value->obj_vtable == @class/class_stream_str}
-				static_call stream_str, read_char, {value}, {length}
-				static_call boxed_long, create, {}, {value}
-				static_call boxed_long, set_value, {value, length}
+				func_call stream_str, read_char, {value}, {length}
+				func_call boxed_long, create, {}, {value}
+				func_call boxed_long, set_value, {value, length}
 			else
-				static_call error, create, {"(read-char stream) not a stream", args}, {value}
+				func_call error, create, {"(read-char stream) not a stream", args}, {value}
 			endif
 		else
-			static_call error, create, {"(read-char stream) wrong number of args", args}, {value}
+			func_call error, create, {"(read-char stream) wrong number of args", args}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

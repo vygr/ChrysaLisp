@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/vector/push_back
+	def_func class/vector/push_back
 		;inputs
 		;r0 = vector object
 		;r1 = object pointer
@@ -28,7 +28,7 @@
 			;double the capacity
 			vp_add r1, r1
 			vp_shr 3, r1
-			s_call vector, set_capacity, {r0, r1}
+			f_call vector, set_capacity, {r0, r1}
 		endif
 
 		;save object
@@ -40,4 +40,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

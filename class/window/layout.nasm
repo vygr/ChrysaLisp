@@ -2,7 +2,7 @@
 %include 'class/class_window.inc'
 %include 'class/class_flow.inc'
 
-	def_function class/window/layout
+	def_func class/window/layout
 		;inputs
 		;r0 = window object
 		;trashes
@@ -22,10 +22,10 @@
 		vp_cpy [r0 + view_h], r11
 		vp_sub window_border_size * 2, r10
 		vp_sub window_border_size * 2, r11
-		s_call flow, change, {[r0 + window_flow], window_border_size, window_border_size, r10, r11}
+		f_call flow, change, {[r0 + window_flow], window_border_size, window_border_size, r10, r11}
 
-		s_call window, opaque, {[r4 + local_inst]}
+		f_call window, opaque, {[r4 + local_inst]}
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

@@ -1,13 +1,13 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	def_function sys/task_stack_depth
+	def_func sys/task_stack_depth
 		;outputs
 		;r0 = stack depth (in bytes)
 		;trashes
 		;r0
 
-		s_bind sys_task, statics, r0
+		f_bind sys_task, statics, r0
 		vp_cpy [r0 + tk_statics_current_tcb], r0
 		vp_add tk_node_stackspace, r0
 		if r4, <, r0
@@ -23,4 +23,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

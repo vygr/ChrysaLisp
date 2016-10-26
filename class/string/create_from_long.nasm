@@ -3,7 +3,7 @@
 %include 'inc/load.inc'
 %include 'class/class_string.inc'
 
-	def_function class/string/create_from_long
+	def_func class/string/create_from_long
 		;inputs
 		;r0 = number
 		;r1 = base
@@ -21,7 +21,7 @@
 		push_scope
 		retire {r0, r1}, {num, base}
 
-		slot_function sys_load, statics
+		func_path sys_load, statics
 		assign {@_function_.ld_statics_reloc_buffer}, {reloc}
 		assign {reloc}, {buffer}
 		if {num < 0}
@@ -29,11 +29,11 @@
 			assign {buffer + 1}, {buffer}
 			assign {-num}, {num}
 		endif
-		static_call sys_string, from_long, {num, buffer, base}
-		static_call string, create_from_cstr, {reloc}, {this}
+		func_call sys_string, from_long, {num, buffer, base}
+		func_call string, create_from_cstr, {reloc}, {this}
 
 		eval {this}, {r0}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

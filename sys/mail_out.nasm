@@ -1,16 +1,16 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	def_function sys/mail_out
+	def_func sys/mail_out
 		;parcels going off chip task
 
 		loop_start
 			;read parcel
-			s_call sys_mail, mymail, {}, {r15}
+			f_call sys_mail, mymail, {}, {r15}
 
 			;create next parcel id
-			s_call sys_cpu, id, {}, {r6}
-			s_bind sys_mail, statics, r1
+			f_call sys_cpu, id, {}, {r6}
+			f_bind sys_mail, statics, r1
 			vp_cpy [r1 + ml_statics_parcel_id], r7
 			vp_inc r7
 			vp_cpy r7, [r1 + ml_statics_parcel_id]
@@ -22,7 +22,7 @@
 			vp_cpy [r15 + msg_dest + 8], r13
 			loop_start
 				;create fragment
-				s_call sys_mail, alloc, {}, {r14}
+				f_call sys_mail, alloc, {}, {r14}
 				assert r0, !=, 0
 
 				;fill in fragment header
@@ -51,20 +51,20 @@
 				;copy data block, round up for speed
 				vp_add ptr_size - 1, r2
 				vp_and -ptr_size, r2
-				s_call sys_mem, copy, {r0, r1, r2}, {_, _}
+				f_call sys_mem, copy, {r0, r1, r2}, {_, _}
 
 				;queue it on the outgoing packet list
-				s_bind sys_mail, statics, r0
+				f_bind sys_mail, statics, r0
 				vp_lea [r0 + ml_statics_offchip_list], r0
 				lh_add_at_tail r0, r14, r1
 
 				;let links get at some packets
-				s_call sys_task, yield
+				f_call sys_task, yield
 			loop_until r10, ==, r11
 
 			;free parcel
-			s_call sys_mem, free, {r15}
+			f_call sys_mem, free, {r15}
 		loop_end
 		vp_ret
 
-	def_function_end
+	def_func_end

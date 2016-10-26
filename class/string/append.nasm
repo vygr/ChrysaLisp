@@ -2,7 +2,7 @@
 %include 'inc/string.inc'
 %include 'class/class_string.inc'
 
-	def_function class/string/append
+	def_func class/string/append
 		;inputs
 		;r0 = string object
 		;r1 = string object
@@ -22,17 +22,17 @@
 		vp_add string_size + 1, r0
 
 		;create new string object
-		s_call string, new, {r0}, {r0}
+		f_call string, new, {r0}, {r0}
 		if r0, !=, 0
 			;init the object
-			slot_function class, string
-			s_call string, init1, {r0, @_function_, r6, r7}, {r1}
+			func_path class, string
+			f_call string, init1, {r0, @_function_, r6, r7}, {r1}
 			if r1, ==, 0
 				;error with init
-				m_call string, delete, {r0}, {}, r1
+				v_call string, delete, {r0}, {}, r1
 				vp_xor r0, r0
 			endif
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

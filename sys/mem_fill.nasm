@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	def_function sys/mem_fill
+	def_func sys/mem_fill
 		;inputs
 		;r0 = address
 		;r1 = length in bytes
@@ -44,4 +44,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

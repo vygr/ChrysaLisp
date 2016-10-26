@@ -2,7 +2,7 @@
 %include 'inc/syscall.inc'
 %include 'class/class_string.inc'
 
-	def_function class/string/init2
+	def_func class/string/init2
 		;inputs
 		;r0 = string object
 		;r1 = vtable pointer
@@ -23,7 +23,7 @@
 		map_src_to_dst
 
 		;init parent
-		p_call string, init, {r0, r1}, {r1}
+		s_call string, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			;init myself
 			vp_cpy r0, [r4 + local_inst]
@@ -52,4 +52,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

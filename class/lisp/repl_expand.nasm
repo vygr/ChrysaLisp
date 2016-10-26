@@ -4,7 +4,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/repl_expand
+	def_func class/lisp/repl_expand
 		;inputs
 		;r0 = lisp object
 		;r1 = iter to form
@@ -21,32 +21,32 @@
 
 		assign {*iter}, {form}
 		if {form->obj_vtable == @class/class_vector}
-			slot_call vector, get_length, {form}, {length}
+			devirt_call vector, get_length, {form}, {length}
 			if {length}
-				static_call vector, get_element, {form, 0}, {macro}
+				func_call vector, get_element, {form, 0}, {macro}
 				breakif {macro == this->lisp_sym_qquote}
 				breakif {macro == this->lisp_sym_quote}
 				if {macro->obj_vtable == @class/class_symbol}
-					static_call unordered_map, find, {this->lisp_macros, macro}, {miter, _}
+					func_call unordered_map, find, {this->lisp_macros, macro}, {miter, _}
 					if {miter}
-						static_call pair, get_second, {*miter}, {macro}
-						static_call lisp, env_push, {this}
-						static_call vector, get_element, {macro, 0}, {args}
-						static_call lisp, env_bind, {this, args, form, 1}, {form}
+						func_call pair, get_second, {*miter}, {macro}
+						func_call lisp, env_push, {this}
+						func_call vector, get_element, {macro, 0}, {args}
+						func_call lisp, env_bind, {this, args, form, 1}, {form}
 						if {form->obj_vtable != @class/class_error}
-							static_call ref, deref, {form}
-							static_call vector, get_element, {macro, 1}, {form}
-							static_call lisp, repl_eval, {this, form}, {form}
+							func_call ref, deref, {form}
+							func_call vector, get_element, {macro, 1}, {form}
+							func_call lisp, repl_eval, {this, form}, {form}
 						endif
-						static_call lisp, env_pop, {this}
-						static_call ref, deref, {*iter}
+						func_call lisp, env_pop, {this}
+						func_call ref, deref, {*iter}
 						assign {form}, {*iter}
 						eval {this, form->obj_vtable == @class/class_error}, {r0, r1}
 						return
 					endif
 				endif
-				slot_function lisp, repl_expand
-				static_call vector, for_each, {form, 0, length, @_function_, this}, {iter}
+				func_path lisp, repl_expand
+				func_call vector, for_each, {form, 0, length, @_function_, this}, {iter}
 				assign {!iter}, {iter}
 			endif
 		endif
@@ -55,4 +55,4 @@
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

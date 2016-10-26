@@ -2,7 +2,7 @@
 %include 'class/class_stream_msg_in.inc'
 %include 'class/class_stream_msg_out.inc'
 
-	def_function class/stream_msg_in/init
+	def_func class/stream_msg_in/init
 		;inputs
 		;r0 = stream_msg_in object
 		;r1 = vtable pointer
@@ -18,7 +18,7 @@
 		map_src_to_dst
 
 		;init parent
-		p_call stream_msg_in, init, {r0, r1, 0, 0, 0, 0}, {r1}
+		s_call stream_msg_in, init, {r0, r1, 0, 0, 0, 0}, {r1}
 		if r1, !=, 0
 			;init myself
 			vp_cpy_cl 0, [r0 + stream_msg_in_seqnum]
@@ -29,4 +29,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

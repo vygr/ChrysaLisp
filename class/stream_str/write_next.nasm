@@ -2,7 +2,7 @@
 %include 'class/class_string.inc'
 %include 'class/class_stream_str.inc'
 
-	def_function class/stream_str/write_next
+	def_func class/stream_str/write_next
 		;inputs
 		;r0 = stream_str object
 		;outputs
@@ -18,17 +18,17 @@
 
 		assign {inst->stream_object - ptr_size}, {old_str}
 		assign {inst->stream_bufp - old_str}, {length}
-		static_call sys_mem, alloc, {length * 2}, {new_str, new_length}
-		static_call sys_mem, copy, {old_str, new_str, length}, {_, inst->stream_bufp}
+		func_call sys_mem, alloc, {length * 2}, {new_str, new_length}
+		func_call sys_mem, copy, {old_str, new_str, length}, {_, inst->stream_bufp}
 		assign {new_str + new_length - 1}, {inst->stream_bufe}
 		assign {new_str + ptr_size}, {new_str}
 		assign {old_str + ptr_size}, {old_str}
 		assign {1}, {new_str->ref_count}
-		static_call string, deref, {old_str}
+		func_call string, deref, {old_str}
 		assign {new_str}, {inst->stream_object}
 
 		eval {inst}, {r0}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

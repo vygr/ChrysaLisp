@@ -2,7 +2,7 @@
 %include 'class/class_unordered_map.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/env_def
+	def_func class/lisp/env_def
 		;inputs
 		;r0 = lisp object
 		;r1 = symbol
@@ -15,10 +15,10 @@
 		push_scope
 		retire {r0, r1, r2}, {this, symbol, value}
 
-		static_call unordered_map, insert, {this->lisp_enviroment, symbol, value}, {_, _}
+		func_call unordered_map, insert, {this->lisp_enviroment, symbol, value}, {_, _}
 
 		eval {this}, {r0}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

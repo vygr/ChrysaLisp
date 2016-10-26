@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	def_function sys/task_sleep
+	def_func sys/task_sleep
 		;inputs
 		;r0 = time delay in usec
 
@@ -9,7 +9,7 @@
 		tk_save_state
 
 		;save stack pointer
-		s_bind sys_task, statics, r3
+		f_bind sys_task, statics, r3
 		vp_cpy [r3 + tk_statics_current_tcb], r15
 		vp_cpy r4, [r15 + tk_node_stack]
 
@@ -17,7 +17,7 @@
 		vp_cpy r0, r1
 
 		;calculate wake time
-		s_call sys_cpu, time, {}, {r0}
+		f_call sys_cpu, time, {}, {r0}
 		vp_add r1, r0
 		vp_cpy r0, [r15 + tk_node_time]
 
@@ -32,6 +32,6 @@
 		ln_add_node_before r5, r1, r0
 
 		;restore next task
-		s_jmp sys_task, restore
+		f_jmp sys_task, restore
 
-	def_function_end
+	def_func_end

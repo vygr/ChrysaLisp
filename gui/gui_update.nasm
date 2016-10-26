@@ -5,7 +5,7 @@
 
 %define dual_buffers
 
-	def_function gui/gui_update
+	def_func gui/gui_update
 		;inputs
 		;r0 = root view object
 		;trashes
@@ -26,11 +26,11 @@
 		;setting abs cords
 		vp_xor r8, r8
 		vp_xor r9, r9
-		s_call view, backward_tree, {r0, r0, $abs_down_callback, $abs_up_callback}
+		f_call view, backward_tree, {r0, r0, $abs_down_callback, $abs_up_callback}
 
 		;iterate through views back to front
 		;create visible region at root
-		s_call view, backward_tree, {r0, r0, $null_func_down_callback, $visible_up_callback}
+		f_call view, backward_tree, {r0, r0, $null_func_down_callback, $visible_up_callback}
 
 %ifdef dual_buffers
 		;copy visable region to new region
@@ -38,21 +38,21 @@
 		vp_lea [r0 + view_dirty_region], r1
 		vp_cpy [r0 + view_w], r10
 		vp_cpy [r0 + view_h], r11
-		s_bind gui_gui, statics, r0
+		f_bind gui_gui, statics, r0
 		vp_add gui_statics_rect_heap, r0
-		s_call gui_region, copy_rect, {r0, r1, r4, 0, 0, r10, r11}
+		f_call gui_region, copy_rect, {r0, r1, r4, 0, 0, r10, r11}
 
 		;paste old visable region into root
 		vp_cpy [r4 + 8], r0
 		vp_lea [r0 + view_dirty_region], r2
-		s_bind gui_gui, statics, r1
+		f_bind gui_gui, statics, r1
 		vp_lea [r1 + gui_statics_rect_heap], r0
 		vp_add gui_statics_old_region, r1
-		s_call gui_region, paste_region, {r0, r1, r2, 0, 0}
+		f_call gui_region, paste_region, {r0, r1, r2, 0, 0}
 
 		;free old region and splice over new region
-		s_bind gui_gui, statics, r5
-		s_call gui_region, free, {&[r5 + gui_statics_rect_heap], &[r5 + gui_statics_old_region]}
+		f_bind gui_gui, statics, r5
+		f_call gui_region, free, {&[r5 + gui_statics_rect_heap], &[r5 + gui_statics_old_region]}
 		vp_pop r1
 		vp_cpy r1, [r5 + gui_statics_old_region]
 		vp_pop r0
@@ -61,10 +61,10 @@
 		;iterate through views front to back
 		;distribute visible region
 		vp_cpy_cl 0, [r4 + local_ctx_flist]
-		s_call view, forward_tree, {r0, r4, $distribute_down_callback, $distribute_up_callback}
+		f_call view, forward_tree, {r0, r4, $distribute_down_callback, $distribute_up_callback}
 
 		;draw all on draw list, and free dirty regions
-		s_bind gui_gui, statics, r1
+		f_bind gui_gui, statics, r1
 		vp_cpy [r1 + gui_statics_renderer], r1
 		vp_cpy r1, [r4 + local_ctx + gui_ctx_sdl_ctx]
 		loop_flist_forward r4 + local_ctx_flist, r0, r0
@@ -77,12 +77,12 @@
 			vp_cpy r8, [r1 + gui_ctx_x]
 			vp_cpy r9, [r1 + gui_ctx_y]
 			vp_cpy r2, [r1 + gui_ctx_dirty_region]
-			m_call view, draw, {r0, r1}
+			v_call view, draw, {r0, r1}
 			vp_cpy [r4 + local_ctx_next], r1
 			vp_sub view_ctx_node - view_dirty_region, r1
-			s_bind gui_gui, statics, r0
+			f_bind gui_gui, statics, r0
 			vp_add gui_statics_rect_heap, r0
-			s_call gui_region, free, {r0, r1}
+			f_call gui_region, free, {r0, r1}
 			vp_cpy [r4 + local_ctx_next], r0
 		loop_end
 
@@ -120,7 +120,7 @@
 		vp_cpy r1, [r4 + vis_root]
 
 		;region heap
-		s_bind gui_gui, statics, r0
+		f_bind gui_gui, statics, r0
 		vp_add gui_statics_rect_heap, r0
 
 		;remove opaque region from ancestors if not root
@@ -141,7 +141,7 @@
 			vp_add r9, r11
 			vp_add view_opaque_region, r1
 			vp_lea [r4 + vis_region], r2
-			s_call gui_region, copy_rect, {r0, r1, r2, r8, r9, r10, r11}
+			f_call gui_region, copy_rect, {r0, r1, r2, r8, r9, r10, r11}
 
 			;remove from ancestors
 			vp_cpy [r4 + vis_inst], r1
@@ -157,25 +157,25 @@
 				vp_cpy [r1 + view_x], r8
 				vp_cpy [r1 + view_y], r9
 				vp_lea [r4 + vis_region], r1
-				s_call gui_region, translate, {r1, r8, r9}
+				f_call gui_region, translate, {r1, r8, r9}
 
 				;clip temp opaque region
 				vp_cpy [r4 + vis_next], r2
 				vp_lea [r4 + vis_region], r1
-				s_call gui_region, clip_rect, {r0, r1, 0, 0, [r2 + view_w], [r2 + view_h]}
+				f_call gui_region, clip_rect, {r0, r1, 0, 0, [r2 + view_w], [r2 + view_h]}
 
 				;remove temp opaque region
 				vp_lea [r4 + vis_region], r1
 				vp_cpy [r4 + vis_next], r2
 				vp_add view_dirty_region, r2
-				s_call gui_region, remove_region, {r0, r1, r2, 0, 0}
+				f_call gui_region, remove_region, {r0, r1, r2, 0, 0}
 
 				vp_cpy [r4 + vis_next], r1
 			loop_until r1, ==, [r4 + vis_root]
 
 			;free any temp region
 			vp_lea [r4 + vis_region], r1
-			s_call gui_region, free, {r0, r1}
+			f_call gui_region, free, {r0, r1}
 		endif
 
 		;clip local dirty region with parent bounds if not root
@@ -193,7 +193,7 @@
 		vp_add r8, r10
 		vp_add r9, r11
 		vp_add view_dirty_region, r1
-		s_call gui_region, clip_rect, {r0, r1, r8, r9, r10, r11}
+		f_call gui_region, clip_rect, {r0, r1, r8, r9, r10, r11}
 
 		;paste local dirty region onto parent if not root
 		vp_cpy [r4 + vis_inst], r1
@@ -203,12 +203,12 @@
 			vp_cpy [r1 + view_parent], r2
 			vp_add view_dirty_region, r1
 			vp_add view_dirty_region, r2
-			s_call gui_region, paste_region, {r0, r1, r2, r8, r9}
+			f_call gui_region, paste_region, {r0, r1, r2, r8, r9}
 
 			;free local dirty region
 			vp_cpy [r4 + vis_inst], r1
 			vp_add view_dirty_region, r1
-			s_call gui_region, free, {r0, r1}
+			f_call gui_region, free, {r0, r1}
 		endif
 
 		vp_cpy [r4 + vis_inst], r0
@@ -228,7 +228,7 @@
 		vp_cpy r1, [r4 + dist_data]
 
 		;region heap
-		s_bind gui_gui, statics, r0
+		f_bind gui_gui, statics, r0
 		vp_add gui_statics_rect_heap, r0
 
 		;copy view from parent if not root
@@ -244,7 +244,7 @@
 			vp_add r9, r11
 			vp_add view_dirty_region, r1
 			vp_add view_dirty_region, r2
-			s_call gui_region, copy_rect, {r0, r1, r2, r8, r9, r10, r11}
+			f_call gui_region, copy_rect, {r0, r1, r2, r8, r9, r10, r11}
 
 			;did we find any
 			vp_cpy [r4 + dist_inst], r1
@@ -261,7 +261,7 @@
 					vp_cpy [r1 + view_ctx_y], r9
 					vp_add view_opaque_region, r1
 					vp_add view_dirty_region, r2
-					s_call gui_region, remove_region, {r0, r1, r2, r8, r9}
+					f_call gui_region, remove_region, {r0, r1, r2, r8, r9}
 
 					vp_cpy [r4 + dist_next], r2
 					vp_cpy [r4 + dist_data], r1
@@ -284,4 +284,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

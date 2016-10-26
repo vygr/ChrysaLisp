@@ -24,14 +24,14 @@
 		%ifidn %3, ""
 			dw 0
 		%else
-			slot_function lisp, %3
+			func_path lisp, %3
 			fn_find_link _function_
 			dw _ref_%[_link_num_]_link - $
 		%endif
 		dw %4
 	%endmacro
 
-	def_function class/lisp/init
+	def_func class/lisp/init
 		;inputs
 		;r0 = object
 		;r1 = vtable pointer
@@ -61,31 +61,31 @@
 			assign {0}, {this->lisp_nextsym}
 
 			;interned symbols set and enviroments
-			slot_function symbol, compare
-			static_call unordered_set, create, {@_function_, 31}, {this->lisp_symbols}
-			static_call unordered_map, create, {$match_obj, 31}, {this->lisp_enviroment}
-			static_call unordered_map, create, {$match_obj, 31}, {this->lisp_macros}
+			func_path symbol, compare
+			func_call unordered_set, create, {@_function_, 31}, {this->lisp_symbols}
+			func_call unordered_map, create, {$match_obj, 31}, {this->lisp_enviroment}
+			func_call unordered_map, create, {$match_obj, 31}, {this->lisp_macros}
 
 			;intern standard built in symbols
 			;fixup built in functions
 			assign {$built_ins}, {table}
 			loop_while {table->built_in_symbol}
 				assign {&table->built_in_symbol + table->built_in_symbol}, {path_ptr}
-				static_call lisp, sym_intern_cstr, {this, path_ptr}, {symbol}
+				func_call lisp, sym_intern_cstr, {this, path_ptr}, {symbol}
 				if {table->built_in_field}
 					assign {this + table->built_in_field}, {path_ptr}
 					assign {symbol}, {*path_ptr}
 				endif
 				if {table->built_in_function}
 					assign {&table->built_in_function + table->built_in_function}, {path_ptr}
-					static_call lisp, built_in_func, {this, symbol, *path_ptr, table->built_in_flags}
+					func_call lisp, built_in_func, {this, symbol, *path_ptr, table->built_in_flags}
 				endif
 				assign {table + built_in_hop}, {table}
 			loop_end
 
 			;standard self evaulating symbols
-			static_call lisp, env_def, {this, this->lisp_sym_nil, this->lisp_sym_nil}
-			static_call lisp, env_def, {this, this->lisp_sym_t, this->lisp_sym_t}
+			func_call lisp, env_def, {this, this->lisp_sym_nil, this->lisp_sym_nil}
+			func_call lisp, env_def, {this, this->lisp_sym_t, this->lisp_sym_t}
 		endif
 
 		eval {this, ok}, {r0, r1}
@@ -168,4 +168,4 @@
 		built_in "write", 0, func_write
 		dw 0
 
-	def_function_end
+	def_func_end

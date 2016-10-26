@@ -2,7 +2,7 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/unordered_set/clear
+	def_func class/unordered_set/clear
 		;inputs
 		;r0 = unordered_set object
 		;outputs
@@ -12,8 +12,8 @@
 
 		;clear all buckets
 		vp_push r0
-		t_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
-		s_call vector, for_each, {r0, 0, r1, $callback, 0}, {_}
+		d_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
+		f_call vector, for_each, {r0, 0, r1, $callback, 0}, {_}
 		vp_pop r0
 		vp_ret
 
@@ -24,8 +24,8 @@
 		;outputs
 		;r1 = 0 if break, else not
 
-		s_call vector, clear, {[r1]}
+		f_call vector, clear, {[r1]}
 		vp_cpy 1, r1
 		vp_ret
 
-	def_function_end
+	def_func_end

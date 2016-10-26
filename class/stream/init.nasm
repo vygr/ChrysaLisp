@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	def_function class/stream/init
+	def_func class/stream/init
 		;inputs
 		;r0 = stream object
 		;r1 = vtable pointer
@@ -21,10 +21,10 @@
 		map_src_to_dst
 
 		;init parent
-		p_call stream, init, {r0, r1}, {r1}
+		s_call stream, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			;init myself
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

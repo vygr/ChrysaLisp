@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	def_function class/view/change
+	def_func class/view/change
 		;inputs
 		;r0 = view object
 		;r8 = new x
@@ -16,7 +16,7 @@
 		vp_cpy [r0 + view_h], r13
 
 		;set new info
-		s_call view, set_bounds, {r0, r8, r9, r10, r11}
+		f_call view, set_bounds, {r0, r8, r9, r10, r11}
 
 		;layout if changed size
 		if r10, ==, r12
@@ -24,6 +24,6 @@
 				vp_ret
 			endif
 		endif
-		m_jmp view, layout, {r0}
+		v_jmp view, layout, {r0}
 
-	def_function_end
+	def_func_end

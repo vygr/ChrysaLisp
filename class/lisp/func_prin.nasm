@@ -4,7 +4,7 @@
 %include 'class/class_stream.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/func_prin
+	def_func class/lisp/func_prin
 		;inputs
 		;r0 = lisp object
 		;r1 = args
@@ -18,10 +18,10 @@
 		push_scope
 		retire {r0, r1}, {this, args}
 
-		slot_call vector, get_length, {args}, {length}
-		static_call vector, for_each, {args, 0, length, $callback, this}, {_}
+		devirt_call vector, get_length, {args}, {length}
+		func_call vector, for_each, {args, 0, length, $callback, this}, {_}
 		assign {this->lisp_sym_t}, {args}
-		static_call ref, ref, {args}
+		func_call ref, ref, {args}
 
 		eval {this, args}, {r0, r1}
 		pop_scope
@@ -42,13 +42,13 @@
 
 		assign {*iter}, {elem}
 		if {elem->obj_vtable == @class/class_string}
-			static_call stream, write, {pdata->lisp_stdout, &elem->string_data, elem->string_length}
+			func_call stream, write, {pdata->lisp_stdout, &elem->string_data, elem->string_length}
 		else
-			static_call lisp, repl_print, {pdata, pdata->lisp_stdout, elem}
+			func_call lisp, repl_print, {pdata, pdata->lisp_stdout, elem}
 		endif
 
 		eval {1}, {r1}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

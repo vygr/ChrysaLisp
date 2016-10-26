@@ -2,7 +2,7 @@
 %include 'class/class_master.inc'
 %include 'class/class_stream_msg_out.inc'
 
-	def_function class/master/init
+	def_func class/master/init
 		;inputs
 		;r0 = master object
 		;r1 = vtable pointer
@@ -29,4 +29,4 @@
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

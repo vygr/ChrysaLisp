@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_string.inc'
 
-	def_function class/string/slice
+	def_func class/string/slice
 		;inputs
 		;r0 = string object
 		;r1 = start index
@@ -16,8 +16,8 @@
 		vp_sub r1, r2
 		vp_add string_data, r0
 		vp_add r1, r0
-		s_call string, create_from_buffer, {r0, r2}, {r1}
+		f_call string, create_from_buffer, {r0, r2}, {r1}
 		vp_pop r0
 		vp_ret
 
-	def_function_end
+	def_func_end

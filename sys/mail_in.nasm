@@ -1,12 +1,12 @@
 %include 'inc/func.inc'
 %include 'inc/mail.inc'
 
-	def_function sys/mail_in
+	def_func sys/mail_in
 		;parcel fragments arriving on chip task
 
 		loop_start
 			;read parcel fragment
-			s_call sys_mail, mymail, {}, {r15}
+			f_call sys_mail, mymail, {}, {r15}
 
 			;look up parcel in mailbox
 			vp_cpy [r15 + msg_parcel_id], r6
@@ -19,7 +19,7 @@
 				;new parcel
 				vp_cpy [r15 + msg_parcel_size], r12
 				vp_cpy [r15 + msg_dest + 8], r14
-				s_call sys_mem, alloc, {r12}, {r0, _}
+				f_call sys_mem, alloc, {r12}, {r0, _}
 				assert r0, !=, 0
 				vp_cpy r12, [r0 + msg_length]
 				vp_cpy r13, [r0 + msg_dest]
@@ -51,22 +51,22 @@
 			;copy fragment data, round up for speed
 			vp_add ptr_size - 1, r2
 			vp_and -ptr_size, r2
-			s_call sys_mem, copy, {r0, r1, r2}, {_, _}
+			f_call sys_mem, copy, {r0, r1, r2}, {_, _}
 
 			;got all needed ?
 			if r13, ==, [r14 + msg_length]
 				;yes, remove parcel and post it
 				vp_cpy r14, r1
 				ln_remove_node r1, r2
-				s_call sys_mail, send, {r14}
+				f_call sys_mail, send, {r14}
 			else
 				;no, update total so far
 				vp_cpy r13, [r14 + msg_parcel_total]
 			endif
 
 			;free fragment
-			s_call sys_mem, free, {r15}
+			f_call sys_mem, free, {r15}
 		loop_end
 		vp_ret
 
-	def_function_end
+	def_func_end

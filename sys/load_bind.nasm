@@ -3,7 +3,7 @@
 
 ;%define list_loaded
 
-	def_function sys/load_bind
+	def_func sys/load_bind
 		;input
 		;r0 = function path name
 		;output
@@ -259,4 +259,4 @@
 	loaded_name_end:
 %endif
 
-	def_function_end
+	def_func_end

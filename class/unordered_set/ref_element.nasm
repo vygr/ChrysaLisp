@@ -2,7 +2,7 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/unordered_set/ref_element
+	def_func class/unordered_set/ref_element
 		;inputs
 		;r0 = unordered_set object
 		;r1 = element index
@@ -13,10 +13,10 @@
 		;r2-r3, r5
 
 		vp_push r0
-		s_call unordered_set, get_iter, {r0, r1}, {r1, _}
-		s_call ref, ref, {[r1]}
+		f_call unordered_set, get_iter, {r0, r1}, {r1, _}
+		f_call ref, ref, {[r1]}
 		vp_cpy r0, r1
 		vp_pop r0
 		vp_ret
 
-	def_function_end
+	def_func_end

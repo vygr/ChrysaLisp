@@ -2,7 +2,7 @@
 %include 'inc/font.inc'
 %include 'class/class_button.inc'
 
-	def_function class/button/draw
+	def_func class/button/draw
 		;inputs
 		;r0 = button object
 		;r1 = ctx object
@@ -16,6 +16,6 @@
 		if r2, !=, 0
 			vp_mul -1, r3
 		endif
-		s_jmp button, draw_panel, {r0, r1, 1, r3}
+		f_jmp button, draw_panel, {r0, r1, 1, r3}
 
-	def_function_end
+	def_func_end

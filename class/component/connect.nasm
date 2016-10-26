@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_component.inc'
 
-	def_function class/component/connect
+	def_func class/component/connect
 		;inputs
 		;r0 = component object
 		;r1 = signal list
@@ -17,11 +17,11 @@
 		map_src_to_dst
 
 		;gui sigslot heap
-		s_bind gui_gui, statics, r0
+		f_bind gui_gui, statics, r0
 		vp_add gui_statics_sigslot_heap, r0
 
 		;create sigslot record
-		s_call sys_heap, alloc, {r0}, {r1}
+		f_call sys_heap, alloc, {r0}, {r1}
 		assert r1, !=, 0
 
 		;fill in target and method
@@ -39,4 +39,4 @@
 		vp_cpy r5, r0
 		vp_ret
 
-	def_function_end
+	def_func_end

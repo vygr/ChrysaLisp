@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	def_function sys/mail_select
+	def_func sys/mail_select
 		;inputs
 		;r0 = mailbox address array
 		;r1 = mailbox count
@@ -27,7 +27,7 @@
 			loop_until r0, ==, r1
 
 			;fill in all tcb's and suspend
-			s_bind sys_task, statics, r5
+			f_bind sys_task, statics, r5
 			vp_cpy [r5 + tk_statics_current_tcb], r5
 			vp_cpy r3, r0
 			loop_start
@@ -36,7 +36,7 @@
 				vp_add ptr_size, r0
 			loop_until r0, ==, r1
 
-			s_call sys_task, suspend
+			f_call sys_task, suspend
 
 			;clear all tcb's
 			vp_xor r5, r5
@@ -48,4 +48,4 @@
 			loop_until r0, ==, r1
 		loop_end
 
-	def_function_end
+	def_func_end

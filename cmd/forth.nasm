@@ -4,7 +4,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_slave.inc'
 
-	def_function cmd/forth
+	def_func cmd/forth
 
 		buffer_size equ 120
 
@@ -16,40 +16,40 @@
 		push_scope
 
 		;initialize pipe details and command args, abort on error
-		static_call slave, create, {}, {slave}
+		func_call slave, create, {}, {slave}
 		if {slave}
 			;set up input stream stack
-			static_call string, create_from_file, {"cmd/forth.f"}, {string}
-			static_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
-			static_call vector, create, {}, {vector}
-			static_call vector, push_back, {vector, stream}
+			func_call string, create_from_file, {"cmd/forth.f"}, {string}
+			func_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
+			func_call vector, create, {}, {vector}
+			func_call vector, push_back, {vector, stream}
 
 			;app event loop
 			loop_start
 				;priority to stack input
 				;this allows forth to push include files on this input stack
 				loop_start
-					slot_call vector, get_length, {vector}, {length}
+					devirt_call vector, get_length, {vector}, {length}
 					breakifnot {length}
-					static_call vector, ref_back, {vector}, {stream}
-					static_call vector, pop_back, {vector}
+					func_call vector, ref_back, {vector}, {stream}
+					func_call vector, pop_back, {vector}
 					loop_start
-						static_call stream, read_line, {stream, &buffer, buffer_size}, {length}
+						func_call stream, read_line, {stream, &buffer, buffer_size}, {length}
 						breakif {length == -1}
 						local_call input, {slave, &buffer, length}, {r0, r1, r2}
 					loop_end
-					static_call stream, deref, {stream}
+					func_call stream, deref, {stream}
 				loop_end
 
 				;read stdin, exit if EOF
-				static_call stream, read_line, {slave->slave_stdin, &buffer, buffer_size}, {length}
+				func_call stream, read_line, {slave->slave_stdin, &buffer, buffer_size}, {length}
 				breakif {length == -1}
 				local_call input, {slave, &buffer, length}, {r0, r1, r2}
 			loop_end
 
 			;clean up
-			static_call vector, deref, {vector}
-			static_call slave, deref, {slave}
+			func_call vector, deref, {vector}
+			func_call slave, deref, {slave}
 		endif
 		pop_scope
 		return
@@ -68,10 +68,10 @@
 		push_scope
 		retire {r0, r1, r2}, {slave, buffer, length}
 
-		static_call stream, write, {slave->slave_stdout, buffer, length}
-		static_call stream, write_char, {slave->slave_stdout, char_lf}
-		method_call stream, write_flush, {slave->slave_stdout}
-		static_call sys_task, yield
+		func_call stream, write, {slave->slave_stdout, buffer, length}
+		func_call stream, write_char, {slave->slave_stdout, char_lf}
+		virt_call stream, write_flush, {slave->slave_stdout}
+		func_call sys_task, yield
 
 		pop_scope
 		return
@@ -374,4 +374,4 @@
 	defword_end
 %endif
 
-	def_function_end
+	def_func_end

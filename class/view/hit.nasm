@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	def_function class/view/hit
+	def_func class/view/hit
 		;inputs
 		;r0 = view object
 		;r8 = x
@@ -25,4 +25,4 @@
 		vp_xor r1, r1
 		vp_ret
 
-	def_function_end
+	def_func_end

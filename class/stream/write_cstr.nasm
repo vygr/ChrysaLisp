@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream.inc'
 
-	def_function class/stream/write_cstr
+	def_func class/stream/write_cstr
 		;inputs
 		;r0 = stream object
 		;r1 = buffer
@@ -22,11 +22,11 @@
 			assign {*buffer}, {char}
 			breakifnot {char}
 			assign {buffer + 1}, {buffer}
-			static_call stream, write_char, {inst, char}
+			func_call stream, write_char, {inst, char}
 		loop_end
 
 		eval {inst}, {r0}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

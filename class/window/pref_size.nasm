@@ -2,7 +2,7 @@
 %include 'class/class_window.inc'
 %include 'class/class_flow.inc'
 
-	def_function class/window/pref_size
+	def_func class/window/pref_size
 		;inputs
 		;r0 = window object
 		;outputs
@@ -21,7 +21,7 @@
 		set_dst [r4 + local_inst]
 		map_src_to_dst
 
-		m_call flow, pref_size, {[r0 + window_flow]}, {r10, r11}
+		v_call flow, pref_size, {[r0 + window_flow]}, {r10, r11}
 		vp_add window_border_size * 2, r10
 		vp_add window_border_size * 2, r11
 
@@ -29,4 +29,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

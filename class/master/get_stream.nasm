@@ -2,7 +2,7 @@
 %include 'class/class_master.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/master/get_stream
+	def_func class/master/get_stream
 		;inputs
 		;r0 = master object
 		;r1 = mailbox
@@ -27,4 +27,4 @@
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

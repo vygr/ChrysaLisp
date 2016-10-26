@@ -2,7 +2,7 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/unordered_set/get_length
+	def_func class/unordered_set/get_length
 		;inputs
 		;r0 = unordered_set object
 		;outputs
@@ -13,8 +13,8 @@
 
 		;count all buckets
 		vp_push r0, 0
-		t_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
-		s_call vector, for_each, {r0, 0, r1, $callback, r4}, {_}
+		d_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
+		f_call vector, for_each, {r0, 0, r1, $callback, r4}, {_}
 		vp_pop r0, r1
 		vp_ret
 
@@ -32,4 +32,4 @@
 		vp_cpy r2, [r0]
 		vp_ret
 
-	def_function_end
+	def_func_end

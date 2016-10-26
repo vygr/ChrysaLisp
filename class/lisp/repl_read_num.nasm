@@ -5,7 +5,7 @@
 %include 'class/class_boxed_long.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/repl_read_num
+	def_func class/lisp/repl_read_num
 		;inputs
 		;r0 = lisp object
 		;r1 = stream
@@ -28,30 +28,30 @@
 		retire {r0, r1, r2, r2}, {this, stream, char, sign}
 
 		if {char == char_minus}
-			static_call stream, read_char, {stream}, {char}
+			func_call stream, read_char, {stream}, {char}
 		endif
 
-		slot_function sys_load, statics
+		func_path sys_load, statics
 		assign {@_function_.ld_statics_reloc_buffer}, {reloc}
 		assign {reloc}, {buffer}
 
 		loop_while {char >= char_0 && char <= char_9}
 			assign {char}, {*buffer}
 			assign {buffer + 1}, {buffer}
-			static_call stream, read_char, {stream}, {char}
+			func_call stream, read_char, {stream}, {char}
 		loop_end
 		assign {0}, {*buffer}
 
 		;create the number
-		static_call boxed_long, create, {}, {num}
-		static_call sys_string, to_long, {reloc, 10}, {val}
+		func_call boxed_long, create, {}, {num}
+		func_call sys_string, to_long, {reloc, 10}, {val}
 		if {sign == char_minus}
 			assign {-val}, {val}
 		endif
-		static_call boxed_long, set_value, {num, val}
+		func_call boxed_long, set_value, {num, val}
 
 		eval {this, num, char}, {r0, r1, r2}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

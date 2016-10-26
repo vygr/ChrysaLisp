@@ -2,7 +2,7 @@
 %include 'class/class_button.inc'
 %include 'class/class_flow.inc'
 
-	def_function class/button/layout
+	def_func class/button/layout
 		;inputs
 		;r0 = button object
 		;trashes
@@ -26,10 +26,10 @@
 		if r1, !=, 0
 			vp_add button_border_size, r8
 		endif
-		s_call flow, change, {[r0 + label_flow], r8, r8, r10, r11}
+		f_call flow, change, {[r0 + label_flow], r8, r8, r10, r11}
 
-		s_call button, opaque, {[r4 + local_inst]}
+		f_call button, opaque, {[r4 + local_inst]}
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

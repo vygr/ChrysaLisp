@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/heap.inc'
 
-	def_function sys/heap_reset
+	def_func sys/heap_reset
 		;inputs
 		;r0 = heap
 		;outputs
@@ -26,4 +26,4 @@
 		vp_cpy r1, [r0 + hp_heap_free_flist]
 		vp_ret
 
-	def_function_end
+	def_func_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	def_function class/view/sub
+	def_func class/view/sub
 		;inputs
 		;r0 = object
 		;trashes
@@ -19,4 +19,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

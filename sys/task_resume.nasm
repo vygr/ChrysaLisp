@@ -2,7 +2,7 @@
 %include 'inc/list.inc'
 %include 'inc/task.inc'
 
-	def_function sys/task_resume
+	def_func sys/task_resume
 		;inputs
 		;r0 = task control node (to resume)
 		;trashes
@@ -12,10 +12,10 @@
 		vp_cpy [r0], r1
 		if r1, ==, 0
 			;add to task list
-			s_bind sys_task, statics, r1
+			f_bind sys_task, statics, r1
 			vp_cpy [r1 + tk_statics_current_tcb], r1
 			ln_add_node_before r1, r0, r2
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

@@ -2,7 +2,7 @@
 %include 'class/class_stream.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/repl
+	def_func class/lisp/repl
 		;inputs
 		;r0 = lisp object
 		;r1 = stream to read
@@ -17,50 +17,50 @@
 		push_scope
 		retire {r0, r1}, {this, stream}
 
-		static_call stream, read_char, {stream}, {char}
+		func_call stream, read_char, {stream}, {char}
 		loop_start
-			method_call stream, write_flush, {this->lisp_stderr}
-			static_call sys_task, yield
-			method_call stream, write_flush, {this->lisp_stdout}
+			virt_call stream, write_flush, {this->lisp_stderr}
+			func_call sys_task, yield
+			virt_call stream, write_flush, {this->lisp_stdout}
 
-			static_call lisp, repl_read, {this, stream, char}, {ast, char}
+			func_call lisp, repl_read, {this, stream, char}, {ast, char}
 			breakif {char == -1}
 
 			if {stream == this->lisp_stdin}
-				static_call stream, write_cstr, {this->lisp_stdout, "--Ast--"}
-				static_call stream, write_char, {this->lisp_stdout, char_lf}
-				static_call lisp, repl_print, {this, this->lisp_stdout, ast}
-				static_call stream, write_char, {this->lisp_stdout, char_lf}
-				static_call stream, write_cstr, {this->lisp_stdout, "--Macro expanding--"}
-				static_call stream, write_char, {this->lisp_stdout, char_lf}
+				func_call stream, write_cstr, {this->lisp_stdout, "--Ast--"}
+				func_call stream, write_char, {this->lisp_stdout, char_lf}
+				func_call lisp, repl_print, {this, this->lisp_stdout, ast}
+				func_call stream, write_char, {this->lisp_stdout, char_lf}
+				func_call stream, write_cstr, {this->lisp_stdout, "--Macro expanding--"}
+				func_call stream, write_char, {this->lisp_stdout, char_lf}
 			endif
 
 			loop_start
-				static_call lisp, repl_expand, {this, &ast}, {flag}
+				func_call lisp, repl_expand, {this, &ast}, {flag}
 				if {stream == this->lisp_stdin}
-					static_call lisp, repl_print, {this, this->lisp_stdout, ast}
-					static_call stream, write_char, {this->lisp_stdout, 10}
+					func_call lisp, repl_print, {this, this->lisp_stdout, ast}
+					func_call stream, write_char, {this->lisp_stdout, 10}
 				endif
 			loop_until {flag}
 
 			if {stream == this->lisp_stdin}
-				static_call stream, write_cstr, {this->lisp_stdout, "--Eval--"}
-				static_call stream, write_char, {this->lisp_stdout, char_lf}
+				func_call stream, write_cstr, {this->lisp_stdout, "--Eval--"}
+				func_call stream, write_char, {this->lisp_stdout, char_lf}
 			endif
 
-			static_call lisp, repl_eval, {this, ast}, {value}
-			static_call ref, deref, {ast}
+			func_call lisp, repl_eval, {this, ast}, {value}
+			func_call ref, deref, {ast}
 
 			if {stream == this->lisp_stdin}
-				static_call lisp, repl_print, {this, this->lisp_stdout, value}
-				static_call stream, write_char, {this->lisp_stdout, char_lf}
+				func_call lisp, repl_print, {this, this->lisp_stdout, value}
+				func_call stream, write_char, {this->lisp_stdout, char_lf}
 			endif
 
-			static_call ref, deref, {value}
+			func_call ref, deref, {value}
 		loop_end
 
 		eval {this}, {r0}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

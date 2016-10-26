@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_string.inc'
 
-	def_function class/string/init
+	def_func class/string/init
 		;inputs
 		;r0 = string object
 		;r1 = vtable pointer
@@ -23,7 +23,7 @@
 		map_src_to_dst
 
 		;init parent
-		p_call string, init, {r0, r1}, {r1}
+		s_call string, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			vp_cpy r0, [r4 + local_inst]
 			vp_xor r1, r1
@@ -32,7 +32,7 @@
 			;init myself
 			vp_cpy [r4 + local_length], r2
 			vp_cpy r2, [r0 + string_length]
-			s_call sys_mem, copy, {[r4 + local_data], &[r0 + string_data], r2}, {_, r1}
+			f_call sys_mem, copy, {[r4 + local_data], &[r0 + string_data], r2}, {_, r1}
 			vp_xor r0, r0
 			vp_cpy_ub r0, [r1]
 
@@ -42,4 +42,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

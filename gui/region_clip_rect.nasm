@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	def_function gui/region_clip_rect
+	def_func gui/region_clip_rect
 		;inputs
 		;r0 = region heap pointer
 		;r1 = source region listhead pointer
@@ -56,4 +56,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

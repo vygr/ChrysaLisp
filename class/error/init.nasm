@@ -2,7 +2,7 @@
 %include 'class/class_error.inc'
 %include 'class/class_string.inc'
 
-	def_function class/error/init
+	def_func class/error/init
 		;inputs
 		;r0 = error object
 		;r1 = vtable pointer
@@ -24,17 +24,17 @@
 		map_src_to_dst
 
 		;init parent
-		p_call error, init, {r0, r1}, {r1}
+		s_call error, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			;init self
-			s_call string, create_from_cstr, {[r0 + error_description]}, {r0}
+			f_call string, create_from_cstr, {[r0 + error_description]}, {r0}
 			vp_cpy [r4 + local_inst], r1
 			vp_cpy r0, [r1 + error_description]
-			s_call ref, ref, {[r1 + error_object]}
+			f_call ref, ref, {[r1 + error_object]}
 			vp_cpy [r4 + local_inst], r0
 		endif
 
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

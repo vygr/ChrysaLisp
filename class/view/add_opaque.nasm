@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
-	def_function class/view/add_opaque
+	def_func class/view/add_opaque
 		;inputs
 		;r0 = view object
 		;r8 = x
@@ -26,12 +26,12 @@
 		vp_add r8, r10
 		vp_add r9, r11
 		vp_lea [r0 + view_opaque_region], r1
-		s_bind gui_gui, statics, r0
+		f_bind gui_gui, statics, r0
 		vp_add gui_statics_rect_heap, r0
-		s_call gui_region, paste_rect, {r0, r1, r8, r9, r10, r11}
+		f_call gui_region, paste_rect, {r0, r1, r8, r9, r10, r11}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

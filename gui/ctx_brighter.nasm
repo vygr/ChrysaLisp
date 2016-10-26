@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	def_function gui/ctx_brighter
+	def_func gui/ctx_brighter
 		;inputs
 		;r1 = colour
 		;inputs
@@ -17,4 +17,4 @@
 		vp_add r2, r1
 		vp_ret
 
-	def_function_end
+	def_func_end

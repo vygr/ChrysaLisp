@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/list.inc'
 
-	def_function sys/list_node_at
+	def_func sys/list_node_at
 		;inputs
 		;r0 = list head
 		;r1 = index
@@ -23,4 +23,4 @@
 		loop_end
 		vp_ret
 
-	def_function_end
+	def_func_end

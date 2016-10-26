@@ -2,7 +2,7 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/unordered_set/for_each
+	def_func class/unordered_set/for_each
 		;inputs
 		;r0 = unordered_set object
 		;r1 = predicate function pointer
@@ -36,8 +36,8 @@
 		map_src_to_dst
 
 		;for all buckets
-		t_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
-		s_call vector, for_each, {r0, 0, r1, $callback, r4}, {r2}
+		d_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
+		f_call vector, for_each, {r0, 0, r1, $callback, r4}, {r2}
 		if r2, !=, 0
 			vp_cpy [r2], r2
 		endif
@@ -55,8 +55,8 @@
 
 		vp_push r0
 		vp_cpy r0, r2
-		t_call vector, get_length, {[r1]}, {r1}
-		s_call vector, for_each, {r0, 0, r1, [r2 + local_predicate], [r2 + local_predicate_data]}, {r1}
+		d_call vector, get_length, {[r1]}, {r1}
+		f_call vector, for_each, {r0, 0, r1, [r2 + local_predicate], [r2 + local_predicate_data]}, {r1}
 		vp_pop r0
 		vp_cpy r1, [r0 + local_iter]
 		if r1, ==, 0
@@ -66,4 +66,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

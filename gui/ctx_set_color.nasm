@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/sdl2.inc'
 
-	def_function gui/ctx_set_color
+	def_func gui/ctx_set_color
 		;inputs
 		;r0 = ctx
 		;r1 = color
@@ -34,4 +34,4 @@
 		vp_cpy [r4 + local_old_stack], r4
 		vp_ret
 
-	def_function_end
+	def_func_end

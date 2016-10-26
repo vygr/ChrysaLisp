@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	def_function sys/task_start
+	def_func sys/task_start
 		;inputs
 		;r0 = new task program counter
 		;outputs
@@ -14,14 +14,14 @@
 		vp_cpy r0, r5
 
 		;increment task count
-		s_bind sys_task, statics, r0
+		f_bind sys_task, statics, r0
 		vp_cpy [r0 + tk_statics_task_count], r1
 		vp_inc r1
 		vp_cpy r1, [r0 + tk_statics_task_count]
 
 		;create new task control block and task
 		vp_add tk_statics_task_heap, r0
-		s_call sys_heap, alloc, {r0}, {r1}
+		f_call sys_heap, alloc, {r0}, {r1}
 		vp_cpy r1, r0
 
 		;initialise task mailbox etc
@@ -39,10 +39,10 @@
 		vp_cpy r5, [r1 + tk_state_size]
 
 		;resume new task
-		s_call sys_task, resume, {r0}
+		f_call sys_task, resume, {r0}
 
 		;return mailbox pointer
 		vp_lea [r0 + tk_node_mailbox], r1
 		vp_ret
 
-	def_function_end
+	def_func_end

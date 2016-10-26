@@ -2,7 +2,7 @@
 %include 'inc/heap.inc'
 %include 'inc/syscall.inc'
 
-	def_function sys/heap_deinit
+	def_func sys/heap_deinit
 		;inputs
 		;r0 = heap
 		;outputs
@@ -17,9 +17,9 @@
 			vp_cpy [r1 + hp_heap_blocksize], r2
 			vp_add ln_fnode_size, r2
 			sys_munmap r0, r2
-			s_bind sys_mem, statics, r0
+			f_bind sys_mem, statics, r0
 			vp_sub r2, [r0]
 		loop_end
 		vp_ret
 
-	def_function_end
+	def_func_end

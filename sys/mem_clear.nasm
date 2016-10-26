@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	def_function sys/mem_clear
+	def_func sys/mem_clear
 		;inputs
 		;r0 = address
 		;r1 = length in bytes
@@ -36,4 +36,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

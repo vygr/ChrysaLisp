@@ -2,7 +2,7 @@
 %include 'class/class_unordered_set.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/unordered_set/erase
+	def_func class/unordered_set/erase
 		;inputs
 		;r0 = unordered_set object
 		;r1 = iterator
@@ -25,7 +25,7 @@
 		map_src_to_dst
 
 		;swap last entry for erased entry
-		s_call ref, deref, {[r1]}
+		f_call ref, deref, {[r1]}
 		vp_cpy [r4 + local_bucket], r0
 		vp_cpy [r0 + vector_length], r1
 		vp_sub ptr_size, r1
@@ -41,4 +41,4 @@
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

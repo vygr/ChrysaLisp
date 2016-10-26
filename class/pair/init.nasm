@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_pair.inc'
 
-	def_function class/pair/init
+	def_func class/pair/init
 		;inputs
 		;r0 = pair object
 		;r1 = vtable pointer
@@ -15,6 +15,6 @@
 		vp_cpy r3, [r0 + pair_second]
 
 		;init parent
-		p_jmp pair, init, {r0, r1}, {r1}
+		s_jmp pair, init, {r0, r1}, {r1}
 
-	def_function_end
+	def_func_end

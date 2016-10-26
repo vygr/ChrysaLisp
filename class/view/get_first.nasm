@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	def_function class/view/get_first
+	def_func class/view/get_first
 		;inputs
 		;r0 = view object
 		;outputs
@@ -19,4 +19,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

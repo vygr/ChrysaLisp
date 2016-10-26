@@ -2,7 +2,7 @@
 %include 'class/class_text.inc'
 %include 'class/class_label.inc'
 
-	def_function class/label/get_text
+	def_func class/label/get_text
 		;inputs
 		;r0 = label object
 		;outputs
@@ -19,10 +19,10 @@
 		set_dst [r4 + local_inst]
 		map_src_to_dst
 
-		s_call text, get_text, {[r0 + label_text]}, {r1}
+		f_call text, get_text, {[r0 + label_text]}, {r1}
 
 		vp_cpy [r4 + local_inst], r0
 		vp_add local_size, r4
 		vp_ret
 
-	def_function_end
+	def_func_end

@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	def_function sys/math_random
+	def_func sys/math_random
 		;inputs
 		;r0 = random range
 		;outputs
@@ -24,4 +24,4 @@
 	seed:
 		dq 1234567890
 
-	def_function_end
+	def_func_end

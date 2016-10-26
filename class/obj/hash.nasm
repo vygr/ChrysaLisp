@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_obj.inc'
 
-	def_function class/obj/hash
+	def_func class/obj/hash
 		;inputs
 		;r0 = object
 		;outputs
@@ -14,4 +14,4 @@
 		vp_cpy r0, r1
 		vp_ret
 
-	def_function_end
+	def_func_end

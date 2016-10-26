@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_obj.inc'
 
-	def_function class/obj/init
+	def_func class/obj/init
 		;inputs
 		;r0 = object
 		;r1 = vtable pointer
@@ -12,4 +12,4 @@
 		vp_cpy r1, [r0 + obj_vtable]
 		vp_ret
 
-	def_function_end
+	def_func_end

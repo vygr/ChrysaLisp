@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_grid.inc'
 
-	def_function class/grid/layout
+	def_func class/grid/layout
 		;inputs
 		;r0 = grid object
 		;trashes
@@ -31,7 +31,7 @@
 		vp_div r8, r10, r9
 		vp_cpy r9, [r4 + local_cell_h]
 
-		s_call grid, forward, {r0, r4, $callback}
+		f_call grid, forward, {r0, r4, $callback}
 
 		vp_add local_size, r4
 		vp_ret
@@ -58,6 +58,6 @@
 		vp_cpy [r1 + local_count], r2
 		vp_inc r2
 		vp_cpy r2, [r1 + local_count]
-		s_jmp view, change, {r0, r8, r9, r10, r11}
+		f_jmp view, change, {r0, r8, r9, r10, r11}
 
-	def_function_end
+	def_func_end

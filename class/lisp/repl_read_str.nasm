@@ -4,7 +4,7 @@
 %include 'class/class_stream.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/repl_read_str
+	def_func class/lisp/repl_read_str
 		;inputs
 		;r0 = lisp object
 		;r1 = stream
@@ -23,22 +23,22 @@
 		push_scope
 		retire {r0, r1, r2}, {this, stream, char}
 
-		slot_function sys_load, statics
+		func_path sys_load, statics
 		assign {@_function_.ld_statics_reloc_buffer}, {reloc}
 		assign {reloc}, {buffer}
 
-		static_call stream, read_char, {stream}, {char}
+		func_call stream, read_char, {stream}, {char}
 		loop_while {char != -1 && char != char_double_quote}
 			assign {char}, {*buffer}
 			assign {buffer + 1}, {buffer}
-			static_call stream, read_char, {stream}, {char}
+			func_call stream, read_char, {stream}, {char}
 		loop_end
-		static_call stream, read_char, {stream}, {char}
+		func_call stream, read_char, {stream}, {char}
 
-		static_call string, create_from_buffer, {reloc, buffer - reloc}, {string}
+		func_call string, create_from_buffer, {reloc, buffer - reloc}, {string}
 
 		eval {this, string, char}, {r0, r1, r2}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

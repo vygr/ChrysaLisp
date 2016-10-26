@@ -1,12 +1,12 @@
 %include 'inc/func.inc'
 %include 'inc/task.inc'
 
-	def_function sys/task_suspend
+	def_func sys/task_suspend
 		;push task state
 		tk_save_state
 
 		;save stack pointer
-		s_bind sys_task, statics, r0
+		f_bind sys_task, statics, r0
 		vp_cpy [r0 + tk_statics_current_tcb], r0
 		vp_cpy r4, [r0 + tk_node_stack]
 
@@ -17,6 +17,6 @@
 		vp_cpy r1, [r0]
 
 		;restore next task
-		s_jmp sys_task, restore
+		f_jmp sys_task, restore
 
-	def_function_end
+	def_func_end

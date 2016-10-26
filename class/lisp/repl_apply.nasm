@@ -4,7 +4,7 @@
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/repl_apply
+	def_func class/lisp/repl_apply
 		;inputs
 		;r0 = lisp object
 		;r1 = function
@@ -28,32 +28,32 @@
 			ptr vars
 			ulong length
 			push_scope
-			slot_call vector, get_length, {func}, {length}
+			devirt_call vector, get_length, {func}, {length}
 			if {length == 3}
-				static_call vector, get_element, {func, 0}, {vars}
+				func_call vector, get_element, {func, 0}, {vars}
 				if {vars == this->lisp_sym_lambda}
-					static_call lisp, env_push, {this}
-					static_call vector, get_element, {func, 1}, {vars}
-					static_call lisp, env_bind, {this, vars, ast, 0}, {value}
+					func_call lisp, env_push, {this}
+					func_call vector, get_element, {func, 1}, {vars}
+					func_call lisp, env_bind, {this, vars, ast, 0}, {value}
 					if {value->obj_vtable != @class/class_error}
-						static_call ref, deref, {value}
-						static_call vector, get_element, {func, 2}, {value}
-						static_call lisp, repl_eval, {this, value}, {value}
+						func_call ref, deref, {value}
+						func_call vector, get_element, {func, 2}, {value}
+						func_call lisp, repl_eval, {this, value}, {value}
 					endif
-					static_call lisp, env_pop, {this}
+					func_call lisp, env_pop, {this}
 				else
-					static_call error, create, {"(lambda vars body) not lambda", vars}, {value}
+					func_call error, create, {"(lambda vars body) not lambda", vars}, {value}
 				endif
 			else
-				static_call error, create, {"(lambda vars body) wrong numbers of args", func}, {value}
+				func_call error, create, {"(lambda vars body) wrong numbers of args", func}, {value}
 			endif
 			pop_scope
 		else
-			static_call error, create, {"(lambda vars body) not a lambda list", func}, {value}
+			func_call error, create, {"(lambda vars body) not a lambda list", func}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

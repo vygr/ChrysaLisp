@@ -4,7 +4,7 @@
 %include 'class/class_title.inc'
 %include 'class/class_label.inc'
 
-	def_function class/window/init
+	def_func class/window/init
 		;inputs
 		;r0 = window object
 		;r1 = vtable pointer
@@ -12,47 +12,47 @@
 		;r1 = 0 if error, else ok
 
 		;init parent
-		p_call window, init, {r0, r1}, {r1}
+		s_call window, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			vp_push r0
 
 			;init myself
-			s_call window, set_color, {r0, 0xffc0c0c0}
+			f_call window, set_color, {r0, 0xffc0c0c0}
 
 			;add my flow panel
-			s_call flow, create, {}, {r0}
+			f_call flow, create, {}, {r0}
 			assert r0, !=, 0
-			s_call flow, set_flow_flags, {r0, flow_flag_down | flow_flag_fillw | flow_flag_lasth}
+			f_call flow, set_flow_flags, {r0, flow_flag_down | flow_flag_fillw | flow_flag_lasth}
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_flow]
-			s_call flow, add_back, {r0, r1}
+			f_call flow, add_back, {r0, r1}
 
 			;add my title
-			s_call title, create, {}, {r0}
+			f_call title, create, {}, {r0}
 			assert r0, !=, 0
-			s_call title, set_color, {r0, 0xffc0c0c0}
+			f_call title, set_color, {r0, 0xffc0c0c0}
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_title]
-			s_call title, add_back, {r0, [r1 + window_flow]}
+			f_call title, add_back, {r0, [r1 + window_flow]}
 
 			;add my status panel
-			s_call flow, create, {}, {r0}
+			f_call flow, create, {}, {r0}
 			assert r0, !=, 0
-			s_call flow, set_flow_flags, {r0, flow_flag_up | flow_flag_fillw | flow_flag_lasth}
+			f_call flow, set_flow_flags, {r0, flow_flag_up | flow_flag_fillw | flow_flag_lasth}
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_panel]
-			s_call flow, add_back, {r0, [r1 + window_flow]}
+			f_call flow, add_back, {r0, [r1 + window_flow]}
 
 			;add my status label
-			s_call label, create, {}, {r0}
+			f_call label, create, {}, {r0}
 			assert r0, !=, 0
-			s_call label, set_color, {r0, 0xff808080}
+			f_call label, set_color, {r0, 0xff808080}
 			vp_cpy [r4], r1
 			vp_cpy r0, [r1 + window_status]
-			s_call label, add_back, {r0, [r1 + window_panel]}
+			f_call label, add_back, {r0, [r1 + window_panel]}
 
 			vp_pop r0
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

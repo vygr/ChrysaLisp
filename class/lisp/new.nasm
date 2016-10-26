@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/new
+	def_func class/lisp/new
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
@@ -11,14 +11,14 @@
 
 		push_scope
 
-		static_call sys_mem, alloc, {lisp_size}, {this, _}
+		func_call sys_mem, alloc, {lisp_size}, {this, _}
 		if {this}
 			;clear object memory
-			static_call sys_mem, clear, {this, lisp_size}, {_}
+			func_call sys_mem, clear, {this, lisp_size}, {_}
 		endif
 
 		eval {this}, {r0}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

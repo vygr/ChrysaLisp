@@ -4,7 +4,7 @@
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/repl_read_unquote
+	def_func class/lisp/repl_read_unquote
 		;inputs
 		;r0 = lisp object
 		;r1 = stream
@@ -21,22 +21,22 @@
 		retire {r0, r1, r2}, {this, stream, char}
 
 		;skip ","
-		static_call stream, read_char, {stream}, {char}
+		func_call stream, read_char, {stream}, {char}
 
-		static_call vector, create, {}, {list}
+		func_call vector, create, {}, {list}
 		assign {this->lisp_sym_unquote}, {elem}
-		static_call ref, ref, {elem}
-		static_call vector, push_back, {list, elem}
-		static_call lisp, repl_read, {this, stream, char}, {elem, char}
+		func_call ref, ref, {elem}
+		func_call vector, push_back, {list, elem}
+		func_call lisp, repl_read, {this, stream, char}, {elem, char}
 		if {elem}
-			static_call vector, push_back, {list, elem}
+			func_call vector, push_back, {list, elem}
 		else
-			static_call ref, deref, {list}
-			static_call error, create, {"read unquote error", this->lisp_sym_nil}, {list}
+			func_call ref, deref, {list}
+			func_call error, create, {"read unquote error", this->lisp_sym_nil}, {list}
 		endif
 
 		eval {this, list, char}, {r0, r1, r2}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

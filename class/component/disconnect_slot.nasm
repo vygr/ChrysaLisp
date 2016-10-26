@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_component.inc'
 
-	def_function class/component/disconnect_slot
+	def_func class/component/disconnect_slot
 		;inputs
 		;r0 = component object
 		;r1 = 0 for all, else target address
@@ -15,7 +15,7 @@
 		map_src_to_dst
 
 		;gui sigslot heap
-		s_bind gui_gui, statics, r0
+		f_bind gui_gui, statics, r0
 		vp_add gui_statics_sigslot_heap, r0
 
 		;disconnect slots
@@ -42,4 +42,4 @@
 		vp_cpy r7, r0
 		vp_ret
 
-	def_function_end
+	def_func_end

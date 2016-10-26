@@ -2,7 +2,7 @@
 %include 'inc/gui.inc'
 %include 'class/class_window.inc'
 
-	def_function class/window/mouse_down
+	def_func class/window/mouse_down
 		;inputs
 		;r0 = window object
 		;r1 = mouse event message
@@ -42,4 +42,4 @@
 		vp_cpy r13, [r0 + window_offset_y]
 		vp_ret
 
-	def_function_end
+	def_func_end

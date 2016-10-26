@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'inc/gui.inc'
 
-	def_function gui/region_copy_rect
+	def_func gui/region_copy_rect
 		;inputs
 		;r0 = region heap pointer
 		;r1 = source region listhead pointer
@@ -29,7 +29,7 @@
 					vp_cpy_i [r7 + gui_rect_y1], r15
 					continueif r9, >=, r15
 
-					s_call sys_heap, alloc, {r0}, {r1}
+					f_call sys_heap, alloc, {r0}, {r1}
 					continueif r1, ==, 0
 					ln_add_fnode r5, r1, r2
 
@@ -202,4 +202,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

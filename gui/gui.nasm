@@ -18,7 +18,7 @@
 		ptr local_old_keymap
 	def_structure_end
 
-	def_function gui/gui
+	def_func gui/gui
 		;init vars
 		vp_sub local_size, r4
 		vp_xor r0, r0
@@ -28,47 +28,47 @@
 		vp_cpy r0, [r4 + local_last_view]
 		vp_cpy r0, [r4 + local_key_view]
 		vp_cpy r0, [r4 + local_old_keymap]
-		s_bind gui_gui, statics, r1
+		f_bind gui_gui, statics, r1
 		vp_cpy r0, [r1 + gui_statics_screen]
 
 		;kernel callback for first update
 		;this will init SDL etc
-		s_call sys_task, callback, {$update_callback, r4}
+		f_call sys_task, callback, {$update_callback, r4}
 
 		;allocate background view for screen
-		s_call label, create, {}, {r0}
-		s_bind gui_gui, statics, r1
+		f_call label, create, {}, {r0}
+		f_bind gui_gui, statics, r1
 		vp_cpy r0, [r1 + gui_statics_screen]
 
 		;size and color and opaque
-		s_call label, change, {r0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}
-		s_call label, set_color, {r0, 0xff000000}
-		s_call label, opaque, {r0}
-		s_call label, dirty_all, {r0}
+		f_call label, change, {r0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}
+		f_call label, set_color, {r0, 0xff000000}
+		f_call label, opaque, {r0}
+		f_call label, dirty_all, {r0}
 
 		;sleep just a moment to let all routeing finish
-		s_call sys_task, sleep, {1000000}
+		f_call sys_task, sleep, {1000000}
 
 		;for now fire up the test apps
 		;this might be an gui auto run list eventually
-		s_call sys_task, start, {@apps/launcher/app}, {r0, r1}
+		f_call sys_task, start, {@apps/launcher/app}, {r0, r1}
 
 		;gui event loop
 		loop_start
 		next_frame:
 			;kernel callback for update
-			s_call sys_task, callback, {$update_callback, r4}
+			f_call sys_task, callback, {$update_callback, r4}
 
 			;frame rate of gui updates
-			s_call sys_task, sleep, {1000000 / 30}
+			f_call sys_task, sleep, {1000000 / 30}
 
 			;get keyboard info, see if any changes
 			vp_cpy [r4 + local_old_keymap], r1
 			if r1, ==, 0
 				;create old keymap
-				s_call sys_mem, alloc, {[r4 + local_keymap_size]}, {r0, _}
+				f_call sys_mem, alloc, {[r4 + local_keymap_size]}, {r0, _}
 				vp_cpy r0, [r4 + local_old_keymap]
-				s_call sys_mem, clear, {r0, [r4 + local_keymap_size]}, {_}
+				f_call sys_mem, clear, {r0, [r4 + local_keymap_size]}, {_}
 				vp_cpy [r4 + local_old_keymap], r1
 			endif
 			vp_cpy [r4 + local_keymap], r0
@@ -107,14 +107,14 @@
 					if r6, !=, 0
 						vp_push r0, r1, r2
 						;lookup view owner
-						s_call view, find_owner, {r6}, {r1}
+						f_call view, find_owner, {r6}, {r1}
 						if r1, !=, 0
 							;save owner mailbox
-							s_call sys_cpu, id, {}, {r15}
+							f_call sys_cpu, id, {}, {r15}
 							vp_lea [r1 + tk_node_mailbox], r14
 
 							;allocate mail message
-							s_call sys_mail, alloc, {}, {r0}
+							f_call sys_mail, alloc, {}, {r0}
 							assert r0, !=, 0
 
 							;fill in data
@@ -128,7 +128,7 @@
 							;debug_long "code=", r11
 
 							;send mail to owner
-							s_call sys_mail, send, {r0}
+							f_call sys_mail, send, {r0}
 						endif
 						vp_pop r0, r1, r2
 					endif
@@ -158,14 +158,14 @@
 				;do we need to wait till button goes up ?
 				if r6, !=, -1
 					;lookup view owner
-					s_call view, find_owner, {r6}, {r1}
+					f_call view, find_owner, {r6}, {r1}
 					if r1, !=, 0
 						;save owner mailbox
-						s_call sys_cpu, id, {}, {r15}
+						f_call sys_cpu, id, {}, {r15}
 						vp_lea [r1 + tk_node_mailbox], r14
 
 						;allocate mail message
-						s_call sys_mail, alloc, {}, {r0}
+						f_call sys_mail, alloc, {}, {r0}
 						assert r0, !=, 0
 
 						;fill in data
@@ -185,7 +185,7 @@
 						vp_cpy r9, [r0 + ev_msg_ry]
 
 						;send mail to owner
-						s_call sys_mail, send, {r0}
+						f_call sys_mail, send, {r0}
 					endif
 				endif
 
@@ -197,8 +197,8 @@
 				;button down ?
 				if r10, !=, 0
 					;find view
-					s_bind gui_gui, statics, r5
-					s_call view, hit_tree, {[r5 + gui_statics_screen], \
+					f_bind gui_gui, statics, r5
+					f_call view, hit_tree, {[r5 + gui_statics_screen], \
 												[r4 + local_x_pos], \
 												[r4 + local_y_pos]}, {r1, r8, r9}
 					if r1, ==, [r5 + gui_statics_screen]
@@ -213,8 +213,8 @@
 				else
 					;hover
 					;find view for keys
-					s_bind gui_gui, statics, r5
-					s_call view, hit_tree, {[r5 + gui_statics_screen], \
+					f_bind gui_gui, statics, r5
+					f_call view, hit_tree, {[r5 + gui_statics_screen], \
 												[r4 + local_x_pos], \
 												[r4 + local_y_pos]}, {r1, _, _}
 					vp_cpy r1, [r4 + local_key_view]
@@ -225,11 +225,11 @@
 		;free old key map
 		vp_cpy [r4 + local_old_keymap], r0
 		if r0, !=, 0
-			s_call sys_mem, free, {r0}
+			f_call sys_mem, free, {r0}
 		endif
 
 		;deinit
-		s_call sys_task, callback, {$deinit_callback, r4}
+		f_call sys_task, callback, {$deinit_callback, r4}
 
 		vp_add local_size, r4
 		vp_ret
@@ -251,7 +251,7 @@
 		vp_cpy r0, [r4 + klocal_user]
 
 		;create screen window ?
-		s_bind gui_gui, statics, r0
+		f_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_window], r1
 		if r1, ==, 0
 			;init sdl2
@@ -261,12 +261,12 @@
 
 			;create window
 			sdl_create_window $title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL
-			s_bind gui_gui, statics, r1
+			f_bind gui_gui, statics, r1
 			vp_cpy r0, [r1 + gui_statics_window]
 
 			;create renderer
 			sdl_create_renderer r0, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
-			s_bind gui_gui, statics, r1
+			f_bind gui_gui, statics, r1
 			vp_cpy r0, [r1 + gui_statics_renderer]
 
 			;set blend mode
@@ -274,7 +274,7 @@
 		endif
 
 		;update screen
-		s_bind gui_gui, statics, r0
+		f_bind gui_gui, statics, r0
 		vp_cpy [r0 + gui_statics_screen], r0
 		if r0, !=, 0
 			;pump sdl events
@@ -295,11 +295,11 @@
 			vp_cpy r0, [r1 + local_keymap]
 
 			;update the screen
-			s_bind gui_gui, statics, r0
-			s_call gui_gui, update, {[r0 + gui_statics_screen]}
+			f_bind gui_gui, statics, r0
+			f_call gui_gui, update, {[r0 + gui_statics_screen]}
 
 			;refresh the window
-			s_bind gui_gui, statics, r0
+			f_bind gui_gui, statics, r0
 			sdl_render_present [r0 + gui_statics_renderer]
 		endif
 
@@ -311,22 +311,22 @@
 		;r0 = user data
 
 		;free any screen
-		s_bind gui_gui, statics, r5
+		f_bind gui_gui, statics, r5
 		vp_cpy [r5 + gui_statics_screen], r0
 		if r0, !=, 0
 			vp_cpy_cl 0, [r5 + gui_statics_screen]
-			s_call view, deref, {r0}
+			f_call view, deref, {r0}
 		endif
 
 		;free old region
-		s_bind gui_gui, statics, r5
-		s_call gui_region, free, {&[r5 + gui_statics_rect_heap], &[r5 + gui_statics_old_region]}
+		f_bind gui_gui, statics, r5
+		f_call gui_region, free, {&[r5 + gui_statics_rect_heap], &[r5 + gui_statics_old_region]}
 
 		;deinit region heap
-		s_call sys_heap, deinit, {r0}
+		f_call sys_heap, deinit, {r0}
 
 		;deinit signal heap
-		s_call sys_heap, deinit, {&[r5 + gui_statics_sigslot_heap]}
+		f_call sys_heap, deinit, {&[r5 + gui_statics_sigslot_heap]}
 
 		;destroy any window
 		vp_cpy [r5 + gui_statics_window], r14
@@ -367,4 +367,4 @@
 		db 0x51, 130, 130	;down
 	scan_codes_end:
 
-	def_function_end
+	def_func_end

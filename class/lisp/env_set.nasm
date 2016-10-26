@@ -3,7 +3,7 @@
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/env_set
+	def_func class/lisp/env_set
 		;inputs
 		;r0 = lisp object
 		;r1 = symbol
@@ -18,18 +18,18 @@
 		push_scope
 		retire {r0, r1, r2}, {this, symbol, value}
 
-		static_call lisp, env_find, {this, symbol}, {iter, _}
+		func_call lisp, env_find, {this, symbol}, {iter, _}
 		if {iter}
 			;change existing value
-			static_call ref, ref, {value}
-			static_call ref, ref, {value}
-			static_call pair, set_second, {*iter, value}
+			func_call ref, ref, {value}
+			func_call ref, ref, {value}
+			func_call pair, set_second, {*iter, value}
 		else
-			static_call error, create, {"symbol not bound", symbol}, {value}
+			func_call error, create, {"symbol not bound", symbol}, {value}
 		endif
 
 		eval {this, value}, {r0, r1}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

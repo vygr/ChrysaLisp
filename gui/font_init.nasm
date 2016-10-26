@@ -1,10 +1,10 @@
 %include 'inc/func.inc'
 %include 'inc/font.inc'
 
-	def_function gui/font_init
+	def_func gui/font_init
 
 		;get font statics
-		s_bind gui_font, statics, r1
+		f_bind gui_font, statics, r1
 
 		;init font lists
 		vp_xor r0, r0
@@ -19,4 +19,4 @@
 		loop_until r1, ==, r2
 		vp_ret
 
-	def_function_end
+	def_func_end

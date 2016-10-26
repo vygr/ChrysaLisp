@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	def_function sys/string_length
+	def_func sys/string_length
 		;inputs
 		;r0 = string
 		;outputs
@@ -18,4 +18,4 @@
 		vp_sub r0, r1
 		vp_ret
 
-	def_function_end
+	def_func_end

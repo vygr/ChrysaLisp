@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	def_function class/view/set_bounds
+	def_func class/view/set_bounds
 		;inputs
 		;r0 = view object
 		;r8 = x
@@ -15,4 +15,4 @@
 		vp_cpy r11, [r0 + view_h]
 		vp_ret
 
-	def_function_end
+	def_func_end

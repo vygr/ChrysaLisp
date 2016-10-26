@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/vector/init
+	def_func class/vector/init
 		;inputs
 		;r0 = vector object
 		;r1 = vtable pointer
@@ -11,7 +11,7 @@
 		;all but r0, r4
 
 		;init parent
-		p_call vector, init, {r0, r1}, {r1}
+		s_call vector, init, {r0, r1}, {r1}
 		if r1, !=, 0
 			;init myself
 			vp_xor r2, r2
@@ -21,4 +21,4 @@
 		endif
 		vp_ret
 
-	def_function_end
+	def_func_end

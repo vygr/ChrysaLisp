@@ -9,7 +9,7 @@
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
-	def_function class/lisp/repl_print
+	def_func class/lisp/repl_print
 		;inputs
 		;r0 = lisp object
 		;r1 = stream
@@ -48,103 +48,103 @@
 		retire {r0, r1, r2}, {this, stream, value}
 
 		ifnot {value}
-			static_call stream, write_char, {stream, char_lf}
-			static_call stream, write_cstr, {stream, "*NULL*"}
-			static_call stream, write_char, {stream, char_lf}
+			func_call stream, write_char, {stream, char_lf}
+			func_call stream, write_cstr, {stream, "*NULL*"}
+			func_call stream, write_char, {stream, char_lf}
 		else
 			assign {value->obj_vtable}, {elem}
 			switch
 			case {elem == @class/class_symbol}
-				static_call stream, write, {stream, &value->string_data, value->string_length}
+				func_call stream, write, {stream, &value->string_data, value->string_length}
 				break
 			case {elem == @class/class_string}
-				static_call stream, write_char, {stream, char_double_quote}
-				static_call stream, write, {stream, &value->string_data, value->string_length}
-				static_call stream, write_char, {stream, char_double_quote}
+				func_call stream, write_char, {stream, char_double_quote}
+				func_call stream, write, {stream, &value->string_data, value->string_length}
+				func_call stream, write_char, {stream, char_double_quote}
 				break
 			case {elem == @class/class_boxed_long}
-				static_call boxed_long, get_value, {value}, {elem}
-				static_call symbol, create_from_long, {elem, 10}, {value}
-				static_call stream, write, {stream, &value->string_data, value->string_length}
-				static_call ref, deref, {value}
+				func_call boxed_long, get_value, {value}, {elem}
+				func_call symbol, create_from_long, {elem, 10}, {value}
+				func_call stream, write, {stream, &value->string_data, value->string_length}
+				func_call ref, deref, {value}
 				break
 			case {elem == @class/class_boxed_ptr}
-				static_call stream, write_cstr, {stream, "#0x"}
-				static_call boxed_ptr, get_value, {value}, {elem}
-				static_call symbol, create_from_long, {elem, 16}, {value}
-				static_call stream, write, {stream, &value->string_data, value->string_length}
-				static_call ref, deref, {value}
+				func_call stream, write_cstr, {stream, "#0x"}
+				func_call boxed_ptr, get_value, {value}, {elem}
+				func_call symbol, create_from_long, {elem, 16}, {value}
+				func_call stream, write, {stream, &value->string_data, value->string_length}
+				func_call ref, deref, {value}
 				break
 			case {elem == @class/class_pair}
-				static_call stream, write_char, {stream, char_lab}
-				static_call pair, get_first, {value}, {elem}
-				static_call lisp, repl_print, {this, stream, elem}
-				static_call stream, write_char, {stream, char_space}
-				static_call pair, get_second, {value}, {elem}
-				static_call lisp, repl_print, {this, stream, elem}
-				static_call stream, write_char, {stream, char_rab}
+				func_call stream, write_char, {stream, char_lab}
+				func_call pair, get_first, {value}, {elem}
+				func_call lisp, repl_print, {this, stream, elem}
+				func_call stream, write_char, {stream, char_space}
+				func_call pair, get_second, {value}, {elem}
+				func_call lisp, repl_print, {this, stream, elem}
+				func_call stream, write_char, {stream, char_rab}
 				break
 			case {elem == @class/class_unordered_set}
 				struct pdata, pdata
 				push_scope
-				static_call stream, write_char, {stream, char_lsb}
-				slot_call unordered_set, get_length, {value}, {pdata.pdata_length}
+				func_call stream, write_char, {stream, char_lsb}
+				devirt_call unordered_set, get_length, {value}, {pdata.pdata_length}
 				assign {this, stream, 0}, {pdata.pdata_this, pdata.pdata_stream, pdata.pdata_index}
-				static_call unordered_set, for_each, {value, $callback, &pdata}, {_, _}
-				static_call stream, write_char, {stream, char_rsb}
+				func_call unordered_set, for_each, {value, $callback, &pdata}, {_, _}
+				func_call stream, write_char, {stream, char_rsb}
 				pop_scope
 				break
 			case {elem == @class/class_unordered_map}
 				struct pdata, pdata
 				push_scope
-				static_call stream, write_char, {stream, char_lcb}
-				slot_call unordered_map, get_length, {value}, {pdata.pdata_length}
+				func_call stream, write_char, {stream, char_lcb}
+				devirt_call unordered_map, get_length, {value}, {pdata.pdata_length}
 				assign {this, stream, 0}, {pdata.pdata_this, pdata.pdata_stream, pdata.pdata_index}
-				static_call unordered_map, for_each, {value, $callback, &pdata}, {_, _}
-				static_call stream, write_char, {stream, char_rcb}
+				func_call unordered_map, for_each, {value, $callback, &pdata}, {_, _}
+				func_call stream, write_char, {stream, char_rcb}
 				pop_scope
 				break
 			case {elem == @class/class_error}
-				static_call stream, write_cstr, {stream, "Error: < "}
-				static_call error, get_description, {value}, {elem}
-				static_call stream, write, {stream, &elem->string_data, elem->string_length}
-				static_call stream, write_cstr, {stream, " >"}
-				static_call stream, write_char, {stream, char_lf}
-				static_call error, get_object, {value}, {elem}
-				static_call stream, write_cstr, {stream, "Ast: < "}
-				static_call lisp, repl_print, {this, stream, elem}
-				static_call stream, write_cstr, {stream, " >"}
+				func_call stream, write_cstr, {stream, "Error: < "}
+				func_call error, get_description, {value}, {elem}
+				func_call stream, write, {stream, &elem->string_data, elem->string_length}
+				func_call stream, write_cstr, {stream, " >"}
+				func_call stream, write_char, {stream, char_lf}
+				func_call error, get_object, {value}, {elem}
+				func_call stream, write_cstr, {stream, "Ast: < "}
+				func_call lisp, repl_print, {this, stream, elem}
+				func_call stream, write_cstr, {stream, " >"}
 				break
 			case {elem == @class/class_vector}
 				struct pdata, pdata
 				push_scope
-				slot_call vector, get_length, {value}, {pdata.pdata_length}
+				devirt_call vector, get_length, {value}, {pdata.pdata_length}
 				if {pdata.pdata_length}
-					static_call vector, get_element, {value, 0}, {elem}
+					func_call vector, get_element, {value, 0}, {elem}
 					switch
 					case {elem == this->lisp_sym_quote}
-						static_call stream, write_char, {stream, char_quote}
+						func_call stream, write_char, {stream, char_quote}
 						break
 					case {elem == this->lisp_sym_qquote}
-						static_call stream, write_char, {stream, char_quasi_quote}
+						func_call stream, write_char, {stream, char_quasi_quote}
 						break
 					case {elem == this->lisp_sym_unquote}
-						static_call stream, write_char, {stream, char_unquote}
+						func_call stream, write_char, {stream, char_unquote}
 						break
 					case {elem == this->lisp_sym_splicing}
-						static_call stream, write_char, {stream, char_splicing}
+						func_call stream, write_char, {stream, char_splicing}
 						break
 					default
 						goto notquote
 					endswitch
-					static_call vector, get_element, {value, 1}, {elem}
-					static_call lisp, repl_print, {this, stream, elem}
+					func_call vector, get_element, {value, 1}, {elem}
+					func_call lisp, repl_print, {this, stream, elem}
 				else
 				notquote:
-					static_call stream, write_char, {stream, char_lrb}
+					func_call stream, write_char, {stream, char_lrb}
 					assign {this, stream, 0}, {pdata.pdata_this, pdata.pdata_stream, pdata.pdata_index}
-					static_call vector, for_each, {value, 0, pdata.pdata_length, $callback, &pdata}, {_}
-					static_call stream, write_char, {stream, char_rrb}
+					func_call vector, for_each, {value, 0, pdata.pdata_length, $callback, &pdata}, {_}
+					func_call stream, write_char, {stream, char_rrb}
 				endif
 				pop_scope
 				break
@@ -153,8 +153,8 @@
 				push_scope
 				assign {elem - 1}, {name_offset}
 				assign {elem - *name_offset}, {elem}
-				static_call stream, write_char, {stream, char_at}
-				static_call stream, write_cstr, {stream, elem}
+				func_call stream, write_char, {stream, char_at}
+				func_call stream, write_cstr, {stream, elem}
 				pop_scope
 			endswitch
 		endif
@@ -178,14 +178,14 @@
 		push_scope
 		retire {r0, r1}, {pdata, iter}
 
-		static_call lisp, repl_print, {pdata->pdata_this, pdata->pdata_stream, *iter}
+		func_call lisp, repl_print, {pdata->pdata_this, pdata->pdata_stream, *iter}
 		assign {pdata->pdata_index + 1}, {pdata->pdata_index}
 		if {pdata->pdata_index != pdata->pdata_length}
-			static_call stream, write_char, {pdata->pdata_stream, char_space}
+			func_call stream, write_char, {pdata->pdata_stream, char_space}
 		endif
 
 		eval {1}, {r1}
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

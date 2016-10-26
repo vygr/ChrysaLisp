@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_button.inc'
 
-	def_function class/button/sig_pressed
+	def_func class/button/sig_pressed
 		;inputs
 		;r0 = button object
 		;outputs
@@ -10,4 +10,4 @@
 		vp_lea [r0 + button_pressed_signal], r1
 		vp_ret
 
-	def_function_end
+	def_func_end

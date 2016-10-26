@@ -2,7 +2,7 @@
 %include 'class/class_unordered_map.inc'
 %include 'class/class_vector.inc'
 
-	def_function class/unordered_map/slice
+	def_func class/unordered_map/slice
 		;inputs
 		;r0 = unordered_map object
 		;r1 = start element
@@ -18,7 +18,7 @@
 		set_dst r9, r10, r11
 		map_src_to_dst
 
-		s_call unordered_map, create, {[r0 + unordered_set_key_callback], 1}, {r1}
-		s_jmp unordered_map, slice_impl, {r9, r1, r10, r11}
+		f_call unordered_map, create, {[r0 + unordered_set_key_callback], 1}, {r1}
+		f_jmp unordered_map, slice_impl, {r9, r1, r10, r11}
 
-	def_function_end
+	def_func_end

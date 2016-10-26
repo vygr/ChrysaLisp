@@ -1,6 +1,6 @@
 %include 'inc/func.inc'
 
-	def_function sys/string_hash
+	def_func sys/string_hash
 		;inputs
 		;r0 = string
 		;outputs
@@ -18,4 +18,4 @@
 		loop_end
 		vp_ret
 
-	def_function_end
+	def_func_end

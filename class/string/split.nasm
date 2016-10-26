@@ -2,7 +2,7 @@
 %include 'class/class_string.inc'
 %include 'class/class_stream.inc'
 
-	def_function class/string/split
+	def_func class/string/split
 		;inputs
 		;r0 = string object
 		;r1 = split char
@@ -20,12 +20,12 @@
 		retire {r0, r1}, {inst, char}
 
 		;create string split
-		static_call stream, create, {0, 0, &inst->string_data, inst->string_length}, {stream}
-		static_call stream, split, {stream, char}, {splits}
-		static_call stream, deref, {stream}
+		func_call stream, create, {0, 0, &inst->string_data, inst->string_length}, {stream}
+		func_call stream, split, {stream, char}, {splits}
+		func_call stream, deref, {stream}
 
 		eval {inst, splits}, {r0, r1}
 		pop_scope
 		vp_ret
 
-	def_function_end
+	def_func_end

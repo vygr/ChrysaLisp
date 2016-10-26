@@ -1,7 +1,7 @@
 %include 'inc/func.inc'
 %include 'class/class_stream_msg_out.inc'
 
-	def_function class/stream_msg_out/write_next
+	def_func class/stream_msg_out/write_next
 		;inputs
 		;r0 = stream_msg_out object
 		;outputs
@@ -14,8 +14,8 @@
 		push_scope
 		retire {r0}, {inst}
 
-		method_call stream, write_flush, {inst}
-		static_call sys_mail, alloc, {}, {msg}
+		virt_call stream, write_flush, {inst}
+		func_call sys_mail, alloc, {}, {msg}
 		assign {msg_size}, {msg->msg_length}
 		assign {&msg->stream_mail_data}, {inst->stream_bufp}
 		assign {&msg->msg_size}, {inst->stream_bufe}
@@ -25,4 +25,4 @@
 		pop_scope
 		return
 
-	def_function_end
+	def_func_end

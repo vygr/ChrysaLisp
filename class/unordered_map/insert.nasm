@@ -3,7 +3,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_pair.inc'
 
-	def_function class/unordered_map/insert
+	def_func class/unordered_map/insert
 		;inputs
 		;r0 = unordered_map object
 		;r1 = key object
@@ -31,16 +31,16 @@
 		map_src_to_dst
 
 		;search hash bucket
-		s_call unordered_map, get_bucket, {r0, r1}, {r0}
-		t_call vector, get_length, {r0}, {r1}
-		s_call vector, for_each, {r0, 0, r1, $callback, r4}, {r1}
+		f_call unordered_map, get_bucket, {r0, r1}, {r0}
+		d_call vector, get_length, {r0}, {r1}
+		f_call vector, for_each, {r0, 0, r1, $callback, r4}, {r1}
 		vp_cpy r0, [r4 + local_bucket]
 		if r1, ==, 0
 			;new key
-			s_call ref, ref, {[r4 + local_value]}
-			s_call ref, ref, {[r4 + local_key]}
-			s_call pair, create, {r0, [r4 + local_value]}, {r0}
-			s_call vector, push_back, {[r4 + local_bucket], r0}
+			f_call ref, ref, {[r4 + local_value]}
+			f_call ref, ref, {[r4 + local_key]}
+			f_call pair, create, {r0, [r4 + local_value]}, {r0}
+			f_call vector, push_back, {[r4 + local_bucket], r0}
 			vp_cpy r0, r2
 			vp_cpy [r0 + vector_length], r1
 			vp_cpy [r0 + vector_array], r0
@@ -50,8 +50,8 @@
 			vp_cpy r1, [r4 + local_iter]
 			vp_cpy [r1], r2
 			vp_cpy r2, [r4 + local_pair]
-			s_call ref, ref, {[r4 + local_value]}
-			s_call ref, deref, {[r2 + pair_second]}
+			f_call ref, ref, {[r4 + local_value]}
+			f_call ref, deref, {[r2 + pair_second]}
 			vp_cpy [r4 + local_value], r0
 			vp_cpy [r4 + local_pair], r2
 			vp_cpy r0, [r2 + pair_second]
@@ -76,4 +76,4 @@
 		vp_cpy [r0 + local_key], r0
 		vp_jmp [r2 + unordered_set_key_callback]
 
-	def_function_end
+	def_func_end
