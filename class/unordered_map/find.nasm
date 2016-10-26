@@ -27,8 +27,7 @@ def_func class/unordered_map/find
 
 	;search hash bucket
 	f_call unordered_map, get_bucket, {r0, r1}, {r0}
-	d_call vector, get_length, {r0}, {r1}
-	f_call vector, for_each, {r0, 0, r1, $callback, r4}, {r1}
+	f_call vector, for_each, {r0, 0, [r0 + vector_length], $callback, r4}, {r1}
 	vp_cpy r0, r2
 	vp_cpy [r4 + local_inst], r0
 	vp_add local_size, r4

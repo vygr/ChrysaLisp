@@ -27,8 +27,8 @@ def_func class/unordered_set/get_iter
 	map_src_to_dst
 
 	;search hash buckets
-	d_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
-	f_call vector, for_each, {r0, 0, r1, $callback, r4}, {_}
+	vp_cpy [r0 + unordered_set_buckets], r0
+	f_call vector, for_each, {r0, 0, [r0 + vector_length], $callback, r4}, {_}
 
 	vp_cpy [r4 + local_inst], r0
 	vp_cpy [r4 + local_iter], r1

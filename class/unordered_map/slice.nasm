@@ -22,7 +22,7 @@ def_func class/unordered_map/slice
 	f_call unordered_map, create, {[r0 + unordered_set_key_callback], 1}, {r1}
 	vp_cpy r11, r0
 	vp_sub r10, r0
-	vp_cpy r0, [r9 + unordered_set_length]
+	vp_cpy r0, [r1 + unordered_set_length]
 	f_jmp unordered_map, slice_impl, {r9, r1, $callback, r10, r11}
 
 callback:

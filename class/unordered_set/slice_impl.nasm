@@ -59,8 +59,7 @@ def_func class/unordered_set/slice_impl
 		f_call vector, for_each, {r0, [r4 + local_start_elem], [r4 + local_end_elem], [r4 + local_callback], r4}, {_}
 	else
 		f_call vector, get_element, {[r0 + unordered_set_buckets], r7}, {r0}
-		d_call vector, get_length, {r0}, {r1}
-		f_call vector, for_each, {r0, [r4 + local_start_elem], r1, [r4 + local_callback], r4}, {_}
+		f_call vector, for_each, {r0, [r4 + local_start_elem], [r0 + vector_length], [r4 + local_callback], r4}, {_}
 
 		vp_cpy [r4 + local_start_bucket], r1
 		vp_inc r1
@@ -87,8 +86,8 @@ callback:
 	;r1 = 0 if break, else not
 
 	vp_cpy r0, r2
-	d_call vector, get_length, {[r1]}, {r1}
-	f_call vector, for_each, {r0, 0, r1, [r2 + local_callback], r2}, {_}
+	vp_cpy [r1], r0
+	f_call vector, for_each, {r0, 0, [r0 + vector_length], [r2 + local_callback], r2}, {_}
 	vp_cpy 1, r1
 	vp_ret
 
