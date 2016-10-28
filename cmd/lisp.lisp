@@ -138,7 +138,7 @@
 (defun each-line (f b)
 	(progn
 		(def (s l) ((file-stream f) t))
-		(while (ne nil (setlvar l (read-line s)))
+		(while (setlvar l (read-line s))
 			(b l))))
 
 (defun print-file (f)
