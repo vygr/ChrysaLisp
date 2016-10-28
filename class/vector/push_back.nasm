@@ -7,8 +7,9 @@ def_func class/vector/push_back
 	;r1 = object pointer
 	;outputs
 	;r0 = vector object
+	;r1 = object pointer
 	;trashes
-	;r1-r3, r5-r8
+	;r2-r3, r5-r8
 
 	def_structure local
 		ptr local_object
