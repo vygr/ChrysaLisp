@@ -86,6 +86,17 @@
 (defun divmod (x y)
 	(list (div x y) (mod x y)))
 
+"Streams"
+
+(defun each-line (f b)
+	(progn
+		(defq s (file-stream f) l t)
+		(while (setq l (read-line s))
+			(b l))))
+
+(defun print-file (f)
+	(each-line f print))
+
 "Utilities"
 
 (defun print-map (m)
@@ -106,17 +117,6 @@
 			(prin c)
 			(setq l (add l 1)))
 		(prin s)))
-
-"Streams"
-
-(defun each-line (f b)
-	(progn
-		(defq s (file-stream f) l t)
-		(while (setq l (read-line s))
-			(b l))))
-
-(defun print-file (f)
-	(each-line f print))
 
 "Some test code"
 
