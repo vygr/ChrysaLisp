@@ -1,4 +1,4 @@
 %include 'inc/func.inc'
 %include 'class/class_view.inc'
 
-	class_macro_new view
+class_macro_new view

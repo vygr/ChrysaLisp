@@ -1,63 +1,63 @@
 %include 'inc/func.inc'
 %include 'class/class_grid.inc'
 
-	def_func class/grid/layout
-		;inputs
-		;r0 = grid object
-		;trashes
-		;all but r0, r4
+def_func class/grid/layout
+	;inputs
+	;r0 = grid object
+	;trashes
+	;all but r0, r4
 
-		def_struct local
-			long local_count
-			long local_cell_w
-			long local_cell_h
-		def_struct_end
+	def_struct local
+		long local_count
+		long local_cell_w
+		long local_cell_h
+	def_struct_end
 
-		vp_sub local_size, r4
-		vp_xor r1, r1
-		vp_cpy r1, [r4 + local_count]
+	vp_sub local_size, r4
+	vp_xor r1, r1
+	vp_cpy r1, [r4 + local_count]
 
-		vp_xor r10, r10
-		vp_cpy [r0 + view_w], r9
-		vp_shl 32, r9
-		vp_cpy [r0 + grid_width], r8
-		vp_div r8, r10, r9
-		vp_cpy r9, [r4 + local_cell_w]
+	vp_xor r10, r10
+	vp_cpy [r0 + view_w], r9
+	vp_shl 32, r9
+	vp_cpy [r0 + grid_width], r8
+	vp_div r8, r10, r9
+	vp_cpy r9, [r4 + local_cell_w]
 
-		vp_xor r10, r10
-		vp_cpy [r0 + view_h], r9
-		vp_shl 32, r9
-		vp_cpy [r0 + grid_height], r8
-		vp_div r8, r10, r9
-		vp_cpy r9, [r4 + local_cell_h]
+	vp_xor r10, r10
+	vp_cpy [r0 + view_h], r9
+	vp_shl 32, r9
+	vp_cpy [r0 + grid_height], r8
+	vp_div r8, r10, r9
+	vp_cpy r9, [r4 + local_cell_h]
 
-		f_call grid, forward, {r0, r4, $callback}
+	f_call grid, forward, {r0, r4, $callback}
 
-		vp_add local_size, r4
-		vp_ret
+	vp_add local_size, r4
+	vp_ret
 
-	callback:
-		vp_xor r8, r8
-		vp_cpy [r1 + local_count], r9
-		vp_cpy [r0 + view_parent], r2
-		vp_cpy [r2 + grid_width], r10
-		vp_div r10, r8, r9
-		vp_cpy [r1 + local_cell_w], r10
-		vp_cpy [r1 + local_cell_h], r11
-		vp_mul r10, r8
-		vp_mul r11, r9
-		vp_add r8, r10
-		vp_add r9, r11
-		vp_shr 32, r8
-		vp_shr 32, r9
-		vp_shr 32, r10
-		vp_shr 32, r11
-		vp_sub r8, r10
-		vp_sub r9, r11
+callback:
+	vp_xor r8, r8
+	vp_cpy [r1 + local_count], r9
+	vp_cpy [r0 + view_parent], r2
+	vp_cpy [r2 + grid_width], r10
+	vp_div r10, r8, r9
+	vp_cpy [r1 + local_cell_w], r10
+	vp_cpy [r1 + local_cell_h], r11
+	vp_mul r10, r8
+	vp_mul r11, r9
+	vp_add r8, r10
+	vp_add r9, r11
+	vp_shr 32, r8
+	vp_shr 32, r9
+	vp_shr 32, r10
+	vp_shr 32, r11
+	vp_sub r8, r10
+	vp_sub r9, r11
 
-		vp_cpy [r1 + local_count], r2
-		vp_inc r2
-		vp_cpy r2, [r1 + local_count]
-		f_jmp view, change, {r0, r8, r9, r10, r11}
+	vp_cpy [r1 + local_count], r2
+	vp_inc r2
+	vp_cpy r2, [r1 + local_count]
+	f_jmp view, change, {r0, r8, r9, r10, r11}
 
-	def_func_end
+def_func_end

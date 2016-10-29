@@ -2,29 +2,29 @@
 %include 'inc/gui.inc'
 %include 'class/class_view.inc'
 
-	def_func class/view/draw_panel
-		;inputs
-		;r0 = view object
-		;r1 = ctx object
-		;r2 = flags
-		;r3 = depth
-		;trashes
-		;all but r0, r4
+def_func class/view/draw_panel
+	;inputs
+	;r0 = view object
+	;r1 = ctx object
+	;r2 = flags
+	;r3 = depth
+	;trashes
+	;all but r0, r4
 
-		def_struct local
-			ptr local_inst
-		def_struct_end
+	def_struct local
+		ptr local_inst
+	def_struct_end
 
-		;save inputs
-		vp_sub local_size, r4
-		vp_cpy r0, [r4 + local_inst]
+	;save inputs
+	vp_sub local_size, r4
+	vp_cpy r0, [r4 + local_inst]
 
-		f_call view, get_bounds, {r0}, {r8, r9, r10, r11}
-		vp_cpy r0, r5
-		f_call gui_ctx, panel, {r1, [r5 + view_color], r2, r3, 0, 0, r10, r11}, {}
+	f_call view, get_bounds, {r0}, {r8, r9, r10, r11}
+	vp_cpy r0, r5
+	f_call gui_ctx, panel, {r1, [r5 + view_color], r2, r3, 0, 0, r10, r11}, {}
 
-		vp_cpy [r4 + local_inst], r0
-		vp_add local_size, r4
-		vp_ret
+	vp_cpy [r4 + local_inst], r0
+	vp_add local_size, r4
+	vp_ret
 
-	def_func_end
+def_func_end
