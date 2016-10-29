@@ -18,6 +18,15 @@
 	`(setl (,n)
 		(,b)))
 
+"Scopes"
+
+(defmacro let (l b)
+	(progn
+		(def (s v)
+			((map (lambda (x) (elem x 0)) l)
+			(map (lambda (x) (elem x 1)) l)))
+		`((lambda ,s ,b) ~v)))
+
 "Control flow"
 
 (defmacro if (x y &rest b)
@@ -92,18 +101,18 @@
 
 "Utilities"
 
-(defun print_map (m)
+(defun print-map (m)
 	(progn
 		(map print m)
 		t))
 
-(defun print_env (l e)
+(defun print-env (l e)
 	(progn
 		(print "**" l "**")
 		(map print_map e)
 		t))
 
-(defun prin_num (n p c)
+(defun prin-num (n p c)
 	(progn
 		(defvar s (str n))
 		(defvar l (length s))
@@ -128,7 +137,7 @@
 			(setlvar y (add y 1))
 			(print))))
 
-(defun repeat_fxy (l)
+(defun repeat-fxy (l)
 	(progn
 		(defvar c 0)
 		(while (lt c l)
