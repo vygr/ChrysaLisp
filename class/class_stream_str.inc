@@ -11,7 +11,7 @@ def_method ref_string, class/stream_str/ref_string, static, {r0}, {r1}
 
 def_method write_next, class/stream_str/write_next, override
 
-def_struc stream_str, stream
-def_struc_end
+def_struct stream_str, stream
+def_struct_end
 
 %endif

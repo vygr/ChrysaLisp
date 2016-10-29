@@ -92,7 +92,7 @@ def_enum
 	enum type_apply
 def_enum_end
 
-def_struc lisp, ref
+def_struct lisp, ref
 	ptr lisp_stdin
 	ptr lisp_stdout
 	ptr lisp_stderr
@@ -113,6 +113,6 @@ def_struc lisp, ref
 	ptr lisp_sym_cat
 	ptr lisp_sym_list
 	ptr lisp_sym_defmacro
-def_struc_end
+def_struct_end
 
 %endif

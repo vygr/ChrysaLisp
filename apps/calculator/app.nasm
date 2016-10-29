@@ -12,14 +12,14 @@ def_func apps/calculator/app
 
 	buffer_size equ 32
 
-	def_struc shared, obj
+	def_struct shared, obj
 		ptr shared_display
 		long shared_accum
 		long shared_value
 		struct shared_buffer, buffer
 		ubyte shared_last_op
 		ubyte shared_last_flag
-	def_struc_end
+	def_struct_end
 
 	struct myapp, shared
 	ptr msg, window, window_panel, flow_panel, grid_panel, button, pressed, string

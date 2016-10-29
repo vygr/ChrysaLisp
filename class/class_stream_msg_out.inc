@@ -14,20 +14,20 @@ def_method deinit, class/stream_msg_out/deinit, override
 def_method write_flush, class/stream_msg_out/write_flush, override
 def_method write_next, class/stream_msg_out/write_next, override
 
-def_struc stream_msg_out, stream
+def_struct stream_msg_out, stream
 	ulong stream_msg_out_seqnum
 	ulong stream_msg_out_state
 	struct stream_msg_out_id, id
 	ulong stream_msg_out_ack_seqnum
 	struct stream_msg_out_ack_mailbox, mailbox
-def_struc_end
+def_struct_end
 
-def_struc stream_mail, msg_header
+def_struct stream_mail, msg_header
 	ulong stream_mail_seqnum
 	ulong stream_mail_state
 	struct stream_mail_ack_id, id
 	offset stream_mail_data
-def_struc_end
+def_struct_end
 
 stream_msg_out_ack_shift equ 4
 

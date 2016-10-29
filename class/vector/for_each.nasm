@@ -22,13 +22,13 @@ def_func class/vector/for_each
 		;trashes
 		;all but r0, r4
 
-	def_struc local
+	def_struct local
 		ptr local_inst
 		ptr local_predicate
 		ptr local_predicate_data
 		ptr local_next
 		ptr local_end
-	def_struc_end
+	def_struct_end
 
 	;save inputs
 	vp_sub local_size, r4

@@ -18,11 +18,11 @@
 			;outputs
 			;r0 = child view object
 
-		def_struc local
+		def_struct local
 			ptr local_inst
 			ptr local_data
 			ptr local_callback
-		def_struc_end
+		def_struct_end
 
 		vp_sub local_size, r4
 		vp_cpy r0, [r4 + local_inst]

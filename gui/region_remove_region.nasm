@@ -11,12 +11,12 @@ def_func gui/region_remove_region
 	;trashes
 	;r1-r3, r5-r15
 
-	def_struc local
+	def_struct local
 		ptr local_node
 		ptr local_dlist
 		long local_dx
 		long local_dy
-	def_struc_end
+	def_struct_end
 
 	;save inputs
 	vp_sub local_size, r4

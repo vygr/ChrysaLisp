@@ -7,7 +7,7 @@ def_class boxed_long, boxed_ptr
 def_method create, class/boxed_long/create
 def_method new, class/boxed_long/new
 
-def_struc boxed_long, boxed_ptr
-def_struc_end
+def_struct boxed_long, boxed_ptr
+def_struct_end
 
 %endif

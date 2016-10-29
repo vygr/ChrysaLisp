@@ -11,10 +11,10 @@ def_func class/lisp/func_cond
 	;r0 = lisp object
 	;r1 = value
 
-	def_struc pdata
+	def_struct pdata
 		ptr pdata_this
 		ptr pdata_value
-	def_struc_end
+	def_struct_end
 
 	struct pdata, pdata
 	ptr args

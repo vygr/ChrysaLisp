@@ -4,14 +4,14 @@
 %include 'class/class_symbol.inc'
 %include 'class/class_lisp.inc'
 
-def_struc built_in
+def_struct built_in
 	ushort built_in_symbol
 	ushort built_in_field
 	ushort built_in_function
 	ushort built_in_flags
 	offset built_in_hop
 	;built_in_size would be aligned to long !
-def_struc_end
+def_struct_end
 
 %macro built_in 2-4 "", type_args_eval_apply
 	;%1 = symbol

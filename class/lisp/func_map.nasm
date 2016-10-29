@@ -11,10 +11,10 @@ def_func class/lisp/func_map
 	;r0 = lisp object
 	;r1 = value
 
-	def_struc pdata
+	def_struct pdata
 		ptr pdata_type
 		ulong pdata_length
-	def_struc_end
+	def_struct_end
 
 	struct pdata, pdata
 	ptr this, args, value, form, func, elem

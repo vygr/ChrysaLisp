@@ -90,15 +90,15 @@ stat_mode			equ	0x8
 stat_fsize			equ 0x48
 stat_size			equ 0x100
 
-def_struc timeval
+def_struct timeval
 	long timeval_sec
 	long timeval_usec
-def_struc_end
+def_struct_end
 
-def_struc timezone
+def_struct timezone
 	int	timeval_minuteswest
 	int	timeval_dsttime
-def_struc_end
+def_struct_end
 
 ;;;;;;;;;;;;;;;;
 ; syscall macros
@@ -331,15 +331,15 @@ stat_mode			equ	0x18
 stat_fsize			equ	0x30
 stat_size			equ 0x100
 
-def_struc timeval
+def_struct timeval
 	long timeval_sec
 	long timeval_usec
-def_struc_end
+def_struct_end
 
-def_struc timezone
+def_struct timezone
 	int	timeval_minuteswest
 	int	timeval_dsttime
-def_struc_end
+def_struct_end
 
 ;;;;;;;;;;;;;;;;
 ; syscall macros

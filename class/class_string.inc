@@ -21,10 +21,10 @@ def_method get_length, class/string/get_length, override
 def_method ref_element, class/string/ref_element, override
 def_method slice, class/string/slice, override
 
-def_struc string, sequence
+def_struct string, sequence
 	ulong string_length
 	ulong string_hashcode
 	offset string_data
-def_struc_end
+def_struct_end
 
 %endif

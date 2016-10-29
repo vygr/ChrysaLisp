@@ -11,13 +11,13 @@ def_func gui/ctx_box
 	;trashes
 	;all but r4
 
-	def_struc local
+	def_struct local
 		struct local_rect, sdl_rect
 		struct local_clip_rect, sdl_rect
 		ptr local_ctx
 		ptr local_dirty_rect
 		ptr local_old_stack
-	def_struc_end
+	def_struct_end
 
 	;align stack to 16 bytes for SDl
 	vp_cpy r4, r15

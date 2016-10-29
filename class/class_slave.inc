@@ -11,18 +11,18 @@ def_method get_args, class/slave/get_args, static, {r0}, {r1}
 
 def_method deinit, class/slave/deinit, override
 
-def_struc slave, ref
+def_struct slave, ref
 	ptr slave_stdin
 	ptr slave_stdout
 	ptr slave_stderr
 	ptr slave_args
-def_struc_end
+def_struct_end
 
-def_struc slave_mail_init, msg_header
+def_struct slave_mail_init, msg_header
 	struct slave_mail_init_stdout_id, id
 	struct slave_mail_init_stderr_id, id
 	struct slave_mail_init_ack_id, id
 	offset slave_mail_init_args
-def_struc_end
+def_struct_end
 
 %endif

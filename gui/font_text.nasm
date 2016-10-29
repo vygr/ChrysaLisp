@@ -13,7 +13,7 @@ def_func gui/font_text
 	;trashes
 	;all but r4
 
-	def_struc local
+	def_struct local
 		ptr local_font
 		ptr local_text
 		ptr local_bucket
@@ -21,7 +21,7 @@ def_func gui/font_text
 		long local_surface
 		long local_width
 		long local_height
-	def_struc_end
+	def_struct_end
 
 	;save inputs
 	vp_lea [r1 + string_data], r2

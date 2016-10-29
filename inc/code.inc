@@ -265,7 +265,7 @@ int_size	equ 4
 long_size	equ 8
 ptr_size	equ 8
 
-%macro def_struc 1-2 null
+%macro def_struct 1-2 null
 	;inputs
 	;%1 = structure name
 	;%2 = super structure name
@@ -273,7 +273,7 @@ ptr_size	equ 8
 	%assign _offset_ %2_size
 %endmacro
 
-%macro def_struc_end 0
+%macro def_struct_end 0
 	local_align long
 	%[_struct_]_size equ _offset_
 	%undef _struct_

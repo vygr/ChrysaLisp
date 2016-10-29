@@ -13,10 +13,10 @@ def_func class/unordered_set/init
 	;trashes
 	;r2-r3, r5-r8
 
-	def_struc local
+	def_struct local
 		ptr local_inst
 		ptr local_num_buckets
-	def_struc_end
+	def_struct_end
 
 	;save inputs
 	vp_sub local_size, r4

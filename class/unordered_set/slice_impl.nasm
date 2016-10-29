@@ -15,7 +15,7 @@ def_func class/unordered_set/slice_impl
 	;trashes
 	;all but r0, r4
 
-	def_struc local
+	def_struct local
 		ptr local_obj	;must be first !
 		ptr local_inst
 		ptr local_callback
@@ -23,7 +23,7 @@ def_func class/unordered_set/slice_impl
 		ulong local_start_elem
 		ulong local_end_bucket
 		ulong local_end_elem
-	def_struc_end
+	def_struct_end
 
 	;save inputs
 	vp_sub local_size, r4

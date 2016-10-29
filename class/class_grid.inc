@@ -12,9 +12,9 @@ def_method set_grid, class/grid/set_grid, static, {r0, r10, r11}
 def_method pref_size, class/grid/pref_size, override
 def_method layout, class/grid/layout, override
 
-def_struc grid, view
+def_struct grid, view
 	long grid_width
 	long grid_height
-def_struc_end
+def_struct_end
 
 %endif

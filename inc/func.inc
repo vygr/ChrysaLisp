@@ -23,42 +23,42 @@ def_enum_end
 ; kernel mail data
 ;;;;;;;;;;;;;;;;;;
 
-def_struc kn_msg, msg_header
+def_struct kn_msg, msg_header
 	ulong kn_msg_user
 	struct kn_msg_reply_id, id
 	offset kn_msg_reply_size
 	ulong kn_msg_function
-def_struc_end
+def_struct_end
 
-def_struc kn_msg_callback, kn_msg
+def_struct kn_msg_callback, kn_msg
 	ptr kn_msg_callback_addr
-def_struc_end
+def_struct_end
 
-def_struc kn_msg_open, kn_msg
+def_struct kn_msg_open, kn_msg
 	offset kn_msg_open_pathname
-def_struc_end
+def_struct_end
 
-def_struc kn_msg_child, kn_msg
+def_struct kn_msg_child, kn_msg
 	offset kn_msg_child_pathname
-def_struc_end
+def_struct_end
 
-def_struc kn_msg_link_route, kn_msg
+def_struct kn_msg_link_route, kn_msg
 	ulong kn_msg_link_route_origin
 	ulong kn_msg_link_route_via
 	ulong kn_msg_link_route_hops
-def_struc_end
+def_struct_end
 
 ;;;;;;;;;;;;;;;;;
 ; func structures
 ;;;;;;;;;;;;;;;;;
 
-def_struc fn_header, ln_fnode
+def_struct fn_header, ln_fnode
 	uint fn_header_length
 	uint fn_header_entry
 	uint fn_header_links
 	uint fn_header_paths
 	offset fn_header_pathname
-def_struc_end
+def_struct_end
 
 ;;;;;;;;;;;;;
 ; func macros

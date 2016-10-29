@@ -35,12 +35,12 @@ def_func class/lisp/repl_print
 	const char_lf, 10
 	const char_at, '@'
 
-	def_struc pdata
+	def_struct pdata
 		ptr pdata_this
 		ptr pdata_stream
 		uint pdata_index
 		uint pdata_length
-	def_struc_end
+	def_struct_end
 
 	ptr this, stream, value, elem
 

@@ -44,7 +44,7 @@ def_method darker, gui/ctx_darker, static, {r1}, {r1}
 ; gui structures
 ;;;;;;;;;;;;;;;;
 
-def_struc gui_statics
+def_struct gui_statics
 	ptr gui_statics_sdl_funcs
 	struct gui_statics_rect_heap, hp_heap
 	struct gui_statics_sigslot_heap, hp_heap
@@ -52,28 +52,28 @@ def_struc gui_statics
 	ptr gui_statics_screen
 	ulong gui_statics_renderer
 	ptr gui_statics_old_region
-def_struc_end
+def_struct_end
 
-def_struc gui_rect, ln_fnode
+def_struct gui_rect, ln_fnode
 	int gui_rect_x
 	int gui_rect_y
 	int gui_rect_x1
 	int gui_rect_y1
-def_struc_end
+def_struct_end
 
-def_struc gui_ctx
+def_struct gui_ctx
 	ptr gui_ctx_sdl_ctx
 	ptr gui_ctx_dirty_region
 	ulong gui_ctx_x
 	ulong gui_ctx_y
-def_struc_end
+def_struct_end
 
-def_struc gui_sigslot
+def_struct gui_sigslot
 	struct gui_sigslot_sig_node, ln_node
 	struct gui_sigslot_slot_node, ln_node
 	ptr gui_sigslot_inst
 	ptr gui_sigslot_addr
-def_struc_end
+def_struct_end
 
 ;;;;;;;;;;;;;;;
 ; gui mail data
@@ -84,7 +84,7 @@ def_enum
 	enum ev_type_key
 def_enum_end
 
-def_struc ev_msg, msg_header
+def_struct ev_msg, msg_header
 	ulong ev_msg_type
 	ptr ev_msg_view
 	long ev_msg_x
@@ -94,6 +94,6 @@ def_struc ev_msg, msg_header
 	ulong ev_msg_buttons
 	ulong ev_msg_keycode
 	ulong ev_msg_key
-def_struc_end
+def_struct_end
 
 %endif

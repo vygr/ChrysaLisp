@@ -12,12 +12,12 @@ def_func class/vector/append
 	;trashes
 	;r1-r3, r5-r8
 
-	def_struc local
+	def_struct local
 		ptr local_inst
 		ptr local_source
 		ulong local_start
 		ulong local_end
-	def_struc_end
+	def_struct_end
 
 	;save inputs
 	vp_sub local_size, r4

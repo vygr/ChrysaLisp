@@ -15,9 +15,9 @@ def_method set_second, class/pair/set_second, static, {r0, r1}
 
 def_method deinit, class/pair/deinit, override
 
-def_struc pair, ref
+def_struct pair, ref
 	ptr pair_first
 	ptr pair_second
-def_struc_end
+def_struct_end
 
 %endif

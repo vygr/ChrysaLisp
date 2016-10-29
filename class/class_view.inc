@@ -54,7 +54,7 @@ def_bit
 	bit view_flag_solid
 def_bit_end
 
-def_struc view, component
+def_struct view, component
 	struct view_node, ln_node
 	struct view_list, lh_list
 	ptr view_parent
@@ -71,6 +71,6 @@ def_struc view, component
 	ulong view_last_buttons
 	ulong view_flags
 	ulong view_color
-def_struc_end
+def_struct_end
 
 %endif

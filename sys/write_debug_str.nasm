@@ -11,12 +11,12 @@ def_func sys/write_debug_str
 	;trashes
 	;r0-r3, r5
 
-	def_struc local
+	def_struct local
 		long local_name
 		long local_line
 		long local_string
 		long local_str
-	def_struc_end
+	def_struct_end
 
 	;save inputs
 	vp_sub local_size, r4

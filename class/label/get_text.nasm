@@ -9,9 +9,9 @@
 		;r0 = label object
 		;r1 = 0, else string object
 
-		def_struc local
+		def_struct local
 			ptr local_inst
-		def_struc_end
+		def_struct_end
 
 		;save inputs
 		vp_sub local_size, r4

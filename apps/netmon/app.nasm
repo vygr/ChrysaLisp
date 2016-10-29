@@ -11,10 +11,10 @@
 
 def_func apps/netmon/app
 
-	def_struc sel
+	def_struct sel
 		ptr sel_select1
 		ptr sel_select2
-	def_struc_end
+	def_struct_end
 
 	struct select, sel
 	ptr window, window_panel, panel, left_panel, right_panel

@@ -12,9 +12,9 @@ def_method get_object, class/error/get_object, static, {r0}, {r1}
 
 def_method deinit, class/error/deinit, override
 
-def_struc error, ref
+def_struct error, ref
 	ptr error_description
 	ptr error_object
-def_struc_end
+def_struct_end
 
 %endif

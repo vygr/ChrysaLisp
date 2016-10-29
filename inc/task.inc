@@ -41,14 +41,14 @@ def_method stack_depth, sys/task_stack_depth, static, {}, {r0}
 
 tk_stack_size	equ 1024 * 4
 
-def_struc tk_node, ln_node
+def_struct tk_node, ln_node
 	ptr tk_node_stack
 	ulong tk_node_time
 	struct tk_node_mailbox, mailbox
 	struct tk_node_stackspace, tk_stack
-def_struc_end
+def_struct_end
 
-def_struc tk_statics
+def_struct tk_statics
 	ptr tk_statics_current_tcb
 	ptr tk_statics_kernel_tcb
 	struct tk_statics_task_heap, hp_heap
@@ -57,7 +57,7 @@ def_struc tk_statics
 	ulong tk_statics_task_count
 	ulong tk_statics_cpu_total
 	ulong tk_statics_cpu_id
-def_struc_end
+def_struct_end
 
 ;;;;;;;;;;;;;
 ; task macros

@@ -16,11 +16,11 @@ def_method deinit, class/text/deinit, override
 def_method pref_size, class/text/pref_size, override
 def_method draw, class/text/draw, override
 
-def_struc text, view
+def_struct text, view
 	ptr text_font
 	ptr text_string
 	ulong text_text_color
 	ptr text_words
-def_struc_end
+def_struct_end
 
 %endif

@@ -11,12 +11,12 @@ def_func gui/gui_update
 	;trashes
 	;all but r4
 
-	def_struc local
+	def_struct local
 		ptr local_root
 		ptr local_ctx_flist
 		ptr local_ctx_next
 		struct local_ctx, gui_ctx
-	def_struc_end
+	def_struct_end
 
 	;save inputs
 	vp_sub local_size, r4
@@ -107,12 +107,12 @@ abs_up_callback:
 	vp_ret
 
 visible_up_callback:
-	def_struc vis
+	def_struct vis
 		ptr vis_inst
 		ptr vis_root
 		ptr vis_next
 		ptr vis_region
-	def_struc_end
+	def_struct_end
 
 	;save inputs
 	vp_sub vis_size, r4
@@ -216,11 +216,11 @@ visible_up_callback:
 	vp_ret
 
 distribute_down_callback:
-	def_struc dist
+	def_struct dist
 		ptr dist_inst
 		ptr dist_data
 		ptr dist_next
-	def_struc_end
+	def_struct_end
 
 	;save inputs
 	vp_sub dist_size, r4

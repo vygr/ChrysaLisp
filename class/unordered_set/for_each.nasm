@@ -22,12 +22,12 @@ def_func class/unordered_set/for_each
 		;trashes
 		;all but r0, r4
 
-	def_struc local
+	def_struct local
 		ptr local_inst
 		ptr local_predicate
 		ptr local_predicate_data
 		ptr local_iter
-	def_struc_end
+	def_struct_end
 
 	;save inputs
 	vp_sub local_size, r4

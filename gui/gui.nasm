@@ -4,7 +4,7 @@
 %include 'inc/sdl2.inc'
 %include 'class/class_label.inc'
 
-def_struc local
+def_struct local
 	long local_x_pos
 	long local_y_pos
 	long local_buttons
@@ -16,7 +16,7 @@ def_struc local
 	ptr local_keymap
 	uint local_keymap_size
 	ptr local_old_keymap
-def_struc_end
+def_struct_end
 
 def_func gui/gui
 	;init vars
@@ -238,10 +238,10 @@ update_callback:
 	;inputs
 	;r0 = user data
 
-	def_struc klocal
+	def_struct klocal
 		long klocal_old_stack
 		long klocal_user
-	def_struc_end
+	def_struct_end
 
 	;align stack
 	vp_cpy r4, r1

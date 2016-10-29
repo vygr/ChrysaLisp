@@ -10,8 +10,8 @@ def_method deref, class/ref/deref, static, {r0}
 def_method ref_if, class/ref/ref_if, static, {r0}
 def_method deref_if, class/ref/deref_if, static, {r0}
 
-def_struc ref, obj
+def_struct ref, obj
 	ulong ref_count
-def_struc_end
+def_struct_end
 
 %endif

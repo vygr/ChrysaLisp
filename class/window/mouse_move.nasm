@@ -9,12 +9,12 @@
 		;trashes
 		;all but r0, r4
 
-		def_struc local
+		def_struct local
 			ptr local_inst
 			ptr local_event
 			long local_old_x
 			long local_old_y
-		def_struc_end
+		def_struct_end
 
 		;save inputs
 		vp_sub local_size, r4
