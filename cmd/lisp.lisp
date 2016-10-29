@@ -21,7 +21,7 @@
 "Scopes"
 
 (defmacro let (l b)
-	`((lambda ,(map (lambda (x) (elem x 0)) l) ,b) ~(map (lambda (x) (elem x 1)) l)))
+	`((lambda ,(map (lambda (x) (elem 0 x)) l) ,b) ~(map (lambda (x) (elem 1 x)) l)))
 
 "Control flow"
 

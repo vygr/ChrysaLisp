@@ -21,14 +21,14 @@ def_func class/lisp/func_slice
 
 	devirt_call vector, get_length, {args}, {length}
 	if {length == 3}
-		func_call vector, get_element, {args, 0}, {seq}
+		func_call vector, get_element, {args, 2}, {seq}
 		func_path class, sequence
 		func_call obj, inst_of, {seq, @_function_}, {value}
 		if {value}
-			func_call vector, get_element, {args, 1}, {value}
+			func_call vector, get_element, {args, 0}, {value}
 			if {value->obj_vtable == @class/class_boxed_long}
 				func_call boxed_long, get_value, {value}, {start}
-				func_call vector, get_element, {args, 2}, {value}
+				func_call vector, get_element, {args, 1}, {value}
 				gotoif {value->obj_vtable != @class/class_boxed_long}, index_error
 				func_call boxed_long, get_value, {value}, {end}
 				virt_call sequence, get_length, {seq}, {length}
