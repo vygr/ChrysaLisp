@@ -1,10 +1,7 @@
 "Definitions"
 
 (defmacro defun (n a b)
-	`(def (,n) ((lambda ,a ,b))))
-
-(defmacro defvar (n b)
-	`(def (,n) (,b)))
+	`(defq ,n (lambda ,a ,b)))
 
 "Scopes"
 
@@ -29,9 +26,9 @@
 (defmacro or (x &rest b)
 	(if (eq 0 (length b)) x
 		(progn
-			(defvar _x (gensym))
+			(defq _x (gensym))
 			`(progn
-				(defvar ,_x ,x)
+				(defq ,_x ,x)
 				(if ,_x ,_x (or ~b))))))
 
 (defmacro and (x &rest b)
@@ -40,12 +37,12 @@
 
 (defmacro for (s e i b)
 	(progn
-		(def (_l _e _i) ((gensym) (gensym) (gensym)))
+		(defq _l (gensym) _e (gensym) _i (gensym))
 		`(progn
-			(def (,_l ,_e ,_i) (,s ,e ,i))
+			(defq ,_l ,s ,_e ,e ,_i ,i)
 			(while (lt ,_l ,_e)
 				,b
-				(setlvar ,_l (add ,_l ,_i))))))
+				(setq ,_l (add ,_l ,_i))))))
 
 "Map/Reduce operations"
 
@@ -104,8 +101,7 @@
 
 (defun prin-num (n p c)
 	(progn
-		(defvar s (str n))
-		(defvar l (length s))
+		(defq s (str n) l (length s))
 		(while (lt l p)
 			(prin c)
 			(setq l (add l 1)))
@@ -115,7 +111,7 @@
 
 (defun each-line (f b)
 	(progn
-		(def (s l) ((file-stream f) t))
+		(defq s (file-stream f) l t)
 		(while (setq l (read-line s))
 			(b l))))
 
@@ -129,7 +125,7 @@
 
 (defun fxy (f w h)
 	(progn
-		(def (x y) (1 1))
+		(defq x 1 y 1)
 		(until (lt h y)
 			(setq x 1)
 			(until (lt w x)
@@ -140,7 +136,7 @@
 
 (defun repeat-fxy (l)
 	(progn
-		(defvar c 0)
+		(defq c 0)
 		(while (lt c l)
 			(fxy fq 10 20)
 			(setq c (add c 1)))))

@@ -118,13 +118,13 @@ built_ins:
 
 	built_in "lambda", lisp_sym_lambda, func_lambda, type_apply
 
+	built_in "defq", 0, func_defq, type_args_apply
+	built_in "setq", 0, func_setq, type_args_apply
 	built_in "cond", 0, func_cond, type_args_apply
-	built_in "def", 0, func_def, type_args_apply
 	built_in "quote", lisp_sym_quote, func_quote, type_args_apply
 	built_in "quasi-quote", lisp_sym_qquote, func_qquote, type_args_apply
 	built_in "defmacro", lisp_sym_defmacro, func_defmacro, type_args_apply
 	built_in "while", 0, func_while, type_args_apply
-	built_in "setq", 0, func_setq, type_args_apply
 
 	built_in "unquote", lisp_sym_unquote
 	built_in "unquote-splicing", lisp_sym_splicing
