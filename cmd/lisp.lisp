@@ -21,11 +21,7 @@
 "Scopes"
 
 (defmacro let (l b)
-	(progn
-		(def (s v)
-			((map (lambda (x) (elem x 0)) l)
-			(map (lambda (x) (elem x 1)) l)))
-		`((lambda ,s ,b) ~v)))
+	`((lambda ,(map (lambda (x) (elem x 0)) l) ,b) ~(map (lambda (x) (elem x 1)) l)))
 
 "Control flow"
 
@@ -71,7 +67,7 @@
 (defmacro merge (&rest l)
 	`(reduce cat (zip ~l)))
 
-"Comparision"
+"Comparison"
 
 (defun ne (x y)
 	(not (eq x y)))
@@ -121,6 +117,17 @@
 			(setlvar l (add l 1)))
 		(prin s)))
 
+"Streams"
+
+(defun each-line (f b)
+	(progn
+		(def (s l) ((file-stream f) t))
+		(while (setlvar l (read-line s))
+			(b l))))
+
+(defun print-file (f)
+	(each-line f print))
+
 "Some test code"
 
 (defun fq (x y)
@@ -143,12 +150,3 @@
 		(while (lt c l)
 			(fxy fq 10 20)
 			(setlvar c (add c 1)))))
-
-(defun each-line (f b)
-	(progn
-		(def (s l) ((file-stream f) t))
-		(while (setlvar l (read-line s))
-			(b l))))
-
-(defun print-file (f)
-	(each-line f print))
