@@ -30,7 +30,7 @@ def_func class/lisp/func_defq
 			assign {index + 2}, {index}
 		loop_until {index == length}
 	else
-		func_call error, create, {"(def var val ...) wrong numbers of args", args}, {val}
+		func_call error, create, {"(defq var val ...) wrong numbers of args", args}, {val}
 	endif
 
 	eval {this, val}, {r0, r1}
