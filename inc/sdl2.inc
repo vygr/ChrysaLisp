@@ -79,7 +79,7 @@ extern TTF_FontDescent
 extern TTF_FontHeight
 extern TTF_RenderUTF8_Blended
 %endif
-def_structure sdl
+def_struc sdl
 	byte sdl_SDL_SetMainReady
 	byte sdl_SDL_Init
 	byte sdl_SDL_Quit
@@ -113,7 +113,7 @@ def_structure sdl
 	byte sdl_TTF_FontDescent
 	byte sdl_TTF_FontHeight
 	byte sdl_TTF_RenderUTF8_Blended
-def_structure_end
+def_struc_end
 
 SDL_INIT_TIMER			equ 0x00000001
 SDL_INIT_AUDIO			equ 0x00000010
@@ -161,14 +161,14 @@ SDL_BLENDMODE_BLEND		equ 1
 SDL_BLENDMODE_ADD		equ 2
 SDL_BLENDMODE_MOD		equ 3
 
-def_structure sdl_rect
+def_struc sdl_rect
 	int sdl_rect_x
 	int sdl_rect_y
 	int sdl_rect_w
 	int sdl_rect_h
-def_structure_end
+def_struc_end
 
-def_structure sdl_surface
+def_struc sdl_surface
 	int sdl_flags
 	long sdl_surface_format
 	int sdl_surface_w
@@ -181,7 +181,7 @@ def_structure sdl_surface
 	struct sdl_surface_clip, sdl_rect
 	long sdl_surface_map
 	int sdl_surface_ref
-def_structure_end
+def_struc_end
 
 ;;;;;;;;;;;;;
 ; sdl2 macros

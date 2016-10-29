@@ -13,7 +13,7 @@ def_func gui/ctx_blit
 	;trashes
 	;all but r4
 
-	def_structure local
+	def_struc local
 		struct local_drect, sdl_rect
 		struct local_srect, sdl_rect
 		struct local_clip_rect, sdl_rect
@@ -21,7 +21,7 @@ def_func gui/ctx_blit
 		ulong local_texture
 		ptr local_dirty_rect
 		ptr local_old_stack
-	def_structure_end
+	def_struc_end
 
 	;align stack to 16 bytes for SDl
 	vp_cpy r4, r15

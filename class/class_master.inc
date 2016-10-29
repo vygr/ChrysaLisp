@@ -16,11 +16,11 @@ def_method get_input, class/master/get_input, static, {r0}, {r1}
 
 def_method deinit, class/master/deinit, override
 
-def_structure master, ref
+def_struc master, ref
 	ptr master_streams
 	ptr master_mailbox_array
 	pptr master_select_array
 	ulong master_state
-def_structure_end
+def_struc_end
 
 %endif

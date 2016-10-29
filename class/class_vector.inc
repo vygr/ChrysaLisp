@@ -24,10 +24,10 @@ def_method get_length, class/vector/get_length, override
 def_method ref_element, class/vector/ref_element, override
 def_method slice, class/vector/slice, override
 
-def_structure vector, sequence
+def_struc vector, sequence
 	pptr vector_array
 	ulong vector_length
 	ulong vector_capacity
-def_structure_end
+def_struc_end
 
 %endif

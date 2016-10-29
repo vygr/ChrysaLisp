@@ -28,17 +28,17 @@ def_method out, sys/mail_out
 
 mail_data_size equ 512
 
-def_structure mailbox, lh_list
+def_struc mailbox, lh_list
 	struct mailbox_parcel_list, lh_list
 	ptr mailbox_tcb
-def_structure_end
+def_struc_end
 
-def_structure id
+def_struc id
 	ulong id_mbox
 	ulong id_cpu
-def_structure_end
+def_struc_end
 
-def_structure msg, ln_node
+def_struc msg, ln_node
 	ulong msg_length
 	struct msg_dest, id
 	struct msg_parcel_id, id
@@ -47,16 +47,16 @@ def_structure msg, ln_node
 	ulong msg_parcel_frag
 	offset msg_header_size
 	struct msg_data, mail_data
-def_structure_end
+def_struc_end
 
-def_structure ml_statics
+def_struc ml_statics
 	struct ml_statics_offchip_list, lh_list
 	struct ml_statics_heap, hp_heap
 	ptr ml_statics_kernel_mailbox
 	ptr ml_statics_in_mailbox
 	ptr ml_statics_out_mailbox
 	ulong ml_statics_parcel_id
-def_structure_end
+def_struc_end
 
 ;;;;;;;;;;;;;
 ; mail macros

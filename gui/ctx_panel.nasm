@@ -14,7 +14,7 @@ def_func gui/ctx_panel
 	;trashes
 	;all r4
 
-	def_structure local
+	def_struc local
 		ptr local_ctx
 		long local_color
 		long local_flags
@@ -23,7 +23,7 @@ def_func gui/ctx_panel
 		long local_y
 		long local_w
 		long local_h
-	def_structure_end
+	def_struc_end
 
 	;save inputs
 	vp_sub local_size, r4

@@ -11,7 +11,7 @@ def_method insert, class/unordered_map/insert, static, {r0, r1, r2}, {r1, r2}
 
 def_method slice, class/unordered_map/slice, override
 
-def_structure unordered_map, unordered_set
-def_structure_end
+def_struc unordered_map, unordered_set
+def_struc_end
 
 %endif

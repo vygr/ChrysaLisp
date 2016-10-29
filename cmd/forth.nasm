@@ -123,18 +123,18 @@ F_HIDDEN equ 0x20
 F_LENMASK equ 0x1f
 
 ;format of header
-def_structure header
+def_struc header
 	long header_link
 	ubyte header_nsize
 	offset header_name
-def_structure_end
+def_struc_end
 
 ;format of header backwards from code entry point
-def_structure xt
+def_struc xt
 	long xt_compile
 	long xt_length
 	long xt_body
-def_structure_end
+def_struc_end
 
 %macro defword 4
 	%push newword

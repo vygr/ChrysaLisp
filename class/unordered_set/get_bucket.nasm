@@ -12,10 +12,10 @@ def_func class/unordered_set/get_bucket
 	;trashes
 	;all but r0, r4
 
-	def_structure local
+	def_struc local
 		ptr local_inst
 		ptr local_length
-	def_structure_end
+	def_struc_end
 
 	;save inputs
 	vp_sub local_size, r4

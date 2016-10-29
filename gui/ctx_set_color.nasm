@@ -8,9 +8,9 @@ def_func gui/ctx_set_color
 	;trashes
 	;all but r4
 
-	def_structure local
+	def_struc local
 		long local_old_stack
-	def_structure_end
+	def_struc_end
 
 	;align stack to 16 bytes for SDl
 	vp_cpy r4, r15

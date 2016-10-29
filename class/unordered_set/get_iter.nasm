@@ -13,12 +13,12 @@ def_func class/unordered_set/get_iter
 	;trashes
 	;r3, r5
 
-	def_structure local
+	def_struc local
 		ptr local_inst
 		ptr local_iter
 		ptr local_bucket
 		ulong local_index
-	def_structure_end
+	def_struc_end
 
 	;save inputs
 	vp_sub local_size, r4

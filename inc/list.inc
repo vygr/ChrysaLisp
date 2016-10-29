@@ -17,20 +17,20 @@ def_method node_at, sys/list_node_at, static, {r0, r1}, {r0}
 ; list structures
 ;;;;;;;;;;;;;;;;;
 
-def_structure lh_list
+def_struc lh_list
 	ptr lh_list_head
 	ptr lh_list_tail
 	ptr lh_list_tailpred
-def_structure_end
+def_struc_end
 
-def_structure ln_node
+def_struc ln_node
 	ptr ln_node_succ
 	ptr ln_node_pred
-def_structure_end
+def_struc_end
 
-def_structure ln_fnode
+def_struc ln_fnode
 	ptr ln_fnode_next
-def_structure_end
+def_struc_end
 
 ;;;;;;;;;;;;;;;;;;
 ; list node macros

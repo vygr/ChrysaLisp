@@ -22,10 +22,10 @@ def_method get_length, class/unordered_set/get_length, override
 def_method ref_element, class/unordered_set/ref_element, override
 def_method slice, class/unordered_set/slice, override
 
-def_structure unordered_set, sequence
+def_struc unordered_set, sequence
 	ptr unordered_set_buckets
 	ptr unordered_set_key_callback
 	ulong unordered_set_length
-def_structure_end
+def_struc_end
 
 %endif

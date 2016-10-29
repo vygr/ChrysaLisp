@@ -19,9 +19,9 @@ def_method pref_size, class/label/pref_size, override
 def_method draw, class/label/draw, override
 def_method layout, class/label/layout, override
 
-def_structure label, view
+def_struc label, view
 	ptr label_flow
 	ptr label_text
-def_structure_end
+def_struc_end
 
 %endif

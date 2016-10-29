@@ -15,9 +15,9 @@ def_method pref_size, class/progress/pref_size, override
 def_method draw, class/progress/draw, override
 def_method layout, class/progress/layout, override
 
-def_structure progress, view
+def_struc progress, view
 	long progress_max
 	long progress_val
-def_structure_end
+def_struc_end
 
 %endif

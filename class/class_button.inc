@@ -23,9 +23,9 @@ def_method mouse_down, class/button/mouse_down, override
 def_method mouse_up, class/button/mouse_up, override
 def_method mouse_move, class/button/mouse_move, override
 
-def_structure button, label
+def_struc button, label
 	ulong button_state
 	struct button_pressed_signal, lh_list
-def_structure_end
+def_struc_end
 
 %endif

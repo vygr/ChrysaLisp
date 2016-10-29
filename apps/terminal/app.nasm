@@ -13,12 +13,12 @@ def_func apps/terminal/app
 
 	buffer_size equ 120
 
-	def_structure shared
+	def_struc shared
 		ptr shared_master, shared_panel, shared_history, shared_window
 		ulong shared_history_index
 		pubyte shared_bufp
 		struct shared_buffer, buffer
-	def_structure_end
+	def_struc_end
 
 	struct myapp, obj
 	struct shared, shared

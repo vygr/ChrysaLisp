@@ -14,11 +14,11 @@
 		;trashes
 		;r1-r3
 
-		def_structure local
+		def_struc local
 			ptr local_inst
 			ptr local_hit
 			ptr local_jump
-		def_structure_end
+		def_struc_end
 
 		;save inputs
 		vp_sub	local_size, r4

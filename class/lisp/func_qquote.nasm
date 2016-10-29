@@ -11,10 +11,10 @@ def_func class/lisp/func_qquote
 	;r0 = lisp object
 	;r1 = value
 
-	def_structure pdata
+	def_struc pdata
 		ptr pdata_this
 		ptr pdata_cat_list
-	def_structure_end
+	def_struc_end
 
 	struct pdata, pdata
 	ptr args, value

@@ -26,7 +26,7 @@ def_method draw, class/window/draw, override
 def_method mouse_down, class/window/mouse_down, override
 def_method mouse_move, class/window/mouse_move, override
 
-def_structure window, view
+def_struc window, view
 	ptr window_border
 	ptr window_title
 	ptr window_status
@@ -35,6 +35,6 @@ def_structure window, view
 	long window_offset_x
 	long window_offset_y
 	ulong window_drag_mode
-def_structure_end
+def_struc_end
 
 %endif

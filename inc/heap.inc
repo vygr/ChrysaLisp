@@ -34,12 +34,12 @@ def_method used, sys/mem_used, static, {}, {r0}
 ; heap structures
 ;;;;;;;;;;;;;;;;;
 
-def_structure hp_heap
+def_struc hp_heap
 	ptr hp_heap_free_flist
 	ptr hp_heap_block_flist
 	ulong hp_heap_cellsize
 	ulong hp_heap_blocksize
-def_structure_end
+def_struc_end
 
 ;;;;;;;;;;;;;
 ; heap macros

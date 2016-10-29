@@ -19,34 +19,34 @@ def_enum
 	enum lk_chan_status_busy
 def_enum_end
 
-def_structure lk_table
+def_struc lk_table
 	ptr lk_table_array
 	ulong lk_table_array_size
-def_structure_end
+def_struc_end
 
-def_structure lk_node, ln_node
+def_struc lk_node, ln_node
 	struct lk_node_table, lk_table
 	ulong lk_node_cpu_id
 	ulong lk_node_task_count
-def_structure_end
+def_struc_end
 
-def_structure lk_statics
+def_struc lk_statics
 	struct lk_statics_links_list, lh_list
-def_structure_end
+def_struc_end
 
-def_structure lk_chan
+def_struc lk_chan
 	ulong lk_chan_status
 	ulong lk_chan_task_count
 	struct lk_chan_msg, msg
-def_structure_end
+def_struc_end
 
-def_structure lk_buffer
+def_struc lk_buffer
 	struct lk_buffer_chan_1, lk_chan
 	struct lk_buffer_chan_2, lk_chan
-def_structure_end
+def_struc_end
 
-def_structure lk_route
+def_struc lk_route
 	ulong lk_route_hops
-def_structure_end
+def_struc_end
 
 %endif

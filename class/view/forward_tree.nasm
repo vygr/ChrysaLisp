@@ -20,12 +20,12 @@
 			;r0 = view object
 			;r1 = 0 if should not decend after down callback
 
-		def_structure local
+		def_struc local
 			ptr local_inst
 			ptr local_data
 			ptr local_down
 			ptr local_up
-		def_structure_end
+		def_struc_end
 
 		vp_sub local_size, r4
 		vp_cpy r0, [r4 + local_inst]

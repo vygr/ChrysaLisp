@@ -16,10 +16,10 @@
 			;callback should normally save register the signal sends
 			;but it could filter or adjust them for fancy reasons !
 
-		def_structure local
+		def_struc local
 			ptr local_inst
 			ptr local_next
-		def_structure_end
+		def_struc_end
 
 		;save inputs
 		vp_sub local_size, r4

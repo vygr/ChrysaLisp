@@ -7,10 +7,10 @@
 		;trashes
 		;all but r0, r4
 
-		def_structure local
+		def_struc local
 			long local_x
 			long local_y
-		def_structure_end
+		def_struc_end
 
 		vp_sub local_size, r4
 		vp_xor r1, r1

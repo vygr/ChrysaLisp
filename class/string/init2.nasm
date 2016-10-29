@@ -11,10 +11,10 @@
 		;outputs
 		;r1 = 0 if error, else ok
 
-		def_structure local
+		def_struc local
 			ptr local_inst
 			long local_filename
-		def_structure_end
+		def_struc_end
 
 		;save inputs
 		vp_sub local_size, r4

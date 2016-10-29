@@ -13,11 +13,11 @@ def_func gui/font_open
 	;trashes
 	;all but r4
 
-	def_structure local
+	def_struc local
 		long local_font
 		long local_points
 		long local_handle
-	def_structure_end
+	def_struc_end
 
 	;save inputs
 	vp_sub local_size, r4

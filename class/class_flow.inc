@@ -29,8 +29,8 @@ def_bit
 	bit flow_flag_align_vbottom
 def_bit_end
 
-def_structure flow, view
+def_struc flow, view
 	ulong flow_flags
-def_structure_end
+def_struc_end
 
 %endif

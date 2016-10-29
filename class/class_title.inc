@@ -15,9 +15,9 @@ def_method layout, class/title/layout, override
 def_method mouse_down, class/title/mouse_down, override
 def_method mouse_move, class/title/mouse_move, override
 
-def_structure title, label
+def_struc title, label
 	long title_last_x
 	long title_last_y
-def_structure_end
+def_struc_end
 
 %endif

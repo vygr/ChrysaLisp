@@ -12,8 +12,8 @@ def_method disconnect_sig, class/component/disconnect_sig, static, {r0, r1}
 
 def_method deinit, class/component/deinit, override
 
-def_structure component, ref
+def_struc component, ref
 	struct component_slot_list, lh_list
-def_structure_end
+def_struc_end
 
 %endif
