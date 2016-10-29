@@ -17,14 +17,10 @@ def_method built_in_func, class/lisp/built_in_func, static, {r0, r1, r2, r3}
 def_method env_push, class/lisp/env_push, static, {r0}
 def_method env_pop, class/lisp/env_pop, static, {r0}
 def_method env_def, class/lisp/env_def, static, {r0, r1, r2}
-def_method env_bind, class/lisp/env_bind, static, {r0, r1, r2, r3}, {r1}
 def_method env_find, class/lisp/env_find, static, {r0, r1}, {r1, r2}
 def_method env_set, class/lisp/env_set, static, {r0, r1, r2}, {r1}
-def_method env_setl, class/lisp/env_setl, static, {r0, r1, r2}, {r1}
-def_method env_setl_list, class/lisp/env_setl_list, static, {r0, r1, r2}, {r1}
-def_method env_set, class/lisp/env_set, static, {r0, r1, r2}, {r1}
-def_method env_set_list, class/lisp/env_set_list, static, {r0, r1, r2}, {r1}
 def_method env_get, class/lisp/env_get, static, {r0, r1}, {r1}
+def_method env_bind, class/lisp/env_bind, static, {r0, r1, r2, r3}, {r1}
 
 def_method repl, class/lisp/repl, static, {r0, r1}
 def_method repl_read, class/lisp/repl_read, static, {r0, r1, r2}, {r1, r2}
@@ -45,7 +41,6 @@ def_method repl_expand, class/lisp/repl_expand, static, {r0, r1}, {r1}
 
 def_method func_def, class/lisp/func_def, static, {r0, r1}, {r1}
 def_method func_set, class/lisp/func_set, static, {r0, r1}, {r1}
-def_method func_setl, class/lisp/func_setl, static, {r0, r1}, {r1}
 def_method func_list, class/lisp/func_list, static, {r0, r1}, {r1}
 def_method func_lambda, class/lisp/func_lambda, static, {r0, r1}, {r1}
 def_method func_quote, class/lisp/func_quote, static, {r0, r1}, {r1}

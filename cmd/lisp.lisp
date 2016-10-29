@@ -1,22 +1,15 @@
 "Definitions"
 
 (defmacro defun (n a b)
-	`(def (,n)
-		((lambda ,a ,b))))
+	`(def (,n) ((lambda ,a ,b))))
 
 (defmacro defvar (n b)
-	`(def (,n)
-		(,b)))
+	`(def (,n) (,b)))
 
 "Variable setting"
 
-(defmacro setvar (n b)
-	`(set (,n)
-		(,b)))
-
-(defmacro setlvar (n b)
-	`(setl (,n)
-		(,b)))
+(defmacro setq (s v)
+	`(set ',s ,v))
 
 "Scopes"
 
@@ -114,7 +107,7 @@
 		(defvar l (length s))
 		(while (lt l p)
 			(prin c)
-			(setlvar l (add l 1)))
+			(setq l (add l 1)))
 		(prin s)))
 
 "Streams"
@@ -122,7 +115,7 @@
 (defun each-line (f b)
 	(progn
 		(def (s l) ((file-stream f) t))
-		(while (setlvar l (read-line s))
+		(while (setq l (read-line s))
 			(b l))))
 
 (defun print-file (f)
@@ -137,11 +130,11 @@
 	(progn
 		(def (x y) (1 1))
 		(until (lt h y)
-			(setlvar x 1)
+			(setq x 1)
 			(until (lt w x)
-				(prin_num (f x y) 4 ".")
-				(setlvar x (add x 1)))
-			(setlvar y (add y 1))
+				(prin-num (f x y) 4 ".")
+				(setq x (add x 1)))
+			(setq y (add y 1))
 			(print))))
 
 (defun repeat-fxy (l)
@@ -149,4 +142,4 @@
 		(defvar c 0)
 		(while (lt c l)
 			(fxy fq 10 20)
-			(setlvar c (add c 1)))))
+			(setq c (add c 1)))))

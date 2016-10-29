@@ -11,7 +11,7 @@ def_func class/lisp/func_set
 	;r0 = lisp object
 	;r1 = value
 
-	ptr this, args, vars, vals
+	ptr this, args, var, val
 	ulong length
 
 	push_scope
@@ -19,25 +19,14 @@ def_func class/lisp/func_set
 
 	devirt_call vector, get_length, {args}, {length}
 	if {length == 2}
-		func_call vector, get_element, {args, 0}, {vars}
+		func_call vector, get_element, {args, 0}, {var}
 		func_call vector, get_element, {args, 1}, {args}
-		if {args->obj_vtable == @class/class_vector}
-			devirt_call vector, get_length, {args}, {length}
-			devirt_call vector, slice, {args, 0, length}, {args}
-			func_call lisp, repl_eval_list, {this, args, 0}, {vals}
-			if {vals->obj_vtable != @class/class_error}
-				func_call ref, deref, {vals}
-				func_call lisp, env_set_list, {this, vars, vals}, {vals}
-			endif
-			func_call ref, deref, {args}
-		else
-			func_call error, create, {"(set vars vals) vals is not a list", args}, {vals}
-		endif
+		func_call lisp, env_set, {this, var, args}, {val}
 	else
-		func_call error, create, {"(set vars vals) wrong numbers of args", args}, {vals}
+		func_call error, create, {"(set var val) wrong numbers of args", args}, {args}
 	endif
 
-	eval {this, vals}, {r0, r1}
+	eval {this, val}, {r0, r1}
 	pop_scope
 	return
 
