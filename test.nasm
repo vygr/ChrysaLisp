@@ -4,10 +4,10 @@
 
 	def_func test
 
-		ptr set
+		ulong a, b
 
 		push_scope
-			assign {@class/string/compare}, {set}
+			assign {a % 2}, {b}
 		pop_scope
 		return
 

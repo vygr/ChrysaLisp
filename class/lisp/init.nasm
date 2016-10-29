@@ -124,6 +124,7 @@ built_ins:
 	built_in "quasi-quote", lisp_sym_qquote, func_qquote, type_args_apply
 	built_in "defmacro", lisp_sym_defmacro, func_defmacro, type_args_apply
 	built_in "while", 0, func_while, type_args_apply
+	built_in "setq", 0, func_setq, type_args_apply
 
 	built_in "unquote", lisp_sym_unquote
 	built_in "unquote-splicing", lisp_sym_splicing
@@ -133,7 +134,6 @@ built_ins:
 	built_in "macroexpand-1", 0, func_macroexpand_1
 	built_in "macroexpand", 0, func_macroexpand
 	built_in "gensym", 0, func_gensym
-	built_in "set", 0, func_set
 	built_in "copy", 0, func_copy
 	built_in "add", 0, func_add
 	built_in "div", 0, func_div

@@ -6,11 +6,6 @@
 (defmacro defvar (n b)
 	`(def (,n) (,b)))
 
-"Variable setting"
-
-(defmacro setq (s v)
-	`(set ',s ,v))
-
 "Scopes"
 
 (defmacro let (l b)
@@ -78,6 +73,12 @@
 	(eq (str x) (str y)))
 
 "Math functions"
+
+(defun inc (x)
+	(add x 1))
+
+(defun dec (x)
+	(sub x 1))
 
 (defun squared (x)
 	(mul x x))

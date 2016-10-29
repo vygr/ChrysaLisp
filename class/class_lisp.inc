@@ -40,7 +40,7 @@ def_method repl_print, class/lisp/repl_print, static, {r0, r1, r2}
 def_method repl_expand, class/lisp/repl_expand, static, {r0, r1}, {r1}
 
 def_method func_def, class/lisp/func_def, static, {r0, r1}, {r1}
-def_method func_set, class/lisp/func_set, static, {r0, r1}, {r1}
+def_method func_setq, class/lisp/func_setq, static, {r0, r1}, {r1}
 def_method func_list, class/lisp/func_list, static, {r0, r1}, {r1}
 def_method func_lambda, class/lisp/func_lambda, static, {r0, r1}, {r1}
 def_method func_quote, class/lisp/func_quote, static, {r0, r1}, {r1}
