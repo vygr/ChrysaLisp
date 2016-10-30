@@ -1,12 +1,12 @@
 "Definitions"
 
-(defmacro defun (n a b)
-	`(defq ,n (lambda ,a ,b)))
+(defmacro defun (n a &rest b)
+	`(defq ,n (lambda ,a ~b)))
 
 "Scopes"
 
-(defmacro let (l b)
-	`((lambda ,(map (lambda (x) (elem 0 x)) l) ,b) ~(map (lambda (x) (elem 1 x)) l)))
+(defmacro let (l &rest b)
+	`((lambda ,(map (lambda (x) (elem 0 x)) l) ~b) ~(map (lambda (x) (elem 1 x)) l)))
 
 "Control flow"
 

@@ -5,6 +5,13 @@
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
+;=            all the same
+;/=           all different
+;<            monotonically increasing
+;>            monotonically decreasing
+;<=           monotonically nondecreasing
+;>=           monotonically nonincreasing
+
 def_func class/lisp/func_lt
 	;inputs
 	;r0 = lisp object

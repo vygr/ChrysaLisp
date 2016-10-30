@@ -43,17 +43,17 @@ def_func class/lisp/func_slice
 					eval {this, value}, {r0, r1}
 					return
 				else
-					func_call error, create, {"(slice seq start end) index out of bounds", args}, {value}
+					func_call error, create, {"(slice start end seq) index out of bounds", args}, {value}
 				endif
 			else
 			index_error:
-				func_call error, create, {"(slice seq start end) not an index", args}, {value}
+				func_call error, create, {"(slice start end seq) not an index", args}, {value}
 			endif
 		else
-			func_call error, create, {"(slice seq start end) not a sequence", args}, {value}
+			func_call error, create, {"(slice start end seq) not a sequence", args}, {value}
 		endif
 	else
-		func_call error, create, {"(slice seq start end) wrong number of args", args}, {value}
+		func_call error, create, {"(slice start end seq) wrong number of args", args}, {value}
 	endif
 
 	eval {this, value}, {r0, r1}

@@ -13,7 +13,12 @@ def_func class/lisp/repl_apply
 	;r0 = lisp object
 	;r1 = value
 
-	ptr this, func, ast, value
+	def_struct pdata
+		ptr pdata_this
+		ptr pdata_value
+	def_struct_end
+
+	ptr this, value, func, ast
 
 	push_scope
 	retire {r0, r1, r2}, {this, func, ast}
@@ -29,16 +34,14 @@ def_func class/lisp/repl_apply
 		ulong length
 		push_scope
 		devirt_call vector, get_length, {func}, {length}
-		if {length == 3}
+		if {length > 2}
 			func_call vector, get_element, {func, 0}, {vars}
 			if {vars == this->lisp_sym_lambda}
 				func_call lisp, env_push, {this}
 				func_call vector, get_element, {func, 1}, {vars}
 				func_call lisp, env_bind, {this, vars, ast, 0}, {value}
 				if {value->obj_vtable != @class/class_error}
-					func_call ref, deref, {value}
-					func_call vector, get_element, {func, 2}, {value}
-					func_call lisp, repl_eval, {this, value}, {value}
+					func_call vector, for_each, {func, 2, length, $callback, &this}, {_}
 				endif
 				func_call lisp, env_pop, {this}
 			else
@@ -53,6 +56,26 @@ def_func class/lisp/repl_apply
 	endif
 
 	eval {this, value}, {r0, r1}
+	pop_scope
+	return
+
+callback:
+	;inputs
+	;r0 = predicate data pointer
+	;r1 = element iterator
+	;outputs
+	;r1 = 0 if break, else not
+
+	pptr iter
+	ptr pdata
+
+	push_scope
+	retire {r0, r1}, {pdata, iter}
+
+	func_call ref, deref, {pdata->pdata_value}
+	func_call lisp, repl_eval, {pdata->pdata_this, *iter}, {pdata->pdata_value}
+
+	eval {pdata->pdata_value->obj_vtable != @class/class_error}, {r1}
 	pop_scope
 	return
 

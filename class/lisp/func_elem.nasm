@@ -36,16 +36,16 @@ def_func class/lisp/func_elem
 					eval {this, value}, {r0, r1}
 					return
 				else
-					func_call error, create, {"(elem seq index) index out of bounds", args}, {value}
+					func_call error, create, {"(elem index seq) index out of bounds", args}, {value}
 				endif
 			else
-				func_call error, create, {"(elem seq index) not an index", args}, {value}
+				func_call error, create, {"(elem index seq) not an index", args}, {value}
 			endif
 		else
-			func_call error, create, {"(elem seq index) not a sequence", args}, {value}
+			func_call error, create, {"(elem index seq) not a sequence", args}, {value}
 		endif
 	else
-		func_call error, create, {"(elem seq index) not enough args", args}, {value}
+		func_call error, create, {"(elem index seq) not enough args", args}, {value}
 	endif
 
 	eval {this, value}, {r0, r1}
