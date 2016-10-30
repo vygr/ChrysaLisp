@@ -138,10 +138,15 @@ built_ins:
 	built_in "add", 0, func_add
 	built_in "div", 0, func_div
 	built_in "env", 0, func_env
-	built_in "eq", 0, func_eq
+	built_in "eql", 0, func_eql
 	built_in "every", 0, func_every
 	built_in "length", 0, func_length
+	built_in "eq", 0, func_eq
+	built_in "ne", 0, func_ne
 	built_in "lt", 0, func_lt
+	built_in "gt", 0, func_gt
+	built_in "le", 0, func_le
+	built_in "ge", 0, func_ge
 	built_in "map", 0, func_map
 	built_in "mod", 0, func_mod
 	built_in "mul", 0, func_mul

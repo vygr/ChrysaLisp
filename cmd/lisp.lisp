@@ -54,20 +54,8 @@
 
 "Comparison"
 
-(defun ne (x y)
-	(not (eq x y)))
-
-(defun ge (x y)
-	(not (lt x y)))
-
-(defun le (x y)
-	(or (lt x y) (eq x y)))
-
-(defun gt (x y)
-	(not (or (lt x y) (eq x y))))
-
-(defun eql (x y)
-	(eq (str x) (str y)))
+(defun equalp (x y)
+	(eql (str x) (str y)))
 
 "Math functions"
 

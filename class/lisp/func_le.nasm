@@ -4,9 +4,9 @@
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
-;lt monotonically increasing
+;le monotonically nondecreasing
 
-def_func class/lisp/func_lt
+def_func class/lisp/func_le
 	;inputs
 	;r0 = lisp object
 	;r1 = args
@@ -38,10 +38,10 @@ def_func class/lisp/func_lt
 			func_call ref, ref, {value}
 			func_call vector, for_each, {args, 1, length, $callback, &this}, {_}
 		else
-			func_call error, create, {"(lt num num ...) not all numbers", first}, {value}
+			func_call error, create, {"(le num num ...) not all numbers", first}, {value}
 		endif
 	else
-		func_call error, create, {"(lt num num ...) wrong number of args", args}, {value}
+		func_call error, create, {"(le num num ...) wrong number of args", args}, {value}
 	endif
 
 	eval {this, value}, {r0, r1}
@@ -64,7 +64,7 @@ callback:
 
 	if {(*iter)->obj_vtable == @class/class_boxed_long}
 		func_call boxed_long, get_value, {*iter}, {num}
-		if {pdata->pdata_num < num}
+		if {pdata->pdata_num <= num}
 			assign {num}, {pdata->pdata_num}
 			eval {1}, {r1}
 			return
@@ -75,7 +75,7 @@ callback:
 		endif
 	else
 		func_call ref, deref, {pdata->pdata_value}
-		func_call error, create, {"(lt num num ...) not all numbers", *iter}, {pdata->pdata_value}
+		func_call error, create, {"(le num num ...) not all numbers", *iter}, {pdata->pdata_value}
 	endif
 
 	eval {0}, {r1}

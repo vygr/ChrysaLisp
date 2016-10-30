@@ -50,8 +50,13 @@ def_method func_sub, class/lisp/func_sub, static, {r0, r1}, {r1}
 def_method func_mul, class/lisp/func_mul, static, {r0, r1}, {r1}
 def_method func_div, class/lisp/func_div, static, {r0, r1}, {r1}
 def_method func_mod, class/lisp/func_mod, static, {r0, r1}, {r1}
+def_method func_eql, class/lisp/func_eql, static, {r0, r1}, {r1}
 def_method func_eq, class/lisp/func_eq, static, {r0, r1}, {r1}
+def_method func_ne, class/lisp/func_ne, static, {r0, r1}, {r1}
 def_method func_lt, class/lisp/func_lt, static, {r0, r1}, {r1}
+def_method func_gt, class/lisp/func_gt, static, {r0, r1}, {r1}
+def_method func_le, class/lisp/func_le, static, {r0, r1}, {r1}
+def_method func_ge, class/lisp/func_ge, static, {r0, r1}, {r1}
 def_method func_cond, class/lisp/func_cond, static, {r0, r1}, {r1}
 def_method func_progn, class/lisp/func_progn, static, {r0, r1}, {r1}
 def_method func_not, class/lisp/func_not, static, {r0, r1}, {r1}
