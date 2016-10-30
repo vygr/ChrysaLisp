@@ -16,19 +16,18 @@ def_func class/lisp/func_cond
 		ptr pdata_value
 	def_struct_end
 
-	struct pdata, pdata
-	ptr args
+	ptr this, value, args
 	ulong length
 
 	push_scope
-	retire {r0, r1}, {pdata.pdata_this, args}
+	retire {r0, r1}, {this, args}
 
-	assign {pdata.pdata_this->lisp_sym_nil}, {pdata.pdata_value}
-	func_call ref, ref, {pdata.pdata_value}
+	assign {this->lisp_sym_nil}, {value}
+	func_call ref, ref, {value}
 	devirt_call vector, get_length, {args}, {length}
-	func_call vector, for_each, {args, 0, length, $callback, &pdata}, {_}
+	func_call vector, for_each, {args, 0, length, $callback, &this}, {_}
 
-	eval {pdata.pdata_this, pdata.pdata_value}, {r0, r1}
+	eval {this, value}, {r0, r1}
 	pop_scope
 	return
 

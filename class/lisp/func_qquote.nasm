@@ -16,26 +16,25 @@ def_func class/lisp/func_qquote
 		ptr pdata_cat_list
 	def_struct_end
 
-	struct pdata, pdata
-	ptr args, value
+	ptr this, cat_list, args, value
 	ulong length
 
 	push_scope
-	retire {r0, r1}, {pdata.pdata_this, args}
+	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
 	if {length == 1}
 		func_call vector, get_element, {args, 0}, {args}
 		switch
 		case {args->obj_vtable == @class/class_vector}
-			func_call vector, create, {}, {pdata.pdata_cat_list}
-			assign {pdata.pdata_this->lisp_sym_cat}, {value}
+			func_call vector, create, {}, {cat_list}
+			assign {this->lisp_sym_cat}, {value}
 			func_call ref, ref, {value}
-			func_call vector, push_back, {pdata.pdata_cat_list, value}
+			func_call vector, push_back, {cat_list, value}
 			devirt_call vector, get_length, {args}, {length}
-			func_call vector, for_each, {args, 0, length, $callback, &pdata}, {_}
-			func_call lisp, repl_eval, {pdata.pdata_this, pdata.pdata_cat_list}, {value}
-			func_call ref, deref, {pdata.pdata_cat_list}
+			func_call vector, for_each, {args, 0, length, $callback, &this}, {_}
+			func_call lisp, repl_eval, {this, cat_list}, {value}
+			func_call ref, deref, {cat_list}
 			break
 		default
 			assign {args}, {value}
@@ -45,7 +44,7 @@ def_func class/lisp/func_qquote
 		func_call error, create, {"(quasi-quote arg) wrong numbers of args", args}, {value}
 	endif
 
-	eval {pdata.pdata_this, value}, {r0, r1}
+	eval {this, value}, {r0, r1}
 	pop_scope
 	return
 

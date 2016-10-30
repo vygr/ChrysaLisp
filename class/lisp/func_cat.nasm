@@ -17,30 +17,29 @@ def_func class/lisp/func_cat
 		ptr pdata_value
 	def_struct_end
 
-	struct pdata, pdata
-	ptr args
+	ptr this, value, args
 	ulong length
 
 	push_scope
-	retire {r0, r1}, {pdata.pdata_this, args}
+	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
 	if {length}
-		func_call vector, get_element, {args, 0}, {pdata.pdata_value}
-		if {pdata.pdata_value->obj_vtable == @class/class_vector}
-			func_call vector, create, {}, {pdata.pdata_value}
-			func_call vector, for_each, {args, 0, length, $callback, &pdata}, {_}
-		elseif {pdata.pdata_value->obj_vtable == @class/class_string}
-			func_call ref, ref, {pdata.pdata_value}
-			func_call vector, for_each, {args, 1, length, $callback, &pdata}, {_}
+		func_call vector, get_element, {args, 0}, {value}
+		if {value->obj_vtable == @class/class_vector}
+			func_call vector, create, {}, {value}
+			func_call vector, for_each, {args, 0, length, $callback, &this}, {_}
+		elseif {value->obj_vtable == @class/class_string}
+			func_call ref, ref, {value}
+			func_call vector, for_each, {args, 1, length, $callback, &this}, {_}
 		else
-			func_call error, create, {"(cat seq ...) not sequence type", pdata.pdata_value}, {pdata.pdata_value}
+			func_call error, create, {"(cat seq ...) not sequence type", value}, {value}
 		endif
 	else
-		func_call error, create, {"(cat seq ...) wrong number of args", args}, {pdata.pdata_value}
+		func_call error, create, {"(cat seq ...) wrong number of args", args}, {value}
 	endif
 
-	eval {pdata.pdata_this, pdata.pdata_value}, {r0, r1}
+	eval {this, value}, {r0, r1}
 	pop_scope
 	return
 

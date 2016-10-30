@@ -42,7 +42,10 @@ def_func class/lisp/repl_print
 		uint pdata_length
 	def_struct_end
 
-	ptr this, stream, value, elem
+	ptr this, stream
+	uint index, length
+
+	ptr value, elem
 
 	push_scope
 	retire {r0, r1, r2}, {this, stream, value}
@@ -88,9 +91,9 @@ def_func class/lisp/repl_print
 			struct pdata, pdata
 			push_scope
 			func_call stream, write_char, {stream, char_lsb}
-			devirt_call unordered_set, get_length, {value}, {pdata.pdata_length}
-			assign {this, stream, 0}, {pdata.pdata_this, pdata.pdata_stream, pdata.pdata_index}
-			func_call unordered_set, for_each, {value, $callback, &pdata}, {_, _}
+			devirt_call unordered_set, get_length, {value}, {length}
+			assign {this, stream, 0}, {this, stream, index}
+			func_call unordered_set, for_each, {value, $callback, &this}, {_, _}
 			func_call stream, write_char, {stream, char_rsb}
 			pop_scope
 			break
@@ -98,9 +101,9 @@ def_func class/lisp/repl_print
 			struct pdata, pdata
 			push_scope
 			func_call stream, write_char, {stream, char_lcb}
-			devirt_call unordered_map, get_length, {value}, {pdata.pdata_length}
-			assign {this, stream, 0}, {pdata.pdata_this, pdata.pdata_stream, pdata.pdata_index}
-			func_call unordered_map, for_each, {value, $callback, &pdata}, {_, _}
+			devirt_call unordered_map, get_length, {value}, {length}
+			assign {this, stream, 0}, {this, stream, index}
+			func_call unordered_map, for_each, {value, $callback, &this}, {_, _}
 			func_call stream, write_char, {stream, char_rcb}
 			pop_scope
 			break
@@ -118,8 +121,8 @@ def_func class/lisp/repl_print
 		case {elem == @class/class_vector}
 			struct pdata, pdata
 			push_scope
-			devirt_call vector, get_length, {value}, {pdata.pdata_length}
-			if {pdata.pdata_length}
+			devirt_call vector, get_length, {value}, {length}
+			if {length}
 				func_call vector, get_element, {value, 0}, {elem}
 				switch
 				case {elem == this->lisp_sym_quote}
@@ -142,8 +145,8 @@ def_func class/lisp/repl_print
 			else
 			notquote:
 				func_call stream, write_char, {stream, char_lrb}
-				assign {this, stream, 0}, {pdata.pdata_this, pdata.pdata_stream, pdata.pdata_index}
-				func_call vector, for_each, {value, 0, pdata.pdata_length, $callback, &pdata}, {_}
+				assign {this, stream, 0}, {this, stream, index}
+				func_call vector, for_each, {value, 0, length, $callback, &this}, {_}
 				func_call stream, write_char, {stream, char_rrb}
 			endif
 			pop_scope

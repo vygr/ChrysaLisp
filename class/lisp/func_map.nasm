@@ -12,12 +12,15 @@ def_func class/lisp/func_map
 	;r1 = value
 
 	def_struct pdata
+		ptr pdata_this
 		ptr pdata_type
-		ulong pdata_length
+		ulong pdata_min
 	def_struct_end
 
-	struct pdata, pdata
-	ptr this, args, value, form, func, elem
+	ptr this, type
+	ulong min
+
+	ptr args, value, form, func, elem
 	pptr iter
 	ulong length, seq_num, list_num
 
@@ -28,15 +31,15 @@ def_func class/lisp/func_map
 	if {length >= 2}
 		func_call vector, get_element, {args, 1}, {func}
 		func_path class, sequence
-		func_call obj, inst_of, {func, @_function_}, {pdata.pdata_type}
-		if {pdata.pdata_type}
-			assign {1000000}, {pdata.pdata_length}
+		func_call obj, inst_of, {func, @_function_}, {type}
+		if {type}
+			assign {1000000}, {min}
 			func_call vector, get_element, {args, 0}, {func}
-			func_call vector, for_each, {args, 1, length, $callback, &pdata}, {iter}
+			func_call vector, for_each, {args, 1, length, $callback, &this}, {iter}
 			ifnot {iter}
 				func_call vector, create, {}, {value}
-				breakifnot {pdata.pdata_length}
-				func_call vector, set_capacity, {value, pdata.pdata_length}
+				breakifnot {min}
+				func_call vector, set_capacity, {value, min}
 				assign {0}, {seq_num}
 				devirt_call vector, slice, {args, 1, length}, {form}
 				loop_start
@@ -50,7 +53,7 @@ def_func class/lisp/func_map
 					func_call lisp, repl_apply, {this, func, form}, {elem}
 					func_call vector, push_back, {value, elem}
 					assign {seq_num + 1}, {seq_num}
-				loop_until {seq_num == pdata.pdata_length}
+				loop_until {seq_num == min}
 				func_call ref, deref, {form}
 			else
 				func_call error, create, {"(map func list ...) not matching types", args}, {value}
@@ -83,8 +86,8 @@ callback:
 	assign {(*iter)->obj_vtable}, {type}
 	if {type == pdata->pdata_type}
 		virt_call sequence, get_length, {*iter}, {length}
-		if {length < pdata->pdata_length}
-			assign {length}, {pdata->pdata_length}
+		if {length < pdata->pdata_min}
+			assign {length}, {pdata->pdata_min}
 		endif
 		eval {1}, r1
 	else
