@@ -20,7 +20,8 @@ def_func class/lisp/func_ne
 		pptr pdata_iter
 	def_struct_end
 
-	ptr this, value, iter
+	ptr this, value
+	pptr iter
 
 	ptr args
 	ulong length

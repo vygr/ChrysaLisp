@@ -9,6 +9,7 @@ def_class lisp, ref
 def_method create, class/lisp/create, static, {r0, r1, r2}, {r0}
 def_method new, class/lisp/new, static, {}, {r0}
 def_method init, class/lisp/init, static, {r0, r1, r2, r3, r5}, {r1}
+def_method deinit, class/lisp/deinit, override
 
 def_method sym_intern, class/lisp/sym_intern, static, {r0, r1}, {r1}
 def_method sym_intern_cstr, class/lisp/sym_intern_cstr, static, {r0, r1}, {r1}
@@ -88,8 +89,6 @@ def_method func_writeline, class/lisp/func_writeline, static, {r0, r1}, {r1}
 def_method func_write, class/lisp/func_write, static, {r0, r1}, {r1}
 def_method func_char, class/lisp/func_char, static, {r0, r1}, {r1}
 def_method func_slice, class/lisp/func_slice, static, {r0, r1}, {r1}
-
-def_method deinit, class/lisp/deinit, override
 
 def_enum
 	enum type_args_eval_apply
