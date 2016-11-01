@@ -57,6 +57,7 @@ def_struct fn_header, ln_fnode
 	uint fn_header_entry
 	uint fn_header_links
 	uint fn_header_paths
+	uint fn_header_stack
 	offset fn_header_pathname
 def_struct_end
 
@@ -160,9 +161,10 @@ def_struct_end
 	vp_jmp_rel _ref_%[_link_num_]_link
 %endmacro
 
-%macro def_func 1
+%macro def_func 1-2 tk_stack_size
 	;inputs
 	;%1 = function path name
+	;%2 = stack size
 
 	BITS 64
 	%defstr _func_name %1
@@ -176,6 +178,7 @@ _func_start:
 	dd	_func_entry - _func_start
 	dd	_func_links - _func_start
 	dd	_func_paths - _func_start
+	dd %2
 _func_name_start:
 	db	_func_name
 	db	0, _func_entry - _func_name_start

@@ -33,13 +33,12 @@ def_method open_array, sys/task_open_array, static, {r0}, {r0}
 def_method open_farm, sys/task_open_farm, static, {r0, r1}, {r0}
 def_method open_pipe, sys/task_open_pipe, static, {r0}, {r0}
 def_method open_global, sys/task_open_global, static, {r0, r1}, {r0}
-def_method stack_depth, sys/task_stack_depth, static, {}, {r0}
 
 ;;;;;;;;;;;;;;;;;
 ; task structures
 ;;;;;;;;;;;;;;;;;
 
-tk_stack_size	equ 1024 * 8
+tk_stack_size equ 1024 * 4
 
 def_struct tk_node, ln_node
 	ptr tk_node_stack

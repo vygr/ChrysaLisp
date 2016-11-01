@@ -14,7 +14,8 @@ def_func sys/task_stop
 	vp_cpy r2, [r0 + tk_statics_task_count]
 
 	;free our task control block
-	vp_lea [r0 + tk_statics_task_heap], r0
+	vp_sub ptr_size, r1
+	vp_cpy [r1], r0
 	hp_freecell r0, r1, r2
 	f_jmp sys_task, restore
 

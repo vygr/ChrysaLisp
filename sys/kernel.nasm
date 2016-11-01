@@ -31,7 +31,7 @@ def_func sys/kernel
 	f_call gui_font, init
 
 	;start kernel task
-	f_call sys_task, start, {r0}, {r0, r1}
+	f_call sys_task, start, {$_func_entry}, {r0, r1}
 	f_bind sys_task, statics, r2
 	vp_cpy r0, [r2 + tk_statics_current_tcb]
 	vp_cpy r0, [r2 + tk_statics_kernel_tcb]

@@ -6,7 +6,7 @@
 %include 'class/class_string.inc'
 %include 'class/class_lisp.inc'
 
-def_func cmd/lisp
+def_func cmd/lisp, 1024 * 8
 
 	ptr slave, lisp, args, arg, stream, file
 	ulong argc, index
