@@ -106,25 +106,73 @@
 			(setq l (add l 1)))
 		(prin s)))
 
-"Some test code"
+"C-Script compiler !"
 
-(defun fq (x y)
-	(mod (mul (cubed x) (squared y)) 10))
+(defun is-num (c)
+	(le 48 c 57))
 
-(defun fxy (f w h)
+(defun is-alpha (c)
+	(or (le 65 c 90) (le 97 c 122)))
+
+(defun is-alpha-num (c)
+	(or (is-num c) (is-alpha c)))
+
+(defun is-white-space (c)
+	(lt c 32))
+
+(defun is-comment (c)
+	(eq c 59))
+
+(defun is-group-open (c)
+	(eq c 123))
+
+(defun is-group-close (c)
+	(eq c 125))
+
+(defun is-ident (c)
+	(or (is-alpha-num c) (eq c 95)))
+
+(defun read-token (s c p)
 	(progn
-		(defq x 1 y 1)
-		(until (lt h y)
-			(setq x 1)
-			(until (lt w x)
-				(prin-num (f x y) 4 ".")
-				(setq x (add x 1)))
-			(setq y (add y 1))
-			(print))))
+		(defq k "")
+		(while (and c (p c))
+			(setq k (cat k (char c)))
+			(setq c (read-char s)))
+		(list k c)))
 
-(defun repeat-fxy (l)
+(defun read-white-space (s c)
+	(read-token s c is-white-space))
+
+(defun read-num (s c)
+	(read-token s c is-num))
+
+(defun read-alpha-num (s c)
+	(read-token s c is-alpha-num))
+
+(defun read-ident (s c)
+	(read-token s c is-ident))
+
+(defun read-group (s c)
 	(progn
-		(defq c 0)
-		(while (lt c l)
-			(fxy fq 10 20)
-			(setq c (add c 1)))))
+		(defq k (read-token s (read-char s) (lambda (x) (not (is-group-close x)))))
+		(list (elem 0 k) (read-char s))))
+
+(defun read-file (f)
+	(progn
+		(defq s (file-stream f)
+			c (read-char s)
+			k nil)
+		(while c
+			(setq k (read-white-space s c)
+				c (elem 1 k)
+				k (elem 0 k))
+			(setq k (cond ((is-comment c) (list (cat (char c) (read-line s)) (read-char s)))
+						((is-group-open c) (read-group s c))
+						((is-num c) (read-num s c))
+			 			((is-alpha c) (read-ident s c))
+						(t (list "" (read-char s))))
+				c (elem 1 k)
+				k (elem 0 k))
+			(if (not (eql "" k)) (print k)))))
+
+(read-file "cmd/lisp.nasm")

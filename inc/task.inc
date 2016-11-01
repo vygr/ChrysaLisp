@@ -39,7 +39,7 @@ def_method stack_depth, sys/task_stack_depth, static, {}, {r0}
 ; task structures
 ;;;;;;;;;;;;;;;;;
 
-tk_stack_size	equ 1024 * 4
+tk_stack_size	equ 1024 * 8
 
 def_struct tk_node, ln_node
 	ptr tk_node_stack
