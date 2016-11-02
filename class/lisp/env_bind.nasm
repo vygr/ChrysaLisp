@@ -8,7 +8,7 @@ def_func class/lisp/env_bind
 	;r0 = lisp object
 	;r1 = vars list
 	;r2 = vals list
-	;r3 = vals start index_vals
+	;r3 = vals start index
 	;outputs
 	;r0 = lisp object
 	;r1 = value

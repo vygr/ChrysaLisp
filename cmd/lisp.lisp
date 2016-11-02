@@ -108,29 +108,32 @@
 
 "C-Script compiler !"
 
+(defmacro ascii (c)
+	(code c))
+
 (defun is-num (c)
-	(le 48 c 57))
+	(le (ascii "0") c (ascii "9")))
 
 (defun is-alpha (c)
-	(or (le 65 c 90) (le 97 c 122)))
+	(or (le (ascii "a") c (ascii "z")) (le (ascii "A") c (ascii "Z"))))
 
 (defun is-alpha-num (c)
 	(or (is-num c) (is-alpha c)))
 
 (defun is-white-space (c)
-	(lt c 32))
+	(lt c (ascii " ")))
 
 (defun is-comment (c)
-	(eq c 59))
+	(eq c (ascii ";")))
 
 (defun is-group-open (c)
-	(eq c 123))
+	(eq c (ascii "{")))
 
 (defun is-group-close (c)
-	(eq c 125))
+	(eq c (ascii "}")))
 
 (defun is-ident (c)
-	(or (is-alpha-num c) (eq c 95)))
+	(or (is-alpha-num c) (eq c (ascii "_"))))
 
 (defun read-token (s c p)
 	(progn
