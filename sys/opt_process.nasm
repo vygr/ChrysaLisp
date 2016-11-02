@@ -20,7 +20,7 @@ def_func sys/opt_process
 		loop_start
 			vp_cpy [r12], r11
 			breakif r11, ==, 0
-			vp_add 8, r12
+			vp_add ptr_size, r12
 			f_call sys_string, compare, {r12, r13}, {r0}
 			if r0, ==, 0
 				vp_rel options_table, r0
@@ -35,9 +35,8 @@ def_func sys/opt_process
 		loop_end
 	next_arg:
 		vp_cpy [r14], r0
-		breakif r0, ==, 0
-		vp_add 8, r14
-	loop_end
+		vp_add ptr_size, r14
+	loop_until r0, ==, 0
 	vp_ret
 
 opt_cpu:
@@ -47,7 +46,7 @@ opt_cpu:
 	;r14 = arg pointer updated
 
 	;set cpu ID
-	vp_add 8, r14
+	vp_add ptr_size, r14
 	vp_cpy [r14], r0
 	if r0, !=, 0
 		f_call sys_string, to_long, {r0, 10}, {r0}
@@ -63,7 +62,7 @@ opt_run:
 	;r14 = arg pointer updated
 
 	;load and run task
-	vp_add 8, r14
+	vp_add ptr_size, r14
 	vp_cpy [r14], r0
 	if r0, !=, 0
 		f_call sys_load, bind, {r0}, {r0}
@@ -80,7 +79,7 @@ opt_link:
 	;r14 = arg pointer updated
 
 	;start link task
-	vp_add 8, r14
+	vp_add ptr_size, r14
 	vp_cpy [r14], r0
 	if r0, !=, 0
 		;start link
@@ -90,7 +89,6 @@ opt_link:
 
 		;allocate params message
 		f_call sys_mail, alloc, {}, {r7}
-		assert r0, !=, 0
 
 		;fill in destination
 		vp_cpy r5, [r0 + msg_dest]

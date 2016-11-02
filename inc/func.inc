@@ -252,6 +252,7 @@ _ref_%[%%i]_path:
 		db	0
 		%assign %%i %%i + 1
 	%endrep
+	align 8, db 0
 _func_end:
 %endmacro
 

@@ -43,6 +43,7 @@ ld_load_init_loader:
 	incbin 'obj/sys/load_bind'		;must be second function !
 	incbin 'obj/sys/load_statics'	;must be third function !
 	incbin 'obj/sys/load_deinit'	;must be included ! Because it unmaps all function blocks
+	incbin 'obj/sys/mem_statics'	;must be inclused ! Because load_deinit acsesses them
 ld_gui_init_gui:
 	incbin 'obj/gui/gui_init'		;must be included !
 ld_kernel:
@@ -56,7 +57,6 @@ ld_kernel:
 	incbin 'obj/sys/task_init'
 	incbin 'obj/sys/task_statics'
 	incbin 'obj/sys/mem_init'
-	incbin 'obj/sys/mem_statics'
 	incbin 'obj/sys/link_init'
 	incbin 'obj/sys/link_statics'
 	incbin 'obj/gui/font_init'

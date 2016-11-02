@@ -16,7 +16,7 @@ def_func sys/mem_alloc
 		vp_xor r1, r1
 		vp_ret
 	endif
-	vp_lea [r0 + ptr_size], r1		;extra 8 bytes for heap pointer
+	vp_lea [r0 + ptr_size], r1		;extra bytes for heap pointer
 
 	;find object heap
 	f_bind sys_mem, statics, r0

@@ -18,11 +18,11 @@ def_func sys/kernel
 	;save argv on stack
 	vp_push r0
 
-	;init tasks
-	f_call sys_task, init
-
 	;init allocator
 	f_call sys_mem, init
+
+	;init tasks
+	f_call sys_task, init
 
 	;init linker
 	f_call sys_link, init
@@ -269,15 +269,12 @@ def_func sys/kernel
 		sdl_delay r0
 	loop_end
 
-	;deinit font
-	f_call gui_font, deinit
-
 	;free any kernel routing table
 	f_call sys_mem, free, {[r4 + lk_table_array]}
 	vp_add lk_table_size, r4
 
-	;deinit allocator
-	f_call sys_mem, deinit
+	;deinit font
+	f_call gui_font, deinit
 
 	;deinit mailer
 	f_call sys_mail, deinit
@@ -285,11 +282,14 @@ def_func sys/kernel
 	;deinit tasks
 	f_call sys_task, deinit
 
+	;deinit allocator
+	f_call sys_mem, deinit
+
 	;deinit loader
 	f_call sys_load, deinit
 
 	;pop argv and exit !
-	vp_add 8, r4
+	vp_add ptr_size, r4
 	sys_exit 0
 
 def_func_end

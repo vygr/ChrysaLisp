@@ -3,6 +3,17 @@
 %include 'inc/sdl2.inc'
 
 def_func gui/font_deinit
+
+	def_struct local
+		ptr local_old_stack
+	def_struct_end
+
+	;align stack to 16 bytes for SDl
+	vp_cpy r4, r15
+	vp_sub local_size, r4
+	vp_and -16, r4
+	vp_cpy r15, [r4 + local_old_stack]
+
 	;get font statics
 	f_bind gui_font, statics, r15
 
@@ -26,6 +37,8 @@ def_func gui/font_deinit
 		ttf_close_font [r12 + ft_font_handle]
 		f_call sys_mem, free, {r12}
 	loop_end
+
+	vp_cpy [r4 + local_old_stack], r4
 	vp_ret
 
 def_func_end
