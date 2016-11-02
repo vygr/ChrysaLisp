@@ -32,8 +32,8 @@ def_func sys/task_callback
 	f_call sys_cpu, id, {}, {r0}
 	vp_cpy r4, [r3 + kn_msg_reply_id]
 	vp_cpy r0, [r3 + kn_msg_reply_id + 8]
-	vp_cpy_cl 0, [r3 + msg_dest]
-	vp_cpy r0, [r3 + msg_dest + 8]
+	vp_cpy_cl 0, [r3 + msg_dest + id_mbox]
+	vp_cpy r0, [r3 + msg_dest + id_cpu]
 	vp_cpy_cl kn_call_callback, [r3 + kn_msg_function]
 	vp_cpy r5, [r3 + kn_msg_callback_addr]
 	vp_cpy r6, [r3 + kn_msg_user]

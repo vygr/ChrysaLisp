@@ -64,11 +64,11 @@ def_func sys/link
 	f_call sys_mail, alloc, {}, {r0}
 	assert r0, !=, 0
 	vp_xor r1, r1
-	vp_cpy r1, [r0 + msg_dest]
-	vp_cpy r9, [r0 + (msg_dest + 8)]
+	vp_cpy r1, [r0 + msg_dest + id_mbox]
+	vp_cpy r9, [r0 + msg_dest + id_cpu]
 	vp_cpy r1, [r0 + kn_msg_user]
-	vp_cpy r1, [r0 + kn_msg_reply_id]
-	vp_cpy r1, [r0 + kn_msg_reply_id + 8]
+	vp_cpy r1, [r0 + kn_msg_reply_id + id_mbox]
+	vp_cpy r1, [r0 + kn_msg_reply_id + id_cpu]
 	vp_cpy_cl kn_call_task_route, [r0 + kn_msg_function]
 	vp_cpy r8, [r0 + kn_msg_link_route_origin]
 	vp_cpy r8, [r0 + kn_msg_link_route_via]
@@ -113,7 +113,7 @@ def_func sys/link
 			vp_cpy [r4 + lk_node_cpu_id], r0
 			f_bind sys_mail, statics, r8
 			loop_list_forward r8 + ml_statics_offchip_list, r7, r8
-				vp_cpy [r7 + (msg_dest + 8)], r2
+				vp_cpy [r7 + msg_dest + id_cpu], r2
 				breakif r0, ==, r2
 				vp_cpy [r4 + lk_node_table + lk_table_array], r1
 				continueif r1, ==, 0

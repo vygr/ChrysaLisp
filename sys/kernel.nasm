@@ -77,10 +77,10 @@ def_func sys/kernel
 			case r1, ==, kn_call_task_open
 			run_here:
 				;fill in reply ID, user field is left alone !
-				vp_cpy [r15 + kn_msg_reply_id], r1
-				vp_cpy [r15 + kn_msg_reply_id + 8], r2
-				vp_cpy r1, [r15 + msg_dest]
-				vp_cpy r2, [r15 + (msg_dest + 8)]
+				vp_cpy [r15 + kn_msg_reply_id + id_mbox], r1
+				vp_cpy [r15 + kn_msg_reply_id + id_cpu], r2
+				vp_cpy r1, [r15 + msg_dest + id_mbox]
+				vp_cpy r2, [r15 + msg_dest + id_cpu]
 
 				;open single task and return mailbox ID
 				f_call sys_load, bind, {&[r15 + kn_msg_open_pathname]}, {r0}
@@ -92,8 +92,8 @@ def_func sys/kernel
 					f_call sys_task, start, {r0}, {_, r1}
 					f_call sys_cpu, id, {}, {r0}
 				endif
-				vp_cpy r1, [r15 + kn_msg_reply_id]
-				vp_cpy r0, [r15 + kn_msg_reply_id + 8]
+				vp_cpy r1, [r15 + kn_msg_reply_id + id_mbox]
+				vp_cpy r0, [r15 + kn_msg_reply_id + id_cpu]
 				vp_cpy_cl kn_msg_reply_size, [r15 + msg_length]
 				f_call sys_mail, send, {r15}
 				break
@@ -112,7 +112,7 @@ def_func sys/kernel
 				vp_jmpif r0, ==, r5, run_here
 
 				;send to better kernel
-				vp_cpy r0, [r15 + (msg_dest + 8)]
+				vp_cpy r0, [r15 + msg_dest + id_cpu]
 				f_call sys_mail, send, {r15}
 				break
 			case r1, ==, kn_call_task_route
@@ -204,7 +204,7 @@ def_func sys/kernel
 					vp_add ptr_size - 1, r2
 					vp_and -ptr_size, r2
 					f_call sys_mem, copy, {r0, r1, r2}, {_, _}
-					vp_cpy r11, [r5 + msg_dest + 8]
+					vp_cpy r11, [r5 + msg_dest + id_cpu]
 					f_call sys_mail, send, {r5}
 				loop_end
 			drop_msg:
@@ -218,10 +218,10 @@ def_func sys/kernel
 
 				;reply to originator
 				vp_pop r0
-				vp_cpy [r0 + kn_msg_reply_id], r1
-				vp_cpy [r0 + kn_msg_reply_id + 8], r2
-				vp_cpy r1, [r0 + msg_dest]
-				vp_cpy r2, [r0 + msg_dest + 8]
+				vp_cpy [r0 + kn_msg_reply_id + id_mbox], r1
+				vp_cpy [r0 + kn_msg_reply_id + id_cpu], r2
+				vp_cpy r1, [r0 + msg_dest + id_mbox]
+				vp_cpy r2, [r0 + msg_dest + id_cpu]
 				f_call sys_mail, send, {r0}
 			endswitch
 		loop_end

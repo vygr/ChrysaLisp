@@ -91,8 +91,8 @@ opt_link:
 		f_call sys_mail, alloc, {}, {r7}
 
 		;fill in destination
-		vp_cpy r5, [r0 + msg_dest]
-		vp_cpy r6, [r0 + (msg_dest + 8)]
+		vp_cpy r5, [r0 + msg_dest + id_mbox]
+		vp_cpy r6, [r0 + msg_dest + id_cpu]
 
 		;fill in paramaters and set length
 		f_call sys_string, copy, {$link_path, &[r7 + msg_data]}, {_, r1}

@@ -10,7 +10,7 @@ def_func sys/mail_send
 	;on or off chip ?
 	vp_cpy r0, r2
 	f_call sys_cpu, id, {}, {r0}
-	if r0, ==, [r2 + (msg_dest + 8)]
+	if r0, ==, [r2 + msg_dest + id_cpu]
 		;on this chip
 		vp_cpy [r2 + msg_parcel_size], r1
 		if r1, !=, 0
@@ -18,7 +18,7 @@ def_func sys/mail_send
 			f_bind sys_mail, statics, r1
 			vp_cpy [r1 + ml_statics_in_mailbox], r1
 		else
-			vp_cpy [r2 + msg_dest], r1
+			vp_cpy [r2 + msg_dest + id_mbox], r1
 			if r1, ==, 0
 				;mail for kernel !
 				f_bind sys_mail, statics, r1

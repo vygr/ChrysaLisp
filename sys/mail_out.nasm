@@ -18,20 +18,20 @@ def_func sys/mail_out
 		;header info for each fragment
 		vp_cpy msg_data, r10
 		vp_cpy [r15 + msg_length], r11
-		vp_cpy [r15 + msg_dest], r12
-		vp_cpy [r15 + msg_dest + 8], r13
+		vp_cpy [r15 + msg_dest + id_mbox], r12
+		vp_cpy [r15 + msg_dest + id_cpu], r13
 		loop_start
 			;create fragment
 			f_call sys_mail, alloc, {}, {r14}
 			assert r0, !=, 0
 
 			;fill in fragment header
-			vp_cpy r12, [r14 + msg_dest]
-			vp_cpy r13, [r14 + msg_dest + 8]
+			vp_cpy r12, [r14 + msg_dest + id_mbox]
+			vp_cpy r13, [r14 + msg_dest + id_cpu]
 			vp_cpy r10, [r14 + msg_parcel_frag]
 			vp_cpy r11, [r14 + msg_parcel_size]
-			vp_cpy r6, [r14 + msg_parcel_id]
-			vp_cpy r7, [r14 + msg_parcel_id + 8]
+			vp_cpy r6, [r14 + msg_parcel_id + id_mbox]
+			vp_cpy r7, [r14 + msg_parcel_id + id_cpu]
 
 			;data source and destination
 			vp_lea [r15 + r10], r0

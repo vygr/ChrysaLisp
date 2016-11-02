@@ -9,23 +9,23 @@ def_func sys/mail_in
 		f_call sys_mail, mymail, {}, {r15}
 
 		;look up parcel in mailbox
-		vp_cpy [r15 + msg_parcel_id], r6
-		vp_cpy [r15 + msg_parcel_id + 8], r7
-		vp_cpy [r15 + msg_dest], r13
+		vp_cpy [r15 + msg_parcel_id + id_mbox], r6
+		vp_cpy [r15 + msg_parcel_id + id_cpu], r7
+		vp_cpy [r15 + msg_dest + id_mbox], r13
 		loop_list_forward r13 + mailbox_parcel_list, r0, r1
-			continueif r6, !=, [r0 + msg_parcel_id]
-		loop_until r7, ==, [r0 + msg_parcel_id + 8]
+			continueif r6, !=, [r0 + msg_parcel_id + id_mbox]
+		loop_until r7, ==, [r0 + msg_parcel_id + id_cpu]
 		if r1, ==, 0
 			;new parcel
 			vp_cpy [r15 + msg_parcel_size], r12
-			vp_cpy [r15 + msg_dest + 8], r14
+			vp_cpy [r15 + msg_dest + id_cpu], r14
 			f_call sys_mem, alloc, {r12}, {r0, _}
 			assert r0, !=, 0
 			vp_cpy r12, [r0 + msg_length]
-			vp_cpy r13, [r0 + msg_dest]
-			vp_cpy r14, [r0 + msg_dest + 8]
-			vp_cpy r6, [r0 + msg_parcel_id]
-			vp_cpy r7, [r0 + msg_parcel_id + 8]
+			vp_cpy r13, [r0 + msg_dest + id_mbox]
+			vp_cpy r14, [r0 + msg_dest + id_cpu]
+			vp_cpy r6, [r0 + msg_parcel_id + id_mbox]
+			vp_cpy r7, [r0 + msg_parcel_id + id_cpu]
 			vp_cpy_cl msg_data, [r0 + msg_parcel_total]
 			vp_cpy_cl 0, [r0 + msg_parcel_size]
 			vp_add mailbox_parcel_list, r13
