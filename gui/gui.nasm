@@ -47,7 +47,7 @@ def_func gui/gui
 	f_call label, dirty_all, {r0}
 
 	;sleep just a moment to let all routeing finish
-	f_call sys_task, sleep, {1000000}
+	;f_call sys_task, sleep, {1000000}
 
 	;for now fire up the test apps
 	;this might be an gui auto run list eventually
