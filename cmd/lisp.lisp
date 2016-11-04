@@ -116,24 +116,23 @@
 (defmacro short (x)
 	`(bit-and ,x 0xffff))
 
-(defun emit-byte (x)
-	(setq emit-buffer (cat emit-buffer (list (byte x)))))
+(defmacro int (x)
+	`(bit-and ,x 0xffffffff))
 
-(defun emit-bytes (&rest b)
-	(map emit-byte b))
+(defun emit (&rest b)
+	(map (lambda (x) (push emit-buffer x)) b))
 
-(defun emit-short (x)
-	(emit-bytes
-		(bit-shr x 8) x))
+(defun emit-byte (&rest b)
+	(map (lambda (x) (emit (byte x))) b))
 
-(defun emit-int (x)
-	(emit-bytes
-		(bit-shr x 24) (bit-shr x 16) (bit-shr x 8) x))
+(defun emit-short (&rest b)
+	(map (lambda (x) (emit-byte x (bit-shr x 8))) b))
 
-(defun emit-long (x)
-	(emit-bytes
-		(bit-shr x 56) (bit-shr x 48) (bit-shr x 40) (bit-shr x 32)
-		(bit-shr x 24) (bit-shr x 16) (bit-shr x 8) x))
+(defun emit-int (&rest b)
+	(map (lambda (x) (emit-short x (bit-shr x 16))) b))
+
+(defun emit-long (&rest b)
+	(map (lambda (x) (emit-int x (bit-shr x 32))) b))
 
 (defun print-emit-buffer (c)
 	(defq i 0)
@@ -150,11 +149,11 @@
 	r9 9 r10 10 r11 11 r12 12 r13 3 r14 14 r15 15)
 
 (defun vp-add-cr (c x)
-	(emit-bytes 23 x)
+	(emit-byte 23 x)
 	(emit-long c))
 
 (defun vp-add-rr (x y)
-	(emit-bytes 24 x y))
+	(emit-byte 24 x y))
 
 (defq emit-buffer '())
 

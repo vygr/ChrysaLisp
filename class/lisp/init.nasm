@@ -153,6 +153,7 @@ built_ins:
 	built_in "bit-and", 0, func_band
 	built_in "bit-or", 0, func_bor
 	built_in "bit-xor", 0, func_bxor
+	built_in "push", 0, func_push
 	built_in "map", 0, func_map
 	built_in "mod", 0, func_mod
 	built_in "mul", 0, func_mul

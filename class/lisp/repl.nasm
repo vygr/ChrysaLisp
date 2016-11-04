@@ -51,7 +51,10 @@ def_func class/lisp/repl
 		func_call lisp, repl_eval, {this, ast}, {value}
 		func_call ref, deref, {ast}
 
-		if {stream == this->lisp_stdin}
+		if {value->obj_vtable == @class/class_error}
+			func_call lisp, repl_print, {this, this->lisp_stderr, value}
+			func_call stream, write_char, {this->lisp_stderr, char_lf}
+		elseif {stream == this->lisp_stdin}
 			func_call lisp, repl_print, {this, this->lisp_stdout, value}
 			func_call stream, write_char, {this->lisp_stdout, char_lf}
 		endif

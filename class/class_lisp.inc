@@ -96,6 +96,7 @@ def_method func_bshl, class/lisp/func_bshl, static, {r0, r1}, {r1}
 def_method func_band, class/lisp/func_band, static, {r0, r1}, {r1}
 def_method func_bor, class/lisp/func_bor, static, {r0, r1}, {r1}
 def_method func_bxor, class/lisp/func_bxor, static, {r0, r1}, {r1}
+def_method func_push, class/lisp/func_push, static, {r0, r1}, {r1}
 
 def_enum
 	enum type_args_eval_apply

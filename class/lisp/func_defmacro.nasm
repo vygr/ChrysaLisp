@@ -19,7 +19,7 @@ def_func class/lisp/func_defmacro
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 3}
+	if {length >= 3}
 		func_call vector, get_element, {args, 1}, {vars}
 		if {vars->obj_vtable == @class/class_vector}
 			func_call vector, get_element, {args, 0}, {name}
