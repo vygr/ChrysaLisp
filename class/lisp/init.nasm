@@ -147,6 +147,12 @@ built_ins:
 	built_in "gt", 0, func_gt
 	built_in "le", 0, func_le
 	built_in "ge", 0, func_ge
+	built_in "bit-shr", 0, func_bshr
+	built_in "bit-ashr", 0, func_bashr
+	built_in "bit-shl", 0, func_bshl
+	built_in "bit-and", 0, func_band
+	built_in "bit-or", 0, func_bor
+	built_in "bit-xor", 0, func_bxor
 	built_in "map", 0, func_map
 	built_in "mod", 0, func_mod
 	built_in "mul", 0, func_mul
