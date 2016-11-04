@@ -36,13 +36,12 @@
 		`(if ,x (and ~b) nil)))
 
 (defmacro for (s e i b)
-	(progn
-		(defq _l (gensym) _e (gensym) _i (gensym))
-		`(progn
-			(defq ,_l ,s ,_e ,e ,_i ,i)
-			(while (lt ,_l ,_e)
-				,b
-				(setq ,_l (add ,_l ,_i))))))
+	(defq _l (gensym) _e (gensym) _i (gensym))
+	`(progn
+		(defq ,_l ,s ,_e ,e ,_i ,i)
+		(while (lt ,_l ,_e)
+			,b
+			(setq ,_l (add ,_l ,_i)))))
 
 "Map/Reduce operations"
 
@@ -77,105 +76,90 @@
 "Streams"
 
 (defun each-line (f b)
-	(progn
-		(defq s (file-stream f) l t)
-		(while (setq l (read-line s))
-			(b l))))
+	(defq s (file-stream f) l t)
+	(while (setq l (read-line s))
+		(b l)))
 
 (defun print-file (f)
 	(each-line f print))
 
 "Utilities"
 
-(defun print-map (m)
-	(progn
-		(map print m)
-		t))
-
-(defun print-env (l e)
-	(progn
-		(print "**" l "**")
-		(map print_map e)
-		t))
-
-(defun prin-num (n p c)
-	(progn
-		(defq s (str n) l (length s))
-		(while (lt l p)
-			(prin c)
-			(setq l (add l 1)))
-		(prin s)))
-
-"C-Script compiler !"
-
 (defmacro ascii (c)
 	(code c))
 
-(defun is-num (c)
-	(le (ascii "0") c (ascii "9")))
+(defun prin-space (x)
+	(prin x " ") t)
 
-(defun is-alpha (c)
-	(or (le (ascii "a") c (ascii "z")) (le (ascii "A") c (ascii "Z"))))
+(defun prin-map (m)
+	(map prin-space m))
 
-(defun is-alpha-num (c)
-	(or (is-num c) (is-alpha c)))
+(defun print-map (m)
+	(map print m) t)
 
-(defun is-white-space (c)
-	(lt c (ascii " ")))
+(defun print-env (l e)
+	(print "**" l "**")
+	(map print_map e) t)
 
-(defun is-comment (c)
-	(eq c (ascii ";")))
+(defun prin-num (n p c)
+	(defq s (str n) l (length s))
+	(while (lt l p)
+		(prin c)
+		(setq l (add l 1)))
+	(prin s))
 
-(defun is-group-open (c)
-	(eq c (ascii "{")))
+"VP Assembler"
 
-(defun is-group-close (c)
-	(eq c (ascii "}")))
+(defmacro byte (x)
+	`(bit-and ,x 0xff))
 
-(defun is-ident (c)
-	(or (is-alpha-num c) (eq c (ascii "_"))))
+(defmacro short (x)
+	`(bit-and ,x 0xffff))
 
-(defun read-token (s c p)
-	(progn
-		(defq k "")
-		(while (and c (p c))
-			(setq k (cat k (char c)))
-			(setq c (read-char s)))
-		(list k c)))
+(defun emit-byte (x)
+	(setq emit-buffer (cat emit-buffer (list (byte x)))))
 
-(defun read-white-space (s c)
-	(read-token s c is-white-space))
+(defun emit-bytes (&rest b)
+	(map emit-byte b))
 
-(defun read-num (s c)
-	(read-token s c is-num))
+(defun emit-short (x)
+	(emit-bytes
+		(bit-shr x 8) x))
 
-(defun read-alpha-num (s c)
-	(read-token s c is-alpha-num))
+(defun emit-int (x)
+	(emit-bytes
+		(bit-shr x 24) (bit-shr x 16) (bit-shr x 8) x))
 
-(defun read-ident (s c)
-	(read-token s c is-ident))
+(defun emit-long (x)
+	(emit-bytes
+		(bit-shr x 56) (bit-shr x 48) (bit-shr x 40) (bit-shr x 32)
+		(bit-shr x 24) (bit-shr x 16) (bit-shr x 8) x))
 
-(defun read-group (s c)
-	(progn
-		(defq k (read-token s (read-char s) (lambda (x) (not (is-group-close x)))))
-		(list (elem 0 k) (read-char s))))
+(defun print-emit-buffer (c)
+	(defq i 0)
+	(while (lt i (length emit-buffer))
+		(if (eq (mod i c) 0)
+			(progn
+				(prin-num i 4 "0") (prin " -> ")))
+		(prin-num (elem i emit-buffer) 3 "0") (prin " ")
+		(setq i (inc i))
+		(if (eq (mod i c) 0)
+			(print))))
 
-(defun read-file (f)
-	(progn
-		(defq s (file-stream f)
-			c (read-char s)
-			k nil)
-		(while c
-			(setq k (read-white-space s c)
-				c (elem 1 k)
-				k (elem 0 k))
-			(setq k (cond ((is-comment c) (list (cat (char c) (read-line s)) (read-char s)))
-						((is-group-open c) (read-group s c))
-						((is-num c) (read-num s c))
-			 			((is-alpha c) (read-ident s c))
-						(t (list "" (read-char s))))
-				c (elem 1 k)
-				k (elem 0 k))
-			(if (not (eql "" k)) (print k)))))
+(defq r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 r8 8
+	r9 9 r10 10 r11 11 r12 12 r13 3 r14 14 r15 15)
 
-(read-file "cmd/lisp.nasm")
+(defun vp-add-cr (c x)
+	(emit-bytes 23 x)
+	(emit-long c))
+
+(defun vp-add-rr (x y)
+	(emit-bytes 24 x y))
+
+(defq emit-buffer '())
+
+(vp-add-cr 3456 r0)
+(vp-add-cr 345623 r1)
+(vp-add-rr r3 r5)
+
+(print-emit-buffer 16)
