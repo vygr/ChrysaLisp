@@ -139,7 +139,6 @@ built_ins:
 	built_in "div", 0, func_div
 	built_in "env", 0, func_env
 	built_in "eql", 0, func_eql
-	built_in "every", 0, func_every
 	built_in "length", 0, func_length
 	built_in "eq", 0, func_eq
 	built_in "ne", 0, func_ne
@@ -157,13 +156,10 @@ built_ins:
 	built_in "mod", 0, func_mod
 	built_in "mul", 0, func_mul
 	built_in "not", 0, func_not
-	built_in "notany", 0, func_notany
-	built_in "notevery", 0, func_notevery
 	built_in "prin", 0, func_prin
 	built_in "print", 0, func_print
 	built_in "progn", 0, func_progn
 	built_in "apply", 0, func_apply
-	built_in "some", 0, func_some
 	built_in "str", 0, func_str
 	built_in "slice", 0, func_slice
 	built_in "sub", 0, func_sub

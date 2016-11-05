@@ -77,6 +77,39 @@
 (defmacro merge (&rest l)
 	`(reduce cat (zip ~l)))
 
+"Predicates"
+
+(defun some_impl (f b)
+	(defq m (length (elem 0 b)) i 1 l (list) e nil a nil v nil)
+	(while (lt i (length b))
+		(setq e (length (elem i b)) m (if (lt m e) m e) i (inc i)))
+	(setq e 0)
+	(while (and (not v) (lt e m))
+		(setq a (list) i 0)
+		(while (lt i (length b))
+			(push a (elem e (elem i b)))
+			(setq i (inc i)))
+		(setq v (apply f a) e (inc e)))
+	v)
+
+(defun every_impl (f b)
+	(defq m (length (elem 0 b)) i 1 l (list) e nil a nil v t)
+	(while (lt i (length b))
+		(setq e (length (elem i b)) m (if (lt m e) m e) i (inc i)))
+	(setq e 0)
+	(while (and v (lt e m))
+		(setq a (list) i 0)
+		(while (lt i (length b))
+			(push a (elem e (elem i b)))
+			(setq i (inc i)))
+		(setq v (apply f a) e (inc e)))
+	v)
+
+(defun some (f &rest b) (some_impl f b))
+(defun every (f &rest b) (every_impl f b))
+(defun notany (f &rest b) (not (some_impl f b)))
+(defun notevery (f &rest b) (not (every_impl f b)))
+
 "Comparison"
 
 (defun equalp (x y)

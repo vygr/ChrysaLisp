@@ -60,10 +60,6 @@ def_method func_ge, class/lisp/func_ge, static, {r0, r1}, {r1}
 def_method func_cond, class/lisp/func_cond, static, {r0, r1}, {r1}
 def_method func_progn, class/lisp/func_progn, static, {r0, r1}, {r1}
 def_method func_not, class/lisp/func_not, static, {r0, r1}, {r1}
-def_method func_some, class/lisp/func_some, static, {r0, r1}, {r1}
-def_method func_every, class/lisp/func_every, static, {r0, r1}, {r1}
-def_method func_notany, class/lisp/func_notany, static, {r0, r1}, {r1}
-def_method func_notevery, class/lisp/func_notevery, static, {r0, r1}, {r1}
 def_method func_length, class/lisp/func_length, static, {r0, r1}, {r1}
 def_method func_while, class/lisp/func_while, static, {r0, r1}, {r1}
 def_method func_print, class/lisp/func_print, static, {r0, r1}, {r1}
