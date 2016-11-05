@@ -115,6 +115,7 @@ built_ins:
 	built_in "&optional", lisp_sym_optional
 	built_in "nil", lisp_sym_nil
 	built_in "t", lisp_sym_t
+	built_in "list", lisp_sym_list
 
 	built_in "lambda", lisp_sym_lambda, func_lambda, type_apply
 
@@ -129,7 +130,6 @@ built_ins:
 	built_in "unquote", lisp_sym_unquote
 	built_in "unquote-splicing", lisp_sym_splicing
 	built_in "cat", lisp_sym_cat, func_cat
-	built_in "list", lisp_sym_list, func_list
 
 	built_in "macroexpand-1", 0, func_macroexpand_1
 	built_in "macroexpand", 0, func_macroexpand
@@ -154,7 +154,6 @@ built_ins:
 	built_in "bit-or", 0, func_bor
 	built_in "bit-xor", 0, func_bxor
 	built_in "push", 0, func_push
-	built_in "map", 0, func_map
 	built_in "mod", 0, func_mod
 	built_in "mul", 0, func_mul
 	built_in "not", 0, func_not
@@ -163,7 +162,7 @@ built_ins:
 	built_in "prin", 0, func_prin
 	built_in "print", 0, func_print
 	built_in "progn", 0, func_progn
-	built_in "reduce", 0, func_reduce
+	built_in "apply", 0, func_apply
 	built_in "some", 0, func_some
 	built_in "str", 0, func_str
 	built_in "slice", 0, func_slice

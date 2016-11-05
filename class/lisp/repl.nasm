@@ -19,9 +19,9 @@ def_func class/lisp/repl
 
 	func_call stream, read_char, {stream}, {char}
 	loop_start
-		virt_call stream, write_flush, {this->lisp_stderr}
-		func_call sys_task, yield
 		virt_call stream, write_flush, {this->lisp_stdout}
+		func_call sys_task, yield
+		virt_call stream, write_flush, {this->lisp_stderr}
 
 		func_call lisp, repl_read, {this, stream, char}, {ast, char}
 		breakif {char == -1}

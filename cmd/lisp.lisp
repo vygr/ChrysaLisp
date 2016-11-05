@@ -1,3 +1,7 @@
+"Primitives"
+
+(defq list (lambda (&rest b) b))
+
 "Definitions"
 
 (defmacro defun (n a &rest b)
@@ -43,7 +47,29 @@
 			,b
 			(setq ,_l (add ,_l ,_i)))))
 
-"Map/Reduce operations"
+"Map/Reduce"
+
+(defun map (f &rest b)
+	(defq m (length (elem 0 b)) i 1 l (list) e nil a nil)
+	(while (lt i (length b))
+		(setq e (length (elem i b)) m (if (lt m e) m e) i (inc i)))
+	(setq e 0)
+	(while (lt e m)
+		(setq a (list) i 0)
+		(while (lt i (length b))
+			(push a (elem e (elem i b)))
+			(setq i (inc i)))
+		(push l (apply f a))
+		(setq e (inc e)))
+	l)
+
+(defun reduce (f l &rest a)
+	(if (eq 0 (length a))
+		(defq e 1 a (elem 0 l))
+		(defq e 0 a (elem 0 a)))
+	(while (lt e (length l))
+		(setq a (apply f (list a (elem e l))) e (inc e)))
+	a)
 
 (defmacro zip (&rest l)
  	`(map list ~l))

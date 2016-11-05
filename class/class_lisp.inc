@@ -42,7 +42,6 @@ def_method repl_expand, class/lisp/repl_expand, static, {r0, r1}, {r1}
 
 def_method func_defq, class/lisp/func_defq, static, {r0, r1}, {r1}
 def_method func_setq, class/lisp/func_setq, static, {r0, r1}, {r1}
-def_method func_list, class/lisp/func_list, static, {r0, r1}, {r1}
 def_method func_lambda, class/lisp/func_lambda, static, {r0, r1}, {r1}
 def_method func_quote, class/lisp/func_quote, static, {r0, r1}, {r1}
 def_method func_qquote, class/lisp/func_qquote, static, {r0, r1}, {r1}
@@ -61,8 +60,6 @@ def_method func_ge, class/lisp/func_ge, static, {r0, r1}, {r1}
 def_method func_cond, class/lisp/func_cond, static, {r0, r1}, {r1}
 def_method func_progn, class/lisp/func_progn, static, {r0, r1}, {r1}
 def_method func_not, class/lisp/func_not, static, {r0, r1}, {r1}
-def_method func_map, class/lisp/func_map, static, {r0, r1}, {r1}
-def_method func_reduce, class/lisp/func_reduce, static, {r0, r1}, {r1}
 def_method func_some, class/lisp/func_some, static, {r0, r1}, {r1}
 def_method func_every, class/lisp/func_every, static, {r0, r1}, {r1}
 def_method func_notany, class/lisp/func_notany, static, {r0, r1}, {r1}
@@ -97,6 +94,7 @@ def_method func_band, class/lisp/func_band, static, {r0, r1}, {r1}
 def_method func_bor, class/lisp/func_bor, static, {r0, r1}, {r1}
 def_method func_bxor, class/lisp/func_bxor, static, {r0, r1}, {r1}
 def_method func_push, class/lisp/func_push, static, {r0, r1}, {r1}
+def_method func_apply, class/lisp/func_apply, static, {r0, r1}, {r1}
 
 def_enum
 	enum type_args_eval_apply
