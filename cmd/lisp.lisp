@@ -71,7 +71,7 @@
 		(defq e 1 a (elem 0 l))
 		(defq e 0 a (elem 0 a)))
 	(while (lt e (length l))
-		(setq a (apply f (list a (elem e l))) e (inc e)))
+		(setq a (f a (elem e l)) e (inc e)))
 	a)
 
 (defmacro zip (&rest l)
