@@ -190,14 +190,19 @@
 (defun emit-long (&rest b)
 	(map (lambda (x) (emit-int x (bit-shr x 32))) b))
 
+(defun to-base-char (x)
+	(elem x "0123456789abcdefghijklmnopqrstuvwxyz"))
+
+(defun prin-hex (x)
+	(prin (to-base-char (div x 16)) (to-base-char (mod x 16))))
+
 (defun print-emit-buffer (c)
 	(defq i 0)
 	(while (lt i (length emit-buffer))
 		(if (eq (mod i c) 0)
 			(progn
-				(prin-num i 4 "0")
-				(prin " -> ")))
-		(prin-num (elem i emit-buffer) 3 "0") (prin " ")
+				(prin-num i 4 "0") (prin " : ")))
+		(prin-hex (elem i emit-buffer)) (prin " ")
 		(setq i (inc i))
 		(if (eq (mod i c) 0)
 			(print)))
@@ -207,11 +212,11 @@
 	r9 9 r10 10 r11 11 r12 12 r13 3 r14 14 r15 15)
 
 (defun vp-add-cr (c x)
-	(emit-byte 23 x)
+	(emit-byte 0x23 x)
 	(emit-long c))
 
 (defun vp-add-rr (x y)
-	(emit-byte 24 x y))
+	(emit-byte 0x24 x y))
 
 (defq emit-buffer (list))
 
