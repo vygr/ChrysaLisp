@@ -49,11 +49,14 @@
 
 "Map/Reduce"
 
-(defun map (f &rest b)
-	(defq m (length (elem 0 b)) i 1 l (list) e nil a nil)
+(defun min-len (b)
+	(defq m (length (elem 0 b)) i 1 e nil)
 	(while (lt i (length b))
 		(setq e (length (elem i b)) m (if (lt m e) m e) i (inc i)))
-	(setq e 0)
+	m)
+
+(defun map (f &rest b)
+	(defq m (min-len b) l (list) e 0 a nil i nil)
 	(while (lt e m)
 		(setq a (list) i 0)
 		(while (lt i (length b))
@@ -80,10 +83,7 @@
 "Predicates"
 
 (defun some_impl (f b)
-	(defq m (length (elem 0 b)) i 1 l (list) e nil a nil v nil)
-	(while (lt i (length b))
-		(setq e (length (elem i b)) m (if (lt m e) m e) i (inc i)))
-	(setq e 0)
+	(defq m (min-len b) l (list) e 0 a nil v nil i nil)
 	(while (and (not v) (lt e m))
 		(setq a (list) i 0)
 		(while (lt i (length b))
@@ -93,10 +93,7 @@
 	v)
 
 (defun every_impl (f b)
-	(defq m (length (elem 0 b)) i 1 l (list) e nil a nil v t)
-	(while (lt i (length b))
-		(setq e (length (elem i b)) m (if (lt m e) m e) i (inc i)))
-	(setq e 0)
+	(defq m (min-len b) l (list) e 0 a nil v t i nil)
 	(while (and v (lt e m))
 		(setq a (list) i 0)
 		(while (lt i (length b))
