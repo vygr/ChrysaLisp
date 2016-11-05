@@ -118,7 +118,6 @@ def_struct lisp, ref
 	ptr lisp_sym_splicing
 	ptr lisp_sym_cat
 	ptr lisp_sym_list
-	ptr lisp_sym_defmacro
 def_struct_end
 
 %endif

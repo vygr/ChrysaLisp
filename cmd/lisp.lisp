@@ -82,7 +82,7 @@
 
 "Predicates"
 
-(defun some_impl (f b)
+(defun some-impl (f b)
 	(defq m (min-len b) l (list) e 0 a nil v nil i nil)
 	(while (and (not v) (lt e m))
 		(setq a (list) i 0)
@@ -92,7 +92,7 @@
 		(setq v (apply f a) e (inc e)))
 	v)
 
-(defun every_impl (f b)
+(defun every-impl (f b)
 	(defq m (min-len b) l (list) e 0 a nil v t i nil)
 	(while (and v (lt e m))
 		(setq a (list) i 0)
@@ -102,10 +102,10 @@
 		(setq v (apply f a) e (inc e)))
 	v)
 
-(defun some (f &rest b) (some_impl f b))
-(defun every (f &rest b) (every_impl f b))
-(defun notany (f &rest b) (not (some_impl f b)))
-(defun notevery (f &rest b) (not (every_impl f b)))
+(defun some (f &rest b) (some-impl f b))
+(defun every (f &rest b) (every-impl f b))
+(defun notany (f &rest b) (not (some-impl f b)))
+(defun notevery (f &rest b) (not (every-impl f b)))
 
 "Comparison"
 
@@ -195,11 +195,13 @@
 	(while (lt i (length emit-buffer))
 		(if (eq (mod i c) 0)
 			(progn
-				(prin-num i 4 "0") (prin " -> ")))
+				(prin-num i 4 "0")
+				(prin " -> ")))
 		(prin-num (elem i emit-buffer) 3 "0") (prin " ")
 		(setq i (inc i))
 		(if (eq (mod i c) 0)
-			(print))))
+			(print)))
+	(print))
 
 (defq r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 r8 8
 	r9 9 r10 10 r11 11 r12 12 r13 3 r14 14 r15 15)
@@ -211,10 +213,12 @@
 (defun vp-add-rr (x y)
 	(emit-byte 24 x y))
 
-(defq emit-buffer '())
+(defq emit-buffer (list))
 
 (vp-add-cr 3456 r0)
 (vp-add-cr 345623 r1)
+(vp-add-rr r7 r2)
 (vp-add-rr r3 r5)
+(vp-add-rr r15 r1)
 
 (print-emit-buffer 16)
