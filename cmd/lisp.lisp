@@ -55,6 +55,16 @@
 		(setq e (length (elem i b)) m (if (lt m e) m e) i (inc i)))
 	m)
 
+(defun each (f &rest b)
+	(defq m (min-len b) e 0 a nil i nil)
+	(while (lt e m)
+		(setq a (list) i 0)
+		(while (lt i (length b))
+			(push a (elem e (elem i b)))
+			(setq i (inc i)))
+		(setq e (inc e) a (apply f a)))
+	a)
+
 (defun map (f &rest b)
 	(defq m (min-len b) l (list) e 0 a nil i nil)
 	(while (lt e m)
@@ -148,14 +158,14 @@
 	(prin x " ") t)
 
 (defun prin-map (m)
-	(map prin-space m))
+	(each prin-space m))
 
 (defun print-map (m)
-	(map print m) t)
+	(each print m))
 
 (defun print-env (l e)
 	(print "**" l "**")
-	(map print_map e) t)
+	(each print-map e))
 
 (defun prin-num (n p c)
 	(defq s (str n) l (length s))
@@ -176,19 +186,19 @@
 	`(bit-and ,x 0xffffffff))
 
 (defun emit (&rest b)
-	(map (lambda (x) (push emit-buffer x)) b))
+	(each (lambda (x) (push emit-buffer x)) b))
 
 (defun emit-byte (&rest b)
-	(map (lambda (x) (emit (byte x))) b))
+	(each (lambda (x) (emit (byte x))) b))
 
 (defun emit-short (&rest b)
-	(map (lambda (x) (emit-byte x (bit-shr x 8))) b))
+	(each (lambda (x) (emit-byte x (bit-shr x 8))) b))
 
 (defun emit-int (&rest b)
-	(map (lambda (x) (emit-short x (bit-shr x 16))) b))
+	(each (lambda (x) (emit-short x (bit-shr x 16))) b))
 
 (defun emit-long (&rest b)
-	(map (lambda (x) (emit-int x (bit-shr x 32))) b))
+	(each (lambda (x) (emit-int x (bit-shr x 32))) b))
 
 (defun to-base-char (x)
 	(elem x "0123456789abcdefghijklmnopqrstuvwxyz"))
