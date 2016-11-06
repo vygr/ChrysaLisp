@@ -154,12 +154,6 @@
 (defmacro ascii (c)
 	(code c))
 
-(defun prin-space (x)
-	(prin x " ") t)
-
-(defun prin-map (m)
-	(each prin-space m))
-
 (defun print-map (m)
 	(each print m))
 
