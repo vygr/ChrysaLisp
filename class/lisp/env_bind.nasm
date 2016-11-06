@@ -44,16 +44,13 @@ def_func class/lisp/env_bind
 					break
 				case {state == 2}
 					;optional
-					if {index_vals != len_vals}
-						devirt_call vector, ref_element, {vals, index_vals}, {value}
-						assign {index_vals + 1}, {index_vals}
-					else
-						assign {this->lisp_sym_nil}, {value}
-						func_call ref, ref, {value}
-					endif
+					gotoif {index_vals != len_vals}, normal
+					assign {this->lisp_sym_nil}, {value}
+					func_call ref, ref, {value}
 					assign {index_vars + 1}, {index_vars}
 					break
 				default
+				normal:
 					;normal
 					devirt_call vector, ref_element, {vals, index_vals}, {value}
 					assign {index_vars + 1, index_vals + 1}, {index_vars, index_vals}
