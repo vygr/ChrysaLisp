@@ -173,6 +173,7 @@ built_ins:
 	built_in "write-char", 0, func_writechar
 	built_in "write-line", 0, func_writeline
 	built_in "write", 0, func_write
+	built_in "repl", 0, func_repl
 	dw 0
 
 def_func_end

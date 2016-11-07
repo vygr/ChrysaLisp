@@ -8,8 +8,8 @@
 
 def_func cmd/lisp, 1024 * 8
 
-	ptr slave, lisp, args, arg, stream, file
-	ulong argc, index
+	ptr slave, lisp, args, arg, stream, file, repl_args, value
+	ushort argc, index
 
 	;init app vars
 	push_scope
@@ -17,16 +17,19 @@ def_func cmd/lisp, 1024 * 8
 	;initialize pipe details and command args, abort on error
 	func_call slave, create, {}, {slave}
 	if {slave}
-		;create lisp class
+		;create lisp class and repl args
 		func_call lisp, create, {slave->slave_stdin, slave->slave_stdout, slave->slave_stderr}, {lisp}
+		func_call vector, create, {}, {repl_args}
 
 		;run any lisp.lisp
 		func_call string, create_from_file, {"cmd/lisp.lisp"}, {file}
 		if {file}
 			;REPL from file stream
 			func_call stream_str, create, {file}, {stream}
-			func_call lisp, repl, {lisp, stream}
-			func_call stream, deref, {stream}
+			func_call vector, push_back, {repl_args, stream}
+			func_call lisp, func_repl, {lisp, repl_args}, {value}
+			func_call ref, deref, {value}
+			func_call vector, clear, {repl_args}
 		endif
 
 		;run any files given as args
@@ -39,16 +42,22 @@ def_func cmd/lisp, 1024 * 8
 			if {file}
 				;REPL from file stream
 				func_call stream_str, create, {file}, {stream}
-				func_call lisp, repl, {lisp, stream}
-				func_call stream, deref, {stream}
+				func_call vector, push_back, {repl_args, stream}
+				func_call lisp, func_repl, {lisp, repl_args}, {value}
+				func_call ref, deref, {value}
+				func_call vector, clear, {repl_args}
 			endif
 			assign {index + 1}, {index}
 		loop_end
 
 		;REPL from stdin
-		func_call lisp, repl, {lisp, lisp->lisp_stdin}
+		func_call ref, ref, {lisp->lisp_stdin}
+		func_call vector, push_back, {repl_args, lisp->lisp_stdin}
+		func_call lisp, func_repl, {lisp, repl_args}, {value}
+		func_call ref, deref, {value}
 
 		;clean up
+		func_call vector, deref, {repl_args}
 		func_call lisp, deref, {lisp}
 		func_call slave, deref, {slave}
 	endif

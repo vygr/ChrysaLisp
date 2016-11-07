@@ -154,6 +154,16 @@
 (defmacro ascii (c)
 	(code c))
 
+(defun to-base-char (x)
+	(elem x "0123456789abcdefghijklmnopqrstuvwxyz"))
+
+(defun prin-base (x b j)
+	(defun prin-b (x j)
+		(if (or (ne j 1) (ne 0 (div x b)))
+			(prin-b (div x b) (sub j 1)))
+		(prin (to-base-char (mod x b))))
+	(prin-b x j))
+
 (defun print-map (m)
 	(each print m))
 
@@ -161,29 +171,65 @@
 	(print "**" l "**")
 	(each print-map e))
 
-(defun prin-num (n p c)
-	(defq s (str n) l (length s))
-	(while (lt l p)
-		(prin c)
-		(setq l (add l 1)))
-	(prin s))
-
+"------------"
 "VP Assembler"
+"------------"
 
-(defmacro byte (x)
-	`(bit-and ,x 0xff))
+"Structures"
 
-(defmacro short (x)
-	`(bit-and ,x 0xffff))
+(defun def-struct (s &optional o)
+	(print "structure " s)
+	(setq *struct* s *struct-offset* (if o o 0)))
 
-(defmacro int (x)
-	`(bit-and ,x 0xffffffff))
+(defun def-struct-end ()
+	(print "structure end -> " *struct*))
+
+(defun align-struct (x)
+	(setq *struct-offset* (bit-and (add *struct-offset* (sub x 1)) (sub 0 x))))
+
+(defmacro def-type (n s)
+	`(defun ,n (&rest f)
+		(each (lambda (x)
+			(align-struct ,s)
+			(defq o *struct-offset*)
+			(setq *struct-offset* (add *struct-offset* ,s))
+			(print *struct* " -> " x " = " o)) f)))
+
+(defq byte-size 1)
+(defq short-size 2)
+(defq int-size 4)
+(defq long-size 8)
+(defq ptr-size 8)
+
+(def-type byte byte-size)
+(def-type ubyte byte-size)
+(def-type short short-size)
+(def-type ushort short-size)
+(def-type int int-size)
+(def-type uint int-size)
+(def-type long long-size)
+(def-type ulong long-size)
+(def-type ptr ptr-size)
+(def-type pbyte ptr-size)
+(def-type pubyte ptr-size)
+(def-type pshort ptr-size)
+(def-type pushort ptr-size)
+(def-type pint ptr-size)
+(def-type puint ptr-size)
+(def-type plong ptr-size)
+(def-type pulong ptr-size)
+(def-type pptr ptr-size)
+
+(defun offset (f)
+	(print *struct* " -> " f " = " *struct-offset*))
+
+"Functions"
 
 (defun emit (&rest b)
-	(each (lambda (x) (push emit-buffer x)) b))
+	(each (lambda (x) (push *emit-buffer* x)) b))
 
 (defun emit-byte (&rest b)
-	(each (lambda (x) (emit (byte x))) b))
+	(each (lambda (x) (emit (bit-and x 0xff))) b))
 
 (defun emit-short (&rest b)
 	(each (lambda (x) (emit-byte x (bit-shr x 8))) b))
@@ -194,19 +240,13 @@
 (defun emit-long (&rest b)
 	(each (lambda (x) (emit-int x (bit-shr x 32))) b))
 
-(defun to-base-char (x)
-	(elem x "0123456789abcdefghijklmnopqrstuvwxyz"))
-
-(defun prin-hex (x)
-	(prin (to-base-char (div x 16)) (to-base-char (mod x 16))))
-
 (defun print-emit-buffer (c)
 	(defq i 0)
-	(while (lt i (length emit-buffer))
+	(while (lt i (length *emit-buffer*))
 		(if (eq (mod i c) 0)
 			(progn
-				(prin-num i 4 "0") (prin " : ")))
-		(prin-hex (elem i emit-buffer)) (prin " ")
+				(prin-base i 16 4) (prin " : ")))
+		(prin-base (elem i *emit-buffer*) 16 2) (prin " ")
 		(setq i (inc i))
 		(if (eq (mod i c) 0)
 			(print)))
@@ -222,12 +262,29 @@
 (defun vp-add-rr (x y)
 	(emit-byte 0x24 x y))
 
-(defq emit-buffer (list))
+(defun vp-ret ()
+	(emit-byte 0xc3))
 
-(vp-add-cr 3456 r0)
-(vp-add-cr 345623 r1)
-(vp-add-rr r7 r2)
-(vp-add-rr r3 r5)
-(vp-add-rr r15 r1)
+(defun def-func (n)
+	(print "function " n)
+	(setq *emit-buffer* (list)))
 
-(print-emit-buffer 16)
+(defun def-func_end ()
+	(print-emit-buffer 16)
+	(print "function end"))
+
+"Files"
+
+(defun import (f)
+	(if (notany (lambda (x) (eql x f)) *imports*)
+		(progn
+			(push *imports* f)
+			(repl (file-stream f)))))
+
+(defun compile-file (f)
+	(defq *imports* (list))
+	(defq *struct* "" *struct-offset* 0)
+	(defq *emit-buffer* (list))
+	(import f))
+
+(compile-file "test.vp")

@@ -23,7 +23,6 @@ def_method env_set, class/lisp/env_set, static, {r0, r1, r2}, {r1}
 def_method env_get, class/lisp/env_get, static, {r0, r1}, {r1}
 def_method env_bind, class/lisp/env_bind, static, {r0, r1, r2, r3}, {r1}
 
-def_method repl, class/lisp/repl, static, {r0, r1}
 def_method repl_read, class/lisp/repl_read, static, {r0, r1, r2}, {r1, r2}
 def_method repl_read_quote, class/lisp/repl_read_quote, static, {r0, r1, r2}, {r1, r2}
 def_method repl_read_qquote, class/lisp/repl_read_qquote, static, {r0, r1, r2}, {r1, r2}
@@ -91,6 +90,7 @@ def_method func_bor, class/lisp/func_bor, static, {r0, r1}, {r1}
 def_method func_bxor, class/lisp/func_bxor, static, {r0, r1}, {r1}
 def_method func_push, class/lisp/func_push, static, {r0, r1}, {r1}
 def_method func_apply, class/lisp/func_apply, static, {r0, r1}, {r1}
+def_method func_repl, class/lisp/func_repl, static, {r0, r1}, {r1}
 
 def_enum
 	enum type_args_eval_apply
