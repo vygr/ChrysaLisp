@@ -17,7 +17,6 @@ def_method built_in_func, class/lisp/built_in_func, static, {r0, r1, r2, r3}
 
 def_method env_push, class/lisp/env_push, static, {r0}
 def_method env_pop, class/lisp/env_pop, static, {r0}
-def_method env_def, class/lisp/env_def, static, {r0, r1, r2}
 def_method env_find, class/lisp/env_find, static, {r0, r1}, {r1, r2}
 def_method env_set, class/lisp/env_set, static, {r0, r1, r2}, {r1}
 def_method env_get, class/lisp/env_get, static, {r0, r1}, {r1}
@@ -39,6 +38,7 @@ def_method repl_apply, class/lisp/repl_apply, static, {r0, r1, r2}, {r1}
 def_method repl_print, class/lisp/repl_print, static, {r0, r1, r2}
 def_method repl_expand, class/lisp/repl_expand, static, {r0, r1}, {r1}
 
+def_method func_defe, class/lisp/func_defe, static, {r0, r1}, {r1}
 def_method func_defq, class/lisp/func_defq, static, {r0, r1}, {r1}
 def_method func_setq, class/lisp/func_setq, static, {r0, r1}, {r1}
 def_method func_lambda, class/lisp/func_lambda, static, {r0, r1}, {r1}
@@ -91,6 +91,7 @@ def_method func_bxor, class/lisp/func_bxor, static, {r0, r1}, {r1}
 def_method func_push, class/lisp/func_push, static, {r0, r1}, {r1}
 def_method func_apply, class/lisp/func_apply, static, {r0, r1}, {r1}
 def_method func_repl, class/lisp/func_repl, static, {r0, r1}, {r1}
+def_method func_eval, class/lisp/func_eval, static, {r0, r1}, {r1}
 
 def_enum
 	enum type_args_eval_apply

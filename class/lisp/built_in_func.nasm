@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_boxed_ptr.inc'
+%include 'class/class_unordered_map.inc'
 %include 'class/class_lisp.inc'
 
 def_func class/lisp/built_in_func
@@ -19,7 +20,7 @@ def_func class/lisp/built_in_func
 	func_call boxed_ptr, create, {}, {func}
 	func_call boxed_ptr, set_value, {func, func_ptr}
 	func_call boxed_ptr, set_flags, {func, func_flags}
-	func_call lisp, env_def, {this, symbol, func}
+	func_call unordered_map, insert, {this->lisp_enviroment, symbol, func}, {_, _}
 	func_call ref, deref, {func}
 
 	eval {this}, {r0}

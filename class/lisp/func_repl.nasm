@@ -10,6 +10,7 @@ def_func class/lisp/func_repl
 	;r1 = args
 	;outputs
 	;r0 = lisp object
+	;r1 = value
 
 	const char_lf, 10
 
@@ -71,7 +72,7 @@ def_func class/lisp/func_repl
 		assign {this->lisp_sym_t}, {value}
 		func_call ref, ref, {value}
 	else
-		func_call error, create, {"wrong number of args", args}, {value}
+		func_call error, create, {"(repl stream) wrong number of args", args}, {value}
 	endif
 
 	eval {this, value}, {r0, r1}

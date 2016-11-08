@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
+%include 'class/class_unordered_map.inc'
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
@@ -55,7 +56,7 @@ def_func class/lisp/env_bind
 					devirt_call vector, ref_element, {vals, index_vals}, {value}
 					assign {index_vars + 1, index_vals + 1}, {index_vars, index_vals}
 				endswitch
-				func_call lisp, env_def, {this, symbol, value}
+				func_call unordered_map, insert, {this->lisp_enviroment, symbol, value}, {_, _}
 			loop_end
 			breakif {index_vals == len_vals}
 			func_call ref, deref, {value}

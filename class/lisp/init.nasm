@@ -84,8 +84,8 @@ def_func class/lisp/init
 		loop_end
 
 		;standard self evaulating symbols
-		func_call lisp, env_def, {this, this->lisp_sym_nil, this->lisp_sym_nil}
-		func_call lisp, env_def, {this, this->lisp_sym_t, this->lisp_sym_t}
+		func_call unordered_map, insert, {this->lisp_enviroment, this->lisp_sym_nil, this->lisp_sym_nil}, {_, _}
+		func_call unordered_map, insert, {this->lisp_enviroment, this->lisp_sym_t, this->lisp_sym_t}, {_, _}
 	endif
 
 	eval {this, ok}, {r0, r1}
@@ -131,6 +131,7 @@ built_ins:
 	built_in "unquote-splicing", lisp_sym_splicing
 	built_in "cat", lisp_sym_cat, func_cat
 
+	built_in "defe", 0, func_defe
 	built_in "macroexpand-1", 0, func_macroexpand_1
 	built_in "macroexpand", 0, func_macroexpand
 	built_in "gensym", 0, func_gensym
@@ -174,6 +175,7 @@ built_ins:
 	built_in "write-line", 0, func_writeline
 	built_in "write", 0, func_write
 	built_in "repl", 0, func_repl
+	built_in "eval", 0, func_eval
 	dw 0
 
 def_func_end

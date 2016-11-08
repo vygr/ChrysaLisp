@@ -1,5 +1,6 @@
 %include 'inc/func.inc'
 %include 'class/class_vector.inc'
+%include 'class/class_unordered_map.inc'
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
@@ -26,7 +27,7 @@ def_func class/lisp/func_defq
 			func_call vector, get_element, {args, index + 1}, {val}
 			func_call lisp, repl_eval, {this, val}, {val}
 			breakif {val->obj_vtable == @class/class_error}
-			func_call lisp, env_def, {this, var, val}
+			func_call unordered_map, insert, {this->lisp_enviroment, var, val}, {_, _}
 			assign {index + 2}, {index}
 		loop_until {index == length}
 	else

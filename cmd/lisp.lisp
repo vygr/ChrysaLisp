@@ -177,23 +177,24 @@
 
 "Structures"
 
+(defun align (x a)
+	(bit-and (add x (dec a)) (sub 0 a)))
+
 (defun def-struct (s &optional o)
 	(print "structure " s)
 	(setq *struct* s *struct-offset* (if o o 0)))
 
-(defun def-struct-end ()
-	(print "structure end -> " *struct*))
+(defun def-struct-end () t)
 
 (defun align-struct (x)
-	(setq *struct-offset* (bit-and (add *struct-offset* (sub x 1)) (sub 0 x))))
+	(setq *struct-offset* (align *struct-offset* x)))
 
 (defmacro def-type (n s)
 	`(defun ,n (&rest f)
 		(each (lambda (x)
 			(align-struct ,s)
-			(defq o *struct-offset*)
-			(setq *struct-offset* (add *struct-offset* ,s))
-			(print *struct* " -> " x " = " o)) f)))
+			(defq x *struct-offset*)
+			(setq *struct-offset* (add *struct-offset* ,s))) f)))
 
 (defq byte-size 1)
 (defq short-size 2)
@@ -221,57 +222,129 @@
 (def-type pptr ptr-size)
 
 (defun offset (f)
-	(print *struct* " -> " f " = " *struct-offset*))
+	(defq f *struct-offset*))
 
-"Functions"
+"Emit buffer"
 
 (defun emit (&rest b)
-	(each (lambda (x) (push *emit-buffer* x)) b))
+	(each (lambda (x)
+		(push *emit-buffer* x)) b))
 
-(defun emit-byte (&rest b)
-	(each (lambda (x) (emit (bit-and x 0xff))) b))
+(defun emit-passes ()
+	(defq *out-buffer-size* -1)
+	(while (lt *out-buffer-size* (length *out-buffer*))
+		(setq *out-buffer-size* (length *out-buffer*))
+		(setq *out-buffer* (list))
+		(each (lambda (f) (eval f)) *emit-buffer*)))
 
-(defun emit-short (&rest b)
-	(each (lambda (x) (emit-byte x (bit-shr x 8))) b))
-
-(defun emit-int (&rest b)
-	(each (lambda (x) (emit-short x (bit-shr x 16))) b))
-
-(defun emit-long (&rest b)
-	(each (lambda (x) (emit-int x (bit-shr x 32))) b))
-
-(defun print-emit-buffer (c)
+(defun print-emit-buffer ()
 	(defq i 0)
 	(while (lt i (length *emit-buffer*))
+		(print i " -> " (elem i *emit-buffer*))
+		(setq i (inc i))))
+
+(defun print-out-buffer (c)
+	(defq i 0)
+	(while (lt i (length *out-buffer*))
 		(if (eq (mod i c) 0)
 			(progn
 				(prin-base i 16 4) (prin " : ")))
-		(prin-base (elem i *emit-buffer*) 16 2) (prin " ")
+		(prin-base (elem i *out-buffer*) 16 2) (prin " ")
 		(setq i (inc i))
 		(if (eq (mod i c) 0)
 			(print)))
 	(print))
 
+(defun emit-label (s)
+	(defe *compile-env* s (length *out-buffer*)))
+
+(defun emit-byte (&rest b)
+	(each (lambda (x)
+		(push *out-buffer* (bit-and x 0xff))) b))
+
+(defun emit-short (&rest b)
+	(each (lambda (x)
+		(emit-byte x (bit-shr x 8))) b))
+
+(defun emit-int (&rest b)
+	(each (lambda (x)
+		(emit-short x (bit-shr x 16))) b))
+
+(defun emit-long (&rest b)
+	(each (lambda (x)
+		(emit-int x (bit-shr x 32))) b))
+
+(defun emit-string (s)
+	(each (lambda (x)
+		(emit-byte (code x))) s)
+	(emit-byte 0))
+
+(defun emit-align (a b)
+	(defq n (align (length *out-buffer*) a))
+	(while (ne (length *out-buffer*) n)
+		(emit-byte b)))
+
+(defun emit-add-cr (c x)
+	(emit-byte 0x21 x))
+
+(defun emit-add-rr (x y)
+	(emit-byte 0x22 x y))
+
+(defun emit-ret ()
+	(emit-byte 0xc3))
+
+"Instructions"
+
 (defq r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 r8 8
 	r9 9 r10 10 r11 11 r12 12 r13 3 r14 14 r15 15)
 
+(defun vp-align (a p)
+	(emit `(emit-align ,a ,p)))
+
+(defun vp-label (s)
+	(emit `(emit-label ,s))
+	(defe *compile-env* s 0))
+
+(defun vp-string (s)
+	(emit `(emit-string ,s)))
+
+(defun vp-byte (&rest b)
+	(emit `(emit-byte ~b)))
+
+(defun vp-short (&rest b)
+	(emit `(emit-short ~b)))
+
+(defun vp-int (&rest b)
+	(emit `(emit-int ~b)))
+
+(defun vp-long (&rest b)
+	(emit `(emit-long ~b)))
+
 (defun vp-add-cr (c x)
-	(emit-byte 0x23 x)
-	(emit-long c))
+	(emit `(emit-add-cr ,c ,x)))
 
 (defun vp-add-rr (x y)
-	(emit-byte 0x24 x y))
+	(emit `(emit-add-rr ,x ,y)))
 
 (defun vp-ret ()
-	(emit-byte 0xc3))
+	(emit `(emit-ret)))
+
+"Functions"
 
 (defun def-func (n)
 	(print "function " n)
-	(setq *emit-buffer* (list)))
+	(setq *emit-buffer* (list))
+	(setq *out-buffer* (list))
+	(vp-label '_func_start)
+	(vp-long -1)
+	(vp-int 0 0 0 0)
+	(vp-string (str n))
+	(vp-align ptr-size (inc (length n))))
 
 (defun def-func_end ()
-	(print-emit-buffer 16)
-	(print "function end"))
+	(emit-passes)
+	(print-emit-buffer)
+	(print-out-buffer 16))
 
 "Files"
 
@@ -281,10 +354,13 @@
 			(push *imports* f)
 			(repl (file-stream f)))))
 
-(defun compile-file (f)
+(defun compile-file (*file*)
 	(defq *imports* (list))
-	(defq *struct* "" *struct-offset* 0)
 	(defq *emit-buffer* (list))
-	(import f))
+	(defq *out-buffer* (list))
+	(defq *struct* "" *struct-offset* 0)
+	(defq *compile-env* (env))
+	(import *file*)
+	(setq *compile-env* nil))
 
 (compile-file "test.vp")
