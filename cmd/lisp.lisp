@@ -184,6 +184,7 @@
 	(setq *struct* s *struct-offset* (eval (sym (cat (str (if o o "null")) "_size")))))
 
 (defun def-struct-end ()
+	(align-struct ptr_size)
 	(def *compile-env* (sym (cat (str *struct*) "_size")) *struct-offset*))
 
 (defmacro def-type (n s)
@@ -226,7 +227,7 @@
 	(def *compile-env* f *struct-offset*)
 	(setq *struct-offset* (eval (sym (cat (str s) "_size")))))
 
-"Emit buffer"
+"Emit Buffer"
 
 (defun emit (&rest b)
 	(each (lambda (x)
@@ -260,7 +261,7 @@
 	(print))
 
 (defun emit-label (s)
-	(def *compile-env* s (length *out-buffer*)))
+	(set s (length *out-buffer*)))
 
 (defun emit-byte (&rest b)
 	(each (lambda (x)
@@ -283,10 +284,10 @@
 		(emit-byte (code x))) s)
 	(emit-byte 0))
 
-(defun emit-align (a b)
+(defun emit-align (a &optional b)
 	(defq n (align (length *out-buffer*) a))
 	(while (ne (length *out-buffer*) n)
-		(emit-byte b)))
+		(emit-byte (if b b 0))))
 
 (defun emit-add-cr (c x)
 	(emit-byte 0x21 x))
@@ -302,11 +303,11 @@
 (defq r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 r8 8
 	r9 9 r10 10 r11 11 r12 12 r13 3 r14 14 r15 15)
 
-(defun vp-align (a p)
-	(emit `(emit-align ,a ,p)))
+(defun vp-align (a &optional b)
+	(emit `(emit-align ,a ,b)))
 
 (defun vp-label (s)
-	(emit `(emit-label ,s))
+	(emit `(emit-label ',s))
 	(def *compile-env* s 0))
 
 (defun vp-string (s)
@@ -335,17 +336,27 @@
 
 "Functions"
 
-(defun def-func (n)
-	(print "function " n)
+(defun def-func (n &optional s)
 	(setq *emit-buffer* (list))
 	(setq *out-buffer* (list))
 	(vp-label '_func_start)
 	(vp-long -1)
-	(vp-int 0 0 0 0)
+	(vp-int '(sub _func_end _func_start)
+		'(sub _func_entry _func_start)
+		'(sub _func_links _func_start)
+		'(sub _func_paths _func_start)
+		(if s s 4096))
+	(vp-label '_func_name_start)
 	(vp-string (str n))
-	(vp-align ptr_size (inc (length n))))
+	(vp-byte '(sub _func_entry _func_name_start))
+	(vp-align ptr_size '(sub _func_entry _func_name_start))
+	(vp-label '_func_entry))
 
 (defun def-func_end ()
+	(vp-label '_func_links)
+	(vp-label '_func_paths)
+	(vp-align ptr_size)
+	(vp-label '_func_end)
 	(emit-passes)
 	(print-emit-buffer)
 	(print-out-buffer 16))
@@ -365,7 +376,6 @@
 	(defq *struct* "" *struct-offset* 0)
 	(defq *compile-env* (env))
 	(import *file*)
-	(setq *compile-env* nil)
-	(print-env "Compile Env" (env)))
+	(setq *compile-env* nil))
 
 (compile-file "test.vp")
