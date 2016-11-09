@@ -291,6 +291,14 @@
 
 "x64 Emit Functions"
 
+(defun emit-push (&rest b)
+	(emit-byte 0x5)
+	(each emit-byte b))
+
+(defun emit-pop (&rest b)
+	(emit-byte 0x6)
+	(each emit-byte b))
+
 (defun emit-rel (x y)
 	(emit-byte 0x70 y)
 	(emit-int (sub x (length *out-buffer*) int_size)))
@@ -351,6 +359,12 @@
 
 (defun vp-long (&rest b)
 	(emit `(emit-long ~b)))
+
+(defun vp-push (&rest b)
+	(emit `(emit-push ~b)))
+
+(defun vp-pop (&rest b)
+	(emit `(emit-pop ~b)))
 
 (defun vp-rel (x y)
 	(emit `(emit-rel ,x ,y)))
