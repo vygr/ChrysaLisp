@@ -131,7 +131,7 @@ built_ins:
 	built_in "unquote-splicing", lisp_sym_splicing
 	built_in "cat", lisp_sym_cat, func_cat
 
-	built_in "defe", 0, func_defe
+	built_in "def", 0, func_def
 	built_in "macroexpand-1", 0, func_macroexpand_1
 	built_in "macroexpand", 0, func_macroexpand
 	built_in "gensym", 0, func_gensym

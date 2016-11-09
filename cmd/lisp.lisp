@@ -151,6 +151,9 @@
 
 "Utilities"
 
+(defun align (x a)
+	(bit-and (add x (dec a)) (sub 0 a)))
+
 (defmacro ascii (c)
 	(code c))
 
@@ -176,9 +179,6 @@
 "------------"
 
 "Structures"
-
-(defun align (x a)
-	(bit-and (add x (dec a)) (sub 0 a)))
 
 (defun def-struct (s &optional o)
 	(print "structure " s)
@@ -256,7 +256,7 @@
 	(print))
 
 (defun emit-label (s)
-	(defe *compile-env* s (length *out-buffer*)))
+	(def *compile-env* s (length *out-buffer*)))
 
 (defun emit-byte (&rest b)
 	(each (lambda (x)
@@ -303,7 +303,7 @@
 
 (defun vp-label (s)
 	(emit `(emit-label ,s))
-	(defe *compile-env* s 0))
+	(def *compile-env* s 0))
 
 (defun vp-string (s)
 	(emit `(emit-string ,s)))

@@ -4,7 +4,7 @@
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
-def_func class/lisp/func_defe
+def_func class/lisp/func_def
 	;inputs
 	;r0 = lisp object
 	;r1 = args
@@ -31,10 +31,10 @@ def_func class/lisp/func_defe
 				assign {index + 2}, {index}
 			loop_until {index == length}
 		else
-			func_call error, create, {"(defe env var val ...) not an enviroment", args}, {val}
+			func_call error, create, {"(def env var val ...) not an enviroment", args}, {val}
 		endif
 	else
-		func_call error, create, {"(defe env var val ...) wrong numbers of args", args}, {val}
+		func_call error, create, {"(def env var val ...) wrong numbers of args", args}, {val}
 	endif
 
 	eval {this, val}, {r0, r1}
