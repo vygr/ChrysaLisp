@@ -40,6 +40,7 @@ def_method repl_expand, class/lisp/repl_expand, static, {r0, r1}, {r1}
 
 def_method func_def, class/lisp/func_def, static, {r0, r1}, {r1}
 def_method func_defq, class/lisp/func_defq, static, {r0, r1}, {r1}
+def_method func_set, class/lisp/func_set, static, {r0, r1}, {r1}
 def_method func_setq, class/lisp/func_setq, static, {r0, r1}, {r1}
 def_method func_lambda, class/lisp/func_lambda, static, {r0, r1}, {r1}
 def_method func_quote, class/lisp/func_quote, static, {r0, r1}, {r1}
@@ -64,6 +65,7 @@ def_method func_while, class/lisp/func_while, static, {r0, r1}, {r1}
 def_method func_print, class/lisp/func_print, static, {r0, r1}, {r1}
 def_method func_prin, class/lisp/func_prin, static, {r0, r1}, {r1}
 def_method func_env, class/lisp/func_env, static, {r0, r1}, {r1}
+def_method func_sym, class/lisp/func_sym, static, {r0, r1}, {r1}
 def_method func_str, class/lisp/func_str, static, {r0, r1}, {r1}
 def_method func_cat, class/lisp/func_cat, static, {r0, r1}, {r1}
 def_method func_elem, class/lisp/func_elem, static, {r0, r1}, {r1}

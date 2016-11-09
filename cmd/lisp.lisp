@@ -167,12 +167,9 @@
 		(prin (to-base-char (mod x b))))
 	(prin-b x j))
 
-(defun print-map (m)
-	(each print m))
-
 (defun print-env (l e)
-	(print "**" l "**")
-	(each print-map e))
+	(print "--- " l " ---")
+	(each (lambda (x) (if (not (eql (elem 0 x) '*parent*)) (print x))) e))
 
 "------------"
 "VP Assembler"
@@ -180,49 +177,54 @@
 
 "Structures"
 
-(defun def-struct (s &optional o)
-	(print "structure " s)
-	(setq *struct* s *struct-offset* (if o o 0)))
-
-(defun def-struct-end () t)
-
 (defun align-struct (x)
 	(setq *struct-offset* (align *struct-offset* x)))
+
+(defun def-struct (s &optional o)
+	(setq *struct* s *struct-offset* (eval (sym (cat (str (if o o "null")) "_size")))))
+
+(defun def-struct-end ()
+	(def *compile-env* (sym (cat (str *struct*) "_size")) *struct-offset*))
 
 (defmacro def-type (n s)
 	`(defun ,n (&rest f)
 		(each (lambda (x)
 			(align-struct ,s)
-			(defq x *struct-offset*)
+			(def *compile-env* x *struct-offset*)
 			(setq *struct-offset* (add *struct-offset* ,s))) f)))
 
-(defq byte-size 1)
-(defq short-size 2)
-(defq int-size 4)
-(defq long-size 8)
-(defq ptr-size 8)
+(defq null_size 0)
+(defq byte_size 1)
+(defq short_size 2)
+(defq int_size 4)
+(defq long_size 8)
+(defq ptr_size 8)
 
-(def-type byte byte-size)
-(def-type ubyte byte-size)
-(def-type short short-size)
-(def-type ushort short-size)
-(def-type int int-size)
-(def-type uint int-size)
-(def-type long long-size)
-(def-type ulong long-size)
-(def-type ptr ptr-size)
-(def-type pbyte ptr-size)
-(def-type pubyte ptr-size)
-(def-type pshort ptr-size)
-(def-type pushort ptr-size)
-(def-type pint ptr-size)
-(def-type puint ptr-size)
-(def-type plong ptr-size)
-(def-type pulong ptr-size)
-(def-type pptr ptr-size)
+(def-type byte byte_size)
+(def-type ubyte byte_size)
+(def-type short short_size)
+(def-type ushort short_size)
+(def-type int int_size)
+(def-type uint int_size)
+(def-type long long_size)
+(def-type ulong long_size)
+(def-type ptr ptr_size)
+(def-type pbyte ptr_size)
+(def-type pubyte ptr_size)
+(def-type pshort ptr_size)
+(def-type pushort ptr_size)
+(def-type pint ptr_size)
+(def-type puint ptr_size)
+(def-type plong ptr_size)
+(def-type pulong ptr_size)
+(def-type pptr ptr_size)
 
 (defun offset (f)
-	(defq f *struct-offset*))
+	(def *compile-env* f *struct-offset*))
+
+(defun struct (f s)
+	(def *compile-env* f *struct-offset*)
+	(setq *struct-offset* (eval (sym (cat (str s) "_size")))))
 
 "Emit buffer"
 
@@ -231,11 +233,13 @@
 		(push *emit-buffer* x)) b))
 
 (defun emit-passes ()
-	(defq *out-buffer-size* -1)
-	(while (lt *out-buffer-size* (length *out-buffer*))
-		(setq *out-buffer-size* (length *out-buffer*))
+	(defq *out-buffer-cnt* 0 *out-buffer-size* 0)
+	(while (ne 2 *out-buffer-cnt*)
 		(setq *out-buffer* (list))
-		(each (lambda (f) (eval f)) *emit-buffer*)))
+		(each eval *emit-buffer*)
+		(setq *out-buffer-cnt* (if (eq *out-buffer-size* (length *out-buffer*))
+			(inc *out-buffer-cnt*)
+			(progn (setq *out-buffer-size* (length *out-buffer*)) 0)))))
 
 (defun print-emit-buffer ()
 	(defq i 0)
@@ -339,7 +343,7 @@
 	(vp-long -1)
 	(vp-int 0 0 0 0)
 	(vp-string (str n))
-	(vp-align ptr-size (inc (length n))))
+	(vp-align ptr_size (inc (length n))))
 
 (defun def-func_end ()
 	(emit-passes)
@@ -361,6 +365,7 @@
 	(defq *struct* "" *struct-offset* 0)
 	(defq *compile-env* (env))
 	(import *file*)
-	(setq *compile-env* nil))
+	(setq *compile-env* nil)
+	(print-env "Compile Env" (env)))
 
 (compile-file "test.vp")

@@ -110,7 +110,7 @@ match_obj:
 
 	align 2, db 0
 built_ins:
-	built_in "_parent_", lisp_sym_parent
+	built_in "*parent*", lisp_sym_parent
 	built_in "&rest", lisp_sym_rest
 	built_in "&optional", lisp_sym_optional
 	built_in "nil", lisp_sym_nil
@@ -132,6 +132,7 @@ built_ins:
 	built_in "cat", lisp_sym_cat, func_cat
 
 	built_in "def", 0, func_def
+	built_in "set", 0, func_set
 	built_in "macroexpand-1", 0, func_macroexpand_1
 	built_in "macroexpand", 0, func_macroexpand
 	built_in "gensym", 0, func_gensym
@@ -162,6 +163,7 @@ built_ins:
 	built_in "progn", 0, func_progn
 	built_in "apply", 0, func_apply
 	built_in "str", 0, func_str
+	built_in "sym", 0, func_sym
 	built_in "slice", 0, func_slice
 	built_in "sub", 0, func_sub
 	built_in "elem", 0, func_elem

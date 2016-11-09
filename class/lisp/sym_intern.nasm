@@ -5,7 +5,7 @@
 def_func class/lisp/sym_intern
 	;inputs
 	;r0 = lisp object
-	;r1 = string object
+	;r1 = symbol object
 	;outputs
 	;r0 = lisp object
 	;r1 = interned symbol
