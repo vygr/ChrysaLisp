@@ -1,15 +1,24 @@
 (import "test.inc")
 
 (def-func 'test1)
-	(vp-add-cr 345623 r1)
-	(vp-add-rr r7 r2)
-	(vp-add-rr r3 r5)
-	(vp-ret)
-(def-func_end)
 
-(def-func 'test2)
-	(vp-add-cr 345623 r1)
-	(vp-add-rr r7 r2)
-	(vp-add-rr r15 r1)
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(ulong 'local_v1 'local_v2)
+	(def-struct-end)
+
+	(vp-sub-cr local_size r4)
+	(vp-cpy-ri r0 r4 local_v1)
+	(vp-cpy-ri r1 r4 local_v2)
+
+	(fn-string "Test String" r9)
+	(fn-string "Test String" r10)
+	(fn-string "Another String" r11)
+	(fn-bind 'sys/task_start r12)
+
+	(vp-cpy-ir r4 local_v1 r0)
+	(vp-cpy-ir r4 local_v2 r1)
+	(vp-add-cr local_size r4)
 	(vp-ret)
+
 (def-func_end)

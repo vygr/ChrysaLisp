@@ -289,16 +289,43 @@
 	(while (ne (length *out-buffer*) n)
 		(emit-byte (if b b 0))))
 
+"x64 Emit Functions"
+
+(defun emit-rel (x y)
+	(emit-byte 0x70 y)
+	(emit-int (sub x (length *out-buffer*) int_size)))
+
+(defun emit-cpy-rel (x y)
+	(emit-byte 0x71 y)
+	(emit-int (sub x (length *out-buffer*) int_size)))
+
+(defun emit-cpy-rr (x y)
+	(emit-byte 0x0 x y))
+
+(defun emit-cpy-ri (x y z)
+	(emit-byte 0x1 x y)
+	(emit-int z))
+
+(defun emit-cpy-ir (x y z)
+	(emit-byte 0x2 x z)
+	(emit-int y))
+
 (defun emit-add-cr (c x)
-	(emit-byte 0x21 x))
+	(emit-byte 0x11 c x))
 
 (defun emit-add-rr (x y)
+	(emit-byte 0x12 x y))
+
+(defun emit-sub-cr (c x)
+	(emit-byte 0x21 c x))
+
+(defun emit-sub-rr (x y)
 	(emit-byte 0x22 x y))
 
 (defun emit-ret ()
 	(emit-byte 0xc3))
 
-"Instructions"
+"VP Instructions"
 
 (defq r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 r8 8
 	r9 9 r10 10 r11 11 r12 12 r13 3 r14 14 r15 15)
@@ -325,11 +352,32 @@
 (defun vp-long (&rest b)
 	(emit `(emit-long ~b)))
 
+(defun vp-rel (x y)
+	(emit `(emit-rel ,x ,y)))
+
+(defun vp-cpy-rel (x y)
+	(emit `(emit-cpy-rel ,x ,y)))
+
+(defun vp-cpy-rr (x y)
+	(emit `(emit-cpy-rr ,x ,y)))
+
+(defun vp-cpy-ri (x y z)
+	(emit `(emit-cpy-ri ,x ,y ,z)))
+
+(defun vp-cpy-ir (x y z)
+	(emit `(emit-cpy-ir ,x ,y ,z)))
+
 (defun vp-add-cr (c x)
 	(emit `(emit-add-cr ,c ,x)))
 
 (defun vp-add-rr (x y)
 	(emit `(emit-add-rr ,x ,y)))
+
+(defun vp-sub-cr (c x)
+	(emit `(emit-sub-cr ,c ,x)))
+
+(defun vp-sub-rr (x y)
+	(emit `(emit-sub-rr ,x ,y)))
 
 (defun vp-ret ()
 	(emit `(emit-ret)))
@@ -339,6 +387,9 @@
 (defun def-func (*func-name* &optional *func-stack*)
 	(setq *emit-buffer* (list))
 	(setq *out-buffer* (list))
+	(setq *strings* (list))
+	(setq *paths* (list))
+	(setq *links* (list))
 	(vp-label '_func_start)
 	(vp-long -1)
 	(vp-int '(sub _func_end _func_start)
@@ -353,13 +404,59 @@
 	(vp-label '_func_entry))
 
 (defun def-func_end ()
+	(defq *cnt* 0)
+	(each (lambda (s)
+		(vp-label (sym (cat "_ref_" (str *cnt*) "_string")))
+		(vp-string s) (vp-byte 0)
+		(setq *cnt* (inc *cnt*))) *strings*)
+	(vp-align ptr_size)
 	(vp-label '_func_links)
+	(setq *cnt* 0)
+	(each (lambda (i)
+		(vp-label (sym (cat "_ref_" (str *cnt*) "_link")))
+		(vp-long `(sub ,(sym (cat "_ref_" (str i) "_path")) (length *out-buffer*)))
+		(setq *cnt* (inc *cnt*))) *links*)
+	(vp-long 0)
 	(vp-label '_func_paths)
+	(setq *cnt* 0)
+	(each (lambda (s)
+		(vp-label (sym (cat "_ref_" (str *cnt*) "_path")))
+		(vp-string (str s)) (vp-byte 0)
+		(setq *cnt* (inc *cnt*))) *paths*)
 	(vp-align ptr_size)
 	(vp-label '_func_end)
 	(emit-passes)
 	(print-emit-buffer)
 	(print-out-buffer 16))
+
+(defmacro def-insert (n l)
+	`(defun ,n (s)
+		(defq i 0)
+		(while (and (lt i (length ,l)) (not (eql s (elem i ,l))))
+			(setq i (inc i)))
+		(if (eq i (length ,l))
+			(push ,l s))
+		i))
+
+(def-insert fn-add-string *strings*)
+(def-insert fn-add-path *paths*)
+
+(defun fn-string (s r)
+	(vp-rel (sym (cat "_ref_" (str (fn-add-string s)) "_string")) r))
+
+(defun fn-add-link (p)
+	(push *links* (fn-add-path p)))
+
+(defun fn-find-link (p)
+	(defq i 0)
+	(while (and (lt i (length *links*)) (not (eql p (elem (elem i *links*) *paths*))))
+		(setq i (inc i)))
+	(if (eq i (length *links*))
+		(fn-add-link p))
+	i)
+
+(defun fn-bind (p r)
+	(vp-cpy-rel (sym (cat "_ref_" (str (fn-find-link p)) "_link")) r))
 
 "Files"
 
@@ -374,6 +471,9 @@
 	(defq *emit-buffer* (list))
 	(defq *out-buffer* (list))
 	(defq *struct* nil *struct-offset* 0)
+	(defq *strings* (list))
+	(defq *paths* (list))
+	(defq *links* (list))
 	(defq *compile-env* (env))
 	(import *file*)
 	(setq *compile-env* nil))
