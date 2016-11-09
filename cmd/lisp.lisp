@@ -185,7 +185,8 @@
 
 (defun def-struct-end ()
 	(align-struct ptr_size)
-	(def *compile-env* (sym (cat (str *struct*) "_size")) *struct-offset*))
+	(def *compile-env* (sym (cat (str *struct*) "_size")) *struct-offset*)
+	(setq *struct* nil))
 
 (defmacro def-type (n s)
 	`(defun ,n (&rest f)
@@ -281,8 +282,7 @@
 
 (defun emit-string (s)
 	(each (lambda (x)
-		(emit-byte (code x))) s)
-	(emit-byte 0))
+		(emit-byte (code x))) s))
 
 (defun emit-align (a &optional b)
 	(defq n (align (length *out-buffer*) a))
@@ -336,7 +336,7 @@
 
 "Functions"
 
-(defun def-func (n &optional s)
+(defun def-func (*func-name* &optional *func-stack*)
 	(setq *emit-buffer* (list))
 	(setq *out-buffer* (list))
 	(vp-label '_func_start)
@@ -345,10 +345,10 @@
 		'(sub _func_entry _func_start)
 		'(sub _func_links _func_start)
 		'(sub _func_paths _func_start)
-		(if s s 4096))
+		(if *func-stack* *func-stack* 4096))
 	(vp-label '_func_name_start)
-	(vp-string (str n))
-	(vp-byte '(sub _func_entry _func_name_start))
+	(vp-string (str *func-name*))
+	(vp-byte 0 '(sub _func_entry _func_name_start))
 	(vp-align ptr_size '(sub _func_entry _func_name_start))
 	(vp-label '_func_entry))
 
@@ -363,17 +363,17 @@
 
 "Files"
 
-(defun import (f)
-	(if (notany (lambda (x) (eql x f)) *imports*)
+(defun import (*file*)
+	(if (notany (lambda (x) (eql x *file*)) *imports*)
 		(progn
-			(push *imports* f)
-			(repl (file-stream f)))))
+			(push *imports* *file*)
+			(repl (file-stream *file*)))))
 
 (defun compile-file (*file*)
 	(defq *imports* (list))
 	(defq *emit-buffer* (list))
 	(defq *out-buffer* (list))
-	(defq *struct* "" *struct-offset* 0)
+	(defq *struct* nil *struct-offset* 0)
 	(defq *compile-env* (env))
 	(import *file*)
 	(setq *compile-env* nil))
