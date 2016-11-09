@@ -51,8 +51,9 @@ def_func class/lisp/env_bind
 					assign {index_vars + 1}, {index_vars}
 					break
 				default
-				normal:
 					;normal
+					gotoif {index_vals == len_vals}, error
+				normal:
 					devirt_call vector, ref_element, {vals, index_vals}, {value}
 					assign {index_vars + 1, index_vals + 1}, {index_vars, index_vals}
 				endswitch
@@ -60,7 +61,8 @@ def_func class/lisp/env_bind
 			loop_end
 			breakif {index_vals == len_vals}
 			func_call ref, deref, {value}
-			func_call error, create, {"(bind vars vals): too many vals", vars}, {value}
+		error:
+			func_call error, create, {"(bind vars vals): wrong number of vals", vals}, {value}
 		else
 			func_call error, create, {"(bind vars vals): vals not a list", vals}, {value}
 		endif
