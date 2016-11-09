@@ -15,8 +15,11 @@
 	(fn-string "Test String" r9)
 	(fn-string "Test String" r10)
 	(fn-string "Another String" r11)
-	(fn-bind 'sys/task_start r12)
 	(vp-pop r0 r1 r2)
+
+	(fn-bind 'sys/task_start r12)
+	(fn-bind 'sys/task_start r13)
+	(fn-bind 'sys/task_stop r14)
 
 	(vp-cpy-ir r4 local_v1 r0)
 	(vp-cpy-ir r4 local_v2 r1)

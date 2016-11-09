@@ -338,72 +338,31 @@
 (defq r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 r8 8
 	r9 9 r10 10 r11 11 r12 12 r13 3 r14 14 r15 15)
 
-(defun vp-align (a &optional b)
-	(emit `(emit-align ,a ,b)))
-
-(defun vp-label (s)
-	(emit `(emit-label ',s))
-	(def *compile-env* s 0))
-
-(defun vp-string (s)
-	(emit `(emit-string ,s)))
-
-(defun vp-byte (&rest b)
-	(emit `(emit-byte ~b)))
-
-(defun vp-short (&rest b)
-	(emit `(emit-short ~b)))
-
-(defun vp-int (&rest b)
-	(emit `(emit-int ~b)))
-
-(defun vp-long (&rest b)
-	(emit `(emit-long ~b)))
-
-(defun vp-push (&rest b)
-	(emit `(emit-push ~b)))
-
-(defun vp-pop (&rest b)
-	(emit `(emit-pop ~b)))
-
-(defun vp-rel (x y)
-	(emit `(emit-rel ,x ,y)))
-
-(defun vp-cpy-rel (x y)
-	(emit `(emit-cpy-rel ,x ,y)))
-
-(defun vp-cpy-rr (x y)
-	(emit `(emit-cpy-rr ,x ,y)))
-
-(defun vp-cpy-ri (x y z)
-	(emit `(emit-cpy-ri ,x ,y ,z)))
-
-(defun vp-cpy-ir (x y z)
-	(emit `(emit-cpy-ir ,x ,y ,z)))
-
-(defun vp-add-cr (c x)
-	(emit `(emit-add-cr ,c ,x)))
-
-(defun vp-add-rr (x y)
-	(emit `(emit-add-rr ,x ,y)))
-
-(defun vp-sub-cr (c x)
-	(emit `(emit-sub-cr ,c ,x)))
-
-(defun vp-sub-rr (x y)
-	(emit `(emit-sub-rr ,x ,y)))
-
-(defun vp-ret ()
-	(emit `(emit-ret)))
+(defun vp-label (s) (emit `(emit-label ',s)) (def *compile-env* s 0))
+(defun vp-align (&rest b) (emit `(emit-align ~b)))
+(defun vp-string (&rest b) (emit `(emit-string ~b)))
+(defun vp-byte (&rest b) (emit `(emit-byte ~b)))
+(defun vp-short (&rest b) (emit `(emit-short ~b)))
+(defun vp-int (&rest b) (emit `(emit-int ~b)))
+(defun vp-long (&rest b) (emit `(emit-long ~b)))
+(defun vp-push (&rest b) (emit `(emit-push ~b)))
+(defun vp-pop (&rest b) (emit `(emit-pop ~b)))
+(defun vp-rel (&rest b) (emit `(emit-rel ~b)))
+(defun vp-cpy-rel (&rest b) (emit `(emit-cpy-rel ~b)))
+(defun vp-cpy-rr (&rest b) (emit `(emit-cpy-rr ~b)))
+(defun vp-cpy-ri (&rest b) (emit `(emit-cpy-ri ~b)))
+(defun vp-cpy-ir (&rest b) (emit `(emit-cpy-ir ~b)))
+(defun vp-add-cr (&rest b) (emit `(emit-add-cr ~b)))
+(defun vp-add-rr (&rest b) (emit `(emit-add-rr ~b)))
+(defun vp-sub-cr (&rest b) (emit `(emit-sub-cr ~b)))
+(defun vp-sub-rr (&rest b) (emit `(emit-sub-rr ~b)))
+(defun vp-ret () (emit `(emit-ret)))
 
 "Functions"
 
 (defun def-func (*func-name* &optional *func-stack*)
-	(setq *emit-buffer* (list))
-	(setq *out-buffer* (list))
-	(setq *strings* (list))
-	(setq *paths* (list))
-	(setq *links* (list))
+	(setq *emit-buffer* (list) *out-buffer* (list))
+	(setq *strings* (list) *paths* (list) *links* (list))
 	(vp-label '_func_start)
 	(vp-long -1)
 	(vp-int '(sub _func_end _func_start)
