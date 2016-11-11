@@ -41,7 +41,7 @@ def_func class/lisp/func_eql
 		endswitch
 		func_call ref, ref, {value}
 	else
-		func_call error, create, {"(eq form form) wrong number of args", args}, {value}
+		func_call error, create, {"(eql form form) wrong number of args", args}, {value}
 	endif
 
 	eval {this, value}, {r0, r1}
