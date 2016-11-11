@@ -411,7 +411,7 @@
 	(vp-align ptr_size '(sub _func_entry _func_name_start))
 	(vp-label '_func_entry))
 
-(defun def-func_end ()
+(defun def-func-end ()
 	(defq *cnt* 0)
 	(each (lambda (s)
 		(vp-label (sym (cat "_ref_" (str *cnt*) "_string")))

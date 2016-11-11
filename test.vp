@@ -28,4 +28,4 @@
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
-(def-func_end)
+(def-func-end)
