@@ -285,9 +285,9 @@
 		(emit-byte (code x))) s))
 
 (defun emit-align (a &optional b)
-	(defq n (align (length *out-buffer*) a))
+	(defq n (align (length *out-buffer*) a) b (if b b 0))
 	(while (ne (length *out-buffer*) n)
-		(emit-byte (if b b 0))))
+		(emit-byte b)))
 
 "x64 Emit Functions"
 
