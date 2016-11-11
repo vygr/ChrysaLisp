@@ -16,6 +16,8 @@ def_func class/lisp/repl_read_list
 
 	const char_space, ' '
 	const char_rrb, ')'
+	const char_semi, ';'
+	const char_lf, 10
 
 	ptr this, stream, list, ast
 	ulong char
@@ -38,8 +40,13 @@ def_func class/lisp/repl_read_list
 		endif
 		func_call vector, push_back, {list, ast}
 
-		;skip white space
-		loop_while {char <= char_space && char != -1}
+		;skip white space/comments
+		loop_start
+			loop_while {char <= char_space && char != -1}
+				func_call stream, read_char, {stream}, {char}
+			loop_end
+			breakif {char != char_semi}
+			func_call stream, skip_not, {stream, char_lf}
 			func_call stream, read_char, {stream}, {char}
 		loop_end
 	loop_end
