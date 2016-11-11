@@ -37,10 +37,8 @@
 
 (defmacro or (x &rest b)
 	(if (eq 0 (length b)) x
-		(progn
-			(defq _x (gensym))
-			`(progn
-				(defq ,_x ,x)
+		(progn (defq _x (gensym))
+			`(progn (defq ,_x ,x)
 				(if ,_x ,_x (or ~b))))))
 
 (defmacro and (x &rest b)
@@ -49,8 +47,7 @@
 
 (defmacro for (s e i b)
 	(defq _l (gensym) _e (gensym) _i (gensym))
-	`(progn
-		(defq ,_l ,s ,_e ,e ,_i ,i)
+	`(progn (defq ,_l ,s ,_e ,e ,_i ,i)
 		(while (lt ,_l ,_e)
 			,b
 			(setq ,_l (add ,_l ,_i)))))
@@ -479,8 +476,7 @@
 
 (defun import (*file*)
 	(if (notany (lambda (x) (eql x *file*)) *imports*)
-		(progn
-			(push *imports* *file*)
+		(progn (push *imports* *file*)
 			(repl (file-stream *file*)))))
 
 (defun compile-file (*file*)
