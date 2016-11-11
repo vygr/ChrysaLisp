@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'inc/task.inc'
-%include 'class/class_string.inc'
+%include 'inc/func.ninc'
+%include 'inc/task.ninc'
+%include 'class/class_string.ninc'
 
 ;;;;;;;;;;;
 ; test code

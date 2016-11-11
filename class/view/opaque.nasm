@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_view.inc'
+%include 'inc/func.ninc'
+%include 'class/class_view.ninc'
 
 def_func class/view/opaque
 	;inputs

@@ -1,4 +1,4 @@
-%include 'inc/func.inc'
-%include 'class/class_slave.inc'
+%include 'inc/func.ninc'
+%include 'class/class_slave.ninc'
 
 class_macro_class slave

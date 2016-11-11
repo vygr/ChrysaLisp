@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_grid.inc'
+%include 'inc/func.ninc'
+%include 'class/class_grid.ninc'
 
 def_func class/grid/layout
 	;inputs

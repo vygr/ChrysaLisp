@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'inc/syscall.inc'
-%include 'class/class_string.inc'
+%include 'inc/func.ninc'
+%include 'inc/syscall.ninc'
+%include 'class/class_string.ninc'
 
 def_func class/string/init2
 	;inputs

@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'class/class_stream_msg_in.inc'
-%include 'class/class_stream_msg_out.inc'
+%include 'inc/func.ninc'
+%include 'class/class_stream_msg_in.ninc'
+%include 'class/class_stream_msg_out.ninc'
 
 def_func class/stream_msg_in/read_next
 	;inputs

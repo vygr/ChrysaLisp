@@ -1,4 +1,4 @@
-%include 'inc/func.inc'
-%include 'class/class_string.inc'
+%include 'inc/func.ninc'
+%include 'class/class_string.ninc'
 
 class_macro_class string

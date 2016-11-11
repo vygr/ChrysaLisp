@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_unordered_map.inc'
+%include 'inc/func.ninc'
+%include 'class/class_unordered_map.ninc'
 
 def_func class/unordered_map/create
 	;inputs

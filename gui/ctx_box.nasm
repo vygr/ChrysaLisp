@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'inc/sdl2.inc'
+%include 'inc/func.ninc'
+%include 'inc/sdl2.ninc'
 
 def_func gui/ctx_box
 	;inputs

@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'inc/font.inc'
+%include 'inc/func.ninc'
+%include 'inc/font.ninc'
 
 def_func gui/font_init
 

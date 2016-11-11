@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_pair.inc'
+%include 'inc/func.ninc'
+%include 'class/class_pair.ninc'
 
 def_func class/pair/set_second
 	;inputs

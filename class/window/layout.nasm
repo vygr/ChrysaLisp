@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'class/class_window.inc'
-%include 'class/class_flow.inc'
+%include 'inc/func.ninc'
+%include 'class/class_window.ninc'
+%include 'class/class_flow.ninc'
 
 def_func class/window/layout
 	;inputs

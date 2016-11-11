@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_window.inc'
+%include 'inc/func.ninc'
+%include 'class/class_window.ninc'
 
 def_func class/window/get_panel
 	;inputs

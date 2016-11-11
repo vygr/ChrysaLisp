@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'inc/gui.inc'
-%include 'class/class_component.inc'
+%include 'inc/func.ninc'
+%include 'inc/gui.ninc'
+%include 'class/class_component.ninc'
 
 def_func class/component/connect
 	;inputs

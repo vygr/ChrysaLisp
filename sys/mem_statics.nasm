@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'inc/heap.inc'
+%include 'inc/func.ninc'
+%include 'inc/heap.ninc'
 
 def_func sys/mem_statics
 

@@ -1,8 +1,8 @@
-%include 'inc/func.inc'
-%include 'inc/task.inc'
-%include 'inc/gui.inc'
-%include 'inc/sdl2.inc'
-%include 'class/class_label.inc'
+%include 'inc/func.ninc'
+%include 'inc/task.ninc'
+%include 'inc/gui.ninc'
+%include 'inc/sdl2.ninc'
+%include 'class/class_label.ninc'
 
 def_struct local
 	long local_x_pos

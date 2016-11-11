@@ -1,4 +1,4 @@
-%include 'inc/func.inc'
-%include 'class/class_component.inc'
+%include 'inc/func.ninc'
+%include 'class/class_component.ninc'
 
 class_macro_class component

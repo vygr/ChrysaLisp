@@ -1,4 +1,4 @@
-%include 'inc/func.inc'
-%include 'class/class_label.inc'
+%include 'inc/func.ninc'
+%include 'class/class_label.ninc'
 
 class_macro_new label

@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_stream_str.inc'
+%include 'inc/func.ninc'
+%include 'class/class_stream_str.ninc'
 
 def_func class/stream_str/create
 	;inputs

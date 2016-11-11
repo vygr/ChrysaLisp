@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'class/class_unordered_set.inc'
-%include 'class/class_lisp.inc'
+%include 'inc/func.ninc'
+%include 'class/class_unordered_set.ninc'
+%include 'class/class_lisp.ninc'
 
 def_func class/lisp/sym_intern
 	;inputs

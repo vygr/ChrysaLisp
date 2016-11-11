@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'inc/task.inc'
+%include 'inc/func.ninc'
+%include 'inc/task.ninc'
 
 def_func sys/task_sleep
 	;inputs

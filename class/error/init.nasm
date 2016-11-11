@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'class/class_error.inc'
-%include 'class/class_string.inc'
+%include 'inc/func.ninc'
+%include 'class/class_error.ninc'
+%include 'class/class_string.ninc'
 
 def_func class/error/init
 	;inputs

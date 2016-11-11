@@ -1,7 +1,7 @@
-%include 'inc/func.inc'
-%include 'inc/gui.inc'
-%include 'class/class_title.inc'
-%include 'class/class_window.inc'
+%include 'inc/func.ninc'
+%include 'inc/gui.ninc'
+%include 'class/class_title.ninc'
+%include 'class/class_window.ninc'
 
 def_func class/title/mouse_down
 	;inputs

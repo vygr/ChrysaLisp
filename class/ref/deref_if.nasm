@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_ref.inc'
+%include 'inc/func.ninc'
+%include 'class/class_ref.ninc'
 
 def_func class/ref/deref_if
 	;inputs

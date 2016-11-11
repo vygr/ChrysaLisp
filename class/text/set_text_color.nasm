@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_text.inc'
+%include 'inc/func.ninc'
+%include 'class/class_text.ninc'
 
 def_func class/text/set_text_color
 	;inputs

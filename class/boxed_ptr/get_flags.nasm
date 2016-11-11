@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_boxed_ptr.inc'
+%include 'inc/func.ninc'
+%include 'class/class_boxed_ptr.ninc'
 
 def_func class/boxed_ptr/get_flags
 	;inputs

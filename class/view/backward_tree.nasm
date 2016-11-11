@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'inc/gui.inc'
-%include 'class/class_view.inc'
+%include 'inc/func.ninc'
+%include 'inc/gui.ninc'
+%include 'class/class_view.ninc'
 
 def_func class/view/backward_tree
 	;inputs

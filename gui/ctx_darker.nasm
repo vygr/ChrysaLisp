@@ -1,4 +1,4 @@
-%include 'inc/func.inc'
+%include 'inc/func.ninc'
 
 def_func gui/ctx_darker
 	;inputs

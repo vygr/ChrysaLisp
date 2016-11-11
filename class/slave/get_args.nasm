@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_slave.inc'
+%include 'inc/func.ninc'
+%include 'class/class_slave.ninc'
 
 def_func class/slave/get_args
 	;inputs

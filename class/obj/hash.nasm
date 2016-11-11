@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_obj.inc'
+%include 'inc/func.ninc'
+%include 'class/class_obj.ninc'
 
 def_func class/obj/hash
 	;inputs

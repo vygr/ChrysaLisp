@@ -1,10 +1,10 @@
-%include 'inc/func.inc'
-%include 'class/class_stream_msg_out.inc'
-%include 'class/class_stream_msg_in.inc'
-%include 'class/class_string.inc'
-%include 'class/class_vector.inc'
-%include 'class/class_master.inc'
-%include 'class/class_slave.inc'
+%include 'inc/func.ninc'
+%include 'class/class_stream_msg_out.ninc'
+%include 'class/class_stream_msg_in.ninc'
+%include 'class/class_string.ninc'
+%include 'class/class_vector.ninc'
+%include 'class/class_master.ninc'
+%include 'class/class_slave.ninc'
 
 def_func class/master/start
 	;inputs

@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'class/class_button.inc'
-%include 'class/class_flow.inc'
+%include 'inc/func.ninc'
+%include 'class/class_button.ninc'
+%include 'class/class_flow.ninc'
 
 def_func class/button/layout
 	;inputs

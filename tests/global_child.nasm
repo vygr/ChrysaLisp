@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'inc/mail.inc'
-%include 'inc/math.inc'
+%include 'inc/func.ninc'
+%include 'inc/mail.ninc'
+%include 'inc/math.ninc'
 
 ;;;;;;;;;;;
 ; test code

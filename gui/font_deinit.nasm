@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'inc/font.inc'
-%include 'inc/sdl2.inc'
+%include 'inc/func.ninc'
+%include 'inc/font.ninc'
+%include 'inc/sdl2.ninc'
 
 def_func gui/font_deinit
 

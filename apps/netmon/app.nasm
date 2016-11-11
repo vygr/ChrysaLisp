@@ -1,13 +1,13 @@
-%include 'inc/func.inc'
-%include 'inc/mail.inc'
-%include 'inc/gui.inc'
-%include 'class/class_window.inc'
-%include 'class/class_flow.inc'
-%include 'class/class_grid.inc'
-%include 'class/class_button.inc'
-%include 'class/class_progress.inc'
-%include 'class/class_string.inc'
-%include 'apps/netmon/app.inc'
+%include 'inc/func.ninc'
+%include 'inc/mail.ninc'
+%include 'inc/gui.ninc'
+%include 'class/class_window.ninc'
+%include 'class/class_flow.ninc'
+%include 'class/class_grid.ninc'
+%include 'class/class_button.ninc'
+%include 'class/class_progress.ninc'
+%include 'class/class_string.ninc'
+%include 'apps/netmon/app.ninc'
 
 def_func apps/netmon/app
 

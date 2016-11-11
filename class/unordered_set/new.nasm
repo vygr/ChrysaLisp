@@ -1,4 +1,4 @@
-%include 'inc/func.inc'
-%include 'class/class_unordered_set.inc'
+%include 'inc/func.ninc'
+%include 'class/class_unordered_set.ninc'
 
 class_macro_new unordered_set

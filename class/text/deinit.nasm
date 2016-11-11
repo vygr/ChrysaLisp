@@ -1,7 +1,7 @@
-%include 'inc/func.inc'
-%include 'class/class_text.inc'
-%include 'class/class_string.inc'
-%include 'class/class_vector.inc'
+%include 'inc/func.ninc'
+%include 'class/class_text.ninc'
+%include 'class/class_string.ninc'
+%include 'class/class_vector.ninc'
 
 def_func class/text/deinit
 	;inputs

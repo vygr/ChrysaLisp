@@ -1,8 +1,8 @@
-%include 'inc/func.inc'
-%include 'class/class_window.inc'
-%include 'class/class_flow.inc'
-%include 'class/class_title.inc'
-%include 'class/class_label.inc'
+%include 'inc/func.ninc'
+%include 'class/class_window.ninc'
+%include 'class/class_flow.ninc'
+%include 'class/class_title.ninc'
+%include 'class/class_label.ninc'
 
 def_func class/window/init
 	;inputs

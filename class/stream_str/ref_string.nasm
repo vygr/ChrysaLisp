@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'class/class_string.inc'
-%include 'class/class_stream_str.inc'
+%include 'inc/func.ninc'
+%include 'class/class_string.ninc'
+%include 'class/class_stream_str.ninc'
 
 def_func class/stream_str/ref_string
 	;inputs

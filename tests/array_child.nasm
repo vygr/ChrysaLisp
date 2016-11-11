@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'inc/math.inc'
+%include 'inc/func.ninc'
+%include 'inc/math.ninc'
 
 ;;;;;;;;;;;
 ; test code

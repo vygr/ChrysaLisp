@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'inc/load.inc'
+%include 'inc/func.ninc'
+%include 'inc/load.ninc'
 
 def_func sys/load_init
 	;set prebound functions as read/write/executable

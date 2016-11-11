@@ -1,7 +1,7 @@
-%include 'inc/func.inc'
-%include 'class/class_flow.inc'
-%include 'class/class_text.inc'
-%include 'class/class_label.inc'
+%include 'inc/func.ninc'
+%include 'class/class_flow.ninc'
+%include 'class/class_text.ninc'
+%include 'class/class_label.ninc'
 
 def_func class/label/init
 	;inputs

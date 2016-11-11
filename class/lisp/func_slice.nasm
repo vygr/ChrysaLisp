@@ -1,9 +1,9 @@
-%include 'inc/func.inc'
-%include 'class/class_vector.inc'
-%include 'class/class_sequence.inc'
-%include 'class/class_boxed_long.inc'
-%include 'class/class_error.inc'
-%include 'class/class_lisp.inc'
+%include 'inc/func.ninc'
+%include 'class/class_vector.ninc'
+%include 'class/class_sequence.ninc'
+%include 'class/class_boxed_long.ninc'
+%include 'class/class_error.ninc'
+%include 'class/class_lisp.ninc'
 
 def_func class/lisp/func_slice
 	;inputs

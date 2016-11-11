@@ -1,10 +1,10 @@
-%include 'inc/func.inc'
-%include 'class/class_vector.inc'
-%include 'class/class_stream_str.inc'
-%include 'class/class_string.inc'
-%include 'class/class_symbol.inc'
-%include 'class/class_error.inc'
-%include 'class/class_lisp.inc'
+%include 'inc/func.ninc'
+%include 'class/class_vector.ninc'
+%include 'class/class_stream_str.ninc'
+%include 'class/class_string.ninc'
+%include 'class/class_symbol.ninc'
+%include 'class/class_error.ninc'
+%include 'class/class_lisp.ninc'
 
 def_func class/lisp/func_filestream
 	;inputs

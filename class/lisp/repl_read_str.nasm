@@ -1,8 +1,8 @@
-%include 'inc/func.inc'
-%include 'inc/load.inc'
-%include 'class/class_string.inc'
-%include 'class/class_stream.inc'
-%include 'class/class_lisp.inc'
+%include 'inc/func.ninc'
+%include 'inc/load.ninc'
+%include 'class/class_string.ninc'
+%include 'class/class_stream.ninc'
+%include 'class/class_lisp.ninc'
 
 def_func class/lisp/repl_read_str
 	;inputs

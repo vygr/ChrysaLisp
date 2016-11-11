@@ -1,7 +1,7 @@
-%include 'inc/func.inc'
-%include 'inc/load.inc'
-%include 'inc/string.inc'
-%include 'class/class_string.inc'
+%include 'inc/func.ninc'
+%include 'inc/load.ninc'
+%include 'inc/string.ninc'
+%include 'class/class_string.ninc'
 
 def_func class/string/create_from_file
 	;inputs

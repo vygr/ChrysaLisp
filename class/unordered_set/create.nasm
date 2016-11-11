@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_unordered_set.inc'
+%include 'inc/func.ninc'
+%include 'class/class_unordered_set.ninc'
 
 def_func class/unordered_set/create
 ;inputs

@@ -1,8 +1,8 @@
-%include 'inc/func.inc'
-%include 'class/class_string.inc'
-%include 'class/class_stream.inc'
-%include 'class/class_vector.inc'
-%include 'class/class_slave.inc'
+%include 'inc/func.ninc'
+%include 'class/class_string.ninc'
+%include 'class/class_stream.ninc'
+%include 'class/class_vector.ninc'
+%include 'class/class_slave.ninc'
 
 def_func cmd/forth
 

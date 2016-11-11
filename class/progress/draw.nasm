@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'inc/gui.inc'
-%include 'class/class_progress.inc'
+%include 'inc/func.ninc'
+%include 'inc/gui.ninc'
+%include 'class/class_progress.ninc'
 
 def_func class/progress/draw
 	;inputs

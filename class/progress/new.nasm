@@ -1,4 +1,4 @@
-%include 'inc/func.inc'
-%include 'class/class_progress.inc'
+%include 'inc/func.ninc'
+%include 'class/class_progress.ninc'
 
 class_macro_new progress

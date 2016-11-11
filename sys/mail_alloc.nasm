@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'inc/mail.inc'
+%include 'inc/func.ninc'
+%include 'inc/mail.ninc'
 
 def_func sys/mail_alloc
 	;outputs

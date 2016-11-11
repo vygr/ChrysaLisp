@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'class/class_stream.inc'
-%include 'class/class_slave.inc'
+%include 'inc/func.ninc'
+%include 'class/class_stream.ninc'
+%include 'class/class_slave.ninc'
 
 def_func cmd/null
 

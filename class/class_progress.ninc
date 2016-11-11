@@ -1,0 +1,23 @@
+%ifndef CLASS_PROGRESS_1234
+%define CLASS_PROGRESS_1234
+
+%include 'class/class_view.ninc'
+
+progress_border_size equ 1
+
+def_class progress, view
+def_method create, class/progress/create
+def_method new, class/progress/new
+def_method set_max, class/progress/set_max, static, {r0, r1}
+def_method set_val, class/progress/set_val, static, {r0, r1}
+
+def_method pref_size, class/progress/pref_size, override
+def_method draw, class/progress/draw, override
+def_method layout, class/progress/layout, override
+
+def_struct progress, view
+	long progress_max
+	long progress_val
+def_struct_end
+
+%endif

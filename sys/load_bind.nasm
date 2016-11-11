@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'inc/load.inc'
+%include 'inc/func.ninc'
+%include 'inc/load.ninc'
 
 ;%define list_loaded
 

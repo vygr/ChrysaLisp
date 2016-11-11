@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'apps/netmon/app.inc'
+%include 'inc/func.ninc'
+%include 'apps/netmon/app.ninc'
 
 def_func apps/netmon/child
 	;monitor task

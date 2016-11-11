@@ -1,7 +1,7 @@
-%include 'inc/func.inc'
-%include 'inc/mail.inc'
-%include 'inc/task.inc'
-%include 'inc/link.inc'
+%include 'inc/func.ninc'
+%include 'inc/mail.ninc'
+%include 'inc/task.ninc'
+%include 'inc/link.ninc'
 
 def_func sys/link
 	;started by kernel for each link

@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_master.inc'
+%include 'inc/func.ninc'
+%include 'class/class_master.ninc'
 
 def_func class/master/get_state
 	;inputs

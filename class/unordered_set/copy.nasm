@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'class/class_unordered_set.inc'
-%include 'class/class_vector.inc'
+%include 'inc/func.ninc'
+%include 'class/class_unordered_set.ninc'
+%include 'class/class_vector.ninc'
 
 def_func class/unordered_set/copy
 	;inputs

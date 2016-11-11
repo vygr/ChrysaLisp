@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'inc/font.inc'
-%include 'class/class_button.inc'
+%include 'inc/func.ninc'
+%include 'inc/font.ninc'
+%include 'class/class_button.ninc'
 
 def_func class/button/draw
 	;inputs

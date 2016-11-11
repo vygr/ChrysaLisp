@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_progress.inc'
+%include 'inc/func.ninc'
+%include 'class/class_progress.ninc'
 
 def_func class/progress/set_max
 	;inputs

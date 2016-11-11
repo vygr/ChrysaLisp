@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'inc/list.inc'
+%include 'inc/func.ninc'
+%include 'inc/list.ninc'
 
 def_func sys/list_node_at
 	;inputs

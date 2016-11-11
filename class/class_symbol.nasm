@@ -1,4 +1,4 @@
-%include 'inc/func.inc'
-%include 'class/class_symbol.inc'
+%include 'inc/func.ninc'
+%include 'class/class_symbol.ninc'
 
 class_macro_class symbol

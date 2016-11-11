@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'inc/gui.inc'
+%include 'inc/func.ninc'
+%include 'inc/gui.ninc'
 
 def_func gui/region_translate
 	;inputs

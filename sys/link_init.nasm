@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'inc/link.inc'
+%include 'inc/func.ninc'
+%include 'inc/link.ninc'
 
 def_func sys/link_init
 	;get statics

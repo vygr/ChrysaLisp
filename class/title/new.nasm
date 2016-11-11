@@ -1,4 +1,4 @@
-%include 'inc/func.inc'
-%include 'class/class_title.inc'
+%include 'inc/func.ninc'
+%include 'class/class_title.ninc'
 
 class_macro_new title

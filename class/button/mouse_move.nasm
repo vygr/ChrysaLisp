@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'inc/gui.inc'
-%include 'class/class_button.inc'
+%include 'inc/func.ninc'
+%include 'inc/gui.ninc'
+%include 'class/class_button.ninc'
 
 def_func class/button/mouse_move
 	;inputs

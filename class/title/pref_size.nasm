@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'class/class_title.inc'
+%include 'inc/func.ninc'
+%include 'class/class_title.ninc'
 
 def_func class/title/pref_size
 	;inputs

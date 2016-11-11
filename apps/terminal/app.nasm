@@ -1,13 +1,13 @@
-%include 'inc/func.inc'
-%include 'inc/gui.inc'
-%include 'inc/string.inc'
-%include 'class/class_window.inc'
-%include 'class/class_flow.inc'
-%include 'class/class_label.inc'
-%include 'class/class_string.inc'
-%include 'class/class_vector.inc'
-%include 'class/class_stream_msg_out.inc'
-%include 'class/class_master.inc'
+%include 'inc/func.ninc'
+%include 'inc/gui.ninc'
+%include 'inc/string.ninc'
+%include 'class/class_window.ninc'
+%include 'class/class_flow.ninc'
+%include 'class/class_label.ninc'
+%include 'class/class_string.ninc'
+%include 'class/class_vector.ninc'
+%include 'class/class_stream_msg_out.ninc'
+%include 'class/class_master.ninc'
 
 def_func apps/terminal/app
 

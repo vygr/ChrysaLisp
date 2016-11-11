@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'inc/syscall.inc'
-%include 'inc/string.inc'
+%include 'inc/func.ninc'
+%include 'inc/syscall.ninc'
+%include 'inc/string.ninc'
 
 def_func sys/write_debug_str
 	;inputs

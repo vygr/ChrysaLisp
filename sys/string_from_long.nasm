@@ -1,4 +1,4 @@
-%include 'inc/func.inc'
+%include 'inc/func.ninc'
 
 def_func sys/string_from_long
 	;inputs

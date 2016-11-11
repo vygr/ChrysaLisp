@@ -1,5 +1,5 @@
-%include 'inc/func.inc'
-%include 'inc/syscall.inc'
+%include 'inc/func.ninc'
+%include 'inc/syscall.ninc'
 
 def_func sys/cpu_get_time
 	;outputs

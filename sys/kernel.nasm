@@ -1,10 +1,10 @@
-%include 'inc/func.inc'
-%include 'inc/mail.inc'
-%include 'inc/task.inc'
-%include 'inc/link.inc'
-%include 'inc/load.inc'
-%include 'inc/font.inc'
-%include 'inc/sdl2.inc'
+%include 'inc/func.ninc'
+%include 'inc/mail.ninc'
+%include 'inc/task.ninc'
+%include 'inc/link.ninc'
+%include 'inc/load.ninc'
+%include 'inc/font.ninc'
+%include 'inc/sdl2.ninc'
 
 ;;;;;;;;;;;;;
 ; kernel task

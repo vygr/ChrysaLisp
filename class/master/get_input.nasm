@@ -1,6 +1,6 @@
-%include 'inc/func.inc'
-%include 'class/class_master.inc'
-%include 'class/class_vector.inc'
+%include 'inc/func.ninc'
+%include 'class/class_master.ninc'
+%include 'class/class_vector.ninc'
 
 def_func class/master/get_input
 	;inputs

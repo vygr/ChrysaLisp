@@ -1,8 +1,8 @@
-%include 'inc/func.inc'
-%include 'inc/font.inc'
-%include 'inc/string.inc'
-%include 'inc/sdl2.inc'
-%include 'inc/task.inc'
+%include 'inc/func.ninc'
+%include 'inc/font.ninc'
+%include 'inc/string.ninc'
+%include 'inc/sdl2.ninc'
+%include 'inc/task.ninc'
 
 def_func gui/font_open
 	;inputs

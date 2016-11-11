@@ -1,10 +1,10 @@
-%include 'inc/func.inc'
-%include 'class/class_slave.inc'
-%include 'class/class_vector.inc'
-%include 'class/class_stream.inc'
-%include 'class/class_stream_str.inc'
-%include 'class/class_string.inc'
-%include 'class/class_lisp.inc'
+%include 'inc/func.ninc'
+%include 'class/class_slave.ninc'
+%include 'class/class_vector.ninc'
+%include 'class/class_stream.ninc'
+%include 'class/class_stream_str.ninc'
+%include 'class/class_string.ninc'
+%include 'class/class_lisp.ninc'
 
 def_func cmd/lisp, 1024 * 8
 

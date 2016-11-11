@@ -1,4 +1,4 @@
-%include 'inc/func.inc'
-%include 'class/class_button.inc'
+%include 'inc/func.ninc'
+%include 'class/class_button.ninc'
 
 class_macro_new button
