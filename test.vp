@@ -1,4 +1,4 @@
-(import "test.inc")
+(import 'test.inc)
 
 (def-func 'test1)
 

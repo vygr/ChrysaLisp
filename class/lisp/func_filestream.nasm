@@ -2,6 +2,7 @@
 %include 'class/class_vector.inc'
 %include 'class/class_stream_str.inc'
 %include 'class/class_string.inc'
+%include 'class/class_symbol.inc'
 %include 'class/class_error.inc'
 %include 'class/class_lisp.inc'
 
@@ -22,7 +23,8 @@ def_func class/lisp/func_filestream
 	devirt_call vector, get_length, {args}, {length}
 	if {length == 1}
 		func_call vector, get_element, {args, 0}, {value}
-		if {value->obj_vtable == @class/class_string}
+		if {value->obj_vtable == @class/class_string \
+			|| value->obj_vtable == @class/class_symbol}
 			func_call string, create_from_file, {&value->string_data}, {value}
 			if {value}
 				func_call stream_str, create, {value}, {value}
@@ -30,7 +32,7 @@ def_func class/lisp/func_filestream
 				func_call error, create, {"(file-stream filename) filename not found", args}, {value}
 			endif
 		else
-			func_call error, create, {"(file-stream filename) filename not a string", args}, {value}
+			func_call error, create, {"(file-stream filename) filename not a filename", args}, {value}
 		endif
 	else
 		func_call error, create, {"(file-stream filename) not enough args", args}, {value}
