@@ -1,4 +1,6 @@
-"C-Script compiler !"
+;;;;;;;;;;;;;;;;;;;
+; C-Script compiler
+;;;;;;;;;;;;;;;;;;;
 
 (defun is-num (c)
 	(le (ascii "0") c (ascii "9")))

@@ -27,6 +27,8 @@ def_func class/lisp/repl_read
 	const char_quasi_quote, '`'
 	const char_unquote, ','
 	const char_splicing, '~'
+	const char_semi, ';'
+	const char_lf, 10
 
 	ptr this, stream, ast
 	ulong char
@@ -35,6 +37,7 @@ def_func class/lisp/repl_read
 	retire {r0, r1, r2}, {this, stream, char}
 
 	;skip white space
+skip_white:
 	loop_while {char <= char_space && char != -1}
 		func_call stream, read_char, {stream}, {char}
 	loop_end
@@ -42,6 +45,10 @@ def_func class/lisp/repl_read
 	;what are we reading ?
 	if {char != -1}
 		switch
+		case {char == char_semi}
+			func_call stream, skip_not, {stream, char_lf}
+			func_call stream, read_char, {stream}, {char}
+			goto skip_white
 		case {char == char_rrb}
 			func_call error, create, {"unexpected )", this->lisp_sym_nil}, {ast}
 			func_call stream, read_char, {stream}, {char}

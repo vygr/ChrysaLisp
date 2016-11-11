@@ -1,5 +1,3 @@
-"list Structures"
-
 (def-struct 'lh_list)
 	(ptr 'lh_list_head)
 	(ptr 'lh_list_tail)

@@ -1,18 +1,26 @@
-"Primitives"
+;;;;;;;;;;;;
+; Primitives
+;;;;;;;;;;;;
 
 (defq list (lambda (&rest b) b))
 
-"Definitions"
+;;;;;;;;;;;;;
+; Definitions
+;;;;;;;;;;;;;
 
 (defmacro defun (n a &rest b)
 	`(defq ,n (lambda ,a ~b)))
 
-"Scopes"
+;;;;;;;;
+; Scopes
+;;;;;;;;
 
 (defmacro let (l &rest b)
 	`((lambda ,(map (lambda (x) (elem 0 x)) l) ~b) ~(map (lambda (x) (elem 1 x)) l)))
 
-"Control flow"
+;;;;;;;;;;;;;;
+; Control flow
+;;;;;;;;;;;;;;
 
 (defmacro if (x y &rest b)
 	(cond ((eq 0 (length b)) `(cond (,x ,y)))
@@ -47,7 +55,9 @@
 			,b
 			(setq ,_l (add ,_l ,_i)))))
 
-"Map/Reduce"
+;;;;;;;;;;;;
+; Map/Reduce
+;;;;;;;;;;;;
 
 (defun min-len (b)
 	(defq m (length (elem 0 b)) i 1 e nil)
@@ -90,7 +100,9 @@
 (defmacro merge (&rest l)
 	`(reduce cat (zip ~l)))
 
-"Predicates"
+;;;;;;;;;;;;
+; Predicates
+;;;;;;;;;;;;
 
 (defun some-impl (f b)
 	(defq m (min-len b) l (list) e 0 a nil v nil i nil)
@@ -117,7 +129,9 @@
 (defun notany (f &rest b) (not (some-impl f b)))
 (defun notevery (f &rest b) (not (every-impl f b)))
 
-"Comparison"
+;;;;;;;;;;;;
+; Comparison
+;;;;;;;;;;;;
 
 (defun equalp (x y)
 	(eql (str x) (str y)))
@@ -139,7 +153,9 @@
 (defun divmod (x y)
 	(list (div x y) (mod x y)))
 
-"Streams"
+;;;;;;;;;
+; Streams
+;;;;;;;;;
 
 (defun each-line (f b)
 	(defq s (file-stream f) l t)
@@ -149,7 +165,9 @@
 (defun print-file (f)
 	(each-line f print))
 
-"Utilities"
+;;;;;;;;;;;
+; Utilities
+;;;;;;;;;;;
 
 (defun align (x a)
 	(bit-and (add x (dec a)) (sub 0 a)))
@@ -171,11 +189,13 @@
 	(print "--- " l " ---")
 	(each (lambda (x) (if (not (eql (elem 0 x) '*parent*)) (print x))) e))
 
-"------------"
-"VP Assembler"
-"------------"
+;;;;;;;;;;;;;;
+; VP Assembler
+;;;;;;;;;;;;;;
 
-"Structures"
+;;;;;;;;;;;;
+; Structures
+;;;;;;;;;;;;
 
 (defun align-struct (x)
 	(setq *struct-offset* (align *struct-offset* x)))
@@ -228,7 +248,9 @@
 	(def *compile-env* f *struct-offset*)
 	(setq *struct-offset* (eval (sym (cat (str s) "_size")))))
 
-"Emit Buffer"
+;;;;;;;;;;;;;
+; Emit Buffer
+;;;;;;;;;;;;;
 
 (defun emit (&rest b)
 	(each (lambda (x)
@@ -289,7 +311,9 @@
 	(while (ne (length *out-buffer*) n)
 		(emit-byte b)))
 
-"x64 Emit Functions"
+;;;;;;;;;;;;;;;;;;;;
+; x64 Emit Functions
+;;;;;;;;;;;;;;;;;;;;
 
 (defun emit-push (&rest b)
 	(emit-byte 0x5)
@@ -341,7 +365,9 @@
 (defun emit-ret ()
 	(emit-byte 0xc3))
 
-"VP Instructions"
+;;;;;;;;;;;;;;;;;
+; VP Instructions
+;;;;;;;;;;;;;;;;;
 
 (defq r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 r8 8
 	r9 9 r10 10 r11 11 r12 12 r13 3 r14 14 r15 15)
@@ -368,7 +394,9 @@
 (defun vp-sub-rr (&rest b) (emit `(emit-sub-rr ~b)))
 (defun vp-ret () (emit `(emit-ret)))
 
-"Functions"
+;;;;;;;;;;;
+; Functions
+;;;;;;;;;;;
 
 (defun def-func (*func-name* &optional *func-stack*)
 	(setq *emit-buffer* (list) *out-buffer* (list))
@@ -445,7 +473,9 @@
 (defun fn-jmp (p)
 	(vp-jmp-rel (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
 
-"Files"
+;;;;;;;
+; Files
+;;;;;;;
 
 (defun import (*file*)
 	(if (notany (lambda (x) (eql x *file*)) *imports*)
