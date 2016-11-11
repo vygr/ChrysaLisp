@@ -20,6 +20,8 @@
 	(fn-bind 'sys/task_start r12)
 	(fn-bind 'sys/task_start r13)
 	(fn-bind 'sys/task_stop r14)
+	(fn-call 'sys/task_stop)
+	(fn-jmp 'sys/task_start)
 
 	(vp-cpy-ir r4 local_v1 r0)
 	(vp-cpy-ir r4 local_v2 r1)

@@ -303,8 +303,16 @@
 	(emit-byte 0x70 y)
 	(emit-int (sub x (length *out-buffer*) int_size)))
 
+(defun emit-call-rel (x)
+	(emit-byte 0x71)
+	(emit-int (sub x (length *out-buffer*) int_size)))
+
+(defun emit-jmp-rel (x)
+	(emit-byte 0x72)
+	(emit-int (sub x (length *out-buffer*) int_size)))
+
 (defun emit-cpy-rel (x y)
-	(emit-byte 0x71 y)
+	(emit-byte 0x73 y)
 	(emit-int (sub x (length *out-buffer*) int_size)))
 
 (defun emit-cpy-rr (x y)
@@ -348,6 +356,8 @@
 (defun vp-push (&rest b) (emit `(emit-push ~b)))
 (defun vp-pop (&rest b) (emit `(emit-pop ~b)))
 (defun vp-rel (&rest b) (emit `(emit-rel ~b)))
+(defun vp-call-rel (&rest b) (emit `(emit-call-rel ~b)))
+(defun vp-jmp-rel (&rest b) (emit `(emit-jmp-rel ~b)))
 (defun vp-cpy-rel (&rest b) (emit `(emit-cpy-rel ~b)))
 (defun vp-cpy-rr (&rest b) (emit `(emit-cpy-rr ~b)))
 (defun vp-cpy-ri (&rest b) (emit `(emit-cpy-ri ~b)))
@@ -407,8 +417,7 @@
 		(defq i 0)
 		(while (and (lt i (length ,l)) (not (eql s (elem i ,l))))
 			(setq i (inc i)))
-		(if (eq i (length ,l))
-			(push ,l s))
+		(if (eq i (length ,l)) (push ,l s))
 		i))
 
 (def-insert fn-add-string *strings*)
@@ -424,12 +433,17 @@
 	(defq i 0)
 	(while (and (lt i (length *links*)) (not (eql p (elem (elem i *links*) *paths*))))
 		(setq i (inc i)))
-	(if (eq i (length *links*))
-		(fn-add-link p))
+	(if (eq i (length *links*)) (fn-add-link p))
 	i)
 
 (defun fn-bind (p r)
 	(vp-cpy-rel (sym (cat "_ref_" (str (fn-find-link p)) "_link")) r))
+
+(defun fn-call (p)
+	(vp-call-rel (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
+
+(defun fn-jmp (p)
+	(vp-jmp-rel (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
 
 "Files"
 
@@ -441,12 +455,9 @@
 
 (defun compile-file (*file*)
 	(defq *imports* (list))
-	(defq *emit-buffer* (list))
-	(defq *out-buffer* (list))
-	(defq *struct* nil *struct-offset* 0)
-	(defq *strings* (list))
-	(defq *paths* (list))
-	(defq *links* (list))
+	(defq *emit-buffer* nil *out-buffer* nil)
+	(defq *struct* nil *struct-offset* nil)
+	(defq *strings* nil *paths* nil *links* nil)
 	(defq *compile-env* (env))
 	(import *file*)
 	(setq *compile-env* nil))
