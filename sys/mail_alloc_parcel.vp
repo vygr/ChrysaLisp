@@ -14,7 +14,8 @@
 		(f-call 'sys_mail 'alloc '() '(r0))
 	else
 		(f-call 'sys_mem 'alloc '(r0) '(r0, _))
-		vp_cpy_cl 0, [r0 + msg_parcel_size]
+		(vp-xor-rr r1 r1)
+		(vp-cpy-ri r1 r0 msg_parcel_size)
 	endif
 	(vp-cpy-ri r5 r0 msg_length)
 	(vp-ret)

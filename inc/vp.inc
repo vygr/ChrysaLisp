@@ -242,17 +242,6 @@
 	%endif
 %endmacro
 
-%macro vp_cpy_cl 2
-	reg? %2
-	%if _r < 0
-		;dest not register
-		mov qword %2, %1
-	%else
-		;dest is register
-		mov %2, %1
-	%endif
-%endmacro
-
 %macro vp_xchg 2
 	%ifnidn %1, %2
 		xchg %1, %2

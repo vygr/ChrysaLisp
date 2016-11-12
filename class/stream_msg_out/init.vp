@@ -21,9 +21,11 @@
 	s_call stream_msg_out, init, {r0, r1, 0, 0, 0, 0}, {r1}
 	if r1, !=, 0
 		;init myself
-		vp_cpy_cl 0, [r0 + stream_msg_out_seqnum]
-		vp_cpy_cl 0, [r0 + stream_msg_out_ack_seqnum]
-		vp_cpy_cl stream_mail_state_started, [r0 + stream_msg_out_state]
+		(vp-xor-rr r1 r1)
+		(vp-cpy-ri r1 r0 stream_msg_out_seqnum)
+		(vp-cpy-ri r1 r0 stream_msg_out_ack_seqnum)
+		(vp-cpy-cr stream_mail_state_started r1)
+		(vp-cpy-ri r1 r0 stream_msg_out_state)
 		(vp-lea-ir r0 stream_msg_out_ack_mailbox r1)
 		ml_init r1, r2, r3
 	endif

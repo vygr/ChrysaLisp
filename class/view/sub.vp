@@ -11,7 +11,8 @@
 	(vp-cpy-ir r0 view_parent r1)
 	if r1, !=, 0
 		;clear parent field
-		vp_cpy_cl 0, [r0 + view_parent]
+		(vp-xor-rr r2 r2)
+		(vp-cpy-ri r2 r0 view_parent)
 
 		;remove from parent list
 		(vp-lea-ir r0 view_node r2)

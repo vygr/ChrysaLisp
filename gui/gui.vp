@@ -118,10 +118,12 @@
 						assert r0, !=, 0
 
 						;fill in data
-						vp_cpy_cl ev_msg_size, [r0 + msg_length]
+						(vp-cpy-cr ev_msg_size r1)
+						(vp-cpy-ri r1 r0 msg_length)
 						(vp-cpy-ri r14 r0 msg_dest + id_mbox)
 						(vp-cpy-ri r15 r0 msg_dest + id_cpu)
-						vp_cpy_cl ev_type_key, [r0 + ev_msg_type]
+						(vp-cpy-cr ev_type_key r1)
+						(vp-cpy-ri r1 r0 ev_msg_type)
 						(vp-cpy-ri r6 r0 ev_msg_view)
 						(vp-cpy-ri r11 r0 ev_msg_keycode)
 						(vp-cpy-ri r12 r0 ev_msg_key)
@@ -169,12 +171,14 @@
 					assert r0, !=, 0
 
 					;fill in data
-					vp_cpy_cl ev_msg_size, [r0 + msg_length]
+					(vp-cpy-cr ev_msg_size r1)
+					(vp-cpy-ri r1 r0 msg_length)
 					(vp-cpy-ri r14 r0 msg_dest + id_mbox)
 					(vp-cpy-ri r15 r0 msg_dest + id_cpu)
 					(vp-cpy-ir r4 local_x_pos r8)
 					(vp-cpy-ir r4 local_y_pos r9)
-					vp_cpy_cl ev_type_mouse, [r0 + ev_msg_type]
+					(vp-cpy-cr ev_type_mouse r1)
+					(vp-cpy-ri r1 r0 ev_msg_type)
 					(vp-cpy-ri r6 r0 ev_msg_view)
 					(vp-cpy-ri r8 r0 ev_msg_x)
 					(vp-cpy-ri r9 r0 ev_msg_y)
@@ -314,7 +318,8 @@ deinit_callback:
 	(f-bind 'gui_gui 'statics r5)
 	(vp-cpy-ir r5 gui_statics_screen r0)
 	if r0, !=, 0
-		vp_cpy_cl 0, [r5 + gui_statics_screen]
+		(vp-xor-rr r1 r1)
+		(vp-cpy-ri r1 r5 gui_statics_screen)
 		(f-call 'view 'deref '(r0))
 	endif
 

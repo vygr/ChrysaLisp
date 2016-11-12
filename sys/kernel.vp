@@ -94,7 +94,8 @@
 				endif
 				(vp-cpy-ri r1 r15 kn_msg_reply_id + id_mbox)
 				(vp-cpy-ri r0 r15 kn_msg_reply_id + id_cpu)
-				vp_cpy_cl kn_msg_reply_size, [r15 + msg_length]
+				(vp-cpy-cr kn_msg_reply_size r0)
+				(vp-cpy-ri r0 r15 msg_length)
 				(f-call 'sys_mail 'send '(r15))
 				break
 			case r1, ==, kn_call_task_child
@@ -156,7 +157,8 @@
 							(vp-cpy-ri r2 r0 r11 + lk_route_hops)
 						else
 							;none via route
-							vp_cpy_cl 0, [r0 + r11 + lk_route_hops]
+							(vp-xor-rr r1 r1)
+							(vp-cpy-ri r1 r0 r11 + lk_route_hops)
 						endif
 					(loop-end)
 					break

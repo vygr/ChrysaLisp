@@ -17,7 +17,7 @@
 	(vp-and-cr (sub 0 ptr_size) r1)
 	(vp-cpy-ri r1 r0 hp_heap_cellsize)
 	(vp-cpy-ri r2 r0 hp_heap_blocksize)
-	(vp-xor r2 r2)
+	(vp-xor-rr r2 r2)
 	(vp-cpy-ri r2 r0 hp_heap_free_flist)
 	(vp-cpy-ri r2 r0 hp_heap_block_flist)
 	(vp-ret)

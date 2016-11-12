@@ -60,7 +60,8 @@
 
 	;iterate through views front to back
 	;distribute visible region
-	vp_cpy_cl 0, [r4 + local_ctx_flist]
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r4 local_ctx_flist)
 	(f-call 'view 'forward_tree '(r0, r4, $distribute_down_callback, $distribute_up_callback))
 
 	;draw all on draw list, and free dirty regions
@@ -127,7 +128,8 @@ visible_up_callback:
 	(vp-cpy-ir r4 vis_inst r1)
 	if r1, !=, [r4 + vis_root]
 		;remove my opaque region from ancestors
-		vp_cpy_cl 0, [r4 + vis_region]
+		(vp-xor-rr r2 r2)
+		(vp-cpy-ri r4 vis_region)
 
 		;first copy any opaque region
 		(vp-cpy-ir r1 view_x r8)
