@@ -16,7 +16,7 @@
 		(vp-cpy-ri r1 r0 view_flags)
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri r1 r0 view_parent)
-		(vp-lea r0 view_list r1)
+		(vp-lea-ir r0 view_list r1)
 		(lh-init r1 r2)
 	endif
 	(vp-ret)

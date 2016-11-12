@@ -31,7 +31,7 @@
 	(vp-cpy-rr r11 r13)
 
 	;save old bounds
-	f_call window, get_bounds, {r0}, {[r4 + local_old_x], [r4 + local_old_y], r10, r11}
+	(f-call 'window 'get_bounds '(r0) '([r4 + local_old_x], [r4 + local_old_y], r10, r11))
 
 	;get abolute cords of corners
 	(vp-add-rr r8 r10)
@@ -40,7 +40,7 @@
 	;drag edges
 	(vp-cpy-ir r4 local_event r1)
 	(vp-cpy-ir r0 window_drag_mode r15)
-	vp_and window_drag_left, r15
+	(vp-and-cr window_drag_left r15)
 	if r15, !=, 0
 		;drag left edge
 		(vp-cpy-ir r1 ev_msg_x r8)
@@ -53,7 +53,7 @@
 		endif
 	endif
 	(vp-cpy-ir r0 window_drag_mode r15)
-	vp_and window_drag_right, r15
+	(vp-and-cr window_drag_right r15)
 	if r15, !=, 0
 		;drag right edge
 		(vp-cpy-ir r1 ev_msg_x r10)
@@ -66,7 +66,7 @@
 		endif
 	endif
 	(vp-cpy-ir r0 window_drag_mode r15)
-	vp_and window_drag_top, r15
+	(vp-and-cr window_drag_top r15)
 	if r15, !=, 0
 		;drag top edge
 		(vp-cpy-ir r1 ev_msg_y r9)
@@ -79,7 +79,7 @@
 		endif
 	endif
 	(vp-cpy-ir r0 window_drag_mode r15)
-	vp_and window_drag_bottom, r15
+	(vp-and-cr window_drag_bottom r15)
 	if r15, !=, 0
 		;drag bottom edge
 		(vp-cpy-ir r1 ev_msg_y r11)
@@ -102,7 +102,7 @@
 	(vp-cpy-ir r4 local_old_y r9)
 	(vp-sub-ir r0 view_x r8)
 	(vp-sub-ir r0 view_y r9)
-	(vp-lea r0 view_dirty_region r1)
+	(vp-lea-ir r0 view_dirty_region r1)
 	f_call gui_region, translate, {r1, r8, r9}
 
 	(vp-cpy-ir r4 local_inst r0)

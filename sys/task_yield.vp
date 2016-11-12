@@ -3,7 +3,7 @@
 
 (def-func 'sys/task_yield)
 	;push task state
-	tk_save_state
+	(tk-save-state)
 
 	;save old stack pointer
 	(f-bind 'sys_task 'statics r15)

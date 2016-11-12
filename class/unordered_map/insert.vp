@@ -31,8 +31,8 @@
 	(map-src-to-dst)
 
 	;search hash bucket
-	f_call unordered_map, get_bucket, {r0, r1}, {r0}
-	f_call vector, for_each, {r0, 0, [r0 + vector_length], $callback, r4}, {r1}
+	(f-call 'unordered_map 'get_bucket '(r0, r1) '(r0))
+	(f-call 'vector 'for_each '(r0, 0, [r0 + vector_length], $callback, r4) '(r1))
 	(vp-cpy-ri r0 r4 local_bucket)
 	if r1, ==, 0
 		;new key
@@ -42,12 +42,12 @@
 		(vp-cpy-ri r1 r0 unordered_set_length)
 		f_call ref, ref, {[r4 + local_value]}
 		f_call ref, ref, {[r4 + local_key]}
-		f_call pair, create, {r0, [r4 + local_value]}, {r0}
+		(f-call 'pair 'create '(r0, [r4 + local_value]) '(r0))
 		f_call vector, push_back, {[r4 + local_bucket], r0}
 		(vp-cpy-rr r0 r2)
 		(vp-cpy-ir r0 vector_length r1)
 		(vp-cpy-ir r0 vector_array r0)
-		(vp-lea r0 (r1 * ptr_size) - ptr_size r1)
+		(vp-lea-ir r0 (r1 * ptr_size) - ptr_size r1)
 	else
 		;old key
 		(vp-cpy-ri r1 r4 local_iter)

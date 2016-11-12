@@ -27,7 +27,7 @@
 	s_call error, init, {r0, r1}, {r1}
 	if r1, !=, 0
 		;init self
-		f_call string, create_from_cstr, {[r0 + error_description]}, {r0}
+		(f-call 'string 'create_from_cstr '([r0 + error_description]) '(r0))
 		(vp-cpy-ir r4 local_inst r1)
 		(vp-cpy-ri r0 r1 error_description)
 		f_call ref, ref, {[r1 + error_object]}

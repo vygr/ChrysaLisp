@@ -36,7 +36,7 @@
 	else
 		(vp-xor-rr r2 r2)
 	endif
-	f_call vector, get_element, {[r0 + unordered_set_buckets], r2}, {r1}
+	(f-call 'vector 'get_element '([r0 + unordered_set_buckets], r2) '(r1))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)

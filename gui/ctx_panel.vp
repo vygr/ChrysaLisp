@@ -52,7 +52,7 @@
 	vp_cpy [r4 + local_depth],r12
 	if r12, >, 0
 		;brighter colour
-		f_call gui_ctx, brighter, {[r4 + local_color]}, {r1}
+		(f-call 'gui_ctx 'brighter '([r4 + local_color]) '(r1))
 		f_call gui_ctx, set_color, {[r4 + local_ctx], r1}
 
 		;fill left edge and top
@@ -71,7 +71,7 @@
 		f_call gui_ctx, filled_box, {[r4 + local_ctx], r8, r9, r10, r11}
 
 		;darker colour
-		f_call gui_ctx, darker, {[r4 + local_color]}, {r1}
+		(f-call 'gui_ctx 'darker '([r4 + local_color]) '(r1))
 		f_call gui_ctx, set_color, {[r4 + local_ctx], r1}
 
 		;fill bottom edge and right
@@ -103,7 +103,7 @@
 		(vp-cpy-ri r12 r4 local_depth)
 
 		;darker colour
-		f_call gui_ctx, darker, {[r4 + local_color]}, {r1}
+		(f-call 'gui_ctx 'darker '([r4 + local_color]) '(r1))
 		f_call gui_ctx, set_color, {[r4 + local_ctx], r1}
 
 		;fill left edge and top
@@ -124,7 +124,7 @@
 		f_call gui_ctx, filled_box, {[r4 + local_ctx], r8, r9, r10, r11}
 
 		;brighter colour
-		f_call gui_ctx, brighter, {[r4 + local_color]}, {r1}
+		(f-call 'gui_ctx 'brighter '([r4 + local_color]) '(r1))
 		f_call gui_ctx, set_color, {[r4 + local_ctx], r1}
 
 		;fill bottom edge and right

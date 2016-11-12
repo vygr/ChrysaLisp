@@ -24,7 +24,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-lea r1 string_data r2)
+	(vp-lea-ir r1 string_data r2)
 	(vp-sub-cr local_size r4)
 	(set-src r0, r2)
 	(set-dst [r4 + local_font], [r4 + local_text])
@@ -38,14 +38,14 @@
 	(vp-cpy-cr ft_num_buckets r1)
 	(vp-xor-rr r2 r2)
 	(vp-div r1 r2 r0)
-	(vp-lea r5 r2 * ptr_size r5)
+	(vp-lea-ir r5 r2 * ptr_size r5)
 	(vp-cpy-ri r5 r4 local_bucket)
 
 	;search bucket
 	(loop-flist-forward r5, r5, r6)
 		(vp-cpy-ir r4 local_font r0)
 		continueif r0, !=, [r5 + ft_text_font]
-		f_call sys_string, compare, {&[r5 + ft_text_name], [r4 + local_text]}, {r0}
+		(f-call 'sys_string 'compare '(&[r5 + ft_text_name], [r4 + local_text]) '(r0))
 	loop_until r0, ==, 0
 
 	;did we find it ?
@@ -92,14 +92,14 @@ kernel_callback:
 		if r0, !=, 0
 			(vp-cpy-rr r0 r5)
 
-			f_call sys_string, length, {[r14 + local_text]}, {r1}
-			f_call sys_mem, alloc, {&[r1 + ft_text_size + 1]}, {r13, _}
+			(f-call 'sys_string 'length '([r14 + local_text]) '(r1))
+			(f-call 'sys_mem 'alloc '(&[r1 + ft_text_size + 1]) '(r13, _))
 			assert r0, !=, 0
 
 			(vp-cpy-ir r14 local_font r0)
 			(vp-cpy-ri r0 r13 ft_text_font)
 			(vp-cpy-ri r5 r13 ft_text_texture)
-			f_call sys_string, copy, {[r14 + local_text], &[r13 + ft_text_name]}, {_, _}
+			(f-call 'sys_string 'copy '([r14 + local_text], &[r13 + ft_text_name]) '(_, _))
 
 			;fill in width and height
 			(vp-cpy-ir r14 local_width r10)

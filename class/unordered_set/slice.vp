@@ -18,7 +18,7 @@
 	(set-dst r9, r10, r11)
 	(map-src-to-dst)
 
-	f_call unordered_set, create, {[r0 + unordered_set_key_callback], 1}, {r1}
+	(f-call 'unordered_set 'create '([r0 + unordered_set_key_callback], 1) '(r1))
 	(vp-cpy-rr r11 r0)
 	(vp-sub-rr r10 r0)
 	(vp-cpy-ri r0 r1 unordered_set_length)
@@ -34,7 +34,7 @@ callback:
 	(vp-cpy-ir r0 r2)
 	f_call ref, ref, {[r1]}
 	vp_push r0
-	f_call unordered_set, get_bucket, {r2, r0}, {r0}
+	(f-call 'unordered_set 'get_bucket '(r2, r0) '(r0))
 	vp_pop r1
 	(f-jmp 'vector 'push_back '(r0, r1))
 

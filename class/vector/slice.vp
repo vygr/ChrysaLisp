@@ -18,7 +18,7 @@
 	(map-src-to-dst)
 
 	;create new vector
-	f_call vector, create, {}, {r12}
+	(f-call 'vector 'create '() '(r12))
 	(vp-cpy-rr r11 r1)
 	(vp-sub-rr r10 r1)
 	f_call vector, set_capacity, {r0, r1}

@@ -31,7 +31,7 @@
 	f_call gui_font, init
 
 	;start kernel task
-	f_call sys_task, start, {$_func_entry}, {r0, r1}
+	(f-call 'sys_task 'start '($_func_entry) '(r0, r1))
 	(f-bind 'sys_task 'statics r2)
 	(vp-cpy-ri r0 r2 tk_statics_current_tcb)
 	(vp-cpy-ri r0 r2 tk_statics_kernel_tcb)
@@ -43,7 +43,7 @@
 	f_call sys_cpu, opts, {[r4]}
 
 	;fill in num cpu's with at least mine + 1
-	f_call sys_cpu, id, {}, {r0}
+	(f-call 'sys_cpu 'id '() '(r0))
 	(vp-inc r0)
 	(f-bind 'sys_task 'statics r1)
 	(vp-cpy-ri r0 r1 tk_statics_cpu_total)
@@ -66,8 +66,8 @@
 		;service all kernel mail
 		(loop-start)
 			;check if any mail
-			f_call sys_task, mailbox, {}, {r0, r1}
-			f_call sys_mail, try_read, {r0}, {r0}
+			(f-call 'sys_task 'mailbox '() '(r0, r1))
+			(f-call 'sys_mail 'try_read '(r0) '(r0))
 			breakif r0, ==, 0
 			(vp-cpy-rr r0 r15)
 
@@ -83,14 +83,14 @@
 				(vp-cpy-ri r2 r15 msg_dest + id_cpu)
 
 				;open single task and return mailbox ID
-				f_call sys_load, bind, {&[r15 + kn_msg_open_pathname]}, {r0}
+				(f-call 'sys_load 'bind '(&[r15 + kn_msg_open_pathname]) '(r0))
 				if r0, ==, 0
 					;error
 					(vp-cpy-rr r0 r1)
 				else
 					;start this function as task
-					f_call sys_task, start, {r0}, {_, r1}
-					f_call sys_cpu, id, {}, {r0}
+					(f-call 'sys_task 'start '(r0) '(_, r1))
+					(f-call 'sys_cpu 'id '() '(r0))
 				endif
 				(vp-cpy-ri r1 r15 kn_msg_reply_id + id_mbox)
 				(vp-cpy-ri r0 r15 kn_msg_reply_id + id_cpu)
@@ -99,7 +99,7 @@
 				break
 			case r1, ==, kn_call_task_child
 				;find best cpu to run task
-				f_call sys_cpu, id, {}, {r5}
+				(f-call 'sys_cpu 'id '() '(r5))
 				(f-bind 'sys_task 'statics r1)
 				(vp-cpy-ir r1 tk_statics_task_count r1)
 				(f-bind 'sys_link 'statics r2)
@@ -188,14 +188,14 @@
 
 				;get current via, set via to my cpu id
 				(vp-cpy-ir r15 kn_msg_link_route_via r14)
-				f_call sys_cpu, id, {}, {[r15 + kn_msg_link_route_via]}
+				(f-call 'sys_cpu 'id '() '([r15 + kn_msg_link_route_via]))
 
 				;copy and send to all neighbors apart from old via
 				(f-bind 'sys_link 'statics r13)
 				(loop-list-forward r13 + lk_statics_links_list, r12, r13)
 					(vp-cpy-ir r12 lk_node_cpu_id r11)
 					continueif r11, ==, r14
-					f_call sys_mail, alloc, {}, {r0}
+					(f-call 'sys_mail 'alloc '() '(r0))
 					assert r0, !=, 0
 					(vp-cpy-rr r0 r5)
 					(vp-cpy-rr r0 r1)
@@ -203,7 +203,7 @@
 					(vp-cpy-ir r15 msg_length r2)
 					(vp-add-cr ptr_size - 1 r2)
 					(vp-and-cr (sub 0 ptr_size) r2)
-					f_call sys_mem, copy, {r0, r1, r2}, {_, _}
+					(f-call 'sys_mem 'copy '(r0, r1, r2) '(_, _))
 					(vp-cpy-ri r11 r5 msg_dest + id_cpu)
 					f_call sys_mail, send, {r5}
 				(loop-end)
@@ -227,7 +227,7 @@
 		(loop-end)
 
 		;get time
-		f_call sys_cpu, time, {}, {r0}
+		(f-call 'sys_cpu 'time '() '(r0))
 
 		;start any tasks ready to restart
 		(f-bind 'sys_task 'statics r3)
@@ -242,7 +242,7 @@
 				;task ready, remove from timer list and place on ready list
 				(vp-cpy-rr r1 r5)
 				(ln-remove-node r5 r6)
-				ln_add_node_before r15, r1, r6
+				(ln-add-node-before r15 r1 r6)
 			(loop-end)
 		endif
 

@@ -26,8 +26,8 @@
 	(map-src-to-dst)
 
 	;search hash bucket
-	f_call unordered_map, get_bucket, {r0, r1}, {r0}
-	f_call vector, for_each, {r0, 0, [r0 + vector_length], $callback, r4}, {r1}
+	(f-call 'unordered_map 'get_bucket '(r0, r1) '(r0))
+	(f-call 'vector 'for_each '(r0, 0, [r0 + vector_length], $callback, r4) '(r1))
 	(vp-cpy-rr r0 r2)
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)

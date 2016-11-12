@@ -14,7 +14,7 @@
 		vp_cpy_cl 0, [r0 + view_parent]
 
 		;remove from parent list
-		(vp-lea r0 view_node r2)
+		(vp-lea-ir r0 view_node r2)
 		(ln-remove-node r2 r1)
 	endif
 	(vp-ret)

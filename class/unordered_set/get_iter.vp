@@ -28,7 +28,7 @@
 
 	;search hash buckets
 	(vp-cpy-ir r0 unordered_set_buckets r0)
-	f_call vector, for_each, {r0, 0, [r0 + vector_length], $callback, r4}, {_}
+	(f-call 'vector 'for_each '(r0, 0, [r0 + vector_length], $callback, r4) '(_))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-cpy-ir r4 local_iter r1)

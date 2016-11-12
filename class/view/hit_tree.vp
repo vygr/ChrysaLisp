@@ -40,7 +40,7 @@ hit_down_callback:
 	(vp-sub-ir r0 view_x r8)
 	(vp-sub-ir r0 view_y r9)
 	(vp-cpy-ir r0 view_flags r1)
-	vp_and view_flag_solid, r1
+	(vp-and-cr view_flag_solid r1)
 	(vp-ret)
 
 hit_up_callback:

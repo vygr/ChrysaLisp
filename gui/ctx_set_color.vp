@@ -25,10 +25,10 @@
 	vp_shr 24, r11
 	vp_shr 16, r8
 	vp_shr 8, r9
-	vp_and 0xff, r8
-	vp_and 0xff, r9
-	vp_and 0xff, r10
-	vp_and 0xff, r11
+	(vp-and-cr 0xff r8)
+	(vp-and-cr 0xff r9)
+	(vp-and-cr 0xff r10)
+	(vp-and-cr 0xff r11)
 	sdl_set_render_draw_color [r0 + gui_ctx_sdl_ctx], r8, r9, r10, r11
 
 	(vp-cpy-ir r4 local_old_stack r4)

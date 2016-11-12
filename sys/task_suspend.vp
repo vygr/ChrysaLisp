@@ -3,7 +3,7 @@
 
 (def-func 'sys/task_suspend)
 	;push task state
-	tk_save_state
+	(tk-save-state)
 
 	;save stack pointer
 	(f-bind 'sys_task 'statics r0)

@@ -25,8 +25,8 @@ ld_load_function:
 	;check if function already present !
 	(loop-flist-forward r8 + ld_statics_function_flist, r6, r6)
 		(vp-cpy-rr r7 r0)
-		(vp-lea r6 fn_header_pathname r1)
-		(vp-call string_compare)
+		(vp-lea-ir r6 fn_header_pathname r1)
+		(vp-call 'string_compare)
 	loop_until r0, ==, 0
 	if r6, !=, 0
 		;found function already loaded
@@ -37,15 +37,15 @@ ld_load_function:
 
 	;create filename
 	(fn-string "obj/" r0)
-	(vp-lea r8 ld_statics_name_buffer r1)
-	(vp-call string_copy)
+	(vp-lea-ir r8 ld_statics_name_buffer r1)
+	(vp-call 'string_copy)
 	(vp-cpy-rr r7 r0)
 	(vp-dec r1)
-	(vp-call string_copy)
-	(vp-lea r8 ld_statics_name_buffer r7)
+	(vp-call 'string_copy)
+	(vp-lea-ir r8 ld_statics_name_buffer r7)
 
 	;get length of function on disk
-	(vp-lea r8 ld_statics_stat_buffer r0)
+	(vp-lea-ir r8 ld_statics_stat_buffer r0)
 	sys_stat r7, r0
 	if r0, !=, 0
 	exit:
@@ -55,7 +55,7 @@ ld_load_function:
 
 	;test for regular file only
 	(vp-cpy-ir-us r8 ld_statics_stat_buffer + stat_mode r0)
-	vp_and s_ifmt, r0
+	(vp-and-cr s_ifmt r0)
 	vp_jmpif r0, !=, s_ifreg, exit
 
 	;ensure space for new function
@@ -81,12 +81,12 @@ ld_load_function:
 %ifdef list_loaded
 	;print loaded function name
 	(vp-rel 'loaded_name r0)
-	sys_write_string 2, r0, loaded_name_end-loaded_name
+	(sys-write-string 2 r0 loaded_name_end-loaded_name)
 	(vp-cpy-rr r7 r0)
-	(vp-call string_skip)
+	(vp-call 'string_skip)
 	vp_lea [r0 - 1], r1
 	(vp-sub-rr r7 r1)
-	sys_write_string 2, r7, r1
+	(sys-write-string 2 r7 r1)
 	sys_write_char 2, "'"
 	sys_write_char 2, 10
 %endif
@@ -97,7 +97,7 @@ ld_load_function:
 
 	;read into buffer
 	(vp-cpy-ir r8 ld_statics_block_start r3)
-	(vp-lea r8 ld_statics_stat_buffer r2)
+	(vp-lea-ir r8 ld_statics_stat_buffer r2)
 	sys_read r7, r3, [r2 + stat_fsize]
 
 	;close function file
@@ -107,7 +107,7 @@ ld_load_function:
 	(vp-cpy-ir-ui r3 fn_header_length r0)
 	if r0, !=, [r2 + stat_fsize]
 		(vp-rel 'size_error r0)
-		sys_write_string 2, r0, size_error_end-size_error
+		(sys-write-string 2 r0 size_error_end-size_error)
 		sys_exit 1
 	endif
 
@@ -136,10 +136,10 @@ ld_load_function:
 	(vp-cpy-ri r1 r8 ld_statics_reloc_stack)
 
 	;overflow check
-	(vp-lea r8 ld_statics_size r2)
+	(vp-lea-ir r8 ld_statics_size r2)
 	if r1, >, r2
 		(vp-rel 'reloc_error r0)
-		sys_write_string 2, r0, reloc_error_end-reloc_error
+		(sys-write-string 2 r0 reloc_error_end-reloc_error)
 		sys_exit 1
 	endif
 
@@ -172,19 +172,19 @@ ld_load_function:
 		breakif r1, ==, 0
 		vp_push r0
 		(vp-cpy-rr r1 r0)
-		(vp-call ld_load_function)
+		(vp-call 'ld_load_function)
 		if r0, ==, 0
 			;no such file
 			(vp-rel 'bind_error r0)
-			sys_write_string 2, r0, bind_error_end-bind_error
+			(sys-write-string 2 r0 '(sub bind_error_end bind_error))
 			(vp-cpy-ir r4 r0)
 			(vp-cpy-ir r0 r0)
-			(vp-call string_skip)
+			(vp-call 'string_skip)
 			vp_lea [r0 - 1], r1
 			(vp-cpy-ir r4 r0)
 			(vp-cpy-ir r0 r0)
 			(vp-sub-rr r0 r1)
-			sys_write_string 2, r0, r1
+			(sys-write-string 2 r0 r1)
 			sys_write_char 2, 10
 			sys_exit 1
 		endif
@@ -242,20 +242,20 @@ string_skip:
 	ret
 
 bind_error:
-	db 'Bind error: '
+	(vp-string "Bind error: ")
 bind_error_end:
 
 reloc_error:
-	db 'Reloc buffer overflow !', 10
+	(vp-string "Reloc buffer overflow !") (vp-byte 10)
 reloc_error_end:
 
 size_error:
-	db 'Length field error !', 10
+	(vp-string "Length field error !") (vp-byte 10)
 size_error_end:
 
 %ifdef list_loaded
 loaded_name:
-	db "incbin '"
+	(vp-string "incbin '")
 loaded_name_end:
 %endif
 

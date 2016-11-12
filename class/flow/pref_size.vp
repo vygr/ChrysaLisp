@@ -33,13 +33,13 @@ callback:
 	vp_pop r1
 	(vp-cpy-ir r0 view_parent r2)
 	(vp-cpy-ir r2 flow_flags r3)
-	vp_and flow_flag_up | flow_flag_down, r3
+	(vp-and-cr flow_flag_up | flow_flag_down r3)
 	if r3, !=, 0
 		;flow down or up
 		vp_add r11, [r1 + local_h]
 	endif
 	(vp-cpy-ir r2 flow_flags r3)
-	vp_and flow_flag_left | flow_flag_right, r3
+	(vp-and-cr flow_flag_left | flow_flag_right r3)
 	if r3, !=, 0
 		;flow left or right
 		vp_add r10, [r1 + local_w]

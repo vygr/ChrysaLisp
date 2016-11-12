@@ -12,7 +12,7 @@
 	;draw panel
 	(vp-cpy-cr button_border_size r3)
 	(vp-cpy-ir r0 button_state r2)
-	vp_and button_state_pressed, r2
+	(vp-and-cr button_state_pressed r2)
 	if r2, !=, 0
 		(vp-mul-cr -1 r3)
 	endif

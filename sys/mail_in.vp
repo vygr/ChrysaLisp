@@ -6,7 +6,7 @@
 
 	(loop-start)
 		;read parcel fragment
-		f_call sys_mail, mymail, {}, {r15}
+		(f-call 'sys_mail 'mymail '() '(r15))
 
 		;look up parcel in mailbox
 		(vp-cpy-ir r15 msg_parcel_id + id_mbox r6)
@@ -19,7 +19,7 @@
 			;new parcel
 			(vp-cpy-ir r15 msg_parcel_size r12)
 			(vp-cpy-ir r15 msg_dest + id_cpu r14)
-			f_call sys_mem, alloc, {r12}, {r0, _}
+			(f-call 'sys_mem 'alloc '(r12) '(r0, _))
 			assert r0, !=, 0
 			(vp-cpy-ri r12 r0 msg_length)
 			(vp-cpy-ri r13 r0 msg_dest + id_mbox)
@@ -38,7 +38,7 @@
 		(vp-add-ir r15 msg_parcel_frag r1)
 
 		;source address
-		(vp-lea r15 msg_data r0)
+		(vp-lea-ir r15 msg_data r0)
 
 		;fragment size
 		(vp-cpy-ir r15 msg_length r2)
@@ -51,7 +51,7 @@
 		;copy fragment data, round up for speed
 		(vp-add-cr ptr_size - 1 r2)
 		(vp-and-cr (sub 0 ptr_size) r2)
-		f_call sys_mem, copy, {r0, r1, r2}, {_, _}
+		(f-call 'sys_mem 'copy '(r0, r1, r2) '(_, _))
 
 		;got all needed ?
 		if r13, ==, [r14 + msg_length]

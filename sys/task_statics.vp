@@ -3,6 +3,6 @@
 
 (def-func 'sys/task_statics)
 
-	times tk_statics_size db 0
+	(times tk_statics_size (vp-byte 0)
 
 (def-func-end)

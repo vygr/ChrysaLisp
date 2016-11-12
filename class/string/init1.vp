@@ -35,10 +35,10 @@
 		(vp-cpy-ir r6 string_length r1)
 		(vp-add-ir r7 string_length r1)
 		(vp-cpy-ri r1 r0 string_length)
-		f_call sys_mem, copy, {&[r6 + string_data], &[r0 + string_data], [r6 + string_length]}, {_, r1}
+		(f-call 'sys_mem 'copy '(&[r6 + string_data], &[r0 + string_data], [r6 + string_length]) '(_, r1))
 		(vp-cpy-ir r7 string_length r2)
 		(vp-inc r2)
-		f_call sys_mem, copy, {&[r7 + string_data], r1, r2}, {_, _}
+		(f-call 'sys_mem 'copy '(&[r7 + string_data], r1, r2) '(_, _))
 
 		(vp-cpy-ir r4 local_inst r0)
 	endif

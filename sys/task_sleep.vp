@@ -6,7 +6,7 @@
 	;r0 = time delay in usec
 
 	;push task state
-	tk_save_state
+	(tk-save-state)
 
 	;save stack pointer
 	(f-bind 'sys_task 'statics r3)
@@ -17,7 +17,7 @@
 	(vp-cpy-rr r0 r1)
 
 	;calculate wake time
-	f_call sys_cpu, time, {}, {r0}
+	(f-call 'sys_cpu 'time '() '(r0))
 	(vp-add-rr r1 r0)
 	(vp-cpy-ri r0 r15 tk_node_time)
 
@@ -29,7 +29,7 @@
 	;add to timer list
 	(loop-list-forward r3 + tk_statics_timer_list, r5, r2)
 	loop_until r0, <, [r5 + tk_node_time]
-	ln_add_node_before r5, r1, r0
+	(ln-add-node-before r5 r1 r0)
 
 	;restore next task
 	(f-jmp 'sys_task 'restore)

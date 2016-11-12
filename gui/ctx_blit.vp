@@ -49,9 +49,9 @@
 	(vp-cpy-rr r2 r1)
 	vp_shr 16, r3
 	vp_shr 8, r2
-	vp_and 0xff, r3
-	vp_and 0xff, r2
-	vp_and 0xff, r1
+	(vp-and-cr 0xff r3)
+	(vp-and-cr 0xff r2)
+	(vp-and-cr 0xff r1)
 	sdl_set_texture_color_mod [r4 + local_texture], r3, r2, r1
 
 	;for each rect on the dirty region

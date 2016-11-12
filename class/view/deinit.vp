@@ -26,7 +26,7 @@
 
 	;free view object data
 	(vp-cpy-ir r4 r0)
-	(vp-lea r0 view_dirty_region r1)
+	(vp-lea-ir r0 view_dirty_region r1)
 	(f-bind 'gui_gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
 	f_call gui_region, free, {r0, r1}

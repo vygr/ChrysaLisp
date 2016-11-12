@@ -3,6 +3,6 @@
 
 (def-func 'gui/font_statics)
 
-	times ft_statics_size db 0
+	(times ft_statics_size (vp-byte 0)
 
 (def-func-end)

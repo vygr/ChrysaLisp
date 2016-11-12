@@ -13,7 +13,7 @@
 	(vp-cpy-ir r0 hp_heap_block_flist r2)
 	(loop-start)
 		breakif r2, ==, 0
-		(vp-lea r2 ln_fnode_size r3)
+		(vp-lea-ir r2 ln_fnode_size r3)
 		(vp-cpy-rr r3 r5)
 		(vp-add-ir r0 hp_heap_blocksize r5)
 		(loop-start)

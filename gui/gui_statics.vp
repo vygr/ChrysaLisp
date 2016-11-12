@@ -3,6 +3,6 @@
 
 (def-func 'gui/gui_statics)
 
-	times gui_statics_size db 0
+	(times gui_statics_size (vp-byte 0)
 
 (def-func-end)

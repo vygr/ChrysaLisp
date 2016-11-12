@@ -31,7 +31,7 @@
 
 		;remove from signal list
 		(vp-sub-cr gui_sigslot_slot_node r2)
-		(vp-lea r2 gui_sigslot_sig_node r1)
+		(vp-lea-ir r2 gui_sigslot_sig_node r1)
 		(ln-remove-node r1 r5)
 
 		;free sigslot record

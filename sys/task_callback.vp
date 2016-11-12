@@ -25,11 +25,11 @@
 	ml_temp_create r0, r1
 
 	;allocate mail message
-	f_call sys_mail, alloc, {}, {r3}
+	(f-call 'sys_mail 'alloc '() '(r3))
 	assert r0, !=, 0
 
 	;fill in destination, reply and function
-	f_call sys_cpu, id, {}, {r0}
+	(f-call 'sys_cpu 'id '() '(r0))
 	(vp-cpy-ri r4 r3 kn_msg_reply_id)
 	(vp-cpy-ri r0 r3 kn_msg_reply_id + 8)
 	vp_cpy_cl 0, [r3 + msg_dest + id_mbox]
@@ -41,7 +41,7 @@
 
 	;send mail to kernel then wait for reply
 	f_call sys_mail, send, {r3}
-	f_call sys_mail, read, {r4}, {r0}
+	(f-call 'sys_mail 'read '(r4) '(r0))
 
 	;free reply mail and temp mailbox
 	ml_temp_destroy

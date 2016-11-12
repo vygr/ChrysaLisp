@@ -35,7 +35,7 @@
 	(vp-cpy-ir r4 local_string r1)
 	(vp-cpy-ri r1 r0 text_string)
 	if r1, !=, 0
-		f_call string, split, {r1, 32}, {r1}
+		(f-call 'string 'split '(r1, 32) '(r1))
 		(vp-cpy-ir r4 local_inst r0)
 		(vp-cpy-ri r1 r0 text_words)
 	endif

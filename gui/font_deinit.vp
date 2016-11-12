@@ -18,8 +18,8 @@
 	(f-bind 'gui_font 'statics r15)
 
 	;free all text in the cache
-	(vp-lea r15 ft_statics_text_flists r10)
-	(vp-lea r10 ft_buckets_size r11)
+	(vp-lea-ir r15 ft_statics_text_flists r10)
+	(vp-lea-ir r10 ft_buckets_size r11)
 	(loop-start)
 		(loop-flist-forward r10, r14, r13)
 			(vp-cpy-rr r14 r12)

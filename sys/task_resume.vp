@@ -14,7 +14,7 @@
 		;add to task list
 		(f-bind 'sys_task 'statics r1)
 		(vp-cpy-ir r1 tk_statics_current_tcb r1)
-		ln_add_node_before r1, r0, r2
+		(ln-add-node-before r1 r0 r2)
 	endif
 	(vp-ret)
 

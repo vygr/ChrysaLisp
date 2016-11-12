@@ -24,7 +24,7 @@
 		vp_cpy_cl 0, [r0 + stream_msg_in_seqnum]
 		vp_cpy_cl 0, [r0 + stream_msg_in_ack_seqnum]
 		vp_cpy_cl stream_mail_state_started, [r0 + stream_msg_in_state]
-		(vp-lea r0 stream_msg_in_list r1)
+		(vp-lea-ir r0 stream_msg_in_list r1)
 		(lh-init r1 r2)
 	endif
 	(vp-ret)

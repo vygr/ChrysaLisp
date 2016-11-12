@@ -27,7 +27,7 @@
 	(vp-add-rr r0 r5)
 
 	;init reloc buffer address
-	(vp-lea r6 ld_statics_reloc_buffer r1)
+	(vp-lea-ir r6 ld_statics_reloc_buffer r1)
 	(vp-cpy-ri r1 r6 ld_statics_reloc_stack)
 
 	;add all prebound functions to function list
@@ -58,15 +58,15 @@
 			if r0, ==, 0
 				;no such function
 				(vp-rel 'bind_error r0)
-				sys_write_string 2, r0, bind_error_end-bind_error
+				(sys-write-string 2 r0 bind_error_end-bind_error)
 				(vp-cpy-ir r4 (ptr_size * 2) r0)
 				(vp-add-ir r0 r0)
-				(vp-call string_skip)
+				(vp-call 'string_skip)
 				vp_lea [r0 - 1], r1
 				(vp-cpy-ir r4 (ptr_size * 2) r0)
 				(vp-add-ir r0 r0)
 				(vp-sub-rr r0 r1)
-				sys_write_string 2, r0, r1
+				(sys-write-string 2 r0 r1)
 				sys_write_char 2, 10
 				sys_exit 1
 			endif
@@ -86,7 +86,7 @@ string_skip:
 	ret
 
 bind_error:
-	db 'Prebind error: '
+	(vp-string "Prebind error: ")
 bind_error_end:
 
 (def-func-end)

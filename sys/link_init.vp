@@ -5,7 +5,7 @@
 	;get statics
 	(f-bind 'sys_link 'statics r0)
 
-	(vp-lea r0 lk_statics_links_list r0)
+	(vp-lea-ir r0 lk_statics_links_list r0)
 	(lh-init r0 r1)
 	(vp-ret)
 

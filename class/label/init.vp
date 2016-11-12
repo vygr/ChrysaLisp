@@ -17,7 +17,7 @@
 
 		;init myself
 		;add my flow
-		f_call flow, create, {}, {r0}
+		(f-call 'flow 'create '() '(r0))
 		assert r0, !=, 0
 		f_call flow, set_flags, {r0, 0}
 		f_call flow, set_flow_flags, {r0, flow_flag_right | flow_flag_align_vcenter}
@@ -26,7 +26,7 @@
 		f_call flow, add_front, {r0, r1}
 
 		;add my text
-		f_call text, create, {}, {r0}
+		(f-call 'text 'create '() '(r0))
 		assert r0, !=, 0
 		(vp-cpy-ir r4 r1)
 		(vp-cpy-ri r0 r1 label_text)

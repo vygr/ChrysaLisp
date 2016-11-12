@@ -16,7 +16,7 @@
 				if r9, <, [r0 + view_h]
 					;hit ?
 					(vp-cpy-ir r0 view_flags r1)
-					vp_and view_flag_solid, r1
+					(vp-and-cr view_flag_solid r1)
 					(vp-ret)
 				endif
 			endif

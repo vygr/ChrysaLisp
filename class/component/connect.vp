@@ -21,7 +21,7 @@
 	(vp-add-cr gui_statics_sigslot_heap r0)
 
 	;create sigslot record
-	f_call sys_heap, alloc, {r0}, {r1}
+	(f-call 'sys_heap 'alloc '(r0) '(r1))
 	assert r1, !=, 0
 
 	;fill in target and method
@@ -29,10 +29,10 @@
 	(vp-cpy-ri r8 r1 gui_sigslot_addr)
 
 	;add to sig and slot lists
-	(vp-lea r1 gui_sigslot_sig_node r2)
+	(vp-lea-ir r1 gui_sigslot_sig_node r2)
 	lh_add_at_tail r6, r2, r3
-	(vp-lea r1 gui_sigslot_slot_node r2)
-	(vp-lea r5 component_slot_list r6)
+	(vp-lea-ir r1 gui_sigslot_slot_node r2)
+	(vp-lea-ir r5 component_slot_list r6)
 	lh_add_at_tail r6, r2, r3
 
 	;restore inst

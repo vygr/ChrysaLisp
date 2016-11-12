@@ -14,11 +14,11 @@
 	(set-dst r5)
 	(map-src-to-dst)
 
-	f_call stream_str, new, {}, {r0}
+	(f-call 'stream_str 'new '() '(r0))
 	if r0, !=, 0
 		;init the object
 		func_path class, stream_str
-		f_call stream_str, init, {r0, @_function_, r5}, {r1}
+		(f-call 'stream_str 'init '(r0, @_function_, r5) '(r1))
 		if r1, ==, 0
 			;error with init
 			v_call stream_str, delete, {r0}, {}, r1

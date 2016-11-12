@@ -19,11 +19,11 @@
 	(vp-cpy-ri r1 r4 lk_node_table + lk_table_array)
 	(vp-cpy-ri r1 r4 lk_node_table + lk_table_array_size)
 	(f-bind 'sys_link 'statics r1)
-	(vp-lea r1 lk_statics_links_list r1)
+	(vp-lea-ir r1 lk_statics_links_list r1)
 	lh_add_at_head r1, r4, r2
 
 	;read params msg from kernel
-	f_call sys_mail, mymail, {}, {r14}
+	(f-call 'sys_mail 'mymail '() '(r14))
 
 	;init link node cpu id and task count
 	(vp-cpy-ir-ub r14 msg_data + 5 r0)
@@ -46,7 +46,7 @@
 	(vp-mul-cr 10 r2)
 	(vp-add-rr r0 r2)
 	(vp-add-rr r3 r2)
-	f_call sys_cpu, id, {}, {r0}
+	(f-call 'sys_cpu 'id '() '(r0))
 	if r1, ==, r0
 		(vp-cpy-rr r2 r1)
 		(vp-cpy-cr lk_buffer_chan_1 r10)
@@ -61,7 +61,7 @@
 	;send link routing message to neighbor kernel
 	(vp-cpy-rr r0 r8)
 	(vp-cpy-rr r1 r9)
-	f_call sys_mail, alloc, {}, {r0}
+	(f-call 'sys_mail 'alloc '() '(r0))
 	assert r0, !=, 0
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 r0 msg_dest + id_mbox)
@@ -77,7 +77,7 @@
 	f_call sys_mail, send, {r0}
 
 	;open shared memory file
-	(vp-lea r14 msg_data r0)
+	(vp-lea-ir r14 msg_data r0)
 	sys_open r0, o_creat | o_rdwr, s_irusr | s_iwusr
 	(vp-cpy-rr r0 r13)
 
@@ -94,7 +94,7 @@
 	(vp-add-rr r12 r11)
 
 	;clear tx channel
-	f_call sys_mem, clear, {r10, lk_chan_size}, {_}
+	(f-call 'sys_mem 'clear '(r10, lk_chan_size) '(_))
 
 	;read and write messages through the shared buffer in r12
 	(vp-xor-rr r9 r9)
@@ -132,11 +132,11 @@
 			if r0, ==, lk_chan_status_ready
 				;copy message data
 				;round up to next 8 byte boundary for speed
-				(vp-lea r10 lk_chan_msg r1)
+				(vp-lea-ir r10 lk_chan_msg r1)
 				(vp-cpy-ir r9 msg_length r2)
 				(vp-add-cr ptr_size - 1 r2)
 				(vp-and-cr (sub 0 ptr_size) r2)
-				f_call sys_mem, copy, {r9, r1, r2}, {_, _}
+				(f-call 'sys_mem 'copy '(r9, r1, r2) '(_, _))
 
 				;free message
 				f_call sys_mem, free, {r9}
@@ -153,15 +153,15 @@
 		if r0, ==, lk_chan_status_busy
 			;allocate msg, copy over data
 			;round up to next 8 byte boundary for speed
-			f_call sys_mail, alloc, {}, {r0}
+			(f-call 'sys_mail 'alloc '() '(r0))
 			assert r0, !=, 0
 			(vp-cpy-rr r0 r8)
 			(vp-cpy-rr r0 r1)
-			(vp-lea r11 lk_chan_msg r0)
+			(vp-lea-ir r11 lk_chan_msg r0)
 			(vp-cpy-ir r0 msg_length r2)
 			(vp-add-cr ptr_size - 1 r2)
 			(vp-and-cr (sub 0 ptr_size) r2)
-			f_call sys_mem, copy, {r0, r1, r2}, {_, _}
+			(f-call 'sys_mem 'copy '(r0, r1, r2) '(_, _))
 
 			;send onwards
 			f_call sys_mail, send, {r8}
@@ -199,7 +199,7 @@
 	sys_close r13
 
 	;unlink shared object
-	(vp-lea r14 msg_data r0)
+	(vp-lea-ir r14 msg_data r0)
 	sys_unlink r0
 
 	;free params msg
