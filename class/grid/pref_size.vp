@@ -20,7 +20,7 @@
 	(vp-cpy-ri r1 r4 local_w)
 	(vp-cpy-ri r1 r4 local_h)
 
-	f_call grid, forward, {r0, r4, $callback}
+	(f-call 'grid 'forward '(r0, r4, $callback))
 
 	(vp-cpy-ir r4 local_w r10)
 	(vp-cpy-ir r4 local_h r11)

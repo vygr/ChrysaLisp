@@ -22,9 +22,9 @@
 	(vp-cpy-ir r0 view_h r11)
 	(vp-sub-cr title_border_size * 2 r10)
 	(vp-sub-cr title_border_size * 2 r11)
-	f_call flow, change, {[r0 + label_flow], title_border_size, title_border_size, r10, r11}
+	(f-call 'flow 'change '([r0 + label_flow], title_border_size, title_border_size, r10, r11))
 
-	f_call title, opaque, {[r4 + local_inst]}
+	(f-call 'title 'opaque '([r4 + local_inst]))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 

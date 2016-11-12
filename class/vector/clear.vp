@@ -14,7 +14,7 @@
 
 	;free dynamic array
 	vp_push r0
-	f_call sys_mem, free, {[r0 + vector_array]}
+	(f-call 'sys_mem 'free '([r0 + vector_array]))
 	vp_pop r0
 
 	;init myself
@@ -31,7 +31,7 @@ callback:
 	;outputs
 	;r1 = 0 if break, else not
 
-	f_call ref, deref, {[r1]}
+	(f-call 'ref 'deref '([r1]))
 	(vp-cpy-cr 1 r1)
 	(vp-ret)
 

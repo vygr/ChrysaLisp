@@ -21,9 +21,11 @@ def_func class/stream_msg_out/init
 	s_call stream_msg_out, init, {r0, r1, 0, 0, 0, 0}, {r1}
 	if r1, !=, 0
 		;init myself
-		vp_cpy_cl 0, [r0 + stream_msg_out_seqnum]
-		vp_cpy_cl 0, [r0 + stream_msg_out_ack_seqnum]
-		vp_cpy_cl stream_mail_state_started, [r0 + stream_msg_out_state]
+		vp_xor r1, r1
+		vp_cpy r1, [r0 + stream_msg_out_seqnum]
+		vp_cpy r1, [r0 + stream_msg_out_ack_seqnum]
+		vp_cpy stream_mail_state_started, r1
+		vp_cpy r1, [r0 + stream_msg_out_state]
 		vp_lea [r0 + stream_msg_out_ack_mailbox], r1
 		ml_init r1, r2, r3
 	endif

@@ -51,7 +51,7 @@
 	(vp-cpy-ri r5 r1 tk_state_size)
 
 	;resume new task
-	f_call sys_task, resume, {r0}
+	(f-call 'sys_task 'resume '(r0))
 
 	;return mailbox pointer
 	(vp-lea-ir r0 tk_node_mailbox r1)

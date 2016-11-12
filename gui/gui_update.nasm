@@ -60,7 +60,8 @@ def_func gui/gui_update
 
 	;iterate through views front to back
 	;distribute visible region
-	vp_cpy_cl 0, [r4 + local_ctx_flist]
+	vp_xor r1, r1
+	vp_cpy r1, [r4 + local_ctx_flist]
 	f_call view, forward_tree, {r0, r4, $distribute_down_callback, $distribute_up_callback}
 
 	;draw all on draw list, and free dirty regions
@@ -127,7 +128,8 @@ visible_up_callback:
 	vp_cpy [r4 + vis_inst], r1
 	if r1, !=, [r4 + vis_root]
 		;remove my opaque region from ancestors
-		vp_cpy_cl 0, [r4 + vis_region]
+		vp_xor r2, r2
+		vp_cpy r2, [r4 + vis_region]
 
 		;first copy any opaque region
 		vp_cpy [r1 + view_x], r8

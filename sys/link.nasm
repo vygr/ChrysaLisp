@@ -56,7 +56,8 @@ def_func sys/link
 		vp_cpy lk_buffer_chan_1, r11
 	endif
 	vp_cpy r1, [r4 + lk_node_cpu_id]
-	vp_cpy_cl 0, [r4 + lk_node_task_count]
+	vp_xor r8, r8
+	vp_cpy r8, [r4 + lk_node_task_count]
 
 	;send link routing message to neighbor kernel
 	vp_cpy r0, r8
@@ -69,11 +70,14 @@ def_func sys/link
 	vp_cpy r1, [r0 + kn_msg_user]
 	vp_cpy r1, [r0 + kn_msg_reply_id + id_mbox]
 	vp_cpy r1, [r0 + kn_msg_reply_id + id_cpu]
-	vp_cpy_cl kn_call_task_route, [r0 + kn_msg_function]
+	vp_cpy kn_call_task_route, r1
+	vp_cpy r1, [r0 + kn_msg_function]
 	vp_cpy r8, [r0 + kn_msg_link_route_origin]
 	vp_cpy r8, [r0 + kn_msg_link_route_via]
-	vp_cpy_cl 1, [r0 + kn_msg_link_route_hops]
-	vp_cpy_cl kn_msg_link_route_size, [r0 + msg_length]
+	vp_cpy 1, r1
+	vp_cpy r1, [r0 + kn_msg_link_route_hops]
+	vp_cpy kn_msg_link_route_size, r1
+	vp_cpy r1, [r0 + msg_length]
 	f_call sys_mail, send, {r0}
 
 	;open shared memory file
@@ -142,7 +146,8 @@ def_func sys/link
 				f_call sys_mem, free, {r9}
 
 				;busy status, check for more output
-				vp_cpy_cl lk_chan_status_busy, [r10 + lk_chan_status]
+				vp_cpy lk_chan_status_busy, r1
+				vp_cpy r1, [r10 + lk_chan_status]
 				vp_xor r9, r9
 				vp_jmp more_output
 			endif
@@ -167,7 +172,8 @@ def_func sys/link
 			f_call sys_mail, send, {r8}
 
 			;clear status
-			vp_cpy_cl lk_chan_status_ready, [r11 + lk_chan_status]
+			vp_cpy lk_chan_status_ready, r1
+			vp_cpy r1, [r11 + lk_chan_status]
 		endif
 
 		;let other links run

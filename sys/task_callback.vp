@@ -40,7 +40,7 @@
 	vp_cpy_cl kn_msg_callback_size, [r3 + msg_length]
 
 	;send mail to kernel then wait for reply
-	f_call sys_mail, send, {r3}
+	(f-call 'sys_mail 'send '(r3))
 	(f-call 'sys_mail 'read '(r4) '(r0))
 
 	;free reply mail and temp mailbox

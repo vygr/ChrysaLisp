@@ -94,7 +94,8 @@ def_func sys/kernel
 				endif
 				vp_cpy r1, [r15 + kn_msg_reply_id + id_mbox]
 				vp_cpy r0, [r15 + kn_msg_reply_id + id_cpu]
-				vp_cpy_cl kn_msg_reply_size, [r15 + msg_length]
+				vp_cpy kn_msg_reply_size, r0
+				vp_cpy r0, [r15 + msg_length]
 				f_call sys_mail, send, {r15}
 				break
 			case r1, ==, kn_call_task_child
@@ -156,7 +157,8 @@ def_func sys/kernel
 							vp_cpy r2, [r0 + r11 + lk_route_hops]
 						else
 							;none via route
-							vp_cpy_cl 0, [r0 + r11 + lk_route_hops]
+							vp_xor r1,r1
+							vp_cpy r1, [r0 + r11 + lk_route_hops]
 						endif
 					loop_end
 					break

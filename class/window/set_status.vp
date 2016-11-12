@@ -17,8 +17,8 @@
 	(set-dst [r4 + local_inst])
 	(map-src-to-dst)
 
-	f_call label, set_text, {[r0 + window_status], r1}
-	f_call label, dirty, {r0}
+	(f-call 'label 'set_text '([r0 + window_status], r1))
+	(f-call 'label 'dirty '(r0))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)

@@ -28,7 +28,8 @@ def_func class/unordered_set/init
 	s_call unordered_set, init, {r0, r1}, {r1}
 	if r1, !=, 0
 		;init myself
-		vp_cpy_cl 0, [r0 + unordered_set_length]
+		vp_xor r1, r1
+		vp_cpy r1, [r0 + unordered_set_length]
 		f_call vector, create, {}, {r0}
 		vp_cpy [r4 + local_inst], r1
 		vp_cpy r0, [r1 + unordered_set_buckets]

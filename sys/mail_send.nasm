@@ -29,7 +29,8 @@ def_func sys/mail_send
 		lh_add_at_tail r1, r2, r0
 		vp_cpy [r1 + mailbox_tcb], r0
 		if r0, !=, 0
-			vp_cpy_cl 0, [r1 + mailbox_tcb]
+			vp_xor r2, r2
+			vp_cpy r2, [r1 + mailbox_tcb]
 			f_call sys_task, resume, {r0}
 		endif
 	else

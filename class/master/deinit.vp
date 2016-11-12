@@ -8,7 +8,7 @@
 	;all but r0, r4
 
 	;call stop
-	f_call master, stop, {r0}
+	(f-call 'master 'stop '(r0))
 
 	;deinit parent
 	s_jmp master, deinit, {r0}

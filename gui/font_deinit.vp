@@ -25,7 +25,7 @@
 			(vp-cpy-rr r14 r12)
 			(ln-remove-fnode r14 r13)
 			sdl_destroy_texture [r12 + ft_text_texture]
-			f_call sys_mem, free, {r12}
+			(f-call 'sys_mem 'free '(r12))
 		(loop-end)
 		(vp-add-cr ptr_size r10)
 	loop_until r10, ==, r11
@@ -35,7 +35,7 @@
 		(vp-cpy-rr r14 r12)
 		(ln-remove-fnode r14 r13)
 		ttf_close_font [r12 + ft_font_handle]
-		f_call sys_mem, free, {r12}
+		(f-call 'sys_mem 'free '(r12))
 	(loop-end)
 
 	(vp-cpy-ir r4 local_old_stack r4)

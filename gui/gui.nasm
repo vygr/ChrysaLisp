@@ -118,10 +118,12 @@ def_func gui/gui
 						assert r0, !=, 0
 
 						;fill in data
-						vp_cpy_cl ev_msg_size, [r0 + msg_length]
+						vp_cpy ev_msg_size, r1
+						vp_cpy r1, [r0 + msg_length]
 						vp_cpy r14, [r0 + msg_dest + id_mbox]
 						vp_cpy r15, [r0 + msg_dest + id_cpu]
-						vp_cpy_cl ev_type_key, [r0 + ev_msg_type]
+						vp_cpy ev_type_key, r1
+						vp_cpy r1, [r0 + ev_msg_type]
 						vp_cpy r6, [r0 + ev_msg_view]
 						vp_cpy r11, [r0 + ev_msg_keycode]
 						vp_cpy r12, [r0 + ev_msg_key]
@@ -169,12 +171,14 @@ def_func gui/gui
 					assert r0, !=, 0
 
 					;fill in data
-					vp_cpy_cl ev_msg_size, [r0 + msg_length]
+					vp_cpy ev_msg_size, r1
+					vp_cpy r1, [r0 + msg_length]
 					vp_cpy r14, [r0 + msg_dest + id_mbox]
 					vp_cpy r15, [r0 + msg_dest + id_cpu]
 					vp_cpy [r4 + local_x_pos], r8
 					vp_cpy [r4 + local_y_pos], r9
-					vp_cpy_cl ev_type_mouse, [r0 + ev_msg_type]
+					vp_cpy ev_type_mouse, r1
+					vp_cpy r1, [r0 + ev_msg_type]
 					vp_cpy r6, [r0 + ev_msg_view]
 					vp_cpy r8, [r0 + ev_msg_x]
 					vp_cpy r9, [r0 + ev_msg_y]
@@ -314,7 +318,8 @@ deinit_callback:
 	f_bind gui_gui, statics, r5
 	vp_cpy [r5 + gui_statics_screen], r0
 	if r0, !=, 0
-		vp_cpy_cl 0, [r5 + gui_statics_screen]
+		vp_xor r1, r1
+		vp_cpy r1, [r5 + gui_statics_screen]
 		f_call view, deref, {r0}
 	endif
 

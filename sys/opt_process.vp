@@ -102,7 +102,7 @@ opt_link:
 		(vp-cpy-ri r1 r7 msg_length)
 
 		;send to link task
-		f_call sys_mail, send, {r7}
+		(f-call 'sys_mail 'send '(r7))
 	endif
 	(vp-ret)
 

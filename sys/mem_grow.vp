@@ -28,7 +28,7 @@
 			(f-call 'sys_mem 'copy '(r5, r7, r6) '(_, _))
 
 			;free existing
-			f_call sys_mem, free, {r5}
+			(f-call 'sys_mem 'free '(r5))
 		endif
 
 		;save new table

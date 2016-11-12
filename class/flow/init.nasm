@@ -12,7 +12,8 @@ def_func class/flow/init
 	s_call flow, init, {r0, r1}, {r1}
 	if r1, !=, 0
 		;init myself
-		vp_cpy_cl 0, [r0 + flow_flags]
+		vp_xor r2, r2
+		vp_cpy r2, [r0 + flow_flags]
 	endif
 	vp_ret
 

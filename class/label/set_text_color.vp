@@ -19,7 +19,7 @@
 	(set-dst [r4 + local_inst])
 	(map-src-to-dst)
 
-	f_call text, set_text_color, {[r0 + label_text], r1}
+	(f-call 'text 'set_text_color '([r0 + label_text], r1))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)

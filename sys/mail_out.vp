@@ -63,7 +63,7 @@
 		loop_until r10, ==, r11
 
 		;free parcel
-		f_call sys_mem, free, {r15}
+		(f-call 'sys_mem 'free '(r15))
 	(loop-end)
 	(vp-ret)
 

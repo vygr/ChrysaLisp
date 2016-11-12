@@ -72,7 +72,8 @@ def_struct_end
 	;trashes
 	;%2, %3
 
-	vp_cpy_cl 0, [%1 + mailbox_tcb]
+	vp_xor %2, %2
+	vp_cpy %2, [%1 + mailbox_tcb]
 	lh_init %1, %2
 	vp_lea [%1 + mailbox_parcel_list], %2
 	lh_init %2, %3

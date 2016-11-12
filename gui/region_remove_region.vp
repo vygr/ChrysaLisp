@@ -38,7 +38,7 @@
 		(vp-add-rr r13 r9)
 		(vp-add-rr r12 r10)
 		(vp-add-rr r13 r11)
-		f_call gui_region, remove_rect, {r0, [r4 + local_dlist], r8, r9, r10, r11}
+		(f-call 'gui_region 'remove_rect '(r0, [r4 + local_dlist], r8, r9, r10, r11))
 
 		(vp-cpy-ir r4 local_node r1)
 	(loop-end)

@@ -74,7 +74,7 @@
 	(vp-cpy-ri r8 r0 kn_msg_link_route_via)
 	vp_cpy_cl 1, [r0 + kn_msg_link_route_hops]
 	vp_cpy_cl kn_msg_link_route_size, [r0 + msg_length]
-	f_call sys_mail, send, {r0}
+	(f-call 'sys_mail 'send '(r0))
 
 	;open shared memory file
 	(vp-lea-ir r14 msg_data r0)
@@ -139,7 +139,7 @@
 				(f-call 'sys_mem 'copy '(r9, r1, r2) '(_, _))
 
 				;free message
-				f_call sys_mem, free, {r9}
+				(f-call 'sys_mem 'free '(r9))
 
 				;busy status, check for more output
 				vp_cpy_cl lk_chan_status_busy, [r10 + lk_chan_status]
@@ -164,7 +164,7 @@
 			(f-call 'sys_mem 'copy '(r0, r1, r2) '(_, _))
 
 			;send onwards
-			f_call sys_mail, send, {r8}
+			(f-call 'sys_mail 'send '(r8))
 
 			;clear status
 			vp_cpy_cl lk_chan_status_ready, [r11 + lk_chan_status]
@@ -186,7 +186,7 @@
 		continueif r1, !=, 0
 
 		;small sleep if so
-		f_call sys_task, sleep, {1000}
+		(f-call 'sys_task 'sleep '(1000))
 
 		;exit if signaled by kernel
 		(vp-cpy-ir r4 lk_node_cpu_id r0)
@@ -203,10 +203,10 @@
 	sys_unlink r0
 
 	;free params msg
-	f_call sys_mem, free, {r14}
+	(f-call 'sys_mem 'free '(r14))
 
 	;remove from links list and deallocate link node on stack
-	f_call sys_mem, free, {[r4 + lk_node_table]}
+	(f-call 'sys_mem 'free '([r4 + lk_node_table]))
 	(vp-cpy-rr r4 r0)
 	(ln-remove-node r0 r1)
 	(vp-add-cr lk_node_size r4)

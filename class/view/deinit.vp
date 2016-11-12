@@ -12,15 +12,15 @@
 	vp_push r0
 
 	;sub view from any parent
-	f_call view, sub, {r0}
+	(f-call 'view 'sub '(r0))
 
 	;deref any child views
 	(vp-cpy-ir r4 r0)
 	(loop-list-forward r0 + view_list, r0, r1)
 		(vp-sub-cr view_node r0)
 		vp_push r1
-		f_call view, sub, {r0}
-		f_call view, deref, {r0}
+		(f-call 'view 'sub '(r0))
+		(f-call 'view 'deref '(r0))
 		vp_pop r1
 	(loop-end)
 
@@ -29,10 +29,10 @@
 	(vp-lea-ir r0 view_dirty_region r1)
 	(f-bind 'gui_gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
-	f_call gui_region, free, {r0, r1}
+	(f-call 'gui_region 'free '(r0, r1))
 	(vp-cpy-ir r4 r1)
 	(vp-add-cr view_opaque_region r1)
-	f_call gui_region, free, {r0, r1}
+	(f-call 'gui_region 'free '(r0, r1))
 
 	;deinit parent
 	vp_pop r0

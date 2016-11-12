@@ -52,7 +52,7 @@
 	(vp-cpy-rr r5 r0)
 	if r5, ==, 0
 		;no so try create it
-		f_call sys_task, callback, {$kernel_callback, r4}
+		(f-call 'sys_task 'callback '($kernel_callback, r4))
 		(vp-cpy-ir r4 local_handle r0)
 	else
 		;yes so LRU to front

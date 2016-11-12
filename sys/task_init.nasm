@@ -17,8 +17,9 @@ def_func sys/task_init
 	lh_init r0, r1
 
 	;init cpu count, task count and id
+	vp_cpy 1, r1
+	vp_cpy r1, [r3 + tk_statics_cpu_total]
 	vp_xor r1, r1
-	vp_cpy_cl 1, [r3 + tk_statics_cpu_total]
 	vp_cpy r1, [r3 + tk_statics_cpu_id]
 	vp_cpy r1, [r3 + tk_statics_task_count]
 	vp_ret

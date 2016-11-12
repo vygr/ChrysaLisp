@@ -40,7 +40,7 @@
 	f_call sys_mail, init
 
 	;process command options
-	f_call sys_cpu, opts, {[r4]}
+	(f-call 'sys_cpu 'opts '([r4]))
 
 	;fill in num cpu's with at least mine + 1
 	(f-call 'sys_cpu 'id '() '(r0))
@@ -95,7 +95,7 @@
 				(vp-cpy-ri r1 r15 kn_msg_reply_id + id_mbox)
 				(vp-cpy-ri r0 r15 kn_msg_reply_id + id_cpu)
 				vp_cpy_cl kn_msg_reply_size, [r15 + msg_length]
-				f_call sys_mail, send, {r15}
+				(f-call 'sys_mail 'send '(r15))
 				break
 			case r1, ==, kn_call_task_child
 				;find best cpu to run task
@@ -113,7 +113,7 @@
 
 				;send to better kernel
 				(vp-cpy-ri r0 r15 msg_dest + id_cpu)
-				f_call sys_mail, send, {r15}
+				(f-call 'sys_mail 'send '(r15))
 				break
 			case r1, ==, kn_call_task_route
 				;increase size of network ?
@@ -127,7 +127,7 @@
 				;new kernel routing table ?
 				(vp-cpy-ir r15 kn_msg_link_route_origin r11)
 				(vp-mul-cr lk_route_size r11)
-				f_call sys_mem, grow, {[r4 + lk_table_array], [r4 + lk_table_array_size], &[r11 + lk_route_size]}, \
+				(f-call 'sys_mem 'grow '([r4 + lk_table_array], [r4 + lk_table_array_size], &[r11 + lk_route_size])), \
 											{[r4 + lk_table_array], [r4 + lk_table_array_size]}
 
 				;compare hop counts
@@ -147,7 +147,7 @@
 					(f-bind 'sys_link 'statics r14)
 					(loop-list-forward r14 + lk_statics_links_list, r12, r14)
 						;new link route table ?
-						f_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
+						(f-call 'sys_mem 'grow '([r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size])), \
 													{[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]}
 
 						if [r12 + lk_node_cpu_id], ==, r13
@@ -166,7 +166,7 @@
 					(f-bind 'sys_link 'statics r14)
 					(loop-list-forward r14 + lk_statics_links_list, r12, r14)
 						;new link route table ?
-						f_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
+						(f-call 'sys_mem 'grow '([r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size])), \
 													{[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]}
 
 						if [r12 + lk_node_cpu_id], ==, r13
@@ -205,10 +205,10 @@
 					(vp-and-cr (sub 0 ptr_size) r2)
 					(f-call 'sys_mem 'copy '(r0, r1, r2) '(_, _))
 					(vp-cpy-ri r11 r5 msg_dest + id_cpu)
-					f_call sys_mail, send, {r5}
+					(f-call 'sys_mail 'send '(r5))
 				(loop-end)
 			drop_msg:
-				f_call sys_mem, free, {r15}
+				(f-call 'sys_mem 'free '(r15))
 				break
 			case r1, ==, kn_call_callback
 				;call callback with this thread/stack
@@ -222,7 +222,7 @@
 				(vp-cpy-ir r0 kn_msg_reply_id + id_cpu r2)
 				(vp-cpy-ri r1 r0 msg_dest + id_mbox)
 				(vp-cpy-ri r2 r0 msg_dest + id_cpu)
-				f_call sys_mail, send, {r0}
+				(f-call 'sys_mail 'send '(r0))
 			endswitch
 		(loop-end)
 
@@ -270,7 +270,7 @@
 	(loop-end)
 
 	;free any kernel routing table
-	f_call sys_mem, free, {[r4 + lk_table_array]}
+	(f-call 'sys_mem 'free '([r4 + lk_table_array]))
 	(vp-add-cr lk_table_size r4)
 
 	;deinit font

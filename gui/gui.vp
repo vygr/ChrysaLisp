@@ -33,7 +33,7 @@
 
 	;kernel callback for first update
 	;this will init SDL etc
-	f_call sys_task, callback, {$update_callback, r4}
+	(f-call 'sys_task 'callback '($update_callback, r4))
 
 	;allocate background view for screen
 	(f-call 'label 'create '() '(r0))
@@ -41,13 +41,13 @@
 	(vp-cpy-ri r0 r1 gui_statics_screen)
 
 	;size and color and opaque
-	f_call label, change, {r0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}
-	f_call label, set_color, {r0, 0xff000000}
-	f_call label, opaque, {r0}
-	f_call label, dirty_all, {r0}
+	(f-call 'label 'change '(r0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+	(f-call 'label 'set_color '(r0, 0xff000000))
+	(f-call 'label 'opaque '(r0))
+	(f-call 'label 'dirty_all '(r0))
 
 	;sleep just a moment to let all routeing finish
-	;f_call sys_task, sleep, {1000000}
+	;(f-call 'sys_task 'sleep '(1000000))
 
 	;for now fire up the test apps
 	;this might be an gui auto run list eventually
@@ -57,10 +57,10 @@
 	(loop-start)
 	next_frame:
 		;kernel callback for update
-		f_call sys_task, callback, {$update_callback, r4}
+		(f-call 'sys_task 'callback '($update_callback, r4))
 
 		;frame rate of gui updates
-		f_call sys_task, sleep, {1000000 / 30}
+		(f-call 'sys_task 'sleep '(1000000 / 30))
 
 		;get keyboard info, see if any changes
 		(vp-cpy-ir r4 local_old_keymap r1)
@@ -128,7 +128,7 @@
 						;debug_long "code=", r11
 
 						;send mail to owner
-						f_call sys_mail, send, {r0}
+						(f-call 'sys_mail 'send '(r0))
 					endif
 					vp_pop r0, r1, r2
 				endif
@@ -185,7 +185,7 @@
 					(vp-cpy-ri r9 r0 ev_msg_ry)
 
 					;send mail to owner
-					f_call sys_mail, send, {r0}
+					(f-call 'sys_mail 'send '(r0))
 				endif
 			endif
 
@@ -225,11 +225,11 @@
 	;free old key map
 	(vp-cpy-ir r4 local_old_keymap r0)
 	if r0, !=, 0
-		f_call sys_mem, free, {r0}
+		(f-call 'sys_mem 'free '(r0))
 	endif
 
 	;deinit
-	f_call sys_task, callback, {$deinit_callback, r4}
+	(f-call 'sys_task 'callback '($deinit_callback, r4))
 
 	(vp-add-cr local_size r4)
 	(vp-ret)
@@ -296,7 +296,7 @@ update_callback:
 
 		;update the screen
 		(f-bind 'gui_gui 'statics r0)
-		f_call gui_gui, update, {[r0 + gui_statics_screen]}
+		(f-call 'gui_gui 'update '([r0 + gui_statics_screen]))
 
 		;refresh the window
 		(f-bind 'gui_gui 'statics r0)
@@ -315,18 +315,18 @@ deinit_callback:
 	(vp-cpy-ir r5 gui_statics_screen r0)
 	if r0, !=, 0
 		vp_cpy_cl 0, [r5 + gui_statics_screen]
-		f_call view, deref, {r0}
+		(f-call 'view 'deref '(r0))
 	endif
 
 	;free old region
 	(f-bind 'gui_gui 'statics r5)
-	f_call gui_region, free, {&[r5 + gui_statics_rect_heap], &[r5 + gui_statics_old_region]}
+	(f-call 'gui_region 'free '(&[r5 + gui_statics_rect_heap], &[r5 + gui_statics_old_region]))
 
 	;deinit region heap
-	f_call sys_heap, deinit, {r0}
+	(f-call 'sys_heap 'deinit '(r0))
 
 	;deinit signal heap
-	f_call sys_heap, deinit, {&[r5 + gui_statics_sigslot_heap]}
+	(f-call 'sys_heap 'deinit '(&[r5 + gui_statics_sigslot_heap]))
 
 	;destroy any window
 	(vp-cpy-ir r5 gui_statics_window r14)

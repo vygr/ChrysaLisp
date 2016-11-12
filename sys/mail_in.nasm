@@ -26,8 +26,10 @@ def_func sys/mail_in
 			vp_cpy r14, [r0 + msg_dest + id_cpu]
 			vp_cpy r6, [r0 + msg_parcel_id + id_mbox]
 			vp_cpy r7, [r0 + msg_parcel_id + id_cpu]
-			vp_cpy_cl msg_data, [r0 + msg_parcel_total]
-			vp_cpy_cl 0, [r0 + msg_parcel_size]
+			vp_cpy msg_data, r1
+			vp_cpy r1, [r0 + msg_parcel_total]
+			vp_xor r1, r1
+			vp_cpy r1, [r0 + msg_parcel_size]
 			vp_add mailbox_parcel_list, r13
 			lh_add_at_tail r13, r0, r1
 		endif

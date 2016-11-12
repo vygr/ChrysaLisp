@@ -30,7 +30,7 @@
 		(vp-cpy-ir r1 mailbox_tcb r0)
 		if r0, !=, 0
 			vp_cpy_cl 0, [r1 + mailbox_tcb]
-			f_call sys_task, resume, {r0}
+			(f-call 'sys_task 'resume '(r0))
 		endif
 	else
 		;going off chip

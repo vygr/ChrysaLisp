@@ -29,14 +29,14 @@
 	(vp-sub-rr r2 r3)
 	(vp-cpy-ir r0 vector_length r1)
 	(vp-add-rr r3 r1)
-	f_call vector, set_capacity, {r0, r1}
+	(f-call 'vector 'set_capacity '(r0, r1))
 
 	;copy elements
 	(vp-cpy-ir r4 local_start r5)
 	(vp-cpy-ir r4 local_end r6)
 	loop_while r5, !=, r6
 		d_call vector, ref_element, {[r4 + local_source], r5}, {r1}
-		f_call vector, push_back, {[r4 + local_inst], r1}
+		(f-call 'vector 'push_back '([r4 + local_inst], r1))
 		(vp-inc r5)
 	(loop-end)
 

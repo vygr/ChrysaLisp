@@ -58,14 +58,14 @@
 			;yes, remove parcel and post it
 			(vp-cpy-rr r14 r1)
 			(ln-remove-node r1 r2)
-			f_call sys_mail, send, {r14}
+			(f-call 'sys_mail 'send '(r14))
 		else
 			;no, update total so far
 			(vp-cpy-ri r13 r14 msg_parcel_total)
 		endif
 
 		;free fragment
-		f_call sys_mem, free, {r15}
+		(f-call 'sys_mem 'free '(r15))
 	(loop-end)
 	(vp-ret)
 

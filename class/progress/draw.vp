@@ -24,14 +24,14 @@
 
 	;draw outline
 	(f-call 'view 'get_color '(r0) '(r1))
-	f_call gui_ctx, set_color, {[r4 + local_ctx], r1}
+	(f-call 'gui_ctx 'set_color '([r4 + local_ctx], r1))
 	(f-call 'progress 'get_bounds '([r4 + local_inst]) '(_, _, r10, r11))
-	f_call gui_ctx, box, {[r4 + local_ctx], 0, 0, r10, r11}
+	(f-call 'gui_ctx 'box '([r4 + local_ctx], 0, 0, r10, r11))
 
 	;darker colour
 	(f-call 'view 'get_color '([r4 + local_inst]) '(r1))
 	(f-call 'gui_ctx 'darker '(r1) '(r1))
-	f_call gui_ctx, set_color, {[r4 + local_ctx], r1}
+	(f-call 'gui_ctx 'set_color '([r4 + local_ctx], r1))
 
 	;draw middle
 	(f-call 'progress 'get_bounds '([r4 + local_inst]) '(_, _, r10, r11))
@@ -48,20 +48,20 @@
 	(vp-cpy-rr r0 r10)
 	(vp-sub-rr r10 r12)
 	(vp-cpy-ri r12 r4 local_fill_remain)
-	f_call gui_ctx, filled_box, {[r4 + local_ctx], progress_border_size, progress_border_size, r10, r11}
+	(f-call 'gui_ctx 'filled_box '([r4 + local_ctx], progress_border_size, progress_border_size, r10, r11))
 
 	;very darker colour
 	(f-call 'view 'get_color '([r4 + local_inst]) '(r1))
 	(f-call 'gui_ctx 'darker '(r1) '(r1))
 	(f-call 'gui_ctx 'darker '(r1) '(r1))
-	f_call gui_ctx, set_color, {[r4 + local_ctx], r1}
+	(f-call 'gui_ctx 'set_color '([r4 + local_ctx], r1))
 
 	;draw middle
 	(f-call 'progress 'get_bounds '([r4 + local_inst]) '(_, _, _, r11))
 	(vp-cpy-cr progress_border_size r8)
 	(vp-sub-cr progress_border_size * 2 r11)
 	(vp-add-ir r4 local_fill_complete r8)
-	f_call gui_ctx, filled_box, {[r4 + local_ctx], r8, progress_border_size, [r4 + local_fill_remain], r11}
+	(f-call 'gui_ctx 'filled_box '([r4 + local_ctx], r8, progress_border_size, [r4 + local_fill_remain], r11))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)

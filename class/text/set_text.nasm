@@ -26,7 +26,8 @@ def_func class/text/set_text
 		f_call string, deref, {r0}
 		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r0 + text_words], r1
-		vp_cpy_cl 0, [r0 + text_words]
+		vp_xor r2, r2
+		vp_cpy r2, [r0 + text_words]
 		f_call string, deref, {r1}
 	endif
 

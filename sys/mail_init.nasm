@@ -21,7 +21,8 @@ def_func sys/mail_init
 	f_call sys_task, start, {@_function_}, {r0, [r7 + ml_statics_in_mailbox]}
 	func_path sys_mail, out
 	f_call sys_task, start, {@_function_}, {r0, [r7 + ml_statics_out_mailbox]}
-	vp_cpy_cl 0, [r7 + ml_statics_parcel_id]
+	vp_xor r1, r1
+	vp_cpy r1, [r7 + ml_statics_parcel_id]
 	vp_ret
 
 def_func_end

@@ -14,7 +14,7 @@
 	(vp-dec r1)
 	(vp-cpy-ri r1 r0 vector_length)
 	(vp-cpy-ir r0 vector_array r0)
-	f_call ref, deref, {[r0 + (r1 * ptr_size)]}
+	(f-call 'ref 'deref '([r0 + (r1 * ptr_size)]))
 	vp_pop r0
 	(vp-ret)
 

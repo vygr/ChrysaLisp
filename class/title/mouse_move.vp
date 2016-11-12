@@ -31,7 +31,7 @@
 	(vp-cpy-ri r9 r4 local_old_y)
 
 	;dirty old area
-	f_call window, dirty, {r0}
+	(f-call 'window 'dirty '(r0))
 
 	;get new window position
 	(vp-cpy-ir r4 local_inst r0)
@@ -53,8 +53,8 @@
 	(vp-mul-cr -1 r8)
 	(vp-mul-cr -1 r9)
 	(vp-lea-ir r0 view_dirty_region r1)
-	f_call gui_region, translate, {r1, r8, r9}
-	f_call window, dirty_all, {[r4 + local_window]}
+	(f-call 'gui_region 'translate '(r1, r8, r9))
+	(f-call 'window 'dirty_all '([r4 + local_window]))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)

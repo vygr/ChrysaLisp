@@ -9,7 +9,7 @@
 	;free memory heaps
 	(vp-cpy-cr mem_block_min_size r6)	;start object size
 	(loop-start)
-		f_call sys_heap, deinit, {r5}
+		(f-call 'sys_heap 'deinit '(r5))
 		(vp-add-cr hp_heap_size r5)
 		(vp-add-rr r6 r6)
 	loop_until r6, >, mem_block_max_size

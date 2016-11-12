@@ -14,7 +14,8 @@ def_func sys/mail_alloc_parcel
 		f_call sys_mail, alloc, {}, {r0}
 	else
 		f_call sys_mem, alloc, {r0}, {r0, _}
-		vp_cpy_cl 0, [r0 + msg_parcel_size]
+		vp_xor r1, r1
+		vp_cpy r1, [r0 + msg_parcel_size]
 	endif
 	vp_cpy r5, [r0 + msg_length]
 	vp_ret

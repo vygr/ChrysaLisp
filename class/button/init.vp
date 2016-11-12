@@ -16,7 +16,7 @@
 		vp_cpy_cl 0, [r0 + button_state]
 		(vp-lea-ir r0 button_pressed_signal r1)
 		(lh-init r1 r2)
-		f_call button, set_flow_flags, {r0, flow_flag_down | flow_flag_align_hcenter}
+		(f-call 'button 'set_flow_flags '(r0, flow_flag_down | flow_flag_align_hcenter))
 	endif
 	(vp-ret)
 

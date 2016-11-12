@@ -10,7 +10,7 @@
 
 	;remove from any existing parent
 	(vp-cpy-rr r1 r3)
-	f_call view, sub, {r0}
+	(f-call 'view 'sub '(r0))
 
 	;add to parent
 	(vp-cpy-ri r3 r0 view_parent)
