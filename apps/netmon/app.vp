@@ -17,18 +17,18 @@
 	(def-struct-end)
 
 	(struct 'select 'sel)
-	(ptr 'window, window_panel, panel, left_panel, right_panel)
+	(ptr 'window 'window_panel 'panel 'left_panel 'right_panel)
 	pptr task_progress
-	(ulong 'value, max_tasks, max_memory, total_memory)
-	(uint 'cpu_total, cpu_count)
+	(ulong 'value 'max_tasks 'max_memory 'total_memory)
+	(uint 'cpu_total 'cpu_count)
 
 	(ptr 'msg)
 	(ulong 'mailbox)
 	pulong task_mailboxes
 	(struct 'task_mailbox 'mailbox)
 
-	(ptr 'string, progress)
-	(int 'width, height)
+	(ptr 'string 'progress)
+	(int 'width 'height)
 	(ulong 'owner)
 
 	;init app vars

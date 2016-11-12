@@ -14,7 +14,7 @@
 	;r1 = list
 	;r2 = next char
 
-	(ptr 'this, stream, list, elem)
+	(ptr 'this 'stream 'list 'elem)
 	(ulong 'char)
 
 	push_scope

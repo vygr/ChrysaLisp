@@ -344,7 +344,7 @@ deinit_callback:
 	vp_ret
 
 title:
-	db 'Asm Kernel GUI Window', 0
+	(vp-string "Asm Kernel GUI Window") (vp-byte 0)
 
 scan_codes:
 	db 4, 'aA', 5, 'bB', 6, 'cC', 7, 'dD', 8, 'eE', 9, 'fF', 10, 'gG', 11, 'hH'

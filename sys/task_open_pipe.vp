@@ -11,8 +11,8 @@
 	;trashes
 	;all but r4
 
-	(ptr 'tasks, ids, msg, name)
-	(ulong 'cpu, index, length)
+	(ptr 'tasks 'ids 'msg 'name)
+	(ulong 'cpu 'index 'length)
 	(struct 'mailbox 'mailbox)
 
 	;save task info

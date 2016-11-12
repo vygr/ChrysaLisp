@@ -10,10 +10,10 @@
 (def-func 'apps/launcher/app)
 
 	(struct 'myapp 'obj)
-	(ptr 'msg, window, window_panel, panel, button, string, pressed)
+	(ptr 'msg 'window 'window_panel 'panel 'button 'string 'pressed)
 	(pubyte 'next)
 	(ulong 'owner)
-	(int 'width, height)
+	(int 'width 'height)
 	(ubyte 'length)
 
 	;init app vars
@@ -83,7 +83,7 @@ on_press:
 	;r0 = app local object
 	;r1 = button object
 
-	(ptr 'inst, button, string)
+	(ptr 'inst 'button 'string)
 
 	push_scope
 	retire {r0, r1}, {inst, button}
@@ -94,13 +94,13 @@ on_press:
 	return
 
 launch_list:
-	db 'apps/netmon/app',0
-	db 'apps/terminal/app', 0
-	db 'apps/calculator/app',0
-	db 'tests/farm', 0
-	db 'tests/array', 0
-	db 'tests/pipe', 0
-	db 'tests/global', 0
-	db 0
+	(vp-string "apps/netmon/app") (vp-byte 0)
+	(vp-string "apps/terminal/app") (vp-byte 0)
+	(vp-string "apps/calculator/app") (vp-byte 0)
+	(vp-string "tests/farm") (vp-byte 0)
+	(vp-string "tests/array") (vp-byte 0)
+	(vp-string "tests/pipe") (vp-byte 0)
+	(vp-string "tests/global") (vp-byte 0)
+	(vp-byte 0)
 
 (def-func-end)

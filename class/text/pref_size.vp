@@ -15,7 +15,7 @@
 
 	(ptr 'inst)
 	pptr words, words_end
-	(ulong 'width, height, length, word_w)
+	(ulong 'width 'height 'length 'word_w)
 
 	;save inputs
 	push_scope

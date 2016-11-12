@@ -14,7 +14,7 @@
 
 	const space_char, ' '
 
-	(ptr 'inst, vtable, stream, msg, mymailbox)
+	(ptr 'inst 'vtable 'stream 'msg 'mymailbox)
 	(ulong 'error)
 
 	;read init args

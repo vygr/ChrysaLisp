@@ -14,8 +14,8 @@
 
 	const char_lf, 10
 
-	(ptr 'this, args, stream, ast, value)
-	(ulong 'length, char, flag)
+	(ptr 'this 'args 'stream 'ast 'value)
+	(ulong 'length 'char 'flag)
 
 	push_scope
 	retire {r0, r1}, {this, args}

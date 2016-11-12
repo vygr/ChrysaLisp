@@ -9,8 +9,8 @@
 
 (equate 'buffer_size 120)
 
-	(ptr 'slave, arg, args, stream, set)
-	(ulong 'argc, index, length)
+	(ptr 'slave 'arg 'args 'stream 'set)
+	(ulong 'argc 'index 'length)
 	(struct 'buffer 'buffer)
 
 	;init app vars

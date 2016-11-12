@@ -10,8 +10,8 @@
 
 	const test_size, 10000
 
-	(ptr 'name, ids, msg)
-	(ulong 'cnt, total)
+	(ptr 'name 'ids 'msg)
+	(ulong 'cnt 'total)
 
 	push_scope
 

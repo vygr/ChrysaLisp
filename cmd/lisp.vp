@@ -6,10 +6,10 @@
 (import 'class/class_string.inc)
 (import 'class/class_lisp.inc)
 
-(def-func 'cmd/lisp, 1024 * 8)
+(def-func 'cmd/lisp '1024 * 8)
 
-	(ptr 'slave, lisp, args, arg, stream, file, repl_args, value)
-	(ushort 'argc, index)
+	(ptr 'slave 'lisp 'args 'arg 'stream 'file 'repl_args 'value)
+	(ushort 'argc 'index)
 
 	;init app vars
 	push_scope

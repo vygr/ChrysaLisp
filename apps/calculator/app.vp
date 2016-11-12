@@ -10,7 +10,7 @@
 
 (def-func 'apps/calculator/app)
 
-(equate 'buffer_size 32)
+	(equate 'buffer_size 32)
 
 	(def-struct 'shared 'obj)
 		(ptr 'shared_display)
@@ -22,10 +22,10 @@
 	(def-struct-end)
 
 	(struct 'myapp 'shared)
-	(ptr 'msg, window, window_panel, flow_panel, grid_panel, button, pressed, string)
+	(ptr 'msg 'window 'window_panel 'flow_panel 'grid_panel 'button 'pressed 'string)
 	(pubyte 'next)
 	(ulong 'owner)
-	(int 'width, height)
+	(int 'width 'height)
 	(ubyte 'length)
 
 	;init app vars
@@ -123,7 +123,7 @@ on_press:
 	const char_multiply, '*'
 	const char_divide, '/'
 
-	(ptr 'inst, button, button_string, display_string, string, string1, string2)
+	(ptr 'inst 'button 'button_string 'display_string 'string 'string1 'string2)
 	(pubyte 'charp)
 	(ubyte 'char)
 
@@ -201,22 +201,22 @@ on_press:
 	return
 
 button_list:
-	db '7', 0
-	db '8', 0
-	db '9', 0
-	db '/', 0
-	db '4', 0
-	db '5', 0
-	db '6', 0
-	db '*', 0
-	db '1', 0
-	db '2', 0
-	db '3', 0
-	db '-', 0
-	db '0', 0
-	db '=', 0
-	db 'AC', 0
-	db '+', 0
-	db 0
+	(vp-string "7") (vp-byte 0)
+	(vp-string "8") (vp-byte 0)
+	(vp-string "9") (vp-byte 0)
+	(vp-string "/") (vp-byte 0)
+	(vp-string "4") (vp-byte 0)
+	(vp-string "5") (vp-byte 0)
+	(vp-string "6") (vp-byte 0)
+	(vp-string "*") (vp-byte 0)
+	(vp-string "1") (vp-byte 0)
+	(vp-string "2") (vp-byte 0)
+	(vp-string "3") (vp-byte 0)
+	(vp-string "-") (vp-byte 0)
+	(vp-string "0") (vp-byte 0)
+	(vp-string "=") (vp-byte 0)
+	(vp-string "AC") (vp-byte 0)
+	(vp-string "+") (vp-byte 0)
+	(vp-byte 0)
 
 (def-func-end)

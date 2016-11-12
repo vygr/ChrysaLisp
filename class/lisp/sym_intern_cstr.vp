@@ -10,7 +10,7 @@
 	;r0 = lisp object
 	;r1 = interned symbol
 
-	(ptr 'this, symbol, intern)
+	(ptr 'this 'symbol 'intern)
 
 	push_scope
 	retire {r0, r1}, {this, symbol}

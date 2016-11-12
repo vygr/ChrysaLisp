@@ -10,7 +10,7 @@
 	;r0 = lisp object
 	;r1 = interned symbol
 
-	(ptr 'this, symbol)
+	(ptr 'this 'symbol)
 	pptr iter
 
 	push_scope

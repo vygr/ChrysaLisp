@@ -9,7 +9,7 @@
 	;outputs
 	;r0 = lisp object
 
-	(ptr 'this, env)
+	(ptr 'this 'env)
 	pptr iter
 
 	push_scope

@@ -11,7 +11,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this, symbol)
+	(ptr 'this 'symbol)
 	pptr iter
 
 	push_scope

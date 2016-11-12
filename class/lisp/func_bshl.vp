@@ -12,8 +12,8 @@
 	;r0 = lisp object
 	;r1 = else value
 
-	(ptr 'this, args, value, num, shift)
-	(ulong 'length, cnt)
+	(ptr 'this 'args 'value 'num 'shift)
+	(ulong 'length 'cnt)
 
 	push_scope
 	retire {r0, r1}, {this, args}

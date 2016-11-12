@@ -107,7 +107,7 @@ opt_link:
 	vp_ret
 
 link_path:
-	db '/tmp/', 0
+	(vp-string "/tmp/") (vp-byte 0)
 
 	align 8, db 0
 options_table:

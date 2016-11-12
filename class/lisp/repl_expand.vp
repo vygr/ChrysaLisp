@@ -13,7 +13,7 @@
 	;r1 = 0 if expanded
 
 	pptr iter, miter
-	(ptr 'this, form, macro, args)
+	(ptr 'this 'form 'macro 'args)
 	(ulong 'length)
 
 	push_scope

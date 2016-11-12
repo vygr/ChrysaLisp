@@ -17,7 +17,7 @@
 	const char_space, ' '
 	const char_rab, '>'
 
-	(ptr 'this, stream, pair, first, second)
+	(ptr 'this 'stream 'pair 'first 'second)
 	(ulong 'char)
 
 	push_scope

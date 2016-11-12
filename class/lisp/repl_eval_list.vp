@@ -11,9 +11,9 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this, list)
+	(ptr 'this 'list)
 	pptr iter
-	(ulong 'index, length)
+	(ulong 'index 'length)
 
 	push_scope
 	retire {r0, r1, r2}, {this, list, index}

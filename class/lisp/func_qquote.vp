@@ -16,7 +16,7 @@
 		(ptr 'pdata_cat_list)
 	(def-struct-end)
 
-	(ptr 'this, cat_list, args, value)
+	(ptr 'this 'cat_list 'args 'value)
 	(ulong 'length)
 
 	push_scope
@@ -56,7 +56,7 @@ callback:
 	;r1 = 0 if break, else not
 
 	pptr iter
-	(ptr 'pdata, elem, list, sym, quote_list)
+	(ptr 'pdata 'elem 'list 'sym 'quote_list)
 	(ulong 'length)
 
 	push_scope

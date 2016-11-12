@@ -11,7 +11,7 @@
 	;trashes
 	;all but r4
 
-	(ptr 'name, msg)
+	(ptr 'name 'msg)
 	(ulong 'cpu)
 	(struct 'id 'id)
 	(struct 'mailbox 'mailbox)

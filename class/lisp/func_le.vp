@@ -20,10 +20,10 @@
 		(long 'pdata_num)
 	(def-struct-end)
 
-	(ptr 'this, value)
+	(ptr 'this 'value)
 	(long 'num)
 
-	(ptr 'args, first)
+	(ptr 'args 'first)
 	(ulong 'length)
 
 	push_scope

@@ -19,7 +19,7 @@
 	const char_semi, ';'
 	const char_lf, 10
 
-	(ptr 'this, stream, list, ast)
+	(ptr 'this 'stream 'list 'ast)
 	(ulong 'char)
 
 	push_scope

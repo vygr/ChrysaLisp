@@ -9,7 +9,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this, args)
+	(ptr 'this 'args)
 
 	push_scope
 	retire {r0, r1}, {this, args}

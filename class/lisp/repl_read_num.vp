@@ -26,9 +26,9 @@
 	const char_b, 'b'
 	const char_o, 'o'
 
-	(ptr 'this, stream, num)
-	(pubyte 'reloc, buffer)
-	(ulong 'char, sign)
+	(ptr 'this 'stream 'num)
+	(pubyte 'reloc 'buffer)
+	(ulong 'char 'sign)
 	(long 'val)
 
 	push_scope

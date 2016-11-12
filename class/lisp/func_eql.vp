@@ -13,8 +13,8 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this, args, value, arg1, arg2)
-	(ulong 'length, v1, v2)
+	(ptr 'this 'args 'value 'arg1 'arg2)
+	(ulong 'length 'v1 'v2)
 
 	push_scope
 	retire {r0, r1}, {this, args}

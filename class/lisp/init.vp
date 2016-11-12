@@ -44,7 +44,7 @@
 	;trashes
 	;all
 
-	(ptr 'this, vtable, stdin, stdout, stderr, symbol, table)
+	(ptr 'this 'vtable 'stdin 'stdout 'stderr 'symbol 'table)
 	pptr path_ptr
 	(ulong 'ok)
 

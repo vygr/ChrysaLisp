@@ -9,8 +9,8 @@
 
 (equate 'buffer_size 120)
 
-	(ptr 'slave, arg, args, stream)
-	(ulong 'argc, index, length)
+	(ptr 'slave 'arg 'args 'stream)
+	(ulong 'argc 'index 'length)
 	(struct 'buffer 'buffer)
 
 	;init app vars
@@ -53,7 +53,7 @@ cat_string:
 
 	const char_lf, 10
 
-	(ptr 'slave, arg, buffer, file, stream)
+	(ptr 'slave 'arg 'buffer 'file 'stream)
 	(ulong 'length)
 
 	push_scope

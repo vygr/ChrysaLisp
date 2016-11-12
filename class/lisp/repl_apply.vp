@@ -18,7 +18,7 @@
 		(ptr 'pdata_value)
 	(def-struct-end)
 
-	(ptr 'this, value, func, ast)
+	(ptr 'this 'value 'func 'ast)
 
 	push_scope
 	retire {r0, r1, r2}, {this, func, ast}

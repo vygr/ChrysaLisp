@@ -10,7 +10,7 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst, msg, stream)
+	(ptr 'inst 'msg 'stream)
 	(ulong 'length)
 
 	push_scope

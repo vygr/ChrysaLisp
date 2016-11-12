@@ -12,9 +12,9 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this, args, value)
+	(ptr 'this 'args 'value)
 	pptr iter
-	(long 'length, accum)
+	(long 'length 'accum)
 
 	push_scope
 	retire {r0, r1}, {this, args}

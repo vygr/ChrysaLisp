@@ -8,7 +8,7 @@
 
 (equate 'buffer_size 120)
 
-	(ptr 'slave, stream, vector, string)
+	(ptr 'slave 'stream 'vector 'string)
 	(ulong 'length)
 	(struct 'buffer 'buffer)
 
@@ -62,7 +62,7 @@ input:
 
 	const char_lf, 10
 
-	(ptr 'slave, buffer)
+	(ptr 'slave 'buffer)
 	(ulong 'length)
 
 	push_scope

@@ -11,7 +11,7 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst, vtable)
+	(ptr 'inst 'vtable)
 	(ulong 'error)
 
 	;read init args

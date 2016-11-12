@@ -11,7 +11,7 @@
 	;trashes
 	;all
 
-	(ptr 'this, stdin, stdout, stderr)
+	(ptr 'this 'stdin 'stdout 'stderr)
 	(ulong 'ok)
 
 	push_scope

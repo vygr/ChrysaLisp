@@ -16,7 +16,7 @@
 		(ptr 'pdata_value)
 	(def-struct-end)
 
-	(ptr 'this, value, args)
+	(ptr 'this 'value 'args)
 	(ulong 'length)
 
 	push_scope

@@ -12,7 +12,7 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst, splits, stream)
+	(ptr 'inst 'splits 'stream)
 	(ubyte 'char)
 
 	;save inputs

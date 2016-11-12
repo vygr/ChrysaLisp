@@ -16,7 +16,7 @@
 		(ptr 'pdata_value)
 	(def-struct-end)
 
-	(ptr 'this, value, args)
+	(ptr 'this 'value 'args)
 	(ulong 'length)
 
 	push_scope
@@ -39,7 +39,7 @@ callback:
 	;r1 = 0 if break, else not
 
 	pptr iter
-	(ptr 'pdata, test)
+	(ptr 'pdata 'test)
 	(ulong 'length)
 
 	push_scope

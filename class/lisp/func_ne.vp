@@ -20,7 +20,7 @@
 		pptr pdata_iter
 	(def-struct-end)
 
-	(ptr 'this, value)
+	(ptr 'this 'value)
 	pptr iter
 
 	(ptr 'args)
@@ -52,7 +52,7 @@ callback:
 
 	pptr iter
 	(ptr 'pdata)
-	(long 'num, num1)
+	(long 'num 'num1)
 
 	push_scope
 	retire {r0, r1}, {pdata, iter}

@@ -12,7 +12,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this, form, value, func, args)
+	(ptr 'this 'form 'value 'func 'args)
 	(ulong 'length)
 
 	push_scope

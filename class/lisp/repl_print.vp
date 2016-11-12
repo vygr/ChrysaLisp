@@ -42,10 +42,10 @@
 		(uint 'pdata_length)
 	(def-struct-end)
 
-	(ptr 'this, stream)
-	(uint 'index, length)
+	(ptr 'this 'stream)
+	(uint 'index 'length)
 
-	(ptr 'value, elem)
+	(ptr 'value 'elem)
 
 	push_scope
 	retire {r0, r1, r2}, {this, stream, value}
