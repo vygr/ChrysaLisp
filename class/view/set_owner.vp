@@ -6,7 +6,7 @@
 	;r0 = view object
 	;r1 = task tcb
 
-	vp_cpy r1, [r0 + view_tcb]
-	vp_ret
+	(vp-cpy-ri r1 r0 view_tcb)
+	(vp-ret)
 
 (def-func-end)

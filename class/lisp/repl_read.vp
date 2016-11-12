@@ -40,7 +40,7 @@
 skip_white:
 	loop_while {char <= char_space && char != -1}
 		func_call stream, read_char, {stream}, {char}
-	loop_end
+	(loop-end)
 
 	;what are we reading ?
 	if {char != -1}

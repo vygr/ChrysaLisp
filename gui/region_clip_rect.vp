@@ -16,8 +16,8 @@
 	if r10, >, r8
 		if r11, >, r9
 			;run through source region list
-			vp_cpy r1, r7
-			loop_start
+			(vp-cpy-rr r1 r7)
+			(loop-start)
 			loop:
 				ln_next_fnode r7, r6
 
@@ -48,12 +48,12 @@
 				endswitch
 
 				;region is outside
-				vp_cpy r7, r5
-				ln_remove_fnode r7, r6
-				hp_freecell r0, r5, r6
-			loop_end
+				(vp-cpy-rr r7 r5)
+				(ln-remove-fnode r7 r6)
+				(hp-freecell r0 r5 r6)
+			(loop-end)
 		endif
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

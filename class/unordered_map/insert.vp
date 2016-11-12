@@ -25,46 +25,46 @@
 	(def-struct-end)
 
 	;save inputs
-	vp_sub local_size, r4
-	set_src r0, r1, r2
-	set_dst [r4 + local_inst], [r4 + local_key], [r4 + local_value]
-	map_src_to_dst
+	(vp-sub-cr local_size r4)
+	(set-src r0, r1, r2)
+	(set-dst [r4 + local_inst], [r4 + local_key], [r4 + local_value])
+	(map-src-to-dst)
 
 	;search hash bucket
 	f_call unordered_map, get_bucket, {r0, r1}, {r0}
 	f_call vector, for_each, {r0, 0, [r0 + vector_length], $callback, r4}, {r1}
-	vp_cpy r0, [r4 + local_bucket]
+	(vp-cpy-ri r0 r4 local_bucket)
 	if r1, ==, 0
 		;new key
-		vp_cpy [r4 + local_inst], r0
-		vp_cpy [r0 + unordered_set_length], r1
-		vp_inc r1
-		vp_cpy r1, [r0 + unordered_set_length]
+		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r0 unordered_set_length r1)
+		(vp-inc r1)
+		(vp-cpy-ri r1 r0 unordered_set_length)
 		f_call ref, ref, {[r4 + local_value]}
 		f_call ref, ref, {[r4 + local_key]}
 		f_call pair, create, {r0, [r4 + local_value]}, {r0}
 		f_call vector, push_back, {[r4 + local_bucket], r0}
-		vp_cpy r0, r2
-		vp_cpy [r0 + vector_length], r1
-		vp_cpy [r0 + vector_array], r0
-		vp_lea [r0 + (r1 * ptr_size) - ptr_size], r1
+		(vp-cpy-rr r0 r2)
+		(vp-cpy-ir r0 vector_length r1)
+		(vp-cpy-ir r0 vector_array r0)
+		(vp-lea r0 (r1 * ptr_size) - ptr_size r1)
 	else
 		;old key
-		vp_cpy r1, [r4 + local_iter]
-		vp_cpy [r1], r2
-		vp_cpy r2, [r4 + local_pair]
+		(vp-cpy-ri r1 r4 local_iter)
+		(vp-cpy-ir r1 r2)
+		(vp-cpy-ri r2 r4 local_pair)
 		f_call ref, ref, {[r4 + local_value]}
 		f_call ref, deref, {[r2 + pair_second]}
-		vp_cpy [r4 + local_value], r0
-		vp_cpy [r4 + local_pair], r2
-		vp_cpy r0, [r2 + pair_second]
-		vp_cpy [r4 + local_iter], r1
-		vp_cpy [r4 + local_bucket], r2
+		(vp-cpy-ir r4 local_value r0)
+		(vp-cpy-ir r4 local_pair r2)
+		(vp-cpy-ri r0 r2 pair_second)
+		(vp-cpy-ir r4 local_iter r1)
+		(vp-cpy-ir r4 local_bucket r2)
 	endif
 
-	vp_cpy [r4 + local_inst], r0
-	vp_add local_size, r4
-	vp_ret
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
 
 callback:
 	;inputs
@@ -73,10 +73,10 @@ callback:
 	;outputs
 	;r1 = 0 if break, else not
 
-	vp_cpy [r1], r1
-	vp_cpy [r1 + pair_first], r1
-	vp_cpy [r0 + local_inst], r2
-	vp_cpy [r0 + local_key], r0
+	(vp-cpy-ir r1 r1)
+	(vp-cpy-ir r1 pair_first r1)
+	(vp-cpy-ir r0 local_inst r2)
+	(vp-cpy-ir r0 local_key r0)
 	vp_jmp [r2 + unordered_set_key_callback]
 
 (def-func-end)

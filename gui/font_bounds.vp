@@ -14,12 +14,12 @@
 
 	f_call gui_font, text, {r0, r1}, {r0}
 	if r0, ==, 0
-		vp_xor r10, r10
-		vp_xor r11, r11
+		(vp-xor-rr r10 r10)
+		(vp-xor-rr r11 r11)
 	else
-		vp_cpy [r0 + ft_text_width], r10
-		vp_cpy [r0 + ft_text_height], r11
+		(vp-cpy-ir r0 ft_text_width r10)
+		(vp-cpy-ir r0 ft_text_height r11)
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

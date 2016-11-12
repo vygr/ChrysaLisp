@@ -19,7 +19,7 @@
 	loop_while {inst->stream_bufp == inst->stream_bufe}
 		virt_call stream, read_next, {inst}, {char}
 		gotoif {char == -1}, exit
-	loop_end
+	(loop-end)
 	assign {*inst->stream_bufp}, {char}
 	assign {inst->stream_bufp + 1}, {inst->stream_bufp}
 exit:

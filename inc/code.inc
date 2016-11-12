@@ -135,7 +135,7 @@
 	continueifnot r0, !=, 0
 %endmacro
 
-%macro loop_start 0
+%macro (loop-start) 0
 	switch
 %endmacro
 
@@ -154,7 +154,7 @@
 	breakif {%1}
 %endmacro
 
-%macro loop_end 0
+%macro (loop-end) 0
 	continue
 	endswitch
 %endmacro
@@ -515,9 +515,9 @@
 	%assign _scope_sp _scope_sp + 1
 	%if _var_sp != 0
 		%ifdef debug_emit
-			%warning vp_sub _var_sp, r4
+			%warning (vp-sub-cr _var_sp r4)
 		%endif
-		vp_sub _var_sp, r4
+		(vp-sub-cr _var_sp r4)
 		%assign _var_sp 0
 	%endif
 %endmacro
@@ -528,9 +528,9 @@
 	%assign _var_sp _scope_var_%[_scope_sp]
 	%if _var_sp != 0
 		%ifdef debug_emit
-			%warning vp_add _var_sp, r4
+			%warning (vp-add-cr _var_sp r4)
 		%endif
-		vp_add _var_sp, r4
+		(vp-add-cr _var_sp r4)
 		%assign _var_sp 0
 	%endif
 	%assign %%s _scope_sp - 1
@@ -543,18 +543,18 @@
 	get_scope_offset 0
 	%if _scope_offset != 0
 		%ifdef debug_emit
-			%warning vp_add _scope_offset, r4
+			%warning (vp-add-cr _scope_offset r4)
 		%endif
-		vp_add _scope_offset, r4
+		(vp-add-cr _scope_offset r4)
 	%endif
 %endmacro
 
 %macro return 0
 	unwind
 	%ifdef debug_emit
-		%warning vp_ret
+		%warning (vp-ret)
 	%endif
-	vp_ret
+	(vp-ret)
 %endmacro
 
 %macro get_scope_offset 1
@@ -636,7 +636,7 @@
 ; paramater handling
 ;;;;;;;;;;;;;;;;;;;;
 
-%macro set_src 0-*
+%macro (set-src 0-*)
 	;%1... = paramaters
 	%assign _src_total 0
 	%rep %0
@@ -646,7 +646,7 @@
 	%endrep
 %endmacro
 
-%macro set_dst 0-*
+%macro (set-dst 0-*)
 	;%1... = paramaters
 	%assign _dst_total 0
 	%rep %0
@@ -744,7 +744,7 @@
 	%endif
 %endmacro
 
-%macro map_src_to_dst 0
+%macro (map-src-to-dst) 0
 	%if _dst_total != _src_total
 		%fatal Mismatching number of src/dst paramaters !
 	%endif
@@ -1622,8 +1622,8 @@
 ;;;;;;;;;;;;
 
 %macro eval 2
-	set_src %1
-	set_dst %2
+	(set-src %1)
+	(set-dst %2)
 	%if _dst_total != _src_total
 		%fatal Mismatching number of src/dst paramaters !
 	%endif
@@ -1650,8 +1650,8 @@
 %endmacro
 
 %macro retire 2
-	set_src %1
-	set_dst %2
+	(set-src %1)
+	(set-dst %2)
 	%if _dst_total != _src_total
 		%fatal Mismatching number of src/dst paramaters !
 	%endif
@@ -1681,8 +1681,8 @@
 %endmacro
 
 %macro assign 2
-	set_src %1
-	set_dst %2
+	(set-src %1)
+	(set-dst %2)
 	%if _dst_total != _src_total
 		%fatal Mismatching number of src/dst paramaters !
 	%endif

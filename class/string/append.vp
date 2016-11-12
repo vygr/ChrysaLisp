@@ -12,14 +12,14 @@
 	;r1-r3, r5-r7
 
 	;save inputs
-	set_src r0, r1
-	set_dst r6, r7
-	map_src_to_dst
+	(set-src r0, r1)
+	(set-dst r6, r7)
+	(map-src-to-dst)
 
 	;get size of strings
-	vp_cpy [r0 + string_length], r0
-	vp_add [r1 + string_length], r0
-	vp_add string_size + 1, r0
+	(vp-cpy-ir r0 string_length r0)
+	(vp-add-ir r1 string_length r0)
+	(vp-add-cr string_size + 1 r0)
 
 	;create new string object
 	f_call string, new, {r0}, {r0}
@@ -30,9 +30,9 @@
 		if r1, ==, 0
 			;error with init
 			v_call string, delete, {r0}, {}, r1
-			vp_xor r0, r0
+			(vp-xor-rr r0 r0)
 		endif
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

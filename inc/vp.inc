@@ -399,7 +399,7 @@
 	call %1
 %endmacro
 
-%macro vp_ret 0
+%macro (vp-ret) 0
 	ret
 %endmacro
 

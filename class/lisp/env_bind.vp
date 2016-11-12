@@ -58,7 +58,7 @@
 					assign {index_vars + 1, index_vals + 1}, {index_vars, index_vals}
 				endswitch
 				func_call unordered_map, insert, {this->lisp_enviroment, symbol, value}, {_, _}
-			loop_end
+			(loop-end)
 			breakif {index_vals == len_vals}
 			func_call ref, deref, {value}
 		error:

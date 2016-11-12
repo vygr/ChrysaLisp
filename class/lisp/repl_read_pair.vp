@@ -41,7 +41,7 @@
 	;skip white space
 	loop_while {char <= char_space && char != -1}
 		func_call stream, read_char, {stream}, {char}
-	loop_end
+	(loop-end)
 
 	if {char == char_rab}
 		func_call stream, read_char, {stream}, {char}

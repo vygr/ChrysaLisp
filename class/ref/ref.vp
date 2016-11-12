@@ -8,9 +8,9 @@
 	;r1
 
 	;inc ref count
-	vp_cpy [r0 + ref_count], r1
-	vp_inc r1
-	vp_cpy r1, [r0 + ref_count]
-	vp_ret
+	(vp-cpy-ir r0 ref_count r1)
+	(vp-inc r1)
+	(vp-cpy-ri r1 r0 ref_count)
+	(vp-ret)
 
 (def-func-end)

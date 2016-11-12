@@ -6,7 +6,7 @@
 	;r0 = 0 if error, else object
 
 	;always error
-	vp_xor r0, r0
-	vp_ret
+	(vp-xor-rr r0 r0)
+	(vp-ret)
 
 (def-func-end)

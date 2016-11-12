@@ -15,8 +15,8 @@
 	d_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
 	f_call vector, for_each, {r0, 0, r1, $callback, 0}, {r1}
 	vp_pop r0
-	vp_cpy r1, [r0 + unordered_set_length]
-	vp_ret
+	(vp-cpy-ri r1 r0 unordered_set_length)
+	(vp-ret)
 
 callback:
 	;inputs
@@ -26,7 +26,7 @@ callback:
 	;r1 = 0 if break, else not
 
 	f_call vector, clear, {[r1]}
-	vp_cpy 1, r1
-	vp_ret
+	(vp-cpy-cr 1 r1)
+	(vp-ret)
 
 (def-func-end)

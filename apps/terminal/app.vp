@@ -60,7 +60,7 @@
 		func_call label, set_text_color, {label, 0xff00ff00}
 		func_call label, set_font, {label, "fonts/Hack-Regular.ttf", 16}
 		func_call label, add_back, {label, shared.shared_panel}
-	loop_end
+	(loop-end)
 
 	;set to pref size
 	virt_call window, pref_size, {shared.shared_window}, {width, height}
@@ -79,7 +79,7 @@
 
 	;app event loop
 	func_call sys_task, mailbox, {}, {mymailbox, _}
-	loop_start
+	(loop-start)
 		;select on multiple mailboxes
 		func_call master, select, {shared.shared_master, mymailbox}, {mailbox}
 
@@ -104,7 +104,7 @@
 			endif
 		endif
 		func_call sys_task, yield
-	loop_end
+	(loop-end)
 
 	;clean up
 	func_call vector, deref, {shared.shared_history}
@@ -128,7 +128,7 @@ pipe_output:
 	push_scope
 	retire {r0, r1}, {shared, stream}
 
-	loop_start
+	(loop-start)
 			func_call stream, read_char, {stream}, {char}
 		breakif {char == -1}
 		local_call terminal_output, {shared, char}, {r0, r1}

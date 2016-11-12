@@ -31,7 +31,7 @@
 		assign {ids[cnt * id_size].id_cpu}, {msg->msg_dest.id_cpu}
 		func_call sys_mail, send, {msg}
 		func_call sys_task, yield
-	loop_end
+	(loop-end)
 
 	;free name and ID array
 	func_call string, deref, {name}

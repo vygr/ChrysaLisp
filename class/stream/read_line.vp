@@ -26,7 +26,7 @@
 	endif
 
 	assign {buffer, buffer + buffer_end}, {start, buffer_end}
-	loop_start
+	(loop-start)
 		func_call stream, read_char, {inst}, {char}
 		continueif {char == 13}
 		breakif {char == 10 || char < 0}

@@ -9,9 +9,9 @@
 	;r0 = master object
 	;r1 = input stream object
 
-	vp_cpy [r0 + master_streams], r1
-	vp_cpy [r1 + vector_array], r1
-	vp_cpy [r1], r1
-	vp_ret
+	(vp-cpy-ir r0 master_streams r1)
+	(vp-cpy-ir r1 vector_array r1)
+	(vp-cpy-ir r1 r1)
+	(vp-ret)
 
 (def-func-end)

@@ -24,7 +24,7 @@
 		assign {*buffer}, {char}
 		assign {buffer + 1}, {buffer}
 		func_call stream, write_char, {inst, char}
-	loop_end
+	(loop-end)
 
 	eval {inst}, {r0}
 	pop_scope

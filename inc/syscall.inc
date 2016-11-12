@@ -113,18 +113,18 @@
 
 %macro sys_exit 1
 	;return code
-	set_src %1
-	set_dst r7
-	map_src_to_dst
+	(set-src %1)
+	(set-dst r7)
+	(map-src-to-dst)
 	sys_call sys_exit + 0x2000000
 %endmacro
 
 %macro sys_read 3
 	;fd, buffer, length
 	push_trashed
-	set_src %1, %2, %3
-	set_dst r7, r6, r2
-	map_src_to_dst
+	(set-src %1, %2, %3)
+	(set-dst r7, r6, r2)
+	(map-src-to-dst)
 	sys_call sys_read + 0x2000000
 	pop_trashed
 %endmacro
@@ -133,10 +133,10 @@
 	;fd
 	push_trashed
 	vp_push 0
-	set_src %1
-	set_dst r7
-	map_src_to_dst
-	vp_cpy r4, r6
+	(set-src %1)
+	(set-dst r7)
+	(map-src-to-dst)
+	(vp-cpy-rr r4 r6)
 	vp_cpy 1, r2
 	sys_call sys_read + 0x2000000
 	vp_pop r0
@@ -147,9 +147,9 @@
 	;fd, string, length
 	push_trashed
 	vp_push r0
-	set_src %1, %2, %3
-	set_dst r7, r6, r2
-	map_src_to_dst
+	(set-src %1, %2, %3)
+	(set-dst r7, r6, r2)
+	(map-src-to-dst)
 	sys_call sys_write + 0x2000000
 	vp_pop r0
 	pop_trashed
@@ -159,13 +159,13 @@
 	;fd, char
 	push_trashed
 	vp_push r0, %2
-	set_src %1
-	set_dst r7
-	map_src_to_dst
-	vp_cpy r4, r6
+	(set-src %1)
+	(set-dst r7)
+	(map-src-to-dst)
+	(vp-cpy-rr r4 r6)
 	vp_cpy 1, r2
 	sys_call sys_write + 0x2000000
-	vp_add 8, r4
+	(vp-add-cr 8 r4)
 	vp_pop r0
 	pop_trashed
 %endmacro
@@ -173,9 +173,9 @@
 %macro sys_mmap 6
 	;addr, len, prot, flags, fd, pos
 	push_trashed
-	set_src %1, %2, %3, %4, %5, %6
-	set_dst r7, r6, r2, r10, r8, r9
-	map_src_to_dst
+	(set-src %1, %2, %3, %4, %5, %6)
+	(set-dst r7, r6, r2, r10, r8, r9)
+	(map-src-to-dst)
 	sys_call sys_mmap + 0x2000000
 	pop_trashed
 %endmacro
@@ -183,9 +183,9 @@
 %macro sys_mprotect 3
 	;addr, len, prot
 	push_trashed
-	set_src %1, %2, %3
-	set_dst r7, r6, r2
-	map_src_to_dst
+	(set-src %1, %2, %3)
+	(set-dst r7, r6, r2)
+	(map-src-to-dst)
 	sys_call sys_mprotect + 0x2000000
 	pop_trashed
 %endmacro
@@ -193,9 +193,9 @@
 %macro sys_munmap 2
 	;addr, len
 	push_trashed
-	set_src %1, %2
-	set_dst r7, r6
-	map_src_to_dst
+	(set-src %1, %2)
+	(set-dst r7, r6)
+	(map-src-to-dst)
 	sys_call sys_munmap + 0x2000000
 	pop_trashed
 %endmacro
@@ -203,9 +203,9 @@
 %macro sys_stat 2
 	;path, buffer
 	push_trashed
-	set_src %1, %2
-	set_dst r7, r6
-	map_src_to_dst
+	(set-src %1, %2)
+	(set-dst r7, r6)
+	(map-src-to-dst)
 	sys_call sys_stat + 0x2000000
 	pop_trashed
 %endmacro
@@ -213,9 +213,9 @@
 %macro sys_open 3
 	;path, flags, mode
 	push_trashed
-	set_src %1, %2, %3
-	set_dst r7, r6, r2
-	map_src_to_dst
+	(set-src %1, %2, %3)
+	(set-dst r7, r6, r2)
+	(map-src-to-dst)
 	sys_call sys_open + 0x2000000
 	pop_trashed
 %endmacro
@@ -223,9 +223,9 @@
 %macro sys_close 1
 	;fd
 	push_trashed
-	set_src %1
-	set_dst r7
-	map_src_to_dst
+	(set-src %1)
+	(set-dst r7)
+	(map-src-to-dst)
 	sys_call sys_close + 0x2000000
 	pop_trashed
 %endmacro
@@ -233,9 +233,9 @@
 %macro sys_ftruncate 2
 	;fd, offset
 	push_trashed
-	set_src %1, %2
-	set_dst r7, r6
-	map_src_to_dst
+	(set-src %1, %2)
+	(set-dst r7, r6)
+	(map-src-to-dst)
 	sys_call sys_ftruncate + 0x2000000
 	pop_trashed
 %endmacro
@@ -243,9 +243,9 @@
 %macro sys_unlink 1
 	;name
 	push_trashed
-	set_src %1
-	set_dst r7
-	map_src_to_dst
+	(set-src %1)
+	(set-dst r7)
+	(map-src-to-dst)
 	sys_call sys_unlink + 0x2000000
 	pop_trashed
 %endmacro
@@ -254,13 +254,13 @@
 	;time, timezone
 	push_trashed
 	vp_push %1
-	set_src %1, %2
-	set_dst r7, r6
-	map_src_to_dst
+	(set-src %1, %2)
+	(set-dst r7, r6)
+	(map-src-to-dst)
 	sys_call sys_gettimeofday + 0x2000000
 	vp_pop r1
-	vp_cpy r0, [r1 + timeval_sec]
-	vp_cpy r2, [r1 + timeval_usec]
+	(vp-cpy-ri r0 r1 timeval_sec)
+	(vp-cpy-ri r2 r1 timeval_usec)
 	pop_trashed
 %endmacro
 
@@ -354,18 +354,18 @@
 
 %macro sys_exit 1
 	;return code
-	set_src %1
-	set_dst r7
-	map_src_to_dst
+	(set-src %1)
+	(set-dst r7)
+	(map-src-to-dst)
 	sys_call sys_exit
 %endmacro
 
 %macro sys_read 3
 	;fd, buffer, length
 	push_trashed
-	set_src %1, %2, %3
-	set_dst r7, r6, r2
-	map_src_to_dst
+	(set-src %1, %2, %3)
+	(set-dst r7, r6, r2)
+	(map-src-to-dst)
 	sys_call sys_read
 	pop_trashed
 %endmacro
@@ -374,10 +374,10 @@
 	;fd
 	push_trashed
 	vp_push 0
-	set_src %1
-	set_dst r7
-	map_src_to_dst
-	vp_cpy r4, r6
+	(set-src %1)
+	(set-dst r7)
+	(map-src-to-dst)
+	(vp-cpy-rr r4 r6)
 	vp_cpy 1, r2
 	sys_call sys_read
 	vp_pop r0
@@ -388,9 +388,9 @@
 	;fd, string, length
 	push_trashed
 	vp_push r0
-	set_src %1, %2, %3
-	set_dst r7, r6, r2
-	map_src_to_dst
+	(set-src %1, %2, %3)
+	(set-dst r7, r6, r2)
+	(map-src-to-dst)
 	sys_call sys_write
 	vp_pop r0
 	pop_trashed
@@ -400,13 +400,13 @@
 	;fd, char
 	push_trashed
 	vp_push r0, %2
-	set_src %1
-	set_dst r7
-	map_src_to_dst
-	vp_cpy r4, r6
+	(set-src %1)
+	(set-dst r7)
+	(map-src-to-dst)
+	(vp-cpy-rr r4 r6)
 	vp_cpy 1, r2
 	sys_call sys_write
-	vp_add 8, r4
+	(vp-add-cr 8 r4)
 	vp_pop r0
 	pop_trashed
 %endmacro
@@ -414,9 +414,9 @@
 %macro sys_mmap 6
 	;addr, len, prot, flags, fd, pos
 	push_trashed
-	set_src %1, %2, %3, %4, %5, %6
-	set_dst r7, r6, r2, r10, r8, r9
-	map_src_to_dst
+	(set-src %1, %2, %3, %4, %5, %6)
+	(set-dst r7, r6, r2, r10, r8, r9)
+	(map-src-to-dst)
 	sys_call sys_mmap
 	pop_trashed
 %endmacro
@@ -424,9 +424,9 @@
 %macro sys_mprotect 3
 	;addr, len, prot
 	push_trashed
-	set_src %1, %2, %3
-	set_dst r7, r6, r2
-	map_src_to_dst
+	(set-src %1, %2, %3)
+	(set-dst r7, r6, r2)
+	(map-src-to-dst)
 	sys_call sys_mprotect
 	pop_trashed
 %endmacro
@@ -434,9 +434,9 @@
 %macro sys_munmap 2
 	;addr, len
 	push_trashed
-	set_src %1, %2
-	set_dst r7, r6
-	map_src_to_dst
+	(set-src %1, %2)
+	(set-dst r7, r6)
+	(map-src-to-dst)
 	sys_call sys_munmap
 	pop_trashed
 %endmacro
@@ -444,9 +444,9 @@
 %macro sys_stat 2
 	;path, buffer
 	push_trashed
-	set_src %1, %2
-	set_dst r7, r6
-	map_src_to_dst
+	(set-src %1, %2)
+	(set-dst r7, r6)
+	(map-src-to-dst)
 	sys_call sys_stat
 	pop_trashed
 %endmacro
@@ -454,9 +454,9 @@
 %macro sys_open 3
 	;path, flags, mode
 	push_trashed
-	set_src %1, %2, %3
-	set_dst r7, r6, r2
-	map_src_to_dst
+	(set-src %1, %2, %3)
+	(set-dst r7, r6, r2)
+	(map-src-to-dst)
 	sys_call sys_open
 	pop_trashed
 %endmacro
@@ -464,9 +464,9 @@
 %macro sys_close 1
 	;fd
 	push_trashed
-	set_src %1
-	set_dst r7
-	map_src_to_dst
+	(set-src %1)
+	(set-dst r7)
+	(map-src-to-dst)
 	sys_call sys_close
 	pop_trashed
 %endmacro
@@ -474,9 +474,9 @@
 %macro sys_ftruncate 2
 	;fd, offset
 	push_trashed
-	set_src %1, %2
-	set_dst r7, r6
-	map_src_to_dst
+	(set-src %1, %2)
+	(set-dst r7, r6)
+	(map-src-to-dst)
 	sys_call sys_ftruncate
 	pop_trashed
 %endmacro
@@ -484,9 +484,9 @@
 %macro sys_unlink 1
 	;name
 	push_trashed
-	set_src %1
-	set_dst r7
-	map_src_to_dst
+	(set-src %1)
+	(set-dst r7)
+	(map-src-to-dst)
 	sys_call sys_unlink
 	pop_trashed
 %endmacro
@@ -494,9 +494,9 @@
 %macro sys_gettimeofday 2
 	;time, timezone
 	push_trashed
-	set_src %1, %2
-	set_dst r7, r6
-	map_src_to_dst
+	(set-src %1, %2)
+	(set-dst r7, r6)
+	(map-src-to-dst)
 	sys_call sys_gettimeofday
 	pop_trashed
 %endmacro

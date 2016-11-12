@@ -346,7 +346,7 @@
 	;%3 = list node look ahead
 
 	lh_get_head %1, %3
-	loop_start
+	(loop-start)
 		vp_cpy %3, %2
 		ln_get_succ %3, %3
 		breakif %3, ==, 0
@@ -363,7 +363,7 @@
 	;%3 = list node look ahead
 
 	lh_get_tail %1, %3
-	loop_start
+	(loop-start)
 		vp_cpy %3, %2
 		ln_get_pred %3, %3
 		breakif %3, ==, 0
@@ -382,7 +382,7 @@
 	%ifnidn %1, %2
 		vp_lea [%1], %2
 	%endif
-	loop_start
+	(loop-start)
 		ln_next_fnode %2, %3
 %endmacro
 

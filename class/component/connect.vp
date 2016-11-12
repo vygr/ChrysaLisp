@@ -12,31 +12,31 @@
 	;all but r0, r4
 
 	;save inputs
-	set_src r0, r1, r2, r3
-	set_dst r5, r6, r7, r8
-	map_src_to_dst
+	(set-src r0, r1, r2, r3)
+	(set-dst r5, r6, r7, r8)
+	(map-src-to-dst)
 
 	;gui sigslot heap
-	f_bind gui_gui, statics, r0
-	vp_add gui_statics_sigslot_heap, r0
+	(f-bind 'gui_gui 'statics r0)
+	(vp-add-cr gui_statics_sigslot_heap r0)
 
 	;create sigslot record
 	f_call sys_heap, alloc, {r0}, {r1}
 	assert r1, !=, 0
 
 	;fill in target and method
-	vp_cpy r7, [r1 + gui_sigslot_inst]
-	vp_cpy r8, [r1 + gui_sigslot_addr]
+	(vp-cpy-ri r7 r1 gui_sigslot_inst)
+	(vp-cpy-ri r8 r1 gui_sigslot_addr)
 
 	;add to sig and slot lists
-	vp_lea [r1 + gui_sigslot_sig_node], r2
+	(vp-lea r1 gui_sigslot_sig_node r2)
 	lh_add_at_tail r6, r2, r3
-	vp_lea [r1 + gui_sigslot_slot_node], r2
-	vp_lea [r5 + component_slot_list], r6
+	(vp-lea r1 gui_sigslot_slot_node r2)
+	(vp-lea r5 component_slot_list r6)
 	lh_add_at_tail r6, r2, r3
 
 	;restore inst
-	vp_cpy r5, r0
-	vp_ret
+	(vp-cpy-rr r5 r0)
+	(vp-ret)
 
 (def-func-end)

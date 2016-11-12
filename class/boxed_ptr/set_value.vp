@@ -8,7 +8,7 @@
 	;outputs
 	;r0 = object
 
-	vp_cpy r1, [r0 + boxed_ptr_value]
-	vp_ret
+	(vp-cpy-ri r1 r0 boxed_ptr_value)
+	(vp-ret)
 
 (def-func-end)

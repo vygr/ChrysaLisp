@@ -10,17 +10,17 @@
 	;trashes
 	;r1, r2
 
-	lh_get_head r0, r2
-	loop_start
-		vp_cpy r2, r0
-		ln_get_succ r2, r2
+	(lh-get-head r0 r2)
+	(loop-start)
+		(vp-cpy-rr r2 r0)
+		(ln-get-succ r2 r2)
 		if r2, ==, 0
-			vp_xor r0, r0
-			vp_ret
+			(vp-xor-rr r0 r0)
+			(vp-ret)
 		endif
 		breakif r1, ==, 0
-		vp_dec r1
-	loop_end
-	vp_ret
+		(vp-dec r1)
+	(loop-end)
+	(vp-ret)
 
 (def-func-end)

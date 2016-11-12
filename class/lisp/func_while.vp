@@ -24,7 +24,7 @@
 
 	devirt_call vector, get_length, {args}, {length}
 	if {length >= 1}
-		loop_start
+		(loop-start)
 			func_call vector, get_element, {args, 0}, {value}
 			func_call lisp, repl_eval, {this, value}, {value}
 			breakif {value->obj_vtable == @class/class_error}
@@ -32,7 +32,7 @@
 			func_call vector, for_each, {args, 1, length, $callback, &this}, {_}
 			breakif {value->obj_vtable == @class/class_error}
 			func_call ref, deref, {value}
-		loop_end
+		(loop-end)
 	else
 		func_call error, create, {"(while tst form ...) wrong number of args", args}, {value}
 	endif

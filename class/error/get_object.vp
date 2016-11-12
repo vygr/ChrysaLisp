@@ -8,7 +8,7 @@
 	;r0 = error object
 	;r1 = error payload object
 
-	vp_cpy [r0 + error_object], r1
-	vp_ret
+	(vp-cpy-ir r0 error_object r1)
+	(vp-ret)
 
 (def-func-end)

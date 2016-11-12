@@ -7,8 +7,8 @@
 	;r10 = width
 	;r11 = height
 
-	vp_cpy r10, [r0 + grid_width]
-	vp_cpy r11, [r0 + grid_height]
-	vp_ret
+	(vp-cpy-ri r10 r0 grid_width)
+	(vp-cpy-ri r11 r0 grid_height)
+	(vp-ret)
 
 (def-func-end)

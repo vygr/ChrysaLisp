@@ -29,15 +29,15 @@
 				devirt_call vector, ref_element, {args, index}, {arg}
 				local_call cat_string, {slave, arg, &buffer}, {r0, r1, r2}
 				assign {index + 1}, {index}
-			loop_end
+			(loop-end)
 		else
 			;names from stdin
-			loop_start
+			(loop-start)
 				func_call stream, read_line, {slave->slave_stdin, &buffer, buffer_size}, {length}
 				breakif {length == -1}
 				func_call string, create_from_buffer, {&buffer, length}, {arg}
 				local_call cat_string, {slave, arg, &buffer}, {r0, r1, r2}
-			loop_end
+			(loop-end)
 		endif
 
 		;clean up
@@ -63,13 +63,13 @@ cat_string:
 	func_call string, deref, {arg}
 	if {file}
 		func_call stream_str, create, {file}, {stream}
-		loop_start
+		(loop-start)
 			func_call stream, read_line, {stream, buffer, buffer_size}, {length}
 			breakif {length == -1}
 			func_call stream, write, {slave->slave_stdout, buffer, length}
 			func_call stream, write_char, {slave->slave_stdout, char_lf}
 			func_call sys_task, yield
-		loop_end
+		(loop-end)
 		virt_call stream, write_flush, {slave->slave_stdout}
 		func_call stream, deref, {stream}
 	endif

@@ -48,7 +48,7 @@
 		assign {char}, {*buffer}
 		assign {buffer + 1}, {buffer}
 		func_call stream, read_char, {stream}, {char}
-	loop_end
+	(loop-end)
 	assign {0}, {*buffer}
 
 	;pick base

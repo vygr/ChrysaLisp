@@ -19,10 +19,10 @@
 	(def-struct-end)
 
 	;save inputs
-	vp_sub local_size, r4
-	set_src r0, r1, r2, r3
-	set_dst [r4 + local_name], [r4 + local_line], [r4 + local_string], [r4 + local_long]
-	map_src_to_dst
+	(vp-sub-cr local_size r4)
+	(set-src r0, r1, r2, r3)
+	(set-dst [r4 + local_name], [r4 + local_line], [r4 + local_string], [r4 + local_long])
+	(map-src-to-dst)
 
 	f_call sys_io, string, {[r4 + local_name], 2}
 	f_call sys_io, string, {"< ", 2}
@@ -33,7 +33,7 @@
 	f_call sys_io, number, {[r4 + local_long], 2, 16}
 	f_call sys_io, char, {10, 2}
 
-	vp_add local_size, r4
-	vp_ret
+	(vp-add-cr local_size r4)
+	(vp-ret)
 
 (def-func-end)

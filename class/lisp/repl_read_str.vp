@@ -32,7 +32,7 @@
 		assign {char}, {*buffer}
 		assign {buffer + 1}, {buffer}
 		func_call stream, read_char, {stream}, {char}
-	loop_end
+	(loop-end)
 	func_call stream, read_char, {stream}, {char}
 
 	func_call string, create_from_buffer, {reloc, buffer - reloc}, {string}

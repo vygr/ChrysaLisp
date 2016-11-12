@@ -11,9 +11,9 @@
 	;r1-r3, r5-r6
 
 	;create new stream_msg_out object
-	set_src r0, r1
-	set_dst r5, r6
-	map_src_to_dst
+	(set-src r0, r1)
+	(set-dst r5, r6)
+	(map-src-to-dst)
 
 	f_call stream_msg_out, new, {}, {r0}
 	if r0, !=, 0
@@ -23,9 +23,9 @@
 		if r1, ==, 0
 			;error with init
 			v_call stream_msg_out, delete, {r0}, {}, r1
-			vp_xor r0, r0
+			(vp-xor-rr r0 r0)
 		endif
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

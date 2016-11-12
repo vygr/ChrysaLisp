@@ -32,14 +32,14 @@
 
 		;wait for all stopped, starting with the pipe output, then the error streams
 		devirt_call vector, get_length, {inst->master_streams}, {length}
-		loop_start
+		(loop-start)
 			assign {length - 1}, {length}
 			breakifnot {length}
 			assign {(inst->master_streams->vector_array)[length * ptr_size]}, {stream}
-			loop_start
+			(loop-start)
 				virt_call stream_msg_in, read_next, {stream}, {_}
 			loop_until {stream->stream_msg_in_state == stream_mail_state_stopped}
-		loop_end
+		(loop-end)
 
 		;free streams, select and mailbox array
 		func_call vector, deref, {inst->master_streams}

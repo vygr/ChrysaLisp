@@ -18,28 +18,28 @@
 	(def-struct-end)
 
 	;save inputs
-	vp_sub local_size, r4
-	set_src r0
-	set_dst [r4 + local_inst]
-	map_src_to_dst
+	(vp-sub-cr local_size r4)
+	(set-src r0)
+	(set-dst [r4 + local_inst])
+	(map-src-to-dst)
 
 	;search hash bucket
-	vp_cpy [r0 + unordered_set_buckets], r2
-	vp_cpy [r2 + vector_length], r2
+	(vp-cpy-ir r0 unordered_set_buckets r2)
+	(vp-cpy-ir r2 vector_length r2)
 	if r2, !=, 1
-		vp_cpy r2, [r4 + local_length]
+		(vp-cpy-ri r2 r4 local_length)
 		v_call obj, hash, {r1}, {r0}
-		vp_cpy [r4 + local_length], r1
-		vp_xor r2, r2
-		vp_div_u r1, r2, r0
-		vp_cpy [r4 + local_inst], r0
+		(vp-cpy-ir r4 local_length r1)
+		(vp-xor-rr r2 r2)
+		(vp-div-u r1 r2 r0)
+		(vp-cpy-ir r4 local_inst r0)
 	else
-		vp_xor r2, r2
+		(vp-xor-rr r2 r2)
 	endif
 	f_call vector, get_element, {[r0 + unordered_set_buckets], r2}, {r1}
 
-	vp_cpy [r4 + local_inst], r0
-	vp_add local_size, r4
-	vp_ret
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
 
 (def-func-end)

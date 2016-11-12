@@ -13,9 +13,9 @@
 	;all but r0, r4
 
 	;save inputs
-	set_src r2
-	set_dst [r0 + stream_msg_in_mailbox]
-	map_src_to_dst
+	(set-src r2)
+	(set-dst [r0 + stream_msg_in_mailbox])
+	(map-src-to-dst)
 
 	;init parent
 	s_call stream_msg_in, init, {r0, r1, 0, 0, 0, 0}, {r1}
@@ -24,9 +24,9 @@
 		vp_cpy_cl 0, [r0 + stream_msg_in_seqnum]
 		vp_cpy_cl 0, [r0 + stream_msg_in_ack_seqnum]
 		vp_cpy_cl stream_mail_state_started, [r0 + stream_msg_in_state]
-		vp_lea [r0 + stream_msg_in_list], r1
-		lh_init r1, r2
+		(vp-lea r0 stream_msg_in_list r1)
+		(lh-init r1 r2)
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

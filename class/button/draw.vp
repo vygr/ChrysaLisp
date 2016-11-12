@@ -10,12 +10,12 @@
 	;all but r0, r4
 
 	;draw panel
-	vp_cpy button_border_size, r3
-	vp_cpy [r0 + button_state], r2
+	(vp-cpy-cr button_border_size r3)
+	(vp-cpy-ir r0 button_state r2)
 	vp_and button_state_pressed, r2
 	if r2, !=, 0
-		vp_mul -1, r3
+		(vp-mul-cr -1 r3)
 	endif
-	f_jmp button, draw_panel, {r0, r1, 1, r3}
+	(f-jmp 'button 'draw_panel '(r0, r1, 1, r3))
 
 (def-func-end)

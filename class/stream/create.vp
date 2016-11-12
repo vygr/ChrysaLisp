@@ -13,9 +13,9 @@
 	;r1-r3, r5-r8
 
 	;create new stream object
-	set_src r0, r1, r2, r3
-	set_dst r5, r6, r7, r8
-	map_src_to_dst
+	(set-src r0, r1, r2, r3)
+	(set-dst r5, r6, r7, r8)
+	(map-src-to-dst)
 
 	f_call stream, new, {}, {r0}
 	if r0, !=, 0
@@ -25,9 +25,9 @@
 		if r1, ==, 0
 			;error with init
 			v_call stream, delete, {r0}, {}, r1
-			vp_xor r0, r0
+			(vp-xor-rr r0 r0)
 		endif
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

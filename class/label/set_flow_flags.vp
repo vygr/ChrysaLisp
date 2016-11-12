@@ -10,6 +10,6 @@
 	vp_push r0
 	f_call flow, set_flow_flags, {[r0 + label_flow], r1}
 	vp_pop r0
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

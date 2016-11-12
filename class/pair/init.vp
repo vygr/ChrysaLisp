@@ -11,8 +11,8 @@
 	;r1 = 0 if error, else ok
 
 	;save inputs
-	vp_cpy r2, [r0 + pair_first]
-	vp_cpy r3, [r0 + pair_second]
+	(vp-cpy-ri r2 r0 pair_first)
+	(vp-cpy-ri r3 r0 pair_second)
 
 	;init parent
 	s_jmp pair, init, {r0, r1}, {r1}

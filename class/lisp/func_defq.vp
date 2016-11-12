@@ -21,7 +21,7 @@
 	devirt_call vector, get_length, {args}, {length}
 	if {length >= 2 && !(length & 1)}
 		assign {0, 0}, {index, val}
-		loop_start
+		(loop-start)
 			func_call ref, deref_if, {val}
 			func_call vector, get_element, {args, index}, {var}
 			func_call vector, get_element, {args, index + 1}, {val}

@@ -30,7 +30,7 @@ def_func sys/mem_fill
 				vp_add r0, r1
 				loop_start
 					vp_cpy r2, [r0]
-					vp_add 8, r0
+					vp_add ptr_size, r0
 				loop_until r0, ==, r1
 				vp_ret
 			endif

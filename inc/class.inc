@@ -146,9 +146,9 @@
 	;%3 = paramaters
 	;%4 = slot num
 
-	set_src %3
-	set_dst _map_%1_in_%4
-	map_src_to_dst
+	(set-src %3)
+	(set-dst _map_%1_in_%4)
+	(map-src-to-dst)
 %endmacro
 
 %macro map_outputs 4
@@ -157,9 +157,9 @@
 	;%3 = paramaters
 	;%4 = slot num
 
-	set_src _map_%1_out_%4
-	set_dst %3
-	map_src_to_dst
+	(set-src _map_%1_out_%4)
+	(set-dst %3)
+	(map-src-to-dst)
 %endmacro
 
 %macro func_path 2-3 _function_
@@ -506,10 +506,10 @@
 			if r1, ==, 0
 				;error with init
 				v_call %1, delete, {r0}, {}, r1
-				vp_xor r0, r0
+				(vp-xor-rr r0 r0)
 			endif
 		endif
-		vp_ret
+		(vp-ret)
 	def_func_end
 %endmacro
 
@@ -523,10 +523,10 @@
 		f_call sys_mem, alloc, {%1_size}, {r0, _}
 		if r0, !=, 0
 			;clear object memory
-			vp_cpy r0, r3
+			(vp-cpy-rr r0 r3)
 			f_call sys_mem, clear, {r0, %1_size}, {_}
-			vp_cpy r3, r0
+			(vp-cpy-rr r3 r0)
 		endif
-		vp_ret
+		(vp-ret)
 	def_func_end
 %endmacro

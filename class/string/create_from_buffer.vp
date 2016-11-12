@@ -12,8 +12,8 @@
 	;r1-r3, r5-r7
 
 	;save size of data
-	vp_cpy r0, r6
-	vp_cpy r1, r7
+	(vp-cpy-rr r0 r6)
+	(vp-cpy-rr r1 r7)
 
 	;create new string object
 	f_call string, new, {&[r1 + string_size + 1]}, {r0}
@@ -24,9 +24,9 @@
 		if r1, ==, 0
 			;error with init
 			v_call string, delete, {r0}, {}, r1
-			vp_xor r0, r0
+			(vp-xor-rr r0 r0)
 		endif
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

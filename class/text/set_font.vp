@@ -15,19 +15,19 @@
 	(def-struct-end)
 
 	;save inputs
-	vp_sub local_size, r4
-	set_src r0
-	set_dst [r4 + local_inst]
-	map_src_to_dst
+	(vp-sub-cr local_size r4)
+	(set-src r0)
+	(set-dst [r4 + local_inst])
+	(map-src-to-dst)
 
 	;open font
 	f_call gui_font, open, {r1, r2}, {r0}
 
-	vp_cpy [r4 + local_inst], r1
-	vp_cpy r0, [r1 + text_font]
+	(vp-cpy-ir r4 local_inst r1)
+	(vp-cpy-ri r0 r1 text_font)
 
-	vp_cpy [r4 + local_inst], r0
-	vp_add local_size, r4
-	vp_ret
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
 
 (def-func-end)

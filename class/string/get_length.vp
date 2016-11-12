@@ -8,7 +8,7 @@
 	;r0 = string object
 	;r1 = string length
 
-	vp_cpy [r0 + string_length], r1
-	vp_ret
+	(vp-cpy-ir r0 string_length r1)
+	(vp-ret)
 
 (def-func-end)

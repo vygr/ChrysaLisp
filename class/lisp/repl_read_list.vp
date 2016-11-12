@@ -26,7 +26,7 @@
 	retire {r0, r1, r2}, {this, stream, char}
 
 	;skip "(" and white space
-	loop_start
+	(loop-start)
 		func_call stream, read_char, {stream}, {char}
 	loop_until {char > char_space || char == -1}
 
@@ -41,15 +41,15 @@
 		func_call vector, push_back, {list, ast}
 
 		;skip white space/comments
-		loop_start
+		(loop-start)
 			loop_while {char <= char_space && char != -1}
 				func_call stream, read_char, {stream}, {char}
-			loop_end
+			(loop-end)
 			breakif {char != char_semi}
 			func_call stream, skip_not, {stream, char_lf}
 			func_call stream, read_char, {stream}, {char}
-		loop_end
-	loop_end
+		(loop-end)
+	(loop-end)
 
 	;skip ")"
 	func_call stream, read_char, {stream}, {char}

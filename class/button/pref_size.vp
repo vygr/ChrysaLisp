@@ -11,8 +11,8 @@
 	;all but r0, r4
 
 	s_call button, pref_size, {r0}, {r10, r11}
-	vp_add button_border_size * 2, r10
-	vp_add button_border_size * 2, r11
-	vp_ret
+	(vp-add-cr button_border_size * 2 r10)
+	(vp-add-cr button_border_size * 2 r11)
+	(vp-ret)
 
 (def-func-end)

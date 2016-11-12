@@ -23,12 +23,12 @@
 
 		;read next in sequence
 		assign {0}, {msg}
-		loop_start
+		(loop-start)
 			func_call stream_msg_out, next_seq, {&inst->stream_msg_in_list, msg, \
 												inst->stream_msg_in_seqnum}, {msg}
 			breakif {msg}
 			func_call sys_mail, read, {inst->stream_msg_in_mailbox}, {msg}
-		loop_end
+		(loop-end)
 		assign {inst->stream_msg_in_seqnum + 1}, {inst->stream_msg_in_seqnum}
 
 		;save msg buffer details

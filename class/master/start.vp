@@ -50,7 +50,7 @@
 				func_call string, deref, {string}
 				func_call stream, deref, {stream}
 				assign {index + 1}, {index}
-			loop_end
+			(loop-end)
 			func_call string, deref, {prefix}
 
 			;open command pipeline
@@ -64,7 +64,7 @@
 					assign {started + 1}, {started}
 				endif
 				assign {index + 1}, {index}
-			loop_end
+			(loop-end)
 
 			;error if some didn't start
 			if {started == length}
@@ -81,7 +81,7 @@
 					func_call stream_msg_in, create, {mbox}, {stream}
 					func_call vector, push_back, {inst->master_streams, stream}
 					assign {index + 1}, {index}
-				loop_end
+				(loop-end)
 
 				;send args to pipe elements, wiring up id's as we go
 				func_call sys_mail, init_mailbox, {&mailbox}
@@ -108,7 +108,7 @@
 					;wait for ack
 					func_call sys_mail, read, {&mailbox}, {msg}
 					func_call sys_mem, free, {msg}
-				loop_end
+				(loop-end)
 
 				;create input stream, free the unused space keeper stream
 				assign {*inst->master_streams->vector_array}, {stream}
@@ -127,7 +127,7 @@
 					assign {ids[index * id_size].id_mbox}, {msg->msg_dest.id_mbox}
 					assign {ids[index * id_size].id_cpu}, {msg->msg_dest.id_cpu}
 					func_call sys_mail, send, {msg}
-				loop_end
+				(loop-end)
 			endif
 
 			;free ids

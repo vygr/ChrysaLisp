@@ -18,12 +18,12 @@
 	push_scope
 	retire {r0, r1}, {inst, buffer}
 
-	loop_start
+	(loop-start)
 		assign {*buffer}, {char}
 		breakifnot {char}
 		assign {buffer + 1}, {buffer}
 		func_call stream, write_char, {inst, char}
-	loop_end
+	(loop-end)
 
 	eval {inst}, {r0}
 	pop_scope

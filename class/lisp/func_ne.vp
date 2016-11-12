@@ -68,7 +68,7 @@ callback:
 			func_call ref, ref, {pdata->pdata_value}
 			eval {0}, {r1}
 			return
-		loop_end
+		(loop-end)
 		eval {1}, {r1}
 		return
 	else

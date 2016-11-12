@@ -12,26 +12,26 @@
 
 	if r0, >, mem_block_max_size - ptr_size
 		;error
-		vp_xor r0, r0
-		vp_xor r1, r1
-		vp_ret
+		(vp-xor-rr r0 r0)
+		(vp-xor-rr r1 r1)
+		(vp-ret)
 	endif
-	vp_lea [r0 + ptr_size], r1		;extra bytes for heap pointer
+	(vp-lea r0 ptr_size r1)		;extra bytes for heap pointer
 
 	;find object heap
-	f_bind sys_mem, statics, r0
-	vp_add long_size, r0
+	(f-bind 'sys_mem 'statics r0)
+	(vp-add-cr long_size r0)
 	loop_while r1, >, [r0 + hp_heap_cellsize]
-		vp_add hp_heap_size, r0
-	loop_end
+		(vp-add-cr hp_heap_size r0)
+	(loop-end)
 
 	;allocate object from this heap
 	f_call sys_heap, alloc, {r0}, {r1}
-	vp_cpy r0, [r1]
+	(vp-cpy-ri r0 r1)
 	vp_xchg r0, r1
-	vp_cpy [r1 + hp_heap_cellsize], r1
-	vp_add ptr_size, r0
-	vp_sub ptr_size, r1
-	vp_ret
+	(vp-cpy-ir r1 hp_heap_cellsize r1)
+	(vp-add-cr ptr_size r0)
+	(vp-sub-cr ptr_size r1)
+	(vp-ret)
 
 (def-func-end)

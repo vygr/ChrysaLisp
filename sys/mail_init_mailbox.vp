@@ -7,6 +7,6 @@
 	;r1-r2
 
 	ml_init r0, r1, r2
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

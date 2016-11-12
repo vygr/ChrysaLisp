@@ -44,6 +44,6 @@
 	;return ids array
 	eval {id.id_mbox, id.id_cpu}, {r0, r1}
 	pop_scope
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

@@ -3,16 +3,16 @@
 
 (def-func 'sys/mem_deinit)
 	;get statics
-	f_bind sys_mem, statics, r0
-	vp_cpy r0, r5
+	(f-bind 'sys_mem 'statics r0)
+	(vp-cpy-rr r0 r5)
 
 	;free memory heaps
-	vp_cpy mem_block_min_size, r6	;start object size
-	loop_start
+	(vp-cpy-cr mem_block_min_size r6)	;start object size
+	(loop-start)
 		f_call sys_heap, deinit, {r5}
-		vp_add hp_heap_size, r5
-		vp_add r6, r6
+		(vp-add-cr hp_heap_size r5)
+		(vp-add-rr r6 r6)
 	loop_until r6, >, mem_block_max_size
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

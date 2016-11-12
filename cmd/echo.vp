@@ -29,7 +29,7 @@
 				func_call stream, write_char, {slave->slave_stdout, char_lf}
 				assign {index + 1}, {index}
 				func_call sys_task, yield
-			loop_end
+			(loop-end)
 		endif
 
 		;clean up

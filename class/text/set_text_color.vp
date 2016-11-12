@@ -6,7 +6,7 @@
 	;r0 = text object
 	;r1 = color
 
-	vp_cpy r1, [r0 + text_text_color]
-	vp_ret
+	(vp-cpy-ri r1 r0 text_text_color)
+	(vp-ret)
 
 (def-func-end)

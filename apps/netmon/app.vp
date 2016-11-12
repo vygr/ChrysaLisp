@@ -60,7 +60,7 @@
 
 	;add num cpus progress bars to my app panel
 	assign {0}, {cpu_count}
-	loop_start
+	(loop-start)
 		func_call progress, create, {}, {progress}
 		func_call progress, set_max, {progress, 1}
 		func_call progress, set_color, {progress, 0xff00ff00}
@@ -99,7 +99,7 @@
 	assign {&task_mailbox}, {select.sel_select2}
 
 	;app event loop
-	loop_start
+	(loop-start)
 		;new round of samples ?
 		if {cpu_count ==  cpu_total}
 			;set max_memory level
@@ -107,7 +107,7 @@
 			assign {0}, {total_memory}
 
 			;send out sample commands
-			loop_start
+			(loop-start)
 				assign {cpu_count - 1}, {cpu_count}
 				func_call sys_mail, alloc, {}, {msg}
 				assign {1}, {msg->sample_msg_command}
@@ -156,17 +156,17 @@
 
 		;be friendly
 		func_call sys_task, yield
-	loop_end
+	(loop-end)
 
 	;wait for outstanding replys
 	loop_while {cpu_count != cpu_total}
 		func_call sys_mail, read, {select.sel_select2}, {msg}
 		func_call sys_mem, free, {msg}
 		assign {cpu_count + 1}, {cpu_count}
-	loop_end
+	(loop-end)
 
 	;send out exit commands
-	loop_start
+	(loop-start)
 		assign {cpu_count - 1}, {cpu_count}
 		func_call sys_mail, alloc, {}, {msg}
 		assign {0}, {msg->sample_msg_command}

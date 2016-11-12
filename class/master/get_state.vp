@@ -8,7 +8,7 @@
 	;r0 = master object
 	;r1 = current state
 
-	vp_cpy [r0 + master_state], r1
-	vp_ret
+	(vp-cpy-ir r0 master_state r1)
+	(vp-ret)
 
 (def-func-end)

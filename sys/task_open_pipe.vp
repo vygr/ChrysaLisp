@@ -53,11 +53,11 @@
 
 		;next pipe worker
 		assign {index + 1}, {index}
-	loop_end
+	(loop-end)
 
 	;return ids array
 	eval {ids}, {r0}
 	pop_scope
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

@@ -11,8 +11,8 @@
 	;r1-r3, r5-r7
 
 	;save data
-	vp_cpy r0, r6
-	vp_cpy r1, r7
+	(vp-cpy-rr r0 r6)
+	(vp-cpy-rr r1 r7)
 
 	;create new string object
 	f_call pair, new, {}, {r0}
@@ -23,9 +23,9 @@
 		if r1, ==, 0
 			;error with init
 			v_call pair, delete, {r0}, {}, r1
-			vp_xor r0, r0
+			(vp-xor-rr r0 r0)
 		endif
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

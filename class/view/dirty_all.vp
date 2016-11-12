@@ -9,12 +9,12 @@
 
 	;iterate through views
 	;dirty all
-	f_jmp view, forward_tree, {r0, r0, $dirty_down_callback, $null_up_callback}
+	(f-jmp 'view 'forward_tree '(r0, r0, $dirty_down_callback, $null_up_callback))
 
 dirty_down_callback:
 	f_call view, dirty, {r0}
-	vp_cpy r0, r1
+	(vp-cpy-rr r0 r1)
 null_up_callback:
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

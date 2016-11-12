@@ -8,15 +8,15 @@
 	;r1-r2
 
 	;test parent
-	vp_cpy [r0 + view_parent], r1
+	(vp-cpy-ir r0 view_parent r1)
 	if r1, !=, 0
 		;clear parent field
 		vp_cpy_cl 0, [r0 + view_parent]
 
 		;remove from parent list
-		vp_lea [r0 + view_node], r2
-		ln_remove_node r2, r1
+		(vp-lea r0 view_node r2)
+		(ln-remove-node r2 r1)
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

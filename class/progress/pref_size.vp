@@ -10,8 +10,8 @@
 	;trashes
 	;all but r0, r4
 
-	vp_cpy 256, r10
-	vp_cpy 10, r11
-	vp_ret
+	(vp-cpy-cr 256 r10)
+	(vp-cpy-cr 10 r11)
+	(vp-ret)
 
 (def-func-end)

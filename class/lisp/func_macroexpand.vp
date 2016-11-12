@@ -21,7 +21,7 @@
 	devirt_call vector, get_length, {args}, {length}
 	if (length == 1)
 		func_call lisp, func_copy, {this, args}, {value}
-		loop_start
+		(loop-start)
 			func_call lisp, repl_expand, {this, &value}, {length}
 		loop_until {length}
 	else

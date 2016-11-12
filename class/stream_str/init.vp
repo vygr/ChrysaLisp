@@ -17,6 +17,6 @@
 	if r1, !=, 0
 		;init myself
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

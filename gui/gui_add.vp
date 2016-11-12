@@ -8,7 +8,7 @@
 	;trashes
 	;r1-r3
 
-	f_bind gui_gui, statics, r1
-	f_jmp view, add_front, {r0, [r1 + gui_statics_screen]}
+	(f-bind 'gui_gui 'statics r1)
+	(f-jmp 'view 'add_front '(r0, [r1 + gui_statics_screen]))
 
 (def-func-end)

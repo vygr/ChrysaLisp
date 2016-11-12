@@ -14,6 +14,6 @@
 		;init myself
 		vp_cpy_cl 1, [r0 + ref_count]
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

@@ -26,6 +26,6 @@
 
 	eval {inst, splits}, {r0, r1}
 	pop_scope
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

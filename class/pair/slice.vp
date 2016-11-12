@@ -11,7 +11,7 @@
 	;r1 = slice pair object
 
 	f_call pair, ref, {r0}
-	vp_cpy r0, r1
-	vp_ret
+	(vp-cpy-rr r0 r1)
+	(vp-ret)
 
 (def-func-end)

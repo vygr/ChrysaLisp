@@ -42,7 +42,7 @@
 									name->string_length + 1}, {_, _}
 		func_call sys_mail, send, {msg}
 		assign {index + 1}, {index}
-	loop_end
+	(loop-end)
 
 	;wait for replys
 	loop_while {index != 0}
@@ -51,11 +51,11 @@
 		assign {msg->kn_msg_reply_id.id_mbox}, {msg->kn_msg_user->id_mbox}
 		assign {msg->kn_msg_reply_id.id_cpu}, {msg->kn_msg_user->id_cpu}
 		func_call sys_mem, free, {msg}
-	loop_end
+	(loop-end)
 
 	;return ids array
 	eval {ids}, {r0}
 	pop_scope
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

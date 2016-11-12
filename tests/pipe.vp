@@ -23,7 +23,7 @@
 		func_call string, create_from_cstr, {"tests/pipe_child"}, {name}
 		func_call vector, push_back, {tasks, name}
 		assign {cnt + 1}, {cnt}
-	loop_end
+	(loop-end)
 
 	;open pipe
 	func_call sys_task, open_pipe, {tasks}, {ids}
@@ -37,7 +37,7 @@
 		assign {ids[cnt * id_size].id_cpu}, {msg->msg_dest.id_cpu}
 		func_call sys_mail, send, {msg}
 		func_call sys_task, yield
-	loop_end
+	(loop-end)
 
 	;free vector and ID array
 	func_call vector, deref, {tasks}

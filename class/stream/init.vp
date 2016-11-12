@@ -15,16 +15,16 @@
 	;all but r0, r4
 
 	;save inputs
-	vp_add r5, r6
-	set_src r2, r3, r5, r6
-	set_dst [r0 + stream_object], [r0 + stream_buffer], [r0 + stream_bufp], [r0 + stream_bufe]
-	map_src_to_dst
+	(vp-add-rr r5 r6)
+	(set-src r2, r3, r5, r6)
+	(set-dst [r0 + stream_object], [r0 + stream_buffer], [r0 + stream_bufp], [r0 + stream_bufe])
+	(map-src-to-dst)
 
 	;init parent
 	s_call stream, init, {r0, r1}, {r1}
 	if r1, !=, 0
 		;init myself
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

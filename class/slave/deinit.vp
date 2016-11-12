@@ -25,7 +25,7 @@
 	virt_call stream_msg_out, write_flush, {inst->slave_stdout}
 
 	;wait for stopped
-	loop_start
+	(loop-start)
 		virt_call stream_msg_in, read_next, {inst->slave_stdin}, {_}
 	loop_until {inst->slave_stdin->stream_msg_in_state == stream_mail_state_stopped}
 

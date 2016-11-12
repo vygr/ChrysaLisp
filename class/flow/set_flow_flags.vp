@@ -6,7 +6,7 @@
 	;r0 = view object
 	;r1 = flags
 
-	vp_cpy r1, [r0 + flow_flags]
-	vp_ret
+	(vp-cpy-ri r1 r0 flow_flags)
+	(vp-ret)
 
 (def-func-end)

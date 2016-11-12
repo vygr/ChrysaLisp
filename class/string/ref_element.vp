@@ -12,6 +12,6 @@
 	vp_push r0
 	f_call string, create_from_buffer, {&[r0 + r1 + string_data], 1}, {r1}
 	vp_pop r0
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

@@ -32,16 +32,16 @@
 				func_call vector, get_element, {args, index}, {arg}
 				func_call unordered_set, insert, {set, arg}, {_, _}
 				assign {index + 1}, {index}
-			loop_end
+			(loop-end)
 		else
 			;from stdin
-			loop_start
+			(loop-start)
 				func_call stream, read_line, {slave->slave_stdin, &buffer, buffer_size}, {length}
 				breakif {length == -1}
 				func_call string, create_from_buffer, {&buffer, length}, {arg}
 				func_call unordered_set, insert, {set, arg}, {_, _}
 				func_call string, deref, {arg}
-			loop_end
+			(loop-end)
 		endif
 
 		;output string set

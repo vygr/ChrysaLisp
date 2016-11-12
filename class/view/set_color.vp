@@ -7,7 +7,7 @@
 	;r1 = color
 
 	;set color info
-	vp_cpy r1, [r0 + view_color]
-	vp_ret
+	(vp-cpy-ri r1 r0 view_color)
+	(vp-ret)
 
 (def-func-end)

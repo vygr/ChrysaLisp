@@ -10,14 +10,14 @@
 	;r2
 
 	;walk up tree to parent
-	vp_cpy r0, r2
+	(vp-cpy-rr r0 r2)
 	loop_while r2, !=, 0
-		vp_cpy [r2 + view_tcb], r1
-		vp_cpy [r2 + view_parent], r2
+		(vp-cpy-ir r2 view_tcb r1)
+		(vp-cpy-ir r2 view_parent r2)
 		continueif r1, ==, 0
-		vp_ret
-	loop_end
-	vp_xor r1, r1
-	vp_ret
+		(vp-ret)
+	(loop-end)
+	(vp-xor-rr r1 r1)
+	(vp-ret)
 
 (def-func-end)

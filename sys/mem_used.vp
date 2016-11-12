@@ -5,8 +5,8 @@
 	;outputs
 	;r0 = amount in bytes
 
-	f_bind sys_mem, statics, r0
-	vp_cpy [r0], r0
-	vp_ret
+	(f-bind 'sys_mem 'statics r0)
+	(vp-cpy-ir r0 r0)
+	(vp-ret)
 
 (def-func-end)

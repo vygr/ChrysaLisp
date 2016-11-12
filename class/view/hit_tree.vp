@@ -22,38 +22,38 @@
 
 	;save inputs
 	vp_sub	local_size, r4
-	vp_cpy r0, [r4 + local_inst]
+	(vp-cpy-ri r0 r4 local_inst)
 	vp_cpy_cl 0, [r4 + local_hit]
-	vp_rel early_ret, r1
-	vp_cpy r1, [r4 + local_jump]
+	(vp-rel 'early_ret r1)
+	(vp-cpy-ri r1 r4 local_jump)
 
 	;iterate through views front to back
 	f_call view, forward_tree, {r0, r4, $hit_down_callback, $hit_up_callback}
 
 early_ret:
-	vp_cpy [r4 + local_inst], r0
-	vp_cpy [r4 + local_hit], r1
-	vp_add local_size, r4
-	vp_ret
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_hit r1)
+	(vp-add-cr local_size r4)
+	(vp-ret)
 
 hit_down_callback:
-	vp_sub [r0 + view_x], r8
-	vp_sub [r0 + view_y], r9
-	vp_cpy [r0 + view_flags], r1
+	(vp-sub-ir r0 view_x r8)
+	(vp-sub-ir r0 view_y r9)
+	(vp-cpy-ir r0 view_flags r1)
 	vp_and view_flag_solid, r1
-	vp_ret
+	(vp-ret)
 
 hit_up_callback:
-	vp_cpy r1, r2
+	(vp-cpy-rr r1 r2)
 	v_call view, hit, {r0, r8, r9}, {r1}
 	if r1, !=, 0
 		;early exit back to caller !
-		vp_cpy r2, r4
-		vp_cpy r0, [r2 + local_hit]
+		(vp-cpy-rr r2 r4)
+		(vp-cpy-ri r0 r2 local_hit)
 		vp_jmp [r2 + local_jump]
 	endif
-	vp_add [r0 + view_x], r8
-	vp_add [r0 + view_y], r9
-	vp_ret
+	(vp-add-ir r0 view_x r8)
+	(vp-add-ir r0 view_y r9)
+	(vp-ret)
 
 (def-func-end)

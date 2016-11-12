@@ -25,27 +25,27 @@
 		func_call vector, push_back, {vector, stream}
 
 		;app event loop
-		loop_start
+		(loop-start)
 			;priority to stack input
 			;this allows forth to push include files on this input stack
-			loop_start
+			(loop-start)
 				devirt_call vector, get_length, {vector}, {length}
 				breakifnot {length}
 				func_call vector, ref_back, {vector}, {stream}
 				func_call vector, pop_back, {vector}
-				loop_start
+				(loop-start)
 					func_call stream, read_line, {stream, &buffer, buffer_size}, {length}
 					breakif {length == -1}
 					local_call input, {slave, &buffer, length}, {r0, r1, r2}
-				loop_end
+				(loop-end)
 				func_call stream, deref, {stream}
-			loop_end
+			(loop-end)
 
 			;read stdin, exit if EOF
 			func_call stream, read_line, {slave->slave_stdin, &buffer, buffer_size}, {length}
 			breakif {length == -1}
 			local_call input, {slave, &buffer, length}, {r0, r1, r2}
-		loop_end
+		(loop-end)
 
 		;clean up
 		func_call vector, deref, {vector}
@@ -159,7 +159,7 @@ dic_%3:
 	defword %1, %2, %3, word_inline_comma
 		vp_rel var_%3, t1
 		pushsp t1
-		vp_ret
+		(vp-ret)
 	defword_end
 	align long_size
 var_%3:
@@ -170,7 +170,7 @@ var_%3:
 	defword %1, %2, %3, word_inline_comma
 		vp_cpy %4, t1
 		pushsp t1
-		vp_ret
+		(vp-ret)
 	defword_end
 %endm
 
@@ -183,7 +183,7 @@ defword "@", 0, word_fetch, word_inline_comma
 	loadsp t1
 	vp_cpy [t1], t1
 	storesp t1
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "c@", 0, word_fetchbyte, word_inline_comma
@@ -191,7 +191,7 @@ defword "c@", 0, word_fetchbyte, word_inline_comma
 	loadsp t1
 	vp_cpy_ub [t1], t1
 	storesp t1
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "!", 0, word_store, word_inline_comma
@@ -199,7 +199,7 @@ defword "!", 0, word_store, word_inline_comma
 	popsp t1
 	popsp t2
 	vp_cpy t1, [t2]
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "c!", 0, word_storebyte, word_inline_comma
@@ -207,7 +207,7 @@ defword "c!", 0, word_storebyte, word_inline_comma
 	popsp t1
 	popsp t2
 	vp_cpy_b t1, [t2]
-	vp_ret
+	(vp-ret)
 defword_end
 
 ;;;;;;;;;;;
@@ -220,7 +220,7 @@ defword "+", 0, word_add, word_inline_comma
 	loadsp t2
 	vp_add t1, t2
 	storesp t2
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "-", 0, word_sub, word_inline_comma
@@ -229,16 +229,16 @@ defword "-", 0, word_sub, word_inline_comma
 	loadsp t2
 	vp_sub t1, t2
 	storesp t2
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "*", 0, word_mull, word_inline_comma
 	;( a b -- (a * b))
 	popsp t1
 	loadsp t2
-	vp_mul t1, t2
+	(vp-mul-cr t1 t2)
 	storesp t2
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "/", 0, word_div, word_inline_comma
@@ -248,7 +248,7 @@ defword "/", 0, word_div, word_inline_comma
 	vp_xor t3, t3
 	vp_div t2, t3, t1
 	storesp t1
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "mod", 0, word_mod, word_inline_comma
@@ -258,7 +258,7 @@ defword "mod", 0, word_mod, word_inline_comma
 	vp_xor t3, t3
 	vp_div t2, t3, t1
 	storesp t3
-	vp_ret
+	(vp-ret)
 defword_end
 
 ;;;;;;;;;;;;;;;;;;;
@@ -269,7 +269,7 @@ defword "dup", 0, word_dup, word_inline_comma
 	;( a -- a a )
 	loadsp t1
 	pushsp t1
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "swap", 0, word_swap, word_inline_comma
@@ -278,20 +278,20 @@ defword "swap", 0, word_swap, word_inline_comma
 	loadsp t2, 1
 	storesp t1, 1
 	storesp t2
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "drop", 0, word_drop, word_inline_comma
 	;( a -- )
 	incsp
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "over", 0, word_over, word_inline_comma
 	;( a b -- a b a )
 	loadsp t1, 1
 	pushsp t1
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "rot", 0, word_rot, word_inline_comma
@@ -302,7 +302,7 @@ defword "rot", 0, word_rot, word_inline_comma
 	storesp t2, 2
 	storesp t3, 1
 	storesp t1
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "-rot", 0, word_nrot, word_inline_comma
@@ -313,7 +313,7 @@ defword "-rot", 0, word_nrot, word_inline_comma
 	storesp t3, 2
 	storesp t1, 1
 	storesp t2
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "?dup", 0, word_qdup, word_inline_comma
@@ -322,7 +322,7 @@ defword "?dup", 0, word_qdup, word_inline_comma
 	if t1, !=, 0
 		pushsp t1
 	endif
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "!?dup", 0, word_nqdup, word_inline_comma
@@ -331,7 +331,7 @@ defword "!?dup", 0, word_nqdup, word_inline_comma
 	if t1, ==, 0
 		pushsp t1
 	endif
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "nip", 0, word_nip, word_inline_comma
@@ -339,7 +339,7 @@ defword "nip", 0, word_nip, word_inline_comma
 	loadsp t1
 	incsp
 	storesp t1
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "tuck", 0, word_tuck, word_inline_comma
@@ -350,7 +350,7 @@ defword "tuck", 0, word_tuck, word_inline_comma
 	storesp t2, 2
 	storesp t1, 1
 	storesp t2
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "pick", 0, word_pick, word_inline_comma
@@ -358,7 +358,7 @@ defword "pick", 0, word_pick, word_inline_comma
 	popsp t1
 	loadsp t2, t1
 	pushsp t2
-	vp_ret
+	(vp-ret)
 defword_end
 
 ;;;;;;;;;;;;;;;
@@ -366,11 +366,11 @@ defword_end
 ;;;;;;;;;;;;;;;
 
 defword "call,", 0, word_call_comma, word_call_comma
-	vp_ret
+	(vp-ret)
 defword_end
 
 defword "inline,", 0, word_inline_comma, word_call_comma
-	vp_ret
+	(vp-ret)
 defword_end
 %endif
 

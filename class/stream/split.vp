@@ -26,7 +26,7 @@
 	func_call vector, create, {}, {splits}
 
 	;fill vector with splits
-	loop_start
+	(loop-start)
 		func_call stream, skip, {inst, char}
 		assign {inst->stream_bufp}, {start}
 		func_call stream, skip_not, {inst, char}
@@ -34,7 +34,7 @@
 		breakif {length == 0}
 		func_call string, create_from_buffer, {start, length}, {string}
 		func_call vector, push_back, {splits, string}
-	loop_end
+	(loop-end)
 
 	eval {inst, splits}, {r0, r1}
 	pop_scope

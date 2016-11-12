@@ -10,30 +10,30 @@
 	;all but r0, r4
 
 	;save inputs
-	set_src r0, r1
-	set_dst r7, r6
-	map_src_to_dst
+	(set-src r0, r1)
+	(set-dst r7, r6)
+	(map-src-to-dst)
 
 	;gui sigslot heap
-	f_bind gui_gui, statics, r0
-	vp_add gui_statics_sigslot_heap, r0
+	(f-bind 'gui_gui 'statics r0)
+	(vp-add-cr gui_statics_sigslot_heap r0)
 
 	;disconnect signal
-	loop_list_forward r1, r2, r3
+	(loop-list-forward r1, r2, r3)
 		;remove from slot list
-		vp_sub gui_sigslot_sig_node, r2
-		vp_lea [r2 + gui_sigslot_slot_node], r1
-		ln_remove_node r1, r5
+		(vp-sub-cr gui_sigslot_sig_node r2)
+		(vp-lea r2 gui_sigslot_slot_node r1)
+		(ln-remove-node r1 r5)
 
 		;free sigslot record
-		hp_freecell r0, r2, r1
-	loop_end
+		(hp-freecell r0 r2 r1)
+	(loop-end)
 
 	;clear signal list
-	lh_init r6, r1
+	(lh-init r6 r1)
 
 	;restore inst
-	vp_cpy r7, r0
-	vp_ret
+	(vp-cpy-rr r7 r0)
+	(vp-ret)
 
 (def-func-end)

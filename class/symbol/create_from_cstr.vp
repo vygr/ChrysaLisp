@@ -13,8 +13,8 @@
 	if r0, !=, 0
 		func_path class, symbol
 		fn_bind _function_, r1
-		vp_cpy r1, [r0 + obj_vtable]
+		(vp-cpy-ri r1 r0 obj_vtable)
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

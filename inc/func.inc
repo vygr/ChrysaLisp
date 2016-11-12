@@ -259,9 +259,9 @@ _func_end:
 
 	%ifdef debug_mode
 		vp_push r0, r1, r2, r3, r5, %2
-		vp_rel _func_start + fn_header_pathname, r0
+		(vp-rel '_func_start + fn_header_pathname r0)
 		vp_cpy __LINE__, r1
-		fn_string %1, r2
+		(fn-string %1 r2)
 		vp_pop r3
 		f_call sys_io, debug_long, {r0, r1, r2, r3}
 		vp_pop r0, r1, r2, r3, r5
@@ -275,17 +275,17 @@ _func_end:
 	%ifdef debug_mode
 		%ifidn %2, ''
 			vp_push r0, r1, r2, r3, r5
-			vp_rel _func_start + fn_header_pathname, r0
+			(vp-rel '_func_start + fn_header_pathname r0)
 			vp_cpy __LINE__, r1
-			fn_string %1, r2
-			fn_string '', r3
+			(fn-string %1 r2)
+			(fn-string '' r3)
 			f_call sys_io, debug_str, {r0, r1, r2, r3}
 			vp_pop r0, r1, r2, r3, r5
 		%else
 			vp_push r0, r1, r2, r3, r5, %2
-			vp_rel _func_start + fn_header_pathname, r0
+			(vp-rel '_func_start + fn_header_pathname r0)
 			vp_cpy __LINE__, r1
-			fn_string %1, r2
+			(fn-string %1 r2)
 			vp_pop r3
 			f_call sys_io, debug_str, {r0, r1, r2, r3}
 			vp_pop r0, r1, r2, r3, r5

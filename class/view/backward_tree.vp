@@ -27,47 +27,47 @@
 		(ptr 'local_up)
 	(def-struct-end)
 
-	vp_sub local_size, r4
-	vp_cpy r0, [r4 + local_inst]
-	vp_cpy r1, [r4 + local_data]
-	vp_cpy r2, [r4 + local_down]
-	vp_cpy r3, [r4 + local_up]
-	vp_cpy r0, r1
-	loop_start
+	(vp-sub-cr local_size r4)
+	(vp-cpy-ri r0 r4 local_inst)
+	(vp-cpy-ri r1 r4 local_data)
+	(vp-cpy-ri r2 r4 local_down)
+	(vp-cpy-ri r3 r4 local_up)
+	(vp-cpy-rr r0 r1)
+	(loop-start)
 	down_loop_ctx:
-		vp_cpy r1, r0
+		(vp-cpy-rr r1 r0)
 
 		;down callback
-		vp_cpy [r4 + local_data], r1
-		vp_call [r4 + local_down]
+		(vp-cpy-ir r4 local_data r1)
+		(vp-call-i r4 local_down)
 		breakif r1, ==, 0
 
 		;down to child
 		lh_get_tail r0 + view_list, r1
-		vp_sub view_node, r1
+		(vp-sub-cr view_node r1)
 
 		ln_get_pred r1 + view_node, r2
 	loop_until r2, ==, 0
-	loop_start
+	(loop-start)
 		;up callback
-		vp_cpy [r4 + local_data], r1
-		vp_call [r4 + local_up]
+		(vp-cpy-ir r4 local_data r1)
+		(vp-call-i r4 local_up)
 
 		;back at root ?
 		breakif r0, ==, [r4 + local_inst]
 
 		;across to sibling
 		ln_get_pred r0 + view_node, r1
-		vp_sub view_node, r1
+		(vp-sub-cr view_node r1)
 
 		ln_get_pred r1 + view_node, r2
 		vp_jmpif r2, !=, 0, down_loop_ctx
 
 		;up to parent
-		vp_cpy [r0 + view_parent], r0
-	loop_end
+		(vp-cpy-ir r0 view_parent r0)
+	(loop-end)
 
-	vp_add local_size, r4
-	vp_ret
+	(vp-add-cr local_size r4)
+	(vp-ret)
 
 (def-func-end)

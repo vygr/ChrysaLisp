@@ -13,6 +13,6 @@
 	vp_push r0
 	f_call text, set_font, {[r0 + label_text], r1, r2}
 	vp_pop r0
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

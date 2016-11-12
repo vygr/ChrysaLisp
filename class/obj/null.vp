@@ -3,6 +3,6 @@
 
 (def-func 'class/obj/null)
 
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

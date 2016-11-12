@@ -16,8 +16,8 @@
 	if r10, >, r8
 		if r11, >, r9
 			;run through source region list
-			vp_cpy r1, r5
-			loop_flist_forward r1, r7, r6
+			(vp-cpy-rr r1 r5)
+			(loop-flist-forward r1, r7, r6)
 				;not in contact ?
 				vp_cpy_i [r7 + gui_rect_x], r12
 				continueif r12, >=, r10
@@ -36,7 +36,7 @@
 
 			paste_xyx1y1:
 				;r8 + r9 + r10 + r11 inside
-				vp_ret
+				(vp-ret)
 
 			paste_split1:
 				;jump to correct splitting code
@@ -46,7 +46,7 @@
 
 			paste_yx1y1:
 				;r9 + r10 + r11 inside
-				vp_cpy r12, r10
+				(vp-cpy-rr r12 r10)
 				continue
 
 			paste_split2:
@@ -56,7 +56,7 @@
 
 			paste_xx1y1:
 				;r8 + r10 + r11 inside
-				vp_cpy r13, r11
+				(vp-cpy-rr r13 r11)
 				continue
 
 			paste_split3:
@@ -84,7 +84,7 @@
 
 			paste_xyy1:
 				;r8 + r9 + r11 inside
-				vp_cpy r14, r8
+				(vp-cpy-rr r14 r8)
 				continue
 
 			paste_split5:
@@ -135,14 +135,14 @@
 
 			paste_xyx1:
 				;r8 + r9 + r10 inside
-				vp_cpy r15, r9
+				(vp-cpy-rr r15 r9)
 				continue
 
 			paste_encl:
 				;region is enclosed
-				vp_cpy r7, r1
-				ln_remove_fnode r7, r6
-				hp_freecell r0, r1, r2
+				(vp-cpy-rr r7 r1)
+				(ln-remove-fnode r7 r6)
+				(hp-freecell r0 r1 r2)
 				continue
 
 			paste_x:
@@ -205,7 +205,7 @@
 				vp_cpy_i r13, [r1 + gui_rect_y]
 				vp_cpy_i r14, [r1 + gui_rect_x1]
 				vp_cpy_i r9, [r1 + gui_rect_y1]
-			loop_end
+			(loop-end)
 
 			;create new region ?
 			switch
@@ -222,6 +222,6 @@
 			endswitch
 		endif
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

@@ -13,14 +13,14 @@
 	;trashes
 	;all but r0, r4
 
-	vp_cpy r0, r9
+	(vp-cpy-rr r0 r9)
 	f_call unordered_map, create, {[r0 + unordered_set_key_callback], r1}, {r0}
 	vp_push r0
 	f_call unordered_map, for_each, {r9, $callback, r4}, {_, _}
 	vp_pop r1
-	vp_cpy [r0 + unordered_set_length], r2
-	vp_cpy r2, [r1 + unordered_set_length]
-	vp_ret
+	(vp-cpy-ir r0 unordered_set_length r2)
+	(vp-cpy-ri r2 r1 unordered_set_length)
+	(vp-ret)
 
 callback:
 	;inputs
@@ -29,11 +29,11 @@ callback:
 	;outputs
 	;r1 = 0 if break, else not
 
-	vp_cpy [r0], r2
+	(vp-cpy-ir r0 r2)
 	f_call ref, ref, {[r1]}
 	vp_push r0
 	f_call unordered_map, get_bucket, {r2, [r0 + pair_first]}, {r0}
 	vp_pop r1
-	f_jmp vector, push_back, {r0, r1}
+	(f-jmp 'vector 'push_back '(r0, r1))
 
 (def-func-end)

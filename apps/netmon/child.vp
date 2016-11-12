@@ -7,7 +7,7 @@
 	(ptr 'msg)
 
 	push_scope
-	loop_start
+	(loop-start)
 		;read mail command
 		func_call sys_mail, mymail, {}, {msg}
 		breakifnot {msg->sample_msg_command}
@@ -22,7 +22,7 @@
 
 		;be friendly
 		func_call sys_task, yield
-	loop_end
+	(loop-end)
 	func_call sys_mem, free, {msg}
 	pop_scope
 	return

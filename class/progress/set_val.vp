@@ -9,9 +9,9 @@
 	;r1 = value, clipped to max
 
 	if r1, >, [r0 + progress_max]
-		vp_cpy [r0 + progress_max], r1
+		(vp-cpy-ir r0 progress_max r1)
 	endif
-	vp_cpy r1, [r0 + progress_val]
-	vp_ret
+	(vp-cpy-ri r1 r0 progress_val)
+	(vp-ret)
 
 (def-func-end)

@@ -26,7 +26,7 @@
 	if {func->obj_vtable == @class/class_boxed_ptr}
 		;built in or compiled function
 		eval {this, ast, func}, {r0, r1, r2}
-		vp_call [r2 + boxed_ptr_value]
+		(vp-call-i r2 boxed_ptr_value)
 		retire {r1}, {value}
 	elseif {func->obj_vtable == @class/class_vector}
 		;lambda

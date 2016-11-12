@@ -13,27 +13,27 @@
 	;r1-r3, r5-r12
 
 	;save inputs
-	set_src r0, r1, r2
-	set_dst r9, r10, r11
-	map_src_to_dst
+	(set-src r0, r1, r2)
+	(set-dst r9, r10, r11)
+	(map-src-to-dst)
 
 	;create new vector
 	f_call vector, create, {}, {r12}
-	vp_cpy r11, r1
-	vp_sub r10, r1
+	(vp-cpy-rr r11 r1)
+	(vp-sub-rr r10 r1)
 	f_call vector, set_capacity, {r0, r1}
 
 	;copy elements
-	vp_cpy r10, r5
-	vp_cpy r11, r6
+	(vp-cpy-rr r10 r5)
+	(vp-cpy-rr r11 r6)
 	loop_while r5, !=, r6
 		d_call vector, ref_element, {r9, r5}, {r1}
 		f_call vector, push_back, {r12, r1}
-		vp_inc r5
-	loop_end
+		(vp-inc r5)
+	(loop-end)
 
-	vp_cpy r9, r0
-	vp_cpy r12, r1
-	vp_ret
+	(vp-cpy-rr r9 r0)
+	(vp-cpy-rr r12 r1)
+	(vp-ret)
 
 (def-func-end)

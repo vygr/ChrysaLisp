@@ -8,7 +8,7 @@
 	;r0 = window object
 	;r1 = window panel object
 
-	vp_cpy [r0 + window_panel], r1
-	vp_ret
+	(vp-cpy-ir r0 window_panel r1)
+	(vp-ret)
 
 (def-func-end)

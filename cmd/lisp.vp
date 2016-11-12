@@ -48,7 +48,7 @@
 				func_call vector, clear, {repl_args}
 			endif
 			assign {index + 1}, {index}
-		loop_end
+		(loop-end)
 
 		;REPL from stdin
 		func_call ref, ref, {lisp->lisp_stdin}

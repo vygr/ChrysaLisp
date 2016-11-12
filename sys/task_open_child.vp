@@ -9,7 +9,7 @@
 	;trashes
 	;all but r4
 
-	f_bind sys_task, statics, r1
-	f_jmp sys_task, open_remote, {r0, [r1 + tk_statics_cpu_id]}
+	(f-bind 'sys_task 'statics r1)
+	(f-jmp 'sys_task 'open_remote '(r0, [r1 + tk_statics_cpu_id]))
 
 (def-func-end)

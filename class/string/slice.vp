@@ -13,11 +13,11 @@
 	;r2-r3, r5-r7
 
 	vp_push r0
-	vp_sub r1, r2
-	vp_add string_data, r0
-	vp_add r1, r0
+	(vp-sub-rr r1 r2)
+	(vp-add-cr string_data r0)
+	(vp-add-rr r1 r0)
 	f_call string, create_from_buffer, {r0, r2}, {r1}
 	vp_pop r0
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

@@ -78,7 +78,7 @@
 
 		func_call sys_string, length, {next}, {length}
 		assign {next + length + 1}, {next}
-	loop_end
+	(loop-end)
 
 	;set to pref size
 	virt_call window, pref_size, {window}, {width, height}
@@ -93,7 +93,7 @@
 	func_call window, dirty_all, {window}
 
 	;app event loop
-	loop_start
+	(loop-start)
 		func_call sys_mail, mymail, {}, {msg}
 
 		;dispatch event to view
@@ -101,7 +101,7 @@
 
 		;free event message
 		func_call sys_mem, free, {msg}
-	loop_end
+	(loop-end)
 
 	;deref window
 	func_call window, deref, {window}

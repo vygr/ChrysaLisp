@@ -14,7 +14,7 @@
 	func_call slave, create, {}, {slave}
 	if {slave}
 		;dump stdin till EOF
-		loop_start
+		(loop-start)
 			virt_call stream, read_next, {slave->slave_stdin}, {eof}
 		loop_until {eof == -1}
 

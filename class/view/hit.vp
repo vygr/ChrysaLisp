@@ -15,14 +15,14 @@
 			if r8, <, [r0 + view_w]
 				if r9, <, [r0 + view_h]
 					;hit ?
-					vp_cpy [r0 + view_flags], r1
+					(vp-cpy-ir r0 view_flags r1)
 					vp_and view_flag_solid, r1
-					vp_ret
+					(vp-ret)
 				endif
 			endif
 		endif
 	endif
-	vp_xor r1, r1
-	vp_ret
+	(vp-xor-rr r1 r1)
+	(vp-ret)
 
 (def-func-end)

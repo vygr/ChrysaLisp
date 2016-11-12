@@ -7,6 +7,6 @@
 	;trashes
 	;all but r0, r4
 
-	f_jmp progress, opaque, {r0}
+	(f-jmp 'progress 'opaque '(r0))
 
 (def-func-end)

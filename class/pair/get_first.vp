@@ -8,7 +8,7 @@
 	;r0 = pair object
 	;r1 = object pointer
 
-	vp_cpy [r0 + pair_first], r1
-	vp_ret
+	(vp-cpy-ir r0 pair_first r1)
+	(vp-ret)
 
 (def-func-end)

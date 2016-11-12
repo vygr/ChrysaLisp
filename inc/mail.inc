@@ -84,10 +84,10 @@
 	;trashes
 	;%1, %2
 
-	vp_sub mailbox_size, r4
+	(vp-sub-cr mailbox_size r4)
 	ml_init r4, %1, %2
 %endmacro
 
 %macro ml_temp_destroy 0
-	vp_add mailbox_size, r4
+	(vp-add-cr mailbox_size r4)
 %endmacro

@@ -16,8 +16,8 @@
 	if r10, >, r8
 		if r11, >, r9
 			;run through source region list
-			vp_cpy r1, r5
-			loop_flist_forward r1, r7, r6
+			(vp-cpy-rr r1 r5)
+			(loop-flist-forward r1, r7, r6)
 				;not in contact ?
 				vp_cpy_i [r7 + gui_rect_x], r12
 				continueif r12, >=, r10
@@ -235,9 +235,9 @@
 
 			rem_encl:
 				;region is enclosed
-				vp_cpy r7, r1
-				ln_remove_fnode r7, r6
-				hp_freecell r0, r1, r2
+				(vp-cpy-rr r7 r1)
+				(ln-remove-fnode r7 r6)
+				(hp-freecell r0 r1 r2)
 				continue
 
 			rem_x:
@@ -300,9 +300,9 @@
 				vp_cpy_i r13, [r1 + gui_rect_y]
 				vp_cpy_i r14, [r1 + gui_rect_x1]
 				vp_cpy_i r9, [r1 + gui_rect_y1]
-			loop_end
+			(loop-end)
 		endif
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

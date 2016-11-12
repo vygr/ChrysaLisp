@@ -10,8 +10,8 @@
 
 	vp_push r0
 	f_call ref, ref, {[r0 + pair_first]}
-	vp_cpy r0, r1
+	(vp-cpy-rr r0 r1)
 	vp_pop r0
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

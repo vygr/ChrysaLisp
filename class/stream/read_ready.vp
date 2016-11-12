@@ -10,6 +10,6 @@
 	;trashes
 	;all but r0, r4
 
-	f_jmp stream, available, {r0}
+	(f-jmp 'stream 'available '(r0))
 
 (def-func-end)

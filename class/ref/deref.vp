@@ -8,14 +8,14 @@
 	;all but r4
 
 	;dec ref count
-	vp_cpy [r0 + ref_count], r1
-	vp_dec r1
-	vp_cpy r1, [r0 + ref_count]
+	(vp-cpy-ir r0 ref_count r1)
+	(vp-dec r1)
+	(vp-cpy-ri r1 r0 ref_count)
 
 	;destroy if 0
 	if r1, ==, 0
-		f_jmp ref, destroy, {r0}
+		(f-jmp 'ref 'destroy '(r0))
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

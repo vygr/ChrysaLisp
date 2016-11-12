@@ -15,10 +15,10 @@
 	if r10, >, r8
 		if r11, >, r9
 			;run through source region list
-			vp_cpy r2, r5
-			vp_cpy r1, r6
-			vp_sub 8, r4
-			loop_flist_forward r1, r7, [r4]
+			(vp-cpy-rr r2 r5)
+			(vp-cpy-rr r1 r6)
+			(vp-sub-cr ptr_size r4)
+			(loop-flist-forward r1, r7, [r4])
 				;not in contact ?
 				vp_cpy_i [r7 + gui_rect_x], r12
 				continueif r12, >=, r10
@@ -308,9 +308,9 @@
 
 			cut_encl:
 				;region is enclosed
-				vp_cpy r7, r1
-				vp_cpy [r4], r2
-				ln_remove_fnode r7, r2
+				(vp-cpy-rr r7 r1)
+				(vp-cpy-ir r4 r2)
+				(ln-remove-fnode r7 r2)
 				ln_add_fnode r5, r1, r2
 				continue
 
@@ -422,10 +422,10 @@
 				vp_cpy_i r13, [r1 + gui_rect_y]
 				vp_cpy_i r14, [r1 + gui_rect_x1]
 				vp_cpy_i r9, [r1 + gui_rect_y1]
-			loop_end
-			vp_add 8, r4
+			(loop-end)
+			(vp-add-cr 8 r4)
 		endif
 	endif
-	vp_ret
+	(vp-ret)
 
 (def-func-end)

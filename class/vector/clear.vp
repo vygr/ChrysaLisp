@@ -18,11 +18,11 @@
 	vp_pop r0
 
 	;init myself
-	vp_xor r1, r1
-	vp_cpy r1, [r0 + vector_array]
-	vp_cpy r1, [r0 + vector_length]
-	vp_cpy r1, [r0 + vector_capacity]
-	vp_ret
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r0 vector_array)
+	(vp-cpy-ri r1 r0 vector_length)
+	(vp-cpy-ri r1 r0 vector_capacity)
+	(vp-ret)
 
 callback:
 	;inputs
@@ -32,7 +32,7 @@ callback:
 	;r1 = 0 if break, else not
 
 	f_call ref, deref, {[r1]}
-	vp_cpy 1, r1
-	vp_ret
+	(vp-cpy-cr 1 r1)
+	(vp-ret)
 
 (def-func-end)
