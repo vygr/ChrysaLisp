@@ -16,12 +16,12 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		ptr local_inst
-		ptr local_key
-		ptr local_value
-		ptr local_iter
-		ptr local_bucket
-		ptr local_pair
+		(ptr 'local_inst)
+		(ptr 'local_key)
+		(ptr 'local_value)
+		(ptr 'local_iter)
+		(ptr 'local_bucket)
+		(ptr 'local_pair)
 	(def-struct-end)
 
 	;save inputs

@@ -18,9 +18,9 @@
 		;r0 = child view object
 
 	(def-struct 'local)
-		ptr local_inst
-		ptr local_data
-		ptr local_callback
+		(ptr 'local_inst)
+		(ptr 'local_data)
+		(ptr 'local_callback)
 	(def-struct-end)
 
 	vp_sub local_size, r4

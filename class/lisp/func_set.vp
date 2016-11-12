@@ -11,8 +11,8 @@
 	;r0 = lisp object
 	;r1 = value
 
-	ptr this, args, var, val
-	uint length, index
+	(ptr 'this, args, var, val)
+	(uint 'length, index)
 
 	push_scope
 	retire {r0, r1}, {this, args}

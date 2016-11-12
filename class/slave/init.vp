@@ -14,8 +14,8 @@
 
 	const space_char, ' '
 
-	ptr inst, vtable, stream, msg, mymailbox
-	ulong error
+	(ptr 'inst, vtable, stream, msg, mymailbox)
+	(ulong 'error)
 
 	;read init args
 	push_scope

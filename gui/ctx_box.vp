@@ -12,11 +12,11 @@
 	;all but r4
 
 	(def-struct 'local)
-		struct local_rect, sdl_rect
-		struct local_clip_rect, sdl_rect
-		ptr local_ctx
-		ptr local_dirty_rect
-		ptr local_old_stack
+		(struct 'local_rect 'sdl_rect)
+		(struct 'local_clip_rect 'sdl_rect)
+		(ptr 'local_ctx)
+		(ptr 'local_dirty_rect)
+		(ptr 'local_old_stack)
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl

@@ -10,8 +10,8 @@
 	;trashes
 	;all but r0, r4
 
-	ptr inst
-	long char
+	(ptr 'inst)
+	(long 'char)
 
 	push_scope
 	retire {r0}, {inst}

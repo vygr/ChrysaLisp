@@ -11,8 +11,8 @@
 	;trashes
 	;all
 
-	ptr this, stdin, stdout, stderr
-	ulong ok
+	(ptr 'this, stdin, stdout, stderr)
+	(ulong 'ok)
 
 	push_scope
 	retire {r0, r1, r2}, {stdin, stdout, stderr}

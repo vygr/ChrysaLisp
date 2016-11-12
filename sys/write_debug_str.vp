@@ -12,10 +12,10 @@
 	;r0-r3, r5
 
 	(def-struct 'local)
-		long local_name
-		long local_line
-		long local_string
-		long local_str
+		(long 'local_name)
+		(long 'local_line)
+		(long 'local_string)
+		(long 'local_str)
 	(def-struct-end)
 
 	;save inputs

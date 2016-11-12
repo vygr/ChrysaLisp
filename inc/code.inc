@@ -220,13 +220,13 @@
 ; enums
 ;;;;;;;
 
-%macro def_enum 0-1 0
+%macro (def-enum) 0-1 0
 	;inputs
 	;%1 = start offset
 	%assign _enum_ %1
 %endmacro
 
-%macro def_enum_end 0
+%macro (def-enum-end) 0
 	%undef _enum_
 %endmacro
 
@@ -328,7 +328,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align ptr
 	%rep %0
-		struct %1, ptr, 'p'
+		(struct '%1, ptr ''p')
 		%rotate 1
 	%endrep
 %endmacro
@@ -338,7 +338,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align long
 	%rep %0
-		struct %1, long, 'l'
+		(struct '%1, long ''l')
 		%rotate 1
 	%endrep
 %endmacro
@@ -348,7 +348,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align long
 	%rep %0
-		struct %1, long, 'L'
+		(struct '%1, long ''L')
 		%rotate 1
 	%endrep
 %endmacro
@@ -358,7 +358,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align int
 	%rep %0
-		struct %1, int, 'i'
+		(struct '%1, int ''i')
 		%rotate 1
 	%endrep
 %endmacro
@@ -368,7 +368,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align int
 	%rep %0
-		struct %1, int, 'I'
+		(struct '%1, int ''I')
 		%rotate 1
 	%endrep
 %endmacro
@@ -378,7 +378,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align short
 	%rep %0
-		struct %1, short, 's'
+		(struct '%1, short ''s')
 		%rotate 1
 	%endrep
 %endmacro
@@ -388,7 +388,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align short
 	%rep %0
-		struct %1, short, 'S'
+		(struct '%1, short ''S')
 		%rotate 1
 	%endrep
 %endmacro
@@ -397,7 +397,7 @@ ptr_size	equ 8
 	;inputs
 	;%1 = var names
 	%rep %0
-		struct %1, byte, 'b'
+		(struct '%1, byte ''b')
 		%rotate 1
 	%endrep
 %endmacro
@@ -406,7 +406,7 @@ ptr_size	equ 8
 	;inputs
 	;%1 = var names
 	%rep %0
-		struct %1, byte, 'B'
+		(struct '%1, byte ''B')
 		%rotate 1
 	%endrep
 %endmacro
@@ -416,7 +416,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align ptr
 	%rep %0
-		struct %1, ptr, 'pp'
+		(struct '%1, ptr ''pp')
 		%rotate 1
 	%endrep
 %endmacro
@@ -426,7 +426,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align ptr
 	%rep %0
-		struct %1, ptr, 'pB'
+		(struct '%1, ptr ''pB')
 		%rotate 1
 	%endrep
 %endmacro
@@ -436,7 +436,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align ptr
 	%rep %0
-		struct %1, ptr, 'pS'
+		(struct '%1, ptr ''pS')
 		%rotate 1
 	%endrep
 %endmacro
@@ -446,7 +446,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align ptr
 	%rep %0
-		struct %1, ptr, 'pI'
+		(struct '%1, ptr ''pI')
 		%rotate 1
 	%endrep
 %endmacro
@@ -456,7 +456,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align ptr
 	%rep %0
-		struct %1, ptr, 'pL'
+		(struct '%1, ptr ''pL')
 		%rotate 1
 	%endrep
 %endmacro
@@ -466,7 +466,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align ptr
 	%rep %0
-		struct %1, ptr, 'pb'
+		(struct '%1, ptr ''pb')
 		%rotate 1
 	%endrep
 %endmacro
@@ -476,7 +476,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align ptr
 	%rep %0
-		struct %1, ptr, 'ps'
+		(struct '%1, ptr ''ps')
 		%rotate 1
 	%endrep
 %endmacro
@@ -486,7 +486,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align ptr
 	%rep %0
-		struct %1, ptr, 'pi'
+		(struct '%1, ptr ''pi')
 		%rotate 1
 	%endrep
 %endmacro
@@ -496,7 +496,7 @@ ptr_size	equ 8
 	;%1 = var names
 	local_align ptr
 	%rep %0
-		struct %1, ptr, 'pl'
+		(struct '%1, ptr ''pl')
 		%rotate 1
 	%endrep
 %endmacro

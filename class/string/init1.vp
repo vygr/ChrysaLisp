@@ -11,9 +11,9 @@
 	;r1 = 0 if error, else ok
 
 	(def-struct 'local)
-		ptr local_inst
-		long local_string1
-		long local_string2
+		(ptr 'local_inst)
+		(long 'local_string1)
+		(long 'local_string2)
 	(def-struct-end)
 
 	;save inputs

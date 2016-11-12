@@ -13,19 +13,19 @@
 	buffer_size equ 32
 
 	(def-struct 'shared 'obj)
-		ptr shared_display
-		long shared_accum
-		long shared_value
-		struct shared_buffer, buffer
+		(ptr 'shared_display)
+		(long 'shared_accum)
+		(long 'shared_value)
+		(struct 'shared_buffer 'buffer)
 		ubyte shared_last_op
 		ubyte shared_last_flag
 	(def-struct-end)
 
-	struct myapp, shared
-	ptr msg, window, window_panel, flow_panel, grid_panel, button, pressed, string
+	(struct 'myapp 'shared)
+	(ptr 'msg, window, window_panel, flow_panel, grid_panel, button, pressed, string)
 	pubyte next
-	ulong owner
-	int width, height
+	(ulong 'owner)
+	(int 'width, height)
 	ubyte length
 
 	;init app vars
@@ -123,7 +123,7 @@ on_press:
 	const char_multiply, '*'
 	const char_divide, '/'
 
-	ptr inst, button, button_string, display_string, string, string1, string2
+	(ptr 'inst, button, button_string, display_string, string, string1, string2)
 	pubyte charp
 	ubyte char
 

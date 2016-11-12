@@ -17,8 +17,8 @@
 	const char_space, ' '
 	const char_rab, '>'
 
-	ptr this, stream, pair, first, second
-	ulong char
+	(ptr 'this, stream, pair, first, second)
+	(ulong 'char)
 
 	push_scope
 	retire {r0, r1, r2}, {this, stream, char}

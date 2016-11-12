@@ -9,11 +9,11 @@
 
 (def-func 'apps/launcher/app)
 
-	struct myapp, obj
-	ptr msg, window, window_panel, panel, button, string, pressed
+	(struct 'myapp 'obj)
+	(ptr 'msg, window, window_panel, panel, button, string, pressed)
 	pubyte next
-	ulong owner
-	int width, height
+	(ulong 'owner)
+	(int 'width, height)
 	ubyte length
 
 	;init app vars
@@ -83,7 +83,7 @@ on_press:
 	;r0 = app local object
 	;r1 = button object
 
-	ptr inst, button, string
+	(ptr 'inst, button, string)
 
 	push_scope
 	retire {r0, r1}, {inst, button}

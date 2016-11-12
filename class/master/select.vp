@@ -13,8 +13,8 @@
 	;trashes
 	;all but r0, r4
 
-	ptr inst, mailbox
-	ulong length
+	(ptr 'inst, mailbox)
+	(ulong 'length)
 
 	push_scope
 	retire {r0, r1}, {inst, mailbox}

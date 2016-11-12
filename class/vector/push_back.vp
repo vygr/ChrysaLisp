@@ -12,7 +12,7 @@
 	;r2-r3, r5-r8
 
 	(def-struct 'local)
-		ptr local_object
+		(ptr 'local_object)
 	(def-struct-end)
 
 	;save inputs

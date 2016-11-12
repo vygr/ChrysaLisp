@@ -162,25 +162,25 @@ SDL_BLENDMODE_ADD		equ 2
 SDL_BLENDMODE_MOD		equ 3
 
 (def-struct 'sdl_rect)
-	int sdl_rect_x
-	int sdl_rect_y
-	int sdl_rect_w
-	int sdl_rect_h
+	(int 'sdl_rect_x)
+	(int 'sdl_rect_y)
+	(int 'sdl_rect_w)
+	(int 'sdl_rect_h)
 (def-struct-end)
 
 (def-struct 'sdl_surface)
-	int sdl_flags
-	long sdl_surface_format
-	int sdl_surface_w
-	int sdl_surface_h
-	int sdl_surface_pitch
-	long sdl_surface_pixels
-	long sdl_surface_userdata
-	int sdl_surface_locked
-	long sdl_surface_lockdata
-	struct sdl_surface_clip, sdl_rect
-	long sdl_surface_map
-	int sdl_surface_ref
+	(int 'sdl_flags)
+	(long 'sdl_surface_format)
+	(int 'sdl_surface_w)
+	(int 'sdl_surface_h)
+	(int 'sdl_surface_pitch)
+	(long 'sdl_surface_pixels)
+	(long 'sdl_surface_userdata)
+	(int 'sdl_surface_locked)
+	(long 'sdl_surface_lockdata)
+	(struct 'sdl_surface_clip 'sdl_rect)
+	(long 'sdl_surface_map)
+	(int 'sdl_surface_ref)
 (def-struct-end)
 
 ;;;;;;;;;;;;;

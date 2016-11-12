@@ -14,13 +14,13 @@
 	;all but r4
 
 	(def-struct 'local)
-		ptr local_font
-		ptr local_text
-		ptr local_bucket
-		ulong local_handle
-		long local_surface
-		long local_width
-		long local_height
+		(ptr 'local_font)
+		(ptr 'local_text)
+		(ptr 'local_bucket)
+		(ulong 'local_handle)
+		(long 'local_surface)
+		(long 'local_width)
+		(long 'local_height)
 	(def-struct-end)
 
 	;save inputs

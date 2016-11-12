@@ -10,10 +10,10 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		ptr local_inst
-		ptr local_ctx
-		long local_fill_remain
-		long local_fill_complete
+		(ptr 'local_inst)
+		(ptr 'local_ctx)
+		(long 'local_fill_remain)
+		(long 'local_fill_complete)
 	(def-struct-end)
 
 	;save inputs

@@ -15,9 +15,9 @@
 	;r1-r3
 
 	(def-struct 'local)
-		ptr local_inst
-		ptr local_hit
-		ptr local_jump
+		(ptr 'local_inst)
+		(ptr 'local_hit)
+		(ptr 'local_jump)
 	(def-struct-end)
 
 	;save inputs

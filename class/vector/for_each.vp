@@ -23,11 +23,11 @@
 		;all but r0, r4
 
 	(def-struct 'local)
-		ptr local_inst
-		ptr local_predicate
-		ptr local_predicate_data
-		ptr local_next
-		ptr local_end
+		(ptr 'local_inst)
+		(ptr 'local_predicate)
+		(ptr 'local_predicate_data)
+		(ptr 'local_next)
+		(ptr 'local_end)
 	(def-struct-end)
 
 	;save inputs

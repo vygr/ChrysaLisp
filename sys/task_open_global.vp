@@ -12,9 +12,9 @@
 	;trashes
 	;all but r4
 
-	ptr name, ids, msg
-	ulong length, index
-	struct mailbox, mailbox
+	(ptr 'name, ids, msg)
+	(ulong 'length, index)
+	(struct 'mailbox 'mailbox)
 
 	;save task info
 	push_scope

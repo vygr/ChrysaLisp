@@ -11,8 +11,8 @@
 	;r0 = lisp object
 	;r1 = value
 
-	ptr this, args
-	ulong length
+	(ptr 'this, args)
+	(ulong 'length)
 
 	push_scope
 	retire {r0, r1}, {this, args}
@@ -43,8 +43,8 @@ callback:
 	;r1 = 0 if break, else not
 
 	pptr iter
-	ptr pdata
-	ulong length
+	(ptr 'pdata)
+	(ulong 'length)
 
 	push_scope
 	retire {r0, r1}, {pdata, iter}

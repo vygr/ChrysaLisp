@@ -14,9 +14,9 @@
 	;all but r4
 
 	(def-struct 'local)
-		long local_font
-		long local_points
-		long local_handle
+		(long 'local_font)
+		(long 'local_points)
+		(long 'local_handle)
 	(def-struct-end)
 
 	;save inputs

@@ -14,19 +14,19 @@
 	buffer_size equ 120
 
 	(def-struct 'shared)
-		ptr shared_master, shared_panel, shared_history, shared_window
-		ulong shared_history_index
+		(ptr 'shared_master, shared_panel, shared_history, shared_window)
+		(ulong 'shared_history_index)
 		pubyte shared_bufp
-		struct shared_buffer, buffer
+		(struct 'shared_buffer 'buffer)
 	(def-struct-end)
 
-	struct myapp, obj
-	struct shared, shared
-	struct buffer, buffer
-	ptr msg, stream, window_panel, label, string, mymailbox, mailbox
-	ulong owner, length
-	long state
-	int width, height
+	(struct 'myapp 'obj)
+	(struct 'shared 'shared)
+	(struct 'buffer 'buffer)
+	(ptr 'msg, stream, window_panel, label, string, mymailbox, mailbox)
+	(ulong 'owner, length)
+	(long 'state)
+	(int 'width, height)
 
 	;init app vars
 	push_scope
@@ -121,9 +121,9 @@ pipe_output:
 	;outputs
 	;r0 = -1 if EOF
 
-	ptr shared, stream
-	long char
-	ulong ready
+	(ptr 'shared, stream)
+	(long 'char)
+	(ulong 'ready)
 
 	push_scope
 	retire {r0, r1}, {shared, stream}
@@ -144,8 +144,8 @@ terminal_input:
 	;r0 = shared
 	;r1 = char input
 
-	ptr shared, string, last, stream
-	ulong length, notsame
+	(ptr 'shared, string, last, stream)
+	(ulong 'length, notsame)
 	ubyte char, state
 
 	push_scope
@@ -253,8 +253,8 @@ terminal_output:
 	;r0 = shared
 	;r1 = char output
 
-	ptr shared, label, string, line_string, new_line_string
-	ulong length, char
+	(ptr 'shared, label, string, line_string, new_line_string)
+	(ulong 'length, char)
 
 	push_scope
 	retire {r0, r1}, {shared, char}

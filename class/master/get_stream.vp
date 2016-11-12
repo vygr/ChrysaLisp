@@ -12,8 +12,8 @@
 	;trashes
 	;all but r0, r4
 
-	ptr inst, mailbox
-	ulong index
+	(ptr 'inst, mailbox)
+	(ulong 'index)
 
 	push_scope
 	retire {r0, r1}, {inst, mailbox}

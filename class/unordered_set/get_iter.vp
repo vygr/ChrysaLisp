@@ -14,10 +14,10 @@
 	;r3, r5
 
 	(def-struct 'local)
-		ptr local_inst
-		ptr local_iter
-		ptr local_bucket
-		ulong local_index
+		(ptr 'local_inst)
+		(ptr 'local_iter)
+		(ptr 'local_bucket)
+		(ulong 'local_index)
 	(def-struct-end)
 
 	;save inputs

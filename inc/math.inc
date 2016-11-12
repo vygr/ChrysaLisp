@@ -8,6 +8,6 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class 'sys_math)
-(def-method 'random 'sys/math_random 'static '(r0), '(r0))
+(def-method 'random 'sys/math_random 'static '(r0) '(r0))
 
 %endif

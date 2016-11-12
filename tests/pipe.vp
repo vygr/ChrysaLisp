@@ -11,8 +11,8 @@
 
 	const num_child, 128
 
-	ptr tasks, name, ids, msg
-	ulong cnt
+	(ptr 'tasks, name, ids, msg)
+	(ulong 'cnt)
 
 	push_scope
 

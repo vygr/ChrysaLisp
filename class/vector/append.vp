@@ -13,10 +13,10 @@
 	;r1-r3, r5-r8
 
 	(def-struct 'local)
-		ptr local_inst
-		ptr local_source
-		ulong local_start
-		ulong local_end
+		(ptr 'local_inst)
+		(ptr 'local_source)
+		(ulong 'local_start)
+		(ulong 'local_end)
 	(def-struct-end)
 
 	;save inputs

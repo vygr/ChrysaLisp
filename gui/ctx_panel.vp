@@ -15,14 +15,14 @@
 	;all r4
 
 	(def-struct 'local)
-		ptr local_ctx
-		long local_color
-		long local_flags
-		long local_depth
-		long local_x
-		long local_y
-		long local_w
-		long local_h
+		(ptr 'local_ctx)
+		(long 'local_color)
+		(long 'local_flags)
+		(long 'local_depth)
+		(long 'local_x)
+		(long 'local_y)
+		(long 'local_w)
+		(long 'local_h)
 	(def-struct-end)
 
 	;save inputs

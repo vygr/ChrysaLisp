@@ -16,13 +16,13 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		ptr local_obj	;must be first !
-		ptr local_inst
-		ptr local_callback
-		ulong local_start_bucket
-		ulong local_start_elem
-		ulong local_end_bucket
-		ulong local_end_elem
+		(ptr 'local_obj	;must be first !)
+		(ptr 'local_inst)
+		(ptr 'local_callback)
+		(ulong 'local_start_bucket)
+		(ulong 'local_start_elem)
+		(ulong 'local_end_bucket)
+		(ulong 'local_end_elem)
 	(def-struct-end)
 
 	;save inputs

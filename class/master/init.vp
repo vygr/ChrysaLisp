@@ -11,8 +11,8 @@
 	;trashes
 	;all but r0, r4
 
-	ptr inst, vtable
-	ulong error
+	(ptr 'inst, vtable)
+	(ulong 'error)
 
 	;read init args
 	push_scope

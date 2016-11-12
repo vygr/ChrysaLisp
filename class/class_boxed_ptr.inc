@@ -7,14 +7,14 @@
 (def-method 'create 'class/boxed_ptr/create)
 (def-method 'new 'class/boxed_ptr/new)
 (def-method 'init 'class/boxed_ptr/init)
-(def-method 'get_value 'class/boxed_ptr/get_value 'static '(r0), '(r1))
-(def-method 'set_value 'class/boxed_ptr/set_value 'static '(r0, r1))
-(def-method 'get_flags 'class/boxed_ptr/get_flags 'static '(r0), '(r1))
-(def-method 'set_flags 'class/boxed_ptr/set_flags 'static '(r0, r1))
+(def-method 'get_value 'class/boxed_ptr/get_value 'static '(r0) '(r1))
+(def-method 'set_value 'class/boxed_ptr/set_value 'static '(r0 r1))
+(def-method 'get_flags 'class/boxed_ptr/get_flags 'static '(r0) '(r1))
+(def-method 'set_flags 'class/boxed_ptr/set_flags 'static '(r0 r1))
 
 (def-struct 'boxed_ptr 'ref)
-	ptr boxed_ptr_value
-	ulong boxed_ptr_flags
+	(ptr 'boxed_ptr_value)
+	(ulong 'boxed_ptr_flags)
 (def-struct-end)
 
 %endif

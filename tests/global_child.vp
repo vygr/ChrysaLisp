@@ -8,8 +8,8 @@
 
 (def-func 'tests/global_child)
 
-	ptr msg
-	ulong num
+	(ptr 'msg)
+	(ulong 'num)
 
 	push_scope
 

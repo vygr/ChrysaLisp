@@ -13,9 +13,9 @@
 	;trashes
 	;all but r0, r4
 
-	ptr inst, splits, string
+	(ptr 'inst, splits, string)
 	pubyte start
-	ulong length
+	(ulong 'length)
 	ubyte char
 
 	;save inputs

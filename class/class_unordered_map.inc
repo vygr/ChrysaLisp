@@ -7,7 +7,7 @@
 (def-method 'create 'class/unordered_map/create)
 (def-method 'find 'class/unordered_map/find)
 (def-method 'copy 'class/unordered_map/copy)
-(def-method 'insert 'class/unordered_map/insert 'static '(r0, r1, r2), '(r1, r2))
+(def-method 'insert 'class/unordered_map/insert 'static '(r0 r1 r2) '(r1 r2))
 
 (def-method 'slice 'class/unordered_map/slice 'override)
 

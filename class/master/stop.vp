@@ -10,8 +10,8 @@
 	;trashes
 	;all but r0, r4
 
-	ptr inst, msg, stream
-	ulong length
+	(ptr 'inst, msg, stream)
+	(ulong 'length)
 
 	push_scope
 	retire {r0}, {inst}

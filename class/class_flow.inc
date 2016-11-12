@@ -7,7 +7,7 @@
 (def-method 'create 'class/flow/create)
 (def-method 'new 'class/flow/new)
 (def-method 'init 'class/flow/init)
-(def-method 'set_flow_flags 'class/flow/set_flow_flags 'static '(r0, r1))
+(def-method 'set_flow_flags 'class/flow/set_flow_flags 'static '(r0 r1))
 
 (def-method 'pref_size 'class/flow/pref_size 'override)
 (def-method 'layout 'class/flow/layout 'override)
@@ -30,7 +30,7 @@
 (def-bit-end)
 
 (def-struct 'flow 'view)
-	ulong flow_flags
+	(ulong 'flow_flags)
 (def-struct-end)
 
 %endif

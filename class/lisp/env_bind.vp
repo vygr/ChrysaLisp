@@ -14,8 +14,8 @@
 	;r0 = lisp object
 	;r1 = value
 
-	ptr this, vars, vals, symbol, value
-	ushort len_vars, len_vals, index_vars, index_vals, state
+	(ptr 'this, vars, vals, symbol, value)
+	(ushort 'len_vars, len_vals, index_vars, index_vals, state)
 
 	push_scope
 	retire {r0, r1, r2, r3}, {this, vars, vals, index_vals}

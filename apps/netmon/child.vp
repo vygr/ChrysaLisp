@@ -4,7 +4,7 @@
 (def-func 'apps/netmon/child)
 	;monitor task
 
-	ptr msg
+	(ptr 'msg)
 
 	push_scope
 	loop_start

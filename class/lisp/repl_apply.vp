@@ -14,11 +14,11 @@
 	;r1 = value
 
 	(def-struct 'pdata)
-		ptr pdata_this
-		ptr pdata_value
+		(ptr 'pdata_this)
+		(ptr 'pdata_value)
 	(def-struct-end)
 
-	ptr this, value, func, ast
+	(ptr 'this, value, func, ast)
 
 	push_scope
 	retire {r0, r1, r2}, {this, func, ast}
@@ -30,8 +30,8 @@
 		retire {r1}, {value}
 	elseif {func->obj_vtable == @class/class_vector}
 		;lambda
-		ptr vars
-		ulong length
+		(ptr 'vars)
+		(ulong 'length)
 		push_scope
 		devirt_call vector, get_length, {func}, {length}
 		if {length > 2}
@@ -67,7 +67,7 @@ callback:
 	;r1 = 0 if break, else not
 
 	pptr iter
-	ptr pdata
+	(ptr 'pdata)
 
 	push_scope
 	retire {r0, r1}, {pdata, iter}

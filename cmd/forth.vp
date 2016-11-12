@@ -8,9 +8,9 @@
 
 	buffer_size equ 120
 
-	ptr slave, stream, vector, string
-	ulong length
-	struct buffer, buffer
+	(ptr 'slave, stream, vector, string)
+	(ulong 'length)
+	(struct 'buffer 'buffer)
 
 	;init app vars
 	push_scope
@@ -62,8 +62,8 @@ input:
 
 	const char_lf, 10
 
-	ptr slave, buffer
-	ulong length
+	(ptr 'slave, buffer)
+	(ulong 'length)
 
 	push_scope
 	retire {r0, r1, r2}, {slave, buffer, length}
@@ -124,16 +124,16 @@ F_LENMASK equ 0x1f
 
 ;format of header
 (def-struct 'header)
-	long header_link
+	(long 'header_link)
 	ubyte header_nsize
-	offset header_name
+	(offset 'header_name)
 (def-struct-end)
 
 ;format of header backwards from code entry point
 (def-struct 'xt)
-	long xt_compile
-	long xt_length
-	long xt_body
+	(long 'xt_compile)
+	(long 'xt_length)
+	(long 'xt_body)
 (def-struct-end)
 
 %macro defword 4

@@ -8,7 +8,7 @@
 	;r1 = 0, else title string object
 
 	(def-struct 'local)
-		ptr local_inst
+		(ptr 'local_inst)
 	(def-struct-end)
 
 	;save inputs

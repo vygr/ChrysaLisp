@@ -15,16 +15,16 @@
 	;r1 = value
 
 	(def-struct 'pdata)
-		ptr pdata_this
-		ptr pdata_value
-		long pdata_num
+		(ptr 'pdata_this)
+		(ptr 'pdata_value)
+		(long 'pdata_num)
 	(def-struct-end)
 
-	ptr this, value
-	long num
+	(ptr 'this, value)
+	(long 'num)
 
-	ptr args, first
-	ulong length
+	(ptr 'args, first)
+	(ulong 'length)
 
 	push_scope
 	retire {r0, r1}, {this, args}
@@ -56,8 +56,8 @@ callback:
 	;r1 = 0 if break, else not
 
 	pptr iter
-	ptr pdata
-	long num
+	(ptr 'pdata)
+	(long 'num)
 
 	push_scope
 	retire {r0, r1}, {pdata, iter}

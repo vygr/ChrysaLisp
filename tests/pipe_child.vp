@@ -7,8 +7,8 @@
 
 (def-func 'tests/pipe_child)
 
-	ptr msg
-	ulong num
+	(ptr 'msg)
+	(ulong 'num)
 
 	push_scope
 

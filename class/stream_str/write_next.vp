@@ -10,8 +10,8 @@
 	;trashes
 	;all but r0, r4
 
-	ptr inst, old_str, new_str
-	ulong length, new_length
+	(ptr 'inst, old_str, new_str)
+	(ulong 'length, new_length)
 
 	push_scope
 	retire {r0}, {inst}

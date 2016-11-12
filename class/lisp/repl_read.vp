@@ -30,8 +30,8 @@
 	const char_semi, ';'
 	const char_lf, 10
 
-	ptr this, stream, ast
-	ulong char
+	(ptr 'this, stream, ast)
+	(ulong 'char)
 
 	push_scope
 	retire {r0, r1, r2}, {this, stream, char}

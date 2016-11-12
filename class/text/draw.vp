@@ -12,10 +12,10 @@
 	;trashes
 	;all but r0, r4
 
-	ptr inst, ctx, txt
+	(ptr 'inst, ctx, txt)
 	pptr words, words_end
-	ulong length
-	long x
+	(ulong 'length)
+	(long 'x)
 
 	;save inputs
 	push_scope

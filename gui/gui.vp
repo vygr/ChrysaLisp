@@ -5,17 +5,17 @@
 (import 'class/class_label.inc)
 
 (def-struct 'local)
-	long local_x_pos
-	long local_y_pos
-	long local_buttons
-	long local_last_x_pos
-	long local_last_y_pos
-	long local_last_buttons
-	ptr local_last_view
-	ptr local_key_view
-	ptr local_keymap
-	uint local_keymap_size
-	ptr local_old_keymap
+	(long 'local_x_pos)
+	(long 'local_y_pos)
+	(long 'local_buttons)
+	(long 'local_last_x_pos)
+	(long 'local_last_y_pos)
+	(long 'local_last_buttons)
+	(ptr 'local_last_view)
+	(ptr 'local_key_view)
+	(ptr 'local_keymap)
+	(uint 'local_keymap_size)
+	(ptr 'local_old_keymap)
 (def-struct-end)
 
 (def-func 'gui/gui)
@@ -239,8 +239,8 @@ update_callback:
 	;r0 = user data
 
 	(def-struct 'klocal)
-		long klocal_old_stack
-		long klocal_user
+		(long 'klocal_old_stack)
+		(long 'klocal_user)
 	(def-struct-end)
 
 	;align stack

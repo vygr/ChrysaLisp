@@ -12,8 +12,8 @@
 	;r1 = 0 if error, else ok
 
 	(def-struct 'local)
-		ptr local_inst
-		long local_filename
+		(ptr 'local_inst)
+		(long 'local_filename)
 	(def-struct-end)
 
 	;save inputs

@@ -26,10 +26,10 @@
 	const char_b, 'b'
 	const char_o, 'o'
 
-	ptr this, stream, num
+	(ptr 'this, stream, num)
 	pubyte reloc, buffer
-	ulong char, sign
-	long val
+	(ulong 'char, sign)
+	(long 'val)
 
 	push_scope
 	retire {r0, r1, r2, r2}, {this, stream, char, sign}

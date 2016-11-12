@@ -9,9 +9,9 @@
 
 	buffer_size equ 120
 
-	ptr slave, arg, args, stream
-	ulong argc, index, length
-	struct buffer, buffer
+	(ptr 'slave, arg, args, stream)
+	(ulong 'argc, index, length)
+	(struct 'buffer 'buffer)
 
 	;init app vars
 	push_scope
@@ -53,8 +53,8 @@ cat_string:
 
 	const char_lf, 10
 
-	ptr slave, arg, buffer, file, stream
-	ulong length
+	(ptr 'slave, arg, buffer, file, stream)
+	(ulong 'length)
 
 	push_scope
 	retire {r0, r1, r2}, {slave, arg, buffer}

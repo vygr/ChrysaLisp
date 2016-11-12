@@ -11,7 +11,7 @@
 (def-method 'deref_if 'class/ref/deref_if 'static '(r0))
 
 (def-struct 'ref 'obj)
-	ulong ref_count
+	(ulong 'ref_count)
 (def-struct-end)
 
 %endif

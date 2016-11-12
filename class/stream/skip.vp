@@ -8,9 +8,9 @@
 	;trashes
 	;all but r0, r4
 
-	ptr inst
-	ulong skip_char
-	long state
+	(ptr 'inst)
+	(ulong 'skip_char)
+	(long 'state)
 
 	push_scope
 	retire {r0, r1}, {inst, skip_char}

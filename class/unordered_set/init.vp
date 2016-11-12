@@ -14,8 +14,8 @@
 	;r2-r3, r5-r8
 
 	(def-struct 'local)
-		ptr local_inst
-		ptr local_num_buckets
+		(ptr 'local_inst)
+		(ptr 'local_num_buckets)
 	(def-struct-end)
 
 	;save inputs

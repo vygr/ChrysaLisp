@@ -16,9 +16,9 @@ window_border_size equ 4
 (def-method 'create 'class/window/create)
 (def-method 'new 'class/window/new)
 (def-method 'init 'class/window/init)
-(def-method 'get_panel 'class/window/get_panel 'static '(r0), '(r1))
-(def-method 'set_title 'class/window/set_title 'static '(r0, r1))
-(def-method 'set_status 'class/window/set_status 'static '(r0, r1))
+(def-method 'get_panel 'class/window/get_panel 'static '(r0) '(r1))
+(def-method 'set_title 'class/window/set_title 'static '(r0 r1))
+(def-method 'set_status 'class/window/set_status 'static '(r0 r1))
 
 (def-method 'pref_size 'class/window/pref_size 'override)
 (def-method 'layout 'class/window/layout 'override)
@@ -27,14 +27,14 @@ window_border_size equ 4
 (def-method 'mouse_move 'class/window/mouse_move 'override)
 
 (def-struct 'window 'view)
-	ptr window_border
-	ptr window_title
-	ptr window_status
-	ptr window_flow
-	ptr window_panel
-	long window_offset_x
-	long window_offset_y
-	ulong window_drag_mode
+	(ptr 'window_border)
+	(ptr 'window_title)
+	(ptr 'window_status)
+	(ptr 'window_flow)
+	(ptr 'window_panel)
+	(long 'window_offset_x)
+	(long 'window_offset_y)
+	(ulong 'window_drag_mode)
 (def-struct-end)
 
 %endif

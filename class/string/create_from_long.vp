@@ -14,9 +14,9 @@
 
 	const char_minus, "-"
 
-	ptr this
+	(ptr 'this)
 	pubyte buffer, reloc
-	long num, base
+	(long 'num, base)
 
 	push_scope
 	retire {r0, r1}, {num, base}

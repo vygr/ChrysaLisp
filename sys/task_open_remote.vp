@@ -11,10 +11,10 @@
 	;trashes
 	;all but r4
 
-	ptr name, msg
-	ulong cpu
-	struct id, id
-	struct mailbox, mailbox
+	(ptr 'name, msg)
+	(ulong 'cpu)
+	(struct 'id 'id)
+	(struct 'mailbox 'mailbox)
 
 	;save task info
 	push_scope

@@ -5,11 +5,11 @@
 (import 'class/class_lisp.inc)
 
 (def-struct 'built_in)
-	ushort built_in_symbol
-	ushort built_in_field
-	ushort built_in_function
-	ushort built_in_flags
-	offset built_in_hop
+	(ushort 'built_in_symbol)
+	(ushort 'built_in_field)
+	(ushort 'built_in_function)
+	(ushort 'built_in_flags)
+	(offset 'built_in_hop)
 	;built_in_size would be aligned to long !
 (def-struct-end)
 
@@ -44,9 +44,9 @@
 	;trashes
 	;all
 
-	ptr this, vtable, stdin, stdout, stderr, symbol, table
+	(ptr 'this, vtable, stdin, stdout, stderr, symbol, table)
 	pptr path_ptr
-	ulong ok
+	(ulong 'ok)
 
 	push_scope
 	retire {r0, r1, r2, r3, r5}, {this, vtable, stdin, stdout, stderr}

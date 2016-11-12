@@ -13,9 +13,9 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		ptr local_inst
-		ptr local_iter
-		ptr local_bucket
+		(ptr 'local_inst)
+		(ptr 'local_iter)
+		(ptr 'local_bucket)
 	(def-struct-end)
 
 	;save inputs

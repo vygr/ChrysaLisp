@@ -21,10 +21,10 @@
 		;r1 = 0 if should not decend after down callback
 
 	(def-struct 'local)
-		ptr local_inst
-		ptr local_data
-		ptr local_down
-		ptr local_up
+		(ptr 'local_inst)
+		(ptr 'local_data)
+		(ptr 'local_down)
+		(ptr 'local_up)
 	(def-struct-end)
 
 	vp_sub local_size, r4

@@ -10,26 +10,26 @@
 
 (def-class 'sys_list)
 (def-method 'init 'sys/list_init 'static '(r0))
-(def-method 'index_of 'sys/list_index_of 'static '(r0, r1), '(r1))
-(def-method 'node_at 'sys/list_node_at 'static '(r0, r1), '(r0))
+(def-method 'index_of 'sys/list_index_of 'static '(r0 r1) '(r1))
+(def-method 'node_at 'sys/list_node_at 'static '(r0 r1) '(r0))
 
 ;;;;;;;;;;;;;;;;;
 ; list structures
 ;;;;;;;;;;;;;;;;;
 
 (def-struct 'lh_list)
-	ptr lh_list_head
-	ptr lh_list_tail
-	ptr lh_list_tailpred
+	(ptr 'lh_list_head)
+	(ptr 'lh_list_tail)
+	(ptr 'lh_list_tailpred)
 (def-struct-end)
 
 (def-struct 'ln_node)
-	ptr ln_node_succ
-	ptr ln_node_pred
+	(ptr 'ln_node_succ)
+	(ptr 'ln_node_pred)
 (def-struct-end)
 
 (def-struct 'ln_fnode)
-	ptr ln_fnode_next
+	(ptr 'ln_fnode_next)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;;;

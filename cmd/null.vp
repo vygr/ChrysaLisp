@@ -4,8 +4,8 @@
 
 (def-func 'cmd/null)
 
-	ptr slave
-	ulong eof
+	(ptr 'slave)
+	(ulong 'eof)
 
 	;init app vars
 	push_scope

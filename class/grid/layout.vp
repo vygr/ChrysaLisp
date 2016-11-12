@@ -8,9 +8,9 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		long local_count
-		long local_cell_w
-		long local_cell_h
+		(long 'local_count)
+		(long 'local_cell_w)
+		(long 'local_cell_h)
 	(def-struct-end)
 
 	vp_sub local_size, r4

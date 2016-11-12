@@ -14,8 +14,8 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		ptr local_inst
-		ptr local_key
+		(ptr 'local_inst)
+		(ptr 'local_key)
 	(def-struct-end)
 
 	;save inputs

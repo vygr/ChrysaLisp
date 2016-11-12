@@ -36,16 +36,16 @@
 	const char_at, '@'
 
 	(def-struct 'pdata)
-		ptr pdata_this
-		ptr pdata_stream
-		uint pdata_index
-		uint pdata_length
+		(ptr 'pdata_this)
+		(ptr 'pdata_stream)
+		(uint 'pdata_index)
+		(uint 'pdata_length)
 	(def-struct-end)
 
-	ptr this, stream
-	uint index, length
+	(ptr 'this, stream)
+	(uint 'index, length)
 
-	ptr value, elem
+	(ptr 'value, elem)
 
 	push_scope
 	retire {r0, r1, r2}, {this, stream, value}
@@ -88,7 +88,7 @@
 			func_call stream, write_char, {stream, char_rab}
 			break
 		case {elem == @class/class_unordered_set}
-			struct pdata, pdata
+			(struct 'pdata 'pdata)
 			push_scope
 			func_call stream, write_char, {stream, char_lsb}
 			devirt_call unordered_set, get_length, {value}, {length}
@@ -98,7 +98,7 @@
 			pop_scope
 			break
 		case {elem == @class/class_unordered_map}
-			struct pdata, pdata
+			(struct 'pdata 'pdata)
 			push_scope
 			func_call stream, write_char, {stream, char_lcb}
 			devirt_call unordered_map, get_length, {value}, {length}
@@ -119,7 +119,7 @@
 			func_call stream, write_cstr, {stream, " >"}
 			break
 		case {elem == @class/class_vector}
-			struct pdata, pdata
+			(struct 'pdata 'pdata)
 			push_scope
 			devirt_call vector, get_length, {value}, {length}
 			if {length}
@@ -176,7 +176,7 @@ callback:
 	const char_space, " "
 
 	pptr iter
-	ptr pdata
+	(ptr 'pdata)
 
 	push_scope
 	retire {r0, r1}, {pdata, iter}

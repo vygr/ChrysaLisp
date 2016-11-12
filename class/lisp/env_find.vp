@@ -12,7 +12,7 @@
 	;r1 = 0, else iterator
 	;r2 = bucket vector
 
-	ptr this, symbol, bucket, env
+	(ptr 'this, symbol, bucket, env)
 	pptr iter
 
 	push_scope

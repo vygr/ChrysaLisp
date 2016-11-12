@@ -11,11 +11,11 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		ptr local_inst
-		long local_window
-		long local_event
-		long local_old_x
-		long local_old_y
+		(ptr 'local_inst)
+		(long 'local_window)
+		(long 'local_event)
+		(long 'local_old_x)
+		(long 'local_old_y)
 	(def-struct-end)
 
 	;save old window bounds

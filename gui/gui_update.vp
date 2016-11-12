@@ -12,10 +12,10 @@
 	;all but r4
 
 	(def-struct 'local)
-		ptr local_root
-		ptr local_ctx_flist
-		ptr local_ctx_next
-		struct local_ctx, gui_ctx
+		(ptr 'local_root)
+		(ptr 'local_ctx_flist)
+		(ptr 'local_ctx_next)
+		(struct 'local_ctx 'gui_ctx)
 	(def-struct-end)
 
 	;save inputs
@@ -108,10 +108,10 @@ abs_up_callback:
 
 visible_up_callback:
 	(def-struct 'vis)
-		ptr vis_inst
-		ptr vis_root
-		ptr vis_next
-		ptr vis_region
+		(ptr 'vis_inst)
+		(ptr 'vis_root)
+		(ptr 'vis_next)
+		(ptr 'vis_region)
 	(def-struct-end)
 
 	;save inputs
@@ -217,9 +217,9 @@ visible_up_callback:
 
 distribute_down_callback:
 	(def-struct 'dist)
-		ptr dist_inst
-		ptr dist_data
-		ptr dist_next
+		(ptr 'dist_inst)
+		(ptr 'dist_data)
+		(ptr 'dist_next)
 	(def-struct-end)
 
 	;save inputs

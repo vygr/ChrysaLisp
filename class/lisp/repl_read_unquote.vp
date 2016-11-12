@@ -14,8 +14,8 @@
 	;r1 = list
 	;r2 = next char
 
-	ptr this, stream, list, elem
-	ulong char
+	(ptr 'this, stream, list, elem)
+	(ulong 'char)
 
 	push_scope
 	retire {r0, r1, r2}, {this, stream, char}

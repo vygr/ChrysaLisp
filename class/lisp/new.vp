@@ -7,7 +7,7 @@
 	;trashes
 	;all
 
-	ptr this
+	(ptr 'this)
 
 	push_scope
 

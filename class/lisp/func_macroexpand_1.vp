@@ -14,8 +14,8 @@
 	;r1 = value
 	;r2 = 0 if expanded
 
-	ptr this, args, value
-	ulong length
+	(ptr 'this, args, value)
+	(ulong 'length)
 
 	push_scope
 	retire {r0, r1}, {this, args}

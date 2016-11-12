@@ -4,18 +4,18 @@
 (import 'class/class_sequence.inc)
 
 (def-class 'unordered_set 'sequence)
-(def-method 'create 'class/unordered_set/create 'static '(r0, r1), '(r0))
+(def-method 'create 'class/unordered_set/create 'static '(r0 r1) '(r0))
 (def-method 'new 'class/unordered_set/new)
-(def-method 'init 'class/unordered_set/init 'static '(r0, r1, r2, r3), '(r1))
-(def-method 'get_bucket 'class/unordered_set/get_bucket 'static '(r0, r1), '(r1))
+(def-method 'init 'class/unordered_set/init 'static '(r0 r1 r2 r3) '(r1))
+(def-method 'get_bucket 'class/unordered_set/get_bucket 'static '(r0 r1) '(r1))
 (def-method 'clear 'class/unordered_set/clear 'static '(r0))
-(def-method 'for_each 'class/unordered_set/for_each 'static '(r0, r1, r2), '(r1, r2))
-(def-method 'find 'class/unordered_set/find 'static '(r0, r1), '(r1, r2))
-(def-method 'insert 'class/unordered_set/insert 'static '(r0, r1), '(r1, r2))
-(def-method 'erase 'class/unordered_set/erase 'static '(r0, r1, r2))
-(def-method 'get_iter 'class/unordered_set/get_iter 'static '(r0, r1), '(r1, r2))
-(def-method 'copy 'class/unordered_set/copy 'static '(r0, r1), '(r1))
-(def-method 'slice_impl 'class/unordered_set/slice_impl 'static '(r0, r1, r2, r3, r5), '(r1))
+(def-method 'for_each 'class/unordered_set/for_each 'static '(r0 r1 r2) '(r1 r2))
+(def-method 'find 'class/unordered_set/find 'static '(r0 r1) '(r1 r2))
+(def-method 'insert 'class/unordered_set/insert 'static '(r0 r1) '(r1 r2))
+(def-method 'erase 'class/unordered_set/erase 'static '(r0 r1 r2))
+(def-method 'get_iter 'class/unordered_set/get_iter 'static '(r0 r1) '(r1 r2))
+(def-method 'copy 'class/unordered_set/copy 'static '(r0 r1) '(r1))
+(def-method 'slice_impl 'class/unordered_set/slice_impl 'static '(r0 r1 r2 r3 r5) '(r1))
 
 (def-method 'deinit 'class/unordered_set/deinit 'override)
 (def-method 'get_length 'class/unordered_set/get_length 'override)
@@ -23,9 +23,9 @@
 (def-method 'slice 'class/unordered_set/slice 'override)
 
 (def-struct 'unordered_set 'sequence)
-	ptr unordered_set_buckets
-	ptr unordered_set_key_callback
-	ulong unordered_set_length
+	(ptr 'unordered_set_buckets)
+	(ptr 'unordered_set_key_callback)
+	(ulong 'unordered_set_length)
 (def-struct-end)
 
 %endif

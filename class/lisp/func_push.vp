@@ -12,8 +12,8 @@
 	;r0 = lisp object
 	;r1 = value
 
-	ptr this, args, value
-	int length
+	(ptr 'this, args, value)
+	(int 'length)
 
 	push_scope
 	retire {r0, r1}, {this, args}
@@ -42,7 +42,7 @@ callback:
 	;r1 = 0 if break, else not
 
 	pptr iter
-	ptr pdata
+	(ptr 'pdata)
 
 	push_scope
 	retire {r0, r1}, {pdata, iter}

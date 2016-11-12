@@ -13,7 +13,7 @@ button_border_size equ 2
 (def-method 'create 'class/button/create)
 (def-method 'new 'class/button/new)
 (def-method 'init 'class/button/init)
-(def-method 'sig_pressed 'class/button/sig_pressed 'static '(r0), '(r1))
+(def-method 'sig_pressed 'class/button/sig_pressed 'static '(r0) '(r1))
 
 (def-method 'deinit 'class/button/deinit 'override)
 (def-method 'pref_size 'class/button/pref_size 'override)
@@ -24,8 +24,8 @@ button_border_size equ 2
 (def-method 'mouse_move 'class/button/mouse_move 'override)
 
 (def-struct 'button 'label)
-	ulong button_state
-	struct button_pressed_signal, lh_list
+	(ulong 'button_state)
+	(struct 'button_pressed_signal 'lh_list)
 (def-struct-end)
 
 %endif
