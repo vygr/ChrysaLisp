@@ -1,6 +1,3 @@
-%ifndef HEAP_1234
-%define HEAP_1234
-
 (import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
@@ -57,5 +54,3 @@ mem_block_blk_size	equ 16 * 1024
 
 	ln_add_fnode %1 + hp_heap_free_flist, %2, %3
 %endmacro
-
-%endif

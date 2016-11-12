@@ -1,6 +1,3 @@
-%ifndef FONT_1234
-%define FONT_1234
-
 (import 'inc/class.inc)
 (import 'inc/list.inc)
 
@@ -46,5 +43,3 @@ ft_buckets_size equ ptr_size * ft_num_buckets
 	(ptr 'ft_statics_font_flist)
 	(struct 'ft_statics_text_flists 'ft_buckets)
 (def-struct-end)
-
-%endif

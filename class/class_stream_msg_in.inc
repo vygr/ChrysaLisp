@@ -1,6 +1,3 @@
-%ifndef CLASS_STREAM_MSG_IN_1234
-%define CLASS_STREAM_MSG_IN_1234
-
 (import 'class/class_stream.inc)
 
 (def-class 'stream_msg_in 'stream)
@@ -18,5 +15,3 @@
 	(struct 'stream_msg_in_list 'lh_list)
 	(ulong 'stream_msg_in_ack_seqnum)
 (def-struct-end)
-
-%endif

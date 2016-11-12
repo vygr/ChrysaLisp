@@ -1,6 +1,3 @@
-%ifndef LIST_1234
-%define LIST_1234
-
 (import 'inc/vp.inc)
 (import 'inc/code.inc)
 
@@ -429,5 +426,3 @@
 	vp_cpy %3, [%2 + ln_fnode_next]
 	vp_cpy %2, [%1 + ln_fnode_next]
 %endmacro
-
-%endif

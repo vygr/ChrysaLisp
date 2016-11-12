@@ -1,6 +1,3 @@
-%ifndef CLASS_1234
-%define CLASS_1234
-
 ;;;;;;;;;;;;;;;;;;
 ; class definition
 ;;;;;;;;;;;;;;;;;;
@@ -533,5 +530,3 @@
 		vp_ret
 	def_func_end
 %endmacro
-
-%endif

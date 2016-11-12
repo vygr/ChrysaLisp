@@ -1,6 +1,3 @@
-%ifndef VP_1234
-%define VP_1234
-
 ;;;;;;;;;;;;;;;;
 ; vp code macros
 ;;;;;;;;;;;;;;;;
@@ -628,5 +625,3 @@
 %macro vp_rel 2
 	lea %2, [rel %1]
 %endmacro
-
-%endif

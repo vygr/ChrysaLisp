@@ -1,6 +1,3 @@
-%ifndef LINK_1234
-%define LINK_1234
-
 (import 'inc/list.inc)
 (import 'inc/mail.inc)
 (import 'inc/class.inc)
@@ -48,5 +45,3 @@
 (def-struct 'lk_route)
 	(ulong 'lk_route_hops)
 (def-struct-end)
-
-%endif

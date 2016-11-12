@@ -1,6 +1,3 @@
-%ifndef CLASS_PROGRESS_1234
-%define CLASS_PROGRESS_1234
-
 (import 'class/class_view.inc)
 
 progress_border_size equ 1
@@ -19,5 +16,3 @@ progress_border_size equ 1
 	(long 'progress_max)
 	(long 'progress_val)
 (def-struct-end)
-
-%endif

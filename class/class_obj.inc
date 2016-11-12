@@ -1,6 +1,3 @@
-%ifndef CLASS_OBJ_1234
-%define CLASS_OBJ_1234
-
 (import 'inc/class.inc)
 
 (def-class 'obj)
@@ -17,5 +14,3 @@
 (def-struct 'obj)
 	pptr obj_vtable
 (def-struct-end)
-
-%endif

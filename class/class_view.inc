@@ -1,6 +1,3 @@
-%ifndef CLASS_VIEW_1234
-%define CLASS_VIEW_1234
-
 (import 'class/class_component.inc)
 
 (def-class 'view 'component)
@@ -72,5 +69,3 @@
 	(ulong 'view_flags)
 	(ulong 'view_color)
 (def-struct-end)
-
-%endif

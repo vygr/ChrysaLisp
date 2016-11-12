@@ -1,6 +1,3 @@
-%ifndef SYSCALL_1234
-%define SYSCALL_1234
-
 (import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -503,6 +500,4 @@ stat_size			equ 0x100
 	sys_call sys_gettimeofday
 	pop_trashed
 %endmacro
-%endif
-
 %endif

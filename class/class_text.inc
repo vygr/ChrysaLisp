@@ -1,6 +1,3 @@
-%ifndef CLASS_TEXT_1234
-%define CLASS_TEXT_1234
-
 (import 'class/class_view.inc)
 
 (def-class 'text 'view)
@@ -22,5 +19,3 @@
 	(ulong 'text_text_color)
 	(ptr 'text_words)
 (def-struct-end)
-
-%endif

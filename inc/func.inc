@@ -1,6 +1,3 @@
-%ifndef FUNC_1234
-%define FUNC_1234
-
 (import 'inc/vp.inc)
 (import 'inc/code.inc)
 (import 'inc/syscall.inc)
@@ -315,5 +312,3 @@ _func_end:
 		endif
 	%endif
 %endmacro
-
-%endif

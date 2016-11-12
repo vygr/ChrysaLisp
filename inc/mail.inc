@@ -1,6 +1,3 @@
-%ifndef MAIL_1234
-%define MAIL_1234
-
 (import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
@@ -94,5 +91,3 @@ mail_data_size equ 512
 %macro ml_temp_destroy 0
 	vp_add mailbox_size, r4
 %endmacro
-
-%endif

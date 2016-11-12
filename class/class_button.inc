@@ -1,6 +1,3 @@
-%ifndef CLASS_BUTTON_1234
-%define CLASS_BUTTON_1234
-
 (import 'class/class_label.inc)
 
 button_border_size equ 2
@@ -27,5 +24,3 @@ button_border_size equ 2
 	(ulong 'button_state)
 	(struct 'button_pressed_signal 'lh_list)
 (def-struct-end)
-
-%endif

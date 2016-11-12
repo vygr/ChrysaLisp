@@ -1,6 +1,3 @@
-%ifndef CLASS_LISP_1234
-%define CLASS_LISP_1234
-
 (import 'class/class_ref.inc)
 
 ;%xdefine debug_lines
@@ -122,5 +119,3 @@
 	(ptr 'lisp_sym_cat)
 	(ptr 'lisp_sym_list)
 (def-struct-end)
-
-%endif

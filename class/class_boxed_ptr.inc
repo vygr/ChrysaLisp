@@ -1,6 +1,3 @@
-%ifndef CLASS_BOXED_PTR_1234
-%define CLASS_BOXED_PTR_1234
-
 (import 'class/class_ref.inc)
 
 (def-class 'boxed_ptr 'ref)
@@ -16,5 +13,3 @@
 	(ptr 'boxed_ptr_value)
 	(ulong 'boxed_ptr_flags)
 (def-struct-end)
-
-%endif

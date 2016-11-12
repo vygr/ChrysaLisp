@@ -1,6 +1,3 @@
-%ifndef CLASS_TITLE_1234
-%define CLASS_TITLE_1234
-
 (import 'class/class_label.inc)
 
 title_border_size equ 1
@@ -19,5 +16,3 @@ title_border_size equ 1
 	(long 'title_last_x)
 	(long 'title_last_y)
 (def-struct-end)
-
-%endif

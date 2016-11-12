@@ -1,6 +1,3 @@
-%ifndef CLASS_STREAM_1234
-%define CLASS_STREAM_1234
-
 (import 'class/class_ref.inc)
 
 (def-class 'stream 'ref)
@@ -31,5 +28,3 @@
 	pubyte stream_bufp
 	pubyte stream_bufe
 (def-struct-end)
-
-%endif

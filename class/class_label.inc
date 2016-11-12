@@ -1,6 +1,3 @@
-%ifndef CLASS_LABEL_1234
-%define CLASS_LABEL_1234
-
 (import 'class/class_view.inc)
 
 label_border_size	equ 0
@@ -23,5 +20,3 @@ label_border_size	equ 0
 	(ptr 'label_flow)
 	(ptr 'label_text)
 (def-struct-end)
-
-%endif

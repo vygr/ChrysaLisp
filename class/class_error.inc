@@ -1,6 +1,3 @@
-%ifndef CLASS_ERROR_1234
-%define CLASS_ERROR_1234
-
 (import 'class/class_ref.inc)
 
 (def-class 'error 'ref)
@@ -16,5 +13,3 @@
 	(ptr 'error_description)
 	(ptr 'error_object)
 (def-struct-end)
-
-%endif

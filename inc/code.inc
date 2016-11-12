@@ -1,6 +1,3 @@
-%ifndef CODE_1234
-%define CODE_1234
-
 (import 'inc/vp.inc)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1713,5 +1710,3 @@ _sym_var	equ 2
 		debug_str 'done'
 	%endif
 %endmacro
-
-%endif

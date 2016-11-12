@@ -1,4 +1,4 @@
 (import 'inc/func.inc)
 (import 'class/class_progress.inc)
 
-class_macro_create progress
+(class-macro-create 'progress)

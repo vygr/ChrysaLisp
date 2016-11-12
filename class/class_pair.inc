@@ -1,6 +1,3 @@
-%ifndef CLASS_PAIR_1234
-%define CLASS_PAIR_1234
-
 (import 'class/class_sequence.inc)
 
 (def-class 'pair 'sequence)
@@ -22,5 +19,3 @@
 	(ptr 'pair_first)
 	(ptr 'pair_second)
 (def-struct-end)
-
-%endif

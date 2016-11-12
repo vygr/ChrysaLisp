@@ -1,6 +1,3 @@
-%ifndef TASK_1234
-%define TASK_1234
-
 (import 'inc/class.inc)
 (import 'inc/list.inc)
 (import 'inc/heap.inc)
@@ -71,5 +68,3 @@ tk_state_size equ 15 * 8
 %macro tk_load_state 0
 	vp_pop r0, r1, r2, r3, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
 %endmacro
-
-%endif

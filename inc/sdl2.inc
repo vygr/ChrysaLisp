@@ -1,6 +1,3 @@
-%ifndef SDL2_1234
-%define SDL2_1234
-
 (import 'inc/vp.inc)
 (import 'inc/code.inc)
 (import 'inc/gui.inc)
@@ -428,5 +425,3 @@ SDL_BLENDMODE_MOD		equ 3
 	map_src_to_dst
 	sdl_call sdl_TTF_RenderUTF8_Blended
 %endmacro
-
-%endif

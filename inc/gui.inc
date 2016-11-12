@@ -1,6 +1,3 @@
-%ifndef GUI_1234
-%define GUI_1234
-
 (import 'inc/list.inc)
 (import 'inc/heap.inc)
 
@@ -95,5 +92,3 @@ SCREEN_HEIGHT	equ 960
 	(ulong 'ev_msg_keycode)
 	(ulong 'ev_msg_key)
 (def-struct-end)
-
-%endif

@@ -1,6 +1,3 @@
-%ifndef CLASS_SEQUENCE_1234
-%define CLASS_SEQUENCE_1234
-
 (import 'class/class_ref.inc)
 
 (def-class 'sequence 'ref)
@@ -10,5 +7,3 @@
 
 (def-struct 'sequence 'ref)
 (def-struct-end)
-
-%endif

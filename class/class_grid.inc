@@ -1,6 +1,3 @@
-%ifndef CLASS_GRID_1234
-%define CLASS_GRID_1234
-
 (import 'class/class_view.inc)
 
 (def-class 'grid 'view)
@@ -16,5 +13,3 @@
 	(long 'grid_width)
 	(long 'grid_height)
 (def-struct-end)
-
-%endif

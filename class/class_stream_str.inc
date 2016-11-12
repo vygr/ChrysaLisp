@@ -1,6 +1,3 @@
-%ifndef CLASS_STREAM_STR_1234
-%define CLASS_STREAM_STR_1234
-
 (import 'class/class_stream.inc)
 
 (def-class 'stream_str 'stream)
@@ -13,5 +10,3 @@
 
 (def-struct 'stream_str 'stream)
 (def-struct-end)
-
-%endif

@@ -1,4 +1,4 @@
 (import 'inc/func.inc)
 (import 'class/class_slave.inc)
 
-class_macro_create slave
+(class-macro-create 'slave)

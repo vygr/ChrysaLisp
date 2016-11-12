@@ -1,6 +1,3 @@
-%ifndef CLASS_COMPONENT_1234
-%define CLASS_COMPONENT_1234
-
 (import 'class/class_ref.inc)
 
 (def-class 'component 'ref)
@@ -15,5 +12,3 @@
 (def-struct 'component 'ref)
 	(struct 'component_slot_list 'lh_list)
 (def-struct-end)
-
-%endif

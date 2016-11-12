@@ -1,6 +1,3 @@
-%ifndef CLASS_STRING_1234
-%define CLASS_STRING_1234
-
 (import 'class/class_sequence.inc)
 
 (def-class 'string 'sequence)
@@ -26,5 +23,3 @@
 	(ulong 'string_hashcode)
 	(offset 'string_data)
 (def-struct-end)
-
-%endif

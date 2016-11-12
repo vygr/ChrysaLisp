@@ -1,6 +1,3 @@
-%ifndef CLASS_REF_1234
-%define CLASS_REF_1234
-
 (import 'class/class_obj.inc)
 
 (def-class 'ref 'obj)
@@ -13,5 +10,3 @@
 (def-struct 'ref 'obj)
 	(ulong 'ref_count)
 (def-struct-end)
-
-%endif

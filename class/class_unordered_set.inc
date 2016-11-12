@@ -1,6 +1,3 @@
-%ifndef CLASS_UNORDERED_SET_1234
-%define CLASS_UNORDERED_SET_1234
-
 (import 'class/class_sequence.inc)
 
 (def-class 'unordered_set 'sequence)
@@ -27,5 +24,3 @@
 	(ptr 'unordered_set_key_callback)
 	(ulong 'unordered_set_length)
 (def-struct-end)
-
-%endif

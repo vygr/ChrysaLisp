@@ -1,6 +1,3 @@
-%ifndef CLASS_SYMBOL_1234
-%define CLASS_SYMBOL_1234
-
 (import 'class/class_string.inc)
 
 (def-class 'symbol 'string)
@@ -12,5 +9,3 @@
 
 (def-struct 'symbol 'string)
 (def-struct-end)
-
-%endif

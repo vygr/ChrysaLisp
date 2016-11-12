@@ -1,4 +1,4 @@
 (import 'inc/func.inc)
 (import 'class/class_flow.inc)
 
-class_macro_new flow
+(class-macro-new 'flow)

@@ -1,6 +1,3 @@
-%ifndef CLASS_UNORDERED_MAP_1234
-%define CLASS_UNORDERED_MAP_1234
-
 (import 'class/class_unordered_set.inc)
 
 (def-class 'unordered_map 'unordered_set)
@@ -13,5 +10,3 @@
 
 (def-struct 'unordered_map 'unordered_set)
 (def-struct-end)
-
-%endif

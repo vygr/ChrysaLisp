@@ -1,6 +1,3 @@
-%ifndef CLASS_MASTER_1234
-%define CLASS_MASTER_1234
-
 (import 'class/class_ref.inc)
 
 (def-class 'master 'ref)
@@ -22,5 +19,3 @@
 	pptr master_select_array
 	(ulong 'master_state)
 (def-struct-end)
-
-%endif

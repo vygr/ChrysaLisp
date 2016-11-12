@@ -1,6 +1,3 @@
-%ifndef CLASS_VECTOR_1234
-%define CLASS_VECTOR_1234
-
 (import 'class/class_sequence.inc)
 
 (def-class 'vector 'sequence)
@@ -29,5 +26,3 @@
 	(ulong 'vector_length)
 	(ulong 'vector_capacity)
 (def-struct-end)
-
-%endif

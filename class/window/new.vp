@@ -1,4 +1,4 @@
 (import 'inc/func.inc)
 (import 'class/class_window.inc)
 
-class_macro_new window
+(class-macro-new 'window)

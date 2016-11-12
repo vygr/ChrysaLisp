@@ -1,6 +1,3 @@
-%ifndef CLASS_WINDOW_1234
-%define CLASS_WINDOW_1234
-
 (import 'class/class_view.inc)
 
 window_border_size equ 4
@@ -36,5 +33,3 @@ window_border_size equ 4
 	(long 'window_offset_y)
 	(ulong 'window_drag_mode)
 (def-struct-end)
-
-%endif

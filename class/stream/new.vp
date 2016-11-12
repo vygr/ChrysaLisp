@@ -1,4 +1,4 @@
 (import 'inc/func.inc)
 (import 'class/class_stream.inc)
 
-class_macro_new stream
+(class-macro-new 'stream)

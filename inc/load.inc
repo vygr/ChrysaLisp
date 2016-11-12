@@ -1,6 +1,3 @@
-%ifndef LOAD_1234
-%define LOAD_1234
-
 (import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
@@ -32,5 +29,3 @@ ld_name_size	equ 120
 	(struct 'ld_statics_reloc_buffer 'ld_reloc)
 	(struct 'ld_statics_name_buffer 'ld_name)
 (def-struct-end)
-
-%endif

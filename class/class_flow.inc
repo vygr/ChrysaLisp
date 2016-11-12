@@ -1,6 +1,3 @@
-%ifndef CLASS_FLOW_1234
-%define CLASS_FLOW_1234
-
 (import 'class/class_view.inc)
 
 (def-class 'flow 'view)
@@ -32,5 +29,3 @@
 (def-struct 'flow 'view)
 	(ulong 'flow_flags)
 (def-struct-end)
-
-%endif

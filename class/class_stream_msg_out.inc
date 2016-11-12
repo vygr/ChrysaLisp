@@ -1,6 +1,3 @@
-%ifndef CLASS_STREAM_MSG_OUT_1234
-%define CLASS_STREAM_MSG_OUT_1234
-
 (import 'class/class_stream.inc)
 
 (def-class 'stream_msg_out 'stream)
@@ -36,5 +33,3 @@ stream_msg_out_ack_shift equ 4
 	(enum 'stream_mail_state_stopping)
 	(enum 'stream_mail_state_stopped)
 (def-enum-end)
-
-%endif

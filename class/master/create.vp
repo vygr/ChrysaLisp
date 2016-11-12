@@ -1,4 +1,4 @@
 (import 'inc/func.inc)
 (import 'class/class_master.inc)
 
-class_macro_create master
+(class-macro-create 'master)

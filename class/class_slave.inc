@@ -1,6 +1,3 @@
-%ifndef CLASS_SLAVE_1234
-%define CLASS_SLAVE_1234
-
 (import 'class/class_ref.inc)
 
 (def-class 'slave 'ref)
@@ -24,5 +21,3 @@
 	(struct 'slave_mail_init_ack_id 'id)
 	(offset 'slave_mail_init_args)
 (def-struct-end)
-
-%endif
