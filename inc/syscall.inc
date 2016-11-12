@@ -29,63 +29,63 @@
 ; syscall for OSX
 ;;;;;;;;;;;;;;;;;
 
-sys_exit			equ	0x1
-sys_read			equ	0x3
-sys_write			equ	0x4
-sys_open			equ	0x5
-sys_close			equ	0x6
-sys_unlink			equ	0xa
-sys_ftruncate		equ	0xc9
-sys_stat			equ	0xbc
-sys_mmap			equ	0xc5
-sys_munmap			equ	0x49
-sys_mprotect		equ	0x4a
-sys_gettimeofday	equ	0x74
+(equate 'sys_exit		 0x1)
+(equate 'sys_read		 0x3)
+(equate 'sys_write		 0x4)
+(equate 'sys_open		 0x5)
+(equate 'sys_close		 0x6)
+(equate 'sys_unlink		 0xa)
+(equate 'sys_ftruncate	 0xc9)
+(equate 'sys_stat		 0xbc)
+(equate 'sys_mmap		 0xc5)
+(equate 'sys_munmap		 0x49)
+(equate 'sys_mprotect	 0x4a)
+(equate 'sys_gettimeofday 0x74)
 
-prot_none			equ	0x0
-prot_read			equ	0x1
-prot_write			equ	0x2
-prot_exec			equ	0x4
+(equate 'prot_none		 0x0)
+(equate 'prot_read		 0x1)
+(equate 'prot_write		 0x2)
+(equate 'prot_exec		 0x4)
 
-map_shared			equ	0x1
-map_private			equ	0x2
-map_fixed			equ	0x10
-map_anon			equ	0x1000
+(equate 'map_shared		 0x1)
+(equate 'map_private		 0x2)
+(equate 'map_fixed		 0x10)
+(equate 'map_anon		 0x1000)
 
-o_rdonly			equ	0x0
-o_wronly			equ	0x1
-o_rdwr				equ	0x2
-o_trunc				equ	0x400
-o_append			equ	0x8
-o_nonblock			equ	0x4
-o_creat				equ	0x200
-o_excl				equ	0x800
-o_nofollow			equ	0x100
-o_cloexec			equ	0x1000000
+(equate 'o_rdonly		 0x0)
+(equate 'o_wronly		 0x1)
+(equate 'o_rdwr			 0x2)
+(equate 'o_trunc			 0x400)
+(equate 'o_append		 0x8)
+(equate 'o_nonblock		 0x4)
+(equate 'o_creat			 0x200)
+(equate 'o_excl			 0x800)
+(equate 'o_nofollow		 0x100)
+(equate 'o_cloexec		 0x1000000)
 
-s_irwxu				equ	0x1c0
-s_irusr				equ	0x100
-s_iwusr				equ	0x80
-s_ixusr				equ	0x40
-s_irwxg				equ	0x38
-s_irgrp				equ	0x20
-s_iwgrp				equ	0x10
-s_ixgrp				equ	0x8
-s_irwxo				equ	0x7
-s_iroth				equ	0x4
-s_iwoth				equ	0x2
-s_ixoth				equ	0x1
-s_isuid				equ	0x800
-s_isgid				equ	0x400
-s_isvtx				equ	0x200
+(equate 's_irwxu			 0x1c0)
+(equate 's_irusr			 0x100)
+(equate 's_iwusr			 0x80)
+(equate 's_ixusr			 0x40)
+(equate 's_irwxg			 0x38)
+(equate 's_irgrp			 0x20)
+(equate 's_iwgrp			 0x10)
+(equate 's_ixgrp			 0x8)
+(equate 's_irwxo			 0x7)
+(equate 's_iroth			 0x4)
+(equate 's_iwoth			 0x2)
+(equate 's_ixoth			 0x1)
+(equate 's_isuid			 0x800)
+(equate 's_isgid			 0x400)
+(equate 's_isvtx			 0x200)
 
-s_ifmt				equ	0xf000
-s_ifdir				equ	0x4000
-s_ifreg				equ	0x8000
+(equate 's_ifmt			 0xf000)
+(equate 's_ifdir			 0x4000)
+(equate 's_ifreg			 0x8000)
 
-stat_mode			equ	0x8
-stat_fsize			equ 0x48
-stat_size			equ 0x100
+(equate 'stat_mode		 0x8)
+(equate 'stat_fsize		 0x48)
+(equate 'stat_size		 0x100)
 
 (def-struct 'timeval)
 	(long 'timeval_sec)
@@ -270,63 +270,63 @@ stat_size			equ 0x100
 ; syscall for Linux
 ;;;;;;;;;;;;;;;;;;;
 
-sys_exit			equ	0x3c
-sys_read			equ	0x0
-sys_write			equ	0x1
-sys_open			equ	0x2
-sys_close			equ	0x3
-sys_unlink			equ	0x57
-sys_ftruncate		equ	0x4d
-sys_stat			equ	0x4
-sys_mmap			equ	0x9
-sys_munmap			equ	0xb
-sys_mprotect		equ	0xa
-sys_gettimeofday	equ	0x60
+(equate 'sys_exit		 0x3c)
+(equate 'sys_read		 0x0)
+(equate 'sys_write		 0x1)
+(equate 'sys_open		 0x2)
+(equate 'sys_close		 0x3)
+(equate 'sys_unlink		 0x57)
+(equate 'sys_ftruncate	 0x4d)
+(equate 'sys_stat		 0x4)
+(equate 'sys_mmap		 0x9)
+(equate 'sys_munmap		 0xb)
+(equate 'sys_mprotect	 0xa)
+(equate 'sys_gettimeofday 0x60)
 
-prot_none			equ	0x0
-prot_read			equ	0x1
-prot_write			equ	0x2
-prot_exec			equ	0x4
+(equate 'prot_none		 0x0)
+(equate 'prot_read		 0x1)
+(equate 'prot_write		 0x2)
+(equate 'prot_exec		 0x4)
 
-map_shared			equ	0x1
-map_private			equ	0x2
-map_fixed			equ	0x10
-map_anon			equ	0x20
+(equate 'map_shared		 0x1)
+(equate 'map_private		 0x2)
+(equate 'map_fixed		 0x10)
+(equate 'map_anon		 0x20)
 
-o_rdonly			equ	0x0
-o_wronly			equ	0x1
-o_rdwr				equ	0x2
-o_trunc				equ	0x200
-o_append			equ	0x400
-o_nonblock			equ	0x800
-o_creat				equ	0x40
-o_excl				equ	0x80
-o_nofollow			equ	0x20000
-o_cloexec			equ	0x80000
+(equate 'o_rdonly		 0x0)
+(equate 'o_wronly		 0x1)
+(equate 'o_rdwr			 0x2)
+(equate 'o_trunc			 0x200)
+(equate 'o_append		 0x400)
+(equate 'o_nonblock		 0x800)
+(equate 'o_creat			 0x40)
+(equate 'o_excl			 0x80)
+(equate 'o_nofollow		 0x20000)
+(equate 'o_cloexec		 0x80000)
 
-s_irwxu				equ	0x1c0
-s_irusr				equ	0x100
-s_iwusr				equ	0x80
-s_ixusr				equ	0x40
-s_irwxg				equ	0x38
-s_irgrp				equ	0x20
-s_iwgrp				equ	0x10
-s_ixgrp				equ	0x8
-s_irwxo				equ	0x7
-s_iroth				equ	0x4
-s_iwoth				equ	0x2
-s_ixoth				equ	0x1
-s_isuid				equ	0x800
-s_isgid				equ	0x400
-s_isvtx				equ	0x200
+(equate 's_irwxu			 0x1c0)
+(equate 's_irusr			 0x100)
+(equate 's_iwusr			 0x80)
+(equate 's_ixusr			 0x40)
+(equate 's_irwxg			 0x38)
+(equate 's_irgrp			 0x20)
+(equate 's_iwgrp			 0x10)
+(equate 's_ixgrp			 0x8)
+(equate 's_irwxo			 0x7)
+(equate 's_iroth			 0x4)
+(equate 's_iwoth			 0x2)
+(equate 's_ixoth			 0x1)
+(equate 's_isuid			 0x800)
+(equate 's_isgid			 0x400)
+(equate 's_isvtx			 0x200)
 
-s_ifmt				equ	0xf000
-s_ifdir				equ	0x4000
-s_ifreg				equ	0x8000
+(equate 's_ifmt			 0xf000)
+(equate 's_ifdir			 0x4000)
+(equate 's_ifreg			 0x8000)
 
-stat_mode			equ	0x18
-stat_fsize			equ	0x30
-stat_size			equ 0x100
+(equate 'stat_mode		 0x18)
+(equate 'stat_fsize		 0x30)
+(equate 'stat_size		 0x100)
 
 (def-struct 'timeval)
 	(long 'timeval_sec)

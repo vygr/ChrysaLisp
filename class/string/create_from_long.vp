@@ -15,7 +15,7 @@
 	const char_minus, "-"
 
 	(ptr 'this)
-	pubyte buffer, reloc
+	(pubyte 'buffer, reloc)
 	(long 'num, base)
 
 	push_scope

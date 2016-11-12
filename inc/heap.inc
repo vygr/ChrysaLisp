@@ -10,9 +10,9 @@
 (def-method 'alloc 'sys/heap_alloc 'static '(r0) '(r1))
 (def-method 'reset 'sys/heap_reset 'static '(r0))
 
-mem_block_min_size	equ 0x000020
-mem_block_max_size	equ 0x800000
-mem_block_blk_size	equ 16 * 1024
+(equate 'mem_block_min_size 0x000020)
+(equate 'mem_block_max_size 0x800000)
+(equate 'mem_block_blk_size 16 * 1024)
 
 (def-class 'sys_mem)
 (def-method 'statics 'sys/mem_statics)

@@ -152,7 +152,7 @@
 			pop_scope
 			break
 		default
-			pubyte name_offset
+			(pubyte 'name_offset)
 			push_scope
 			assign {elem - 1}, {name_offset}
 			assign {elem - *name_offset}, {elem}

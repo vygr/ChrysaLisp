@@ -11,10 +11,10 @@
 
 	(struct 'myapp 'obj)
 	(ptr 'msg, window, window_panel, panel, button, string, pressed)
-	pubyte next
+	(pubyte 'next)
 	(ulong 'owner)
 	(int 'width, height)
-	ubyte length
+	(ubyte 'length)
 
 	;init app vars
 	push_scope

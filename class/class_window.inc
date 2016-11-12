@@ -1,6 +1,6 @@
 (import 'class/class_view.inc)
 
-window_border_size equ 4
+(equate 'window_border_size 4)
 
 (def-bit)
 	(bit 'window_drag_left)

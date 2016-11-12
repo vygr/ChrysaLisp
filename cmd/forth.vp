@@ -6,7 +6,7 @@
 
 (def-func 'cmd/forth)
 
-	buffer_size equ 120
+(equate 'buffer_size 120)
 
 	(ptr 'slave, stream, vector, string)
 	(ulong 'length)
@@ -118,14 +118,14 @@ input:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;format of dictionary entry flag byte
-F_IMMED equ 0x80
-F_HIDDEN equ 0x20
-F_LENMASK equ 0x1f
+(equate 'F_IMMED 0x80)
+(equate 'F_HIDDEN 0x20)
+(equate 'F_LENMASK 0x1f)
 
 ;format of header
 (def-struct 'header)
 	(long 'header_link)
-	ubyte header_nsize
+	(ubyte 'header_nsize)
 	(offset 'header_name)
 (def-struct-end)
 

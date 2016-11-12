@@ -7,7 +7,7 @@
 
 (def-func 'cmd/unique)
 
-	buffer_size equ 120
+(equate 'buffer_size 120)
 
 	(ptr 'slave, arg, args, stream, set)
 	(ulong 'argc, index, length)

@@ -15,7 +15,7 @@
 	;r1 = value
 
 	(ptr 'this, args, value)
-	pubyte reloc
+	(pubyte 'reloc)
 	(long 'length)
 
 	push_scope

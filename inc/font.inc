@@ -36,8 +36,8 @@
 	(offset 'ft_text_name)
 (def-struct-end)
 
-ft_num_buckets equ 61
-ft_buckets_size equ ptr_size * ft_num_buckets
+(equate 'ft_num_buckets 61)
+(equate 'ft_buckets_size ptr_size * ft_num_buckets)
 
 (def-struct 'ft_statics)
 	(ptr 'ft_statics_font_flist)

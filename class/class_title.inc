@@ -1,6 +1,6 @@
 (import 'class/class_label.inc)
 
-title_border_size equ 1
+(equate 'title_border_size 1)
 
 (def-class 'title 'label)
 (def-method 'create 'class/title/create)

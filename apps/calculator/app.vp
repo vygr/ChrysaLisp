@@ -10,23 +10,23 @@
 
 (def-func 'apps/calculator/app)
 
-	buffer_size equ 32
+(equate 'buffer_size 32)
 
 	(def-struct 'shared 'obj)
 		(ptr 'shared_display)
 		(long 'shared_accum)
 		(long 'shared_value)
 		(struct 'shared_buffer 'buffer)
-		ubyte shared_last_op
-		ubyte shared_last_flag
+		(ubyte 'shared_last_op)
+		(ubyte 'shared_last_flag)
 	(def-struct-end)
 
 	(struct 'myapp 'shared)
 	(ptr 'msg, window, window_panel, flow_panel, grid_panel, button, pressed, string)
-	pubyte next
+	(pubyte 'next)
 	(ulong 'owner)
 	(int 'width, height)
-	ubyte length
+	(ubyte 'length)
 
 	;init app vars
 	push_scope
@@ -124,8 +124,8 @@ on_press:
 	const char_divide, '/'
 
 	(ptr 'inst, button, button_string, display_string, string, string1, string2)
-	pubyte charp
-	ubyte char
+	(pubyte 'charp)
+	(ubyte 'char)
 
 	;save inputs
 	push_scope

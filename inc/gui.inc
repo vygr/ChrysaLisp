@@ -1,8 +1,8 @@
 (import 'inc/list.inc)
 (import 'inc/heap.inc)
 
-SCREEN_WIDTH	equ 1280
-SCREEN_HEIGHT	equ 960
+(equate 'SCREEN_WIDTH 1280)
+(equate 'SCREEN_HEIGHT 960)
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; gui statics classes

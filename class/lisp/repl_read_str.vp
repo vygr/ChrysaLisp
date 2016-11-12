@@ -17,7 +17,7 @@
 	const char_double_quote, '"'
 
 	(ptr 'this, stream, string)
-	pubyte reloc, buffer
+	(pubyte 'reloc, buffer)
 	(ulong 'char)
 
 	push_scope

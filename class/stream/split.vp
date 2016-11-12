@@ -14,9 +14,9 @@
 	;all but r0, r4
 
 	(ptr 'inst, splits, string)
-	pubyte start
+	(pubyte 'start)
 	(ulong 'length)
-	ubyte char
+	(ubyte 'char)
 
 	;save inputs
 	push_scope

@@ -7,7 +7,7 @@
 
 (def-func 'cmd/cat)
 
-	buffer_size equ 120
+(equate 'buffer_size 120)
 
 	(ptr 'slave, arg, args, stream)
 	(ulong 'argc, index, length)

@@ -23,7 +23,7 @@
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-mail_data_size equ 512
+(equate 'mail_data_size 512)
 
 (def-struct 'mailbox 'lh_list)
 	(struct 'mailbox_parcel_list 'lh_list)

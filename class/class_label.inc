@@ -1,6 +1,6 @@
 (import 'class/class_view.inc)
 
-label_border_size	equ 0
+(equate 'label_border_size 0)
 
 (def-class 'label 'view)
 (def-method 'create 'class/label/create)

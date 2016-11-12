@@ -228,7 +228,7 @@
 %endmacro
 
 %macro enum 1
-	%1 equ _enum_
+(equate '	%1 _enum_)
 	%assign _enum_ _enum_ + 1
 %endmacro
 
@@ -247,7 +247,7 @@
 %endmacro
 
 %macro (bit '1)
-	%1 equ 1 << _bit_
+(equate '	%1 1 << _bit_)
 	%assign _bit_ _bit_ + 1
 %endmacro
 
@@ -255,12 +255,12 @@
 ; data structures
 ;;;;;;;;;;;;;;;;;
 
-null_size	equ 0
-byte_size	equ 1
-short_size	equ 2
-int_size	equ 4
-long_size	equ 8
-ptr_size	equ 8
+(equate 'null_size 0)
+(equate 'byte_size 1)
+(equate 'short_size 2)
+(equate 'int_size 4)
+(equate 'long_size 8)
+(equate 'ptr_size 8)
 
 %macro (def-struct '1-2 null)
 	;inputs
@@ -272,7 +272,7 @@ ptr_size	equ 8
 
 %macro (def-struct-end) 0
 	local_align long
-	%[_struct_]_size equ _offset_
+(equate '	%[_struct_]_size _offset_)
 	%undef _struct_
 	%undef _offset_
 %endmacro
@@ -301,7 +301,7 @@ ptr_size	equ 8
 	;%2 = struct name
 	;%3 = type 'pppi'
 	%ifdef _struct_
-		%1 equ _offset_
+(equate '		%1 _offset_)
 		%xdefine %1_t %3
 		%assign _offset_ _offset_ + %2_size
 	%else
@@ -314,7 +314,7 @@ ptr_size	equ 8
 	;inputs
 	;%1 = var name
 	%ifdef _struct_
-		%1 equ _offset_
+(equate '		%1 _offset_)
 	%else
 		%error Atempt to define offset into local stack
 	%endif
@@ -504,9 +504,9 @@ ptr_size	equ 8
 
 %assign _sym_sp 0
 %assign _scope_sp 0
-_sym_op		equ 0
-_sym_const	equ 1
-_sym_var	equ 2
+(equate '_sym_op	 0)
+(equate '_sym_const 1)
+(equate '_sym_var 2)
 
 %macro push_scope 0
 	local_align

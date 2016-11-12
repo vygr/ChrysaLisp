@@ -18,7 +18,7 @@
 	const space_char, ' '
 
 	(ptr 'inst, buffer, msg, string, commands, args, stream, mbox, ids, prefix, cmd)
-	pubyte start
+	(pubyte 'start)
 	(ulong 'length, index, started)
 	(struct 'nextid 'id)
 	(struct 'mailbox 'mailbox)

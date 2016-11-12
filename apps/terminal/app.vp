@@ -11,12 +11,12 @@
 
 (def-func 'apps/terminal/app)
 
-	buffer_size equ 120
+(equate 'buffer_size 120)
 
 	(def-struct 'shared)
 		(ptr 'shared_master, shared_panel, shared_history, shared_window)
 		(ulong 'shared_history_index)
-		pubyte shared_bufp
+		(pubyte 'shared_bufp)
 		(struct 'shared_buffer 'buffer)
 	(def-struct-end)
 
@@ -146,7 +146,7 @@ terminal_input:
 
 	(ptr 'shared, string, last, stream)
 	(ulong 'length, notsame)
-	ubyte char, state
+	(ubyte 'char, state)
 
 	push_scope
 	retire {r0, r1}, {shared, char}

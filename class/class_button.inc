@@ -1,6 +1,6 @@
 (import 'class/class_label.inc)
 
-button_border_size equ 2
+(equate 'button_border_size 2)
 
 (def-bit)
 	(bit 'button_state_pressed)
