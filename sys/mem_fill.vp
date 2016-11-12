@@ -21,11 +21,11 @@
 				;all aligned on 8 byte boundary
 				(vp-and-cr 0xff r2)
 				(vp-cpy-rr r2 r3)
-				vp_shl 8, r3
+				(vp-shl-cr 8 r3)
 				(vp-add-rr r3 r2)
-				vp_shl 8, r3
+				(vp-shl-cr 8 r3)
 				(vp-add-rr r3 r2)
-				vp_shl 8, r3
+				(vp-shl-cr 8 r3)
 				(vp-add-rr r3 r2)
 				(vp-add-rr r0 r1)
 				(loop-start)

@@ -22,9 +22,9 @@
 	(vp-cpy-rr r1 r9)
 	(vp-cpy-rr r1 r10)
 	(vp-cpy-rr r1 r11)
-	vp_shr 24, r11
-	vp_shr 16, r8
-	vp_shr 8, r9
+	(vp-shr-cr 24 r11)
+	(vp-shr-cr 16 r8)
+	(vp-shr-cr 8 r9)
 	(vp-and-cr 0xff r8)
 	(vp-and-cr 0xff r9)
 	(vp-and-cr 0xff r10)

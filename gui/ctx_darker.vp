@@ -12,7 +12,7 @@
 	(vp-cpy-cr 0xff000000 r3)
 	(vp-and-rr r3 r1)
 	(vp-and-cr 0x00fefefe r2)
-	vp_shr 1, r2
+	(vp-shr-cr 1 r2)
 	(vp-add-rr r2 r1)
 	(vp-ret)
 

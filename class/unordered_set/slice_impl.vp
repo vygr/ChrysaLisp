@@ -40,8 +40,8 @@
 	(vp-cpy-ir r3 vector_array r3)
 	(vp-sub-rr r2 r6)
 	(vp-sub-rr r3 r8)
-	vp_shr 3, r6
-	vp_shr 3, r8
+	(vp-shr-cr 3 r6)
+	(vp-shr-cr 3 r8)
 	(vp-cpy-ri r6 r4 local_start_elem)
 	(vp-cpy-ri r8 r4 local_end_elem)
 
@@ -49,8 +49,8 @@
 	(vp-cpy-ir r2 vector_array r2)
 	(vp-sub-rr r2 r7)
 	(vp-sub-rr r2 r9)
-	vp_shr 3, r7
-	vp_shr 3, r9
+	(vp-shr-cr 3 r7)
+	(vp-shr-cr 3 r9)
 	(vp-cpy-ri r7 r4 local_start_bucket)
 	(vp-cpy-ri r9 r4 local_end_bucket)
 
