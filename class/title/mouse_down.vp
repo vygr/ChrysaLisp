@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
-%include 'class/class_title.ninc'
-%include 'class/class_window.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
+(import 'class/class_title.inc)
+(import 'class/class_window.inc)
 
-def_func class/title/mouse_down
+(def-func 'class/title/mouse_down)
 	;inputs
 	;r0 = title object
 	;r1 = mouse event message
@@ -21,4 +21,4 @@ def_func class/title/mouse_down
 	vp_pop r0
 	vp_ret
 
-def_func_end
+(def-func-end)

@@ -1,10 +1,10 @@
-%include 'inc/func.ninc'
-%include 'inc/font.ninc'
-%include 'inc/string.ninc'
-%include 'inc/sdl2.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/font.inc)
+(import 'inc/string.inc)
+(import 'inc/sdl2.inc)
+(import 'inc/task.inc)
 
-def_func gui/font_open
+(def-func 'gui/font_open)
 	;inputs
 	;r0 = font name
 	;r1 = point size
@@ -13,11 +13,11 @@ def_func gui/font_open
 	;trashes
 	;all but r4
 
-	def_struct local
+	(def-struct 'local)
 		long local_font
 		long local_points
 		long local_handle
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -101,4 +101,4 @@ kernel_callback:
 	vp_cpy r15, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

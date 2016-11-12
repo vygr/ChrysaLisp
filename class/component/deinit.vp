@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_component.ninc'
+(import 'inc/func.inc)
+(import 'class/class_component.inc)
 
-def_func class/component/deinit
+(def-func 'class/component/deinit)
 	;inputs
 	;r0 = component object
 	;trashes
@@ -13,4 +13,4 @@ def_func class/component/deinit
 	;deinit parent
 	s_jmp component, deinit, {r0}
 
-def_func_end
+(def-func-end)

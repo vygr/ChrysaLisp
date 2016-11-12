@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
 
-def_func class/vector/append
+(def-func 'class/vector/append)
 	;inputs
 	;r0 = vector object
 	;r1 = source vector object
@@ -12,12 +12,12 @@ def_func class/vector/append
 	;trashes
 	;r1-r3, r5-r8
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
 		ptr local_source
 		ulong local_start
 		ulong local_end
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -44,4 +44,4 @@ def_func class/vector/append
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

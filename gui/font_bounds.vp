@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/font.ninc'
+(import 'inc/func.inc)
+(import 'inc/font.inc)
 
-def_func gui/font_bounds
+(def-func 'gui/font_bounds)
 	;inputs
 	;r0 = font entry
 	;r1 = string object
@@ -22,4 +22,4 @@ def_func gui/font_bounds
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

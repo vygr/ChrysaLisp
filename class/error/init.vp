@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_error.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'class/class_error.inc)
+(import 'class/class_string.inc)
 
-def_func class/error/init
+(def-func 'class/error/init)
 	;inputs
 	;r0 = error object
 	;r1 = vtable pointer
@@ -13,9 +13,9 @@ def_func class/error/init
 	;trashes
 	;r1-r3, r5-r7
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -37,4 +37,4 @@ def_func class/error/init
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_flow.ninc'
+(import 'inc/func.inc)
+(import 'class/class_flow.inc)
 
 class_macro_new flow

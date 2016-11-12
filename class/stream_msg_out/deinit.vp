@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream_msg_out.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream_msg_out.inc)
 
-def_func class/stream_msg_out/deinit
+(def-func 'class/stream_msg_out/deinit)
 	;inputs
 	;r0 = stream_msg_out object
 	;trashes
@@ -20,4 +20,4 @@ def_func class/stream_msg_out/deinit
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

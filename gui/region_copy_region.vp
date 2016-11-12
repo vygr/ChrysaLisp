@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
 
-def_func gui/region_copy_region
+(def-func 'gui/region_copy_region)
 	;inputs
 	;r0 = region heap pointer
 	;r1 = source region listhead pointer
@@ -12,13 +12,13 @@ def_func gui/region_copy_region
 	;trashes
 	;r1-r3, r5-r15
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_node
 		ptr local_slist
 		ptr local_dlist
 		long local_dx
 		long local_dy
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -48,4 +48,4 @@ def_func gui/region_copy_region
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

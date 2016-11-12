@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
-%include 'class/class_window.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
+(import 'class/class_window.inc)
 
-def_func class/window/mouse_down
+(def-func 'class/window/mouse_down)
 	;inputs
 	;r0 = window object
 	;r1 = mouse event message
@@ -42,4 +42,4 @@ def_func class/window/mouse_down
 	vp_cpy r13, [r0 + window_offset_y]
 	vp_ret
 
-def_func_end
+(def-func-end)

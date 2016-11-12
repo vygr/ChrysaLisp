@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/task.inc)
 
-def_func sys/math_random
+(def-func 'sys/math_random)
 	;inputs
 	;r0 = random range
 	;outputs
@@ -24,4 +24,4 @@ def_func sys/math_random
 seed:
 	dq 1234567890
 
-def_func_end
+(def-func-end)

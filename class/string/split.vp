@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_string.ninc'
-%include 'class/class_stream.ninc'
+(import 'inc/func.inc)
+(import 'class/class_string.inc)
+(import 'class/class_stream.inc)
 
-def_func class/string/split
+(def-func 'class/string/split)
 	;inputs
 	;r0 = string object
 	;r1 = split char
@@ -28,4 +28,4 @@ def_func class/string/split
 	pop_scope
 	vp_ret
 
-def_func_end
+(def-func-end)

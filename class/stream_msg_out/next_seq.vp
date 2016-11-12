@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream_msg_out.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream_msg_out.inc)
 
-def_func class/stream_msg_out/next_seq
+(def-func 'class/stream_msg_out/next_seq)
 	;inputs
 	;r0 = list head
 	;r1 = 0, else new stream msg
@@ -28,4 +28,4 @@ def_func class/stream_msg_out/next_seq
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

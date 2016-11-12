@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/heap.ninc'
+(import 'inc/func.inc)
+(import 'inc/heap.inc)
 
-def_func sys/mem_used
+(def-func 'sys/mem_used)
 	;outputs
 	;r0 = amount in bytes
 
@@ -9,4 +9,4 @@ def_func sys/mem_used
 	vp_cpy [r0], r0
 	vp_ret
 
-def_func_end
+(def-func-end)

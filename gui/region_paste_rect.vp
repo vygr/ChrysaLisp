@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
 
-def_func gui/region_paste_rect
+(def-func 'gui/region_paste_rect)
 	;inputs
 	;r0 = region heap pointer
 	;r1 = dest region listhead pointer
@@ -224,4 +224,4 @@ def_func gui/region_paste_rect
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

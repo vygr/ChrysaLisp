@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream.inc)
 
-def_func class/stream/write_flush
+(def-func 'class/stream/write_flush)
 	;inputs
 	;r0 = stream object
 	;outputs
@@ -14,4 +14,4 @@ def_func class/stream/write_flush
 	vp_cpy r1, [r0 + stream_bufe]
 	vp_ret
 
-def_func_end
+(def-func-end)

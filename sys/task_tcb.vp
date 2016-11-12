@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/task.inc)
 
-def_func sys/task_tcb
+(def-func 'sys/task_tcb)
 	;outputs
 	;r0 = current task tcb
 
@@ -9,4 +9,4 @@ def_func sys/task_tcb
 	vp_cpy [r0 + tk_statics_current_tcb], r0
 	vp_ret
 
-def_func_end
+(def-func-end)

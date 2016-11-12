@@ -1,36 +1,36 @@
 %ifndef LIST_1234
 %define LIST_1234
 
-%include 'inc/vp.ninc'
-%include 'inc/code.ninc'
+(import 'inc/vp.inc)
+(import 'inc/code.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; list static class
 ;;;;;;;;;;;;;;;;;;;
 
-def_class sys_list
-def_method init, sys/list_init, static, {r0}
-def_method index_of, sys/list_index_of, static, {r0, r1}, {r1}
-def_method node_at, sys/list_node_at, static, {r0, r1}, {r0}
+(def-class 'sys_list)
+(def-method 'init 'sys/list_init 'static '(r0))
+(def-method 'index_of 'sys/list_index_of 'static '(r0, r1), '(r1))
+(def-method 'node_at 'sys/list_node_at 'static '(r0, r1), '(r0))
 
 ;;;;;;;;;;;;;;;;;
 ; list structures
 ;;;;;;;;;;;;;;;;;
 
-def_struct lh_list
+(def-struct 'lh_list)
 	ptr lh_list_head
 	ptr lh_list_tail
 	ptr lh_list_tailpred
-def_struct_end
+(def-struct-end)
 
-def_struct ln_node
+(def-struct 'ln_node)
 	ptr ln_node_succ
 	ptr ln_node_pred
-def_struct_end
+(def-struct-end)
 
-def_struct ln_fnode
+(def-struct 'ln_fnode)
 	ptr ln_fnode_next
-def_struct_end
+(def-struct-end)
 
 ;;;;;;;;;;;;;;;;;;
 ; list node macros

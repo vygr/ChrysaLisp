@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_label.ninc'
+(import 'inc/func.inc)
+(import 'class/class_label.inc)
 
-def_func class/label/draw
+(def-func 'class/label/draw)
 	;inputs
 	;r0 = view object
 	;r1 = ctx object
@@ -11,4 +11,4 @@ def_func class/label/draw
 	;draw panel
 	f_jmp label, draw_panel, {r0, r1, 1, label_border_size}
 
-def_func_end
+(def-func-end)

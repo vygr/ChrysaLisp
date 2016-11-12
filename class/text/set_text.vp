@@ -1,18 +1,18 @@
-%include 'inc/func.ninc'
-%include 'class/class_text.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'class/class_text.inc)
+(import 'class/class_string.inc)
 
-def_func class/text/set_text
+(def-func 'class/text/set_text)
 	;inputs
 	;r0 = text object
 	;r1 = 0, else string object
 	;trashes
 	;all but r0, r4
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
 		long local_string
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -43,4 +43,4 @@ def_func class/text/set_text
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

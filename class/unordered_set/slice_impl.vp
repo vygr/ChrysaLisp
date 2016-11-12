@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_unordered_set.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_unordered_set.inc)
+(import 'class/class_vector.inc)
 
-def_func class/unordered_set/slice_impl
+(def-func 'class/unordered_set/slice_impl)
 	;inputs
 	;r0 = unordered_set object
 	;r1 = empty set/map object
@@ -15,7 +15,7 @@ def_func class/unordered_set/slice_impl
 	;trashes
 	;all but r0, r4
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_obj	;must be first !
 		ptr local_inst
 		ptr local_callback
@@ -23,7 +23,7 @@ def_func class/unordered_set/slice_impl
 		ulong local_start_elem
 		ulong local_end_bucket
 		ulong local_end_elem
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -91,4 +91,4 @@ callback:
 	vp_cpy 1, r1
 	vp_ret
 
-def_func_end
+(def-func-end)

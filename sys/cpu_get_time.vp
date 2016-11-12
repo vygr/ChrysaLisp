@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/syscall.ninc'
+(import 'inc/func.inc)
+(import 'inc/syscall.inc)
 
-def_func sys/cpu_get_time
+(def-func 'sys/cpu_get_time)
 	;outputs
 	;r0 = time in usec
 
@@ -15,4 +15,4 @@ def_func sys/cpu_get_time
 	vp_add timeval_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
 
-def_func gui/gui_init
+(def-func 'gui/gui_init)
 	;inputs
 	;r0 = sdl function table
 
@@ -19,4 +19,4 @@ def_func gui/gui_init
 	;init signal heap
 	f_jmp sys_heap, init, {&[r3 + gui_statics_sigslot_heap], gui_sigslot_size, gui_sigslot_size * 32}
 
-def_func_end
+(def-func-end)

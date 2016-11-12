@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream.inc)
 
-def_func class/stream/create
+(def-func 'class/stream/create)
 	;inputs
 	;r0 = object pointer, 0 if none
 	;r1 = buffer pointer, 0 if none
@@ -30,4 +30,4 @@ def_func class/stream/create
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

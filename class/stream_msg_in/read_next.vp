@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream_msg_in.ninc'
-%include 'class/class_stream_msg_out.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream_msg_in.inc)
+(import 'class/class_stream_msg_out.inc)
 
-def_func class/stream_msg_in/read_next
+(def-func 'class/stream_msg_in/read_next)
 	;inputs
 	;r0 = stream_msg_in object
 	;outputs
@@ -54,4 +54,4 @@ def_func class/stream_msg_in/read_next
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

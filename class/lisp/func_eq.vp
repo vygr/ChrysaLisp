@@ -1,12 +1,12 @@
-%include 'inc/func.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_boxed_long.ninc'
-%include 'class/class_error.ninc'
-%include 'class/class_lisp.ninc'
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_boxed_long.inc)
+(import 'class/class_error.inc)
+(import 'class/class_lisp.inc)
 
 ;eq all the same
 
-def_func class/lisp/func_eq
+(def-func 'class/lisp/func_eq)
 	;inputs
 	;r0 = lisp object
 	;r1 = args
@@ -14,11 +14,11 @@ def_func class/lisp/func_eq
 	;r0 = lisp object
 	;r1 = value
 
-	def_struct pdata
+	(def-struct 'pdata)
 		ptr pdata_this
 		ptr pdata_value
 		long pdata_num
-	def_struct_end
+	(def-struct-end)
 
 	ptr this, value
 	long num
@@ -82,4 +82,4 @@ callback:
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

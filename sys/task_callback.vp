@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
 
-def_func sys/task_callback
+(def-func 'sys/task_callback)
 	;inputs
 	;r0 = callback address
 	;r1 = user data address
@@ -47,4 +47,4 @@ def_func sys/task_callback
 	ml_temp_destroy
 	f_jmp sys_mem, free, {r0}
 
-def_func_end
+(def-func-end)

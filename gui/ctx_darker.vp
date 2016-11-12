@@ -1,6 +1,6 @@
-%include 'inc/func.ninc'
+(import 'inc/func.inc)
 
-def_func gui/ctx_darker
+(def-func 'gui/ctx_darker)
 	;inputs
 	;r1 = colour
 	;inputs
@@ -16,4 +16,4 @@ def_func gui/ctx_darker
 	vp_add r2, r1
 	vp_ret
 
-def_func_end
+(def-func-end)

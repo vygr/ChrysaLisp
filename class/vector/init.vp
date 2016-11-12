@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
 
-def_func class/vector/init
+(def-func 'class/vector/init)
 	;inputs
 	;r0 = vector object
 	;r1 = vtable pointer
@@ -21,4 +21,4 @@ def_func class/vector/init
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

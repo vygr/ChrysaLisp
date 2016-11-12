@@ -1,17 +1,17 @@
-%include 'inc/func.ninc'
-%include 'class/class_unordered_set.ninc'
-%include 'class/class_unordered_map.ninc'
-%include 'class/class_symbol.ninc'
-%include 'class/class_lisp.ninc'
+(import 'inc/func.inc)
+(import 'class/class_unordered_set.inc)
+(import 'class/class_unordered_map.inc)
+(import 'class/class_symbol.inc)
+(import 'class/class_lisp.inc)
 
-def_struct built_in
+(def-struct 'built_in)
 	ushort built_in_symbol
 	ushort built_in_field
 	ushort built_in_function
 	ushort built_in_flags
 	offset built_in_hop
 	;built_in_size would be aligned to long !
-def_struct_end
+(def-struct-end)
 
 %macro built_in 2-4 "", type_args_eval_apply
 	;%1 = symbol
@@ -31,7 +31,7 @@ def_struct_end
 	dw %4
 %endmacro
 
-def_func class/lisp/init
+(def-func 'class/lisp/init)
 	;inputs
 	;r0 = object
 	;r1 = vtable pointer
@@ -180,4 +180,4 @@ built_ins:
 	built_in "eval", 0, func_eval
 	dw 0
 
-def_func_end
+(def-func-end)

@@ -1,6 +1,6 @@
-%include 'inc/func.ninc'
+(import 'inc/func.inc)
 
-def_func sys/string_compare
+(def-func 'sys/string_compare)
 	;inputs
 	;r0 = string1
 	;r1 = string2
@@ -21,4 +21,4 @@ def_func sys/string_compare
 	vp_cpy r2, r0
 	vp_ret
 
-def_func_end
+(def-func-end)

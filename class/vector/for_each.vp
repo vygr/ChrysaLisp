@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
 
-def_func class/vector/for_each
+(def-func 'class/vector/for_each)
 	;inputs
 	;r0 = vector object
 	;r1 = start index
@@ -22,13 +22,13 @@ def_func class/vector/for_each
 		;trashes
 		;all but r0, r4
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
 		ptr local_predicate
 		ptr local_predicate_data
 		ptr local_next
 		ptr local_end
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -62,4 +62,4 @@ def_func class/vector/for_each
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

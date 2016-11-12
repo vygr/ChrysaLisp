@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/task.inc)
 
-def_func sys/task_yield
+(def-func 'sys/task_yield)
 	;push task state
 	tk_save_state
 
@@ -14,4 +14,4 @@ def_func sys/task_yield
 	ln_get_succ r15, r15
 	f_jmp sys_task, restore
 
-def_func_end
+(def-func-end)

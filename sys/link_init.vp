@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/link.ninc'
+(import 'inc/func.inc)
+(import 'inc/link.inc)
 
-def_func sys/link_init
+(def-func 'sys/link_init)
 	;get statics
 	f_bind sys_link, statics, r0
 
@@ -9,4 +9,4 @@ def_func sys/link_init
 	lh_init r0, r1
 	vp_ret
 
-def_func_end
+(def-func-end)

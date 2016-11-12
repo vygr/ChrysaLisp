@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
 
-def_func sys/mail_in
+(def-func 'sys/mail_in)
 	;parcel fragments arriving on chip task
 
 	loop_start
@@ -69,4 +69,4 @@ def_func sys/mail_in
 	loop_end
 	vp_ret
 
-def_func_end
+(def-func-end)

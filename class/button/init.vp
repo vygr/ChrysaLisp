@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_button.ninc'
-%include 'class/class_flow.ninc'
+(import 'inc/func.inc)
+(import 'class/class_button.inc)
+(import 'class/class_flow.inc)
 
-def_func class/button/init
+(def-func 'class/button/init)
 	;inputs
 	;r0 = button object
 	;r1 = vtable pointer
@@ -20,4 +20,4 @@ def_func class/button/init
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

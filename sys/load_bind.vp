@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'inc/load.ninc'
+(import 'inc/func.inc)
+(import 'inc/load.inc)
 
 ;%define list_loaded
 
-def_func sys/load_bind
+(def-func 'sys/load_bind)
 	;input
 	;r0 = function path name
 	;output
@@ -259,4 +259,4 @@ loaded_name:
 loaded_name_end:
 %endif
 
-def_func_end
+(def-func-end)

@@ -1,11 +1,11 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
-%include 'inc/task.ninc'
-%include 'inc/link.ninc'
-%include 'inc/string.ninc'
-%include 'inc/load.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
+(import 'inc/task.inc)
+(import 'inc/link.inc)
+(import 'inc/string.inc)
+(import 'inc/load.inc)
 
-def_func sys/opt_process
+(def-func 'sys/opt_process)
 	;process command options
 	;inputs
 	;r0 = argv array
@@ -122,4 +122,4 @@ options_table:
 		align 8, db 0
 	dq	0
 
-def_func_end
+(def-func-end)

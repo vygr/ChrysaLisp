@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/syscall.ninc'
+(import 'inc/func.inc)
+(import 'inc/syscall.inc)
 
-def_func sys/write_number
+(def-func 'sys/write_number)
 	;inputs
 	;r0 = number
 	;r1 = fd
@@ -26,4 +26,4 @@ def_func sys/write_number
 	loop_until r5, ==, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

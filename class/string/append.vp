@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/string.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'inc/string.inc)
+(import 'class/class_string.inc)
 
-def_func class/string/append
+(def-func 'class/string/append)
 	;inputs
 	;r0 = string object
 	;r1 = string object
@@ -35,4 +35,4 @@ def_func class/string/append
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

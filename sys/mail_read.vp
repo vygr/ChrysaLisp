@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/task.inc)
 
-def_func sys/mail_read
+(def-func 'sys/mail_read)
 	;inputs
 	;r0 = mailbox address
 	;outputs
@@ -21,4 +21,4 @@ def_func sys/mail_read
 	ln_remove_node r1, r2
 	vp_ret
 
-def_func_end
+(def-func-end)

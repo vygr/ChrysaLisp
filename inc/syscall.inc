@@ -1,25 +1,25 @@
 %ifndef SYSCALL_1234
 %define SYSCALL_1234
 
-%include 'inc/class.ninc'
+(import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; syscall static class
 ;;;;;;;;;;;;;;;;;;;;;;
 
-def_class sys_io
-def_method char, sys/write_char, static, {r0, r1}
-def_method string, sys/write_string, static, {r0, r1}
-def_method number, sys/write_number, static, {r0, r1, r2}
-def_method read, sys/read_line, static, {r0, r1, r2}, {r0}
-def_method debug_long, sys/write_debug_long, static, {r0, r1, r2, r3}
-def_method debug_str, sys/write_debug_str, static, {r0, r1, r2, r3}
+(def-class 'sys_io)
+(def-method 'char 'sys/write_char 'static '(r0, r1))
+(def-method 'string 'sys/write_string 'static '(r0, r1))
+(def-method 'number 'sys/write_number 'static '(r0, r1, r2))
+(def-method 'read 'sys/read_line 'static '(r0, r1, r2), '(r0))
+(def-method 'debug_long 'sys/write_debug_long 'static '(r0, r1, r2, r3))
+(def-method 'debug_str 'sys/write_debug_str 'static '(r0, r1, r2, r3))
 
-def_class sys_cpu
-def_method id, sys/cpu_get_id, static, {}, {r0}
-def_method time, sys/cpu_get_time, static, {}, {r0}
-def_method total, sys/cpu_get_total, static, {}, {r0}
-def_method opts, sys/opt_process,static, {r0}
+(def-class 'sys_cpu)
+(def-method 'id 'sys/cpu_get_id 'static '(), '(r0))
+(def-method 'time 'sys/cpu_get_time 'static '(), '(r0))
+(def-method 'total 'sys/cpu_get_total 'static '(), '(r0))
+(def-method 'opts 'sys/opt_process,static '{r0})
 
 %macro sys_call 1
 	vp_cpy %1, r0
@@ -90,15 +90,15 @@ stat_mode			equ	0x8
 stat_fsize			equ 0x48
 stat_size			equ 0x100
 
-def_struct timeval
+(def-struct 'timeval)
 	long timeval_sec
 	long timeval_usec
-def_struct_end
+(def-struct-end)
 
-def_struct timezone
+(def-struct 'timezone)
 	int	timeval_minuteswest
 	int	timeval_dsttime
-def_struct_end
+(def-struct-end)
 
 ;;;;;;;;;;;;;;;;
 ; syscall macros
@@ -331,15 +331,15 @@ stat_mode			equ	0x18
 stat_fsize			equ	0x30
 stat_size			equ 0x100
 
-def_struct timeval
+(def-struct 'timeval)
 	long timeval_sec
 	long timeval_usec
-def_struct_end
+(def-struct-end)
 
-def_struct timezone
+(def-struct 'timezone)
 	int	timeval_minuteswest
 	int	timeval_dsttime
-def_struct_end
+(def-struct-end)
 
 ;;;;;;;;;;;;;;;;
 ; syscall macros

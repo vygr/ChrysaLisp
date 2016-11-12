@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
 
-def_func sys/mail_alloc
+(def-func 'sys/mail_alloc)
 	;outputs
 	;r0 = mail message
 	;trashes
@@ -16,4 +16,4 @@ def_func sys/mail_alloc
 	vp_cpy_cl 0, [r0 + msg_parcel_size]
 	vp_ret
 
-def_func_end
+(def-func-end)

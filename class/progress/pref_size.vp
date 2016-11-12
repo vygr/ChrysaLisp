@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_progress.ninc'
+(import 'inc/func.inc)
+(import 'class/class_progress.inc)
 
-def_func class/progress/pref_size
+(def-func 'class/progress/pref_size)
 	;inputs
 	;r0 = progress object
 	;outputs
@@ -14,4 +14,4 @@ def_func class/progress/pref_size
 	vp_cpy 10, r11
 	vp_ret
 
-def_func_end
+(def-func-end)

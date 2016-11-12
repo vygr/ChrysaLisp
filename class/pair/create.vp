@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_pair.ninc'
+(import 'inc/func.inc)
+(import 'class/class_pair.inc)
 
-def_func class/pair/create
+(def-func 'class/pair/create)
 	;inputs
 	;r0 = first object
 	;r1 = second object
@@ -28,4 +28,4 @@ def_func class/pair/create
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

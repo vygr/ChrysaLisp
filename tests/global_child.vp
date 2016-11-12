@@ -1,12 +1,12 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
-%include 'inc/math.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
+(import 'inc/math.inc)
 
 ;;;;;;;;;;;
 ; test code
 ;;;;;;;;;;;
 
-def_func tests/global_child
+(def-func 'tests/global_child)
 
 	ptr msg
 	ulong num
@@ -24,4 +24,4 @@ def_func tests/global_child
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

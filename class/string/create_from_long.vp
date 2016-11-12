@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'inc/string.ninc'
-%include 'inc/load.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'inc/string.inc)
+(import 'inc/load.inc)
+(import 'class/class_string.inc)
 
-def_func class/string/create_from_long
+(def-func 'class/string/create_from_long)
 	;inputs
 	;r0 = number
 	;r1 = base
@@ -36,4 +36,4 @@ def_func class/string/create_from_long
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

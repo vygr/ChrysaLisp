@@ -1,6 +1,6 @@
-%include 'inc/func.ninc'
+(import 'inc/func.inc)
 
-def_func sys/string_from_long
+(def-func 'sys/string_from_long)
 	;inputs
 	;r0 = number
 	;r1 = string buffer
@@ -32,4 +32,4 @@ def_func sys/string_from_long
 	loop_until r1, ==, r5
 	vp_ret
 
-def_func_end
+(def-func-end)

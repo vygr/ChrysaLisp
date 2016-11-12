@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/task.inc)
 
-def_func sys/task_start
+(def-func 'sys/task_start)
 	;inputs
 	;r0 = new task func pointer
 	;outputs
@@ -57,4 +57,4 @@ def_func sys/task_start
 	vp_lea [r0 + tk_node_mailbox], r1
 	vp_ret
 
-def_func_end
+(def-func-end)

@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/task.inc)
 
-def_func sys/cpu_get_total
+(def-func 'sys/cpu_get_total)
 	;outputs
 	;r0 = cpu total
 
@@ -9,4 +9,4 @@ def_func sys/cpu_get_total
 	vp_cpy [r0 + tk_statics_cpu_total], r0
 	vp_ret
 
-def_func_end
+(def-func-end)

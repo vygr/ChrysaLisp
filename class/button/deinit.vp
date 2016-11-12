@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_button.ninc'
+(import 'inc/func.inc)
+(import 'class/class_button.inc)
 
-def_func class/button/deinit
+(def-func 'class/button/deinit)
 	;inputs
 	;r0 = button object
 	;trashes
@@ -13,4 +13,4 @@ def_func class/button/deinit
 	;parent deinit
 	s_jmp button, deinit, {r0}
 
-def_func_end
+(def-func-end)

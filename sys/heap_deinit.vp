@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/heap.ninc'
-%include 'inc/syscall.ninc'
+(import 'inc/func.inc)
+(import 'inc/heap.inc)
+(import 'inc/syscall.inc)
 
-def_func sys/heap_deinit
+(def-func 'sys/heap_deinit)
 	;inputs
 	;r0 = heap
 	;outputs
@@ -22,4 +22,4 @@ def_func sys/heap_deinit
 	loop_end
 	vp_ret
 
-def_func_end
+(def-func-end)

@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/load.ninc'
+(import 'inc/func.inc)
+(import 'inc/load.inc)
 
-def_func sys/load_init
+(def-func 'sys/load_init)
 	;set prebound functions as read/write/executable
 	vp_rel _func_start, r0
 	vp_cpy r0, r1
@@ -89,4 +89,4 @@ bind_error:
 	db 'Prebind error: '
 bind_error_end:
 
-def_func_end
+(def-func-end)

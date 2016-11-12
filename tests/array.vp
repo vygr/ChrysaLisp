@@ -1,13 +1,13 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_string.inc)
 
 ;;;;;;;;;;;
 ; test code
 ;;;;;;;;;;;
 
-def_func tests/array
+(def-func 'tests/array)
 
 	const num_child, 128
 
@@ -45,4 +45,4 @@ def_func tests/array
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

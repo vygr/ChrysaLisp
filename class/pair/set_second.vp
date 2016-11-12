@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_pair.ninc'
+(import 'inc/func.inc)
+(import 'class/class_pair.inc)
 
-def_func class/pair/set_second
+(def-func 'class/pair/set_second)
 	;inputs
 	;r0 = pair object
 	;r1 = object pointer
@@ -10,10 +10,10 @@ def_func class/pair/set_second
 	;trashs
 	;all but r0, r4
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
 		ptr local_obj
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -29,4 +29,4 @@ def_func class/pair/set_second
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

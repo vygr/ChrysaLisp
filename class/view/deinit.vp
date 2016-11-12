@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
-%include 'class/class_view.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
+(import 'class/class_view.inc)
 
-def_func class/view/deinit
+(def-func 'class/view/deinit)
 	;inputs
 	;r0 = view object
 	;trashes
@@ -38,4 +38,4 @@ def_func class/view/deinit
 	vp_pop r0
 	s_jmp view, deinit, {r0}
 
-def_func_end
+(def-func-end)

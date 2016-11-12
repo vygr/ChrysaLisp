@@ -1,15 +1,15 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_symbol.ninc'
-%include 'class/class_boxed_long.ninc'
-%include 'class/class_pair.ninc'
-%include 'class/class_unordered_set.ninc'
-%include 'class/class_unordered_map.ninc'
-%include 'class/class_error.ninc'
-%include 'class/class_lisp.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_symbol.inc)
+(import 'class/class_boxed_long.inc)
+(import 'class/class_pair.inc)
+(import 'class/class_unordered_set.inc)
+(import 'class/class_unordered_map.inc)
+(import 'class/class_error.inc)
+(import 'class/class_lisp.inc)
 
-def_func class/lisp/repl_print
+(def-func 'class/lisp/repl_print)
 	;inputs
 	;r0 = lisp object
 	;r1 = stream
@@ -35,12 +35,12 @@ def_func class/lisp/repl_print
 	const char_lf, 10
 	const char_at, '@'
 
-	def_struct pdata
+	(def-struct 'pdata)
 		ptr pdata_this
 		ptr pdata_stream
 		uint pdata_index
 		uint pdata_length
-	def_struct_end
+	(def-struct-end)
 
 	ptr this, stream
 	uint index, length
@@ -191,4 +191,4 @@ callback:
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
 
-def_func sys/mail_init
+(def-func 'sys/mail_init)
 	;inputs
 	;r1 = kernel mailbox
 
@@ -24,4 +24,4 @@ def_func sys/mail_init
 	vp_cpy_cl 0, [r7 + ml_statics_parcel_id]
 	vp_ret
 
-def_func_end
+(def-func-end)

@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/font.ninc'
+(import 'inc/func.inc)
+(import 'inc/font.inc)
 
-def_func gui/font_init
+(def-func 'gui/font_init)
 
 	;get font statics
 	f_bind gui_font, statics, r1
@@ -19,4 +19,4 @@ def_func gui/font_init
 	loop_until r1, ==, r2
 	vp_ret
 
-def_func_end
+(def-func-end)

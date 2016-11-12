@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_boxed_ptr.ninc'
+(import 'inc/func.inc)
+(import 'class/class_boxed_ptr.inc)
 
-def_func class/boxed_ptr/set_flags
+(def-func 'class/boxed_ptr/set_flags)
 	;inputs
 	;r0 = object
 	;r1 = value
@@ -11,4 +11,4 @@ def_func class/boxed_ptr/set_flags
 	vp_cpy r1, [r0 + boxed_ptr_flags]
 	vp_ret
 
-def_func_end
+(def-func-end)

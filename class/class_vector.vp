@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
 
-class_macro_class vector
+(class-macro-class 'vector)

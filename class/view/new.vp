@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_view.ninc'
+(import 'inc/func.inc)
+(import 'class/class_view.inc)
 
 class_macro_new view

@@ -1,10 +1,10 @@
-%include 'inc/func.ninc'
-%include 'inc/task.ninc'
-%include 'inc/gui.ninc'
-%include 'inc/sdl2.ninc'
-%include 'class/class_label.ninc'
+(import 'inc/func.inc)
+(import 'inc/task.inc)
+(import 'inc/gui.inc)
+(import 'inc/sdl2.inc)
+(import 'class/class_label.inc)
 
-def_struct local
+(def-struct 'local)
 	long local_x_pos
 	long local_y_pos
 	long local_buttons
@@ -16,9 +16,9 @@ def_struct local
 	ptr local_keymap
 	uint local_keymap_size
 	ptr local_old_keymap
-def_struct_end
+(def-struct-end)
 
-def_func gui/gui
+(def-func 'gui/gui)
 	;init vars
 	vp_sub local_size, r4
 	vp_xor r0, r0
@@ -238,10 +238,10 @@ update_callback:
 	;inputs
 	;r0 = user data
 
-	def_struct klocal
+	(def-struct 'klocal)
 		long klocal_old_stack
 		long klocal_user
-	def_struct_end
+	(def-struct-end)
 
 	;align stack
 	vp_cpy r4, r1
@@ -367,4 +367,4 @@ scan_codes:
 	db 0x51, 130, 130	;down
 scan_codes_end:
 
-def_func_end
+(def-func-end)

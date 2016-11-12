@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_view.ninc'
+(import 'inc/func.inc)
+(import 'class/class_view.inc)
 
-def_func class/view/set_bounds
+(def-func 'class/view/set_bounds)
 	;inputs
 	;r0 = view object
 	;r8 = x
@@ -15,4 +15,4 @@ def_func class/view/set_bounds
 	vp_cpy r11, [r0 + view_h]
 	vp_ret
 
-def_func_end
+(def-func-end)

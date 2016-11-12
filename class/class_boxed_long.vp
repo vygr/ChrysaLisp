@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_boxed_long.ninc'
+(import 'inc/func.inc)
+(import 'class/class_boxed_long.inc)
 
-class_macro_class boxed_long
+(class-macro-class 'boxed_long)

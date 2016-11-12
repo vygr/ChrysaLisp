@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/font.ninc'
-%include 'class/class_title.ninc'
+(import 'inc/func.inc)
+(import 'inc/font.inc)
+(import 'class/class_title.inc)
 
-def_func class/title/draw
+(def-func 'class/title/draw)
 	;inputs
 	;r0 = view object
 	;r1 = ctx object
@@ -12,4 +12,4 @@ def_func class/title/draw
 	;draw panel
 	f_jmp title, draw_panel, {r0, r1, 1, title_border_size}
 
-def_func_end
+(def-func-end)

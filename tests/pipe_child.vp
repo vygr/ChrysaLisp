@@ -1,11 +1,11 @@
-%include 'inc/func.ninc'
-%include 'inc/math.ninc'
+(import 'inc/func.inc)
+(import 'inc/math.inc)
 
 ;;;;;;;;;;;
 ; test code
 ;;;;;;;;;;;
 
-def_func tests/pipe_child
+(def-func 'tests/pipe_child)
 
 	ptr msg
 	ulong num
@@ -23,4 +23,4 @@ def_func tests/pipe_child
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

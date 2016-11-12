@@ -1,11 +1,11 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
-%include 'inc/font.ninc'
-%include 'class/class_text.ninc'
-%include 'class/class_string.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
+(import 'inc/font.inc)
+(import 'class/class_text.inc)
+(import 'class/class_string.inc)
+(import 'class/class_vector.inc)
 
-def_func class/text/draw
+(def-func 'class/text/draw)
 	;inputs
 	;r0 = view object
 	;r1 = ctx object
@@ -42,4 +42,4 @@ def_func class/text/draw
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

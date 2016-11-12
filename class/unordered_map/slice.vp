@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'class/class_unordered_map.ninc'
-%include 'class/class_pair.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_unordered_map.inc)
+(import 'class/class_pair.inc)
+(import 'class/class_vector.inc)
 
-def_func class/unordered_map/slice
+(def-func 'class/unordered_map/slice)
 	;inputs
 	;r0 = unordered_map object
 	;r1 = start element
@@ -39,4 +39,4 @@ callback:
 	vp_pop r1
 	f_jmp vector, push_back, {r0, r1}
 
-def_func_end
+(def-func-end)

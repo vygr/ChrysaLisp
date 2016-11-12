@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream.inc)
 
-def_func class/stream/available
+(def-func 'class/stream/available)
 	;inputs
 	;r0 = stream object
 	;outputs
@@ -12,4 +12,4 @@ def_func class/stream/available
 	vp_sub [r0 + stream_bufp], r1
 	vp_ret
 
-def_func_end
+(def-func-end)

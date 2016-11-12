@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_pair.ninc'
+(import 'inc/func.inc)
+(import 'class/class_pair.inc)
 
-def_func class/pair/init
+(def-func 'class/pair/init)
 	;inputs
 	;r0 = pair object
 	;r1 = vtable pointer
@@ -17,4 +17,4 @@ def_func class/pair/init
 	;init parent
 	s_jmp pair, init, {r0, r1}, {r1}
 
-def_func_end
+(def-func-end)

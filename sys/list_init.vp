@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/list.ninc'
+(import 'inc/func.inc)
+(import 'inc/list.inc)
 
-def_func sys/list_init
+(def-func 'sys/list_init)
 	;inputs
 	;r0 = list head
 	;trashes
@@ -10,4 +10,4 @@ def_func sys/list_init
 	lh_init r0, r1
 	vp_ret
 
-def_func_end
+(def-func-end)

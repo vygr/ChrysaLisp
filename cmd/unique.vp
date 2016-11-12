@@ -1,11 +1,11 @@
-%include 'inc/func.ninc'
-%include 'class/class_string.ninc'
-%include 'class/class_stream.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_slave.ninc'
-%include 'class/class_unordered_set.ninc'
+(import 'inc/func.inc)
+(import 'class/class_string.inc)
+(import 'class/class_stream.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_slave.inc)
+(import 'class/class_unordered_set.inc)
 
-def_func cmd/unique
+(def-func 'cmd/unique)
 
 	buffer_size equ 120
 
@@ -75,4 +75,4 @@ callback:
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

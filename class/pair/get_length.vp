@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_pair.ninc'
+(import 'inc/func.inc)
+(import 'class/class_pair.inc)
 
-def_func class/pair/get_length
+(def-func 'class/pair/get_length)
 	;inputs
 	;r0 = pair object
 	;outputs
@@ -11,4 +11,4 @@ def_func class/pair/get_length
 	vp_cpy 2, r1
 	vp_ret
 
-def_func_end
+(def-func-end)

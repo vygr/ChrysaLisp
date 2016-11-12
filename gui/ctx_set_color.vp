@@ -1,16 +1,16 @@
-%include 'inc/func.ninc'
-%include 'inc/sdl2.ninc'
+(import 'inc/func.inc)
+(import 'inc/sdl2.inc)
 
-def_func gui/ctx_set_color
+(def-func 'gui/ctx_set_color)
 	;inputs
 	;r0 = ctx
 	;r1 = color
 	;trashes
 	;all but r4
 
-	def_struct local
+	(def-struct 'local)
 		long local_old_stack
-	def_struct_end
+	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
 	vp_cpy r4, r15
@@ -34,4 +34,4 @@ def_func gui/ctx_set_color
 	vp_cpy [r4 + local_old_stack], r4
 	vp_ret
 
-def_func_end
+(def-func-end)

@@ -1,5 +1,5 @@
-%include 'inc/func.ninc'
-%include 'inc/sdl2.ninc'
+(import 'inc/func.inc)
+(import 'inc/sdl2.inc)
 
 ;;;;;;;;;;;;;
 ; entry point

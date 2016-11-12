@@ -1,7 +1,7 @@
 %ifndef CODE_1234
 %define CODE_1234
 
-%include 'inc/vp.ninc'
+(import 'inc/vp.inc)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; things I wish sombody would add to NASM
@@ -239,17 +239,17 @@
 ; bits
 ;;;;;;
 
-%macro def_bit 0-1 0
+%macro (def-bit) 0-1 0
 	;inputs
 	;%1 = start bit
 	%assign _bit_ %1
 %endmacro
 
-%macro def_bit_end 0
+%macro (def-bit-end) 0
 	%undef _bit_
 %endmacro
 
-%macro bit 1
+%macro (bit '1)
 	%1 equ 1 << _bit_
 	%assign _bit_ _bit_ + 1
 %endmacro
@@ -265,7 +265,7 @@ int_size	equ 4
 long_size	equ 8
 ptr_size	equ 8
 
-%macro def_struct 1-2 null
+%macro (def-struct '1-2 null)
 	;inputs
 	;%1 = structure name
 	;%2 = super structure name
@@ -273,7 +273,7 @@ ptr_size	equ 8
 	%assign _offset_ %2_size
 %endmacro
 
-%macro def_struct_end 0
+%macro (def-struct-end) 0
 	local_align long
 	%[_struct_]_size equ _offset_
 	%undef _struct_

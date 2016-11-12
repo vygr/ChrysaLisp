@@ -1,6 +1,6 @@
-%include 'inc/func.ninc'
+(import 'inc/func.inc)
 
-def_func sys/mem_clear
+(def-func 'sys/mem_clear)
 	;inputs
 	;r0 = address
 	;r1 = length in bytes
@@ -36,4 +36,4 @@ def_func sys/mem_clear
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

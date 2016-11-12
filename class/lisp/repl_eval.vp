@@ -1,10 +1,10 @@
-%include 'inc/func.ninc'
-%include 'class/class_symbol.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_boxed_ptr.ninc'
-%include 'class/class_lisp.ninc'
+(import 'inc/func.inc)
+(import 'class/class_symbol.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_boxed_ptr.inc)
+(import 'class/class_lisp.inc)
 
-def_func class/lisp/repl_eval
+(def-func 'class/lisp/repl_eval)
 	;inputs
 	;r0 = lisp object
 	;r1 = form
@@ -71,4 +71,4 @@ def_func class/lisp/repl_eval
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

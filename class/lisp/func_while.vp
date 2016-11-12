@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_error.ninc'
-%include 'class/class_lisp.ninc'
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_error.inc)
+(import 'class/class_lisp.inc)
 
-def_func class/lisp/func_while
+(def-func 'class/lisp/func_while)
 	;inputs
 	;r0 = lisp object
 	;r1 = args
@@ -11,10 +11,10 @@ def_func class/lisp/func_while
 	;r0 = lisp object
 	;r1 = value
 
-	def_struct pdata
+	(def-struct 'pdata)
 		ptr pdata_this
 		ptr pdata_value
-	def_struct_end
+	(def-struct-end)
 
 	ptr this, value, args
 	ulong length
@@ -61,4 +61,4 @@ callback:
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/font.ninc'
-%include 'class/class_text.ninc'
+(import 'inc/func.inc)
+(import 'inc/font.inc)
+(import 'class/class_text.inc)
 
-def_func class/text/set_font
+(def-func 'class/text/set_font)
 	;inputs
 	;r0 = text object
 	;r1 = font name
@@ -10,9 +10,9 @@ def_func class/text/set_font
 	;trashes
 	;all but r0, r4
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -30,4 +30,4 @@ def_func class/text/set_font
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

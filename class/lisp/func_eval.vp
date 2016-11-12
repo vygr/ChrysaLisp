@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_error.ninc'
-%include 'class/class_lisp.ninc'
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_error.inc)
+(import 'class/class_lisp.inc)
 
-def_func class/lisp/func_eval
+(def-func 'class/lisp/func_eval)
 	;inputs
 	;r0 = lisp object
 	;r1 = args
@@ -29,4 +29,4 @@ def_func class/lisp/func_eval
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

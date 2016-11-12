@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/syscall.ninc'
-%include 'inc/string.ninc'
+(import 'inc/func.inc)
+(import 'inc/syscall.inc)
+(import 'inc/string.inc)
 
-def_func sys/write_string
+(def-func 'sys/write_string)
 	;inputs
 	;r0 = string
 	;r1 = fd
@@ -14,4 +14,4 @@ def_func sys/write_string
 	sys_write_string r3, r0, r1
 	vp_ret
 
-def_func_end
+(def-func-end)

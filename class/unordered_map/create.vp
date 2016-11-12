@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_unordered_map.ninc'
+(import 'inc/func.inc)
+(import 'class/class_unordered_map.inc)
 
-def_func class/unordered_map/create
+(def-func 'class/unordered_map/create)
 	;inputs
 	;r0 = key compare callback
 	;r1 = num buckets
@@ -28,4 +28,4 @@ def_func class/unordered_map/create
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

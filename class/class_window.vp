@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_window.ninc'
+(import 'inc/func.inc)
+(import 'class/class_window.inc)
 
-class_macro_class window
+(class-macro-class 'window)

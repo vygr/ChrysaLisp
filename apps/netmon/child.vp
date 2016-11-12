@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'apps/netmon/app.ninc'
+(import 'inc/func.inc)
+(import 'apps/netmon/app.inc)
 
-def_func apps/netmon/child
+(def-func 'apps/netmon/child)
 	;monitor task
 
 	ptr msg
@@ -27,4 +27,4 @@ def_func apps/netmon/child
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'class/class_flow.ninc'
-%include 'class/class_text.ninc'
-%include 'class/class_label.ninc'
+(import 'inc/func.inc)
+(import 'class/class_flow.inc)
+(import 'class/class_text.inc)
+(import 'class/class_label.inc)
 
-def_func class/label/init
+(def-func 'class/label/init)
 	;inputs
 	;r0 = label object
 	;r1 = vtable pointer
@@ -38,4 +38,4 @@ def_func class/label/init
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

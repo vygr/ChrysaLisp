@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_flow.ninc'
+(import 'inc/func.inc)
+(import 'class/class_flow.inc)
 
-def_func class/flow/init
+(def-func 'class/flow/init)
 	;inputs
 	;r0 = flow object
 	;r1 = vtable pointer
@@ -16,4 +16,4 @@ def_func class/flow/init
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

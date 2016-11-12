@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/font.ninc'
-%include 'class/class_text.ninc'
+(import 'inc/func.inc)
+(import 'inc/font.inc)
+(import 'class/class_text.inc)
 
-def_func class/text/init
+(def-func 'class/text/init)
 	;inputs
 	;r0 = text object
 	;r1 = vtable pointer
@@ -28,4 +28,4 @@ def_func class/text/init
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

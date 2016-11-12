@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_string.inc)
 
-def_func sys/task_open_farm
+(def-func 'sys/task_open_farm)
 	;inputs
 	;r0 = name string object
 	;r1 = number to spawn
@@ -58,4 +58,4 @@ def_func sys/task_open_farm
 	pop_scope
 	vp_ret
 
-def_func_end
+(def-func-end)

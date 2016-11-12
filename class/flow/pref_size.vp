@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_flow.ninc'
+(import 'inc/func.inc)
+(import 'class/class_flow.inc)
 
-def_func class/flow/pref_size
+(def-func 'class/flow/pref_size)
 	;inputs
 	;r0 = flow object
 	;outputs
@@ -10,10 +10,10 @@ def_func class/flow/pref_size
 	;trashes
 	;all but r0, r4
 
-	def_struct local
+	(def-struct 'local)
 		long local_w
 		long local_h
-	def_struct_end
+	(def-struct-end)
 
 	vp_sub local_size, r4
 	vp_xor r1, r1
@@ -52,4 +52,4 @@ callback:
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

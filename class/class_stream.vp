@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream.inc)
 
-class_macro_class stream
+(class-macro-class 'stream)

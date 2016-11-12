@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/heap.ninc'
+(import 'inc/func.inc)
+(import 'inc/heap.inc)
 
-def_func sys/mem_deinit
+(def-func 'sys/mem_deinit)
 	;get statics
 	f_bind sys_mem, statics, r0
 	vp_cpy r0, r5
@@ -15,4 +15,4 @@ def_func sys/mem_deinit
 	loop_until r6, >, mem_block_max_size
 	vp_ret
 
-def_func_end
+(def-func-end)

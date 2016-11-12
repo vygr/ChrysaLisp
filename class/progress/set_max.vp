@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_progress.ninc'
+(import 'inc/func.inc)
+(import 'class/class_progress.inc)
 
-def_func class/progress/set_max
+(def-func 'class/progress/set_max)
 	;inputs
 	;r0 = progress object
 	;r1 = maximum value
@@ -9,4 +9,4 @@ def_func class/progress/set_max
 	vp_cpy r1, [r0 + progress_max]
 	vp_ret
 
-def_func_end
+(def-func-end)

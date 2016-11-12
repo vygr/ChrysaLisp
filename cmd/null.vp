@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream.ninc'
-%include 'class/class_slave.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream.inc)
+(import 'class/class_slave.inc)
 
-def_func cmd/null
+(def-func 'cmd/null)
 
 	ptr slave
 	ulong eof
@@ -24,4 +24,4 @@ def_func cmd/null
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

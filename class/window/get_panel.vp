@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_window.ninc'
+(import 'inc/func.inc)
+(import 'class/class_window.inc)
 
-def_func class/window/get_panel
+(def-func 'class/window/get_panel)
 	;inputs
 	;r0 = window object
 	;outputs
@@ -11,4 +11,4 @@ def_func class/window/get_panel
 	vp_cpy [r0 + window_panel], r1
 	vp_ret
 
-def_func_end
+(def-func-end)

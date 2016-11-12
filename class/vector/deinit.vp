@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
 
-def_func class/vector/deinit
+(def-func 'class/vector/deinit)
 	;inputs
 	;r0 = vector object
 	;trashes
@@ -10,4 +10,4 @@ def_func class/vector/deinit
 	f_call vector, clear, {r0}
 	s_jmp vector, deinit, {r0}
 
-def_func_end
+(def-func-end)

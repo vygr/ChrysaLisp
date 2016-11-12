@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'class/class_text.ninc'
-%include 'class/class_string.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_text.inc)
+(import 'class/class_string.inc)
+(import 'class/class_vector.inc)
 
-def_func class/text/deinit
+(def-func 'class/text/deinit)
 	;inputs
 	;r0 = text object
 	;trashes
@@ -24,4 +24,4 @@ def_func class/text/deinit
 	vp_pop r0
 	s_jmp text, deinit, {r0}
 
-def_func_end
+(def-func-end)

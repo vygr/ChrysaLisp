@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'class/class_string.inc)
 
-def_func class/string/ref_element
+(def-func 'class/string/ref_element)
 	;inputs
 	;r0 = string object
 	;r1 = char index
@@ -14,4 +14,4 @@ def_func class/string/ref_element
 	vp_pop r0
 	vp_ret
 
-def_func_end
+(def-func-end)

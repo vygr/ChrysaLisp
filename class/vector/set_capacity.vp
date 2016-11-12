@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
 
-def_func class/vector/set_capacity
+(def-func 'class/vector/set_capacity)
 	;inputs
 	;r0 = vector object
 	;r1 = vector capacity
@@ -26,4 +26,4 @@ def_func class/vector/set_capacity
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_master.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_master.inc)
+(import 'class/class_vector.inc)
 
-def_func class/master/get_input
+(def-func 'class/master/get_input)
 	;inputs
 	;r0 = master object
 	;outputs
@@ -14,4 +14,4 @@ def_func class/master/get_input
 	vp_cpy [r1], r1
 	vp_ret
 
-def_func_end
+(def-func-end)

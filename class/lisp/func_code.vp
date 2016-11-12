@@ -1,11 +1,11 @@
-%include 'inc/func.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_string.ninc'
-%include 'class/class_boxed_long.ninc'
-%include 'class/class_error.ninc'
-%include 'class/class_lisp.ninc'
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_string.inc)
+(import 'class/class_boxed_long.inc)
+(import 'class/class_error.inc)
+(import 'class/class_lisp.inc)
 
-def_func class/lisp/func_code
+(def-func 'class/lisp/func_code)
 	;inputs
 	;r0 = lisp object
 	;r1 = args
@@ -38,4 +38,4 @@ def_func class/lisp/func_code
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

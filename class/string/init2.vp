@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/syscall.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'inc/syscall.inc)
+(import 'class/class_string.inc)
 
-def_func class/string/init2
+(def-func 'class/string/init2)
 	;inputs
 	;r0 = string object
 	;r1 = vtable pointer
@@ -11,10 +11,10 @@ def_func class/string/init2
 	;outputs
 	;r1 = 0 if error, else ok
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
 		long local_filename
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -52,4 +52,4 @@ def_func class/string/init2
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

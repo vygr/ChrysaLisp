@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream.inc)
 
-def_func class/stream/skip_not
+(def-func 'class/stream/skip_not)
 	;inputs
 	;r0 = stream object
 	;r1 = char to not skip
@@ -28,4 +28,4 @@ exit:
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

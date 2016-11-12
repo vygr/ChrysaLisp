@@ -1,10 +1,10 @@
-%include 'inc/func.ninc'
-%include 'inc/font.ninc'
-%include 'inc/string.ninc'
-%include 'inc/sdl2.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'inc/font.inc)
+(import 'inc/string.inc)
+(import 'inc/sdl2.inc)
+(import 'class/class_string.inc)
 
-def_func gui/font_text
+(def-func 'gui/font_text)
 	;inputs
 	;r0 = font entry
 	;r1 = string object
@@ -13,7 +13,7 @@ def_func gui/font_text
 	;trashes
 	;all but r4
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_font
 		ptr local_text
 		ptr local_bucket
@@ -21,7 +21,7 @@ def_func gui/font_text
 		long local_surface
 		long local_width
 		long local_height
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_lea [r1 + string_data], r2
@@ -123,4 +123,4 @@ kernel_callback:
 	vp_cpy r15, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

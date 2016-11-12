@@ -1,22 +1,22 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
-%include 'class/class_title.ninc'
-%include 'class/class_window.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
+(import 'class/class_title.inc)
+(import 'class/class_window.inc)
 
-def_func class/title/mouse_move
+(def-func 'class/title/mouse_move)
 	;inputs
 	;r0 = title object
 	;r1 = mouse event message
 	;trashes
 	;all but r0, r4
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
 		long local_window
 		long local_event
 		long local_old_x
 		long local_old_y
-	def_struct_end
+	(def-struct-end)
 
 	;save old window bounds
 	vp_sub local_size, r4
@@ -60,4 +60,4 @@ def_func class/title/mouse_move
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_slave.ninc'
+(import 'inc/func.inc)
+(import 'class/class_slave.inc)
 
-class_macro_class slave
+(class-macro-class 'slave)

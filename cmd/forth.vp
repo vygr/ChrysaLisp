@@ -1,10 +1,10 @@
-%include 'inc/func.ninc'
-%include 'class/class_string.ninc'
-%include 'class/class_stream.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_slave.ninc'
+(import 'inc/func.inc)
+(import 'class/class_string.inc)
+(import 'class/class_stream.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_slave.inc)
 
-def_func cmd/forth
+(def-func 'cmd/forth)
 
 	buffer_size equ 120
 
@@ -123,18 +123,18 @@ F_HIDDEN equ 0x20
 F_LENMASK equ 0x1f
 
 ;format of header
-def_struct header
+(def-struct 'header)
 	long header_link
 	ubyte header_nsize
 	offset header_name
-def_struct_end
+(def-struct-end)
 
 ;format of header backwards from code entry point
-def_struct xt
+(def-struct 'xt)
 	long xt_compile
 	long xt_length
 	long xt_body
-def_struct_end
+(def-struct-end)
 
 %macro defword 4
 	%push newword
@@ -374,4 +374,4 @@ defword "inline,", 0, word_inline_comma, word_call_comma
 defword_end
 %endif
 
-def_func_end
+(def-func-end)

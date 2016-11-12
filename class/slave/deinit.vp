@@ -1,10 +1,10 @@
-%include 'inc/func.ninc'
-%include 'class/class_slave.ninc'
-%include 'class/class_stream_msg_out.ninc'
-%include 'class/class_stream_msg_in.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_slave.inc)
+(import 'class/class_stream_msg_out.inc)
+(import 'class/class_stream_msg_in.inc)
+(import 'class/class_vector.inc)
 
-def_func class/slave/deinit
+(def-func 'class/slave/deinit)
 	;inputs
 	;r0 = slave object
 	;trashes
@@ -51,4 +51,4 @@ def_func class/slave/deinit
 	;deinit parent
 	s_jmp slave, deinit, {r0}
 
-def_func_end
+(def-func-end)

@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_obj.ninc'
+(import 'inc/func.inc)
+(import 'class/class_obj.inc)
 
-def_func class/obj/destroy
+(def-func 'class/obj/destroy)
 	;inputs
 	;r0 = object
 	;trashes
@@ -10,4 +10,4 @@ def_func class/obj/destroy
 	v_call obj, deinit, {r0}
 	v_jmp obj, delete, {r0}
 
-def_func_end
+(def-func-end)

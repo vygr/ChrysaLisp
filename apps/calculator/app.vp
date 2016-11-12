@@ -1,25 +1,25 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
-%include 'inc/gui.ninc'
-%include 'inc/string.ninc'
-%include 'class/class_window.ninc'
-%include 'class/class_flow.ninc'
-%include 'class/class_grid.ninc'
-%include 'class/class_button.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
+(import 'inc/gui.inc)
+(import 'inc/string.inc)
+(import 'class/class_window.inc)
+(import 'class/class_flow.inc)
+(import 'class/class_grid.inc)
+(import 'class/class_button.inc)
+(import 'class/class_string.inc)
 
-def_func apps/calculator/app
+(def-func 'apps/calculator/app)
 
 	buffer_size equ 32
 
-	def_struct shared, obj
+	(def-struct 'shared 'obj)
 		ptr shared_display
 		long shared_accum
 		long shared_value
 		struct shared_buffer, buffer
 		ubyte shared_last_op
 		ubyte shared_last_flag
-	def_struct_end
+	(def-struct-end)
 
 	struct myapp, shared
 	ptr msg, window, window_panel, flow_panel, grid_panel, button, pressed, string
@@ -219,4 +219,4 @@ button_list:
 	db '+', 0
 	db 0
 
-def_func_end
+(def-func-end)

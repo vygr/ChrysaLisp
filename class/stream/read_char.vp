@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream.inc)
 
-def_func class/stream/read_char
+(def-func 'class/stream/read_char)
 	;inputs
 	;r0 = stream object
 	;outputs
@@ -27,4 +27,4 @@ exit:
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

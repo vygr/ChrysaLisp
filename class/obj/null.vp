@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_obj.ninc'
+(import 'inc/func.inc)
+(import 'class/class_obj.inc)
 
-def_func class/obj/null
+(def-func 'class/obj/null)
 
 	vp_ret
 
-def_func_end
+(def-func-end)

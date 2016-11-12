@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
 
-def_func gui/gui_statics
+(def-func 'gui/gui_statics)
 
 	times gui_statics_size db 0
 
-def_func_end
+(def-func-end)

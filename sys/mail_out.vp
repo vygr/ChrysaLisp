@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
 
-def_func sys/mail_out
+(def-func 'sys/mail_out)
 	;parcels going off chip task
 
 	loop_start
@@ -67,4 +67,4 @@ def_func sys/mail_out
 	loop_end
 	vp_ret
 
-def_func_end
+(def-func-end)

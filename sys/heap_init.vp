@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/heap.ninc'
+(import 'inc/func.inc)
+(import 'inc/heap.inc)
 
-def_func sys/heap_init
+(def-func 'sys/heap_init)
 	;inputs
 	;r0 = heap
 	;r1 = cell size
@@ -19,4 +19,4 @@ def_func sys/heap_init
 	vp_cpy r2, [r0 + hp_heap_blocksize]
 	vp_ret
 
-def_func_end
+(def-func-end)

@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_view.ninc'
+(import 'inc/func.inc)
+(import 'class/class_view.inc)
 
-def_func class/view/sub
+(def-func 'class/view/sub)
 	;inputs
 	;r0 = object
 	;trashes
@@ -19,4 +19,4 @@ def_func class/view/sub
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

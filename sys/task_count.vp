@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/task.inc)
 
-def_func sys/task_count
+(def-func 'sys/task_count)
 	;outputs
 	;r0 = task count
 
@@ -9,4 +9,4 @@ def_func sys/task_count
 	vp_cpy [r0 + tk_statics_task_count], r0
 	vp_ret
 
-def_func_end
+(def-func-end)

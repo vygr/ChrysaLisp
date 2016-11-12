@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/string.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'inc/string.inc)
+(import 'class/class_string.inc)
 
-def_func class/string/create_from_buffer
+(def-func 'class/string/create_from_buffer)
 	;inputs
 	;r0 = buffer pointer
 	;r1 = buffer length
@@ -29,4 +29,4 @@ def_func class/string/create_from_buffer
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

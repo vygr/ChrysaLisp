@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
-%include 'class/class_view.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
+(import 'class/class_view.inc)
 
-def_func class/view/draw_panel
+(def-func 'class/view/draw_panel)
 	;inputs
 	;r0 = view object
 	;r1 = ctx object
@@ -11,9 +11,9 @@ def_func class/view/draw_panel
 	;trashes
 	;all but r0, r4
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -27,4 +27,4 @@ def_func class/view/draw_panel
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

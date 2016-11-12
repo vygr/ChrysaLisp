@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream_msg_in.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream_msg_in.inc)
 
-def_func class/stream_msg_in/create
+(def-func 'class/stream_msg_in/create)
 	;inputs
 	;r0 = target mailbox
 	;outputs
@@ -27,4 +27,4 @@ def_func class/stream_msg_in/create
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

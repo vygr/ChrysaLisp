@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/task.inc)
 
-def_func sys/task_restore
+(def-func 'sys/task_restore)
 	;restore next task
 	;r15 = control block to restore
 
@@ -17,4 +17,4 @@ def_func sys/task_restore
 	tk_load_state
 	vp_ret
 
-def_func_end
+(def-func-end)

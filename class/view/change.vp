@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_view.ninc'
+(import 'inc/func.inc)
+(import 'class/class_view.inc)
 
-def_func class/view/change
+(def-func 'class/view/change)
 	;inputs
 	;r0 = view object
 	;r8 = new x
@@ -26,4 +26,4 @@ def_func class/view/change
 	endif
 	v_jmp view, layout, {r0}
 
-def_func_end
+(def-func-end)

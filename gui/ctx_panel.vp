@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
 
-def_func gui/ctx_panel
+(def-func 'gui/ctx_panel)
 	;inputs
 	;r0 = ctx object
 	;r1 = color
@@ -14,7 +14,7 @@ def_func gui/ctx_panel
 	;trashes
 	;all r4
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_ctx
 		long local_color
 		long local_flags
@@ -23,7 +23,7 @@ def_func gui/ctx_panel
 		long local_y
 		long local_w
 		long local_h
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -151,4 +151,4 @@ def_func gui/ctx_panel
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

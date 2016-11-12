@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_progress.ninc'
+(import 'inc/func.inc)
+(import 'class/class_progress.inc)
 
 class_macro_new progress

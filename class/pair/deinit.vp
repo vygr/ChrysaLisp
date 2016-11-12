@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_pair.ninc'
+(import 'inc/func.inc)
+(import 'class/class_pair.inc)
 
-def_func class/pair/deinit
+(def-func 'class/pair/deinit)
 	;inputs
 	;r0 = pair object
 	;trashes
@@ -14,4 +14,4 @@ def_func class/pair/deinit
 	vp_pop r0
 	s_jmp pair, deinit, {r0}
 
-def_func_end
+(def-func-end)

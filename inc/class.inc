@@ -24,7 +24,7 @@
 	%endrep
 %endmacro
 
-%macro def_class 1-2 null
+%macro (def-class '1-2 null)
 	;%1 = class name
 	;%2 = super class name
 	%ifdef _map_%1_slots_
@@ -47,7 +47,7 @@
 	%endrep
 %endmacro
 
-%macro def_method 2-5 static, {}, {}
+%macro (def-method '2-5 static '{} '{})
 	;%1 = member name
 	;%2 = member function
 	;%3 = mode (static/virtual/override)
@@ -446,36 +446,36 @@
 ; virtual classes
 ;;;;;;;;;;;;;;;;;
 
-def_class class
-def_method obj, class/class_obj
-def_method ref, class/class_ref
-def_method component, class/class_component
-def_method string, class/class_string
-def_method vector, class/class_vector
-def_method pair, class/class_pair
-def_method unordered_set, class/class_unordered_set
-def_method unordered_map, class/class_unordered_map
-def_method stream, class/class_stream
-def_method stream_str, class/class_stream_str
-def_method stream_msg_out, class/class_stream_msg_out
-def_method stream_msg_in, class/class_stream_msg_in
-def_method text, class/class_text
-def_method view, class/class_view
-def_method label, class/class_label
-def_method button, class/class_button
-def_method flow, class/class_flow
-def_method grid, class/class_grid
-def_method window, class/class_window
-def_method progress, class/class_progress
-def_method title, class/class_title
-def_method slave, class/class_slave
-def_method master, class/class_master
-def_method boxed_ptr, class/class_boxed_ptr
-def_method boxed_long, class/class_boxed_long
-def_method lisp, class/class_lisp
-def_method symbol, class/class_symbol
-def_method sequence, class/class_sequence
-def_method error, class/class_error
+(def-class 'class)
+(def-method 'obj 'class/class_obj)
+(def-method 'ref 'class/class_ref)
+(def-method 'component 'class/class_component)
+(def-method 'string 'class/class_string)
+(def-method 'vector 'class/class_vector)
+(def-method 'pair 'class/class_pair)
+(def-method 'unordered_set 'class/class_unordered_set)
+(def-method 'unordered_map 'class/class_unordered_map)
+(def-method 'stream 'class/class_stream)
+(def-method 'stream_str 'class/class_stream_str)
+(def-method 'stream_msg_out 'class/class_stream_msg_out)
+(def-method 'stream_msg_in 'class/class_stream_msg_in)
+(def-method 'text 'class/class_text)
+(def-method 'view 'class/class_view)
+(def-method 'label 'class/class_label)
+(def-method 'button 'class/class_button)
+(def-method 'flow 'class/class_flow)
+(def-method 'grid 'class/class_grid)
+(def-method 'window 'class/class_window)
+(def-method 'progress 'class/class_progress)
+(def-method 'title 'class/class_title)
+(def-method 'slave 'class/class_slave)
+(def-method 'master 'class/class_master)
+(def-method 'boxed_ptr 'class/class_boxed_ptr)
+(def-method 'boxed_long 'class/class_boxed_long)
+(def-method 'lisp 'class/class_lisp)
+(def-method 'symbol 'class/class_symbol)
+(def-method 'sequence 'class/class_sequence)
+(def-method 'error 'class/class_error)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction

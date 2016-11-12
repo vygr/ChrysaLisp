@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/heap.ninc'
-%include 'inc/syscall.ninc'
+(import 'inc/func.inc)
+(import 'inc/heap.inc)
+(import 'inc/syscall.inc)
 
-def_func sys/heap_alloc
+(def-func 'sys/heap_alloc)
 	;inputs
 	;r0 = heap
 	;outputs
@@ -40,4 +40,4 @@ def_func sys/heap_alloc
 		vp_cpy r2, [r0 + hp_heap_free_flist]
 	loop_end
 
-def_func_end
+(def-func-end)

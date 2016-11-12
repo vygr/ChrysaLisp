@@ -1,45 +1,45 @@
 %ifndef HEAP_1234
 %define HEAP_1234
 
-%include 'inc/class.ninc'
+(import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; heap static class
 ;;;;;;;;;;;;;;;;;;;
 
-def_class sys_heap
-def_method init, sys/heap_init, static, {r0, r1, r2}
-def_method deinit, sys/heap_deinit, static, {r0}
-def_method alloc, sys/heap_alloc, static, {r0}, {r1}
-def_method reset, sys/heap_reset, static, {r0}
+(def-class 'sys_heap)
+(def-method 'init 'sys/heap_init 'static '(r0, r1, r2))
+(def-method 'deinit 'sys/heap_deinit 'static '(r0))
+(def-method 'alloc 'sys/heap_alloc 'static '(r0), '(r1))
+(def-method 'reset 'sys/heap_reset 'static '(r0))
 
 mem_block_min_size	equ 0x000020
 mem_block_max_size	equ 0x800000
 mem_block_blk_size	equ 16 * 1024
 
-def_class sys_mem
-def_method statics, sys/mem_statics
-def_method init, sys/mem_init
-def_method deinit, sys/mem_deinit
-def_method alloc, sys/mem_alloc, static, {r0}, {r0, r1}
-def_method free, sys/mem_free, static, {r0}
-def_method clear, sys/mem_clear, static, {r0, r1}, {r0}
-def_method fill, sys/mem_fill, static, {r0, r1, r2}, {r0}
-def_method xor, sys/mem_xor, static, {r0, r1, r2}, {r0, r1}
-def_method copy, sys/mem_copy, static, {r0, r1, r2}, {r0, r1}
-def_method grow, sys/mem_grow, static, {r0, r1, r2}, {r0, r1}
-def_method used, sys/mem_used, static, {}, {r0}
+(def-class 'sys_mem)
+(def-method 'statics 'sys/mem_statics)
+(def-method 'init 'sys/mem_init)
+(def-method 'deinit 'sys/mem_deinit)
+(def-method 'alloc 'sys/mem_alloc 'static '(r0), '(r0, r1))
+(def-method 'free 'sys/mem_free 'static '(r0))
+(def-method 'clear 'sys/mem_clear 'static '(r0, r1), '(r0))
+(def-method 'fill 'sys/mem_fill 'static '(r0, r1, r2), '(r0))
+(def-method 'xor 'sys/mem_xor 'static '(r0, r1, r2), '(r0, r1))
+(def-method 'copy 'sys/mem_copy 'static '(r0, r1, r2), '(r0, r1))
+(def-method 'grow 'sys/mem_grow 'static '(r0, r1, r2), '(r0, r1))
+(def-method 'used 'sys/mem_used 'static '(), '(r0))
 
 ;;;;;;;;;;;;;;;;;
 ; heap structures
 ;;;;;;;;;;;;;;;;;
 
-def_struct hp_heap
+(def-struct 'hp_heap)
 	ptr hp_heap_free_flist
 	ptr hp_heap_block_flist
 	ulong hp_heap_cellsize
 	ulong hp_heap_blocksize
-def_struct_end
+(def-struct-end)
 
 ;;;;;;;;;;;;;
 ; heap macros

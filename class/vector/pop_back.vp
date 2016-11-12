@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
 
-def_func class/vector/pop_back
+(def-func 'class/vector/pop_back)
 	;inputs
 	;r0 = vector object
 	;outputs
@@ -18,4 +18,4 @@ def_func class/vector/pop_back
 	vp_pop r0
 	vp_ret
 
-def_func_end
+(def-func-end)

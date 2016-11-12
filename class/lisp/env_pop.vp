@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'class/class_unordered_map.ninc'
-%include 'class/class_pair.ninc'
-%include 'class/class_lisp.ninc'
+(import 'inc/func.inc)
+(import 'class/class_unordered_map.inc)
+(import 'class/class_pair.inc)
+(import 'class/class_lisp.inc)
 
-def_func class/lisp/env_pop
+(def-func 'class/lisp/env_pop)
 	;inputs
 	;r0 = lisp object
 	;outputs
@@ -26,4 +26,4 @@ def_func class/lisp/env_pop
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'inc/load.ninc'
-%include 'inc/string.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'inc/load.inc)
+(import 'inc/string.inc)
+(import 'class/class_string.inc)
 
-def_func class/string/create_from_file
+(def-func 'class/string/create_from_file)
 	;inputs
 	;r0 = c string pointer
 	;outputs
@@ -45,4 +45,4 @@ def_func class/string/create_from_file
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

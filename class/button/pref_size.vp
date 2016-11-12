@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_button.ninc'
+(import 'inc/func.inc)
+(import 'class/class_button.inc)
 
-def_func class/button/pref_size
+(def-func 'class/button/pref_size)
 	;inputs
 	;r0 = button object
 	;outputs
@@ -15,4 +15,4 @@ def_func class/button/pref_size
 	vp_add button_border_size * 2, r11
 	vp_ret
 
-def_func_end
+(def-func-end)

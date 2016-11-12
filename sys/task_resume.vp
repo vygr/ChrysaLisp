@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/list.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/list.inc)
+(import 'inc/task.inc)
 
-def_func sys/task_resume
+(def-func 'sys/task_resume)
 	;inputs
 	;r0 = task control node (to resume)
 	;trashes
@@ -18,4 +18,4 @@ def_func sys/task_resume
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

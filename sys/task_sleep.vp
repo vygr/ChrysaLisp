@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/task.inc)
 
-def_func sys/task_sleep
+(def-func 'sys/task_sleep)
 	;inputs
 	;r0 = time delay in usec
 
@@ -34,4 +34,4 @@ def_func sys/task_sleep
 	;restore next task
 	f_jmp sys_task, restore
 
-def_func_end
+(def-func-end)

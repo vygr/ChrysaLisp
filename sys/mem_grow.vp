@@ -1,6 +1,6 @@
-%include 'inc/func.ninc'
+(import 'inc/func.inc)
 
-def_func sys/mem_grow
+(def-func 'sys/mem_grow)
 	;inputs
 	;r0 = array
 	;r1 = array size
@@ -37,4 +37,4 @@ def_func sys/mem_grow
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

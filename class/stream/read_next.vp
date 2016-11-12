@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream.inc)
 
-def_func class/stream/read_next
+(def-func 'class/stream/read_next)
 	;inputs
 	;r0 = stream object
 	;outputs
@@ -13,4 +13,4 @@ def_func class/stream/read_next
 	vp_cpy -1, r1
 	vp_ret
 
-def_func_end
+(def-func-end)

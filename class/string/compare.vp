@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/string.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'inc/string.inc)
+(import 'class/class_string.inc)
 
-def_func class/string/compare
+(def-func 'class/string/compare)
 	;inputs
 	;r0 = string object
 	;r1 = string object
@@ -21,4 +21,4 @@ def_func class/string/compare
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

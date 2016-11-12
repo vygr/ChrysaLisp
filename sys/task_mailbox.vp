@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/task.inc)
 
-def_func sys/task_mailbox
+(def-func 'sys/task_mailbox)
 	;outputs
 	;r0, r1 = current task mailbox id
 
@@ -11,4 +11,4 @@ def_func sys/task_mailbox
 	vp_add tk_node_mailbox, r0
 	vp_ret
 
-def_func_end
+(def-func-end)

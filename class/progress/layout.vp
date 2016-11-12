@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_progress.ninc'
+(import 'inc/func.inc)
+(import 'class/class_progress.inc)
 
-def_func class/progress/layout
+(def-func 'class/progress/layout)
 	;inputs
 	;r0 = progress object
 	;trashes
@@ -9,4 +9,4 @@ def_func class/progress/layout
 
 	f_jmp progress, opaque, {r0}
 
-def_func_end
+(def-func-end)

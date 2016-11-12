@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_boxed_ptr.ninc'
+(import 'inc/func.inc)
+(import 'class/class_boxed_ptr.inc)
 
-class_macro_class boxed_ptr
+(class-macro-class 'boxed_ptr)

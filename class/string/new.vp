@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'class/class_string.inc)
 
-def_func class/string/new
+(def-func 'class/string/new)
 	;inputs
 	;r0 = object size
 	;outputs
@@ -20,4 +20,4 @@ def_func class/string/new
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

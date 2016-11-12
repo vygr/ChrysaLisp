@@ -1,13 +1,13 @@
 %ifndef CLASS_BOXED_LONG_1234
 %define CLASS_BOXED_LONG_1234
 
-%include 'class/class_boxed_ptr.ninc'
+(import 'class/class_boxed_ptr.inc)
 
-def_class boxed_long, boxed_ptr
-def_method create, class/boxed_long/create
-def_method new, class/boxed_long/new
+(def-class 'boxed_long 'boxed_ptr)
+(def-method 'create 'class/boxed_long/create)
+(def-method 'new 'class/boxed_long/new)
 
-def_struct boxed_long, boxed_ptr
-def_struct_end
+(def-struct 'boxed_long 'boxed_ptr)
+(def-struct-end)
 
 %endif

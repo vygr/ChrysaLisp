@@ -1,11 +1,11 @@
-%include 'inc/func.ninc'
-%include 'inc/load.ninc'
-%include 'inc/string.ninc'
-%include 'class/class_stream.ninc'
-%include 'class/class_boxed_long.ninc'
-%include 'class/class_lisp.ninc'
+(import 'inc/func.inc)
+(import 'inc/load.inc)
+(import 'inc/string.inc)
+(import 'class/class_stream.inc)
+(import 'class/class_boxed_long.inc)
+(import 'class/class_lisp.inc)
 
-def_func class/lisp/repl_read_num
+(def-func 'class/lisp/repl_read_num)
 	;inputs
 	;r0 = lisp object
 	;r1 = stream
@@ -73,4 +73,4 @@ def_func class/lisp/repl_read_num
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
 
-def_func gui/region_translate
+(def-func 'gui/region_translate)
 	;inputs
 	;r1 = region listhead pointer
 	;r8 = x translation
@@ -26,4 +26,4 @@ def_func gui/region_translate
 	loop_end
 	vp_ret
 
-def_func_end
+(def-func-end)

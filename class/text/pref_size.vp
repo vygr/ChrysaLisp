@@ -1,10 +1,10 @@
-%include 'inc/func.ninc'
-%include 'inc/font.ninc'
-%include 'class/class_text.ninc'
-%include 'class/class_string.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'inc/font.inc)
+(import 'class/class_text.inc)
+(import 'class/class_string.inc)
+(import 'class/class_vector.inc)
 
-def_func class/text/pref_size
+(def-func 'class/text/pref_size)
 	;inputs
 	;r0 = text object
 	;outputs
@@ -39,4 +39,4 @@ def_func class/text/pref_size
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

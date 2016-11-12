@@ -1,6 +1,6 @@
-%include 'inc/func.ninc'
+(import 'inc/func.inc)
 
-def_func sys/string_to_long
+(def-func 'sys/string_to_long)
 	;inputs
 	;r0 = string
 	;r1 = base
@@ -27,4 +27,4 @@ def_func sys/string_to_long
 	loop_end
 	vp_ret
 
-def_func_end
+(def-func-end)

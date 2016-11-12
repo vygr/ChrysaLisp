@@ -1,16 +1,16 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
-%include 'inc/task.ninc'
-%include 'inc/link.ninc'
-%include 'inc/load.ninc'
-%include 'inc/font.ninc'
-%include 'inc/sdl2.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
+(import 'inc/task.inc)
+(import 'inc/link.inc)
+(import 'inc/load.inc)
+(import 'inc/font.inc)
+(import 'inc/sdl2.inc)
 
 ;;;;;;;;;;;;;
 ; kernel task
 ;;;;;;;;;;;;;
 
-def_func sys/kernel
+(def-func 'sys/kernel)
 	;loader is already initialized when we get here !
 	;inputs
 	;r0 = argv pointer
@@ -292,4 +292,4 @@ def_func sys/kernel
 	vp_add ptr_size, r4
 	sys_exit 0
 
-def_func_end
+(def-func-end)

@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/task.inc)
 
-def_func sys/mail_select
+(def-func 'sys/mail_select)
 	;inputs
 	;r0 = mailbox address array
 	;r1 = mailbox count
@@ -48,4 +48,4 @@ def_func sys/mail_select
 		loop_until r0, ==, r1
 	loop_end
 
-def_func_end
+(def-func-end)

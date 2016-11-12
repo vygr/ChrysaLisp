@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_ref.ninc'
+(import 'inc/func.inc)
+(import 'class/class_ref.inc)
 
-def_func class/ref/ref_if
+(def-func 'class/ref/ref_if)
 	;inputs
 	;r0 = 0, else object
 	;trashes
@@ -15,4 +15,4 @@ def_func class/ref/ref_if
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

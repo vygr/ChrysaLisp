@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_string.ninc'
-%include 'class/class_stream_str.ninc'
+(import 'inc/func.inc)
+(import 'class/class_string.inc)
+(import 'class/class_stream_str.inc)
 
-def_func class/stream_str/ref_string
+(def-func 'class/stream_str/ref_string)
 	;inputs
 	;r0 = stream_str object
 	;outputs
@@ -24,4 +24,4 @@ def_func class/stream_str/ref_string
 	pop r0
 	vp_ret
 
-def_func_end
+(def-func-end)

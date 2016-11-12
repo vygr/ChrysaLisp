@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_master.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_master.inc)
+(import 'class/class_vector.inc)
 
-def_func class/master/get_stream
+(def-func 'class/master/get_stream)
 	;inputs
 	;r0 = master object
 	;r1 = mailbox
@@ -27,4 +27,4 @@ def_func class/master/get_stream
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

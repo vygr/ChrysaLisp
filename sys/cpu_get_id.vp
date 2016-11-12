@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/task.ninc'
+(import 'inc/func.inc)
+(import 'inc/task.inc)
 
-def_func sys/cpu_get_id
+(def-func 'sys/cpu_get_id)
 	;outputs
 	;r0 = cpu ID
 
@@ -9,4 +9,4 @@ def_func sys/cpu_get_id
 	vp_cpy [r0 + tk_statics_cpu_id], r0
 	vp_ret
 
-def_func_end
+(def-func-end)

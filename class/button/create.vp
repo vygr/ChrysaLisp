@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_button.ninc'
+(import 'inc/func.inc)
+(import 'class/class_button.inc)
 
 class_macro_create button

@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
-%include 'class/class_view.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
+(import 'class/class_view.inc)
 
-def_func class/view/backward
+(def-func 'class/view/backward)
 	;inputs
 	;r0 = view object
 	;r1 = user data pointer
@@ -18,11 +18,11 @@ def_func class/view/backward
 		;outputs
 		;r0 = child view object
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
 		ptr local_data
 		ptr local_callback
-	def_struct_end
+	(def-struct-end)
 
 	vp_sub local_size, r4
 	vp_cpy r0, [r4 + local_inst]
@@ -47,4 +47,4 @@ def_func class/view/backward
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

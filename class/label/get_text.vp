@@ -1,17 +1,17 @@
-%include 'inc/func.ninc'
-%include 'class/class_text.ninc'
-%include 'class/class_label.ninc'
+(import 'inc/func.inc)
+(import 'class/class_text.inc)
+(import 'class/class_label.inc)
 
-def_func class/label/get_text
+(def-func 'class/label/get_text)
 	;inputs
 	;r0 = label object
 	;outputs
 	;r0 = label object
 	;r1 = 0, else string object
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -25,4 +25,4 @@ def_func class/label/get_text
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

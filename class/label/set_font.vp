@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_text.ninc'
-%include 'class/class_label.ninc'
+(import 'inc/func.inc)
+(import 'class/class_text.inc)
+(import 'class/class_label.inc)
 
-def_func class/label/set_font
+(def-func 'class/label/set_font)
 	;inputs
 	;r0 = label object
 	;r1 = font name
@@ -15,4 +15,4 @@ def_func class/label/set_font
 	vp_pop r0
 	vp_ret
 
-def_func_end
+(def-func-end)

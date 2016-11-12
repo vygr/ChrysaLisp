@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'inc/syscall.ninc'
-%include 'inc/string.ninc'
+(import 'inc/func.inc)
+(import 'inc/syscall.inc)
+(import 'inc/string.inc)
 
-def_func sys/write_debug_str
+(def-func 'sys/write_debug_str)
 	;inputs
 	;r0 = function name
 	;r1 = line number
@@ -11,12 +11,12 @@ def_func sys/write_debug_str
 	;trashes
 	;r0-r3, r5
 
-	def_struct local
+	(def-struct 'local)
 		long local_name
 		long local_line
 		long local_string
 		long local_str
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -36,4 +36,4 @@ def_func sys/write_debug_str
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

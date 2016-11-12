@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'class/class_unordered_map.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_pair.ninc'
+(import 'inc/func.inc)
+(import 'class/class_unordered_map.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_pair.inc)
 
-def_func class/unordered_map/find
+(def-func 'class/unordered_map/find)
 	;inputs
 	;r0 = unordered_map object
 	;r1 = key object
@@ -14,10 +14,10 @@ def_func class/unordered_map/find
 	;trashes
 	;all but r0, r4
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
 		ptr local_key
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -46,4 +46,4 @@ callback:
 	vp_cpy [r0 + local_key], r0
 	vp_jmp [r2 + unordered_set_key_callback]
 
-def_func_end
+(def-func-end)

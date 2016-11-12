@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream_msg_out.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream_msg_out.inc)
 
-class_macro_class stream_msg_out
+(class-macro-class 'stream_msg_out)

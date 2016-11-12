@@ -1,17 +1,17 @@
-%include 'inc/func.ninc'
-%include 'class/class_text.ninc'
-%include 'class/class_label.ninc'
+(import 'inc/func.inc)
+(import 'class/class_text.inc)
+(import 'class/class_label.inc)
 
-def_func class/label/set_text_color
+(def-func 'class/label/set_text_color)
 	;inputs
 	;r0 = label object
 	;r1 = color
 	;trashes
 	;all but r0, r4
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -25,4 +25,4 @@ def_func class/label/set_text_color
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

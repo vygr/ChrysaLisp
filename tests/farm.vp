@@ -1,12 +1,12 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
+(import 'class/class_string.inc)
 
 ;;;;;;;;;;;
 ; test code
 ;;;;;;;;;;;
 
-def_func tests/farm
+(def-func 'tests/farm)
 
 	const num_child, 128
 
@@ -39,4 +39,4 @@ def_func tests/farm
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
 
-def_func sys/mail_send
+(def-func 'sys/mail_send)
 	;inputs
 	;r0 = mail message
 	;trashes
@@ -48,4 +48,4 @@ def_func sys/mail_send
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

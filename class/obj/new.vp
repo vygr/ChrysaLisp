@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_obj.ninc'
+(import 'inc/func.inc)
+(import 'class/class_obj.inc)
 
-def_func class/obj/new
+(def-func 'class/obj/new)
 	;outputs
 	;r0 = 0 if error, else object
 
@@ -9,4 +9,4 @@ def_func class/obj/new
 	vp_xor r0, r0
 	vp_ret
 
-def_func_end
+(def-func-end)

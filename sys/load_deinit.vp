@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/load.ninc'
+(import 'inc/func.inc)
+(import 'inc/load.inc)
 
-def_func sys/load_deinit
+(def-func 'sys/load_deinit)
 	;get statics
 	f_bind sys_load, statics, r0
 
@@ -13,4 +13,4 @@ def_func sys/load_deinit
 	loop_end
 	vp_ret
 
-def_func_end
+(def-func-end)

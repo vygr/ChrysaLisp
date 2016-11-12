@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_sequence.ninc'
+(import 'inc/func.inc)
+(import 'class/class_sequence.inc)
 
-class_macro_class sequence
+(class-macro-class 'sequence)

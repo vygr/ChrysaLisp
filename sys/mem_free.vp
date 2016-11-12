@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/heap.ninc'
+(import 'inc/func.inc)
+(import 'inc/heap.inc)
 
-def_func sys/mem_free
+(def-func 'sys/mem_free)
 	;inputs
 	;r0 = address
 	;trashes
@@ -14,4 +14,4 @@ def_func sys/mem_free
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

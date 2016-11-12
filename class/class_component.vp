@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_component.ninc'
+(import 'inc/func.inc)
+(import 'class/class_component.inc)
 
-class_macro_class component
+(class-macro-class 'component)

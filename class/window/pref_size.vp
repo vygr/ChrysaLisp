@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_window.ninc'
-%include 'class/class_flow.ninc'
+(import 'inc/func.inc)
+(import 'class/class_window.inc)
+(import 'class/class_flow.inc)
 
-def_func class/window/pref_size
+(def-func 'class/window/pref_size)
 	;inputs
 	;r0 = window object
 	;outputs
@@ -11,9 +11,9 @@ def_func class/window/pref_size
 	;trashes
 	;all but r0, r4
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -29,4 +29,4 @@ def_func class/window/pref_size
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

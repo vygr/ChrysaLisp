@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_unordered_set.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_unordered_set.inc)
+(import 'class/class_vector.inc)
 
-def_func class/unordered_set/get_bucket
+(def-func 'class/unordered_set/get_bucket)
 	;inputs
 	;r0 = unordered_set object
 	;r1 = key object
@@ -12,10 +12,10 @@ def_func class/unordered_set/get_bucket
 	;trashes
 	;all but r0, r4
 
-	def_struct local
+	(def-struct 'local)
 		ptr local_inst
 		ptr local_length
-	def_struct_end
+	(def-struct-end)
 
 	;save inputs
 	vp_sub local_size, r4
@@ -42,4 +42,4 @@ def_func class/unordered_set/get_bucket
 	vp_add local_size, r4
 	vp_ret
 
-def_func_end
+(def-func-end)

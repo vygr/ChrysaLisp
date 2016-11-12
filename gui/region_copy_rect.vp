@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'inc/gui.ninc'
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
 
-def_func gui/region_copy_rect
+(def-func 'gui/region_copy_rect)
 	;inputs
 	;r0 = region heap pointer
 	;r1 = source region listhead pointer
@@ -202,4 +202,4 @@ def_func gui/region_copy_rect
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

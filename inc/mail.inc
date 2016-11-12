@@ -1,26 +1,26 @@
 %ifndef MAIL_1234
 %define MAIL_1234
 
-%include 'inc/class.ninc'
+(import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; mail static class
 ;;;;;;;;;;;;;;;;;;;
 
-def_class sys_mail
-def_method statics, sys/mail_statics
-def_method init, sys/mail_init
-def_method deinit, sys/mail_deinit
-def_method alloc, sys/mail_alloc, static, {}, {r0}
-def_method alloc_parcel, sys/mail_alloc_parcel, static, {r0}, {r0}
-def_method send, sys/mail_send, static, {r0}
-def_method read, sys/mail_read, static, {r0}, {r0}
-def_method try_read, sys/mail_try_read, static, {r0}, {r0}
-def_method select, sys/mail_select, static, {r0, r1}, {r0}
-def_method mymail, sys/mail_mymail, static, {}, {r0}
-def_method init_mailbox, sys/mail_init_mailbox, static, {r0}
-def_method in, sys/mail_in
-def_method out, sys/mail_out
+(def-class 'sys_mail)
+(def-method 'statics 'sys/mail_statics)
+(def-method 'init 'sys/mail_init)
+(def-method 'deinit 'sys/mail_deinit)
+(def-method 'alloc 'sys/mail_alloc 'static '(), '(r0))
+(def-method 'alloc_parcel 'sys/mail_alloc_parcel 'static '(r0), '(r0))
+(def-method 'send 'sys/mail_send 'static '(r0))
+(def-method 'read 'sys/mail_read 'static '(r0), '(r0))
+(def-method 'try_read 'sys/mail_try_read 'static '(r0), '(r0))
+(def-method 'select 'sys/mail_select 'static '(r0, r1), '(r0))
+(def-method 'mymail 'sys/mail_mymail 'static '(), '(r0))
+(def-method 'init_mailbox 'sys/mail_init_mailbox 'static '(r0))
+(def-method 'in 'sys/mail_in)
+(def-method 'out 'sys/mail_out)
 
 ;;;;;;;;;;;;;;;;;
 ; mail structures
@@ -28,17 +28,17 @@ def_method out, sys/mail_out
 
 mail_data_size equ 512
 
-def_struct mailbox, lh_list
+(def-struct 'mailbox 'lh_list)
 	struct mailbox_parcel_list, lh_list
 	ptr mailbox_tcb
-def_struct_end
+(def-struct-end)
 
-def_struct id
+(def-struct 'id)
 	ulong id_mbox
 	ulong id_cpu
-def_struct_end
+(def-struct-end)
 
-def_struct msg, ln_node
+(def-struct 'msg 'ln_node)
 	ulong msg_length
 	struct msg_dest, id
 	struct msg_parcel_id, id
@@ -47,16 +47,16 @@ def_struct msg, ln_node
 	ulong msg_parcel_frag
 	offset msg_header_size
 	struct msg_data, mail_data
-def_struct_end
+(def-struct-end)
 
-def_struct ml_statics
+(def-struct 'ml_statics)
 	struct ml_statics_offchip_list, lh_list
 	struct ml_statics_heap, hp_heap
 	ptr ml_statics_kernel_mailbox
 	ptr ml_statics_in_mailbox
 	ptr ml_statics_out_mailbox
 	ulong ml_statics_parcel_id
-def_struct_end
+(def-struct-end)
 
 ;;;;;;;;;;;;;
 ; mail macros

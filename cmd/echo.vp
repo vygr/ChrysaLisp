@@ -1,10 +1,10 @@
-%include 'inc/func.ninc'
-%include 'class/class_string.ninc'
-%include 'class/class_stream.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_slave.ninc'
+(import 'inc/func.inc)
+(import 'class/class_string.inc)
+(import 'class/class_stream.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_slave.inc)
 
-def_func cmd/echo
+(def-func 'cmd/echo)
 
 	const char_lf, 10
 
@@ -38,4 +38,4 @@ def_func cmd/echo
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

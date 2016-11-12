@@ -1,10 +1,10 @@
-%include 'inc/func.ninc'
-%include 'inc/load.ninc'
-%include 'class/class_string.ninc'
-%include 'class/class_stream.ninc'
-%include 'class/class_lisp.ninc'
+(import 'inc/func.inc)
+(import 'inc/load.inc)
+(import 'class/class_string.inc)
+(import 'class/class_stream.inc)
+(import 'class/class_lisp.inc)
 
-def_func class/lisp/repl_read_str
+(def-func 'class/lisp/repl_read_str)
 	;inputs
 	;r0 = lisp object
 	;r1 = stream
@@ -41,4 +41,4 @@ def_func class/lisp/repl_read_str
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

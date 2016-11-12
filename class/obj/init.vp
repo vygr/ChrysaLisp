@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_obj.ninc'
+(import 'inc/func.inc)
+(import 'class/class_obj.inc)
 
-def_func class/obj/init
+(def-func 'class/obj/init)
 	;inputs
 	;r0 = object
 	;r1 = vtable pointer
@@ -12,4 +12,4 @@ def_func class/obj/init
 	vp_cpy r1, [r0 + obj_vtable]
 	vp_ret
 
-def_func_end
+(def-func-end)

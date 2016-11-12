@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream.ninc'
-%include 'class/class_string.ninc'
-%include 'class/class_vector.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream.inc)
+(import 'class/class_string.inc)
+(import 'class/class_vector.inc)
 
-def_func class/stream/split
+(def-func 'class/stream/split)
 	;inputs
 	;r0 = stream object
 	;r1 = split char
@@ -40,4 +40,4 @@ def_func class/stream/split
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

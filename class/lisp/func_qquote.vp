@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_error.ninc'
-%include 'class/class_lisp.ninc'
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_error.inc)
+(import 'class/class_lisp.inc)
 
-def_func class/lisp/func_qquote
+(def-func 'class/lisp/func_qquote)
 	;inputs
 	;r0 = lisp object
 	;r1 = args
@@ -11,10 +11,10 @@ def_func class/lisp/func_qquote
 	;r0 = lisp object
 	;r1 = value
 
-	def_struct pdata
+	(def-struct 'pdata)
 		ptr pdata_this
 		ptr pdata_cat_list
-	def_struct_end
+	(def-struct-end)
 
 	ptr this, cat_list, args, value
 	ulong length
@@ -116,4 +116,4 @@ callback:
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

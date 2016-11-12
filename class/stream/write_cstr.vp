@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_stream.ninc'
+(import 'inc/func.inc)
+(import 'class/class_stream.inc)
 
-def_func class/stream/write_cstr
+(def-func 'class/stream/write_cstr)
 	;inputs
 	;r0 = stream object
 	;r1 = buffer
@@ -29,4 +29,4 @@ def_func class/stream/write_cstr
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

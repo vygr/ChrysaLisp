@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_component.ninc'
+(import 'inc/func.inc)
+(import 'class/class_component.inc)
 
-def_func class/component/init
+(def-func 'class/component/init)
 	;inputs
 	;r0 = component object
 	;r1 = vtable pointer
@@ -17,4 +17,4 @@ def_func class/component/init
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

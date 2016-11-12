@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_window.ninc'
+(import 'inc/func.inc)
+(import 'class/class_window.inc)
 
-def_func class/window/draw
+(def-func 'class/window/draw)
 	;inputs
 	;r0 = window object
 	;r1 = ctx object
@@ -10,4 +10,4 @@ def_func class/window/draw
 
 	f_jmp window, draw_panel, {r0, r1, 1, window_border_size}
 
-def_func_end
+(def-func-end)

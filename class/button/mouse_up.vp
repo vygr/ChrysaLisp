@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_button.ninc'
+(import 'inc/func.inc)
+(import 'class/class_button.inc)
 
-def_func class/button/mouse_up
+(def-func 'class/button/mouse_up)
 	;inputs
 	;r0 = button object
 	;r1 = mouse event message
@@ -27,4 +27,4 @@ def_func class/button/mouse_up
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

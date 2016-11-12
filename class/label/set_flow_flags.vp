@@ -1,8 +1,8 @@
-%include 'inc/func.ninc'
-%include 'class/class_label.ninc'
-%include 'class/class_flow.ninc'
+(import 'inc/func.inc)
+(import 'class/class_label.inc)
+(import 'class/class_flow.inc)
 
-def_func class/label/set_flow_flags
+(def-func 'class/label/set_flow_flags)
 	;inputs
 	;r0 = label object
 	;r1 = flags
@@ -12,4 +12,4 @@ def_func class/label/set_flow_flags
 	vp_pop r0
 	vp_ret
 
-def_func_end
+(def-func-end)

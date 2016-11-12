@@ -1,14 +1,14 @@
 %ifndef CLASS_SEQUENCE_1234
 %define CLASS_SEQUENCE_1234
 
-%include 'class/class_ref.ninc'
+(import 'class/class_ref.inc)
 
-def_class sequence, ref
-def_method get_length, class/obj/null, virtual, {r0}, {r1}
-def_method ref_element, class/obj/null, virtual, {r0, r1}, {r1}
-def_method slice, class/obj/null, virtual, {r0, r1, r2}, {r1}
+(def-class 'sequence 'ref)
+(def-method 'get_length 'class/obj/null 'virtual '(r0), '(r1))
+(def-method 'ref_element 'class/obj/null 'virtual '(r0, r1), '(r1))
+(def-method 'slice 'class/obj/null 'virtual '(r0, r1, r2), '(r1))
 
-def_struct sequence, ref
-def_struct_end
+(def-struct 'sequence 'ref)
+(def-struct-end)
 
 %endif

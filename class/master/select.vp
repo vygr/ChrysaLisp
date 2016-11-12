@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'class/class_master.ninc'
-%include 'class/class_vector.ninc'
-%include 'class/class_stream_msg_out.ninc'
+(import 'inc/func.inc)
+(import 'class/class_master.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_stream_msg_out.inc)
 
-def_func class/master/select
+(def-func 'class/master/select)
 	;inputs
 	;r0 = master object
 	;r1 = user mailbox
@@ -33,4 +33,4 @@ def_func class/master/select
 	pop_scope
 	return
 
-def_func_end
+(def-func-end)

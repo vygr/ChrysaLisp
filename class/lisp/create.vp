@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_lisp.ninc'
+(import 'inc/func.inc)
+(import 'class/class_lisp.inc)
 
-def_func class/lisp/create
+(def-func 'class/lisp/create)
 	;inputs
 	;r0 = stdin stream
 	;r1 = stdout stream
@@ -32,4 +32,4 @@ def_func class/lisp/create
 	eval {this}, r0
 	return
 
-def_func_end
+(def-func-end)

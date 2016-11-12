@@ -1,6 +1,6 @@
-%include 'inc/func.ninc'
+(import 'inc/func.inc)
 
-def_func sys/mem_copy
+(def-func 'sys/mem_copy)
 	;inputs
 	;r0 = source address
 	;r1 = destination address
@@ -45,4 +45,4 @@ def_func sys/mem_copy
 	endif
 	vp_ret
 
-def_func_end
+(def-func-end)

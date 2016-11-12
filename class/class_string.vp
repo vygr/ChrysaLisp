@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_string.ninc'
+(import 'inc/func.inc)
+(import 'class/class_string.inc)
 
-class_macro_class string
+(class-macro-class 'string)

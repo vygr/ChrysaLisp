@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
-%include 'class/class_text.ninc'
+(import 'inc/func.inc)
+(import 'class/class_text.inc)
 
 class_macro_new text

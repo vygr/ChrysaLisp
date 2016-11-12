@@ -1,9 +1,9 @@
-%include 'inc/func.ninc'
-%include 'inc/mail.ninc'
-%include 'inc/task.ninc'
-%include 'inc/link.ninc'
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
+(import 'inc/task.inc)
+(import 'inc/link.inc)
 
-def_func sys/link
+(def-func 'sys/link)
 	;started by kernel for each link
 
 	;decrement task count
@@ -218,4 +218,4 @@ def_func sys/link
 	vp_cpy r1, [r0 + tk_statics_task_count]
 	vp_ret
 
-def_func_end
+(def-func-end)

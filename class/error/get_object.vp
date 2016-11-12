@@ -1,7 +1,7 @@
-%include 'inc/func.ninc'
-%include 'class/class_error.ninc'
+(import 'inc/func.inc)
+(import 'class/class_error.inc)
 
-def_func class/error/get_object
+(def-func 'class/error/get_object)
 	;inputs
 	;r0 = error object
 	;outputs
@@ -11,4 +11,4 @@ def_func class/error/get_object
 	vp_cpy [r0 + error_object], r1
 	vp_ret
 
-def_func_end
+(def-func-end)
