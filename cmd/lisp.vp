@@ -1,0 +1,68 @@
+%include 'inc/func.ninc'
+%include 'class/class_slave.ninc'
+%include 'class/class_vector.ninc'
+%include 'class/class_stream.ninc'
+%include 'class/class_stream_str.ninc'
+%include 'class/class_string.ninc'
+%include 'class/class_lisp.ninc'
+
+def_func cmd/lisp, 1024 * 8
+
+	ptr slave, lisp, args, arg, stream, file, repl_args, value
+	ushort argc, index
+
+	;init app vars
+	push_scope
+
+	;initialize pipe details and command args, abort on error
+	func_call slave, create, {}, {slave}
+	if {slave}
+		;create lisp class and repl args
+		func_call lisp, create, {slave->slave_stdin, slave->slave_stdout, slave->slave_stderr}, {lisp}
+		func_call vector, create, {}, {repl_args}
+
+		;run any lisp.lisp
+		func_call string, create_from_file, {"cmd/lisp.lisp"}, {file}
+		if {file}
+			;REPL from file stream
+			func_call stream_str, create, {file}, {stream}
+			func_call vector, push_back, {repl_args, stream}
+			func_call lisp, func_repl, {lisp, repl_args}, {value}
+			func_call ref, deref, {value}
+			func_call vector, clear, {repl_args}
+		endif
+
+		;run any files given as args
+		func_call slave, get_args, {slave}, {args}
+		devirt_call vector, get_length, {args}, {argc}
+		assign {1}, {index}
+		loop_while {index != argc}
+			func_call vector, get_element, {args, index}, {arg}
+			func_call string, create_from_file, {&arg->string_data}, {file}
+			if {file}
+				;REPL from file stream
+				func_call stream_str, create, {file}, {stream}
+				func_call vector, push_back, {repl_args, stream}
+				func_call lisp, func_repl, {lisp, repl_args}, {value}
+				func_call ref, deref, {value}
+				func_call vector, clear, {repl_args}
+			endif
+			assign {index + 1}, {index}
+		loop_end
+
+		;REPL from stdin
+		func_call ref, ref, {lisp->lisp_stdin}
+		func_call vector, push_back, {repl_args, lisp->lisp_stdin}
+		func_call lisp, func_repl, {lisp, repl_args}, {value}
+		func_call ref, deref, {value}
+
+		;clean up
+		func_call vector, deref, {repl_args}
+		func_call lisp, deref, {lisp}
+		func_call slave, deref, {slave}
+	endif
+
+	pop_scope
+	return
+
+def_func_end
