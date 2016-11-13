@@ -109,17 +109,17 @@
 (vp-label 'link_path)
 	(vp-string "/tmp/") (vp-byte 0)
 
-	align 8, db 0
+	(vp-align ptr_size)
 (vp-label 'options_table)
 	dq	opt_cpu - options_table
 		db	'-cpu', 0
-		align 8, db 0
+		(vp-align ptr_size)
 	dq	opt_run - options_table
 		db	'-run', 0
-		align 8, db 0
+		(vp-align ptr_size)
 	dq	opt_link - options_table
 		db	'-l', 0
-		align 8, db 0
+		(vp-align ptr_size)
 	dq	0
 
 (def-func-end)

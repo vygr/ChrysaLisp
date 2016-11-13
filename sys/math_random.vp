@@ -20,7 +20,7 @@
 	(vp-cpy-rr r2 r0)
 	(vp-ret)
 
-	align 8, db 0
+	(vp-align ptr_size)
 (vp-label 'seed)
 	dq 1234567890
 

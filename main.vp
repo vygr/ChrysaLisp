@@ -36,7 +36,7 @@
 ; prebound functions
 ;;;;;;;;;;;;;;;;;;;;
 
-	align 8, db 0
+	(vp-align ptr_size)
 
 (vp-label 'ld_load_init_loader)
 	incbin 'obj/sys/load_init'		;must be first function !
@@ -52,7 +52,7 @@
 
 	SECTION .data
 
-	align 8, db 0
+	(vp-align ptr_size)
 (vp-label 'sdl_func_table)
 %ifidn OS, Darwin
 	dq _SDL_SetMainReady
