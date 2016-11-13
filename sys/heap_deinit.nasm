@@ -18,7 +18,10 @@ def_func sys/heap_deinit
 		vp_add ln_fnode_size, r3
 		sys_munmap r0, r3
 		f_bind sys_mem, statics, r0
-		vp_sub r3, [r0]
+		vp_cpy [r0], r0
+		vp_sub r3, r0
+		f_bind sys_mem, statics, r3
+		vp_cpy r0, [r3]
 	loop_end
 	vp_ret
 

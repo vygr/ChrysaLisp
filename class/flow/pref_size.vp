@@ -36,13 +36,17 @@ callback:
 	(vp-and-cr flow_flag_up | flow_flag_down r3)
 	if r3, !=, 0
 		;flow down or up
-		vp_add r11, [r1 + local_h]
+		(vp-cpy-ir r1 local_h r3)
+		(vp-add-rr r11 r3)
+		(vp-cpy-ri r3 r1 local_h)
 	endif
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_left | flow_flag_right r3)
 	if r3, !=, 0
 		;flow left or right
-		vp_add r10, [r1 + local_w]
+		(vp-cpy-ir r1 local_w r3)
+		(vp-add-rr r10 r3)
+		(vp-cpy-ri r3 r1 local_w)
 	endif
 	if r10, >, [r1 + local_w]
 		(vp-cpy-ri r10 r1 local_w)

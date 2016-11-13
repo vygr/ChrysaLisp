@@ -246,6 +246,16 @@
 %endmacro
 
 %macro vp_xchg 2
+	reg? %1
+	%if _r < 0
+		;source not register
+		%fatal Not valid VP mode
+	%endif
+	reg? %2
+	%if _r < 0
+		;dest not register
+		%fatal Not valid VP mode
+	%endif
 	%ifnidn %1, %2
 		xchg %1, %2
 	%endif
@@ -380,6 +390,11 @@
 %endmacro
 
 %macro vp_mul 2
+	reg? %2
+	%if _r < 0
+		;dest not register
+		%fatal Not valid VP mode
+	%endif
 	%ifidn %1, -1
 		neg %2
 	%else
@@ -464,30 +479,60 @@
 %endmacro
 
 %macro vp_add 2
+	reg? %2
+	%if _r < 0
+		;dest not register
+		%fatal Not valid VP mode
+	%endif
 	add %2, %1
 %endmacro
 
 %macro vp_sub 2
+	reg? %2
+	%if _r < 0
+		;dest not register
+		%fatal Not valid VP mode
+	%endif
 	sub %2, %1
 %endmacro
 
 %macro vp_cmp 2
+	reg? %2
+	%if _r < 0
+		;dest not register
+		%fatal Not valid VP mode
+	%endif
 	sub %2, %1
 %endmacro
 
 %macro vp_and 2
+	reg? %2
+	%if _r < 0
+		;dest not register
+		%fatal Not valid VP mode
+	%endif
 	%ifnidn %1, %2
 		and %2, %1
 	%endif
 %endmacro
 
 %macro vp_or 2
+	reg? %2
+	%if _r < 0
+		;dest not register
+		%fatal Not valid VP mode
+	%endif
 	%ifnidn %1, %2
 		or %2, %1
 	%endif
 %endmacro
 
 %macro vp_xor 2
+	reg? %2
+	%if _r < 0
+		;dest not register
+		%fatal Not valid VP mode
+	%endif
 	xor %2, %1
 %endmacro
 
