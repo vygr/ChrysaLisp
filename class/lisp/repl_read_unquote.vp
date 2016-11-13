@@ -17,26 +17,26 @@
 	(ptr 'this 'stream 'list 'elem)
 	(ulong 'char)
 
-	push_scope
-	retire {r0, r1, r2}, {this, stream, char}
+	(push-scope)
+	(retire '(r0, r1, r2) '(this, stream, char))
 
 	;skip ","
-	func_call stream, read_char, {stream}, {char}
+	(func-call 'stream 'read_char '(stream) '(char))
 
-	func_call vector, create, {}, {list}
-	assign {this->lisp_sym_unquote}, {elem}
-	func_call ref, ref, {elem}
-	func_call vector, push_back, {list, elem}
-	func_call lisp, repl_read, {this, stream, char}, {elem, char}
-	if {elem}
-		func_call vector, push_back, {list, elem}
+	(func-call 'vector 'create '() '(list))
+	(assign '(this -> lisp_sym_unquote) '(elem))
+	(func-call 'ref 'ref '(elem))
+	(func-call 'vector 'push_back '(list, elem))
+	(func-call 'lisp 'repl_read '(this, stream, char) '(elem, char))
+	(vpif '((elem)))
+		(func-call 'vector 'push_back '(list, elem))
 	else
-		func_call ref, deref, {list}
-		func_call error, create, {"read unquote error", this->lisp_sym_nil}, {list}
+		(func-call 'ref 'deref '(list))
+		(func-call 'error 'create '("read unquote error", this -> lisp_sym_nil) '(list))
 	(endif)
 
-	eval {this, list, char}, {r0, r1, r2}
-	pop_scope
+	(eval '(this, list, char) '(r0, r1, r2))
+	(pop-scope)
 	return
 
 (def-func-end)

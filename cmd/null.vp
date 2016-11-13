@@ -8,20 +8,20 @@
 	(ulong 'eof)
 
 	;init app vars
-	push_scope
+	(push-scope)
 
 	;initialize pipe details and command args, abort on error
-	func_call slave, create, {}, {slave}
-	if {slave}
+	(func-call 'slave 'create '() '(slave))
+	(vpif '((slave)))
 		;dump stdin till EOF
 		(loop-start)
-			virt_call stream, read_next, {slave->slave_stdin}, {eof}
-		loop_until {eof == -1}
+			(virt-call 'stream 'read_next '(slave -> slave_stdin) '(eof))
+		(loop-until '((eof == -1)))
 
 		;clean up
-		func_call slave, deref, {slave}
+		(func-call 'slave 'deref '(slave))
 	(endif)
-	pop_scope
+	(pop-scope)
 	return
 
 (def-func-end)

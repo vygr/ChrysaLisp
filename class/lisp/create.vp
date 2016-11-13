@@ -14,18 +14,18 @@
 	(ptr 'this 'stdin 'stdout 'stderr)
 	(ulong 'ok)
 
-	push_scope
-	retire {r0, r1, r2}, {stdin, stdout, stderr}
+	(push-scope)
+	(retire '(r0, r1, r2) '(stdin, stdout, stderr))
 
-	func_call lisp, new, {}, {this}
-	if {this != 0}
+	(func-call 'lisp 'new '() '(this))
+	(vpif '((this != 0)))
 		;init the object
 		func_path class, lisp
-		func_call lisp, init, {this, @_function_, stdin, stdout, stderr}, {ok}
+		(func-call 'lisp 'init '(this, @ _function_, stdin, stdout, stderr) '(ok))
 		ifnot {ok}
 			;error with init
-			virt_call lisp, delete, {this}, {}
-			assign {0}, {this}
+			(virt-call 'lisp 'delete '(this) '())
+			(assign '(0) '(this))
 		(endif)
 	(endif)
 

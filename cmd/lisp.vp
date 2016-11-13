@@ -6,63 +6,63 @@
 (import 'class/class_string.inc)
 (import 'class/class_lisp.inc)
 
-(def-func 'cmd/lisp '1024 * 8)
+(def-func 'cmd/lisp (mul 1024 8))
 
 	(ptr 'slave 'lisp 'args 'arg 'stream 'file 'repl_args 'value)
 	(ushort 'argc 'index)
 
 	;init app vars
-	push_scope
+	(push-scope)
 
 	;initialize pipe details and command args, abort on error
-	func_call slave, create, {}, {slave}
-	if {slave}
+	(func-call 'slave 'create '() '(slave))
+	(vpif '((slave)))
 		;create lisp class and repl args
-		func_call lisp, create, {slave->slave_stdin, slave->slave_stdout, slave->slave_stderr}, {lisp}
-		func_call vector, create, {}, {repl_args}
+		(func-call 'lisp 'create '(slave -> slave_stdin, slave -> slave_stdout, slave -> slave_stderr) '(lisp))
+		(func-call 'vector 'create '() '(repl_args))
 
 		;run any lisp.lisp
-		func_call string, create_from_file, {"cmd/lisp.lisp"}, {file}
-		if {file}
+		(func-call 'string 'create_from_file '("cmd/lisp.lisp") '(file))
+		(vpif '((file)))
 			;REPL from file stream
-			func_call stream_str, create, {file}, {stream}
-			func_call vector, push_back, {repl_args, stream}
-			func_call lisp, func_repl, {lisp, repl_args}, {value}
-			func_call ref, deref, {value}
-			func_call vector, clear, {repl_args}
+			(func-call 'stream_str 'create '(file) '(stream))
+			(func-call 'vector 'push_back '(repl_args, stream))
+			(func-call 'lisp 'func_repl '(lisp, repl_args) '(value))
+			(func-call 'ref 'deref '(value))
+			(func-call 'vector 'clear '(repl_args))
 		(endif)
 
 		;run any files given as args
-		func_call slave, get_args, {slave}, {args}
-		devirt_call vector, get_length, {args}, {argc}
-		assign {1}, {index}
-		loop_while {index != argc}
-			func_call vector, get_element, {args, index}, {arg}
-			func_call string, create_from_file, {&arg->string_data}, {file}
-			if {file}
+		(func-call 'slave 'get_args '(slave) '(args))
+		(devirt-call 'vector 'get_length '(args) '(argc))
+		(assign '(1) '(index))
+		(loop-while '((index != argc)))
+			(func-call 'vector 'get_element '(args, index) '(arg))
+			(func-call 'string 'create_from_file '(& arg -> string_data) '(file))
+			(vpif '((file)))
 				;REPL from file stream
-				func_call stream_str, create, {file}, {stream}
-				func_call vector, push_back, {repl_args, stream}
-				func_call lisp, func_repl, {lisp, repl_args}, {value}
-				func_call ref, deref, {value}
-				func_call vector, clear, {repl_args}
+				(func-call 'stream_str 'create '(file) '(stream))
+				(func-call 'vector 'push_back '(repl_args, stream))
+				(func-call 'lisp 'func_repl '(lisp, repl_args) '(value))
+				(func-call 'ref 'deref '(value))
+				(func-call 'vector 'clear '(repl_args))
 			(endif)
-			assign {index + 1}, {index}
+			(assign '(index + 1) '(index))
 		(loop-end)
 
 		;REPL from stdin
-		func_call ref, ref, {lisp->lisp_stdin}
-		func_call vector, push_back, {repl_args, lisp->lisp_stdin}
-		func_call lisp, func_repl, {lisp, repl_args}, {value}
-		func_call ref, deref, {value}
+		(func-call 'ref 'ref '(lisp -> lisp_stdin))
+		(func-call 'vector 'push_back '(repl_args, lisp -> lisp_stdin))
+		(func-call 'lisp 'func_repl '(lisp, repl_args) '(value))
+		(func-call 'ref 'deref '(value))
 
 		;clean up
-		func_call vector, deref, {repl_args}
-		func_call lisp, deref, {lisp}
-		func_call slave, deref, {slave}
+		(func-call 'vector 'deref '(repl_args))
+		(func-call 'lisp 'deref '(lisp))
+		(func-call 'slave 'deref '(slave))
 	(endif)
 
-	pop_scope
+	(pop-scope)
 	return
 
 (def-func-end)

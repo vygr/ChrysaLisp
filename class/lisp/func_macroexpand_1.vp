@@ -17,20 +17,20 @@
 	(ptr 'this 'args 'value)
 	(ulong 'length)
 
-	push_scope
-	retire {r0, r1}, {this, args}
+	(push-scope)
+	(retire '(r0, r1) '(this, args))
 
-	devirt_call vector, get_length, {args}, {length}
+	(devirt-call 'vector 'get_length '(args) '(length))
 	if (length == 1)
-		func_call lisp, func_copy, {this, args}, {value}
-		func_call lisp, repl_expand, {this, &value}, {length}
+		(func-call 'lisp 'func_copy '(this, args) '(value))
+		(func-call 'lisp 'repl_expand '(this, & value) '(length))
 	else
-		func_call error, create, {"(macroexpand-1 form) wrong number of args", args}, {value}
-		assign {1}, {length}
+		(func-call 'error 'create '("(macroexpand-1 form) wrong number of args", args) '(value))
+		(assign '(1) '(length))
 	(endif)
 
-	eval {this, value, length}, {r0, r1, r2}
-	pop_scope
+	(eval '(this, value, length) '(r0, r1, r2))
+	(pop-scope)
 	return
 
 (def-func-end)

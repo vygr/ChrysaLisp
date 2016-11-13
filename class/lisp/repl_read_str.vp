@@ -14,31 +14,31 @@
 	;r1 = string
 	;r2 = next char
 
-	const char_double_quote, '"'
+	(const 'char_double_quote '"')
 
 	(ptr 'this 'stream 'string)
 	(pubyte 'reloc 'buffer)
 	(ulong 'char)
 
-	push_scope
-	retire {r0, r1, r2}, {this, stream, char}
+	(push-scope)
+	(retire '(r0, r1, r2) '(this, stream, char))
 
 	func_path sys_load, statics
-	assign {@_function_.ld_statics_reloc_buffer}, {reloc}
-	assign {reloc}, {buffer}
+	(assign '(@ _function_ . ld_statics_reloc_buffer) '(reloc))
+	(assign '(reloc) '(buffer))
 
-	func_call stream, read_char, {stream}, {char}
-	loop_while {char != -1 && char != char_double_quote}
-		assign {char}, {*buffer}
-		assign {buffer + 1}, {buffer}
-		func_call stream, read_char, {stream}, {char}
+	(func-call 'stream 'read_char '(stream) '(char))
+	(loop-while '((char != -1 && char != char_double_quote)))
+		(assign '(char) '(* buffer))
+		(assign '(buffer + 1) '(buffer))
+		(func-call 'stream 'read_char '(stream) '(char))
 	(loop-end)
-	func_call stream, read_char, {stream}, {char}
+	(func-call 'stream 'read_char '(stream) '(char))
 
-	func_call string, create_from_buffer, {reloc, buffer - reloc}, {string}
+	(func-call 'string 'create_from_buffer '(reloc, buffer - reloc) '(string))
 
-	eval {this, string, char}, {r0, r1, r2}
-	pop_scope
+	(eval '(this, string, char) '(r0, r1, r2))
+	(pop-scope)
 	return
 
 (def-func-end)

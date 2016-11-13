@@ -26,26 +26,26 @@
 	(ptr 'args 'first)
 	(ulong 'length)
 
-	push_scope
-	retire {r0, r1}, {this, args}
+	(push-scope)
+	(retire '(r0, r1) '(this, args))
 
-	devirt_call vector, get_length, {args}, {length}
-	if {length > 1}
-		func_call vector, get_element, {args, 0}, {first}
-		if {first->obj_vtable == @class/class_boxed_long}
-			func_call boxed_long, get_value, {first}, {num}
-			assign {this->lisp_sym_t}, {value}
-			func_call ref, ref, {value}
-			func_call vector, for_each, {args, 1, length, $callback, &this}, {_}
+	(devirt-call 'vector 'get_length '(args) '(length))
+	(vpif '((length > 1)))
+		(func-call 'vector 'get_element '(args, 0) '(first))
+		(vpif '((first -> obj_vtable == @class/class_boxed_long)))
+			(func-call 'boxed_long 'get_value '(first) '(num))
+			(assign '(this -> lisp_sym_t) '(value))
+			(func-call 'ref 'ref '(value))
+			(func-call 'vector 'for_each '(args, 1, length, $ callback, & this) '(_))
 		else
-			func_call error, create, {"(gt num num ...) not all numbers", first}, {value}
+			(func-call 'error 'create '("(gt num num ... ) not all numbers", first) '(value))
 		(endif)
 	else
-		func_call error, create, {"(gt num num ...) wrong number of args", args}, {value}
+		(func-call 'error 'create '("(gt num num ... ) wrong number of args", args) '(value))
 	(endif)
 
-	eval {this, value}, {r0, r1}
-	pop_scope
+	(eval '(this, value) '(r0, r1))
+	(pop-scope)
 	return
 
 callback:
@@ -55,31 +55,31 @@ callback:
 	;outputs
 	;r1 = 0 if break, else not
 
-	pptr iter
+	(pptr 'iter)
 	(ptr 'pdata)
 	(long 'num)
 
-	push_scope
-	retire {r0, r1}, {pdata, iter}
+	(push-scope)
+	(retire '(r0, r1) '(pdata, iter))
 
-	if {(*iter)->obj_vtable == @class/class_boxed_long}
-		func_call boxed_long, get_value, {*iter}, {num}
-		if {pdata->pdata_num > num}
-			assign {num}, {pdata->pdata_num}
-			eval {1}, {r1}
+	(vpif '(((*iter)->obj_vtable == @class/class_boxed_long)))
+		(func-call 'boxed_long 'get_value '(* iter) '(num))
+		(vpif '((pdata -> pdata_num > num)))
+			(assign '(num) '(pdata -> pdata_num))
+			(eval '(1) '(r1))
 			return
 		else
-			func_call ref, deref, {pdata->pdata_value}
-			assign {pdata->pdata_this->lisp_sym_nil}, {pdata->pdata_value}
-			func_call ref, ref, {pdata->pdata_value}
+			(func-call 'ref 'deref '(pdata -> pdata_value))
+			(assign '(pdata -> pdata_this -> lisp_sym_nil) '(pdata -> pdata_value))
+			(func-call 'ref 'ref '(pdata -> pdata_value))
 		(endif)
 	else
-		func_call ref, deref, {pdata->pdata_value}
-		func_call error, create, {"(gt num num ...) not all numbers", *iter}, {pdata->pdata_value}
+		(func-call 'ref 'deref '(pdata -> pdata_value))
+		(func-call 'error 'create '("(gt num num ... ) not all numbers", * iter) '(pdata -> pdata_value))
 	(endif)
 
-	eval {0}, {r1}
-	pop_scope
+	(eval '(0) '(r1))
+	(pop-scope)
 	return
 
 (def-func-end)

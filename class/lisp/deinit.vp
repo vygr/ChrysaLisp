@@ -9,18 +9,18 @@
 
 	(ptr 'this)
 
-	push_scope
-	retire {r0}, {this}
+	(push-scope)
+	(retire '(r0) '(this))
 
 	;deinit myself
-	func_call ref, deref, {this->lisp_symbols}
-	func_call ref, deref, {this->lisp_enviroment}
-	func_call ref, deref, {this->lisp_macros}
+	(func-call 'ref 'deref '(this -> lisp_symbols))
+	(func-call 'ref 'deref '(this -> lisp_enviroment))
+	(func-call 'ref 'deref '(this -> lisp_macros))
 
 	;deinit parent
-	super_call lisp, deinit, {this}
+	(super-call 'lisp 'deinit '(this))
 
-	pop_scope
+	(pop-scope)
 	return
 
 (def-func-end)

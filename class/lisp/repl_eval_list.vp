@@ -12,21 +12,21 @@
 	;r1 = value
 
 	(ptr 'this 'list)
-	pptr iter
+	(pptr 'iter)
 	(ulong 'index 'length)
 
-	push_scope
-	retire {r0, r1, r2}, {this, list, index}
+	(push-scope)
+	(retire '(r0, r1, r2) '(this, list, index))
 
-	devirt_call vector, get_length, {list}, {length}
-	func_call vector, for_each, {list, index, length, $callback, this}, {iter}
-	if {iter}
-		assign {*iter}, {list}
+	(devirt-call 'vector 'get_length '(list) '(length))
+	(func-call 'vector 'for_each '(list, index, length, $ callback, this) '(iter))
+	(vpif '((iter)))
+		(assign '(* iter) '(list))
 	(endif)
-	func_call ref, ref, {list}
+	(func-call 'ref 'ref '(list))
 
-	eval {this, list}, {r0, r1}
-	pop_scope
+	(eval '(this, list) '(r0, r1))
+	(pop-scope)
 	return
 
 callback:
@@ -36,18 +36,18 @@ callback:
 	;outputs
 	;r1 = 0 if break, else not
 
-	pptr iter
+	(pptr 'iter)
 	(ptr 'pdata)
 
-	push_scope
-	retire {r0, r1}, {pdata, iter}
+	(push-scope)
+	(retire '(r0, r1) '(pdata, iter))
 
-	func_call lisp, repl_eval, {pdata, *iter}, {pdata}
-	func_call ref, deref, {*iter}
-	assign {pdata}, {*iter}
+	(func-call 'lisp 'repl_eval '(pdata, * iter) '(pdata))
+	(func-call 'ref 'deref '(* iter))
+	(assign '(pdata) '(* iter))
 
-	eval {pdata->obj_vtable != @class/class_error}, {r1}
-	pop_scope
+	(eval '(pdata -> obj_vtable != @ class/class_error) '(r1))
+	(pop-scope)
 	return
 
 (def-func-end)

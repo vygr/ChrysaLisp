@@ -14,20 +14,20 @@
 	(ptr 'this 'args 'func)
 	(ulong 'length)
 
-	push_scope
-	retire {r0, r1}, {this, args}
+	(push-scope)
+	(retire '(r0, r1) '(this, args))
 
-	devirt_call vector, get_length, {args}, {length}
-	if {length == 2}
-		func_call vector, get_element, {args, 0}, {func}
-		func_call vector, get_element, {args, 1}, {args}
-		func_call lisp, repl_apply, {this, func, args}, {args}
+	(devirt-call 'vector 'get_length '(args) '(length))
+	(vpif '((length == 2)))
+		(func-call 'vector 'get_element '(args, 0) '(func))
+		(func-call 'vector 'get_element '(args, 1) '(args))
+		(func-call 'lisp 'repl_apply '(this, func, args) '(args))
 	else
-		func_call error, create, {"(apply func args) wrong numbers of args", args}, {args}
+		(func-call 'error 'create '("(apply func args) wrong numbers of args", args) '(args))
 	(endif)
 
-	eval {this, args}, {r0, r1}
-	pop_scope
+	(eval '(this, args) '(r0, r1))
+	(pop-scope)
 	return
 
 (def-func-end)

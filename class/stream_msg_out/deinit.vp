@@ -9,15 +9,15 @@
 
 	(ptr 'inst 'msg)
 
-	push_scope
-	retire {r0}, {inst}
+	(push-scope)
+	(retire '(r0) '(inst))
 
 	;wait for final ack
-	func_call sys_mail, read, {&inst->stream_msg_out_ack_mailbox}, {msg}
-	func_call sys_mem, free, {msg}
+	(func-call 'sys_mail 'read '(& inst -> stream_msg_out_ack_mailbox) '(msg))
+	(func-call 'sys_mem 'free '(msg))
 
-	eval {inst}, {r0}
-	pop_scope
+	(eval '(inst) '(r0))
+	(pop-scope)
 	return
 
 (def-func-end)

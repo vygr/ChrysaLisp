@@ -15,18 +15,18 @@
 	(long 'char)
 
 	;save inputs
-	push_scope
-	retire {r0, r1}, {inst, buffer}
+	(push-scope)
+	(retire '(r0, r1) '(inst, buffer))
 
 	(loop-start)
-		assign {*buffer}, {char}
+		(assign '(* buffer) '(char))
 		breakifnot {char}
-		assign {buffer + 1}, {buffer}
-		func_call stream, write_char, {inst, char}
+		(assign '(buffer + 1) '(buffer))
+		(func-call 'stream 'write_char '(inst, char))
 	(loop-end)
 
-	eval {inst}, {r0}
-	pop_scope
+	(eval '(inst) '(r0))
+	(pop-scope)
 	return
 
 (def-func-end)

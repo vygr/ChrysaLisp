@@ -12,28 +12,28 @@
 	;trashes
 	;all but r4
 
-	const char_minus, "-"
+	(const 'char_minus "-")
 
 	(ptr 'this)
 	(pubyte 'buffer 'reloc)
 	(long 'num 'base)
 
-	push_scope
-	retire {r0, r1}, {num, base}
+	(push-scope)
+	(retire '(r0, r1) '(num, base))
 
 	func_path sys_load, statics
-	assign {@_function_.ld_statics_reloc_buffer}, {reloc}
-	assign {reloc}, {buffer}
-	if {num < 0}
-		assign {char_minus}, {*buffer}
-		assign {buffer + 1}, {buffer}
-		assign {-num}, {num}
+	(assign '(@ _function_ . ld_statics_reloc_buffer) '(reloc))
+	(assign '(reloc) '(buffer))
+	(vpif '((num < 0)))
+		(assign '(char_minus) '(* buffer))
+		(assign '(buffer + 1) '(buffer))
+		(assign '(-num) '(num))
 	(endif)
-	func_call sys_string, from_long, {num, buffer, base}
-	func_call string, create_from_cstr, {reloc}, {this}
+	(func-call 'sys_string 'from_long '(num, buffer, base))
+	(func-call 'string 'create_from_cstr '(reloc) '(this))
 
-	eval {this}, {r0}
-	pop_scope
+	(eval '(this) '(r0))
+	(pop-scope)
 	return
 
 (def-func-end)

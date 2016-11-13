@@ -15,27 +15,27 @@
 	(ptr 'this 'args 'var 'val)
 	(uint 'length 'index)
 
-	push_scope
-	retire {r0, r1}, {this, args}
+	(push-scope)
+	(retire '(r0, r1) '(this, args))
 
-	devirt_call vector, get_length, {args}, {length}
-	if {length >= 2 && !(length & 1)}
-		assign {0, 0}, {index, val}
+	(devirt-call 'vector 'get_length '(args) '(length))
+	(vpif '((length >= 2 && !(length & 1))))
+		(assign '(0, 0) '(index, val))
 		(loop-start)
-			func_call ref, deref_if, {val}
-			func_call vector, get_element, {args, index}, {var}
-			func_call vector, get_element, {args, index + 1}, {val}
-			func_call lisp, repl_eval, {this, val}, {val}
-			breakif {val->obj_vtable == @class/class_error}
-			func_call unordered_map, insert, {this->lisp_enviroment, var, val}, {_, _}
-			assign {index + 2}, {index}
-		loop_until {index == length}
+			(func-call 'ref 'deref_if '(val))
+			(func-call 'vector 'get_element '(args, index) '(var))
+			(func-call 'vector 'get_element '(args, index + 1) '(val))
+			(func-call 'lisp 'repl_eval '(this, val) '(val))
+			break(vpif '((val -> obj_vtable == @class/class_error)))
+			(func-call 'unordered_map 'insert '(this -> lisp_enviroment, var, val) '(_, _))
+			(assign '(index + 2) '(index))
+		(loop-until '((index == length)))
 	else
-		func_call error, create, {"(defq var val ...) wrong numbers of args", args}, {val}
+		(func-call 'error 'create '("(defq var val ... ) wrong numbers of args", args) '(val))
 	(endif)
 
-	eval {this, val}, {r0, r1}
-	pop_scope
+	(eval '(this, val) '(r0, r1))
+	(pop-scope)
 	return
 
 (def-func-end)

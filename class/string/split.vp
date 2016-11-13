@@ -16,16 +16,16 @@
 	(ubyte 'char)
 
 	;save inputs
-	push_scope
-	retire {r0, r1}, {inst, char}
+	(push-scope)
+	(retire '(r0, r1) '(inst, char))
 
 	;create string split
-	func_call stream, create, {0, 0, &inst->string_data, inst->string_length}, {stream}
-	func_call stream, split, {stream, char}, {splits}
-	func_call stream, deref, {stream}
+	(func-call 'stream 'create '(0, 0, & inst -> string_data, inst -> string_length) '(stream))
+	(func-call 'stream 'split '(stream, char) '(splits))
+	(func-call 'stream 'deref '(stream))
 
-	eval {inst, splits}, {r0, r1}
-	pop_scope
+	(eval '(inst, splits) '(r0, r1))
+	(pop-scope)
 	(vp-ret)
 
 (def-func-end)

@@ -14,49 +14,49 @@
 	;r1 = list
 	;r2 = next char
 
-	const char_space, ' '
-	const char_rrb, ')'
-	const char_semi, ';'
-	const char_lf, 10
+	(const 'char_space ' ')
+	(const 'char_rrb ')')
+	(const 'char_semi ';')
+	(const 'char_lf 10)
 
 	(ptr 'this 'stream 'list 'ast)
 	(ulong 'char)
 
-	push_scope
-	retire {r0, r1, r2}, {this, stream, char}
+	(push-scope)
+	(retire '(r0, r1, r2) '(this, stream, char))
 
 	;skip "(" and white space
 	(loop-start)
-		func_call stream, read_char, {stream}, {char}
-	loop_until {char > char_space || char == -1}
+		(func-call 'stream 'read_char '(stream) '(char))
+	(loop-until '((char > char_space || char == -1)))
 
-	func_call vector, create, {}, {list}
-	loop_while {char != -1 && char != char_rrb}
-		func_call lisp, repl_read, {this, stream, char}, {ast, char}
-		if {ast->obj_vtable == @class/class_error}
-			func_call ref, deref, {list}
-			assign {ast}, {list}
+	(func-call 'vector 'create '() '(list))
+	(loop-while '((char != -1 && char != char_rrb)))
+		(func-call 'lisp 'repl_read '(this, stream, char) '(ast, char))
+		(vpif '((ast -> obj_vtable == @class/class_error)))
+			(func-call 'ref 'deref '(list))
+			(assign '(ast) '(list))
 			goto error
 		(endif)
-		func_call vector, push_back, {list, ast}
+		(func-call 'vector 'push_back '(list, ast))
 
 		;skip white space/comments
 		(loop-start)
-			loop_while {char <= char_space && char != -1}
-				func_call stream, read_char, {stream}, {char}
+			(loop-while '((char <= char_space && char != -1)))
+				(func-call 'stream 'read_char '(stream) '(char))
 			(loop-end)
-			breakif {char != char_semi}
-			func_call stream, skip_not, {stream, char_lf}
-			func_call stream, read_char, {stream}, {char}
+			break(vpif '((char != char_semi)))
+			(func-call 'stream 'skip_not '(stream, char_lf))
+			(func-call 'stream 'read_char '(stream) '(char))
 		(loop-end)
 	(loop-end)
 
 	;skip ")"
-	func_call stream, read_char, {stream}, {char}
+	(func-call 'stream 'read_char '(stream) '(char))
 
 error:
-	eval {this, list, char}, {r0, r1, r2}
-	pop_scope
+	(eval '(this, list, char) '(r0, r1, r2))
+	(pop-scope)
 	return
 
 (def-func-end)

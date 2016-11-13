@@ -15,18 +15,18 @@
 	(ulong 'error)
 
 	;read init args
-	push_scope
-	retire {r0, r1}, {inst, vtable}
+	(push-scope)
+	(retire '(r0, r1) '(inst, vtable))
 
 	;init parent
-	super_call master, init, {inst, vtable}, {error}
-	if {error != 0}
+	(super-call 'master 'init '(inst, vtable) '(error))
+	(vpif '((error != 0)))
 		;init state
-		assign {stream_mail_state_stopped}, {inst->master_state}
+		(assign '(stream_mail_state_stopped) '(inst -> master_state))
 	(endif)
 
-	eval {inst, error}, {r0, r1}
-	pop_scope
+	(eval '(inst, error) '(r0, r1))
+	(pop-scope)
 	return
 
 (def-func-end)

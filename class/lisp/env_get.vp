@@ -12,20 +12,20 @@
 	;r1 = value
 
 	(ptr 'this 'symbol)
-	pptr iter
+	(pptr 'iter)
 
-	push_scope
-	retire {r0, r1}, {this, symbol}
+	(push-scope)
+	(retire '(r0, r1) '(this, symbol))
 
-	func_call lisp, env_find, {this, symbol}, {iter, _}
-	if {iter}
-		func_call pair, ref_second, {*iter}, {symbol}
+	(func-call 'lisp 'env_find '(this, symbol) '(iter, _))
+	(vpif '((iter)))
+		(func-call 'pair 'ref_second '(* iter) '(symbol))
 	else
-		func_call error, create, {"symbol not bound", symbol}, {symbol}
+		(func-call 'error 'create '("symbol not bound", symbol) '(symbol))
 	(endif)
 
-	eval {this, symbol}, {r0, r1}
-	pop_scope
+	(eval '(this, symbol) '(r0, r1))
+	(pop-scope)
 	return
 
 (def-func-end)

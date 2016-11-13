@@ -18,31 +18,31 @@
 	(pubyte 'reloc)
 	(long 'length)
 
-	push_scope
-	retire {r0, r1}, {this, args}
+	(push-scope)
+	(retire '(r0, r1) '(this, args))
 
-	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
-		func_call vector, get_element, {args, 0}, {value}
-		if {value->obj_vtable == @class/class_stream_str}
+	(devirt-call 'vector 'get_length '(args) '(length))
+	(vpif '((length == 1)))
+		(func-call 'vector 'get_element '(args, 0) '(value))
+		(vpif '((value -> obj_vtable == @class/class_stream_str)))
 			func_path sys_load, statics
-			assign {@_function_.ld_statics_reloc_buffer}, {reloc}
-			func_call stream_str, read_line, {value, reloc, ld_reloc_size}, {length}
-			if {length == -1}
-				assign {this->lisp_sym_nil}, {value}
-				func_call ref, ref, {value}
+			(assign '(@ _function_ . ld_statics_reloc_buffer) '(reloc))
+			(func-call 'stream_str 'read_line '(value, reloc, ld_reloc_size) '(length))
+			(vpif '((length == -1)))
+				(assign '(this -> lisp_sym_nil) '(value))
+				(func-call 'ref 'ref '(value))
 			else
-				func_call string, create_from_buffer, {reloc, length}, {value}
+				(func-call 'string 'create_from_buffer '(reloc, length) '(value))
 			(endif)
 		else
-			func_call error, create, {"(read-line stream) not a stream", args}, {value}
+			(func-call 'error 'create '("(read-line stream) not a stream", args) '(value))
 		(endif)
 	else
-		func_call error, create, {"(read-line stream) wrong number of args", args}, {value}
+		(func-call 'error 'create '("(read-line stream) wrong number of args", args) '(value))
 	(endif)
 
-	eval {this, value}, {r0, r1}
-	pop_scope
+	(eval '(this, value) '(r0, r1))
+	(pop-scope)
 	return
 
 (def-func-end)

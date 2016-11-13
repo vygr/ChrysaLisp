@@ -9,16 +9,16 @@
 
 	(ptr 'this)
 
-	push_scope
+	(push-scope)
 
-	func_call sys_mem, alloc, {lisp_size}, {this, _}
-	if {this}
+	(func-call 'sys_mem 'alloc '(lisp_size) '(this, _))
+	(vpif '((this)))
 		;clear object memory
-		func_call sys_mem, clear, {this, lisp_size}, {_}
+		(func-call 'sys_mem 'clear '(this, lisp_size) '(_))
 	(endif)
 
-	eval {this}, {r0}
-	pop_scope
+	(eval '(this) '(r0))
+	(pop-scope)
 	return
 
 (def-func-end)

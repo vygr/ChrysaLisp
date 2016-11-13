@@ -19,25 +19,25 @@
 	(ubyte 'char)
 
 	;save inputs
-	push_scope
-	retire {r0, r1}, {inst, char}
+	(push-scope)
+	(retire '(r0, r1) '(inst, char))
 
 	;create output vector
-	func_call vector, create, {}, {splits}
+	(func-call 'vector 'create '() '(splits))
 
 	;fill vector with splits
 	(loop-start)
-		func_call stream, skip, {inst, char}
-		assign {inst->stream_bufp}, {start}
-		func_call stream, skip_not, {inst, char}
-		assign {inst->stream_bufp - start}, {length}
-		breakif {length == 0}
-		func_call string, create_from_buffer, {start, length}, {string}
-		func_call vector, push_back, {splits, string}
+		(func-call 'stream 'skip '(inst, char))
+		(assign '(inst -> stream_bufp) '(start))
+		(func-call 'stream 'skip_not '(inst, char))
+		(assign '(inst -> stream_bufp - start) '(length))
+		break(vpif '((length == 0)))
+		(func-call 'string 'create_from_buffer '(start, length) '(string))
+		(func-call 'vector 'push_back '(splits, string))
 	(loop-end)
 
-	eval {inst, splits}, {r0, r1}
-	pop_scope
+	(eval '(inst, splits) '(r0, r1))
+	(pop-scope)
 	return
 
 (def-func-end)

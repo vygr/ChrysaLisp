@@ -16,24 +16,24 @@
 	(ptr 'this 'args 'value)
 	(ulong 'length)
 
-	push_scope
-	retire {r0, r1}, {this, args}
+	(push-scope)
+	(retire '(r0, r1) '(this, args))
 
-	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
-		func_call vector, get_element, {args, 0}, {value}
-		if {value->obj_vtable == @class/class_boxed_long}
-			func_call boxed_long, get_value, {value}, {length}
-			func_call string, create_from_cstr, {&length}, {value}
+	(devirt-call 'vector 'get_length '(args) '(length))
+	(vpif '((length == 1)))
+		(func-call 'vector 'get_element '(args, 0) '(value))
+		(vpif '((value -> obj_vtable == @class/class_boxed_long)))
+			(func-call 'boxed_long 'get_value '(value) '(length))
+			(func-call 'string 'create_from_cstr '(& length) '(value))
 		else
-			func_call error, create, {"(char int) not a number", args}, {value}
+			(func-call 'error 'create '("(char int) not a number", args) '(value))
 		(endif)
 	else
-		func_call error, create, {"(char int) wrong number of args", args}, {value}
+		(func-call 'error 'create '("(char int) wrong number of args", args) '(value))
 	(endif)
 
-	eval {this, value}, {r0, r1}
-	pop_scope
+	(eval '(this, value) '(r0, r1))
+	(pop-scope)
 	return
 
 (def-func-end)

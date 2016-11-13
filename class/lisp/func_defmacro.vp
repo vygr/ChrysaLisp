@@ -15,31 +15,31 @@
 	(ptr 'this 'args 'vars 'name)
 	(ulong 'length)
 
-	push_scope
-	retire {r0, r1}, {this, args}
+	(push-scope)
+	(retire '(r0, r1) '(this, args))
 
-	devirt_call vector, get_length, {args}, {length}
-	if {length >= 3}
-		func_call vector, get_element, {args, 1}, {vars}
-		if {vars->obj_vtable == @class/class_vector}
-			func_call vector, get_element, {args, 0}, {name}
-			if {name->obj_vtable == @class/class_symbol}
-				devirt_call vector, slice, {args, 1, length}, {args}
-				func_call unordered_map, insert, {this->lisp_macros, name, args}, {_, _}
-				func_call ref, deref, {args}
-				func_call ref, ref, {name}
+	(devirt-call 'vector 'get_length '(args) '(length))
+	(vpif '((length >= 3)))
+		(func-call 'vector 'get_element '(args, 1) '(vars))
+		(vpif '((vars -> obj_vtable == @class/class_vector)))
+			(func-call 'vector 'get_element '(args, 0) '(name))
+			(vpif '((name -> obj_vtable == @class/class_symbol)))
+				(devirt-call 'vector 'slice '(args, 1, length) '(args))
+				(func-call 'unordered_map 'insert '(this -> lisp_macros, name, args) '(_, _))
+				(func-call 'ref 'deref '(args))
+				(func-call 'ref 'ref '(name))
 			else
-				func_call error, create, {"(defmacro name vars body) name is not a symbol", args}, {name}
+				(func-call 'error 'create '("(defmacro name vars body) name is not a symbol", args) '(name))
 			(endif)
 		else
-			func_call error, create, {"(defmacro name vars body) vars is not a list", args}, {name}
+			(func-call 'error 'create '("(defmacro name vars body) vars is not a list", args) '(name))
 		(endif)
 	else
-		func_call error, create, {"(defmacro name vars body) wrong numbers of args", args}, {name}
+		(func-call 'error 'create '("(defmacro name vars body) wrong numbers of args", args) '(name))
 	(endif)
 
-	eval {this, name}, {r0, r1}
-	pop_scope
+	(eval '(this, name) '(r0, r1))
+	(pop-scope)
 	return
 
 (def-func-end)

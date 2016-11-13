@@ -15,27 +15,27 @@
 	(ptr 'this 'args 'value)
 	(ulong 'length)
 
-	push_scope
-	retire {r0, r1}, {this, args}
+	(push-scope)
+	(retire '(r0, r1) '(this, args))
 
-	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
-		func_call vector, get_element, {args, 0}, {args}
+	(devirt-call 'vector 'get_length '(args) '(length))
+	(vpif '((length == 1)))
+		(func-call 'vector 'get_element '(args, 0) '(args))
 		func_path class, sequence
-		func_call obj, inst_of, {args, @_function_}, {value}
-		if {value}
-			virt_call sequence, get_length, {args}, {length}
-			func_call boxed_long, create, {}, {value}
-			func_call boxed_long, set_value, {value, length}
+		(func-call 'obj 'inst_of '(args, @ _function_) '(value))
+		(vpif '((value)))
+			(virt-call 'sequence 'get_length '(args) '(length))
+			(func-call 'boxed_long 'create '() '(value))
+			(func-call 'boxed_long 'set_value '(value, length))
 		else
-			func_call error, create, {"(length seq) not a sequence", args}, {value}
+			(func-call 'error 'create '("(length seq) not a sequence", args) '(value))
 		(endif)
 	else
-		func_call error, create, {"(length seq) wrong number of args", args}, {value}
+		(func-call 'error 'create '("(length seq) wrong number of args", args) '(value))
 	(endif)
 
-	eval {this, value}, {r0, r1}
-	pop_scope
+	(eval '(this, value) '(r0, r1))
+	(pop-scope)
 	return
 
 (def-func-end)

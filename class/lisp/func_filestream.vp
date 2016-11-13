@@ -17,28 +17,28 @@
 	(ptr 'this 'args 'value)
 	(ulong 'length)
 
-	push_scope
-	retire {r0, r1}, {this, args}
+	(push-scope)
+	(retire '(r0, r1) '(this, args))
 
-	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
-		func_call vector, get_element, {args, 0}, {value}
-		if {value->obj_vtable == @class/class_string || value->obj_vtable == @class/class_symbol}
-			func_call string, create_from_file, {&value->string_data}, {value}
-			if {value}
-				func_call stream_str, create, {value}, {value}
+	(devirt-call 'vector 'get_length '(args) '(length))
+	(vpif '((length == 1)))
+		(func-call 'vector 'get_element '(args, 0) '(value))
+		(vpif '((value -> obj_vtable == @class/class_string || value -> obj_vtable == @class/class_symbol)))
+			(func-call 'string 'create_from_file '(& value -> string_data) '(value))
+			(vpif '((value)))
+				(func-call 'stream_str 'create '(value) '(value))
 			else
-				func_call error, create, {"(file-stream filename) filename not found", args}, {value}
+				(func-call 'error 'create '("(file-stream filename) filename not found", args) '(value))
 			(endif)
 		else
-			func_call error, create, {"(file-stream filename) filename not a filename", args}, {value}
+			(func-call 'error 'create '("(file-stream filename) filename not a filename", args) '(value))
 		(endif)
 	else
-		func_call error, create, {"(file-stream filename) not enough args", args}, {value}
+		(func-call 'error 'create '("(file-stream filename) not enough args", args) '(value))
 	(endif)
 
-	eval {this, value}, {r0, r1}
-	pop_scope
+	(eval '(this, value) '(r0, r1))
+	(pop-scope)
 	return
 
 (def-func-end)

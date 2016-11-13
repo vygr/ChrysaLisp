@@ -12,20 +12,20 @@
 	(ulong 'skip_char)
 	(long 'state)
 
-	push_scope
-	retire {r0, r1}, {inst, skip_char}
+	(push-scope)
+	(retire '(r0, r1) '(inst, skip_char))
 
 	(loop-start)
-		loop_while {inst->stream_bufp == inst->stream_bufe}
-			virt_call stream, read_next, {inst}, {state}
-			gotoif {state == -1}, exit
+		(loop-while '((inst -> stream_bufp == inst -> stream_bufe)))
+			(virt-call 'stream 'read_next '(inst) '(state))
+			goto(vpif '((state == -1))), exit
 		(loop-end)
-		breakif {*inst->stream_bufp != skip_char}
-		assign {inst->stream_bufp + 1}, {inst->stream_bufp}
+		break(vpif '((*inst -> stream_bufp != skip_char)))
+		(assign '(inst -> stream_bufp + 1) '(inst -> stream_bufp))
 	(loop-end)
 exit:
-	eval {inst}, {r0}
-	pop_scope
+	(eval '(inst) '(r0))
+	(pop-scope)
 	return
 
 (def-func-end)

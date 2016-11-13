@@ -13,45 +13,45 @@
 	(ptr 'inst 'msg 'stream)
 	(ulong 'length)
 
-	push_scope
-	retire {r0}, {inst}
-	if {inst->master_state != stream_mail_state_stopped}
+	(push-scope)
+	(retire '(r0) '(inst))
+	(vpif '((inst -> master_state != stream_mail_state_stopped)))
 		;flush remaining
-		func_call master, get_input, {inst}, {stream}
-		virt_call stream_msg_out, write_flush, {stream}
+		(func-call 'master 'get_input '(inst) '(stream))
+		(virt-call 'stream_msg_out 'write_flush '(stream))
 
 		;send stopping
-		func_call stream_msg_out, set_state, {stream, stream_mail_state_stopping}
-		virt_call stream_msg_out, write_next, {stream}
-		virt_call stream_msg_out, write_flush, {stream}
+		(func-call 'stream_msg_out 'set_state '(stream, stream_mail_state_stopping))
+		(virt-call 'stream_msg_out 'write_next '(stream))
+		(virt-call 'stream_msg_out 'write_flush '(stream))
 
 		;send stopped
-		func_call stream_msg_out, set_state, {stream, stream_mail_state_stopped}
-		virt_call stream_msg_out, write_next, {stream}
-		virt_call stream_msg_out, write_flush, {stream}
+		(func-call 'stream_msg_out 'set_state '(stream, stream_mail_state_stopped))
+		(virt-call 'stream_msg_out 'write_next '(stream))
+		(virt-call 'stream_msg_out 'write_flush '(stream))
 
 		;wait for all stopped, starting with the pipe output, then the error streams
-		devirt_call vector, get_length, {inst->master_streams}, {length}
+		(devirt-call 'vector 'get_length '(inst -> master_streams) '(length))
 		(loop-start)
-			assign {length - 1}, {length}
+			(assign '(length - 1) '(length))
 			breakifnot {length}
-			assign {(inst->master_streams->vector_array)[length * ptr_size]}, {stream}
+			(assign '((inst -> master_streams -> vector_array) [ length * ptr_size  ]) '(stream))
 			(loop-start)
-				virt_call stream_msg_in, read_next, {stream}, {_}
-			loop_until {stream->stream_msg_in_state == stream_mail_state_stopped}
+				(virt-call 'stream_msg_in 'read_next '(stream) '(_))
+			(loop-until '((stream -> stream_msg_in_state == stream_mail_state_stopped)))
 		(loop-end)
 
 		;free streams, select and mailbox array
-		func_call vector, deref, {inst->master_streams}
-		func_call sys_mem, free, {inst->master_select_array}
-		func_call sys_mem, free, {inst->master_mailbox_array}
+		(func-call 'vector 'deref '(inst -> master_streams))
+		(func-call 'sys_mem 'free '(inst -> master_select_array))
+		(func-call 'sys_mem 'free '(inst -> master_mailbox_array))
 
 		;stop state
-		assign {stream_mail_state_stopped}, {inst->master_state}
+		(assign '(stream_mail_state_stopped) '(inst -> master_state))
 	(endif)
 
-	eval {inst}, {r0}
-	pop_scope
+	(eval '(inst) '(r0))
+	(pop-scope)
 	return
 
 (def-func-end)

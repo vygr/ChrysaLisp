@@ -16,35 +16,35 @@
 	(ptr 'this 'args 'value 'arg1 'arg2)
 	(ulong 'length 'v1 'v2)
 
-	push_scope
-	retire {r0, r1}, {this, args}
+	(push-scope)
+	(retire '(r0, r1) '(this, args))
 
-	devirt_call vector, get_length, {args}, {length}
-	if {length == 2}
-		func_call vector, get_element, {args, 0}, {arg1}
-		func_call vector, get_element, {args, 1}, {arg2}
-		gotoif {arg1 == arg2}, same
-		assign {this->lisp_sym_nil}, {value}
+	(devirt-call 'vector 'get_length '(args) '(length))
+	(vpif '((length == 2)))
+		(func-call 'vector 'get_element '(args, 0) '(arg1))
+		(func-call 'vector 'get_element '(args, 1) '(arg2))
+		goto(vpif '((arg1 == arg2))), same
+		(assign '(this -> lisp_sym_nil) '(value))
 		switch
-		breakif {arg1->obj_vtable != arg2->obj_vtable}
+		break(vpif '((arg1->obj_vtable != arg2->obj_vtable)))
 		case {arg1->obj_vtable == @class/class_string}
-			func_call string, compare, {arg1, arg2}, {length}
+			(func-call 'string 'compare '(arg1, arg2) '(length))
 			gotoifnot {length}, same
 			break
 		case {arg1->obj_vtable == @class/class_boxed_ptr || arg1->obj_vtable == @class/class_boxed_long}
-			func_call boxed_ptr, get_value, {arg1}, {v1}
-			func_call boxed_ptr, get_value, {arg2}, {v2}
-			breakif {v1 != v2}
+			(func-call 'boxed_ptr 'get_value '(arg1) '(v1))
+			(func-call 'boxed_ptr 'get_value '(arg2) '(v2))
+			break(vpif '((v1 != v2)))
 		same:
-			assign {this->lisp_sym_t}, {value}
+			(assign '(this -> lisp_sym_t) '(value))
 		endswitch
-		func_call ref, ref, {value}
+		(func-call 'ref 'ref '(value))
 	else
-		func_call error, create, {"(eql form form) wrong number of args", args}, {value}
+		(func-call 'error 'create '("(eql form form) wrong number of args", args) '(value))
 	(endif)
 
-	eval {this, value}, {r0, r1}
-	pop_scope
+	(eval '(this, value) '(r0, r1))
+	(pop-scope)
 	return
 
 (def-func-end)

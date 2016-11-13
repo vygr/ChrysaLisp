@@ -17,23 +17,23 @@
 	;outputs
 	;r0 = lisp object
 
-	const char_minus, "-"
-	const char_quote, "'"
-	const char_double_quote, '"'
-	const char_quasi_quote, '`'
-	const char_unquote, ','
-	const char_splicing, '~'
-	const char_space, " "
-	const char_lrb, "("
-	const char_rrb, ")"
-	const char_lcb, "{"
-	const char_rcb, "}"
-	const char_lsb, "["
-	const char_rsb, "]"
-	const char_lab, "<"
-	const char_rab, ">"
-	const char_lf, 10
-	const char_at, '@'
+	(const 'char_minus "-")
+	(const 'char_quote "'")
+	(const 'char_double_quote '"')
+	(const 'char_quasi_quote '`')
+	(const 'char_unquote ',')
+	(const 'char_splicing '~')
+	(const 'char_space " ")
+	(const 'char_lrb "(")
+	(const 'char_rrb ")")
+	(const 'char_lcb "{")
+	(const 'char_rcb "}")
+	(const 'char_lsb "[")
+	(const 'char_rsb "]")
+	(const 'char_lab "<")
+	(const 'char_rab ">")
+	(const 'char_lf 10)
+	(const 'char_at '@')
 
 	(def-struct 'pdata)
 		(ptr 'pdata_this)
@@ -47,123 +47,123 @@
 
 	(ptr 'value 'elem)
 
-	push_scope
-	retire {r0, r1, r2}, {this, stream, value}
+	(push-scope)
+	(retire '(r0, r1, r2) '(this, stream, value))
 
 	ifnot {value}
-		func_call stream, write_char, {stream, char_lf}
-		func_call stream, write_cstr, {stream, "*NULL*"}
-		func_call stream, write_char, {stream, char_lf}
+		(func-call 'stream 'write_char '(stream, char_lf))
+		(func-call 'stream 'write_cstr '(stream, "*NULL*"))
+		(func-call 'stream 'write_char '(stream, char_lf))
 	else
-		assign {value->obj_vtable}, {elem}
+		(assign '(value -> obj_vtable) '(elem))
 		switch
 		case {elem == @class/class_symbol}
-			func_call stream, write, {stream, &value->string_data, value->string_length}
+			(func-call 'stream 'write '(stream, & value -> string_data, value -> string_length))
 			break
 		case {elem == @class/class_string}
-			func_call stream, write_char, {stream, char_double_quote}
-			func_call stream, write, {stream, &value->string_data, value->string_length}
-			func_call stream, write_char, {stream, char_double_quote}
+			(func-call 'stream 'write_char '(stream, char_double_quote))
+			(func-call 'stream 'write '(stream, & value -> string_data, value -> string_length))
+			(func-call 'stream 'write_char '(stream, char_double_quote))
 			break
 		case {elem == @class/class_boxed_long}
-			func_call boxed_long, get_value, {value}, {elem}
-			func_call symbol, create_from_long, {elem, 10}, {value}
-			func_call stream, write, {stream, &value->string_data, value->string_length}
-			func_call ref, deref, {value}
+			(func-call 'boxed_long 'get_value '(value) '(elem))
+			(func-call 'symbol 'create_from_long '(elem, 10) '(value))
+			(func-call 'stream 'write '(stream, & value -> string_data, value -> string_length))
+			(func-call 'ref 'deref '(value))
 			break
 		case {elem == @class/class_boxed_ptr}
-			func_call stream, write_cstr, {stream, "#0x"}
-			func_call boxed_ptr, get_value, {value}, {elem}
-			func_call symbol, create_from_long, {elem, 16}, {value}
-			func_call stream, write, {stream, &value->string_data, value->string_length}
-			func_call ref, deref, {value}
+			(func-call 'stream 'write_cstr '(stream, "#0x"))
+			(func-call 'boxed_ptr 'get_value '(value) '(elem))
+			(func-call 'symbol 'create_from_long '(elem, 16) '(value))
+			(func-call 'stream 'write '(stream, & value -> string_data, value -> string_length))
+			(func-call 'ref 'deref '(value))
 			break
 		case {elem == @class/class_pair}
-			func_call stream, write_char, {stream, char_lab}
-			func_call pair, get_first, {value}, {elem}
-			func_call lisp, repl_print, {this, stream, elem}
-			func_call stream, write_char, {stream, char_space}
-			func_call pair, get_second, {value}, {elem}
-			func_call lisp, repl_print, {this, stream, elem}
-			func_call stream, write_char, {stream, char_rab}
+			(func-call 'stream 'write_char '(stream, char_lab))
+			(func-call 'pair 'get_first '(value) '(elem))
+			(func-call 'lisp 'repl_print '(this, stream, elem))
+			(func-call 'stream 'write_char '(stream, char_space))
+			(func-call 'pair 'get_second '(value) '(elem))
+			(func-call 'lisp 'repl_print '(this, stream, elem))
+			(func-call 'stream 'write_char '(stream, char_rab))
 			break
 		case {elem == @class/class_unordered_set}
 			(struct 'pdata 'pdata)
-			push_scope
-			func_call stream, write_char, {stream, char_lsb}
-			devirt_call unordered_set, get_length, {value}, {length}
-			assign {this, stream, 0}, {this, stream, index}
-			func_call unordered_set, for_each, {value, $callback, &this}, {_, _}
-			func_call stream, write_char, {stream, char_rsb}
-			pop_scope
+			(push-scope)
+			(func-call 'stream 'write_char '(stream, char_lsb))
+			(devirt-call 'unordered_set 'get_length '(value) '(length))
+			(assign '(this, stream, 0) '(this, stream, index))
+			(func-call 'unordered_set 'for_each '(value, $ callback, & this) '(_, _))
+			(func-call 'stream 'write_char '(stream, char_rsb))
+			(pop-scope)
 			break
 		case {elem == @class/class_unordered_map}
 			(struct 'pdata 'pdata)
-			push_scope
-			func_call stream, write_char, {stream, char_lcb}
-			devirt_call unordered_map, get_length, {value}, {length}
-			assign {this, stream, 0}, {this, stream, index}
-			func_call unordered_map, for_each, {value, $callback, &this}, {_, _}
-			func_call stream, write_char, {stream, char_rcb}
-			pop_scope
+			(push-scope)
+			(func-call 'stream 'write_char '(stream, char_lcb))
+			(devirt-call 'unordered_map 'get_length '(value) '(length))
+			(assign '(this, stream, 0) '(this, stream, index))
+			(func-call 'unordered_map 'for_each '(value, $ callback, & this) '(_, _))
+			(func-call 'stream 'write_char '(stream, char_rcb))
+			(pop-scope)
 			break
 		case {elem == @class/class_error}
-			func_call stream, write_cstr, {stream, "Error: < "}
-			func_call error, get_description, {value}, {elem}
-			func_call stream, write, {stream, &elem->string_data, elem->string_length}
-			func_call stream, write_cstr, {stream, " >"}
-			func_call stream, write_char, {stream, char_lf}
-			func_call error, get_object, {value}, {elem}
-			func_call stream, write_cstr, {stream, "Ast: < "}
-			func_call lisp, repl_print, {this, stream, elem}
-			func_call stream, write_cstr, {stream, " >"}
+			(func-call 'stream 'write_cstr '(stream, "Error: < "))
+			(func-call 'error 'get_description '(value) '(elem))
+			(func-call 'stream 'write '(stream, & elem -> string_data, elem -> string_length))
+			(func-call 'stream 'write_cstr '(stream, " >"))
+			(func-call 'stream 'write_char '(stream, char_lf))
+			(func-call 'error 'get_object '(value) '(elem))
+			(func-call 'stream 'write_cstr '(stream, "Ast: < "))
+			(func-call 'lisp 'repl_print '(this, stream, elem))
+			(func-call 'stream 'write_cstr '(stream, " >"))
 			break
 		case {elem == @class/class_vector}
 			(struct 'pdata 'pdata)
-			push_scope
-			devirt_call vector, get_length, {value}, {length}
-			if {length}
-				func_call vector, get_element, {value, 0}, {elem}
+			(push-scope)
+			(devirt-call 'vector 'get_length '(value) '(length))
+			(vpif '((length)))
+				(func-call 'vector 'get_element '(value, 0) '(elem))
 				switch
-				case {elem == this->lisp_sym_quote}
-					func_call stream, write_char, {stream, char_quote}
+				case {elem == this -> lisp_sym_quote}
+					(func-call 'stream 'write_char '(stream, char_quote))
 					break
-				case {elem == this->lisp_sym_qquote}
-					func_call stream, write_char, {stream, char_quasi_quote}
+				case {elem == this -> lisp_sym_qquote}
+					(func-call 'stream 'write_char '(stream, char_quasi_quote))
 					break
-				case {elem == this->lisp_sym_unquote}
-					func_call stream, write_char, {stream, char_unquote}
+				case {elem == this -> lisp_sym_unquote}
+					(func-call 'stream 'write_char '(stream, char_unquote))
 					break
-				case {elem == this->lisp_sym_splicing}
-					func_call stream, write_char, {stream, char_splicing}
+				case {elem == this -> lisp_sym_splicing}
+					(func-call 'stream 'write_char '(stream, char_splicing))
 					break
 				default
 					goto notquote
 				endswitch
-				func_call vector, get_element, {value, 1}, {elem}
-				func_call lisp, repl_print, {this, stream, elem}
+				(func-call 'vector 'get_element '(value, 1) '(elem))
+				(func-call 'lisp 'repl_print '(this, stream, elem))
 			else
 			notquote:
-				func_call stream, write_char, {stream, char_lrb}
-				assign {this, stream, 0}, {this, stream, index}
-				func_call vector, for_each, {value, 0, length, $callback, &this}, {_}
-				func_call stream, write_char, {stream, char_rrb}
+				(func-call 'stream 'write_char '(stream, char_lrb))
+				(assign '(this, stream, 0) '(this, stream, index))
+				(func-call 'vector 'for_each '(value, 0, length, $ callback, & this) '(_))
+				(func-call 'stream 'write_char '(stream, char_rrb))
 			(endif)
-			pop_scope
+			(pop-scope)
 			break
 		default
 			(pubyte 'name_offset)
-			push_scope
-			assign {elem - 1}, {name_offset}
-			assign {elem - *name_offset}, {elem}
-			func_call stream, write_char, {stream, char_at}
-			func_call stream, write_cstr, {stream, elem}
-			pop_scope
+			(push-scope)
+			(assign '(elem - 1) '(name_offset))
+			(assign '(elem - * name_offset) '(elem))
+			(func-call 'stream 'write_char '(stream, char_at))
+			(func-call 'stream 'write_cstr '(stream, elem))
+			(pop-scope)
 		endswitch
 	(endif)
 
-	eval {this}, {r0}
-	pop_scope
+	(eval '(this) '(r0))
+	(pop-scope)
 	return
 
 callback:
@@ -173,22 +173,22 @@ callback:
 	;outputs
 	;r1 = 0 if break, else not
 
-	const char_space, " "
+	(const 'char_space " ")
 
-	pptr iter
+	(pptr 'iter)
 	(ptr 'pdata)
 
-	push_scope
-	retire {r0, r1}, {pdata, iter}
+	(push-scope)
+	(retire '(r0, r1) '(pdata, iter))
 
-	func_call lisp, repl_print, {pdata->pdata_this, pdata->pdata_stream, *iter}
-	assign {pdata->pdata_index + 1}, {pdata->pdata_index}
-	if {pdata->pdata_index != pdata->pdata_length}
-		func_call stream, write_char, {pdata->pdata_stream, char_space}
+	(func-call 'lisp 'repl_print '(pdata -> pdata_this, pdata -> pdata_stream, * iter))
+	(assign '(pdata -> pdata_index + 1) '(pdata -> pdata_index))
+	(vpif '((pdata -> pdata_index != pdata -> pdata_length)))
+		(func-call 'stream 'write_char '(pdata -> pdata_stream, char_space))
 	(endif)
 
-	eval {1}, {r1}
-	pop_scope
+	(eval '(1) '(r1))
+	(pop-scope)
 	return
 
 (def-func-end)

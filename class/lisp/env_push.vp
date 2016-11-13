@@ -10,16 +10,16 @@
 
 	(ptr 'this 'env)
 
-	push_scope
-	retire {r0}, {this}
+	(push-scope)
+	(retire '(r0) '(this))
 
-	func_call unordered_map, create, {this->lisp_enviroment->unordered_set_key_callback, 1}, {env}
-	func_call unordered_map, insert, {env, this->lisp_sym_parent, this->lisp_enviroment}, {_, _}
-	func_call ref, deref, {this->lisp_enviroment}
-	assign {env}, {this->lisp_enviroment}
+	(func-call 'unordered_map 'create '(this -> lisp_enviroment -> unordered_set_key_callback, 1) '(env))
+	(func-call 'unordered_map 'insert '(env, this -> lisp_sym_parent, this -> lisp_enviroment) '(_, _))
+	(func-call 'ref 'deref '(this -> lisp_enviroment))
+	(assign '(env) '(this -> lisp_enviroment))
 
-	eval {this}, {r0}
-	pop_scope
+	(eval '(this) '(r0))
+	(pop-scope)
 	return
 
 (def-func-end)

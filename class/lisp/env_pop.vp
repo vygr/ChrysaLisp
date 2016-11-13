@@ -10,20 +10,20 @@
 	;r0 = lisp object
 
 	(ptr 'this 'env)
-	pptr iter
+	(pptr 'iter)
 
-	push_scope
-	retire {r0}, {this}
+	(push-scope)
+	(retire '(r0) '(this))
 
-	func_call unordered_map, find, {this->lisp_enviroment, this->lisp_sym_parent}, {iter, _}
-	if {iter}
-		func_call pair, ref_second, {*iter}, {env}
-		func_call ref, deref, {this->lisp_enviroment}
-		assign {env}, {this->lisp_enviroment}
+	(func-call 'unordered_map 'find '(this -> lisp_enviroment, this -> lisp_sym_parent) '(iter, _))
+	(vpif '((iter)))
+		(func-call 'pair 'ref_second '(* iter) '(env))
+		(func-call 'ref 'deref '(this -> lisp_enviroment))
+		(assign '(env) '(this -> lisp_enviroment))
 	(endif)
 
-	eval {this}, {r0}
-	pop_scope
+	(eval '(this) '(r0))
+	(pop-scope)
 	return
 
 (def-func-end)

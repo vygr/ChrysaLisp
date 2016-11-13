@@ -11,18 +11,18 @@
 
 	(ptr 'inst 'msg)
 
-	push_scope
-	retire {r0}, {inst}
+	(push-scope)
+	(retire '(r0) '(inst))
 
-	virt_call stream, write_flush, {inst}
-	func_call sys_mail, alloc, {}, {msg}
-	assign {msg_size}, {msg->msg_length}
-	assign {&msg->stream_mail_data}, {inst->stream_bufp}
-	assign {&msg->msg_size}, {inst->stream_bufe}
-	assign {msg}, {inst->stream_buffer}
+	(virt-call 'stream 'write_flush '(inst))
+	(func-call 'sys_mail 'alloc '() '(msg))
+	(assign '(msg_size) '(msg -> msg_length))
+	(assign '(& msg -> stream_mail_data) '(inst -> stream_bufp))
+	(assign '(& msg -> msg_size) '(inst -> stream_bufe))
+	(assign '(msg) '(inst -> stream_buffer))
 
-	eval {inst}, {r0}
-	pop_scope
+	(eval '(inst) '(r0))
+	(pop-scope)
 	return
 
 (def-func-end)

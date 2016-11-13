@@ -13,23 +13,23 @@
 	;r1 = value
 
 	(ptr 'this 'symbol 'value)
-	pptr iter
+	(pptr 'iter)
 
-	push_scope
-	retire {r0, r1, r2}, {this, symbol, value}
+	(push-scope)
+	(retire '(r0, r1, r2) '(this, symbol, value))
 
-	func_call lisp, env_find, {this, symbol}, {iter, _}
-	if {iter}
+	(func-call 'lisp 'env_find '(this, symbol) '(iter, _))
+	(vpif '((iter)))
 		;change existing value
-		func_call ref, ref, {value}
-		func_call ref, ref, {value}
-		func_call pair, set_second, {*iter, value}
+		(func-call 'ref 'ref '(value))
+		(func-call 'ref 'ref '(value))
+		(func-call 'pair 'set_second '(* iter, value))
 	else
-		func_call error, create, {"symbol not bound", symbol}, {value}
+		(func-call 'error 'create '("symbol not bound", symbol) '(value))
 	(endif)
 
-	eval {this, value}, {r0, r1}
-	pop_scope
+	(eval '(this, value) '(r0, r1))
+	(pop-scope)
 	return
 
 (def-func-end)

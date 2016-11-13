@@ -20,27 +20,27 @@
 	(ptr 'this 'value 'args)
 	(ulong 'length)
 
-	push_scope
-	retire {r0, r1}, {this, args}
+	(push-scope)
+	(retire '(r0, r1) '(this, args))
 
-	devirt_call vector, get_length, {args}, {length}
-	if {length}
-		func_call vector, get_element, {args, 0}, {value}
-		if {value->obj_vtable == @class/class_vector}
-			func_call vector, create, {}, {value}
-			func_call vector, for_each, {args, 0, length, $callback, &this}, {_}
-		elseif {value->obj_vtable == @class/class_string}
-			func_call ref, ref, {value}
-			func_call vector, for_each, {args, 1, length, $callback, &this}, {_}
+	(devirt-call 'vector 'get_length '(args) '(length))
+	(vpif '((length)))
+		(func-call 'vector 'get_element '(args, 0) '(value))
+		(vpif '((value -> obj_vtable == @class/class_vector)))
+			(func-call 'vector 'create '() '(value))
+			(func-call 'vector 'for_each '(args, 0, length, $ callback, & this) '(_))
+		else(vpif '((value -> obj_vtable == @class/class_string)))
+			(func-call 'ref 'ref '(value))
+			(func-call 'vector 'for_each '(args, 1, length, $ callback, & this) '(_))
 		else
-			func_call error, create, {"(cat seq ...) not sequence type", value}, {value}
+			(func-call 'error 'create '("(cat seq ... ) not sequence type", value) '(value))
 		(endif)
 	else
-		func_call error, create, {"(cat seq ...) wrong number of args", args}, {value}
+		(func-call 'error 'create '("(cat seq ... ) wrong number of args", args) '(value))
 	(endif)
 
-	eval {this, value}, {r0, r1}
-	pop_scope
+	(eval '(this, value) '(r0, r1))
+	(pop-scope)
 	return
 
 callback:
@@ -50,33 +50,33 @@ callback:
 	;outputs
 	;r1 = 0 if break, else not
 
-	pptr iter
+	(pptr 'iter)
 	(ptr 'pdata 'elem)
 	(ulong 'length)
 
-	push_scope
-	retire {r0, r1}, {pdata, iter}
+	(push-scope)
+	(retire '(r0, r1) '(pdata, iter))
 
-	assign {*iter}, {elem}
-	if {elem->obj_vtable == pdata->pdata_value->obj_vtable}
+	(assign '(* iter) '(elem))
+	(vpif '((elem -> obj_vtable == pdata -> pdata_value->obj_vtable)))
 		switch
-		case {elem->obj_vtable == @class/class_string}
-			func_call string, append, {pdata->pdata_value, elem}, {elem}
-			func_call ref, deref, {pdata->pdata_value}
-			assign {elem}, {pdata->pdata_value}
+		case {elem -> obj_vtable == @class/class_string}
+			(func-call 'string 'append '(pdata -> pdata_value, elem) '(elem))
+			(func-call 'ref 'deref '(pdata -> pdata_value))
+			(assign '(elem) '(pdata -> pdata_value))
 			break
 		default
-			devirt_call vector, get_length, {elem}, {length}
-			func_call vector, append, {pdata->pdata_value, elem, 0, length}
+			(devirt-call 'vector 'get_length '(elem) '(length))
+			(func-call 'vector 'append '(pdata -> pdata_value, elem, 0, length))
 		endswitch
-		eval {1}, {r1}
+		(eval '(1) '(r1))
 	else
-		func_call ref, deref, {pdata->pdata_value}
-		func_call error, create, {"(cat seq ...) not matching type", elem}, {pdata->pdata_value}
-		eval {0}, {r1}
+		(func-call 'ref 'deref '(pdata -> pdata_value))
+		(func-call 'error 'create '("(cat seq ... ) not matching type", elem) '(pdata -> pdata_value))
+		(eval '(0) '(r1))
 	(endif)
 
-	pop_scope
+	(pop-scope)
 	return
 
 (def-func-end)

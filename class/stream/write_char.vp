@@ -13,20 +13,20 @@
 	(ptr 'inst)
 	(long 'char)
 
-	push_scope
-	retire {r0, r1}, {inst, char}
+	(push-scope)
+	(retire '(r0, r1) '(inst, char))
 
 	switch
-	case {inst->stream_bufp == inst->stream_bufe}
-		virt_call stream, write_next, {inst}
-		breakif {inst->stream_bufp == inst->stream_bufe}
+	case {inst -> stream_bufp == inst -> stream_bufe}
+		(virt-call 'stream 'write_next '(inst))
+		break(vpif '((inst -> stream_bufp == inst -> stream_bufe)))
 	default
-		assign {char}, {*inst->stream_bufp}
-		assign {inst->stream_bufp + 1}, {inst->stream_bufp}
+		(assign '(char) '(* inst -> stream_bufp))
+		(assign '(inst -> stream_bufp + 1) '(inst -> stream_bufp))
 	endswitch
 
-	eval {inst}, {r0}
-	pop_scope
+	(eval '(inst) '(r0))
+	(pop-scope)
 	return
 
 (def-func-end)

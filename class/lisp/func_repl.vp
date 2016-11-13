@@ -12,71 +12,71 @@
 	;r0 = lisp object
 	;r1 = value
 
-	const char_lf, 10
+	(const 'char_lf 10)
 
 	(ptr 'this 'args 'stream 'ast 'value)
 	(ulong 'length 'char 'flag)
 
-	push_scope
-	retire {r0, r1}, {this, args}
+	(push-scope)
+	(retire '(r0, r1) '(this, args))
 
-	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
-		func_call vector, get_element, {args, 0}, {stream}
+	(devirt-call 'vector 'get_length '(args) '(length))
+	(vpif '((length == 1)))
+		(func-call 'vector 'get_element '(args, 0) '(stream))
 
-		func_call stream, read_char, {stream}, {char}
+		(func-call 'stream 'read_char '(stream) '(char))
 		(loop-start)
-			virt_call stream, write_flush, {this->lisp_stdout}
-			func_call sys_task, yield
-			virt_call stream, write_flush, {this->lisp_stderr}
+			(virt-call 'stream 'write_flush '(this -> lisp_stdout))
+			(func-call 'sys_task 'yield)
+			(virt-call 'stream 'write_flush '(this -> lisp_stderr))
 
-			func_call lisp, repl_read, {this, stream, char}, {ast, char}
-			breakif {char == -1}
+			(func-call 'lisp 'repl_read '(this, stream, char) '(ast, char))
+			break(vpif '((char == -1)))
 
-			if {stream == this->lisp_stdin}
-				func_call stream, write_cstr, {this->lisp_stdout, "--Ast--"}
-				func_call stream, write_char, {this->lisp_stdout, char_lf}
-				func_call lisp, repl_print, {this, this->lisp_stdout, ast}
-				func_call stream, write_char, {this->lisp_stdout, char_lf}
-				func_call stream, write_cstr, {this->lisp_stdout, "--Macro expanding--"}
-				func_call stream, write_char, {this->lisp_stdout, char_lf}
+			(vpif '((stream == this -> lisp_stdin)))
+				(func-call 'stream 'write_cstr '(this -> lisp_stdout, "--Ast--"))
+				(func-call 'stream 'write_char '(this -> lisp_stdout, char_lf))
+				(func-call 'lisp 'repl_print '(this, this -> lisp_stdout, ast))
+				(func-call 'stream 'write_char '(this -> lisp_stdout, char_lf))
+				(func-call 'stream 'write_cstr '(this -> lisp_stdout, "--Macro expanding--"))
+				(func-call 'stream 'write_char '(this -> lisp_stdout, char_lf))
 			(endif)
 
 			(loop-start)
-				func_call lisp, repl_expand, {this, &ast}, {flag}
-				if {stream == this->lisp_stdin}
-					func_call lisp, repl_print, {this, this->lisp_stdout, ast}
-					func_call stream, write_char, {this->lisp_stdout, 10}
+				(func-call 'lisp 'repl_expand '(this, & ast) '(flag))
+				(vpif '((stream == this -> lisp_stdin)))
+					(func-call 'lisp 'repl_print '(this, this -> lisp_stdout, ast))
+					(func-call 'stream 'write_char '(this -> lisp_stdout, 10))
 				(endif)
-			loop_until {flag}
+			(loop-until '((flag)))
 
-			if {stream == this->lisp_stdin}
-				func_call stream, write_cstr, {this->lisp_stdout, "--Eval--"}
-				func_call stream, write_char, {this->lisp_stdout, char_lf}
+			(vpif '((stream == this -> lisp_stdin)))
+				(func-call 'stream 'write_cstr '(this -> lisp_stdout, "--Eval--"))
+				(func-call 'stream 'write_char '(this -> lisp_stdout, char_lf))
 			(endif)
 
-			func_call lisp, repl_eval, {this, ast}, {value}
-			func_call ref, deref, {ast}
+			(func-call 'lisp 'repl_eval '(this, ast) '(value))
+			(func-call 'ref 'deref '(ast))
 
-			if {value->obj_vtable == @class/class_error}
-				func_call lisp, repl_print, {this, this->lisp_stderr, value}
-				func_call stream, write_char, {this->lisp_stderr, char_lf}
-			elseif {stream == this->lisp_stdin}
-				func_call lisp, repl_print, {this, this->lisp_stdout, value}
-				func_call stream, write_char, {this->lisp_stdout, char_lf}
+			(vpif '((value -> obj_vtable == @class/class_error)))
+				(func-call 'lisp 'repl_print '(this, this -> lisp_stderr, value))
+				(func-call 'stream 'write_char '(this -> lisp_stderr, char_lf))
+			else(vpif '((stream == this -> lisp_stdin)))
+				(func-call 'lisp 'repl_print '(this, this -> lisp_stdout, value))
+				(func-call 'stream 'write_char '(this -> lisp_stdout, char_lf))
 			(endif)
 
-			func_call ref, deref, {value}
+			(func-call 'ref 'deref '(value))
 		(loop-end)
 
-		assign {this->lisp_sym_t}, {value}
-		func_call ref, ref, {value}
+		(assign '(this -> lisp_sym_t) '(value))
+		(func-call 'ref 'ref '(value))
 	else
-		func_call error, create, {"(repl stream) wrong number of args", args}, {value}
+		(func-call 'error 'create '("(repl stream) wrong number of args", args) '(value))
 	(endif)
 
-	eval {this, value}, {r0, r1}
-	pop_scope
+	(eval '(this, value) '(r0, r1))
+	(pop-scope)
 	return
 
 (def-func-end)

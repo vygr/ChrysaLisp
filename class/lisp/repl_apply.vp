@@ -20,43 +20,43 @@
 
 	(ptr 'this 'value 'func 'ast)
 
-	push_scope
-	retire {r0, r1, r2}, {this, func, ast}
+	(push-scope)
+	(retire '(r0, r1, r2) '(this, func, ast))
 
-	if {func->obj_vtable == @class/class_boxed_ptr}
+	(vpif '((func -> obj_vtable == @class/class_boxed_ptr)))
 		;built in or compiled function
-		eval {this, ast, func}, {r0, r1, r2}
+		(eval '(this, ast, func) '(r0, r1, r2))
 		(vp-call-i r2 boxed_ptr_value)
-		retire {r1}, {value}
-	elseif {func->obj_vtable == @class/class_vector}
+		(retire '(r1) '(value))
+	else(vpif '((func -> obj_vtable == @class/class_vector)))
 		;lambda
 		(ptr 'vars)
 		(ulong 'length)
-		push_scope
-		devirt_call vector, get_length, {func}, {length}
-		if {length > 2}
-			func_call vector, get_element, {func, 0}, {vars}
-			if {vars == this->lisp_sym_lambda}
-				func_call lisp, env_push, {this}
-				func_call vector, get_element, {func, 1}, {vars}
-				func_call lisp, env_bind, {this, vars, ast, 0}, {value}
-				if {value->obj_vtable != @class/class_error}
-					func_call vector, for_each, {func, 2, length, $callback, &this}, {_}
+		(push-scope)
+		(devirt-call 'vector 'get_length '(func) '(length))
+		(vpif '((length > 2)))
+			(func-call 'vector 'get_element '(func, 0) '(vars))
+			(vpif '((vars == this -> lisp_sym_lambda)))
+				(func-call 'lisp 'env_push '(this))
+				(func-call 'vector 'get_element '(func, 1) '(vars))
+				(func-call 'lisp 'env_bind '(this, vars, ast, 0) '(value))
+				(vpif '((value -> obj_vtable != @class/class_error)))
+					(func-call 'vector 'for_each '(func, 2, length, $ callback, & this) '(_))
 				(endif)
-				func_call lisp, env_pop, {this}
+				(func-call 'lisp 'env_pop '(this))
 			else
-				func_call error, create, {"(lambda vars body) not lambda", vars}, {value}
+				(func-call 'error 'create '("(lambda vars body) not lambda", vars) '(value))
 			(endif)
 		else
-			func_call error, create, {"(lambda vars body) wrong numbers of args", func}, {value}
+			(func-call 'error 'create '("(lambda vars body) wrong numbers of args", func) '(value))
 		(endif)
-		pop_scope
+		(pop-scope)
 	else
-		func_call error, create, {"(lambda vars body) not a lambda list", func}, {value}
+		(func-call 'error 'create '("(lambda vars body) not a lambda list", func) '(value))
 	(endif)
 
-	eval {this, value}, {r0, r1}
-	pop_scope
+	(eval '(this, value) '(r0, r1))
+	(pop-scope)
 	return
 
 callback:
@@ -66,17 +66,17 @@ callback:
 	;outputs
 	;r1 = 0 if break, else not
 
-	pptr iter
+	(pptr 'iter)
 	(ptr 'pdata)
 
-	push_scope
-	retire {r0, r1}, {pdata, iter}
+	(push-scope)
+	(retire '(r0, r1) '(pdata, iter))
 
-	func_call ref, deref, {pdata->pdata_value}
-	func_call lisp, repl_eval, {pdata->pdata_this, *iter}, {pdata->pdata_value}
+	(func-call 'ref 'deref '(pdata -> pdata_value))
+	(func-call 'lisp 'repl_eval '(pdata -> pdata_this, * iter) '(pdata -> pdata_value))
 
-	eval {pdata->pdata_value->obj_vtable != @class/class_error}, {r1}
-	pop_scope
+	(eval '(pdata -> pdata_value -> obj_vtable != @ class/class_error) '(r1))
+	(pop-scope)
 	return
 
 (def-func-end)

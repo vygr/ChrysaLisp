@@ -13,22 +13,22 @@
 	;r2 = bucket vector
 
 	(ptr 'this 'symbol 'bucket 'env)
-	pptr iter
+	(pptr 'iter)
 
-	push_scope
-	retire {r0, r1}, {this, symbol}
+	(push-scope)
+	(retire '(r0, r1) '(this, symbol))
 
-	assign {this->lisp_enviroment}, {env}
+	(assign '(this -> lisp_enviroment) '(env))
 	(loop-start)
-		func_call unordered_map, find, {env, symbol}, {iter, bucket}
-		breakif {iter}
-		func_call unordered_map, find, {env, this->lisp_sym_parent}, {iter, bucket}
+		(func-call 'unordered_map 'find '(env, symbol) '(iter, bucket))
+		break(vpif '((iter)))
+		(func-call 'unordered_map 'find '(env, this -> lisp_sym_parent) '(iter, bucket))
 		breakifnot {iter}
-		func_call pair, get_second, {*iter}, {env}
+		(func-call 'pair 'get_second '(* iter) '(env))
 	(loop-end)
 
-	eval {this, iter, bucket}, {r0, r1, r2}
-	pop_scope
+	(eval '(this, iter, bucket) '(r0, r1, r2))
+	(pop-scope)
 	return
 
 (def-func-end)
