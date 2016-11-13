@@ -20,6 +20,6 @@
 	(vp-pop r0)
 
 	;parent deinit
-	s_jmp stream, deinit, {r0}
+	(s-jmp 'stream 'deinit '(r0))
 
 (def-func-end)

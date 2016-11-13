@@ -8,6 +8,6 @@
 	;all but r0, r4
 
 	(f-call 'vector 'clear '(r0))
-	s_jmp vector, deinit, {r0}
+	(s-jmp 'vector 'deinit '(r0))
 
 (def-func-end)

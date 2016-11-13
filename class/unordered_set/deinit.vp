@@ -11,6 +11,6 @@
 	(vp-push r0)
 	(f-call 'vector 'deref '([r0 + unordered_set_buckets]))
 	(vp-pop r0)
-	s_jmp unordered_set, deinit, {r0}
+	(s-jmp 'unordered_set 'deinit '(r0))
 
 (def-func-end)

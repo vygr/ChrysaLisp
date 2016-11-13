@@ -22,8 +22,8 @@
 	(map-src-to-dst)
 
 	(v-call 'flow 'pref_size '([r0 + label_flow]) '(r10, r11))
-	(vp-add-cr label_border_size * 2 r10)
-	(vp-add-cr label_border_size * 2 r11)
+	(vp-add-cr (mul label_border_size 2) r10)
+	(vp-add-cr (mul label_border_size 2) r11)
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)

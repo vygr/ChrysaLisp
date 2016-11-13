@@ -11,6 +11,6 @@
 	(f-call 'button 'disconnect_sig '(r0, &[r0 + button_pressed_signal]))
 
 	;parent deinit
-	s_jmp button, deinit, {r0}
+	(s-jmp 'button 'deinit '(r0))
 
 (def-func-end)

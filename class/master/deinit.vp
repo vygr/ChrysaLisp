@@ -11,6 +11,6 @@
 	(f-call 'master 'stop '(r0))
 
 	;deinit parent
-	s_jmp master, deinit, {r0}
+	(s-jmp 'master 'deinit '(r0))
 
 (def-func-end)

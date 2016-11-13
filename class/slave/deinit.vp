@@ -49,6 +49,6 @@
 	(pop-scope)
 
 	;deinit parent
-	s_jmp slave, deinit, {r0}
+	(s-jmp 'slave 'deinit '(r0))
 
 (def-func-end)

@@ -36,6 +36,6 @@
 
 	;deinit parent
 	(vp-pop r0)
-	s_jmp view, deinit, {r0}
+	(s-jmp 'view 'deinit '(r0))
 
 (def-func-end)

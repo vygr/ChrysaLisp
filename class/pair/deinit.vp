@@ -12,6 +12,6 @@
 	(vp-cpy-ir r4 r0)
 	(f-call 'ref 'deref '([r0 + pair_second]))
 	(vp-pop r0)
-	s_jmp pair, deinit, {r0}
+	(s-jmp 'pair 'deinit '(r0))
 
 (def-func-end)
