@@ -9,7 +9,7 @@
 	;all but r0, r4
 
 	(vp-cpy-ir r0 button_state r1)
-	vp_or button_state_pressed, r1
+	(vp-or-cr button_state_pressed r1)
 	(vp-cpy-ri r1 r0 button_state)
 	(v-call 'button 'layout '(r0))
 	(f-jmp 'button 'dirty '(r0))

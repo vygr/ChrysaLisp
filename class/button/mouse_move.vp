@@ -17,10 +17,10 @@
 	(vp-cpy-rr r2 r3)
 	(vpif '(r1 != 0))
 		;state pressed
-		vp_or button_state_pressed, r2
+		(vp-or-cr button_state_pressed r2)
 	(else)
 		;state not pressed
-		(vp-and-cr ~button_state_pressed r2)
+		(vp-and-cr (bit-not button_state_pressed) r2)
 	(endif)
 	(vp-cpy-ri r2 r0 button_state)
 

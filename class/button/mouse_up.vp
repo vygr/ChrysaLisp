@@ -12,7 +12,7 @@
 	(vp-push r1)
 
 	(vp-cpy-rr r1 r2)
-	(vp-and-cr ~button_state_pressed r1)
+	(vp-and-cr (bit-not button_state_pressed) r1)
 	(vp-cpy-ri r1 r0 button_state)
 	(vpif '(r1 != r2))
 		(v-call 'button 'layout '(r0))
