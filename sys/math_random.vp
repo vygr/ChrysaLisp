@@ -22,6 +22,6 @@
 
 	(vp-align ptr_size)
 (vp-label 'seed)
-	dq 1234567890
+	(vp-long 1234567890)
 
 (def-func-end)

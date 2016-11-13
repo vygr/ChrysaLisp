@@ -111,15 +111,15 @@
 
 	(vp-align ptr_size)
 (vp-label 'options_table)
-	dq	opt_cpu - options_table
-		db	'-cpu', 0
+	(vp-long '(sub opt_cpu options_table))
+		(vp-string "-cpu") (vp-byte 0)
 		(vp-align ptr_size)
-	dq	opt_run - options_table
-		db	'-run', 0
+	(vp-long '(sub opt_run options_table))
+		(vp-string "-run") (vp-byte 0)
 		(vp-align ptr_size)
-	dq	opt_link - options_table
-		db	'-l', 0
+	(vp-long '(sub opt_link options_table))
+		(vp-string "-l") (vp-byte 0)
 		(vp-align ptr_size)
-	dq	0
+	(vp-long 0)
 
 (def-func-end)
