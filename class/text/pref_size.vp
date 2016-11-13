@@ -37,6 +37,6 @@
 
 	(eval '(inst, width, height) '(r0, r10, r11))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

@@ -29,7 +29,7 @@
 
 	(eval '(this, value) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'callback)
 	;inputs
@@ -54,17 +54,17 @@
 				(func-call 'ref 'deref '(pdata -> pdata_value))
 				(assign '(test) '(pdata -> pdata_value))
 				(eval '(0) '(r1))
-				return
+				(return)
 			(endif)
 			(vpif '((test != pdata -> pdata_this->lisp_sym_nil)))
 				(func-call 'ref 'deref '(test))
 				(func-call 'vector 'for_each '(* iter, 1, length, $ callback1, pdata) '(_))
 				(eval '(0) '(r1))
-				return
+				(return)
 			(else)
 				(func-call 'ref 'deref '(test))
 				(eval '(1) '(r1))
-				return
+				(return)
 			(endif)
 		(else)
 			(func-call 'ref 'deref '(pdata -> pdata_value))
@@ -77,7 +77,7 @@
 
 	(eval '(0) '(r1))
 	(pop-scope)
-	return
+	(return)
 
 callback1:
 	;inputs
@@ -97,6 +97,6 @@ callback1:
 
 	(eval '(pdata -> pdata_value -> obj_vtable != @ class/class_error) '(r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

@@ -22,6 +22,6 @@
 		(func-call 'slave 'deref '(slave))
 	(endif)
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

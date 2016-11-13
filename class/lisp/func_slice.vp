@@ -29,7 +29,7 @@
 			(vpif '((value -> obj_vtable == @class/class_boxed_long)))
 				(func-call 'boxed_long 'get_value '(value) '(start))
 				(func-call 'vector 'get_element '(args, 1) '(value))
-				goto(vpif '((value -> obj_vtable != @class/class_boxed_long))), index_error
+				(gotoif '((value -> obj_vtable != @class/class_boxed_long)) 'index_error)
 				(func-call 'boxed_long 'get_value '(value) '(end))
 				(virt-call 'sequence 'get_length '(seq) '(length))
 				(vpif '((start < 0)))
@@ -41,7 +41,7 @@
 				(vpif '((start >= 0 && end <= length)))
 					(virt-call 'sequence 'slice '(seq, start, end) '(value))
 					(eval '(this, value) '(r0, r1))
-					return
+					(return)
 				(else)
 					(func-call 'error 'create '("(slice start end seq) index out of bounds", args) '(value))
 				(endif)
@@ -58,6 +58,6 @@
 
 	(eval '(this, value) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

@@ -43,6 +43,6 @@
 	(func-call 'vector 'deref '(tasks))
 	(func-call 'sys_mem 'free '(ids))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

@@ -208,7 +208,7 @@
 			(loop-end)
 
 			;create new region ?
-			switch
+			(switch)
 				(breakif '(r8 == r10))
 				(breakif '(r9 == r11))
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
@@ -219,7 +219,7 @@
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
 				(vp-cpy-ri-i r10 r1 gui_rect_x1)
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
-			endswitch
+			(endswitch)
 		(endif)
 	(endif)
 	(vp-ret)

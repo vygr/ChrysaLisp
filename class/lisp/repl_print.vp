@@ -56,29 +56,29 @@
 		(func-call 'stream 'write_char '(stream, char_lf))
 	(else)
 		(assign '(value -> obj_vtable) '(elem))
-		switch
-		case {elem == @class/class_symbol}
+		(switch)
+		(case '((elem == @class/class_symbol)))
 			(func-call 'stream 'write '(stream, & value -> string_data, value -> string_length))
-			break
-		case {elem == @class/class_string}
+			(break)
+		(case '((elem == @class/class_string)))
 			(func-call 'stream 'write_char '(stream, char_double_quote))
 			(func-call 'stream 'write '(stream, & value -> string_data, value -> string_length))
 			(func-call 'stream 'write_char '(stream, char_double_quote))
-			break
-		case {elem == @class/class_boxed_long}
+			(break)
+		(case '((elem == @class/class_boxed_long)))
 			(func-call 'boxed_long 'get_value '(value) '(elem))
 			(func-call 'symbol 'create_from_long '(elem, 10) '(value))
 			(func-call 'stream 'write '(stream, & value -> string_data, value -> string_length))
 			(func-call 'ref 'deref '(value))
-			break
-		case {elem == @class/class_boxed_ptr}
+			(break)
+		(case '((elem == @class/class_boxed_ptr)))
 			(func-call 'stream 'write_cstr '(stream, "#0x"))
 			(func-call 'boxed_ptr 'get_value '(value) '(elem))
 			(func-call 'symbol 'create_from_long '(elem, 16) '(value))
 			(func-call 'stream 'write '(stream, & value -> string_data, value -> string_length))
 			(func-call 'ref 'deref '(value))
-			break
-		case {elem == @class/class_pair}
+			(break)
+		(case '((elem == @class/class_pair)))
 			(func-call 'stream 'write_char '(stream, char_lab))
 			(func-call 'pair 'get_first '(value) '(elem))
 			(func-call 'lisp 'repl_print '(this, stream, elem))
@@ -86,8 +86,8 @@
 			(func-call 'pair 'get_second '(value) '(elem))
 			(func-call 'lisp 'repl_print '(this, stream, elem))
 			(func-call 'stream 'write_char '(stream, char_rab))
-			break
-		case {elem == @class/class_unordered_set}
+			(break)
+		(case '((elem == @class/class_unordered_set)))
 			(struct 'pdata 'pdata)
 			(push-scope)
 			(func-call 'stream 'write_char '(stream, char_lsb))
@@ -96,8 +96,8 @@
 			(func-call 'unordered_set 'for_each '(value, $ callback, & this) '(_, _))
 			(func-call 'stream 'write_char '(stream, char_rsb))
 			(pop-scope)
-			break
-		case {elem == @class/class_unordered_map}
+			(break)
+		(case '((elem == @class/class_unordered_map)))
 			(struct 'pdata 'pdata)
 			(push-scope)
 			(func-call 'stream 'write_char '(stream, char_lcb))
@@ -106,8 +106,8 @@
 			(func-call 'unordered_map 'for_each '(value, $ callback, & this) '(_, _))
 			(func-call 'stream 'write_char '(stream, char_rcb))
 			(pop-scope)
-			break
-		case {elem == @class/class_error}
+			(break)
+		(case '((elem == @class/class_error)))
 			(func-call 'stream 'write_cstr '(stream, "Error < "))
 			(func-call 'error 'get_description '(value) '(elem))
 			(func-call 'stream 'write '(stream, & elem -> string_data, elem -> string_length))
@@ -117,29 +117,29 @@
 			(func-call 'stream 'write_cstr '(stream, "Ast < "))
 			(func-call 'lisp 'repl_print '(this, stream, elem))
 			(func-call 'stream 'write_cstr '(stream, " >"))
-			break
-		case {elem == @class/class_vector}
+			(break)
+		(case '((elem == @class/class_vector)))
 			(struct 'pdata 'pdata)
 			(push-scope)
 			(devirt-call 'vector 'get_length '(value) '(length))
 			(vpif '((length)))
 				(func-call 'vector 'get_element '(value, 0) '(elem))
-				switch
-				case {elem == this -> lisp_sym_quote}
+				(switch)
+				(case '((elem == this -> lisp_sym_quote)))
 					(func-call 'stream 'write_char '(stream, char_quote))
-					break
-				case {elem == this -> lisp_sym_qquote}
+					(break)
+				(case '((elem == this -> lisp_sym_qquote)))
 					(func-call 'stream 'write_char '(stream, char_quasi_quote))
-					break
-				case {elem == this -> lisp_sym_unquote}
+					(break)
+				(case '((elem == this -> lisp_sym_unquote)))
 					(func-call 'stream 'write_char '(stream, char_unquote))
-					break
-				case {elem == this -> lisp_sym_splicing}
+					(break)
+				(case '((elem == this -> lisp_sym_splicing)))
 					(func-call 'stream 'write_char '(stream, char_splicing))
-					break
-				default
+					(break)
+				(default)
 					goto notquote
-				endswitch
+				(endswitch)
 				(func-call 'vector 'get_element '(value, 1) '(elem))
 				(func-call 'lisp 'repl_print '(this, stream, elem))
 			(else)
@@ -150,8 +150,8 @@
 				(func-call 'stream 'write_char '(stream, char_rrb))
 			(endif)
 			(pop-scope)
-			break
-		default
+			(break)
+		(default)
 			(pubyte 'name_offset)
 			(push-scope)
 			(assign '(elem - 1) '(name_offset))
@@ -159,12 +159,12 @@
 			(func-call 'stream 'write_char '(stream, char_at))
 			(func-call 'stream 'write_cstr '(stream, elem))
 			(pop-scope)
-		endswitch
+		(endswitch)
 	(endif)
 
 	(eval '(this) '(r0))
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'callback)
 	;inputs
@@ -189,6 +189,6 @@
 
 	(eval '(1) '(r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

@@ -46,7 +46,7 @@
 
 	(eval '(this, value) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'callback)
 	;inputs
@@ -67,7 +67,7 @@
 		(vpif '((pdata -> pdata_num >= num)))
 			(assign '(num) '(pdata -> pdata_num))
 			(eval '(1) '(r1))
-			return
+			(return)
 		(else)
 			(func-call 'ref 'deref '(pdata -> pdata_value))
 			(assign '(pdata -> pdata_this -> lisp_sym_nil) '(pdata -> pdata_value))
@@ -80,6 +80,6 @@
 
 	(eval '(0) '(r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

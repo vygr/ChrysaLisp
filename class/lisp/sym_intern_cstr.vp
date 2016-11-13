@@ -21,6 +21,6 @@
 
 	(eval '(this, intern) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

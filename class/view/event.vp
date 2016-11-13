@@ -11,8 +11,8 @@
 
 	;what type of event ?
 	(vp-cpy-ir r1 ev_msg_type r2)
-	switch
-	case r2, ==, ev_type_mouse
+	(switch)
+	(case '(r2 == ev_type_mouse))
 		;so what state are we in ?
 		(vp-cpy-ir r1 ev_msg_buttons r2)
 		(vp-cpy-ir r0 view_last_buttons r3)
@@ -37,15 +37,15 @@
 				v_jmp view, mouse_hover, {r0, r1}
 			(endif)
 		(endif)
-		break
-	case r2, ==, ev_type_key
+		(break)
+	(case '(r2 == ev_type_key))
 		(vp-cpy-ir r1 ev_msg_keycode r2)
 		(vpif '(r2 >= 0))
 			v_jmp view, key_down, {r0, r1}
 		(else)
 			v_jmp view, key_up, {r0, r1}
 		(endif)
-	endswitch
+	(endswitch)
 	(vp-ret)
 
 (def-func-end)

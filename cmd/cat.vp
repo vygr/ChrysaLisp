@@ -44,7 +44,7 @@
 		(func-call 'slave 'deref '(slave))
 	(endif)
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'cat_string)
 	;r0 = slave
@@ -75,6 +75,6 @@
 	(endif)
 
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

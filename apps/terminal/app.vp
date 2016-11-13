@@ -112,7 +112,7 @@
 	(func-call 'window 'deref '(shared . shared_window))
 	(virt-call 'obj 'deinit '(& myapp))
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'pipe_output)
 	;inputs
@@ -137,7 +137,7 @@
 
 	(eval '(char) '(r0))
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'terminal_input)
 	;inputs
@@ -175,7 +175,7 @@
 				(func-call 'vector 'ref_back '(shared -> shared_history) '(last))
 				(func-call 'string 'compare '(string, last) '(notsame))
 				(func-call 'string 'deref '(last))
-				goto(vpif '((notsame))), new_entry
+				(gotoif '((notsame)) 'new_entry)
 				(func-call 'string 'deref '(string))
 			(endif)
 
@@ -244,7 +244,7 @@
 		(assign '(shared -> shared_bufp + 1) '(shared -> shared_bufp))
 	(endif)
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'terminal_output)
 	;inputs
@@ -294,6 +294,6 @@
 		(func-call 'label 'dirty '(label))
 	(endif)
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

@@ -71,10 +71,10 @@
 			(breakif '(r0 == 0))
 			(vp-cpy-rr r0 r15)
 
-			;switch on kernel call number
+			;(switch) on kernel call number
 			(vp-cpy-ir r15 kn_msg_function r1)
-			switch
-			case r1, ==, kn_call_task_open
+			(switch)
+			(case '(r1 == kn_call_task_open))
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
 				(vp-cpy-ir r15 (add kn_msg_reply_id id_mbox) r1)
@@ -97,8 +97,8 @@
 				(vp-cpy-cr kn_msg_reply_size r0)
 				(vp-cpy-ri r0 r15 msg_length)
 				(f-call 'sys_mail 'send '(r15))
-				break
-			case r1, ==, kn_call_task_child
+				(break)
+			(case '(r1 == kn_call_task_child))
 				;find best cpu to run task
 				(f-call 'sys_cpu 'id '() '(r5))
 				(f-bind 'sys_task 'statics r1)
@@ -115,8 +115,8 @@
 				;send to better kernel
 				(vp-cpy-ri r0 r15 (add msg_dest id_cpu))
 				(f-call 'sys_mail 'send '(r15))
-				break
-			case r1, ==, kn_call_task_route
+				(break)
+			(case '(r1 == kn_call_task_route))
 				;increase size of network ?
 				(f-bind 'sys_task 'statics r0)
 				(vp-cpy-ir r15 kn_msg_link_route_origin r1)
@@ -133,11 +133,11 @@
 				;compare hop counts
 				(vp-cpy-ir r15 kn_msg_link_route_hops r2)
 				(vp-cpy-ir r0 r11 + lk_route_hops r3)
-				switch
-				case r3, ==, 0
+				(switch)
+				(case '(r3 == 0))
 					;never seen, so better route
 					(vp-jmp 'better_route)
-				case r2, <, r3
+				(case '(r2 < r3))
 				(vp-label 'better_route)
 					;new hops is less, so better route
 					(vp-cpy-ri r2 r0 r11)
@@ -159,8 +159,8 @@
 							(vp-cpy-ri r1 r0 r11 + lk_route_hops)
 						(endif)
 					(loop-end)
-					break
-				case r2, ==, r3
+					(break)
+				(case '(r2 == r3))
 					;new hops is equal, so additional route
 					(vp-cpy-ir r15 kn_msg_link_route_via r13)
 					(f-bind 'sys_link 'statics r14)
@@ -175,10 +175,10 @@
 						(endif)
 					(loop-end)
 					;drop through to discard message !
-				default
+				(default)
 					;new hops is greater, so worse route
 					(vp-jmp 'drop_msg)
-				endswitch
+				(endswitch)
 
 				;increment hop count
 				(vp-cpy-ir r15 kn_msg_link_route_hops r1)
@@ -208,8 +208,8 @@
 				(loop-end)
 			(vp-label 'drop_msg)
 				(f-call 'sys_mem 'free '(r15))
-				break
-			case r1, ==, kn_call_callback
+				(break)
+			(case '(r1 == kn_call_callback))
 				;call callback with this thread/stack
 				(vp-push r15)
 				(vp-cpy-ir r15 kn_msg_user r0)
@@ -222,7 +222,7 @@
 				(vp-cpy-ri r1 r0 (add msg_dest id_mbox))
 				(vp-cpy-ri r2 r0 (add msg_dest id_cpu))
 				(f-call 'sys_mail 'send '(r0))
-			endswitch
+			(endswitch)
 		(loop-end)
 
 		;get time

@@ -37,26 +37,26 @@
 				(breakif '((index_vars == len_vars)))
 				(func-call 'vector 'get_element '(vars, index_vars) '(symbol))
 				(func-call 'ref 'deref '(value))
-				switch
-				case {state == 1}
+				(switch)
+				(case '((state == 1)))
 					;rest
 					(devirt-call 'vector 'slice '(vals, index_vals, len_vals) '(value))
 					(assign '(len_vars, len_vals) '(index_vars, index_vals))
-					break
-				case {state == 2}
+					(break)
+				(case '((state == 2)))
 					;optional
-					goto(vpif '((index_vals != len_vals))), normal
+					(gotoif '((index_vals != len_vals)) 'normal)
 					(assign '(this -> lisp_sym_nil) '(value))
 					(func-call 'ref 'ref '(value))
 					(assign '(index_vars + 1) '(index_vars))
-					break
-				default
+					(break)
+				(default)
 					;normal
-					goto(vpif '((index_vals == len_vals))), error
+					(gotoif '((index_vals == len_vals)) 'error)
 				(vp-label 'normal)
 					(devirt-call 'vector 'ref_element '(vals, index_vals) '(value))
 					(assign '(index_vars + 1, index_vals + 1) '(index_vars, index_vals))
-				endswitch
+				(endswitch)
 				(func-call 'unordered_map 'insert '(this -> lisp_enviroment, symbol, value) '(_, _))
 			(loop-end)
 			(breakif '((index_vals == len_vals)))
@@ -72,6 +72,6 @@
 
 	(eval '(this, value) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

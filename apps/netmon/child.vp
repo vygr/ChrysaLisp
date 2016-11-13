@@ -25,6 +25,6 @@
 	(loop-end)
 	(func-call 'sys_mem 'free '(msg))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

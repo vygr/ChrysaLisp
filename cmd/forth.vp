@@ -52,7 +52,7 @@
 		(func-call 'slave 'deref '(slave))
 	(endif)
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'input)
 	;inputs
@@ -74,7 +74,7 @@
 	(func-call 'sys_task 'yield)
 
 	(pop-scope)
-	return
+	(return)
 
 %if 0
 ;;;;;;;;;;

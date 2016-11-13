@@ -20,8 +20,8 @@
 
 	(vp-cpy-ir r0 view_w r10)
 	(vp-cpy-ir r0 view_h r11)
-	(vp-sub-cr window_border_size * 2 r10)
-	(vp-sub-cr window_border_size * 2 r11)
+	(vp-sub-cr (mul window_border_size 2) r10)
+	(vp-sub-cr (mul window_border_size 2) r11)
 	(f-call 'flow 'change '([r0 + window_flow], window_border_size, window_border_size, r10, r11))
 
 	(f-call 'window 'opaque '([r4 + local_inst]))

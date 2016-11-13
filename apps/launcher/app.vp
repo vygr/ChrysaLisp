@@ -76,7 +76,7 @@
 	(func-call 'window 'deref '(window))
 	(virt-call 'obj 'deinit '(& myapp))
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'on_press)
 	;inputs
@@ -91,7 +91,7 @@
 	(func-call 'sys_task 'open '(string) '(_, _))
 	(func-call 'string 'deref '(string))
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'launch_list)
 	(vp-string "apps/netmon/app") (vp-byte 0)

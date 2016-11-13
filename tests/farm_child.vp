@@ -21,6 +21,6 @@
 	(func-call 'sys_task 'sleep '(num + 1000000))
 
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

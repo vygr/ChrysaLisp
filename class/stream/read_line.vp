@@ -22,7 +22,7 @@
 
 	(vpif '((buffer_end == 0)))
 		(eval '(inst, 0) '(r0, r1))
-		return
+		(return)
 	(endif)
 
 	(assign '(buffer, buffer + buffer_end) '(start, buffer_end))
@@ -40,6 +40,6 @@
 		(eval '(inst, buffer - start) '(r0, r1))
 	(endif)
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

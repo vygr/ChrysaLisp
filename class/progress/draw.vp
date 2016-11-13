@@ -35,8 +35,8 @@
 
 	;draw middle
 	(f-call 'progress 'get_bounds '([r4 + local_inst]) '(_, _, r10, r11))
-	(vp-sub-cr progress_border_size * 2 r10)
-	(vp-sub-cr progress_border_size * 2 r11)
+	(vp-sub-cr (mul progress_border_size 2) r10)
+	(vp-sub-cr (mul progress_border_size 2) r11)
 	(vp-cpy-ir r0 progress_val r2)
 	(vp-cpy-ir r0 progress_max r1)
 	(vp-cpy-rr r10 r12)
@@ -59,7 +59,7 @@
 	;draw middle
 	(f-call 'progress 'get_bounds '([r4 + local_inst]) '(_, _, _, r11))
 	(vp-cpy-cr progress_border_size r8)
-	(vp-sub-cr progress_border_size * 2 r11)
+	(vp-sub-cr (mul progress_border_size 2) r11)
 	(vp-add-ir r4 local_fill_complete r8)
 	(f-call 'gui_ctx 'filled_box '([r4 + local_ctx], r8, progress_border_size, [r4 + local_fill_remain], r11))
 

@@ -34,7 +34,7 @@
 				(vpif '((index >= 0 && index < length)))
 					(virt-call 'sequence 'ref_element '(seq, index) '(value))
 					(eval '(this, value) '(r0, r1))
-					return
+					(return)
 				(else)
 					(func-call 'error 'create '("(elem index seq) index out of bounds", args) '(value))
 				(endif)
@@ -50,6 +50,6 @@
 
 	(eval '(this, value) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

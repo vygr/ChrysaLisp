@@ -90,7 +90,7 @@
 
 	(eval '(this, ok) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'match_obj)
 	;inputs

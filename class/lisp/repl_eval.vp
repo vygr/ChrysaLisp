@@ -20,12 +20,12 @@
 
 	;evaluate based on type
 	(assign '(form -> obj_vtable) '(func))
-	switch
-	case {func == @class/class_symbol}
+	(switch)
+	(case '((func == @class/class_symbol)))
 		;eval to symbol value
 		(func-call 'lisp 'env_get '(this, form) '(value))
-		break
-	case {func == @class/class_vector}
+		(break)
+	(case '((func == @class/class_vector)))
 		(devirt-call 'vector 'get_length '(form) '(length))
 		(vpifnot '(length))
 			;eval to nil
@@ -37,8 +37,8 @@
 			(func-call 'lisp 'repl_eval '(this, func) '(value))
 			(breakif '((value -> obj_vtable == @class/class_error)))
 			(assign '(value) '(func))
-			switch
-			case {func -> obj_vtable == @class/class_boxed_ptr}
+			(switch)
+			(case '((func -> obj_vtable == @class/class_boxed_ptr)))
 				gotoifnot {func -> boxed_ptr_flags}, args_eval_apply
 				(vpif '((func -> boxed_ptr_flags == type_apply)))
 					(func-call 'lisp 'repl_apply '(this, func, form) '(value))
@@ -47,8 +47,8 @@
 					(func-call 'lisp 'repl_apply '(this, func, args) '(value))
 					(func-call 'ref 'deref '(args))
 				(endif)
-				break
-			default
+				(break)
+			(default)
 			(vp-label 'args_eval_apply)
 				(devirt-call 'vector 'slice '(form, 1, length) '(args))
 				(func-call 'lisp 'repl_eval_list '(this, args, 0) '(value))
@@ -57,18 +57,18 @@
 					(func-call 'lisp 'repl_apply '(this, func, args) '(value))
 				(endif)
 				(func-call 'ref 'deref '(args))
-			endswitch
+			(endswitch)
 			(func-call 'ref 'deref '(func))
 		(endif)
-		break
-	default
+		(break)
+	(default)
 		;eval to self
 		(assign '(form) '(value))
 		(func-call 'ref 'ref '(value))
-	endswitch
+	(endswitch)
 
 	(eval '(this, value) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

@@ -16,17 +16,17 @@
 	(push-scope)
 	(retire '(r0, r1) '(inst, char))
 
-	switch
-	case {inst -> stream_bufp == inst -> stream_bufe}
+	(switch)
+	(case '((inst -> stream_bufp == inst -> stream_bufe)))
 		(virt-call 'stream 'write_next '(inst))
 		(breakif '((inst -> stream_bufp == inst -> stream_bufe)))
-	default
+	(default)
 		(assign '(char) '(* inst -> stream_bufp))
 		(assign '(inst -> stream_bufp + 1) '(inst -> stream_bufp))
-	endswitch
+	(endswitch)
 
 	(eval '(inst) '(r0))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

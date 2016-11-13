@@ -184,6 +184,6 @@
 	(func-call 'window 'deref '(window))
 
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

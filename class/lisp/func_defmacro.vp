@@ -40,6 +40,6 @@
 
 	(eval '(this, name) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

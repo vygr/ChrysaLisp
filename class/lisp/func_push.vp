@@ -32,7 +32,7 @@
 
 	(eval '(this, value) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'callback)
 	;inputs
@@ -50,8 +50,8 @@
 	(func-call 'ref 'ref '(* iter))
 	(func-call 'vector 'push_back '(pdata, * iter))
 
-	eval {1}, r1
+	(eval '(1) '(r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

@@ -38,6 +38,6 @@
 
 	(eval '(inst, splits) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

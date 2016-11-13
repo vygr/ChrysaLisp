@@ -21,6 +21,6 @@
 	(super-call 'lisp 'deinit '(this))
 
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

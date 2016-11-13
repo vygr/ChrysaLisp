@@ -108,7 +108,7 @@
 	(virt-call 'obj 'deinit '(& myapp))
 
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'on_press)
 	;inputs
@@ -198,7 +198,7 @@
 	(func-call 'string 'deref '(button_string))
 	(func-call 'label 'dirty '(inst -> shared_display))
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'button_list)
 	(vp-string "7") (vp-byte 0)

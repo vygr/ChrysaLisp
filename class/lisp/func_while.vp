@@ -39,7 +39,7 @@
 
 	(eval '(this, value) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'callback)
 	;inputs
@@ -59,6 +59,6 @@
 
 	(eval '(pdata -> pdata_value -> obj_vtable != @ class/class_error) '(r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

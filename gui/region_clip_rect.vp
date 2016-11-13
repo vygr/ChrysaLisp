@@ -21,7 +21,7 @@
 			(vp-label 'loop)
 				ln_next_fnode r7, r6
 
-				switch
+				(switch)
 					(vp-cpy-ir-i r7 gui_rect_x r12)
 					(breakif '(r12 >= r10))
 					(vp-cpy-ir-i r7 gui_rect_y r13)
@@ -45,7 +45,7 @@
 						(vp-cpy-ri-i r11 r7 gui_rect_y1)
 					(endif)
 					(vp-jmp 'loop)
-				endswitch
+				(endswitch)
 
 				;region is outside
 				(vp-cpy-rr r7 r5)

@@ -54,6 +54,6 @@
 (vp-label 'error)
 	(eval '(this, pair, char) '(r0, r1, r2))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

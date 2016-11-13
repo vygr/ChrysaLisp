@@ -25,7 +25,7 @@
 
 	(eval '(this, args) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (vp-label 'callback)
 	;inputs
@@ -49,6 +49,6 @@
 
 	(eval '(1) '(r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

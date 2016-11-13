@@ -18,13 +18,13 @@
 
 	(loop-while '((inst -> stream_bufp == inst -> stream_bufe)))
 		(virt-call 'stream 'read_next '(inst) '(char))
-		goto(vpif '((char == -1))), exit
+		(gotoif '((char == -1)) 'exit)
 	(loop-end)
 	(assign '(* inst -> stream_bufp) '(char))
 	(assign '(inst -> stream_bufp + 1) '(inst -> stream_bufp))
 (vp-label 'exit)
 	(eval '(inst, char) '(r0, r1))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

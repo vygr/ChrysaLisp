@@ -143,13 +143,13 @@
 	(vpif '(r3 != 0))
 		(vp-cpy-ir r2 view_w r8)
 		(vp-sub-rr r10 r8)
-		switch
-		case r3, ==, flow_flag_align_hcenter
+		(switch)
+		(case '(r3 == flow_flag_align_hcenter))
 			(vp-shr-cr 1 r8)
-			break
-		case r3, ==, flow_flag_align_hleft
+			(break)
+		(case '(r3 == flow_flag_align_hleft))
 			(vp-xor-rr r8 r8)
-		endswitch
+		(endswitch)
 	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
@@ -157,13 +157,13 @@
 	(vpif '(r3 != 0))
 		(vp-cpy-ir r2 view_h r9)
 		(vp-sub-rr r11 r9)
-		switch
-		case r3, ==, flow_flag_align_vcenter
+		(switch)
+		(case '(r3 == flow_flag_align_vcenter))
 			(vp-shr-cr 1 r9)
-			break
-		case r3, ==, flow_flag_align_vtop
+			(break)
+		(case '(r3 == flow_flag_align_vtop))
 			(vp-xor-rr r9 r9)
-		endswitch
+		(endswitch)
 	(endif)
 
 	(vp-cpy-ri r12 r1 local_x)

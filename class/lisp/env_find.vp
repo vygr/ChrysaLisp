@@ -29,6 +29,6 @@
 
 	(eval '(this, iter, bucket) '(r0, r1, r2))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)

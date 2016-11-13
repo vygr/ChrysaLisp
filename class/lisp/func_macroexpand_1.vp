@@ -31,6 +31,6 @@
 
 	(eval '(this, value, length) '(r0, r1, r2))
 	(pop-scope)
-	return
+	(return)
 
 (def-func-end)
