@@ -30,7 +30,7 @@
 
 	;init app vars
 	(push-scope)
-	func_path class, obj
+	(func-path 'class 'obj)
 	(func-call 'obj 'init '(& myapp, @ _function_) '(_))
 	(assign '(0) '(myapp . shared_accum))
 	(assign '(0) '(myapp . shared_value))
@@ -51,13 +51,13 @@
 	(func-call 'flow 'add_back '(flow_panel, window_panel))
 
 	;add my display label
-	(func-call 'label 'create '() '(myapp  .  shared_display))
-	(func-call 'label 'set_color '(myapp  .  shared_display, 0xffffffff))
-	(func-call 'label 'set_flow_flags '(myapp  .  shared_display, flow_flag_align_hright | flow_flag_align_vcenter))
+	(func-call 'label 'create '() '(myapp . shared_display))
+	(func-call 'label 'set_color '(myapp . shared_display, 0xffffffff))
+	(func-call 'label 'set_flow_flags '(myapp . shared_display, flow_flag_align_hright | flow_flag_align_vcenter))
 	(func-call 'label 'set_font '(myapp . shared_display, "fonts/OpenSans-Regular.ttf", 24))
 	(func-call 'string 'create_from_cstr '("0") '(string))
-	(func-call 'label 'set_text '(myapp  .  shared_display, string))
-	(func-call 'label 'add_back '(myapp  .  shared_display, flow_panel))
+	(func-call 'label 'set_text '(myapp . shared_display, string))
+	(func-call 'label 'add_back '(myapp . shared_display, flow_panel))
 
 	;add my app grid panel
 	(func-call 'grid 'create '() '(grid_panel))
@@ -66,7 +66,7 @@
 
 	;add buttons to my grid panel
 	(assign '($ button_list) '(next))
-	(loop-while '((*next)))
+	(loop-while '((* next)))
 		(func-call 'button 'create '() '(button))
 		(func-call 'button 'set_color '(button, 0xffffff00))
 		(func-call 'string 'create_from_cstr '(next) '(string))
@@ -110,7 +110,7 @@
 	(pop-scope)
 	return
 
-on_press:
+(vp-label 'on_press)
 	;inputs
 	;r0 = app local object
 	;r1 = button object
@@ -139,7 +139,7 @@ on_press:
 		(assign '(0) '(inst -> shared_value))
 		(assign '(0) '(inst -> shared_last_op))
 		(assign '(0) '(inst -> shared_last_flag))
-	else
+	(else)
 		(func-call 'label 'get_text '(inst -> shared_display) '(display_string))
 		(assign '(& button_string -> string_data) '(charp))
 		(assign '(* charp) '(char))
@@ -156,21 +156,21 @@ on_press:
 			;append numeral
 			(func-call 'string 'append '(display_string, button_string) '(string))
 			(func-call 'sys_string 'to_long '(& string -> string_data, 10) '(inst -> shared_value))
-		else
+		(else)
 			;operator
 			(vpif '((inst -> shared_last_op == char_plus)))
 				;+
 				(assign '(inst -> shared_accum + inst -> shared_value) '(inst -> shared_accum))
-			else(vpif '((inst -> shared_last_op == char_minus)))
+			(vpelseif '((inst -> shared_last_op == char_minus)))
 				;-
 				(assign '(inst -> shared_accum - inst -> shared_value) '(inst -> shared_accum))
-			else(vpif '((inst -> shared_last_op == char_multiply)))
+			(vpelseif '((inst -> shared_last_op == char_multiply)))
 				;*
 				(assign '(inst -> shared_accum * inst -> shared_value) '(inst -> shared_accum))
-			else(vpif '((inst -> shared_last_op == char_divide && inst -> shared_value != 0)))
+			(vpelseif '((inst -> shared_last_op == char_divide && inst -> shared_value != 0)))
 				;/
 				(assign '(inst -> shared_accum // inst -> shared_value) '(inst -> shared_accum))
-			else
+			(else)
 				;equals
 				(assign '(inst -> shared_value) '(inst -> shared_accum))
 			(endif)
@@ -180,13 +180,13 @@ on_press:
 			(assign '(0) '(inst -> shared_last_flag))
 			(vpif '((inst -> shared_accum < 0)))
 				;negative accum
-				(func-call 'sys_string 'from_long '(-inst -> shared_accum, & inst -> shared_buffer, 10))
+				(func-call 'sys_string 'from_long '(- inst -> shared_accum, & inst -> shared_buffer, 10))
 				(func-call 'string 'create_from_cstr '("-") '(string1))
 				(func-call 'string 'create_from_cstr '(& inst -> shared_buffer) '(string2))
 				(func-call 'string 'append '(string1, string2) '(string))
 				(func-call 'string 'deref '(string1))
 				(func-call 'string 'deref '(string2))
-			else
+			(else)
 				;positive accum
 				(func-call 'sys_string 'from_long '(inst -> shared_accum, & inst -> shared_buffer, 10))
 				(func-call 'string 'create_from_cstr '(& inst -> shared_buffer) '(string))
@@ -200,7 +200,7 @@ on_press:
 	(pop-scope)
 	return
 
-button_list:
+(vp-label 'button_list)
 	(vp-string "7") (vp-byte 0)
 	(vp-string "8") (vp-byte 0)
 	(vp-string "9") (vp-byte 0)

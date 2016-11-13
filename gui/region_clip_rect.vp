@@ -18,7 +18,7 @@
 			;run through source region list
 			(vp-cpy-rr r1 r7)
 			(loop-start)
-			loop:
+			(vp-label 'loop)
 				ln_next_fnode r7, r6
 
 				switch

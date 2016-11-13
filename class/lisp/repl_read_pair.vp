@@ -46,12 +46,12 @@
 	(vpif '((char == char_rab)))
 		(func-call 'stream 'read_char '(stream) '(char))
 		(func-call 'pair 'create '(first, second) '(pair))
-	else
+	(else)
 		(func-call 'ref 'deref '(second))
 		(func-call 'ref 'deref '(first))
 		(func-call 'error 'create '("expected >", this -> lisp_sym_nil) '(pair))
 	(endif)
-error:
+(vp-label 'error)
 	(eval '(this, pair, char) '(r0, r1, r2))
 	(pop-scope)
 	return

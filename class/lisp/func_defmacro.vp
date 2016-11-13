@@ -28,13 +28,13 @@
 				(func-call 'unordered_map 'insert '(this -> lisp_macros, name, args) '(_, _))
 				(func-call 'ref 'deref '(args))
 				(func-call 'ref 'ref '(name))
-			else
+			(else)
 				(func-call 'error 'create '("(defmacro name vars body) name is not a symbol", args) '(name))
 			(endif)
-		else
+		(else)
 			(func-call 'error 'create '("(defmacro name vars body) vars is not a list", args) '(name))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(defmacro name vars body) wrong numbers of args", args) '(name))
 	(endif)
 

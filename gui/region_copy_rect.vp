@@ -143,7 +143,7 @@
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
 				(continue)
 
-			copy_encl:
+			(vp-label 'copy_encl)
 				;region is enclosed
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
@@ -151,7 +151,7 @@
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
 				(continue)
 
-			copy_x:
+			(vp-label 'copy_x)
 				;r8 inside
 				(vp-cpy-ri-i r8 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
@@ -159,7 +159,7 @@
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
 				(continue)
 
-			copy_y:
+			(vp-label 'copy_y)
 				;r9 inside
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
@@ -167,7 +167,7 @@
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
 				(continue)
 
-			copy_xy:
+			(vp-label 'copy_xy)
 				;r8 + r9 inside
 				(vp-cpy-ri-i r8 r1 gui_rect_x)
 				(vp-cpy-ri-i r9 r1 gui_rect_y)

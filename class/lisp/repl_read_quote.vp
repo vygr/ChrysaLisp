@@ -30,7 +30,7 @@
 	(func-call 'lisp 'repl_read '(this, stream, char) '(elem, char))
 	(vpif '((elem -> obj_vtable != @class/class_error)))
 		(func-call 'vector 'push_back '(list, elem))
-	else
+	(else)
 		(func-call 'ref 'deref '(list))
 		(assign '(elem) '(list))
 	(endif)

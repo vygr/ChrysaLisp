@@ -22,7 +22,7 @@
 	(vp-cpy-ri r2 r1 unordered_set_length)
 	(vp-ret)
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator

@@ -32,7 +32,7 @@
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator

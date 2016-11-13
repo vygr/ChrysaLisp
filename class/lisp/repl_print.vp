@@ -50,11 +50,11 @@
 	(push-scope)
 	(retire '(r0, r1, r2) '(this, stream, value))
 
-	ifnot {value}
+	(vpifnot '(value))
 		(func-call 'stream 'write_char '(stream, char_lf))
 		(func-call 'stream 'write_cstr '(stream, "*NULL*"))
 		(func-call 'stream 'write_char '(stream, char_lf))
-	else
+	(else)
 		(assign '(value -> obj_vtable) '(elem))
 		switch
 		case {elem == @class/class_symbol}
@@ -108,13 +108,13 @@
 			(pop-scope)
 			break
 		case {elem == @class/class_error}
-			(func-call 'stream 'write_cstr '(stream, "Error: < "))
+			(func-call 'stream 'write_cstr '(stream, "Error < "))
 			(func-call 'error 'get_description '(value) '(elem))
 			(func-call 'stream 'write '(stream, & elem -> string_data, elem -> string_length))
 			(func-call 'stream 'write_cstr '(stream, " >"))
 			(func-call 'stream 'write_char '(stream, char_lf))
 			(func-call 'error 'get_object '(value) '(elem))
-			(func-call 'stream 'write_cstr '(stream, "Ast: < "))
+			(func-call 'stream 'write_cstr '(stream, "Ast < "))
 			(func-call 'lisp 'repl_print '(this, stream, elem))
 			(func-call 'stream 'write_cstr '(stream, " >"))
 			break
@@ -142,8 +142,8 @@
 				endswitch
 				(func-call 'vector 'get_element '(value, 1) '(elem))
 				(func-call 'lisp 'repl_print '(this, stream, elem))
-			else
-			notquote:
+			(else)
+			(vp-label 'notquote)
 				(func-call 'stream 'write_char '(stream, char_lrb))
 				(assign '(this, stream, 0) '(this, stream, index))
 				(func-call 'vector 'for_each '(value, 0, length, $ callback, & this) '(_))
@@ -166,7 +166,7 @@
 	(pop-scope)
 	return
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator

@@ -45,7 +45,7 @@
 			(loop-while '((char <= char_space && char != -1)))
 				(func-call 'stream 'read_char '(stream) '(char))
 			(loop-end)
-			break(vpif '((char != char_semi)))
+			(breakif '((char != char_semi)))
 			(func-call 'stream 'skip_not '(stream, char_lf))
 			(func-call 'stream 'read_char '(stream) '(char))
 		(loop-end)
@@ -54,7 +54,7 @@
 	;skip ")"
 	(func-call 'stream 'read_char '(stream) '(char))
 
-error:
+(vp-label 'error)
 	(eval '(this, list, char) '(r0, r1, r2))
 	(pop-scope)
 	return

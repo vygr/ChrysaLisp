@@ -28,7 +28,7 @@
 		(eval '(this, ast, func) '(r0, r1, r2))
 		(vp-call-i r2 boxed_ptr_value)
 		(retire '(r1) '(value))
-	else(vpif '((func -> obj_vtable == @class/class_vector)))
+	(vpelseif '((func -> obj_vtable == @class/class_vector)))
 		;lambda
 		(ptr 'vars)
 		(ulong 'length)
@@ -44,14 +44,14 @@
 					(func-call 'vector 'for_each '(func, 2, length, $ callback, & this) '(_))
 				(endif)
 				(func-call 'lisp 'env_pop '(this))
-			else
+			(else)
 				(func-call 'error 'create '("(lambda vars body) not lambda", vars) '(value))
 			(endif)
-		else
+		(else)
 			(func-call 'error 'create '("(lambda vars body) wrong numbers of args", func) '(value))
 		(endif)
 		(pop-scope)
-	else
+	(else)
 		(func-call 'error 'create '("(lambda vars body) not a lambda list", func) '(value))
 	(endif)
 
@@ -59,7 +59,7 @@
 	(pop-scope)
 	return
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator

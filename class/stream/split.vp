@@ -31,7 +31,7 @@
 		(assign '(inst -> stream_bufp) '(start))
 		(func-call 'stream 'skip_not '(inst, char))
 		(assign '(inst -> stream_bufp - start) '(length))
-		break(vpif '((length == 0)))
+		(breakif '((length == 0)))
 		(func-call 'string 'create_from_buffer '(start, length) '(string))
 		(func-call 'vector 'push_back '(splits, string))
 	(loop-end)

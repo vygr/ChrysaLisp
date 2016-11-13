@@ -24,7 +24,7 @@
 	(vp-cpy-ri r0 r1 unordered_set_length)
 	(f-jmp 'unordered_set 'slice_impl '(r9, r1, $callback, r10, r11))
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator

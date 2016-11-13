@@ -26,7 +26,7 @@
 	(vpif '((inst -> text_string && inst -> text_font)))
 		(assign '(inst -> text_words -> vector_array) '(words))
 		(devirt-call 'vector 'get_length '(inst -> text_words) '(length))
-		(assign '(& words [ length * ptr_size  ]) '(words_end))
+		(assign '(& words [ length * ptr_size ]) '(words_end))
 		(loop-start)
 			(func-call 'gui_font 'bounds '(inst -> text_font, * words) '(word_w, height))
 			(assign '(words + ptr_size) '(words))

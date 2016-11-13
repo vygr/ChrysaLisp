@@ -22,7 +22,7 @@
 	(devirt-call 'vector 'get_length '(args) '(length))
 	(vpif '((length == 3)))
 		(func-call 'vector 'get_element '(args, 2) '(seq))
-		func_path class, sequence
+		(func-path 'class 'sequence)
 		(func-call 'obj 'inst_of '(seq, @ _function_) '(value))
 		(vpif '((value)))
 			(func-call 'vector 'get_element '(args, 0) '(value))
@@ -42,17 +42,17 @@
 					(virt-call 'sequence 'slice '(seq, start, end) '(value))
 					(eval '(this, value) '(r0, r1))
 					return
-				else
+				(else)
 					(func-call 'error 'create '("(slice start end seq) index out of bounds", args) '(value))
 				(endif)
-			else
-			index_error:
+			(else)
+			(vp-label 'index_error)
 				(func-call 'error 'create '("(slice start end seq) not an index", args) '(value))
 			(endif)
-		else
+		(else)
 			(func-call 'error 'create '("(slice start end seq) not a sequence", args) '(value))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(slice start end seq) wrong number of args", args) '(value))
 	(endif)
 

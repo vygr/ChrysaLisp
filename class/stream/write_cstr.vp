@@ -20,7 +20,7 @@
 
 	(loop-start)
 		(assign '(* buffer) '(char))
-		breakifnot {char}
+		(breakifnot '(char))
 		(assign '(buffer + 1) '(buffer))
 		(func-call 'stream 'write_char '(inst, char))
 	(loop-end)

@@ -19,7 +19,7 @@
 	switch
 	case {inst -> stream_bufp == inst -> stream_bufe}
 		(virt-call 'stream 'write_next '(inst))
-		break(vpif '((inst -> stream_bufp == inst -> stream_bufe)))
+		(breakif '((inst -> stream_bufp == inst -> stream_bufe)))
 	default
 		(assign '(char) '(* inst -> stream_bufp))
 		(assign '(inst -> stream_bufp + 1) '(inst -> stream_bufp))

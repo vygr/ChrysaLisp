@@ -21,7 +21,7 @@
 	(vpif '((length == 1)))
 		(func-call 'vector 'get_element '(args, 0) '(args))
 		(func-call 'lisp 'repl_eval '(this, args) '(args))
-	else
+	(else)
 		(func-call 'error 'create '("(eval form) wrong number of args", args) '(args))
 	(endif)
 

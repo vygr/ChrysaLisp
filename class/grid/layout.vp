@@ -36,7 +36,7 @@
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
-callback:
+(vp-label 'callback)
 	(vp-xor-rr r8 r8)
 	(vp-cpy-ir r1 local_count r9)
 	(vp-cpy-ir r0 view_parent r2)

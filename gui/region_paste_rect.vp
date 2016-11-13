@@ -138,26 +138,26 @@
 				(vp-cpy-rr r15 r9)
 				(continue)
 
-			paste_encl:
+			(vp-label 'paste_encl)
 				;region is enclosed
 				(vp-cpy-rr r7 r1)
 				(ln-remove-fnode r7 r6)
 				(hp-freecell r0 r1 r2)
 				(continue)
 
-			paste_x:
+			(vp-label 'paste_x)
 				;r8 inside
 				;left part
 				(vp-cpy-ri-i r8 r7 gui_rect_x1)
 				(continue)
 
-			paste_y:
+			(vp-label 'paste_y)
 				;r9 inside
 				;top part
 				(vp-cpy-ri-i r9 r7 gui_rect_y1)
 				(continue)
 
-			paste_xy:
+			(vp-label 'paste_xy)
 				;r8 + r9 inside
 				;left part
 				(vp-cpy-ri-i r9 r7 gui_rect_y)

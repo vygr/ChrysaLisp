@@ -33,11 +33,11 @@
 				(func-call 'unordered_set 'insert '(set, arg) '(_, _))
 				(assign '(index + 1) '(index))
 			(loop-end)
-		else
+		(else)
 			;from stdin
 			(loop-start)
 				(func-call 'stream 'read_line '(slave -> slave_stdin, & buffer, buffer_size) '(length))
-				break(vpif '((length == -1)))
+				(breakif '((length == -1)))
 				(func-call 'string 'create_from_buffer '(& buffer, length) '(arg))
 				(func-call 'unordered_set 'insert '(set, arg) '(_, _))
 				(func-call 'string 'deref '(arg))
@@ -54,7 +54,7 @@
 	(pop-scope)
 	return
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator

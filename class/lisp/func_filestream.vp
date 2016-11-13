@@ -27,13 +27,13 @@
 			(func-call 'string 'create_from_file '(& value -> string_data) '(value))
 			(vpif '((value)))
 				(func-call 'stream_str 'create '(value) '(value))
-			else
+			(else)
 				(func-call 'error 'create '("(file-stream filename) filename not found", args) '(value))
 			(endif)
-		else
+		(else)
 			(func-call 'error 'create '("(file-stream filename) filename not a filename", args) '(value))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(file-stream filename) not enough args", args) '(value))
 	(endif)
 

@@ -20,9 +20,9 @@
 	(func-call 'lisp 'new '() '(this))
 	(vpif '((this != 0)))
 		;init the object
-		func_path class, lisp
+		(func-path 'class 'lisp)
 		(func-call 'lisp 'init '(this, @ _function_, stdin, stdout, stderr) '(ok))
-		ifnot {ok}
+		(vpifnot '(ok))
 			;error with init
 			(virt-call 'lisp 'delete '(this) '())
 			(assign '(0) '(this))

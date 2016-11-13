@@ -22,7 +22,7 @@
 		(vpif '(r0 > '9'))
 			(vp-add-cr 'A' - ':' r0)
 		(endif)
-		sys_write_char r1, r0
+		(sys-write-char '(r1, r0))
 	(loop-until '(r5 == r4))
 	(vp-ret)
 

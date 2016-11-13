@@ -24,10 +24,10 @@
 		(func-call 'vector 'get_element '(args, 0) '(value))
 		(vpif '((value -> obj_vtable == @class/class_string)))
 			(func-call 'stream_str 'create '(value) '(value))
-		else
+		(else)
 			(func-call 'error 'create '("(string-stream str) str not a string", args) '(value))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(string-stream str) not enough args", args) '(value))
 	(endif)
 

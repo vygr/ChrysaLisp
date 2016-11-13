@@ -24,7 +24,7 @@
 		(loop-start)
 			(func-call 'lisp 'repl_expand '(this, & value) '(length))
 		(loop-until '((length)))
-	else
+	(else)
 		(func-call 'error 'create '("(macroexpand form) wrong number of args", args) '(value))
 	(endif)
 

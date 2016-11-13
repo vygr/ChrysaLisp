@@ -29,14 +29,14 @@
 	(loop-start)
 		(func-call 'stream 'read_char '(inst) '(char))
 		(continueif '(char == 13))
-		break(vpif '((char == 10 || char < 0)))
+		(breakif '((char == 10 || char < 0)))
 		(assign '(char) '(* buffer))
 		(assign '(buffer + 1) '(buffer))
 	(loop-until '((buffer == buffer_end)))
 
 	(vpif '((buffer == start && char < 0)))
 		(eval '(inst, char) '(r0, r1))
-	else
+	(else)
 		(eval '(inst, buffer - start) '(r0, r1))
 	(endif)
 	(pop-scope)

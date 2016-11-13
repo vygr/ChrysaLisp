@@ -17,7 +17,7 @@
 			;mail for postman !
 			(f-bind 'sys_mail 'statics r1)
 			(vp-cpy-ir r1 ml_statics_in_mailbox r1)
-		else
+		(else)
 			(vp-cpy-ir r2 (add msg_dest id_mbox) r1)
 			(vpif '(r1 == 0))
 				;mail for kernel !
@@ -25,7 +25,7 @@
 				(vp-cpy-ir r1 ml_statics_kernel_mailbox r1)
 			(endif)
 		(endif)
-	post_it:
+	(vp-label 'post_it)
 		(lh-add-at-tail r1 r2 r0)
 		(vp-cpy-ir r1 mailbox_tcb r0)
 		(vpif '(r0 != 0))
@@ -33,7 +33,7 @@
 			(vp-cpy-ri r2 r1 mailbox_tcb)
 			(f-call 'sys_task 'resume '(r0))
 		(endif)
-	else
+	(else)
 		;going off chip
 		(f-bind 'sys_mail 'statics r1)
 		(vp-cpy-ir r2 msg_length r0)
@@ -41,7 +41,7 @@
 			;must use postman task
 			(vp-cpy-ir r1 ml_statics_out_mailbox r1)
 			(vp-jmp 'post_it)
-		else
+		(else)
 			;queue it on the outgoing packet list
 			(vp-lea-ir r1 ml_statics_offchip_list r1)
 			(lh-add-at-tail r1 r2 r0)

@@ -31,20 +31,20 @@
 	;iterate through views front to back
 	(f-call 'view 'forward_tree '(r0, r4, $hit_down_callback, $hit_up_callback))
 
-early_ret:
+(vp-label 'early_ret)
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-cpy-ir r4 local_hit r1)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
-hit_down_callback:
+(vp-label 'hit_down_callback)
 	(vp-sub-ir r0 view_x r8)
 	(vp-sub-ir r0 view_y r9)
 	(vp-cpy-ir r0 view_flags r1)
 	(vp-and-cr view_flag_solid r1)
 	(vp-ret)
 
-hit_up_callback:
+(vp-label 'hit_up_callback)
 	(vp-cpy-rr r1 r2)
 	(v-call 'view 'hit '(r0, r8, r9) '(r1))
 	(vpif '(r1 != 0))

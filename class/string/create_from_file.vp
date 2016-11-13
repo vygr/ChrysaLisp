@@ -19,7 +19,7 @@
 	(vp-add-cr ld_statics_stat_buffer r7)
 	sys_stat r0, r7
 	(vpif '(r0 != 0))
-	exit:
+	(vp-label 'exit)
 		;no such file
 		(vp-xor-rr r0 r0)
 		(vp-ret)
@@ -35,7 +35,7 @@
 	(f-call 'string 'new '(&[r1 + string_size + 1]) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		func_path class, string
+		(func-path 'class 'string)
 		(f-call 'string 'init2 '(r0, @_function_, r6, [r7 + stat_fsize]) '(r1))
 		(vpif '(r1 == 0))
 			;error with init

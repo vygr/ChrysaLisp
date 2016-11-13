@@ -20,10 +20,10 @@
 			(virt-call 'stream 'read_next '(inst) '(state))
 			goto(vpif '((state == -1))), exit
 		(loop-end)
-		break(vpif '((*inst -> stream_bufp == skip_char)))
+		(breakif '((*inst -> stream_bufp == skip_char)))
 		(assign '(inst -> stream_bufp + 1) '(inst -> stream_bufp))
 	(loop-end)
-exit:
+(vp-label 'exit)
 	(eval '(inst) '(r0))
 	(pop-scope)
 	return

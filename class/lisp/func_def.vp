@@ -30,10 +30,10 @@
 				(func-call 'unordered_map 'insert '(env, var, val) '(_, _))
 				(assign '(index + 2) '(index))
 			(loop-until '((index == length)))
-		else
+		(else)
 			(func-call 'error 'create '("(def env var val ... ) not an enviroment", args) '(val))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(def env var val ... ) wrong numbers of args", args) '(val))
 	(endif)
 

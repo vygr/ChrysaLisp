@@ -23,7 +23,7 @@
 	(push-scope)
 	(retire '(r0, r1, r2) '(this, stream, char))
 
-	func_path sys_load, statics
+	(func-path 'sys_load 'statics)
 	(assign '(@ _function_ . ld_statics_reloc_buffer) '(reloc))
 	(assign '(reloc) '(buffer))
 

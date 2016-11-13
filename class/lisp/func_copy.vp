@@ -24,10 +24,10 @@
 			(devirt-call 'vector 'get_length '(args) '(length))
 			(devirt-call 'vector 'slice '(args, 0, length) '(args))
 			(func-call 'vector 'for_each '(args, 0, length, $ callback, 0) '(_))
-		else
+		(else)
 			(func-call 'ref 'ref '(args))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(copy form) wrong number of args", args) '(args))
 	(endif)
 
@@ -35,7 +35,7 @@
 	(pop-scope)
 	return
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator

@@ -31,10 +31,10 @@
 				(func-call 'vector 'get_element '(vars, index_vars) '(symbol))
 				(vpif '((symbol == this -> lisp_sym_rest)))
 					(assign '(1, index_vars + 1) '(state, index_vars))
-				else(vpif '((symbol == this -> lisp_sym_optional)))
+				(vpelseif '((symbol == this -> lisp_sym_optional)))
 					(assign '(2, index_vars + 1) '(state, index_vars))
 				(endif)
-				break(vpif '((index_vars == len_vars)))
+				(breakif '((index_vars == len_vars)))
 				(func-call 'vector 'get_element '(vars, index_vars) '(symbol))
 				(func-call 'ref 'deref '(value))
 				switch
@@ -53,20 +53,20 @@
 				default
 					;normal
 					goto(vpif '((index_vals == len_vals))), error
-				normal:
+				(vp-label 'normal)
 					(devirt-call 'vector 'ref_element '(vals, index_vals) '(value))
 					(assign '(index_vars + 1, index_vals + 1) '(index_vars, index_vals))
 				endswitch
 				(func-call 'unordered_map 'insert '(this -> lisp_enviroment, symbol, value) '(_, _))
 			(loop-end)
-			break(vpif '((index_vals == len_vals)))
+			(breakif '((index_vals == len_vals)))
 			(func-call 'ref 'deref '(value))
-		error:
+		(vp-label 'error)
 			(func-call 'error 'create '("(bind vars vals): wrong number of vals", vals) '(value))
-		else
+		(else)
 			(func-call 'error 'create '("(bind vars vals): vals not a list", vals) '(value))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(bind vars vals): vars not a list", vars) '(value))
 	(endif)
 

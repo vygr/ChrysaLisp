@@ -23,10 +23,10 @@
 		(devirt-call 'vector 'ref_element '(args, 0) '(value))
 		(vpif '((value -> obj_vtable == @class/class_vector)))
 			(func-call 'vector 'for_each '(args, 1, length, $ callback, value) '(_))
-		else
+		(else)
 			(func-call 'error 'create '("(push list form ... ) not a list", args) '(value))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(push list form ... ) not enough args", args) '(value))
 	(endif)
 
@@ -34,7 +34,7 @@
 	(pop-scope)
 	return
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator

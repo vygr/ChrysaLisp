@@ -20,7 +20,7 @@
 	(devirt-call 'vector 'get_length '(args) '(length))
 	(vpif '((length == 1)))
 		(devirt-call 'vector 'ref_element '(args, 0) '(args))
-	else
+	(else)
 		(func-call 'error 'create '("(quote arg) wrong numbers of args", args) '(args))
 	(endif)
 

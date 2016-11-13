@@ -24,8 +24,8 @@
 		(devirt-call 'vector 'get_length '(form) '(length))
 		(vpif '((length)))
 			(func-call 'vector 'get_element '(form, 0) '(macro))
-			break(vpif '((macro == this -> lisp_sym_qquote)))
-			break(vpif '((macro == this -> lisp_sym_quote)))
+			(breakif '((macro == this -> lisp_sym_qquote)))
+			(breakif '((macro == this -> lisp_sym_quote)))
 			(vpif '((macro -> obj_vtable == @class/class_symbol)))
 				(func-call 'unordered_map 'find '(this -> lisp_macros, macro) '(miter, _))
 				(vpif '((miter)))
@@ -43,7 +43,7 @@
 					return
 				(endif)
 			(endif)
-			func_path lisp, repl_expand
+			(func-path 'lisp 'repl_expand)
 			(func-call 'vector 'for_each '(form, 0, length, @ _function_, this) '(iter))
 			(assign '(!iter) '(iter))
 		(endif)
@@ -53,7 +53,7 @@
 	(pop-scope)
 	return
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator

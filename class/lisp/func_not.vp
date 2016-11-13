@@ -22,11 +22,11 @@
 		(func-call 'vector 'get_element '(args, 0) '(args))
 		(vpif '((args == this -> lisp_sym_nil)))
 			(assign '(this -> lisp_sym_t) '(args))
-		else
+		(else)
 			(assign '(this -> lisp_sym_nil) '(args))
 		(endif)
 		(func-call 'ref 'ref '(args))
-	else
+	(else)
 		(func-call 'error 'create '("(not form) wrong number of args", args) '(args))
 	(endif)
 

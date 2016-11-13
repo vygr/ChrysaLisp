@@ -67,8 +67,8 @@
 				(vp-add-ir r0 r0)
 				(vp-sub-rr r0 r1)
 				(sys-write-string 2 r0 r1)
-				sys_write_char 2, 10
-				sys_exit 1
+				(sys-write-char '(2, 10))
+				(sys-exit '(1))
 			(endif)
 			(vp-cpy-rr r0 r1)
 			(vp-pop r0, r2, r5)
@@ -78,15 +78,15 @@
 	(loop-end)
 	(vp-ret)
 
-string_skip:
+(vp-label 'string_skip)
 	(loop-start)
 		(vp-cpy-ir-ub r0 r1)
 		(vp-inc r0)
 	(loop-until '(r1 == 0))
 	ret
 
-bind_error:
-	(vp-string "Prebind error: ")
-bind_error_end:
+(vp-label 'bind_error)
+	(vp-string "Prebind error ")
+(vp-label 'bind_error_end)
 
 (def-func-end)

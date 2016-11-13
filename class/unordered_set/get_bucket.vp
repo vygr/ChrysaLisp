@@ -33,7 +33,7 @@
 		(vp-xor-rr r2 r2)
 		(vp-div-u r1 r2 r0)
 		(vp-cpy-ir r4 local_inst r0)
-	else
+	(else)
 		(vp-xor-rr r2 r2)
 	(endif)
 	(f-call 'vector 'get_element '([r0 + unordered_set_buckets], r2) '(r1))

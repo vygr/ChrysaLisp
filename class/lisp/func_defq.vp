@@ -26,11 +26,11 @@
 			(func-call 'vector 'get_element '(args, index) '(var))
 			(func-call 'vector 'get_element '(args, index + 1) '(val))
 			(func-call 'lisp 'repl_eval '(this, val) '(val))
-			break(vpif '((val -> obj_vtable == @class/class_error)))
+			(breakif '((val -> obj_vtable == @class/class_error)))
 			(func-call 'unordered_map 'insert '(this -> lisp_enviroment, var, val) '(_, _))
 			(assign '(index + 2) '(index))
 		(loop-until '((index == length)))
-	else
+	(else)
 		(func-call 'error 'create '("(defq var val ... ) wrong numbers of args", args) '(val))
 	(endif)
 

@@ -23,7 +23,7 @@
 		(assign '(inst -> stream_msg_out_seqnum) '(msg -> stream_mail_seqnum))
 		(assign '(inst -> stream_msg_out_state) '(msg -> stream_mail_state))
 		(assign '(& inst -> stream_msg_out_ack_mailbox) '(msg -> stream_mail_ack_id . id_mbox))
-		(func-call 'sys_cpu 'id '() '(msg -> stream_mail_ack_id  .  id_cpu))
+		(func-call 'sys_cpu 'id '() '(msg -> stream_mail_ack_id . id_cpu))
 		(func-call 'sys_mail 'send '(msg))
 		(assign '(0) '(inst -> stream_buffer))
 

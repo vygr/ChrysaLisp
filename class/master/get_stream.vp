@@ -23,7 +23,7 @@
 		(assign '(index + ptr_size) '(index))
 	(loop-end)
 
-	(eval '(inst, (inst -> master_streams -> vector_array) [ index  ]) '(r0, r1))
+	(eval '(inst, (inst -> master_streams -> vector_array) [ index ]) '(r0, r1))
 	(pop-scope)
 	return
 

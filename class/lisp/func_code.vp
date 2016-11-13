@@ -27,10 +27,10 @@
 			(assign '(& value -> string_data) '(charp))
 			(func-call 'boxed_long 'create '() '(value))
 			(func-call 'boxed_long 'set_value '(value, * charp))
-		else
+		(else)
 			(func-call 'error 'create '("(code char) not a string", args) '(value))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(code char) wrong number of args", args) '(value))
 	(endif)
 

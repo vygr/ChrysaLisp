@@ -21,18 +21,18 @@
 			(vpif '(r2 != 0))
 				;is down now, so move
 				v_jmp view, mouse_move, {r0, r1}
-			else
+			(else)
 				;is not down now, so release
 				(vp-cpy-ri r2 r0 view_last_buttons)
 				v_jmp view, mouse_up, {r0, r1}
 			(endif)
-		else
+		(else)
 			;was not down previously
 			(vpif '(r2 != 0))
 				;is down now, so first down
 				(vp-cpy-ri r2 r0 view_last_buttons)
 				v_jmp view, mouse_down, {r0, r1}
-			else
+			(else)
 				;is not down now, so hover
 				v_jmp view, mouse_hover, {r0, r1}
 			(endif)
@@ -42,7 +42,7 @@
 		(vp-cpy-ir r1 ev_msg_keycode r2)
 		(vpif '(r2 >= 0))
 			v_jmp view, key_down, {r0, r1}
-		else
+		(else)
 			v_jmp view, key_up, {r0, r1}
 		(endif)
 	endswitch

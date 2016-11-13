@@ -45,7 +45,7 @@
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
-kernel_callback:
+(vp-label 'kernel_callback)
 	;inputs
 	;r0 = user data
 	;trashes

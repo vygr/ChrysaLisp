@@ -24,7 +24,7 @@
 	%ifidn %3, ""
 		dw 0
 	%else
-		func_path lisp, %3
+		(func-path 'lisp '%3)
 		fn_find_link _function_
 		dw _ref_%[_link_num_]_link - $
 	%(endif)
@@ -61,7 +61,7 @@
 		(assign '(0) '(this -> lisp_nextsym))
 
 		;interned symbols set and enviroments
-		func_path symbol, compare
+		(func-path 'symbol 'compare)
 		(func-call 'unordered_set 'create '(@ _function_, 31) '(this -> lisp_symbols))
 		(func-call 'unordered_map 'create '($ match_obj, 31) '(this -> lisp_enviroment))
 		(func-call 'unordered_map 'create '($ match_obj, 31) '(this -> lisp_macros))
@@ -92,7 +92,7 @@
 	(pop-scope)
 	return
 
-match_obj:
+(vp-label 'match_obj)
 	;inputs
 	;r0 = object 1
 	;r1 = object 2
@@ -109,7 +109,7 @@ match_obj:
 ;;;;;;;;;;;
 
 	align 2, db 0
-built_ins:
+(vp-label 'built_ins)
 	built_in "*parent*", lisp_sym_parent
 	built_in "&rest", lisp_sym_rest
 	built_in "&optional", lisp_sym_optional

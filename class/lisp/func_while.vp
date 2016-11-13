@@ -27,13 +27,13 @@
 		(loop-start)
 			(func-call 'vector 'get_element '(args, 0) '(value))
 			(func-call 'lisp 'repl_eval '(this, value) '(value))
-			break(vpif '((value -> obj_vtable == @class/class_error)))
-			break(vpif '((value == this -> lisp_sym_nil)))
+			(breakif '((value -> obj_vtable == @class/class_error)))
+			(breakif '((value == this -> lisp_sym_nil)))
 			(func-call 'vector 'for_each '(args, 1, length, $ callback, & this) '(_))
-			break(vpif '((value -> obj_vtable == @class/class_error)))
+			(breakif '((value -> obj_vtable == @class/class_error)))
 			(func-call 'ref 'deref '(value))
 		(loop-end)
-	else
+	(else)
 		(func-call 'error 'create '("(while tst form ... ) wrong number of args", args) '(value))
 	(endif)
 
@@ -41,7 +41,7 @@
 	(pop-scope)
 	return
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator

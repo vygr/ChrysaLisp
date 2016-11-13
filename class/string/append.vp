@@ -25,7 +25,7 @@
 	(f-call 'string 'new '(r0) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		func_path class, string
+		(func-path 'class 'string)
 		(f-call 'string 'init1 '(r0, @_function_, r6, r7) '(r1))
 		(vpif '(r1 == 0))
 			;error with init

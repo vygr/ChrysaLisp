@@ -306,7 +306,7 @@
 				(vp-cpy-ri-i r9 r1 gui_rect_y1)
 				(continue)
 
-			cut_encl:
+			(vp-label 'cut_encl)
 				;region is enclosed
 				(vp-cpy-rr r7 r1)
 				(vp-cpy-ir r4 r2)
@@ -314,7 +314,7 @@
 				(ln-add-fnode r5 r1 r2)
 				(continue)
 
-			cut_x:
+			(vp-label 'cut_x)
 				;r8 inside
 				;left part
 				(vp-cpy-ri-i r8 r7 gui_rect_x1)
@@ -328,7 +328,7 @@
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
 				(continue)
 
-			cut_y:
+			(vp-label 'cut_y)
 				;r9 inside
 				;top part
 				(vp-cpy-ri-i r9 r7 gui_rect_y1)
@@ -342,7 +342,7 @@
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
 				(continue)
 
-			cut_xy:
+			(vp-label 'cut_xy)
 				;r8 + r9 inside
 				;left part
 				(vp-cpy-ri-i r9 r7 gui_rect_y)

@@ -57,7 +57,7 @@
 	(vpif '(r7 == r9))
 		(f-call 'vector 'get_element '([r0 + unordered_set_buckets], r7) '(r0))
 		(f-call 'vector 'for_each '(r0, [r4 + local_start_elem], [r4 + local_end_elem], [r4 + local_callback], r4) '(_))
-	else
+	(else)
 		(f-call 'vector 'get_element '([r0 + unordered_set_buckets], r7) '(r0))
 		(f-call 'vector 'for_each '(r0, [r4 + local_start_elem], [r0 + vector_length], [r4 + local_callback], r4) '(_))
 
@@ -78,7 +78,7 @@
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator

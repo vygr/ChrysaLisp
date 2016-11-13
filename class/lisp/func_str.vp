@@ -25,16 +25,16 @@
 		(vpif '((args -> obj_vtable == @class/class_string)))
 			(assign '(args) '(value))
 			(func-call 'ref 'ref '(value))
-		else(vpif '((args -> obj_vtable == @class/class_stream_str)))
+		(vpelseif '((args -> obj_vtable == @class/class_stream_str)))
 			(func-call 'stream_str 'ref_string '(args) '(value))
-		else
+		(else)
 			(func-call 'string 'create_from_cstr '("                ") '(value))
 			(func-call 'stream_str 'create '(value) '(stream))
 			(func-call 'lisp 'repl_print '(this, stream, args))
 			(func-call 'stream_str 'ref_string '(stream) '(value))
 			(func-call 'ref 'deref '(stream))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(str arg) wrong numbers of args", args) '(value))
 	(endif)
 

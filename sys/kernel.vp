@@ -75,7 +75,7 @@
 			(vp-cpy-ir r15 kn_msg_function r1)
 			switch
 			case r1, ==, kn_call_task_open
-			run_here:
+			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
 				(vp-cpy-ir r15 (add kn_msg_reply_id id_mbox) r1)
 				(vp-cpy-ir r15 (add kn_msg_reply_id id_cpu) r2)
@@ -87,7 +87,7 @@
 				(vpif '(r0 == 0))
 					;error
 					(vp-cpy-rr r0 r1)
-				else
+				(else)
 					;start this function as task
 					(f-call 'sys_task 'start '(r0) '(_, r1))
 					(f-call 'sys_cpu 'id '() '(r0))
@@ -138,7 +138,7 @@
 					;never seen, so better route
 					(vp-jmp 'better_route)
 				case r2, <, r3
-				better_route:
+				(vp-label 'better_route)
 					;new hops is less, so better route
 					(vp-cpy-ri r2 r0 r11)
 
@@ -153,7 +153,7 @@
 							;via route
 							(vp-cpy-ir r15 kn_msg_link_route_hops r2)
 							(vp-cpy-ri r2 r0 r11 + lk_route_hops)
-						else
+						(else)
 							;none via route
 							(vp-xor-rr r1 r1)
 							(vp-cpy-ri r1 r0 r11 + lk_route_hops)
@@ -206,7 +206,7 @@
 					(vp-cpy-ri r11 r5 (add msg_dest id_cpu))
 					(f-call 'sys_mail 'send '(r5))
 				(loop-end)
-			drop_msg:
+			(vp-label 'drop_msg)
 				(f-call 'sys_mem 'free '(r15))
 				break
 			case r1, ==, kn_call_callback
@@ -289,6 +289,6 @@
 
 	;pop argv and exit !
 	(vp-add-cr ptr_size r4)
-	sys_exit 0
+	(sys-exit '(0))
 
 (def-func-end)

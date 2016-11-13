@@ -40,7 +40,7 @@
 			(assign '(args) '(value))
 			(func-call 'ref 'ref '(value))
 		endswitch
-	else
+	(else)
 		(func-call 'error 'create '("(quasi-quote arg) wrong numbers of args", args) '(value))
 	(endif)
 
@@ -48,7 +48,7 @@
 	(pop-scope)
 	return
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator
@@ -95,8 +95,8 @@ callback:
 			(eval '(0) '(r1))
 			return
 		endswitch
-	else
-	list_quote:
+	(else)
+	(vp-label 'list_quote)
 		(func-call 'ref 'ref '(elem))
 	list_quote1:
 		(func-call 'vector 'create '() '(list))

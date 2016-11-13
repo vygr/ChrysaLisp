@@ -34,8 +34,8 @@
 		(devirt-call 'vector 'get_length '(inst -> master_streams) '(length))
 		(loop-start)
 			(assign '(length - 1) '(length))
-			breakifnot {length}
-			(assign '((inst -> master_streams -> vector_array) [ length * ptr_size  ]) '(stream))
+			(breakifnot '(length))
+			(assign '((inst -> master_streams -> vector_array) [ length * ptr_size ]) '(stream))
 			(loop-start)
 				(virt-call 'stream_msg_in 'read_next '(stream) '(_))
 			(loop-until '((stream -> stream_msg_in_state == stream_mail_state_stopped)))

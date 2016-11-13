@@ -26,7 +26,7 @@
 		goto(vpif '((arg1 == arg2))), same
 		(assign '(this -> lisp_sym_nil) '(value))
 		switch
-		break(vpif '((arg1->obj_vtable != arg2->obj_vtable)))
+		(breakif '((arg1->obj_vtable != arg2->obj_vtable)))
 		case {arg1->obj_vtable == @class/class_string}
 			(func-call 'string 'compare '(arg1, arg2) '(length))
 			gotoifnot {length}, same
@@ -34,12 +34,12 @@
 		case {arg1->obj_vtable == @class/class_boxed_ptr || arg1->obj_vtable == @class/class_boxed_long}
 			(func-call 'boxed_ptr 'get_value '(arg1) '(v1))
 			(func-call 'boxed_ptr 'get_value '(arg2) '(v2))
-			break(vpif '((v1 != v2)))
-		same:
+			(breakif '((v1 != v2)))
+		(vp-label 'same)
 			(assign '(this -> lisp_sym_t) '(value))
 		endswitch
 		(func-call 'ref 'ref '(value))
-	else
+	(else)
 		(func-call 'error 'create '("(eql form form) wrong number of args", args) '(value))
 	(endif)
 

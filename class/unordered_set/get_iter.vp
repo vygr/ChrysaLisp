@@ -36,7 +36,7 @@
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator
@@ -50,7 +50,7 @@ callback:
 	(vpif '(r3 > r2))
 		(vp-sub-rr r2 r3)
 		(vp-cpy-ri r3 r5 local_index)
-	else
+	(else)
 		(vp-cpy-ri r1 r5 local_bucket)
 		(vp-cpy-ir r0 vector_array r1)
 		(vp-mul-cr ptr_size r3)

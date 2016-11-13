@@ -54,7 +54,7 @@
 		;no so try create it
 		(f-call 'sys_task 'callback '($kernel_callback, r4))
 		(vp-cpy-ir r4 local_handle r0)
-	else
+	(else)
 		;yes so LRU to front
 		(ln-remove-fnode r5 r6)
 		(vp-cpy-ir r4 local_bucket r5)
@@ -64,7 +64,7 @@
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
-kernel_callback:
+(vp-label 'kernel_callback)
 	;inputs
 	;r0 = user data
 	;trashes

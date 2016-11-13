@@ -18,7 +18,7 @@
 
 	;init app vars
 	(push-scope)
-	func_path class, obj
+	(func-path 'class 'obj)
 	(func-call 'obj 'init '(& myapp, @ _function_) '(_))
 
 	;create my window
@@ -36,7 +36,7 @@
 
 	;add launch buttons to my app panel
 	(assign '($ launch_list) '(next))
-	(loop-while '((*next)))
+	(loop-while '((* next)))
 		(func-call 'button 'create '() '(button))
 		(func-call 'button 'set_color '(button, 0xffffff00))
 		(func-call 'string 'create_from_cstr '(next) '(string))
@@ -78,7 +78,7 @@
 	(pop-scope)
 	return
 
-on_press:
+(vp-label 'on_press)
 	;inputs
 	;r0 = app local object
 	;r1 = button object
@@ -93,7 +93,7 @@ on_press:
 	(pop-scope)
 	return
 
-launch_list:
+(vp-label 'launch_list)
 	(vp-string "apps/netmon/app") (vp-byte 0)
 	(vp-string "apps/terminal/app") (vp-byte 0)
 	(vp-string "apps/calculator/app") (vp-byte 0)

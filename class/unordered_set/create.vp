@@ -18,7 +18,7 @@
 	(f-call 'unordered_set 'new '() '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		func_path class, unordered_set
+		(func-path 'class 'unordered_set)
 		(f-call 'unordered_set 'init '(r0, @_function_, r6, r7) '(r1))
 		(vpif '(r1 == 0))
 			;error with init

@@ -90,24 +90,24 @@
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
-null_func_down_callback:
+(vp-label 'null_func_down_callback)
 	(vp-cpy-rr r0 r1)
-null_func_up_callback:
+(vp-label 'null_func_up_callback)
 	(vp-ret)
 
-abs_down_callback:
+(vp-label 'abs_down_callback)
 	(vp-add-ir r0 view_x r8)
 	(vp-add-ir r0 view_y r9)
 	(vp-cpy-ri r8 r0 view_ctx_x)
 	(vp-cpy-ri r9 r0 view_ctx_y)
 	(vp-ret)
 
-abs_up_callback:
+(vp-label 'abs_up_callback)
 	(vp-sub-ir r0 view_x r8)
 	(vp-sub-ir r0 view_y r9)
 	(vp-ret)
 
-visible_up_callback:
+(vp-label 'visible_up_callback)
 	(def-struct 'vis)
 		(ptr 'vis_inst)
 		(ptr 'vis_root)
@@ -217,7 +217,7 @@ visible_up_callback:
 	(vp-add-cr vis_size r4)
 	(vp-ret)
 
-distribute_down_callback:
+(vp-label 'distribute_down_callback)
 	(def-struct 'dist)
 		(ptr 'dist_inst)
 		(ptr 'dist_data)
@@ -276,7 +276,7 @@ distribute_down_callback:
 	(vp-add-cr dist_size r4)
 	(vp-ret)
 
-distribute_up_callback:
+(vp-label 'distribute_up_callback)
 	;add myself to draw list if not empty
 	(vp-cpy-ir r0 view_dirty_region r2)
 	(vpif '(r2 != 0))

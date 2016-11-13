@@ -29,13 +29,13 @@
 				(assign '(length >>> cnt) '(length))
 				(func-call 'boxed_long 'create '() '(value))
 				(func-call 'boxed_long 'set_value '(value, length))
-			else
+			(else)
 				(func-call 'error 'create '("(bit-ashr num cnt) not a count", args) '(value))
 			(endif)
-		else
+		(else)
 			(func-call 'error 'create '("(bit-ashr num cnt) not a number", args) '(value))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(bit-ashr num cnt) wrong number of args", args) '(value))
 	(endif)
 

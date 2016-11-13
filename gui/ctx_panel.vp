@@ -96,7 +96,7 @@
 		(vp-sub-rr r12 r11)
 		(vp-sub-rr r12 r11)
 		(f-call 'gui_ctx 'filled_box '([r4 + local_ctx], r8, r9, r12, r11))
-	else
+	(else)
 		;sunken panel
 		(vp-mul-cr -1 r12)
 		(vp-cpy-ri r12 r4 local_depth)

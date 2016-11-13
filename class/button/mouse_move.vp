@@ -18,7 +18,7 @@
 	(vpif '(r1 != 0))
 		;state pressed
 		vp_or button_state_pressed, r2
-	else
+	(else)
 		;state not pressed
 		(vp-and-cr ~button_state_pressed r2)
 	(endif)

@@ -25,10 +25,10 @@
 		(vpif '((value -> obj_vtable == @class/class_boxed_long)))
 			(func-call 'boxed_long 'get_value '(value) '(length))
 			(func-call 'string 'create_from_cstr '(& length) '(value))
-		else
+		(else)
 			(func-call 'error 'create '("(char int) not a number", args) '(value))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(char int) wrong number of args", args) '(value))
 	(endif)
 

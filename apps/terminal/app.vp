@@ -30,24 +30,24 @@
 
 	;init app vars
 	(push-scope)
-	func_path class, obj
+	(func-path 'class 'obj)
 	(func-call 'obj 'init '(& myapp, @ _function_) '(_))
-	(func-call 'master 'create '() '(shared  .  shared_master))
-	(func-call 'vector 'create '() '(shared  .  shared_history))
+	(func-call 'master 'create '() '(shared . shared_master))
+	(func-call 'vector 'create '() '(shared . shared_history))
 	(assign '(0) '(shared . shared_history_index))
 
 	;create my window
-	(func-call 'window 'create '() '(shared  .  shared_window))
-	(func-call 'window 'get_panel '(shared  .  shared_window) '(window_panel))
+	(func-call 'window 'create '() '(shared . shared_window))
+	(func-call 'window 'get_panel '(shared . shared_window) '(window_panel))
 	(func-call 'string 'create_from_cstr '("Terminal") '(string))
-	(func-call 'window 'set_title '(shared  .  shared_window, string))
+	(func-call 'window 'set_title '(shared . shared_window, string))
 	(func-call 'string 'create_from_cstr '("Ready") '(string))
-	(func-call 'window 'set_status '(shared  .  shared_window, string))
+	(func-call 'window 'set_status '(shared . shared_window, string))
 
 	;add my app panel
-	(func-call 'flow 'create '() '(shared  .  shared_panel))
-	(func-call 'flow 'set_flow_flags '(shared  .  shared_panel, flow_flag_down | flow_flag_fillw))
-	(func-call 'flow 'add_back '(shared  .  shared_panel, window_panel))
+	(func-call 'flow 'create '() '(shared . shared_panel))
+	(func-call 'flow 'set_flow_flags '(shared . shared_panel, flow_flag_down | flow_flag_fillw))
+	(func-call 'flow 'add_back '(shared . shared_panel, window_panel))
 
 	;add term lines to my app panel
 	(assign '(40) '(length))
@@ -59,20 +59,20 @@
 		(func-call 'label 'set_color '(label, 0xff000000))
 		(func-call 'label 'set_text_color '(label, 0xff00ff00))
 		(func-call 'label 'set_font '(label, "fonts/Hack-Regular.ttf", 16))
-		(func-call 'label 'add_back '(label, shared  .  shared_panel))
+		(func-call 'label 'add_back '(label, shared . shared_panel))
 	(loop-end)
 
 	;set to pref size
-	(virt-call 'window 'pref_size '(shared  .  shared_window) '(width, height))
-	(func-call 'window 'change '(shared  .  shared_window, 0, 0, 640, height))
+	(virt-call 'window 'pref_size '(shared . shared_window) '(width, height))
+	(func-call 'window 'change '(shared . shared_window, 0, 0, 640, height))
 
 	;set window owner
 	(func-call 'sys_task 'tcb '() '(owner))
-	(func-call 'window 'set_owner '(shared  .  shared_window, owner))
+	(func-call 'window 'set_owner '(shared . shared_window, owner))
 
 	;add to screen and dirty
-	(func-call 'gui_gui 'add '(shared  .  shared_window))
-	(func-call 'window 'dirty_all '(shared  .  shared_window))
+	(func-call 'gui_gui 'add '(shared . shared_window))
+	(func-call 'window 'dirty_all '(shared . shared_window))
 
 	;set up term buffer
 	(assign '(& shared . shared_buffer) '(shared . shared_bufp))
@@ -81,7 +81,7 @@
 	(func-call 'sys_task 'mailbox '() '(mymailbox, _))
 	(loop-start)
 		;select on multiple mailboxes
-		(func-call 'master 'select '(shared  .  shared_master, mymailbox) '(mailbox))
+		(func-call 'master 'select '(shared . shared_master, mymailbox) '(mailbox))
 
 		;which mailbox has mail ?
 		(vpif '((mailbox == mymailbox)))
@@ -89,32 +89,32 @@
 			(func-call 'sys_mail 'read '(mailbox) '(msg))
 			(virt-call 'view 'event '(msg -> ev_msg_view, msg))
 			(vpif '((msg -> ev_msg_type == ev_type_key && msg -> ev_msg_keycode > 0)))
-				local_call terminal_input, {&shared, msg -> ev_msg_key}, {r0, r1}
+				(local-call 'terminal_input '(& shared, msg -> ev_msg_key) '(r0, r1))
 			(endif)
 			(func-call 'sys_mem 'free '(msg))
-		else
+		(else)
 			;output from a pipe element
-			(func-call 'master 'get_stream '(shared  .  shared_master, mailbox) '(stream))
-			local_call pipe_output, {&shared, stream}, {r0, r1}, {r0}, {state}
+			(func-call 'master 'get_stream '(shared . shared_master, mailbox) '(stream))
+			(local-call 'pipe_output '(& shared, stream) '(r0, r1) '(r0) '(state))
 			(vpif '((state == -1)))
 				;EOF
-				(func-call 'master 'stop '(shared  .  shared_master))
+				(func-call 'master 'stop '(shared . shared_master))
 				(func-call 'string 'create_from_cstr '("Ready") '(string))
-				(func-call 'window 'set_status '(shared  .  shared_window, string))
+				(func-call 'window 'set_status '(shared . shared_window, string))
 			(endif)
 		(endif)
 		(func-call 'sys_task 'yield)
 	(loop-end)
 
 	;clean up
-	(func-call 'vector 'deref '(shared  .  shared_history))
-	(func-call 'master 'deref '(shared  .  shared_master))
-	(func-call 'window 'deref '(shared  .  shared_window))
+	(func-call 'vector 'deref '(shared . shared_history))
+	(func-call 'master 'deref '(shared . shared_master))
+	(func-call 'window 'deref '(shared . shared_window))
 	(virt-call 'obj 'deinit '(& myapp))
 	(pop-scope)
 	return
 
-pipe_output:
+(vp-label 'pipe_output)
 	;inputs
 	;r0 = shared
 	;r1 = stream
@@ -129,17 +129,17 @@ pipe_output:
 	(retire '(r0, r1) '(shared, stream))
 
 	(loop-start)
-			(func-call 'stream 'read_char '(stream) '(char))
-		break(vpif '((char == -1)))
-		local_call terminal_output, {shared, char}, {r0, r1}
+		(func-call 'stream 'read_char '(stream) '(char))
+		(breakif '((char == -1)))
+		(local-call 'terminal_output '(shared, char) '(r0, r1))
 		(virt-call 'stream 'read_ready '(stream) '(ready))
-	loop_untilnot {ready}
+	(loop-untilnot '((ready)))
 
 	(eval '(char) '(r0))
 	(pop-scope)
 	return
 
-terminal_input:
+(vp-label 'terminal_input)
 	;inputs
 	;r0 = shared
 	;r1 = char input
@@ -152,7 +152,7 @@ terminal_input:
 	(retire '(r0, r1) '(shared, char))
 
 	;echo char to terminal
-	local_call terminal_output, {shared, char}, {r0, r1}
+	(local-call 'terminal_output '(shared, char) '(r0, r1))
 
 	;buffer char
 	(assign '(char) '(* shared -> shared_bufp))
@@ -164,14 +164,14 @@ terminal_input:
 		(func-call 'master 'get_state '(shared -> shared_master) '(state))
 		(vpif '((state == stream_mail_state_stopped)))
 			;push new history entry if not same as last entry
-			breakifnot {length}
+			(breakifnot '(length))
 			(func-call 'string 'create_from_buffer '(& shared -> shared_buffer, length) '(string))
 			(devirt-call 'vector 'get_length '(shared -> shared_history) '(shared -> shared_history_index))
-			ifnot {shared -> shared_history_index}
-			new_entry:
+			(vpifnot '(shared -> shared_history_index))
+			(vp-label 'new_entry)
 				(func-call 'vector 'push_back '(shared -> shared_history, string))
 				(assign '(shared -> shared_history_index + 1) '(shared -> shared_history_index))
-			else
+			(else)
 				(func-call 'vector 'ref_back '(shared -> shared_history) '(last))
 				(func-call 'string 'compare '(string, last) '(notsame))
 				(func-call 'string 'deref '(last))
@@ -182,10 +182,10 @@ terminal_input:
 			;start new pipe
 			(func-call 'master 'start '(shared -> shared_master, & shared -> shared_buffer, length))
 			(func-call 'master 'get_state '(shared -> shared_master) '(state))
-			break(vpif '((state != stream_mail_state_started)))
+			(breakif '((state != stream_mail_state_started)))
 			(func-call 'string 'create_from_cstr '("Busy") '(string))
 			(func-call 'window 'set_status '(shared -> shared_window, string))
-		else
+		(else)
 			;feed active pipe
 			(func-call 'master 'get_input '(shared -> shared_master) '(stream))
 			(func-call 'stream 'write '(stream, & shared -> shared_buffer, length))
@@ -193,23 +193,23 @@ terminal_input:
 			(virt-call 'stream 'write_flush '(stream))
 		(endif)
 		(assign '(& shared -> shared_buffer) '(shared -> shared_bufp))
-	else(vpif '((char == 128)))
+	(vpelseif '((char == 128)))
 		;backspace
 		(vpif '((length)))
 			(assign '(shared -> shared_bufp - 1) '(shared -> shared_bufp))
 		(endif)
-	else(vpif '((char == 129)))
+	(vpelseif '((char == 129)))
 		;cursor up
 		(devirt-call 'vector 'get_length '(shared -> shared_history) '(length))
-		breakifnot {length}
+		(breakifnot '(length))
 		(vpif '((shared -> shared_history_index)))
 			(assign '(shared -> shared_history_index - 1) '(shared -> shared_history_index))
 		(endif)
 		(devirt-call 'vector 'ref_element '(shared -> shared_history, shared -> shared_history_index) '(string))
 		(func-call 'sys_mem 'copy '(& string -> string_data, & shared -> shared_buffer, string -> string_length) '(_, shared -> shared_bufp))
 		(func-call 'stream 'create '(string, 0, & string -> string_data, string -> string_length) '(stream))
-		local_call pipe_output, {shared, stream}, {r0, r1}
-	else(vpif '((char == 130)))
+		(local-call 'pipe_output '(shared, stream) '(r0, r1))
+	(vpelseif '((char == 130)))
 		;cursor down
 		(devirt-call 'vector 'get_length '(shared -> shared_history) '(length))
 		(assign '(shared -> shared_history_index + 1) '(shared -> shared_history_index))
@@ -218,13 +218,13 @@ terminal_input:
 		(endif)
 		(vpif '((shared -> shared_history_index == length)))
 			(func-call 'string 'create_from_cstr '("") '(string))
-		else
+		(else)
 			(devirt-call 'vector 'ref_element '(shared -> shared_history, shared -> shared_history_index) '(string))
 		(endif)
 		(func-call 'sys_mem 'copy '(& string -> string_data, & shared -> shared_buffer, string -> string_length) '(_, shared -> shared_bufp))
 		(func-call 'stream 'create '(string, 0, & string -> string_data, string -> string_length) '(stream))
-		local_call pipe_output, {shared, stream}, {r0, r1}
-	else(vpif '((char == 27)))
+		(local-call 'pipe_output '(shared, stream) '(r0, r1))
+	(vpelseif '((char == 27)))
 		;esc
 		(func-call 'master 'get_state '(shared -> shared_master) '(state))
 		(vpif '((state == stream_mail_state_started)))
@@ -239,14 +239,14 @@ terminal_input:
 			(virt-call 'stream 'write_next '(stream))
 			(virt-call 'stream 'write_flush '(stream))
 		(endif)
-	else(vpif '((char >= 32 && char < 127)))
+	(vpelseif '((char >= 32 && char < 127)))
 		;next char
 		(assign '(shared -> shared_bufp + 1) '(shared -> shared_bufp))
 	(endif)
 	(pop-scope)
 	return
 
-terminal_output:
+(vp-label 'terminal_output)
 	;inputs
 	;r0 = shared
 	;r1 = char output
@@ -264,7 +264,7 @@ terminal_output:
 		(func-call 'string 'create_from_cstr '(">") '(string))
 		(func-call 'label 'set_text '(label, string))
 		(func-call 'flow 'dirty_all '(shared -> shared_panel))
-	else(vpif '((char == 128)))
+	(vpelseif '((char == 128)))
 		;backspace
 		(func-call 'flow 'get_last '(shared -> shared_panel) '(label))
 		(func-call 'label 'get_text '(label) '(line_string))
@@ -276,13 +276,13 @@ terminal_output:
 		(func-call 'string 'deref '(line_string))
 		(func-call 'label 'set_text '(label, new_line_string))
 		(func-call 'label 'dirty '(label))
-	else(vpif '((char == 129 || char == 130)))
+	(vpelseif '((char == 129 || char == 130)))
 		;cursor up/down
 		(func-call 'flow 'get_last '(shared -> shared_panel) '(label))
 		(func-call 'string 'create_from_cstr '(">") '(string))
 		(func-call 'label 'set_text '(label, string))
 		(func-call 'label 'dirty '(label))
-	else(vpif '((char >= 32 && char < 127)))
+	(vpelseif '((char >= 32 && char < 127)))
 		;append char
 		(func-call 'flow 'get_last '(shared -> shared_panel) '(label))
 		(func-call 'string 'create_from_cstr '(& char) '(string))

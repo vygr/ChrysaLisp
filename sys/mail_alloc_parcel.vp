@@ -12,7 +12,7 @@
 	(vp-cpy-rr r0 r5)
 	(vpif '(r0 <= msg_size))
 		(f-call 'sys_mail 'alloc '() '(r0))
-	else
+	(else)
 		(f-call 'sys_mem 'alloc '(r0) '(r0, _))
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri r1 r0 msg_parcel_size)

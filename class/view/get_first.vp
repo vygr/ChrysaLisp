@@ -14,7 +14,7 @@
 	(ln-get-succ r1 r2)
 	(vpif '(r2 == 0))
 		(vp-cpy-rr r2 r1)
-	else
+	(else)
 		(vp-sub-cr view_node r1)
 	(endif)
 	(vp-ret)

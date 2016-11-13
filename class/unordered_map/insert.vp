@@ -48,7 +48,7 @@
 		(vp-cpy-ir r0 vector_length r1)
 		(vp-cpy-ir r0 vector_array r0)
 		(vp-lea-ir r0 (r1 * ptr_size) - ptr_size r1)
-	else
+	(else)
 		;old key
 		(vp-cpy-ri r1 r4 local_iter)
 		(vp-cpy-ir r1 r2)
@@ -66,7 +66,7 @@
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator

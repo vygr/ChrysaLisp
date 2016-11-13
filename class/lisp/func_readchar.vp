@@ -27,14 +27,14 @@
 			(vpif '((length == -1)))
 				(assign '(this -> lisp_sym_nil) '(value))
 				(func-call 'ref 'ref '(value))
-			else
+			(else)
 				(func-call 'boxed_long 'create '() '(value))
 				(func-call 'boxed_long 'set_value '(value, length))
 			(endif)
-		else
+		(else)
 			(func-call 'error 'create '("(read-char stream) not a stream", args) '(value))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(read-char stream) wrong number of args", args) '(value))
 	(endif)
 

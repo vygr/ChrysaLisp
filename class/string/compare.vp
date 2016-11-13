@@ -16,7 +16,7 @@
 		(vp-push r0)
 		(f-call 'sys_string 'compare '(&[r0 + string_data], &[r1 + string_data]) '(r1))
 		(vp-pop r0)
-	else
+	(else)
 		(vp-xor-rr r1 r1)
 	(endif)
 	(vp-ret)

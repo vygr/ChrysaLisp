@@ -61,7 +61,7 @@
 			(vp-cpy-rr r14 r1)
 			(ln-remove-node r1 r2)
 			(f-call 'sys_mail 'send '(r14))
-		else
+		(else)
 			;no, update total so far
 			(vp-cpy-ri r13 r14 msg_parcel_total)
 		(endif)

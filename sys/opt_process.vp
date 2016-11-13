@@ -33,13 +33,13 @@
 			(vp-add-cr ptr_size r12)
 			(vp-and-cr (sub 0 ptr_size) r12)
 		(loop-end)
-	next_arg:
+	(vp-label 'next_arg)
 		(vp-cpy-ir r14 r0)
 		(vp-add-cr ptr_size r14)
 	(loop-until '(r0 == 0))
 	(vp-ret)
 
-opt_cpu:
+(vp-label 'opt_cpu)
 	;inputs
 	;r14 = arg pointer
 	;outputs
@@ -55,7 +55,7 @@ opt_cpu:
 	(endif)
 	(vp-ret)
 
-opt_run:
+(vp-label 'opt_run)
 	;inputs
 	;r14 = arg pointer
 	;outputs
@@ -72,7 +72,7 @@ opt_run:
 	(endif)
 	(vp-ret)
 
-opt_link:
+(vp-label 'opt_link)
 	;inputs
 	;r14 = arg pointer
 	;outputs
@@ -83,7 +83,7 @@ opt_link:
 	(vp-cpy-ir r14 r0)
 	(vpif '(r0 != 0))
 		;start link
-		func_path sys_link, link
+		(func-path 'sys_link 'link)
 		(f-call 'sys_task 'start '(@_function_) '(r0, r5))
 		(f-call 'sys_cpu 'id '() '(r6))
 
@@ -106,11 +106,11 @@ opt_link:
 	(endif)
 	(vp-ret)
 
-link_path:
+(vp-label 'link_path)
 	(vp-string "/tmp/") (vp-byte 0)
 
 	align 8, db 0
-options_table:
+(vp-label 'options_table)
 	dq	opt_cpu - options_table
 		db	'-cpu', 0
 		align 8, db 0

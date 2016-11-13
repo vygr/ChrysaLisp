@@ -29,7 +29,7 @@
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
-callback:
+(vp-label 'callback)
 	(vp-push r1)
 	(v-call 'view 'pref_size '(r0) '(r10, r11))
 	(vp-pop r1)

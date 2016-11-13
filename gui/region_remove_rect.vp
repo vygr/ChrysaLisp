@@ -233,26 +233,26 @@
 				(vp-cpy-ri-i r9 r1 gui_rect_y1)
 				(continue)
 
-			rem_encl:
+			(vp-label 'rem_encl)
 				;region is enclosed
 				(vp-cpy-rr r7 r1)
 				(ln-remove-fnode r7 r6)
 				(hp-freecell r0 r1 r2)
 				(continue)
 
-			rem_x:
+			(vp-label 'rem_x)
 				;r8 inside
 				;left part
 				(vp-cpy-ri-i r8 r7 gui_rect_x1)
 				(continue)
 
-			rem_y:
+			(vp-label 'rem_y)
 				;r9 inside
 				;top part
 				(vp-cpy-ri-i r9 r7 gui_rect_y1)
 				(continue)
 
-			rem_xy:
+			(vp-label 'rem_xy)
 				;r8 + r9 inside
 				;left part
 				(vp-cpy-ri-i r9 r7 gui_rect_y)

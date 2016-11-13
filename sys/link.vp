@@ -51,7 +51,7 @@
 		(vp-cpy-rr r2 r1)
 		(vp-cpy-cr lk_buffer_chan_1 r10)
 		(vp-cpy-cr lk_buffer_chan_2 r11)
-	else
+	(else)
 		(vp-cpy-cr lk_buffer_chan_2 r10)
 		(vp-cpy-cr lk_buffer_chan_1 r11)
 	(endif)
@@ -112,7 +112,7 @@
 
 		;check if we need to grab a new message
 		(vpif '(r9 == 0))
-		more_output:
+		(vp-label 'more_output)
 			;no outgoing message so see if any off chip mail for me
 			(vp-cpy-ir r4 lk_node_cpu_id r0)
 			(f-bind 'sys_mail 'statics r8)

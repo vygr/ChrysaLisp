@@ -21,7 +21,7 @@
 	(vpif '(r1 == 0))
 		;not found
 		(vp-cpy-rr r1 r0)
-	else
+	(else)
 		;remove found from list
 		(vp-cpy-rr r0 r1)
 		(ln-remove-node r1 r2)

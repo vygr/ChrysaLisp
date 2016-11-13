@@ -28,11 +28,11 @@
 			goto(vpif '((iter))), error
 			(func-call 'boxed_long 'create '() '(value))
 			(func-call 'boxed_long 'set_value '(value, accum))
-		else
-		error:
+		(else)
+		(vp-label 'error)
 			(func-call 'error 'create '("(div val val ... ) vals are not all numbers", args) '(value))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(div val val ... ) not enough args", args) '(value))
 	(endif)
 
@@ -40,7 +40,7 @@
 	(pop-scope)
 	return
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator
@@ -59,10 +59,10 @@ callback:
 		(vpif '((val)))
 			(assign '(* pdata // val) '(* pdata))
 			(eval '(1) '(r1))
-		else
+		(else)
 			(eval '(0) '(r1))
 		(endif)
-	else
+	(else)
 		(eval '(0) '(r1))
 	(endif)
 

@@ -35,7 +35,7 @@
 		(assign '(this -> lisp_sym_t) '(value))
 		(func-call 'ref 'ref '(value))
 		(func-call 'vector 'for_each '(args, 0, length, $ callback, & this) '(_))
-	else
+	(else)
 		(func-call 'error 'create '("(ne num num ... ) wrong number of args", args) '(value))
 	(endif)
 
@@ -43,7 +43,7 @@
 	(pop-scope)
 	return
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator
@@ -71,7 +71,7 @@ callback:
 		(loop-end)
 		(eval '(1) '(r1))
 		return
-	else
+	(else)
 		(func-call 'ref 'deref '(pdata -> pdata_value))
 		(func-call 'error 'create '("(ne num num ... ) not all numbers", * iter) '(pdata -> pdata_value))
 	(endif)

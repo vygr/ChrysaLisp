@@ -25,14 +25,14 @@
 			(func-call 'vector 'get_element '(args, index) '(var))
 			(func-call 'vector 'get_element '(args, index + 1) '(val))
 			(func-call 'lisp 'repl_eval '(this, val) '(val))
-			break(vpif '((val -> obj_vtable == @class/class_error)))
+			(breakif '((val -> obj_vtable == @class/class_error)))
 			(assign '(val) '(eval))
 			(func-call 'lisp 'env_set '(this, var, eval) '(val))
 			(func-call 'ref 'deref '(eval))
-			break(vpif '((val -> obj_vtable == @class/class_error)))
+			(breakif '((val -> obj_vtable == @class/class_error)))
 			(assign '(index + 2) '(index))
 		(loop-until '((index == length)))
-	else
+	(else)
 		(func-call 'error 'create '("(setq var val ... ) wrong numbers of args", args) '(val))
 	(endif)
 

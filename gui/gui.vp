@@ -55,7 +55,7 @@
 
 	;gui event loop
 	(loop-start)
-	next_frame:
+	(vp-label 'next_frame)
 		;kernel callback for update
 		(f-call 'sys_task 'callback '($update_callback, r4))
 
@@ -156,7 +156,7 @@
 		;dispatch to task and target view
 		(vp-cpy-ir r4 local_last_view r6)
 		(vpif '(r6 != 0))
-		send_mouse:
+		(vp-label 'send_mouse)
 			;do we need to wait till button goes up ?
 			(vpif '(r6 != -1))
 				;lookup view owner
@@ -197,7 +197,7 @@
 			(vpif '(r10 == 0))
 				(vp-cpy-ri r10 r4 local_last_view)
 			(endif)
-		else
+		(else)
 			;button down ?
 			(vpif '(r10 != 0))
 				;find view
@@ -212,7 +212,7 @@
 				(vp-cpy-ri r1 r4 local_last_view)
 				(vp-cpy-rr r1 r6)
 				(vp-jmp 'send_mouse)
-			else
+			(else)
 				;hover
 				;find view for keys
 				(f-bind 'gui_gui 'statics r5)
@@ -234,7 +234,7 @@
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
-update_callback:
+(vp-label 'update_callback)
 	;inputs
 	;r0 = user data
 
@@ -306,7 +306,7 @@ update_callback:
 	(vp-cpy-ir r4 klocal_old_stack r4)
 	(vp-ret)
 
-deinit_callback:
+(vp-label 'deinit_callback)
 	;inputs
 	;r0 = user data
 
@@ -344,10 +344,10 @@ deinit_callback:
 	(endif)
 	(vp-ret)
 
-title:
+(vp-label 'title)
 	(vp-string "Asm Kernel GUI Window") (vp-byte 0)
 
-scan_codes:
+(vp-label 'scan_codes)
 	db 4, 'aA', 5, 'bB', 6, 'cC', 7, 'dD', 8, 'eE', 9, 'fF', 10, 'gG', 11, 'hH'
 	db 12, 'iI', 13, 'jJ', 14, 'kK', 15, 'lL', 16, 'mM', 17, 'nN', 18, 'oO', 19, 'pP'
 	db 20, 'qQ', 21, 'rR', 22, 'sS', 23, 'tT', 24, 'uU', 25, 'vV', 26, 'wW', 27, 'xX'
@@ -366,6 +366,6 @@ scan_codes:
 	db 0x4f, 0, 0		;right
 	db 0x52, 129, 129	;up
 	db 0x51, 130, 130	;down
-scan_codes_end:
+(vp-label 'scan_codes_end)
 
 (def-func-end)

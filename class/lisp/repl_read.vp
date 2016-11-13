@@ -37,7 +37,7 @@
 	(retire '(r0, r1, r2) '(this, stream, char))
 
 	;skip white space
-skip_white:
+(vp-label 'skip_white)
 	(loop-while '((char <= char_space && char != -1)))
 		(func-call 'stream 'read_char '(stream) '(char))
 	(loop-end)
@@ -84,7 +84,7 @@ skip_white:
 		default
 			(func-call 'lisp 'repl_read_sym '(this, stream, char) '(ast, char))
 		endswitch
-	else
+	(else)
 		(assign '(this -> lisp_sym_nil) '(ast))
 		(func-call 'ref 'ref '(ast))
 	(endif)

@@ -37,10 +37,10 @@
 			(assign '(this -> lisp_sym_t) '(value))
 			(func-call 'ref 'ref '(value))
 			(func-call 'vector 'for_each '(args, 1, length, $ callback, & this) '(_))
-		else
+		(else)
 			(func-call 'error 'create '("(ge num num ... ) not all numbers", first) '(value))
 		(endif)
-	else
+	(else)
 		(func-call 'error 'create '("(ge num num ... ) wrong number of args", args) '(value))
 	(endif)
 
@@ -48,7 +48,7 @@
 	(pop-scope)
 	return
 
-callback:
+(vp-label 'callback)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator
@@ -68,12 +68,12 @@ callback:
 			(assign '(num) '(pdata -> pdata_num))
 			(eval '(1) '(r1))
 			return
-		else
+		(else)
 			(func-call 'ref 'deref '(pdata -> pdata_value))
 			(assign '(pdata -> pdata_this -> lisp_sym_nil) '(pdata -> pdata_value))
 			(func-call 'ref 'ref '(pdata -> pdata_value))
 		(endif)
-	else
+	(else)
 		(func-call 'ref 'deref '(pdata -> pdata_value))
 		(func-call 'error 'create '("(ge num num ... ) not all numbers", * iter) '(pdata -> pdata_value))
 	(endif)

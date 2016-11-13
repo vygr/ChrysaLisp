@@ -19,7 +19,7 @@
 	(devirt-call 'vector 'get_length '(args) '(length))
 	(vpif '((length)))
 		(devirt-call 'vector 'ref_element '(args, length - 1) '(args))
-	else
+	(else)
 		(assign '(this -> lisp_sym_nil) '(args))
 		(func-call 'ref 'ref '(args))
 	(endif)

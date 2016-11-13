@@ -31,7 +31,7 @@
 			(virt-call 'stream 'write_flush '(this -> lisp_stderr))
 
 			(func-call 'lisp 'repl_read '(this, stream, char) '(ast, char))
-			break(vpif '((char == -1)))
+			(breakif '((char == -1)))
 
 			(vpif '((stream == this -> lisp_stdin)))
 				(func-call 'stream 'write_cstr '(this -> lisp_stdout, "--Ast--"))
@@ -61,7 +61,7 @@
 			(vpif '((value -> obj_vtable == @class/class_error)))
 				(func-call 'lisp 'repl_print '(this, this -> lisp_stderr, value))
 				(func-call 'stream 'write_char '(this -> lisp_stderr, char_lf))
-			else(vpif '((stream == this -> lisp_stdin)))
+			(vpelseif '((stream == this -> lisp_stdin)))
 				(func-call 'lisp 'repl_print '(this, this -> lisp_stdout, value))
 				(func-call 'stream 'write_char '(this -> lisp_stdout, char_lf))
 			(endif)
@@ -71,7 +71,7 @@
 
 		(assign '(this -> lisp_sym_t) '(value))
 		(func-call 'ref 'ref '(value))
-	else
+	(else)
 		(func-call 'error 'create '("(repl stream) wrong number of args", args) '(value))
 	(endif)
 

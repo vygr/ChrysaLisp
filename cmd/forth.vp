@@ -30,21 +30,21 @@
 			;this allows forth to push include files on this input stack
 			(loop-start)
 				(devirt-call 'vector 'get_length '(vector) '(length))
-				breakifnot {length}
+				(breakifnot '(length))
 				(func-call 'vector 'ref_back '(vector) '(stream))
 				(func-call 'vector 'pop_back '(vector))
 				(loop-start)
 					(func-call 'stream 'read_line '(stream, & buffer, buffer_size) '(length))
-					break(vpif '((length == -1)))
-					local_call input, {slave, &buffer, length}, {r0, r1, r2}
+					(breakif '((length == -1)))
+					(local-call 'input '(slave, &buffer, length) '(r0, r1, r2))
 				(loop-end)
 				(func-call 'stream 'deref '(stream))
 			(loop-end)
 
 			;read stdin, exit if EOF
 			(func-call 'stream 'read_line '(slave -> slave_stdin, & buffer, buffer_size) '(length))
-			break(vpif '((length == -1)))
-			local_call input, {slave, &buffer, length}, {r0, r1, r2}
+			(breakif '((length == -1)))
+			(local-call 'input '(slave, &buffer, length) '(r0, r1, r2))
 		(loop-end)
 
 		;clean up
@@ -54,7 +54,7 @@
 	(pop-scope)
 	return
 
-input:
+(vp-label 'input)
 	;inputs
 	;r0 = slave
 	;r1 = buffer
@@ -151,7 +151,7 @@ dic_%3:
 %endm					; assembler code follows
 
 %macro defword_end 0
-%$code_end:
+%$(vp-label 'code_end)
 	%pop
 %endm
 
@@ -187,7 +187,7 @@ defword "@", 0, word_fetch, word_inline_comma
 defword_end
 
 defword "c@", 0, word_fetchbyte, word_inline_comma
-	;( a -- [a].b )
+	;( a -- [a] . b )
 	loadsp t1
 	vp_cpy_ub [t1], t1
 	storesp t1
