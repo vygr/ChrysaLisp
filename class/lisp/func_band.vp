@@ -47,14 +47,14 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	plong pdata
+	(plong 'pdata)
 	(pptr 'iter)
 	(long 'val)
 
 	(push-scope)
 	(retire '(r0, r1) '(pdata, iter))
 
-	(vpif '(((*iter)->obj_vtable == @class/class_boxed_long)))
+	(vpif '(((* iter) -> obj_vtable == @class/class_boxed_long)))
 		(func-call 'boxed_long 'get_value '(* iter) '(val))
 		(assign '(* pdata & val) '(* pdata))
 		(eval '(1) '(r1))

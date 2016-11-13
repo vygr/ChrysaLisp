@@ -65,7 +65,7 @@
 	(assign '(* iter) '(elem))
 	(vpif '((elem -> obj_vtable == @class/class_vector)))
 		(devirt-call 'vector 'get_length '(elem) '(length))
-		gotoifnot {length}, list_quote
+		(gotoifnot '((length)) 'list_quote)
 		(func-call 'vector 'get_element '(elem, 0) '(sym))
 		(switch)
 		(case '((sym == pdata -> pdata_this -> lisp_sym_unquote)))

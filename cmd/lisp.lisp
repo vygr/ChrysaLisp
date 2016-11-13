@@ -140,7 +140,9 @@
 (defun equalp (x y)
 	(eql (str x) (str y)))
 
-"Math functions"
+;;;;;;;;;;;;;;;;
+; Math functions
+;;;;;;;;;;;;;;;;
 
 (defun inc (x)
 	(add x 1))
@@ -156,6 +158,9 @@
 
 (defun divmod (x y)
 	(list (div x y) (mod x y)))
+
+(defun bit-not (x)
+	(bit-xor x -1))
 
 ;;;;;;;;;
 ; Streams
