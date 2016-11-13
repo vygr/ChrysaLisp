@@ -62,7 +62,7 @@
 			loop_while {index != length}
 				if {ids[index * id_size].id_mbox != 0}
 					assign {started + 1}, {started}
-				endif
+				(endif)
 				assign {index + 1}, {index}
 			(loop-end)
 
@@ -122,21 +122,21 @@
 				;send abort to any started pipe elements
 				loop_while {index != 0}
 					assign {index - 1}, {index}
-					continueif {ids[index * id_size].id_mbox == 0}
+					(continueif '(ids[index * id_size].id_mbox == 0))
 					func_call sys_mail, alloc, {}, {msg}
 					assign {ids[index * id_size].id_mbox}, {msg->msg_dest.id_mbox}
 					assign {ids[index * id_size].id_cpu}, {msg->msg_dest.id_cpu}
 					func_call sys_mail, send, {msg}
 				(loop-end)
-			endif
+			(endif)
 
 			;free ids
 			func_call sys_mem, free, {ids}
-		endif
+		(endif)
 
 		;free args
 		func_call vector, deref, {args}
-	endif
+	(endif)
 
 	eval {inst}, {r0}
 	pop_scope

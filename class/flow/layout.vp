@@ -18,16 +18,16 @@
 	(vp-cpy-ri r1 r4 local_y)
 	(vp-cpy-ir r0 flow_flags r1)
 	(vp-and-cr flow_flag_left r1)
-	if r1, !=, 0
+	(vpif '(r1 != 0))
 		(vp-cpy-ir r0 view_w r1)
 		(vp-cpy-ri r1 r4 local_x)
-	endif
+	(endif)
 	(vp-cpy-ir r0 flow_flags r1)
 	(vp-and-cr flow_flag_up r1)
-	if r1, !=, 0
+	(vpif '(r1 != 0))
 		(vp-cpy-ir r0 view_h r1)
 		(vp-cpy-ri r1 r4 local_y)
-	endif
+	(endif)
 
 	(f-call 'flow 'forward '(r0, r4, $callback))
 
@@ -46,101 +46,101 @@ callback:
 	(vp-cpy-ir r0 view_parent r2)
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_down r3)
-	if r3, !=, 0
+	(vpif '(r3 != 0))
 		;flow down
 		(vp-lea-ir r9 r11 r13)
-	endif
+	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_up r3)
-	if r3, !=, 0
+	(vpif '(r3 != 0))
 		;flow up
 		(vp-sub-rr r11 r9)
 		(vp-cpy-rr r9 r13)
-	endif
+	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_right r3)
-	if r3, !=, 0
+	(vpif '(r3 != 0))
 		;flow right
 		(vp-lea-ir r8 r10 r12)
-	endif
+	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_left r3)
-	if r3, !=, 0
+	(vpif '(r3 != 0))
 		;flow left
 		(vp-sub-rr r10 r8)
 		(vp-cpy-rr r8 r12)
-	endif
+	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_fillw r3)
-	if r3, !=, 0
+	(vpif '(r3 != 0))
 		;fill width of parent
 		(vp-cpy-ir r2 view_w r10)
 		(vp-xor-rr r8 r8)
-	endif
+	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_fillh r3)
-	if r3, !=, 0
+	(vpif '(r3 != 0))
 		;fill height of parent
 		(vp-cpy-ir r2 view_h r11)
 		(vp-xor-rr r9 r9)
-	endif
+	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_lastw r3)
-	if r3, !=, 0
+	(vpif '(r3 != 0))
 		;last one fills width gap of parent
 		ln_is_last r0 + view_node, r3
-		if r3, ==, 0
+		(vpif '(r3 == 0))
 			(vp-cpy-ir r2 flow_flags r3)
 			(vp-and-cr flow_flag_right r3)
-			if r3, !=, 0
+			(vpif '(r3 != 0))
 				;flow right
 				(vp-lea-ir r8 r10 r15)
 				(vp-sub-ir r2 view_w r15)
 				(vp-sub-rr r15 r10)
-			endif
+			(endif)
 			(vp-cpy-ir r2 flow_flags r3)
 			(vp-and-cr flow_flag_left r3)
-			if r3, !=, 0
+			(vpif '(r3 != 0))
 				;flow left
 				(vp-add-rr r8 r10)
 				(vp-xor-rr r8 r8)
-			endif
-		endif
-	endif
+			(endif)
+		(endif)
+	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_lasth r3)
-	if r3, !=, 0
+	(vpif '(r3 != 0))
 		;last one fills height gap of parent
 		ln_is_last r0 + view_node, r3
-		if r3, ==, 0
+		(vpif '(r3 == 0))
 			(vp-cpy-ir r2 flow_flags r3)
 			(vp-and-cr flow_flag_down r3)
-			if r3, !=, 0
+			(vpif '(r3 != 0))
 				;flow down
 				(vp-lea-ir r9 r11 r15)
 				(vp-sub-ir r2 view_h r15)
 				(vp-sub-rr r15 r11)
-			endif
+			(endif)
 			(vp-cpy-ir r2 flow_flags r3)
 			(vp-and-cr flow_flag_up r3)
-			if r3, !=, 0
+			(vpif '(r3 != 0))
 				;flow up
 				(vp-add-rr r9 r11)
 				(vp-xor-rr r9 r9)
-			endif
-		endif
-	endif
+			(endif)
+		(endif)
+	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_align_hcenter | flow_flag_align_hleft | flow_flag_align_hright r3)
-	if r3, !=, 0
+	(vpif '(r3 != 0))
 		(vp-cpy-ir r2 view_w r8)
 		(vp-sub-rr r10 r8)
 		switch
@@ -150,11 +150,11 @@ callback:
 		case r3, ==, flow_flag_align_hleft
 			(vp-xor-rr r8 r8)
 		endswitch
-	endif
+	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_align_vcenter | flow_flag_align_vtop | flow_flag_align_vbottom r3)
-	if r3, !=, 0
+	(vpif '(r3 != 0))
 		(vp-cpy-ir r2 view_h r9)
 		(vp-sub-rr r11 r9)
 		switch
@@ -164,7 +164,7 @@ callback:
 		case r3, ==, flow_flag_align_vtop
 			(vp-xor-rr r9 r9)
 		endswitch
-	endif
+	(endif)
 
 	(vp-cpy-ri r12 r1 local_x)
 	(vp-cpy-ri r13 r1 local_y)

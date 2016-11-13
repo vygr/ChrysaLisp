@@ -55,7 +55,7 @@ callback:
 				assign {test}, {pdata->pdata_value}
 				eval {0}, {r1}
 				return
-			endif
+			(endif)
 			if {test != pdata->pdata_this->lisp_sym_nil}
 				func_call ref, deref, {test}
 				func_call vector, for_each, {*iter, 1, length, $callback1, pdata}, {_}
@@ -65,15 +65,15 @@ callback:
 				func_call ref, deref, {test}
 				eval {1}, {r1}
 				return
-			endif
+			(endif)
 		else
 			func_call ref, deref, {pdata->pdata_value}
 			func_call error, create, {"(cond (tst form ...) ...) clause wrong number of args", *iter}, {pdata->pdata_value}
-		endif
+		(endif)
 	else
 		func_call ref, deref, {pdata->pdata_value}
 		func_call error, create, {"(cond (tst form ...) ...) clause not list", *iter}, {pdata->pdata_value}
-	endif
+	(endif)
 
 	eval {0}, {r1}
 	pop_scope

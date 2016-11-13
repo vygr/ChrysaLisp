@@ -119,7 +119,7 @@
 				func_call sys_cpu, id, {}, {msg->sample_msg_reply_id.id_cpu}
 				func_call sys_mail, send, {msg}
 			loop_untilnot {cpu_count}
-		endif
+		(endif)
 
 		;select on multiple mailboxes
 		func_call sys_mail, select, {&select, sel_size >> 3}, {mailbox}
@@ -134,7 +134,7 @@
 			assign {msg->sample_msg_task_count}, {value}
 			if {value > max_tasks}
 				assign {value}, {max_tasks}
-			endif
+			(endif)
 			assign {task_progress[msg->sample_msg_index]}, {progress}
 			func_call progress, set_max, {progress, max_tasks}
 			func_call progress, set_val, {progress, value}
@@ -149,7 +149,7 @@
 
 			;count up replies
 			assign {cpu_count + 1}, {cpu_count}
-		endif
+		(endif)
 
 		;free event message
 		func_call sys_mem, free, {msg}

@@ -16,45 +16,45 @@
 	;allocate link node on stack and link to links list
 	(vp-sub-cr lk_node_size r4)
 	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r1 r4 lk_node_table + lk_table_array)
-	(vp-cpy-ri r1 r4 lk_node_table + lk_table_array_size)
+	(vp-cpy-ri r1 r4 (add lk_node_table lk_table_array))
+	(vp-cpy-ri r1 r4 (add lk_node_table lk_table_array_size))
 	(f-bind 'sys_link 'statics r1)
 	(vp-lea-ir r1 lk_statics_links_list r1)
-	lh_add_at_head r1, r4, r2
+	(lh-add-at-head r1 r4 r2)
 
 	;read params msg from kernel
 	(f-call 'sys_mail 'mymail '() '(r14))
 
 	;init link node cpu id and task count
-	(vp-cpy-ir-ub r14 msg_data + 5 r0)
-	(vp-cpy-ir-ub r14 msg_data + 6 r1)
-	(vp-cpy-ir-ub r14 msg_data + 7 r2)
-	(vp-sub-cr '0' r0)
-	(vp-sub-cr '0' r1)
-	(vp-sub-cr '0' r2)
+	(vp-cpy-ir-ub r14 (add msg_data 5) r0)
+	(vp-cpy-ir-ub r14 (add msg_data 6) r1)
+	(vp-cpy-ir-ub r14 (add msg_data 7) r2)
+	(vp-sub-cr (code "0") r0)
+	(vp-sub-cr (code "0") r1)
+	(vp-sub-cr (code "0") r2)
 	(vp-mul-cr 100 r0)
 	(vp-mul-cr 10 r1)
 	(vp-add-rr r0 r1)
 	(vp-add-rr r2 r1)
-	(vp-cpy-ir-ub r14 msg_data + 9 r0)
-	(vp-cpy-ir-ub r14 msg_data + 10 r2)
-	(vp-cpy-ir-ub r14 msg_data + 11 r3)
-	(vp-sub-cr '0' r0)
-	(vp-sub-cr '0' r2)
-	(vp-sub-cr '0' r3)
+	(vp-cpy-ir-ub r14 (add msg_data 9) r0)
+	(vp-cpy-ir-ub r14 (add msg_data 10) r2)
+	(vp-cpy-ir-ub r14 (add msg_data 11) r3)
+	(vp-sub-cr (code "0") r0)
+	(vp-sub-cr (code "0") r2)
+	(vp-sub-cr (code "0") r3)
 	(vp-mul-cr 100 r0)
 	(vp-mul-cr 10 r2)
 	(vp-add-rr r0 r2)
 	(vp-add-rr r3 r2)
 	(f-call 'sys_cpu 'id '() '(r0))
-	if r1, ==, r0
+	(vpif '(r1 == r0))
 		(vp-cpy-rr r2 r1)
 		(vp-cpy-cr lk_buffer_chan_1 r10)
 		(vp-cpy-cr lk_buffer_chan_2 r11)
 	else
 		(vp-cpy-cr lk_buffer_chan_2 r10)
 		(vp-cpy-cr lk_buffer_chan_1 r11)
-	endif
+	(endif)
 	(vp-cpy-ri r1 r4 lk_node_cpu_id)
 	(vp-xor-rr r8 r8)
 	(vp-cpy-ri r8 r4 lk_node_task_count)
@@ -65,11 +65,11 @@
 	(f-call 'sys_mail 'alloc '() '(r0))
 	(assert '(r0, !=, 0))
 	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r1 r0 msg_dest + id_mbox)
-	(vp-cpy-ri r9 r0 msg_dest + id_cpu)
+	(vp-cpy-ri r1 r0 (add msg_dest id_mbox))
+	(vp-cpy-ri r9 r0 (add msg_dest id_cpu))
 	(vp-cpy-ri r1 r0 kn_msg_user)
-	(vp-cpy-ri r1 r0 kn_msg_reply_id + id_mbox)
-	(vp-cpy-ri r1 r0 kn_msg_reply_id + id_cpu)
+	(vp-cpy-ri r1 r0 (add kn_msg_reply_id id_mbox))
+	(vp-cpy-ri r1 r0 (add kn_msg_reply_id id_cpu))
 	(vp-cpy-cr kn_call_task_route r1)
 	(vp-cpy-ri r1 r0 kn_msg_function)
 	(vp-cpy-ri r8 r0 kn_msg_link_route_origin)
@@ -82,11 +82,11 @@
 
 	;open shared memory file
 	(vp-lea-ir r14 msg_data r0)
-	sys_open r0, o_creat | o_rdwr, s_irusr | s_iwusr
+	(sys-open '(r0, o_creat | o_rdwr, s_irusr | s_iwusr))
 	(vp-cpy-rr r0 r13)
 
 	;set size of region
-	sys_ftruncate r13, lk_buffer_size
+	(sys-ftruncate '(r13, lk_buffer_size))
 
 	;map shared object
 	(sys-mmap '(0, lk_buffer_size, prot_read | prot_write, map_shared, r13, 0))
@@ -111,29 +111,29 @@
 		(vp-cpy-ri r0 r4 lk_node_task_count)
 
 		;check if we need to grab a new message
-		if r9, ==, 0
+		(vpif '(r9 == 0))
 		more_output:
 			;no outgoing message so see if any off chip mail for me
 			(vp-cpy-ir r4 lk_node_cpu_id r0)
 			(f-bind 'sys_mail 'statics r8)
 			(loop-list-forward r8 + ml_statics_offchip_list, r7, r8)
-				(vp-cpy-ir r7 msg_dest + id_cpu r2)
+				(vp-cpy-ir r7 (add msg_dest id_cpu) r2)
 				(breakif '(r0 == r2))
-				(vp-cpy-ir r4 lk_node_table + lk_table_array r1)
+				(vp-cpy-ir r4 (add lk_node_table lk_table_array) r1)
 				(continueif '(r1 == 0))
 				(vp-mul-cr lk_route_size r2)
 				(vp-cpy-ir r1 r2 + lk_route_hops r1)
 			(loop-until '(r1 != 0))
-			if r8, !=, 0
+			(vpif '(r8 != 0))
 				(vp-cpy-rr r7 r9)
 				(ln-remove-node r7 r1)
-			endif
-		endif
+			(endif)
+		(endif)
 
 		;if we have a message to send then see if we can send it
-		if r9, !=, 0
+		(vpif '(r9 != 0))
 			(vp-cpy-ir r10 lk_chan_status r0)
-			if r0, ==, lk_chan_status_ready
+			(vpif '(r0 == lk_chan_status_ready))
 				;copy message data
 				;round up to next 8 byte boundary for speed
 				(vp-lea-ir r10 lk_chan_msg r1)
@@ -149,13 +149,13 @@
 				(vp-cpy-cr lk_chan_status_busy r1)
 				(vp-cpy-ri r1 r10 lk_chan_status)
 				(vp-xor-rr r9 r9)
-				vp_jmp more_output
-			endif
-		endif
+				(vp-jmp 'more_output)
+			(endif)
+		(endif)
 
 		;check for received message
 		(vp-cpy-ir r11 lk_chan_status r0)
-		if r0, ==, lk_chan_status_busy
+		(vpif '(r0 == lk_chan_status_busy))
 			;allocate msg, copy over data
 			;round up to next 8 byte boundary for speed
 			(f-call 'sys_mail 'alloc '() '(r0))
@@ -174,7 +174,7 @@
 			;clear status
 			(vp-cpy-cr lk_chan_status_ready r1)
 			(vp-cpy-ri r1 r11 lk_chan_status)
-		endif
+		(endif)
 
 		;let other links run
 		(f-call 'sys_task 'yield)
@@ -184,11 +184,11 @@
 		(continueif '(r0 == lk_chan_status_busy))
 		(vp-cpy-cr 0 r1)
 		(vp-cpy-ir r10 lk_chan_status r0)
-		if r0, ==, lk_chan_status_ready
-			if r9, !=, 0
+		(vpif '(r0 == lk_chan_status_ready))
+			(vpif '(r9 != 0))
 				(vp-cpy-cr 1 r1)
-			endif
-		endif
+			(endif)
+		(endif)
 		(continueif '(r1 != 0))
 
 		;small sleep if so
@@ -202,11 +202,11 @@
 	(sys-munmap '(r12, lk_buffer_size))
 
 	;close it
-	sys_close r13
+	(sys-close '(r13))
 
 	;unlink shared object
 	(vp-lea-ir r14 msg_data r0)
-	sys_unlink r0
+	(sys-unlink '(r0))
 
 	;free params msg
 	(f-call 'sys_mem 'free '(r14))

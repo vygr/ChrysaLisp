@@ -31,10 +31,10 @@
 		else
 		error:
 			func_call error, create, {"(div val val ...) vals are not all numbers", args}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(div val val ...) not enough args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope
@@ -61,10 +61,10 @@ callback:
 			eval {1}, {r1}
 		else
 			eval {0}, {r1}
-		endif
+		(endif)
 	else
 		eval {0}, {r1}
-	endif
+	(endif)
 
 	pop_scope
 	return

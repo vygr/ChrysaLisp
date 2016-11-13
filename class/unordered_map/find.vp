@@ -44,6 +44,6 @@ callback:
 	(vp-cpy-ir r1 pair_first r1)
 	(vp-cpy-ir r0 local_inst r2)
 	(vp-cpy-ir r0 local_key r0)
-	vp_jmp [r2 + unordered_set_key_callback]
+	(vp-jmp-i r2 unordered_set_key_callback)
 
 (def-func-end)

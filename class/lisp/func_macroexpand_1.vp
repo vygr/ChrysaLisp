@@ -27,7 +27,7 @@
 	else
 		func_call error, create, {"(macroexpand-1 form) wrong number of args", args}, {value}
 		assign {1}, {length}
-	endif
+	(endif)
 
 	eval {this, value, length}, {r0, r1, r2}
 	pop_scope

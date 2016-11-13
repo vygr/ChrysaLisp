@@ -55,7 +55,7 @@
 			(vp-push r0, r2, r5)
 			(vp-add-rr r1 r0)
 			(vp-call-r r5)		;sys/load_bind
-			if r0, ==, 0
+			(vpif '(r0 == 0))
 				;no such function
 				(vp-rel 'bind_error r0)
 				(sys-write-string 2 r0 bind_error_end-bind_error)
@@ -69,7 +69,7 @@
 				(sys-write-string 2 r0 r1)
 				sys_write_char 2, 10
 				sys_exit 1
-			endif
+			(endif)
 			(vp-cpy-rr r0 r1)
 			(vp-pop r0, r2, r5)
 			(vp-cpy-ri r1 r0)

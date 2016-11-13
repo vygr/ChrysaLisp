@@ -42,18 +42,18 @@
 				func_call lisp, env_bind, {this, vars, ast, 0}, {value}
 				if {value->obj_vtable != @class/class_error}
 					func_call vector, for_each, {func, 2, length, $callback, &this}, {_}
-				endif
+				(endif)
 				func_call lisp, env_pop, {this}
 			else
 				func_call error, create, {"(lambda vars body) not lambda", vars}, {value}
-			endif
+			(endif)
 		else
 			func_call error, create, {"(lambda vars body) wrong numbers of args", func}, {value}
-		endif
+		(endif)
 		pop_scope
 	else
 		func_call error, create, {"(lambda vars body) not a lambda list", func}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

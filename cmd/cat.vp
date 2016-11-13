@@ -38,11 +38,11 @@
 				func_call string, create_from_buffer, {&buffer, length}, {arg}
 				local_call cat_string, {slave, arg, &buffer}, {r0, r1, r2}
 			(loop-end)
-		endif
+		(endif)
 
 		;clean up
 		func_call slave, deref, {slave}
-	endif
+	(endif)
 	pop_scope
 	return
 
@@ -72,7 +72,7 @@ cat_string:
 		(loop-end)
 		virt_call stream, write_flush, {slave->slave_stdout}
 		func_call stream, deref, {stream}
-	endif
+	(endif)
 
 	pop_scope
 	return

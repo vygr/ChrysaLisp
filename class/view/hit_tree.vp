@@ -47,12 +47,12 @@ hit_down_callback:
 hit_up_callback:
 	(vp-cpy-rr r1 r2)
 	(v-call 'view 'hit '(r0, r8, r9) '(r1))
-	if r1, !=, 0
+	(vpif '(r1 != 0))
 		;early exit back to caller !
 		(vp-cpy-rr r2 r4)
 		(vp-cpy-ri r0 r2 local_hit)
-		vp_jmp [r2 + local_jump]
-	endif
+		(vp-jmp-i r2 local_jump)
+	(endif)
 	(vp-add-ir r0 view_x r8)
 	(vp-add-ir r0 view_y r9)
 	(vp-ret)

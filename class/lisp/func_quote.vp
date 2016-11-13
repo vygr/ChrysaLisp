@@ -22,7 +22,7 @@
 		devirt_call vector, ref_element, {args, 0}, {args}
 	else
 		func_call error, create, {"(quote arg) wrong numbers of args", args}, {args}
-	endif
+	(endif)
 
 	eval {this, args}, {r0, r1}
 	pop_scope

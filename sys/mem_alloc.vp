@@ -10,12 +10,12 @@
 	;trashes
 	;r2-r3
 
-	if r0, >, mem_block_max_size - ptr_size
+	(vpif '(r0 > mem_block_max_size - ptr_size))
 		;error
 		(vp-xor-rr r0 r0)
 		(vp-xor-rr r1 r1)
 		(vp-ret)
-	endif
+	(endif)
 	(vp-lea-ir r0 ptr_size r1)		;extra bytes for heap pointer
 
 	;find object heap
@@ -28,7 +28,7 @@
 	;allocate object from this heap
 	(f-call 'sys_heap 'alloc '(r0) '(r1))
 	(vp-cpy-ri r0 r1)
-	vp_xchg r0, r1
+	(vp-xchg-rr r0 r1)
 	(vp-cpy-ir r1 hp_heap_cellsize r1)
 	(vp-add-cr ptr_size r0)
 	(vp-sub-cr ptr_size r1)

@@ -42,7 +42,7 @@
 				func_call unordered_set, insert, {set, arg}, {_, _}
 				func_call string, deref, {arg}
 			(loop-end)
-		endif
+		(endif)
 
 		;output string set
 		func_call unordered_set, for_each, {set, $callback, slave}, {_, _}
@@ -50,7 +50,7 @@
 
 		;clean up
 		func_call slave, deref, {slave}
-	endif
+	(endif)
 	pop_scope
 	return
 

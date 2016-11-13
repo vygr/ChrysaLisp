@@ -19,24 +19,24 @@
 	(vp-sub-cr window_border_size * 2 r10)
 	(vp-sub-cr window_border_size * 2 r11)
 	(vp-xor-rr r15 r15)
-	if r8, <, window_border_size * 2
+	(vpif '(r8 < window_border_size * 2))
 		;left edge
 		vp_or window_drag_left, r15
-	endif
-	if r8, >=, r10
+	(endif)
+	(vpif '(r8 >= r10))
 		;right edge
 		vp_or window_drag_right, r15
 		(vp-sub-ir r0 view_w r12)
-	endif
-	if r9, <, window_border_size * 2
+	(endif)
+	(vpif '(r9 < window_border_size * 2))
 		;top edge
 		vp_or window_drag_top, r15
-	endif
-	if r9, >=, r11
+	(endif)
+	(vpif '(r9 >= r11))
 		;bottom edge
 		vp_or window_drag_bottom, r15
 		(vp-sub-ir r0 view_h r13)
-	endif
+	(endif)
 	(vp-cpy-ri r15 r0 window_drag_mode)
 	(vp-cpy-ri r12 r0 window_offset_x)
 	(vp-cpy-ri r13 r0 window_offset_y)

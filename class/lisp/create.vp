@@ -26,8 +26,8 @@
 			;error with init
 			virt_call lisp, delete, {this}, {}
 			assign {0}, {this}
-		endif
-	endif
+		(endif)
+	(endif)
 
 	eval {this}, r0
 	return

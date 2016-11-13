@@ -54,7 +54,7 @@
 	(vp-cpy-ri r7 r4 local_start_bucket)
 	(vp-cpy-ri r9 r4 local_end_bucket)
 
-	if r7, ==, r9
+	(vpif '(r7 == r9))
 		(f-call 'vector 'get_element '([r0 + unordered_set_buckets], r7) '(r0))
 		(f-call 'vector 'for_each '(r0, [r4 + local_start_elem], [r4 + local_end_elem], [r4 + local_callback], r4) '(_))
 	else
@@ -63,15 +63,15 @@
 
 		(vp-cpy-ir r4 local_start_bucket r1)
 		(vp-inc r1)
-		if r1, !=, [r4 + local_end_bucket]
+		(vpif '(r1 != [r4 + local_end_bucket]))
 			(vp-cpy-ir r4 local_inst r0)
 			(f-call 'vector 'for_each '([r0 + unordered_set_buckets], [r4 + local_start_bucket], [r4 + local_end_bucket], $callback, r4) '(_))
-		endif
+		(endif)
 
 		(vp-cpy-ir r4 local_inst r0)
 		(f-call 'vector 'get_element '([r0 + unordered_set_buckets], [r4 + local_end_bucket]) '(r0))
 		(f-call 'vector 'for_each '(r0, 0, [r4 + local_end_elem], [r4 + local_callback], r4) '(_))
-	endif
+	(endif)
 
 	(vp-cpy-ir r4 local_obj r1)
 	(vp-cpy-ir r4 local_inst r0)

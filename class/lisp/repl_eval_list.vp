@@ -22,7 +22,7 @@
 	func_call vector, for_each, {list, index, length, $callback, this}, {iter}
 	if {iter}
 		assign {*iter}, {list}
-	endif
+	(endif)
 	func_call ref, ref, {list}
 
 	eval {this, list}, {r0, r1}

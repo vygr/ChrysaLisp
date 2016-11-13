@@ -38,9 +38,9 @@
 	;for all buckets
 	(vp-cpy-ir r0 unordered_set_buckets r0)
 	(f-call 'vector 'for_each '(r0, 0, [r0 + vector_length], $callback, r4) '(r2))
-	if r2, !=, 0
+	(vpif '(r2 != 0))
 		(vp-cpy-ir r2 r2)
-	endif
+	(endif)
 	(vp-cpy-ir r4 local_iter r1)
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)
@@ -59,11 +59,11 @@ callback:
 	(f-call 'vector 'for_each '(r0, 0, [r0 + vector_length], [r2 + local_predicate], [r2 + local_predicate_data]) '(r1))
 	(vp-pop r0)
 	(vp-cpy-ri r1 r0 local_iter)
-	if r1, ==, 0
+	(vpif '(r1 == 0))
 		(vp-cpy-cr 1 r1)
 	else
 		(vp-xor-rr r1 r1)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

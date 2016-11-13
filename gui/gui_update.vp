@@ -56,7 +56,7 @@
 	(vp-pop r1)
 	(vp-cpy-ri r1 r5 gui_statics_old_region)
 	(vp-pop r0)
-%endif
+%(endif)
 
 	;iterate through views front to back
 	;distribute visible region
@@ -67,7 +67,7 @@
 	;draw all on draw list, and free dirty regions
 	(f-bind 'gui_gui 'statics r1)
 	(vp-cpy-ir r1 gui_statics_renderer r1)
-	(vp-cpy-ri r1 r4 local_ctx + gui_ctx_sdl_ctx)
+	(vp-cpy-ri r1 r4 (add local_ctx gui_ctx_sdl_ctx))
 	(loop-flist-forward r4 + local_ctx_flist, r0, r0)
 		(vp-cpy-ri r0 r4 local_ctx_next)
 		(vp-sub-cr view_ctx_node r0)
@@ -126,7 +126,7 @@ visible_up_callback:
 
 	;remove opaque region from ancestors if not root
 	(vp-cpy-ir r4 vis_inst r1)
-	if r1, !=, [r4 + vis_root]
+	(vpif '(r1 != [r4 + vis_root]))
 		;remove my opaque region from ancestors
 		(vp-xor-rr r2 r2)
 		(vp-cpy-ri r4 vis_region)
@@ -178,14 +178,14 @@ visible_up_callback:
 		;free any temp region
 		(vp-lea-ir r4 vis_region r1)
 		(f-call 'gui_region 'free '(r0, r1))
-	endif
+	(endif)
 
 	;clip local dirty region with parent bounds if not root
 	(vp-cpy-ir r4 vis_inst r1)
 	(vp-cpy-ir r1 view_parent r2)
-	if r1, ==, [r4 + vis_root]
+	(vpif '(r1 == [r4 + vis_root]))
 		(vp-cpy-rr r1 r2)
-	endif
+	(endif)
 	(vp-cpy-ir r1 view_x r8)
 	(vp-cpy-ir r1 view_y r9)
 	(vp-cpy-ir r2 view_w r10)
@@ -199,7 +199,7 @@ visible_up_callback:
 
 	;paste local dirty region onto parent if not root
 	(vp-cpy-ir r4 vis_inst r1)
-	if r1, !=, [r4 + vis_root]
+	(vpif '(r1 != [r4 + vis_root]))
 		(vp-cpy-ir r1 view_x r8)
 		(vp-cpy-ir r1 view_y r9)
 		(vp-cpy-ir r1 view_parent r2)
@@ -211,7 +211,7 @@ visible_up_callback:
 		(vp-cpy-ir r4 vis_inst r1)
 		(vp-add-cr view_dirty_region r1)
 		(f-call 'gui_region 'free '(r0, r1))
-	endif
+	(endif)
 
 	(vp-cpy-ir r4 vis_inst r0)
 	(vp-add-cr vis_size r4)
@@ -235,7 +235,7 @@ distribute_down_callback:
 
 	;copy view from parent if not root
 	(vp-cpy-ir r4 dist_inst r2)
-	if r2, !=, [r1 + local_root]
+	(vpif '(r2 != [r1 + local_root]))
 		;copy my area from parent
 		(vp-cpy-ir r2 view_parent r1)
 		(vp-cpy-ir r2 view_ctx_x r8)
@@ -251,7 +251,7 @@ distribute_down_callback:
 		;did we find any
 		(vp-cpy-ir r4 dist_inst r1)
 		(vp-cpy-ir r1 view_dirty_region r1)
-		if r1, !=, 0
+		(vpif '(r1 != 0))
 			;remove my opaque region from ancestors
 			(vp-cpy-ir r4 dist_inst r2)
 			(loop-start)
@@ -268,8 +268,8 @@ distribute_down_callback:
 				(vp-cpy-ir r4 dist_next r2)
 				(vp-cpy-ir r4 dist_data r1)
 			(loop-until '(r2 == [r1 + local_root]))
-		endif
-	endif
+		(endif)
+	(endif)
 
 	;r1 will be 0 or not depending on haveing any dirty region
 	(vp-cpy-ir r4 dist_inst r0)
@@ -279,11 +279,11 @@ distribute_down_callback:
 distribute_up_callback:
 	;add myself to draw list if not empty
 	(vp-cpy-ir r0 view_dirty_region r2)
-	if r2, !=, 0
+	(vpif '(r2 != 0))
 		(vp-lea-ir r0 view_ctx_node r2)
 		(vp-add-cr local_ctx_flist r1)
 		(ln-add-fnode r1 r2 r3)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

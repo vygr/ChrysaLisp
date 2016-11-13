@@ -33,7 +33,7 @@
 			assign {width + word_w}, {width}
 		loop_until {words == words_end}
 		assign {width + (length - 1) * (height >> 2)}, {width}
-	endif
+	(endif)
 
 	eval {inst, width, height}, {r0, r10, r11}
 	pop_scope

@@ -13,7 +13,7 @@
 
 	(vp-cpy-rr r0 r5)
 	(vp-cpy-rr r1 r6)
-	if r2, >, r1
+	(vpif '(r2 > r1))
 		;alloc new table
 		(f-call 'sys_mem 'alloc '(r2) '(r0, _))
 		(assert '(r0, !=, 0))
@@ -23,18 +23,18 @@
 		;clear it to empty
 		(f-call 'sys_mem 'clear '(r0, r1) '(_))
 
-		if r6, !=, 0
+		(vpif '(r6 != 0))
 			;copy over old data
 			(f-call 'sys_mem 'copy '(r5, r7, r6) '(_, _))
 
 			;free existing
 			(f-call 'sys_mem 'free '(r5))
-		endif
+		(endif)
 
 		;save new table
 		(vp-cpy-rr r7 r0)
 		(vp-cpy-rr r8 r1)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

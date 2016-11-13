@@ -37,11 +37,11 @@
 
 	;did we find it ?
 	(vp-cpy-rr r5 r0)
-	if r5, ==, 0
+	(vpif '(r5 == 0))
 		;no so try open it
 		(f-call 'sys_task 'callback '($kernel_callback, r4))
 		(vp-cpy-ir r4 local_handle r0)
-	endif
+	(endif)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -70,9 +70,9 @@ kernel_callback:
 
 	;did we find it ?
 	(vp-cpy-rr r5 r0)
-	if r5, ==, 0
+	(vpif '(r5 == 0))
 		ttf_open_font [r14 + local_font], [r14 + local_points]
-		if r0, !=, 0
+		(vpif '(r0 != 0))
 			(vp-cpy-rr r0 r5)
 			(f-call 'sys_string 'length '([r14 + local_font]) '(r1))
 			(f-call 'sys_mem 'alloc '(&[r1 + ft_font_size + 1]) '(r13, _))
@@ -94,8 +94,8 @@ kernel_callback:
 			(vp-cpy-rr r13 r0)
 			(f-bind 'gui_font 'statics r5)
 			(ln-add-fnode r5 + ft_statics_font_flist r0 r1)
-		endif
-	endif
+		(endif)
+	(endif)
 	(vp-cpy-ri r0 r14 local_handle)
 
 	(vp-cpy-rr r15 r4)

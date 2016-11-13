@@ -9,14 +9,14 @@
 	;trashes
 	;r1-r2
 
-	if r1, !=, 0
+	(vpif '(r1 != 0))
 		;not zero length
 		(vp-cpy-rr r0 r2)
 		(vp-and-cr (sub ptr_size 1) r2)
-		if r2, ==, 0
+		(vpif '(r2 == 0))
 			(vp-cpy-rr r1 r2)
 			(vp-and-cr (sub ptr_size 1) r2)
-			if r2, ==, 0
+			(vpif '(r2 == 0))
 				;all aligned on 8 byte boundary
 				(vp-add-rr r0 r1)
 				(loop-start)
@@ -24,8 +24,8 @@
 					(vp-add-cr ptr_size r0)
 				(loop-until '(r0 == r1))
 				(vp-ret)
-			endif
-		endif
+			(endif)
+		(endif)
 		;something not aligned
 		(vp-add-rr r0 r1)
 		(vp-xor-rr r2 r2)
@@ -33,7 +33,7 @@
 			(vp-cpy-ri-b r2 r0)
 			(vp-inc r0)
 		(loop-until '(r0 == r1))
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

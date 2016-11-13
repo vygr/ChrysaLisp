@@ -45,7 +45,7 @@ callback:
 		func_call stream, write, {pdata->lisp_stdout, &elem->string_data, elem->string_length}
 	else
 		func_call lisp, repl_print, {pdata, pdata->lisp_stdout, elem}
-	endif
+	(endif)
 
 	eval {1}, {r1}
 	pop_scope

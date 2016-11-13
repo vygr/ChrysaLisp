@@ -32,7 +32,7 @@
 		loop_until {index == length}
 	else
 		func_call error, create, {"(defq var val ...) wrong numbers of args", args}, {val}
-	endif
+	(endif)
 
 	eval {this, val}, {r0, r1}
 	pop_scope

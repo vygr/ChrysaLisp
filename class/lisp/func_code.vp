@@ -29,10 +29,10 @@
 			func_call boxed_long, set_value, {value, *charp}
 		else
 			func_call error, create, {"(code char) not a string", args}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(code char) wrong number of args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

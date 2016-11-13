@@ -30,7 +30,7 @@
 			func_call lisp, func_repl, {lisp, repl_args}, {value}
 			func_call ref, deref, {value}
 			func_call vector, clear, {repl_args}
-		endif
+		(endif)
 
 		;run any files given as args
 		func_call slave, get_args, {slave}, {args}
@@ -46,7 +46,7 @@
 				func_call lisp, func_repl, {lisp, repl_args}, {value}
 				func_call ref, deref, {value}
 				func_call vector, clear, {repl_args}
-			endif
+			(endif)
 			assign {index + 1}, {index}
 		(loop-end)
 
@@ -60,7 +60,7 @@
 		func_call vector, deref, {repl_args}
 		func_call lisp, deref, {lisp}
 		func_call slave, deref, {slave}
-	endif
+	(endif)
 
 	pop_scope
 	return

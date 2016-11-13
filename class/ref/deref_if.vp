@@ -7,9 +7,9 @@
 	;trashes
 	;all but r4
 
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		(f-jmp 'ref 'deref '(r0))
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

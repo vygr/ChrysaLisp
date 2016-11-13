@@ -24,11 +24,11 @@
 			assign {this->lisp_sym_t}, {args}
 		else
 			assign {this->lisp_sym_nil}, {args}
-		endif
+		(endif)
 		func_call ref, ref, {args}
 	else
 		func_call error, create, {"(not form) wrong number of args", args}, {args}
-	endif
+	(endif)
 
 	eval {this, args}, {r0, r1}
 	pop_scope

@@ -22,9 +22,9 @@
 
 	;init parent
 	(s-call 'stream 'init '(r0, r1) '(r1))
-	if r1, !=, 0
+	(vpif '(r1 != 0))
 		;init myself
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

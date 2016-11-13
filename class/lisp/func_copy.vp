@@ -26,10 +26,10 @@
 			func_call vector, for_each, {args, 0, length, $callback, 0}, {_}
 		else
 			func_call ref, ref, {args}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(copy form) wrong number of args", args}, {args}
-	endif
+	(endif)
 
 	eval {this, args}, {r0, r1}
 	pop_scope
@@ -56,7 +56,7 @@ callback:
 		func_call vector, for_each, {pdata, 0, length, $callback, 0}, {_}
 		func_call ref, deref, {*iter}
 		assign {pdata}, {*iter}
-	endif
+	(endif)
 
 	eval {1}, {r1}
 	pop_scope

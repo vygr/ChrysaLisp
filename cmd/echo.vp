@@ -30,11 +30,11 @@
 				assign {index + 1}, {index}
 				func_call sys_task, yield
 			(loop-end)
-		endif
+		(endif)
 
 		;clean up
 		func_call slave, deref, {slave}
-	endif
+	(endif)
 	pop_scope
 	return
 

@@ -18,16 +18,16 @@
 	(map-src-to-dst)
 
 	(f-call 'stream 'new '() '(r0))
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		;init the object
 		func_path class, stream
 		(f-call 'stream 'init '(r0, @_function_, r5, r6, r7, r8) '(r1))
-		if r1, ==, 0
+		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'stream 'delete '(r0) '() 'r1)
 			(vp-xor-rr r0 r0)
-		endif
-	endif
+		(endif)
+	(endif)
 	(vp-ret)
 
 (def-func-end)

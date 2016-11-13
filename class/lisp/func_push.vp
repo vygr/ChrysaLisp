@@ -25,10 +25,10 @@
 			func_call vector, for_each, {args, 1, length, $callback, value}, {_}
 		else
 			func_call error, create, {"(push list form ...) not a list", args}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(push list form ...) not enough args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

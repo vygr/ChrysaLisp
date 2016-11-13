@@ -152,7 +152,7 @@ on_press:
 				func_call string, deref, {display_string}
 				func_call string, create_from_cstr, {""}, {display_string}
 				assign {1}, {inst->shared_last_flag}
-			endif
+			(endif)
 			;append numeral
 			func_call string, append, {display_string, button_string}, {string}
 			func_call sys_string, to_long, {&string->string_data, 10}, {inst->shared_value}
@@ -173,10 +173,10 @@ on_press:
 			else
 				;equals
 				assign {inst->shared_value}, {inst->shared_accum}
-			endif
+			(endif)
 			if {char != char_equal}
 				assign {char}, {inst->shared_last_op}
-			endif
+			(endif)
 			assign {0}, {inst->shared_last_flag}
 			if {inst->shared_accum < 0}
 				;negative accum
@@ -190,11 +190,11 @@ on_press:
 				;positive accum
 				func_call sys_string, from_long, {inst->shared_accum, &inst->shared_buffer, 10}
 				func_call string, create_from_cstr, {&inst->shared_buffer}, {string}
-			endif
-		endif
+			(endif)
+		(endif)
 		func_call label, set_text, {inst->shared_display, string}
 		func_call string, deref, {display_string}
-	endif
+	(endif)
 	func_call string, deref, {button_string}
 	func_call label, dirty, {inst->shared_display}
 	pop_scope

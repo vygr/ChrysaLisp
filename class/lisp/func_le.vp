@@ -39,10 +39,10 @@
 			func_call vector, for_each, {args, 1, length, $callback, &this}, {_}
 		else
 			func_call error, create, {"(le num num ...) not all numbers", first}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(le num num ...) wrong number of args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope
@@ -72,11 +72,11 @@ callback:
 			func_call ref, deref, {pdata->pdata_value}
 			assign {pdata->pdata_this->lisp_sym_nil}, {pdata->pdata_value}
 			func_call ref, ref, {pdata->pdata_value}
-		endif
+		(endif)
 	else
 		func_call ref, deref, {pdata->pdata_value}
 		func_call error, create, {"(le num num ...) not all numbers", *iter}, {pdata->pdata_value}
-	endif
+	(endif)
 
 	eval {0}, {r1}
 	pop_scope

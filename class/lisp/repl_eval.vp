@@ -46,7 +46,7 @@
 					devirt_call vector, slice, {form, 1, length}, {args}
 					func_call lisp, repl_apply, {this, func, args}, {value}
 					func_call ref, deref, {args}
-				endif
+				(endif)
 				break
 			default
 			args_eval_apply:
@@ -55,11 +55,11 @@
 				if {value->obj_vtable != @class/class_error}
 					func_call ref, deref, {value}
 					func_call lisp, repl_apply, {this, func, args}, {value}
-				endif
+				(endif)
 				func_call ref, deref, {args}
 			endswitch
 			func_call ref, deref, {func}
-		endif
+		(endif)
 		break
 	default
 		;eval to self

@@ -33,12 +33,12 @@ callback:
 	(vp-push r1)
 	(v-call 'view 'pref_size '(r0) '(r10, r11))
 	(vp-pop r1)
-	if r10, >, [r1 + local_w]
+	(vpif '(r10 > [r1 + local_w]))
 		(vp-cpy-ri r10 r1 local_w)
-	endif
-	if r11, >, [r1 + local_h]
+	(endif)
+	(vpif '(r11 > [r1 + local_h]))
 		(vp-cpy-ri r11 r1 local_h)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

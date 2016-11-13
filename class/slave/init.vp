@@ -47,8 +47,8 @@
 			;abort
 			func_call sys_mem, free, {msg}
 			assign {0}, {error}
-		endif
-	endif
+		(endif)
+	(endif)
 
 	eval {inst, error}, {r0, r1}
 	pop_scope

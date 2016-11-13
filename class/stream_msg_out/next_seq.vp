@@ -10,22 +10,22 @@
 	;r0 = 0, else next stream msg
 
 	;save any new msg
-	if r1, !=, 0
-		lh_add_at_tail r0, r1, r3
-	endif
+	(vpif '(r1 != 0))
+		(lh-add-at-tail r0 r1 r3)
+	(endif)
 
 	;scan for seqnum
 	(loop-list-forward r0, r0, r1)
 		(breakif '(r2 == -1))
 	(loop-until '(r2 == [r0 + stream_mail_seqnum]))
-	if r1, ==, 0
+	(vpif '(r1 == 0))
 		;not found
 		(vp-cpy-rr r1 r0)
 	else
 		;remove found from list
 		(vp-cpy-rr r0 r1)
 		(ln-remove-node r1 r2)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

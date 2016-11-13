@@ -22,7 +22,7 @@
 	else
 		assign {this->lisp_sym_nil}, {args}
 		func_call ref, ref, {args}
-	endif
+	(endif)
 
 	eval {this, args}, {r0, r1}
 	pop_scope

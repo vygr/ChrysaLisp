@@ -20,7 +20,7 @@
 
 		;clean up
 		func_call slave, deref, {slave}
-	endif
+	(endif)
 	pop_scope
 	return
 

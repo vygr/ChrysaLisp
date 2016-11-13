@@ -19,9 +19,9 @@
 	(loop-start)
 		(vp-pop r0)
 		(vp-add-cr '0' r0)
-		if r0, >, '9'
+		(vpif '(r0 > '9'))
 			(vp-add-cr 'A' - ':' r0)
-		endif
+		(endif)
 		sys_write_char r1, r0
 	(loop-until '(r5 == r4))
 	(vp-ret)

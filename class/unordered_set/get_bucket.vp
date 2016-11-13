@@ -26,7 +26,7 @@
 	;search hash bucket
 	(vp-cpy-ir r0 unordered_set_buckets r2)
 	(vp-cpy-ir r2 vector_length r2)
-	if r2, !=, 1
+	(vpif '(r2 != 1))
 		(vp-cpy-ri r2 r4 local_length)
 		(v-call 'obj 'hash '(r1) '(r0))
 		(vp-cpy-ir r4 local_length r1)
@@ -35,7 +35,7 @@
 		(vp-cpy-ir r4 local_inst r0)
 	else
 		(vp-xor-rr r2 r2)
-	endif
+	(endif)
 	(f-call 'vector 'get_element '([r0 + unordered_set_buckets], r2) '(r1))
 
 	(vp-cpy-ir r4 local_inst r0)

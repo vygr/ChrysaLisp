@@ -23,9 +23,9 @@
 
 	;reference the string
 	(vp-cpy-ir r0 text_string r0)
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		(f-call 'string 'ref '(r0))
-	endif
+	(endif)
 	(vp-cpy-rr r0 r1)
 
 	(vp-cpy-ir r4 local_inst r0)

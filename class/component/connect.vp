@@ -30,10 +30,10 @@
 
 	;add to sig and slot lists
 	(vp-lea-ir r1 gui_sigslot_sig_node r2)
-	lh_add_at_tail r6, r2, r3
+	(lh-add-at-tail r6 r2 r3)
 	(vp-lea-ir r1 gui_sigslot_slot_node r2)
 	(vp-lea-ir r5 component_slot_list r6)
-	lh_add_at_tail r6, r2, r3
+	(lh-add-at-tail r6 r2 r3)
 
 	;restore inst
 	(vp-cpy-rr r5 r0)

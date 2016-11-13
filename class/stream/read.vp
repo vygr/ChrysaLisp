@@ -23,7 +23,7 @@
 	if {buffer_end == 0}
 		eval {inst, 0}, {r0, r1}
 		return
-	endif
+	(endif)
 
 	assign {buffer, buffer + buffer_end}, {start, buffer_end}
 	(loop-start)
@@ -37,7 +37,7 @@
 		eval {inst, buffer - start}, {r0, r1}
 	else
 		eval {inst, char}, {r0, r1}
-	endif
+	(endif)
 	pop_scope
 	return
 

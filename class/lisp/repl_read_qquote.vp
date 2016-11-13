@@ -33,7 +33,7 @@
 	else
 		func_call ref, deref, {list}
 		assign {elem}, {list}
-	endif
+	(endif)
 
 	eval {this, list, char}, {r0, r1, r2}
 	pop_scope

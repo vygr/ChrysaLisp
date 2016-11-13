@@ -28,7 +28,7 @@
 		assign {char_minus}, {*buffer}
 		assign {buffer + 1}, {buffer}
 		assign {-num}, {num}
-	endif
+	(endif)
 	func_call sys_string, from_long, {num, buffer, base}
 	func_call string, create_from_cstr, {reloc}, {this}
 

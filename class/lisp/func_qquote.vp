@@ -42,7 +42,7 @@
 		endswitch
 	else
 		func_call error, create, {"(quasi-quote arg) wrong numbers of args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope
@@ -109,7 +109,7 @@ callback:
 		func_call vector, push_back, {quote_list, sym}
 		func_call vector, push_back, {quote_list, elem}
 		func_call vector, push_back, {list, quote_list}
-	endif
+	(endif)
 	func_call vector, push_back, {pdata->pdata_cat_list, list}
 
 	eval {1}, {r1}

@@ -47,7 +47,7 @@ callback:
 	(vp-cpy-ir r1 r0)
 	(vp-cpy-ir r0 vector_length r2)
 	(vp-cpy-ir r5 local_index r3)
-	if r3, >, r2
+	(vpif '(r3 > r2))
 		(vp-sub-rr r2 r3)
 		(vp-cpy-ri r3 r5 local_index)
 	else
@@ -57,7 +57,7 @@ callback:
 		(vp-add-rr r3 r1)
 		(vp-cpy-ri r1 r5 local_iter)
 		(vp-xor-rr r1 r1)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

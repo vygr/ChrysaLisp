@@ -37,10 +37,10 @@
 			func_call ref, deref, {stream}
 			func_call symbol, create_from_buffer, {value->string_data, value->string_length}, {value}
 			func_call lisp, sym_intern, {this, value}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(sym arg) wrong numbers of args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

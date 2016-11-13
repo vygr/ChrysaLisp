@@ -13,7 +13,7 @@
 
 	;init parent
 	(s-call 'window 'init '(r0, r1) '(r1))
-	if r1, !=, 0
+	(vpif '(r1 != 0))
 		(vp-push r0)
 
 		;init myself
@@ -52,7 +52,7 @@
 		(f-call 'label 'add_back '(r0, [r1 + window_panel]))
 
 		(vp-pop r0)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

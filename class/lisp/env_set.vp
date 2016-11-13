@@ -26,7 +26,7 @@
 		func_call pair, set_second, {*iter, value}
 	else
 		func_call error, create, {"symbol not bound", symbol}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

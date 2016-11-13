@@ -20,7 +20,7 @@
 		func_call pair, ref_second, {*iter}, {env}
 		func_call ref, deref, {this->lisp_enviroment}
 		assign {env}, {this->lisp_enviroment}
-	endif
+	(endif)
 
 	eval {this}, {r0}
 	pop_scope

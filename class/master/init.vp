@@ -23,7 +23,7 @@
 	if {error != 0}
 		;init state
 		assign {stream_mail_state_stopped}, {inst->master_state}
-	endif
+	(endif)
 
 	eval {inst, error}, {r0, r1}
 	pop_scope

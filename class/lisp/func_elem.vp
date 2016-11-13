@@ -30,23 +30,23 @@
 				virt_call sequence, get_length, {seq}, {length}
 				if {index < 0}
 					assign {length + index + 1}, {index}
-				endif
+				(endif)
 				if {index >= 0 && index < length}
 					virt_call sequence, ref_element, {seq, index}, {value}
 					eval {this, value}, {r0, r1}
 					return
 				else
 					func_call error, create, {"(elem index seq) index out of bounds", args}, {value}
-				endif
+				(endif)
 			else
 				func_call error, create, {"(elem index seq) not an index", args}, {value}
-			endif
+			(endif)
 		else
 			func_call error, create, {"(elem index seq) not a sequence", args}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(elem index seq) not enough args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

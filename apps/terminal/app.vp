@@ -90,7 +90,7 @@
 			virt_call view, event, {msg->ev_msg_view, msg}
 			if {msg->ev_msg_type == ev_type_key && msg->ev_msg_keycode > 0}
 				local_call terminal_input, {&shared, msg->ev_msg_key}, {r0, r1}
-			endif
+			(endif)
 			func_call sys_mem, free, {msg}
 		else
 			;output from a pipe element
@@ -101,8 +101,8 @@
 				func_call master, stop, {shared.shared_master}
 				func_call string, create_from_cstr, {"Ready"}, {string}
 				func_call window, set_status, {shared.shared_window, string}
-			endif
-		endif
+			(endif)
+		(endif)
 		func_call sys_task, yield
 	(loop-end)
 
@@ -177,7 +177,7 @@ terminal_input:
 				func_call string, deref, {last}
 				gotoif {notsame}, new_entry
 				func_call string, deref, {string}
-			endif
+			(endif)
 
 			;start new pipe
 			func_call master, start, {shared->shared_master, &shared->shared_buffer, length}
@@ -191,20 +191,20 @@ terminal_input:
 			func_call stream, write, {stream, &shared->shared_buffer, length}
 			func_call stream, write_char, {stream, 10}
 			virt_call stream, write_flush, {stream}
-		endif
+		(endif)
 		assign {&shared->shared_buffer}, {shared->shared_bufp}
 	elseif {char == 128}
 		;backspace
 		if {length}
 			assign {shared->shared_bufp - 1}, {shared->shared_bufp}
-		endif
+		(endif)
 	elseif {char == 129}
 		;cursor up
 		devirt_call vector, get_length, {shared->shared_history}, {length}
 		breakifnot {length}
 		if {shared->shared_history_index}
 			assign {shared->shared_history_index - 1}, {shared->shared_history_index}
-		endif
+		(endif)
 		devirt_call vector, ref_element, {shared->shared_history, shared->shared_history_index}, {string}
 		func_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, {_, shared->shared_bufp}
 		func_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
@@ -215,12 +215,12 @@ terminal_input:
 		assign {shared->shared_history_index + 1}, {shared->shared_history_index}
 		if {shared->shared_history_index > length}
 			assign {length}, {shared->shared_history_index}
-		endif
+		(endif)
 		if {shared->shared_history_index == length}
 			func_call string, create_from_cstr, {""}, {string}
 		else
 			devirt_call vector, ref_element, {shared->shared_history, shared->shared_history_index}, {string}
-		endif
+		(endif)
 		func_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, {_, shared->shared_bufp}
 		func_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
 		local_call pipe_output, {shared, stream}, {r0, r1}
@@ -238,11 +238,11 @@ terminal_input:
 			func_call stream_msg_out, set_state, {stream, stream_mail_state_stopping}
 			virt_call stream, write_next, {stream}
 			virt_call stream, write_flush, {stream}
-		endif
+		(endif)
 	elseif {char >= 32 && char < 127}
 		;next char
 		assign {shared->shared_bufp + 1}, {shared->shared_bufp}
-	endif
+	(endif)
 	pop_scope
 	return
 
@@ -271,7 +271,7 @@ terminal_output:
 		devirt_call string, get_length, {line_string}, {length}
 		if {length > 1}
 			assign {length - 1}, {length}
-		endif
+		(endif)
 		func_call string, create_from_buffer, {&line_string->string_data, length}, {new_line_string}
 		func_call string, deref, {line_string}
 		func_call label, set_text, {label, new_line_string}
@@ -292,7 +292,7 @@ terminal_output:
 		func_call string, deref, {string}
 		func_call label, set_text, {label, new_line_string}
 		func_call label, dirty, {label}
-	endif
+	(endif)
 	pop_scope
 	return
 

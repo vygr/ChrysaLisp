@@ -32,14 +32,14 @@
 			func_call sys_mail, read, {&inst->stream_msg_out_ack_mailbox}, {msg}
 			func_call sys_mem, free, {msg}
 			assign {inst->stream_msg_out_ack_seqnum + 1}, {inst->stream_msg_out_ack_seqnum}
-		endif
+		(endif)
 
 		;next seq num
 		assign {inst->stream_msg_out_seqnum + 1}, {inst->stream_msg_out_seqnum}
 
 		;parent actions
 		super_call stream_msg_out, write_flush, {inst}
-	endif
+	(endif)
 
 	eval {inst}, {r0}
 	pop_scope

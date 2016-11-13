@@ -12,13 +12,13 @@
 
 	;init parent
 	(s-call 'vector 'init '(r0, r1) '(r1))
-	if r1, !=, 0
+	(vpif '(r1 != 0))
 		;init myself
 		(vp-xor-rr r2 r2)
 		(vp-cpy-ri r2 r0 vector_array)
 		(vp-cpy-ri r2 r0 vector_length)
 		(vp-cpy-ri r2 r0 vector_capacity)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

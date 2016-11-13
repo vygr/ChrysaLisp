@@ -50,7 +50,7 @@
 		;clean up
 		func_call vector, deref, {vector}
 		func_call slave, deref, {slave}
-	endif
+	(endif)
 	pop_scope
 	return
 
@@ -319,18 +319,18 @@ defword_end
 defword "?dup", 0, word_qdup, word_inline_comma
 	;( a -- a a | 0 )
 	loadsp t1
-	if t1, !=, 0
+	(vpif '(t1 != 0))
 		pushsp t1
-	endif
+	(endif)
 	(vp-ret)
 defword_end
 
 defword "!?dup", 0, word_nqdup, word_inline_comma
 	;( a -- a a | 0 )
 	loadsp t1
-	if t1, ==, 0
+	(vpif '(t1 == 0))
 		pushsp t1
-	endif
+	(endif)
 	(vp-ret)
 defword_end
 
@@ -372,6 +372,6 @@ defword_end
 defword "inline,", 0, word_inline_comma, word_call_comma
 	(vp-ret)
 defword_end
-%endif
+%(endif)
 
 (def-func-end)

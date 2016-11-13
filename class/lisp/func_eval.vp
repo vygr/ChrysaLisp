@@ -23,7 +23,7 @@
 		func_call lisp, repl_eval, {this, args}, {args}
 	else
 		func_call error, create, {"(eval form) wrong number of args", args}, {args}
-	endif
+	(endif)
 
 	eval {this, args}, {r0, r1}
 	pop_scope

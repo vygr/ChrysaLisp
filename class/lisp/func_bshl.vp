@@ -31,13 +31,13 @@
 				func_call boxed_long, set_value, {value, length}
 			else
 				func_call error, create, {"(bit-shl num cnt) not a count", args}, {value}
-			endif
+			(endif)
 		else
 			func_call error, create, {"(bit-shl num cnt) not a number", args}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(bit-shl num cnt) wrong number of args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

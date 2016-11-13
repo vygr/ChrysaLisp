@@ -30,13 +30,13 @@
 	if {first->obj_vtable == @class/class_error}
 		assign {first}, {pair}
 		goto error
-	endif
+	(endif)
 	func_call lisp, repl_read, {this, stream, char}, {second, char}
 	if {second->obj_vtable == @class/class_error}
 		func_call ref, deref, {first}
 		assign {second}, {pair}
 		goto error
-	endif
+	(endif)
 
 	;skip white space
 	loop_while {char <= char_space && char != -1}
@@ -50,7 +50,7 @@
 		func_call ref, deref, {second}
 		func_call ref, deref, {first}
 		func_call error, create, {"expected >", this->lisp_sym_nil}, {pair}
-	endif
+	(endif)
 error:
 	eval {this, pair, char}, {r0, r1, r2}
 	pop_scope

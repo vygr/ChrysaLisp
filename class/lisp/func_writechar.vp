@@ -30,13 +30,13 @@
 				func_call stream_str, write_char, {stream, length}
 			else
 				func_call error, create, {"(write-char stream char) not a char", args}, {value}
-			endif
+			(endif)
 		else
 			func_call error, create, {"(write-char stream char) not a stream", args}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(write-char stream char) wrong number of args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

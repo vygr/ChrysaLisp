@@ -15,7 +15,7 @@
 	if {this}
 		;clear object memory
 		func_call sys_mem, clear, {this, lisp_size}, {_}
-	endif
+	(endif)
 
 	eval {this}, {r0}
 	pop_scope

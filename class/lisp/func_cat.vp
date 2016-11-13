@@ -34,10 +34,10 @@
 			func_call vector, for_each, {args, 1, length, $callback, &this}, {_}
 		else
 			func_call error, create, {"(cat seq ...) not sequence type", value}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(cat seq ...) wrong number of args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope
@@ -74,7 +74,7 @@ callback:
 		func_call ref, deref, {pdata->pdata_value}
 		func_call error, create, {"(cat seq ...) not matching type", elem}, {pdata->pdata_value}
 		eval {0}, {r1}
-	endif
+	(endif)
 
 	pop_scope
 	return

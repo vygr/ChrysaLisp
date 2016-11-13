@@ -48,7 +48,7 @@
 
 		;stop state
 		assign {stream_mail_state_stopped}, {inst->master_state}
-	endif
+	(endif)
 
 	eval {inst}, {r0}
 	pop_scope

@@ -36,7 +36,7 @@
 
 	if {char == char_minus}
 		func_call stream, read_char, {stream}, {char}
-	endif
+	(endif)
 
 	func_path sys_load, statics
 	assign {@_function_.ld_statics_reloc_buffer}, {reloc}
@@ -57,14 +57,14 @@
 		assign {reloc + 2, 8}, {reloc, val}
 	elseif {*buffer == char_b}
 		assign {reloc + 2, 2}, {reloc, val}
-	endif
+	(endif)
 
 	;create the number
 	func_call boxed_long, create, {}, {num}
 	func_call sys_string, to_long, {reloc, val}, {val}
 	if {sign == char_minus}
 		assign {-val}, {val}
-	endif
+	(endif)
 	func_call boxed_long, set_value, {num, val}
 
 	eval {this, num, char}, {r0, r1, r2}

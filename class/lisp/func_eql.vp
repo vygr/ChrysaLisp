@@ -41,7 +41,7 @@
 		func_call ref, ref, {value}
 	else
 		func_call error, create, {"(eql form form) wrong number of args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

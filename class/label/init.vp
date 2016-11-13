@@ -12,7 +12,7 @@
 
 	;init parent
 	(s-call 'label 'init '(r0, r1) '(r1))
-	if r1, !=, 0
+	(vpif '(r1 != 0))
 		(vp-push r0)
 
 		;init myself
@@ -35,7 +35,7 @@
 		(f-call 'text 'add_front '(r0, [r1 + label_flow]))
 
 		(vp-pop r0)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

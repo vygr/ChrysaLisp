@@ -37,7 +37,7 @@
 			func_call ref, deref, {list}
 			assign {ast}, {list}
 			goto error
-		endif
+		(endif)
 		func_call vector, push_back, {list, ast}
 
 		;skip white space/comments

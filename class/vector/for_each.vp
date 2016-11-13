@@ -56,9 +56,9 @@
 	;iterator of break point, else 0
 	(vp-cpy-ir r4 local_next r1)
 	(vp-cpy-ir r4 local_inst r0)
-	if r1, ==, [r4 + local_end]
+	(vpif '(r1 == [r4 + local_end]))
 		(vp-xor-rr r1 r1)
-	endif
+	(endif)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 

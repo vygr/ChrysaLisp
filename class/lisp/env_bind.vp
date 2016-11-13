@@ -33,7 +33,7 @@
 					assign {1, index_vars + 1}, {state, index_vars}
 				elseif {symbol == this->lisp_sym_optional}
 					assign {2, index_vars + 1}, {state, index_vars}
-				endif
+				(endif)
 				breakif {index_vars == len_vars}
 				func_call vector, get_element, {vars, index_vars}, {symbol}
 				func_call ref, deref, {value}
@@ -65,10 +65,10 @@
 			func_call error, create, {"(bind vars vals): wrong number of vals", vals}, {value}
 		else
 			func_call error, create, {"(bind vars vals): vals not a list", vals}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(bind vars vals): vars not a list", vars}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

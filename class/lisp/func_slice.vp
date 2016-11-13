@@ -34,27 +34,27 @@
 				virt_call sequence, get_length, {seq}, {length}
 				if {start < 0}
 					assign {length + start + 1}, {start}
-				endif
+				(endif)
 				if {end < 0}
 					assign {length + end + 1}, {end}
-				endif
+				(endif)
 				if {start >= 0 && end <= length}
 					virt_call sequence, slice, {seq, start, end}, {value}
 					eval {this, value}, {r0, r1}
 					return
 				else
 					func_call error, create, {"(slice start end seq) index out of bounds", args}, {value}
-				endif
+				(endif)
 			else
 			index_error:
 				func_call error, create, {"(slice start end seq) not an index", args}, {value}
-			endif
+			(endif)
 		else
 			func_call error, create, {"(slice start end seq) not a sequence", args}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(slice start end seq) wrong number of args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

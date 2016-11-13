@@ -10,12 +10,12 @@
 
 	;init parent
 	(s-call 'grid 'init '(r0, r1) '(r1))
-	if r1, !=, 0
+	(vpif '(r1 != 0))
 		;init myself
 		(vp-cpy-cr 1 r1)
 		(vp-cpy-ri r1 r0 grid_width)
 		(vp-cpy-ri r1 r0 grid_height)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

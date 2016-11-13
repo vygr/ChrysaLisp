@@ -33,10 +33,10 @@
 			func_call lisp, repl_print, {this, stream, args}
 			func_call stream_str, ref_string, {stream}, {value}
 			func_call ref, deref, {stream}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(str arg) wrong numbers of args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

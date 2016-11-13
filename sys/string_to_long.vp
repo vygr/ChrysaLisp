@@ -14,12 +14,12 @@
 	(loop-start)
 		(vp-cpy-ir-ub r2 r3)
 		(breakif '(r3 == 0))
-		if r3, >=, (code "a")
+		(vpif '(r3 >= (code "a")))
 			(vp-sub-cr (sub (code "a") (code "A")) r3)
-		endif
-		if r3, >=, (code "A")
+		(endif)
+		(vpif '(r3 >= (code "A")))
 			(vp-sub-cr (sub (code "A") (code "9") 1) r3)
-		endif
+		(endif)
 		(vp-sub-cr (code "0") r3)
 		(vp-mul-rr r1 r0)
 		(vp-add-rr r3 r0)

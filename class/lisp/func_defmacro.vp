@@ -30,13 +30,13 @@
 				func_call ref, ref, {name}
 			else
 				func_call error, create, {"(defmacro name vars body) name is not a symbol", args}, {name}
-			endif
+			(endif)
 		else
 			func_call error, create, {"(defmacro name vars body) vars is not a list", args}, {name}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(defmacro name vars body) wrong numbers of args", args}, {name}
-	endif
+	(endif)
 
 	eval {this, name}, {r0, r1}
 	pop_scope

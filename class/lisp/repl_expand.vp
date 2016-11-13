@@ -35,19 +35,19 @@
 					func_call lisp, env_bind, {this, args, form, 1}, {form}
 					if {form->obj_vtable != @class/class_error}
 						func_call vector, for_each, {macro, 1, macro->vector_length, $callback, &this}, {_}
-					endif
+					(endif)
 					func_call lisp, env_pop, {this}
 					func_call ref, deref, {*iter}
 					assign {form}, {*iter}
 					eval {this, form->obj_vtable == @class/class_error}, {r0, r1}
 					return
-				endif
-			endif
+				(endif)
+			(endif)
 			func_path lisp, repl_expand
 			func_call vector, for_each, {form, 0, length, @_function_, this}, {iter}
 			assign {!iter}, {iter}
-		endif
-	endif
+		(endif)
+	(endif)
 
 	eval {this, iter}, {r0, r1}
 	pop_scope

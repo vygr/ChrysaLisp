@@ -13,11 +13,11 @@
 
 	(loop-start)
 		(vp-cpy-ir r0 hp_heap_free_flist r1)
-		if r1, !=, 0
+		(vpif '(r1 != 0))
 			(vp-cpy-ir r1 ln_fnode_next r2)
 			(vp-cpy-ri r2 r0 hp_heap_free_flist)
 			(vp-ret)
-		endif
+		(endif)
 		(vp-cpy-ir r0 hp_heap_blocksize r1)
 		(vp-add-cr ln_fnode_size r1)
 		(vp-cpy-rr r0 r2)

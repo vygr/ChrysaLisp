@@ -18,11 +18,11 @@
 		(loop-start)
 			(vp-cpy-ir r0 r2)
 			lh_is_empty r2, r2
-			if r2, !=, 0
+			(vpif '(r2 != 0))
 				;return first mailbox not empty
 				(vp-cpy-ir r0 r0)
 				(vp-ret)
-			endif
+			(endif)
 			(vp-add-cr ptr_size r0)
 		(loop-until '(r0 == r1))
 

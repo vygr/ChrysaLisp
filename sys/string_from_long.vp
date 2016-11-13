@@ -14,9 +14,9 @@
 		(vp-xor-rr r2 r2)
 		(vp-div-u r3 r2 r0)
 		(vp-add-cr (code "0") r2)
-		if r2, >, (code "9")
+		(vpif '(r2 > (code "9")))
 			(vp-add-cr (sub (code "A") (code ":")) r2)
-		endif
+		(endif)
 		(vp-cpy-ri-b r2 r5)
 		(vp-inc r5)
 	(loop-until '(r0 == 0))

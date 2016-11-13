@@ -22,12 +22,12 @@
 			(breakif '(r11 == 0))
 			(vp-add-cr ptr_size r12)
 			(f-call 'sys_string 'compare '(r12, r13) '(r0))
-			if r0, ==, 0
+			(vpif '(r0 == 0))
 				(vp-rel 'options_table r0)
 				(vp-add-rr r11 r0)
 				(vp-call-r r0)
-				vp_jmp next_arg
-			endif
+				(vp-jmp 'next_arg)
+			(endif)
 			(f-call 'sys_string 'length '(r12) '(r1))
 			(vp-add-rr r1 r12)
 			(vp-add-cr ptr_size r12)
@@ -48,11 +48,11 @@ opt_cpu:
 	;set cpu ID
 	(vp-add-cr ptr_size r14)
 	(vp-cpy-ir r14 r0)
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		(f-call 'sys_string 'to_long '(r0, 10) '(r0))
 		(f-bind 'sys_task 'statics r1)
 		(vp-cpy-ri r0 r1 tk_statics_cpu_id)
-	endif
+	(endif)
 	(vp-ret)
 
 opt_run:
@@ -64,12 +64,12 @@ opt_run:
 	;load and run task
 	(vp-add-cr ptr_size r14)
 	(vp-cpy-ir r14 r0)
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		(f-call 'sys_load 'bind '(r0) '(r0))
-		if r0, !=, 0
+		(vpif '(r0 != 0))
 			(f-call 'sys_task 'start '(r0) '(r0, r1))
-		endif
-	endif
+		(endif)
+	(endif)
 	(vp-ret)
 
 opt_link:
@@ -81,7 +81,7 @@ opt_link:
 	;start link task
 	(vp-add-cr ptr_size r14)
 	(vp-cpy-ir r14 r0)
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		;start link
 		func_path sys_link, link
 		(f-call 'sys_task 'start '(@_function_) '(r0, r5))
@@ -91,8 +91,8 @@ opt_link:
 		(f-call 'sys_mail 'alloc '() '(r7))
 
 		;fill in destination
-		(vp-cpy-ri r5 r0 msg_dest + id_mbox)
-		(vp-cpy-ri r6 r0 msg_dest + id_cpu)
+		(vp-cpy-ri r5 r0 (add msg_dest id_mbox))
+		(vp-cpy-ri r6 r0 (add msg_dest id_cpu))
 
 		;fill in paramaters and set length
 		(f-call 'sys_string 'copy '($link_path, &[r7 + msg_data]) '(_, r1))
@@ -103,7 +103,7 @@ opt_link:
 
 		;send to link task
 		(f-call 'sys_mail 'send '(r7))
-	endif
+	(endif)
 	(vp-ret)
 
 link_path:

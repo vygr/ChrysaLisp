@@ -87,7 +87,7 @@ skip_white:
 	else
 		assign {this->lisp_sym_nil}, {ast}
 		func_call ref, ref, {ast}
-	endif
+	(endif)
 
 	eval {this, ast, char}, {r0, r1, r2}
 	pop_scope

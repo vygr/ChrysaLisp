@@ -64,13 +64,13 @@
 
 		;get keyboard info, see if any changes
 		(vp-cpy-ir r4 local_old_keymap r1)
-		if r1, ==, 0
+		(vpif '(r1 == 0))
 			;create old keymap
 			(f-call 'sys_mem 'alloc '([r4 + local_keymap_size]) '(r0, _))
 			(vp-cpy-ri r0 r4 local_old_keymap)
 			(f-call 'sys_mem 'clear '(r0, [r4 + local_keymap_size]) '(_))
 			(vp-cpy-ir r4 local_old_keymap r1)
-		endif
+		(endif)
 		(vp-cpy-ir r4 local_keymap r0)
 		(vp-cpy-ir-ui r4 local_keymap_size r2)
 
@@ -82,13 +82,13 @@
 			(vp-dec r2)
 			(vp-cpy-ir-ub r0 r2 r8)
 			(vp-cpy-ir-ub r1 r2 r9)
-			if r8, !=, r9
+			(vpif '(r8 != r9))
 				;set scan code, - for up
 				vp_cpy_ub r8, [r1 + r2]
 				(vp-cpy-rr r2 r11)
-				if r8, ==, 0
+				(vpif '(r8 == 0))
 					(vp-mul-cr -1 r11)
-				endif
+				(endif)
 
 				;cook keycode
 				(vp-rel 'scan_codes r5)
@@ -96,19 +96,19 @@
 				(vp-xor-rr r12 r12)
 				(loop-start)
 					(vp-cpy-ir-ub r5 r8)
-					if r8, ==, r2
+					(vpif '(r8 == r2))
 						(vp-cpy-ir-ub r5 r10 + 1 r12)
-					endif
+					(endif)
 					(vp-add-cr 3 r5)
 				(loop-until '(r5 >= r6))
 
 				;dispatch to task and target view
 				(vp-cpy-ir r4 local_key_view r6)
-				if r6, !=, 0
+				(vpif '(r6 != 0))
 					(vp-push r0, r1, r2)
 					;lookup view owner
 					(f-call 'view 'find_owner '(r6) '(r1))
-					if r1, !=, 0
+					(vpif '(r1 != 0))
 						;save owner mailbox
 						(f-call 'sys_cpu 'id '() '(r15))
 						(vp-lea-ir r1 tk_node_mailbox r14)
@@ -120,8 +120,8 @@
 						;fill in data
 						(vp-cpy-cr ev_msg_size r1)
 						(vp-cpy-ri r1 r0 msg_length)
-						(vp-cpy-ri r14 r0 msg_dest + id_mbox)
-						(vp-cpy-ri r15 r0 msg_dest + id_cpu)
+						(vp-cpy-ri r14 r0 (add msg_dest id_mbox))
+						(vp-cpy-ri r15 r0 (add msg_dest id_cpu))
 						(vp-cpy-cr ev_type_key r1)
 						(vp-cpy-ri r1 r0 ev_msg_type)
 						(vp-cpy-ri r6 r0 ev_msg_view)
@@ -131,37 +131,37 @@
 
 						;send mail to owner
 						(f-call 'sys_mail 'send '(r0))
-					endif
+					(endif)
 					(vp-pop r0, r1, r2)
-				endif
-			endif
+				(endif)
+			(endif)
 		(loop-end)
 
 		;get mouse info, see if any changes
 		(vp-cpy-ir r4 local_x_pos r8)
 		(vp-cpy-ir r4 local_y_pos r9)
 		(vp-cpy-ir r4 local_buttons r10)
-		if r8, ==, [r4 + local_last_x_pos]
-			if r9, ==, [r4 + local_last_y_pos]
-				if r10, ==, [r4 + local_last_buttons]
+		(vpif '(r8 == [r4 + local_last_x_pos]))
+			(vpif '(r9 == [r4 + local_last_y_pos]))
+				(vpif '(r10 == [r4 + local_last_buttons]))
 					;same as last time
-					vp_jmp next_frame
-				endif
-			endif
-		endif
+					(vp-jmp 'next_frame)
+				(endif)
+			(endif)
+		(endif)
 		(vp-cpy-ri r8 r4 local_last_x_pos)
 		(vp-cpy-ri r9 r4 local_last_y_pos)
 		(vp-cpy-ri r10 r4 local_last_buttons)
 
 		;dispatch to task and target view
 		(vp-cpy-ir r4 local_last_view r6)
-		if r6, !=, 0
+		(vpif '(r6 != 0))
 		send_mouse:
 			;do we need to wait till button goes up ?
-			if r6, !=, -1
+			(vpif '(r6 != -1))
 				;lookup view owner
 				(f-call 'view 'find_owner '(r6) '(r1))
-				if r1, !=, 0
+				(vpif '(r1 != 0))
 					;save owner mailbox
 					(f-call 'sys_cpu 'id '() '(r15))
 					(vp-lea-ir r1 tk_node_mailbox r14)
@@ -173,8 +173,8 @@
 					;fill in data
 					(vp-cpy-cr ev_msg_size r1)
 					(vp-cpy-ri r1 r0 msg_length)
-					(vp-cpy-ri r14 r0 msg_dest + id_mbox)
-					(vp-cpy-ri r15 r0 msg_dest + id_cpu)
+					(vp-cpy-ri r14 r0 (add msg_dest id_mbox))
+					(vp-cpy-ri r15 r0 (add msg_dest id_cpu))
 					(vp-cpy-ir r4 local_x_pos r8)
 					(vp-cpy-ir r4 local_y_pos r9)
 					(vp-cpy-cr ev_type_mouse r1)
@@ -190,43 +190,43 @@
 
 					;send mail to owner
 					(f-call 'sys_mail 'send '(r0))
-				endif
-			endif
+				(endif)
+			(endif)
 
 			;if button went up then clear locked view
-			if r10, ==, 0
+			(vpif '(r10 == 0))
 				(vp-cpy-ri r10 r4 local_last_view)
-			endif
+			(endif)
 		else
 			;button down ?
-			if r10, !=, 0
+			(vpif '(r10 != 0))
 				;find view
 				(f-bind 'gui_gui 'statics r5)
 				(f-call 'view 'hit_tree '([r5 + gui_statics_screen], [r4 + local_x_pos], [r4 + local_y_pos]) '(r1, r8, r9))
-				if r1, ==, [r5 + gui_statics_screen]
+				(vpif '(r1 == [r5 + gui_statics_screen]))
 					(vp-xor-rr r1 r1)
-				endif
-				if r1, ==, 0
+				(endif)
+				(vpif '(r1 == 0))
 					(vp-cpy-cr -1 r1)
-				endif
+				(endif)
 				(vp-cpy-ri r1 r4 local_last_view)
 				(vp-cpy-rr r1 r6)
-				vp_jmp send_mouse
+				(vp-jmp 'send_mouse)
 			else
 				;hover
 				;find view for keys
 				(f-bind 'gui_gui 'statics r5)
 				(f-call 'view 'hit_tree '([r5 + gui_statics_screen], [r4 + local_x_pos], [r4 + local_y_pos]) '(r1, _, _))
 				(vp-cpy-ri r1 r4 local_key_view)
-			endif
-		endif
+			(endif)
+		(endif)
 	(loop-end)
 
 	;free old key map
 	(vp-cpy-ir r4 local_old_keymap r0)
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		(f-call 'sys_mem 'free '(r0))
-	endif
+	(endif)
 
 	;deinit
 	(f-call 'sys_task 'callback '($deinit_callback, r4))
@@ -253,7 +253,7 @@ update_callback:
 	;create screen window ?
 	(f-bind 'gui_gui 'statics r0)
 	(vp-cpy-ir r0 gui_statics_window r1)
-	if r1, ==, 0
+	(vpif '(r1 == 0))
 		;init sdl2
 		sdl_set_main_ready
 		sdl_init SDL_INIT_VIDEO
@@ -271,12 +271,12 @@ update_callback:
 
 		;set blend mode
 		sdl_set_render_draw_blend_mode r0, SDL_BLENDMODE_BLEND
-	endif
+	(endif)
 
 	;update screen
 	(f-bind 'gui_gui 'statics r0)
 	(vp-cpy-ir r0 gui_statics_screen r0)
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		;pump sdl events
 		sdl_pump_events
 
@@ -301,7 +301,7 @@ update_callback:
 		;refresh the window
 		(f-bind 'gui_gui 'statics r0)
 		sdl_render_present [r0 + gui_statics_renderer]
-	endif
+	(endif)
 
 	(vp-cpy-ir r4 klocal_old_stack r4)
 	(vp-ret)
@@ -313,11 +313,11 @@ deinit_callback:
 	;free any screen
 	(f-bind 'gui_gui 'statics r5)
 	(vp-cpy-ir r5 gui_statics_screen r0)
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri r1 r5 gui_statics_screen)
 		(f-call 'view 'deref '(r0))
-	endif
+	(endif)
 
 	;free old region
 	(f-bind 'gui_gui 'statics r5)
@@ -331,7 +331,7 @@ deinit_callback:
 
 	;destroy any window
 	(vp-cpy-ir r5 gui_statics_window r14)
-	if r14, !=, 0
+	(vpif '(r14 != 0))
 		;align stack on 16 byte boundary
 		(vp-cpy-rr r4 r15)
 		(vp-and-cr -16 r4)
@@ -341,7 +341,7 @@ deinit_callback:
 		sdl_quit
 
 		(vp-cpy-rr r15 r4)
-	endif
+	(endif)
 	(vp-ret)
 
 title:

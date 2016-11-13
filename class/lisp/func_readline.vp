@@ -33,13 +33,13 @@
 				func_call ref, ref, {value}
 			else
 				func_call string, create_from_buffer, {reloc, length}, {value}
-			endif
+			(endif)
 		else
 			func_call error, create, {"(read-line stream) not a stream", args}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(read-line stream) wrong number of args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

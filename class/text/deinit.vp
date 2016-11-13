@@ -14,11 +14,11 @@
 
 	;deref any string and words objects
 	(vp-cpy-ir r0 text_string r0)
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		(f-call 'string 'deref '(r0))
 		(vp-cpy-ir r4 r0)
 		(f-call 'vector 'deref '([r0 + text_words]))
-	endif
+	(endif)
 
 	;deinit parent
 	(vp-pop r0)

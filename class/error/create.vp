@@ -16,16 +16,16 @@
 
 	;create new string object
 	(f-call 'error 'new '() '(r0))
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		;init the object
 		func_path class, error
 		(f-call 'error 'init '(r0, @_function_, r6, r7) '(r1))
-		if r1, ==, 0
+		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'error 'delete '(r0) '() 'r1)
 			(vp-xor-rr r0 r0)
-		endif
-	endif
+		(endif)
+	(endif)
 	(vp-ret)
 
 (def-func-end)

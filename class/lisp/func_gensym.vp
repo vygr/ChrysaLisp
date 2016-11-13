@@ -29,7 +29,7 @@
 		assign {this->lisp_nextsym + 1}, {this->lisp_nextsym}
 	else
 		func_call error, create, {"(gensym) wrong numbers of args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

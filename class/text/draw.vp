@@ -32,10 +32,10 @@
 			if {txt}
 				func_call gui_ctx, blit, {ctx, txt->ft_text_texture, inst->text_text_color, x, 0, txt->ft_text_width, txt->ft_text_height}
 				assign {x + txt->ft_text_width + (txt->ft_text_height >> 2)}, {x}
-			endif
+			(endif)
 			assign {words + ptr_size}, {words}
 		loop_until {words == words_end}
-	endif
+	(endif)
 
 	eval {inst}, {r0}
 	pop_scope

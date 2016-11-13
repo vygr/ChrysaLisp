@@ -11,11 +11,11 @@
 	;all but r4
 
 	func_call string, create_from_long, {r0, r1}, {r0}
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		func_path class, symbol
 		fn_bind _function_, r1
 		(vp-cpy-ri r1 r0 obj_vtable)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

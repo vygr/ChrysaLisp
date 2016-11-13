@@ -40,20 +40,20 @@
 				func_call stream, write_char, {this->lisp_stdout, char_lf}
 				func_call stream, write_cstr, {this->lisp_stdout, "--Macro expanding--"}
 				func_call stream, write_char, {this->lisp_stdout, char_lf}
-			endif
+			(endif)
 
 			(loop-start)
 				func_call lisp, repl_expand, {this, &ast}, {flag}
 				if {stream == this->lisp_stdin}
 					func_call lisp, repl_print, {this, this->lisp_stdout, ast}
 					func_call stream, write_char, {this->lisp_stdout, 10}
-				endif
+				(endif)
 			loop_until {flag}
 
 			if {stream == this->lisp_stdin}
 				func_call stream, write_cstr, {this->lisp_stdout, "--Eval--"}
 				func_call stream, write_char, {this->lisp_stdout, char_lf}
-			endif
+			(endif)
 
 			func_call lisp, repl_eval, {this, ast}, {value}
 			func_call ref, deref, {ast}
@@ -64,7 +64,7 @@
 			elseif {stream == this->lisp_stdin}
 				func_call lisp, repl_print, {this, this->lisp_stdout, value}
 				func_call stream, write_char, {this->lisp_stdout, char_lf}
-			endif
+			(endif)
 
 			func_call ref, deref, {value}
 		(loop-end)
@@ -73,7 +73,7 @@
 		func_call ref, ref, {value}
 	else
 		func_call error, create, {"(repl stream) wrong number of args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

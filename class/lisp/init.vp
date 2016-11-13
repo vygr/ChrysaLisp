@@ -27,7 +27,7 @@
 		func_path lisp, %3
 		fn_find_link _function_
 		dw _ref_%[_link_num_]_link - $
-	%endif
+	%(endif)
 	dw %4
 %endmacro
 
@@ -75,18 +75,18 @@
 			if {table->built_in_field}
 				assign {this + table->built_in_field}, {path_ptr}
 				assign {symbol}, {*path_ptr}
-			endif
+			(endif)
 			if {table->built_in_function}
 				assign {&table->built_in_function + table->built_in_function}, {path_ptr}
 				func_call lisp, built_in_func, {this, symbol, *path_ptr, table->built_in_flags}
-			endif
+			(endif)
 			assign {table + built_in_hop}, {table}
 		(loop-end)
 
 		;standard self evaulating symbols
 		func_call unordered_map, insert, {this->lisp_enviroment, this->lisp_sym_nil, this->lisp_sym_nil}, {_, _}
 		func_call unordered_map, insert, {this->lisp_enviroment, this->lisp_sym_t, this->lisp_sym_t}, {_, _}
-	endif
+	(endif)
 
 	eval {this, ok}, {r0, r1}
 	pop_scope
@@ -99,9 +99,9 @@ match_obj:
 	;outputs
 	;r1 = 0 if match
 
-	if r0, ==, r1
+	(vpif '(r0 == r1))
 		(vp-xor-rr r1 r1)
-	endif
+	(endif)
 	(vp-ret)
 
 ;;;;;;;;;;;

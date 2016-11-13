@@ -13,13 +13,13 @@
 	;r1-r3, r5-r6
 
 	(f-call 'gui_font 'text '(r0, r1) '(r0))
-	if r0, ==, 0
+	(vpif '(r0 == 0))
 		(vp-xor-rr r10 r10)
 		(vp-xor-rr r11 r11)
 	else
 		(vp-cpy-ir r0 ft_text_width r10)
 		(vp-cpy-ir r0 ft_text_height r11)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

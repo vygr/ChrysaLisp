@@ -13,12 +13,12 @@
 
 	;save inputs
 	(vp-cpy-ir r0 string_hashcode r1)
-	if r1, ==, 0
+	(vpif '(r1 == 0))
 		(vp-push r0)
 		(f-call 'sys_string 'hash '(&[r0 + string_data]) '(r1))
 		(vp-pop r0)
 		(vp-cpy-ri r1 r0 string_hashcode)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

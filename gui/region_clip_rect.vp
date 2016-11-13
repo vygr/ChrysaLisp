@@ -13,8 +13,8 @@
 	;r5-r15
 
 	;check for any obvious errors in inputs
-	if r10, >, r8
-		if r11, >, r9
+	(vpif '(r10 > r8))
+		(vpif '(r11 > r9))
 			;run through source region list
 			(vp-cpy-rr r1 r7)
 			(loop-start)
@@ -32,19 +32,19 @@
 					(breakif '(r15 <= r9))
 
 					;clip region
-					if r12, <, r8
+					(vpif '(r12 < r8))
 						(vp-cpy-ri-i r8 r7 gui_rect_x)
-					endif
-					if r13, <, r9
+					(endif)
+					(vpif '(r13 < r9))
 						(vp-cpy-ri-i r9 r7 gui_rect_y)
-					endif
-					if r14, >, r10
+					(endif)
+					(vpif '(r14 > r10))
 						(vp-cpy-ri-i r10 r7 gui_rect_x1)
-					endif
-					if r15, >, r11
+					(endif)
+					(vpif '(r15 > r11))
 						(vp-cpy-ri-i r11 r7 gui_rect_y1)
-					endif
-					vp_jmp loop
+					(endif)
+					(vp-jmp 'loop)
 				endswitch
 
 				;region is outside
@@ -52,8 +52,8 @@
 				(ln-remove-fnode r7 r6)
 				(hp-freecell r0 r5 r6)
 			(loop-end)
-		endif
-	endif
+		(endif)
+	(endif)
 	(vp-ret)
 
 (def-func-end)

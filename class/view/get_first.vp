@@ -12,11 +12,11 @@
 
 	lh_get_head r0 + view_list, r1
 	(ln-get-succ r1 r2)
-	if r2, ==, 0
+	(vpif '(r2 == 0))
 		(vp-cpy-rr r2 r1)
 	else
 		(vp-sub-cr view_node r1)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

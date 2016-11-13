@@ -24,7 +24,7 @@
 	(vp-cpy-ir-ub r2 -1 r1)
 	(vp-sub-rr r1 r2)
 	(vp-cpy-ir-ui r2 (sub 0 int_size) r1)
-	if r1, >, tk_stack_size
+	(vpif '(r1 > tk_stack_size))
 		(vp-add-cr tk_node_stackspace r1)
 		(vp-cpy-cr tk_node_size r1)
 		(f-call 'sys_mem 'alloc '(r1) '(r0, r1))
@@ -34,7 +34,7 @@
 		(vp-cpy-ri r0 r1)
 		(vp-lea-ir r1 ptr_size r0)
 		(vp-cpy-cr tk_node_size r1)
-	endif
+	(endif)
 
 	;initialise task mailbox etc
 	(vp-xor-rr r2 r2)

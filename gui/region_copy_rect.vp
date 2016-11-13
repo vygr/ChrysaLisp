@@ -14,8 +14,8 @@
 	;r1-r2, r5-r15
 
 	;check for any obvious errors in inputs
-	if r10, >, r8
-		if r11, >, r9
+	(vpif '(r10 > r8))
+		(vpif '(r11 > r9))
 			;run through source region list
 			(vp-cpy-rr r2 r5)
 			(loop-flist-forward r1, r7, r7)
@@ -45,7 +45,7 @@
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
 				(vp-cpy-ri-i r10 r1 gui_rect_x1)
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_split1:
 				;jump to correct splitting code
@@ -59,7 +59,7 @@
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
 				(vp-cpy-ri-i r10 r1 gui_rect_x1)
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_split2:
 				;jump to correct splitting code
@@ -72,7 +72,7 @@
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
 				(vp-cpy-ri-i r10 r1 gui_rect_x1)
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_split3:
 				;jump to correct splitting code
@@ -85,7 +85,7 @@
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
 				(vp-cpy-ri-i r10 r1 gui_rect_x1)
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_split4:
 				;jump to correct splitting code
@@ -97,7 +97,7 @@
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
 				(vp-cpy-ri-i r14 r1 gui_rect_x1)
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_split5:
 				;jump to correct splitting code
@@ -109,7 +109,7 @@
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
 				(vp-cpy-ri-i r14 r1 gui_rect_x1)
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_split6:
 				;jump to correct splitting code
@@ -121,7 +121,7 @@
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
 				(vp-cpy-ri-i r14 r1 gui_rect_x1)
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_split7:
 				;jump to correct splitting code
@@ -133,7 +133,7 @@
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
 				(vp-cpy-ri-i r14 r1 gui_rect_x1)
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_xyx1:
 				;r8 + r9 + r10 inside
@@ -141,7 +141,7 @@
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
 				(vp-cpy-ri-i r10 r1 gui_rect_x1)
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_encl:
 				;region is enclosed
@@ -149,7 +149,7 @@
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
 				(vp-cpy-ri-i r14 r1 gui_rect_x1)
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_x:
 				;r8 inside
@@ -157,7 +157,7 @@
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
 				(vp-cpy-ri-i r14 r1 gui_rect_x1)
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_y:
 				;r9 inside
@@ -165,7 +165,7 @@
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
 				(vp-cpy-ri-i r14 r1 gui_rect_x1)
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_xy:
 				;r8 + r9 inside
@@ -173,7 +173,7 @@
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
 				(vp-cpy-ri-i r14 r1 gui_rect_x1)
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_x1:
 				;r10 inside
@@ -181,7 +181,7 @@
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
 				(vp-cpy-ri-i r10 r1 gui_rect_x1)
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_xx1:
 				;r8 + r10 inside
@@ -189,7 +189,7 @@
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
 				(vp-cpy-ri-i r10 r1 gui_rect_x1)
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			copy_yx1:
 				;r9 + r10 inside
@@ -198,8 +198,8 @@
 				(vp-cpy-ri-i r10 r1 gui_rect_x1)
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
 			(loop-end)
-		endif
-	endif
+		(endif)
+	(endif)
 	(vp-ret)
 
 (def-func-end)

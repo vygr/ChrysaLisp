@@ -43,7 +43,7 @@
 			assign {msg->stream_mail_ack_id.id_cpu}, {ack_msg->msg_dest.id_cpu}
 			func_call sys_mail, send, {ack_msg}
 			assign {inst->stream_msg_in_ack_seqnum + 1}, {inst->stream_msg_in_ack_seqnum}
-		endif
+		(endif)
 
 		breakif {inst->stream_msg_in_state != stream_mail_state_started}
 	loop_until {inst->stream_bufp != inst->stream_bufe}

@@ -27,7 +27,7 @@
 		assign {mailbox}, {*inst->master_select_array}
 		devirt_call vector, get_length, {inst->master_streams}, {length}
 		func_call sys_mail, select, {inst->master_select_array, length}, {mailbox}
-	endif
+	(endif)
 
 	eval {inst, mailbox}, {r0, r1}
 	pop_scope

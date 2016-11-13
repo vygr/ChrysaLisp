@@ -26,10 +26,10 @@
 			func_call stream_str, create, {value}, {value}
 		else
 			func_call error, create, {"(string-stream str) str not a string", args}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(string-stream str) not enough args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

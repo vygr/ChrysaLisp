@@ -18,12 +18,12 @@
 	(f-bind 'sys_load 'statics r7)
 	(vp-add-cr ld_statics_stat_buffer r7)
 	sys_stat r0, r7
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 	exit:
 		;no such file
 		(vp-xor-rr r0 r0)
 		(vp-ret)
-	endif
+	(endif)
 
 	;test for regular file only
 	(vp-cpy-ir-us r7 stat_mode r0)
@@ -33,16 +33,16 @@
 	;create new string object
 	(vp-cpy-ir r7 stat_fsize r1)
 	(f-call 'string 'new '(&[r1 + string_size + 1]) '(r0))
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		;init the object
 		func_path class, string
 		(f-call 'string 'init2 '(r0, @_function_, r6, [r7 + stat_fsize]) '(r1))
-		if r1, ==, 0
+		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
 			(vp-xor-rr r0 r0)
-		endif
-	endif
+		(endif)
+	(endif)
 	(vp-ret)
 
 (def-func-end)

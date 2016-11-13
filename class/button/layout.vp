@@ -23,9 +23,9 @@
 	(vp-sub-cr button_border_size * 2 r11)
 	(vp-cpy-ir r0 button_state r1)
 	(vp-and-cr button_state_pressed r1)
-	if r1, !=, 0
+	(vpif '(r1 != 0))
 		(vp-add-cr button_border_size r8)
-	endif
+	(endif)
 	(f-call 'flow 'change '([r0 + label_flow], r8, r8, r10, r11))
 
 	(f-call 'button 'opaque '([r4 + local_inst]))

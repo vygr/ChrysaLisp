@@ -14,10 +14,10 @@
 	(loop-start)
 		(vp-cpy-rr r2 r0)
 		(ln-get-succ r2 r2)
-		if r2, ==, 0
+		(vpif '(r2 == 0))
 			(vp-xor-rr r0 r0)
 			(vp-ret)
-		endif
+		(endif)
 		(breakif '(r1 == 0))
 		(vp-dec r1)
 	(loop-end)

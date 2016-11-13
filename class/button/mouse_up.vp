@@ -14,17 +14,17 @@
 	(vp-cpy-rr r1 r2)
 	(vp-and-cr ~button_state_pressed r1)
 	(vp-cpy-ri r1 r0 button_state)
-	if r1, !=, r2
+	(vpif '(r1 != r2))
 		(v-call 'button 'layout '(r0))
 		(f-call 'button 'dirty '(r0))
-	endif
+	(endif)
 
 	;emit pressed signal ?
 	(vp-pop r1)
 	(vp-and-cr button_state_pressed r1)
-	if r1, !=, 0
+	(vpif '(r1 != 0))
 		(f-jmp 'button 'emit '(r0, &[r0 + button_pressed_signal]))
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

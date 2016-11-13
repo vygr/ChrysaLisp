@@ -10,12 +10,12 @@
 
 	;are we in suspend state ?
 	(vp-cpy-ir r0 r1)
-	if r1, ==, 0
+	(vpif '(r1 == 0))
 		;add to task list
 		(f-bind 'sys_task 'statics r1)
 		(vp-cpy-ir r1 tk_statics_current_tcb r1)
 		(ln-add-node-before r1 r0 r2)
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

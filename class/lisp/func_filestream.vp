@@ -29,13 +29,13 @@
 				func_call stream_str, create, {value}, {value}
 			else
 				func_call error, create, {"(file-stream filename) filename not found", args}, {value}
-			endif
+			(endif)
 		else
 			func_call error, create, {"(file-stream filename) filename not a filename", args}, {value}
-		endif
+		(endif)
 	else
 		func_call error, create, {"(file-stream filename) not enough args", args}, {value}
-	endif
+	(endif)
 
 	eval {this, value}, {r0, r1}
 	pop_scope

@@ -30,7 +30,7 @@ main:
 	(vp-rel 'ld_kernel r1)
 	(vp-cpy-ir-ui r1 fn_header_entry r2)
 	(vp-add-rr r2 r1)
-	vp_jmp r1
+	(vp-jmp-r r1)
 
 ;;;;;;;;;;;;;;;;;;;;
 ; prebound functions
@@ -122,4 +122,4 @@ sdl_func_table:
 	dq TTF_FontDescent
 	dq TTF_FontHeight
 	dq TTF_RenderUTF8_Blended
-%endif
+%(endif)

@@ -148,7 +148,7 @@
 				assign {this, stream, 0}, {this, stream, index}
 				func_call vector, for_each, {value, 0, length, $callback, &this}, {_}
 				func_call stream, write_char, {stream, char_rrb}
-			endif
+			(endif)
 			pop_scope
 			break
 		default
@@ -160,7 +160,7 @@
 			func_call stream, write_cstr, {stream, elem}
 			pop_scope
 		endswitch
-	endif
+	(endif)
 
 	eval {this}, {r0}
 	pop_scope
@@ -185,7 +185,7 @@ callback:
 	assign {pdata->pdata_index + 1}, {pdata->pdata_index}
 	if {pdata->pdata_index != pdata->pdata_length}
 		func_call stream, write_char, {pdata->pdata_stream, char_space}
-	endif
+	(endif)
 
 	eval {1}, {r1}
 	pop_scope

@@ -13,8 +13,8 @@
 	;r1-r3, r5-r15
 
 	;check for any obvious errors in inputs
-	if r10, >, r8
-		if r11, >, r9
+	(vpif '(r10 > r8))
+		(vpif '(r11 > r9))
 			;run through source region list
 			(vp-cpy-rr r1 r5)
 			(loop-flist-forward r1, r7, r6)
@@ -47,7 +47,7 @@
 			paste_yx1y1:
 				;r9 + r10 + r11 inside
 				(vp-cpy-rr r12 r10)
-				continue
+				(continue)
 
 			paste_split2:
 				;jump to correct splitting code
@@ -57,7 +57,7 @@
 			paste_xx1y1:
 				;r8 + r10 + r11 inside
 				(vp-cpy-rr r13 r11)
-				continue
+				(continue)
 
 			paste_split3:
 				;jump to correct splitting code
@@ -76,7 +76,7 @@
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
 				(vp-cpy-ri-i r14 r1 gui_rect_x1)
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			paste_split4:
 				;jump to correct splitting code
@@ -85,7 +85,7 @@
 			paste_xyy1:
 				;r8 + r9 + r11 inside
 				(vp-cpy-rr r14 r8)
-				continue
+				(continue)
 
 			paste_split5:
 				;jump to correct splitting code
@@ -103,7 +103,7 @@
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
 				(vp-cpy-ri-i r14 r1 gui_rect_x1)
 				(vp-cpy-ri-i r9 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			paste_split6:
 				;jump to correct splitting code
@@ -121,7 +121,7 @@
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
 				(vp-cpy-ri-i r8 r1 gui_rect_x1)
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			paste_split7:
 				;jump to correct splitting code
@@ -131,31 +131,31 @@
 				;r11 inside
 				;bottom part
 				(vp-cpy-ri-i r11 r7 gui_rect_y)
-				continue
+				(continue)
 
 			paste_xyx1:
 				;r8 + r9 + r10 inside
 				(vp-cpy-rr r15 r9)
-				continue
+				(continue)
 
 			paste_encl:
 				;region is enclosed
 				(vp-cpy-rr r7 r1)
 				(ln-remove-fnode r7 r6)
 				(hp-freecell r0 r1 r2)
-				continue
+				(continue)
 
 			paste_x:
 				;r8 inside
 				;left part
 				(vp-cpy-ri-i r8 r7 gui_rect_x1)
-				continue
+				(continue)
 
 			paste_y:
 				;r9 inside
 				;top part
 				(vp-cpy-ri-i r9 r7 gui_rect_y1)
-				continue
+				(continue)
 
 			paste_xy:
 				;r8 + r9 inside
@@ -170,13 +170,13 @@
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
 				(vp-cpy-ri-i r14 r1 gui_rect_x1)
 				(vp-cpy-ri-i r9 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			paste_x1:
 				;r10 inside
 				;right part
 				(vp-cpy-ri-i r10 r7 gui_rect_x)
-				continue
+				(continue)
 
 			paste_xx1:
 				;r8 + r10 inside
@@ -190,7 +190,7 @@
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
 				(vp-cpy-ri-i r8 r1 gui_rect_x1)
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
-				continue
+				(continue)
 
 			paste_yx1:
 				;r9 + r10 inside
@@ -220,8 +220,8 @@
 				(vp-cpy-ri-i r10 r1 gui_rect_x1)
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
 			endswitch
-		endif
-	endif
+		(endif)
+	(endif)
 	(vp-ret)
 
 (def-func-end)

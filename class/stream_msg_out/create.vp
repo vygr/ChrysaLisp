@@ -16,16 +16,16 @@
 	(map-src-to-dst)
 
 	(f-call 'stream_msg_out 'new '() '(r0))
-	if r0, !=, 0
+	(vpif '(r0 != 0))
 		;init the object
 		func_path class, stream_msg_out
 		(f-call 'stream_msg_out 'init '(r0, @_function_, r5, r6) '(r1))
-		if r1, ==, 0
+		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'stream_msg_out 'delete '(r0) '() 'r1)
 			(vp-xor-rr r0 r0)
-		endif
-	endif
+		(endif)
+	(endif)
 	(vp-ret)
 
 (def-func-end)

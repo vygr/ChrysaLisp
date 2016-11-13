@@ -15,20 +15,20 @@
 	;is mouse over button ?
 	(vp-cpy-ir r0 button_state r2)
 	(vp-cpy-rr r2 r3)
-	if r1, !=, 0
+	(vpif '(r1 != 0))
 		;state pressed
 		vp_or button_state_pressed, r2
 	else
 		;state not pressed
 		(vp-and-cr ~button_state_pressed r2)
-	endif
+	(endif)
 	(vp-cpy-ri r2 r0 button_state)
 
 	;if state changed then dirty
-	if r2, !=, r3
+	(vpif '(r2 != r3))
 		(v-call 'button 'layout '(r0))
 		(f-jmp 'button 'dirty '(r0))
-	endif
+	(endif)
 	(vp-ret)
 
 (def-func-end)

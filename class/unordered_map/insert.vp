@@ -34,7 +34,7 @@
 	(f-call 'unordered_map 'get_bucket '(r0, r1) '(r0))
 	(f-call 'vector 'for_each '(r0, 0, [r0 + vector_length], $callback, r4) '(r1))
 	(vp-cpy-ri r0 r4 local_bucket)
-	if r1, ==, 0
+	(vpif '(r1 == 0))
 		;new key
 		(vp-cpy-ir r4 local_inst r0)
 		(vp-cpy-ir r0 unordered_set_length r1)
@@ -60,7 +60,7 @@
 		(vp-cpy-ri r0 r2 pair_second)
 		(vp-cpy-ir r4 local_iter r1)
 		(vp-cpy-ir r4 local_bucket r2)
-	endif
+	(endif)
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)
@@ -77,6 +77,6 @@ callback:
 	(vp-cpy-ir r1 pair_first r1)
 	(vp-cpy-ir r0 local_inst r2)
 	(vp-cpy-ir r0 local_key r0)
-	vp_jmp [r2 + unordered_set_key_callback]
+	(vp-jmp-i r2 unordered_set_key_callback)
 
 (def-func-end)
