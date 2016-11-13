@@ -12,6 +12,11 @@ def_func class/lisp/repl_expand
 	;r0 = lisp object
 	;r1 = 0 if expanded
 
+	def_struct pdata
+		ptr pdata_this
+		ptr pdata_form
+	def_struct_end
+
 	pptr iter, miter
 	ptr this, form, macro, args
 	ulong length
@@ -34,9 +39,7 @@ def_func class/lisp/repl_expand
 					func_call vector, get_element, {macro, 0}, {args}
 					func_call lisp, env_bind, {this, args, form, 1}, {form}
 					if {form->obj_vtable != @class/class_error}
-						func_call ref, deref, {form}
-						func_call vector, get_element, {macro, 1}, {form}
-						func_call lisp, repl_eval, {this, form}, {form}
+						func_call vector, for_each, {macro, 1, macro->vector_length, $callback, &this}, {_}
 					endif
 					func_call lisp, env_pop, {this}
 					func_call ref, deref, {*iter}
@@ -52,6 +55,26 @@ def_func class/lisp/repl_expand
 	endif
 
 	eval {this, iter}, {r0, r1}
+	pop_scope
+	return
+
+callback:
+	;inputs
+	;r0 = predicate data pointer
+	;r1 = element iterator
+	;outputs
+	;r1 = 0 if break, else not
+
+	pptr iter
+	ptr pdata
+
+	push_scope
+	retire {r0, r1}, {pdata, iter}
+
+	func_call ref, deref, {pdata->pdata_form}
+	func_call lisp, repl_eval, {pdata->pdata_this, *iter}, {pdata->pdata_form}
+
+	eval {pdata->pdata_form->obj_vtable != @class/class_error}, {r1}
 	pop_scope
 	return
 

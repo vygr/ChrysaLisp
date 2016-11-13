@@ -52,6 +52,13 @@
 			,b
 			(setq ,_l (add ,_l ,_i)))))
 
+(defmacro times (c &rest b)
+	(defq _c (gensym))
+	`(progn (defq ,_c ,c)
+		(while (lt 0 ,_c)
+	 		(setq ,_c (dec ,_c))
+			~b)))
+
 ;;;;;;;;;;;;
 ; Map/Reduce
 ;;;;;;;;;;;;
