@@ -23,13 +23,13 @@
 
 				switch
 					(vp-cpy-ir-i r7 gui_rect_x r12)
-					breakif r12, >=, r10
+					(breakif '(r12 >= r10))
 					(vp-cpy-ir-i r7 gui_rect_y r13)
-					breakif r13, >=, r11
+					(breakif '(r13 >= r11))
 					(vp-cpy-ir-i r7 gui_rect_x1 r14)
-					breakif r14, <=, r8
+					(breakif '(r14 <= r8))
 					(vp-cpy-ir-i r7 gui_rect_y1 r15)
-					breakif r15, <=, r9
+					(breakif '(r15 <= r9))
 
 					;clip region
 					if r12, <, r8

@@ -27,7 +27,7 @@ ld_load_function:
 		(vp-cpy-rr r7 r0)
 		(vp-lea-ir r6 fn_header_pathname r1)
 		(vp-call 'string_compare)
-	loop_until r0, ==, 0
+	(loop-until '(r0 == 0))
 	if r6, !=, 0
 		;found function already loaded
 		(vp-cpy-ir-ui r6 fn_header_entry r0)
@@ -56,7 +56,7 @@ ld_load_function:
 	;test for regular file only
 	(vp-cpy-ir-us r8 ld_statics_stat_buffer + stat_mode r0)
 	(vp-and-cr s_ifmt r0)
-	vp_jmpif r0, !=, s_ifreg, exit
+	(vp-jmpif '(r0 != s_ifreg) 'exit)
 
 	;ensure space for new function
 	(vp-cpy-ir r8 ld_statics_block_start r1)
@@ -65,8 +65,8 @@ ld_load_function:
 	(vp-cpy-ir r8 ld_statics_stat_buffer + stat_fsize r0)
 	if r2, <, r0
 		;not enough so allocate new function buffer
-		sys_mmap 0, ld_block_size, prot_read|prot_write|prot_exec, map_private|map_anon, -1, 0
-		assert r0, !=, 0
+		(sys-mmap '(0, ld_block_size, prot_read|prot_write|prot_exec, map_private|map_anon, -1, 0))
+		(assert '(r0, !=, 0))
 
 		;add to block list for freeing
 		(ln-add-fnode r8 + ld_statics_block_flist r0 r1)
@@ -123,7 +123,7 @@ ld_load_function:
 	(vp-cpy-ir-ui r3 fn_header_length r2)
 	(vp-add-rr r3 r0)
 	(vp-add-rr r3 r2)
-	loop_while r0, <, r2
+	(loop-while '(r0 < r2))
 	 	(vp-cpy-ir r0 r5)
 		(vp-cpy-ri r5 r1)
 		(vp-add-cr ptr_size r0)
@@ -151,7 +151,7 @@ ld_load_function:
 	(vp-sub-rr r2 r6)
 	(loop-start)
 	 	(vp-cpy-ir r0 r2)
-		breakif r2, ==, 0
+		(breakif '(r2 == 0))
 		(vp-add-rr r0 r2)
 		(vp-add-rr r6 r2)
 		(vp-cpy-ri r2 r0)
@@ -169,7 +169,7 @@ ld_load_function:
 	(vp-push r3)
 	(loop-start)
 		(vp-cpy-ir r0 r1)
-		breakif r1, ==, 0
+		(breakif '(r1 == 0))
 		(vp-push r0)
 		(vp-cpy-rr r1 r0)
 		(vp-call 'ld_load_function)
@@ -217,8 +217,8 @@ string_compare:
 		(vp-cpy-ir-ub r0 r2)
 		(vp-cpy-ir-ub r1 r3)
 		(vp-sub-rr r3 r2)
-		breakif r2, !=, 0
-		breakif r3, ==, 0
+		(breakif '(r2 != 0))
+		(breakif '(r3 == 0))
 		(vp-inc r0)
 		(vp-inc r1)
 	(loop-end)
@@ -231,14 +231,14 @@ string_copy:
 		(vp-cpy-ri-b r2 r1)
 		(vp-inc r0)
 		(vp-inc r1)
-	loop_until r2, ==, 0
+	(loop-until '(r2 == 0))
 	(vp-ret)
 
 string_skip:
 	(loop-start)
 		(vp-cpy-ir-ub r0 r1)
 		(vp-inc r0)
-	loop_until r1, ==, 0
+	(loop-until '(r1 == 0))
 	ret
 
 bind_error:

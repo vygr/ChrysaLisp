@@ -21,23 +21,23 @@
 			(loop-flist-forward r1, r7, r7)
 				;not in contact ?
 				(vp-cpy-ir-i r7 gui_rect_x r12)
-				continueif r12, >=, r10
+				(continueif '(r12 >= r10))
 				(vp-cpy-ir-i r7 gui_rect_y r13)
-				continueif r13, >=, r11
+				(continueif '(r13 >= r11))
 				(vp-cpy-ir-i r7 gui_rect_x1 r14)
-				continueif r8, >=, r14
+				(continueif '(r8 >= r14))
 				(vp-cpy-ir-i r7 gui_rect_y1 r15)
-				continueif r9, >=, r15
+				(continueif '(r9 >= r15))
 
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 
 				;jump to correct splitting code
-				vp_jmpif r12, >=, r8, copy_split1
-				vp_jmpif r13, >=, r9, copy_split2
-				vp_jmpif r10, >=, r14, copy_split4
-				vp_jmpif r11, >=, r15, copy_xyx1
+				(vp-jmpif '(r12 >= r8) 'copy_split1)
+				(vp-jmpif '(r13 >= r9) 'copy_split2)
+				(vp-jmpif '(r10 >= r14) 'copy_split4)
+				(vp-jmpif '(r11 >= r15) 'copy_xyx1)
 
 			copy_xyx1y1:
 				;r8 + r9 + r10 + r11 inside
@@ -49,9 +49,9 @@
 
 			copy_split1:
 				;jump to correct splitting code
-				vp_jmpif r13, >=, r9, copy_split3
-				vp_jmpif r10, >=, r14, copy_split5
-				vp_jmpif r11, >=, r15, copy_yx1
+				(vp-jmpif '(r13 >= r9) 'copy_split3)
+				(vp-jmpif '(r10 >= r14) 'copy_split5)
+				(vp-jmpif '(r11 >= r15) 'copy_yx1)
 
 			copy_yx1y1:
 				;r9 + r10 + r11 inside
@@ -63,8 +63,8 @@
 
 			copy_split2:
 				;jump to correct splitting code
-				vp_jmpif r10, >=, r14, copy_split6
-				vp_jmpif r11, >=, r15, copy_xx1
+				(vp-jmpif '(r10 >= r14) 'copy_split6)
+				(vp-jmpif '(r11 >= r15) 'copy_xx1)
 
 			copy_xx1y1:
 				;r8 + r10 + r11 inside
@@ -76,8 +76,8 @@
 
 			copy_split3:
 				;jump to correct splitting code
-				vp_jmpif r10, >=, r14, copy_split7
-				vp_jmpif r11, >=, r15, copy_x1
+				(vp-jmpif '(r10 >= r14) 'copy_split7)
+				(vp-jmpif '(r11 >= r15) 'copy_x1)
 
 			copy_x1y1:
 				;r10 + r11 inside
@@ -89,7 +89,7 @@
 
 			copy_split4:
 				;jump to correct splitting code
-				vp_jmpif r11, >=, r15, copy_xy
+				(vp-jmpif '(r11 >= r15) 'copy_xy)
 
 			copy_xyy1:
 				;r8 + r9 + r11 inside
@@ -101,7 +101,7 @@
 
 			copy_split5:
 				;jump to correct splitting code
-				vp_jmpif r11, >=, r15, copy_y
+				(vp-jmpif '(r11 >= r15) 'copy_y)
 
 			copy_yy1:
 				;r9 + r11 inside
@@ -113,7 +113,7 @@
 
 			copy_split6:
 				;jump to correct splitting code
-				vp_jmpif r11, >=, r15, copy_x
+				(vp-jmpif '(r11 >= r15) 'copy_x)
 
 			copy_xy1:
 				;r8 + r11 inside
@@ -125,7 +125,7 @@
 
 			copy_split7:
 				;jump to correct splitting code
-				vp_jmpif r11, >=, r15, copy_encl
+				(vp-jmpif '(r11 >= r15) 'copy_encl)
 
 			copy_y1:
 				;r11 inside

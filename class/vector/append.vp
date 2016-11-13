@@ -34,7 +34,7 @@
 	;copy elements
 	(vp-cpy-ir r4 local_start r5)
 	(vp-cpy-ir r4 local_end r6)
-	loop_while r5, !=, r6
+	(loop-while '(r5 != r6))
 		(d-call 'vector 'ref_element '([r4 + local_source], r5) '(r1))
 		(f-call 'vector 'push_back '([r4 + local_inst], r1))
 		(vp-inc r5)

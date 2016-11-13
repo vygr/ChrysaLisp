@@ -16,7 +16,7 @@
 		if r3, <, r1
 			(vp-cpy-rr r1 r3)			;at least 1 object per block !
 		endif
-	loop_until r1, >, mem_block_max_size
+	(loop-until '(r1 > mem_block_max_size))
 	(vp-ret)
 
 (def-func-end)

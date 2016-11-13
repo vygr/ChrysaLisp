@@ -15,7 +15,7 @@
 		(vp-xor-rr r2 r2)
 		(vp-div r3 r2 r0)
 		(vp-push r2)
-	loop_until r0, ==, 0
+	(loop-until '(r0 == 0))
 	(loop-start)
 		(vp-pop r0)
 		(vp-add-cr '0' r0)
@@ -23,7 +23,7 @@
 			(vp-add-cr 'A' - ':' r0)
 		endif
 		sys_write_char r1, r0
-	loop_until r5, ==, r4
+	(loop-until '(r5 == r4))
 	(vp-ret)
 
 (def-func-end)

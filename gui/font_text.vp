@@ -44,9 +44,9 @@
 	;search bucket
 	(loop-flist-forward r5, r5, r6)
 		(vp-cpy-ir r4 local_font r0)
-		continueif r0, !=, [r5 + ft_text_font]
+		(continueif '(r0 != [r5 + ft_text_font]))
 		(f-call 'sys_string 'compare '(&[r5 + ft_text_name], [r4 + local_text]) '(r0))
-	loop_until r0, ==, 0
+	(loop-until '(r0 == 0))
 
 	;did we find it ?
 	(vp-cpy-rr r5 r0)
@@ -94,7 +94,7 @@ kernel_callback:
 
 			(f-call 'sys_string 'length '([r14 + local_text]) '(r1))
 			(f-call 'sys_mem 'alloc '(&[r1 + ft_text_size + 1]) '(r13, _))
-			assert r0, !=, 0
+			(assert '(r0, !=, 0))
 
 			(vp-cpy-ir r14 local_font r0)
 			(vp-cpy-ri r0 r13 ft_text_font)

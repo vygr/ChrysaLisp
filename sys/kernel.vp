@@ -19,16 +19,16 @@
 	(vp-push r0)
 
 	;init allocator
-	f_call sys_mem, init
+	(f-call 'sys_mem 'init)
 
 	;init tasks
-	f_call sys_task, init
+	(f-call 'sys_task 'init)
 
 	;init linker
-	f_call sys_link, init
+	(f-call 'sys_link 'init)
 
 	;init font
-	f_call gui_font, init
+	(f-call 'gui_font 'init)
 
 	;start kernel task
 	(f-call 'sys_task 'start '($_func_entry) '(r0, r1))
@@ -37,7 +37,7 @@
 	(vp-cpy-ri r0 r2 tk_statics_kernel_tcb)
 
 	;init mailer, r1 = kernel mailbox !
-	f_call sys_mail, init
+	(f-call 'sys_mail 'init)
 
 	;process command options
 	(f-call 'sys_cpu 'opts '([r4]))
@@ -61,14 +61,14 @@
 	;loop till no other tasks running
 	(loop-start)
 		;allow all other tasks to run
-		f_call sys_task, yield
+		(f-call 'sys_task 'yield)
 
 		;service all kernel mail
 		(loop-start)
 			;check if any mail
 			(f-call 'sys_task 'mailbox '() '(r0, r1))
 			(f-call 'sys_mail 'try_read '(r0) '(r0))
-			breakif r0, ==, 0
+			(breakif '(r0 == 0))
 			(vp-cpy-rr r0 r15)
 
 			;switch on kernel call number
@@ -110,7 +110,7 @@
 						(vp-cpy-ir r3 lk_node_task_count r1)
 					endif
 				(loop-end)
-				vp_jmpif r0, ==, r5, run_here
+				(vp-jmpif '(r0 == r5) 'run_here)
 
 				;send to better kernel
 				(vp-cpy-ri r0 r15 msg_dest + id_cpu)
@@ -193,9 +193,9 @@
 				(f-bind 'sys_link 'statics r13)
 				(loop-list-forward r13 + lk_statics_links_list, r12, r13)
 					(vp-cpy-ir r12 lk_node_cpu_id r11)
-					continueif r11, ==, r14
+					(continueif '(r11 == r14))
 					(f-call 'sys_mail 'alloc '() '(r0))
-					assert r0, !=, 0
+					(assert '(r0, !=, 0))
 					(vp-cpy-rr r0 r5)
 					(vp-cpy-rr r0 r1)
 					(vp-cpy-rr r15 r0)
@@ -236,7 +236,7 @@
 		if r2, !=, 0
 			(loop-list-forward r3 + tk_statics_timer_list, r1, r2)
 				(vp-cpy-ir r1 tk_node_time r5)
-				breakif r5, >, r0
+				(breakif '(r5 > r0))
 
 				;task ready, remove from timer list and place on ready list
 				(vp-cpy-rr r1 r5)
@@ -248,12 +248,12 @@
 		;next task if other ready tasks
 		(vp-cpy-ir r3 tk_statics_task_list + lh_list_head r2)
 		(vp-cpy-ir r3 tk_statics_task_list + lh_list_tailpred r1)
-		continueif r2, !=, r1
+		(continueif '(r2 != r1))
 
 		;exit if no task waiting for timer
 		(vp-cpy-ir r3 tk_statics_timer_list + lh_list_head r2)
 		(ln-get-succ r2 r1)
-		breakif r1, ==, 0
+		(breakif '(r1 == 0))
 
 		;sleep till next wake time
 		vp_xchg r0, r2
@@ -273,19 +273,19 @@
 	(vp-add-cr lk_table_size r4)
 
 	;deinit font
-	f_call gui_font, deinit
+	(f-call 'gui_font 'deinit)
 
 	;deinit mailer
-	f_call sys_mail, deinit
+	(f-call 'sys_mail 'deinit)
 
 	;deinit tasks
-	f_call sys_task, deinit
+	(f-call 'sys_task 'deinit)
 
 	;deinit allocator
-	f_call sys_mem, deinit
+	(f-call 'sys_mem 'deinit)
 
 	;deinit loader
-	f_call sys_load, deinit
+	(f-call 'sys_load 'deinit)
 
 	;pop argv and exit !
 	(vp-add-cr ptr_size r4)

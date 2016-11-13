@@ -9,7 +9,7 @@
 	(loop-flist-forward r0 + ld_statics_block_flist, r1, r2)
 		(vp-cpy-rr r1 r0)
 		(ln-remove-fnode r1 r2)
-		sys_munmap r0, ld_block_size
+		(sys-munmap '(r0, ld_block_size))
 	(loop-end)
 	(vp-ret)
 

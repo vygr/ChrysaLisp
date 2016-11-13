@@ -15,11 +15,11 @@
 	(vp-cpy-rr r0 r14)
 	(loop-start)
 		(vp-cpy-ir r14 r13)
-		breakif r13, ==, 0
+		(breakif '(r13 == 0))
 		(vp-rel 'options_table r12)
 		(loop-start)
 			(vp-cpy-ir r12 r11)
-			breakif r11, ==, 0
+			(breakif '(r11 == 0))
 			(vp-add-cr ptr_size r12)
 			(f-call 'sys_string 'compare '(r12, r13) '(r0))
 			if r0, ==, 0
@@ -36,7 +36,7 @@
 	next_arg:
 		(vp-cpy-ir r14 r0)
 		(vp-add-cr ptr_size r14)
-	loop_until r0, ==, 0
+	(loop-until '(r0 == 0))
 	(vp-ret)
 
 opt_cpu:

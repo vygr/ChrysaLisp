@@ -24,7 +24,7 @@
 				(vp-ret)
 			endif
 			(vp-add-cr ptr_size r0)
-		loop_until r0, ==, r1
+		(loop-until '(r0 == r1))
 
 		;fill in all tcb's and suspend
 		(f-bind 'sys_task 'statics r5)
@@ -34,9 +34,9 @@
 			(vp-cpy-ir r0 r2)
 			(vp-cpy-ri r5 r2 mailbox_tcb)
 			(vp-add-cr ptr_size r0)
-		loop_until r0, ==, r1
+		(loop-until '(r0 == r1))
 
-		f_call sys_task, suspend
+		(f-call 'sys_task 'suspend)
 
 		;clear all tcb's
 		(vp-xor-rr r5 r5)
@@ -45,7 +45,7 @@
 			(vp-cpy-ir r0 r2)
 			(vp-cpy-ri r5 r2 mailbox_tcb)
 			(vp-add-cr ptr_size r0)
-		loop_until r0, ==, r1
+		(loop-until '(r0 == r1))
 	(loop-end)
 
 (def-func-end)

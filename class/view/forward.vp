@@ -31,7 +31,7 @@
 	lh_get_head r0 + view_list, r0
 	(loop-start)
 	 	(ln-get-succ r0 r1)
-		breakif r1, ==, 0
+		(breakif '(r1 == 0))
 
 		;callback
 		(vp-sub-cr view_node r0)

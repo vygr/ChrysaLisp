@@ -15,7 +15,7 @@
 		(vp-cpy-ri-b r2 r1)
 		(vp-inc r0)
 		(vp-inc r1)
-	loop_until r2, ==, 0
+	(loop-until '(r2 == 0))
 	(vp-ret)
 
 (def-func-end)

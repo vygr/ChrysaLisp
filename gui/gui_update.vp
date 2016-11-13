@@ -153,7 +153,7 @@ visible_up_callback:
 
 			;exit if clipped away
 			(vp-cpy-ir r4 vis_region r3)
-			breakif r3, ==, 0
+			(breakif '(r3 == 0))
 
 			;translate temp opaque region
 			(vp-cpy-ir r1 view_x r8)
@@ -173,7 +173,7 @@ visible_up_callback:
 			(f-call 'gui_region 'remove_region '(r0, r1, r2, 0, 0))
 
 			(vp-cpy-ir r4 vis_next r1)
-		loop_until r1, ==, [r4 + vis_root]
+		(loop-until '(r1 == [r4 + vis_root]))
 
 		;free any temp region
 		(vp-lea-ir r4 vis_region r1)
@@ -267,7 +267,7 @@ distribute_down_callback:
 
 				(vp-cpy-ir r4 dist_next r2)
 				(vp-cpy-ir r4 dist_data r1)
-			loop_until r2, ==, [r1 + local_root]
+			(loop-until '(r2 == [r1 + local_root]))
 		endif
 	endif
 

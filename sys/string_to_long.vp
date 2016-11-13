@@ -13,7 +13,7 @@
 	(vp-xor-rr r0 r0)
 	(loop-start)
 		(vp-cpy-ir-ub r2 r3)
-		breakif r3, ==, 0
+		(breakif '(r3 == 0))
 		if r3, >=, (code "a")
 			(vp-sub-cr (sub (code "a") (code "A")) r3)
 		endif

@@ -31,7 +31,7 @@
 				(loop-start)
 					(vp-cpy-ri r2 r0)
 					(vp-add-cr ptr_size r0)
-				loop_until r0, ==, r1
+				(loop-until '(r0 == r1))
 				(vp-ret)
 			endif
 		endif
@@ -40,7 +40,7 @@
 		(loop-start)
 			(vp-cpy-ri-b r2 r0)
 			(vp-inc r0)
-		loop_until r0, ==, r1
+		(loop-until '(r0 == r1))
 	endif
 	(vp-ret)
 

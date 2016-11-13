@@ -16,7 +16,7 @@
 	(loop-start)
 		(vp-cpy-ri r0 r1)
 		(vp-add-cr ptr_size r1)
-	loop_until r1, ==, r2
+	(loop-until '(r1 == r2))
 	(vp-ret)
 
 (def-func-end)

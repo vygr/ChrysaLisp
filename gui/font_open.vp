@@ -31,9 +31,9 @@
 	;search font list
 	(loop-flist-forward r5 + ft_statics_font_flist, r5, r5)
 		(vp-cpy-ir r4 local_points r0)
-		continueif r0, !=, [r5 + ft_font_points]
+		(continueif '(r0 != [r5 + ft_font_points]))
 		(f-call 'sys_string 'compare '(&[r5 + ft_font_name], [r4 + local_font]) '(r0))
-	loop_until r0, ==, 0
+	(loop-until '(r0 == 0))
 
 	;did we find it ?
 	(vp-cpy-rr r5 r0)
@@ -64,9 +64,9 @@ kernel_callback:
 	;search font list
 	(loop-flist-forward r5 + ft_statics_font_flist, r5, r5)
 		(vp-cpy-ir r14 local_points r0)
-		continueif r0, !=, [r5 + ft_font_points]
+		(continueif '(r0 != [r5 + ft_font_points]))
 		(f-call 'sys_string 'compare '(&[r5 + ft_font_name], [r14 + local_font]) '(r0))
-	loop_until r0, ==, 0
+	(loop-until '(r0 == 0))
 
 	;did we find it ?
 	(vp-cpy-rr r5 r0)
@@ -76,7 +76,7 @@ kernel_callback:
 			(vp-cpy-rr r0 r5)
 			(f-call 'sys_string 'length '([r14 + local_font]) '(r1))
 			(f-call 'sys_mem 'alloc '(&[r1 + ft_font_size + 1]) '(r13, _))
-			assert r0, !=, 0
+			(assert '(r0, !=, 0))
 
 			(vp-cpy-ir r14 local_points r0)
 			(vp-cpy-ri r0 r13 ft_font_points)

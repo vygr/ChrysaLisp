@@ -11,7 +11,7 @@
 	(vp-cpy-cr 5381 r1)
 	(loop-start)
 		(vp-cpy-ir-ub r0 r2)
-		breakif r2, ==, 0
+		(breakif '(r2 == 0))
 		(vp-inc r0)
 		(vp-mul-cr 33 r1)
 		(vp-add-rr r2 r1)

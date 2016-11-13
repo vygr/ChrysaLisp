@@ -28,7 +28,7 @@
 	;test for regular file only
 	(vp-cpy-ir-us r7 stat_mode r0)
 	(vp-and-cr s_ifmt r0)
-	vp_jmpif r0, !=, s_ifreg, exit
+	(vp-jmpif '(r0 != s_ifreg) 'exit)
 
 	;create new string object
 	(vp-cpy-ir r7 stat_fsize r1)

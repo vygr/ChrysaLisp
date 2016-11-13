@@ -78,7 +78,7 @@
 		(vp-cpy-ir-ub r0 0xe1 r8)
 		(vp-cpy-ir-ub r0 0xe5 r10)
 		(vp-or-rr r8 r10)
-		loop_while r2, !=, 0
+		(loop-while '(r2 != 0))
 			(vp-dec r2)
 			(vp-cpy-ir-ub r0 r2 r8)
 			(vp-cpy-ir-ub r1 r2 r9)
@@ -100,7 +100,7 @@
 						(vp-cpy-ir-ub r5 r10 + 1 r12)
 					endif
 					(vp-add-cr 3 r5)
-				loop_until r5, >=, r6
+				(loop-until '(r5 >= r6))
 
 				;dispatch to task and target view
 				(vp-cpy-ir r4 local_key_view r6)
@@ -115,7 +115,7 @@
 
 						;allocate mail message
 						(f-call 'sys_mail 'alloc '() '(r0))
-						assert r0, !=, 0
+						(assert '(r0, !=, 0))
 
 						;fill in data
 						(vp-cpy-cr ev_msg_size r1)
@@ -168,7 +168,7 @@
 
 					;allocate mail message
 					(f-call 'sys_mail 'alloc '() '(r0))
-					assert r0, !=, 0
+					(assert '(r0, !=, 0))
 
 					;fill in data
 					(vp-cpy-cr ev_msg_size r1)

@@ -26,7 +26,7 @@
 	;copy elements
 	(vp-cpy-rr r10 r5)
 	(vp-cpy-rr r11 r6)
-	loop_while r5, !=, r6
+	(loop-while '(r5 != r6))
 		(d-call 'vector 'ref_element '(r9, r5) '(r1))
 		(f-call 'vector 'push_back '(r12, r1))
 		(vp-inc r5)

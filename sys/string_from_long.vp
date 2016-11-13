@@ -19,17 +19,17 @@
 		endif
 		(vp-cpy-ri-b r2 r5)
 		(vp-inc r5)
-	loop_until r0, ==, 0
+	(loop-until '(r0 == 0))
 	(vp-cpy-ri-b r0 r5)
 	(loop-start)
 		(vp-dec r5)
-		breakif r5, ==, r1
+		(breakif '(r5 == r1))
 		(vp-cpy-ir-ub r1 r2)
 		(vp-cpy-ir-ub r5 r3)
 		(vp-cpy-ri-b r3 r1)
 		(vp-cpy-ri-b r2 r5)
 		(vp-inc r1)
-	loop_until r1, ==, r5
+	(loop-until '(r1 == r5))
 	(vp-ret)
 
 (def-func-end)

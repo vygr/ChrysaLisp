@@ -63,7 +63,7 @@
 	(vp-cpy-rr r0 r8)
 	(vp-cpy-rr r1 r9)
 	(f-call 'sys_mail 'alloc '() '(r0))
-	assert r0, !=, 0
+	(assert '(r0, !=, 0))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 r0 msg_dest + id_mbox)
 	(vp-cpy-ri r9 r0 msg_dest + id_cpu)
@@ -89,9 +89,9 @@
 	sys_ftruncate r13, lk_buffer_size
 
 	;map shared object
-	sys_mmap 0, lk_buffer_size, prot_read | prot_write, map_shared, r13, 0
+	(sys-mmap '(0, lk_buffer_size, prot_read | prot_write, map_shared, r13, 0))
 	(vp-cpy-rr r0 r12)
-	assert r0, !=, 0
+	(assert '(r0, !=, 0))
 
 	;r10 is tx channel, r11 is rx channel
 	(vp-add-rr r12 r10)
@@ -118,12 +118,12 @@
 			(f-bind 'sys_mail 'statics r8)
 			(loop-list-forward r8 + ml_statics_offchip_list, r7, r8)
 				(vp-cpy-ir r7 msg_dest + id_cpu r2)
-				breakif r0, ==, r2
+				(breakif '(r0 == r2))
 				(vp-cpy-ir r4 lk_node_table + lk_table_array r1)
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(vp-mul-cr lk_route_size r2)
 				(vp-cpy-ir r1 r2 + lk_route_hops r1)
-			loop_until r1, !=, 0
+			(loop-until '(r1 != 0))
 			if r8, !=, 0
 				(vp-cpy-rr r7 r9)
 				(ln-remove-node r7 r1)
@@ -159,7 +159,7 @@
 			;allocate msg, copy over data
 			;round up to next 8 byte boundary for speed
 			(f-call 'sys_mail 'alloc '() '(r0))
-			assert r0, !=, 0
+			(assert '(r0, !=, 0))
 			(vp-cpy-rr r0 r8)
 			(vp-cpy-rr r0 r1)
 			(vp-lea-ir r11 lk_chan_msg r0)
@@ -177,11 +177,11 @@
 		endif
 
 		;let other links run
-		f_call sys_task, yield
+		(f-call 'sys_task 'yield)
 
 		;are we in a quite period
 		(vp-cpy-ir r11 lk_chan_status r0)
-		continueif r0, ==, lk_chan_status_busy
+		(continueif '(r0 == lk_chan_status_busy))
 		(vp-cpy-cr 0 r1)
 		(vp-cpy-ir r10 lk_chan_status r0)
 		if r0, ==, lk_chan_status_ready
@@ -189,17 +189,17 @@
 				(vp-cpy-cr 1 r1)
 			endif
 		endif
-		continueif r1, !=, 0
+		(continueif '(r1 != 0))
 
 		;small sleep if so
 		(f-call 'sys_task 'sleep '(1000))
 
 		;exit if signaled by kernel
 		(vp-cpy-ir r4 lk_node_cpu_id r0)
-	loop_until r0, ==, -1
+	(loop-until '(r0 == -1))
 
 	;unmap object
-	sys_munmap r12, lk_buffer_size
+	(sys-munmap '(r12, lk_buffer_size))
 
 	;close it
 	sys_close r13

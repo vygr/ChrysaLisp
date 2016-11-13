@@ -13,7 +13,7 @@
 	;trashes
 	;r2
 
-	(vp-add-cr ptr_size - 1 r1)
+	(vp-add-cr (sub ptr_size 1) r1)
 	(vp-and-cr (sub 0 ptr_size) r1)
 	(vp-cpy-ri r1 r0 hp_heap_cellsize)
 	(vp-cpy-ri r2 r0 hp_heap_blocksize)

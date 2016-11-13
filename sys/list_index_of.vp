@@ -20,7 +20,7 @@
 			(vp-cpy-cr -1 r0)
 			(vp-ret)
 		endif
-		breakif r3, ==, r1
+		(breakif '(r3 == r1))
 		(vp-inc r0)
 	(loop-end)
 	(vp-ret)

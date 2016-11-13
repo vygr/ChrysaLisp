@@ -20,19 +20,19 @@
 			(loop-flist-forward r1, r7, r6)
 				;not in contact ?
 				(vp-cpy-ir-i r7 gui_rect_x r12)
-				continueif r12, >=, r10
+				(continueif '(r12 >= r10))
 				(vp-cpy-ir-i r7 gui_rect_y r13)
-				continueif r13, >=, r11
+				(continueif '(r13 >= r11))
 				(vp-cpy-ir-i r7 gui_rect_x1 r14)
-				continueif r8, >=, r14
+				(continueif '(r8 >= r14))
 				(vp-cpy-ir-i r7 gui_rect_y1 r15)
-				continueif r9, >=, r15
+				(continueif '(r9 >= r15))
 
 				;jump to correct splitting code
-				vp_jmpif r12, >=, r8, rem_split1
-				vp_jmpif r13, >=, r9, rem_split2
-				vp_jmpif r10, >=, r14, rem_split4
-				vp_jmpif r11, >=, r15, rem_xyx1
+				(vp-jmpif '(r12 >= r8) 'rem_split1)
+				(vp-jmpif '(r13 >= r9) 'rem_split2)
+				(vp-jmpif '(r10 >= r14) 'rem_split4)
+				(vp-jmpif '(r11 >= r15) 'rem_xyx1)
 
 			rem_xyx1y1:
 				;r8 + r9 + r10 + r11 inside
@@ -40,7 +40,7 @@
 				(vp-cpy-ri-i r11 r7 gui_rect_y)
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r10 r1 gui_rect_x)
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
@@ -48,7 +48,7 @@
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
@@ -56,7 +56,7 @@
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
@@ -66,9 +66,9 @@
 
 			rem_split1:
 				;jump to correct splitting code
-				vp_jmpif r13, >=, r9, rem_split3
-				vp_jmpif r10, >=, r14, rem_split5
-				vp_jmpif r11, >=, r15, rem_yx1
+				(vp-jmpif '(r13 >= r9) 'rem_split3)
+				(vp-jmpif '(r10 >= r14) 'rem_split5)
+				(vp-jmpif '(r11 >= r15) 'rem_yx1)
 
 			rem_yx1y1:
 				;r9 + r10 + r11 inside
@@ -76,7 +76,7 @@
 				(vp-cpy-ri-i r11 r7 gui_rect_y)
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r10 r1 gui_rect_x)
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
@@ -84,7 +84,7 @@
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
@@ -94,8 +94,8 @@
 
 			rem_split2:
 				;jump to correct splitting code
-				vp_jmpif r10, >=, r14, rem_split6
-				vp_jmpif r11, >=, r15, rem_xx1
+				(vp-jmpif '(r10 >= r14) 'rem_split6)
+				(vp-jmpif '(r11 >= r15) 'rem_xx1)
 
 			rem_xx1y1:
 				;r8 + r10 + r11 inside
@@ -103,7 +103,7 @@
 				(vp-cpy-ri-i r11 r7 gui_rect_y)
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r10 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
@@ -111,7 +111,7 @@
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
@@ -121,8 +121,8 @@
 
 			rem_split3:
 				;jump to correct splitting code
-				vp_jmpif r10, >=, r14, rem_split7
-				vp_jmpif r11, >=, r15, rem_x1
+				(vp-jmpif '(r10 >= r14) 'rem_split7)
+				(vp-jmpif '(r11 >= r15) 'rem_x1)
 
 			rem_x1y1:
 				;r10 + r11 inside
@@ -130,7 +130,7 @@
 				(vp-cpy-ri-i r11 r7 gui_rect_y)
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r10 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
@@ -140,7 +140,7 @@
 
 			rem_split4:
 				;jump to correct splitting code
-				vp_jmpif r11, >=, r15, rem_xy
+				(vp-jmpif '(r11 >= r15) 'rem_xy)
 
 			rem_xyy1:
 				;r8 + r9 + r11 inside
@@ -148,7 +148,7 @@
 				(vp-cpy-ri-i r11 r7 gui_rect_y)
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
@@ -156,7 +156,7 @@
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
@@ -166,7 +166,7 @@
 
 			rem_split5:
 				;jump to correct splitting code
-				vp_jmpif r11, >=, r15, rem_y
+				(vp-jmpif '(r11 >= r15) 'rem_y)
 
 			rem_yy1:
 				;r9 + r11 inside
@@ -174,7 +174,7 @@
 				(vp-cpy-ri-i r11 r7 gui_rect_y)
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
@@ -184,7 +184,7 @@
 
 			rem_split6:
 				;jump to correct splitting code
-				vp_jmpif r11, >=, r15, rem_x
+				(vp-jmpif '(r11 >= r15) 'rem_x)
 
 			rem_xy1:
 				;r8 + r11 inside
@@ -192,7 +192,7 @@
 				(vp-cpy-ri-i r11 r7 gui_rect_y)
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
@@ -202,7 +202,7 @@
 
 			rem_split7:
 				;jump to correct splitting code
-				vp_jmpif r11, >=, r15, rem_encl
+				(vp-jmpif '(r11 >= r15) 'rem_encl)
 
 			rem_y1:
 				;r11 inside
@@ -217,7 +217,7 @@
 				(vp-cpy-ri-i r8 r7 gui_rect_x1)
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r10 r1 gui_rect_x)
 				(vp-cpy-ri-i r9 r1 gui_rect_y)
@@ -225,7 +225,7 @@
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
@@ -259,7 +259,7 @@
 				(vp-cpy-ri-i r8 r7 gui_rect_x1)
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
@@ -279,7 +279,7 @@
 				(vp-cpy-ri-i r10 r7 gui_rect_x)
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)
@@ -294,7 +294,7 @@
 				(vp-cpy-ri-i r9 r7 gui_rect_y)
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
-				continueif r1, ==, 0
+				(continueif '(r1 == 0))
 				(ln-add-fnode r5 r1 r2)
 				(vp-cpy-ri-i r12 r1 gui_rect_x)
 				(vp-cpy-ri-i r13 r1 gui_rect_y)

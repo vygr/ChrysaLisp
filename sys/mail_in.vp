@@ -13,14 +13,14 @@
 		(vp-cpy-ir r15 msg_parcel_id + id_cpu r7)
 		(vp-cpy-ir r15 msg_dest + id_mbox r13)
 		(loop-list-forward r13 + mailbox_parcel_list, r0, r1)
-			continueif r6, !=, [r0 + msg_parcel_id + id_mbox]
-		loop_until r7, ==, [r0 + msg_parcel_id + id_cpu]
+			(continueif '(r6 != [r0 + msg_parcel_id + id_mbox]))
+		(loop-until '(r7 == [r0 + msg_parcel_id + id_cpu]))
 		if r1, ==, 0
 			;new parcel
 			(vp-cpy-ir r15 msg_parcel_size r12)
 			(vp-cpy-ir r15 msg_dest + id_cpu r14)
 			(f-call 'sys_mem 'alloc '(r12) '(r0, _))
-			assert r0, !=, 0
+			(assert '(r0, !=, 0))
 			(vp-cpy-ri r12 r0 msg_length)
 			(vp-cpy-ri r13 r0 msg_dest + id_mbox)
 			(vp-cpy-ri r14 r0 msg_dest + id_cpu)

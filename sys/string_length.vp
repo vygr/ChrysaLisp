@@ -12,7 +12,7 @@
 	(vp-cpy-rr r0 r1)
 	(loop-start)
 		(vp-cpy-ir-ub r1 r2)
-		breakif r2, ==, 0
+		(breakif '(r2 == 0))
 		(vp-inc r1)
 	(loop-end)
 	(vp-sub-rr r0 r1)

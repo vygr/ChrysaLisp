@@ -18,7 +18,7 @@
 			(vp-xor-rr r0 r0)
 			(vp-ret)
 		endif
-		breakif r1, ==, 0
+		(breakif '(r1 == 0))
 		(vp-dec r1)
 	(loop-end)
 	(vp-ret)

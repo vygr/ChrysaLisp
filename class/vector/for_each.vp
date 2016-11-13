@@ -45,10 +45,10 @@
 	(vp-cpy-ri r2 r4 local_end)
 	(loop-start)
 		(vp-cpy-ri r1 r4 local_next)
-		breakif r1, ==, [r4 + local_end]
+		(breakif '(r1 == [r4 + local_end]))
 		(vp-cpy-ir r4 local_predicate_data r0)
 		(vp-call-i r4 local_predicate)
-		breakif r1, ==, 0
+		(breakif '(r1 == 0))
 		(vp-cpy-ir r4 local_next r1)
 		(vp-add-cr ptr_size r1)
 	(loop-end)

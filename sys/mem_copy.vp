@@ -29,7 +29,7 @@
 						(vp-cpy-ri r3 r1)
 						(vp-add-cr ptr_size r0)
 						(vp-add-cr ptr_size r1)
-					loop_until r0, ==, r2
+					(loop-until '(r0 == r2))
 					(vp-ret)
 				endif
 			endif
@@ -41,7 +41,7 @@
 			(vp-cpy-ri-b r3 r1)
 			(vp-inc r0)
 			(vp-inc r1)
-		loop_until r0, ==, r2
+		(loop-until '(r0 == r2))
 	endif
 	(vp-ret)
 

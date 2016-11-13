@@ -22,7 +22,7 @@
 
 	;create sigslot record
 	(f-call 'sys_heap 'alloc '(r0) '(r1))
-	assert r1, !=, 0
+	(assert '(r1, !=, 0))
 
 	;fill in target and method
 	(vp-cpy-ri r7 r1 gui_sigslot_inst)

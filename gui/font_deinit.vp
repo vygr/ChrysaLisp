@@ -28,7 +28,7 @@
 			(f-call 'sys_mem 'free '(r12))
 		(loop-end)
 		(vp-add-cr ptr_size r10)
-	loop_until r10, ==, r11
+	(loop-until '(r10 == r11))
 
 	;free all fonts in the cache
 	(loop-flist-forward r15 + ft_statics_font_flist, r14, r13)
