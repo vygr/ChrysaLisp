@@ -91,7 +91,7 @@
 			(func-call 'lisp 'repl_eval '(pdata -> pdata_this, pdata1 . pdata_cat_list) '(elem))
 			(func-call 'ref 'deref '(pdata1 . pdata_cat_list))
 			(pop-scope)
-			goto(vpif '((elem))),list_quote1
+			(gotoif '((elem))) 'list_quote1)
 			(eval '(0) '(r1))
 			(return)
 		(endswitch)
