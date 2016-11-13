@@ -11,7 +11,7 @@
 	;all but r0, r4
 
 	;extend test to include mailbox
-	s_call stream_msg_in, read_ready, {r0}, {r1}
+	(s-call 'stream_msg_in 'read_ready '(r0) '(r1))
 	if r1, ==, 0
 		(vp-cpy-ir r0 stream_msg_in_list + lh_list_head r1)
 		(vp-cpy-ir r1 ln_node_succ r1)

@@ -30,8 +30,7 @@
 		(loop-start)
 			func_call gui_font, text, {inst->text_font, *words}, {txt}
 			if {txt}
-				func_call gui_ctx, blit, {ctx, txt->ft_text_texture, inst->text_text_color, \
-											x, 0, txt->ft_text_width, txt->ft_text_height}
+				func_call gui_ctx, blit, {ctx, txt->ft_text_texture, inst->text_text_color, x, 0, txt->ft_text_width, txt->ft_text_height}
 				assign {x + txt->ft_text_width + (txt->ft_text_height >> 2)}, {x}
 			endif
 			assign {words + ptr_size}, {words}

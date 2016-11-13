@@ -13,8 +13,8 @@
 	;r1-r3, r5-r8
 
 	;create new stream object
-	(set-src r0, r1, r2, r3)
-	(set-dst r5, r6, r7, r8)
+	(set-src '(r0, r1, r2, r3))
+	(set-dst '(r5, r6, r7, r8))
 	(map-src-to-dst)
 
 	(f-call 'stream 'new '() '(r0))
@@ -24,7 +24,7 @@
 		(f-call 'stream 'init '(r0, @_function_, r5, r6, r7, r8) '(r1))
 		if r1, ==, 0
 			;error with init
-			v_call stream, delete, {r0}, {}, r1
+			(v-call 'stream 'delete '(r0) '() 'r1)
 			(vp-xor-rr r0 r0)
 		endif
 	endif

@@ -11,13 +11,13 @@
 	;trashes
 	;all but r0, r4
 
-	vp_push r0
+	(vp-push r0)
 	(vp-mul-cr ptr_size r2)
 	(vp-add-ir r0 vector_array r2)
 	(vp-cpy-ir r2 r0)
 	(vp-cpy-ri r1 r2)
 	(f-call 'ref 'deref '(r0))
-	vp_pop r0
+	(vp-pop r0)
 	(vp-ret)
 
 (def-func-end)

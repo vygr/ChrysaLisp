@@ -13,8 +13,8 @@
 	;r1-r3, r5-r12
 
 	;save inputs
-	(set-src r0, r1, r2)
-	(set-dst r9, r10, r11)
+	(set-src '(r0, r1, r2))
+	(set-dst '(r9, r10, r11))
 	(map-src-to-dst)
 
 	;create new vector
@@ -27,7 +27,7 @@
 	(vp-cpy-rr r10 r5)
 	(vp-cpy-rr r11 r6)
 	loop_while r5, !=, r6
-		d_call vector, ref_element, {r9, r5}, {r1}
+		(d-call 'vector 'ref_element '(r9, r5) '(r1))
 		(f-call 'vector 'push_back '(r12, r1))
 		(vp-inc r5)
 	(loop-end)

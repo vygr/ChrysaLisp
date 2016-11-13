@@ -35,9 +35,9 @@
 	(vp-ret)
 
 callback:
-	vp_push r1
-	v_call view, pref_size, {r0}, {r10, r11}
-	vp_pop r1
+	(vp-push r1)
+	(v-call 'view 'pref_size '(r0) '(r10, r11))
+	(vp-pop r1)
 	(vp-cpy-ir r1 local_x r8)
 	(vp-cpy-ir r1 local_y r9)
 	(vp-cpy-rr r8 r12)

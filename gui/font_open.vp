@@ -21,8 +21,8 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src r0, r1)
-	(set-dst [r4 + local_font], [r4 + local_points])
+	(set-src '(r0, r1))
+	(set-dst '([r4 + local_font], [r4 + local_points]))
 	(map-src-to-dst)
 
 	;get font statics
@@ -93,7 +93,7 @@ kernel_callback:
 
 			(vp-cpy-rr r13 r0)
 			(f-bind 'gui_font 'statics r5)
-			ln_add_fnode r5 + ft_statics_font_flist, r0, r1
+			(ln-add-fnode r5 + ft_statics_font_flist r0 r1)
 		endif
 	endif
 	(vp-cpy-ri r0 r14 local_handle)

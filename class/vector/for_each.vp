@@ -32,8 +32,8 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src r0, r3, r5)
-	(set-dst [r4 + local_inst], [r4 + local_predicate], [r4 + local_predicate_data])
+	(set-src '(r0, r3, r5))
+	(set-dst '([r4 + local_inst], [r4 + local_predicate], [r4 + local_predicate_data]))
 	(map-src-to-dst)
 
 	;process elements

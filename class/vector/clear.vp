@@ -13,9 +13,9 @@
 	(f-call 'vector 'for_each '(r0, 0, [r0 + vector_length], $callback, 0) '(_))
 
 	;free dynamic array
-	vp_push r0
+	(vp-push r0)
 	(f-call 'sys_mem 'free '([r0 + vector_array]))
-	vp_pop r0
+	(vp-pop r0)
 
 	;init myself
 	(vp-xor-rr r1 r1)

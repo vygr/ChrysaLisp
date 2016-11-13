@@ -10,9 +10,9 @@
 	;trashes
 	;all but r0, r4
 
-	vp_push r0
+	(vp-push r0)
 	(f-call 'text 'set_font '([r0 + label_text], r1, r2))
-	vp_pop r0
+	(vp-pop r0)
 	(vp-ret)
 
 (def-func-end)

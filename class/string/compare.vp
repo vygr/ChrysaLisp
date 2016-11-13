@@ -13,9 +13,9 @@
 	;r2-r3
 
 	if r0, !=, r1
-		vp_push r0
+		(vp-push r0)
 		(f-call 'sys_string 'compare '(&[r0 + string_data], &[r1 + string_data]) '(r1))
-		vp_pop r0
+		(vp-pop r0)
 	else
 		(vp-xor-rr r1 r1)
 	endif

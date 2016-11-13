@@ -12,8 +12,8 @@
 	;r1-r3, r5-r7
 
 	;save inputs
-	(set-src r0, r1)
-	(set-dst r6, r7)
+	(set-src '(r0, r1))
+	(set-dst '(r6, r7))
 	(map-src-to-dst)
 
 	;get size of strings
@@ -29,7 +29,7 @@
 		(f-call 'string 'init1 '(r0, @_function_, r6, r7) '(r1))
 		if r1, ==, 0
 			;error with init
-			v_call string, delete, {r0}, {}, r1
+			(v-call 'string 'delete '(r0) '() 'r1)
 			(vp-xor-rr r0 r0)
 		endif
 	endif

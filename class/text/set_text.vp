@@ -16,8 +16,8 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src r0, r1)
-	(set-dst [r4 + local_inst], [r4 + local_string])
+	(set-src '(r0, r1))
+	(set-dst '([r4 + local_inst], [r4 + local_string]))
 	(map-src-to-dst)
 
 	;deref the old string and words

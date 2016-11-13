@@ -20,12 +20,12 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src r0, r2, r3)
-	(set-dst [r4 + local_inst], [r0 + unordered_set_key_callback], [r4 + local_num_buckets])
+	(set-src '(r0, r2, r3))
+	(set-dst '([r4 + local_inst], [r0 + unordered_set_key_callback], [r4 + local_num_buckets]))
 	(map-src-to-dst)
 
 	;init parent
-	s_call unordered_set, init, {r0, r1}, {r1}
+	(s-call 'unordered_set 'init '(r0, r1) '(r1))
 	if r1, !=, 0
 		;init myself
 		(vp-xor-rr r1 r1)
@@ -51,9 +51,9 @@ callback:
 	;outputs
 	;r1 = 0 if break, else not
 
-	vp_push r1
+	(vp-push r1)
 	(f-call 'vector 'create '() '(r1))
-	vp_pop r0
+	(vp-pop r0)
 	(vp-cpy-ri r1 r0)
 	(vp-ret)
 

@@ -11,10 +11,10 @@
 	;all but r0, r4
 
 	;clear all buckets
-	vp_push r0
-	d_call vector, get_length, {[r0 + unordered_set_buckets]}, {r1}
+	(vp-push r0)
+	(d-call 'vector 'get_length '([r0 + unordered_set_buckets]) '(r1))
 	(f-call 'vector 'for_each '(r0, 0, r1, $callback, 0) '(r1))
-	vp_pop r0
+	(vp-pop r0)
 	(vp-cpy-ri r1 r0 unordered_set_length)
 	(vp-ret)
 

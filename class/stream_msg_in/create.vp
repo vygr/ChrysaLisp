@@ -10,8 +10,8 @@
 	;r1-r3, r5
 
 	;create new stream_msg_in object
-	(set-src r0)
-	(set-dst r5)
+	(set-src '(r0))
+	(set-dst '(r5))
 	(map-src-to-dst)
 
 	(f-call 'stream_msg_in 'new '() '(r0))
@@ -21,7 +21,7 @@
 		(f-call 'stream_msg_in 'init '(r0, @_function_, r5) '(r1))
 		if r1, ==, 0
 			;error with init
-			v_call stream_msg_in, delete, {r0}, {}, r1
+			(v-call 'stream_msg_in 'delete '(r0) '() 'r1)
 			(vp-xor-rr r0 r0)
 		endif
 	endif

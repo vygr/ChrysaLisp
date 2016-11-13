@@ -42,9 +42,7 @@
 	assign {@_function_.ld_statics_reloc_buffer}, {reloc}
 	assign {reloc}, {buffer}
 
-	loop_while {char >= char_0 && char <= char_9 \
-				|| char >= char_a && char <= char_z \
-				|| char >= char_ca && char <= char_cz}
+	loop_while {char >= char_0 && char <= char_9 || char >= char_a && char <= char_z || char >= char_ca && char <= char_cz}
 		assign {char}, {*buffer}
 		assign {buffer + 1}, {buffer}
 		func_call stream, read_char, {stream}, {char}

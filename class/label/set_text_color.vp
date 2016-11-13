@@ -15,8 +15,8 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src r0)
-	(set-dst [r4 + local_inst])
+	(set-src '(r0))
+	(set-dst '([r4 + local_inst]))
 	(map-src-to-dst)
 
 	(f-call 'text 'set_text_color '([r0 + label_text], r1))

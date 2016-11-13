@@ -31,8 +31,7 @@
 			func_call string, compare, {arg1, arg2}, {length}
 			gotoifnot {length}, same
 			break
-		case {arg1->obj_vtable == @class/class_boxed_ptr \
-			|| arg1->obj_vtable == @class/class_boxed_long}
+		case {arg1->obj_vtable == @class/class_boxed_ptr || arg1->obj_vtable == @class/class_boxed_long}
 			func_call boxed_ptr, get_value, {arg1}, {v1}
 			func_call boxed_ptr, get_value, {arg2}, {v2}
 			breakif {v1 != v2}

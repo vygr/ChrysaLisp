@@ -10,7 +10,7 @@
 	;all but r0, r4
 
 	;hit ?
-	v_call button, hit, {r0, [r1 + ev_msg_rx], [r1 + ev_msg_ry]}, {r1}
+	(v-call 'button 'hit '(r0, [r1 + ev_msg_rx], [r1 + ev_msg_ry]) '(r1))
 
 	;is mouse over button ?
 	(vp-cpy-ir r0 button_state r2)
@@ -26,7 +26,7 @@
 
 	;if state changed then dirty
 	if r2, !=, r3
-		v_call button, layout, {r0}
+		(v-call 'button 'layout '(r0))
 		(f-jmp 'button 'dirty '(r0))
 	endif
 	(vp-ret)

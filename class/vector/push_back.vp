@@ -17,8 +17,8 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src r1)
-	(set-dst [r4 + local_object])
+	(set-src '(r1))
+	(set-dst '([r4 + local_object]))
 	(map-src-to-dst)
 
 	;increase capacity ?

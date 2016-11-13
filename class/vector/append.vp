@@ -21,8 +21,8 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src r0, r1, r2, r3)
-	(set-dst [r4 + local_inst], [r4 + local_source], [r4 + local_start], [r4 + local_end])
+	(set-src '(r0, r1, r2, r3))
+	(set-dst '([r4 + local_inst], [r4 + local_source], [r4 + local_start], [r4 + local_end]))
 	(map-src-to-dst)
 
 	;extend existing vector
@@ -35,7 +35,7 @@
 	(vp-cpy-ir r4 local_start r5)
 	(vp-cpy-ir r4 local_end r6)
 	loop_while r5, !=, r6
-		d_call vector, ref_element, {[r4 + local_source], r5}, {r1}
+		(d-call 'vector 'ref_element '([r4 + local_source], r5) '(r1))
 		(f-call 'vector 'push_back '([r4 + local_inst], r1))
 		(vp-inc r5)
 	(loop-end)

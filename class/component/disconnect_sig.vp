@@ -10,8 +10,8 @@
 	;all but r0, r4
 
 	;save inputs
-	(set-src r0, r1)
-	(set-dst r7, r6)
+	(set-src '(r0, r1))
+	(set-dst '(r7, r6))
 	(map-src-to-dst)
 
 	;gui sigslot heap

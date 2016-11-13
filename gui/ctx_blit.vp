@@ -52,7 +52,7 @@
 	(vp-and-cr 0xff r3)
 	(vp-and-cr 0xff r2)
 	(vp-and-cr 0xff r1)
-	sdl_set_texture_color_mod [r4 + local_texture], r3, r2, r1
+	(sdl_set_texture_color_mod '([r4 + local_texture], r3, r2, r1))
 
 	;for each rect on the dirty region
 	(vp-cpy-ir r4 local_ctx r0)
@@ -72,11 +72,11 @@
 		(vp-cpy-ri-i r10 r4 (add local_clip_rect sdl_rect_w))
 		(vp-cpy-ri-i r11 r4 (add local_clip_rect sdl_rect_h))
 		(vp-cpy-ir r4 local_ctx r0)
-		sdl_render_set_clip_rect [r0 + gui_ctx_sdl_ctx], &[r4 + local_clip_rect]
+		(sdl_render_set_clip_rect '([r0 + gui_ctx_sdl_ctx], &[r4 + local_clip_rect]))
 
 		;blit the texture
 		(vp-cpy-ir r4 local_ctx r0)
-		sdl_render_copy [r0 + gui_ctx_sdl_ctx], [r4 + local_texture], &[r4 + local_srect], &[r4 + local_drect]
+		(sdl_render_copy '([r0 + gui_ctx_sdl_ctx], [r4 + local_texture], &[r4 + local_srect], &[r4 + local_drect]))
 
 		(vp-cpy-ir r4 local_dirty_rect r0)
 	(loop-end)

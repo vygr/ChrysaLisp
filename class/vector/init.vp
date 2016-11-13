@@ -11,7 +11,7 @@
 	;all but r0, r4
 
 	;init parent
-	s_call vector, init, {r0, r1}, {r1}
+	(s-call 'vector 'init '(r0, r1) '(r1))
 	if r1, !=, 0
 		;init myself
 		(vp-xor-rr r2 r2)

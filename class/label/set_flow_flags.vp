@@ -7,9 +7,9 @@
 	;r0 = label object
 	;r1 = flags
 
-	vp_push r0
+	(vp-push r0)
 	(f-call 'flow 'set_flow_flags '([r0 + label_flow], r1))
-	vp_pop r0
+	(vp-pop r0)
 	(vp-ret)
 
 (def-func-end)

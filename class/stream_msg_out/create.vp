@@ -11,8 +11,8 @@
 	;r1-r3, r5-r6
 
 	;create new stream_msg_out object
-	(set-src r0, r1)
-	(set-dst r5, r6)
+	(set-src '(r0, r1))
+	(set-dst '(r5, r6))
 	(map-src-to-dst)
 
 	(f-call 'stream_msg_out 'new '() '(r0))
@@ -22,7 +22,7 @@
 		(f-call 'stream_msg_out 'init '(r0, @_function_, r5, r6) '(r1))
 		if r1, ==, 0
 			;error with init
-			v_call stream_msg_out, delete, {r0}, {}, r1
+			(v-call 'stream_msg_out 'delete '(r0) '() 'r1)
 			(vp-xor-rr r0 r0)
 		endif
 	endif

@@ -9,7 +9,7 @@
 	;all but r0, r4
 
 	;save object
-	vp_push r0
+	(vp-push r0)
 
 	;sub view from any parent
 	(f-call 'view 'sub '(r0))
@@ -18,10 +18,10 @@
 	(vp-cpy-ir r4 r0)
 	(loop-list-forward r0 + view_list, r0, r1)
 		(vp-sub-cr view_node r0)
-		vp_push r1
+		(vp-push r1)
 		(f-call 'view 'sub '(r0))
 		(f-call 'view 'deref '(r0))
-		vp_pop r1
+		(vp-pop r1)
 	(loop-end)
 
 	;free view object data
@@ -35,7 +35,7 @@
 	(f-call 'gui_region 'free '(r0, r1))
 
 	;deinit parent
-	vp_pop r0
+	(vp-pop r0)
 	s_jmp view, deinit, {r0}
 
 (def-func-end)

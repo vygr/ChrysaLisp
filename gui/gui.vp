@@ -105,7 +105,7 @@
 				;dispatch to task and target view
 				(vp-cpy-ir r4 local_key_view r6)
 				if r6, !=, 0
-					vp_push r0, r1, r2
+					(vp-push r0, r1, r2)
 					;lookup view owner
 					(f-call 'view 'find_owner '(r6) '(r1))
 					if r1, !=, 0
@@ -132,7 +132,7 @@
 						;send mail to owner
 						(f-call 'sys_mail 'send '(r0))
 					endif
-					vp_pop r0, r1, r2
+					(vp-pop r0, r1, r2)
 				endif
 			endif
 		(loop-end)
@@ -202,9 +202,7 @@
 			if r10, !=, 0
 				;find view
 				(f-bind 'gui_gui 'statics r5)
-				f_call view, hit_tree, {[r5 + gui_statics_screen], \
-											[r4 + local_x_pos], \
-											[r4 + local_y_pos]}, {r1, r8, r9}
+				(f-call 'view 'hit_tree '([r5 + gui_statics_screen], [r4 + local_x_pos], [r4 + local_y_pos]) '(r1, r8, r9))
 				if r1, ==, [r5 + gui_statics_screen]
 					(vp-xor-rr r1 r1)
 				endif
@@ -218,9 +216,7 @@
 				;hover
 				;find view for keys
 				(f-bind 'gui_gui 'statics r5)
-				f_call view, hit_tree, {[r5 + gui_statics_screen], \
-											[r4 + local_x_pos], \
-											[r4 + local_y_pos]}, {r1, _, _}
+				(f-call 'view 'hit_tree '([r5 + gui_statics_screen], [r4 + local_x_pos], [r4 + local_y_pos]) '(r1, _, _))
 				(vp-cpy-ri r1 r4 local_key_view)
 			endif
 		endif

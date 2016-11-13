@@ -52,7 +52,7 @@
 		(loop-start)
 			(vp-cpy-ir r0 r1)
 			breakif r1, ==, 0
-			vp_push r0, r2, r5
+			(vp-push r0, r2, r5)
 			(vp-add-rr r1 r0)
 			(vp-call-r r5)		;sys/load_bind
 			if r0, ==, 0
@@ -71,7 +71,7 @@
 				sys_exit 1
 			endif
 			(vp-cpy-rr r0 r1)
-			vp_pop r0, r2, r5
+			(vp-pop r0, r2, r5)
 			(vp-cpy-ri r1 r0)
 			(vp-add-cr ptr_size r0)
 		(loop-end)

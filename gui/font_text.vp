@@ -26,15 +26,15 @@
 	;save inputs
 	(vp-lea-ir r1 string_data r2)
 	(vp-sub-cr local_size r4)
-	(set-src r0, r2)
-	(set-dst [r4 + local_font], [r4 + local_text])
+	(set-src '(r0, r2))
+	(set-dst '([r4 + local_font], [r4 + local_text]))
 	(map-src-to-dst)
 
 	;get font statics
 	(f-bind 'gui_font 'statics r5)
 
 	;string hash to bucket
-	v_call string, hash, {r1}, {r0}
+	(v-call 'string 'hash '(r1) '(r0))
 	(vp-cpy-cr ft_num_buckets r1)
 	(vp-xor-rr r2 r2)
 	(vp-div r1 r2 r0)
@@ -58,7 +58,7 @@
 		;yes so LRU to front
 		(ln-remove-fnode r5 r6)
 		(vp-cpy-ir r4 local_bucket r5)
-		ln_add_fnode r5, r0, r1
+		(ln-add-fnode r5 r0 r1)
 	endif
 
 	(vp-add-cr local_size r4)
@@ -78,7 +78,7 @@ kernel_callback:
 	(vp-cpy-rr r0 r14)
 
 	(vp-cpy-ir r14 local_font r0)
-	ttf_render_utf8_blended [r0 + ft_font_handle], [r14 + local_text], 0xffffff
+	(ttf_render_utf8_blended '([r0 + ft_font_handle], [r14 + local_text], 0xffffff))
 	if r0, !=, 0
 		(vp-cpy-ri r0 r14 local_surface)
 		(vp-cpy-ir-ui r0 sdl_surface_w r10)
@@ -88,7 +88,7 @@ kernel_callback:
 
 		;create texture
 		(f-bind 'gui_gui 'statics r0)
-		sdl_create_texture_from_surface [r0 + gui_statics_renderer], [r14 + local_surface]
+		(sdl_create_texture_from_surface '([r0 + gui_statics_renderer], [r14 + local_surface]))
 		if r0, !=, 0
 			(vp-cpy-rr r0 r5)
 
@@ -108,14 +108,14 @@ kernel_callback:
 			(vp-cpy-ri r11 r13 ft_text_height)
 
 			;texture blend mode
-			sdl_set_texture_blend_mode [r13 + ft_text_texture], SDL_BLENDMODE_BLEND
+			(sdl_set_texture_blend_mode '([r13 + ft_text_texture], SDL_BLENDMODE_BLEND))
 
 			(vp-cpy-rr r13 r0)
 			(vp-cpy-ir r14 local_bucket r5)
-			ln_add_fnode r5, r0, r1
+			(ln-add-fnode r5 r0 r1)
 		endif
 		(vp-cpy-ri r0 r14 local_handle)
-		sdl_free_surface [r14 + local_surface]
+		(sdl_free_surface '([r14 + local_surface]))
 		(vp-cpy-ir r14 local_handle r0)
 	endif
 	(vp-cpy-ri r0 r14 local_handle)

@@ -10,7 +10,7 @@
 	;all but r0, r4
 
 	;save object
-	vp_push r0
+	(vp-push r0)
 
 	;deref any string and words objects
 	(vp-cpy-ir r0 text_string r0)
@@ -21,7 +21,7 @@
 	endif
 
 	;deinit parent
-	vp_pop r0
+	(vp-pop r0)
 	s_jmp text, deinit, {r0}
 
 (def-func-end)

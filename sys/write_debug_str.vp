@@ -20,8 +20,8 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src r0, r1, r2, r3)
-	(set-dst [r4 + local_name], [r4 + local_line], [r4 + local_string], [r4 + local_str])
+	(set-src '(r0, r1, r2, r3))
+	(set-dst '([r4 + local_name], [r4 + local_line], [r4 + local_string], [r4 + local_str]))
 	(map-src-to-dst)
 
 	(f-call 'sys_io 'string '([r4 + local_name], 2))

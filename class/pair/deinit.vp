@@ -7,11 +7,11 @@
 	;trashes
 	;all but r0, r4
 
-	vp_push r0
+	(vp-push r0)
 	(f-call 'ref 'deref '([r0 + pair_first]))
 	(vp-cpy-ir r4 r0)
 	(f-call 'ref 'deref '([r0 + pair_second]))
-	vp_pop r0
+	(vp-pop r0)
 	s_jmp pair, deinit, {r0}
 
 (def-func-end)

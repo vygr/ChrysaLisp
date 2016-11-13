@@ -30,14 +30,11 @@
 		if {msg->msg_length != msg_header_size}
 			;create stdin, stdout, stderr
 			func_call stream_msg_in, create, {mymailbox}, {inst->slave_stdin}
-			func_call stream_msg_out, create, {msg->slave_mail_init_stdout_id.id_mbox, \
-												msg->slave_mail_init_stdout_id.id_cpu}, {inst->slave_stdout}
-			func_call stream_msg_out, create, {msg->slave_mail_init_stderr_id.id_mbox, \
-												msg->slave_mail_init_stderr_id.id_cpu}, {inst->slave_stderr}
+			func_call stream_msg_out, create, {msg->slave_mail_init_stdout_id.id_mbox, msg->slave_mail_init_stdout_id.id_cpu}, {inst->slave_stdout}
+			func_call stream_msg_out, create, {msg->slave_mail_init_stderr_id.id_mbox, msg->slave_mail_init_stderr_id.id_cpu}, {inst->slave_stderr}
 
 			;create args
-			func_call stream, create, {0, 0, &msg->slave_mail_init_args, \
-										msg->msg_length - slave_mail_init_size}, {stream}
+			func_call stream, create, {0, 0, &msg->slave_mail_init_args, msg->msg_length - slave_mail_init_size}, {stream}
 			func_call stream, split, {stream, space_char}, {inst->slave_args}
 			func_call stream, deref, {stream}
 

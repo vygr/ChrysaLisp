@@ -206,8 +206,7 @@ terminal_input:
 			assign {shared->shared_history_index - 1}, {shared->shared_history_index}
 		endif
 		devirt_call vector, ref_element, {shared->shared_history, shared->shared_history_index}, {string}
-		func_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, \
-									{_, shared->shared_bufp}
+		func_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, {_, shared->shared_bufp}
 		func_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
 		local_call pipe_output, {shared, stream}, {r0, r1}
 	elseif {char == 130}
@@ -222,8 +221,7 @@ terminal_input:
 		else
 			devirt_call vector, ref_element, {shared->shared_history, shared->shared_history_index}, {string}
 		endif
-		func_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, \
-									{_, shared->shared_bufp}
+		func_call sys_mem, copy, {&string->string_data, &shared->shared_buffer, string->string_length}, {_, shared->shared_bufp}
 		func_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
 		local_call pipe_output, {shared, stream}, {r0, r1}
 	elseif {char == 27}

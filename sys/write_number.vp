@@ -14,10 +14,10 @@
 	(loop-start)
 		(vp-xor-rr r2 r2)
 		(vp-div r3 r2 r0)
-		vp_push r2
+		(vp-push r2)
 	loop_until r0, ==, 0
 	(loop-start)
-		vp_pop r0
+		(vp-pop r0)
 		(vp-add-cr '0' r0)
 		if r0, >, '9'
 			(vp-add-cr 'A' - ':' r0)

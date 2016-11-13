@@ -26,8 +26,8 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src r0, r1, r2)
-	(set-dst [r4 + local_inst], [r4 + local_key], [r4 + local_value])
+	(set-src '(r0, r1, r2))
+	(set-dst '([r4 + local_inst], [r4 + local_key], [r4 + local_value]))
 	(map-src-to-dst)
 
 	;search hash bucket

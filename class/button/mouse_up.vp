@@ -9,18 +9,18 @@
 	;all but r0, r4
 
 	(vp-cpy-ir r0 button_state r1)
-	vp_push r1
+	(vp-push r1)
 
 	(vp-cpy-rr r1 r2)
 	(vp-and-cr ~button_state_pressed r1)
 	(vp-cpy-ri r1 r0 button_state)
 	if r1, !=, r2
-		v_call button, layout, {r0}
+		(v-call 'button 'layout '(r0))
 		(f-call 'button 'dirty '(r0))
 	endif
 
 	;emit pressed signal ?
-	vp_pop r1
+	(vp-pop r1)
 	(vp-and-cr button_state_pressed r1)
 	if r1, !=, 0
 		(f-jmp 'button 'emit '(r0, &[r0 + button_pressed_signal]))

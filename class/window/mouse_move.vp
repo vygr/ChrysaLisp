@@ -18,15 +18,15 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src r0, r1)
-	(set-dst [r4 + local_inst], [r4 + local_event])
+	(set-src '(r0, r1))
+	(set-dst '([r4 + local_inst], [r4 + local_event]))
 	(map-src-to-dst)
 
 	;dirty old area
 	(f-call 'window 'dirty '(r0))
 
 	;get smallest size
-	v_call window, pref_size, {r0}, {r10, r11}
+	(v-call 'window 'pref_size '(r0) '(r10, r11))
 	(vp-cpy-rr r10 r12)
 	(vp-cpy-rr r11 r13)
 

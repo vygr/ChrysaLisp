@@ -7,7 +7,7 @@
 	;trashes
 	;all but r4
 
-	v_call obj, deinit, {r0}
+	(v-call 'obj 'deinit '(r0))
 	v_jmp obj, delete, {r0}
 
 (def-func-end)

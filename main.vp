@@ -10,7 +10,7 @@
 	global main
 main:
 	;called by sdl !!!!!!!
-	vp_push r6
+	(vp-push r6)
 
 	;init loader and prebind
 	(vp-rel 'ld_load_init_loader r1)
@@ -26,7 +26,7 @@ main:
 	(vp-call-r r1)
 
 	;jump to kernel task
-	vp_pop r0
+	(vp-pop r0)
 	(vp-rel 'ld_kernel r1)
 	(vp-cpy-ir-ui r1 fn_header_entry r2)
 	(vp-add-rr r2 r1)

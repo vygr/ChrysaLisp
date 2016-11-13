@@ -18,12 +18,12 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src r2, r3)
-	(set-dst [r4 + local_filename], [r0 + string_length])
+	(set-src '(r2, r3))
+	(set-dst '([r4 + local_filename], [r0 + string_length]))
 	(map-src-to-dst)
 
 	;init parent
-	s_call string, init, {r0, r1}, {r1}
+	(s-call 'string 'init '(r0, r1) '(r1))
 	if r1, !=, 0
 		;init myself
 		(vp-cpy-ri r0 r4 local_inst)

@@ -39,7 +39,7 @@
 		(f-call 'string 'init2 '(r0, @_function_, r6, [r7 + stat_fsize]) '(r1))
 		if r1, ==, 0
 			;error with init
-			v_call string, delete, {r0}, {}, r1
+			(v-call 'string 'delete '(r0) '() 'r1)
 			(vp-xor-rr r0 r0)
 		endif
 	endif

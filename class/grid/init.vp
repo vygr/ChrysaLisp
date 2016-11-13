@@ -9,7 +9,7 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	s_call grid, init, {r0, r1}, {r1}
+	(s-call 'grid 'init '(r0, r1) '(r1))
 	if r1, !=, 0
 		;init myself
 		(vp-cpy-cr 1 r1)

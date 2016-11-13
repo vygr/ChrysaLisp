@@ -11,9 +11,9 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	s_call label, init, {r0, r1}, {r1}
+	(s-call 'label 'init '(r0, r1) '(r1))
 	if r1, !=, 0
-		vp_push r0
+		(vp-push r0)
 
 		;init myself
 		;add my flow
@@ -34,7 +34,7 @@
 		(vp-cpy-ir r4 r1)
 		(f-call 'text 'add_front '(r0, [r1 + label_flow]))
 
-		vp_pop r0
+		(vp-pop r0)
 	endif
 	(vp-ret)
 
