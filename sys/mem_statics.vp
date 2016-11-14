@@ -4,13 +4,9 @@
 (def-func 'sys/mem_statics)
 
 	(vp-long 0) ;used memory count
-	%assign blk_size mem_block_min_size
-	%rep 1000
-		(times hp_heap_size (vp-byte 0))
-		%assign blk_size blk_size * 2
-		%if blk_size > mem_block_max_size
-			%exitrep
-		%(endif)
-	%endrep
+	(let ((s mem_block_min_size))
+		(while (le s mem_block_max_size)
+			(times hp_heap_size (vp-byte 0))
+			(setq s (mul s 2))))
 
 (def-func-end)

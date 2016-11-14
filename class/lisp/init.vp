@@ -18,14 +18,11 @@
 	;f = field
 	;u = function
 	;g = flags
-	(vp-short '(sub (eval (sym (cat "_ref_" (str (fn-add-string s)) "_string"))) (length *out-buffer)))
-	(vp-short f)
-	(if u
-		(progn
-			(func-path 'lisp u)
-			(vp-short `(sub (eval (sym (cat "_ref_" (str (fn_find_link ,_function_)) "_link"))) (length *out-buffer))))
-		(vp-short 0))
-	(vp-short (if g g type_args_eval_apply)))
+	(vp-short
+		`(sub ,(sym (cat "_ref_" (str (fn-add-string s)) "_string")) (length *out-buffer))
+		f
+		(if u (progn (func-path 'lisp u) `(sub ,(sym (cat "_ref_" (str (fn_find_link _function_)) "_link")) (length *out-buffer))) 0)
+		(if g g type_args_eval_apply)))
 
 (def-func 'class/lisp/init)
 	;inputs

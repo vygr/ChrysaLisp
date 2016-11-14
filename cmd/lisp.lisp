@@ -344,9 +344,13 @@
 	(emit-byte 0x72)
 	(emit-int (sub x (length *out-buffer*) int_size)))
 
-(defun emit-cpy-rel (x y)
+(defun emit-cpy-rel-r (x y)
 	(emit-byte 0x73 y)
 	(emit-int (sub x (length *out-buffer*) int_size)))
+
+(defun emit-cpy-r-rel (x y)
+	(emit-byte 0x74 x)
+	(emit-int (sub y (length *out-buffer*) int_size)))
 
 (defun emit-cpy-rr (x y)
 	(emit-byte 0x0 x y))
@@ -393,7 +397,8 @@
 (defun vp-rel (&rest b) (emit `(emit-rel ~b)))
 (defun vp-call-rel (&rest b) (emit `(emit-call-rel ~b)))
 (defun vp-jmp-rel (&rest b) (emit `(emit-jmp-rel ~b)))
-(defun vp-cpy-rel (&rest b) (emit `(emit-cpy-rel ~b)))
+(defun vp-cpy-rel-r (&rest b) (emit `(emit-cpy-rel-r ~b)))
+(defun vp-cpy-r-rel (&rest b) (emit `(emit-cpy-r-rel ~b)))
 (defun vp-cpy-rr (&rest b) (emit `(emit-cpy-rr ~b)))
 (defun vp-cpy-ri (&rest b) (emit `(emit-cpy-ri ~b)))
 (defun vp-cpy-ir (&rest b) (emit `(emit-cpy-ir ~b)))
@@ -474,7 +479,7 @@
 	i)
 
 (defun fn-bind (p r)
-	(vp-cpy-rel (sym (cat "_ref_" (str (fn-find-link p)) "_link")) r))
+	(vp-cpy-rel-r (sym (cat "_ref_" (str (fn-find-link p)) "_link")) r))
 
 (defun fn-call (p)
 	(vp-call-rel (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
