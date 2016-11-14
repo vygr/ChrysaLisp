@@ -1,108 +1,125 @@
-;;;;;;;;;;;;;;;;
-; vp code macros
-;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;
+; VP Instructions
+;;;;;;;;;;;;;;;;;
 
-%macro vp_cpy 2
-%endmacro
+(defq r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 r8 8
+	r9 9 r10 10 r11 11 r12 12 r13 3 r14 14 r15 15)
 
-%macro vp_cpy_b 2
-%endmacro
+(defun vp-label (s) (emit `(emit-label ',s)) (def *compile-env* s 0))
+(defun vp-align (&rest b) (emit `(emit-align ~b)))
+(defun vp-string (&rest b) (emit `(emit-string ~b)))
+(defun vp-byte (&rest b) (emit `(emit-byte ~b)))
+(defun vp-short (&rest b) (emit `(emit-short ~b)))
+(defun vp-int (&rest b) (emit `(emit-int ~b)))
+(defun vp-long (&rest b) (emit `(emit-long ~b)))
+(defun vp-push (&rest b) (emit `(emit-push ~b)))
+(defun vp-pop (&rest b) (emit `(emit-pop ~b)))
+(defun vp-rel (&rest b) (emit `(emit-rel ~b)))
+(defun vp-call-rel (&rest b) (emit `(emit-call-rel ~b)))
+(defun vp-jmp-rel (&rest b) (emit `(emit-jmp-rel ~b)))
+(defun vp-cpy-rel-r (&rest b) (emit `(emit-cpy-rel-r ~b)))
+(defun vp-cpy-r-rel (&rest b) (emit `(emit-cpy-r-rel ~b)))
+(defun vp-cpy-rr (&rest b) (emit `(emit-cpy-rr ~b)))
+(defun vp-cpy-ri (&rest b) (emit `(emit-cpy-ri ~b)))
+(defun vp-cpy-ir (&rest b) (emit `(emit-cpy-ir ~b)))
+(defun vp-add-cr (&rest b) (emit `(emit-add-cr ~b)))
+(defun vp-add-rr (&rest b) (emit `(emit-add-rr ~b)))
+(defun vp-sub-cr (&rest b) (emit `(emit-sub-cr ~b)))
+(defun vp-sub-rr (&rest b) (emit `(emit-sub-rr ~b)))
+(defun vp-mul-cr (&rest b) (emit `(emit-mul-cr ~b)))
+(defun vp-mul-rr (&rest b) (emit `(emit-mul-rr ~b)))
+(defun vp-and-cr (&rest b) (emit `(emit-and-cr ~b)))
+(defun vp-and-rr (&rest b) (emit `(emit-and-rr ~b)))
+(defun vp-or-cr (&rest b) (emit `(emit-or-cr ~b)))
+(defun vp-or-rr (&rest b) (emit `(emit-or-rr ~b)))
+(defun vp-xor-cr (&rest b) (emit `(emit-xor-cr ~b)))
+(defun vp-xor-rr (&rest b) (emit `(emit-xor-rr ~b)))
+(defun vp-ret () (emit `(emit-ret)))
 
-%macro vp_cpy_ub 2
-%endmacro
+;;;;;;;;;;;;;;;;;;;;
+; x64 Emit Functions
+;;;;;;;;;;;;;;;;;;;;
 
-%macro vp_cpy_s 2
-%endmacro
+(defun emit-push (&rest b)
+	(emit-byte 0x5)
+	(each emit-byte b))
 
-%macro vp_cpy_us 2
-%endmacro
+(defun emit-pop (&rest b)
+	(emit-byte 0x6)
+	(each emit-byte b))
 
-%macro vp_cpy_i 2
-%endmacro
+(defun emit-rel (x y)
+	(emit-byte 0x70 y)
+	(emit-int (sub x (length *out-buffer*) int_size)))
 
-%macro vp_cpy_ui 2
-%endmacro
+(defun emit-call-rel (x)
+	(emit-byte 0x71)
+	(emit-int (sub x (length *out-buffer*) int_size)))
 
-%macro vp_xchg 2
-%endmacro
+(defun emit-jmp-rel (x)
+	(emit-byte 0x72)
+	(emit-int (sub x (length *out-buffer*) int_size)))
 
-%macro vp_div 3
-%endmacro
+(defun emit-cpy-rel-r (x y)
+	(emit-byte 0x73 y)
+	(emit-int (sub x (length *out-buffer*) int_size)))
 
-%macro vp_div_u 3
-%endmacro
+(defun emit-cpy-r-rel (x y)
+	(emit-byte 0x74 x)
+	(emit-int (sub y (length *out-buffer*) int_size)))
 
-%macro vp_ext 2
-%endmacro
+(defun emit-cpy-rr (x y)
+	(emit-byte 0x0 x y))
 
-%macro vp_mul 2
-%endmacro
+(defun emit-cpy-ri (x y z)
+	(emit-byte 0x1 x y)
+	(emit-int z))
 
-%macro vp_call 1
-%endmacro
+(defun emit-cpy-ir (x y z)
+	(emit-byte 0x2 x z)
+	(emit-int y))
 
-%macro (vp-ret) 0
-%endmacro
+(defun emit-add-cr (c x)
+	(emit-byte 0x11 x)
+	(emit-long c))
 
-%macro vp_jmp 1
-%endmacro
+(defun emit-add-rr (x y)
+	(emit-byte 0x12 x y))
 
-%macro vp_jmpif 4
-%endmacro
+(defun emit-sub-cr (c x)
+	(emit-byte 0x13 x)
+	(emit-long c))
 
-%macro vp_jmpifnot 4
-%endmacro
+(defun emit-sub-rr (x y)
+	(emit-byte 0x14 x y))
 
-%macro vp_push 1-*
-%endmacro
+(defun emit-and-cr (c x)
+	(emit-byte 0x15 x)
+	(emit-long c))
 
-%macro vp_pop 1-*
-%endmacro
+(defun emit-and-rr (x y)
+	(emit-byte 0x16 x y))
 
-%macro vp_lea 2
-%endmacro
+(defun emit-or-cr (c x)
+	(emit-byte 0x17 x)
+	(emit-long c))
 
-%macro vp_inc 1
-%endmacro
+(defun emit-or-rr (x y)
+	(emit-byte 0x18 x y))
 
-%macro vp_dec 1
-%endmacro
+(defun emit-xor-cr (c x)
+	(emit-byte 0x19 x)
+	(emit-long c))
 
-%macro vp_add 2
-%endmacro
+(defun emit-xor-rr (x y)
+	(emit-byte 0x19 x y))
 
-%macro vp_sub 2
-%endmacro
+(defun emit-mul-cr (c x)
+	(emit-byte 0x20 x)
+	(emit-long c))
 
-%macro vp_cmp 2
-%endmacro
+(defun emit-mul-rr (x y)
+	(emit-byte 0x21 x y))
 
-%macro vp_and 2
-%endmacro
-
-%macro vp_or 2
-%endmacro
-
-%macro vp_xor 2
-%endmacro
-
-%macro vp_shr 2
-%endmacro
-
-%macro vp_asr 2
-%endmacro
-
-%macro vp_shl 2
-%endmacro
-
-%macro vp_cpy_rel 2
-%endmacro
-
-%macro vp_call_rel 1
-%endmacro
-
-%macro vp_jmp_rel 1
-%endmacro
-
-%macro vp_rel 2
-%endmacro
+(defun emit-ret ()
+	(emit-byte 0xc3))

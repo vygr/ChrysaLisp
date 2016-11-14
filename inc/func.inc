@@ -3,7 +3,7 @@
 (import 'inc/syscall.inc)
 (import 'inc/task.inc)
 
-%xdefine debug_mode
+(defq debug_mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail funcions
@@ -58,257 +58,125 @@
 	(offset 'fn_header_pathname)
 (def-struct-end)
 
-;;;;;;;;;;;;;
-; func macros
-;;;;;;;;;;;;;
+;;;;;;;;;;;
+; functions
+;;;;;;;;;;;
 
-%macro fn_add_string 1
-	;inputs
-	;%1 = string
+(defun def-func (*func-name* &optional *func-stack*)
+	(setq *emit-buffer* (list) *out-buffer* (list))
+	(setq *strings* (list) *paths* (list) *links* (list))
+	(vp-label '_func_start)
+	(vp-long -1)
+	(vp-int '(sub _func_end _func_start)
+		'(sub _func_entry _func_start)
+		'(sub _func_links _func_start)
+		'(sub _func_paths _func_start)
+		(if *func-stack* *func-stack* 4096))
+	(vp-label '_func_name_start)
+	(vp-string (str *func-name*))
+	(vp-byte 0 '(sub _func_entry _func_name_start))
+	(vp-align ptr_size '(sub _func_entry _func_name_start))
+	(vp-label '_func_entry))
 
-	%assign _string_num_ 0
-	%rep _string_total_
-		%ifidn _string_str_%[_string_num_]_, %1
-			%exitrep
-		%else
-			%assign _string_num_ _string_num_ + 1
-		%endif
-	%endrep
-	%if _string_num_ = _string_total_
-		%xdefine _string_str_%[_string_num_]_ %1
-		%assign _string_total_ _string_total_ + 1
-	%endif
-%endmacro
+(defun def-func-end ()
+	(defq *cnt* 0)
+	(each (lambda (s)
+		(vp-label (sym (cat "_ref_" (str *cnt*) "_string")))
+		(vp-string s) (vp-byte 0)
+		(setq *cnt* (inc *cnt*))) *strings*)
+	(vp-align ptr_size)
+	(vp-label '_func_links)
+	(setq *cnt* 0)
+	(each (lambda (i)
+		(vp-label (sym (cat "_ref_" (str *cnt*) "_link")))
+		(vp-long `(sub ,(sym (cat "_ref_" (str i) "_path")) (length *out-buffer*)))
+		(setq *cnt* (inc *cnt*))) *links*)
+	(vp-long 0)
+	(vp-label '_func_paths)
+	(setq *cnt* 0)
+	(each (lambda (s)
+		(vp-label (sym (cat "_ref_" (str *cnt*) "_path")))
+		(vp-string (str s)) (vp-byte 0)
+		(setq *cnt* (inc *cnt*))) *paths*)
+	(vp-align ptr_size)
+	(vp-label '_func_end)
+	(emit-passes)
+	(print-emit-buffer)
+	(print-out-buffer 16))
 
-%macro fn_string 2
-	;inputs
-	;%1 = string
-	;%2 = register
+(defmacro def-insert (n l)
+	`(defun ,n (s)
+		(defq i 0)
+		(while (and (lt i (length ,l)) (not (eql s (elem i ,l))))
+			(setq i (inc i)))
+		(if (eq i (length ,l)) (push ,l s))
+		i))
 
-	fn_add_string %1
-	vp_rel _ref_%[_string_num_]_string, %2
-%endmacro
+(def-insert fn-add-string *strings*)
+(def-insert fn-add-path *paths*)
 
-%macro fn_add_path 1
-	;inputs
-	;%1 = function path name
+(defun fn-string (s r)
+	(vp-rel (sym (cat "_ref_" (str (fn-add-string s)) "_string")) r))
 
-	%assign _path_num_ 0
-	%rep _path_total_
-		%ifidn _path_str_%[_path_num_]_, %1
-			%exitrep
-		%else
-			%assign _path_num_ _path_num_ + 1
-		%endif
-	%endrep
-	%if _path_num_ = _path_total_
-		%xdefine _path_str_%[_path_num_]_ %1
-		%assign _path_total_ _path_total_ + 1
-	%endif
-%endmacro
+(defun fn-add-link (p)
+	(push *links* (fn-add-path p)))
 
-%macro fn_add_link 1
-	;inputs
-	;%1 = function path name
+(defun fn-find-link (p)
+	(defq i 0)
+	(while (and (lt i (length *links*)) (not (eql p (elem (elem i *links*) *paths*))))
+		(setq i (inc i)))
+	(if (eq i (length *links*)) (fn-add-link p))
+	i)
 
-	fn_add_path %1
-	%assign _link_%[_link_total_]_path_num_ _path_num_
-	%assign _link_total_ _link_total_ + 1
-%endmacro
+(defun fn-bind (p r)
+	(vp-cpy-rel-r (sym (cat "_ref_" (str (fn-find-link p)) "_link")) r))
 
-%macro fn_find_link 1
-	;inputs
-	;%1 = function path name
+(defun fn-call (p)
+	(vp-call-rel (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
 
-	%assign _link_num_ 0
-	%rep _link_total_
-		%ifidn _path_str_%[_link_%[_link_num_]_path_num_]_, %1
-			%exitrep
-		%else
-			%assign _link_num_ _link_num_ + 1
-		%endif
-	%endrep
-	%if _link_num_ = _link_total_
-		fn_add_link %1
-	%endif
-%endmacro
+(defun fn-jmp (p)
+	(vp-jmp-rel (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
 
-%macro fn_bind 2
-	;inputs
-	;%1 = function path name
-	;%2 = register
+(defun debug-long (s i)
+	;s = debug string
+	;i = debug long
+	(if (defined 'debug_mode) (progn
+		(vp-push r0 r1 r2 r3 r5)
+		(vp-cpy-cr i r0)
+		(vp-push r0)
+		(vp-rel (add '_func_start fn_header_pathname) r0)
+		(vp-cpy-cr 0 r1)
+		(fn-string s r2)
+		(vp-pop r3)
+		(f-call 'sys_io 'debug_long '(r0, r1, r2, r3))
+		(vp-pop r0 r1 r2 r3 r5))))
 
-	fn_find_link %1
-	vp_cpy_rel _ref_%[_link_num_]_link, %2
-%endmacro
+(defun debug-str (s d)
+	;s = debug string
+	;d = debug string
+	(if (defined 'debug_mode) (progn
+		(vp-push r0 r1 r2 r3 r5)
+		(vp-cpy-cr i r0)
+		(vp-push r0)
+		(vp-rel (add '_func_start fn_header_pathname) r0)
+		(vp-cpy-cr 0 r1)
+		(fn-string s r2)
+		(vp-pop r3)
+		(f-call 'sys_io 'debug_str '(r0, r1, r2, r3))
+		(vp-pop r0 r1 r2 r3 r5))))
 
-%macro fn_call 1
-	;inputs
-	;%1 = function path name
+(defun abort (&optional s)
+	(setq s (if s s "Abort !"))
+	(debug-str s)
+	(sys-exit 1))
 
-	fn_find_link %1
-	vp_call_rel _ref_%[_link_num_]_link
-%endmacro
-
-%macro fn_jmp 1
-	;inputs
-	;%1 = function path name
-
-	fn_find_link %1
-	vp_jmp_rel _ref_%[_link_num_]_link
-%endmacro
-
-%macro def_func 1-2 tk_stack_size
-	;inputs
-	;%1 = function path name
-	;%2 = stack size
-
-	BITS 64
-	%defstr _func_name %1
-	%assign _link_total_ 0
-	%assign _path_total_ 0
-	%assign _string_total_ 0
-	align 8, db 0
-_func_start:
-	dq	-1
-	dd	_func_end - _func_start
-	dd	_func_entry - _func_start
-	dd	_func_links - _func_start
-	dd	_func_paths - _func_start
-	dd %2
-_func_name_start:
-	db	_func_name
-	db	0, _func_entry - _func_name_start
-	align 8, db _func_entry - _func_name_start
-_func_entry:
-	;define the operators
-	;values are precidence, assoiciativity
-	push_scope
-	operator ., 1, 0, compile_field
-	operator ->, 1, 0, compile_member
-	operator [], 1, 0, compile_index
-	operator :, 2, 1, compile_uaddrof
-	operator _, 2, 1, compile_uminus
-	operator #, 2, 1, compile_uderef
-	operator ~, 2, 1, compile_unot
-	operator !, 2, 1, compile_ulnot
-	operator *, 3, 0, compile_mul
-	operator /, 3, 0, compile_divu
-	operator %, 3, 0, compile_remu
-	operator //, 3, 0, compile_div
-	operator %%, 3, 0, compile_rem
-	operator +, 4, 0, compile_plus
-	operator -, 4, 0, compile_minus
-	operator <<, 5, 0, compile_lshift
-	operator >>, 5, 0, compile_rshift
-	operator >>>, 5, 0, compile_arshift
-	operator <, 6, 0, compile_lt
-	operator >, 6, 0, compile_gt
-	operator <=, 6, 0, compile_le
-	operator >=, 6, 0, compile_ge
-	operator ==, 7, 0, compile_eq
-	operator !=, 7, 0, compile_ne
-	operator &, 8, 0, compile_and
-	operator ^, 9, 0, compile_xor
-	operator |, 10, 0, compile_or
-	operator &&, 11, 0, compile_land
-	operator ||, 12, 0, compile_lor
-	operator ?, 13, 0, compile_ternary
-	operator (, 14
-	operator ), 14
-	operator [, 14
-	operator ], 14
-	push_scope
-%endmacro
-
-%macro def_func_end 0
-	pop_scope
-	pop_scope
-	%assign %%i 0
-	%rep _string_total_
-_ref_%[%%i]_string:
-		db	_string_str_%[%%i]_
-		db	0
-		%assign %%i %%i + 1
-	%endrep
-	align 8, db 0
-_func_links:
-	%assign %%i 0
-	%rep _link_total_
-_ref_%[%%i]_link:
-		dq	_ref_%[_link_%[%%i]_path_num_]_path - $
-		%assign %%i %%i + 1
-	%endrep
-	dq	0
-_func_paths:
-	%assign %%i 0
-	%rep _path_total_
-_ref_%[%%i]_path:
-		%defstr %%p _path_str_%[%%i]_
-		db	%%p
-		db	0
-		%assign %%i %%i + 1
-	%endrep
-	align 8, db 0
-_func_end:
-%endmacro
-
-%macro debug_long 1-2 0
-	;%1 = debug string
-	;%2 = debug int
-
-	%ifdef debug_mode
-		vp_push r0, r1, r2, r3, r5, %2
-		(vp-rel '_func_start + fn_header_pathname r0)
-		vp_cpy __LINE__, r1
-		(fn-string %1 r2)
-		vp_pop r3
-		f_call sys_io, debug_long, {r0, r1, r2, r3}
-		vp_pop r0, r1, r2, r3, r5
-	%endif
-%endmacro
-
-%macro debug_str 1-2 ''
-	;%1 = debug string
-	;%2 = debug string
-
-	%ifdef debug_mode
-		%ifidn %2, ''
-			vp_push r0, r1, r2, r3, r5
-			(vp-rel '_func_start + fn_header_pathname r0)
-			vp_cpy __LINE__, r1
-			(fn-string %1 r2)
-			(fn-string '' r3)
-			f_call sys_io, debug_str, {r0, r1, r2, r3}
-			vp_pop r0, r1, r2, r3, r5
-		%else
-			vp_push r0, r1, r2, r3, r5, %2
-			(vp-rel '_func_start + fn_header_pathname r0)
-			vp_cpy __LINE__, r1
-			(fn-string %1 r2)
-			vp_pop r3
-			f_call sys_io, debug_str, {r0, r1, r2, r3}
-			vp_pop r0, r1, r2, r3, r5
-		%endif
-	%endif
-%endmacro
-
-%macro abort 0-1 'Abort !'
-	;%1 = debug string
-
-	debug_str %1
-	sys_exit 1
-%endmacro
-
-%macro assert 3-4 'Assert Failure !'
-	;%1 = val1
-	;%2 = condition
-	;%3 = val2
-	;%4 = debug string
-
-	%ifdef debug_mode
-		ifnot %1, %2, %3
-			abort %4
-		endif
-	%endif
-%endmacro
+(defun assert (a b c &optional d)
+	;a = val1
+	;b = condition
+	;c = val2
+	;d = debug string
+	(if (defined 'debug_mode) (progn
+		(setq d (if d d "Assert Failure !"))
+		(vpifnot '(a b c))
+			(abort d)
+		(endif))))
