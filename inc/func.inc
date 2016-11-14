@@ -3,7 +3,7 @@
 (import 'inc/syscall.inc)
 (import 'inc/task.inc)
 
-(defq debug_mode)
+(equate 'debug_mode t)
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail funcions
@@ -140,7 +140,7 @@
 (defun debug-long (s i)
 	;s = debug string
 	;i = debug long
-	(if (defined 'debug_mode) (progn
+	(if debug_mode (progn
 		(vp-push r0 r1 r2 r3 r5)
 		(vp-cpy-cr i r0)
 		(vp-push r0)
@@ -154,7 +154,7 @@
 (defun debug-str (s d)
 	;s = debug string
 	;d = debug string
-	(if (defined 'debug_mode) (progn
+	(if debug_mode (progn
 		(vp-push r0 r1 r2 r3 r5)
 		(vp-cpy-cr i r0)
 		(vp-push r0)
@@ -175,7 +175,7 @@
 	;b = condition
 	;c = val2
 	;d = debug string
-	(if (defined 'debug_mode) (progn
+	(if debug_mode (progn
 		(setq d (if d d "Assert Failure !"))
 		(vpifnot '(a b c))
 			(abort d)

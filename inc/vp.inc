@@ -36,6 +36,69 @@
 (defun vp-xor-rr (&rest b) (emit `(emit-xor-rr ~b)))
 (defun vp-ret () (emit `(emit-ret)))
 
+;;;;;;;;;;;;;
+; Emit Buffer
+;;;;;;;;;;;;;
+
+(defun emit (&rest b)
+	(each (lambda (x)
+		(push *emit-buffer* x)) b))
+
+(defun emit-passes ()
+	(defq *out-buffer-cnt* 0 *out-buffer-size* 0)
+	(while (ne 2 *out-buffer-cnt*)
+		(setq *out-buffer* (list))
+		(each eval *emit-buffer*)
+		(setq *out-buffer-cnt* (if (eq *out-buffer-size* (length *out-buffer*))
+			(inc *out-buffer-cnt*)
+			(progn (setq *out-buffer-size* (length *out-buffer*)) 0)))))
+
+(defun print-emit-buffer ()
+	(defq i 0)
+	(while (lt i (length *emit-buffer*))
+		(print i " -> " (elem i *emit-buffer*))
+		(setq i (inc i))))
+
+(defun print-out-buffer (c)
+	(defq i 0)
+	(while (lt i (length *out-buffer*))
+		(if (eq (mod i c) 0)
+			(progn
+				(prin-base i 16 4) (prin " : ")))
+		(prin-base (elem i *out-buffer*) 16 2) (prin " ")
+		(setq i (inc i))
+		(if (eq (mod i c) 0)
+			(print)))
+	(print))
+
+(defun emit-label (s)
+	(set s (length *out-buffer*)))
+
+(defun emit-byte (&rest b)
+	(each (lambda (x)
+		(push *out-buffer* (bit-and x 0xff))) b))
+
+(defun emit-short (&rest b)
+	(each (lambda (x)
+		(emit-byte x (bit-shr x 8))) b))
+
+(defun emit-int (&rest b)
+	(each (lambda (x)
+		(emit-short x (bit-shr x 16))) b))
+
+(defun emit-long (&rest b)
+	(each (lambda (x)
+		(emit-int x (bit-shr x 32))) b))
+
+(defun emit-string (s)
+	(each (lambda (x)
+		(emit-byte (code x))) s))
+
+(defun emit-align (a &optional b)
+	(defq n (align (length *out-buffer*) a) b (if b b 0))
+	(while (ne (length *out-buffer*) n)
+		(emit-byte b)))
+
 ;;;;;;;;;;;;;;;;;;;;
 ; x64 Emit Functions
 ;;;;;;;;;;;;;;;;;;;;

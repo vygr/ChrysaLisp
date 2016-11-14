@@ -202,128 +202,6 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;
-; Structures
-;;;;;;;;;;;;
-
-(defun align-struct (x)
-	(setq *struct-offset* (align *struct-offset* x)))
-
-(defun def-struct (s &optional o)
-	(setq *struct* s *struct-offset* (eval (sym (cat (str (if o o "null")) "_size")))))
-
-(defun def-struct-end ()
-	(align-struct ptr_size)
-	(def *compile-env* (sym (cat (str *struct*) "_size")) *struct-offset*)
-	(setq *struct* nil))
-
-(defmacro def-type (n s)
-	`(defun ,n (&rest f)
-		(each (lambda (x)
-			(align-struct ,s)
-			(def *compile-env* x *struct-offset*)
-			(setq *struct-offset* (add *struct-offset* ,s))) f)))
-
-(defq null_size 0)
-(defq byte_size 1)
-(defq short_size 2)
-(defq int_size 4)
-(defq long_size 8)
-(defq ptr_size 8)
-
-(def-type byte byte_size)
-(def-type ubyte byte_size)
-(def-type short short_size)
-(def-type ushort short_size)
-(def-type int int_size)
-(def-type uint int_size)
-(def-type long long_size)
-(def-type ulong long_size)
-(def-type ptr ptr_size)
-(def-type pbyte ptr_size)
-(def-type pubyte ptr_size)
-(def-type pshort ptr_size)
-(def-type pushort ptr_size)
-(def-type pint ptr_size)
-(def-type puint ptr_size)
-(def-type plong ptr_size)
-(def-type pulong ptr_size)
-(def-type pptr ptr_size)
-
-(defun offset (f)
-	(def *compile-env* f *struct-offset*))
-
-(defun struct (f s)
-	(def *compile-env* f *struct-offset*)
-	(setq *struct-offset* (eval (sym (cat (str s) "_size")))))
-
-;;;;;;;;;;;;;
-; Emit Buffer
-;;;;;;;;;;;;;
-
-(defun emit (&rest b)
-	(each (lambda (x)
-		(push *emit-buffer* x)) b))
-
-(defun emit-passes ()
-	(defq *out-buffer-cnt* 0 *out-buffer-size* 0)
-	(while (ne 2 *out-buffer-cnt*)
-		(setq *out-buffer* (list))
-		(each eval *emit-buffer*)
-		(setq *out-buffer-cnt* (if (eq *out-buffer-size* (length *out-buffer*))
-			(inc *out-buffer-cnt*)
-			(progn (setq *out-buffer-size* (length *out-buffer*)) 0)))))
-
-(defun print-emit-buffer ()
-	(defq i 0)
-	(while (lt i (length *emit-buffer*))
-		(print i " -> " (elem i *emit-buffer*))
-		(setq i (inc i))))
-
-(defun print-out-buffer (c)
-	(defq i 0)
-	(while (lt i (length *out-buffer*))
-		(if (eq (mod i c) 0)
-			(progn
-				(prin-base i 16 4) (prin " : ")))
-		(prin-base (elem i *out-buffer*) 16 2) (prin " ")
-		(setq i (inc i))
-		(if (eq (mod i c) 0)
-			(print)))
-	(print))
-
-(defun emit-label (s)
-	(set s (length *out-buffer*)))
-
-(defun emit-byte (&rest b)
-	(each (lambda (x)
-		(push *out-buffer* (bit-and x 0xff))) b))
-
-(defun emit-short (&rest b)
-	(each (lambda (x)
-		(emit-byte x (bit-shr x 8))) b))
-
-(defun emit-int (&rest b)
-	(each (lambda (x)
-		(emit-short x (bit-shr x 16))) b))
-
-(defun emit-long (&rest b)
-	(each (lambda (x)
-		(emit-int x (bit-shr x 32))) b))
-
-(defun emit-string (s)
-	(each (lambda (x)
-		(emit-byte (code x))) s))
-
-(defun emit-align (a &optional b)
-	(defq n (align (length *out-buffer*) a) b (if b b 0))
-	(while (ne (length *out-buffer*) n)
-		(emit-byte b)))
-
-;;;;;;;
-; Files
-;;;;;;;
-
 (defun import (*file*)
 	(if (notany (lambda (x) (eql x *file*)) *imports*)
 		(progn (push *imports* *file*)
@@ -332,10 +210,11 @@
 (defun compile-file (*file*)
 	(defq *imports* (list))
 	(defq *emit-buffer* nil *out-buffer* nil)
-	(defq *struct* nil *struct-offset* nil)
+	(defq *struct* nil *struct-offset* nil *enum* nil *bit* nil)
 	(defq *strings* nil *paths* nil *links* nil)
 	(defq *compile-env* (env))
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file "test.vp")
+(defun equate (s v)
+	(def *compile-env* s v))

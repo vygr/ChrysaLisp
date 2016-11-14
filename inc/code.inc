@@ -217,39 +217,29 @@
 ; enums
 ;;;;;;;
 
-%macro (def-enum) 0-1 0
-	;inputs
-	;%1 = start offset
-	%assign _enum_ %1
-%endmacro
+(defun def-enum (&optional b)
+	(setq *enum* (if b b 0)))
 
-%macro (def-enum-end) 0
-	%undef _enum_
-%endmacro
+(defun def-enum-end
+	(setq *enum* nil))
 
-%macro enum 1
-(equate '	%1 _enum_)
-	%assign _enum_ _enum_ + 1
-%endmacro
+(defun enum (b)
+	(def *compile-env* b (shl 1 *enum*))
+	(setq *enum* (inc *enum*)))
 
 ;;;;;;
 ; bits
 ;;;;;;
 
-%macro (def-bit) 0-1 0
-	;inputs
-	;%1 = start bit
-	%assign _bit_ %1
-%endmacro
+(defun def-bit (&optional b)
+	(setq *bit* (if b b 0)))
 
-%macro (def-bit-end) 0
-	%undef _bit_
-%endmacro
+(defun def-bit-end
+	(setq *bit* nil))
 
-%macro (bit '1)
-(equate '	%1 1 << _bit_)
-	%assign _bit_ _bit_ + 1
-%endmacro
+(defun bit (b)
+	(def *compile-env* b (shl 1 *bit*))
+	(setq *bit* (inc *bit*)))
 
 ;;;;;;;;;;;;;;;;;
 ; data structures
@@ -262,241 +252,49 @@
 (equate 'long_size 8)
 (equate 'ptr_size 8)
 
-%macro (def-struct '1-2 null)
-	;inputs
-	;%1 = structure name
-	;%2 = super structure name
-	%xdefine _struct_ %1
-	%assign _offset_ %2_size
-%endmacro
+(defun local-align (&optional x)
+	(setq *struct-offset* (align *struct-offset* (if x x long_size))))
 
-%macro (def-struct-end) 0
-	local_align long
-(equate '	%[_struct_]_size _offset_)
-	%undef _struct_
-	%undef _offset_
-%endmacro
+(defun def-struct (s &optional o)
+	(setq *struct* s *struct-offset* (eval (sym (cat (str (if o o "null")) "_size")))))
 
-;;;;;;;;;;;;;;;;;;;;;
-; variable allocation
-;;;;;;;;;;;;;;;;;;;;;
+(defun def-struct-end ()
+	(local-align ptr_size)
+	(def *compile-env* (sym (cat (str *struct*) "_size")) *struct-offset*)
+	(setq *struct* nil))
 
-%assign _var_sp 0
+(defmacro def-type (n s)
+	`(defun ,n (&rest f)
+		(each (lambda (x)
+			(local-align ,s)
+			(def *compile-env* x *struct-offset*)
+			(setq *struct-offset* (add *struct-offset* ,s))) f)))
 
-%macro local_align 0-1 long
-	;inputs
-	;%1 = alignment
-	%ifdef _struct_
-		%assign _offset_ _offset_ + (%1_size - 1)
-		%assign _offset_ _offset_ & -(%1_size)
-	%else
-		%assign _var_sp _var_sp + (%1_size - 1)
-		%assign _var_sp _var_sp & -(%1_size)
-	%endif
-%endmacro
+(def-type byte byte_size)
+(def-type ubyte byte_size)
+(def-type short short_size)
+(def-type ushort short_size)
+(def-type int int_size)
+(def-type uint int_size)
+(def-type long long_size)
+(def-type ulong long_size)
+(def-type ptr ptr_size)
+(def-type pbyte ptr_size)
+(def-type pubyte ptr_size)
+(def-type pshort ptr_size)
+(def-type pushort ptr_size)
+(def-type pint ptr_size)
+(def-type puint ptr_size)
+(def-type plong ptr_size)
+(def-type pulong ptr_size)
+(def-type pptr ptr_size)
 
-%macro struct 2-3 ''
-	;inputs
-	;%1 = var name
-	;%2 = struct name
-	;%3 = type 'pppi'
-	%ifdef _struct_
-(equate '		%1 _offset_)
-		%xdefine %1_t %3
-		%assign _offset_ _offset_ + %2_size
-	%else
-		def_sym %1, _sym_var, _var_sp, 0, %3
-		%assign _var_sp _var_sp + %2_size
-	%endif
-%endmacro
+(defun offset (f)
+	(def *compile-env* f *struct-offset*))
 
-%macro offset 1
-	;inputs
-	;%1 = var name
-	%ifdef _struct_
-(equate '		%1 _offset_)
-	%else
-		%error Atempt to define offset into local stack
-	%endif
-%endmacro
-
-%macro ptr 1-*
-	;inputs
-	;%1 = var names
-	local_align ptr
-	%rep %0
-		(struct '%1, ptr ''p')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro long 1-*
-	;inputs
-	;%1 = var names
-	local_align long
-	%rep %0
-		(struct '%1, long ''l')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro ulong 1-*
-	;inputs
-	;%1 = var names
-	local_align long
-	%rep %0
-		(struct '%1, long ''L')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro int 1-*
-	;inputs
-	;%1 = var names
-	local_align int
-	%rep %0
-		(struct '%1, int ''i')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro uint 1-*
-	;inputs
-	;%1 = var names
-	local_align int
-	%rep %0
-		(struct '%1, int ''I')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro short 1-*
-	;inputs
-	;%1 = var names
-	local_align short
-	%rep %0
-		(struct '%1, short ''s')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro ushort 1-*
-	;inputs
-	;%1 = var names
-	local_align short
-	%rep %0
-		(struct '%1, short ''S')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro byte 1-*
-	;inputs
-	;%1 = var names
-	%rep %0
-		(struct '%1, byte ''b')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro ubyte 1-*
-	;inputs
-	;%1 = var names
-	%rep %0
-		(struct '%1, byte ''B')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro pptr 1-*
-	;inputs
-	;%1 = var names
-	local_align ptr
-	%rep %0
-		(struct '%1, ptr ''pp')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro pubyte 1-*
-	;inputs
-	;%1 = var names
-	local_align ptr
-	%rep %0
-		(struct '%1, ptr ''pB')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro pushort 1-*
-	;inputs
-	;%1 = var names
-	local_align ptr
-	%rep %0
-		(struct '%1, ptr ''pS')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro puint 1-*
-	;inputs
-	;%1 = var names
-	local_align ptr
-	%rep %0
-		(struct '%1, ptr ''pI')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro pulong 1-*
-	;inputs
-	;%1 = var names
-	local_align ptr
-	%rep %0
-		(struct '%1, ptr ''pL')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro pbyte 1-*
-	;inputs
-	;%1 = var names
-	local_align ptr
-	%rep %0
-		(struct '%1, ptr ''pb')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro pshort 1-*
-	;inputs
-	;%1 = var names
-	local_align ptr
-	%rep %0
-		(struct '%1, ptr ''ps')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro pint 1-*
-	;inputs
-	;%1 = var names
-	local_align ptr
-	%rep %0
-		(struct '%1, ptr ''pi')
-		%rotate 1
-	%endrep
-%endmacro
-
-%macro plong 1-*
-	;inputs
-	;%1 = var names
-	local_align ptr
-	%rep %0
-		(struct '%1, ptr ''pl')
-		%rotate 1
-	%endrep
-%endmacro
+(defun struct (f s)
+	(def *compile-env* f *struct-offset*)
+	(setq *struct-offset* (eval (sym (cat (str s) "_size")))))
 
 ;;;;;;;;;;;;;;
 ; symbol table
