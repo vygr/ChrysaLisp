@@ -14,7 +14,7 @@
 ; load structures
 ;;;;;;;;;;;;;;;;;
 
-(equate 'ld_block_size 64*1024)
+(equate 'ld_block_size (mul 64 1024))
 (equate 'ld_page_size 4096)
 (equate 'ld_reloc_size 3072)
 (equate 'ld_name_size 120)

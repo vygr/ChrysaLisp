@@ -302,7 +302,7 @@
 
 %assign _sym_sp 0
 %assign _scope_sp 0
-(equate '_sym_op	 0)
+(equate '_sym_op 0)
 (equate '_sym_const 1)
 (equate '_sym_var 2)
 

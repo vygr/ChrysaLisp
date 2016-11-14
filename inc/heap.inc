@@ -12,7 +12,7 @@
 
 (equate 'mem_block_min_size 0x000020)
 (equate 'mem_block_max_size 0x800000)
-(equate 'mem_block_blk_size 16 * 1024)
+(equate 'mem_block_blk_size (mul 16 1024))
 
 (def-class 'sys_mem)
 (def-method 'statics 'sys/mem_statics)

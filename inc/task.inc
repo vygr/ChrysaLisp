@@ -35,7 +35,7 @@
 ; task structures
 ;;;;;;;;;;;;;;;;;
 
-(equate 'tk_stack_size 1024 * 4)
+(equate 'tk_stack_size (mul 1024 4))
 
 (def-struct 'tk_node 'ln_node)
 	(ptr 'tk_node_stack)
@@ -59,12 +59,10 @@
 ; task macros
 ;;;;;;;;;;;;;
 
-(equate 'tk_state_size 15 * 8)
+(equate 'tk_state_size (mul 15 ptr_size)
 
-%macro tk_save_state 0
-	vp_push r0, r1, r2, r3, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
-%endmacro
+(defun tk_save_state ()
+	(vp-push r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
 
-%macro tk_load_state 0
-	vp_pop r0, r1, r2, r3, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
-%endmacro
+(defun tk_load_state ()
+	(vp-pop r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
