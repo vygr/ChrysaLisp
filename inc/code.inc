@@ -1,217 +1,137 @@
 (import 'inc/vp.inc)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; things I wish sombody would add to NASM
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-%macro search_string 2
-	;%1 = param to find
-	;%2 = param to search
-	%strlen %%l1 %1
-	%strlen %%l2 %2
-	%assign _pos 0
-	%if %%l1 <= %%l2
-		%assign _pos %%l2 + 1 - %%l1
-		%rep _pos
-			%substr %%ss2 %2 _pos, %%l1
-			%ifidn %%ss2, %1
-				%exitrep
-			%else
-				%assign _pos _pos - 1
-			%endif
-		%endrep
-	%endif
-%endmacro
-
-%macro replace_string 4
-	;%1 = param to insert
-	;%2 = param to remove
-	;%3 = param to splice
-	;%4 = position to insert
-	%strlen %%l %2
-	%substr %%s1 %3 1, %4 - 1
-	%substr %%s2 %3 %4 + %%l, -1
-	%strcat _str %%s1 %1 %%s2
-%endmacro
-
 ;;;;;;;;;;;;;;;;;;;;
 ; structured codeing
 ;;;;;;;;;;;;;;;;;;;;
 
-%macro goto 1
-	vp_jmp %1
-%endmacro
+(defun goto (l)
+	(vp-jmp l))
 
-%macro gotoif 2
-	eval {%1}, {r0}
-	vp_jmpif r0, !=, 0, %2
-%endmacro
+(defun gotoif (e l)
+	(expr (elem 0 e) '(r0))
+	(vp-jmpif '(r0 != 0) l))
 
-%macro gotoifnot 2
-	eval {%1}, {r0}
-	vp_jmpifnot r0, !=, 0, %2
-%endmacro
+(defun gotoifnot (e l)
+	(expr (elem 0 e) '(r0))
+	(vp-jmpifnot '(r0 != 0) l))
 
-%macro switch 0
-	%push scope
-	%assign %$_cnt 0
-%$_begin:
-%endmacro
+(defun switch ()
+	(push *switch-stk* *switch*)
+	(setq *switch* *switch-nxt* *switch-nxt* (inc *switch-nxt*))
+	(equate (sym (cat "*cnt-" (str *switch*) "*")) 0)
+(vp-label (sym (cat "_begin-" (str *switch*)))))
 
-%macro default 0
-%$_loc_%$_cnt:
-	%assign %$_cnt %$_cnt + 1
-%endmacro
+(defun default ()
+	(defq s (sym (cat "*cnt-" (str *switch*) "*")) c (eval s))
+(vp-label (sym (cat "_loc-" (str *switch*) "-" (str c))))
+	(set s (inc c)))
 
-%macro endswitch 0
-%$_end:
-	default
-	%pop
-%endmacro
+(defun endswitch ()
+(vp-label (sym (cat "_end-" (str *switch*))))
+	(default)
+	(setq *switch* (pop *switch-stk*)))
 
-%macro case 1
-	default
-	eval {%1}, {r0}
-	vp_jmpifnot r0, !=, 0, %$_loc_%$_cnt
-%endmacro
+(defun case (e)
+	(defq c (eval (sym (cat "*cnt-" (str *switch*) "*")))
+		l (sym (cat "_loc-" (str *switch*) "-" (str c))))
+	(if (eq 1 (length e))
+		(progn
+			(expr (elem 0 e) '(r0))
+			(vp-jmpifnot '(r0 != 0) l))
+		(progn
+			(default)
+			(vp-jmpifnot `(~e) l))))
 
-%macro case 3
-	default
-	vp_jmpifnot %1, %2, %3, %$_loc_%$_cnt
-%endmacro
+(defun casenot (e)
+	(defq c (eval (sym (cat "*cnt-" (str *switch*) "*")))
+		l (sym (cat "_loc-" (str *switch*) "-" (str c))))
+	(if (eq 1 (length e))
+		(progn
+			(expr (elem 0 e) '(r0))
+			(vp-jmpif '(r0 != 0) l))
+		(progn
+			(default)
+			(vp-jmpif `(~e) l))))
 
-%macro casenot 1
-	default
-	eval {%1}, {r0}
-	vp_jmpif r0, !=, 0, %$_loc_%$_cnt
-%endmacro
+(defun break ()
+	(vp-jmp (sym (cat "_end-" (str *switch*)))))
 
-%macro casenot 3
-	default
-	vp_jmpif %1, %2, %3, %$_loc_%$_cnt
-%endmacro
+(defun breakif (e)
+	(defq l (sym (cat "_end-" (str *switch*))))
+	(if (eq 1 (length e))
+		(progn
+			(expr (elem 0 e) '(r0))
+			(vp-jmpif '(r0 != 0) l))
+		(vp-jmpif `(~e) l)))
 
-%macro break 0
-	vp_jmp %$_end
-%endmacro
+(defun breakifnot (e)
+	(defq l (sym (cat "_end-" (str *switch*))))
+	(if (eq 1 (length e))
+		(progn
+			(expr (elem 0 e) '(r0))
+			(vp-jmpifnot '(r0 != 0) l))
+		(vp-jmpifnot `(~e) l)))
 
-%macro breakif 3
-	vp_jmpif %1, %2, %3, %$_end
-%endmacro
+(defun continue ()
+	(vp-jmp (sym (cat "_begin-" (str *switch*)))))
 
-%macro breakif 1
-	eval {%1}, {r0}
-	breakif r0, !=, 0
-%endmacro
+(defun continueif (e)
+	(defq l (sym (cat "_begin-" (str *switch*))))
+	(if (eq 1 (length e))
+		(progn
+			(expr (elem 0 e) '(r0))
+			(vp-jmpif '(r0 != 0) l))
+		(vp-jmpif `(~e) l)))
 
-%macro breakifnot 3
-	vp_jmpifnot %1, %2, %3, %$_end
-%endmacro
+(defun continueifnot (e)
+	(defq l (sym (cat "_begin-" (str *switch*))))
+	(if (eq 1 (length e))
+		(progn
+			(expr (elem 0 e) '(r0))
+			(vp-jmpifnot '(r0 != 0) l))
+		(vp-jmpifnot `(~e) l)))
 
-%macro breakifnot 1
-	eval {%1}, {r0}
-	breakifnot r0, !=, 0
-%endmacro
+(defun loop-start ()
+	(switch))
 
-%macro continue 0
-	vp_jmp %$_begin
-%endmacro
+(defun loop-while (e)
+	(switch)
+	(breakifnot e))
 
-%macro continueif 3
-	vp_jmpif %1, %2, %3, %$_begin
-%endmacro
+(defun loop-whilenot (e)
+	(switch)
+	(breakif e))
 
-%macro continueif 1
-	eval {%1}, {r0}
-	continueif r0, !=, 0
-%endmacro
+(defun loop-end ()
+	(continue)
+	(endswitch))
 
-%macro continueifnot 3
-	vp_jmpifnot %1, %2, %3, %$_begin
-%endmacro
+(defun loop-until (e)
+	(continueifnot e)
+	(endswitch))
 
-%macro continueifnot 1
-	eval {%1}, {r0}
-	continueifnot r0, !=, 0
-%endmacro
+(defun loop-untilnot (e)
+	(continueif e)
+	(endswitch))
 
-%macro (loop-start) 0
-	switch
-%endmacro
+(defun vpif (e)
+	(switch)
+	(case e))
 
-%macro loop_while 3
-	switch
-	breakifnot %1, %2, %3
-%endmacro
+(defun vpifnot (e)
+	(switch)
+	(casenot e))
 
-%macro loop_while 1
-	switch
-	breakifnot {%1}
-%endmacro
+(defun elseif (e)
+	(break)
+	(case e))
 
-%macro loop_whilenot 1
-	switch
-	breakif {%1}
-%endmacro
+(defun else ()
+	(break)
+	(default))
 
-%macro (loop-end) 0
-	continue
-	endswitch
-%endmacro
-
-%macro loop_until 1
-	continueifnot {%1}
-	endswitch
-%endmacro
-
-%macro loop_untilnot 1
-	continueif {%1}
-	endswitch
-%endmacro
-
-%macro loop_until 3
-	continueifnot %1, %2, %3
-	endswitch
-%endmacro
-
-%macro if 1
-	switch
-	case {%1}
-%endmacro
-
-%macro if 3
-	switch
-	case %1, %2, %3
-%endmacro
-
-%macro ifnot 1
-	switch
-	casenot {%1}
-%endmacro
-
-%macro ifnot 3
-	switch
-	casenot %1, %2, %3
-%endmacro
-
-%macro elseif 1
-	break
-	case {%1}
-%endmacro
-
-%macro elseif 3
-	break
-	case %1, %2, %3
-%endmacro
-
-%macro else 0
-	break
-	default
-%endmacro
-
-%macro endif 0
-	endswitch
-%endmacro
+(defun endif ()
+	(endswitch))
 
 ;;;;;;;
 ; enums
