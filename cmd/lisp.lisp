@@ -212,6 +212,7 @@
 	(defq *emit-buffer* nil *out-buffer* nil)
 	(defq *struct* nil *struct-offset* nil *enum* nil *bit* nil)
 	(defq *strings* nil *paths* nil *links* nil)
+	(defq *switch* nil *switch-nxt* 0 *switch-stk* (list))
 	(defq *compile-env* (env))
 	(import *file*)
 	(setq *compile-env* nil))

@@ -1,0 +1,44 @@
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_boxed_long.inc)
+(import 'class/class_error.inc)
+(import 'class/class_lisp.inc)
+
+(def-func 'class/lisp/func_pop)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(int 'length)
+
+	(push-scope)
+	(retire '(r0, r1) '(this, args))
+
+	(devirt-call 'vector 'get_length '(args) '(length))
+	(vpif '(length == 1))
+		(devirt-call 'vector 'ref_element '(args, 0) '(args))
+		(vpif '(args->obj_vtable == @class/class_vector))
+			(devirt-call 'vector 'get_length '(args) '(length))
+			(vpif '(length))
+				(func-call 'vector 'get_back '(args) '(value))
+				(func-call 'vector 'pop_back '(args))
+			(else)
+				(assign '(this->lisp_sym_nil) '(value))
+				(func-call 'ref 'ref '(value))
+			(endif)
+		(else)
+			(func-call 'error 'create '("(pop list) not a list", args) '(value))
+		(endif)
+	(else)
+		(func-call 'error 'create '("(pop list) wrong number of args", args) '(value))
+	(endif)
+
+	(expr '(this, value) '(r0, r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)

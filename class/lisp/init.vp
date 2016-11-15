@@ -148,6 +148,7 @@
 	(built-in "bit-or" 0 'func_bor)
 	(built-in "bit-xor" 0 'func_bxor)
 	(built-in "push" 0 'func_push)
+	(built-in "pop" 0 'func_pop)
 	(built-in "mod" 0 'func_mod)
 	(built-in "mul" 0 'func_mul)
 	(built-in "not" 0 'func_not)

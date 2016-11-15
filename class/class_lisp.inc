@@ -88,6 +88,7 @@
 (def-method 'func_bor 'class/lisp/func_bor 'static '(r0 r1) '(r1))
 (def-method 'func_bxor 'class/lisp/func_bxor 'static '(r0 r1) '(r1))
 (def-method 'func_push 'class/lisp/func_push 'static '(r0 r1) '(r1))
+(def-method 'func_pop 'class/lisp/func_pop 'static '(r0 r1) '(r1))
 (def-method 'func_apply 'class/lisp/func_apply 'static '(r0 r1) '(r1))
 (def-method 'func_repl 'class/lisp/func_repl 'static '(r0 r1) '(r1))
 (def-method 'func_eval 'class/lisp/func_eval 'static '(r0 r1) '(r1))

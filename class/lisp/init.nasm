@@ -155,6 +155,7 @@ built_ins:
 	built_in "bit-or", 0, func_bor
 	built_in "bit-xor", 0, func_bxor
 	built_in "push", 0, func_push
+	built_in "pop", 0, func_pop
 	built_in "mod", 0, func_mod
 	built_in "mul", 0, func_mul
 	built_in "not", 0, func_not

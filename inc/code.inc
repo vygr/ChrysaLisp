@@ -19,15 +19,15 @@
 	(push *switch-stk* *switch*)
 	(setq *switch* *switch-nxt* *switch-nxt* (inc *switch-nxt*))
 	(equate (sym (cat "*cnt-" (str *switch*) "*")) 0)
-(vp-label (sym (cat "_begin-" (str *switch*)))))
+	(vp-label (sym (cat "_begin-" (str *switch*)))))
 
 (defun default ()
 	(defq s (sym (cat "*cnt-" (str *switch*) "*")) c (eval s))
-(vp-label (sym (cat "_loc-" (str *switch*) "-" (str c))))
+	(vp-label (sym (cat "_loc-" (str *switch*) "-" (str c))))
 	(set s (inc c)))
 
 (defun endswitch ()
-(vp-label (sym (cat "_end-" (str *switch*))))
+	(vp-label (sym (cat "_end-" (str *switch*))))
 	(default)
 	(setq *switch* (pop *switch-stk*)))
 
