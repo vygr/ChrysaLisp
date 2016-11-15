@@ -67,7 +67,7 @@ def_func class/lisp/repl_eval
 		func_call ref, ref, {value}
 	endswitch
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 

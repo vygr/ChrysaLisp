@@ -40,7 +40,7 @@ def_func class/lisp/repl_read_sym
 	func_call symbol, create_from_buffer, {reloc, buffer - reloc}, {symbol}
 	func_call lisp, sym_intern, {this, symbol}, {symbol}
 
-	eval {this, symbol, char}, {r0, r1, r2}
+	expr {this, symbol, char}, {r0, r1, r2}
 	pop_scope
 	return
 

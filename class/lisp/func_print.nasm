@@ -20,7 +20,7 @@ def_func class/lisp/func_print
 	func_call lisp, func_prin, {this, args}, {args}
 	func_call stream, write_char, {this->lisp_stdout, char_lf}
 
-	eval {this, args}, {r0, r1}
+	expr {this, args}, {r0, r1}
 	pop_scope
 	return
 

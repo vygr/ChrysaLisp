@@ -35,7 +35,7 @@ def_func class/text/pref_size
 		assign {width + (length - 1) * (height >> 2)}, {width}
 	endif
 
-	eval {inst, width, height}, {r0, r10, r11}
+	expr {inst, width, height}, {r0, r10, r11}
 	pop_scope
 	return
 

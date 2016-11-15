@@ -38,7 +38,7 @@ def_func class/text/draw
 		loop_until {words == words_end}
 	endif
 
-	eval {inst}, {r0}
+	expr {inst}, {r0}
 	pop_scope
 	return
 

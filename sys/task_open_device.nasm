@@ -42,7 +42,7 @@ def_func sys/task_open_device
 	func_call sys_mem, free, {msg}
 
 	;return ids array
-	eval {id.id_mbox, id.id_cpu}, {r0, r1}
+	expr {id.id_mbox, id.id_cpu}, {r0, r1}
 	pop_scope
 	vp_ret
 

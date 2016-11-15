@@ -34,7 +34,7 @@ def_func class/lisp/func_length
 		func_call error, create, {"(length seq) wrong number of args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 

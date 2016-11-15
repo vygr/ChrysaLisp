@@ -53,7 +53,7 @@ def_func class/slave/init
 		endif
 	endif
 
-	eval {inst, error}, {r0, r1}
+	expr {inst, error}, {r0, r1}
 	pop_scope
 	return
 

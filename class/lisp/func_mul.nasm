@@ -36,7 +36,7 @@ def_func class/lisp/func_mul
 		func_call error, create, {"(mul val val ...) not enough args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 
@@ -57,9 +57,9 @@ callback:
 	if {(*iter)->obj_vtable == @class/class_boxed_long}
 		func_call boxed_long, get_value, {*iter}, {val}
 		assign {*pdata * val}, {*pdata}
-		eval {1}, {r1}
+		expr {1}, {r1}
 	else
-		eval {0}, {r1}
+		expr {0}, {r1}
 	endif
 
 	pop_scope

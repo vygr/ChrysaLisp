@@ -39,7 +39,7 @@ def_func class/lisp/func_ne
 		func_call error, create, {"(ne num num ...) wrong number of args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 
@@ -66,17 +66,17 @@ callback:
 			func_call ref, deref, {pdata->pdata_value}
 			assign {pdata->pdata_this->lisp_sym_nil}, {pdata->pdata_value}
 			func_call ref, ref, {pdata->pdata_value}
-			eval {0}, {r1}
+			expr {0}, {r1}
 			return
 		loop_end
-		eval {1}, {r1}
+		expr {1}, {r1}
 		return
 	else
 		func_call ref, deref, {pdata->pdata_value}
 		func_call error, create, {"(ne num num ...) not all numbers", *iter}, {pdata->pdata_value}
 	endif
 
-	eval {0}, {r1}
+	expr {0}, {r1}
 	pop_scope
 	return
 

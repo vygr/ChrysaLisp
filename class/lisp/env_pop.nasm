@@ -22,7 +22,7 @@ def_func class/lisp/env_pop
 		assign {env}, {this->lisp_enviroment}
 	endif
 
-	eval {this}, {r0}
+	expr {this}, {r0}
 	pop_scope
 	return
 

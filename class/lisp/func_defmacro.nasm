@@ -38,7 +38,7 @@ def_func class/lisp/func_defmacro
 		func_call error, create, {"(defmacro name vars body) wrong numbers of args", args}, {name}
 	endif
 
-	eval {this, name}, {r0, r1}
+	expr {this, name}, {r0, r1}
 	pop_scope
 	return
 

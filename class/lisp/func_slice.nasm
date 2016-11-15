@@ -40,7 +40,7 @@ def_func class/lisp/func_slice
 				endif
 				if {start >= 0 && end <= length}
 					virt_call sequence, slice, {seq, start, end}, {value}
-					eval {this, value}, {r0, r1}
+					expr {this, value}, {r0, r1}
 					return
 				else
 					func_call error, create, {"(slice start end seq) index out of bounds", args}, {value}
@@ -56,7 +56,7 @@ def_func class/lisp/func_slice
 		func_call error, create, {"(slice start end seq) wrong number of args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 

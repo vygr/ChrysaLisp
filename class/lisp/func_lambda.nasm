@@ -16,7 +16,7 @@ def_func class/lisp/func_lambda
 
 	func_call ref, ref, {args}
 
-	eval {this, args}, {r0, r1}
+	expr {this, args}, {r0, r1}
 	pop_scope
 	return
 

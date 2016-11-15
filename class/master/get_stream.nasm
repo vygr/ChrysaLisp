@@ -23,7 +23,7 @@ def_func class/master/get_stream
 		assign {index + ptr_size}, {index}
 	loop_end
 
-	eval {inst, (inst->master_streams->vector_array)[index]}, {r0, r1}
+	expr {inst, (inst->master_streams->vector_array)[index]}, {r0, r1}
 	pop_scope
 	return
 

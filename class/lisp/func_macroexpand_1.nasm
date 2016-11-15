@@ -29,7 +29,7 @@ def_func class/lisp/func_macroexpand_1
 		assign {1}, {length}
 	endif
 
-	eval {this, value, length}, {r0, r1, r2}
+	expr {this, value, length}, {r0, r1, r2}
 	pop_scope
 	return
 

@@ -27,7 +27,7 @@ def_func class/lisp/env_find
 		func_call pair, get_second, {*iter}, {env}
 	loop_end
 
-	eval {this, iter, bucket}, {r0, r1, r2}
+	expr {this, iter, bucket}, {r0, r1, r2}
 	pop_scope
 	return
 

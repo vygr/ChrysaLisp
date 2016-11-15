@@ -30,7 +30,7 @@ def_func class/lisp/func_push
 		func_call error, create, {"(push list form ...) not enough args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 
@@ -50,7 +50,7 @@ callback:
 	func_call ref, ref, {*iter}
 	func_call vector, push_back, {pdata, *iter}
 
-	eval {1}, r1
+	expr {1}, r1
 	pop_scope
 	return
 

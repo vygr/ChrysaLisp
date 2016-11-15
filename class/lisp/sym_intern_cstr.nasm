@@ -19,7 +19,7 @@ def_func class/lisp/sym_intern_cstr
 	func_call lisp, sym_intern, {this, symbol}, {intern}
 	func_call ref, deref, {symbol}
 
-	eval {this, intern}, {r0, r1}
+	expr {this, intern}, {r0, r1}
 	pop_scope
 	return
 

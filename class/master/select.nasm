@@ -29,7 +29,7 @@ def_func class/master/select
 		func_call sys_mail, select, {inst->master_select_array, length}, {mailbox}
 	endif
 
-	eval {inst, mailbox}, {r0, r1}
+	expr {inst, mailbox}, {r0, r1}
 	pop_scope
 	return
 

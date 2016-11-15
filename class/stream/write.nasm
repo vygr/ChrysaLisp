@@ -26,7 +26,7 @@ def_func class/stream/write
 		func_call stream, write_char, {inst, char}
 	loop_end
 
-	eval {inst}, {r0}
+	expr {inst}, {r0}
 	pop_scope
 	return
 

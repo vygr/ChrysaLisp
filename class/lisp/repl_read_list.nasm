@@ -55,7 +55,7 @@ def_func class/lisp/repl_read_list
 	func_call stream, read_char, {stream}, {char}
 
 error:
-	eval {this, list, char}, {r0, r1, r2}
+	expr {this, list, char}, {r0, r1, r2}
 	pop_scope
 	return
 

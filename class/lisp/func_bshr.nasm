@@ -39,7 +39,7 @@ def_func class/lisp/func_bshr
 		func_call error, create, {"(bit-shr num cnt) wrong number of args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 

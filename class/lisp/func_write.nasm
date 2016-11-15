@@ -37,7 +37,7 @@ def_func class/lisp/func_write
 		func_call error, create, {"(write-line stream str) wrong number of args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 

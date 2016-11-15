@@ -24,7 +24,7 @@ def_func class/string/split
 	func_call stream, split, {stream, char}, {splits}
 	func_call stream, deref, {stream}
 
-	eval {inst, splits}, {r0, r1}
+	expr {inst, splits}, {r0, r1}
 	pop_scope
 	vp_ret
 

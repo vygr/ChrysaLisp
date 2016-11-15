@@ -23,7 +23,7 @@ def_func class/lisp/built_in_func
 	func_call unordered_map, insert, {this->lisp_enviroment, symbol, func}, {_, _}
 	func_call ref, deref, {func}
 
-	eval {this}, {r0}
+	expr {this}, {r0}
 	pop_scope
 	return
 

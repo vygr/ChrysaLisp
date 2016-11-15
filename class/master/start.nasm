@@ -138,7 +138,7 @@ def_func class/master/start
 		func_call vector, deref, {args}
 	endif
 
-	eval {inst}, {r0}
+	expr {inst}, {r0}
 	pop_scope
 	return
 

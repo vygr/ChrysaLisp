@@ -50,7 +50,7 @@ def_func class/stream_msg_in/read_next
 	loop_until {inst->stream_bufp != inst->stream_bufe}
 
 	;return -1 if not in started state
-	eval {inst, (inst->stream_msg_in_state == stream_mail_state_started) - 1}, {r0, r1}
+	expr {inst, (inst->stream_msg_in_state == stream_mail_state_started) - 1}, {r0, r1}
 	pop_scope
 	return
 

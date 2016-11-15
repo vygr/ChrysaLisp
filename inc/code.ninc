@@ -46,12 +46,12 @@
 %endmacro
 
 %macro gotoif 2
-	eval {%1}, {r0}
+	expr {%1}, {r0}
 	vp_jmpif r0, !=, 0, %2
 %endmacro
 
 %macro gotoifnot 2
-	eval {%1}, {r0}
+	expr {%1}, {r0}
 	vp_jmpifnot r0, !=, 0, %2
 %endmacro
 
@@ -74,7 +74,7 @@
 
 %macro case 1
 	default
-	eval {%1}, {r0}
+	expr {%1}, {r0}
 	vp_jmpifnot r0, !=, 0, %$_loc_%$_cnt
 %endmacro
 
@@ -85,7 +85,7 @@
 
 %macro casenot 1
 	default
-	eval {%1}, {r0}
+	expr {%1}, {r0}
 	vp_jmpif r0, !=, 0, %$_loc_%$_cnt
 %endmacro
 
@@ -103,7 +103,7 @@
 %endmacro
 
 %macro breakif 1
-	eval {%1}, {r0}
+	expr {%1}, {r0}
 	breakif r0, !=, 0
 %endmacro
 
@@ -112,7 +112,7 @@
 %endmacro
 
 %macro breakifnot 1
-	eval {%1}, {r0}
+	expr {%1}, {r0}
 	breakifnot r0, !=, 0
 %endmacro
 
@@ -125,7 +125,7 @@
 %endmacro
 
 %macro continueif 1
-	eval {%1}, {r0}
+	expr {%1}, {r0}
 	continueif r0, !=, 0
 %endmacro
 
@@ -134,7 +134,7 @@
 %endmacro
 
 %macro continueifnot 1
-	eval {%1}, {r0}
+	expr {%1}, {r0}
 	continueifnot r0, !=, 0
 %endmacro
 
@@ -1624,7 +1624,7 @@ _sym_var	equ 2
 ; assignment
 ;;;;;;;;;;;;
 
-%macro eval 2
+%macro expr 2
 	set_src %1
 	set_dst %2
 	%if _dst_total != _src_total
@@ -1647,7 +1647,7 @@ _sym_var	equ 2
 			%assign %%n %%n + 1
 		%endrep
 		fill_reg_def
-		emit_inst_list {eval: %1 => %2}
+		emit_inst_list {expr: %1 => %2}
 		undef_reg_def
 	%endif
 %endmacro

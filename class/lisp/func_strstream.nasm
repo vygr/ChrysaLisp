@@ -31,7 +31,7 @@ def_func class/lisp/func_strstream
 		func_call error, create, {"(string-stream str) not enough args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 

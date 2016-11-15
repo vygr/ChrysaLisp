@@ -41,7 +41,7 @@ def_func class/stream_msg_out/write_flush
 		super_call stream_msg_out, write_flush, {inst}
 	endif
 
-	eval {inst}, {r0}
+	expr {inst}, {r0}
 	pop_scope
 	return
 

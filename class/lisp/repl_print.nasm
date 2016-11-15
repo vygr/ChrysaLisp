@@ -162,7 +162,7 @@ def_func class/lisp/repl_print
 		endswitch
 	endif
 
-	eval {this}, {r0}
+	expr {this}, {r0}
 	pop_scope
 	return
 
@@ -187,7 +187,7 @@ callback:
 		func_call stream, write_char, {pdata->pdata_stream, char_space}
 	endif
 
-	eval {1}, {r1}
+	expr {1}, {r1}
 	pop_scope
 	return
 

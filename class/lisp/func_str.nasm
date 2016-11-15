@@ -38,7 +38,7 @@ def_func class/lisp/func_str
 		func_call error, create, {"(str arg) wrong numbers of args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 

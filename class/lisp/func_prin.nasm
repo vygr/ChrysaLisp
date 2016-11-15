@@ -23,7 +23,7 @@ def_func class/lisp/func_prin
 	assign {this->lisp_sym_t}, {args}
 	func_call ref, ref, {args}
 
-	eval {this, args}, {r0, r1}
+	expr {this, args}, {r0, r1}
 	pop_scope
 	return
 
@@ -47,7 +47,7 @@ callback:
 		func_call lisp, repl_print, {pdata, pdata->lisp_stdout, elem}
 	endif
 
-	eval {1}, {r1}
+	expr {1}, {r1}
 	pop_scope
 	return
 

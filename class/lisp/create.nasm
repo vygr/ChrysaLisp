@@ -29,7 +29,7 @@ def_func class/lisp/create
 		endif
 	endif
 
-	eval {this}, r0
+	expr {this}, r0
 	return
 
 def_func_end

@@ -21,7 +21,7 @@ def_func class/stream/read_line
 	retire {r0, r1, r2}, {inst, buffer, buffer_end}
 
 	if {buffer_end == 0}
-		eval {inst, 0}, {r0, r1}
+		expr {inst, 0}, {r0, r1}
 		return
 	endif
 
@@ -35,9 +35,9 @@ def_func class/stream/read_line
 	loop_until {buffer == buffer_end}
 
 	if {buffer == start && char < 0}
-		eval {inst, char}, {r0, r1}
+		expr {inst, char}, {r0, r1}
 	else
-		eval {inst, buffer - start}, {r0, r1}
+		expr {inst, buffer - start}, {r0, r1}
 	endif
 	pop_scope
 	return

@@ -31,7 +31,7 @@ def_func class/lisp/func_copy
 		func_call error, create, {"(copy form) wrong number of args", args}, {args}
 	endif
 
-	eval {this, args}, {r0, r1}
+	expr {this, args}, {r0, r1}
 	pop_scope
 	return
 
@@ -58,7 +58,7 @@ callback:
 		assign {pdata}, {*iter}
 	endif
 
-	eval {1}, {r1}
+	expr {1}, {r1}
 	pop_scope
 	return
 

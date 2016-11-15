@@ -89,7 +89,7 @@ skip_white:
 		func_call ref, ref, {ast}
 	endif
 
-	eval {this, ast, char}, {r0, r1, r2}
+	expr {this, ast, char}, {r0, r1, r2}
 	pop_scope
 	return
 

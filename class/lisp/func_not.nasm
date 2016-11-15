@@ -30,7 +30,7 @@ def_func class/lisp/func_not
 		func_call error, create, {"(not form) wrong number of args", args}, {args}
 	endif
 
-	eval {this, args}, {r0, r1}
+	expr {this, args}, {r0, r1}
 	pop_scope
 	return
 

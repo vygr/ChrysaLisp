@@ -44,7 +44,7 @@ def_func class/lisp/repl_expand
 					func_call lisp, env_pop, {this}
 					func_call ref, deref, {*iter}
 					assign {form}, {*iter}
-					eval {this, form->obj_vtable == @class/class_error}, {r0, r1}
+					expr {this, form->obj_vtable == @class/class_error}, {r0, r1}
 					return
 				endif
 			endif
@@ -54,7 +54,7 @@ def_func class/lisp/repl_expand
 		endif
 	endif
 
-	eval {this, iter}, {r0, r1}
+	expr {this, iter}, {r0, r1}
 	pop_scope
 	return
 
@@ -74,7 +74,7 @@ callback:
 	func_call ref, deref, {pdata->pdata_form}
 	func_call lisp, repl_eval, {pdata->pdata_this, *iter}, {pdata->pdata_form}
 
-	eval {pdata->pdata_form->obj_vtable != @class/class_error}, {r1}
+	expr {pdata->pdata_form->obj_vtable != @class/class_error}, {r1}
 	pop_scope
 	return
 

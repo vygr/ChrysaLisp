@@ -56,7 +56,7 @@ def_func sys/task_open_pipe
 	loop_end
 
 	;return ids array
-	eval {ids}, {r0}
+	expr {ids}, {r0}
 	pop_scope
 	vp_ret
 

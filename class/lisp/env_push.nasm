@@ -18,7 +18,7 @@ def_func class/lisp/env_push
 	func_call ref, deref, {this->lisp_enviroment}
 	assign {env}, {this->lisp_enviroment}
 
-	eval {this}, {r0}
+	expr {this}, {r0}
 	pop_scope
 	return
 

@@ -24,7 +24,7 @@ def_func class/stream/skip_not
 		assign {inst->stream_bufp + 1}, {inst->stream_bufp}
 	loop_end
 exit:
-	eval {inst}, {r0}
+	expr {inst}, {r0}
 	pop_scope
 	return
 

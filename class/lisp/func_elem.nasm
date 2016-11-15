@@ -33,7 +33,7 @@ def_func class/lisp/func_elem
 				endif
 				if {index >= 0 && index < length}
 					virt_call sequence, ref_element, {seq, index}, {value}
-					eval {this, value}, {r0, r1}
+					expr {this, value}, {r0, r1}
 					return
 				else
 					func_call error, create, {"(elem index seq) index out of bounds", args}, {value}
@@ -48,7 +48,7 @@ def_func class/lisp/func_elem
 		func_call error, create, {"(elem index seq) not enough args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 

@@ -27,7 +27,7 @@ def_func class/lisp/func_cond
 	devirt_call vector, get_length, {args}, {length}
 	func_call vector, for_each, {args, 0, length, $callback, &this}, {_}
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 
@@ -53,17 +53,17 @@ callback:
 			if {test->obj_vtable == @class/class_error}
 				func_call ref, deref, {pdata->pdata_value}
 				assign {test}, {pdata->pdata_value}
-				eval {0}, {r1}
+				expr {0}, {r1}
 				return
 			endif
 			if {test != pdata->pdata_this->lisp_sym_nil}
 				func_call ref, deref, {test}
 				func_call vector, for_each, {*iter, 1, length, $callback1, pdata}, {_}
-				eval {0}, {r1}
+				expr {0}, {r1}
 				return
 			else
 				func_call ref, deref, {test}
-				eval {1}, {r1}
+				expr {1}, {r1}
 				return
 			endif
 		else
@@ -75,7 +75,7 @@ callback:
 		func_call error, create, {"(cond (tst form ...) ...) clause not list", *iter}, {pdata->pdata_value}
 	endif
 
-	eval {0}, {r1}
+	expr {0}, {r1}
 	pop_scope
 	return
 
@@ -95,7 +95,7 @@ callback1:
 	func_call ref, deref, {pdata->pdata_value}
 	func_call lisp, repl_eval, {pdata->pdata_this, *iter}, {pdata->pdata_value}
 
-	eval {pdata->pdata_value->obj_vtable != @class/class_error}, {r1}
+	expr {pdata->pdata_value->obj_vtable != @class/class_error}, {r1}
 	pop_scope
 	return
 

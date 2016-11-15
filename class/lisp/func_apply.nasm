@@ -26,7 +26,7 @@ def_func class/lisp/func_apply
 		func_call error, create, {"(apply func args) wrong numbers of args", args}, {args}
 	endif
 
-	eval {this, args}, {r0, r1}
+	expr {this, args}, {r0, r1}
 	pop_scope
 	return
 

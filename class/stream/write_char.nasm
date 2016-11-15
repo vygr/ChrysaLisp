@@ -25,7 +25,7 @@ def_func class/stream/write_char
 		assign {inst->stream_bufp + 1}, {inst->stream_bufp}
 	endswitch
 
-	eval {inst}, {r0}
+	expr {inst}, {r0}
 	pop_scope
 	return
 

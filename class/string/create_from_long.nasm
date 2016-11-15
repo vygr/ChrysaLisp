@@ -32,7 +32,7 @@ def_func class/string/create_from_long
 	func_call sys_string, from_long, {num, buffer, base}
 	func_call string, create_from_cstr, {reloc}, {this}
 
-	eval {this}, {r0}
+	expr {this}, {r0}
 	pop_scope
 	return
 

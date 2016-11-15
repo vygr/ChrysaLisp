@@ -37,7 +37,7 @@ def_func class/lisp/repl_read_str
 
 	func_call string, create_from_buffer, {reloc, buffer - reloc}, {string}
 
-	eval {this, string, char}, {r0, r1, r2}
+	expr {this, string, char}, {r0, r1, r2}
 	pop_scope
 	return
 

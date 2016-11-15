@@ -52,7 +52,7 @@ def_func class/lisp/repl_read_pair
 		func_call error, create, {"expected >", this->lisp_sym_nil}, {pair}
 	endif
 error:
-	eval {this, pair, char}, {r0, r1, r2}
+	expr {this, pair, char}, {r0, r1, r2}
 	pop_scope
 	return
 

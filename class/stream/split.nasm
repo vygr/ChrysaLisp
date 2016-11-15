@@ -36,7 +36,7 @@ def_func class/stream/split
 		func_call vector, push_back, {splits, string}
 	loop_end
 
-	eval {inst, splits}, {r0, r1}
+	expr {inst, splits}, {r0, r1}
 	pop_scope
 	return
 

@@ -25,7 +25,7 @@ def_func class/master/init
 		assign {stream_mail_state_stopped}, {inst->master_state}
 	endif
 
-	eval {inst, error}, {r0, r1}
+	expr {inst, error}, {r0, r1}
 	pop_scope
 	return
 

@@ -25,7 +25,7 @@ def_func class/lisp/repl_eval_list
 	endif
 	func_call ref, ref, {list}
 
-	eval {this, list}, {r0, r1}
+	expr {this, list}, {r0, r1}
 	pop_scope
 	return
 
@@ -46,7 +46,7 @@ callback:
 	func_call ref, deref, {*iter}
 	assign {pdata}, {*iter}
 
-	eval {pdata->obj_vtable != @class/class_error}, {r1}
+	expr {pdata->obj_vtable != @class/class_error}, {r1}
 	pop_scope
 	return
 

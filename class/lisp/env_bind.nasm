@@ -70,7 +70,7 @@ def_func class/lisp/env_bind
 		func_call error, create, {"(bind vars vals): vars not a list", vars}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 

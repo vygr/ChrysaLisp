@@ -135,7 +135,7 @@ pipe_output:
 		virt_call stream, read_ready, {stream}, {ready}
 	loop_untilnot {ready}
 
-	eval {char}, {r0}
+	expr {char}, {r0}
 	pop_scope
 	return
 

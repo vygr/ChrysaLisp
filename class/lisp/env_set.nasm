@@ -28,7 +28,7 @@ def_func class/lisp/env_set
 		func_call error, create, {"symbol not bound", symbol}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 

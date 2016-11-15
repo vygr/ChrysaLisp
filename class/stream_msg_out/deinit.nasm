@@ -16,7 +16,7 @@ def_func class/stream_msg_out/deinit
 	func_call sys_mail, read, {&inst->stream_msg_out_ack_mailbox}, {msg}
 	func_call sys_mem, free, {msg}
 
-	eval {inst}, {r0}
+	expr {inst}, {r0}
 	pop_scope
 	return
 

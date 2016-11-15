@@ -17,7 +17,7 @@ def_func class/lisp/new
 		func_call sys_mem, clear, {this, lisp_size}, {_}
 	endif
 
-	eval {this}, {r0}
+	expr {this}, {r0}
 	pop_scope
 	return
 

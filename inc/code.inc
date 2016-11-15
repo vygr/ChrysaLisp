@@ -1339,7 +1339,7 @@
 ; assignment
 ;;;;;;;;;;;;
 
-%macro eval 2
+%macro expr 2
 	(set-src %1)
 	(set-dst %2)
 	%if _dst_total != _src_total
@@ -1362,7 +1362,7 @@
 			%assign %%n %%n + 1
 		%endrep
 		fill_reg_def
-		emit_inst_list {eval: %1 => %2}
+		emit_inst_list {expr: %1 => %2}
 		undef_reg_def
 	%endif
 %endmacro

@@ -44,7 +44,7 @@ def_func class/lisp/func_eq
 		func_call error, create, {"(eq num num ...) wrong number of args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 
@@ -66,7 +66,7 @@ callback:
 		func_call boxed_long, get_value, {*iter}, {num}
 		if {pdata->pdata_num == num}
 			assign {num}, {pdata->pdata_num}
-			eval {1}, {r1}
+			expr {1}, {r1}
 			return
 		else
 			func_call ref, deref, {pdata->pdata_value}
@@ -78,7 +78,7 @@ callback:
 		func_call error, create, {"(eq num num ...) not all numbers", *iter}, {pdata->pdata_value}
 	endif
 
-	eval {0}, {r1}
+	expr {0}, {r1}
 	pop_scope
 	return
 

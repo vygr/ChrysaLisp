@@ -25,7 +25,7 @@ def_func class/lisp/repl_apply
 
 	if {func->obj_vtable == @class/class_boxed_ptr}
 		;built in or compiled function
-		eval {this, ast, func}, {r0, r1, r2}
+		expr {this, ast, func}, {r0, r1, r2}
 		vp_call [r2 + boxed_ptr_value]
 		retire {r1}, {value}
 	elseif {func->obj_vtable == @class/class_vector}
@@ -55,7 +55,7 @@ def_func class/lisp/repl_apply
 		func_call error, create, {"(lambda vars body) not a lambda list", func}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 
@@ -75,7 +75,7 @@ callback:
 	func_call ref, deref, {pdata->pdata_value}
 	func_call lisp, repl_eval, {pdata->pdata_this, *iter}, {pdata->pdata_value}
 
-	eval {pdata->pdata_value->obj_vtable != @class/class_error}, {r1}
+	expr {pdata->pdata_value->obj_vtable != @class/class_error}, {r1}
 	pop_scope
 	return
 

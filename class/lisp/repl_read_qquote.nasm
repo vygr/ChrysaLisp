@@ -35,7 +35,7 @@ def_func class/lisp/repl_read_qquote
 		assign {elem}, {list}
 	endif
 
-	eval {this, list, char}, {r0, r1, r2}
+	expr {this, list, char}, {r0, r1, r2}
 	pop_scope
 	return
 

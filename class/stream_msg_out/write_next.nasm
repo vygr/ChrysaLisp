@@ -21,7 +21,7 @@ def_func class/stream_msg_out/write_next
 	assign {&msg->msg_size}, {inst->stream_bufe}
 	assign {msg}, {inst->stream_buffer}
 
-	eval {inst}, {r0}
+	expr {inst}, {r0}
 	pop_scope
 	return
 

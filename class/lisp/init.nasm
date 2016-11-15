@@ -88,7 +88,7 @@ def_func class/lisp/init
 		func_call unordered_map, insert, {this->lisp_enviroment, this->lisp_sym_t, this->lisp_sym_t}, {_, _}
 	endif
 
-	eval {this, ok}, {r0, r1}
+	expr {this, ok}, {r0, r1}
 	pop_scope
 	return
 

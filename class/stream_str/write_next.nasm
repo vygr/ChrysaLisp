@@ -27,7 +27,7 @@ def_func class/stream_str/write_next
 	func_call string, deref, {old_str}
 	assign {new_str}, {inst->stream_object}
 
-	eval {inst}, {r0}
+	expr {inst}, {r0}
 	pop_scope
 	return
 

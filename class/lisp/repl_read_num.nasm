@@ -69,7 +69,7 @@ def_func class/lisp/repl_read_num
 	endif
 	func_call boxed_long, set_value, {num, val}
 
-	eval {this, num, char}, {r0, r1, r2}
+	expr {this, num, char}, {r0, r1, r2}
 	pop_scope
 	return
 

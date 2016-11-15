@@ -39,7 +39,7 @@ def_func class/lisp/func_cat
 		func_call error, create, {"(cat seq ...) wrong number of args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 
@@ -69,11 +69,11 @@ callback:
 			devirt_call vector, get_length, {elem}, {length}
 			func_call vector, append, {pdata->pdata_value, elem, 0, length}
 		endswitch
-		eval {1}, {r1}
+		expr {1}, {r1}
 	else
 		func_call ref, deref, {pdata->pdata_value}
 		func_call error, create, {"(cat seq ...) not matching type", elem}, {pdata->pdata_value}
-		eval {0}, {r1}
+		expr {0}, {r1}
 	endif
 
 	pop_scope

@@ -38,7 +38,7 @@ def_func class/lisp/func_readchar
 		func_call error, create, {"(read-char stream) wrong number of args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 

@@ -24,7 +24,7 @@ def_func class/lisp/func_progn
 		func_call ref, ref, {args}
 	endif
 
-	eval {this, args}, {r0, r1}
+	expr {this, args}, {r0, r1}
 	pop_scope
 	return
 

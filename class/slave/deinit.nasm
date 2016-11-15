@@ -45,7 +45,7 @@ def_func class/slave/deinit
 	;free args
 	func_call vector, deref, {inst->slave_args}
 
-	eval {inst}, {r0}
+	expr {inst}, {r0}
 	pop_scope
 
 	;deinit parent

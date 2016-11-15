@@ -23,7 +23,7 @@ def_func class/stream/read_char
 	assign {*inst->stream_bufp}, {char}
 	assign {inst->stream_bufp + 1}, {inst->stream_bufp}
 exit:
-	eval {inst, char}, {r0, r1}
+	expr {inst, char}, {r0, r1}
 	pop_scope
 	return
 

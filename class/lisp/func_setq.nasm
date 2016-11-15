@@ -36,7 +36,7 @@ def_func class/lisp/func_setq
 		func_call error, create, {"(setq var val ...) wrong numbers of args", args}, {val}
 	endif
 
-	eval {this, val}, {r0, r1}
+	expr {this, val}, {r0, r1}
 	pop_scope
 	return
 

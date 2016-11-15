@@ -21,7 +21,7 @@ def_func class/lisp/sym_intern
 	assign {*iter}, {symbol}
 	func_call ref, ref, {symbol}
 
-	eval {this, symbol}, {r0, r1}
+	expr {this, symbol}, {r0, r1}
 	pop_scope
 	return
 

@@ -44,7 +44,7 @@ def_func class/lisp/func_qquote
 		func_call error, create, {"(quasi-quote arg) wrong numbers of args", args}, {value}
 	endif
 
-	eval {this, value}, {r0, r1}
+	expr {this, value}, {r0, r1}
 	pop_scope
 	return
 
@@ -92,7 +92,7 @@ callback:
 			func_call ref, deref, {pdata1.pdata_cat_list}
 			pop_scope
 			gotoif {elem},list_quote1
-			eval {0}, {r1}
+			expr {0}, {r1}
 			return
 		endswitch
 	else
@@ -112,7 +112,7 @@ callback:
 	endif
 	func_call vector, push_back, {pdata->pdata_cat_list, list}
 
-	eval {1}, {r1}
+	expr {1}, {r1}
 	pop_scope
 	return
 
