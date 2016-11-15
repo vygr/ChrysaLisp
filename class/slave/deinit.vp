@@ -45,7 +45,7 @@
 	;free args
 	(func-call 'vector 'deref '(inst -> slave_args))
 
-	(eval '(inst) '(r0))
+	(expr '(inst) '(r0))
 	(pop-scope)
 
 	;deinit parent

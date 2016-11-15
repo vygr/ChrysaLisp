@@ -36,7 +36,7 @@
 		(func-call 'vector 'push_back '(splits, string))
 	(loop-end)
 
-	(eval '(inst, splits) '(r0, r1))
+	(expr '(inst, splits) '(r0, r1))
 	(pop-scope)
 	(return)
 

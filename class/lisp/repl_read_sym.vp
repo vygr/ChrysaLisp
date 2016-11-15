@@ -40,7 +40,7 @@
 	(func-call 'symbol 'create_from_buffer '(reloc, buffer - reloc) '(symbol))
 	(func-call 'lisp 'sym_intern '(this, symbol) '(symbol))
 
-	(eval '(this, symbol, char) '(r0, r1, r2))
+	(expr '(this, symbol, char) '(r0, r1, r2))
 	(pop-scope)
 	(return)
 

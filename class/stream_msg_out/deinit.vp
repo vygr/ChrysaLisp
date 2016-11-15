@@ -16,7 +16,7 @@
 	(func-call 'sys_mail 'read '(& inst -> stream_msg_out_ack_mailbox) '(msg))
 	(func-call 'sys_mem 'free '(msg))
 
-	(eval '(inst) '(r0))
+	(expr '(inst) '(r0))
 	(pop-scope)
 	(return)
 

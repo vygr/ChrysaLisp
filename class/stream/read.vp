@@ -21,7 +21,7 @@
 	(retire '(r0, r1, r2) '(inst, buffer, buffer_end))
 
 	(vpif '((buffer_end == 0)))
-		(eval '(inst, 0) '(r0, r1))
+		(expr '(inst, 0) '(r0, r1))
 		(return)
 	(endif)
 
@@ -34,9 +34,9 @@
 	(loop-until '((buffer == buffer_end)))
 
 	(vpif '((buffer != start)))
-		(eval '(inst, buffer - start) '(r0, r1))
+		(expr '(inst, buffer - start) '(r0, r1))
 	(else)
-		(eval '(inst, char) '(r0, r1))
+		(expr '(inst, char) '(r0, r1))
 	(endif)
 	(pop-scope)
 	(return)

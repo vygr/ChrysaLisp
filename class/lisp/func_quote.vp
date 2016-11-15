@@ -24,7 +24,7 @@
 		(func-call 'error 'create '("(quote arg) wrong numbers of args", args) '(args))
 	(endif)
 
-	(eval '(this, args) '(r0, r1))
+	(expr '(this, args) '(r0, r1))
 	(pop-scope)
 	(return)
 

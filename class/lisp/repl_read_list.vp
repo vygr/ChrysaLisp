@@ -55,7 +55,7 @@
 	(func-call 'stream 'read_char '(stream) '(char))
 
 (vp-label 'error)
-	(eval '(this, list, char) '(r0, r1, r2))
+	(expr '(this, list, char) '(r0, r1, r2))
 	(pop-scope)
 	(return)
 

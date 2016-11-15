@@ -31,7 +31,7 @@
 		(func-call 'error 'create '("(copy form) wrong number of args", args) '(args))
 	(endif)
 
-	(eval '(this, args) '(r0, r1))
+	(expr '(this, args) '(r0, r1))
 	(pop-scope)
 	(return)
 
@@ -58,7 +58,7 @@
 		(assign '(pdata) '(* iter))
 	(endif)
 
-	(eval '(1) '(r1))
+	(expr '(1) '(r1))
 	(pop-scope)
 	(return)
 

@@ -32,7 +32,7 @@
 	(func-call 'sys_string 'from_long '(num, buffer, base))
 	(func-call 'string 'create_from_cstr '(reloc) '(this))
 
-	(eval '(this) '(r0))
+	(expr '(this) '(r0))
 	(pop-scope)
 	(return)
 

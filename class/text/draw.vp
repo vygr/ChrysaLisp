@@ -37,7 +37,7 @@
 		(loop-until '((words == words_end)))
 	(endif)
 
-	(eval '(inst) '(r0))
+	(expr '(inst) '(r0))
 	(pop-scope)
 	(return)
 

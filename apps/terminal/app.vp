@@ -135,7 +135,7 @@
 		(virt-call 'stream 'read_ready '(stream) '(ready))
 	(loop-untilnot '((ready)))
 
-	(eval '(char) '(r0))
+	(expr '(char) '(r0))
 	(pop-scope)
 	(return)
 

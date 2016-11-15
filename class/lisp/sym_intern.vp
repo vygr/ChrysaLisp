@@ -21,7 +21,7 @@
 	(assign '(* iter) '(symbol))
 	(func-call 'ref 'ref '(symbol))
 
-	(eval '(this, symbol) '(r0, r1))
+	(expr '(this, symbol) '(r0, r1))
 	(pop-scope)
 	(return)
 

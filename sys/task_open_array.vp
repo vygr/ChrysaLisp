@@ -54,7 +54,7 @@
 	(loop-end)
 
 	;return ids array
-	(eval '(ids) '(r0))
+	(expr '(ids) '(r0))
 	(pop-scope)
 	(vp-ret)
 

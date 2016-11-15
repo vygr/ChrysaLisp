@@ -27,7 +27,7 @@
 		(func-call 'pair 'get_second '(* iter) '(env))
 	(loop-end)
 
-	(eval '(this, iter, bucket) '(r0, r1, r2))
+	(expr '(this, iter, bucket) '(r0, r1, r2))
 	(pop-scope)
 	(return)
 

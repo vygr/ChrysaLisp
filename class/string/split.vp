@@ -24,7 +24,7 @@
 	(func-call 'stream 'split '(stream, char) '(splits))
 	(func-call 'stream 'deref '(stream))
 
-	(eval '(inst, splits) '(r0, r1))
+	(expr '(inst, splits) '(r0, r1))
 	(pop-scope)
 	(vp-ret)
 

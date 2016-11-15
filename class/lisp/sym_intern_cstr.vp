@@ -19,7 +19,7 @@
 	(func-call 'lisp 'sym_intern '(this, symbol) '(intern))
 	(func-call 'ref 'deref '(symbol))
 
-	(eval '(this, intern) '(r0, r1))
+	(expr '(this, intern) '(r0, r1))
 	(pop-scope)
 	(return)
 

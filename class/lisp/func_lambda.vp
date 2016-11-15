@@ -16,7 +16,7 @@
 
 	(func-call 'ref 'ref '(args))
 
-	(eval '(this, args) '(r0, r1))
+	(expr '(this, args) '(r0, r1))
 	(pop-scope)
 	(return)
 

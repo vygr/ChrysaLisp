@@ -29,7 +29,7 @@
 		(assign '(1) '(length))
 	(endif)
 
-	(eval '(this, value, length) '(r0, r1, r2))
+	(expr '(this, value, length) '(r0, r1, r2))
 	(pop-scope)
 	(return)
 

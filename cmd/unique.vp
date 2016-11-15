@@ -71,7 +71,7 @@
 	(func-call 'stream 'write '(pdata -> slave_stdout, &(* iter) -> string_data, (* iter) -> string_length))
 	(func-call 'stream 'write_char '(pdata -> slave_stdout, char_lf))
 
-	(eval '(1) '(r1))
+	(expr '(1) '(r1))
 	(pop-scope)
 	(return)
 
