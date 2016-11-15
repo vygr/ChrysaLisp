@@ -18,9 +18,9 @@ def_func class/lisp/func_not
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
+	vpif {length == 1}
 		func_call vector, get_element, {args, 0}, {args}
-		if {args == this->lisp_sym_nil}
+		vpif {args == this->lisp_sym_nil}
 			assign {this->lisp_sym_t}, {args}
 		else
 			assign {this->lisp_sym_nil}, {args}

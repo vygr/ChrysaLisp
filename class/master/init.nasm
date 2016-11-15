@@ -20,7 +20,7 @@ def_func class/master/init
 
 	;init parent
 	super_call master, init, {inst, vtable}, {error}
-	if {error != 0}
+	vpif {error != 0}
 		;init state
 		assign {stream_mail_state_stopped}, {inst->master_state}
 	endif

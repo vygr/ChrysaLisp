@@ -22,13 +22,13 @@ def_func class/lisp/func_readline
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
+	vpif {length == 1}
 		func_call vector, get_element, {args, 0}, {value}
-		if {value->obj_vtable == @class/class_stream_str}
+		vpif {value->obj_vtable == @class/class_stream_str}
 			func_path sys_load, statics
 			assign {@_function_.ld_statics_reloc_buffer}, {reloc}
 			func_call stream_str, read_line, {value, reloc, ld_reloc_size}, {length}
-			if {length == -1}
+			vpif {length == -1}
 				assign {this->lisp_sym_nil}, {value}
 				func_call ref, ref, {value}
 			else

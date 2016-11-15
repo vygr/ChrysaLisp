@@ -18,11 +18,11 @@ def_func cmd/cat
 
 	;initialize pipe details and command args, abort on error
 	func_call slave, create, {}, {slave}
-	if {slave}
+	vpif {slave}
 		;cat files to stdout, arg 1 is command name
 		func_call slave, get_args, {slave}, {args}
 		devirt_call vector, get_length, {args}, {argc}
-		if {argc != 1}
+		vpif {argc != 1}
 			;names from command line
 			assign {1}, {index}
 			loop_while {index != argc}
@@ -61,7 +61,7 @@ cat_string:
 
 	func_call string, create_from_file, {&arg->string_data}, {file}
 	func_call string, deref, {arg}
-	if {file}
+	vpif {file}
 		func_call stream_str, create, {file}, {stream}
 		loop_start
 			func_call stream, read_line, {stream, buffer, buffer_size}, {length}

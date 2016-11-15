@@ -15,11 +15,11 @@ def_func class/stream_msg_in/create
 	map_src_to_dst
 
 	f_call stream_msg_in, new, {}, {r0}
-	if r0, !=, 0
+	vpif r0, !=, 0
 		;init the object
 		func_path class, stream_msg_in
 		f_call stream_msg_in, init, {r0, @_function_, r5}, {r1}
-		if r1, ==, 0
+		vpif r1, ==, 0
 			;error with init
 			v_call stream_msg_in, delete, {r0}, {}, r1
 			vp_xor r0, r0

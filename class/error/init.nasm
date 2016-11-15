@@ -25,7 +25,7 @@ def_func class/error/init
 
 	;init parent
 	s_call error, init, {r0, r1}, {r1}
-	if r1, !=, 0
+	vpif r1, !=, 0
 		;init self
 		f_call string, create_from_cstr, {[r0 + error_description]}, {r0}
 		vp_cpy [r4 + local_inst], r1

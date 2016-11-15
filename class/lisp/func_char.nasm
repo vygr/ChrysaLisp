@@ -20,9 +20,9 @@ def_func class/lisp/func_char
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
+	vpif {length == 1}
 		func_call vector, get_element, {args, 0}, {value}
-		if {value->obj_vtable == @class/class_boxed_long}
+		vpif {value->obj_vtable == @class/class_boxed_long}
 			func_call boxed_long, get_value, {value}, {length}
 			func_call string, create_from_cstr, {&length}, {value}
 		else

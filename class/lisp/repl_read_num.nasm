@@ -34,7 +34,7 @@ def_func class/lisp/repl_read_num
 	push_scope
 	retire {r0, r1, r2, r2}, {this, stream, char, sign}
 
-	if {char == char_minus}
+	vpif {char == char_minus}
 		func_call stream, read_char, {stream}, {char}
 	endif
 
@@ -53,7 +53,7 @@ def_func class/lisp/repl_read_num
 
 	;pick base
 	assign {reloc + 1, 10}, {buffer, val}
-	if {*buffer == char_x}
+	vpif {*buffer == char_x}
 		assign {reloc + 2, 16}, {reloc, val}
 	elseif {*buffer == char_o}
 		assign {reloc + 2, 8}, {reloc, val}
@@ -64,7 +64,7 @@ def_func class/lisp/repl_read_num
 	;create the number
 	func_call boxed_long, create, {}, {num}
 	func_call sys_string, to_long, {reloc, val}, {val}
-	if {sign == char_minus}
+	vpif {sign == char_minus}
 		assign {-val}, {val}
 	endif
 	func_call boxed_long, set_value, {num, val}

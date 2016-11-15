@@ -12,7 +12,7 @@ def_func class/label/init
 
 	;init parent
 	s_call label, init, {r0, r1}, {r1}
-	if r1, !=, 0
+	vpif r1, !=, 0
 		vp_push r0
 
 		;init myself

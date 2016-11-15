@@ -26,13 +26,13 @@ def_func class/master/start
 	;init vars
 	push_scope
 	retire {r0, r1, r2}, {inst, buffer, length}
-	if {inst->master_state != stream_mail_state_started}
+	vpif {inst->master_state != stream_mail_state_started}
 		;split pipe into separate commands and args
 		func_call stream, create, {0, 0, buffer, length}, {stream}
 		func_call stream, split, {stream, pipe_char}, {args}
 		func_call stream, deref, {stream}
 		devirt_call vector, get_length, {args}, {length}
-		if {length != 0}
+		vpif {length != 0}
 			;create command pipeline
 			func_call string, create_from_cstr, {"cmd/"}, {prefix}
 			func_call vector, create, {}, {commands}
@@ -60,14 +60,14 @@ def_func class/master/start
 			;count how many started
 			assign {0, 0}, {started, index}
 			loop_while {index != length}
-				if {ids[index * id_size].id_mbox != 0}
+				vpif {ids[index * id_size].id_mbox != 0}
 					assign {started + 1}, {started}
 				endif
 				assign {index + 1}, {index}
 			loop_end
 
 			;error if some didn't start
-			if {started == length}
+			vpif {started == length}
 				;create streams, mailboxes and select array
 				func_call vector, create, {}, {inst->master_streams}
 				func_call vector, set_capacity, {inst->master_streams, length + 2}

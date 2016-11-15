@@ -53,7 +53,7 @@ def_func class/lisp/init
 
 	;init parent
 	super_call lisp, init, {this, vtable}, {ok}
-	if {ok}
+	vpif {ok}
 		;init myself
 		assign {stdin}, {this->lisp_stdin}
 		assign {stdout}, {this->lisp_stdout}
@@ -72,11 +72,11 @@ def_func class/lisp/init
 		loop_while {table->built_in_symbol}
 			assign {&table->built_in_symbol + table->built_in_symbol}, {path_ptr}
 			func_call lisp, sym_intern_cstr, {this, path_ptr}, {symbol}
-			if {table->built_in_field}
+			vpif {table->built_in_field}
 				assign {this + table->built_in_field}, {path_ptr}
 				assign {symbol}, {*path_ptr}
 			endif
-			if {table->built_in_function}
+			vpif {table->built_in_function}
 				assign {&table->built_in_function + table->built_in_function}, {path_ptr}
 				func_call lisp, built_in_func, {this, symbol, *path_ptr, table->built_in_flags}
 			endif
@@ -99,7 +99,7 @@ match_obj:
 	;outputs
 	;r1 = 0 if match
 
-	if r0, ==, r1
+	vpif r0, ==, r1
 		vp_xor r1, r1
 	endif
 	vp_ret

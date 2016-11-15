@@ -10,14 +10,14 @@ def_func sys/mem_fill
 	;trashes
 	;r1-r3
 
-	if r1, !=, 0
+	vpif r1, !=, 0
 		;not zero length
 		vp_cpy r0, r3
 		vp_and ptr_size - 1, r3
-		if r3, ==, 0
+		vpif r3, ==, 0
 			vp_cpy r1, r3
 			vp_and ptr_size - 1, r3
-			if r3, ==, 0
+			vpif r3, ==, 0
 				;all aligned on 8 byte boundary
 				vp_and 0xff, r2
 				vp_cpy r2, r3

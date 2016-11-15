@@ -17,7 +17,7 @@ def_func class/lisp/func_progn
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length}
+	vpif {length}
 		devirt_call vector, ref_element, {args, length - 1}, {args}
 	else
 		assign {this->lisp_sym_nil}, {args}

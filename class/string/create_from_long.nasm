@@ -24,7 +24,7 @@ def_func class/string/create_from_long
 	func_path sys_load, statics
 	assign {@_function_.ld_statics_reloc_buffer}, {reloc}
 	assign {reloc}, {buffer}
-	if {num < 0}
+	vpif {num < 0}
 		assign {char_minus}, {*buffer}
 		assign {buffer + 1}, {buffer}
 		assign {-num}, {num}

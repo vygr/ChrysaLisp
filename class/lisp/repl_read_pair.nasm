@@ -27,12 +27,12 @@ def_func class/lisp/repl_read_pair
 	func_call stream, read_char, {stream}, {char}
 
 	func_call lisp, repl_read, {this, stream, char}, {first, char}
-	if {first->obj_vtable == @class/class_error}
+	vpif {first->obj_vtable == @class/class_error}
 		assign {first}, {pair}
 		goto error
 	endif
 	func_call lisp, repl_read, {this, stream, char}, {second, char}
-	if {second->obj_vtable == @class/class_error}
+	vpif {second->obj_vtable == @class/class_error}
 		func_call ref, deref, {first}
 		assign {second}, {pair}
 		goto error
@@ -43,7 +43,7 @@ def_func class/lisp/repl_read_pair
 		func_call stream, read_char, {stream}, {char}
 	loop_end
 
-	if {char == char_rab}
+	vpif {char == char_rab}
 		func_call stream, read_char, {stream}, {char}
 		func_call pair, create, {first, second}, {pair}
 	else

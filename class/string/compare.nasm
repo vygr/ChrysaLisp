@@ -12,7 +12,7 @@ def_func class/string/compare
 	;trashes
 	;r2-r3
 
-	if r0, !=, r1
+	vpif r0, !=, r1
 		vp_push r0
 		f_call sys_string, compare, {&[r0 + string_data], &[r1 + string_data]}, {r1}
 		vp_pop r0

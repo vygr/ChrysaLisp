@@ -33,10 +33,10 @@ callback:
 	vp_push r1
 	v_call view, pref_size, {r0}, {r10, r11}
 	vp_pop r1
-	if r10, >, [r1 + local_w]
+	vpif r10, >, [r1 + local_w]
 		vp_cpy r10, [r1 + local_w]
 	endif
-	if r11, >, [r1 + local_h]
+	vpif r11, >, [r1 + local_h]
 		vp_cpy r11, [r1 + local_h]
 	endif
 	vp_ret

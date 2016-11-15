@@ -20,25 +20,25 @@ def_func class/lisp/func_slice
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 3}
+	vpif {length == 3}
 		func_call vector, get_element, {args, 2}, {seq}
 		func_path class, sequence
 		func_call obj, inst_of, {seq, @_function_}, {value}
-		if {value}
+		vpif {value}
 			func_call vector, get_element, {args, 0}, {value}
-			if {value->obj_vtable == @class/class_boxed_long}
+			vpif {value->obj_vtable == @class/class_boxed_long}
 				func_call boxed_long, get_value, {value}, {start}
 				func_call vector, get_element, {args, 1}, {value}
 				gotoif {value->obj_vtable != @class/class_boxed_long}, index_error
 				func_call boxed_long, get_value, {value}, {end}
 				virt_call sequence, get_length, {seq}, {length}
-				if {start < 0}
+				vpif {start < 0}
 					assign {length + start + 1}, {start}
 				endif
-				if {end < 0}
+				vpif {end < 0}
 					assign {length + end + 1}, {end}
 				endif
-				if {start >= 0 && end <= length}
+				vpif {start >= 0 && end <= length}
 					virt_call sequence, slice, {seq, start, end}, {value}
 					expr {this, value}, {r0, r1}
 					return

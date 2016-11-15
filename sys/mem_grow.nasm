@@ -13,7 +13,7 @@ def_func sys/mem_grow
 
 	vp_cpy r0, r5
 	vp_cpy r1, r6
-	if r2, >, r1
+	vpif r2, >, r1
 		;alloc new table
 		f_call sys_mem, alloc, {r2}, {r0, _}
 		assert r0, !=, 0
@@ -23,7 +23,7 @@ def_func sys/mem_grow
 		;clear it to empty
 		f_call sys_mem, clear, {r0, r1}, {_}
 
-		if r6, !=, 0
+		vpif r6, !=, 0
 			;copy over old data
 			f_call sys_mem, copy, {r5, r7, r6}, {_, _}
 

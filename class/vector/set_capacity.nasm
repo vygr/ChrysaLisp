@@ -12,7 +12,7 @@ def_func class/vector/set_capacity
 
 	;do we allready have room ?
 	vp_cpy [r0 + vector_capacity], r2
-	if r1, >, r2
+	vpif r1, >, r2
 		;grow the dynamic array
 		vp_push r0
 		vp_mul ptr_size, r1

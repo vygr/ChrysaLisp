@@ -12,7 +12,7 @@ def_func class/stream_msg_in/read_ready
 
 	;extend test to include mailbox
 	s_call stream_msg_in, read_ready, {r0}, {r1}
-	if r1, ==, 0
+	vpif r1, ==, 0
 		vp_cpy [r0 + stream_msg_in_list + lh_list_head], r1
 		vp_cpy [r1 + ln_node_succ], r1
 	endif

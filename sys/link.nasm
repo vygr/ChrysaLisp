@@ -47,7 +47,7 @@ def_func sys/link
 	vp_add r0, r2
 	vp_add r3, r2
 	f_call sys_cpu, id, {}, {r0}
-	if r1, ==, r0
+	vpif r1, ==, r0
 		vp_cpy r2, r1
 		vp_cpy lk_buffer_chan_1, r10
 		vp_cpy lk_buffer_chan_2, r11
@@ -111,7 +111,7 @@ def_func sys/link
 		vp_cpy r0, [r4 + lk_node_task_count]
 
 		;check if we need to grab a new message
-		if r9, ==, 0
+		vpif r9, ==, 0
 		more_output:
 			;no outgoing message so see if any off chip mail for me
 			vp_cpy [r4 + lk_node_cpu_id], r0
@@ -124,16 +124,16 @@ def_func sys/link
 				vp_mul lk_route_size, r2
 				vp_cpy [r1 + r2 + lk_route_hops], r1
 			loop_until r1, !=, 0
-			if r8, !=, 0
+			vpif r8, !=, 0
 				vp_cpy r7, r9
 				ln_remove_node r7, r1
 			endif
 		endif
 
 		;if we have a message to send then see if we can send it
-		if r9, !=, 0
+		vpif r9, !=, 0
 			vp_cpy [r10 + lk_chan_status], r0
-			if r0, ==, lk_chan_status_ready
+			vpif r0, ==, lk_chan_status_ready
 				;copy message data
 				;round up to next 8 byte boundary for speed
 				vp_lea [r10 + lk_chan_msg], r1
@@ -155,7 +155,7 @@ def_func sys/link
 
 		;check for received message
 		vp_cpy [r11 + lk_chan_status], r0
-		if r0, ==, lk_chan_status_busy
+		vpif r0, ==, lk_chan_status_busy
 			;allocate msg, copy over data
 			;round up to next 8 byte boundary for speed
 			f_call sys_mail, alloc, {}, {r0}
@@ -184,8 +184,8 @@ def_func sys/link
 		continueif r0, ==, lk_chan_status_busy
 		vp_cpy 0, r1
 		vp_cpy [r10 + lk_chan_status], r0
-		if r0, ==, lk_chan_status_ready
-			if r9, !=, 0
+		vpif r0, ==, lk_chan_status_ready
+			vpif r9, !=, 0
 				vp_cpy 1, r1
 			endif
 		endif

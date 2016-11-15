@@ -14,10 +14,10 @@ def_func sys/string_to_long
 	loop_start
 		vp_cpy_ub [r2], r3
 		breakif r3, ==, 0
-		if r3, >=, 'a'
+		vpif r3, >=, 'a'
 			vp_sub 'a' - 'A', r3
 		endif
-		if r3, >=, 'A'
+		vpif r3, >=, 'A'
 			vp_sub ('A' - '9') - 1, r3
 		endif
 		vp_sub '0', r3

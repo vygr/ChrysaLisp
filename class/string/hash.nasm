@@ -13,7 +13,7 @@ def_func class/string/hash
 
 	;save inputs
 	vp_cpy [r0 + string_hashcode], r1
-	if r1, ==, 0
+	vpif r1, ==, 0
 		vp_push r0
 		f_call sys_string, hash, {&[r0 + string_data]}, {r1}
 		vp_pop r0

@@ -20,7 +20,7 @@ def_func class/stream/read
 	push_scope
 	retire {r0, r1, r2}, {inst, buffer, buffer_end}
 
-	if {buffer_end == 0}
+	vpif {buffer_end == 0}
 		expr {inst, 0}, {r0, r1}
 		return
 	endif
@@ -33,7 +33,7 @@ def_func class/stream/read
 		assign {buffer + 1}, {buffer}
 	loop_until {buffer == buffer_end}
 
-	if {buffer != start}
+	vpif {buffer != start}
 		expr {inst, buffer - start}, {r0, r1}
 	else
 		expr {inst, char}, {r0, r1}

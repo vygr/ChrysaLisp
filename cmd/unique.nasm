@@ -18,14 +18,14 @@ def_func cmd/unique
 
 	;initialize pipe details and command args, abort on error
 	func_call slave, create, {}, {slave}
-	if {slave}
+	vpif {slave}
 		;create string set
 		func_call unordered_set, create, {@class/string/compare, 31}, {set}
 
 		;arg 1 is command name
 		func_call slave, get_args, {slave}, {args}
 		devirt_call vector, get_length, {args}, {argc}
-		if {argc != 1}
+		vpif {argc != 1}
 			;from command line
 			assign {1}, {index}
 			loop_while {index != argc}

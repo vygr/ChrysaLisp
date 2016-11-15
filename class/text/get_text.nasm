@@ -23,7 +23,7 @@ def_func class/text/get_text
 
 	;reference the string
 	vp_cpy [r0 + text_string], r0
-	if r0, !=, 0
+	vpif r0, !=, 0
 		f_call string, ref, {r0}
 	endif
 	vp_cpy r0, r1

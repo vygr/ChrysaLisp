@@ -21,9 +21,9 @@ def_func class/lisp/func_code
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
+	vpif {length == 1}
 		func_call vector, get_element, {args, 0}, {value}
-		if {value->obj_vtable == @class/class_string}
+		vpif {value->obj_vtable == @class/class_string}
 			assign {&value->string_data}, {charp}
 			func_call boxed_long, create, {}, {value}
 			func_call boxed_long, set_value, {value, *charp}

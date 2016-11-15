@@ -14,7 +14,7 @@ def_func class/text/deinit
 
 	;deref any string and words objects
 	vp_cpy [r0 + text_string], r0
-	if r0, !=, 0
+	vpif r0, !=, 0
 		f_call string, deref, {r0}
 		vp_cpy [r4], r0
 		f_call vector, deref, {[r0 + text_words]}

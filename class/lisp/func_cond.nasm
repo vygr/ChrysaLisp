@@ -45,18 +45,18 @@ callback:
 	push_scope
 	retire {r0, r1}, {pdata, iter}
 
-	if {(*iter)->obj_vtable == @class/class_vector}
+	vpif {(*iter)->obj_vtable == @class/class_vector}
 		devirt_call vector, get_length, {*iter}, {length}
-		if {length}
+		vpif {length}
 			func_call vector, get_element, {*iter, 0}, {test}
 			func_call lisp, repl_eval, {pdata->pdata_this, test}, {test}
-			if {test->obj_vtable == @class/class_error}
+			vpif {test->obj_vtable == @class/class_error}
 				func_call ref, deref, {pdata->pdata_value}
 				assign {test}, {pdata->pdata_value}
 				expr {0}, {r1}
 				return
 			endif
-			if {test != pdata->pdata_this->lisp_sym_nil}
+			vpif {test != pdata->pdata_this->lisp_sym_nil}
 				func_call ref, deref, {test}
 				func_call vector, for_each, {*iter, 1, length, $callback1, pdata}, {_}
 				expr {0}, {r1}

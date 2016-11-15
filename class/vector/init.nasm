@@ -12,7 +12,7 @@ def_func class/vector/init
 
 	;init parent
 	s_call vector, init, {r0, r1}, {r1}
-	if r1, !=, 0
+	vpif r1, !=, 0
 		;init myself
 		vp_xor r2, r2
 		vp_cpy r2, [r0 + vector_array]

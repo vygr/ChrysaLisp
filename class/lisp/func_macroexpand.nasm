@@ -19,7 +19,7 @@ def_func class/lisp/func_macroexpand
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if (length == 1)
+	vpif (length == 1)
 		func_call lisp, func_copy, {this, args}, {value}
 		loop_start
 			func_call lisp, repl_expand, {this, &value}, {length}

@@ -19,11 +19,11 @@ def_func class/lisp/func_defmacro
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length >= 3}
+	vpif {length >= 3}
 		func_call vector, get_element, {args, 1}, {vars}
-		if {vars->obj_vtable == @class/class_vector}
+		vpif {vars->obj_vtable == @class/class_vector}
 			func_call vector, get_element, {args, 0}, {name}
-			if {name->obj_vtable == @class/class_symbol}
+			vpif {name->obj_vtable == @class/class_symbol}
 				devirt_call vector, slice, {args, 1, length}, {args}
 				func_call unordered_map, insert, {this->lisp_macros, name, args}, {_, _}
 				func_call ref, deref, {args}

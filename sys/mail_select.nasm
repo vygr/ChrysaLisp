@@ -18,7 +18,7 @@ def_func sys/mail_select
 		loop_start
 			vp_cpy [r0], r2
 			lh_is_empty r2, r2
-			if r2, !=, 0
+			vpif r2, !=, 0
 				;return first mailbox not empty
 				vp_cpy [r0], r0
 				vp_ret

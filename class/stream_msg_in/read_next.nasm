@@ -38,7 +38,7 @@ def_func class/stream_msg_in/read_next
 		assign {msg->stream_mail_state}, {inst->stream_msg_in_state}
 
 		;send ack if needed
-		if {msg->stream_mail_seqnum >> stream_msg_out_ack_shift == inst->stream_msg_in_ack_seqnum}
+		vpif {msg->stream_mail_seqnum >> stream_msg_out_ack_shift == inst->stream_msg_in_ack_seqnum}
 			func_call sys_mail, alloc, {}, {ack_msg}
 			assign {msg->stream_mail_ack_id.id_mbox}, {ack_msg->msg_dest.id_mbox}
 			assign {msg->stream_mail_ack_id.id_cpu}, {ack_msg->msg_dest.id_cpu}

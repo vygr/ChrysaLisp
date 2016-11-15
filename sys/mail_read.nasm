@@ -10,7 +10,7 @@ def_func sys/mail_read
 	;r1-r2
 
 	lh_is_empty r0, r2
-	if r2, ==, 0
+	vpif r2, ==, 0
 		f_bind sys_task, statics, r1
 		vp_cpy [r1 + tk_statics_current_tcb], r1
 		vp_cpy r1, [r0 + mailbox_tcb]

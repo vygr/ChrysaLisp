@@ -18,9 +18,9 @@ def_func class/lisp/func_copy
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
+	vpif {length == 1}
 		func_call vector, get_element, {args, 0}, {args}
-		if {args->obj_vtable == @class/class_vector}
+		vpif {args->obj_vtable == @class/class_vector}
 			devirt_call vector, get_length, {args}, {length}
 			devirt_call vector, slice, {args, 0, length}, {args}
 			func_call vector, for_each, {args, 0, length, $callback, 0}, {_}
@@ -50,7 +50,7 @@ callback:
 	retire {r0, r1}, {pdata, iter}
 
 	assign {*iter}, {pdata}
-	if {pdata->obj_vtable == @class/class_vector}
+	vpif {pdata->obj_vtable == @class/class_vector}
 		devirt_call vector, get_length, {pdata}, {length}
 		devirt_call vector, slice, {pdata, 0, length}, {pdata}
 		func_call vector, for_each, {pdata, 0, length, $callback, 0}, {_}

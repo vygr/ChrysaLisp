@@ -22,7 +22,7 @@ def_func class/stream/init
 
 	;init parent
 	s_call stream, init, {r0, r1}, {r1}
-	if r1, !=, 0
+	vpif r1, !=, 0
 		;init myself
 	endif
 	vp_ret

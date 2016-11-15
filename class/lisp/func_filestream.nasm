@@ -21,12 +21,12 @@ def_func class/lisp/func_filestream
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
+	vpif {length == 1}
 		func_call vector, get_element, {args, 0}, {value}
-		if {value->obj_vtable == @class/class_string \
+		vpif {value->obj_vtable == @class/class_string \
 			|| value->obj_vtable == @class/class_symbol}
 			func_call string, create_from_file, {&value->string_data}, {value}
-			if {value}
+			vpif {value}
 				func_call stream_str, create, {value}, {value}
 			else
 				func_call error, create, {"(file-stream filename) filename not found", args}, {value}

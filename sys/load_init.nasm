@@ -55,7 +55,7 @@ def_func sys/load_init
 			vp_push r0, r2, r5
 			vp_add r1, r0
 			vp_call r5		;sys/load_bind
-			if r0, ==, 0
+			vpif r0, ==, 0
 				;no such function
 				vp_rel bind_error, r0
 				sys_write_string 2, r0, bind_error_end-bind_error

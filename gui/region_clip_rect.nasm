@@ -13,8 +13,8 @@ def_func gui/region_clip_rect
 	;r5-r15
 
 	;check for any obvious errors in inputs
-	if r10, >, r8
-		if r11, >, r9
+	vpif r10, >, r8
+		vpif r11, >, r9
 			;run through source region list
 			vp_cpy r1, r7
 			loop_start
@@ -32,16 +32,16 @@ def_func gui/region_clip_rect
 					breakif r15, <=, r9
 
 					;clip region
-					if r12, <, r8
+					vpif r12, <, r8
 						vp_cpy_i r8, [r7 + gui_rect_x]
 					endif
-					if r13, <, r9
+					vpif r13, <, r9
 						vp_cpy_i r9, [r7 + gui_rect_y]
 					endif
-					if r14, >, r10
+					vpif r14, >, r10
 						vp_cpy_i r10, [r7 + gui_rect_x1]
 					endif
-					if r15, >, r11
+					vpif r15, >, r11
 						vp_cpy_i r11, [r7 + gui_rect_y1]
 					endif
 					vp_jmp loop

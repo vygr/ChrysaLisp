@@ -8,7 +8,7 @@ def_func class/progress/set_val
 	;outputs
 	;r1 = value, clipped to max
 
-	if r1, >, [r0 + progress_max]
+	vpif r1, >, [r0 + progress_max]
 		vp_cpy [r0 + progress_max], r1
 	endif
 	vp_cpy r1, [r0 + progress_val]

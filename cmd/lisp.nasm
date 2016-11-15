@@ -16,14 +16,14 @@ def_func cmd/lisp, 1024 * 8
 
 	;initialize pipe details and command args, abort on error
 	func_call slave, create, {}, {slave}
-	if {slave}
+	vpif {slave}
 		;create lisp class and repl args
 		func_call lisp, create, {slave->slave_stdin, slave->slave_stdout, slave->slave_stderr}, {lisp}
 		func_call vector, create, {}, {repl_args}
 
 		;run any lisp.lisp
 		func_call string, create_from_file, {"cmd/lisp.lisp"}, {file}
-		if {file}
+		vpif {file}
 			;REPL from file stream
 			func_call stream_str, create, {file}, {stream}
 			func_call vector, push_back, {repl_args, stream}
@@ -39,7 +39,7 @@ def_func cmd/lisp, 1024 * 8
 		loop_while {index != argc}
 			func_call vector, get_element, {args, index}, {arg}
 			func_call string, create_from_file, {&arg->string_data}, {file}
-			if {file}
+			vpif {file}
 				;REPL from file stream
 				func_call stream_str, create, {file}, {stream}
 				func_call vector, push_back, {repl_args, stream}

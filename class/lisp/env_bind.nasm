@@ -20,8 +20,8 @@ def_func class/lisp/env_bind
 	push_scope
 	retire {r0, r1, r2, r3}, {this, vars, vals, index_vals}
 
-	if {vars->obj_vtable == @class/class_vector}
-		if {vals->obj_vtable == @class/class_vector}
+	vpif {vars->obj_vtable == @class/class_vector}
+		vpif {vals->obj_vtable == @class/class_vector}
 			assign {0, 0}, {index_vars, state}
 			assign {this->lisp_sym_nil}, {value}
 			func_call ref, ref, {value}
@@ -29,7 +29,7 @@ def_func class/lisp/env_bind
 			devirt_call vector, get_length, {vals}, {len_vals}
 			loop_while {index_vars != len_vars}
 				func_call vector, get_element, {vars, index_vars}, {symbol}
-				if {symbol == this->lisp_sym_rest}
+				vpif {symbol == this->lisp_sym_rest}
 					assign {1, index_vars + 1}, {state, index_vars}
 				elseif {symbol == this->lisp_sym_optional}
 					assign {2, index_vars + 1}, {state, index_vars}

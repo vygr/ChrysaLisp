@@ -19,7 +19,7 @@ def_func class/lisp/env_set
 	retire {r0, r1, r2}, {this, symbol, value}
 
 	func_call lisp, env_find, {this, symbol}, {iter, _}
-	if {iter}
+	vpif {iter}
 		;change existing value
 		func_call ref, ref, {value}
 		func_call ref, ref, {value}

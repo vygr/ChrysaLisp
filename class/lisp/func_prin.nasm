@@ -41,7 +41,7 @@ callback:
 	retire {r0, r1}, {pdata, iter}
 
 	assign {*iter}, {elem}
-	if {elem->obj_vtable == @class/class_string}
+	vpif {elem->obj_vtable == @class/class_string}
 		func_call stream, write, {pdata->lisp_stdout, &elem->string_data, elem->string_length}
 	else
 		func_call lisp, repl_print, {pdata, pdata->lisp_stdout, elem}

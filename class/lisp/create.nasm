@@ -18,11 +18,11 @@ def_func class/lisp/create
 	retire {r0, r1, r2}, {stdin, stdout, stderr}
 
 	func_call lisp, new, {}, {this}
-	if {this != 0}
+	vpif {this != 0}
 		;init the object
 		func_path class, lisp
 		func_call lisp, init, {this, @_function_, stdin, stdout, stderr}, {ok}
-		ifnot {ok}
+		vpifnot {ok}
 			;error with init
 			virt_call lisp, delete, {this}, {}
 			assign {0}, {this}

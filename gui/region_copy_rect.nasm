@@ -14,8 +14,8 @@ def_func gui/region_copy_rect
 	;r1-r2, r5-r15
 
 	;check for any obvious errors in inputs
-	if r10, >, r8
-		if r11, >, r9
+	vpif r10, >, r8
+		vpif r11, >, r9
 			;run through source region list
 			vp_cpy r2, r5
 			loop_flist_forward r1, r7, r7

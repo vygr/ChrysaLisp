@@ -25,20 +25,20 @@ def_func class/lisp/repl_expand
 	retire {r0, r1}, {this, iter}
 
 	assign {*iter}, {form}
-	if {form->obj_vtable == @class/class_vector}
+	vpif {form->obj_vtable == @class/class_vector}
 		devirt_call vector, get_length, {form}, {length}
-		if {length}
+		vpif {length}
 			func_call vector, get_element, {form, 0}, {macro}
 			breakif {macro == this->lisp_sym_qquote}
 			breakif {macro == this->lisp_sym_quote}
-			if {macro->obj_vtable == @class/class_symbol}
+			vpif {macro->obj_vtable == @class/class_symbol}
 				func_call unordered_map, find, {this->lisp_macros, macro}, {miter, _}
-				if {miter}
+				vpif {miter}
 					func_call pair, get_second, {*miter}, {macro}
 					func_call lisp, env_push, {this}
 					func_call vector, get_element, {macro, 0}, {args}
 					func_call lisp, env_bind, {this, args, form, 1}, {form}
-					if {form->obj_vtable != @class/class_error}
+					vpif {form->obj_vtable != @class/class_error}
 						func_call vector, for_each, {macro, 1, macro->vector_length, $callback, &this}, {_}
 					endif
 					func_call lisp, env_pop, {this}

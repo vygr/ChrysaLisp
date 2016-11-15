@@ -13,7 +13,7 @@ def_func class/button/draw
 	vp_cpy button_border_size, r3
 	vp_cpy [r0 + button_state], r2
 	vp_and button_state_pressed, r2
-	if r2, !=, 0
+	vpif r2, !=, 0
 		vp_mul -1, r3
 	endif
 	f_jmp button, draw_panel, {r0, r1, 1, r3}

@@ -18,7 +18,7 @@ def_func class/lisp/func_apply
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 2}
+	vpif {length == 2}
 		func_call vector, get_element, {args, 0}, {func}
 		func_call vector, get_element, {args, 1}, {args}
 		func_call lisp, repl_apply, {this, func, args}, {args}

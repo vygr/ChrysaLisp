@@ -131,7 +131,7 @@ on_press:
 	push_scope
 	retire {r0, r1}, {inst, button}
 	func_call button, get_text, {button}, {button_string}
-	if {button_string->string_length == 2}
+	vpif {button_string->string_length == 2}
 		;AC
 		func_call string, create_from_cstr, {"0"}, {string}
 		func_call label, set_text, {inst->shared_display, string}
@@ -143,11 +143,11 @@ on_press:
 		func_call label, get_text, {inst->shared_display}, {display_string}
 		assign {&button_string->string_data}, {charp}
 		assign {*charp}, {char}
-		if {char >= char_zero && char <= char_nine}
+		vpif {char >= char_zero && char <= char_nine}
 			;numeral
 			assign {&display_string->string_data}, {charp}
 			assign {*charp}, {char}
-			if {char == char_zero || inst->shared_last_flag == 0}
+			vpif {char == char_zero || inst->shared_last_flag == 0}
 				;clear it
 				func_call string, deref, {display_string}
 				func_call string, create_from_cstr, {""}, {display_string}
@@ -158,7 +158,7 @@ on_press:
 			func_call sys_string, to_long, {&string->string_data, 10}, {inst->shared_value}
 		else
 			;operator
-			if {inst->shared_last_op == char_plus}
+			vpif {inst->shared_last_op == char_plus}
 				;+
 				assign {inst->shared_accum + inst->shared_value}, {inst->shared_accum}
 			elseif {inst->shared_last_op == char_minus}
@@ -174,11 +174,11 @@ on_press:
 				;equals
 				assign {inst->shared_value}, {inst->shared_accum}
 			endif
-			if {char != char_equal}
+			vpif {char != char_equal}
 				assign {char}, {inst->shared_last_op}
 			endif
 			assign {0}, {inst->shared_last_flag}
-			if {inst->shared_accum < 0}
+			vpif {inst->shared_accum < 0}
 				;negative accum
 				func_call sys_string, from_long, {-inst->shared_accum, &inst->shared_buffer, 10}
 				func_call string, create_from_cstr, {"-"}, {string1}

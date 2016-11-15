@@ -54,7 +54,7 @@ def_func class/unordered_set/slice_impl
 	vp_cpy r7, [r4 + local_start_bucket]
 	vp_cpy r9, [r4 + local_end_bucket]
 
-	if r7, ==, r9
+	vpif r7, ==, r9
 		f_call vector, get_element, {[r0 + unordered_set_buckets], r7}, {r0}
 		f_call vector, for_each, {r0, [r4 + local_start_elem], [r4 + local_end_elem], [r4 + local_callback], r4}, {_}
 	else
@@ -63,7 +63,7 @@ def_func class/unordered_set/slice_impl
 
 		vp_cpy [r4 + local_start_bucket], r1
 		vp_inc r1
-		if r1, !=, [r4 + local_end_bucket]
+		vpif r1, !=, [r4 + local_end_bucket]
 			vp_cpy [r4 + local_inst], r0
 			f_call vector, for_each, {[r0 + unordered_set_buckets], [r4 + local_start_bucket], [r4 + local_end_bucket], $callback, r4}, {_}
 		endif

@@ -28,7 +28,7 @@ def_func class/unordered_set/insert
 	f_call unordered_set, get_bucket, {r0, r1}, {r0}
 	f_call vector, for_each, {r0, 0, [r0 + vector_length], $callback, r4}, {r1}
 	vp_cpy r0, r2
-	if r1, ==, 0
+	vpif r1, ==, 0
 		;new key
 		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r0 + unordered_set_length], r1

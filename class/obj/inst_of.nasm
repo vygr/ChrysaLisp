@@ -14,7 +14,7 @@ def_func class/obj/inst_of
 	vp_cpy r1, r2
 	loop_flist_forward r0 + obj_vtable, r1, r1
 	loop_until r1, ==, r2
-	if r1, ==, r2
+	vpif r1, ==, r2
 		vp_cpy [r0 + obj_vtable], r1
 	endif
 	vp_ret

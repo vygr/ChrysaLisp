@@ -20,9 +20,9 @@ def_func class/lisp/func_strstream
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
+	vpif {length == 1}
 		func_call vector, get_element, {args, 0}, {value}
-		if {value->obj_vtable == @class/class_string}
+		vpif {value->obj_vtable == @class/class_string}
 			func_call stream_str, create, {value}, {value}
 		else
 			func_call error, create, {"(string-stream str) str not a string", args}, {value}

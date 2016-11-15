@@ -10,7 +10,7 @@ def_func class/component/init
 
 	;init parent
 	s_call component, init, {r0, r1}, {r1}
-	if r1, !=, 0
+	vpif r1, !=, 0
 		;init myself
 		vp_lea [r0 + component_slot_list], r1
 		lh_init r1, r2

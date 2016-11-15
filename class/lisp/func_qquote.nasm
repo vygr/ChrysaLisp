@@ -23,7 +23,7 @@ def_func class/lisp/func_qquote
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
+	vpif {length == 1}
 		func_call vector, get_element, {args, 0}, {args}
 		switch
 		case {args->obj_vtable == @class/class_vector}
@@ -63,7 +63,7 @@ callback:
 	retire {r0, r1}, {pdata, iter}
 
 	assign {*iter}, {elem}
-	if {elem->obj_vtable == @class/class_vector}
+	vpif {elem->obj_vtable == @class/class_vector}
 		devirt_call vector, get_length, {elem}, {length}
 		gotoifnot {length}, list_quote
 		func_call vector, get_element, {elem, 0}, {sym}

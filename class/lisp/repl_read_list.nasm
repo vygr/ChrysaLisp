@@ -33,7 +33,7 @@ def_func class/lisp/repl_read_list
 	func_call vector, create, {}, {list}
 	loop_while {char != -1 && char != char_rrb}
 		func_call lisp, repl_read, {this, stream, char}, {ast, char}
-		if {ast->obj_vtable == @class/class_error}
+		vpif {ast->obj_vtable == @class/class_error}
 			func_call ref, deref, {list}
 			assign {ast}, {list}
 			goto error

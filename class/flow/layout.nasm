@@ -18,13 +18,13 @@ def_func class/flow/layout
 	vp_cpy r1, [r4 + local_y]
 	vp_cpy [r0 + flow_flags], r1
 	vp_and flow_flag_left, r1
-	if r1, !=, 0
+	vpif r1, !=, 0
 		vp_cpy [r0 + view_w], r1
 		vp_cpy r1, [r4 + local_x]
 	endif
 	vp_cpy [r0 + flow_flags], r1
 	vp_and flow_flag_up, r1
-	if r1, !=, 0
+	vpif r1, !=, 0
 		vp_cpy [r0 + view_h], r1
 		vp_cpy r1, [r4 + local_y]
 	endif
@@ -46,14 +46,14 @@ callback:
 	vp_cpy [r0 + view_parent], r2
 	vp_cpy [r2 + flow_flags], r3
 	vp_and flow_flag_down, r3
-	if r3, !=, 0
+	vpif r3, !=, 0
 		;flow down
 		vp_lea [r9 + r11], r13
 	endif
 
 	vp_cpy [r2 + flow_flags], r3
 	vp_and flow_flag_up, r3
-	if r3, !=, 0
+	vpif r3, !=, 0
 		;flow up
 		vp_sub r11, r9
 		vp_cpy r9, r13
@@ -61,14 +61,14 @@ callback:
 
 	vp_cpy [r2 + flow_flags], r3
 	vp_and flow_flag_right, r3
-	if r3, !=, 0
+	vpif r3, !=, 0
 		;flow right
 		vp_lea [r8 + r10], r12
 	endif
 
 	vp_cpy [r2 + flow_flags], r3
 	vp_and flow_flag_left, r3
-	if r3, !=, 0
+	vpif r3, !=, 0
 		;flow left
 		vp_sub r10, r8
 		vp_cpy r8, r12
@@ -76,7 +76,7 @@ callback:
 
 	vp_cpy [r2 + flow_flags], r3
 	vp_and flow_flag_fillw, r3
-	if r3, !=, 0
+	vpif r3, !=, 0
 		;fill width of parent
 		vp_cpy [r2 + view_w], r10
 		vp_xor r8, r8
@@ -84,7 +84,7 @@ callback:
 
 	vp_cpy [r2 + flow_flags], r3
 	vp_and flow_flag_fillh, r3
-	if r3, !=, 0
+	vpif r3, !=, 0
 		;fill height of parent
 		vp_cpy [r2 + view_h], r11
 		vp_xor r9, r9
@@ -92,13 +92,13 @@ callback:
 
 	vp_cpy [r2 + flow_flags], r3
 	vp_and flow_flag_lastw, r3
-	if r3, !=, 0
+	vpif r3, !=, 0
 		;last one fills width gap of parent
 		ln_is_last r0 + view_node, r3
-		if r3, ==, 0
+		vpif r3, ==, 0
 			vp_cpy [r2 + flow_flags], r3
 			vp_and flow_flag_right, r3
-			if r3, !=, 0
+			vpif r3, !=, 0
 				;flow right
 				vp_lea [r8 + r10], r15
 				vp_sub [r2 + view_w], r15
@@ -106,7 +106,7 @@ callback:
 			endif
 			vp_cpy [r2 + flow_flags], r3
 			vp_and flow_flag_left, r3
-			if r3, !=, 0
+			vpif r3, !=, 0
 				;flow left
 				vp_add r8, r10
 				vp_xor r8, r8
@@ -116,13 +116,13 @@ callback:
 
 	vp_cpy [r2 + flow_flags], r3
 	vp_and flow_flag_lasth, r3
-	if r3, !=, 0
+	vpif r3, !=, 0
 		;last one fills height gap of parent
 		ln_is_last r0 + view_node, r3
-		if r3, ==, 0
+		vpif r3, ==, 0
 			vp_cpy [r2 + flow_flags], r3
 			vp_and flow_flag_down, r3
-			if r3, !=, 0
+			vpif r3, !=, 0
 				;flow down
 				vp_lea [r9 + r11], r15
 				vp_sub [r2 + view_h], r15
@@ -130,7 +130,7 @@ callback:
 			endif
 			vp_cpy [r2 + flow_flags], r3
 			vp_and flow_flag_up, r3
-			if r3, !=, 0
+			vpif r3, !=, 0
 				;flow up
 				vp_add r9, r11
 				vp_xor r9, r9
@@ -140,7 +140,7 @@ callback:
 
 	vp_cpy [r2 + flow_flags], r3
 	vp_and flow_flag_align_hcenter | flow_flag_align_hleft | flow_flag_align_hright, r3
-	if r3, !=, 0
+	vpif r3, !=, 0
 		vp_cpy [r2 + view_w], r8
 		vp_sub r10, r8
 		switch
@@ -154,7 +154,7 @@ callback:
 
 	vp_cpy [r2 + flow_flags], r3
 	vp_and flow_flag_align_vcenter | flow_flag_align_vtop | flow_flag_align_vbottom, r3
-	if r3, !=, 0
+	vpif r3, !=, 0
 		vp_cpy [r2 + view_h], r9
 		vp_sub r11, r9
 		switch

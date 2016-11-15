@@ -19,9 +19,9 @@ def_func class/lisp/func_push
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length > 1}
+	vpif {length > 1}
 		devirt_call vector, ref_element, {args, 0}, {value}
-		if {value->obj_vtable == @class/class_vector}
+		vpif {value->obj_vtable == @class/class_vector}
 			func_call vector, for_each, {args, 1, length, $callback, value}, {_}
 		else
 			func_call error, create, {"(push list form ...) not a list", args}, {value}

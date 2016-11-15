@@ -46,7 +46,7 @@ def_struct_end
 	;%2
 
 	ln_get_succ %1, %2
-	if %2, ==, 0
+	vpif %2, ==, 0
 		vp_cpy [%1 - lh_list_tail], %1
 	endif
 %endmacro
@@ -61,7 +61,7 @@ def_struct_end
 	;%2
 
 	ln_get_pred %1, %2
-	if %2, ==, 0
+	vpif %2, ==, 0
 		ln_get_tail %1, %1
 	endif
 %endmacro
@@ -295,7 +295,7 @@ def_struct_end
 
 	lh_get_head %1, %1
 	ln_get_succ %1, %2
-	if %2, !=, 0
+	vpif %2, !=, 0
 		vp_cpy %1, %2
 		ln_remove_node %1, %3
 	endif
@@ -317,7 +317,7 @@ def_struct_end
 
 	lh_get_tail %1, %1
 	ln_get_pred %1, %2
-	if %2, !=, 0
+	vpif %2, !=, 0
 		vp_cpy %1, %2
 		ln_remove_node %1, %3
 	endif

@@ -10,7 +10,7 @@ def_func sys/mail_alloc_parcel
 	;r1-r3
 
 	vp_cpy r0, r5
-	if r0, <=, msg_size
+	vpif r0, <=, msg_size
 		f_call sys_mail, alloc, {}, {r0}
 	else
 		f_call sys_mem, alloc, {r0}, {r0, _}

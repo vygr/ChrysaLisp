@@ -40,7 +40,7 @@ def_func sys/mail_out
 			;length of fragment data
 			vp_cpy msg_size - msg_data, r2
 			vp_add r2, r10
-			if r10, >, r11
+			vpif r10, >, r11
 				vp_sub r11, r10
 				vp_sub r10, r2
 				vp_cpy r11, r10

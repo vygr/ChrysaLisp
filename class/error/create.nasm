@@ -16,11 +16,11 @@ def_func class/error/create
 
 	;create new string object
 	f_call error, new, {}, {r0}
-	if r0, !=, 0
+	vpif r0, !=, 0
 		;init the object
 		func_path class, error
 		f_call error, init, {r0, @_function_, r6, r7}, {r1}
-		if r1, ==, 0
+		vpif r1, ==, 0
 			;error with init
 			v_call error, delete, {r0}, {}, r1
 			vp_xor r0, r0

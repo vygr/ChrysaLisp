@@ -502,11 +502,11 @@ def_method error, class/class_error
 		;trashes
 		;r1-r3
 		f_call %1, new, {}, {r0}
-		if r0, !=, 0
+		vpif r0, !=, 0
 			;init the object
 			func_path class, %1
 			f_call %1, init, {r0, @_function_}, {r1}
-			if r1, ==, 0
+			vpif r1, ==, 0
 				;error with init
 				v_call %1, delete, {r0}, {}, r1
 				vp_xor r0, r0
@@ -524,7 +524,7 @@ def_method error, class/class_error
 		;trashes
 		;r1-r3
 		f_call sys_mem, alloc, {%1_size}, {r0, _}
-		if r0, !=, 0
+		vpif r0, !=, 0
 			;clear object memory
 			vp_cpy r0, r3
 			f_call sys_mem, clear, {r0, %1_size}, {_}

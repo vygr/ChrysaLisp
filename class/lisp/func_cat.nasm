@@ -24,9 +24,9 @@ def_func class/lisp/func_cat
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length}
+	vpif {length}
 		func_call vector, get_element, {args, 0}, {value}
-		if {value->obj_vtable == @class/class_vector}
+		vpif {value->obj_vtable == @class/class_vector}
 			func_call vector, create, {}, {value}
 			func_call vector, for_each, {args, 0, length, $callback, &this}, {_}
 		elseif {value->obj_vtable == @class/class_string}
@@ -58,7 +58,7 @@ callback:
 	retire {r0, r1}, {pdata, iter}
 
 	assign {*iter}, {elem}
-	if {elem->obj_vtable == pdata->pdata_value->obj_vtable}
+	vpif {elem->obj_vtable == pdata->pdata_value->obj_vtable}
 		switch
 		case {elem->obj_vtable == @class/class_string}
 			func_call string, append, {pdata->pdata_value, elem}, {elem}

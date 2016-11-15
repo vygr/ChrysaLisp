@@ -28,7 +28,7 @@ ld_load_function:
 		vp_lea [r6 + fn_header_pathname], r1
 		vp_call string_compare
 	loop_until r0, ==, 0
-	if r6, !=, 0
+	vpif r6, !=, 0
 		;found function already loaded
 		vp_cpy_ui [r6 + fn_header_entry], r0
 		vp_add r6, r0
@@ -47,7 +47,7 @@ ld_load_function:
 	;get length of function on disk
 	vp_lea [r8 + ld_statics_stat_buffer], r0
 	sys_stat r7, r0
-	if r0, !=, 0
+	vpif r0, !=, 0
 	exit:
 		vp_xor r0, r0
 		vp_ret
@@ -63,7 +63,7 @@ ld_load_function:
 	vp_cpy [r8 + ld_statics_block_end], r2
 	vp_sub r1, r2
 	vp_cpy [r8 + ld_statics_stat_buffer + stat_fsize], r0
-	if r2, <, r0
+	vpif r2, <, r0
 		;not enough so allocate new function buffer
 		sys_mmap 0, ld_block_size, prot_read|prot_write|prot_exec, map_private|map_anon, -1, 0
 		assert r0, !=, 0
@@ -105,7 +105,7 @@ ld_load_function:
 
 	;check loaded length equals file size
 	vp_cpy_ui [r3 + fn_header_length], r0
-	if r0, !=, [r2 + stat_fsize]
+	vpif r0, !=, [r2 + stat_fsize]
 		vp_rel size_error, r0
 		sys_write_string 2, r0, size_error_end-size_error
 		sys_exit 1
@@ -137,7 +137,7 @@ ld_load_function:
 
 	;overflow check
 	vp_lea [r8 + ld_statics_size], r2
-	if r1, >, r2
+	vpif r1, >, r2
 		vp_rel reloc_error, r0
 		sys_write_string 2, r0, reloc_error_end-reloc_error
 		sys_exit 1
@@ -173,7 +173,7 @@ ld_load_function:
 		vp_push r0
 		vp_cpy r1, r0
 		vp_call ld_load_function
-		if r0, ==, 0
+		vpif r0, ==, 0
 			;no such file
 			vp_rel bind_error, r0
 			sys_write_string 2, r0, bind_error_end-bind_error

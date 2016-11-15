@@ -34,7 +34,7 @@ callback:
 	vp_cpy [r0 + view_parent], r2
 	vp_cpy [r2 + flow_flags], r3
 	vp_and flow_flag_up | flow_flag_down, r3
-	if r3, !=, 0
+	vpif r3, !=, 0
 		;flow down or up
 		vp_cpy [r1 + local_h], r3
 		vp_add r11, r3
@@ -42,16 +42,16 @@ callback:
 	endif
 	vp_cpy [r2 + flow_flags], r3
 	vp_and flow_flag_left | flow_flag_right, r3
-	if r3, !=, 0
+	vpif r3, !=, 0
 		;flow left or right
 		vp_cpy [r1 + local_w], r3
 		vp_add r10, r3
 		vp_cpy r3, [r1 + local_w]
 	endif
-	if r10, >, [r1 + local_w]
+	vpif r10, >, [r1 + local_w]
 		vp_cpy r10, [r1 + local_w]
 	endif
-	if r11, >, [r1 + local_h]
+	vpif r11, >, [r1 + local_h]
 		vp_cpy r11, [r1 + local_h]
 	endif
 	vp_ret

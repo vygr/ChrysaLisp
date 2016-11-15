@@ -15,7 +15,7 @@ def_func class/master/stop
 
 	push_scope
 	retire {r0}, {inst}
-	if {inst->master_state != stream_mail_state_stopped}
+	vpif {inst->master_state != stream_mail_state_stopped}
 		;flush remaining
 		func_call master, get_input, {inst}, {stream}
 		virt_call stream_msg_out, write_flush, {stream}

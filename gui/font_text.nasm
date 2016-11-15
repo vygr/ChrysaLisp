@@ -50,7 +50,7 @@ def_func gui/font_text
 
 	;did we find it ?
 	vp_cpy r5, r0
-	if r5, ==, 0
+	vpif r5, ==, 0
 		;no so try create it
 		f_call sys_task, callback, {$kernel_callback, r4}
 		vp_cpy [r4 + local_handle], r0
@@ -79,7 +79,7 @@ kernel_callback:
 
 	vp_cpy [r14 + local_font], r0
 	ttf_render_utf8_blended [r0 + ft_font_handle], [r14 + local_text], 0xffffff
-	if r0, !=, 0
+	vpif r0, !=, 0
 		vp_cpy r0, [r14 + local_surface]
 		vp_cpy_ui [r0 + sdl_surface_w], r10
 		vp_cpy_ui [r0 + sdl_surface_h], r11
@@ -89,7 +89,7 @@ kernel_callback:
 		;create texture
 		f_bind gui_gui, statics, r0
 		sdl_create_texture_from_surface [r0 + gui_statics_renderer], [r14 + local_surface]
-		if r0, !=, 0
+		vpif r0, !=, 0
 			vp_cpy r0, r5
 
 			f_call sys_string, length, {[r14 + local_text]}, {r1}

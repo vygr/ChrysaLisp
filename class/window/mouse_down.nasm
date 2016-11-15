@@ -19,20 +19,20 @@ def_func class/window/mouse_down
 	vp_sub window_border_size * 2, r10
 	vp_sub window_border_size * 2, r11
 	vp_xor r15, r15
-	if r8, <, window_border_size * 2
+	vpif r8, <, window_border_size * 2
 		;left edge
 		vp_or window_drag_left, r15
 	endif
-	if r8, >=, r10
+	vpif r8, >=, r10
 		;right edge
 		vp_or window_drag_right, r15
 		vp_sub [r0 + view_w], r12
 	endif
-	if r9, <, window_border_size * 2
+	vpif r9, <, window_border_size * 2
 		;top edge
 		vp_or window_drag_top, r15
 	endif
-	if r9, >=, r11
+	vpif r9, >=, r11
 		;bottom edge
 		vp_or window_drag_bottom, r15
 		vp_sub [r0 + view_h], r13

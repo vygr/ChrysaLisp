@@ -19,7 +19,7 @@ def_func class/master/select
 	push_scope
 	retire {r0, r1}, {inst, mailbox}
 
-	if {inst->master_state != stream_mail_state_started}
+	vpif {inst->master_state != stream_mail_state_started}
 		;not yet running, so just wait on user mailbox
 		func_call sys_mail, select, {&mailbox, 1}, {mailbox}
 	else

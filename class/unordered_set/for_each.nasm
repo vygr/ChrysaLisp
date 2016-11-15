@@ -38,7 +38,7 @@ def_func class/unordered_set/for_each
 	;for all buckets
 	vp_cpy [r0 + unordered_set_buckets], r0
 	f_call vector, for_each, {r0, 0, [r0 + vector_length], $callback, r4}, {r2}
-	if r2, !=, 0
+	vpif r2, !=, 0
 		vp_cpy [r2], r2
 	endif
 	vp_cpy [r4 + local_iter], r1
@@ -59,7 +59,7 @@ callback:
 	f_call vector, for_each, {r0, 0, [r0 + vector_length], [r2 + local_predicate], [r2 + local_predicate_data]}, {r1}
 	vp_pop r0
 	vp_cpy r1, [r0 + local_iter]
-	if r1, ==, 0
+	vpif r1, ==, 0
 		vp_cpy 1, r1
 	else
 		vp_xor r1, r1

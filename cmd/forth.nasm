@@ -17,7 +17,7 @@ def_func cmd/forth
 
 	;initialize pipe details and command args, abort on error
 	func_call slave, create, {}, {slave}
-	if {slave}
+	vpif {slave}
 		;set up input stream stack
 		func_call string, create_from_file, {"cmd/forth.f"}, {string}
 		func_call stream, create, {string, 0, &string->string_data, string->string_length}, {stream}
@@ -319,7 +319,7 @@ defword_end
 defword "?dup", 0, word_qdup, word_inline_comma
 	;( a -- a a | 0 )
 	loadsp t1
-	if t1, !=, 0
+	vpif t1, !=, 0
 		pushsp t1
 	endif
 	vp_ret
@@ -328,7 +328,7 @@ defword_end
 defword "!?dup", 0, word_nqdup, word_inline_comma
 	;( a -- a a | 0 )
 	loadsp t1
-	if t1, ==, 0
+	vpif t1, ==, 0
 		pushsp t1
 	endif
 	vp_ret

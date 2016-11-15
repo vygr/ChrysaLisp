@@ -12,8 +12,8 @@ def_func gui/region_cut_rect
 	;r11 = y1 (pixels)
 
 	;check for any obvious errors in inputs
-	if r10, >, r8
-		if r11, >, r9
+	vpif r10, >, r8
+		vpif r11, >, r9
 			;run through source region list
 			vp_cpy r2, r5
 			vp_cpy r1, r6

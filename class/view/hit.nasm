@@ -10,10 +10,10 @@ def_func class/view/hit
 	;r0 = view object
 	;r1 = 0 if not, else hit
 
-	if r8, >=, 0
-		if r9, >=, 0
-			if r8, <, [r0 + view_w]
-				if r9, <, [r0 + view_h]
+	vpif r8, >=, 0
+		vpif r9, >=, 0
+			vpif r8, <, [r0 + view_w]
+				vpif r9, <, [r0 + view_h]
 					;hit ?
 					vp_cpy [r0 + view_flags], r1
 					vp_and view_flag_solid, r1

@@ -12,7 +12,7 @@ def_func class/view/get_first
 
 	lh_get_head r0 + view_list, r1
 	ln_get_succ r1, r2
-	if r2, ==, 0
+	vpif r2, ==, 0
 		vp_cpy r2, r1
 	else
 		vp_sub view_node, r1

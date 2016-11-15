@@ -19,9 +19,9 @@ def_func class/lisp/func_def
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length >= 3 && (length & 1)}
+	vpif {length >= 3 && (length & 1)}
 		func_call vector, get_element, {args, 0}, {env}
-		if {env->obj_vtable == @class/class_unordered_map}
+		vpif {env->obj_vtable == @class/class_unordered_map}
 			assign {1, 0}, {index, val}
 			loop_start
 				func_call ref, deref_if, {val}

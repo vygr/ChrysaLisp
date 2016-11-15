@@ -101,7 +101,7 @@ def_func apps/netmon/app
 	;app event loop
 	loop_start
 		;new round of samples ?
-		if {cpu_count ==  cpu_total}
+		vpif {cpu_count ==  cpu_total}
 			;set max_memory level
 			assign {(total_memory * 3) / (cpu_total * 2) + 1}, {max_memory}
 			assign {0}, {total_memory}
@@ -126,13 +126,13 @@ def_func apps/netmon/app
 		func_call sys_mail, read, {mailbox}, {msg}
 
 		;which mailbox had mail ?
-		if {mailbox == select.sel_select1}
+		vpif {mailbox == select.sel_select1}
 			;dispatch event to view
 			virt_call view, event, {msg->ev_msg_view, msg}
 		else
 			;update progress bars
 			assign {msg->sample_msg_task_count}, {value}
-			if {value > max_tasks}
+			vpif {value > max_tasks}
 				assign {value}, {max_tasks}
 			endif
 			assign {task_progress[msg->sample_msg_index]}, {progress}

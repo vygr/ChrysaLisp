@@ -37,7 +37,7 @@ def_func class/unordered_set/erase
 	vp_mul ptr_size, r1
 	vp_add [r0 + vector_array], r1
 	vp_cpy [r4 + local_iter], r0
-	if r1, !=, r0
+	vpif r1, !=, r0
 		vp_cpy [r1], r1
 		vp_cpy r1, [r0]
 	endif

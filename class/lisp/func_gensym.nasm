@@ -19,7 +19,7 @@ def_func class/lisp/func_gensym
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	ifnot {length}
+	vpifnot {length}
 		func_call symbol, create_from_long, {this->lisp_nextsym, 10}, {args}
 		func_call symbol, create_from_cstr, {"G"}, {prefix}
 		func_call symbol, append, {prefix, args}, {value}

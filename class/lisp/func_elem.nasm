@@ -19,19 +19,19 @@ def_func class/lisp/func_elem
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 2}
+	vpif {length == 2}
 		func_call vector, get_element, {args, 1}, {seq}
 		func_path class, sequence
 		func_call obj, inst_of, {seq, @_function_}, {value}
-		if {value}
+		vpif {value}
 			func_call vector, get_element, {args, 0}, {value}
-			if {value->obj_vtable == @class/class_boxed_long}
+			vpif {value->obj_vtable == @class/class_boxed_long}
 				func_call boxed_long, get_value, {value}, {index}
 				virt_call sequence, get_length, {seq}, {length}
-				if {index < 0}
+				vpif {index < 0}
 					assign {length + index + 1}, {index}
 				endif
-				if {index >= 0 && index < length}
+				vpif {index >= 0 && index < length}
 					virt_call sequence, ref_element, {seq, index}, {value}
 					expr {this, value}, {r0, r1}
 					return

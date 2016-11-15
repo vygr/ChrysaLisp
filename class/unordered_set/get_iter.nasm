@@ -47,7 +47,7 @@ callback:
 	vp_cpy [r1], r0
 	vp_cpy [r0 + vector_length], r2
 	vp_cpy [r5 + local_index], r3
-	if r3, >, r2
+	vpif r3, >, r2
 		vp_sub r2, r3
 		vp_cpy r3, [r5 + local_index]
 	else

@@ -126,7 +126,7 @@ visible_up_callback:
 
 	;remove opaque region from ancestors if not root
 	vp_cpy [r4 + vis_inst], r1
-	if r1, !=, [r4 + vis_root]
+	vpif r1, !=, [r4 + vis_root]
 		;remove my opaque region from ancestors
 		vp_xor r2, r2
 		vp_cpy r2, [r4 + vis_region]
@@ -183,7 +183,7 @@ visible_up_callback:
 	;clip local dirty region with parent bounds if not root
 	vp_cpy [r4 + vis_inst], r1
 	vp_cpy [r1 + view_parent], r2
-	if r1, ==, [r4 + vis_root]
+	vpif r1, ==, [r4 + vis_root]
 		vp_cpy r1, r2
 	endif
 	vp_cpy [r1 + view_x], r8
@@ -199,7 +199,7 @@ visible_up_callback:
 
 	;paste local dirty region onto parent if not root
 	vp_cpy [r4 + vis_inst], r1
-	if r1, !=, [r4 + vis_root]
+	vpif r1, !=, [r4 + vis_root]
 		vp_cpy [r1 + view_x], r8
 		vp_cpy [r1 + view_y], r9
 		vp_cpy [r1 + view_parent], r2
@@ -235,7 +235,7 @@ distribute_down_callback:
 
 	;copy view from parent if not root
 	vp_cpy [r4 + dist_inst], r2
-	if r2, !=, [r1 + local_root]
+	vpif r2, !=, [r1 + local_root]
 		;copy my area from parent
 		vp_cpy [r2 + view_parent], r1
 		vp_cpy [r2 + view_ctx_x], r8
@@ -251,7 +251,7 @@ distribute_down_callback:
 		;did we find any
 		vp_cpy [r4 + dist_inst], r1
 		vp_cpy [r1 + view_dirty_region], r1
-		if r1, !=, 0
+		vpif r1, !=, 0
 			;remove my opaque region from ancestors
 			vp_cpy [r4 + dist_inst], r2
 			loop_start
@@ -279,7 +279,7 @@ distribute_down_callback:
 distribute_up_callback:
 	;add myself to draw list if not empty
 	vp_cpy [r0 + view_dirty_region], r2
-	if r2, !=, 0
+	vpif r2, !=, 0
 		vp_lea [r0 + view_ctx_node], r2
 		vp_add local_ctx_flist, r1
 		ln_add_fnode r1, r2, r3

@@ -11,17 +11,17 @@ def_func sys/mem_xor
 	;trashes
 	;r2-r3, r5
 
-	if r2, !=, 0
+	vpif r2, !=, 0
 		;not zero length
 		vp_cpy r0, r3
 		vp_and ptr_size - 1, r3
-		if r3, ==, 0
+		vpif r3, ==, 0
 			vp_cpy r1, r3
 			vp_and ptr_size - 1, r3
-			if r3, ==, 0
+			vpif r3, ==, 0
 				vp_cpy r2, r3
 				vp_and ptr_size - 1, r3
-				if r3, ==, 0
+				vpif r3, ==, 0
 					;all aligned on 8 byte boundary
 					vp_add r0, r2
 					loop_start

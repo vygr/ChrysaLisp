@@ -14,7 +14,7 @@ def_func class/button/mouse_up
 	vp_cpy r1, r2
 	vp_and ~button_state_pressed, r1
 	vp_cpy r1, [r0 + button_state]
-	if r1, !=, r2
+	vpif r1, !=, r2
 		v_call button, layout, {r0}
 		f_call button, dirty, {r0}
 	endif
@@ -22,7 +22,7 @@ def_func class/button/mouse_up
 	;emit pressed signal ?
 	vp_pop r1
 	vp_and button_state_pressed, r1
-	if r1, !=, 0
+	vpif r1, !=, 0
 		f_jmp button, emit, {r0, &[r0 + button_pressed_signal]}
 	endif
 	vp_ret

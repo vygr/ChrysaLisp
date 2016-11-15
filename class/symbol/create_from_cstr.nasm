@@ -10,7 +10,7 @@ def_func class/symbol/create_from_cstr
 	;r1-r3, r5-r7
 
 	func_call string, create_from_cstr, {r0}, {r0}
-	if r0, !=, 0
+	vpif r0, !=, 0
 		func_path class, symbol
 		fn_bind _function_, r1
 		vp_cpy r1, [r0 + obj_vtable]

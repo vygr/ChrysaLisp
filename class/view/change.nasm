@@ -19,8 +19,8 @@ def_func class/view/change
 	f_call view, set_bounds, {r0, r8, r9, r10, r11}
 
 	;layout if changed size
-	if r10, ==, r12
-		if r11, ==, r13
+	vpif r10, ==, r12
+		vpif r11, ==, r13
 			vp_ret
 		endif
 	endif

@@ -56,7 +56,7 @@ def_func class/vector/for_each
 	;iterator of break point, else 0
 	vp_cpy [r4 + local_next], r1
 	vp_cpy [r4 + local_inst], r0
-	if r1, ==, [r4 + local_end]
+	vpif r1, ==, [r4 + local_end]
 		vp_xor r1, r1
 	endif
 	vp_add local_size, r4

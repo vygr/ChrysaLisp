@@ -43,7 +43,7 @@ skip_white:
 	loop_end
 
 	;what are we reading ?
-	if {char != -1}
+	vpif {char != -1}
 		switch
 		case {char == char_semi}
 			func_call stream, skip_not, {stream, char_lf}

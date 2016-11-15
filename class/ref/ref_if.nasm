@@ -8,7 +8,7 @@ def_func class/ref/ref_if
 	;r1
 
 	;inc ref count
-	if r0, !=, 0
+	vpif r0, !=, 0
 		vp_cpy [r0 + ref_count], r1
 		vp_inc r1
 		vp_cpy r1, [r0 + ref_count]

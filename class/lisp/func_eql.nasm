@@ -20,7 +20,7 @@ def_func class/lisp/func_eql
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 2}
+	vpif {length == 2}
 		func_call vector, get_element, {args, 0}, {arg1}
 		func_call vector, get_element, {args, 1}, {arg2}
 		gotoif {arg1 == arg2}, same

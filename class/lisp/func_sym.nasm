@@ -21,9 +21,9 @@ def_func class/lisp/func_sym
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
+	vpif {length == 1}
 		func_call vector, get_element, {args, 0}, {args}
-		if {args->obj_vtable == @class/class_symbol}
+		vpif {args->obj_vtable == @class/class_symbol}
 			assign {args}, {value}
 			func_call ref, ref, {value}
 		elseif {args->obj_vtable == @class/class_string}

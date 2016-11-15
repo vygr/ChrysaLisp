@@ -32,7 +32,7 @@ def_func gui/ctx_panel
 			[r4 + local_x], [r4 + local_y], [r4 + local_w], [r4 + local_h]
 	map_src_to_dst
 
-	if r2, !=, 0
+	vpif r2, !=, 0
 		;fill middle
 		f_call gui_ctx, set_color, {r0, r1}
 
@@ -50,7 +50,7 @@ def_func gui/ctx_panel
 	endif
 
 	vp_cpy [r4 + local_depth],r12
-	if r12, >, 0
+	vpif r12, >, 0
 		;brighter colour
 		f_call gui_ctx, brighter, {[r4 + local_color]}, {r1}
 		f_call gui_ctx, set_color, {[r4 + local_ctx], r1}

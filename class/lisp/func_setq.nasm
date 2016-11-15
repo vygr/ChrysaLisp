@@ -18,7 +18,7 @@ def_func class/lisp/func_setq
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length >= 2 && !(length & 1)}
+	vpif {length >= 2 && !(length & 1)}
 		assign {0, 0}, {index, val}
 		loop_start
 			func_call ref, deref_if, {val}

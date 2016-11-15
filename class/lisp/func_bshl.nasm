@@ -19,11 +19,11 @@ def_func class/lisp/func_bshl
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 2}
+	vpif {length == 2}
 		func_call vector, get_element, {args, 0}, {num}
-		if {num->obj_vtable == @class/class_boxed_long}
+		vpif {num->obj_vtable == @class/class_boxed_long}
 			func_call vector, get_element, {args, 1}, {shift}
-			if {shift->obj_vtable == @class/class_boxed_long}
+			vpif {shift->obj_vtable == @class/class_boxed_long}
 				func_call boxed_long, get_value, {num}, {length}
 				func_call boxed_long, get_value, {shift}, {cnt}
 				assign {length << cnt}, {length}

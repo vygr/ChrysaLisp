@@ -16,7 +16,7 @@ def_func sys/list_index_of
 	loop_start
 		vp_cpy r2, r3
 		ln_get_succ r2, r2
-		if r2, ==, 0
+		vpif r2, ==, 0
 			vp_cpy -1, r0
 			vp_ret
 		endif

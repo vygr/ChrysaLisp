@@ -13,7 +13,7 @@ def_func sys/heap_alloc
 
 	loop_start
 		vp_cpy [r0 + hp_heap_free_flist], r1
-		if r1, !=, 0
+		vpif r1, !=, 0
 			vp_cpy [r1 + ln_fnode_next], r2
 			vp_cpy r2, [r0 + hp_heap_free_flist]
 			vp_ret

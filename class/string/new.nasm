@@ -12,7 +12,7 @@ def_func class/string/new
 	;allocate new string object
 	vp_cpy r0, r5
 	f_call sys_mem, alloc, {r0}, {r0, _}
-	if r0, !=, 0
+	vpif r0, !=, 0
 		;clear object memory
 		vp_cpy r0, r3
 		f_call sys_mem, clear, {r0, r5}, {_}

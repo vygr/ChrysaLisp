@@ -14,7 +14,7 @@ def_func sys/list_node_at
 	loop_start
 		vp_cpy r2, r0
 		ln_get_succ r2, r2
-		if r2, ==, 0
+		vpif r2, ==, 0
 			vp_xor r0, r0
 			vp_ret
 		endif

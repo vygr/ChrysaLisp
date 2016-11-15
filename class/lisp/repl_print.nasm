@@ -50,7 +50,7 @@ def_func class/lisp/repl_print
 	push_scope
 	retire {r0, r1, r2}, {this, stream, value}
 
-	ifnot {value}
+	vpifnot {value}
 		func_call stream, write_char, {stream, char_lf}
 		func_call stream, write_cstr, {stream, "*NULL*"}
 		func_call stream, write_char, {stream, char_lf}
@@ -122,7 +122,7 @@ def_func class/lisp/repl_print
 			struct pdata, pdata
 			push_scope
 			devirt_call vector, get_length, {value}, {length}
-			if {length}
+			vpif {length}
 				func_call vector, get_element, {value, 0}, {elem}
 				switch
 				case {elem == this->lisp_sym_quote}
@@ -183,7 +183,7 @@ callback:
 
 	func_call lisp, repl_print, {pdata->pdata_this, pdata->pdata_stream, *iter}
 	assign {pdata->pdata_index + 1}, {pdata->pdata_index}
-	if {pdata->pdata_index != pdata->pdata_length}
+	vpif {pdata->pdata_index != pdata->pdata_length}
 		func_call stream, write_char, {pdata->pdata_stream, char_space}
 	endif
 

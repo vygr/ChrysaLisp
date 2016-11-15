@@ -374,14 +374,14 @@
 		%if _r = 2
 			cqo
 		%else
-			if %1, <, 0
+			vpif %1, <, 0
 				vp_cpy -1, %2
 			else
 				vp_xor %2, %2
 			endif
 		%endif
 	%else
-		if %1, <, 0
+		vpif %1, <, 0
 			vp_cpy -1, %2
 		else
 			vp_xor %2, %2

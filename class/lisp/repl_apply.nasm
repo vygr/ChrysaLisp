@@ -23,7 +23,7 @@ def_func class/lisp/repl_apply
 	push_scope
 	retire {r0, r1, r2}, {this, func, ast}
 
-	if {func->obj_vtable == @class/class_boxed_ptr}
+	vpif {func->obj_vtable == @class/class_boxed_ptr}
 		;built in or compiled function
 		expr {this, ast, func}, {r0, r1, r2}
 		vp_call [r2 + boxed_ptr_value]
@@ -34,13 +34,13 @@ def_func class/lisp/repl_apply
 		ulong length
 		push_scope
 		devirt_call vector, get_length, {func}, {length}
-		if {length > 2}
+		vpif {length > 2}
 			func_call vector, get_element, {func, 0}, {vars}
-			if {vars == this->lisp_sym_lambda}
+			vpif {vars == this->lisp_sym_lambda}
 				func_call lisp, env_push, {this}
 				func_call vector, get_element, {func, 1}, {vars}
 				func_call lisp, env_bind, {this, vars, ast, 0}, {value}
-				if {value->obj_vtable != @class/class_error}
+				vpif {value->obj_vtable != @class/class_error}
 					func_call vector, for_each, {func, 2, length, $callback, &this}, {_}
 				endif
 				func_call lisp, env_pop, {this}

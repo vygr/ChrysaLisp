@@ -18,7 +18,7 @@ def_func class/lisp/func_quote
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
+	vpif {length == 1}
 		devirt_call vector, ref_element, {args, 0}, {args}
 	else
 		func_call error, create, {"(quote arg) wrong numbers of args", args}, {args}

@@ -64,7 +64,7 @@ def_func gui/gui
 
 		;get keyboard info, see if any changes
 		vp_cpy [r4 + local_old_keymap], r1
-		if r1, ==, 0
+		vpif r1, ==, 0
 			;create old keymap
 			f_call sys_mem, alloc, {[r4 + local_keymap_size]}, {r0, _}
 			vp_cpy r0, [r4 + local_old_keymap]
@@ -82,11 +82,11 @@ def_func gui/gui
 			vp_dec r2
 			vp_cpy_ub [r0 + r2], r8
 			vp_cpy_ub [r1 + r2], r9
-			if r8, !=, r9
+			vpif r8, !=, r9
 				;set scan code, - for up
 				vp_cpy_ub r8, [r1 + r2]
 				vp_cpy r2, r11
-				if r8, ==, 0
+				vpif r8, ==, 0
 					vp_mul -1, r11
 				endif
 
@@ -96,7 +96,7 @@ def_func gui/gui
 				vp_xor r12, r12
 				loop_start
 					vp_cpy_ub [r5], r8
-					if r8, ==, r2
+					vpif r8, ==, r2
 						vp_cpy_ub [r5 + r10 + 1], r12
 					endif
 					vp_add 3, r5
@@ -104,11 +104,11 @@ def_func gui/gui
 
 				;dispatch to task and target view
 				vp_cpy [r4 + local_key_view], r6
-				if r6, !=, 0
+				vpif r6, !=, 0
 					vp_push r0, r1, r2
 					;lookup view owner
 					f_call view, find_owner, {r6}, {r1}
-					if r1, !=, 0
+					vpif r1, !=, 0
 						;save owner mailbox
 						f_call sys_cpu, id, {}, {r15}
 						vp_lea [r1 + tk_node_mailbox], r14
@@ -141,9 +141,9 @@ def_func gui/gui
 		vp_cpy [r4 + local_x_pos], r8
 		vp_cpy [r4 + local_y_pos], r9
 		vp_cpy [r4 + local_buttons], r10
-		if r8, ==, [r4 + local_last_x_pos]
-			if r9, ==, [r4 + local_last_y_pos]
-				if r10, ==, [r4 + local_last_buttons]
+		vpif r8, ==, [r4 + local_last_x_pos]
+			vpif r9, ==, [r4 + local_last_y_pos]
+				vpif r10, ==, [r4 + local_last_buttons]
 					;same as last time
 					vp_jmp next_frame
 				endif
@@ -155,13 +155,13 @@ def_func gui/gui
 
 		;dispatch to task and target view
 		vp_cpy [r4 + local_last_view], r6
-		if r6, !=, 0
+		vpif r6, !=, 0
 		send_mouse:
 			;do we need to wait till button goes up ?
-			if r6, !=, -1
+			vpif r6, !=, -1
 				;lookup view owner
 				f_call view, find_owner, {r6}, {r1}
-				if r1, !=, 0
+				vpif r1, !=, 0
 					;save owner mailbox
 					f_call sys_cpu, id, {}, {r15}
 					vp_lea [r1 + tk_node_mailbox], r14
@@ -194,21 +194,21 @@ def_func gui/gui
 			endif
 
 			;if button went up then clear locked view
-			if r10, ==, 0
+			vpif r10, ==, 0
 				vp_cpy r10, [r4 + local_last_view]
 			endif
 		else
 			;button down ?
-			if r10, !=, 0
+			vpif r10, !=, 0
 				;find view
 				f_bind gui_gui, statics, r5
 				f_call view, hit_tree, {[r5 + gui_statics_screen], \
 											[r4 + local_x_pos], \
 											[r4 + local_y_pos]}, {r1, r8, r9}
-				if r1, ==, [r5 + gui_statics_screen]
+				vpif r1, ==, [r5 + gui_statics_screen]
 					vp_xor r1, r1
 				endif
-				if r1, ==, 0
+				vpif r1, ==, 0
 					vp_cpy -1, r1
 				endif
 				vp_cpy r1, [r4 + local_last_view]
@@ -228,7 +228,7 @@ def_func gui/gui
 
 	;free old key map
 	vp_cpy [r4 + local_old_keymap], r0
-	if r0, !=, 0
+	vpif r0, !=, 0
 		f_call sys_mem, free, {r0}
 	endif
 
@@ -257,7 +257,7 @@ update_callback:
 	;create screen window ?
 	f_bind gui_gui, statics, r0
 	vp_cpy [r0 + gui_statics_window], r1
-	if r1, ==, 0
+	vpif r1, ==, 0
 		;init sdl2
 		sdl_set_main_ready
 		sdl_init SDL_INIT_VIDEO
@@ -280,7 +280,7 @@ update_callback:
 	;update screen
 	f_bind gui_gui, statics, r0
 	vp_cpy [r0 + gui_statics_screen], r0
-	if r0, !=, 0
+	vpif r0, !=, 0
 		;pump sdl events
 		sdl_pump_events
 
@@ -317,7 +317,7 @@ deinit_callback:
 	;free any screen
 	f_bind gui_gui, statics, r5
 	vp_cpy [r5 + gui_statics_screen], r0
-	if r0, !=, 0
+	vpif r0, !=, 0
 		vp_xor r1, r1
 		vp_cpy r1, [r5 + gui_statics_screen]
 		f_call view, deref, {r0}
@@ -335,7 +335,7 @@ deinit_callback:
 
 	;destroy any window
 	vp_cpy [r5 + gui_statics_window], r14
-	if r14, !=, 0
+	vpif r14, !=, 0
 		;align stack on 16 byte boundary
 		vp_cpy r4, r15
 		vp_and -16, r4

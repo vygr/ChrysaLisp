@@ -10,7 +10,7 @@ def_func class/stream_msg_out/next_seq
 	;r0 = 0, else next stream msg
 
 	;save any new msg
-	if r1, !=, 0
+	vpif r1, !=, 0
 		lh_add_at_tail r0, r1, r3
 	endif
 
@@ -18,7 +18,7 @@ def_func class/stream_msg_out/next_seq
 	loop_list_forward r0, r0, r1
 		breakif r2, ==, -1
 	loop_until r2, ==, [r0 + stream_mail_seqnum]
-	if r1, ==, 0
+	vpif r1, ==, 0
 		;not found
 		vp_cpy r1, r0
 	else

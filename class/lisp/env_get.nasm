@@ -18,7 +18,7 @@ def_func class/lisp/env_get
 	retire {r0, r1}, {this, symbol}
 
 	func_call lisp, env_find, {this, symbol}, {iter, _}
-	if {iter}
+	vpif {iter}
 		func_call pair, ref_second, {*iter}, {symbol}
 	else
 		func_call error, create, {"symbol not bound", symbol}, {symbol}

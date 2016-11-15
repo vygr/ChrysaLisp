@@ -16,9 +16,9 @@ def_func class/view/event
 		;so what state are we in ?
 		vp_cpy [r1 + ev_msg_buttons], r2
 		vp_cpy [r0 + view_last_buttons], r3
-		if r3, !=, 0
+		vpif r3, !=, 0
 			;was down previously
-			if r2, !=, 0
+			vpif r2, !=, 0
 				;is down now, so move
 				v_jmp view, mouse_move, {r0, r1}
 			else
@@ -28,7 +28,7 @@ def_func class/view/event
 			endif
 		else
 			;was not down previously
-			if r2, !=, 0
+			vpif r2, !=, 0
 				;is down now, so first down
 				vp_cpy r2, [r0 + view_last_buttons]
 				v_jmp view, mouse_down, {r0, r1}
@@ -40,7 +40,7 @@ def_func class/view/event
 		break
 	case r2, ==, ev_type_key
 		vp_cpy [r1 + ev_msg_keycode], r2
-		if r2, >=, 0
+		vpif r2, >=, 0
 			v_jmp view, key_down, {r0, r1}
 		else
 			v_jmp view, key_up, {r0, r1}

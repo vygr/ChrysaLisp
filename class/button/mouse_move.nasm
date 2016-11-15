@@ -15,7 +15,7 @@ def_func class/button/mouse_move
 	;is mouse over button ?
 	vp_cpy [r0 + button_state], r2
 	vp_cpy r2, r3
-	if r1, !=, 0
+	vpif r1, !=, 0
 		;state pressed
 		vp_or button_state_pressed, r2
 	else
@@ -25,7 +25,7 @@ def_func class/button/mouse_move
 	vp_cpy r2, [r0 + button_state]
 
 	;if state changed then dirty
-	if r2, !=, r3
+	vpif r2, !=, r3
 		v_call button, layout, {r0}
 		f_jmp button, dirty, {r0}
 	endif

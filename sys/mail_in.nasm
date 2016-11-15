@@ -15,7 +15,7 @@ def_func sys/mail_in
 		loop_list_forward r13 + mailbox_parcel_list, r0, r1
 			continueif r6, !=, [r0 + msg_parcel_id + id_mbox]
 		loop_until r7, ==, [r0 + msg_parcel_id + id_cpu]
-		if r1, ==, 0
+		vpif r1, ==, 0
 			;new parcel
 			vp_cpy [r15 + msg_parcel_size], r12
 			vp_cpy [r15 + msg_dest + id_cpu], r14
@@ -56,7 +56,7 @@ def_func sys/mail_in
 		f_call sys_mem, copy, {r0, r1, r2}, {_, _}
 
 		;got all needed ?
-		if r13, ==, [r14 + msg_length]
+		vpif r13, ==, [r14 + msg_length]
 			;yes, remove parcel and post it
 			vp_cpy r14, r1
 			ln_remove_node r1, r2

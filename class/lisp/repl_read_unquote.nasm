@@ -28,7 +28,7 @@ def_func class/lisp/repl_read_unquote
 	func_call ref, ref, {elem}
 	func_call vector, push_back, {list, elem}
 	func_call lisp, repl_read, {this, stream, char}, {elem, char}
-	if {elem}
+	vpif {elem}
 		func_call vector, push_back, {list, elem}
 	else
 		func_call ref, deref, {list}

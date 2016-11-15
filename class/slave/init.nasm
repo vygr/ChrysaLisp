@@ -23,11 +23,11 @@ def_func class/slave/init
 
 	;init parent
 	super_call slave, init, {inst, vtable}, {error}
-	if {error != 0}
+	vpif {error != 0}
 		;init myself
 		func_call sys_task, mailbox, {}, {mymailbox, _}
 		func_call sys_mail, read, {mymailbox}, {msg}
-		if {msg->msg_length != msg_header_size}
+		vpif {msg->msg_length != msg_header_size}
 			;create stdin, stdout, stderr
 			func_call stream_msg_in, create, {mymailbox}, {inst->slave_stdin}
 			func_call stream_msg_out, create, {msg->slave_mail_init_stdout_id.id_mbox, \

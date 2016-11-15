@@ -23,7 +23,7 @@ def_func class/text/pref_size
 
 	;bounds of text
 	assign {0, 0}, {width, height}
-	if {inst->text_string && inst->text_font}
+	vpif {inst->text_string && inst->text_font}
 		assign {inst->text_words->vector_array}, {words}
 		devirt_call vector, get_length, {inst->text_words}, {length}
 		assign {&words[length * ptr_size]}, {words_end}

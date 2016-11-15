@@ -26,7 +26,7 @@ def_func class/unordered_set/get_bucket
 	;search hash bucket
 	vp_cpy [r0 + unordered_set_buckets], r2
 	vp_cpy [r2 + vector_length], r2
-	if r2, !=, 1
+	vpif r2, !=, 1
 		vp_cpy r2, [r4 + local_length]
 		v_call obj, hash, {r1}, {r0}
 		vp_cpy [r4 + local_length], r1

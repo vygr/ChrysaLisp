@@ -28,7 +28,7 @@ def_func class/lisp/repl_read_quote
 	func_call ref, ref, {elem}
 	func_call vector, push_back, {list, elem}
 	func_call lisp, repl_read, {this, stream, char}, {elem, char}
-	if {elem->obj_vtable != @class/class_error}
+	vpif {elem->obj_vtable != @class/class_error}
 		func_call vector, push_back, {list, elem}
 	else
 		func_call ref, deref, {list}

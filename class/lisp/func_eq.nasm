@@ -30,9 +30,9 @@ def_func class/lisp/func_eq
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length > 1}
+	vpif {length > 1}
 		func_call vector, get_element, {args, 0}, {first}
-		if {first->obj_vtable == @class/class_boxed_long}
+		vpif {first->obj_vtable == @class/class_boxed_long}
 			func_call boxed_long, get_value, {first}, {num}
 			assign {this->lisp_sym_t}, {value}
 			func_call ref, ref, {value}
@@ -62,9 +62,9 @@ callback:
 	push_scope
 	retire {r0, r1}, {pdata, iter}
 
-	if {(*iter)->obj_vtable == @class/class_boxed_long}
+	vpif {(*iter)->obj_vtable == @class/class_boxed_long}
 		func_call boxed_long, get_value, {*iter}, {num}
-		if {pdata->pdata_num == num}
+		vpif {pdata->pdata_num == num}
 			assign {num}, {pdata->pdata_num}
 			expr {1}, {r1}
 			return

@@ -19,11 +19,11 @@ def_func class/lisp/func_length
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 1}
+	vpif {length == 1}
 		func_call vector, get_element, {args, 0}, {args}
 		func_path class, sequence
 		func_call obj, inst_of, {args, @_function_}, {value}
-		if {value}
+		vpif {value}
 			virt_call sequence, get_length, {args}, {length}
 			func_call boxed_long, create, {}, {value}
 			func_call boxed_long, set_value, {value, length}

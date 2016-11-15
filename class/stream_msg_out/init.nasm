@@ -19,7 +19,7 @@ def_func class/stream_msg_out/init
 
 	;init parent
 	s_call stream_msg_out, init, {r0, r1, 0, 0, 0, 0}, {r1}
-	if r1, !=, 0
+	vpif r1, !=, 0
 		;init myself
 		vp_xor r1, r1
 		vp_cpy r1, [r0 + stream_msg_out_seqnum]

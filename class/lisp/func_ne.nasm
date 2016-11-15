@@ -30,7 +30,7 @@ def_func class/lisp/func_ne
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length > 1}
+	vpif {length > 1}
 		assign {args->vector_array}, {iter}
 		assign {this->lisp_sym_t}, {value}
 		func_call ref, ref, {value}
@@ -57,7 +57,7 @@ callback:
 	push_scope
 	retire {r0, r1}, {pdata, iter}
 
-	if {(*iter)->obj_vtable == @class/class_boxed_long}
+	vpif {(*iter)->obj_vtable == @class/class_boxed_long}
 		func_call boxed_long, get_value, {*iter}, {num}
 		loop_while {iter != pdata->pdata_iter}
 			assign {iter - ptr_size}, {iter}

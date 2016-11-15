@@ -9,14 +9,14 @@ def_func sys/mem_clear
 	;trashes
 	;r1-r2
 
-	if r1, !=, 0
+	vpif r1, !=, 0
 		;not zero length
 		vp_cpy r0, r2
 		vp_and ptr_size - 1, r2
-		if r2, ==, 0
+		vpif r2, ==, 0
 			vp_cpy r1, r2
 			vp_and ptr_size - 1, r2
-			if r2, ==, 0
+			vpif r2, ==, 0
 				;all aligned on 8 byte boundary
 				vp_add r0, r1
 				loop_start

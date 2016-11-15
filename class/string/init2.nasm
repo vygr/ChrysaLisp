@@ -24,7 +24,7 @@ def_func class/string/init2
 
 	;init parent
 	s_call string, init, {r0, r1}, {r1}
-	if r1, !=, 0
+	vpif r1, !=, 0
 		;init myself
 		vp_cpy r0, [r4 + local_inst]
 		vp_xor r1, r1

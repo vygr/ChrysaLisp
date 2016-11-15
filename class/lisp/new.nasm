@@ -12,7 +12,7 @@ def_func class/lisp/new
 	push_scope
 
 	func_call sys_mem, alloc, {lisp_size}, {this, _}
-	if {this}
+	vpif {this}
 		;clear object memory
 		func_call sys_mem, clear, {this, lisp_size}, {_}
 	endif

@@ -20,11 +20,11 @@ def_func class/lisp/func_writechar
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length == 2}
+	vpif {length == 2}
 		func_call vector, get_element, {args, 0}, {stream}
-		if {stream->obj_vtable == @class/class_stream_str}
+		vpif {stream->obj_vtable == @class/class_stream_str}
 			func_call vector, get_element, {args, 1}, {value}
-			if {value->obj_vtable == @class/class_boxed_long}
+			vpif {value->obj_vtable == @class/class_boxed_long}
 				func_call ref, ref, {value}
 				func_call boxed_long, get_value, {value}, {length}
 				func_call stream_str, write_char, {stream, length}

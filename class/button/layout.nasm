@@ -23,7 +23,7 @@ def_func class/button/layout
 	vp_sub button_border_size * 2, r11
 	vp_cpy [r0 + button_state], r1
 	vp_and button_state_pressed, r1
-	if r1, !=, 0
+	vpif r1, !=, 0
 		vp_add button_border_size, r8
 	endif
 	f_call flow, change, {[r0 + label_flow], r8, r8, r10, r11}

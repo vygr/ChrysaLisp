@@ -22,7 +22,7 @@ def_func sys/opt_process
 			breakif r11, ==, 0
 			vp_add ptr_size, r12
 			f_call sys_string, compare, {r12, r13}, {r0}
-			if r0, ==, 0
+			vpif r0, ==, 0
 				vp_rel options_table, r0
 				vp_add r11, r0
 				vp_call r0
@@ -48,7 +48,7 @@ opt_cpu:
 	;set cpu ID
 	vp_add ptr_size, r14
 	vp_cpy [r14], r0
-	if r0, !=, 0
+	vpif r0, !=, 0
 		f_call sys_string, to_long, {r0, 10}, {r0}
 		f_bind sys_task, statics, r1
 		vp_cpy r0, [r1 + tk_statics_cpu_id]
@@ -64,9 +64,9 @@ opt_run:
 	;load and run task
 	vp_add ptr_size, r14
 	vp_cpy [r14], r0
-	if r0, !=, 0
+	vpif r0, !=, 0
 		f_call sys_load, bind, {r0}, {r0}
-		if r0, !=, 0
+		vpif r0, !=, 0
 			f_call sys_task, start, {r0}, {r0, r1}
 		endif
 	endif
@@ -81,7 +81,7 @@ opt_link:
 	;start link task
 	vp_add ptr_size, r14
 	vp_cpy [r14], r0
-	if r0, !=, 0
+	vpif r0, !=, 0
 		;start link
 		func_path sys_link, link
 		f_call sys_task, start, {@_function_}, {r0, r5}

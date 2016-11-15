@@ -84,7 +84,7 @@ def_func sys/kernel
 
 				;open single task and return mailbox ID
 				f_call sys_load, bind, {&[r15 + kn_msg_open_pathname]}, {r0}
-				if r0, ==, 0
+				vpif r0, ==, 0
 					;error
 					vp_cpy r0, r1
 				else
@@ -105,7 +105,7 @@ def_func sys/kernel
 				vp_cpy [r1 + tk_statics_task_count], r1
 				f_bind sys_link, statics, r2
 				loop_list_forward r2 + lk_statics_links_list, r3, r2
-					if r1, >, [r3 + lk_node_task_count]
+					vpif r1, >, [r3 + lk_node_task_count]
 						vp_cpy [r3 + lk_node_cpu_id], r0
 						vp_cpy [r3 + lk_node_task_count], r1
 					endif
@@ -121,7 +121,7 @@ def_func sys/kernel
 				f_bind sys_task, statics, r0
 				vp_cpy [r15 + kn_msg_link_route_origin], r1
 				vp_inc r1
-				if r1, >, [r0 + tk_statics_cpu_total]
+				vpif r1, >, [r0 + tk_statics_cpu_total]
 					vp_cpy r1, [r0 + tk_statics_cpu_total]
 				endif
 
@@ -151,7 +151,7 @@ def_func sys/kernel
 						f_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
 													{[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]}
 
-						if [r12 + lk_node_cpu_id], ==, r13
+						vpif [r12 + lk_node_cpu_id], ==, r13
 							;via route
 							vp_cpy [r15 + kn_msg_link_route_hops], r2
 							vp_cpy r2, [r0 + r11 + lk_route_hops]
@@ -171,7 +171,7 @@ def_func sys/kernel
 						f_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
 													{[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]}
 
-						if [r12 + lk_node_cpu_id], ==, r13
+						vpif [r12 + lk_node_cpu_id], ==, r13
 							;via route
 							vp_cpy [r15 + kn_msg_link_route_hops], r2
 							vp_cpy r2, [r0 + r11 + lk_route_hops]
@@ -236,7 +236,7 @@ def_func sys/kernel
 		vp_cpy [r3 + tk_statics_current_tcb], r15
 		vp_cpy [r3 + tk_statics_timer_list + lh_list_head], r2
 		ln_get_succ r2, r2
-		if r2, !=, 0
+		vpif r2, !=, 0
 			loop_list_forward r3 + tk_statics_timer_list, r1, r2
 				vp_cpy [r1 + tk_node_time], r5
 				breakif r5, >, r0
@@ -265,7 +265,7 @@ def_func sys/kernel
 		vp_cpy 1000, r3
 		vp_xor r2, r2
 		vp_div r3, r2, r0
-		if r0, <, 1
+		vpif r0, <, 1
 			vp_cpy 1, r0
 		endif
 		sdl_delay r0

@@ -13,7 +13,7 @@ def_func class/ref/deref
 	vp_cpy r1, [r0 + ref_count]
 
 	;destroy if 0
-	if r1, ==, 0
+	vpif r1, ==, 0
 		f_jmp ref, destroy, {r0}
 	endif
 	vp_ret

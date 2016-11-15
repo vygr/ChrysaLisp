@@ -25,7 +25,7 @@ def_func class/vector/push_back
 	vp_cpy [r0 + vector_length], r1
 	vp_inc r1
 	vp_cpy r1, [r0 + vector_length]
-	if r1, >, [r0 + vector_capacity]
+	vpif r1, >, [r0 + vector_capacity]
 		;double the capacity
 		vp_add r1, r1
 		f_call vector, set_capacity, {r0, r1}

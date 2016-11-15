@@ -12,7 +12,7 @@ def_func cmd/null
 
 	;initialize pipe details and command args, abort on error
 	func_call slave, create, {}, {slave}
-	if {slave}
+	vpif {slave}
 		;dump stdin till EOF
 		loop_start
 			virt_call stream, read_next, {slave->slave_stdin}, {eof}

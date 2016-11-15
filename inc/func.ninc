@@ -310,7 +310,7 @@ _func_end:
 	;%4 = debug string
 
 	%ifdef debug_mode
-		ifnot %1, %2, %3
+		vpifnot %1, %2, %3
 			abort %4
 		endif
 	%endif

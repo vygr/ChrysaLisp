@@ -27,7 +27,7 @@ def_func class/lisp/repl_eval
 		break
 	case {func == @class/class_vector}
 		devirt_call vector, get_length, {form}, {length}
-		ifnot {length}
+		vpifnot {length}
 			;eval to nil
 			assign {this->lisp_sym_nil}, {value}
 			func_call ref, ref, {value}
@@ -40,7 +40,7 @@ def_func class/lisp/repl_eval
 			switch
 			case {func->obj_vtable == @class/class_boxed_ptr}
 				gotoifnot {func->boxed_ptr_flags}, args_eval_apply
-				if {func->boxed_ptr_flags == type_apply}
+				vpif {func->boxed_ptr_flags == type_apply}
 					func_call lisp, repl_apply, {this, func, form}, {value}
 				else ;type_args_apply
 					devirt_call vector, slice, {form, 1, length}, {args}
@@ -52,7 +52,7 @@ def_func class/lisp/repl_eval
 			args_eval_apply:
 				devirt_call vector, slice, {form, 1, length}, {args}
 				func_call lisp, repl_eval_list, {this, args, 0}, {value}
-				if {value->obj_vtable != @class/class_error}
+				vpif {value->obj_vtable != @class/class_error}
 					func_call ref, deref, {value}
 					func_call lisp, repl_apply, {this, func, args}, {value}
 				endif

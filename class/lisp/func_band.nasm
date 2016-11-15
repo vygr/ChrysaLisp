@@ -20,9 +20,9 @@ def_func class/lisp/func_band
 	retire {r0, r1}, {this, args}
 
 	devirt_call vector, get_length, {args}, {length}
-	if {length > 1}
+	vpif {length > 1}
 		func_call vector, get_element, {args, 0}, {value}
-		if {value->obj_vtable == @class/class_boxed_long}
+		vpif {value->obj_vtable == @class/class_boxed_long}
 			func_call boxed_long, get_value, {value}, {accum}
 			func_call vector, for_each, {args, 1, length, $callback, &accum}, {iter}
 			gotoif {iter}, error
@@ -54,7 +54,7 @@ callback:
 	push_scope
 	retire {r0, r1}, {pdata, iter}
 
-	if {(*iter)->obj_vtable == @class/class_boxed_long}
+	vpif {(*iter)->obj_vtable == @class/class_boxed_long}
 		func_call boxed_long, get_value, {*iter}, {val}
 		assign {*pdata & val}, {*pdata}
 		expr {1}, {r1}

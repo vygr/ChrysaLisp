@@ -19,7 +19,7 @@ def_func sys/write_number
 	loop_start
 		vp_pop r0
 		vp_add '0', r0
-		if r0, >, '9'
+		vpif r0, >, '9'
 			vp_add 'A' - ':', r0
 		endif
 		sys_write_char r1, r0

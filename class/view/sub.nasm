@@ -9,7 +9,7 @@ def_func class/view/sub
 
 	;test parent
 	vp_cpy [r0 + view_parent], r1
-	if r1, !=, 0
+	vpif r1, !=, 0
 		;clear parent field
 		vp_xor r2, r2
 		vp_cpy r2, [r0 + view_parent]

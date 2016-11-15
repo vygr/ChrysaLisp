@@ -20,7 +20,7 @@ def_func class/lisp/repl_eval_list
 
 	devirt_call vector, get_length, {list}, {length}
 	func_call vector, for_each, {list, index, length, $callback, this}, {iter}
-	if {iter}
+	vpif {iter}
 		assign {*iter}, {list}
 	endif
 	func_call ref, ref, {list}

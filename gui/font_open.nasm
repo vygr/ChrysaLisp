@@ -37,7 +37,7 @@ def_func gui/font_open
 
 	;did we find it ?
 	vp_cpy r5, r0
-	if r5, ==, 0
+	vpif r5, ==, 0
 		;no so try open it
 		f_call sys_task, callback, {$kernel_callback, r4}
 		vp_cpy [r4 + local_handle], r0
@@ -70,9 +70,9 @@ kernel_callback:
 
 	;did we find it ?
 	vp_cpy r5, r0
-	if r5, ==, 0
+	vpif r5, ==, 0
 		ttf_open_font [r14 + local_font], [r14 + local_points]
-		if r0, !=, 0
+		vpif r0, !=, 0
 			vp_cpy r0, r5
 			f_call sys_string, length, {[r14 + local_font]}, {r1}
 			f_call sys_mem, alloc, {&[r1 + ft_font_size + 1]}, {r13, _}

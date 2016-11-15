@@ -15,7 +15,7 @@ def_func class/stream_msg_out/write_flush
 	retire {r0}, {inst}
 
 	assign {inst->stream_buffer}, {msg}
-	if {msg}
+	vpif {msg}
 		;send current buffer
 		assign {inst->stream_bufp - msg}, {msg->msg_length}
 		assign {inst->stream_msg_out_id.id_mbox}, {msg->msg_dest.id_mbox}
@@ -28,7 +28,7 @@ def_func class/stream_msg_out/write_flush
 		assign {0}, {inst->stream_buffer}
 
 		;wait for an ack ?
-		if {inst->stream_msg_out_seqnum >> stream_msg_out_ack_shift != inst->stream_msg_out_ack_seqnum}
+		vpif {inst->stream_msg_out_seqnum >> stream_msg_out_ack_shift != inst->stream_msg_out_ack_seqnum}
 			func_call sys_mail, read, {&inst->stream_msg_out_ack_mailbox}, {msg}
 			func_call sys_mem, free, {msg}
 			assign {inst->stream_msg_out_ack_seqnum + 1}, {inst->stream_msg_out_ack_seqnum}

@@ -84,11 +84,11 @@ def_func apps/terminal/app
 		func_call master, select, {shared.shared_master, mymailbox}, {mailbox}
 
 		;which mailbox has mail ?
-		if {mailbox == mymailbox}
+		vpif {mailbox == mymailbox}
 			;dispatch event to view and terminal
 			func_call sys_mail, read, {mailbox}, {msg}
 			virt_call view, event, {msg->ev_msg_view, msg}
-			if {msg->ev_msg_type == ev_type_key && msg->ev_msg_keycode > 0}
+			vpif {msg->ev_msg_type == ev_type_key && msg->ev_msg_keycode > 0}
 				local_call terminal_input, {&shared, msg->ev_msg_key}, {r0, r1}
 			endif
 			func_call sys_mem, free, {msg}
@@ -96,7 +96,7 @@ def_func apps/terminal/app
 			;output from a pipe element
 			func_call master, get_stream, {shared.shared_master, mailbox}, {stream}
 			local_call pipe_output, {&shared, stream}, {r0, r1}, {r0}, {state}
-			if {state == -1}
+			vpif {state == -1}
 				;EOF
 				func_call master, stop, {shared.shared_master}
 				func_call string, create_from_cstr, {"Ready"}, {string}
@@ -159,15 +159,15 @@ terminal_input:
 	assign {shared->shared_bufp - &shared->shared_buffer}, {length}
 
 	;send line ?
-	if {char == 10 || char == 13}
+	vpif {char == 10 || char == 13}
 		;what state ?
 		func_call master, get_state, {shared->shared_master}, {state}
-		if {state == stream_mail_state_stopped}
+		vpif {state == stream_mail_state_stopped}
 			;push new history entry if not same as last entry
 			breakifnot {length}
 			func_call string, create_from_buffer, {&shared->shared_buffer, length}, {string}
 			devirt_call vector, get_length, {shared->shared_history}, {shared->shared_history_index}
-			ifnot {shared->shared_history_index}
+			vpifnot {shared->shared_history_index}
 			new_entry:
 				func_call vector, push_back, {shared->shared_history, string}
 				assign {shared->shared_history_index + 1}, {shared->shared_history_index}
@@ -195,14 +195,14 @@ terminal_input:
 		assign {&shared->shared_buffer}, {shared->shared_bufp}
 	elseif {char == 128}
 		;backspace
-		if {length}
+		vpif {length}
 			assign {shared->shared_bufp - 1}, {shared->shared_bufp}
 		endif
 	elseif {char == 129}
 		;cursor up
 		devirt_call vector, get_length, {shared->shared_history}, {length}
 		breakifnot {length}
-		if {shared->shared_history_index}
+		vpif {shared->shared_history_index}
 			assign {shared->shared_history_index - 1}, {shared->shared_history_index}
 		endif
 		devirt_call vector, ref_element, {shared->shared_history, shared->shared_history_index}, {string}
@@ -214,10 +214,10 @@ terminal_input:
 		;cursor down
 		devirt_call vector, get_length, {shared->shared_history}, {length}
 		assign {shared->shared_history_index + 1}, {shared->shared_history_index}
-		if {shared->shared_history_index > length}
+		vpif {shared->shared_history_index > length}
 			assign {length}, {shared->shared_history_index}
 		endif
-		if {shared->shared_history_index == length}
+		vpif {shared->shared_history_index == length}
 			func_call string, create_from_cstr, {""}, {string}
 		else
 			devirt_call vector, ref_element, {shared->shared_history, shared->shared_history_index}, {string}
@@ -229,7 +229,7 @@ terminal_input:
 	elseif {char == 27}
 		;esc
 		func_call master, get_state, {shared->shared_master}, {state}
-		if {state == stream_mail_state_started}
+		vpif {state == stream_mail_state_started}
 			;feed active pipe, then EOF
 			func_call master, get_input, {shared->shared_master}, {stream}
 			func_call stream, write, {stream, &shared->shared_buffer, length}
@@ -258,7 +258,7 @@ terminal_output:
 
 	push_scope
 	retire {r0, r1}, {shared, char}
-	if {char == 10 || char == 13}
+	vpif {char == 10 || char == 13}
 		;scroll lines
 		func_call flow, get_first, {shared->shared_panel}, {label}
 		func_call label, add_back, {label, shared->shared_panel}
@@ -271,7 +271,7 @@ terminal_output:
 		func_call flow, get_last, {shared->shared_panel}, {label}
 		func_call label, get_text, {label}, {line_string}
 		devirt_call string, get_length, {line_string}, {length}
-		if {length > 1}
+		vpif {length > 1}
 			assign {length - 1}, {length}
 		endif
 		func_call string, create_from_buffer, {&line_string->string_data, length}, {new_line_string}

@@ -10,7 +10,7 @@ def_func sys/task_resume
 
 	;are we in suspend state ?
 	vp_cpy [r0], r1
-	if r1, ==, 0
+	vpif r1, ==, 0
 		;add to task list
 		f_bind sys_task, statics, r1
 		vp_cpy [r1 + tk_statics_current_tcb], r1

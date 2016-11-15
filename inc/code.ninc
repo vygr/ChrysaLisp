@@ -177,22 +177,22 @@
 	endswitch
 %endmacro
 
-%macro if 1
+%macro vpif 1
 	switch
 	case {%1}
 %endmacro
 
-%macro if 3
+%macro vpif 3
 	switch
 	case %1, %2, %3
 %endmacro
 
-%macro ifnot 1
+%macro vpifnot 1
 	switch
 	casenot {%1}
 %endmacro
 
-%macro ifnot 3
+%macro vpifnot 3
 	switch
 	casenot %1, %2, %3
 %endmacro
@@ -1352,7 +1352,7 @@ _sym_var	equ 2
 
 %macro compile_ulnot 0
 	pop_value
-	add_inst if, _%[_s], ==, 0
+	add_inst vpif, _%[_s], ==, 0
 	add_inst  vp_cpy, 1, _%[_s]
 	add_inst else
 	add_inst  vp_xor, _%[_s], _%[_s]
@@ -1363,8 +1363,8 @@ _sym_var	equ 2
 	pop_value
 	%assign %%s _s
 	pop_value
-	add_inst if, _%[%%s], !=, 0
-	add_inst  if, _%[_s], !=, 0
+	add_inst vpif, _%[%%s], !=, 0
+	add_inst  vpif, _%[_s], !=, 0
 	add_inst   vp_cpy, 1, _%[_s]
 	add_inst  else
 	add_inst   vp_xor, _%[_s], _%[_s]
@@ -1387,7 +1387,7 @@ _sym_var	equ 2
 	pop_value
 	%assign %%s1 _s
 	pop_value
-	add_inst if, _%[_s], !=, 0
+	add_inst vpif, _%[_s], !=, 0
 	add_inst  vp_cpy, _%[%%s1], _%[_s]
 	add_inst else
 	add_inst  vp_cpy, _%[%%s2], _%[_s]
@@ -1398,7 +1398,7 @@ _sym_var	equ 2
 	pop_value
 	%assign %%s _s
 	pop_value
-	add_inst if, _%[_s], >, _%[%%s]
+	add_inst vpif, _%[_s], >, _%[%%s]
 	add_inst  vp_cpy, 1, _%[_s]
 	add_inst else
 	add_inst  vp_xor, _%[_s], _%[_s]
@@ -1409,7 +1409,7 @@ _sym_var	equ 2
 	pop_value
 	%assign %%s _s
 	pop_value
-	add_inst if, _%[_s], <, _%[%%s]
+	add_inst vpif, _%[_s], <, _%[%%s]
 	add_inst  vp_cpy, 1, _%[_s]
 	add_inst else
 	add_inst  vp_xor, _%[_s], _%[_s]
@@ -1420,7 +1420,7 @@ _sym_var	equ 2
 	pop_value
 	%assign %%s _s
 	pop_value
-	add_inst if, _%[_s], >=, _%[%%s]
+	add_inst vpif, _%[_s], >=, _%[%%s]
 	add_inst  vp_cpy, 1, _%[_s]
 	add_inst else
 	add_inst  vp_xor, _%[_s], _%[_s]
@@ -1431,7 +1431,7 @@ _sym_var	equ 2
 	pop_value
 	%assign %%s _s
 	pop_value
-	add_inst if, _%[_s], <=, _%[%%s]
+	add_inst vpif, _%[_s], <=, _%[%%s]
 	add_inst  vp_cpy, 1, _%[_s]
 	add_inst else
 	add_inst  vp_xor, _%[_s], _%[_s]
@@ -1442,7 +1442,7 @@ _sym_var	equ 2
 	pop_value
 	%assign %%s _s
 	pop_value
-	add_inst if, _%[_s], ==, _%[%%s]
+	add_inst vpif, _%[_s], ==, _%[%%s]
 	add_inst  vp_cpy, 1, _%[_s]
 	add_inst else
 	add_inst  vp_xor, _%[_s], _%[_s]
@@ -1453,7 +1453,7 @@ _sym_var	equ 2
 	pop_value
 	%assign %%s _s
 	pop_value
-	add_inst if, _%[_s], !=, _%[%%s]
+	add_inst vpif, _%[_s], !=, _%[%%s]
 	add_inst  vp_cpy, 1, _%[_s]
 	add_inst else
 	add_inst  vp_xor, _%[_s], _%[_s]

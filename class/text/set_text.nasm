@@ -22,7 +22,7 @@ def_func class/text/set_text
 
 	;deref the old string and words
 	vp_cpy [r0 + text_string], r0
-	if r0, !=, 0
+	vpif r0, !=, 0
 		f_call string, deref, {r0}
 		vp_cpy [r4 + local_inst], r0
 		vp_cpy [r0 + text_words], r1
@@ -35,7 +35,7 @@ def_func class/text/set_text
 	vp_cpy [r4 + local_inst], r0
 	vp_cpy [r4 + local_string], r1
 	vp_cpy r1, [r0 + text_string]
-	if r1, !=, 0
+	vpif r1, !=, 0
 		f_call string, split, {r1, 32}, {r1}
 		vp_cpy [r4 + local_inst], r0
 		vp_cpy r1, [r0 + text_words]
