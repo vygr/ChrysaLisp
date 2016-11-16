@@ -13,7 +13,7 @@
 	(vp-add-cr pair_first r0)
 	(vp-mul-cr ptr_size r1)
 	(vp-add-rr r1 r0)
-	(f-call 'ref 'ref '([ r0 ]))
+	(f-call 'ref 'ref '((r0)))
 	(vp-cpy-rr r0 r1)
 	(vp-pop r0)
 	(vp-ret)

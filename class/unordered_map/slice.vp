@@ -33,7 +33,7 @@
 	;r1 = 0 if break, else not
 
 	(vp-cpy-ir r0 r2)
-	(f-call 'ref 'ref '([ r1 ]))
+	(f-call 'ref 'ref '((r1)))
 	(vp-push r0)
 	(f-call 'unordered_map 'get_bucket '(r2, (r0 pair_first)) '(r0))
 	(vp-pop r1)

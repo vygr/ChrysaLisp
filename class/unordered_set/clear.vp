@@ -25,7 +25,7 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(f-call 'vector 'clear '([ r1 ]))
+	(f-call 'vector 'clear '((r1)))
 	(vp-cpy-cr 1 r1)
 	(vp-ret)
 

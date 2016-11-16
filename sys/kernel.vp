@@ -40,7 +40,7 @@
 	(f-call 'sys_mail 'init)
 
 	;process command options
-	(f-call 'sys_cpu 'opts '([ r4 ]))
+	(f-call 'sys_cpu 'opts '((r4)))
 
 	;fill in num cpu's with at least mine + 1
 	(f-call 'sys_cpu 'id '() '(r0))
