@@ -10,7 +10,7 @@
 	;on or off chip ?
 	(vp-cpy-rr r0 r2)
 	(f-call 'sys_cpu 'id '() '(r0))
-	(vpif '(r0 == [ r2 + msg_dest + id_cpu ]))
+	(vpif '(r0 == (r2 (add msg_dest id_cpu))))
 		;on this chip
 		(vp-cpy-ir r2 msg_parcel_size r1)
 		(vpif '(r1 != 0))

@@ -75,7 +75,7 @@
 		(vpif '(r0 != 0))
 			(vp-cpy-rr r0 r5)
 			(f-call 'sys_string 'length '((r14 local_font)) '(r1))
-			(f-call 'sys_mem 'alloc '(& [ r1 + ft_font_size + 1 ]) '(r13, _))
+			(f-call 'sys_mem 'alloc '(& (r1 (add ft_font_size 1))) '(r13, _))
 			(assert '(r0 != 0))
 
 			(vp-cpy-ir r14 local_points r0)

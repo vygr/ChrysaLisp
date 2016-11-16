@@ -22,7 +22,7 @@
 		;add my flow panel
 		(f-call 'flow 'create '() '(r0))
 		(assert '(r0 != 0))
-		(f-call 'flow 'set_flow_flags '(r0, flow_flag_down | flow_flag_fillw | flow_flag_lasth))
+		(f-call 'flow 'set_flow_flags '(r0, (bit-or flow_flag_down flow_flag_fillw flow_flag_lasth)))
 		(vp-cpy-ir r4 r1)
 		(vp-cpy-ri r0 r1 window_flow)
 		(f-call 'flow 'add_back '(r0, r1))
@@ -38,7 +38,7 @@
 		;add my status panel
 		(f-call 'flow 'create '() '(r0))
 		(assert '(r0 != 0))
-		(f-call 'flow 'set_flow_flags '(r0, flow_flag_up | flow_flag_fillw | flow_flag_lasth))
+		(f-call 'flow 'set_flow_flags '(r0, (bit-or flow_flag_up flow_flag_fillw flow_flag_lasth)))
 		(vp-cpy-ir r4 r1)
 		(vp-cpy-ri r0 r1 window_panel)
 		(f-call 'flow 'add_back '(r0, (r1 window_flow)))

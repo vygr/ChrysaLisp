@@ -14,7 +14,7 @@
 
 	;save inputs
 	(set-src '(r2, r3))
-	(set-dst '([ r0 + stream_msg_out_id + id_mbox ] , [ r0 + stream_msg_out_id + id_cpu ]))
+	(set-dst '((r0 (add stream_msg_out_id id_mbox)) , (r0 (add stream_msg_out_id id_cpu))))
 	(map-src-to-dst)
 
 	;init parent
