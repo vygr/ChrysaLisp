@@ -256,22 +256,22 @@
 	(vp-cpy-ir r0 gui_statics_window r1)
 	(vpif '(r1 == 0))
 		;init sdl2
-		sdl_set_main_ready
-		sdl_init SDL_INIT_VIDEO
-		ttf_init
+		(sdl-set-main-ready)
+		(sdl-init SDL_INIT_VIDEO)
+		(ttf-init)
 
 		;create window
-		sdl_create_window $title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL
+		(sdl-create-window '($title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL))
 		(f-bind 'gui_gui 'statics r1)
 		(vp-cpy-ri r0 r1 gui_statics_window)
 
 		;create renderer
-		sdl_create_renderer r0, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+		(sdl-create-renderer '(r0, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC))
 		(f-bind 'gui_gui 'statics r1)
 		(vp-cpy-ri r0 r1 gui_statics_renderer)
 
 		;set blend mode
-		sdl_set_render_draw_blend_mode r0, SDL_BLENDMODE_BLEND
+		(sdl-set-render-draw-blend-mode '(r0, SDL_BLENDMODE_BLEND))
 	(endif)
 
 	;update screen
@@ -279,19 +279,19 @@
 	(vp-cpy-ir r0 gui_statics_screen r0)
 	(vpif '(r0 != 0))
 		;pump sdl events
-		sdl_pump_events
+		(sdl-pump-events)
 
 		;get mouse state
 		(vp-cpy-ir r4 klocal_user r0)
 		(vp-lea-ir r0 local_x_pos r1)
 		(vp-lea-ir r0 local_y_pos r2)
-		sdl_get_mouse_state r1, r2
+		(sdl-get-mouse_state '(r1, r2))
 		(vp-cpy-ir r4 klocal_user r1)
 		(vp-cpy-ri r0 r1 local_buttons)
 
 		;get keyboard state
 		(vp-add-cr local_keymap_size r1)
-		sdl_get_keyboard_state r1
+		(sdl-get-keyboard-state '(r1))
 		(vp-cpy-ir r4 klocal_user r1)
 		(vp-cpy-ri r0 r1 local_keymap)
 
@@ -301,7 +301,7 @@
 
 		;refresh the window
 		(f-bind 'gui_gui 'statics r0)
-		sdl_render_present (r0 gui_statics_renderer)
+		(sdl-render-present '((r0 gui_statics_renderer)))
 	(endif)
 
 	(vp-cpy-ir r4 klocal_old_stack r4)
@@ -337,9 +337,9 @@
 		(vp-cpy-rr r4 r15)
 		(vp-and-cr -16 r4)
 
-		sdl_destroy_window r14
-		ttf_quit
-		sdl_quit
+		(sdl-destroy-window '(r14))
+		(ttf-quit)
+		(sdl-quit)
 
 		(vp-cpy-rr r15 r4)
 	(endif)
