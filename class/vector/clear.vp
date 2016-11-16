@@ -10,11 +10,11 @@
 	;all but r0, r4
 
 	;deref all elements
-	(f-call 'vector 'for_each '(r0, 0, [r0 + vector_length], $callback, 0) '(_))
+	(f-call 'vector 'for_each '(r0, 0, [ r0 + vector_length ] , $callback, 0) '(_))
 
 	;free dynamic array
 	(vp-push r0)
-	(f-call 'sys_mem 'free '([r0 + vector_array]))
+	(f-call 'sys_mem 'free '([ r0 + vector_array ]))
 	(vp-pop r0)
 
 	;init myself
@@ -31,7 +31,7 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(f-call 'ref 'deref '([r1]))
+	(f-call 'ref 'deref '([ r1 ]))
 	(vp-cpy-cr 1 r1)
 	(vp-ret)
 

@@ -4,6 +4,6 @@
 
 	;deinit mail message heap
 	(f-bind 'sys_mail 'statics r0)
-	(f-jmp 'sys_heap 'deinit '(&[r0 + ml_statics_heap]))
+	(f-jmp 'sys_heap 'deinit '(& [ r0 + ml_statics_heap ]))
 
 (def-func-end)

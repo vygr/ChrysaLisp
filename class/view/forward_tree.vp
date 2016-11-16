@@ -54,7 +54,7 @@
 		(vp-call-i r4 local_up)
 
 		;back at root ?
-		(breakif '(r0 == [r4 + local_inst]))
+		(breakif '(r0 == [ r4 + local_inst ]))
 
 		;across to sibling
 		ln_get_succ r0 + view_node, r1

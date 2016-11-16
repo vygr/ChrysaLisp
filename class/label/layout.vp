@@ -15,16 +15,16 @@
 	;save inputs
 	(vp-sub-cr local_size r4)
 	(set-src '(r0))
-	(set-dst '([r4 + local_inst]))
+	(set-dst '([ r4 + local_inst ]))
 	(map-src-to-dst)
 
 	(vp-cpy-ir r0 view_w r10)
 	(vp-cpy-ir r0 view_h r11)
 	(vp-sub-cr (mul label_border_size 2) r10)
 	(vp-sub-cr (mul label_border_size 2) r11)
-	(f-call 'flow 'change '([r0 + label_flow], label_border_size, label_border_size, r10, r11))
+	(f-call 'flow 'change '([ r0 + label_flow ] , label_border_size, label_border_size, r10, r11))
 
-	(f-call 'label 'opaque '([r4 + local_inst]))
+	(f-call 'label 'opaque '([ r4 + local_inst ]))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 

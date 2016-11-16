@@ -19,7 +19,7 @@
 	(retire '(r0, r1) '(inst, mailbox))
 
 	(assign '(0) '(index))
-	(loop-while '((mailbox != (inst -> master_select_array)[index])))
+	(loop-while '((mailbox != (inst -> master_select_array) [ index ])))
 		(assign '(index + ptr_size) '(index))
 	(loop-end)
 

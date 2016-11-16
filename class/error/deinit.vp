@@ -8,9 +8,9 @@
 	;all but r0, r4
 
 	(vp-push r0)
-	(f-call 'ref 'deref '([r0 + error_description]))
+	(f-call 'ref 'deref '([ r0 + error_description ]))
 	(vp-cpy-ir r4 r0)
-	(f-call 'ref 'deref '([r0 + error_object]))
+	(f-call 'ref 'deref '([ r0 + error_object ]))
 	(vp-pop r0)
 	(s-jmp 'error 'deinit '(r0))
 

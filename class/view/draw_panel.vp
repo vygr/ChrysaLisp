@@ -21,7 +21,7 @@
 
 	(f-call 'view 'get_bounds '(r0) '(r8, r9, r10, r11))
 	(vp-cpy-rr r0 r5)
-	(f-call 'gui_ctx 'panel '(r1, [r5 + view_color], r2, r3, 0, 0, r10, r11) '())
+	(f-call 'gui_ctx 'panel '(r1, [ r5 + view_color ] , r2, r3, 0, 0, r10, r11) '())
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)

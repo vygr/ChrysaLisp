@@ -21,7 +21,7 @@
 	;save inputs
 	(vp-sub-cr local_size r4)
 	(set-src '(r2, r8, r9))
-	(set-dst '([r4 + local_dlist], [r4 + local_dx], [r4 + local_dy]))
+	(set-dst '([ r4 + local_dlist ] , [ r4 + local_dx ] , [ r4 + local_dy ]))
 	(map-src-to-dst)
 
 	;run through source region list
@@ -38,7 +38,7 @@
 		(vp-add-rr r13 r9)
 		(vp-add-rr r12 r10)
 		(vp-add-rr r13 r11)
-		(f-call 'gui_region 'remove_rect '(r0, [r4 + local_dlist], r8, r9, r10, r11))
+		(f-call 'gui_region 'remove_rect '(r0, [ r4 + local_dlist ] , r8, r9, r10, r11))
 
 		(vp-cpy-ir r4 local_node r1)
 	(loop-end)

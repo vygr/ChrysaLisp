@@ -14,13 +14,13 @@
 	(lh-init r0 r1)
 
 	;init mail message heap
-	(f-call 'sys_heap 'init '(&[r7 + ml_statics_heap], (msg_size + ptr_size), ((msg_size + ptr_size) * 16)))
+	(f-call 'sys_heap 'init '(& [ r7 + ml_statics_heap ] , (msg_size + ptr_size), ((msg_size + ptr_size) * 16)))
 
 	;init in and out postmen tasks
 	(func-path 'sys_mail 'in)
-	(f-call 'sys_task 'start '(@_function_) '(r0, [r7 + ml_statics_in_mailbox]))
+	(f-call 'sys_task 'start '(@_function_) '(r0, [ r7 + ml_statics_in_mailbox ]))
 	(func-path 'sys_mail 'out)
-	(f-call 'sys_task 'start '(@_function_) '(r0, [r7 + ml_statics_out_mailbox]))
+	(f-call 'sys_task 'start '(@_function_) '(r0, [ r7 + ml_statics_out_mailbox ]))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 r7 ml_statics_parcel_id)
 	(vp-ret)

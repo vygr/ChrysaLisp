@@ -17,7 +17,7 @@
 	;save inputs
 	(vp-sub-cr local_size r4)
 	(set-src '(r0))
-	(set-dst '([r4 + local_inst]))
+	(set-dst '([ r4 + local_inst ]))
 	(map-src-to-dst)
 
 	;open font

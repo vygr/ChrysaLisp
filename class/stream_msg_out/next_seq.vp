@@ -17,7 +17,7 @@
 	;scan for seqnum
 	(loop-list-forward r0, r0, r1)
 		(breakif '(r2 == -1))
-	(loop-until '(r2 == [r0 + stream_mail_seqnum]))
+	(loop-until '(r2 == [ r0 + stream_mail_seqnum ]))
 	(vpif '(r1 == 0))
 		;not found
 		(vp-cpy-rr r1 r0)

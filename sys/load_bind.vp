@@ -99,14 +99,14 @@
 	;read into buffer
 	(vp-cpy-ir r8 ld_statics_block_start r3)
 	(vp-lea-ir r8 ld_statics_stat_buffer r2)
-	(sys-read '(r7, r3, [r2 + stat_fsize]))
+	(sys-read '(r7, r3, [ r2 + stat_fsize ]))
 
 	;close function file
 	(sys-close '(r7))
 
 	;check loaded length equals file size
 	(vp-cpy-ir-ui r3 fn_header_length r0)
-	(vpif '(r0 != [r2 + stat_fsize]))
+	(vpif '(r0 != [ r2 + stat_fsize ]))
 		(vp-rel 'size_error r0)
 		(sys-write-string 2 r0 size_error_end-size_error)
 		(sys-exit '(1))

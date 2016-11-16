@@ -13,7 +13,7 @@
 	;all but r0, r4
 
 	;init parent
-	(s-call 'stream_str 'init '(r0, r1, r2, 0, &[r2 + string_data], [r2 + string_length]) '(r1))
+	(s-call 'stream_str 'init '(r0, r1, r2, 0, & [ r2 + string_data ] , [ r2 + string_length ]) '(r1))
 	(vpif '(r1 != 0))
 		;init myself
 	(endif)

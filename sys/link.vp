@@ -212,7 +212,7 @@
 	(f-call 'sys_mem 'free '(r14))
 
 	;remove from links list and deallocate link node on stack
-	(f-call 'sys_mem 'free '([r4 + lk_node_table]))
+	(f-call 'sys_mem 'free '([ r4 + lk_node_table ]))
 	(vp-cpy-rr r4 r0)
 	(ln-remove-node r0 r1)
 	(vp-add-cr lk_node_size r4)

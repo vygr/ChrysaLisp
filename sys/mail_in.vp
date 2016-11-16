@@ -13,8 +13,8 @@
 		(vp-cpy-ir r15 (add msg_parcel_id id_cpu) r7)
 		(vp-cpy-ir r15 (add msg_dest id_mbox) r13)
 		(loop-list-forward r13 + mailbox_parcel_list, r0, r1)
-			(continueif '(r6 != [r0 + msg_parcel_id + id_mbox]))
-		(loop-until '(r7 == [r0 + msg_parcel_id + id_cpu]))
+			(continueif '(r6 != [ r0 + msg_parcel_id + id_mbox ]))
+		(loop-until '(r7 == [ r0 + msg_parcel_id + id_cpu ]))
 		(vpif '(r1 == 0))
 			;new parcel
 			(vp-cpy-ir r15 msg_parcel_size r12)
@@ -56,7 +56,7 @@
 		(f-call 'sys_mem 'copy '(r0, r1, r2) '(_, _))
 
 		;got all needed ?
-		(vpif '(r13 == [r14 + msg_length]))
+		(vpif '(r13 == [ r14 + msg_length ]))
 			;yes, remove parcel and post it
 			(vp-cpy-rr r14 r1)
 			(ln-remove-node r1 r2)

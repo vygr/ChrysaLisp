@@ -24,7 +24,7 @@
 		(loop-flist-forward r10, r14, r13)
 			(vp-cpy-rr r14 r12)
 			(ln-remove-fnode r14 r13)
-			(sdl-destroy-texture '([r12 + ft_text_texture]))
+			(sdl-destroy-texture '([ r12 + ft_text_texture ]))
 			(f-call 'sys_mem 'free '(r12))
 		(loop-end)
 		(vp-add-cr ptr_size r10)
@@ -34,7 +34,7 @@
 	(loop-flist-forward r15 + ft_statics_font_flist, r14, r13)
 		(vp-cpy-rr r14 r12)
 		(ln-remove-fnode r14 r13)
-		ttf_close_font [r12 + ft_font_handle]
+		ttf_close_font [ r12 + ft_font_handle ]
 		(f-call 'sys_mem 'free '(r12))
 	(loop-end)
 

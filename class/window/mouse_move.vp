@@ -19,7 +19,7 @@
 	;save inputs
 	(vp-sub-cr local_size r4)
 	(set-src '(r0, r1))
-	(set-dst '([r4 + local_inst], [r4 + local_event]))
+	(set-dst '([ r4 + local_inst ] , [ r4 + local_event ]))
 	(map-src-to-dst)
 
 	;dirty old area
@@ -31,7 +31,7 @@
 	(vp-cpy-rr r11 r13)
 
 	;save old bounds
-	(f-call 'window 'get_bounds '(r0) '([r4 + local_old_x], [r4 + local_old_y], r10, r11))
+	(f-call 'window 'get_bounds '(r0) '([ r4 + local_old_x ] , [ r4 + local_old_y ] , r10, r11))
 
 	;get abolute cords of corners
 	(vp-add-rr r8 r10)

@@ -11,7 +11,7 @@
 	;test if we are the kernel task
 	(f-bind 'sys_task 'statics r3)
 	(vp-cpy-ir r3 tk_statics_current_tcb r2)
-	(vpif '(r2 == [r3 + tk_statics_kernel_tcb]))
+	(vpif '(r2 == [ r3 + tk_statics_kernel_tcb ]))
 		;yes we can just do local call
 		(vp-xchg-rr r0 r1)
 		(vp-jmp-r r1)

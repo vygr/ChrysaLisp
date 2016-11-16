@@ -88,11 +88,11 @@
 %xdefine rp r4
 
 %macro loadsp 1-2 0
-	vp_cpy [sp + (%2 * long_size)], %1
+	vp_cpy [ sp + (%2 * long_size) ] , %1
 %endmacro
 
 %macro storesp 1-2 0
-	vp_cpy %1, [sp + (%2 * long_size)]
+	vp_cpy %1, [ sp + (%2 * long_size) ] 
 %endmacro
 
 %macro decsp 0-1 1
@@ -179,17 +179,17 @@ var_%3:
 ;;;;;;;;;;;;;;
 
 defword "@", 0, word_fetch, word_inline_comma
-	;( a -- [a] )
+	;( a -- [ a ])
 	loadsp t1
-	vp_cpy [t1], t1
+	vp_cpy [ t1 ] , t1
 	storesp t1
 	(vp-ret)
 defword_end
 
 defword "c@", 0, word_fetchbyte, word_inline_comma
-	;( a -- [a] . b )
+	;( a -- [ a ]  . b )
 	loadsp t1
-	vp_cpy_ub [t1], t1
+	vp_cpy_ub [ t1 ] , t1
 	storesp t1
 	(vp-ret)
 defword_end
@@ -198,7 +198,7 @@ defword "!", 0, word_store, word_inline_comma
 	;( a b -- )
 	popsp t1
 	popsp t2
-	vp_cpy t1, [t2]
+	vp_cpy t1, [ t2 ] 
 	(vp-ret)
 defword_end
 
@@ -206,7 +206,7 @@ defword "c!", 0, word_storebyte, word_inline_comma
 	;( a b -- )
 	popsp t1
 	popsp t2
-	vp_cpy_b t1, [t2]
+	vp_cpy_b t1, [ t2 ] 
 	(vp-ret)
 defword_end
 

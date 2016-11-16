@@ -16,13 +16,13 @@
 	;save inputs
 	(vp-sub-cr local_size r4)
 	(set-src '(r0))
-	(set-dst '([r4 + local_inst]))
+	(set-dst '([ r4 + local_inst ]))
 	(map-src-to-dst)
 
-	(f-call 'text 'set_text '([r0 + label_text], r1))
+	(f-call 'text 'set_text '([ r0 + label_text ] , r1))
 
 	(vp-cpy-ir r4 local_inst r0)
-	(v-call 'label 'layout '([r0 + label_flow]))
+	(v-call 'label 'layout '([ r0 + label_flow ]))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)
