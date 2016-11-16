@@ -14,7 +14,7 @@
 
 	;save inputs
 	(set-src '(r2))
-	(set-dst '([ r0 + stream_msg_in_mailbox ]))
+	(set-dst '((r0 stream_msg_in_mailbox)))
 	(map-src-to-dst)
 
 	;init parent

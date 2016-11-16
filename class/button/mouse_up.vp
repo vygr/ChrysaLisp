@@ -23,7 +23,7 @@
 	(vp-pop r1)
 	(vp-and-cr button_state_pressed r1)
 	(vpif '(r1 != 0))
-		(f-jmp 'button 'emit '(r0, & [ r0 + button_pressed_signal ]))
+		(f-jmp 'button 'emit '(r0, & (r0 button_pressed_signal)))
 	(endif)
 	(vp-ret)
 

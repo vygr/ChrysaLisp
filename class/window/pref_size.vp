@@ -18,10 +18,10 @@
 	;save inputs
 	(vp-sub-cr local_size r4)
 	(set-src '(r0))
-	(set-dst '([ r4 + local_inst ]))
+	(set-dst '((r4 local_inst)))
 	(map-src-to-dst)
 
-	(v-call 'flow 'pref_size '([ r0 + window_flow ]) '(r10, r11))
+	(v-call 'flow 'pref_size '((r0 window_flow)) '(r10, r11))
 	(vp-add-cr (mul window_border_size 2) r10)
 	(vp-add-cr (mul window_border_size 2) r11)
 

@@ -8,7 +8,7 @@
 	;outputs
 	;r1 = value, clipped to max
 
-	(vpif '(r1 > [ r0 + progress_max ]))
+	(vpif '(r1 > (r0 progress_max)))
 		(vp-cpy-ir r0 progress_max r1)
 	(endif)
 	(vp-cpy-ri r1 r0 progress_val)

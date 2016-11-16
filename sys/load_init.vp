@@ -62,7 +62,7 @@
 				(vp-cpy-ir r4 (ptr_size * 2) r0)
 				(vp-add-ir r0 r0)
 				(vp-call 'string_skip)
-				vp_lea [ r0 - 1 ] , r1
+				(vp-lea-ir r0 -1 r1)
 				(vp-cpy-ir r4 (ptr_size * 2) r0)
 				(vp-add-ir r0 r0)
 				(vp-sub-rr r0 r1)

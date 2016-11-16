@@ -52,7 +52,7 @@
 
 	;free old region and splice over new region
 	(f-bind 'gui_gui 'statics r5)
-	(f-call 'gui_region 'free '(& [ r5 + gui_statics_rect_heap ] , & [ r5 + gui_statics_old_region ]))
+	(f-call 'gui_region 'free '(& (r5 gui_statics_rect_heap) , & (r5 gui_statics_old_region)))
 	(vp-pop r1)
 	(vp-cpy-ri r1 r5 gui_statics_old_region)
 	(vp-pop r0)
@@ -126,7 +126,7 @@
 
 	;remove opaque region from ancestors if not root
 	(vp-cpy-ir r4 vis_inst r1)
-	(vpif '(r1 != [ r4 + vis_root ]))
+	(vpif '(r1 != (r4 vis_root)))
 		;remove my opaque region from ancestors
 		(vp-xor-rr r2 r2)
 		(vp-cpy-ri r4 vis_region)
@@ -164,7 +164,7 @@
 			;clip temp opaque region
 			(vp-cpy-ir r4 vis_next r2)
 			(vp-lea-ir r4 vis_region r1)
-			(f-call 'gui_region 'clip_rect '(r0, r1, 0, 0, [ r2 + view_w ] , [ r2 + view_h ]))
+			(f-call 'gui_region 'clip_rect '(r0, r1, 0, 0, (r2 view_w) , (r2 view_h)))
 
 			;remove temp opaque region
 			(vp-lea-ir r4 vis_region r1)
@@ -173,7 +173,7 @@
 			(f-call 'gui_region 'remove_region '(r0, r1, r2, 0, 0))
 
 			(vp-cpy-ir r4 vis_next r1)
-		(loop-until '(r1 == [ r4 + vis_root ]))
+		(loop-until '(r1 == (r4 vis_root)))
 
 		;free any temp region
 		(vp-lea-ir r4 vis_region r1)
@@ -183,7 +183,7 @@
 	;clip local dirty region with parent bounds if not root
 	(vp-cpy-ir r4 vis_inst r1)
 	(vp-cpy-ir r1 view_parent r2)
-	(vpif '(r1 == [ r4 + vis_root ]))
+	(vpif '(r1 == (r4 vis_root)))
 		(vp-cpy-rr r1 r2)
 	(endif)
 	(vp-cpy-ir r1 view_x r8)
@@ -199,7 +199,7 @@
 
 	;paste local dirty region onto parent if not root
 	(vp-cpy-ir r4 vis_inst r1)
-	(vpif '(r1 != [ r4 + vis_root ]))
+	(vpif '(r1 != (r4 vis_root)))
 		(vp-cpy-ir r1 view_x r8)
 		(vp-cpy-ir r1 view_y r9)
 		(vp-cpy-ir r1 view_parent r2)
@@ -235,7 +235,7 @@
 
 	;copy view from parent if not root
 	(vp-cpy-ir r4 dist_inst r2)
-	(vpif '(r2 != [ r1 + local_root ]))
+	(vpif '(r2 != (r1 local_root)))
 		;copy my area from parent
 		(vp-cpy-ir r2 view_parent r1)
 		(vp-cpy-ir r2 view_ctx_x r8)
@@ -267,7 +267,7 @@
 
 				(vp-cpy-ir r4 dist_next r2)
 				(vp-cpy-ir r4 dist_data r1)
-			(loop-until '(r2 == [ r1 + local_root ]))
+			(loop-until '(r2 == (r1 local_root)))
 		(endif)
 	(endif)
 

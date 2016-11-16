@@ -26,9 +26,9 @@
 	(vpif '(r1 != 0))
 		(vp-add-cr button_border_size r8)
 	(endif)
-	(f-call 'flow 'change '([ r0 + label_flow ] , r8, r8, r10, r11))
+	(f-call 'flow 'change '((r0 label_flow) , r8, r8, r10, r11))
 
-	(f-call 'button 'opaque '([ r4 + local_inst ]))
+	(f-call 'button 'opaque '((r4 local_inst)))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 

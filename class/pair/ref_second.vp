@@ -9,7 +9,7 @@
 	;r1 = object pointer
 
 	(vp-push r0)
-	(f-call 'ref 'ref '([ r0 + pair_second ]))
+	(f-call 'ref 'ref '((r0 pair_second)))
 	(vp-cpy-rr r0 r1)
 	(vp-pop r0)
 	(vp-ret)

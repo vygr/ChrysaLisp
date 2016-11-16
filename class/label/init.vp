@@ -32,7 +32,7 @@
 		(vp-cpy-ri r0 r1 label_text)
 		(f-call 'text 'set_color '(r0, 0))
 		(vp-cpy-ir r4 r1)
-		(f-call 'text 'add_front '(r0, [ r1 + label_flow ]))
+		(f-call 'text 'add_front '(r0, (r1 label_flow)))
 
 		(vp-pop r0)
 	(endif)

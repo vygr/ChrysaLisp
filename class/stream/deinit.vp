@@ -16,7 +16,7 @@
 
 	;free any buffer
 	(vp-cpy-ir r4 r0)
-	(f-call 'sys_mem 'free '([ r0 + stream_buffer ]))
+	(f-call 'sys_mem 'free '((r0 stream_buffer)))
 	(vp-pop r0)
 
 	;parent deinit

@@ -66,9 +66,9 @@
 		(vp-cpy-ir r4 local_old_keymap r1)
 		(vpif '(r1 == 0))
 			;create old keymap
-			(f-call 'sys_mem 'alloc '([ r4 + local_keymap_size ]) '(r0, _))
+			(f-call 'sys_mem 'alloc '((r4 local_keymap_size)) '(r0, _))
 			(vp-cpy-ri r0 r4 local_old_keymap)
-			(f-call 'sys_mem 'clear '(r0, [ r4 + local_keymap_size ]) '(_))
+			(f-call 'sys_mem 'clear '(r0, (r4 local_keymap_size)) '(_))
 			(vp-cpy-ir r4 local_old_keymap r1)
 		(endif)
 		(vp-cpy-ir r4 local_keymap r0)
@@ -84,7 +84,7 @@
 			(vp-cpy-ir-ub r1 r2 r9)
 			(vpif '(r8 != r9))
 				;set scan code, - for up
-				vp_cpy_ub r8, [ r1 + r2 ] 
+				vp_cpy_ub r8, (r1 r2) 
 				(vp-cpy-rr r2 r11)
 				(vpif '(r8 == 0))
 					(vp-mul-cr -1 r11)
@@ -141,9 +141,9 @@
 		(vp-cpy-ir r4 local_x_pos r8)
 		(vp-cpy-ir r4 local_y_pos r9)
 		(vp-cpy-ir r4 local_buttons r10)
-		(vpif '(r8 == [ r4 + local_last_x_pos ]))
-			(vpif '(r9 == [ r4 + local_last_y_pos ]))
-				(vpif '(r10 == [ r4 + local_last_buttons ]))
+		(vpif '(r8 == (r4 local_last_x_pos)))
+			(vpif '(r9 == (r4 local_last_y_pos)))
+				(vpif '(r10 == (r4 local_last_buttons)))
 					;same as last time
 					(vp-jmp 'next_frame)
 				(endif)
@@ -202,8 +202,8 @@
 			(vpif '(r10 != 0))
 				;find view
 				(f-bind 'gui_gui 'statics r5)
-				(f-call 'view 'hit_tree '([ r5 + gui_statics_screen ] , [ r4 + local_x_pos ] , [ r4 + local_y_pos ]) '(r1, r8, r9))
-				(vpif '(r1 == [ r5 + gui_statics_screen ]))
+				(f-call 'view 'hit_tree '((r5 gui_statics_screen) , (r4 local_x_pos) , (r4 local_y_pos)) '(r1, r8, r9))
+				(vpif '(r1 == (r5 gui_statics_screen)))
 					(vp-xor-rr r1 r1)
 				(endif)
 				(vpif '(r1 == 0))
@@ -216,7 +216,7 @@
 				;hover
 				;find view for keys
 				(f-bind 'gui_gui 'statics r5)
-				(f-call 'view 'hit_tree '([ r5 + gui_statics_screen ] , [ r4 + local_x_pos ] , [ r4 + local_y_pos ]) '(r1, _, _))
+				(f-call 'view 'hit_tree '((r5 gui_statics_screen) , (r4 local_x_pos) , (r4 local_y_pos)) '(r1, _, _))
 				(vp-cpy-ri r1 r4 local_key_view)
 			(endif)
 		(endif)
@@ -296,11 +296,11 @@
 
 		;update the screen
 		(f-bind 'gui_gui 'statics r0)
-		(f-call 'gui_gui 'update '([ r0 + gui_statics_screen ]))
+		(f-call 'gui_gui 'update '((r0 gui_statics_screen)))
 
 		;refresh the window
 		(f-bind 'gui_gui 'statics r0)
-		sdl_render_present [ r0 + gui_statics_renderer ] 
+		sdl_render_present (r0 gui_statics_renderer) 
 	(endif)
 
 	(vp-cpy-ir r4 klocal_old_stack r4)
@@ -321,13 +321,13 @@
 
 	;free old region
 	(f-bind 'gui_gui 'statics r5)
-	(f-call 'gui_region 'free '(& [ r5 + gui_statics_rect_heap ] , & [ r5 + gui_statics_old_region ]))
+	(f-call 'gui_region 'free '(& (r5 gui_statics_rect_heap) , & (r5 gui_statics_old_region)))
 
 	;deinit region heap
 	(f-call 'sys_heap 'deinit '(r0))
 
 	;deinit signal heap
-	(f-call 'sys_heap 'deinit '(& [ r5 + gui_statics_sigslot_heap ]))
+	(f-call 'sys_heap 'deinit '(& (r5 gui_statics_sigslot_heap)))
 
 	;destroy any window
 	(vp-cpy-ir r5 gui_statics_window r14)

@@ -22,7 +22,7 @@
 	;save inputs
 	(vp-sub-cr local_size r4)
 	(set-src '(r0, r1))
-	(set-dst '([ r4 + local_font ] , [ r4 + local_points ]))
+	(set-dst '((r4 local_font) , (r4 local_points)))
 	(map-src-to-dst)
 
 	;get font statics
@@ -31,8 +31,8 @@
 	;search font list
 	(loop-flist-forward r5 + ft_statics_font_flist, r5, r5)
 		(vp-cpy-ir r4 local_points r0)
-		(continueif '(r0 != [ r5 + ft_font_points ]))
-		(f-call 'sys_string 'compare '(& [ r5 + ft_font_name ] , [ r4 + local_font ]) '(r0))
+		(continueif '(r0 != (r5 ft_font_points)))
+		(f-call 'sys_string 'compare '(& (r5 ft_font_name) , (r4 local_font)) '(r0))
 	(loop-until '(r0 == 0))
 
 	;did we find it ?
@@ -64,31 +64,31 @@
 	;search font list
 	(loop-flist-forward r5 + ft_statics_font_flist, r5, r5)
 		(vp-cpy-ir r14 local_points r0)
-		(continueif '(r0 != [ r5 + ft_font_points ]))
-		(f-call 'sys_string 'compare '(& [ r5 + ft_font_name ] , [ r14 + local_font ]) '(r0))
+		(continueif '(r0 != (r5 ft_font_points)))
+		(f-call 'sys_string 'compare '(& (r5 ft_font_name) , (r14 local_font)) '(r0))
 	(loop-until '(r0 == 0))
 
 	;did we find it ?
 	(vp-cpy-rr r5 r0)
 	(vpif '(r5 == 0))
-		(ttf-open-font '([ r14 + local_font ] , [ r14 + local_points ]))
+		(ttf-open-font '((r14 local_font) , (r14 local_points)))
 		(vpif '(r0 != 0))
 			(vp-cpy-rr r0 r5)
-			(f-call 'sys_string 'length '([ r14 + local_font ]) '(r1))
+			(f-call 'sys_string 'length '((r14 local_font)) '(r1))
 			(f-call 'sys_mem 'alloc '(& [ r1 + ft_font_size + 1 ]) '(r13, _))
 			(assert '(r0, !=, 0))
 
 			(vp-cpy-ir r14 local_points r0)
 			(vp-cpy-ri r0 r13 ft_font_points)
 			(vp-cpy-ri r5 r13 ft_font_handle)
-			(f-call 'sys_string 'copy '([ r14 + local_font ] , & [ r13 + ft_font_name ]) '(_, _))
+			(f-call 'sys_string 'copy '((r14 local_font) , & (r13 ft_font_name)) '(_, _))
 
 			;fill in ascent, descent and height
-			(ttf-font-ascent '([ r13 + ft_font_handle ]))
+			(ttf-font-ascent '((r13 ft_font_handle)))
 			(vp-cpy-ri r0 r13 ft_font_ascent)
-			(ttf-font-descent '([ r13 + ft_font_handle ]))
+			(ttf-font-descent '((r13 ft_font_handle)))
 			(vp-cpy-ri r0 r13 ft_font_descent)
-			ttf_font_height [ r13 + ft_font_handle ]
+			ttf_font_height (r13 ft_font_handle)
 			(vp-cpy-ri r0 r13 ft_font_height)
 
 			(vp-cpy-rr r13 r0)

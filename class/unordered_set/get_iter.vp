@@ -23,12 +23,12 @@
 	;save inputs
 	(vp-sub-cr local_size r4)
 	(set-src '(r0, r1))
-	(set-dst '([ r4 + local_inst ] , [ r4 + local_index ]))
+	(set-dst '((r4 local_inst) , (r4 local_index)))
 	(map-src-to-dst)
 
 	;search hash buckets
 	(vp-cpy-ir r0 unordered_set_buckets r0)
-	(f-call 'vector 'for_each '(r0, 0, [ r0 + vector_length ] , $callback, r4) '(_))
+	(f-call 'vector 'for_each '(r0, 0, (r0 vector_length) , $callback, r4) '(_))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-cpy-ir r4 local_iter r1)

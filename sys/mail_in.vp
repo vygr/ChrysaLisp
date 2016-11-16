@@ -56,7 +56,7 @@
 		(f-call 'sys_mem 'copy '(r0, r1, r2) '(_, _))
 
 		;got all needed ?
-		(vpif '(r13 == [ r14 + msg_length ]))
+		(vpif '(r13 == (r14 msg_length)))
 			;yes, remove parcel and post it
 			(vp-cpy-rr r14 r1)
 			(ln-remove-node r1 r2)
