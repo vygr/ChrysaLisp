@@ -23,7 +23,7 @@
 		(loop-start)
 			;create fragment
 			(f-call 'sys_mail 'alloc '() '(r14))
-			(assert '(r0, !=, 0))
+			(assert '(r0 != 0))
 
 			;fill in fragment header
 			(vp-cpy-ri r12 r14 (add msg_dest id_mbox))

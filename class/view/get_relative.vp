@@ -19,7 +19,7 @@
 		(vp-add-ir r2 view_x r8)
 		(vp-add-ir r2 view_y r9)
 		(vp-cpy-ir r2 view_parent r2)
-		(assert '(r2, !=, 0))
+		(assert '(r2 != 0))
 	(loop-end)
 	(vp-ret)
 

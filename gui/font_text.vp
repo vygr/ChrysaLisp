@@ -94,7 +94,7 @@
 
 			(f-call 'sys_string 'length '((r14 local_text)) '(r1))
 			(f-call 'sys_mem 'alloc '(& [ r1 + ft_text_size + 1 ]) '(r13, _))
-			(assert '(r0, !=, 0))
+			(assert '(r0 != 0))
 
 			(vp-cpy-ir r14 local_font r0)
 			(vp-cpy-ri r0 r13 ft_text_font)

@@ -116,7 +116,7 @@
 
 						;allocate mail message
 						(f-call 'sys_mail 'alloc '() '(r0))
-						(assert '(r0, !=, 0))
+						(assert '(r0 != 0))
 
 						;fill in data
 						(vp-cpy-cr ev_msg_size r1)
@@ -169,7 +169,7 @@
 
 					;allocate mail message
 					(f-call 'sys_mail 'alloc '() '(r0))
-					(assert '(r0, !=, 0))
+					(assert '(r0 != 0))
 
 					;fill in data
 					(vp-cpy-cr ev_msg_size r1)

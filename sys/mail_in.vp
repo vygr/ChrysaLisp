@@ -20,7 +20,7 @@
 			(vp-cpy-ir r15 msg_parcel_size r12)
 			(vp-cpy-ir r15 (add msg_dest id_cpu) r14)
 			(f-call 'sys_mem 'alloc '(r12) '(r0, _))
-			(assert '(r0, !=, 0))
+			(assert '(r0 != 0))
 			(vp-cpy-ri r12 r0 msg_length)
 			(vp-cpy-ri r13 r0 (add msg_dest id_mbox))
 			(vp-cpy-ri r14 r0 (add msg_dest id_cpu))
