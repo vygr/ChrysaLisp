@@ -218,7 +218,7 @@ def_func sys/link
 	ln_remove_node r0, r1
 	vp_add lk_node_size, r4
 
-	;increment task count
+	;restore task count
 	f_bind sys_task, statics, r0
 	vp_cpy [r0 + tk_statics_task_count], r1
 	vp_inc r1
