@@ -29,7 +29,7 @@
 	(f-bind 'gui_font 'statics r5)
 
 	;search font list
-	(loop-flist-forward r5 + ft_statics_font_flist, r5, r5)
+	(loop-flist-forward (r5 ft_statics_font_flist) r5 r5)
 		(vp-cpy-ir r4 local_points r0)
 		(continueif '(r0 != (r5 ft_font_points)))
 		(f-call 'sys_string 'compare '(& (r5 ft_font_name) , (r4 local_font)) '(r0))
@@ -62,7 +62,7 @@
 	(f-bind 'gui_font 'statics r5)
 
 	;search font list
-	(loop-flist-forward r5 + ft_statics_font_flist, r5, r5)
+	(loop-flist-forward (r5 ft_statics_font_flist) r5 r5)
 		(vp-cpy-ir r14 local_points r0)
 		(continueif '(r0 != (r5 ft_font_points)))
 		(f-call 'sys_string 'compare '(& (r5 ft_font_name) , (r14 local_font)) '(r0))

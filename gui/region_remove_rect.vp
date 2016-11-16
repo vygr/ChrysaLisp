@@ -17,7 +17,7 @@
 		(vpif '(r11 > r9))
 			;run through source region list
 			(vp-cpy-rr r1 r5)
-			(loop-flist-forward r1, r7, r6)
+			(loop-flist-forward r1 r7 r6)
 				;not in contact ?
 				(vp-cpy-ir-i r7 gui_rect_x r12)
 				(continueif '(r12 >= r10))

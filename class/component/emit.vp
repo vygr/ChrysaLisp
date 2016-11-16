@@ -28,7 +28,7 @@
 	(map-src-to-dst)
 
 	;emit the signal
-	(loop-list-forward r1, r0, r1)
+	(loop-list-forward r1 r0 r1)
 		(vp-cpy-ri r1 r4 local_next)
 
 		;call method on target component object

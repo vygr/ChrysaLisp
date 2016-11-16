@@ -23,7 +23,7 @@
 	(vp-add-rr r0 r8)
 
 	;check if function already present !
-	(loop-flist-forward r8 + ld_statics_function_flist, r6, r6)
+	(loop-flist-forward (r8 ld_statics_function_flist) r6 r6)
 		(vp-cpy-rr r7 r0)
 		(vp-lea-ir r6 fn_header_pathname r1)
 		(vp-call 'string_compare)

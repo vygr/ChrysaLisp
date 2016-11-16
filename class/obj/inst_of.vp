@@ -12,7 +12,7 @@
 	;r2
 
 	(vp-cpy-rr r1 r2)
-	(loop-flist-forward r0 + obj_vtable, r1, r1)
+	(loop-flist-forward (r0 obj_vtable) r1 r1)
 	(loop-until '(r1 == r2))
 	(vpif '(r1 == r2))
 		(vp-cpy-ir r0 obj_vtable r1)

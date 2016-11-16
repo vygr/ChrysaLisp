@@ -27,7 +27,7 @@
 	(ln-remove-node r2 r15)
 
 	;add to timer list
-	(loop-list-forward r3 + tk_statics_timer_list, r5, r2)
+	(loop-list-forward (r3 tk_statics_timer_list) r5 r2)
 	(loop-until '(r0 < (r5 tk_node_time)))
 	(ln-add-node-before r5 r1 r0)
 

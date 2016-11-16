@@ -25,7 +25,7 @@
 	(map-src-to-dst)
 
 	;run through source region list
-	(loop-flist-forward r1, r1, r1)
+	(loop-flist-forward r1 r1 r1)
 		(vp-cpy-ri r1 r4 local_node)
 
 		(vp-cpy-ir-i r1 gui_rect_x r8)
