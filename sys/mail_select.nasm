@@ -11,7 +11,8 @@ def_func sys/mail_select
 	;r1-r3, r5
 
 	vp_cpy r0, r3
-	vp_lea [r0 + r1 * ptr_size], r1
+	vp_mul ptr_size, r1
+	vp_lea [r0 + r1], r1
 	loop_start
 		;check if any have mail
 		vp_cpy r3, r0

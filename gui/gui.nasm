@@ -97,7 +97,8 @@ def_func gui/gui
 				loop_start
 					vp_cpy_ub [r5], r8
 					vpif r8, ==, r2
-						vp_cpy_ub [r5 + r10 + 1], r12
+						vp_lea [r10 + 1], r12
+						vp_cpy_ub [r5 + r12], r12
 					endif
 					vp_add 3, r5
 				loop_until r5, >=, r6

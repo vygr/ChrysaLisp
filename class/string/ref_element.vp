@@ -10,7 +10,8 @@
 	;r1 = char string
 
 	(vp-push r0)
-	(f-call 'string 'create_from_buffer '(& [ r0 + r1 + string_data ] , 1) '(r1))
+	(vp-add-cr string_data r1)
+	(f-call 'string 'create_from_buffer '(& (r0 r1) , 1) '(r1))
 	(vp-pop r0)
 	(vp-ret)
 

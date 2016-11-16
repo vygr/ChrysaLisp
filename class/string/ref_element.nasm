@@ -10,7 +10,8 @@ def_func class/string/ref_element
 	;r1 = char string
 
 	vp_push r0
-	f_call string, create_from_buffer, {&[r0 + r1 + string_data], 1}, {r1}
+	vp_add string_data, r1
+	f_call string, create_from_buffer, {&[r0 + r1], 1}, {r1}
 	vp_pop r0
 	vp_ret
 

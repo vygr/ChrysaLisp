@@ -131,8 +131,9 @@
 				(f-call 'sys_mem 'grow '((r4 lk_table_array) , (r4 lk_table_array_size) , & (r11 lk_route_size)), '((r4 lk_table_array) , (r4 lk_table_array_size)))
 
 				;compare hop counts
+				(vp-add-cr lk_route_hops r0)
 				(vp-cpy-ir r15 kn_msg_link_route_hops r2)
-				(vp-cpy-ir r0 r11 + lk_route_hops r3)
+				(vp-cpy-ir r0 r11 r3)
 				(switch)
 				(case '(r3 == 0))
 					;never seen, so better route
@@ -149,14 +150,15 @@
 						;new link route table ?
 						(f-call 'sys_mem 'grow '([ r12 + lk_node_table + lk_table_array ] , [ r12 + lk_node_table + lk_table_array_size ] , & (r11 lk_route_size)), '([ r12 + lk_node_table + lk_table_array ] , [ r12 + lk_node_table + lk_table_array_size ]))
 
+						(vp-add-cr lk_route_hops r0)
 						(vpif '((r12 lk_node_cpu_id)  == r13))
 							;via route
 							(vp-cpy-ir r15 kn_msg_link_route_hops r2)
-							(vp-cpy-ri r2 r0 r11 + lk_route_hops)
+							(vp-cpy-ri r2 r0 r11)
 						(else)
 							;none via route
 							(vp-xor-rr r1 r1)
-							(vp-cpy-ri r1 r0 r11 + lk_route_hops)
+							(vp-cpy-ri r1 r0 r11)
 						(endif)
 					(loop-end)
 					(break)
@@ -171,7 +173,8 @@
 						(vpif '((r12 lk_node_cpu_id)  == r13))
 							;via route
 							(vp-cpy-ir r15 kn_msg_link_route_hops r2)
-							(vp-cpy-ri r2 r0 r11 + lk_route_hops)
+							(vp-add-cr lk_route_hops r0)
+							(vp-cpy-ri r2 r0 r11)
 						(endif)
 					(loop-end)
 					;drop through to discard message !

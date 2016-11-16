@@ -122,7 +122,8 @@ def_func sys/link
 				vp_cpy [r4 + lk_node_table + lk_table_array], r1
 				continueif r1, ==, 0
 				vp_mul lk_route_size, r2
-				vp_cpy [r1 + r2 + lk_route_hops], r1
+				vp_add lk_route_hops, r1
+				vp_cpy [r1 + r2], r1
 			loop_until r1, !=, 0
 			vpif r8, !=, 0
 				vp_cpy r7, r9

@@ -132,8 +132,9 @@ def_func sys/kernel
 											{[r4 + lk_table_array], [r4 + lk_table_array_size]}
 
 				;compare hop counts
+				vp_add lk_route_hops, r0
 				vp_cpy [r15 + kn_msg_link_route_hops], r2
-				vp_cpy [r0 + r11 + lk_route_hops], r3
+				vp_cpy [r0 + r11], r3
 				switch
 				case r3, ==, 0
 					;never seen, so better route
@@ -151,14 +152,15 @@ def_func sys/kernel
 						f_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
 													{[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]}
 
+						vp_add lk_route_hops, r0
 						vpif [r12 + lk_node_cpu_id], ==, r13
 							;via route
 							vp_cpy [r15 + kn_msg_link_route_hops], r2
-							vp_cpy r2, [r0 + r11 + lk_route_hops]
+							vp_cpy r2, [r0 + r11]
 						else
 							;none via route
 							vp_xor r1,r1
-							vp_cpy r1, [r0 + r11 + lk_route_hops]
+							vp_cpy r1, [r0 + r11]
 						endif
 					loop_end
 					break
@@ -174,7 +176,8 @@ def_func sys/kernel
 						vpif [r12 + lk_node_cpu_id], ==, r13
 							;via route
 							vp_cpy [r15 + kn_msg_link_route_hops], r2
-							vp_cpy r2, [r0 + r11 + lk_route_hops]
+							vp_add lk_route_hops, r0
+							vp_cpy r2, [r0 + r11]
 						endif
 					loop_end
 					;drop through to discard message !

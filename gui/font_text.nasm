@@ -38,7 +38,8 @@ def_func gui/font_text
 	vp_cpy ft_num_buckets, r1
 	vp_xor r2, r2
 	vp_div r1, r2, r0
-	vp_lea [r5 + r2 * ptr_size], r5
+	vp_mul ptr_size, r2
+	vp_lea [r5 + r2], r5
 	vp_cpy r5, [r4 + local_bucket]
 
 	;search bucket

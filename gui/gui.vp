@@ -84,7 +84,7 @@
 			(vp-cpy-ir-ub r1 r2 r9)
 			(vpif '(r8 != r9))
 				;set scan code, - for up
-				vp_cpy_ub r8, (r1 r2) 
+				vp_cpy_ub r8, (r1 r2)
 				(vp-cpy-rr r2 r11)
 				(vpif '(r8 == 0))
 					(vp-mul-cr -1 r11)
@@ -97,7 +97,8 @@
 				(loop-start)
 					(vp-cpy-ir-ub r5 r8)
 					(vpif '(r8 == r2))
-						(vp-cpy-ir-ub r5 r10 + 1 r12)
+						(vp-lea-ir r10 1 r12)
+						(vp-cpy-ir-ub r5 r12 r12)
 					(endif)
 					(vp-add-cr 3 r5)
 				(loop-until '(r5 >= r6))
@@ -300,7 +301,7 @@
 
 		;refresh the window
 		(f-bind 'gui_gui 'statics r0)
-		sdl_render_present (r0 gui_statics_renderer) 
+		sdl_render_present (r0 gui_statics_renderer)
 	(endif)
 
 	(vp-cpy-ir r4 klocal_old_stack r4)
