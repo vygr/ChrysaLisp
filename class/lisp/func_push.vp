@@ -24,10 +24,10 @@
 		(vpif '((value -> obj_vtable == @class/class_vector)))
 			(func-call 'vector 'for_each '(args, 1, length, $ callback, value) '(_))
 		(else)
-			(func-call 'error 'create '("(push list form ... ) not a list", args) '(value))
+			(func-call 'error 'create '("(push list form ...) not a list", args) '(value))
 		(endif)
 	(else)
-		(func-call 'error 'create '("(push list form ... ) not enough args", args) '(value))
+		(func-call 'error 'create '("(push list form ...) not enough args", args) '(value))
 	(endif)
 
 	(expr '(this, value) '(r0, r1))

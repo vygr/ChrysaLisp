@@ -68,11 +68,11 @@
 			(endif)
 		(else)
 			(func-call 'ref 'deref '(pdata -> pdata_value))
-			(func-call 'error 'create '("(cond (tst form ...) ... ) clause wrong number of args", * iter) '(pdata -> pdata_value))
+			(func-call 'error 'create '("(cond (tst form ...) ...) clause wrong number of args", * iter) '(pdata -> pdata_value))
 		(endif)
 	(else)
 		(func-call 'ref 'deref '(pdata -> pdata_value))
-		(func-call 'error 'create '("(cond (tst form ...) ... ) clause not list", * iter) '(pdata -> pdata_value))
+		(func-call 'error 'create '("(cond (tst form ...) ...) clause not list", * iter) '(pdata -> pdata_value))
 	(endif)
 
 	(expr '(0) '(r1))

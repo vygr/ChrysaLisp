@@ -30,10 +30,10 @@
 			(func-call 'boxed_long 'set_value '(value, accum))
 		(else)
 		(vp-label 'error)
-			(func-call 'error 'create '("(mul val val ... ) vals are not all numbers", args) '(value))
+			(func-call 'error 'create '("(mul val val ...) vals are not all numbers", args) '(value))
 		(endif)
 	(else)
-		(func-call 'error 'create '("(mul val val ... ) not enough args", args) '(value))
+		(func-call 'error 'create '("(mul val val ...) not enough args", args) '(value))
 	(endif)
 
 	(expr '(this, value) '(r0, r1))

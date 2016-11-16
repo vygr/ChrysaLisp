@@ -34,7 +34,7 @@
 			(func-call 'ref 'deref '(value))
 		(loop-end)
 	(else)
-		(func-call 'error 'create '("(while tst form ... ) wrong number of args", args) '(value))
+		(func-call 'error 'create '("(while tst form ...) wrong number of args", args) '(value))
 	(endif)
 
 	(expr '(this, value) '(r0, r1))
