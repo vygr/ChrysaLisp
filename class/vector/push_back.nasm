@@ -35,7 +35,9 @@ def_func class/vector/push_back
 	vp_cpy [r4 + local_object], r1
 	vp_cpy [r0 + vector_length], r2
 	vp_cpy [r0 + vector_array], r3
-	vp_cpy r1, [r3 + (r2 * ptr_size) - ptr_size]
+	vp_mul ptr_size, r2
+	vp_add r2, r3
+	vp_cpy r1, [r3 - ptr_size]
 
 	vp_add local_size, r4
 	vp_ret

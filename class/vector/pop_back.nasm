@@ -14,7 +14,9 @@ def_func class/vector/pop_back
 	vp_dec r1
 	vp_cpy r1, [r0 + vector_length]
 	vp_cpy [r0 + vector_array], r0
-	f_call ref, deref, {[r0 + (r1 * ptr_size)]}
+	vp_mul ptr_size, r1
+	vp_add r1, r0
+	f_call ref, deref, {[r0]}
 	vp_pop r0
 	vp_ret
 
