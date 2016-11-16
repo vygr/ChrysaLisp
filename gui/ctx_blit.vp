@@ -72,11 +72,11 @@
 		(vp-cpy-ri-i r10 r4 (add local_clip_rect sdl_rect_w))
 		(vp-cpy-ri-i r11 r4 (add local_clip_rect sdl_rect_h))
 		(vp-cpy-ir r4 local_ctx r0)
-		(sdl-render-set-clip-rect '((r0 gui_ctx_sdl_ctx) , & (r4 local_clip_rect)))
+		(sdl-render-set-clip-rect '((r0 gui_ctx_sdl_ctx) , (& r4 local_clip_rect)))
 
 		;blit the texture
 		(vp-cpy-ir r4 local_ctx r0)
-		(sdl-render-copy '((r0 gui_ctx_sdl_ctx) , (r4 local_texture) , & (r4 local_srect) , & (r4 local_drect)))
+		(sdl-render-copy '((r0 gui_ctx_sdl_ctx) , (r4 local_texture) , (& r4 local_srect) , (& r4 local_drect)))
 
 		(vp-cpy-ir r4 local_dirty_rect r0)
 	(loop-end)

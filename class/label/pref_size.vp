@@ -21,7 +21,7 @@
 	(set-dst '((r4 local_inst)))
 	(map-src-to-dst)
 
-	(v-call 'flow 'pref_size '((r0 label_flow)) '(r10, r11))
+	(v-call 'flow 'pref_size '((r0 label_flow)) '(r10 r11))
 	(vp-add-cr (mul label_border_size 2) r10)
 	(vp-add-cr (mul label_border_size 2) r11)
 

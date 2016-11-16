@@ -18,12 +18,12 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src '(r2, r3))
-	(set-dst '((r4 local_string1) , (r4 local_string2)))
+	(set-src '(r2 r3))
+	(set-dst '((r4 local_string1) (r4 local_string2)))
 	(map-src-to-dst)
 
 	;init parent
-	(s-call 'string 'init '(r0, r1) '(r1))
+	(s-call 'string 'init '(r0 r1) '(r1))
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-cpy-ri r0 r4 local_inst)
@@ -35,10 +35,10 @@
 		(vp-cpy-ir r6 string_length r1)
 		(vp-add-ir r7 string_length r1)
 		(vp-cpy-ri r1 r0 string_length)
-		(f-call 'sys_mem 'copy '(& (r6 string_data) , & (r0 string_data) , (r6 string_length)) '(_, r1))
+		(f-call 'sys_mem 'copy '((& r6 string_data) (& r0 string_data) (r6 string_length)) '(_ r1))
 		(vp-cpy-ir r7 string_length r2)
 		(vp-inc r2)
-		(f-call 'sys_mem 'copy '(& (r7 string_data) , r1, r2) '(_, _))
+		(f-call 'sys_mem 'copy '((& r7 string_data) r1 r2) '(_ _))
 
 		(vp-cpy-ir r4 local_inst r0)
 	(endif)

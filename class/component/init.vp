@@ -9,7 +9,7 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	(s-call 'component 'init '(r0, r1) '(r1))
+	(s-call 'component 'init '(r0 r1) '(r1))
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-lea-ir r0 component_slot_list r1)

@@ -18,20 +18,20 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src '(r0, r1))
-	(set-dst '((r4 local_inst) , (r4 local_event)))
+	(set-src '(r0 r1))
+	(set-dst '((r4 local_inst) (r4 local_event)))
 	(map-src-to-dst)
 
 	;dirty old area
 	(f-call 'window 'dirty '(r0))
 
 	;get smallest size
-	(v-call 'window 'pref_size '(r0) '(r10, r11))
+	(v-call 'window 'pref_size '(r0) '(r10 r11))
 	(vp-cpy-rr r10 r12)
 	(vp-cpy-rr r11 r13)
 
 	;save old bounds
-	(f-call 'window 'get_bounds '(r0) '((r4 local_old_x) , (r4 local_old_y) , r10, r11))
+	(f-call 'window 'get_bounds '(r0) '((r4 local_old_x) (r4 local_old_y) r10 r11))
 
 	;get abolute cords of corners
 	(vp-add-rr r8 r10)
@@ -95,7 +95,7 @@
 	(vp-sub-rr r9 r11)
 
 	;change window size
-	(f-call 'window 'change '(r0, r8, r9, r10, r11))
+	(f-call 'window 'change '(r0 r8 r9 r10 r11))
 
 	;translate old dirty area and dirty all
 	(vp-cpy-ir r4 local_old_x r8)
@@ -103,7 +103,7 @@
 	(vp-sub-ir r0 view_x r8)
 	(vp-sub-ir r0 view_y r9)
 	(vp-lea-ir r0 view_dirty_region r1)
-	(f-call 'gui_region 'translate '(r1, r8, r9))
+	(f-call 'gui_region 'translate '(r1 r8 r9))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)

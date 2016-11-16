@@ -13,9 +13,9 @@
 	;all but r0, r4
 
 	(vp-cpy-rr r0 r9)
-	(f-call 'unordered_set 'create '((r0 unordered_set_key_callback) , r1) '(r0))
+	(f-call 'unordered_set 'create '((r0 unordered_set_key_callback) r1) '(r0))
 	(vp-push r0)
-	(f-call 'unordered_set 'for_each '(r9, $callback, r4) '(_, _))
+	(f-call 'unordered_set 'for_each '(r9 ($ callback) r4) '(_ _))
 	(vp-pop r1)
 	(vp-cpy-ir r0 unordered_set_length r2)
 	(vp-cpy-ri r2 r1 unordered_set_length)
@@ -31,8 +31,8 @@
 	(vp-cpy-ir r0 r2)
 	(f-call 'ref 'ref '((r1)))
 	(vp-push r0)
-	(f-call 'unordered_set 'get_bucket '(r2, r0) '(r0))
+	(f-call 'unordered_set 'get_bucket '(r2 r0) '(r0))
 	(vp-pop r1)
-	(f-jmp 'vector 'push_back '(r0, r1))
+	(f-jmp 'vector 'push_back '(r0 r1))
 
 (def-func-end)

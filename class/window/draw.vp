@@ -8,6 +8,6 @@
 	;trashes
 	;all but r0, r4
 
-	(f-jmp 'window 'draw_panel '(r0, r1, 1, window_border_size))
+	(f-jmp 'window 'draw_panel '(r0 r1 1 window_border_size))
 
 (def-func-end)

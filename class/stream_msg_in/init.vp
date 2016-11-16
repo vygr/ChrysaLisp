@@ -18,7 +18,7 @@
 	(map-src-to-dst)
 
 	;init parent
-	(s-call 'stream_msg_in 'init '(r0, r1, 0, 0, 0, 0) '(r1))
+	(s-call 'stream_msg_in 'init '(r0 r1 0 0 0 0) '(r1))
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-xor-rr r1 r1)

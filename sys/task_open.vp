@@ -10,6 +10,6 @@
 	;all but r4
 
 	(f-bind 'sys_task 'statics r1)
-	(f-jmp 'sys_task 'open_device '(r0, (r1 tk_statics_cpu_id)))
+	(f-jmp 'sys_task 'open_device '(r0 (r1 tk_statics_cpu_id)))
 
 (def-func-end)

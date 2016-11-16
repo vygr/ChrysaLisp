@@ -8,7 +8,7 @@
 	;r1 = flags
 
 	(vp-push r0)
-	(f-call 'flow 'set_flow_flags '((r0 label_flow) , r1))
+	(f-call 'flow 'set_flow_flags '((r0 label_flow) r1))
 	(vp-pop r0)
 	(vp-ret)
 

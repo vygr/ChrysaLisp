@@ -10,7 +10,7 @@
 	;trashes
 	;all but r0, r4
 
-	(s-call 'title 'pref_size '(r0) '(r10, r11))
+	(s-call 'title 'pref_size '(r0) '(r10 r11))
 	(vp-add-cr (mul title_border_size 2) r10)
 	(vp-add-cr (mul title_border_size 2) r11)
 	(vp-ret)

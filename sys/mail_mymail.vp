@@ -7,7 +7,7 @@
 	;trashes
 	;r1-r2
 
-	(f-call 'sys_task 'mailbox '() '(r0, r1))
-	(f-jmp 'sys_mail, read '{r0} '(r0))
+	(f-call 'sys_task 'mailbox '() '(r0 r1))
+	(f-jmp 'sys_mail read '{r0} '(r0))
 
 (def-func-end)

@@ -31,7 +31,7 @@
 	(f-call 'gui_font 'init)
 
 	;start kernel task
-	(f-call 'sys_task 'start '($_func_entry) '(r0, r1))
+	(f-call 'sys_task 'start '(($ _func_entry)) '(r0 r1))
 	(f-bind 'sys_task 'statics r2)
 	(vp-cpy-ri r0 r2 tk_statics_current_tcb)
 	(vp-cpy-ri r0 r2 tk_statics_kernel_tcb)
@@ -66,7 +66,7 @@
 		;service all kernel mail
 		(loop-start)
 			;check if any mail
-			(f-call 'sys_task 'mailbox '() '(r0, r1))
+			(f-call 'sys_task 'mailbox '() '(r0 r1))
 			(f-call 'sys_mail 'try_read '(r0) '(r0))
 			(breakif '(r0 == 0))
 			(vp-cpy-rr r0 r15)
@@ -83,13 +83,13 @@
 				(vp-cpy-ri r2 r15 (add msg_dest id_cpu))
 
 				;open single task and return mailbox ID
-				(f-call 'sys_load 'bind '(& (r15 kn_msg_open_pathname)) '(r0))
+				(f-call 'sys_load 'bind '((& r15 kn_msg_open_pathname)) '(r0))
 				(vpif '(r0 == 0))
 					;error
 					(vp-cpy-rr r0 r1)
 				(else)
 					;start this function as task
-					(f-call 'sys_task 'start '(r0) '(_, r1))
+					(f-call 'sys_task 'start '(r0) '(_ r1))
 					(f-call 'sys_cpu 'id '() '(r0))
 				(endif)
 				(vp-cpy-ri r1 r15 (add kn_msg_reply_id id_mbox))
@@ -128,7 +128,7 @@
 				;new kernel routing table ?
 				(vp-cpy-ir r15 kn_msg_link_route_origin r11)
 				(vp-mul-cr lk_route_size r11)
-				(f-call 'sys_mem 'grow '((r4 lk_table_array) , (r4 lk_table_array_size) , & (r11 lk_route_size)), '((r4 lk_table_array) , (r4 lk_table_array_size)))
+				(f-call 'sys_mem 'grow '((r4 lk_table_array) (r4 lk_table_array_size) (& r11 lk_route_size)) '((r4 lk_table_array) (r4 lk_table_array_size)))
 
 				;compare hop counts
 				(vp-add-cr lk_route_hops r0)
@@ -148,7 +148,7 @@
 					(f-bind 'sys_link 'statics r14)
 					(loop-list-forward (r14 lk_statics_links_list) r12 r14)
 						;new link route table ?
-						(f-call 'sys_mem 'grow '((r12 (add lk_node_table lk_table_array)) , (r12 (add lk_node_table lk_table_array_size)) , & (r11 lk_route_size)), '((r12 (add lk_node_table lk_table_array)) , (r12 (add lk_node_table lk_table_array_size))))
+						(f-call 'sys_mem 'grow '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size)) (& r11 lk_route_size)) '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size))))
 
 						(vp-add-cr lk_route_hops r0)
 						(vpif '((r12 lk_node_cpu_id)  == r13))
@@ -168,7 +168,7 @@
 					(f-bind 'sys_link 'statics r14)
 					(loop-list-forward (r14 lk_statics_links_list) r12 r14)
 						;new link route table ?
-						(f-call 'sys_mem 'grow '((r12 (add lk_node_table lk_table_array)) , (r12 (add lk_node_table lk_table_array_size)) , & (r11 lk_route_size)), '((r12 (add lk_node_table lk_table_array)) , (r12 (add lk_node_table lk_table_array_size))))
+						(f-call 'sys_mem 'grow '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size)) (& r11 lk_route_size)) '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size))))
 
 						(vpif '((r12 lk_node_cpu_id)  == r13))
 							;via route
@@ -205,7 +205,7 @@
 					(vp-cpy-ir r15 msg_length r2)
 					(vp-add-cr ptr_size - 1 r2)
 					(vp-and-cr (sub 0 ptr_size) r2)
-					(f-call 'sys_mem 'copy '(r0, r1, r2) '(_, _))
+					(f-call 'sys_mem 'copy '(r0 r1 r2) '(_ _))
 					(vp-cpy-ri r11 r5 (add msg_dest id_cpu))
 					(f-call 'sys_mail 'send '(r5))
 				(loop-end)

@@ -98,7 +98,7 @@
 	(vp-add-rr r12 r11)
 
 	;clear tx channel
-	(f-call 'sys_mem 'clear '(r10, lk_chan_size) '(_))
+	(f-call 'sys_mem 'clear '(r10 lk_chan_size) '(_))
 
 	;read and write messages through the shared buffer in r12
 	(vp-xor-rr r9 r9)
@@ -141,7 +141,7 @@
 				(vp-cpy-ir r9 msg_length r2)
 				(vp-add-cr ptr_size - 1 r2)
 				(vp-and-cr (sub 0 ptr_size) r2)
-				(f-call 'sys_mem 'copy '(r9, r1, r2) '(_, _))
+				(f-call 'sys_mem 'copy '(r9 r1 r2) '(_ _))
 
 				;free message
 				(f-call 'sys_mem 'free '(r9))
@@ -167,7 +167,7 @@
 			(vp-cpy-ir r0 msg_length r2)
 			(vp-add-cr ptr_size - 1 r2)
 			(vp-and-cr (sub 0 ptr_size) r2)
-			(f-call 'sys_mem 'copy '(r0, r1, r2) '(_, _))
+			(f-call 'sys_mem 'copy '(r0 r1 r2) '(_ _))
 
 			;send onwards
 			(f-call 'sys_mail 'send '(r8))

@@ -16,6 +16,6 @@
 	(vpif '(r2 != 0))
 		(vp-mul-cr -1 r3)
 	(endif)
-	(f-jmp 'button 'draw_panel '(r0, r1, 1, r3))
+	(f-jmp 'button 'draw_panel '(r0 r1 1 r3))
 
 (def-func-end)

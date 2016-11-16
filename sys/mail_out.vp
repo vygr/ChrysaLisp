@@ -51,7 +51,7 @@
 			;copy data block, round up for speed
 			(vp-add-cr ptr_size - 1 r2)
 			(vp-and-cr (sub 0 ptr_size) r2)
-			(f-call 'sys_mem 'copy '(r0, r1, r2) '(_, _))
+			(f-call 'sys_mem 'copy '(r0 r1 r2) '(_ _))
 
 			;queue it on the outgoing packet list
 			(f-bind 'sys_mail 'statics r0)

@@ -16,7 +16,7 @@
 	(vp-sub-rr r1 r2)
 	(vp-add-cr string_data r0)
 	(vp-add-rr r1 r0)
-	(f-call 'string 'create_from_buffer '(r0, r2) '(r1))
+	(f-call 'string 'create_from_buffer '(r0 r2) '(r1))
 	(vp-pop r0)
 	(vp-ret)
 

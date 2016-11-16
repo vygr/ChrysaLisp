@@ -9,7 +9,7 @@
 
 	;iterate through views
 	;dirty all
-	(f-jmp 'view 'forward_tree '(r0, r0, $dirty_down_callback, $null_up_callback))
+	(f-jmp 'view 'forward_tree '(r0 r0 ($ dirty_down_callback) ($ null_up_callback)))
 
 (vp-label 'dirty_down_callback)
 	(f-call 'view 'dirty '(r0))

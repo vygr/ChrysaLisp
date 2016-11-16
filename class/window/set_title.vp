@@ -17,7 +17,7 @@
 	(set-dst '((r4 local_inst)))
 	(map-src-to-dst)
 
-	(f-call 'title 'set_text '((r0 window_title) , r1))
+	(f-call 'title 'set_text '((r0 window_title) r1))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)

@@ -10,6 +10,6 @@
 	;all but r0, r4
 
 	;draw panel
-	(f-jmp 'title 'draw_panel '(r0, r1, 1, title_border_size))
+	(f-jmp 'title 'draw_panel '(r0 r1 1 title_border_size))
 
 (def-func-end)

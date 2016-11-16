@@ -9,6 +9,6 @@
 	;all but r0, r4
 
 	;draw panel
-	(f-jmp 'label 'draw_panel '(r0, r1, 1, label_border_size))
+	(f-jmp 'label 'draw_panel '(r0 r1 1 label_border_size))
 
 (def-func-end)

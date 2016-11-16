@@ -19,12 +19,12 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src '(r0, r2, r3))
-	(set-dst '((r4 local_inst) , (r0 error_description) , (r0 error_object)))
+	(set-src '(r0 r2 r3))
+	(set-dst '((r4 local_inst) (r0 error_description) (r0 error_object)))
 	(map-src-to-dst)
 
 	;init parent
-	(s-call 'error 'init '(r0, r1) '(r1))
+	(s-call 'error 'init '(r0 r1) '(r1))
 	(vpif '(r1 != 0))
 		;init self
 		(f-call 'string 'create_from_cstr '((r0 error_description)) '(r0))

@@ -29,14 +29,14 @@
 		(vp-cpy-ri r1 r4 local_y)
 	(endif)
 
-	(f-call 'flow 'forward '(r0, r4, $callback))
+	(f-call 'flow 'forward '(r0 r4 ($ callback)))
 
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
 (vp-label 'callback)
 	(vp-push r1)
-	(v-call 'view 'pref_size '(r0) '(r10, r11))
+	(v-call 'view 'pref_size '(r0) '(r10 r11))
 	(vp-pop r1)
 	(vp-cpy-ir r1 local_x r8)
 	(vp-cpy-ir r1 local_y r9)
@@ -168,6 +168,6 @@
 
 	(vp-cpy-ri r12 r1 local_x)
 	(vp-cpy-ri r13 r1 local_y)
-	(f-jmp 'view 'change '(r0, r8, r9, r10, r11))
+	(f-jmp 'view 'change '(r0 r8 r9 r10 r11))
 
 (def-func-end)

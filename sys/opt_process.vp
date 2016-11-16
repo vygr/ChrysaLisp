@@ -21,7 +21,7 @@
 			(vp-cpy-ir r12 r11)
 			(breakif '(r11 == 0))
 			(vp-add-cr ptr_size r12)
-			(f-call 'sys_string 'compare '(r12, r13) '(r0))
+			(f-call 'sys_string 'compare '(r12 r13) '(r0))
 			(vpif '(r0 == 0))
 				(vp-rel 'options_table r0)
 				(vp-add-rr r11 r0)
@@ -49,7 +49,7 @@
 	(vp-add-cr ptr_size r14)
 	(vp-cpy-ir r14 r0)
 	(vpif '(r0 != 0))
-		(f-call 'sys_string 'to_long '(r0, 10) '(r0))
+		(f-call 'sys_string 'to_long '(r0 10) '(r0))
 		(f-bind 'sys_task 'statics r1)
 		(vp-cpy-ri r0 r1 tk_statics_cpu_id)
 	(endif)
@@ -67,7 +67,7 @@
 	(vpif '(r0 != 0))
 		(f-call 'sys_load 'bind '(r0) '(r0))
 		(vpif '(r0 != 0))
-			(f-call 'sys_task 'start '(r0) '(r0, r1))
+			(f-call 'sys_task 'start '(r0) '(r0 r1))
 		(endif)
 	(endif)
 	(vp-ret)
@@ -84,7 +84,7 @@
 	(vpif '(r0 != 0))
 		;start link
 		(func-path 'sys_link 'link)
-		(f-call 'sys_task 'start '(@_function_) '(r0, r5))
+		(f-call 'sys_task 'start '((@ _function_)) '(r0 r5))
 		(f-call 'sys_cpu 'id '() '(r6))
 
 		;allocate params message
@@ -95,9 +95,9 @@
 		(vp-cpy-ri r6 r0 (add msg_dest id_cpu))
 
 		;fill in paramaters and set length
-		(f-call 'sys_string 'copy '($link_path, & (r7 msg_data)) '(_, r1))
+		(f-call 'sys_string 'copy '(($ link_path) (& r7 msg_data)) '(_ r1))
 		(vp-dec r1)
-		(f-call 'sys_string 'copy '((r14) , r1) '(_, r1))
+		(f-call 'sys_string 'copy '((r14) r1) '(_ r1))
 		(vp-sub-rr r7 r1)
 		(vp-cpy-ri r1 r7 msg_length)
 

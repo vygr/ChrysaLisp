@@ -26,11 +26,11 @@
 	;setting abs cords
 	(vp-xor-rr r8 r8)
 	(vp-xor-rr r9 r9)
-	(f-call 'view 'backward_tree '(r0, r0, $abs_down_callback, $abs_up_callback))
+	(f-call 'view 'backward_tree '(r0 r0 ($ abs_down_callback) ($ abs_up_callback)))
 
 	;iterate through views back to front
 	;create visible region at root
-	(f-call 'view 'backward_tree '(r0, r0, $null_func_down_callback, $visible_up_callback))
+	(f-call 'view 'backward_tree '(r0 r0 ($ null_func_down_callback) ($ visible_up_callback)))
 
 %ifdef dual_buffers
 	;copy visable region to new region
@@ -40,7 +40,7 @@
 	(vp-cpy-ir r0 view_h r11)
 	(f-bind 'gui_gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
-	(f-call 'gui_region 'copy_rect '(r0, r1, r4, 0, 0, r10, r11))
+	(f-call 'gui_region 'copy_rect '(r0 r1 r4 0 0 r10 r11))
 
 	;paste old visable region into root
 	(vp-cpy-ir r4 8 r0)
@@ -48,11 +48,11 @@
 	(f-bind 'gui_gui 'statics r1)
 	(vp-lea-ir r1 gui_statics_rect_heap r0)
 	(vp-add-cr gui_statics_old_region r1)
-	(f-call 'gui_region 'paste_region '(r0, r1, r2, 0, 0))
+	(f-call 'gui_region 'paste_region '(r0 r1 r2 0 0))
 
 	;free old region and splice over new region
 	(f-bind 'gui_gui 'statics r5)
-	(f-call 'gui_region 'free '(& (r5 gui_statics_rect_heap) , & (r5 gui_statics_old_region)))
+	(f-call 'gui_region 'free '((& r5 gui_statics_rect_heap) (& r5 gui_statics_old_region)))
 	(vp-pop r1)
 	(vp-cpy-ri r1 r5 gui_statics_old_region)
 	(vp-pop r0)
@@ -62,7 +62,7 @@
 	;distribute visible region
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 r4 local_ctx_flist)
-	(f-call 'view 'forward_tree '(r0, r4, $distribute_down_callback, $distribute_up_callback))
+	(f-call 'view 'forward_tree '(r0 r4 ($ distribute_down_callback) ($ distribute_up_callback)))
 
 	;draw all on draw list, and free dirty regions
 	(f-bind 'gui_gui 'statics r1)
@@ -78,12 +78,12 @@
 		(vp-cpy-ri r8 r1 gui_ctx_x)
 		(vp-cpy-ri r9 r1 gui_ctx_y)
 		(vp-cpy-ri r2 r1 gui_ctx_dirty_region)
-		(v-call 'view 'draw '(r0, r1))
+		(v-call 'view 'draw '(r0 r1))
 		(vp-cpy-ir r4 local_ctx_next r1)
 		(vp-sub-cr view_ctx_node - view_dirty_region r1)
 		(f-bind 'gui_gui 'statics r0)
 		(vp-add-cr gui_statics_rect_heap r0)
-		(f-call 'gui_region 'free '(r0, r1))
+		(f-call 'gui_region 'free '(r0 r1))
 		(vp-cpy-ir r4 local_ctx_next r0)
 	(loop-end)
 
@@ -143,7 +143,7 @@
 		(vp-add-rr r9 r11)
 		(vp-add-cr view_opaque_region r1)
 		(vp-lea-ir r4 vis_region r2)
-		(f-call 'gui_region 'copy_rect '(r0, r1, r2, r8, r9, r10, r11))
+		(f-call 'gui_region 'copy_rect '(r0 r1 r2 r8 r9 r10 r11))
 
 		;remove from ancestors
 		(vp-cpy-ir r4 vis_inst r1)
@@ -159,25 +159,25 @@
 			(vp-cpy-ir r1 view_x r8)
 			(vp-cpy-ir r1 view_y r9)
 			(vp-lea-ir r4 vis_region r1)
-			(f-call 'gui_region 'translate '(r1, r8, r9))
+			(f-call 'gui_region 'translate '(r1 r8 r9))
 
 			;clip temp opaque region
 			(vp-cpy-ir r4 vis_next r2)
 			(vp-lea-ir r4 vis_region r1)
-			(f-call 'gui_region 'clip_rect '(r0, r1, 0, 0, (r2 view_w) , (r2 view_h)))
+			(f-call 'gui_region 'clip_rect '(r0 r1 0 0 (r2 view_w) (r2 view_h)))
 
 			;remove temp opaque region
 			(vp-lea-ir r4 vis_region r1)
 			(vp-cpy-ir r4 vis_next r2)
 			(vp-add-cr view_dirty_region r2)
-			(f-call 'gui_region 'remove_region '(r0, r1, r2, 0, 0))
+			(f-call 'gui_region 'remove_region '(r0 r1 r2 0 0))
 
 			(vp-cpy-ir r4 vis_next r1)
 		(loop-until '(r1 == (r4 vis_root)))
 
 		;free any temp region
 		(vp-lea-ir r4 vis_region r1)
-		(f-call 'gui_region 'free '(r0, r1))
+		(f-call 'gui_region 'free '(r0 r1))
 	(endif)
 
 	;clip local dirty region with parent bounds if not root
@@ -195,7 +195,7 @@
 	(vp-add-rr r8 r10)
 	(vp-add-rr r9 r11)
 	(vp-add-cr view_dirty_region r1)
-	(f-call 'gui_region 'clip_rect '(r0, r1, r8, r9, r10, r11))
+	(f-call 'gui_region 'clip_rect '(r0 r1 r8 r9 r10 r11))
 
 	;paste local dirty region onto parent if not root
 	(vp-cpy-ir r4 vis_inst r1)
@@ -205,12 +205,12 @@
 		(vp-cpy-ir r1 view_parent r2)
 		(vp-add-cr view_dirty_region r1)
 		(vp-add-cr view_dirty_region r2)
-		(f-call 'gui_region 'paste_region '(r0, r1, r2, r8, r9))
+		(f-call 'gui_region 'paste_region '(r0 r1 r2 r8 r9))
 
 		;free local dirty region
 		(vp-cpy-ir r4 vis_inst r1)
 		(vp-add-cr view_dirty_region r1)
-		(f-call 'gui_region 'free '(r0, r1))
+		(f-call 'gui_region 'free '(r0 r1))
 	(endif)
 
 	(vp-cpy-ir r4 vis_inst r0)
@@ -246,7 +246,7 @@
 		(vp-add-rr r9 r11)
 		(vp-add-cr view_dirty_region r1)
 		(vp-add-cr view_dirty_region r2)
-		(f-call 'gui_region 'copy_rect '(r0, r1, r2, r8, r9, r10, r11))
+		(f-call 'gui_region 'copy_rect '(r0 r1 r2 r8 r9 r10 r11))
 
 		;did we find any
 		(vp-cpy-ir r4 dist_inst r1)
@@ -263,7 +263,7 @@
 				(vp-cpy-ir r1 view_ctx_y r9)
 				(vp-add-cr view_opaque_region r1)
 				(vp-add-cr view_dirty_region r2)
-				(f-call 'gui_region 'remove_region '(r0, r1, r2, r8, r9))
+				(f-call 'gui_region 'remove_region '(r0 r1 r2 r8 r9))
 
 				(vp-cpy-ir r4 dist_next r2)
 				(vp-cpy-ir r4 dist_data r1)

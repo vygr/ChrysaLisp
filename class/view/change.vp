@@ -16,7 +16,7 @@
 	(vp-cpy-ir r0 view_h r13)
 
 	;set new info
-	(f-call 'view 'set_bounds '(r0, r8, r9, r10, r11))
+	(f-call 'view 'set_bounds '(r0 r8 r9 r10 r11))
 
 	;layout if changed size
 	(vpif '(r10 == r12))

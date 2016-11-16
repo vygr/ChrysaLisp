@@ -12,44 +12,44 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	(s-call 'window 'init '(r0, r1) '(r1))
+	(s-call 'window 'init '(r0 r1) '(r1))
 	(vpif '(r1 != 0))
 		(vp-push r0)
 
 		;init myself
-		(f-call 'window 'set_color '(r0, 0xffc0c0c0))
+		(f-call 'window 'set_color '(r0 0xffc0c0c0))
 
 		;add my flow panel
 		(f-call 'flow 'create '() '(r0))
 		(assert '(r0 != 0))
-		(f-call 'flow 'set_flow_flags '(r0, (bit-or flow_flag_down flow_flag_fillw flow_flag_lasth)))
+		(f-call 'flow 'set_flow_flags '(r0 (bit-or flow_flag_down flow_flag_fillw flow_flag_lasth)))
 		(vp-cpy-ir r4 r1)
 		(vp-cpy-ri r0 r1 window_flow)
-		(f-call 'flow 'add_back '(r0, r1))
+		(f-call 'flow 'add_back '(r0 r1))
 
 		;add my title
 		(f-call 'title 'create '() '(r0))
 		(assert '(r0 != 0))
-		(f-call 'title 'set_color '(r0, 0xffc0c0c0))
+		(f-call 'title 'set_color '(r0 0xffc0c0c0))
 		(vp-cpy-ir r4 r1)
 		(vp-cpy-ri r0 r1 window_title)
-		(f-call 'title 'add_back '(r0, (r1 window_flow)))
+		(f-call 'title 'add_back '(r0 (r1 window_flow)))
 
 		;add my status panel
 		(f-call 'flow 'create '() '(r0))
 		(assert '(r0 != 0))
-		(f-call 'flow 'set_flow_flags '(r0, (bit-or flow_flag_up flow_flag_fillw flow_flag_lasth)))
+		(f-call 'flow 'set_flow_flags '(r0 (bit-or flow_flag_up flow_flag_fillw flow_flag_lasth)))
 		(vp-cpy-ir r4 r1)
 		(vp-cpy-ri r0 r1 window_panel)
-		(f-call 'flow 'add_back '(r0, (r1 window_flow)))
+		(f-call 'flow 'add_back '(r0 (r1 window_flow)))
 
 		;add my status label
 		(f-call 'label 'create '() '(r0))
 		(assert '(r0 != 0))
-		(f-call 'label 'set_color '(r0, 0xff808080))
+		(f-call 'label 'set_color '(r0 0xff808080))
 		(vp-cpy-ir r4 r1)
 		(vp-cpy-ri r0 r1 window_status)
-		(f-call 'label 'add_back '(r0, (r1 window_panel)))
+		(f-call 'label 'add_back '(r0 (r1 window_panel)))
 
 		(vp-pop r0)
 	(endif)

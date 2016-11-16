@@ -8,7 +8,7 @@
 	;all but r0, r4
 
 	;disconnnect all slots
-	(f-call 'component 'disconnect_slot '(r0, 0))
+	(f-call 'component 'disconnect_slot '(r0 0))
 
 	;deinit parent
 	(s-jmp 'component 'deinit '(r0))

@@ -21,7 +21,7 @@
 	(map-src-to-dst)
 
 	;open font
-	(f-call 'gui_font 'open '(r1, r2) '(r0))
+	(f-call 'gui_font 'open '(r1 r2) '(r0))
 
 	(vp-cpy-ir r4 local_inst r1)
 	(vp-cpy-ri r0 r1 text_font)

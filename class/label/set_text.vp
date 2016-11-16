@@ -19,7 +19,7 @@
 	(set-dst '((r4 local_inst)))
 	(map-src-to-dst)
 
-	(f-call 'text 'set_text '((r0 label_text) , r1))
+	(f-call 'text 'set_text '((r0 label_text) r1))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(v-call 'label 'layout '((r0 label_flow)))

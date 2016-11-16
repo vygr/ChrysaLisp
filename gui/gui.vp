@@ -33,7 +33,7 @@
 
 	;kernel callback for first update
 	;this will init SDL etc
-	(f-call 'sys_task 'callback '($update_callback, r4))
+	(f-call 'sys_task 'callback '(($ update_callback) r4))
 
 	;allocate background view for screen
 	(f-call 'label 'create '() '(r0))
@@ -41,8 +41,8 @@
 	(vp-cpy-ri r0 r1 gui_statics_screen)
 
 	;size and color and opaque
-	(f-call 'label 'change '(r0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
-	(f-call 'label 'set_color '(r0, 0xff000000))
+	(f-call 'label 'change '(r0 0 0 SCREEN_WIDTH SCREEN_HEIGHT))
+	(f-call 'label 'set_color '(r0 0xff000000))
 	(f-call 'label 'opaque '(r0))
 	(f-call 'label 'dirty_all '(r0))
 
@@ -51,13 +51,13 @@
 
 	;for now fire up the test apps
 	;this might be an gui auto run list eventually
-	(f-call 'sys_task 'start '(@apps/launcher/app) '(r0, r1))
+	(f-call 'sys_task 'start '((@ apps/launcher/app)) '(r0 r1))
 
 	;gui event loop
 	(loop-start)
 	(vp-label 'next_frame)
 		;kernel callback for update
-		(f-call 'sys_task 'callback '($update_callback, r4))
+		(f-call 'sys_task 'callback '(($ update_callback) r4))
 
 		;frame rate of gui updates
 		(f-call 'sys_task 'sleep '(1000000 / 30))
@@ -66,9 +66,9 @@
 		(vp-cpy-ir r4 local_old_keymap r1)
 		(vpif '(r1 == 0))
 			;create old keymap
-			(f-call 'sys_mem 'alloc '((r4 local_keymap_size)) '(r0, _))
+			(f-call 'sys_mem 'alloc '((r4 local_keymap_size)) '(r0 _))
 			(vp-cpy-ri r0 r4 local_old_keymap)
-			(f-call 'sys_mem 'clear '(r0, (r4 local_keymap_size)) '(_))
+			(f-call 'sys_mem 'clear '(r0 (r4 local_keymap_size)) '(_))
 			(vp-cpy-ir r4 local_old_keymap r1)
 		(endif)
 		(vp-cpy-ir r4 local_keymap r0)
@@ -203,7 +203,7 @@
 			(vpif '(r10 != 0))
 				;find view
 				(f-bind 'gui_gui 'statics r5)
-				(f-call 'view 'hit_tree '((r5 gui_statics_screen) , (r4 local_x_pos) , (r4 local_y_pos)) '(r1, r8, r9))
+				(f-call 'view 'hit_tree '((r5 gui_statics_screen) (r4 local_x_pos) (r4 local_y_pos)) '(r1 r8 r9))
 				(vpif '(r1 == (r5 gui_statics_screen)))
 					(vp-xor-rr r1 r1)
 				(endif)
@@ -217,7 +217,7 @@
 				;hover
 				;find view for keys
 				(f-bind 'gui_gui 'statics r5)
-				(f-call 'view 'hit_tree '((r5 gui_statics_screen) , (r4 local_x_pos) , (r4 local_y_pos)) '(r1, _, _))
+				(f-call 'view 'hit_tree '((r5 gui_statics_screen) (r4 local_x_pos) (r4 local_y_pos)) '(r1 _ _))
 				(vp-cpy-ri r1 r4 local_key_view)
 			(endif)
 		(endif)
@@ -230,7 +230,7 @@
 	(endif)
 
 	;deinit
-	(f-call 'sys_task 'callback '($deinit_callback, r4))
+	(f-call 'sys_task 'callback '(($ deinit_callback) r4))
 
 	(vp-add-cr local_size r4)
 	(vp-ret)
@@ -322,13 +322,13 @@
 
 	;free old region
 	(f-bind 'gui_gui 'statics r5)
-	(f-call 'gui_region 'free '(& (r5 gui_statics_rect_heap) , & (r5 gui_statics_old_region)))
+	(f-call 'gui_region 'free '((& r5 gui_statics_rect_heap) (& r5 gui_statics_old_region)))
 
 	;deinit region heap
 	(f-call 'sys_heap 'deinit '(r0))
 
 	;deinit signal heap
-	(f-call 'sys_heap 'deinit '(& (r5 gui_statics_sigslot_heap)))
+	(f-call 'sys_heap 'deinit '((& r5 gui_statics_sigslot_heap)))
 
 	;destroy any window
 	(vp-cpy-ir r5 gui_statics_window r14)

@@ -19,7 +19,7 @@
 			;new parcel
 			(vp-cpy-ir r15 msg_parcel_size r12)
 			(vp-cpy-ir r15 (add msg_dest id_cpu) r14)
-			(f-call 'sys_mem 'alloc '(r12) '(r0, _))
+			(f-call 'sys_mem 'alloc '(r12) '(r0 _))
 			(assert '(r0 != 0))
 			(vp-cpy-ri r12 r0 msg_length)
 			(vp-cpy-ri r13 r0 (add msg_dest id_mbox))
@@ -53,7 +53,7 @@
 		;copy fragment data, round up for speed
 		(vp-add-cr ptr_size - 1 r2)
 		(vp-and-cr (sub 0 ptr_size) r2)
-		(f-call 'sys_mem 'copy '(r0, r1, r2) '(_, _))
+		(f-call 'sys_mem 'copy '(r0 r1 r2) '(_ _))
 
 		;got all needed ?
 		(vpif '(r13 == (r14 msg_length)))

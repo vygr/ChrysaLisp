@@ -8,9 +8,9 @@
 	;all but r0, r4
 
 	;remove any opaque region
-	(f-call 'view 'sub_opaque '(r0, -1000000, -1000000, 2000000, 2000000))
+	(f-call 'view 'sub_opaque '(r0 -1000000 -1000000 2000000 2000000))
 
 	;paste opaque region
-	(f-jmp 'view 'add_opaque '(r0, 0, 0, (r0 view_w) , (r0 view_h)))
+	(f-jmp 'view 'add_opaque '(r0 0 0 (r0 view_w) (r0 view_h)))
 
 (def-func-end)

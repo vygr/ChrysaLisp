@@ -9,7 +9,7 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	(s-call 'boxed_ptr 'init '(r0, r1) '(r1))
+	(s-call 'boxed_ptr 'init '(r0 r1) '(r1))
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-xor-rr r2 r2)

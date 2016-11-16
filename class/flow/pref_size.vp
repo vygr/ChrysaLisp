@@ -20,7 +20,7 @@
 	(vp-cpy-ri r1 r4 local_w)
 	(vp-cpy-ri r1 r4 local_h)
 
-	(f-call 'flow 'forward '(r0, r4, $callback))
+	(f-call 'flow 'forward '(r0 r4 ($ callback)))
 
 	(vp-cpy-ir r4 local_w r10)
 	(vp-cpy-ir r4 local_h r11)
@@ -29,7 +29,7 @@
 
 (vp-label 'callback)
 	(vp-push r1)
-	(v-call 'view 'pref_size '(r0) '(r10, r11))
+	(v-call 'view 'pref_size '(r0) '(r10 r11))
 	(vp-pop r1)
 	(vp-cpy-ir r0 view_parent r2)
 	(vp-cpy-ir r2 flow_flags r3)
