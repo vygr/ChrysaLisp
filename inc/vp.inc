@@ -86,6 +86,12 @@
 (defun vp-sub-dr (&rest b) (emit `(emit-sub-dr ~b)))
 (defun vp-sub-pr (&rest b) (emit `(emit-sub-pr ~b)))
 
+(defun vp-cmp-cr (&rest b) (emit `(emit-cmp-cr ~b)))
+(defun vp-cmp-rr (&rest b) (emit `(emit-cmp-rr ~b)))
+(defun vp-cmp-ir (&rest b) (emit `(emit-cmp-ir ~b)))
+(defun vp-cmp-dr (&rest b) (emit `(emit-cmp-dr ~b)))
+(defun vp-cmp-pr (&rest b) (emit `(emit-cmp-pr ~b)))
+
 (defun vp-mul-cr (&rest b) (emit `(emit-mul-cr ~b)))
 (defun vp-mul-rr (&rest b) (emit `(emit-mul-rr ~b)))
 (defun vp-mul-ir (&rest b) (emit `(emit-mul-ir ~b)))
