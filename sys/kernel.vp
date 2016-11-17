@@ -133,7 +133,7 @@
 				;compare hop counts
 				(vp-add-cr lk_route_hops r0)
 				(vp-cpy-ir r15 kn_msg_link_route_hops r2)
-				(vp-cpy-ir r0 r11 r3)
+				(vp-cpy-dr r0 r11 r3)
 				(switch)
 				(case '(r3 == 0))
 					;never seen, so better route
@@ -141,7 +141,7 @@
 				(case '(r2 < r3))
 				(vp-label 'better_route)
 					;new hops is less, so better route
-					(vp-cpy-ri r2 r0 r11)
+					(vp-cpy-rd r2 r0 r11)
 
 					;fill in via route and remove other routes
 					(vp-cpy-ir r15 kn_msg_link_route_via r13)
@@ -154,11 +154,11 @@
 						(vpif '((r12 lk_node_cpu_id)  == r13))
 							;via route
 							(vp-cpy-ir r15 kn_msg_link_route_hops r2)
-							(vp-cpy-ri r2 r0 r11)
+							(vp-cpy-rd r2 r0 r11)
 						(else)
 							;none via route
 							(vp-xor-rr r1 r1)
-							(vp-cpy-ri r1 r0 r11)
+							(vp-cpy-rd r1 r0 r11)
 						(endif)
 					(loop-end)
 					(break)
@@ -174,7 +174,7 @@
 							;via route
 							(vp-cpy-ir r15 kn_msg_link_route_hops r2)
 							(vp-add-cr lk_route_hops r0)
-							(vp-cpy-ri r2 r0 r11)
+							(vp-cpy-rd r2 r0 r11)
 						(endif)
 					(loop-end)
 					;drop through to discard message !

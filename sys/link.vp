@@ -123,7 +123,7 @@
 				(continueif '(r1 == 0))
 				(vp-mul-cr lk_route_size r2)
 				(vp-add-cr lk_route_hops r1)
-				(vp-cpy-ir r1 r2 r1)
+				(vp-cpy-dr r1 r2 r1)
 			(loop-until '(r1 != 0))
 			(vpif '(r8 != 0))
 				(vp-cpy-rr r7 r9)
