@@ -10,11 +10,11 @@
 	;r1-r2
 
 	(vp-cpy-rr r0 r1)
-	(vp-cpy-rel-r 'seed r0)
+	(vp-cpy-pr 'seed r0)
 	(vp-mul-cr 17 r0)
 	(vp-cpy-cr 0xa5a5a5a5a5a5a5a5 r2)
 	(vp-xor-rr r2 r0)
-	(vp-cpy-r-rel r0 'seed)
+	(vp-cpy-rp r0 'seed)
 	(vp-xor-rr r2 r2)
 	(vp-div r1 r2 r0)
 	(vp-cpy-rr r2 r0)

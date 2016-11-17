@@ -116,7 +116,7 @@
 (def-insert fn-add-path *paths*)
 
 (defun fn-string (s r)
-	(vp-rel (sym (cat "_ref_" (str (fn-add-string s)) "_string")) r))
+	(vp-lea-p (sym (cat "_ref_" (str (fn-add-string s)) "_string")) r))
 
 (defun fn-add-link (p)
 	(push *links* (fn-add-path p)))
@@ -129,13 +129,13 @@
 	i)
 
 (defun fn-bind (p r)
-	(vp-cpy-rel-r (sym (cat "_ref_" (str (fn-find-link p)) "_link")) r))
+	(vp-cpy-pr (sym (cat "_ref_" (str (fn-find-link p)) "_link")) r))
 
 (defun fn-call (p)
-	(vp-call-rel (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
+	(vp-call-p (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
 
 (defun fn-jmp (p)
-	(vp-jmp-rel (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
+	(vp-jmp-p (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
 
 (defun debug-long (s i)
 	;s = debug string
@@ -144,7 +144,7 @@
 		(vp-push r0 r1 r2 r3 r5)
 		(vp-cpy-cr i r0)
 		(vp-push r0)
-		(vp-rel (add '_func_start fn_header_pathname) r0)
+		(vp-lea-p '_func_pathname) r0)
 		(vp-cpy-cr 0 r1)
 		(fn-string s r2)
 		(vp-pop r3)
@@ -158,7 +158,7 @@
 		(vp-push r0 r1 r2 r3 r5)
 		(vp-cpy-cr i r0)
 		(vp-push r0)
-		(vp-rel (add '_func_start fn_header_pathname) r0)
+		(vp-lea-p '_func_pathname) r0)
 		(vp-cpy-cr 0 r1)
 		(fn-string s r2)
 		(vp-pop r3)

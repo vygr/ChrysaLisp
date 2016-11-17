@@ -16,7 +16,7 @@
 	(vp-cpy-rr r0 r7)
 
 	;get loader statics !
-	(vp-rel '_func_start r8)
+	(vp-lea-p '_func_start r8)
 	(vp-cpy-ir-ui r8 fn_header_length r0)
 	(vp-add-rr r0 r8)
 	(vp-cpy-ir-ui r8 fn_header_entry r0)
@@ -81,7 +81,7 @@
 (if (defined 'list_loaded)
 (progn
 	;print loaded function name
-	(vp-rel 'loaded_name r0)
+	(vp-lea-p 'loaded_name r0)
 	(sys-write-string 2 r0 loaded_name_end-loaded_name)
 	(vp-cpy-rr r7 r0)
 	(vp-call 'string_skip)
@@ -107,7 +107,7 @@
 	;check loaded length equals file size
 	(vp-cpy-ir-ui r3 fn_header_length r0)
 	(vpif '(r0 != (r2 stat_fsize)))
-		(vp-rel 'size_error r0)
+		(vp-lea-p 'size_error r0)
 		(sys-write-string 2 r0 size_error_end-size_error)
 		(sys-exit '(1))
 	(endif)
@@ -139,7 +139,7 @@
 	;overflow check
 	(vp-lea-ir r8 ld_statics_size r2)
 	(vpif '(r1 > r2))
-		(vp-rel 'reloc_error r0)
+		(vp-lea-p 'reloc_error r0)
 		(sys-write-string 2 r0 reloc_error_end-reloc_error)
 		(sys-exit '(1))
 	(endif)
@@ -176,7 +176,7 @@
 		(vp-call 'ld_load_function)
 		(vpif '(r0 == 0))
 			;no such file
-			(vp-rel 'bind_error r0)
+			(vp-lea-p 'bind_error r0)
 			(sys-write-string 2 r0 '(sub bind_error_end bind_error))
 			(vp-cpy-ir r4 0 r0)
 			(vp-cpy-ir r0 0 r0)
@@ -197,7 +197,7 @@
 	(vp-pop r3)
 
 	;get loader statics !
-	(vp-rel '_func_start r8)
+	(vp-lea-p '_func_start r8)
 	(vp-cpy-ir-ui r8 fn_header_length r0)
 	(vp-add-rr r0 r8)
 	(vp-cpy-ir-ui r8 fn_header_entry r0)
