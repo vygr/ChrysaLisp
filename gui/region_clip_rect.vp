@@ -19,7 +19,7 @@
 			(vp-cpy-rr r1 r7)
 			(loop-start)
 			(vp-label 'loop)
-				ln_next_fnode r7, r6
+				ln-next-fnode r7, r6
 
 				(switch)
 					(vp-cpy-ir-i r7 gui_rect_x r12)

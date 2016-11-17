@@ -94,7 +94,7 @@
 	(vp-and-cr flow_flag_lastw r3)
 	(vpif '(r3 != 0))
 		;last one fills width gap of parent
-		ln_is_last r0 + view_node, r3
+		ln-is-last r0 + view_node, r3
 		(vpif '(r3 == 0))
 			(vp-cpy-ir r2 flow_flags r3)
 			(vp-and-cr flow_flag_right r3)
@@ -118,7 +118,7 @@
 	(vp-and-cr flow_flag_lasth r3)
 	(vpif '(r3 != 0))
 		;last one fills height gap of parent
-		ln_is_last r0 + view_node, r3
+		ln-is-last r0 + view_node, r3
 		(vpif '(r3 == 0))
 			(vp-cpy-ir r2 flow_flags r3)
 			(vp-and-cr flow_flag_down r3)

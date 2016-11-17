@@ -10,7 +10,7 @@
 	;trashes
 	;r2
 
-	lh_get_head r0 + view_list, r1
+	lh-get-head r0 + view_list, r1
 	(ln-get-succ r1 r2)
 	(vpif '(r2 == 0))
 		(vp-cpy-rr r2 r1)

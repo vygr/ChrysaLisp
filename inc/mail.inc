@@ -71,9 +71,9 @@
 
 	vp_xor %2, %2
 	vp_cpy %2, [%1 + mailbox_tcb]
-	lh_init %1, %2
+	lh-init %1, %2
 	vp_lea [%1 + mailbox_parcel_list], %2
-	lh_init %2, %3
+	lh-init %2, %3
 %endmacro
 
 %macro ml_temp_create 2

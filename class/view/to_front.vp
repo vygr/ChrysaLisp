@@ -10,7 +10,7 @@
 	;r2
 
 	;are we allready front ?
-	ln_is_first r0 + view_node, r1
+	ln-is-first r0 + view_node, r1
 	(vpif '(r1 != 0))
 		(f-call 'view 'add_front '(r0 (r0 view_parent)))
 		(f-jmp 'view 'dirty_all '(r0))

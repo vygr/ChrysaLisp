@@ -9,7 +9,7 @@
 	;trashes
 	;r1-r2
 
-	lh_is_empty r0, r2
+	lh-is-empty r0, r2
 	(vpif '(r2 == 0))
 		(f-bind 'sys_task 'statics r1)
 		(vp-cpy-ir r1 tk_statics_current_tcb r1)

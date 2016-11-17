@@ -2,8 +2,14 @@
 ; VP Instructions
 ;;;;;;;;;;;;;;;;;
 
-(defq r0 0 r1 1 r2 2 r3 3 r4 4 r5 5 r6 6 r7 7 r8 8
-	r9 9 r10 10 r11 11 r12 12 r13 3 r14 14 r15 15)
+(equate 'r0 'r0 'r1 'r1 'r2 'r2 'r3 'r3 'r4 'r4 'r5 'r5 'r6 'r6 'r7 'r7 'r8 'r8
+	'r9 'r9 'r10 'r10 'r11 'r11 'r12 'r12 'r13 'r13 'r14 'r14 'r15 'r15)
+
+(defun reg (r)
+	(defq c 0)
+	(some (lambda (x)
+		(if (eql r x) c
+			(progn (setq c (inc c)) nil)))))
 
 (defun vp-label (s) (emit `(emit-label ',s)) (def *compile-env* s 0))
 (defun vp-align (&rest b) (emit `(emit-align ~b)))

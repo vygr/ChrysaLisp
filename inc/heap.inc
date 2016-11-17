@@ -52,5 +52,5 @@
 	;%2 = cell
 	;%3 = old first cell
 
-	ln_add_fnode %1 + hp_heap_free_flist, %2, %3
+	ln-add-fnode %1 + hp_heap_free_flist, %2, %3
 %endmacro
