@@ -13,6 +13,13 @@
 (defun vp-int (&rest b) (emit `(emit-int ~b)))
 (defun vp-long (&rest b) (emit `(emit-long ~b)))
 
+(defun vp-beq (&rest b) (emit `(emit-beq ~b)))
+(defun vp-bne (&rest b) (emit `(emit-bne ~b)))
+(defun vp-blt (&rest b) (emit `(emit-blt ~b)))
+(defun vp-ble (&rest b) (emit `(emit-ble ~b)))
+(defun vp-bgt (&rest b) (emit `(emit-bgt ~b)))
+(defun vp-bge (&rest b) (emit `(emit-bge ~b)))
+
 (defun vp-push (&rest b) (emit `(emit-push ~b)))
 (defun vp-pop (&rest b) (emit `(emit-pop ~b)))
 
