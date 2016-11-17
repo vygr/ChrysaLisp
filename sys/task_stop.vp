@@ -15,7 +15,7 @@
 
 	;free our task control block
 	(vp-sub-cr ptr_size r1)
-	(vp-cpy-ir r1 r0)
+	(vp-cpy-ir r1 0 r0)
 	(hp-freecell r0 r1 r2)
 	(f-jmp 'sys_task 'restore)
 

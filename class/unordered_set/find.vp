@@ -39,7 +39,7 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(vp-cpy-ir r1 r1)
+	(vp-cpy-ir r1 0 r1)
 	(vp-cpy-ir r0 local_inst r2)
 	(vp-cpy-ir r0 local_key r0)
 	(vp-jmp-i r2 unordered_set_key_callback)

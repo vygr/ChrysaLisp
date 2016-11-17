@@ -309,7 +309,7 @@
 			(vp-label 'cut_encl)
 				;region is enclosed
 				(vp-cpy-rr r7 r1)
-				(vp-cpy-ir r4 r2)
+				(vp-cpy-ir r4 0 r2)
 				(ln-remove-fnode r7 r2)
 				(ln-add-fnode r5 r1 r2)
 				(continue)

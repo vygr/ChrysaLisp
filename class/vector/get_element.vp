@@ -11,7 +11,7 @@
 
 	(vp-mul-cr ptr_size r1)
 	(vp-add-ir r0 vector_array r1)
-	(vp-cpy-ir r1 r1)
+	(vp-cpy-ir r1 0 r1)
 	(vp-ret)
 
 (def-func-end)

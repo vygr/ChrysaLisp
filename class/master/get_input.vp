@@ -11,7 +11,7 @@
 
 	(vp-cpy-ir r0 master_streams r1)
 	(vp-cpy-ir r1 vector_array r1)
-	(vp-cpy-ir r1 r1)
+	(vp-cpy-ir r1 0 r1)
 	(vp-ret)
 
 (def-func-end)

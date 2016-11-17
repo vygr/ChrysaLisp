@@ -14,11 +14,11 @@
 
 	(vp-cpy-rr r0 r14)
 	(loop-start)
-		(vp-cpy-ir r14 r13)
+		(vp-cpy-ir r14 0 r13)
 		(breakif '(r13 == 0))
 		(vp-rel 'options_table r12)
 		(loop-start)
-			(vp-cpy-ir r12 r11)
+			(vp-cpy-ir r12 0 r11)
 			(breakif '(r11 == 0))
 			(vp-add-cr ptr_size r12)
 			(f-call 'sys_string 'compare '(r12 r13) '(r0))
@@ -34,7 +34,7 @@
 			(vp-and-cr (sub 0 ptr_size) r12)
 		(loop-end)
 	(vp-label 'next_arg)
-		(vp-cpy-ir r14 r0)
+		(vp-cpy-ir r14 0 r0)
 		(vp-add-cr ptr_size r14)
 	(loop-until '(r0 == 0))
 	(vp-ret)
@@ -47,7 +47,7 @@
 
 	;set cpu ID
 	(vp-add-cr ptr_size r14)
-	(vp-cpy-ir r14 r0)
+	(vp-cpy-ir r14 0 r0)
 	(vpif '(r0 != 0))
 		(f-call 'sys_string 'to_long '(r0 10) '(r0))
 		(f-bind 'sys_task 'statics r1)
@@ -63,7 +63,7 @@
 
 	;load and run task
 	(vp-add-cr ptr_size r14)
-	(vp-cpy-ir r14 r0)
+	(vp-cpy-ir r14 0 r0)
 	(vpif '(r0 != 0))
 		(f-call 'sys_load 'bind '(r0) '(r0))
 		(vpif '(r0 != 0))
@@ -80,7 +80,7 @@
 
 	;start link task
 	(vp-add-cr ptr_size r14)
-	(vp-cpy-ir r14 r0)
+	(vp-cpy-ir r14 0 r0)
 	(vpif '(r0 != 0))
 		;start link
 		(func-path 'sys_link 'link)

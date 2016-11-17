@@ -27,7 +27,7 @@
 
 	;allocate object from this heap
 	(f-call 'sys_heap 'alloc '(r0) '(r1))
-	(vp-cpy-ri r0 r1)
+	(vp-cpy-ri r0 r1 0)
 	(vp-xchg-rr r0 r1)
 	(vp-cpy-ir r1 hp_heap_cellsize r1)
 	(vp-add-cr ptr_size r0)

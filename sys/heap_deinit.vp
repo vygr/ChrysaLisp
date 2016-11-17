@@ -18,10 +18,10 @@
 		(vp-add-cr ln_fnode_size r3)
 		(sys-munmap '(r0, r3))
 		(f-bind 'sys_mem 'statics r0)
-		(vp-cpy-ir r0 r0)
+		(vp-cpy-ir r0 0 r0)
 		(vp-sub-rr r3 r0)
 		(f-bind 'sys_mem 'statics r3)
-		(vp-cpy-ri r0 r3)
+		(vp-cpy-ri r0 r3 0)
 	(loop-end)
 	(vp-ret)
 

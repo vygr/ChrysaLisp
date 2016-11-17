@@ -9,7 +9,7 @@
 	;r1-r2
 
 	;are we in suspend state ?
-	(vp-cpy-ir r0 r1)
+	(vp-cpy-ir r0 0 r1)
 	(vpif '(r1 == 0))
 		;add to task list
 		(f-bind 'sys_task 'statics r1)

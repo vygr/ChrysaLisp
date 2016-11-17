@@ -17,11 +17,11 @@
 		;check if any have mail
 		(vp-cpy-rr r3 r0)
 		(loop-start)
-			(vp-cpy-ir r0 r2)
+			(vp-cpy-ir r0 0 r2)
 			lh_is_empty r2, r2
 			(vpif '(r2 != 0))
 				;return first mailbox not empty
-				(vp-cpy-ir r0 r0)
+				(vp-cpy-ir r0 0 r0)
 				(vp-ret)
 			(endif)
 			(vp-add-cr ptr_size r0)
@@ -32,7 +32,7 @@
 		(vp-cpy-ir r5 tk_statics_current_tcb r5)
 		(vp-cpy-rr r3 r0)
 		(loop-start)
-			(vp-cpy-ir r0 r2)
+			(vp-cpy-ir r0 0 r2)
 			(vp-cpy-ri r5 r2 mailbox_tcb)
 			(vp-add-cr ptr_size r0)
 		(loop-until '(r0 == r1))
@@ -43,7 +43,7 @@
 		(vp-xor-rr r5 r5)
 		(vp-cpy-rr r3 r0)
 		(loop-start)
-			(vp-cpy-ir r0 r2)
+			(vp-cpy-ir r0 0 r2)
 			(vp-cpy-ri r5 r2 mailbox_tcb)
 			(vp-add-cr ptr_size r0)
 		(loop-until '(r0 == r1))

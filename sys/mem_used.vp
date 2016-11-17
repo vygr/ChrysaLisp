@@ -6,7 +6,7 @@
 	;r0 = amount in bytes
 
 	(f-bind 'sys_mem 'statics r0)
-	(vp-cpy-ir r0 r0)
+	(vp-cpy-ir r0 0 r0)
 	(vp-ret)
 
 (def-func-end)
