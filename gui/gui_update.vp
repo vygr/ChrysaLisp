@@ -3,7 +3,7 @@
 (import 'inc/gui.inc)
 (import 'class/class_view.inc)
 
-%define dual_buffers
+(equate 'dual_buffers t)
 
 (def-func 'gui/gui_update)
 	;inputs
@@ -32,7 +32,7 @@
 	;create visible region at root
 	(f-call 'view 'backward_tree '(r0 r0 ($ null_func_down_callback) ($ visible_up_callback)))
 
-%ifdef dual_buffers
+(if dual_buffers (progn
 	;copy visable region to new region
 	(vp-push r0, 0)
 	(vp-lea-ir r0 view_dirty_region r1)
@@ -56,7 +56,7 @@
 	(vp-pop r1)
 	(vp-cpy-ri r1 r5 gui_statics_old_region)
 	(vp-pop r0)
-%(endif)
+))
 
 	;iterate through views front to back
 	;distribute visible region
