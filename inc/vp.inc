@@ -143,8 +143,8 @@
 (defcompilefun vp-xor-pr (&rest b) (emit `(emit-xor-pr ~b)))
 
 (defcompilefun vp-ret () (emit '(emit-ret)))
-(defcompilefun vp-inc (r) (emit `(emit-add-cr 1 ,r)))
-(defcompilefun vp-dec (r) (emit `(emit-sub-cr 1 ,r)))
+(defcompilefun vp-inc (r) (emit `(emit-inc ,r)))
+(defcompilefun vp-dec (r) (emit `(emit-dec ,r)))
 
 ;;;;;;;;;;;;;
 ; Emit Buffer
@@ -361,3 +361,11 @@
 (defcompilefun emit-mul-pr (&rest b) ())
 
 (defcompilefun emit-ret () (emit-byte 0xc3))
+
+(defcompilefun emit-inc (r)
+	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+	(emit-byte (add 0x48 rh) 0xff (add 0xc0 rl)))
+
+(defcompilefun emit-dec (r)
+	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+	(emit-byte (add 0x48 rh) 0xff (add 0xc8 rl)))

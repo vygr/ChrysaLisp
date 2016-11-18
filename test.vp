@@ -6,7 +6,8 @@
 	(vp-mul-rr r8 r8)
 	(vp-mul-rr r9 r8)
 	(vp-mul-rr r13 r1)
-	(vp-inc r13)
-	(vp-dec r11)
+	(vp-dec r15)
+	(vp-dec r8)
+	(vp-dec r1)
 
 (def-func-end)
