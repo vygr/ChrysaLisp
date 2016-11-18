@@ -43,10 +43,10 @@
 		(breakif '(r1 == 0))
 
 		;down to child
-		lh-get-head r0 + view_list, r1
+		(lh-get-head r0 view_list r1)
 		(vp-sub-cr view_node r1)
 
-		ln-get-succ r1 + view_node, r2
+		(ln-get-succ r1 view_node r2)
 	(loop-until '(r2 == 0))
 	(loop-start)
 		;up callback
@@ -57,10 +57,10 @@
 		(breakif '(r0 == (r4 local_inst)))
 
 		;across to sibling
-		ln-get-succ r0 + view_node, r1
+		(ln-get-succ r0 view_node r1)
 		(vp-sub-cr view_node r1)
 
-		ln-get-succ r1 + view_node, r2
+		(ln-get-succ r1 view_node r2)
 		(vp-jmpif '(r2 != 0) 'down_loop_ctx)
 
 		;up to parent

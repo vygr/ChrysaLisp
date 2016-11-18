@@ -19,7 +19,7 @@
 	(vp-add-cr gui_statics_sigslot_heap r0)
 
 	;disconnect signal
-	(loop-list-forward r1 r2 r3)
+	(loop-list-forward r1 0 r2 r3)
 		;remove from slot list
 		(vp-sub-cr gui_sigslot_sig_node r2)
 		(vp-lea-ir r2 gui_sigslot_slot_node r1)

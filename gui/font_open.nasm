@@ -29,7 +29,7 @@ def_func gui/font_open
 	f_bind gui_font, statics, r5
 
 	;search font list
-	loop_flist_forward r5 + ft_statics_font_flist, r5, r5
+	loop_flist_forward r5, ft_statics_font_flist, r5, r5
 		vp_cpy [r4 + local_points], r0
 		continueif r0, !=, [r5 + ft_font_points]
 		f_call sys_string, compare, {&[r5 + ft_font_name], [r4 + local_font]}, {r0}
@@ -62,7 +62,7 @@ kernel_callback:
 	f_bind gui_font, statics, r5
 
 	;search font list
-	loop_flist_forward r5 + ft_statics_font_flist, r5, r5
+	loop_flist_forward r5, ft_statics_font_flist, r5, r5
 		vp_cpy [r14 + local_points], r0
 		continueif r0, !=, [r5 + ft_font_points]
 		f_call sys_string, compare, {&[r5 + ft_font_name], [r14 + local_font]}, {r0}

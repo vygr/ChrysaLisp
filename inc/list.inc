@@ -42,7 +42,7 @@
 	;trashes
 	;y
 
-	(ln-get-succ x y)
+	(ln-get-succ x 0 y)
 	(vpif '(y == 0))
 		(vp-cpy-ir x (sub 0 lh_list_tail) x)
 	(endif))
@@ -56,7 +56,7 @@
 	;trashes
 	;y
 
-	(ln-get-pred x y)
+	(ln-get-pred x 0 y)
 	(vpif '(y == 0))
 		(ln-get-tail x x)
 	(endif))
@@ -81,25 +81,27 @@
 
 	(vp-cpy-ri y x ln_node_pred))
 
-(defun ln-get-succ (x y)
+(defun ln-get-succ (x y z)
 	;inputs
 	;x = list node
-	;y = temp
+	;y = offset
+	;z = temp
 	;outputs
 	;x = list node
-	;y = succ
+	;z = succ
 
-	(vp-cpy-ir x ln_node_succ y))
+	(vp-cpy-ir x (add ln_node_succ y) z))
 
-(defun ln-get-pred (x y)
+(defun ln-get-pred (x y z)
 	;inputs
 	;x = list node
-	;y = temp
+	;y = offset
+	;z = temp
 	;outputs
 	;x = list node
-	;y = pred
+	;z = pred
 
-	(vp-cpy-ir x ln_node_pred y))
+	(vp-cpy-ir x (add ln_node_pred y) z))
 
 (defun ln-add-node-after (x y z)
 	;inputs
@@ -111,7 +113,7 @@
 	;y = list node2
 	;z = list node1 succ
 
-	(ln-get-succ x z)
+	(ln-get-succ x 0 z)
 	(ln-set-succ x y)
 	(ln-set-pred z y)
 	(ln-set-succ y z)
@@ -127,7 +129,7 @@
 	;y = list node2
 	;z = list node1 pred
 
-	(ln-get-pred x z)
+	(ln-get-pred x 0 z)
 	(ln-set-succ y x)
 	(ln-set-pred y z)
 	(ln-set-succ z y)
@@ -141,8 +143,8 @@
 	;x = list node pred
 	;y = list node succ
 
-	(ln-get-succ x y)
-	(ln-get-pred x x)
+	(ln-get-succ x 0 y)
+	(ln-get-pred x 0 x)
 	(ln-set-pred y x)
 	(ln-set-succ x y))
 
@@ -154,8 +156,8 @@
 	;x = list node
 	;y = 0 if first, else not
 
-	(ln-get-pred x y)
-	(ln-get-pred y y))
+	(ln-get-pred x 0 y)
+	(ln-get-pred y 0 y))
 
 (defun ln-is-last (x y)
 	;inputs
@@ -165,8 +167,8 @@
 	;x = list node
 	;y = 0 if last, else not
 
-	(ln-get-succ x y)
-	(ln-get-succ y y))
+	(ln-get-succ x 0 y)
+	(ln-get-succ y 0 y))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; list header macros
@@ -211,25 +213,27 @@
 
 	(vp-cpy-ri y x lh_list_tailpred))
 
-(defun lh-get-head (x y)
+(defun lh-get-head (x y z)
 	;inputs
 	;x = list head
-	;y = temp
+	;y = offset
+	;z = temp
 	;outputs
 	;x = list head
-	;y = list node
+	;z = list node
 
-	(vp-cpy-ir x lh_list_head y))
+	(vp-cpy-ir x (add lh_list_head y) z))
 
-(defun lh-get-tail (x y)
+(defun lh-get-tail (x y z)
 	;inputs
 	;x = list head
-	;y = temp
+	;y = offset
+	;z = temp
 	;outputs
 	;x = list head
-	;y = list node
+	;z = list node
 
-	(vp-cpy-ir x lh_list_tailpred y))
+	(vp-cpy-ir x (add lh_list_tailpred y) z))
 
 (defun lh-add-at-head (x y z)
 	;inputs
@@ -271,8 +275,8 @@
 	;y = list node
 	;z = list node succ
 
-	(lh-get-head x x)
-	(ln-get-succ x y)
+	(lh-get-head x 0 x)
+	(ln-get-succ x 0 y)
 	(vpif '(y != 0))
 		(vp-cpy-rr x y)
 		(ln-remove-node x z)
@@ -292,31 +296,33 @@
 	;y = list node
 	;z = list node succ
 
-	(lh-get-tail x x)
-	(ln-get-pred x y)
+	(lh-get-tail x 0 x)
+	(ln-get-pred x 0 y)
 	(vpif '(y != 0))
 		(vp-cpy-rr x y)
 		(ln-remove-node x z)
 	(endif))
 
-(defun lh-is-empty (x y)
+(defun lh-is-empty (x y z)
 	;inputs
 	;x = list head
-	;y = temp
+	;y = offset
+	;z = temp
 	;outputs
 	;x = list head
-	;y = 0 if empty, else not
+	;z = 0 if empty, else not
 
-	(ln-get-succ x y)
-	(ln-get-succ y y))
+	(ln-get-succ x y z)
+	(ln-get-succ z 0 z))
 
 ;;;;;;;;;;;;;;;;;;
 ; list loop macros
 ;;;;;;;;;;;;;;;;;;
 
-(defun loop-list-forward (x y z)
+(defun loop-list-forward (x w y z)
 	;inputs
 	;x = list head
+	;w = offset
 	;y = list node
 	;z = list node look ahead
 	;outputs
@@ -324,15 +330,16 @@
 	;y = list node
 	;z = list node look ahead
 
-	(lh-get-head x z)
+	(lh-get-head x w z)
 	(loop-start)
 		(vp-cpy-rr z y)
-		(ln-get-succ z z)
+		(ln-get-succ z 0 z)
 		(breakif '(z == 0)))
 
-(defun loop-list-backward (x y z)
+(defun loop-list-backward (x w y z)
 	;inputs
 	;x = list head
+	;w = offset
 	;y = list node
 	;z = list node look ahead
 	;outputs
@@ -340,15 +347,16 @@
 	;y = list node
 	;z = list node look ahead
 
-	(lh-get-tail x z)
+	(lh-get-tail x w z)
 	(loop-start)
 		(vp-cpy-rr z y)
-		(ln-get-pred z z)
+		(ln-get-pred z 0 z)
 		(breakif '(z == 0)))
 
-(defun loop-flist-forward (x y z)
+(defun loop-flist-forward (x w y z)
 	;inputs
 	;x = list head
+	;w = offset
 	;y = list node
 	;z = list last
 	;outputs
@@ -356,7 +364,7 @@
 	;y = list node
 	;z = list last
 
-	(vp-cpy-rr x y)
+	(vp-lea-i x w y)
 	(loop-start)
 		(ln-next-fnode y z))
 

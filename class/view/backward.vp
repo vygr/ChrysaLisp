@@ -29,9 +29,9 @@
 	(vp-cpy-ri r1 r4 local_data)
 	(vp-cpy-ri r2 r4 local_callback)
 
-	lh-get-tail r0 + view_list, r0
+	(lh-get-tail r0 view_list r0)
 	(loop-start)
-		ln-get-pred r0, r1
+		(ln-get-pred r0 0 r1)
 		(breakif '(r1 == 0))
 
 		;callback
@@ -40,7 +40,7 @@
 		(vp-call-i r4 local_callback)
 
 		;across to sibling
-		ln-get-pred r0 + view_node, r0
+		(ln-get-pred r0 view_node r0)
 	(loop-end)
 
 	(vp-cpy-ir r4 local_inst r0)

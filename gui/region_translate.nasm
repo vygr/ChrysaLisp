@@ -10,7 +10,7 @@ def_func gui/region_translate
 	;r1, r10, r11
 
 	;run through source region list
-	loop_flist_forward r1, r1, r1
+	loop_flist_forward r1, 0, r1, r1
 		vp_cpy_i [r1 + gui_rect_x], r10
 		vp_cpy_i [r1 + gui_rect_y], r11
 		vp_add r8, r10

@@ -21,7 +21,7 @@
 	(vp-lea-ir r15 ft_statics_text_flists r10)
 	(vp-lea-ir r10 ft_buckets_size r11)
 	(loop-start)
-		(loop-flist-forward r10 r14 r13)
+		(loop-flist-forward r10 0 r14 r13)
 			(vp-cpy-rr r14 r12)
 			(ln-remove-fnode r14 r13)
 			(sdl-destroy-texture '((r12 ft_text_texture)))
@@ -31,7 +31,7 @@
 	(loop-until '(r10 == r11))
 
 	;free all fonts in the cache
-	(loop-flist-forward (r15 ft_statics_font_flist) r14 r13)
+	(loop-flist-forward r15 ft_statics_font_flist r14 r13)
 		(vp-cpy-rr r14 r12)
 		(ln-remove-fnode r14 r13)
 		ttf_close_font (r12 ft_font_handle)

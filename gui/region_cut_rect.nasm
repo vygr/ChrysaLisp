@@ -18,7 +18,9 @@ def_func gui/region_cut_rect
 			vp_cpy r2, r5
 			vp_cpy r1, r6
 			vp_sub ptr_size, r4
-			loop_flist_forward r1, r7, [r4]
+			loop_flist_forward r1, 0, r7, r2
+				vp_cpy r2, [r4]
+
 				;not in contact ?
 				vp_cpy_i [r7 + gui_rect_x], r12
 				continueif r12, >=, r10

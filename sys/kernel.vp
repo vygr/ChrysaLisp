@@ -104,7 +104,7 @@
 				(f-bind 'sys_task 'statics r1)
 				(vp-cpy-ir r1 tk_statics_task_count r1)
 				(f-bind 'sys_link 'statics r2)
-				(loop-list-forward (r2 lk_statics_links_list) r3 r2)
+				(loop-list-forward r2 lk_statics_links_list r3 r2)
 					(vpif '(r1 > (r3 lk_node_task_count)))
 						(vp-cpy-ir r3 lk_node_cpu_id r0)
 						(vp-cpy-ir r3 lk_node_task_count r1)
@@ -146,7 +146,7 @@
 					;fill in via route and remove other routes
 					(vp-cpy-ir r15 kn_msg_link_route_via r13)
 					(f-bind 'sys_link 'statics r14)
-					(loop-list-forward (r14 lk_statics_links_list) r12 r14)
+					(loop-list-forward r14 lk_statics_links_list r12 r14)
 						;new link route table ?
 						(f-call 'sys_mem 'grow '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size)) (& r11 lk_route_size)) '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size))))
 
@@ -166,7 +166,7 @@
 					;new hops is equal, so additional route
 					(vp-cpy-ir r15 kn_msg_link_route_via r13)
 					(f-bind 'sys_link 'statics r14)
-					(loop-list-forward (r14 lk_statics_links_list) r12 r14)
+					(loop-list-forward r14 lk_statics_links_list r12 r14)
 						;new link route table ?
 						(f-call 'sys_mem 'grow '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size)) (& r11 lk_route_size)) '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size))))
 
@@ -194,7 +194,7 @@
 
 				;copy and send to all neighbors apart from old via
 				(f-bind 'sys_link 'statics r13)
-				(loop-list-forward (r13 lk_statics_links_list) r12 r13)
+				(loop-list-forward r13 lk_statics_links_list r12 r13)
 					(vp-cpy-ir r12 lk_node_cpu_id r11)
 					(continueif '(r11 == r14))
 					(f-call 'sys_mail 'alloc '() '(r0))
@@ -235,9 +235,9 @@
 		(f-bind 'sys_task 'statics r3)
 		(vp-cpy-ir r3 tk_statics_current_tcb r15)
 		(vp-cpy-ir r3 (add tk_statics_timer_list lh_list_head) r2)
-		(ln-get-succ r2 r2)
+		(ln-get-succ r2 0 r2)
 		(vpif '(r2 != 0))
-			(loop-list-forward (r3 tk_statics_timer_list) r1 r2)
+			(loop-list-forward r3 tk_statics_timer_list r1 r2)
 				(vp-cpy-ir r1 tk_node_time r5)
 				(breakif '(r5 > r0))
 
@@ -255,7 +255,7 @@
 
 		;exit if no task waiting for timer
 		(vp-cpy-ir r3 (add tk_statics_timer_list lh_list_head) r2)
-		(ln-get-succ r2 r1)
+		(ln-get-succ r2 0 r1)
 		(breakif '(r1 == 0))
 
 		;sleep till next wake time

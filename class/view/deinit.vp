@@ -16,7 +16,7 @@
 
 	;deref any child views
 	(vp-cpy-ir r4 0 r0)
-	(loop-list-forward (r0 view_list) r0 r1)
+	(loop-list-forward r0 view_list r0 r1)
 		(vp-sub-cr view_node r0)
 		(vp-push r1)
 		(f-call 'view 'sub '(r0))

@@ -23,7 +23,7 @@ ld_load_function:
 	vp_add r0, r8
 
 	;check if function already present !
-	loop_flist_forward r8 + ld_statics_function_flist, r6, r6
+	loop_flist_forward r8, ld_statics_function_flist, r6, r6
 		vp_cpy r7, r0
 		vp_lea [r6 + fn_header_pathname], r1
 		vp_call string_compare

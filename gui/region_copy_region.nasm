@@ -27,7 +27,7 @@ def_func gui/region_copy_region
 	map_src_to_dst
 
 	;run through copy region list
-	loop_flist_forward r3, r1, r1
+	loop_flist_forward r3, 0, r1, r1
 		vp_cpy r1, [r4 + local_node]
 
 		vp_cpy_i [r1 + gui_rect_x], r8

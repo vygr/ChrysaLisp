@@ -10,7 +10,7 @@
 	;r1, r10, r11
 
 	;run through source region list
-	(loop-flist-forward r1 r1 r1)
+	(loop-flist-forward r1 0 r1 r1)
 		(vp-cpy-ir-i r1 gui_rect_x r10)
 		(vp-cpy-ir-i r1 gui_rect_y r11)
 		(vp-add-rr r8 r10)

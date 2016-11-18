@@ -68,7 +68,7 @@ def_func gui/gui_update
 	f_bind gui_gui, statics, r1
 	vp_cpy [r1 + gui_statics_renderer], r1
 	vp_cpy r1, [r4 + local_ctx + gui_ctx_sdl_ctx]
-	loop_flist_forward r4 + local_ctx_flist, r0, r0
+	loop_flist_forward r4, local_ctx_flist, r0, r0
 		vp_cpy r0, [r4 + local_ctx_next]
 		vp_sub view_ctx_node, r0
 		vp_cpy [r0 + view_ctx_x], r8

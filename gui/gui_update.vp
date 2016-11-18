@@ -68,7 +68,7 @@
 	(f-bind 'gui_gui 'statics r1)
 	(vp-cpy-ir r1 gui_statics_renderer r1)
 	(vp-cpy-ri r1 r4 (add local_ctx gui_ctx_sdl_ctx))
-	(loop-flist-forward (r4 local_ctx_flist) r0 r0)
+	(loop-flist-forward r4 local_ctx_flist r0 r0)
 		(vp-cpy-ri r0 r4 local_ctx_next)
 		(vp-sub-cr view_ctx_node r0)
 		(vp-cpy-ir r0 view_ctx_x r8)

@@ -373,21 +373,20 @@ def_struct_end
 		breakif %3, ==, 0
 %endmacro
 
-%macro loop_flist_forward 3
+%macro loop_flist_forward 4
 	;inputs
 	;%1 = list head
-	;%2 = list node
-	;%3 = list last
+	;%2 = offset
+	;%3 = list node
+	;%4 = list last
 	;outputs
 	;%1 = list head
-	;%2 = list node
-	;%3 = list last
+	;%3 = list node
+	;%4 = list last
 
-	%ifnidn %1, %2
-		vp_lea [%1], %2
-	%endif
+	vp_lea [%1 + %2], %3
 	loop_start
-		ln_next_fnode %2, %3
+		ln_next_fnode %3, %4
 %endmacro
 
 ;;;;;;;;;;;;;;;;;;;;;

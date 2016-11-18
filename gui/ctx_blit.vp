@@ -57,7 +57,7 @@
 	;for each rect on the dirty region
 	(vp-cpy-ir r4 local_ctx r0)
 	(vp-cpy-ir r0 gui_ctx_dirty_region r0)
-	(loop-flist-forward r0 r0 r0)
+	(loop-flist-forward r0 0 r0 r0)
 		(vp-cpy-ri r0 r4 local_dirty_rect)
 
 		;set clip region to this region

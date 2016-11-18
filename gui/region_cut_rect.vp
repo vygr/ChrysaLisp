@@ -18,7 +18,9 @@
 			(vp-cpy-rr r2 r5)
 			(vp-cpy-rr r1 r6)
 			(vp-sub-cr ptr_size r4)
-			(loop-flist-forward r1, r7, (r4))
+			(loop-flist-forward r1 0 r7 r2)
+				(vp-cpy-ri r2 r4 0)
+
 				;not in contact ?
 				(vp-cpy-ir-i r7 gui_rect_x r12)
 				(continueif '(r12 >= r10))

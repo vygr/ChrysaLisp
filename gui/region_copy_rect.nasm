@@ -18,7 +18,7 @@ def_func gui/region_copy_rect
 		vpif r11, >, r9
 			;run through source region list
 			vp_cpy r2, r5
-			loop_flist_forward r1, r7, r7
+			loop_flist_forward r1, 0, r7, r7
 				;not in contact ?
 				vp_cpy_i [r7 + gui_rect_x], r12
 				continueif r12, >=, r10

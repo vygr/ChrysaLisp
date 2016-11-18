@@ -43,7 +43,7 @@ def_func gui/font_text
 	vp_cpy r5, [r4 + local_bucket]
 
 	;search bucket
-	loop_flist_forward r5, r5, r6
+	loop_flist_forward r5, 0, r5, r6
 		vp_cpy [r4 + local_font], r0
 		continueif r0, !=, [r5 + ft_text_font]
 		f_call sys_string, compare, {&[r5 + ft_text_name], [r4 + local_text]}, {r0}

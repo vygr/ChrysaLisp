@@ -11,7 +11,7 @@
 	(vp-cpy-ri r4 r15 tk_node_stack)
 
 	;get next task control block
-	(ln-get-succ r15 r15)
+	(ln-get-succ r15 0 r15)
 	(f-jmp 'sys_task 'restore)
 
 (def-func-end)

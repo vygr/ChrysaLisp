@@ -11,11 +11,11 @@
 	;trashes
 	;r2, r3
 
-	(lh-get-head r0 r2)
+	(lh-get-head r0 0 r2)
 	(vp-xor-rr r0 r0)
 	(loop-start)
 		(vp-cpy-rr r2 r3)
-		(ln-get-succ r2 r2)
+		(ln-get-succ r2 0 r2)
 		(vpif '(r2 == 0))
 			(vp-cpy-cr -1 r0)
 			(vp-ret)

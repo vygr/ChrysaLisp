@@ -11,7 +11,7 @@ def_func sys/heap_deinit
 	;r0-r3
 
 	vp_cpy r0, r1
-	loop_flist_forward r0 + hp_heap_block_flist, r2, r3
+	loop_flist_forward r0, hp_heap_block_flist, r2, r3
 		vp_cpy r2, r0
 		ln_remove_fnode r2, r3
 		vp_cpy [r1 + hp_heap_blocksize], r3

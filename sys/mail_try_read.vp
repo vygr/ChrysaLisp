@@ -9,9 +9,9 @@
 	;trashes
 	;r1-r2
 
-	(lh-get-head r0 r0)
+	(lh-get-head r0 0 r0)
 	(vp-cpy-rr r0 r1)
-	(ln-get-succ r0 r0)
+	(ln-get-succ r0 0 r0)
 	(vpif '(r0 != 0))
 		(vp-cpy-rr r1 r0)
 		(ln-remove-node r1 r2)

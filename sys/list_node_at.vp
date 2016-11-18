@@ -10,10 +10,10 @@
 	;trashes
 	;r1, r2
 
-	(lh-get-head r0 r2)
+	(lh-get-head r0 0 r2)
 	(loop-start)
 		(vp-cpy-rr r2 r0)
-		(ln-get-succ r2 r2)
+		(ln-get-succ r2 0 r2)
 		(vpif '(r2 == 0))
 			(vp-xor-rr r0 r0)
 			(vp-ret)

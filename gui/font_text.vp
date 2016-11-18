@@ -42,7 +42,7 @@
 	(vp-cpy-ri r5 r4 local_bucket)
 
 	;search bucket
-	(loop-flist-forward r5 r5 r6)
+	(loop-flist-forward r5 0 r5 r6)
 		(vp-cpy-ir r4 local_font r0)
 		(continueif '(r0 != (r5 ft_text_font)))
 		(f-call 'sys_string 'compare '((& r5 ft_text_name) (r4 local_text)) '(r0))

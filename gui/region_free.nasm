@@ -9,7 +9,7 @@ def_func gui/region_free
 	;r1-r3
 
 	;run through source region list
-	loop_flist_forward r1, r1, r2
+	loop_flist_forward r1, 0, r1, r2
 		vp_cpy r1, r3
 		ln_remove_fnode r1, r2
 		hp_freecell r0, r3, r2

@@ -12,7 +12,7 @@
 		(vp-cpy-ir r15 (add msg_parcel_id id_mbox) r6)
 		(vp-cpy-ir r15 (add msg_parcel_id id_cpu) r7)
 		(vp-cpy-ir r15 (add msg_dest id_mbox) r13)
-		(loop-list-forward (r13 mailbox_parcel_list) r0 r1)
+		(loop-list-forward r13 mailbox_parcel_list r0 r1)
 			(continueif '(r6 != (r0 (add msg_parcel_id id_mbox))))
 		(loop-until '(r7 == (r0 (add msg_parcel_id id_cpu))))
 		(vpif '(r1 == 0))
