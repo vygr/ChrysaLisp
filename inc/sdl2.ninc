@@ -100,7 +100,7 @@ def_struct sdl_rect
 def_struct_end
 
 def_struct sdl_surface
-	int sdl_flags
+	int sdl_surface_flags
 	long sdl_surface_format
 	int sdl_surface_w
 	int sdl_surface_h
@@ -121,7 +121,7 @@ def_struct_end
 %macro sdl_call 1
 	f_bind gui_gui, statics, r0
 	vp_cpy [r0 + gui_statics_sdl_funcs], r0
-	vp_call [r0 + (%1 * 8)]
+	vp_call [r0 + (%1 * ptr_size)]
 %endmacro
 
 %macro sdl_set_main_ready 0
