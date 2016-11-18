@@ -2,12 +2,13 @@
 
 (def-func 'test)
 
-;	(def-struct 'local)
-;		(ptr 'local_inst)
-;	(def-struct-end)
-
-;	(vp-sub-cr local_size r4)
-;	(vp-add-cr local_size r4)
-;	(vp-ret)
+	(vp-cpy-cr 0x7f r15)
+	(vp-cpy-cr 0x7f r8)
+	(vp-cpy-cr 0x7f r2)
+	(vp-cpy-cr 0x7f r1)
+	(vp-cpy-cr 0x7fffffffff r15)
+	(vp-cpy-cr 0x7fffffffff r8)
+	(vp-cpy-cr 0x7fffffffff r2)
+	(vp-cpy-cr 0x7fffffffff r1)
 
 (def-func-end)

@@ -21,9 +21,8 @@
 
 (defcompilefun reg (r)
 	(defq c 0)
-	(some (lambda (x)
-		(if (eql r x) c
-			(progn (setq c (inc c)) nil)))))
+	(some (lambda (x) (if (eql r x) c (progn (setq c (inc c)) nil)))
+		'(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15)))
 
 (defcompilefun vp-label (s) (emit `(emit-label ',s)) (def *compile-env* s 0))
 (defcompilefun vp-align (&rest b) (emit `(emit-align ~b)))
@@ -33,12 +32,12 @@
 (defcompilefun vp-int (&rest b) (emit `(emit-int ~b)))
 (defcompilefun vp-long (&rest b) (emit `(emit-long ~b)))
 
-(defcompilefun vp-beq (&rest b) (emit `(emit-beq ~b)))
-(defcompilefun vp-bne (&rest b) (emit `(emit-bne ~b)))
-(defcompilefun vp-blt (&rest b) (emit `(emit-blt ~b)))
-(defcompilefun vp-ble (&rest b) (emit `(emit-ble ~b)))
-(defcompilefun vp-bgt (&rest b) (emit `(emit-bgt ~b)))
-(defcompilefun vp-bge (&rest b) (emit `(emit-bge ~b)))
+(defcompilefun vp-beq (l) (emit `(emit-beq ,l)))
+(defcompilefun vp-bne (l) (emit `(emit-bne ,l)))
+(defcompilefun vp-blt (l) (emit `(emit-blt ,l)))
+(defcompilefun vp-ble (l) (emit `(emit-ble ,l)))
+(defcompilefun vp-bgt (l) (emit `(emit-bgt ,l)))
+(defcompilefun vp-bge (l) (emit `(emit-bge ,l)))
 
 (defcompilefun vp-push (&rest b) (emit `(emit-push ~b)))
 (defcompilefun vp-pop (&rest b) (emit `(emit-pop ~b)))
@@ -212,6 +211,16 @@
 ; x64 Emit Functions
 ;;;;;;;;;;;;;;;;;;;;
 
+(defcompilefun emit-cr (o c r)
+	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+	(cond
+		((le -0x80 c 0x7f)
+			(emit-byte (add 0x48 rh) 0x83 (add o rl) c))
+		((le -0x80000000 c 0x7fffffff)
+			(emit-byte (add 0x48 rh) 0x81 (add o rl))
+			(emit-int c))
+		t (print "emit-cr constant out of range: " c)))
+
 (defcompilefun emit-beq (%1) ())
 (defcompilefun emit-bne (%1) ())
 (defcompilefun emit-blt (%1) ())
@@ -238,7 +247,16 @@
 (defcompilefun emit-lea-d (&rest b) ())
 (defcompilefun emit-lea-p (&rest b) ())
 
-(defcompilefun emit-cpy-cr (&rest b) ())
+(defcompilefun emit-cpy-cr (c r)
+	(defq r (reg r) rl (bit-and r 7) rh (bit-shr r 3))
+	(cond
+		((le -0x80000000 c 0x7fffffff)
+			(emit-byte (add 0x48 rh) 0xc7 (add 0xc0 rl))
+			(emit-int c))
+		(t
+			(emit-byte (add 0x48 rh) (add 0xb8 rl))
+			(emit-long c))))
+
 (defcompilefun emit-cpy-rr (&rest b) ())
 (defcompilefun emit-cpy-ir (&rest b) ())
 (defcompilefun emit-cpy-dr (&rest b) ())
@@ -280,46 +298,55 @@
 (defcompilefun emit-cpy-rd-i (&rest b) ())
 (defcompilefun emit-cpy-rp-i (&rest b) ())
 
-(defcompilefun emit-add-cr (&rest b) ())
+(defcompilefun emit-add-cr (c r) (emit-cr 0xc0 c r))
 (defcompilefun emit-add-rr (&rest b) ())
 (defcompilefun emit-add-ir (&rest b) ())
 (defcompilefun emit-add-dr (&rest b) ())
 (defcompilefun emit-add-pr (&rest b) ())
 
-(defcompilefun emit-sub-cr (&rest b) ())
+(defcompilefun emit-sub-cr (c r) (emit-cr 0xe8 c r))
 (defcompilefun emit-sub-rr (&rest b) ())
 (defcompilefun emit-sub-ir (&rest b) ())
 (defcompilefun emit-sub-dr (&rest b) ())
 (defcompilefun emit-sub-pr (&rest b) ())
 
-(defcompilefun emit-cmp-cr (&rest b) ())
+(defcompilefun emit-cmp-cr (c r) (emit-cr 0xf8 c r))
 (defcompilefun emit-cmp-rr (&rest b) ())
 (defcompilefun emit-cmp-ir (&rest b) ())
 (defcompilefun emit-cmp-dr (&rest b) ())
 (defcompilefun emit-cmp-pr (&rest b) ())
 
-(defcompilefun emit-mul-cr (&rest b) ())
-(defcompilefun emit-mul-rr (&rest b) ())
-(defcompilefun emit-mul-ir (&rest b) ())
-(defcompilefun emit-mul-dr (&rest b) ())
-(defcompilefun emit-mul-pr (&rest b) ())
-
-(defcompilefun emit-and-cr (&rest b) ())
+(defcompilefun emit-and-cr (c r) (emit-cr 0xe0 c r))
 (defcompilefun emit-and-rr (&rest b) ())
 (defcompilefun emit-and-ir (&rest b) ())
 (defcompilefun emit-and-dr (&rest b) ())
 (defcompilefun emit-and-pr (&rest b) ())
 
-(defcompilefun emit-or-cr (&rest b) ())
+(defcompilefun emit-or-cr (c r) (emit-cr 0xc8 c r))
 (defcompilefun emit-or-rr (&rest b) ())
 (defcompilefun emit-or-ir (&rest b) ())
 (defcompilefun emit-or-dr (&rest b) ())
 (defcompilefun emit-or-pr (&rest b) ())
 
-(defcompilefun emit-xor-cr (&rest b) ())
+(defcompilefun emit-xor-cr (c r) (emit-cr 0xf0 c r))
 (defcompilefun emit-xor-rr (&rest b) ())
 (defcompilefun emit-xor-ir (&rest b) ())
 (defcompilefun emit-xor-dr (&rest b) ())
 (defcompilefun emit-xor-pr (&rest b) ())
+
+(defcompilefun emit-mul-cr (c r)
+	(defq r (reg r) rl (bit-and r 7) rh (bit-shr r 3))
+	(cond
+		((le -0x80 c 0x7f)
+			(emit-byte (add 0x48 (bit-shl rh 2) rh) 0x6b (add 0xc0 rl (bit-shl rl 3)) c))
+		((le -0x80000000 c 0x7fffffff)
+			(emit-byte (add 0x48 (bit-shl rh 2) rh) 0x69 (add 0xc0 rl (bit-shl rl 3)))
+			(emit-int c))
+		t (print "emit-mul-cr constant out of range: " c)))
+
+(defcompilefun emit-mul-rr (&rest b) ())
+(defcompilefun emit-mul-ir (&rest b) ())
+(defcompilefun emit-mul-dr (&rest b) ())
+(defcompilefun emit-mul-pr (&rest b) ())
 
 (defcompilefun emit-ret () (emit-byte 0xc3))
