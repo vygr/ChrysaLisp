@@ -107,209 +107,209 @@
 ; sdl2 macros
 ;;;;;;;;;;;;;
 
-(defun sdl-call (%1)
+(defcompilefun sdl-call (%1)
 	(f-bind 'gui_gui 'statics r0)
 	(vp-cpy-ir r0 gui_statics_sdl_funcs r0)
 	(vp-call-i r0 (mul %1 ptr_size)))
 
-(defun sdl_set_main_ready ()
+(defcompilefun sdl_set_main_ready ()
 	(sdl-call sdl_SDL_SetMainReady))
 
-(defun sdl-init (%1)
+(defcompilefun sdl-init (%1)
 	;flags
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_Init))
 
-(defun sdl-delay (%1)
+(defcompilefun sdl-delay (%1)
 	;time
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_Delay))
 
-(defun sdl_quit ()
+(defcompilefun sdl_quit ()
 	(sdl-call sdl_SDL_Quit))
 
-(defun sdl-create-window (%1 %2 %3 %4 %5 %6)
+(defcompilefun sdl-create-window (%1 %2 %3 %4 %5 %6)
 	;title, x, y, w, h, flags
 	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6))
 	(set-dst '(r7 r6 r2 r1 r8 r9))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_CreateWindow))
 
-(defun sdl-create-window-and-renderer (%1 %2 %3 %4 %5)
+(defcompilefun sdl-create-window-and-renderer (%1 %2 %3 %4 %5)
 	;w, h, flags, window**, renderer**
 	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5))
 	(set-dst '(r7 r6 r2 r1 r8))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_CreateWindowAndRenderer))
 
-(defun sdl-destroy-window (%1)
+(defcompilefun sdl-destroy-window (%1)
 	;window
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_DestroyWindow))
 
-(defun sdl-create-renderer (%1 %2 %3)
+(defcompilefun sdl-create-renderer (%1 %2 %3)
 	;window*, index, flags
 	(set-src `(,%1 ,%2 ,%3))
 	(set-dst '(r7 r6 r2))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_CreateRenderer))
 
-(defun sdl-set-render-draw-color (%1 %2 %3 %4 %5)
+(defcompilefun sdl-set-render-draw-color (%1 %2 %3 %4 %5)
 	;renderer**, r, g, b, a
 	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5))
 	(set-dst '(r7 r6 r2 r1 r8))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_SetRenderDrawColor))
 
-(defun sdl-render-fill-rect (%1 %2)
+(defcompilefun sdl-render-fill-rect (%1 %2)
 	;renderer**, rect*
 	(set-src `(,%1 ,%2))
 	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_RenderFillRect))
 
-(defun sdl-render-draw-rect (%1 %2)
+(defcompilefun sdl-render-draw-rect (%1 %2)
 	;renderer**, rect*
 	(set-src `(,%1 ,%2))
 	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_RenderDrawRect))
 
-(defun sdl-render-present (%1)
+(defcompilefun sdl-render-present (%1)
 	;renderer**
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_RenderPresent))
 
-(defun sdl-render-set-clip-rect (%1 %2)
+(defcompilefun sdl-render-set-clip-rect (%1 %2)
 	;renderer**, rect*
 	(set-src `(,%1 ,%2))
 	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_RenderSetClipRect))
 
-(defun sdl-set-render-draw-blend-mode (%1 %2)
+(defcompilefun sdl-set-render-draw-blend-mode (%1 %2)
 	;renderer**, mode
 	(set-src `(,%1 ,%2))
 	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_SetRenderDrawBlendMode))
 
-(defun sdl_pump_events ()
+(defcompilefun sdl_pump_events ()
 	(sdl-call sdl_SDL_PumpEvents))
 
-(defun sdl-get-mouse-state (%1 %2)
+(defcompilefun sdl-get-mouse-state (%1 %2)
 	;x*, y*
 	(set-src `(,%1 ,%2))
 	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_GetMouseState))
 
-(defun sdl-get-keyboard-state (%1)
+(defcompilefun sdl-get-keyboard-state (%1)
 	;*int
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_GetKeyboardState))
 
-(defun sdl-free-surface (%1)
+(defcompilefun sdl-free-surface (%1)
 	;surface*
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_FreeSurface))
 
-(defun sdl-create-texture-from-surface (%1 %2)
+(defcompilefun sdl-create-texture-from-surface (%1 %2)
 	;renderer**, surface*
 	(set-src `(,%1 ,%2))
 	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_CreateTextureFromSurface))
 
-(defun sdl-destroy-texture (%1)
+(defcompilefun sdl-destroy-texture (%1)
 	;texture*
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_DestroyTexture))
 
-(defun sdl-render-copy (%1 %2 %3 %4)
+(defcompilefun sdl-render-copy (%1 %2 %3 %4)
 	;renderer**, texture*, srect*, drect*
 	(set-src `(,%1 ,%2 ,%3 ,%4))
 	(set-dst '(r7 r6 r2 r1))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_RenderCopy))
 
-(defun sdl-set-texture-blend-mode (%1 %2)
+(defcompilefun sdl-set-texture-blend-mode (%1 %2)
 	;texture*, blendmode
 	(set-src `(,%1 ,%2))
 	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_SetTextureBlendMode))
 
-(defun sdl-set-texture-color-mod (%1 %2 %3 %4)
+(defcompilefun sdl-set-texture-color-mod (%1 %2 %3 %4)
 	;texture*, byte r, byte g, byte b
 	(set-src `(,%1 ,%2 ,%3 ,%4))
 	(set-dst '(r7 r6 r2 r1))
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_SetTextureColorMod))
 
-(defun ttf_init ()
+(defcompilefun ttf_init ()
 	(sdl-call sdl_TTF_Init))
 
-(defun ttf_quit ()
+(defcompilefun ttf_quit ()
 	(sdl-call sdl_TTF_Quit))
 
-(defun ttf-open-font (%1 %2)
+(defcompilefun ttf-open-font (%1 %2)
 	;name*, pointsize
 	(set-src `(,%1 ,%2))
 	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	(sdl-call sdl_TTF_OpenFont))
 
-(defun ttf-close-font (%1)
+(defcompilefun ttf-close-font (%1)
 	;font*
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sdl-call sdl_TTF_CloseFont))
 
-(defun ttf-size-utf8 (%1 %2 %3 %4)
+(defcompilefun ttf-size-utf8 (%1 %2 %3 %4)
 	;font*, text*, int *w, int *h
 	(set-src `(,%1 ,%2 ,%3 ,%4))
 	(set-dst '(r7 r6 r2 r1))
 	(map-src-to-dst)
 	(sdl-call sdl_TTF_SizeUTF8))
 
-(defun ttf-font-ascent (%1)
+(defcompilefun ttf-font-ascent (%1)
 	;font*
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sdl-call sdl_TTF_FontAscent))
 
-(defun ttf-font-descent (%1)
+(defcompilefun ttf-font-descent (%1)
 	;font*
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sdl-call sdl_TTF_FontDescent))
 
-(defun ttf-font-height (%1)
+(defcompilefun ttf-font-height (%1)
 	;font*
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sdl-call sdl_TTF_FontHeight))
 
-(defun ttf-render-utf8-blended (%1 %2 %3)
+(defcompilefun ttf-render-utf8-blended (%1 %2 %3)
 	;font*, text*, color
 	(set-src `(,%1 ,%2 ,%3))
 	(set-dst '(r7 r6 r2))
