@@ -142,7 +142,9 @@
 (defcompilefun vp-xor-dr (&rest b) (emit `(emit-xor-dr ~b)))
 (defcompilefun vp-xor-pr (&rest b) (emit `(emit-xor-pr ~b)))
 
-(defcompilefun vp-ret () (emit `(emit-ret)))
+(defcompilefun vp-ret () (emit '(emit-ret)))
+(defcompilefun vp-inc (r) (emit `(emit-add-cr 1 ,r)))
+(defcompilefun vp-dec (r) (emit `(emit-sub-cr 1 ,r)))
 
 ;;;;;;;;;;;;;
 ; Emit Buffer
