@@ -1,23 +1,23 @@
-(import 'inc/class.inc)
+;(import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; mail static class
 ;;;;;;;;;;;;;;;;;;;
 
-(def-class 'sys_mail)
-(def-method 'statics 'sys/mail_statics)
-(def-method 'init 'sys/mail_init)
-(def-method 'deinit 'sys/mail_deinit)
-(def-method 'alloc 'sys/mail_alloc 'static '() '(r0))
-(def-method 'alloc_parcel 'sys/mail_alloc_parcel 'static '(r0) '(r0))
-(def-method 'send 'sys/mail_send 'static '(r0))
-(def-method 'read 'sys/mail_read 'static '(r0) '(r0))
-(def-method 'try_read 'sys/mail_try_read 'static '(r0) '(r0))
-(def-method 'select 'sys/mail_select 'static '(r0 r1) '(r0))
-(def-method 'mymail 'sys/mail_mymail 'static '() '(r0))
-(def-method 'init_mailbox 'sys/mail_init_mailbox 'static '(r0))
-(def-method 'in 'sys/mail_in)
-(def-method 'out 'sys/mail_out)
+;(def-class 'sys_mail)
+;(def-method 'statics 'sys/mail_statics)
+;(def-method 'init 'sys/mail_init)
+;(def-method 'deinit 'sys/mail_deinit)
+;(def-method 'alloc 'sys/mail_alloc 'static '() '(r0))
+;(def-method 'alloc_parcel 'sys/mail_alloc_parcel 'static '(r0) '(r0))
+;(def-method 'send 'sys/mail_send 'static '(r0))
+;(def-method 'read 'sys/mail_read 'static '(r0) '(r0))
+;(def-method 'try_read 'sys/mail_try_read 'static '(r0) '(r0))
+;(def-method 'select 'sys/mail_select 'static '(r0 r1) '(r0))
+;(def-method 'mymail 'sys/mail_mymail 'static '() '(r0))
+;(def-method 'init_mailbox 'sys/mail_init_mailbox 'static '(r0))
+;(def-method 'in 'sys/mail_in)
+;(def-method 'out 'sys/mail_out)
 
 ;;;;;;;;;;;;;;;;;
 ; mail structures
@@ -59,7 +59,7 @@
 ; mail macros
 ;;;;;;;;;;;;;
 
-%macro ml_init 3
+(defcompilefun ml-init (%1 %2 %3)
 	;inputs
 	;%1 = mailbox
 	;%2 = temp
@@ -69,14 +69,13 @@
 	;trashes
 	;%2, %3
 
-	vp_xor %2, %2
-	vp_cpy %2, [%1 + mailbox_tcb]
-	lh-init %1, %2
-	vp_lea [%1 + mailbox_parcel_list], %2
-	lh-init %2, %3
-%endmacro
+	(vp-xor-rr %2 %2)
+	(vp-cpy-ri %2 %1 mailbox_tcb)
+	(lh-init %1 %2)
+	(vp-lea-ir %1 mailbox_parcel_list %2)
+	(lh-init %2 %3))
 
-%macro ml_temp_create 2
+(defcompilefun ml-temp-create (%1 %2)
 	;inputs
 	;%1 = temp
 	;%2 = temp
@@ -86,9 +85,7 @@
 	;%1, %2
 
 	(vp-sub-cr mailbox_size r4)
-	ml_init r4, %1, %2
-%endmacro
+	(ml-init r4 %1 %2))
 
-%macro ml_temp_destroy 0
-	(vp-add-cr mailbox_size r4)
-%endmacro
+(defcompilefun ml-temp-destroy ()
+	(vp-add-cr mailbox_size r4))

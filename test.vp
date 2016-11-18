@@ -1,0 +1,13 @@
+(import 'inc/func.inc)
+
+(def-func 'test)
+
+;	(def-struct 'local)
+;		(ptr 'local_inst)
+;	(def-struct-end)
+
+;	(vp-sub-cr local_size r4)
+;	(vp-add-cr local_size r4)
+;	(vp-ret)
+
+(def-func-end)

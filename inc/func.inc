@@ -1,5 +1,6 @@
 (import 'inc/vp.inc)
 (import 'inc/code.inc)
+(import 'inc/list.inc)
 (import 'inc/syscall.inc)
 (import 'inc/task.inc)
 
@@ -62,7 +63,7 @@
 ; functions
 ;;;;;;;;;;;
 
-(defun def-func (*func-name* &optional *func-stack*)
+(defcompilefun def-func (*func-name* &optional *func-stack*)
 	(setq *emit-buffer* (list) *out-buffer* (list))
 	(setq *strings* (list) *paths* (list) *links* (list))
 	(vp-label '_func_start)
@@ -78,7 +79,7 @@
 	(vp-align ptr_size '(sub _func_entry _func_name_start))
 	(vp-label '_func_entry))
 
-(defun def-func-end ()
+(defcompilefun def-func-end ()
 	(defq *cnt* 0)
 	(each (lambda (s)
 		(vp-label (sym (cat "_ref_" (str *cnt*) "_string")))
@@ -105,7 +106,7 @@
 	(print-out-buffer 16))
 
 (defmacro def-insert (n l)
-	`(defun ,n (s)
+	`(defcompilefun ,n (s)
 		(defq i 0)
 		(while (and (lt i (length ,l)) (not (eql s (elem i ,l))))
 			(setq i (inc i)))
@@ -115,29 +116,29 @@
 (def-insert fn-add-string *strings*)
 (def-insert fn-add-path *paths*)
 
-(defun fn-string (s r)
+(defcompilefun fn-string (s r)
 	(vp-lea-p (sym (cat "_ref_" (str (fn-add-string s)) "_string")) r))
 
-(defun fn-add-link (p)
+(defcompilefun fn-add-link (p)
 	(push *links* (fn-add-path p)))
 
-(defun fn-find-link (p)
+(defcompilefun fn-find-link (p)
 	(defq i 0)
 	(while (and (lt i (length *links*)) (not (eql p (elem (elem i *links*) *paths*))))
 		(setq i (inc i)))
 	(if (eq i (length *links*)) (fn-add-link p))
 	i)
 
-(defun fn-bind (p r)
+(defcompilefun fn-bind (p r)
 	(vp-cpy-pr (sym (cat "_ref_" (str (fn-find-link p)) "_link")) r))
 
-(defun fn-call (p)
+(defcompilefun fn-call (p)
 	(vp-call-p (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
 
-(defun fn-jmp (p)
+(defcompilefun fn-jmp (p)
 	(vp-jmp-p (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
 
-(defun debug-long (s i)
+(defcompilefun debug-long (s i)
 	;s = debug string
 	;i = debug long
 	(if debug_mode (progn
@@ -149,9 +150,9 @@
 		(fn-string s r2)
 		(vp-pop r3)
 		(f-call 'sys_io 'debug_long '(r0, r1, r2, r3))
-		(vp-pop r0 r1 r2 r3 r5))))
+		(vp-pop r0 r1 r2 r3 r5)))
 
-(defun debug-str (s d)
+(defcompilefun debug-str (s d)
 	;s = debug string
 	;d = debug string
 	(if debug_mode (progn
@@ -163,14 +164,14 @@
 		(fn-string s r2)
 		(vp-pop r3)
 		(f-call 'sys_io 'debug_str '(r0, r1, r2, r3))
-		(vp-pop r0 r1 r2 r3 r5))))
+		(vp-pop r0 r1 r2 r3 r5)))
 
-(defun abort (&optional s)
+(defcompilefun abort (&optional s)
 	(setq s (if s s "Abort !"))
 	(debug-str s)
 	(sys-exit 1))
 
-(defun assert (a b c &optional d)
+(defcompilefun assert (a b c &optional d)
 	;a = val1
 	;b = condition
 	;c = val2

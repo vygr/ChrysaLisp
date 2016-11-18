@@ -1,24 +1,24 @@
-(import 'inc/class.inc)
+;(import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; syscall static class
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def-class 'sys_io)
-(def-method 'char 'sys/write_char 'static '(r0 r1))
-(def-method 'string 'sys/write_string 'static '(r0 r1))
-(def-method 'number 'sys/write_number 'static '(r0 r1 r2))
-(def-method 'read 'sys/read_line 'static '(r0 r1 r2) '(r0))
-(def-method 'debug_long 'sys/write_debug_long 'static '(r0 r1 r2 r3))
-(def-method 'debug_str 'sys/write_debug_str 'static '(r0 r1 r2 r3))
+;(def-class 'sys_io)
+;(def-method 'char 'sys/write_char 'static '(r0 r1))
+;(def-method 'string 'sys/write_string 'static '(r0 r1))
+;(def-method 'number 'sys/write_number 'static '(r0 r1 r2))
+;(def-method 'read 'sys/read_line 'static '(r0 r1 r2) '(r0))
+;(def-method 'debug_long 'sys/write_debug_long 'static '(r0 r1 r2 r3))
+;(def-method 'debug_str 'sys/write_debug_str 'static '(r0 r1 r2 r3))
 
-(def-class 'sys_cpu)
-(def-method 'id 'sys/cpu_get_id 'static '() '(r0))
-(def-method 'time 'sys/cpu_get_time 'static '() '(r0))
-(def-method 'total 'sys/cpu_get_total 'static '() '(r0))
-(def-method 'opts 'sys/opt_process,static '{r0})
+;(def-class 'sys_cpu)
+;(def-method 'id 'sys/cpu_get_id 'static '() '(r0))
+;(def-method 'time 'sys/cpu_get_time 'static '() '(r0))
+;(def-method 'total 'sys/cpu_get_total 'static '() '(r0))
+;(def-method 'opts 'sys/opt_process,static '{r0})
 
-(defun sys-call (%1)
+(defcompilefun sys-call (%1)
 	(vp-cpy-cr %1 r0)
 	(syscall))
 
@@ -100,22 +100,22 @@
 ; syscall macros
 ;;;;;;;;;;;;;;;;
 
-(defun push-trashed ()
+(defcompilefun push-trashed ()
 	;pushes onto r4
 	(vp-push r1 r2 r6 r7 r8 r9 r10 r11))
 
-(defun pop-trashed ()
+(defcompilefun pop-trashed ()
 	;pops from r4
 	(vp-pop r1 r2 r6 r7 r8 r9 r10 r11))
 
-(defun sys-exit (%1)
+(defcompilefun sys-exit (%1)
 	;return code
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sys-call (add sys_exit 0x2000000)))
 
-(defun sys-read (%1 %2 %3)
+(defcompilefun sys-read (%1 %2 %3)
 	;fd, buffer, length
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3))
@@ -124,7 +124,7 @@
 	(sys-call (add sys_read 0x2000000))
 	(pop-trashed))
 
-(defun sys-read-char (%1)
+(defcompilefun sys-read-char (%1)
 	;fd
 	(push-trashed)
 	(vp-sub-cr ptr_size r4)
@@ -136,7 +136,7 @@
 	(vp-add-cr ptr_size r4)
 	(pop-trashed))
 
-(defun sys-write-string (%1 %2 %3)
+(defcompilefun sys-write-string (%1 %2 %3)
 	;fd, string, length
 	(push-trashed)
 	(vp-push r0)
@@ -147,7 +147,7 @@
 	(vp-pop r0)
 	(pop-trashed))
 
-(defun sys-write-char (%1 %2)
+(defcompilefun sys-write-char (%1 %2)
 	;fd, char
 	(push-trashed)
 	(vp-push r0 %2)
@@ -161,7 +161,7 @@
 	(vp-pop r0)
 	(pop-trashed))
 
-(defun sys-mmap (%1 %2 %3 %4 %5 %6)
+(defcompilefun sys-mmap (%1 %2 %3 %4 %5 %6)
 	;addr, len, prot, flags, fd, pos
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6))
@@ -170,7 +170,7 @@
 	(sys-call (add sys_mmap 0x2000000))
 	(pop-trashed))
 
-(defun sys-mprotect (%1 %2 %3)
+(defcompilefun sys-mprotect (%1 %2 %3)
 	;addr, len, prot
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3))
@@ -179,7 +179,7 @@
 	(sys-call (add sys_mprotect 0x2000000))
 	(pop-trashed))
 
-(defun sys-munmap (%1 %2)
+(defcompilefun sys-munmap (%1 %2)
 	;addr, len
 	(push-trashed)
 	(set-src `(,%1 ,%2))
@@ -188,7 +188,7 @@
 	(sys-call (add sys_munmap 0x2000000))
 	(pop-trashed))
 
-(defun sys-stat (%1 %2)
+(defcompilefun sys-stat (%1 %2)
 	;path, buffer
 	(push-trashed)
 	(set-src `(,%1 ,%2))
@@ -197,7 +197,7 @@
 	(sys-call (add sys_stat 0x2000000))
 	(pop-trashed))
 
-(defun sys-open (%1 %2 %3)
+(defcompilefun sys-open (%1 %2 %3)
 	;path, flags, mode
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3))
@@ -206,7 +206,7 @@
 	(sys-call (add sys_open 0x2000000))
 	(pop-trashed))
 
-(defun sys-close (%1)
+(defcompilefun sys-close (%1)
 	;fd
 	(push-trashed)
 	(set-src `(,%1))
@@ -215,7 +215,7 @@
 	(sys-call (add sys_close 0x2000000))
 	(pop-trashed))
 
-(defun sys-ftruncate (%1 %2)
+(defcompilefun sys-ftruncate (%1 %2)
 	;fd, offset
 	(push-trashed)
 	(set-src `(,%1 ,%2))
@@ -224,7 +224,7 @@
 	(sys-call (add sys_ftruncate 0x2000000))
 	(pop-trashed))
 
-(defun sys-unlink (%1)
+(defcompilefun sys-unlink (%1)
 	;name
 	(push-trashed)
 	(set-src `(,%1))
@@ -233,7 +233,7 @@
 	(sys-call (add sys_unlink 0x2000000))
 	(pop-trashed))
 
-(defun sys-gettimeofday (%1 %2)
+(defcompilefun sys-gettimeofday (%1 %2)
 	;time, timezone
 	(push-trashed)
 	(vp-push %1)
@@ -246,7 +246,8 @@
 	(vp-cpy-ri r2 r1 timeval_usec)
 	(pop-trashed))
 
-)(if (eql *OS* 'Linux) (progn
+))
+(if (eql *OS* 'Linux) (progn
 
 ;;;;;;;;;;;;;;;;;;;
 ; syscall for Linux
@@ -324,22 +325,22 @@
 ; syscall macros
 ;;;;;;;;;;;;;;;;
 
-(defun push-trashed ()
+(defcompilefun push-trashed ()
 	;pushes onto r4
 	(vp-push r1 r2 r6 r7 r8 r9 r10 r11))
 
-(defun pop-trashed ()
+(defcompilefun pop-trashed ()
 	;pops from r4
 	(vp-pop r1 r2 r6 r7 r8 r9 r10 r11))
 
-(defun sys-exit (%1)
+(defcompilefun sys-exit (%1)
 	;return code
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sys-call sys_exit))
 
-(defun sys-read (%1 %2 %3)
+(defcompilefun sys-read (%1 %2 %3)
 	;fd, buffer, length
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3))
@@ -348,7 +349,7 @@
 	(sys-call sys_read)
 	(pop-trashed))
 
-(defun sys-read-char (%1)
+(defcompilefun sys-read-char (%1)
 	;fd
 	(push-trashed)
 	(vp-sub-cr ptr_size r4)
@@ -360,7 +361,7 @@
 	(vp-add-cr ptr_size r4)
 	(pop-trashed))
 
-(defun sys-write-string (%1 %2 %3)
+(defcompilefun sys-write-string (%1 %2 %3)
 	;fd, string, length
 	(push-trashed)
 	(vp-push r0)
@@ -371,7 +372,7 @@
 	(vp-pop r0)
 	(pop-trashed))
 
-(defun sys-write-char (%1 %2)
+(defcompilefun sys-write-char (%1 %2)
 	;fd, char
 	(push-trashed)
 	(vp-push r0 %2)
@@ -385,7 +386,7 @@
 	(vp-pop r0)
 	(pop-trashed))
 
-(defun sys-mmap (%1 %2 %3 %4 %5 %6)
+(defcompilefun sys-mmap (%1 %2 %3 %4 %5 %6)
 	;addr, len, prot, flags, fd, pos
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6))
@@ -394,7 +395,7 @@
 	(sys-call sys_mmap)
 	(pop-trashed))
 
-(defun sys-mprotect (%1 %2 %3)
+(defcompilefun sys-mprotect (%1 %2 %3)
 	;addr, len, prot
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3))
@@ -403,7 +404,7 @@
 	(sys-call sys_mprotect)
 	(pop-trashed))
 
-(defun sys-munmap (%1 %2)
+(defcompilefun sys-munmap (%1 %2)
 	;addr, len
 	(push-trashed)
 	(set-src `(,%1 ,%2))
@@ -412,7 +413,7 @@
 	(sys-call sys_munmap)
 	(pop-trashed))
 
-(defun sys-stat (%1 %2)
+(defcompilefun sys-stat (%1 %2)
 	;path, buffer
 	(push-trashed)
 	(set-src `(,%1 ,%2))
@@ -421,7 +422,7 @@
 	(sys-call sys_stat)
 	(pop-trashed))
 
-(defun sys-open (%1 %2 %3)
+(defcompilefun sys-open (%1 %2 %3)
 	;path, flags, mode
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3))
@@ -430,7 +431,7 @@
 	(sys-call sys_open)
 	(pop-trashed))
 
-(defun sys-close (%1)
+(defcompilefun sys-close (%1)
 	;fd
 	(push-trashed)
 	(set-src `(,%1))
@@ -439,7 +440,7 @@
 	(sys-call sys_close)
 	(pop-trashed))
 
-(defun sys-ftruncate (%1 %2)
+(defcompilefun sys-ftruncate (%1 %2)
 	;fd, offset
 	(push-trashed)
 	(set-src `(,%1 ,%2))
@@ -448,7 +449,7 @@
 	(sys-call sys_ftruncate)
 	(pop-trashed))
 
-(defun sys-unlink (%1)
+(defcompilefun sys-unlink (%1)
 	;name
 	(push-trashed)
 	(set-src `(,%1))
@@ -457,7 +458,7 @@
 	(sys-call sys_unlink)
 	(pop-trashed))
 
-(defun sys-gettimeofday (%1 %2)
+(defcompilefun sys-gettimeofday (%1 %2)
 	;time, timezone
 	(push-trashed)
 	(set-src `(,%1 ,%2))
@@ -466,4 +467,4 @@
 	(sys-call sys_gettimeofday)
 	(pop-trashed))
 
-)
+))

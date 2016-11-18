@@ -205,7 +205,9 @@
 (defun import (*file*)
 	(if (notany (lambda (x) (eql x *file*)) *imports*)
 		(progn (push *imports* *file*)
-			(repl (file-stream *file*)))))
+			(print "Importing file: " *file*)
+			(repl (file-stream *file*))
+			(print "Imported file: " *file*))))
 
 (defun compile-file (*file*)
 	(defq *imports* (list))
@@ -213,9 +215,14 @@
 	(defq *struct* nil *struct-offset* nil *enum* nil *bit* nil)
 	(defq *strings* nil *paths* nil *links* nil)
 	(defq *switch* nil *switch-nxt* 0 *switch-stk* (list))
-	(defq *compile-env* (env))
+	(defq *compile-env* (env) *OS* 'Darwin)
 	(import *file*)
 	(setq *compile-env* nil))
 
 (defun equate (s v)
 	(def *compile-env* s v))
+
+(defmacro defcompilefun (n a &rest b)
+	`(def *compile-env* ',n (lambda ,a ~b)))
+
+(compile-file "test.vp")
