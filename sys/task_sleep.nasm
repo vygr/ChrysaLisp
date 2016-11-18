@@ -27,7 +27,7 @@ def_func sys/task_sleep
 	ln_remove_node r2, r15
 
 	;add to timer list
-	loop_list_forward r3 + tk_statics_timer_list, r5, r2
+	loop_list_forward r3, tk_statics_timer_list, r5, r2
 	loop_until r0, <, [r5 + tk_node_time]
 	ln_add_node_before r5, r1, r0
 

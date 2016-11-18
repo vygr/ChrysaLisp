@@ -9,9 +9,9 @@ def_func sys/mail_try_read
 	;trashes
 	;r1-r2
 
-	lh_get_head r0, r0
+	lh_get_head r0, 0, r0
 	vp_cpy r0, r1
-	ln_get_succ r0, r0
+	ln_get_succ r0, 0, r0
 	vpif r0, !=, 0
 		vp_cpy r1, r0
 		ln_remove_node r1, r2

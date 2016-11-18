@@ -15,7 +15,7 @@ def_func class/stream_msg_out/next_seq
 	endif
 
 	;scan for seqnum
-	loop_list_forward r0, r0, r1
+	loop_list_forward r0, 0, r0, r1
 		breakif r2, ==, -1
 	loop_until r2, ==, [r0 + stream_mail_seqnum]
 	vpif r1, ==, 0

@@ -28,7 +28,7 @@ def_func class/component/emit
 	map_src_to_dst
 
 	;emit the signal
-	loop_list_forward r1, r0, r1
+	loop_list_forward r1, 0, r0, r1
 		vp_cpy r1, [r4 + local_next]
 
 		;call method on target component object

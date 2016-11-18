@@ -45,7 +45,7 @@ def_struct_end
 	;trashes
 	;%2
 
-	ln_get_succ %1, %2
+	ln_get_succ %1, 0, %2
 	vpif %2, ==, 0
 		vp_cpy [%1 - lh_list_tail], %1
 	endif
@@ -60,9 +60,9 @@ def_struct_end
 	;trashes
 	;%2
 
-	ln_get_pred %1, %2
+	ln_get_pred %1, 0, %2
 	vpif %2, ==, 0
-		ln_get_tail %1, %1
+		ln_get_tail %1, 0, %1
 	endif
 %endmacro
 
@@ -88,26 +88,28 @@ def_struct_end
 	vp_cpy %2, [%1 + ln_node_pred]
 %endmacro
 
-%macro ln_get_succ 2
+%macro ln_get_succ 3
 	;inputs
 	;%1 = list node
-	;%2 = temp
+	;%2 = offset
+	;%3 = temp
 	;outputs
 	;%1 = list node
-	;%2 = succ
+	;%3 = succ
 
-	vp_cpy [%1 + ln_node_succ], %2
+	vp_cpy [%1 + %2 + ln_node_succ], %3
 %endmacro
 
-%macro ln_get_pred 2
+%macro ln_get_pred 3
 	;inputs
 	;%1 = list node
-	;%2 = temp
+	;%2 = offset
+	;%3 = temp
 	;outputs
 	;%1 = list node
-	;%2 = pred
+	;%3 = pred
 
-	vp_cpy [%1 + ln_node_pred], %2
+	vp_cpy [%1 + %2 + ln_node_pred], %3
 %endmacro
 
 %macro ln_add_node_after 3
@@ -120,7 +122,7 @@ def_struct_end
 	;%2 = list node2
 	;%3 = list node1 succ
 
-	ln_get_succ %1, %3
+	ln_get_succ %1, 0, %3
 	ln_set_succ %1, %2
 	ln_set_pred %3, %2
 	ln_set_succ %2, %3
@@ -137,7 +139,7 @@ def_struct_end
 	;%2 = list node2
 	;%3 = list node1 pred
 
-	ln_get_pred %1, %3
+	ln_get_pred %1, 0, %3
 	ln_set_succ %2, %1
 	ln_set_pred %2, %3
 	ln_set_succ %3, %2
@@ -152,8 +154,8 @@ def_struct_end
 	;%1 = list node pred
 	;%2 = list node succ
 
-	ln_get_succ %1, %2
-	ln_get_pred %1, %1
+	ln_get_succ %1, 0, %2
+	ln_get_pred %1, 0, %1
 	ln_set_pred %2, %1
 	ln_set_succ %1, %2
 %endmacro
@@ -166,8 +168,8 @@ def_struct_end
 	;%1 = list node
 	;%2 = 0 if first, else not
 
-	ln_get_pred %1, %2
-	ln_get_pred %2, %2
+	ln_get_pred %1, 0, %2
+	ln_get_pred %2, 0, %2
 %endmacro
 
 %macro ln_is_last 2
@@ -178,8 +180,8 @@ def_struct_end
 	;%1 = list node
 	;%2 = 0 if last, else not
 
-	ln_get_succ %1, %2
-	ln_get_succ %2, %2
+	ln_get_succ %1, 0, %2
+	ln_get_succ %2, 0, %2
 %endmacro
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -229,26 +231,28 @@ def_struct_end
 	vp_cpy %2, [%1 + lh_list_tailpred]
 %endmacro
 
-%macro lh_get_head 2
+%macro lh_get_head 3
 	;inputs
 	;%1 = list head
-	;%2 = temp
+	;%2 = offset
+	;%3 = temp
 	;outputs
 	;%1 = list head
-	;%2 = list node
+	;%3 = list node
 
-	vp_cpy [%1 + lh_list_head], %2
+	vp_cpy [%1 + %2 + lh_list_head], %3
 %endmacro
 
-%macro lh_get_tail 2
+%macro lh_get_tail 3
 	;inputs
 	;%1 = list head
-	;%2 = temp
+	;%2 = offset
+	;%3 = temp
 	;outputs
 	;%1 = list head
-	;%2 = list node
+	;%3 = list node
 
-	vp_cpy [%1 + lh_list_tailpred], %2
+	vp_cpy [%1 + %2 + lh_list_tailpred], %3
 %endmacro
 
 %macro lh_add_at_head 3
@@ -293,8 +297,8 @@ def_struct_end
 	;%2 = list node
 	;%3 = list node succ
 
-	lh_get_head %1, %1
-	ln_get_succ %1, %2
+	lh_get_head %1, 0, %1
+	ln_get_succ %1, 0, %2
 	vpif %2, !=, 0
 		vp_cpy %1, %2
 		ln_remove_node %1, %3
@@ -315,62 +319,65 @@ def_struct_end
 	;%2 = list node
 	;%3 = list node succ
 
-	lh_get_tail %1, %1
-	ln_get_pred %1, %2
+	lh_get_tail %1, 0, %1
+	ln_get_pred %1, 0, %2
 	vpif %2, !=, 0
 		vp_cpy %1, %2
 		ln_remove_node %1, %3
 	endif
 %endmacro
 
-%macro lh_is_empty 2
+%macro lh_is_empty 3
 	;inputs
 	;%1 = list head
-	;%2 = temp
+	;%2 = offset
+	;%3 = temp
 	;outputs
 	;%1 = list head
-	;%2 = 0 if empty, else not
+	;%3 = 0 if empty, else not
 
-	ln_get_succ %1,%2
-	ln_get_succ %2,%2
+	ln_get_succ %1, %2, %3
+	ln_get_succ %3, 0, %3
 %endmacro
 
 ;;;;;;;;;;;;;;;;;;
 ; list loop macros
 ;;;;;;;;;;;;;;;;;;
 
-%macro loop_list_forward 3
+%macro loop_list_forward 4
 	;inputs
 	;%1 = list head
-	;%2 = list node
-	;%3 = list node look ahead
+	;%2 = offset
+	;%3 = list node
+	;%4 = list node look ahead
 	;outputs
 	;%1 = list head
-	;%2 = list node
-	;%3 = list node look ahead
+	;%3 = list node
+	;%4 = list node look ahead
 
-	lh_get_head %1, %3
+	lh_get_head %1, %2, %4
 	loop_start
-		vp_cpy %3, %2
-		ln_get_succ %3, %3
-		breakif %3, ==, 0
+		vp_cpy %4, %3
+		ln_get_succ %4, 0, %4
+		breakif %4, ==, 0
 %endmacro
 
-%macro loop_list_backward 3
+%macro loop_list_backward 4
 	;inputs
 	;%1 = list head
-	;%2 = list node
-	;%3 = list node look ahead
+	;%2 = offset
+	;%3 = list node
+	;%4 = list node look ahead
 	;outputs
 	;%1 = list head
-	;%2 = list node
-	;%3 = list node look ahead
+	;%3 = list node
+	;%4 = list node look ahead
 
-	lh_get_tail %1, %3
+	lh_get_tail %1, %2, %4
 	loop_start
-		vp_cpy %3, %2
-		ln_get_pred %3, %3
-		breakif %3, ==, 0
+		vp_cpy %4, %3
+		ln_get_pred %4, 0, %4
+		breakif %4, ==, 0
 %endmacro
 
 %macro loop_flist_forward 4

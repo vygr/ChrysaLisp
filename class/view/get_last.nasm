@@ -10,8 +10,8 @@ def_func class/view/get_last
 	;trashes
 	;r2
 
-	lh_get_tail r0 + view_list, r1
-	ln_get_pred r1, r2
+	lh_get_tail r0, view_list, r1
+	ln_get_pred r1, 0, r2
 	vpif r2, ==, 0
 		vp_cpy r2, r1
 	else

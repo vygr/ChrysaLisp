@@ -19,7 +19,7 @@ def_func class/component/disconnect_sig
 	vp_add gui_statics_sigslot_heap, r0
 
 	;disconnect signal
-	loop_list_forward r1, r2, r3
+	loop_list_forward r1, 0, r2, r3
 		;remove from slot list
 		vp_sub gui_sigslot_sig_node, r2
 		vp_lea [r2 + gui_sigslot_slot_node], r1

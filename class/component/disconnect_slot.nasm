@@ -19,7 +19,7 @@ def_func class/component/disconnect_slot
 	vp_add gui_statics_sigslot_heap, r0
 
 	;disconnect slots
-	loop_list_forward r7 + component_slot_list, r2, r3
+	loop_list_forward r7, component_slot_list, r2, r3
 		vp_jmpif r6, ==, 0, freeit
 		continueif r6, !=, [r2 + gui_sigslot_addr]
 	freeit:

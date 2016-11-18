@@ -9,14 +9,14 @@ def_func sys/mail_read
 	;trashes
 	;r1-r2
 
-	lh_is_empty r0, r2
+	lh_is_empty r0, 0, r2
 	vpif r2, ==, 0
 		f_bind sys_task, statics, r1
 		vp_cpy [r1 + tk_statics_current_tcb], r1
 		vp_cpy r1, [r0 + mailbox_tcb]
 		f_call sys_task, suspend
 	endif
-	lh_get_head r0, r0
+	lh_get_head r0, 0, r0
 	vp_cpy r0, r1
 	ln_remove_node r1, r2
 	vp_ret

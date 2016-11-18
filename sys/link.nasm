@@ -116,7 +116,7 @@ def_func sys/link
 			;no outgoing message so see if any off chip mail for me
 			vp_cpy [r4 + lk_node_cpu_id], r0
 			f_bind sys_mail, statics, r8
-			loop_list_forward r8 + ml_statics_offchip_list, r7, r8
+			loop_list_forward r8, ml_statics_offchip_list, r7, r8
 				vp_cpy [r7 + msg_dest + id_cpu], r2
 				breakif r0, ==, r2
 				vp_cpy [r4 + lk_node_table + lk_table_array], r1

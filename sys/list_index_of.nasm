@@ -11,11 +11,11 @@ def_func sys/list_index_of
 	;trashes
 	;r2, r3
 
-	lh_get_head r0, r2
+	lh_get_head r0, 0, r2
 	vp_xor r0, r0
 	loop_start
 		vp_cpy r2, r3
-		ln_get_succ r2, r2
+		ln_get_succ r2, 0, r2
 		vpif r2, ==, 0
 			vp_cpy -1, r0
 			vp_ret

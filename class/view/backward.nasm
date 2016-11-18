@@ -29,9 +29,9 @@ def_func class/view/backward
 	vp_cpy r1, [r4 + local_data]
 	vp_cpy r2, [r4 + local_callback]
 
-	lh_get_tail r0 + view_list, r0
+	lh_get_tail r0, view_list, r0
 	loop_start
-		ln_get_pred r0, r1
+		ln_get_pred r0, 0, r1
 		breakif r1, ==, 0
 
 		;callback
@@ -40,7 +40,7 @@ def_func class/view/backward
 		vp_call [r4 + local_callback]
 
 		;across to sibling
-		ln_get_pred r0 + view_node, r0
+		ln_get_pred r0, view_node, r0
 	loop_end
 
 	vp_cpy [r4 + local_inst], r0

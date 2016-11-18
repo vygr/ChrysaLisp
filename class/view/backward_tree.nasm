@@ -43,10 +43,10 @@ def_func class/view/backward_tree
 		breakif r1, ==, 0
 
 		;down to child
-		lh_get_tail r0 + view_list, r1
+		lh_get_tail r0, view_list, r1
 		vp_sub view_node, r1
 
-		ln_get_pred r1 + view_node, r2
+		ln_get_pred r1, view_node, r2
 	loop_until r2, ==, 0
 	loop_start
 		;up callback
@@ -57,10 +57,10 @@ def_func class/view/backward_tree
 		breakif r0, ==, [r4 + local_inst]
 
 		;across to sibling
-		ln_get_pred r0 + view_node, r1
+		ln_get_pred r0, view_node, r1
 		vp_sub view_node, r1
 
-		ln_get_pred r1 + view_node, r2
+		ln_get_pred r1, view_node, r2
 		vp_jmpif r2, !=, 0, down_loop_ctx
 
 		;up to parent

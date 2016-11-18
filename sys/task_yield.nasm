@@ -11,7 +11,7 @@ def_func sys/task_yield
 	vp_cpy r4, [r15 + tk_node_stack]
 
 	;get next task control block
-	ln_get_succ r15, r15
+	ln_get_succ r15, 0, r15
 	f_jmp sys_task, restore
 
 def_func_end

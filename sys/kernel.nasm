@@ -104,7 +104,7 @@ def_func sys/kernel
 				f_bind sys_task, statics, r1
 				vp_cpy [r1 + tk_statics_task_count], r1
 				f_bind sys_link, statics, r2
-				loop_list_forward r2 + lk_statics_links_list, r3, r2
+				loop_list_forward r2, lk_statics_links_list, r3, r2
 					vpif r1, >, [r3 + lk_node_task_count]
 						vp_cpy [r3 + lk_node_cpu_id], r0
 						vp_cpy [r3 + lk_node_task_count], r1
@@ -147,7 +147,7 @@ def_func sys/kernel
 					;fill in via route and remove other routes
 					vp_cpy [r15 + kn_msg_link_route_via], r13
 					f_bind sys_link, statics, r14
-					loop_list_forward r14 + lk_statics_links_list, r12, r14
+					loop_list_forward r14, lk_statics_links_list, r12, r14
 						;new link route table ?
 						f_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
 													{[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]}
@@ -168,7 +168,7 @@ def_func sys/kernel
 					;new hops is equal, so additional route
 					vp_cpy [r15 + kn_msg_link_route_via], r13
 					f_bind sys_link, statics, r14
-					loop_list_forward r14 + lk_statics_links_list, r12, r14
+					loop_list_forward r14, lk_statics_links_list, r12, r14
 						;new link route table ?
 						f_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
 													{[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]}
@@ -197,7 +197,7 @@ def_func sys/kernel
 
 				;copy and send to all neighbors apart from old via
 				f_bind sys_link, statics, r13
-				loop_list_forward r13 + lk_statics_links_list, r12, r13
+				loop_list_forward r13, lk_statics_links_list, r12, r13
 					vp_cpy [r12 + lk_node_cpu_id], r11
 					continueif r11, ==, r14
 					f_call sys_mail, alloc, {}, {r0}
@@ -238,9 +238,9 @@ def_func sys/kernel
 		f_bind sys_task, statics, r3
 		vp_cpy [r3 + tk_statics_current_tcb], r15
 		vp_cpy [r3 + tk_statics_timer_list + lh_list_head], r2
-		ln_get_succ r2, r2
+		ln_get_succ r2, 0, r2
 		vpif r2, !=, 0
-			loop_list_forward r3 + tk_statics_timer_list, r1, r2
+			loop_list_forward r3, tk_statics_timer_list, r1, r2
 				vp_cpy [r1 + tk_node_time], r5
 				breakif r5, >, r0
 
@@ -258,7 +258,7 @@ def_func sys/kernel
 
 		;exit if no task waiting for timer
 		vp_cpy [r3 + tk_statics_timer_list + lh_list_head], r2
-		ln_get_succ r2, r1
+		ln_get_succ r2, 0, r1
 		breakif r1, ==, 0
 
 		;sleep till next wake time

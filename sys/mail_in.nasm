@@ -12,7 +12,7 @@ def_func sys/mail_in
 		vp_cpy [r15 + msg_parcel_id + id_mbox], r6
 		vp_cpy [r15 + msg_parcel_id + id_cpu], r7
 		vp_cpy [r15 + msg_dest + id_mbox], r13
-		loop_list_forward r13 + mailbox_parcel_list, r0, r1
+		loop_list_forward r13, mailbox_parcel_list, r0, r1
 			continueif r6, !=, [r0 + msg_parcel_id + id_mbox]
 		loop_until r7, ==, [r0 + msg_parcel_id + id_cpu]
 		vpif r1, ==, 0
