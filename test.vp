@@ -2,13 +2,9 @@
 
 (def-func 'test)
 
-	(vp-cpy-cr 0x7f r15)
-	(vp-cpy-cr 0x7f r8)
-	(vp-cpy-cr 0x7f r2)
-	(vp-cpy-cr 0x7f r1)
-	(vp-cpy-cr 0x7fffffffff r15)
-	(vp-cpy-cr 0x7fffffffff r8)
-	(vp-cpy-cr 0x7fffffffff r2)
-	(vp-cpy-cr 0x7fffffffff r1)
+	(vp-mul-rr r14 r15)
+	(vp-mul-rr r8 r8)
+	(vp-mul-rr r9 r8)
+	(vp-mul-rr r13 r1)
 
 (def-func-end)
