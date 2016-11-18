@@ -34,7 +34,8 @@
 
 (if dual_buffers (progn
 	;copy visable region to new region
-	(vp-push r0, 0)
+	(vp-xor-rr r1 r1)
+	(vp-push r0 r1)
 	(vp-lea-ir r0 view_dirty_region r1)
 	(vp-cpy-ir r0 view_w r10)
 	(vp-cpy-ir r0 view_h r11)

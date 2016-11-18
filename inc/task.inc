@@ -61,8 +61,8 @@
 
 (equate 'tk_state_size (mul 15 ptr_size)
 
-(defun tk_save_state ()
+(defun tk-save-state ()
 	(vp-push r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
 
-(defun tk_load_state ()
+(defun tk-load-state ()
 	(vp-pop r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))

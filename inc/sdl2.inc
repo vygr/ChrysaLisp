@@ -196,16 +196,16 @@ extern TTF_RenderUTF8_Blended
 
 %macro sdl_init 1
 	;flags
-	(set-src %1)
-	(set-dst r7)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_Init
 %endmacro
 
 %macro sdl_delay 1
 	;time
-	(set-src %1)
-	(set-dst r7)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_Delay
 %endmacro
@@ -216,80 +216,80 @@ extern TTF_RenderUTF8_Blended
 
 %macro sdl_create_window 6
 	;title, x, y, w, h, flags
-	(set-src %1, %2, %3, %4, %5, %6)
-	(set-dst r7, r6, r2, r1, r8, r9)
+	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6))
+	(set-dst '(r7 r6 r2 r1 r8 r9))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_CreateWindow
 %endmacro
 
 %macro sdl_create_window_and_renderer 5
 	;w, h, flags, window**, renderer**
-	(set-src %1, %2, %3, %4, %5)
-	(set-dst r7, r6, r2, r1, r8)
+	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5))
+	(set-dst '(r7 r6 r2 r1 r8))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_CreateWindowAndRenderer
 %endmacro
 
 %macro sdl_destroy_window 1
 	;window
-	(set-src %1)
-	(set-dst r7)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_DestroyWindow
 %endmacro
 
 %macro sdl_create_renderer 3
 	;window*, index, flags
-	(set-src %1, %2, %3)
-	(set-dst r7, r6, r2)
+	(set-src `(,%1 ,%2 ,%3))
+	(set-dst '(r7 r6 r2))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_CreateRenderer
 %endmacro
 
 %macro sdl_set_render_draw_color 5
 	;renderer**, r, g, b, a
-	(set-src %1, %2, %3, %4, %5)
-	(set-dst r7, r6, r2, r1, r8)
+	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5))
+	(set-dst '(r7 r6 r2 r1 r8))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_SetRenderDrawColor
 %endmacro
 
 %macro sdl_render_fill_rect 2
 	;renderer**, rect*
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_RenderFillRect
 %endmacro
 
 %macro sdl_render_draw_rect 2
 	;renderer**, rect*
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_RenderDrawRect
 %endmacro
 
 %macro sdl_render_present 1
 	;renderer**
-	(set-src %1)
-	(set-dst r7)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_RenderPresent
 %endmacro
 
 %macro sdl_render_set_clip_rect 2
 	;renderer**, rect*
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_RenderSetClipRect
 %endmacro
 
 %macro sdl_set_render_draw_blend_mode 2
 	;renderer**, mode
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_SetRenderDrawBlendMode
 %endmacro
@@ -300,64 +300,64 @@ extern TTF_RenderUTF8_Blended
 
 %macro sdl_get_mouse_state 2
 	;x*, y*
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_GetMouseState
 %endmacro
 
 %macro sdl_get_keyboard_state 1
 	;*int
-	(set-src %1)
-	(set-dst r7)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_GetKeyboardState
 %endmacro
 
 %macro sdl_free_surface 1
 	;surface*
-	(set-src %1)
-	(set-dst r7)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_FreeSurface
 %endmacro
 
 %macro sdl_create_texture_from_surface 2
 	;renderer**, surface*
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_CreateTextureFromSurface
 %endmacro
 
 %macro sdl_destroy_texture 1
 	;texture*
-	(set-src %1)
-	(set-dst r7)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_DestroyTexture
 %endmacro
 
 %macro sdl_render_copy 4
 	;renderer**, texture*, srect*, drect*
-	(set-src %1, %2, %3, %4)
-	(set-dst r7, r6, r2, r1)
+	(set-src `(,%1 ,%2 ,%3 ,%4))
+	(set-dst '(r7 r6 r2 r1))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_RenderCopy
 %endmacro
 
 %macro sdl_set_texture_blend_mode 2
 	;texture*, blendmode
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_SetTextureBlendMode
 %endmacro
 
 %macro sdl_set_texture_color_mod 4
 	;texture*, byte r, byte g, byte b
-	(set-src %1, %2, %3, %4)
-	(set-dst r7, r6, r2, r1)
+	(set-src `(,%1 ,%2 ,%3 ,%4))
+	(set-dst '(r7 r6 r2 r1))
 	(map-src-to-dst)
 	sdl_call sdl_SDL_SetTextureColorMod
 %endmacro
@@ -372,56 +372,56 @@ extern TTF_RenderUTF8_Blended
 
 %macro ttf_open_font 2
 	;name*, pointsize
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
 	sdl_call sdl_TTF_OpenFont
 %endmacro
 
 %macro ttf_close_font 1
 	;font*
-	(set-src %1)
-	(set-dst r7)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
 	sdl_call sdl_TTF_CloseFont
 %endmacro
 
 %macro ttf_size_utf8 4
 	;font*, text*, int *w, int *h
-	(set-src %1, %2, %3, %4)
-	(set-dst r7, r6, r2, r1)
+	(set-src `(,%1 ,%2 ,%3 ,%4))
+	(set-dst '(r7 r6 r2 r1))
 	(map-src-to-dst)
 	sdl_call sdl_TTF_SizeUTF8
 %endmacro
 
 %macro ttf_font_ascent 1
 	;font*
-	(set-src %1)
-	(set-dst r7)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
 	sdl_call sdl_TTF_FontAscent
 %endmacro
 
 %macro ttf_font_descent 1
 	;font*
-	(set-src %1)
-	(set-dst r7)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
 	sdl_call sdl_TTF_FontDescent
 %endmacro
 
 %macro ttf_font_height 1
 	;font*
-	(set-src %1)
-	(set-dst r7)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
 	sdl_call sdl_TTF_FontHeight
 %endmacro
 
 %macro ttf_render_utf8_blended 3
 	;font*, text*, color
-	(set-src %1, %2, %3)
-	(set-dst r7, r6, r2)
+	(set-src `(,%1 ,%2 ,%3))
+	(set-dst '(r7 r6 r2))
 	(map-src-to-dst)
 	sdl_call sdl_TTF_RenderUTF8_Blended
 %endmacro

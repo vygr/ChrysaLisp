@@ -18,12 +18,11 @@
 (def-method 'total 'sys/cpu_get_total 'static '() '(r0))
 (def-method 'opts 'sys/opt_process,static '{r0})
 
-%macro sys_call 1
-	vp_cpy %1, r0
-	syscall
-%endmacro
+(defun sys-call (%1)
+	(vp-cpy-cr %1 r0)
+	(syscall))
 
-%ifidn OS, Darwin
+(if (eql *OS* 'Darwin) (progn
 
 ;;;;;;;;;;;;;;;;;
 ; syscall for OSX
@@ -93,178 +92,161 @@
 (def-struct-end)
 
 (def-struct 'timezone)
-	int	timeval_minuteswest
-	int	timeval_dsttime
+	(int 'timeval_minuteswest)
+	(int 'timeval_dsttime)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;
 ; syscall macros
 ;;;;;;;;;;;;;;;;
 
-%macro push_trashed 0
-	;pushes onto r4 (rsp)
-	vp_push r1, r2, r6, r7, r8, r9, r10, r11
-%endmacro
+(defun push-trashed ()
+	;pushes onto r4
+	(vp-push r1 r2 r6 r7 r8 r9 r10 r11))
 
-%macro pop_trashed 0
-	;pops from r4 (rsp)
-	vp_pop r1, r2, r6, r7, r8, r9, r10, r11
-%endmacro
+(defun pop-trashed ()
+	;pops from r4
+	(vp-pop r1 r2 r6 r7 r8 r9 r10 r11))
 
-%macro sys_exit 1
+(defun sys-exit (%1)
 	;return code
-	(set-src %1)
-	(set-dst r7)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
-	sys_call sys_exit + 0x2000000
-%endmacro
+	(sys-call (add sys_exit 0x2000000)))
 
-%macro sys_read 3
+(defun sys-read (%1 %2 %3)
 	;fd, buffer, length
-	push_trashed
-	(set-src %1, %2, %3)
-	(set-dst r7, r6, r2)
+	(push-trashed)
+	(set-src `(,%1 ,%2 ,%3))
+	(set-dst '(r7 r6 r2))
 	(map-src-to-dst)
-	sys_call sys_read + 0x2000000
-	pop_trashed
-%endmacro
+	(sys-call (add sys_read 0x2000000))
+	(pop-trashed))
 
-%macro sys_read_char 1
+(defun sys-read-char (%1)
 	;fd
-	push_trashed
-	vp_push 0
-	(set-src %1)
-	(set-dst r7)
+	(push-trashed)
+	(vp-sub-cr ptr_size r4)
+	(set-src `(,%1 r4 1))
+	(set-dst '(r7 r6 r2))
 	(map-src-to-dst)
-	(vp-cpy-rr r4 r6)
-	vp_cpy 1, r2
-	sys_call sys_read + 0x2000000
-	vp_pop r0
-	pop_trashed
-%endmacro
+	(sys-call (add sys_read 0x2000000))
+	(vp-cpy-ir-ub r4 0 r0)
+	(vp-add-cr ptr_size r4)
+	(pop-trashed))
 
-%macro sys_write_string 3
+(defun sys-write-string (%1 %2 %3)
 	;fd, string, length
-	push_trashed
-	vp_push r0
-	(set-src %1, %2, %3)
-	(set-dst r7, r6, r2)
+	(push-trashed)
+	(vp-push r0)
+	(set-src `(,%1 ,%2 ,%3))
+	(set-dst '(r7 r6 r2))
 	(map-src-to-dst)
-	sys_call sys_write + 0x2000000
-	vp_pop r0
-	pop_trashed
-%endmacro
+	(sys-call (add sys_write 0x2000000))
+	(vp-pop r0)
+	(pop-trashed))
 
-%macro sys_write_char 2
+(defun sys-write-char (%1 %2)
 	;fd, char
-	push_trashed
-	vp_push r0, %2
-	(set-src %1)
-	(set-dst r7)
+	(push-trashed)
+	(vp-push r0 %2)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
 	(vp-cpy-rr r4 r6)
-	vp_cpy 1, r2
-	sys_call sys_write + 0x2000000
-	(vp-add-cr 8 r4)
-	vp_pop r0
-	pop_trashed
-%endmacro
+	(vp-cpy-cr 1 r2)
+	(sys-call (add sys_write 0x2000000))
+	(vp-add-cr ptr_size r4)
+	(vp-pop r0)
+	(pop-trashed))
 
-%macro sys_mmap 6
+(defun sys-mmap (%1 %2 %3 %4 %5 %6)
 	;addr, len, prot, flags, fd, pos
-	push_trashed
-	(set-src %1, %2, %3, %4, %5, %6)
-	(set-dst r7, r6, r2, r10, r8, r9)
+	(push-trashed)
+	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6))
+	(set-dst '(r7 r6 r2 r10 r8 r9))
 	(map-src-to-dst)
-	sys_call sys_mmap + 0x2000000
-	pop_trashed
-%endmacro
+	(sys-call (add sys_mmap 0x2000000))
+	(pop-trashed))
 
-%macro sys_mprotect 3
+(defun sys-mprotect (%1 %2 %3)
 	;addr, len, prot
-	push_trashed
-	(set-src %1, %2, %3)
-	(set-dst r7, r6, r2)
+	(push-trashed)
+	(set-src `(,%1 ,%2 ,%3))
+	(set-dst '(r7 r6 r2))
 	(map-src-to-dst)
-	sys_call sys_mprotect + 0x2000000
-	pop_trashed
-%endmacro
+	(sys-call (add sys_mprotect 0x2000000))
+	(pop-trashed))
 
-%macro sys_munmap 2
+(defun sys-munmap (%1 %2)
 	;addr, len
-	push_trashed
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(push-trashed)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
-	sys_call sys_munmap + 0x2000000
-	pop_trashed
-%endmacro
+	(sys-call (add sys_munmap 0x2000000))
+	(pop-trashed))
 
-%macro sys_stat 2
+(defun sys-stat (%1 %2)
 	;path, buffer
-	push_trashed
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(push-trashed)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
-	sys_call sys_stat + 0x2000000
-	pop_trashed
-%endmacro
+	(sys-call (add sys_stat 0x2000000))
+	(pop-trashed))
 
-%macro sys_open 3
+(defun sys-open (%1 %2 %3)
 	;path, flags, mode
-	push_trashed
-	(set-src %1, %2, %3)
-	(set-dst r7, r6, r2)
+	(push-trashed)
+	(set-src `(,%1 ,%2 ,%3))
+	(set-dst '(r7 r6 r2))
 	(map-src-to-dst)
-	sys_call sys_open + 0x2000000
-	pop_trashed
-%endmacro
+	(sys-call (add sys_open 0x2000000))
+	(pop-trashed))
 
-%macro sys_close 1
+(defun sys-close (%1)
 	;fd
-	push_trashed
-	(set-src %1)
-	(set-dst r7)
+	(push-trashed)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
-	sys_call sys_close + 0x2000000
-	pop_trashed
-%endmacro
+	(sys-call (add sys_close 0x2000000))
+	(pop-trashed))
 
-%macro sys_ftruncate 2
+(defun sys-ftruncate (%1 %2)
 	;fd, offset
-	push_trashed
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(push-trashed)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
-	sys_call sys_ftruncate + 0x2000000
-	pop_trashed
-%endmacro
+	(sys-call (add sys_ftruncate 0x2000000))
+	(pop-trashed))
 
-%macro sys_unlink 1
+(defun sys-unlink (%1)
 	;name
-	push_trashed
-	(set-src %1)
-	(set-dst r7)
+	(push-trashed)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
-	sys_call sys_unlink + 0x2000000
-	pop_trashed
-%endmacro
+	(sys-call (add sys_unlink 0x2000000))
+	(pop-trashed))
 
-%macro sys_gettimeofday 2
+(defun sys-gettimeofday (%1 %2)
 	;time, timezone
-	push_trashed
-	vp_push %1
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(push-trashed)
+	(vp-push %1)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
-	sys_call sys_gettimeofday + 0x2000000
-	vp_pop r1
+	(sys-call (add sys_gettimeofday 0x2000000))
+	(vp-pop r1)
 	(vp-cpy-ri r0 r1 timeval_sec)
 	(vp-cpy-ri r2 r1 timeval_usec)
-	pop_trashed
-%endmacro
+	(pop-trashed))
 
-%elifidn OS, Linux
+)(if (eql *OS* 'Linux) (progn
 
 ;;;;;;;;;;;;;;;;;;;
 ; syscall for Linux
@@ -334,170 +316,154 @@
 (def-struct-end)
 
 (def-struct 'timezone)
-	int	timeval_minuteswest
-	int	timeval_dsttime
+	(int 'timeval_minuteswest)
+	(int 'timeval_dsttime)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;
 ; syscall macros
 ;;;;;;;;;;;;;;;;
 
-%macro push_trashed 0
-	;pushes onto r4 (rsp)
-	vp_push r1, r2, r6, r7, r8, r9, r10, r11
-%endmacro
+(defun push-trashed ()
+	;pushes onto r4
+	(vp-push r1 r2 r6 r7 r8 r9 r10 r11))
 
-%macro pop_trashed 0
-	;pops from r4 (rsp)
-	vp_pop r1, r2, r6, r7, r8, r9, r10, r11
-%endmacro
+(defun pop-trashed ()
+	;pops from r4
+	(vp-pop r1 r2 r6 r7 r8 r9 r10 r11))
 
-%macro sys_exit 1
+(defun sys-exit (%1)
 	;return code
-	(set-src %1)
-	(set-dst r7)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
-	sys_call sys_exit
-%endmacro
+	(sys-call sys_exit))
 
-%macro sys_read 3
+(defun sys-read (%1 %2 %3)
 	;fd, buffer, length
-	push_trashed
-	(set-src %1, %2, %3)
-	(set-dst r7, r6, r2)
+	(push-trashed)
+	(set-src `(,%1 ,%2 ,%3))
+	(set-dst '(r7 r6 r2))
 	(map-src-to-dst)
-	sys_call sys_read
-	pop_trashed
-%endmacro
+	(sys-call sys_read)
+	(pop-trashed))
 
-%macro sys_read_char 1
+(defun sys-read-char (%1)
 	;fd
-	push_trashed
-	vp_push 0
-	(set-src %1)
-	(set-dst r7)
+	(push-trashed)
+	(vp-sub-cr ptr_size r4)
+	(set-src `(,%1 r4 1))
+	(set-dst '(r7 r6 r2))
 	(map-src-to-dst)
-	(vp-cpy-rr r4 r6)
-	vp_cpy 1, r2
-	sys_call sys_read
-	vp_pop r0
-	pop_trashed
-%endmacro
+	(sys-call sys_read)
+	(vp-cpy-ir-ub r4 0 r0)
+	(vp-add-cr ptr_size r4)
+	(pop-trashed))
 
-%macro sys_write_string 3
+(defun sys-write-string (%1 %2 %3)
 	;fd, string, length
-	push_trashed
-	vp_push r0
-	(set-src %1, %2, %3)
-	(set-dst r7, r6, r2)
+	(push-trashed)
+	(vp-push r0)
+	(set-src `(,%1 ,%2 ,%3))
+	(set-dst '(r7 r6 r2))
 	(map-src-to-dst)
-	sys_call sys_write
-	vp_pop r0
-	pop_trashed
-%endmacro
+	(sys-call sys_write)
+	(vp-pop r0)
+	(pop-trashed))
 
-%macro sys_write_char 2
+(defun sys-write-char (%1 %2)
 	;fd, char
-	push_trashed
-	vp_push r0, %2
-	(set-src %1)
-	(set-dst r7)
+	(push-trashed)
+	(vp-push r0 %2)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
 	(vp-cpy-rr r4 r6)
-	vp_cpy 1, r2
-	sys_call sys_write
-	(vp-add-cr 8 r4)
-	vp_pop r0
-	pop_trashed
-%endmacro
+	(vp-cpy-cr 1 r2)
+	(sys-call sys_write)
+	(vp-add-cr ptr_size r4)
+	(vp-pop r0)
+	(pop-trashed))
 
-%macro sys_mmap 6
+(defun sys-mmap (%1 %2 %3 %4 %5 %6)
 	;addr, len, prot, flags, fd, pos
-	push_trashed
-	(set-src %1, %2, %3, %4, %5, %6)
-	(set-dst r7, r6, r2, r10, r8, r9)
+	(push-trashed)
+	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6))
+	(set-dst '(r7 r6 r2 r10 r8 r9))
 	(map-src-to-dst)
-	sys_call sys_mmap
-	pop_trashed
-%endmacro
+	(sys-call sys_mmap)
+	(pop-trashed))
 
-%macro sys_mprotect 3
+(defun sys-mprotect (%1 %2 %3)
 	;addr, len, prot
-	push_trashed
-	(set-src %1, %2, %3)
-	(set-dst r7, r6, r2)
+	(push-trashed)
+	(set-src `(,%1 ,%2 ,%3))
+	(set-dst '(r7 r6 r2))
 	(map-src-to-dst)
-	sys_call sys_mprotect
-	pop_trashed
-%endmacro
+	(sys-call sys_mprotect)
+	(pop-trashed))
 
-%macro sys_munmap 2
+(defun sys-munmap (%1 %2)
 	;addr, len
-	push_trashed
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(push-trashed)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
-	sys_call sys_munmap
-	pop_trashed
-%endmacro
+	(sys-call sys_munmap)
+	(pop-trashed))
 
-%macro sys_stat 2
+(defun sys-stat (%1 %2)
 	;path, buffer
-	push_trashed
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(push-trashed)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
-	sys_call sys_stat
-	pop_trashed
-%endmacro
+	(sys-call sys_stat)
+	(pop-trashed))
 
-%macro sys_open 3
+(defun sys-open (%1 %2 %3)
 	;path, flags, mode
-	push_trashed
-	(set-src %1, %2, %3)
-	(set-dst r7, r6, r2)
+	(push-trashed)
+	(set-src `(,%1 ,%2 ,%3))
+	(set-dst '(r7 r6 r2))
 	(map-src-to-dst)
-	sys_call sys_open
-	pop_trashed
-%endmacro
+	(sys-call sys_open)
+	(pop-trashed))
 
-%macro sys_close 1
+(defun sys-close (%1)
 	;fd
-	push_trashed
-	(set-src %1)
-	(set-dst r7)
+	(push-trashed)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
-	sys_call sys_close
-	pop_trashed
-%endmacro
+	(sys-call sys_close)
+	(pop-trashed))
 
-%macro sys_ftruncate 2
+(defun sys-ftruncate (%1 %2)
 	;fd, offset
-	push_trashed
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(push-trashed)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
-	sys_call sys_ftruncate
-	pop_trashed
-%endmacro
+	(sys-call sys_ftruncate)
+	(pop-trashed))
 
-%macro sys_unlink 1
+(defun sys-unlink (%1)
 	;name
-	push_trashed
-	(set-src %1)
-	(set-dst r7)
+	(push-trashed)
+	(set-src `(,%1))
+	(set-dst '(r7))
 	(map-src-to-dst)
-	sys_call sys_unlink
-	pop_trashed
-%endmacro
+	(sys-call sys_unlink)
+	(pop-trashed))
 
-%macro sys_gettimeofday 2
+(defun sys-gettimeofday (%1 %2)
 	;time, timezone
-	push_trashed
-	(set-src %1, %2)
-	(set-dst r7, r6)
+	(push-trashed)
+	(set-src `(,%1 ,%2))
+	(set-dst '(r7 r6))
 	(map-src-to-dst)
-	sys_call sys_gettimeofday
-	pop_trashed
-%endmacro
-%endif
+	(sys-call sys_gettimeofday)
+	(pop-trashed))
+
+)

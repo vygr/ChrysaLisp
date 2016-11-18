@@ -106,7 +106,7 @@
 				;dispatch to task and target view
 				(vp-cpy-ir r4 local_key_view r6)
 				(vpif '(r6 != 0))
-					(vp-push r0, r1, r2)
+					(vp-push r0 r1 r2)
 					;lookup view owner
 					(f-call 'view 'find_owner '(r6) '(r1))
 					(vpif '(r1 != 0))
@@ -133,7 +133,7 @@
 						;send mail to owner
 						(f-call 'sys_mail 'send '(r0))
 					(endif)
-					(vp-pop r0, r1, r2)
+					(vp-pop r0 r1 r2)
 				(endif)
 			(endif)
 		(loop-end)
