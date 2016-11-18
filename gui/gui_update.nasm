@@ -34,7 +34,8 @@ def_func gui/gui_update
 
 %ifdef dual_buffers
 	;copy visable region to new region
-	vp_push r0, 0
+	vp_xor r1, r1
+	vp_push r0, r1
 	vp_lea [r0 + view_dirty_region], r1
 	vp_cpy [r0 + view_w], r10
 	vp_cpy [r0 + view_h], r11

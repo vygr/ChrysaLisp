@@ -135,14 +135,13 @@ def_struct_end
 %macro sys_read_char 1
 	;fd
 	push_trashed
-	vp_push 0
-	set_src %1
-	set_dst r7
+	vp_sub ptr_size, r4
+	set_src %1, r4, 1
+	set_dst r7, r6, r2
 	map_src_to_dst
-	vp_cpy r4, r6
-	vp_cpy 1, r2
 	sys_call sys_read + 0x2000000
-	vp_pop r0
+	vp_cpy_ub [r4], r0
+	vp_add ptr_size, r4
 	pop_trashed
 %endmacro
 
@@ -168,7 +167,7 @@ def_struct_end
 	vp_cpy r4, r6
 	vp_cpy 1, r2
 	sys_call sys_write + 0x2000000
-	vp_add 8, r4
+	vp_add ptr_size, r4
 	vp_pop r0
 	pop_trashed
 %endmacro
@@ -376,14 +375,13 @@ def_struct_end
 %macro sys_read_char 1
 	;fd
 	push_trashed
-	vp_push 0
-	set_src %1
-	set_dst r7
+	vp_sub ptr_size, r4
+	set_src %1, r4, 1
+	set_dst r7, r6, r2
 	map_src_to_dst
-	vp_cpy r4, r6
-	vp_cpy 1, r2
 	sys_call sys_read
-	vp_pop r0
+	vp_cpy_ub [r4], r0
+	vp_add ptr_size, r4
 	pop_trashed
 %endmacro
 
@@ -409,7 +407,7 @@ def_struct_end
 	vp_cpy r4, r6
 	vp_cpy 1, r2
 	sys_call sys_write
-	vp_add 8, r4
+	vp_add ptr_size, r4
 	vp_pop r0
 	pop_trashed
 %endmacro

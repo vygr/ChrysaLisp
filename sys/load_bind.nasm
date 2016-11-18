@@ -185,7 +185,8 @@ ld_load_function:
 			vp_cpy [r0], r0
 			vp_sub r0, r1
 			sys_write_string 2, r0, r1
-			sys_write_char 2, 10
+			vp_cpy 10, r1
+			sys_write_char 2, r1
 			sys_exit 1
 		endif
 		vp_cpy r0, r1

@@ -454,6 +454,10 @@
 
 %macro vp_push 1-*
 	%rep %0
+		reg? %1
+		%if _r < 0
+			%fatal Not register %1 !
+		%endif
 		push %1
 		%rotate 1
 	%endrep
