@@ -79,6 +79,16 @@
 		(setq e (inc e) a (apply f a)))
 	a)
 
+(defun each-rev (f &rest b)
+	(defq e (dec (min-len b)) a nil i nil)
+	(while (ge e 0)
+		(setq a (list) i 0)
+		(while (lt i (length b))
+			(push a (elem e (elem i b)))
+			(setq i (inc i)))
+		(setq e (dec e) a (apply f a)))
+	a)
+
 (defun map (f &rest b)
 	(defq m (min-len b) l (list) e 0 a nil i nil)
 	(while (lt e m)
@@ -202,14 +212,17 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
-(defun import (*file*)
-	(if (notany (lambda (x) (eql x *file*)) *imports*)
-		(progn (push *imports* *file*)
+(defun compile-file (*file*)
+	(defun import (*file*)
+		(when (notany (lambda (x) (eql x *file*)) *imports*)
+			(push *imports* *file*)
 			(print "Importing file: " *file*)
 			(repl (file-stream *file*))
-			(print "Imported file: " *file*))))
-
-(defun compile-file (*file*)
+			(print "Imported file: " *file*)))
+	(defmacro equate (s v)
+		`(def *compile-env* ,s ,v))
+	(defmacro defcompilefun (n a &rest b)
+		`(def *compile-env* ',n (lambda ,a ~b)))
 	(defq *imports* (list))
 	(defq *emit-buffer* nil *out-buffer* nil)
 	(defq *struct* nil *struct-offset* nil *enum* nil *bit* nil)
@@ -218,11 +231,5 @@
 	(defq *compile-env* (env) *OS* 'Darwin)
 	(import *file*)
 	(setq *compile-env* nil))
-
-(defun equate (s v)
-	(def *compile-env* s v))
-
-(defmacro defcompilefun (n a &rest b)
-	`(def *compile-env* ',n (lambda ,a ~b)))
 
 (compile-file "test.vp")
