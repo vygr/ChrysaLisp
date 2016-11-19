@@ -20,9 +20,9 @@
 (equate 'r15 'r15)
 
 (defcompilefun reg (r)
-	(defq c 0)
-	(some (lambda (x) (if (eql r x) c (progn (setq c (inc c)) nil)))
-		'(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15)))
+	(defq c 0 n nil l '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
+	(while (and (not n) (lt c (length l)))
+		(if (eql (elem c l) r) (setq n c) (setq c (inc c)))) n)
 
 (defcompilefun vp-label (s) (emit `(emit-label ',s)) (def *compile-env* s 0))
 (defcompilefun vp-align (&rest b) (emit `(emit-align ~b)))
