@@ -2,12 +2,12 @@
 
 (def-func 'test)
 
-	(vp-mul-pr 'bert r15)
-	(vp-mul-pr 'bert r14)
-	(vp-mul-pr 'bert r13)
-	(vp-mul-pr 'bert r2)
-	(vp-mul-pr 'bert r1)
-	(vp-mul-pr 'bert r0)
+	(vp-cpy-rp r15 'bert)
+	(vp-cpy-rp r14 'bert)
+	(vp-cpy-rp r13 'bert)
+	(vp-cpy-rp r2 'bert)
+	(vp-cpy-rp r1 'bert)
+	(vp-cpy-rp r0 'bert)
 
 (vp-label 'bert)
 

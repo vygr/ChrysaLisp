@@ -235,6 +235,13 @@
 	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h)
 		o (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
 
+(defcompilefun emit-dr-bs (o s1 s2 d)
+	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
+		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
+		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h)
+		0x0f o (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
+
 (defcompilefun emit-ir (o s c d)
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
 		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
@@ -246,6 +253,17 @@
 			(emit-int c))
 		t (print "emit-ir constant out of range: " c)))
 
+(defcompilefun emit-ir-bs (o s c d)
+	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
+		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(cond
+		((le -0x80 c 0x7f)
+			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f o (add 0x40 (bit-shl dl 3) sl) c))
+		((le -0x80000000 c 0x7fffffff)
+			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f o (add 0x80 (bit-shl dl 3) sl))
+			(emit-int c))
+		t (print "emit-ir-bs constant out of range: " c)))
+
 (defcompilefun emit-pr (o c d)
 	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c 7))
 	(cond
@@ -253,6 +271,14 @@
 			(emit-byte (add 0x48 (bit-shl dh 2)) o (add 0x5 (bit-shl dl 3)))
 			(emit-int c))
 		t (print "emit-pr constant out of range: " c)))
+
+(defcompilefun emit-pr-bs (o c d)
+	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c 8))
+	(cond
+		((le -0x80000000 c 0x7fffffff)
+			(emit-byte (add 0x48 (bit-shl dh 2)) 0x0f o (add 0x5 (bit-shl dl 3)))
+			(emit-int c))
+		t (print "emit-pr-bs constant out of range: " c)))
 
 (defcompilefun emit-beq (%1) ())
 (defcompilefun emit-bne (%1) ())
@@ -324,87 +350,29 @@
 	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h)
 		0x89 (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
 
-(defcompilefun emit-cpy-rp (&rest b) ())
-
-(defcompilefun emit-cpy-ir-b (s c d)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+(defcompilefun emit-cpy-rp (d c)
+	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c (length *out-buffer*) 7))
 	(cond
-		((le -0x80 c 0x7f)
-			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xbe (add 0x40 (bit-shl dl 3) sl) c))
 		((le -0x80000000 c 0x7fffffff)
-			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xbe (add 0x80 (bit-shl dl 3) sl))
+			(emit-byte (add 0x48 (bit-shl dh 2)) 0x89 (add 0x5 (bit-shl dl 3)))
 			(emit-int c))
-		t (print "emit-cpy-ir-b constant out of range: " c)))
+		t (print "emit-cpy-rp constant out of range: " c)))
 
-(defcompilefun emit-cpy-dr-b (s1 s2 d)
-	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
-		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
-	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h)
-		0x0f 0xbe (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
+(defcompilefun emit-cpy-ir-b (s c d) (emit-ir-bs (0xbe s c d)))
+(defcompilefun emit-cpy-dr-b (s1 s2 d) (emit-dr-bs (0xbe s1 s2 d)))
+(defcompilefun emit-cpy-pr-b (l d) (emit-pr-bs 0xbe (sub l (length *out-buffer*)) d))
 
-(defcompilefun emit-cpy-pr-b (&rest b) ())
+(defcompilefun emit-cpy-ir-ub (s c d) (emit-ir-bs (0xb6 s c d)))
+(defcompilefun emit-cpy-dr-ub (s1 s2 d) (emit-dr-bs (0xb6 s1 s2 d)))
+(defcompilefun emit-cpy-pr-ub (l d) (emit-pr-bs 0xb6 (sub l (length *out-buffer*)) d))
 
-(defcompilefun emit-cpy-ir-ub (s c d)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
-	(cond
-		((le -0x80 c 0x7f)
-			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xb6 (add 0x40 (bit-shl dl 3) sl) c))
-		((le -0x80000000 c 0x7fffffff)
-			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xb6 (add 0x80 (bit-shl dl 3) sl))
-			(emit-int c))
-		t (print "emit-cpy-ir-ub constant out of range: " c)))
+(defcompilefun emit-cpy-ir-s (s c d) (emit-ir-bs (0xbf s c d)))
+(defcompilefun emit-cpy-dr-s (s1 s2 d) (emit-dr-bs (0xbf s1 s2 d)))
+(defcompilefun emit-cpy-pr-s (l d) (emit-pr-bs 0xbf (sub l (length *out-buffer*)) d))
 
-(defcompilefun emit-cpy-dr-ub (s1 s2 d)
-	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
-		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
-	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h)
-		0x0f 0xb6 (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
-
-(defcompilefun emit-cpy-pr-ub (&rest b) ())
-
-(defcompilefun emit-cpy-ir-s (s c d)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
-	(cond
-		((le -0x80 c 0x7f)
-			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xbf (add 0x40 (bit-shl dl 3) sl) c))
-		((le -0x80000000 c 0x7fffffff)
-			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xbf (add 0x80 (bit-shl dl 3) sl))
-			(emit-int c))
-		t (print "emit-cpy-ir-s constant out of range: " c)))
-
-(defcompilefun emit-cpy-dr-s (s1 s2 d)
-	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
-		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
-	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h)
-		0x0f 0xbf (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
-
-(defcompilefun emit-cpy-pr-s (&rest b) ())
-
-(defcompilefun emit-cpy-ir-us (s c d)
-	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
-	(cond
-		((le -0x80 c 0x7f)
-			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xb7 (add 0x40 (bit-shl dl 3) sl) c))
-		((le -0x80000000 c 0x7fffffff)
-			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xb7 (add 0x80 (bit-shl dl 3) sl))
-			(emit-int c))
-		t (print "emit-cpy-ir-us constant out of range: " c)))
-
-(defcompilefun emit-cpy-dr-us (s1 s2 d)
-	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
-		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
-		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
-	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h)
-		0x0f 0xb7 (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
-
-(defcompilefun emit-cpy-pr-us (&rest b) ())
+(defcompilefun emit-cpy-ir-us (s c d) (emit-ir-bs (0xb7 s c d)))
+(defcompilefun emit-cpy-dr-us (s1 s2 d) (emit-dr-bs (0xb7 s1 s2 d)))
+(defcompilefun emit-cpy-pr-us (l d) (emit-pr-bs 0xb7 (sub l (length *out-buffer*)) d))
 
 (defcompilefun emit-cpy-ir-i (s c d)
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
@@ -424,7 +392,13 @@
 	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h)
 		0x63 (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
 
-(defcompilefun emit-cpy-pr-i (&rest b) ())
+(defcompilefun emit-cpy-pr-i (c d)
+	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c (length *out-buffer*) 7))
+	(cond
+		((le -0x80000000 c 0x7fffffff)
+			(emit-byte (add 0x48 (bit-shl dh 2)) 0x63 (add 0x5 (bit-shl dl 3)))
+			(emit-int c))
+		t (print "emit-pr-i constant out of range: " c)))
 
 (defcompilefun emit-cpy-ir-ui (s c d)
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
@@ -444,7 +418,13 @@
 	(emit-byte (add 0x40 (bit-shl dh 2) (bit-shl s2h 1) s1h)
 		0x8b (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
 
-(defcompilefun emit-cpy-pr-ui (&rest b) ())
+(defcompilefun emit-cpy-pr-ui (c d)
+	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c (length *out-buffer*) 7))
+	(cond
+		((le -0x80000000 c 0x7fffffff)
+			(emit-byte (add 0x40 (bit-shl dh 2)) 0x8b (add 0x5 (bit-shl dl 3)))
+			(emit-int c))
+		t (print "emit-pr-ui constant out of range: " c)))
 
 (defcompilefun emit-cpy-ri-b (s d c)
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
@@ -464,7 +444,13 @@
 	(emit-byte (add 0x40 (bit-shl dh 2) (bit-shl s2h 1) s1h)
 		0x88 (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
 
-(defcompilefun emit-cpy-rp-b (&rest b) ())
+(defcompilefun emit-cpy-rp-b (d c)
+	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c (length *out-buffer*) 7))
+	(cond
+		((le -0x80000000 c 0x7fffffff)
+			(emit-byte (add 0x40 (bit-shl dh 2)) 0x88 (add 0x5 (bit-shl dl 3)))
+			(emit-int c))
+		t (print "emit-cpy-rp-b constant out of range: " c)))
 
 (defcompilefun emit-cpy-ri-s (s d c)
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
@@ -484,7 +470,13 @@
 	(emit-byte 0x66 (add 0x40 (bit-shl dh 2) (bit-shl s2h 1) s1h)
 		0x89 (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
 
-(defcompilefun emit-cpy-rp-s (&rest b) ())
+(defcompilefun emit-cpy-rp-s (d c)
+	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c (length *out-buffer*) 8))
+	(cond
+		((le -0x80000000 c 0x7fffffff)
+			(emit-byte 0x66 (add 0x40 (bit-shl dh 2)) 0x89 (add 0x5 (bit-shl dl 3)))
+			(emit-int c))
+		t (print "emit-cpy-rp-s constant out of range: " c)))
 
 (defcompilefun emit-cpy-ri-i (s d c)
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
@@ -504,7 +496,13 @@
 	(emit-byte (add 0x40 (bit-shl dh 2) (bit-shl s2h 1) s1h)
 		0x89 (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
 
-(defcompilefun emit-cpy-rp-i (&rest b) ())
+(defcompilefun emit-cpy-rp-i (d c)
+	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c (length *out-buffer*) 7))
+	(cond
+		((le -0x80000000 c 0x7fffffff)
+			(emit-byte (add 0x40 (bit-shl dh 2)) 0x89 (add 0x5 (bit-shl dl 3)))
+			(emit-int c))
+		t (print "emit-rp-i constant out of range: " c)))
 
 (defcompilefun emit-add-cr (c r) (emit-cr 0xc0 c r))
 (defcompilefun emit-add-rr (s d) (emit-rr 0x01 s d))
