@@ -280,13 +280,6 @@
 			(emit-int c))
 		t (print "emit-pr-bs constant out of range: " c)))
 
-(defcompilefun emit-beq (%1) ())
-(defcompilefun emit-bne (%1) ())
-(defcompilefun emit-blt (%1) ())
-(defcompilefun emit-ble (%1) ())
-(defcompilefun emit-bgt (%1) ())
-(defcompilefun emit-bge (%1) ())
-
 (defcompilefun emit-push (&rest b)
 	(each (lambda (r)
 		(setq r (reg r))
@@ -300,6 +293,13 @@
 		(if (ge r 8)
 			(emit-byte 0x41 (add 0x50 r))
 			(emit-byte (add 0x58 r)))) b))
+
+(defcompilefun emit-beq (%1) ())
+(defcompilefun emit-bne (%1) ())
+(defcompilefun emit-blt (%1) ())
+(defcompilefun emit-ble (%1) ())
+(defcompilefun emit-bgt (%1) ())
+(defcompilefun emit-bge (%1) ())
 
 (defcompilefun emit-call (&rest b) ())
 (defcompilefun emit-call-r (&rest b) ())
