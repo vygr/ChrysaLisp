@@ -2,22 +2,8 @@
 ; VP Instructions
 ;;;;;;;;;;;;;;;;;
 
-(equate 'r0 'r0)
-(equate 'r1 'r1)
-(equate 'r2 'r2)
-(equate 'r3 'r3)
-(equate 'r4 'r4)
-(equate 'r5 'r5)
-(equate 'r6 'r6)
-(equate 'r7 'r7)
-(equate 'r8 'r8)
-(equate 'r9 'r9)
-(equate 'r10 'r10)
-(equate 'r11 'r11)
-(equate 'r12 'r12)
-(equate 'r13 'r13)
-(equate 'r14 'r14)
-(equate 'r15 'r15)
+(equate 'r0 'r0 'r1 'r1 'r2 'r2 'r3 'r3 'r4 'r4 'r5 'r5 'r6 'r6 'r7 'r7 'r8 'r8
+	'r9 'r9 'r10 'r10 'r11 'r11 'r12 'r12 'r13 'r13 'r14 'r14 'r15 'r15)
 
 (defcompilefun reg (r)
 	(defq c 0 n nil l '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
