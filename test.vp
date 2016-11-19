@@ -2,7 +2,11 @@
 
 (def-func 'test)
 
-	(vp-push r15 r14 r13 r13 r11 r10 r9 r8 r7 r6 r5 r4 r3 r2 r1 r0)
-	(vp-pop r15 r14 r13 r13 r11 r10 r9 r8 r7 r6 r5 r4 r3 r2 r1 r0)
+	(vp-cpy-dr-ub r15 r2 r15)
+	(vp-cpy-dr-ub r14 r1 r14)
+	(vp-cpy-dr-ub r13 r0 r13)
+	(vp-cpy-dr-ub r2 r13 r2)
+	(vp-cpy-dr-ub r1 r14 r1)
+	(vp-cpy-dr-ub r0 r15 r0)
 
 (def-func-end)
