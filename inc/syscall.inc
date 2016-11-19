@@ -22,7 +22,7 @@
 	(vp-cpy-cr %1 r0)
 	(syscall))
 
-(if (eql *OS* 'Darwin) (progn
+(when (eql *OS* 'Darwin)
 
 ;;;;;;;;;;;;;;;;;
 ; syscall for OSX
@@ -246,8 +246,8 @@
 	(vp-cpy-ri r2 r1 timeval_usec)
 	(pop-trashed))
 
-))
-(if (eql *OS* 'Linux) (progn
+)
+(when (eql *OS* 'Linux)
 
 ;;;;;;;;;;;;;;;;;;;
 ; syscall for Linux
@@ -466,5 +466,4 @@
 	(map-src-to-dst)
 	(sys-call sys_gettimeofday)
 	(pop-trashed))
-
-))
+)
