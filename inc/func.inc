@@ -72,7 +72,7 @@
 		'(sub _func_entry _func_start)
 		'(sub _func_links _func_start)
 		'(sub _func_paths _func_start)
-		(if *func-stack* *func-stack* 4096))
+		(if *func-stack* *func-stack* tk_stack_size))
 	(vp-label '_func_name_start)
 	(vp-string (str *func-name*))
 	(vp-byte 0 '(sub _func_entry _func_name_start))
