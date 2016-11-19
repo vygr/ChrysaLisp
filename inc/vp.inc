@@ -235,8 +235,19 @@
 (defcompilefun emit-bgt (%1) ())
 (defcompilefun emit-bge (%1) ())
 
-(defcompilefun emit-push (&rest b) ())
-(defcompilefun emit-pop (&rest b) ())
+(defcompilefun emit-push (&rest b)
+	(each (lambda (r)
+		(setq r (reg r))
+		(if (ge r 8)
+			(emit-byte 0x41 (add 0x50 (sub r 8)))
+			(emit-byte (add 0x50 r)))) b))
+
+(defcompilefun emit-pop (&rest b)
+	(each-rev (lambda (r)
+		(setq r (reg r))
+		(if (ge r 8)
+			(emit-byte 0x41 (add 0x58 (sub r 8)))
+			(emit-byte (add 0x58 r)))) b))
 
 (defcompilefun emit-call (&rest b) ())
 (defcompilefun emit-call-r (&rest b) ())
