@@ -239,14 +239,14 @@
 	(each (lambda (r)
 		(setq r (reg r))
 		(if (ge r 8)
-			(emit-byte 0x41 (add 0x50 (sub r 8)))
+			(emit-byte 0x41 (add 0x48 r))
 			(emit-byte (add 0x50 r)))) b))
 
 (defcompilefun emit-pop (&rest b)
 	(each-rev (lambda (r)
 		(setq r (reg r))
 		(if (ge r 8)
-			(emit-byte 0x41 (add 0x58 (sub r 8)))
+			(emit-byte 0x41 (add 0x50 r))
 			(emit-byte (add 0x58 r)))) b))
 
 (defcompilefun emit-call (&rest b) ())
