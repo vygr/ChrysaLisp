@@ -506,7 +506,7 @@
 		;dest not register
 		%fatal Not valid VP mode
 	%endif
-	sub %2, %1
+	cmp %2, %1
 %endmacro
 
 %macro vp_and 2

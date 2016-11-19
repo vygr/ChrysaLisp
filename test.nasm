@@ -2,11 +2,25 @@
 
 def_func test
 
-	vp_cpy_i r15, [r15 + r2 + 1]
-	vp_cpy_i r14, [r14 + r1 + 1]
-	vp_cpy_i r13, [r13 + r0 + 1]
-	vp_cpy_i r2, [r2 + r13 + 1]
-	vp_cpy_i r1, [r1 + r14 + 1]
-	vp_cpy_i r0, [r0 + r15 + 1]
+	vp_cpy [r0 + 0x7f], r15
+	vp_cpy [r1 + 0x7f], r14
+	vp_cpy [r2 + 0x7f], r13
+	vp_cpy [r13 + 0x7f], r2
+	vp_cpy [r14 + 0x7f], r1
+	vp_cpy [r15 + 0x7f], r0
+
+	vp_cpy [r0 + 0x7fff], r15
+	vp_cpy [r1 + 0x7fff], r14
+	vp_cpy [r2 + 0x7fff], r13
+	vp_cpy [r13 + 0x7fff], r2
+	vp_cpy [r14 + 0x7fff], r1
+	vp_cpy [r15 + 0x7fff], r0
+
+	vp_cpy [r0 + 0x7fffffff], r15
+	vp_cpy [r1 + 0x7fffffff], r14
+	vp_cpy [r2 + 0x7fffffff], r13
+	vp_cpy [r13 + 0x7fffffff], r2
+	vp_cpy [r14 + 0x7fffffff], r1
+	vp_cpy [r15 + 0x7fffffff], r0
 
 def_func_end
