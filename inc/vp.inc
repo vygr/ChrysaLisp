@@ -287,7 +287,14 @@
 (defcompilefun emit-cpy-dr (s1 s2 d) (emit-dr 0x8b s1 s2 d))
 (defcompilefun emit-cpy-pr (&rest b) ())
 (defcompilefun emit-cpy-ri (&rest b) ())
-(defcompilefun emit-cpy-rd (&rest b) ())
+
+(defcompilefun emit-cpy-rd (s1 s2 d)
+	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
+		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
+		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h)
+		0x89 (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
+
 (defcompilefun emit-cpy-rp (&rest b) ())
 
 (defcompilefun emit-cpy-ir-b (&rest b) ())
@@ -354,15 +361,36 @@
 (defcompilefun emit-cpy-pr-ui (&rest b) ())
 
 (defcompilefun emit-cpy-ri-b (&rest b) ())
-(defcompilefun emit-cpy-rd-b (&rest b) ())
+
+(defcompilefun emit-cpy-rd-b (s1 s2 d)
+	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
+		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
+		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(emit-byte (add 0x40 (bit-shl dh 2) (bit-shl s2h 1) s1h)
+		0x88 (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
+
 (defcompilefun emit-cpy-rp-b (&rest b) ())
 
 (defcompilefun emit-cpy-ri-s (&rest b) ())
-(defcompilefun emit-cpy-rd-s (&rest b) ())
+
+(defcompilefun emit-cpy-rd-s (s1 s2 d)
+	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
+		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
+		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(emit-byte 0x66 (add 0x40 (bit-shl dh 2) (bit-shl s2h 1) s1h)
+		0x89 (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
+
 (defcompilefun emit-cpy-rp-s (&rest b) ())
 
 (defcompilefun emit-cpy-ri-i (&rest b) ())
-(defcompilefun emit-cpy-rd-i (&rest b) ())
+
+(defcompilefun emit-cpy-rd-i (s1 s2 d)
+	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
+		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
+		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(emit-byte (add 0x40 (bit-shl dh 2) (bit-shl s2h 1) s1h)
+		0x89 (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
+
 (defcompilefun emit-cpy-rp-i (&rest b) ())
 
 (defcompilefun emit-add-cr (c r) (emit-cr 0xc0 c r))

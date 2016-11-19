@@ -2,11 +2,11 @@
 
 (def-func 'test)
 
-	(vp-cpy-dr-ui r15 r2 r15)
-	(vp-cpy-dr-ui r14 r1 r14)
-	(vp-cpy-dr-ui r13 r0 r13)
-	(vp-cpy-dr-ui r2 r13 r2)
-	(vp-cpy-dr-ui r1 r14 r1)
-	(vp-cpy-dr-ui r0 r15 r0)
+	(vp-cpy-rd-i r15 r2 r15)
+	(vp-cpy-rd-i r14 r1 r14)
+	(vp-cpy-rd-i r13 r0 r13)
+	(vp-cpy-rd-i r2 r13 r2)
+	(vp-cpy-rd-i r1 r14 r1)
+	(vp-cpy-rd-i r0 r15 r0)
 
 (def-func-end)
