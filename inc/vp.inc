@@ -279,8 +279,8 @@
 (defcompilefun emit-jmp-d (&rest b) ())
 (defcompilefun emit-jmp-p (&rest b) ())
 
-(defcompilefun emit-lea-i (&rest b) ())
-(defcompilefun emit-lea-d (&rest b) ())
+(defcompilefun emit-lea-i (s c d) (emit-ir 0x8d s c d))
+(defcompilefun emit-lea-d (s1 s2 d) (emit-dr 0x8d s1 s2 d))
 (defcompilefun emit-lea-p (&rest b) ())
 
 (defcompilefun emit-cpy-cr (c r)
