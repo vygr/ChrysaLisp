@@ -10,7 +10,7 @@
 	(while (and (not n) (lt c (length l)))
 		(if (eql (elem c l) r) (setq n c) (setq c (inc c)))) n)
 
-(defcompilefun vp-label (s) (emit `(emit-label ',s)) (def *compile-env* s 0))
+(defcompilefun vp-label (s) (emit `(emit-label ',s)) (equate s 0))
 (defcompilefun vp-align (&rest b) (emit `(emit-align ~b)))
 (defcompilefun vp-string (&rest b) (emit `(emit-string ~b)))
 (defcompilefun vp-byte (&rest b) (emit `(emit-byte ~b)))
@@ -136,9 +136,8 @@
 ; Emit Buffer
 ;;;;;;;;;;;;;
 
-(defcompilefun emit (&rest b)
-	(each (lambda (x)
-		(push *emit-buffer* x)) b))
+(defcompilefun emit (f)
+	(push *emit-buffer* f))
 
 (defcompilefun emit-passes ()
 	(defq *out-buffer-cnt* 0 *out-buffer-size* 0)
@@ -384,7 +383,7 @@
 		((le -0x80000000 c 0x7fffffff)
 			(emit-byte (add 0x48 (bit-shl dh 2)) 0x63 (add 0x5 (bit-shl dl 3)))
 			(emit-int c))
-		t (print "emit-pr-i constant out of range: " c)))
+		t (print "emit-cpy-pr-i constant out of range: " c)))
 
 (defcompilefun emit-cpy-ir-ui (s c d)
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
