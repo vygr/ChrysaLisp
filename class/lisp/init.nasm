@@ -149,7 +149,7 @@ built_ins:
 	built_in "le", 0, func_le
 	built_in "ge", 0, func_ge
 	built_in "bit-shr", 0, func_bshr
-	built_in "bit-ashr", 0, func_bashr
+	built_in "bit-asr", 0, func_basr
 	built_in "bit-shl", 0, func_bshl
 	built_in "bit-and", 0, func_band
 	built_in "bit-or", 0, func_bor

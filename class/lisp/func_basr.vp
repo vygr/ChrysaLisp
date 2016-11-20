@@ -4,7 +4,7 @@
 (import 'class/class_error.inc)
 (import 'class/class_lisp.inc)
 
-(def-func 'class/lisp/func_bashr)
+(def-func 'class/lisp/func_basr)
 	;inputs
 	;r0 = lisp object
 	;r1 = args

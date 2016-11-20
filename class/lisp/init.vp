@@ -142,7 +142,7 @@
 	(built-in "le" 0 'func_le)
 	(built-in "ge" 0 'func_ge)
 	(built-in "bit-shr" 0 'func_bshr)
-	(built-in "bit-ashr" 0 'func_bashr)
+	(built-in "bit-asr" 0 'func_basr)
 	(built-in "bit-shl" 0 'func_bshl)
 	(built-in "bit-and" 0 'func_band)
 	(built-in "bit-or" 0 'func_bor)

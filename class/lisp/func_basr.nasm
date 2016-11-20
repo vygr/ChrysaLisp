@@ -4,7 +4,7 @@
 %include 'class/class_error.ninc'
 %include 'class/class_lisp.ninc'
 
-def_func class/lisp/func_bashr
+def_func class/lisp/func_basr
 	;inputs
 	;r0 = lisp object
 	;r1 = args

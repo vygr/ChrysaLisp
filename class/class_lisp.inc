@@ -82,7 +82,7 @@
 (def-method 'func_code 'class/lisp/func_code 'static '(r0 r1) '(r1))
 (def-method 'func_slice 'class/lisp/func_slice 'static '(r0 r1) '(r1))
 (def-method 'func_bshr 'class/lisp/func_bshr 'static '(r0 r1) '(r1))
-(def-method 'func_bashr 'class/lisp/func_bashr 'static '(r0 r1) '(r1))
+(def-method 'func_basr 'class/lisp/func_basr 'static '(r0 r1) '(r1))
 (def-method 'func_bshl 'class/lisp/func_bshl 'static '(r0 r1) '(r1))
 (def-method 'func_band 'class/lisp/func_band 'static '(r0 r1) '(r1))
 (def-method 'func_bor 'class/lisp/func_bor 'static '(r0 r1) '(r1))

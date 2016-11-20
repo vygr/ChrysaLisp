@@ -541,91 +541,79 @@
 %endmacro
 
 %macro vp_shr 2
-	reg? %1
+	reg? %2
 	%if _r < 0
-		;source is not reg
-		shr %2, %1
-	%elif _r = 1
-		;source is r1
-		shr %2, cl
+		;dest is not reg
+		%fatal Not valid VP mode
 	%else
-		;source is not r1
-		reg? %2
+		reg? %1
 		%if _r < 0
-			;dest is not reg
-			%fatal Not valid VP mode
+			;source is not reg
+			shr %2, %1
 		%elif _r = 1
-			;dest is r1
-			vp_push %1
-			vp_xchg %1, %2
-			shr %1, cl
-			vp_cpy %1, %2
-			vp_pop %1
-		%else
-			;dest is not r1
-			vp_xchg %1, r1
+			;source is r1
 			shr %2, cl
-			vp_xchg %1, r1
+		%else
+			;source is not r1
+			%warning shr by stack
+			vp_push %2, %1, r0, r1
+			vp_cpy [r4 + 24], r0
+			vp_cpy [r4 + 16], r1
+			shr r0, cl
+			vp_cpy r0, [r4 + 24]
+			vp_pop %2, %1, r0, r1
 		%endif
 	%endif
 %endmacro
 
 %macro vp_asr 2
-	reg? %1
+	reg? %2
 	%if _r < 0
-		;source is not reg
-		sar %2, %1
-	%elif _r = 1
-		;source is r1
-		sar %2, cl
+		;dest is not reg
+		%fatal Not valid VP mode
 	%else
-		;source is not r1
-		reg? %2
+		reg? %1
 		%if _r < 0
-			;dest is not reg
-			%fatal Not valid VP mode
+			;source is not reg
+			sar %2, %1
 		%elif _r = 1
-			;dest is r1
-			vp_push %1
-			vp_xchg %1, %2
-			sar %1, cl
-			vp_cpy %1, %2
-			vp_pop %1
-		%else
-			;dest is not r1
-			vp_xchg %1, r1
+			;source is r1
 			sar %2, cl
-			vp_xchg %1, r1
+		%else
+			;source is not r1
+			%warning sar by stack
+			vp_push %2, %1, r0, r1
+			vp_cpy [r4 + 24], r0
+			vp_cpy [r4 + 16], r1
+			sar r0, cl
+			vp_cpy r0, [r4 + 24]
+			vp_pop %2, %1, r0, r1
 		%endif
 	%endif
 %endmacro
 
 %macro vp_shl 2
-	reg? %1
+	reg? %2
 	%if _r < 0
-		;source is not reg
-		shl %2, %1
-	%elif _r = 1
-		;source is r1
-		shl %2, cl
+		;dest is not reg
+		%fatal Not valid VP mode
 	%else
-		;source is not r1
-		reg? %2
+		reg? %1
 		%if _r < 0
-			;dest is not reg
-			%fatal Not valid VP mode
+			;source is not reg
+			shl %2, %1
 		%elif _r = 1
-			;dest is r1
-			vp_push %1
-			vp_xchg %1, %2
-			shl %1, cl
-			vp_cpy %1, %2
-			vp_pop %1
-		%else
-			;dest is not r1
-			vp_xchg %1, r1
+			;source is r1
 			shl %2, cl
-			vp_xchg %1, r1
+		%else
+			;source is not r1
+			%warning shl by stack
+			vp_push %2, %1, r0, r1
+			vp_cpy [r4 + 24], r0
+			vp_cpy [r4 + 16], r1
+			shl r0, cl
+			vp_cpy r0, [r4 + 24]
+			vp_pop %2, %1, r0, r1
 		%endif
 	%endif
 %endmacro
