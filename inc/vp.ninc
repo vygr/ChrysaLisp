@@ -475,11 +475,11 @@
 %endmacro
 
 %macro vp_inc 1
-	add %1, 1
+	inc %1
 %endmacro
 
 %macro vp_dec 1
-	sub %1, 1
+	dec %1
 %endmacro
 
 %macro vp_add 2

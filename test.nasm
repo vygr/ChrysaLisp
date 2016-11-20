@@ -313,4 +313,38 @@ vp_mul 0x7f4f5f6f, r13
 vp_mul 0x7f4f5f6f, r14
 vp_mul 0x7f4f5f6f, r15
 
+vp_inc r0
+vp_inc r1
+vp_inc r2
+vp_inc r3
+vp_inc r4
+vp_inc r5
+vp_inc r6
+vp_inc r7
+vp_inc r8
+vp_inc r9
+vp_inc r10
+vp_inc r11
+vp_inc r12
+vp_inc r13
+vp_inc r14
+vp_inc r15
+
+vp_dec r0
+vp_dec r1
+vp_dec r2
+vp_dec r3
+vp_dec r4
+vp_dec r5
+vp_dec r6
+vp_dec r7
+vp_dec r8
+vp_dec r9
+vp_dec r10
+vp_dec r11
+vp_dec r12
+vp_dec r13
+vp_dec r14
+vp_dec r15
+
 def_func_end
