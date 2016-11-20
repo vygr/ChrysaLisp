@@ -195,7 +195,7 @@
 	(code c))
 
 (defun to-base-char (x)
-	(elem x "0123456789abcdefghijklmnopqrstuvwxyz"))
+	(elem x "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
 
 (defun prin-base (x b j)
 	(defun prin-b (x j)
