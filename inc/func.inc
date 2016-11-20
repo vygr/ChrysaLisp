@@ -102,7 +102,7 @@
 	(vp-align ptr_size)
 	(vp-label '_func_end)
 	(emit-passes)
-	(print-emit-buffer)
+;	(print-emit-buffer)
 	(print-out-buffer 16))
 
 (defmacro def-insert (n l)

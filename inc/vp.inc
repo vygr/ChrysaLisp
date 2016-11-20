@@ -240,6 +240,9 @@
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
 		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
 	(cond
+		((eq c 0)
+			(emit-byte (add 0x48 (bit-shl dh 2) sh) o (add (bit-shl dl 3) sl))
+			(if (or (eq s 4) (eq s 12)) (emit-byte 0x24)))
 		((le -0x80 c 0x7f)
 			(emit-byte (add 0x48 (bit-shl dh 2) sh) o (add 0x40 (bit-shl dl 3) sl))
 			(if (or (eq s 4) (eq s 12)) (emit-byte 0x24))
@@ -356,6 +359,10 @@
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
 		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
 	(cond
+		((eq c 0)
+			(emit-byte (add 0x48 (bit-shl sh 2) dh) 0x89 (add (bit-shl sl 3) dl))
+			(if (or (eq d 4) (eq d 12)) (emit-byte 0x24))
+			(emit-byte c))
 		((le -0x80 c 0x7f)
 			(emit-byte (add 0x48 (bit-shl sh 2) dh) 0x89 (add 0x40 (bit-shl sl 3) dl))
 			(if (or (eq d 4) (eq d 12)) (emit-byte 0x24))
@@ -589,10 +596,16 @@
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
 		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
 	(cond
+		((eq c 0)
+			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xaf (add (bit-shl dl 3) sl))
+			(if (or (eq s 4) (eq s 12)) (emit-byte 0x24)))
 		((le -0x80 c 0x7f)
-			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xaf (add 0x40 (bit-shl dl 3) sl) c))
+			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xaf (add 0x40 (bit-shl dl 3) sl))
+			(if (or (eq s 4) (eq s 12)) (emit-byte 0x24))
+			(emit-byte c))
 		((le -0x80000000 c 0x7fffffff)
 			(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xaf (add 0x80 (bit-shl dl 3) sl))
+			(if (or (eq s 4) (eq s 12)) (emit-byte 0x24))
 			(emit-int c))
 		(t (print "emit-mul-ir constant out of range: " c))))
 
