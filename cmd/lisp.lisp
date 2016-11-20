@@ -222,6 +222,7 @@
 	(defmacro equate (&rest b)
 		`(def *compile-env* ~b))
 	(defmacro defcompilefun (n a &rest b)
+;		(if (eql *file* 'inc/vp.inc) (print "Create function: " n))
 		`(def *compile-env* ',n (lambda ,a ~b)))
 	(defq *imports* (list))
 	(defq *emit-buffer* nil *out-buffer* nil)
