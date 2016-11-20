@@ -2,13 +2,40 @@
 
 (def-func 'test)
 
-	(vp-cpy-rp r15 'bert)
-	(vp-cpy-rp r14 'bert)
-	(vp-cpy-rp r13 'bert)
-	(vp-cpy-rp r2 'bert)
-	(vp-cpy-rp r1 'bert)
-	(vp-cpy-rp r0 'bert)
+(vp-shl-cr 1 r0)
+(vp-shl-cr 1 r1)
+(vp-shl-cr 1 r2)
+(vp-shl-cr 1 r13)
+(vp-shl-cr 1 r14)
+(vp-shl-cr 1 r15)
 
-(vp-label 'bert)
+(vp-shr-cr 1 r0)
+(vp-shr-cr 1 r1)
+(vp-shr-cr 1 r2)
+(vp-shr-cr 1 r13)
+(vp-shr-cr 1 r14)
+(vp-shr-cr 1 r15)
+
+(vp-asr-cr 1 r0)
+(vp-asr-cr 1 r1)
+(vp-asr-cr 1 r2)
+(vp-asr-cr 1 r13)
+(vp-asr-cr 1 r14)
+(vp-asr-cr 1 r15)
+
+(vp-shl-cr 2 r0)
+(vp-shl-cr 3 r0)
+(vp-shl-cr 2 r15)
+(vp-shl-cr 3 r15)
+
+(vp-shr-cr 2 r0)
+(vp-shr-cr 3 r0)
+(vp-shr-cr 2 r15)
+(vp-shr-cr 3 r15)
+
+(vp-asr-cr 2 r0)
+(vp-asr-cr 3 r0)
+(vp-asr-cr 2 r15)
+(vp-asr-cr 3 r15)
 
 (def-func-end)

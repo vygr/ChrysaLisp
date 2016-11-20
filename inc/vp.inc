@@ -128,6 +128,15 @@
 (defcompilefun vp-xor-dr (&rest b) (emit `(emit-xor-dr ~b)))
 (defcompilefun vp-xor-pr (&rest b) (emit `(emit-xor-pr ~b)))
 
+(defcompilefun vp-shl-cr (&rest b) (emit `(emit-shl-cr ~b)))
+(defcompilefun vp-shl-rr (&rest b) (emit `(emit-shl-rr ~b)))
+
+(defcompilefun vp-shr-cr (&rest b) (emit `(emit-shr-cr ~b)))
+(defcompilefun vp-shr-rr (&rest b) (emit `(emit-shr-rr ~b)))
+
+(defcompilefun vp-asr-cr (&rest b) (emit `(emit-asr-cr ~b)))
+(defcompilefun vp-asr-rr (&rest b) (emit `(emit-asr-rr ~b)))
+
 (defcompilefun vp-ret () (emit '(emit-ret)))
 (defcompilefun vp-inc (r) (emit `(emit-inc ,r)))
 (defcompilefun vp-dec (r) (emit `(emit-dec ,r)))
@@ -264,6 +273,15 @@
 			(emit-byte (add 0x48 (bit-shl dh 2)) 0x0f o (add 0x5 (bit-shl dl 3)))
 			(emit-int c))
 		t (print "emit-pr-bs constant out of range: " c)))
+
+(defcompilefun emit-shift-cr (o c d)
+	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(cond
+		((eq c 1)
+			(emit-byte (add 0x48 dh) 0xd1 (add o dl)))
+		((le c 0xff)
+			(emit-byte (add 0x48 dh) 0xc1 (add o dl) c))
+		t (print "emit-shift-cr constant out of range: " c)))
 
 (defcompilefun emit-push (&rest b)
 	(each (lambda (r)
@@ -524,6 +542,13 @@
 (defcompilefun emit-xor-ir (s c d) (emit-ir 0x33 s c d))
 (defcompilefun emit-xor-dr (s1 s2 d) (emit-dr 0x33 s1 s2 d))
 (defcompilefun emit-xor-pr (l d) (emit-pr 0x33 (sub l (length *out-buffer*)) d))
+
+(defcompilefun emit-shl-cr (c r) (emit-shift-cr 0xe0 c r))
+(defcompilefun emit-shl-rr (s d) (emit-rr 0xe0 s d))
+(defcompilefun emit-shr-cr (c r) (emit-shift-cr 0xe8 c r))
+(defcompilefun emit-shr-rr (s d) (emit-rr 0xe8 s d))
+(defcompilefun emit-asr-cr (c r) (emit-shift-cr 0xf8 c r))
+(defcompilefun emit-asr-rr (s d) (emit-rr 0xf8 s d))
 
 (defcompilefun emit-mul-cr (c r)
 	(defq r (reg r) rl (bit-and r 7) rh (bit-shr r 3))
