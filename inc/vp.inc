@@ -607,7 +607,18 @@
 (defcompilefun emit-sub-dr (s1 s2 d) (emit-dr 0x2b s1 s2 d))
 (defcompilefun emit-sub-pr (l d) (emit-pr 0x2b (sub l (length *out-buffer*)) d))
 
-(defcompilefun emit-cmp-cr (c r) (emit-cr 0xf8 c r))
+(defcompilefun emit-cmp-cr (c r)
+	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+	(cond
+		((le -0x80 c 0x7f)
+			(emit-byte (add 0x48 rh) 0x83 (add 0xf8 rl) c))
+		((le -0x80000000 c 0x7fffffff)
+			(if (eq r 0)
+				(emit-byte (add 0x48 rh) 0x3d)
+				(emit-byte (add 0x48 rh) 0x81 (add 0xf8 rl)))
+			(emit-int c))
+		(t (print "emit-cmp-cr constant out of range: " c))))
+
 (defcompilefun emit-cmp-rr (s d) (emit-rr 0x39 s d))
 (defcompilefun emit-cmp-ir (s c d) (emit-ir 0x3b s c d))
 (defcompilefun emit-cmp-dr (s1 s2 d) (emit-dr 0x3b s1 s2 d))
