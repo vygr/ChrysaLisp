@@ -59,8 +59,13 @@ def_func class/lisp/func_repl
 			func_call ref, deref, {ast}
 
 			vpif {value->obj_vtable == @class/class_error}
-				func_call lisp, repl_print, {this, this->lisp_stderr, value}
-				func_call stream, write_char, {this->lisp_stderr, char_lf}
+				func_call lisp, repl_print, {this, this->lisp_stdout, value}
+				func_call stream, write_char, {this->lisp_stdout, char_lf}
+				loop_start
+					func_call stream, available, {stream}, {length}
+					breakifnot {length}
+					func_call stream, read_char, {stream}, {char}
+				loop_end
 			elseif {stream == this->lisp_stdin}
 				func_call lisp, repl_print, {this, this->lisp_stdout, value}
 				func_call stream, write_char, {this->lisp_stdout, char_lf}
