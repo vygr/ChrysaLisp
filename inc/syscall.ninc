@@ -8,6 +8,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 def_class sys_io
+def_method open, sys/open, static, {r0, r1, r2}, {r0}
+def_method close, sys/close, static, {r0}
 def_method char, sys/write_char, static, {r0, r1}
 def_method string, sys/write_string, static, {r0, r1}
 def_method number, sys/write_number, static, {r0, r1, r2}

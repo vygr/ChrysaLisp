@@ -1,0 +1,15 @@
+(import 'inc/func.inc)
+(import inc/syscall.inc)
+
+(def-func sys/open)
+	;inputs
+	;r0 = filename
+	;r1 = mode
+	;r2 = flags
+	;outputs
+	;r0 = fd
+
+	(sys-open '(r0 r1 r2))
+	(vp-ret)
+
+(def-func-end)

@@ -5,6 +5,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 ;(def-class 'sys_io)
+;(def-method 'open 'sys/open 'static '(r0 r1 r2) '(r0))
+;(def-method 'close 'sys/close 'static '(r0))
 ;(def-method 'char 'sys/write_char 'static '(r0 r1))
 ;(def-method 'string 'sys/write_string 'static '(r0 r1))
 ;(def-method 'number 'sys/write_number 'static '(r0 r1 r2))

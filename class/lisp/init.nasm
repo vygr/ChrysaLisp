@@ -179,6 +179,7 @@ built_ins:
 	built_in "write", 0, func_write
 	built_in "repl", 0, func_repl
 	built_in "eval", 0, func_eval
+	built_in "save", 0, func_save
 	dw 0
 
 def_func_end

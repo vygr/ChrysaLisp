@@ -28,13 +28,13 @@ def_func class/lisp/func_write
 				func_call ref, ref, {value}
 				func_call stream_str, write, {stream, &value->string_data, value->string_length}
 			else
-				func_call error, create, {"(write-line stream str) not a string", args}, {value}
+				func_call error, create, {"(write stream str) not a string", args}, {value}
 			endif
 		else
-			func_call error, create, {"(write-line stream str) not a stream", args}, {value}
+			func_call error, create, {"(write stream str) not a stream", args}, {value}
 		endif
 	else
-		func_call error, create, {"(write-line stream str) wrong number of args", args}, {value}
+		func_call error, create, {"(write stream str) wrong number of args", args}, {value}
 	endif
 
 	expr {this, value}, {r0, r1}

@@ -172,6 +172,7 @@
 	(built-in "write" 0 'func_write)
 	(built-in "repl" 0 'func_repl)
 	(built-in "eval" 0 'func_eval)
+	(built-in "save" 0 'func_save)
 	(vp-short 0)
 
 (def-func-end)
