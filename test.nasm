@@ -2,44 +2,77 @@
 
 def_func test
 
-vp_cpy [r0], r0
-vp_cpy [r0 + 0x7f], r0
-vp_cpy [r0 + 0x7fff], r0
+;push and pop
+vp_push r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
+vp_pop r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
 
-vp_cpy [r1], r0
-vp_cpy [r1 + 0x7f], r0
-vp_cpy [r1 + 0x7fff], r0
+;const/reg
+vp_cpy 0x7f, r0
+vp_cpy 0x7f, r1
+vp_cpy 0x7f, r2
+vp_cpy 0x7f, r3
+vp_cpy 0x7f, r4
+vp_cpy 0x7f, r5
+vp_cpy 0x7f, r6
+vp_cpy 0x7f, r7
+vp_cpy 0x7f, r8
+vp_cpy 0x7f, r9
+vp_cpy 0x7f, r10
+vp_cpy 0x7f, r11
+vp_cpy 0x7f, r12
+vp_cpy 0x7f, r13
+vp_cpy 0x7f, r14
+vp_cpy 0x7f, r15
 
-vp_cpy [r15], r0
-vp_cpy [r15 + 0x7f], r0
-vp_cpy [r15 + 0x7fff], r0
+vp_cpy 0x80, r0
+vp_cpy 0x80, r1
+vp_cpy 0x80, r2
+vp_cpy 0x80, r3
+vp_cpy 0x80, r4
+vp_cpy 0x80, r5
+vp_cpy 0x80, r6
+vp_cpy 0x80, r7
+vp_cpy 0x80, r8
+vp_cpy 0x80, r9
+vp_cpy 0x80, r10
+vp_cpy 0x80, r11
+vp_cpy 0x80, r12
+vp_cpy 0x80, r13
+vp_cpy 0x80, r14
+vp_cpy 0x80, r15
 
-vp_cpy [r4], r0
-vp_cpy [r4 + 0x7f], r0
-vp_cpy [r4 + 0x7fff], r0
+vp_cpy 0x8000ff, r0
+vp_cpy 0x8000ff, r1
+vp_cpy 0x8000ff, r2
+vp_cpy 0x8000ff, r3
+vp_cpy 0x8000ff, r4
+vp_cpy 0x8000ff, r5
+vp_cpy 0x8000ff, r6
+vp_cpy 0x8000ff, r7
+vp_cpy 0x8000ff, r8
+vp_cpy 0x8000ff, r9
+vp_cpy 0x8000ff, r10
+vp_cpy 0x8000ff, r11
+vp_cpy 0x8000ff, r12
+vp_cpy 0x8000ff, r13
+vp_cpy 0x8000ff, r14
+vp_cpy 0x8000ff, r15
 
-vp_cpy [r12], r0
-vp_cpy [r12 + 0x7f], r0
-vp_cpy [r12 + 0x7fff], r0
-
-vp_cpy [r0], r10
-vp_cpy [r0 + 0x7f], r10
-vp_cpy [r0 + 0x7fff], r10
-
-vp_cpy [r1], r10
-vp_cpy [r1 + 0x7f], r10
-vp_cpy [r1 + 0x7fff], r10
-
-vp_cpy [r15], r10
-vp_cpy [r15 + 0x7f], r10
-vp_cpy [r15 + 0x7fff], r10
-
-vp_cpy [r4], r10
-vp_cpy [r4 + 0x7f], r10
-vp_cpy [r4 + 0x7fff], r10
-
-vp_cpy [r12], r10
-vp_cpy [r12 + 0x7f], r10
-vp_cpy [r12 + 0x7fff], r10
+vp_cpy 0xfeff6ffff8fff9ff, r0
+vp_cpy 0xfeff6ffff8fff9ff, r1
+vp_cpy 0xfeff6ffff8fff9ff, r2
+vp_cpy 0xfeff6ffff8fff9ff, r3
+vp_cpy 0xfeff6ffff8fff9ff, r4
+vp_cpy 0xfeff6ffff8fff9ff, r5
+vp_cpy 0xfeff6ffff8fff9ff, r6
+vp_cpy 0xfeff6ffff8fff9ff, r7
+vp_cpy 0xfeff6ffff8fff9ff, r8
+vp_cpy 0xfeff6ffff8fff9ff, r9
+vp_cpy 0xfeff6ffff8fff9ff, r10
+vp_cpy 0xfeff6ffff8fff9ff, r11
+vp_cpy 0xfeff6ffff8fff9ff, r12
+vp_cpy 0xfeff6ffff8fff9ff, r13
+vp_cpy 0xfeff6ffff8fff9ff, r14
+vp_cpy 0xfeff6ffff8fff9ff, r15
 
 def_func_end
