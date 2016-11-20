@@ -177,4 +177,38 @@ vp_cmp 0x7f4f5f6f, r13
 vp_cmp 0x7f4f5f6f, r14
 vp_cmp 0x7f4f5f6f, r15
 
+vp_and 0x7f, r0
+vp_and 0x7f, r1
+vp_and 0x7f, r2
+vp_and 0x7f, r3
+vp_and 0x7f, r4
+vp_and 0x7f, r5
+vp_and 0x7f, r6
+vp_and 0x7f, r7
+vp_and 0x7f, r8
+vp_and 0x7f, r9
+vp_and 0x7f, r10
+vp_and 0x7f, r11
+vp_and 0x7f, r12
+vp_and 0x7f, r13
+vp_and 0x7f, r14
+vp_and 0x7f, r15
+
+vp_and 0x7f4f5f6f, r0
+vp_and 0x7f4f5f6f, r1
+vp_and 0x7f4f5f6f, r2
+vp_and 0x7f4f5f6f, r3
+vp_and 0x7f4f5f6f, r4
+vp_and 0x7f4f5f6f, r5
+vp_and 0x7f4f5f6f, r6
+vp_and 0x7f4f5f6f, r7
+vp_and 0x7f4f5f6f, r8
+vp_and 0x7f4f5f6f, r9
+vp_and 0x7f4f5f6f, r10
+vp_and 0x7f4f5f6f, r11
+vp_and 0x7f4f5f6f, r12
+vp_and 0x7f4f5f6f, r13
+vp_and 0x7f4f5f6f, r14
+vp_and 0x7f4f5f6f, r15
+
 def_func_end
