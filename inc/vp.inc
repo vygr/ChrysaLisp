@@ -207,18 +207,6 @@
 ; x64 Emit Functions
 ;;;;;;;;;;;;;;;;;;;;
 
-(defcompilefun emit-cr (o c r)
-	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
-	(cond
-		((le -0x80 c 0x7f)
-			(emit-byte (add 0x48 rh) 0x83 (add o rl) c))
-		((le -0x80000000 c 0x7fffffff)
-			(if (eq r 0)
-				(emit-byte (add 0x48 rh) 0x05)
-				(emit-byte (add 0x48 rh) 0x81 (add o rl)))
-			(emit-int c))
-		(t (print "emit-cr constant out of range: " c))))
-
 (defcompilefun emit-rr (o s d)
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
 		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
