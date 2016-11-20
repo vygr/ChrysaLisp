@@ -38,7 +38,7 @@ def_func class/lisp/func_save
 				assign {this->lisp_sym_nil}, {value}
 				func_call ref, ref, {value}
 				devirt_call vector, get_length, {list}, {length}
-				func_call sys_io, open, {&name->string_data, o_creat | o_wronly | o_trunc, 0}, {handle}
+				func_call sys_io, open, {&name->string_data, o_creat | o_rdwr | o_trunc, s_irwxu}, {handle}
 				func_call vector, for_each, {list, 0, length, $callback, &this}, {_}
 				func_call sys_io, close, {handle}
 			else
@@ -73,7 +73,7 @@ callback:
 	vpif {(*iter)->obj_vtable == @class/class_boxed_long}
 		func_call boxed_long, get_value, {*iter}, {num}
 		gotoif {num >= 256}, error
-		func_call sys_io, char, {pdata->pdata_handle, num}
+		func_call sys_io, char, {num, pdata->pdata_handle}
 		assign {(*iter)}, {pdata->pdata_value}
 		func_call ref, ref, {pdata->pdata_value}
 		expr {1}, {r1}

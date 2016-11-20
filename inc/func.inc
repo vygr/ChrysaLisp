@@ -103,7 +103,8 @@
 	(vp-label '_func_end)
 	(emit-passes)
 ;	(print-emit-buffer)
-	(print-out-buffer 16))
+	(print-out-buffer 16)
+	(save *out-buffer* 'mytest))
 
 (defmacro def-insert (n l)
 	`(defcompilefun ,n (s)
