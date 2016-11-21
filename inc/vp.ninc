@@ -29,7 +29,7 @@
 	%endrep
 %endmacro
 
-%macro reg_b? 1-9 r0, al, r1, cl, r2, dl, r3, bl
+%macro reg_b? 1-17 r0, al, r1, cl, r2, dl, r3, bl, r4, r4b, r5, r5b, r6, r6b, r7, r7b
 	%xdefine %%t %1
 	%xdefine _rb %1b
 	%rotate 1
@@ -42,7 +42,7 @@
 	%endrep
 %endmacro
 
-%macro reg_s? 1-9 r0, ax, r1, cx, r2, dx, r3, bx
+%macro reg_s? 1-17 r0, ax, r1, cx, r2, dx, r3, bx, r4, r4w, r5, r5w, r6, r6w, r7, r7w
 	%xdefine %%t %1
 	%xdefine _rs %1w
 	%rotate 1
@@ -55,7 +55,7 @@
 	%endrep
 %endmacro
 
-%macro reg_i? 1-9 r0, eax, r1, ecx, r2, edx, r3, ebx
+%macro reg_i? 1-17 r0, eax, r1, ecx, r2, edx, r3, ebx, r4, r4d, r5, r5d, r6, r6d, r7, r7d
 	%xdefine %%t %1
 	%xdefine _ri %1d
 	%rotate 1
