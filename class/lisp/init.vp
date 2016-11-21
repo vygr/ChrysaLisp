@@ -173,6 +173,7 @@
 	(built-in "repl" 0 'func_repl)
 	(built-in "eval" 0 'func_eval)
 	(built-in "save" 0 'func_save)
+	(built-in "rehash" 0 'func_rehash)
 	(vp-short 0)
 
 (def-func-end)

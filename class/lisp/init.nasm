@@ -180,6 +180,7 @@ built_ins:
 	built_in "repl", 0, func_repl
 	built_in "eval", 0, func_eval
 	built_in "save", 0, func_save
+	built_in "rehash", 0, func_rehash
 	dw 0
 
 def_func_end

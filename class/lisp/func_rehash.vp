@@ -1,0 +1,27 @@
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_unordered_map.inc)
+(import 'class/class_lisp.inc)
+
+(def-func 'class/lisp/func_rehash)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = enviroment
+
+	(ptr this args)
+
+	(push-scope)
+	(retire '(r0 r1) '(this args))
+
+	(func-call 'unordered_map 'copy '(this->lisp_enviroment 71) '(args))
+	(func-call 'ref 'deref '(this->lisp_enviroment))
+	(assign '(args) '(this->lisp_enviroment))
+
+	(expr '(this args) '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)

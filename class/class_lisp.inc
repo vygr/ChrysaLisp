@@ -93,6 +93,7 @@
 (def-method 'func_repl 'class/lisp/func_repl 'static '(r0 r1) '(r1))
 (def-method 'func_eval 'class/lisp/func_eval 'static '(r0 r1) '(r1))
 (def-method 'func_save 'class/lisp/func_save 'static '(r0 r1) '(r1))
+(def-method 'func_rehash 'class/lisp/func_rehash 'static '(r0 r1) '(r1))
 
 (def-enum)
 	(enum 'type_args_eval_apply)
