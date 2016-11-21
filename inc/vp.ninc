@@ -555,7 +555,6 @@
 			shr %2, cl
 		%else
 			;source is not r1
-			%warning shr by stack
 			vp_push %2, %1, r0, r1
 			vp_cpy [r4 + 24], r0
 			vp_cpy [r4 + 16], r1
@@ -581,7 +580,6 @@
 			sar %2, cl
 		%else
 			;source is not r1
-			%warning sar by stack
 			vp_push %2, %1, r0, r1
 			vp_cpy [r4 + 24], r0
 			vp_cpy [r4 + 16], r1
@@ -607,7 +605,6 @@
 			shl %2, cl
 		%else
 			;source is not r1
-			%warning shl by stack
 			vp_push %2, %1, r0, r1
 			vp_cpy [r4 + 24], r0
 			vp_cpy [r4 + 16], r1
