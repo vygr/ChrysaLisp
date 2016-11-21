@@ -313,6 +313,7 @@ vp_mul 0x7f4f5f6f, r13
 vp_mul 0x7f4f5f6f, r14
 vp_mul 0x7f4f5f6f, r15
 
+;inc/dec
 vp_inc r0
 vp_inc r1
 vp_inc r2
@@ -346,5 +347,60 @@ vp_dec r12
 vp_dec r13
 vp_dec r14
 vp_dec r15
+
+;ret
+vp_ret
+
+;shifts
+vp_shl 1, r0
+vp_shl 1, r1
+vp_shl 1, r2
+vp_shl 1, r3
+vp_shl 1, r4
+vp_shl 1, r5
+vp_shl 1, r6
+vp_shl 1, r7
+vp_shl 1, r8
+vp_shl 1, r9
+vp_shl 1, r10
+vp_shl 1, r11
+vp_shl 1, r12
+vp_shl 1, r13
+vp_shl 1, r14
+vp_shl 1, r15
+
+vp_shl 2, r0
+vp_shl 3, r1
+vp_shl 4, r2
+vp_shl 5, r3
+vp_shl 6, r4
+vp_shl 7, r5
+vp_shl 8, r6
+vp_shl 9, r7
+vp_shl 10, r8
+vp_shl 11, r9
+vp_shl 12, r10
+vp_shl 13, r11
+vp_shl 14, r12
+vp_shl 15, r13
+vp_shl 16, r14
+vp_shl 17, r15
+
+vp_shl r15, r0
+vp_shl r14, r1
+vp_shl r13, r2
+vp_shl r12, r3
+vp_shl r11, r4
+vp_shl r10, r5
+vp_shl r9, r6
+vp_shl r8, r7
+vp_shl r7, r8
+vp_shl r6, r9
+vp_shl r5, r10
+vp_shl r4, r11
+vp_shl r3, r12
+vp_shl r2, r13
+vp_shl r1, r14
+vp_shl r0, r15
 
 def_func_end
