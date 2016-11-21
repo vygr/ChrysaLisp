@@ -130,10 +130,8 @@
 
 (defcompilefun vp-shl-cr (&rest b) (emit `(emit-shl-cr ~b)))
 (defcompilefun vp-shl-rr (&rest b) (emit `(emit-shl-rr ~b)))
-
 (defcompilefun vp-shr-cr (&rest b) (emit `(emit-shr-cr ~b)))
 (defcompilefun vp-shr-rr (&rest b) (emit `(emit-shr-rr ~b)))
-
 (defcompilefun vp-asr-cr (&rest b) (emit `(emit-asr-cr ~b)))
 (defcompilefun vp-asr-rr (&rest b) (emit `(emit-asr-rr ~b)))
 
@@ -278,11 +276,12 @@
 
 (defcompilefun emit-shift-cr (o c d)
 	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(emit-byte (add 0x48 dh))
 	(cond
 		((eq c 1)
-			(emit-byte (add 0x48 dh) 0xd1 (add o dl)))
+			(emit-byte 0xd1 (add o dl)))
 		((le c 0xff)
-			(emit-byte (add 0x48 dh) 0xc1 (add o dl) c))
+			(emit-byte 0xc1 (add o dl) c))
 		(t (print "emit-shift-cr constant out of range: " c))))
 
 (defcompilefun emit-shift-rr (o s d)
@@ -563,13 +562,14 @@
 
 (defcompilefun emit-add-cr (c r)
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+	(emit-byte (add 0x48 rh))
 	(cond
 		((le -0x80 c 0x7f)
-			(emit-byte (add 0x48 rh) 0x83 (add 0xc0 rl) c))
+			(emit-byte 0x83 (add 0xc0 rl) c))
 		((le -0x80000000 c 0x7fffffff)
 			(if (eq r 0)
-				(emit-byte (add 0x48 rh) 0x05)
-				(emit-byte (add 0x48 rh) 0x81 (add 0xc0 rl)))
+				(emit-byte 0x05)
+				(emit-byte 0x81 (add 0xc0 rl)))
 			(emit-int c))
 		(t (print "emit-add-cr constant out of range: " c))))
 
@@ -580,13 +580,14 @@
 
 (defcompilefun emit-sub-cr (c r)
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+	(emit-byte (add 0x48 rh))
 	(cond
 		((le -0x80 c 0x7f)
-			(emit-byte (add 0x48 rh) 0x83 (add 0xe8 rl) c))
+			(emit-byte 0x83 (add 0xe8 rl) c))
 		((le -0x80000000 c 0x7fffffff)
 			(if (eq r 0)
-				(emit-byte (add 0x48 rh) 0x2d)
-				(emit-byte (add 0x48 rh) 0x81 (add 0xe8 rl)))
+				(emit-byte 0x2d)
+				(emit-byte 0x81 (add 0xe8 rl)))
 			(emit-int c))
 		(t (print "emit-sub-cr constant out of range: " c))))
 
@@ -597,13 +598,14 @@
 
 (defcompilefun emit-cmp-cr (c r)
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+	(emit-byte (add 0x48 rh))
 	(cond
 		((le -0x80 c 0x7f)
-			(emit-byte (add 0x48 rh) 0x83 (add 0xf8 rl) c))
+			(emit-byte 0x83 (add 0xf8 rl) c))
 		((le -0x80000000 c 0x7fffffff)
 			(if (eq r 0)
-				(emit-byte (add 0x48 rh) 0x3d)
-				(emit-byte (add 0x48 rh) 0x81 (add 0xf8 rl)))
+				(emit-byte 0x3d)
+				(emit-byte 0x81 (add 0xf8 rl)))
 			(emit-int c))
 		(t (print "emit-cmp-cr constant out of range: " c))))
 
@@ -614,13 +616,14 @@
 
 (defcompilefun emit-and-cr (c r)
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+	(emit-byte (add 0x48 rh))
 	(cond
 		((le -0x80 c 0x7f)
-			(emit-byte (add 0x48 rh) 0x83 (add 0xe0 rl) c))
+			(emit-byte 0x83 (add 0xe0 rl) c))
 		((le -0x80000000 c 0x7fffffff)
 			(if (eq r 0)
-				(emit-byte (add 0x48 rh) 0x25)
-				(emit-byte (add 0x48 rh) 0x81 (add 0xe0 rl)))
+				(emit-byte 0x25)
+				(emit-byte 0x81 (add 0xe0 rl)))
 			(emit-int c))
 		(t (print "emit-and-cr constant out of range: " c))))
 
@@ -631,13 +634,14 @@
 
 (defcompilefun emit-or-cr (c r)
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+	(emit-byte (add 0x48 rh))
 	(cond
 		((le -0x80 c 0x7f)
-			(emit-byte (add 0x48 rh) 0x83 (add 0xc8 rl) c))
+			(emit-byte 0x83 (add 0xc8 rl) c))
 		((le -0x80000000 c 0x7fffffff)
 			(if (eq r 0)
-				(emit-byte (add 0x48 rh) 0x0d)
-				(emit-byte (add 0x48 rh) 0x81 (add 0xc8 rl)))
+				(emit-byte 0x0d)
+				(emit-byte 0x81 (add 0xc8 rl)))
 			(emit-int c))
 		(t (print "emit-or-cr constant out of range: " c))))
 
@@ -648,13 +652,14 @@
 
 (defcompilefun emit-xor-cr (c r)
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+	(emit-byte (add 0x48 rh))
 	(cond
 		((le -0x80 c 0x7f)
-			(emit-byte (add 0x48 rh) 0x83 (add 0xf0 rl) c))
+			(emit-byte 0x83 (add 0xf0 rl) c))
 		((le -0x80000000 c 0x7fffffff)
 			(if (eq r 0)
-				(emit-byte (add 0x48 rh) 0x35)
-				(emit-byte (add 0x48 rh) 0x81 (add 0xf0 rl)))
+				(emit-byte 0x35)
+				(emit-byte 0x81 (add 0xf0 rl)))
 			(emit-int c))
 		(t (print "emit-xor-cr constant out of range: " c))))
 
@@ -672,11 +677,12 @@
 
 (defcompilefun emit-mul-cr (c r)
 	(defq r (reg r) rl (bit-and r 7) rh (bit-shr r 3))
+	(emit-byte (add 0x48 (bit-shl rh 2) rh))
 	(cond
 		((le -0x80 c 0x7f)
-			(emit-byte (add 0x48 (bit-shl rh 2) rh) 0x6b (add 0xc0 rl (bit-shl rl 3)) c))
+			(emit-byte 0x6b (add 0xc0 rl (bit-shl rl 3)) c))
 		((le -0x80000000 c 0x7fffffff)
-			(emit-byte (add 0x48 (bit-shl rh 2) rh) 0x69 (add 0xc0 rl (bit-shl rl 3)))
+			(emit-byte 0x69 (add 0xc0 rl (bit-shl rl 3)))
 			(emit-int c))
 		(t (print "emit-mul-cr constant out of range: " c))))
 
