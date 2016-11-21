@@ -505,4 +505,73 @@ vp_asr r2, r13
 vp_asr r1, r14
 vp_asr r0, r15
 
+;ir
+vp_cpy [r5], r0
+vp_cpy [r6], r1
+vp_cpy [r7], r2
+vp_cpy [r8], r3
+vp_cpy [r9], r4
+vp_cpy [r10], r5
+vp_cpy [r11], r6
+vp_cpy [r12], r7
+vp_cpy [r13], r8
+vp_cpy [r14], r9
+vp_cpy [r15], r10
+vp_cpy [r0], r11
+vp_cpy [r1], r12
+vp_cpy [r2], r13
+vp_cpy [r3], r14
+vp_cpy [r4], r15
+
+vp_cpy [r5 + 0x7f], r0
+vp_cpy [r6 + 0x7f], r1
+vp_cpy [r7 + 0x7f], r2
+vp_cpy [r8 + 0x7f], r3
+vp_cpy [r9 + 0x7f], r4
+vp_cpy [r10 + 0x7f], r5
+vp_cpy [r11 + 0x7f], r6
+vp_cpy [r12 + 0x7f], r7
+vp_cpy [r13 + 0x7f], r8
+vp_cpy [r14 + 0x7f], r9
+vp_cpy [r15 + 0x7f], r10
+vp_cpy [r0 + 0x7f], r11
+vp_cpy [r1 + 0x7f], r12
+vp_cpy [r2 + 0x7f], r13
+vp_cpy [r3 + 0x7f], r14
+vp_cpy [r4 + 0x7f], r15
+
+vp_cpy [r5 + 0x80], r0
+vp_cpy [r6 + 0x80], r1
+vp_cpy [r7 + 0x80], r2
+vp_cpy [r8 + 0x80], r3
+vp_cpy [r9 + 0x80], r4
+vp_cpy [r10 + 0x80], r5
+vp_cpy [r11 + 0x80], r6
+vp_cpy [r12 + 0x80], r7
+vp_cpy [r13 + 0x80], r8
+vp_cpy [r14 + 0x80], r9
+vp_cpy [r15 + 0x80], r10
+vp_cpy [r0 + 0x80], r11
+vp_cpy [r1 + 0x80], r12
+vp_cpy [r2 + 0x80], r13
+vp_cpy [r3 + 0x80], r14
+vp_cpy [r4 + 0x80], r15
+
+vp_cpy [r5 + 0x7fab1256], r0
+vp_cpy [r6 + 0x7fab1256], r1
+vp_cpy [r7 + 0x7fab1256], r2
+vp_cpy [r8 + 0x7fab1256], r3
+vp_cpy [r9 + 0x7fab1256], r4
+vp_cpy [r10 + 0x7fab1256], r5
+vp_cpy [r11 + 0x7fab1256], r6
+vp_cpy [r12 + 0x7fab1256], r7
+vp_cpy [r13 + 0x7fab1256], r8
+vp_cpy [r14 + 0x7fab1256], r9
+vp_cpy [r15 + 0x7fab1256], r10
+vp_cpy [r0 + 0x7fab1256], r11
+vp_cpy [r1 + 0x7fab1256], r12
+vp_cpy [r2 + 0x7fab1256], r13
+vp_cpy [r3 + 0x7fab1256], r14
+vp_cpy [r4 + 0x7fab1256], r15
+
 def_func_end
