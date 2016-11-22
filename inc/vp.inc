@@ -138,6 +138,7 @@
 (defcompilefun vp-ret () (emit '(emit-ret)))
 (defcompilefun vp-inc (r) (emit `(emit-inc ,r)))
 (defcompilefun vp-dec (r) (emit `(emit-dec ,r)))
+(defcompilefun vp-xchg-rr (&rest b) (emit `(emit-xchg-rr ~b)))
 
 ;;;;;;;;;;;;;
 ; Emit Buffer
@@ -744,3 +745,11 @@
 (defcompilefun emit-dec (r)
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
 	(emit-byte (add 0x48 rh) 0xff (add 0xc8 rl)))
+
+(defcompilefun emit-xchg-rr (s d)
+	(if (eql s r0) (setq s d d r0))
+	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
+		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
+	(if (eq d 0)
+		(emit-byte (add 0x48 sh) (add 0x90 sl))
+		(emit-byte (add 0x48 (bit-shl sh 2) dh) 0x87 (add 0xc0 (bit-shl sl 3) dl))))

@@ -1922,4 +1922,42 @@ vp_mul r13, r0
 vp_mul r14, r1
 vp_mul r15, r2
 
+vp_xchg r1, r4
+vp_xchg r2, r5
+vp_xchg r3, r6
+vp_xchg r4, r7
+vp_xchg r5, r8
+vp_xchg r6, r9
+vp_xchg r7, r10
+vp_xchg r8, r11
+vp_xchg r9, r12
+vp_xchg r10, r13
+vp_xchg r11, r1
+vp_xchg r11, r14
+vp_xchg r12, r15
+vp_xchg r14, r1
+vp_xchg r15, r2
+vp_xchg r2, r15
+vp_xchg r1, r2
+vp_xchg r2, r3
+vp_xchg r3, r4
+vp_xchg r4, r5
+vp_xchg r5, r6
+vp_xchg r6, r7
+vp_xchg r0, r1
+vp_xchg r0, r2
+vp_xchg r0, r3
+vp_xchg r0, r4
+vp_xchg r0, r5
+vp_xchg r0, r6
+vp_xchg r0, r7
+vp_xchg r0, r8
+vp_xchg r0, r9
+vp_xchg r0, r10
+vp_xchg r0, r11
+vp_xchg r0, r12
+vp_xchg r0, r13
+vp_xchg r0, r14
+vp_xchg r0, r15
+
 def_func_end
