@@ -1707,4 +1707,82 @@ vp_cpy_i r13, [r2 + 0x7fab1256]
 vp_cpy_i r14, [r3 + 0x7fab1256]
 vp_cpy_i r15, [r4 + 0x7fab1256]
 
+;lea i
+vp_lea  [r0], r0
+vp_lea  [r1], r1
+vp_lea  [r2], r2
+vp_lea  [r3], r3
+vp_lea  [r4], r4
+vp_lea  [r5], r5
+vp_lea  [r6], r6
+vp_lea  [r7], r7
+
+vp_lea  [r5], r0
+vp_lea  [r6], r1
+vp_lea  [r7], r2
+vp_lea  [r8], r3
+vp_lea  [r9], r4
+vp_lea  [r10], r5
+vp_lea  [r11], r6
+vp_lea  [r12], r7
+vp_lea  [r13], r8
+vp_lea  [r14], r9
+vp_lea  [r15], r10
+vp_lea  [r0], r11
+vp_lea  [r1], r12
+vp_lea  [r2], r13
+vp_lea  [r3], r14
+vp_lea  [r4], r15
+
+vp_lea  [r5 + 0x7f], r0
+vp_lea  [r6 + 0x7f], r1
+vp_lea  [r7 + 0x7f], r2
+vp_lea  [r8 + 0x7f], r3
+vp_lea  [r9 + 0x7f], r4
+vp_lea  [r10 + 0x7f], r5
+vp_lea  [r11 + 0x7f], r6
+vp_lea  [r12 + 0x7f], r7
+vp_lea  [r13 + 0x7f], r8
+vp_lea  [r14 + 0x7f], r9
+vp_lea  [r15 + 0x7f], r10
+vp_lea  [r0 + 0x7f], r11
+vp_lea  [r1 + 0x7f], r12
+vp_lea  [r2 + 0x7f], r13
+vp_lea  [r3 + 0x7f], r14
+vp_lea  [r4 + 0x7f], r15
+
+vp_lea  [r5 + 0x80], r0
+vp_lea  [r6 + 0x80], r1
+vp_lea  [r7 + 0x80], r2
+vp_lea  [r8 + 0x80], r3
+vp_lea  [r9 + 0x80], r4
+vp_lea  [r10 + 0x80], r5
+vp_lea  [r11 + 0x80], r6
+vp_lea  [r12 + 0x80], r7
+vp_lea  [r13 + 0x80], r8
+vp_lea  [r14 + 0x80], r9
+vp_lea  [r15 + 0x80], r10
+vp_lea  [r0 + 0x80], r11
+vp_lea  [r1 + 0x80], r12
+vp_lea  [r2 + 0x80], r13
+vp_lea  [r3 + 0x80], r14
+vp_lea  [r4 + 0x80], r15
+
+vp_lea  [r5 + 0x7fab1256], r0
+vp_lea  [r6 + 0x7fab1256], r1
+vp_lea  [r7 + 0x7fab1256], r2
+vp_lea  [r8 + 0x7fab1256], r3
+vp_lea  [r9 + 0x7fab1256], r4
+vp_lea  [r10 + 0x7fab1256], r5
+vp_lea  [r11 + 0x7fab1256], r6
+vp_lea  [r12 + 0x7fab1256], r7
+vp_lea  [r13 + 0x7fab1256], r8
+vp_lea  [r14 + 0x7fab1256], r9
+vp_lea  [r15 + 0x7fab1256], r10
+vp_lea  [r0 + 0x7fab1256], r11
+vp_lea  [r1 + 0x7fab1256], r12
+vp_lea  [r2 + 0x7fab1256], r13
+vp_lea  [r3 + 0x7fab1256], r14
+vp_lea  [r4 + 0x7fab1256], r15
+
 def_func_end
