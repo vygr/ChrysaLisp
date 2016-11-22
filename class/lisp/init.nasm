@@ -62,7 +62,7 @@ def_func class/lisp/init
 
 		;interned symbols set and enviroments
 		func_path symbol, compare
-		func_call unordered_set, create, {@_function_, 31}, {this->lisp_symbols}
+		func_call unordered_set, create, {@_function_, 101}, {this->lisp_symbols}
 		func_call unordered_map, create, {$match_obj, 31}, {this->lisp_enviroment}
 		func_call unordered_map, create, {$match_obj, 31}, {this->lisp_macros}
 
