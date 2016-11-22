@@ -59,7 +59,8 @@ is an elementary optimise pass, more will be done.
 A Common Lisp like interpreter is provided, written in the C-Script compiled
 language ! This is available from the command line, via the command 'lisp', This
 will be expanded over time to provide self compilation and a replacement for
-NASM will be written in Lisp to remove the need for any external tooling.
+NASM is currently being written in Lisp to remove the need for any external
+tooling. The new VP assembler files, .vp/.inc, shadow the .nasm/.ninc files.
 
 Network link routing tables are created on booting a link, and the process is
 distributed in nature, each link starts a flood fill that eventually reaches all
