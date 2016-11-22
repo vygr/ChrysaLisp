@@ -1785,4 +1785,124 @@ vp_lea  [r2 + 0x7fab1256], r13
 vp_lea  [r3 + 0x7fab1256], r14
 vp_lea  [r4 + 0x7fab1256], r15
 
+;rr
+vp_cpy r0, r3
+vp_cpy r1, r4
+vp_cpy r2, r5
+vp_cpy r3, r6
+vp_cpy r4, r7
+vp_cpy r5, r8
+vp_cpy r6, r9
+vp_cpy r7, r10
+vp_cpy r8, r11
+vp_cpy r9, r12
+vp_cpy r10, r13
+vp_cpy r11, r14
+vp_cpy r12, r15
+vp_cpy r13, r0
+vp_cpy r14, r1
+vp_cpy r15, r2
+
+vp_add r0, r3
+vp_add r1, r4
+vp_add r2, r5
+vp_add r3, r6
+vp_add r4, r7
+vp_add r5, r8
+vp_add r6, r9
+vp_add r7, r10
+vp_add r8, r11
+vp_add r9, r12
+vp_add r10, r13
+vp_add r11, r14
+vp_add r12, r15
+vp_add r13, r0
+vp_add r14, r1
+vp_add r15, r2
+
+vp_sub r0, r3
+vp_sub r1, r4
+vp_sub r2, r5
+vp_sub r3, r6
+vp_sub r4, r7
+vp_sub r5, r8
+vp_sub r6, r9
+vp_sub r7, r10
+vp_sub r8, r11
+vp_sub r9, r12
+vp_sub r10, r13
+vp_sub r11, r14
+vp_sub r12, r15
+vp_sub r13, r0
+vp_sub r14, r1
+vp_sub r15, r2
+
+vp_cmp r0, r3
+vp_cmp r1, r4
+vp_cmp r2, r5
+vp_cmp r3, r6
+vp_cmp r4, r7
+vp_cmp r5, r8
+vp_cmp r6, r9
+vp_cmp r7, r10
+vp_cmp r8, r11
+vp_cmp r9, r12
+vp_cmp r10, r13
+vp_cmp r11, r14
+vp_cmp r12, r15
+vp_cmp r13, r0
+vp_cmp r14, r1
+vp_cmp r15, r2
+
+vp_and r0, r3
+vp_and r1, r4
+vp_and r2, r5
+vp_and r3, r6
+vp_and r4, r7
+vp_and r5, r8
+vp_and r6, r9
+vp_and r7, r10
+vp_and r8, r11
+vp_and r9, r12
+vp_and r10, r13
+vp_and r11, r14
+vp_and r12, r15
+vp_and r13, r0
+vp_and r14, r1
+vp_and r15, r2
+
+vp_or r0, r3
+vp_or r1, r4
+vp_or r2, r5
+vp_or r3, r6
+vp_or r4, r7
+vp_or r5, r8
+vp_or r6, r9
+vp_or r7, r10
+vp_or r8, r11
+vp_or r9, r12
+vp_or r10, r13
+vp_or r11, r14
+vp_or r12, r15
+vp_or r13, r0
+vp_or r14, r1
+vp_or r15, r2
+
+vp_xor r0, r3
+vp_xor r1, r4
+vp_xor r2, r5
+vp_xor r3, r6
+vp_xor r4, r7
+vp_xor r5, r8
+vp_xor r6, r9
+vp_xor r7, r10
+vp_xor r8, r11
+vp_xor r9, r12
+vp_xor r10, r13
+vp_xor r11, r14
+vp_xor r12, r15
+vp_xor r13, r0
+vp_xor r14, r1
+vp_xor r15, r2
+
 def_func_end
