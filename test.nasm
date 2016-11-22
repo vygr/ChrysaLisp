@@ -1905,4 +1905,21 @@ vp_xor r13, r0
 vp_xor r14, r1
 vp_xor r15, r2
 
+vp_mul r0, r3
+vp_mul r1, r4
+vp_mul r2, r5
+vp_mul r3, r6
+vp_mul r4, r7
+vp_mul r5, r8
+vp_mul r6, r9
+vp_mul r7, r10
+vp_mul r8, r11
+vp_mul r9, r12
+vp_mul r10, r13
+vp_mul r11, r14
+vp_mul r12, r15
+vp_mul r13, r0
+vp_mul r14, r1
+vp_mul r15, r2
+
 def_func_end
