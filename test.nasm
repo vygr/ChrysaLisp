@@ -1257,7 +1257,232 @@ vp_cpy_i [r2 + 0x7fab1256], r13
 vp_cpy_i [r3 + 0x7fab1256], r14
 vp_cpy_i [r4 + 0x7fab1256], r15
 
+;irub
+vp_cpy_ub [r5], r0
+vp_cpy_ub [r6], r1
+vp_cpy_ub [r7], r2
+vp_cpy_ub [r8], r3
+vp_cpy_ub [r9], r4
+vp_cpy_ub [r10], r5
+vp_cpy_ub [r11], r6
+vp_cpy_ub [r12], r7
+vp_cpy_ub [r13], r8
+vp_cpy_ub [r14], r9
+vp_cpy_ub [r15], r10
+vp_cpy_ub [r0], r11
+vp_cpy_ub [r1], r12
+vp_cpy_ub [r2], r13
+vp_cpy_ub [r3], r14
+vp_cpy_ub [r4], r15
+
+vp_cpy_ub [r5 + 0x7f], r0
+vp_cpy_ub [r6 + 0x7f], r1
+vp_cpy_ub [r7 + 0x7f], r2
+vp_cpy_ub [r8 + 0x7f], r3
+vp_cpy_ub [r9 + 0x7f], r4
+vp_cpy_ub [r10 + 0x7f], r5
+vp_cpy_ub [r11 + 0x7f], r6
+vp_cpy_ub [r12 + 0x7f], r7
+vp_cpy_ub [r13 + 0x7f], r8
+vp_cpy_ub [r14 + 0x7f], r9
+vp_cpy_ub [r15 + 0x7f], r10
+vp_cpy_ub [r0 + 0x7f], r11
+vp_cpy_ub [r1 + 0x7f], r12
+vp_cpy_ub [r2 + 0x7f], r13
+vp_cpy_ub [r3 + 0x7f], r14
+vp_cpy_ub [r4 + 0x7f], r15
+
+vp_cpy_ub [r5 + 0x80], r0
+vp_cpy_ub [r6 + 0x80], r1
+vp_cpy_ub [r7 + 0x80], r2
+vp_cpy_ub [r8 + 0x80], r3
+vp_cpy_ub [r9 + 0x80], r4
+vp_cpy_ub [r10 + 0x80], r5
+vp_cpy_ub [r11 + 0x80], r6
+vp_cpy_ub [r12 + 0x80], r7
+vp_cpy_ub [r13 + 0x80], r8
+vp_cpy_ub [r14 + 0x80], r9
+vp_cpy_ub [r15 + 0x80], r10
+vp_cpy_ub [r0 + 0x80], r11
+vp_cpy_ub [r1 + 0x80], r12
+vp_cpy_ub [r2 + 0x80], r13
+vp_cpy_ub [r3 + 0x80], r14
+vp_cpy_ub [r4 + 0x80], r15
+
+vp_cpy_ub [r5 + 0x7fab1256], r0
+vp_cpy_ub [r6 + 0x7fab1256], r1
+vp_cpy_ub [r7 + 0x7fab1256], r2
+vp_cpy_ub [r8 + 0x7fab1256], r3
+vp_cpy_ub [r9 + 0x7fab1256], r4
+vp_cpy_ub [r10 + 0x7fab1256], r5
+vp_cpy_ub [r11 + 0x7fab1256], r6
+vp_cpy_ub [r12 + 0x7fab1256], r7
+vp_cpy_ub [r13 + 0x7fab1256], r8
+vp_cpy_ub [r14 + 0x7fab1256], r9
+vp_cpy_ub [r15 + 0x7fab1256], r10
+vp_cpy_ub [r0 + 0x7fab1256], r11
+vp_cpy_ub [r1 + 0x7fab1256], r12
+vp_cpy_ub [r2 + 0x7fab1256], r13
+vp_cpy_ub [r3 + 0x7fab1256], r14
+vp_cpy_ub [r4 + 0x7fab1256], r15
+
+;irus
+vp_cpy_us [r5], r0
+vp_cpy_us [r6], r1
+vp_cpy_us [r7], r2
+vp_cpy_us [r8], r3
+vp_cpy_us [r9], r4
+vp_cpy_us [r10], r5
+vp_cpy_us [r11], r6
+vp_cpy_us [r12], r7
+vp_cpy_us [r13], r8
+vp_cpy_us [r14], r9
+vp_cpy_us [r15], r10
+vp_cpy_us [r0], r11
+vp_cpy_us [r1], r12
+vp_cpy_us [r2], r13
+vp_cpy_us [r3], r14
+vp_cpy_us [r4], r15
+
+vp_cpy_us [r5 + 0x7f], r0
+vp_cpy_us [r6 + 0x7f], r1
+vp_cpy_us [r7 + 0x7f], r2
+vp_cpy_us [r8 + 0x7f], r3
+vp_cpy_us [r9 + 0x7f], r4
+vp_cpy_us [r10 + 0x7f], r5
+vp_cpy_us [r11 + 0x7f], r6
+vp_cpy_us [r12 + 0x7f], r7
+vp_cpy_us [r13 + 0x7f], r8
+vp_cpy_us [r14 + 0x7f], r9
+vp_cpy_us [r15 + 0x7f], r10
+vp_cpy_us [r0 + 0x7f], r11
+vp_cpy_us [r1 + 0x7f], r12
+vp_cpy_us [r2 + 0x7f], r13
+vp_cpy_us [r3 + 0x7f], r14
+vp_cpy_us [r4 + 0x7f], r15
+
+vp_cpy_us [r5 + 0x80], r0
+vp_cpy_us [r6 + 0x80], r1
+vp_cpy_us [r7 + 0x80], r2
+vp_cpy_us [r8 + 0x80], r3
+vp_cpy_us [r9 + 0x80], r4
+vp_cpy_us [r10 + 0x80], r5
+vp_cpy_us [r11 + 0x80], r6
+vp_cpy_us [r12 + 0x80], r7
+vp_cpy_us [r13 + 0x80], r8
+vp_cpy_us [r14 + 0x80], r9
+vp_cpy_us [r15 + 0x80], r10
+vp_cpy_us [r0 + 0x80], r11
+vp_cpy_us [r1 + 0x80], r12
+vp_cpy_us [r2 + 0x80], r13
+vp_cpy_us [r3 + 0x80], r14
+vp_cpy_us [r4 + 0x80], r15
+
+vp_cpy_us [r5 + 0x7fab1256], r0
+vp_cpy_us [r6 + 0x7fab1256], r1
+vp_cpy_us [r7 + 0x7fab1256], r2
+vp_cpy_us [r8 + 0x7fab1256], r3
+vp_cpy_us [r9 + 0x7fab1256], r4
+vp_cpy_us [r10 + 0x7fab1256], r5
+vp_cpy_us [r11 + 0x7fab1256], r6
+vp_cpy_us [r12 + 0x7fab1256], r7
+vp_cpy_us [r13 + 0x7fab1256], r8
+vp_cpy_us [r14 + 0x7fab1256], r9
+vp_cpy_us [r15 + 0x7fab1256], r10
+vp_cpy_us [r0 + 0x7fab1256], r11
+vp_cpy_us [r1 + 0x7fab1256], r12
+vp_cpy_us [r2 + 0x7fab1256], r13
+vp_cpy_us [r3 + 0x7fab1256], r14
+vp_cpy_us [r4 + 0x7fab1256], r15
+
+;irui
+vp_cpy_ui [r0], r0
+vp_cpy_ui [r1], r1
+vp_cpy_ui [r2], r2
+vp_cpy_ui [r3], r3
+vp_cpy_ui [r4], r4
+vp_cpy_ui [r5], r5
+vp_cpy_ui [r6], r6
+vp_cpy_ui [r7], r7
+
+vp_cpy_ui [r5], r0
+vp_cpy_ui [r6], r1
+vp_cpy_ui [r7], r2
+vp_cpy_ui [r8], r3
+vp_cpy_ui [r9], r4
+vp_cpy_ui [r10], r5
+vp_cpy_ui [r11], r6
+vp_cpy_ui [r12], r7
+vp_cpy_ui [r13], r8
+vp_cpy_ui [r14], r9
+vp_cpy_ui [r15], r10
+vp_cpy_ui [r0], r11
+vp_cpy_ui [r1], r12
+vp_cpy_ui [r2], r13
+vp_cpy_ui [r3], r14
+vp_cpy_ui [r4], r15
+
+vp_cpy_ui [r5 + 0x7f], r0
+vp_cpy_ui [r6 + 0x7f], r1
+vp_cpy_ui [r7 + 0x7f], r2
+vp_cpy_ui [r8 + 0x7f], r3
+vp_cpy_ui [r9 + 0x7f], r4
+vp_cpy_ui [r10 + 0x7f], r5
+vp_cpy_ui [r11 + 0x7f], r6
+vp_cpy_ui [r12 + 0x7f], r7
+vp_cpy_ui [r13 + 0x7f], r8
+vp_cpy_ui [r14 + 0x7f], r9
+vp_cpy_ui [r15 + 0x7f], r10
+vp_cpy_ui [r0 + 0x7f], r11
+vp_cpy_ui [r1 + 0x7f], r12
+vp_cpy_ui [r2 + 0x7f], r13
+vp_cpy_ui [r3 + 0x7f], r14
+vp_cpy_ui [r4 + 0x7f], r15
+
+vp_cpy_ui [r5 + 0x80], r0
+vp_cpy_ui [r6 + 0x80], r1
+vp_cpy_ui [r7 + 0x80], r2
+vp_cpy_ui [r8 + 0x80], r3
+vp_cpy_ui [r9 + 0x80], r4
+vp_cpy_ui [r10 + 0x80], r5
+vp_cpy_ui [r11 + 0x80], r6
+vp_cpy_ui [r12 + 0x80], r7
+vp_cpy_ui [r13 + 0x80], r8
+vp_cpy_ui [r14 + 0x80], r9
+vp_cpy_ui [r15 + 0x80], r10
+vp_cpy_ui [r0 + 0x80], r11
+vp_cpy_ui [r1 + 0x80], r12
+vp_cpy_ui [r2 + 0x80], r13
+vp_cpy_ui [r3 + 0x80], r14
+vp_cpy_ui [r4 + 0x80], r15
+
+vp_cpy_ui [r5 + 0x7fab1256], r0
+vp_cpy_ui [r6 + 0x7fab1256], r1
+vp_cpy_ui [r7 + 0x7fab1256], r2
+vp_cpy_ui [r8 + 0x7fab1256], r3
+vp_cpy_ui [r9 + 0x7fab1256], r4
+vp_cpy_ui [r10 + 0x7fab1256], r5
+vp_cpy_ui [r11 + 0x7fab1256], r6
+vp_cpy_ui [r12 + 0x7fab1256], r7
+vp_cpy_ui [r13 + 0x7fab1256], r8
+vp_cpy_ui [r14 + 0x7fab1256], r9
+vp_cpy_ui [r15 + 0x7fab1256], r10
+vp_cpy_ui [r0 + 0x7fab1256], r11
+vp_cpy_ui [r1 + 0x7fab1256], r12
+vp_cpy_ui [r2 + 0x7fab1256], r13
+vp_cpy_ui [r3 + 0x7fab1256], r14
+vp_cpy_ui [r4 + 0x7fab1256], r15
+
 ;rib
+vp_cpy_b r0, [r0]
+vp_cpy_b r1, [r1]
+vp_cpy_b r2, [r2]
+vp_cpy_b r3, [r3]
+vp_cpy_b r4, [r4]
+vp_cpy_b r5, [r5]
+vp_cpy_b r6, [r6]
+vp_cpy_b r7, [r7]
+
 vp_cpy_b r0, [r5]
 vp_cpy_b r1, [r6]
 vp_cpy_b r2, [r7]
@@ -1275,7 +1500,6 @@ vp_cpy_b r13, [r2]
 vp_cpy_b r14, [r3]
 vp_cpy_b r15, [r4]
 
-%if 0
 vp_cpy_b r0, [r5 + 0x7f]
 vp_cpy_b r1, [r6 + 0x7f]
 vp_cpy_b r2, [r7 + 0x7f]
@@ -1328,6 +1552,15 @@ vp_cpy_b r14, [r3 + 0x7fab1256]
 vp_cpy_b r15, [r4 + 0x7fab1256]
 
 ;ris
+vp_cpy_s r0, [r0]
+vp_cpy_s r1, [r1]
+vp_cpy_s r2, [r2]
+vp_cpy_s r3, [r3]
+vp_cpy_s r4, [r4]
+vp_cpy_s r5, [r5]
+vp_cpy_s r6, [r6]
+vp_cpy_s r7, [r7]
+
 vp_cpy_s r0, [r5]
 vp_cpy_s r1, [r6]
 vp_cpy_s r2, [r7]
@@ -1397,6 +1630,15 @@ vp_cpy_s r14, [r3 + 0x7fab1256]
 vp_cpy_s r15, [r4 + 0x7fab1256]
 
 ;rii
+vp_cpy_i r0, [r0]
+vp_cpy_i r1, [r1]
+vp_cpy_i r2, [r2]
+vp_cpy_i r3, [r3]
+vp_cpy_i r4, [r4]
+vp_cpy_i r5, [r5]
+vp_cpy_i r6, [r6]
+vp_cpy_i r7, [r7]
+
 vp_cpy_i r0, [r5]
 vp_cpy_i r1, [r6]
 vp_cpy_i r2, [r7]
@@ -1464,6 +1706,5 @@ vp_cpy_i r12, [r1 + 0x7fab1256]
 vp_cpy_i r13, [r2 + 0x7fab1256]
 vp_cpy_i r14, [r3 + 0x7fab1256]
 vp_cpy_i r15, [r4 + 0x7fab1256]
-%endif
 
 def_func_end
