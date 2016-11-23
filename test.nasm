@@ -2450,4 +2450,32 @@ vp_cpy r15, [r12 + r1]
 vp_cpy r0, [r1 + r13]
 vp_cpy r0, [r13 + r1]
 
+;lea d
+vp_lea [r0 + r1], r0
+vp_lea [r0 + r1], r1
+vp_lea [r0 + r1], r5
+vp_lea [r13 + r1], r6
+vp_lea [r0 + r1], r11
+vp_lea [r0 + r1], r12
+vp_lea [r0 + r1], r13
+vp_lea [r5 + r1], r14
+vp_lea [r0 + r1], r15
+vp_lea [r1 + r1], r0
+vp_lea [r2 + r1], r1
+vp_lea [r3 + r15], r2
+vp_lea [r5 + r13], r4
+vp_lea [r6 + r12], r5
+vp_lea [r7 + r11], r6
+vp_lea [r8 + r10], r7
+vp_lea [r9 + r9], r8
+vp_lea [r10 + r8], r9
+vp_lea [r11 + r7], r10
+vp_lea [r12 + r6], r11
+vp_lea [r13 + r5], r12
+vp_lea [r14 + r3], r13
+vp_lea [r15 + r2], r14
+vp_lea [r12 + r1], r15
+vp_lea [r1 + r13], r0
+vp_lea [r13 + r1], r0
+
 def_func_end
