@@ -215,8 +215,12 @@
 	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
 		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
 		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
-	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h)
-		o (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
+	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h) o)
+	(cond
+		((and (ne s1 5) (ne s1 13))
+			(emit-byte (add 0x04 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l)))
+		(t
+			(emit-byte (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))))
 
 (defcompilefun emit-dr-bs (o s1 s2 d)
 	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
@@ -725,8 +729,12 @@
 	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
 		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
 		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
-	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h)
-		0x0f 0xaf (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))
+	(emit-byte (add 0x48 (bit-shl dh 2) (bit-shl s2h 1) s1h) 0x0f 0xaf)
+	(cond
+		((and (ne s1 5) (ne s1 13))
+			(emit-byte (add 0x04 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l)))
+		(t
+			(emit-byte (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))))
 
 (defcompilefun emit-mul-pr (c d)
 	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c (length *out-buffer*) 8))
