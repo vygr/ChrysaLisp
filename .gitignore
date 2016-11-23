@@ -1,2 +1,4 @@
 obj/*
 syscalls
+
+.vscode/cSpell.json
