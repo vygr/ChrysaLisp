@@ -296,9 +296,9 @@
 		(t (print "emit-shift-cr constant out of range: " c))))
 
 (defcompilefun emit-shift-rr (o s d)
-	(defq dn (reg d) dl (bit-and 7 dn) dh (bit-shr dn 3))
 	(cond
 		((eql s r1)
+			(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
 			(emit-byte (add 0x48 dh) 0xd3 (add o dl)))
 		(t
 			(emit-push d s r0 r1)
