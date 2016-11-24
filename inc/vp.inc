@@ -474,7 +474,7 @@
 	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
 		s2 (reg s2) s2l (bit-and 7 s2) s2h (bit-shr s2 3)
 		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
-	(if (or (ne s1h 0) (ne s2h 0) (ne dh 0)) (emit-byte (add 0x40 (bit-shl dh 2) (bit-shl s2h 1) s1h)))
+	(if (or (ge s1 8) (ge s2 8) (ge d 8)) (emit-byte (add 0x40 (bit-shl dh 2) (bit-shl s2h 1) s1h)))
 	(emit-byte 0x8b)
 	(cond
 		((and (ne s1 5) (ne s1 13))
