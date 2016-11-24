@@ -2496,6 +2496,41 @@ vp_lea_p label1, r13
 vp_lea_p label1, r14
 vp_lea_p label1, r15
 
+vp_cpy_p label1, r0
+vp_cpy_p label1, r1
+vp_cpy_p label1, r2
+vp_cpy_p label1, r3
+vp_cpy_p label1, r4
+vp_cpy_p label1, r5
+vp_cpy_p label1, r6
+vp_cpy_p label1, r7
+vp_cpy_p label1, r8
+vp_cpy_p label1, r9
+vp_cpy_p label1, r10
+vp_cpy_p label1, r11
+vp_cpy_p label1, r12
+vp_cpy_p label1, r13
+vp_cpy_p label1, r14
+vp_cpy_p label1, r15
+
+vp_cpy_p r0, label1
+vp_cpy_p r1, label1
+vp_cpy_p r2, label1
+vp_cpy_p r3, label1
+vp_cpy_p r4, label1
+vp_cpy_p r5, label1
+vp_cpy_p r6, label1
+vp_cpy_p r7, label1
+vp_cpy_p r8, label1
+vp_cpy_p r9, label1
+vp_cpy_p r10, label1
+vp_cpy_p r11, label1
+vp_cpy_p r12, label1
+vp_cpy_p r13, label1
+vp_cpy_p r14, label1
+vp_cpy_p r15, label1
+
+;call/jmp
 vp_call_p label1
 vp_jmp_p label1
 
