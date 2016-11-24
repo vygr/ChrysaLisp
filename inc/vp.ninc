@@ -507,6 +507,11 @@
 		%elif _r = 1
 			;source is r1
 			shr %2, cl
+		%elifidn %2, r1
+			;dest is r1
+			vp_xchg %1, %2
+			shr %1, cl
+			vp_xchg %1, %2
 		%else
 			;source is not r1
 			vp_push %2, %1, r0, r1
@@ -532,6 +537,11 @@
 		%elif _r = 1
 			;source is r1
 			sar %2, cl
+		%elifidn %2, r1
+			;dest is r1
+			vp_xchg %1, %2
+			sar %1, cl
+			vp_xchg %1, %2
 		%else
 			;source is not r1
 			vp_push %2, %1, r0, r1
@@ -557,6 +567,11 @@
 		%elif _r = 1
 			;source is r1
 			shl %2, cl
+		%elifidn %2, r1
+			;dest is r1
+			vp_xchg %1, %2
+			shl %1, cl
+			vp_xchg %1, %2
 		%else
 			;source is not r1
 			vp_push %2, %1, r0, r1
