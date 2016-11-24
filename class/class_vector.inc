@@ -22,7 +22,7 @@
 (def-method 'slice 'class/vector/slice 'override)
 
 (def-struct 'vector 'sequence)
-	pptr vector_array
+	(pptr 'vector_array)
 	(ulong 'vector_length)
 	(ulong 'vector_capacity)
 (def-struct-end)

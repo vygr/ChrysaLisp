@@ -16,6 +16,6 @@
 (def-struct 'master 'ref)
 	(ptr 'master_streams)
 	(ptr 'master_mailbox_array)
-	pptr master_select_array
+	(pptr 'master_select_array)
 	(ulong 'master_state)
 (def-struct-end)

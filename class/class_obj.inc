@@ -12,5 +12,5 @@
 (def-method 'hash 'class/obj/hash 'virtual '(r0) '(r1))
 
 (def-struct 'obj)
-	pptr obj_vtable
+	(pptr 'obj_vtable)
 (def-struct-end)
