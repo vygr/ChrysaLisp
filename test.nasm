@@ -280,7 +280,7 @@ vp_xor 0x7f4f5f6f, r13
 vp_xor 0x7f4f5f6f, r14
 vp_xor 0x7f4f5f6f, r15
 
-vp_mul 0x7f, r0
+vp_mul -1, r0
 vp_mul 0x7f, r1
 vp_mul 0x7f, r2
 vp_mul 0x7f, r3
@@ -290,7 +290,7 @@ vp_mul 0x7f, r6
 vp_mul 0x7f, r7
 vp_mul 0x7f, r8
 vp_mul 0x7f, r9
-vp_mul 0x7f, r10
+vp_mul -1, r10
 vp_mul 0x7f, r11
 vp_mul 0x7f, r12
 vp_mul 0x7f, r13

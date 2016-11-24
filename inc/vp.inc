@@ -691,12 +691,13 @@
 
 (defcompilefun emit-mul-cr (c r)
 	(defq r (reg r) rl (bit-and r 7) rh (bit-shr r 3))
-	(emit-byte (add 0x48 (bit-shl rh 2) rh))
 	(cond
+		((eq -1 c)
+			(emit-byte (add 0x48 rh) 0xf7 (add 0xd8 rl)))
 		((le -0x80 c 0x7f)
-			(emit-byte 0x6b (add 0xc0 rl (bit-shl rl 3)) c))
+			(emit-byte (add 0x48 (bit-shl rh 2) rh) 0x6b (add 0xc0 rl (bit-shl rl 3)) c))
 		((le -0x80000000 c 0x7fffffff)
-			(emit-byte 0x69 (add 0xc0 rl (bit-shl rl 3)))
+			(emit-byte (add 0x48 (bit-shl rh 2) rh) 0x69 (add 0xc0 rl (bit-shl rl 3)))
 			(emit-int c))
 		(t (print "emit-mul-cr constant out of range: " c))))
 

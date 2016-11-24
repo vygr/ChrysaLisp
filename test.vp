@@ -280,7 +280,7 @@
 (vp-xor-cr 0x7f4f5f6f r14)
 (vp-xor-cr 0x7f4f5f6f r15)
 
-(vp-mul-cr 0x7f r0)
+(vp-mul-cr -1 r0)
 (vp-mul-cr 0x7f r1)
 (vp-mul-cr 0x7f r2)
 (vp-mul-cr 0x7f r3)
@@ -290,7 +290,7 @@
 (vp-mul-cr 0x7f r7)
 (vp-mul-cr 0x7f r8)
 (vp-mul-cr 0x7f r9)
-(vp-mul-cr 0x7f r10)
+(vp-mul-cr -1 r10)
 (vp-mul-cr 0x7f r11)
 (vp-mul-cr 0x7f r12)
 (vp-mul-cr 0x7f r13)
