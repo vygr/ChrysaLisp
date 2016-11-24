@@ -748,11 +748,16 @@
 		(emit-byte (add 0x48 sh) (add 0x90 sl))
 		(emit-byte (add 0x48 (bit-shl sh 2) dh) 0x87 (add 0xc0 (bit-shl sl 3) dl))))
 
+(defcompilefun emit-ext-rr (s d) ())
+
 (defcompilefun emit-div-rrr (s d1 d2)
 	(cond
 		((and (eql d1 r2) (eql d2 r0))
 			(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3))
 			(emit-byte (add 0x48 sh) 0xF7 (add 0xF8 sl)))
+		((and (eql d1 r0) (eql d2 r2) (not (eql s d1)) (not (eql s d2)))
+			(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3))
+			(emit-byte 0x48 0x92 (add 0x48 sh) 0xF7 (add 0xF8 sl) 0x48 0x92))
 		(t
 			(emit-push d2 d1 s r2 r1 r0)
 			(emit-cpy-ir r4 24 r1)
@@ -768,6 +773,9 @@
 		((and (eql d1 r2) (eql d2 r0))
 			(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3))
 			(emit-byte (add 0x48 sh) 0xF7 (add 0xF0 sl)))
+		((and (eql d1 r0) (eql d2 r2) (not (eql s d1)) (not (eql s d2)))
+			(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3))
+			(emit-byte 0x48 0x92 (add 0x48 sh) 0xF7 (add 0xF0 sl) 0x48 0x92))
 		(t
 			(emit-push d2 d1 s r2 r1 r0)
 			(emit-cpy-ir r4 24 r1)

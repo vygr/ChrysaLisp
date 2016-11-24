@@ -2744,6 +2744,9 @@
 (vp-jmp-i r15 '(sub label1 label2))
 
 ;div
+(vp-div-rrr r1 r0 r2)
+(vp-div-rrr r0 r0 r2)
+(vp-div-rrr r8 r0 r2)
 (vp-div-rrr r1 r2 r0)
 (vp-div-rrr r7 r2 r0)
 (vp-div-rrr r8 r2 r0)
@@ -2752,6 +2755,9 @@
 (vp-div-rrr r0 r5 r9)
 (vp-div-rrr r13 r2 r5)
 (vp-div-rrr r4 r7 r8)
+(vp-div-rrr-u r1 r0 r2)
+(vp-div-rrr-u r7 r0 r2)
+(vp-div-rrr-u r8 r0 r2)
 (vp-div-rrr-u r1 r2 r0)
 (vp-div-rrr-u r7 r2 r0)
 (vp-div-rrr-u r8 r2 r0)

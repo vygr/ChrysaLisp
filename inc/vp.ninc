@@ -275,6 +275,10 @@
 	%if (%%r = 2) && (_r = 0)
 		;high in r2, low in r0
 		idiv %1
+	%elif (%%r = 0) && (_r = 2) && (%1 != %2) && (%1 != %3) 
+		xchg %2, %3
+		idiv %1
+		xchg %2, %3
 	%else
 		vp_push %3, %2, %1, r2, r1, r0
 		vp_cpy [r4 + 24], r1
@@ -301,6 +305,10 @@
 	%if (%%r = 2) && (_r = 0)
 		;high in r2, low in r0
 		div %1
+	%elif (%%r = 0) && (_r = 2) && (%1 != %2) && (%1 != %3) 
+		xchg %2, %3
+		div %1
+		xchg %2, %3
 	%else
 		vp_push %3, %2, %1, r2, r1, r0
 		vp_cpy [r4 + 24], r1
