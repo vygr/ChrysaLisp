@@ -142,7 +142,7 @@ def_struct_end
 	;%2 = register
 
 	fn_find_link %1
-	vp_cpy_rel _ref_%[_link_num_]_link, %2
+	vp_cpy_p _ref_%[_link_num_]_link, %2
 %endmacro
 
 %macro fn_call 1

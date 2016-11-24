@@ -615,7 +615,7 @@
 	%endif
 %endmacro
 
-%macro vp_cpy_rel 2
+%macro vp_cpy_p 2
 	reg? %1
 	%if _r < 0
 		;source not register
