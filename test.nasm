@@ -2537,6 +2537,40 @@ vp_jmp label2
 vp_call_p label2
 vp_jmp_p label2
 
+vp_call r0
+vp_call r1
+vp_call r2
+vp_call r3
+vp_call r4
+vp_call r5
+vp_call r6
+vp_call r7
+vp_call r8
+vp_call r9
+vp_call r10
+vp_call r11
+vp_call r12
+vp_call r13
+vp_call r14
+vp_call r15
+
+vp_jmp r0
+vp_jmp r1
+vp_jmp r2
+vp_jmp r3
+vp_jmp r4
+vp_jmp r5
+vp_jmp r6
+vp_jmp r7
+vp_jmp r8
+vp_jmp r9
+vp_jmp r10
+vp_jmp r11
+vp_jmp r12
+vp_jmp r13
+vp_jmp r14
+vp_jmp r15
+
 	align 8, db 0
 label1:
 	dq 0xfe78452396457623
