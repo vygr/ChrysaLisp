@@ -2,6 +2,7 @@
 
 def_func test
 
+label2:
 ;push and pop
 vp_push r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
 vp_pop r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
@@ -2531,8 +2532,10 @@ vp_cpy_p r14, label1
 vp_cpy_p r15, label1
 
 ;call/jmp
-vp_call_p label1
-vp_jmp_p label1
+vp_call label2
+vp_jmp label2
+vp_call_p label2
+vp_jmp_p label2
 
 	align 8, db 0
 label1:

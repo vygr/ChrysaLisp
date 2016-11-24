@@ -2,6 +2,7 @@
 
 (def-func 'test)
 
+(vp-label 'label2)
 ;push and pop
 (vp-push r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15)
 (vp-pop r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15)
@@ -2531,8 +2532,10 @@
 (vp-cpy-rp r15 'label1)
 
 ;call/jmp
-(vp-call-p 'label1)
-(vp-jmp-p 'label1)
+(vp-call 'label2)
+(vp-jmp 'label2)
+(vp-call-p 'label2)
+(vp-jmp-p 'label2)
 
 	(vp-align 8)
 (vp-label 'label1)

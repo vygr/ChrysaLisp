@@ -280,6 +280,14 @@
 			(emit-cpy-ri r0 r4 24)
 			(emit-pop d s r0 r1))))
 
+(defcompilefun emit-call-jump (o c)
+	(emit-byte o)
+	(emit-int (sub c 5)))
+
+(defcompilefun emit-call-jump-p (o c)
+	(emit-byte 0xff o)
+	(emit-int (sub c 6)))
+
 (defcompilefun emit-push (&rest b)
 	(each (lambda (r)
 		(setq r (reg r))
@@ -301,23 +309,17 @@
 (defcompilefun emit-bgt (%1) ())
 (defcompilefun emit-bge (%1) ())
 
-(defcompilefun emit-call (&rest b) ())
+(defcompilefun emit-call (l) (emit-call-jump 0xe8 (sub l (length *out-buffer*))))
 (defcompilefun emit-call-r (&rest b) ())
 (defcompilefun emit-call-i (&rest b) ())
 (defcompilefun emit-call-d (&rest b) ())
+(defcompilefun emit-call-p (l) (emit-call-jump-p 0x15 (sub l (length *out-buffer*))))
 
-(defcompilefun emit-call-p (l)
-	(emit-byte 0xff 0x15)
-	(emit-int (sub l (length *out-buffer*) int_size)))
-
-(defcompilefun emit-jmp (&rest b) ())
+(defcompilefun emit-jmp (l) (emit-call-jump 0xe9 (sub l (length *out-buffer*))))
 (defcompilefun emit-jmp-r (&rest b) ())
 (defcompilefun emit-jmp-i (&rest b) ())
 (defcompilefun emit-jmp-d (&rest b) ())
-
-(defcompilefun emit-jmp-p (l)
-	(emit-byte 0xff 0x25)
-	(emit-int (sub l (length *out-buffer*) int_size)))
+(defcompilefun emit-jmp-p (l) (emit-call-jump-p 0x25 (sub l (length *out-buffer*))))
 
 (defcompilefun emit-lea-i (s c d) (emit-ir 0x8d s c d))
 (defcompilefun emit-lea-d (s1 s2 d) (emit-dr 0x8d s1 s2 d))
