@@ -38,7 +38,7 @@ def_func class/lisp/func_save
 				assign {this->lisp_sym_nil}, {value}
 				func_call ref, ref, {value}
 				devirt_call vector, get_length, {list}, {length}
-				func_call sys_io, open, {&name->string_data, o_creat | o_rdwr | o_trunc, s_irwxu}, {handle}
+				func_call sys_io, open, {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth}, {handle}
 				func_call vector, for_each, {list, 0, length, $callback, &this}, {_}
 				func_call sys_io, close, {handle}
 			else
