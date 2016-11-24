@@ -2497,37 +2497,6 @@ vp_lea_p label1, r14
 vp_lea_p label1, r15
 
 vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-vp_call_p label1
-
-vp_jmp_p label1
-vp_jmp_p label1
-vp_jmp_p label1
-vp_jmp_p label1
-vp_jmp_p label1
-vp_jmp_p label1
-vp_jmp_p label1
-vp_jmp_p label1
-vp_jmp_p label1
-vp_jmp_p label1
-vp_jmp_p label1
-vp_jmp_p label1
-vp_jmp_p label1
-vp_jmp_p label1
-vp_jmp_p label1
 vp_jmp_p label1
 
 	align 8, db 0

@@ -2496,6 +2496,9 @@
 (vp-lea-p 'label1 r14)
 (vp-lea-p 'label1 r15)
 
+(vp-call-p 'label1)
+(vp-jmp-p 'label1)
+
 	(vp-align 8)
 (vp-label 'label1)
 	(vp-long 0xfe78452396457623)

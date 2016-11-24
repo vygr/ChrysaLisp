@@ -333,13 +333,19 @@
 (defcompilefun emit-call-r (&rest b) ())
 (defcompilefun emit-call-i (&rest b) ())
 (defcompilefun emit-call-d (&rest b) ())
-(defcompilefun emit-call-p (&rest b) ())
+
+(defcompilefun emit-call-p (l)
+	(emit-byte 0xff 0x15)
+	(emit-int (sub l (length *out-buffer*) int_size)))
 
 (defcompilefun emit-jmp (&rest b) ())
 (defcompilefun emit-jmp-r (&rest b) ())
 (defcompilefun emit-jmp-i (&rest b) ())
 (defcompilefun emit-jmp-d (&rest b) ())
-(defcompilefun emit-jmp-p (&rest b) ())
+
+(defcompilefun emit-jmp-p (l)
+	(emit-byte 0xff 0x25)
+	(emit-int (sub l (length *out-buffer*) int_size)))
 
 (defcompilefun emit-lea-i (s c d) (emit-ir 0x8d s c d))
 (defcompilefun emit-lea-d (s1 s2 d) (emit-dr 0x8d s1 s2 d))
