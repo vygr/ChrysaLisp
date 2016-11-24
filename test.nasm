@@ -2478,4 +2478,60 @@ vp_lea [r12 + r1], r15
 vp_lea [r1 + r13], r0
 vp_lea [r13 + r1], r0
 
+;p modes
+vp_lea_p label1, r0
+vp_lea_p label1, r1
+vp_lea_p label1, r2
+vp_lea_p label1, r3
+vp_lea_p label1, r4
+vp_lea_p label1, r5
+vp_lea_p label1, r6
+vp_lea_p label1, r7
+vp_lea_p label1, r8
+vp_lea_p label1, r9
+vp_lea_p label1, r10
+vp_lea_p label1, r11
+vp_lea_p label1, r12
+vp_lea_p label1, r13
+vp_lea_p label1, r14
+vp_lea_p label1, r15
+
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+vp_call_p label1
+
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+vp_jmp_p label1
+
+	align 8, db 0
+label1:
+	dq 0xfe78452396457623
+
 def_func_end

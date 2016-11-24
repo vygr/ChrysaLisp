@@ -640,15 +640,15 @@
 	%endif
 %endmacro
 
-%macro vp_call_rel 1
+%macro vp_call_p 1
 	call [rel %1]
 %endmacro
 
-%macro vp_jmp_rel 1
+%macro vp_jmp_p 1
 	jmp [rel %1]
 %endmacro
 
-%macro vp_rel 2
+%macro vp_lea_p 2
 	lea %2, [rel %1]
 %endmacro
 

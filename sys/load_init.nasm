@@ -3,7 +3,7 @@
 
 def_func sys/load_init
 	;set prebound functions as read/write/executable
-	vp_rel _func_start, r0
+	vp_lea_p _func_start, r0
 	vp_cpy r0, r1
 	loop_start
 	 	vp_cpy_ui [r1 + fn_header_length], r2
@@ -15,7 +15,7 @@ def_func sys/load_init
 	sys_mprotect r0, r1, prot_read|prot_write|prot_exec
 
 	;get loader statics and bind function !
-	vp_rel _func_start, r6
+	vp_lea_p _func_start, r6
 	vp_cpy_ui [r6 + fn_header_length], r0
 	vp_add r0, r6
 	vp_cpy r6, r5
@@ -31,7 +31,7 @@ def_func sys/load_init
 	vp_cpy r1, [r6 + ld_statics_reloc_stack]
 
 	;add all prebound functions to function list
-	vp_rel _func_start, r1
+	vp_lea_p _func_start, r1
 	loop_start
 	 	vp_cpy_ui [r1 + fn_header_length], r2
 		breakif r2, ==, 0
@@ -42,7 +42,7 @@ def_func sys/load_init
 	loop_end
 
 	;bind all prebound function intra references
-	vp_rel _func_start, r2
+	vp_lea_p _func_start, r2
 	loop_start
 		vp_cpy_ui [r2 + fn_header_length], r1
 		breakif r1, ==, 0
@@ -57,7 +57,7 @@ def_func sys/load_init
 			vp_call r5		;sys/load_bind
 			vpif r0, ==, 0
 				;no such function
-				vp_rel bind_error, r0
+				vp_lea_p bind_error, r0
 				sys_write_string 2, r0, bind_error_end-bind_error
 				vp_cpy [r4 + (ptr_size * 2)], r0
 				vp_add [r0], r0

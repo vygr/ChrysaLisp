@@ -16,7 +16,7 @@ ld_load_function:
 	vp_cpy r0, r7
 
 	;get loader statics !
-	vp_rel _func_start, r8
+	vp_lea_p _func_start, r8
 	vp_cpy_ui [r8 + fn_header_length], r0
 	vp_add r0, r8
 	vp_cpy_ui [r8 + fn_header_entry], r0
@@ -80,7 +80,7 @@ ld_load_function:
 
 %ifdef list_loaded
 	;print loaded function name
-	vp_rel loaded_name, r0
+	vp_lea_p loaded_name, r0
 	sys_write_string 2, r0, loaded_name_end-loaded_name
 	vp_cpy r7, r0
 	vp_call string_skip
@@ -106,7 +106,7 @@ ld_load_function:
 	;check loaded length equals file size
 	vp_cpy_ui [r3 + fn_header_length], r0
 	vpif r0, !=, [r2 + stat_fsize]
-		vp_rel size_error, r0
+		vp_lea_p size_error, r0
 		sys_write_string 2, r0, size_error_end-size_error
 		sys_exit 1
 	endif
@@ -138,7 +138,7 @@ ld_load_function:
 	;overflow check
 	vp_lea [r8 + ld_statics_size], r2
 	vpif r1, >, r2
-		vp_rel reloc_error, r0
+		vp_lea_p reloc_error, r0
 		sys_write_string 2, r0, reloc_error_end-reloc_error
 		sys_exit 1
 	endif
@@ -175,7 +175,7 @@ ld_load_function:
 		vp_call ld_load_function
 		vpif r0, ==, 0
 			;no such file
-			vp_rel bind_error, r0
+			vp_lea_p bind_error, r0
 			sys_write_string 2, r0, bind_error_end-bind_error
 			vp_cpy [r4], r0
 			vp_cpy [r0], r0
@@ -197,7 +197,7 @@ ld_load_function:
 	vp_pop r3
 
 	;get loader statics !
-	vp_rel _func_start, r8
+	vp_lea_p _func_start, r8
 	vp_cpy_ui [r8 + fn_header_length], r0
 	vp_add r0, r8
 	vp_cpy_ui [r8 + fn_header_entry], r0

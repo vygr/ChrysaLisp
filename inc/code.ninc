@@ -776,7 +776,7 @@ _sym_var	equ 2
 				;label address
 				%substr %%ss _src_%[%%i] 2, -1
 				%deftok %%p %%ss
-				vp_rel %%p, %%d
+				vp_lea_p %%p, %%d
 			%else
 				;just a copy
 				vp_cpy %%s, %%d
@@ -1583,7 +1583,7 @@ _sym_var	equ 2
 
 %macro compile_label 1
 	%defstr _%[_s]_t
-	add_inst vp_rel, %1, _%[_s]
+	add_inst vp_lea_p, %1, _%[_s]
 %endmacro
 
 %macro compile_const 1

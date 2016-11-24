@@ -16,14 +16,14 @@ def_func sys/opt_process
 	loop_start
 		vp_cpy [r14], r13
 		breakif r13, ==, 0
-		vp_rel options_table, r12
+		vp_lea_p options_table, r12
 		loop_start
 			vp_cpy [r12], r11
 			breakif r11, ==, 0
 			vp_add ptr_size, r12
 			f_call sys_string, compare, {r12, r13}, {r0}
 			vpif r0, ==, 0
-				vp_rel options_table, r0
+				vp_lea_p options_table, r0
 				vp_add r11, r0
 				vp_call r0
 				vp_jmp next_arg

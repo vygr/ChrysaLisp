@@ -2478,4 +2478,26 @@
 (vp-lea-d r1 r13 r0)
 (vp-lea-d r13 r1 r0)
 
+;p modes
+(vp-lea-p 'label1 r0)
+(vp-lea-p 'label1 r1)
+(vp-lea-p 'label1 r2)
+(vp-lea-p 'label1 r3)
+(vp-lea-p 'label1 r4)
+(vp-lea-p 'label1 r5)
+(vp-lea-p 'label1 r6)
+(vp-lea-p 'label1 r7)
+(vp-lea-p 'label1 r8)
+(vp-lea-p 'label1 r9)
+(vp-lea-p 'label1 r10)
+(vp-lea-p 'label1 r11)
+(vp-lea-p 'label1 r12)
+(vp-lea-p 'label1 r13)
+(vp-lea-p 'label1 r14)
+(vp-lea-p 'label1 r15)
+
+	(vp-align 8)
+(vp-label 'label1)
+	(vp-long 0xfe78452396457623)
+
 (def-func-end)

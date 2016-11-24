@@ -91,8 +91,8 @@ def_func gui/gui
 				endif
 
 				;cook keycode
-				vp_rel scan_codes, r5
-				vp_rel scan_codes_end, r6
+				vp_lea_p scan_codes, r5
+				vp_lea_p scan_codes_end, r6
 				vp_xor r12, r12
 				loop_start
 					vp_cpy_ub [r5], r8

@@ -25,7 +25,7 @@ def_func class/view/hit_tree
 	vp_cpy r0, [r4 + local_inst]
 	vp_xor r1, r1
 	vp_cpy r1, [r4 + local_hit]
-	vp_rel early_ret, r1
+	vp_lea_p early_ret, r1
 	vp_cpy r1, [r4 + local_jump]
 
 	;iterate through views front to back

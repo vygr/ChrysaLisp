@@ -157,7 +157,7 @@ dic_%3:
 
 %macro defvar 4
 	defword %1, %2, %3, word_inline_comma
-		vp_rel var_%3, t1
+		vp_lea_p var_%3, t1
 		pushsp t1
 		vp_ret
 	defword_end
