@@ -119,6 +119,9 @@
 (defcompilefun vp-inc (r) (emit `(emit-inc ,r)))
 (defcompilefun vp-dec (r) (emit `(emit-dec ,r)))
 (defcompilefun vp-xchg-rr (&rest b) (emit `(emit-xchg-rr ~b)))
+(defcompilefun vp-ext-rr (&rest b) (emit `(emit-ext-rr ~b)))
+(defcompilefun vp-div-rrr (&rest b) (emit `(emit-div-rrr ~b)))
+(defcompilefun vp-div-rrr-u (&rest b) (emit `(emit-div-rrr-u ~b)))
 
 ;;;;;;;;;;;;;
 ; Emit Buffer
@@ -744,3 +747,33 @@
 	(if (eq d 0)
 		(emit-byte (add 0x48 sh) (add 0x90 sl))
 		(emit-byte (add 0x48 (bit-shl sh 2) dh) 0x87 (add 0xc0 (bit-shl sl 3) dl))))
+
+(defcompilefun emit-div-rrr (s d1 d2)
+	(cond
+		((and (eql d1 r2) (eql d2 r0))
+			(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3))
+			(emit-byte (add 0x48 sh) 0xF7 (add 0xF8 sl)))
+		(t
+			(emit-push d2 d1 s r2 r1 r0)
+			(emit-cpy-ir r4 24 r1)
+			(emit-cpy-ir r4 32 r2)
+			(emit-cpy-ir r4 40 r0)
+			(emit-byte 0x48 0xF7 0xF9)
+			(emit-cpy-ri r2 r4 32)
+			(emit-cpy-ri r0 r4 40)
+			(emit-pop d2 d1 s r2 r1 r0))))
+
+(defcompilefun emit-div-rrr-u (s d1 d2)
+	(cond
+		((and (eql d1 r2) (eql d2 r0))
+			(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3))
+			(emit-byte (add 0x48 sh) 0xF7 (add 0xF0 sl)))
+		(t
+			(emit-push d2 d1 s r2 r1 r0)
+			(emit-cpy-ir r4 24 r1)
+			(emit-cpy-ir r4 32 r2)
+			(emit-cpy-ir r4 40 r0)
+			(emit-byte 0x48 0xF7 0xF1)
+			(emit-cpy-ri r2 r4 32)
+			(emit-cpy-ri r0 r4 40)
+			(emit-pop d2 d1 s r2 r1 r0))))

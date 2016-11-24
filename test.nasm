@@ -2743,6 +2743,34 @@ vp_jmp [r13 + (label1 - label2)]
 vp_jmp [r14 + (label1 - label2)]
 vp_jmp [r15 + (label1 - label2)]
 
+;div
+vp_div r1, r2, r0
+vp_div r7, r2, r0
+vp_div r8, r2, r0
+vp_div r15, r2, r0
+vp_div r15, r3, r0
+vp_div r0, r5, r9
+vp_div r13, r2, r5
+vp_div r4, r7, r8
+vp_div_u r1, r2, r0
+vp_div_u r7, r2, r0
+vp_div_u r8, r2, r0
+vp_div_u r15, r2, r0
+vp_div_u r15, r3, r0
+vp_div_u r0, r5, r9
+vp_div_u r13, r2, r5
+vp_div_u r4, r7, r8
+
+;ext
+;vp_ext r0, r1
+;vp_ext r0, r2
+;vp_ext r15, r3
+;vp_ext r10, r1
+;vp_ext r11, r13
+;vp_ext r5, r2
+;vp_ext r8, r7
+;vp_ext r4, r12
+
 	align 8, db 0
 label1:
 	dq 0xfe78452396457623

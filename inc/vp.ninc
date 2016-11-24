@@ -270,47 +270,20 @@
 	;%3 = quotient
 
 	reg? %2
-	%if _r = 2
-		;high in r2
-		reg? %3
-		%if _r = 0
-			;low in r0
-			idiv %1
-		%else
-			;low not in r0
-			vp_push r0
-			vp_cpy %3, r0
-			idiv %1
-			vp_cpy r0, %3
-			vp_pop r0
-		%endif
+	%xdefine %%r _r
+	reg? %3
+	%if (%%r = 2) && (_r = 0)
+		;high in r2, low in r0
+		idiv %1
 	%else
-		;high not in r2
-		reg? %3
-		%if _r = 0
-			;low in r0
-			vp_push r2
-			vp_cpy %2, r2
-			idiv %1
-			vp_cpy r2, %2
-			vp_pop r2
-		%else
-			;low not in r0
-			reg? %1
-			%if _r = 2
-				;divider in r2
-				%fatal Divide case not written
-			%else
-				;divider not in r2
-				vp_push r0, r2
-				vp_cpy %2, r2
-				vp_cpy %3, r0
-				idiv %1
-				vp_cpy r0, %3
-				vp_cpy r2, %2
-				vp_pop r0, r2
-			%endif
-		%endif
+		vp_push %3, %2, %1, r2, r1, r0
+		vp_cpy [r4 + 24], r1
+		vp_cpy [r4 + 32], r2
+		vp_cpy [r4 + 40], r0
+		idiv r1
+		vp_cpy r2, [r4 + 32]
+		vp_cpy r0, [r4 + 40]
+		vp_pop %3, %2, %1, r2, r1, r0
 	%endif
 %endmacro
 
@@ -323,47 +296,20 @@
 	;%3 = quotient
 
 	reg? %2
-	%if _r = 2
-		;high in r2
-		reg? %3
-		%if _r = 0
-			;low in r0
-			div %1
-		%else
-			;low not in r0
-			vp_push r0
-			vp_cpy %3, r0
-			div %1
-			vp_cpy r0, %3
-			vp_pop r0
-		%endif
+	%xdefine %%r _r
+	reg? %3
+	%if (%%r = 2) && (_r = 0)
+		;high in r2, low in r0
+		div %1
 	%else
-		;high not in r2
-		reg? %3
-		%if _r = 0
-			;low in r0
-			vp_push r2
-			vp_cpy %2, r2
-			div %1
-			vp_cpy r2, %2
-			vp_pop r2
-		%else
-			;low not in r0
-			reg? %1
-			%if _r = 2
-				;divider in r2
-				%fatal Unsigned divide case not written
-			%else
-				;divider not in r2
-				vp_push r0, r2
-				vp_cpy %2, r2
-				vp_cpy %3, r0
-				div %1
-				vp_cpy r0, %3
-				vp_cpy r2, %2
-				vp_pop r0, r2
-			%endif
-		%endif
+		vp_push %3, %2, %1, r2, r1, r0
+		vp_cpy [r4 + 24], r1
+		vp_cpy [r4 + 32], r2
+		vp_cpy [r4 + 40], r0
+		div r1
+		vp_cpy r2, [r4 + 32]
+		vp_cpy r0, [r4 + 40]
+		vp_pop %3, %2, %1, r2, r1, r0
 	%endif
 %endmacro
 
