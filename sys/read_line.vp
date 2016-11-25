@@ -16,7 +16,7 @@
 	(vp-add-rr r0 r1)
 	(loop-while '(r5 != r1))
 		sys_read_char r2
-		(vp-cpy-ri-b r0 r5)
+		(vp-cpy-ri-b r0 r5 0)
 		(vp-inc r5)
 	(loop-until '(r0 == 10))
 	(vp-cpy-rr r5 r0)

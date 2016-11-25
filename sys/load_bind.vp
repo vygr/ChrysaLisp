@@ -230,7 +230,7 @@
 (vp-label 'string_copy)
 	(loop-start)
 		(vp-cpy-ir-ub r0 r2)
-		(vp-cpy-ri-b r2 r1)
+		(vp-cpy-ri-b r2 r1 0)
 		(vp-inc r0)
 		(vp-inc r1)
 	(loop-until '(r2 == 0))

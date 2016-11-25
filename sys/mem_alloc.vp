@@ -10,7 +10,7 @@
 	;trashes
 	;r2-r3
 
-	(vpif '(r0 > mem_block_max_size - ptr_size))
+	(vpif '(r0 > (sub mem_block_max_size ptr_size)))
 		;error
 		(vp-xor-rr r0 r0)
 		(vp-xor-rr r1 r1)

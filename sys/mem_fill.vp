@@ -38,7 +38,7 @@
 		;something not aligned
 		(vp-add-rr r0 r1)
 		(loop-start)
-			(vp-cpy-ri-b r2 r0)
+			(vp-cpy-ri-b r2 r0 0)
 			(vp-inc r0)
 		(loop-until '(r0 == r1))
 	(endif)
