@@ -102,8 +102,8 @@
 	(vp-align ptr_size)
 	(vp-label '_func_end)
 	(emit-passes)
-;	(print-emit-buffer)
-	(print-out-buffer 16)
+	(print-emit-buffer)
+;	(print-out-buffer 16)
 	(save *out-buffer* 'mytest))
 
 (defmacro def-insert (n l)

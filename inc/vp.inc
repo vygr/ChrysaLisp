@@ -37,7 +37,7 @@
 		((eql o '<) (vp-blt l))
 		((eql o '>) (vp-bgt l))
 		((eql o '<=) (vp-ble l))
-		((eql o '=>) (vp-bge l))
+		((eql o '>=) (vp-bge l))
 		(t (print "no such comparator: " o))))
 
 (defcompilefun vp-jmpifnot (b l)
@@ -54,7 +54,7 @@
 		((eql o '<) (vp-bge l))
 		((eql o '>) (vp-ble l))
 		((eql o '<=) (vp-bgt l))
-		((eql o '=>) (vp-blt l))
+		((eql o '>=) (vp-blt l))
 		(t (print "no such comparator: " o))))
 
 (defcompilefun vp-beq (l) (emit `(emit-beq ,l)))
@@ -327,8 +327,14 @@
 			(emit-pop d s r0 r1))))
 
 (defcompilefun emit-call-jump (o c)
-	(emit-byte o)
-	(emit-int (sub c 5)))
+	(setq c (sub c 2))
+	(cond
+		((le -0x80 c 0x7f)
+			(emit-byte (add 0x2 o) c))
+		((le -0x80000000 (sub c 3) 0x7fffffff)
+			(emit-byte o)
+			(emit-int (sub c 3)))
+		(t (print "emit-call-jump constant out of range: " c))))
 
 (defcompilefun emit-call-jump-p (o c)
 	(emit-byte 0xff o)

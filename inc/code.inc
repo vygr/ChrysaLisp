@@ -19,21 +19,21 @@
 	(push *switch-stk* *switch*)
 	(setq *switch* *switch-nxt* *switch-nxt* (inc *switch-nxt*))
 	(equate (sym (cat "*cnt-" (str *switch*) "*")) 0)
-	(vp-label (sym (cat "_begin-" (str *switch*)))))
+	(vp-label (sym (cat "_begin_" (str *switch*)))))
 
 (defcompilefun default ()
 	(defq s (sym (cat "*cnt-" (str *switch*) "*")) c (eval s))
-	(vp-label (sym (cat "_loc-" (str *switch*) "-" (str c))))
+	(vp-label (sym (cat "_loc_" (str *switch*) "_" (str c))))
 	(set s (inc c)))
 
 (defcompilefun endswitch ()
-	(vp-label (sym (cat "_end-" (str *switch*))))
+	(vp-label (sym (cat "_end_" (str *switch*))))
 	(default)
 	(setq *switch* (pop *switch-stk*)))
 
 (defcompilefun case (e)
 	(defq c (eval (sym (cat "*cnt-" (str *switch*) "*")))
-		l (sym (cat "_loc-" (str *switch*) "-" (str c))))
+		l (sym (cat "_loc_" (str *switch*) "_" (str c))))
 	(if (eq 1 (length e))
 		(progn
 			(expr (elem 0 e) '(r0))
@@ -44,7 +44,7 @@
 
 (defcompilefun casenot (e)
 	(defq c (eval (sym (cat "*cnt-" (str *switch*) "*")))
-		l (sym (cat "_loc-" (str *switch*) "-" (str c))))
+		l (sym (cat "_loc_" (str *switch*) "_" (str c))))
 	(if (eq 1 (length e))
 		(progn
 			(expr (elem 0 e) '(r0))
@@ -54,10 +54,10 @@
 			(vp-jmpif `(~e) l))))
 
 (defcompilefun break ()
-	(vp-jmp (sym (cat "_end-" (str *switch*)))))
+	(vp-jmp (sym (cat "_end_" (str *switch*)))))
 
 (defcompilefun breakif (e)
-	(defq l (sym (cat "_end-" (str *switch*))))
+	(defq l (sym (cat "_end_" (str *switch*))))
 	(if (eq 1 (length e))
 		(progn
 			(expr (elem 0 e) '(r0))
@@ -65,7 +65,7 @@
 		(vp-jmpif `(~e) l)))
 
 (defcompilefun breakifnot (e)
-	(defq l (sym (cat "_end-" (str *switch*))))
+	(defq l (sym (cat "_end_" (str *switch*))))
 	(if (eq 1 (length e))
 		(progn
 			(expr (elem 0 e) '(r0))
@@ -73,10 +73,10 @@
 		(vp-jmpifnot `(~e) l)))
 
 (defcompilefun continue ()
-	(vp-jmp (sym (cat "_begin-" (str *switch*)))))
+	(vp-jmp (sym (cat "_begin_" (str *switch*)))))
 
 (defcompilefun continueif (e)
-	(defq l (sym (cat "_begin-" (str *switch*))))
+	(defq l (sym (cat "_begin_" (str *switch*))))
 	(if (eq 1 (length e))
 		(progn
 			(expr (elem 0 e) '(r0))
@@ -84,7 +84,7 @@
 		(vp-jmpif `(~e) l)))
 
 (defcompilefun continueifnot (e)
-	(defq l (sym (cat "_begin-" (str *switch*))))
+	(defq l (sym (cat "_begin_" (str *switch*))))
 	(if (eq 1 (length e))
 		(progn
 			(expr (elem 0 e) '(r0))
