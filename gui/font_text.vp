@@ -58,7 +58,7 @@
 		;yes so LRU to front
 		(ln-remove-fnode r5 r6)
 		(vp-cpy-ir r4 local_bucket r5)
-		(ln-add-fnode r5 r0 r1)
+		(ln-add-fnode r5 0 r0 r1)
 	(endif)
 
 	(vp-add-cr local_size r4)
@@ -112,7 +112,7 @@
 
 			(vp-cpy-rr r13 r0)
 			(vp-cpy-ir r14 local_bucket r5)
-			(ln-add-fnode r5 r0 r1)
+			(ln-add-fnode r5 0 r0 r1)
 		(endif)
 		(vp-cpy-ri r0 r14 local_handle)
 		(sdl-free-surface '((r14 local_surface)))

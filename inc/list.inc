@@ -406,4 +406,4 @@
 
 	(vp-cpy-ir %1 (add %2 ln_fnode_next) %4)
 	(vp-cpy-ri %4 %3 ln_fnode_next)
-	(vp-cpy-ri %3 %1 ln_fnode_next))
+	(vp-cpy-ri %3 %1 (add %2 ln_fnode_next)))

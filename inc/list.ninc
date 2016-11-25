@@ -424,17 +424,18 @@ def_struct_end
 	vp_cpy %2, %1
 %endmacro
 
-%macro ln_add_fnode 3
+%macro ln_add_fnode 4
 	;inputs
 	;%1 = list
-	;%2 = node
-	;%3 = temp
+	;%2 = offset
+	;%3 = node
+	;%4 = temp
 	;trashes
-	;%3
+	;%4
 
-	vp_cpy [%1 + ln_fnode_next], %3
-	vp_cpy %3, [%2 + ln_fnode_next]
-	vp_cpy %2, [%1 + ln_fnode_next]
+	vp_cpy [%1 + %2 + ln_fnode_next], %4
+	vp_cpy %4, [%3 + ln_fnode_next]
+	vp_cpy %3, [%1 + %2 + ln_fnode_next]
 %endmacro
 
 %endif

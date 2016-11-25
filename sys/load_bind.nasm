@@ -69,7 +69,7 @@ ld_load_function:
 		assert r0, !=, 0
 
 		;add to block list for freeing
-		ln_add_fnode r8 + ld_statics_block_flist, r0, r1
+		ln_add_fnode r8, ld_statics_block_flist, r0, r1
 
 		;set block pointers for loading
 		vp_add ptr_size, r0
@@ -112,7 +112,7 @@ ld_load_function:
 	endif
 
 	;add to function list
-	ln_add_fnode r8 + ld_statics_function_flist, r3, r0
+	ln_add_fnode r8, ld_statics_function_flist, r3, r0
 
 	;relocate vtable so we can discard paths
 	vp_cpy [r8 + ld_statics_reloc_stack], r1

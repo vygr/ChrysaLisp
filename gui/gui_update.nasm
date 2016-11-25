@@ -283,7 +283,7 @@ distribute_up_callback:
 	vpif r2, !=, 0
 		vp_lea [r0 + view_ctx_node], r2
 		vp_add local_ctx_flist, r1
-		ln_add_fnode r1, r2, r3
+		ln_add_fnode r1, 0, r2, r3
 	endif
 	vp_ret
 

@@ -71,7 +71,7 @@ def_func gui/region_paste_rect
 				;right part
 				f_call sys_heap, alloc, {r0}, {r1}
 				continueif r1, ==, 0
-				ln_add_fnode r5, r1, r2
+				ln_add_fnode r5, 0, r1, r2
 				vp_cpy_i r10, [r1 + gui_rect_x]
 				vp_cpy_i r13, [r1 + gui_rect_y]
 				vp_cpy_i r14, [r1 + gui_rect_x1]
@@ -98,7 +98,7 @@ def_func gui/region_paste_rect
 				;top part
 				f_call sys_heap, alloc, {r0}, {r1}
 				continueif r1, ==, 0
-				ln_add_fnode r5, r1, r2
+				ln_add_fnode r5, 0, r1, r2
 				vp_cpy_i r12, [r1 + gui_rect_x]
 				vp_cpy_i r13, [r1 + gui_rect_y]
 				vp_cpy_i r14, [r1 + gui_rect_x1]
@@ -116,7 +116,7 @@ def_func gui/region_paste_rect
 				;left part
 				f_call sys_heap, alloc, {r0}, {r1}
 				continueif r1, ==, 0
-				ln_add_fnode r5, r1, r2
+				ln_add_fnode r5, 0, r1, r2
 				vp_cpy_i r12, [r1 + gui_rect_x]
 				vp_cpy_i r13, [r1 + gui_rect_y]
 				vp_cpy_i r8, [r1 + gui_rect_x1]
@@ -165,7 +165,7 @@ def_func gui/region_paste_rect
 				;top part
 				f_call sys_heap, alloc, {r0}, {r1}
 				continueif r1, ==, 0
-				ln_add_fnode r5, r1, r2
+				ln_add_fnode r5, 0, r1, r2
 				vp_cpy_i r12, [r1 + gui_rect_x]
 				vp_cpy_i r13, [r1 + gui_rect_y]
 				vp_cpy_i r14, [r1 + gui_rect_x1]
@@ -185,7 +185,7 @@ def_func gui/region_paste_rect
 				;left part
 				f_call sys_heap, alloc, {r0}, {r1}
 				continueif r1, ==, 0
-				ln_add_fnode r5, r1, r2
+				ln_add_fnode r5, 0, r1, r2
 				vp_cpy_i r12, [r1 + gui_rect_x]
 				vp_cpy_i r13, [r1 + gui_rect_y]
 				vp_cpy_i r8, [r1 + gui_rect_x1]
@@ -200,7 +200,7 @@ def_func gui/region_paste_rect
 				;top part
 				f_call sys_heap, alloc, {r0}, {r1}
 				continueif r1, ==, 0
-				ln_add_fnode r5, r1, r2
+				ln_add_fnode r5, 0, r1, r2
 				vp_cpy_i r12, [r1 + gui_rect_x]
 				vp_cpy_i r13, [r1 + gui_rect_y]
 				vp_cpy_i r14, [r1 + gui_rect_x1]
@@ -214,7 +214,7 @@ def_func gui/region_paste_rect
 				f_call sys_heap, alloc, {r0}, {r1}
 				breakif r1, ==, 0
 
-				ln_add_fnode r5, r1, r2
+				ln_add_fnode r5, 0, r1, r2
 				vp_cpy_i r8, [r1 + gui_rect_x]
 				vp_cpy_i r9, [r1 + gui_rect_y]
 				vp_cpy_i r10, [r1 + gui_rect_x1]

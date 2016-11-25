@@ -93,7 +93,7 @@ kernel_callback:
 
 			vp_cpy r13, r0
 			f_bind gui_font, statics, r5
-			ln_add_fnode r5 + ft_statics_font_flist, r0, r1
+			ln_add_fnode r5, ft_statics_font_flist, r0, r1
 		endif
 	endif
 	vp_cpy r0, [r14 + local_handle]

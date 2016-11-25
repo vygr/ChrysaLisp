@@ -59,7 +59,7 @@ def_func gui/font_text
 		;yes so LRU to front
 		ln_remove_fnode r5, r6
 		vp_cpy [r4 + local_bucket], r5
-		ln_add_fnode r5, r0, r1
+		ln_add_fnode r5, 0, r0, r1
 	endif
 
 	vp_add local_size, r4
@@ -113,7 +113,7 @@ kernel_callback:
 
 			vp_cpy r13, r0
 			vp_cpy [r14 + local_bucket], r5
-			ln_add_fnode r5, r0, r1
+			ln_add_fnode r5, 0, r0, r1
 		endif
 		vp_cpy r0, [r14 + local_handle]
 		sdl_free_surface [r14 + local_surface]

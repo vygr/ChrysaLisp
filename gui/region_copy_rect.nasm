@@ -31,7 +31,7 @@ def_func gui/region_copy_rect
 
 				f_call sys_heap, alloc, {r0}, {r1}
 				continueif r1, ==, 0
-				ln_add_fnode r5, r1, r2
+				ln_add_fnode r5, 0, r1, r2
 
 				;jump to correct splitting code
 				vp_jmpif r12, >=, r8, copy_split1

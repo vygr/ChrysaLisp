@@ -283,7 +283,7 @@
 	(vpif '(r2 != 0))
 		(vp-lea-i r0 view_ctx_node r2)
 		(vp-add-cr local_ctx_flist r1)
-		(ln-add-fnode r1 r2 r3)
+		(ln-add-fnode r1 0 r2 r3)
 	(endif)
 	(vp-ret)
 
