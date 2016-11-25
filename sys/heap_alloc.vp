@@ -28,7 +28,7 @@
 		(vp-cpy-ri r1 r3 0)
 		(vp-cpy-rr r0 r1)
 		(vp-cpy-rr r2 r0)
-		(ln-add-fnode r0 + hp_heap_block_flist r1 r2)
+		(ln-add-fnode r0 hp_heap_block_flist r1 r2)
 		(vp-add-cr ln_fnode_size r1)
 		(vp-cpy-rr r1 r3)
 		(vp-add-ir r0 hp_heap_blocksize r3)

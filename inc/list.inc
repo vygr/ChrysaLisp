@@ -395,14 +395,15 @@
 	(vp-cpy-ri %1 %2 ln_fnode_next)
 	(vp-cpy-rr %2 %1))
 
-(defcompilefun ln-add-fnode (%1 %2 %3)
+(defcompilefun ln-add-fnode (%1 %2 %3 %4)
 	;inputs
 	;%1 = list
-	;%2 = node
-	;%3 = temp
+	;%2 = offset
+	;%3 = node
+	;%4 = temp
 	;trashes
-	;%3
+	;%4
 
-	(vp-cpy-ir %1 ln_fnode_next %3)
-	(vp-cpy-ri %3 %2 ln_fnode_next)
-	(vp-cpy-ri %2 %1 ln_fnode_next))
+	(vp-cpy-ir %1 (add %2 ln_fnode_next) %4)
+	(vp-cpy-ri %4 %3 ln_fnode_next)
+	(vp-cpy-ri %3 %1 ln_fnode_next))

@@ -234,5 +234,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file 'sys/list_index_of.vp)
-(compile-file 'test.vp)
+(compile-file 'sys/list_node_at.vp)
+;(compile-file 'test.vp)

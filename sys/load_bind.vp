@@ -46,7 +46,7 @@
 
 	;get length of function on disk
 	(vp-lea-i r8 ld_statics_stat_buffer r0)
-	sys_stat r7, r0
+	(sys-stat '(r7, r0))
 	(vpif '(r0 != 0))
 	(vp-label 'exit)
 		(vp-xor-rr r0 r0)
@@ -69,7 +69,7 @@
 		(assert '(r0 != 0))
 
 		;add to block list for freeing
-		(ln-add-fnode r8 + ld_statics_block_flist r0 r1)
+		(ln-add-fnode r8 ld_statics_block_flist r0 r1)
 
 		;set block pointers for loading
 		(vp-add-cr ptr_size r0)
@@ -113,7 +113,7 @@
 	(endif)
 
 	;add to function list
-	(ln-add-fnode r8 + ld_statics_function_flist r3 r0)
+	(ln-add-fnode r8 ld_statics_function_flist r3 r0)
 
 	;relocate vtable so we can discard paths
 	(vp-cpy-ir r8 ld_statics_reloc_stack r1)
