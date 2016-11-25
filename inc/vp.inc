@@ -341,12 +341,13 @@
 			(emit-byte (add 0x58 r)))) b))
 
 (defcompilefun emit-branch (o c)
+	(setq c (sub c 2))
 	(cond
-		((le -0x80 (sub c 2) 0x7f)
-			(emit-byte o (sub c 2)))
-		((le -0x80000000 (sub c 6) 0x7fffffff)
+		((le -0x80 c 0x7f)
+			(emit-byte o c))
+		((le -0x80000000 (sub c 4) 0x7fffffff)
 			(emit-byte 0xf (add 0x10 o))
-			(emit-int (sub c 6)))
+			(emit-int (sub c 4)))
 		(t (print "emit-branch constant out of range: " c))))
 
 (defcompilefun emit-beq (l) (emit-branch 0x74 (sub l (length *out-buffer*))))
@@ -763,7 +764,14 @@
 			(emit-byte (add 0x48 sh) (add 0x90 sl))
 			(emit-byte (add 0x48 (bit-shl sh 2) dh) 0x87 (add 0xc0 (bit-shl sl 3) dl)))))
 
-(defcompilefun emit-ext-rr (s d) ())
+(defcompilefun emit-ext-rr (s d)
+	(if (and (eql s r0) (eql d r2))
+		(emit-byte 0x48 0x99)
+		(progn
+			(emit-xor-rr d d)
+			(emit-cmp-cr 0 s)
+			(emit-branch 0x7d 5)
+			(emit-dec d))))
 
 (defcompilefun emit-div-rrr (s d1 d2)
 	(cond

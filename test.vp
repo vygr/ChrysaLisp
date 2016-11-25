@@ -2767,6 +2767,16 @@
 (vp-div-rrr-u r13 r2 r5)
 (vp-div-rrr-u r4 r7 r8)
 
+;ext
+(vp-ext-rr r0 r1)
+(vp-ext-rr r0 r2)
+(vp-ext-rr r15 r3)
+(vp-ext-rr r10 r1)
+(vp-ext-rr r11 r13)
+(vp-ext-rr r5 r2)
+(vp-ext-rr r8 r7)
+(vp-ext-rr r4 r12)
+
 ;branches
 (vp-beq 'label1)
 (vp-bne 'label1)
@@ -2780,16 +2790,6 @@
 (vp-ble 'label2)
 (vp-bgt 'label2)
 (vp-bge 'label2)
-
-;ext
-;(vp-ext-rr r0 r1)
-;(vp-ext-rr r0 r2)
-;(vp-ext-rr r15 r3)
-;(vp-ext-rr r10 r1)
-;(vp-ext-rr r11 r13)
-;(vp-ext-rr r5 r2)
-;(vp-ext-rr r8 r7)
-;(vp-ext-rr r4 r12)
 
 	(vp-align 8)
 (vp-label 'label1)

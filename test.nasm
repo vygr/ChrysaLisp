@@ -2767,6 +2767,16 @@ vp_div_u r0, r5, r9
 vp_div_u r13, r2, r5
 vp_div_u r4, r7, r8
 
+;ext
+vp_ext r0, r1
+vp_ext r0, r2
+vp_ext r15, r3
+vp_ext r10, r1
+vp_ext r11, r13
+vp_ext r5, r2
+vp_ext r8, r7
+vp_ext r4, r12
+
 ;branches
 vp_beq label1
 vp_bne label1
@@ -2780,16 +2790,6 @@ vp_blt label2
 vp_ble label2
 vp_bgt label2
 vp_bge label2
-
-;ext
-;vp_ext r0, r1
-;vp_ext r0, r2
-;vp_ext r15, r3
-;vp_ext r10, r1
-;vp_ext r11, r13
-;vp_ext r5, r2
-;vp_ext r8, r7
-;vp_ext r4, r12
 
 	align 8, db 0
 label1:

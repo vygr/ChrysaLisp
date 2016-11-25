@@ -328,17 +328,15 @@
 		%if _r = 2
 			cqo
 		%else
+			vp_xor %2, %2
 			vpif %1, <, 0
-				vp_cpy -1, %2
-			else
-				vp_xor %2, %2
+				vp_dec %2
 			endif
 		%endif
 	%else
+		vp_xor %2, %2
 		vpif %1, <, 0
-			vp_cpy -1, %2
-		else
-			vp_xor %2, %2
+			vp_dec %2
 		endif
 	%endif
 %endmacro
