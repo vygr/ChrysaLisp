@@ -340,12 +340,21 @@
 			(emit-byte 0x41 (add 0x50 r))
 			(emit-byte (add 0x58 r)))) b))
 
-(defcompilefun emit-beq (%1) ())
-(defcompilefun emit-bne (%1) ())
-(defcompilefun emit-blt (%1) ())
-(defcompilefun emit-ble (%1) ())
-(defcompilefun emit-bgt (%1) ())
-(defcompilefun emit-bge (%1) ())
+(defcompilefun emit-branch (o c)
+	(cond
+		((le -0x80 (sub c 2) 0x7f)
+			(emit-byte o (sub c 2)))
+		((le -0x80000000 (sub c 6) 0x7fffffff)
+			(emit-byte 0xf (add 0x10 o))
+			(emit-int (sub c 6)))
+		(t (print "emit-branch constant out of range: " c))))
+
+(defcompilefun emit-beq (l) (emit-branch 0x74 (sub l (length *out-buffer*))))
+(defcompilefun emit-bne (l) (emit-branch 0x75 (sub l (length *out-buffer*))))
+(defcompilefun emit-blt (l) (emit-branch 0x7c (sub l (length *out-buffer*))))
+(defcompilefun emit-ble (l) (emit-branch 0x7e (sub l (length *out-buffer*))))
+(defcompilefun emit-bgt (l) (emit-branch 0x7f (sub l (length *out-buffer*))))
+(defcompilefun emit-bge (l) (emit-branch 0x7d (sub l (length *out-buffer*))))
 
 (defcompilefun emit-call (l) (emit-call-jump 0xe8 (sub l (length *out-buffer*))))
 (defcompilefun emit-call-r (r) (emit-call-jump-r 0xd0 r))
