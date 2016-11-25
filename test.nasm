@@ -8,6 +8,35 @@ vp_push r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
 vp_pop r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
 
 ;const/reg
+vp_cpy 1, r0
+vp_cpy 0x7f, r0
+vp_cpy 0x80, r0
+vp_cpy 0x7fffffff, r0
+vp_cpy 0x80000000, r0
+vp_cpy 0xffffffff, r0
+vp_cpy 0x100000000, r0
+vp_cpy -1, r0
+vp_cpy -0x80, r0
+vp_cpy -0x81, r0
+vp_cpy -0x80000000, r0
+vp_cpy -0x80000001, r0
+vp_cpy -0xffffffff, r0
+vp_cpy -0x100000000, r0
+vp_cpy 1, r8
+vp_cpy 0x7f, r8
+vp_cpy 0x80, r8
+vp_cpy 0x7fffffff, r8
+vp_cpy 0x80000000, r8
+vp_cpy 0xffffffff, r8
+vp_cpy 0x100000000, r8
+vp_cpy -1, r8
+vp_cpy -0x80, r8
+vp_cpy -0x81, r8
+vp_cpy -0x80000000, r8
+vp_cpy -0x80000001, r8
+vp_cpy -0xffffffff, r8
+vp_cpy -0x100000000, r8
+
 vp_cpy 0x7f, r0
 vp_cpy 0x7f, r1
 vp_cpy 0x7f, r2

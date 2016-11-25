@@ -234,4 +234,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file "sys/heap_reset.vp")
+(compile-file 'sys/list_index_of.vp)
+(compile-file 'test.vp)

@@ -421,9 +421,12 @@
 (defcompilefun emit-cpy-cr (c r)
 	(defq r (reg r) rl (bit-and r 7) rh (bit-shr r 3))
 	(cond
-		((le -0x80000000 c 0x7fffffff)
+		((le 0 c 0xffffffff)
 			(if (ge r 8) (emit-byte 0x41))
 			(emit-byte (add 0xb8 rl))
+			(emit-int c))
+		((le -0x80000000 c -1)
+			(emit-byte (add 0x48 rh) 0xc7 (add 0xc0 rl))
 			(emit-int c))
 		(t
 			(emit-byte (add 0x48 rh) (add 0xb8 rl))

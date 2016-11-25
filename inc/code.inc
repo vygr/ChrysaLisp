@@ -32,6 +32,7 @@
 	(setq *switch* (pop *switch-stk*)))
 
 (defcompilefun case (e)
+	(default)
 	(defq c (eval (sym (cat "*cnt-" (str *switch*) "*")))
 		l (sym (cat "_loc_" (str *switch*) "_" (str c))))
 	(if (eq 1 (length e))
@@ -39,10 +40,10 @@
 			(expr (elem 0 e) '(r0))
 			(vp-jmpifnot '(r0 != 0) l))
 		(progn
-			(default)
 			(vp-jmpifnot `(~e) l))))
 
 (defcompilefun casenot (e)
+	(default)
 	(defq c (eval (sym (cat "*cnt-" (str *switch*) "*")))
 		l (sym (cat "_loc_" (str *switch*) "_" (str c))))
 	(if (eq 1 (length e))
@@ -50,7 +51,6 @@
 			(expr (elem 0 e) '(r0))
 			(vp-jmpif '(r0 != 0) l))
 		(progn
-			(default)
 			(vp-jmpif `(~e) l))))
 
 (defcompilefun break ()
