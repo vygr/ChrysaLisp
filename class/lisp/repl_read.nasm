@@ -53,16 +53,16 @@ skip_white:
 			func_call error, create, {"unexpected )", this->lisp_sym_nil}, {ast}
 			func_call stream, read_char, {stream}, {char}
 			break
-		case {char == char_rab}
-			func_call error, create, {"unexpected >", this->lisp_sym_nil}, {ast}
-			func_call stream, read_char, {stream}, {char}
-			break
+;		case {char == char_rab}
+;			func_call error, create, {"unexpected >", this->lisp_sym_nil}, {ast}
+;			func_call stream, read_char, {stream}, {char}
+;			break
 		case {char == char_lrb}
 			func_call lisp, repl_read_list, {this, stream, char}, {ast, char}
 			break
-		case {char == char_lab}
-			func_call lisp, repl_read_pair, {this, stream, char}, {ast, char}
-			break
+;		case {char == char_lab}
+;			func_call lisp, repl_read_pair, {this, stream, char}, {ast, char}
+;			break
 		case {char == char_minus || (char >= char_0 && char <= char_9)}
 			func_call lisp, repl_read_num, {this, stream, char}, {ast, char}
 			break

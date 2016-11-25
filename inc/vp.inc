@@ -10,6 +10,11 @@
 	(while (and (not n) (lt c (length l)))
 		(if (eql (elem c l) r) (setq n c) (setq c (inc c)))) n)
 
+(defcompilefun type (i)
+	(cond
+		((reg i) 'r)
+		(t 'c)))
+
 (defcompilefun vp-label (s) (emit `(emit-label ',s)) (equate s 0))
 (defcompilefun vp-align (&rest b) (emit `(emit-align ~b)))
 (defcompilefun vp-string (&rest b) (emit `(emit-string ~b)))
@@ -17,6 +22,40 @@
 (defcompilefun vp-short (&rest b) (emit `(emit-short ~b)))
 (defcompilefun vp-int (&rest b) (emit `(emit-int ~b)))
 (defcompilefun vp-long (&rest b) (emit `(emit-long ~b)))
+
+(defcompilefun vp-jmpif (b l)
+	(defq d (elem 0 b) o (elem 1 b) s (elem 2 b) c (type s))
+	(cond
+		((eql c 'c) (vp-cmp-cr s d))
+		((eql c 'r) (vp-cmp-rr s d))
+		((eql c 'i) (vp-cmp-ir (elem 0 s) (elem 1 s) d))
+		((eql c 'd) (vp-cmp-dr (elem 0 s) (elem 1 s) d))
+		(t (print "no such type: " c)))
+	(cond
+		((eql o '==) (vp-beq l))
+		((eql o '!=) (vp-bne l))
+		((eql o '<) (vp-blt l))
+		((eql o '>) (vp-bgt l))
+		((eql o '<=) (vp-ble l))
+		((eql o '=>) (vp-bge l))
+		(t (print "no such comparator: " o))))
+
+(defcompilefun vp-jmpifnot (b l)
+	(defq d (elem 0 b) o (elem 1 b) s (elem 2 b) c (type s))
+	(cond
+		((eql c 'c) (vp-cmp-cr s d))
+		((eql c 'r) (vp-cmp-rr s d))
+		((eql c 'i) (vp-cmp-ir (elem 0 s) (elem 1 s) d))
+		((eql c 'd) (vp-cmp-dr (elem 0 s) (elem 1 s) d))
+		(t (print "no such type: " c)))
+	(cond
+		((eql o '==) (vp-bne l))
+		((eql o '!=) (vp-beq l))
+		((eql o '<) (vp-bge l))
+		((eql o '>) (vp-ble l))
+		((eql o '<=) (vp-bgt l))
+		((eql o '=>) (vp-blt l))
+		(t (print "no such comparator: " o))))
 
 (defcompilefun vp-beq (l) (emit `(emit-beq ,l)))
 (defcompilefun vp-bne (l) (emit `(emit-bne ,l)))
