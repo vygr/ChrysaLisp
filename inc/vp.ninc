@@ -368,39 +368,63 @@
 	jmp %1
 %endmacro
 
+%macro vp_beq 1
+	je %1
+%endmacro
+
+%macro vp_bne 1
+	jne %1
+%endmacro
+
+%macro vp_blt 1
+	jl %1
+%endmacro
+
+%macro vp_ble 1
+	jle %1
+%endmacro
+
+%macro vp_bgt 1
+	jg %1
+%endmacro
+
+%macro vp_bge 1
+	jge %1
+%endmacro
+
 %macro vp_jmpif 4
-		cmp %1, %3
+		vp_cmp %3, %1
 	%ifidn %2, ==
-		je %4
+		vp_beq %4
 	%elifidn %2, !=
-		jne %4
+		vp_bne %4
 	%elifidn %2, <
-		jl %4
+		vp_blt %4
 	%elifidn %2, >
-		jg %4
+		vp_bgt %4
 	%elifidn %2, <=
-		jle %4
+		vp_ble %4
 	%elifidn %2, >=
-		jge %4
+		vp_bge %4
 	%else
 		%fatal No such conditional %2 !
 	%endif
 %endmacro
 
 %macro vp_jmpifnot 4
-		cmp %1, %3
+		vp_cmp %3, %1
 	%ifidn %2, ==
-		jne %4
+		vp_bne %4
 	%elifidn %2, !=
-		je %4
+		vp_beq %4
 	%elifidn %2, <
-		jge %4
+		vp_bge %4
 	%elifidn %2, >
-		jle %4
+		vp_ble %4
 	%elifidn %2, <=
-		jg %4
+		vp_bgt %4
 	%elifidn %2, >=
-		jl %4
+		vp_blt %4
 	%else
 		%fatal No such conditional %2 !
 	%endif

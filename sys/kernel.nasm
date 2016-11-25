@@ -153,7 +153,7 @@ def_func sys/kernel
 													{[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]}
 
 						vp_add lk_route_hops, r0
-						vpif [r12 + lk_node_cpu_id], ==, r13
+						vpif r13, ==, [r12 + lk_node_cpu_id]
 							;via route
 							vp_cpy [r15 + kn_msg_link_route_hops], r2
 							vp_cpy r2, [r0 + r11]
@@ -173,7 +173,7 @@ def_func sys/kernel
 						f_call sys_mem, grow, {[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size], &[r11 + lk_route_size]}, \
 													{[r12 + lk_node_table + lk_table_array], [r12 + lk_node_table + lk_table_array_size]}
 
-						vpif [r12 + lk_node_cpu_id], ==, r13
+						vpif r13, ==, [r12 + lk_node_cpu_id]
 							;via route
 							vp_cpy [r15 + kn_msg_link_route_hops], r2
 							vp_add lk_route_hops, r0

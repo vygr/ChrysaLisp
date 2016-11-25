@@ -151,7 +151,7 @@
 						(f-call 'sys_mem 'grow '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size)) (& r11 lk_route_size)) '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size))))
 
 						(vp-add-cr lk_route_hops r0)
-						(vpif '((r12 lk_node_cpu_id)  == r13))
+						(vpif '(r13 == (r12 lk_node_cpu_id)))
 							;via route
 							(vp-cpy-ir r15 kn_msg_link_route_hops r2)
 							(vp-cpy-rd r2 r0 r11)
@@ -170,7 +170,7 @@
 						;new link route table ?
 						(f-call 'sys_mem 'grow '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size)) (& r11 lk_route_size)) '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size))))
 
-						(vpif '((r12 lk_node_cpu_id)  == r13))
+						(vpif '(r13 == (r12 lk_node_cpu_id)))
 							;via route
 							(vp-cpy-ir r15 kn_msg_link_route_hops r2)
 							(vp-add-cr lk_route_hops r0)
