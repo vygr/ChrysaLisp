@@ -70,7 +70,7 @@
 	;%1 = list node1
 	;%2 = list node2
 
-	(vp-cpy-ri %2 %1 ln-node-succ))
+	(vp-cpy-ri %2 %1 ln_node_succ))
 
 (defcompilefun ln-set-pred (%1 %2)
 	;inputs
