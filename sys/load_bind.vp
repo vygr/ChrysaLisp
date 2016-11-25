@@ -25,7 +25,7 @@
 	;check if function already present !
 	(loop-flist-forward r8 ld_statics_function_flist r6 r6)
 		(vp-cpy-rr r7 r0)
-		(vp-lea-ir r6 fn_header_pathname r1)
+		(vp-lea-i r6 fn_header_pathname r1)
 		(vp-call 'string_compare)
 	(loop-until '(r0 == 0))
 	(vpif '(r6 != 0))
@@ -37,15 +37,15 @@
 
 	;create filename
 	(fn-string "obj/" r0)
-	(vp-lea-ir r8 ld_statics_name_buffer r1)
+	(vp-lea-i r8 ld_statics_name_buffer r1)
 	(vp-call 'string_copy)
 	(vp-cpy-rr r7 r0)
 	(vp-dec r1)
 	(vp-call 'string_copy)
-	(vp-lea-ir r8 ld_statics_name_buffer r7)
+	(vp-lea-i r8 ld_statics_name_buffer r7)
 
 	;get length of function on disk
-	(vp-lea-ir r8 ld_statics_stat_buffer r0)
+	(vp-lea-i r8 ld_statics_stat_buffer r0)
 	sys_stat r7, r0
 	(vpif '(r0 != 0))
 	(vp-label 'exit)
@@ -85,7 +85,7 @@
 	(sys-write-string 2 r0 loaded_name_end-loaded_name)
 	(vp-cpy-rr r7 r0)
 	(vp-call 'string_skip)
-	(vp-lea-ir r0 -1 r1)
+	(vp-lea-i r0 -1 r1)
 	(vp-sub-rr r7 r1)
 	(sys-write-string 2 r7 r1)
 	(sys-write-char '(2, "'"))
@@ -98,7 +98,7 @@
 
 	;read into buffer
 	(vp-cpy-ir r8 ld_statics_block_start r3)
-	(vp-lea-ir r8 ld_statics_stat_buffer r2)
+	(vp-lea-i r8 ld_statics_stat_buffer r2)
 	(sys-read '(r7, r3, (r2 stat_fsize)))
 
 	;close function file
@@ -137,7 +137,7 @@
 	(vp-cpy-ri r1 r8 ld_statics_reloc_stack)
 
 	;overflow check
-	(vp-lea-ir r8 ld_statics_size r2)
+	(vp-lea-i r8 ld_statics_size r2)
 	(vpif '(r1 > r2))
 		(vp-lea-p 'reloc_error r0)
 		(sys-write-string 2 r0 reloc_error_end-reloc_error)
@@ -181,7 +181,7 @@
 			(vp-cpy-ir r4 0 r0)
 			(vp-cpy-ir r0 0 r0)
 			(vp-call 'string_skip)
-			(vp-lea-ir r0 -1 r1)
+			(vp-lea-i r0 -1 r1)
 			(vp-cpy-ir r4 0 r0)
 			(vp-cpy-ir r0 0 r0)
 			(vp-sub-rr r0 r1)

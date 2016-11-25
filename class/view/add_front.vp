@@ -15,7 +15,7 @@
 	;add to parent
 	(vp-cpy-ri r3 r0 view_parent)
 	(vp-add-cr view_list r3)
-	(vp-lea-ir r0 view_node r2)
+	(vp-lea-i r0 view_node r2)
 	(lh-add-at-head r3 r2 r1)
 	(vp-ret)
 

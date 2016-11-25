@@ -25,7 +25,7 @@
 	;paste dirty region
 	(vp-add-rr r8 r10)
 	(vp-add-rr r9 r11)
-	(vp-lea-ir r0 view_dirty_region r1)
+	(vp-lea-i r0 view_dirty_region r1)
 	(f-bind 'gui_gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
 	(f-call 'gui_region 'paste_rect '(r0 r1 r8 r9 r10 r11))

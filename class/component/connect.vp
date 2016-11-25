@@ -29,10 +29,10 @@
 	(vp-cpy-ri r8 r1 gui_sigslot_addr)
 
 	;add to sig and slot lists
-	(vp-lea-ir r1 gui_sigslot_sig_node r2)
+	(vp-lea-i r1 gui_sigslot_sig_node r2)
 	(lh-add-at-tail r6 r2 r3)
-	(vp-lea-ir r1 gui_sigslot_slot_node r2)
-	(vp-lea-ir r5 component_slot_list r6)
+	(vp-lea-i r1 gui_sigslot_slot_node r2)
+	(vp-lea-i r5 component_slot_list r6)
 	(lh-add-at-tail r6 r2 r3)
 
 	;restore inst

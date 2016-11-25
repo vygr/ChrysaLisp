@@ -12,7 +12,7 @@
 
 	;init text image hash slots
 	(vp-add-cr ft_statics_text_flists r1)
-	(vp-lea-ir r1 ft_buckets_size r2)
+	(vp-lea-i r1 ft_buckets_size r2)
 	(loop-start)
 		(vp-cpy-ri r0 r1 0)
 		(vp-add-cr ptr_size r1)

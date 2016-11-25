@@ -41,7 +41,7 @@
 		(vp-cpy-ir r0 vector_array r0)
 		(vp-mul-cr ptr_size r1)
 		(vp-add-rr r1 r0)
-		(vp-lea-ir r0 (sub 0 ptr_size) r1)
+		(vp-lea-i r0 (sub 0 ptr_size) r1)
 	(endif)
 
 	(vp-cpy-ir r4 local_inst r0)

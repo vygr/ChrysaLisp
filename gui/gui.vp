@@ -97,7 +97,7 @@
 				(loop-start)
 					(vp-cpy-ir-ub r5 r8)
 					(vpif '(r8 == r2))
-						(vp-lea-ir r10 1 r12)
+						(vp-lea-i r10 1 r12)
 						(vp-cpy-dr-ub r5 r12 r12)
 					(endif)
 					(vp-add-cr 3 r5)
@@ -112,7 +112,7 @@
 					(vpif '(r1 != 0))
 						;save owner mailbox
 						(f-call 'sys_cpu 'id '() '(r15))
-						(vp-lea-ir r1 tk_node_mailbox r14)
+						(vp-lea-i r1 tk_node_mailbox r14)
 
 						;allocate mail message
 						(f-call 'sys_mail 'alloc '() '(r0))
@@ -165,7 +165,7 @@
 				(vpif '(r1 != 0))
 					;save owner mailbox
 					(f-call 'sys_cpu 'id '() '(r15))
-					(vp-lea-ir r1 tk_node_mailbox r14)
+					(vp-lea-i r1 tk_node_mailbox r14)
 
 					;allocate mail message
 					(f-call 'sys_mail 'alloc '() '(r0))
@@ -283,8 +283,8 @@
 
 		;get mouse state
 		(vp-cpy-ir r4 klocal_user r0)
-		(vp-lea-ir r0 local_x_pos r1)
-		(vp-lea-ir r0 local_y_pos r2)
+		(vp-lea-i r0 local_x_pos r1)
+		(vp-lea-i r0 local_y_pos r2)
 		(sdl-get-mouse_state '(r1, r2))
 		(vp-cpy-ir r4 klocal_user r1)
 		(vp-cpy-ri r0 r1 local_buttons)

@@ -32,18 +32,18 @@
 		(vp-add-cr tk_statics_task_heap r0)
 		(f-call 'sys_heap 'alloc '(r0) '(r1))
 		(vp-cpy-ri r0 r1 0)
-		(vp-lea-ir r1 ptr_size r0)
+		(vp-lea-i r1 ptr_size r0)
 		(vp-cpy-cr tk_node_size r1)
 	(endif)
 
 	;initialise task mailbox etc
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri r2 r0 0)
-	(vp-lea-ir r0 tk_node_mailbox r6)
+	(vp-lea-i r0 tk_node_mailbox r6)
 	ml_init r6, r2, r3
 
 	;set task control block stack and return address's
-	(vp-lea-ir r0 r1 r1)
+	(vp-lea-i r0 r1 r1)
 	(vp-sub-cr (add tk_state_size (mul ptr_size 2)) r1)
 	(vp-cpy-ri r1 r0 tk_node_stack)
 	fn_bind sys/task_stop, r2
@@ -54,7 +54,7 @@
 	(f-call 'sys_task 'resume '(r0))
 
 	;return mailbox pointer
-	(vp-lea-ir r0 tk_node_mailbox r1)
+	(vp-lea-i r0 tk_node_mailbox r1)
 	(vp-ret)
 
 (def-func-end)

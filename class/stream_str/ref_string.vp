@@ -16,7 +16,7 @@
 	(vp-cpy-ir r0 stream_bufp r1)
 	(vp-cpy-ri-b r2 r1)
 	(vp-cpy-ir r0 stream_object r0)
-	(vp-lea-ir r0 string_data r2)
+	(vp-lea-i r0 string_data r2)
 	(vp-sub-rr r2 r1)
 	(vp-cpy-ri r1 r0 string_length)
 	(f-call 'string 'ref '(r0))

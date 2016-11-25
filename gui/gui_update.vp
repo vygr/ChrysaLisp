@@ -36,7 +36,7 @@
 	;copy visable region to new region
 	(vp-xor-rr r1 r1)
 	(vp-push r0 r1)
-	(vp-lea-ir r0 view_dirty_region r1)
+	(vp-lea-i r0 view_dirty_region r1)
 	(vp-cpy-ir r0 view_w r10)
 	(vp-cpy-ir r0 view_h r11)
 	(f-bind 'gui_gui 'statics r0)
@@ -45,9 +45,9 @@
 
 	;paste old visable region into root
 	(vp-cpy-ir r4 8 r0)
-	(vp-lea-ir r0 view_dirty_region r2)
+	(vp-lea-i r0 view_dirty_region r2)
 	(f-bind 'gui_gui 'statics r1)
-	(vp-lea-ir r1 gui_statics_rect_heap r0)
+	(vp-lea-i r1 gui_statics_rect_heap r0)
 	(vp-add-cr gui_statics_old_region r1)
 	(f-call 'gui_region 'paste_region '(r0 r1 r2 0 0))
 
@@ -74,8 +74,8 @@
 		(vp-sub-cr view_ctx_node r0)
 		(vp-cpy-ir r0 view_ctx_x r8)
 		(vp-cpy-ir r0 view_ctx_y r9)
-		(vp-lea-ir r4 local_ctx r1)
-		(vp-lea-ir r0 view_dirty_region r2)
+		(vp-lea-i r4 local_ctx r1)
+		(vp-lea-i r0 view_dirty_region r2)
 		(vp-cpy-ri r8 r1 gui_ctx_x)
 		(vp-cpy-ri r9 r1 gui_ctx_y)
 		(vp-cpy-ri r2 r1 gui_ctx_dirty_region)
@@ -143,7 +143,7 @@
 		(vp-add-rr r8 r10)
 		(vp-add-rr r9 r11)
 		(vp-add-cr view_opaque_region r1)
-		(vp-lea-ir r4 vis_region r2)
+		(vp-lea-i r4 vis_region r2)
 		(f-call 'gui_region 'copy_rect '(r0 r1 r2 r8 r9 r10 r11))
 
 		;remove from ancestors
@@ -159,16 +159,16 @@
 			;translate temp opaque region
 			(vp-cpy-ir r1 view_x r8)
 			(vp-cpy-ir r1 view_y r9)
-			(vp-lea-ir r4 vis_region r1)
+			(vp-lea-i r4 vis_region r1)
 			(f-call 'gui_region 'translate '(r1 r8 r9))
 
 			;clip temp opaque region
 			(vp-cpy-ir r4 vis_next r2)
-			(vp-lea-ir r4 vis_region r1)
+			(vp-lea-i r4 vis_region r1)
 			(f-call 'gui_region 'clip_rect '(r0 r1 0 0 (r2 view_w) (r2 view_h)))
 
 			;remove temp opaque region
-			(vp-lea-ir r4 vis_region r1)
+			(vp-lea-i r4 vis_region r1)
 			(vp-cpy-ir r4 vis_next r2)
 			(vp-add-cr view_dirty_region r2)
 			(f-call 'gui_region 'remove_region '(r0 r1 r2 0 0))
@@ -177,7 +177,7 @@
 		(loop-until '(r1 == (r4 vis_root)))
 
 		;free any temp region
-		(vp-lea-ir r4 vis_region r1)
+		(vp-lea-i r4 vis_region r1)
 		(f-call 'gui_region 'free '(r0 r1))
 	(endif)
 
@@ -281,7 +281,7 @@
 	;add myself to draw list if not empty
 	(vp-cpy-ir r0 view_dirty_region r2)
 	(vpif '(r2 != 0))
-		(vp-lea-ir r0 view_ctx_node r2)
+		(vp-lea-i r0 view_ctx_node r2)
 		(vp-add-cr local_ctx_flist r1)
 		(ln-add-fnode r1 r2 r3)
 	(endif)

@@ -102,7 +102,7 @@
 	(vp-cpy-ir r4 local_old_y r9)
 	(vp-sub-ir r0 view_x r8)
 	(vp-sub-ir r0 view_y r9)
-	(vp-lea-ir r0 view_dirty_region r1)
+	(vp-lea-i r0 view_dirty_region r1)
 	(f-call 'gui_region 'translate '(r1 r8 r9))
 
 	(vp-cpy-ir r4 local_inst r0)

@@ -7,7 +7,7 @@
 	;outputs
 	;r1 = pressed signal list
 
-	(vp-lea-ir r0 button_pressed_signal r1)
+	(vp-lea-i r0 button_pressed_signal r1)
 	(vp-ret)
 
 (def-func-end)

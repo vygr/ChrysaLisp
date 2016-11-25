@@ -48,7 +48,7 @@
 	(vp-and-cr flow_flag_down r3)
 	(vpif '(r3 != 0))
 		;flow down
-		(vp-lea-ir r9 r11 r13)
+		(vp-lea-i r9 r11 r13)
 	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
@@ -63,7 +63,7 @@
 	(vp-and-cr flow_flag_right r3)
 	(vpif '(r3 != 0))
 		;flow right
-		(vp-lea-ir r8 r10 r12)
+		(vp-lea-i r8 r10 r12)
 	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
@@ -100,7 +100,7 @@
 			(vp-and-cr flow_flag_right r3)
 			(vpif '(r3 != 0))
 				;flow right
-				(vp-lea-ir r8 r10 r15)
+				(vp-lea-i r8 r10 r15)
 				(vp-sub-ir r2 view_w r15)
 				(vp-sub-rr r15 r10)
 			(endif)
@@ -124,7 +124,7 @@
 			(vp-and-cr flow_flag_down r3)
 			(vpif '(r3 != 0))
 				;flow down
-				(vp-lea-ir r9 r11 r15)
+				(vp-lea-i r9 r11 r15)
 				(vp-sub-ir r2 view_h r15)
 				(vp-sub-rr r15 r11)
 			(endif)

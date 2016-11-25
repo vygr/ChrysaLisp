@@ -34,8 +34,8 @@
 			(vp-cpy-ri r7 r14 (add msg_parcel_id id_cpu))
 
 			;data source and destination
-			(vp-lea-ir r15 r10 r0)
-			(vp-lea-ir r14 msg_data r1)
+			(vp-lea-i r15 r10 r0)
+			(vp-lea-i r14 msg_data r1)
 
 			;length of fragment data
 			(vp-cpy-cr (sub msg_size msg_data) r2)
@@ -45,7 +45,7 @@
 				(vp-sub-rr r10 r2)
 				(vp-cpy-rr r11 r10)
 			(endif)
-			(vp-lea-ir r2 msg_data r3)
+			(vp-lea-i r2 msg_data r3)
 			(vp-cpy-ri r3 r14 msg_length)
 
 			;copy data block, round up for speed
@@ -55,7 +55,7 @@
 
 			;queue it on the outgoing packet list
 			(f-bind 'sys_mail 'statics r0)
-			(vp-lea-ir r0 ml_statics_offchip_list r0)
+			(vp-lea-i r0 ml_statics_offchip_list r0)
 			(lh-add-at-tail r0 r14 r1)
 
 			;let links get at some packets

@@ -40,7 +40,7 @@
 		(vp-add-ir r15 msg_parcel_frag r1)
 
 		;source address
-		(vp-lea-ir r15 msg_data r0)
+		(vp-lea-i r15 msg_data r0)
 
 		;fragment size
 		(vp-cpy-ir r15 msg_length r2)

@@ -43,7 +43,7 @@
 			(vp-jmp 'post_it)
 		(else)
 			;queue it on the outgoing packet list
-			(vp-lea-ir r1 ml_statics_offchip_list r1)
+			(vp-lea-i r1 ml_statics_offchip_list r1)
 			(lh-add-at-tail r1 r2 r0)
 		(endif)
 	(endif)

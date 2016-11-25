@@ -26,7 +26,7 @@
 		(vp-cpy-ri r1 r0 stream_msg_in_ack_seqnum)
 		(vp-cpy-cr stream_mail_state_started r1)
 		(vp-cpy-ri r1 r0 stream_msg_in_state)
-		(vp-lea-ir r0 stream_msg_in_list r1)
+		(vp-lea-i r0 stream_msg_in_list r1)
 		(lh-init r1 r2)
 	(endif)
 	(vp-ret)

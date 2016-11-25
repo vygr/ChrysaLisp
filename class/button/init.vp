@@ -15,7 +15,7 @@
 		;init myself
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri r1 r0 button_state)
-		(vp-lea-ir r0 button_pressed_signal r1)
+		(vp-lea-i r0 button_pressed_signal r1)
 		(lh-init r1 r2)
 		(f-call 'button 'set_flow_flags '(r0 (bit-or flow_flag_down flow_flag_align_hcenter)))
 	(endif)

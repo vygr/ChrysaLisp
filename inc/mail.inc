@@ -72,7 +72,7 @@
 	(vp-xor-rr %2 %2)
 	(vp-cpy-ri %2 %1 mailbox_tcb)
 	(lh-init %1 %2)
-	(vp-lea-ir %1 mailbox_parcel_list %2)
+	(vp-lea-i %1 mailbox_parcel_list %2)
 	(lh-init %2 %3))
 
 (defcompilefun ml-temp-create (%1 %2)
