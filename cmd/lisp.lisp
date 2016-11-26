@@ -235,5 +235,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-;(compile-file 'sys/write_number.vp)
-(compile-file 'test.vp)
+(compile-file 'sys/write_number.vp)
+;(compile-file 'test.vp)
