@@ -101,8 +101,8 @@
 		(setq *cnt* (inc *cnt*))) *paths*)
 	(vp-align ptr_size)
 	(vp-label '_func_end)
-	(emit-passes)
 	(print-emit-buffer)
+;	(emit-passes)
 ;	(print-out-buffer 16)
 	(save *out-buffer* 'mytest))
 

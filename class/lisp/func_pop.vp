@@ -24,7 +24,7 @@
 		(vpif '((args->obj_vtable == @class/class_vector)))
 			(devirt-call 'vector 'get_length '(args) '(length))
 			(vpif '((length)))
-				(func-call 'vector 'get_back '(args) '(value))
+				(func-call 'vector 'ref_back '(args) '(value))
 				(func-call 'vector 'pop_back '(args))
 			(else)
 				(assign '(this->lisp_sym_nil) '(value))

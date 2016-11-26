@@ -24,7 +24,7 @@ def_func class/lisp/func_pop
 		vpif {args->obj_vtable == @class/class_vector}
 			devirt_call vector, get_length, {args}, {length}
 			vpif {length}
-				func_call vector, get_back, {args}, {value}
+				func_call vector, ref_back, {args}, {value}
 				func_call vector, pop_back, {args}
 			else
 				assign {this->lisp_sym_nil}, {value}
