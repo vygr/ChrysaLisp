@@ -40,13 +40,13 @@
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri r2 r0 0)
 	(vp-lea-i r0 tk_node_mailbox r6)
-	ml_init r6, r2, r3
+	(ml-init r6 r2 r3)
 
 	;set task control block stack and return address's
 	(vp-lea-i r0 r1 r1)
 	(vp-sub-cr (add tk_state_size (mul ptr_size 2)) r1)
 	(vp-cpy-ri r1 r0 tk_node_stack)
-	fn_bind sys/task_stop, r2
+	(fn-bind 'sys/task_stop r2)
 	(vp-cpy-ri r2 r1 (add tk_state_size ptr_size))
 	(vp-cpy-ri r5 r1 tk_state_size)
 

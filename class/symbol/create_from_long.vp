@@ -13,7 +13,7 @@
 	(func-call 'string 'create_from_long '(r0, r1) '(r0))
 	(vpif '(r0 != 0))
 		(func-path 'class 'symbol)
-		fn_bind _function_, r1
+		(fn-bind _function_ r1)
 		(vp-cpy-ri r1 r0 obj_vtable)
 	(endif)
 	(vp-ret)

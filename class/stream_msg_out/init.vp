@@ -27,7 +27,7 @@
 		(vp-cpy-cr stream_mail_state_started r1)
 		(vp-cpy-ri r1 r0 stream_msg_out_state)
 		(vp-lea-i r0 stream_msg_out_ack_mailbox r1)
-		ml_init r1, r2, r3
+		(ml-init r1 r2 r3)
 	(endif)
 	(vp-ret)
 
