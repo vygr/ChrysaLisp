@@ -232,10 +232,51 @@
 		(each (lambda (x y) (unless (eql y '_) (push s x) (push d y))) s d)
 		(setq *src* s *dst* d)))
 
+(defcompilefun match-any (d s)
+	(defq i (inst-of 'class/class_vector d) j (inst-of 'class/class_vector s))
+	(cond
+		(i (cond
+				(j (print "Error: Ilegal src/dst !")
+					(print *src* *dst*))
+				(t (some (lambda (x) (eql x s)) d))))
+		(j (cond
+				(i (print "Error: Ilegal src/dst !")
+					(print *src* *dst*))
+				(t (some (lambda (x) (eql x d)) s))))
+		(t (eql s d))))
+
+(defcompilefun find-later-src (d)
+	(defq i -1 j (dec (length *src*)) d (elem d *dst*))
+	(while (ne j -1)
+		(if (match-any d (elem j *src*))
+			(setq i j j -1)
+			(setq j (dec j))))
+	i)
+
+(defcompilefun map-rotate (i j)
+	(setq *src* (cat (slice 0 i *src*) (slice j (inc j) *src*)
+					(slice i j *src*) (slice (inc j) (length *src*) *src*))
+		*dst* (cat (slice 0 i *dst*) (slice j (inc j) *dst*)
+					(slice i j *dst*) (slice (inc j) (length *dst*) *dst*))))
+
+(defcompilefun map-topology-sort ()
+	(defq i 0 c 1000 j nil)
+	(while (and (ne i (length *dst*)) (ne c 0))
+		(setq j (find-later-src i))
+		(if (gt j i)
+			(progn
+				(map-rotate i j)
+				(setq c (dec c)))
+			(setq i (inc i))))
+	(when (ne i (length *dst*))
+		(print "Error: Copy cycle detected !")
+		(print *src* *dst*)))
+
 (defcompilefun map-src-to-dst ()
 	(when (ne (length *src*) (length *dst*))
 		(print "Mismatching number of src/dst paramaters !"))
 	(map-remove-ignored)
+	(map-topology-sort)
 	(each (lambda (x y)
 		(defq i (type x))
 		(cond
@@ -247,8 +288,8 @@
 					((eql i 'd) (vp-cpy-rd x (elem 0 y) (elem 1 y)))
 					(t (print "Invalid dst paramater !"))))
 			((eql i 'c) (vp-cpy-cr x y))
-			((eql i 'i) (vp-cpy-ir (elem 1 x) (elem 2 x) y))
-			((eql i 'd) (vp-cpy-dr (elem 1 x) (elem 2 x) y))
+			((eql i 'i) (vp-cpy-ir (elem 0 x) (elem 1 x) y))
+			((eql i 'd) (vp-cpy-dr (elem 0 x) (elem 1 x) y))
 			((eql i '&i) (vp-lea-i (elem 1 x) (elem 2 x) y))
 			((eql i '&d) (vp-lea-d (elem 1 x) (elem 2 x) y))
 			((eql i 's) (fn-string x y))
