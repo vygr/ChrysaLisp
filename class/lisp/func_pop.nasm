@@ -20,7 +20,7 @@ def_func class/lisp/func_pop
 
 	devirt_call vector, get_length, {args}, {length}
 	vpif {length == 1}
-		devirt_call vector, ref_element, {args, 0}, {args}
+		func_call vector, get_element, {args, 0}, {args}
 		vpif {args->obj_vtable == @class/class_vector}
 			devirt_call vector, get_length, {args}, {length}
 			vpif {length}
