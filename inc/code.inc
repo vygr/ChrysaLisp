@@ -229,7 +229,7 @@
 (defcompilefun map-remove-ignored ()
 	(when (some (lambda (x) (eql x '_)) *dst*)
 		(defq s (list) d (list))
-		(each (lambda (x y) (unless (eql y '_) (push s x) (push d y))) s d)
+		(each (lambda (x y) (unless (eql y '_) (push s x) (push d y))) *src* *dst*)
 		(setq *src* s *dst* d)))
 
 (defcompilefun match-any (d s)
@@ -237,11 +237,11 @@
 	(cond
 		(i (cond
 				(j (print "Error: Ilegal src/dst !")
-					(print *src* *dst*))
+					(print *src* ": " s " -> " *dst* ": " d))
 				(t (some (lambda (x) (eql x s)) d))))
 		(j (cond
 				(i (print "Error: Ilegal src/dst !")
-					(print *src* *dst*))
+					(print *src* ": " s " -> " *dst* ": " d))
 				(t (some (lambda (x) (eql x d)) s))))
 		(t (eql s d))))
 
@@ -270,7 +270,7 @@
 			(setq i (inc i))))
 	(when (ne i (length *dst*))
 		(print "Error: Copy cycle detected !")
-		(print *src* *dst*)))
+		(print *src* " -> " *dst*)))
 
 (defcompilefun map-src-to-dst ()
 	(when (ne (length *src*) (length *dst*))
