@@ -181,6 +181,7 @@ built_ins:
 	built_in "eval", 0, func_eval
 	built_in "save", 0, func_save
 	built_in "rehash", 0, func_rehash
+	built_in "inst-of", 0, func_inst_of
 	dw 0
 
 def_func_end
