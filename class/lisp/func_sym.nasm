@@ -33,9 +33,10 @@ def_func class/lisp/func_sym
 			func_call string, create_from_cstr, {"                "}, {value}
 			func_call stream_str, create, {value}, {stream}
 			func_call lisp, repl_print, {this, stream, args}
-			func_call stream_str, ref_string, {stream}, {value}
+			func_call stream_str, ref_string, {stream}, {args}
 			func_call ref, deref, {stream}
-			func_call symbol, create_from_buffer, {value->string_data, value->string_length}, {value}
+			func_call symbol, create_from_buffer, {args->string_data, args->string_length}, {value}
+			func_call ref, deref, {args}
 			func_call lisp, sym_intern, {this, value}, {value}
 		endif
 	else
