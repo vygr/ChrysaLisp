@@ -9,7 +9,7 @@ def_func class/symbol/create_from_cstr
 	;trashes
 	;r1-r3, r5-r7
 
-	func_call string, create_from_cstr, {r0}, {r0}
+	f_call string, create_from_cstr, {r0}, {r0}
 	vpif r0, !=, 0
 		func_path class, symbol
 		fn_bind _function_, r1

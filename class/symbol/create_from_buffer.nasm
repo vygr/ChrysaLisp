@@ -10,7 +10,7 @@ def_func class/symbol/create_from_buffer
 	;trashes
 	;r1-r3, r5-r7
 
-	func_call string, create_from_buffer, {r0, r1}, {r0}
+	f_call string, create_from_buffer, {r0, r1}, {r0}
 	vpif r0, !=, 0
 		func_path class, symbol
 		fn_bind _function_, r1

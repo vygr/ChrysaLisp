@@ -10,7 +10,7 @@
 	;trashes
 	;r1-r3, r5-r7
 
-	(func-call 'string 'append '(r0, r1) '(r0))
+	(f-call 'string 'append '(r0, r1) '(r0))
 	(vpif '(r0 != 0))
 		(func-path 'class 'symbol)
 		(fn-bind _function_ r1)
