@@ -46,7 +46,7 @@
 
 	;get length of function on disk
 	(vp-lea-i r8 ld_statics_stat_buffer r0)
-	(sys-stat '(r7, r0))
+	(sys-stat r7 r0)
 	(vpif '(r0 != 0))
 	(vp-label 'exit)
 		(vp-xor-rr r0 r0)
@@ -65,7 +65,7 @@
 	(vp-cpy-ir r8 (add ld_statics_stat_buffer stat_fsize) r0)
 	(vpif '(r2 < r0))
 		;not enough so allocate new function buffer
-		(sys-mmap '(0, ld_block_size, prot_read|prot_write|prot_exec, map_private|map_anon, -1, 0))
+		(sys-mmap 0 ld_block_size (bit-or prot_read prot_write prot_exec) (bit-or map_private map_anon) -1 0)
 		(assert '(r0 != 0))
 
 		;add to block list for freeing
@@ -88,28 +88,28 @@
 	(vp-lea-i r0 -1 r1)
 	(vp-sub-rr r7 r1)
 	(sys-write-string 2 r7 r1)
-	(sys-write-char '(2, "'"))
-	(sys-write-char '(2, 10))
+	(sys-write-char 2 "'")
+	(sys-write-char 2 10)
 ))
 
 	;open function file
-	(sys-open '(r7, o_rdonly, 0))
+	(sys-open r7 o_rdonly 0)
 	(vp-cpy-rr r0 r7)
 
 	;read into buffer
 	(vp-cpy-ir r8 ld_statics_block_start r3)
 	(vp-lea-i r8 ld_statics_stat_buffer r2)
-	(sys-read '(r7, r3, (r2 stat_fsize)))
+	(sys-read r7 r3 (r2 stat_fsize))
 
 	;close function file
-	(sys-close '(r7))
+	(sys-close r7)
 
 	;check loaded length equals file size
 	(vp-cpy-ir-ui r3 fn_header_length r0)
 	(vpif '(r0 != (r2 stat_fsize)))
 		(vp-lea-p 'size_error r0)
 		(sys-write-string 2 r0 size_error_end-size_error)
-		(sys-exit '(1))
+		(sys-exit 1)
 	(endif)
 
 	;add to function list
@@ -141,7 +141,7 @@
 	(vpif '(r1 > r2))
 		(vp-lea-p 'reloc_error r0)
 		(sys-write-string 2 r0 reloc_error_end-reloc_error)
-		(sys-exit '(1))
+		(sys-exit 1)
 	(endif)
 
 	;bind links to paths in reloc buffer
@@ -187,8 +187,8 @@
 			(vp-sub-rr r0 r1)
 			(sys-write-string 2 r0 r1)
 			(vp-cpy-cr 10 r1)
-			(sys-write-char '(2 r1))
-			(sys-exit '(1))
+			(sys-write-char 2 r1)
+			(sys-exit 1)
 		(endif)
 		(vp-cpy-rr r0 r1)
 		(vp-pop r0)

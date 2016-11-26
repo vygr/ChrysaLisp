@@ -8,7 +8,7 @@
 	;calculate wake time
 	(vp-sub-cr timeval_size r4)
 	(vp-cpy-rr r4 r0)
-	(sys-gettimeofday '(r0, 0))
+	(sys-gettimeofday r0 0)
 	(vp-cpy-ir r4 timeval_sec r0)
 	(vp-mul-cr 1000000 r0)
 	(vp-add-ir r4 timeval_usec r0)

@@ -5,7 +5,7 @@
 	;inputs
 	;r0 = fd
 
-	(sys-close '(r0))
+	(sys-close r0)
 	(vp-ret)
 
 (def-func-end)

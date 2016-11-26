@@ -292,6 +292,6 @@
 
 	;pop argv and exit !
 	(vp-add-cr ptr_size r4)
-	(sys-exit '(0))
+	(sys-exit 0)
 
 (def-func-end)

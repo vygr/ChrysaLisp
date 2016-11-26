@@ -9,7 +9,7 @@
 	;outputs
 	;r0 = fd
 
-	(sys-open '(r0 r1 r2))
+	(sys-open r0 r1 r2)
 	(vp-ret)
 
 (def-func-end)

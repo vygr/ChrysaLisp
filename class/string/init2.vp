@@ -32,7 +32,7 @@
 
 		;open file
 		(vp-cpy-ir r4 local_filename r0)
-		(sys-open '(r0, o_rdonly, 0))
+		(sys-open r0 o_rdonly 0)
 		(vp-cpy-rr r0 r7)
 
 		;read into buffer
@@ -41,10 +41,10 @@
 		(vp-add-cr string_data r0)
 		(vp-xor-rr r2 r2)
 		vp_cpy_ub r2, (r0 r1) 
-		(sys-read '(r7, r0, r1))
+		(sys-read r7 r0 r1)
 
 		;close file
-		(sys-close '(r7))
+		(sys-close r7)
 
 		(vp-cpy-ir r4 local_inst r0)
 		(vp-cpy-rr r0 r1)

@@ -6,7 +6,7 @@
 	;r0 = char
 	;r1 = fd
 
-	(sys-write-char '(r1, r0))
+	(sys-write-char r1 r0)
 	(vp-ret)
 
 (def-func-end)
