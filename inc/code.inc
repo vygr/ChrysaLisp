@@ -227,10 +227,9 @@
 	(setq *dst* b))
 
 (defcompilefun map-remove-ignored ()
-	(when (some (lambda (x) (eql x '_)) *dst*)
-		(defq s (list) d (list))
-		(each (lambda (x y) (unless (eql y '_) (push s x) (push d y))) *src* *dst*)
-		(setq *src* s *dst* d)))
+	(defq s (list) d (list))
+	(each (lambda (x y) (unless (eql y '_) (push s x) (push d y))) *src* *dst*)
+	(setq *src* s *dst* d))
 
 (defcompilefun match-any (d s)
 	(defq i (inst-of 'class/class_vector d) j (inst-of 'class/class_vector s))
