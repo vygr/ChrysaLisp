@@ -43,7 +43,7 @@
 	(vp-cpy-rr r10 r0)
 	(vp-mul-rr r2 r0)
 	(vp-xor-rr r2 r2)
-	(vp-div r1 r2 r0)
+	(vp-div-rrr r1 r2 r0)
 	(vp-cpy-ri r0 r4 local_fill_complete)
 	(vp-cpy-rr r0 r10)
 	(vp-sub-rr r10 r12)

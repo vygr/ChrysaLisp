@@ -16,7 +16,7 @@
 	(vp-xor-rr r2 r0)
 	(vp-cpy-rp r0 'seed)
 	(vp-xor-rr r2 r2)
-	(vp-div r1 r2 r0)
+	(vp-div-rrr r1 r2 r0)
 	(vp-cpy-rr r2 r0)
 	(vp-ret)
 

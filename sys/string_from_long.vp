@@ -12,7 +12,7 @@
 	(vp-cpy-rr r1 r5)	;buffer start
 	(loop-start)
 		(vp-xor-rr r2 r2)
-		(vp-div-u r3 r2 r0)
+		(vp-div-rrr-u r3 r2 r0)
 		(vp-add-cr (code "0") r2)
 		(vpif '(r2 > (code "9")))
 			(vp-add-cr (sub (code "A") (code ":")) r2)

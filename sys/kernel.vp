@@ -264,7 +264,7 @@
 		(vp-sub-rr r2 r0)
 		(vp-cpy-cr 1000 r3)
 		(vp-xor-rr r2 r2)
-		(vp-div r3 r2 r0)
+		(vp-div-rrr r3 r2 r0)
 		(vpif '(r0 < 1))
 			(vp-cpy-cr 1 r0)
 		(endif)
