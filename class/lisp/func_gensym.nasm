@@ -28,7 +28,7 @@ def_func class/lisp/func_gensym
 		func_call lisp, sym_intern, {this, value}, {value}
 		assign {this->lisp_nextsym + 1}, {this->lisp_nextsym}
 	else
-		func_call error, create, {"(gensym) wrong numbers of args", args}, {value}
+		func_call error, create, {"(gensym) wrong number of args", args}, {value}
 	endif
 
 	expr {this, value}, {r0, r1}

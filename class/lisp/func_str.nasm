@@ -35,7 +35,7 @@ def_func class/lisp/func_str
 			func_call ref, deref, {stream}
 		endif
 	else
-		func_call error, create, {"(str arg) wrong numbers of args", args}, {value}
+		func_call error, create, {"(str arg) wrong number of args", args}, {value}
 	endif
 
 	expr {this, value}, {r0, r1}

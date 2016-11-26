@@ -23,7 +23,7 @@
 		(func-call 'vector 'get_element '(args, 1) '(args))
 		(func-call 'lisp 'repl_apply '(this, func, args) '(args))
 	(else)
-		(func-call 'error 'create '("(apply func args) wrong numbers of args", args) '(args))
+		(func-call 'error 'create '("(apply func args) wrong number of args", args) '(args))
 	(endif)
 
 	(expr '(this, args) '(r0, r1))

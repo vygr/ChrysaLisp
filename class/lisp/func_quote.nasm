@@ -21,7 +21,7 @@ def_func class/lisp/func_quote
 	vpif {length == 1}
 		devirt_call vector, ref_element, {args, 0}, {args}
 	else
-		func_call error, create, {"(quote arg) wrong numbers of args", args}, {args}
+		func_call error, create, {"(quote arg) wrong number of args", args}, {args}
 	endif
 
 	expr {this, args}, {r0, r1}

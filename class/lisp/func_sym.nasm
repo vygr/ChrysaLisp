@@ -40,7 +40,7 @@ def_func class/lisp/func_sym
 			func_call lisp, sym_intern, {this, value}, {value}
 		endif
 	else
-		func_call error, create, {"(sym arg) wrong numbers of args", args}, {value}
+		func_call error, create, {"(sym arg) wrong number of args", args}, {value}
 	endif
 
 	expr {this, value}, {r0, r1}

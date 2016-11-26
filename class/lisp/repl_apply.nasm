@@ -48,7 +48,7 @@ def_func class/lisp/repl_apply
 				func_call error, create, {"(lambda vars body) not lambda", vars}, {value}
 			endif
 		else
-			func_call error, create, {"(lambda vars body) wrong numbers of args", func}, {value}
+			func_call error, create, {"(lambda vars body) wrong number of args", func}, {value}
 		endif
 		pop_scope
 	else

@@ -35,7 +35,7 @@ def_func class/lisp/func_defmacro
 			func_call error, create, {"(defmacro name vars body) vars is not a list", args}, {name}
 		endif
 	else
-		func_call error, create, {"(defmacro name vars body) wrong numbers of args", args}, {name}
+		func_call error, create, {"(defmacro name vars body) wrong number of args", args}, {name}
 	endif
 
 	expr {this, name}, {r0, r1}

@@ -35,7 +35,7 @@
 			(func-call 'ref 'deref '(stream))
 		(endif)
 	(else)
-		(func-call 'error 'create '("(str arg) wrong numbers of args", args) '(value))
+		(func-call 'error 'create '("(str arg) wrong number of args", args) '(value))
 	(endif)
 
 	(expr '(this, value) '(r0, r1))

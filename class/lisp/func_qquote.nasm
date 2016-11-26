@@ -41,7 +41,7 @@ def_func class/lisp/func_qquote
 			func_call ref, ref, {value}
 		endswitch
 	else
-		func_call error, create, {"(quasi-quote arg) wrong numbers of args", args}, {value}
+		func_call error, create, {"(quasi-quote arg) wrong number of args", args}, {value}
 	endif
 
 	expr {this, value}, {r0, r1}

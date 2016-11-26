@@ -29,7 +29,7 @@
 			(assign '(index + 2) '(index))
 		(loop-until '((index == length)))
 	(else)
-		(func-call 'error 'create '("(set var val ...) wrong numbers of args", args) '(val))
+		(func-call 'error 'create '("(set var val ...) wrong number of args", args) '(val))
 	(endif)
 
 	(expr '(this, val) '(r0, r1))

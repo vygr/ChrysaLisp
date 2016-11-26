@@ -34,7 +34,7 @@ def_func class/lisp/func_def
 			func_call error, create, {"(def env var val ...) not an enviroment", args}, {val}
 		endif
 	else
-		func_call error, create, {"(def env var val ...) wrong numbers of args", args}, {val}
+		func_call error, create, {"(def env var val ...) wrong number of args", args}, {val}
 	endif
 
 	expr {this, val}, {r0, r1}

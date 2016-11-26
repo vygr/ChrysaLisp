@@ -48,7 +48,7 @@
 				(func-call 'error 'create '("(lambda vars body) not lambda", vars) '(value))
 			(endif)
 		(else)
-			(func-call 'error 'create '("(lambda vars body) wrong numbers of args", func) '(value))
+			(func-call 'error 'create '("(lambda vars body) wrong number of args", func) '(value))
 		(endif)
 		(pop-scope)
 	(else)

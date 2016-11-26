@@ -23,7 +23,7 @@ def_func class/lisp/func_apply
 		func_call vector, get_element, {args, 1}, {args}
 		func_call lisp, repl_apply, {this, func, args}, {args}
 	else
-		func_call error, create, {"(apply func args) wrong numbers of args", args}, {args}
+		func_call error, create, {"(apply func args) wrong number of args", args}, {args}
 	endif
 
 	expr {this, args}, {r0, r1}
