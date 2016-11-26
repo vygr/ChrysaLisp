@@ -234,5 +234,6 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file 'sys/string_to_long.vp)
+(compile-file 'sys/mem_copy.vp)
 ;(compile-file 'test.vp)
+

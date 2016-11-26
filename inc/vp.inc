@@ -10,10 +10,28 @@
 	(while (and (not n) (lt c (length l)))
 		(if (eql (elem c l) r) (setq n c) (setq c (inc c)))) n)
 
-(defcompilefun type (i)
+(defcompilefun type (o)
+	(defq i (inst-of 'class/class_obj o))
 	(cond
-		((reg i) 'r)
-		(t 'c)))
+		((not i) i)
+		((eql i 'class/class_symbol)
+			(cond
+				((reg o) 'r)
+				(t 'c)))
+		((eql i 'class/class_vector)
+			(setq i (elem 0 o))
+			(cond
+				((reg i)
+					(if (reg (elem 1 o)) 'd 'i))
+				((eql i '@) i)
+				((eql i '$) i)
+				((eql i '&)
+					(if (reg (elem 1 o))
+						(if (reg (elem 2 o)) '&d '&i) nil))
+				(t 'c)))
+		((eql i 'class/class_string) 's)
+		((eql i 'class/class_boxed_long) 'c)
+		(t nil)))
 
 (defcompilefun vp-label (s) (emit `(emit-label ',s)) (equate s 0))
 (defcompilefun vp-align (&rest b) (emit `(emit-align ~b)))
