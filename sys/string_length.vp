@@ -11,7 +11,7 @@
 
 	(vp-cpy-rr r0 r1)
 	(loop-start)
-		(vp-cpy-ir-ub r1 r2)
+		(vp-cpy-ir-ub r1 0 r2)
 		(breakif '(r2 == 0))
 		(vp-inc r1)
 	(loop-end)

@@ -10,8 +10,8 @@
 	;r0-r3
 
 	(loop-start)
-		(vp-cpy-ir-ub r0 r2)
-		(vp-cpy-ir-ub r1 r3)
+		(vp-cpy-ir-ub r0 0 r2)
+		(vp-cpy-ir-ub r1 0 r3)
 		(vp-sub-rr r3 r2)
 		(breakif '(r2 != 0))
 		(breakif '(r3 == 0))
