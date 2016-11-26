@@ -2898,6 +2898,9 @@ vp_ble label2
 vp_bgt label2
 vp_bge label2
 
+;syscall
+syscall
+
 	align 8, db 0
 label1:
 	dq 0xfe78452396457623

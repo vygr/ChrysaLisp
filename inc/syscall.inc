@@ -22,7 +22,7 @@
 
 (defcompilefun sys-call (%1)
 	(vp-cpy-cr %1 r0)
-	(syscall))
+	(vp-syscall))
 
 (when (eql *OS* 'Darwin)
 

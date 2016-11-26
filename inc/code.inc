@@ -219,3 +219,11 @@
 ;;;;;;;;;;;;;;;;;;;;
 ; paramater handling
 ;;;;;;;;;;;;;;;;;;;;
+
+(defcompilefun set-src (b)
+	(setq *src* b))
+
+(defcompilefun set-dst (b)
+	(setq *dst* b))
+
+(defcompilefun map-src-to-dst () t)

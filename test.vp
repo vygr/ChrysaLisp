@@ -2898,6 +2898,9 @@
 (vp-bgt 'label2)
 (vp-bge 'label2)
 
+;syscall
+(vp-syscall)
+
 	(vp-align 8)
 (vp-label 'label1)
 	(vp-long 0xfe78452396457623)

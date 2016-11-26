@@ -179,6 +179,7 @@
 (defcompilefun vp-ext-rr (&rest b) (emit `(emit-ext-rr ~b)))
 (defcompilefun vp-div-rrr (&rest b) (emit `(emit-div-rrr ~b)))
 (defcompilefun vp-div-rrr-u (&rest b) (emit `(emit-div-rrr-u ~b)))
+(defcompilefun vp-syscall () (emit `(emit-syscall)))
 
 ;;;;;;;;;;;;;
 ; Emit Buffer
@@ -412,6 +413,9 @@
 			(emit-byte 0xf (add 0x10 o))
 			(emit-int (sub c 4)))
 		(t (print "emit-branch constant out of range: " c))))
+
+(defcompilefun emit-syscall ()
+	(emit-byte 0xf 0x5))
 
 (defcompilefun emit-beq (l) (emit-branch 0x74 (sub l (length *out-buffer*))))
 (defcompilefun emit-bne (l) (emit-branch 0x75 (sub l (length *out-buffer*))))
