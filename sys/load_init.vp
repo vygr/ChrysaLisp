@@ -12,7 +12,7 @@
 	(loop-end)
 	(vp-and-cr (sub 0 ld_page_size) r0)
 	(vp-sub-rr r0 r1)
-	sys_mprotect r0, r1, prot_read|prot_write|prot_exec
+	(sys-mprotect r0 r1 (bit-or prot_read prot_write prot_exec))
 
 	;get loader statics and bind function !
 	(vp-lea-p '_func_start r6)
@@ -58,13 +58,13 @@
 			(vpif '(r0 == 0))
 				;no such function
 				(vp-lea-p 'bind_error r0)
-				(sys-write-string 2 r0 bind_error_end-bind_error)
-				(vp-cpy-ir r4 (ptr_size * 2) r0)
-				(vp-add-ir r0 r0)
+				(sys-write-string 2 r0 '(sub bind_error_end bind_error))
+				(vp-cpy-ir r4 (mul ptr_size 2) r0)
+				(vp-add-ir r0 0 r0)
 				(vp-call 'string_skip)
 				(vp-lea-i r0 -1 r1)
-				(vp-cpy-ir r4 (ptr_size * 2) r0)
-				(vp-add-ir r0 r0)
+				(vp-cpy-ir r4 (mul ptr_size 2) r0)
+				(vp-add-ir r0 0 r0)
 				(vp-sub-rr r0 r1)
 				(sys-write-string 2 r0 r1)
 				(vp-cpy-cr 10 r1)
@@ -84,10 +84,10 @@
 		(vp-cpy-ir-ub r0 0 r1)
 		(vp-inc r0)
 	(loop-until '(r1 == 0))
-	ret
+	(vp-ret)
 
 (vp-label 'bind_error)
-	(vp-string "Prebind error ")
+	(vp-string "Prebind error: ")
 (vp-label 'bind_error_end)
 
 (def-func-end)

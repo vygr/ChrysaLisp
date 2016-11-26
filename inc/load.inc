@@ -1,14 +1,14 @@
-(import 'inc/class.inc)
+;(import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; load static class
 ;;;;;;;;;;;;;;;;;;;
 
-(def-class 'sys_load)
-(def-method 'statics 'sys/load_statics)
-(def-method 'init 'sys/load_init)
-(def-method 'deinit 'sys/load_deinit)
-(def-method 'bind 'sys/load_bind 'static '(r0) '(r0))
+;(def-class 'sys_load)
+;(def-method 'statics 'sys/load_statics)
+;(def-method 'init 'sys/load_init)
+;(def-method 'deinit 'sys/load_deinit)
+;(def-method 'bind 'sys/load_bind 'static '(r0) '(r0))
 
 ;;;;;;;;;;;;;;;;;
 ; load structures

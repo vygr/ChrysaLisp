@@ -214,7 +214,7 @@
 
 (defcompilefun struct (f s)
 	(def *compile-env* f *struct-offset*)
-	(setq *struct-offset* (eval (sym (cat (str s) "_size")))))
+	(setq *struct-offset* (add *struct-offset* (eval (sym (cat (str s) "_size"))))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; paramater handling
