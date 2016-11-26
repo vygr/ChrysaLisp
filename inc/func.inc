@@ -102,7 +102,7 @@
 	(vp-align ptr_size)
 	(vp-label '_func_end)
 	(print-emit-buffer)
-;	(emit-passes)
+	(emit-passes)
 ;	(print-out-buffer 16)
 	(save *out-buffer* 'mytest))
 
