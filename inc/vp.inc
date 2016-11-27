@@ -441,10 +441,12 @@
 (defcompilefun emit-lea-p (l d) (emit-pr 0x8d (sub l (length *out-buffer*)) d))
 
 (defcompilefun emit-cpy-cr (c r)
-	(defq r (reg r) rl (bit-and r 7) rh (bit-shr r 3))
+	(defq rn (reg r) rl (bit-and rn 7) rh (bit-shr rn 3))
 	(cond
+		((eq 0 c)
+			(emit-xor-rr r r))
 		((le 0 c 0xffffffff)
-			(if (ge r 8) (emit-byte 0x41))
+			(if (ge rn 8) (emit-byte 0x41))
 			(emit-byte (add 0xb8 rl))
 			(emit-int c))
 		((le -0x80000000 c -1)
