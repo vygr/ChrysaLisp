@@ -443,8 +443,8 @@
 (defcompilefun emit-cpy-cr (c r)
 	(defq rn (reg r) rl (bit-and rn 7) rh (bit-shr rn 3))
 	(cond
-		((eq 0 c)
-			(emit-xor-rr r r))
+;		((eq 0 c)
+;			(emit-xor-rr r r))
 		((le 0 c 0xffffffff)
 			(if (ge rn 8) (emit-byte 0x41))
 			(emit-byte (add 0xb8 rl))

@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file 'sys/heap_alloc.vp)
+(compile-file 'sys/load_bind.vp)
 ;(compile-file 'test.vp)

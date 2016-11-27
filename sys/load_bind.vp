@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
 (import 'inc/load.inc)
 
-;%define list_loaded
+(equate 'list_loaded nil)
 
 (def-func 'sys/load_bind)
 	;input
@@ -74,15 +74,14 @@
 		;set block pointers for loading
 		(vp-add-cr ptr_size r0)
 		(vp-cpy-ri r0 r8 ld_statics_block_start)
-		(vp-add-cr ld_block_size - ptr_size r0)
+		(vp-add-cr (sub ld_block_size ptr_size) r0)
 		(vp-cpy-ri r0 r8 ld_statics_block_end)
 	(endif)
 
-(if (defined 'list_loaded)
-(progn
+(when list_loaded
 	;print loaded function name
 	(vp-lea-p 'loaded_name r0)
-	(sys-write-string 2 r0 loaded_name_end-loaded_name)
+	(sys-write-string 2 r0 '(sub loaded_name_end loaded_name))
 	(vp-cpy-rr r7 r0)
 	(vp-call 'string_skip)
 	(vp-lea-i r0 -1 r1)
@@ -90,7 +89,7 @@
 	(sys-write-string 2 r7 r1)
 	(sys-write-char 2 "'")
 	(sys-write-char 2 10)
-))
+)
 
 	;open function file
 	(sys-open r7 o_rdonly 0)
@@ -99,7 +98,7 @@
 	;read into buffer
 	(vp-cpy-ir r8 ld_statics_block_start r3)
 	(vp-lea-i r8 ld_statics_stat_buffer r2)
-	(sys-read r7 r3 (r2 stat_fsize))
+	(sys-read r7 r3 '(r2 stat_fsize))
 
 	;close function file
 	(sys-close r7)
@@ -108,7 +107,7 @@
 	(vp-cpy-ir-ui r3 fn_header_length r0)
 	(vpif '(r0 != (r2 stat_fsize)))
 		(vp-lea-p 'size_error r0)
-		(sys-write-string 2 r0 size_error_end-size_error)
+		(sys-write-string 2 r0 '(sub size_error_end size_error))
 		(sys-exit 1)
 	(endif)
 
@@ -140,7 +139,7 @@
 	(vp-lea-i r8 ld_statics_size r2)
 	(vpif '(r1 > r2))
 		(vp-lea-p 'reloc_error r0)
-		(sys-write-string 2 r0 reloc_error_end-reloc_error)
+		(sys-write-string 2 r0 '(sub reloc_error_end reloc_error))
 		(sys-exit 1)
 	(endif)
 
@@ -241,10 +240,10 @@
 		(vp-cpy-ir-ub r0 0 r1)
 		(vp-inc r0)
 	(loop-until '(r1 == 0))
-	ret
+	(vp-ret)
 
 (vp-label 'bind_error)
-	(vp-string "Bind error ")
+	(vp-string "Bind error: ")
 (vp-label 'bind_error_end)
 
 (vp-label 'reloc_error)
@@ -255,10 +254,9 @@
 	(vp-string "Length field error !") (vp-byte 10)
 (vp-label 'size_error_end)
 
-(if (defined 'list_loaded)
-(progn
+(when list_loaded
 	(vp-label 'loaded_name)
 		(vp-string "incbin '")
-	(vp-label 'loaded_name_end)))
+	(vp-label 'loaded_name_end))
 
 (def-func-end)
