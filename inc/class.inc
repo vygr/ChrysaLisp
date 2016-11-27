@@ -2,442 +2,266 @@
 ; class definition
 ;;;;;;;;;;;;;;;;;;
 
-%assign _map_null_slots_ 0
+(defcompilefun class-name (n) (sym (cat "_map_" (str n))))
 
-%macro vtable_emit 1-2
+(equate '_map_null (list))
+
+(defcompilefun vtable-emit (%1 &optional %2)
 	;%1 = class name
 	;%2 = parent class name
-	%if %0 = 1
-		dq 0
-	%else
-		fn_add_link %2
-	%endif
-	%assign %%n 0
-	%rep _map_%1_slots_
-		%ifidn _map_%1_type_%[%%n], virtual
-			fn_add_link _map_%1_slot_%[%%n]
-		%endif
-		%assign %%n %%n + 1
-	%endrep
-%endmacro
+	(if %2 (fn-add-link %2) (vp-long 0))
+	(each (lambda (x)
+		(if (eql (elem 2 x) 'virtual)
+			(fn-add-link (elem _slot x)))) (eval (class-name %1))))
 
-%macro (def-class '1-2 null)
+(defcompilefun def-class (%1 &optional %2)
 	;%1 = class name
 	;%2 = super class name
-	%ifdef _map_%1_slots_
-		%fatal Class %1 allready defined !
-	%endif
-	%ifndef _map_%2_slots_
-		%fatal Class %2 not defined !
-	%endif
-	%assign _map_%1_slots_ 0
-	%xdefine _class_ %1
-	%xdefine _super_class_%1_ %2
-	%assign %%n 0
-	%rep _map_%2_slots_
-		def_method	_map_%2_name_%[%%n], \
-					_map_%2_slot_%[%%n], \
-					_map_%2_type_%[%%n], \
-					{_map_%2_in_%[%%n]}, \
-					{_map_%2_out_%[%%n]}
-		%assign %%n %%n + 1
-	%endrep
-%endmacro
+	(setq %2 (if %2 %2 'null))
+	(equate '_class_ %1 (sym (cat "_super_class_" (str %1))) %2
+		(class-name %1) (cat (eval (class-name %2)))))
 
-%macro (def-method '2-5 static '{} '{})
+(defcompilefun def-method (%1 %2 &optional %3 %4 %5)
 	;%1 = member name
 	;%2 = member function
 	;%3 = mode (static/virtual/override)
 	;%4 = in regs
 	;%5 = out regs
-	%assign %%n 0
-	%rep _map_%[_class_]_slots_
-		%ifidn _map_%[_class_]_name_%[%%n], %1
-			%exitrep
-		%else
-			%assign %%n %%n + 1
-		%endif
-	%endrep
-	%if %%n = _map_%[_class_]_slots_
-		;new method
-		%ifidn %3, static
-			%assign _map_%[_class_]_slots_ %%n + 1
-			%xdefine _map_%[_class_]_name_%[%%n] %1
-			%xdefine _map_%[_class_]_slot_%[%%n] %2
-			%xdefine _map_%[_class_]_type_%[%%n] %3
-			%xdefine _map_%[_class_]_in_%[%%n] %4
-			%xdefine _map_%[_class_]_out_%[%%n] %5
-		%elifidn %3, virtual
-			%assign _map_%[_class_]_slots_ %%n + 1
-			%xdefine _map_%[_class_]_name_%[%%n] %1
-			%xdefine _map_%[_class_]_slot_%[%%n] %2
-			%xdefine _map_%[_class_]_type_%[%%n] %3
-			%xdefine _map_%[_class_]_in_%[%%n] %4
-			%xdefine _map_%[_class_]_out_%[%%n] %5
-		%elifidn %3, override
-			%fatal Method %1 does not exist !
-		%else
-			%fatal Must use static, virtual or override !
-		%endif
-	%else
-		;existing method
-		%ifidn %3, static
-			%ifidn _map_%[_class_]_type_%[%%n], static
-				%xdefine _map_%[_class_]_slot_%[%%n] %2
-				%ifnempty %4
-					%xdefine _map_%[_class_]_in_%[%%n] %4
-				%endif
-				%ifnempty %5
-					%xdefine _map_%[_class_]_out_%[%%n] %5
-				%endif
-			%else
-				%fatal Virtual method %1 allready exists !
-			%endif
-		%elifidn %3, virtual
-			%fatal Method %1 allready exists !, use override ?
-		%elifidn %3, override
-			%ifidn _map_%[_class_]_type_%[%%n], virtual
-				%xdefine _map_%[_class_]_slot_%[%%n] %2
-				%ifnempty %4
-					%xdefine _map_%[_class_]_in_%[%%n] %4
-				%endif
-				%ifnempty %5
-					%xdefine _map_%[_class_]_out_%[%%n] %5
-				%endif
-			%else
-				%fatal Static %1 allready exists !
-			%endif
-		%else
-			%fatal Must use static, virtual or override !
-		%endif
-	%endif
-%endmacro
+	(setq %3 (if %3 %3 'static) %4 (if %4 %4 (list)) %5 (if %5 %5 (list)))
+	(defq c (eval (class-name _class_) s (some (lambda (x) (if (eql (elem 0 x) %1) x nil)) c)))
+	(if s
+		(cond
+			;existing method
+			((eql %3 'static)
+				(if (eql (elem 2 s) 'static)
+					(progn
+						(elem-set 1 s %2)
+						(if (ne (length %4) 0) (elem-set 3 s %4))
+						(if (ne (length %5) 0) (elem-set 4 s %5)))
+					(print "Virtual method " %1 " allready exists !")))
+			((eql %3 'virtual)
+				(print "Method " %1 " allready exists !, use override ?"))
+			((eql %3 'override)
+				(if (eql (elem 2 s) 'virtual)
+					(progn
+						(elem-set 1 s %2)
+						(if (ne (length %4) 0) (elem-set 3 s %4))
+						(if (ne (length %5) 0) (elem-set 4 s %5)))
+					(print "Static method " %1 " allready exists !")))
+			(t
+				(print "Must use static, virtual or override !")))
+		(cond
+			;new method
+			((or (eql %3 'static) (eql %3 'virtual))
+				(push c %1 %2 %3 %4 %5))
+			((eql %3 'static)
+				(print "Method " %1 " does not exist !"))
+			(t
+				(print "Must use static, virtual or override !")))))
 
 ;;;;;;;;;;;;;;;
 ; class calling
 ;;;;;;;;;;;;;;;
 
-%macro method_lookup 2
+(defcompilefun method-lookup (%1 %2)
 	;%1 = class name
 	;%2 = member name
-	%ifndef _map_%1_slots_
-		%fatal Class %1 not defined !
-	%endif
-	%assign _virtual_ ptr_size
-	%assign _static_ 0
-	%rep _map_%1_slots_
-		%ifidn _map_%1_name_%[_static_], %2
-			%exitrep
-		%elifidn _map_%1_type_%[_static_], virtual
-			%assign _virtual_ _virtual_ + ptr_size
-			%assign _static_ _static_ + 1
-		%else
-			%assign _static_ _static_ + 1
-		%endif
-	%endrep
-	%if _static_ = _map_%1_slots_
-		%fatal No such method %2 in class %1 !
-	%endif
-%endmacro
+	(defq s 0 v ptr_size c (eval (class-name _class_)))
+	(unless (or (eq s (length c)) (eql (elem s c) %2)
+		(if (eql (elem s c) 'virtual) (setq v (add v ptr_size)))
+		(setq s (inc s))))
+	(if (eq s (length c))
+		(print "No such method " %2 " in class " %1 " !"))
+	(list s v))
 
-%macro map_inputs 4
+(defcompilefun map-inputs (%1 %2 %3)
 	;%1 = class name
-	;%2 = member name
-	;%3 = paramaters
-	;%4 = slot num
+	;%2 = paramaters
+	;%3 = slot num
+	(set-src %2)
+	(set-dst (elem 3 (elem %3 (eval (class-name %1)))))
+	(map-src-to-dst))
 
-	(set-src %3)
-	(set-dst _map_%1_in_%4)
-	(map-src-to-dst)
-%endmacro
-
-%macro map_outputs 4
+(defcompilefun map-outputs (%1 %2 %3)
 	;%1 = class name
-	;%2 = member name
-	;%3 = paramaters
-	;%4 = slot num
+	;%2 = paramaters
+	;%3 = slot num
+	(set-src (elem 4 (elem %3 (eval (class-name %1)))))
+	(set-dst %2)
+	(map-src-to-dst))
 
-	(set-src _map_%1_out_%4)
-	(set-dst %3)
-	(map-src-to-dst)
-%endmacro
-
-%macro func_path 2-3 _function_
+(defcompilefun func-path (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = slot method name
 	;%3 = macro name
+	(setq %3 (if %3 %3 '_function_))
+	(equate %3 (elem 1 (elem (elem 0 (method-lookup %1 %2)) (eval (class-name %1))))))
 
-	method_lookup %1, %2
-	%xdefine %3 _map_%1_slot_%[_static_]
-%endmacro
-
-%macro super_path 2-3 _function_
+(defcompilefun super-path (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = slot method name
 	;%3 = macro name
-
-	method_lookup _super_class_%1_, %2
-	%xdefine %3 _map_%[_super_class_%1_]_slot_%[_static_]
-%endmacro
+	(setq %3 (if %3 %3 '_function_) n (sym (cat "_super_class_" (str %1))))
+	(equate %3 (elem 1 (elem (elem 0 (method-lookup n %2)) (eval n)))))
 
 ;;;;;;;;;;;;;;;;;
 ; assembler level
 ;;;;;;;;;;;;;;;;;
 
-%macro f_call 2-4 {}, {}
+(defcompilefun f-call (%1 %2 &optional %3 %4)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters
 	;%4 = out paramaters
+	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(if (eql (elem 2 m) 'virtual)
+		(print "Class " %1 " method " %2 " is virtual ! Use v_call ?"))
+	(map-inputs %1 %3 s)
+	(fn-call (elem 1 m))
+	(map-outputs %1 %4 s))
 
-	method_lookup %1, %2
-	%ifidn _map_%1_type_%[_static_], virtual
-		%fatal Class %1 method %2 is virtual ! Use v_call ?
-	%endif
-	map_inputs %1, %2, {%3}, _static_
-	fn_call _map_%1_slot_%[_static_]
-	map_outputs %1, %2, {%4}, _static_
-%endmacro
-
-%macro f_jmp 2-4 {}
+(defcompilefun f-jmp (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters
+	(setq %3 (if %3 %3 (list)))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(if (eql (elem 2 m) 'virtual)
+		(print "Class " %1 " method " %2 " is virtual ! Use v_jmp ?"))
+	(map-inputs %1 %3 s)
+	(fn-jmp (elem 1 m)))
 
-	method_lookup %1, %2
-	%ifidn _map_%1_type_%[_static_], virtual
-		%fatal Class %1 method %2 is virtual ! Use v_jmp ?
-	%endif
-	map_inputs %1, %2, {%3}, _static_
-	fn_jmp _map_%1_slot_%[_static_]
-%endmacro
-
-%macro f_bind 3
+(defcompilefun f-bind (%1 %2 %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(if (eql (elem 2 m) 'virtual)
+		(print "Class " %1 " method " %2 " is virtual ! Use v_bind ?"))
+	(fn-bind (elem 1 m) %3))
 
-	method_lookup %1, %2
-	%ifidn _map_%1_type_%[_static_], virtual
-		%fatal Class %1 method %2 is virtual ! Use v_bind ?
-	%endif
-	fn_bind _map_%1_slot_%[_static_], %3
-%endmacro
-
-%macro s_call 2-4 {}, {}
+(defcompilefun f-call (%1 %2 %3 %4)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters
 	;%4 = out paramaters
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(if (eql (elem 2 m) 'virtual)
+		(print "Class " %1 " method " %2 " is virtual ! Use v_call ?"))
+	(map-inputs %1 %3 s)
+	(fn-call (elem 1 m))
+	(map-outputs %1 %4 s))
 
-	method_lookup _super_class_%1_, %2
-	%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
-		%ifidn _map_%[_super_class_%1_]_name_%[_static_], init
-			;exeption for init
-		%else
-			%fatal Class _super_class_%1_ method %2 is static !
-		%endif
-	%endif
-	map_inputs _super_class_%1_, %2, {%3}, _static_
-	fn_call _map_%[_super_class_%1_]_slot_%[_static_]
-	map_outputs _super_class_%1_, %2, {%4}, _static_
-%endmacro
-
-%macro s_jmp 2-4 {}
+(defcompilefun s-call (%1 %2 &optional %3 %4)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters
+	;%4 = out paramaters
+	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
+	(defq c (eval (sym (cat "_super_class_" (str %1))))
+		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name c))))
+	(if (eql (elem 2 m) 'static)
+		(unless (eql (elem 0 m) 'init)
+			(print "Class " c " method " %2 " is static !")))
+	(map-inputs c %3 s)
+	(fn-call (elem 1 m))
+	(map-outputs c %4 s))
 
-	method_lookup _super_class_%1_, %2
-	%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
-		%ifidn _map_%[_super_class_%1_]_name_%[_static_], init
-			;exeption for init
-		%else
-			%fatal Class _super_class_%1_ method %2 is static !
-		%endif
-	%endif
-	map_inputs _super_class_%1_, %2, {%3}, _static_
-	fn_jmp _map_%[_super_class_%1_]_slot_%[_static_]
-%endmacro
+(defcompilefun s-jmp (%1 %2 &optional %3)
+	;%1 = class name
+	;%2 = member name
+	;%3 = in paramaters
+	(setq %3 (if %3 %3 (list)))
+	(defq c (eval (sym (cat "_super_class_" (str %1))))
+		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name c))))
+	(if (eql (elem 2 m) 'static)
+		(unless (eql (elem 0 m) 'init)
+			(print "Class " c " method " %2 " is static !")))
+	(map-inputs c %3 s)
+	(fn-jmp (elem 1 m)))
 
-%macro s_bind 3
+(defcompilefun s-bind (%1 %2 %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
+	(defq c (eval (sym (cat "_super_class_" (str %1))))
+		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name c))))
+	(if (eql (elem 2 m) 'static)
+		(print "Class " c " method " %2 " is static !"))
+	(fn-bind (elem 1 m) %3))
 
-	method_lookup _super_class_%1_, %2
-	%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
-		%fatal Class _super_class_%1_ method %2 is static !
-	%endif
-	fn_bind _map_%[_super_class_%1_]_slot_%[_static_], %3
-%endmacro
-
-%macro v_call 2-5 {}, {}, r15
+(defcompilefun v-call (%1 %2 &optional %3 %4 %5)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters
 	;%4 = out paramaters
 	;%5 = dispatch reg
+	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)) %5 (if %5 %5 r15))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(if (eql (elem 2 m) 'static)
+		(print "Class " %1 " method " %2 " is static ! Use f_call ?"))
+	(map-inputs %1 %3 s)
+	(vp-cpy-ir r0 obj_vtable %5)
+	(vp-call-i %5 v)
+	(map-outputs %1 %4 s))
 
-	method_lookup %1, %2
-	%ifidn _map_%1_type_%[_static_], static
-		%fatal Class %1 method %2 is static ! Use f_call ?
-	%endif
-	map_inputs %1, %2, {%3}, _static_
-	vp_cpy [r0 + obj_vtable], %5
-	vp_call [%5 + _virtual_]
-	map_outputs %1, %2, {%4}, _static_
-%endmacro
-
-%macro v_jmp 2-5 {}, r15
+(defcompilefun v-jmp (%1 %2 &optional %3 %4)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters
 	;%4 = dispatch reg
+	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 r15))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(if (eql (elem 2 m) 'static)
+		(print "Class " %1 " method " %2 " is static ! Use f_jmp ?"))
+	(map-inputs %1 %3 s)
+	(vp-cpy-ir r0 obj_vtable %4)
+	(vp-jmp-i %4 v))
 
-	method_lookup %1, %2
-	%ifidn _map_%1_type_%[_static_], static
-		%fatal Class %1 method %2 is static ! Use f_jmp ?
-	%endif
-	map_inputs %1, %2, {%3}, _static_
-	vp_cpy [r0 + obj_vtable], %4
-	vp_jmp [%4 + _virtual_]
-%endmacro
-
-%macro v_bind 2-3 r15
+(defcompilefun v-bind (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = dispatch reg
+	(setq %3 (if %3 %3 r15))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(if (eql (elem 2 m) 'static)
+		(print "Class " %1 " method " %2 " is static ! Use f_bind ?"))
+	(vp-cpy-ir r0 obj_vtable %3)
+	(vp-cpy-ir %3 v %3))
 
-	method_lookup %1, %2
-	%ifidn _map_%1_type_%[_static_], static
-		%fatal Class %1 method %2 is static ! Use f_bind ?
-	%endif
-	vp_cpy [r0 + obj_vtable], %3
-	vp_cpy [%3 + _virtual_], %3
-%endmacro
-
-%macro d_call 2-4 {}, {}
+(defcompilefun d-call (%1 %2 &optional %3 %4)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters
 	;%4 = out paramaters
+	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(if (eql (elem 2 m) 'static)
+		(print "Class " %1 " method " %2 " is static ! Use f_call ?"))
+	(map-inputs %1 %3 s)
+	(fn-call (elem 1 m))
+	(map-outputs %1 %4 s))
 
-	method_lookup %1, %2
-	%ifidn _map_%1_type_%[_static_], static
-		%fatal Class %1 method %2 is static ! Use f_call ?
-	%endif
-	map_inputs %1, %2, {%3}, _static_
-	fn_call _map_%1_slot_%[_static_]
-	map_outputs %1, %2, {%4}, _static_
-%endmacro
-
-%macro d_jmp 2-4 {}
+(defcompilefun d-jmp (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters
+	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(if (eql (elem 2 m) 'static)
+		(print "Class " %1 " method " %2 " is static ! Use f_jmp ?"))
+	(map-inputs %1 %3 s)
+	(fn-jmp (elem 1 m)))
 
-	method_lookup %1, %2
-	%ifidn _map_%1_type_%[_static_], static
-		%fatal Class %1 method %2 is static ! Use f_jmp ?
-	%endif
-	map_inputs %1, %2, {%3}, _static_
-	fn_jmp _map_%1_slot_%[_static_]
-%endmacro
-
-%macro d_bind 3
+(defcompilefun d-bind (%1 %2 %3)
 	;%1 = class name
-	;%2 = slot method name
+	;%2 = member name
 	;%3 = reg
-
-	method_lookup %1, %2
-	%ifidn _map_%1_type_%[_static_], static
-		%fatal Class %1 method %2 is static ! Use f_bind ?
-	%endif
-	fn_bind _map_%1_slot_%[_static_], %3
-%endmacro
-
-;;;;;;;;;;;;;;
-; script level
-;;;;;;;;;;;;;;
-
-%macro func_call 2-4 {}, {}
-	;%1 = class name
-	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
-
-	method_lookup %1, %2
-	%ifidn _map_%1_type_%[_static_], virtual
-		%fatal Class %1 method %2 is virtual ! Use virt_call ?
-	%endif
-	eval {%3}, {_map_%1_in_%[_static_]}
-	fn_call _map_%1_slot_%[_static_]
-	retire {_map_%1_out_%[_static_]}, {%4}
-%endmacro
-
-%macro super_call 2-4 {}, {}
-	;%1 = class name
-	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
-
-	method_lookup _super_class_%1_, %2
-	%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
-		%ifidn _map_%[_super_class_%1_]_name_%[_static_], init
-			;exeption for init
-		%else
-			%fatal Class _super_class_%1_ method %2 is static !
-		%endif
-	%endif
-	eval {%3}, {_map_%[_super_class_%1_]_in_%[_static_]}
-	fn_call _map_%[_super_class_%1_]_slot_%[_static_]
-	retire {_map_%[_super_class_%1_]_out_%[_static_]}, {%4}
-%endmacro
-
-%macro virt_call 2-5 {}, {}, r15
-	;%1 = class name
-	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
-	;%5 = dispatch reg
-
-	method_lookup %1, %2
-	%ifidn _map_%1_type_%[_static_], static
-		%fatal Class %1 method %2 is static ! Use func_call ?
-	%endif
-	eval {RXX, %3}, {%5, _map_%1_in_%[_static_]}
-	vp_cpy [r0 + obj_vtable], %5
-	vp_call [%5 + _virtual_]
-	retire {_map_%1_out_%[_static_]}, {%4}
-%endmacro
-
-%macro devirt_call 2-4 {}, {}
-	;%1 = class name
-	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
-
-	method_lookup %1, %2
-	%ifidn _map_%1_type_%[_static_], static
-		%fatal Class %1 method %2 is static ! Use func_call ?
-	%endif
-	eval {%3}, {_map_%1_in_%[_static_]}
-	fn_call _map_%1_slot_%[_static_]
-	retire {_map_%1_out_%[_static_]}, {%4}
-%endmacro
-
-%macro local_call 1-5 {}, {}, {}, {}
-	;%1 = label
-	;%2 = in paramaters
-	;%3 = in regs
-	;%4 = out paramaters
-	;%5 = out regs
-
-	eval {%2}, {%3}
-	vp_call %1
-	retire {%4}, {%5}
-%endmacro
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(if (eql (elem 2 m) 'static)
+		(print "Class " %1 " method " %2 " is static ! Use f_bind ?"))
+	(fn-bind (elem 1 m) %3))
 
 ;;;;;;;;;;;;;;;;;
 ; virtual classes

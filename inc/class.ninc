@@ -350,7 +350,7 @@
 
 %macro d_bind 3
 	;%1 = class name
-	;%2 = slot method name
+	;%2 = member name
 	;%3 = reg
 
 	method_lookup %1, %2
