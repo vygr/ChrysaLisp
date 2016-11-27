@@ -8,6 +8,7 @@ vp_push r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
 vp_pop r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15
 
 ;const/reg
+vp_cpy 0, r0
 vp_cpy 1, r0
 vp_cpy 0x7f, r0
 vp_cpy 0x80, r0
