@@ -10,9 +10,9 @@
 	;%1 = class name
 	;%2 = parent class name
 	(if %2 (fn-add-link %2) (vp-long 0))
-	(each (lambda (x)
-		(if (eql (elem 2 x) 'virtual)
-			(fn-add-link (elem _slot x)))) (eval (class-name %1))))
+	(each (lambda (m)
+		(if (eql (elem 2 m) 'virtual)
+			(fn-add-link (elem 1 m)))) (eval (class-name %1))))
 
 (defcompilefun def-class (%1 &optional %2)
 	;%1 = class name
@@ -28,36 +28,36 @@
 	;%4 = in regs
 	;%5 = out regs
 	(setq %3 (if %3 %3 'static) %4 (if %4 %4 (list)) %5 (if %5 %5 (list)))
-	(defq c (eval (class-name _class_) s (some (lambda (x) (if (eql (elem 0 x) %1) x nil)) c)))
-	(if s
+	(defq c (eval (class-name _class_)) m (some (lambda (m) (if (eql (elem 0 m) %1) m nil)) c))
+	(if m
 		(cond
 			;existing method
 			((eql %3 'static)
-				(if (eql (elem 2 s) 'static)
+				(if (eql (elem 2 m) 'static)
 					(progn
-						(elem-set 1 s %2)
-						(if (ne (length %4) 0) (elem-set 3 s %4))
-						(if (ne (length %5) 0) (elem-set 4 s %5)))
+						(elem-set 1 m %2)
+						(if (ne (length %4) 0) (elem-set 3 m %4))
+						(if (ne (length %5) 0) (elem-set 4 m %5)))
 					(print "Virtual method " %1 " allready exists !")))
 			((eql %3 'virtual)
 				(print "Method " %1 " allready exists !, use override ?"))
 			((eql %3 'override)
-				(if (eql (elem 2 s) 'virtual)
+				(if (eql (elem 2 m) 'virtual)
 					(progn
-						(elem-set 1 s %2)
-						(if (ne (length %4) 0) (elem-set 3 s %4))
-						(if (ne (length %5) 0) (elem-set 4 s %5)))
+						(elem-set 1 m %2)
+						(if (ne (length %4) 0) (elem-set 3 m %4))
+						(if (ne (length %5) 0) (elem-set 4 m %5)))
 					(print "Static method " %1 " allready exists !")))
 			(t
-				(print "Must use static, virtual or override !")))
+				(print "Must use static, virtual or override ! ")))
 		(cond
 			;new method
 			((or (eql %3 'static) (eql %3 'virtual))
-				(push c %1 %2 %3 %4 %5))
-			((eql %3 'static)
+				(push c (list %1 %2 %3 %4 %5)))
+			((eql %3 'override)
 				(print "Method " %1 " does not exist !"))
 			(t
-				(print "Must use static, virtual or override !")))))
+				(print "Must use static, virtual or override ! " _class_)))))
 
 ;;;;;;;;;;;;;;;
 ; class calling
@@ -67,9 +67,9 @@
 	;%1 = class name
 	;%2 = member name
 	(defq s 0 v ptr_size c (eval (class-name _class_)))
-	(unless (or (eq s (length c)) (eql (elem s c) %2)
+	(until (or (eq s (length c)) (eql (elem s c) %2))
 		(if (eql (elem s c) 'virtual) (setq v (add v ptr_size)))
-		(setq s (inc s))))
+		(setq s (inc s)))
 	(if (eq s (length c))
 		(print "No such method " %2 " in class " %1 " !"))
 	(list s v))
@@ -302,55 +302,52 @@
 ; generic class construction
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%macro class_macro_class 1
+(defcompilefun class-macro-class (%1)
 	;%1 = class name
-	func_path class, %1
-	def_func _function_
-		%ifidn _super_class_%1_, null
-			vtable_emit %1
-		%else
-			func_path class, _super_class_%1_
-			vtable_emit %1, _function_
-		%endif
-	def_func_end
-%endmacro
+	(func-path 'class %1)
+	(def-func _function_)
+		(defq c (eval (sym (cat "_super_class_" (str %1)))))
+		(if (eql c 'null)
+			(vtable-emit %1)
+			(progn
+				(func-path 'class c)
+				(vtable-emit %1 _function_)))
+	(def-func-end))
 
-%macro class_macro_create 1
+(defcompilefun class-macro-create (%1)
 	;%1 = class name
-	def_func class/%1/create
+	(def-func (sym (cat "class/" %1 "/create")))
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
 		;r1-r3
-		f_call %1, new, {}, {r0}
-		if r0, !=, 0
+		(f-call %1 'new '() '(r0))
+		(vpif '(r0 != 0))
 			;init the object
-			func_path class, %1
-			f_call %1, init, {r0, @_function_}, {r1}
-			if r1, ==, 0
+			(func-path 'class %1)
+			(f-call %1 'init `(r0 (@ ,_function_)) '(r1))
+			(vpif '(r1 == 0))
 				;error with init
-				v_call %1, delete, {r0}, {}, r1
+				(v-call %1 'delete '(r0) '() r1)
 				(vp-xor-rr r0 r0)
-			endif
-		endif
+			(endif)
+		(endif)
 		(vp-ret)
-	def_func_end
-%endmacro
+	(def-func-end))
 
-%macro class_macro_new 1
+(defcompilefun class-macro-new (%1)
 	;%1 = class name
-	def_func class/%1/new
+	(def-func (sym (cat "class/" %1 "/new")))
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
 		;r1-r3
-		f_call sys_mem, alloc, {%1_size}, {r0, _}
-		if r0, !=, 0
+		(f-call 'sys_mem 'alloc `(,(sym (cat (str %1) "_size"))) '(r0 _))
+		(vpif '(r0 != 0))
 			;clear object memory
 			(vp-cpy-rr r0 r3)
-			f_call sys_mem, clear, {r0, %1_size}, {_}
+			(f-call 'sys_mem 'clear `(r0 ,(sym (cat (str %1) "_size"))) '(_))
 			(vp-cpy-rr r3 r0)
-		endif
+		(endif)
 		(vp-ret)
-	def_func_end
-%endmacro
+	(def-func-end))

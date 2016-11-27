@@ -1,23 +1,23 @@
-;(import 'inc/class.inc)
+(import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; mail static class
 ;;;;;;;;;;;;;;;;;;;
 
-;(def-class 'sys_mail)
-;(def-method 'statics 'sys/mail_statics)
-;(def-method 'init 'sys/mail_init)
-;(def-method 'deinit 'sys/mail_deinit)
-;(def-method 'alloc 'sys/mail_alloc 'static '() '(r0))
-;(def-method 'alloc_parcel 'sys/mail_alloc_parcel 'static '(r0) '(r0))
-;(def-method 'send 'sys/mail_send 'static '(r0))
-;(def-method 'read 'sys/mail_read 'static '(r0) '(r0))
-;(def-method 'try_read 'sys/mail_try_read 'static '(r0) '(r0))
-;(def-method 'select 'sys/mail_select 'static '(r0 r1) '(r0))
-;(def-method 'mymail 'sys/mail_mymail 'static '() '(r0))
-;(def-method 'init_mailbox 'sys/mail_init_mailbox 'static '(r0))
-;(def-method 'in 'sys/mail_in)
-;(def-method 'out 'sys/mail_out)
+(def-class 'sys_mail)
+(def-method 'statics 'sys/mail_statics)
+(def-method 'init 'sys/mail_init)
+(def-method 'deinit 'sys/mail_deinit)
+(def-method 'alloc 'sys/mail_alloc 'static '() '(r0))
+(def-method 'alloc_parcel 'sys/mail_alloc_parcel 'static '(r0) '(r0))
+(def-method 'send 'sys/mail_send 'static '(r0))
+(def-method 'read 'sys/mail_read 'static '(r0) '(r0))
+(def-method 'try_read 'sys/mail_try_read 'static '(r0) '(r0))
+(def-method 'select 'sys/mail_select 'static '(r0 r1) '(r0))
+(def-method 'mymail 'sys/mail_mymail 'static '() '(r0))
+(def-method 'init_mailbox 'sys/mail_init_mailbox 'static '(r0))
+(def-method 'in 'sys/mail_in)
+(def-method 'out 'sys/mail_out)
 
 ;;;;;;;;;;;;;;;;;
 ; mail structures

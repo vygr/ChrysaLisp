@@ -1,24 +1,24 @@
-;(import 'inc/class.inc)
+(import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; syscall static class
 ;;;;;;;;;;;;;;;;;;;;;;
 
-;(def-class 'sys_io)
-;(def-method 'open 'sys/open 'static '(r0 r1 r2) '(r0))
-;(def-method 'close 'sys/close 'static '(r0))
-;(def-method 'char 'sys/write_char 'static '(r0 r1))
-;(def-method 'string 'sys/write_string 'static '(r0 r1))
-;(def-method 'number 'sys/write_number 'static '(r0 r1 r2))
-;(def-method 'read 'sys/read_line 'static '(r0 r1 r2) '(r0))
-;(def-method 'debug_long 'sys/write_debug_long 'static '(r0 r1 r2 r3))
-;(def-method 'debug_str 'sys/write_debug_str 'static '(r0 r1 r2 r3))
+(def-class 'sys_io)
+(def-method 'open 'sys/open 'static '(r0 r1 r2) '(r0))
+(def-method 'close 'sys/close 'static '(r0))
+(def-method 'char 'sys/write_char 'static '(r0 r1))
+(def-method 'string 'sys/write_string 'static '(r0 r1))
+(def-method 'number 'sys/write_number 'static '(r0 r1 r2))
+(def-method 'read 'sys/read_line 'static '(r0 r1 r2) '(r0))
+(def-method 'debug_long 'sys/write_debug_long 'static '(r0 r1 r2 r3))
+(def-method 'debug_str 'sys/write_debug_str 'static '(r0 r1 r2 r3))
 
-;(def-class 'sys_cpu)
-;(def-method 'id 'sys/cpu_get_id 'static '() '(r0))
-;(def-method 'time 'sys/cpu_get_time 'static '() '(r0))
-;(def-method 'total 'sys/cpu_get_total 'static '() '(r0))
-;(def-method 'opts 'sys/opt_process,static '{r0})
+(def-class 'sys_cpu)
+(def-method 'id 'sys/cpu_get_id 'static '() '(r0))
+(def-method 'time 'sys/cpu_get_time 'static '() '(r0))
+(def-method 'total 'sys/cpu_get_total 'static '() '(r0))
+(def-method 'opts 'sys/opt_process 'static '(r0))
 
 (defcompilefun sys-call (%1)
 	(vp-cpy-cr %1 r0)
