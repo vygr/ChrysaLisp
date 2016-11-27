@@ -6,7 +6,7 @@
 %include 'inc/syscall.ninc'
 %include 'inc/task.ninc'
 
-%xdefine debug_mode
+;%xdefine debug_mode
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail funcions

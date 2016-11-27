@@ -4,7 +4,7 @@
 (import 'inc/syscall.inc)
 (import 'inc/task.inc)
 
-(equate 'debug_mode t)
+(equate 'debug_mode nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail funcions
@@ -101,7 +101,7 @@
 		(setq *cnt* (inc *cnt*))) *paths*)
 	(vp-align ptr_size)
 	(vp-label '_func_end)
-	(print-emit-buffer)
+;	(print-emit-buffer)
 	(emit-passes)
 ;	(print-out-buffer 16)
 	(save *out-buffer* 'mytest))
@@ -142,7 +142,7 @@
 (defcompilefun debug-long (s i)
 	;s = debug string
 	;i = debug long
-	(if debug_mode (progn
+	(when debug_mode
 		(vp-push r0 r1 r2 r3 r5)
 		(vp-cpy-cr i r0)
 		(vp-push r0)
@@ -150,35 +150,35 @@
 		(vp-cpy-cr 0 r1)
 		(fn-string s r2)
 		(vp-pop r3)
-		(f-call 'sys_io 'debug_long '(r0, r1, r2, r3))
-		(vp-pop r0 r1 r2 r3 r5)))
+		(f-call 'sys_io 'debug_long '(r0 r1 r2 r3))
+		(vp-pop r0 r1 r2 r3 r5))
 
-(defcompilefun debug-str (s d)
+(defcompilefun debug-str (s &optional d)
 	;s = debug string
 	;d = debug string
-	(if debug_mode (progn
+	(when debug_mode
 		(vp-push r0 r1 r2 r3 r5)
-		(vp-cpy-cr i r0)
+		(vp-cpy-cr "" r0)
 		(vp-push r0)
 		(vp-lea-p '_func_pathname) r0)
 		(vp-cpy-cr 0 r1)
 		(fn-string s r2)
 		(vp-pop r3)
-		(f-call 'sys_io 'debug_str '(r0, r1, r2, r3))
-		(vp-pop r0 r1 r2 r3 r5)))
+		(f-call 'sys_io 'debug_str '(r0 r1 r2 r3))
+		(vp-pop r0 r1 r2 r3 r5))
 
 (defcompilefun abort (&optional s)
 	(setq s (if s s "Abort !"))
 	(debug-str s)
 	(sys-exit 1))
 
-(defcompilefun assert (a b c &optional d)
+(defcompilefun assert (b &optional d)
 	;a = val1
 	;b = condition
 	;c = val2
 	;d = debug string
-	(if debug_mode (progn
+	(when debug_mode
 		(setq d (if d d "Assert Failure !"))
-		(vpifnot '(a b c))
+		(vpifnot b)
 			(abort d)
-		(endif))))
+		(endif)))
