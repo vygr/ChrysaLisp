@@ -202,7 +202,7 @@
 	map_outputs %1, %2, {%4}, _static_
 %endmacro
 
-%macro f_jmp 2-4 {}
+%macro f_jmp 2-3 {}
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters
@@ -246,7 +246,7 @@
 	map_outputs _super_class_%1_, %2, {%4}, _static_
 %endmacro
 
-%macro s_jmp 2-4 {}
+%macro s_jmp 2-3 {}
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters
@@ -292,7 +292,7 @@
 	map_outputs %1, %2, {%4}, _static_
 %endmacro
 
-%macro v_jmp 2-5 {}, r15
+%macro v_jmp 2-4 {}, r15
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters
@@ -335,7 +335,7 @@
 	map_outputs %1, %2, {%4}, _static_
 %endmacro
 
-%macro d_jmp 2-4 {}
+%macro d_jmp 2-3 {}
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters

@@ -15,6 +15,6 @@ def_func class/pair/init
 	vp_cpy r3, [r0 + pair_second]
 
 	;init parent
-	s_jmp pair, init, {r0, r1}, {r1}
+	s_jmp pair, init, {r0, r1}
 
 def_func_end
