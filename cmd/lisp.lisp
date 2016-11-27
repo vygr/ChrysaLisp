@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file 'sys/load_init.vp)
+(compile-file 'sys/cpu_get_id.vp)
 ;(compile-file 'test.vp)

@@ -67,8 +67,8 @@
 	;%1 = class name
 	;%2 = member name
 	(defq s 0 v ptr_size c (eval (class-name _class_)))
-	(until (or (eq s (length c)) (eql (elem s c) %2))
-		(if (eql (elem s c) 'virtual) (setq v (add v ptr_size)))
+	(until (or (eq s (length c)) (eql (elem 0 (elem s c)) %2))
+		(if (eql (elem 2 (elem s c)) 'virtual) (setq v (add v ptr_size)))
 		(setq s (inc s)))
 	(if (eq s (length c))
 		(print "No such method " %2 " in class " %1 " !"))
