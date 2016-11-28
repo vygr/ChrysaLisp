@@ -48,7 +48,7 @@
 		(f-call 'gui_ctx 'filled_box '((r4 local_ctx) r8 r9 r10 r11))
 	(endif)
 
-	vp_cpy (r4 local_depth) ,r12
+	(vp-cpy-ir r4 local_depth r12)
 	(vpif '(r12 > 0))
 		;brighter colour
 		(f-call 'gui_ctx 'brighter '((r4 local_color)) '(r1))

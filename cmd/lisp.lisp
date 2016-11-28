@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file 'sys/task_restore.vp)
+(compile-file 'gui/font_open.vp)
 ;(compile-file 'test.vp)
