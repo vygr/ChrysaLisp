@@ -273,7 +273,7 @@
 
 (defcompilefun map-src-to-dst ()
 	(when (ne (length *src*) (length *dst*))
-		(print "Mismatching number of src/dst paramaters !"))
+		(print "Mismatching number of src/dst parameters !"))
 	(map-remove-ignored)
 	(map-topology-sort)
 	(each (lambda (x y)
