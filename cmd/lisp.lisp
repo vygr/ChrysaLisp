@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file 'gui/font_text.vp)
+(compile-file 'gui/gui.vp)
 ;(compile-file 'test.vp)

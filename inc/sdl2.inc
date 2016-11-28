@@ -69,6 +69,7 @@
 (equate 'SDL_WINDOW_ALLOW_HIGHDPI 0x00002000)
 
 (equate 'SDL_WINDOWPOS_UNDEFINED_MASK 0x1FFF0000)
+(equate 'SDL_WINDOWPOS_UNDEFINED SDL_WINDOWPOS_UNDEFINED_MASK)
 (equate 'SDL_WINDOWPOS_CENTERED_MASK 0x2FFF0000)
 
 (equate 'SDL_RENDERER_SOFTWARE 0x00000001)
@@ -112,7 +113,7 @@
 	(vp-cpy-ir r0 gui_statics_sdl_funcs r0)
 	(vp-call-i r0 (mul %1 ptr_size)))
 
-(defcompilefun sdl_set_main_ready ()
+(defcompilefun sdl-set-main-ready ()
 	(sdl-call sdl_SDL_SetMainReady))
 
 (defcompilefun sdl-init (%1)
@@ -129,7 +130,7 @@
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_Delay))
 
-(defcompilefun sdl_quit ()
+(defcompilefun sdl-quit ()
 	(sdl-call sdl_SDL_Quit))
 
 (defcompilefun sdl-create-window (%1 %2 %3 %4 %5 %6)
@@ -202,7 +203,7 @@
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_SetRenderDrawBlendMode))
 
-(defcompilefun sdl_pump_events ()
+(defcompilefun sdl-pump-events ()
 	(sdl-call sdl_SDL_PumpEvents))
 
 (defcompilefun sdl-get-mouse-state (%1 %2)
@@ -261,10 +262,10 @@
 	(map-src-to-dst)
 	(sdl-call sdl_SDL_SetTextureColorMod))
 
-(defcompilefun ttf_init ()
+(defcompilefun ttf-init ()
 	(sdl-call sdl_TTF_Init))
 
-(defcompilefun ttf_quit ()
+(defcompilefun ttf-quit ()
 	(sdl-call sdl_TTF_Quit))
 
 (defcompilefun ttf-open-font (%1 %2)

@@ -40,7 +40,7 @@ def_func class/string/init2
 		vp_cpy [r0 + string_length], r1
 		vp_add string_data, r0
 		vp_xor r2, r2
-		vp_cpy_ub r2, [r0 + r1]
+		vp_cpy_b r2, [r0 + r1]
 		sys_read r7, r0, r1
 
 		;close file
