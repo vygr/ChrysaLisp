@@ -72,7 +72,7 @@ callback:
 	func_call ref, deref, {pdata->pdata_value}
 	vpif {(*iter)->obj_vtable == @class/class_boxed_long}
 		func_call boxed_long, get_value, {*iter}, {num}
-		gotoif {num < -128 || num >= 256}, error
+		gotoif {num < 0 || num >= 256}, error
 		func_call sys_io, char, {num, pdata->pdata_handle}
 		assign {(*iter)}, {pdata->pdata_value}
 		func_call ref, ref, {pdata->pdata_value}

@@ -213,7 +213,7 @@
 ;;;;;;;;;;;;;;
 
 (defun compile-file (*file*)
-	(rehash 71)
+	(rehash 101)
 	(defun import (*file*)
 		(when (notany (lambda (x) (eql x *file*)) *imports*)
 			(push *imports* *file*)
