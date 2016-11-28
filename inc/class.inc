@@ -2,10 +2,10 @@
 ; class definition
 ;;;;;;;;;;;;;;;;;;
 
-(defcompilefun class-name (n) (sym (cat "_map_" (str n))))
-(defcompilefun super-name (n) (sym (cat "_super_class_" (str n))))
+(defcompilefun class-name (n) (sym (cat "_class_" (str n))))
+(defcompilefun super-name (n) (sym (cat "_super_" (str n))))
 
-(equate '_map_null (list))
+(equate (class-name 'null) (list))
 
 (defcompilefun vtable-emit (%1 &optional %2)
 	;%1 = class name
