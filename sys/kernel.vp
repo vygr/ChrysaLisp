@@ -40,7 +40,7 @@
 	(f-call 'sys_mail 'init)
 
 	;process command options
-	(f-call 'sys_cpu 'opts '((r4)))
+	(f-call 'sys_cpu 'opts '((r4 0)))
 
 	;fill in num cpu's with at least mine + 1
 	(f-call 'sys_cpu 'id '() '(r0))
@@ -268,7 +268,7 @@
 		(vpif '(r0 < 1))
 			(vp-cpy-cr 1 r0)
 		(endif)
-		sdl_delay r0
+		(sdl-delay r0)
 	(loop-end)
 
 	;free any kernel routing table
