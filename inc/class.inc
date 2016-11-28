@@ -28,13 +28,18 @@
 	;%4 = in regs
 	;%5 = out regs
 	(setq %3 (if %3 %3 'static) %4 (if %4 %4 (list)) %5 (if %5 %5 (list)))
-	(defq c (eval (class-name *class*)) m (some (lambda (m) (if (eql (elem 0 m) %1) m nil)) c))
+	(defq s 0 c (eval (class-name *class*))
+		m (some (lambda (m)
+			(if (eql (elem 0 m) %1) m
+				(progn (setq s (inc s)) nil))) c))
 	(if m
 		(cond
 			;existing method
 			((eql %3 'static)
 				(if (eql (elem 2 m) 'static)
 					(progn
+						(setq m (cat m))
+						(elem-set s c m)
 						(elem-set 1 m %2)
 						(if (ne (length %4) 0) (elem-set 3 m %4))
 						(if (ne (length %5) 0) (elem-set 4 m %5)))
@@ -44,6 +49,8 @@
 			((eql %3 'override)
 				(if (eql (elem 2 m) 'virtual)
 					(progn
+						(setq m (cat m))
+						(elem-set s c m)
 						(elem-set 1 m %2)
 						(if (ne (length %4) 0) (elem-set 3 m %4))
 						(if (ne (length %5) 0) (elem-set 4 m %5)))
@@ -76,7 +83,7 @@
 
 (defcompilefun map-inputs (%1 %2 %3)
 	;%1 = class
-	;%2 = paramaters
+	;%2 = parameters
 	;%3 = slot num
 	(set-src %2)
 	(set-dst (elem 3 (elem %3 %1)))
@@ -84,7 +91,7 @@
 
 (defcompilefun map-outputs (%1 %2 %3)
 	;%1 = class
-	;%2 = paramaters
+	;%2 = parameters
 	;%3 = slot num
 	(set-src (elem 4 (elem %3 %1)))
 	(set-dst %2)
@@ -115,21 +122,20 @@
 (defcompilefun f-call (%1 %2 &optional %3 %4)
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
+	;%3 = in parameters
+	;%4 = out parameters
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
 	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
 		(print "Class " %1 " method " %2 " is virtual ! Use v_call ?"))
 	(map-inputs c %3 s)
-	(if (eql %2 'for_each) (map-print))
 	(fn-call (elem 1 m))
 	(map-outputs c %4 s))
 
 (defcompilefun f-jmp (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
+	;%3 = in parameters
 	(setq %3 (if %3 %3 (list)))
 	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
@@ -149,8 +155,8 @@
 (defcompilefun s-call (%1 %2 &optional %3 %4)
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
+	;%3 = in parameters
+	;%4 = out parameters
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
 	(defq c (eval (super-name %1))
 		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
@@ -164,7 +170,7 @@
 (defcompilefun s-jmp (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
+	;%3 = in parameters
 	(setq %3 (if %3 %3 (list)))
 	(defq c (eval (super-name %1))
 		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
@@ -187,8 +193,8 @@
 (defcompilefun v-call (%1 %2 &optional %3 %4 %5)
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
+	;%3 = in parameters
+	;%4 = out parameters
 	;%5 = dispatch reg
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)) %5 (if %5 %5 r15))
 	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
@@ -202,7 +208,7 @@
 (defcompilefun v-jmp (%1 %2 &optional %3 %4)
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
+	;%3 = in parameters
 	;%4 = dispatch reg
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 r15))
 	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
@@ -226,8 +232,8 @@
 (defcompilefun d-call (%1 %2 &optional %3 %4)
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
+	;%3 = in parameters
+	;%4 = out parameters
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
 	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'static)
@@ -239,7 +245,7 @@
 (defcompilefun d-jmp (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
+	;%3 = in parameters
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
 	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'static)
