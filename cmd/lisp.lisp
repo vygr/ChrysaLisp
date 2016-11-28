@@ -228,7 +228,7 @@
 		`(def *compile-env* ',n (lambda ,a ~b)))
 	(defq *imports* (list))
 	(defq *emit-buffer* nil *out-buffer* nil)
-	(defq *struct* nil *struct-offset* nil *enum* nil *bit* nil)
+	(defq *class* nil *struct* nil *struct-offset* nil *enum* nil *bit* nil)
 	(defq *strings* nil *paths* nil *links* nil)
 	(defq *switch* nil *switch-nxt* 0 *switch-stk* (list))
 	(defq *src* nil *dst* nil)
@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file 'gui/region_remove_rect.vp)
+(compile-file 'class/view/backward_tree.vp)
 ;(compile-file 'test.vp)

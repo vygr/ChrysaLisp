@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;;
 
 (defcompilefun class-name (n) (sym (cat "_map_" (str n))))
+(defcompilefun super-name (n) (sym (cat "_super_class_" (str n))))
 
 (equate '_map_null (list))
 
@@ -17,9 +18,8 @@
 (defcompilefun def-class (%1 &optional %2)
 	;%1 = class name
 	;%2 = super class name
-	(setq %2 (if %2 %2 'null))
-	(equate '_class_ %1 (sym (cat "_super_class_" (str %1))) %2
-		(class-name %1) (cat (eval (class-name %2)))))
+	(setq %2 (if %2 %2 'null) *class* %1)
+	(equate (super-name %1) %2 (class-name %1) (cat (eval (class-name %2)))))
 
 (defcompilefun def-method (%1 %2 &optional %3 %4 %5)
 	;%1 = member name
@@ -28,7 +28,7 @@
 	;%4 = in regs
 	;%5 = out regs
 	(setq %3 (if %3 %3 'static) %4 (if %4 %4 (list)) %5 (if %5 %5 (list)))
-	(defq c (eval (class-name _class_)) m (some (lambda (m) (if (eql (elem 0 m) %1) m nil)) c))
+	(defq c (eval (class-name *class*)) m (some (lambda (m) (if (eql (elem 0 m) %1) m nil)) c))
 	(if m
 		(cond
 			;existing method
@@ -57,7 +57,7 @@
 			((eql %3 'override)
 				(print "Method " %1 " does not exist !"))
 			(t
-				(print "Must use static, virtual or override ! " _class_)))))
+				(print "Must use static, virtual or override ! ")))))
 
 ;;;;;;;;;;;;;;;
 ; class calling
@@ -147,7 +147,7 @@
 	;%3 = in paramaters
 	;%4 = out paramaters
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
-	(defq c (eval (sym (cat "_super_class_" (str %1))))
+	(defq c (eval (super-name %1))
 		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name c))))
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
@@ -161,7 +161,7 @@
 	;%2 = member name
 	;%3 = in paramaters
 	(setq %3 (if %3 %3 (list)))
-	(defq c (eval (sym (cat "_super_class_" (str %1))))
+	(defq c (eval (super-name %1))
 		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name c))))
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
@@ -173,7 +173,7 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
-	(defq c (eval (sym (cat "_super_class_" (str %1))))
+	(defq c (eval (super-name %1))
 		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name c))))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " c " method " %2 " is static !"))
@@ -294,7 +294,7 @@
 	;%1 = class name
 	(func-path 'class %1)
 	(def-func _function_)
-		(defq c (eval (sym (cat "_super_class_" (str %1)))))
+		(defq c (eval (super-name %1)))
 		(if (eql c 'null)
 			(vtable-emit %1)
 			(progn
