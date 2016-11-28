@@ -59,7 +59,7 @@
 ; task macros
 ;;;;;;;;;;;;;
 
-(equate 'tk_state_size (mul 15 ptr_size)
+(equate 'tk_state_size (mul 15 ptr_size))
 
 (defcompilefun tk-save-state ()
 	(vp-push r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))

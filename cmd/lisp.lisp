@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file 'sys/kernel.vp)
+(compile-file 'sys/task_restore.vp)
 ;(compile-file 'test.vp)
