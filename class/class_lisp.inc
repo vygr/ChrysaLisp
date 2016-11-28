@@ -66,6 +66,7 @@
 (def-method 'func_str 'class/lisp/func_str 'static '(r0 r1) '(r1))
 (def-method 'func_cat 'class/lisp/func_cat 'static '(r0 r1) '(r1))
 (def-method 'func_elem 'class/lisp/func_elem 'static '(r0 r1) '(r1))
+(def-method 'func_elemset 'class/lisp/func_elemset 'static '(r0 r1) '(r1))
 (def-method 'func_macroexpand_1 'class/lisp/func_macroexpand_1 'static '(r0 r1) '(r1 r2))
 (def-method 'func_macroexpand 'class/lisp/func_macroexpand 'static '(r0 r1) '(r1))
 (def-method 'func_defmacro 'class/lisp/func_defmacro 'static '(r0 r1) '(r1))

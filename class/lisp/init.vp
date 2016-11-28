@@ -161,6 +161,7 @@
 	(built-in "slice" 0 'func_slice)
 	(built-in "sub" 0 'func_sub)
 	(built-in "elem" 0 'func_elem)
+	(built-in "elem-set" 0 'func_elemset)
 	(built-in "char" 0 'func_char)
 	(built-in "code" 0 'func_code)
 	(built-in "file-stream" 0 'func_filestream)
