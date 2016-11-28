@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file 'gui/gui_update.vp)
+(compile-file 'gui/region_remove_rect.vp)
 ;(compile-file 'test.vp)

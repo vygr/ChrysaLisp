@@ -34,37 +34,37 @@
 				(vp-jmpif '(r10 >= r14) 'paste_split4)
 				(vp-jmpif '(r11 >= r15) 'paste_xyx1)
 
-			paste_xyx1y1:
+			(vp-label 'paste_xyx1y1)
 				;r8 + r9 + r10 + r11 inside
 				(vp-ret)
 
-			paste_split1:
+			(vp-label 'paste_split1)
 				;jump to correct splitting code
 				(vp-jmpif '(r13 >= r9) 'paste_split3)
 				(vp-jmpif '(r10 >= r14) 'paste_split5)
 				(vp-jmpif '(r11 >= r15) 'paste_yx1)
 
-			paste_yx1y1:
+			(vp-label 'paste_yx1y1)
 				;r9 + r10 + r11 inside
 				(vp-cpy-rr r12 r10)
 				(continue)
 
-			paste_split2:
+			(vp-label 'paste_split2)
 				;jump to correct splitting code
 				(vp-jmpif '(r10 >= r14) 'paste_split6)
 				(vp-jmpif '(r11 >= r15) 'paste_xx1)
 
-			paste_xx1y1:
+			(vp-label 'paste_xx1y1)
 				;r8 + r10 + r11 inside
 				(vp-cpy-rr r13 r11)
 				(continue)
 
-			paste_split3:
+			(vp-label 'paste_split3)
 				;jump to correct splitting code
 				(vp-jmpif '(r10 >= r14) 'paste_split7)
 				(vp-jmpif '(r11 >= r15) 'paste_x1)
 
-			paste_x1y1:
+			(vp-label 'paste_x1y1)
 				;r10 + r11 inside
 				;bottom part
 				(vp-cpy-ri-i r11 r7 gui_rect_y)
@@ -78,20 +78,20 @@
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
 				(continue)
 
-			paste_split4:
+			(vp-label 'paste_split4)
 				;jump to correct splitting code
 				(vp-jmpif '(r11 >= r15) 'paste_xy)
 
-			paste_xyy1:
+			(vp-label 'paste_xyy1)
 				;r8 + r9 + r11 inside
 				(vp-cpy-rr r14 r8)
 				(continue)
 
-			paste_split5:
+			(vp-label 'paste_split5)
 				;jump to correct splitting code
 				(vp-jmpif '(r11 >= r15) 'paste_y)
 
-			paste_yy1:
+			(vp-label 'paste_yy1)
 				;r9 + r11 inside
 				;bottom part
 				(vp-cpy-ri-i r11 r7 gui_rect_y)
@@ -105,11 +105,11 @@
 				(vp-cpy-ri-i r9 r1 gui_rect_y1)
 				(continue)
 
-			paste_split6:
+			(vp-label 'paste_split6)
 				;jump to correct splitting code
 				(vp-jmpif '(r11 >= r15) 'paste_x)
 
-			paste_xy1:
+			(vp-label 'paste_xy1)
 				;r8 + r11 inside
 				;bottom part
 				(vp-cpy-ri-i r11 r7 gui_rect_y)
@@ -123,17 +123,17 @@
 				(vp-cpy-ri-i r11 r1 gui_rect_y1)
 				(continue)
 
-			paste_split7:
+			(vp-label 'paste_split7)
 				;jump to correct splitting code
 				(vp-jmpif '(r11 >= r15) 'paste_encl)
 
-			paste_y1:
+			(vp-label 'paste_y1)
 				;r11 inside
 				;bottom part
 				(vp-cpy-ri-i r11 r7 gui_rect_y)
 				(continue)
 
-			paste_xyx1:
+			(vp-label 'paste_xyx1)
 				;r8 + r9 + r10 inside
 				(vp-cpy-rr r15 r9)
 				(continue)
@@ -172,13 +172,13 @@
 				(vp-cpy-ri-i r9 r1 gui_rect_y1)
 				(continue)
 
-			paste_x1:
+			(vp-label 'paste_x1)
 				;r10 inside
 				;right part
 				(vp-cpy-ri-i r10 r7 gui_rect_x)
 				(continue)
 
-			paste_xx1:
+			(vp-label 'paste_xx1)
 				;r8 + r10 inside
 				;right part
 				(vp-cpy-ri-i r10 r7 gui_rect_x)
@@ -192,7 +192,7 @@
 				(vp-cpy-ri-i r15 r1 gui_rect_y1)
 				(continue)
 
-			paste_yx1:
+			(vp-label 'paste_yx1)
 				;r9 + r10 inside
 				;right part
 				(vp-cpy-ri-i r10 r7 gui_rect_x)

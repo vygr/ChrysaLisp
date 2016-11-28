@@ -98,7 +98,7 @@
 	(else)
 	(vp-label 'list_quote)
 		(func-call 'ref 'ref '(elem))
-	list_quote1:
+	(vp-label 'list_quote1)
 		(func-call 'vector 'create '() '(list))
 		(assign '(pdata -> pdata_this -> lisp_sym_list) '(sym))
 		(func-call 'ref 'ref '(sym))
