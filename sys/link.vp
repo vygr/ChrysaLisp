@@ -139,7 +139,7 @@
 				;round up to next 8 byte boundary for speed
 				(vp-lea-i r10 lk_chan_msg r1)
 				(vp-cpy-ir r9 msg_length r2)
-				(vp-add-cr ptr_size - 1 r2)
+				(vp-add-cr (sub ptr_size 1) r2)
 				(vp-and-cr (sub 0 ptr_size) r2)
 				(f-call 'sys_mem 'copy '(r9 r1 r2) '(_ _))
 
@@ -165,7 +165,7 @@
 			(vp-cpy-rr r0 r1)
 			(vp-lea-i r11 lk_chan_msg r0)
 			(vp-cpy-ir r0 msg_length r2)
-			(vp-add-cr ptr_size - 1 r2)
+			(vp-add-cr (sub ptr_size 1) r2)
 			(vp-and-cr (sub 0 ptr_size) r2)
 			(f-call 'sys_mem 'copy '(r0 r1 r2) '(_ _))
 

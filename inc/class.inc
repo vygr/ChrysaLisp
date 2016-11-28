@@ -66,7 +66,7 @@
 (defcompilefun method-lookup (%1 %2)
 	;%1 = class name
 	;%2 = member name
-	(defq s 0 v ptr_size c (eval (class-name _class_)))
+	(defq s 0 v ptr_size c (eval (class-name %1)))
 	(until (or (eq s (length c)) (eql (elem 0 (elem s c)) %2))
 		(if (eql (elem 2 (elem s c)) 'virtual) (setq v (add v ptr_size)))
 		(setq s (inc s)))
@@ -140,18 +140,6 @@
 	(if (eql (elem 2 m) 'virtual)
 		(print "Class " %1 " method " %2 " is virtual ! Use v_bind ?"))
 	(fn-bind (elem 1 m) %3))
-
-(defcompilefun f-call (%1 %2 %3 %4)
-	;%1 = class name
-	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
-	(if (eql (elem 2 m) 'virtual)
-		(print "Class " %1 " method " %2 " is virtual ! Use v_call ?"))
-	(map-inputs %1 %3 s)
-	(fn-call (elem 1 m))
-	(map-outputs %1 %4 s))
 
 (defcompilefun s-call (%1 %2 &optional %3 %4)
 	;%1 = class name

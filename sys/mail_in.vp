@@ -3,7 +3,6 @@
 
 (def-func 'sys/mail_in)
 	;parcel fragments arriving on chip task
-
 	(loop-start)
 		;read parcel fragment
 		(f-call 'sys_mail 'mymail '() '(r15))
@@ -51,7 +50,7 @@
 		(vp-add-rr r2 r13)
 
 		;copy fragment data, round up for speed
-		(vp-add-cr ptr_size - 1 r2)
+		(vp-add-cr (sub ptr_size 1) r2)
 		(vp-and-cr (sub 0 ptr_size) r2)
 		(f-call 'sys_mem 'copy '(r0 r1 r2) '(_ _))
 
