@@ -34,7 +34,7 @@
 			(vp-cpy-ri r7 r14 (add msg_parcel_id id_cpu))
 
 			;data source and destination
-			(vp-lea-i r15 r10 r0)
+			(vp-lea-d r15 r10 r0)
 			(vp-lea-i r14 msg_data r1)
 
 			;length of fragment data

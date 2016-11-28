@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file 'sys/mail_in.vp)
+(compile-file 'sys/mail_out.vp)
 ;(compile-file 'test.vp)

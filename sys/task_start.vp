@@ -43,7 +43,7 @@
 	(ml-init r6 r2 r3)
 
 	;set task control block stack and return address's
-	(vp-lea-i r0 r1 r1)
+	(vp-lea-d r0 r1 r1)
 	(vp-sub-cr (add tk_state_size (mul ptr_size 2)) r1)
 	(vp-cpy-ri r1 r0 tk_node_stack)
 	(fn-bind 'sys/task_stop r2)
