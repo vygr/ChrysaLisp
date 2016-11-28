@@ -29,7 +29,7 @@
 	(vp-and-cr 0xff r9)
 	(vp-and-cr 0xff r10)
 	(vp-and-cr 0xff r11)
-	(sdl-set-render-draw-color '((r0 gui_ctx_sdl_ctx) , r8, r9, r10, r11))
+	(sdl-set-render-draw-color '(r0 gui_ctx_sdl_ctx) r8 r9 r10 r11)
 
 	(vp-cpy-ir r4 local_old_stack r4)
 	(vp-ret)
