@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file 'gui/gui.vp)
+(compile-file 'gui/gui_update.vp)
 ;(compile-file 'test.vp)

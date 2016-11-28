@@ -81,7 +81,7 @@
 		(vp-cpy-ri r2 r1 gui_ctx_dirty_region)
 		(v-call 'view 'draw '(r0 r1))
 		(vp-cpy-ir r4 local_ctx_next r1)
-		(vp-sub-cr view_ctx_node - view_dirty_region r1)
+		(vp-sub-cr (sub view_ctx_node view_dirty_region) r1)
 		(f-bind 'gui_gui 'statics r0)
 		(vp-add-cr gui_statics_rect_heap r0)
 		(f-call 'gui_region 'free '(r0 r1))
@@ -130,7 +130,7 @@
 	(vpif '(r1 != (r4 vis_root)))
 		;remove my opaque region from ancestors
 		(vp-xor-rr r2 r2)
-		(vp-cpy-ri r4 vis_region)
+		(vp-cpy-ri r2 r4 vis_region)
 
 		;first copy any opaque region
 		(vp-cpy-ir r1 view_x r8)

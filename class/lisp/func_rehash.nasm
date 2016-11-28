@@ -16,7 +16,7 @@ def_func class/lisp/func_rehash
 	push_scope
 	retire {r0, r1}, {this, args}
 
-	func_call unordered_map, copy, {this->lisp_enviroment, 71}, {args}
+	func_call unordered_map, copy, {this->lisp_enviroment, 101}, {args}
 	func_call ref, deref, {this->lisp_enviroment}
 	func_call ref, ref, {args}
 	assign {args}, {this->lisp_enviroment}
