@@ -29,7 +29,7 @@
 	;r1 = 0 if break, else not
 
 	(vp-cpy-ir r0 0 r2)
-	(f-call 'ref 'ref '((r1)))
+	(f-call 'ref 'ref '((r1 0)))
 	(vp-push r0)
 	(f-call 'unordered_set 'get_bucket '(r2 r0) '(r0))
 	(vp-pop r1)

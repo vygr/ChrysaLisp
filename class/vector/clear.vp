@@ -31,7 +31,7 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(f-call 'ref 'deref '((r1)))
+	(f-call 'ref 'deref '((r1 0)))
 	(vp-cpy-cr 1 r1)
 	(vp-ret)
 

@@ -16,7 +16,7 @@
 	(vp-cpy-ir r0 vector_array r0)
 	(vp-mul-cr ptr_size r1)
 	(vp-add-rr r1 r0)
-	(f-call 'ref 'deref '((r0)))
+	(f-call 'ref 'deref '((r0 0)))
 	(vp-pop r0)
 	(vp-ret)
 

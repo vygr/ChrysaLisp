@@ -29,7 +29,7 @@
 	(vp-cpy-ri r2 r0 unordered_set_length)
 
 	;swap last entry for erased entry
-	(f-call 'ref 'deref '((r1)))
+	(f-call 'ref 'deref '((r1 0)))
 	(vp-cpy-ir r4 local_bucket r0)
 	(vp-cpy-ir r0 vector_length r1)
 	(vp-dec r1)
