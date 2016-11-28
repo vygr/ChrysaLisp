@@ -146,7 +146,7 @@
 %macro map_inputs 4
 	;%1 = class name
 	;%2 = member name
-	;%3 = paramaters
+	;%3 = parameters
 	;%4 = slot num
 
 	set_src %3
@@ -157,7 +157,7 @@
 %macro map_outputs 4
 	;%1 = class name
 	;%2 = member name
-	;%3 = paramaters
+	;%3 = parameters
 	;%4 = slot num
 
 	set_src _map_%1_out_%4
@@ -190,8 +190,8 @@
 %macro f_call 2-4 {}, {}
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
+	;%3 = in parameters
+	;%4 = out parameters
 
 	method_lookup %1, %2
 	%ifidn _map_%1_type_%[_static_], virtual
@@ -205,7 +205,7 @@
 %macro f_jmp 2-3 {}
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
+	;%3 = in parameters
 
 	method_lookup %1, %2
 	%ifidn _map_%1_type_%[_static_], virtual
@@ -230,8 +230,8 @@
 %macro s_call 2-4 {}, {}
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
+	;%3 = in parameters
+	;%4 = out parameters
 
 	method_lookup _super_class_%1_, %2
 	%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
@@ -249,7 +249,7 @@
 %macro s_jmp 2-3 {}
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
+	;%3 = in parameters
 
 	method_lookup _super_class_%1_, %2
 	%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
@@ -278,8 +278,8 @@
 %macro v_call 2-5 {}, {}, r15
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
+	;%3 = in parameters
+	;%4 = out parameters
 	;%5 = dispatch reg
 
 	method_lookup %1, %2
@@ -295,7 +295,7 @@
 %macro v_jmp 2-4 {}, r15
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
+	;%3 = in parameters
 	;%4 = dispatch reg
 
 	method_lookup %1, %2
@@ -323,8 +323,8 @@
 %macro d_call 2-4 {}, {}
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
+	;%3 = in parameters
+	;%4 = out parameters
 
 	method_lookup %1, %2
 	%ifidn _map_%1_type_%[_static_], static
@@ -338,7 +338,7 @@
 %macro d_jmp 2-3 {}
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
+	;%3 = in parameters
 
 	method_lookup %1, %2
 	%ifidn _map_%1_type_%[_static_], static
@@ -367,8 +367,8 @@
 %macro func_call 2-4 {}, {}
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
+	;%3 = in parameters
+	;%4 = out parameters
 
 	method_lookup %1, %2
 	%ifidn _map_%1_type_%[_static_], virtual
@@ -382,8 +382,8 @@
 %macro super_call 2-4 {}, {}
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
+	;%3 = in parameters
+	;%4 = out parameters
 
 	method_lookup _super_class_%1_, %2
 	%ifidn _map_%[_super_class_%1_]_type_%[_static_], static
@@ -401,8 +401,8 @@
 %macro virt_call 2-5 {}, {}, r15
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
+	;%3 = in parameters
+	;%4 = out parameters
 	;%5 = dispatch reg
 
 	method_lookup %1, %2
@@ -418,8 +418,8 @@
 %macro devirt_call 2-4 {}, {}
 	;%1 = class name
 	;%2 = member name
-	;%3 = in paramaters
-	;%4 = out paramaters
+	;%3 = in parameters
+	;%4 = out parameters
 
 	method_lookup %1, %2
 	%ifidn _map_%1_type_%[_static_], static
@@ -432,9 +432,9 @@
 
 %macro local_call 1-5 {}, {}, {}, {}
 	;%1 = label
-	;%2 = in paramaters
+	;%2 = in parameters
 	;%3 = in regs
-	;%4 = out paramaters
+	;%4 = out parameters
 	;%5 = out regs
 
 	expr {%2}, {%3}
