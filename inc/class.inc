@@ -112,7 +112,7 @@
 	;%1 = class name
 	;%2 = slot method name
 	;%3 = macro name
-	(setq %3 (if %3 %3 '_function_) n (sym (cat "_super_class_" (str %1))))
+	(setq %3 (if %3 %3 '_function_) n (eval (super-name %1)))
 	(equate %3 (elem 1 (elem (elem 0 (method-lookup n %2)) (eval n)))))
 
 ;;;;;;;;;;;;;;;;;
@@ -162,7 +162,7 @@
 		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
-			(print "Class " c " method " %2 " is static !")))
+			(print "Class " (eval (super-name %1)) " method " %2 " is static !")))
 	(map-inputs c %3 s)
 	(fn-call (elem 1 m))
 	(map-outputs c %4 s))
