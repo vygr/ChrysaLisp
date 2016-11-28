@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file 'class/view/backward_tree.vp)
+(compile-file 'class/view/to_front.vp)
 ;(compile-file 'test.vp)

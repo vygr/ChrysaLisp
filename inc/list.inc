@@ -149,27 +149,29 @@
 	(ln-set-pred %2 %1)
 	(ln-set-succ %1 %2))
 
-(defcompilefun ln-is-first (%1 %2)
+(defcompilefun ln-is-first (%1 %2 %3)
 	;inputs
 	;%1 = list node
-	;%2 = temp
+	;%2 = offset
+	;%3 = temp
 	;outputs
 	;%1 = list node
-	;%2 = 0 if first, else not
+	;%3 = 0 if first, else not
 
-	(ln-get-pred %1 0 %2)
-	(ln-get-pred %2 0 %2))
+	(ln-get-pred %1 %2 %3)
+	(ln-get-pred %3 0 %3))
 
-(defcompilefun ln-is-last (%1 %2)
+(defcompilefun ln-is-last (%1 %2 %3)
 	;inputs
 	;%1 = list node
-	;%2 = temp
+	;%2 = offset
+	;%3 = temp
 	;outputs
 	;%1 = list node
-	;%2 = 0 if last, else not
+	;%3 = 0 if last, else not
 
-	(ln-get-succ %1 0 %2)
-	(ln-get-succ %2 0 %2))
+	(ln-get-succ %1 %2 %3)
+	(ln-get-succ %3 0 %3))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; list header macros
