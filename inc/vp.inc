@@ -190,7 +190,7 @@
 
 (defcompilefun emit-passes ()
 	(defq *out-buffer-cnt* 0 *out-buffer-size* 0)
-	(while (lt *out-buffer-cnt* 1)
+	(while (lt *out-buffer-cnt* 2)
 		(setq *out-buffer* (list))
 		(each eval *emit-buffer*)
 		(setq *out-buffer-cnt* (if (eq *out-buffer-size* (length *out-buffer*))
