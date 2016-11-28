@@ -72,23 +72,27 @@
 		(setq s (inc s)))
 	(if (eq s (length c))
 		(print "No such method " %2 " in class " %1 " !"))
-	(list s v))
+	(list s v c))
 
 (defcompilefun map-inputs (%1 %2 %3)
-	;%1 = class name
+	;%1 = class
 	;%2 = paramaters
 	;%3 = slot num
 	(set-src %2)
-	(set-dst (elem 3 (elem %3 (eval (class-name %1)))))
+	(set-dst (elem 3 (elem %3 %1)))
 	(map-src-to-dst))
 
 (defcompilefun map-outputs (%1 %2 %3)
-	;%1 = class name
+	;%1 = class
 	;%2 = paramaters
 	;%3 = slot num
-	(set-src (elem 4 (elem %3 (eval (class-name %1)))))
+	(set-src (elem 4 (elem %3 %1)))
 	(set-dst %2)
 	(map-src-to-dst))
+
+(defcompilefun map-print ()
+	(each (lambda (x y)
+		(print x " -> " y)) *src* *dst*))
 
 (defcompilefun func-path (%1 %2 &optional %3)
 	;%1 = class name
@@ -114,29 +118,30 @@
 	;%3 = in paramaters
 	;%4 = out paramaters
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
 		(print "Class " %1 " method " %2 " is virtual ! Use v_call ?"))
-	(map-inputs %1 %3 s)
+	(map-inputs c %3 s)
+	(if (eql %2 'for_each) (map-print))
 	(fn-call (elem 1 m))
-	(map-outputs %1 %4 s))
+	(map-outputs c %4 s))
 
 (defcompilefun f-jmp (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters
 	(setq %3 (if %3 %3 (list)))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
 		(print "Class " %1 " method " %2 " is virtual ! Use v_jmp ?"))
-	(map-inputs %1 %3 s)
+	(map-inputs c %3 s)
 	(fn-jmp (elem 1 m)))
 
 (defcompilefun f-bind (%1 %2 %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
 		(print "Class " %1 " method " %2 " is virtual ! Use v_bind ?"))
 	(fn-bind (elem 1 m) %3))
@@ -148,7 +153,7 @@
 	;%4 = out paramaters
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
 	(defq c (eval (super-name %1))
-		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name c))))
+		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
 			(print "Class " c " method " %2 " is static !")))
@@ -162,10 +167,10 @@
 	;%3 = in paramaters
 	(setq %3 (if %3 %3 (list)))
 	(defq c (eval (super-name %1))
-		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name c))))
+		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
-			(print "Class " c " method " %2 " is static !")))
+			(print "Class " (eval (super-name %1)) " method " %2 " is static !")))
 	(map-inputs c %3 s)
 	(fn-jmp (elem 1 m)))
 
@@ -174,9 +179,9 @@
 	;%2 = member name
 	;%3 = reg
 	(defq c (eval (super-name %1))
-		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name c))))
+		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'static)
-		(print "Class " c " method " %2 " is static !"))
+		(print "Class " (eval (super-name %1)) " method " %2 " is static !"))
 	(fn-bind (elem 1 m) %3))
 
 (defcompilefun v-call (%1 %2 &optional %3 %4 %5)
@@ -186,13 +191,13 @@
 	;%4 = out paramaters
 	;%5 = dispatch reg
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)) %5 (if %5 %5 r15))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_call ?"))
-	(map-inputs %1 %3 s)
+	(map-inputs c %3 s)
 	(vp-cpy-ir r0 obj_vtable %5)
 	(vp-call-i %5 v)
-	(map-outputs %1 %4 s))
+	(map-outputs c %4 s))
 
 (defcompilefun v-jmp (%1 %2 &optional %3 %4)
 	;%1 = class name
@@ -200,10 +205,10 @@
 	;%3 = in paramaters
 	;%4 = dispatch reg
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 r15))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_jmp ?"))
-	(map-inputs %1 %3 s)
+	(map-inputs c %3 s)
 	(vp-cpy-ir r0 obj_vtable %4)
 	(vp-jmp-i %4 v))
 
@@ -212,7 +217,7 @@
 	;%2 = member name
 	;%3 = dispatch reg
 	(setq %3 (if %3 %3 r15))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_bind ?"))
 	(vp-cpy-ir r0 obj_vtable %3)
@@ -224,29 +229,29 @@
 	;%3 = in paramaters
 	;%4 = out paramaters
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_call ?"))
-	(map-inputs %1 %3 s)
+	(map-inputs c %3 s)
 	(fn-call (elem 1 m))
-	(map-outputs %1 %4 s))
+	(map-outputs c %4 s))
 
 (defcompilefun d-jmp (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in paramaters
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_jmp ?"))
-	(map-inputs %1 %3 s)
+	(map-inputs c %3 s)
 	(fn-jmp (elem 1 m)))
 
 (defcompilefun d-bind (%1 %2 %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) m (elem s (eval (class-name %1))))
+	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_bind ?"))
 	(fn-bind (elem 1 m) %3))
