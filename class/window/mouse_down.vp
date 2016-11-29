@@ -19,7 +19,7 @@
 	(vp-sub-cr (mul window_border_size 2) r10)
 	(vp-sub-cr (mul window_border_size 2) r11)
 	(vp-xor-rr r15 r15)
-	(vpif '(r8 < window_border_size * 2))
+	(vpif '(r8 < (mul window_border_size 2)))
 		;left edge
 		(vp-or-cr window_drag_left r15)
 	(endif)
@@ -28,7 +28,7 @@
 		(vp-or-cr window_drag_right r15)
 		(vp-sub-ir r0 view_w r12)
 	(endif)
-	(vpif '(r9 < window_border_size * 2))
+	(vpif '(r9 < (mul window_border_size 2)))
 		;top edge
 		(vp-or-cr window_drag_top r15)
 	(endif)
