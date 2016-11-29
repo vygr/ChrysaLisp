@@ -35,12 +35,16 @@ def_func class/lisp/func_save
 			func_call vector, get_element, {args, 1}, {name}
 			vpif {name->obj_vtable == @class/class_string \
 				|| name->obj_vtable == @class/class_symbol}
-				assign {this->lisp_sym_nil}, {value}
-				func_call ref, ref, {value}
 				devirt_call vector, get_length, {list}, {length}
 				func_call sys_io, open, {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth}, {handle}
-				func_call vector, for_each, {list, 0, length, $callback, &this}, {_}
-				func_call sys_io, close, {handle}
+				vpif {handle >= 3}
+					assign {this->lisp_sym_nil}, {value}
+					func_call ref, ref, {value}
+					func_call vector, for_each, {list, 0, length, $callback, &this}, {_}
+					func_call sys_io, close, {handle}
+				else
+					func_call error, create, {"(save list filename) open error", args}, {value}
+				endif
 			else
 				func_call error, create, {"(save list filename) not filename", args}, {value}
 			endif
