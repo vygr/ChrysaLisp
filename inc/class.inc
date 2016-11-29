@@ -315,7 +315,7 @@
 
 (defcfun class-macro-create (%1)
 	;%1 = class name
-	(def-func (sym (cat "class/" %1 "/create")))
+	(def-func (sym (cat "class/" (str %1) "/create")))
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
@@ -336,7 +336,7 @@
 
 (defcfun class-macro-new (%1)
 	;%1 = class name
-	(def-func (sym (cat "class/" %1 "/new")))
+	(def-func (sym (cat "class/" (str %1) "/new")))
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes

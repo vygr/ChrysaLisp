@@ -18,7 +18,7 @@
 	(vpif '(r0 != 0))
 		;init the object
 		(func-path 'class 'stream_str)
-		(f-call 'stream_str 'init '(r0 (@ _function_) r5) '(r1))
+		(f-call 'stream_str 'init `(r0 (@ ,_function_) r5) '(r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'stream_str 'delete '(r0) '() 'r1)

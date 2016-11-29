@@ -19,7 +19,7 @@
 	(vpif '(r0 != 0))
 		;init the object
 		(func-path 'class 'error)
-		(f-call 'error 'init '(r0 (@ _function_) r6 r7) '(r1))
+		(f-call 'error 'init `(r0 (@ ,_function_) r6 r7) '(r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'error 'delete '(r0) '() 'r1)

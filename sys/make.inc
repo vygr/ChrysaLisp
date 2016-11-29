@@ -70,12 +70,12 @@
 (import 'sys/write_debug_str.vp)
 (import 'sys/write_number.vp)
 (import 'sys/write_string.vp)
+(import 'sys/task_open.vp)
+(import 'sys/task_open_child.vp)
 
 ;needs C-Script
 (when nil
-(import 'sys/task_open.vp)
 (import 'sys/task_open_array.vp)
-(import 'sys/task_open_child.vp)
 (import 'sys/task_open_device.vp)
 (import 'sys/task_open_farm.vp)
 (import 'sys/task_open_global.vp)
