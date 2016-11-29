@@ -6,7 +6,7 @@
 
 (def-func 'cmd/forth)
 
-(equate 'buffer_size 120)
+(defcvar 'buffer_size 120)
 
 	(ptr 'slave 'stream 'vector 'string)
 	(ulong 'length)
@@ -118,9 +118,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;format of dictionary entry flag byte
-(equate 'F_IMMED 0x80)
-(equate 'F_HIDDEN 0x20)
-(equate 'F_LENMASK 0x1f)
+(defcvar 'F_IMMED 0x80)
+(defcvar 'F_HIDDEN 0x20)
+(defcvar 'F_LENMASK 0x1f)
 
 ;format of header
 (def-struct 'header)

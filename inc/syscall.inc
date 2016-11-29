@@ -20,7 +20,7 @@
 (def-method 'total 'sys/cpu_get_total 'static '() '(r0))
 (def-method 'opts 'sys/opt_process 'static '(r0))
 
-(defcompilefun sys-call (%1)
+(defcfun sys-call (%1)
 	(vp-cpy-cr %1 r0)
 	(vp-syscall))
 
@@ -30,63 +30,63 @@
 ; syscall for OSX
 ;;;;;;;;;;;;;;;;;
 
-(equate 'sys_exit 0x1)
-(equate 'sys_read 0x3)
-(equate 'sys_write 0x4)
-(equate 'sys_open 0x5)
-(equate 'sys_close 0x6)
-(equate 'sys_unlink 0xa)
-(equate 'sys_ftruncate 0xc9)
-(equate 'sys_stat 0xbc)
-(equate 'sys_mmap 0xc5)
-(equate 'sys_munmap 0x49)
-(equate 'sys_mprotect 0x4a)
-(equate 'sys_gettimeofday 0x74)
+(defcvar 'sys_exit 0x1)
+(defcvar 'sys_read 0x3)
+(defcvar 'sys_write 0x4)
+(defcvar 'sys_open 0x5)
+(defcvar 'sys_close 0x6)
+(defcvar 'sys_unlink 0xa)
+(defcvar 'sys_ftruncate 0xc9)
+(defcvar 'sys_stat 0xbc)
+(defcvar 'sys_mmap 0xc5)
+(defcvar 'sys_munmap 0x49)
+(defcvar 'sys_mprotect 0x4a)
+(defcvar 'sys_gettimeofday 0x74)
 
-(equate 'prot_none 0x0)
-(equate 'prot_read 0x1)
-(equate 'prot_write 0x2)
-(equate 'prot_exec 0x4)
+(defcvar 'prot_none 0x0)
+(defcvar 'prot_read 0x1)
+(defcvar 'prot_write 0x2)
+(defcvar 'prot_exec 0x4)
 
-(equate 'map_shared 0x1)
-(equate 'map_private 0x2)
-(equate 'map_fixed 0x10)
-(equate 'map_anon 0x1000)
+(defcvar 'map_shared 0x1)
+(defcvar 'map_private 0x2)
+(defcvar 'map_fixed 0x10)
+(defcvar 'map_anon 0x1000)
 
-(equate 'o_rdonly 0x0)
-(equate 'o_wronly 0x1)
-(equate 'o_rdwr 0x2)
-(equate 'o_trunc 0x400)
-(equate 'o_append 0x8)
-(equate 'o_nonblock 0x4)
-(equate 'o_creat 0x200)
-(equate 'o_excl 0x800)
-(equate 'o_nofollow 0x100)
-(equate 'o_cloexec 0x1000000)
+(defcvar 'o_rdonly 0x0)
+(defcvar 'o_wronly 0x1)
+(defcvar 'o_rdwr 0x2)
+(defcvar 'o_trunc 0x400)
+(defcvar 'o_append 0x8)
+(defcvar 'o_nonblock 0x4)
+(defcvar 'o_creat 0x200)
+(defcvar 'o_excl 0x800)
+(defcvar 'o_nofollow 0x100)
+(defcvar 'o_cloexec 0x1000000)
 
-(equate 's_irwxu 0x1c0)
-(equate 's_irusr 0x100)
-(equate 's_iwusr 0x80)
-(equate 's_ixusr 0x40)
-(equate 's_irwxg 0x38)
-(equate 's_irgrp 0x20)
-(equate 's_iwgrp 0x10)
-(equate 's_ixgrp 0x8)
-(equate 's_irwxo 0x7)
-(equate 's_iroth 0x4)
-(equate 's_iwoth 0x2)
-(equate 's_ixoth 0x1)
-(equate 's_isuid 0x800)
-(equate 's_isgid 0x400)
-(equate 's_isvtx 0x200)
+(defcvar 's_irwxu 0x1c0)
+(defcvar 's_irusr 0x100)
+(defcvar 's_iwusr 0x80)
+(defcvar 's_ixusr 0x40)
+(defcvar 's_irwxg 0x38)
+(defcvar 's_irgrp 0x20)
+(defcvar 's_iwgrp 0x10)
+(defcvar 's_ixgrp 0x8)
+(defcvar 's_irwxo 0x7)
+(defcvar 's_iroth 0x4)
+(defcvar 's_iwoth 0x2)
+(defcvar 's_ixoth 0x1)
+(defcvar 's_isuid 0x800)
+(defcvar 's_isgid 0x400)
+(defcvar 's_isvtx 0x200)
 
-(equate 's_ifmt 0xf000)
-(equate 's_ifdir 0x4000)
-(equate 's_ifreg 0x8000)
+(defcvar 's_ifmt 0xf000)
+(defcvar 's_ifdir 0x4000)
+(defcvar 's_ifreg 0x8000)
 
-(equate 'stat_mode 0x8)
-(equate 'stat_fsize 0x48)
-(equate 'stat_size 0x100)
+(defcvar 'stat_mode 0x8)
+(defcvar 'stat_fsize 0x48)
+(defcvar 'stat_size 0x100)
 
 (def-struct 'timeval)
 	(long 'timeval_sec)
@@ -102,22 +102,22 @@
 ; syscall macros
 ;;;;;;;;;;;;;;;;
 
-(defcompilefun push-trashed ()
+(defcfun push-trashed ()
 	;pushes onto r4
 	(vp-push r1 r2 r6 r7 r8 r9 r10 r11))
 
-(defcompilefun pop-trashed ()
+(defcfun pop-trashed ()
 	;pops from r4
 	(vp-pop r1 r2 r6 r7 r8 r9 r10 r11))
 
-(defcompilefun sys-exit (%1)
+(defcfun sys-exit (%1)
 	;return code
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sys-call (add sys_exit 0x2000000)))
 
-(defcompilefun sys-read (%1 %2 %3)
+(defcfun sys-read (%1 %2 %3)
 	;fd, buffer, length
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3))
@@ -126,7 +126,7 @@
 	(sys-call (add sys_read 0x2000000))
 	(pop-trashed))
 
-(defcompilefun sys-read-char (%1)
+(defcfun sys-read-char (%1)
 	;fd
 	(push-trashed)
 	(vp-sub-cr ptr_size r4)
@@ -138,7 +138,7 @@
 	(vp-add-cr ptr_size r4)
 	(pop-trashed))
 
-(defcompilefun sys-write-string (%1 %2 %3)
+(defcfun sys-write-string (%1 %2 %3)
 	;fd, string, length
 	(push-trashed)
 	(vp-push r0)
@@ -149,7 +149,7 @@
 	(vp-pop r0)
 	(pop-trashed))
 
-(defcompilefun sys-write-char (%1 %2)
+(defcfun sys-write-char (%1 %2)
 	;fd, char
 	(push-trashed)
 	(vp-push r0 %2)
@@ -163,7 +163,7 @@
 	(vp-pop r0)
 	(pop-trashed))
 
-(defcompilefun sys-mmap (%1 %2 %3 %4 %5 %6)
+(defcfun sys-mmap (%1 %2 %3 %4 %5 %6)
 	;addr, len, prot, flags, fd, pos
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6))
@@ -172,7 +172,7 @@
 	(sys-call (add sys_mmap 0x2000000))
 	(pop-trashed))
 
-(defcompilefun sys-mprotect (%1 %2 %3)
+(defcfun sys-mprotect (%1 %2 %3)
 	;addr, len, prot
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3))
@@ -181,7 +181,7 @@
 	(sys-call (add sys_mprotect 0x2000000))
 	(pop-trashed))
 
-(defcompilefun sys-munmap (%1 %2)
+(defcfun sys-munmap (%1 %2)
 	;addr, len
 	(push-trashed)
 	(set-src `(,%1 ,%2))
@@ -190,7 +190,7 @@
 	(sys-call (add sys_munmap 0x2000000))
 	(pop-trashed))
 
-(defcompilefun sys-stat (%1 %2)
+(defcfun sys-stat (%1 %2)
 	;path, buffer
 	(push-trashed)
 	(set-src `(,%1 ,%2))
@@ -199,7 +199,7 @@
 	(sys-call (add sys_stat 0x2000000))
 	(pop-trashed))
 
-(defcompilefun sys-open (%1 %2 %3)
+(defcfun sys-open (%1 %2 %3)
 	;path, flags, mode
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3))
@@ -208,7 +208,7 @@
 	(sys-call (add sys_open 0x2000000))
 	(pop-trashed))
 
-(defcompilefun sys-close (%1)
+(defcfun sys-close (%1)
 	;fd
 	(push-trashed)
 	(set-src `(,%1))
@@ -217,7 +217,7 @@
 	(sys-call (add sys_close 0x2000000))
 	(pop-trashed))
 
-(defcompilefun sys-ftruncate (%1 %2)
+(defcfun sys-ftruncate (%1 %2)
 	;fd, offset
 	(push-trashed)
 	(set-src `(,%1 ,%2))
@@ -226,7 +226,7 @@
 	(sys-call (add sys_ftruncate 0x2000000))
 	(pop-trashed))
 
-(defcompilefun sys-unlink (%1)
+(defcfun sys-unlink (%1)
 	;name
 	(push-trashed)
 	(set-src `(,%1))
@@ -235,7 +235,7 @@
 	(sys-call (add sys_unlink 0x2000000))
 	(pop-trashed))
 
-(defcompilefun sys-gettimeofday (%1 %2)
+(defcfun sys-gettimeofday (%1 %2)
 	;time, timezone
 	(push-trashed)
 	(vp-push %1)
@@ -255,63 +255,63 @@
 ; syscall for Linux
 ;;;;;;;;;;;;;;;;;;;
 
-(equate 'sys_exit 0x3c)
-(equate 'sys_read 0x0)
-(equate 'sys_write 0x1)
-(equate 'sys_open 0x2)
-(equate 'sys_close 0x3)
-(equate 'sys_unlink 0x57)
-(equate 'sys_ftruncate 0x4d)
-(equate 'sys_stat 0x4)
-(equate 'sys_mmap 0x9)
-(equate 'sys_munmap 0xb)
-(equate 'sys_mprotect 0xa)
-(equate 'sys_gettimeofday 0x60)
+(defcvar 'sys_exit 0x3c)
+(defcvar 'sys_read 0x0)
+(defcvar 'sys_write 0x1)
+(defcvar 'sys_open 0x2)
+(defcvar 'sys_close 0x3)
+(defcvar 'sys_unlink 0x57)
+(defcvar 'sys_ftruncate 0x4d)
+(defcvar 'sys_stat 0x4)
+(defcvar 'sys_mmap 0x9)
+(defcvar 'sys_munmap 0xb)
+(defcvar 'sys_mprotect 0xa)
+(defcvar 'sys_gettimeofday 0x60)
 
-(equate 'prot_none 0x0)
-(equate 'prot_read 0x1)
-(equate 'prot_write 0x2)
-(equate 'prot_exec 0x4)
+(defcvar 'prot_none 0x0)
+(defcvar 'prot_read 0x1)
+(defcvar 'prot_write 0x2)
+(defcvar 'prot_exec 0x4)
 
-(equate 'map_shared 0x1)
-(equate 'map_private 0x2)
-(equate 'map_fixed 0x10)
-(equate 'map_anon 0x20)
+(defcvar 'map_shared 0x1)
+(defcvar 'map_private 0x2)
+(defcvar 'map_fixed 0x10)
+(defcvar 'map_anon 0x20)
 
-(equate 'o_rdonly 0x0)
-(equate 'o_wronly 0x1)
-(equate 'o_rdwr 0x2)
-(equate 'o_trunc 0x200)
-(equate 'o_append 0x400)
-(equate 'o_nonblock 0x800)
-(equate 'o_creat 0x40)
-(equate 'o_excl 0x80)
-(equate 'o_nofollow 0x20000)
-(equate 'o_cloexec 0x80000)
+(defcvar 'o_rdonly 0x0)
+(defcvar 'o_wronly 0x1)
+(defcvar 'o_rdwr 0x2)
+(defcvar 'o_trunc 0x200)
+(defcvar 'o_append 0x400)
+(defcvar 'o_nonblock 0x800)
+(defcvar 'o_creat 0x40)
+(defcvar 'o_excl 0x80)
+(defcvar 'o_nofollow 0x20000)
+(defcvar 'o_cloexec 0x80000)
 
-(equate 's_irwxu 0x1c0)
-(equate 's_irusr 0x100)
-(equate 's_iwusr 0x80)
-(equate 's_ixusr 0x40)
-(equate 's_irwxg 0x38)
-(equate 's_irgrp 0x20)
-(equate 's_iwgrp 0x10)
-(equate 's_ixgrp 0x8)
-(equate 's_irwxo 0x7)
-(equate 's_iroth 0x4)
-(equate 's_iwoth 0x2)
-(equate 's_ixoth 0x1)
-(equate 's_isuid 0x800)
-(equate 's_isgid 0x400)
-(equate 's_isvtx 0x200)
+(defcvar 's_irwxu 0x1c0)
+(defcvar 's_irusr 0x100)
+(defcvar 's_iwusr 0x80)
+(defcvar 's_ixusr 0x40)
+(defcvar 's_irwxg 0x38)
+(defcvar 's_irgrp 0x20)
+(defcvar 's_iwgrp 0x10)
+(defcvar 's_ixgrp 0x8)
+(defcvar 's_irwxo 0x7)
+(defcvar 's_iroth 0x4)
+(defcvar 's_iwoth 0x2)
+(defcvar 's_ixoth 0x1)
+(defcvar 's_isuid 0x800)
+(defcvar 's_isgid 0x400)
+(defcvar 's_isvtx 0x200)
 
-(equate 's_ifmt 0xf000)
-(equate 's_ifdir 0x4000)
-(equate 's_ifreg 0x8000)
+(defcvar 's_ifmt 0xf000)
+(defcvar 's_ifdir 0x4000)
+(defcvar 's_ifreg 0x8000)
 
-(equate 'stat_mode 0x18)
-(equate 'stat_fsize 0x30)
-(equate 'stat_size 0x100)
+(defcvar 'stat_mode 0x18)
+(defcvar 'stat_fsize 0x30)
+(defcvar 'stat_size 0x100)
 
 (def-struct 'timeval)
 	(long 'timeval_sec)
@@ -327,22 +327,22 @@
 ; syscall macros
 ;;;;;;;;;;;;;;;;
 
-(defcompilefun push-trashed ()
+(defcfun push-trashed ()
 	;pushes onto r4
 	(vp-push r1 r2 r6 r7 r8 r9 r10 r11))
 
-(defcompilefun pop-trashed ()
+(defcfun pop-trashed ()
 	;pops from r4
 	(vp-pop r1 r2 r6 r7 r8 r9 r10 r11))
 
-(defcompilefun sys-exit (%1)
+(defcfun sys-exit (%1)
 	;return code
 	(set-src `(,%1))
 	(set-dst '(r7))
 	(map-src-to-dst)
 	(sys-call sys_exit))
 
-(defcompilefun sys-read (%1 %2 %3)
+(defcfun sys-read (%1 %2 %3)
 	;fd, buffer, length
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3))
@@ -351,7 +351,7 @@
 	(sys-call sys_read)
 	(pop-trashed))
 
-(defcompilefun sys-read-char (%1)
+(defcfun sys-read-char (%1)
 	;fd
 	(push-trashed)
 	(vp-sub-cr ptr_size r4)
@@ -363,7 +363,7 @@
 	(vp-add-cr ptr_size r4)
 	(pop-trashed))
 
-(defcompilefun sys-write-string (%1 %2 %3)
+(defcfun sys-write-string (%1 %2 %3)
 	;fd, string, length
 	(push-trashed)
 	(vp-push r0)
@@ -374,7 +374,7 @@
 	(vp-pop r0)
 	(pop-trashed))
 
-(defcompilefun sys-write-char (%1 %2)
+(defcfun sys-write-char (%1 %2)
 	;fd, char
 	(push-trashed)
 	(vp-push r0 %2)
@@ -388,7 +388,7 @@
 	(vp-pop r0)
 	(pop-trashed))
 
-(defcompilefun sys-mmap (%1 %2 %3 %4 %5 %6)
+(defcfun sys-mmap (%1 %2 %3 %4 %5 %6)
 	;addr, len, prot, flags, fd, pos
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6))
@@ -397,7 +397,7 @@
 	(sys-call sys_mmap)
 	(pop-trashed))
 
-(defcompilefun sys-mprotect (%1 %2 %3)
+(defcfun sys-mprotect (%1 %2 %3)
 	;addr, len, prot
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3))
@@ -406,7 +406,7 @@
 	(sys-call sys_mprotect)
 	(pop-trashed))
 
-(defcompilefun sys-munmap (%1 %2)
+(defcfun sys-munmap (%1 %2)
 	;addr, len
 	(push-trashed)
 	(set-src `(,%1 ,%2))
@@ -415,7 +415,7 @@
 	(sys-call sys_munmap)
 	(pop-trashed))
 
-(defcompilefun sys-stat (%1 %2)
+(defcfun sys-stat (%1 %2)
 	;path, buffer
 	(push-trashed)
 	(set-src `(,%1 ,%2))
@@ -424,7 +424,7 @@
 	(sys-call sys_stat)
 	(pop-trashed))
 
-(defcompilefun sys-open (%1 %2 %3)
+(defcfun sys-open (%1 %2 %3)
 	;path, flags, mode
 	(push-trashed)
 	(set-src `(,%1 ,%2 ,%3))
@@ -433,7 +433,7 @@
 	(sys-call sys_open)
 	(pop-trashed))
 
-(defcompilefun sys-close (%1)
+(defcfun sys-close (%1)
 	;fd
 	(push-trashed)
 	(set-src `(,%1))
@@ -442,7 +442,7 @@
 	(sys-call sys_close)
 	(pop-trashed))
 
-(defcompilefun sys-ftruncate (%1 %2)
+(defcfun sys-ftruncate (%1 %2)
 	;fd, offset
 	(push-trashed)
 	(set-src `(,%1 ,%2))
@@ -451,7 +451,7 @@
 	(sys-call sys_ftruncate)
 	(pop-trashed))
 
-(defcompilefun sys-unlink (%1)
+(defcfun sys-unlink (%1)
 	;name
 	(push-trashed)
 	(set-src `(,%1))
@@ -460,7 +460,7 @@
 	(sys-call sys_unlink)
 	(pop-trashed))
 
-(defcompilefun sys-gettimeofday (%1 %2)
+(defcfun sys-gettimeofday (%1 %2)
 	;time, timezone
 	(push-trashed)
 	(set-src `(,%1 ,%2))

@@ -212,7 +212,7 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
-(defun compile-file (*file*)
+(defun compile (*file*)
 	(rehash 101)
 	(defun import (*file*)
 		(when (notany (lambda (x) (eql x *file*)) *imports*)
@@ -221,9 +221,9 @@
 			(repl (file-stream *file*))
 ;			(print "Imported file: " *file*)
 			))
-	(defmacro equate (&rest b)
+	(defmacro defcvar (&rest b)
 		`(def *compile-env* ~b))
-	(defmacro defcompilefun (n a &rest b)
+	(defmacro defcfun (n a &rest b)
 ;		(if (eql *file* 'inc/class.inc) (print "Create function: " n))
 		`(def *compile-env* ',n (lambda ,a ~b)))
 	(defq *imports* (list))
@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile-file 'class/vector/deinit.vp)
-;(compile-file 'test.vp)
+(compile 'class/vector/deinit.vp)
+;(compile 'test.vp)

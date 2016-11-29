@@ -35,7 +35,7 @@
 ; task structures
 ;;;;;;;;;;;;;;;;;
 
-(equate 'tk_stack_size (mul 1024 4))
+(defcvar 'tk_stack_size (mul 1024 4))
 
 (def-struct 'tk_node 'ln_node)
 	(ptr 'tk_node_stack)
@@ -59,10 +59,10 @@
 ; task macros
 ;;;;;;;;;;;;;
 
-(equate 'tk_state_size (mul 15 ptr_size))
+(defcvar 'tk_state_size (mul 15 ptr_size))
 
-(defcompilefun tk-save-state ()
+(defcfun tk-save-state ()
 	(vp-push r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
 
-(defcompilefun tk-load-state ()
+(defcfun tk-load-state ()
 	(vp-pop r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))

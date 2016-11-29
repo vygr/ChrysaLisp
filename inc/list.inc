@@ -34,7 +34,7 @@
 ; list node macros
 ;;;;;;;;;;;;;;;;;;
 
-(defcompilefun ln-get-forward (%1 %2)
+(defcfun ln-get-forward (%1 %2)
 	;inputs
 	;%1 = list node
 	;%2 = temp
@@ -48,7 +48,7 @@
 		(vp-cpy-ir %1 (sub 0 lh_list_tail) %1)
 	(endif))
 
-(defcompilefun ln-get-backward (%1 %2)
+(defcfun ln-get-backward (%1 %2)
 	;inputs
 	;%1 = list node
 	;%2 = temp
@@ -62,7 +62,7 @@
 		(ln-get-tail %1 %1)
 	(endif))
 
-(defcompilefun ln-set-succ (%1 %2)
+(defcfun ln-set-succ (%1 %2)
 	;inputs
 	;%1 = list node1
 	;%2 = list node2
@@ -72,7 +72,7 @@
 
 	(vp-cpy-ri %2 %1 ln_node_succ))
 
-(defcompilefun ln-set-pred (%1 %2)
+(defcfun ln-set-pred (%1 %2)
 	;inputs
 	;%1 = list node1
 	;%2 = list node2
@@ -82,7 +82,7 @@
 
 	(vp-cpy-ri %2 %1 ln_node_pred))
 
-(defcompilefun ln-get-succ (%1 %2 %3)
+(defcfun ln-get-succ (%1 %2 %3)
 	;inputs
 	;%1 = list node
 	;%2 = offset
@@ -93,7 +93,7 @@
 
 	(vp-cpy-ir %1 (add ln_node_succ %2) %3))
 
-(defcompilefun ln-get-pred (%1 %2 %3)
+(defcfun ln-get-pred (%1 %2 %3)
 	;inputs
 	;%1 = list node
 	;%2 = offset
@@ -104,7 +104,7 @@
 
 	(vp-cpy-ir %1 (add ln_node_pred %2) %3))
 
-(defcompilefun ln-add-node-after (%1 %2 %3)
+(defcfun ln-add-node-after (%1 %2 %3)
 	;inputs
 	;%1 = list node1
 	;%2 = list node2
@@ -120,7 +120,7 @@
 	(ln-set-succ %2 %3)
 	(ln-set-pred %2 %1))
 
-(defcompilefun ln-add-node-before (%1 %2 %3)
+(defcfun ln-add-node-before (%1 %2 %3)
 	;inputs
 	;%1 = list node1
 	;%2 = list node2
@@ -136,7 +136,7 @@
 	(ln-set-succ %3 %2)
 	(ln-set-pred %1 %2))
 
-(defcompilefun ln-remove-node (%1 %2)
+(defcfun ln-remove-node (%1 %2)
 	;inputs
 	;%1 = list node
 	;%2 = temp
@@ -149,7 +149,7 @@
 	(ln-set-pred %2 %1)
 	(ln-set-succ %1 %2))
 
-(defcompilefun ln-is-first (%1 %2 %3)
+(defcfun ln-is-first (%1 %2 %3)
 	;inputs
 	;%1 = list node
 	;%2 = offset
@@ -161,7 +161,7 @@
 	(ln-get-pred %1 %2 %3)
 	(ln-get-pred %3 0 %3))
 
-(defcompilefun ln-is-last (%1 %2 %3)
+(defcfun ln-is-last (%1 %2 %3)
 	;inputs
 	;%1 = list node
 	;%2 = offset
@@ -177,12 +177,12 @@
 ; list header macros
 ;;;;;;;;;;;;;;;;;;;;
 
-(defcompilefun lh-list-object (l)
+(defcfun lh-list-object (l)
 	(vp-align ptr_size)
 (vp-label l)
 	(times lh_list_size (vp-byte 0)))
 
-(defcompilefun lh-init (%1 %2)
+(defcfun lh-init (%1 %2)
 	;inputs
 	;%1 = list head
 	;%2 = temp
@@ -196,7 +196,7 @@
 	(vp-lea-i %1 lh_list_tail %2)
 	(lh-set-head %1 %2))
 
-(defcompilefun lh-set-head (%1 %2)
+(defcfun lh-set-head (%1 %2)
 	;inputs
 	;%1 = list head
 	;%2 = list node
@@ -206,7 +206,7 @@
 
 	(vp-cpy-ri %2 %1 lh_list_head))
 
-(defcompilefun lh-set-tail (%1 %2)
+(defcfun lh-set-tail (%1 %2)
 	;inputs
 	;%1 = list head
 	;%2 = list node
@@ -216,7 +216,7 @@
 
 	(vp-cpy-ri %2 %1 lh_list_tailpred))
 
-(defcompilefun lh-get-head (%1 %2 %3)
+(defcfun lh-get-head (%1 %2 %3)
 	;inputs
 	;%1 = list head
 	;%2 = offset
@@ -227,7 +227,7 @@
 
 	(vp-cpy-ir %1 (add lh_list_head %2) %3))
 
-(defcompilefun lh-get-tail (%1 %2 %3)
+(defcfun lh-get-tail (%1 %2 %3)
 	;inputs
 	;%1 = list head
 	;%2 = offset
@@ -238,7 +238,7 @@
 
 	(vp-cpy-ir %1 (add lh_list_tailpred %2) %3))
 
-(defcompilefun lh-add-at-head (%1 %2 %3)
+(defcfun lh-add-at-head (%1 %2 %3)
 	;inputs
 	;%1 = list head
 	;%2 = list node
@@ -250,7 +250,7 @@
 
 	(ln-add-node-after %1 %2 %3))
 
-(defcompilefun lh-add-at-tail (%1 %2 %3)
+(defcfun lh-add-at-tail (%1 %2 %3)
 	;inputs
 	;%1 = list head
 	;%2 = list node
@@ -264,7 +264,7 @@
 	(ln-add-node-before %1 %2 %3)
 	(vp-lea-i %1 (sub 0 lh_list_tail) %1))
 
-(defcompilefun lh-remove-head (%1 %2 %3)
+(defcfun lh-remove-head (%1 %2 %3)
 	;inputs
 	;%1 = list head
 	;%2 = temp
@@ -285,7 +285,7 @@
 		(ln-remove-node %1 %3)
 	(endif))
 
-(defcompilefun lh-remove-tail (%1 %2 %3)
+(defcfun lh-remove-tail (%1 %2 %3)
 	;inputs
 	;%1 = list head
 	;%2 = temp
@@ -306,7 +306,7 @@
 		(ln-remove-node %1 %3)
 	(endif))
 
-(defcompilefun lh-is-empty (%1 %2 %3)
+(defcfun lh-is-empty (%1 %2 %3)
 	;inputs
 	;%1 = list head
 	;%2 = offset
@@ -322,7 +322,7 @@
 ; list loop macros
 ;;;;;;;;;;;;;;;;;;
 
-(defcompilefun loop-list-forward (%1 %2 %3 %4)
+(defcfun loop-list-forward (%1 %2 %3 %4)
 	;inputs
 	;%1 = list head
 	;%2 = offset
@@ -339,7 +339,7 @@
 		(ln-get-succ %4 0 %4)
 		(breakif `(,%4 == 0)))
 
-(defcompilefun loop-list-backward (%1 %2 %3 %4)
+(defcfun loop-list-backward (%1 %2 %3 %4)
 	;inputs
 	;%1 = list head
 	;%2 = offset
@@ -356,7 +356,7 @@
 		(ln-get-pred %4 0 %4)
 		(breakif `(,%4 == 0)))
 
-(defcompilefun loop-flist-forward (%1 %2 %3 %4)
+(defcfun loop-flist-forward (%1 %2 %3 %4)
 	;inputs
 	;%1 = list head
 	;%2 = offset
@@ -375,7 +375,7 @@
 ; forward list macros
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defcompilefun ln-next-fnode (%1 %2)
+(defcfun ln-next-fnode (%1 %2)
 	;inputs
 	;%1 = node
 	;%2 = last
@@ -386,7 +386,7 @@
 	(vp-cpy-ir %1 ln_fnode_next %1)
 	(breakif `(,%1 == 0)))
 
-(defcompilefun ln-remove-fnode (%1 %2)
+(defcfun ln-remove-fnode (%1 %2)
 	;inputs
 	;%1 = node
 	;%2 = last
@@ -397,7 +397,7 @@
 	(vp-cpy-ri %1 %2 ln_fnode_next)
 	(vp-cpy-rr %2 %1))
 
-(defcompilefun ln-add-fnode (%1 %2 %3 %4)
+(defcfun ln-add-fnode (%1 %2 %3 %4)
 	;inputs
 	;%1 = list
 	;%2 = offset

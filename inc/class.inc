@@ -2,12 +2,12 @@
 ; class definition
 ;;;;;;;;;;;;;;;;;;
 
-(defcompilefun class-name (n) (sym (cat "_class_" (str n))))
-(defcompilefun super-name (n) (sym (cat "_super_" (str n))))
+(defcfun class-name (n) (sym (cat "_class_" (str n))))
+(defcfun super-name (n) (sym (cat "_super_" (str n))))
 
-(equate (class-name 'null) (list))
+(defcvar (class-name 'null) (list))
 
-(defcompilefun vtable-emit (%1 &optional %2)
+(defcfun vtable-emit (%1 &optional %2)
 	;%1 = class name
 	;%2 = parent class name
 	(if %2 (fn-add-link %2) (vp-long 0))
@@ -15,13 +15,13 @@
 		(if (eql (elem 2 m) 'virtual)
 			(fn-add-link (elem 1 m)))) (eval (class-name %1))))
 
-(defcompilefun def-class (%1 &optional %2)
+(defcfun def-class (%1 &optional %2)
 	;%1 = class name
 	;%2 = super class name
 	(setq %2 (if %2 %2 'null) *class* %1)
-	(equate (super-name %1) %2 (class-name %1) (cat (eval (class-name %2)))))
+	(defcvar (super-name %1) %2 (class-name %1) (cat (eval (class-name %2)))))
 
-(defcompilefun def-method (%1 %2 &optional %3 %4 %5)
+(defcfun def-method (%1 %2 &optional %3 %4 %5)
 	;%1 = member name
 	;%2 = member function
 	;%3 = mode (static/virtual/override)
@@ -70,7 +70,7 @@
 ; class calling
 ;;;;;;;;;;;;;;;
 
-(defcompilefun method-lookup (%1 %2)
+(defcfun method-lookup (%1 %2)
 	;%1 = class name
 	;%2 = member name
 	(defq s 0 v ptr_size c (eval (class-name %1)))
@@ -81,7 +81,7 @@
 		(print "No such method " %2 " in class " %1 " !"))
 	(list s v c))
 
-(defcompilefun map-inputs (%1 %2 %3)
+(defcfun map-inputs (%1 %2 %3)
 	;%1 = class
 	;%2 = parameters
 	;%3 = slot num
@@ -89,7 +89,7 @@
 	(set-dst (elem 3 (elem %3 %1)))
 	(map-src-to-dst))
 
-(defcompilefun map-outputs (%1 %2 %3)
+(defcfun map-outputs (%1 %2 %3)
 	;%1 = class
 	;%2 = parameters
 	;%3 = slot num
@@ -97,29 +97,29 @@
 	(set-dst %2)
 	(map-src-to-dst))
 
-(defcompilefun map-print ()
+(defcfun map-print ()
 	(each (lambda (x y)
 		(print x " -> " y)) *src* *dst*))
 
-(defcompilefun func-path (%1 %2 &optional %3)
+(defcfun func-path (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = slot method name
 	;%3 = macro name
 	(setq %3 (if %3 %3 '_function_))
-	(equate %3 (elem 1 (elem (elem 0 (method-lookup %1 %2)) (eval (class-name %1))))))
+	(defcvar %3 (elem 1 (elem (elem 0 (method-lookup %1 %2)) (eval (class-name %1))))))
 
-(defcompilefun super-path (%1 %2 &optional %3)
+(defcfun super-path (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = slot method name
 	;%3 = macro name
 	(setq %3 (if %3 %3 '_function_) n (eval (super-name %1)))
-	(equate %3 (elem 1 (elem (elem 0 (method-lookup n %2)) (eval n)))))
+	(defcvar %3 (elem 1 (elem (elem 0 (method-lookup n %2)) (eval n)))))
 
 ;;;;;;;;;;;;;;;;;
 ; assembler level
 ;;;;;;;;;;;;;;;;;
 
-(defcompilefun f-call (%1 %2 &optional %3 %4)
+(defcfun f-call (%1 %2 &optional %3 %4)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
@@ -132,7 +132,7 @@
 	(fn-call (elem 1 m))
 	(map-outputs c %4 s))
 
-(defcompilefun f-jmp (%1 %2 &optional %3)
+(defcfun f-jmp (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
@@ -143,7 +143,7 @@
 	(map-inputs c %3 s)
 	(fn-jmp (elem 1 m)))
 
-(defcompilefun f-bind (%1 %2 %3)
+(defcfun f-bind (%1 %2 %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
@@ -152,7 +152,7 @@
 		(print "Class " %1 " method " %2 " is virtual ! Use v_bind ?"))
 	(fn-bind (elem 1 m) %3))
 
-(defcompilefun s-call (%1 %2 &optional %3 %4)
+(defcfun s-call (%1 %2 &optional %3 %4)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
@@ -167,7 +167,7 @@
 	(fn-call (elem 1 m))
 	(map-outputs c %4 s))
 
-(defcompilefun s-jmp (%1 %2 &optional %3)
+(defcfun s-jmp (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
@@ -180,7 +180,7 @@
 	(map-inputs c %3 s)
 	(fn-jmp (elem 1 m)))
 
-(defcompilefun s-bind (%1 %2 %3)
+(defcfun s-bind (%1 %2 %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
@@ -190,7 +190,7 @@
 		(print "Class " (eval (super-name %1)) " method " %2 " is static !"))
 	(fn-bind (elem 1 m) %3))
 
-(defcompilefun v-call (%1 %2 &optional %3 %4 %5)
+(defcfun v-call (%1 %2 &optional %3 %4 %5)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
@@ -205,7 +205,7 @@
 	(vp-call-i %5 v)
 	(map-outputs c %4 s))
 
-(defcompilefun v-jmp (%1 %2 &optional %3 %4)
+(defcfun v-jmp (%1 %2 &optional %3 %4)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
@@ -218,7 +218,7 @@
 	(vp-cpy-ir r0 obj_vtable %4)
 	(vp-jmp-i %4 v))
 
-(defcompilefun v-bind (%1 %2 &optional %3)
+(defcfun v-bind (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = dispatch reg
@@ -229,7 +229,7 @@
 	(vp-cpy-ir r0 obj_vtable %3)
 	(vp-cpy-ir %3 v %3))
 
-(defcompilefun d-call (%1 %2 &optional %3 %4)
+(defcfun d-call (%1 %2 &optional %3 %4)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
@@ -242,7 +242,7 @@
 	(fn-call (elem 1 m))
 	(map-outputs c %4 s))
 
-(defcompilefun d-jmp (%1 %2 &optional %3)
+(defcfun d-jmp (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
@@ -253,7 +253,7 @@
 	(map-inputs c %3 s)
 	(fn-jmp (elem 1 m)))
 
-(defcompilefun d-bind (%1 %2 %3)
+(defcfun d-bind (%1 %2 %3)
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
@@ -301,7 +301,7 @@
 ; generic class construction
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defcompilefun class-macro-class (%1)
+(defcfun class-macro-class (%1)
 	;%1 = class name
 	(func-path 'class %1)
 	(def-func _function_)
@@ -313,7 +313,7 @@
 				(vtable-emit %1 _function_)))
 	(def-func-end))
 
-(defcompilefun class-macro-create (%1)
+(defcfun class-macro-create (%1)
 	;%1 = class name
 	(def-func (sym (cat "class/" %1 "/create")))
 		;outputs
@@ -334,7 +334,7 @@
 		(vp-ret)
 	(def-func-end))
 
-(defcompilefun class-macro-new (%1)
+(defcfun class-macro-new (%1)
 	;%1 = class name
 	(def-func (sym (cat "class/" %1 "/new")))
 		;outputs

@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
 (import 'inc/load.inc)
 
-(equate 'list_loaded nil)
+(defcvar 'list_loaded nil)
 
 (def-func 'sys/load_bind)
 	;input

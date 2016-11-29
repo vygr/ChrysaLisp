@@ -14,10 +14,10 @@
 ; load structures
 ;;;;;;;;;;;;;;;;;
 
-(equate 'ld_block_size (mul 64 1024))
-(equate 'ld_page_size 4096)
-(equate 'ld_reloc_size 3072)
-(equate 'ld_name_size 120)
+(defcvar 'ld_block_size (mul 64 1024))
+(defcvar 'ld_page_size 4096)
+(defcvar 'ld_reloc_size 3072)
+(defcvar 'ld_name_size 120)
 
 (def-struct 'ld_statics)
 	(ptr 'ld_statics_function_flist)

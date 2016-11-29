@@ -4,7 +4,7 @@
 (import 'inc/syscall.inc)
 (import 'inc/task.inc)
 
-(equate 'debug_mode nil)
+(defcvar 'debug_mode nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail funcions
@@ -63,7 +63,7 @@
 ; functions
 ;;;;;;;;;;;
 
-(defcompilefun def-func (*func-name* &optional *func-stack*)
+(defcfun def-func (*func-name* &optional *func-stack*)
 	(setq *emit-buffer* (list) *out-buffer* (list))
 	(setq *strings* (list) *paths* (list) *links* (list))
 	(vp-label '_func_start)
@@ -79,7 +79,7 @@
 	(vp-align ptr_size '(sub _func_entry _func_name_start))
 	(vp-label '_func_entry))
 
-(defcompilefun def-func-end ()
+(defcfun def-func-end ()
 	(defq *cnt* 0)
 	(each (lambda (s)
 		(vp-label (sym (cat "_ref_" (str *cnt*) "_string")))
@@ -107,7 +107,7 @@
 	(save *out-buffer* 'mytest))
 
 (defmacro def-insert (n l)
-	`(defcompilefun ,n (s)
+	`(defcfun ,n (s)
 		(defq i 0)
 		(while (and (lt i (length ,l)) (not (eql s (elem i ,l))))
 			(setq i (inc i)))
@@ -117,29 +117,29 @@
 (def-insert fn-add-string *strings*)
 (def-insert fn-add-path *paths*)
 
-(defcompilefun fn-string (s r)
+(defcfun fn-string (s r)
 	(vp-lea-p (sym (cat "_ref_" (str (fn-add-string s)) "_string")) r))
 
-(defcompilefun fn-add-link (p)
+(defcfun fn-add-link (p)
 	(push *links* (fn-add-path p)))
 
-(defcompilefun fn-find-link (p)
+(defcfun fn-find-link (p)
 	(defq i 0)
 	(while (and (lt i (length *links*)) (not (eql p (elem (elem i *links*) *paths*))))
 		(setq i (inc i)))
 	(if (eq i (length *links*)) (fn-add-link p))
 	i)
 
-(defcompilefun fn-bind (p r)
+(defcfun fn-bind (p r)
 	(vp-cpy-pr (sym (cat "_ref_" (str (fn-find-link p)) "_link")) r))
 
-(defcompilefun fn-call (p)
+(defcfun fn-call (p)
 	(vp-call-p (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
 
-(defcompilefun fn-jmp (p)
+(defcfun fn-jmp (p)
 	(vp-jmp-p (sym (cat "_ref_" (str (fn-find-link p)) "_link"))))
 
-(defcompilefun debug-long (s i)
+(defcfun debug-long (s i)
 	;s = debug string
 	;i = debug long
 	(when debug_mode
@@ -153,7 +153,7 @@
 		(f-call 'sys_io 'debug_long '(r0 r1 r2 r3))
 		(vp-pop r0 r1 r2 r3 r5))
 
-(defcompilefun debug-str (s &optional d)
+(defcfun debug-str (s &optional d)
 	;s = debug string
 	;d = debug string
 	(when debug_mode
@@ -167,12 +167,12 @@
 		(f-call 'sys_io 'debug_str '(r0 r1 r2 r3))
 		(vp-pop r0 r1 r2 r3 r5))
 
-(defcompilefun abort (&optional s)
+(defcfun abort (&optional s)
 	(setq s (if s s "Abort !"))
 	(debug-str s)
 	(sys-exit 1))
 
-(defcompilefun assert (b &optional d)
+(defcfun assert (b &optional d)
 	;a = val1
 	;b = condition
 	;c = val2

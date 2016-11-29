@@ -23,7 +23,7 @@
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-(equate 'mail_data_size 512)
+(defcvar 'mail_data_size 512)
 
 (def-struct 'mailbox 'lh_list)
 	(struct 'mailbox_parcel_list 'lh_list)
@@ -59,7 +59,7 @@
 ; mail macros
 ;;;;;;;;;;;;;
 
-(defcompilefun ml-init (%1 %2 %3)
+(defcfun ml-init (%1 %2 %3)
 	;inputs
 	;%1 = mailbox
 	;%2 = temp
@@ -75,7 +75,7 @@
 	(vp-lea-i %1 mailbox_parcel_list %2)
 	(lh-init %2 %3))
 
-(defcompilefun ml-temp-create (%1 %2)
+(defcfun ml-temp-create (%1 %2)
 	;inputs
 	;%1 = temp
 	;%2 = temp
@@ -87,5 +87,5 @@
 	(vp-sub-cr mailbox_size r4)
 	(ml-init r4 %1 %2))
 
-(defcompilefun ml-temp-destroy ()
+(defcfun ml-temp-destroy ()
 	(vp-add-cr mailbox_size r4))

@@ -3,7 +3,7 @@
 (import 'inc/gui.inc)
 (import 'class/class_view.inc)
 
-(equate 'dual_buffers t)
+(defcvar 'dual_buffers t)
 
 (def-func 'gui/gui_update)
 	;inputs

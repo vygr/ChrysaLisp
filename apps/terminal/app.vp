@@ -11,7 +11,7 @@
 
 (def-func 'apps/terminal/app)
 
-(equate 'buffer_size 120)
+(defcvar 'buffer_size 120)
 
 	(def-struct 'shared)
 		(ptr 'shared_master 'shared_panel 'shared_history 'shared_window)

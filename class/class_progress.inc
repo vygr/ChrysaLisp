@@ -1,6 +1,6 @@
 (import 'class/class_view.inc)
 
-(equate 'progress_border_size 1)
+(defcvar 'progress_border_size 1)
 
 (def-class 'progress 'view)
 (def-method 'create 'class/progress/create)

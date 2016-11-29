@@ -10,7 +10,7 @@
 
 (def-func 'apps/calculator/app)
 
-	(equate 'buffer_size 32)
+	(defcvar 'buffer_size 32)
 
 	(def-struct 'shared 'obj)
 		(ptr 'shared_display)

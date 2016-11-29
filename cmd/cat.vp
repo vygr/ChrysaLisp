@@ -7,7 +7,7 @@
 
 (def-func 'cmd/cat)
 
-(equate 'buffer_size 120)
+(defcvar 'buffer_size 120)
 
 	(ptr 'slave 'arg 'args 'stream)
 	(ulong 'argc 'index 'length)
