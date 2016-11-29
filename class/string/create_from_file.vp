@@ -17,7 +17,7 @@
 	;get size of string from file size
 	(f-bind 'sys_load 'statics r7)
 	(vp-add-cr ld_statics_stat_buffer r7)
-	sys_stat r0, r7
+	(sys-stat r0 r7)
 	(vpif '(r0 != 0))
 	(vp-label 'exit)
 		;no such file

@@ -1,0 +1,7 @@
+(import 'class/boxed_ptr/create.vp)
+(import 'class/boxed_ptr/get_flags.vp)
+(import 'class/boxed_ptr/get_value.vp)
+(import 'class/boxed_ptr/init.vp)
+(import 'class/boxed_ptr/new.vp)
+(import 'class/boxed_ptr/set_flags.vp)
+(import 'class/boxed_ptr/set_value.vp)

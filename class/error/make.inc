@@ -1,0 +1,6 @@
+(import 'class/error/create.vp)
+(import 'class/error/deinit.vp)
+(import 'class/error/get_description.vp)
+(import 'class/error/get_object.vp)
+(import 'class/error/init.vp)
+(import 'class/error/new.vp)

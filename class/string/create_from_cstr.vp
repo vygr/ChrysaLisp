@@ -12,6 +12,6 @@
 
 	;get size of string
 	(f-call 'sys_string 'length '(r0) '(r1))
-	(f-jmp 'string create_from_buffer '(r0 r1))
+	(f-jmp 'string 'create_from_buffer '(r0 r1))
 
 (def-func-end)
