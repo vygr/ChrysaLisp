@@ -19,3 +19,4 @@
 (import 'class/error/make.inc)
 (import 'class/pair/make.inc)
 (import 'class/text/make.inc)
+(import 'class/progress/make.inc)

@@ -1,0 +1,7 @@
+(import 'class/progress/create.vp)
+(import 'class/progress/draw.vp)
+(import 'class/progress/layout.vp)
+(import 'class/progress/new.vp)
+(import 'class/progress/pref_size.vp)
+(import 'class/progress/set_max.vp)
+(import 'class/progress/set_val.vp)
