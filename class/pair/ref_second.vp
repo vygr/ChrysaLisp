@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
 (import 'class/class_pair.inc)
 
-(def-func 'class/pair/ref_first)
+(def-func 'class/pair/ref_second)
 	;inputs
 	;r0 = pair object
 	;outputs

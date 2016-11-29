@@ -1,7 +1,7 @@
 %include 'inc/func.ninc'
 %include 'class/class_pair.ninc'
 
-def_func class/pair/ref_first
+def_func class/pair/ref_second
 	;inputs
 	;r0 = pair object
 	;outputs
