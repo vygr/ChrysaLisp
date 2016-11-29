@@ -19,7 +19,7 @@
 	;get size of strings
 	(vp-cpy-ir r0 string_length r0)
 	(vp-add-ir r1 string_length r0)
-	(vp-add-cr string_size + 1 r0)
+	(vp-add-cr (add string_size 1) r0)
 
 	;create new string object
 	(f-call 'string 'new '(r0) '(r0))

@@ -14,3 +14,8 @@
 (import 'class/unordered_set/make.inc)
 (import 'class/unordered_map/make.inc)
 (import 'class/stream_str/make.inc)
+(import 'class/boxed_ptr/make.inc)
+(import 'class/boxed_long/make.inc)
+(import 'class/error/make.inc)
+(import 'class/pair/make.inc)
+(import 'class/text/make.inc)

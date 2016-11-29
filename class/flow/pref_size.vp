@@ -33,7 +33,7 @@
 	(vp-pop r1)
 	(vp-cpy-ir r0 view_parent r2)
 	(vp-cpy-ir r2 flow_flags r3)
-	(vp-and-cr flow_flag_up | flow_flag_down r3)
+	(vp-and-cr (bit-or flow_flag_up flow_flag_down) r3)
 	(vpif '(r3 != 0))
 		;flow down or up
 		(vp-cpy-ir r1 local_h r3)
@@ -41,7 +41,7 @@
 		(vp-cpy-ri r3 r1 local_h)
 	(endif)
 	(vp-cpy-ir r2 flow_flags r3)
-	(vp-and-cr flow_flag_left | flow_flag_right r3)
+	(vp-and-cr (bit-or flow_flag_left flow_flag_right) r3)
 	(vpif '(r3 != 0))
 		;flow left or right
 		(vp-cpy-ir r1 local_w r3)
