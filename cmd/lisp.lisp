@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile 'class/view/hit_tree.vp)
+(compile 'class/unordered_set/slice_impl.vp)
 ;(compile 'test.vp)
