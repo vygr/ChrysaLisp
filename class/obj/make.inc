@@ -1,0 +1,7 @@
+(import 'class/obj/create.vp)
+(import 'class/obj/destroy.vp)
+(import 'class/obj/hash.vp)
+(import 'class/obj/init.vp)
+(import 'class/obj/inst_of.vp)
+(import 'class/obj/new.vp)
+(import 'class/obj/null.vp)
