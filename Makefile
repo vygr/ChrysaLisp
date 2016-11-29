@@ -3,10 +3,13 @@ all_srcs := $(shell find . -mindepth 2 -type f -name '*.nasm')
 all_deps := $(shell find . -type f -name '*.d')
 all_objects := $(patsubst ./%.nasm, obj/%, $(all_srcs))
 
+all_vp_srcs := $(shell find . -mindepth 2 -type f -name '*.vp')
+all_vp_objects := $(patsubst ./%.vp, tst/%, $(all_vp_srcs))
+
 all:		make_dirs $(all_objects) obj/main
 
 make_dirs:
-			mkdir -p $(sort $(dir $(all_objects)))
+			mkdir -p $(sort $(dir $(all_objects))) $(sort $(dir $(all_vp_objects)))
 
 obj/main:	obj/main.o
 ifeq ($(OS),Darwin)
