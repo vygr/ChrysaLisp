@@ -33,4 +33,4 @@ obj/%:		%.nasm Makefile
 -include	$(all_deps)
 
 clean:
-			rm -rf obj/
+			rm -rf obj/ tst/
