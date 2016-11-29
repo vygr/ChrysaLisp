@@ -226,7 +226,7 @@
 	(defmacro defcfun (n a &rest b)
 ;		(if (eql *file* 'inc/class.inc) (print "Create function: " n))
 		`(def *compile-env* ',n (lambda ,a ~b)))
-	(defq *imports* (list))
+	(defq *imports* (list) *func-name* nil)
 	(defq *emit-buffer* nil *out-buffer* nil)
 	(defq *class* nil *struct* nil *struct-offset* nil *enum* nil *bit* nil)
 	(defq *strings* nil *paths* nil *links* nil)
@@ -236,5 +236,6 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile 'class/unordered_set/slice_impl.vp)
-;(compile 'test.vp)
+(defun make (&optional d)
+	(setq d (if d d ""))
+	(compile (sym (cat (str d) "make.inc"))))

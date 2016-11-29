@@ -63,8 +63,9 @@
 ; functions
 ;;;;;;;;;;;
 
-(defcfun def-func (*func-name* &optional *func-stack*)
-	(setq *emit-buffer* (list) *out-buffer* (list))
+(defcfun def-func (*name* &optional *func-stack*)
+	(print "Compiling -> " *name*)
+	(setq *func-name* *name* *emit-buffer* (list) *out-buffer* (list))
 	(setq *strings* (list) *paths* (list) *links* (list))
 	(vp-label '_func_start)
 	(vp-long -1)
@@ -74,7 +75,7 @@
 		'(sub _func_paths _func_start)
 		(if *func-stack* *func-stack* tk_stack_size))
 	(vp-label '_func_name_start)
-	(vp-string (str *func-name*))
+	(vp-string (str *name*))
 	(vp-byte 0 '(sub _func_entry _func_name_start))
 	(vp-align ptr_size '(sub _func_entry _func_name_start))
 	(vp-label '_func_entry))
@@ -104,7 +105,8 @@
 ;	(print-emit-buffer)
 	(emit-passes)
 ;	(print-out-buffer 16)
-	(save *out-buffer* 'mytest))
+	(print "Writing -> " *func-name*)
+	(save *out-buffer* (cat "tst/" (str *func-name*))))
 
 (defmacro def-insert (n l)
 	`(defcfun ,n (s)
