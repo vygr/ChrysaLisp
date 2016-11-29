@@ -25,6 +25,6 @@
 (def-struct 'stream 'ref)
 	(ptr 'stream_object)
 	(ptr 'stream_buffer)
-	pubyte stream_bufp
-	pubyte stream_bufe
+	(pubyte 'stream_bufp)
+	(pubyte 'stream_bufe)
 (def-struct-end)
