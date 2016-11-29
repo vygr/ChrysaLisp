@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile 'class/view/event.vp)
+(compile 'class/view/hit_tree.vp)
 ;(compile 'test.vp)

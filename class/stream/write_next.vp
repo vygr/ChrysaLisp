@@ -9,6 +9,6 @@
 	;trashes
 	;all but r0, r4
 
-	v_jmp stream, write_flush, {r0}
+	(v-jmp 'stream 'write_flush '(r0))
 
 (def-func-end)

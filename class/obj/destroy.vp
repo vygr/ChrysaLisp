@@ -8,6 +8,6 @@
 	;all but r4
 
 	(v-call 'obj 'deinit '(r0))
-	v_jmp obj, delete, {r0}
+	(v-jmp 'obj 'delete '(r0))
 
 (def-func-end)

@@ -24,6 +24,6 @@
 			(vp-ret)
 		(endif)
 	(endif)
-	v_jmp view, layout, {r0}
+	(v-jmp 'view 'layout '(r0))
 
 (def-func-end)
