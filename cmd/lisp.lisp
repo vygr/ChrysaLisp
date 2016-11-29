@@ -236,5 +236,5 @@
 	(import *file*)
 	(setq *compile-env* nil))
 
-(compile 'class/vector/deinit.vp)
+(compile 'class/view/event.vp)
 ;(compile 'test.vp)
