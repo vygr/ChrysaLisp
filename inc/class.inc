@@ -32,28 +32,24 @@
 		m (some (lambda (m)
 			(if (eql (elem 0 m) %1) m
 				(progn (setq s (inc s)) nil))) c))
+	(defun override ()
+		(setq m (cat m))
+		(elem-set s c m)
+		(elem-set 1 m %2)
+		(if (ne (length %4) 0) (elem-set 3 m %4))
+		(if (ne (length %5) 0) (elem-set 4 m %5)))
 	(if m
 		(cond
 			;existing method
 			((eql %3 'static)
 				(if (eql (elem 2 m) 'static)
-					(progn
-						(setq m (cat m))
-						(elem-set s c m)
-						(elem-set 1 m %2)
-						(if (ne (length %4) 0) (elem-set 3 m %4))
-						(if (ne (length %5) 0) (elem-set 4 m %5)))
+					(override)
 					(print "Virtual method " %1 " allready exists !")))
 			((eql %3 'virtual)
 				(print "Method " %1 " allready exists !, use override ?"))
 			((eql %3 'override)
 				(if (eql (elem 2 m) 'virtual)
-					(progn
-						(setq m (cat m))
-						(elem-set s c m)
-						(elem-set 1 m %2)
-						(if (ne (length %4) 0) (elem-set 3 m %4))
-						(if (ne (length %5) 0) (elem-set 4 m %5)))
+					(override)
 					(print "Static method " %1 " allready exists !")))
 			(t
 				(print "Must use static, virtual or override ! ")))
