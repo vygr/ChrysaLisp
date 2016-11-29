@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
 (import 'inc/syscall.inc)
 
-(def-func sys/close)
+(def-func 'sys/close)
 	;inputs
 	;r0 = fd
 
