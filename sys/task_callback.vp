@@ -22,7 +22,7 @@
 	(vp-cpy-rr r1 r6)
 
 	;create temp mailbox
-	ml_temp_create r0, r1
+	(ml-temp-create r0 r1)
 
 	;allocate mail message
 	(f-call 'sys_mail 'alloc '() '(r3))
@@ -47,7 +47,7 @@
 	(f-call 'sys_mail 'read '(r4) '(r0))
 
 	;free reply mail and temp mailbox
-	ml_temp_destroy
+	(ml-temp-destroy)
 	(f-jmp 'sys_mem 'free '(r0))
 
 (def-func-end)

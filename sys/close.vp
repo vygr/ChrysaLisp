@@ -1,5 +1,5 @@
 (import 'inc/func.inc)
-(import inc/syscall.inc)
+(import 'inc/syscall.inc)
 
 (def-func sys/close)
 	;inputs

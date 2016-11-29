@@ -55,7 +55,7 @@
 
 		;draw the rectangle
 		(vp-cpy-ir r4 local_ctx r0)
-		(sdl_render_draw_rect '(r0 gui_ctx_sdl_ctx) '(& r4 local_rect))
+		(sdl-render-draw-rect '(r0 gui_ctx_sdl_ctx) '(& r4 local_rect))
 
 		(vp-cpy-ir r4 local_dirty_rect r0)
 	(loop-end)

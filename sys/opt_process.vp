@@ -84,7 +84,7 @@
 	(vpif '(r0 != 0))
 		;start link
 		(func-path 'sys_link 'link)
-		(f-call 'sys_task 'start '((@ _function_)) '(r0 r5))
+		(f-call 'sys_task 'start `((@ ,_function_)) '(r0 r5))
 		(f-call 'sys_cpu 'id '() '(r6))
 
 		;allocate params message
@@ -97,7 +97,7 @@
 		;fill in parameters and set length
 		(f-call 'sys_string 'copy '(($ link_path) (& r7 msg_data)) '(_ r1))
 		(vp-dec r1)
-		(f-call 'sys_string 'copy '((r14) r1) '(_ r1))
+		(f-call 'sys_string 'copy '((r14 0) r1) '(_ r1))
 		(vp-sub-rr r7 r1)
 		(vp-cpy-ri r1 r7 msg_length)
 

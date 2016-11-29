@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
-(import inc/syscall.inc)
+(import 'inc/syscall.inc)
 
-(def-func sys/open)
+(def-func 'sys/open)
 	;inputs
 	;r0 = filename
 	;r1 = mode
