@@ -38,7 +38,7 @@
 				(func-call 'vector 'get_element '(vars, index_vars) '(symbol))
 				(func-call 'ref 'deref '(value))
 				(vpif '((symbol -> obj_vtable != @class/class_symbol)))
-					(func-call 'error 'create '("(bind vars vals) not a symbol", vals) '(value))
+					(func-call 'error 'create '("(bind vars vals) not a symbol", vars) '(value))
 					(goto 'error1)
 				(endif)
 				(switch)
