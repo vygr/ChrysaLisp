@@ -26,6 +26,10 @@ def_func class/lisp/func_def
 			loop_start
 				func_call ref, deref_if, {val}
 				func_call vector, get_element, {args, index}, {var}
+				vpif {var->obj_vtable != @class/class_symbol}
+					func_call error, create, {"(def env var val ...) not a symbol", args}, {val}
+					goto error
+				endif
 				devirt_call vector, ref_element, {args, index + 1}, {val}
 				func_call unordered_map, insert, {env, var, val}, {_, _}
 				assign {index + 2}, {index}
@@ -36,7 +40,7 @@ def_func class/lisp/func_def
 	else
 		func_call error, create, {"(def env var val ...) wrong number of args", args}, {val}
 	endif
-
+error:
 	expr {this, val}, {r0, r1}
 	pop_scope
 	return

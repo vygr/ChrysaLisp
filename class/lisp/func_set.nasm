@@ -23,6 +23,10 @@ def_func class/lisp/func_set
 		loop_start
 			func_call ref, deref_if, {val}
 			func_call vector, get_element, {args, index}, {var}
+			vpif {var->obj_vtable != @class/class_symbol}
+				func_call error, create, {"(set var val ...) not a symbol", args}, {val}
+				goto error
+			endif
 			func_call vector, get_element, {args, index + 1}, {val}
 			func_call lisp, env_set, {this, var, val}, {val}
 			breakif {val->obj_vtable == @class/class_error}
@@ -31,7 +35,7 @@ def_func class/lisp/func_set
 	else
 		func_call error, create, {"(set var val ...) wrong number of args", args}, {val}
 	endif
-
+error:
 	expr {this, val}, {r0, r1}
 	pop_scope
 	return
