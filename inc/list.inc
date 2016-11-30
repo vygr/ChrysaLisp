@@ -1,15 +1,15 @@
 (import 'inc/vp.inc)
 (import 'inc/code.inc)
-;(import 'inc/class.inc)
+(import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; list static class
 ;;;;;;;;;;;;;;;;;;;
 
-;(def-class 'sys_list)
-;(def-method 'init 'sys/list_init 'static '(r0))
-;(def-method 'index_of 'sys/list_index_of 'static '(r0 r1) '(r1))
-;(def-method 'node_at 'sys/list_node_at 'static '(r0 r1) '(r0))
+(def-class 'sys_list)
+(def-method 'init 'sys/list_init 'static '(r0))
+(def-method 'index_of 'sys/list_index_of 'static '(r0 r1) '(r1))
+(def-method 'node_at 'sys/list_node_at 'static '(r0 r1) '(r0))
 
 ;;;;;;;;;;;;;;;;;
 ; list structures
