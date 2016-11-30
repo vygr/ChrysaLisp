@@ -273,7 +273,8 @@
 
 (defcfun map-src-to-dst ()
 	(when (ne (length *src*) (length *dst*))
-		(print "Mismatching number of src/dst parameters !"))
+		(print "Mismatching number of src/dst parameters !")
+		(print *src* " -> " *dst*))
 	(map-remove-ignored)
 	(map-topology-sort)
 	(each (lambda (x y)
