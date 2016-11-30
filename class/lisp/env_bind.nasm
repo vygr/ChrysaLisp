@@ -37,6 +37,10 @@ def_func class/lisp/env_bind
 				breakif {index_vars == len_vars}
 				func_call vector, get_element, {vars, index_vars}, {symbol}
 				func_call ref, deref, {value}
+				vpif {symbol->obj_vtable != @class/class_symbol}
+					func_call error, create, {"(bind vars vals) not a symbol", vars}, {value}
+					goto error1
+				endif
 				switch
 				case {state == 1}
 					;rest
@@ -62,14 +66,14 @@ def_func class/lisp/env_bind
 			breakif {index_vals == len_vals}
 			func_call ref, deref, {value}
 		error:
-			func_call error, create, {"(bind vars vals): wrong number of vals", vals}, {value}
+			func_call error, create, {"(bind vars vals) wrong number of vals", vals}, {value}
 		else
-			func_call error, create, {"(bind vars vals): vals not a list", vals}, {value}
+			func_call error, create, {"(bind vars vals) vals not a list", vals}, {value}
 		endif
 	else
-		func_call error, create, {"(bind vars vals): vars not a list", vars}, {value}
+		func_call error, create, {"(bind vars vals) vars not a list", vars}, {value}
 	endif
-
+error1:
 	expr {this, value}, {r0, r1}
 	pop_scope
 	return
