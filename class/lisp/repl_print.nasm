@@ -1,7 +1,7 @@
 %include 'inc/func.ninc'
 %include 'class/class_stream.ninc'
 %include 'class/class_vector.ninc'
-%include 'class/class_symbol.ninc'
+%include 'class/class_string.ninc'
 %include 'class/class_boxed_long.ninc'
 %include 'class/class_pair.ninc'
 %include 'class/class_unordered_set.ninc'
@@ -67,14 +67,14 @@ def_func class/lisp/repl_print
 			break
 		case {elem == @class/class_boxed_long}
 			func_call boxed_long, get_value, {value}, {elem}
-			func_call symbol, create_from_long, {elem, 10}, {value}
+			func_call string, create_from_long, {elem, 10}, {value}
 			func_call stream, write, {stream, &value->string_data, value->string_length}
 			func_call ref, deref, {value}
 			break
 		case {elem == @class/class_boxed_ptr}
 			func_call stream, write_cstr, {stream, "#0x"}
 			func_call boxed_ptr, get_value, {value}, {elem}
-			func_call symbol, create_from_long, {elem, 16}, {value}
+			func_call string, create_from_long, {elem, 16}, {value}
 			func_call stream, write, {stream, &value->string_data, value->string_length}
 			func_call ref, deref, {value}
 			break
