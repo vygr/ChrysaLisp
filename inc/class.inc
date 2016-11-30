@@ -5,7 +5,7 @@
 (defcfun class-name (n) (sym (cat "_class_" (str n))))
 (defcfun super-name (n) (sym (cat "_super_" (str n))))
 
-(defcvar (class-name 'null) (list))
+(defcvar (class-name 'null) '())
 
 (defcfun vtable-emit (%1 &optional %2)
 	;%1 = class name
@@ -27,7 +27,7 @@
 	;%3 = mode (static/virtual/override)
 	;%4 = in regs
 	;%5 = out regs
-	(setq %3 (if %3 %3 'static) %4 (if %4 %4 (list)) %5 (if %5 %5 (list)))
+	(setq %3 (if %3 %3 'static) %4 (if %4 %4 '()) %5 (if %5 %5 '()))
 	(defq s 0 c (eval (class-name *class*))
 		m (some (lambda (m)
 			(if (eql (elem 0 m) %1) m

@@ -206,7 +206,8 @@
 
 (defun print-env (l e)
 	(print "--- " l " ---")
-	(each (lambda (x) (if (not (eql (elem 0 x) '*parent*)) (print x))) e))
+	(each (lambda (x) (if (not (eql (elem 0 x) '*parent*)) (print x))) e)
+	t)
 
 ;;;;;;;;;;;;;;
 ; VP Assembler
@@ -214,6 +215,12 @@
 
 (defun compile (*file*)
 	(rehash 101)
+	(defmacro defcvar (&rest b)
+		`(def *compile-env* ~b))
+	(defmacro defcfun (n a &rest b)
+;		(if (eql *file* 'inc/class.inc) (print "Create function: " n))
+;		`(def *compile-env* ',n (lambda ,a (print "Enter: " ',n) (defq _rv (progn ~b)) (print "Exit: " ',n) _rv)))
+		`(def *compile-env* ',n (lambda ,a ~b)))
 	(defun import (*file*)
 		(when (notany (lambda (x) (eql x *file*)) *imports*)
 			(push *imports* *file*)
@@ -221,11 +228,6 @@
 			(repl (file-stream *file*))
 ;			(print "Imported file: " *file*)
 			))
-	(defmacro defcvar (&rest b)
-		`(def *compile-env* ~b))
-	(defmacro defcfun (n a &rest b)
-;		(if (eql *file* 'inc/class.inc) (print "Create function: " n))
-		`(def *compile-env* ',n (lambda ,a ~b)))
 	(defq *imports* (list) *func-name* nil)
 	(defq *emit-buffer* nil *out-buffer* nil)
 	(defq *class* nil *struct* nil *struct-offset* nil *enum* nil *bit* nil)
