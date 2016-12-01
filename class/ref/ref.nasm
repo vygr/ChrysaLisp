@@ -7,6 +7,8 @@ def_func class/ref/ref
 	;trashes
 	;r1
 
+	assert r0, !=, 0
+
 	;inc ref count
 	vp_cpy [r0 + ref_count], r1
 	vp_inc r1
