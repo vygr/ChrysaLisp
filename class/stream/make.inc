@@ -1,0 +1,22 @@
+(import 'class/stream/create.vp)
+(import 'class/stream/deinit.vp)
+(import 'class/stream/init.vp)
+(import 'class/stream/new.vp)
+(import 'class/stream/available.vp)
+(import 'class/stream/read_next.vp)
+(import 'class/stream/read_ready.vp)
+(import 'class/stream/write_flush.vp)
+(import 'class/stream/write_next.vp)
+
+;needs C-Script
+(when nil
+(import 'class/stream/read.vp)
+(import 'class/stream/read_char.vp)
+(import 'class/stream/read_line.vp)
+(import 'class/stream/skip.vp)
+(import 'class/stream/skip_not.vp)
+(import 'class/stream/split.vp)
+(import 'class/stream/write.vp)
+(import 'class/stream/write_char.vp)
+(import 'class/stream/write_cstr.vp)
+)
