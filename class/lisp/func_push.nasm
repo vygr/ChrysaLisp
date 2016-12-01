@@ -20,8 +20,9 @@ def_func class/lisp/func_push
 
 	devirt_call vector, get_length, {args}, {length}
 	vpif {length > 1}
-		devirt_call vector, ref_element, {args, 0}, {value}
+		func_call vector, get_element, {args, 0}, {value}
 		vpif {value->obj_vtable == @class/class_vector}
+			func_call ref, ref, {value}
 			func_call vector, for_each, {args, 1, length, $callback, value}, {_}
 		else
 			func_call error, create, {"(push list form ...) not a list", args}, {value}
