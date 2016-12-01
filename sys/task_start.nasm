@@ -26,7 +26,6 @@ def_func sys/task_start
 	vp_cpy_ui [r2 - int_size], r1
 	vpif r1, >, tk_stack_size
 		vp_add tk_node_stackspace, r1
-		vp_cpy tk_node_size, r1
 		f_call sys_mem, alloc, {r1}, {r0, r1}
 	else
 		vp_add tk_statics_task_heap, r0

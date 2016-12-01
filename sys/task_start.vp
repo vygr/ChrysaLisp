@@ -26,7 +26,6 @@
 	(vp-cpy-ir-ui r2 (sub 0 int_size) r1)
 	(vpif '(r1 > tk_stack_size))
 		(vp-add-cr tk_node_stackspace r1)
-		(vp-cpy-cr tk_node_size r1)
 		(f-call 'sys_mem 'alloc '(r1) '(r0 r1))
 	(else)
 		(vp-add-cr tk_statics_task_heap r0)
