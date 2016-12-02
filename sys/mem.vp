@@ -1,0 +1,329 @@
+(import 'inc/func.inc)
+(import 'inc/heap.inc)
+
+(def-func 'sys/mem_statics)
+
+	(vp-long 0) ;used memory count
+	(let ((s mem_block_min_size))
+		(while (le s mem_block_max_size)
+			(times hp_heap_size (vp-byte 0))
+			(setq s (mul s 2))))
+
+(def-func-end)
+
+(def-func 'sys/mem_used)
+	;outputs
+	;r0 = amount in bytes
+
+	(f-bind 'sys_mem 'statics r0)
+	(vp-cpy-ir r0 0 r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mem_init)
+	;get statics
+	(f-bind 'sys_mem 'statics r0)
+	(vp-add-cr long_size r0)
+
+	;mem_slots heaps
+	(vp-cpy-cr mem_block_min_size r1)	;start object size
+	(vp-cpy-cr mem_block_blk_size r3)	;start block size
+	(loop-start)
+		(f-call 'sys_heap 'init '(r0 r1 r3))
+		(vp-add-cr hp_heap_size r0)
+		(vp-add-rr r1 r1)				;double object size
+		(vpif '(r3 < r1))
+			(vp-cpy-rr r1 r3)			;at least 1 object per block !
+		(endif)
+	(loop-until '(r1 > mem_block_max_size))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mem_deinit)
+	;get statics
+	(f-bind 'sys_mem 'statics r0)
+	(vp-cpy-rr r0 r5)
+
+	;free memory heaps
+	(vp-cpy-cr mem_block_min_size r6)	;start object size
+	(loop-start)
+		(f-call 'sys_heap 'deinit '(r5))
+		(vp-add-cr hp_heap_size r5)
+		(vp-add-rr r6 r6)
+	(loop-until '(r6 > mem_block_max_size))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mem_alloc)
+	;inputs
+	;r0 = minimum amount in bytes
+	;outputs
+	;r0 = 0 if failed, else address
+	;r1 = 0 if failed, else size given
+	;trashes
+	;r2-r3
+
+	(vpif '(r0 > (sub mem_block_max_size ptr_size)))
+		;error
+		(vp-xor-rr r0 r0)
+		(vp-xor-rr r1 r1)
+		(vp-ret)
+	(endif)
+	(vp-lea-i r0 ptr_size r1)		;extra bytes for heap pointer
+
+	;find object heap
+	(f-bind 'sys_mem 'statics r0)
+	(vp-add-cr long_size r0)
+	(loop-while '(r1 > (r0 hp_heap_cellsize)))
+		(vp-add-cr hp_heap_size r0)
+	(loop-end)
+
+	;allocate object from this heap
+	(f-call 'sys_heap 'alloc '(r0) '(r1))
+	(vp-cpy-ri r0 r1 0)
+	(vp-xchg-rr r0 r1)
+	(vp-cpy-ir r1 hp_heap_cellsize r1)
+	(vp-add-cr ptr_size r0)
+	(vp-sub-cr ptr_size r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mem_free)
+	;inputs
+	;r0 = address
+	;trashes
+	;r0-r2
+
+	(vpif '(r0 != 0))
+		(vp-sub-cr ptr_size r0)
+		(vp-cpy-ir r0 0 r1)
+		(hp-freecell r1 r0 r2)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mem_grow)
+	;inputs
+	;r0 = array
+	;r1 = array size
+	;r2 = new array size
+	;outputs
+	;r0 = new array
+	;r1 = new array size
+	;trashes
+	;r2-r3, r5-r8
+
+	(vp-cpy-rr r0 r5)
+	(vp-cpy-rr r1 r6)
+	(vpif '(r2 > r1))
+		;alloc new table
+		(f-call 'sys_mem 'alloc '(r2) '(r0 _))
+		(assert '(r0 != 0))
+		(vp-cpy-rr r0 r7)
+		(vp-cpy-rr r1 r8)
+
+		;clear it to empty
+		(f-call 'sys_mem 'clear '(r0 r1) '(_))
+
+		(vpif '(r6 != 0))
+			;copy over old data
+			(f-call 'sys_mem 'copy '(r5 r7 r6) '(_ _))
+
+			;free existing
+			(f-call 'sys_mem 'free '(r5))
+		(endif)
+
+		;save new table
+		(vp-cpy-rr r7 r0)
+		(vp-cpy-rr r8 r1)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mem_clear)
+	;inputs
+	;r0 = address
+	;r1 = length in bytes
+	;outputs
+	;r0 = address end
+	;trashes
+	;r1-r2
+
+	(vpif '(r1 != 0))
+		;not zero length
+		(vp-cpy-rr r0 r2)
+		(vp-and-cr (sub ptr_size 1) r2)
+		(vpif '(r2 == 0))
+			(vp-cpy-rr r1 r2)
+			(vp-and-cr (sub ptr_size 1) r2)
+			(vpif '(r2 == 0))
+				;all aligned on 8 byte boundary
+				(vp-add-rr r0 r1)
+				(loop-start)
+					(vp-cpy-ri r2 r0 0)
+					(vp-add-cr ptr_size r0)
+				(loop-until '(r0 == r1))
+				(vp-ret)
+			(endif)
+		(endif)
+		;something not aligned
+		(vp-add-rr r0 r1)
+		(vp-xor-rr r2 r2)
+		(loop-start)
+			(vp-cpy-ri-b r2 r0 0)
+			(vp-inc r0)
+		(loop-until '(r0 == r1))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mem_copy)
+	;inputs
+	;r0 = source address
+	;r1 = destination address
+	;r2 = length in bytes
+	;outputs
+	;r0 = source address end
+	;r1 = destination address end
+	;trashes
+	;r2-r3
+
+	(vpif '(r2 != 0))
+		;not zero length
+		(vp-cpy-rr r0 r3)
+		(vp-and-cr (sub ptr_size 1) r3)
+		(vpif '(r3 == 0))
+			(vp-cpy-rr r1 r3)
+			(vp-and-cr (sub ptr_size 1) r3)
+			(vpif '(r3 == 0))
+				(vp-cpy-rr r2 r3)
+				(vp-and-cr (sub ptr_size 1) r3)
+				(vpif '(r3 == 0))
+					;all aligned on 8 byte boundary
+					(vp-add-rr r0 r2)
+					(loop-start)
+						(vp-cpy-ir r0 0 r3)
+						(vp-cpy-ri r3 r1 0)
+						(vp-add-cr ptr_size r0)
+						(vp-add-cr ptr_size r1)
+					(loop-until '(r0 == r2))
+					(vp-ret)
+				(endif)
+			(endif)
+		(endif)
+		;something not aligned so byte copy
+		(vp-add-rr r0 r2)
+		(loop-start)
+			(vp-cpy-ir-ub r0 0 r3)
+			(vp-cpy-ri-b r3 r1 0)
+			(vp-inc r0)
+			(vp-inc r1)
+		(loop-until '(r0 == r2))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mem_fill)
+	;inputs
+	;r0 = address
+	;r1 = length in bytes
+	;r2 = fill byte
+	;outputs
+	;r0 = address end
+	;trashes
+	;r1-r3
+
+	(vpif '(r1 != 0))
+		;not zero length
+		(vp-cpy-rr r0 r3)
+		(vp-and-cr (sub ptr_size 1) r3)
+		(vpif '(r3 == 0))
+			(vp-cpy-rr r1 r3)
+			(vp-and-cr (sub ptr_size 1) r3)
+			(vpif '(r3 == 0))
+				;all aligned on 8 byte boundary
+				(vp-and-cr 0xff r2)
+				(vp-cpy-rr r2 r3)
+				(vp-shl-cr 8 r3)
+				(vp-add-rr r3 r2)
+				(vp-shl-cr 8 r3)
+				(vp-add-rr r3 r2)
+				(vp-shl-cr 8 r3)
+				(vp-add-rr r3 r2)
+				(vp-add-rr r0 r1)
+				(loop-start)
+					(vp-cpy-ri r2 r0 0)
+					(vp-add-cr ptr_size r0)
+				(loop-until '(r0 == r1))
+				(vp-ret)
+			(endif)
+		(endif)
+		;something not aligned
+		(vp-add-rr r0 r1)
+		(loop-start)
+			(vp-cpy-ri-b r2 r0 0)
+			(vp-inc r0)
+		(loop-until '(r0 == r1))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mem_xor)
+	;inputs
+	;r0 = source address
+	;r1 = destination address
+	;r2 = length in bytes
+	;outputs
+	;r0 = source address end
+	;r1 = destination address end
+	;trashes
+	;r2-r3, r5
+
+	(vpif '(r2 != 0))
+		;not zero length
+		(vp-cpy-rr r0 r3)
+		(vp-and-cr (sub ptr_size 1) r3)
+		(vpif '(r3 == 0))
+			(vp-cpy-rr r1 r3)
+			(vp-and-cr (sub ptr_size 1) r3)
+			(vpif '(r3 == 0))
+				(vp-cpy-rr r2 r3)
+				(vp-and-cr (sub ptr_size 1) r3)
+				(vpif '(r3 == 0))
+					;all aligned on 8 byte boundary
+					(vp-add-rr r0 r2)
+					(loop-start)
+						(vp-cpy-ir r0 0 r3)
+						(vp-cpy-ir r1 0 r5)
+						(vp-xor-rr r5 r3)
+						(vp-cpy-ri r3 r1 0)
+						(vp-add-cr ptr_size r0)
+						(vp-add-cr ptr_size r1)
+					(loop-until '(r0 == r2))
+					(vp-ret)
+				(endif)
+			(endif)
+		(endif)
+		;something not aligned so byte xor
+		(vp-add-rr r0 r2)
+		(loop-start)
+			(vp-cpy-ir-ub r0 0 r3)
+			(vp-cpy-ir-ub r1 0 r5)
+			(vp-xor-rr r5 r3)
+			(vp-cpy-ri-b r3 r1 0)
+			(vp-inc r0)
+			(vp-inc r1)
+		(loop-until '(r0 == r2))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
