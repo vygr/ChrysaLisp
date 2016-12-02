@@ -1,0 +1,87 @@
+(import 'inc/func.inc)
+(import 'class/class_obj.inc)
+
+(def-func 'class/obj/init)
+	;inputs
+	;r0 = object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+
+	;init the object
+	(vp-cpy-ri r1 r0 obj_vtable)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/obj/create)
+	;outputs
+	;r0 = 0 if error, else object
+
+	;always error
+	(vp-xor-rr r0 r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/obj/destroy)
+	;inputs
+	;r0 = object
+	;trashes
+	;all but r4
+
+	(v-call 'obj 'deinit '(r0))
+	(v-jmp 'obj 'delete '(r0))
+
+(def-func-end)
+
+(def-func 'class/obj/hash)
+	;inputs
+	;r0 = object
+	;outputs
+	;r0 = object
+	;r1 = hash code
+	;trashes
+	;all but r0, r4
+
+	;save inputs
+	(vp-cpy-rr r0 r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/obj/inst_of)
+	;inputs
+	;r0 = object
+	;r1 = vtable pointer of tested type
+	;outputs
+	;r0 = object
+	;r1 = 0 if not, else vtable of object
+	;trashes
+	;r2
+
+	(vp-cpy-rr r1 r2)
+	(loop-flist-forward r0 obj_vtable r1 r1)
+	(loop-until '(r1 == r2))
+	(vpif '(r1 == r2))
+		(vp-cpy-ir r0 obj_vtable r1)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/obj/new)
+	;outputs
+	;r0 = 0 if error, else object
+
+	;always error
+	(vp-xor-rr r0 r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/obj/null)
+
+	(vp-ret)
+
+(def-func-end)

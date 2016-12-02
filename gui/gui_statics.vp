@@ -1,8 +1,0 @@
-(import 'inc/func.inc)
-(import 'inc/gui.inc)
-
-(def-func 'gui/gui_statics)
-
-	(times gui_statics_size (vp-byte 0))
-
-(def-func-end)

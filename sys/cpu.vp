@@ -1,0 +1,39 @@
+(import 'inc/func.inc)
+(import 'inc/task.inc)
+(import 'inc/syscall.inc)
+
+(def-func 'sys/cpu_get_id)
+	;outputs
+	;r0 = cpu ID
+
+	(f-bind 'sys_task 'statics r0)
+	(vp-cpy-ir r0 tk_statics_cpu_id r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/cpu_get_time)
+	;outputs
+	;r0 = time in usec
+
+	;calculate wake time
+	(vp-sub-cr timeval_size r4)
+	(vp-cpy-rr r4 r0)
+	(sys-gettimeofday r0 0)
+	(vp-cpy-ir r4 timeval_sec r0)
+	(vp-mul-cr 1000000 r0)
+	(vp-add-ir r4 timeval_usec r0)
+	(vp-add-cr timeval_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/cpu_get_total)
+	;outputs
+	;r0 = cpu total
+
+	(f-bind 'sys_task 'statics r0)
+	(vp-cpy-ir r0 tk_statics_cpu_total r0)
+	(vp-ret)
+
+(def-func-end)

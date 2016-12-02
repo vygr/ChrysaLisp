@@ -1,8 +1,0 @@
-(import 'inc/func.inc)
-(import 'inc/link.inc)
-
-(def-func 'sys/link_statics)
-
-	(times lk_statics_size (vp-byte 0))
-
-(def-func-end)

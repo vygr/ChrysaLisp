@@ -1,4 +1,0 @@
-(import 'inc/func.inc)
-(import 'class/class_boxed_long.inc)
-
-(class-macro-class 'boxed_long)

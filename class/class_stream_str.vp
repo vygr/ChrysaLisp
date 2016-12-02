@@ -1,4 +1,0 @@
-(import 'inc/func.inc)
-(import 'class/class_stream_str.inc)
-
-(class-macro-class 'stream_str)

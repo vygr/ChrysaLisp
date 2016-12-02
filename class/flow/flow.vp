@@ -1,0 +1,261 @@
+(import 'inc/func.inc)
+(import 'class/class_flow.inc)
+
+(class-macro-new 'flow)
+(class-macro-create 'flow)
+
+(def-func 'class/flow/init)
+	;inputs
+	;r0 = flow object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+
+	;init parent
+	(s-call 'flow 'init '(r0 r1) '(r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-xor-rr r2 r2)
+		(vp-cpy-ri r2 r0 flow_flags)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/flow/layout)
+	;inputs
+	;r0 = flow object
+	;trashes
+	;all but r0, r4
+
+	(def-struct 'local)
+		(long 'local_x)
+		(long 'local_y)
+	(def-struct-end)
+
+	(vp-sub-cr local_size r4)
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r4 local_x)
+	(vp-cpy-ri r1 r4 local_y)
+	(vp-cpy-ir r0 flow_flags r1)
+	(vp-and-cr flow_flag_left r1)
+	(vpif '(r1 != 0))
+		(vp-cpy-ir r0 view_w r1)
+		(vp-cpy-ri r1 r4 local_x)
+	(endif)
+	(vp-cpy-ir r0 flow_flags r1)
+	(vp-and-cr flow_flag_up r1)
+	(vpif '(r1 != 0))
+		(vp-cpy-ir r0 view_h r1)
+		(vp-cpy-ri r1 r4 local_y)
+	(endif)
+
+	(f-call 'flow 'forward '(r0 r4 ($ callback)))
+
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(vp-label 'callback)
+	(vp-push r1)
+	(v-call 'view 'pref_size '(r0) '(r10 r11))
+	(vp-pop r1)
+	(vp-cpy-ir r1 local_x r8)
+	(vp-cpy-ir r1 local_y r9)
+	(vp-cpy-rr r8 r12)
+	(vp-cpy-rr r9 r13)
+
+	(vp-cpy-ir r0 view_parent r2)
+	(vp-cpy-ir r2 flow_flags r3)
+	(vp-and-cr flow_flag_down r3)
+	(vpif '(r3 != 0))
+		;flow down
+		(vp-lea-d r9 r11 r13)
+	(endif)
+
+	(vp-cpy-ir r2 flow_flags r3)
+	(vp-and-cr flow_flag_up r3)
+	(vpif '(r3 != 0))
+		;flow up
+		(vp-sub-rr r11 r9)
+		(vp-cpy-rr r9 r13)
+	(endif)
+
+	(vp-cpy-ir r2 flow_flags r3)
+	(vp-and-cr flow_flag_right r3)
+	(vpif '(r3 != 0))
+		;flow right
+		(vp-lea-d r8 r10 r12)
+	(endif)
+
+	(vp-cpy-ir r2 flow_flags r3)
+	(vp-and-cr flow_flag_left r3)
+	(vpif '(r3 != 0))
+		;flow left
+		(vp-sub-rr r10 r8)
+		(vp-cpy-rr r8 r12)
+	(endif)
+
+	(vp-cpy-ir r2 flow_flags r3)
+	(vp-and-cr flow_flag_fillw r3)
+	(vpif '(r3 != 0))
+		;fill width of parent
+		(vp-cpy-ir r2 view_w r10)
+		(vp-xor-rr r8 r8)
+	(endif)
+
+	(vp-cpy-ir r2 flow_flags r3)
+	(vp-and-cr flow_flag_fillh r3)
+	(vpif '(r3 != 0))
+		;fill height of parent
+		(vp-cpy-ir r2 view_h r11)
+		(vp-xor-rr r9 r9)
+	(endif)
+
+	(vp-cpy-ir r2 flow_flags r3)
+	(vp-and-cr flow_flag_lastw r3)
+	(vpif '(r3 != 0))
+		;last one fills width gap of parent
+		(ln-is-last r0 view_node r3)
+		(vpif '(r3 == 0))
+			(vp-cpy-ir r2 flow_flags r3)
+			(vp-and-cr flow_flag_right r3)
+			(vpif '(r3 != 0))
+				;flow right
+				(vp-lea-d r8 r10 r15)
+				(vp-sub-ir r2 view_w r15)
+				(vp-sub-rr r15 r10)
+			(endif)
+			(vp-cpy-ir r2 flow_flags r3)
+			(vp-and-cr flow_flag_left r3)
+			(vpif '(r3 != 0))
+				;flow left
+				(vp-add-rr r8 r10)
+				(vp-xor-rr r8 r8)
+			(endif)
+		(endif)
+	(endif)
+
+	(vp-cpy-ir r2 flow_flags r3)
+	(vp-and-cr flow_flag_lasth r3)
+	(vpif '(r3 != 0))
+		;last one fills height gap of parent
+		(ln-is-last r0 view_node r3)
+		(vpif '(r3 == 0))
+			(vp-cpy-ir r2 flow_flags r3)
+			(vp-and-cr flow_flag_down r3)
+			(vpif '(r3 != 0))
+				;flow down
+				(vp-lea-d r9 r11 r15)
+				(vp-sub-ir r2 view_h r15)
+				(vp-sub-rr r15 r11)
+			(endif)
+			(vp-cpy-ir r2 flow_flags r3)
+			(vp-and-cr flow_flag_up r3)
+			(vpif '(r3 != 0))
+				;flow up
+				(vp-add-rr r9 r11)
+				(vp-xor-rr r9 r9)
+			(endif)
+		(endif)
+	(endif)
+
+	(vp-cpy-ir r2 flow_flags r3)
+	(vp-and-cr (bit-or flow_flag_align_hcenter flow_flag_align_hleft flow_flag_align_hright) r3)
+	(vpif '(r3 != 0))
+		(vp-cpy-ir r2 view_w r8)
+		(vp-sub-rr r10 r8)
+		(switch)
+		(case '(r3 == flow_flag_align_hcenter))
+			(vp-shr-cr 1 r8)
+			(break)
+		(case '(r3 == flow_flag_align_hleft))
+			(vp-xor-rr r8 r8)
+		(endswitch)
+	(endif)
+
+	(vp-cpy-ir r2 flow_flags r3)
+	(vp-and-cr (bit-or flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom) r3)
+	(vpif '(r3 != 0))
+		(vp-cpy-ir r2 view_h r9)
+		(vp-sub-rr r11 r9)
+		(switch)
+		(case '(r3 == flow_flag_align_vcenter))
+			(vp-shr-cr 1 r9)
+			(break)
+		(case '(r3 == flow_flag_align_vtop))
+			(vp-xor-rr r9 r9)
+		(endswitch)
+	(endif)
+
+	(vp-cpy-ri r12 r1 local_x)
+	(vp-cpy-ri r13 r1 local_y)
+	(f-jmp 'view 'change '(r0 r8 r9 r10 r11))
+
+(def-func-end)
+
+(def-func 'class/flow/pref_size)
+	;inputs
+	;r0 = flow object
+	;outputs
+	;r10 = prefered width
+	;r11 = prefered height
+	;trashes
+	;all but r0, r4
+
+	(def-struct 'local)
+		(long 'local_w)
+		(long 'local_h)
+	(def-struct-end)
+
+	(vp-sub-cr local_size r4)
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r4 local_w)
+	(vp-cpy-ri r1 r4 local_h)
+
+	(f-call 'flow 'forward '(r0 r4 ($ callback)))
+
+	(vp-cpy-ir r4 local_w r10)
+	(vp-cpy-ir r4 local_h r11)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(vp-label 'callback)
+	(vp-push r1)
+	(v-call 'view 'pref_size '(r0) '(r10 r11))
+	(vp-pop r1)
+	(vp-cpy-ir r0 view_parent r2)
+	(vp-cpy-ir r2 flow_flags r3)
+	(vp-and-cr (bit-or flow_flag_up flow_flag_down) r3)
+	(vpif '(r3 != 0))
+		;flow down or up
+		(vp-cpy-ir r1 local_h r3)
+		(vp-add-rr r11 r3)
+		(vp-cpy-ri r3 r1 local_h)
+	(endif)
+	(vp-cpy-ir r2 flow_flags r3)
+	(vp-and-cr (bit-or flow_flag_left flow_flag_right) r3)
+	(vpif '(r3 != 0))
+		;flow left or right
+		(vp-cpy-ir r1 local_w r3)
+		(vp-add-rr r10 r3)
+		(vp-cpy-ri r3 r1 local_w)
+	(endif)
+	(vpif '(r10 > (r1 local_w)))
+		(vp-cpy-ri r10 r1 local_w)
+	(endif)
+	(vpif '(r11 > (r1 local_h)))
+		(vp-cpy-ri r11 r1 local_h)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/flow/set_flow_flags)
+	;inputs
+	;r0 = view object
+	;r1 = flags
+
+	(vp-cpy-ri r1 r0 flow_flags)
+	(vp-ret)
+
+(def-func-end)

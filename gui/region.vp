@@ -1,0 +1,1408 @@
+(import 'inc/gui.inc)
+(import 'inc/func.inc)
+
+(def-func 'gui/region_clip_rect)
+	;inputs
+	;r0 = region heap pointer
+	;r1 = source region listhead pointer
+	;r8 = x (pixels)
+	;r9 = y (pixels)
+	;r10 = x1 (pixels)
+	;r11 = y1 (pixels)
+	;trashes
+	;r5-r15
+
+	;check for any obvious errors in inputs
+	(vpif '(r10 > r8))
+		(vpif '(r11 > r9))
+			;run through source region list
+			(vp-cpy-rr r1 r7)
+			(loop-start)
+			(vp-label 'loop)
+				(ln-next-fnode r7 r6)
+
+				(switch)
+					(vp-cpy-ir-i r7 gui_rect_x r12)
+					(breakif '(r12 >= r10))
+					(vp-cpy-ir-i r7 gui_rect_y r13)
+					(breakif '(r13 >= r11))
+					(vp-cpy-ir-i r7 gui_rect_x1 r14)
+					(breakif '(r14 <= r8))
+					(vp-cpy-ir-i r7 gui_rect_y1 r15)
+					(breakif '(r15 <= r9))
+
+					;clip region
+					(vpif '(r12 < r8))
+						(vp-cpy-ri-i r8 r7 gui_rect_x)
+					(endif)
+					(vpif '(r13 < r9))
+						(vp-cpy-ri-i r9 r7 gui_rect_y)
+					(endif)
+					(vpif '(r14 > r10))
+						(vp-cpy-ri-i r10 r7 gui_rect_x1)
+					(endif)
+					(vpif '(r15 > r11))
+						(vp-cpy-ri-i r11 r7 gui_rect_y1)
+					(endif)
+					(vp-jmp 'loop)
+				(endswitch)
+
+				;region is outside
+				(vp-cpy-rr r7 r5)
+				(ln-remove-fnode r7 r6)
+				(hp-freecell r0 r5 r6)
+			(loop-end)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'gui/region_copy_rect)
+	;inputs
+	;r0 = region heap pointer
+	;r1 = source region listhead pointer
+	;r2 = dest region listhead pointer
+	;r8 = x (pixels)
+	;r9 = y (pixels)
+	;r10 = x1 (pixels)
+	;r11 = y1 (pixels)
+	;trashes
+	;r1-r2, r5-r15
+
+	;check for any obvious errors in inputs
+	(vpif '(r10 > r8))
+		(vpif '(r11 > r9))
+			;run through source region list
+			(vp-cpy-rr r2 r5)
+			(loop-flist-forward r1 0 r7 r7)
+				;not in contact ?
+				(vp-cpy-ir-i r7 gui_rect_x r12)
+				(continueif '(r12 >= r10))
+				(vp-cpy-ir-i r7 gui_rect_y r13)
+				(continueif '(r13 >= r11))
+				(vp-cpy-ir-i r7 gui_rect_x1 r14)
+				(continueif '(r8 >= r14))
+				(vp-cpy-ir-i r7 gui_rect_y1 r15)
+				(continueif '(r9 >= r15))
+
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+
+				;jump to correct splitting code
+				(vp-jmpif '(r12 >= r8) 'copy_split1)
+				(vp-jmpif '(r13 >= r9) 'copy_split2)
+				(vp-jmpif '(r10 >= r14) 'copy_split4)
+				(vp-jmpif '(r11 >= r15) 'copy_xyx1)
+
+			(vp-label 'copy_xyx1y1)
+				;r8 + r9 + r10 + r11 inside
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_split1)
+				;jump to correct splitting code
+				(vp-jmpif '(r13 >= r9) 'copy_split3)
+				(vp-jmpif '(r10 >= r14) 'copy_split5)
+				(vp-jmpif '(r11 >= r15) 'copy_yx1)
+
+			(vp-label 'copy_yx1y1)
+				;r9 + r10 + r11 inside
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_split2)
+				;jump to correct splitting code
+				(vp-jmpif '(r10 >= r14) 'copy_split6)
+				(vp-jmpif '(r11 >= r15) 'copy_xx1)
+
+			(vp-label 'copy_xx1y1)
+				;r8 + r10 + r11 inside
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_split3)
+				;jump to correct splitting code
+				(vp-jmpif '(r10 >= r14) 'copy_split7)
+				(vp-jmpif '(r11 >= r15) 'copy_x1)
+
+			(vp-label 'copy_x1y1)
+				;r10 + r11 inside
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_split4)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'copy_xy)
+
+			(vp-label 'copy_xyy1)
+				;r8 + r9 + r11 inside
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_split5)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'copy_y)
+
+			(vp-label 'copy_yy1)
+				;r9 + r11 inside
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_split6)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'copy_x)
+
+			(vp-label 'copy_xy1)
+				;r8 + r11 inside
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_split7)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'copy_encl)
+
+			(vp-label 'copy_y1)
+				;r11 inside
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_xyx1)
+				;r8 + r9 + r10 inside
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_encl)
+				;region is enclosed
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_x)
+				;r8 inside
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_y)
+				;r9 inside
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_xy)
+				;r8 + r9 inside
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_x1)
+				;r10 inside
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_xx1)
+				;r8 + r10 inside
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'copy_yx1)
+				;r9 + r10 inside
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+			(loop-end)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'gui/region_copy_region)
+	;inputs
+	;r0 = region heap pointer
+	;r1 = source region listhead pointer
+	;r2 = dest region listhead pointer
+	;r3 = copy region listhead pointer
+	;r8 = x translation
+	;r9 = y translation
+	;trashes
+	;r1-r3, r5-r15
+
+	(def-struct 'local)
+		(ptr 'local_node)
+		(ptr 'local_slist)
+		(ptr 'local_dlist)
+		(long 'local_dx)
+		(long 'local_dy)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r1 r2 r8 r9))
+	(set-dst '((r4 local_slist) (r4 local_dlist) (r4 local_dx) (r4 local_dy)))
+	(map-src-to-dst)
+
+	;run through copy region list
+	(loop-flist-forward r3 0 r1 r1)
+		(vp-cpy-ri r1 r4 local_node)
+
+		(vp-cpy-ir-i r1 gui_rect_x r8)
+		(vp-cpy-ir-i r1 gui_rect_y r9)
+		(vp-cpy-ir-i r1 gui_rect_x1 r10)
+		(vp-cpy-ir-i r1 gui_rect_y1 r11)
+		(vp-cpy-ir r4 local_dx r12)
+		(vp-cpy-ir r4 local_dy r13)
+		(vp-add-rr r12 r8)
+		(vp-add-rr r13 r9)
+		(vp-add-rr r12 r10)
+		(vp-add-rr r13 r11)
+		(f-call 'gui_region 'copy_rect '(r0 (r4 local_slist) (r4 local_dlist) r8 r9 r10 r11))
+
+		(vp-cpy-ir r4 local_node r1)
+	(loop-end)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'gui/region_cut_rect)
+	;inputs
+	;r0 = region heap pointer
+	;r1 = source region listhead pointer
+	;r2 = dest region listhead pointer
+	;r8 = x (pixels)
+	;r9 = y (pixels)
+	;r10 = x1 (pixels)
+	;r11 = y1 (pixels)
+
+	;check for any obvious errors in inputs
+	(vpif '(r10 > r8))
+		(vpif '(r11 > r9))
+			;run through source region list
+			(vp-cpy-rr r2 r5)
+			(vp-cpy-rr r1 r6)
+			(vp-sub-cr ptr_size r4)
+			(loop-flist-forward r1 0 r7 r2)
+				(vp-cpy-ri r2 r4 0)
+
+				;not in contact ?
+				(vp-cpy-ir-i r7 gui_rect_x r12)
+				(continueif '(r12 >= r10))
+				(vp-cpy-ir-i r7 gui_rect_y r13)
+				(continueif '(r13 >= r11))
+				(vp-cpy-ir-i r7 gui_rect_x1 r14)
+				(continueif '(r8 >= r14))
+				(vp-cpy-ir-i r7 gui_rect_y1 r15)
+				(continueif '(r9 >= r15))
+
+				;jump to correct splitting code
+				(vp-jmpif '(r12 >= r8) 'cut_split1)
+				(vp-jmpif '(r13 >= r9) 'cut_split2)
+				(vp-jmpif '(r10 >= r14) 'cut_split4)
+				(vp-jmpif '(r11 >= r15) 'cut_xyx1)
+
+			(vp-label 'cut_xyx1y1)
+				;r8 + r9 + r10 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;right part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r10 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;left part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r8 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_split1)
+				;jump to correct splitting code
+				(vp-jmpif '(r13 >= r9) 'cut_split3)
+				(vp-jmpif '(r10 >= r14) 'cut_split5)
+				(vp-jmpif '(r11 >= r15) 'cut_yx1)
+
+			(vp-label 'cut_yx1y1)
+				;r9 + r10 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;right part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r10 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_split2)
+				;jump to correct splitting code
+				(vp-jmpif '(r10 >= r14) 'cut_split6)
+				(vp-jmpif '(r11 >= r15) 'cut_xx1)
+
+			(vp-label 'cut_xx1y1)
+				;r8 + r10 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;right part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r10 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;left part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r8 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_split3)
+				;jump to correct splitting code
+				(vp-jmpif '(r10 >= r14) 'cut_split7)
+				(vp-jmpif '(r11 >= r15) 'cut_x1)
+
+			(vp-label 'cut_x1y1)
+				;r10 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;right part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r10 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_split4)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'cut_xy)
+
+			(vp-label 'cut_xyy1)
+				;r8 + r9 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;left part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r8 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_split5)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'cut_y)
+
+			(vp-label 'cut_yy1)
+				;r9 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_split6)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'cut_x)
+
+			(vp-label 'cut_xy1)
+				;r8 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;left part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r8 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_split7)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'cut_encl)
+
+			(vp-label 'cut_y1)
+				;r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_xyx1)
+				;r8 + r9 + r10 inside
+				;left part
+				(vp-cpy-ri-i r9 r7 gui_rect_y)
+				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				;right part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r10 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_encl)
+				;region is enclosed
+				(vp-cpy-rr r7 r1)
+				(vp-cpy-ir r4 0 r2)
+				(ln-remove-fnode r7 r2)
+				(ln-add-fnode r5 0 r1 r2)
+				(continue)
+
+			(vp-label 'cut_x)
+				;r8 inside
+				;left part
+				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_y)
+				;r9 inside
+				;top part
+				(vp-cpy-ri-i r9 r7 gui_rect_y1)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_xy)
+				;r8 + r9 inside
+				;left part
+				(vp-cpy-ri-i r9 r7 gui_rect_y)
+				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_x1)
+				;r10 inside
+				;right part
+				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_xx1)
+				;r8 + r10 inside
+				;right part
+				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				;left part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r8 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'cut_yx1)
+				;r9 + r10 inside
+				;right part
+				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				(vp-cpy-ri-i r9 r7 gui_rect_y)
+				;cut part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r6 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+			(loop-end)
+			(vp-add-cr 8 r4)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'gui/region_free)
+	;inputs
+	;r0 = region heap pointer
+	;r1 = source region listhead pointer
+	;trashes
+	;r1-r3
+
+	;run through source region list
+	(loop-flist-forward r1 0 r1 r2)
+		(vp-cpy-rr r1 r3)
+		(ln-remove-fnode r1 r2)
+		(hp-freecell r0 r3 r2)
+	(loop-end)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'gui/region_paste_rect)
+	;inputs
+	;r0 = region heap pointer
+	;r1 = dest region listhead pointer
+	;r8 = x (pixels)
+	;r9 = y (pixels)
+	;r10 = x1 (pixels)
+	;r11 = y1 (pixels)
+	;trashes
+	;r1-r3, r5-r15
+
+	;check for any obvious errors in inputs
+	(vpif '(r10 > r8))
+		(vpif '(r11 > r9))
+			;run through source region list
+			(vp-cpy-rr r1 r5)
+			(loop-flist-forward r1 0 r7 r6)
+				;not in contact ?
+				(vp-cpy-ir-i r7 gui_rect_x r12)
+				(continueif '(r12 >= r10))
+				(vp-cpy-ir-i r7 gui_rect_y r13)
+				(continueif '(r13 >= r11))
+				(vp-cpy-ir-i r7 gui_rect_x1 r14)
+				(continueif '(r8 >= r14))
+				(vp-cpy-ir-i r7 gui_rect_y1 r15)
+				(continueif '(r9 >= r15))
+
+				;jump to correct splitting code
+				(vp-jmpif '(r12 >= r8) 'paste_split1)
+				(vp-jmpif '(r13 >= r9) 'paste_split2)
+				(vp-jmpif '(r10 >= r14) 'paste_split4)
+				(vp-jmpif '(r11 >= r15) 'paste_xyx1)
+
+			(vp-label 'paste_xyx1y1)
+				;r8 + r9 + r10 + r11 inside
+				(vp-ret)
+
+			(vp-label 'paste_split1)
+				;jump to correct splitting code
+				(vp-jmpif '(r13 >= r9) 'paste_split3)
+				(vp-jmpif '(r10 >= r14) 'paste_split5)
+				(vp-jmpif '(r11 >= r15) 'paste_yx1)
+
+			(vp-label 'paste_yx1y1)
+				;r9 + r10 + r11 inside
+				(vp-cpy-rr r12 r10)
+				(continue)
+
+			(vp-label 'paste_split2)
+				;jump to correct splitting code
+				(vp-jmpif '(r10 >= r14) 'paste_split6)
+				(vp-jmpif '(r11 >= r15) 'paste_xx1)
+
+			(vp-label 'paste_xx1y1)
+				;r8 + r10 + r11 inside
+				(vp-cpy-rr r13 r11)
+				(continue)
+
+			(vp-label 'paste_split3)
+				;jump to correct splitting code
+				(vp-jmpif '(r10 >= r14) 'paste_split7)
+				(vp-jmpif '(r11 >= r15) 'paste_x1)
+
+			(vp-label 'paste_x1y1)
+				;r10 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;right part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r10 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'paste_split4)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'paste_xy)
+
+			(vp-label 'paste_xyy1)
+				;r8 + r9 + r11 inside
+				(vp-cpy-rr r14 r8)
+				(continue)
+
+			(vp-label 'paste_split5)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'paste_y)
+
+			(vp-label 'paste_yy1)
+				;r9 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'paste_split6)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'paste_x)
+
+			(vp-label 'paste_xy1)
+				;r8 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;left part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r8 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'paste_split7)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'paste_encl)
+
+			(vp-label 'paste_y1)
+				;r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(continue)
+
+			(vp-label 'paste_xyx1)
+				;r8 + r9 + r10 inside
+				(vp-cpy-rr r15 r9)
+				(continue)
+
+			(vp-label 'paste_encl)
+				;region is enclosed
+				(vp-cpy-rr r7 r1)
+				(ln-remove-fnode r7 r6)
+				(hp-freecell r0 r1 r2)
+				(continue)
+
+			(vp-label 'paste_x)
+				;r8 inside
+				;left part
+				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				(continue)
+
+			(vp-label 'paste_y)
+				;r9 inside
+				;top part
+				(vp-cpy-ri-i r9 r7 gui_rect_y1)
+				(continue)
+
+			(vp-label 'paste_xy)
+				;r8 + r9 inside
+				;left part
+				(vp-cpy-ri-i r9 r7 gui_rect_y)
+				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'paste_x1)
+				;r10 inside
+				;right part
+				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				(continue)
+
+			(vp-label 'paste_xx1)
+				;r8 + r10 inside
+				;right part
+				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				;left part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r8 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'paste_yx1)
+				;r9 + r10 inside
+				;right part
+				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				(vp-cpy-ri-i r9 r7 gui_rect_y)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+			(loop-end)
+
+			;create new region ?
+			(switch)
+				(breakif '(r8 == r10))
+				(breakif '(r9 == r11))
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(breakif '(r1 == 0))
+
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r8 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r10 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+			(endswitch)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'gui/region_paste_region)
+	;inputs
+	;r0 = region heap pointer
+	;r1 = source region listhead pointer
+	;r2 = dest region listhead pointer
+	;r8 = x translation
+	;r9 = y translation
+	;trashes
+	;r1-r3, r5-r15
+
+	(def-struct 'local)
+		(ptr 'local_node)
+		(ptr 'local_dlist)
+		(long 'local_dx)
+		(long 'local_dy)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r2 r8 r9))
+	(set-dst '((r4 local_dlist) (r4 local_dx) (r4 local_dy)))
+	(map-src-to-dst)
+
+	;run through source region list
+	(loop-flist-forward r1 0 r1 r1)
+		(vp-cpy-ri r1 r4 local_node)
+
+		(vp-cpy-ir-i r1 gui_rect_x r8)
+		(vp-cpy-ir-i r1 gui_rect_y r9)
+		(vp-cpy-ir-i r1 gui_rect_x1 r10)
+		(vp-cpy-ir-i r1 gui_rect_y1 r11)
+		(vp-cpy-ir r4 local_dx r12)
+		(vp-cpy-ir r4 local_dy r13)
+		(vp-add-rr r12 r8)
+		(vp-add-rr r13 r9)
+		(vp-add-rr r12 r10)
+		(vp-add-rr r13 r11)
+		(f-call 'gui_region 'paste_rect '(r0 (r4 local_dlist) r8 r9 r10 r11))
+
+		(vp-cpy-ir r4 local_node r1)
+	(loop-end)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'gui/region_remove_rect)
+	;inputs
+	;r0 = region heap pointer
+	;r1 = source region listhead pointer
+	;r8 = x (pixels)
+	;r9 = y (pixels)
+	;r10 = x1 (pixels)
+	;r11 = y1 (pixels)
+	;trashes
+	;r1-r2, r5-r15
+
+	;check for any obvious errors in inputs
+	(vpif '(r10 > r8))
+		(vpif '(r11 > r9))
+			;run through source region list
+			(vp-cpy-rr r1 r5)
+			(loop-flist-forward r1 0 r7 r6)
+				;not in contact ?
+				(vp-cpy-ir-i r7 gui_rect_x r12)
+				(continueif '(r12 >= r10))
+				(vp-cpy-ir-i r7 gui_rect_y r13)
+				(continueif '(r13 >= r11))
+				(vp-cpy-ir-i r7 gui_rect_x1 r14)
+				(continueif '(r8 >= r14))
+				(vp-cpy-ir-i r7 gui_rect_y1 r15)
+				(continueif '(r9 >= r15))
+
+				;jump to correct splitting code
+				(vp-jmpif '(r12 >= r8) 'rem_split1)
+				(vp-jmpif '(r13 >= r9) 'rem_split2)
+				(vp-jmpif '(r10 >= r14) 'rem_split4)
+				(vp-jmpif '(r11 >= r15) 'rem_xyx1)
+
+			(vp-label 'rem_xyx1y1)
+				;r8 + r9 + r10 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;right part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r10 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;left part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r8 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'rem_split1)
+				;jump to correct splitting code
+				(vp-jmpif '(r13 >= r9) 'rem_split3)
+				(vp-jmpif '(r10 >= r14) 'rem_split5)
+				(vp-jmpif '(r11 >= r15) 'rem_yx1)
+
+			(vp-label 'rem_yx1y1)
+				;r9 + r10 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;right part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r10 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'rem_split2)
+				;jump to correct splitting code
+				(vp-jmpif '(r10 >= r14) 'rem_split6)
+				(vp-jmpif '(r11 >= r15) 'rem_xx1)
+
+			(vp-label 'rem_xx1y1)
+				;r8 + r10 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;right part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r10 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;left part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r8 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'rem_split3)
+				;jump to correct splitting code
+				(vp-jmpif '(r10 >= r14) 'rem_split7)
+				(vp-jmpif '(r11 >= r15) 'rem_x1)
+
+			(vp-label 'rem_x1y1)
+				;r10 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;right part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r10 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'rem_split4)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'rem_xy)
+
+			(vp-label 'rem_xyy1)
+				;r8 + r9 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;left part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r8 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'rem_split5)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'rem_y)
+
+			(vp-label 'rem_yy1)
+				;r9 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'rem_split6)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'rem_x)
+
+			(vp-label 'rem_xy1)
+				;r8 + r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				;left part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r8 r1 gui_rect_x1)
+				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'rem_split7)
+				;jump to correct splitting code
+				(vp-jmpif '(r11 >= r15) 'rem_encl)
+
+			(vp-label 'rem_y1)
+				;r11 inside
+				;bottom part
+				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(continue)
+
+			(vp-label 'rem_xyx1)
+				;r8 + r9 + r10 inside
+				;left part
+				(vp-cpy-ri-i r9 r7 gui_rect_y)
+				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				;right part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r10 r1 gui_rect_x)
+				(vp-cpy-ri-i r9 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'rem_encl)
+				;region is enclosed
+				(vp-cpy-rr r7 r1)
+				(ln-remove-fnode r7 r6)
+				(hp-freecell r0 r1 r2)
+				(continue)
+
+			(vp-label 'rem_x)
+				;r8 inside
+				;left part
+				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				(continue)
+
+			(vp-label 'rem_y)
+				;r9 inside
+				;top part
+				(vp-cpy-ri-i r9 r7 gui_rect_y1)
+				(continue)
+
+			(vp-label 'rem_xy)
+				;r8 + r9 inside
+				;left part
+				(vp-cpy-ri-i r9 r7 gui_rect_y)
+				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'rem_x1)
+				;r10 inside
+				;right part
+				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				(continue)
+
+			(vp-label 'rem_xx1)
+				;r8 + r10 inside
+				;right part
+				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				;left part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r8 r1 gui_rect_x1)
+				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(continue)
+
+			(vp-label 'rem_yx1)
+				;r9 + r10 inside
+				;right part
+				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				(vp-cpy-ri-i r9 r7 gui_rect_y)
+				;top part
+				(f-call 'sys_heap 'alloc '(r0) '(r1))
+				(continueif '(r1 == 0))
+				(ln-add-fnode r5 0 r1 r2)
+				(vp-cpy-ri-i r12 r1 gui_rect_x)
+				(vp-cpy-ri-i r13 r1 gui_rect_y)
+				(vp-cpy-ri-i r14 r1 gui_rect_x1)
+				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+			(loop-end)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'gui/region_remove_region)
+	;inputs
+	;r0 = region heap pointer
+	;r1 = source region listhead pointer
+	;r2 = dest region listhead pointer
+	;r8 = x translation
+	;r9 = y translation
+	;trashes
+	;r1-r3, r5-r15
+
+	(def-struct 'local)
+		(ptr 'local_node)
+		(ptr 'local_dlist)
+		(long 'local_dx)
+		(long 'local_dy)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r2 r8 r9))
+	(set-dst '((r4 local_dlist) (r4 local_dx) (r4 local_dy)))
+	(map-src-to-dst)
+
+	;run through source region list
+	(loop-flist-forward r1 0 r1 r1)
+		(vp-cpy-ri r1 r4 local_node)
+
+		(vp-cpy-ir-i r1 gui_rect_x r8)
+		(vp-cpy-ir-i r1 gui_rect_y r9)
+		(vp-cpy-ir-i r1 gui_rect_x1 r10)
+		(vp-cpy-ir-i r1 gui_rect_y1 r11)
+		(vp-cpy-ir r4 local_dx r12)
+		(vp-cpy-ir r4 local_dy r13)
+		(vp-add-rr r12 r8)
+		(vp-add-rr r13 r9)
+		(vp-add-rr r12 r10)
+		(vp-add-rr r13 r11)
+		(f-call 'gui_region 'remove_rect '(r0 (r4 local_dlist) r8 r9 r10 r11))
+
+		(vp-cpy-ir r4 local_node r1)
+	(loop-end)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'gui/region_translate)
+	;inputs
+	;r1 = region listhead pointer
+	;r8 = x translation
+	;r9 = y translation
+	;trashes
+	;r1, r10, r11
+
+	;run through source region list
+	(loop-flist-forward r1 0 r1 r1)
+		(vp-cpy-ir-i r1 gui_rect_x r10)
+		(vp-cpy-ir-i r1 gui_rect_y r11)
+		(vp-add-rr r8 r10)
+		(vp-add-rr r9 r11)
+		(vp-cpy-ri-i r10 r1 gui_rect_x)
+		(vp-cpy-ri-i r11 r1 gui_rect_y)
+		(vp-cpy-ir-i r1 gui_rect_x1 r10)
+		(vp-cpy-ir-i r1 gui_rect_y1 r11)
+		(vp-add-rr r8 r10)
+		(vp-add-rr r9 r11)
+		(vp-cpy-ri-i r10 r1 gui_rect_x1)
+		(vp-cpy-ri-i r11 r1 gui_rect_y1)
+	(loop-end)
+	(vp-ret)
+
+(def-func-end)

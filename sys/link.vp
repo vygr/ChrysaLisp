@@ -1,7 +1,21 @@
 (import 'inc/func.inc)
-(import 'inc/mail.inc)
 (import 'inc/task.inc)
+(import 'inc/mail.inc)
 (import 'inc/link.inc)
+
+(def-func 'sys/link_statics)
+	(times lk_statics_size (vp-byte 0))
+(def-func-end)
+
+(def-func 'sys/link_init)
+	;get statics
+	(f-bind 'sys_link 'statics r0)
+
+	(vp-lea-i r0 lk_statics_links_list r0)
+	(lh-init r0 r1)
+	(vp-ret)
+
+(def-func-end)
 
 (def-func 'sys/link)
 	;started by kernel for each link

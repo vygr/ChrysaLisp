@@ -1,4 +1,0 @@
-(import 'inc/func.inc)
-(import 'class/class_obj.inc)
-
-(class-macro-class 'obj)

@@ -1,4 +1,0 @@
-(import 'inc/func.inc)
-(import 'class/class_unordered_map.inc)
-
-(class-macro-class 'unordered_map)

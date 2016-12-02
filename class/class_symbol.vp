@@ -1,4 +1,0 @@
-(import 'inc/func.inc)
-(import 'class/class_symbol.inc)
-
-(class-macro-class 'symbol)

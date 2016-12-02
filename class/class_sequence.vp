@@ -1,4 +1,0 @@
-(import 'inc/func.inc)
-(import 'class/class_sequence.inc)
-
-(class-macro-class 'sequence)

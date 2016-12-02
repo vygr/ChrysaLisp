@@ -1,4 +1,0 @@
-(import 'inc/func.inc)
-(import 'class/class_grid.inc)
-
-(class-macro-class 'grid)

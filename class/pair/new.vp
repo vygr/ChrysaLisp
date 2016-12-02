@@ -1,4 +1,0 @@
-(import 'inc/func.inc)
-(import 'class/class_pair.inc)
-
-(class-macro-new 'pair)
