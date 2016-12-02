@@ -1,6 +1,1 @@
-(import 'class/component/connect.vp)
-(import 'class/component/deinit.vp)
-(import 'class/component/disconnect_sig.vp)
-(import 'class/component/disconnect_slot.vp)
-(import 'class/component/emit.vp)
-(import 'class/component/init.vp)
+(import 'class/component/component.vp)

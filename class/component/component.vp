@@ -1,0 +1,197 @@
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
+(import 'class/class_component.inc)
+
+(def-func 'class/component/init)
+	;inputs
+	;r0 = component object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+
+	;init parent
+	(s-call 'component 'init '(r0 r1) '(r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-lea-i r0 component_slot_list r1)
+		(lh-init r1 r2)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/component/deinit)
+	;inputs
+	;r0 = component object
+	;trashes
+	;all but r0, r4
+
+	;disconnnect all slots
+	(f-call 'component 'disconnect_slot '(r0 0))
+
+	;deinit parent
+	(s-jmp 'component 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/component/connect)
+	;inputs
+	;r0 = component object
+	;r1 = signal list
+	;r2 = target component object
+	;r3 = target address
+	;trashes
+	;all but r0, r4
+
+	;save inputs
+	(set-src '(r0 r1 r2 r3))
+	(set-dst '(r5 r6 r7 r8))
+	(map-src-to-dst)
+
+	;gui sigslot heap
+	(f-bind 'gui_gui 'statics r0)
+	(vp-add-cr gui_statics_sigslot_heap r0)
+
+	;create sigslot record
+	(f-call 'sys_heap 'alloc '(r0) '(r1))
+	(assert '(r1 != 0))
+
+	;fill in target and method
+	(vp-cpy-ri r7 r1 gui_sigslot_inst)
+	(vp-cpy-ri r8 r1 gui_sigslot_addr)
+
+	;add to sig and slot lists
+	(vp-lea-i r1 gui_sigslot_sig_node r2)
+	(lh-add-at-tail r6 r2 r3)
+	(vp-lea-i r1 gui_sigslot_slot_node r2)
+	(vp-lea-i r5 component_slot_list r6)
+	(lh-add-at-tail r6 r2 r3)
+
+	;restore inst
+	(vp-cpy-rr r5 r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/component/disconnect_sig)
+	;inputs
+	;r0 = component object
+	;r1 = signal list
+	;trashes
+	;all but r0, r4
+
+	;save inputs
+	(set-src '(r0 r1))
+	(set-dst '(r7 r6))
+	(map-src-to-dst)
+
+	;gui sigslot heap
+	(f-bind 'gui_gui 'statics r0)
+	(vp-add-cr gui_statics_sigslot_heap r0)
+
+	;disconnect signal
+	(loop-list-forward r1 0 r2 r3)
+		;remove from slot list
+		(vp-sub-cr gui_sigslot_sig_node r2)
+		(vp-lea-i r2 gui_sigslot_slot_node r1)
+		(ln-remove-node r1 r5)
+
+		;free sigslot record
+		(hp-freecell r0 r2 r1)
+	(loop-end)
+
+	;clear signal list
+	(lh-init r6 r1)
+
+	;restore inst
+	(vp-cpy-rr r7 r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/component/disconnect_slot)
+	;inputs
+	;r0 = component object
+	;r1 = 0 for all, else target address
+	;trashes
+	;all but r0, r4
+
+	;save inputs
+	(set-src '(r0 r1))
+	(set-dst '(r7 r6))
+	(map-src-to-dst)
+
+	;gui sigslot heap
+	(f-bind 'gui_gui 'statics r0)
+	(vp-add-cr gui_statics_sigslot_heap r0)
+
+	;disconnect slots
+	(loop-list-forward r7 component_slot_list r2 r3)
+		(vp-jmpif '(r6 == 0) 'freeit)
+		(continueif '(r6 != (r2 gui_sigslot_addr)))
+	(vp-label 'freeit)
+		(assert '(r7 == (r2 gui_sigslot_inst)))
+
+		;remove from slot list
+		(vp-cpy-rr r2 r1)
+		(ln-remove-node r1 r5)
+
+		;remove from signal list
+		(vp-sub-cr gui_sigslot_slot_node r2)
+		(vp-lea-i r2 gui_sigslot_sig_node r1)
+		(ln-remove-node r1 r5)
+
+		;free sigslot record
+		(hp-freecell r0 r2 r1)
+	(loop-end)
+
+	;restore inst
+	(vp-cpy-rr r7 r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/component/emit)
+	;inputs
+	;r0 = component object
+	;r1 = signal list
+	;trashes
+	;all but r0, r4
+		;callback api
+		;r0 = target inst
+		;r1 = source inst
+		;r15 = dispatch register
+		;rest as passed by call to emit
+		;callback should normally save register the signal sends
+		;but it could filter or adjust them for fancy reasons !
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(ptr 'local_next)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r0))
+	(set-dst '((r4 local_inst)))
+	(map-src-to-dst)
+
+	;emit the signal
+	(loop-list-forward r1 0 r0 r1)
+		(vp-cpy-ri r1 r4 local_next)
+
+		;call method on target component object
+		(vp-cpy-ir r0 gui_sigslot_addr r15)
+		(vp-cpy-ir r0 gui_sigslot_inst r0)
+		(vp-cpy-ir r4 local_inst r1)
+		(vp-call-r r15)
+
+		(vp-cpy-ir r4 local_next r1)
+	(loop-end)
+
+	;restore inst
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)

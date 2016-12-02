@@ -1,0 +1,193 @@
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
+(import 'class/class_button.inc)
+(import 'class/class_flow.inc)
+
+(class-macro-new 'button)
+(class-macro-create 'button)
+
+(def-func 'class/button/init)
+	;inputs
+	;r0 = button object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+
+	;init parent
+	(s-call 'button 'init '(r0 r1) '(r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-xor-rr r1 r1)
+		(vp-cpy-ri r1 r0 button_state)
+		(vp-lea-i r0 button_pressed_signal r1)
+		(lh-init r1 r2)
+		(f-call 'button 'set_flow_flags '(r0 (bit-or flow_flag_down flow_flag_align_hcenter)))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/button/deinit)
+	;inputs
+	;r0 = button object
+	;trashes
+	;all but r0, r4
+
+	;disconnnect all signals
+	(f-call 'button 'disconnect_sig '(r0 (& r0 button_pressed_signal)))
+
+	;parent deinit
+	(s-jmp 'button 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/button/draw)
+	;inputs
+	;r0 = button object
+	;r1 = ctx object
+	;trashes
+	;all but r0, r4
+
+	;draw panel
+	(vp-cpy-cr button_border_size r3)
+	(vp-cpy-ir r0 button_state r2)
+	(vp-and-cr button_state_pressed r2)
+	(vpif '(r2 != 0))
+		(vp-mul-cr -1 r3)
+	(endif)
+	(f-jmp 'button 'draw_panel '(r0 r1 1 r3))
+
+(def-func-end)
+
+(def-func 'class/button/layout)
+	;inputs
+	;r0 = button object
+	;trashes
+	;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(vp-cpy-ri r0 r4 local_inst)
+
+	(vp-cpy-cr button_border_size r8)
+	(vp-cpy-ir r0 view_w r10)
+	(vp-cpy-ir r0 view_h r11)
+	(vp-sub-cr (mul button_border_size 2) r10)
+	(vp-sub-cr (mul button_border_size 2) r11)
+	(vp-cpy-ir r0 button_state r1)
+	(vp-and-cr button_state_pressed r1)
+	(vpif '(r1 != 0))
+		(vp-add-cr button_border_size r8)
+	(endif)
+	(f-call 'flow 'change '((r0 label_flow) r8 r8 r10 r11))
+
+	(f-call 'button 'opaque '((r4 local_inst)))
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/button/pref_size)
+	;inputs
+	;r0 = button object
+	;outputs
+	;r10 = prefered width
+	;r11 = prefered height
+	;trashes
+	;all but r0, r4
+
+	(s-call 'button 'pref_size '(r0) '(r10 r11))
+	(vp-add-cr (mul button_border_size 2) r10)
+	(vp-add-cr (mul button_border_size 2) r11)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/button/mouse_down)
+	;inputs
+	;r0 = button object
+	;r1 = mouse event message
+	;trashes
+	;all but r0, r4
+
+	(vp-cpy-ir r0 button_state r1)
+	(vp-or-cr button_state_pressed r1)
+	(vp-cpy-ri r1 r0 button_state)
+	(v-call 'button 'layout '(r0))
+	(f-jmp 'button 'dirty '(r0))
+
+(def-func-end)
+
+(def-func 'class/button/mouse_up)
+	;inputs
+	;r0 = button object
+	;r1 = mouse event message
+	;trashes
+	;all but r0, r4
+
+	(vp-cpy-ir r0 button_state r1)
+	(vp-push r1)
+
+	(vp-cpy-rr r1 r2)
+	(vp-and-cr (bit-not button_state_pressed) r1)
+	(vp-cpy-ri r1 r0 button_state)
+	(vpif '(r1 != r2))
+		(v-call 'button 'layout '(r0))
+		(f-call 'button 'dirty '(r0))
+	(endif)
+
+	;emit pressed signal ?
+	(vp-pop r1)
+	(vp-and-cr button_state_pressed r1)
+	(vpif '(r1 != 0))
+		(f-jmp 'button 'emit '(r0 (& r0 button_pressed_signal)))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/button/mouse_move)
+	;inputs
+	;r0 = button object
+	;r1 = mouse event message
+	;trashes
+	;all but r0, r4
+
+	;hit ?
+	(v-call 'button 'hit '(r0 (r1 ev_msg_rx) (r1 ev_msg_ry)) '(r1))
+
+	;is mouse over button ?
+	(vp-cpy-ir r0 button_state r2)
+	(vp-cpy-rr r2 r3)
+	(vpif '(r1 != 0))
+		;state pressed
+		(vp-or-cr button_state_pressed r2)
+	(else)
+		;state not pressed
+		(vp-and-cr (bit-not button_state_pressed) r2)
+	(endif)
+	(vp-cpy-ri r2 r0 button_state)
+
+	;if state changed then dirty
+	(vpif '(r2 != r3))
+		(v-call 'button 'layout '(r0))
+		(f-jmp 'button 'dirty '(r0))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/button/sig_pressed)
+	;inputs
+	;r0 = button object
+	;outputs
+	;r1 = pressed signal list
+
+	(vp-lea-i r0 button_pressed_signal r1)
+	(vp-ret)
+
+(def-func-end)
