@@ -414,8 +414,7 @@
 
 (defcfun emit-branch (o c d)
 	(defq m (elem d *distance*))
-	(when (ne *pass* 0)
-		(if (gt (abs c) (abs m)) (elem-set d *distance* (setq m c))))
+	(if (ne *pass* 0) (if (gt (abs c) (abs m)) (elem-set d *distance* (setq m c))))
 	(cond
 		((le -0x80 (sub m 2) 0x7f)
 			(emit-bytes o (bit-and (sub c 2) 0xff)))
