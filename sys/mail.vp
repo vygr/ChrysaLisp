@@ -1,0 +1,383 @@
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
+(import 'inc/task.inc)
+
+(def-func 'sys/mail_statics)
+	(times ml_statics_size (vp-byte 0))
+(def-func-end)
+
+(def-func 'sys/mail_init)
+	;inputs
+	;r1 = kernel mailbox
+
+	;save kernel mailbox
+	(f-bind 'sys_mail 'statics r7)
+	(vp-cpy-ri r1 r7 ml_statics_kernel_mailbox)
+
+	;init off chip list
+	(vp-lea-i r7 ml_statics_offchip_list r0)
+	(lh-init r0 r1)
+
+	;init mail message heap
+	(f-call 'sys_heap 'init '((& r7 ml_statics_heap) (add msg_size ptr_size) (mul (add msg_size ptr_size) 16)))
+
+	;init in and out postmen tasks
+	(func-path 'sys_mail 'in)
+	(f-call 'sys_task 'start `((@ ,_function_)) '(r0 (r7 ml_statics_in_mailbox)))
+	(func-path 'sys_mail 'out)
+	(f-call 'sys_task 'start `((@ ,_function_)) '(r0 (r7 ml_statics_out_mailbox)))
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r7 ml_statics_parcel_id)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mail_deinit)
+
+	;deinit mail message heap
+	(f-bind 'sys_mail 'statics r0)
+	(f-jmp 'sys_heap 'deinit '((& r0 ml_statics_heap)))
+
+(def-func-end)
+
+(def-func 'sys/mail_init_mailbox)
+	;outputs
+	;r0 = mailbox address
+	;trashes
+	;r1-r2
+
+	(ml-init r0 r1 r2)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mail_mymail)
+	;outputs
+	;r0 = mail address
+	;trashes
+	;r1-r2
+
+	(f-call 'sys_task 'mailbox '() '(r0 r1))
+	(f-jmp 'sys_mail 'read '(r0))
+
+(def-func-end)
+
+(def-func 'sys/mail_alloc)
+	;outputs
+	;r0 = mail message
+	;trashes
+	;r1-r3
+
+	(f-bind 'sys_mail 'statics r0)
+	(vp-add-cr ml_statics_heap r0)
+	(f-call 'sys_heap 'alloc '(r0) '(r1))
+	(vp-cpy-ri r0 r1 0)
+	(vp-lea-i r1 ptr_size r0)
+	(vp-cpy-cr msg_header_size r1)
+	(vp-cpy-ri r1 r0 msg_length)
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r0 msg_parcel_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mail_alloc_parcel)
+	;inputs
+	;r0 = parcel size
+	;outputs
+	;r0 = mail message
+	;trashes
+	;r1-r3
+
+	(vp-cpy-rr r0 r5)
+	(vpif '(r0 <= msg_size))
+		(f-call 'sys_mail 'alloc '() '(r0))
+	(else)
+		(f-call 'sys_mem 'alloc '(r0) '(r0 _))
+		(vp-xor-rr r1 r1)
+		(vp-cpy-ri r1 r0 msg_parcel_size)
+	(endif)
+	(vp-cpy-ri r5 r0 msg_length)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mail_read)
+	;inputs
+	;r0 = mailbox address
+	;outputs
+	;r0 = mail address
+	;trashes
+	;r1-r2
+
+	(lh-is-empty r0 0 r2)
+	(vpif '(r2 == 0))
+		(f-bind 'sys_task 'statics r1)
+		(vp-cpy-ir r1 tk_statics_current_tcb r1)
+		(vp-cpy-ri r1 r0 mailbox_tcb)
+		(f-call 'sys_task 'suspend)
+	(endif)
+	(lh-get-head r0 0 r0)
+	(vp-cpy-rr r0 r1)
+	(ln-remove-node r1 r2)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mail_try_read)
+	;inputs
+	;r0 = mailbox address
+	;outputs
+	;r0 = 0, else mail address
+	;trashes
+	;r1-r2
+
+	(lh-get-head r0 0 r0)
+	(vp-cpy-rr r0 r1)
+	(ln-get-succ r0 0 r0)
+	(vpif '(r0 != 0))
+		(vp-cpy-rr r1 r0)
+		(ln-remove-node r1 r2)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mail_send)
+	;inputs
+	;r0 = mail message
+	;trashes
+	;r0-r2
+
+	;on or off chip ?
+	(vp-cpy-rr r0 r2)
+	(f-call 'sys_cpu 'id '() '(r0))
+	(vpif '(r0 == (r2 (add msg_dest id_cpu))))
+		;on this chip
+		(vp-cpy-ir r2 msg_parcel_size r1)
+		(vpif '(r1 != 0))
+			;mail for postman !
+			(f-bind 'sys_mail 'statics r1)
+			(vp-cpy-ir r1 ml_statics_in_mailbox r1)
+		(else)
+			(vp-cpy-ir r2 (add msg_dest id_mbox) r1)
+			(vpif '(r1 == 0))
+				;mail for kernel !
+				(f-bind 'sys_mail 'statics r1)
+				(vp-cpy-ir r1 ml_statics_kernel_mailbox r1)
+			(endif)
+		(endif)
+	(vp-label 'post_it)
+		(lh-add-at-tail r1 r2 r0)
+		(vp-cpy-ir r1 mailbox_tcb r0)
+		(vpif '(r0 != 0))
+			(vp-xor-rr r2 r2)
+			(vp-cpy-ri r2 r1 mailbox_tcb)
+			(f-call 'sys_task 'resume '(r0))
+		(endif)
+	(else)
+		;going off chip
+		(f-bind 'sys_mail 'statics r1)
+		(vp-cpy-ir r2 msg_length r0)
+		(vpif '(r0 > msg_size))
+			;must use postman task
+			(vp-cpy-ir r1 ml_statics_out_mailbox r1)
+			(vp-jmp 'post_it)
+		(else)
+			;queue it on the outgoing packet list
+			(vp-lea-i r1 ml_statics_offchip_list r1)
+			(lh-add-at-tail r1 r2 r0)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mail_select)
+	;inputs
+	;r0 = mailbox address array
+	;r1 = mailbox count
+	;outputs
+	;r0 = mailbox address
+	;trashes
+	;r1-r3, r5
+
+	(vp-cpy-rr r0 r3)
+	(vp-mul-cr ptr_size r1)
+	(vp-lea-d r0 r1 r1)
+	(loop-start)
+		;check if any have mail
+		(vp-cpy-rr r3 r0)
+		(loop-start)
+			(vp-cpy-ir r0 0 r2)
+			(lh-is-empty r2 0 r2)
+			(vpif '(r2 != 0))
+				;return first mailbox not empty
+				(vp-cpy-ir r0 0 r0)
+				(vp-ret)
+			(endif)
+			(vp-add-cr ptr_size r0)
+		(loop-until '(r0 == r1))
+
+		;fill in all tcb's and suspend
+		(f-bind 'sys_task 'statics r5)
+		(vp-cpy-ir r5 tk_statics_current_tcb r5)
+		(vp-cpy-rr r3 r0)
+		(loop-start)
+			(vp-cpy-ir r0 0 r2)
+			(vp-cpy-ri r5 r2 mailbox_tcb)
+			(vp-add-cr ptr_size r0)
+		(loop-until '(r0 == r1))
+
+		(f-call 'sys_task 'suspend)
+
+		;clear all tcb's
+		(vp-xor-rr r5 r5)
+		(vp-cpy-rr r3 r0)
+		(loop-start)
+			(vp-cpy-ir r0 0 r2)
+			(vp-cpy-ri r5 r2 mailbox_tcb)
+			(vp-add-cr ptr_size r0)
+		(loop-until '(r0 == r1))
+	(loop-end)
+
+(def-func-end)
+
+(def-func 'sys/mail_in)
+	;parcel fragments arriving on chip task
+	(loop-start)
+		;read parcel fragment
+		(f-call 'sys_mail 'mymail '() '(r15))
+
+		;look up parcel in mailbox
+		(vp-cpy-ir r15 (add msg_parcel_id id_mbox) r6)
+		(vp-cpy-ir r15 (add msg_parcel_id id_cpu) r7)
+		(vp-cpy-ir r15 (add msg_dest id_mbox) r13)
+		(loop-list-forward r13 mailbox_parcel_list r0 r1)
+			(continueif '(r6 != (r0 (add msg_parcel_id id_mbox))))
+		(loop-until '(r7 == (r0 (add msg_parcel_id id_cpu))))
+		(vpif '(r1 == 0))
+			;new parcel
+			(vp-cpy-ir r15 msg_parcel_size r12)
+			(vp-cpy-ir r15 (add msg_dest id_cpu) r14)
+			(f-call 'sys_mem 'alloc '(r12) '(r0 _))
+			(assert '(r0 != 0))
+			(vp-cpy-ri r12 r0 msg_length)
+			(vp-cpy-ri r13 r0 (add msg_dest id_mbox))
+			(vp-cpy-ri r14 r0 (add msg_dest id_cpu))
+			(vp-cpy-ri r6 r0 (add msg_parcel_id id_mbox))
+			(vp-cpy-ri r7 r0 (add msg_parcel_id id_cpu))
+			(vp-cpy-cr msg_data r1)
+			(vp-cpy-ri r1 r0 msg_parcel_total)
+			(vp-xor-rr r1 r1)
+			(vp-cpy-ri r1 r0 msg_parcel_size)
+			(vp-add-cr mailbox_parcel_list r13)
+			(lh-add-at-tail r13 r0 r1)
+		(endif)
+		(vp-cpy-rr r0 r14)
+
+		;destination address
+		(vp-cpy-rr r14 r1)
+		(vp-add-ir r15 msg_parcel_frag r1)
+
+		;source address
+		(vp-lea-i r15 msg_data r0)
+
+		;fragment size
+		(vp-cpy-ir r15 msg_length r2)
+		(vp-sub-cr msg_data r2)
+
+		;total so far
+		(vp-cpy-ir r14 msg_parcel_total r13)
+		(vp-add-rr r2 r13)
+
+		;copy fragment data, round up for speed
+		(vp-add-cr (sub ptr_size 1) r2)
+		(vp-and-cr (sub 0 ptr_size) r2)
+		(f-call 'sys_mem 'copy '(r0 r1 r2) '(_ _))
+
+		;got all needed ?
+		(vpif '(r13 == (r14 msg_length)))
+			;yes, remove parcel and post it
+			(vp-cpy-rr r14 r1)
+			(ln-remove-node r1 r2)
+			(f-call 'sys_mail 'send '(r14))
+		(else)
+			;no, update total so far
+			(vp-cpy-ri r13 r14 msg_parcel_total)
+		(endif)
+
+		;free fragment
+		(f-call 'sys_mem 'free '(r15))
+	(loop-end)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/mail_out)
+	;parcels going off chip task
+
+	(loop-start)
+		;read parcel
+		(f-call 'sys_mail 'mymail '() '(r15))
+
+		;create next parcel id
+		(f-call 'sys_cpu 'id '() '(r6))
+		(f-bind 'sys_mail 'statics r1)
+		(vp-cpy-ir r1 ml_statics_parcel_id r7)
+		(vp-inc r7)
+		(vp-cpy-ri r7 r1 ml_statics_parcel_id)
+
+		;header info for each fragment
+		(vp-cpy-cr msg_data r10)
+		(vp-cpy-ir r15 msg_length r11)
+		(vp-cpy-ir r15 (add msg_dest id_mbox) r12)
+		(vp-cpy-ir r15 (add msg_dest id_cpu) r13)
+		(loop-start)
+			;create fragment
+			(f-call 'sys_mail 'alloc '() '(r14))
+			(assert '(r0 != 0))
+
+			;fill in fragment header
+			(vp-cpy-ri r12 r14 (add msg_dest id_mbox))
+			(vp-cpy-ri r13 r14 (add msg_dest id_cpu))
+			(vp-cpy-ri r10 r14 msg_parcel_frag)
+			(vp-cpy-ri r11 r14 msg_parcel_size)
+			(vp-cpy-ri r6 r14 (add msg_parcel_id id_mbox))
+			(vp-cpy-ri r7 r14 (add msg_parcel_id id_cpu))
+
+			;data source and destination
+			(vp-lea-d r15 r10 r0)
+			(vp-lea-i r14 msg_data r1)
+
+			;length of fragment data
+			(vp-cpy-cr (sub msg_size msg_data) r2)
+			(vp-add-rr r2 r10)
+			(vpif '(r10 > r11))
+				(vp-sub-rr r11 r10)
+				(vp-sub-rr r10 r2)
+				(vp-cpy-rr r11 r10)
+			(endif)
+			(vp-lea-i r2 msg_data r3)
+			(vp-cpy-ri r3 r14 msg_length)
+
+			;copy data block, round up for speed
+			(vp-add-cr (sub ptr_size 1) r2)
+			(vp-and-cr (sub 0 ptr_size) r2)
+			(f-call 'sys_mem 'copy '(r0 r1 r2) '(_ _))
+
+			;queue it on the outgoing packet list
+			(f-bind 'sys_mail 'statics r0)
+			(vp-lea-i r0 ml_statics_offchip_list r0)
+			(lh-add-at-tail r0 r14 r1)
+
+			;let links get at some packets
+			(f-call 'sys_task 'yield)
+		(loop-until '(r10 == r11))
+
+		;free parcel
+		(f-call 'sys_mem 'free '(r15))
+	(loop-end)
+	(vp-ret)
+
+(def-func-end)
