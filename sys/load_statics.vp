@@ -1,8 +1,0 @@
-(import 'inc/func.inc)
-(import 'inc/load.inc)
-
-(def-func 'sys/load_statics)
-
-	(times ld_statics_size (vp-byte 0))
-
-(def-func-end)
