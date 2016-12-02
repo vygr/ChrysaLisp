@@ -188,14 +188,17 @@
 (defcfun emit (f)
 	(push *emit-buffer* f))
 
+(defcfun emit-done (x y)
+	(cond
+		((eq (length x) 0) nil)
+		((ne (length x) (length y)) nil)
+		(t (every eq x y))))
+
 (defcfun emit-passes ()
-	(defq *pass* 0 *out-buffer-cnt* 0 *out-buffer-size* 0)
-	(while (lt *out-buffer-cnt* 2)
-		(setq *out-buffer* (list))
+	(defq *pass* 0 *old-out-buffer* (list))
+	(until (emit-done *out-buffer* *old-out-buffer*)
+		(setq *old-out-buffer* *out-buffer* *out-buffer* (list))
 		(each eval *emit-buffer*)
-		(setq *out-buffer-cnt* (if (eq *out-buffer-size* (length *out-buffer*))
-			(inc *out-buffer-cnt*)
-			(progn (setq *out-buffer-size* (length *out-buffer*)) 0)))
 		(setq *pass* (inc *pass*))))
 
 (defcfun print-emit-buffer ()
