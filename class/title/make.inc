@@ -1,7 +1,1 @@
-(import 'class/title/create.vp)
-(import 'class/title/draw.vp)
-(import 'class/title/layout.vp)
-(import 'class/title/mouse_down.vp)
-(import 'class/title/mouse_move.vp)
-(import 'class/title/new.vp)
-(import 'class/title/pref_size.vp)
+(import 'class/title/title.vp)
