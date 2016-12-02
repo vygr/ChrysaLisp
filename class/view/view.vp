@@ -1,0 +1,900 @@
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
+(import 'class/class_view.inc)
+
+(class-macro-new 'view)
+(class-macro-create 'view)
+
+(def-func 'class/view/init)
+	;inputs
+	;r0 = object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+
+	;init parent
+	(s-call 'view 'init '(r0 r1) '(r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-cpy-cr view_flag_solid r1)
+		(vp-cpy-ri r1 r0 view_flags)
+		(vp-xor-rr r1 r1)
+		(vp-cpy-ri r1 r0 view_parent)
+		(vp-lea-i r0 view_list r1)
+		(lh-init r1 r2)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/deinit)
+	;inputs
+	;r0 = view object
+	;trashes
+	;all but r0, r4
+
+	;save object
+	(vp-push r0)
+
+	;sub view from any parent
+	(f-call 'view 'sub '(r0))
+
+	;deref any child views
+	(vp-cpy-ir r4 0 r0)
+	(loop-list-forward r0 view_list r0 r1)
+		(vp-sub-cr view_node r0)
+		(vp-push r1)
+		(f-call 'view 'sub '(r0))
+		(f-call 'view 'deref '(r0))
+		(vp-pop r1)
+	(loop-end)
+
+	;free view object data
+	(vp-cpy-ir r4 0 r0)
+	(vp-lea-i r0 view_dirty_region r1)
+	(f-bind 'gui_gui 'statics r0)
+	(vp-add-cr gui_statics_rect_heap r0)
+	(f-call 'gui_region 'free '(r0 r1))
+	(vp-cpy-ir r4 0 r1)
+	(vp-add-cr view_opaque_region r1)
+	(f-call 'gui_region 'free '(r0 r1))
+
+	;deinit parent
+	(vp-pop r0)
+	(s-jmp 'view 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/view/add_back)
+	;inputs
+	;r0 = view object
+	;r1 = parent view object
+	;trashes
+	;r1-r3
+
+	;remove from any existing parent
+	(vp-cpy-rr r1 r3)
+	(f-call 'view 'sub '(r0))
+
+	;add to parent
+	(vp-cpy-ri r3 r0 view_parent)
+	(vp-add-cr view_list r3)
+	(vp-lea-i r0 view_node r2)
+	(lh-add-at-tail r3 r2 r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/add_dirty)
+	;inputs
+	;r0 = view object
+	;r8 = x
+	;r9 = y
+	;r10 = width
+	;r11 = height
+	;trashes
+	;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r0))
+	(set-dst '((r4 local_inst)))
+	(map-src-to-dst)
+
+	;paste dirty region
+	(vp-add-rr r8 r10)
+	(vp-add-rr r9 r11)
+	(vp-lea-i r0 view_dirty_region r1)
+	(f-bind 'gui_gui 'statics r0)
+	(vp-add-cr gui_statics_rect_heap r0)
+	(f-call 'gui_region 'paste_rect '(r0 r1 r8 r9 r10 r11))
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/add_front)
+	;inputs
+	;r0 = view object
+	;r1 = parent view object
+	;trashes
+	;r1-r3
+
+	;remove from any existing parent
+	(vp-cpy-rr r1 r3)
+	(f-call 'view 'sub '(r0))
+
+	;add to parent
+	(vp-cpy-ri r3 r0 view_parent)
+	(vp-add-cr view_list r3)
+	(vp-lea-i r0 view_node r2)
+	(lh-add-at-head r3 r2 r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/add_opaque)
+	;inputs
+	;r0 = view object
+	;r8 = x
+	;r9 = y
+	;r10 = width
+	;r11 = height
+	;trashes
+	;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r0))
+	(set-dst '((r4 local_inst)))
+	(map-src-to-dst)
+
+	;paste opaque region
+	(vp-add-rr r8 r10)
+	(vp-add-rr r9 r11)
+	(vp-lea-i r0 view_opaque_region r1)
+	(f-bind 'gui_gui 'statics r0)
+	(vp-add-cr gui_statics_rect_heap r0)
+	(f-call 'gui_region 'paste_rect '(r0 r1 r8 r9 r10 r11))
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/backward)
+	;inputs
+	;r0 = view object
+	;r1 = user data pointer
+	;r2 = callback
+	;outputs
+	;r0 = view object
+	;trashes
+	;dependant on callback
+		;callback api
+		;inputs
+		;r0 = child view object
+		;r1 = user data pointer
+		;outputs
+		;r0 = child view object
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(ptr 'local_data)
+		(ptr 'local_callback)
+	(def-struct-end)
+
+	(vp-sub-cr local_size r4)
+	(vp-cpy-ri r0 r4 local_inst)
+	(vp-cpy-ri r1 r4 local_data)
+	(vp-cpy-ri r2 r4 local_callback)
+
+	(lh-get-tail r0 view_list r0)
+	(loop-start)
+		(ln-get-pred r0 0 r1)
+		(breakif '(r1 == 0))
+
+		;callback
+		(vp-sub-cr view_node r0)
+		(vp-cpy-ir r4 local_data r1)
+		(vp-call-i r4 local_callback)
+
+		;across to sibling
+		(ln-get-pred r0 view_node r0)
+	(loop-end)
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/backward_tree)
+	;inputs
+	;r0 = view object
+	;r1 = user data pointer
+	;r2 = down callback
+	;r3 = up callback
+	;outputs
+	;r0 = view object
+	;trashes
+	;dependant on callbacks
+		;callback api
+		;inputs
+		;r0 = view object
+		;r1 = user data pointer
+		;outputs
+		;r0 = view object
+		;r1 = 0 if should not decend after down callback
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(ptr 'local_data)
+		(ptr 'local_down)
+		(ptr 'local_up)
+	(def-struct-end)
+
+	(vp-sub-cr local_size r4)
+	(vp-cpy-ri r0 r4 local_inst)
+	(vp-cpy-ri r1 r4 local_data)
+	(vp-cpy-ri r2 r4 local_down)
+	(vp-cpy-ri r3 r4 local_up)
+	(vp-cpy-rr r0 r1)
+	(loop-start)
+	(vp-label 'down_loop_ctx)
+		(vp-cpy-rr r1 r0)
+
+		;down callback
+		(vp-cpy-ir r4 local_data r1)
+		(vp-call-i r4 local_down)
+		(breakif '(r1 == 0))
+
+		;down to child
+		(lh-get-tail r0 view_list r1)
+		(vp-sub-cr view_node r1)
+
+		(ln-get-pred r1 view_node r2)
+	(loop-until '(r2 == 0))
+	(loop-start)
+		;up callback
+		(vp-cpy-ir r4 local_data r1)
+		(vp-call-i r4 local_up)
+
+		;back at root ?
+		(breakif '(r0 == (r4 local_inst)))
+
+		;across to sibling
+		(ln-get-pred r0 view_node r1)
+		(vp-sub-cr view_node r1)
+
+		(ln-get-pred r1 view_node r2)
+		(vp-jmpif '(r2 != 0) 'down_loop_ctx)
+
+		;up to parent
+		(vp-cpy-ir r0 view_parent r0)
+	(loop-end)
+
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/change)
+	;inputs
+	;r0 = view object
+	;r8 = new x
+	;r9 = new y
+	;r10 = new w
+	;r11 = new h
+	;trashes
+	;all but r0, r4
+
+	;save old info
+	(vp-cpy-ir r0 view_w r12)
+	(vp-cpy-ir r0 view_h r13)
+
+	;set new info
+	(f-call 'view 'set_bounds '(r0 r8 r9 r10 r11))
+
+	;layout if changed size
+	(vpif '(r10 == r12))
+		(vpif '(r11 == r13))
+			(vp-ret)
+		(endif)
+	(endif)
+	(v-jmp 'view 'layout '(r0))
+
+(def-func-end)
+
+(def-func 'class/view/dirty)
+	;inputs
+	;r0 = view object
+	;trashes
+	;all but r0, r4
+
+	;paste dirty region
+	(f-jmp 'view 'add_dirty '(r0 0 0 (r0 view_w) (r0 view_h)))
+
+(def-func-end)
+
+(def-func 'class/view/dirty_all)
+	;inputs
+	;r0 = view object
+	;trashes
+	;all but r0, r4
+
+	;iterate through views
+	;dirty all
+	(f-jmp 'view 'forward_tree '(r0 r0 ($ dirty_down_callback) ($ null_up_callback)))
+
+(vp-label 'dirty_down_callback)
+	(f-call 'view 'dirty '(r0))
+	(vp-cpy-rr r0 r1)
+(vp-label 'null_up_callback)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/draw_panel)
+	;inputs
+	;r0 = view object
+	;r1 = ctx object
+	;r2 = flags
+	;r3 = depth
+	;trashes
+	;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(vp-cpy-ri r0 r4 local_inst)
+
+	(f-call 'view 'get_bounds '(r0) '(r8 r9 r10 r11))
+	(vp-cpy-rr r0 r5)
+	(f-call 'gui_ctx 'panel '(r1 (r5 view_color) r2 r3 0 0 r10 r11) '())
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/event)
+	;inputs
+	;r0 = view object
+	;r1 = event message
+	;trashes
+	;all but r0, r4
+
+	;what type of event ?
+	(vp-cpy-ir r1 ev_msg_type r2)
+	(switch)
+	(case '(r2 == ev_type_mouse))
+		;so what state are we in ?
+		(vp-cpy-ir r1 ev_msg_buttons r2)
+		(vp-cpy-ir r0 view_last_buttons r3)
+		(vpif '(r3 != 0))
+			;was down previously
+			(vpif '(r2 != 0))
+				;is down now, so move
+				(v-jmp 'view 'mouse_move '(r0 r1))
+			(else)
+				;is not down now, so release
+				(vp-cpy-ri r2 r0 view_last_buttons)
+				(v-jmp 'view 'mouse_up '(r0 r1))
+			(endif)
+		(else)
+			;was not down previously
+			(vpif '(r2 != 0))
+				;is down now, so first down
+				(vp-cpy-ri r2 r0 view_last_buttons)
+				(v-jmp 'view 'mouse_down '(r0 r1))
+			(else)
+				;is not down now, so hover
+				(v-jmp 'view 'mouse_hover '(r0 r1))
+			(endif)
+		(endif)
+		(break)
+	(case '(r2 == ev_type_key))
+		(vp-cpy-ir r1 ev_msg_keycode r2)
+		(vpif '(r2 >= 0))
+			(v-jmp 'view 'key_down '(r0 r1))
+		(else)
+			(v-jmp 'view 'key_up '(r0 r1))
+		(endif)
+	(endswitch)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/find_owner)
+	;inputs
+	;r0 = view object
+	;outputs
+	;r1 = 0, else tcb of owner
+	;trashes
+	;r2
+
+	;walk up tree to parent
+	(vp-cpy-rr r0 r2)
+	(loop-while '(r2 != 0))
+		(vp-cpy-ir r2 view_tcb r1)
+		(vp-cpy-ir r2 view_parent r2)
+		(continueif '(r1 == 0))
+		(vp-ret)
+	(loop-end)
+	(vp-xor-rr r1 r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/forward)
+	;inputs
+	;r0 = view object
+	;r1 = user data pointer
+	;r2 = callback
+	;outputs
+	;r0 = view object
+	;trashes
+	;dependant on callback
+		;callback api
+		;inputs
+		;r0 = child view object
+		;r1 = user data pointer
+		;outputs
+		;r0 = child view object
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(ptr 'local_data)
+		(ptr 'local_callback)
+	(def-struct-end)
+
+	(vp-sub-cr local_size r4)
+	(vp-cpy-ri r0 r4 local_inst)
+	(vp-cpy-ri r1 r4 local_data)
+	(vp-cpy-ri r2 r4 local_callback)
+
+	(lh-get-head r0 view_list r0)
+	(loop-start)
+	 	(ln-get-succ r0 0 r1)
+		(breakif '(r1 == 0))
+
+		;callback
+		(vp-sub-cr view_node r0)
+		(vp-cpy-ir r4 local_data r1)
+		(vp-call-i r4 local_callback)
+
+		;across to sibling
+		(ln-get-succ r0 view_node r0)
+	(loop-end)
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/forward_tree)
+	;inputs
+	;r0 = view object
+	;r1 = user data pointer
+	;r2 = down callback
+	;r3 = up callback
+	;outputs
+	;r0 = view object
+	;trashes
+	;dependant on callbacks
+		;callback api
+		;inputs
+		;r0 = view object
+		;r1 = user data pointer
+		;outputs
+		;r0 = view object
+		;r1 = 0 if should not decend after down callback
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(ptr 'local_data)
+		(ptr 'local_down)
+		(ptr 'local_up)
+	(def-struct-end)
+
+	(vp-sub-cr local_size r4)
+	(vp-cpy-ri r0 r4 local_inst)
+	(vp-cpy-ri r1 r4 local_data)
+	(vp-cpy-ri r2 r4 local_down)
+	(vp-cpy-ri r3 r4 local_up)
+	(vp-cpy-rr r0 r1)
+	(loop-start)
+	(vp-label 'down_loop_ctx)
+		(vp-cpy-rr r1 r0)
+
+		;down callback
+		(vp-cpy-ir r4 local_data r1)
+		(vp-call-i r4 local_down)
+		(breakif '(r1 == 0))
+
+		;down to child
+		(lh-get-head r0 view_list r1)
+		(vp-sub-cr view_node r1)
+
+		(ln-get-succ r1 view_node r2)
+	(loop-until '(r2 == 0))
+	(loop-start)
+		;up callback
+		(vp-cpy-ir r4 local_data r1)
+		(vp-call-i r4 local_up)
+
+		;back at root ?
+		(breakif '(r0 == (r4 local_inst)))
+
+		;across to sibling
+		(ln-get-succ r0 view_node r1)
+		(vp-sub-cr view_node r1)
+
+		(ln-get-succ r1 view_node r2)
+		(vp-jmpif '(r2 != 0) 'down_loop_ctx)
+
+		;up to parent
+		(vp-cpy-ir r0 view_parent r0)
+	(loop-end)
+
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/get_bounds)
+	;inputs
+	;r0 = view object
+	;outputs
+	;r0 = view object
+	;r8 = x
+	;r9 = y
+	;r10 = width
+	;r11 = height
+
+	(vp-cpy-ir r0 view_x r8)
+	(vp-cpy-ir r0 view_y r9)
+	(vp-cpy-ir r0 view_w r10)
+	(vp-cpy-ir r0 view_h r11)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/get_color)
+	;inputs
+	;r0 = view object
+	;outputs
+	;r0 = view object
+	;r1 = color
+
+	;get color info
+	(vp-cpy-ir r0 view_color r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/get_first)
+	;inputs
+	;r0 = view object
+	;outputs
+	;r0 = view object
+	;r1 = 0 if empty, else first child
+	;trashes
+	;r2
+
+	(lh-get-head r0 view_list r1)
+	(ln-get-succ r1 0 r2)
+	(vpif '(r2 == 0))
+		(vp-cpy-rr r2 r1)
+	(else)
+		(vp-sub-cr view_node r1)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/get_last)
+	;inputs
+	;r0 = view object
+	;outputs
+	;r0 = view object
+	;r1 = 0 if empty, else last child
+	;trashes
+	;r2
+
+	(lh-get-tail r0 view_list r1)
+	(ln-get-pred r1 0 r2)
+	(vpif '(r2 == 0))
+		(vp-cpy-rr r2 r1)
+	(else)
+		(vp-sub-cr view_node r1)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/get_parent)
+	;inputs
+	;r0 = view object
+	;outputs
+	;r0 = view object
+	;r1 = parent
+
+	(vp-cpy-ir r0 view_parent r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/get_relative)
+	;inputs
+	;r0 = view object
+	;r1 = ansestor view object
+	;r8 = view x
+	;r9 = view y
+	;outputs
+	;r8 = relative x
+	;r9 = relative y
+	;trashes
+	;r2
+
+	;walk up tree to parent
+	(vp-cpy-rr r0 r2)
+	(loop-while '(r2 != r1))
+		(vp-add-ir r2 view_x r8)
+		(vp-add-ir r2 view_y r9)
+		(vp-cpy-ir r2 view_parent r2)
+		(assert '(r2 != 0))
+	(loop-end)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/hit)
+	;inputs
+	;r0 = view object
+	;r8 = x
+	;r9 = y
+	;outputs
+	;r0 = view object
+	;r1 = 0 if not, else hit
+
+	(vpif '(r8 >= 0))
+		(vpif '(r9 >= 0))
+			(vpif '(r8 < (r0 view_w)))
+				(vpif '(r9 < (r0 view_h)))
+					;hit ?
+					(vp-cpy-ir r0 view_flags r1)
+					(vp-and-cr view_flag_solid r1)
+					(vp-ret)
+				(endif)
+			(endif)
+		(endif)
+	(endif)
+	(vp-xor-rr r1 r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/hit_tree)
+	;inputs
+	;r0 = view object
+	;r8 = x
+	;r9 = y
+	;outputs
+	;r0 = view object
+	;r1 = 0 if not hit, else hit view
+	;r8 = x relative to hit
+	;r9 = y relative to hit
+	;trashes
+	;r1-r3
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(ptr 'local_hit)
+		(ptr 'local_jump)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(vp-cpy-ri r0 r4 local_inst)
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r4 local_hit)
+	(vp-lea-p 'early_ret r1)
+	(vp-cpy-ri r1 r4 local_jump)
+
+	;iterate through views front to back
+	(f-call 'view 'forward_tree '(r0 r4 ($ hit_down_callback) ($ hit_up_callback)))
+
+(vp-label 'early_ret)
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_hit r1)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(vp-label 'hit_down_callback)
+	(vp-sub-ir r0 view_x r8)
+	(vp-sub-ir r0 view_y r9)
+	(vp-cpy-ir r0 view_flags r1)
+	(vp-and-cr view_flag_solid r1)
+	(vp-ret)
+
+(vp-label 'hit_up_callback)
+	(vp-cpy-rr r1 r2)
+	(v-call 'view 'hit '(r0 r8 r9) '(r1))
+	(vpif '(r1 != 0))
+		;early exit back to caller !
+		(vp-cpy-rr r2 r4)
+		(vp-cpy-ri r0 r2 local_hit)
+		(vp-jmp-i r2 local_jump)
+	(endif)
+	(vp-add-ir r0 view_x r8)
+	(vp-add-ir r0 view_y r9)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/opaque)
+	;inputs
+	;r0 = view object
+	;trashes
+	;all but r0, r4
+
+	;remove any opaque region
+	(f-call 'view 'sub_opaque '(r0 -1000000 -1000000 2000000 2000000))
+
+	;paste opaque region
+	(f-jmp 'view 'add_opaque '(r0 0 0 (r0 view_w) (r0 view_h)))
+
+(def-func-end)
+
+(def-func 'class/view/pref_size)
+	;inputs
+	;r0 = view object
+	;outputs
+	;r10 = prefered width
+	;r11 = prefered height
+	;trashes
+	;all but r0, r4
+
+	(vp-cpy-ir r0 view_w r10)
+	(vp-cpy-ir r0 view_h r11)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/set_bounds)
+	;inputs
+	;r0 = view object
+	;r8 = x
+	;r9 = y
+	;r10 = width
+	;r11 = height
+
+	(vp-cpy-ri r8 r0 view_x)
+	(vp-cpy-ri r9 r0 view_y)
+	(vp-cpy-ri r10 r0 view_w)
+	(vp-cpy-ri r11 r0 view_h)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/set_color)
+	;inputs
+	;r0 = view object
+	;r1 = color
+
+	;set color info
+	(vp-cpy-ri r1 r0 view_color)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/set_flags)
+	;inputs
+	;r0 = view object
+	;r1 = flags
+
+	(vp-cpy-ri r1 r0 view_flags)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/set_owner)
+	;inputs
+	;r0 = view object
+	;r1 = task tcb
+
+	(vp-cpy-ri r1 r0 view_tcb)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/sub)
+	;inputs
+	;r0 = object
+	;trashes
+	;r1-r2
+
+	;test parent
+	(vp-cpy-ir r0 view_parent r1)
+	(vpif '(r1 != 0))
+		;clear parent field
+		(vp-xor-rr r2 r2)
+		(vp-cpy-ri r2 r0 view_parent)
+
+		;remove from parent list
+		(vp-lea-i r0 view_node r2)
+		(ln-remove-node r2 r1)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/sub_opaque)
+	;inputs
+	;r0 = view object
+	;r8 = x
+	;r9 = y
+	;r10 = width
+	;r11 = height
+	;trashes
+	;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r0))
+	(set-dst '((r4 local_inst)))
+	(map-src-to-dst)
+
+	;cut opaque region
+	(vp-add-rr r8 r10)
+	(vp-add-rr r9 r11)
+	(vp-lea-i r0 view_opaque_region r1)
+	(f-bind 'gui_gui 'statics r0)
+	(vp-add-cr gui_statics_rect_heap r0)
+	(f-call 'gui_region 'remove_rect '(r0 r1 r8 r9 r10 r11))
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/to_front)
+	;inputs
+	;r0 = view object
+	;outputs
+	;r0 = view object
+	;trashes
+	;r2
+
+	;are we allready front ?
+	(ln-is-first r0 view_node r1)
+	(vpif '(r1 != 0))
+		(f-call 'view 'add_front '(r0 (r0 view_parent)))
+		(f-jmp 'view 'dirty_all '(r0))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
