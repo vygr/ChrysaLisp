@@ -1,0 +1,340 @@
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
+(import 'class/class_window.inc)
+(import 'class/class_title.inc)
+(import 'class/class_label.inc)
+(import 'class/class_flow.inc)
+
+(class-macro-new 'window)
+(class-macro-create 'window)
+
+(def-func 'class/window/init)
+	;inputs
+	;r0 = window object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+
+	;init parent
+	(s-call 'window 'init '(r0 r1) '(r1))
+	(vpif '(r1 != 0))
+		(vp-push r0)
+
+		;init myself
+		(f-call 'window 'set_color '(r0 0xffc0c0c0))
+
+		;add my flow panel
+		(f-call 'flow 'create '() '(r0))
+		(assert '(r0 != 0))
+		(f-call 'flow 'set_flow_flags '(r0 (bit-or flow_flag_down flow_flag_fillw flow_flag_lasth)))
+		(vp-cpy-ir r4 0 r1)
+		(vp-cpy-ri r0 r1 window_flow)
+		(f-call 'flow 'add_back '(r0 r1))
+
+		;add my title
+		(f-call 'title 'create '() '(r0))
+		(assert '(r0 != 0))
+		(f-call 'title 'set_color '(r0 0xffc0c0c0))
+		(vp-cpy-ir r4 0 r1)
+		(vp-cpy-ri r0 r1 window_title)
+		(f-call 'title 'add_back '(r0 (r1 window_flow)))
+
+		;add my status panel
+		(f-call 'flow 'create '() '(r0))
+		(assert '(r0 != 0))
+		(f-call 'flow 'set_flow_flags '(r0 (bit-or flow_flag_up flow_flag_fillw flow_flag_lasth)))
+		(vp-cpy-ir r4 0 r1)
+		(vp-cpy-ri r0 r1 window_panel)
+		(f-call 'flow 'add_back '(r0 (r1 window_flow)))
+
+		;add my status label
+		(f-call 'label 'create '() '(r0))
+		(assert '(r0 != 0))
+		(f-call 'label 'set_color '(r0 0xff808080))
+		(vp-cpy-ir r4 0 r1)
+		(vp-cpy-ri r0 r1 window_status)
+		(f-call 'label 'add_back '(r0 (r1 window_panel)))
+
+		(vp-pop r0)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/window/draw)
+	;inputs
+	;r0 = window object
+	;r1 = ctx object
+	;trashes
+	;all but r0, r4
+
+	(f-jmp 'window 'draw_panel '(r0 r1 1 window_border_size))
+
+(def-func-end)
+
+(def-func 'class/window/get_panel)
+	;inputs
+	;r0 = window object
+	;outputs
+	;r0 = window object
+	;r1 = window panel object
+
+	(vp-cpy-ir r0 window_panel r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/window/layout)
+	;inputs
+	;r0 = window object
+	;trashes
+	;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r0))
+	(set-dst '((r4 local_inst)))
+	(map-src-to-dst)
+
+	(vp-cpy-ir r0 view_w r10)
+	(vp-cpy-ir r0 view_h r11)
+	(vp-sub-cr (mul window_border_size 2) r10)
+	(vp-sub-cr (mul window_border_size 2) r11)
+	(f-call 'flow 'change '((r0 window_flow) window_border_size window_border_size r10 r11))
+
+	(f-call 'window 'opaque '((r4 local_inst)))
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/window/mouse_down)
+	;inputs
+	;r0 = window object
+	;r1 = mouse event message
+	;trashes
+	;all but r0, r4
+
+	;set drag code and offset
+	(vp-cpy-ir r1 ev_msg_rx r8)
+	(vp-cpy-ir r1 ev_msg_ry r9)
+	(vp-cpy-rr r8 r12)
+	(vp-cpy-rr r9 r13)
+	(vp-cpy-ir r0 view_w r10)
+	(vp-cpy-ir r0 view_h r11)
+	(vp-sub-cr (mul window_border_size 2) r10)
+	(vp-sub-cr (mul window_border_size 2) r11)
+	(vp-xor-rr r15 r15)
+	(vpif '(r8 < (mul window_border_size 2)))
+		;left edge
+		(vp-or-cr window_drag_left r15)
+	(endif)
+	(vpif '(r8 >= r10))
+		;right edge
+		(vp-or-cr window_drag_right r15)
+		(vp-sub-ir r0 view_w r12)
+	(endif)
+	(vpif '(r9 < (mul window_border_size 2)))
+		;top edge
+		(vp-or-cr window_drag_top r15)
+	(endif)
+	(vpif '(r9 >= r11))
+		;bottom edge
+		(vp-or-cr window_drag_bottom r15)
+		(vp-sub-ir r0 view_h r13)
+	(endif)
+	(vp-cpy-ri r15 r0 window_drag_mode)
+	(vp-cpy-ri r12 r0 window_offset_x)
+	(vp-cpy-ri r13 r0 window_offset_y)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/window/mouse_move)
+	;inputs
+	;r0 = window object
+	;r1 = mouse event message
+	;trashes
+	;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(ptr 'local_event)
+		(long 'local_old_x)
+		(long 'local_old_y)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r0 r1))
+	(set-dst '((r4 local_inst) (r4 local_event)))
+	(map-src-to-dst)
+
+	;dirty old area
+	(f-call 'window 'dirty '(r0))
+
+	;get smallest size
+	(v-call 'window 'pref_size '(r0) '(r10 r11))
+	(vp-cpy-rr r10 r12)
+	(vp-cpy-rr r11 r13)
+
+	;save old bounds
+	(f-call 'window 'get_bounds '(r0) '((r4 local_old_x) (r4 local_old_y) r10 r11))
+
+	;get abolute cords of corners
+	(vp-add-rr r8 r10)
+	(vp-add-rr r9 r11)
+
+	;drag edges
+	(vp-cpy-ir r4 local_event r1)
+	(vp-cpy-ir r0 window_drag_mode r15)
+	(vp-and-cr window_drag_left r15)
+	(vpif '(r15 != 0))
+		;drag left edge
+		(vp-cpy-ir r1 ev_msg_x r8)
+		(vp-sub-ir r0 window_offset_x r8)
+		(vp-cpy-rr r10 r15)
+		(vp-sub-rr r8 r15)
+		(vpif '(r15 < r12))
+			(vp-cpy-rr r10 r8)
+			(vp-sub-rr r12 r8)
+		(endif)
+	(endif)
+	(vp-cpy-ir r0 window_drag_mode r15)
+	(vp-and-cr window_drag_right r15)
+	(vpif '(r15 != 0))
+		;drag right edge
+		(vp-cpy-ir r1 ev_msg_x r10)
+		(vp-sub-ir r0 window_offset_x r10)
+		(vp-cpy-rr r10 r15)
+		(vp-sub-rr r8 r15)
+		(vpif '(r15 < r12))
+			(vp-cpy-rr r8 r10)
+			(vp-add-rr r12 r10)
+		(endif)
+	(endif)
+	(vp-cpy-ir r0 window_drag_mode r15)
+	(vp-and-cr window_drag_top r15)
+	(vpif '(r15 != 0))
+		;drag top edge
+		(vp-cpy-ir r1 ev_msg_y r9)
+		(vp-sub-ir r0 window_offset_y r9)
+		(vp-cpy-rr r11 r15)
+		(vp-sub-rr r9 r15)
+		(vpif '(r15 < r13))
+			(vp-cpy-rr r11 r9)
+			(vp-sub-rr r13 r9)
+		(endif)
+	(endif)
+	(vp-cpy-ir r0 window_drag_mode r15)
+	(vp-and-cr window_drag_bottom r15)
+	(vpif '(r15 != 0))
+		;drag bottom edge
+		(vp-cpy-ir r1 ev_msg_y r11)
+		(vp-sub-ir r0 window_offset_y r11)
+		(vp-cpy-rr r11 r15)
+		(vp-sub-rr r9 r15)
+		(vpif '(r15 < r13))
+			(vp-cpy-rr r9 r11)
+			(vp-add-rr r13 r11)
+		(endif)
+	(endif)
+	(vp-sub-rr r8 r10)
+	(vp-sub-rr r9 r11)
+
+	;change window size
+	(f-call 'window 'change '(r0 r8 r9 r10 r11))
+
+	;translate old dirty area and dirty all
+	(vp-cpy-ir r4 local_old_x r8)
+	(vp-cpy-ir r4 local_old_y r9)
+	(vp-sub-ir r0 view_x r8)
+	(vp-sub-ir r0 view_y r9)
+	(vp-lea-i r0 view_dirty_region r1)
+	(f-call 'gui_region 'translate '(r1 r8 r9))
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(f-jmp 'window 'dirty_all '(r0))
+
+(def-func-end)
+
+(def-func 'class/window/pref_size)
+	;inputs
+	;r0 = window object
+	;outputs
+	;r10 = prefered width
+	;r11 = prefered height
+	;trashes
+	;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r0))
+	(set-dst '((r4 local_inst)))
+	(map-src-to-dst)
+
+	(v-call 'flow 'pref_size '((r0 window_flow)) '(r10 r11))
+	(vp-add-cr (mul window_border_size 2) r10)
+	(vp-add-cr (mul window_border_size 2) r11)
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/window/set_status)
+	;inputs
+	;r0 = window object
+	;r1 = 0, else status string object
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r0))
+	(set-dst '((r4 local_inst)))
+	(map-src-to-dst)
+
+	(f-call 'label 'set_text '((r0 window_status) r1))
+	(f-call 'label 'dirty '(r0))
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/window/set_title)
+	;inputs
+	;r0 = window object
+	;r1 = 0, else title string object
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r0))
+	(set-dst '((r4 local_inst)))
+	(map-src-to-dst)
+
+	(f-call 'title 'set_text '((r0 window_title) r1))
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
