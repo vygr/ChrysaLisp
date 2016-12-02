@@ -1,4 +1,0 @@
-(import 'inc/func.inc)
-(import 'class/class_unordered_set.inc)
-
-(class-macro-new 'unordered_set)
