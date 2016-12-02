@@ -154,6 +154,18 @@
 ; Math functions
 ;;;;;;;;;;;;;;;;
 
+(defun neg (x)
+	(sub 0 x))
+
+(defun abs (x)
+	(if (lt x 0) (neg x) x))
+
+(defun min (x y)
+	(if (lt x y) x y))
+
+(defun max (x y)
+	(if (lt x y) y x))
+
 (defun inc (x)
 	(add x 1))
 
@@ -231,7 +243,7 @@
 	(defq *imports* (list) *func-name* nil)
 	(defq *emit-buffer* nil *out-buffer* nil)
 	(defq *class* nil *struct* nil *struct-offset* nil *enum* nil *bit* nil)
-	(defq *strings* nil *paths* nil *links* nil)
+	(defq *strings* nil *paths* nil *links* nil *distance* nil)
 	(defq *switch* nil *switch-nxt* 0 *switch-stk* (list))
 	(defq *src* nil *dst* nil)
 	(defq *compile-env* (env) *OS* 'Darwin)

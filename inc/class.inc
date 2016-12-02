@@ -69,13 +69,13 @@
 (defcfun method-lookup (%1 %2)
 	;%1 = class name
 	;%2 = member name
-	(defq s 0 v ptr_size c (eval (class-name %1)))
+	;writes to s, v, c in parent enviroment !
+	(setq s 0 v ptr_size c (eval (class-name %1)))
 	(until (or (eq s (length c)) (eql (elem 0 (elem s c)) %2))
 		(if (eql (elem 2 (elem s c)) 'virtual) (setq v (add v ptr_size)))
 		(setq s (inc s)))
 	(if (eq s (length c))
-		(print "No such method " %2 " in class " %1 " !"))
-	(list s v c))
+		(print "No such method " %2 " in class " %1 " !")))
 
 (defcfun map-inputs (%1 %2 %3)
 	;%1 = class
@@ -102,14 +102,18 @@
 	;%2 = slot method name
 	;%3 = macro name
 	(setq %3 (if %3 %3 '_function_))
-	(defcvar %3 (elem 1 (elem (elem 0 (method-lookup %1 %2)) (eval (class-name %1))))))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defcvar %3 (elem 1 (elem s (eval (class-name %1))))))
 
 (defcfun super-path (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = slot method name
 	;%3 = macro name
 	(setq %3 (if %3 %3 '_function_) n (eval (super-name %1)))
-	(defcvar %3 (elem 1 (elem (elem 0 (method-lookup n %2)) (eval n)))))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defcvar %3 (elem 1 (elem s (eval n)))))
 
 ;;;;;;;;;;;;;;;;;
 ; assembler level
@@ -121,7 +125,9 @@
 	;%3 = in parameters
 	;%4 = out parameters
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defq m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
 		(print "Class " %1 " method " %2 " is virtual ! Use v_call ?"))
 	(map-inputs c %3 s)
@@ -133,7 +139,9 @@
 	;%2 = member name
 	;%3 = in parameters
 	(setq %3 (if %3 %3 (list)))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defq m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
 		(print "Class " %1 " method " %2 " is virtual ! Use v_jmp ?"))
 	(map-inputs c %3 s)
@@ -143,7 +151,9 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defq m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
 		(print "Class " %1 " method " %2 " is virtual ! Use v_bind ?"))
 	(fn-bind (elem 1 m) %3))
@@ -154,8 +164,9 @@
 	;%3 = in parameters
 	;%4 = out parameters
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
-	(defq c (eval (super-name %1))
-		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
+	(defq s nil v nil c nil)
+	(method-lookup (eval (super-name %1)) %2)
+	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
 			(print "Class " (eval (super-name %1)) " method " %2 " is static !")))
@@ -168,8 +179,9 @@
 	;%2 = member name
 	;%3 = in parameters
 	(setq %3 (if %3 %3 (list)))
-	(defq c (eval (super-name %1))
-		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
+	(defq s nil v nil c nil)
+	(method-lookup (eval (super-name %1)) %2)
+	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
 			(print "Class " (eval (super-name %1)) " method " %2 " is static !")))
@@ -180,8 +192,9 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
-	(defq c (eval (super-name %1))
-		m (method-lookup c %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
+	(defq s nil v nil c nil)
+	(method-lookup (eval (super-name %1)) %2)
+	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " (eval (super-name %1)) " method " %2 " is static !"))
 	(fn-bind (elem 1 m) %3))
@@ -193,7 +206,9 @@
 	;%4 = out parameters
 	;%5 = dispatch reg
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)) %5 (if %5 %5 r15))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_call ?"))
 	(map-inputs c %3 s)
@@ -207,7 +222,9 @@
 	;%3 = in parameters
 	;%4 = dispatch reg
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 r15))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_jmp ?"))
 	(map-inputs c %3 s)
@@ -219,7 +236,9 @@
 	;%2 = member name
 	;%3 = dispatch reg
 	(setq %3 (if %3 %3 r15))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_bind ?"))
 	(vp-cpy-ir r0 obj_vtable %3)
@@ -231,7 +250,9 @@
 	;%3 = in parameters
 	;%4 = out parameters
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_call ?"))
 	(map-inputs c %3 s)
@@ -243,7 +264,9 @@
 	;%2 = member name
 	;%3 = in parameters
 	(setq %3 (if %3 %3 (list)) %4 (if %4 %4 (list)))
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_jmp ?"))
 	(map-inputs c %3 s)
@@ -253,7 +276,9 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
-	(defq m (method-lookup %1 %2) s (elem 0 m) v (elem 1 m) c (elem 2 m) m (elem s c))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_bind ?"))
 	(fn-bind (elem 1 m) %3))
