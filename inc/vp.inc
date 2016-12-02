@@ -198,7 +198,7 @@
 	(defq *pass* 0 *old-out-buffer* (list))
 	(until (emit-done *out-buffer* *old-out-buffer*)
 		(setq *old-out-buffer* *out-buffer* *out-buffer* (list))
-		(each eval *emit-buffer*)
+		(eval *emit-buffer*)
 		(setq *pass* (inc *pass*))))
 
 (defcfun print-emit-buffer ()

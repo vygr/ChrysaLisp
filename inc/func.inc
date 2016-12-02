@@ -65,7 +65,7 @@
 
 (defcfun def-func (*name* &optional *func-stack*)
 	(print "Compiling -> " *name*)
-	(setq *func-name* *name* *emit-buffer* (list) *out-buffer* (list))
+	(setq *func-name* *name* *emit-buffer* (list 'progn) *out-buffer* (list))
 	(setq *strings* (list) *paths* (list) *links* (list) *distance* (list))
 	(vp-label '_func_start)
 	(vp-long -1)
