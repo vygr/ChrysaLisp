@@ -65,7 +65,7 @@
 
 (defcfun def-func (*name* &optional *func-stack*)
 	(print "Compiling -> " *name*)
-	(setq *func-name* *name* *emit-buffer* (list 'progn) *out-buffer* (list))
+	(setq *func-name* *name* *switch-nxt* 0 *emit-buffer* (list 'progn) *out-buffer* (list))
 	(setq *strings* (list) *paths* (list) *links* (list) *distance* (list))
 	(vp-label '_func_start)
 	(vp-long -1)
@@ -102,7 +102,7 @@
 		(setq *cnt* (inc *cnt*))) *paths*)
 	(vp-align ptr_size)
 	(vp-label '_func_end)
-;	(print-emit-buffer)
+	(print-emit-buffer)
 	(emit-passes)
 ;	(print-out-buffer 16)
 	(print "Writing -> " *func-name*)

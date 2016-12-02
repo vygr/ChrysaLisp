@@ -244,7 +244,7 @@
 	(defq *emit-buffer* nil *out-buffer* nil)
 	(defq *class* nil *struct* nil *struct-offset* nil *enum* nil *bit* nil)
 	(defq *strings* nil *paths* nil *links* nil *distance* nil)
-	(defq *switch* nil *switch-nxt* 0 *switch-stk* (list))
+	(defq *switch* nil *switch-nxt* nil *switch-stk* (list))
 	(defq *src* nil *dst* nil)
 	(defq *compile-env* (env) *OS* 'Darwin)
 	(import *file*)
