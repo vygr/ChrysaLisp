@@ -14,7 +14,7 @@
 	(long 'char)
 
 	(push-scope)
-	(retire '(r0, r1) '(inst, char))
+	(retire '(r0 r1) '(inst, char))
 
 	(switch)
 	(case '((inst -> stream_bufp == inst -> stream_bufe)))

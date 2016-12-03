@@ -44,7 +44,7 @@
 		(func-call 'error 'create {"(inst-of class obj) wrong number of args", args} {value})
 	(endif)
 
-	(expr {this, value} '(r0, r1))
+	(expr {this, value} '(r0 r1))
 	(pop-scope)
 	(return)
 

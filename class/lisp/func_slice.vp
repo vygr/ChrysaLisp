@@ -17,7 +17,7 @@
 	(int 'length 'start 'end)
 
 	(push-scope)
-	(retire '(r0, r1) {this, args})
+	(retire '(r0 r1) {this, args})
 
 	(devirt-call 'vector 'get_length {args} {length})
 	(vpif {length == 3})
@@ -40,7 +40,7 @@
 				(endif)
 				(vpif {start >= 0 && end <= length})
 					(virt-call 'sequence 'slice {seq, start, end} {value})
-					(expr {this, value} '(r0, r1))
+					(expr {this, value} '(r0 r1))
 					(return)
 				(else)
 					(func-call 'error 'create {"(slice start end seq) index out of bounds", args} {value})
@@ -56,7 +56,7 @@
 		(func-call 'error 'create {"(slice start end seq) wrong number of args", args} {value})
 	(endif)
 
-	(expr {this, value} '(r0, r1))
+	(expr {this, value} '(r0 r1))
 	(pop-scope)
 	(return)
 

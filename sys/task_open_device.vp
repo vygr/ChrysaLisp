@@ -18,7 +18,7 @@
 
 	;save task info
 	(push-scope)
-	(retire '(r0, r1) {name, cpu})
+	(retire '(r0 r1) {name, cpu})
 
 	;init temp mailbox
 	(func-call 'sys_mail 'init_mailbox {& mailbox})
@@ -41,7 +41,7 @@
 	(func-call 'sys_mem 'free {msg})
 
 	;return ids array
-	(expr {id . id_mbox, id . id_cpu} '(r0, r1))
+	(expr {id . id_mbox, id . id_cpu} '(r0 r1))
 	(pop-scope)
 	(vp-ret)
 

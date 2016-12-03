@@ -18,7 +18,7 @@
 
 	;save task info
 	(push-scope)
-	(retire '(r0, r1) {name, length})
+	(retire '(r0 r1) {name, length})
 
 	;create output array
 	(func-call 'sys_mem 'alloc {length * id_size} {ids, _})

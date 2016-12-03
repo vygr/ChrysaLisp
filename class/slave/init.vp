@@ -19,7 +19,7 @@
 
 	;read init args
 	(push-scope)
-	(retire '(r0, r1) {inst, vtable})
+	(retire '(r0 r1) {inst, vtable})
 
 	;init parent
 	(super-call 'slave 'init {inst, vtable} {error})
@@ -50,7 +50,7 @@
 		(endif)
 	(endif)
 
-	(expr {inst, error} '(r0, r1))
+	(expr {inst, error} '(r0 r1))
 	(pop-scope)
 	(return)
 

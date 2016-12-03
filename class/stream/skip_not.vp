@@ -13,7 +13,7 @@
 	(long 'state)
 
 	(push-scope)
-	(retire '(r0, r1) {inst, skip_char})
+	(retire '(r0 r1) {inst, skip_char})
 
 	(loop-start)
 		(loop-while {inst -> stream_bufp == inst -> stream_bufe})

@@ -49,7 +49,7 @@
 	(loop-until {inst -> stream_bufp != inst -> stream_bufe})
 
 	;return -1 if not in started state
-	(expr {inst, (inst -> stream_msg_in_state == stream_mail_state_started) - 1} '(r0, r1))
+	(expr {inst, (inst -> stream_msg_in_state == stream_mail_state_started) - 1} '(r0 r1))
 	(pop-scope)
 	(return)
 

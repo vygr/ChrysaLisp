@@ -23,7 +23,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(retire '(r0, r1, r2) {this, stream, char})
+	(retire '(r0 r1 r2) {this, stream, char})
 
 	;skip "(" and white space
 	(loop-start)
@@ -55,7 +55,7 @@
 	(func-call 'stream 'read_char {stream} {char})
 
 (vp-label 'error)
-	(expr {this, list, char} '(r0, r1, r2))
+	(expr {this, list, char} '(r0 r1 r2))
 	(pop-scope)
 	(return)
 

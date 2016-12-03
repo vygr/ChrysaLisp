@@ -19,7 +19,7 @@
 	(long 'num 'base)
 
 	(push-scope)
-	(retire '(r0, r1) {num, base})
+	(retire '(r0 r1) {num, base})
 
 	(func-path 'sys_load 'statics)
 	(assign {@ _function_ . ld_statics_reloc_buffer} {reloc})

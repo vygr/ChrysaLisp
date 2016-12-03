@@ -48,7 +48,7 @@
 	(ptr 'value 'elem)
 
 	(push-scope)
-	(retire '(r0, r1, r2) {this, stream, value})
+	(retire '(r0 r1 r2) {this, stream, value})
 
 	(vpifnot '(value))
 		(func-call 'stream 'write_char {stream, char_lf})
@@ -179,7 +179,7 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(retire '(r0, r1) {pdata, iter})
+	(retire '(r0 r1) {pdata, iter})
 
 	(func-call 'lisp 'repl_print {pdata -> pdata_this, pdata -> pdata_stream, * iter})
 	(assign {pdata -> pdata_index + 1} {pdata -> pdata_index})

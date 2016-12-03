@@ -17,7 +17,7 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0, r1) {this, iter})
+	(retire '(r0 r1) {this, iter})
 
 	(assign {* iter} {form})
 	(vpif {form -> obj_vtable == @class/class_vector})
@@ -39,7 +39,7 @@
 					(func-call 'lisp 'env_pop {this})
 					(func-call 'ref 'deref {* iter})
 					(assign {form} {* iter})
-					(expr {this, form -> obj_vtable == @ class/class_error} '(r0, r1))
+					(expr {this, form -> obj_vtable == @ class/class_error} '(r0 r1))
 					(return)
 				(endif)
 			(endif)
@@ -49,7 +49,7 @@
 		(endif)
 	(endif)
 
-	(expr {this, iter} '(r0, r1))
+	(expr {this, iter} '(r0 r1))
 	(pop-scope)
 	(return)
 
@@ -64,7 +64,7 @@
 	ptr pdata
 
 	(push-scope)
-	(retire '(r0, r1) {pdata, iter})
+	(retire '(r0 r1) {pdata, iter})
 
 	(func-call 'ref 'deref {pdata -> pdata_form})
 	(func-call 'lisp 'repl_eval {pdata -> pdata_this, * iter} {pdata -> pdata_form})

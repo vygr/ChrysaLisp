@@ -17,7 +17,7 @@
 
 	;save inputs
 	(push-scope)
-	(retire '(r0, r1, r2) '(inst, buffer, buffer_end))
+	(retire '(r0 r1 r2) '(inst, buffer, buffer_end))
 
 	(assign {buffer + buffer_end} {buffer_end})
 	(loop-while {buffer != buffer_end})

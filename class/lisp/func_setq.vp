@@ -15,7 +15,7 @@
 	(uint 'length 'index)
 
 	(push-scope)
-	(retire '(r0, r1) {this, args})
+	(retire '(r0 r1) {this, args})
 
 	(devirt-call 'vector 'get_length {args} {length})
 	(vpif {length >= 2 && !(length & 1)})
@@ -40,7 +40,7 @@
 		(func-call 'error 'create {"(setq var val ...) wrong number of args", args} {val})
 	(endif)
 (vp-label 'error)
-	(expr {this, val} '(r0, r1))
+	(expr {this, val} '(r0 r1))
 	(pop-scope)
 	(return)
 

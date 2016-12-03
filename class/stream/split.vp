@@ -20,7 +20,7 @@
 
 	;save inputs
 	(push-scope)
-	(retire '(r0, r1) {inst, char})
+	(retire '(r0 r1) {inst, char})
 
 	;create output vector
 	(func-call 'vector 'create {} {splits})
@@ -36,7 +36,7 @@
 		(func-call 'vector 'push_back {splits, string})
 	(loop-end)
 
-	(expr {inst, splits} '(r0, r1))
+	(expr {inst, splits} '(r0 r1))
 	(pop-scope)
 	(return)
 

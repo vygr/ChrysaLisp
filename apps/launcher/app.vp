@@ -86,7 +86,7 @@
 	(ptr 'inst 'button 'string)
 
 	(push-scope)
-	(retire '(r0, r1) {inst, button})
+	(retire '(r0 r1) {inst, button})
 	(func-call 'button 'get_text {button} {string})
 	(func-call 'sys_task 'open {string} {_, _})
 	(func-call 'string 'deref {string})

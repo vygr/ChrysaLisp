@@ -27,7 +27,7 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0, r1) {this, args})
+	(retire '(r0 r1) {this, args})
 
 	(devirt-call 'vector 'get_length {args} {length})
 	(vpif {length > 1})
@@ -39,7 +39,7 @@
 		(func-call 'error 'create {"(ne num num ...) wrong number of args", args} {value})
 	(endif)
 
-	(expr {this, value} '(r0, r1))
+	(expr {this, value} '(r0 r1))
 	(pop-scope)
 	(return)
 
@@ -55,7 +55,7 @@
 	(long 'num 'num1)
 
 	(push-scope)
-	(retire '(r0, r1) {pdata, iter})
+	(retire '(r0 r1) {pdata, iter})
 
 	(vpif {( * iter ) -> obj_vtable == @class/class_boxed_long})
 		(func-call 'boxed_long 'get_value {* iter} {num})

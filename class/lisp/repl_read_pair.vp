@@ -21,7 +21,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(retire '(r0, r1, r2) {this, stream, char})
+	(retire '(r0 r1 r2) {this, stream, char})
 
 	;skip "<"
 	(func-call 'stream 'read_char {stream} {char})
@@ -52,7 +52,7 @@
 		(func-call 'error 'create {"expected >", this -> lisp_sym_nil} {pair})
 	(endif)
 (vp-label 'error)
-	(expr {this, pair, char} '(r0, r1, r2))
+	(expr {this, pair, char} '(r0 r1 r2))
 	(pop-scope)
 	(return)
 

@@ -16,7 +16,7 @@
 
 	;save inputs
 	(push-scope)
-	(retire '(r0, r1) '(inst, buffer))
+	(retire '(r0 r1) '(inst, buffer))
 
 	(loop-start)
 		(assign {* buffer} {char})

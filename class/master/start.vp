@@ -25,7 +25,7 @@
 
 	;init vars
 	(push-scope)
-	(retire '(r0, r1, r2) {inst, buffer, length})
+	(retire '(r0 r1 r2) {inst, buffer, length})
 	(vpif {inst -> master_state != stream_mail_state_started})
 		;split pipe into separate commands and args
 		(func-call 'stream 'create {0, 0, buffer, length} {stream})

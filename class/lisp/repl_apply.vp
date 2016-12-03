@@ -21,11 +21,11 @@
 	(ptr 'this 'value 'func 'ast)
 
 	(push-scope)
-	(retire '(r0, r1, r2) {this, func, ast})
+	(retire '(r0 r1 r2) {this, func, ast})
 
 	(vpif {func -> obj_vtable == @class/class_boxed_ptr})
 		;built in or compiled function
-		(expr {this, ast, func} '(r0, r1, r2))
+		(expr {this, ast, func} '(r0 r1 r2))
 		(vp-call-i r2 boxed_ptr_value)
 		(retire '(r1) {value})
 	(elseif {func -> obj_vtable == @class/class_vector})
@@ -55,7 +55,7 @@
 		(func-call 'error 'create {"(lambda vars body) not a lambda list", func} {value})
 	(endif)
 
-	(expr {this, value} '(r0, r1))
+	(expr {this, value} '(r0 r1))
 	(pop-scope)
 	(return)
 
@@ -70,7 +70,7 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(retire '(r0, r1) {pdata, iter})
+	(retire '(r0 r1) {pdata, iter})
 
 	(func-call 'ref 'deref {pdata -> pdata_value})
 	(func-call 'lisp 'repl_eval {pdata -> pdata_this, * iter} {pdata -> pdata_value})

@@ -15,7 +15,7 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0, r1) {this, args})
+	(retire '(r0 r1) {this, args})
 
 	(devirt-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
@@ -24,7 +24,7 @@
 		(func-call 'error 'create {"(quote arg) wrong number of args", args} {args})
 	(endif)
 
-	(expr {this, args} '(r0, r1))
+	(expr {this, args} '(r0 r1))
 	(pop-scope)
 	(return)
 

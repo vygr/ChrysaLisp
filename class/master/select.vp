@@ -17,7 +17,7 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0, r1) {inst, mailbox})
+	(retire '(r0 r1) {inst, mailbox})
 
 	(vpif {inst -> master_state != stream_mail_state_started})
 		;not yet running, so just wait on user mailbox
@@ -29,7 +29,7 @@
 		(func-call 'sys_mail 'select {inst -> master_select_array, length} {mailbox})
 	(endif)
 
-	(expr {inst, mailbox} '(r0, r1))
+	(expr {inst, mailbox} '(r0 r1))
 	(pop-scope)
 	(return)
 

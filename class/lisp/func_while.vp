@@ -20,7 +20,7 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0, r1) {this, args})
+	(retire '(r0 r1) {this, args})
 
 	(devirt-call 'vector 'get_length {args} {length})
 	(vpif {length >= 1})
@@ -37,7 +37,7 @@
 		(func-call 'error 'create {"(while tst form ...) wrong number of args", args} {value})
 	(endif)
 
-	(expr {this, value} '(r0, r1))
+	(expr {this, value} '(r0 r1))
 	(pop-scope)
 	(return)
 
@@ -52,7 +52,7 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(retire '(r0, r1) {pdata, iter})
+	(retire '(r0 r1) {pdata, iter})
 
 	(func-call 'ref 'deref {pdata -> pdata_value})
 	(func-call 'lisp 'repl_eval {pdata -> pdata_this, * iter} {pdata -> pdata_value})

@@ -18,10 +18,10 @@
 
 	;save inputs
 	(push-scope)
-	(retire '(r0, r1, r2) {inst, buffer, buffer_end})
+	(retire '(r0 r1 r2) {inst, buffer, buffer_end})
 
 	(vpif {buffer_end == 0})
-		(expr {inst, 0} '(r0, r1))
+		(expr {inst, 0} '(r0 r1))
 		(return)
 	(endif)
 
@@ -34,9 +34,9 @@
 	(loop-until {buffer == buffer_end})
 
 	(vpif {buffer != start})
-		(expr {inst, buffer - start} '(r0, r1))
+		(expr {inst, buffer - start} '(r0 r1))
 	(else)
-		(expr {inst, char} '(r0, r1))
+		(expr {inst, char} '(r0 r1))
 	(endif)
 	(pop-scope)
 	(return)

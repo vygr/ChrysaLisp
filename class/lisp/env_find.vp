@@ -16,7 +16,7 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(retire '(r0, r1) {this, symbol})
+	(retire '(r0 r1) {this, symbol})
 
 	(assign {this -> lisp_enviroment} {env})
 	(loop-start)
@@ -27,7 +27,7 @@
 		(func-call 'pair 'get_second {* iter} {env})
 	(loop-end)
 
-	(expr {this, iter, bucket} '(r0, r1, r2))
+	(expr {this, iter, bucket} '(r0 r1 r2))
 	(pop-scope)
 	(return)
 
