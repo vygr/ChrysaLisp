@@ -30,6 +30,7 @@ def_func class/lisp/repl_read
 	const char_semi, ';'
 	const char_lf, 10
 	const char_lcurly, '{'
+	const char_rcurly, '}'
 
 	ptr this, stream, ast
 	ulong char
@@ -52,6 +53,10 @@ skip_white:
 			goto skip_white
 		case {char == char_rrb}
 			func_call error, create, {"unexpected )", this->lisp_sym_nil}, {ast}
+			func_call stream, read_char, {stream}, {char}
+			break
+		case {char == char_rcurly}
+			func_call error, create, {"unexpected }", this->lisp_sym_nil}, {ast}
 			func_call stream, read_char, {stream}, {char}
 			break
 ;		case {char == char_rab}

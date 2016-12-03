@@ -30,6 +30,7 @@
 	(const 'char_semi (ascii ";"))
 	(const 'char_lf 10)
 	(const 'char_lcurly (ascii "{"))
+	(const 'char_rcurly (ascii "}"))
 
 	(ptr 'this 'stream 'ast)
 	(ulong 'char)
@@ -52,6 +53,10 @@
 			goto skip_white
 		(case {char == char_rrb})
 			(func-call 'error 'create {"unexpected )", this -> lisp_sym_nil} {ast})
+			(func-call 'stream 'read_char {stream} {char})
+			(break)
+		(case {char == char_rcurly})
+			(func-call 'error 'create {"unexpected }", this -> lisp_sym_nil} {ast})
 			(func-call 'stream 'read_char {stream} {char})
 			(break)
 ;		(case {char == char_rab})
