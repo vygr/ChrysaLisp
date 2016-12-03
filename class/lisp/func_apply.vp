@@ -15,18 +15,18 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0, r1) '(this, args))
+	(retire '(r0, r1) {this, args})
 
-	(devirt-call 'vector 'get_length '(args) '(length))
-	(vpif '((length == 2)))
-		(func-call 'vector 'get_element '(args, 0) '(func))
-		(func-call 'vector 'get_element '(args, 1) '(args))
-		(func-call 'lisp 'repl_apply '(this, func, args) '(args))
+	(devirt-call 'vector 'get_length {args} {length})
+	(vpif {length == 2})
+		(func-call 'vector 'get_element {args, 0} {func})
+		(func-call 'vector 'get_element {args, 1} {args})
+		(func-call 'lisp 'repl_apply {this, func, args} {args})
 	(else)
-		(func-call 'error 'create '("(apply func args) wrong number of args", args) '(args))
+		(func-call 'error 'create {"(apply func args) wrong number of args", args} {args})
 	(endif)
 
-	(expr '(this, args) '(r0, r1))
+	(expr {this, args} '(r0, r1))
 	(pop-scope)
 	(return)
 

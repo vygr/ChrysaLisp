@@ -17,19 +17,19 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0, r1) '(inst, mailbox))
+	(retire '(r0, r1) {inst, mailbox})
 
-	(vpif '((inst -> master_state != stream_mail_state_started)))
+	(vpif {inst -> master_state != stream_mail_state_started})
 		;not yet running, so just wait on user mailbox
-		(func-call 'sys_mail 'select '(& mailbox, 1) '(mailbox))
+		(func-call 'sys_mail 'select {& mailbox, 1} {mailbox})
 	(else)
 		;wait on user and pipe mailboxes
-		(assign '(mailbox) '(* inst -> master_select_array))
-		(devirt-call 'vector 'get_length '(inst -> master_streams) '(length))
-		(func-call 'sys_mail 'select '(inst -> master_select_array, length) '(mailbox))
+		(assign {mailbox} {* inst -> master_select_array})
+		(devirt-call 'vector 'get_length {inst -> master_streams} {length})
+		(func-call 'sys_mail 'select {inst -> master_select_array, length} {mailbox})
 	(endif)
 
-	(expr '(inst, mailbox) '(r0, r1))
+	(expr {inst, mailbox} '(r0, r1))
 	(pop-scope)
 	(return)
 

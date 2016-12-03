@@ -13,16 +13,16 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(retire '(r0) '(this))
+	(retire '(r0) {this})
 
-	(func-call 'unordered_map 'find '(this -> lisp_enviroment, this -> lisp_sym_parent) '(iter, _))
-	(vpif '((iter)))
-		(func-call 'pair 'ref_second '(* iter) '(env))
-		(func-call 'ref 'deref '(this -> lisp_enviroment))
-		(assign '(env) '(this -> lisp_enviroment))
+	(func-call 'unordered_map 'find {this -> lisp_enviroment, this -> lisp_sym_parent} {iter, _})
+	(vpif {iter})
+		(func-call 'pair 'ref_second {* iter} {env})
+		(func-call 'ref 'deref {this -> lisp_enviroment})
+		(assign {env} {this -> lisp_enviroment})
 	(endif)
 
-	(expr '(this) '(r0))
+	(expr {this} '(r0))
 	(pop-scope)
 	(return)
 

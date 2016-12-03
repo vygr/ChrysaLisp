@@ -15,15 +15,15 @@
 	(ptr 'this 'symbol 'func_ptr 'func_flags 'func)
 
 	(push-scope)
-	(retire '(r0, r1, r2, r3) '(this, symbol, func_ptr, func_flags))
+	(retire '(r0, r1, r2, r3) {this, symbol, func_ptr, func_flags})
 
-	(func-call 'boxed_ptr 'create '() '(func))
-	(func-call 'boxed_ptr 'set_value '(func, func_ptr))
-	(func-call 'boxed_ptr 'set_flags '(func, func_flags))
-	(func-call 'unordered_map 'insert '(this -> lisp_enviroment, symbol, func) '(_, _))
-	(func-call 'ref 'deref '(func))
+	(func-call 'boxed_ptr 'create {} {func})
+	(func-call 'boxed_ptr 'set_value {func, func_ptr})
+	(func-call 'boxed_ptr 'set_flags {func, func_flags})
+	(func-call 'unordered_map 'insert {this -> lisp_enviroment, symbol, func} {_, _})
+	(func-call 'ref 'deref {func})
 
-	(expr '(this) '(r0))
+	(expr {this} '(r0))
 	(pop-scope)
 	(return)
 

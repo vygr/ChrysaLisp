@@ -16,19 +16,19 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(retire '(r0, r1, r2) '(this, symbol, value))
+	(retire '(r0, r1, r2) {this, symbol, value})
 
-	(func-call 'lisp 'env_find '(this, symbol) '(iter, _))
-	(vpif '((iter)))
+	(func-call 'lisp 'env_find {this, symbol} {iter, _})
+	(vpif {iter})
 		;change existing value
-		(func-call 'ref 'ref '(value))
-		(func-call 'ref 'ref '(value))
-		(func-call 'pair 'set_second '(* iter, value))
+		(func-call 'ref 'ref {value})
+		(func-call 'ref 'ref {value})
+		(func-call 'pair 'set_second {* iter, value})
 	(else)
-		(func-call 'error 'create '("symbol not bound", symbol) '(value))
+		(func-call 'error 'create {"symbol not bound", symbol} {value})
 	(endif)
 
-	(expr '(this, value) '(r0, r1))
+	(expr {this, value} '(r0, r1))
 	(pop-scope)
 	(return)
 

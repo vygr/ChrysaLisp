@@ -18,18 +18,18 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0, r1) '(this, args))
+	(retire '(r0, r1) {this, args})
 
-	(devirt-call 'vector 'get_length '(args) '(length))
+	(devirt-call 'vector 'get_length {args} {length})
 	if (length == 1)
-		(func-call 'lisp 'func_copy '(this, args) '(value))
-		(func-call 'lisp 'repl_expand '(this, & value) '(length))
+		(func-call 'lisp 'func_copy {this, args} {value})
+		(func-call 'lisp 'repl_expand {this, & value} {length})
 	(else)
-		(func-call 'error 'create '("(macroexpand-1 form) wrong number of args", args) '(value))
-		(assign '(1) '(length))
+		(func-call 'error 'create {"(macroexpand-1 form) wrong number of args", args} {value})
+		(assign {1} {length})
 	(endif)
 
-	(expr '(this, value, length) '(r0, r1, r2))
+	(expr {this, value, length} '(r0, r1, r2))
 	(pop-scope)
 	(return)
 

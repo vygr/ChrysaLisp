@@ -16,26 +16,26 @@
 	(push-scope)
 
 	;task
-	(func-call 'string 'create_from_cstr '("tests/farm_child") '(name))
+	(func-call 'string 'create_from_cstr {"tests/farm_child"} {name})
 
 	;open farm
-	(func-call 'sys_task 'open_farm '(name, num_child) '(ids))
+	(func-call 'sys_task 'open_farm {name, num_child} {ids})
 
 	;send exit messages etc
-	(assign '(num_child) '(cnt))
-	(loop-while '((cnt != 0)))
-		(assign '(cnt - 1) '(cnt))
+	(assign {num_child} {cnt})
+	(loop-while {cnt != 0})
+		(assign {cnt - 1} {cnt})
 		(continueifnot '(ids [ cnt * id_size ] . id_mbox))
-		(func-call 'sys_mail 'alloc '() '(msg))
-		(assign '(ids [ cnt * id_size ] . id_mbox) '(msg -> msg_dest . id_mbox))
-		(assign '(ids [ cnt * id_size ] . id_cpu) '(msg -> msg_dest . id_cpu))
-		(func-call 'sys_mail 'send '(msg))
+		(func-call 'sys_mail 'alloc {} {msg})
+		(assign {ids [ cnt * id_size ] . id_mbox} {msg -> msg_dest . id_mbox})
+		(assign {ids [ cnt * id_size ] . id_cpu} {msg -> msg_dest . id_cpu})
+		(func-call 'sys_mail 'send {msg})
 		(func-call 'sys_task 'yield)
 	(loop-end)
 
 	;free name and ID array
-	(func-call 'string 'deref '(name))
-	(func-call 'sys_mem 'free '(ids))
+	(func-call 'string 'deref {name})
+	(func-call 'sys_mem 'free {ids})
 	(pop-scope)
 	(return)
 

@@ -19,23 +19,23 @@
 
 	;save inputs
 	(push-scope)
-	(retire '(r0) '(inst))
+	(retire '(r0) {inst})
 
 	;bounds of text
-	(assign '(0, 0) '(width, height))
-	(vpif '((inst -> text_string && inst -> text_font)))
-		(assign '(inst -> text_words -> vector_array) '(words))
-		(devirt-call 'vector 'get_length '(inst -> text_words) '(length))
-		(assign '(& words [ length * ptr_size ]) '(words_end))
+	(assign {0, 0} {width, height})
+	(vpif {inst -> text_string && inst -> text_font})
+		(assign {inst -> text_words -> vector_array} {words})
+		(devirt-call 'vector 'get_length {inst -> text_words} {length})
+		(assign {& words [ length * ptr_size ]} {words_end})
 		(loop-start)
-			(func-call 'gui_font 'bounds '(inst -> text_font, * words) '(word_w, height))
-			(assign '(words + ptr_size) '(words))
-			(assign '(width + word_w) '(width))
-		(loop-until '((words == words_end)))
-		(assign '(width + (length - 1) * (height >> 2)) '(width))
+			(func-call 'gui_font 'bounds {inst -> text_font, * words} {word_w, height})
+			(assign {words + ptr_size} {words})
+			(assign {width + word_w} {width})
+		(loop-until {words == words_end})
+		(assign {width + (length - 1) * (height >> 2)} {width})
 	(endif)
 
-	(expr '(inst, width, height) '(r0, r10, r11))
+	(expr {inst, width, height} '(r0, r10, r11))
 	(pop-scope)
 	(return)
 

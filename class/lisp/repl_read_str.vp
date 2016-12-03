@@ -21,23 +21,23 @@
 	(ulong 'char)
 
 	(push-scope)
-	(retire '(r0, r1, r2) '(this, stream, char))
+	(retire '(r0, r1, r2) {this, stream, char})
 
 	(func-path 'sys_load 'statics)
-	(assign '(@ _function_ . ld_statics_reloc_buffer) '(reloc))
-	(assign '(reloc) '(buffer))
+	(assign {@ _function_ . ld_statics_reloc_buffer} {reloc})
+	(assign {reloc} {buffer})
 
-	(func-call 'stream 'read_char '(stream) '(char))
-	(loop-while '((char != -1 && char != char_double_quote)))
-		(assign '(char) '(* buffer))
-		(assign '(buffer + 1) '(buffer))
-		(func-call 'stream 'read_char '(stream) '(char))
+	(func-call 'stream 'read_char {stream} {char})
+	(loop-while {char != -1 && char != char_double_quote})
+		(assign {char} {* buffer})
+		(assign {buffer + 1} {buffer})
+		(func-call 'stream 'read_char {stream} {char})
 	(loop-end)
-	(func-call 'stream 'read_char '(stream) '(char))
+	(func-call 'stream 'read_char {stream} {char})
 
-	(func-call 'string 'create_from_buffer '(reloc, buffer - reloc) '(string))
+	(func-call 'string 'create_from_buffer {reloc, buffer - reloc} {string})
 
-	(expr '(this, string, char) '(r0, r1, r2))
+	(expr {this, string, char} '(r0, r1, r2))
 	(pop-scope)
 	(return)
 

@@ -14,13 +14,13 @@
 	(ptr this args)
 
 	(push-scope)
-	(retire '(r0 r1) '(this args))
+	(retire '(r0 r1) {this args})
 
-	(func-call 'unordered_map 'copy '(this->lisp_enviroment 101) '(args))
-	(func-call 'ref 'deref '(this->lisp_enviroment))
-	(assign '(args) '(this->lisp_enviroment))
+	(func-call 'unordered_map 'copy {this->lisp_enviroment 101} {args})
+	(func-call 'ref 'deref {this->lisp_enviroment})
+	(assign {args} {this->lisp_enviroment})
 
-	(expr '(this args) '(r0 r1))
+	(expr {this args} '(r0 r1))
 	(pop-scope)
 	(return)
 

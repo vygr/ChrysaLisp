@@ -24,23 +24,23 @@
 	(ulong 'char)
 
 	(push-scope)
-	(retire '(r0, r1, r2) '(this, stream, char))
+	(retire '(r0, r1, r2) {this, stream, char})
 
 	(func-path 'sys_load 'statics)
-	(assign '(@ _function_ . ld_statics_reloc_buffer) '(reloc))
-	(assign '(reloc) '(buffer))
+	(assign {@ _function_ . ld_statics_reloc_buffer} {reloc})
+	(assign {reloc} {buffer})
 
-	(loop-while '((char > char_space && char != char_lb && char != char_rb && char != char_quote)))
-		(assign '(char) '(* buffer))
-		(assign '(buffer + 1) '(buffer))
-		(func-call 'stream 'read_char '(stream) '(char))
+	(loop-while {char > char_space && char != char_lb && char != char_rb && char != char_quote})
+		(assign {char} {* buffer})
+		(assign {buffer + 1} {buffer})
+		(func-call 'stream 'read_char {stream} {char})
 	(loop-end)
 
 	;intern the symbol
-	(func-call 'symbol 'create_from_buffer '(reloc, buffer - reloc) '(symbol))
-	(func-call 'lisp 'sym_intern '(this, symbol) '(symbol))
+	(func-call 'symbol 'create_from_buffer {reloc, buffer - reloc} {symbol})
+	(func-call 'lisp 'sym_intern {this, symbol} {symbol})
 
-	(expr '(this, symbol, char) '(r0, r1, r2))
+	(expr {this, symbol, char} '(r0, r1, r2))
 	(pop-scope)
 	(return)
 

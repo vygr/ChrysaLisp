@@ -14,9 +14,9 @@
 	(push-scope)
 	(retire '(r0, r1) '(this, args))
 
-	(func-call 'ref 'ref '(args))
+	(func-call 'ref 'ref {args})
 
-	(expr '(this, args) '(r0, r1))
+	(expr {this, args} '(r0, r1))
 	(pop-scope)
 	(return)
 

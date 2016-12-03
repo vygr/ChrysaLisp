@@ -17,31 +17,31 @@
 	(push-scope)
 
 	;vector of tasks
-	(func-call 'vector 'create '() '(tasks))
-	(assign '(0) '(cnt))
-	(loop-while '((cnt != num_child)))
-		(func-call 'string 'create_from_cstr '("tests/array_child") '(name))
-		(func-call 'vector 'push_back '(tasks, name))
-		(assign '(cnt + 1) '(cnt))
+	(func-call 'vector 'create {} {tasks})
+	(assign {0} {cnt})
+	(loop-while {cnt != num_child})
+		(func-call 'string 'create_from_cstr {"tests/array_child"} {name})
+		(func-call 'vector 'push_back {tasks, name})
+		(assign {cnt + 1} {cnt})
 	(loop-end)
 
 	;open array
-	(func-call 'sys_task 'open_array '(tasks) '(ids))
+	(func-call 'sys_task 'open_array {tasks} {ids})
 
 	;send exit messages etc
-	(loop-while '((cnt != 0)))
-		(assign '(cnt - 1) '(cnt))
+	(loop-while {cnt != 0})
+		(assign {cnt - 1} {cnt})
 		(continueifnot '(ids [ cnt * id_size ] . id_mbox))
-		(func-call 'sys_mail 'alloc '() '(msg))
-		(assign '(ids [ cnt * id_size ] . id_mbox) '(msg -> msg_dest . id_mbox))
-		(assign '(ids [ cnt * id_size ] . id_cpu) '(msg -> msg_dest . id_cpu))
-		(func-call 'sys_mail 'send '(msg))
+		(func-call 'sys_mail 'alloc {} {msg})
+		(assign {ids [ cnt * id_size ] . id_mbox} {msg -> msg_dest . id_mbox})
+		(assign {ids [ cnt * id_size ] . id_cpu} {msg -> msg_dest . id_cpu})
+		(func-call 'sys_mail 'send {msg})
 		(func-call 'sys_task 'yield)
 	(loop-end)
 
 	;free vector and ID array
-	(func-call 'vector 'deref '(tasks))
-	(func-call 'sys_mem 'free '(ids))
+	(func-call 'vector 'deref {tasks})
+	(func-call 'sys_mem 'free {ids})
 	(pop-scope)
 	(return)
 

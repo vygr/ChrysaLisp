@@ -13,39 +13,39 @@
 	(ptr 'inst 'msg)
 
 	(push-scope)
-	(retire '(r0) '(inst))
+	(retire '(r0) {inst})
 
 	;flush remaining
-	(virt-call 'stream_msg_out 'write_flush '(inst -> slave_stderr))
-	(virt-call 'stream_msg_out 'write_flush '(inst -> slave_stdout))
+	(virt-call 'stream_msg_out 'write_flush {inst -> slave_stderr})
+	(virt-call 'stream_msg_out 'write_flush {inst -> slave_stdout})
 
 	;send stopping on stdout
-	(func-call 'stream_msg_out 'set_state '(inst -> slave_stdout, stream_mail_state_stopping))
-	(virt-call 'stream_msg_out 'write_next '(inst -> slave_stdout))
-	(virt-call 'stream_msg_out 'write_flush '(inst -> slave_stdout))
+	(func-call 'stream_msg_out 'set_state {inst -> slave_stdout, stream_mail_state_stopping})
+	(virt-call 'stream_msg_out 'write_next {inst -> slave_stdout})
+	(virt-call 'stream_msg_out 'write_flush {inst -> slave_stdout})
 
 	;wait for stopped
 	(loop-start)
-		(virt-call 'stream_msg_in 'read_next '(inst -> slave_stdin) '(_))
-	(loop-until '((inst -> slave_stdin->stream_msg_in_state == stream_mail_state_stopped)))
+		(virt-call 'stream_msg_in 'read_next {inst -> slave_stdin} {_})
+	(loop-until {inst -> slave_stdin->stream_msg_in_state == stream_mail_state_stopped})
 
 	;send stopped on stdout and stderr
-	(func-call 'stream_msg_out 'set_state '(inst -> slave_stdout, stream_mail_state_stopped))
-	(func-call 'stream_msg_out 'set_state '(inst -> slave_stderr, stream_mail_state_stopped))
-	(virt-call 'stream_msg_out 'write_next '(inst -> slave_stdout))
-	(virt-call 'stream_msg_out 'write_flush '(inst -> slave_stdout))
-	(virt-call 'stream_msg_out 'write_next '(inst -> slave_stderr))
-	(virt-call 'stream_msg_out 'write_flush '(inst -> slave_stderr))
+	(func-call 'stream_msg_out 'set_state {inst -> slave_stdout, stream_mail_state_stopped})
+	(func-call 'stream_msg_out 'set_state {inst -> slave_stderr, stream_mail_state_stopped})
+	(virt-call 'stream_msg_out 'write_next {inst -> slave_stdout})
+	(virt-call 'stream_msg_out 'write_flush {inst -> slave_stdout})
+	(virt-call 'stream_msg_out 'write_next {inst -> slave_stderr})
+	(virt-call 'stream_msg_out 'write_flush {inst -> slave_stderr})
 
 	;free stdin, stdout and stderr
-	(func-call 'stream_msg_in 'deref '(inst -> slave_stdin))
-	(func-call 'stream_msg_out 'deref '(inst -> slave_stdout))
-	(func-call 'stream_msg_out 'deref '(inst -> slave_stderr))
+	(func-call 'stream_msg_in 'deref {inst -> slave_stdin})
+	(func-call 'stream_msg_out 'deref {inst -> slave_stdout})
+	(func-call 'stream_msg_out 'deref {inst -> slave_stderr})
 
 	;free args
-	(func-call 'vector 'deref '(inst -> slave_args))
+	(func-call 'vector 'deref {inst -> slave_args})
 
-	(expr '(inst) '(r0))
+	(expr {inst} '(r0))
 	(pop-scope)
 
 	;deinit parent

@@ -16,40 +16,40 @@
 	(push-scope)
 
 	;initialize pipe details and command args, abort on error
-	(func-call 'slave 'create '() '(slave))
-	(vpif '((slave)))
+	(func-call 'slave 'create {} {slave})
+	(vpif {slave})
 		;set up input stream stack
-		(func-call 'string 'create_from_file '("cmd/forth.f") '(string))
-		(func-call 'stream 'create '(string, 0, & string -> string_data, string -> string_length) '(stream))
-		(func-call 'vector 'create '() '(vector))
-		(func-call 'vector 'push_back '(vector, stream))
+		(func-call 'string 'create_from_file {"cmd/forth.f"} {string})
+		(func-call 'stream 'create {string, 0, & string -> string_data, string -> string_length} {stream})
+		(func-call 'vector 'create {} {vector})
+		(func-call 'vector 'push_back {vector, stream})
 
 		;app event loop
 		(loop-start)
 			;priority to stack input
 			;this allows forth to push include files on this input stack
 			(loop-start)
-				(devirt-call 'vector 'get_length '(vector) '(length))
-				(breakifnot '(length))
-				(func-call 'vector 'ref_back '(vector) '(stream))
-				(func-call 'vector 'pop_back '(vector))
+				(devirt-call 'vector 'get_length {vector} {length})
+				(breakifnot {length})
+				(func-call 'vector 'ref_back {vector} {stream})
+				(func-call 'vector 'pop_back {vector})
 				(loop-start)
-					(func-call 'stream 'read_line '(stream, & buffer, buffer_size) '(length))
-					(breakif '((length == -1)))
-					(local-call 'input '(slave, &buffer, length) '(r0, r1, r2))
+					(func-call 'stream 'read_line {stream, & buffer, buffer_size} {length})
+					(breakif {length == -1})
+					(local-call 'input {slave, &buffer, length} '(r0, r1, r2))
 				(loop-end)
-				(func-call 'stream 'deref '(stream))
+				(func-call 'stream 'deref {stream})
 			(loop-end)
 
 			;read stdin, exit if EOF
-			(func-call 'stream 'read_line '(slave -> slave_stdin, & buffer, buffer_size) '(length))
-			(breakif '((length == -1)))
-			(local-call 'input '(slave, &buffer, length) '(r0, r1, r2))
+			(func-call 'stream 'read_line {slave -> slave_stdin, & buffer, buffer_size} {length})
+			(breakif {length == -1})
+			(local-call 'input {slave, &buffer, length} '(r0, r1, r2))
 		(loop-end)
 
 		;clean up
-		(func-call 'vector 'deref '(vector))
-		(func-call 'slave 'deref '(slave))
+		(func-call 'vector 'deref {vector})
+		(func-call 'slave 'deref {slave})
 	(endif)
 	(pop-scope)
 	(return)
@@ -66,11 +66,11 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0, r1, r2) '(slave, buffer, length))
+	(retire '(r0, r1, r2) {slave, buffer, length})
 
-	(func-call 'stream 'write '(slave -> slave_stdout, buffer, length))
-	(func-call 'stream 'write_char '(slave -> slave_stdout, char_lf))
-	(virt-call 'stream 'write_flush '(slave -> slave_stdout))
+	(func-call 'stream 'write {slave -> slave_stdout, buffer, length})
+	(func-call 'stream 'write_char {slave -> slave_stdout, char_lf})
+	(virt-call 'stream 'write_flush {slave -> slave_stdout})
 	(func-call 'sys_task 'yield)
 
 	(pop-scope)

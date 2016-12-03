@@ -14,14 +14,14 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(retire '(r0, r1) '(this, symbol))
+	(retire '(r0, r1) {this, symbol})
 
-	(func-call 'unordered_set 'insert '(this -> lisp_symbols, symbol) '(iter, _))
-	(func-call 'ref 'deref '(symbol))
-	(assign '(* iter) '(symbol))
-	(func-call 'ref 'ref '(symbol))
+	(func-call 'unordered_set 'insert {this -> lisp_symbols, symbol} {iter, _})
+	(func-call 'ref 'deref {symbol})
+	(assign {* iter} {symbol})
+	(func-call 'ref 'ref {symbol})
 
-	(expr '(this, symbol) '(r0, r1))
+	(expr {this, symbol} '(r0, r1))
 	(pop-scope)
 	(return)
 

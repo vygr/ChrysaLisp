@@ -19,62 +19,62 @@
 	;init app vars
 	(push-scope)
 	(func-path 'class 'obj)
-	(func-call 'obj 'init '(& myapp, @ _function_) '(_))
+	(func-call 'obj 'init {& myapp, @ _function_} {_})
 
 	;create my window
-	(func-call 'window 'create '() '(window))
-	(func-call 'window 'get_panel '(window) '(window_panel))
-	(func-call 'string 'create_from_cstr '("Launcher") '(string))
-	(func-call 'window 'set_title '(window, string))
-	(func-call 'string 'create_from_cstr '("Status Text") '(string))
-	(func-call 'window 'set_status '(window, string))
+	(func-call 'window 'create {} {window})
+	(func-call 'window 'get_panel {window} {window_panel})
+	(func-call 'string 'create_from_cstr {"Launcher"} {string})
+	(func-call 'window 'set_title {window, string})
+	(func-call 'string 'create_from_cstr {"Status Text"} {string})
+	(func-call 'window 'set_status {window, string})
 
 	;add my app panel
-	(func-call 'flow 'create '() '(panel))
-	(func-call 'flow 'set_flow_flags '(panel, flow_flag_down | flow_flag_fillw))
-	(func-call 'flow 'add_back '(panel, window_panel))
+	(func-call 'flow 'create {} {panel})
+	(func-call 'flow 'set_flow_flags {panel, flow_flag_down | flow_flag_fillw})
+	(func-call 'flow 'add_back {panel, window_panel})
 
 	;add launch buttons to my app panel
-	(assign '($ launch_list) '(next))
-	(loop-while '((* next)))
-		(func-call 'button 'create '() '(button))
-		(func-call 'button 'set_color '(button, 0xffffff00))
-		(func-call 'string 'create_from_cstr '(next) '(string))
-		(func-call 'button 'set_text '(button, string))
-		(func-call 'button 'add_back '(button, panel))
-		(func-call 'button 'sig_pressed '(button) '(pressed))
-		(func-call 'button 'connect '(button, pressed, & myapp, $ on_press))
+	(assign {$ launch_list} {next})
+	(loop-while {* next})
+		(func-call 'button 'create {} {button})
+		(func-call 'button 'set_color {button, 0xffffff00})
+		(func-call 'string 'create_from_cstr {next} {string})
+		(func-call 'button 'set_text {button, string})
+		(func-call 'button 'add_back {button, panel})
+		(func-call 'button 'sig_pressed {button} {pressed})
+		(func-call 'button 'connect {button, pressed, & myapp, $ on_press})
 
-		(func-call 'sys_string 'length '(next) '(length))
-		(assign '(next + length + 1) '(next))
+		(func-call 'sys_string 'length {next} {length})
+		(assign {next + length + 1} {next})
 	(loop-end)
 
 	;set to pref size
-	(virt-call 'window 'pref_size '(window) '(width, height))
-	(func-call 'window 'change '(window, 400, 256, width + 40, height))
+	(virt-call 'window 'pref_size {window} {width, height})
+	(func-call 'window 'change {window, 400, 256, width + 40, height})
 
 	;set window owner
-	(func-call 'sys_task 'tcb '() '(owner))
-	(func-call 'window 'set_owner '(window, owner))
+	(func-call 'sys_task 'tcb {} {owner})
+	(func-call 'window 'set_owner {window, owner})
 
 	;add to screen and dirty
-	(func-call 'gui_gui 'add '(window))
-	(func-call 'window 'dirty_all '(window))
+	(func-call 'gui_gui 'add {window})
+	(func-call 'window 'dirty_all {window})
 
 	;app event loop
 	(loop-start)
-		(func-call 'sys_mail 'mymail '() '(msg))
+		(func-call 'sys_mail 'mymail {} {msg})
 
 		;dispatch event to view
-		(virt-call 'view 'event '(msg -> ev_msg_view, msg))
+		(virt-call 'view 'event {msg -> ev_msg_view, msg})
 
 		;free event message
-		(func-call 'sys_mem 'free '(msg))
+		(func-call 'sys_mem 'free {msg})
 	(loop-end)
 
 	;deref window
-	(func-call 'window 'deref '(window))
-	(virt-call 'obj 'deinit '(& myapp))
+	(func-call 'window 'deref {window})
+	(virt-call 'obj 'deinit {& myapp})
 	(pop-scope)
 	(return)
 
@@ -86,10 +86,10 @@
 	(ptr 'inst 'button 'string)
 
 	(push-scope)
-	(retire '(r0, r1) '(inst, button))
-	(func-call 'button 'get_text '(button) '(string))
-	(func-call 'sys_task 'open '(string) '(_, _))
-	(func-call 'string 'deref '(string))
+	(retire '(r0, r1) {inst, button})
+	(func-call 'button 'get_text {button} {string})
+	(func-call 'sys_task 'open {string} {_, _})
+	(func-call 'string 'deref {string})
 	(pop-scope)
 	(return)
 

@@ -21,38 +21,38 @@
 	(ulong 'char)
 
 	(push-scope)
-	(retire '(r0, r1, r2) '(this, stream, char))
+	(retire '(r0, r1, r2) {this, stream, char})
 
 	;skip "<"
-	(func-call 'stream 'read_char '(stream) '(char))
+	(func-call 'stream 'read_char {stream} {char})
 
-	(func-call 'lisp 'repl_read '(this, stream, char) '(first, char))
-	(vpif '((first -> obj_vtable == @class/class_error)))
-		(assign '(first) '(pair))
+	(func-call 'lisp 'repl_read {this, stream, char} {first, char})
+	(vpif {first -> obj_vtable == @class/class_error})
+		(assign {first} {pair})
 		goto error
 	(endif)
-	(func-call 'lisp 'repl_read '(this, stream, char) '(second, char))
-	(vpif '((second -> obj_vtable == @class/class_error)))
-		(func-call 'ref 'deref '(first))
-		(assign '(second) '(pair))
+	(func-call 'lisp 'repl_read {this, stream, char} {second, char})
+	(vpif {second -> obj_vtable == @class/class_error})
+		(func-call 'ref 'deref {first})
+		(assign {second} {pair})
 		goto error
 	(endif)
 
 	;skip white space
-	(loop-while '((char <= char_space && char != -1)))
-		(func-call 'stream 'read_char '(stream) '(char))
+	(loop-while {char <= char_space && char != -1})
+		(func-call 'stream 'read_char {stream} {char})
 	(loop-end)
 
-	(vpif '((char == char_rab)))
-		(func-call 'stream 'read_char '(stream) '(char))
-		(func-call 'pair 'create '(first, second) '(pair))
+	(vpif {char == char_rab})
+		(func-call 'stream 'read_char {stream} {char})
+		(func-call 'pair 'create {first, second} {pair})
 	(else)
-		(func-call 'ref 'deref '(second))
-		(func-call 'ref 'deref '(first))
-		(func-call 'error 'create '("expected >", this -> lisp_sym_nil) '(pair))
+		(func-call 'ref 'deref {second})
+		(func-call 'ref 'deref {first})
+		(func-call 'error 'create {"expected >", this -> lisp_sym_nil} {pair})
 	(endif)
 (vp-label 'error)
-	(expr '(this, pair, char) '(r0, r1, r2))
+	(expr {this, pair, char} '(r0, r1, r2))
 	(pop-scope)
 	(return)
 

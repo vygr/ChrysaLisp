@@ -14,12 +14,12 @@
 	(push-scope)
 
 	;wait a bit
-	(func-call 'sys_math 'random '(1000000) '(num))
-	(func-call 'sys_task 'sleep '(num + 1000000))
+	(func-call 'sys_math 'random {1000000} {num})
+	(func-call 'sys_task 'sleep {num + 1000000})
 
 	;read command
-	(func-call 'sys_mail 'mymail '() '(msg))
-	(func-call 'sys_mem 'free '(msg))
+	(func-call 'sys_mail 'mymail {} {msg})
+	(func-call 'sys_mem 'free {msg})
 
 	(pop-scope)
 	(return)

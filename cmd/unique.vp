@@ -17,39 +17,39 @@
 	(push-scope)
 
 	;initialize pipe details and command args, abort on error
-	(func-call 'slave 'create '() '(slave))
-	(vpif '((slave)))
+	(func-call 'slave 'create {} {slave})
+	(vpif {slave})
 		;create string set
-		(func-call 'unordered_set 'create '(@ class/string/compare, 31) '(set))
+		(func-call 'unordered_set 'create {@ class/string/compare, 31} {set})
 
 		;arg 1 is command name
-		(func-call 'slave 'get_args '(slave) '(args))
-		(devirt-call 'vector 'get_length '(args) '(argc))
-		(vpif '((argc != 1)))
+		(func-call 'slave 'get_args {slave} {args})
+		(devirt-call 'vector 'get_length {args} {argc})
+		(vpif {argc != 1})
 			;from command line
-			(assign '(1) '(index))
-			(loop-while '((index != argc)))
-				(func-call 'vector 'get_element '(args, index) '(arg))
-				(func-call 'unordered_set 'insert '(set, arg) '(_, _))
-				(assign '(index + 1) '(index))
+			(assign {1} {index})
+			(loop-while {index != argc})
+				(func-call 'vector 'get_element {args, index} {arg})
+				(func-call 'unordered_set 'insert {set, arg} {_, _})
+				(assign {index + 1} {index})
 			(loop-end)
 		(else)
 			;from stdin
 			(loop-start)
-				(func-call 'stream 'read_line '(slave -> slave_stdin, & buffer, buffer_size) '(length))
-				(breakif '((length == -1)))
-				(func-call 'string 'create_from_buffer '(& buffer, length) '(arg))
-				(func-call 'unordered_set 'insert '(set, arg) '(_, _))
-				(func-call 'string 'deref '(arg))
+				(func-call 'stream 'read_line {slave -> slave_stdin, & buffer, buffer_size} {length})
+				(breakif {length == -1})
+				(func-call 'string 'create_from_buffer {& buffer, length} {arg})
+				(func-call 'unordered_set 'insert {set, arg} {_, _})
+				(func-call 'string 'deref {arg})
 			(loop-end)
 		(endif)
 
 		;output string set
-		(func-call 'unordered_set 'for_each '(set, $ callback, slave) '(_, _))
-		(func-call 'unordered_set 'deref '(set))
+		(func-call 'unordered_set 'for_each {set, $ callback, slave} {_, _})
+		(func-call 'unordered_set 'deref {set})
 
 		;clean up
-		(func-call 'slave 'deref '(slave))
+		(func-call 'slave 'deref {slave})
 	(endif)
 	(pop-scope)
 	(return)
@@ -66,12 +66,12 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(retire '(r0, r1) '(pdata, iter))
+	(retire '(r0, r1) {pdata, iter})
 
-	(func-call 'stream 'write '(pdata -> slave_stdout, & ( * iter ) -> string_data, ( * iter ) -> string_length))
-	(func-call 'stream 'write_char '(pdata -> slave_stdout, char_lf))
+	(func-call 'stream 'write {pdata -> slave_stdout, & ( * iter ) -> string_data, ( * iter ) -> string_length})
+	(func-call 'stream 'write_char {pdata -> slave_stdout, char_lf})
 
-	(expr '(1) '(r1))
+	(expr {1} '(r1))
 	(pop-scope)
 	(return)
 

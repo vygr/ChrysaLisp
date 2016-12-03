@@ -14,42 +14,42 @@
 	(ptr 'inst 'msg 'ack_msg)
 
 	(push-scope)
-	(retire '(r0) '(inst))
+	(retire '(r0) {inst})
 
 	;while not stopped state
-	(loop-while '((inst -> stream_msg_in_state != stream_mail_state_stopped)))
+	(loop-while {inst -> stream_msg_in_state != stream_mail_state_stopped})
 		;free any current msg
-		(func-call 'sys_mem 'free '(inst -> stream_buffer))
+		(func-call 'sys_mem 'free {inst -> stream_buffer})
 
 		;read next in sequence
-		(assign '(0) '(msg))
+		(assign {0} {msg})
 		(loop-start)
-			(func-call 'stream_msg_out 'next_seq '(& inst -> stream_msg_in_list, msg, inst -> stream_msg_in_seqnum) '(msg))
-			(breakif '((msg)))
-			(func-call 'sys_mail 'read '(inst -> stream_msg_in_mailbox) '(msg))
+			(func-call 'stream_msg_out 'next_seq {& inst -> stream_msg_in_list, msg, inst -> stream_msg_in_seqnum} {msg})
+			(breakif {msg})
+			(func-call 'sys_mail 'read {inst -> stream_msg_in_mailbox} {msg})
 		(loop-end)
-		(assign '(inst -> stream_msg_in_seqnum + 1) '(inst -> stream_msg_in_seqnum))
+		(assign {inst -> stream_msg_in_seqnum + 1} {inst -> stream_msg_in_seqnum})
 
 		;save msg buffer details
-		(assign '(msg) '(inst -> stream_buffer))
-		(assign '(& msg -> stream_mail_data) '(inst -> stream_bufp))
-		(assign '(&(msg + msg -> msg_length)) '(inst -> stream_bufe))
-		(assign '(msg -> stream_mail_state) '(inst -> stream_msg_in_state))
+		(assign {msg} {inst -> stream_buffer})
+		(assign {& msg -> stream_mail_data} {inst -> stream_bufp})
+		(assign {&(msg + msg -> msg_length)} {inst -> stream_bufe})
+		(assign {msg -> stream_mail_state} {inst -> stream_msg_in_state})
 
 		;send ack if needed
-		(vpif '((msg -> stream_mail_seqnum >> stream_msg_out_ack_shift == inst -> stream_msg_in_ack_seqnum)))
-			(func-call 'sys_mail 'alloc '() '(ack_msg))
-			(assign '(msg -> stream_mail_ack_id . id_mbox) '(ack_msg -> msg_dest . id_mbox))
-			(assign '(msg -> stream_mail_ack_id . id_cpu) '(ack_msg -> msg_dest . id_cpu))
-			(func-call 'sys_mail 'send '(ack_msg))
-			(assign '(inst -> stream_msg_in_ack_seqnum + 1) '(inst -> stream_msg_in_ack_seqnum))
+		(vpif {msg -> stream_mail_seqnum >> stream_msg_out_ack_shift == inst -> stream_msg_in_ack_seqnum})
+			(func-call 'sys_mail 'alloc {} {ack_msg})
+			(assign {msg -> stream_mail_ack_id . id_mbox} {ack_msg -> msg_dest . id_mbox})
+			(assign {msg -> stream_mail_ack_id . id_cpu} {ack_msg -> msg_dest . id_cpu})
+			(func-call 'sys_mail 'send {ack_msg})
+			(assign {inst -> stream_msg_in_ack_seqnum + 1} {inst -> stream_msg_in_ack_seqnum})
 		(endif)
 
-		(breakif '((inst -> stream_msg_in_state != stream_mail_state_started)))
-	(loop-until '((inst -> stream_bufp != inst -> stream_bufe)))
+		(breakif {inst -> stream_msg_in_state != stream_mail_state_started})
+	(loop-until {inst -> stream_bufp != inst -> stream_bufe})
 
 	;return -1 if not in started state
-	(expr '(inst, (inst -> stream_msg_in_state == stream_mail_state_started) - 1) '(r0, r1))
+	(expr {inst, (inst -> stream_msg_in_state == stream_mail_state_started) - 1} '(r0, r1))
 	(pop-scope)
 	(return)
 

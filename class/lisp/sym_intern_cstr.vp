@@ -13,13 +13,13 @@
 	(ptr 'this 'symbol 'intern)
 
 	(push-scope)
-	(retire '(r0, r1) '(this, symbol))
+	(retire '(r0, r1) {this, symbol})
 
-	(func-call 'symbol 'create_from_cstr '(symbol) '(symbol))
-	(func-call 'lisp 'sym_intern '(this, symbol) '(intern))
-	(func-call 'ref 'deref '(symbol))
+	(func-call 'symbol 'create_from_cstr {symbol} {symbol})
+	(func-call 'lisp 'sym_intern {this, symbol} {intern})
+	(func-call 'ref 'deref {symbol})
 
-	(expr '(this, intern) '(r0, r1))
+	(expr {this, intern} '(r0, r1))
 	(pop-scope)
 	(return)
 
