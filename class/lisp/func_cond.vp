@@ -45,7 +45,7 @@
 	(push-scope)
 	(retire '(r0, r1) '(pdata, iter))
 
-	(vpif '(({ * iter } -> obj_vtable == @class/class_vector)))
+	(vpif '((( * iter ) -> obj_vtable == @class/class_vector)))
 		(devirt-call 'vector 'get_length '(* iter) '(length))
 		(vpif '((length)))
 			(func-call 'vector 'get_element '(* iter, 0) '(test))

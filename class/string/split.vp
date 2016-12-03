@@ -17,8 +17,6 @@
 
 	;save inputs
 	(push-scope)
-	(each print *scopes*)
-	(each print *symbols*)
 ;	(retire '(r0, r1) '(inst, char))
 
 	;create string split
@@ -29,7 +27,5 @@
 ;	(expr '(inst, splits) '(r0, r1))
 	(pop-scope)
 	(return)
-	(each print *scopes*)
-	(each print *symbols*)
 
 (def-func-end)

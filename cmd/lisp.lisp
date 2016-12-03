@@ -154,6 +154,9 @@
 ; Math functions
 ;;;;;;;;;;;;;;;;
 
+(defmacro minus (x)
+	(neg x))
+
 (defun neg (x)
 	(sub 0 x))
 
