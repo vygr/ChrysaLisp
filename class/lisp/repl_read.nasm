@@ -29,6 +29,7 @@ def_func class/lisp/repl_read
 	const char_splicing, '~'
 	const char_semi, ';'
 	const char_lf, 10
+	const char_lcurly, '{'
 
 	ptr this, stream, ast
 	ulong char
@@ -68,6 +69,9 @@ skip_white:
 			break
 		case {char == char_double_quote}
 			func_call lisp, repl_read_str, {this, stream, char}, {ast, char}
+			break
+		case {char == char_lcurly}
+			func_call lisp, repl_read_group, {this, stream, char}, {ast, char}
 			break
 		case {char == char_quote}
 			func_call lisp, repl_read_quote, {this, stream, char}, {ast, char}

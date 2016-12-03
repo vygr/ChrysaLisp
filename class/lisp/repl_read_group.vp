@@ -1,25 +1,22 @@
 (import 'inc/func.inc)
 (import 'inc/load.inc)
-(import 'class/class_symbol.inc)
+(import 'class/class_string.inc)
 (import 'class/class_stream.inc)
 (import 'class/class_lisp.inc)
 
-(def-func 'class/lisp/repl_read_sym)
+(def-func 'class/lisp/repl_read_str)
 	;inputs
 	;r0 = lisp object
 	;r1 = stream
 	;r2 = next char
 	;outputs
 	;r0 = lisp object
-	;r1 = symbol
+	;r1 = string
 	;r2 = next char
 
-	(const 'char_space (ascii " "))
-	(const 'char_lb (ascii "("))
-	(const 'char_rb (ascii ")"))
-	(const 'char_quote (ascii "'"))
+	(const 'char_ccurly (ascii "}"))
 
-	(ptr 'this 'stream 'symbol)
+	(ptr 'this 'stream 'string)
 	(pubyte 'reloc 'buffer)
 	(ulong 'char)
 
@@ -30,17 +27,17 @@
 	(assign {@ _function_ . ld_statics_reloc_buffer} {reloc})
 	(assign {reloc} {buffer})
 
-	(loop-while {char > char_space && char != char_lb && char != char_rb && char != char_quote})
+	(func-call 'stream 'read_char {stream} {char})
+	(loop-while {char != -1 && char != char_ccurly})
 		(assign {char} {* buffer})
 		(assign {buffer + 1} {buffer})
 		(func-call 'stream 'read_char {stream} {char})
 	(loop-end)
+	(func-call 'stream 'read_char {stream} {char})
 
-	;intern the symbol
-	(func-call 'symbol 'create_from_buffer {reloc, buffer - reloc} {symbol})
-	(func-call 'lisp 'sym_intern {this, symbol} {symbol})
+	(func-call 'string 'create_from_buffer {reloc, buffer - reloc} {string})
 
-	(expr {this, symbol, char} '(r0 r1 r2))
+	(expr {this, string, char} '(r0 r1 r2))
 	(pop-scope)
 	(return)
 

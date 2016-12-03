@@ -37,9 +37,9 @@
 	(default)
 	(defq c (eval (sym (cat "*cnt-" (str *switch*) "*")))
 		l (sym (cat "_loc_" (str *switch*) "_" (str c))))
-	(if (eq 1 (length e))
+	(if (inst-of 'class/class_string e)
 		(progn
-			(expr (elem 0 e) '(r0))
+			(expr e '(r0))
 			(vp-jmpifnot '(r0 != 0) l))
 		(progn
 			(vp-jmpifnot `(~e) l))))
@@ -48,9 +48,9 @@
 	(default)
 	(defq c (eval (sym (cat "*cnt-" (str *switch*) "*")))
 		l (sym (cat "_loc_" (str *switch*) "_" (str c))))
-	(if (eq 1 (length e))
+	(if (inst-of 'class/class_string e)
 		(progn
-			(expr (elem 0 e) '(r0))
+			(expr e '(r0))
 			(vp-jmpif '(r0 != 0) l))
 		(progn
 			(vp-jmpif `(~e) l))))
@@ -60,17 +60,17 @@
 
 (defcfun breakif (e)
 	(defq l (sym (cat "_end_" (str *switch*))))
-	(if (eq 1 (length e))
+	(if (inst-of 'class/class_string e)
 		(progn
-			(expr (elem 0 e) '(r0))
+			(expr e '(r0))
 			(vp-jmpif '(r0 != 0) l))
 		(vp-jmpif `(~e) l)))
 
 (defcfun breakifnot (e)
 	(defq l (sym (cat "_end_" (str *switch*))))
-	(if (eq 1 (length e))
+	(if (inst-of 'class/class_string e)
 		(progn
-			(expr (elem 0 e) '(r0))
+			(expr e '(r0))
 			(vp-jmpifnot '(r0 != 0) l))
 		(vp-jmpifnot `(~e) l)))
 
@@ -79,17 +79,17 @@
 
 (defcfun continueif (e)
 	(defq l (sym (cat "_begin_" (str *switch*))))
-	(if (eq 1 (length e))
+	(if (inst-of 'class/class_string e)
 		(progn
-			(expr (elem 0 e) '(r0))
+			(expr e '(r0))
 			(vp-jmpif '(r0 != 0) l))
 		(vp-jmpif `(~e) l)))
 
 (defcfun continueifnot (e)
 	(defq l (sym (cat "_begin_" (str *switch*))))
-	(if (eq 1 (length e))
+	(if (inst-of 'class/class_string e)
 		(progn
-			(expr (elem 0 e) '(r0))
+			(expr e '(r0))
 			(vp-jmpifnot '(r0 != 0) l))
 		(vp-jmpifnot `(~e) l)))
 
@@ -397,3 +397,14 @@
 			((eql i '@) (fn-bind (elem 1 x) y))
 			((eql i '$) (vp-lea-p (elem 1 x) y))
 			(t (print "Invalid src paramater !")))) *src* *dst*))
+
+;;;;;;;;;;
+; C-Script
+;;;;;;;;;;
+
+(defcfun retire (r e) t)
+(defcfun expr (e r) t)
+(defcfun func-call (c n &optional i o) t)
+(defcfun virt-call (c n &optional i o) t)
+(defcfun devirt-call (c n &optional i o) t)
+(defcfun super-call (c n &optional i o) t)

@@ -14,9 +14,9 @@
 	;r1 = list
 	;r2 = next char
 
-	(const 'char_space ' ')
-	(const 'char_rrb ')')
-	(const 'char_semi ';')
+	(const 'char_space (ascii " "))
+	(const 'char_rrb (ascii ")"))
+	(const 'char_semi (ascii ";"))
 	(const 'char_lf 10)
 
 	(ptr 'this 'stream 'list 'ast)

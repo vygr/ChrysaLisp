@@ -15,16 +15,16 @@
 	;r1 = number
 	;r2 = next char
 
-	(const 'char_0 '0')
-	(const 'char_9 '9')
-	(const 'char_a 'a')
-	(const 'char_z 'z')
-	(const 'char_ca 'A')
-	(const 'char_cz 'Z')
-	(const 'char_minus '-')
-	(const 'char_x 'x')
-	(const 'char_b 'b')
-	(const 'char_o 'o')
+	(const 'char_0 (ascii "0"))
+	(const 'char_9 (ascii "9"))
+	(const 'char_a (ascii "a"))
+	(const 'char_z (ascii "z"))
+	(const 'char_ca (ascii "A"))
+	(const 'char_cz (ascii "Z"))
+	(const 'char_minus (ascii "-"))
+	(const 'char_x (ascii "x"))
+	(const 'char_b (ascii "b"))
+	(const 'char_o (ascii "o"))
 
 	(ptr 'this 'stream 'num)
 	(pubyte 'reloc 'buffer)

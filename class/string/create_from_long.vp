@@ -12,7 +12,7 @@
 	;trashes
 	;all but r4
 
-	(const 'char_minus "-")
+	(const 'char_minus (ascii "-"))
 
 	(ptr 'this)
 	(pubyte 'buffer 'reloc)

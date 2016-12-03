@@ -14,7 +14,7 @@
 	;r1 = string
 	;r2 = next char
 
-	(const 'char_double_quote '"')
+	(const 'char_double_quote 34)
 
 	(ptr 'this 'stream 'string)
 	(pubyte 'reloc 'buffer)

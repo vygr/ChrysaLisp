@@ -115,13 +115,13 @@
 	;r0 = app local object
 	;r1 = button object
 
-	(const 'char_zero '0')
-	(const 'char_nine '9')
-	(const 'char_equal '=')
-	(const 'char_plus '+')
-	(const 'char_minus '-')
-	(const 'char_multiply '*')
-	(const 'char_divide '/')
+	(const 'char_zero (ascii "0"))
+	(const 'char_nine (ascii "9"))
+	(const 'char_equal (ascii "="))
+	(const 'char_plus (ascii "+"))
+	(const 'char_minus (ascii "-"))
+	(const 'char_multiply (ascii "*"))
+	(const 'char_divide (ascii "/"))
 
 	(ptr 'inst 'button 'button_string 'display_string 'string 'string1 'string2)
 	(pubyte 'charp)

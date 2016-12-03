@@ -12,7 +12,7 @@
 	;trashes
 	;all but r0, r4
 
-	(const 'space_char ' ')
+	(const 'space_char (ascii " "))
 
 	(ptr 'inst 'vtable 'stream 'msg 'mymailbox)
 	(ulong 'error)

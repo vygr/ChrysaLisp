@@ -14,8 +14,8 @@
 	;trashes
 	;all but r0, r4
 
-	(const 'pipe_char '|')
-	(const 'space_char ' ')
+	(const 'pipe_char (ascii "|"))
+	(const 'space_char (ascii " "))
 
 	(ptr 'inst 'buffer 'msg 'string 'commands 'args 'stream 'mbox 'ids 'prefix 'cmd)
 	(pubyte 'start)

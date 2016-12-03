@@ -14,8 +14,8 @@
 	;r1 = pair
 	;r2 = next char
 
-	(const 'char_space ' ')
-	(const 'char_rab '>')
+	(const 'char_space (ascii " "))
+	(const 'char_rab (ascii ">"))
 
 	(ptr 'this 'stream 'pair 'first 'second)
 	(ulong 'char)
