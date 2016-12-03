@@ -62,7 +62,7 @@
 	(push-scope)
 	(retire '(r0, r1) '(pdata, iter))
 
-	(vpif '(((* iter) -> obj_vtable == @class/class_boxed_long)))
+	(vpif '(({ * iter } -> obj_vtable == @class/class_boxed_long)))
 		(func-call 'boxed_long 'get_value '(* iter) '(num))
 		(vpif '((pdata -> pdata_num < num)))
 			(assign '(num) '(pdata -> pdata_num))
