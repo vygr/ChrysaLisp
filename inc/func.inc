@@ -63,6 +63,8 @@
 ; functions
 ;;;;;;;;;;;
 
+(defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil)
+
 (defcfun def-func (*name* &optional *func-stack*)
 	(print "Compiling -> " *name*)
 	(setq *func-name* *name* *switch-nxt* 0 *emit-buffer* (list 'progn) *out-buffer* (list))

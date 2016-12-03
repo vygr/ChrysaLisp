@@ -5,7 +5,7 @@
 (defcfun class-name (n) (sym (cat "_class_" (str n))))
 (defcfun super-name (n) (sym (cat "_super_" (str n))))
 
-(defcvar (class-name 'null) '())
+(defcvar '*class* nil (class-name 'null) '())
 
 (defcfun vtable-emit (%1 &optional %2)
 	;%1 = class name

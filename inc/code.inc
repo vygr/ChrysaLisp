@@ -4,6 +4,8 @@
 ; structured codeing
 ;;;;;;;;;;;;;;;;;;;;
 
+(defcvar '*switch* nil '*switch-nxt* nil '*switch-stk* (list))
+
 (defcfun goto (l)
 	(vp-jmp l))
 
@@ -137,6 +139,8 @@
 ; enums
 ;;;;;;;
 
+(defcvar '*enum* nil)
+
 (defcfun def-enum (&optional b)
 	(setq *enum* (if b b 0)))
 
@@ -151,6 +155,8 @@
 ; bits
 ;;;;;;
 
+(defcvar '*bit* nil)
+
 (defcfun def-bit (&optional b)
 	(setq *bit* (if b b 0)))
 
@@ -161,19 +167,99 @@
 	(defcvar b (bit-shl 1 *bit*))
 	(setq *bit* (inc *bit*)))
 
+;;;;;;;;;;;;;;
+; symbol table
+;;;;;;;;;;;;;;
+
+(defcvar '*scopes* (list) '*symbols* (list) '*var-sp* 0)
+
+(defcfun push-scope ()
+	(local-align)
+	(push *scopes* (list (length *symbols*) *var-sp*))
+	(when (ne *var-sp* 0)
+		(when debug_emit
+			(print "vp-sub-cr " *var-sp* " " r4))
+		(vp-sub-cr *var-sp* r4)
+		(setq *var-sp* 0)))
+
+(defcfun pop-scope ()
+	(setq *var-sp* (elem 1 (pop *scopes*)))
+	(when (ne (length *scopes*) 0)
+		(setq *symbols* (slice 0 (elem 0 (elem -2 *scopes*)) *symbols*)))
+	(when (ne *var-sp* 0)
+		(when debug_emit
+			(print "vp-add-cr " *var-sp* " " r4))
+		(vp-add-cr *var-sp* r4)
+		(setq *var-sp* 0)))
+
+(defcfun unwind ()
+	(defq o (get-scope-offset 0))
+	(when (ne o 0)
+		(when debug_emit
+			(print "vp-add-cr " o " " r4))
+		(vp-add-cr o r4)))
+
+(defcfun return ()
+	(unwind)
+	(when debug_emit
+		(print "vp-ret"))
+	(vp-ret))
+
+(defcfun get-scope-offset (s)
+	(defq o 0)
+	(if (ge s (length *scopes*))
+		(print "Error: Symbol not in scope !")
+		(progn
+			(setq s (sub (dec (length *scopes*)) s))
+			(while (ne s 0)
+				(setq o (add o (elem 1 (elem s *scopes*))) s (dec s)))))
+	o)
+
+(defcfun def-sym (%1 %2 %3 &optional %4 %5)
+	;%1 name
+	;%2 type
+	;%3 value1
+	;%4 value2
+	;%5 aux data
+	(setq %4 (if %4 %4 0) %5 (if %5 %5 ""))
+	(defq s (elem 0 (elem -2 *scopes*)))
+	(while (ne s (length *symbols*))
+		(if (elem 0 (elem s *symbols*))
+			(print "Error: Symbol " %1 " redefined !"))
+		(setq s (inc s)))
+	(push *symbols* (list (length *scopes*) %1 %2 %3 %4 %5)))
+
+(defcfun get-sym (%1)
+	;%1 name
+	(defq s (dec (length *symbols*)))
+	(while (and (ge s 0) (not (eql %1 (elem 1 (elem s *symbols*)))))
+		(setq s (dec s))))
+
+(defcfun const (%1 %2)
+	;%1 name
+	;%2 value
+	(def-sym %1 'const %2))
+
+(defcfun operator (%1 %2 &optional %3 %4)
+ 	;%1 name
+	;%2 precidence
+	;%3 asociativity
+	;%4 compile macro
+	(setq %3 (if %3 %3 0) %4 (if %4 %4 'compile_null))
+	(def-sym %1 'op (mul %2 2) %3 %4))
+
 ;;;;;;;;;;;;;;;;;
 ; data structures
 ;;;;;;;;;;;;;;;;;
 
-(defcvar 'null_size 0)
-(defcvar 'byte_size 1)
-(defcvar 'short_size 2)
-(defcvar 'int_size 4)
-(defcvar 'long_size 8)
-(defcvar 'ptr_size 8)
+(defcvar '*struct* nil '*struct-offset* nil
+	'null_size 0 'byte_size 1 'short_size 2 'int_size 4 'long_size 8 'ptr_size 8)
 
 (defcfun local-align (&optional x)
-	(setq *struct-offset* (align *struct-offset* (if x x long_size))))
+	(setq x (if x x long_size))
+	(if *struct*
+		(setq *struct-offset* (align *struct-offset* x))
+		(setq *var-sp* (align *var-sp* x))))
 
 (defcfun def-struct (s &optional o)
 	(setq *struct* s *struct-offset* (eval (sym (cat (str (if o o "null")) "_size")))))
@@ -181,44 +267,59 @@
 (defcfun def-struct-end ()
 	(local-align ptr_size)
 	(defcvar (sym (cat (str *struct*) "_size")) *struct-offset*)
-	(setq *struct* nil))
+	(setq *struct* nil *struct-offset* nil))
 
-(defmacro def-type (n s)
+(defmacro def-type (n s y)
 	`(defcfun ,n (&rest f)
 		(each (lambda (x)
 			(local-align ,s)
-			(defcvar x *struct-offset*)
-			(setq *struct-offset* (add *struct-offset* ,s))) f)))
+			(cond
+				(*struct*
+					(defcvar x *struct-offset*)
+					(setq *struct-offset* (add *struct-offset* ,s)))
+				(t
+					(def-sym x 'var *var-sp* 0 ,y)
+					(setq *var-sp* (add *var-sp* ,s))))) f)))
 
-(def-type byte byte_size)
-(def-type ubyte byte_size)
-(def-type short short_size)
-(def-type ushort short_size)
-(def-type int int_size)
-(def-type uint int_size)
-(def-type long long_size)
-(def-type ulong long_size)
-(def-type ptr ptr_size)
-(def-type pbyte ptr_size)
-(def-type pubyte ptr_size)
-(def-type pshort ptr_size)
-(def-type pushort ptr_size)
-(def-type pint ptr_size)
-(def-type puint ptr_size)
-(def-type plong ptr_size)
-(def-type pulong ptr_size)
-(def-type pptr ptr_size)
+(def-type byte byte_size "b")
+(def-type ubyte byte_size "B")
+(def-type short short_size "s")
+(def-type ushort short_size "S")
+(def-type int int_size "i")
+(def-type uint int_size "I")
+(def-type long long_size "l")
+(def-type ulong long_size "L")
+(def-type ptr ptr_size "p")
+(def-type pbyte ptr_size "pb")
+(def-type pubyte ptr_size "pB")
+(def-type pshort ptr_size "ps")
+(def-type pushort ptr_size "pS")
+(def-type pint ptr_size "pi")
+(def-type puint ptr_size "pI")
+(def-type plong ptr_size "pl")
+(def-type pulong ptr_size "pL")
+(def-type pptr ptr_size "pp")
 
 (defcfun offset (f)
-	(defcvar f *struct-offset*))
+	(if *struct*
+		(defcvar f *struct-offset*)
+		(print "Error: Atempt to define offset into local stack !")))
 
 (defcfun struct (f s)
-	(defcvar f *struct-offset*)
-	(setq *struct-offset* (add *struct-offset* (eval (sym (cat (str s) "_size"))))))
+	(defq s (eval (sym (cat (str s) "_size"))))
+	(cond
+		(*struct*
+			(defcvar f *struct-offset*)
+			(setq *struct-offset* (add *struct-offset* s)))
+		(t
+			(def-sym f 'var *var-sp* 0 "")
+			(setq *var-sp* (add *var-sp* s)))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; paramater handling
 ;;;;;;;;;;;;;;;;;;;;
+
+(defcvar '*src* nil '*dst* nil)
 
 (defcfun set-src (b)
 	(setq *src* b))
