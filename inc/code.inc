@@ -224,7 +224,7 @@
 	(setq %4 (if %4 %4 0) %5 (if %5 %5 ""))
 	(defq s (elem 0 (elem -2 *scopes*)))
 	(while (ne s (length *symbols*))
-		(if (elem 0 (elem s *symbols*))
+		(if (eql %1 (elem 1 (elem s *symbols*)))
 			(print "Error: Symbol " %1 " redefined !"))
 		(setq s (inc s)))
 	(push *symbols* (list (length *scopes*) %1 %2 %3 %4 %5)))

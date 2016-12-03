@@ -5,6 +5,7 @@
 (import 'inc/task.inc)
 
 (defcvar 'debug_mode nil)
+(defcvar 'debug_emit t)
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail funcions
@@ -80,9 +81,11 @@
 	(vp-string (str *name*))
 	(vp-byte 0 '(sub _func_entry _func_name_start))
 	(vp-align ptr_size '(sub _func_entry _func_name_start))
-	(vp-label '_func_entry))
+	(vp-label '_func_entry)
+	(push-scope))
 
 (defcfun def-func-end ()
+	(pop-scope)
 	(defq *cnt* 0)
 	(each (lambda (s)
 		(vp-label (sym (cat "_ref_" (str *cnt*) "_string")))

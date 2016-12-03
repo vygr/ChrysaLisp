@@ -247,3 +247,5 @@
 (defun make (&optional d)
 	(setq d (if d d ""))
 	(compile (sym (cat (str d) "make.inc"))))
+
+(compile 'class/string/split.vp)

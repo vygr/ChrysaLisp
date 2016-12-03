@@ -26,6 +26,6 @@ def_func class/string/split
 
 	expr {inst, splits}, {r0, r1}
 	pop_scope
-	vp_ret
+	return
 
 def_func_end

@@ -17,15 +17,19 @@
 
 	;save inputs
 	(push-scope)
-	(retire '(r0, r1) '(inst, char))
+	(each print *scopes*)
+	(each print *symbols*)
+;	(retire '(r0, r1) '(inst, char))
 
 	;create string split
-	(func-call 'stream 'create '(0, 0, & inst -> string_data, inst -> string_length) '(stream))
-	(func-call 'stream 'split '(stream, char) '(splits))
-	(func-call 'stream 'deref '(stream))
+;	(func-call 'stream 'create '(0, 0, & inst -> string_data, inst -> string_length) '(stream))
+;	(func-call 'stream 'split '(stream, char) '(splits))
+;	(func-call 'stream 'deref '(stream))
 
-	(expr '(inst, splits) '(r0, r1))
+;	(expr '(inst, splits) '(r0, r1))
 	(pop-scope)
-	(vp-ret)
+	(return)
+	(each print *scopes*)
+	(each print *symbols*)
 
 (def-func-end)
