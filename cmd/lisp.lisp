@@ -224,6 +224,12 @@
 	(each (lambda (x) (if (not (eql (elem 0 x) '*parent*)) (print x))) e)
 	t)
 
+(defun find (s c)
+	(defq i (dec (length s)))
+	(while (and (ge i 0) (not (eql c (elem i s))))
+		(setq i (dec i)))
+	i)
+
 ;;;;;;;;;;;;;;
 ; VP Assembler
 ;;;;;;;;;;;;;;

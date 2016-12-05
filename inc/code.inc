@@ -233,7 +233,8 @@
 	;%1 name
 	(defq s (dec (length *symbols*)))
 	(while (and (ge s 0) (not (eql %1 (elem 1 (elem s *symbols*)))))
-		(setq s (dec s))))
+		(setq s (dec s)))
+	s)
 
 (defcfun const (%1 %2)
 	;%1 name
@@ -398,13 +399,191 @@
 			((eql i '$) (vp-lea-p (elem 1 x) y))
 			(t (print "Invalid src paramater !")))) *src* *dst*))
 
+;;;;;;;;;;;
+; tokenizer
+;;;;;;;;;;;
+
+(defcvar '*token* nil)
+
+(defcfun set-token-list (l)
+	(setq *token* (list))
+	(defq m -1 u 1 i 0 p "" s nil c nil)
+	(while (lt i (length l))
+		(setq c (elem i l) s (inc (find {@$"-*~!+.?^</%&|=> )(][} c))) ;"
+		(cond
+			((eq m -1)
+				;scanning
+				(unless (eql c " ")
+					(cond
+						((ge s 20)
+							;)(
+							(push *token* (list c s))
+							(setq u (bit-and (sub s 20) 1)))
+						((or (eq s 0) (ge s 3))
+							;"-*~!+.?^</%&|=> or symbol
+							(setq p (cat p c) m s))
+						(t
+							;@$
+							(setq m s))))
+				(setq c nil))
+			((gt m 3)
+				;op mode
+				(cond
+					((or (gt s 18) (lt s 12))
+						;space, )([] or not </%&|=>
+						(cond
+							((eq u 1)
+								;unary operator
+								(setq s (find "-*&~!" p))
+								(if (ne s -1)
+									(push *token* (list (elem s "_#:~!") m))
+									(print "Error: Unknown unary operator " p " !")))
+							(t
+								;binary operator
+								(push *token* (list p m))
+								(setq u 1)))
+						(setq p "" m -1))
+					(t
+						(setq p (cat p c) c nil))))
+			((lt m 3)
+				;symbol mode
+				(if (or (eq s 0) (eq s 13))
+					(setq p (cat p c) c nil)
+					(progn
+						(push *token* (list p m))
+						(setq p "" u 0 m -1))))
+			(t
+				;string mode
+				(setq p (cat p c))
+				(when (eql c (char 34))
+					(push *token* (list p m))
+					(setq p "" u 0 m -1))
+				(setq c nil)))
+		(unless c (setq i (inc i))))
+	(unless (eql p "")
+		(push *token* (list p m))))
+
+;;;;;;;;;;;;;;;;
+; reverse polish
+;;;;;;;;;;;;;;;;
+
+(defcvar '*rpn* nil)
+
+(defcfun token-to-rpn ()
+	(setq *rpn* (list))
+	(defq o (list) i 0 k nil c nil s nil x nil v nil)
+	(while (lt i (length *token*))
+		(setq k (elem 0 (elem i *token*)) c (elem 1 (elem i *token*)))
+		(cond
+			((gt c 3)
+				;operator
+				(cond
+					((eql k "(")
+						(push o k))
+					((eql k "[")
+						(push o k))
+					((eql k ")")
+						(while (and (not (eql "(" (setq k (pop o)))) k)
+							(push *rpn* (list k -1))))
+					((eql k "]")
+						(while (and (not (eql "[" (setq k (pop o)))) k)
+							(push *rpn* (list k -1)))
+						(push *rpn* (list "[]" -1)))
+					(t
+						;precidence
+						(setq s (get-sym k))
+						(if (eq s -1)
+							(print "Error: Operator " k " not defined !"))
+						(setq s (elem s *symbols*) v (sub (elem 3 s) (elem 4 s)) x t)
+						(while (and x (ne 0 (length o)))
+							(setq x (elem -2 o) s (get-sym x))
+							(if (ge v (elem 3 (elem s *symbols*)))
+								(push *rpn* (list (pop o) -1))
+								(setq x nil)))
+						(push o k))))
+			(t
+				;string or symbol
+				(push *rpn* (list k c))))
+		(setq i (inc i)))
+	(each-rev (lambda (x)
+		(push *rpn* (list x -1))) o))
+
+;;;;;;;;;;;;;
+; compilation
+;;;;;;;;;;;;;
+
+(defcvar '*s* nil '*inst* nil)
+
+(defcfun add-inst (i)
+	(push *inst* i))
+
+(defcfun compile-ref (%1)
+	(add-inst 'refernce))
+
+(defcfun compile-operator (%1)
+	(defq s (get-sym %1))
+	(cond
+		((eq s -1)
+			(print "Error: Operator " %1 " not defined !"))
+		((not (eql 'op (elem 2 (elem s *symbols*))))
+			(print "Error: " %1 " not an operator !")))
+	(add-inst (elem 5 (elem s *symbols*))))
+
+(defcfun compile-string (%1)
+	(set (sym (cat "_t_" (str *s*))) "")
+	(add-inst `(fn-string ,%1 ,(sym (cat "_" (str *s*))))))
+
+(defcfun compile-bind (%1)
+	(set (sym (cat "_t_" (str *s*))) "")
+	(add-inst `(fn-bind ,%1 ,(sym (cat "_" (str *s*))))))
+
+(defcfun compile-label (%1)
+	(set (sym (cat "_t_" (str *s*))) "")
+	(add-inst `(vp-lea-p ,%1 ,(sym (cat "_" (str *s*))))))
+
+(defcfun compile-rpn-list ()
+	(defq i 0 k nil c nil)
+	(while (lt i (length *rpn*))
+		(setq k (elem 0 (elem i *rpn*)) c (elem 1 (elem i *rpn*)))
+		(cond
+			((eq c -1)
+				;operator
+				(compile-operator k))
+			((eq c 0)
+				;...
+				(compile-ref k))
+			((eq c 1)
+				;@
+				(compile-bind k))
+			((eq c 2)
+				;$
+				(compile-label k))
+			((eq c 3)
+				;"..."
+				(compile-string k))
+			(t
+				(print "Error: Unknown token type " k " !")))
+		(setq *s* (inc *s*) i (inc i))))
+
 ;;;;;;;;;;
 ; C-Script
 ;;;;;;;;;;
 
 (defcfun retire (r e) t)
 (defcfun expr (e r) t)
-(defcfun func-call (c n &optional i o) t)
 (defcfun virt-call (c n &optional i o) t)
 (defcfun devirt-call (c n &optional i o) t)
 (defcfun super-call (c n &optional i o) t)
+
+(defcfun func-call (c n &optional i o)
+	(setq *s* 0 *inst* (list))
+	(setq i (if i i "") o (if o o ""))
+	(defq l (split i (code ",")))
+	(each (lambda (x)
+		(set-token-list x)
+;		(each print *token*)
+		(token-to-rpn)
+		(each print *rpn*)
+		(compile-rpn-list)) l)
+	(each print *inst*)
+	)
