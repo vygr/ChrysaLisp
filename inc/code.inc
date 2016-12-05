@@ -246,7 +246,7 @@
 	;%2 precidence
 	;%3 asociativity
 	;%4 compile macro
-	(setq %3 (if %3 %3 0) %4 (if %4 %4 'compile_null))
+	(setq %3 (if %3 %3 0) %4 (if %4 %4 compile-null))
 	(def-sym %1 'op (mul %2 2) %3 %4))
 
 ;;;;;;;;;;;;;;;;;
@@ -255,6 +255,9 @@
 
 (defcvar '*struct* nil '*struct-offset* nil
 	'null_size 0 'byte_size 1 'short_size 2 'int_size 4 'long_size 8 'ptr_size 8)
+
+(defcfun type-sym (s)
+	(sym (cat "_t_" (str s))))
 
 (defcfun local-align (&optional x)
 	(setq x (if x x long_size))
@@ -276,7 +279,7 @@
 			(local-align ,s)
 			(cond
 				(*struct*
-					(defcvar x *struct-offset*)
+					(defcvar x *struct-offset* (type-sym x) ,y)
 					(setq *struct-offset* (add *struct-offset* ,s)))
 				(t
 					(def-sym x 'var *var-sp* 0 ,y)
@@ -310,7 +313,7 @@
 	(defq s (eval (sym (cat (str s) "_size"))))
 	(cond
 		(*struct*
-			(defcvar f *struct-offset*)
+			(defcvar f *struct-offset* (type-sym f) "")
 			(setq *struct-offset* (add *struct-offset* s)))
 		(t
 			(def-sym f 'var *var-sp* 0 "")
@@ -512,13 +515,110 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defcvar '*s* nil '*inst* nil)
+(defcvar '*s* nil '*inst* nil
+	'_v0 nil '_v1 nil '_v2 nil '_v3 nil '_v4 nil '_v5 nil '_v6 nil '_v7 nil
+	'_v8 nil '_v9 nil '_v10 nil '_v11 nil '_v12 nil '_v13 nil '_v14 nil '_v15 nil
+	'_t_0 nil '_t_1 nil '_t_2 nil '_t_3 nil '_t_4 nil '_t_5 nil '_t_6 nil '_t_7 nil
+	'_t_8 nil '_t_9 nil '_t_10 nil '_t_11 nil '_t_12 nil '_t_13 nil '_t_14 nil '_t_15 nil)
+
+(defcfun vreg-sym (n)
+	(sym (cat "_v" (str n))))
 
 (defcfun add-inst (i)
 	(push *inst* i))
 
+(defcfun compile-null ()
+	(print "Error: No operator !"))
+
+(defcfun compile-const (%1)
+	(set (type-sym *s*) nil)
+	(add-inst `(vp-cpy-cr ,%1 ,(vreg-sym *s*))))
+
 (defcfun compile-ref (%1)
-	(add-inst 'refernce))
+	(defq i (get-sym %1) s (if (eq i -1) nil (elem i *symbols*)))
+	(cond
+		((eq i -1)
+			;not in symbol table so figure out what it is
+			(cond
+				((le (ascii "0") (code (elem 0 %1)) (ascii "9"))
+					;number
+					(compile-const %1))
+				((eql %1 "RXX")
+					;reserved slot
+					(set (type-sym *s*) nil))
+				((def? (type-sym %1))
+					;field/member
+					(set (type-sym *s*) (eval (type-sym %1)))
+					(add-inst `(vp-cpy-cr ,%1 ,(vreg-sym *s*))))
+				(t
+					;equate
+					(compile-const %1))))
+		((eql 'const (elem 2 s))
+			;constant
+			(compile-const (elem 3 s)))
+		((eql 'var (elem 2 s))
+			;variable
+			(set (type-sym *s*) (elem 5 s))
+			(setq i (add (get-scope-offset (elem 0 s)) (elem 3 s)))
+			(add-inst `(vp-lea-i (r4 ,i) ,(vreg-sym *s*))))))
+
+(defcfun compile-deref ()
+	(defq u (type-sym *s*) w (eval u) v (vreg-sym *s*))
+	(unless w
+		(print "Error: No type info !"))
+	(set u (slice 1 -1 w))
+	(defq w (elem 0 w))
+	(cond
+		((eql w "b")
+			(add-inst `(vp-cpy-ir-b ,v 0 ,v)))
+		((eql w "B")
+			(add-inst `(vp-cpy-ir-ub ,v 0 ,v)))
+		((eql w "s")
+			(add-inst `(vp-cpy-ir-s ,v 0 ,v)))
+		((eql w "S")
+			(add-inst `(vp-cpy-ir-us ,v 0 ,v)))
+		((eql w "i")
+			(add-inst `(vp-cpy-ir-i ,v 0 ,v)))
+		((eql w "I")
+			(add-inst `(vp-cpy-ir-ui ,v 0 ,v)))
+		(t
+			(add-inst `(vp-cpy-ir ,v 0 ,v)))))
+
+(defcfun compile-member ()
+	(defq s (dec *s*) *s* (sub *s* 2))
+	(compile-deref)
+	(add-inst `(vp-lea-d ,(vreg-sym *s*) ,(vreg-sym s) ,(vreg-sym *s*)))
+	(set (type-sym *s*) (eval (type-sym s))))
+
+(defcfun compile-field () (print "Missing " 'compile-field))
+(defcfun compile-index () (print "Missing " 'compile-index))
+(defcfun compile-uaddrof () (print "Missing " 'compile-uaddrof))
+(defcfun compile-uminus () (print "Missing " 'compile-uminus))
+(defcfun compile-uderef () (print "Missing " 'compile-uderef))
+(defcfun compile-unot () (print "Missing " 'compile-unot))
+(defcfun compile-ulnot () (print "Missing " 'compile-ulnot))
+(defcfun compile-mul () (print "Missing " 'compile-mul))
+(defcfun compile-divu () (print "Missing " 'compile-divu))
+(defcfun compile-remu () (print "Missing " 'compile-remu))
+(defcfun compile-div () (print "Missing " 'compile-div))
+(defcfun compile-rem () (print "Missing " 'compile-rem))
+(defcfun compile-plus () (print "Missing " 'compile-plus))
+(defcfun compile-minus () (print "Missing " 'compile-minus))
+(defcfun compile-lshift () (print "Missing " 'compile-lshift))
+(defcfun compile-rshift () (print "Missing " 'compile-rshift))
+(defcfun compile-arshift () (print "Missing " 'compile-arshift))
+(defcfun compile-lt () (print "Missing " 'compile-lt))
+(defcfun compile-gt () (print "Missing " 'compile-gt))
+(defcfun compile-le () (print "Missing " 'compile-le))
+(defcfun compile-ge () (print "Missing " 'compile-ge))
+(defcfun compile-eq () (print "Missing " 'compile-eq))
+(defcfun compile-ne () (print "Missing " 'compile-ne))
+(defcfun compile-and () (print "Missing " 'compile-and))
+(defcfun compile-xor () (print "Missing " 'compile-xor))
+(defcfun compile-or () (print "Missing " 'compile-or))
+(defcfun compile-land () (print "Missing " 'compile-land))
+(defcfun compile-lor () (print "Missing " 'compile-lor))
+(defcfun compile-ternary () (print "Missing " 'compile-ternary))
 
 (defcfun compile-operator (%1)
 	(defq s (get-sym %1))
@@ -526,20 +626,21 @@
 		((eq s -1)
 			(print "Error: Operator " %1 " not defined !"))
 		((not (eql 'op (elem 2 (elem s *symbols*))))
-			(print "Error: " %1 " not an operator !")))
-	(add-inst (elem 5 (elem s *symbols*))))
+			(print "Error: " %1 " not an operator !"))
+		(t
+			((elem 5 (elem s *symbols*))))))
 
 (defcfun compile-string (%1)
-	(set (sym (cat "_t_" (str *s*))) "")
-	(add-inst `(fn-string ,%1 ,(sym (cat "_" (str *s*))))))
+	(set (vreg-type-sym *s*) "")
+	(add-inst `(fn-string ,%1 ,(vreg-sym *s*))))
 
 (defcfun compile-bind (%1)
-	(set (sym (cat "_t_" (str *s*))) "")
-	(add-inst `(fn-bind ,%1 ,(sym (cat "_" (str *s*))))))
+	(set (vreg-type-sym *s*) "")
+	(add-inst `(fn-bind ,%1 ,(vreg-sym *s*))))
 
 (defcfun compile-label (%1)
-	(set (sym (cat "_t_" (str *s*))) "")
-	(add-inst `(vp-lea-p ,%1 ,(sym (cat "_" (str *s*))))))
+	(set (vreg-type-sym *s*) "")
+	(add-inst `(vp-lea-p ,%1 ,(vreg-sym *s*))))
 
 (defcfun compile-rpn-list ()
 	(defq i 0 k nil c nil)
@@ -583,7 +684,7 @@
 		(set-token-list x)
 ;		(each print *token*)
 		(token-to-rpn)
-		(each print *rpn*)
+;		(each print *rpn*)
 		(compile-rpn-list)) l)
 	(each print *inst*)
 	)
