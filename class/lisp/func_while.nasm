@@ -24,6 +24,7 @@ def_func class/lisp/func_while
 
 	devirt_call vector, get_length, {args}, {length}
 	vpif {length >= 1}
+		func_call sys_task, yield
 		loop_start
 			func_call vector, get_element, {args, 0}, {value}
 			func_call lisp, repl_eval, {this, value}, {value}

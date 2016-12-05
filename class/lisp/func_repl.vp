@@ -27,7 +27,6 @@
 		(func-call 'stream 'read_char {stream} {char})
 		(loop-start)
 			(virt-call 'stream 'write_flush {this -> lisp_stdout})
-			(func-call 'sys_task 'yield)
 			(virt-call 'stream 'write_flush {this -> lisp_stderr})
 
 			(func-call 'lisp 'repl_read {this, stream, char} {ast, char})

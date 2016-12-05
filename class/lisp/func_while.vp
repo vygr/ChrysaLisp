@@ -24,6 +24,7 @@
 
 	(devirt-call 'vector 'get_length {args} {length})
 	(vpif {length >= 1})
+		(func-call 'sys_task 'yield)
 		(loop-start)
 			(func-call 'vector 'get_element {args, 0} {value})
 			(func-call 'lisp 'repl_eval {this, value} {value})
