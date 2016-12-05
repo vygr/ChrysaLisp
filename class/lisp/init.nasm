@@ -184,6 +184,7 @@ built_ins:
 	built_in "rehash", 0, func_rehash
 	built_in "inst-of", 0, func_inst_of
 	built_in "split", 0, func_split
+	built_in "def?", 0, func_defined
 	dw 0
 
 def_func_end

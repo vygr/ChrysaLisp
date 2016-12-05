@@ -177,6 +177,7 @@
 	(built-in "rehash" 0 'func_rehash)
 	(built-in "inst-of" 0 'func_inst_of)
 	(built-in "split" 0 'func_split)
+	(built-in "def?" 0 'func_defined)
 	(vp-short 0)
 
 (def-func-end)

@@ -1,0 +1,42 @@
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_error.inc)
+(import 'class/class_lisp.inc)
+
+(def-func 'class/lisp/func_defined)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(ulong 'length)
+
+	(push-scope)
+	(retire '(r0 r1) {this, args})
+
+	(devirt-call 'vector 'get_length {args} {length})
+	(vpif {length == 1})
+		(func-call 'vector 'get_element {args, 0} {value})
+		(vpif {value -> obj_vtable == @class/class_symbol})
+			(func-call 'lisp 'env_find {this, value} {value, _})
+			(vpif {value})
+				(assign {this->lisp_sym_t} {value})
+			(else)
+				(assign {this->lisp_sym_nil} {value})
+			(endif)
+			(func-call 'ref 'ref {value})
+		(else)
+			(func-call 'error 'create {"(def? var) not a symbol", args} {value})
+		(endif)
+	(else)
+		(func-call 'error 'create {"(def? var) wrong number of args", args} {value})
+	(endif)
+
+	(expr {this, val} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)
