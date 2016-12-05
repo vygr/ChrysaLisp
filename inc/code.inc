@@ -221,7 +221,7 @@
 	;%3 value1
 	;%4 value2
 	;%5 aux data
-	(setq %4 (if %4 %4 0) %5 (if %5 %5 ""))
+	(setq %1 (sym %1) %4 (if %4 %4 0) %5 (if %5 %5 ""))
 	(defq s (elem 0 (elem -2 *scopes*)))
 	(while (ne s (length *symbols*))
 		(if (eql %1 (elem 1 (elem s *symbols*)))
@@ -231,7 +231,7 @@
 
 (defcfun get-sym (%1)
 	;%1 name
-	(defq s (dec (length *symbols*)))
+	(defq %1 (sym %1) s (dec (length *symbols*)))
 	(while (and (ge s 0) (not (eql %1 (elem 1 (elem s *symbols*)))))
 		(setq s (dec s)))
 	s)
@@ -535,7 +535,7 @@
 	(add-inst `(vp-cpy-cr ,%1 ,(vreg-sym *s*))))
 
 (defcfun compile-ref (%1)
-	(defq i (get-sym %1) s (if (eq i -1) nil (elem i *symbols*)))
+	(defq i (get-sym %1) s (if (ne i -1) (elem i *symbols*)))
 	(cond
 		((eq i -1)
 			;not in symbol table so figure out what it is
@@ -682,9 +682,6 @@
 	(defq l (split i (code ",")))
 	(each (lambda (x)
 		(set-token-list x)
-;		(each print *token*)
 		(token-to-rpn)
-;		(each print *rpn*)
 		(compile-rpn-list)) l)
-	(each print *inst*)
-	)
+	(each print *inst*))
