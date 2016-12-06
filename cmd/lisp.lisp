@@ -230,6 +230,19 @@
 		(setq i (dec i)))
 	i)
 
+(defun trim-start (s)
+	(while (and (ne 0 (length s)) (eql (elem 0 s) " "))
+		(setq s (slice 1 -1 s)))
+	s)
+
+(defun trim-end (s)
+	(while (and (ne 0 (length s)) (eql (elem -2 s) " "))
+		(setq s (slice 0 -2 s)))
+	s)
+
+(defun trim (s)
+	(trim-start (trim-end s)))
+
 ;;;;;;;;;;;;;;
 ; VP Assembler
 ;;;;;;;;;;;;;;

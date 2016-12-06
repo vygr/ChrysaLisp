@@ -719,7 +719,7 @@
 
 (defcfun retire (%1 %2)
 	(set-src %1)
-	(set-dst (split %2 (code ",")))
+	(set-dst (map trim (split %2 (code ","))))
 	(unless (eq (length *src*) (length *dst*))
 		(print "Error: Mismatching number of src/dst paramaters !"))
 	(map-remove-ignored)
@@ -746,7 +746,7 @@
 ))
 
 (defcfun expr (%1 %2)
-	(set-src (split %1 (code ",")))
+	(set-src (map trim (split %1 (code ","))))
 	(set-dst %2)
 	(unless (eq (length *src*) (length *dst*))
 		(print "Error: Mismatching number of src/dst paramaters !"))
@@ -774,8 +774,8 @@
 ))
 
 (defcfun assign (%1 %2)
-	(set-src (split %1 (code ",")))
-	(set-dst (split %2 (code ",")))
+	(set-src (map trim (split %1 (code ","))))
+	(set-dst (map trim (split %2 (code ","))))
 	(unless (eq (length *src*) (length *dst*))
 		(print "Error: Mismatching number of src/dst paramaters !"))
 	(map-remove-ignored)
