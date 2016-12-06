@@ -1,4 +1,4 @@
-;(import 'inc/class.inc)
+(import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; heap static class
