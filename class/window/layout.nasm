@@ -24,7 +24,12 @@ def_func class/window/layout
 	vp_sub window_border_size * 2, r11
 	f_call flow, change, {[r0 + window_flow], window_border_size, window_border_size, r10, r11}
 
-	f_call window, opaque, {[r4 + local_inst]}
+	vp_cpy [r4 + local_inst], r0
+	vp_cpy [r0 + view_color], r1
+	vp_shr 24, r1
+	vpif r1, ==, 0xff
+		f_call window, opaque, {r0}
+	endif
 	vp_add local_size, r4
 	vp_ret
 

@@ -106,7 +106,12 @@
 	(vp-sub-cr (mul window_border_size 2) r11)
 	(f-call 'flow 'change '((r0 window_flow) window_border_size window_border_size r10 r11))
 
-	(f-call 'window 'opaque '((r4 local_inst)))
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r0 view_color r1)
+	(vp-shr-cr 24 r1)
+	(vpif '(r1 == 0xff))
+		(f-call 'window 'opaque '(r0))
+	(endif)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 

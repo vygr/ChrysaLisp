@@ -43,6 +43,7 @@
 	(func-call 'window 'set_title {shared.shared_window, string})
 	(func-call 'string 'create_from_cstr {"Ready"} {string})
 	(func-call 'window 'set_status {shared.shared_window, string})
+	(func-call 'window 'set_color {shared.shared_window, 0xc0000000})
 
 	;add my app panel
 	(func-call 'flow 'create {} {shared.shared_panel})
@@ -56,7 +57,7 @@
 		(func-call 'label 'create {} {label})
 		(func-call 'string 'create_from_cstr {">"} {string})
 		(func-call 'label 'set_text {label, string})
-		(func-call 'label 'set_color {label, 0xff000000})
+		(func-call 'label 'set_color {label, 0})
 		(func-call 'label 'set_text_color {label, 0xff00ff00})
 		(func-call 'label 'set_font {label, "fonts/Hack-Regular.ttf", 16})
 		(func-call 'label 'add_back {label, shared.shared_panel})
