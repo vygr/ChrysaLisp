@@ -7,7 +7,7 @@ def_func sys/mail_alloc_parcel
 	;outputs
 	;r0 = mail message
 	;trashes
-	;r1-r3
+	;r1-r3, r5
 
 	vp_cpy r0, r5
 	vpif r0, <=, msg_size
