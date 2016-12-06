@@ -231,10 +231,10 @@
 
 (defcfun get-sym (%1)
 	;%1 name
-	(defq %1 (sym %1) s (dec (length *symbols*)))
-	(while (and (ge s 0) (not (eql %1 (elem 1 (elem s *symbols*)))))
-		(setq s (dec s)))
-	s)
+	(defq %1 (sym %1) i (dec (length *symbols*)) s nil)
+	(while (and (ge i 0) (not (eql %1 (elem 1 (setq s (elem i *symbols*))))))
+		(setq i (dec i)))
+	(if (ne i -1) s))
 
 (defcfun const (%1 %2)
 	;%1 name
@@ -495,12 +495,12 @@
 					(t
 						;precidence
 						(setq s (get-sym k))
-						(if (eq s -1)
+						(if (not s)
 							(print "Error: Operator " k " not defined !"))
-						(setq s (elem s *symbols*) v (sub (elem 3 s) (elem 4 s)) x t)
+						(setq v (sub (elem 3 s) (elem 4 s)) x t)
 						(while (and x (ne 0 (length o)))
-							(setq x (elem -2 o) s (get-sym x))
-							(if (ge v (elem 3 (elem s *symbols*)))
+							(setq s (get-sym (elem -2 o)))
+							(if (ge v (elem 3 s))
 								(push *rpn* (list (pop o) -1))
 								(setq x nil)))
 						(push o k))))
@@ -535,9 +535,9 @@
 	(add-inst `(vp-cpy-cr ,%1 ,(vreg-sym *s*))))
 
 (defcfun compile-ref (%1)
-	(defq i (get-sym %1) s (if (ne i -1) (elem i *symbols*)))
+	(defq s (get-sym %1))
 	(cond
-		((eq i -1)
+		((not s)
 			;not in symbol table so figure out what it is
 			(cond
 				((le (ascii "0") (code (elem 0 %1)) (ascii "9"))
@@ -623,12 +623,12 @@
 (defcfun compile-operator (%1)
 	(defq s (get-sym %1))
 	(cond
-		((eq s -1)
+		((not s)
 			(print "Error: Operator " %1 " not defined !"))
-		((not (eql 'op (elem 2 (elem s *symbols*))))
+		((not (eql 'op (elem 2 s)))
 			(print "Error: " %1 " not an operator !"))
 		(t
-			((elem 5 (elem s *symbols*))))))
+			((elem 5 s)))))
 
 (defcfun compile-string (%1)
 	(set (vreg-type-sym *s*) "")
