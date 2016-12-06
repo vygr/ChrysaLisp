@@ -1,6 +1,8 @@
 (import 'inc/func.inc)
 (import 'class/class_vector.inc)
+(import 'class/class_boxed_long.inc)
 (import 'class/class_unordered_map.inc)
+(import 'class/class_error.inc)
 (import 'class/class_lisp.inc)
 
 (def-func 'class/lisp/func_rehash)
@@ -11,16 +13,28 @@
 	;r0 = lisp object
 	;r1 = enviroment
 
-	(ptr this args)
+	(ptr 'this 'args)
 
 	(push-scope)
 	(retire '(r0 r1) {this args})
 
-	(func-call 'unordered_map 'copy {this->lisp_enviroment 101} {args})
-	(func-call 'ref 'deref {this->lisp_enviroment})
-	(assign {args} {this->lisp_enviroment})
+	(devirt-call 'vector 'get_length {args} {length})
+	(vpif {length == 1})
+		(func-call 'vector 'get_element {args, 0} {value})
+		(vpif {value->obj_vtable == @class/class_boxed_long})
+			(func-call 'boxed_long 'get_value {value} {value})
+			(func-call 'unordered_map 'copy {this->lisp_enviroment, value} {value})
+			(func-call 'ref 'deref {this->lisp_enviroment})
+			(func-call 'ref 'ref {value})
+			(assign {value} {this->lisp_enviroment})
+		(else)
+			(func-call 'error 'create {"(rehash num) not a number", args} {value})
+		(endif)
+	(else)
+		(func-call 'error 'create {"(rehash num) wrong number of args", args} {value})
+	(endif)
 
-	(expr {this args} '(r0 r1))
+	(expr {this, value}, '(r0 r1))
 	(pop-scope)
 	(return)
 
