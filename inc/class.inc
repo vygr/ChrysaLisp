@@ -283,6 +283,84 @@
 		(print "Class " %1 " method " %2 " is static ! Use f_bind ?"))
 	(fn-bind (elem 1 m) %3))
 
+;;;;;;;;;;;;;;
+; script level
+;;;;;;;;;;;;;;
+
+(defcfun func-call (%1 %2 &optional %3 %4)
+	;%1 = class name
+	;%2 = member name
+	;%3 = in parameters
+	;%4 = out parameters
+	(setq %3 (if %3 %3 "") %4 (if %4 %4 ""))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defq m (elem s c))
+	(if (eql (elem 2 m) 'virtual)
+		(print "Class " %1 " method " %2 " is virtual ! Use virt_call ?"))
+	(expr %3 (elem 3 m))
+	(fn-call (elem 1 m))
+	(retire (elem 4 m) %4))
+
+(defcfun super-call (%1 %2 &optional %3 %4)
+	;%1 = class name
+	;%2 = member name
+	;%3 = in parameters
+	;%4 = out parameters
+	(setq %3 (if %3 %3 "") %4 (if %4 %4 ""))
+	(defq s nil v nil c nil)
+	(method-lookup (eval (super-name %1)) %2)
+	(defq m (elem s c))
+	(if (eql (elem 2 m) 'static)
+		(unless (eql (elem 0 m) 'init)
+			(print "Class " (eval (super-name %1)) " method " %2 " is static !")))
+	(expr %3 (elem 3 m))
+	(fn-call (elem 1 m))
+	(retire (elem 4 m) %4))
+
+(defcfun virt-call (%1 %2 &optional %3 %4 %5)
+	;%1 = class name
+	;%2 = member name
+	;%3 = in parameters
+	;%4 = out parameters
+	;%5 = dispatch reg
+	(setq %3 (if %3 %3 "") %4 (if %4 %4 "") %5 (if %5 %5 r15))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defq m (elem s c))
+	(if (eql (elem 2 m) 'static)
+		(print "Class " %1 " method " %2 " is static ! Use func_call ?"))
+	(expr (cat "RXX" %3) (cat (list %5) (elem 3 m)))
+	(vp-cpy-ir r0 obj_vtable %5)
+	(vp-call-i %5 v)
+	(retire (elem 4 m) %4))
+
+(defcfun devirt-call (%1 %2 &optional %3 %4)
+	;%1 = class name
+	;%2 = member name
+	;%3 = in parameters
+	;%4 = out parameters
+	(setq %3 (if %3 %3 "") %4 (if %4 %4 ""))
+	(defq s nil v nil c nil)
+	(method-lookup %1 %2)
+	(defq m (elem s c))
+	(if (eql (elem 2 m) 'static)
+		(print "Class " %1 " method " %2 " is static ! Use func_call ?"))
+	(expr %3 (elem 3 m))
+	(fn-call (elem 1 m))
+	(retire (elem 4 m) %4))
+
+(defcfun local-call (%1 &optional %2 %3 %4 %5)
+	;%1 = label
+	;%2 = in parameters
+	;%3 = in regs
+	;%4 = out parameters
+	;%5 = out regs
+	(setq %2 (if %2 %2 "") %3 (if %3 %3 (list)) %4 (if %4 %4 "") %5 (if %5 %5 (list)))
+	(expr %2 %3)
+	(vp-call %1)
+	(retire %4 %5))
+
 ;;;;;;;;;;;;;;;;;
 ; virtual classes
 ;;;;;;;;;;;;;;;;;

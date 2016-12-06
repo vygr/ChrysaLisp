@@ -178,7 +178,7 @@
 	(push *scopes* (list (length *symbols*) *var-sp*))
 	(when (ne *var-sp* 0)
 		(when debug_emit
-			(print "vp-sub-cr " *var-sp* " " r4))
+			(print "(vp-sub-cr " *var-sp* " " r4 ")"))
 		(vp-sub-cr *var-sp* r4)
 		(setq *var-sp* 0)))
 
@@ -188,7 +188,7 @@
 		(setq *symbols* (slice 0 (elem 0 (elem -2 *scopes*)) *symbols*)))
 	(when (ne *var-sp* 0)
 		(when debug_emit
-			(print "vp-add-cr " *var-sp* " " r4))
+			(print "(vp-add-cr " *var-sp* " " r4 ")"))
 		(vp-add-cr *var-sp* r4)
 		(setq *var-sp* 0)))
 
@@ -196,13 +196,13 @@
 	(defq o (get-scope-offset 0))
 	(when (ne o 0)
 		(when debug_emit
-			(print "vp-add-cr " o " " r4))
+			(print "(vp-add-cr " o " " r4 ")"))
 		(vp-add-cr o r4)))
 
 (defcfun return ()
 	(unwind)
 	(when debug_emit
-		(print "vp-ret"))
+		(print "(vp-ret)"))
 	(vp-ret))
 
 (defcfun get-scope-offset (s)
@@ -408,6 +408,9 @@
 
 (defcvar '*token* nil)
 
+(defcfun push-token (s v)
+	(push *token* (list s v)))
+
 (defcfun set-token-list (l)
 	(setq *token* (list))
 	(defq m -1 u 1 i 0 p "" s nil c nil)
@@ -420,7 +423,7 @@
 					(cond
 						((ge s 20)
 							;)(
-							(push *token* (list c s))
+							(push-token c s)
 							(setq u (bit-and (sub s 20) 1)))
 						((or (eq s 0) (ge s 3))
 							;"-*~!+.?^</%&|=> or symbol
@@ -439,11 +442,11 @@
 								;unary operator
 								(setq s (find "-*&~!" p))
 								(if (ne s -1)
-									(push *token* (list (elem s "_#:~!") m))
+									(push-token (elem s "_#:~!") m)
 									(print "Error: Unknown unary operator " p " !")))
 							(t
 								;binary operator
-								(push *token* (list p m))
+								(push-token p m)
 								(setq u 1)))
 						(setq p "" m -1))
 					(t
@@ -453,24 +456,27 @@
 				(if (or (eq s 0) (eq s 13))
 					(setq p (cat p c) c nil)
 					(progn
-						(push *token* (list p m))
+						(push-token p m)
 						(setq p "" u 0 m -1))))
 			(t
 				;string mode
 				(setq p (cat p c))
 				(when (eql c (char 34))
-					(push *token* (list p m))
+					(push-token p m)
 					(setq p "" u 0 m -1))
 				(setq c nil)))
 		(unless c (setq i (inc i))))
 	(unless (eql p "")
-		(push *token* (list p m))))
+		(push-token p m)))
 
 ;;;;;;;;;;;;;;;;
 ; reverse polish
 ;;;;;;;;;;;;;;;;
 
 (defcvar '*rpn* nil)
+
+(defcfun push-rpn (s v)
+	(push *rpn* (list (sym s) v)))
 
 (defcfun token-to-rpn ()
 	(setq *rpn* (list))
@@ -487,11 +493,11 @@
 						(push o k))
 					((eql k ")")
 						(while (and (not (eql "(" (setq k (pop o)))) k)
-							(push *rpn* (list k -1))))
+							(push-rpn k -1)))
 					((eql k "]")
 						(while (and (not (eql "[" (setq k (pop o)))) k)
-							(push *rpn* (list k -1)))
-						(push *rpn* (list "[]" -1)))
+							(push-rpn k -1))
+						(push-rpn "[]" -1))
 					(t
 						;precidence
 						(setq s (get-sym k))
@@ -501,15 +507,15 @@
 						(while (and x (ne 0 (length o)))
 							(setq s (get-sym (elem -2 o)))
 							(if (ge v (elem 3 s))
-								(push *rpn* (list (pop o) -1))
+								(push-rpn (pop o) -1)
 								(setq x nil)))
 						(push o k))))
 			(t
 				;string or symbol
-				(push *rpn* (list k c))))
+				(push-rpn k c)))
 		(setq i (inc i)))
 	(each-rev (lambda (x)
-		(push *rpn* (list x -1))) o))
+		(push-rpn x -1)) o))
 
 ;;;;;;;;;;;;;
 ; compilation
@@ -524,8 +530,20 @@
 (defcfun vreg-sym (n)
 	(sym (cat "_v" (str n))))
 
+(defcfun pop-type (s)
+	(defq u (type-sym s) w (eval u))
+	(unless w
+		(print "Error: No type info !"))
+	(set u (slice 1 -1 w))
+	(elem 0 w))
+
 (defcfun add-inst (i)
 	(push *inst* i))
+
+(defcfun pop-value ()
+	(setq *s* (dec *s*))
+	(compile-deref?)
+	(set (type-sym *s*) nil))
 
 (defcfun compile-null ()
 	(print "Error: No operator !"))
@@ -533,6 +551,27 @@
 (defcfun compile-const (%1)
 	(set (type-sym *s*) nil)
 	(add-inst `(vp-cpy-cr ,%1 ,(vreg-sym *s*))))
+
+(defcfun compile-assign ()
+	(setq *s* (dec *s*))
+	(defq y (vreg-sym *s*) w (pop-type *s*))
+	(pop-value)
+	(defq x (vreg-sym *s*))
+	(cond
+		((eql w "b")
+			(add-inst `(vp-cpy-ri-b ,x ,y 0)))
+		((eql w "B")
+			(add-inst `(vp-cpy-ri-b ,x ,y 0)))
+		((eql w "s")
+			(add-inst `(vp-cpy-ri-s ,x ,y 0)))
+		((eql w "S")
+			(add-inst `(vp-cpy-ri-s ,x ,y 0)))
+		((eql w "i")
+			(add-inst `(vp-cpy-ri-i ,x ,y 0)))
+		((eql w "I")
+			(add-inst `(vp-cpy-ri-i ,x ,y 0)))
+		(t
+			(add-inst `(vp-cpy-ri ,x ,y 0)))))
 
 (defcfun compile-ref (%1)
 	(defq s (get-sym %1))
@@ -543,7 +582,7 @@
 				((le (ascii "0") (code (elem 0 %1)) (ascii "9"))
 					;number
 					(compile-const %1))
-				((eql %1 "RXX")
+				((eql %1 'RXX)
 					;reserved slot
 					(set (type-sym *s*) nil))
 				((def? (type-sym %1))
@@ -560,14 +599,14 @@
 			;variable
 			(set (type-sym *s*) (elem 5 s))
 			(setq i (add (get-scope-offset (elem 0 s)) (elem 3 s)))
-			(add-inst `(vp-lea-i (r4 ,i) ,(vreg-sym *s*))))))
+			(add-inst `(vp-lea-i r4 ,i ,(vreg-sym *s*))))))
 
 (defcfun compile-deref ()
 	(defq u (type-sym *s*) w (eval u) v (vreg-sym *s*))
 	(unless w
 		(print "Error: No type info !"))
 	(set u (slice 1 -1 w))
-	(defq w (elem 0 w))
+	(setq w (elem 0 w))
 	(cond
 		((eql w "b")
 			(add-inst `(vp-cpy-ir-b ,v 0 ,v)))
@@ -584,15 +623,23 @@
 		(t
 			(add-inst `(vp-cpy-ir ,v 0 ,v)))))
 
+(defcfun compile-deref? ()
+	(when (eval (type-sym *s*))
+		(compile-deref)))
+
 (defcfun compile-member ()
-	(defq s (dec *s*) *s* (sub *s* 2))
+	(defq s (dec *s*))
+	(setq *s* (sub *s* 2))
 	(compile-deref)
 	(add-inst `(vp-lea-d ,(vreg-sym *s*) ,(vreg-sym s) ,(vreg-sym *s*)))
 	(set (type-sym *s*) (eval (type-sym s))))
 
+(defcfun compile-uaddrof ()
+	(setq *s* (dec *s*))
+	(set (type-sym *s*) nil))
+
 (defcfun compile-field () (print "Missing " 'compile-field))
 (defcfun compile-index () (print "Missing " 'compile-index))
-(defcfun compile-uaddrof () (print "Missing " 'compile-uaddrof))
 (defcfun compile-uminus () (print "Missing " 'compile-uminus))
 (defcfun compile-uderef () (print "Missing " 'compile-uderef))
 (defcfun compile-unot () (print "Missing " 'compile-unot))
@@ -670,18 +717,84 @@
 ; C-Script
 ;;;;;;;;;;
 
-(defcfun retire (r e) t)
-(defcfun expr (e r) t)
-(defcfun virt-call (c n &optional i o) t)
-(defcfun devirt-call (c n &optional i o) t)
-(defcfun super-call (c n &optional i o) t)
+(defcfun retire (%1 %2)
+	(set-src %1)
+	(set-dst (split %2 (code ",")))
+	(unless (eq (length *src*) (length *dst*))
+		(print "Error: Mismatching number of src/dst paramaters !"))
+	(map-remove-ignored)
+	(when (ne 0 (length *dst*))
+		;reset_reg_stack _src_total
+		(setq *s* (length *src*) *inst* (list))
+		(each-rev (lambda (x)
+			(set-token-list x)
+			(token-to-rpn)
+			(compile-rpn-list)
+			(compile-assign)) *dst*)
+		;(opt-inst-list)
+		;%assign %%n 0
+		;%rep _src_total
+		;	res_reg_def _src_%[%%n]
+		;	%assign %%n %%n + 1
+		;%endrep
+		;fill_reg_def
+		;emit_inst_list {retire: %1 => %2}
+		(when debug_emit
+			(print "(retire " %1 " {" %2 "})")
+			(each print *inst*))
+		;undef_reg_def
+))
 
-(defcfun func-call (c n &optional i o)
-	(setq *s* 0 *inst* (list))
-	(setq i (if i i "") o (if o o ""))
-	(defq l (split i (code ",")))
-	(each (lambda (x)
-		(set-token-list x)
-		(token-to-rpn)
-		(compile-rpn-list)) l)
-	(each print *inst*))
+(defcfun expr (%1 %2)
+	(set-src (split %1 (code ",")))
+	(set-dst %2)
+	(unless (eq (length *src*) (length *dst*))
+		(print "Error: Mismatching number of src/dst paramaters !"))
+	(map-remove-ignored)
+	(when (ne 0 (length *dst*))
+		;reset_reg_stack
+		(setq *s* 0 *inst* (list))
+		(each (lambda (x)
+			(set-token-list x)
+			(token-to-rpn)
+			(compile-rpn-list)
+			(pop-value)
+			(setq *s* (inc *s*))) *src*)
+		;(opt-inst-list)
+		;%assign %%n 0
+		;%rep _dst_total
+		;	res_reg_def _dst_%[%%n]
+		;	%assign %%n %%n + 1
+		;%endrep
+		;fill_reg_def
+		(when debug_emit
+			(print "(expr {" %1 "} " %2 ")")
+			(each print *inst*))
+		;undef_reg_def
+))
+
+(defcfun assign (%1 %2)
+	(set-src (split %1 (code ",")))
+	(set-dst (split %2 (code ",")))
+	(unless (eq (length *src*) (length *dst*))
+		(print "Error: Mismatching number of src/dst paramaters !"))
+	(map-remove-ignored)
+	(when (ne 0 (length *dst*))
+		;reset_reg_stack
+		(setq *s* 0 *inst* (list))
+		(each (lambda (x)
+			(set-token-list x)
+			(token-to-rpn)
+			(compile-rpn-list)) *src*)
+		(each-rev (lambda (x)
+			(set-token-list x)
+			(token-to-rpn)
+			(compile-rpn-list)
+			(compile-assign)) *dst*)
+		;(opt-inst-list)
+		;fill_reg_def
+		(when debug_emit
+			(print "(assign {" %1 "} {" %2 "})")
+			(each print *inst*))
+		;undef_reg_def
+))
