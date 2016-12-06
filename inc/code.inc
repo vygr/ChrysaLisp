@@ -521,7 +521,7 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defcvar '*s* nil '*inst* nil
+(defcvar '*s* nil '*r* nil '*inst* nil
 	'_v0 nil '_v1 nil '_v2 nil '_v3 nil '_v4 nil '_v5 nil '_v6 nil '_v7 nil
 	'_v8 nil '_v9 nil '_v10 nil '_v11 nil '_v12 nil '_v13 nil '_v14 nil '_v15 nil
 	'_t_0 nil '_t_1 nil '_t_2 nil '_t_3 nil '_t_4 nil '_t_5 nil '_t_6 nil '_t_7 nil
@@ -529,6 +529,50 @@
 
 (defcfun vreg-sym (n)
 	(sym (cat "_v" (str n))))
+
+(defcfun reset-reg-stack (&optional %1)
+	;%1 = reserved slots
+	(setq %1 (if %1 %1 0) *s* 0 *r* 0)
+	(while (lt *s* %1)
+		(set (type-sym *s*) nil)
+		(setq *s* (inc *s*))))
+
+(defcfun res-reg-def (%1)
+	;%1 = 'rX'
+	(set (vreg-sym *r*) %1 (type-sym *r*) nil)
+	(setq *r* (inc *r*)))
+
+(defcfun add-reg-def (%1)
+	;%1 = rX
+	(defq i 0)
+	(while (and (lt i *r*) (not (eql (eval (vreg-sym i)) %1)))
+		(setq i (inc i)))
+	(when (eq i *r*)
+		(set (vreg-sym i) %1)
+		(setq *r* (inc *r*))))
+
+(defcfun fill-reg-def ()
+	(add-reg-def r0)
+	(add-reg-def r1)
+	(add-reg-def r2)
+	(add-reg-def r3)
+	(add-reg-def r5)
+	(add-reg-def r6)
+	(add-reg-def r7)
+	(add-reg-def r8)
+	(add-reg-def r9)
+	(add-reg-def r10)
+	(add-reg-def r11)
+	(add-reg-def r12)
+	(add-reg-def r13)
+	(add-reg-def r14)
+	(add-reg-def r15))
+
+(defcfun undef-reg-def ()
+	(defq i 0)
+	(while (lt i *r*)
+		(set (vreg-sym i) nil (type-sym i) nil)
+		(setq i (inc i))))
 
 (defcfun pop-type (s)
 	(defq u (type-sym s) w (eval u))
@@ -581,7 +625,7 @@
 			(cond
 				((le (ascii "0") (code (elem 0 %1)) (ascii "9"))
 					;number
-					(compile-const %1))
+					(compile-const (to-num %1)))
 				((eql %1 'RXX)
 					;reserved slot
 					(set (type-sym *s*) nil))
@@ -724,26 +768,24 @@
 		(print "Error: Mismatching number of src/dst paramaters !"))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
-		;reset_reg_stack _src_total
-		(setq *s* (length *src*) *inst* (list))
+		(reset-reg-stack (length *src*))
+		(setq *s* (length *src*) *inst* (list 'progn))
 		(each-rev (lambda (x)
 			(set-token-list x)
 			(token-to-rpn)
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
 		;(opt-inst-list)
-		;%assign %%n 0
-		;%rep _src_total
-		;	res_reg_def _src_%[%%n]
-		;	%assign %%n %%n + 1
-		;%endrep
-		;fill_reg_def
-		;emit_inst_list {retire: %1 => %2}
+		(defq i 0)
+		(while (lt i (length *src*))
+			(res-reg-def (elem i *src*))
+			(setq i (inc i)))
+		(fill-reg-def)
 		(when debug_emit
 			(print "(retire " %1 " {" %2 "})")
 			(each print *inst*))
-		;undef_reg_def
-))
+		(eval *inst*)
+		(undef-reg-def)))
 
 (defcfun expr (%1 %2)
 	(set-src (map trim (split %1 (code ","))))
@@ -752,8 +794,8 @@
 		(print "Error: Mismatching number of src/dst paramaters !"))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
-		;reset_reg_stack
-		(setq *s* 0 *inst* (list))
+		(reset-reg-stack)
+		(setq *s* 0 *inst* (list 'progn))
 		(each (lambda (x)
 			(set-token-list x)
 			(token-to-rpn)
@@ -761,17 +803,16 @@
 			(pop-value)
 			(setq *s* (inc *s*))) *src*)
 		;(opt-inst-list)
-		;%assign %%n 0
-		;%rep _dst_total
-		;	res_reg_def _dst_%[%%n]
-		;	%assign %%n %%n + 1
-		;%endrep
-		;fill_reg_def
+		(defq i 0)
+		(while (lt i (length *dst*))
+			(res-reg-def (elem i *dst*))
+			(setq i (inc i)))
+		(fill-reg-def)
 		(when debug_emit
 			(print "(expr {" %1 "} " %2 ")")
 			(each print *inst*))
-		;undef_reg_def
-))
+		(eval *inst*)
+		(undef-reg-def)))
 
 (defcfun assign (%1 %2)
 	(set-src (map trim (split %1 (code ","))))
@@ -780,8 +821,8 @@
 		(print "Error: Mismatching number of src/dst paramaters !"))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
-		;reset_reg_stack
-		(setq *s* 0 *inst* (list))
+		(reset-reg-stack)
+		(setq *s* 0 *inst* (list 'progn))
 		(each (lambda (x)
 			(set-token-list x)
 			(token-to-rpn)
@@ -792,9 +833,9 @@
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
 		;(opt-inst-list)
-		;fill_reg_def
+		(fill-reg-def)
 		(when debug_emit
 			(print "(assign {" %1 "} {" %2 "})")
 			(each print *inst*))
-		;undef_reg_def
-))
+		(eval *inst*)
+		(undef-reg-def)))

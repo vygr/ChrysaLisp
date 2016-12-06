@@ -11,9 +11,5 @@
 (import 'class/string/new.vp)
 (import 'class/string/ref_element.vp)
 (import 'class/string/slice.vp)
-
-;need C-Script
-(when nil
-(import 'class/string/create_from_long.vp)
 (import 'class/string/split.vp)
-)
+;(import 'class/string/create_from_long.vp)

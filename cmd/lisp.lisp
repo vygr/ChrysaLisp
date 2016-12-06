@@ -212,6 +212,16 @@
 (defun to-base-char (x)
 	(elem x "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
 
+(defun from-base-char (c)
+	(setq c (code c))
+	(cond
+		((ge c (ascii "a"))
+			(sub c (ascii "a") -10))
+		((ge c (ascii "A"))
+			(sub c (ascii "A") -10))
+		(t
+			(sub c (ascii "0")))))
+
 (defun prin-base (x b j)
 	(defun prin-b (x j)
 		(if (or (ne j 1) (ne 0 (div x b)))
@@ -242,6 +252,22 @@
 
 (defun trim (s)
 	(trim-start (trim-end s)))
+
+(defun to-num (s)
+	(defq n 0 b 10)
+	(when (gt (length s) 1)
+		(defq i (elem 1 s))
+		(cond
+			((eql i "x")
+				(setq b 16 s (slice 2 -1 s)))
+			((eql i "o")
+				(setq b 8 s (slice 2 -1 s)))
+			((eql i "b")
+				(setq b 2 s (slice 2 -1 s)))))
+	(defq i 0)
+	(while (lt i (length s))
+		(setq n (add (mul n b) (from-base-char (elem i s))) i (inc i)))
+	n)
 
 ;;;;;;;;;;;;;;
 ; VP Assembler
