@@ -64,7 +64,7 @@
 			(vpif '(r0 == 0))
 				;no such function
 				(vp-lea-p 'bind_error r0)
-				(sys-write-string 2 r0 '(sub bind_error_end bind_error))
+				(sys-write-string 2 r0 `(sub ,(label-sym 'bind_error_end) ,(label-sym 'bind_error)))
 				(vp-cpy-ir r4 (mul ptr_size 2) r0)
 				(vp-add-ir r0 0 r0)
 				(vp-call 'string_skip)
@@ -190,7 +190,7 @@
 (when list_loaded
 	;print loaded function name
 	(vp-lea-p 'loaded_name r0)
-	(sys-write-string 2 r0 '(sub loaded_name_end loaded_name))
+	(sys-write-string 2 r0 `(sub ,(label-sym 'loaded_name_end) ,(label-sym 'loaded_name)))
 	(vp-cpy-rr r7 r0)
 	(vp-call 'string_skip)
 	(vp-lea-i r0 -1 r1)
@@ -216,7 +216,7 @@
 	(vp-cpy-ir-ui r3 fn_header_length r0)
 	(vpif '(r0 != (r2 stat_fsize)))
 		(vp-lea-p 'size_error r0)
-		(sys-write-string 2 r0 '(sub size_error_end size_error))
+		(sys-write-string 2 r0 `(sub ,(label-sym 'size_error_end) ,(label-sym 'size_error)))
 		(sys-exit 1)
 	(endif)
 
@@ -248,7 +248,7 @@
 	(vp-lea-i r8 ld_statics_size r2)
 	(vpif '(r1 > r2))
 		(vp-lea-p 'reloc_error r0)
-		(sys-write-string 2 r0 '(sub reloc_error_end reloc_error))
+		(sys-write-string 2 r0 `(sub ,(label-sym 'reloc_error_end) ,(label-sym 'reloc_error)))
 		(sys-exit 1)
 	(endif)
 
@@ -285,7 +285,7 @@
 		(vpif '(r0 == 0))
 			;no such file
 			(vp-lea-p 'bind_error r0)
-			(sys-write-string 2 r0 '(sub bind_error_end bind_error))
+			(sys-write-string 2 r0 `(sub ,(label-sym 'bind_error_end) ,(label-sym 'bind_error)))
 			(vp-cpy-ir r4 0 r0)
 			(vp-cpy-ir r0 0 r0)
 			(vp-call 'string_skip)
