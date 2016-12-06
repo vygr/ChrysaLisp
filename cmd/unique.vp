@@ -20,7 +20,7 @@
 	(func-call 'slave 'create {} {slave})
 	(vpif {slave})
 		;create string set
-		(func-call 'unordered_set 'create {@ class/string/compare, 31} {set})
+		(func-call 'unordered_set 'create {@class/string/compare, 31} {set})
 
 		;arg 1 is command name
 		(func-call 'slave 'get_args {slave} {args})
@@ -36,7 +36,7 @@
 		(else)
 			;from stdin
 			(loop-start)
-				(func-call 'stream 'read_line {slave -> slave_stdin, & buffer, buffer_size} {length})
+				(func-call 'stream 'read_line {slave->slave_stdin, & buffer, buffer_size} {length})
 				(breakif {length == -1})
 				(func-call 'string 'create_from_buffer {& buffer, length} {arg})
 				(func-call 'unordered_set 'insert {set, arg} {_, _})
@@ -45,7 +45,7 @@
 		(endif)
 
 		;output string set
-		(func-call 'unordered_set 'for_each {set, $ callback, slave} {_, _})
+		(func-call 'unordered_set 'for_each {set, $callback, slave} {_, _})
 		(func-call 'unordered_set 'deref {set})
 
 		;clean up
@@ -68,8 +68,8 @@
 	(push-scope)
 	(retire '(r0 r1) {pdata, iter})
 
-	(func-call 'stream 'write {pdata -> slave_stdout, & ( * iter ) -> string_data, ( * iter ) -> string_length})
-	(func-call 'stream 'write_char {pdata -> slave_stdout, char_lf})
+	(func-call 'stream 'write {pdata->slave_stdout, & ( * iter )->string_data, (* iter)->string_length})
+	(func-call 'stream 'write_char {pdata->slave_stdout, char_lf})
 
 	(expr {1} '(r1))
 	(pop-scope)

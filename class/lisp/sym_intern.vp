@@ -16,7 +16,7 @@
 	(push-scope)
 	(retire '(r0 r1) {this, symbol})
 
-	(func-call 'unordered_set 'insert {this -> lisp_symbols, symbol} {iter, _})
+	(func-call 'unordered_set 'insert {this->lisp_symbols, symbol} {iter, _})
 	(func-call 'ref 'deref {symbol})
 	(assign {* iter} {symbol})
 	(func-call 'ref 'ref {symbol})

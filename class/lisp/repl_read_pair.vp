@@ -27,12 +27,12 @@
 	(func-call 'stream 'read_char {stream} {char})
 
 	(func-call 'lisp 'repl_read {this, stream, char} {first, char})
-	(vpif {first -> obj_vtable == @class/class_error})
+	(vpif {first->obj_vtable == @class/class_error})
 		(assign {first} {pair})
 		goto error
 	(endif)
 	(func-call 'lisp 'repl_read {this, stream, char} {second, char})
-	(vpif {second -> obj_vtable == @class/class_error})
+	(vpif {second->obj_vtable == @class/class_error})
 		(func-call 'ref 'deref {first})
 		(assign {second} {pair})
 		goto error
@@ -49,7 +49,7 @@
 	(else)
 		(func-call 'ref 'deref {second})
 		(func-call 'ref 'deref {first})
-		(func-call 'error 'create {"expected >", this -> lisp_sym_nil} {pair})
+		(func-call 'error 'create {"expected >", this->lisp_sym_nil} {pair})
 	(endif)
 (vp-label 'error)
 	(expr {this, pair, char} '(r0 r1 r2))

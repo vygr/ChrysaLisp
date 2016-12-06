@@ -15,7 +15,7 @@
 	(vpif {slave})
 		;dump stdin till EOF
 		(loop-start)
-			(virt-call 'stream 'read_next {slave -> slave_stdin} {eof})
+			(virt-call 'stream 'read_next {slave->slave_stdin} {eof})
 		(loop-until {eof == -1})
 
 		;clean up

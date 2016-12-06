@@ -19,7 +19,7 @@
 	(retire '(r0 r1) {this, form})
 
 	;evaluate based on type
-	(assign {form -> obj_vtable} {func})
+	(assign {form->obj_vtable} {func})
 	(switch)
 	(case {func == @class/class_symbol})
 		;eval to symbol value
@@ -29,18 +29,18 @@
 		(devirt-call 'vector 'get_length {form} {length})
 		(vpifnot '(length))
 			;eval to nil
-			(assign {this -> lisp_sym_nil} {value})
+			(assign {this->lisp_sym_nil} {value})
 			(func-call 'ref 'ref {value})
 		(else)
 			;apply function, eval args if needed
 			(func-call 'vector 'get_element {form, 0} {func})
 			(func-call 'lisp 'repl_eval {this, func} {value})
-			(breakif {value -> obj_vtable == @class/class_error})
+			(breakif {value->obj_vtable == @class/class_error})
 			(assign {value} {func})
 			(switch)
-			(case {func -> obj_vtable == @class/class_boxed_ptr})
-				(gotoifnot {func -> boxed_ptr_flags} 'args_eval_apply)
-				(vpif {func -> boxed_ptr_flags == type_apply})
+			(case {func->obj_vtable == @class/class_boxed_ptr})
+				(gotoifnot {func->boxed_ptr_flags} 'args_eval_apply)
+				(vpif {func->boxed_ptr_flags == type_apply})
 					(func-call 'lisp 'repl_apply {this, func, form} {value})
 				(else) ;type_args_apply
 					(devirt-call 'vector 'slice {form, 1, length} {args})
@@ -52,7 +52,7 @@
 			(vp-label 'args_eval_apply)
 				(devirt-call 'vector 'slice {form, 1, length} {args})
 				(func-call 'lisp 'repl_eval_list {this, args, 0} {value})
-				(vpif {value -> obj_vtable != @class/class_error})
+				(vpif {value->obj_vtable != @class/class_error})
 					(func-call 'ref 'deref {value})
 					(func-call 'lisp 'repl_apply {this, func, args} {value})
 				(endif)

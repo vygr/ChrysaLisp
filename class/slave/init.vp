@@ -27,21 +27,21 @@
 		;init myself
 		(func-call 'sys_task 'mailbox {} {mymailbox, _})
 		(func-call 'sys_mail 'read {mymailbox} {msg})
-		(vpif {msg -> msg_length != msg_header_size})
+		(vpif {msg->msg_length != msg_header_size})
 			;create stdin, stdout, stderr
-			(func-call 'stream_msg_in 'create {mymailbox} {inst -> slave_stdin})
-			(func-call 'stream_msg_out 'create {msg -> slave_mail_init_stdout_id . id_mbox, msg -> slave_mail_init_stdout_id . id_cpu} {inst -> slave_stdout})
-			(func-call 'stream_msg_out 'create {msg -> slave_mail_init_stderr_id . id_mbox, msg -> slave_mail_init_stderr_id . id_cpu} {inst -> slave_stderr})
+			(func-call 'stream_msg_in 'create {mymailbox} {inst->slave_stdin})
+			(func-call 'stream_msg_out 'create {msg->slave_mail_init_stdout_id.id_mbox, msg->slave_mail_init_stdout_id.id_cpu} {inst->slave_stdout})
+			(func-call 'stream_msg_out 'create {msg->slave_mail_init_stderr_id.id_mbox, msg->slave_mail_init_stderr_id.id_cpu} {inst->slave_stderr})
 
 			;create args
-			(func-call 'stream 'create {0, 0, & msg -> slave_mail_init_args, msg -> msg_length - slave_mail_init_size} {stream})
-			(func-call 'stream 'split {stream, space_char} {inst -> slave_args})
+			(func-call 'stream 'create {0, 0, & msg->slave_mail_init_args, msg->msg_length - slave_mail_init_size} {stream})
+			(func-call 'stream 'split {stream, space_char} {inst->slave_args})
 			(func-call 'stream 'deref {stream})
 
 			;send back ack
-			(assign {msg -> slave_mail_init_ack_id . id_mbox} {msg -> msg_dest . id_mbox})
-			(assign {msg -> slave_mail_init_ack_id . id_cpu} {msg -> msg_dest . id_cpu})
-			(assign {msg_header_size} {msg -> msg_length})
+			(assign {msg->slave_mail_init_ack_id.id_mbox} {msg->msg_dest.id_mbox})
+			(assign {msg->slave_mail_init_ack_id.id_cpu} {msg->msg_dest.id_cpu})
+			(assign {msg_header_size} {msg->msg_length})
 			(func-call 'sys_mail 'send {msg})
 		(else)
 			;abort

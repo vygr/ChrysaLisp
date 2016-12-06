@@ -22,7 +22,7 @@
 	(super-call 'master 'init {inst, vtable} {error})
 	(vpif {error != 0})
 		;init state
-		(assign {stream_mail_state_stopped} {inst -> master_state})
+		(assign {stream_mail_state_stopped} {inst->master_state})
 	(endif)
 
 	(expr {inst, error} '(r0 r1))

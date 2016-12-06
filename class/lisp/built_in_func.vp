@@ -20,7 +20,7 @@
 	(func-call 'boxed_ptr 'create {} {func})
 	(func-call 'boxed_ptr 'set_value {func, func_ptr})
 	(func-call 'boxed_ptr 'set_flags {func, func_flags})
-	(func-call 'unordered_map 'insert {this -> lisp_enviroment, symbol, func} {_, _})
+	(func-call 'unordered_map 'insert {this->lisp_enviroment, symbol, func} {_, _})
 	(func-call 'ref 'deref {func})
 
 	(expr {this} '(r0))

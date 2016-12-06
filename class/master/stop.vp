@@ -15,7 +15,7 @@
 
 	(push-scope)
 	(retire '(r0) {inst})
-	(vpif {inst -> master_state != stream_mail_state_stopped})
+	(vpif {inst->master_state != stream_mail_state_stopped})
 		;flush remaining
 		(func-call 'master 'get_input {inst} {stream})
 		(virt-call 'stream_msg_out 'write_flush {stream})
@@ -31,23 +31,23 @@
 		(virt-call 'stream_msg_out 'write_flush {stream})
 
 		;wait for all stopped, starting with the pipe output, then the error streams
-		(devirt-call 'vector 'get_length {inst -> master_streams} {length})
+		(devirt-call 'vector 'get_length {inst->master_streams} {length})
 		(loop-start)
 			(assign {length - 1} {length})
 			(breakifnot {length})
-			(assign {(inst -> master_streams -> vector_array) [ length * ptr_size ]} {stream})
+			(assign {(inst->master_streams->vector_array)[length * ptr_size]} {stream})
 			(loop-start)
 				(virt-call 'stream_msg_in 'read_next {stream} {_})
-			(loop-until {stream -> stream_msg_in_state == stream_mail_state_stopped})
+			(loop-until {stream->stream_msg_in_state == stream_mail_state_stopped})
 		(loop-end)
 
 		;free streams, select and mailbox array
-		(func-call 'vector 'deref {inst -> master_streams})
-		(func-call 'sys_mem 'free {inst -> master_select_array})
-		(func-call 'sys_mem 'free {inst -> master_mailbox_array})
+		(func-call 'vector 'deref {inst->master_streams})
+		(func-call 'sys_mem 'free {inst->master_select_array})
+		(func-call 'sys_mem 'free {inst->master_mailbox_array})
 
 		;stop state
-		(assign {stream_mail_state_stopped} {inst -> master_state})
+		(assign {stream_mail_state_stopped} {inst->master_state})
 	(endif)
 
 	(expr {inst} '(r0))

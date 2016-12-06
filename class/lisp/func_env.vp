@@ -15,7 +15,7 @@
 	(push-scope)
 	(retire '(r0 r1) '(this, args))
 
-	(assign {this -> lisp_enviroment} {args})
+	(assign {this->lisp_enviroment} {args})
 	(func-call 'ref 'ref {args})
 
 	(expr {this, args} '(r0 r1))

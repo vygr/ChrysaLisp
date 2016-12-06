@@ -415,7 +415,7 @@
 	(setq *token* (list))
 	(defq m -1 u 1 i 0 p "" s nil c nil)
 	(while (lt i (length l))
-		(setq c (elem i l) s (inc (find {@$"-*~!+.?^</%&|=> )(][} c))) ;"
+		(setq c (elem i l) s (inc (find {@$"-*~!+.?^</%&|=>)(][} c))) ;"
 		(cond
 			((eq m -1)
 				;scanning

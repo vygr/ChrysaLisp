@@ -19,7 +19,7 @@
 	;init app vars
 	(push-scope)
 	(func-path 'class 'obj)
-	(func-call 'obj 'init {& myapp, @ _function_} {_})
+	(func-call 'obj 'init {& myapp, @_function_} {_})
 
 	;create my window
 	(func-call 'window 'create {} {window})
@@ -35,7 +35,7 @@
 	(func-call 'flow 'add_back {panel, window_panel})
 
 	;add launch buttons to my app panel
-	(assign {$ launch_list} {next})
+	(assign {$launch_list} {next})
 	(loop-while {* next})
 		(func-call 'button 'create {} {button})
 		(func-call 'button 'set_color {button, 0xffffff00})
@@ -43,7 +43,7 @@
 		(func-call 'button 'set_text {button, string})
 		(func-call 'button 'add_back {button, panel})
 		(func-call 'button 'sig_pressed {button} {pressed})
-		(func-call 'button 'connect {button, pressed, & myapp, $ on_press})
+		(func-call 'button 'connect {button, pressed, & myapp, $on_press})
 
 		(func-call 'sys_string 'length {next} {length})
 		(assign {next + length + 1} {next})
@@ -66,7 +66,7 @@
 		(func-call 'sys_mail 'mymail {} {msg})
 
 		;dispatch event to view
-		(virt-call 'view 'event {msg -> ev_msg_view, msg})
+		(virt-call 'view 'event {msg->ev_msg_view, msg})
 
 		;free event message
 		(func-call 'sys_mem 'free {msg})

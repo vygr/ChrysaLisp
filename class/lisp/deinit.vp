@@ -13,9 +13,9 @@
 	(retire '(r0) '(this))
 
 	;deinit myself
-	(func-call 'ref 'deref {this -> lisp_symbols})
-	(func-call 'ref 'deref {this -> lisp_enviroment})
-	(func-call 'ref 'deref {this -> lisp_macros})
+	(func-call 'ref 'deref {this->lisp_symbols})
+	(func-call 'ref 'deref {this->lisp_enviroment})
+	(func-call 'ref 'deref {this->lisp_macros})
 
 	;deinit parent
 	(super-call 'lisp 'deinit {this})

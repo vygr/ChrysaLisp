@@ -27,7 +27,7 @@
 	(retire '(r0 r1 r2) {this, stream, char})
 
 	(func-path 'sys_load 'statics)
-	(assign {@ _function_ . ld_statics_reloc_buffer} {reloc})
+	(assign {@_function_.ld_statics_reloc_buffer} {reloc})
 	(assign {reloc} {buffer})
 
 	(loop-while {char > char_space && char != char_lb && char != char_rb && char != char_quote})

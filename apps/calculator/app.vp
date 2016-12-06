@@ -31,11 +31,11 @@
 	;init app vars
 	(push-scope)
 	(func-path 'class 'obj)
-	(func-call 'obj 'init {& myapp, @ _function_} {_})
-	(assign {0} {myapp . shared_accum})
-	(assign {0} {myapp . shared_value})
-	(assign {0} {myapp . shared_last_op})
-	(assign {0} {myapp . shared_last_flag})
+	(func-call 'obj 'init {& myapp, @_function_} {_})
+	(assign {0} {myapp.shared_accum})
+	(assign {0} {myapp.shared_value})
+	(assign {0} {myapp.shared_last_op})
+	(assign {0} {myapp.shared_last_flag})
 
 	;create my window
 	(func-call 'window 'create {} {window})
@@ -51,13 +51,13 @@
 	(func-call 'flow 'add_back {flow_panel, window_panel})
 
 	;add my display label
-	(func-call 'label 'create {} {myapp . shared_display})
-	(func-call 'label 'set_color {myapp . shared_display, 0xffffffff})
-	(func-call 'label 'set_flow_flags {myapp . shared_display, flow_flag_align_hright | flow_flag_align_vcenter})
-	(func-call 'label 'set_font {myapp . shared_display, "fonts/OpenSans-Regular.ttf", 24})
+	(func-call 'label 'create {} {myapp.shared_display})
+	(func-call 'label 'set_color {myapp.shared_display, 0xffffffff})
+	(func-call 'label 'set_flow_flags {myapp.shared_display, flow_flag_align_hright | flow_flag_align_vcenter})
+	(func-call 'label 'set_font {myapp.shared_display, "fonts/OpenSans-Regular.ttf", 24})
 	(func-call 'string 'create_from_cstr {"0"} {string})
-	(func-call 'label 'set_text {myapp . shared_display, string})
-	(func-call 'label 'add_back {myapp . shared_display, flow_panel})
+	(func-call 'label 'set_text {myapp.shared_display, string})
+	(func-call 'label 'add_back {myapp.shared_display, flow_panel})
 
 	;add my app grid panel
 	(func-call 'grid 'create {} {grid_panel})
@@ -65,7 +65,7 @@
 	(func-call 'grid 'add_back {grid_panel, flow_panel})
 
 	;add buttons to my grid panel
-	(assign {$ button_list} {next})
+	(assign {$button_list} {next})
 	(loop-while {* next})
 		(func-call 'button 'create {} {button})
 		(func-call 'button 'set_color {button, 0xffffff00})
@@ -74,7 +74,7 @@
 		(func-call 'button 'set_flow_flags {button, flow_flag_align_hcenter | flow_flag_align_vcenter})
 		(func-call 'button 'add_back {button, grid_panel})
 		(func-call 'button 'sig_pressed {button} {pressed})
-		(func-call 'button 'connect {button, pressed, & myapp, $ on_press})
+		(func-call 'button 'connect {button, pressed, & myapp, $on_press})
 
 		(func-call 'sys_string 'length {next} {length})
 		(assign {next + length + 1} {next})
@@ -97,7 +97,7 @@
 		(func-call 'sys_mail 'mymail {} {msg})
 
 		;dispatch event to view
-		(virt-call 'view 'event {msg -> ev_msg_view, msg})
+		(virt-call 'view 'event {msg->ev_msg_view, msg})
 
 		;free event message
 		(func-call 'sys_mem 'free {msg})
@@ -131,72 +131,72 @@
 	(push-scope)
 	(retire '(r0 r1) {inst, button})
 	(func-call 'button 'get_text {button} {button_string})
-	(vpif {button_string -> string_length == 2})
+	(vpif {button_string->string_length == 2})
 		;AC
 		(func-call 'string 'create_from_cstr {"0"} {string})
-		(func-call 'label 'set_text {inst -> shared_display, string})
-		(assign {0} {inst -> shared_accum})
-		(assign {0} {inst -> shared_value})
-		(assign {0} {inst -> shared_last_op})
-		(assign {0} {inst -> shared_last_flag})
+		(func-call 'label 'set_text {inst->shared_display, string})
+		(assign {0} {inst->shared_accum})
+		(assign {0} {inst->shared_value})
+		(assign {0} {inst->shared_last_op})
+		(assign {0} {inst->shared_last_flag})
 	(else)
-		(func-call 'label 'get_text {inst -> shared_display} {display_string})
-		(assign {& button_string -> string_data} {charp})
+		(func-call 'label 'get_text {inst->shared_display} {display_string})
+		(assign {& button_string->string_data} {charp})
 		(assign {* charp} {char})
 		(vpif {char >= char_zero && char <= char_nine})
 			;numeral
-			(assign {& display_string -> string_data} {charp})
+			(assign {& display_string->string_data} {charp})
 			(assign {* charp} {char})
-			(vpif {char == char_zero || inst -> shared_last_flag == 0})
+			(vpif {char == char_zero || inst->shared_last_flag == 0})
 				;clear it
 				(func-call 'string 'deref {display_string})
 				(func-call 'string 'create_from_cstr {""} {display_string})
-				(assign {1} {inst -> shared_last_flag})
+				(assign {1} {inst->shared_last_flag})
 			(endif)
 			;append numeral
 			(func-call 'string 'append {display_string, button_string} {string})
-			(func-call 'sys_string 'to_long {& string -> string_data, 10} {inst -> shared_value})
+			(func-call 'sys_string 'to_long {& string->string_data, 10} {inst->shared_value})
 		(else)
 			;operator
-			(vpif {inst -> shared_last_op == char_plus})
+			(vpif {inst->shared_last_op == char_plus})
 				;+
-				(assign {inst -> shared_accum + inst -> shared_value} {inst -> shared_accum})
-			(elseif {inst -> shared_last_op == char_minus})
+				(assign {inst->shared_accum + inst->shared_value} {inst->shared_accum})
+			(elseif {inst->shared_last_op == char_minus})
 				;-
-				(assign {inst -> shared_accum - inst -> shared_value} {inst -> shared_accum})
-			(elseif {inst -> shared_last_op == char_multiply})
+				(assign {inst->shared_accum - inst->shared_value} {inst->shared_accum})
+			(elseif {inst->shared_last_op == char_multiply})
 				;*
-				(assign {inst -> shared_accum * inst -> shared_value} {inst -> shared_accum})
-			(elseif {inst -> shared_last_op == char_divide && inst -> shared_value != 0})
+				(assign {inst->shared_accum * inst->shared_value} {inst->shared_accum})
+			(elseif {inst->shared_last_op == char_divide && inst->shared_value != 0})
 				;/
-				(assign {inst -> shared_accum // inst -> shared_value} {inst -> shared_accum})
+				(assign {inst->shared_accum // inst->shared_value} {inst->shared_accum})
 			(else)
 				;equals
-				(assign {inst -> shared_value} {inst -> shared_accum})
+				(assign {inst->shared_value} {inst->shared_accum})
 			(endif)
 			(vpif {char != char_equal})
-				(assign {char} {inst -> shared_last_op})
+				(assign {char} {inst->shared_last_op})
 			(endif)
-			(assign {0} {inst -> shared_last_flag})
-			(vpif {inst -> shared_accum < 0})
+			(assign {0} {inst->shared_last_flag})
+			(vpif {inst->shared_accum < 0})
 				;negative accum
-				(func-call 'sys_string 'from_long {- inst -> shared_accum, & inst -> shared_buffer, 10})
+				(func-call 'sys_string 'from_long {- inst->shared_accum, & inst->shared_buffer, 10})
 				(func-call 'string 'create_from_cstr {"-"} {string1})
-				(func-call 'string 'create_from_cstr {& inst -> shared_buffer} {string2})
+				(func-call 'string 'create_from_cstr {& inst->shared_buffer} {string2})
 				(func-call 'string 'append {string1, string2} {string})
 				(func-call 'string 'deref {string1})
 				(func-call 'string 'deref {string2})
 			(else)
 				;positive accum
-				(func-call 'sys_string 'from_long {inst -> shared_accum, & inst -> shared_buffer, 10})
-				(func-call 'string 'create_from_cstr {& inst -> shared_buffer} {string})
+				(func-call 'sys_string 'from_long {inst->shared_accum, & inst->shared_buffer, 10})
+				(func-call 'string 'create_from_cstr {& inst->shared_buffer} {string})
 			(endif)
 		(endif)
-		(func-call 'label 'set_text {inst -> shared_display, string})
+		(func-call 'label 'set_text {inst->shared_display, string})
 		(func-call 'string 'deref {display_string})
 	(endif)
 	(func-call 'string 'deref {button_string})
-	(func-call 'label 'dirty {inst -> shared_display})
+	(func-call 'label 'dirty {inst->shared_display})
 	(pop-scope)
 	(return)
 

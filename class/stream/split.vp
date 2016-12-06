@@ -28,9 +28,9 @@
 	;fill vector with splits
 	(loop-start)
 		(func-call 'stream 'skip {inst, char})
-		(assign {inst -> stream_bufp} {start})
+		(assign {inst->stream_bufp} {start})
 		(func-call 'stream 'skip_not {inst, char})
-		(assign {inst -> stream_bufp - start} {length})
+		(assign {inst->stream_bufp - start} {length})
 		(breakif {length == 0})
 		(func-call 'string 'create_from_buffer {start, length} {string})
 		(func-call 'vector 'push_back {splits, string})

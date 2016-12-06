@@ -20,7 +20,7 @@
 	(vpif {slave})
 		;set up input stream stack
 		(func-call 'string 'create_from_file {"cmd/forth.f"} {string})
-		(func-call 'stream 'create {string, 0, & string -> string_data, string -> string_length} {stream})
+		(func-call 'stream 'create {string, 0, & string->string_data, string->string_length} {stream})
 		(func-call 'vector 'create {} {vector})
 		(func-call 'vector 'push_back {vector, stream})
 
@@ -42,7 +42,7 @@
 			(loop-end)
 
 			;read stdin, exit if EOF
-			(func-call 'stream 'read_line {slave -> slave_stdin, & buffer, buffer_size} {length})
+			(func-call 'stream 'read_line {slave->slave_stdin, & buffer, buffer_size} {length})
 			(breakif {length == -1})
 			(local-call 'input {slave, &buffer, length} '(r0, r1, r2))
 		(loop-end)
@@ -68,9 +68,9 @@
 	(push-scope)
 	(retire '(r0 r1 r2) {slave, buffer, length})
 
-	(func-call 'stream 'write {slave -> slave_stdout, buffer, length})
-	(func-call 'stream 'write_char {slave -> slave_stdout, char_lf})
-	(virt-call 'stream 'write_flush {slave -> slave_stdout})
+	(func-call 'stream 'write {slave->slave_stdout, buffer, length})
+	(func-call 'stream 'write_char {slave->slave_stdout, char_lf})
+	(virt-call 'stream 'write_flush {slave->slave_stdout})
 	(func-call 'sys_task 'yield)
 
 	(pop-scope)

@@ -10,14 +10,14 @@
 	(loop-start)
 		;read mail command
 		(func-call 'sys_mail 'mymail {} {msg})
-		(breakifnot {msg -> sample_msg_command})
+		(breakifnot {msg->sample_msg_command})
 
 		;sample command
-		(func-call 'sys_task 'count {} {msg -> sample_msg_task_count})
-		(func-call 'sys_mem 'used {} {msg -> sample_msg_mem_used})
-		(assign {msg -> sample_msg_reply_id . id_mbox} {msg -> msg_dest . id_mbox})
-		(assign {msg -> sample_msg_reply_id . id_cpu} {msg -> msg_dest . id_cpu})
-		(assign {sample_msg_reply_size} {msg -> msg_length})
+		(func-call 'sys_task 'count {} {msg->sample_msg_task_count})
+		(func-call 'sys_mem 'used {} {msg->sample_msg_mem_used})
+		(assign {msg->sample_msg_reply_id.id_mbox} {msg->msg_dest.id_mbox})
+		(assign {msg->sample_msg_reply_id.id_cpu} {msg->msg_dest.id_cpu})
+		(assign {sample_msg_reply_size} {msg->msg_length})
 		(func-call 'sys_mail 'send {msg})
 
 		;be friendly

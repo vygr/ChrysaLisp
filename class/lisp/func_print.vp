@@ -18,7 +18,7 @@
 	(retire '(r0 r1) {this, args})
 
 	(func-call 'lisp 'func_prin {this, args} {args})
-	(func-call 'stream 'write_char {this -> lisp_stdout, char_lf})
+	(func-call 'stream 'write_char {this->lisp_stdout, char_lf})
 
 	(expr {this, args} '(r0 r1))
 	(pop-scope)

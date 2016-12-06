@@ -24,11 +24,11 @@
 	(func-call 'stream 'read_char {stream} {char})
 
 	(func-call 'vector 'create {} {list})
-	(assign {this -> lisp_sym_quote} {elem})
+	(assign {this->lisp_sym_quote} {elem})
 	(func-call 'ref 'ref {elem})
 	(func-call 'vector 'push_back {list, elem})
 	(func-call 'lisp 'repl_read {this, stream, char} {elem, char})
-	(vpif {elem -> obj_vtable != @class/class_error})
+	(vpif {elem->obj_vtable != @class/class_error})
 		(func-call 'vector 'push_back {list, elem})
 	(else)
 		(func-call 'ref 'deref {list})

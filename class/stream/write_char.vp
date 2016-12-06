@@ -21,8 +21,8 @@
 		(virt-call 'stream 'write_next {inst})
 		(breakif '((inst -> stream_bufp == inst -> stream_bufe)))
 	(default)
-		(assign {char} {* inst -> stream_bufp})
-		(assign {inst -> stream_bufp + 1} {inst -> stream_bufp})
+		(assign {char} {* inst->stream_bufp})
+		(assign {inst->stream_bufp + 1} {inst->stream_bufp})
 	(endswitch)
 
 	(expr {inst} '(r0))

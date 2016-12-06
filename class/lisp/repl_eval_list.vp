@@ -19,7 +19,7 @@
 	(retire '(r0 r1 r2) {this, list, index})
 
 	(devirt-call 'vector 'get_length {list} {length})
-	(func-call 'vector 'for_each {list, index, length, $ callback, this} {iter})
+	(func-call 'vector 'for_each {list, index, length, $callback, this} {iter})
 	(vpif {iter})
 		(assign {* iter} {list})
 	(endif)
@@ -46,7 +46,7 @@
 	(func-call 'ref 'deref {* iter})
 	(assign {pdata} {* iter})
 
-	(expr {pdata -> obj_vtable != @ class/class_error} '(r1))
+	(expr {pdata->obj_vtable != @class/class_error} '(r1))
 	(pop-scope)
 	(return)
 

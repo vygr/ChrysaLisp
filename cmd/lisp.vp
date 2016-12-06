@@ -18,7 +18,7 @@
 	(func-call 'slave 'create {} {slave})
 	(vpif {slave})
 		;create lisp class and repl args
-		(func-call 'lisp 'create {slave -> slave_stdin, slave -> slave_stdout, slave -> slave_stderr} {lisp})
+		(func-call 'lisp 'create {slave->slave_stdin, slave->slave_stdout, slave->slave_stderr} {lisp})
 		(func-call 'vector 'create {} {repl_args})
 
 		;run any lisp.lisp
@@ -38,7 +38,7 @@
 		(assign {1} {index})
 		(loop-while {index != argc})
 			(func-call 'vector 'get_element {args, index} {arg})
-			(func-call 'string 'create_from_file {& arg -> string_data} {file})
+			(func-call 'string 'create_from_file {& arg->string_data} {file})
 			(vpif {file})
 				;REPL from file stream
 				(func-call 'stream_str 'create {file} {stream})
@@ -51,8 +51,8 @@
 		(loop-end)
 
 		;REPL from stdin
-		(func-call 'ref 'ref {lisp -> lisp_stdin})
-		(func-call 'vector 'push_back {repl_args, lisp -> lisp_stdin})
+		(func-call 'ref 'ref {lisp->lisp_stdin})
+		(func-call 'vector 'push_back {repl_args, lisp->lisp_stdin})
 		(func-call 'lisp 'func_repl {lisp, repl_args} {value})
 		(func-call 'ref 'deref {value})
 

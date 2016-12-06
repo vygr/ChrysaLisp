@@ -20,7 +20,7 @@
 	(devirt-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
 		(func-call 'vector 'get_element {args, 0} {value})
-		(vpif {value -> obj_vtable == @class/class_symbol})
+		(vpif {value->obj_vtable == @class/class_symbol})
 			(func-call 'lisp 'env_find {this, value} {value, _})
 			(vpif {value})
 				(assign {this->lisp_sym_t} {value})
