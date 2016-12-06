@@ -122,7 +122,7 @@
 				;send abort to any started pipe elements
 				(loop-while {index != 0})
 					(assign {index - 1} {index})
-					(continueif '(ids [ index * id_size ] . id_mbox == 0))
+					(continueif {ids [ index * id_size ] . id_mbox == 0})
 					(func-call 'sys_mail 'alloc {} {msg})
 					(assign {ids [ index * id_size ] . id_mbox} {msg -> msg_dest . id_mbox})
 					(assign {ids [ index * id_size ] . id_cpu} {msg -> msg_dest . id_cpu})

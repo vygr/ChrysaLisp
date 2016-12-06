@@ -62,7 +62,7 @@
 		(loop-while {iter != pdata -> pdata_iter})
 			(assign {iter - ptr_size} {iter})
 			(func-call 'boxed_long 'get_value {* iter} {num1})
-			(continueif '(num != num1))
+			(continueif {num != num1})
 			(func-call 'ref 'deref {pdata -> pdata_value})
 			(assign {pdata -> pdata_this -> lisp_sym_nil} {pdata -> pdata_value})
 			(func-call 'ref 'ref {pdata -> pdata_value})

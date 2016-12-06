@@ -28,7 +28,7 @@
 	(assign {buffer, buffer + buffer_end} {start, buffer_end})
 	(loop-start)
 		(func-call 'stream 'read_char {inst} {char})
-		(continueif '(char == 13))
+		(continueif {char == 13})
 		(breakif {char == 10 || char < 0})
 		(assign {char} {* buffer})
 		(assign {buffer + 1} {buffer})
