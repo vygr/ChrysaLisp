@@ -333,7 +333,7 @@
 
 (defcfun map-remove-ignored ()
 	(defq s (list) d (list))
-	(each (lambda (x y) (unless (or (eql x y) (eql y '_)) (push s x) (push d y))) *src* *dst*)
+	(each (lambda (x y) (unless (or (eql x y) (eql y '_)  (eql y "_")) (push s x) (push d y))) *src* *dst*)
 	(setq *src* s *dst* d))
 
 (defcfun match-any (d s)

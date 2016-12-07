@@ -1,0 +1,651 @@
+(import 'inc/func.inc)
+(import 'inc/task.inc)
+(import 'inc/mail.inc)
+(import 'inc/list.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_string.inc)
+
+(def-func 'sys/task_statics)
+	(times tk_statics_size (vp-byte 0))
+(def-func-end)
+
+(def-func 'sys/task_init)
+	;set up current tcb
+	(f-bind 'sys_task 'statics r3)
+	(vp-lea-i r3 (add tk_statics_task_list lh_list_tail) r15)
+	(vp-cpy-ri r15 r3 tk_statics_current_tcb)
+
+	;init task control block heap
+	(f-call 'sys_heap 'init '((& r3 tk_statics_task_heap) (add tk_node_size ptr_size) (mul (add tk_node_size ptr_size) 16)))
+
+	;init task lists
+	(vp-lea-i r3 tk_statics_task_list r0)
+	(lh-init r0 r1)
+	(vp-lea-i r3 tk_statics_timer_list r0)
+	(lh-init r0 r1)
+
+	;init cpu count, task count and id
+	(vp-cpy-cr 1 r1)
+	(vp-cpy-ri r1 r3 tk_statics_cpu_total)
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r3 tk_statics_cpu_id)
+	(vp-cpy-ri r1 r3 tk_statics_task_count)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/task_deinit)
+
+	;free the task heap
+	(f-bind 'sys_task 'statics r0)
+	(f-jmp 'sys_heap 'deinit '((& r0 tk_statics_task_heap)))
+
+(def-func-end)
+
+(def-func 'sys/task_callback)
+	;inputs
+	;r0 = callback address
+	;r1 = user data address
+	;trashes
+	;all but r4
+
+	;test if we are the kernel task
+	(f-bind 'sys_task 'statics r3)
+	(vp-cpy-ir r3 tk_statics_current_tcb r2)
+	(vpif '(r2 == (r3 tk_statics_kernel_tcb)))
+		;yes we can just do local call
+		(vp-xchg-rr r0 r1)
+		(vp-jmp-r r1)
+	(endif)
+
+	;save task info
+	(vp-cpy-rr r0 r5)
+	(vp-cpy-rr r1 r6)
+
+	;create temp mailbox
+	(ml-temp-create r0 r1)
+
+	;allocate mail message
+	(f-call 'sys_mail 'alloc '() '(r3))
+	(assert '(r0 != 0))
+
+	;fill in destination, reply and function
+	(f-call 'sys_cpu 'id '() '(r0))
+	(vp-cpy-ri r4 r3 kn_msg_reply_id)
+	(vp-cpy-ri r0 r3 (add kn_msg_reply_id 8))
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r3 (add msg_dest id_mbox))
+	(vp-cpy-ri r0 r3 (add msg_dest id_cpu))
+	(vp-cpy-cr kn_call_callback r1)
+	(vp-cpy-ri r1 r3 kn_msg_function)
+	(vp-cpy-ri r5 r3 kn_msg_callback_addr)
+	(vp-cpy-ri r6 r3 kn_msg_user)
+	(vp-cpy-cr kn_msg_callback_size r1)
+	(vp-cpy-ri r1 r3 msg_length)
+
+	;send mail to kernel then wait for reply
+	(f-call 'sys_mail 'send '(r3))
+	(f-call 'sys_mail 'read '(r4) '(r0))
+
+	;free reply mail and temp mailbox
+	(ml-temp-destroy)
+	(f-jmp 'sys_mem 'free '(r0))
+
+(def-func-end)
+
+(def-func 'sys/task_count)
+	;outputs
+	;r0 = task count
+
+	(f-bind 'sys_task 'statics r0)
+	(vp-cpy-ir r0 tk_statics_task_count r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/task_mailbox)
+	;outputs
+	;r0, r1 = current task mailbox id
+
+	(f-bind 'sys_task 'statics r0)
+	(vp-cpy-ir r0 tk_statics_cpu_id r1)
+	(vp-cpy-ir r0 tk_statics_current_tcb r0)
+	(vp-add-cr tk_node_mailbox r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/task_open)
+	;inputs
+	;r0 = name string object
+	;outputs
+	;r0, r1 = mailbox id
+	;trashes
+	;all but r4
+
+	(f-bind 'sys_task 'statics r1)
+	(f-jmp 'sys_task 'open_device '(r0 (r1 tk_statics_cpu_id)))
+
+(def-func-end)
+
+(def-func 'sys/task_open_array)
+	;inputs
+	;r0 = vector of strings
+	;outputs
+	;r0 = array of mailbox id's
+	;trashes
+	;all but r4
+
+	(ptr 'tasks 'ids 'msg 'name)
+	(ulong 'cpu 'index 'length)
+	(struct 'mailbox 'mailbox)
+
+	;save task info
+	(push-scope)
+	(retire '(r0) {tasks})
+
+	;create output array
+	(devirt-call 'vector 'get_length {tasks} {length})
+	(func-call 'sys_mem 'alloc {length * id_size} {ids, _})
+
+	;init temp mailbox
+	(func-call 'sys_mail 'init_mailbox {& mailbox})
+
+	;start all tasks in parallel
+	(func-call 'sys_cpu 'id {} {cpu})
+	(assign {0} {index})
+	(loop-while {index != length})
+		(func-call 'sys_mail 'alloc {} {msg})
+		(assign {(tasks->vector_array)[index * ptr_size]} {name})
+		(assign {name->string_length + 1 + kn_msg_child_size} {msg->msg_length})
+		(assign {0} {msg->msg_dest.id_mbox})
+		(assign {cpu} {msg->msg_dest.id_cpu})
+		(assign {& mailbox} {msg->kn_msg_reply_id.id_mbox})
+		(assign {cpu} {msg->kn_msg_reply_id.id_cpu})
+		(assign {kn_call_task_child} {msg->kn_msg_function})
+		(assign {& ids[index * id_size]} {msg->kn_msg_user})
+		(func-call 'sys_mem 'copy {& name->string_data, & msg->kn_msg_child_pathname, name->string_length + 1} {_, _})
+		(func-call 'sys_mail 'send {msg})
+		(assign {index + 1} {index})
+	(loop-end)
+
+	;wait for replys
+	(loop-while {index != 0})
+		(assign {index - 1} {index})
+		(func-call 'sys_mail 'read {& mailbox} {msg})
+		(assign {msg->kn_msg_reply_id.id_mbox} {msg->kn_msg_user->id_mbox})
+		(assign {msg->kn_msg_reply_id.id_cpu} {msg->kn_msg_user->id_cpu})
+		(func-call 'sys_mem 'free {msg})
+	(loop-end)
+
+	;return ids array
+	(expr {ids} '(r0))
+	(pop-scope)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/task_open_child)
+	;inputs
+	;r0 = name string object
+	;outputs
+	;r0, r1 = new task mailbox ID
+	;trashes
+	;all but r4
+
+	(f-bind 'sys_task 'statics r1)
+	(f-jmp 'sys_task 'open_remote '(r0 (r1 tk_statics_cpu_id)))
+
+(def-func-end)
+
+(def-func 'sys/task_open_device)
+	;inputs
+	;r0 = name string object
+	;r1 = cpu target
+	;outputs
+	;r0, r1 = mailbox id
+	;trashes
+	;all but r4
+
+	(ptr 'name 'msg)
+	(ulong 'cpu)
+	(struct 'id 'id)
+	(struct 'mailbox 'mailbox)
+
+	;save task info
+	(push-scope)
+	(retire '(r0 r1) {name, cpu})
+
+	;init temp mailbox
+	(func-call 'sys_mail 'init_mailbox {& mailbox})
+
+	;start task
+	(func-call 'sys_mail 'alloc {} {msg})
+	(assign {name->string_length + 1 + kn_msg_open_size} {msg->msg_length})
+	(assign {0} {msg->msg_dest.id_mbox})
+	(assign {cpu} {msg->msg_dest.id_cpu})
+	(assign {& mailbox} {msg->kn_msg_reply_id.id_mbox})
+	(func-call 'sys_cpu 'id {} {msg->kn_msg_reply_id.id_cpu})
+	(assign {kn_call_task_open} {msg->kn_msg_function})
+	(func-call 'sys_mem 'copy {& name->string_data, & msg->kn_msg_open_pathname, name->string_length + 1} {_, _})
+	(func-call 'sys_mail 'send {msg})
+
+	;wait for reply
+	(func-call 'sys_mail 'read {& mailbox} {msg})
+	(assign {msg->kn_msg_reply_id.id_mbox} {id.id_mbox})
+	(assign {msg->kn_msg_reply_id.id_cpu} {id.id_cpu})
+	(func-call 'sys_mem 'free {msg})
+
+	;return ids array
+	(expr {id.id_mbox, id.id_cpu} '(r0 r1))
+	(pop-scope)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/task_open_farm)
+	;inputs
+	;r0 = name string object
+	;r1 = number to spawn
+	;outputs
+	;r0 = array of mailbox id's
+	;trashes
+	;all but r4
+
+	(ptr 'name 'ids 'msg)
+	(ulong 'length 'cpu 'index)
+	(struct 'mailbox 'mailbox)
+
+	;save task info
+	(push-scope)
+	(retire '(r0 r1) {name, length})
+
+	;create output array
+	(func-call 'sys_mem 'alloc {length * id_size} {ids, _})
+
+	;init temp mailbox
+	(func-call 'sys_mail 'init_mailbox {& mailbox})
+
+	;start all tasks in parallel
+	(func-call 'sys_cpu 'id {} {cpu})
+	(assign {0} {index})
+	(loop-while {index != length})
+		(func-call 'sys_mail 'alloc {} {msg})
+		(assign {name->string_length + 1 + kn_msg_child_size} {msg->msg_length})
+		(assign {0} {msg->msg_dest.id_mbox})
+		(assign {cpu} {msg->msg_dest.id_cpu})
+		(assign {& mailbox} {msg->kn_msg_reply_id.id_mbox})
+		(assign {cpu} {msg->kn_msg_reply_id.id_cpu})
+		(assign {kn_call_task_child} {msg->kn_msg_function})
+		(assign {& ids[index * id_size]} {msg->kn_msg_user})
+		(func-call 'sys_mem 'copy {& name->string_data, & msg->kn_msg_child_pathname, name->string_length + 1} {_, _})
+		(func-call 'sys_mail 'send {msg})
+		(assign {index + 1} {index})
+	(loop-end)
+
+	;wait for replys
+	(loop-while {index != 0})
+		(assign {index - 1} {index})
+		(func-call 'sys_mail 'read {& mailbox} {msg})
+		(assign {msg->kn_msg_reply_id.id_mbox} {msg->kn_msg_user->id_mbox})
+		(assign {msg->kn_msg_reply_id.id_cpu} {msg->kn_msg_user->id_cpu})
+		(func-call 'sys_mem 'free {msg})
+	(loop-end)
+
+	;return ids array
+	(expr {ids} '(r0))
+	(pop-scope)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/task_open_global)
+	;inputs
+	;r0 = name string object
+	;r1 = number to spawn
+	;outputs
+	;r0 = array of mailbox id's
+	;trashes
+	;all but r4
+
+	(ptr 'name 'ids 'msg)
+	(ulong 'length 'index)
+	(struct 'mailbox 'mailbox)
+
+	;save task info
+	(push-scope)
+	(retire '(r0 r1) {name, length})
+
+	;create output array
+	(func-call 'sys_mem 'alloc {length * id_size} {ids, _})
+
+	;init temp mailbox
+	(func-call 'sys_mail 'init_mailbox {& mailbox})
+
+	;start all tasks in parallel
+	(assign {0} {index})
+	(loop-while {index != length})
+		(func-call 'sys_mail 'alloc {} {msg})
+		(assign {name->string_length + 1 + kn_msg_open_size} {msg->msg_length})
+		(assign {0} {msg->msg_dest.id_mbox})
+		(assign {index} {msg->msg_dest.id_cpu})
+		(assign {& mailbox} {msg->kn_msg_reply_id.id_mbox})
+		(func-call 'sys_cpu 'id {} {msg->kn_msg_reply_id.id_cpu})
+		(assign {kn_call_task_open} {msg->kn_msg_function})
+		(assign {& ids[index * id_size]} {msg->kn_msg_user})
+		(func-call 'sys_mem 'copy {& name->string_data, & msg->kn_msg_open_pathname, name->string_length + 1} {_, _})
+		(func-call 'sys_mail 'send {msg})
+		(assign {index + 1} {index})
+	(loop-end)
+
+	;wait for replys
+	(loop-while {index != 0})
+		(assign {index - 1} {index})
+		(func-call 'sys_mail 'read {& mailbox} {msg})
+		(assign {msg->kn_msg_reply_id.id_mbox} {msg->kn_msg_user->id_mbox})
+		(assign {msg->kn_msg_reply_id.id_cpu} {msg->kn_msg_user->id_cpu})
+		(func-call 'sys_mem 'free {msg})
+	(loop-end)
+
+	;return ids array
+	(expr {ids} '(r0))
+	(pop-scope)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/task_open_pipe)
+	;inputs
+	;r0 = vector of strings
+	;outputs
+	;r0 = array of mailbox id's
+	;trashes
+	;all but r4
+
+	(ptr 'tasks 'ids 'msg 'name)
+	(ulong 'cpu 'index 'length)
+	(struct 'mailbox 'mailbox)
+
+	;save task info
+	(push-scope)
+	(retire '(r0) {tasks})
+
+	;create output array
+	(devirt-call 'vector 'get_length {tasks} {length})
+	(func-call 'sys_mem 'alloc {length * id_size} {ids, _})
+
+	;init temp mailbox
+	(func-call 'sys_mail 'init_mailbox {& mailbox})
+
+	;start all tasks, starting on kernel of this chip
+	(func-call 'sys_cpu 'id {} {cpu})
+	(assign {0} {index})
+	(loop-while {index != length})
+		(func-call 'sys_mail 'alloc {} {msg})
+		(assign {(tasks->vector_array)[index * ptr_size]} {name})
+		(assign {name->string_length + 1 + kn_msg_child_size} {msg->msg_length})
+		(assign {0} {msg->msg_dest.id_mbox})
+		(assign {cpu} {msg->msg_dest.id_cpu})
+		(assign {& mailbox} {msg->kn_msg_reply_id.id_mbox})
+		(func-call 'sys_cpu 'id {} {msg->kn_msg_reply_id.id_cpu})
+		(assign {kn_call_task_child} {msg->kn_msg_function})
+		(func-call 'sys_mem 'copy {& name->string_data, & msg->kn_msg_child_pathname, name->string_length + 1} {_, _})
+
+		;send mail to kernel, wait for reply
+		(func-call 'sys_mail 'send {msg})
+		(func-call 'sys_mail 'read {& mailbox} {msg})
+
+		;save reply mailbox ID
+		(assign {msg->kn_msg_reply_id.id_cpu} {cpu})
+		(assign {msg->kn_msg_reply_id.id_mbox} {ids[index * id_size].id_mbox})
+		(assign {cpu} {ids[index * id_size].id_cpu})
+		(func-call 'sys_mem 'free {msg})
+
+		;next pipe worker
+		(assign {index + 1} {index})
+	(loop-end)
+
+	;return ids array
+	(expr {ids} '(r0))
+	(pop-scope)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/task_open_remote)
+	;inputs
+	;r0 = name string object
+	;r1 = cpu target
+	;outputs
+	;r0, r1 = mailbox id
+	;trashes
+	;all but r4
+
+	(ptr 'name 'msg)
+	(ulong 'cpu)
+	(struct 'id 'id)
+	(struct 'mailbox 'mailbox)
+
+	;save task info
+	(push-scope)
+	(retire '(r0 r1) {name, cpu})
+
+	;init temp mailbox
+	(func-call 'sys_mail 'init_mailbox {& mailbox})
+
+	;start task
+	(func-call 'sys_mail 'alloc {} {msg})
+	(assign {name->string_length + 1 + kn_msg_child_size} {msg->msg_length})
+	(assign {0} {msg->msg_dest.id_mbox})
+	(assign {cpu} {msg->msg_dest.id_cpu})
+	(assign {& mailbox} {msg->kn_msg_reply_id.id_mbox})
+	(func-call 'sys_cpu 'id {} {msg->kn_msg_reply_id.id_cpu})
+	(assign {kn_call_task_child} {msg->kn_msg_function})
+	(func-call 'sys_mem 'copy {& name->string_data, & msg->kn_msg_child_pathname, name->string_length + 1} {_, _})
+	(func-call 'sys_mail 'send {msg})
+
+	;wait for reply
+	(func-call 'sys_mail 'read {& mailbox} {msg})
+	(assign {msg->kn_msg_reply_id.id_mbox} {id.id_mbox})
+	(assign {msg->kn_msg_reply_id.id_cpu} {id.id_cpu})
+	(func-call 'sys_mem 'free {msg})
+
+	;return ids array
+	(expr {id.id_mbox, id.id_cpu} '(r0 r1))
+	(pop-scope)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/task_restore)
+	;restore next task
+	;r15 = control block to restore
+
+	;round robin past any list head
+	(ln-get-forward r15 r0)
+	(f-bind 'sys_task 'statics r0)
+	(vp-cpy-ri r15 r0 tk_statics_current_tcb)
+
+	;restore old stack pointer
+	(vp-cpy-ir r15 tk_node_stack r4)
+
+	;pop task state
+	(tk-load-state)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/task_resume)
+	;inputs
+	;r0 = task control node (to resume)
+	;trashes
+	;r1-r2
+
+	;are we in suspend state ?
+	(vp-cpy-ir r0 0 r1)
+	(vpif '(r1 == 0))
+		;add to task list
+		(f-bind 'sys_task 'statics r1)
+		(vp-cpy-ir r1 tk_statics_current_tcb r1)
+		(ln-add-node-before r1 r0 r2)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/task_sleep)
+	;inputs
+	;r0 = time delay in usec
+
+	;push task state
+	(tk-save-state)
+
+	;save stack pointer
+	(f-bind 'sys_task 'statics r3)
+	(vp-cpy-ir r3 tk_statics_current_tcb r15)
+	(vp-cpy-ri r4 r15 tk_node_stack)
+
+	;save timeout
+	(vp-cpy-rr r0 r1)
+
+	;calculate wake time
+	(f-call 'sys_cpu 'time '() '(r0))
+	(vp-add-rr r1 r0)
+	(vp-cpy-ri r0 r15 tk_node_time)
+
+	;remove task control block
+	(vp-cpy-rr r15 r2)
+	(vp-cpy-rr r15 r1)
+	(ln-remove-node r2 r15)
+
+	;add to timer list
+	(loop-list-forward r3 tk_statics_timer_list r5 r2)
+	(loop-until '(r0 < (r5 tk_node_time)))
+	(ln-add-node-before r5 r1 r0)
+
+	;restore next task
+	(f-jmp 'sys_task 'restore)
+
+(def-func-end)
+
+(def-func 'sys/task_start)
+	;inputs
+	;r0 = new task func pointer
+	;outputs
+	;r0 = new task control block
+	;r1 = new task mailbox
+	;trashes
+	;r2-r3, r5-r6
+
+	;save prog counter
+	(vp-cpy-rr r0 r5)
+
+	;increment task count
+	(f-bind 'sys_task 'statics r0)
+	(vp-cpy-ir r0 tk_statics_task_count r1)
+	(vp-inc r1)
+	(vp-cpy-ri r1 r0 tk_statics_task_count)
+
+	;create new task control block and task
+	(vp-cpy-rr r5 r2)
+	(vp-cpy-ir-ub r2 -1 r1)
+	(vp-sub-rr r1 r2)
+	(vp-cpy-ir-ui r2 (sub 0 int_size) r1)
+	(vpif '(r1 > tk_stack_size))
+		(vp-add-cr tk_node_stackspace r1)
+		(f-call 'sys_mem 'alloc '(r1) '(r0 r1))
+	(else)
+		(vp-add-cr tk_statics_task_heap r0)
+		(f-call 'sys_heap 'alloc '(r0) '(r1))
+		(vp-cpy-ri r0 r1 0)
+		(vp-lea-i r1 ptr_size r0)
+		(vp-cpy-cr tk_node_size r1)
+	(endif)
+
+	;initialise task mailbox etc
+	(vp-xor-rr r2 r2)
+	(vp-cpy-ri r2 r0 0)
+	(vp-lea-i r0 tk_node_mailbox r6)
+	(ml-init r6 r2 r3)
+
+	;set task control block stack and return address's
+	(vp-lea-d r0 r1 r1)
+	(vp-sub-cr (add tk_state_size (mul ptr_size 2)) r1)
+	(vp-cpy-ri r1 r0 tk_node_stack)
+	(fn-bind 'sys/task_stop r2)
+	(vp-cpy-ri r2 r1 (add tk_state_size ptr_size))
+	(vp-cpy-ri r5 r1 tk_state_size)
+
+	;resume new task
+	(f-call 'sys_task 'resume '(r0))
+
+	;return mailbox pointer
+	(vp-lea-i r0 tk_node_mailbox r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/task_stop)
+	;remove task control block
+	(f-bind 'sys_task 'statics r0)
+	(vp-cpy-ir r0 tk_statics_current_tcb r1)
+	(vp-cpy-rr r1 r2)
+	(ln-remove-node r2 r15)
+
+	;decrement task count
+	(vp-cpy-ir r0 tk_statics_task_count r2)
+	(vp-dec r2)
+	(vp-cpy-ri r2 r0 tk_statics_task_count)
+
+	;free our task control block
+	(vp-sub-cr ptr_size r1)
+	(vp-cpy-ir r1 0 r0)
+	(hp-freecell r0 r1 r2)
+	(f-jmp 'sys_task 'restore)
+
+(def-func-end)
+
+(def-func 'sys/task_suspend)
+	;push task state
+	(tk-save-state)
+
+	;save stack pointer
+	(f-bind 'sys_task 'statics r0)
+	(vp-cpy-ir r0 tk_statics_current_tcb r0)
+	(vp-cpy-ri r4 r0 tk_node_stack)
+
+	;remove task control block, and flag as suspended
+	(vp-cpy-rr r0 r1)
+	(ln-remove-node r1 r15)
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r0 0)
+
+	;restore next task
+	(f-jmp 'sys_task 'restore)
+
+(def-func-end)
+
+(def-func 'sys/task_tcb)
+	;outputs
+	;r0 = current task tcb
+
+	(f-bind 'sys_task 'statics r0)
+	(vp-cpy-ir r0 tk_statics_current_tcb r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/task_yield)
+	;push task state
+	(tk-save-state)
+
+	;save old stack pointer
+	(f-bind 'sys_task 'statics r15)
+	(vp-cpy-ir r15 tk_statics_current_tcb r15)
+	(vp-cpy-ri r4 r15 tk_node_stack)
+
+	;get next task control block
+	(ln-get-succ r15 0 r15)
+	(f-jmp 'sys_task 'restore)
+
+(def-func-end)

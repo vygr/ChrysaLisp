@@ -1,8 +1,0 @@
-(import 'inc/func.inc)
-(import 'inc/task.inc)
-
-(def-func 'sys/task_statics)
-
-	(times tk_statics_size (vp-byte 0))
-
-(def-func-end)
