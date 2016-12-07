@@ -425,11 +425,11 @@
 							;)(][
 							(push-token c s)
 							(setq u (bit-and (sub s 20) 1)))
-						((or (eq s 0) (ge s 3))
-							;"-*~!+.?^</%&|=> or symbol
+						((or (eq s 0) (ge s 4))
+							;-*~!+.?^</%&|=> or symbol
 							(setq p (cat p c) m s))
 						(t
-							;@$
+							;@$"
 							(setq m s))))
 				(setq c nil))
 			((gt m 3)
@@ -460,11 +460,11 @@
 						(setq p "" u 0 m -1))))
 			(t
 				;string mode
-				(setq p (cat p c))
-				(when (eql c (char 34))
-					(push-token p m)
-					(setq p "" u 0 m -1))
-				(setq c nil)))
+				(if (ne s 3)
+					(setq p (cat p c) c nil)
+					(progn
+						(push-token p m)
+						(setq p "" u 0 m -1)))))
 		(unless c (setq i (inc i))))
 	(unless (eql p "")
 		(push-token p m)))
@@ -958,7 +958,7 @@
 				(compile-label k))
 			((eq c 3)
 				;"..."
-				(compile-string k))
+				(compile-string (str k)))
 			(t
 				(print "Error: Unknown token type " k " !")))
 		(setq *s* (inc *s*) i (inc i))))

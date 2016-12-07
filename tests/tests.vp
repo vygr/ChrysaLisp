@@ -1,0 +1,241 @@
+(import 'inc/func.inc)
+(import 'inc/task.inc)
+(import 'inc/math.inc)
+(import 'inc/mail.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_string.inc)
+
+;;;;;;;;;;;
+; test code
+;;;;;;;;;;;
+
+(def-func 'tests/array)
+
+	(const 'num_child 128)
+
+	(ptr 'tasks 'name 'ids 'msg)
+	(ulong 'cnt)
+
+	(push-scope)
+
+	;vector of tasks
+	(func-call 'vector 'create {} {tasks})
+	(assign {0} {cnt})
+	(loop-while {cnt != num_child})
+		(func-call 'string 'create_from_cstr {"tests/array_child"} {name})
+		(func-call 'vector 'push_back {tasks, name})
+		(assign {cnt + 1} {cnt})
+	(loop-end)
+
+	;open array
+	(func-call 'sys_task 'open_array {tasks} {ids})
+
+	;send exit messages etc
+	(loop-while {cnt != 0})
+		(assign {cnt - 1} {cnt})
+		(continueifnot {ids[cnt * id_size].id_mbox})
+		(func-call 'sys_mail 'alloc {} {msg})
+		(assign {ids[cnt * id_size].id_mbox} {msg->msg_dest.id_mbox})
+		(assign {ids[cnt * id_size].id_cpu} {msg->msg_dest.id_cpu})
+		(func-call 'sys_mail 'send {msg})
+		(func-call 'sys_task 'yield)
+	(loop-end)
+
+	;free vector and ID array
+	(func-call 'vector 'deref {tasks})
+	(func-call 'sys_mem 'free {ids})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'tests/array_child)
+
+	(ptr 'msg)
+	(ulong 'num)
+
+	(push-scope)
+
+	;read exit command etc
+	(func-call 'sys_mail 'mymail {} {msg})
+	(func-call 'sys_mem 'free {msg})
+
+	;wait a bit
+	(func-call 'sys_math 'random {1000000} {num})
+	(func-call 'sys_task 'sleep {num + 1000000})
+
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'tests/farm)
+
+	(const 'num_child 128)
+
+	(ptr 'name 'ids 'msg)
+	(ulong 'cnt)
+
+	(push-scope)
+
+	;task
+	(func-call 'string 'create_from_cstr {"tests/farm_child"} {name})
+
+	;open farm
+	(func-call 'sys_task 'open_farm {name, num_child} {ids})
+
+	;send exit messages etc
+	(assign {num_child} {cnt})
+	(loop-while {cnt != 0})
+		(assign {cnt - 1} {cnt})
+		(continueifnot {ids[cnt * id_size].id_mbox})
+		(func-call 'sys_mail 'alloc {} {msg})
+		(assign {ids[cnt * id_size].id_mbox} {msg->msg_dest.id_mbox})
+		(assign {ids[cnt * id_size].id_cpu} {msg->msg_dest.id_cpu})
+		(func-call 'sys_mail 'send {msg})
+		(func-call 'sys_task 'yield)
+	(loop-end)
+
+	;free name and ID array
+	(func-call 'string 'deref {name})
+	(func-call 'sys_mem 'free {ids})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'tests/farm_child)
+
+	(ptr 'msg)
+	(ulong 'num)
+
+	(push-scope)
+
+	;read exit command etc
+	(func-call 'sys_mail 'mymail {} {msg})
+	(func-call 'sys_mem 'free {msg})
+
+	;wait a bit
+	(func-call 'sys_math 'random {1000000} {num})
+	(func-call 'sys_task 'sleep {num + 1000000})
+
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'tests/global)
+
+	(const 'test_size 10000)
+
+	(ptr 'name 'ids 'msg)
+	(ulong 'cnt 'total)
+
+	(push-scope)
+
+	;task
+	(func-call 'string 'create_from_cstr {"tests/global_child"} {name})
+
+	;open global farm
+	(func-call 'sys_cpu 'total {} {total})
+	(func-call 'sys_task 'open_global {name, total} {ids})
+
+	;send exit parcels etc
+	(assign {total} {cnt})
+	(loop-while {cnt != 0})
+		(assign {cnt - 1} {cnt})
+		(continueifnot {ids[cnt * id_size].id_mbox})
+		(func-call 'sys_mail 'alloc_parcel {test_size} {msg})
+		(assign {ids[cnt * id_size].id_mbox} {msg->msg_dest.id_mbox})
+		(assign {ids[cnt * id_size].id_cpu} {msg->msg_dest.id_cpu})
+		(func-call 'sys_mail 'send {msg})
+		(func-call 'sys_task 'yield)
+	(loop-end)
+
+	;free name and ID array
+	(func-call 'string 'deref {name})
+	(func-call 'sys_mem 'free {ids})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'tests/global_child)
+
+	(ptr 'msg)
+	(ulong 'num)
+
+	(push-scope)
+
+	;wait a bit
+	(func-call 'sys_math 'random {1000000} {num})
+	(func-call 'sys_task 'sleep {num + 1000000})
+
+	;read command
+	(func-call 'sys_mail 'mymail {} {msg})
+	(func-call 'sys_mem 'free {msg})
+
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'tests/pipe)
+
+	(const 'num_child 128)
+
+	(ptr 'tasks 'name 'ids 'msg)
+	(ulong 'cnt)
+
+	(push-scope)
+
+	;vector of tasks
+	(func-call 'vector 'create {} {tasks})
+	(assign {0} {cnt})
+	(loop-while {cnt != num_child})
+		(func-call 'string 'create_from_cstr {"tests/pipe_child"} {name})
+		(func-call 'vector 'push_back {tasks, name})
+		(assign {cnt + 1} {cnt})
+	(loop-end)
+
+	;open pipe
+	(func-call 'sys_task 'open_pipe {tasks} {ids})
+
+	;send exit messages etc
+	(loop-while {cnt != 0})
+		(assign {cnt - 1} {cnt})
+		(continueifnot {ids[cnt * id_size].id_mbox})
+		(func-call 'sys_mail 'alloc {} {msg})
+		(assign {ids[cnt * id_size].id_mbox} {msg->msg_dest.id_mbox})
+		(assign {ids[cnt * id_size].id_cpu} {msg->msg_dest.id_cpu})
+		(func-call 'sys_mail 'send {msg})
+		(func-call 'sys_task 'yield)
+	(loop-end)
+
+	;free vector and ID array
+	(func-call 'vector 'deref {tasks})
+	(func-call 'sys_mem 'free {ids})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'tests/pipe_child)
+
+	(ptr 'msg)
+	(ulong 'num)
+
+	(push-scope)
+
+	;read exit command etc
+	(func-call 'sys_mail 'mymail {} {msg})
+	(func-call 'sys_mem 'free {msg})
+
+	;wait a bit
+	(func-call 'sys_math 'random {1000000} {num})
+	(func-call 'sys_task 'sleep {num + 1000000})
+
+	(pop-scope)
+	(return)
+
+(def-func-end)
