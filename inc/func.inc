@@ -5,7 +5,7 @@
 (import 'inc/task.inc)
 
 (defcvar 'debug_mode nil)
-(defcvar 'debug_emit t)
+(defcvar 'debug_emit nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail funcions
@@ -143,7 +143,8 @@
 		(setq *cnt* (inc *cnt*))) *paths*)
 	(vp-align ptr_size)
 	(vp-label '_func_end)
-;	(print-emit-buffer)
+	(when debug_emit
+		(print-emit-buffer))
 	(emit-passes)
 ;	(print-out-buffer 16)
 	(print "Writing -> " *func-name*)
