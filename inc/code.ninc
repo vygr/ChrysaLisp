@@ -811,7 +811,7 @@ _sym_var	equ 2
 				;scanning
 				%ifnidn %%c, ' '
 					%if _pos >= 20
-						;)(
+						;)(][
 						push_token %%c, _pos
 						%assign %%u (_pos - 20) & 1
 					%elif (_pos = 0 || _pos >= 3)
