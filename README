@@ -57,15 +57,14 @@ Quite an achievement considering it's all done with macros. :) Currently there
 is an elementary optimise pass, more will be done.
 
 A Common Lisp like interpreter is provided, written in the C-Script compiled
-language ! This is available from the command line, via the command 'lisp', This
-will be expanded over time to provide self compilation and a replacement for
-NASM has been written in Lisp to remove the need for any external tooling. The
-new VP assembler files, .vp/.inc, shadow the .nasm/.ninc files. Current status
-is that all sources not using the C-Script feature assemble to identical
-binaries compared to the NASM output, but more than 10x the performance ! To
-build type (make) at the Lisp command prompt. The output goes to the tst/
-directory, the NASM output goes to obj/, so you can compare with diff or Beyond
-Compare etc. C-Script compile will be added shortly.
+language ! This is available from the command line, via the command 'lisp',
+This will be expanded over time to provide self compilation and a replacement
+for NASM has been written in Lisp to remove the need for any external tooling.
+The new VP assembler files, .vp/.inc, shadow the .nasm/.ninc files. Current
+status is that all sources assemble to identical binaries compared to the NASM
+output, but more than 10x the compile performance ! To build type (make) at the
+Lisp command prompt. The output goes to the tst/ directory, the NASM output
+goes to obj/, so you can compare with diff or Beyond Compare etc.
 
 Network link routing tables are created on booting a link, and the process is
 distributed in nature, each link starts a flood fill that eventually reaches all
