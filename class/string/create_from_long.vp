@@ -21,8 +21,7 @@
 	(push-scope)
 	(retire '(r0 r1) {num, base})
 
-	(func-path 'sys_load 'statics)
-	(assign {@_function_.ld_statics_reloc_buffer} {reloc})
+	(assign {@sys/load_statics.ld_statics_reloc_buffer} {reloc})
 	(assign {reloc} {buffer})
 	(vpif {num < 0})
 		(assign {char_minus} {* buffer})
