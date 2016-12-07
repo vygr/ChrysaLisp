@@ -20,7 +20,7 @@ def_func class/lisp/func_prin
 
 	devirt_call vector, get_length, {args}, {length}
 	func_call vector, for_each, {args, 0, length, $callback, this}, {_}
-	assign {this->lisp_sym_t}, {args}
+	assign {this->lisp_sym_nil}, {args}
 	func_call ref, ref, {args}
 
 	expr {this, args}, {r0, r1}
