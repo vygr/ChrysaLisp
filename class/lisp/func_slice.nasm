@@ -38,7 +38,7 @@ def_func class/lisp/func_slice
 				vpif {end < 0}
 					assign {length + end + 1}, {end}
 				endif
-				vpif {start >= 0 && end <= length}
+				vpif {start <= end && start >= 0 && end <= length}
 					virt_call sequence, slice, {seq, start, end}, {value}
 					expr {this, value}, {r0, r1}
 					return
