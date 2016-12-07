@@ -6,6 +6,18 @@
 
 (defcvar '*switch* nil '*switch-nxt* nil '*switch-stk* (list))
 
+(defmacro beg-sym ()
+	'(sym (cat "_beg_" (str *switch*))))
+
+(defmacro end-sym ()
+	'(sym (cat "_end_" (str *switch*))))
+
+(defmacro loc-sym (n)
+	`(sym (cat "_loc_" (str *switch*) "_" (str ,n))))
+
+(defmacro cnt-sym ()
+	'(sym (cat "_cnt_" (str *switch*))))
+
 (defcfun goto (l)
 	(vp-jmp l))
 
@@ -20,23 +32,22 @@
 (defcfun switch ()
 	(push *switch-stk* *switch*)
 	(setq *switch* *switch-nxt* *switch-nxt* (inc *switch-nxt*))
-	(defcvar (sym (cat "*cnt-" (str *switch*) "*")) 0)
-	(vp-label (sym (cat "_begin_" (str *switch*)))))
+	(defcvar (cnt-sym) 0)
+	(vp-label (beg-sym)))
 
 (defcfun default ()
-	(defq s (sym (cat "*cnt-" (str *switch*) "*")) c (eval s))
-	(vp-label (sym (cat "_loc_" (str *switch*) "_" (str c))))
+	(defq s (cnt-sym) c (eval s))
+	(vp-label (loc-sym c))
 	(set s (inc c)))
 
 (defcfun endswitch ()
-	(vp-label (sym (cat "_end_" (str *switch*))))
+	(vp-label (end-sym))
 	(default)
 	(setq *switch* (pop *switch-stk*)))
 
 (defcfun case (e)
 	(default)
-	(defq c (eval (sym (cat "*cnt-" (str *switch*) "*")))
-		l (sym (cat "_loc_" (str *switch*) "_" (str c))))
+	(defq c (eval (cnt-sym)) l (loc-sym c))
 	(if (inst-of 'class/class_string e)
 		(progn
 			(expr e '(r0))
@@ -46,8 +57,7 @@
 
 (defcfun casenot (e)
 	(default)
-	(defq c (eval (sym (cat "*cnt-" (str *switch*) "*")))
-		l (sym (cat "_loc_" (str *switch*) "_" (str c))))
+	(defq c (eval (cnt-sym)) l (loc-sym c))
 	(if (inst-of 'class/class_string e)
 		(progn
 			(expr e '(r0))
@@ -56,10 +66,10 @@
 			(vp-jmpif `(~e) l))))
 
 (defcfun break ()
-	(vp-jmp (sym (cat "_end_" (str *switch*)))))
+	(vp-jmp (end-sym)))
 
 (defcfun breakif (e)
-	(defq l (sym (cat "_end_" (str *switch*))))
+	(defq l (end-sym))
 	(if (inst-of 'class/class_string e)
 		(progn
 			(expr e '(r0))
@@ -67,7 +77,7 @@
 		(vp-jmpif `(~e) l)))
 
 (defcfun breakifnot (e)
-	(defq l (sym (cat "_end_" (str *switch*))))
+	(defq l (end-sym))
 	(if (inst-of 'class/class_string e)
 		(progn
 			(expr e '(r0))
@@ -75,10 +85,10 @@
 		(vp-jmpifnot `(~e) l)))
 
 (defcfun continue ()
-	(vp-jmp (sym (cat "_begin_" (str *switch*)))))
+	(vp-jmp (beg-sym)))
 
 (defcfun continueif (e)
-	(defq l (sym (cat "_begin_" (str *switch*))))
+	(defq l (beg-sym))
 	(if (inst-of 'class/class_string e)
 		(progn
 			(expr e '(r0))
@@ -86,7 +96,7 @@
 		(vp-jmpif `(~e) l)))
 
 (defcfun continueifnot (e)
-	(defq l (sym (cat "_begin_" (str *switch*))))
+	(defq l (beg-sym))
 	(if (inst-of 'class/class_string e)
 		(progn
 			(expr e '(r0))
@@ -256,8 +266,8 @@
 (defcvar '*struct* nil '*struct-offset* nil
 	'null_size 0 'byte_size 1 'short_size 2 'int_size 4 'long_size 8 'ptr_size 8)
 
-(defcfun type-sym (s)
-	(sym (cat "_t_" (str s))))
+(defmacro type-sym (s)
+	`(sym (cat "_t_" (str ,s))))
 
 (defcfun local-align (&optional x)
 	(setq x (if x x long_size))
@@ -527,14 +537,14 @@
 	'_t_0 nil '_t_1 nil '_t_2 nil '_t_3 nil '_t_4 nil '_t_5 nil '_t_6 nil '_t_7 nil
 	'_t_8 nil '_t_9 nil '_t_10 nil '_t_11 nil '_t_12 nil '_t_13 nil '_t_14 nil '_t_15 nil)
 
+(defmacro vreg-sym (n)
+	`(sym (cat "_v" (str ,n))))
+
 (defcfun print-reg-stack ()
 	(defq i 0)
 	(while (lt i 16)
 		(print (vreg-sym i) " -> " (eval (type-sym i)))
 		(setq i (inc i))))
-
-(defcfun vreg-sym (n)
-	(sym (cat "_v" (str n))))
 
 (defcfun reset-reg-stack (&optional %1)
 	;%1 = reserved slots
@@ -602,7 +612,8 @@
 
 (defcfun compile-const (%1)
 	(set (type-sym *s*) nil)
-	(add-inst `(vp-cpy-cr ,%1 ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*))
+	(add-inst `(vp-cpy-cr ,%1 ,x)))
 
 (defcfun compile-assign ()
 	(setq *s* (dec *s*))
@@ -640,7 +651,8 @@
 				((def? (type-sym %1))
 					;field/member
 					(set (type-sym *s*) (eval (type-sym %1)))
-					(add-inst `(vp-cpy-cr ,%1 ,(vreg-sym *s*))))
+					(defq x (vreg-sym *s*))
+					(add-inst `(vp-cpy-cr ,%1 ,x)))
 				(t
 					;equate
 					(compile-const %1))))
@@ -651,7 +663,8 @@
 			;variable
 			(set (type-sym *s*) (elem 5 s))
 			(setq s (add (get-scope-offset (elem 0 s)) (elem 3 s)))
-			(add-inst `(vp-lea-i r4 ,s ,(vreg-sym *s*))))))
+			(defq x (vreg-sym *s*))
+			(add-inst `(vp-lea-i r4 ,s ,x)))))
 
 (defcfun compile-deref ()
 	(defq v (vreg-sym *s*) w (pop-type *s*))
@@ -704,7 +717,8 @@
 
 (defcfun compile-uminus ()
 	(pop-value)
-	(add-inst `(vp-mul-cr -1 ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*))
+	(add-inst `(vp-mul-cr -1 ,x)))
 
 (defcfun compile-uderef ()
 	(setq *s* (dec *s*))
@@ -714,31 +728,33 @@
 
 (defcfun compile-unot ()
 	(pop-value)
-	(add-inst `(vp-xor-cr -1 ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*))
+	(add-inst `(vp-xor-cr -1 ,x)))
 
 (defcfun compile-mul ()
 	(pop-value)
 	(defq s *s*)
 	(pop-value)
-	(add-inst `(vp-mul-rr ,(vreg-sym s) ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*) y (vreg-sym s))
+	(add-inst `(vp-mul-rr ,y ,x)))
 
 (defcfun compile-divu ()
 	(defq s2 *s*)
 	(pop-value)
 	(defq s1 *s*)
 	(pop-value)
-	(defq x (vreg-sym *s*) y (vreg-sym s2))
+	(defq x (vreg-sym *s*) y (vreg-sym s2) z (vreg-sym s1))
 	(add-inst `(vp-ext-rr ,x ,y))
-	(add-inst `(vp-div-rrr-u ,(vreg-sym s1) ,y ,x)))
+	(add-inst `(vp-div-rrr-u ,z ,y ,x)))
 
 (defcfun compile-remu ()
 	(defq s2 *s*)
 	(pop-value)
 	(defq s1 *s*)
 	(pop-value)
-	(defq x (vreg-sym *s*) y (vreg-sym s2))
+	(defq x (vreg-sym *s*) y (vreg-sym s2) z (vreg-sym s1))
 	(add-inst `(vp-ext-rr ,x ,y))
-	(add-inst `(vp-div-rrr-u ,(vreg-sym s1) ,y ,x))
+	(add-inst `(vp-div-rrr-u ,z ,y ,x))
 	(add-inst `(vp-cpy-rr ,y ,x)))
 
 (defcfun compile-div ()
@@ -746,49 +762,54 @@
 	(pop-value)
 	(defq s1 *s*)
 	(pop-value)
-	(defq x (vreg-sym *s*) y (vreg-sym s2))
+	(defq x (vreg-sym *s*) y (vreg-sym s2) z (vreg-sym s1))
 	(add-inst `(vp-ext-rr ,x ,y))
-	(add-inst `(vp-div-rrr ,(vreg-sym s1) ,y ,x)))
+	(add-inst `(vp-div-rrr ,z ,y ,x)))
 
 (defcfun compile-rem ()
 	(defq s2 *s*)
 	(pop-value)
 	(defq s1 *s*)
 	(pop-value)
-	(defq x (vreg-sym *s*) y (vreg-sym s2))
+	(defq x (vreg-sym *s*) y (vreg-sym s2) z (vreg-sym s1))
 	(add-inst `(vp-ext-rr ,x ,y))
-	(add-inst `(vp-div-rrr ,(vreg-sym s1) ,y ,x))
+	(add-inst `(vp-div-rrr ,z ,y ,x))
 	(add-inst `(vp-cpy-rr ,y ,x)))
 
 (defcfun compile-plus ()
 	(pop-value)
 	(defq s *s*)
 	(pop-value)
-	(add-inst `(vp-add-rr ,(vreg-sym s) ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*) y (vreg-sym s))
+	(add-inst `(vp-add-rr ,y ,x)))
 
 (defcfun compile-minus ()
 	(pop-value)
 	(defq s *s*)
 	(pop-value)
-	(add-inst `(vp-sub-rr ,(vreg-sym s) ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*) y (vreg-sym s))
+	(add-inst `(vp-sub-rr ,y ,x)))
 
 (defcfun compile-lshift ()
 	(pop-value)
 	(defq s *s*)
 	(pop-value)
-	(add-inst `(vp-shl-rr ,(vreg-sym s) ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*) y (vreg-sym s))
+	(add-inst `(vp-shl-rr ,y ,x)))
 
 (defcfun compile-rshift ()
 	(pop-value)
 	(defq s *s*)
 	(pop-value)
-	(add-inst `(vp-shr-rr ,(vreg-sym s) ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*) y (vreg-sym s))
+	(add-inst `(vp-shr-rr ,y ,x)))
 
 (defcfun compile-arshift ()
 	(pop-value)
 	(defq s *s*)
 	(pop-value)
-	(add-inst `(vp-asr-rr ,(vreg-sym s) ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*) y (vreg-sym s))
+	(add-inst `(vp-asr-rr ,y ,x)))
 
 (defcfun compile-lt ()
 	(pop-value)
@@ -860,26 +881,29 @@
 	(pop-value)
 	(defq s *s*)
 	(pop-value)
-	(add-inst `(vp-and-rr ,(vreg-sym s) ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*) y (vreg-sym s))
+	(add-inst `(vp-and-rr ,y ,x)))
 
 (defcfun compile-xor ()
 	(pop-value)
 	(defq s *s*)
 	(pop-value)
-	(add-inst `(vp-xor-rr ,(vreg-sym s) ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*) y (vreg-sym s))
+	(add-inst `(vp-xor-rr ,y ,x)))
 
 (defcfun compile-or ()
 	(pop-value)
 	(defq s *s*)
 	(pop-value)
-	(add-inst `(vp-or-rr ,(vreg-sym s) ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*) y (vreg-sym s))
+	(add-inst `(vp-or-rr ,y ,x)))
 
 (defcfun compile-land ()
 	(pop-value)
 	(defq s *s*)
 	(pop-value)
-	(defq x (vreg-sym *s*))
-	(add-inst `(vpif (list ,(vreg-sym s) '!= 0)))
+	(defq x (vreg-sym *s*) y (vreg-sym s))
+	(add-inst `(vpif (list ,y '!= 0)))
 	(add-inst `(vpif (list ,x '!= 0)))
 	(add-inst `(vp-cpy-cr 1 ,x))
 	(add-inst '(else))
@@ -893,7 +917,8 @@
 	(pop-value)
 	(defq s *s*)
 	(pop-value)
-	(add-inst `(vp-or-rr ,(vreg-sym s) ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*) y (vreg-sym s))
+	(add-inst `(vp-or-rr ,y ,x)))
 
 (defcfun compile-ulnot ()
 	(pop-value)
@@ -910,11 +935,11 @@
 	(pop-value)
 	(defq s1 *s*)
 	(pop-value)
-	(defq x (vreg-sym *s*))
+	(defq x (vreg-sym *s*) y (vreg-sym s1) z (vreg-sym s2))
 	(add-inst `(vpif (list ,x '!= 0)))
-	(add-inst `(vp-cpy-rr ,(vreg-sym s1) ,x))
+	(add-inst `(vp-cpy-rr ,y ,x))
 	(add-inst '(else))
-	(add-inst `(vp-cpy-rr ,(vreg-sym s2) ,x))
+	(add-inst `(vp-cpy-rr ,z ,x))
 	(add-inst '(endif)))
 
 (defcfun compile-operator (%1)
@@ -929,15 +954,18 @@
 
 (defcfun compile-string (%1)
 	(set (type-sym *s*) nil)
-	(add-inst `(fn-string ,%1 ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*))
+	(add-inst `(fn-string ,%1 ,x)))
 
 (defcfun compile-bind (%1)
 	(set (type-sym *s*) nil)
-	(add-inst `(fn-bind ',%1 ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*))
+	(add-inst `(fn-bind ',%1 ,x)))
 
 (defcfun compile-label (%1)
 	(set (type-sym *s*) nil)
-	(add-inst `(vp-lea-p ',%1 ,(vreg-sym *s*))))
+	(defq x (vreg-sym *s*))
+	(add-inst `(vp-lea-p ',%1 ,x)))
 
 (defcfun compile-rpn-list ()
 	(defq i 0 k nil c nil)
