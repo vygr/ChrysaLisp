@@ -1,0 +1,445 @@
+(import 'inc/func.inc)
+(import 'inc/syscall.inc)
+(import 'inc/string.inc)
+(import 'inc/load.inc)
+(import 'class/class_string.inc)
+(import 'class/class_stream.inc)
+
+(def-func 'class/string/new)
+	;inputs
+	;r0 = object size
+	;outputs
+	;r0 = 0 if error, else object
+	;trashes
+	;r1-r3, r5
+
+	;allocate new string object
+	(vp-cpy-rr r0 r5)
+	(f-call 'sys_mem 'alloc '(r0) '(r0 _))
+	(vpif '(r0 != 0))
+		;clear object memory
+		(vp-cpy-rr r0 r3)
+		(f-call 'sys_mem 'clear '(r0 r5) '(_))
+		(vp-cpy-rr r3 r0)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/string/create_from_buffer)
+	;inputs
+	;r0 = buffer pointer
+	;r1 = buffer length
+	;outputs
+	;r0 = 0 if error, else object
+	;trashes
+	;r1-r3, r5-r7
+
+	;save size of data
+	(vp-cpy-rr r0 r6)
+	(vp-cpy-rr r1 r7)
+
+	;create new string object
+	(f-call 'string 'new '((& r1 (add string_size 1))) '(r0))
+	(vpif '(r0 != 0))
+		;init the object
+		(func-path 'class 'string)
+		(f-call 'string 'init `(r0 (@ ,_function_) r6 r7) '(r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(v-call 'string 'delete '(r0) '() 'r1)
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/string/create_from_cstr)
+	;inputs
+	;r0 = c string pointer
+	;outputs
+	;r0 = 0 if error, else object
+	;trashes
+	;r1-r3, r5-r7
+
+	;get size of string
+	(f-call 'sys_string 'length '(r0) '(r1))
+	(f-jmp 'string 'create_from_buffer '(r0 r1))
+
+(def-func-end)
+
+(def-func 'class/string/create_from_file)
+	;inputs
+	;r0 = c string pointer
+	;outputs
+	;r0 = 0 if error, else object
+	;trashes
+	;r1-r3, r5-r7
+
+	;save c string pointer
+	(vp-cpy-rr r0 r6)
+
+	;get size of string from file size
+	(f-bind 'sys_load 'statics r7)
+	(vp-add-cr ld_statics_stat_buffer r7)
+	(sys-stat r0 r7)
+	(vpif '(r0 != 0))
+	(vp-label 'exit)
+		;no such file
+		(vp-xor-rr r0 r0)
+		(vp-ret)
+	(endif)
+
+	;test for regular file only
+	(vp-cpy-ir-us r7 stat_mode r0)
+	(vp-and-cr s_ifmt r0)
+	(vp-jmpif '(r0 != s_ifreg) 'exit)
+
+	;create new string object
+	(vp-cpy-ir r7 stat_fsize r1)
+	(f-call 'string 'new '((& r1 (add string_size 1))) '(r0))
+	(vpif '(r0 != 0))
+		;init the object
+		(func-path 'class 'string)
+		(f-call 'string 'init2 `(r0 (@ ,_function_) r6 (r7 stat_fsize)) '(r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(v-call 'string 'delete '(r0) '() 'r1)
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/string/create_from_long)
+	;inputs
+	;r0 = number
+	;r1 = base
+	;outputs
+	;r0 = 0 if error, else object
+	;trashes
+	;all but r4
+
+	(const 'char_minus (ascii "-"))
+
+	(ptr 'this)
+	(pubyte 'buffer 'reloc)
+	(long 'num 'base)
+
+	(push-scope)
+	(retire '(r0 r1) {num, base})
+
+	(func-path 'sys_load 'statics)
+	(assign (cat "@" (str _function_) {.ld_statics_reloc_buffer}) {reloc})
+	(assign {reloc} {buffer})
+	(vpif {num < 0})
+		(assign {char_minus} {* buffer})
+		(assign {buffer + 1} {buffer})
+		(assign {-num} {num})
+	(endif)
+	(func-call 'sys_string 'from_long {num, buffer, base})
+	(func-call 'string 'create_from_cstr {reloc} {this})
+
+	(expr {this} '(r0))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/string/init)
+	;inputs
+	;r0 = string object
+	;r1 = vtable pointer
+	;r2 = buffer pointer
+	;r3 = buffer length
+	;outputs
+	;r1 = 0 if error, else ok
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(long 'local_data)
+		(long 'local_length)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r2 r3))
+	(set-dst '((r4 local_data) (r4 local_length)))
+	(map-src-to-dst)
+
+	;init parent
+	(s-call 'string 'init '(r0 r1) '(r1))
+	(vpif '(r1 != 0))
+		(vp-cpy-ri r0 r4 local_inst)
+		(vp-xor-rr r1 r1)
+		(vp-cpy-ri r1 r0 string_hashcode)
+
+		;init myself
+		(vp-cpy-ir r4 local_length r2)
+		(vp-cpy-ri r2 r0 string_length)
+		(f-call 'sys_mem 'copy '((r4 local_data) (& r0 string_data) r2) '(_ r1))
+		(vp-xor-rr r0 r0)
+		(vp-cpy-ri-b r0 r1 0)
+
+		(vp-cpy-ir r4 local_inst r0)
+	(endif)
+
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/string/init1)
+	;inputs
+	;r0 = string object
+	;r1 = vtable pointer
+	;r2 = string object
+	;r3 = string object
+	;outputs
+	;r1 = 0 if error, else ok
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(long 'local_string1)
+		(long 'local_string2)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r2 r3))
+	(set-dst '((r4 local_string1) (r4 local_string2)))
+	(map-src-to-dst)
+
+	;init parent
+	(s-call 'string 'init '(r0 r1) '(r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-cpy-ri r0 r4 local_inst)
+		(vp-xor-rr r1 r1)
+		(vp-cpy-ri r1 r0 string_hashcode)
+
+		(vp-cpy-ir r4 local_string1 r6)
+		(vp-cpy-ir r4 local_string2 r7)
+		(vp-cpy-ir r6 string_length r1)
+		(vp-add-ir r7 string_length r1)
+		(vp-cpy-ri r1 r0 string_length)
+		(f-call 'sys_mem 'copy '((& r6 string_data) (& r0 string_data) (r6 string_length)) '(_ r1))
+		(vp-cpy-ir r7 string_length r2)
+		(vp-inc r2)
+		(f-call 'sys_mem 'copy '((& r7 string_data) r1 r2) '(_ _))
+
+		(vp-cpy-ir r4 local_inst r0)
+	(endif)
+
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/string/init2)
+	;inputs
+	;r0 = string object
+	;r1 = vtable pointer
+	;r2 = filename
+	;r3 = file length
+	;outputs
+	;r1 = 0 if error, else ok
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(long 'local_filename)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(set-src '(r2 r3))
+	(set-dst '((r4 local_filename) (r0 string_length)))
+	(map-src-to-dst)
+
+	;init parent
+	(s-call 'string 'init '(r0 r1) '(r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-cpy-ri r0 r4 local_inst)
+		(vp-xor-rr r1 r1)
+		(vp-cpy-ri r1 r0 string_hashcode)
+
+		;open file
+		(vp-cpy-ir r4 local_filename r0)
+		(sys-open r0 o_rdonly 0)
+		(vp-cpy-rr r0 r7)
+
+		;read into buffer
+		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r0 string_length r1)
+		(vp-add-cr string_data r0)
+		(vp-xor-rr r2 r2)
+		(vp-cpy-rd-b r2 r0 r1)
+		(sys-read r7 r0 r1)
+
+		;close file
+		(sys-close r7)
+
+		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-rr r0 r1)
+	(endif)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/string/append)
+	;inputs
+	;r0 = string object
+	;r1 = string object
+	;outputs
+	;r0 = 0 if error, else new string object
+	;trashes
+	;r1-r3, r5-r7
+
+	;save inputs
+	(set-src '(r0 r1))
+	(set-dst '(r6 r7))
+	(map-src-to-dst)
+
+	;get size of strings
+	(vp-cpy-ir r0 string_length r0)
+	(vp-add-ir r1 string_length r0)
+	(vp-add-cr (add string_size 1) r0)
+
+	;create new string object
+	(f-call 'string 'new '(r0) '(r0))
+	(vpif '(r0 != 0))
+		;init the object
+		(func-path 'class 'string)
+		(f-call 'string 'init1 `(r0 (@ ,_function_) r6 r7) '(r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(v-call 'string 'delete '(r0) '() 'r1)
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/string/compare)
+	;inputs
+	;r0 = string object
+	;r1 = string object
+	;outputs
+	;r0 = string object
+	;r1 = 0 if same, else -, +
+	;trashes
+	;r2-r3
+
+	(vpif '(r0 != r1))
+		(vp-push r0)
+		(f-call 'sys_string 'compare '((& r0 string_data) (& r1 string_data)) '(r1))
+		(vp-pop r0)
+	(else)
+		(vp-xor-rr r1 r1)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/string/get_length)
+	;inputs
+	;r0 = string object
+	;outputs
+	;r0 = string object
+	;r1 = string length
+
+	(vp-cpy-ir r0 string_length r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/string/hash)
+	;inputs
+	;r0 = string object
+	;outputs
+	;r0 = string object
+	;r1 = hash code
+	;trashes
+	;all but r0, r4
+
+	;save inputs
+	(vp-cpy-ir r0 string_hashcode r1)
+	(vpif '(r1 == 0))
+		(vp-push r0)
+		(f-call 'sys_string 'hash '((& r0 string_data)) '(r1))
+		(vp-pop r0)
+		(vp-cpy-ri r1 r0 string_hashcode)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/string/ref_element)
+	;inputs
+	;r0 = string object
+	;r1 = char index
+	;outputs
+	;r0 = string object
+	;r1 = char string
+
+	(vp-push r0)
+	(vp-add-cr string_data r1)
+	(f-call 'string 'create_from_buffer '((& r0 r1) 1) '(r1))
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/string/slice)
+	;inputs
+	;r0 = string object
+	;r1 = start index
+	;r2 = end index
+	;outputs
+	;r0 = string object
+	;r1 = string slice
+	;trashes
+	;r2-r3, r5-r7
+
+	(vp-push r0)
+	(vp-sub-rr r1 r2)
+	(vp-add-cr string_data r0)
+	(vp-add-rr r1 r0)
+	(f-call 'string 'create_from_buffer '(r0 r2) '(r1))
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/string/split)
+	;inputs
+	;r0 = string object
+	;r1 = split char
+	;outputs
+	;r0 = string object
+	;r1 = vector of split strings
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst 'splits 'stream)
+	(ubyte 'char)
+
+	;save inputs
+	(push-scope)
+	(retire '(r0 r1) {inst, char})
+
+	;create string split
+	(func-call 'stream 'create {0, 0, & inst->string_data, inst->string_length} {stream})
+	(func-call 'stream 'split {stream, char} {splits})
+	(func-call 'stream 'deref {stream})
+
+	(expr {inst, splits} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)
