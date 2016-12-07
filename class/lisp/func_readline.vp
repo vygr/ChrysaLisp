@@ -26,7 +26,7 @@
 		(func-call 'vector 'get_element {args, 0} {value})
 		(vpif {value->obj_vtable == @class/class_stream_str})
 			(func-path 'sys_load 'statics)
-			(assign {@_function_.ld_statics_reloc_buffer} {reloc})
+			(assign (cat "@" (str _function_) {.ld_statics_reloc_buffer}) {reloc})
 			(func-call 'stream_str 'read_line {value, reloc, ld_reloc_size} {length})
 			(vpif {length == -1})
 				(assign {this->lisp_sym_nil} {value})
