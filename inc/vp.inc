@@ -89,7 +89,7 @@
 (defcfun vp-push (&rest b) (emit `(emit-push ~b)))
 (defcfun vp-pop (&rest b) (emit `(emit-pop ~b)))
 
-(defcfun vp-call (l) (emit `(emit-call ,(label-sym l) ,(dec (length (push *distance* 0))))))
+(defcfun vp-call (l) (emit `(emit-call ,(label-sym l))))
 (defcfun vp-call-r (&rest b) (emit `(emit-call-r ~b)))
 (defcfun vp-call-i (&rest b) (emit `(emit-call-i ~b)))
 (defcfun vp-call-d (&rest b) (emit `(emit-call-d ~b)))
@@ -180,7 +180,7 @@
 (defcfun vp-inc (r) (emit `(emit-inc ,r)))
 (defcfun vp-dec (r) (emit `(emit-dec ,r)))
 (defcfun vp-xchg-rr (&rest b) (emit `(emit-xchg-rr ~b)))
-(defcfun vp-ext-rr (&rest b) (emit `(emit-ext-rr ~b)))
+(defcfun vp-ext-rr (s d) (emit `(emit-ext-rr ,s ,d ,(dec (length (push *distance* 0))))))
 (defcfun vp-div-rrr (&rest b) (emit `(emit-div-rrr ~b)))
 (defcfun vp-div-rrr-u (&rest b) (emit `(emit-div-rrr-u ~b)))
 (defcfun vp-syscall () (emit `(emit-syscall)))
@@ -363,17 +363,6 @@
 			(emit-cpy-ri r0 r4 24)
 			(emit-pop d s r0 r1))))
 
-(defcfun emit-call-jump (o c d)
-	(defq m (elem d *distance*))
-	(if (ne *pass* 0) (if (gt (abs c) (abs m)) (elem-set d *distance* (setq m c))))
-	(cond
-		((le -0x80 (sub m 2) 0x7f)
-			(emit-bytes (add 0x2 o) (bit-and (sub c 2) 0xff)))
-		((le -0x80000000 (sub m 5) 0x7fffffff)
-			(emit-bytes o)
-			(emit-int (sub c 5)))
-		(t (print "emit-call-jump constant out of range: " c))))
-
 (defcfun emit-call-jump-p (o c)
 	(emit-bytes 0xff o)
 	(emit-int (sub c 6)))
@@ -444,13 +433,30 @@
 (defcfun emit-bgt (l d) (emit-branch 0x7f (sub l *pc*) d))
 (defcfun emit-bge (l d) (emit-branch 0x7d (sub l *pc*) d))
 
-(defcfun emit-call (l d) (emit-call-jump 0xe8 (sub l *pc*) d))
+(defcfun emit-call (l)
+	(defq c (sub l *pc* 5))
+	(cond
+		((le -0x80000000 c 0x7fffffff)
+			(emit-bytes 0xe8)
+			(emit-int c))
+		(t (print "emit-call constant out of range: " c))))
+
 (defcfun emit-call-r (r) (emit-call-jump-r 0xd0 r))
 (defcfun emit-call-i (d c) (emit-call-jump-i 0x10 d c))
 (defcfun emit-call-d (d1 d2) (emit-call-jump-d 0x10 d1 d2))
 (defcfun emit-call-p (l) (emit-call-jump-p 0x15 (sub l *pc*)))
 
-(defcfun emit-jmp (l d) (emit-call-jump 0xe9 (sub l *pc*) d))
+(defcfun emit-jmp (l d)
+	(defq m (elem d *distance*) c (sub l *pc*))
+	(if (ne *pass* 0) (if (gt (abs c) (abs m)) (elem-set d *distance* (setq m c))))
+	(cond
+		((le -0x80 (sub m 2) 0x7f)
+			(emit-bytes (add 0x2 0xe9) (bit-and (sub c 2) 0xff)))
+		((le -0x80000000 (sub m 5) 0x7fffffff)
+			(emit-bytes 0xe9)
+			(emit-int (sub c 5)))
+		(t (print "emit-jmp constant out of range: " c))))
+
 (defcfun emit-jmp-r (r) (emit-call-jump-r 0xe0 r))
 (defcfun emit-jmp-i (d c) (emit-call-jump-i 0x20 d c))
 (defcfun emit-jmp-d (d1 d2) (emit-call-jump-d 0x20 d1 d2))
@@ -855,13 +861,13 @@
 			(emit-bytes (add 0x48 sh) (add 0x90 sl))
 			(emit-bytes (add 0x48 (bit-shl sh 2) dh) 0x87 (add 0xc0 (bit-shl sl 3) dl)))))
 
-(defcfun emit-ext-rr (s d)
+(defcfun emit-ext-rr (s d b)
 	(if (and (eql s r0) (eql d r2))
 		(emit-bytes 0x48 0x99)
 		(progn
 			(emit-xor-rr d d)
 			(emit-cmp-cr 0 s)
-			(emit-branch 0x7d 5)
+			(emit-branch 0x7d 5 b)
 			(emit-dec d))))
 
 (defcfun emit-div-rrr (s d1 d2)
