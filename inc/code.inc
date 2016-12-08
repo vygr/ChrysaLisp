@@ -1016,7 +1016,7 @@
 			(setq i (inc i)))
 		(fill-reg-def)
 		(when debug_emit
-			(print "(assign " %1 " {" %2 "})")
+			(print "(retire " %1 " {" %2 "})")
 			(each print *inst*))
 		(eval *inst*)
 		(undef-reg-def)))
@@ -1043,7 +1043,7 @@
 			(setq i (inc i)))
 		(fill-reg-def)
 		(when debug_emit
-			(print "(assign {" %1 "} " %2 ")")
+			(print "(expr {" %1 "} " %2 ")")
 			(each print *inst*))
 		(eval *inst*)
 		(undef-reg-def)))
@@ -1069,7 +1069,7 @@
 		;(opt-inst-list)
 		(fill-reg-def)
 		(when debug_emit
-			(print "(assign {" %1 "} {" %2 "})")
+			(print "(copy {" %1 "} {" %2 "})")
 			(each print *inst*))
 		(eval *inst*)
 		(undef-reg-def)))
