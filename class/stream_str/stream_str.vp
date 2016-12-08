@@ -1,0 +1,105 @@
+(import 'inc/func.inc)
+(import 'class/class_string.inc)
+(import 'class/class_stream_str.inc)
+
+(class-macro-new 'stream_str)
+
+(def-func 'class/stream_str/create)
+	;inputs
+	;r0 = string object
+	;outputs
+	;r0 = 0 if error, else object
+	;trashes
+	;r1-r3, r5
+
+	;create new stream_str object
+	(assign '(r0) '(r5))
+
+	(f-call 'stream_str 'new '() '(r0))
+	(vpif '(r0 != 0))
+		;init the object
+		(func-path 'class 'stream_str)
+		(f-call 'stream_str 'init `(r0 (@ ,_function_) r5) '(r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(v-call 'stream_str 'delete '(r0) '() 'r1)
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/stream_str/init)
+	;inputs
+	;r0 = stream_str object
+	;r1 = vtable pointer
+	;r2 = string object
+	;outputs
+	;r1 = 0 if error, else ok
+	;trashes
+	;all but r0, r4
+
+	;init parent
+	(s-call 'stream_str 'init '(r0 r1 r2 0 (& r2 string_data) (r2 string_length)) '(r1))
+	(vpif '(r1 != 0))
+		;init myself
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/stream_str/ref_string)
+	;inputs
+	;r0 = stream_str object
+	;outputs
+	;r0 = stream_str object
+	;r1 = string object
+	;trashes
+	;r2
+
+	(vp-push r0)
+	(vp-xor-rr r2 r2)
+	(vp-cpy-ir r0 stream_bufp r1)
+	(vp-cpy-ri-b r2 r1 0)
+	(vp-cpy-ir r0 stream_object r0)
+	(vp-lea-i r0 string_data r2)
+	(vp-sub-rr r2 r1)
+	(vp-cpy-ri r1 r0 string_length)
+	(f-call 'string 'ref '(r0))
+	(vp-cpy-rr r0 r1)
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/stream_str/write_next)
+	;inputs
+	;r0 = stream_str object
+	;outputs
+	;r0 = stream_str object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst 'old_str 'new_str)
+	(ulong 'length 'new_length)
+
+	(push-scope)
+	(assign '(r0) {inst})
+
+	(assign {inst->stream_object - ptr_size} {old_str})
+	(assign {inst->stream_bufp - old_str} {length})
+	(func-call 'sys_mem 'alloc {length * 2} {new_str, new_length})
+	(func-call 'sys_mem 'copy {old_str, new_str, length} {_, inst->stream_bufp})
+	(assign {new_str + new_length - 1} {inst->stream_bufe})
+	(assign {new_str + ptr_size} {new_str})
+	(assign {old_str + ptr_size} {old_str})
+	(assign {1} {new_str->ref_count})
+	(func-call 'string 'deref {old_str})
+	(assign {new_str} {inst->stream_object})
+
+	(assign {inst} '(r0))
+	(pop-scope)
+	(return)
+
+(def-func-end)
