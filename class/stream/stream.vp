@@ -1,0 +1,452 @@
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_string.inc)
+(import 'class/class_stream.inc)
+
+(class-macro-new 'stream)
+
+(def-func 'class/stream/create)
+	;inputs
+	;r0 = object pointer, 0 if none
+	;r1 = buffer pointer, 0 if none
+	;r2 = buffer start
+	;r3 = buffer length
+	;outputs
+	;r0 = 0 if error, else object
+	;trashes
+	;r1-r3, r5-r8
+
+	;create new stream object
+	(assign '(r0 r1 r2 r3) '(r5 r6 r7 r8))
+
+	(f-call 'stream 'new '() '(r0))
+	(vpif '(r0 != 0))
+		;init the object
+		(func-path 'class 'stream)
+		(f-call 'stream 'init `(r0 (@ ,_function_) r5 r6 r7 r8) '(r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(v-call 'stream 'delete '(r0) '() 'r1)
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/stream/init)
+	;inputs
+	;r0 = stream object
+	;r1 = vtable pointer
+	;r2 = buffer object, 0 if none
+	;r3 = buffer pointer, 0 if none
+	;r5 = buffer start
+	;r6 = buffer length
+	;outputs
+	;r1 = 0 if error, else ok
+	;trashes
+	;all but r0, r4
+
+	;save inputs
+	(vp-add-rr r5 r6)
+	(assign '(r2 r3 r5 r6) '((r0 stream_object) (r0 stream_buffer) (r0 stream_bufp) (r0 stream_bufe)))
+
+	;init parent
+	(s-call 'stream 'init '(r0 r1) '(r1))
+	(vpif '(r1 != 0))
+		;init myself
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/stream/deinit)
+	;inputs
+	;r0 = stream object
+	;trashes
+	;all but r0, r4
+
+	;deref any buffer object
+	(vp-push r0)
+	(vp-cpy-ir r0 stream_object r0)
+	(vpif '(r0 != 0))
+		(f-call 'ref 'deref '(r0))
+	(endif)
+
+	;free any buffer
+	(vp-cpy-ir r4 0 r0)
+	(f-call 'sys_mem 'free '((r0 stream_buffer)))
+	(vp-pop r0)
+
+	;parent deinit
+	(s-jmp 'stream 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/stream/available)
+	;inputs
+	;r0 = stream object
+	;outputs
+	;r0 = stream object
+	;r1 = available space
+
+	(vp-cpy-ir r0 stream_bufe r1)
+	(vp-sub-ir r0 stream_bufp r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/stream/read)
+	;inputs
+	;r0 = stream object
+	;r1 = buffer
+	;r2 = buffer length
+	;outputs
+	;r0 = stream object
+	;r1 = -1 for EOF, else bytes read
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst)
+	(pubyte 'buffer 'buffer_end 'start)
+	(long 'char)
+
+	;save inputs
+	(push-scope)
+	(assign '(r0 r1 r2) {inst, buffer, buffer_end})
+
+	(vpif {buffer_end == 0})
+		(assign {inst, 0} '(r0 r1))
+		(return)
+	(endif)
+
+	(assign {buffer, buffer + buffer_end} {start, buffer_end})
+	(loop-start)
+		(func-call 'stream 'read_char {inst} {char})
+		(breakif {char < 0})
+		(assign {char} {* buffer})
+		(assign {buffer + 1} {buffer})
+	(loop-until {buffer == buffer_end})
+
+	(vpif {buffer != start})
+		(assign {inst, buffer - start} '(r0 r1))
+	(else)
+		(assign {inst, char} '(r0 r1))
+	(endif)
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/stream/read_char)
+	;inputs
+	;r0 = stream object
+	;outputs
+	;r0 = stream object
+	;r1 = -1 for EOF, else char read
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst)
+	(long 'char)
+
+	(push-scope)
+	(assign '(r0) {inst})
+
+	(loop-while {inst->stream_bufp == inst->stream_bufe})
+		(virt-call 'stream 'read_next {inst} {char})
+		(gotoif {char == -1} 'exit)
+	(loop-end)
+	(assign {* inst->stream_bufp} {char})
+	(assign {inst->stream_bufp + 1} {inst->stream_bufp})
+(vp-label 'exit)
+	(assign {inst, char} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/stream/read_line)
+	;inputs
+	;r0 = stream object
+	;r1 = buffer
+	;r2 = buffer length
+	;outputs
+	;r0 = stream object
+	;r1 = -1 for EOF, else bytes read
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst)
+	(pubyte 'buffer 'buffer_end 'start)
+	(long 'char)
+
+	;save inputs
+	(push-scope)
+	(assign '(r0 r1 r2) {inst, buffer, buffer_end})
+
+	(vpif {buffer_end == 0})
+		(assign {inst, 0} '(r0 r1))
+		(return)
+	(endif)
+
+	(assign {buffer, buffer + buffer_end} {start, buffer_end})
+	(loop-start)
+		(func-call 'stream 'read_char {inst} {char})
+		(continueif {char == 13})
+		(breakif {char == 10 || char < 0})
+		(assign {char} {* buffer})
+		(assign {buffer + 1} {buffer})
+	(loop-until {buffer == buffer_end})
+
+	(vpif {buffer == start && char < 0})
+		(assign {inst, char} '(r0 r1))
+	(else)
+		(assign {inst, buffer - start} '(r0 r1))
+	(endif)
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/stream/read_next)
+	;inputs
+	;r0 = stream object
+	;outputs
+	;r0 = stream object
+	;r1 = -1 for EOF, else more data
+	;trashes
+	;all but r0, r4
+
+	(vp-cpy-cr -1 r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/stream/read_ready)
+	;inputs
+	;r0 = stream object
+	;outputs
+	;r0 = stream object
+	;r1 = 0 if data not available
+	;trashes
+	;all but r0, r4
+
+	(f-jmp 'stream 'available '(r0))
+
+(def-func-end)
+
+(def-func 'class/stream/skip)
+	;inputs
+	;r0 = stream object
+	;r1 = char to skip
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst)
+	(ulong 'skip_char)
+	(long 'state)
+
+	(push-scope)
+	(assign '(r0 r1) {inst, skip_char})
+
+	(loop-start)
+		(loop-while {inst->stream_bufp == inst->stream_bufe})
+			(virt-call 'stream 'read_next {inst} {state})
+			(gotoif {state == -1} 'exit)
+		(loop-end)
+		(breakif {*inst->stream_bufp != skip_char})
+		(assign {inst->stream_bufp + 1} {inst->stream_bufp})
+	(loop-end)
+(vp-label 'exit)
+	(assign {inst} '(r0))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/stream/skip_not)
+	;inputs
+	;r0 = stream object
+	;r1 = char to not skip
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst)
+	(ulong 'skip_char)
+	(long 'state)
+
+	(push-scope)
+	(assign '(r0 r1) {inst, skip_char})
+
+	(loop-start)
+		(loop-while {inst->stream_bufp == inst->stream_bufe})
+			(virt-call 'stream 'read_next {inst} {state})
+			(gotoif {state == -1} 'exit)
+		(loop-end)
+		(breakif {*inst->stream_bufp == skip_char})
+		(assign {inst->stream_bufp + 1} {inst->stream_bufp})
+	(loop-end)
+(vp-label 'exit)
+	(assign {inst} '(r0))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/stream/split)
+	;inputs
+	;r0 = stream object
+	;r1 = split char
+	;outputs
+	;r0 = stream object
+	;r1 = vector of split streams
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst 'splits 'string)
+	(pubyte 'start)
+	(ulong 'length)
+	(ubyte 'char)
+
+	;save inputs
+	(push-scope)
+	(assign '(r0 r1) {inst, char})
+
+	;create output vector
+	(func-call 'vector 'create {} {splits})
+
+	;fill vector with splits
+	(loop-start)
+		(func-call 'stream 'skip {inst, char})
+		(assign {inst->stream_bufp} {start})
+		(func-call 'stream 'skip_not {inst, char})
+		(assign {inst->stream_bufp - start} {length})
+		(breakif {length == 0})
+		(func-call 'string 'create_from_buffer {start, length} {string})
+		(func-call 'vector 'push_back {splits, string})
+	(loop-end)
+
+	(assign {inst, splits} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/stream/write)
+	;inputs
+	;r0 = stream object
+	;r1 = buffer
+	;r2 = buffer length
+	;outputs
+	;r0 = stream object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst)
+	(pubyte 'buffer 'buffer_end)
+	(long 'char)
+
+	;save inputs
+	(push-scope)
+	(assign '(r0 r1 r2) {inst, buffer, buffer_end})
+
+	(assign {buffer + buffer_end} {buffer_end})
+	(loop-while {buffer != buffer_end})
+		(assign {* buffer} {char})
+		(assign {buffer + 1} {buffer})
+		(func-call 'stream 'write_char {inst, char})
+	(loop-end)
+
+	(assign {inst} '(r0))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/stream/write_char)
+	;inputs
+	;r0 = stream object
+	;r1 = char
+	;outputs
+	;r0 = stream object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst)
+	(long 'char)
+
+	(push-scope)
+	(assign '(r0 r1) {inst, char})
+
+	(switch)
+	(case {inst->stream_bufp == inst->stream_bufe})
+		(virt-call 'stream 'write_next {inst})
+		(breakif {inst->stream_bufp == inst->stream_bufe})
+	(default)
+		(assign {char} {* inst->stream_bufp})
+		(assign {inst->stream_bufp + 1} {inst->stream_bufp})
+	(endswitch)
+
+	(assign {inst} '(r0))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/stream/write_cstr)
+	;inputs
+	;r0 = stream object
+	;r1 = buffer
+	;outputs
+	;r0 = stream object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst)
+	(pubyte 'buffer)
+	(long 'char)
+
+	;save inputs
+	(push-scope)
+	(assign '(r0 r1) {inst, buffer})
+
+	(loop-start)
+		(assign {* buffer} {char})
+		(breakifnot {char})
+		(assign {buffer + 1} {buffer})
+		(func-call 'stream 'write_char {inst, char})
+	(loop-end)
+
+	(assign {inst} '(r0))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/stream/write_flush)
+	;inputs
+	;r0 = stream object
+	;outputs
+	;r0 = stream object
+	;trashes
+	;all but r0, r4
+
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r0 stream_bufp)
+	(vp-cpy-ri r1 r0 stream_bufe)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/stream/write_next)
+	;inputs
+	;r0 = stream object
+	;outputs
+	;r0 = stream object
+	;trashes
+	;all but r0, r4
+
+	(v-jmp 'stream 'write_flush '(r0))
+
+(def-func-end)
