@@ -1,4 +1,4 @@
-%include 'inc/func.ninc'
+%use altreg
 
 %ifidn OS, Darwin
 	extern _SDL_SetMainReady
@@ -74,32 +74,34 @@
 ; entry point
 ;;;;;;;;;;;;;
 
+	fn_header_entry equ 12
+
 	SECTION .text
 
 	global main
 main:
 	;called by sdl !!!!!!!
-	vp_push r6
+	push r6
 
 	;init loader and prebind
-	vp_lea_p ld_load_init_loader, r1
-	vp_cpy_ui [r1 + fn_header_entry], r2
-	vp_add r2, r1
-	vp_call r1
+	lea r1, [rel ld_load_init_loader]
+	mov edx, dword [r1 + fn_header_entry]
+	add r1, r2
+	call r1
 
 	;init gui
-	vp_lea_p sdl_func_table, r0
-	vp_lea_p ld_gui_init_gui, r1
-	vp_cpy_ui [r1 + fn_header_entry], r2
-	vp_add r2, r1
-	vp_call r1
+	lea r0, [rel sdl_func_table]
+	lea r1, [rel ld_gui_init_gui]
+	mov edx, dword [r1 + fn_header_entry]
+	add r1, r2
+	call r1
 
 	;jump to kernel task
-	vp_pop r0
-	vp_lea_p ld_kernel, r1
-	vp_cpy_ui [r1 + fn_header_entry], r2
-	vp_add r2, r1
-	vp_jmp r1
+	pop r0
+	lea r1, [rel ld_kernel]
+	mov edx, dword [r1 + fn_header_entry]
+	add r1, r2
+	jmp r1
 
 ;;;;;;;;;;;;;;;;;;;;
 ; prebound functions
