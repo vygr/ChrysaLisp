@@ -22,11 +22,11 @@
 	(vp-jmp l))
 
 (defcfun gotoif (e l)
-	(assign (elem 0 e) '(r0))
+	(assign e '(r0))
 	(vp-jmpif '(r0 != 0) l))
 
 (defcfun gotoifnot (e l)
-	(assign (elem 0 e) '(r0))
+	(assign e '(r0))
 	(vp-jmpifnot '(r0 != 0) l))
 
 (defcfun switch ()
@@ -1075,6 +1075,7 @@
 		(undef-reg-def)))
 
 (defcfun assign (%1 %2)
+	;(print %1 " -> " %2)
 	(defq s (inst-of 'class/class_string %1) d (inst-of 'class/class_string %2))
 	(cond
 		((and s d)

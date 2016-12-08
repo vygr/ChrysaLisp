@@ -50,7 +50,7 @@
 	(push-scope)
 	(assign '(r0 r1 r2) {this, stream, value})
 
-	(vpifnot '(value))
+	(vpifnot {value})
 		(func-call 'stream 'write_char {stream, char_lf})
 		(func-call 'stream 'write_cstr {stream, "*NULL*"})
 		(func-call 'stream 'write_char {stream, char_lf})

@@ -11,7 +11,7 @@
 
 (def-func 'apps/terminal/app)
 
-(defcvar 'buffer_size 120)
+	(defcvar 'buffer_size 120)
 
 	(def-struct 'shared)
 		(ptr 'shared_master 'shared_panel 'shared_history 'shared_window)
@@ -90,13 +90,13 @@
 			(func-call 'sys_mail 'read {mailbox} {msg})
 			(virt-call 'view 'event {msg->ev_msg_view, msg})
 			(vpif {msg->ev_msg_type == ev_type_key && msg->ev_msg_keycode > 0})
-				(local-call 'terminal_input {& shared, msg->ev_msg_key} '(r0, r1))
+				(local-call 'terminal_input {& shared, msg->ev_msg_key} '(r0 r1))
 			(endif)
 			(func-call 'sys_mem 'free {msg})
 		(else)
 			;output from a pipe element
 			(func-call 'master 'get_stream {shared.shared_master, mailbox} {stream})
-			(local-call 'pipe_output {& shared, stream} '(r0, r1) '(r0) '(state))
+			(local-call 'pipe_output {& shared, stream} '(r0 r1) '(r0) {state})
 			(vpif {state == -1})
 				;EOF
 				(func-call 'master 'stop {shared.shared_master})
@@ -132,7 +132,7 @@
 	(loop-start)
 		(func-call 'stream 'read_char {stream} {char})
 		(breakif {char == -1})
-		(local-call 'terminal_output {shared, char} '(r0, r1))
+		(local-call 'terminal_output {shared, char} '(r0 r1))
 		(virt-call 'stream 'read_ready {stream} {ready})
 	(loop-untilnot {ready})
 
@@ -153,7 +153,7 @@
 	(assign '(r0 r1) {shared, char})
 
 	;echo char to terminal
-	(local-call 'terminal_output {shared, char} '(r0, r1))
+	(local-call 'terminal_output {shared, char} '(r0 r1))
 
 	;buffer char
 	(assign {char} {* shared->shared_bufp})
@@ -168,7 +168,7 @@
 			(breakifnot {length})
 			(func-call 'string 'create_from_buffer {& shared->shared_buffer, length} {string})
 			(devirt-call 'vector 'get_length {shared->shared_history} {shared->shared_history_index})
-			(vpifnot '(shared -> shared_history_index))
+			(vpifnot {shared -> shared_history_index})
 			(vp-label 'new_entry)
 				(func-call 'vector 'push_back {shared->shared_history, string})
 				(assign {shared->shared_history_index + 1} {shared->shared_history_index})
@@ -209,7 +209,7 @@
 		(devirt-call 'vector 'ref_element {shared->shared_history, shared->shared_history_index} {string})
 		(func-call 'sys_mem 'copy {& string->string_data, & shared->shared_buffer, string->string_length} {_, shared->shared_bufp})
 		(func-call 'stream 'create {string, 0, & string->string_data, string->string_length} {stream})
-		(local-call 'pipe_output {shared, stream} '(r0, r1))
+		(local-call 'pipe_output {shared, stream} '(r0 r1))
 	(elseif {char == 130})
 		;cursor down
 		(devirt-call 'vector 'get_length {shared->shared_history} {length})
@@ -224,7 +224,7 @@
 		(endif)
 		(func-call 'sys_mem 'copy {& string->string_data, & shared->shared_buffer, string->string_length} {_, shared->shared_bufp})
 		(func-call 'stream 'create {string, 0, & string->string_data, string->string_length} {stream})
-		(local-call 'pipe_output {shared, stream} '(r0, r1))
+		(local-call 'pipe_output {shared, stream} '(r0 r1))
 	(elseif {char == 27})
 		;esc
 		(func-call 'master 'get_state {shared->shared_master} {state})

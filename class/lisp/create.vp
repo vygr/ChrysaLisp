@@ -22,7 +22,7 @@
 		;init the object
 		(func-path 'class 'lisp)
 		(func-call 'lisp 'init (cat {this, @} (str _function_) {, stdin, stdout, stderr}) {ok})
-		(vpifnot '(ok))
+		(vpifnot {ok})
 			;error with init
 			(virt-call 'lisp 'delete {this} {})
 			(assign {0} {this})

@@ -27,7 +27,7 @@
 		(break)
 	(case {func == @class/class_vector})
 		(devirt-call 'vector 'get_length {form} {length})
-		(vpifnot '(length))
+		(vpifnot {length})
 			;eval to nil
 			(assign {this->lisp_sym_nil} {value})
 			(func-call 'ref 'ref {value})

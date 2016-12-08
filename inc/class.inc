@@ -326,7 +326,7 @@
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use func_call ?"))
-	(assign (cat "RXX" %3) (cat (list %5) (elem 3 m)))
+	(assign (cat "RXX, " %3) (cat (list %5) (elem 3 m)))
 	(vp-cpy-ir r0 obj_vtable %5)
 	(vp-call-i %5 v)
 	(assign (elem 4 m) %4))

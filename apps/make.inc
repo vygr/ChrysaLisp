@@ -1,8 +1,4 @@
-;all need C-Script
-(when nil
-(import 'calculator/make.inc)
-(import 'launcher/make.inc)
-(import 'make.inc/make.inc)
-(import 'netmon/make.inc)
-(import 'terminal/make.inc)
-)
+(import 'apps/calculator/make.inc)
+(import 'apps/launcher/make.inc)
+(import 'apps/netmon/make.inc)
+(import 'apps/terminal/make.inc)
