@@ -10,9 +10,7 @@
 	;r1-r3, r5
 
 	;create new stream_msg_in object
-	(set-src '(r0))
-	(set-dst '(r5))
-	(map-src-to-dst)
+	(assign '(r0) '(r5))
 
 	(f-call 'stream_msg_in 'new '() '(r0))
 	(vpif '(r0 != 0))

@@ -13,7 +13,7 @@
 	(ptr 'inst 'msg)
 
 	(push-scope)
-	(retire '(r0) {inst})
+	(assign '(r0) {inst})
 
 	;flush remaining
 	(virt-call 'stream_msg_out 'write_flush {inst->slave_stderr})
@@ -45,7 +45,7 @@
 	;free args
 	(func-call 'vector 'deref {inst->slave_args})
 
-	(expr {inst} '(r0))
+	(assign {inst} '(r0))
 	(pop-scope)
 
 	;deinit parent

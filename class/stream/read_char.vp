@@ -14,7 +14,7 @@
 	(long 'char)
 
 	(push-scope)
-	(retire '(r0) {inst})
+	(assign '(r0) {inst})
 
 	(loop-while {inst->stream_bufp == inst->stream_bufe})
 		(virt-call 'stream 'read_next {inst} {char})
@@ -23,7 +23,7 @@
 	(assign {* inst->stream_bufp} {char})
 	(assign {inst->stream_bufp + 1} {inst->stream_bufp})
 (vp-label 'exit)
-	(expr {inst, char} '(r0 r1))
+	(assign {inst, char} '(r0 r1))
 	(pop-scope)
 	(return)
 

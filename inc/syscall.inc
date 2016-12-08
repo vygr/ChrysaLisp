@@ -112,17 +112,13 @@
 
 (defcfun sys-exit (%1)
 	;return code
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sys-call (add sys_exit 0x2000000)))
 
 (defcfun sys-read (%1 %2 %3)
 	;fd, buffer, length
 	(push-trashed)
-	(set-src `(,%1 ,%2 ,%3))
-	(set-dst '(r7 r6 r2))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3) '(r7 r6 r2))
 	(sys-call (add sys_read 0x2000000))
 	(pop-trashed))
 
@@ -130,9 +126,7 @@
 	;fd
 	(push-trashed)
 	(vp-sub-cr ptr_size r4)
-	(set-src `(,%1 r4 1))
-	(set-dst '(r7 r6 r2))
-	(map-src-to-dst)
+	(assign `(,%1 r4 1) '(r7 r6 r2))
 	(sys-call (add sys_read 0x2000000))
 	(vp-cpy-ir-ub r4 0 r0)
 	(vp-add-cr ptr_size r4)
@@ -142,9 +136,7 @@
 	;fd, string, length
 	(push-trashed)
 	(vp-push r0)
-	(set-src `(,%1 ,%2 ,%3))
-	(set-dst '(r7 r6 r2))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3) '(r7 r6 r2))
 	(sys-call (add sys_write 0x2000000))
 	(vp-pop r0)
 	(pop-trashed))
@@ -153,9 +145,7 @@
 	;fd, char
 	(push-trashed)
 	(vp-push r0 %2)
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(vp-cpy-rr r4 r6)
 	(vp-cpy-cr 1 r2)
 	(sys-call (add sys_write 0x2000000))
@@ -166,72 +156,56 @@
 (defcfun sys-mmap (%1 %2 %3 %4 %5 %6)
 	;addr, len, prot, flags, fd, pos
 	(push-trashed)
-	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6))
-	(set-dst '(r7 r6 r2 r10 r8 r9))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6) '(r7 r6 r2 r10 r8 r9))
 	(sys-call (add sys_mmap 0x2000000))
 	(pop-trashed))
 
 (defcfun sys-mprotect (%1 %2 %3)
 	;addr, len, prot
 	(push-trashed)
-	(set-src `(,%1 ,%2 ,%3))
-	(set-dst '(r7 r6 r2))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3) '(r7 r6 r2))
 	(sys-call (add sys_mprotect 0x2000000))
 	(pop-trashed))
 
 (defcfun sys-munmap (%1 %2)
 	;addr, len
 	(push-trashed)
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sys-call (add sys_munmap 0x2000000))
 	(pop-trashed))
 
 (defcfun sys-stat (%1 %2)
 	;path, buffer
 	(push-trashed)
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sys-call (add sys_stat 0x2000000))
 	(pop-trashed))
 
 (defcfun sys-open (%1 %2 %3)
 	;path, flags, mode
 	(push-trashed)
-	(set-src `(,%1 ,%2 ,%3))
-	(set-dst '(r7 r6 r2))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3) '(r7 r6 r2))
 	(sys-call (add sys_open 0x2000000))
 	(pop-trashed))
 
 (defcfun sys-close (%1)
 	;fd
 	(push-trashed)
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sys-call (add sys_close 0x2000000))
 	(pop-trashed))
 
 (defcfun sys-ftruncate (%1 %2)
 	;fd, offset
 	(push-trashed)
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sys-call (add sys_ftruncate 0x2000000))
 	(pop-trashed))
 
 (defcfun sys-unlink (%1)
 	;name
 	(push-trashed)
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sys-call (add sys_unlink 0x2000000))
 	(pop-trashed))
 
@@ -239,9 +213,7 @@
 	;time, timezone
 	(push-trashed)
 	(vp-push %1)
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sys-call (add sys_gettimeofday 0x2000000))
 	(vp-pop r1)
 	(vp-cpy-ri r0 r1 timeval_sec)
@@ -337,17 +309,13 @@
 
 (defcfun sys-exit (%1)
 	;return code
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sys-call sys_exit))
 
 (defcfun sys-read (%1 %2 %3)
 	;fd, buffer, length
 	(push-trashed)
-	(set-src `(,%1 ,%2 ,%3))
-	(set-dst '(r7 r6 r2))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3) '(r7 r6 r2))
 	(sys-call sys_read)
 	(pop-trashed))
 
@@ -355,9 +323,7 @@
 	;fd
 	(push-trashed)
 	(vp-sub-cr ptr_size r4)
-	(set-src `(,%1 r4 1))
-	(set-dst '(r7 r6 r2))
-	(map-src-to-dst)
+	(assign `(,%1 r4 1) '(r7 r6 r2))
 	(sys-call sys_read)
 	(vp-cpy-ir-ub r4 0 r0)
 	(vp-add-cr ptr_size r4)
@@ -367,9 +333,7 @@
 	;fd, string, length
 	(push-trashed)
 	(vp-push r0)
-	(set-src `(,%1 ,%2 ,%3))
-	(set-dst '(r7 r6 r2))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3) '(r7 r6 r2))
 	(sys-call sys_write)
 	(vp-pop r0)
 	(pop-trashed))
@@ -378,9 +342,7 @@
 	;fd, char
 	(push-trashed)
 	(vp-push r0 %2)
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(vp-cpy-rr r4 r6)
 	(vp-cpy-cr 1 r2)
 	(sys-call sys_write)
@@ -391,81 +353,63 @@
 (defcfun sys-mmap (%1 %2 %3 %4 %5 %6)
 	;addr, len, prot, flags, fd, pos
 	(push-trashed)
-	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6))
-	(set-dst '(r7 r6 r2 r10 r8 r9))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6) '(r7 r6 r2 r10 r8 r9))
 	(sys-call sys_mmap)
 	(pop-trashed))
 
 (defcfun sys-mprotect (%1 %2 %3)
 	;addr, len, prot
 	(push-trashed)
-	(set-src `(,%1 ,%2 ,%3))
-	(set-dst '(r7 r6 r2))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3) '(r7 r6 r2))
 	(sys-call sys_mprotect)
 	(pop-trashed))
 
 (defcfun sys-munmap (%1 %2)
 	;addr, len
 	(push-trashed)
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sys-call sys_munmap)
 	(pop-trashed))
 
 (defcfun sys-stat (%1 %2)
 	;path, buffer
 	(push-trashed)
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sys-call sys_stat)
 	(pop-trashed))
 
 (defcfun sys-open (%1 %2 %3)
 	;path, flags, mode
 	(push-trashed)
-	(set-src `(,%1 ,%2 ,%3))
-	(set-dst '(r7 r6 r2))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3) '(r7 r6 r2))
 	(sys-call sys_open)
 	(pop-trashed))
 
 (defcfun sys-close (%1)
 	;fd
 	(push-trashed)
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sys-call sys_close)
 	(pop-trashed))
 
 (defcfun sys-ftruncate (%1 %2)
 	;fd, offset
 	(push-trashed)
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sys-call sys_ftruncate)
 	(pop-trashed))
 
 (defcfun sys-unlink (%1)
 	;name
 	(push-trashed)
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sys-call sys_unlink)
 	(pop-trashed))
 
 (defcfun sys-gettimeofday (%1 %2)
 	;time, timezone
 	(push-trashed)
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sys-call sys_gettimeofday)
 	(pop-trashed))
 )

@@ -22,11 +22,11 @@
 	(vp-jmp l))
 
 (defcfun gotoif (e l)
-	(expr (elem 0 e) '(r0))
+	(assign (elem 0 e) '(r0))
 	(vp-jmpif '(r0 != 0) l))
 
 (defcfun gotoifnot (e l)
-	(expr (elem 0 e) '(r0))
+	(assign (elem 0 e) '(r0))
 	(vp-jmpifnot '(r0 != 0) l))
 
 (defcfun switch ()
@@ -50,7 +50,7 @@
 	(defq c (eval (cnt-sym)) l (loc-sym c))
 	(if (inst-of 'class/class_string e)
 		(progn
-			(expr e '(r0))
+			(assign e '(r0))
 			(vp-jmpifnot '(r0 != 0) l))
 		(progn
 			(vp-jmpifnot `(~e) l))))
@@ -60,7 +60,7 @@
 	(defq c (eval (cnt-sym)) l (loc-sym c))
 	(if (inst-of 'class/class_string e)
 		(progn
-			(expr e '(r0))
+			(assign e '(r0))
 			(vp-jmpif '(r0 != 0) l))
 		(progn
 			(vp-jmpif `(~e) l))))
@@ -72,7 +72,7 @@
 	(defq l (end-sym))
 	(if (inst-of 'class/class_string e)
 		(progn
-			(expr e '(r0))
+			(assign e '(r0))
 			(vp-jmpif '(r0 != 0) l))
 		(vp-jmpif `(~e) l)))
 
@@ -80,7 +80,7 @@
 	(defq l (end-sym))
 	(if (inst-of 'class/class_string e)
 		(progn
-			(expr e '(r0))
+			(assign e '(r0))
 			(vp-jmpifnot '(r0 != 0) l))
 		(vp-jmpifnot `(~e) l)))
 
@@ -91,7 +91,7 @@
 	(defq l (beg-sym))
 	(if (inst-of 'class/class_string e)
 		(progn
-			(expr e '(r0))
+			(assign e '(r0))
 			(vp-jmpif '(r0 != 0) l))
 		(vp-jmpif `(~e) l)))
 
@@ -99,7 +99,7 @@
 	(defq l (beg-sym))
 	(if (inst-of 'class/class_string e)
 		(progn
-			(expr e '(r0))
+			(assign e '(r0))
 			(vp-jmpifnot '(r0 != 0) l))
 		(vp-jmpifnot `(~e) l)))
 
@@ -1016,7 +1016,7 @@
 			(setq i (inc i)))
 		(fill-reg-def)
 		(when debug_emit
-			(print "(retire " %1 " {" %2 "})")
+			(print "(assign " %1 " {" %2 "})")
 			(each print *inst*))
 		(eval *inst*)
 		(undef-reg-def)))
@@ -1043,12 +1043,12 @@
 			(setq i (inc i)))
 		(fill-reg-def)
 		(when debug_emit
-			(print "(expr {" %1 "} " %2 ")")
+			(print "(assign {" %1 "} " %2 ")")
 			(each print *inst*))
 		(eval *inst*)
 		(undef-reg-def)))
 
-(defcfun assign (%1 %2)
+(defcfun copy (%1 %2)
 	(set-src (map trim (split %1 (code ","))))
 	(set-dst (map trim (split %2 (code ","))))
 	(unless (eq (length *src*) (length *dst*))
@@ -1073,3 +1073,21 @@
 			(each print *inst*))
 		(eval *inst*)
 		(undef-reg-def)))
+
+(defcfun assign (%1 %2)
+	(defq s (inst-of 'class/class_string %1) d (inst-of 'class/class_string %2))
+	(cond
+		((and s d)
+			;script -> script
+			(copy %1 %2))
+		((and s (not d))
+			;script -> asm
+			(expr %1 %2))
+		((and (not s) d)
+			;asm -> script
+			(retire %1 %2))
+		(t
+			;asm -> asm
+			(set-src %1)
+			(set-dst %2)
+			(map-src-to-dst))))

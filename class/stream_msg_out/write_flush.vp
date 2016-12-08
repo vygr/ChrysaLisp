@@ -12,7 +12,7 @@
 	(ptr 'inst 'msg)
 
 	(push-scope)
-	(retire '(r0) {inst})
+	(assign '(r0) {inst})
 
 	(assign {inst->stream_buffer} {msg})
 	(vpif {msg})
@@ -41,7 +41,7 @@
 		(super-call 'stream_msg_out 'write_flush {inst})
 	(endif)
 
-	(expr {inst} '(r0))
+	(assign {inst} '(r0))
 	(pop-scope)
 	(return)
 

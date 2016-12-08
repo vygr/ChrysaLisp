@@ -50,9 +50,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src '(r0 r2 r3))
-	(set-dst '((r4 local_inst) (r0 error_description) (r0 error_object)))
-	(map-src-to-dst)
+	(assign '(r0 r2 r3) '((r4 local_inst) (r0 error_description) (r0 error_object)))
 
 	;init parent
 	(s-call 'error 'init '(r0 r1) '(r1))

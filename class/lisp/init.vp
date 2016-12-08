@@ -42,7 +42,7 @@
 	(ulong 'ok)
 
 	(push-scope)
-	(retire '(r0 r1 r2 r3 r5) {this, vtable, stdin, stdout, stderr})
+	(assign '(r0 r1 r2 r3 r5) {this, vtable, stdin, stdout, stderr})
 
 	;init parent
 	(super-call 'lisp 'init {this, vtable} {ok})
@@ -81,7 +81,7 @@
 		(func-call 'unordered_map 'insert {this->lisp_enviroment, this->lisp_sym_t, this->lisp_sym_t} {_, _})
 	(endif)
 
-	(expr {this, ok} '(r0 r1))
+	(assign {this, ok} '(r0 r1))
 	(pop-scope)
 	(return)
 

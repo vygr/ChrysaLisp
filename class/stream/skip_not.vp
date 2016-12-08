@@ -13,7 +13,7 @@
 	(long 'state)
 
 	(push-scope)
-	(retire '(r0 r1) {inst, skip_char})
+	(assign '(r0 r1) {inst, skip_char})
 
 	(loop-start)
 		(loop-while {inst->stream_bufp == inst->stream_bufe})
@@ -24,7 +24,7 @@
 		(assign {inst->stream_bufp + 1} {inst->stream_bufp})
 	(loop-end)
 (vp-label 'exit)
-	(expr {inst} '(r0))
+	(assign {inst} '(r0))
 	(pop-scope)
 	(return)
 

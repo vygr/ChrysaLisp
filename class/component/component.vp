@@ -44,9 +44,7 @@
 	;all but r0, r4
 
 	;save inputs
-	(set-src '(r0 r1 r2 r3))
-	(set-dst '(r5 r6 r7 r8))
-	(map-src-to-dst)
+	(assign '(r0 r1 r2 r3) '(r5 r6 r7 r8))
 
 	;gui sigslot heap
 	(f-bind 'gui_gui 'statics r0)
@@ -81,9 +79,7 @@
 	;all but r0, r4
 
 	;save inputs
-	(set-src '(r0 r1))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign '(r0 r1) '(r7 r6))
 
 	;gui sigslot heap
 	(f-bind 'gui_gui 'statics r0)
@@ -117,9 +113,7 @@
 	;all but r0, r4
 
 	;save inputs
-	(set-src '(r0 r1))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign '(r0 r1) '(r7 r6))
 
 	;gui sigslot heap
 	(f-bind 'gui_gui 'statics r0)
@@ -172,9 +166,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src '(r0))
-	(set-dst '((r4 local_inst)))
-	(map-src-to-dst)
+	(assign '(r0) '((r4 local_inst)))
 
 	;emit the signal
 	(loop-list-forward r1 0 r0 r1)

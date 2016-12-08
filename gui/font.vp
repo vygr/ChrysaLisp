@@ -110,9 +110,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src '(r0 r1))
-	(set-dst '((r4 local_font) (r4 local_points)))
-	(map-src-to-dst)
+	(assign '(r0 r1) '((r4 local_font) (r4 local_points)))
 
 	;get font statics
 	(f-bind 'gui_font 'statics r5)
@@ -214,9 +212,7 @@
 	;save inputs
 	(vp-lea-i r1 string_data r2)
 	(vp-sub-cr local_size r4)
-	(set-src '(r0 r2))
-	(set-dst '((r4 local_font) (r4 local_text)))
-	(map-src-to-dst)
+	(assign '(r0 r2) '((r4 local_font) (r4 local_text)))
 
 	;get font statics
 	(f-bind 'gui_font 'statics r5)

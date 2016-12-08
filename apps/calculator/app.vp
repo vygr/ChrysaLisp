@@ -129,7 +129,7 @@
 
 	;save inputs
 	(push-scope)
-	(retire '(r0 r1) {inst, button})
+	(assign '(r0 r1) {inst, button})
 	(func-call 'button 'get_text {button} {button_string})
 	(vpif {button_string->string_length == 2})
 		;AC

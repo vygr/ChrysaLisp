@@ -129,7 +129,7 @@
 	(long 'num 'base)
 
 	(push-scope)
-	(retire '(r0 r1) {num, base})
+	(assign '(r0 r1) {num, base})
 
 	(func-path 'sys_load 'statics)
 	(assign (cat "@" (str _function_) {.ld_statics_reloc_buffer}) {reloc})
@@ -142,7 +142,7 @@
 	(func-call 'sys_string 'from_long {num, buffer, base})
 	(func-call 'string 'create_from_cstr {reloc} {this})
 
-	(expr {this} '(r0))
+	(assign {this} '(r0))
 	(pop-scope)
 	(return)
 
@@ -165,9 +165,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src '(r2 r3))
-	(set-dst '((r4 local_data) (r4 local_length)))
-	(map-src-to-dst)
+	(assign '(r2 r3) '((r4 local_data) (r4 local_length)))
 
 	;init parent
 	(s-call 'string 'init '(r0 r1) '(r1))
@@ -208,9 +206,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src '(r2 r3))
-	(set-dst '((r4 local_string1) (r4 local_string2)))
-	(map-src-to-dst)
+	(assign '(r2 r3) '((r4 local_string1) (r4 local_string2)))
 
 	;init parent
 	(s-call 'string 'init '(r0 r1) '(r1))
@@ -254,9 +250,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src '(r2 r3))
-	(set-dst '((r4 local_filename) (r0 string_length)))
-	(map-src-to-dst)
+	(assign '(r2 r3) '((r4 local_filename) (r0 string_length)))
 
 	;init parent
 	(s-call 'string 'init '(r0 r1) '(r1))
@@ -300,9 +294,7 @@
 	;r1-r3, r5-r7
 
 	;save inputs
-	(set-src '(r0 r1))
-	(set-dst '(r6 r7))
-	(map-src-to-dst)
+	(assign '(r0 r1) '(r6 r7))
 
 	;get size of strings
 	(vp-cpy-ir r0 string_length r0)
@@ -431,14 +423,14 @@
 
 	;save inputs
 	(push-scope)
-	(retire '(r0 r1) {inst, char})
+	(assign '(r0 r1) {inst, char})
 
 	;create string split
 	(func-call 'stream 'create {0, 0, & inst->string_data, inst->string_length} {stream})
 	(func-call 'stream 'split {stream, char} {splits})
 	(func-call 'stream 'deref {stream})
 
-	(expr {inst, splits} '(r0 r1))
+	(assign {inst, splits} '(r0 r1))
 	(pop-scope)
 	(return)
 

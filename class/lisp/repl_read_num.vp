@@ -32,7 +32,7 @@
 	(long 'val)
 
 	(push-scope)
-	(retire '(r0 r1 r2 r2) {this, stream, char, sign})
+	(assign '(r0 r1 r2 r2) {this, stream, char, sign})
 
 	(vpif {char == char_minus})
 		(func-call 'stream 'read_char {stream} {char})
@@ -67,7 +67,7 @@
 	(endif)
 	(func-call 'boxed_long 'set_value {num, val})
 
-	(expr {this, num, char} '(r0 r1 r2))
+	(assign {this, num, char} '(r0 r1 r2))
 	(pop-scope)
 	(return)
 

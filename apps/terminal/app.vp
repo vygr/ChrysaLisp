@@ -127,7 +127,7 @@
 	(ulong 'ready)
 
 	(push-scope)
-	(retire '(r0 r1) {shared, stream})
+	(assign '(r0 r1) {shared, stream})
 
 	(loop-start)
 		(func-call 'stream 'read_char {stream} {char})
@@ -136,7 +136,7 @@
 		(virt-call 'stream 'read_ready {stream} {ready})
 	(loop-untilnot {ready})
 
-	(expr {char} '(r0))
+	(assign {char} '(r0))
 	(pop-scope)
 	(return)
 
@@ -150,7 +150,7 @@
 	(ubyte 'char 'state)
 
 	(push-scope)
-	(retire '(r0 r1) {shared, char})
+	(assign '(r0 r1) {shared, char})
 
 	;echo char to terminal
 	(local-call 'terminal_output {shared, char} '(r0, r1))
@@ -256,7 +256,7 @@
 	(ulong 'length 'char)
 
 	(push-scope)
-	(retire '(r0 r1) {shared, char})
+	(assign '(r0 r1) {shared, char})
 	(vpif {char == 10 || char == 13})
 		;scroll lines
 		(func-call 'flow 'get_first {shared->shared_panel} {label})

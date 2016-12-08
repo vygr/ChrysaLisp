@@ -12,7 +12,7 @@
 	(ptr 'inst 'msg)
 
 	(push-scope)
-	(retire '(r0) {inst})
+	(assign '(r0) {inst})
 
 	(virt-call 'stream 'write_flush {inst})
 	(func-call 'sys_mail 'alloc {} {msg})
@@ -21,7 +21,7 @@
 	(assign {& msg->msg_size} {inst->stream_bufe})
 	(assign {msg} {inst->stream_buffer})
 
-	(expr {inst} '(r0))
+	(assign {inst} '(r0))
 	(pop-scope)
 	(return)
 

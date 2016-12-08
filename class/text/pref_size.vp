@@ -19,7 +19,7 @@
 
 	;save inputs
 	(push-scope)
-	(retire '(r0) {inst})
+	(assign '(r0) {inst})
 
 	;bounds of text
 	(assign {0, 0} {width, height})
@@ -35,7 +35,7 @@
 		(assign {width + (length - 1) * (height >> 2)} {width})
 	(endif)
 
-	(expr {inst, width, height} '(r0 r10 r11))
+	(assign {inst, width, height} '(r0 r10 r11))
 	(pop-scope)
 	(return)
 

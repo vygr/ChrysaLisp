@@ -14,7 +14,7 @@
 	(long 'char)
 
 	(push-scope)
-	(retire '(r0 r1) '(inst, char))
+	(assign '(r0 r1) '(inst, char))
 
 	(switch)
 	(case '((inst -> stream_bufp == inst -> stream_bufe)))
@@ -25,7 +25,7 @@
 		(assign {inst->stream_bufp + 1} {inst->stream_bufp})
 	(endswitch)
 
-	(expr {inst} '(r0))
+	(assign {inst} '(r0))
 	(pop-scope)
 	(return)
 

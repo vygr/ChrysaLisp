@@ -66,7 +66,7 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0 r1 r2) {slave, buffer, length})
+	(assign '(r0 r1 r2) {slave, buffer, length})
 
 	(func-call 'stream 'write {slave->slave_stdout, buffer, length})
 	(func-call 'stream 'write_char {slave->slave_stdout, char_lf})

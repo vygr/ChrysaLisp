@@ -16,14 +16,14 @@
 	(ulong 'index)
 
 	(push-scope)
-	(retire '(r0 r1) '(inst, mailbox))
+	(assign '(r0 r1) '(inst, mailbox))
 
 	(assign {0} {index})
 	(loop-while {mailbox != (inst->master_select_array)[index]})
 		(assign {index + ptr_size} {index})
 	(loop-end)
 
-	(expr {inst, (inst->master_streams->vector_array)[index]} '(r0 r1))
+	(assign {inst, (inst->master_streams->vector_array)[index]} '(r0 r1))
 	(pop-scope)
 	(return)
 

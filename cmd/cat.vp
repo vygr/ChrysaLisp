@@ -57,7 +57,7 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0 r1 r2) {slave, arg, buffer})
+	(assign '(r0 r1 r2) {slave, arg, buffer})
 
 	(func-call 'string 'create_from_file {& arg->string_data} {file})
 	(func-call 'string 'deref {arg})

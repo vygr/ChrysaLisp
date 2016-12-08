@@ -11,9 +11,7 @@
 	;r1-r3, r5-r6
 
 	;create new stream_msg_out object
-	(set-src '(r0 r1))
-	(set-dst '(r5 r6))
-	(map-src-to-dst)
+	(assign '(r0 r1) '(r5 r6))
 
 	(f-call 'stream_msg_out 'new '() '(r0))
 	(vpif '(r0 != 0))

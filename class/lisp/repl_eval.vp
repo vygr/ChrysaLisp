@@ -16,7 +16,7 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0 r1) {this, form})
+	(assign '(r0 r1) {this, form})
 
 	;evaluate based on type
 	(assign {form->obj_vtable} {func})
@@ -67,7 +67,7 @@
 		(func-call 'ref 'ref {value})
 	(endswitch)
 
-	(expr {this, value} '(r0 r1))
+	(assign {this, value} '(r0 r1))
 	(pop-scope)
 	(return)
 

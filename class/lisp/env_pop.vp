@@ -13,7 +13,7 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(retire '(r0) {this})
+	(assign '(r0) {this})
 
 	(func-call 'unordered_map 'find {this->lisp_enviroment, this->lisp_sym_parent} {iter, _})
 	(vpif {iter})
@@ -22,7 +22,7 @@
 		(assign {env} {this->lisp_enviroment})
 	(endif)
 
-	(expr {this} '(r0))
+	(assign {this} '(r0))
 	(pop-scope)
 	(return)
 

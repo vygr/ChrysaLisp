@@ -142,7 +142,7 @@
 
 	;save task info
 	(push-scope)
-	(retire '(r0) {tasks})
+	(assign '(r0) {tasks})
 
 	;create output array
 	(devirt-call 'vector 'get_length {tasks} {length})
@@ -179,7 +179,7 @@
 	(loop-end)
 
 	;return ids array
-	(expr {ids} '(r0))
+	(assign {ids} '(r0))
 	(pop-scope)
 	(vp-ret)
 
@@ -214,7 +214,7 @@
 
 	;save task info
 	(push-scope)
-	(retire '(r0 r1) {name, cpu})
+	(assign '(r0 r1) {name, cpu})
 
 	;init temp mailbox
 	(func-call 'sys_mail 'init_mailbox {& mailbox})
@@ -237,7 +237,7 @@
 	(func-call 'sys_mem 'free {msg})
 
 	;return ids array
-	(expr {id.id_mbox, id.id_cpu} '(r0 r1))
+	(assign {id.id_mbox, id.id_cpu} '(r0 r1))
 	(pop-scope)
 	(vp-ret)
 
@@ -258,7 +258,7 @@
 
 	;save task info
 	(push-scope)
-	(retire '(r0 r1) {name, length})
+	(assign '(r0 r1) {name, length})
 
 	;create output array
 	(func-call 'sys_mem 'alloc {length * id_size} {ids, _})
@@ -293,7 +293,7 @@
 	(loop-end)
 
 	;return ids array
-	(expr {ids} '(r0))
+	(assign {ids} '(r0))
 	(pop-scope)
 	(vp-ret)
 
@@ -314,7 +314,7 @@
 
 	;save task info
 	(push-scope)
-	(retire '(r0 r1) {name, length})
+	(assign '(r0 r1) {name, length})
 
 	;create output array
 	(func-call 'sys_mem 'alloc {length * id_size} {ids, _})
@@ -348,7 +348,7 @@
 	(loop-end)
 
 	;return ids array
-	(expr {ids} '(r0))
+	(assign {ids} '(r0))
 	(pop-scope)
 	(vp-ret)
 
@@ -368,7 +368,7 @@
 
 	;save task info
 	(push-scope)
-	(retire '(r0) {tasks})
+	(assign '(r0) {tasks})
 
 	;create output array
 	(devirt-call 'vector 'get_length {tasks} {length})
@@ -406,7 +406,7 @@
 	(loop-end)
 
 	;return ids array
-	(expr {ids} '(r0))
+	(assign {ids} '(r0))
 	(pop-scope)
 	(vp-ret)
 
@@ -428,7 +428,7 @@
 
 	;save task info
 	(push-scope)
-	(retire '(r0 r1) {name, cpu})
+	(assign '(r0 r1) {name, cpu})
 
 	;init temp mailbox
 	(func-call 'sys_mail 'init_mailbox {& mailbox})
@@ -451,7 +451,7 @@
 	(func-call 'sys_mem 'free {msg})
 
 	;return ids array
-	(expr {id.id_mbox, id.id_cpu} '(r0 r1))
+	(assign {id.id_mbox, id.id_cpu} '(r0 r1))
 	(pop-scope)
 	(vp-ret)
 

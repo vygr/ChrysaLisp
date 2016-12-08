@@ -14,7 +14,7 @@
 	(ulong 'length 'new_length)
 
 	(push-scope)
-	(retire '(r0) {inst})
+	(assign '(r0) {inst})
 
 	(assign {inst->stream_object - ptr_size} {old_str})
 	(assign {inst->stream_bufp - old_str} {length})
@@ -27,7 +27,7 @@
 	(func-call 'string 'deref {old_str})
 	(assign {new_str} {inst->stream_object})
 
-	(expr {inst} '(r0))
+	(assign {inst} '(r0))
 	(pop-scope)
 	(return)
 

@@ -85,9 +85,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src '(r0 r1))
-	(set-dst '((r4 local_inst) (r4 local_key)))
-	(map-src-to-dst)
+	(assign '(r0 r1) '((r4 local_inst) (r4 local_key)))
 
 	;search hash bucket
 	(f-call 'unordered_map 'get_bucket '(r0 r1) '(r0))
@@ -135,9 +133,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src '(r0 r1 r2))
-	(set-dst '((r4 local_inst) (r4 local_key) (r4 local_value)))
-	(map-src-to-dst)
+	(assign '(r0 r1 r2) '((r4 local_inst) (r4 local_key) (r4 local_value)))
 
 	;search hash bucket
 	(f-call 'unordered_map 'get_bucket '(r0 r1) '(r0))
@@ -204,9 +200,7 @@
 	;all but r0, r4
 
 	;save inputs
-	(set-src '(r0 r1 r2))
-	(set-dst '(r9 r10 r11))
-	(map-src-to-dst)
+	(assign '(r0 r1 r2) '(r9 r10 r11))
 
 	(f-call 'unordered_map 'create '((r0 unordered_set_key_callback) 1) '(r1))
 	(vp-cpy-rr r11 r0)

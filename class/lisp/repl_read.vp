@@ -36,7 +36,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(retire '(r0 r1 r2) {this, stream, char})
+	(assign '(r0 r1 r2) {this, stream, char})
 
 	;skip white space
 (vp-label 'skip_white)
@@ -98,7 +98,7 @@
 		(func-call 'ref 'ref {ast})
 	(endif)
 
-	(expr {this, ast, char} '(r0 r1 r2))
+	(assign {this, ast, char} '(r0 r1 r2))
 	(pop-scope)
 	(return)
 

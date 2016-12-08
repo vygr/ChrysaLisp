@@ -18,7 +18,7 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0 r1) {this, args})
+	(assign '(r0 r1) {this, args})
 
 	(devirt-call 'vector 'get_length {args} {length})
 	if (length == 1)
@@ -29,7 +29,7 @@
 		(assign {1} {length})
 	(endif)
 
-	(expr {this, value, length} '(r0 r1 r2))
+	(assign {this, value, length} '(r0 r1 r2))
 	(pop-scope)
 	(return)
 

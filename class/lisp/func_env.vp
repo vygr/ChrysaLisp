@@ -13,12 +13,12 @@
 	(ptr 'this 'args)
 
 	(push-scope)
-	(retire '(r0 r1) '(this, args))
+	(assign '(r0 r1) '(this, args))
 
 	(assign {this->lisp_enviroment} {args})
 	(func-call 'ref 'ref {args})
 
-	(expr {this, args} '(r0 r1))
+	(assign {this, args} '(r0 r1))
 	(pop-scope)
 	(return)
 

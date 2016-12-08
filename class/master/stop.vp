@@ -14,7 +14,7 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0) {inst})
+	(assign '(r0) {inst})
 	(vpif {inst->master_state != stream_mail_state_stopped})
 		;flush remaining
 		(func-call 'master 'get_input {inst} {stream})
@@ -50,7 +50,7 @@
 		(assign {stream_mail_state_stopped} {inst->master_state})
 	(endif)
 
-	(expr {inst} '(r0))
+	(assign {inst} '(r0))
 	(pop-scope)
 	(return)
 

@@ -21,7 +21,7 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0 r1) {this, args})
+	(assign '(r0 r1) {this, args})
 
 	(devirt-call 'vector 'get_length {args} {length})
 	(vpif {length})
@@ -39,7 +39,7 @@
 		(func-call 'error 'create {"(cat seq ...) wrong number of args", args} {value})
 	(endif)
 
-	(expr {this, value} '(r0 r1))
+	(assign {this, value} '(r0 r1))
 	(pop-scope)
 	(return)
 
@@ -55,7 +55,7 @@
 	(ulong 'length)
 
 	(push-scope)
-	(retire '(r0 r1) {pdata, iter})
+	(assign '(r0 r1) {pdata, iter})
 
 	(assign {* iter} {elem})
 	(vpif {elem->obj_vtable == pdata->pdata_value->obj_vtable})
@@ -69,11 +69,11 @@
 			(devirt-call 'vector 'get_length {elem} {length})
 			(func-call 'vector 'append {pdata->pdata_value, elem, 0, length})
 		(endswitch)
-		(expr {1} '(r1))
+		(assign {1} '(r1))
 	(else)
 		(func-call 'ref 'deref {pdata->pdata_value})
 		(func-call 'error 'create {"(cat seq ...) not matching type", elem} {pdata->pdata_value})
-		(expr {0} '(r1))
+		(assign {0} '(r1))
 	(endif)
 
 	(pop-scope)

@@ -13,9 +13,7 @@
 	;r1-r3, r5-r8
 
 	;create new stream object
-	(set-src '(r0 r1 r2 r3))
-	(set-dst '(r5 r6 r7 r8))
-	(map-src-to-dst)
+	(assign '(r0 r1 r2 r3) '(r5 r6 r7 r8))
 
 	(f-call 'stream 'new '() '(r0))
 	(vpif '(r0 != 0))

@@ -19,7 +19,7 @@
 
 	;save inputs
 	(push-scope)
-	(retire '(r0 r1) {inst, ctx})
+	(assign '(r0 r1) {inst, ctx})
 
 	;draw text
 	(vpif {inst->text_string && inst->text_font})
@@ -37,7 +37,7 @@
 		(loop-until {words == words_end})
 	(endif)
 
-	(expr {inst} '(r0))
+	(assign {inst} '(r0))
 	(pop-scope)
 	(return)
 

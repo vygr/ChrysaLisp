@@ -10,7 +10,7 @@
 	(ptr 'this)
 
 	(push-scope)
-	(retire '(r0) '(this))
+	(assign '(r0) '(this))
 
 	;deinit myself
 	(func-call 'ref 'deref {this->lisp_symbols})

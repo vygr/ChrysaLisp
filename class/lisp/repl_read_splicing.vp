@@ -18,7 +18,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(retire '(r0 r1 r2) {this, stream, char})
+	(assign '(r0 r1 r2) {this, stream, char})
 
 	;skip "~"
 	(func-call 'stream 'read_char {stream} {char})
@@ -35,7 +35,7 @@
 		(assign {elem} {list})
 	(endif)
 
-	(expr {this, list, char} '(r0 r1 r2))
+	(assign {this, list, char} '(r0 r1 r2))
 	(pop-scope)
 	(return)
 

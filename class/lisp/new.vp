@@ -17,7 +17,7 @@
 		(func-call 'sys_mem 'clear {this, lisp_size} {_})
 	(endif)
 
-	(expr {this} '(r0))
+	(assign {this} '(r0))
 	(pop-scope)
 	(return)
 

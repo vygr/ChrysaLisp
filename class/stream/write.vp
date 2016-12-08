@@ -17,7 +17,7 @@
 
 	;save inputs
 	(push-scope)
-	(retire '(r0 r1 r2) '(inst, buffer, buffer_end))
+	(assign '(r0 r1 r2) '(inst, buffer, buffer_end))
 
 	(assign {buffer + buffer_end} {buffer_end})
 	(loop-while {buffer != buffer_end})
@@ -26,7 +26,7 @@
 		(func-call 'stream 'write_char {inst, char})
 	(loop-end)
 
-	(expr {inst} '(r0))
+	(assign {inst} '(r0))
 	(pop-scope)
 	(return)
 

@@ -24,7 +24,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(retire '(r0 r1 r2) {this, stream, char})
+	(assign '(r0 r1 r2) {this, stream, char})
 
 	(func-path 'sys_load 'statics)
 	(assign (cat "@" (str _function_) {.ld_statics_reloc_buffer}) {reloc})
@@ -40,7 +40,7 @@
 	(func-call 'symbol 'create_from_buffer {reloc, buffer - reloc} {symbol})
 	(func-call 'lisp 'sym_intern {this, symbol} {symbol})
 
-	(expr {this, symbol, char} '(r0 r1 r2))
+	(assign {this, symbol, char} '(r0 r1 r2))
 	(pop-scope)
 	(return)
 

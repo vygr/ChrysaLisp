@@ -81,17 +81,13 @@
 	;%1 = class
 	;%2 = parameters
 	;%3 = slot num
-	(set-src %2)
-	(set-dst (elem 3 (elem %3 %1)))
-	(map-src-to-dst))
+	(assign %2 (elem 3 (elem %3 %1))))
 
 (defcfun map-outputs (%1 %2 %3)
 	;%1 = class
 	;%2 = parameters
 	;%3 = slot num
-	(set-src (elem 4 (elem %3 %1)))
-	(set-dst %2)
-	(map-src-to-dst))
+	(assign (elem 4 (elem %3 %1)) %2))
 
 (defcfun map-print ()
 	(each (lambda (x y)
@@ -298,9 +294,9 @@
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
 		(print "Class " %1 " method " %2 " is virtual ! Use virt_call ?"))
-	(expr %3 (elem 3 m))
+	(assign %3 (elem 3 m))
 	(fn-call (elem 1 m))
-	(retire (elem 4 m) %4))
+	(assign (elem 4 m) %4))
 
 (defcfun super-call (%1 %2 &optional %3 %4)
 	;%1 = class name
@@ -314,9 +310,9 @@
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
 			(print "Class " (eval (super-name %1)) " method " %2 " is static !")))
-	(expr %3 (elem 3 m))
+	(assign %3 (elem 3 m))
 	(fn-call (elem 1 m))
-	(retire (elem 4 m) %4))
+	(assign (elem 4 m) %4))
 
 (defcfun virt-call (%1 %2 &optional %3 %4 %5)
 	;%1 = class name
@@ -330,10 +326,10 @@
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use func_call ?"))
-	(expr (cat "RXX" %3) (cat (list %5) (elem 3 m)))
+	(assign (cat "RXX" %3) (cat (list %5) (elem 3 m)))
 	(vp-cpy-ir r0 obj_vtable %5)
 	(vp-call-i %5 v)
-	(retire (elem 4 m) %4))
+	(assign (elem 4 m) %4))
 
 (defcfun devirt-call (%1 %2 &optional %3 %4)
 	;%1 = class name
@@ -346,9 +342,9 @@
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use func_call ?"))
-	(expr %3 (elem 3 m))
+	(assign %3 (elem 3 m))
 	(fn-call (elem 1 m))
-	(retire (elem 4 m) %4))
+	(assign (elem 4 m) %4))
 
 (defcfun local-call (%1 &optional %2 %3 %4 %5)
 	;%1 = label
@@ -357,9 +353,9 @@
 	;%4 = out parameters
 	;%5 = out regs
 	(setq %2 (if %2 %2 "") %3 (if %3 %3 (list)) %4 (if %4 %4 "") %5 (if %5 %5 (list)))
-	(expr %2 %3)
+	(assign %2 %3)
 	(vp-call %1)
-	(retire %4 %5))
+	(assign %4 %5))
 
 ;;;;;;;;;;;;;;;;;
 ; virtual classes

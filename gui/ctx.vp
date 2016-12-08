@@ -278,9 +278,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(set-src '(r0 r1 r2 r3 r8 r9 r10 r11))
-	(set-dst '((r4 local_ctx) (r4 local_color) (r4 local_flags) (r4 local_depth) (r4 local_x) (r4 local_y) (r4 local_w) (r4 local_h)))
-	(map-src-to-dst)
+	(assign '(r0 r1 r2 r3 r8 r9 r10 r11) '((r4 local_ctx) (r4 local_color) (r4 local_flags) (r4 local_depth) (r4 local_x) (r4 local_y) (r4 local_w) (r4 local_h)))
 
 	(vpif '(r2 != 0))
 		;fill middle

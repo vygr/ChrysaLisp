@@ -15,7 +15,7 @@
 	(ulong 'ok)
 
 	(push-scope)
-	(retire '(r0 r1 r2) {stdin, stdout, stderr})
+	(assign '(r0 r1 r2) {stdin, stdout, stderr})
 
 	(func-call 'lisp 'new {} {this})
 	(vpif {this != 0})
@@ -29,7 +29,7 @@
 		(endif)
 	(endif)
 
-	(expr {this} '(r0))
+	(assign {this} '(r0))
 	(return)
 
 (def-func-end)

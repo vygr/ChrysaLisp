@@ -18,7 +18,7 @@
 	(ushort 'len_vars 'len_vals 'index_vars 'index_vals 'state)
 
 	(push-scope)
-	(retire '(r0 r1 r2 r3) {this, vars, vals, index_vals})
+	(assign '(r0 r1 r2 r3) {this, vars, vals, index_vals})
 
 	(vpif {vars->obj_vtable == @class/class_vector})
 		(vpif {vals->obj_vtable == @class/class_vector})
@@ -74,7 +74,7 @@
 		(func-call 'error 'create {"(bind vars vals) vars not a list", vars} {value})
 	(endif)
 (vp-label 'error1)
-	(expr {this, value} '(r0 r1))
+	(assign {this, value} '(r0 r1))
 	(pop-scope)
 	(return)
 

@@ -118,16 +118,12 @@
 
 (defcfun sdl-init (%1)
 	;flags
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sdl-call sdl_SDL_Init))
 
 (defcfun sdl-delay (%1)
 	;time
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sdl-call sdl_SDL_Delay))
 
 (defcfun sdl-quit ()
@@ -135,72 +131,52 @@
 
 (defcfun sdl-create-window (%1 %2 %3 %4 %5 %6)
 	;title, x, y, w, h, flags
-	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6))
-	(set-dst '(r7 r6 r2 r1 r8 r9))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3 ,%4 ,%5 ,%6) '(r7 r6 r2 r1 r8 r9))
 	(sdl-call sdl_SDL_CreateWindow))
 
 (defcfun sdl-create-window-and-renderer (%1 %2 %3 %4 %5)
 	;w, h, flags, window**, renderer**
-	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5))
-	(set-dst '(r7 r6 r2 r1 r8))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3 ,%4 ,%5) '(r7 r6 r2 r1 r8))
 	(sdl-call sdl_SDL_CreateWindowAndRenderer))
 
 (defcfun sdl-destroy-window (%1)
 	;window
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sdl-call sdl_SDL_DestroyWindow))
 
 (defcfun sdl-create-renderer (%1 %2 %3)
 	;window*, index, flags
-	(set-src `(,%1 ,%2 ,%3))
-	(set-dst '(r7 r6 r2))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3) '(r7 r6 r2))
 	(sdl-call sdl_SDL_CreateRenderer))
 
 (defcfun sdl-set-render-draw-color (%1 %2 %3 %4 %5)
 	;renderer**, r, g, b, a
-	(set-src `(,%1 ,%2 ,%3 ,%4 ,%5))
-	(set-dst '(r7 r6 r2 r1 r8))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3 ,%4 ,%5) '(r7 r6 r2 r1 r8))
 	(sdl-call sdl_SDL_SetRenderDrawColor))
 
 (defcfun sdl-render-fill-rect (%1 %2)
 	;renderer**, rect*
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sdl-call sdl_SDL_RenderFillRect))
 
 (defcfun sdl-render-draw-rect (%1 %2)
 	;renderer**, rect*
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sdl-call sdl_SDL_RenderDrawRect))
 
 (defcfun sdl-render-present (%1)
 	;renderer**
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sdl-call sdl_SDL_RenderPresent))
 
 (defcfun sdl-render-set-clip-rect (%1 %2)
 	;renderer**, rect*
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sdl-call sdl_SDL_RenderSetClipRect))
 
 (defcfun sdl-set-render-draw-blend-mode (%1 %2)
 	;renderer**, mode
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sdl-call sdl_SDL_SetRenderDrawBlendMode))
 
 (defcfun sdl-pump-events ()
@@ -208,58 +184,42 @@
 
 (defcfun sdl-get-mouse-state (%1 %2)
 	;x*, y*
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sdl-call sdl_SDL_GetMouseState))
 
 (defcfun sdl-get-keyboard-state (%1)
 	;*int
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sdl-call sdl_SDL_GetKeyboardState))
 
 (defcfun sdl-free-surface (%1)
 	;surface*
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sdl-call sdl_SDL_FreeSurface))
 
 (defcfun sdl-create-texture-from-surface (%1 %2)
 	;renderer**, surface*
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sdl-call sdl_SDL_CreateTextureFromSurface))
 
 (defcfun sdl-destroy-texture (%1)
 	;texture*
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sdl-call sdl_SDL_DestroyTexture))
 
 (defcfun sdl-render-copy (%1 %2 %3 %4)
 	;renderer**, texture*, srect*, drect*
-	(set-src `(,%1 ,%2 ,%3 ,%4))
-	(set-dst '(r7 r6 r2 r1))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3 ,%4) '(r7 r6 r2 r1))
 	(sdl-call sdl_SDL_RenderCopy))
 
 (defcfun sdl-set-texture-blend-mode (%1 %2)
 	;texture*, blendmode
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sdl-call sdl_SDL_SetTextureBlendMode))
 
 (defcfun sdl-set-texture-color-mod (%1 %2 %3 %4)
 	;texture*, byte r, byte g, byte b
-	(set-src `(,%1 ,%2 ,%3 ,%4))
-	(set-dst '(r7 r6 r2 r1))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3 ,%4) '(r7 r6 r2 r1))
 	(sdl-call sdl_SDL_SetTextureColorMod))
 
 (defcfun ttf-init ()
@@ -270,49 +230,35 @@
 
 (defcfun ttf-open-font (%1 %2)
 	;name*, pointsize
-	(set-src `(,%1 ,%2))
-	(set-dst '(r7 r6))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2) '(r7 r6))
 	(sdl-call sdl_TTF_OpenFont))
 
 (defcfun ttf-close-font (%1)
 	;font*
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sdl-call sdl_TTF_CloseFont))
 
 (defcfun ttf-size-utf8 (%1 %2 %3 %4)
 	;font*, text*, int *w, int *h
-	(set-src `(,%1 ,%2 ,%3 ,%4))
-	(set-dst '(r7 r6 r2 r1))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3 ,%4) '(r7 r6 r2 r1))
 	(sdl-call sdl_TTF_SizeUTF8))
 
 (defcfun ttf-font-ascent (%1)
 	;font*
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sdl-call sdl_TTF_FontAscent))
 
 (defcfun ttf-font-descent (%1)
 	;font*
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sdl-call sdl_TTF_FontDescent))
 
 (defcfun ttf-font-height (%1)
 	;font*
-	(set-src `(,%1))
-	(set-dst '(r7))
-	(map-src-to-dst)
+	(assign `(,%1) '(r7))
 	(sdl-call sdl_TTF_FontHeight))
 
 (defcfun ttf-render-utf8-blended (%1 %2 %3)
 	;font*, text*, color
-	(set-src `(,%1 ,%2 ,%3))
-	(set-dst '(r7 r6 r2))
-	(map-src-to-dst)
+	(assign `(,%1 ,%2 ,%3) '(r7 r6 r2))
 	(sdl-call sdl_TTF_RenderUTF8_Blended))
