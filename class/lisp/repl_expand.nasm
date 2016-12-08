@@ -29,7 +29,6 @@ def_func class/lisp/repl_expand
 		devirt_call vector, get_length, {form}, {length}
 		vpif {length}
 			func_call vector, get_element, {form, 0}, {macro}
-			breakif {macro == this->lisp_sym_qquote}
 			breakif {macro == this->lisp_sym_quote}
 			vpif {macro->obj_vtable == @class/class_symbol}
 				func_call unordered_map, find, {this->lisp_macros, macro}, {miter, _}
