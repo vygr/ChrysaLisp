@@ -34,7 +34,7 @@
 				(func-call 'vector 'ref_back {vector} {stream})
 				(func-call 'vector 'pop_back {vector})
 				(loop-start)
-					(func-call 'stream 'read_line {stream, & buffer, buffer_size} {length})
+					(func-call 'stream 'read_line {stream, &buffer, buffer_size} {length})
 					(breakif {length == -1})
 					(local-call 'input {slave, &buffer, length} '(r0 r1 r2))
 				(loop-end)
@@ -42,7 +42,7 @@
 			(loop-end)
 
 			;read stdin, exit if EOF
-			(func-call 'stream 'read_line {slave->slave_stdin, & buffer, buffer_size} {length})
+			(func-call 'stream 'read_line {slave->slave_stdin, &buffer, buffer_size} {length})
 			(breakif {length == -1})
 			(local-call 'input {slave, &buffer, length} '(r0 r1 r2))
 		(loop-end)

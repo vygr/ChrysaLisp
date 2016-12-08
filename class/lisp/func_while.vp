@@ -30,7 +30,7 @@
 			(func-call 'lisp 'repl_eval {this, value} {value})
 			(breakif {value->obj_vtable == @class/class_error})
 			(breakif {value == this->lisp_sym_nil})
-			(func-call 'vector 'for_each {args, 1, length, $callback, & this} {_})
+			(func-call 'vector 'for_each {args, 1, length, $callback, &this} {_})
 			(breakif {value->obj_vtable == @class/class_error})
 			(func-call 'ref 'deref {value})
 		(loop-end)
@@ -56,7 +56,7 @@
 	(assign '(r0 r1) {pdata, iter})
 
 	(func-call 'ref 'deref {pdata->pdata_value})
-	(func-call 'lisp 'repl_eval {pdata->pdata_this, * iter} {pdata->pdata_value})
+	(func-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {pdata->pdata_value})
 
 	(assign {pdata->pdata_value->obj_vtable != @class/class_error} '(r1))
 	(pop-scope)

@@ -24,7 +24,7 @@
 	(vpif {length == 1})
 		(func-call 'vector 'get_element {args, 0} {value})
 		(vpif {value->obj_vtable == @class/class_string})
-			(assign {& value->string_data} {charp})
+			(assign {&value->string_data} {charp})
 			(func-call 'boxed_long 'create {} {value})
 			(func-call 'boxed_long 'set_value {value, * charp})
 		(else)

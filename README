@@ -50,11 +50,11 @@ command line pipes. While this isn't the best way to create parallel
 applications it is very useful for the composition of tools and hides all the
 message passing behind a familiar streams based API.
 
-A compiler, C-Script, created entirely in assembler macros, is available for use
-if desired. Variables with nested scopes can be defined and used in expressions
-with the compiler taking care of register assignment and expression compilation.
-Quite an achievement considering it's all done with macros. :) Currently there
-is an elementary optimise pass, more will be done.
+A compiler, C-Script, created entirely in assembler macros, is available for
+use if desired. Variables with nested scopes can be defined and used in
+expressions with the compiler taking care of register assignment and expression
+compilation. Quite an achievement considering it's all done with NASM macros.
+:) Currently there is an elementary optimise pass, more will be done.
 
 A Common Lisp like interpreter is provided, written in the C-Script compiled
 language ! This is available from the command line, via the command 'lisp',

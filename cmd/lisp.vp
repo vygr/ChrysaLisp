@@ -38,7 +38,7 @@
 		(assign {1} {index})
 		(loop-while {index != argc})
 			(func-call 'vector 'get_element {args, index} {arg})
-			(func-call 'string 'create_from_file {& arg->string_data} {file})
+			(func-call 'string 'create_from_file {&arg->string_data} {file})
 			(vpif {file})
 				;REPL from file stream
 				(func-call 'stream_str 'create {file} {stream})

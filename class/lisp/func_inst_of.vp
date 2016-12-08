@@ -30,7 +30,7 @@
 			(func-call 'obj 'inst_of {args, class} {value})
 			(vpif {value})
 				(assign {value - 1} {name_offset})
-				(assign {value - * name_offset} {value})
+				(assign {value - *name_offset} {value})
 				(func-call 'lisp 'sym_intern_cstr {this, value} {value}) 
 			(else)
 				(assign {this->lisp_sym_nil} {value})

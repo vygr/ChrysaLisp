@@ -49,13 +49,13 @@
 	(push-scope)
 	(assign '(r0 r1) {pdata, iter})
 
-	(assign {* iter} {pdata})
+	(assign {*iter} {pdata})
 	(vpif {pdata->obj_vtable == @class/class_vector})
 		(devirt-call 'vector 'get_length {pdata} {length})
 		(devirt-call 'vector 'slice {pdata, 0, length} {pdata})
 		(func-call 'vector 'for_each {pdata, 0, length, $callback, 0} {_})
-		(func-call 'ref 'deref {* iter})
-		(assign {pdata} {* iter})
+		(func-call 'ref 'deref {*iter})
+		(assign {pdata} {*iter})
 	(endif)
 
 	(assign {1} '(r1))

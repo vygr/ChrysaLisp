@@ -26,7 +26,7 @@
 			(func-call 'vector 'get_element {args, 1} {value})
 			(vpif {value->obj_vtable == @class/class_string})
 				(func-call 'ref 'ref {value})
-				(func-call 'stream_str 'write {stream, & value->string_data, value->string_length})
+				(func-call 'stream_str 'write {stream, &value->string_data, value->string_length})
 			(else)
 				(func-call 'error 'create {"(write stream str) not a string", args} {value})
 			(endif)

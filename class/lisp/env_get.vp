@@ -19,7 +19,7 @@
 
 	(func-call 'lisp 'env_find {this, symbol} {iter, _})
 	(vpif {iter})
-		(func-call 'pair 'ref_second {* iter} {symbol})
+		(func-call 'pair 'ref_second {*iter} {symbol})
 	(else)
 		(func-call 'error 'create {"symbol not bound", symbol} {symbol})
 	(endif)

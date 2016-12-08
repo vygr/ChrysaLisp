@@ -32,7 +32,7 @@
 			(func-call 'ref 'ref {value})
 			(func-call 'vector 'push_back {cat_list, value})
 			(devirt-call 'vector 'get_length {args} {length})
-			(func-call 'vector 'for_each {args, 0, length, $callback, & this} {_})
+			(func-call 'vector 'for_each {args, 0, length, $callback, &this} {_})
 			(func-call 'lisp 'repl_eval {this, cat_list} {value})
 			(func-call 'ref 'deref {cat_list})
 			(break)
@@ -62,7 +62,7 @@
 	(push-scope)
 	(assign '(r0 r1) {pdata, iter})
 
-	(assign {* iter} {elem})
+	(assign {*iter} {elem})
 	(vpif {elem->obj_vtable == @class/class_vector})
 		(devirt-call 'vector 'get_length {elem} {length})
 		(gotoifnot {length} 'list_quote)

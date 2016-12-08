@@ -23,7 +23,7 @@
 		;change existing value
 		(func-call 'ref 'ref {value})
 		(func-call 'ref 'ref {value})
-		(func-call 'pair 'set_second {* iter, value})
+		(func-call 'pair 'set_second {*iter, value})
 	(else)
 		(func-call 'error 'create {"symbol not bound", symbol} {value})
 	(endif)

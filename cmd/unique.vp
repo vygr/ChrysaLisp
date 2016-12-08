@@ -36,9 +36,9 @@
 		(else)
 			;from stdin
 			(loop-start)
-				(func-call 'stream 'read_line {slave->slave_stdin, & buffer, buffer_size} {length})
+				(func-call 'stream 'read_line {slave->slave_stdin, &buffer, buffer_size} {length})
 				(breakif {length == -1})
-				(func-call 'string 'create_from_buffer {& buffer, length} {arg})
+				(func-call 'string 'create_from_buffer {&buffer, length} {arg})
 				(func-call 'unordered_set 'insert {set, arg} {_, _})
 				(func-call 'string 'deref {arg})
 			(loop-end)
@@ -68,7 +68,7 @@
 	(push-scope)
 	(assign '(r0 r1) {pdata, iter})
 
-	(func-call 'stream 'write {pdata->slave_stdout, & ( * iter )->string_data, (* iter)->string_length})
+	(func-call 'stream 'write {pdata->slave_stdout, &(*iter)->string_data, (*iter)->string_length})
 	(func-call 'stream 'write_char {pdata->slave_stdout, char_lf})
 
 	(assign {1} '(r1))

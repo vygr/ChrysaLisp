@@ -24,7 +24,7 @@
 	(vpif {length == 1})
 		(func-call 'vector 'get_element {args, 0} {value})
 		(vpif {value->obj_vtable == @class/class_string || value->obj_vtable == @class/class_symbol})
-			(func-call 'string 'create_from_file {& value->string_data} {value})
+			(func-call 'string 'create_from_file {&value->string_data} {value})
 			(vpif {value})
 				(func-call 'stream_str 'create {value} {value})
 			(else)

@@ -25,7 +25,7 @@
 			(assign {1} {index})
 			(loop-while {index != argc})
 				(func-call 'vector 'get_element {args, index} {arg})
-				(func-call 'stream 'write {slave->slave_stdout, & arg->string_data, arg->string_length})
+				(func-call 'stream 'write {slave->slave_stdout, &arg->string_data, arg->string_length})
 				(func-call 'stream 'write_char {slave->slave_stdout, char_lf})
 				(assign {index + 1} {index})
 				(func-call 'sys_task 'yield)

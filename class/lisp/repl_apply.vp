@@ -41,7 +41,7 @@
 				(func-call 'vector 'get_element {func, 1} {vars})
 				(func-call 'lisp 'env_bind {this, vars, ast, 0} {value})
 				(vpif {value->obj_vtable != @class/class_error})
-					(func-call 'vector 'for_each {func, 2, length, $callback, & this} {_})
+					(func-call 'vector 'for_each {func, 2, length, $callback, &this} {_})
 				(endif)
 				(func-call 'lisp 'env_pop {this})
 			(else)
@@ -73,7 +73,7 @@
 	(assign '(r0 r1) {pdata, iter})
 
 	(func-call 'ref 'deref {pdata->pdata_value})
-	(func-call 'lisp 'repl_eval {pdata->pdata_this, * iter} {pdata->pdata_value})
+	(func-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {pdata->pdata_value})
 
 	(assign {pdata->pdata_value->obj_vtable != @class/class_error} '(r1))
 	(pop-scope)
