@@ -2640,10 +2640,13 @@ vp_cpy_p r14, label1
 vp_cpy_p r15, label1
 
 ;call/jmp
+vp_call label3
+vp_jmp label3
 vp_call label2
 vp_jmp label2
 vp_call_p label2
 vp_jmp_p label2
+label3:
 
 vp_call r0
 vp_call r1
