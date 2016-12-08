@@ -43,7 +43,7 @@
 				(endif)
 			(endif)
 			(func-path 'lisp 'repl_expand)
-			(func-call 'vector 'for_each {form, 0, length, @_function_, this} {iter})
+			(func-call 'vector 'for_each (cat {form, 0, length, @} (str _function_) {, this}) {iter})
 			(assign {!iter} {iter})
 		(endif)
 	(endif)

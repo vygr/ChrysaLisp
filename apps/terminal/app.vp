@@ -31,7 +31,7 @@
 	;init app vars
 	(push-scope)
 	(func-path 'class 'obj)
-	(func-call 'obj 'init {& myapp, @_function_} {_})
+	(func-call 'obj 'init (cat {&myapp, @} (str _function_)) {_})
 	(func-call 'master 'create {} {shared.shared_master})
 	(func-call 'vector 'create {} {shared.shared_history})
 	(assign {0} {shared.shared_history_index})

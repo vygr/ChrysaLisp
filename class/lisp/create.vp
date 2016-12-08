@@ -21,7 +21,7 @@
 	(vpif {this != 0})
 		;init the object
 		(func-path 'class 'lisp)
-		(func-call 'lisp 'init {this, @_function_, stdin, stdout, stderr} {ok})
+		(func-call 'lisp 'init (cat {this, @} (str _function_) {, stdin, stdout, stderr}) {ok})
 		(vpifnot '(ok))
 			;error with init
 			(virt-call 'lisp 'delete {this} {})

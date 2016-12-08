@@ -31,7 +31,7 @@
 	;init app vars
 	(push-scope)
 	(func-path 'class 'obj)
-	(func-call 'obj 'init {& myapp, @_function_} {_})
+	(func-call 'obj 'init (cat {&myapp, @} (str _function_)) {_})
 	(assign {0} {myapp.shared_accum})
 	(assign {0} {myapp.shared_value})
 	(assign {0} {myapp.shared_last_op})
