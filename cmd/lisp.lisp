@@ -4,6 +4,9 @@
 
 (defq list (lambda (&rest b) b))
 
+(defmacro inc (x) `(add ,x 1))
+(defmacro dec (x) `(sub ,x 1))
+
 ;;;;;;;;;;;;;
 ; Definitions
 ;;;;;;;;;;;;;
@@ -169,12 +172,6 @@
 (defun max (x y)
 	(if (lt x y) y x))
 
-(defun inc (x)
-	(add x 1))
-
-(defun dec (x)
-	(sub x 1))
-
 (defun squared (x)
 	(mul x x))
 
@@ -288,7 +285,7 @@
 			(repl (file-stream *file*))
 ;			(print "Imported file: " *file*)
 			))
-	(defq *imports* (list) *compile-env* (env) *OS* 'Darwin)
+	(defq *imports* (list) *compile-env* (env) *OS* 'Linux)
 	(import *file*)
 	(setq *compile-env* nil))
 
