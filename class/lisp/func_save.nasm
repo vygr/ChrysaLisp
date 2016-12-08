@@ -68,23 +68,21 @@ callback:
 
 	pptr iter
 	ptr pdata
-	ulong num
 
 	push_scope
 	retire {r0, r1}, {pdata, iter}
 
 	func_call ref, deref, {pdata->pdata_value}
 	vpif {(*iter)->obj_vtable == @class/class_boxed_long}
-		func_call boxed_long, get_value, {*iter}, {num}
-		gotoif {num < 0 || num >= 256}, error
-		func_call sys_io, char, {num, pdata->pdata_handle}
-		assign {(*iter)}, {pdata->pdata_value}
+		expr {pdata->pdata_handle, &(*iter)->boxed_ptr_value, 8}, {r7, r6, r2}
+		sys_write_string r7, r6, r2
+		assign {*iter}, {pdata->pdata_value}
 		func_call ref, ref, {pdata->pdata_value}
 		expr {1}, {r1}
 		return
 	else
 	error:
-		func_call error, create, {"(save list filename) not all bytes", *iter}, {pdata->pdata_value}
+		func_call error, create, {"(save list filename) not all numbers", *iter}, {pdata->pdata_value}
 	endif
 
 	expr {0}, {r1}
