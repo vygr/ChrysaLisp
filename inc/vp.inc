@@ -189,7 +189,10 @@
 ; Emit Buffer
 ;;;;;;;;;;;;;
 
-(defcvar '*emit-buffer* nil '*out-buffer* nil)
+(defcvar '*emit-buffer* nil '*out-buffer* nil '*pc* nil '*shift* nil '*word* nil)
+
+(defcfun reset-out-buffer ()
+	(setq *out-buffer* (list) *pc* 0 *shift* 0 *word* 0))
 
 (defcfun emit (f)
 	(push *emit-buffer* f))
@@ -202,8 +205,10 @@
 
 (defcfun emit-passes ()
 	(defq *pass* 0 *old-out-buffer* (list))
+	(reset-out-buffer)
 	(until (emit-done *out-buffer* *old-out-buffer*)
-		(setq *old-out-buffer* *out-buffer* *out-buffer* (list))
+		(setq *old-out-buffer* *out-buffer*)
+		(reset-out-buffer)
 		(eval *emit-buffer*)
 		(setq *pass* (inc *pass*))))
 
@@ -213,22 +218,17 @@
 		(print i " -> " (elem i *emit-buffer*))
 		(setq i (inc i))))
 
-(defcfun print-out-buffer (c)
-	(defq i 0)
-	(while (lt i (length *out-buffer*))
-		(when (eq (mod i c) 0)
-			(prin-base i 16 4) (prin " : "))
-		(prin-base (elem i *out-buffer*) 16 2) (prin " ")
-		(setq i (inc i))
-		(if (eq (mod i c) 0)
-			(print)))
-	(print))
-
 (defcfun emit-label (s)
-	(set s (length *out-buffer*)))
+	(set s *pc*))
 
-(defmacro emit-bytes (&rest b)
-	`(push *out-buffer* ~b))
+(defcfun emit-bytes (&rest b)
+	(defq s *shift* w *word* o *out-buffer* i 0 j (length b))
+	(while (lt i j)
+		(setq w (add w (bit-shl (elem i b) s)) s (add s 8) i (inc i))
+		(when (eq s 64)
+			(push o w)
+			(setq w 0 s 0)))
+	(setq *pc* (add *pc* j) *shift* s *word* w))
 
 (defcfun emit-byte (&rest b)
 	(each (lambda (x)
@@ -255,8 +255,8 @@
 		(emit-bytes (code x))) s))
 
 (defcfun emit-align (a &optional b)
-	(defq n (align (length *out-buffer*) a) b (if b b 0))
-	(while (ne (length *out-buffer*) n)
+	(defq n (align *pc* a) b (if b b 0))
+	(while (ne *pc* n)
 		(emit-bytes (bit-and b 0xff))))
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -435,28 +435,28 @@
 (defcfun emit-syscall ()
 	(emit-bytes 0xf 0x5))
 
-(defcfun emit-beq (l d) (emit-branch 0x74 (sub l (length *out-buffer*)) d))
-(defcfun emit-bne (l d) (emit-branch 0x75 (sub l (length *out-buffer*)) d))
-(defcfun emit-blt (l d) (emit-branch 0x7c (sub l (length *out-buffer*)) d))
-(defcfun emit-ble (l d) (emit-branch 0x7e (sub l (length *out-buffer*)) d))
-(defcfun emit-bgt (l d) (emit-branch 0x7f (sub l (length *out-buffer*)) d))
-(defcfun emit-bge (l d) (emit-branch 0x7d (sub l (length *out-buffer*)) d))
+(defcfun emit-beq (l d) (emit-branch 0x74 (sub l *pc*) d))
+(defcfun emit-bne (l d) (emit-branch 0x75 (sub l *pc*) d))
+(defcfun emit-blt (l d) (emit-branch 0x7c (sub l *pc*) d))
+(defcfun emit-ble (l d) (emit-branch 0x7e (sub l *pc*) d))
+(defcfun emit-bgt (l d) (emit-branch 0x7f (sub l *pc*) d))
+(defcfun emit-bge (l d) (emit-branch 0x7d (sub l *pc*) d))
 
-(defcfun emit-call (l) (emit-call-jump 0xe8 (sub l (length *out-buffer*))))
+(defcfun emit-call (l) (emit-call-jump 0xe8 (sub l *pc*)))
 (defcfun emit-call-r (r) (emit-call-jump-r 0xd0 r))
 (defcfun emit-call-i (d c) (emit-call-jump-i 0x10 d c))
 (defcfun emit-call-d (d1 d2) (emit-call-jump-d 0x10 d1 d2))
-(defcfun emit-call-p (l) (emit-call-jump-p 0x15 (sub l (length *out-buffer*))))
+(defcfun emit-call-p (l) (emit-call-jump-p 0x15 (sub l *pc*)))
 
-(defcfun emit-jmp (l) (emit-call-jump 0xe9 (sub l (length *out-buffer*))))
+(defcfun emit-jmp (l) (emit-call-jump 0xe9 (sub l *pc*)))
 (defcfun emit-jmp-r (r) (emit-call-jump-r 0xe0 r))
 (defcfun emit-jmp-i (d c) (emit-call-jump-i 0x20 d c))
 (defcfun emit-jmp-d (d1 d2) (emit-call-jump-d 0x20 d1 d2))
-(defcfun emit-jmp-p (l) (emit-call-jump-p 0x25 (sub l (length *out-buffer*))))
+(defcfun emit-jmp-p (l) (emit-call-jump-p 0x25 (sub l *pc*)))
 
 (defcfun emit-lea-i (s c d) (emit-ir 0x8d s c d))
 (defcfun emit-lea-d (s1 s2 d) (emit-dr 0x8d s1 s2 d))
-(defcfun emit-lea-p (l d) (emit-pr 0x8d (sub l (length *out-buffer*)) d))
+(defcfun emit-lea-p (l d) (emit-pr 0x8d (sub l *pc*) d))
 
 (defcfun emit-cpy-cr (c r)
 	(defq rn (reg r) rl (bit-and rn 7) rh (bit-shr rn 3))
@@ -477,7 +477,7 @@
 (defcfun emit-cpy-rr (s d) (unless (eql s d) (emit-rr 0x89 s d)))
 (defcfun emit-cpy-ir (s c d) (emit-ir 0x8b s c d))
 (defcfun emit-cpy-dr (s1 s2 d) (emit-dr 0x8b s1 s2 d))
-(defcfun emit-cpy-pr (l d) (emit-pr 0x8b (sub l (length *out-buffer*)) d))
+(defcfun emit-cpy-pr (l d) (emit-pr 0x8b (sub l *pc*) d))
 
 (defcfun emit-cpy-ri (s d c)
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
@@ -508,7 +508,7 @@
 			(emit-bytes (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))))
 
 (defcfun emit-cpy-rp (d c)
-	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c (length *out-buffer*) 7))
+	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c *pc* 7))
 	(cond
 		((le -0x80000000 c 0x7fffffff)
 			(emit-bytes (add 0x48 (bit-shl dh 2)) 0x89 (add 0x5 (bit-shl dl 3)))

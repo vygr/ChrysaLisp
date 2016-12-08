@@ -68,7 +68,7 @@
 
 (defcfun def-func (*name* &optional *func-stack*)
 	(print "Compiling -> " *name*)
-	(setq *func-name* *name* *switch-nxt* 0 *emit-buffer* (list 'progn) *out-buffer* (list))
+	(setq *func-name* *name* *switch-nxt* 0 *emit-buffer* (list 'progn))
 	(setq *strings* (list) *paths* (list) *links* (list) *distance* (list))
 	(vp-label '_func_start)
 	(vp-long -1)
@@ -132,7 +132,7 @@
 	(setq *cnt* 0)
 	(each (lambda (i)
 		(vp-label (cat "_ref_link_" (str *cnt*)))
-		(vp-long `(sub ,(label-sym (cat "_ref_path_" (str i))) (length *out-buffer*)))
+		(vp-long `(sub ,(label-sym (cat "_ref_path_" (str i))) *pc*))
 		(setq *cnt* (inc *cnt*))) *links*)
 	(vp-long 0)
 	(vp-label '_func_paths)
@@ -146,7 +146,6 @@
 	(when debug_emit
 		(print-emit-buffer))
 	(emit-passes)
-;	(print-out-buffer 16)
 	(print "Writing -> " *func-name*)
 	(save *out-buffer* (cat "tst/" (str *func-name*))))
 
