@@ -1,0 +1,122 @@
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_stream_msg_out.inc)
+(import 'class/class_stream_msg_in.inc)
+(import 'class/class_slave.inc)
+
+(class-macro-new 'slave)
+(class-macro-create 'slave)
+
+(def-func 'class/slave/init)
+	;inputs
+	;r0 = slave object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+	;trashes
+	;all but r0, r4
+
+	(const 'space_char (ascii " "))
+
+	(ptr 'inst 'vtable 'stream 'msg 'mymailbox)
+	(ulong 'error)
+
+	;read init args
+	(push-scope)
+	(assign '(r0 r1) {inst, vtable})
+
+	;init parent
+	(super-call 'slave 'init {inst, vtable} {error})
+	(vpif {error != 0})
+		;init myself
+		(func-call 'sys_task 'mailbox {} {mymailbox, _})
+		(func-call 'sys_mail 'read {mymailbox} {msg})
+		(vpif {msg->msg_length != msg_header_size})
+			;create stdin, stdout, stderr
+			(func-call 'stream_msg_in 'create {mymailbox} {inst->slave_stdin})
+			(func-call 'stream_msg_out 'create {msg->slave_mail_init_stdout_id.id_mbox, msg->slave_mail_init_stdout_id.id_cpu} {inst->slave_stdout})
+			(func-call 'stream_msg_out 'create {msg->slave_mail_init_stderr_id.id_mbox, msg->slave_mail_init_stderr_id.id_cpu} {inst->slave_stderr})
+
+			;create args
+			(func-call 'stream 'create {0, 0, & msg->slave_mail_init_args, msg->msg_length - slave_mail_init_size} {stream})
+			(func-call 'stream 'split {stream, space_char} {inst->slave_args})
+			(func-call 'stream 'deref {stream})
+
+			;send back ack
+			(assign {msg->slave_mail_init_ack_id.id_mbox} {msg->msg_dest.id_mbox})
+			(assign {msg->slave_mail_init_ack_id.id_cpu} {msg->msg_dest.id_cpu})
+			(assign {msg_header_size} {msg->msg_length})
+			(func-call 'sys_mail 'send {msg})
+		(else)
+			;abort
+			(func-call 'sys_mem 'free {msg})
+			(assign {0} {error})
+		(endif)
+	(endif)
+
+	(assign {inst, error} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/slave/deinit)
+	;inputs
+	;r0 = slave object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst 'msg)
+
+	(push-scope)
+	(assign '(r0) {inst})
+
+	;flush remaining
+	(virt-call 'stream_msg_out 'write_flush {inst->slave_stderr})
+	(virt-call 'stream_msg_out 'write_flush {inst->slave_stdout})
+
+	;send stopping on stdout
+	(func-call 'stream_msg_out 'set_state {inst->slave_stdout, stream_mail_state_stopping})
+	(virt-call 'stream_msg_out 'write_next {inst->slave_stdout})
+	(virt-call 'stream_msg_out 'write_flush {inst->slave_stdout})
+
+	;wait for stopped
+	(loop-start)
+		(virt-call 'stream_msg_in 'read_next {inst->slave_stdin} {_})
+	(loop-until {inst->slave_stdin->stream_msg_in_state == stream_mail_state_stopped})
+
+	;send stopped on stdout and stderr
+	(func-call 'stream_msg_out 'set_state {inst->slave_stdout, stream_mail_state_stopped})
+	(func-call 'stream_msg_out 'set_state {inst->slave_stderr, stream_mail_state_stopped})
+	(virt-call 'stream_msg_out 'write_next {inst->slave_stdout})
+	(virt-call 'stream_msg_out 'write_flush {inst->slave_stdout})
+	(virt-call 'stream_msg_out 'write_next {inst->slave_stderr})
+	(virt-call 'stream_msg_out 'write_flush {inst->slave_stderr})
+
+	;free stdin, stdout and stderr
+	(func-call 'stream_msg_in 'deref {inst->slave_stdin})
+	(func-call 'stream_msg_out 'deref {inst->slave_stdout})
+	(func-call 'stream_msg_out 'deref {inst->slave_stderr})
+
+	;free args
+	(func-call 'vector 'deref {inst->slave_args})
+
+	(assign {inst} '(r0))
+	(pop-scope)
+
+	;deinit parent
+	(s-jmp 'slave 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/slave/get_args)
+	;inputs
+	;r0 = slave object
+	;outputs
+	;r0 = slave object
+	;r1 = command args
+
+	(vp-cpy-ir r0 slave_args r1)
+	(vp-ret)
+
+(def-func-end)
