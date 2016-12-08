@@ -1,6 +1,63 @@
 (import 'inc/func.inc)
-(import 'class/class_stream_msg_in.inc)
 (import 'class/class_stream_msg_out.inc)
+(import 'class/class_stream_msg_in.inc)
+
+(class-macro-new 'stream_msg_in)
+
+(def-func 'class/stream_msg_in/create)
+	;inputs
+	;r0 = target mailbox
+	;outputs
+	;r0 = 0 if error, else object
+	;trashes
+	;r1-r3, r5
+
+	;create new stream_msg_in object
+	(assign '(r0) '(r5))
+
+	(f-call 'stream_msg_in 'new '() '(r0))
+	(vpif '(r0 != 0))
+		;init the object
+		(func-path 'class 'stream_msg_in)
+		(f-call 'stream_msg_in 'init `(r0 (@ ,_function_) r5) '(r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(v-call 'stream_msg_in 'delete '(r0) '() 'r1)
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/stream_msg_in/init)
+	;inputs
+	;r0 = stream_msg_in object
+	;r1 = vtable pointer
+	;r2 = target mailbox
+	;outputs
+	;r1 = 0 if error, else ok
+	;trashes
+	;all but r0, r4
+
+	;save inputs
+	(assign '(r2) '((r0 stream_msg_in_mailbox)))
+
+	;init parent
+	(s-call 'stream_msg_in 'init '(r0 r1 0 0 0 0) '(r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-xor-rr r1 r1)
+		(vp-cpy-ri r1 r0 stream_msg_in_seqnum)
+		(vp-cpy-ri r1 r0 stream_msg_in_ack_seqnum)
+		(vp-cpy-cr stream_mail_state_started r1)
+		(vp-cpy-ri r1 r0 stream_msg_in_state)
+		(vp-lea-i r0 stream_msg_in_list r1)
+		(lh-init r1 r2)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
 
 (def-func 'class/stream_msg_in/read_next)
 	;inputs
@@ -52,5 +109,24 @@
 	(assign {inst, (inst->stream_msg_in_state == stream_mail_state_started) - 1} '(r0 r1))
 	(pop-scope)
 	(return)
+
+(def-func-end)
+
+(def-func 'class/stream_msg_in/read_ready)
+	;inputs
+	;r0 = stream_msg_in object
+	;outputs
+	;r0 = stream_msg_in object
+	;r1 = 0 if data not available
+	;trashes
+	;all but r0, r4
+
+	;extend test to include mailbox
+	(s-call 'stream_msg_in 'read_ready '(r0) '(r1))
+	(vpif '(r1 == 0))
+		(vp-cpy-ir r0 (add stream_msg_in_list lh_list_head) r1)
+		(vp-cpy-ir r1 ln_node_succ r1)
+	(endif)
+	(vp-ret)
 
 (def-func-end)
