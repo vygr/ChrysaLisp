@@ -1,4 +1,0 @@
-(import 'inc/func.inc)
-(import 'class/class_text.inc)
-
-(class-macro-create 'text)
