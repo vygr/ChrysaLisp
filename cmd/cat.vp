@@ -7,7 +7,7 @@
 
 (def-func 'cmd/cat)
 
-(defcvar 'buffer_size 120)
+	(defcvar 'buffer_size 120)
 
 	(ptr 'slave 'arg 'args 'stream)
 	(ulong 'argc 'index 'length)
@@ -27,7 +27,7 @@
 			(assign {1} {index})
 			(loop-while {index != argc})
 				(devirt-call 'vector 'ref_element {args, index} {arg})
-				(local-call 'cat_string {slave, arg, &buffer} '(r0, r1, r2))
+				(local-call 'cat_string {slave, arg, &buffer} '(r0 r1 r2))
 				(assign {index + 1} {index})
 			(loop-end)
 		(else)
@@ -36,7 +36,7 @@
 				(func-call 'stream 'read_line {slave->slave_stdin, & buffer, buffer_size} {length})
 				(breakif {length == -1})
 				(func-call 'string 'create_from_buffer {& buffer, length} {arg})
-				(local-call 'cat_string {slave, arg, &buffer} '(r0, r1, r2))
+				(local-call 'cat_string {slave, arg, &buffer} '(r0 r1 r2))
 			(loop-end)
 		(endif)
 
