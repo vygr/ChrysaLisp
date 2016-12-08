@@ -285,7 +285,7 @@
 			(repl (file-stream *file*))
 ;			(print "Imported file: " *file*)
 			))
-	(defq *imports* (list) *compile-env* (env) *OS* 'Linux)
+	(defq *imports* (list) *compile-env* (env) *OS* 'Darwin)
 	(import *file*)
 	(setq *compile-env* nil))
 

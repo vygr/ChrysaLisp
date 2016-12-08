@@ -89,13 +89,13 @@
 (defcfun vp-push (&rest b) (emit `(emit-push ~b)))
 (defcfun vp-pop (&rest b) (emit `(emit-pop ~b)))
 
-(defcfun vp-call (l) (emit `(emit-call ,(label-sym l))))
+(defcfun vp-call (l) (emit `(emit-call ,(label-sym l) ,(dec (length (push *distance* 0))))))
 (defcfun vp-call-r (&rest b) (emit `(emit-call-r ~b)))
 (defcfun vp-call-i (&rest b) (emit `(emit-call-i ~b)))
 (defcfun vp-call-d (&rest b) (emit `(emit-call-d ~b)))
 (defcfun vp-call-p (l) (emit `(emit-call-p ,(label-sym l))))
 
-(defcfun vp-jmp (l) (emit `(emit-jmp ,(label-sym l))))
+(defcfun vp-jmp (l) (emit `(emit-jmp ,(label-sym l) ,(dec (length (push *distance* 0))))))
 (defcfun vp-jmp-r (&rest b) (emit `(emit-jmp-r ~b)))
 (defcfun vp-jmp-i (&rest b) (emit `(emit-jmp-i ~b)))
 (defcfun vp-jmp-d (&rest b) (emit `(emit-jmp-d ~b)))
@@ -255,9 +255,10 @@
 		(emit-bytes (code x))) s))
 
 (defcfun emit-align (a &optional b)
-	(defq n (align *pc* a) b (if b b 0))
-	(while (ne *pc* n)
-		(emit-bytes (bit-and b 0xff))))
+	(when (ne *pass* 0)
+		(defq n (align *pc* a) b (if b (bit-and b 0xff) 0))
+		(while (lt *pc* n)
+			(emit-bytes b))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; x64 Emit Functions
@@ -362,14 +363,15 @@
 			(emit-cpy-ri r0 r4 24)
 			(emit-pop d s r0 r1))))
 
-(defcfun emit-call-jump (o c)
-	(setq c (sub c 2))
+(defcfun emit-call-jump (o c d)
+	(defq m (elem d *distance*))
+	(if (ne *pass* 0) (if (gt (abs c) (abs m)) (elem-set d *distance* (setq m c))))
 	(cond
-		((le -0x80 c 0x7f)
-			(emit-bytes (add 0x2 o) (bit-and c 0xff)))
-		((le -0x80000000 (sub c 3) 0x7fffffff)
+		((le -0x80 (sub m 2) 0x7f)
+			(emit-bytes (add 0x2 o) (bit-and (sub c 2) 0xff)))
+		((le -0x80000000 (sub m 5) 0x7fffffff)
 			(emit-bytes o)
-			(emit-int (sub c 3)))
+			(emit-int (sub c 5)))
 		(t (print "emit-call-jump constant out of range: " c))))
 
 (defcfun emit-call-jump-p (o c)
@@ -442,13 +444,13 @@
 (defcfun emit-bgt (l d) (emit-branch 0x7f (sub l *pc*) d))
 (defcfun emit-bge (l d) (emit-branch 0x7d (sub l *pc*) d))
 
-(defcfun emit-call (l) (emit-call-jump 0xe8 (sub l *pc*)))
+(defcfun emit-call (l d) (emit-call-jump 0xe8 (sub l *pc*) d))
 (defcfun emit-call-r (r) (emit-call-jump-r 0xd0 r))
 (defcfun emit-call-i (d c) (emit-call-jump-i 0x10 d c))
 (defcfun emit-call-d (d1 d2) (emit-call-jump-d 0x10 d1 d2))
 (defcfun emit-call-p (l) (emit-call-jump-p 0x15 (sub l *pc*)))
 
-(defcfun emit-jmp (l) (emit-call-jump 0xe9 (sub l *pc*)))
+(defcfun emit-jmp (l d) (emit-call-jump 0xe9 (sub l *pc*) d))
 (defcfun emit-jmp-r (r) (emit-call-jump-r 0xe0 r))
 (defcfun emit-jmp-i (d c) (emit-call-jump-i 0x20 d c))
 (defcfun emit-jmp-d (d1 d2) (emit-call-jump-d 0x20 d1 d2))
