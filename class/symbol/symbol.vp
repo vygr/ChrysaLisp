@@ -12,7 +12,7 @@
 
 	(f-call 'string 'append '(r0 r1) '(r0))
 	(vpif '(r0 != 0))
-		(func-path 'class 'symbol)
+		(f-path 'class 'symbol)
 		(fn-bind _function_ r1)
 		(vp-cpy-ri r1 r0 obj_vtable)
 	(endif)
@@ -31,7 +31,7 @@
 
 	(f-call 'string 'create_from_buffer '(r0 r1) '(r0))
 	(vpif '(r0 != 0))
-		(func-path 'class 'symbol)
+		(f-path 'class 'symbol)
 		(fn-bind _function_ r1)
 		(vp-cpy-ri r1 r0 obj_vtable)
 	(endif)
@@ -49,7 +49,7 @@
 
 	(f-call 'string 'create_from_cstr '(r0) '(r0))
 	(vpif '(r0 != 0))
-		(func-path 'class 'symbol)
+		(f-path 'class 'symbol)
 		(fn-bind _function_ r1)
 		(vp-cpy-ri r1 r0 obj_vtable)
 	(endif)
@@ -67,7 +67,7 @@
 
 	(f-call 'string 'create_from_file '(r0) '(r0))
 	(vpif '(r0 != 0))
-		(func-path 'class 'symbol)
+		(f-path 'class 'symbol)
 		(fn-bind _function_ r1)
 		(vp-cpy-ri r1 r0 obj_vtable)
 	(endif)
@@ -86,7 +86,7 @@
 
 	(f-call 'string 'create_from_long '(r0 r1) '(r0))
 	(vpif '(r0 != 0))
-		(func-path 'class 'symbol)
+		(f-path 'class 'symbol)
 		(fn-bind _function_ r1)
 		(vp-cpy-ri r1 r0 obj_vtable)
 	(endif)

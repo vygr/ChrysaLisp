@@ -83,7 +83,7 @@
 	(vp-cpy-ir r14 0 r0)
 	(vpif '(r0 != 0))
 		;start link
-		(func-path 'sys_link 'link)
+		(f-path 'sys_link 'link)
 		(f-call 'sys_task 'start `((@ ,_function_)) '(r0 r5))
 		(f-call 'sys_cpu 'id '() '(r6))
 

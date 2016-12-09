@@ -77,7 +77,7 @@
 	(if (eq s (length c))
 		(print "No such method " %2 " in class " %1 " !")))
 
-(defcfun func-path (%1 %2 &optional %3)
+(defcfun f-path (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = slot method name
 	;%3 = macro name
@@ -86,7 +86,7 @@
 	(method-lookup %1 %2)
 	(defcvar %3 (elem 1 (elem s (eval (class-name %1))))))
 
-(defcfun super-path (%1 %2 &optional %3)
+(defcfun s-path (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = slot method name
 	;%3 = macro name
@@ -321,13 +321,13 @@
 
 (defcfun class-macro-class (%1)
 	;%1 = class name
-	(func-path 'class %1)
+	(f-path 'class %1)
 	(def-func _function_)
 		(defq c (eval (super-name %1)))
 		(if (eql c 'null)
 			(vtable-emit %1)
 			(progn
-				(func-path 'class c)
+				(f-path 'class c)
 				(vtable-emit %1 _function_)))
 	(def-func-end))
 
@@ -341,7 +341,7 @@
 		(f-call %1 'new '() '(r0))
 		(vpif '(r0 != 0))
 			;init the object
-			(func-path 'class %1)
+			(f-path 'class %1)
 			(f-call %1 'init `(r0 (@ ,_function_)) '(r1))
 			(vpif '(r1 == 0))
 				;error with init

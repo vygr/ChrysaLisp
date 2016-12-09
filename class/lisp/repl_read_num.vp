@@ -38,7 +38,7 @@
 		(f-call 'stream 'read_char {stream} {char})
 	(endif)
 
-	(func-path 'sys_load 'statics)
+	(f-path 'sys_load 'statics)
 	(assign (cat "@" (str _function_) {.ld_statics_reloc_buffer}) {reloc})
 	(assign {reloc} {buffer})
 

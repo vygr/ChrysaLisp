@@ -22,9 +22,9 @@
 	(f-call 'sys_heap 'init '((& r7 ml_statics_heap) (add msg_size ptr_size) (mul (add msg_size ptr_size) 16)))
 
 	;init in and out postmen tasks
-	(func-path 'sys_mail 'in)
+	(f-path 'sys_mail 'in)
 	(f-call 'sys_task 'start `((@ ,_function_)) '(r0 (r7 ml_statics_in_mailbox)))
-	(func-path 'sys_mail 'out)
+	(f-path 'sys_mail 'out)
 	(f-call 'sys_task 'start `((@ ,_function_)) '(r0 (r7 ml_statics_out_mailbox)))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 r7 ml_statics_parcel_id)

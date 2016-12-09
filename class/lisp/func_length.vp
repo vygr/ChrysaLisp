@@ -21,7 +21,7 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
 		(f-call 'vector 'get_element {args, 0} {args})
-		(func-path 'class 'sequence)
+		(f-path 'class 'sequence)
 		(f-call 'obj 'inst_of (cat {args, @} (str _function_)) {value})
 		(vpif {value})
 			(v-call 'sequence 'get_length {args} {length})

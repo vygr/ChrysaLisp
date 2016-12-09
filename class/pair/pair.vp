@@ -20,7 +20,7 @@
 	(f-call 'pair 'new '() '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(func-path 'class 'pair)
+		(f-path 'class 'pair)
 		(f-call 'pair 'init `(r0 (@ ,_function_) r6 r7) '(r1))
 		(vpif '(r1 == 0))
 			;error with init

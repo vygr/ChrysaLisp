@@ -43,7 +43,7 @@
 	(f-call 'string 'new '((& r1 (add string_size 1))) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(func-path 'class 'string)
+		(f-path 'class 'string)
 		(f-call 'string 'init `(r0 (@ ,_function_) r6 r7) '(r1))
 		(vpif '(r1 == 0))
 			;error with init
@@ -101,7 +101,7 @@
 	(f-call 'string 'new '((& r1 (add string_size 1))) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(func-path 'class 'string)
+		(f-path 'class 'string)
 		(f-call 'string 'init2 `(r0 (@ ,_function_) r6 (r7 stat_fsize)) '(r1))
 		(vpif '(r1 == 0))
 			;error with init
@@ -131,7 +131,7 @@
 	(push-scope)
 	(assign '(r0 r1) {num, base})
 
-	(func-path 'sys_load 'statics)
+	(f-path 'sys_load 'statics)
 	(assign (cat "@" (str _function_) {.ld_statics_reloc_buffer}) {reloc})
 	(assign {reloc} {buffer})
 	(vpif {num < 0})
@@ -305,7 +305,7 @@
 	(f-call 'string 'new '(r0) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(func-path 'class 'string)
+		(f-path 'class 'string)
 		(f-call 'string 'init1 `(r0 (@ ,_function_) r6 r7) '(r1))
 		(vpif '(r1 == 0))
 			;error with init

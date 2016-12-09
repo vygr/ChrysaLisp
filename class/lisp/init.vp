@@ -21,7 +21,7 @@
 	(vp-short
 		`(sub ,(sym (cat "_ref_" (str (fn-add-string s)) "_string")) (length *out-buffer))
 		f
-		(if u (progn (func-path 'lisp u) `(sub ,(sym (cat "_ref_" (str (fn_find_link _function_)) "_link")) (length *out-buffer))) 0)
+		(if u (progn (f-path 'lisp u) `(sub ,(sym (cat "_ref_" (str (fn_find_link _function_)) "_link")) (length *out-buffer))) 0)
 		(if g g type_args_eval_apply)))
 
 (def-func 'class/lisp/init)
@@ -54,7 +54,7 @@
 		(assign {0} {this->lisp_nextsym})
 
 		;interned symbols set and enviroments
-		(func-path 'symbol 'compare)
+		(f-path 'symbol 'compare)
 		(f-call 'unordered_set 'create (cat {@} (str _function_) {, 101}) {this->lisp_symbols})
 		(f-call 'unordered_map 'create {$match_obj, 31} {this->lisp_enviroment})
 		(f-call 'unordered_map 'create {$match_obj, 31} {this->lisp_macros})

@@ -1640,7 +1640,7 @@ _sym_var	equ 2
 			pop_value
 			%assign _s _s + 1
 		%endrep
-		opt_inst_list
+		;opt_inst_list
 		%assign %%n 0
 		%rep _dst_total
 			res_reg_def _dst_%[%%n]
@@ -1668,7 +1668,7 @@ _sym_var	equ 2
 			compile_rpn_list
 			compile_assign
 		%endrep
-		opt_inst_list
+		;opt_inst_list
 		%assign %%n 0
 		%rep _src_total
 			res_reg_def _src_%[%%n]
@@ -1704,7 +1704,7 @@ _sym_var	equ 2
 			compile_rpn_list
 			compile_assign
 		%endrep
-		opt_inst_list
+		;opt_inst_list
 		fill_reg_def
 		emit_inst_list {assign: %1 => %2}
 		undef_reg_def
