@@ -21,7 +21,7 @@
 	(vp-short
 		`(sub ,(label-sym (string-sym (fn-add-string s))) *pc*)
 		f
-		(if u (progn (f-path 'lisp u) `(sub ,(label-sym (link-sym (fn-find-link _function_))) *pc*)) 0)
+		(if u (progn (f-path 'lisp u) `(sub ,(label-sym (link-sym (fn-find-link _function_))) *pc* 4)) 0)
 		(if g g type_args_eval_apply)))
 
 (def-func 'class/lisp/init)
