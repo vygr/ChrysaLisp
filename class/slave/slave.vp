@@ -26,30 +26,30 @@
 	(assign '(r0 r1) {inst, vtable})
 
 	;init parent
-	(super-call 'slave 'init {inst, vtable} {error})
+	(s-call 'slave 'init {inst, vtable} {error})
 	(vpif {error != 0})
 		;init myself
-		(func-call 'sys_task 'mailbox {} {mymailbox, _})
-		(func-call 'sys_mail 'read {mymailbox} {msg})
+		(f-call 'sys_task 'mailbox {} {mymailbox, _})
+		(f-call 'sys_mail 'read {mymailbox} {msg})
 		(vpif {msg->msg_length != msg_header_size})
 			;create stdin, stdout, stderr
-			(func-call 'stream_msg_in 'create {mymailbox} {inst->slave_stdin})
-			(func-call 'stream_msg_out 'create {msg->slave_mail_init_stdout_id.id_mbox, msg->slave_mail_init_stdout_id.id_cpu} {inst->slave_stdout})
-			(func-call 'stream_msg_out 'create {msg->slave_mail_init_stderr_id.id_mbox, msg->slave_mail_init_stderr_id.id_cpu} {inst->slave_stderr})
+			(f-call 'stream_msg_in 'create {mymailbox} {inst->slave_stdin})
+			(f-call 'stream_msg_out 'create {msg->slave_mail_init_stdout_id.id_mbox, msg->slave_mail_init_stdout_id.id_cpu} {inst->slave_stdout})
+			(f-call 'stream_msg_out 'create {msg->slave_mail_init_stderr_id.id_mbox, msg->slave_mail_init_stderr_id.id_cpu} {inst->slave_stderr})
 
 			;create args
-			(func-call 'stream 'create {0, 0, & msg->slave_mail_init_args, msg->msg_length - slave_mail_init_size} {stream})
-			(func-call 'stream 'split {stream, space_char} {inst->slave_args})
-			(func-call 'stream 'deref {stream})
+			(f-call 'stream 'create {0, 0, & msg->slave_mail_init_args, msg->msg_length - slave_mail_init_size} {stream})
+			(f-call 'stream 'split {stream, space_char} {inst->slave_args})
+			(f-call 'stream 'deref {stream})
 
 			;send back ack
 			(assign {msg->slave_mail_init_ack_id.id_mbox} {msg->msg_dest.id_mbox})
 			(assign {msg->slave_mail_init_ack_id.id_cpu} {msg->msg_dest.id_cpu})
 			(assign {msg_header_size} {msg->msg_length})
-			(func-call 'sys_mail 'send {msg})
+			(f-call 'sys_mail 'send {msg})
 		(else)
 			;abort
-			(func-call 'sys_mem 'free {msg})
+			(f-call 'sys_mem 'free {msg})
 			(assign {0} {error})
 		(endif)
 	(endif)
@@ -72,34 +72,34 @@
 	(assign '(r0) {inst})
 
 	;flush remaining
-	(virt-call 'stream_msg_out 'write_flush {inst->slave_stderr})
-	(virt-call 'stream_msg_out 'write_flush {inst->slave_stdout})
+	(v-call 'stream_msg_out 'write_flush {inst->slave_stderr})
+	(v-call 'stream_msg_out 'write_flush {inst->slave_stdout})
 
 	;send stopping on stdout
-	(func-call 'stream_msg_out 'set_state {inst->slave_stdout, stream_mail_state_stopping})
-	(virt-call 'stream_msg_out 'write_next {inst->slave_stdout})
-	(virt-call 'stream_msg_out 'write_flush {inst->slave_stdout})
+	(f-call 'stream_msg_out 'set_state {inst->slave_stdout, stream_mail_state_stopping})
+	(v-call 'stream_msg_out 'write_next {inst->slave_stdout})
+	(v-call 'stream_msg_out 'write_flush {inst->slave_stdout})
 
 	;wait for stopped
 	(loop-start)
-		(virt-call 'stream_msg_in 'read_next {inst->slave_stdin} {_})
+		(v-call 'stream_msg_in 'read_next {inst->slave_stdin} {_})
 	(loop-until {inst->slave_stdin->stream_msg_in_state == stream_mail_state_stopped})
 
 	;send stopped on stdout and stderr
-	(func-call 'stream_msg_out 'set_state {inst->slave_stdout, stream_mail_state_stopped})
-	(func-call 'stream_msg_out 'set_state {inst->slave_stderr, stream_mail_state_stopped})
-	(virt-call 'stream_msg_out 'write_next {inst->slave_stdout})
-	(virt-call 'stream_msg_out 'write_flush {inst->slave_stdout})
-	(virt-call 'stream_msg_out 'write_next {inst->slave_stderr})
-	(virt-call 'stream_msg_out 'write_flush {inst->slave_stderr})
+	(f-call 'stream_msg_out 'set_state {inst->slave_stdout, stream_mail_state_stopped})
+	(f-call 'stream_msg_out 'set_state {inst->slave_stderr, stream_mail_state_stopped})
+	(v-call 'stream_msg_out 'write_next {inst->slave_stdout})
+	(v-call 'stream_msg_out 'write_flush {inst->slave_stdout})
+	(v-call 'stream_msg_out 'write_next {inst->slave_stderr})
+	(v-call 'stream_msg_out 'write_flush {inst->slave_stderr})
 
 	;free stdin, stdout and stderr
-	(func-call 'stream_msg_in 'deref {inst->slave_stdin})
-	(func-call 'stream_msg_out 'deref {inst->slave_stdout})
-	(func-call 'stream_msg_out 'deref {inst->slave_stderr})
+	(f-call 'stream_msg_in 'deref {inst->slave_stdin})
+	(f-call 'stream_msg_out 'deref {inst->slave_stdout})
+	(f-call 'stream_msg_out 'deref {inst->slave_stderr})
 
 	;free args
-	(func-call 'vector 'deref {inst->slave_args})
+	(f-call 'vector 'deref {inst->slave_args})
 
 	(assign {inst} '(r0))
 	(pop-scope)

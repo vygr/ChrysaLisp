@@ -44,66 +44,66 @@
 	(assign {0} {max_tasks})
 
 	;create my window
-	(func-call 'window 'create {} {window})
-	(func-call 'window 'get_panel {window} {window_panel})
-	(func-call 'string 'create_from_cstr {"Network Monitor"} {string})
-	(func-call 'window 'set_title {window, string})
-	(func-call 'string 'create_from_cstr {"Status Text"} {string})
-	(func-call 'window 'set_status {window, string})
+	(f-call 'window 'create {} {window})
+	(f-call 'window 'get_panel {window} {window_panel})
+	(f-call 'string 'create_from_cstr {"Network Monitor"} {string})
+	(f-call 'window 'set_title {window, string})
+	(f-call 'string 'create_from_cstr {"Status Text"} {string})
+	(f-call 'window 'set_status {window, string})
 
 	;add my panels
-	(func-call 'grid 'create {} {panel})
-	(func-call 'grid 'set_grid {panel, 2, 1})
-	(func-call 'grid 'add_back {panel, window_panel})
-	(func-call 'flow 'create {} {left_panel})
-	(func-call 'flow 'set_flow_flags {left_panel, flow_flag_down | flow_flag_fillw})
-	(func-call 'flow 'add_back {left_panel, panel})
-	(func-call 'flow 'create {} {right_panel})
-	(func-call 'flow 'set_flow_flags {right_panel, flow_flag_down | flow_flag_fillw})
-	(func-call 'flow 'add_back {right_panel, panel})
+	(f-call 'grid 'create {} {panel})
+	(f-call 'grid 'set_grid {panel, 2, 1})
+	(f-call 'grid 'add_back {panel, window_panel})
+	(f-call 'flow 'create {} {left_panel})
+	(f-call 'flow 'set_flow_flags {left_panel, flow_flag_down | flow_flag_fillw})
+	(f-call 'flow 'add_back {left_panel, panel})
+	(f-call 'flow 'create {} {right_panel})
+	(f-call 'flow 'set_flow_flags {right_panel, flow_flag_down | flow_flag_fillw})
+	(f-call 'flow 'add_back {right_panel, panel})
 
 	;allocate array for progress bars
-	(func-call 'sys_cpu 'total {} {cpu_total})
-	(func-call 'sys_mem 'alloc {cpu_total * ptr_size * 2} {task_progress, _})
+	(f-call 'sys_cpu 'total {} {cpu_total})
+	(f-call 'sys_mem 'alloc {cpu_total * ptr_size * 2} {task_progress, _})
 
 	;add num cpus progress bars to my app panel
 	(assign {0} {cpu_count})
 	(loop-start)
-		(func-call 'progress 'create {} {progress})
-		(func-call 'progress 'set_max {progress, 1})
-		(func-call 'progress 'set_color {progress, 0xff00ff00})
-		(func-call 'progress 'add_back {progress, left_panel})
+		(f-call 'progress 'create {} {progress})
+		(f-call 'progress 'set_max {progress, 1})
+		(f-call 'progress 'set_color {progress, 0xff00ff00})
+		(f-call 'progress 'add_back {progress, left_panel})
 		(assign {progress} {task_progress[cpu_count * ptr_size * 2]})
-		(func-call 'progress 'create {} {progress})
-		(func-call 'progress 'set_max {progress, 1})
-		(func-call 'progress 'set_color {progress, 0xffff0000})
-		(func-call 'progress 'add_back {progress, right_panel})
+		(f-call 'progress 'create {} {progress})
+		(f-call 'progress 'set_max {progress, 1})
+		(f-call 'progress 'set_color {progress, 0xffff0000})
+		(f-call 'progress 'add_back {progress, right_panel})
 		(assign {progress} {task_progress[cpu_count * ptr_size * 2 + ptr_size]})
 		(assign {cpu_count + 1} {cpu_count})
 	(loop-until {cpu_count == cpu_total})
 
 	;set to pref size
-	(virt-call 'window 'pref_size {window} {width, height})
-	(func-call 'window 'change {window, 32, 32, width, height})
+	(v-call 'window 'pref_size {window} {width, height})
+	(f-call 'window 'change {window, 32, 32, width, height})
 
 	;set owner
-	(func-call 'sys_task 'tcb {} {owner})
-	(func-call 'window 'set_owner {window, owner})
+	(f-call 'sys_task 'tcb {} {owner})
+	(f-call 'window 'set_owner {window, owner})
 
 	;add to screen and dirty
-	(func-call 'gui_gui 'add {window})
-	(func-call 'window 'dirty_all {window})
+	(f-call 'gui_gui 'add {window})
+	(f-call 'window 'dirty_all {window})
 
 	;open global farm
-	(func-call 'string 'create_from_cstr {"apps/netmon/child"} {string})
-	(func-call 'sys_task 'open_global {string, cpu_total} {task_mailboxes})
-	(func-call 'string 'deref {string})
+	(f-call 'string 'create_from_cstr {"apps/netmon/child"} {string})
+	(f-call 'sys_task 'open_global {string, cpu_total} {task_mailboxes})
+	(f-call 'string 'deref {string})
 
 	;init task mailbox
-	(func-call 'sys_mail 'init_mailbox {& task_mailbox})
+	(f-call 'sys_mail 'init_mailbox {& task_mailbox})
 
 	;set up mailbox select array
-	(func-call 'sys_task 'mailbox {} {select.sel_select1, _})
+	(f-call 'sys_task 'mailbox {} {select.sel_select1, _})
 	(assign {& task_mailbox} {select.sel_select2})
 
 	;app event loop
@@ -117,26 +117,26 @@
 			;send out sample commands
 			(loop-start)
 				(assign {cpu_count - 1} {cpu_count})
-				(func-call 'sys_mail 'alloc {} {msg})
+				(f-call 'sys_mail 'alloc {} {msg})
 				(assign {1} {msg->sample_msg_command})
 				(assign {sample_msg_size} {msg->msg_length})
 				(assign {cpu_count * ptr_size * 2} {msg->sample_msg_index})
 				(assign {task_mailboxes[cpu_count * id_size].id_mbox} {msg->msg_dest.id_mbox})
 				(assign {task_mailboxes[cpu_count * id_size].id_cpu} {msg->msg_dest.id_cpu})
 				(assign {select.sel_select2} {msg->sample_msg_reply_id.id_mbox})
-				(func-call 'sys_cpu 'id {} {msg->sample_msg_reply_id.id_cpu})
-				(func-call 'sys_mail 'send {msg})
+				(f-call 'sys_cpu 'id {} {msg->sample_msg_reply_id.id_cpu})
+				(f-call 'sys_mail 'send {msg})
 			(loop-untilnot {cpu_count})
 		(endif)
 
 		;select on multiple mailboxes
-		(func-call 'sys_mail 'select {& select, sel_size >> 3} {mailbox})
-		(func-call 'sys_mail 'read {mailbox} {msg})
+		(f-call 'sys_mail 'select {& select, sel_size >> 3} {mailbox})
+		(f-call 'sys_mail 'read {mailbox} {msg})
 
 		;which mailbox had mail ?
 		(vpif {mailbox == select.sel_select1})
 			;dispatch event to view
-			(virt-call 'view 'event {msg->ev_msg_view, msg})
+			(v-call 'view 'event {msg->ev_msg_view, msg})
 		(else)
 			;update progress bars
 			(assign {msg->sample_msg_task_count} {value})
@@ -144,52 +144,52 @@
 				(assign {value} {max_tasks})
 			(endif)
 			(assign {task_progress[msg->sample_msg_index]} {progress})
-			(func-call 'progress 'set_max {progress, max_tasks})
-			(func-call 'progress 'set_val {progress, value})
-			(func-call 'progress 'dirty {progress})
+			(f-call 'progress 'set_max {progress, max_tasks})
+			(f-call 'progress 'set_val {progress, value})
+			(f-call 'progress 'dirty {progress})
 
 			(assign {msg->sample_msg_mem_used} {value})
 			(assign {total_memory + value} {total_memory})
 			(assign {task_progress[msg->sample_msg_index + ptr_size]} {progress})
-			(func-call 'progress 'set_max {progress, max_memory})
-			(func-call 'progress 'set_val {progress, value})
-			(func-call 'progress 'dirty {progress})
+			(f-call 'progress 'set_max {progress, max_memory})
+			(f-call 'progress 'set_val {progress, value})
+			(f-call 'progress 'dirty {progress})
 
 			;count up replies
 			(assign {cpu_count + 1} {cpu_count})
 		(endif)
 
 		;free event message
-		(func-call 'sys_mem 'free {msg})
+		(f-call 'sys_mem 'free {msg})
 
 		;be friendly
-		(func-call 'sys_task 'yield)
+		(f-call 'sys_task 'yield)
 	(loop-end)
 
 	;wait for outstanding replys
 	(loop-while {cpu_count != cpu_total})
-		(func-call 'sys_mail 'read {select.sel_select2} {msg})
-		(func-call 'sys_mem 'free {msg})
+		(f-call 'sys_mail 'read {select.sel_select2} {msg})
+		(f-call 'sys_mem 'free {msg})
 		(assign {cpu_count + 1} {cpu_count})
 	(loop-end)
 
 	;send out exit commands
 	(loop-start)
 		(assign {cpu_count - 1} {cpu_count})
-		(func-call 'sys_mail 'alloc {} {msg})
+		(f-call 'sys_mail 'alloc {} {msg})
 		(assign {0} {msg->sample_msg_command})
 		(assign {sample_msg_size} {msg->msg_length})
 		(assign {task_mailboxes[cpu_count * id_size].id_mbox} {msg->msg_dest.id_mbox})
 		(assign {task_mailboxes[cpu_count * id_size].id_cpu} {msg->msg_dest.id_cpu})
-		(func-call 'sys_mail 'send {msg})
+		(f-call 'sys_mail 'send {msg})
 	(loop-untilnot {cpu_count})
 
 	;free arrays
-	(func-call 'sys_mem 'free {task_mailboxes})
-	(func-call 'sys_mem 'free {task_progress})
+	(f-call 'sys_mem 'free {task_mailboxes})
+	(f-call 'sys_mem 'free {task_progress})
 
 	;deref window
-	(func-call 'window 'deref {window})
+	(f-call 'window 'deref {window})
 
 	(pop-scope)
 	(return)
@@ -204,21 +204,21 @@
 	(push-scope)
 	(loop-start)
 		;read mail command
-		(func-call 'sys_mail 'mymail {} {msg})
+		(f-call 'sys_mail 'mymail {} {msg})
 		(breakifnot {msg->sample_msg_command})
 
 		;sample command
-		(func-call 'sys_task 'count {} {msg->sample_msg_task_count})
-		(func-call 'sys_mem 'used {} {msg->sample_msg_mem_used})
+		(f-call 'sys_task 'count {} {msg->sample_msg_task_count})
+		(f-call 'sys_mem 'used {} {msg->sample_msg_mem_used})
 		(assign {msg->sample_msg_reply_id.id_mbox} {msg->msg_dest.id_mbox})
 		(assign {msg->sample_msg_reply_id.id_cpu} {msg->msg_dest.id_cpu})
 		(assign {sample_msg_reply_size} {msg->msg_length})
-		(func-call 'sys_mail 'send {msg})
+		(f-call 'sys_mail 'send {msg})
 
 		;be friendly
-		(func-call 'sys_task 'yield)
+		(f-call 'sys_task 'yield)
 	(loop-end)
-	(func-call 'sys_mem 'free {msg})
+	(f-call 'sys_mem 'free {msg})
 	(pop-scope)
 	(return)
 

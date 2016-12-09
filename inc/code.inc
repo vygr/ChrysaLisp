@@ -335,12 +335,6 @@
 
 (defcvar '*src* nil '*dst* nil)
 
-(defcfun set-src (b)
-	(setq *src* b))
-
-(defcfun set-dst (b)
-	(setq *dst* b))
-
 (defcfun map-remove-ignored ()
 	(defq s (list) d (list))
 	(each (lambda (x y) (unless (or (eql x y) (eql y '_)  (eql y "_")) (push s x) (push d y))) *src* *dst*)
@@ -996,8 +990,7 @@
 ;;;;;;;;;;
 
 (defcfun retire (%1 %2)
-	(set-src %1)
-	(set-dst (map trim (split %2 (code ","))))
+	(setq *src* %1 *dst* (map trim (split %2 (code ","))))
 	(unless (eq (length *src*) (length *dst*))
 		(print "Error: Mismatching number of src/dst paramaters !"))
 	(map-remove-ignored)
@@ -1022,8 +1015,7 @@
 		(undef-reg-def)))
 
 (defcfun expr (%1 %2)
-	(set-src (map trim (split %1 (code ","))))
-	(set-dst %2)
+	(setq *src* (map trim (split %1 (code ","))) *dst* %2)
 	(unless (eq (length *src*) (length *dst*))
 		(print "Error: Mismatching number of src/dst paramaters !"))
 	(map-remove-ignored)
@@ -1049,8 +1041,7 @@
 		(undef-reg-def)))
 
 (defcfun copy (%1 %2)
-	(set-src (map trim (split %1 (code ","))))
-	(set-dst (map trim (split %2 (code ","))))
+	(setq *src* (map trim (split %1 (code ","))) *dst* (map trim (split %2 (code ","))))
 	(unless (eq (length *src*) (length *dst*))
 		(print "Error: Mismatching number of src/dst paramaters !"))
 	(map-remove-ignored)
@@ -1089,6 +1080,5 @@
 			(retire %1 %2))
 		(t
 			;asm -> asm
-			(set-src %1)
-			(set-dst %2)
+			(setq *src* %1 *dst* %2)
 			(map-src-to-dst))))

@@ -21,18 +21,18 @@
 	(assign '(r0 r1 r2) {this, stream, char})
 
 	;skip ","
-	(func-call 'stream 'read_char {stream} {char})
+	(f-call 'stream 'read_char {stream} {char})
 
-	(func-call 'vector 'create {} {list})
+	(f-call 'vector 'create {} {list})
 	(assign {this->lisp_sym_unquote} {elem})
-	(func-call 'ref 'ref {elem})
-	(func-call 'vector 'push_back {list, elem})
-	(func-call 'lisp 'repl_read {this, stream, char} {elem, char})
+	(f-call 'ref 'ref {elem})
+	(f-call 'vector 'push_back {list, elem})
+	(f-call 'lisp 'repl_read {this, stream, char} {elem, char})
 	(vpif {elem})
-		(func-call 'vector 'push_back {list, elem})
+		(f-call 'vector 'push_back {list, elem})
 	(else)
-		(func-call 'ref 'deref {list})
-		(func-call 'error 'create {"read unquote error", this->lisp_sym_nil} {list})
+		(f-call 'ref 'deref {list})
+		(f-call 'error 'create {"read unquote error", this->lisp_sym_nil} {list})
 	(endif)
 
 	(assign {this, list, char} '(r0 r1 r2))

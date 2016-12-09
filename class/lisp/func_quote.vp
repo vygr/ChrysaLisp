@@ -17,11 +17,11 @@
 	(push-scope)
 	(assign '(r0 r1) {this, args})
 
-	(devirt-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
-		(devirt-call 'vector 'ref_element {args, 0} {args})
+		(d-call 'vector 'ref_element {args, 0} {args})
 	(else)
-		(func-call 'error 'create {"(quote arg) wrong number of args", args} {args})
+		(f-call 'error 'create {"(quote arg) wrong number of args", args} {args})
 	(endif)
 
 	(assign {this, args} '(r0 r1))

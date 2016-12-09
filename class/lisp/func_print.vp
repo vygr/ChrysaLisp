@@ -17,8 +17,8 @@
 	(push-scope)
 	(assign '(r0 r1) {this, args})
 
-	(func-call 'lisp 'func_prin {this, args} {args})
-	(func-call 'stream 'write_char {this->lisp_stdout, char_lf})
+	(f-call 'lisp 'func_prin {this, args} {args})
+	(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 
 	(assign {this, args} '(r0 r1))
 	(pop-scope)

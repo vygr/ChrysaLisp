@@ -13,12 +13,12 @@
 	(assign '(r0) '(this))
 
 	;deinit myself
-	(func-call 'ref 'deref {this->lisp_symbols})
-	(func-call 'ref 'deref {this->lisp_enviroment})
-	(func-call 'ref 'deref {this->lisp_macros})
+	(f-call 'ref 'deref {this->lisp_symbols})
+	(f-call 'ref 'deref {this->lisp_enviroment})
+	(f-call 'ref 'deref {this->lisp_macros})
 
 	;deinit parent
-	(super-call 'lisp 'deinit {this})
+	(s-call 'lisp 'deinit {this})
 
 	(pop-scope)
 	(return)

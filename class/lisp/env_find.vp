@@ -20,11 +20,11 @@
 
 	(assign {this->lisp_enviroment} {env})
 	(loop-start)
-		(func-call 'unordered_map 'find {env, symbol} {iter, bucket})
+		(f-call 'unordered_map 'find {env, symbol} {iter, bucket})
 		(breakif {iter})
-		(func-call 'unordered_map 'find {env, this->lisp_sym_parent} {iter, bucket})
+		(f-call 'unordered_map 'find {env, this->lisp_sym_parent} {iter, bucket})
 		(breakifnot {iter})
-		(func-call 'pair 'get_second {*iter} {env})
+		(f-call 'pair 'get_second {*iter} {env})
 	(loop-end)
 
 	(assign {this, iter, bucket} '(r0 r1 r2))

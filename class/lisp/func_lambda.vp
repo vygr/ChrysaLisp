@@ -14,7 +14,7 @@
 	(push-scope)
 	(assign '(r0 r1) '(this, args))
 
-	(func-call 'ref 'ref {args})
+	(f-call 'ref 'ref {args})
 
 	(assign {this, args} '(r0 r1))
 	(pop-scope)

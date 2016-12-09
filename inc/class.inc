@@ -77,22 +77,6 @@
 	(if (eq s (length c))
 		(print "No such method " %2 " in class " %1 " !")))
 
-(defcfun map-inputs (%1 %2 %3)
-	;%1 = class
-	;%2 = parameters
-	;%3 = slot num
-	(assign %2 (elem 3 (elem %3 %1))))
-
-(defcfun map-outputs (%1 %2 %3)
-	;%1 = class
-	;%2 = parameters
-	;%3 = slot num
-	(assign (elem 4 (elem %3 %1)) %2))
-
-(defcfun map-print ()
-	(each (lambda (x y)
-		(print x " -> " y)) *src* *dst*))
-
 (defcfun func-path (%1 %2 &optional %3)
 	;%1 = class name
 	;%2 = slot method name
@@ -111,9 +95,9 @@
 	(method-lookup %1 %2)
 	(defcvar %3 (elem 1 (elem s (eval n)))))
 
-;;;;;;;;;;;;;;;;;
-; assembler level
-;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+; method calling
+;;;;;;;;;;;;;;;;
 
 (defcfun f-call (%1 %2 &optional %3 %4)
 	;%1 = class name
@@ -126,9 +110,9 @@
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
 		(print "Class " %1 " method " %2 " is virtual ! Use v_call ?"))
-	(map-inputs c %3 s)
+	(assign %3 (elem 3 m))
 	(fn-call (elem 1 m))
-	(map-outputs c %4 s))
+	(assign (elem 4 m) %4))
 
 (defcfun f-jmp (%1 %2 &optional %3)
 	;%1 = class name
@@ -140,7 +124,7 @@
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
 		(print "Class " %1 " method " %2 " is virtual ! Use v_jmp ?"))
-	(map-inputs c %3 s)
+	(assign %3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
 (defcfun f-bind (%1 %2 %3)
@@ -166,9 +150,9 @@
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
 			(print "Class " (eval (super-name %1)) " method " %2 " is static !")))
-	(map-inputs c %3 s)
+	(assign %3 (elem 3 m))
 	(fn-call (elem 1 m))
-	(map-outputs c %4 s))
+	(assign (elem 4 m) %4))
 
 (defcfun s-jmp (%1 %2 &optional %3)
 	;%1 = class name
@@ -181,7 +165,7 @@
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
 			(print "Class " (eval (super-name %1)) " method " %2 " is static !")))
-	(map-inputs c %3 s)
+	(assign %3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
 (defcfun s-bind (%1 %2 %3)
@@ -207,10 +191,13 @@
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_call ?"))
-	(map-inputs c %3 s)
+	(setq s (elem 3 m))
+	(if (inst-of 'class/class_string %3)
+		(setq %3 (cat "RXX, " %3) s (cat (list %5) s)))
+	(assign %3 s)
 	(vp-cpy-ir r0 obj_vtable %5)
 	(vp-call-i %5 v)
-	(map-outputs c %4 s))
+	(assign (elem 4 m) %4))
 
 (defcfun v-jmp (%1 %2 &optional %3 %4)
 	;%1 = class name
@@ -223,7 +210,10 @@
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_jmp ?"))
-	(map-inputs c %3 s)
+	(setq s (elem 3 m))
+	(if (inst-of 'class/class_string %3)
+		(setq %3 (cat "RXX, " %3) s (cat (list %4) s)))
+	(assign %3 s)
 	(vp-cpy-ir r0 obj_vtable %4)
 	(vp-jmp-i %4 v))
 
@@ -251,9 +241,9 @@
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_call ?"))
-	(map-inputs c %3 s)
+	(assign %3 (elem 3 m))
 	(fn-call (elem 1 m))
-	(map-outputs c %4 s))
+	(assign (elem 4 m) %4))
 
 (defcfun d-jmp (%1 %2 &optional %3)
 	;%1 = class name
@@ -265,7 +255,7 @@
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(print "Class " %1 " method " %2 " is static ! Use f_jmp ?"))
-	(map-inputs c %3 s)
+	(assign %3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
 (defcfun d-bind (%1 %2 %3)
@@ -279,80 +269,13 @@
 		(print "Class " %1 " method " %2 " is static ! Use f_bind ?"))
 	(fn-bind (elem 1 m) %3))
 
-;;;;;;;;;;;;;;
-; script level
-;;;;;;;;;;;;;;
-
-(defcfun func-call (%1 %2 &optional %3 %4)
-	;%1 = class name
-	;%2 = member name
-	;%3 = in parameters
-	;%4 = out parameters
-	(setq %3 (if %3 %3 "") %4 (if %4 %4 ""))
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
-	(defq m (elem s c))
-	(if (eql (elem 2 m) 'virtual)
-		(print "Class " %1 " method " %2 " is virtual ! Use virt_call ?"))
-	(assign %3 (elem 3 m))
-	(fn-call (elem 1 m))
-	(assign (elem 4 m) %4))
-
-(defcfun super-call (%1 %2 &optional %3 %4)
-	;%1 = class name
-	;%2 = member name
-	;%3 = in parameters
-	;%4 = out parameters
-	(setq %3 (if %3 %3 "") %4 (if %4 %4 ""))
-	(defq s nil v nil c nil)
-	(method-lookup (eval (super-name %1)) %2)
-	(defq m (elem s c))
-	(if (eql (elem 2 m) 'static)
-		(unless (eql (elem 0 m) 'init)
-			(print "Class " (eval (super-name %1)) " method " %2 " is static !")))
-	(assign %3 (elem 3 m))
-	(fn-call (elem 1 m))
-	(assign (elem 4 m) %4))
-
-(defcfun virt-call (%1 %2 &optional %3 %4 %5)
-	;%1 = class name
-	;%2 = member name
-	;%3 = in parameters
-	;%4 = out parameters
-	;%5 = dispatch reg
-	(setq %3 (if %3 %3 "") %4 (if %4 %4 "") %5 (if %5 %5 r15))
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
-	(defq m (elem s c))
-	(if (eql (elem 2 m) 'static)
-		(print "Class " %1 " method " %2 " is static ! Use func_call ?"))
-	(assign (cat "RXX, " %3) (cat (list %5) (elem 3 m)))
-	(vp-cpy-ir r0 obj_vtable %5)
-	(vp-call-i %5 v)
-	(assign (elem 4 m) %4))
-
-(defcfun devirt-call (%1 %2 &optional %3 %4)
-	;%1 = class name
-	;%2 = member name
-	;%3 = in parameters
-	;%4 = out parameters
-	(setq %3 (if %3 %3 "") %4 (if %4 %4 ""))
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
-	(defq m (elem s c))
-	(if (eql (elem 2 m) 'static)
-		(print "Class " %1 " method " %2 " is static ! Use func_call ?"))
-	(assign %3 (elem 3 m))
-	(fn-call (elem 1 m))
-	(assign (elem 4 m) %4))
-
-(defcfun local-call (%1 &optional %2 %3 %4 %5)
+(defcfun l-call (%1 &optional %2 %3 %4 %5)
 	;%1 = label
 	;%2 = in parameters
 	;%3 = in regs
 	;%4 = out parameters
 	;%5 = out regs
-	(setq %2 (if %2 %2 "") %3 (if %3 %3 (list)) %4 (if %4 %4 "") %5 (if %5 %5 (list)))
+	(setq %2 (if %2 %2 (list)) %3 (if %3 %3 (list)) %4 (if %4 %4 (list)) %5 (if %5 %5 (list)))
 	(assign %2 %3)
 	(vp-call %1)
 	(assign %4 %5))

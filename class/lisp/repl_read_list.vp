@@ -27,32 +27,32 @@
 
 	;skip "(" and white space
 	(loop-start)
-		(func-call 'stream 'read_char {stream} {char})
+		(f-call 'stream 'read_char {stream} {char})
 	(loop-until {char > char_space || char == -1})
 
-	(func-call 'vector 'create {} {list})
+	(f-call 'vector 'create {} {list})
 	(loop-while {char != -1 && char != char_rrb})
-		(func-call 'lisp 'repl_read {this, stream, char} {ast, char})
+		(f-call 'lisp 'repl_read {this, stream, char} {ast, char})
 		(vpif {ast->obj_vtable == @class/class_error})
-			(func-call 'ref 'deref {list})
+			(f-call 'ref 'deref {list})
 			(assign {ast} {list})
 			goto error
 		(endif)
-		(func-call 'vector 'push_back {list, ast})
+		(f-call 'vector 'push_back {list, ast})
 
 		;skip white space/comments
 		(loop-start)
 			(loop-while {char <= char_space && char != -1})
-				(func-call 'stream 'read_char {stream} {char})
+				(f-call 'stream 'read_char {stream} {char})
 			(loop-end)
 			(breakif {char != char_semi})
-			(func-call 'stream 'skip_not {stream, char_lf})
-			(func-call 'stream 'read_char {stream} {char})
+			(f-call 'stream 'skip_not {stream, char_lf})
+			(f-call 'stream 'read_char {stream} {char})
 		(loop-end)
 	(loop-end)
 
 	;skip ")"
-	(func-call 'stream 'read_char {stream} {char})
+	(f-call 'stream 'read_char {stream} {char})
 
 (vp-label 'error)
 	(assign {this, list, char} '(r0 r1 r2))

@@ -24,32 +24,32 @@
 	(assign '(r0 r1 r2) {this, stream, char})
 
 	;skip "<"
-	(func-call 'stream 'read_char {stream} {char})
+	(f-call 'stream 'read_char {stream} {char})
 
-	(func-call 'lisp 'repl_read {this, stream, char} {first, char})
+	(f-call 'lisp 'repl_read {this, stream, char} {first, char})
 	(vpif {first->obj_vtable == @class/class_error})
 		(assign {first} {pair})
 		goto error
 	(endif)
-	(func-call 'lisp 'repl_read {this, stream, char} {second, char})
+	(f-call 'lisp 'repl_read {this, stream, char} {second, char})
 	(vpif {second->obj_vtable == @class/class_error})
-		(func-call 'ref 'deref {first})
+		(f-call 'ref 'deref {first})
 		(assign {second} {pair})
 		goto error
 	(endif)
 
 	;skip white space
 	(loop-while {char <= char_space && char != -1})
-		(func-call 'stream 'read_char {stream} {char})
+		(f-call 'stream 'read_char {stream} {char})
 	(loop-end)
 
 	(vpif {char == char_rab})
-		(func-call 'stream 'read_char {stream} {char})
-		(func-call 'pair 'create {first, second} {pair})
+		(f-call 'stream 'read_char {stream} {char})
+		(f-call 'pair 'create {first, second} {pair})
 	(else)
-		(func-call 'ref 'deref {second})
-		(func-call 'ref 'deref {first})
-		(func-call 'error 'create {"expected >", this->lisp_sym_nil} {pair})
+		(f-call 'ref 'deref {second})
+		(f-call 'ref 'deref {first})
+		(f-call 'error 'create {"expected >", this->lisp_sym_nil} {pair})
 	(endif)
 (vp-label 'error)
 	(assign {this, pair, char} '(r0 r1 r2))

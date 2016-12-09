@@ -17,11 +17,11 @@
 	(push-scope)
 	(assign '(r0 r1) {this, symbol})
 
-	(func-call 'lisp 'env_find {this, symbol} {iter, _})
+	(f-call 'lisp 'env_find {this, symbol} {iter, _})
 	(vpif {iter})
-		(func-call 'pair 'ref_second {*iter} {symbol})
+		(f-call 'pair 'ref_second {*iter} {symbol})
 	(else)
-		(func-call 'error 'create {"symbol not bound", symbol} {symbol})
+		(f-call 'error 'create {"symbol not bound", symbol} {symbol})
 	(endif)
 
 	(assign {this, symbol} '(r0 r1))

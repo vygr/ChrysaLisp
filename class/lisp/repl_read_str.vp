@@ -27,15 +27,15 @@
 	(assign (cat "@" (str _function_) {.ld_statics_reloc_buffer}) {reloc})
 	(assign {reloc} {buffer})
 
-	(func-call 'stream 'read_char {stream} {char})
+	(f-call 'stream 'read_char {stream} {char})
 	(loop-while {char != -1 && char != char_double_quote})
 		(assign {char} {* buffer})
 		(assign {buffer + 1} {buffer})
-		(func-call 'stream 'read_char {stream} {char})
+		(f-call 'stream 'read_char {stream} {char})
 	(loop-end)
-	(func-call 'stream 'read_char {stream} {char})
+	(f-call 'stream 'read_char {stream} {char})
 
-	(func-call 'string 'create_from_buffer {reloc, buffer - reloc} {string})
+	(f-call 'string 'create_from_buffer {reloc, buffer - reloc} {string})
 
 	(assign {this, string, char} '(r0 r1 r2))
 	(pop-scope)

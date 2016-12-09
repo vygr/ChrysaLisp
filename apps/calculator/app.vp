@@ -31,81 +31,81 @@
 	;init app vars
 	(push-scope)
 	(func-path 'class 'obj)
-	(func-call 'obj 'init (cat {&myapp, @} (str _function_)) {_})
+	(f-call 'obj 'init (cat {&myapp, @} (str _function_)) {_})
 	(assign {0} {myapp.shared_accum})
 	(assign {0} {myapp.shared_value})
 	(assign {0} {myapp.shared_last_op})
 	(assign {0} {myapp.shared_last_flag})
 
 	;create my window
-	(func-call 'window 'create {} {window})
-	(func-call 'window 'get_panel {window} {window_panel})
-	(func-call 'string 'create_from_cstr {"Calculator"} {string})
-	(func-call 'window 'set_title {window, string})
-	(func-call 'string 'create_from_cstr {"Status Text"} {string})
-	(func-call 'window 'set_status {window, string})
+	(f-call 'window 'create {} {window})
+	(f-call 'window 'get_panel {window} {window_panel})
+	(f-call 'string 'create_from_cstr {"Calculator"} {string})
+	(f-call 'window 'set_title {window, string})
+	(f-call 'string 'create_from_cstr {"Status Text"} {string})
+	(f-call 'window 'set_status {window, string})
 
 	;add my app flow panel
-	(func-call 'flow 'create {} {flow_panel})
-	(func-call 'flow 'set_flow_flags {flow_panel, flow_flag_down | flow_flag_fillw | flow_flag_lasth})
-	(func-call 'flow 'add_back {flow_panel, window_panel})
+	(f-call 'flow 'create {} {flow_panel})
+	(f-call 'flow 'set_flow_flags {flow_panel, flow_flag_down | flow_flag_fillw | flow_flag_lasth})
+	(f-call 'flow 'add_back {flow_panel, window_panel})
 
 	;add my display label
-	(func-call 'label 'create {} {myapp.shared_display})
-	(func-call 'label 'set_color {myapp.shared_display, 0xffffffff})
-	(func-call 'label 'set_flow_flags {myapp.shared_display, flow_flag_align_hright | flow_flag_align_vcenter})
-	(func-call 'label 'set_font {myapp.shared_display, "fonts/OpenSans-Regular.ttf", 24})
-	(func-call 'string 'create_from_cstr {"0"} {string})
-	(func-call 'label 'set_text {myapp.shared_display, string})
-	(func-call 'label 'add_back {myapp.shared_display, flow_panel})
+	(f-call 'label 'create {} {myapp.shared_display})
+	(f-call 'label 'set_color {myapp.shared_display, 0xffffffff})
+	(f-call 'label 'set_flow_flags {myapp.shared_display, flow_flag_align_hright | flow_flag_align_vcenter})
+	(f-call 'label 'set_font {myapp.shared_display, "fonts/OpenSans-Regular.ttf", 24})
+	(f-call 'string 'create_from_cstr {"0"} {string})
+	(f-call 'label 'set_text {myapp.shared_display, string})
+	(f-call 'label 'add_back {myapp.shared_display, flow_panel})
 
 	;add my app grid panel
-	(func-call 'grid 'create {} {grid_panel})
-	(func-call 'grid 'set_grid {grid_panel, 4, 4})
-	(func-call 'grid 'add_back {grid_panel, flow_panel})
+	(f-call 'grid 'create {} {grid_panel})
+	(f-call 'grid 'set_grid {grid_panel, 4, 4})
+	(f-call 'grid 'add_back {grid_panel, flow_panel})
 
 	;add buttons to my grid panel
 	(assign {$button_list} {next})
 	(loop-while {* next})
-		(func-call 'button 'create {} {button})
-		(func-call 'button 'set_color {button, 0xffffff00})
-		(func-call 'string 'create_from_cstr {next} {string})
-		(func-call 'button 'set_text {button, string})
-		(func-call 'button 'set_flow_flags {button, flow_flag_align_hcenter | flow_flag_align_vcenter})
-		(func-call 'button 'add_back {button, grid_panel})
-		(func-call 'button 'sig_pressed {button} {pressed})
-		(func-call 'button 'connect {button, pressed, & myapp, $on_press})
+		(f-call 'button 'create {} {button})
+		(f-call 'button 'set_color {button, 0xffffff00})
+		(f-call 'string 'create_from_cstr {next} {string})
+		(f-call 'button 'set_text {button, string})
+		(f-call 'button 'set_flow_flags {button, flow_flag_align_hcenter | flow_flag_align_vcenter})
+		(f-call 'button 'add_back {button, grid_panel})
+		(f-call 'button 'sig_pressed {button} {pressed})
+		(f-call 'button 'connect {button, pressed, & myapp, $on_press})
 
-		(func-call 'sys_string 'length {next} {length})
+		(f-call 'sys_string 'length {next} {length})
 		(assign {next + length + 1} {next})
 	(loop-end)
 
 	;set to pref size
-	(virt-call 'window 'pref_size {window} {width, height})
-	(func-call 'window 'change {window, 920, 48, width + (width >> 1), height + (height >> 1)})
+	(v-call 'window 'pref_size {window} {width, height})
+	(f-call 'window 'change {window, 920, 48, width + (width >> 1), height + (height >> 1)})
 
 	;set window owner
-	(func-call 'sys_task 'tcb {} {owner})
-	(func-call 'window 'set_owner {window, owner})
+	(f-call 'sys_task 'tcb {} {owner})
+	(f-call 'window 'set_owner {window, owner})
 
 	;add to screen and dirty
-	(func-call 'gui_gui 'add {window})
-	(func-call 'window 'dirty_all {window})
+	(f-call 'gui_gui 'add {window})
+	(f-call 'window 'dirty_all {window})
 
 	;app event loop
 	(loop-start)
-		(func-call 'sys_mail 'mymail {} {msg})
+		(f-call 'sys_mail 'mymail {} {msg})
 
 		;dispatch event to view
-		(virt-call 'view 'event {msg->ev_msg_view, msg})
+		(v-call 'view 'event {msg->ev_msg_view, msg})
 
 		;free event message
-		(func-call 'sys_mem 'free {msg})
+		(f-call 'sys_mem 'free {msg})
 	(loop-end)
 
 	;deref window
-	(func-call 'window 'deref {window})
-	(virt-call 'obj 'deinit {& myapp})
+	(f-call 'window 'deref {window})
+	(v-call 'obj 'deinit {& myapp})
 
 	(pop-scope)
 	(return)
@@ -130,17 +130,17 @@
 	;save inputs
 	(push-scope)
 	(assign '(r0 r1) {inst, button})
-	(func-call 'button 'get_text {button} {button_string})
+	(f-call 'button 'get_text {button} {button_string})
 	(vpif {button_string->string_length == 2})
 		;AC
-		(func-call 'string 'create_from_cstr {"0"} {string})
-		(func-call 'label 'set_text {inst->shared_display, string})
+		(f-call 'string 'create_from_cstr {"0"} {string})
+		(f-call 'label 'set_text {inst->shared_display, string})
 		(assign {0} {inst->shared_accum})
 		(assign {0} {inst->shared_value})
 		(assign {0} {inst->shared_last_op})
 		(assign {0} {inst->shared_last_flag})
 	(else)
-		(func-call 'label 'get_text {inst->shared_display} {display_string})
+		(f-call 'label 'get_text {inst->shared_display} {display_string})
 		(assign {& button_string->string_data} {charp})
 		(assign {* charp} {char})
 		(vpif {char >= char_zero && char <= char_nine})
@@ -149,13 +149,13 @@
 			(assign {* charp} {char})
 			(vpif {char == char_zero || inst->shared_last_flag == 0})
 				;clear it
-				(func-call 'string 'deref {display_string})
-				(func-call 'string 'create_from_cstr {""} {display_string})
+				(f-call 'string 'deref {display_string})
+				(f-call 'string 'create_from_cstr {""} {display_string})
 				(assign {1} {inst->shared_last_flag})
 			(endif)
 			;append numeral
-			(func-call 'string 'append {display_string, button_string} {string})
-			(func-call 'sys_string 'to_long {& string->string_data, 10} {inst->shared_value})
+			(f-call 'string 'append {display_string, button_string} {string})
+			(f-call 'sys_string 'to_long {& string->string_data, 10} {inst->shared_value})
 		(else)
 			;operator
 			(vpif {inst->shared_last_op == char_plus})
@@ -180,23 +180,23 @@
 			(assign {0} {inst->shared_last_flag})
 			(vpif {inst->shared_accum < 0})
 				;negative accum
-				(func-call 'sys_string 'from_long {- inst->shared_accum, & inst->shared_buffer, 10})
-				(func-call 'string 'create_from_cstr {"-"} {string1})
-				(func-call 'string 'create_from_cstr {& inst->shared_buffer} {string2})
-				(func-call 'string 'append {string1, string2} {string})
-				(func-call 'string 'deref {string1})
-				(func-call 'string 'deref {string2})
+				(f-call 'sys_string 'from_long {- inst->shared_accum, & inst->shared_buffer, 10})
+				(f-call 'string 'create_from_cstr {"-"} {string1})
+				(f-call 'string 'create_from_cstr {& inst->shared_buffer} {string2})
+				(f-call 'string 'append {string1, string2} {string})
+				(f-call 'string 'deref {string1})
+				(f-call 'string 'deref {string2})
 			(else)
 				;positive accum
-				(func-call 'sys_string 'from_long {inst->shared_accum, & inst->shared_buffer, 10})
-				(func-call 'string 'create_from_cstr {& inst->shared_buffer} {string})
+				(f-call 'sys_string 'from_long {inst->shared_accum, & inst->shared_buffer, 10})
+				(f-call 'string 'create_from_cstr {& inst->shared_buffer} {string})
 			(endif)
 		(endif)
-		(func-call 'label 'set_text {inst->shared_display, string})
-		(func-call 'string 'deref {display_string})
+		(f-call 'label 'set_text {inst->shared_display, string})
+		(f-call 'string 'deref {display_string})
 	(endif)
-	(func-call 'string 'deref {button_string})
-	(func-call 'label 'dirty {inst->shared_display})
+	(f-call 'string 'deref {button_string})
+	(f-call 'label 'dirty {inst->shared_display})
 	(pop-scope)
 	(return)
 

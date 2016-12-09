@@ -18,12 +18,12 @@
 	(push-scope)
 	(assign '(r0 r1 r2) {this, list, index})
 
-	(devirt-call 'vector 'get_length {list} {length})
-	(func-call 'vector 'for_each {list, index, length, $callback, this} {iter})
+	(d-call 'vector 'get_length {list} {length})
+	(f-call 'vector 'for_each {list, index, length, $callback, this} {iter})
 	(vpif {iter})
 		(assign {*iter} {list})
 	(endif)
-	(func-call 'ref 'ref {list})
+	(f-call 'ref 'ref {list})
 
 	(assign {this, list} '(r0 r1))
 	(pop-scope)
@@ -42,8 +42,8 @@
 	(push-scope)
 	(assign '(r0 r1) {pdata, iter})
 
-	(func-call 'lisp 'repl_eval {pdata, *iter} {pdata})
-	(func-call 'ref 'deref {*iter})
+	(f-call 'lisp 'repl_eval {pdata, *iter} {pdata})
+	(f-call 'ref 'deref {*iter})
 	(assign {pdata} {*iter})
 
 	(assign {pdata->obj_vtable != @class/class_error} '(r1))

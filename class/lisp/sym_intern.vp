@@ -16,10 +16,10 @@
 	(push-scope)
 	(assign '(r0 r1) {this, symbol})
 
-	(func-call 'unordered_set 'insert {this->lisp_symbols, symbol} {iter, _})
-	(func-call 'ref 'deref {symbol})
+	(f-call 'unordered_set 'insert {this->lisp_symbols, symbol} {iter, _})
+	(f-call 'ref 'deref {symbol})
 	(assign {*iter} {symbol})
-	(func-call 'ref 'ref {symbol})
+	(f-call 'ref 'ref {symbol})
 
 	(assign {this, symbol} '(r0 r1))
 	(pop-scope)

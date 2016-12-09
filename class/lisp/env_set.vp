@@ -18,14 +18,14 @@
 	(push-scope)
 	(assign '(r0 r1 r2) {this, symbol, value})
 
-	(func-call 'lisp 'env_find {this, symbol} {iter, _})
+	(f-call 'lisp 'env_find {this, symbol} {iter, _})
 	(vpif {iter})
 		;change existing value
-		(func-call 'ref 'ref {value})
-		(func-call 'ref 'ref {value})
-		(func-call 'pair 'set_second {*iter, value})
+		(f-call 'ref 'ref {value})
+		(f-call 'ref 'ref {value})
+		(f-call 'pair 'set_second {*iter, value})
 	(else)
-		(func-call 'error 'create {"symbol not bound", symbol} {value})
+		(f-call 'error 'create {"symbol not bound", symbol} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

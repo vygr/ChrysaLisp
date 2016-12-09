@@ -33,12 +33,12 @@
 	(loop-while {char > char_space && char != char_lb && char != char_rb && char != char_quote})
 		(assign {char} {* buffer})
 		(assign {buffer + 1} {buffer})
-		(func-call 'stream 'read_char {stream} {char})
+		(f-call 'stream 'read_char {stream} {char})
 	(loop-end)
 
 	;intern the symbol
-	(func-call 'symbol 'create_from_buffer {reloc, buffer - reloc} {symbol})
-	(func-call 'lisp 'sym_intern {this, symbol} {symbol})
+	(f-call 'symbol 'create_from_buffer {reloc, buffer - reloc} {symbol})
+	(f-call 'lisp 'sym_intern {this, symbol} {symbol})
 
 	(assign {this, symbol, char} '(r0 r1 r2))
 	(pop-scope)

@@ -17,12 +17,12 @@
 	(push-scope)
 	(assign '(r0 r1) {this, args})
 
-	(devirt-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
-		(func-call 'vector 'get_element {args, 0} {args})
-		(func-call 'lisp 'repl_eval {this, args} {args})
+		(f-call 'vector 'get_element {args, 0} {args})
+		(f-call 'lisp 'repl_eval {this, args} {args})
 	(else)
-		(func-call 'error 'create {"(eval form) wrong number of args", args} {args})
+		(f-call 'error 'create {"(eval form) wrong number of args", args} {args})
 	(endif)
 
 	(assign {this, args} '(r0 r1))

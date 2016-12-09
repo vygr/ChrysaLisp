@@ -11,15 +11,15 @@
 	(push-scope)
 
 	;initialize pipe details and command args, abort on error
-	(func-call 'slave 'create {} {slave})
+	(f-call 'slave 'create {} {slave})
 	(vpif {slave})
 		;dump stdin till EOF
 		(loop-start)
-			(virt-call 'stream 'read_next {slave->slave_stdin} {eof})
+			(v-call 'stream 'read_next {slave->slave_stdin} {eof})
 		(loop-until {eof == -1})
 
 		;clean up
-		(func-call 'slave 'deref {slave})
+		(f-call 'slave 'deref {slave})
 	(endif)
 	(pop-scope)
 	(return)

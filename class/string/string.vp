@@ -139,8 +139,8 @@
 		(assign {buffer + 1} {buffer})
 		(assign {-num} {num})
 	(endif)
-	(func-call 'sys_string 'from_long {num, buffer, base})
-	(func-call 'string 'create_from_cstr {reloc} {this})
+	(f-call 'sys_string 'from_long {num, buffer, base})
+	(f-call 'string 'create_from_cstr {reloc} {this})
 
 	(assign {this} '(r0))
 	(pop-scope)
@@ -426,9 +426,9 @@
 	(assign '(r0 r1) {inst, char})
 
 	;create string split
-	(func-call 'stream 'create {0, 0, & inst->string_data, inst->string_length} {stream})
-	(func-call 'stream 'split {stream, char} {splits})
-	(func-call 'stream 'deref {stream})
+	(f-call 'stream 'create {0, 0, & inst->string_data, inst->string_length} {stream})
+	(f-call 'stream 'split {stream, char} {splits})
+	(f-call 'stream 'deref {stream})
 
 	(assign {inst, splits} '(r0 r1))
 	(pop-scope)

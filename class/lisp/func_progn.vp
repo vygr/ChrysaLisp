@@ -16,12 +16,12 @@
 	(push-scope)
 	(assign '(r0 r1) {this, args})
 
-	(devirt-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {length})
 	(vpif {length})
-		(devirt-call 'vector 'ref_element {args, length - 1} {args})
+		(d-call 'vector 'ref_element {args, length - 1} {args})
 	(else)
 		(assign {this->lisp_sym_nil} {args})
-		(func-call 'ref 'ref {args})
+		(f-call 'ref 'ref {args})
 	(endif)
 
 	(assign {this, args} '(r0 r1))

@@ -17,11 +17,11 @@
 	(push-scope)
 	(assign '(r0 r1 r2 r3) {this, symbol, func_ptr, func_flags})
 
-	(func-call 'boxed_ptr 'create {} {func})
-	(func-call 'boxed_ptr 'set_value {func, func_ptr})
-	(func-call 'boxed_ptr 'set_flags {func, func_flags})
-	(func-call 'unordered_map 'insert {this->lisp_enviroment, symbol, func} {_, _})
-	(func-call 'ref 'deref {func})
+	(f-call 'boxed_ptr 'create {} {func})
+	(f-call 'boxed_ptr 'set_value {func, func_ptr})
+	(f-call 'boxed_ptr 'set_flags {func, func_flags})
+	(f-call 'unordered_map 'insert {this->lisp_enviroment, symbol, func} {_, _})
+	(f-call 'ref 'deref {func})
 
 	(assign {this} '(r0))
 	(pop-scope)
