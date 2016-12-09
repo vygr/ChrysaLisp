@@ -105,12 +105,19 @@ An example network viewed with ps looks like this for a 4x4 mesh network:
 ./main -cpu 1 -l 001-013 -l 001-005 -l 000-001 -l 001-002
 ./main -cpu 0 -l 000-012 -l 000-004 -l 000-003 -l 000-001 -run gui/gui
 
+
+
+
 Make with:
 
 make -j
 
 Requires NASM, SDL2 and the SDL2_ttf library to be installed. SDL2 and SDL2_ttf
 are for the experimental GUI.
+
+Requirements:
+Linux: Tested on Ubuntu 16-10
+sudo apt-get install nasm clang libsdl2-ttf-dev
 
 Run with:
 
