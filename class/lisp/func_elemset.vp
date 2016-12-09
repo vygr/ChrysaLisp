@@ -32,7 +32,7 @@
 				(vpif {index >= 0 && index < length})
 					(d-call 'vector 'ref_element {args, 2} {value})
 					(f-call 'vector 'set_element {seq, value, index})
-					(func_call 'ref 'ref '(value))
+					(f-call 'ref 'ref {value})
 					(assign {this, value} '(r0 r1))
 					(return)
 				(else)

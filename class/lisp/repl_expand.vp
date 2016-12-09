@@ -12,6 +12,11 @@
 	;r0 = lisp object
 	;r1 = 0 if expanded
 
+	(def-struct 'pdata)
+		(ptr 'pdata_this)
+		(ptr 'pdata_form)
+	(def-struct-end)
+
 	(pptr 'iter 'miter)
 	(ptr 'this 'form 'macro 'args)
 	(ulong 'length)
@@ -60,7 +65,7 @@
 	;r1 = 0 if break, else not
 
 	(pptr 'iter)
-	ptr pdata
+	(ptr 'pdata)
 
 	(push-scope)
 	(assign '(r0 r1) {pdata, iter})

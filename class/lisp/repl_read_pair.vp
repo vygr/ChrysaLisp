@@ -29,13 +29,13 @@
 	(f-call 'lisp 'repl_read {this, stream, char} {first, char})
 	(vpif {first->obj_vtable == @class/class_error})
 		(assign {first} {pair})
-		goto error
+		(goto 'error)
 	(endif)
 	(f-call 'lisp 'repl_read {this, stream, char} {second, char})
 	(vpif {second->obj_vtable == @class/class_error})
 		(f-call 'ref 'deref {first})
 		(assign {second} {pair})
-		goto error
+		(goto 'error)
 	(endif)
 
 	;skip white space

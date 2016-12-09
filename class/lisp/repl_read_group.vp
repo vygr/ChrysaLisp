@@ -4,7 +4,7 @@
 (import 'class/class_stream.inc)
 (import 'class/class_lisp.inc)
 
-(def-func 'class/lisp/repl_read_str)
+(def-func 'class/lisp/repl_read_group)
 	;inputs
 	;r0 = lisp object
 	;r1 = stream

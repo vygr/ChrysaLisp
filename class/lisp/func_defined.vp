@@ -35,7 +35,7 @@
 		(f-call 'error 'create {"(def? var) wrong number of args", args} {value})
 	(endif)
 
-	(assign {this, val} '(r0 r1))
+	(assign {this, value} '(r0 r1))
 	(pop-scope)
 	(return)
 

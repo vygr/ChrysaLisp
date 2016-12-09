@@ -18,11 +18,11 @@
 	(pubyte 'name_offset)
 
 	(push-scope)
-	(assign '(r0 r1) {this args})
+	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 2})
-		(f-call 'vector 'get_element {args 0} {class})
+		(f-call 'vector 'get_element {args, 0} {class})
 		(vpif {class->obj_vtable == @class/class_symbol})
 			(f-call 'sys_load 'bind {class->string_data} {class})
 			(gotoifnot {class} 'error)
@@ -31,7 +31,7 @@
 			(vpif {value})
 				(assign {value - 1} {name_offset})
 				(assign {value - *name_offset} {value})
-				(f-call 'lisp 'sym_intern_cstr {this, value} {value}) 
+				(f-call 'lisp 'sym_intern_cstr {this, value} {value})
 			(else)
 				(assign {this->lisp_sym_nil} {value})
 				(f-call 'ref 'ref {value})

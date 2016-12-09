@@ -64,7 +64,7 @@
 					(f-call 'stream 'available {stream} {length})
 					(breakifnot {length})
 					(f-call 'stream 'read_char {stream} {char})
-				(loop_end)
+				(loop-end)
 			(elseif {stream == this->lisp_stdin})
 				(f-call 'lisp 'repl_print {this, this->lisp_stdout, value})
 				(f-call 'stream 'write_char {this->lisp_stdout, char_lf})

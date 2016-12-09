@@ -1,0 +1,91 @@
+(import 'inc/func.inc)
+(import 'inc/syscall.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_string.inc)
+(import 'class/class_boxed_long.inc)
+(import 'class/class_error.inc)
+(import 'class/class_lisp.inc)
+
+(def-func 'class/lisp/func_save)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(def-struct 'pdata)
+		(ptr 'pdata_this)
+		(ptr 'pdata_value)
+		(ptr 'pdata_handle)
+	(def-struct-end)
+
+	(ptr 'this 'value 'handle)
+
+	(ptr 'args 'name 'list)
+	(ulong 'length)
+
+	(push-scope)
+	(assign '(r0 r1) {this, args})
+
+	(d-call 'vector 'get_length {args} {length})
+	(vpif {length == 2})
+		(f-call 'vector 'get_element {args, 0} {list})
+		(vpif {list->obj_vtable == @class/class_vector})
+			(f-call 'vector 'get_element {args, 1} {name})
+			(vpif {name->obj_vtable == @class/class_string || name->obj_vtable == @class/class_symbol})
+				(d-call 'vector 'get_length {list} {length})
+				(f-call 'sys_io 'open {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth} {handle})
+				(vpif {handle >= 3})
+					(assign {this->lisp_sym_nil} {value})
+					(f-call 'ref 'ref {value})
+					(f-call 'vector 'for_each {list, 0, length, $callback, &this} {_})
+					(f-call 'sys_io 'close {handle})
+				(else)
+					(f-call 'error 'create {"(save list filename) open error", args} {value})
+				(endif)
+			(else)
+				(f-call 'error 'create {"(save list filename) not filename", args} {value})
+			(endif)
+		(else)
+			(f-call 'error 'create {"(save list filename) not list", args} {value})
+		(endif)
+	(else)
+		(f-call 'error 'create {"(save list filename) wrong number of args", args} {value})
+	(endif)
+
+	(assign {this, value} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = predicate data pointer
+	;r1 = element iterator
+	;outputs
+	;r1 = 0 if break, (else) not
+
+	(pptr 'iter)
+	(ptr 'pdata)
+
+	(push-scope)
+	(assign '(r0 r1) {pdata, iter})
+
+	(f-call 'ref 'deref {pdata->pdata_value})
+	(vpif {(*iter)->obj_vtable == @class/class_boxed_long})
+		(assign {pdata->pdata_handle, &(*iter)->boxed_ptr_value, 8} '(r7 r6 r2))
+		(sys-write-string r7 r6 r2)
+		(assign {*iter} {pdata->pdata_value})
+		(f-call 'ref 'ref {pdata->pdata_value})
+		(assign {1} '(r1))
+		(return)
+	(else)
+	(vp-label 'error)
+		(f-call 'error 'create {"(save list filename) not all numbers", *iter} {pdata->pdata_value})
+	(endif)
+
+	(assign {0} '(r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)

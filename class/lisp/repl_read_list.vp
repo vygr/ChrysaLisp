@@ -36,7 +36,7 @@
 		(vpif {ast->obj_vtable == @class/class_error})
 			(f-call 'ref 'deref {list})
 			(assign {ast} {list})
-			goto error
+			(goto 'error)
 		(endif)
 		(f-call 'vector 'push_back {list, ast})
 

@@ -79,7 +79,7 @@
 	(pop-scope)
 	(return)
 
-callback1:
+(vp-label 'callback1)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator

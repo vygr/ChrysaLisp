@@ -66,6 +66,15 @@
 
 (defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil)
 
+(defmacro link-sym (p)
+	`(sym (cat "_ref_link_" (str ,p))))
+
+(defmacro path-sym (p)
+	`(sym (cat "_ref_path_" (str ,p))))
+
+(defmacro string-sym (p)
+	`(sym (cat "_ref_string_" (str ,p))))
+
 (defcfun def-func (*name* &optional *func-stack*)
 	(print "Compiling -> " *name*)
 	(setq *func-name* *name* *switch-nxt* 0 *emit-buffer* (list 'progn))
@@ -124,21 +133,21 @@
 	(pop-scope)
 	(defq *cnt* 0)
 	(each (lambda (s)
-		(vp-label (cat "_ref_string_" (str *cnt*)))
+		(vp-label (string-sym *cnt*))
 		(vp-string s) (vp-byte 0)
 		(setq *cnt* (inc *cnt*))) *strings*)
 	(vp-align ptr_size)
 	(vp-label '_func_links)
 	(setq *cnt* 0)
 	(each (lambda (i)
-		(vp-label (cat "_ref_link_" (str *cnt*)))
-		(vp-long `(sub ,(label-sym (cat "_ref_path_" (str i))) *pc*))
+		(vp-label (link-sym *cnt*))
+		(vp-long `(sub ,(label-sym (path-sym i)) *pc*))
 		(setq *cnt* (inc *cnt*))) *links*)
 	(vp-long 0)
 	(vp-label '_func_paths)
 	(setq *cnt* 0)
 	(each (lambda (s)
-		(vp-label (cat "_ref_path_" (str *cnt*)))
+		(vp-label (path-sym *cnt*))
 		(vp-string (str s)) (vp-byte 0)
 		(setq *cnt* (inc *cnt*))) *paths*)
 	(vp-align ptr_size)
@@ -161,7 +170,7 @@
 (def-insert fn-add-path *paths*)
 
 (defcfun fn-string (s r)
-	(vp-lea-p (cat "_ref_string_" (str (fn-add-string s))) r))
+	(vp-lea-p (string-sym (fn-add-string s)) r))
 
 (defcfun fn-add-link (p)
 	(push *links* (fn-add-path p)))
@@ -174,13 +183,13 @@
 	i)
 
 (defcfun fn-bind (p r)
-	(vp-cpy-pr (cat "_ref_link_" (str (fn-find-link p))) r))
+	(vp-cpy-pr (link-sym (fn-find-link p)) r))
 
 (defcfun fn-call (p)
-	(vp-call-p (cat "_ref_link_" (str (fn-find-link p)))))
+	(vp-call-p (link-sym (fn-find-link p))))
 
 (defcfun fn-jmp (p)
-	(vp-jmp-p (cat "_ref_link_" (str (fn-find-link p)))))
+	(vp-jmp-p (link-sym (fn-find-link p))))
 
 (defcfun debug-long (s i)
 	;s = debug string

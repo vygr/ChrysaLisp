@@ -138,7 +138,7 @@
 					(f-call 'stream 'write_char {stream, char_splicing})
 					(break)
 				(default)
-					goto notquote
+					(goto 'notquote)
 				(endswitch)
 				(f-call 'vector 'get_element {value, 1} {elem})
 				(f-call 'lisp 'repl_print {this, stream, elem})

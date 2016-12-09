@@ -12,7 +12,7 @@
 	(ptr 'this 'args)
 
 	(push-scope)
-	(assign '(r0 r1) '(this, args))
+	(assign '(r0 r1) {this, args})
 
 	(f-call 'ref 'ref {args})
 
