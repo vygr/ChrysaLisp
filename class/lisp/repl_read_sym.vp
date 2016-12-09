@@ -31,7 +31,7 @@
 	(assign {reloc} {buffer})
 
 	(loop-while {char > char_space && char != char_lb && char != char_rb && char != char_quote})
-		(assign {char} {* buffer})
+		(assign {char} {*buffer})
 		(assign {buffer + 1} {buffer})
 		(f-call 'stream 'read_char {stream} {char})
 	(loop-end)

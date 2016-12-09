@@ -126,7 +126,7 @@
 		(f-call 'sys_mail 'select {&mailbox, 1} {mailbox})
 	(else)
 		;wait on user and pipe mailboxes
-		(assign {mailbox} {* inst->master_select_array})
+		(assign {mailbox} {*inst->master_select_array})
 		(d-call 'vector 'get_length {inst->master_streams} {length})
 		(f-call 'sys_mail 'select {inst->master_select_array, length} {mailbox})
 	(endif)
@@ -242,10 +242,10 @@
 				(loop-end)
 
 				;create input stream, free the unused space keeper stream
-				(assign {* inst->master_streams->vector_array} {stream})
+				(assign {*inst->master_streams->vector_array} {stream})
 				(f-call 'stream_msg_in 'deref {stream})
 				(f-call 'stream_msg_out 'create {nextid.id_mbox, nextid.id_cpu} {stream})
-				(assign {stream} {* inst->master_streams->vector_array})
+				(assign {stream} {*inst->master_streams->vector_array})
 
 				;no error
 				(assign {stream_mail_state_started} {inst->master_state})

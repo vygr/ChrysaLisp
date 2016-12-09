@@ -66,7 +66,7 @@
 
 	;add buttons to my grid panel
 	(assign {$button_list} {next})
-	(loop-while {* next})
+	(loop-while {*next})
 		(f-call 'button 'create {} {button})
 		(f-call 'button 'set_color {button, 0xffffff00})
 		(f-call 'string 'create_from_cstr {next} {string})
@@ -142,11 +142,11 @@
 	(else)
 		(f-call 'label 'get_text {inst->shared_display} {display_string})
 		(assign {&button_string->string_data} {charp})
-		(assign {* charp} {char})
+		(assign {*charp} {char})
 		(vpif {char >= char_zero && char <= char_nine})
 			;numeral
 			(assign {&display_string->string_data} {charp})
-			(assign {* charp} {char})
+			(assign {*charp} {char})
 			(vpif {char == char_zero || inst->shared_last_flag == 0})
 				;clear it
 				(f-call 'string 'deref {display_string})

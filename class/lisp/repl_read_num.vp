@@ -44,11 +44,11 @@
 	(assign {reloc} {buffer})
 
 	(loop-while {char >= char_0 && char <= char_9 || char >= char_a && char <= char_z || char >= char_ca && char <= char_cz})
-		(assign {char} {* buffer})
+		(assign {char} {*buffer})
 		(assign {buffer + 1} {buffer})
 		(f-call 'stream 'read_char {stream} {char})
 	(loop-end)
-	(assign {0} {* buffer})
+	(assign {0} {*buffer})
 
 	;pick base
 	(assign {reloc + 1, 10} {buffer, val})

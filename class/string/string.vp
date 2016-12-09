@@ -135,7 +135,7 @@
 	(assign (cat "@" (str _function_) {.ld_statics_reloc_buffer}) {reloc})
 	(assign {reloc} {buffer})
 	(vpif {num < 0})
-		(assign {char_minus} {* buffer})
+		(assign {char_minus} {*buffer})
 		(assign {buffer + 1} {buffer})
 		(assign {-num} {num})
 	(endif)

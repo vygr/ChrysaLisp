@@ -156,8 +156,8 @@
 	(l-call 'terminal_output {shared, char} '(r0 r1))
 
 	;buffer char
-	(assign {char} {* shared->shared_bufp})
-	(assign {shared->shared_bufp - & shared->shared_buffer} {length})
+	(assign {char} {*shared->shared_bufp})
+	(assign {shared->shared_bufp - &shared->shared_buffer} {length})
 
 	;send line ?
 	(vpif {char == 10 || char == 13})

@@ -124,7 +124,7 @@
 	(loop-start)
 		(f-call 'stream 'read_char {inst} {char})
 		(breakif {char < 0})
-		(assign {char} {* buffer})
+		(assign {char} {*buffer})
 		(assign {buffer + 1} {buffer})
 	(loop-until {buffer == buffer_end})
 
@@ -157,7 +157,7 @@
 		(v-call 'stream 'read_next {inst} {char})
 		(gotoif {char == -1} 'exit)
 	(loop-end)
-	(assign {* inst->stream_bufp} {char})
+	(assign {*inst->stream_bufp} {char})
 	(assign {inst->stream_bufp + 1} {inst->stream_bufp})
 (vp-label 'exit)
 	(assign {inst, char} '(r0 r1))
@@ -195,7 +195,7 @@
 		(f-call 'stream 'read_char {inst} {char})
 		(continueif {char == 13})
 		(breakif {char == 10 || char < 0})
-		(assign {char} {* buffer})
+		(assign {char} {*buffer})
 		(assign {buffer + 1} {buffer})
 	(loop-until {buffer == buffer_end})
 
@@ -353,7 +353,7 @@
 
 	(assign {buffer + buffer_end} {buffer_end})
 	(loop-while {buffer != buffer_end})
-		(assign {* buffer} {char})
+		(assign {*buffer} {char})
 		(assign {buffer + 1} {buffer})
 		(f-call 'stream 'write_char {inst, char})
 	(loop-end)
@@ -384,7 +384,7 @@
 		(v-call 'stream 'write_next {inst})
 		(breakif {inst->stream_bufp == inst->stream_bufe})
 	(default)
-		(assign {char} {* inst->stream_bufp})
+		(assign {char} {*inst->stream_bufp})
 		(assign {inst->stream_bufp + 1} {inst->stream_bufp})
 	(endswitch)
 
@@ -412,7 +412,7 @@
 	(assign '(r0 r1) {inst, buffer})
 
 	(loop-start)
-		(assign {* buffer} {char})
+		(assign {*buffer} {char})
 		(breakifnot {char})
 		(assign {buffer + 1} {buffer})
 		(f-call 'stream 'write_char {inst, char})

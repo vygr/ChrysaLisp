@@ -29,7 +29,7 @@
 
 	(f-call 'stream 'read_char {stream} {char})
 	(loop-while {char != -1 && char != char_double_quote})
-		(assign {char} {* buffer})
+		(assign {char} {*buffer})
 		(assign {buffer + 1} {buffer})
 		(f-call 'stream 'read_char {stream} {char})
 	(loop-end)
