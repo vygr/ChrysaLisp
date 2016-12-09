@@ -220,9 +220,9 @@
 	(if (ge s (length *scopes*))
 		(print "Error: Symbol not in scope !")
 		(progn
-			(setq s (sub (dec (length *scopes*)) s))
-			(while (ne s 0)
-				(setq o (add o (elem 1 (elem s *scopes*))) s (dec s)))))
+			(defq i (dec (length *scopes*)))
+			(while (lt s i)
+				(setq o (add o (elem 1 (elem i *scopes*))) i (dec i)))))
 	o)
 
 (defcfun def-sym (%1 %2 %3 &optional %4 %5)

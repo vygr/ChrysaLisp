@@ -76,7 +76,7 @@
 	(f-call 'window 'dirty_all {shared.shared_window})
 
 	;set up term buffer
-	(assign {& shared.shared_buffer} {shared.shared_bufp})
+	(assign {&shared.shared_buffer} {shared.shared_bufp})
 
 	;app event loop
 	(f-call 'sys_task 'mailbox {} {mymailbox, _})
@@ -90,13 +90,13 @@
 			(f-call 'sys_mail 'read {mailbox} {msg})
 			(v-call 'view 'event {msg->ev_msg_view, msg})
 			(vpif {msg->ev_msg_type == ev_type_key && msg->ev_msg_keycode > 0})
-				(l-call 'terminal_input {& shared, msg->ev_msg_key} '(r0 r1))
+				(l-call 'terminal_input {&shared, msg->ev_msg_key} '(r0 r1))
 			(endif)
 			(f-call 'sys_mem 'free {msg})
 		(else)
 			;output from a pipe element
 			(f-call 'master 'get_stream {shared.shared_master, mailbox} {stream})
-			(l-call 'pipe_output {& shared, stream} '(r0 r1) '(r0) {state})
+			(l-call 'pipe_output {&shared, stream} '(r0 r1) '(r0) {state})
 			(vpif {state == -1})
 				;EOF
 				(f-call 'master 'stop {shared.shared_master})
@@ -111,7 +111,7 @@
 	(f-call 'vector 'deref {shared.shared_history})
 	(f-call 'master 'deref {shared.shared_master})
 	(f-call 'window 'deref {shared.shared_window})
-	(v-call 'obj 'deinit {& myapp})
+	(v-call 'obj 'deinit {&myapp})
 	(pop-scope)
 	(return)
 
@@ -166,7 +166,7 @@
 		(vpif {state == stream_mail_state_stopped})
 			;push new history entry if not same as last entry
 			(breakifnot {length})
-			(f-call 'string 'create_from_buffer {& shared->shared_buffer, length} {string})
+			(f-call 'string 'create_from_buffer {&shared->shared_buffer, length} {string})
 			(d-call 'vector 'get_length {shared->shared_history} {shared->shared_history_index})
 			(vpifnot {shared -> shared_history_index})
 			(vp-label 'new_entry)
@@ -181,7 +181,7 @@
 			(endif)
 
 			;start new pipe
-			(f-call 'master 'start {shared->shared_master, & shared->shared_buffer, length})
+			(f-call 'master 'start {shared->shared_master, &shared->shared_buffer, length})
 			(f-call 'master 'get_state {shared->shared_master} {state})
 			(breakif {state != stream_mail_state_started})
 			(f-call 'string 'create_from_cstr {"Busy"} {string})
@@ -189,11 +189,11 @@
 		(else)
 			;feed active pipe
 			(f-call 'master 'get_input {shared->shared_master} {stream})
-			(f-call 'stream 'write {stream, & shared->shared_buffer, length})
+			(f-call 'stream 'write {stream, &shared->shared_buffer, length})
 			(f-call 'stream 'write_char {stream, 10})
 			(v-call 'stream 'write_flush {stream})
 		(endif)
-		(assign {& shared->shared_buffer} {shared->shared_bufp})
+		(assign {&shared->shared_buffer} {shared->shared_bufp})
 	(elseif {char == 128})
 		;backspace
 		(vpif {length})
@@ -207,8 +207,8 @@
 			(assign {shared->shared_history_index - 1} {shared->shared_history_index})
 		(endif)
 		(d-call 'vector 'ref_element {shared->shared_history, shared->shared_history_index} {string})
-		(f-call 'sys_mem 'copy {& string->string_data, & shared->shared_buffer, string->string_length} {_, shared->shared_bufp})
-		(f-call 'stream 'create {string, 0, & string->string_data, string->string_length} {stream})
+		(f-call 'sys_mem 'copy {&string->string_data, &shared->shared_buffer, string->string_length} {_, shared->shared_bufp})
+		(f-call 'stream 'create {string, 0, &string->string_data, string->string_length} {stream})
 		(l-call 'pipe_output {shared, stream} '(r0 r1))
 	(elseif {char == 130})
 		;cursor down
@@ -222,8 +222,8 @@
 		(else)
 			(d-call 'vector 'ref_element {shared->shared_history, shared->shared_history_index} {string})
 		(endif)
-		(f-call 'sys_mem 'copy {& string->string_data, & shared->shared_buffer, string->string_length} {_, shared->shared_bufp})
-		(f-call 'stream 'create {string, 0, & string->string_data, string->string_length} {stream})
+		(f-call 'sys_mem 'copy {&string->string_data, &shared->shared_buffer, string->string_length} {_, shared->shared_bufp})
+		(f-call 'stream 'create {string, 0, &string->string_data, string->string_length} {stream})
 		(l-call 'pipe_output {shared, stream} '(r0 r1))
 	(elseif {char == 27})
 		;esc
@@ -231,9 +231,9 @@
 		(vpif {state == stream_mail_state_started})
 			;feed active pipe, then EOF
 			(f-call 'master 'get_input {shared->shared_master} {stream})
-			(f-call 'stream 'write {stream, & shared->shared_buffer, length})
+			(f-call 'stream 'write {stream, &shared->shared_buffer, length})
 			(v-call 'stream 'write_flush {stream})
-			(assign {& shared->shared_buffer} {shared->shared_bufp})
+			(assign {&shared->shared_buffer} {shared->shared_bufp})
 
 			;send stopping
 			(f-call 'stream_msg_out 'set_state {stream, stream_mail_state_stopping})
@@ -273,7 +273,7 @@
 		(vpif {length > 1})
 			(assign {length - 1} {length})
 		(endif)
-		(f-call 'string 'create_from_buffer {& line_string->string_data, length} {new_line_string})
+		(f-call 'string 'create_from_buffer {&line_string->string_data, length} {new_line_string})
 		(f-call 'string 'deref {line_string})
 		(f-call 'label 'set_text {label, new_line_string})
 		(f-call 'label 'dirty {label})
@@ -286,7 +286,7 @@
 	(elseif {char >= 32 && char < 127})
 		;append char
 		(f-call 'flow 'get_last {shared->shared_panel} {label})
-		(f-call 'string 'create_from_cstr {& char} {string})
+		(f-call 'string 'create_from_cstr {&char} {string})
 		(f-call 'label 'get_text {label} {line_string})
 		(f-call 'string 'append {line_string, string} {new_line_string})
 		(f-call 'string 'deref {line_string})

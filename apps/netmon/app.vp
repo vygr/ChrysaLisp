@@ -100,11 +100,11 @@
 	(f-call 'string 'deref {string})
 
 	;init task mailbox
-	(f-call 'sys_mail 'init_mailbox {& task_mailbox})
+	(f-call 'sys_mail 'init_mailbox {&task_mailbox})
 
 	;set up mailbox select array
 	(f-call 'sys_task 'mailbox {} {select.sel_select1, _})
-	(assign {& task_mailbox} {select.sel_select2})
+	(assign {&task_mailbox} {select.sel_select2})
 
 	;app event loop
 	(loop-start)
@@ -130,7 +130,7 @@
 		(endif)
 
 		;select on multiple mailboxes
-		(f-call 'sys_mail 'select {& select, sel_size >> 3} {mailbox})
+		(f-call 'sys_mail 'select {&select, sel_size >> 3} {mailbox})
 		(f-call 'sys_mail 'read {mailbox} {msg})
 
 		;which mailbox had mail ?

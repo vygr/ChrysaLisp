@@ -42,7 +42,7 @@
 			(endif)
 
 			(loop-start)
-				(f-call 'lisp 'repl_expand {this, & ast} {flag})
+				(f-call 'lisp 'repl_expand {this, &ast} {flag})
 				(vpif {stream == this->lisp_stdin})
 					(f-call 'lisp 'repl_print {this, this->lisp_stdout, ast})
 					(f-call 'stream 'write_char {this->lisp_stdout, 10})
@@ -58,8 +58,8 @@
 			(f-call 'ref 'deref {ast})
 
 			(vpif {value->obj_vtable == @class/class_error})
-				(f-call 'lisp 'repl_print {this, this->lisp_stderr, value})
-				(f-call 'stream 'write_char {this->lisp_stderr, char_lf})
+				(f-call 'lisp 'repl_print {this, this->lisp_stdout, value})
+				(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 				(loop-start)
 					(f-call 'stream 'available {stream} {length})
 					(breakifnot {length})

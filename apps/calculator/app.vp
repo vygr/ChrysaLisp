@@ -74,7 +74,7 @@
 		(f-call 'button 'set_flow_flags {button, flow_flag_align_hcenter | flow_flag_align_vcenter})
 		(f-call 'button 'add_back {button, grid_panel})
 		(f-call 'button 'sig_pressed {button} {pressed})
-		(f-call 'button 'connect {button, pressed, & myapp, $on_press})
+		(f-call 'button 'connect {button, pressed, &myapp, $on_press})
 
 		(f-call 'sys_string 'length {next} {length})
 		(assign {next + length + 1} {next})
@@ -105,7 +105,7 @@
 
 	;deref window
 	(f-call 'window 'deref {window})
-	(v-call 'obj 'deinit {& myapp})
+	(v-call 'obj 'deinit {&myapp})
 
 	(pop-scope)
 	(return)
@@ -141,11 +141,11 @@
 		(assign {0} {inst->shared_last_flag})
 	(else)
 		(f-call 'label 'get_text {inst->shared_display} {display_string})
-		(assign {& button_string->string_data} {charp})
+		(assign {&button_string->string_data} {charp})
 		(assign {* charp} {char})
 		(vpif {char >= char_zero && char <= char_nine})
 			;numeral
-			(assign {& display_string->string_data} {charp})
+			(assign {&display_string->string_data} {charp})
 			(assign {* charp} {char})
 			(vpif {char == char_zero || inst->shared_last_flag == 0})
 				;clear it
@@ -155,7 +155,7 @@
 			(endif)
 			;append numeral
 			(f-call 'string 'append {display_string, button_string} {string})
-			(f-call 'sys_string 'to_long {& string->string_data, 10} {inst->shared_value})
+			(f-call 'sys_string 'to_long {&string->string_data, 10} {inst->shared_value})
 		(else)
 			;operator
 			(vpif {inst->shared_last_op == char_plus})
@@ -180,16 +180,16 @@
 			(assign {0} {inst->shared_last_flag})
 			(vpif {inst->shared_accum < 0})
 				;negative accum
-				(f-call 'sys_string 'from_long {- inst->shared_accum, & inst->shared_buffer, 10})
+				(f-call 'sys_string 'from_long {- inst->shared_accum, &inst->shared_buffer, 10})
 				(f-call 'string 'create_from_cstr {"-"} {string1})
-				(f-call 'string 'create_from_cstr {& inst->shared_buffer} {string2})
+				(f-call 'string 'create_from_cstr {&inst->shared_buffer} {string2})
 				(f-call 'string 'append {string1, string2} {string})
 				(f-call 'string 'deref {string1})
 				(f-call 'string 'deref {string2})
 			(else)
 				;positive accum
-				(f-call 'sys_string 'from_long {inst->shared_accum, & inst->shared_buffer, 10})
-				(f-call 'string 'create_from_cstr {& inst->shared_buffer} {string})
+				(f-call 'sys_string 'from_long {inst->shared_accum, &inst->shared_buffer, 10})
+				(f-call 'string 'create_from_cstr {&inst->shared_buffer} {string})
 			(endif)
 		(endif)
 		(f-call 'label 'set_text {inst->shared_display, string})

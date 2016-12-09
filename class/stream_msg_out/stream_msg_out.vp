@@ -72,7 +72,7 @@
 	(assign '(r0) {inst})
 
 	;wait for final ack
-	(f-call 'sys_mail 'read {& inst->stream_msg_out_ack_mailbox} {msg})
+	(f-call 'sys_mail 'read {&inst->stream_msg_out_ack_mailbox} {msg})
 	(f-call 'sys_mem 'free {msg})
 
 	(assign {inst} '(r0))
@@ -141,14 +141,14 @@
 		(assign {inst->stream_msg_out_id.id_cpu} {msg->msg_dest.id_cpu})
 		(assign {inst->stream_msg_out_seqnum} {msg->stream_mail_seqnum})
 		(assign {inst->stream_msg_out_state} {msg->stream_mail_state})
-		(assign {& inst->stream_msg_out_ack_mailbox} {msg->stream_mail_ack_id.id_mbox})
+		(assign {&inst->stream_msg_out_ack_mailbox} {msg->stream_mail_ack_id.id_mbox})
 		(f-call 'sys_cpu 'id {} {msg->stream_mail_ack_id.id_cpu})
 		(f-call 'sys_mail 'send {msg})
 		(assign {0} {inst->stream_buffer})
 
 		;wait for an ack ?
 		(vpif {inst->stream_msg_out_seqnum >> stream_msg_out_ack_shift != inst->stream_msg_out_ack_seqnum})
-			(f-call 'sys_mail 'read {& inst->stream_msg_out_ack_mailbox} {msg})
+			(f-call 'sys_mail 'read {&inst->stream_msg_out_ack_mailbox} {msg})
 			(f-call 'sys_mem 'free {msg})
 			(assign {inst->stream_msg_out_ack_seqnum + 1} {inst->stream_msg_out_ack_seqnum})
 		(endif)
@@ -182,8 +182,8 @@
 	(v-call 'stream 'write_flush {inst})
 	(f-call 'sys_mail 'alloc {} {msg})
 	(assign {msg_size} {msg->msg_length})
-	(assign {& msg->stream_mail_data} {inst->stream_bufp})
-	(assign {& msg->msg_size} {inst->stream_bufe})
+	(assign {&msg->stream_mail_data} {inst->stream_bufp})
+	(assign {&msg->msg_size} {inst->stream_bufe})
 	(assign {msg} {inst->stream_buffer})
 
 	(assign {inst} '(r0))

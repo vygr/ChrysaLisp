@@ -20,7 +20,7 @@
 	(vpif {slave})
 		;set up input stream stack
 		(f-call 'string 'create_from_file {"cmd/forth.f"} {string})
-		(f-call 'stream 'create {string, 0, & string->string_data, string->string_length} {stream})
+		(f-call 'stream 'create {string, 0, &string->string_data, string->string_length} {stream})
 		(f-call 'vector 'create {} {vector})
 		(f-call 'vector 'push_back {vector, stream})
 

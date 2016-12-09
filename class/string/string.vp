@@ -426,7 +426,7 @@
 	(assign '(r0 r1) {inst, char})
 
 	;create string split
-	(f-call 'stream 'create {0, 0, & inst->string_data, inst->string_length} {stream})
+	(f-call 'stream 'create {0, 0, &inst->string_data, inst->string_length} {stream})
 	(f-call 'stream 'split {stream, char} {splits})
 	(f-call 'stream 'deref {stream})
 

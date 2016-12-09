@@ -32,7 +32,8 @@
 	(long 'val)
 
 	(push-scope)
-	(assign '(r0 r1 r2 r2) {this, stream, char, sign})
+	(assign '(r0 r1 r2) {this, stream, char})
+	(assign {char} {sign})
 
 	(vpif {char == char_minus})
 		(f-call 'stream 'read_char {stream} {char})

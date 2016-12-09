@@ -22,7 +22,7 @@
 	(vpif {length == 1})
 		(f-call 'lisp 'func_copy {this, args} {value})
 		(loop-start)
-			(f-call 'lisp 'repl_expand {this, & value} {length})
+			(f-call 'lisp 'repl_expand {this, &value} {length})
 		(loop-until {length})
 	(else)
 		(f-call 'error 'create {"(macroexpand form) wrong number of args", args} {value})

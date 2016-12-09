@@ -43,7 +43,7 @@
 		(f-call 'button 'set_text {button, string})
 		(f-call 'button 'add_back {button, panel})
 		(f-call 'button 'sig_pressed {button} {pressed})
-		(f-call 'button 'connect {button, pressed, & myapp, $on_press})
+		(f-call 'button 'connect {button, pressed, &myapp, $on_press})
 
 		(f-call 'sys_string 'length {next} {length})
 		(assign {next + length + 1} {next})
@@ -74,7 +74,7 @@
 
 	;deref window
 	(f-call 'window 'deref {window})
-	(v-call 'obj 'deinit {& myapp})
+	(v-call 'obj 'deinit {&myapp})
 	(pop-scope)
 	(return)
 

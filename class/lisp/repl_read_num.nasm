@@ -32,7 +32,8 @@ def_func class/lisp/repl_read_num
 	long val
 
 	push_scope
-	retire {r0, r1, r2, r2}, {this, stream, char, sign}
+	retire {r0, r1, r2}, {this, stream, char}
+	assign {char}, {sign}
 
 	vpif {char == char_minus}
 		func_call stream, read_char, {stream}, {char}

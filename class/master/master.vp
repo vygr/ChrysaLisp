@@ -123,7 +123,7 @@
 
 	(vpif {inst->master_state != stream_mail_state_started})
 		;not yet running, so just wait on user mailbox
-		(f-call 'sys_mail 'select {& mailbox, 1} {mailbox})
+		(f-call 'sys_mail 'select {&mailbox, 1} {mailbox})
 	(else)
 		;wait on user and pipe mailboxes
 		(assign {mailbox} {* inst->master_select_array})
@@ -171,7 +171,7 @@
 			(assign {0} {index})
 			(loop-while {index != length})
 				(assign {(args->vector_array)[index * ptr_size]} {string})
-				(f-call 'stream 'create {0, 0, & string->string_data, string->string_length} {stream})
+				(f-call 'stream 'create {0, 0, &string->string_data, string->string_length} {stream})
 				(f-call 'stream 'skip {stream, space_char})
 				(assign {stream->stream_bufp} {start})
 				(f-call 'stream 'skip_not {stream, space_char})
@@ -215,7 +215,7 @@
 				(loop-end)
 
 				;send args to pipe elements, wiring up id's as we go
-				(f-call 'sys_mail 'init_mailbox {& mailbox})
+				(f-call 'sys_mail 'init_mailbox {&mailbox})
 				(assign {mbox} {nextid.id_mbox})
 				(f-call 'sys_cpu 'id {} {nextid.id_cpu})
 				(assign {index - 2} {index})
@@ -223,12 +223,12 @@
 					(assign {index - 1} {index})
 					(assign {(args->vector_array)[index * ptr_size]} {string})
 					(f-call 'sys_mail 'alloc_parcel {slave_mail_init_size + string->string_length} {msg})
-					(f-call 'sys_mem 'copy {& string->string_data, & msg->slave_mail_init_args, string->string_length} {_, _})
+					(f-call 'sys_mem 'copy {&string->string_data, &msg->slave_mail_init_args, string->string_length} {_, _})
 					(assign {nextid.id_mbox} {msg->slave_mail_init_stdout_id.id_mbox})
 					(assign {nextid.id_cpu} {msg->slave_mail_init_stdout_id.id_cpu})
 					(assign {&(inst->master_mailbox_array)[(index + 1) * mailbox_size]} {msg->slave_mail_init_stderr_id.id_mbox})
 					(f-call 'sys_cpu 'id {} {msg->slave_mail_init_stderr_id.id_cpu})
-					(assign {& mailbox} {msg->slave_mail_init_ack_id.id_mbox})
+					(assign {&mailbox} {msg->slave_mail_init_ack_id.id_mbox})
 					(f-call 'sys_cpu 'id {} {msg->slave_mail_init_ack_id.id_cpu})
 					(assign {ids[index * id_size].id_mbox} {nextid.id_mbox})
 					(assign {ids[index * id_size].id_cpu} {nextid.id_cpu})
@@ -237,7 +237,7 @@
 					(f-call 'sys_mail 'send {msg})
 
 					;wait for ack
-					(f-call 'sys_mail 'read {& mailbox} {msg})
+					(f-call 'sys_mail 'read {&mailbox} {msg})
 					(f-call 'sys_mem 'free {msg})
 				(loop-end)
 

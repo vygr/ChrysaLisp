@@ -81,7 +81,7 @@
 		;read next in sequence
 		(assign {0} {msg})
 		(loop-start)
-			(f-call 'stream_msg_out 'next_seq {& inst->stream_msg_in_list, msg, inst->stream_msg_in_seqnum} {msg})
+			(f-call 'stream_msg_out 'next_seq {&inst->stream_msg_in_list, msg, inst->stream_msg_in_seqnum} {msg})
 			(breakif {msg})
 			(f-call 'sys_mail 'read {inst->stream_msg_in_mailbox} {msg})
 		(loop-end)
@@ -89,7 +89,7 @@
 
 		;save msg buffer details
 		(assign {msg} {inst->stream_buffer})
-		(assign {& msg->stream_mail_data} {inst->stream_bufp})
+		(assign {&msg->stream_mail_data} {inst->stream_bufp})
 		(assign {&(msg + msg->msg_length)} {inst->stream_bufe})
 		(assign {msg->stream_mail_state} {inst->stream_msg_in_state})
 
