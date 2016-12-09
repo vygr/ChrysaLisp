@@ -689,158 +689,113 @@
 	(when (eval (type-sym *s*))
 		(compile-deref)))
 
-(defcfun compile-member ()
+(defcfun compile-member (o)
 	(defq s (dec *s*) x (vreg-sym (setq *s* (sub *s* 2))) y (vreg-sym s))
 	(compile-deref)
 	(add-inst `(vp-lea-d ,x ,y ,x))
 	(set (type-sym *s*) (eval (type-sym s))))
 
-(defcfun compile-uaddrof ()
+(defcfun compile-uaddrof (o)
 	(set (type-sym (dec-stack)) nil))
 
-(defcfun compile-field ()
+(defcfun compile-field (o)
 	(defq s (dec *s*) x (vreg-sym (setq *s* (sub *s* 2))) y (vreg-sym s))
 	(add-inst `(vp-lea-d ,x ,y ,x))
 	(set (type-sym *s*) (eval (type-sym s))))
 
-(defcfun compile-index ()
+(defcfun compile-index (o)
 	(defq y (pop-value))
 	(dec-stack)
 	(compile-deref)
 	(defq x (vreg-sym *s*))
 	(add-inst `(vp-lea-d ,x ,y ,x)))
 
-(defcfun compile-uminus ()
+(defcfun compile-uminus (o)
 	(defq x (pop-value))
 	(add-inst `(vp-mul-cr -1 ,x)))
 
-(defcfun compile-uderef ()
+(defcfun compile-uderef (o)
 	(dec-stack)
 	(compile-deref)
 	(defq x (vreg-sym *s*))
 	(add-inst `(vp-lea-i ,x 0 ,x)))
 
-(defcfun compile-unot ()
+(defcfun compile-unot (o)
 	(defq x (pop-value))
 	(add-inst `(vp-xor-cr -1 ,x)))
 
-(defcfun compile-mul ()
+(defcfun compile-mul (o)
 	(defq y (pop-value) x (pop-value))
 	(add-inst `(vp-mul-rr ,y ,x)))
 
-(defcfun compile-divu ()
+(defcfun compile-divu (o)
 	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
 	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr-u ,z ,y ,x)))
 
-(defcfun compile-remu ()
+(defcfun compile-remu (o)
 	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
 	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr-u ,z ,y ,x)
 		`(vp-cpy-rr ,y ,x)))
 
-(defcfun compile-div ()
+(defcfun compile-div (o)
 	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
 	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr ,z ,y ,x)))
 
-(defcfun compile-rem ()
+(defcfun compile-rem (o)
 	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
 	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr ,z ,y ,x)
 		`(vp-cpy-rr ,y ,x)))
 
-(defcfun compile-plus ()
+(defcfun compile-plus (o)
 	(defq y (pop-value) x (pop-value))
 	(add-inst `(vp-add-rr ,y ,x)))
 
-(defcfun compile-minus ()
+(defcfun compile-minus (o)
 	(defq y (pop-value) x (pop-value))
 	(add-inst `(vp-sub-rr ,y ,x)))
 
-(defcfun compile-lshift ()
+(defcfun compile-lshift (o)
 	(defq y (pop-value) x (pop-value))
 	(add-inst `(vp-shl-rr ,y ,x)))
 
-(defcfun compile-rshift ()
+(defcfun compile-rshift (o)
 	(defq y (pop-value) x (pop-value))
 	(add-inst `(vp-shr-rr ,y ,x)))
 
-(defcfun compile-arshift ()
+(defcfun compile-arshift (o)
 	(defq y (pop-value) x (pop-value))
 	(add-inst `(vp-asr-rr ,y ,x)))
 
-(defcfun compile-lt ()
+(defcfun compile-branch (o)
 	(defq y (pop-value) x (pop-value))
 	(add-inst
-		`(vpif (list ,x '< ,y))
+		`(vpif (list ,x ',(sym o) ,y))
 			`(vp-cpy-cr 1 ,x)
 		'(else)
 			`(vp-xor-rr ,x ,x)
 		'(endif)))
 
-(defcfun compile-gt ()
-	(defq y (pop-value) x (pop-value))
-	(add-inst
-		`(vpif (list ,x '> ,y))
-			`(vp-cpy-cr 1 ,x)
-		'(else)
-			`(vp-xor-rr ,x ,x)
-		'(endif)))
-
-(defcfun compile-le ()
-	(defq y (pop-value) x (pop-value))
-	(add-inst
-		`(vpif (list ,x '<= ,y))
-			`(vp-cpy-cr 1 ,x)
-		'(else)
-			`(vp-xor-rr ,x ,x)
-		'(endif)))
-
-(defcfun compile-ge ()
-	(defq y (pop-value) x (pop-value))
-	(add-inst
-		`(vpif (list ,x '>= ,y))
-			`(vp-cpy-cr 1 ,x)
-		'(else)
-			`(vp-xor-rr ,x ,x)
-		'(endif)))
-
-(defcfun compile-eq ()
-	(defq y (pop-value) x (pop-value))
-	(add-inst
-		`(vpif (list ,x '== ,y))
-			`(vp-cpy-cr 1 ,x)
-		'(else)
-			`(vp-xor-rr ,x ,x)
-		'(endif)))
-
-(defcfun compile-ne ()
-	(defq y (pop-value) x (pop-value))
-	(add-inst
-		`(vpif (list ,x '!= ,y))
-			`(vp-cpy-cr 1 ,x)
-		'(else)
-			`(vp-xor-rr ,x ,x)
-		'(endif)))
-
-(defcfun compile-and ()
+(defcfun compile-and (o)
 	(defq y (pop-value) x (pop-value))
 	(add-inst `(vp-and-rr ,y ,x)))
 
-(defcfun compile-xor ()
+(defcfun compile-xor (o)
 	(defq y (pop-value) x (pop-value))
 	(add-inst `(vp-xor-rr ,y ,x)))
 
-(defcfun compile-or ()
+(defcfun compile-or (o)
 	(defq y (pop-value) x (pop-value))
 	(add-inst `(vp-or-rr ,y ,x)))
 
-(defcfun compile-land ()
+(defcfun compile-land (o)
 	(defq y (pop-value) x (pop-value))
 	(add-inst
 		`(vpif (list ,y '!= 0))
@@ -853,11 +808,11 @@
 			`(vp-xor-rr ,x ,x)
 		'(endif)))
 
-(defcfun compile-lor ()
+(defcfun compile-lor (o)
 	(defq y (pop-value) x (pop-value))
 	(add-inst `(vp-or-rr ,y ,x)))
 
-(defcfun compile-ulnot ()
+(defcfun compile-ulnot (o)
 	(defq x (pop-value))
 	(add-inst
 		`(vpif (list ,x '== 0))
@@ -866,7 +821,7 @@
 			`(vp-xor-rr ,x ,x)
 		'(endif)))
 
-(defcfun compile-ternary ()
+(defcfun compile-ternary (o)
 	(defq z (pop-value) y (pop-value) x (pop-value))
 	(add-inst
 		`(vpif (list ,x '!= 0))
@@ -883,7 +838,7 @@
 		((not (eql 'op (elem 2 s)))
 			(print "Error: " %1 " not an operator !"))
 		(t
-			((elem 5 s)))))
+			((elem 5 s) %1))))
 
 (defcfun compile-string (%1)
 	(nil-type)
@@ -924,9 +879,9 @@
 				(print "Error: Unknown token type " k " !")))
 		(setq *s* (inc *s*) i (inc i))))
 
-;;;;;;;;;;
-; C-Script
-;;;;;;;;;;
+;;;;;;;;;;;
+; assigment
+;;;;;;;;;;;
 
 (defcfun retire (%1 %2)
 	(setq *src* %1 *dst* (map trim (split %2 (code ","))))
