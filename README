@@ -153,3 +153,10 @@ to TMS320C40 meshes.
 Stop with:
 
 ./stop.sh
+
+Snapshot with:
+
+make snapshot
+
+This will create a snapshot zip file of the obj/ directory for the current
+platform. For example Darwin.zip or Linux.zip.

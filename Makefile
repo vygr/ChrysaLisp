@@ -12,6 +12,9 @@ make_dirs:
 			mkdir -p $(sort $(dir $(all_objects))) $(sort $(dir $(all_vp_objects)))
 			echo $(OS) > platform
 
+snapshot:
+			zip -ru9ov -x*.d -x*.o -xobj/main $(OS).zip obj/*
+
 obj/main:	obj/main.o
 ifeq ($(OS),Darwin)
 			clang -o $@ -e main $@.o -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
