@@ -103,7 +103,6 @@
 
 	(vp-align short_size)
 (vp-label 'built_ins)
-	(built-in "*parent*" lisp_sym_parent)
 	(built-in "&rest" lisp_sym_rest)
 	(built-in "&optional" lisp_sym_optional)
 	(built-in "nil" lisp_sym_nil)

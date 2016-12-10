@@ -114,7 +114,6 @@
 	(ptr 'lisp_enviroment)
 	(ptr 'lisp_macros)
 	(ulong 'lisp_nextsym)
-	(ptr 'lisp_sym_parent)
 	(ptr 'lisp_sym_optional)
 	(ptr 'lisp_sym_rest)
 	(ptr 'lisp_sym_nil)

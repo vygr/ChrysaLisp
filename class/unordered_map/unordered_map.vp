@@ -50,13 +50,25 @@
 	;trashes
 	;all but r0, r4
 
-	(vp-cpy-rr r0 r9)
-	(f-call 'unordered_map 'create '((r0 unordered_set_key_callback) r1) '(r0))
-	(vp-push r0)
-	(f-call 'unordered_map 'for_each '(r9 ($ callback) r4) '(_ _))
-	(vp-pop r1)
+	(def-struct 'local)
+		(ptr 'local_obj)	;must be first
+		(ptr 'local_inst)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(assign '(r0) '((r4 local_inst)))
+
+	(f-call 'unordered_map 'create '((r0 unordered_set_key_callback) r1) '((r4 local_obj)))
+	(f-call 'unordered_map 'get_parent '((r4 local_inst)) '(r2))
+	(f-call 'ref 'ref_if '(r2))
+	(f-call 'unordered_map 'set_parent '((r4 local_obj) r2))
+	(f-call 'unordered_map 'for_each '((r4 local_inst) ($ callback) r4) '(_ _))
+	(vp-cpy-ir r4 local_obj r1)
 	(vp-cpy-ir r0 unordered_set_length r2)
 	(vp-cpy-ri r2 r1 unordered_set_length)
+
+	(vp-add-cr local_size r4)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -290,14 +302,9 @@
 	;save inputs
 	(vp-sub-cr local_size r4)
 	(assign '(r0 r1) '((r4 local_inst) (r4 local_obj)))
-
-	(f-call 'ref 'ref_if '(r1))
-	(vp-cpy-ir r4 local_inst r0)
 	(f-call 'ref 'deref_if '((r0 unordered_map_parent)))
-	(vp-cpy-ir r4 local_inst r0)
-	(vp-cpy-ir r4 local_obj r1)
+	(assign '((r4 local_inst) (r4 local_obj)) '(r0 r1))
 	(vp-cpy-ri r1 r0 unordered_map_parent)
-
 	(vp-add-cr local_size r4)
 	(vp-ret)
 

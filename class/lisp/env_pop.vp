@@ -10,14 +10,13 @@
 	;r0 = lisp object
 
 	(ptr 'this 'env)
-	(pptr 'iter)
 
 	(push-scope)
 	(assign '(r0) {this})
 
-	(f-call 'unordered_map 'find {this->lisp_enviroment, this->lisp_sym_parent} {iter, _})
-	(vpif {iter})
-		(f-call 'pair 'ref_second {*iter} {env})
+	(f-call 'unordered_map 'get_parent {this->lisp_enviroment} {env})
+	(vpif {env})
+		(f-call 'ref 'ref {env})
 		(f-call 'ref 'deref {this->lisp_enviroment})
 		(assign {env} {this->lisp_enviroment})
 	(endif)

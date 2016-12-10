@@ -14,8 +14,7 @@
 	(assign '(r0) {this})
 
 	(f-call 'unordered_map 'create {this->lisp_enviroment->unordered_set_key_callback, 1} {env})
-	(f-call 'unordered_map 'insert {env, this->lisp_sym_parent, this->lisp_enviroment} {_, _})
-	(f-call 'ref 'deref {this->lisp_enviroment})
+	(f-call 'unordered_map 'set_parent {env, this->lisp_enviroment})
 	(assign {env} {this->lisp_enviroment})
 
 	(assign {this} '(r0))
