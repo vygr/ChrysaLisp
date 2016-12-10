@@ -26,4 +26,4 @@ ifeq ($(OS),Linux)
 endif
 
 clean:
-			rm -rf obj/ tst/
+			rm -rf obj/
