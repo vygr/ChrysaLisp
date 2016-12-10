@@ -10,6 +10,7 @@ all:		make_dirs $(all_objects) obj/main
 
 make_dirs:
 			mkdir -p $(sort $(dir $(all_objects))) $(sort $(dir $(all_vp_objects)))
+			echo $(OS) > platform
 
 obj/main:	obj/main.o
 ifeq ($(OS),Darwin)
