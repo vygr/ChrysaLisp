@@ -90,9 +90,11 @@
 	(vp-string (str *name*))
 	(vp-byte 0 `(sub ,(label-sym '_func_entry) ,(label-sym '_func_name_start)))
 	(vp-align ptr_size `(sub ,(label-sym '_func_entry) ,(label-sym '_func_name_start)))
-	(vp-label '_func_entry))
+	(vp-label '_func_entry)
+	(push-scope))
 
 (defcfun def-func-end ()
+	(pop-scope)
 	(defq *cnt* 0)
 	(each (lambda (s)
 		(vp-label (string-sym *cnt*))
