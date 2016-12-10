@@ -3,6 +3,43 @@
 (import 'class/class_unordered_map.inc)
 (import 'class/class_pair.inc)
 
+(class-macro-new 'unordered_map)
+
+(def-func 'class/unordered_map/init)
+	;inputs
+	;r0 = unordered_map object
+	;r1 = vtable pointer
+	;r2 = key compare callback
+	;r3 = num_buckets
+	;outputs
+	;r1 = 0 if error, else ok
+	;trashes
+	;r2-r3, r5-r8
+
+	;init parent
+	(s-call 'unordered_map 'init '(r0 r1 r2 r3) '(r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-xor-rr r2 r2)
+		(vp-cpy-ri r2 r0 unordered_map_parent)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/unordered_map/deinit)
+	;inputs
+	;r0 = unordered_map object
+	;trashes
+	;all but r0, r4
+
+	(vp-push r0)
+	(f-call 'unordered_map 'deref_if '((r0 unordered_map_parent)))
+	(vp-pop r0)
+	(s-jmp 'unordered_map 'deinit '(r0))
+
+(def-func-end)
+
 (def-func 'class/unordered_map/copy)
 	;inputs
 	;r0 = unordered_map object
@@ -221,5 +258,47 @@
 	(f-call 'unordered_map 'get_bucket '(r2 (r0 pair_first)) '(r0))
 	(vp-pop r1)
 	(f-jmp 'vector 'push_back '(r0 r1))
+
+(def-func-end)
+
+(def-func 'class/unordered_map/get_parent)
+	;inputs
+	;r0 = unordered_map object
+	;outputs
+	;r0 = unordered_map object
+	;r1 = 0, else unordered_map parent
+
+	(vp-cpy-ir r0 unordered_map_parent r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/unordered_map/set_parent)
+	;inputs
+	;r0 = unordered_map object
+	;r1 = 0, else unordered_map parent
+	;outputs
+	;r0 = unordered_map object
+	;trashs
+	;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(ptr 'local_obj)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(assign '(r0 r1) '((r4 local_inst) (r4 local_obj)))
+
+	(f-call 'ref 'ref_if '(r1))
+	(vp-cpy-ir r4 local_inst r0)
+	(f-call 'ref 'deref_if '((r0 unordered_map_parent)))
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_obj r1)
+	(vp-cpy-ri r1 r0 unordered_map_parent)
+
+	(vp-add-cr local_size r4)
+	(vp-ret)
 
 (def-func-end)
