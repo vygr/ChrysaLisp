@@ -315,8 +315,15 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
-(defun compile (*file*)
+(defun platform ()
+	(defq o 'Darwin)
+	(when (defq f (file-stream 'platform))
+		(setq o (sym (read-line f))))
+	o)
+
+(defun compile (*file* &optional o)
 	(rehash 101)
+	(defq *OS* (if o o (platform)) *imports* (list) *compile-env* (env))
 	(defmacro defcvar (&rest b)
 		`(def *compile-env* ~b))
 	(defmacro defcfun (n a &rest b)
@@ -327,7 +334,6 @@
 		(when (notany (lambda (x) (eql x *file*)) *imports*)
 			(push *imports* *file*)
 			(repl (file-stream *file*))))
-	(defq *imports* (list) *compile-env* (env) *OS* 'Darwin)
 	(import *file*)
 	(setq *compile-env* nil))
 
