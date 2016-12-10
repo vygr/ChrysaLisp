@@ -50,21 +50,12 @@ command line pipes. While this isn't the best way to create parallel
 applications it is very useful for the composition of tools and hides all the
 message passing behind a familiar streams based API.
 
-A compiler, C-Script, created entirely in assembler macros, is available for
-use if desired. Variables with nested scopes can be defined and used in
-expressions with the compiler taking care of register assignment and expression
-compilation. Quite an achievement considering it's all done with NASM macros.
-:) Currently there is an elementary optimise pass, more will be done.
-
-A Common Lisp like interpreter is provided, written in the C-Script compiled
-language ! This is available from the command line, via the command 'lisp',
-This will be expanded over time to provide self compilation and a replacement
-for NASM has been written in Lisp to remove the need for any external tooling.
-The new VP assembler files, .vp/.inc, shadow the .nasm/.ninc files. Current
-status is that all sources assemble to identical binaries compared to the NASM
-output, but at 10x the compile performance ! To build type (make) at the Lisp
-command prompt. The output goes to the tst/ directory, the NASM output goes to
-obj/, so you can compare with diff or Beyond Compare etc.
+A Common Lisp like interpreter is provided. This is available from the command
+line, via the command 'lisp'. To build the entire system type (make) at the
+Lisp command prompt. This Lisp has a C-Script 'snippets' capability to allow
+mixing of C-Script compiled expressions within assignment and function calling
+code. An elementary optimise pass exists for these expressions and more will be
+done shortly.
 
 Network link routing tables are created on booting a link, and the process is
 distributed in nature, each link starts a flood fill that eventually reaches all
@@ -106,14 +97,13 @@ An example network viewed with ps looks like this for a 4x4 mesh network:
 ./main -cpu 0 -l 000-012 -l 000-004 -l 000-003 -l 000-001 -run gui/gui
 
 
-
-
 Make with:
 
 make -j
 
-Requires NASM, SDL2 and the SDL2_ttf library to be installed. SDL2 and SDL2_ttf
-are for the experimental GUI.
+Requires NASM, SDL2 and the SDL2_TTF library to be installed. NASM is required
+for building the platform bootstrap, SDL2 and SDL2_ttf are for the experimental
+GUI.
 
 Requirements:
 Linux: Tested on Ubuntu 16-10
@@ -160,3 +150,7 @@ make snapshot
 
 This will create a snapshot zip file of the obj/ directory for the current
 platform. For example Darwin.zip or Linux.zip.
+
+Clean with:
+
+make clean
