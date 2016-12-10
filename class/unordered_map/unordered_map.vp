@@ -154,7 +154,7 @@
 		(vp-cpy-ir r0 vector_array r0)
 		(vp-mul-cr ptr_size r1)
 		(vp-add-rr r1 r0)
-		(vp-lea-i r0 (sub 0 ptr_size) r1)
+		(vp-lea-i r0 (neg ptr_size) r1)
 	(else)
 		;old key
 		(vp-cpy-ri r1 r4 local_iter)

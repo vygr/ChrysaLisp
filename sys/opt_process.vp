@@ -31,7 +31,7 @@
 			(f-call 'sys_string 'length '(r12) '(r1))
 			(vp-add-rr r1 r12)
 			(vp-add-cr ptr_size r12)
-			(vp-and-cr (sub 0 ptr_size) r12)
+			(vp-and-cr (neg ptr_size) r12)
 		(loop-end)
 	(vp-label 'next_arg)
 		(vp-cpy-ir r14 0 r0)

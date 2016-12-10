@@ -16,7 +16,7 @@
 		(breakif '(r2 == 0))
 		(vp-add-rr r2 r1)
 	(loop-end)
-	(vp-and-cr (sub 0 ld_page_size) r0)
+	(vp-and-cr (neg ld_page_size) r0)
 	(vp-sub-rr r0 r1)
 	(sys-mprotect r0 r1 (bit-or prot_read prot_write prot_exec))
 
@@ -241,7 +241,7 @@
 
 	;push reloc buffer entry
 	(vp-add-cr ptr_size r1)
-	(vp-cpy-ri r6 r1 (sub 0 ptr_size))
+	(vp-cpy-ri r6 r1 (neg ptr_size))
 	(vp-cpy-ri r1 r8 ld_statics_reloc_stack)
 
 	;overflow check
@@ -314,7 +314,7 @@
 
 	;pop reloc buffer
 	(vp-cpy-ir r8 ld_statics_reloc_stack r0)
-	(vp-cpy-ir r0 (sub 0 ptr_size) r0)
+	(vp-cpy-ir r0 (neg ptr_size) r0)
 	(vp-cpy-ri r0 r8 ld_statics_reloc_stack)
 
 	;return function address

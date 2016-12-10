@@ -187,7 +187,7 @@
 	(vp-cpy-ir r0 vector_length r1)
 	(vp-mul-cr ptr_size r1)
 	(vp-add-ir r0 vector_array r1)
-	(vp-cpy-ir r1 (sub 0 ptr_size) r1)
+	(vp-cpy-ir r1 (neg ptr_size) r1)
 	(vp-ret)
 
 (def-func-end)
@@ -286,7 +286,7 @@
 	(vp-cpy-ir r0 vector_array r3)
 	(vp-mul-cr ptr_size r2)
 	(vp-add-rr r2 r3)
-	(vp-cpy-ri r1 r3 (sub 0 ptr_size))
+	(vp-cpy-ri r1 r3 (neg ptr_size))
 
 	(vp-add-cr local_size r4)
 	(vp-ret)

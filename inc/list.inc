@@ -45,7 +45,7 @@
 
 	(ln-get-succ %1 0 %2)
 	(vpif `(,%2 == 0))
-		(vp-cpy-ir %1 (sub 0 lh_list_tail) %1)
+		(vp-cpy-ir %1 (neg lh_list_tail) %1)
 	(endif))
 
 (defcfun ln-get-backward (%1 %2)
@@ -262,7 +262,7 @@
 
 	(vp-lea-i %1 lh_list_tail %1)
 	(ln-add-node-before %1 %2 %3)
-	(vp-lea-i %1 (sub 0 lh_list_tail) %1))
+	(vp-lea-i %1 (neg lh_list_tail) %1))
 
 (defcfun lh-remove-head (%1 %2 %3)
 	;inputs

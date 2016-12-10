@@ -550,7 +550,7 @@
 	(vp-cpy-rr r5 r2)
 	(vp-cpy-ir-ub r2 -1 r1)
 	(vp-sub-rr r1 r2)
-	(vp-cpy-ir-ui r2 (sub 0 int_size) r1)
+	(vp-cpy-ir-ui r2 (neg int_size) r1)
 	(vpif '(r1 > tk_stack_size))
 		(vp-add-cr tk_node_stackspace r1)
 		(f-call 'sys_mem 'alloc '(r1) '(r0 r1))
