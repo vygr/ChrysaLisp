@@ -156,7 +156,7 @@
 		(print-emit-buffer))
 	(emit-passes)
 	(print "Writing -> " *func-name*)
-	(save *out-buffer* (cat "tst/" (str *func-name*))))
+	(save *out-buffer* (cat "obj/" (str *func-name*))))
 
 (defmacro def-insert (n l)
 	`(defcfun ,n (s)
