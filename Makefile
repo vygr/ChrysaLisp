@@ -1,10 +1,6 @@
 OS := $(shell uname)
 
-all:		make_dirs obj/main
-
-make_dirs:
-			echo $(OS) > platform
-			unzip -n $(OS).zip
+all:		obj/main
 
 snapshot:
 			zip -ru9ov -x*.d -x*.o -xobj/main $(OS).zip obj/*
@@ -18,6 +14,8 @@ ifeq ($(OS),Linux)
 endif
 
 obj/main.o:	main.nasm Makefile
+			echo $(OS) > platform
+			unzip -n $(OS).zip
 ifeq ($(OS),Darwin)
 			nasm -dOS=$(OS) -f macho64 -o $@ $<
 endif
