@@ -917,7 +917,7 @@
 	(while (and (gt (setq i (dec i)) 0) (not (match-list? (elem i *inst*) l))))
 	i)
 
-(defcfun opt-inst-list () t
+(defcfun opt-inst-list ()
 ;	(defq i 0)
 ;	(while (lt (setq i (inc i)) (length *inst*))
 ;		(defq e (elem i *inst*))

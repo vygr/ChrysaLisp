@@ -34,7 +34,7 @@
 		(ulong 'length)
 		(push-scope)
 		(d-call 'vector 'get_length {func} {length})
-		(vpif {length > 2})
+		(vpif {length > 1})
 			(f-call 'vector 'get_element {func, 0} {vars})
 			(vpif {vars == this->lisp_sym_lambda})
 				(f-call 'lisp 'env_push {this})
