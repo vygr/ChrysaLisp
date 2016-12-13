@@ -547,17 +547,15 @@
 	`(push *inst* ~b))
 
 (defcfun print-reg-stack ()
-	(defq i 0)
-	(while (lt i 16)
-		(print (vreg-sym i) " -> " (eval (type-sym i)))
-		(setq i (inc i))))
+	(defq i -1)
+	(while (lt (setq i (inc i)) 16)
+		(print (vreg-sym i) " -> " (eval (type-sym i)))))
 
 (defcfun reset-reg-stack (&optional %1)
 	;%1 = reserved slots
-	(setq %1 (if %1 %1 0) *s* 0 *r* 0)
-	(while (lt *s* %1)
-		(nil-type)
-		(inc-stack)))
+	(setq %1 (if %1 %1 0) *s* -1 *r* 0)
+	(while (lt (inc-stack) %1)
+		(nil-type)))
 
 (defcfun res-reg-def (%1)
 	;%1 = 'rX'
@@ -566,9 +564,8 @@
 
 (defcfun add-reg-def (%1)
 	;%1 = rX
-	(defq i 0)
-	(while (and (lt i *r*) (not (eql (eval (vreg-sym i)) %1)))
-		(setq i (inc i)))
+	(defq i -1)
+	(while (and (lt (setq i (inc i)) *r*) (not (eql (eval (vreg-sym i)) %1))))
 	(when (eq i *r*)
 		(set (vreg-sym i) %1)
 		(setq *r* (inc *r*))))
@@ -591,10 +588,9 @@
 	(add-reg-def r15))
 
 (defcfun undef-reg-def ()
-	(defq i 0)
-	(while (lt i *r*)
-		(set (vreg-sym i) nil (type-sym i) nil)
-		(setq i (inc i))))
+	(defq i -1)
+	(while (lt (setq i (inc i)) *r*)
+		(set (vreg-sym i) nil (type-sym i) nil)))
 
 (defcfun pop-type (s)
 	(defq u (type-sym s) w (eval u))
@@ -917,6 +913,32 @@
 (push-scope)
 
 ;;;;;;;;;;;
+; optimizer
+;;;;;;;;;;;
+
+(defcfun opt-find (i l)
+	(while (and (gt (setq i (dec i)) 0) (not (match-list? (elem i *inst*) l))))
+	i)
+
+(defcfun opt-inst-list () t
+;	(defq i 0)
+;	(while (lt (setq i (inc i)) (length *inst*))
+;		(defq e (elem i *inst*))
+;		(cond
+;			((eql (defq o (elem 0 e)) 'vp-cpy-ir)
+;				(when (ne 0 (defq p (opt-find i `(vp-lea-i r4 _ ,(elem 1 e)))))
+;					(elem-set 1 e r4)
+;					(elem-set 2 e (elem 2 (elem p *inst*)))
+;					(elem-set p *inst* '())))
+;			((eql o 'vp-cpy-ri)
+;				(when (ne 0 (defq p (opt-find i `(vp-lea-i r4 _ ,(elem 2 e)))))
+;					(elem-set 2 e r4)
+;					(elem-set 3 e (elem 2 (elem p *inst*)))
+;					(elem-set p *inst* '())))
+;			)
+)
+
+;;;;;;;;;;;
 ; assigment
 ;;;;;;;;;;;
 
@@ -934,7 +956,7 @@
 			(token-to-rpn)
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
-		;(opt-inst-list)
+		(opt-inst-list)
 		(defq i 0)
 		(while (lt i (length *src*))
 			(res-reg-def (elem i *src*))
@@ -961,7 +983,7 @@
 			(compile-rpn-list)
 			(pop-value)
 			(inc-stack)) *src*)
-		;(opt-inst-list)
+		(opt-inst-list)
 		(defq i 0)
 		(while (lt i (length *dst*))
 			(res-reg-def (elem i *dst*))
@@ -991,7 +1013,7 @@
 			(token-to-rpn)
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
-		;(opt-inst-list)
+		(opt-inst-list)
 		(fill-reg-def)
 		(when debug_emit
 			(print "(copy {" %1 "} {" %2 "})")
