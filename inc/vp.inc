@@ -7,9 +7,9 @@
 	'*distance* nil)
 
 (defcfun reg (r)
-	(defq c 0 n nil l '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
-	(while (and (not n) (lt c (length l)))
-		(if (eql (elem c l) r) (setq n c) (setq c (inc c)))) n)
+	(defq c -1 n nil l '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
+	(while (and (not n) (lt (setq c (inc c)) 16))
+		(if (eql (elem c l) r) (setq n c))) n)
 
 (defcfun type (o)
 	(defq i (inst-of 'class/class_obj o))
@@ -222,9 +222,9 @@
 	(set s *pc*))
 
 (defcfun emit-bytes (&rest b)
-	(defq s *shift* w *word* o *out-buffer* i 0 j (length b))
-	(while (lt i j)
-		(setq w (add w (bit-shl (elem i b) s)) s (add s 8) i (inc i))
+	(defq s *shift* w *word* o *out-buffer* i -1 j (length b))
+	(while (lt (setq i (inc i)) j)
+		(setq w (add w (bit-shl (elem i b) s)) s (add s 8))
 		(when (eq s 64)
 			(push o w)
 			(setq w 0 s 0)))

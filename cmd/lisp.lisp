@@ -67,9 +67,9 @@
 ;;;;;;;;;;;;
 
 (defun min-len (b)
-	(defq m (length (elem 0 b)) i 0 e nil)
+	(defq m (length (elem 0 b)) i 0)
 	(while (lt (setq i (inc i)) (length b))
-		(setq e (length (elem i b)) m (if (lt m e) m e)))
+		(defq e (length (elem i b)) m (if (lt m e) m e)))
 	m)
 
 (defun each (_f &rest _b)

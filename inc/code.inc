@@ -220,9 +220,9 @@
 	(if (ge s (length *scopes*))
 		(print "Error: Symbol not in scope !")
 		(progn
-			(defq i (dec (length *scopes*)))
-			(while (lt s i)
-				(setq o (add o (elem 1 (elem i *scopes*))) i (dec i)))))
+			(defq i (length *scopes*))
+			(while (lt s (setq i (dec i)))
+				(setq o (add o (elem 1 (elem i *scopes*)))))))
 	o)
 
 (defcfun def-sym (%1 %2 %3 &optional %4 %5)
@@ -241,9 +241,8 @@
 
 (defcfun get-sym (%1)
 	;%1 name
-	(defq %1 (sym %1) i (dec (length *symbols*)) s nil)
-	(while (and (ge i 0) (not (eql %1 (elem 1 (setq s (elem i *symbols*))))))
-		(setq i (dec i)))
+	(defq %1 (sym %1) i (length *symbols*) s nil)
+	(while (and (ge (setq i (dec i)) 0) (not (eql %1 (elem 1 (setq s (elem i *symbols*)))))))
 	(if (ne i -1) s))
 
 (defcfun const (%1 %2)
@@ -354,11 +353,10 @@
 		(t (eql s d))))
 
 (defcfun find-later-src (d)
-	(defq i -1 j (dec (length *src*)) d (elem d *dst*))
-	(while (ne j -1)
+	(defq i -1 j (length *src*) d (elem d *dst*))
+	(while (ne (setq j (dec j)) -1)
 		(if (match-any d (elem j *src*))
-			(setq i j j -1)
-			(setq j (dec j))))
+			(setq i j j 0)))
 	i)
 
 (defcfun map-rotate (i j)
@@ -368,14 +366,13 @@
 					(slice i j *dst*) (slice (inc j) (length *dst*) *dst*))))
 
 (defcfun map-topology-sort ()
-	(defq i 0 c 1000 j nil)
-	(while (and (ne i (length *dst*)) (ne c 0))
+	(defq i -1 c 1000 j nil)
+	(while (and (ne (setq i (inc i)) (length *dst*)) (ne c 0))
 		(setq j (find-later-src i))
 		(if (gt j i)
 			(progn
 				(map-rotate i j)
-				(setq c (dec c)))
-			(setq i (inc i))))
+				(setq c (dec c)))))
 	(when (ne i (length *dst*))
 		(print "Error: Copy cycle detected !")
 		(print *src* " -> " *dst*)))
