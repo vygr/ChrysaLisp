@@ -16,7 +16,7 @@ endif
 
 obj/main.o:	main.nasm Makefile
 			echo $(OS) > platform
-			unzip -n $(OS).zip
+			unzip -nq $(OS).zip
 ifeq ($(OS),Darwin)
 			nasm -dOS=$(OS) -f macho64 -o $@ $<
 endif
