@@ -311,6 +311,12 @@
 		(setq n (add (mul n b) (from-base-char (elem i s))) i (inc i)))
 	n)
 
+(defun match-list? (x y)
+	(if (eq (length x) (length y))
+		(every (lambda (a b)
+			(if (eql b '_) t
+				(eql a b))) x y)))
+
 ;;;;;;;;;;;;;;
 ; VP Assembler
 ;;;;;;;;;;;;;;
