@@ -48,13 +48,6 @@
 	(if (eq 0 (length b)) x
 		`(if ,x (and ~b) nil)))
 
-(defmacro for (s e i b)
-	(defq _l (gensym) _e (gensym) _i (gensym))
-	`(progn (defq ,_l ,s ,_e ,e ,_i ,i)
-		(while (lt ,_l ,_e)
-			,b
-			(setq ,_l (add ,_l ,_i)))))
-
 (defmacro times (c &rest b)
 	(defq _c (gensym))
 	`(progn (defq ,_c ,c)
