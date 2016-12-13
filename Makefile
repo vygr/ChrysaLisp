@@ -3,6 +3,7 @@ OS := $(shell uname)
 all:		obj/main
 
 snapshot:
+			rm $(OS).zip
 			zip -ru9ov -x*.d -x*.o -xobj/main $(OS).zip obj/*
 
 obj/main:	obj/main.o
