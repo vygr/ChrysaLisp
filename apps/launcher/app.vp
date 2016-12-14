@@ -101,6 +101,7 @@
 	(vp-string "tests/array") (vp-byte 0)
 	(vp-string "tests/pipe") (vp-byte 0)
 	(vp-string "tests/global") (vp-byte 0)
+	(vp-string "apps/terminal/tui") (vp-byte 0)
 	(vp-byte 0)
 
 (def-func-end)
