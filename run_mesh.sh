@@ -8,7 +8,7 @@ else
 	num_cpu=$1
 fi
 
-#not greater then 1000
+#not greater than 1000
 if [ $num_cpu -gt 100 ]
 then
 	num_cpu=100
