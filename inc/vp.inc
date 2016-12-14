@@ -199,8 +199,8 @@
 
 (defcfun emit-done (x y)
 	(cond
-		((eq (length x) 0) nil)
-		((ne (length x) (length y)) nil)
+		((eq (length x) 0))
+		((ne (length x) (length y)))
 		(t (every eq x y))))
 
 (defcfun emit-passes ()
