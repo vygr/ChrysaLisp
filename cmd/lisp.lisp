@@ -271,11 +271,6 @@
 	(each (lambda (x) (if (not (eql (elem 0 x) '*parent*)) (print x))) e)
 	t)
 
-(defun find (s c)
-	(defq i (length s))
-	(while (and (ge (setq i (dec i)) 0) (not (eql c (elem i s)))))
-	i)
-
 (defun trim-start (s)
 	(while (and (ne 0 (length s)) (eql (elem 0 s) " "))
 		(setq s (slice 1 -1 s)))
