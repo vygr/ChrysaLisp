@@ -12,6 +12,7 @@
 (def-method 'init2 'class/string/init2 'static '(r0 r1 r2 r3) '(r1))
 (def-method 'split 'class/string/split 'static '(r0 r1) '(r1))
 (def-method 'compare 'class/string/compare 'static '(r0 r1) '(r1))
+(def-method 'find 'class/string/find 'static '(r0 r1) '(r1))
 
 (def-method 'hash 'class/string/hash 'override)
 (def-method 'get_length 'class/string/get_length 'override)

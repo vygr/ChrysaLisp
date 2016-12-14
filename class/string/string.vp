@@ -435,3 +435,25 @@
 	(return)
 
 (def-func-end)
+
+(def-func 'class/string/find)
+	;inputs
+	;r0 = string object
+	;r1 = search char
+	;outputs
+	;r0 = string object
+	;r1 = -1, else position
+	;trashes
+	;r2-r3, r5
+
+	(vp-lea-i r0 string_data r2)
+	(vp-cpy-ir r0 string_length r3)
+	(loop-start)
+		(vp-dec r3)
+		(breakif '(r3 < 0))
+		(vp-cpy-dr-ub r2 r3 r5)
+	(loop-until '(r1 == r5))
+	(vp-cpy-rr r3 r1)
+	(vp-ret)
+
+(def-func-end)
