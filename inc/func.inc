@@ -4,7 +4,7 @@
 (import 'inc/syscall.inc)
 (import 'inc/task.inc)
 
-(defcvar 'debug_mode nil)
+(defcvar 'debug_mode t)
 (defcvar 'debug_emit nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -154,26 +154,26 @@
 		(vp-push r0 r1 r2 r3 r5)
 		(vp-cpy-cr i r0)
 		(vp-push r0)
-		(vp-lea-p '_func_pathname) r0)
+		(vp-lea-p '_func_name_start r0)
 		(vp-cpy-cr 0 r1)
 		(fn-string s r2)
 		(vp-pop r3)
 		(f-call 'sys_io 'debug_long '(r0 r1 r2 r3))
-		(vp-pop r0 r1 r2 r3 r5))
+		(vp-pop r0 r1 r2 r3 r5)))
 
 (defcfun debug-str (s &optional d)
 	;s = debug string
 	;d = debug string
 	(when debug_mode
 		(vp-push r0 r1 r2 r3 r5)
-		(vp-cpy-cr "" r0)
+		(fn-string (if d d "") r0)
 		(vp-push r0)
-		(vp-lea-p '_func_pathname) r0)
+		(vp-lea-p '_func_name_start r0)
 		(vp-cpy-cr 0 r1)
 		(fn-string s r2)
 		(vp-pop r3)
 		(f-call 'sys_io 'debug_str '(r0 r1 r2 r3))
-		(vp-pop r0 r1 r2 r3 r5))
+		(vp-pop r0 r1 r2 r3 r5)))
 
 (defcfun abort (&optional s)
 	(setq s (if s s "Abort !"))
