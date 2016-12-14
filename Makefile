@@ -11,7 +11,7 @@ ifeq ($(OS),Darwin)
 			clang -o $@ -e main $@.o -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
 endif
 ifeq ($(OS),Linux)
-			clang -o $@ -e main $@.o $(shell sdl2-config --libs) -lSDL2_ttf
+			clang -o $@ $@.o $(shell sdl2-config --libs) -lSDL2_ttf
 endif
 
 obj/main.o:	main.nasm Makefile
