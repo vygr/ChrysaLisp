@@ -173,7 +173,6 @@
 	(built-in "repl" 0 'func_repl)
 	(built-in "eval" 0 'func_eval)
 	(built-in "save" 0 'func_save)
-	(built-in "rehash" 0 'func_rehash)
 	(built-in "inst-of" 0 'func_inst_of)
 	(built-in "split" 0 'func_split)
 	(built-in "def?" 0 'func_defined)

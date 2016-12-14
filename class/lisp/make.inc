@@ -57,7 +57,6 @@
 (import 'class/lisp/func_quote.vp)
 (import 'class/lisp/func_readchar.vp)
 (import 'class/lisp/func_readline.vp)
-(import 'class/lisp/func_rehash.vp)
 (import 'class/lisp/func_repl.vp)
 (import 'class/lisp/func_save.vp)
 (import 'class/lisp/func_set.vp)

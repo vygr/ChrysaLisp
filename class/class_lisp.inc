@@ -95,7 +95,6 @@
 (def-method 'func_repl 'class/lisp/func_repl 'static '(r0 r1) '(r1))
 (def-method 'func_eval 'class/lisp/func_eval 'static '(r0 r1) '(r1))
 (def-method 'func_save 'class/lisp/func_save 'static '(r0 r1) '(r1))
-(def-method 'func_rehash 'class/lisp/func_rehash 'static '(r0 r1) '(r1))
 (def-method 'func_inst_of 'class/lisp/func_inst_of 'static '(r0 r1) '(r1))
 (def-method 'func_split 'class/lisp/func_split 'static '(r0 r1) '(r1))
 (def-method 'func_defined 'class/lisp/func_defined 'static '(r0 r1) '(r1))

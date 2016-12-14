@@ -322,7 +322,7 @@
 	o)
 
 (defun compile (*file* &optional o)
-	(defq *compile-env* (rehash 101) *OS* (if o o (platform)) *imports* (list))
+	(defq *compile-env* (env 101) *OS* (if o o (platform)) *imports* (list))
 	(defmacro defcvar (&rest b)
 		`(def *compile-env* ~b))
 	(defmacro defcfun (n a &rest b)
