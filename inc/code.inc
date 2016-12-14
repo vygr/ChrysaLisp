@@ -939,7 +939,7 @@
 ; assigment
 ;;;;;;;;;;;
 
-(defcfun retire (%1 %2)
+(defcfun assign-asm-to-script (%1 %2)
 	(setq *src* %1 *dst* (map trim (split %2 (code ","))))
 	(unless (eq (length *src*) (length *dst*))
 		(print "Error: Mismatching number of src/dst paramaters !")
@@ -965,7 +965,7 @@
 		(eval *inst*)
 		(undef-reg-def)))
 
-(defcfun expr (%1 %2)
+(defcfun assign-script-to-asm (%1 %2)
 	(setq *src* (map trim (split %1 (code ","))) *dst* %2)
 	(unless (eq (length *src*) (length *dst*))
 		(print "Error: Mismatching number of src/dst paramaters !")
@@ -992,7 +992,7 @@
 		(eval *inst*)
 		(undef-reg-def)))
 
-(defcfun copy (%1 %2)
+(defcfun assign-script-to-script (%1 %2)
 	(setq *src* (map trim (split %1 (code ","))) *dst* (map trim (split %2 (code ","))))
 	(unless (eq (length *src*) (length *dst*))
 		(print "Error: Mismatching number of src/dst paramaters !")
@@ -1024,13 +1024,13 @@
 	(cond
 		((and s d)
 			;script -> script
-			(copy %1 %2))
+			(assign-script-to-script %1 %2))
 		((and s (not d))
 			;script -> asm
-			(expr %1 %2))
+			(assign-script-to-asm %1 %2))
 		((and (not s) d)
 			;asm -> script
-			(retire %1 %2))
+			(assign-asm-to-script %1 %2))
 		(t
 			;asm -> asm
 			(setq *src* %1 *dst* %2)
