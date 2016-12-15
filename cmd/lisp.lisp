@@ -337,7 +337,7 @@
 			(push *imports* *file*)
 			(repl (file-stream *file*))))
 	(if (not (inst-of 'class/class_vector *files*))
-		(*files* (list *files*)))
+		(setq *files* (list *files*)))
 	(each import *files*)
 	(setq *compile-env* nil))
 
