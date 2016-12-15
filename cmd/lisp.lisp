@@ -137,6 +137,12 @@
 (defmacro merge (&rest l)
 	`(reduce cat (zip ~l)))
 
+(defun filter (_f _l)
+	(defq _e -1 _o (list))
+	(while (lt (setq _e (inc _e)) (length _l))
+		(if (_f (defq _i (elem _e _l))) (push _o _i)))
+	_o)
+
 ;;;;;;;;;;;;
 ; Predicates
 ;;;;;;;;;;;;
@@ -313,42 +319,57 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
-(defun source-info (f)
-	(defq d (list (str f)) p (list) i -1)
-	(while (lt (setq i (inc i)) (length d))
-		(each-line (elem i d) (lambda (l)
-			(defq s (split l (ascii " ")))
-			(if (ne 0 (length s))
-				(cond
-					((eql "import" (defq k (trim-start (elem 0 s) "(")))
-						(setq s (trim-start (trim-end (elem 1 s) ")") "'"))
-						(when (notany (lambda (x) (eql x s)) d)
-							(push d s)))
-					((eql "def-func" k)
-						(push p (cat "obj/" (trim-start (trim-end (elem 1 s) ")") "'")))))))))
-	(list d p))
-
 (defun platform ()
 	(defq o 'Darwin)
 	(when (defq f (file-stream 'platform))
 		(setq o (sym (read-line f))))
 	o)
 
-(defun compile (*file* &optional o)
-	(defq *compile-env* (env 101) *OS* (if o o (platform)) *imports* (list))
+(defun compile (*files* &optional *OS*)
+	(defq *compile-env* (env 101) *OS* (if *OS* *OS* (platform)) *imports* (list))
 	(defmacro defcvar (&rest b)
 		`(def *compile-env* ~b))
 	(defmacro defcfun (n a &rest b)
-;		(if (eql *file* 'inc/class.inc) (print "Create function: " n))
 ;		`(def *compile-env* ',n (lambda ,a (print "Enter: " ',n) (defq _rv (progn ~b)) (print "Exit: " ',n) _rv)))
 		`(def *compile-env* ',n (lambda ,a ~b)))
 	(defun import (*file*)
 		(when (notany (lambda (x) (eql x *file*)) *imports*)
 			(push *imports* *file*)
 			(repl (file-stream *file*))))
-	(import *file*)
+	(if (not (inst-of 'class/class_vector *files*))
+		(*files* (list *files*)))
+	(each import *files*)
 	(setq *compile-env* nil))
 
-(defun make (&optional d)
-	(setq d (if d d ""))
-	(compile (sym (cat (str d) "make.inc"))))
+(defun make (&optional d *OS*)
+	(defq *make-env* (env 101) *OS* (if *OS* *OS* (platform))
+		*imports* (list (cat (if d (str d) "") "make.inc")) i -1)
+	(defun make-sym (f)
+		(sym (cat "_dep_" (str f))))
+	(defun make-info (f)
+		(defq d (list f) p (list))
+		(each-line f (lambda (l)
+			(defq s (split l (ascii " ")))
+			(if (ge (length s) 2)
+				(cond
+					((eql "import" (defq k (trim-start (elem 0 s) "(")))
+						(push d (setq s (trim-start (trim-end (elem 1 s) ")") "'")))
+						(when (notany (lambda (x) (eql x s)) *imports*)
+							(push *imports* s)))
+					((eql "def-func" k)
+						(push p (cat "obj/" (trim-start (trim-end (elem 1 s) ")") "'"))))))))
+		(list d p))
+	;list of all files while defining dependacies and products
+	(while (lt (setq i (inc i)) (length *imports*))
+		(def *make-env* (make-sym (defq f (elem i *imports*))) (make-info f)))
+	;filter to only the .vp files
+	(setq *imports* (filter (lambda (f)
+		(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
+	;filter to only the .vp files whos product is older than any dependancy
+	(setq *imports* (filter (lambda (f)
+		(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
+	;compile anything left
+	(compile *imports*)
+	(setq *make-env* nil))
+
+(make 'apps/netmon/)
