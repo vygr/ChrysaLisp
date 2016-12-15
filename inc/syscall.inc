@@ -24,7 +24,7 @@
 	(vp-cpy-cr %1 r0)
 	(vp-syscall))
 
-(when (eql *OS* 'Darwin)
+(when (eql *os* 'Darwin)
 
 ;;;;;;;;;;;;;;;;;
 ; syscall for OSX
@@ -221,7 +221,7 @@
 	(pop-trashed))
 
 )
-(when (eql *OS* 'Linux)
+(when (eql *os* 'Linux)
 
 ;;;;;;;;;;;;;;;;;;;
 ; syscall for Linux
