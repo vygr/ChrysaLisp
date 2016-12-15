@@ -271,18 +271,21 @@
 	(each (lambda (x) (if (not (eql (elem 0 x) '*parent*)) (print x))) e)
 	t)
 
-(defun trim-start (s)
-	(while (and (ne 0 (length s)) (eql (elem 0 s) " "))
+(defun trim-start (s &optional c)
+	(setq c (if c c " "))
+	(while (and (ne 0 (length s)) (eql (elem 0 s) c))
 		(setq s (slice 1 -1 s)))
 	s)
 
-(defun trim-end (s)
-	(while (and (ne 0 (length s)) (eql (elem -2 s) " "))
+(defun trim-end (s &optional c)
+	(setq c (if c c " "))
+	(while (and (ne 0 (length s)) (eql (elem -2 s) c))
 		(setq s (slice 0 -2 s)))
 	s)
 
-(defun trim (s)
-	(trim-start (trim-end s)))
+(defun trim (s &optional c)
+	(setq c (if c c " "))
+	(trim-start (trim-end s c) c))
 
 (defun to-num (s)
 	(defq n 0 b 10)
@@ -309,6 +312,21 @@
 ;;;;;;;;;;;;;;
 ; VP Assembler
 ;;;;;;;;;;;;;;
+
+(defun source-info (f)
+	(defq d (list (str f)) p (list) i -1)
+	(while (lt (setq i (inc i)) (length d))
+		(each-line (elem i d) (lambda (l)
+			(defq s (split l (ascii " ")))
+			(if (ne 0 (length s))
+				(cond
+					((eql "import" (defq k (trim-start (elem 0 s) "(")))
+						(setq s (trim-start (trim-end (elem 1 s) ")") "'"))
+						(when (notany (lambda (x) (eql x s)) d)
+							(push d s)))
+					((eql "def-func" k)
+						(push p (cat "obj/" (trim-start (trim-end (elem 1 s) ")") "'")))))))))
+	(list d p))
 
 (defun platform ()
 	(defq o 'Darwin)
