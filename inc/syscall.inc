@@ -7,6 +7,7 @@
 (def-class 'sys_io)
 (def-method 'open 'sys/io_open 'static '(r0 r1 r2) '(r0))
 (def-method 'close 'sys/io_close 'static '(r0))
+(def-method 'date 'sys/io_date 'static '(r0) '(r0))
 (def-method 'char 'sys/io_write_char 'static '(r0 r1))
 (def-method 'string 'sys/io_write_str 'static '(r0 r1))
 (def-method 'number 'sys/io_write_num 'static '(r0 r1 r2))
@@ -87,6 +88,7 @@
 (defcvar 'stat_mode 0x8)
 (defcvar 'stat_fsize 0x48)
 (defcvar 'stat_size 0x100)
+(defcvar 'stat_mtime 0x30)
 
 (def-struct 'timeval)
 	(long 'timeval_sec)
@@ -284,6 +286,7 @@
 (defcvar 'stat_mode 0x18)
 (defcvar 'stat_fsize 0x30)
 (defcvar 'stat_size 0x100)
+(defcvar 'stat_mtime 0x58)
 
 (def-struct 'timeval)
 	(long 'timeval_sec)

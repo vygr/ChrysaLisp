@@ -1,6 +1,7 @@
 (import 'inc/func.inc)
 (import 'inc/syscall.inc)
 (import 'inc/string.inc)
+(import 'inc/load.inc)
 
 (def-func 'sys/io_open)
 	;inputs
@@ -163,6 +164,33 @@
 	(f-call 'sys_io 'char '(10 2))
 
 	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/io_date)
+	;inputs
+	;r0 = function name
+	;outputs
+	;r0 = 0 if error, else modified date
+	;trashes
+	;r0-r2
+
+	;save filename
+	(vp-cpy-rr r0 r2)
+
+	;get length of function on disk
+	(f-bind 'sys_load 'statics r1)
+	(vp-lea-i r1 ld_statics_stat_buffer r0)
+	(sys-stat r2 r0)
+	(vpif '(r0 != 0))
+	(vp-label 'exit)
+		(vp-xor-rr r0 r0)
+		(vp-ret)
+	(endif)
+
+	;get file modified date
+	(vp-cpy-ir-us r1 (add ld_statics_stat_buffer stat_mtime) r0)
 	(vp-ret)
 
 (def-func-end)
