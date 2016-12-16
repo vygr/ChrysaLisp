@@ -88,7 +88,7 @@
 (defcvar 'stat_mode 0x8)
 (defcvar 'stat_fsize 0x48)
 (defcvar 'stat_size 0x100)
-(defcvar 'stat_mtime 0x30)
+(defcvar 'stat_mtime 0x38)
 
 (def-struct 'timeval)
 	(long 'timeval_sec)

@@ -350,7 +350,7 @@
 			;modification time of a file, cached
 			(defq s (sym (cat "_time_" f)))
 			(if (def? s) (eval s)
-				(def *make-env* s 0)))
+				(def *make-env* s (date f))))
 		(defun make-info (f)
 			;create lists of imediate dependancies and products
 			(defq d (list f) p (list))
@@ -382,7 +382,7 @@
 		(setq *imports* (filter (lambda (f)
 			(defq d (eval (make-sym f)) p (make-time (elem 0 (elem 1 d))) d (elem 0 d) i -1 v nil)
 			(while (and (not v) (lt (setq i (inc i)) (length d)))
-				(unless (setq v (le (make-time (setq f (elem i d))) p))
+				(unless (setq v (ge (make-time (setq f (elem i d))) p))
 					(each (lambda (x)
 						(when (notany (lambda (y) (eql y x)) d)
 							(push d x))) (elem 0 (eval (make-sym f)))))) v) *imports*))
