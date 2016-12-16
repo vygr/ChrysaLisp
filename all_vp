@@ -147,5 +147,4 @@
 ./sys/opt_process.vp
 ./sys/string.vp
 ./sys/task.vp
-./test.vp
 ./tests/tests.vp
