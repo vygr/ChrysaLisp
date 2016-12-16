@@ -5,14 +5,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (def-class 'sys_io)
-(def-method 'open 'sys/open 'static '(r0 r1 r2) '(r0))
-(def-method 'close 'sys/close 'static '(r0))
-(def-method 'char 'sys/write_char 'static '(r0 r1))
-(def-method 'string 'sys/write_string 'static '(r0 r1))
-(def-method 'number 'sys/write_number 'static '(r0 r1 r2))
-(def-method 'read 'sys/read_line 'static '(r0 r1 r2) '(r0))
-(def-method 'debug_long 'sys/write_debug_long 'static '(r0 r1 r2 r3))
-(def-method 'debug_str 'sys/write_debug_str 'static '(r0 r1 r2 r3))
+(def-method 'open 'sys/io_open 'static '(r0 r1 r2) '(r0))
+(def-method 'close 'sys/io_close 'static '(r0))
+(def-method 'char 'sys/io_write_char 'static '(r0 r1))
+(def-method 'string 'sys/io_write_str 'static '(r0 r1))
+(def-method 'number 'sys/io_write_num 'static '(r0 r1 r2))
+(def-method 'read 'sys/io_read_line 'static '(r0 r1 r2) '(r0))
+(def-method 'debug_long 'sys/io_debug_long 'static '(r0 r1 r2 r3))
+(def-method 'debug_str 'sys/io_debug_str 'static '(r0 r1 r2 r3))
 
 (def-class 'sys_cpu)
 (def-method 'id 'sys/cpu_get_id 'static '() '(r0))

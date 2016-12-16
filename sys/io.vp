@@ -2,7 +2,7 @@
 (import 'inc/syscall.inc)
 (import 'inc/string.inc)
 
-(def-func 'sys/open)
+(def-func 'sys/io_open)
 	;inputs
 	;r0 = filename
 	;r1 = mode
@@ -15,7 +15,7 @@
 
 (def-func-end)
 
-(def-func 'sys/close)
+(def-func 'sys/io_close)
 	;inputs
 	;r0 = fd
 
@@ -24,7 +24,7 @@
 
 (def-func-end)
 
-(def-func 'sys/read_line)
+(def-func 'sys/io_read_line)
 	;inputs
 	;r0 = buffer address
 	;r1 = buffer size
@@ -48,7 +48,7 @@
 
 (def-func-end)
 
-(def-func 'sys/write_char)
+(def-func 'sys/io_write_char)
 	;inputs
 	;r0 = char
 	;r1 = fd
@@ -58,7 +58,48 @@
 
 (def-func-end)
 
-(def-func 'sys/write_debug_long)
+(def-func 'sys/io_write_str)
+	;inputs
+	;r0 = string
+	;r1 = fd
+	;trashes
+	;r1-r3
+
+	(vp-cpy-rr r1 r3)
+	(f-call 'sys_string 'length '(r0) '(r1))
+	(sys-write-string r3 r0 r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/io_write_num)
+	;inputs
+	;r0 = number
+	;r1 = fd
+	;r2 = base
+	;trashes
+	;r0, r2-r3, r5
+
+	(vp-cpy-rr r2 r3)	;base
+	(vp-cpy-rr r4 r5)	;stack location
+	(loop-start)
+		(vp-xor-rr r2 r2)
+		(vp-div-rrr r3 r2 r0)
+		(vp-push r2)
+	(loop-until '(r0 == 0))
+	(loop-start)
+		(vp-pop r0)
+		(vp-add-cr (code "0") r0)
+		(vpif '(r0 > (code "9")))
+			(vp-add-cr (sub (code "A") (code ":")) r0)
+		(endif)
+		(sys-write-char r1 r0)
+	(loop-until '(r5 == r4))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/io_debug_long)
 	;inputs
 	;r0 = function name
 	;r1 = line number
@@ -92,7 +133,7 @@
 
 (def-func-end)
 
-(def-func 'sys/write_debug_str)
+(def-func 'sys/io_debug_str)
 	;inputs
 	;r0 = function name
 	;r1 = line number
@@ -122,47 +163,6 @@
 	(f-call 'sys_io 'char '(10 2))
 
 	(vp-add-cr local_size r4)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'sys/write_number)
-	;inputs
-	;r0 = number
-	;r1 = fd
-	;r2 = base
-	;trashes
-	;r0, r2-r3, r5
-
-	(vp-cpy-rr r2 r3)	;base
-	(vp-cpy-rr r4 r5)	;stack location
-	(loop-start)
-		(vp-xor-rr r2 r2)
-		(vp-div-rrr r3 r2 r0)
-		(vp-push r2)
-	(loop-until '(r0 == 0))
-	(loop-start)
-		(vp-pop r0)
-		(vp-add-cr (code "0") r0)
-		(vpif '(r0 > (code "9")))
-			(vp-add-cr (sub (code "A") (code ":")) r0)
-		(endif)
-		(sys-write-char r1 r0)
-	(loop-until '(r5 == r4))
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'sys/write_string)
-	;inputs
-	;r0 = string
-	;r1 = fd
-	;trashes
-	;r1-r3
-
-	(vp-cpy-rr r1 r3)
-	(f-call 'sys_string 'length '(r0) '(r1))
-	(sys-write-string r3 r0 r1)
 	(vp-ret)
 
 (def-func-end)
