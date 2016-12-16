@@ -190,7 +190,7 @@
 	(endif)
 
 	;get file modified date
-	(vp-cpy-ir-us r1 (add ld_statics_stat_buffer stat_mtime) r0)
+	(vp-cpy-ir r1 (add ld_statics_stat_buffer stat_mtime) r0)
 	(vp-ret)
 
 (def-func-end)
