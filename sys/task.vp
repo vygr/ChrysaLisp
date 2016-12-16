@@ -2,6 +2,7 @@
 (import 'inc/task.inc)
 (import 'inc/mail.inc)
 (import 'inc/list.inc)
+(import 'inc/syscall.inc)
 (import 'class/class_vector.inc)
 (import 'class/class_string.inc)
 

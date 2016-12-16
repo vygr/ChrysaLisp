@@ -335,6 +335,7 @@
 	(defun import (*file*)
 		(when (notany (lambda (x) (eql x *file*)) *imports*)
 			(push *imports* *file*)
+;			(print "Importing " *file*)
 			(repl (file-stream *file*))))
 	(unless (inst-of 'class/class_vector *files*)
 		(setq *files* (list *files*)))

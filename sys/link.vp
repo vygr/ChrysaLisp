@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
 (import 'inc/task.inc)
-(import 'inc/mail.inc)
 (import 'inc/link.inc)
+(import 'inc/syscall.inc)
 
 (def-func 'sys/link_statics)
 	(times lk_statics_size (vp-byte 0))

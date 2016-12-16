@@ -1,5 +1,3 @@
-(import 'inc/vp.inc)
-
 ;;;;;;;;;;;;;;;;;;;;
 ; structured codeing
 ;;;;;;;;;;;;;;;;;;;;

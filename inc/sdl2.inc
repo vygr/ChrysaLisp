@@ -1,7 +1,4 @@
-(import 'inc/vp.inc)
 (import 'inc/code.inc)
-(import 'inc/gui.inc)
-(import 'inc/class.inc)
 
 ;;;;;;;;;;;;;;;;;
 ; sdl2 structures

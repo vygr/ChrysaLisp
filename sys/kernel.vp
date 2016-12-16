@@ -5,6 +5,7 @@
 (import 'inc/load.inc)
 (import 'inc/font.inc)
 (import 'inc/sdl2.inc)
+(import 'inc/gui.inc)
 
 ;;;;;;;;;;;;;
 ; kernel task

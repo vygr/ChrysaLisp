@@ -1,8 +1,8 @@
 (import 'inc/func.inc)
-(import 'inc/task.inc)
+(import 'inc/font.inc)
 (import 'inc/string.inc)
 (import 'inc/sdl2.inc)
-(import 'inc/font.inc)
+(import 'inc/gui.inc)
 (import 'class/class_string.inc)
 
 (def-func 'gui/font_statics)

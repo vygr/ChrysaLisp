@@ -1,9 +1,8 @@
 (import 'inc/func.inc)
-(import 'inc/task.inc)
-(import 'inc/sdl2.inc)
-(import 'inc/list.inc)
 (import 'inc/gui.inc)
-(import 'class/class_view.inc)
+(import 'inc/task.inc)
+(import 'inc/heap.inc)
+(import 'inc/sdl2.inc)
 (import 'class/class_label.inc)
 
 (defcvar 'dual_buffers t)

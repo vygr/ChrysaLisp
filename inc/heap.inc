@@ -1,4 +1,5 @@
 (import 'inc/class.inc)
+(import 'inc/code.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; heap static class

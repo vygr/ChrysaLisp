@@ -1,6 +1,7 @@
+(import 'inc/class.inc)
+(import 'inc/code.inc)
 (import 'inc/list.inc)
 (import 'inc/mail.inc)
-(import 'inc/class.inc)
 
 (def-class 'sys_link)
 (def-method 'statics 'sys/link_statics)
