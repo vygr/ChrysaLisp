@@ -64,7 +64,6 @@ int main() {
 
 	printf("\tstat_dev\tequ\t0x%lx\n", offsetof(struct stat, st_dev));
 	printf("\tstat_mode\tequ\t0x%lx\n", offsetof(struct stat, st_mode));
-	printf("\tstat_mode\tsize\t0x%lx\n", sizeof(stat::st_mode));
 	printf("\tstat_nlink\tequ\t0x%lx\n", offsetof(struct stat, st_nlink));
 	printf("\tstat_ino\tequ\t0x%lx\n", offsetof(struct stat, st_ino));
 	printf("\tstat_uid\tequ\t0x%lx\n", offsetof(struct stat, st_uid));
