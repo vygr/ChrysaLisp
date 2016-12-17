@@ -27,5 +27,5 @@ do
 		c2=$zp
 		add_link $c1 $c2
 	done
-	boot_cpu $cpu "$links"
+	boot_cpu_gui $cpu "$links"
 done

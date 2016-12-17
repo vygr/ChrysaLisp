@@ -40,11 +40,22 @@ function wrap
 	fi
 }
 
-function boot_cpu
+function boot_cpu_gui
 {
 	if [ $1 -lt 1 ]
 	then
 		./obj/main -cpu $1 $2 -run gui/gui &
+	else
+		./obj/main -cpu $1 $2 &
+	fi
+	echo -cpu $1 $2
+}
+
+function boot_cpu_tui
+{
+	if [ $1 -lt 1 ]
+	then
+		./obj/main -cpu $1 $2 -run apps/terminal/tui
 	else
 		./obj/main -cpu $1 $2 &
 	fi

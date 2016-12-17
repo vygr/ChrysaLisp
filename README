@@ -111,6 +111,11 @@ sudo apt-get install nasm clang libsdl2-ttf-dev
 
 Run with:
 
+./run_tui.sh <num_cpus>
+
+Text user interface based Cube network. Each CPU has links to 6 adjacent CPU's. CPU 0
+has a terminal to the host system launched.
+
 ./run.sh <num_cpus>
 
 Fully connected network. Each CPU has links to every other CPU. Careful with

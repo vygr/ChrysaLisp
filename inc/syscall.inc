@@ -44,6 +44,7 @@
 (defcvar 'sys_munmap 0x49)
 (defcvar 'sys_mprotect 0x4a)
 (defcvar 'sys_gettimeofday 0x74)
+(defcvar 'sys_fcntl 0x5C)
 
 (defcvar 'prot_none 0x0)
 (defcvar 'prot_read 0x1)
@@ -85,6 +86,9 @@
 (defcvar 's_ifmt 0xf000)
 (defcvar 's_ifdir 0x4000)
 (defcvar 's_ifreg 0x8000)
+
+(defcvar 'f_getfl 0x3)
+(defcvar 'f_setfl 0x4)
 
 (defcvar 'stat_mode 0x8)
 (defcvar 'stat_fsize 0x48)
@@ -223,6 +227,13 @@
 	(vp-cpy-ri r2 r1 timeval_usec)
 	(pop-trashed))
 
+(defcfun sys-fcntl (%1 %2 %3)
+	;fd, cmd, arg
+	(push-trashed)
+	(assign `(,%1 ,%2 ,%3) '(r7 r6 r2))
+	(sys-call (add sys_fcntl 0x2000000))
+	(pop-trashed))
+
 )
 (when (eql *os* 'Linux)
 
@@ -242,6 +253,7 @@
 (defcvar 'sys_munmap 0xb)
 (defcvar 'sys_mprotect 0xa)
 (defcvar 'sys_gettimeofday 0x60)
+(defcvar 'sys_fcntl 0x48)
 
 (defcvar 'prot_none 0x0)
 (defcvar 'prot_read 0x1)
@@ -283,6 +295,9 @@
 (defcvar 's_ifmt 0xf000)
 (defcvar 's_ifdir 0x4000)
 (defcvar 's_ifreg 0x8000)
+
+(defcvar 'f_getfl 0x3)
+(defcvar 'f_setfl 0x4)
 
 (defcvar 'stat_mode 0x18)
 (defcvar 'stat_fsize 0x30)
@@ -416,4 +431,12 @@
 	(assign `(,%1 ,%2) '(r7 r6))
 	(sys-call sys_gettimeofday)
 	(pop-trashed))
+
+(defcfun sys-fcntl (%1 %2 %3)
+	;fd, cmd, arg
+	(push-trashed)
+	(assign `(,%1 ,%2 ,%3) '(r7 r6 r2))
+	(sys-call sys_fcntl)
+	(pop-trashed))
+
 )

@@ -47,5 +47,5 @@ do
 		add_link $c1 $c2
 	fi
 
-	boot_cpu $cpu "$links"
+	boot_cpu_gui $cpu "$links"
 done

@@ -152,7 +152,7 @@
 	;i = debug long
 	(when debug_mode
 		(vp-push r0 r1 r2 r3 r5)
-		(vp-cpy-cr i r0)
+		(vp-cpy-rr i r0)
 		(vp-push r0)
 		(vp-lea-p '_func_name_start r0)
 		(vp-cpy-cr 0 r1)
