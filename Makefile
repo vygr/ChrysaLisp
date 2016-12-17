@@ -4,7 +4,15 @@ all:		obj/main
 
 snapshot:
 			rm $(OS).zip
-			zip -ru9ov -x*.d -x*.o -xobj/main $(OS).zip obj/*
+			zip -r9ov -x*.d -x*.o -xobj/test -xobj/main $(OS).zip obj/*
+
+snapshot_darwin:
+			rm Darwin.zip
+			zip -r9ov -x*.d -x*.o -xobj/test -xobj/main Darwin.zip obj/*
+
+snapshot_linux:
+			rm Linux.zip
+			zip -r9ov -x*.d -x*.o -xobj/test -xobj/main Linux.zip obj/*
 
 obj/main:	obj/main.o
 ifeq ($(OS),Darwin)
