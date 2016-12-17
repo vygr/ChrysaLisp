@@ -196,7 +196,7 @@
 	;poll stdin and send char to tui
 	(loop-start)
 		(sys-read-char 0)
-		(vpif '(r0 != -1))
+		(vpif '(r0 != 0))
 			(assign '(r0) {char})
 			(f-call 'sys_mail 'alloc {} {msg})
 			(assign {tui_id.id_mbox} {msg->msg_dest.id_mbox})
@@ -205,7 +205,7 @@
 			(assign {stdin_msg_size} {msg->msg_length})
 			(f-call 'sys_mail 'send {msg})
 		(endif)
-		(f-call 'sys_task 'sleep {10000})
+		(f-call 'sys_task 'sleep {1000})
 	(loop-end)
 
 	(pop-scope)
