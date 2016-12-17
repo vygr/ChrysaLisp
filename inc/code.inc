@@ -216,7 +216,7 @@
 (defcfun get-scope-offset (s)
 	(defq o 0)
 	(if (ge s (length *scopes*))
-		(print "Error: Symbol not in scope !")
+		(error "Symbol not in scope !" s)
 		(progn
 			(defq i (length *scopes*))
 			(while (lt s (setq i (dec i)))
@@ -233,7 +233,7 @@
 	(defq s (elem 0 (elem -2 *scopes*)))
 	(while (ne s (length *symbols*))
 		(if (eql %1 (elem 1 (elem s *symbols*)))
-			(print "Error: Symbol " %1 " redefined !"))
+			(error "Symbol redefined !" %1))
 		(setq s (inc s)))
 	(push *symbols* (list (length *scopes*) %1 %2 %3 %4 %5)))
 
@@ -314,7 +314,7 @@
 (defcfun offset (f)
 	(if *struct*
 		(defcvar f *struct-offset*)
-		(print "Error: Atempt to define offset into local stack !")))
+		(error "Atempt to define offset into local stack !" f)))
 
 (defcfun struct (f s)
 	(defq s (eval (sym (cat (str s) "_size"))))
@@ -341,11 +341,11 @@
 	(defq i (inst-of 'class/class_vector d) j (inst-of 'class/class_vector s))
 	(cond
 		(i (cond
-				(j (print "Error: Ilegal src/dst !")
+				(j (error "Ilegal src/dst !" (list s d))
 					(print *src* ": " s " -> " *dst* ": " d))
 				(t (some (lambda (x) (eql x s)) d))))
 		(j (cond
-				(i (print "Error: Ilegal src/dst !")
+				(i (error "Ilegal src/dst !" (list s d))
 					(print *src* ": " s " -> " *dst* ": " d))
 				(t (some (lambda (x) (eql x d)) s))))
 		(t (eql s d))))
@@ -372,13 +372,11 @@
 				(map-rotate i j)
 				(setq c (dec c)))))
 	(when (ne i (length *dst*))
-		(print "Error: Copy cycle detected !")
-		(print *src* " -> " *dst*)))
+		(error "Copy cycle detected !" (list *src* *dst*))))
 
 (defcfun map-src-to-dst ()
 	(when (ne (length *src*) (length *dst*))
-		(print "Mismatching number of src/dst parameters !")
-		(print *src* " -> " *dst*))
+		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(map-topology-sort)
 	(each (lambda (x y)
@@ -390,7 +388,7 @@
 					((eql i 'r) (vp-cpy-rr x y))
 					((eql i 'i) (vp-cpy-ri x (elem 0 y) (elem 1 y)))
 					((eql i 'd) (vp-cpy-rd x (elem 0 y) (elem 1 y)))
-					(t (print "Invalid dst paramater !"))))
+					(t (error "Invalid dst paramater !" i))))
 			((eql i 'c) (vp-cpy-cr x y))
 			((eql i 'i) (vp-cpy-ir (elem 0 x) (elem 1 x) y))
 			((eql i 'd) (vp-cpy-dr (elem 0 x) (elem 1 x) y))
@@ -399,7 +397,7 @@
 			((eql i 's) (fn-string x y))
 			((eql i '@) (fn-bind (elem 1 x) y))
 			((eql i '$) (vp-lea-p (elem 1 x) y))
-			(t (print "Invalid src paramater !")))) *src* *dst*))
+			(t (error "Invalid src paramater !" i)))) *src* *dst*))
 
 ;;;;;;;;;;;
 ; tokenizer
@@ -442,7 +440,7 @@
 								(setq s (find "-*&~!" p))
 								(if (ne s -1)
 									(push-token (elem s "_#:~!") m)
-									(print "Error: Unknown unary operator " p " !")))
+									(error "Unknown unary operator !" p)))
 							(t
 								;binary operator
 								(push-token p m)
@@ -501,7 +499,7 @@
 						;precidence
 						(setq s (get-sym k))
 						(if (not s)
-							(print "Error: Operator " k " not defined !"))
+							(error "Operator not defined !" k))
 						(setq v (sub (elem 3 s) (elem 4 s)) x t)
 						(while (and x (ne 0 (length o)))
 							(setq s (get-sym (elem -2 o)))
@@ -580,7 +578,7 @@
 			(defq v (slice 1 -1 w) v (if (eql v "") nil v))
 			(set u v)
 			(elem 0 w))
-		(print "Error: No type info !")))
+		(error "No type info !" u)))
 
 (defcfun pop-value ()
 	(dec-stack)
@@ -589,7 +587,7 @@
 	(vreg-sym *s*))
 
 (defcfun compile-null ()
-	(print "Error: No operator !"))
+	(error "Null operator !" nil))
 
 (defcfun compile-const (%1)
 	(nil-type)
@@ -811,9 +809,9 @@
 	(defq s (get-sym %1))
 	(cond
 		((not s)
-			(print "Error: Operator " %1 " not defined !"))
+			(error "Operator not defined !" %1))
 		((not (eql 'op (elem 2 s)))
-			(print "Error: " %1 " not an operator !"))
+			(error "Not an operator !" %1))
 		(t
 			((elem 5 s) %1))))
 
@@ -853,7 +851,7 @@
 				;"..."
 				(compile-string (str k)))
 			(t
-				(print "Error: Unknown token type " k " !")))
+				(error "Unknown token type !" k)))
 		(setq *s* (inc *s*) i (inc i))))
 
 (push-scope)
@@ -926,8 +924,7 @@
 (defcfun assign-asm-to-script (%1 %2)
 	(setq *src* %1 *dst* (map trim (split %2 (code ","))))
 	(unless (eq (length *src*) (length *dst*))
-		(print "Error: Mismatching number of src/dst paramaters !")
-		(print *src* " -> " *dst*))
+		(error "Mismatching number of src/dst paramaters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack (length *src*))
@@ -952,8 +949,7 @@
 (defcfun assign-script-to-asm (%1 %2)
 	(setq *src* (map trim (split %1 (code ","))) *dst* %2)
 	(unless (eq (length *src*) (length *dst*))
-		(print "Error: Mismatching number of src/dst paramaters !")
-		(print *src* " -> " *dst*))
+		(error "Mismatching number of src/dst paramaters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack)
@@ -979,8 +975,7 @@
 (defcfun assign-script-to-script (%1 %2)
 	(setq *src* (map trim (split %1 (code ","))) *dst* (map trim (split %2 (code ","))))
 	(unless (eq (length *src*) (length *dst*))
-		(print "Error: Mismatching number of src/dst paramaters !")
-		(print *src* " -> " *dst*))
+		(error "Mismatching number of src/dst paramaters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack)

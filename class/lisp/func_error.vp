@@ -1,0 +1,39 @@
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_string.inc)
+(import 'class/class_stream_str.inc)
+(import 'class/class_error.inc)
+(import 'class/class_lisp.inc)
+
+(def-func 'class/lisp/func_error)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value 'str)
+	(ulong 'length)
+
+	(push-scope)
+	(assign '(r0 r1) {this, args})
+
+	(d-call 'vector 'get_length {args} {length})
+	(vpif {length == 2})
+		(f-call 'vector 'get_element {args, 0} {str})
+		(vpif {str->obj_vtable == @class/class_string})
+			(f-call 'vector 'get_element {args, 1} {value})
+			(f-call 'error 'create {&str->string_data, value} {value})
+		(else)
+			(f-call 'error 'create {"(error str obj) not a string", args} {value})
+		(endif)
+	(else)
+		(f-call 'error 'create {"(error str obj) wrong number of args", args} {value})
+	(endif)
+
+	(assign {this, value} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)

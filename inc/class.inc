@@ -44,23 +44,23 @@
 			((eql %3 'static)
 				(if (eql (elem 2 m) 'static)
 					(override)
-					(print "Virtual method " %1 " allready exists !")))
+					(error "Virtual method allready exists !" %1)))
 			((eql %3 'virtual)
-				(print "Method " %1 " allready exists !, use override ?"))
+				(error "Method allready exists !, use override ?" %1))
 			((eql %3 'override)
 				(if (eql (elem 2 m) 'virtual)
 					(override)
-					(print "Static method " %1 " allready exists !")))
+					(error "Static method allready exists !" %1)))
 			(t
-				(print "Must use static, virtual or override ! ")))
+				(error "Must use static, virtual or override ! " %3)))
 		(cond
 			;new method
 			((or (eql %3 'static) (eql %3 'virtual))
 				(push c (list %1 %2 %3 %4 %5)))
 			((eql %3 'override)
-				(print "Method " %1 " does not exist !"))
+				(error "Method does not exist !" %1))
 			(t
-				(print "Must use static, virtual or override ! ")))))
+				(error "Must use static, virtual or override ! " %3)))))
 
 ;;;;;;;;;;;;;;;
 ; class calling
@@ -75,7 +75,7 @@
 		(if (eql (elem 2 (elem s c)) 'virtual) (setq v (add v ptr_size)))
 		(setq s (inc s)))
 	(if (eq s (length c))
-		(print "No such method " %2 " in class " %1 " !")))
+		(error "No such method !" (list %1 %2))))
 
 (defcfun f-path (%1 %2 &optional %3)
 	;%1 = class name
@@ -109,7 +109,7 @@
 	(method-lookup %1 %2)
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
-		(print "Class " %1 " method " %2 " is virtual ! Use v_call ?"))
+		(error "Method is virtual ! Use v-call ?" (list %1 %2)))
 	(assign %3 (elem 3 m))
 	(fn-call (elem 1 m))
 	(assign (elem 4 m) %4))
@@ -123,7 +123,7 @@
 	(method-lookup %1 %2)
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
-		(print "Class " %1 " method " %2 " is virtual ! Use v_jmp ?"))
+		(error "Method is virtual ! Use v-jmp ?" (list %1 %2)))
 	(assign %3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
@@ -135,7 +135,7 @@
 	(method-lookup %1 %2)
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'virtual)
-		(print "Class " %1 " method " %2 " is virtual ! Use v_bind ?"))
+		(error "Method is virtual ! Use v-bind ?" (list %1 %2)))
 	(fn-bind (elem 1 m) %3))
 
 (defcfun s-call (%1 %2 &optional %3 %4)
@@ -149,7 +149,7 @@
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
-			(print "Class " (eval (super-name %1)) " method " %2 " is static !")))
+			(error "Method is static !" (list (eval (super-name %1)) %2))))
 	(assign %3 (elem 3 m))
 	(fn-call (elem 1 m))
 	(assign (elem 4 m) %4))
@@ -164,7 +164,7 @@
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
-			(print "Class " (eval (super-name %1)) " method " %2 " is static !")))
+			(error "Method is static !" (list (eval (super-name %1)) %2))))
 	(assign %3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
@@ -176,7 +176,7 @@
 	(method-lookup (eval (super-name %1)) %2)
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
-		(print "Class " (eval (super-name %1)) " method " %2 " is static !"))
+		(error "Method is static !" (list (eval (super-name %1)) %2)))
 	(fn-bind (elem 1 m) %3))
 
 (defcfun v-call (%1 %2 &optional %3 %4 %5)
@@ -190,7 +190,7 @@
 	(method-lookup %1 %2)
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
-		(print "Class " %1 " method " %2 " is static ! Use f_call ?"))
+		(error "Method is static ! Use f-call ?" (list %1 %2)))
 	(setq s (elem 3 m))
 	(if (inst-of 'class/class_string %3)
 		(setq %3 (cat "RXX, " %3) s (cat (list %5) s)))
@@ -209,7 +209,7 @@
 	(method-lookup %1 %2)
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
-		(print "Class " %1 " method " %2 " is static ! Use f_jmp ?"))
+		(error "Method is static ! Use f-jmp ?" (list %1 %2)))
 	(setq s (elem 3 m))
 	(if (inst-of 'class/class_string %3)
 		(setq %3 (cat "RXX, " %3) s (cat (list %4) s)))
@@ -226,7 +226,7 @@
 	(method-lookup %1 %2)
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
-		(print "Class " %1 " method " %2 " is static ! Use f_bind ?"))
+		(error "Method is static ! Use f-bind ?" (list %1 %2)))
 	(vp-cpy-ir r0 obj_vtable %3)
 	(vp-cpy-ir %3 v %3))
 
@@ -240,7 +240,7 @@
 	(method-lookup %1 %2)
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
-		(print "Class " %1 " method " %2 " is static ! Use f_call ?"))
+		(error "Method is static ! Use f-call ?" (list %1 %2)))
 	(assign %3 (elem 3 m))
 	(fn-call (elem 1 m))
 	(assign (elem 4 m) %4))
@@ -254,7 +254,7 @@
 	(method-lookup %1 %2)
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
-		(print "Class " %1 " method " %2 " is static ! Use f_jmp ?"))
+		(error "Method is static ! Use f-jmp ?" (list %1 %2)))
 	(assign %3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
@@ -266,7 +266,7 @@
 	(method-lookup %1 %2)
 	(defq m (elem s c))
 	(if (eql (elem 2 m) 'static)
-		(print "Class " %1 " method " %2 " is static ! Use f_bind ?"))
+		(error "Method is static ! Use f-bind ?" (list %1 %2)))
 	(fn-bind (elem 1 m) %3))
 
 (defcfun l-call (%1 &optional %2 %3 %4 %5)
