@@ -185,7 +185,6 @@
 	(vp-lea-i r1 ld_statics_stat_buffer r0)
 	(sys-stat r2 r0)
 	(vpif '(r0 != 0))
-	(vp-label 'exit)
 		(vp-xor-rr r0 r0)
 		(vp-ret)
 	(endif)
