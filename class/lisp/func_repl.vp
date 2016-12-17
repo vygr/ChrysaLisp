@@ -56,20 +56,12 @@
 
 			(f-call 'lisp 'repl_eval {this, ast} {value})
 			(f-call 'ref 'deref {ast})
-
-			(vpif {value->obj_vtable == @class/class_error})
-				(f-call 'lisp 'repl_print {this, this->lisp_stdout, value})
-				(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
-				(loop-start)
-					(f-call 'stream 'available {stream} {length})
-					(breakifnot {length})
-					(f-call 'stream 'read_char {stream} {char})
-				(loop-end)
-			(elseif {stream == this->lisp_stdin})
+			(vpif {stream == this->lisp_stdin})
 				(f-call 'lisp 'repl_print {this, this->lisp_stdout, value})
 				(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 			(endif)
 
+			(gotoif {value->obj_vtable == @class/class_error} 'error)
 			(f-call 'ref 'deref {value})
 		(loop-end)
 
@@ -79,6 +71,7 @@
 		(f-call 'error 'create {"(repl stream) wrong number of args", args} {value})
 	(endif)
 
+(vp-label 'error)
 	(assign {this, value} '(r0 r1))
 	(pop-scope)
 	(return)
