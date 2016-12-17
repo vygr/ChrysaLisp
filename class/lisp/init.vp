@@ -177,7 +177,7 @@
 	(built-in "split" 0 'func_split)
 	(built-in "def?" 0 'func_defined)
 	(built-in "find" 0 'func_find)
-	(built-in "date" 0 'func_date)
+	(built-in "age" 0 'func_age)
 	(vp-short 0)
 
 (def-func-end)

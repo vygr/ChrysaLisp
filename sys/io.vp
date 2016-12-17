@@ -169,7 +169,7 @@
 
 (def-func-end)
 
-(def-func 'sys/io_date)
+(def-func 'sys/io_age)
 	;inputs
 	;r0 = function name
 	;outputs

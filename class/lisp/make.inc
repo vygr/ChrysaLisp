@@ -72,7 +72,7 @@
 (import 'class/lisp/func_write.vp)
 (import 'class/lisp/func_writechar.vp)
 (import 'class/lisp/func_writeline.vp)
-(import 'class/lisp/func_date.vp)
+(import 'class/lisp/func_age.vp)
 (import 'class/lisp/repl_apply.vp)
 (import 'class/lisp/repl_eval_list.vp)
 (import 'class/lisp/repl_eval.vp)

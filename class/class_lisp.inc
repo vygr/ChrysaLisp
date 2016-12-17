@@ -99,7 +99,7 @@
 (def-method 'func_split 'class/lisp/func_split 'static '(r0 r1) '(r1))
 (def-method 'func_defined 'class/lisp/func_defined 'static '(r0 r1) '(r1))
 (def-method 'func_find 'class/lisp/func_find 'static '(r0 r1) '(r1))
-(def-method 'func_date 'class/lisp/func_date 'static '(r0 r1) '(r1))
+(def-method 'func_age 'class/lisp/func_age 'static '(r0 r1) '(r1))
 
 (def-enum)
 	(enum 'type_args_eval_apply)

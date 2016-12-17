@@ -8,7 +8,7 @@
 (def-class 'sys_io)
 (def-method 'open 'sys/io_open 'static '(r0 r1 r2) '(r0))
 (def-method 'close 'sys/io_close 'static '(r0))
-(def-method 'date 'sys/io_date 'static '(r0) '(r0))
+(def-method 'age 'sys/io_age 'static '(r0) '(r0))
 (def-method 'char 'sys/io_write_char 'static '(r0 r1))
 (def-method 'string 'sys/io_write_str 'static '(r0 r1))
 (def-method 'number 'sys/io_write_num 'static '(r0 r1 r2))

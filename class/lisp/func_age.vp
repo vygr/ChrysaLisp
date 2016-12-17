@@ -6,7 +6,7 @@
 (import 'class/class_error.inc)
 (import 'class/class_lisp.inc)
 
-(def-func 'class/lisp/func_date)
+(def-func 'class/lisp/func_age)
 	;inputs
 	;r0 = lisp object
 	;r1 = args
@@ -24,14 +24,14 @@
 	(vpif {length == 1})
 		(f-call 'vector 'get_element {args, 0} {value})
 		(vpif {value->obj_vtable == @class/class_string || value->obj_vtable == @class/class_symbol})
-			(f-call 'sys_io 'date {&value->string_data} {length})
+			(f-call 'sys_io 'age {&value->string_data} {length})
 			(f-call 'boxed_long 'create {} {value})
 			(f-call 'boxed_long 'set_value {value, length})
 		(else)
-			(f-call 'error 'create {"(date filename) not filename", args} {value})
+			(f-call 'error 'create {"(age filename) not filename", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(date filename) wrong number of args", args} {value})
+		(f-call 'error 'create {"(age filename) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

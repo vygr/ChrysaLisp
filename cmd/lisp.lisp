@@ -342,16 +342,16 @@
 	(each import *files*)
 	(setq *compile-env* nil))
 
-(defun make (&optional d *os*)
+(defun make (&optional *os*)
 	(compile ((lambda ()
-		(defq *make-env* (env 101) *imports* (list (cat (if d (str d) "") "make.inc")) i -1)
+		(defq *make-env* (env 101) *imports* (list "make.inc") i -1)
 		(defun make-sym (f)
 			(sym (cat "_dep_" f)))
 		(defun make-time (f)
 			;modification time of a file, cached
-			(defq s (sym (cat "_time_" f)))
+			(defq s (sym (cat "_age_" f)))
 			(if (def? s) (eval s)
-				(def *make-env* s (date f))))
+				(def *make-env* s (age f))))
 		(defun make-info (f)
 			;create lists of imediate dependancies and products
 			(defq d (list f) p (list))
@@ -390,3 +390,6 @@
 		;drop the make enviroment and return the list to compile
 		(setq *make-env* nil)
 		*imports*)) *os*))
+
+(defun make-all (&optional *os*)
+	(compile "make.inc" *os*))
