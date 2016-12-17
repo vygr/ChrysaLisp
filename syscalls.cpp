@@ -62,6 +62,9 @@ int main() {
 	printf("\ts_ifdir\tequ\t0x%x\n", S_IFDIR);
 	printf("\ts_ifreg\tequ\t0x%x\n\n", S_IFREG);
 
+	printf("\tf_getfl\tequ\t0x%x\n", F_GETFL);
+	printf("\tf_setfl\tequ\t0x%x\n\n", F_SETFL);
+
 	printf("\tstat_dev\tequ\t0x%lx\n", offsetof(struct stat, st_dev));
 	printf("\tstat_mode\tequ\t0x%lx\n", offsetof(struct stat, st_mode));
 	printf("\tstat_nlink\tequ\t0x%lx\n", offsetof(struct stat, st_nlink));
