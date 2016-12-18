@@ -343,11 +343,11 @@
 		(i (cond
 				(j (error "Ilegal src/dst !" (list s d))
 					(print *src* ": " s " -> " *dst* ": " d))
-				(t (some (lambda (x) (eql x s)) d))))
+				(t (ne -1 (find s d)))))
 		(j (cond
 				(i (error "Ilegal src/dst !" (list s d))
 					(print *src* ": " s " -> " *dst* ": " d))
-				(t (some (lambda (x) (eql x d)) s))))
+				(t (ne -1 (find d s)))))
 		(t (eql s d))))
 
 (defcfun find-later-src (d)
