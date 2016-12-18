@@ -412,7 +412,7 @@
 	(setq *token* (list))
 	(defq m -1 u 1 i 0 p "" s nil c nil)
 	(while (lt i (length l))
-		(setq c (elem i l) s (inc (find {@$"-*~!+.?^</%&|=> )(][} c))) ;"
+		(setq c (elem i l) s (inc (find c {@$"-*~!+.?^</%&|=> )(][}))) ;"
 		(cond
 			((eq m -1)
 				;scanning
@@ -437,7 +437,7 @@
 						(cond
 							((eq u 1)
 								;unary operator
-								(setq s (find "-*&~!" p))
+								(setq s (find p "-*&~!"))
 								(if (ne s -1)
 									(push-token (elem s "_#:~!") m)
 									(error "Unknown unary operator !" p)))
@@ -897,8 +897,7 @@
 
 (defcfun opt-find (i l r)
 	(while (and (gt (setq i (dec i)) 0) (not (match-list? (defq e (elem i *inst*)) l)))
-		(if (some (lambda (x) (eql x r)) e)
-			(setq i 1)))
+		(when (ne -1 (find r e)) (setq i 1)))
 	i)
 
 (defcfun opt-inst-list ()
@@ -906,8 +905,7 @@
 	(while (lt (setq i (inc i)) (length *inst*))
 		(defq e (elem i *inst*) o (elem 0 e))
 		(cond
-			((some (lambda (x) (eql x o))
-				'(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui))
+			((ne -1 (find o '(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui)))
 				(defq r (elem 1 e))
 				(cond
 					((ne 0 (defq p (opt-find i `(vp-lea-i r4 _ ,r) r)))
@@ -917,8 +915,7 @@
 					((and (eql r (elem 3 e)) (ne 0 (defq p (opt-find i `(vp-lea-i ,r _ ,r) r))))
 						(elem-set 2 e `(add ,(elem 2 (elem p *inst*)) ,(elem 2 e)))
 						(elem-set p *inst* '()))))
-			((some (lambda (x) (eql x o))
-				'(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i))
+			((ne -1 (find o '(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i)))
 				(defq r (elem 2 e))
 				(cond
 					((ne 0 (defq p (opt-find i `(vp-lea-i r4 _ ,r) r)))
