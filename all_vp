@@ -21,6 +21,7 @@
 ./class/lisp/env_push.vp
 ./class/lisp/env_set.vp
 ./class/lisp/func_add.vp
+./class/lisp/func_age.vp
 ./class/lisp/func_apply.vp
 ./class/lisp/func_band.vp
 ./class/lisp/func_basr.vp
@@ -33,7 +34,6 @@
 ./class/lisp/func_code.vp
 ./class/lisp/func_cond.vp
 ./class/lisp/func_copy.vp
-./class/lisp/func_date.vp
 ./class/lisp/func_def.vp
 ./class/lisp/func_defined.vp
 ./class/lisp/func_defmacro.vp
@@ -44,6 +44,7 @@
 ./class/lisp/func_env.vp
 ./class/lisp/func_eq.vp
 ./class/lisp/func_eql.vp
+./class/lisp/func_error.vp
 ./class/lisp/func_eval.vp
 ./class/lisp/func_filestream.vp
 ./class/lisp/func_find.vp
@@ -147,4 +148,5 @@
 ./sys/opt_process.vp
 ./sys/string.vp
 ./sys/task.vp
+./test.vp
 ./tests/tests.vp
