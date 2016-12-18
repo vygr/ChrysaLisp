@@ -9,6 +9,7 @@
 (def-method 'ref_back 'class/vector/ref_back 'static '(r0) '(r1))
 (def-method 'get_back 'class/vector/get_back 'static '(r0) '(r1))
 (def-method 'get_element 'class/vector/get_element 'static '(r0 r1) '(r1))
+(def-method 'find 'class/vector/find 'static '(r0 r1) '(r1))
 (def-method 'push_back 'class/vector/push_back 'static '(r0 r1))
 (def-method 'pop_back 'class/vector/pop_back 'static '(r0))
 (def-method 'clear 'class/vector/clear 'static '(r0))
