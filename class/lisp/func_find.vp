@@ -13,7 +13,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value 'str 'char)
+	(ptr 'this 'args 'value 'seq 'elem)
 	(ulong 'length)
 	(pubyte 'charp)
 
@@ -22,20 +22,24 @@
 
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 2})
-		(f-call 'vector 'get_element {args, 0} {str})
-		(vpif {str->obj_vtable == @class/class_string})
-			(f-call 'vector 'get_element {args, 1} {char})
-			(gotoif {char->obj_vtable != @class/class_string} 'error)
-			(assign {&char->string_data} {charp})
-			(f-call 'string 'find {str, *charp} {length})
+		(f-call 'vector 'get_element {args, 0} {elem})
+		(f-call 'vector 'get_element {args, 1} {seq})
+		(vpif {seq->obj_vtable == @class/class_string})
+			(gotoif {elem->obj_vtable != @class/class_string} 'error)
+			(assign {&elem->string_data} {charp})
+			(f-call 'string 'find {seq, *charp} {length})
+			(goto 'ok)
+		(elseif {seq->obj_vtable == @class/class_vector})
+			(f-call 'vector 'find {seq, elem} {length})
+		(vp-label 'ok)
 			(f-call 'boxed_long 'create {} {value})
 			(f-call 'boxed_long 'set_value {value, length})
 		(else)
 		(vp-label 'error)
-			(f-call 'error 'create {"(find str char) not strings", args} {value})
+			(f-call 'error 'create {"(find elem seq) not sequence", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(find str char) wrong number of args", args} {value})
+		(f-call 'error 'create {"(find elem seq) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))
