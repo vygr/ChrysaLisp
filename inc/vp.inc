@@ -12,7 +12,7 @@
 		(if (eql (elem c l) r) (setq n c))) n)
 
 (defcfun type (o)
-	(defq i (inst-of 'class/class_obj o))
+	(defq i (obj? o))
 	(cond
 		((not i) i)
 		((eql i 'class/class_symbol)

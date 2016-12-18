@@ -7,6 +7,12 @@
 (defmacro inc (x) `(add ,x 1))
 (defmacro dec (x) `(sub ,x 1))
 
+(defmacro obj? (x) `(inst-of 'class/class_obj ,x))
+(defmacro list? (x) `(inst-of 'class/class_vector ,x))
+(defmacro str? (x) `(inst-of 'class/class_string ,x))
+(defmacro sym? (x) `(inst-of 'class/class_symbol ,x))
+(defmacro num? (x) `(inst-of 'class/class_boxed_long ,x))
+
 ;;;;;;;;;;;;;
 ; Definitions
 ;;;;;;;;;;;;;
@@ -337,7 +343,7 @@
 			(push *imports* *file*)
 ;			(print "Importing " *file*)
 			(repl (file-stream *file*))))
-	(unless (inst-of 'class/class_vector *files*)
+	(unless (list? *files*)
 		(setq *files* (list *files*)))
 	(each import *files*)
 	(setq *compile-env* nil))

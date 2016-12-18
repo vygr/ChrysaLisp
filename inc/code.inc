@@ -46,7 +46,7 @@
 (defcfun case (e)
 	(default)
 	(defq c (eval (cnt-sym)) l (loc-sym c))
-	(if (inst-of 'class/class_string e)
+	(if (str? e)
 		(progn
 			(assign e '(r0))
 			(vp-jmpifnot '(r0 != 0) l))
@@ -56,7 +56,7 @@
 (defcfun casenot (e)
 	(default)
 	(defq c (eval (cnt-sym)) l (loc-sym c))
-	(if (inst-of 'class/class_string e)
+	(if (str? e)
 		(progn
 			(assign e '(r0))
 			(vp-jmpif '(r0 != 0) l))
@@ -68,7 +68,7 @@
 
 (defcfun breakif (e)
 	(defq l (end-sym))
-	(if (inst-of 'class/class_string e)
+	(if (str? e)
 		(progn
 			(assign e '(r0))
 			(vp-jmpif '(r0 != 0) l))
@@ -76,7 +76,7 @@
 
 (defcfun breakifnot (e)
 	(defq l (end-sym))
-	(if (inst-of 'class/class_string e)
+	(if (str? e)
 		(progn
 			(assign e '(r0))
 			(vp-jmpifnot '(r0 != 0) l))
@@ -87,7 +87,7 @@
 
 (defcfun continueif (e)
 	(defq l (beg-sym))
-	(if (inst-of 'class/class_string e)
+	(if (str? e)
 		(progn
 			(assign e '(r0))
 			(vp-jmpif '(r0 != 0) l))
@@ -95,7 +95,7 @@
 
 (defcfun continueifnot (e)
 	(defq l (beg-sym))
-	(if (inst-of 'class/class_string e)
+	(if (str? e)
 		(progn
 			(assign e '(r0))
 			(vp-jmpifnot '(r0 != 0) l))
@@ -338,7 +338,7 @@
 	(setq *src* s *dst* d))
 
 (defcfun match-any (d s)
-	(defq i (inst-of 'class/class_vector d) j (inst-of 'class/class_vector s))
+	(defq i (list? d) j (list? s))
 	(cond
 		(i (cond
 				(j (error "Ilegal src/dst !" (list s d))
@@ -1038,7 +1038,7 @@
 
 (defcfun assign (%1 %2)
 	;(print %1 " -> " %2)
-	(defq s (inst-of 'class/class_string %1) d (inst-of 'class/class_string %2))
+	(defq s (str? %1) d (str? %2))
 	(cond
 		((and s d)
 			;script -> script
