@@ -177,6 +177,29 @@
 
 (def-func-end)
 
+(def-func 'class/vector/find)
+	;inputs
+	;r0 = vector object
+	;r1 = element object
+	;outputs
+	;r0 = vector object
+	;r1 = -1, else index
+	;trashes
+	;r1-r3
+
+	(vp-cpy-rr r1 r3)
+	(vp-cpy-ir r0 vector_array r2)
+	(vp-cpy-ir r0 vector_length r1)
+	(vp-mul-cr ptr_size r1)
+	(loop-start)
+		(vp-sub-cr ptr_size r1)
+		(breakif '(r1 < 0))
+	(loop-until '(r3 == (r2 r1)))
+	(vp-asr-cr 3 r1)
+	(vp-ret)
+
+(def-func-end)
+
 (def-func 'class/vector/get_back)
 	;inputs
 	;r0 = vector object
