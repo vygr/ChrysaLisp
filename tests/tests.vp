@@ -226,7 +226,6 @@
 	(ulong 'num)
 
 	(push-scope)
-
 	;read exit command etc
 	(f-call 'sys_mail 'mymail {} {msg})
 	(f-call 'sys_mem 'free {msg})
