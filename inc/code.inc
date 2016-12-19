@@ -941,23 +941,29 @@
 					(elem-set 2 e (elem 1 (elem p *inst*)))
 					(elem-set p *inst* '(progn))
 					(setq i (dec i))))
-			((defq l '(vp-add-cr vp-sub-cr vp-mul-cr vp-and-cr vp-or-cr vp-xor-cr) c (find o l))
+			((defq l '(vp-add-cr vp-sub-cr vp-mul-cr
+						vp-and-cr vp-or-cr vp-xor-cr
+						vp-shl-cr vp-shr-cr vp-asr-cr) c (find o l))
 				(defq r (elem 2 e))
 				(cond
 					((ne 0 (defq p (opt-find i `(vp-cpy-cr _ ,r) r)))
-						(setq c (elem c '(add sub mul bit-and bit-or bit-xor)))
+						(setq c (elem c '(add sub mul bit-and bit-or bit-xor bit-shl bit-shr bit-asr)))
 						(elem-set 0 e 'vp-cpy-cr)
 						(elem-set 1 e `(,c ,(elem 1 (elem p *inst*)) ,(elem 1 e)))
 						(elem-set p *inst* '(progn)))
 					((ne 0 (defq p (opt-find i `(,(elem c l) _ ,r) r)))
-						(setq c (elem c '(add add mul bit-and bit-or bit-xor)))
+						(setq c (elem c '(add add mul bit-and bit-or bit-xor add add add)))
 						(elem-set 1 e `(,c ,(elem 1 (elem p *inst*)) ,(elem 1 e)))
 						(elem-set p *inst* '(progn)))
 					))
-			((defq c (find o '(vp-add-rr vp-sub-rr vp-mul-rr vp-and-rr vp-or-rr vp-xor-rr)))
+			((defq c (find o '(vp-add-rr vp-sub-rr vp-mul-rr
+								vp-and-rr vp-or-rr vp-xor-rr
+								vp-shl-rr vp-shr-rr vp-asr-rr)))
 				(defq r (elem 1 e))
 				(when (ne 0 (defq p (opt-find i `(vp-cpy-cr _ ,r) r)))
-					(elem-set 0 e (elem c '(vp-add-cr vp-sub-cr vp-mul-cr vp-and-cr vp-or-cr vp-xor-cr)))
+					(elem-set 0 e (elem c '(vp-add-cr vp-sub-cr vp-mul-cr
+											vp-and-cr vp-or-cr vp-xor-cr
+											vp-shl-cr vp-shr-cr vp-asr-cr)))
 					(elem-set 1 e (elem 1 (elem p *inst*)))
 					(elem-set p *inst* '(progn))
 					(setq i (dec i))))
