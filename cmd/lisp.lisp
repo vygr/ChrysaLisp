@@ -399,3 +399,5 @@
 
 (defun make-all (&optional *os*)
 	(compile "make.inc" *os*))
+
+;(compile 'apps/netmon/app.vp)
