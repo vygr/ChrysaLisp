@@ -313,10 +313,10 @@
 	n)
 
 (defun match-list? (x y)
-	(if (eq (length x) (length y))
-		(every (lambda (a b)
-			(if (eql b '_) t
-				(eql a b))) x y)))
+	(when (eq (defq i (length x)) (length y))
+		(while (and (ge (setq i (dec i)) 0)
+					(or (eql '_ (elem i y)) (eql (elem i x) (elem i y)))))
+		(lt i 0)))
 
 ;;;;;;;;;;;;;;
 ; VP Assembler
