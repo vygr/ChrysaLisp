@@ -101,8 +101,7 @@
 
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ir r0 hp_heap_block_flist r2)
-	(loop-start)
-		(breakif '(r2 == 0))
+	(loop-while '(r2 != 0))
 		(vp-lea-i r2 ln_fnode_size r3)
 		(vp-cpy-rr r3 r5)
 		(vp-add-ir r0 hp_heap_blocksize r5)

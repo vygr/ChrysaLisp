@@ -26,7 +26,7 @@
 		(vpif {value->obj_vtable == @class/class_string})
 			(assign {&value->string_data} {charp})
 			(f-call 'boxed_long 'create {} {value})
-			(f-call 'boxed_long 'set_value {value, * charp})
+			(f-call 'boxed_long 'set_value {value, *charp})
 		(else)
 			(f-call 'error 'create {"(code char) not a string", args} {value})
 		(endif)

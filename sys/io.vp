@@ -180,7 +180,7 @@
 	;save filename
 	(vp-cpy-rr r0 r2)
 
-	;get length of function on disk
+	;get file data
 	(f-bind 'sys_load 'statics r1)
 	(vp-lea-i r1 ld_statics_stat_buffer r0)
 	(sys-stat r2 r0)

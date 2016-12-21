@@ -168,7 +168,7 @@
 			(breakifnot {length})
 			(f-call 'string 'create_from_buffer {&shared->shared_buffer, length} {string})
 			(d-call 'vector 'get_length {shared->shared_history} {shared->shared_history_index})
-			(vpifnot {shared -> shared_history_index})
+			(vpifnot {shared->shared_history_index})
 			(vp-label 'new_entry)
 				(f-call 'vector 'push_back {shared->shared_history, string})
 				(assign {shared->shared_history_index + 1} {shared->shared_history_index})
