@@ -107,7 +107,7 @@
 	(vp-ret)
 
 (vp-label 'link_path)
-	(vp-string "/tmp/") (vp-byte 0)
+	(vp-string "./tmp/") (vp-byte 0)
 
 	(vp-align ptr_size)
 (vp-label 'options_table)
