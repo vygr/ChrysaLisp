@@ -930,6 +930,7 @@
 	(while (lt (setq i (inc i)) (length *inst*))
 		(defq e (elem i *inst*) o (elem 0 e))
 		(cond
+			;variable loading and offset folding
 			((find o '(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui))
 				(defq r (elem 1 e))
 				(when (opt-find? i r `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
@@ -941,6 +942,7 @@
 							(elem-set 2 e `(add ,(elem 1 (elem p *inst*)) ,(elem 2 e)))
 							(setq i (dec i))))
 					(elem-set p *inst* '(progn))))
+			;variable writeing and offset folding
 			((find o '(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i))
 				(defq r (elem 2 e))
 				(when (opt-find? i r `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
@@ -952,6 +954,15 @@
 							(elem-set 3 e `(add ,(elem 1 (elem p *inst*)) ,(elem 3 e)))
 							(setq i (dec i))))
 					(elem-set p *inst* '(progn))))
+			;strength reduction
+			((and (eql o 'vp-mul-cr) (eq 1 (progn
+				(defq c (eval (elem 1 e)) s 0)
+				(while (and (ne c 0) (eq (bit-and c 1) 0))
+					(setq s (inc s) c (bit-shr c 1))) c)))
+						(elem-set 0 e 'vp-shl-cr)
+						(elem-set 1 e s)
+						(setq i (dec i)))
+			;arithmetic reassignment and constant folding
 			((defq l '(vp-add-cr vp-sub-cr vp-mul-cr
 						vp-and-cr vp-or-cr vp-xor-cr
 						vp-shl-cr vp-shr-cr vp-asr-cr) c (find o l))
@@ -965,6 +976,7 @@
 							(setq c (elem c '(add add mul bit-and bit-or bit-xor add add add)))))
 					(elem-set 1 e `(,c ,(elem 1 (elem p *inst*)) ,(elem 1 e)))
 					(elem-set p *inst* '(progn))))
+			;constant propagation
 			((defq c (find o '(vp-add-rr vp-sub-rr vp-mul-rr
 								vp-and-rr vp-or-rr vp-xor-rr
 								vp-shl-rr vp-shr-rr vp-asr-rr)))
