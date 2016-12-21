@@ -611,8 +611,7 @@
 				((def? (type-sym %1))
 					;field/member
 					(set (type-sym *s*) (eval (type-sym %1)))
-					(defq x (vreg-sym *s*))
-					(add-inst `(vp-cpy-cr ,%1 ,x)))
+					(add-inst `(vp-cpy-cr ,%1 ,(vreg-sym *s*))))
 				(t
 					;equate
 					(compile-const %1))))
@@ -848,27 +847,27 @@
 ; optimizer
 ;;;;;;;;;;;
 
-(defmacro opt-find? (i &rest b)
+(defmacro opt-find? (i r &rest b)
 	;results in p and m of parent env !
 	(cond
 		((eq 1 (length b))
-			`(opt-find-1 ,i ~b))
+			`(opt-find-1 ,i r ~b))
 		((eq 2 (length b))
-			`(opt-find-2 ,i ~b))
+			`(opt-find-2 ,i r ~b))
 		(t (error "Wrong number of args in opt-find?" b))))
 
-(defcfun opt-find-1 (i x)
+(defcfun opt-find-1 (i r x)
 	(while (and (gt (setq i (dec i)) 0)
 				(not (match-list? (defq e (elem i *inst*)) x)))
-		(if (find (elem 0 e) '(vpif elseif else endif)) (setq i 0)))
+		(if (or (find r e) (find (elem 0 e) '(vpif elseif else endif))) (setq i 0)))
 	(setq m 0 p (if (lt i 1) nil i)))
 
-(defcfun opt-find-2 (i x y)
+(defcfun opt-find-2 (i r x y)
 	(defq e nil)
 	(while (and (gt (setq i (dec i)) 0)
 				(not (match-list? (setq m 0 e (elem i *inst*)) x))
 				(not (match-list? (setq m 1 e e) y)))
-		(if (find (elem 0 e) '(vpif elseif else endif)) (setq i 0)))
+		(if (or (find r e) (find (elem 0 e) '(vpif elseif else endif))) (setq i 0)))
 	(setq p (if (lt i 1) nil i)))
 
 (defcfun opt-inst-list ()
@@ -879,7 +878,7 @@
 			;variable loading and offset folding
 			((find o '(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui))
 				(defq r (elem 1 e))
-				(when (opt-find? i `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
+				(when (opt-find? i r `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((eq m 0)
 							(elem-set 1 e r4)
@@ -891,7 +890,7 @@
 			;variable writeing and offset folding
 			((find o '(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i))
 				(defq r (elem 2 e))
-				(when (opt-find? i `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
+				(when (opt-find? i r `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((eq m 0)
 							(elem-set 2 e r4)
@@ -913,7 +912,7 @@
 						vp-and-cr vp-or-cr vp-xor-cr
 						vp-shl-cr vp-shr-cr vp-asr-cr) c (find o l))
 				(defq r (elem 2 e))
-				(when (opt-find? i `(vp-cpy-cr _ ,r) `(,(elem c l) _ ,r))
+				(when (opt-find? i r `(vp-cpy-cr _ ,r) `(,(elem c l) _ ,r))
 					(cond
 						((eq m 0)
 							(setq c (elem c '(add sub mul bit-and bit-or bit-xor bit-shl bit-shr bit-asr)))
@@ -926,7 +925,8 @@
 			((defq c (find o '(vp-add-rr vp-sub-rr vp-mul-rr
 								vp-and-rr vp-or-rr vp-xor-rr
 								vp-shl-rr vp-shr-rr vp-asr-rr)))
-				(when (opt-find? i `(vp-cpy-cr _ ,(elem 1 e)))
+				(defq r (elem 1 e))
+				(when (opt-find? i r `(vp-cpy-cr _ ,r))
 					(elem-set 0 e (elem c '(vp-add-cr vp-sub-cr vp-mul-cr
 											vp-and-cr vp-or-cr vp-xor-cr
 											vp-shl-cr vp-shr-cr vp-asr-cr)))
