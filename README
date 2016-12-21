@@ -12,23 +12,23 @@ use shared memory to simulate CPU to CPU, point to point, bi directional
 connections. There is no global bus based networking on purpose.
 
 Uses a virtual CPU instruction macro set to avoid use of x64 native
-instructions. It will eventually run on ARM Linux for machines such as Raspberry
-PI and BeagleBone with no source modification.
+instructions. It will eventually run on ARM Linux for machines such as
+Raspberry PI and BeagleBone with no source modification.
 
 Register juggling for parameter passing is eliminated by having all functions
-define their register interface and parameter source and destinations are mapped
-automatically using a topological sort. None DAG mappings are detected so the
-user can break them with a temporary if required. Operators are provided to
-simplify binding of parameters to dynamic bound functions, relative addresses,
-auto defined string pools, references and local stack frame values. Unused
-output parameters can be ignored with a _.
+define their register interface and parameter source and destinations are
+mapped automatically using a topological sort. None DAG mappings are detected
+so the user can break them with a temporary if required. Operators are provided
+to simplify binding of parameters to dynamic bound functions, relative
+addresses, auto defined string pools, references and local stack frame values.
+Unused output parameters can be ignored with a _.
 
 There is a powerful object and class system, not just for an assembler, but
 quite as capable as a high level language. Static classes or virtual classes
 with virtual, static and overridable methods can be defined. Calls are type
-checked to ensure consistency across the class hierarchy. The GUI is constructed
-using this class system. A signals and slots system is provided for object
-composition.
+checked to ensure consistency across the class hierarchy. The GUI is
+constructed using this class system. A signals and slots system is provided for
+object composition.
 
 Has function level dynamic binding and loading. Individual functions are loaded
 and bound on demand as tasks are created and distributed. Currently functions
@@ -58,13 +58,13 @@ code. An elementary optimise pass exists for these expressions and more will be
 done shortly.
 
 Network link routing tables are created on booting a link, and the process is
-distributed in nature, each link starts a flood fill that eventually reaches all
-the CPU's and along the way has marked all the routes from one CPU to another.
-All shortest routes are found, messages going off CPU are assigned to a link as
-the link becomes free and multiple links can and do route messages over parallel
-routes simultaneously. Large messages are broken into smaller fragments on
-sending and reconstructed at the destination to maximize use of available
-routes.
+distributed in nature, each link starts a flood fill that eventually reaches
+all the CPU's and along the way has marked all the routes from one CPU to
+another. All shortest routes are found, messages going off CPU are assigned to
+a link as the link becomes free and multiple links can and do route messages
+over parallel routes simultaneously. Large messages are broken into smaller
+fragments on sending and reconstructed at the destination to maximize use of
+available routes.
 
 The -run command line option launches tasks on booting that CPU, such as the
 test suit or experimental GUI (a work in progress, -run gui/gui).
@@ -113,37 +113,39 @@ Run with:
 
 ./run_tui.sh <num_cpus>
 
-Text user interface based Cube network. Each CPU has links to 6 adjacent CPU's. CPU 0
-has a terminal to the host system launched.
+Text user interface based Cube network. Each CPU has links to 6 adjacent CPU's.
+CPU 0 launches a terminal to the host system.
 
 ./run.sh <num_cpus>
 
 Fully connected network. Each CPU has links to every other CPU. Careful with
 this as you can end up with a very large number of link files and shared memory
-regions.
+regions. CPU 0 launches a GUI.
 
 ./run_star.sh <num_cpus>
 
-Star connected network. Each CPU has a link to the first CPU.
+Star connected network. Each CPU has a link to the first CPU. CPU 0 launches a
+GUI.
 
 ./run_ring.sh <num_cpus>
 
-Ring connected network. Each CPU has links to the next and previous CPU's.
+Ring connected network. Each CPU has links to the next and previous CPU's. CPU
+0 launches a GUI.
 
 ./run_tree.sh <num_cpus>
 
 Tree connected network. Each CPU has links to its parent CPU and up to two
-child CPU's.
+child CPU's. CPU 0 launches a GUI.
 
 ./run_mesh.sh <num_cpus on a side>
 
 Mesh connected network. Each CPU has links to 4 adjacent CPU's. This is similar
-to Transputer meshes.
+to Transputer meshes. CPU 0 launches a GUI.
 
 ./run_cube.sh <num_cpus on a side>
 
 Cube connected network. Each CPU has links to 6 adjacent CPU's. This is similar
-to TMS320C40 meshes.
+to TMS320C40 meshes. CPU 0 launches a GUI.
 
 Stop with:
 
@@ -155,6 +157,14 @@ make snapshot
 
 This will create a snapshot zip file of the obj/ directory for the current
 platform. For example Darwin.zip or Linux.zip.
+
+make snapshot_darwin
+
+This will create a Darwin.zip snapshot zip file of the obj/ directory.
+
+make snapshot_linux
+
+This will create a Linux.zip snapshot zip file of the obj/ directory.
 
 Clean with:
 
