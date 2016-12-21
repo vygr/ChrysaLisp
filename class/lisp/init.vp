@@ -71,7 +71,7 @@
 			(endif)
 			(vpif {table->built_in_function})
 				(assign {&table->built_in_function + table->built_in_function} {path_ptr})
-				(f-call 'lisp 'built_in_func {this, symbol, * path_ptr, table->built_in_flags})
+				(f-call 'lisp 'built_in_func {this, symbol, *path_ptr, table->built_in_flags})
 			(endif)
 			(assign {table + built_in_hop} {table})
 		(loop-end)
