@@ -588,26 +588,13 @@
 
 (defcfun compile-const (%1)
 	(nil-type)
-	(defq x (vreg-sym *s*))
-	(add-inst `(vp-cpy-cr ,%1 ,x)))
+	(add-inst `(vp-cpy-cr ,%1 ,(vreg-sym *s*))))
 
 (defcfun compile-assign ()
 	(defq y (vreg-sym (dec-stack)) w (pop-type *s*) x (pop-value))
-	(cond
-		((eql w "b")
-			(add-inst `(vp-cpy-ri-b ,x ,y 0)))
-		((eql w "B")
-			(add-inst `(vp-cpy-ri-b ,x ,y 0)))
-		((eql w "s")
-			(add-inst `(vp-cpy-ri-s ,x ,y 0)))
-		((eql w "S")
-			(add-inst `(vp-cpy-ri-s ,x ,y 0)))
-		((eql w "i")
-			(add-inst `(vp-cpy-ri-i ,x ,y 0)))
-		((eql w "I")
-			(add-inst `(vp-cpy-ri-i ,x ,y 0)))
-		(t
-			(add-inst `(vp-cpy-ri ,x ,y 0)))))
+	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
+										vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
+	(add-inst `(,w ,x ,y 0)))
 
 (defcfun compile-ref (%1)
 	(defq s (get-sym %1))
@@ -636,26 +623,13 @@
 			;variable
 			(set (type-sym *s*) (elem 5 s))
 			(setq s (add (get-scope-offset (elem 0 s)) (elem 3 s)))
-			(defq x (vreg-sym *s*))
-			(add-inst `(vp-lea-i r4 ,s ,x)))))
+			(add-inst `(vp-lea-i r4 ,s ,(vreg-sym *s*))))))
 
 (defcfun compile-deref ()
 	(defq v (vreg-sym *s*) w (pop-type *s*))
-	(cond
-		((eql w "b")
-			(add-inst `(vp-cpy-ir-b ,v 0 ,v)))
-		((eql w "B")
-			(add-inst `(vp-cpy-ir-ub ,v 0 ,v)))
-		((eql w "s")
-			(add-inst `(vp-cpy-ir-s ,v 0 ,v)))
-		((eql w "S")
-			(add-inst `(vp-cpy-ir-us ,v 0 ,v)))
-		((eql w "i")
-			(add-inst `(vp-cpy-ir-i ,v 0 ,v)))
-		((eql w "I")
-			(add-inst `(vp-cpy-ir-ui ,v 0 ,v)))
-		(t
-			(add-inst `(vp-cpy-ir ,v 0 ,v)))))
+	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
+										vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
+	(add-inst `(,w ,v 0 ,v)))
 
 (defcfun compile-deref? ()
 	(when (eval (type-sym *s*))
@@ -679,25 +653,20 @@
 	(defq y (pop-value))
 	(dec-stack)
 	(compile-deref)
-	(defq x (vreg-sym *s*))
-	(add-inst `(vp-add-rr ,y ,x)))
+	(add-inst `(vp-add-rr ,y ,(vreg-sym *s*))))
 
 (defcfun compile-uminus (o)
-	(defq x (pop-value))
-	(add-inst `(vp-mul-cr -1 ,x)))
+	(add-inst `(vp-mul-cr -1 ,(pop-value))))
 
 (defcfun compile-uderef (o)
 	(dec-stack)
-	(compile-deref)
-	(defq x (vreg-sym *s*)))
+	(compile-deref))
 
 (defcfun compile-unot (o)
-	(defq x (pop-value))
-	(add-inst `(vp-xor-cr -1 ,x)))
+	(add-inst `(vp-xor-cr -1 ,(pop-value))))
 
 (defcfun compile-mul (o)
-	(defq y (pop-value) x (pop-value))
-	(add-inst `(vp-mul-rr ,y ,x)))
+	(add-inst `(vp-mul-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-divu (o)
 	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
@@ -726,24 +695,19 @@
 		`(vp-cpy-rr ,y ,x)))
 
 (defcfun compile-plus (o)
-	(defq y (pop-value) x (pop-value))
-	(add-inst `(vp-add-rr ,y ,x)))
+	(add-inst `(vp-add-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-minus (o)
-	(defq y (pop-value) x (pop-value))
-	(add-inst `(vp-sub-rr ,y ,x)))
+	(add-inst `(vp-sub-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-lshift (o)
-	(defq y (pop-value) x (pop-value))
-	(add-inst `(vp-shl-rr ,y ,x)))
+	(add-inst `(vp-shl-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-rshift (o)
-	(defq y (pop-value) x (pop-value))
-	(add-inst `(vp-shr-rr ,y ,x)))
+	(add-inst `(vp-shr-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-arshift (o)
-	(defq y (pop-value) x (pop-value))
-	(add-inst `(vp-asr-rr ,y ,x)))
+	(add-inst `(vp-asr-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-branch (o)
 	(defq y (pop-value) x (pop-value))
@@ -755,16 +719,13 @@
 		'(endif)))
 
 (defcfun compile-and (o)
-	(defq y (pop-value) x (pop-value))
-	(add-inst `(vp-and-rr ,y ,x)))
+	(add-inst `(vp-and-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-xor (o)
-	(defq y (pop-value) x (pop-value))
-	(add-inst `(vp-xor-rr ,y ,x)))
+	(add-inst `(vp-xor-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-or (o)
-	(defq y (pop-value) x (pop-value))
-	(add-inst `(vp-or-rr ,y ,x)))
+	(add-inst `(vp-or-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-land (o)
 	(defq y (pop-value) x (pop-value))
@@ -780,8 +741,7 @@
 		'(endif)))
 
 (defcfun compile-lor (o)
-	(defq y (pop-value) x (pop-value))
-	(add-inst `(vp-or-rr ,y ,x)))
+	(add-inst `(vp-or-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-ulnot (o)
 	(defq x (pop-value))
@@ -813,18 +773,15 @@
 
 (defcfun compile-string (%1)
 	(nil-type)
-	(defq x (vreg-sym *s*))
-	(add-inst `(fn-string ,%1 ,x)))
+	(add-inst `(fn-string ,%1 ,(vreg-sym *s*))))
 
 (defcfun compile-bind (%1)
 	(nil-type)
-	(defq x (vreg-sym *s*))
-	(add-inst `(fn-bind ',%1 ,x)))
+	(add-inst `(fn-bind ',%1 ,(vreg-sym *s*))))
 
 (defcfun compile-label (%1)
 	(nil-type)
-	(defq x (vreg-sym *s*))
-	(add-inst `(vp-lea-p ',%1 ,x)))
+	(add-inst `(vp-lea-p ',%1 ,(vreg-sym *s*))))
 
 (defcfun compile-rpn-list ()
 	(defq i 0 k nil c nil)
