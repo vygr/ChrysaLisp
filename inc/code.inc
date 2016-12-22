@@ -408,24 +408,25 @@
 
 (defcfun set-token-list (l)
 	(setq *token* (list))
-	(defq m -1 u 1 i 0 p "" s nil c nil)
+	(defq m -1 u 1 i 0 p 0 s nil c nil)
 	(while (lt i (length l))
 		(setq c (elem i l) s (find c {@$"-*~!+.?^</%&|=> )(][}) s (if s (inc s) 0)) ;"
 		(cond
 			((eq m -1)
 				;scanning
-				(unless (eql c " ")
+				(if (eql c " ")
+					(setq p (inc i))
 					(cond
 						((ge s 20)
 							;)(][
 							(push-token c s)
-							(setq u (bit-and (sub s 20) 1)))
+							(setq p (inc i) u (bit-and (sub s 20) 1)))
 						((or (eq s 0) (ge s 4))
 							;-*~!+.?^</%&|=> or symbol
-							(setq p (cat p c) m s))
+							(setq m s))
 						(t
 							;@$"
-							(setq m s))))
+							(setq p (inc i) m s))))
 				(setq c nil))
 			((gt m 3)
 				;op mode
@@ -435,33 +436,33 @@
 						(cond
 							((eq u 1)
 								;unary operator
-								(if (setq s (find p "-*&~!"))
+								(if (setq s (find (slice p i l) "-*&~!"))
 									(push-token (elem s "_#:~!") m)
-									(error "Unknown unary operator !" p)))
+									(error "Unknown unary operator !" (slice p i l))))
 							(t
 								;binary operator
-								(push-token p m)
+								(push-token (slice p i l) m)
 								(setq u 1)))
-						(setq p "" m -1))
+						(setq p i m -1))
 					(t
-						(setq p (cat p c) c nil))))
+						(setq c nil))))
 			((lt m 3)
 				;symbol mode
 				(if (or (eq s 0) (eq s 13))
-					(setq p (cat p c) c nil)
+					(setq c nil)
 					(progn
-						(push-token p m)
-						(setq p "" u 0 m -1))))
+						(push-token (slice p i l) m)
+						(setq p i u 0 m -1))))
 			(t
 				;string mode
 				(if (ne s 3)
-					(setq p (cat p c) c nil)
+					(setq c nil)
 					(progn
-						(push-token p m)
-						(setq p "" u 0 m -1)))))
+						(push-token (slice p i l) m)
+						(setq p (inc i) u 0 m -1)))))
 		(unless c (setq i (inc i))))
-	(unless (eql p "")
-		(push-token p m)))
+	(unless (eq p i)
+		(push-token (slice p i l) m)))
 
 ;;;;;;;;;;;;;;;;
 ; reverse polish
