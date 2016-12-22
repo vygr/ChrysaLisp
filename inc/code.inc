@@ -327,7 +327,7 @@
 			(setq *var-sp* (add *var-sp* s)))))
 
 ;;;;;;;;;;;;;;;;;;;;
-; paramater handling
+; parameter handling
 ;;;;;;;;;;;;;;;;;;;;
 
 (defcvar '*src* nil '*dst* nil)
@@ -386,7 +386,7 @@
 					((eql i 'r) (vp-cpy-rr x y))
 					((eql i 'i) (vp-cpy-ri x (elem 0 y) (elem 1 y)))
 					((eql i 'd) (vp-cpy-rd x (elem 0 y) (elem 1 y)))
-					(t (error "Invalid dst paramater !" i))))
+					(t (error "Invalid dst parameter !" i))))
 			((eql i 'c) (vp-cpy-cr x y))
 			((eql i 'i) (vp-cpy-ir (elem 0 x) (elem 1 x) y))
 			((eql i 'd) (vp-cpy-dr (elem 0 x) (elem 1 x) y))
@@ -395,7 +395,7 @@
 			((eql i 's) (fn-string x y))
 			((eql i '@) (fn-bind (elem 1 x) y))
 			((eql i '$) (vp-lea-p (elem 1 x) y))
-			(t (error "Invalid src paramater !" i)))) *src* *dst*))
+			(t (error "Invalid src parameter !" i)))) *src* *dst*))
 
 ;;;;;;;;;;;
 ; tokenizer
@@ -942,7 +942,7 @@
 (defcfun assign-asm-to-script (%1 %2)
 	(setq *src* %1 *dst* (map trim (split %2 (code ","))))
 	(unless (eq (length *src*) (length *dst*))
-		(error "Mismatching number of src/dst paramaters !" (list *src* *dst*)))
+		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack (length *src*))
@@ -967,7 +967,7 @@
 (defcfun assign-script-to-asm (%1 %2)
 	(setq *src* (map trim (split %1 (code ","))) *dst* %2)
 	(unless (eq (length *src*) (length *dst*))
-		(error "Mismatching number of src/dst paramaters !" (list *src* *dst*)))
+		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack)
@@ -993,7 +993,7 @@
 (defcfun assign-script-to-script (%1 %2)
 	(setq *src* (map trim (split %1 (code ","))) *dst* (map trim (split %2 (code ","))))
 	(unless (eq (length *src*) (length *dst*))
-		(error "Mismatching number of src/dst paramaters !" (list *src* *dst*)))
+		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack)
