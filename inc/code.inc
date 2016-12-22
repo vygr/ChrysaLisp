@@ -952,10 +952,7 @@
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
 		(opt-inst-list)
-		(defq i 0)
-		(while (lt i (length *src*))
-			(res-reg-def (elem i *src*))
-			(setq i (inc i)))
+		(each res-reg-def *src*)
 		(fill-reg-def)
 		(when debug_emit
 			(print "(retire " %1 " {" %2 "})")
@@ -978,10 +975,7 @@
 			(pop-value)
 			(inc-stack)) *src*)
 		(opt-inst-list)
-		(defq i 0)
-		(while (lt i (length *dst*))
-			(res-reg-def (elem i *dst*))
-			(setq i (inc i)))
+		(each res-reg-def *dst*)
 		(fill-reg-def)
 		(when debug_emit
 			(print "(expr {" %1 "} " %2 ")")
