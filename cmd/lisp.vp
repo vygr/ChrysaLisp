@@ -45,6 +45,9 @@
 		(d-call 'vector 'get_length {args} {argc})
 		(assign {1} {index})
 		(loop-while {index != argc})
+			(f-call 'stream 'write_cstr {slave->slave_stdout, "Press Esc/Enter to exit lisp"})
+			(f-call 'stream 'write_char {slave->slave_stdout, char_lf})
+
 			(f-call 'vector 'get_element {args, index} {arg})
 			(f-call 'string 'create_from_file {&arg->string_data} {file})
 			(vpif {file})
