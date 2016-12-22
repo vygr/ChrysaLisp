@@ -475,8 +475,8 @@
 
 (defcfun token-to-rpn ()
 	(setq *rpn* (list))
-	(defq o (list) i 0 k nil c nil s nil x nil v nil)
-	(while (lt i (length *token*))
+	(defq o (list) i -1 k nil c nil s nil x nil v nil)
+	(while (lt (setq i (inc i)) (length *token*))
 		(setq k (elem 0 (elem i *token*)) c (elem 1 (elem i *token*)))
 		(cond
 			((gt c 3)
@@ -507,8 +507,7 @@
 						(push o k))))
 			(t
 				;string or symbol
-				(push-rpn k c)))
-		(setq i (inc i)))
+				(push-rpn k c))))
 	(each-rev (lambda (x)
 		(push-rpn x -1)) o))
 
@@ -784,28 +783,18 @@
 	(add-inst `(vp-lea-p ',%1 ,(vreg-sym *s*))))
 
 (defcfun compile-rpn-list ()
-	(defq i 0 k nil c nil)
-	(while (lt i (length *rpn*))
-		(setq k (elem 0 (elem i *rpn*)) c (elem 1 (elem i *rpn*)))
-		(cond
-			((eq c -1)
-				;operator
-				(compile-operator k))
-			((eq c 0)
-				;...
-				(compile-ref k))
-			((eq c 1)
-				;@
-				(compile-bind k))
-			((eq c 2)
-				;$
-				(compile-label k))
-			((eq c 3)
-				;"..."
-				(compile-string (str k)))
-			(t
-				(error "Unknown token type !" k)))
-		(setq *s* (inc *s*) i (inc i))))
+	(defq i -1)
+	(while (lt (setq i (inc i)) (length *rpn*))
+		(defq k (elem 0 (elem i *rpn*)) c (inc (elem 1 (elem i *rpn*))))
+		(if (le 0 c 4)
+			(eval (elem c
+				'((compile-operator k)
+				(compile-ref k)
+				(compile-bind k)
+				(compile-label k)
+				(compile-string (str k)))))
+			(error "Unknown token type !" k))
+		(setq *s* (inc *s*))))
 
 (push-scope)
 (operator "." 1 0 compile-field)
