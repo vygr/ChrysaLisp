@@ -1,5 +1,6 @@
 obj/*
 tst/*
+tmp/*
 syscalls
 platform
 .vscode/cSpell.json
