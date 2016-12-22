@@ -1,7 +1,7 @@
 #!/bin/bash
 killall main -KILL > /dev/null 2>&1
 
-export TEMP="./tmp/"
+export TEMP="/tmp/"
 mkdir -p $TEMP
 
 # report how many link files are being removed
