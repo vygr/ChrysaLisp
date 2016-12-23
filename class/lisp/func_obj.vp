@@ -1,0 +1,50 @@
+(import 'inc/func.inc)
+(import 'class/class_vector.inc)
+(import 'class/class_error.inc)
+(import 'class/class_lisp.inc)
+
+(def-func 'class/lisp/func_obj)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(ulong 'length)
+
+	(push-scope)
+	(assign '(r0 r1) {this, args})
+
+	(d-call 'vector 'get_length {args} {length})
+	(vpif {length > 0})
+		(f-call 'vector 'get_element {args, 0} {value})
+		(f-call 'lisp 'repl_eval {this, value} {value})
+		(vpif {value->obj_vtable == @class/class_unordered_map})
+			(f-call 'lisp 'env_push {this, value})
+			(f-call 'ref 'deref {value})
+			(f-call 'lisp 'repl_eval_list {this, args, 1} {value})
+			(vpif {value->obj_vtable != @class/class_error})
+				(f-call 'ref 'deref {value})
+				(vpif {length > 1})
+					(d-call 'vector 'ref_element {args, length - 1} {value})
+				(else)
+					(assign {this->lisp_sym_nil} {args})
+					(f-call 'ref 'ref {args})
+				(endif)
+			(endif)
+			(f-call 'lisp 'env_pop {this})
+		(else)
+			(f-call 'ref 'deref {value})
+			(f-call 'error 'create {"(obj env ...) not an enviroment", args} {value})
+		(endif)
+	(else)
+		(f-call 'error 'create {"(obj env ...) wrong number of args", args} {value})
+	(endif)
+
+	(assign {this, value} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)

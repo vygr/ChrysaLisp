@@ -101,6 +101,7 @@
 (def-method 'func_find 'class/lisp/func_find 'static '(r0 r1) '(r1))
 (def-method 'func_age 'class/lisp/func_age 'static '(r0 r1) '(r1))
 (def-method 'func_error 'class/lisp/func_error 'static '(r0 r1) '(r1))
+(def-method 'func_obj 'class/lisp/func_obj 'static '(r0 r1) '(r1))
 
 (def-enum)
 	(enum 'type_args_eval_apply)

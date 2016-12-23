@@ -118,6 +118,7 @@
 	(built-in "while" 0 'func_while type_args_apply)
 	(built-in "quote" lisp_sym_quote 'func_quote type_args_apply)
 	(built-in "quasi-quote" lisp_sym_qquote 'func_qquote type_args_apply)
+	(built-in "obj" 0 'func_obj type_args_apply)
 
 	(built-in "unquote" lisp_sym_unquote)
 	(built-in "unquote-splicing" lisp_sym_splicing)

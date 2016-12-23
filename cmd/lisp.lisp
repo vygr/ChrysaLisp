@@ -402,7 +402,10 @@
 ;test code for OOPS stuff
 
 (defmacro constructor (n a &rest b)
-	`(defun ,n ,a (let () ~b (env))))
+	`(defun ,n ,a ((lambda () ~b (env)))))
+
+(defmacro obj-progn (o &rest b)
+	`(obj ,o ((lambda () ~b))))
 
 (constructor make-button (x y w h)
 	(defq m_x x m_y y m_w w m_h h)
@@ -414,3 +417,7 @@
 		(setq m_w w m_h h))
 	(defun get-size ()
 		(list m_w m_h)))
+
+(defq button (make-button 0 0 256 32))
+(obj-progn button (set-pos 50 100) (set-size 100 120))
+(obj-progn button (print (get-pos)) (print (get-size)))
