@@ -101,16 +101,14 @@
 (defcvar 'stat_size 0x100)
 (defcvar 'stat_mtime 0x38)
 
-(defcfun sys-gettimeofday (%1 %2)
+(defcfun sys-gettimeofday (%1)
 	;time, timezone
-	(sys-push-trashed)
-	(vp-push %1)
-	(assign `(,%1 ,%2) '(r7 r6))
+	(assign %1 '(r7 r6))
+	(vp-push r7)
 	(sys-call sys_gettimeofday)
 	(vp-pop r1)
 	(vp-cpy-ri r0 r1 timeval_sec)
-	(vp-cpy-ri r2 r1 timeval_usec)
-	(sys-pop-trashed))
+	(vp-cpy-ri r2 r1 timeval_usec))
 
 )
 (when (eql *os* 'Linux)
@@ -182,12 +180,10 @@
 (defcvar 'stat_size 0x100)
 (defcvar 'stat_mtime 0x58)
 
-(defcfun sys-gettimeofday (%1 %2)
+(defcfun sys-gettimeofday (%1)
 	;time, timezone
-	(sys-push-trashed)
-	(assign `(,%1 ,%2) '(r7 r6))
-	(sys-call sys_gettimeofday)
-	(sys-pop-trashed))
+	(assign %1 '(r7 r6))
+	(sys-call sys_gettimeofday))
 
 )
 
