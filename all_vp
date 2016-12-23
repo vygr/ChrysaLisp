@@ -143,9 +143,9 @@
 ./sys/list.vp
 ./sys/load.vp
 ./sys/mail.vp
-./sys/math_random.vp
+./sys/math.vp
 ./sys/mem.vp
-./sys/opt_process.vp
+./sys/opt.vp
 ./sys/string.vp
 ./sys/task.vp
 ./test.vp
