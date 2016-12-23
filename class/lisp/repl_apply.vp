@@ -37,7 +37,7 @@
 		(vpif {length > 1})
 			(f-call 'vector 'get_element {func, 0} {vars})
 			(vpif {vars == this->lisp_sym_lambda})
-				(f-call 'lisp 'env_push {this})
+				(f-call 'lisp 'env_push {this, 0})
 				(f-call 'vector 'get_element {func, 1} {vars})
 				(f-call 'lisp 'env_bind {this, vars, ast, 0} {value})
 				(vpif {value->obj_vtable != @class/class_error})

@@ -37,7 +37,7 @@
 					(vpif {macro->obj_vtable == @class/class_vector})
 						(f-call 'vector 'get_element {macro, 0} {args})
 						(vpif {args == this->lisp_sym_macro})
-							(f-call 'lisp 'env_push {this})
+							(f-call 'lisp 'env_push {this, 0})
 							(f-call 'vector 'get_element {macro, 1} {args})
 							(f-call 'lisp 'env_bind {this, args, form, 1} {form})
 							(vpif {form->obj_vtable != @class/class_error})
