@@ -1,3 +1,10 @@
+;;;;;;;;;
+; sign on
+;;;;;;;;;
+
+(print "Asm-Kernel Lisp 1.0")
+(print "Press ESC/Enter to exit.")
+
 ;;;;;;;;;;;;
 ; Primitives
 ;;;;;;;;;;;;
