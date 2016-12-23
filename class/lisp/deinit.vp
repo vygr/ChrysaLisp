@@ -15,7 +15,6 @@
 	;deinit myself
 	(f-call 'ref 'deref {this->lisp_symbols})
 	(f-call 'ref 'deref {this->lisp_enviroment})
-	(f-call 'ref 'deref {this->lisp_macros})
 
 	;deinit parent
 	(s-call 'lisp 'deinit {this})

@@ -282,11 +282,6 @@
 		(prin (to-base-char (mod x b))))
 	(prin-b x j))
 
-(defun print-env (l e)
-	(print "--- " l " ---")
-	(each (lambda (x) (if (not (eql (elem 0 x) '*parent*)) (print x))) e)
-	t)
-
 (defun trim-start (s &optional c)
 	(setq c (if c c " "))
 	(while (and (ne 0 (length s)) (eql (elem 0 s) c))

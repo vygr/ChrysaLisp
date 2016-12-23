@@ -57,7 +57,6 @@
 		(f-path 'symbol 'compare)
 		(f-call 'unordered_set 'create (cat {@} (str _function_) {, 101}) {this->lisp_symbols})
 		(f-call 'unordered_map 'create {$match_obj, 31} {this->lisp_enviroment})
-		(f-call 'unordered_map 'create {$match_obj, 31} {this->lisp_macros})
 
 		;intern standard built in symbols
 		;fixup built in functions
@@ -110,6 +109,7 @@
 	(built-in "list" lisp_sym_list)
 
 	(built-in "lambda" lisp_sym_lambda 'func_lambda type_apply)
+	(built-in "macro" lisp_sym_macro 'func_lambda type_apply)
 
 	(built-in "defq" 0 'func_defq type_args_apply)
 	(built-in "setq" 0 'func_setq type_args_apply)

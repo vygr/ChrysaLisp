@@ -66,14 +66,14 @@
 
 (defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil)
 
-(defmacro link-sym (p)
-	`(sym (cat "_ref_link_" (str ,p))))
+(defcfun link-sym (p)
+	(sym (cat "_ref_link_" (str p))))
 
-(defmacro path-sym (p)
-	`(sym (cat "_ref_path_" (str ,p))))
+(defcfun path-sym (p)
+	(sym (cat "_ref_path_" (str p))))
 
-(defmacro string-sym (p)
-	`(sym (cat "_ref_string_" (str ,p))))
+(defcfun string-sym (p)
+	(sym (cat "_ref_string_" (str p))))
 
 (defcfun def-func (*name* &optional *func-stack*)
 	(print "Compiling -> " *name*)
