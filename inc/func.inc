@@ -178,7 +178,7 @@
 (defcfun abort (&optional s)
 	(setq s (if s s "Abort !"))
 	(debug-str s)
-	(sys-exit 1))
+	(sys-exit '(1)))
 
 (defcfun assert (b &optional d)
 	;a = val1

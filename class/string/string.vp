@@ -83,7 +83,9 @@
 	;get size of string from file size
 	(f-bind 'sys_load 'statics r7)
 	(vp-add-cr ld_statics_stat_buffer r7)
-	(sys-stat r0 r7)
+	(sys-push-trashed)
+	(sys-stat '(r0 r7) '(r0))
+	(sys-pop-trashed)
 	(vpif '(r0 != 0))
 	(vp-label 'exit)
 		;no such file
@@ -262,7 +264,9 @@
 
 		;open file
 		(vp-cpy-ir r4 local_filename r0)
-		(sys-open r0 o_rdonly 0)
+		(sys-push-trashed)
+		(sys-open '(r0 o_rdonly 0) '(r0))
+		(sys-pop-trashed)
 		(vp-cpy-rr r0 r7)
 
 		;read into buffer
@@ -271,10 +275,14 @@
 		(vp-add-cr string_data r0)
 		(vp-xor-rr r2 r2)
 		(vp-cpy-rd-b r2 r0 r1)
-		(sys-read r7 r0 r1)
+		(sys-push-trashed)
+		(sys-read '(r7 r0 r1) '(_))
+		(sys-pop-trashed)
 
 		;close file
-		(sys-close r7)
+		(sys-push-trashed)
+		(sys-close '(r7) '(_))
+		(sys-pop-trashed)
 
 		(vp-cpy-ir r4 local_inst r0)
 		(vp-cpy-rr r0 r1)

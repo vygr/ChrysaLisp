@@ -942,11 +942,11 @@
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
 		(when debug_emit
-			(print "(assign pre opt: " %1 " {" %2 "})")
+			(print "(assign pre opt: " %1 " -> " %2)
 			(each print *inst*))
 		(opt-inst-list)
 		(when debug_emit
-			(print "(assign post opt: " %1 " {" %2 "})")
+			(print "(assign post opt: " %1 " -> " %2)
 			(each print *inst*))
 		(each res-reg-def *src*)
 		(fill-reg-def)
@@ -968,11 +968,11 @@
 			(pop-value)
 			(inc-stack)) *src*)
 		(when debug_emit
-			(print "(assign pre opt: " %1 " {" %2 "})")
+			(print "(assign pre opt: " %1 " -> " %2)
 			(each print *inst*))
 		(opt-inst-list)
 		(when debug_emit
-			(print "(assign post opt: " %1 " {" %2 "})")
+			(print "(assign post opt: " %1 " -> " %2)
 			(each print *inst*))
 		(each res-reg-def *dst*)
 		(fill-reg-def)
@@ -997,11 +997,11 @@
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
 		(when debug_emit
-			(print "(assign pre opt: " %1 " {" %2 "})")
+			(print "(assign pre opt: " %1 " -> " %2)
 			(each print *inst*))
 		(opt-inst-list)
 		(when debug_emit
-			(print "(assign post opt: " %1 " {" %2 "})")
+			(print "(assign post opt: " %1 " -> " %2)
 			(each print *inst*))
 		(fill-reg-def)
 		(eval *inst*)

@@ -73,14 +73,12 @@
 
 	(f-call 'ref 'deref {pdata->pdata_value})
 	(vpif {(*iter)->obj_vtable == @class/class_boxed_long})
-		(assign {pdata->pdata_handle, &(*iter)->boxed_ptr_value, 8} '(r7 r6 r2))
-		(sys-write-string r7 r6 r2)
+		(sys-write-string {pdata->pdata_handle, &(*iter)->boxed_ptr_value, 8} {_})
 		(assign {*iter} {pdata->pdata_value})
 		(f-call 'ref 'ref {pdata->pdata_value})
 		(assign {1} '(r1))
 		(return)
 	(else)
-	(vp-label 'error)
 		(f-call 'error 'create {"(save list filename) not all numbers", *iter} {pdata->pdata_value})
 	(endif)
 

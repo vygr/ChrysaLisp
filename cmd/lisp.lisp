@@ -398,3 +398,19 @@
 
 (defun make-all (&optional *os*)
 	(compile "make.inc" *os*))
+
+;test code for OOPS stuff
+
+(defmacro constructor (n a &rest b)
+	`(defun ,n ,a (let () ~b (env))))
+
+(constructor make-button (x y w h)
+	(defq m_x x m_y y m_w w m_h h)
+	(defun get-pos ()
+		(list m_x m_y))
+	(defun set-pos (x y)
+		(setq m_x x m_y y))
+	(defun set-size (w h)
+		(setq m_w w m_h h))
+	(defun get-size ()
+		(list m_w m_h)))

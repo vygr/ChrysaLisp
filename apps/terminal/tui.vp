@@ -187,16 +187,14 @@
 	(f-call 'sys_mem 'free {msg})
 
 	;non block on stdin
-	(sys-fcntl 0 f_getfl 0)
-	(vp-or-cr o_nonblock r0)
-	(sys-fcntl 0 f_setfl r0)
+	(sys-fcntl {0, f_getfl, 0} {char})
+	(sys-fcntl {0, f_setfl, char | o_nonblock} {_})
 
 	;poll stdin and send char to tui
 	(loop-start)
 	(vp-label 'nextchar)
-		(sys-read-char 0)
-		(vpif '(r0 != 0))
-			(assign '(r0) {char})
+		(sys-read-char {0} {char})
+		(vpif {char != 0})
 			(f-call 'sys_mail 'alloc {} {msg})
 			(assign {tui_id.id_mbox} {msg->msg_dest.id_mbox})
 			(assign {tui_id.id_cpu} {msg->msg_dest.id_cpu})
