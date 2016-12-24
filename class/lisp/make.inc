@@ -27,7 +27,7 @@
 (import 'class/lisp/func_defmacro.vp)
 (import 'class/lisp/func_defq.vp)
 (import 'class/lisp/func_div.vp)
-(import 'class/lisp/func_obj.vp)
+(import 'class/lisp/func_scope.vp)
 (import 'class/lisp/func_elem.vp)
 (import 'class/lisp/func_elemset.vp)
 (import 'class/lisp/func_env.vp)

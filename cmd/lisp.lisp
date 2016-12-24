@@ -404,8 +404,8 @@
 (defmacro constructor (n a &rest b)
 	`(defun ,n ,a ((lambda () ~b (env)))))
 
-(defmacro obj-progn (o &rest b)
-	`(obj ,o ((lambda () ~b))))
+(defmacro scope-progn (o &rest b)
+	`(scope ,o ((lambda () ~b))))
 
 (constructor make-button (x y w h)
 	(defq m_x x m_y y m_w w m_h h)
@@ -419,5 +419,5 @@
 		(list m_w m_h)))
 
 (defq button (make-button 0 0 256 32))
-(obj-progn button (set-pos 50 100) (set-size 100 120))
-(obj-progn button (print (get-pos)) (print (get-size)))
+(scope-progn button (set-pos 50 100) (set-size 100 120))
+(scope-progn button (print (get-pos)) (print (get-size)))

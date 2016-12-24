@@ -3,7 +3,7 @@
 (import 'class/class_error.inc)
 (import 'class/class_lisp.inc)
 
-(def-func 'class/lisp/func_obj)
+(def-func 'class/lisp/func_scope)
 	;inputs
 	;r0 = lisp object
 	;r1 = args
@@ -38,10 +38,10 @@
 			(assign {env} {this->lisp_enviroment})
 		(else)
 			(f-call 'ref 'deref {value})
-			(f-call 'error 'create {"(obj env ...) not an enviroment", args} {value})
+			(f-call 'error 'create {"(scope env ...) not an enviroment", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(obj env ...) wrong number of args", args} {value})
+		(f-call 'error 'create {"(scope env ...) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))
