@@ -73,6 +73,7 @@
 ./class/lisp/func_readline.vp
 ./class/lisp/func_repl.vp
 ./class/lisp/func_save.vp
+./class/lisp/func_scope.vp
 ./class/lisp/func_set.vp
 ./class/lisp/func_setq.vp
 ./class/lisp/func_slice.vp
