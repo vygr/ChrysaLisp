@@ -245,8 +245,8 @@
 ;;;;;;;;;
 
 (defun each-line (_f _b)
-	(defq _s (file-stream _f) _l t)
-	(while (setq _l (read-line _s))
+	(defq _s (file-stream _f))
+	(while (defq _l (read-line _s))
 		(_b _l)))
 
 (defun print-file (f)
