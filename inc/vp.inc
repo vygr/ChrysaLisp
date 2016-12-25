@@ -50,7 +50,7 @@
 		((eql c 'r) (vp-cmp-rr s d))
 		((eql c 'i) (vp-cmp-ir (elem 0 s) (elem 1 s) d))
 		((eql c 'd) (vp-cmp-dr (elem 0 s) (elem 1 s) d))
-		(t (print "no such type: " c)))
+		(t (error "No such type" c)))
 	(cond
 		((eql o '==) (vp-beq l))
 		((eql o '!=) (vp-bne l))
@@ -58,7 +58,7 @@
 		((eql o '>) (vp-bgt l))
 		((eql o '<=) (vp-ble l))
 		((eql o '>=) (vp-bge l))
-		(t (print "no such comparator: " o))))
+		(t (error "No such comparator" o))))
 
 (defcfun vp-jmpifnot (b l)
 	(defq d (elem 0 b) o (elem 1 b) s (elem 2 b) c (type s))
@@ -67,7 +67,7 @@
 		((eql c 'r) (vp-cmp-rr s d))
 		((eql c 'i) (vp-cmp-ir (elem 0 s) (elem 1 s) d))
 		((eql c 'd) (vp-cmp-dr (elem 0 s) (elem 1 s) d))
-		(t (print "no such type: " c)))
+		(t (error "No such type" c)))
 	(cond
 		((eql o '==) (vp-bne l))
 		((eql o '!=) (vp-beq l))
@@ -75,7 +75,7 @@
 		((eql o '>) (vp-ble l))
 		((eql o '<=) (vp-bgt l))
 		((eql o '>=) (vp-blt l))
-		(t (print "no such comparator: " o))))
+		(t (error "No such comparator" o))))
 
 (defcfun vp-beq (l) (emit `(emit-beq ,(label-sym l) ,(dec (length (push *distance* 0))))))
 (defcfun vp-bne (l) (emit `(emit-bne ,(label-sym l) ,(dec (length (push *distance* 0))))))
