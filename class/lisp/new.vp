@@ -1,24 +1,4 @@
 (import 'inc/func.inc)
 (import 'class/class_lisp.inc)
 
-(def-func 'class/lisp/new)
-	;outputs
-	;r0 = 0 if error, else object
-	;trashes
-	;all
-
-	(ptr 'this)
-
-	(push-scope)
-
-	(f-call 'sys_mem 'alloc {lisp_size} {this, _})
-	(vpif {this})
-		;clear object memory
-		;(f-call 'sys_mem 'clear {this, lisp_size} {_})
-	(endif)
-
-	(assign {this} '(r0))
-	(pop-scope)
-	(return)
-
-(def-func-end)
+(class-macro-new 'lisp)
