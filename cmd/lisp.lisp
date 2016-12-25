@@ -320,6 +320,11 @@
 					(or (eql '_ (elem i y)) (eql (elem i x) (elem i y)))))
 		(lt i 0)))
 
+(defun pow2 (c)
+	(defq i -1 b nil)
+	(while (and (not b) (lt (setq i (inc i)) 64))
+		(if (eq c (bit-shl 1 i)) (setq b i))) b)
+
 ;;;;;;;;;;;;;;
 ; VP Assembler
 ;;;;;;;;;;;;;;

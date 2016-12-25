@@ -890,13 +890,10 @@
 							(setq i (dec i))))
 					(elem-set p *inst* '(progn))))
 			;strength reduction
-			((and (eql o 'vp-mul-cr) (eq 1 (progn
-				(defq c (eval (elem 1 e)) s 0)
-				(while (and (ne c 0) (eq (bit-and c 1) 0))
-					(setq s (inc s) c (bit-shr c 1))) c)))
-						(elem-set 0 e 'vp-shl-cr)
-						(elem-set 1 e s)
-						(setq i (dec i)))
+			((and (eql o 'vp-mul-cr) (defq s (pow2 (eval (elem 1 e)))))
+				(elem-set 0 e 'vp-shl-cr)
+				(elem-set 1 e s)
+				(setq i (dec i)))
 			;arithmetic reassignment and constant folding
 			((defq l '(vp-add-cr vp-sub-cr vp-mul-cr
 						vp-and-cr vp-or-cr vp-xor-cr

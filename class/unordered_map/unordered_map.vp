@@ -201,7 +201,7 @@
 		(vp-cpy-rr r0 r2)
 		(vp-cpy-ir r0 vector_length r1)
 		(vp-cpy-ir r0 vector_array r0)
-		(vp-mul-cr ptr_size r1)
+		(vp-shl-cr (pow2 ptr_size) r1)
 		(vp-add-rr r1 r0)
 		(vp-lea-i r0 (neg ptr_size) r1)
 	(else)

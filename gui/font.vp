@@ -222,7 +222,7 @@
 	(vp-cpy-cr ft_num_buckets r1)
 	(vp-xor-rr r2 r2)
 	(vp-div-rrr r1 r2 r0)
-	(vp-mul-cr ptr_size r2)
+	(vp-shl-cr (pow2 ptr_size) r2)
 	(vp-lea-d r5 r2 r5)
 	(vp-cpy-ri r5 r4 local_bucket)
 

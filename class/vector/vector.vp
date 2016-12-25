@@ -151,8 +151,8 @@
 
 	;process elements
 	(vp-cpy-ir r0 vector_array r0)
-	(vp-mul-cr ptr_size r1)
-	(vp-mul-cr ptr_size r2)
+	(vp-shl-cr (pow2 ptr_size) r1)
+	(vp-shl-cr (pow2 ptr_size) r2)
 	(vp-add-rr r0 r1)
 	(vp-add-rr r0 r2)
 	(vp-cpy-ri r2 r4 local_end)
@@ -190,7 +190,7 @@
 	(vp-cpy-rr r1 r3)
 	(vp-cpy-ir r0 vector_array r2)
 	(vp-cpy-ir r0 vector_length r1)
-	(vp-mul-cr ptr_size r1)
+	(vp-shl-cr (pow2 ptr_size) r1)
 	(loop-start)
 		(vp-sub-cr ptr_size r1)
 		(breakif '(r1 < 0))
@@ -208,7 +208,7 @@
 	;r1 = object pointer
 
 	(vp-cpy-ir r0 vector_length r1)
-	(vp-mul-cr ptr_size r1)
+	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-add-ir r0 vector_array r1)
 	(vp-cpy-ir r1 (neg ptr_size) r1)
 	(vp-ret)
@@ -235,7 +235,7 @@
 	;r0 = vector object
 	;r1 = object
 
-	(vp-mul-cr ptr_size r1)
+	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-add-ir r0 vector_array r1)
 	(vp-cpy-ir r1 0 r1)
 	(vp-ret)
@@ -267,7 +267,7 @@
 	(vp-dec r1)
 	(vp-cpy-ri r1 r0 vector_length)
 	(vp-cpy-ir r0 vector_array r0)
-	(vp-mul-cr ptr_size r1)
+	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-add-rr r1 r0)
 	(f-call 'ref 'deref '((r0 0)))
 	(vp-pop r0)
@@ -307,7 +307,7 @@
 	(vp-cpy-ir r4 local_object r1)
 	(vp-cpy-ir r0 vector_length r2)
 	(vp-cpy-ir r0 vector_array r3)
-	(vp-mul-cr ptr_size r2)
+	(vp-shl-cr (pow2 ptr_size) r2)
 	(vp-add-rr r2 r3)
 	(vp-cpy-ri r1 r3 (neg ptr_size))
 
@@ -326,7 +326,7 @@
 	(vp-push r0)
 	(vp-cpy-ir r0 vector_length r1)
 	(vp-cpy-ir r0 vector_array r0)
-	(vp-mul-cr ptr_size r1)
+	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-add-rr r1 r0)
 	(f-call 'ref 'ref '((r0 (sub 0 ptr_size))))
 	(vp-cpy-rr r0 r1)
@@ -345,7 +345,7 @@
 
 	(vp-push r0)
 	(vp-cpy-ir r0 vector_array r0)
-	(vp-mul-cr ptr_size r1)
+	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-add-rr r1 r0)
 	(f-call 'ref 'ref '((r0 0)))
 	(vp-cpy-rr r0 r1)
@@ -368,12 +368,12 @@
 	(vpif '(r1 > r2))
 		;grow the dynamic array
 		(vp-push r0)
-		(vp-mul-cr ptr_size r1)
-		(vp-mul-cr ptr_size r2)
+		(vp-shl-cr (pow2 ptr_size) r1)
+		(vp-shl-cr (pow2 ptr_size) r2)
 		(vp-xchg-rr r1 r2)
 		(f-call 'sys_mem 'grow '((r0 vector_array) r1 r2) '(r1 r2))
 		(vp-pop r0)
-		(vp-shr-cr 3 r2)
+		(vp-shr-cr (pow2 ptr_size) r2)
 		(vp-cpy-ri r1 r0 vector_array)
 		(vp-cpy-ri r2 r0 vector_capacity)
 	(endif)
@@ -392,7 +392,7 @@
 	;all but r0, r4
 
 	(vp-push r0)
-	(vp-mul-cr ptr_size r2)
+	(vp-shl-cr (pow2 ptr_size) r2)
 	(vp-add-ir r0 vector_array r2)
 	(vp-cpy-ir r2 0 r0)
 	(vp-cpy-ri r1 r2 0)
