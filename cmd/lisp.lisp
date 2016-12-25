@@ -378,6 +378,8 @@
 							(push p (cat "obj/class/class_" o)))
 						((eql k "(class-macro-new")
 							(push p (cat "obj/class/" o "/new")))
+						((eql k "(class-macro-new-clr")
+							(push p (cat "obj/class/" o "/new")))
 						((eql k "(class-macro-create")
 							(push p (cat "obj/class/" o "/create")))
 						((eql k "(def-func")

@@ -5,7 +5,7 @@
 (import 'class/class_label.inc)
 (import 'class/class_flow.inc)
 
-(class-macro-new 'window)
+(class-macro-new-clr 'window)
 (class-macro-create 'window)
 
 (def-func 'class/window/init)

@@ -2,7 +2,7 @@
 (import 'class/class_vector.inc)
 (import 'class/class_unordered_set.inc)
 
-(class-macro-new 'unordered_set)
+(class-macro-new-clr 'unordered_set)
 
 (def-func 'class/unordered_set/create)
 	;inputs

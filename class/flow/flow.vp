@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
 (import 'class/class_flow.inc)
 
-(class-macro-new 'flow)
+(class-macro-new-clr 'flow)
 (class-macro-create 'flow)
 
 (def-func 'class/flow/init)

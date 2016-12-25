@@ -2,7 +2,7 @@
 (import 'class/class_string.inc)
 (import 'class/class_error.inc)
 
-(class-macro-new 'error)
+(class-macro-new-clr 'error)
 
 (def-func 'class/error/create)
 	;inputs

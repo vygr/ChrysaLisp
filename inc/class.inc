@@ -352,7 +352,7 @@
 		(vp-ret)
 	(def-func-end))
 
-(defcfun class-macro-new (%1)
+(defcfun class-macro-new-clr (%1)
 	;%1 = class name
 	(def-func (sym (cat "class/" (str %1) "/new")))
 		;outputs
@@ -366,4 +366,14 @@
 			(vp-sub-cr (sym (cat (str %1) "_size")) r0)
 		(endif)
 		(vp-ret)
+	(def-func-end))
+
+(defcfun class-macro-new (%1)
+	;%1 = class name
+	(def-func (sym (cat "class/" (str %1) "/new")))
+		;outputs
+		;r0 = 0 if error, else object
+		;trashes
+		;r1-r3
+		(f-jmp 'sys_mem 'alloc `(,(sym (cat (str %1) "_size"))))
 	(def-func-end))

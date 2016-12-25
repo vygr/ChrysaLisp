@@ -6,7 +6,7 @@
 (import 'class/class_slave.inc)
 (import 'class/class_master.inc)
 
-(class-macro-new 'master)
+(class-macro-new-clr 'master)
 (class-macro-create 'master)
 
 (def-func 'class/master/init)

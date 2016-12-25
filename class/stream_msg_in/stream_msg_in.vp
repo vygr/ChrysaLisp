@@ -2,7 +2,7 @@
 (import 'class/class_stream_msg_out.inc)
 (import 'class/class_stream_msg_in.inc)
 
-(class-macro-new 'stream_msg_in)
+(class-macro-new-clr 'stream_msg_in)
 
 (def-func 'class/stream_msg_in/create)
 	;inputs

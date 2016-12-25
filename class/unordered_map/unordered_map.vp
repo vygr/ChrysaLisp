@@ -3,7 +3,7 @@
 (import 'class/class_pair.inc)
 (import 'class/class_unordered_map.inc)
 
-(class-macro-new 'unordered_map)
+(class-macro-new-clr 'unordered_map)
 
 (def-func 'class/unordered_map/init)
 	;inputs

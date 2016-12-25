@@ -5,7 +5,7 @@
 (import 'class/class_text.inc)
 (import 'class/class_string.inc)
 
-(class-macro-new 'text)
+(class-macro-new-clr 'text)
 (class-macro-create 'text)
 
 (def-func 'class/text/init)

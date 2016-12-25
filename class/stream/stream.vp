@@ -3,7 +3,7 @@
 (import 'class/class_string.inc)
 (import 'class/class_stream.inc)
 
-(class-macro-new 'stream)
+(class-macro-new-clr 'stream)
 
 (def-func 'class/stream/create)
 	;inputs
