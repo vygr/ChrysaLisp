@@ -3,7 +3,7 @@
 (import 'class/class_label.inc)
 (import 'class/class_flow.inc)
 
-(class-macro-new-clr 'label)
+(class-macro-new 'label)
 (class-macro-create 'label)
 
 (def-func 'class/label/init)

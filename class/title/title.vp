@@ -5,7 +5,7 @@
 (import 'class/class_title.inc)
 (import 'class/class_flow.inc)
 
-(class-macro-new-clr 'title)
+(class-macro-new 'title)
 (class-macro-create 'title)
 
 (def-func 'class/title/draw)

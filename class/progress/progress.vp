@@ -2,7 +2,7 @@
 (import 'inc/gui.inc)
 (import 'class/class_progress.inc)
 
-(class-macro-new-clr 'progress)
+(class-macro-new 'progress)
 (class-macro-create 'progress)
 
 (def-func 'class/progress/draw)

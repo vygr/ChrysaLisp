@@ -3,7 +3,7 @@
 (import 'class/class_button.inc)
 (import 'class/class_flow.inc)
 
-(class-macro-new-clr 'button)
+(class-macro-new 'button)
 (class-macro-create 'button)
 
 (def-func 'class/button/init)
