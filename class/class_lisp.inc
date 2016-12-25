@@ -1,7 +1,5 @@
 (import 'class/class_ref.inc)
 
-(defcvar 'debug_lines nil)
-
 (def-class 'lisp 'ref)
 (def-method 'create 'class/lisp/create 'static '(r0 r1 r2) '(r0))
 (def-method 'new 'class/lisp/new 'static '() '(r0))
