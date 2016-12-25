@@ -3,7 +3,7 @@
 (def-class 'unordered_map 'unordered_set)
 (def-method 'create 'class/unordered_map/create)
 (def-method 'new 'class/unordered_map/new)
-(def-method 'init 'class/unordered_map/init 'static '(r0 r1 r2 r3) '(r1))
+(def-method 'init 'class/unordered_map/init)
 (def-method 'find 'class/unordered_map/find)
 (def-method 'copy 'class/unordered_map/copy)
 (def-method 'insert 'class/unordered_map/insert 'static '(r0 r1 r2) '(r1 r2))
