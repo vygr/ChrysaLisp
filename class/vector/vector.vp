@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
 (import 'class/class_vector.inc)
 
-(class-macro-new-clr 'vector)
+(class-macro-new 'vector)
 (class-macro-create 'vector)
 
 (def-func 'class/vector/init)

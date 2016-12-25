@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
 (import 'class/class_pair.inc)
 
-(class-macro-new-clr 'pair)
+(class-macro-new 'pair)
 
 (def-func 'class/pair/create)
 	;inputs
