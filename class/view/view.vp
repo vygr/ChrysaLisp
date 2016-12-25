@@ -2,7 +2,7 @@
 (import 'inc/gui.inc)
 (import 'class/class_view.inc)
 
-(class-macro-new-clr 'view)
+(class-macro-new 'view)
 (class-macro-create 'view)
 
 (def-func 'class/view/init)
@@ -20,6 +20,11 @@
 		(vp-cpy-ri r1 r0 view_flags)
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri r1 r0 view_parent)
+		(vp-cpy-ri r1 r0 view_tcb)
+		(vp-cpy-ri r1 r0 view_dirty_region)
+		(vp-cpy-ri r1 r0 view_opaque_region)
+		(vp-cpy-ri r1 r0 view_last_buttons)
+		(vp-cpy-ri r1 r0 view_color)
 		(vp-lea-i r0 view_list r1)
 		(lh-init r1 r2)
 	(endif)
