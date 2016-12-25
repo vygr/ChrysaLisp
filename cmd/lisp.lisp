@@ -419,5 +419,7 @@
 		(list m_w m_h)))
 
 (defq button (make-button 0 0 256 32))
+(scope-progn button (print (get-pos)) (print (get-size)))
 (scope-progn button (set-pos 50 100) (set-size 100 120))
 (scope-progn button (print (get-pos)) (print (get-size)))
+(setq button nil)
