@@ -2,7 +2,7 @@
 (import 'class/class_string.inc)
 (import 'class/class_stream_str.inc)
 
-(class-macro-new-clr 'stream_str)
+(class-macro-new 'stream_str)
 
 (def-func 'class/stream_str/create)
 	;inputs
@@ -41,11 +41,7 @@
 	;all but r0, r4
 
 	;init parent
-	(s-call 'stream_str 'init '(r0 r1 r2 0 (& r2 string_data) (r2 string_length)) '(r1))
-	(vpif '(r1 != 0))
-		;init myself
-	(endif)
-	(vp-ret)
+	(s-jmp 'stream_str 'init '(r0 r1 r2 0 (& r2 string_data) (r2 string_length)))
 
 (def-func-end)
 
