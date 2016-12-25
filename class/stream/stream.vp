@@ -3,7 +3,7 @@
 (import 'class/class_string.inc)
 (import 'class/class_stream.inc)
 
-(class-macro-new-clr 'stream)
+(class-macro-new 'stream)
 
 (def-func 'class/stream/create)
 	;inputs
@@ -52,11 +52,7 @@
 	(assign '(r2 r3 r5 r6) '((r0 stream_object) (r0 stream_buffer) (r0 stream_bufp) (r0 stream_bufe)))
 
 	;init parent
-	(s-call 'stream 'init '(r0 r1) '(r1))
-	(vpif '(r1 != 0))
-		;init myself
-	(endif)
-	(vp-ret)
+	(s-jmp 'stream 'init '(r0 r1))
 
 (def-func-end)
 
