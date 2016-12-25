@@ -3,7 +3,36 @@
 (import 'class/class_pair.inc)
 (import 'class/class_unordered_map.inc)
 
-(class-macro-new-clr 'unordered_map)
+(class-macro-new 'unordered_map)
+
+(def-func 'class/unordered_map/create)
+	;inputs
+	;r0 = key compare callback
+	;r1 = num buckets
+	;outputs
+	;r0 = 0 if error, else object
+	;trashes
+	;r1-r3, r5-r8
+
+	;save data
+	(vp-cpy-rr r0 r5)
+	(vp-cpy-rr r1 r6)
+
+	;create new string object
+	(f-call 'unordered_map 'new '() '(r0))
+	(vpif '(r0 != 0))
+		;init the object
+		(f-path 'class 'unordered_map)
+		(f-call 'unordered_map 'init `(r0 (@ ,_function_) r5 r6) '(r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(v-call 'unordered_map 'delete '(r0) '() 'r1)
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
 
 (def-func 'class/unordered_map/init)
 	;inputs
@@ -84,35 +113,6 @@
 	(f-call 'unordered_map 'get_bucket '(r2 (r0 pair_first)) '(r0))
 	(vp-pop r1)
 	(f-jmp 'vector 'push_back '(r0 r1))
-
-(def-func-end)
-
-(def-func 'class/unordered_map/create)
-	;inputs
-	;r0 = key compare callback
-	;r1 = num buckets
-	;outputs
-	;r0 = 0 if error, else object
-	;trashes
-	;r1-r3, r5-r8
-
-	;save data
-	(vp-cpy-rr r0 r6)
-	(vp-cpy-rr r1 r7)
-
-	;create new string object
-	(f-call 'unordered_map 'new '() '(r0))
-	(vpif '(r0 != 0))
-		;init the object
-		(f-path 'class 'unordered_map)
-		(f-call 'unordered_set 'init `(r0 (@ ,_function_) r6 r7) '(r1))
-		(vpif '(r1 == 0))
-			;error with init
-			(v-call 'unordered_set 'delete '(r0) '() 'r1)
-			(vp-xor-rr r0 r0)
-		(endif)
-	(endif)
-	(vp-ret)
 
 (def-func-end)
 
