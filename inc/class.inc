@@ -362,9 +362,8 @@
 		(f-call 'sys_mem 'alloc `(,(sym (cat (str %1) "_size"))) '(r0 _))
 		(vpif '(r0 != 0))
 			;clear object memory
-			(vp-cpy-rr r0 r3)
-			(f-call 'sys_mem 'clear `(r0 ,(sym (cat (str %1) "_size"))) '(_))
-			(vp-cpy-rr r3 r0)
+			(f-call 'sys_mem 'clear `(r0 ,(sym (cat (str %1) "_size"))) '(r0))
+			(vp-sub-cr (sym (cat (str %1) "_size")) r0)
 		(endif)
 		(vp-ret)
 	(def-func-end))
