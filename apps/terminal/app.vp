@@ -254,7 +254,6 @@
 	(else)
 		;print char
 		(f-call 'vdu 'print_char {shared->shared_vdu, char})
-		(f-call 'vdu 'dirty {shared->shared_vdu})
 	(endif)
 	(pop-scope)
 	(return)
