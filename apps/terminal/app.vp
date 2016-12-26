@@ -8,13 +8,14 @@
 (import 'class/class_vector.inc)
 (import 'class/class_stream_msg_out.inc)
 (import 'class/class_master.inc)
+(import 'class/class_vdu.inc)
 
 (def-func 'apps/terminal/app)
 
 	(defcvar 'buffer_size 120)
 
 	(def-struct 'shared)
-		(ptr 'shared_master 'shared_panel 'shared_history 'shared_window)
+		(ptr 'shared_master 'shared_vdu 'shared_history 'shared_window)
 		(ulong 'shared_history_index)
 		(pubyte 'shared_bufp)
 		(struct 'shared_buffer 'buffer)
@@ -45,27 +46,15 @@
 	(f-call 'window 'set_status {shared.shared_window, string})
 	(f-call 'window 'set_color {shared.shared_window, 0xc0000000})
 
-	;add my app panel
-	(f-call 'flow 'create {} {shared.shared_panel})
-	(f-call 'flow 'set_flow_flags {shared.shared_panel, flow_flag_down | flow_flag_fillw})
-	(f-call 'flow 'add_back {shared.shared_panel, window_panel})
-
-	;add term lines to my app panel
-	(assign {40} {length})
-	(loop-while {length})
-		(assign {length - 1} {length})
-		(f-call 'label 'create {} {label})
-		(f-call 'string 'create_from_cstr {">"} {string})
-		(f-call 'label 'set_text {label, string})
-		(f-call 'label 'set_color {label, 0})
-		(f-call 'label 'set_text_color {label, 0xff00ff00})
-		(f-call 'label 'set_font {label, "fonts/Hack-Regular.ttf", 16})
-		(f-call 'label 'add_back {label, shared.shared_panel})
-	(loop-end)
+	;add my vdu
+	(f-call 'vdu 'create {} {shared.shared_vdu})
+	(f-call 'vdu 'set_text_color {shared.shared_vdu, 0xff00ff00})
+	(f-call 'vdu 'set_font {shared.shared_vdu, "fonts/Hack-Regular.ttf", 16})
+	(f-call 'vdu 'add_back {shared.shared_vdu, window_panel})
 
 	;set to pref size
 	(v-call 'window 'pref_size {shared.shared_window} {width, height})
-	(f-call 'window 'change {shared.shared_window, 0, 0, 640, height})
+	(f-call 'window 'change {shared.shared_window, 0, 0, width, height})
 
 	;set window owner
 	(f-call 'sys_task 'tcb {} {owner})
@@ -257,42 +246,15 @@
 
 	(push-scope)
 	(assign '(r0 r1) {shared, char})
-	(vpif {char == 10 || char == 13})
-		;scroll lines
-		(f-call 'flow 'get_first {shared->shared_panel} {label})
-		(f-call 'label 'add_back {label, shared->shared_panel})
-		(v-call 'flow 'layout {shared->shared_panel})
-		(f-call 'string 'create_from_cstr {">"} {string})
-		(f-call 'label 'set_text {label, string})
-		(f-call 'flow 'dirty_all {shared->shared_panel})
-	(elseif {char == 128})
-		;backspace
-		(f-call 'flow 'get_last {shared->shared_panel} {label})
-		(f-call 'label 'get_text {label} {line_string})
-		(d-call 'string 'get_length {line_string} {length})
-		(vpif {length > 1})
-			(assign {length - 1} {length})
-		(endif)
-		(f-call 'string 'create_from_buffer {&line_string->string_data, length} {new_line_string})
-		(f-call 'string 'deref {line_string})
-		(f-call 'label 'set_text {label, new_line_string})
-		(f-call 'label 'dirty {label})
-	(elseif {char == 129 || char == 130})
+	(vpif {char == 13})
+		(assign {10} {char})
+	(endif)
+	(vpif {char == 129 || char == 130})
 		;cursor up/down
-		(f-call 'flow 'get_last {shared->shared_panel} {label})
-		(f-call 'string 'create_from_cstr {">"} {string})
-		(f-call 'label 'set_text {label, string})
-		(f-call 'label 'dirty {label})
-	(elseif {char >= 32 && char < 127})
-		;append char
-		(f-call 'flow 'get_last {shared->shared_panel} {label})
-		(f-call 'string 'create_from_cstr {&char} {string})
-		(f-call 'label 'get_text {label} {line_string})
-		(f-call 'string 'append {line_string, string} {new_line_string})
-		(f-call 'string 'deref {line_string})
-		(f-call 'string 'deref {string})
-		(f-call 'label 'set_text {label, new_line_string})
-		(f-call 'label 'dirty {label})
+	(else)
+		;print char
+		(f-call 'vdu 'print_char {shared->shared_vdu, char})
+		(f-call 'vdu 'dirty {shared->shared_vdu})
 	(endif)
 	(pop-scope)
 	(return)
