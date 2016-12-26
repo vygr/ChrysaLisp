@@ -61,11 +61,23 @@
 	(loop-flist-forward r0 0 r0 r0)
 		(vp-cpy-ri r0 r4 local_dirty_rect)
 
-		;set clip region to this region
+		;continue if out of bounds
 		(vp-cpy-ir-i r0 gui_rect_x r8)
 		(vp-cpy-ir-i r0 gui_rect_y r9)
 		(vp-cpy-ir-i r0 gui_rect_x1 r10)
 		(vp-cpy-ir-i r0 gui_rect_y1 r11)
+		(vp-cpy-ir-i r4 (add local_drect sdl_rect_x) r12)
+		(continueif '(r10 <= r12))
+		(vp-cpy-ir-i r4 (add local_drect sdl_rect_y) r13)
+		(continueif '(r11 <= r13))
+		(vp-cpy-ir-i r4 (add local_drect sdl_rect_w) r14)
+		(vp-add-rr r12 r14)
+		(continueif '(r8 >= r14))
+		(vp-cpy-ir-i r4 (add local_drect sdl_rect_h) r15)
+		(vp-add-rr r13 r15)
+		(continueif '(r9 >= r15))
+
+		;set clip region to this region
 		(vp-sub-rr r8 r10)
 		(vp-sub-rr r9 r11)
 		(vp-cpy-ri-i r8 r4 (add local_clip_rect sdl_rect_x))
@@ -125,11 +137,23 @@
 	(loop-flist-forward r0 0 r0 r0)
 		(vp-cpy-ri r0 r4 local_dirty_rect)
 
-		;set clip region to this region
+		;continue if out of bounds
 		(vp-cpy-ir-i r0 gui_rect_x r8)
 		(vp-cpy-ir-i r0 gui_rect_y r9)
 		(vp-cpy-ir-i r0 gui_rect_x1 r10)
 		(vp-cpy-ir-i r0 gui_rect_y1 r11)
+		(vp-cpy-ir-i r4 (add local_drect sdl_rect_x) r12)
+		(continueif '(r10 <= r12))
+		(vp-cpy-ir-i r4 (add local_drect sdl_rect_y) r13)
+		(continueif '(r11 <= r13))
+		(vp-cpy-ir-i r4 (add local_drect sdl_rect_w) r14)
+		(vp-add-rr r12 r14)
+		(continueif '(r8 >= r14))
+		(vp-cpy-ir-i r4 (add local_drect sdl_rect_h) r15)
+		(vp-add-rr r13 r15)
+		(continueif '(r9 >= r15))
+
+		;set clip region to this region
 		(vp-sub-rr r8 r10)
 		(vp-sub-rr r9 r11)
 		(vp-cpy-ri-i r8 r4 (add local_clip_rect sdl_rect_x))
@@ -226,11 +250,23 @@
 	(loop-flist-forward r0 0 r0 r0)
 		(vp-cpy-ri r0 r4 local_dirty_rect)
 
-		;set clip region to this region
+		;continue if out of bounds
 		(vp-cpy-ir-i r0 gui_rect_x r8)
 		(vp-cpy-ir-i r0 gui_rect_y r9)
 		(vp-cpy-ir-i r0 gui_rect_x1 r10)
 		(vp-cpy-ir-i r0 gui_rect_y1 r11)
+		(vp-cpy-ir-i r4 (add local_drect sdl_rect_x) r12)
+		(continueif '(r10 <= r12))
+		(vp-cpy-ir-i r4 (add local_drect sdl_rect_y) r13)
+		(continueif '(r11 <= r13))
+		(vp-cpy-ir-i r4 (add local_drect sdl_rect_w) r14)
+		(vp-add-rr r12 r14)
+		(continueif '(r8 >= r14))
+		(vp-cpy-ir-i r4 (add local_drect sdl_rect_h) r15)
+		(vp-add-rr r13 r15)
+		(continueif '(r9 >= r15))
+
+		;set clip region to this region
 		(vp-sub-rr r8 r10)
 		(vp-sub-rr r9 r11)
 		(vp-cpy-ri-i r8 r4 (add local_clip_rect sdl_rect_x))
