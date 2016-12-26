@@ -2,7 +2,6 @@
 (import 'inc/gui.inc)
 (import 'inc/string.inc)
 (import 'class/class_window.inc)
-(import 'class/class_flow.inc)
 (import 'class/class_label.inc)
 (import 'class/class_string.inc)
 (import 'class/class_vector.inc)
@@ -199,6 +198,7 @@
 		(f-call 'sys_mem 'copy {&string->string_data, &shared->shared_buffer, string->string_length} {_, shared->shared_bufp})
 		(f-call 'stream 'create {string, 0, &string->string_data, string->string_length} {stream})
 		(l-call 'pipe_output {shared, stream} '(r0 r1))
+		(f-call 'stream 'deref {stream})
 	(elseif {char == 130})
 		;cursor down
 		(d-call 'vector 'get_length {shared->shared_history} {length})
@@ -214,6 +214,7 @@
 		(f-call 'sys_mem 'copy {&string->string_data, &shared->shared_buffer, string->string_length} {_, shared->shared_bufp})
 		(f-call 'stream 'create {string, 0, &string->string_data, string->string_length} {stream})
 		(l-call 'pipe_output {shared, stream} '(r0 r1))
+		(f-call 'stream 'deref {stream})
 	(elseif {char == 27})
 		;esc
 		(f-call 'master 'get_state {shared->shared_master} {state})
