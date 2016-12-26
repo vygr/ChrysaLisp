@@ -314,6 +314,7 @@
 (def-method 'symbol 'class/class_symbol)
 (def-method 'sequence 'class/class_sequence)
 (def-method 'error 'class/class_error)
+(def-method 'vdu 'class/class_vdu)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction

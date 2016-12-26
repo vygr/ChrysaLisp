@@ -1,0 +1,255 @@
+(import 'inc/func.inc)
+(import 'inc/gui.inc)
+(import 'inc/font.inc)
+(import 'class/class_string.inc)
+(import 'class/class_vdu.inc)
+(import 'class/class_text.inc)
+
+(class-macro-new 'vdu)
+(class-macro-create 'vdu)
+
+(def-func 'class/vdu/init)
+	;inputs
+	;r0 = vdu object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+
+	;init parent
+	(s-call 'vdu 'init '(r0 r1) '(r1))
+	(vpif '(r1 != 0))
+		(vp-push r0)
+
+		;init myself
+		(vp-cpy-rr r0 r5)
+		(vp-xor-rr r0 r0)
+		(vp-cpy-ri r0 r5 vdu_text_color)
+		(vp-cpy-ri r0 r5 vdu_cursor_x)
+		(vp-cpy-ri r0 r5 vdu_cursor_y)
+		(vp-cpy-cr vdu_default_width r0)
+		(vp-cpy-ri r0 r5 vdu_width)
+		(vp-cpy-cr vdu_default_height r0)
+		(vp-cpy-ri r0 r5 vdu_height)
+		(f-call 'sys_mem 'alloc '((mul vdu_default_width vdu_default_height)) '(r0 r1))
+		(vp-cpy-ri r0 r5 vdu_chars)
+		(f-call 'sys_mem 'fill `(r0 r1 (ascii " ")) '(_))
+		(f-call 'sys_mem 'alloc '((mul 128 ptr_size)) '((r5 vdu_textures) _))
+		(vp-pop r0)
+		(f-call 'vdu 'set_font '(r0 "fonts/Hack-Regular.ttf" 16))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/vdu/deinit)
+	;inputs
+	;r0 = vdu object
+	;trashes
+	;all but r0, r4
+
+	;save object
+	(vp-push r0)
+
+	(f-call 'sys_mem 'free '((r0 vdu_chars)))
+	(vp-cpy-ir r4 0 r0)
+	(f-call 'sys_mem 'free '((r0 vdu_textures)))
+
+	;deinit parent
+	(vp-pop r0)
+	(s-jmp 'vdu 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/vdu/draw)
+	;inputs
+	;r0 = view object
+	;r1 = ctx object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst 'ctx 'txt)
+	(pubyte 'charp)
+	(long 'x 'y 'char)
+
+	;save inputs
+	(push-scope)
+	(assign '(r0 r1) {inst, ctx})
+
+	;draw vdu chars
+	(vpif {inst->vdu_font})
+		(assign {0} {y})
+		(loop-start)
+			(assign {0} {x})
+			(loop-start)
+				(assign {y * inst->vdu_width + x + inst->vdu_chars} {charp})
+				(assign {*charp} {char})
+				(vpif {char > 32 && char < 127})
+					(assign {(inst->vdu_textures)[ptr_size * (char - 33)]} {txt})
+					(vpif {txt})
+						(f-call 'gui_ctx 'blit {ctx, txt->ft_text_texture, inst->vdu_text_color, x * inst->vdu_char_width, y * inst->vdu_char_height, txt->ft_text_width, txt->ft_text_height})
+					(endif)
+				(endif)
+				(assign {x + 1} {x})
+			(loop-until {x >= inst->vdu_width})
+			(assign {y + 1} {y})
+		(loop-until {y >= inst->vdu_height})
+	(endif)
+
+	(assign {inst} '(r0))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/vdu/pref_size)
+	;inputs
+	;r0 = vdu object
+	;outputs
+	;r10 = prefered width
+	;r11 = prefered height
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst)
+	(ulong 'width 'height)
+
+	;save inputs
+	(push-scope)
+	(assign '(r0) {inst})
+
+	;bounds of vdu
+	(assign {inst->vdu_width * inst->vdu_char_width, inst->vdu_height * inst->vdu_char_height} {width, height})
+
+	(assign {inst, width, height} '(r0 r10 r11))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/vdu/set_font)
+	;inputs
+	;r0 = vdu object
+	;r1 = font name
+	;r2 = point size
+	;trashes
+	;all but r0, r4
+
+	(ptr 'inst 'name 'word 'txt)
+	(pulong 'wordp)
+	(ulong 'points 'code)
+
+	;save inputs
+	(push-scope)
+	(assign '(r0 r1 r2) {inst, name, points})
+
+	;set char size
+	(assign {points + (points >> 2)} {inst->vdu_char_height})
+	(assign {points * 10 >> 4} {inst->vdu_char_width})
+
+	;open font
+	(f-call 'gui_font 'open {name, points} {inst->vdu_font})
+
+	;cache char textures
+	(vpif {inst->vdu_font})
+		(f-call 'string 'create_from_cstr {" "} {word})
+		(assign {&word->string_data} {wordp})
+		(assign {33} {code})
+		(loop-start)
+			(assign {code} {*wordp})
+			(assign {0} {word->string_hashcode})
+			(f-call 'gui_font 'text {inst->vdu_font, word} {txt})
+			(assign {txt} {(inst->vdu_textures)[ptr_size * (code - 33)]})
+			(assign {code + 1} {code})
+		(loop-until {code == 127})
+		(f-call 'string 'deref {word})
+	(endif)
+
+	(assign {inst} '(r0))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/vdu/set_text_color)
+	;inputs
+	;r0 = vdu object
+	;r1 = color
+
+	(vp-cpy-ri r1 r0 vdu_text_color)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/vdu/print_char)
+	;inputs
+	;r0 = vdu object
+	;r1 = char
+
+	(ptr 'inst)
+	(pubyte 'charp)
+	(ulong 'char)
+
+	;save inputs
+	(push-scope)
+	(assign '(r0 r1) {inst, char})
+
+	;wrap cursor, maybe scroll
+	(vpif {inst->vdu_cursor_x >= inst->vdu_width})
+		(assign {0} {inst->vdu_cursor_x})
+		(assign {inst->vdu_cursor_y + 1} {inst->vdu_cursor_y})
+	(endif)
+	(vpif {inst->vdu_cursor_y >= inst->vdu_height})
+		(assign {0} {inst->vdu_cursor_x})
+		(assign {inst->vdu_height - 1} {inst->vdu_cursor_y})
+		(f-call 'sys_mem 'copy {inst->vdu_chars + inst->vdu_width, inst->vdu_chars, (inst->vdu_height - 1) * inst->vdu_width} {_, _})
+		(f-call 'sys_mem 'fill {inst->vdu_chars + (inst->vdu_height - 1) * inst->vdu_width, inst->vdu_width, 32} {_})
+	(endif)
+
+	(vpif {char == 10})
+		;line feed
+		(assign {0} {inst->vdu_cursor_x})
+		(assign {inst->vdu_cursor_y + 1} {inst->vdu_cursor_y})
+	(elseif {char == 128})
+		;backspace
+		(vpif {inst->vdu_cursor_x != 0})
+			(assign {inst->vdu_cursor_x - 1} {inst->vdu_cursor_x})
+			(assign {inst->vdu_cursor_y * inst->vdu_width + inst->vdu_cursor_x + inst->vdu_chars} {charp})
+			(assign {32} {*charp})
+		(endif)
+	(elseif {char >= 32 && char < 127})
+		;printable char
+		(assign {inst->vdu_cursor_y * inst->vdu_width + inst->vdu_cursor_x + inst->vdu_chars} {charp})
+		(assign {char} {*charp})
+		(assign {inst->vdu_cursor_x + 1} {inst->vdu_cursor_x})
+	(endif)
+
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/vdu/print_cstr)
+	;inputs
+	;r0 = vdu object
+	;r1 = c string pointer
+
+	(ptr 'inst)
+	(pubyte 'charp)
+	(ulong 'char)
+
+	;save inputs
+	(push-scope)
+	(assign '(r0 r1) {inst, charp})
+
+	;print chars
+	(loop-start)
+		(assign {*charp} {char})
+		(breakifnot {char})
+		(f-call 'vdu 'print_char {inst, char})
+		(assign {charp + 1} {charp})
+	(loop-end)
+
+	(pop-scope)
+	(return)
+
+(def-func-end)

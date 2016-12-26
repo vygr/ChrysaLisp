@@ -25,6 +25,7 @@
 (import 'class/stream_msg_out/make.inc)
 (import 'class/master/make.inc)
 (import 'class/slave/make.inc)
+(import 'class/vdu/make.inc)
 (import 'class/lisp/make.inc)
 
 ;virtual class vtables

@@ -28,6 +28,7 @@
 (import 'class/class_button.inc)
 (import 'class/class_boxed_ptr.inc)
 (import 'class/class_boxed_long.inc)
+(import 'class/class_vdu.inc)
 
 (class-macro-class 'window)
 (class-macro-class 'view)
@@ -58,3 +59,4 @@
 (class-macro-class 'button)
 (class-macro-class 'boxed_ptr)
 (class-macro-class 'boxed_long)
+(class-macro-class 'vdu)
