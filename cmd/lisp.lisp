@@ -391,9 +391,9 @@
 		;filter to only the .vp files
 		(setq *imports* (filter (lambda (f)
 			(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
-		;filter to only the files whos product is older than any dependancy
+		;filter to only the files whos oldest product is older than any dependancy
 		(setq *imports* (filter (lambda (f)
-			(defq d (eval (make-sym f)) p (make-time (elem 0 (elem 1 d))) d (elem 0 d) i -1 v nil)
+			(defq d (eval (make-sym f)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d) i -1 v nil)
 			(while (and (not v) (lt (setq i (inc i)) (length d)))
 				(unless (setq v (ge (make-time (setq f (elem i d))) p))
 					(each (lambda (x)
