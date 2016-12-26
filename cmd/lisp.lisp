@@ -144,9 +144,6 @@
 (defmacro zip (&rest l)
  	`(map list ~l))
 
-(defmacro merge (&rest l)
-	`(reduce cat (zip ~l)))
-
 (defun filter (_f _l)
 	(defq _e -1 _o (list))
 	(while (lt (setq _e (inc _e)) (length _l))
@@ -326,6 +323,10 @@
 		(if (eq c (bit-shl 1 i)) (setq b i))) b)
 
 (defun insert (x y)
+	(when (notany (lambda (x) (eql x y)) x)
+		(push x y)))
+
+(defun merge (x y)
 	(each (lambda (y)
 		(when (notany (lambda (x) (eql x y)) x)
 			(push x y))) y))
@@ -371,14 +372,11 @@
 			;create lists of imediate dependancies and products
 			(defq d (list f) p (list))
 			(each-line f (lambda (l)
-				(defq s (split l (ascii " ")))
-				(when (ge (length s) 2)
+				(when (le 2 (length (defq s (split l (ascii " ")))) 3)
 					(defq k (elem 0 s) o (trim-start (trim-end (elem 1 s) ")") "'"))
 					(cond
 						((eql k "(import")
-							(push d o)
-							(when (notany (lambda (x) (eql x o)) *imports*)
-								(push *imports* o)))
+							(push d o) (insert *imports* o))
 						((eql k "(class-macro-class")
 							(push p (cat "obj/class/class_" o)))
 						((eql k "(class-macro-new")
@@ -400,7 +398,7 @@
 		(setq *imports* (filter (lambda (f)
 			(defq d (eval (make-sym f)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d) i 0)
 			(while (lt (setq i (inc i)) (length d))
-				(insert d (elem 0 (eval (make-sym (elem i d))))))
+				(merge d (elem 0 (eval (make-sym (elem i d))))))
 			(some (lambda (x) (ge x p)) (map make-time d))) *imports*))
 		;drop the make enviroment and return the list to compile
 		(setq *make-env* nil)
