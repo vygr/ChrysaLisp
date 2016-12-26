@@ -222,6 +222,7 @@
 		(assign {char} {*charp})
 		(assign {inst->vdu_cursor_x + 1} {inst->vdu_cursor_x})
 	(endif)
+	(f-call 'vdu 'dirty {inst})
 
 	(pop-scope)
 	(return)
