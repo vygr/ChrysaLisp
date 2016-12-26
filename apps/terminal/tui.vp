@@ -164,7 +164,15 @@
 	(push-scope)
 	(assign '(r0 r1) {shared, char})
 
-	(f-call 'sys_io 'char {char, 1})
+	(vpif {char == 9})
+		;tab
+		(f-call 'sys_io 'char {32, 1})
+		(f-call 'sys_io 'char {32, 1})
+		(f-call 'sys_io 'char {32, 1})
+		(f-call 'sys_io 'char {32, 1})
+	(else)
+		(f-call 'sys_io 'char {char, 1})
+	(endif)
 
 	(pop-scope)
 	(return)
