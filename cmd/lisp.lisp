@@ -325,6 +325,11 @@
 	(while (and (not b) (lt (setq i (inc i)) 64))
 		(if (eq c (bit-shl 1 i)) (setq b i))) b)
 
+(defun insert (x y)
+	(each (lambda (y)
+		(when (notany (lambda (x) (eql x y)) x)
+			(push x y))) y))
+
 ;;;;;;;;;;;;;;
 ; VP Assembler
 ;;;;;;;;;;;;;;
@@ -393,12 +398,10 @@
 			(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
 		;filter to only the files whos oldest product is older than any dependancy
 		(setq *imports* (filter (lambda (f)
-			(defq d (eval (make-sym f)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d) i -1 v nil)
-			(while (and (not v) (lt (setq i (inc i)) (length d)))
-				(unless (setq v (ge (make-time (setq f (elem i d))) p))
-					(each (lambda (x)
-						(when (notany (lambda (y) (eql y x)) d)
-							(push d x))) (elem 0 (eval (make-sym f)))))) v) *imports*))
+			(defq d (eval (make-sym f)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d) i 0)
+			(while (lt (setq i (inc i)) (length d))
+				(insert d (elem 0 (eval (make-sym (elem i d))))))
+			(some (lambda (x) (ge x p)) (map make-time d))) *imports*))
 		;drop the make enviroment and return the list to compile
 		(setq *make-env* nil)
 		*imports*)) *os*))
