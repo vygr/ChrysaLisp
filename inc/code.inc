@@ -596,6 +596,12 @@
 										vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
 	(add-inst `(,w ,x ,y 0)))
 
+(defcfun compile-deref ()
+	(defq v (vreg-sym *s*) w (pop-type *s*))
+	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
+										vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
+	(add-inst `(,w ,v 0 ,v)))
+
 (defcfun compile-ref (%1)
 	(defq s (get-sym %1))
 	(cond
@@ -624,12 +630,6 @@
 			(set (type-sym *s*) (elem 5 s))
 			(setq s (add (get-scope-offset (elem 0 s)) (elem 3 s)))
 			(add-inst `(vp-lea-i r4 ,s ,(vreg-sym *s*))))))
-
-(defcfun compile-deref ()
-	(defq v (vreg-sym *s*) w (pop-type *s*))
-	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
-										vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
-	(add-inst `(,w ,v 0 ,v)))
 
 (defcfun compile-deref? ()
 	(when (eval (type-sym *s*))
