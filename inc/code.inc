@@ -612,9 +612,10 @@
 					;field/member
 					(set (type-sym *s*) (eval (type-sym %1)))
 					(add-inst `(vp-cpy-cr ,%1 ,(vreg-sym *s*))))
-				(t
+				((def? %1)
 					;equate
-					(compile-const %1))))
+					(compile-const %1))
+				(t (error "Symbol not defined !" %1))))
 		((eql 'const (elem 2 s))
 			;constant
 			(compile-const (elem 3 s)))
