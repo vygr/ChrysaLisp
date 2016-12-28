@@ -61,7 +61,8 @@
 	(f-call 'progress 'get_bounds '((r4 local_inst)) '(_ _ _ r11))
 	(vp-cpy-cr progress_border_size r8)
 	(vp-sub-cr (mul progress_border_size 2) r11)
-	(vp-add-ir r4 local_fill_complete r8)
+	(vp-cpy-ir r4 local_fill_complete r9)
+	(vp-add-rr r9 r8)
 	(f-call 'gui_ctx 'filled_box '((r4 local_ctx) r8 progress_border_size (r4 local_fill_remain) r11))
 
 	(vp-cpy-ir r4 local_inst r0)

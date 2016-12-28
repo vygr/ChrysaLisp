@@ -281,7 +281,8 @@
 
 		;destination address
 		(vp-cpy-rr r14 r1)
-		(vp-add-ir r15 msg_parcel_frag r1)
+		(vp-cpy-ir r15 msg_parcel_frag r0)
+		(vp-add-rr r0 r1)
 
 		;source address
 		(vp-lea-i r15 msg_data r0)
