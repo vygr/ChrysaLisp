@@ -105,7 +105,7 @@
 	(f-call 'flow 'change '((r0 window_flow) window_border_size window_border_size r10 r11))
 
 	(vp-cpy-ir r4 local_inst r0)
-	(vp-cpy-ir r0 view_color r1)
+	(vp-cpy-ir-ui r0 view_color r1)
 	(vp-shr-cr 24 r1)
 	(vpif '(r1 == 0xff))
 		(f-call 'window 'opaque '(r0))
