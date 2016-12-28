@@ -133,23 +133,17 @@
 (defcfun vp-add-cr (&rest b) (emit `(emit-add-cr ~b)))
 (defcfun vp-add-rr (&rest b) (emit `(emit-add-rr ~b)))
 (defcfun vp-add-ir (&rest b) (emit `(emit-add-ir ~b)))
-(defcfun vp-add-dr (&rest b) (emit `(emit-add-dr ~b)))
 
 (defcfun vp-sub-cr (&rest b) (emit `(emit-sub-cr ~b)))
 (defcfun vp-sub-rr (&rest b) (emit `(emit-sub-rr ~b)))
-
 (defcfun vp-cmp-cr (&rest b) (emit `(emit-cmp-cr ~b)))
 (defcfun vp-cmp-rr (&rest b) (emit `(emit-cmp-rr ~b)))
-
 (defcfun vp-mul-cr (&rest b) (emit `(emit-mul-cr ~b)))
 (defcfun vp-mul-rr (&rest b) (emit `(emit-mul-rr ~b)))
-
 (defcfun vp-and-cr (&rest b) (emit `(emit-and-cr ~b)))
 (defcfun vp-and-rr (&rest b) (emit `(emit-and-rr ~b)))
-
 (defcfun vp-or-cr (&rest b) (emit `(emit-or-cr ~b)))
 (defcfun vp-or-rr (&rest b) (emit `(emit-or-rr ~b)))
-
 (defcfun vp-xor-cr (&rest b) (emit `(emit-xor-cr ~b)))
 (defcfun vp-xor-rr (&rest b) (emit `(emit-xor-rr ~b)))
 
@@ -686,7 +680,6 @@
 
 (defcfun emit-add-rr (s d) (emit-rr 0x01 s d))
 (defcfun emit-add-ir (s c d) (emit-ir 0x03 s c d))
-(defcfun emit-add-dr (s1 s2 d) (emit-dr 0x03 s1 s2 d))
 
 (defcfun emit-sub-cr (c r)
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))

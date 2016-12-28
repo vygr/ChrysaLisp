@@ -1689,33 +1689,6 @@ vp_cpy [r12 + r1], r15
 vp_cpy [r1 + r13], r0
 vp_cpy [r13 + r1], r0
 
-vp_add [r0 + r1], r0
-vp_add [r0 + r1], r1
-vp_add [r0 + r1], r5
-vp_add [r0 + r1], r6
-vp_add [r0 + r1], r11
-vp_add [r0 + r1], r12
-vp_add [r0 + r1], r13
-vp_add [r0 + r1], r14
-vp_add [r0 + r1], r15
-vp_add [r1 + r1], r0
-vp_add [r2 + r1], r1
-vp_add [r3 + r15], r2
-vp_add [r5 + r13], r4
-vp_add [r6 + r12], r5
-vp_add [r7 + r11], r6
-vp_add [r8 + r10], r7
-vp_add [r9 + r9], r8
-vp_add [r10 + r8], r9
-vp_add [r11 + r7], r10
-vp_add [r12 + r6], r11
-vp_add [r13 + r5], r12
-vp_add [r14 + r3], r13
-vp_add [r15 + r2], r14
-vp_add [r12 + r1], r15
-vp_add [r1 + r13], r0
-vp_add [r13 + r1], r0
-
 ;dr bsubus
 vp_cpy_b [r0 + r1], r0
 vp_cpy_b [r0 + r1], r1
