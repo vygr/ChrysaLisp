@@ -10,6 +10,6 @@
 (def-method 'layout 'class/grid/layout 'override)
 
 (def-struct 'grid 'view)
-	(long 'grid_width)
-	(long 'grid_height)
+	(uint 'grid_width)
+	(uint 'grid_height)
 (def-struct-end)

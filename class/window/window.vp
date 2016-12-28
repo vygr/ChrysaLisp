@@ -169,8 +169,8 @@
 	(def-struct 'local)
 		(ptr 'local_inst)
 		(ptr 'local_event)
-		(long 'local_old_x)
-		(long 'local_old_y)
+		(int 'local_old_x)
+		(int 'local_old_y)
 	(def-struct-end)
 
 	;save inputs
@@ -186,7 +186,7 @@
 	(vp-cpy-rr r11 r13)
 
 	;save old bounds
-	(f-call 'window 'get_bounds '(r0) '((r4 local_old_x) (r4 local_old_y) r10 r11))
+	(f-call 'window 'get_bounds '(r0) '((r4 local_old_x i) (r4 local_old_y i) r10 r11))
 
 	;get abolute cords of corners
 	(vp-add-rr r8 r10)
@@ -253,8 +253,8 @@
 	(f-call 'window 'change '(r0 r8 r9 r10 r11))
 
 	;translate old dirty area and dirty all
-	(vp-cpy-ir r4 local_old_x r8)
-	(vp-cpy-ir r4 local_old_y r9)
+	(vp-cpy-ir-i r4 local_old_x r8)
+	(vp-cpy-ir-i r4 local_old_y r9)
 	(vp-cpy-ir-i r0 view_x r10)
 	(vp-cpy-ir-i r0 view_y r11)
 	(vp-sub-rr r10 r8)

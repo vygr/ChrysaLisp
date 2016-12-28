@@ -13,6 +13,6 @@
 (def-method 'mouse_move 'class/title/mouse_move 'override)
 
 (def-struct 'title 'label)
-	(long 'title_last_x)
-	(long 'title_last_y)
+	(int 'title_last_x)
+	(int 'title_last_y)
 (def-struct-end)
