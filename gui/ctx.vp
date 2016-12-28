@@ -303,9 +303,9 @@
 
 	(def-struct 'local)
 		(ptr 'local_ctx)
-		(long 'local_color)
 		(long 'local_flags)
-		(long 'local_depth)
+		(uint 'local_color)
+		(int 'local_depth)
 		(int 'local_x)
 		(int 'local_y)
 		(int 'local_w)
@@ -314,18 +314,14 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1 r2 r3) '((r4 local_ctx) (r4 local_color) (r4 local_flags) (r4 local_depth)))
+	(assign '(r0 r1 r2 r3) '((r4 local_ctx) (r4 local_color i) (r4 local_flags) (r4 local_depth i)))
 	(assign '(r8 r9 r10 r11) '((r4 local_x i) (r4 local_y i) (r4 local_w i) (r4 local_h i)))
 
 	(vpif '(r2 != 0))
 		;fill middle
 		(f-call 'gui_ctx 'set_color '(r0 r1))
 
-		(vp-cpy-ir-i r4 local_x r8)
-		(vp-cpy-ir-i r4 local_y r9)
-		(vp-cpy-ir-i r4 local_w r10)
-		(vp-cpy-ir-i r4 local_h r11)
-		(vp-cpy-ir r4 local_depth r12)
+		(assign '((r4 local_x i) (r4 local_y i) (r4 local_w i) (r4 local_h i) (r4 local_depth i)) '(r8 r9 r10 r11 r12))
 		(vp-add-rr r12 r8)
 		(vp-add-rr r12 r9)
 		(vp-shl-cr 1 r12)
@@ -334,48 +330,34 @@
 		(f-call 'gui_ctx 'filled_box '((r4 local_ctx) r8 r9 r10 r11))
 	(endif)
 
-	(vp-cpy-ir r4 local_depth r12)
+	(vp-cpy-ir-i r4 local_depth r12)
 	(vpif '(r12 > 0))
 		;brighter colour
-		(f-call 'gui_ctx 'brighter '((r4 local_color)) '(r1))
+		(f-call 'gui_ctx 'brighter '((r4 local_color ui)) '(r1))
 		(f-call 'gui_ctx 'set_color '((r4 local_ctx) r1))
 
 		;fill left edge and top
-		(vp-cpy-ir-i r4 local_x r8)
-		(vp-cpy-ir-i r4 local_y r9)
-		(vp-cpy-ir-i r4 local_w r10)
-		(vp-cpy-ir r4 local_depth r11)
+		(assign '((r4 local_x i) (r4 local_y i) (r4 local_w i) (r4 local_depth i)) '(r8 r9 r10 r11))
 		(f-call 'gui_ctx 'filled_box '((r4 local_ctx) r8 r9 r10 r11))
 
-		(vp-cpy-ir-i r4 local_x r8)
-		(vp-cpy-ir-i r4 local_y r9)
-		(vp-cpy-ir r4 local_depth r10)
-		(vp-cpy-ir-i r4 local_h r11)
+		(assign '((r4 local_x i) (r4 local_y i) (r4 local_h i) (r4 local_depth i)) '(r8 r9 r11 r10))
 		(vp-add-rr r10 r9)
 		(vp-sub-rr r10 r11)
 		(f-call 'gui_ctx 'filled_box '((r4 local_ctx) r8 r9 r10 r11))
 
 		;darker colour
-		(f-call 'gui_ctx 'darker '((r4 local_color)) '(r1))
+		(f-call 'gui_ctx 'darker '((r4 local_color ui)) '(r1))
 		(f-call 'gui_ctx 'set_color '((r4 local_ctx) r1))
 
 		;fill bottom edge and right
-		(vp-cpy-ir-i r4 local_x r8)
-		(vp-cpy-ir-i r4 local_y r9)
-		(vp-cpy-ir-i r4 local_w r10)
-		(vp-cpy-ir-i r4 local_h r11)
-		(vp-cpy-ir r4 local_depth r12)
+		(assign '((r4 local_x i) (r4 local_y i) (r4 local_w i) (r4 local_h i) (r4 local_depth i)) '(r8 r9 r10 r11 r12))
 		(vp-add-rr r12 r8)
 		(vp-sub-rr r12 r10)
 		(vp-add-rr r11 r9)
 		(vp-sub-rr r12 r9)
 		(f-call 'gui_ctx 'filled_box '((r4 local_ctx) r8 r9 r10 r12))
 
-		(vp-cpy-ir-i r4 local_x r8)
-		(vp-cpy-ir-i r4 local_y r9)
-		(vp-cpy-ir-i r4 local_w r10)
-		(vp-cpy-ir-i r4 local_h r11)
-		(vp-cpy-ir r4 local_depth r12)
+		(assign '((r4 local_x i) (r4 local_y i) (r4 local_w i) (r4 local_h i) (r4 local_depth i)) '(r8 r9 r10 r11 r12))
 		(vp-add-rr r10 r8)
 		(vp-sub-rr r12 r8)
 		(vp-add-rr r12 r9)
@@ -385,48 +367,34 @@
 	(else)
 		;sunken panel
 		(vp-mul-cr -1 r12)
-		(vp-cpy-ri r12 r4 local_depth)
+		(vp-cpy-ri-i r12 r4 local_depth)
 
 		;darker colour
-		(f-call 'gui_ctx 'darker '((r4 local_color)) '(r1))
+		(f-call 'gui_ctx 'darker '((r4 local_color ui)) '(r1))
 		(f-call 'gui_ctx 'set_color '((r4 local_ctx) r1))
 
 		;fill left edge and top
-		(vp-cpy-ir-i r4 local_x r8)
-		(vp-cpy-ir-i r4 local_y r9)
-		(vp-cpy-ir-i r4 local_w r10)
-		(vp-cpy-ir r4 local_depth r11)
+		(assign '((r4 local_x i) (r4 local_y i) (r4 local_w i) (r4 local_depth i)) '(r8 r9 r10 r11))
 		(vp-sub-rr r11 r10)
 		(f-call 'gui_ctx 'filled_box '((r4 local_ctx) r8 r9 r10 r11))
 
-		(vp-cpy-ir-i r4 local_x r8)
-		(vp-cpy-ir-i r4 local_y r9)
-		(vp-cpy-ir r4 local_depth r10)
-		(vp-cpy-ir-i r4 local_h r11)
+		(assign '((r4 local_x i) (r4 local_y i) (r4 local_h i) (r4 local_depth i)) '(r8 r9 r11 r10))
 		(vp-add-rr r10 r9)
 		(vp-sub-rr r10 r11)
 		(vp-sub-rr r10 r11)
 		(f-call 'gui_ctx 'filled_box '((r4 local_ctx) r8 r9 r10 r11))
 
 		;brighter colour
-		(f-call 'gui_ctx 'brighter '((r4 local_color)) '(r1))
+		(f-call 'gui_ctx 'brighter '((r4 local_color ui)) '(r1))
 		(f-call 'gui_ctx 'set_color '((r4 local_ctx) r1))
 
 		;fill bottom edge and right
-		(vp-cpy-ir-i r4 local_x r8)
-		(vp-cpy-ir-i r4 local_y r9)
-		(vp-cpy-ir-i r4 local_w r10)
-		(vp-cpy-ir-i r4 local_h r11)
-		(vp-cpy-ir r4 local_depth r12)
+		(assign '((r4 local_x i) (r4 local_y i) (r4 local_w i) (r4 local_h i) (r4 local_depth i)) '(r8 r9 r10 r11 r12))
 		(vp-add-rr r11 r9)
 		(vp-sub-rr r12 r9)
 		(f-call 'gui_ctx 'filled_box '((r4 local_ctx) r8 r9 r10 r12))
 
-		(vp-cpy-ir-i r4 local_x r8)
-		(vp-cpy-ir-i r4 local_y r9)
-		(vp-cpy-ir-i r4 local_w r10)
-		(vp-cpy-ir-i r4 local_h r11)
-		(vp-cpy-ir r4 local_depth r12)
+		(assign '((r4 local_x i) (r4 local_y i) (r4 local_w i) (r4 local_h i) (r4 local_depth i)) '(r8 r9 r10 r11 r12))
 		(vp-add-rr r10 r8)
 		(vp-sub-rr r12 r8)
 		(vp-sub-rr r12 r11)
