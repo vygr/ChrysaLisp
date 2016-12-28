@@ -213,7 +213,8 @@
 		(vp-cpy-ir r4 local_string1 r6)
 		(vp-cpy-ir r4 local_string2 r7)
 		(vp-cpy-ir r6 string_length r1)
-		(vp-add-ir r7 string_length r1)
+		(vp-cpy-ir r7 string_length r2)
+		(vp-add-rr r2 r1)
 		(vp-cpy-ri r1 r0 string_length)
 		(f-call 'sys_mem 'copy '((& r6 string_data) (& r0 string_data) (r6 string_length)) '(_ r1))
 		(vp-cpy-ir r7 string_length r2)
@@ -298,7 +299,8 @@
 
 	;get size of strings
 	(vp-cpy-ir r0 string_length r0)
-	(vp-add-ir r1 string_length r0)
+	(vp-cpy-ir r1 string_length r2)
+	(vp-add-rr r2 r0)
 	(vp-add-cr (add string_size 1) r0)
 
 	;create new string object

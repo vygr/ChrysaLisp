@@ -132,8 +132,6 @@
 
 (defcfun vp-add-cr (&rest b) (emit `(emit-add-cr ~b)))
 (defcfun vp-add-rr (&rest b) (emit `(emit-add-rr ~b)))
-(defcfun vp-add-ir (&rest b) (emit `(emit-add-ir ~b)))
-
 (defcfun vp-sub-cr (&rest b) (emit `(emit-sub-cr ~b)))
 (defcfun vp-sub-rr (&rest b) (emit `(emit-sub-rr ~b)))
 (defcfun vp-cmp-cr (&rest b) (emit `(emit-cmp-cr ~b)))
@@ -679,7 +677,6 @@
 		(t (print "emit-add-cr constant out of range: " c))))
 
 (defcfun emit-add-rr (s d) (emit-rr 0x01 s d))
-(defcfun emit-add-ir (s c d) (emit-ir 0x03 s c d))
 
 (defcfun emit-sub-cr (c r)
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
