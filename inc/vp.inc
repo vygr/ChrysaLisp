@@ -50,8 +50,8 @@
 	(cond
 		((eql c 'c) (vp-cmp-cr s d))
 		((eql c 'r) (vp-cmp-rr s d))
-;		((eql c 'i) (vp-cmp-ir (elem 0 s) (elem 1 s) d))
-;		((eql c 'd) (vp-cmp-dr (elem 0 s) (elem 1 s) d))
+		((eql c 'i) (vp-cmp-ir (elem 0 s) (elem 1 s) d))
+		((eql c 'd) (vp-cmp-dr (elem 0 s) (elem 1 s) d))
 		(t (error "No such type" c)))
 	(cond
 		((eql o '==) (vp-beq l))
@@ -67,8 +67,8 @@
 	(cond
 		((eql c 'c) (vp-cmp-cr s d))
 		((eql c 'r) (vp-cmp-rr s d))
-;		((eql c 'i) (vp-cmp-ir (elem 0 s) (elem 1 s) d))
-;		((eql c 'd) (vp-cmp-dr (elem 0 s) (elem 1 s) d))
+		((eql c 'i) (vp-cmp-ir (elem 0 s) (elem 1 s) d))
+		((eql c 'd) (vp-cmp-dr (elem 0 s) (elem 1 s) d))
 		(t (error "No such type" c)))
 	(cond
 		((eql o '==) (vp-bne l))
