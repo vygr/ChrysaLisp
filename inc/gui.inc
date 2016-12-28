@@ -64,8 +64,8 @@
 (def-struct 'gui_ctx)
 	(ptr 'gui_ctx_sdl_ctx)
 	(ptr 'gui_ctx_dirty_region)
-	(ulong 'gui_ctx_x)
-	(ulong 'gui_ctx_y)
+	(uint 'gui_ctx_x)
+	(uint 'gui_ctx_y)
 (def-struct-end)
 
 (def-struct 'gui_sigslot)

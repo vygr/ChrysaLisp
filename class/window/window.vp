@@ -153,8 +153,8 @@
 		(vp-sub-rr r11 r13)
 	(endif)
 	(vp-cpy-ri r15 r0 window_drag_mode)
-	(vp-cpy-ri r12 r0 window_offset_x)
-	(vp-cpy-ri r13 r0 window_offset_y)
+	(vp-cpy-ri-i r12 r0 window_offset_x)
+	(vp-cpy-ri-i r13 r0 window_offset_y)
 	(vp-ret)
 
 (def-func-end)
@@ -199,7 +199,8 @@
 	(vpif '(r15 != 0))
 		;drag left edge
 		(vp-cpy-ir r1 ev_msg_x r8)
-		(vp-sub-ir r0 window_offset_x r8)
+		(vp-cpy-ir-i r0 window_offset_x r15)
+		(vp-sub-rr r15 r8)
 		(vp-cpy-rr r10 r15)
 		(vp-sub-rr r8 r15)
 		(vpif '(r15 < r12))
@@ -212,7 +213,8 @@
 	(vpif '(r15 != 0))
 		;drag right edge
 		(vp-cpy-ir r1 ev_msg_x r10)
-		(vp-sub-ir r0 window_offset_x r10)
+		(vp-cpy-ir-i r0 window_offset_x r15)
+		(vp-sub-rr r15 r10)
 		(vp-cpy-rr r10 r15)
 		(vp-sub-rr r8 r15)
 		(vpif '(r15 < r12))
@@ -225,7 +227,8 @@
 	(vpif '(r15 != 0))
 		;drag top edge
 		(vp-cpy-ir r1 ev_msg_y r9)
-		(vp-sub-ir r0 window_offset_y r9)
+		(vp-cpy-ir-i r0 window_offset_y r15)
+		(vp-sub-rr r15 r9)
 		(vp-cpy-rr r11 r15)
 		(vp-sub-rr r9 r15)
 		(vpif '(r15 < r13))
@@ -238,7 +241,8 @@
 	(vpif '(r15 != 0))
 		;drag bottom edge
 		(vp-cpy-ir r1 ev_msg_y r11)
-		(vp-sub-ir r0 window_offset_y r11)
+		(vp-cpy-ir-i r0 window_offset_y r15)
+		(vp-sub-rr r15 r11)
 		(vp-cpy-rr r11 r15)
 		(vp-sub-rr r9 r15)
 		(vpif '(r15 < r13))
