@@ -302,8 +302,8 @@
 	;all but r0, r4
 
 	;save old info
-	(vp-cpy-ir r0 view_w r12)
-	(vp-cpy-ir r0 view_h r13)
+	(vp-cpy-ir-i r0 view_w r12)
+	(vp-cpy-ir-i r0 view_h r13)
 
 	;set new info
 	(f-call 'view 'set_bounds '(r0 r8 r9 r10 r11))
@@ -325,7 +325,9 @@
 	;all but r0, r4
 
 	;paste dirty region
-	(f-jmp 'view 'add_dirty '(r0 0 0 (r0 view_w) (r0 view_h)))
+	(vp-cpy-ir-i r0 view_w r10)
+	(vp-cpy-ir-i r0 view_h r11)
+	(f-jmp 'view 'add_dirty '(r0 0 0 r10 r11))
 
 (def-func-end)
 
@@ -570,10 +572,10 @@
 	;r10 = width
 	;r11 = height
 
-	(vp-cpy-ir r0 view_x r8)
-	(vp-cpy-ir r0 view_y r9)
-	(vp-cpy-ir r0 view_w r10)
-	(vp-cpy-ir r0 view_h r11)
+	(vp-cpy-ir-i r0 view_x r8)
+	(vp-cpy-ir-i r0 view_y r9)
+	(vp-cpy-ir-i r0 view_w r10)
+	(vp-cpy-ir-i r0 view_h r11)
 	(vp-ret)
 
 (def-func-end)
@@ -653,13 +655,15 @@
 	;r8 = relative x
 	;r9 = relative y
 	;trashes
-	;r2
+	;r2, r10-r11
 
 	;walk up tree to parent
 	(vp-cpy-rr r0 r2)
 	(loop-while '(r2 != r1))
-		(vp-add-ir r2 view_x r8)
-		(vp-add-ir r2 view_y r9)
+		(vp-cpy-ir-i r2 view_x r10)
+		(vp-cpy-ir-i r2 view_y r11)
+		(vp-add-rr r10 r8)
+		(vp-add-rr r11 r9)
 		(vp-cpy-ir r2 view_parent r2)
 		(assert '(r2 != 0))
 	(loop-end)
@@ -678,8 +682,10 @@
 
 	(vpif '(r8 >= 0))
 		(vpif '(r9 >= 0))
-			(vpif '(r8 < (r0 view_w)))
-				(vpif '(r9 < (r0 view_h)))
+			(vp-cpy-ir-i r0 view_w r1)
+			(vpif '(r8 < r1))
+				(vp-cpy-ir-i r0 view_h r1)
+				(vpif '(r9 < r1))
 					;hit ?
 					(vp-cpy-ir r0 view_flags r1)
 					(vp-and-cr view_flag_solid r1)
@@ -730,8 +736,10 @@
 	(vp-ret)
 
 (vp-label 'hit_down_callback)
-	(vp-sub-ir r0 view_x r8)
-	(vp-sub-ir r0 view_y r9)
+	(vp-cpy-ir-i r0 view_x r1)
+	(vp-sub-rr r1 r8)
+	(vp-cpy-ir-i r0 view_y r1)
+	(vp-sub-rr r1 r9)
 	(vp-cpy-ir r0 view_flags r1)
 	(vp-and-cr view_flag_solid r1)
 	(vp-ret)
@@ -745,8 +753,11 @@
 		(vp-cpy-ri r0 r2 local_hit)
 		(vp-jmp-i r2 local_jump)
 	(endif)
-	(vp-add-ir r0 view_x r8)
-	(vp-add-ir r0 view_y r9)
+	(vp-cpy-ir-i r0 view_x r1)
+	(vp-add-rr r1 r8)
+	(vp-cpy-ir-i r0 view_y r1)
+	(vp-add-rr r1 r9)
+	(vp-xor-rr r1 r1)
 	(vp-ret)
 
 (def-func-end)
@@ -761,7 +772,9 @@
 	(f-call 'view 'sub_opaque '(r0 -1000000 -1000000 2000000 2000000))
 
 	;paste opaque region
-	(f-jmp 'view 'add_opaque '(r0 0 0 (r0 view_w) (r0 view_h)))
+	(vp-cpy-ir-i r0 view_w r10)
+	(vp-cpy-ir-i r0 view_h r11)
+	(f-jmp 'view 'add_opaque '(r0 0 0 r10 r11))
 
 (def-func-end)
 
@@ -774,8 +787,8 @@
 	;trashes
 	;all but r0, r4
 
-	(vp-cpy-ir r0 view_w r10)
-	(vp-cpy-ir r0 view_h r11)
+	(vp-cpy-ir-i r0 view_w r10)
+	(vp-cpy-ir-i r0 view_h r11)
 	(vp-ret)
 
 (def-func-end)
@@ -788,10 +801,10 @@
 	;r10 = width
 	;r11 = height
 
-	(vp-cpy-ri r8 r0 view_x)
-	(vp-cpy-ri r9 r0 view_y)
-	(vp-cpy-ri r10 r0 view_w)
-	(vp-cpy-ri r11 r0 view_h)
+	(vp-cpy-ri-i r8 r0 view_x)
+	(vp-cpy-ri-i r9 r0 view_y)
+	(vp-cpy-ri-i r10 r0 view_w)
+	(vp-cpy-ri-i r11 r0 view_h)
 	(vp-ret)
 
 (def-func-end)

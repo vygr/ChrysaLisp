@@ -34,8 +34,8 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0) '((r4 local_inst)))
 
-	(vp-cpy-ir r0 view_w r10)
-	(vp-cpy-ir r0 view_h r11)
+	(vp-cpy-ir-i r0 view_w r10)
+	(vp-cpy-ir-i r0 view_h r11)
 	(vp-sub-cr (mul title_border_size 2) r10)
 	(vp-sub-cr (mul title_border_size 2) r11)
 	(f-call 'flow 'change '((r0 label_flow) title_border_size title_border_size r10 r11))
@@ -88,8 +88,8 @@
 	(vp-cpy-ir r0 view_parent r0)
 	(vp-cpy-ir r0 view_parent r0)
 	(vp-cpy-ri r0 r4 local_window)
-	(vp-cpy-ir r0 view_x r8)
-	(vp-cpy-ir r0 view_y r9)
+	(vp-cpy-ir-i r0 view_x r8)
+	(vp-cpy-ir-i r0 view_y r9)
 	(vp-cpy-ri r8 r4 local_old_x)
 	(vp-cpy-ri r9 r4 local_old_y)
 
@@ -107,8 +107,8 @@
 
 	;change window position
 	(vp-cpy-ir r4 local_window r0)
-	(vp-cpy-ri r8 r0 view_x)
-	(vp-cpy-ri r9 r0 view_y)
+	(vp-cpy-ri-i r8 r0 view_x)
+	(vp-cpy-ri-i r9 r0 view_y)
 
 	;translate old dirty area and dirty all
 	(vp-sub-ir r4 local_old_x r8)
