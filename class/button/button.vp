@@ -158,7 +158,7 @@
 	;all but r0, r4
 
 	;hit ?
-	(v-call 'button 'hit '(r0 (r1 ev_msg_rx) (r1 ev_msg_ry)) '(r1))
+	(v-call 'button 'hit '(r0 (r1 ev_msg_rx i) (r1 ev_msg_ry i)) '(r1))
 
 	;is mouse over button ?
 	(vp-cpy-ir r0 button_state r2)

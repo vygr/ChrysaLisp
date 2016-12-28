@@ -123,8 +123,8 @@
 	;all but r0, r4
 
 	;set drag code and offset
-	(vp-cpy-ir r1 ev_msg_rx r8)
-	(vp-cpy-ir r1 ev_msg_ry r9)
+	(vp-cpy-ir-i r1 ev_msg_rx r8)
+	(vp-cpy-ir-i r1 ev_msg_ry r9)
 	(vp-cpy-rr r8 r12)
 	(vp-cpy-rr r9 r13)
 	(vp-cpy-ir-i r0 view_w r10)
@@ -198,7 +198,7 @@
 	(vp-and-cr window_drag_left r15)
 	(vpif '(r15 != 0))
 		;drag left edge
-		(vp-cpy-ir r1 ev_msg_x r8)
+		(vp-cpy-ir-i r1 ev_msg_x r8)
 		(vp-cpy-ir-i r0 window_offset_x r15)
 		(vp-sub-rr r15 r8)
 		(vp-cpy-rr r10 r15)
@@ -212,7 +212,7 @@
 	(vp-and-cr window_drag_right r15)
 	(vpif '(r15 != 0))
 		;drag right edge
-		(vp-cpy-ir r1 ev_msg_x r10)
+		(vp-cpy-ir-i r1 ev_msg_x r10)
 		(vp-cpy-ir-i r0 window_offset_x r15)
 		(vp-sub-rr r15 r10)
 		(vp-cpy-rr r10 r15)
@@ -226,7 +226,7 @@
 	(vp-and-cr window_drag_top r15)
 	(vpif '(r15 != 0))
 		;drag top edge
-		(vp-cpy-ir r1 ev_msg_y r9)
+		(vp-cpy-ir-i r1 ev_msg_y r9)
 		(vp-cpy-ir-i r0 window_offset_y r15)
 		(vp-sub-rr r15 r9)
 		(vp-cpy-rr r11 r15)
@@ -240,7 +240,7 @@
 	(vp-and-cr window_drag_bottom r15)
 	(vpif '(r15 != 0))
 		;drag bottom edge
-		(vp-cpy-ir r1 ev_msg_y r11)
+		(vp-cpy-ir-i r1 ev_msg_y r11)
 		(vp-cpy-ir-i r0 window_offset_y r15)
 		(vp-sub-rr r15 r11)
 		(vp-cpy-rr r11 r15)
