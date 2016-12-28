@@ -106,7 +106,8 @@
 				(vp-cpy-ir r1 tk_statics_task_count r1)
 				(f-bind 'sys_link 'statics r2)
 				(loop-list-forward r2 lk_statics_links_list r3 r2)
-					(vpif '(r1 > (r3 lk_node_task_count)))
+					(vp-cpy-ir r3 lk_node_task_count r14)
+					(vpif '(r1 > r14))
 						(vp-cpy-ir r3 lk_node_cpu_id r0)
 						(vp-cpy-ir r3 lk_node_task_count r1)
 					(endif)
@@ -122,7 +123,8 @@
 				(f-bind 'sys_task 'statics r0)
 				(vp-cpy-ir r15 kn_msg_link_route_origin r1)
 				(vp-inc r1)
-				(vpif '(r1 > (r0 tk_statics_cpu_total)))
+				(vp-cpy-ir r0 tk_statics_cpu_total r14)
+				(vpif '(r1 > r14))
 					(vp-cpy-ri r1 r0 tk_statics_cpu_total)
 				(endif)
 
@@ -152,7 +154,8 @@
 						(f-call 'sys_mem 'grow_clr '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size)) (& r11 lk_route_size)) '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size))))
 
 						(vp-add-cr lk_route_hops r0)
-						(vpif '(r13 == (r12 lk_node_cpu_id)))
+						(vp-cpy-ir r12 lk_node_cpu_id r14)
+						(vpif '(r13 == r14))
 							;via route
 							(vp-cpy-ir r15 kn_msg_link_route_hops r2)
 							(vp-cpy-rd r2 r0 r11)
@@ -170,8 +173,8 @@
 					(loop-list-forward r14 lk_statics_links_list r12 r14)
 						;new link route table ?
 						(f-call 'sys_mem 'grow_clr '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size)) (& r11 lk_route_size)) '((r12 (add lk_node_table lk_table_array)) (r12 (add lk_node_table lk_table_array_size))))
-
-						(vpif '(r13 == (r12 lk_node_cpu_id)))
+						(vp-cpy-ir r12 lk_node_cpu_id r14)
+						(vpif '(r13 == r14))
 							;via route
 							(vp-cpy-ir r15 kn_msg_link_route_hops r2)
 							(vp-add-cr lk_route_hops r0)

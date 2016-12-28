@@ -118,7 +118,8 @@
 	;search font list
 	(loop-flist-forward r5 ft_statics_font_flist r5 r5)
 		(vp-cpy-ir r4 local_points r0)
-		(continueif '(r0 != (r5 ft_font_points)))
+		(vp-cpy-ir r5 ft_font_points r1)
+		(continueif '(r0 != r1))
 		(f-call 'sys_string 'compare '((& r5 ft_font_name) (r4 local_font)) '(r0))
 	(loop-until '(r0 == 0))
 
@@ -151,7 +152,8 @@
 	;search font list
 	(loop-flist-forward r5 ft_statics_font_flist r5 r5)
 		(vp-cpy-ir r14 local_points r0)
-		(continueif '(r0 != (r5 ft_font_points)))
+		(vp-cpy-ir r5 ft_font_points r1)
+		(continueif '(r0 != r1))
 		(f-call 'sys_string 'compare '((& r5 ft_font_name) (r14 local_font)) '(r0))
 	(loop-until '(r0 == 0))
 
@@ -229,7 +231,8 @@
 	;search bucket
 	(loop-flist-forward r5 0 r5 r6)
 		(vp-cpy-ir r4 local_font r0)
-		(continueif '(r0 != (r5 ft_text_font)))
+		(vp-cpy-ir r5 ft_text_font r1)
+		(continueif '(r0 != r1))
 		(f-call 'sys_string 'compare '((& r5 ft_text_name) (r4 local_text)) '(r0))
 	(loop-until '(r0 == 0))
 

@@ -152,7 +152,8 @@
 	;on or off chip ?
 	(vp-cpy-rr r0 r2)
 	(f-call 'sys_cpu 'id '() '(r0))
-	(vpif '(r0 == (r2 (add msg_dest id_cpu))))
+	(vp-cpy-ir r2 (add msg_dest id_cpu) r1)
+	(vpif '(r0 == r1))
 		;on this chip
 		(vp-cpy-ir r2 msg_parcel_size r1)
 		(vpif '(r1 != 0))
@@ -254,8 +255,10 @@
 		(vp-cpy-ir r15 (add msg_parcel_id id_cpu) r7)
 		(vp-cpy-ir r15 (add msg_dest id_mbox) r13)
 		(loop-list-forward r13 mailbox_parcel_list r0 r1)
-			(continueif '(r6 != (r0 (add msg_parcel_id id_mbox))))
-		(loop-until '(r7 == (r0 (add msg_parcel_id id_cpu))))
+			(vp-cpy-ir r0 (add msg_parcel_id id_mbox) r2)
+			(continueif '(r6 != r2))
+			(vp-cpy-ir r0 (add msg_parcel_id id_cpu) r2)
+		(loop-until '(r7 == r2))
 		(vpif '(r1 == 0))
 			;new parcel
 			(vp-cpy-ir r15 msg_parcel_size r12)
@@ -297,7 +300,8 @@
 		(f-call 'sys_mem 'copy '(r0 r1 r2) '(_ _))
 
 		;got all needed ?
-		(vpif '(r13 == (r14 msg_length)))
+		(vp-cpy-ir r14 msg_length r1)
+		(vpif '(r13 == r1))
 			;yes, remove parcel and post it
 			(vp-cpy-rr r14 r1)
 			(ln-remove-node r1 r2)

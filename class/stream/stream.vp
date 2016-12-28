@@ -85,9 +85,12 @@
 	;outputs
 	;r0 = stream object
 	;r1 = available space
+	;trashes
+	;r2
 
 	(vp-cpy-ir r0 stream_bufe r1)
-	(vp-sub-ir r0 stream_bufp r1)
+	(vp-cpy-ir r0 stream_bufp r2)
+	(vp-sub-rr r2 r1)
 	(vp-ret)
 
 (def-func-end)

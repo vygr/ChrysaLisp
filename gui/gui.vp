@@ -173,7 +173,8 @@
 		(vpif '(r8 == r11))
 			(vp-cpy-ir-i r4 local_last_y_pos r11)
 			(vpif '(r9 == r11))
-				(vpif '(r10 == (r4 local_last_buttons)))
+				(vp-cpy-ir-i r4 local_last_buttons r11)
+				(vpif '(r10 == r11))
 					;same as last time
 					(vp-jmp 'next_frame)
 				(endif)
@@ -235,7 +236,8 @@
 				;find view
 				(f-bind 'gui_gui 'statics r5)
 				(f-call 'view 'hit_tree '((r5 gui_statics_screen) (r4 local_x_pos i) (r4 local_y_pos i)) '(r1 r8 r9))
-				(vpif '(r1 == (r5 gui_statics_screen)))
+				(vp-cpy-ir-i r5 gui_statics_screen r6)
+				(vpif '(r1 == r6))
 					(vp-xor-rr r1 r1)
 				(endif)
 				(vpif '(r1 == 0))
@@ -581,7 +583,8 @@
 
 	;remove opaque region from ancestors if not root
 	(vp-cpy-ir r4 vis_inst r1)
-	(vpif '(r1 != (r4 vis_root)))
+	(vp-cpy-ir r4 vis_root r2)
+	(vpif '(r1 != r2))
 		;remove my opaque region from ancestors
 		(vp-xor-rr r2 r2)
 		(vp-cpy-ri r2 r4 vis_region)
@@ -630,7 +633,8 @@
 			(f-call 'gui_region 'remove_region '(r0 r1 r2 0 0))
 
 			(vp-cpy-ir r4 vis_next r1)
-		(loop-until '(r1 == (r4 vis_root)))
+			(vp-cpy-ir r4 vis_root r2)
+		(loop-until '(r1 == r2))
 
 		;free any temp region
 		(vp-lea-i r4 vis_region r1)
@@ -640,7 +644,8 @@
 	;clip local dirty region with parent bounds if not root
 	(vp-cpy-ir r4 vis_inst r1)
 	(vp-cpy-ir r1 view_parent r2)
-	(vpif '(r1 == (r4 vis_root)))
+	(vp-cpy-ir r4 vis_root r3)
+	(vpif '(r1 == r3))
 		(vp-cpy-rr r1 r2)
 	(endif)
 	(vp-cpy-ir-i r1 view_x r8)
@@ -656,7 +661,8 @@
 
 	;paste local dirty region onto parent if not root
 	(vp-cpy-ir r4 vis_inst r1)
-	(vpif '(r1 != (r4 vis_root)))
+	(vp-cpy-ir r4 vis_root r3)
+	(vpif '(r1 != r3))
 		(vp-cpy-ir-i r1 view_x r8)
 		(vp-cpy-ir-i r1 view_y r9)
 		(vp-cpy-ir r1 view_parent r2)
@@ -692,7 +698,8 @@
 
 	;copy view from parent if not root
 	(vp-cpy-ir r4 dist_inst r2)
-	(vpif '(r2 != (r1 local_root)))
+	(vp-cpy-ir r1 local_root r3)
+	(vpif '(r2 != r3))
 		;copy my area from parent
 		(vp-cpy-ir r2 view_parent r1)
 		(vp-cpy-ir-i r2 view_ctx_x r8)
@@ -724,7 +731,8 @@
 
 				(vp-cpy-ir r4 dist_next r2)
 				(vp-cpy-ir r4 dist_data r1)
-			(loop-until '(r2 == (r1 local_root)))
+				(vp-cpy-ir r1 local_root r3)
+			(loop-until '(r2 == r3))
 		(endif)
 	(endif)
 

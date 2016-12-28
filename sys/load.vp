@@ -232,7 +232,8 @@
 
 	;check loaded length equals file size
 	(vp-cpy-ir-ui r3 fn_header_length r0)
-	(vpif '(r0 != (r2 stat_fsize)))
+	(vp-cpy-ir r2 stat_fsize r1)
+	(vpif '(r0 != r1))
 		(vp-lea-p 'size_error r0)
 		(sys-write-string `(2 r0 (sub ,(label-sym 'size_error_end) ,(label-sym 'size_error))) '(_))
 		(sys-exit '(1))

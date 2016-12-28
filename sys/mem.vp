@@ -77,7 +77,9 @@
 	;find object heap
 	(f-bind 'sys_mem 'statics r0)
 	(vp-add-cr long_size r0)
-	(loop-while '(r1 > (r0 hp_heap_cellsize)))
+	(loop-start)
+		(vp-cpy-ir r0 hp_heap_cellsize r2)
+		(breakif '(r1 <= r2))
 		(vp-add-cr hp_heap_size r0)
 	(loop-end)
 

@@ -53,7 +53,8 @@
 	;test if we are the kernel task
 	(f-bind 'sys_task 'statics r3)
 	(vp-cpy-ir r3 tk_statics_current_tcb r2)
-	(vpif '(r2 == (r3 tk_statics_kernel_tcb)))
+	(vp-cpy-ir r3 tk_statics_kernel_tcb r5)
+	(vpif '(r2 == r5))
 		;yes we can just do local call
 		(vp-xchg-rr r0 r1)
 		(vp-jmp-r r1)
@@ -521,7 +522,8 @@
 
 	;add to timer list
 	(loop-list-forward r3 tk_statics_timer_list r5 r2)
-	(loop-until '(r0 < (r5 tk_node_time)))
+		(vp-cpy-ir r5 tk_node_time r3)
+	(loop-until '(r0 < r3))
 	(ln-add-node-before r5 r1 r0)
 
 	;restore next task
