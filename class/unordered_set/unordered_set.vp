@@ -597,7 +597,8 @@
 
 		(vp-cpy-ir r4 local_start_bucket r1)
 		(vp-inc r1)
-		(vpif '(r1 != (r4 local_end_bucket)))
+		(vp-cpy-ir r4 local_end_bucket r0)
+		(vpif '(r1 != r0))
 			(vp-cpy-ir r4 local_inst r0)
 			(f-call 'vector 'for_each '((r0 unordered_set_buckets) (r4 local_start_bucket) (r4 local_end_bucket) ($ callback) r4) '(_))
 		(endif)

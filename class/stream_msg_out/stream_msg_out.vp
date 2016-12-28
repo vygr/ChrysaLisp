@@ -97,7 +97,8 @@
 	;scan for seqnum
 	(loop-list-forward r0 0 r0 r1)
 		(breakif '(r2 == -1))
-	(loop-until '(r2 == (r0 stream_mail_seqnum)))
+		(vp-cpy-ir r0 stream_mail_seqnum r3)
+	(loop-until '(r2 == r3))
 	(vpif '(r1 == 0))
 		;not found
 		(vp-cpy-rr r1 r0)

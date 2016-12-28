@@ -50,9 +50,7 @@
 	(cond
 		((eql c 'c) (vp-cmp-cr s d))
 		((eql c 'r) (vp-cmp-rr s d))
-		((eql c 'i) (vp-cmp-ir (elem 0 s) (elem 1 s) d))
-		((eql c 'd) (vp-cmp-dr (elem 0 s) (elem 1 s) d))
-		(t (error "No such type" c)))
+		(t (error "No such compare mode" c)))
 	(cond
 		((eql o '==) (vp-beq l))
 		((eql o '!=) (vp-bne l))
@@ -67,9 +65,7 @@
 	(cond
 		((eql c 'c) (vp-cmp-cr s d))
 		((eql c 'r) (vp-cmp-rr s d))
-		((eql c 'i) (vp-cmp-ir (elem 0 s) (elem 1 s) d))
-		((eql c 'd) (vp-cmp-dr (elem 0 s) (elem 1 s) d))
-		(t (error "No such type" c)))
+		(t (error "No such compare mode" c)))
 	(cond
 		((eql o '==) (vp-bne l))
 		((eql o '!=) (vp-beq l))
@@ -141,33 +137,21 @@
 
 (defcfun vp-sub-cr (&rest b) (emit `(emit-sub-cr ~b)))
 (defcfun vp-sub-rr (&rest b) (emit `(emit-sub-rr ~b)))
-(defcfun vp-sub-ir (&rest b) (emit `(emit-sub-ir ~b)))
-(defcfun vp-sub-dr (&rest b) (emit `(emit-sub-dr ~b)))
 
 (defcfun vp-cmp-cr (&rest b) (emit `(emit-cmp-cr ~b)))
 (defcfun vp-cmp-rr (&rest b) (emit `(emit-cmp-rr ~b)))
-(defcfun vp-cmp-ir (&rest b) (emit `(emit-cmp-ir ~b)))
-(defcfun vp-cmp-dr (&rest b) (emit `(emit-cmp-dr ~b)))
 
 (defcfun vp-mul-cr (&rest b) (emit `(emit-mul-cr ~b)))
 (defcfun vp-mul-rr (&rest b) (emit `(emit-mul-rr ~b)))
-(defcfun vp-mul-ir (&rest b) (emit `(emit-mul-ir ~b)))
-(defcfun vp-mul-dr (&rest b) (emit `(emit-mul-dr ~b)))
 
 (defcfun vp-and-cr (&rest b) (emit `(emit-and-cr ~b)))
 (defcfun vp-and-rr (&rest b) (emit `(emit-and-rr ~b)))
-(defcfun vp-and-ir (&rest b) (emit `(emit-and-ir ~b)))
-(defcfun vp-and-dr (&rest b) (emit `(emit-and-dr ~b)))
 
 (defcfun vp-or-cr (&rest b) (emit `(emit-or-cr ~b)))
 (defcfun vp-or-rr (&rest b) (emit `(emit-or-rr ~b)))
-(defcfun vp-or-ir (&rest b) (emit `(emit-or-ir ~b)))
-(defcfun vp-or-dr (&rest b) (emit `(emit-or-dr ~b)))
 
 (defcfun vp-xor-cr (&rest b) (emit `(emit-xor-cr ~b)))
 (defcfun vp-xor-rr (&rest b) (emit `(emit-xor-rr ~b)))
-(defcfun vp-xor-ir (&rest b) (emit `(emit-xor-ir ~b)))
-(defcfun vp-xor-dr (&rest b) (emit `(emit-xor-dr ~b)))
 
 (defcfun vp-shl-cr (&rest b) (emit `(emit-shl-cr ~b)))
 (defcfun vp-shl-rr (&rest b) (emit `(emit-shl-rr ~b)))
@@ -718,8 +702,6 @@
 		(t (print "emit-sub-cr constant out of range: " c))))
 
 (defcfun emit-sub-rr (s d) (emit-rr 0x29 s d))
-(defcfun emit-sub-ir (s c d) (emit-ir 0x2b s c d))
-(defcfun emit-sub-dr (s1 s2 d) (emit-dr 0x2b s1 s2 d))
 
 (defcfun emit-cmp-cr (c r)
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
@@ -735,8 +717,6 @@
 		(t (print "emit-cmp-cr constant out of range: " c))))
 
 (defcfun emit-cmp-rr (s d) (emit-rr 0x39 s d))
-(defcfun emit-cmp-ir (s c d) (emit-ir 0x3b s c d))
-(defcfun emit-cmp-dr (s1 s2 d) (emit-dr 0x3b s1 s2 d))
 
 (defcfun emit-and-cr (c r)
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
@@ -752,8 +732,6 @@
 		(t (print "emit-and-cr constant out of range: " c))))
 
 (defcfun emit-and-rr (s d) (unless (eql s d) (emit-rr 0x21 s d)))
-(defcfun emit-and-ir (s c d) (emit-ir 0x23 s c d))
-(defcfun emit-and-dr (s1 s2 d) (emit-dr 0x23 s1 s2 d))
 
 (defcfun emit-or-cr (c r)
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
@@ -769,8 +747,6 @@
 		(t (print "emit-or-cr constant out of range: " c))))
 
 (defcfun emit-or-rr (s d) (unless (eql s d) (emit-rr 0x09 s d)))
-(defcfun emit-or-ir (s c d) (emit-ir 0x0b s c d))
-(defcfun emit-or-dr (s1 s2 d) (emit-dr 0x0b s1 s2 d))
 
 (defcfun emit-xor-cr (c r)
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
@@ -786,8 +762,6 @@
 		(t (print "emit-xor-cr constant out of range: " c))))
 
 (defcfun emit-xor-rr (s d) (emit-rr 0x31 s d))
-(defcfun emit-xor-ir (s c d) (emit-ir 0x33 s c d))
-(defcfun emit-xor-dr (s1 s2 d) (emit-dr 0x33 s1 s2 d))
 
 (defcfun emit-shl-cr (c r) (emit-shift-cr 0xe0 c r))
 (defcfun emit-shl-rr (s d) (emit-shift-rr 0xe0 s d))

@@ -158,7 +158,8 @@
 	(vp-cpy-ri r2 r4 local_end)
 	(loop-start)
 		(vp-cpy-ri r1 r4 local_next)
-		(breakif '(r1 == (r4 local_end)))
+		(vp-cpy-ir r4 local_end r0)
+		(breakif '(r1 == r0))
 		(vp-cpy-ir r4 local_predicate_data r0)
 		(vp-call-i r4 local_predicate)
 		(breakif '(r1 == 0))
@@ -167,9 +168,8 @@
 	(loop-end)
 
 	;iterator of break point, else 0
-	(vp-cpy-ir r4 local_next r1)
-	(vp-cpy-ir r4 local_inst r0)
-	(vpif '(r1 == (r4 local_end)))
+	(assign '((r4 local_inst) (r4 local_next) (r4 local_end)) '(r0 r1 r2))
+	(vpif '(r1 == r2))
 		(vp-xor-rr r1 r1)
 	(endif)
 	(vp-add-cr local_size r4)
@@ -185,7 +185,7 @@
 	;r0 = vector object
 	;r1 = -1, else index
 	;trashes
-	;r1-r3
+	;r1-r3, r5
 
 	(vp-cpy-rr r1 r3)
 	(vp-cpy-ir r0 vector_array r2)
@@ -194,7 +194,8 @@
 	(loop-start)
 		(vp-sub-cr ptr_size r1)
 		(breakif '(r1 < 0))
-	(loop-until '(r3 == (r2 r1)))
+		(vp-cpy-dr r2 r1 r5)
+	(loop-until '(r3 == r5))
 	(vp-asr-cr (pow2 ptr_size) r1)
 	(vp-ret)
 
@@ -297,7 +298,8 @@
 	(vp-cpy-ir r0 vector_length r1)
 	(vp-inc r1)
 	(vp-cpy-ri r1 r0 vector_length)
-	(vpif '(r1 > (r0 vector_capacity)))
+	(vp-cpy-ir r0 vector_capacity r2)
+	(vpif '(r1 > r2))
 		;double the capacity
 		(vp-add-rr r1 r1)
 		(f-call 'vector 'set_capacity '(r0 r1))
