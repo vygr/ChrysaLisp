@@ -315,10 +315,7 @@
 	;save inputs
 	(vp-sub-cr local_size r4)
 	(assign '(r0 r1 r2 r3) '((r4 local_ctx) (r4 local_color) (r4 local_flags) (r4 local_depth)))
-	(vp-cpy-ri-i r8 r4 local_x)
-	(vp-cpy-ri-i r9 r4 local_y)
-	(vp-cpy-ri-i r10 r4 local_w)
-	(vp-cpy-ri-i r11 r4 local_h)
+	(assign '(r8 r9 r10 r11) '((r4 local_x i) (r4 local_y i) (r4 local_w i) (r4 local_h i)))
 
 	(vpif '(r2 != 0))
 		;fill middle

@@ -21,7 +21,9 @@
 			(setq i (elem 0 o))
 			(cond
 				((reg i)
-					(if (reg (elem 1 o)) 'd 'i))
+					(if (reg (elem 1 o)) 'd
+						(if (eq 2 (length o)) 'i
+							(sym (cat "i" (str (elem 2 o)))))))
 				((eql i '@) i)
 				((eql i '$) i)
 				((eql i '&)
