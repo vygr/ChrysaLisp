@@ -1,4 +1,5 @@
 OS := $(shell uname)
+CPU := $(shell uname -m)
 
 all:		obj/main
 
@@ -24,6 +25,7 @@ endif
 
 obj/main.o:	main.nasm Makefile
 			echo $(OS) > platform
+			echo $(CPU) > arch
 			unzip -nq $(OS).zip
 ifeq ($(OS),Darwin)
 			nasm -dOS=$(OS) -f macho64 -o $@ $<
