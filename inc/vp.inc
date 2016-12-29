@@ -241,7 +241,7 @@
 ;;;;;;;;;;;;;;;;;;;;;
 
 (cond
-((eql *cpu* 'x64)
+((eql *cpu* 'x86_64)
 (import 'inc/x64.inc))
 ((eql *cpu* 'ARM)
 (import 'inc/arm.inc))

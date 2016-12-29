@@ -341,7 +341,7 @@
 		(setq o (sym (read-line f)))) o)
 
 (defun cpu ()
-	(defq o 'x64)
+	(defq o 'x86_64)
 	(when (defq f (file-stream 'arch))
 		(setq o (sym (read-line f)))) o)
 

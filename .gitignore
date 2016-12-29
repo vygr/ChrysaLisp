@@ -3,4 +3,5 @@ tst/*
 tmp/*
 syscalls
 platform
+arch
 .vscode/cSpell.json
