@@ -338,11 +338,16 @@
 (defun platform ()
 	(defq o 'Darwin)
 	(when (defq f (file-stream 'platform))
-		(setq o (sym (read-line f))))
-	o)
+		(setq o (sym (read-line f)))) o)
 
-(defun compile (*files* &optional *os*)
-	(defq *compile-env* (env 101) *os* (if *os* *os* (platform)) *imports* (list))
+(defun cpu ()
+	(defq o 'x64)
+	(when (defq f (file-stream 'arch))
+		(setq o (sym (read-line f)))) o)
+
+(defun compile (*files* &optional *os* *cpu*)
+	(defq *compile-env* (env 101) *imports* (list)
+		*os* (if *os* *os* (platform)) *cpu* (if *cpu* *cpu* (cpu)))
 	(defmacro defcvar (&rest b)
 		`(def *compile-env* ~b))
 	(defmacro defcfun (n a &rest b)
@@ -358,7 +363,7 @@
 	(each import *files*)
 	(setq *compile-env* nil))
 
-(defun make (&optional *os*)
+(defun make (&optional *os* *cpu*)
 	(compile ((lambda ()
 		(defq *make-env* (env 101) *imports* (list "make.inc") i -1)
 		(defun make-sym (f)
@@ -402,10 +407,10 @@
 			(some (lambda (x) (ge x p)) (map make-time d))) *imports*))
 		;drop the make enviroment and return the list to compile
 		(setq *make-env* nil)
-		*imports*)) *os*))
+		*imports*)) *os* *cpu*))
 
-(defun make-all (&optional *os*)
-	(compile "make.inc" *os*))
+(defun make-all (&optional *os* *cpu*)
+	(compile "make.inc" *os* *cpu*))
 
 ;test code for OOPS stuff
 
@@ -427,7 +432,7 @@
 		(list m_w m_h)))
 
 (defq button (make-button 0 0 256 32))
-(scope-progn button (print (get-pos)) (print (get-size)))
+;(scope-progn button (print (get-pos)) (print (get-size)))
 (scope-progn button (set-pos 50 100) (set-size 100 120))
-(scope-progn button (print (get-pos)) (print (get-size)))
+;(scope-progn button (print (get-pos)) (print (get-size)))
 (setq button nil)
