@@ -33,16 +33,16 @@
 
 					;clip region
 					(vpif '(r12 < r8))
-						(vp-cpy-ri-i r8 r7 gui_rect_x)
+						(assign '(r8) '((r7 gui_rect_x i)))
 					(endif)
 					(vpif '(r13 < r9))
-						(vp-cpy-ri-i r9 r7 gui_rect_y)
+						(assign '(r9) '((r7 gui_rect_y i)))
 					(endif)
 					(vpif '(r14 > r10))
-						(vp-cpy-ri-i r10 r7 gui_rect_x1)
+						(assign '(r10) '((r7 gui_rect_x1 i)))
 					(endif)
 					(vpif '(r15 > r11))
-						(vp-cpy-ri-i r11 r7 gui_rect_y1)
+						(assign '(r11) '((r7 gui_rect_y1 i)))
 					(endif)
 					(vp-jmp 'loop)
 				(endswitch)
@@ -98,10 +98,7 @@
 
 			(vp-label 'copy_xyx1y1)
 				;r8 + r9 + r10 + r11 inside
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r8 r9 r10 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_split1)
@@ -112,10 +109,7 @@
 
 			(vp-label 'copy_yx1y1)
 				;r9 + r10 + r11 inside
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r9 r10 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_split2)
@@ -125,10 +119,7 @@
 
 			(vp-label 'copy_xx1y1)
 				;r8 + r10 + r11 inside
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r8 r13 r10 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_split3)
@@ -138,10 +129,7 @@
 
 			(vp-label 'copy_x1y1)
 				;r10 + r11 inside
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r13 r10 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_split4)
@@ -150,10 +138,7 @@
 
 			(vp-label 'copy_xyy1)
 				;r8 + r9 + r11 inside
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r8 r9 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_split5)
@@ -162,10 +147,7 @@
 
 			(vp-label 'copy_yy1)
 				;r9 + r11 inside
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r9 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_split6)
@@ -174,10 +156,7 @@
 
 			(vp-label 'copy_xy1)
 				;r8 + r11 inside
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r8 r13 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_split7)
@@ -186,74 +165,47 @@
 
 			(vp-label 'copy_y1)
 				;r11 inside
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_xyx1)
 				;r8 + r9 + r10 inside
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r8 r9 r10 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_encl)
 				;region is enclosed
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_x)
 				;r8 inside
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r8 r13 r14 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_y)
 				;r9 inside
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r12 r9 r14 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_xy)
 				;r8 + r9 inside
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r8 r9 r14 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_x1)
 				;r10 inside
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r12 r13 r10 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_xx1)
 				;r8 + r10 inside
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r8 r13 r10 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'copy_yx1)
 				;r9 + r10 inside
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r12 r9 r10 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 			(loop-end)
 		(endif)
 	(endif)
@@ -276,24 +228,20 @@
 		(ptr 'local_node)
 		(ptr 'local_slist)
 		(ptr 'local_dlist)
-		(long 'local_dx)
-		(long 'local_dy)
+		(int 'local_dx)
+		(int 'local_dy)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r1 r2 r8 r9) '((r4 local_slist) (r4 local_dlist) (r4 local_dx) (r4 local_dy)))
+	(assign '(r1 r2 r8 r9) '((r4 local_slist) (r4 local_dlist) (r4 local_dx i) (r4 local_dy i)))
 
 	;run through copy region list
 	(loop-flist-forward r3 0 r1 r1)
 		(vp-cpy-ri r1 r4 local_node)
 
-		(vp-cpy-ir-i r1 gui_rect_x r8)
-		(vp-cpy-ir-i r1 gui_rect_y r9)
-		(vp-cpy-ir-i r1 gui_rect_x1 r10)
-		(vp-cpy-ir-i r1 gui_rect_y1 r11)
-		(vp-cpy-ir r4 local_dx r12)
-		(vp-cpy-ir r4 local_dy r13)
+		(assign '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)) '(r8 r9 r10 r11))
+		(assign '((r4 local_dx i) (r4 local_dy i)) '(r12 r13))
 		(vp-add-rr r12 r8)
 		(vp-add-rr r13 r9)
 		(vp-add-rr r12 r10)
@@ -346,39 +294,27 @@
 			(vp-label 'cut_xyx1y1)
 				;r8 + r9 + r10 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r8 r9 r10 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r10 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r10 r9 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r8 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r9 r8 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_split1)
@@ -390,31 +326,22 @@
 			(vp-label 'cut_yx1y1)
 				;r9 + r10 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r9 r10 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r10 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r10 r9 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_split2)
@@ -425,31 +352,22 @@
 			(vp-label 'cut_xx1y1)
 				;r8 + r10 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r8 r13 r10 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r10 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r10 r13 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r8 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r13 r8 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_split3)
@@ -460,23 +378,17 @@
 			(vp-label 'cut_x1y1)
 				;r10 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r13 r10 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r10 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r10 r13 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_split4)
@@ -486,31 +398,22 @@
 			(vp-label 'cut_xyy1)
 				;r8 + r9 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r8 r9 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r8 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r9 r8 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_split5)
@@ -520,23 +423,17 @@
 			(vp-label 'cut_yy1)
 				;r9 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r9 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_split6)
@@ -546,23 +443,17 @@
 			(vp-label 'cut_xy1)
 				;r8 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r8 r13 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r8 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r13 r8 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_split7)
@@ -572,46 +463,33 @@
 			(vp-label 'cut_y1)
 				;r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_xyx1)
 				;r8 + r9 + r10 inside
 				;left part
-				(vp-cpy-ri-i r9 r7 gui_rect_y)
-				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				(assign '(r9 r8) '((r7 gui_rect_y i) (r7 gui_rect_x1 i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r8 r9 r10 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r10 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r10 r9 r14 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_encl)
@@ -625,111 +503,82 @@
 			(vp-label 'cut_x)
 				;r8 inside
 				;left part
-				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				(assign '(r8) '((r7 gui_rect_x1 i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r8 r13 r14 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_y)
 				;r9 inside
 				;top part
-				(vp-cpy-ri-i r9 r7 gui_rect_y1)
+				(assign '(r9) '((r7 gui_rect_y1 i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r12 r9 r14 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_xy)
 				;r8 + r9 inside
 				;left part
-				(vp-cpy-ri-i r9 r7 gui_rect_y)
-				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				(assign '(r9 r8) '((r7 gui_rect_y i) (r7 gui_rect_x1 i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r8 r9 r14 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_x1)
 				;r10 inside
 				;right part
-				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				(assign '(r10) '((r7 gui_rect_x i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r12 r13 r10 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_xx1)
 				;r8 + r10 inside
 				;right part
-				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				(assign '(r10) '((r7 gui_rect_x i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r8 r13 r10 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r8 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r12 r13 r8 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'cut_yx1)
 				;r9 + r10 inside
 				;right part
-				(vp-cpy-ri-i r10 r7 gui_rect_x)
-				(vp-cpy-ri-i r9 r7 gui_rect_y)
+				(assign '(r10 r9) '((r7 gui_rect_x i) (r7 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r12 r9 r10 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r6 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 			(loop-end)
 			(vp-add-cr 8 r4)
 		(endif)
@@ -821,15 +670,12 @@
 			(vp-label 'paste_x1y1)
 				;r10 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r10 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r10 r13 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'paste_split4)
@@ -848,15 +694,12 @@
 			(vp-label 'paste_yy1)
 				;r9 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'paste_split6)
@@ -866,15 +709,12 @@
 			(vp-label 'paste_xy1)
 				;r8 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r8 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r13 r8 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'paste_split7)
@@ -884,7 +724,7 @@
 			(vp-label 'paste_y1)
 				;r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				(continue)
 
 			(vp-label 'paste_xyx1)
@@ -902,63 +742,52 @@
 			(vp-label 'paste_x)
 				;r8 inside
 				;left part
-				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				(assign '(r8) '((r7 gui_rect_x1 i)))
 				(continue)
 
 			(vp-label 'paste_y)
 				;r9 inside
 				;top part
-				(vp-cpy-ri-i r9 r7 gui_rect_y1)
+				(assign '(r9) '((r7 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'paste_xy)
 				;r8 + r9 inside
 				;left part
-				(vp-cpy-ri-i r9 r7 gui_rect_y)
-				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				(assign '(r9 r8) '((r7 gui_rect_y i) (r7 gui_rect_x1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'paste_x1)
 				;r10 inside
 				;right part
-				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				(assign '(r10) '((r7 gui_rect_x i)))
 				(continue)
 
 			(vp-label 'paste_xx1)
 				;r8 + r10 inside
 				;right part
-				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				(assign '(r10) '((r7 gui_rect_x i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r8 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r12 r13 r8 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'paste_yx1)
 				;r9 + r10 inside
 				;right part
-				(vp-cpy-ri-i r10 r7 gui_rect_x)
-				(vp-cpy-ri-i r9 r7 gui_rect_y)
+				(assign '(r10 r9) '((r7 gui_rect_x i) (r7 gui_rect_y i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 			(loop-end)
 
 			;create new region ?
@@ -969,10 +798,7 @@
 				(breakif '(r1 == 0))
 
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r8 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r10 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r8 r9 r10 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 			(endswitch)
 		(endif)
 	(endif)
@@ -993,24 +819,20 @@
 	(def-struct 'local)
 		(ptr 'local_node)
 		(ptr 'local_dlist)
-		(long 'local_dx)
-		(long 'local_dy)
+		(int 'local_dx)
+		(int 'local_dy)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r2 r8 r9) '((r4 local_dlist) (r4 local_dx) (r4 local_dy)))
+	(assign '(r2 r8 r9) '((r4 local_dlist) (r4 local_dx i) (r4 local_dy i)))
 
 	;run through source region list
 	(loop-flist-forward r1 0 r1 r1)
 		(vp-cpy-ri r1 r4 local_node)
 
-		(vp-cpy-ir-i r1 gui_rect_x r8)
-		(vp-cpy-ir-i r1 gui_rect_y r9)
-		(vp-cpy-ir-i r1 gui_rect_x1 r10)
-		(vp-cpy-ir-i r1 gui_rect_y1 r11)
-		(vp-cpy-ir r4 local_dx r12)
-		(vp-cpy-ir r4 local_dy r13)
+		(assign '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)) '(r8 r9 r10 r11))
+		(assign '((r4 local_dx i) (r4 local_dy i)) '(r12 r13))
 		(vp-add-rr r12 r8)
 		(vp-add-rr r13 r9)
 		(vp-add-rr r12 r10)
@@ -1060,31 +882,22 @@
 			(vp-label 'rem_xyx1y1)
 				;r8 + r9 + r10 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r10 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r10 r9 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r8 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r9 r8 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'rem_split1)
@@ -1096,23 +909,17 @@
 			(vp-label 'rem_yx1y1)
 				;r9 + r10 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r10 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r10 r9 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'rem_split2)
@@ -1123,23 +930,17 @@
 			(vp-label 'rem_xx1y1)
 				;r8 + r10 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r10 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r10 r13 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r8 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r13 r8 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'rem_split3)
@@ -1150,15 +951,12 @@
 			(vp-label 'rem_x1y1)
 				;r10 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r10 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r10 r13 r14 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'rem_split4)
@@ -1168,23 +966,17 @@
 			(vp-label 'rem_xyy1)
 				;r8 + r9 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r8 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r9 r8 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'rem_split5)
@@ -1194,15 +986,12 @@
 			(vp-label 'rem_yy1)
 				;r9 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'rem_split6)
@@ -1212,15 +1001,12 @@
 			(vp-label 'rem_xy1)
 				;r8 + r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r8 r1 gui_rect_x1)
-				(vp-cpy-ri-i r11 r1 gui_rect_y1)
+				(assign '(r12 r13 r8 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'rem_split7)
@@ -1230,30 +1016,23 @@
 			(vp-label 'rem_y1)
 				;r11 inside
 				;bottom part
-				(vp-cpy-ri-i r11 r7 gui_rect_y)
+				(assign '(r11) '((r7 gui_rect_y i)))
 				(continue)
 
 			(vp-label 'rem_xyx1)
 				;r8 + r9 + r10 inside
 				;left part
-				(vp-cpy-ri-i r9 r7 gui_rect_y)
-				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				(assign '(r9 r8) '((r7 gui_rect_y i) (r7 gui_rect_x1 i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r10 r1 gui_rect_x)
-				(vp-cpy-ri-i r9 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r10 r9 r14 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'rem_encl)
@@ -1266,63 +1045,52 @@
 			(vp-label 'rem_x)
 				;r8 inside
 				;left part
-				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				(assign '(r8) '((r7 gui_rect_x1 i)))
 				(continue)
 
 			(vp-label 'rem_y)
 				;r9 inside
 				;top part
-				(vp-cpy-ri-i r9 r7 gui_rect_y1)
+				(assign '(r9) '((r7 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'rem_xy)
 				;r8 + r9 inside
 				;left part
-				(vp-cpy-ri-i r9 r7 gui_rect_y)
-				(vp-cpy-ri-i r8 r7 gui_rect_x1)
+				(assign '(r9 r8) '((r7 gui_rect_y i) (r7 gui_rect_x1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'rem_x1)
 				;r10 inside
 				;right part
-				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				(assign '(r10) '((r7 gui_rect_x i)))
 				(continue)
 
 			(vp-label 'rem_xx1)
 				;r8 + r10 inside
 				;right part
-				(vp-cpy-ri-i r10 r7 gui_rect_x)
+				(assign '(r10) '((r7 gui_rect_x i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r8 r1 gui_rect_x1)
-				(vp-cpy-ri-i r15 r1 gui_rect_y1)
+				(assign '(r12 r13 r8 r15) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
 
 			(vp-label 'rem_yx1)
 				;r9 + r10 inside
 				;right part
-				(vp-cpy-ri-i r10 r7 gui_rect_x)
-				(vp-cpy-ri-i r9 r7 gui_rect_y)
+				(assign '(r10 r9) '((r7 gui_rect_x i) (r7 gui_rect_y i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r1))
 				(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
-				(vp-cpy-ri-i r12 r1 gui_rect_x)
-				(vp-cpy-ri-i r13 r1 gui_rect_y)
-				(vp-cpy-ri-i r14 r1 gui_rect_x1)
-				(vp-cpy-ri-i r9 r1 gui_rect_y1)
+				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 			(loop-end)
 		(endif)
 	(endif)
@@ -1343,24 +1111,20 @@
 	(def-struct 'local)
 		(ptr 'local_node)
 		(ptr 'local_dlist)
-		(long 'local_dx)
-		(long 'local_dy)
+		(int 'local_dx)
+		(int 'local_dy)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r2 r8 r9) '((r4 local_dlist) (r4 local_dx) (r4 local_dy)))
+	(assign '(r2 r8 r9) '((r4 local_dlist) (r4 local_dx i) (r4 local_dy i)))
 
 	;run through source region list
 	(loop-flist-forward r1 0 r1 r1)
 		(vp-cpy-ri r1 r4 local_node)
 
-		(vp-cpy-ir-i r1 gui_rect_x r8)
-		(vp-cpy-ir-i r1 gui_rect_y r9)
-		(vp-cpy-ir-i r1 gui_rect_x1 r10)
-		(vp-cpy-ir-i r1 gui_rect_y1 r11)
-		(vp-cpy-ir r4 local_dx r12)
-		(vp-cpy-ir r4 local_dy r13)
+		(assign '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)) '(r8 r9 r10 r11))
+		(assign '((r4 local_dx i) (r4 local_dy i)) '(r12 r13))
 		(vp-add-rr r12 r8)
 		(vp-add-rr r13 r9)
 		(vp-add-rr r12 r10)
@@ -1384,18 +1148,14 @@
 
 	;run through source region list
 	(loop-flist-forward r1 0 r1 r1)
-		(vp-cpy-ir-i r1 gui_rect_x r10)
-		(vp-cpy-ir-i r1 gui_rect_y r11)
+		(assign '((r1 gui_rect_x i) (r1 gui_rect_y i)) '(r10 r11))
 		(vp-add-rr r8 r10)
 		(vp-add-rr r9 r11)
-		(vp-cpy-ri-i r10 r1 gui_rect_x)
-		(vp-cpy-ri-i r11 r1 gui_rect_y)
-		(vp-cpy-ir-i r1 gui_rect_x1 r10)
-		(vp-cpy-ir-i r1 gui_rect_y1 r11)
+		(assign '(r10 r11) '((r1 gui_rect_x i) (r1 gui_rect_y i)))
+		(assign '((r1 gui_rect_x1 i) (r1 gui_rect_y1 i)) '(r10 r11))
 		(vp-add-rr r8 r10)
 		(vp-add-rr r9 r11)
-		(vp-cpy-ri-i r10 r1 gui_rect_x1)
-		(vp-cpy-ri-i r11 r1 gui_rect_y1)
+		(assign '(r10 r11) '((r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 	(loop-end)
 	(vp-ret)
 
