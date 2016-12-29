@@ -203,6 +203,7 @@
 		(assign {inst->vdu_height - 1} {inst->vdu_cursor_y})
 		(f-call 'sys_mem 'copy {inst->vdu_chars + inst->vdu_width, inst->vdu_chars, (inst->vdu_height - 1) * inst->vdu_width} {_, _})
 		(f-call 'sys_mem 'fill {inst->vdu_chars + (inst->vdu_height - 1) * inst->vdu_width, inst->vdu_width, 32} {_})
+		(f-call 'vdu 'dirty {inst})
 	(endif)
 
 	(vpif {char == 10})
@@ -215,14 +216,15 @@
 			(assign {inst->vdu_cursor_x - 1} {inst->vdu_cursor_x})
 			(assign {inst->vdu_cursor_y * inst->vdu_width + inst->vdu_cursor_x + inst->vdu_chars} {charp})
 			(assign {32} {*charp})
+			(f-call 'vdu 'add_dirty {inst, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
 		(endif)
 	(elseif {char >= 32 && char < 127})
 		;printable char
 		(assign {inst->vdu_cursor_y * inst->vdu_width + inst->vdu_cursor_x + inst->vdu_chars} {charp})
 		(assign {char} {*charp})
+		(f-call 'vdu 'add_dirty {inst, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
 		(assign {inst->vdu_cursor_x + 1} {inst->vdu_cursor_x})
 	(endif)
-	(f-call 'vdu 'dirty {inst})
 
 	(pop-scope)
 	(return)
