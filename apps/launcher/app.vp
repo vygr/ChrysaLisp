@@ -89,7 +89,6 @@
 	(assign '(r0 r1) {inst, button})
 	(f-call 'button 'get_text {button} {string})
 	(f-call 'sys_task 'open {string} {_, _})
-	(f-call 'string 'deref {string})
 	(pop-scope)
 	(return)
 

@@ -78,6 +78,29 @@
 
 (def-func-end)
 
+(def-func 'class/label/ref_text)
+	;inputs
+	;r0 = label object
+	;outputs
+	;r0 = label object
+	;r1 = 0, else string object
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(assign '(r0) '((r4 local_inst)))
+
+	(f-call 'text 'ref_text '((r0 label_text)) '(r1))
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
 (def-func 'class/label/layout)
 	;inputs
 	;r0 = label object

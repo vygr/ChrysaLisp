@@ -7,6 +7,7 @@
 (def-method 'set_font 'class/text/set_font 'static '(r0 r1 r2))
 (def-method 'set_text 'class/text/set_text 'static '(r0 r1))
 (def-method 'get_text 'class/text/get_text 'static '(r0) '(r1))
+(def-method 'ref_text 'class/text/ref_text 'static '(r0) '(r1))
 (def-method 'set_text_color 'class/text/set_text_color 'static '(r0 r1))
 
 (def-method 'deinit 'class/text/deinit 'override)

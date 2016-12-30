@@ -129,7 +129,7 @@
 	;save inputs
 	(push-scope)
 	(assign '(r0 r1) {inst, button})
-	(f-call 'button 'get_text {button} {button_string})
+	(f-call 'button 'ref_text {button} {button_string})
 	(vpif {button_string->string_length == 2})
 		;AC
 		(f-call 'string 'create_from_cstr {"0"} {string})
@@ -190,7 +190,6 @@
 			(endif)
 		(endif)
 		(f-call 'label 'set_text {inst->shared_display, string})
-		(f-call 'string 'deref {display_string})
 	(endif)
 	(f-call 'string 'deref {button_string})
 	(f-call 'label 'dirty {inst->shared_display})
