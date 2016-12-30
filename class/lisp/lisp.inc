@@ -1,4 +1,4 @@
-(import 'class/class_ref.inc)
+(import 'class/ref/ref.inc)
 
 (def-class 'lisp 'ref)
 (def-method 'create 'class/lisp/create 'static '(r0 r1 r2) '(r0))

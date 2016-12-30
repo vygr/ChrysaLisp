@@ -1,9 +1,9 @@
 (import 'inc/func.inc)
 (import 'inc/gui.inc)
 (import 'inc/font.inc)
-(import 'class/class_vector.inc)
-(import 'class/class_text.inc)
-(import 'class/class_string.inc)
+(import 'class/vector/vector.inc)
+(import 'class/text/text.inc)
+(import 'class/string/string.inc)
 
 (class-macro-new 'text)
 (class-macro-create 'text)

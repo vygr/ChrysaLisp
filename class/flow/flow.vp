@@ -1,5 +1,5 @@
 (import 'inc/func.inc)
-(import 'class/class_flow.inc)
+(import 'class/flow/flow.inc)
 
 (class-macro-new 'flow)
 (class-macro-create 'flow)

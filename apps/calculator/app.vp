@@ -2,11 +2,11 @@
 (import 'inc/mail.inc)
 (import 'inc/gui.inc)
 (import 'inc/string.inc)
-(import 'class/class_window.inc)
-(import 'class/class_flow.inc)
-(import 'class/class_grid.inc)
-(import 'class/class_button.inc)
-(import 'class/class_string.inc)
+(import 'class/window/window.inc)
+(import 'class/flow/flow.inc)
+(import 'class/grid/grid.inc)
+(import 'class/button/button.inc)
+(import 'class/string/string.inc)
 
 (def-func 'apps/calculator/app)
 

@@ -1,4 +1,4 @@
-(import 'class/class_ref.inc)
+(import 'class/ref/ref.inc)
 
 (def-class 'sequence 'ref)
 (def-method 'get_length 'class/obj/null 'virtual '(r0) '(r1))

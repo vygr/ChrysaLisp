@@ -1,4 +1,4 @@
-(import 'class/class_sequence.inc)
+(import 'class/sequence/sequence.inc)
 
 (def-class 'vector 'sequence)
 (def-method 'create 'class/vector/create)

@@ -1,4 +1,4 @@
-(import 'class/class_component.inc)
+(import 'class/component/component.inc)
 
 (def-class 'view 'component)
 (def-method 'create 'class/view/create)

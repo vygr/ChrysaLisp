@@ -1,6 +1,6 @@
 (import 'inc/func.inc)
 (import 'inc/gui.inc)
-(import 'class/class_progress.inc)
+(import 'class/progress/progress.inc)
 
 (class-macro-new 'progress)
 (class-macro-create 'progress)

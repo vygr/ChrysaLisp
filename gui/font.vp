@@ -3,7 +3,7 @@
 (import 'inc/string.inc)
 (import 'inc/sdl2.inc)
 (import 'inc/gui.inc)
-(import 'class/class_string.inc)
+(import 'class/string/string.inc)
 
 (def-func 'gui/font_statics)
 	(times ft_statics_size (vp-byte 0))

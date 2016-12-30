@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
-(import 'class/class_vector.inc)
-(import 'class/class_string.inc)
-(import 'class/class_stream.inc)
+(import 'class/vector/vector.inc)
+(import 'class/string/string.inc)
+(import 'class/stream/stream.inc)
 
 (class-macro-new 'stream)
 

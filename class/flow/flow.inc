@@ -1,4 +1,4 @@
-(import 'class/class_view.inc)
+(import 'class/view/view.inc)
 
 (def-class 'flow 'view)
 (def-method 'create 'class/flow/create)

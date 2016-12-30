@@ -2,8 +2,8 @@
 (import 'inc/syscall.inc)
 (import 'inc/string.inc)
 (import 'inc/load.inc)
-(import 'class/class_string.inc)
-(import 'class/class_stream.inc)
+(import 'class/string/string.inc)
+(import 'class/stream/stream.inc)
 
 (def-func 'class/string/new)
 	;inputs

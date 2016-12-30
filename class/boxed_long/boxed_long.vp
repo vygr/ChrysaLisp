@@ -1,4 +1,4 @@
 (import 'inc/func.inc)
-(import 'class/class_boxed_long.inc)
+(import 'class/boxed_long/boxed_long.inc)
 
 (class-macro-create 'boxed_long)

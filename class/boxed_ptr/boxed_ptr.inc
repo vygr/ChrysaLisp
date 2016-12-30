@@ -1,4 +1,4 @@
-(import 'class/class_ref.inc)
+(import 'class/ref/ref.inc)
 
 (def-class 'boxed_ptr 'ref)
 (def-method 'create 'class/boxed_ptr/create)

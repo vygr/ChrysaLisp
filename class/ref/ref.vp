@@ -1,5 +1,5 @@
 (import 'inc/func.inc)
-(import 'class/class_ref.inc)
+(import 'class/ref/ref.inc)
 
 (def-func 'class/ref/init)
 	;inputs

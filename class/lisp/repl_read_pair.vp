@@ -1,8 +1,8 @@
 (import 'inc/func.inc)
-(import 'class/class_stream.inc)
-(import 'class/class_pair.inc)
-(import 'class/class_error.inc)
-(import 'class/class_lisp.inc)
+(import 'class/stream/stream.inc)
+(import 'class/pair/pair.inc)
+(import 'class/error/error.inc)
+(import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/repl_read_pair)
 	;inputs

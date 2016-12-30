@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
-(import 'class/class_boxed_ptr.inc)
-(import 'class/class_unordered_map.inc)
-(import 'class/class_lisp.inc)
+(import 'class/boxed_ptr/boxed_ptr.inc)
+(import 'class/unordered_map/unordered_map.inc)
+(import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/built_in_func)
 	;inputs

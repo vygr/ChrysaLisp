@@ -1,6 +1,6 @@
 (import 'inc/func.inc)
-(import 'class/class_symbol.inc)
-(import 'class/class_lisp.inc)
+(import 'class/symbol/symbol.inc)
+(import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/sym_intern_cstr)
 	;inputs

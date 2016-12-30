@@ -1,4 +1,4 @@
-(import 'class/class_ref.inc)
+(import 'class/ref/ref.inc)
 
 (def-class 'master 'ref)
 (def-method 'create 'class/master/create 'static '() '(r0))

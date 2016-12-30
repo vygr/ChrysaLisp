@@ -1,8 +1,8 @@
 (import 'inc/func.inc)
-(import 'class/class_stream.inc)
-(import 'class/class_vector.inc)
-(import 'class/class_error.inc)
-(import 'class/class_lisp.inc)
+(import 'class/stream/stream.inc)
+(import 'class/vector/vector.inc)
+(import 'class/error/error.inc)
+(import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/repl_read_splicing)
 	;inputs

@@ -1,4 +1,4 @@
-(import 'class/class_string.inc)
+(import 'class/string/string.inc)
 
 (def-class 'symbol 'string)
 (def-method 'create_from_buffer 'class/symbol/create_from_buffer 'static '(r0 r1) '(r0))

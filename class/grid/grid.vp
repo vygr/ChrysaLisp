@@ -1,5 +1,5 @@
 (import 'inc/func.inc)
-(import 'class/class_grid.inc)
+(import 'class/grid/grid.inc)
 
 (class-macro-new 'grid)
 (class-macro-create 'grid)

@@ -3,7 +3,7 @@
 (import 'inc/task.inc)
 (import 'inc/heap.inc)
 (import 'inc/sdl2.inc)
-(import 'class/class_label.inc)
+(import 'class/label/label.inc)
 
 (defcvar 'dual_buffers t)
 

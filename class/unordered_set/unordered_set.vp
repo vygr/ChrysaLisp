@@ -1,6 +1,6 @@
 (import 'inc/func.inc)
-(import 'class/class_vector.inc)
-(import 'class/class_unordered_set.inc)
+(import 'class/vector/vector.inc)
+(import 'class/unordered_set/unordered_set.inc)
 
 (class-macro-new 'unordered_set)
 

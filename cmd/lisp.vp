@@ -1,10 +1,10 @@
 (import 'inc/func.inc)
-(import 'class/class_slave.inc)
-(import 'class/class_vector.inc)
-(import 'class/class_stream.inc)
-(import 'class/class_stream_str.inc)
-(import 'class/class_string.inc)
-(import 'class/class_lisp.inc)
+(import 'class/slave/slave.inc)
+(import 'class/vector/vector.inc)
+(import 'class/stream/stream.inc)
+(import 'class/stream_str/stream_str.inc)
+(import 'class/string/string.inc)
+(import 'class/lisp/lisp.inc)
 
 (def-func 'cmd/lisp 8192)
 

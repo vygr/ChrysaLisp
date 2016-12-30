@@ -3,8 +3,8 @@
 (import 'inc/mail.inc)
 (import 'inc/list.inc)
 (import 'inc/syscall.inc)
-(import 'class/class_vector.inc)
-(import 'class/class_string.inc)
+(import 'class/vector/vector.inc)
+(import 'class/string/string.inc)
 
 (def-func 'sys/task_statics)
 	(times tk_statics_size (vp-byte 0))

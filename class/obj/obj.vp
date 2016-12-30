@@ -1,5 +1,5 @@
 (import 'inc/func.inc)
-(import 'class/class_obj.inc)
+(import 'class/obj/obj.inc)
 
 (def-func 'class/obj/init)
 	;inputs

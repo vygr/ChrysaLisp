@@ -1,6 +1,6 @@
 (import 'inc/func.inc)
 (import 'inc/gui.inc)
-(import 'class/class_component.inc)
+(import 'class/component/component.inc)
 
 (def-func 'class/component/init)
 	;inputs

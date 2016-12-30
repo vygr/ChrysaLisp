@@ -1,9 +1,9 @@
 (import 'inc/func.inc)
 (import 'inc/gui.inc)
-(import 'class/class_window.inc)
-(import 'class/class_title.inc)
-(import 'class/class_label.inc)
-(import 'class/class_flow.inc)
+(import 'class/window/window.inc)
+(import 'class/title/title.inc)
+(import 'class/label/label.inc)
+(import 'class/flow/flow.inc)
 
 (class-macro-new 'window)
 (class-macro-create 'window)

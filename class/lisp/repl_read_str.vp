@@ -1,8 +1,8 @@
 (import 'inc/func.inc)
 (import 'inc/load.inc)
-(import 'class/class_string.inc)
-(import 'class/class_stream.inc)
-(import 'class/class_lisp.inc)
+(import 'class/string/string.inc)
+(import 'class/stream/stream.inc)
+(import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/repl_read_str)
 	;inputs

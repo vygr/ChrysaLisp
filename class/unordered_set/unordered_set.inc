@@ -1,4 +1,4 @@
-(import 'class/class_sequence.inc)
+(import 'class/sequence/sequence.inc)
 
 (def-class 'unordered_set 'sequence)
 (def-method 'create 'class/unordered_set/create 'static '(r0 r1) '(r0))

@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
-(import 'class/class_text.inc)
-(import 'class/class_label.inc)
-(import 'class/class_flow.inc)
+(import 'class/text/text.inc)
+(import 'class/label/label.inc)
+(import 'class/flow/flow.inc)
 
 (class-macro-new 'label)
 (class-macro-create 'label)

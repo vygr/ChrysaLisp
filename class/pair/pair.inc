@@ -1,4 +1,4 @@
-(import 'class/class_sequence.inc)
+(import 'class/sequence/sequence.inc)
 
 (def-class 'pair 'sequence)
 (def-method 'create 'class/pair/create 'static '(r0 r1) '(r0))

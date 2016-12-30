@@ -1,4 +1,4 @@
 (import 'inc/func.inc)
-(import 'class/class_lisp.inc)
+(import 'class/lisp/lisp.inc)
 
 (class-macro-new 'lisp)

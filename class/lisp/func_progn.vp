@@ -1,6 +1,6 @@
 (import 'inc/func.inc)
-(import 'class/class_vector.inc)
-(import 'class/class_lisp.inc)
+(import 'class/vector/vector.inc)
+(import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_progn)
 	;inputs

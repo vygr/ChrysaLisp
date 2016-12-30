@@ -1,5 +1,5 @@
 (import 'inc/func.inc)
-(import 'class/class_vector.inc)
+(import 'class/vector/vector.inc)
 
 (class-macro-new 'vector)
 (class-macro-create 'vector)

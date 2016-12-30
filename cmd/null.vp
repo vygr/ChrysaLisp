@@ -1,6 +1,6 @@
 (import 'inc/func.inc)
-(import 'class/class_stream.inc)
-(import 'class/class_slave.inc)
+(import 'class/stream/stream.inc)
+(import 'class/slave/slave.inc)
 
 (def-func 'cmd/null)
 

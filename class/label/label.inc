@@ -1,4 +1,4 @@
-(import 'class/class_view.inc)
+(import 'class/view/view.inc)
 
 (defcvar 'label_border_size 0)
 

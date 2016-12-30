@@ -1,6 +1,6 @@
 (import 'inc/func.inc)
-(import 'class/class_stream.inc)
-(import 'class/class_lisp.inc)
+(import 'class/stream/stream.inc)
+(import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_print)
 	;inputs

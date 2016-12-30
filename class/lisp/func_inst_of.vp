@@ -1,9 +1,9 @@
 (import 'inc/func.inc)
 (import 'inc/load.inc)
-(import 'class/class_vector.inc)
-(import 'class/class_error.inc)
-(import 'class/class_symbol.inc)
-(import 'class/class_lisp.inc)
+(import 'class/vector/vector.inc)
+(import 'class/error/error.inc)
+(import 'class/symbol/symbol.inc)
+(import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_inst_of)
 	;inputs

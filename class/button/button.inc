@@ -1,4 +1,4 @@
-(import 'class/class_label.inc)
+(import 'class/label/label.inc)
 
 (defcvar 'button_border_size 2)
 

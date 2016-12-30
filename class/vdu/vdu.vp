@@ -1,9 +1,9 @@
 (import 'inc/func.inc)
 (import 'inc/gui.inc)
 (import 'inc/font.inc)
-(import 'class/class_string.inc)
-(import 'class/class_vdu.inc)
-(import 'class/class_text.inc)
+(import 'class/string/string.inc)
+(import 'class/vdu/vdu.inc)
+(import 'class/text/text.inc)
 
 (class-macro-new 'vdu)
 (class-macro-create 'vdu)

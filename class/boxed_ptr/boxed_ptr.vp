@@ -1,5 +1,5 @@
 (import 'inc/func.inc)
-(import 'class/class_boxed_ptr.inc)
+(import 'class/boxed_ptr/boxed_ptr.inc)
 
 (class-macro-new 'boxed_ptr)
 (class-macro-create 'boxed_ptr)

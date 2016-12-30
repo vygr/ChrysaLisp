@@ -1,4 +1,4 @@
-(import 'class/class_unordered_set.inc)
+(import 'class/unordered_set/unordered_set.inc)
 
 (def-class 'unordered_map 'unordered_set)
 (def-method 'create 'class/unordered_map/create)

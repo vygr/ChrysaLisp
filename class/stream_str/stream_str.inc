@@ -1,4 +1,4 @@
-(import 'class/class_stream.inc)
+(import 'class/stream/stream.inc)
 
 (def-class 'stream_str 'stream)
 (def-method 'create 'class/stream_str/create 'static '(r0) '(r0))

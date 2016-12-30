@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
 (import 'inc/gui.inc)
-(import 'class/class_button.inc)
-(import 'class/class_flow.inc)
+(import 'class/button/button.inc)
+(import 'class/flow/flow.inc)
 
 (class-macro-new 'button)
 (class-macro-create 'button)

@@ -1,4 +1,4 @@
-(import 'class/class_obj.inc)
+(import 'class/obj/obj.inc)
 
 (def-class 'ref 'obj)
 (def-method 'init 'class/ref/init)

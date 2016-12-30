@@ -1,9 +1,9 @@
 (import 'inc/func.inc)
 (import 'inc/load.inc)
 (import 'inc/string.inc)
-(import 'class/class_stream.inc)
-(import 'class/class_boxed_long.inc)
-(import 'class/class_lisp.inc)
+(import 'class/stream/stream.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/repl_read_num)
 	;inputs

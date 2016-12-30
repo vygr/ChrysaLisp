@@ -1,8 +1,8 @@
 (import 'inc/func.inc)
-(import 'class/class_vector.inc)
-(import 'class/class_unordered_map.inc)
-(import 'class/class_error.inc)
-(import 'class/class_lisp.inc)
+(import 'class/vector/vector.inc)
+(import 'class/unordered_map/unordered_map.inc)
+(import 'class/error/error.inc)
+(import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/env_bind)
 	;inputs

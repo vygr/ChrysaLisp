@@ -1,4 +1,4 @@
-(import 'class/class_sequence.inc)
+(import 'class/sequence/sequence.inc)
 
 (def-class 'string 'sequence)
 (def-method 'create_from_buffer 'class/string/create_from_buffer 'static '(r0 r1) '(r0))

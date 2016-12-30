@@ -2,8 +2,8 @@
 (import 'inc/task.inc)
 (import 'inc/math.inc)
 (import 'inc/mail.inc)
-(import 'class/class_vector.inc)
-(import 'class/class_string.inc)
+(import 'class/vector/vector.inc)
+(import 'class/string/string.inc)
 
 ;;;;;;;;;;;
 ; test code

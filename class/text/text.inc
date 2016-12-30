@@ -1,4 +1,4 @@
-(import 'class/class_view.inc)
+(import 'class/view/view.inc)
 
 (def-class 'text 'view)
 (def-method 'create 'class/text/create)

@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
-(import 'class/class_vector.inc)
-(import 'class/class_pair.inc)
-(import 'class/class_unordered_map.inc)
+(import 'class/vector/vector.inc)
+(import 'class/pair/pair.inc)
+(import 'class/unordered_map/unordered_map.inc)
 
 (class-macro-new 'unordered_map)
 

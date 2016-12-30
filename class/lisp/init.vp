@@ -1,8 +1,8 @@
 (import 'inc/func.inc)
-(import 'class/class_unordered_set.inc)
-(import 'class/class_unordered_map.inc)
-(import 'class/class_symbol.inc)
-(import 'class/class_lisp.inc)
+(import 'class/unordered_set/unordered_set.inc)
+(import 'class/unordered_map/unordered_map.inc)
+(import 'class/symbol/symbol.inc)
+(import 'class/lisp/lisp.inc)
 
 (def-struct 'built_in)
 	(ushort 'built_in_symbol)

@@ -1,6 +1,6 @@
 (import 'inc/func.inc)
-(import 'class/class_unordered_set.inc)
-(import 'class/class_lisp.inc)
+(import 'class/unordered_set/unordered_set.inc)
+(import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/sym_intern)
 	;inputs
