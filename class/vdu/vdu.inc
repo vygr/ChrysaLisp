@@ -18,7 +18,7 @@
 
 (def-struct 'vdu 'view)
 	(ptr 'vdu_font)
-	(ptr 'vdu_chars)
+	(pubyte 'vdu_chars)
 	(pptr 'vdu_textures)
 	(int 'vdu_cursor_x)
 	(int 'vdu_cursor_y)

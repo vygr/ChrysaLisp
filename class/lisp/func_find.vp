@@ -14,8 +14,7 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value 'seq 'elem)
-	(ulong 'length)
-	(pubyte 'charp)
+	(long 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})
@@ -26,8 +25,7 @@
 		(f-call 'vector 'get_element {args, 1} {seq})
 		(vpif {seq->obj_vtable == @class/class_string})
 			(gotoif {elem->obj_vtable != @class/class_string} 'error)
-			(assign {&elem->string_data} {charp})
-			(f-call 'string 'find {seq, *charp} {length})
+			(f-call 'string 'find {seq, ubyte (elem->string_data)} {length})
 			(goto 'ok)
 		(elseif {seq->obj_vtable == @class/class_vector})
 			(f-call 'vector 'find {seq, elem} {length})

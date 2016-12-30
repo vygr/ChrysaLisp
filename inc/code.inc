@@ -460,7 +460,10 @@
 				(if (or (eq s 0) (eq s 13))
 					(setq c nil)
 					(progn
-						(push-token (slice p i l) m)
+						(defq s (slice p i l))
+						(if (find (sym s) '(byte ubyte short ushort int uint long ulong ptr))
+							(push-token s 4)
+							(push-token s m))
 						(setq p i u 0 m -1))))
 			(t
 				;string mode
@@ -644,6 +647,11 @@
 	(when (eval (type-sym *s*))
 		(compile-deref)))
 
+(defcfun compile-cast (o)
+	(defq c (find (sym o) '(byte ubyte short ushort int uint long ulong ptr)))
+	(if c (set (type-sym (dec-stack)) (elem c "bBsSiIlLp"))
+		(error "Unkown type cast" o)))
+
 (defcfun compile-member (o)
 	(defq s (dec *s*) x (vreg-sym (setq *s* (sub *s* 2))) y (vreg-sym s))
 	(compile-deref)
@@ -807,6 +815,15 @@
 		(setq *s* (inc *s*))))
 
 (push-scope)
+(operator "ptr" 0 1 compile-cast)
+(operator "byte" 0 1 compile-cast)
+(operator "ubyte" 0 1 compile-cast)
+(operator "short" 0 1 compile-cast)
+(operator "ushort" 0 1 compile-cast)
+(operator "int" 0 1 compile-cast)
+(operator "uint" 0 1 compile-cast)
+(operator "long" 0 1 compile-cast)
+(operator "ulong" 0 1 compile-cast)
 (operator "." 1 0 compile-field)
 (operator "->" 1 0 compile-member)
 (operator "[]" 1 0 compile-index)

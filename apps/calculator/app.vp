@@ -124,7 +124,6 @@
 	(const 'char_divide (ascii "/"))
 
 	(ptr 'inst 'button 'button_string 'display_string 'string 'string1 'string2)
-	(pubyte 'charp)
 	(ubyte 'char)
 
 	;save inputs
@@ -141,12 +140,10 @@
 		(assign {0} {inst->shared_last_flag})
 	(else)
 		(f-call 'label 'get_text {inst->shared_display} {display_string})
-		(assign {&button_string->string_data} {charp})
-		(assign {*charp} {char})
+		(assign {ubyte (button_string->string_data)} {char})
 		(vpif {char >= char_zero && char <= char_nine})
 			;numeral
-			(assign {&display_string->string_data} {charp})
-			(assign {*charp} {char})
+			(assign {ubyte (display_string->string_data)} {char})
 			(vpif {char == char_zero || inst->shared_last_flag == 0})
 				;clear it
 				(f-call 'string 'deref {display_string})

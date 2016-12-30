@@ -14,8 +14,7 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value)
-	(pubyte 'charp)
-	(ulong 'length)
+	(uint 'length 'char)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})
@@ -24,9 +23,9 @@
 	(vpif {length == 1})
 		(f-call 'vector 'get_element {args, 0} {value})
 		(vpif {value->obj_vtable == @class/class_string})
-			(assign {&value->string_data} {charp})
+			(assign {ubyte (value->string_data)} {char})
 			(f-call 'boxed_long 'create {} {value})
-			(f-call 'boxed_long 'set_value {value, *charp})
+			(f-call 'boxed_long 'set_value {value, char})
 		(else)
 			(f-call 'error 'create {"(code char) not a string", args} {value})
 		(endif)

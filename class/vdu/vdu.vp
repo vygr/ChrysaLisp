@@ -68,8 +68,7 @@
 	;all but r0, r4
 
 	(ptr 'inst 'ctx 'txt)
-	(pubyte 'charp)
-	(long 'x 'y 'char)
+	(uint 'x 'y 'char)
 
 	;save inputs
 	(push-scope)
@@ -81,8 +80,7 @@
 		(loop-start)
 			(assign {0} {x})
 			(loop-start)
-				(assign {y * inst->vdu_width + x + inst->vdu_chars} {charp})
-				(assign {*charp} {char})
+				(assign {(inst->vdu_chars)[y * inst->vdu_width + x]} {char})
 				(vpif {char > 32 && char < 127})
 					(assign {(inst->vdu_textures)[ptr_size * (char - 33)]} {txt})
 					(vpif {txt})
@@ -186,8 +184,7 @@
 	;r1 = char
 
 	(ptr 'inst)
-	(pubyte 'charp)
-	(ulong 'char)
+	(ubyte 'char)
 
 	;save inputs
 	(push-scope)
@@ -214,14 +211,12 @@
 		;backspace
 		(vpif {inst->vdu_cursor_x != 0})
 			(assign {inst->vdu_cursor_x - 1} {inst->vdu_cursor_x})
-			(assign {inst->vdu_cursor_y * inst->vdu_width + inst->vdu_cursor_x + inst->vdu_chars} {charp})
-			(assign {32} {*charp})
+			(assign {32} {(inst->vdu_chars)[inst->vdu_cursor_y * inst->vdu_width + inst->vdu_cursor_x]})
 			(f-call 'vdu 'add_dirty {inst, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
 		(endif)
 	(elseif {char >= 32 && char < 127})
 		;printable char
-		(assign {inst->vdu_cursor_y * inst->vdu_width + inst->vdu_cursor_x + inst->vdu_chars} {charp})
-		(assign {char} {*charp})
+		(assign {char} {(inst->vdu_chars)[inst->vdu_cursor_y * inst->vdu_width + inst->vdu_cursor_x]})
 		(f-call 'vdu 'add_dirty {inst, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
 		(assign {inst->vdu_cursor_x + 1} {inst->vdu_cursor_x})
 	(endif)
@@ -238,17 +233,14 @@
 
 	(ptr 'inst)
 	(pubyte 'charp)
-	(ulong 'char)
 
 	;save inputs
 	(push-scope)
 	(assign '(r0 r1) {inst, charp})
 
 	;print chars
-	(loop-start)
-		(assign {*charp} {char})
-		(breakifnot {char})
-		(f-call 'vdu 'print_char {inst, char})
+	(loop-while {*charp})
+		(f-call 'vdu 'print_char {inst, *charp})
 		(assign {charp + 1} {charp})
 	(loop-end)
 
