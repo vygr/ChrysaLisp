@@ -11,9 +11,11 @@ CPU in the network is modelled as a separate host process, point to point links
 use shared memory to simulate CPU to CPU, point to point, bi directional
 connections. There is no global bus based networking on purpose.
 
-Uses a virtual CPU instruction macro set to avoid use of x64 native
-instructions. It will eventually run on ARM Linux for machines such as
-Raspberry PI and BeagleBone with no source modification.
+Uses a virtual CPU instruction set to avoid use of x64/ARM native instructions.
+It will eventually run on ARM Linux for machines such as Raspberry PI and
+BeagleBone with no source modification. Currently it compiles to native code
+but there is no reason it can't also go via a bytecode form and runtime
+translation.
 
 Register juggling for parameter passing is eliminated by having all functions
 define their register interface and parameter source and destinations are
@@ -25,10 +27,9 @@ Unused output parameters can be ignored with a _.
 
 There is a powerful object and class system, not just for an assembler, but
 quite as capable as a high level language. Static classes or virtual classes
-with virtual, static and overridable methods can be defined. Calls are type
-checked to ensure consistency across the class hierarchy. The GUI is
-constructed using this class system. A signals and slots system is provided for
-object composition.
+with virtual, static and overridable methods can be defined. The GUI and Lisp
+are constructed using this class system. A signals and slots system is provided
+for object composition.
 
 Has function level dynamic binding and loading. Individual functions are loaded
 and bound on demand as tasks are created and distributed. Currently functions
@@ -51,11 +52,12 @@ applications it is very useful for the composition of tools and hides all the
 message passing behind a familiar streams based API.
 
 A Common Lisp like interpreter is provided. This is available from the command
-line, via the command 'lisp'. To build the entire system type (make) at the
-Lisp command prompt. This Lisp has a C-Script 'snippets' capability to allow
-mixing of C-Script compiled expressions within assignment and function calling
-code. An elementary optimise pass exists for these expressions and more will be
-done shortly.
+line, via the command 'lisp'. To build the entire system type (make),
+calculates minimum compile workload, or (make-all) to do everything regardless,
+at the Lisp command prompt. This Lisp has a C-Script 'snippets' capability to
+allow mixing of C-Script compiled expressions within assignment and function
+calling code. An elementary optimise pass exists for these expressions and more
+will be done shortly.
 
 Network link routing tables are created on booting a link, and the process is
 distributed in nature, each link starts a flood fill that eventually reaches
@@ -70,7 +72,7 @@ The -run command line option launches tasks on booting that CPU, such as the
 test suit or experimental GUI (a work in progress, -run gui/gui).
 
 The -l command line option creates a link, currently up to 1000 CPU's are
-allowed but that is easy to adjust in the sys/link.nasm file and is due to the
+allowed but that is easy to adjust in the sys/link.vp file and is due to the
 very simple link parameter parsing. The lower numbered CPU always comes first !
 The shared memory link files are created in a tmp folder from the current
 directory ./tmp, so for example ./tmp/000-001 would be the link file for the
