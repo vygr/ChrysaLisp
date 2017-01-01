@@ -379,8 +379,7 @@
 	obj/sys/kernel) "")
 	(progn (defq e (char 0)) (times (pow2 16) (setq e (cat e e))) e))
 	'obj/sys/boot_image)
-	(print "Boot image -> obj/sys/boot_image")
-	nil)
+	(print "Boot image -> obj/sys/boot_image"))
 
 (defun make (&optional *os* *cpu*)
 	(compile ((lambda ()
