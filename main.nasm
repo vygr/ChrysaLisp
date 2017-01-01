@@ -97,13 +97,7 @@ main:
 	align 8, db 0
 
 boot_image:
-	incbin 'obj/sys/load_init'		;must be first function !
-	incbin 'obj/sys/load_bind'		;must be second function !
-	incbin 'obj/sys/load_statics'	;must be third function !
-	incbin 'obj/sys/load_deinit'	;must be included ! Because it unmaps all function blocks
-	incbin 'obj/sys/mem_statics'	;must be included ! Because load_deinit accesses them
-	incbin 'obj/sys/kernel'			;must be included !
-	dq 0,0	;must mark end
+	incbin 'obj/sys/boot_image'
 
 	SECTION .data
 
