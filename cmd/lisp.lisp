@@ -365,6 +365,8 @@
 
 (defun make-boot (&optional r *files*)
 	(defq *files* (if *files* *files* (list)))
+	(defun func-sym (f)
+		(sym (cat "obj/" (str f))))
 	(defun read-byte (o f)
 		(code (elem o f)))
 	(defun read-short (o f)
@@ -374,36 +376,36 @@
 	(defun read-long (o f)
 		(add (read-int o f) (bit-shl (read-int (add o 4) f) 32)))
 	(defun read-paths (f)
-		(defq l (list) f (load (cat "obj/" f)) i (read-int fn_header_links f))
+		(defq l (list) f (load f) i (read-int fn_header_links f))
 		(while (ne 0 (defq p (read-long i f)))
 			(defq j (add p i) k j)
 			(while (ne 0 (read-byte j f))
 				(setq j (inc j)))
-			(push l (slice k j f))
+			(push l (func-sym (slice k j f)))
 			(setq i (add i 8))) l)
 	(unless (list? *files*)
 		(setq *files* (list *files*)))
-	(defq fn_header_length 8 fn_header_links 16 fn_header_paths 20 i -1 f '(
+	(defq fn_header_length 8 fn_header_links 16 fn_header_paths 20 i -1 f (list
 	;must be first function !
-	"sys/load_init"
+	(func-sym 'sys/load_init)
 	;must be second function !
-	"sys/load_bind"
+	(func-sym 'sys/load_bind)
 	;must be third function !
-	"sys/load_statics"
+	(func-sym 'sys/load_statics)
 	;must be included ! Because it unmaps all function blocks
-	"sys/load_deinit"
+	(func-sym 'sys/load_deinit)
 	;must be included ! Because load_deinit accesses them
-	"sys/mem_statics"
+	(func-sym 'sys/mem_statics)
 	;must be included !
-	"sys/kernel"))
-	(merge f (map str *files*))
+	(func-sym 'sys/kernel)))
+	(merge f (map func-sym *files*))
 	(when r
 		(while (lt (setq i (inc i)) (length f))
 			(merge f (read-paths (elem i f)))))
-	(save (cat (reduce (lambda (x y) (cat x (load (cat "obj/" y)))) f "")
-		(progn (defq e (char 0)) (times (pow2 16) (setq e (cat e e))) e))
-		'obj/sys/boot_image)
-	(print "Boot image -> obj/sys/boot_image"))
+	(save (setq f (cat (reduce (lambda (x y) (cat x (load y))) f "")
+		(progn (defq e (char 0)) (times (pow2 16) (setq e (cat e e))) e)))
+		(func-sym 'sys/boot_image))
+	(print "Boot image -> " (func-sym 'sys/boot_image) " (" (length f) ")"))
 
 (defun make (&optional *os* *cpu*)
 	(compile ((lambda ()
