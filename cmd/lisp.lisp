@@ -363,6 +363,23 @@
 	(each import *files*)
 	(setq *compile-env* nil))
 
+(defun make-boot ()
+	(save (reduce (lambda (x y) (cat x (load y))) '(
+	;must be first function !
+	obj/sys/load_init
+	;must be second function !
+	obj/sys/load_bind
+	;must be third function !
+	obj/sys/load_statics
+	;must be included ! Because it unmaps all function blocks
+	obj/sys/load_deinit
+	;must be included ! Because load_deinit accesses them
+	obj/sys/mem_statics
+	;must be included !
+	obj/sys/kernel) "") 'obj/sys/boot_image)
+	(print "Boot image -> obj/sys/boot_image")
+	nil)
+
 (defun make (&optional *os* *cpu*)
 	(compile ((lambda ()
 		(defq *make-env* (env 101) *imports* (list "make.inc") i -1)
@@ -407,10 +424,12 @@
 			(some (lambda (x) (ge x p)) (map make-time d))) *imports*))
 		;drop the make enviroment and return the list to compile
 		(setq *make-env* nil)
-		*imports*)) *os* *cpu*))
+		*imports*)) *os* *cpu*)
+	(make-boot))
 
 (defun make-all (&optional *os* *cpu*)
-	(compile "make.inc" *os* *cpu*))
+	(compile "make.inc" *os* *cpu*)
+	(make-boot))
 
 ;test code for OOPS stuff
 
