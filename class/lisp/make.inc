@@ -62,6 +62,7 @@
 (import 'class/lisp/func_readline.vp)
 (import 'class/lisp/func_repl.vp)
 (import 'class/lisp/func_save.vp)
+(import 'class/lisp/func_load.vp)
 (import 'class/lisp/func_set.vp)
 (import 'class/lisp/func_setq.vp)
 (import 'class/lisp/func_slice.vp)
