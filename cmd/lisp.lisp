@@ -377,8 +377,7 @@
 	obj/sys/mem_statics
 	;must be included !
 	obj/sys/kernel) "")
-	(cat (char 0) (char 0) (char 0) (char 0) (char 0) (char 0) (char 0) (char 0)
-		(char 0) (char 0) (char 0) (char 0) (char 0) (char 0) (char 0) (char 0)))
+	(progn (defq e (char 0)) (times (pow2 16) (setq e (cat e e))) e))
 	'obj/sys/boot_image)
 	(print "Boot image -> obj/sys/boot_image")
 	nil)
