@@ -364,7 +364,7 @@
 	(setq *compile-env* nil))
 
 (defun make-boot ()
-	(save (reduce (lambda (x y) (cat x (load y))) '(
+	(save (cat (reduce (lambda (x y) (cat x (load y))) '(
 	;must be first function !
 	obj/sys/load_init
 	;must be second function !
@@ -376,7 +376,10 @@
 	;must be included ! Because load_deinit accesses them
 	obj/sys/mem_statics
 	;must be included !
-	obj/sys/kernel) "") 'obj/sys/boot_image)
+	obj/sys/kernel) "")
+	(cat (char 0) (char 0) (char 0) (char 0) (char 0) (char 0) (char 0) (char 0)
+		(char 0) (char 0) (char 0) (char 0) (char 0) (char 0) (char 0) (char 0)))
+	'obj/sys/boot_image)
 	(print "Boot image -> obj/sys/boot_image")
 	nil)
 
