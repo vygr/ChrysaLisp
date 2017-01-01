@@ -15,9 +15,13 @@
 	;loader is already initialized when we get here !
 	;inputs
 	;r0 = argv pointer
+	;r1 = SDL func table
 
 	;save argv on stack
 	(vp-push r0)
+
+	;init gui
+	(f-call 'gui_gui 'init '(r1))
 
 	;init allocator
 	(f-call 'sys_mem 'init)

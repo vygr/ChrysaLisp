@@ -1,6 +1,5 @@
 (import 'inc/func.inc)
 (import 'inc/load.inc)
-(import 'inc/gui.inc)
 
 (defcvar 'list_loaded nil)
 
@@ -96,13 +95,9 @@
 		(loop-end)
 	(loop-end)
 
-	;init gui
-	(vp-pop r0)
-	(f-call 'gui_gui 'init '(r0))
-
-	;jump to kernel
-	(vp-pop r0)
-	(f-jmp 'sys_sys 'kernel '(r0))
+	;kernel inputs
+	(vp-pop r0 r1)
+	(f-jmp 'sys_sys 'kernel '(r0 r1))
 
 (vp-label 'string_skip)
 	(loop-start)
@@ -401,7 +396,7 @@
 
 (when list_loaded
 	(vp-label 'loaded_name)
-		(vp-string "incbin '")
+		(vp-string "'")
 	(vp-label 'loaded_name_end))
 
 (def-func-end)
