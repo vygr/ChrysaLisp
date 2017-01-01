@@ -22,6 +22,9 @@
 (def-method 'total 'sys/cpu_get_total 'static '() '(r0))
 (def-method 'opts 'sys/opt_process 'static '(r0))
 
+(def-class 'sys_sys)
+(def-method 'kernel 'sys/kernel 'static '(r0))
+
 (defcfun sys-call (%1)
 	(cond
 		((eql *os* 'Darwin)

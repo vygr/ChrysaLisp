@@ -81,27 +81,14 @@
 	global main
 main:
 	;called by sdl !!!!!!!
-	push r6
+	mov r0, r6
+	lea r1, [rel sdl_func_table]
 
-	;init loader and prebind
-	lea r1, [rel ld_load_init_loader]
-	mov edx, dword [r1 + fn_header_entry]
-	add r1, r2
-	call r1
-
-	;init gui
-	lea r0, [rel sdl_func_table]
-	lea r1, [rel ld_gui_init_gui]
-	mov edx, dword [r1 + fn_header_entry]
-	add r1, r2
-	call r1
-
-	;jump to kernel task
-	pop r0
-	lea r1, [rel ld_kernel]
-	mov edx, dword [r1 + fn_header_entry]
-	add r1, r2
-	jmp r1
+	;init loader, prebind and run
+	lea r3, [rel boot_image]
+	mov edx, dword [r3 + fn_header_entry]
+	add r3, r2
+	jmp r3
 
 ;;;;;;;;;;;;;;;;;;;;
 ; prebound functions
@@ -109,16 +96,13 @@ main:
 
 	align 8, db 0
 
-ld_load_init_loader:
+boot_image:
 	incbin 'obj/sys/load_init'		;must be first function !
 	incbin 'obj/sys/load_bind'		;must be second function !
 	incbin 'obj/sys/load_statics'	;must be third function !
 	incbin 'obj/sys/load_deinit'	;must be included ! Because it unmaps all function blocks
-	incbin 'obj/sys/mem_statics'	;must be included ! Because load_deinit acsesses them
-ld_gui_init_gui:
-	incbin 'obj/gui/gui_init'		;must be included !
-ld_kernel:
-	incbin 'obj/sys/kernel'		;must be included !
+	incbin 'obj/sys/mem_statics'	;must be included ! Because load_deinit accesses them
+	incbin 'obj/sys/kernel'			;must be included !
 	dq 0,0	;must mark end
 
 	SECTION .data
