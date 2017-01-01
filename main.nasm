@@ -84,7 +84,7 @@ main:
 	mov r0, r6
 	lea r1, [rel sdl_func_table]
 
-	;init loader, prebind and run
+	;jump to boot image
 	lea r3, [rel boot_image]
 	mov edx, dword [r3 + fn_header_entry]
 	add r3, r2
