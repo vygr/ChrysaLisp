@@ -55,6 +55,7 @@
 ./class/lisp/func_lambda.vp
 ./class/lisp/func_le.vp
 ./class/lisp/func_length.vp
+./class/lisp/func_load.vp
 ./class/lisp/func_lt.vp
 ./class/lisp/func_macroexpand.vp
 ./class/lisp/func_macroexpand_1.vp
@@ -122,6 +123,7 @@
 ./class/title/title.vp
 ./class/unordered_map/unordered_map.vp
 ./class/unordered_set/unordered_set.vp
+./class/vdu/vdu.vp
 ./class/vector/vector.vp
 ./class/view/view.vp
 ./class/vtables.vp
