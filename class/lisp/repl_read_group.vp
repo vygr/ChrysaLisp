@@ -24,7 +24,8 @@
 	(assign '(r0 r1 r2) {this, stream, char})
 
 	(f-path 'sys_load 'statics)
-	(assign (cat "@" _function_ {.ld_statics_reloc_buffer}) {reloc})
+	(assign (cat "@" _function_) {reloc})
+	(assign {reloc->ld_statics_reloc_buffer} {reloc})
 	(assign {reloc} {buffer})
 
 	(f-call 'stream 'read_char {stream} {char})

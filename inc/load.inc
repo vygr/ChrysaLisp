@@ -17,7 +17,7 @@
 
 (defcvar 'ld_block_size (mul 64 1024))
 (defcvar 'ld_page_size 4096)
-(defcvar 'ld_reloc_size 3072)
+(defcvar 'ld_reloc_size 4096)
 (defcvar 'ld_name_size 120)
 
 (def-struct 'ld_statics)
@@ -26,7 +26,7 @@
 	(ptr 'ld_statics_block_start)
 	(ptr 'ld_statics_block_end)
 	(ptr 'ld_statics_reloc_stack)
+	(ptr 'ld_statics_reloc_buffer)
 	(struct 'ld_statics_stat_buffer 'stat)
-	(struct 'ld_statics_reloc_buffer 'ld_reloc)
 	(struct 'ld_statics_name_buffer 'ld_name)
 (def-struct-end)

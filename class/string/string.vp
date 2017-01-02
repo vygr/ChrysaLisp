@@ -126,7 +126,8 @@
 	(assign '(r0 r1) {num, base})
 
 	(f-path 'sys_load 'statics)
-	(assign (cat "@" _function_ {.ld_statics_reloc_buffer}) {reloc})
+	(assign (cat "@" _function_) {reloc})
+	(assign {reloc->ld_statics_reloc_buffer} {reloc})
 	(assign {reloc} {buffer})
 	(vpif {num < 0})
 		(assign {char_minus} {*buffer})
