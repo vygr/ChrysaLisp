@@ -331,6 +331,10 @@
 		(when (notany (lambda (x) (eql x y)) x)
 			(push x y))) y))
 
+(defun merge-sym (x y)
+	(each (lambda (y)
+		(if (not (find y x)) (push x y))) y))
+
 ;;;;;;;;;;;;;;
 ; VP Assembler
 ;;;;;;;;;;;;;;
@@ -405,14 +409,14 @@
 	'sys/mem_statics
 	;must be included !
 	'sys/kernel))
-	(merge f (map sym *funcs*))
+	(merge-sym f (map sym *funcs*))
 	;load up all functions requested
 	(each load-func f)
 	;if recursive then load up all dependants
 	(when r
 		(defq i -1)
 		(while (lt (setq i (inc i)) (length f))
-			(merge f (elem 2 (load-func (elem i f))))))
+			(merge-sym f (elem 2 (load-func (elem i f))))))
 	;list of all function bodies and links in order, list of offsets of link sections, offset of new path section
 	(defq b (map eval f) o (list)
 		p (add (length z) (reduce (lambda (x y)
@@ -422,7 +426,7 @@
 	;list of all function names that will appear in new path section, and list of all new path offsets
 	(defq i (length f) s (list))
 	(while (ge (setq i (dec i)) 0)
-		(merge f (elem 2 (eval (elem i f)))))
+		(merge-sym f (elem 2 (eval (elem i f)))))
 	(reduce (lambda (x y)
 		(push s x)
 		(add x (length y) 1)) f 0)
