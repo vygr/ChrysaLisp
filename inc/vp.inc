@@ -32,7 +32,7 @@
 		(t nil)))
 
 (defcfun label-sym (s)
-	(sym (cat "_lb_" (str s))))
+	(sym (cat "_lb_" s)))
 
 (defcfun vp-label (s) (setq s (label-sym s)) (emit `(emit-label ',s)) (defcvar s 0))
 (defcfun vp-align (&rest b) (emit `(emit-align ~b)))

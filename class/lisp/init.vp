@@ -55,7 +55,7 @@
 
 		;interned symbols set and enviroments
 		(f-path 'symbol 'compare)
-		(f-call 'unordered_set 'create (cat {@} (str _function_) {, 101}) {this->lisp_symbols})
+		(f-call 'unordered_set 'create (cat {@} _function_ {, 101}) {this->lisp_symbols})
 		(f-call 'unordered_map 'create {$match_obj, 31} {this->lisp_enviroment})
 
 		;intern standard built in symbols

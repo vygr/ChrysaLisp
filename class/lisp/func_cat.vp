@@ -28,10 +28,10 @@
 		(f-call 'vector 'get_element {args, 0} {value})
 		(vpif {value->obj_vtable == @class/class_vector})
 			(f-call 'vector 'create {} {value})
-			(f-call 'vector 'for_each {args, 0, length, $callback, &this} {_})
-		(elseif {value->obj_vtable == @class/class_string})
+			(f-call 'vector 'for_each {args, 0, length, $callback1, &this} {_})
+		(elseif {value->obj_vtable == @class/class_string || value->obj_vtable == @class/class_symbol})
 			(f-call 'ref 'ref {value})
-			(f-call 'vector 'for_each {args, 1, length, $callback, &this} {_})
+			(f-call 'vector 'for_each {args, 1, length, $callback2, &this} {_})
 		(else)
 			(f-call 'error 'create {"(cat seq ...) not sequence type", value} {value})
 		(endif)
@@ -43,7 +43,7 @@
 	(pop-scope)
 	(return)
 
-(vp-label 'callback)
+(vp-label 'callback1)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator
@@ -58,21 +58,42 @@
 	(assign '(r0 r1) {pdata, iter})
 
 	(assign {*iter} {elem})
-	(vpif {elem->obj_vtable == pdata->pdata_value->obj_vtable})
-		(switch)
-		(case {elem->obj_vtable == @class/class_string})
-			(f-call 'string 'append {pdata->pdata_value, elem} {elem})
-			(f-call 'ref 'deref {pdata->pdata_value})
-			(assign {elem} {pdata->pdata_value})
-			(break)
-		(default)
-			(d-call 'vector 'get_length {elem} {length})
-			(f-call 'vector 'append {pdata->pdata_value, elem, 0, length})
-		(endswitch)
+	(vpif {elem->obj_vtable == @class/class_vector})
+		(d-call 'vector 'get_length {elem} {length})
+		(f-call 'vector 'append {pdata->pdata_value, elem, 0, length})
 		(assign {1} '(r1))
 	(else)
 		(f-call 'ref 'deref {pdata->pdata_value})
-		(f-call 'error 'create {"(cat seq ...) not matching type", elem} {pdata->pdata_value})
+		(f-call 'error 'create {"(cat seq ...) not all lists", elem} {pdata->pdata_value})
+		(assign {0} '(r1))
+	(endif)
+
+	(pop-scope)
+	(return)
+
+(vp-label 'callback2)
+	;inputs
+	;r0 = predicate data pointer
+	;r1 = element iterator
+	;outputs
+	;r1 = 0 if break, else not
+
+	(pptr 'iter)
+	(ptr 'pdata 'elem)
+	(ulong 'length)
+
+	(push-scope)
+	(assign '(r0 r1) {pdata, iter})
+
+	(assign {*iter} {elem})
+	(vpif {elem->obj_vtable == @class/class_string || elem->obj_vtable == @class/class_symbol})
+		(f-call 'string 'append {pdata->pdata_value, elem} {elem})
+		(f-call 'ref 'deref {pdata->pdata_value})
+		(assign {elem} {pdata->pdata_value})
+		(assign {1} '(r1))
+	(else)
+		(f-call 'ref 'deref {pdata->pdata_value})
+		(f-call 'error 'create {"(cat seq ...) not all strings", elem} {pdata->pdata_value})
 		(assign {0} '(r1))
 	(endif)
 

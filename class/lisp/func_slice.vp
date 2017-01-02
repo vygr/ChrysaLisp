@@ -23,7 +23,7 @@
 	(vpif {length == 3})
 		(f-call 'vector 'get_element {args, 2} {seq})
 		(f-path 'class 'sequence)
-		(f-call 'obj 'inst_of (cat {seq, @} (str _function_)) {value})
+		(f-call 'obj 'inst_of (cat {seq, @} _function_) {value})
 		(vpif {value})
 			(f-call 'vector 'get_element {args, 0} {value})
 			(vpif {value->obj_vtable == @class/class_boxed_long})
