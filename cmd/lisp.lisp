@@ -363,13 +363,17 @@
 	(each import *files*)
 	(setq *compile-env* nil))
 
-(defun make-boot (&optional r *files*)
-	(defq *env* (env 101) *files* (if *files* *files* (list)))
-	(defun func-sym (f)
-		(sym (cat "obj/" f)))
+(defun make-boot (&optional r *funcs*)
+	(defq *env* (env 101) *funcs* (if *funcs* *funcs* (list)) z (cat (char 0 8) (char 0 8)))
+	(defun func-obj (f)
+		(cat "obj/" f))
 	(defun load-func (f)
 		(if (def? f) (eval f)
-			(def *env* f (load f))))
+			(progn
+				(defq b (load (func-obj f))
+					h (slice fn_header_entry (defq l (read-int fn_header_links b)) b)
+					l (slice l (defq p (read-int fn_header_paths b)) b))
+				(def *env* f (list (cat (char -1 8) (char p 4) h) l (read-paths b))))))
 	(defun read-byte (o f)
 		(code (elem o f)))
 	(defun read-short (o f)
@@ -379,37 +383,65 @@
 	(defun read-long (o f)
 		(add (read-int o f) (bit-shl (read-int (add o 4) f) 32)))
 	(defun read-paths (f)
-		(defq l (list) f (load-func f) i (read-int fn_header_links f))
+		(defq l (list) i (read-int fn_header_links f))
 		(while (ne 0 (defq p (read-long i f)))
 			(defq j (add p i) k j)
 			(while (ne 0 (read-byte j f))
 				(setq j (inc j)))
-			(push l (func-sym (slice k j f)))
+			(push l (sym (slice k j f)))
 			(setq i (add i 8))) l)
-	(unless (list? *files*)
-		(setq *files* (list *files*)))
-	(defq fn_header_length 8 fn_header_links 16 fn_header_paths 20 i -1 f (list
+	(unless (list? *funcs*)
+		(setq *funcs* (list *funcs*)))
+	(defq fn_header_length 8 fn_header_entry 12 fn_header_links 16 fn_header_paths 20 f (list
 	;must be first function !
-	(func-sym 'sys/load_init)
+	'sys/load_init
 	;must be second function !
-	(func-sym 'sys/load_bind)
+	'sys/load_bind
 	;must be third function !
-	(func-sym 'sys/load_statics)
+	'sys/load_statics
 	;must be included ! Because it unmaps all function blocks
-	(func-sym 'sys/load_deinit)
+	'sys/load_deinit
 	;must be included ! Because load_deinit accesses them
-	(func-sym 'sys/mem_statics)
+	'sys/mem_statics
 	;must be included !
-	(func-sym 'sys/kernel)))
-	(merge f (map func-sym *files*))
+	'sys/kernel))
+	(merge f (map sym *funcs*))
+	;load up all functions requested
+	(each load-func f)
+	;if recursive then load up all dependants
 	(when r
+		(defq i -1)
 		(while (lt (setq i (inc i)) (length f))
-			(merge f (read-paths (elem i f)))))
-	(save (setq f (cat (reduce (lambda (x y) (cat x (load-func y))) f "")
-		(progn (defq e (char 0)) (times (pow2 16) (setq e (cat e e))) e)))
-		(func-sym 'sys/boot_image))
+			(merge f (elem 2 (load-func (elem i f))))))
+	;list of all function bodies and links in order, list of offsets of link sections, offset of new path section
+	(defq b (map eval f) o (list)
+		p (add (length z) (reduce (lambda (x y)
+			(setq x (add x (length (elem 0 y))))
+			(push o x)
+			(add x (length (elem 1 y)))) b 0)))
+	;list of all function names that will appear in new path section, and list of all new path offsets
+	(defq i (length f) s (list))
+	(while (ge (setq i (dec i)) 0)
+		(merge f (elem 2 (eval (elem i f)))))
+	(reduce (lambda (x y)
+		(push s x)
+		(add x (length y) 1)) f 0)
+	;create new link sections with offsets to new paths
+	(each (lambda (x)
+		(defq u (elem _e o)
+			l (map (lambda (y)
+				(char (add (elem (find y f) s) (sub p u (mul _e 8))) 8)) (elem 2 x)))
+		(push l (char 0 8))
+		(elem-set 1 x (apply cat l))) b)
+	;build list of all sections of boot image
+	(defq q (list))
+	(each (lambda (x) (push q (elem 0 x) (elem 1 x))) b)
+	(push q z)
+	(each (lambda (x) (push q (cat x (char 0)))) f)
+	;concatinate all sections and save
+	(save (setq f (apply cat q)) (func-obj 'sys/boot_image))
 	(setq *env* nil)
-	(print "Boot image -> " (func-sym 'sys/boot_image) " (" (length f) ")"))
+	(print "Boot image -> " (func-obj 'sys/boot_image) " (" (length f) ")"))
 
 (defun make (&optional *os* *cpu*)
 	(compile ((lambda ()
