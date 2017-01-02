@@ -273,11 +273,11 @@
 		(setq *var-sp* (align *var-sp* x))))
 
 (defcfun def-struct (s &optional o)
-	(setq *struct* s *struct-offset* (eval (sym (cat (str (if o o "null")) "_size")))))
+	(setq *struct* s *struct-offset* (eval (sym (cat (if o o "null") "_size")))))
 
 (defcfun def-struct-end ()
 	(local-align ptr_size)
-	(defcvar (sym (cat (str *struct*) "_size")) *struct-offset*)
+	(defcvar (sym (cat *struct* "_size")) *struct-offset*)
 	(setq *struct* nil *struct-offset* nil))
 
 (defmacro def-type (n s y)
@@ -317,7 +317,7 @@
 		(error "Atempt to define offset into local stack !" f)))
 
 (defcfun struct (f s)
-	(defq s (eval (sym (cat (str s) "_size"))))
+	(defq s (eval (sym (cat s "_size"))))
 	(cond
 		(*struct*
 			(defcvar f *struct-offset* (type-sym f) nil)

@@ -334,7 +334,7 @@
 
 (defcfun class-macro-create (%1)
 	;%1 = class name
-	(def-func (sym (cat "class/" (str %1) "/create")))
+	(def-func (sym (cat "class/" %1 "/create")))
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
@@ -355,26 +355,26 @@
 
 (defcfun class-macro-new-clr (%1)
 	;%1 = class name
-	(def-func (sym (cat "class/" (str %1) "/new")))
+	(def-func (sym (cat "class/" %1 "/new")))
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
 		;r1-r3
-		(f-call 'sys_mem 'alloc `(,(sym (cat (str %1) "_size"))) '(r0 _))
+		(f-call 'sys_mem 'alloc `(,(sym (cat %1 "_size"))) '(r0 _))
 		(vpif '(r0 != 0))
 			;clear object memory
-			(f-call 'sys_mem 'clear `(r0 ,(sym (cat (str %1) "_size"))) '(r0))
-			(vp-sub-cr (sym (cat (str %1) "_size")) r0)
+			(f-call 'sys_mem 'clear `(r0 ,(sym (cat %1 "_size"))) '(r0))
+			(vp-sub-cr (sym (cat %1 "_size")) r0)
 		(endif)
 		(vp-ret)
 	(def-func-end))
 
 (defcfun class-macro-new (%1)
 	;%1 = class name
-	(def-func (sym (cat "class/" (str %1) "/new")))
+	(def-func (sym (cat "class/" %1 "/new")))
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
 		;r1-r3
-		(f-jmp 'sys_mem 'alloc `(,(sym (cat (str %1) "_size"))))
+		(f-jmp 'sys_mem 'alloc `(,(sym (cat %1 "_size"))))
 	(def-func-end))
