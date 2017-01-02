@@ -364,9 +364,12 @@
 	(setq *compile-env* nil))
 
 (defun make-boot (&optional r *files*)
-	(defq *files* (if *files* *files* (list)))
+	(defq *env* (env 101) *files* (if *files* *files* (list)))
 	(defun func-sym (f)
-		(sym (cat "obj/" (str f))))
+		(sym (cat "obj/" f)))
+	(defun load-func (f)
+		(if (def? f) (eval f)
+			(def *env* f (load f))))
 	(defun read-byte (o f)
 		(code (elem o f)))
 	(defun read-short (o f)
@@ -376,7 +379,7 @@
 	(defun read-long (o f)
 		(add (read-int o f) (bit-shl (read-int (add o 4) f) 32)))
 	(defun read-paths (f)
-		(defq l (list) f (load f) i (read-int fn_header_links f))
+		(defq l (list) f (load-func f) i (read-int fn_header_links f))
 		(while (ne 0 (defq p (read-long i f)))
 			(defq j (add p i) k j)
 			(while (ne 0 (read-byte j f))
@@ -402,21 +405,22 @@
 	(when r
 		(while (lt (setq i (inc i)) (length f))
 			(merge f (read-paths (elem i f)))))
-	(save (setq f (cat (reduce (lambda (x y) (cat x (load y))) f "")
+	(save (setq f (cat (reduce (lambda (x y) (cat x (load-func y))) f "")
 		(progn (defq e (char 0)) (times (pow2 16) (setq e (cat e e))) e)))
 		(func-sym 'sys/boot_image))
+	(setq *env* nil)
 	(print "Boot image -> " (func-sym 'sys/boot_image) " (" (length f) ")"))
 
 (defun make (&optional *os* *cpu*)
 	(compile ((lambda ()
-		(defq *make-env* (env 101) *imports* (list "make.inc") i -1)
+		(defq *env* (env 101) *imports* (list "make.inc") i -1)
 		(defun make-sym (f)
 			(sym (cat "_dep_" f)))
 		(defun make-time (f)
 			;modification time of a file, cached
 			(defq s (sym (cat "_age_" f)))
 			(if (def? s) (eval s)
-				(def *make-env* s (age f))))
+				(def *env* s (age f))))
 		(defun make-info (f)
 			;create lists of imediate dependancies and products
 			(defq d (list f) p (list))
@@ -439,7 +443,7 @@
 			(list d p))
 		;list of all file imports while defining dependancies and products
 		(while (lt (setq i (inc i)) (length *imports*))
-			(def *make-env* (make-sym (defq f (elem i *imports*))) (make-info f)))
+			(def *env* (make-sym (defq f (elem i *imports*))) (make-info f)))
 		;filter to only the .vp files
 		(setq *imports* (filter (lambda (f)
 			(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
@@ -450,7 +454,7 @@
 				(merge d (elem 0 (eval (make-sym (elem i d))))))
 			(some (lambda (x) (ge x p)) (map make-time d))) *imports*))
 		;drop the make enviroment and return the list to compile
-		(setq *make-env* nil)
+		(setq *env* nil)
 		*imports*)) *os* *cpu*)
 	(make-boot))
 
