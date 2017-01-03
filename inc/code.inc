@@ -5,16 +5,16 @@
 (defcvar '*switch* nil '*switch-nxt* nil '*switch-stk* (list))
 
 (defmacro beg-sym ()
-	'(sym (cat "_beg_" (str *switch*))))
+	'(scat "_beg_" (str *switch*)))
 
 (defmacro end-sym ()
-	'(sym (cat "_end_" (str *switch*))))
+	'(scat "_end_" (str *switch*)))
 
 (defmacro loc-sym (n)
-	`(sym (cat "_loc_" (str *switch*) "_" (str ,n))))
+	`(scat "_loc_" (str *switch*) "_" (str ,n)))
 
 (defmacro cnt-sym ()
-	'(sym (cat "_cnt_" (str *switch*))))
+	'(scat "_cnt_" (str *switch*)))
 
 (defcfun goto (l)
 	(vp-jmp l))
@@ -264,7 +264,7 @@
 	'null_size 0 'byte_size 1 'short_size 2 'int_size 4 'long_size 8 'ptr_size 8)
 
 (defmacro type-sym (s)
-	`(sym (cat "_t_" (str ,s))))
+	`(scat "_t_" (str ,s)))
 
 (defcfun local-align (&optional x)
 	(setq x (if x x long_size))
@@ -273,11 +273,11 @@
 		(setq *var-sp* (align *var-sp* x))))
 
 (defcfun def-struct (s &optional o)
-	(setq *struct* s *struct-offset* (eval (sym (cat (if o o "null") "_size")))))
+	(setq *struct* s *struct-offset* (eval (scat (if o o "null") "_size"))))
 
 (defcfun def-struct-end ()
 	(local-align ptr_size)
-	(defcvar (sym (cat *struct* "_size")) *struct-offset*)
+	(defcvar (scat *struct* "_size") *struct-offset*)
 	(setq *struct* nil *struct-offset* nil))
 
 (defmacro def-type (n s y)
@@ -317,7 +317,7 @@
 		(error "Atempt to define offset into local stack !" f)))
 
 (defcfun struct (f s)
-	(defq s (eval (sym (cat s "_size"))))
+	(defq s (eval (scat s "_size")))
 	(cond
 		(*struct*
 			(defcvar f *struct-offset* (type-sym f) nil)
@@ -534,7 +534,7 @@
 	'_t_8 nil '_t_9 nil '_t_10 nil '_t_11 nil '_t_12 nil '_t_13 nil '_t_14 nil '_t_15 nil)
 
 (defmacro vreg-sym (n)
-	`(sym (cat "_v" (str ,n))))
+	`(scat "_v" (str ,n)))
 
 (defmacro inc-stack ()
 	'(setq *s* (inc *s*)))

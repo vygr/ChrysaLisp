@@ -20,7 +20,7 @@
 				((reg i)
 					(if (reg (elem 1 o)) 'd
 						(if (eq 2 (length o)) 'i
-							(sym (cat 'i (elem 2 o))))))
+							(scat "i" (elem 2 o)))))
 				((eql i '@) i)
 				((eql i '$) i)
 				((eql i '&)
@@ -32,7 +32,7 @@
 		(t nil)))
 
 (defcfun label-sym (s)
-	(sym (cat '_lb_ s)))
+	(scat '_lb_ s))
 
 (defcfun vp-label (s) (setq s (label-sym s)) (emit `(emit-label ',s)) (defcvar s 0))
 (defcfun vp-align (&rest b) (emit `(emit-align ~b)))

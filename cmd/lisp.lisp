@@ -451,10 +451,10 @@
 	(compile ((lambda ()
 		(defq *env* (env 101) *imports* (list "make.inc") i -1)
 		(defun make-sym (f)
-			(sym (cat "_dep_" f)))
+			(scat "_dep_" f))
 		(defun make-time (f)
 			;modification time of a file, cached
-			(defq s (sym (cat "_age_" f)))
+			(defq s (scat "_age_" f))
 			(if (def? s) (eval s)
 				(def *env* s (age f))))
 		(defun make-info (f)

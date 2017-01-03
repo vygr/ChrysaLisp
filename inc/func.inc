@@ -67,13 +67,13 @@
 (defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil)
 
 (defcfun link-sym (p)
-	(sym (cat "_ref_link_" (str p))))
+	(scat "_ref_link_" (str p)))
 
 (defcfun path-sym (p)
-	(sym (cat "_ref_path_" (str p))))
+	(scat "_ref_path_" (str p)))
 
 (defcfun string-sym (p)
-	(sym (cat "_ref_string_" (str p))))
+	(scat "_ref_string_" (str p)))
 
 (defcfun def-func (*name* &optional *func-stack*)
 	(print "Compiling -> " *name*)

@@ -67,6 +67,7 @@
 (def-method 'func_sym 'class/lisp/func_sym 'static '(r0 r1) '(r1))
 (def-method 'func_str 'class/lisp/func_str 'static '(r0 r1) '(r1))
 (def-method 'func_cat 'class/lisp/func_cat 'static '(r0 r1) '(r1))
+(def-method 'func_scat 'class/lisp/func_scat 'static '(r0 r1) '(r1))
 (def-method 'func_elem 'class/lisp/func_elem 'static '(r0 r1) '(r1))
 (def-method 'func_elemset 'class/lisp/func_elemset 'static '(r0 r1) '(r1))
 (def-method 'func_copy 'class/lisp/func_copy 'static '(r0 r1) '(r1))
