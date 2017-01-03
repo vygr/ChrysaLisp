@@ -196,9 +196,9 @@
 
 	;get file data
 	(f-bind 'sys_load 'statics r1)
-	(vp-lea-i r1 ld_statics_stat_buffer r0)
+	(vp-cpy-ir r1 ld_statics_stat_buffer r1)
 	(sys-push-trashed)
-	(sys-stat '(r2 r0) '(r0))
+	(sys-stat '(r2 r1) '(r0))
 	(sys-pop-trashed)
 	(vpif '(r0 != 0))
 		(vp-xor-rr r0 r0)
@@ -206,7 +206,7 @@
 	(endif)
 
 	;get file modified date
-	(vp-cpy-ir r1 (add ld_statics_stat_buffer stat_mtime) r0)
+	(vp-cpy-ir r1 stat_mtime r0)
 	(vp-ret)
 
 (def-func-end)
