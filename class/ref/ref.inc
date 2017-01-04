@@ -10,3 +10,16 @@
 (def-struct 'ref 'obj)
 	(ulong 'ref_count)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;
+;inline methods
+;;;;;;;;;;;;;;;
+
+(defcfun class/ref/ref ()
+	;inputs
+	;r0 = object
+	;trashes
+	;r1
+	(vp-cpy-ir r0 ref_count r1)
+	(vp-inc r1)
+	(vp-cpy-ri r1 r0 ref_count))
