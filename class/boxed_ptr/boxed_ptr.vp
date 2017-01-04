@@ -30,7 +30,7 @@
 	;r0 = object
 	;r1 = value
 
-	(vp-cpy-ir r0 boxed_ptr_flags r1)
+	(class/boxed_ptr/get_flags)
 	(vp-ret)
 
 (def-func-end)
@@ -42,7 +42,7 @@
 	;r0 = object
 	;r1 = value
 
-	(vp-cpy-ir r0 boxed_ptr_value r1)
+	(class/boxed_ptr/get_value)
 	(vp-ret)
 
 (def-func-end)
@@ -54,7 +54,7 @@
 	;outputs
 	;r0 = object
 
-	(vp-cpy-ri r1 r0 boxed_ptr_flags)
+	(class/boxed_ptr/set_flags)
 	(vp-ret)
 
 (def-func-end)
@@ -66,7 +66,7 @@
 	;outputs
 	;r0 = object
 
-	(vp-cpy-ri r1 r0 boxed_ptr_value)
+	(class/boxed_ptr/set_value)
 	(vp-ret)
 
 (def-func-end)
