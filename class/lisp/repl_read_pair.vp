@@ -15,7 +15,7 @@
 	;r2 = next char
 
 	(const 'char_space (ascii " "))
-	(const 'char_rab (ascii ">"))
+	(const 'char_rsb (ascii "]"))
 
 	(ptr 'this 'stream 'pair 'first 'second)
 	(ulong 'char)
@@ -43,7 +43,7 @@
 		(f-call 'stream 'read_char {stream} {char})
 	(loop-end)
 
-	(vpif {char == char_rab})
+	(vpif {char == char_rsb})
 		(f-call 'stream 'read_char {stream} {char})
 		(f-call 'pair 'create {first, second} {pair})
 	(else)
