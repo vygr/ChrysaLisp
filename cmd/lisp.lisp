@@ -335,6 +335,9 @@
 	(each (lambda (y)
 		(if (not (find y x)) (push x y))) y))
 
+(defmacro sym-cat (&rest b)
+	`(sym (cat ~b)))
+
 ;;;;;;;;;;;;;;
 ; VP Assembler
 ;;;;;;;;;;;;;;
@@ -418,11 +421,10 @@
 		(while (lt (setq i (inc i)) (length f))
 			(merge-sym f (elem 2 (load-func (elem i f))))))
 	;list of all function bodies and links in order, list of offsets of link sections, offset of new path section
-	(defq b (map eval f) o (list)
-		p (add (length z) (reduce (lambda (x y)
-			(setq x (add x (length (elem 0 y))))
-			(push o x)
-			(add x (length (elem 1 y)))) b 0)))
+	(defq b (map eval f) o (list) p (add (length z) (reduce (lambda (x y)
+		(setq x (add x (length (elem 0 y))))
+		(push o x)
+		(add x (length (elem 1 y)))) b 0)))
 	;list of all function names that will appear in new path section, and list of all new path offsets
 	(defq i (length f) s (list))
 	(while (ge (setq i (dec i)) 0)
@@ -432,9 +434,8 @@
 		(add x (length y) 1)) f 0)
 	;create new link sections with offsets to new paths
 	(each (lambda (x)
-		(defq u (elem _e o)
-			l (map (lambda (y)
-				(char (add (elem (find y f) s) (sub p u (mul _e 8))) 8)) (elem 2 x)))
+		(defq u (elem _e o) l (map (lambda (y)
+			(char (add (elem (find y f) s) (sub p u (mul _e 8))) 8)) (elem 2 x)))
 		(push l (char 0 8))
 		(elem-set 1 x (apply cat l))) b)
 	;build list of all sections of boot image
@@ -451,10 +452,10 @@
 	(compile ((lambda ()
 		(defq *env* (env 101) *imports* (list "make.inc") i -1)
 		(defun make-sym (f)
-			(scat "_dep_" f))
+			(sym-cat "_dep_" f))
 		(defun make-time (f)
 			;modification time of a file, cached
-			(defq s (scat "_age_" f))
+			(defq s (sym-cat "_age_" f))
 			(if (def? s) (eval s)
 				(def *env* s (age f))))
 		(defun make-info (f)

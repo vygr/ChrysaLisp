@@ -124,7 +124,6 @@
 	(built-in "unquote-splicing" lisp_sym_splicing)
 	(built-in "cat" lisp_sym_cat 'func_cat)
 
-	(built-in "scat" 0 'func_scat)
 	(built-in "def" 0 'func_def)
 	(built-in "set" 0 'func_set)
 	(built-in "macroexpand-1" 0 'func_macroexpand_1)
