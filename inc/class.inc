@@ -151,7 +151,7 @@
 		(unless (eql (elem 0 m) 'init)
 			(error "Method is static !" (list (eval (super-name %1)) %2))))
 	(assign %3 (elem 3 m))
-	(fn-call (elem 1 m))
+	(if (def? (setq s (elem 1 m))) ((eval s)) (fn-call s))
 	(assign (elem 4 m) %4))
 
 (defcfun s-jmp (%1 %2 &optional %3)
