@@ -27,3 +27,36 @@
 	(ulong 'vector_length)
 	(ulong 'vector_capacity)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;
+;inline methods
+;;;;;;;;;;;;;;;
+
+(defcfun class/vector/get_capacity ()
+	;inputs
+	;r0 = vector object
+	;outputs
+	;r0 = vector object
+	;r1 = vector capacity
+	(vp-cpy-ir r0 vector_capacity r1))
+
+(defcfun class/vector/get_length ()
+	;inputs
+	;r0 = vector object
+	;outputs
+	;r0 = vector object
+	;r1 = vector length
+	(vp-cpy-ir r0 vector_length r1))
+
+(defcfun class/vector/get_element ()
+	;inputs
+	;r0 = vector object
+	;r1 = vector element
+	;outputs
+	;r0 = vector object
+	;r1 = object
+	;trashes
+	;r2
+	(vp-shl-cr (pow2 ptr_size) r1)
+	(vp-cpy-ir r0 vector_array r2)
+	(vp-cpy-dr r2 r1 r1))

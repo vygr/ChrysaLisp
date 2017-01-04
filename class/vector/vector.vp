@@ -226,7 +226,7 @@
 	;r0 = vector object
 	;r1 = vector capacity
 
-	(vp-cpy-ir r0 vector_capacity r1)
+	(class/vector/get_capacity)
 	(vp-ret)
 
 (def-func-end)
@@ -241,9 +241,7 @@
 	;trashes
 	;r2
 
-	(vp-shl-cr (pow2 ptr_size) r1)
-	(vp-cpy-ir r0 vector_array r2)
-	(vp-cpy-dr r2 r1 r1)
+	(class/vector/get_element)
 	(vp-ret)
 
 (def-func-end)
@@ -255,7 +253,7 @@
 	;r0 = vector object
 	;r1 = vector length
 
-	(vp-cpy-ir r0 vector_length r1)
+	(class/vector/get_length)
 	(vp-ret)
 
 (def-func-end)
