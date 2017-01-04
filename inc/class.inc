@@ -60,7 +60,7 @@
 			((eql %3 'override)
 				(error "Method does not exist !" %1))
 			(t
-				(error "Must use inline, static, virtual or override ! " %3)))))
+				(error "Must use static, virtual or override ! " %3)))))
 
 ;;;;;;;;;;;;;;;
 ; class calling
@@ -111,9 +111,7 @@
 	(if (eql (elem 2 m) 'virtual)
 		(error "Method is virtual ! Use v-call ?" (list %1 %2)))
 	(assign %3 (elem 3 m))
-	(if (def? (setq s (elem 1 m)))
-		(eval s)
-		(fn-call s))
+	(if (def? (setq s (elem 1 m))) ((eval s)) (fn-call s))
 	(assign (elem 4 m) %4))
 
 (defcfun f-jmp (%1 %2 &optional %3)
@@ -244,9 +242,7 @@
 	(if (eql (elem 2 m) 'static)
 		(error "Method is static ! Use f-call ?" (list %1 %2)))
 	(assign %3 (elem 3 m))
-	(if (def? (setq s (elem 1 m)))
-		(eval s)
-		(fn-call s))
+	(if (def? (setq s (elem 1 m))) ((eval s)) (fn-call s))
 	(assign (elem 4 m) %4))
 
 (defcfun d-jmp (%1 %2 &optional %3)
