@@ -19,3 +19,31 @@
 	(ptr 'pair_first)
 	(ptr 'pair_second)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;
+;inline methods
+;;;;;;;;;;;;;;;
+
+(defcfun class/pair/get_first ()
+	;inputs
+	;r0 = pair object
+	;outputs
+	;r0 = pair object
+	;r1 = object pointer
+	(vp-cpy-ir r0 pair_first r1))
+
+(defcfun class/pair/get_length ()
+	;inputs
+	;r0 = pair object
+	;outputs
+	;r0 = pair object
+	;r1 = pair length
+	(vp-cpy-cr 2 r1))
+
+(defcfun class/pair/get_second ()
+	;inputs
+	;r0 = pair object
+	;outputs
+	;r0 = pair object
+	;r1 = object pointer
+	(vp-cpy-ir r0 pair_second r1))

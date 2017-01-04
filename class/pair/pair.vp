@@ -72,7 +72,7 @@
 	;r0 = pair object
 	;r1 = object pointer
 
-	(vp-cpy-ir r0 pair_first r1)
+	(class/pair/get_first)
 	(vp-ret)
 
 (def-func-end)
@@ -84,7 +84,7 @@
 	;r0 = pair object
 	;r1 = pair length
 
-	(vp-cpy-cr 2 r1)
+	(class/pair/get_length)
 	(vp-ret)
 
 (def-func-end)
@@ -96,7 +96,7 @@
 	;r0 = pair object
 	;r1 = object pointer
 
-	(vp-cpy-ir r0 pair_second r1)
+	(class/pair/get_second)
 	(vp-ret)
 
 (def-func-end)

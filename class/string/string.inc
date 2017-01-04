@@ -26,3 +26,24 @@
 	(ulong 'string_hashcode)
 	(offset 'string_data)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;
+;inline methods
+;;;;;;;;;;;;;;;
+
+(defcfun class/string/new ()
+	;inputs
+	;r0 = object size
+	;outputs
+	;r0 = 0 if error, else object
+	;trashes
+	;r1-r3
+	(f-call 'sys_mem 'alloc '(r0) '(r0 _)))
+
+(defcfun class/string/get_length ()
+	;inputs
+	;r0 = string object
+	;outputs
+	;r0 = string object
+	;r1 = string length
+	(vp-cpy-ir r0 string_length r1))

@@ -280,7 +280,7 @@
 	;r0 = unordered_map object
 	;r1 = 0, else unordered_map parent
 
-	(vp-cpy-ir r0 unordered_map_parent r1)
+	(class/unordered_map/get_parent)
 	(vp-ret)
 
 (def-func-end)

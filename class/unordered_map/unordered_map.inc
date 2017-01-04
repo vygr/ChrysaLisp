@@ -16,3 +16,15 @@
 (def-struct 'unordered_map 'unordered_set)
 	(ptr 'unordered_map_parent)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;
+;inline methods
+;;;;;;;;;;;;;;;
+
+(defcfun class/unordered_map/get_parent ()
+	;inputs
+	;r0 = unordered_map object
+	;outputs
+	;r0 = unordered_map object
+	;r1 = 0, else unordered_map parent
+	(vp-cpy-ir r0 unordered_map_parent r1))
