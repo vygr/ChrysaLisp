@@ -460,7 +460,7 @@
 				(def *env* s (age f))))
 		(defun make-info (f)
 			;create lists of imediate dependancies and products
-			(defq d (list f) p (list))
+			(defq d (list "cmd/lisp.lisp" f) p (list))
 			(each-line f (lambda (l)
 				(when (le 2 (length (defq s (split l (ascii " ")))) 3)
 					(defq k (elem 0 s) o (trim-start (trim-end (elem 1 s) ")") "'"))
@@ -486,7 +486,7 @@
 			(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
 		;filter to only the files whos oldest product is older than any dependancy
 		(setq *imports* (filter (lambda (f)
-			(defq d (eval (make-sym f)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d) i 0)
+			(defq d (eval (make-sym f)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d) i 1)
 			(while (lt (setq i (inc i)) (length d))
 				(merge d (elem 0 (eval (make-sym (elem i d))))))
 			(some (lambda (x) (ge x p)) (map make-time d))) *imports*))
