@@ -219,33 +219,6 @@
 
 (def-func-end)
 
-(def-func 'class/vector/get_capacity)
-	;inputs
-	;r0 = vector object
-	;outputs
-	;r0 = vector object
-	;r1 = vector capacity
-
-	(class/vector/get_capacity)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/vector/get_element)
-	;inputs
-	;r0 = vector object
-	;r1 = vector element
-	;outputs
-	;r0 = vector object
-	;r1 = object
-	;trashes
-	;r2
-
-	(class/vector/get_element)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/vector/get_length)
 	;inputs
 	;r0 = vector object

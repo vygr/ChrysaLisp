@@ -65,18 +65,6 @@
 
 (def-func-end)
 
-(def-func 'class/pair/get_first)
-	;inputs
-	;r0 = pair object
-	;outputs
-	;r0 = pair object
-	;r1 = object pointer
-
-	(class/pair/get_first)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/pair/get_length)
 	;inputs
 	;r0 = pair object
@@ -85,18 +73,6 @@
 	;r1 = pair length
 
 	(class/pair/get_length)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/pair/get_second)
-	;inputs
-	;r0 = pair object
-	;outputs
-	;r0 = pair object
-	;r1 = object pointer
-
-	(class/pair/get_second)
 	(vp-ret)
 
 (def-func-end)

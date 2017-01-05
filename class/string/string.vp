@@ -6,19 +6,6 @@
 (import 'class/stream/stream.inc)
 (import 'class/vector/vector.inc)
 
-(def-func 'class/string/new)
-	;inputs
-	;r0 = object size
-	;outputs
-	;r0 = 0 if error, else object
-	;trashes
-	;r1-r3
-
-	;allocate new string object
-	(f-jmp 'sys_mem 'alloc '(r0))
-
-(def-func-end)
-
 (def-func 'class/string/create_from_buffer)
 	;inputs
 	;r0 = buffer pointer

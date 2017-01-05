@@ -273,18 +273,6 @@
 
 (def-func-end)
 
-(def-func 'class/unordered_map/get_parent)
-	;inputs
-	;r0 = unordered_map object
-	;outputs
-	;r0 = unordered_map object
-	;r1 = 0, else unordered_map parent
-
-	(class/unordered_map/get_parent)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/unordered_map/set_parent)
 	;inputs
 	;r0 = unordered_map object

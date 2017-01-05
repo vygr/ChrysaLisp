@@ -51,18 +51,6 @@
 
 (def-func-end)
 
-(def-func 'class/ref/ref)
-	;inputs
-	;r0 = object
-	;trashes
-	;r1
-
-	;inc ref count
-	(class/ref/ref)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/ref/ref_if)
 	;inputs
 	;r0 = 0, else object
