@@ -84,14 +84,16 @@
 	;outputs
 	;r0 = pair object
 	;r1 = object
+	;trashes
+	;r2
 
-	(vp-push r0)
+	(vp-cpy-rr r0 r2)
 	(vp-add-cr pair_first r0)
 	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-add-rr r1 r0)
 	(f-call 'ref 'ref '((r0 0)))
 	(vp-cpy-rr r0 r1)
-	(vp-pop r0)
+	(vp-cpy-rr r2 r0)
 	(vp-ret)
 
 (def-func-end)
