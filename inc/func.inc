@@ -141,7 +141,8 @@
 	(vp-cpy-pr (link-sym (fn-find-link p)) r))
 
 (defcfun fn-call (p)
-	(vp-call-p (link-sym (fn-find-link p))))
+	(if (def? p) ((eval p))
+		(vp-call-p (link-sym (fn-find-link p)))))
 
 (defcfun fn-jmp (p)
 	(vp-jmp-p (link-sym (fn-find-link p))))

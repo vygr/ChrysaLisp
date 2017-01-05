@@ -111,7 +111,7 @@
 	(if (eql (elem 2 m) 'virtual)
 		(error "Method is virtual ! Use v-call ?" (list %1 %2)))
 	(assign %3 (elem 3 m))
-	(if (def? (setq s (elem 1 m))) ((eval s)) (fn-call s))
+	(fn-call (elem 1 m))
 	(assign (elem 4 m) %4))
 
 (defcfun f-jmp (%1 %2 &optional %3)
@@ -151,7 +151,7 @@
 		(unless (eql (elem 0 m) 'init)
 			(error "Method is static !" (list (eval (super-name %1)) %2))))
 	(assign %3 (elem 3 m))
-	(if (def? (setq s (elem 1 m))) ((eval s)) (fn-call s))
+	(fn-call (elem 1 m))
 	(assign (elem 4 m) %4))
 
 (defcfun s-jmp (%1 %2 &optional %3)
@@ -242,7 +242,7 @@
 	(if (eql (elem 2 m) 'static)
 		(error "Method is static ! Use f-call ?" (list %1 %2)))
 	(assign %3 (elem 3 m))
-	(if (def? (setq s (elem 1 m))) ((eval s)) (fn-call s))
+	(fn-call (elem 1 m))
 	(assign (elem 4 m) %4))
 
 (defcfun d-jmp (%1 %2 &optional %3)
