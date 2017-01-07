@@ -1,0 +1,62 @@
+(import 'inc/func.inc)
+(import 'class/vector/vector.inc)
+(import 'class/string/string.inc)
+(import 'class/master/master.inc)
+(import 'class/stream_msg_out/stream_msg_out.inc)
+(import 'class/error/error.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_wpipe)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value 'pipe 'stream)
+	(uint 'length 'state)
+
+	(push-scope)
+	(assign '(r0 r1) {this, args})
+
+	(d-call 'vector 'get_length {args} {length})
+	(vpif {length == 2})
+		(f-call 'vector 'get_element {args, 0} {pipe})
+		(vpif {pipe->obj_vtable == @class/class_master})
+			(f-call 'master 'get_state {pipe} {state})
+			(vpif {state != stream_mail_state_stopped})
+				(f-call 'vector 'get_element {args, 1} {value})
+				(vpif {value->obj_vtable == @class/class_string || value->obj_vtable == @class/class_symbol})
+					(f-call 'master 'get_input {pipe} {stream})
+					(f-call 'stream 'write {stream, &value->string_data, value->string_length})
+					(f-call 'stream 'write_char {stream, 10})
+					(v-call 'stream 'write_flush {stream})
+					(f-call 'ref 'ref {value})
+				(elseif {value == this->lisp_sym_nil})
+					;flush input
+					(f-call 'master 'get_input {pipe} {stream})
+					(v-call 'stream 'write_flush {stream})
+					;send stopping
+					(f-call 'stream_msg_out 'set_state {stream, stream_mail_state_stopping})
+					(v-call 'stream 'write_next {stream})
+					(v-call 'stream 'write_flush {stream})
+					(f-call 'ref 'ref {value})
+				(else)
+					(f-call 'error 'create {"(pipe-write pipe str) not string", args} {value})
+				(endif)
+			(else)
+				(f-call 'error 'create {"(pipe-write pipe str) pipe is closed", args} {value})
+			(endif)
+		(else)
+			(f-call 'error 'create {"(pipe-write pipe str) not pipe", args} {value})
+		(endif)
+	(else)
+		(f-call 'error 'create {"(pipe-write pipe str) wrong number of args", args} {value})
+	(endif)
+
+	(assign {this, value} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)

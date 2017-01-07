@@ -1,0 +1,63 @@
+(import 'inc/func.inc)
+(import 'class/vector/vector.inc)
+(import 'class/string/string.inc)
+(import 'class/master/master.inc)
+(import 'class/stream_msg_out/stream_msg_out.inc)
+(import 'class/stream_str/stream_str.inc)
+(import 'class/error/error.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_rpipe)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value 'pipe 'stream 'str_stream)
+	(uint 'length 'state)
+	(int 'char 'ready)
+
+	(push-scope)
+	(assign '(r0 r1) {this, args})
+
+	(d-call 'vector 'get_length {args} {length})
+	(vpif {length == 1})
+		(f-call 'vector 'get_element {args, 0} {pipe})
+		(vpif {pipe->obj_vtable == @class/class_master})
+			(f-call 'master 'get_state {pipe} {state})
+			(vpif {state == stream_mail_state_started})
+				(f-call 'master 'select {pipe, 0} {value})
+				(f-call 'master 'get_stream {pipe, value} {stream})
+				(f-call 'string 'create_from_cstr {""} {value})
+				(f-call 'stream_str 'create {value} {str_stream})
+				(loop-start)
+					(f-call 'stream 'read_char {stream} {char})
+					(breakif {char == -1})
+					(f-call 'stream 'write_char {str_stream, char})
+					(v-call 'stream 'read_ready {stream} {ready})
+				(loop-untilnot {ready})
+				(vpif {char == -1})
+					;EOF
+					(f-call 'master 'stop {pipe})
+				(endif)
+				(f-call 'stream_str 'ref_string {str_stream} {value})
+				(f-call 'ref 'deref {str_stream})
+			(else)
+				;closed
+				(assign {this->lisp_sym_nil} {value})
+				(f-call 'ref 'ref {value})
+			(endif)
+		(else)
+			(f-call 'error 'create {"(pipe-read pipe) not pipe", args} {value})
+		(endif)
+	(else)
+		(f-call 'error 'create {"(pipe-read pipe) wrong number of args", args} {value})
+	(endif)
+
+	(assign {this, value} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)

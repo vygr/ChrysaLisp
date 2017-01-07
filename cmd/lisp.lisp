@@ -357,7 +357,7 @@
 		(setq o (sym (read-line f)))) o)
 
 (defun compile (*files* &optional *os* *cpu*)
-	(defq *compile-env* (env 101) *imports* (list)
+	(defq *compile-env* (env 101) *imports* (list) p nil b 10
 		*os* (if *os* *os* (platform)) *cpu* (if *cpu* *cpu* (cpu)))
 	(defmacro defcvar (&rest b)
 		`(def *compile-env* ~b))
@@ -371,7 +371,23 @@
 			(repl (file-stream *file*))))
 	(unless (list? *files*)
 		(setq *files* (list *files*)))
-	(each import (map sym *files*))
+	(setq *files* (map sym *files*))
+	(when (gt (length *files* ) b)
+		(setq p (pipe "lisp"))
+		(defq s (slice b -1 *files*) *files* (slice 0 b *files*))
+		(pipe-write p "(compile (list ")
+		(each (lambda (x) (pipe-write p (cat "'" x))) s)
+		(pipe-write p (cat ")" "'" *os* "'" *cpu* ")")))
+	(each import *files*)
+	(while p
+		(defq r (split (defq s (trim-end (pipe-read p) (char 10))) (ascii " ")))
+		(cond
+			((eql "Done" (elem 0 r))
+				(setq p nil))
+			((eql "Error:" (elem 0 r))
+				(setq p nil)
+				(print s))
+			(t (print s))))
 	(print "Done")
 	(setq *compile-env* nil))
 

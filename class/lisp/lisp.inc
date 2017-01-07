@@ -101,6 +101,9 @@
 (def-method 'func_age 'class/lisp/func_age 'static '(r0 r1) '(r1))
 (def-method 'func_error 'class/lisp/func_error 'static '(r0 r1) '(r1))
 (def-method 'func_scope 'class/lisp/func_scope 'static '(r0 r1) '(r1))
+(def-method 'func_pipe 'class/lisp/func_pipe 'static '(r0 r1) '(r1))
+(def-method 'func_rpipe 'class/lisp/func_rpipe 'static '(r0 r1) '(r1))
+(def-method 'func_wpipe 'class/lisp/func_wpipe 'static '(r0 r1) '(r1))
 
 (def-enum)
 	(enum 'type_args_eval_apply)
