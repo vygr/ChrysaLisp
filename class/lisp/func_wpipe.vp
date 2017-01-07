@@ -30,7 +30,6 @@
 				(vpif {value->obj_vtable == @class/class_string || value->obj_vtable == @class/class_symbol})
 					(f-call 'master 'get_input {pipe} {stream})
 					(f-call 'stream 'write {stream, &value->string_data, value->string_length})
-					(f-call 'stream 'write_char {stream, 10})
 					(v-call 'stream 'write_flush {stream})
 					(f-call 'ref 'ref {value})
 				(elseif {value == this->lisp_sym_nil})
