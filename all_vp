@@ -63,6 +63,7 @@
 ./class/lisp/func_mul.vp
 ./class/lisp/func_ne.vp
 ./class/lisp/func_not.vp
+./class/lisp/func_pipe.vp
 ./class/lisp/func_pop.vp
 ./class/lisp/func_prin.vp
 ./class/lisp/func_print.vp
@@ -73,6 +74,7 @@
 ./class/lisp/func_readchar.vp
 ./class/lisp/func_readline.vp
 ./class/lisp/func_repl.vp
+./class/lisp/func_rpipe.vp
 ./class/lisp/func_save.vp
 ./class/lisp/func_scope.vp
 ./class/lisp/func_set.vp
@@ -84,6 +86,7 @@
 ./class/lisp/func_sub.vp
 ./class/lisp/func_sym.vp
 ./class/lisp/func_while.vp
+./class/lisp/func_wpipe.vp
 ./class/lisp/func_write.vp
 ./class/lisp/func_writechar.vp
 ./class/lisp/func_writeline.vp
