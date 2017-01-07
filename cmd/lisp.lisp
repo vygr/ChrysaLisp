@@ -357,7 +357,7 @@
 		(setq o (sym (read-line f)))) o)
 
 (defun compile (*files* &optional *os* *cpu*)
-	(defq *compile-env* (env 101) *imports* (list) p nil b 10
+	(defq *compile-env* (env 101) *imports* (list) p nil b 20
 		*os* (if *os* *os* (platform)) *cpu* (if *cpu* *cpu* (cpu)))
 	(defmacro defcvar (&rest b)
 		`(def *compile-env* ~b))
@@ -374,10 +374,9 @@
 	(setq *files* (map sym *files*))
 	(when (gt (length *files* ) b)
 		(setq p (pipe "lisp"))
-		(defq s (slice b -1 *files*) *files* (slice 0 b *files*))
-		(pipe-write p "(compile '(")
-		(each (lambda (x) (pipe-write p (cat x " "))) s)
-		(pipe-write p (cat ") '" *os* " '" *cpu* ")" (char 10))))
+		(when p
+			(defq s (slice b -1 *files*) *files* (slice 0 b *files*))
+			(pipe-write p (cat "(compile '" (str s) " '" *os* " '" *cpu* ")" (char 10)))))
 	(each import *files*)
 	(while p
 		(defq r (split (defq s (trim-end (pipe-read p) (char 10))) (ascii " ")))
@@ -533,6 +532,37 @@
 		;drop the make enviroment and return the list to compile
 		(setq *env* nil)
 		*imports*)) *os* *cpu*))
+
+(defun make-boot-all ()
+	(make-boot nil ((lambda ()
+		(defq *env* (env 101) *imports* (list 'make.inc) *products* (list) i -1)
+		(defun make-info (f)
+			;add imports and products
+			(each-line f (lambda (l)
+				(when (le 2 (length (defq s (split l (ascii " ")))) 3)
+					(defq k (elem 0 s) o (sym (trim-start (trim-end (elem 1 s) ")") "'")))
+					(cond
+						((eql k "(import")
+							(insert-sym *imports* o))
+						((eql k "(class-macro-class")
+							(insert-sym *products* (sym-cat "class/class_" o)))
+						((eql k "(class-macro-new")
+							(insert-sym *products* (sym-cat "class/" o "/new")))
+						((eql k "(class-macro-new-clr")
+							(insert-sym *products* (sym-cat "class/" o "/new")))
+						((eql k "(class-macro-create")
+							(insert-sym *products* (sym-cat "class/" o "/create")))
+						((eql k "(def-func")
+							(insert-sym *products* o)))))))
+		;lists of all file imports and products
+		(while (lt (setq i (inc i)) (length *imports*))
+			(make-info (elem i *imports*)))
+		;drop the make enviroment and return the products
+		(setq *env* nil)
+		*products*))))
+
+(defun make-test ()
+	(times 10 (make-all)))
 
 ;test code for OOPS stuff
 
