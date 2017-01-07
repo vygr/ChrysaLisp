@@ -331,6 +331,10 @@
 		(when (notany (lambda (x) (eql x y)) x)
 			(push x y))) y))
 
+(defun insert-sym (x y)
+	(if (not (find y x))
+		(push x y)))
+
 (defun merge-sym (x y)
 	(each (lambda (y)
 		(if (not (find y x)) (push x y))) y))
@@ -361,13 +365,13 @@
 ;		`(def *compile-env* ',n (lambda ,a (print "Enter: " ',n) (defq _rv (progn ~b)) (print "Exit: " ',n) _rv)))
 		`(def *compile-env* ',n (lambda ,a ~b)))
 	(defun import (*file*)
-		(when (notany (lambda (x) (eql x *file*)) *imports*)
+		(when (not (find *file* *imports*))
 			(push *imports* *file*)
 ;			(print "Importing " *file*)
 			(repl (file-stream *file*))))
 	(unless (list? *files*)
 		(setq *files* (list *files*)))
-	(each import *files*)
+	(each import (map sym *files*))
 	(setq *compile-env* nil))
 
 (defun make-boot (&optional r *funcs*)
@@ -450,7 +454,7 @@
 
 (defun make (&optional *os* *cpu*)
 	(compile ((lambda ()
-		(defq *env* (env 101) *imports* (list "make.inc") i -1)
+		(defq *env* (env 101) *imports* (list 'make.inc) i -1)
 		(defun make-sym (f)
 			(sym-cat "_dep_" f))
 		(defun make-time (f)
@@ -460,23 +464,23 @@
 				(def *env* s (age f))))
 		(defun make-info (f)
 			;create lists of imediate dependancies and products
-			(defq d (list "cmd/lisp.lisp" f) p (list))
+			(defq d (list 'cmd/lisp.lisp f) p (list))
 			(each-line f (lambda (l)
 				(when (le 2 (length (defq s (split l (ascii " ")))) 3)
-					(defq k (elem 0 s) o (trim-start (trim-end (elem 1 s) ")") "'"))
+					(defq k (elem 0 s) o (sym (trim-start (trim-end (elem 1 s) ")") "'")))
 					(cond
 						((eql k "(import")
-							(push d o) (insert *imports* o))
+							(push d o) (insert-sym *imports* o))
 						((eql k "(class-macro-class")
-							(push p (cat "obj/class/class_" o)))
+							(push p (sym-cat "obj/class/class_" o)))
 						((eql k "(class-macro-new")
-							(push p (cat "obj/class/" o "/new")))
+							(push p (sym-cat "obj/class/" o "/new")))
 						((eql k "(class-macro-new-clr")
-							(push p (cat "obj/class/" o "/new")))
+							(push p (sym-cat "obj/class/" o "/new")))
 						((eql k "(class-macro-create")
-							(push p (cat "obj/class/" o "/create")))
+							(push p (sym-cat "obj/class/" o "/create")))
 						((eql k "(def-func")
-							(push p (cat "obj/" o)))))))
+							(push p (sym-cat "obj/" o)))))))
 			(list d p))
 		;list of all file imports while defining dependancies and products
 		(while (lt (setq i (inc i)) (length *imports*))
@@ -492,12 +496,26 @@
 			(some (lambda (x) (ge x p)) (map make-time d))) *imports*))
 		;drop the make enviroment and return the list to compile
 		(setq *env* nil)
-		*imports*)) *os* *cpu*)
-	(make-boot))
+		*imports*)) *os* *cpu*))
 
 (defun make-all (&optional *os* *cpu*)
-	(compile "make.inc" *os* *cpu*)
-	(make-boot))
+	(compile ((lambda ()
+		(defq *env* (env 101) *imports* (list 'make.inc) i -1)
+		(defun make-info (f)
+			;add imediate imports
+			(each-line f (lambda (l)
+				(when (le 2 (length (defq s (split l (ascii " ")))) 3)
+					(if (eql (elem 0 s) "(import")
+						(insert-sym *imports* (sym (trim-start (trim-end (elem 1 s) ")") "'"))))))))
+		;list of all file imports
+		(while (lt (setq i (inc i)) (length *imports*))
+			(make-info (elem i *imports*)))
+		;filter to only the .vp files
+		(setq *imports* (filter (lambda (f)
+			(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
+		;drop the make enviroment and return the list to compile
+		(setq *env* nil)
+		*imports*)) *os* *cpu*))
 
 ;test code for OOPS stuff
 
