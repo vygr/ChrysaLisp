@@ -493,7 +493,7 @@
 		(setq *imports* (filter (lambda (f)
 			(defq d (eval (make-sym f)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d) i 1)
 			(while (lt (setq i (inc i)) (length d))
-				(merge d (elem 0 (eval (make-sym (elem i d))))))
+				(merge-sym d (elem 0 (eval (make-sym (elem i d))))))
 			(some (lambda (x) (ge x p)) (map make-time d))) *imports*))
 		;drop the make enviroment and return the list to compile
 		(setq *env* nil)
