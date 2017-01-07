@@ -372,6 +372,7 @@
 	(unless (list? *files*)
 		(setq *files* (list *files*)))
 	(each import (map sym *files*))
+	(print "Done")
 	(setq *compile-env* nil))
 
 (defun make-boot (&optional r *funcs*)
