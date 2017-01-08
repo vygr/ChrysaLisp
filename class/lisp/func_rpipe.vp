@@ -17,7 +17,7 @@
 
 	(ptr 'this 'args 'value 'pipe 'stream 'str_stream)
 	(uint 'length 'state)
-	(int 'char 'ready)
+	(int 'char)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})
@@ -34,10 +34,9 @@
 				(f-call 'stream_str 'create {value} {str_stream})
 				(loop-start)
 					(f-call 'stream 'read_char {stream} {char})
-					(breakif {char == -1})
+					(breakif {char == -1 || char == 10})
 					(f-call 'stream 'write_char {str_stream, char})
-					(v-call 'stream 'read_ready {stream} {ready})
-				(loop-untilnot {ready})
+				(loop-end)
 				(vpif {char == -1})
 					;EOF
 					(f-call 'master 'stop {pipe})
