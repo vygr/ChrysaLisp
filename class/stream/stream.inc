@@ -28,3 +28,30 @@
 	(pubyte 'stream_bufp)
 	(pubyte 'stream_bufe)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
+
+(defcfun class/stream/available ()
+	;inputs
+	;r0 = stream object
+	;outputs
+	;r0 = stream object
+	;r1 = available space
+	;trashes
+	;r2
+	(vp-cpy-ir r0 stream_bufe r1)
+	(vp-cpy-ir r0 stream_bufp r2)
+	(vp-sub-rr r2 r1))
+
+(defcfun class/stream/write_flush ()
+	;inputs
+	;r0 = stream object
+	;outputs
+	;r0 = stream object
+	;trashes
+	;r1
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r0 stream_bufp)
+	(vp-cpy-ri r1 r0 stream_bufe))

@@ -111,16 +111,6 @@
 
 (def-func-end)
 
-(def-func 'class/stream_msg_out/set_state)
-	;inputs
-	;r0 = stream_msg_out object
-	;r1 = stream state
-
-	(vp-cpy-ri r1 r0 stream_msg_out_state)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/stream_msg_out/write_flush)
 	;inputs
 	;r0 = stream_msg_out object

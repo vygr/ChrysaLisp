@@ -33,3 +33,13 @@
 	(enum 'stream_mail_state_stopping)
 	(enum 'stream_mail_state_stopped)
 (def-enum-end)
+
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
+
+(defcfun class/stream_msg_out/set_state ()
+	;inputs
+	;r0 = stream_msg_out object
+	;r1 = stream state
+	(vp-cpy-ri r1 r0 stream_msg_out_state))
