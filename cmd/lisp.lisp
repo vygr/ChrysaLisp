@@ -522,7 +522,7 @@
 
 (defun make-all (&optional *os* *cpu*)
 	(compile ((lambda ()
-		(defq *env* (env 101) *imports* (list 'make.inc) i -1)
+		(defq *imports* (list 'make.inc) i -1)
 		;list of all file imports
 		(while (lt (setq i (inc i)) (length *imports*))
 			(defq f (elem i *imports*) d (make-info f))
@@ -530,20 +530,16 @@
 		;filter to only the .vp files
 		(setq *imports* (filter (lambda (f)
 			(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
-		;drop the make enviroment and return the list to compile
-		(setq *env* nil)
 		*imports*)) *os* *cpu*))
 
 (defun make-boot-all ()
 	(make-boot nil ((lambda ()
-		(defq *env* (env 101) *imports* (list 'make.inc) *products* (list) i -1)
+		(defq *imports* (list 'make.inc) *products* (list) i -1)
 		;lists of all file imports and products
 		(while (lt (setq i (inc i)) (length *imports*))
 			(defq f (elem i *imports*) d (make-info f))
 			(merge-sym *imports* (elem 0 d))
 			(merge-sym *products* (elem 1 d)))
-		;drop the make enviroment and return the products
-		(setq *env* nil)
 		*products*))))
 
 (defun make-test ()
