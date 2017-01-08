@@ -377,11 +377,11 @@
 		(pipe-write p (cat "(compile '" (str s) " '" *os* " '" *cpu* ") ")))
 	(each import *files*)
 	(while p
-		(defq r (split (defq s (trim-end (pipe-read p) (char 10))) (ascii " ")))
+		(defq k (elem 0 (split (defq s (pipe-read p)) (ascii " "))))
 		(cond
-			((eql "Done" (elem 0 r))
+			((eql k "Done")
 				(setq p nil))
-			((eql "Error:" (elem 0 r))
+			((eql k "Error:")
 				(setq p nil)
 				(print s))
 			(t (print s))))
