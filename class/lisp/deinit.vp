@@ -13,7 +13,7 @@
 	(assign '(r0) {this})
 
 	;deinit myself
-	(f-call 'ref 'deref {this->lisp_symbols})
+;	(f-call 'ref 'deref {this->lisp_symbols})
 	(f-call 'ref 'deref {this->lisp_enviroment})
 
 	;deinit parent

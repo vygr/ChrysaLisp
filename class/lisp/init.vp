@@ -54,8 +54,12 @@
 		(assign {0} {this->lisp_nextsym})
 
 		;interned symbols set and enviroments
-		(f-path 'symbol 'compare)
-		(f-call 'unordered_set 'create (cat {@} _function_ {, 101}) {this->lisp_symbols})
+		(assign {ptr ($symbols)} {this->lisp_symbols})
+		(vpifnot {this->lisp_symbols})
+			(f-path 'symbol 'compare)
+			(f-call 'unordered_set 'create (cat {@} _function_ {, 101}) {this->lisp_symbols})
+			(assign {this->lisp_symbols} {ptr ($symbols)})
+		(endif)
 		(f-call 'unordered_map 'create {$match_obj, 31} {this->lisp_enviroment})
 
 		;intern standard built in symbols
@@ -95,6 +99,14 @@
 		(vp-xor-rr r1 r1)
 	(endif)
 	(vp-ret)
+
+;;;;;;;;;;;;;;;;
+; shared symbols
+;;;;;;;;;;;;;;;;
+
+	(vp-align ptr_size)
+(vp-label 'symbols)
+	(vp-long 0)
 
 ;;;;;;;;;;;
 ; built ins
