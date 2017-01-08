@@ -1,7 +1,7 @@
 (import 'inc/func.inc)
 (import 'inc/load.inc)
 (import 'class/string/string.inc)
-(import 'class/stream/stream.inc)
+(import 'class/stream_str/stream_str.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/repl_read_group)
@@ -16,29 +16,26 @@
 
 	(const 'char_ccurly (ascii "}"))
 
-	(ptr 'this 'stream 'string)
-	(pubyte 'reloc 'buffer)
+	(ptr 'this 'stream 'str_stream 'value)
 	(ulong 'char)
 
 	(push-scope)
 	(assign '(r0 r1 r2) {this, stream, char})
 
-	(f-path 'sys_load 'statics)
-	(assign (cat "@" _function_) {reloc})
-	(assign {reloc->ld_statics_reloc_buffer} {reloc})
-	(assign {reloc} {buffer})
+	(f-call 'string 'create_from_cstr {"                "} {value})
+	(f-call 'stream_str 'create {value} {str_stream})
 
 	(f-call 'stream 'read_char {stream} {char})
 	(loop-while {char != -1 && char != char_ccurly})
-		(assign {char} {*buffer})
-		(assign {buffer + 1} {buffer})
+		(f-call 'stream 'write_char {str_stream, char})
 		(f-call 'stream 'read_char {stream} {char})
 	(loop-end)
 	(f-call 'stream 'read_char {stream} {char})
 
-	(f-call 'string 'create_from_buffer {reloc, buffer - reloc} {string})
+	(f-call 'stream_str 'ref_string {str_stream} {value})
+	(f-call 'ref 'deref {str_stream})
 
-	(assign {this, string, char} '(r0 r1 r2))
+	(assign {this, value, char} '(r0 r1 r2))
 	(pop-scope)
 	(return)
 
