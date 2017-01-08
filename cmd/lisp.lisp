@@ -374,10 +374,10 @@
 	(setq *files* (map sym *files*))
 	(when (and (gt (length *files*) b) (setq p (pipe "lisp")))
 		(defq s (slice b -1 *files*) *files* (slice 0 b *files*))
-;		(pipe-write p (cat "(compile '" (str s) " '" *os* " '" *cpu* ")" (char 10))))
+;		(pipe-write p (cat "(compile '" (str s) " '" *os* " '" *cpu* ") ")))
 		(pipe-write p "(compile '(")
 		(each (lambda (x) (pipe-write p (cat x " "))) s)
-		(pipe-write p (cat ") '" *os* " '" *cpu* ")" (char 10))))
+		(pipe-write p (cat ") '" *os* " '" *cpu* ") ")))
 	(each import *files*)
 	(while p
 		(defq r (split (defq s (trim-end (pipe-read p) (char 10))) (ascii " ")))
