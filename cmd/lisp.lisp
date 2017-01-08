@@ -332,7 +332,7 @@
 			(push x y))) y))
 
 (defun insert-sym (x y)
-	(if (not (find y x))
+	(unless (find y x)
 		(push x y)))
 
 (defun merge-sym (x y)
@@ -365,7 +365,7 @@
 ;		`(def *compile-env* ',n (lambda ,a (print "Enter: " ',n) (defq _rv (progn ~b)) (print "Exit: " ',n) _rv)))
 		`(def *compile-env* ',n (lambda ,a ~b)))
 	(defun import (*file*)
-		(when (not (find *file* *imports*))
+		(unless (find *file* *imports*)
 			(push *imports* *file*)
 ;			(print "Importing " *file*)
 			(repl (file-stream *file*))))
