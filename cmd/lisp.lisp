@@ -357,7 +357,7 @@
 		(setq o (sym (read-line f)))) o)
 
 (defun compile (*files* &optional *os* *cpu*)
-	(defq *compile-env* (env 101) *imports* (list) p nil b 10
+	(defq *compile-env* (env 101) *imports* (list) p nil b 5
 		*os* (if *os* *os* (platform)) *cpu* (if *cpu* *cpu* (cpu)))
 	(defmacro defcvar (&rest b)
 		`(def *compile-env* ~b))
@@ -372,12 +372,12 @@
 	(unless (list? *files*)
 		(setq *files* (list *files*)))
 	(setq *files* (map sym *files*))
-	(when (and (gt (length *files*) b) (setq p (pipe "lisp")))
-		(defq s (slice b -1 *files*) *files* (slice 0 b *files*))
+;	(when (and (gt (length *files*) b) (setq p (pipe "lisp")))
+;		(defq s (slice b -1 *files*) *files* (slice 0 b *files*))
 ;		(pipe-write p (cat "(compile '" (str s) " '" *os* " '" *cpu* ") ")))
-		(pipe-write p "(compile '(")
-		(each (lambda (x) (pipe-write p (cat x " "))) s)
-		(pipe-write p (cat ") '" *os* " '" *cpu* ") ")))
+;		(pipe-write p "(compile '(")
+;		(each (lambda (x) (pipe-write p (cat x " "))) s)
+;		(pipe-write p (cat ") '" *os* " '" *cpu* ") ")))
 	(each import *files*)
 	(while p
 		(defq r (split (defq s (trim-end (pipe-read p) (char 10))) (ascii " ")))
@@ -501,11 +501,12 @@
 			;modification time of a file, cached
 			(defq s (sym-cat "_age_" f))
 			(if (def? s) (eval s)
-				(def *env* s (age (func-obj f)))))
+				(def *env* s (age f))))
 		;list of all file imports while defining dependancies and products
 		(while (lt (setq i (inc i)) (length *imports*))
 			(defq f (elem i *imports*) d (make-info f))
 			(merge-sym *imports* (elem 0 d))
+			(elem-set 1 d (map func-obj (elem 1 d)))
 			(def *env* (make-sym f) d))
 		;filter to only the .vp files
 		(setq *imports* (filter (lambda (f)
