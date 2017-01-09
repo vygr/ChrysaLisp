@@ -19,14 +19,14 @@
 	(const 'char_rb (ascii ")"))
 	(const 'char_quote (ascii "'"))
 
-	(ptr 'this 'stream 'str_stream 'symbol 'string)
+	(ptr 'this 'stream 'str_stream 'value)
 	(ulong 'char)
 
 	(push-scope)
 	(assign '(r0 r1 r2) {this, stream, char})
 
-	(f-call 'string 'create_from_cstr {"                "} {string})
-	(f-call 'stream_str 'create {string} {str_stream})
+	(f-call 'symbol 'create_from_cstr {"                "} {value})
+	(f-call 'stream_str 'create {value} {str_stream})
 
 	(loop-while {char > char_space && char != char_lb && char != char_rb && char != char_quote})
 		(f-call 'stream 'write_char {str_stream, char})
@@ -34,13 +34,11 @@
 	(loop-end)
 
 	;intern the symbol
-	(f-call 'stream_str 'ref_string {str_stream} {string})
+	(f-call 'stream_str 'ref_string {str_stream} {value})
 	(f-call 'ref 'deref {str_stream})
-	(f-call 'symbol 'create_from_buffer {&string->string_data, string->string_length} {symbol})
-	(f-call 'lisp 'sym_intern {this, symbol} {symbol})
-	(f-call 'ref 'deref {string})
+	(f-call 'lisp 'sym_intern {this, value} {value})
 
-	(assign {this, symbol, char} '(r0 r1 r2))
+	(assign {this, value, char} '(r0 r1 r2))
 	(pop-scope)
 	(return)
 
