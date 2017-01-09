@@ -21,3 +21,15 @@
 	(struct 'slave_mail_init_ack_id 'id)
 	(offset 'slave_mail_init_args)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;
+;inline methods
+;;;;;;;;;;;;;;;
+
+(defcfun class/slave/get_args ()
+	;inputs
+	;r0 = slave object
+	;outputs
+	;r0 = slave object
+	;r1 = command args
+	(vp-cpy-ir r0 slave_args r1))

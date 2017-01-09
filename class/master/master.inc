@@ -19,3 +19,25 @@
 	(pptr 'master_select_array)
 	(ulong 'master_state)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;
+;inline methods
+;;;;;;;;;;;;;;;
+
+(defcfun class/master/get_input ()
+	;inputs
+	;r0 = master object
+	;outputs
+	;r0 = master object
+	;r1 = input stream object
+	(vp-cpy-ir r0 master_streams r1)
+	(vp-cpy-ir r1 vector_array r1)
+	(vp-cpy-ir r1 0 r1))
+
+(defcfun class/master/get_state ()
+	;inputs
+	;r0 = master object
+	;outputs
+	;r0 = master object
+	;r1 = current state
+	(vp-cpy-ir r0 master_state r1))
