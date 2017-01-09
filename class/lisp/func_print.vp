@@ -19,7 +19,6 @@
 
 	(f-call 'lisp 'func_prin {this, args} {args})
 	(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
-	(v-call 'stream 'write_flush {this->lisp_stdout})
 
 	(assign {this, args} '(r0 r1))
 	(pop-scope)

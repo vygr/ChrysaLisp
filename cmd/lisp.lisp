@@ -332,12 +332,11 @@
 			(push x y))) y))
 
 (defun insert-sym (x y)
-	(unless (find y x)
-		(push x y)))
+	(unless (find y x) (push x y)))
 
 (defun merge-sym (x y)
 	(each (lambda (y)
-		(if (not (find y x)) (push x y))) y))
+		(unless (find y x) (push x y))) y))
 
 (defmacro sym-cat (&rest b)
 	`(sym (cat ~b)))
@@ -376,17 +375,43 @@
 		(defq s (slice b -1 *files*) *files* (slice 0 b *files*))
 		(pipe-write p (cat "(compile '" (str s) " '" *os* " '" *cpu* ") ")))
 	(each import *files*)
+	(defq d "")
 	(while p
-		(defq k (elem 0 (split (defq s (pipe-read p)) (ascii " "))))
-		(cond
-			((eql k "Done")
-				(setq p nil))
-			((eql k "Error:")
-				(setq p nil)
-				(print s))
-			(t (print s))))
+		(defq d (cat d (pipe-read p)) i (find (char 10) d))
+		(when i
+			(defq l (slice 0 i d) d (slice i -1 d) l (split l 10) i -1)
+			(while (and p (lt (setq i (inc i)) (length l)))
+				(defq j (elem i l) k (elem 0 (split j (ascii " "))))
+				(cond
+					((eql k "Done")
+						(setq p nil))
+					((eql k "Error:")
+						(setq p nil)
+						(print j))
+					(t (print j))))))
 	(print "Done")
 	(setq *compile-env* nil))
+
+(defun make-info (f)
+	;create lists of imediate dependancies and products
+	(defq d (list 'cmd/lisp.lisp f) p (list))
+	(each-line f (lambda (l)
+		(when (le 2 (length (defq s (split l (ascii " ")))) 3)
+			(defq k (elem 0 s) o (sym (trim-start (trim-end (elem 1 s) ")") "'")))
+			(cond
+				((eql k "(import")
+					(push d o))
+				((eql k "(class-macro-class")
+					(push p (sym-cat "class/class_" o)))
+				((eql k "(class-macro-new")
+					(push p (sym-cat "class/" o "/new")))
+				((eql k "(class-macro-new-clr")
+					(push p (sym-cat "class/" o "/new")))
+				((eql k "(class-macro-create")
+					(push p (sym-cat "class/" o "/create")))
+				((eql k "(def-func")
+					(push p o))))))
+	(list d p))
 
 (defun make-boot (&optional r *funcs*)
 	(defq *env* (env 101) *funcs* (if *funcs* *funcs* (list)) z (cat (char 0 8) (char 0 8)))
@@ -466,26 +491,15 @@
 	(setq *env* nil)
 	(print "Boot image -> " (func-obj 'sys/boot_image) " (" (length f) ")"))
 
-(defun make-info (f)
-	;create lists of imediate dependancies and products
-	(defq d (list 'cmd/lisp.lisp f) p (list))
-	(each-line f (lambda (l)
-		(when (le 2 (length (defq s (split l (ascii " ")))) 3)
-			(defq k (elem 0 s) o (sym (trim-start (trim-end (elem 1 s) ")") "'")))
-			(cond
-				((eql k "(import")
-					(push d o))
-				((eql k "(class-macro-class")
-					(push p (sym-cat "class/class_" o)))
-				((eql k "(class-macro-new")
-					(push p (sym-cat "class/" o "/new")))
-				((eql k "(class-macro-new-clr")
-					(push p (sym-cat "class/" o "/new")))
-				((eql k "(class-macro-create")
-					(push p (sym-cat "class/" o "/create")))
-				((eql k "(def-func")
-					(push p o))))))
-	(list d p))
+(defun make-boot-all ()
+	(make-boot nil ((lambda ()
+		(defq *imports* (list 'make.inc) *products* (list) i -1)
+		;lists of all file imports and products
+		(while (lt (setq i (inc i)) (length *imports*))
+			(defq f (elem i *imports*) d (make-info f))
+			(merge-sym *imports* (elem 0 d))
+			(merge-sym *products* (elem 1 d)))
+		*products*))))
 
 (defun make (&optional *os* *cpu*)
 	(compile ((lambda ()
@@ -528,17 +542,8 @@
 		;filter to only the .vp files
 		(setq *imports* (filter (lambda (f)
 			(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
-		*imports*)) *os* *cpu*))
-
-(defun make-boot-all ()
-	(make-boot nil ((lambda ()
-		(defq *imports* (list 'make.inc) *products* (list) i -1)
-		;lists of all file imports and products
-		(while (lt (setq i (inc i)) (length *imports*))
-			(defq f (elem i *imports*) d (make-info f))
-			(merge-sym *imports* (elem 0 d))
-			(merge-sym *products* (elem 1 d)))
-		*products*))))
+		*imports*)) *os* *cpu*)
+	(make-boot-all))
 
 (defun make-test ()
 	(times 10 (make-all)))

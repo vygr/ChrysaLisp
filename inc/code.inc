@@ -508,7 +508,7 @@
 					(t
 						;precidence
 						(setq s (get-sym k))
-						(if (not s)
+						(unless s
 							(error "Operator not defined !" k))
 						(setq v (sub (elem 3 s) (elem 4 s)) x t)
 						(while (and x (ne 0 (length o)))
