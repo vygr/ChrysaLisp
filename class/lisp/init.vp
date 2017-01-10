@@ -196,6 +196,7 @@
 	(built-in "pipe" 0 'func_pipe)
 	(built-in "pipe-read" 0 'func_rpipe)
 	(built-in "pipe-write" 0 'func_wpipe)
+	(built-in "time" 0 'func_time)
 	(vp-short 0)
 
 (def-func-end)

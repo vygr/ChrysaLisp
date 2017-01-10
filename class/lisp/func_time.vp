@@ -1,0 +1,34 @@
+(import 'inc/func.inc)
+(import 'class/vector/vector.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/error/error.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_time)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args)
+	(ulong 'length)
+
+	(push-scope)
+	(assign '(r0 r1) {this, args})
+
+	(d-call 'vector 'get_length {args} {length})
+	(vpif {length == 0})
+		(f-call 'sys_cpu 'time {} {length})
+		(f-call 'boxed_long 'create {} {args})
+		(f-call 'boxed_long 'set_value {args, length})
+	(else)
+		(f-call 'error 'create {"(time) wrong number of args", args} {args})
+	(endif)
+
+	(assign {this, args} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)

@@ -524,6 +524,7 @@
 		*imports*)) *os* *cpu*))
 
 (defun make-all (&optional *os* *cpu*)
+	(defq n (time))
 	(compile ((lambda ()
 		(defq *imports* (list 'make.inc) i -1)
 		;list of all file imports
@@ -534,7 +535,9 @@
 		(setq *imports* (filter (lambda (f)
 			(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
 		*imports*)) *os* *cpu*)
-	(make-boot-all))
+	(make-boot-all)
+	(setq n (div (sub (time) n) 10000))
+	(print "Time " (div n 100) "." (mod n 100) " seconds"))
 
 (defun make-test ()
 	(times 10 (make-all)))
