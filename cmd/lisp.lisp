@@ -379,7 +379,7 @@
 	(while p
 		(defq d (cat d (pipe-read p)) i (find (char 10) d))
 		(when i
-			(defq l (slice 0 i d) d (slice i -1 d) l (split l 10) i -1)
+			(defq i (inc i) l (slice 0 i d) d (slice i -1 d) l (split l 10) i -1)
 			(while (and p (lt (setq i (inc i)) (length l)))
 				(defq j (elem i l) k (elem 0 (split j (ascii " "))))
 				(cond
