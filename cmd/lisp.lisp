@@ -379,7 +379,7 @@
 					((eql k "Error:")
 						(print l)
 						(setq p nil))
-					(t (print l) t))) l)))
+					(t (print l)))) l)))
 	(print "Done")
 	(setq *compile-env* nil))
 
@@ -480,7 +480,7 @@
 	;concatinate all sections and save
 	(save (setq f (apply cat q)) (func-obj 'sys/boot_image))
 	(setq *env* nil)
-	(print "Boot image -> " (func-obj 'sys/boot_image) " (" (length f) ")"))
+	(print "Boot image -> " (func-obj 'sys/boot_image) " (" (length f) ")") nil)
 
 (defun make-boot-all ()
 	(make-boot nil ((lambda ()
@@ -537,7 +537,7 @@
 		*imports*)) *os* *cpu*)
 	(make-boot-all)
 	(setq n (div (sub (time) n) 10000))
-	(print "Time " (div n 100) "." (mod n 100) " seconds"))
+	(print "Time " (div n 100) "." (mod n 100) " seconds") nil)
 
 (defun make-test ()
 	(times 10 (make-all)))
