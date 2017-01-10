@@ -73,8 +73,7 @@
 (defun min-len (b)
 	(defq m (length (elem 0 b)) i 0)
 	(while (lt (setq i (inc i)) (length b))
-		(defq e (length (elem i b)) m (if (lt m e) m e)))
-	m)
+		(defq e (length (elem i b)) m (if (lt m e) m e))) m)
 
 (defun each (_f &rest _b)
 	(defq _e -1)
@@ -130,16 +129,14 @@
 				(defq _a (list) _i -1)
 				(while (lt (setq _i (inc _i)) (length _b))
 					(push _a (elem _e (elem _i _b))))
-				(push _l (apply _f _a)))))
-	_l)
+				(push _l (apply _f _a))))) _l)
 
 (defun reduce (_f _l &rest _a)
 	(if (eq 0 (length _a))
 		(defq _e 0 _a (elem 0 _l))
 		(defq _e -1 _a (elem 0 _a)))
 	(while (lt (setq _e (inc _e)) (length _l))
-		(setq _a (_f _a (elem _e _l))))
-	_a)
+		(setq _a (_f _a (elem _e _l)))) _a)
 
 (defmacro zip (&rest l)
  	`(map list ~l))
@@ -147,8 +144,7 @@
 (defun filter (_f _l)
 	(defq _e -1 _o (list))
 	(while (lt (setq _e (inc _e)) (length _l))
-		(if (_f (defq _i (elem _e _l))) (push _o _i)))
-	_o)
+		(if (_f (defq _i (elem _e _l))) (push _o _i))) _o)
 
 ;;;;;;;;;;;;
 ; Predicates
@@ -171,8 +167,7 @@
 				(defq _a (list) _i -1)
 				(while (lt (setq _i (inc _i)) (length _b))
 					(push _a (elem _e (elem _i _b))))
-				(setq _v (apply _f _a)))))
-	_v)
+				(setq _v (apply _f _a))))) _v)
 
 (defun every-impl (_f _b)
 	(defq _e -1 _v t)
@@ -191,8 +186,7 @@
 				(defq _a (list) _i -1)
 				(while (lt (setq _i (inc _i)) (length _b))
 					(push _a (elem _e (elem _i _b))))
-				(setq _v (apply _f _a)))))
-	_v)
+				(setq _v (apply _f _a))))) _v)
 
 (defun some (_f &rest _b) (some-impl _f _b))
 (defun every (_f &rest _b) (every-impl _f _b))
@@ -282,14 +276,12 @@
 (defun trim-start (s &optional c)
 	(setq c (if c c " "))
 	(while (and (ne 0 (length s)) (eql (elem 0 s) c))
-		(setq s (slice 1 -1 s)))
-	s)
+		(setq s (slice 1 -1 s))) s)
 
 (defun trim-end (s &optional c)
 	(setq c (if c c " "))
 	(while (and (ne 0 (length s)) (eql (elem -2 s) c))
-		(setq s (slice 0 -2 s)))
-	s)
+		(setq s (slice 0 -2 s))) s)
 
 (defun trim (s &optional c)
 	(setq c (if c c " "))
@@ -308,8 +300,7 @@
 				(setq b 2 s (slice 2 -1 s)))))
 	(defq i -1)
 	(while (lt (setq i (inc i)) (length s))
-		(setq n (add (mul n b) (from-base-char (elem i s)))))
-	n)
+		(setq n (add (mul n b) (from-base-char (elem i s))))) n)
 
 (defun match-list? (x y)
 	(when (eq (defq i (length x)) (length y))
