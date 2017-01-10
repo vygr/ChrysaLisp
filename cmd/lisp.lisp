@@ -379,16 +379,16 @@
 	(while p
 		(defq d (cat d (pipe-read p)) i (find (char 10) d))
 		(when i
-			(defq i (inc i) l (slice 0 i d) d (slice i -1 d) l (split l 10) i -1)
-			(while (and p (lt (setq i (inc i)) (length l)))
-				(defq j (elem i l) k (elem 0 (split j (ascii " "))))
+			(defq i (inc i) l (slice 0 i d) d (slice i -1 d) l (split l 10))
+			(every (lambda (l)
+				(defq k (elem 0 (split l (ascii " "))))
 				(cond
 					((eql k "Done")
 						(setq p nil))
 					((eql k "Error:")
-						(setq p nil)
-						(print j))
-					(t (print j))))))
+						(print l)
+						(setq p nil))
+					(t (print l) t))) l)))
 	(print "Done")
 	(setq *compile-env* nil))
 
