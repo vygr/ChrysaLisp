@@ -28,7 +28,7 @@
 			(vpif {value->obj_vtable != @class/class_error})
 				(f-call 'ref 'deref {value})
 				(vpif {length > 1})
-					(d-call 'vector 'ref_element {args, length - 1} {value})
+					(f-call 'vector 'ref_back {args} {value})
 				(else)
 					(assign {this->lisp_sym_nil} {value})
 					(f-call 'ref 'ref {value})

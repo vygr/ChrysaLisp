@@ -18,7 +18,7 @@
 
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length})
-		(d-call 'vector 'ref_element {args, length - 1} {args})
+		(f-call 'vector 'ref_back {args} {args})
 	(else)
 		(assign {this->lisp_sym_nil} {args})
 		(f-call 'ref 'ref {args})
