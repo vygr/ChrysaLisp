@@ -4,7 +4,7 @@
 (import 'class/window/window.inc)
 (import 'class/flow/flow.inc)
 (import 'class/grid/grid.inc)
-(import 'class/button/button.inc)
+(import 'class/label/label.inc)
 (import 'class/progress/progress.inc)
 (import 'class/string/string.inc)
 
@@ -35,7 +35,7 @@
 	(pulong 'task_mailboxes)
 	(struct 'task_mailbox 'mailbox)
 
-	(ptr 'string 'progress)
+	(ptr 'string 'progress 'label)
 	(int 'width 'height)
 	(ulong 'owner)
 
@@ -61,6 +61,18 @@
 	(f-call 'flow 'create {} {right_panel})
 	(f-call 'flow 'set_flow_flags {right_panel, flow_flag_down | flow_flag_fillw})
 	(f-call 'flow 'add_back {right_panel, panel})
+
+	;add my panel headings
+	(f-call 'label 'create {} {label})
+	(f-call 'label 'set_color {label, 0xffffffff})
+	(f-call 'string 'create_from_cstr {"Tasks"} {string})
+	(f-call 'label 'set_text {label, string})
+	(f-call 'label 'add_back {label, left_panel})
+	(f-call 'label 'create {} {label})
+	(f-call 'label 'set_color {label, 0xffffffff})
+	(f-call 'string 'create_from_cstr {"Memory"} {string})
+	(f-call 'label 'set_text {label, string})
+	(f-call 'label 'add_back {label, right_panel})
 
 	;allocate array for progress bars
 	(f-call 'sys_cpu 'total {} {cpu_total})
