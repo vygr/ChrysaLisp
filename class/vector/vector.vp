@@ -308,7 +308,7 @@
 	(vp-cpy-ir r0 vector_array r0)
 	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-add-rr r1 r0)
-	(f-call 'ref 'ref '((r0 (sub 0 ptr_size))))
+	(f-call 'ref 'ref '((r0 (neg ptr_size))))
 	(vp-cpy-rr r0 r1)
 	(vp-cpy-rr r2 r0)
 	(vp-ret)
