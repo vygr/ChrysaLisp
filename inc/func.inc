@@ -138,14 +138,16 @@
 	i)
 
 (defcfun fn-bind (p r)
-	(vp-cpy-pr (link-sym (fn-find-link p)) r))
+	(if (def? p) (error "Can't bind to inline function !" p)
+		(vp-cpy-pr (link-sym (fn-find-link p)) r)))
 
 (defcfun fn-call (p)
 	(if (def? p) ((eval p))
 		(vp-call-p (link-sym (fn-find-link p)))))
 
 (defcfun fn-jmp (p)
-	(vp-jmp-p (link-sym (fn-find-link p))))
+	(if (def? p) (error "Can't jump to inline function !" p)
+		(vp-jmp-p (link-sym (fn-find-link p)))))
 
 (defcfun debug-long (s i)
 	;s = debug string
