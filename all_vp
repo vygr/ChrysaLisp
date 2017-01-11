@@ -85,6 +85,7 @@
 ./class/lisp/func_strstream.vp
 ./class/lisp/func_sub.vp
 ./class/lisp/func_sym.vp
+./class/lisp/func_time.vp
 ./class/lisp/func_while.vp
 ./class/lisp/func_wpipe.vp
 ./class/lisp/func_write.vp
