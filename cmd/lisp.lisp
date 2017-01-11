@@ -248,7 +248,7 @@
 ;;;;;;;;;;;
 
 (defun align (x a)
-	(bit-and (add x (dec a)) (sub 0 a)))
+	(bit-and (add x (dec a)) (neg a)))
 
 (defmacro ascii (c)
 	(code c))
@@ -370,9 +370,9 @@
 	(while p
 		(defq d (cat d (pipe-read p)) i (find (char 10) d))
 		(when i
-			(defq i (inc i) l (slice 0 i d) d (slice i -1 d) l (split l 10))
+			(defq i (inc i) l (slice 0 i d) d (slice i -1 d) l (split l (char 10)))
 			(every (lambda (l)
-				(defq k (elem 0 (split l (ascii " "))))
+				(defq k (elem 0 (split l " ")))
 				(cond
 					((eql k "Done")
 						(setq p nil))
@@ -387,7 +387,7 @@
 	;create lists of imediate dependancies and products
 	(defq d (list 'cmd/lisp.lisp f) p (list))
 	(each-line f (lambda (l)
-		(when (le 2 (length (defq s (split l (ascii " ")))) 3)
+		(when (le 2 (length (defq s (split l " "))) 3)
 			(defq k (elem 0 s) o (sym (trim-start (trim-end (elem 1 s) ")") "'")))
 			(cond
 				((eql k "(import")

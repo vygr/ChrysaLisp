@@ -953,7 +953,7 @@
 ;;;;;;;;;;;
 
 (defcfun assign-asm-to-script (%1 %2)
-	(setq *src* %1 *dst* (map trim (split %2 (code ","))))
+	(setq *src* %1 *dst* (map trim (split %2 ",")))
 	(unless (eq (length *src*) (length *dst*))
 		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
@@ -978,7 +978,7 @@
 		(undef-reg-def)))
 
 (defcfun assign-script-to-asm (%1 %2)
-	(setq *src* (map trim (split %1 (code ","))) *dst* %2)
+	(setq *src* (map trim (split %1 ",")) *dst* %2)
 	(unless (eq (length *src*) (length *dst*))
 		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
@@ -1004,7 +1004,7 @@
 		(undef-reg-def)))
 
 (defcfun assign-script-to-script (%1 %2)
-	(setq *src* (map trim (split %1 (code ","))) *dst* (map trim (split %2 (code ","))))
+	(setq *src* (map trim (split %1 ",")) *dst* (map trim (split %2 ",")))
 	(unless (eq (length *src*) (length *dst*))
 		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
