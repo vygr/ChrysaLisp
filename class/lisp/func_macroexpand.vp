@@ -12,7 +12,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value)
+	(ptr 'this 'args)
 	(ulong 'length)
 
 	(push-scope)
@@ -20,15 +20,15 @@
 
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
-		(f-call 'lisp 'func_copy {this, args} {value})
+		(f-call 'lisp 'func_copy {this, args} {args})
 		(loop-start)
-			(f-call 'lisp 'repl_expand {this, &value} {length})
+			(f-call 'lisp 'repl_expand {this, &args} {length})
 		(loop-until {length})
 	(else)
-		(f-call 'error 'create {"(macroexpand form) wrong number of args", args} {value})
+		(f-call 'error 'create {"(macroexpand form) wrong number of args", args} {args})
 	(endif)
 
-	(assign {this, value} '(r0 r1))
+	(assign {this, args} '(r0 r1))
 	(pop-scope)
 	(return)
 
