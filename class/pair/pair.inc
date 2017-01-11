@@ -9,6 +9,7 @@
 (def-method 'get_first 'class/pair/get_first 'static '(r0) '(r1))
 (def-method 'get_second 'class/pair/get_second 'static '(r0) '(r1))
 (def-method 'set_second 'class/pair/set_second 'static '(r0 r1))
+(def-method 'set_first 'class/pair/set_first 'static '(r0 r1))
 
 (def-method 'deinit 'class/pair/deinit 'override)
 (def-method 'get_length 'class/pair/get_length 'override)
