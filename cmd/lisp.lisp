@@ -332,6 +332,14 @@
 (defmacro sym-cat (&rest b)
 	`(sym (cat ~b)))
 
+(defun every-pipe-line (_f _p)
+	(defq _d "" _v t)
+	(while (and _p _v)
+		(defq _d (cat _d (pipe-read _p)) _i (find (char 10) _d))
+		(when _i
+			(defq _i (inc _i) _l (slice 0 _i _d) _d (slice _i -1 _d)
+				_v (every _f (split _l (char 10)))))))
+
 ;;;;;;;;;;;;;;
 ; VP Assembler
 ;;;;;;;;;;;;;;
@@ -366,20 +374,12 @@
 		(defq s (slice b -1 *files*) *files* (slice 0 b *files*))
 		(pipe-write p (cat "(compile '" (str s) " '" *os* " '" *cpu* ") ")))
 	(each import *files*)
-	(defq d "")
-	(while p
-		(defq d (cat d (pipe-read p)) i (find (char 10) d))
-		(when i
-			(defq i (inc i) l (slice 0 i d) d (slice i -1 d) l (split l (char 10)))
-			(every (lambda (l)
-				(defq k (elem 0 (split l " ")))
-				(cond
-					((eql k "Done")
-						(setq p nil))
-					((eql k "Error:")
-						(print l)
-						(setq p nil))
-					(t (print l)))) l)))
+	(every-pipe-line (lambda (l)
+		(defq k (elem 0 (split l " ")))
+		(cond
+			((eql k "Done"))
+			((eql k "Error:") (print l) nil)
+			(t (print l)))) p)
 	(print "Done")
 	(setq *compile-env* nil))
 
