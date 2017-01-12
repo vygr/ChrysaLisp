@@ -155,7 +155,7 @@
 
 (defcfun emit-branch (o c d)
 	(defq m (elem d *distance*))
-	(if (ne *pass* 0) (if (gt (abs c) (abs m)) (elem-set d *distance* (setq m c))))
+	(and (ne *pass* 0) (gt (abs c) (abs m)) (elem-set d *distance* (setq m c)))
 	(cond
 		((le -0x80 (sub m 2) 0x7f)
 			(emit-bytes o (bit-and (sub c 2) 0xff)))
@@ -189,7 +189,7 @@
 
 (defcfun emit-jmp (l d)
 	(defq m (elem d *distance*) c (sub l *pc*))
-	(if (ne *pass* 0) (if (gt (abs c) (abs m)) (elem-set d *distance* (setq m c))))
+	(and (ne *pass* 0) (gt (abs c) (abs m)) (elem-set d *distance* (setq m c)))
 	(cond
 		((le -0x80 (sub m 2) 0x7f)
 			(emit-bytes (add 0x2 0xe9) (bit-and (sub c 2) 0xff)))
