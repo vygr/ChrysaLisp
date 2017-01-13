@@ -31,10 +31,10 @@
 				(f-call 'ref 'ref {value})
 			(endif)
 		(else)
-			(f-call 'error 'create {"(pop list) not a list", args} {value})
+			(f-call 'lisp 'repl_error {this, "(pop list) not a list", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(pop list) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(pop list) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

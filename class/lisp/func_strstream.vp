@@ -25,10 +25,10 @@
 		(vpif {value->obj_vtable == @class/class_string})
 			(f-call 'stream_str 'create {value} {value})
 		(else)
-			(f-call 'error 'create {"(string-stream str) str not a string", args} {value})
+			(f-call 'lisp 'repl_error {this, "(string-stream str) str not a string", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(string-stream str) not enough args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(string-stream str) not enough args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

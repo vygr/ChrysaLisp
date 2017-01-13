@@ -6,23 +6,24 @@
 
 (def-func 'class/error/create)
 	;inputs
-	;r0 = cstr pointer
-	;r1 = error payload object
+	;r0 = description cstr pointer
+	;r1 = filename cstr pointer
+	;r2 = error payload object
+	;r3 = line number
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes
 	;r1-r3, r5-r7
 
 	;save data
-	(vp-cpy-rr r0 r6)
-	(vp-cpy-rr r1 r7)
+	(assign '(r0 r1 r2 r3) '(r6 r7 r8 r9))
 
 	;create new string object
 	(f-call 'error 'new '() '(r0))
 	(vpif '(r0 != 0))
 		;init the object
 		(f-path 'class 'error)
-		(f-call 'error 'init `(r0 (@ ,_function_) r6 r7) '(r1))
+		(f-call 'error 'init `(r0 (@ ,_function_) r6 r7 r8 r9) '(r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'error 'delete '(r0) '() 'r1)
@@ -37,8 +38,10 @@
 	;inputs
 	;r0 = error object
 	;r1 = vtable pointer
-	;r2 = cstr pointer
-	;r3 = error payload object
+	;r2 = description cstr pointer
+	;r3 = filename cstr pointer
+	;r5 = error payload object
+	;r6 = line number
 	;outputs
 	;r1 = 0 if error, else ok
 	;trashes
@@ -50,7 +53,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r2 r3) '((r4 local_inst) (r0 error_description) (r0 error_object)))
+	(assign '(r0 r2 r3 r5 r6) '((r4 local_inst) (r0 error_description) (r0 error_file) (r0 error_object) (r0 error_line)))
 
 	;init parent
 	(s-call 'error 'init '(r0 r1) '(r1))
@@ -59,6 +62,9 @@
 		(f-call 'string 'create_from_cstr '((r0 error_description)) '(r0))
 		(vp-cpy-ir r4 local_inst r1)
 		(vp-cpy-ri r0 r1 error_description)
+		(f-call 'string 'create_from_cstr '((r1 error_file)) '(r0))
+		(vp-cpy-ir r4 local_inst r1)
+		(vp-cpy-ri r0 r1 error_file)
 		(f-call 'ref 'ref '((r1 error_object)))
 		(vp-cpy-ir r4 local_inst r0)
 	(endif)
@@ -77,32 +83,10 @@
 	(vp-push r0)
 	(f-call 'ref 'deref '((r0 error_description)))
 	(vp-cpy-ir r4 0 r0)
+	(f-call 'ref 'deref '((r0 error_file)))
+	(vp-cpy-ir r4 0 r0)
 	(f-call 'ref 'deref '((r0 error_object)))
 	(vp-pop r0)
 	(s-jmp 'error 'deinit '(r0))
-
-(def-func-end)
-
-(def-func 'class/error/get_description)
-	;inputs
-	;r0 = error object
-	;outputs
-	;r0 = error object
-	;r1 = string object
-
-	(vp-cpy-ir r0 error_description r1)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/error/get_object)
-	;inputs
-	;r0 = error object
-	;outputs
-	;r0 = error object
-	;r1 = error payload object
-
-	(vp-cpy-ir r0 error_object r1)
-	(vp-ret)
 
 (def-func-end)

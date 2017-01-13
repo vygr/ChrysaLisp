@@ -27,10 +27,10 @@
 			(f-call 'string 'split {str, ubyte (value->string_data)} {value})
 		(else)
 		(vp-label 'error)
-			(f-call 'error 'create {"(split str char) not a string", args} {value})
+			(f-call 'lisp 'repl_error {this, "(split str char) not a string", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(split str char) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(split str char) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

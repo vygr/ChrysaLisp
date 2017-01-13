@@ -49,7 +49,7 @@
 	(else)
 		(f-call 'ref 'deref {second})
 		(f-call 'ref 'deref {first})
-		(f-call 'error 'create {"expected >", this->lisp_sym_nil} {pair})
+		(f-call 'lisp 'repl_error {this, "expected >", this->lisp_sym_nil} {pair})
 	(endif)
 (vp-label 'error)
 	(assign {this, pair, char} '(r0 r1 r2))

@@ -21,7 +21,7 @@
 	(vpif {iter})
 		(f-call 'pair 'ref_second {*iter} {symbol})
 	(else)
-		(f-call 'error 'create {"symbol not bound", symbol} {symbol})
+		(f-call 'lisp 'repl_error {this, "symbol not bound", symbol} {symbol})
 	(endif)
 
 	(assign {this, symbol} '(r0 r1))

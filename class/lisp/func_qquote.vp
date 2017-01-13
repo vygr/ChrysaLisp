@@ -41,7 +41,7 @@
 			(f-call 'ref 'ref {value})
 		(endswitch)
 	(else)
-		(f-call 'error 'create {"(quasi-quote arg) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(quasi-quote arg) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

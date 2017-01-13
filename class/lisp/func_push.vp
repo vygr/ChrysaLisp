@@ -25,10 +25,10 @@
 			(f-call 'ref 'ref {value})
 			(f-call 'vector 'for_each {args, 1, length, $callback, value} {_})
 		(else)
-			(f-call 'error 'create {"(push list form ...) not a list", args} {value})
+			(f-call 'lisp 'repl_error {this, "(push list form ...) not a list", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(push list form ...) not enough args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(push list form ...) not enough args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

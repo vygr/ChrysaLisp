@@ -32,10 +32,10 @@
 				(f-call 'boxed_long 'set_value {value, length})
 			(endif)
 		(else)
-			(f-call 'error 'create {"(read-char stream) not a stream", args} {value})
+			(f-call 'lisp 'repl_error {this, "(read-char stream) not a stream", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(read-char stream) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(read-char stream) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

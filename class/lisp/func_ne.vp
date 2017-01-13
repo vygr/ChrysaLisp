@@ -36,7 +36,7 @@
 		(f-call 'ref 'ref {value})
 		(f-call 'vector 'for_each {args, 0, length, $callback, &this} {_})
 	(else)
-		(f-call 'error 'create {"(ne num num ...) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(ne num num ...) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))
@@ -73,7 +73,7 @@
 		(return)
 	(else)
 		(f-call 'ref 'deref {pdata->pdata_value})
-		(f-call 'error 'create {"(ne num num ...) not all numbers", *iter} {pdata->pdata_value})
+		(f-call 'lisp 'repl_error {pdata->pdata_this, "(ne num num ...) not all numbers", *iter} {pdata->pdata_value})
 	(endif)
 
 	(assign {0} '(r1))

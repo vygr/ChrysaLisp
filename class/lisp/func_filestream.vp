@@ -32,10 +32,10 @@
 				(f-call 'ref 'ref {value})
 			(endif)
 		(else)
-			(f-call 'error 'create {"(file-stream filename) filename not a filename", args} {value})
+			(f-call 'lisp 'repl_error {this, "(file-stream filename) filename not a filename", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(file-stream filename) not enough args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(file-stream filename) not enough args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

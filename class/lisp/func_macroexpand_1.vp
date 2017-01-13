@@ -25,7 +25,7 @@
 		(f-call 'lisp 'func_copy {this, args} {args})
 		(f-call 'lisp 'repl_expand {this, &args} {length})
 	(else)
-		(f-call 'error 'create {"(macroexpand-1 form) wrong number of args", args} {args})
+		(f-call 'lisp 'repl_error {this, "(macroexpand-1 form) wrong number of args", args} {args})
 		(assign {1} {length})
 	(endif)
 

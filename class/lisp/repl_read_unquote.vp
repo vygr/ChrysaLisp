@@ -32,7 +32,7 @@
 		(f-call 'vector 'push_back {list, elem})
 	(else)
 		(f-call 'ref 'deref {list})
-		(f-call 'error 'create {"read unquote error", this->lisp_sym_nil} {list})
+		(f-call 'lisp 'repl_error {this, "read unquote error", this->lisp_sym_nil} {list})
 	(endif)
 
 	(assign {this, list, char} '(r0 r1 r2))

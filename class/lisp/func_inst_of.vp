@@ -38,10 +38,10 @@
 			(endif)
 		(else)
 		(vp-label 'error)
-			(f-call 'error 'create {"(inst-of class obj) not a class", args} {value})
+			(f-call 'lisp 'repl_error {this, "(inst-of class obj) not a class", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(inst-of class obj) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(inst-of class obj) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

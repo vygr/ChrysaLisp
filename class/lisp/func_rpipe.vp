@@ -50,10 +50,10 @@
 				(f-call 'ref 'ref {value})
 			(endif)
 		(else)
-			(f-call 'error 'create {"(pipe-read pipe) not pipe", args} {value})
+			(f-call 'lisp 'repl_error {this, "(pipe-read pipe) not pipe", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(pipe-read pipe) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(pipe-read pipe) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

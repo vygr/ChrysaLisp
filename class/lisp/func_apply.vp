@@ -23,7 +23,7 @@
 		(f-call 'vector 'get_element {args, 1} {args})
 		(f-call 'lisp 'repl_apply {this, func, args} {args})
 	(else)
-		(f-call 'error 'create {"(apply func args) wrong number of args", args} {args})
+		(f-call 'lisp 'repl_error {this, "(apply func args) wrong number of args", args} {args})
 	(endif)
 
 	(assign {this, args} '(r0 r1))

@@ -40,7 +40,7 @@
 		(endswitch)
 		(f-call 'ref 'ref {value})
 	(else)
-		(f-call 'error 'create {"(eql form form) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(eql form form) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

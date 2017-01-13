@@ -366,7 +366,7 @@
 		(unless (find *file* *imports*)
 			(push *imports* *file*)
 ;			(print "Importing " *file*)
-			(repl (file-stream *file*))))
+			(repl (file-stream *file*) *file*)))
 	(unless (list? *files*)
 		(setq *files* (list *files*)))
 	(setq *files* (map sym *files*))

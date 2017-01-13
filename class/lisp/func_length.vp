@@ -28,10 +28,10 @@
 			(f-call 'boxed_long 'create {} {value})
 			(f-call 'boxed_long 'set_value {value, length})
 		(else)
-			(f-call 'error 'create {"(length seq) not a sequence", args} {value})
+			(f-call 'lisp 'repl_error {this, "(length seq) not a sequence", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(length seq) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(length seq) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

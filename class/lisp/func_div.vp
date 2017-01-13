@@ -30,10 +30,10 @@
 			(f-call 'boxed_long 'set_value {value, accum})
 		(else)
 		(vp-label 'error)
-			(f-call 'error 'create {"(div val val ...) vals are not all numbers", args} {value})
+			(f-call 'lisp 'repl_error {this, "(div val val ...) vals are not all numbers", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(div val val ...) not enough args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(div val val ...) not enough args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

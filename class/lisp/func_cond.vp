@@ -68,11 +68,11 @@
 			(endif)
 		(else)
 			(f-call 'ref 'deref {pdata->pdata_value})
-			(f-call 'error 'create {"(cond (tst form ...) ...) clause wrong number of args", *iter} {pdata->pdata_value})
+			(f-call 'lisp 'repl_error {pdata->pdata_this, "(cond (tst form ...) ...) clause wrong number of args", *iter} {pdata->pdata_value})
 		(endif)
 	(else)
 		(f-call 'ref 'deref {pdata->pdata_value})
-		(f-call 'error 'create {"(cond (tst form ...) ...) clause not list", *iter} {pdata->pdata_value})
+		(f-call 'lisp 'repl_error {pdata->pdata_this, "(cond (tst form ...) ...) clause not list", *iter} {pdata->pdata_value})
 	(endif)
 
 	(assign {0} '(r1))

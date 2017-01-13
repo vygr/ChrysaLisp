@@ -24,7 +24,7 @@
 		(f-call 'boxed_long 'create {} {args})
 		(f-call 'boxed_long 'set_value {args, length})
 	(else)
-		(f-call 'error 'create {"(time) wrong number of args", args} {args})
+		(f-call 'lisp 'repl_error {this, "(time) wrong number of args", args} {args})
 	(endif)
 
 	(assign {this, args} '(r0 r1))

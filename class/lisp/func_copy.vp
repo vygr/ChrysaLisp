@@ -28,7 +28,7 @@
 			(f-call 'ref 'ref {args})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(copy form) wrong number of args", args} {args})
+		(f-call 'lisp 'repl_error {this, "(copy form) wrong number of args", args} {args})
 	(endif)
 
 	(assign {this, args} '(r0 r1))

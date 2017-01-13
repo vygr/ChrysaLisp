@@ -28,10 +28,10 @@
 				(f-call 'ref 'ref {value})
 			(endif)
 		(else)
-			(f-call 'error 'create {"(load filename) not filename", args} {value})
+			(f-call 'lisp 'repl_error {this, "(load filename) not filename", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(load filename) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(load filename) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

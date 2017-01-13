@@ -80,6 +80,7 @@
 (import 'class/lisp/func_rpipe.vp)
 (import 'class/lisp/func_wpipe.vp)
 (import 'class/lisp/func_time.vp)
+(import 'class/lisp/repl_error.vp)
 (import 'class/lisp/repl_apply.vp)
 (import 'class/lisp/repl_eval_list.vp)
 (import 'class/lisp/repl_eval.vp)

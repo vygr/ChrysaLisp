@@ -25,7 +25,7 @@
 		(f-call 'ref 'ref {value})
 		(f-call 'pair 'set_second {*iter, value})
 	(else)
-		(f-call 'error 'create {"symbol not bound", symbol} {value})
+		(f-call 'lisp 'repl_error {this, "symbol not bound", symbol} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

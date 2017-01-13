@@ -28,7 +28,7 @@
 		(f-call 'lisp 'sym_intern {this, value} {value})
 		(assign {this->lisp_nextsym + 1} {this->lisp_nextsym})
 	(else)
-		(f-call 'error 'create {"(gensym) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(gensym) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

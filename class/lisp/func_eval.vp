@@ -22,7 +22,7 @@
 		(f-call 'vector 'get_element {args, 0} {args})
 		(f-call 'lisp 'repl_eval {this, args} {args})
 	(else)
-		(f-call 'error 'create {"(eval form) wrong number of args", args} {args})
+		(f-call 'lisp 'repl_error {this, "(eval form) wrong number of args", args} {args})
 	(endif)
 
 	(assign {this, args} '(r0 r1))

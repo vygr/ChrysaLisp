@@ -35,7 +35,7 @@
 			(f-call 'ref 'deref {value})
 		(loop-end)
 	(else)
-		(f-call 'error 'create {"(while tst form ...) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(while tst form ...) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

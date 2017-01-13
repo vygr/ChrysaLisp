@@ -29,10 +29,10 @@
 			(f-call 'symbol 'create_from_buffer {args->string_data, args->string_length} {value})
 			(f-call 'lisp 'sym_intern {this, value} {value})
 		(else)
-			(f-call 'error 'create {"(sym arg) not string", args} {value})
+			(f-call 'lisp 'repl_error {this, "(sym arg) not string", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(sym arg) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(sym arg) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

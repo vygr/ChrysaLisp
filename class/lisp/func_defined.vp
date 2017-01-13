@@ -29,10 +29,10 @@
 			(endif)
 			(f-call 'ref 'ref {value})
 		(else)
-			(f-call 'error 'create {"(def? var) not a symbol", args} {value})
+			(f-call 'lisp 'repl_error {this, "(def? var) not a symbol", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(def? var) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(def? var) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

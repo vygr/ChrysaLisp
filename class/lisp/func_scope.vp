@@ -38,10 +38,10 @@
 			(assign {env} {this->lisp_enviroment})
 		(else)
 			(f-call 'ref 'deref {value})
-			(f-call 'error 'create {"(scope env ...) not an enviroment", args} {value})
+			(f-call 'lisp 'repl_error {this, "(scope env ...) not an enviroment", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(scope env ...) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(scope env ...) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

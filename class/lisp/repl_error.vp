@@ -1,0 +1,49 @@
+(import 'inc/func.inc)
+(import 'class/symbol/symbol.inc)
+(import 'class/vector/vector.inc)
+(import 'class/pair/pair.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/error/error.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/repl_error)
+	;inputs
+	;r0 = lisp object
+	;r1 = description cstr pointer
+	;r2 = error payload object
+	;outputs
+	;r0 = lisp object
+	;r1 = error object
+
+	(ptr 'this 'desc 'payload 'file 'value)
+	(pptr 'iter)
+	(ulong 'line)
+
+	(push-scope)
+	(assign '(r0 r1 r2) {this, desc, payload})
+
+	(f-call 'lisp 'env_find {this, this->lisp_sym_file} {iter, _})
+	(vpif {iter})
+		(f-call 'pair 'get_second {*iter} {file})
+		(gotoif {file->obj_vtable != @class/class_string && file->obj_vtable != @class/class_symbol} 'nofile)
+		(assign {&file->string_data} {file})
+	(else)
+	(vp-label 'nofile)
+		(assign {"*file* not a string !"} {file})
+	(endif)
+
+	(assign {0} {line})
+	(f-call 'lisp 'env_find {this, this->lisp_sym_line} {iter, _})
+	(vpif {iter})
+		(f-call 'pair 'get_second {*iter} {value})
+		(breakif {value->obj_vtable != @class/class_boxed_long})
+		(f-call 'boxed_long 'get_value {value} {line})
+	(endif)
+
+	(f-call 'error 'create {desc, file, payload, line} {value})
+
+	(assign {this, value} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)

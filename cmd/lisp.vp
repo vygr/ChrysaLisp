@@ -3,7 +3,7 @@
 (import 'class/vector/vector.inc)
 (import 'class/stream/stream.inc)
 (import 'class/stream_str/stream_str.inc)
-(import 'class/string/string.inc)
+(import 'class/symbol/symbol.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'cmd/lisp 8192)
@@ -29,7 +29,9 @@
 		(vpif {file})
 			;REPL from file stream
 			(f-call 'stream_str 'create {file} {stream})
+			(f-call 'string 'create_from_cstr {"cmd/lisp.lisp"} {file})
 			(f-call 'vector 'push_back {repl_args, stream})
+			(f-call 'vector 'push_back {repl_args, file})
 			(f-call 'lisp 'func_repl {lisp, repl_args} {value})
 			(vpif {value->obj_vtable == @class/class_error})
 				(f-call 'lisp 'repl_print {lisp, lisp->lisp_stderr, value})
@@ -49,8 +51,10 @@
 			(f-call 'string 'create_from_file {&arg->string_data} {file})
 			(vpif {file})
 				;REPL from file stream
+				(f-call 'ref 'ref {arg})
 				(f-call 'stream_str 'create {file} {stream})
 				(f-call 'vector 'push_back {repl_args, stream})
+				(f-call 'vector 'push_back {repl_args, arg})
 				(f-call 'lisp 'func_repl {lisp, repl_args} {value})
 				(vpif {value->obj_vtable == @class/class_error})
 					(f-call 'lisp 'repl_print {lisp, lisp->lisp_stderr, value})
@@ -65,7 +69,9 @@
 
 		;REPL from stdin
 		(f-call 'ref 'ref {lisp->lisp_stdin})
+		(f-call 'string 'create_from_cstr {"stdin"} {file})
 		(f-call 'vector 'push_back {repl_args, lisp->lisp_stdin})
+		(f-call 'vector 'push_back {repl_args, file})
 		(loop-start)
 			(f-call 'lisp 'func_repl {lisp, repl_args} {value})
 			(breakif {value->obj_vtable != @class/class_error})

@@ -27,10 +27,10 @@
 			(f-call 'boxed_long 'create {} {value})
 			(f-call 'boxed_long 'set_value {value, accum})
 		(else)
-			(f-call 'error 'create {"(add val val ...) vals are not all numbers", args} {value})
+			(f-call 'lisp 'repl_error {this, "(add val val ...) vals are not all numbers", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(add val val ...) not enough args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(add val val ...) not enough args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

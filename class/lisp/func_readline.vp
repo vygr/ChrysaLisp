@@ -36,10 +36,10 @@
 				(f-call 'string 'create_from_buffer {reloc, length} {value})
 			(endif)
 		(else)
-			(f-call 'error 'create {"(read-line stream) not a stream", args} {value})
+			(f-call 'lisp 'repl_error {this, "(read-line stream) not a stream", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(read-line stream) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(read-line stream) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

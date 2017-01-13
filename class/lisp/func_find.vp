@@ -39,10 +39,10 @@
 			(endif)
 		(else)
 		(vp-label 'error)
-			(f-call 'error 'create {"(find elem seq) not sequence", args} {value})
+			(f-call 'lisp 'repl_error {this, "(find elem seq) not sequence", args} {value})
 		(endif)
 	(else)
-		(f-call 'error 'create {"(find elem seq) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(find elem seq) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))
