@@ -1,7 +1,6 @@
 (import 'inc/func.inc)
 (import 'class/boxed_ptr/boxed_ptr.inc)
 (import 'class/vector/vector.inc)
-(import 'class/error/error.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/repl_apply)

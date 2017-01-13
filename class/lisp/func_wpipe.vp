@@ -3,7 +3,6 @@
 (import 'class/string/string.inc)
 (import 'class/master/master.inc)
 (import 'class/stream_msg_out/stream_msg_out.inc)
-(import 'class/error/error.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_wpipe)

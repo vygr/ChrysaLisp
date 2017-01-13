@@ -1,6 +1,7 @@
 (import 'inc/func.inc)
-(import 'class/stream_msg_out/stream_msg_out.inc)
 (import 'class/master/master.inc)
+(import 'class/stream_msg_out/stream_msg_out.inc)
+(import 'class/vector/vector.inc)
 
 (def-struct 'tui_msg 'msg_header)
 	(struct 'tui_msg_reply_id 'id)

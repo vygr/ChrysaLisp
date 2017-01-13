@@ -1,7 +1,6 @@
 (import 'inc/func.inc)
 (import 'class/stream/stream.inc)
 (import 'class/vector/vector.inc)
-(import 'class/error/error.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/repl_read)
@@ -56,7 +55,7 @@
 			(f-call 'stream 'read_char {stream} {char})
 			(break)
 		(case {char == char_rcurly})
-			(f-call 'error 'create (cat {"unexpected } "}" {", "", this->lisp_sym_nil, 0}) {ast})
+			(f-call 'lisp 'repl_error (cat {this, "unexpected } "}" {", this->lisp_sym_nil}) {ast})
 			(f-call 'stream 'read_char {stream} {char})
 			(break)
 		(case {char == char_rsb})

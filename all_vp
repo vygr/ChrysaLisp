@@ -94,6 +94,7 @@
 ./class/lisp/init.vp
 ./class/lisp/new.vp
 ./class/lisp/repl_apply.vp
+./class/lisp/repl_error.vp
 ./class/lisp/repl_eval.vp
 ./class/lisp/repl_eval_list.vp
 ./class/lisp/repl_expand.vp

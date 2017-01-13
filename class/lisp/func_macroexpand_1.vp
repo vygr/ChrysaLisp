@@ -2,7 +2,6 @@
 (import 'class/unordered_map/unordered_map.inc)
 (import 'class/pair/pair.inc)
 (import 'class/vector/vector.inc)
-(import 'class/error/error.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_macroexpand_1)

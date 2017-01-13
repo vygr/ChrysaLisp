@@ -1,7 +1,6 @@
 (import 'inc/func.inc)
 (import 'class/vector/vector.inc)
 (import 'class/string/string.inc)
-(import 'class/error/error.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_split)
