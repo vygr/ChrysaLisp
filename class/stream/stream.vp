@@ -130,22 +130,21 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst)
-	(long 'char)
-
-	(push-scope)
-	(assign '(r0) {inst})
-
-	(loop-while {inst->stream_bufp == inst->stream_bufe})
-		(v-call 'stream 'read_next {inst} {char})
-		(gotoif {char == -1} 'exit)
-	(loop-end)
-	(assign {*inst->stream_bufp} {char})
-	(assign {inst->stream_bufp + 1} {inst->stream_bufp})
-(vp-label 'exit)
-	(assign {inst, char} '(r0 r1))
-	(pop-scope)
-	(return)
+	(vp-cpy-ir r0 stream_bufp r2)
+	(vp-cpy-ir r0 stream_bufe r1)
+	(vpif '(r1 == r2))
+		(loop-start)
+			(v-call 'stream 'read_next '(r0) '(r1))
+			(gotoif '(r1 == -1) 'eof)
+			(vp-cpy-ir r0 stream_bufp r2)
+			(vp-cpy-ir r0 stream_bufe r1)
+		(loop-until '(r1 != r2))
+	(endif)
+	(vp-cpy-ir-ub r2 0 r1)
+	(vp-inc r2)
+	(vp-cpy-ri r2 r0 stream_bufp)
+(vp-label 'eof)
+	(vp-ret)
 
 (def-func-end)
 
