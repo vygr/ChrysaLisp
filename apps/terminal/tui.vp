@@ -1,7 +1,6 @@
 (import 'inc/func.inc)
 (import 'class/master/master.inc)
 (import 'class/stream_msg_out/stream_msg_out.inc)
-(import 'class/vector/vector.inc)
 
 (def-struct 'tui_msg 'msg_header)
 	(struct 'tui_msg_reply_id 'id)
@@ -12,7 +11,6 @@
 (def-struct-end)
 
 (def-func 'apps/terminal/tui)
-
 	(defcvar 'buffer_size 120)
 
 	(def-struct 'shared)

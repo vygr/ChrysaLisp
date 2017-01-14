@@ -1,4 +1,5 @@
 (import 'class/ref/ref.inc)
+(import 'class/vector/vector.inc)
 
 (def-class 'master 'ref)
 (def-method 'create 'class/master/create 'static '() '(r0))
