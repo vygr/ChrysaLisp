@@ -20,12 +20,20 @@
 	(vp-jmp l))
 
 (defcfun gotoif (e l)
-	(assign e '(r0))
-	(vp-jmpif '(r0 != 0) l))
+	(if (str? e)
+		(progn
+			(assign e '(r0))
+			(vp-jmpif '(r0 != 0) l))
+		(progn
+			(vp-jmpif `(~e) l))))
 
 (defcfun gotoifnot (e l)
-	(assign e '(r0))
-	(vp-jmpifnot '(r0 != 0) l))
+	(if (str? e)
+		(progn
+			(assign e '(r0))
+			(vp-jmpifnot '(r0 != 0) l))
+		(progn
+			(vp-jmpifnot `(~e) l))))
 
 (defcfun switch ()
 	(push *switch-stk* *switch*)
