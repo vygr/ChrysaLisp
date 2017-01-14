@@ -26,7 +26,7 @@
 
 	;skip "(" and white space
 	(loop-start)
-		(f-call 'stream 'read_char {stream} {char})
+		(f-call 'lisp 'repl_read_char {this, stream, char} {char})
 	(loop-until {char > char_space || char == -1})
 
 	(f-call 'vector 'create {} {list})
@@ -42,7 +42,7 @@
 		;skip white space/comments
 		(loop-start)
 			(loop-while {char <= char_space && char != -1})
-				(f-call 'stream 'read_char {stream} {char})
+				(f-call 'lisp 'repl_read_char {this, stream, char} {char})
 			(loop-end)
 			(breakif {char != char_semi})
 			(f-call 'stream 'skip_not {stream, char_lf})

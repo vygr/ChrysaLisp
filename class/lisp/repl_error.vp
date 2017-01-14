@@ -22,7 +22,7 @@
 	(push-scope)
 	(assign '(r0 r1 r2) {this, desc, payload})
 
-	(f-call 'lisp 'env_find {this, this->lisp_sym_file} {iter, _})
+	(f-call 'lisp 'env_find {this, this->lisp_sym_stream_name} {iter, _})
 	(vpif {iter})
 		(f-call 'pair 'get_second {*iter} {file})
 		(gotoif {file->obj_vtable != @class/class_string && file->obj_vtable != @class/class_symbol} 'nofile)
@@ -33,7 +33,7 @@
 	(endif)
 
 	(assign {0} {line})
-	(f-call 'lisp 'env_find {this, this->lisp_sym_line} {iter, _})
+	(f-call 'lisp 'env_find {this, this->lisp_sym_stream_line} {iter, _})
 	(vpif {iter})
 		(f-call 'pair 'get_second {*iter} {value})
 		(breakif {value->obj_vtable != @class/class_boxed_long})

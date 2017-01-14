@@ -22,7 +22,7 @@
 	(push-scope)
 	(assign '(r0 r1 r2) {this, stream, char})
 
-	;skip "<"
+	;skip "["
 	(f-call 'stream 'read_char {stream} {char})
 
 	(f-call 'lisp 'repl_read {this, stream, char} {first, char})
@@ -39,7 +39,7 @@
 
 	;skip white space
 	(loop-while {char <= char_space && char != -1})
-		(f-call 'stream 'read_char {stream} {char})
+		(f-call 'lisp 'repl_read_char {this, stream, char} {char})
 	(loop-end)
 
 	(vpif {char == char_rsb})

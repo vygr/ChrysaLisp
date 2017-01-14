@@ -40,7 +40,7 @@
 	;skip white space
 (vp-label 'skip_white)
 	(loop-while {char <= char_space && char != -1})
-		(f-call 'stream 'read_char {stream} {char})
+		(f-call 'lisp 'repl_read_char {this, stream, char} {char})
 	(loop-end)
 
 	;what are we reading ?

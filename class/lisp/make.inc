@@ -86,6 +86,7 @@
 (import 'class/lisp/repl_eval.vp)
 (import 'class/lisp/repl_expand.vp)
 (import 'class/lisp/repl_print.vp)
+(import 'class/lisp/repl_read_char.vp)
 (import 'class/lisp/repl_read_list.vp)
 (import 'class/lisp/repl_read_num.vp)
 (import 'class/lisp/repl_read_pair.vp)

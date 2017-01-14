@@ -18,6 +18,7 @@
 (def-method 'env_bind 'class/lisp/env_bind 'static '(r0 r1 r2 r3) '(r1))
 
 (def-method 'repl_read 'class/lisp/repl_read 'static '(r0 r1 r2) '(r1 r2))
+(def-method 'repl_read_char 'class/lisp/repl_read_char 'static '(r0 r1 r2) '(r1))
 (def-method 'repl_read_quote 'class/lisp/repl_read_quote 'static '(r0 r1 r2) '(r1 r2))
 (def-method 'repl_read_qquote 'class/lisp/repl_read_qquote 'static '(r0 r1 r2) '(r1 r2))
 (def-method 'repl_read_unquote 'class/lisp/repl_read_unquote 'static '(r0 r1 r2) '(r1 r2))
@@ -132,6 +133,6 @@
 	(ptr 'lisp_sym_splicing)
 	(ptr 'lisp_sym_cat)
 	(ptr 'lisp_sym_list)
-	(ptr 'lisp_sym_file)
-	(ptr 'lisp_sym_line)
+	(ptr 'lisp_sym_stream_name)
+	(ptr 'lisp_sym_stream_line)
 (def-struct-end)
