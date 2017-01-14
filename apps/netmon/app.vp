@@ -19,6 +19,8 @@
 
 (def-func 'apps/netmon/app)
 
+	(defcvar 'num_samples 256)
+
 	(def-struct 'sel)
 		(ptr 'sel_select1)
 		(ptr 'sel_select2)
@@ -27,8 +29,9 @@
 	(struct 'select 'sel)
 	(ptr 'window 'window_panel 'panel1 'panel2 'left_panel 'right_panel 'trip)
 	(pptr 'task_progress)
-	(ulong 'value 'max_tasks 'max_memory 'total_memory 'start_time 'time)
-	(uint 'cpu_total 'cpu_count)
+	(puint 'durations)
+	(ulong 'value 'max_tasks 'max_memory 'total_memory 'start_time 'time 'total)
+	(uint 'cpu_total 'cpu_count 'index 'sample)
 
 	(ptr 'msg)
 	(ulong 'mailbox)
@@ -83,9 +86,11 @@
 	(f-call 'label 'set_text {label, string})
 	(f-call 'label 'add_back {label, right_panel})
 
-	;allocate array for progress bars
+	;allocate array for progress bars and trip times
 	(f-call 'sys_cpu 'total {} {cpu_total})
 	(f-call 'sys_mem 'alloc {cpu_total * ptr_size * 2} {task_progress, _})
+	(f-call 'sys_mem 'alloc {num_samples * int_size} {durations, _})
+	(f-call 'sys_mem 'clear {durations, num_samples * int_size} {_})
 
 	;add num cpus progress bars to my app panel2
 	(assign {0} {cpu_count})
@@ -128,6 +133,7 @@
 	(assign {&task_mailbox} {select.sel_select2})
 
 	;app event loop
+	(assign {0} {sample})
 	(f-call 'sys_cpu 'time {} {start_time})
 	(loop-start)
 		;new round of samples ?
@@ -135,7 +141,14 @@
 			;get trip time and save start time
 			(f-call 'sys_cpu 'time {} {time})
 			(assign {(time - start_time) / 100)} {start_time})
-			(f-call 'progress 'set_val {trip, start_time})
+			(assign {(sample + 1) % num_samples} {sample})
+			(assign {start_time} {durations[sample * int_size]})
+			(assign {0, 0} {index, total})
+			(loop-start)
+				(assign {durations[index * int_size] + total} {total})
+				(assign {index + 1} {index})
+			(loop-until {index == num_samples})
+			(f-call 'progress 'set_val {trip, total / num_samples})
 			(f-call 'progress 'dirty {trip})
 			(assign {time} {start_time})
 
@@ -214,6 +227,7 @@
 	(loop-untilnot {cpu_count})
 
 	;free arrays
+	(f-call 'sys_mem 'free {durations})
 	(f-call 'sys_mem 'free {task_mailboxes})
 	(f-call 'sys_mem 'free {task_progress})
 
