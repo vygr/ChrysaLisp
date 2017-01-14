@@ -140,7 +140,7 @@
 		(vpif {cpu_count == cpu_total})
 			;get trip time and save start time
 			(f-call 'sys_cpu 'time {} {time})
-			(assign {(time - start_time) / 100)} {start_time})
+			(assign {time - start_time} {start_time})
 			(assign {(sample + 1) % num_samples} {sample})
 			(assign {start_time} {durations[sample * int_size]})
 			(assign {0, 0} {index, total})
@@ -148,7 +148,7 @@
 				(assign {durations[index * int_size] + total} {total})
 				(assign {index + 1} {index})
 			(loop-until {index == num_samples})
-			(f-call 'progress 'set_val {trip, total / num_samples})
+			(f-call 'progress 'set_val {trip, total / (num_samples * 100)})
 			(f-call 'progress 'dirty {trip})
 			(assign {time} {start_time})
 
