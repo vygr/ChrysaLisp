@@ -25,9 +25,9 @@
 	(def-struct-end)
 
 	(struct 'select 'sel)
-	(ptr 'window 'window_panel 'panel 'left_panel 'right_panel)
+	(ptr 'window 'window_panel 'panel1 'panel2 'left_panel 'right_panel 'trip)
 	(pptr 'task_progress)
-	(ulong 'value 'max_tasks 'max_memory 'total_memory)
+	(ulong 'value 'max_tasks 'max_memory 'total_memory 'start_time 'time)
 	(uint 'cpu_total 'cpu_count)
 
 	(ptr 'msg)
@@ -52,17 +52,26 @@
 	(f-call 'window 'set_status {window, string})
 
 	;add my panels
-	(f-call 'grid 'create {} {panel})
-	(f-call 'grid 'set_grid {panel, 2, 1})
-	(f-call 'grid 'add_back {panel, window_panel})
+	(f-call 'flow 'create {} {panel1})
+	(f-call 'flow 'set_flow_flags {panel1, flow_flag_down | flow_flag_fillw})
+	(f-call 'flow 'add_back {panel1, window_panel})
+	(f-call 'grid 'create {} {panel2})
+	(f-call 'grid 'set_grid {panel2, 2, 1})
+	(f-call 'grid 'add_back {panel2, panel1})
 	(f-call 'flow 'create {} {left_panel})
 	(f-call 'flow 'set_flow_flags {left_panel, flow_flag_down | flow_flag_fillw})
-	(f-call 'flow 'add_back {left_panel, panel})
+	(f-call 'flow 'add_back {left_panel, panel2})
 	(f-call 'flow 'create {} {right_panel})
 	(f-call 'flow 'set_flow_flags {right_panel, flow_flag_down | flow_flag_fillw})
-	(f-call 'flow 'add_back {right_panel, panel})
+	(f-call 'flow 'add_back {right_panel, panel2})
 
-	;add my panel headings
+	;add my panel1 round trip bar
+	(f-call 'progress 'create {} {trip})
+	(f-call 'progress 'set_max {trip, 100})
+	(f-call 'progress 'set_color {trip, 0xff00ffff})
+	(f-call 'progress 'add_front {trip, panel1})
+
+	;add my panel2 headings
 	(f-call 'label 'create {} {label})
 	(f-call 'label 'set_color {label, 0xffffffff})
 	(f-call 'string 'create_from_cstr {"Tasks"} {string})
@@ -78,7 +87,7 @@
 	(f-call 'sys_cpu 'total {} {cpu_total})
 	(f-call 'sys_mem 'alloc {cpu_total * ptr_size * 2} {task_progress, _})
 
-	;add num cpus progress bars to my app panel
+	;add num cpus progress bars to my app panel2
 	(assign {0} {cpu_count})
 	(loop-start)
 		(f-call 'progress 'create {} {progress})
@@ -119,9 +128,17 @@
 	(assign {&task_mailbox} {select.sel_select2})
 
 	;app event loop
+	(f-call 'sys_cpu 'time {} {start_time})
 	(loop-start)
 		;new round of samples ?
 		(vpif {cpu_count == cpu_total})
+			;get trip time and save start time
+			(f-call 'sys_cpu 'time {} {time})
+			(assign {(time - start_time) / 100)} {start_time})
+			(f-call 'progress 'set_val {trip, start_time})
+			(f-call 'progress 'dirty {trip})
+			(assign {time} {start_time})
+
 			;set max_memory level
 			(assign {(total_memory * 3) / (cpu_total * 2) + 1} {max_memory})
 			(assign {0} {total_memory})

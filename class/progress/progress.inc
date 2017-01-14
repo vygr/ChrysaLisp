@@ -16,3 +16,23 @@
 	(long 'progress_max)
 	(long 'progress_val)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
+
+(defcfun class/progress/set_max ()
+	;inputs
+	;r0 = progress object
+	;r1 = maximum value
+	(vp-cpy-ri r1 r0 progress_max))
+
+(defcfun class/progress/set_val ()
+	;inputs
+	;r0 = progress object
+	;r1 = value
+	;outputs
+	;r1 = value, clipped to max
+	;trashes
+	;r2
+	(vp-cpy-ri r1 r0 progress_val))

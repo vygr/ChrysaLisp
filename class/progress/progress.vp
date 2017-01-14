@@ -95,31 +95,3 @@
 	(vp-ret)
 
 (def-func-end)
-
-(def-func 'class/progress/set_max)
-	;inputs
-	;r0 = progress object
-	;r1 = maximum value
-
-	(vp-cpy-ri r1 r0 progress_max)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/progress/set_val)
-	;inputs
-	;r0 = progress object
-	;r1 = value
-	;outputs
-	;r1 = value, clipped to max
-	;trashes
-	;r2
-
-	(vp-cpy-ir r0 progress_max r2)
-	(vpif '(r1 > r2))
-		(vp-cpy-ri r1 r0 progress_max)
-	(endif)
-	(vp-cpy-ri r1 r0 progress_val)
-	(vp-ret)
-
-(def-func-end)
