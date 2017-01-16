@@ -116,8 +116,9 @@ Run with:
 
 ./run_tui.sh <num_cpus>
 
-Text user interface based Cube network. Each CPU has links to 6 adjacent CPU's.
-CPU 0 launches a terminal to the host system.
+Text user interface based fully connected network. Each CPU has links to every
+other CPU. Careful with this as you can end up with a very large number of link
+files and shared memory regions. CPU 0 launches a terminal to the host system.
 
 ./run.sh <num_cpus>
 

@@ -377,6 +377,7 @@
 			(push q (defq p (pipe "lisp")))
 			(pipe-write p (cat "(compile-pipe '" (str s) " '" *os* " '" *cpu* ") ")))
 		(setq *pipes* (dec *pipes*)))
+	(print "Compiling with " (length q) " instances")
 	(each (lambda (p)
 		(every-pipe-line (lambda (l)
 			(defq k (elem 0 (split l " ")))
@@ -499,7 +500,7 @@
 	;concatinate all sections and save
 	(save (setq f (apply cat q)) (func-obj 'sys/boot_image))
 	(setq *env* nil)
-	(print "Boot image -> " (func-obj 'sys/boot_image) " (" (length f) ")") nil)
+	(print "image -> " (func-obj 'sys/boot_image) " (" (length f) ")") nil)
 
 (defun make-boot-all ()
 	(make-boot nil ((lambda ()

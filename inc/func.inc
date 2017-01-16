@@ -76,7 +76,7 @@
 	(sym-cat "_ref_string_" (str p)))
 
 (defcfun def-func (*name* &optional *func-stack*)
-	(print "Compiling -> " *name*)
+	(print "-> " *name*)
 	(setq *func-name* *name* *switch-nxt* 0 *emit-buffer* (list 'progn))
 	(setq *strings* (list) *paths* (list) *links* (list) *distance* (list))
 	(vp-label '_func_start)
