@@ -340,6 +340,17 @@
 			(defq _i (inc _i) _l (slice 0 _i _d) _d (slice _i -1 _d)
 				_v (every _f (split _l (char 10)))))))
 
+(defun shuffle (l)
+	(defq l (cat l) s (time))
+	(defun get-next ()
+		(setq s (abs (bit-xor 0xa5a5a5a5a5a5a5a5 (mul s 0x1574937f)))))
+	(defun get-int (r)
+		(if (gt r 0) (mod (get-next) r) 0))
+	(each-rev (lambda (x)
+		(defq i (get-int (inc _e)) y (elem i l))
+		(elem-set i l x)
+		(elem-set _e l y)) l) l)
+
 ;;;;;;;;;;;;;;
 ; VP Assembler
 ;;;;;;;;;;;;;;
@@ -354,9 +365,29 @@
 	(when (defq f (file-stream 'arch))
 		(setq o (sym (read-line f)))) o)
 
-(defun compile (*files* &optional *os* *cpu*)
-	(defq *compile-env* (env 101) *imports* (list) p nil b 10
-		*os* (if *os* *os* (platform)) *cpu* (if *cpu* *cpu* (cpu)))
+(defun compile (*files* &optional *os* *cpu* *pipes*)
+	(defq *os* (if *os* *os* (platform)) *cpu* (if *cpu* *cpu* (cpu))
+		*pipes* (if *pipes* *pipes* 1) q (list))
+	(unless (list? *files*)
+		(setq *files* (list *files*)))
+	(setq *files* (shuffle (map sym *files*)))
+	(while (gt *pipes* 0)
+		(defq i (div (length *files*) *pipes*) s (slice 0 i *files*) *files* (slice i -1 *files*))
+		(when (ne i 0)
+			(push q (defq p (pipe "lisp")))
+			(pipe-write p (cat "(compile-pipe '" (str s) " '" *os* " '" *cpu* ") ")))
+		(setq *pipes* (dec *pipes*)))
+	(each (lambda (p)
+		(every-pipe-line (lambda (l)
+			(defq k (elem 0 (split l " ")))
+			(cond
+				((eql k "Done"))
+				((eql k "Error:") (print l) nil)
+				(t (print l)))) p)) q)
+	(print "Done") nil)
+
+(defun compile-pipe (*files* *os* *cpu*)
+	(defq *compile-env* (env 101) *imports* (list))
 	(defmacro defcvar (&rest b)
 		`(def *compile-env* ~b))
 	(defmacro defcfun (n a &rest b)
@@ -367,19 +398,7 @@
 			(push *imports* *file*)
 ;			(print "Importing " *file*)
 			(repl (file-stream *file*) *file*)))
-	(unless (list? *files*)
-		(setq *files* (list *files*)))
-	(setq *files* (map sym *files*))
-	(when (and (gt (length *files*) b) (setq p (pipe "lisp")))
-		(defq s (slice b -1 *files*) *files* (slice 0 b *files*))
-		(pipe-write p (cat "(compile '" (str s) " '" *os* " '" *cpu* ") ")))
 	(each import *files*)
-	(every-pipe-line (lambda (l)
-		(defq k (elem 0 (split l " ")))
-		(cond
-			((eql k "Done"))
-			((eql k "Error:") (print l) nil)
-			(t (print l)))) p)
 	(print "Done")
 	(setq *compile-env* nil))
 
@@ -521,7 +540,7 @@
 			(some (lambda (x) (ge x p)) (map make-time d))) *imports*))
 		;drop the make enviroment and return the list to compile
 		(setq *env* nil)
-		*imports*)) *os* *cpu*))
+		*imports*)) *os* *cpu* 8))
 
 (defun make-all (&optional *os* *cpu*)
 	(defq n (time))
@@ -534,7 +553,7 @@
 		;filter to only the .vp files
 		(setq *imports* (filter (lambda (f)
 			(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
-		*imports*)) *os* *cpu*)
+		*imports*)) *os* *cpu* 8)
 	(make-boot-all)
 	(setq n (div (sub (time) n) 10000))
 	(print "Time " (div n 100) "." (mod n 100) " seconds") nil)
@@ -543,6 +562,7 @@
 	(times 10 (make-all)))
 
 ;test code for OOPS stuff
+;issues with when to evaluate args to scope !
 
 (defmacro constructor (n a &rest b)
 	`(defun ,n ,a ((lambda () ~b (env)))))

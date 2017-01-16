@@ -26,7 +26,7 @@
 	(offset 'stream_mail_data)
 (def-struct-end)
 
-(defcvar 'stream_msg_out_ack_shift 4)
+(defcvar 'stream_msg_out_ack_shift 6)
 
 (def-enum)
 	(enum 'stream_mail_state_started)
