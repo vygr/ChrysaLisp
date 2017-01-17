@@ -29,7 +29,7 @@
 		(elseif {args->obj_vtable == @class/class_stream_str})
 			(f-call 'stream_str 'ref_string {args} {value})
 		(else)
-			(f-call 'string 'create_from_cstr {"                "} {value})
+			(f-call 'string 'create_from_buffer {"                       ", 23} {value})
 			(f-call 'stream_str 'create {value} {stream})
 			(f-call 'lisp 'repl_print {this, stream, args})
 			(f-call 'stream_str 'ref_string {stream} {value})

@@ -17,7 +17,6 @@
 		;init myself
 		(vp-xor-rr r2 r2)
 		(vp-cpy-ri r2 r0 boxed_ptr_value)
-		(vp-cpy-ri r2 r0 boxed_ptr_flags)
 	(endif)
 	(vp-ret)
 

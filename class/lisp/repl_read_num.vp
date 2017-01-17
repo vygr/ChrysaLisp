@@ -40,7 +40,7 @@
 		(f-call 'stream 'read_char {stream} {char})
 	(endif)
 
-	(f-call 'string 'create_from_cstr {"                "} {string})
+	(f-call 'string 'create_from_buffer {"                       ", 23} {string})
 	(f-call 'stream_str 'create {string} {str_stream})
 	(loop-while {char >= char_0 && char <= char_9 || char >= char_a && char <= char_z || char >= char_ca && char <= char_cz})
 		(f-call 'stream 'write_char {str_stream, char})

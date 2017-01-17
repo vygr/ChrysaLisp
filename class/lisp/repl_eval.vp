@@ -39,8 +39,8 @@
 			(assign {value} {func})
 			(switch)
 			(case {func->obj_vtable == @class/class_boxed_ptr})
-				(gotoifnot {func->boxed_ptr_flags} 'args_eval_apply)
-				(vpif {func->boxed_ptr_flags == type_apply})
+				(gotoifnot {func->boxed_ptr_value & 7} 'args_eval_apply)
+				(vpif {(func->boxed_ptr_value & 7) == type_apply})
 					(f-call 'lisp 'repl_apply {this, func, form} {value})
 				(else) ;type_args_apply
 					(d-call 'vector 'slice {form, 1, length} {args})

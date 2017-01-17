@@ -25,7 +25,9 @@
 	(vpif {func->obj_vtable == @class/class_boxed_ptr})
 		;built in or compiled function
 		(assign {this, ast, func} '(r0 r1 r2))
-		(vp-call-i r2 boxed_ptr_value)
+		(vp-cpy-ir r2 boxed_ptr_value r2)
+		(vp-and-cr -8 r2)
+		(vp-call-r r2)
 		(assign '(r1) {value})
 	(elseif {func->obj_vtable == @class/class_vector})
 		;lambda
