@@ -22,6 +22,7 @@
 	(vpif {length == 1})
 		(f-call 'vector 'get_element {args, 0} {value})
 		(vpif {value->obj_vtable == @class/class_string})
+			(f-call 'ref 'ref {value})
 			(f-call 'stream_str 'create {value} {value})
 		(else)
 			(f-call 'lisp 'repl_error {this, "(string-stream str) str not a string", args} {value})
