@@ -426,13 +426,32 @@
 	;r0 = string object
 	;r1 = 0 if same, else -, +
 	;trashes
-	;r2-r3
+	;r2-r3, r5-r6
 
 	(vpif '(r0 != r1))
-		(vp-push r0)
-		(f-call 'sys_string 'compare '((& r0 string_data) (& r1 string_data)) '(r1))
-		(vp-pop r0)
+		(vp-cpy-ir r0 string_length r2)
+		(vp-cpy-ir r1 string_length r3)
+		(vp-sub-rr r3 r2)
+		(vpif '(r2 == 0))
+			(gotoif '(r3 == 0) 'same)
+			(vp-lea-i r0 string_data r5)
+			(vp-lea-i r1 string_data r6)
+			(vp-cpy-rr r5 r2)
+			(vp-add-rr r3 r2)
+			(loop-start)
+				(vp-cpy-ir-ub r5 0 r1)
+				(vp-cpy-ir-ub r6 0 r3)
+				(vp-sub-rr r3 r1)
+				(breakif '(r1 != 0))
+				(vp-inc r5)
+				(vp-inc r6)
+			(loop-until '(r5 == r2))
+			(vp-ret)
+		(else)
+			(vp-cpy-rr r2 r1)
+		(endif)
 	(else)
+	(vp-label 'same)
 		(vp-xor-rr r1 r1)
 	(endif)
 	(vp-ret)
