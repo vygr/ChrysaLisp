@@ -162,28 +162,19 @@
 ; Emit Buffer
 ;;;;;;;;;;;;;
 
-(defcvar '*emit-buffer* nil '*out-buffer* nil '*pc* nil '*shift* nil '*word* nil)
-
-(defcfun reset-out-buffer ()
-	(setq *out-buffer* (list) *pc* 0 *shift* 0 *word* 0))
+(defcvar '*emit-buffer* nil '*out-buffer* nil)
 
 (defcfun emit (f)
 	(push *emit-buffer* f))
 
-(defcfun emit-done (x y)
-	(cond
-		((eq (length x) 0))
-		((ne (length x) (length y)))
-		(t (every eq x y))))
-
 (defcfun emit-passes ()
-	(defq *pass* 0 *old-out-buffer* (list))
-	(reset-out-buffer)
-	(until (emit-done *out-buffer* *old-out-buffer*)
-		(setq *old-out-buffer* *out-buffer*)
-		(reset-out-buffer)
+	(defq *pass* 0 *old-out-buffer* (cat "x"))
+	(setq *out-buffer* (cat "y"))
+	(until (every eql *out-buffer* *old-out-buffer*)
+		(defq b *old-out-buffer* *old-out-buffer* *out-buffer*
+			*out-stream* (string-stream b) *pc* 0)
 		(eval *emit-buffer*)
-		(setq *pass* (inc *pass*))))
+		(setq *out-buffer* (str *out-stream*) *pass* (inc *pass*))))
 
 (defcfun print-emit-buffer ()
 	(defq i 0)
@@ -194,44 +185,33 @@
 (defcfun emit-label (s)
 	(set s *pc*))
 
-(defcfun emit-bytes (&rest b)
-	(defq s *shift* w *word* o *out-buffer* i -1 j (length b))
-	(while (lt (setq i (inc i)) j)
-		(setq w (add w (bit-shl (elem i b) s)) s (add s 8))
-		(when (eq s 64)
-			(push o w)
-			(setq w 0 s 0)))
-	(setq *pc* (add *pc* j) *shift* s *word* w))
-
 (defcfun emit-byte (&rest b)
 	(each (lambda (x)
-		(emit-bytes (bit-and x 0xff))) b))
+		(write-char *out-stream* x)) b)
+	(setq *pc* (add *pc* (length b))))
 
 (defcfun emit-short (&rest b)
 	(each (lambda (x)
-		(emit-bytes (bit-and x 0xff) (bit-and (bit-shr x 8) 0xff))) b))
+		(emit-byte x (bit-shr x 8))) b))
 
 (defcfun emit-int (&rest b)
 	(each (lambda (x)
-		(emit-bytes (bit-and x 0xff) (bit-and (bit-shr x 8) 0xff)
-			(bit-and (bit-shr x 16) 0xff) (bit-and (bit-shr x 24) 0xff))) b))
+		(emit-byte x (bit-shr x 8) (bit-shr x 16) (bit-shr x 24))) b))
 
 (defcfun emit-long (&rest b)
 	(each (lambda (x)
-		(emit-bytes (bit-and x 0xff) (bit-and (bit-shr x 8) 0xff)
-			(bit-and (bit-shr x 16) 0xff) (bit-and (bit-shr x 24) 0xff)
-			(bit-and (bit-shr x 32) 0xff) (bit-and (bit-shr x 40) 0xff)
-			(bit-and (bit-shr x 48) 0xff) (bit-shr x 56))) b))
+		(emit-byte x (bit-shr x 8) (bit-shr x 16) (bit-shr x 24)
+			(bit-shr x 32) (bit-shr x 40) (bit-shr x 48) (bit-shr x 56))) b))
 
 (defcfun emit-string (s)
 	(each (lambda (x)
-		(emit-bytes (code x))) s))
+		(emit-byte (code x))) s))
 
 (defcfun emit-align (a &optional b)
 	(when (ne *pass* 0)
 		(defq n (align *pc* a) b (if b (bit-and b 0xff) 0))
 		(while (lt *pc* n)
-			(emit-bytes b))))
+			(emit-byte b))))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; Arch Emit Functions

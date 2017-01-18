@@ -22,7 +22,7 @@
 	(if (ne *pass* 0) (if (gt (abs c) (abs m)) (elem-set d *distance* (setq m c))))
 	(cond
 		((le -0x80 (sub m 2) 0x7f)
-			(emit-bytes o (sub c 2)))
+			(emit-byte o (sub c 2)))
 		((le -0x80000000 (sub m 6) 0x7fffffff)
 			(emit-int o (sub c 6)))
 		(t (print "emit-branch constant out of range: " c))))

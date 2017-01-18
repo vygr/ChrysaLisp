@@ -32,15 +32,7 @@
 		(f-call 'vector 'get_element {args, 1} {name})
 		(vpif {name->obj_vtable == @class/class_string || name->obj_vtable == @class/class_symbol})
 			(f-call 'vector 'get_element {args, 0} {obj})
-			(vpif {obj->obj_vtable == @class/class_vector})
-				(f-call 'sys_io 'open {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth} {handle})
-				(gotoif {handle < 3} 'error)
-				(assign {this->lisp_sym_nil} {value})
-				(f-call 'ref 'ref {value})
-				(d-call 'vector 'get_length {obj} {length})
-				(f-call 'vector 'for_each {obj, 0, length, $callback, &this} {_})
-				(f-call 'sys_io 'close {handle})
-			(elseif {obj->obj_vtable == @class/class_string})
+			(vpif {obj->obj_vtable == @class/class_string})
 				(f-call 'sys_io 'open {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth} {handle})
 				(vpif {handle >= 3})
 					(sys-write-string {handle, &obj->string_data, obj->string_length} {_})
@@ -49,47 +41,19 @@
 					(f-call 'ref 'ref {value})
 				(else)
 				(vp-label 'error)
-					(f-call 'lisp 'repl_error {this, "(save obj filename) open error", args} {value})
+					(f-call 'lisp 'repl_error {this, "(save str filename) open error", args} {value})
 				(endif)
 			(else)
-				(f-call 'lisp 'repl_error {this, "(save obj filename) not list or string", args} {value})
+				(f-call 'lisp 'repl_error {this, "(save str filename) not string", args} {value})
 			(endif)
 		(else)
-			(f-call 'lisp 'repl_error {this, "(save obj filename) not filename", args} {value})
+			(f-call 'lisp 'repl_error {this, "(save str filename) not filename", args} {value})
 		(endif)
 	(else)
-		(f-call 'lisp 'repl_error {this, "(save obj filename) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(save str filename) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))
-	(pop-scope)
-	(return)
-
-(vp-label 'callback)
-	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
-	;outputs
-	;r1 = 0 if break, (else) not
-
-	(pptr 'iter)
-	(ptr 'pdata)
-
-	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
-
-	(f-call 'ref 'deref {pdata->pdata_value})
-	(vpif {(*iter)->obj_vtable == @class/class_boxed_long})
-		(sys-write-string {pdata->pdata_handle, &(*iter)->boxed_ptr_value, 8} {_})
-		(assign {*iter} {pdata->pdata_value})
-		(f-call 'ref 'ref {pdata->pdata_value})
-		(assign {1} '(r1))
-		(return)
-	(else)
-		(f-call 'lisp 'repl_error {pdata->pdata_this, "(save obj filename) not all numbers", *iter} {pdata->pdata_value})
-	(endif)
-
-	(assign {0} '(r1))
 	(pop-scope)
 	(return)
 
