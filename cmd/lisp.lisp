@@ -507,7 +507,7 @@
 		(defq *imports* (list 'make.inc) *products* (list) i -1)
 		;lists of all file imports and products
 		(while (lt (setq i (inc i)) (length *imports*))
-			(defq f (elem i *imports*) d (make-info f))
+			(defq d (make-info (elem i *imports*)))
 			(merge-sym *imports* (elem 0 d))
 			(merge-sym *products* (elem 1 d)))
 		*products*))))
@@ -549,7 +549,7 @@
 		(defq *imports* (list 'make.inc) i -1)
 		;list of all file imports
 		(while (lt (setq i (inc i)) (length *imports*))
-			(defq f (elem i *imports*) d (make-info f))
+			(defq d (make-info (elem i *imports*)))
 			(merge-sym *imports* (elem 0 d)))
 		;filter to only the .vp files
 		(setq *imports* (filter (lambda (f)
