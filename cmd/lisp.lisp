@@ -394,6 +394,8 @@
 	(defmacro defcfun (n a &rest b)
 ;		`(def *compile-env* ',n (lambda ,a (print "Enter: " ',n) (defq _rv (progn ~b)) (print "Exit: " ',n) _rv)))
 		`(def *compile-env* ',n (lambda ,a ~b)))
+	(defmacro defcmacro (n a &rest b)
+		`(def *compile-env* ',n (macro ,a ~b)))
 	(defun import (*file*)
 		(unless (find *file* *imports*)
 			(push *imports* *file*)
@@ -557,10 +559,12 @@
 		*imports*)) *os* *cpu* 8)
 	(make-boot-all)
 	(setq n (div (sub (time) n) 10000))
-	(print "Time " (div n 100) "." (mod n 100) " seconds") nil)
+	(print "Time " (div n 100) "." (mod n 100) " seconds") n)
 
-(defun make-test ()
-	(times 10 (make-all)))
+(defun make-test (&optional i)
+	(defq b 1000000 n 0 i (if i i 10))
+	(times i (setq n (make-all) b (if (lt n b) n b)))
+	(print "Best time " (div b 100) "." (mod b 100) " seconds") nil)
 
 ;test code for OOPS stuff
 ;issues with when to evaluate args to scope !
