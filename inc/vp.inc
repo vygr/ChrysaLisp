@@ -162,17 +162,17 @@
 ; Emit Buffer
 ;;;;;;;;;;;;;
 
-(defcvar '*emit-buffer* nil '*out-buffer* nil)
+(defcvar '*emit-buffer* nil '*out-buffer* (cat "") '*old-out-buffer* (cat ""))
 
 (defcfun emit (f)
 	(push *emit-buffer* f))
 
 (defcfun emit-passes ()
-	(defq *pass* 0 *old-out-buffer* (cat "x"))
-	(setq *out-buffer* (cat "y"))
+	(defq *pass* 0 *pc* 0 *out-stream* (string-stream *out-buffer*) b nil)
+	(eval *emit-buffer*)
+	(setq *out-buffer* (str *out-stream*) *pass* (inc *pass*))
 	(until (eql *out-buffer* *old-out-buffer*)
-		(defq b *old-out-buffer* *old-out-buffer* *out-buffer*
-			*out-stream* (string-stream b) *pc* 0)
+		(setq b *old-out-buffer* *old-out-buffer* *out-buffer* *out-stream* (string-stream b) *pc* 0)
 		(eval *emit-buffer*)
 		(setq *out-buffer* (str *out-stream*) *pass* (inc *pass*))))
 
