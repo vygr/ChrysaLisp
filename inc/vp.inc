@@ -205,20 +205,22 @@
 
 (defcfun emit-short (&rest b)
 	(each (lambda (x)
-		(emit-byte x (bit-shr x 8))) b))
+		(write-char *out-stream* x 2)) b)
+	(setq *pc* (add *pc* (mul (length b) 2))))
 
 (defcfun emit-int (&rest b)
 	(each (lambda (x)
-		(emit-byte x (bit-shr x 8) (bit-shr x 16) (bit-shr x 24))) b))
+		(write-char *out-stream* x 4)) b)
+	(setq *pc* (add *pc* (mul (length b) 4))))
 
 (defcfun emit-long (&rest b)
 	(each (lambda (x)
-		(emit-byte x (bit-shr x 8) (bit-shr x 16) (bit-shr x 24)
-			(bit-shr x 32) (bit-shr x 40) (bit-shr x 48) (bit-shr x 56))) b))
+		(write-char *out-stream* x 8)) b)
+	(setq *pc* (add *pc* (mul (length b) 8))))
 
 (defcfun emit-string (s)
-	(each (lambda (x)
-		(emit-byte (code x))) s))
+	(write *out-stream* s)
+	(setq *pc* (add *pc* (length s))))
 
 (defcfun emit-align (a &optional b)
 	(when (ne *pass* 0)
