@@ -6,6 +6,33 @@
 (import 'class/stream/stream.inc)
 (import 'class/vector/vector.inc)
 
+(def-func 'class/string/create_raw)
+	;inputs
+	;r0 = string length
+	;outputs
+	;r0 = 0 if error, else object
+	;trashes
+	;r1-r3, r5-r7
+
+	;save size of data
+	(vp-cpy-rr r0 r6)
+
+	;create new string object
+	(f-call 'string 'new '((& r0 (add string_size 1))) '(r0))
+	(vpif '(r0 != 0))
+		;init the object
+		(f-path 'class 'string)
+		(f-call 'string 'init `(r0 (@ ,_function_) 0 r6) '(r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(v-call 'string 'delete '(r0) '() 'r1)
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
 (def-func 'class/string/create_from_buffer)
 	;inputs
 	;r0 = buffer pointer
@@ -135,7 +162,7 @@
 	;inputs
 	;r0 = string object
 	;r1 = vtable pointer
-	;r2 = buffer pointer
+	;r2 = 0 else, buffer pointer
 	;r3 = buffer length
 	;outputs
 	;r1 = 0 if error, else ok
@@ -160,7 +187,13 @@
 		;init myself
 		(vp-cpy-ir r4 local_length r2)
 		(vp-cpy-ri r2 r0 string_length)
-		(f-call 'sys_mem 'copy '((r4 local_data) (& r0 string_data) r2) '(_ r1))
+		(vp-cpy-ir r4 local_data r3)
+		(vpif '(r3 != 0))
+			(f-call 'sys_mem 'copy '(r3 (& r0 string_data) r2) '(_ r1))
+		(else)
+			(vp-lea-i r0 string_data r1)
+			(vp-add-rr r2 r1)
+		(endif)
 		(vp-xor-rr r0 r0)
 		(vp-cpy-ri-b r0 r1 0)
 

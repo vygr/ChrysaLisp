@@ -25,7 +25,7 @@
 	(push-scope)
 	(assign '(r0 r1 r2) {this, stream, char})
 
-	(f-call 'symbol 'create_from_buffer {"                       ", 23} {value})
+	(f-call 'symbol 'create_raw {23} {value})
 	(f-call 'stream_str 'create {value} {str_stream})
 
 	(loop-while {char > char_space && char != char_lb && char != char_rb && char != char_quote})
