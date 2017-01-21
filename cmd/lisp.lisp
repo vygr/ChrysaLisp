@@ -367,7 +367,7 @@
 
 (defun compile (*files* &optional *os* *cpu* *pipes*)
 	(defq *os* (if *os* *os* (platform)) *cpu* (if *cpu* *cpu* (cpu))
-		*pipes* (if *pipes* *pipes* 1) q (list))
+		*pipes* (if *pipes* *pipes* 1) q (list) e (list))
 	(unless (list? *files*)
 		(setq *files* (list *files*)))
 	(setq *files* (shuffle (map sym *files*)))
@@ -383,8 +383,9 @@
 			(defq k (elem 0 (split l " ")))
 			(cond
 				((eql k "Done"))
-				((eql k "Error:") (print l) nil)
+				((eql k "Error:") (push e l) nil)
 				(t (print l)))) p)) q)
+	(each print e)
 	(print "Done") nil)
 
 (defun compile-pipe (*files* *os* *cpu*)
