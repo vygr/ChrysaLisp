@@ -11,7 +11,6 @@
 	;outputs
 	;r0 = lisp object
 	;r1 = value
-	;r2 = 0 if expanded
 
 	(ptr 'this 'args)
 	(ulong 'length)
@@ -22,13 +21,12 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
 		(f-call 'lisp 'func_copy {this, args} {args})
-		(f-call 'lisp 'repl_expand {this, &args} {length})
+		(f-call 'lisp 'repl_expand {this, &args, 0} {_})
 	(else)
 		(f-call 'lisp 'repl_error {this, "(macroexpand-1 form) wrong number of args", args} {args})
-		(assign {1} {length})
 	(endif)
 
-	(assign {this, args, length} '(r0 r1 r2))
+	(assign {this, args} '(r0 r1))
 	(pop-scope)
 	(return)
 

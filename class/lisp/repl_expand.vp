@@ -8,61 +8,60 @@
 	;inputs
 	;r0 = lisp object
 	;r1 = iter to form
+	;r2 = 0
 	;outputs
 	;r0 = lisp object
-	;r1 = 0 if expanded
+	;r1 = expantion count
 
 	(def-struct 'pdata)
 		(ptr 'pdata_this)
 		(ptr 'pdata_form)
+		(ulong 'pdata_cnt)
 	(def-struct-end)
 
+	(ptr 'this 'form)
+	(ulong 'cnt)
+
+	(ptr 'macro 'args)
 	(pptr 'iter 'miter)
-	(ptr 'this 'form 'macro 'args)
 	(ulong 'length)
 
 	(push-scope)
-	(assign '(r0 r1) {this, iter})
+	(assign '(r0 r1 r2) {this, iter, cnt})
 
 	(assign {*iter} {form})
 	(vpif {form->obj_vtable == @class/class_vector})
 		(d-call 'vector 'get_length {form} {length})
-		(vpif {length})
-			(f-call 'vector 'get_element {form, 0} {macro})
-			(breakif {macro == this->lisp_sym_quote})
-			(vpif {macro->obj_vtable == @class/class_symbol})
-				(f-call 'lisp 'env_find {this, macro} {miter, _})
-				(vpif {miter})
-					(f-call 'pair 'get_second {*miter} {macro})
-					(vpif {macro->obj_vtable == @class/class_vector})
-						(f-call 'vector 'get_element {macro, 0} {args})
-						(vpif {args == this->lisp_sym_macro})
-							(f-call 'lisp 'env_push {this})
-							(f-call 'vector 'get_element {macro, 1} {args})
-							(f-call 'lisp 'env_bind {this, args, form, 1} {form})
-							(vpif {form->obj_vtable != @class/class_error})
-								(f-call 'vector 'for_each {macro, 2, macro->vector_length, $callback, &this} {_})
-							(endif)
-							(f-call 'lisp 'env_pop {this})
-							(f-call 'ref 'deref {*iter})
-							(assign {form} {*iter})
-							(assign {this, form->obj_vtable == @class/class_error} '(r0 r1))
-							(return)
-						(endif)
-					(endif)
-				(endif)
+		(breakifnot {length})
+		(f-call 'vector 'get_element {form, 0} {macro})
+		(breakif {macro == this->lisp_sym_quote})
+		(vpif {macro->obj_vtable == @class/class_symbol})
+			(f-call 'lisp 'env_find {this, macro} {miter, _})
+			(gotoifnot {miter} 'decend)
+			(f-call 'pair 'get_second {*miter} {macro})
+			(gotoif {macro->obj_vtable != @class/class_vector} 'decend)
+			(f-call 'vector 'get_element {macro, 0} {args})
+			(gotoif {args != this->lisp_sym_macro} 'decend)
+			(f-call 'lisp 'env_push {this})
+			(f-call 'vector 'get_element {macro, 1} {args})
+			(f-call 'lisp 'env_bind {this, args, form, 1} {form})
+			(vpif {form->obj_vtable != @class/class_error})
+				(f-call 'vector 'for_each {macro, 2, macro->vector_length, $callback1, &this} {_})
 			(endif)
-			(f-path 'lisp 'repl_expand)
-			(f-call 'vector 'for_each (cat {form, 0, length, @} _function_ {, this}) {iter})
-			(assign {!iter} {iter})
+			(f-call 'lisp 'env_pop {this})
+			(f-call 'ref 'deref {*iter})
+			(assign {form, cnt + 1} {*iter, cnt})
+		(else)
+		(vp-label 'decend)
+			(f-call 'vector 'for_each {form, 0, length, $callback2, &this} {_})
 		(endif)
 	(endif)
 
-	(assign {this, iter} '(r0 r1))
+	(assign {this, cnt} '(r0 r1))
 	(pop-scope)
 	(return)
 
-(vp-label 'callback)
+(vp-label 'callback1)
 	;inputs
 	;r0 = predicate data pointer
 	;r1 = element iterator
@@ -79,6 +78,25 @@
 	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {pdata->pdata_form})
 
 	(assign {pdata->pdata_form->obj_vtable != @class/class_error} '(r1))
+	(pop-scope)
+	(return)
+
+(vp-label 'callback2)
+	;inputs
+	;r0 = predicate data pointer
+	;r1 = element iterator
+	;outputs
+	;r1 = 0 if break, else not
+
+	(pptr 'iter)
+	(ptr 'pdata)
+
+	(push-scope)
+	(assign '(r0 r1) {pdata, iter})
+
+	(f-call 'lisp 'repl_expand {pdata->pdata_this, iter, pdata->pdata_cnt} {pdata->pdata_cnt})
+
+	(assign {1} '(r1))
 	(pop-scope)
 	(return)
 

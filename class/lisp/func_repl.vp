@@ -16,7 +16,7 @@
 	(const 'char_lf 10)
 
 	(ptr 'this 'args 'stream 'ast 'value 'old_file 'old_line)
-	(ulong 'length 'char 'flag)
+	(ulong 'length 'char 'cnt)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})
@@ -48,8 +48,8 @@
 					(breakif {char == -1})
 
 					(loop-start)
-						(f-call 'lisp 'repl_expand {this, &ast} {flag})
-					(loop-until {flag})
+						(f-call 'lisp 'repl_expand {this, &ast, 0} {cnt})
+					(loop-untilnot {cnt})
 
 					(f-call 'lisp 'repl_eval {this, ast} {value})
 					(f-call 'ref 'deref {ast})
