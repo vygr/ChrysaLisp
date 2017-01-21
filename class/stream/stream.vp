@@ -1,4 +1,5 @@
 (import 'inc/func.inc)
+(import 'inc/string.inc)
 (import 'class/vector/vector.inc)
 (import 'class/string/string.inc)
 (import 'class/stream/stream.inc)
@@ -327,18 +328,30 @@
 	;all but r0, r4
 
 	(ptr 'inst)
-	(pubyte 'buffer 'buffer_end)
-	(long 'char)
+	(pubyte 'buffer)
+	(uint 'length 'gap)
+
+	;check if 1 char
+	(vpif '(r2 == 1))
+		(vp-cpy-ir-ub r1 0 r1)
+		(f-jmp 'stream 'write_char '(r0 r1))
+	(endif)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1 r2) {inst, buffer, buffer_end})
+	(assign '(r0 r1 r2) {inst, buffer, length})
 
-	(assign {buffer + buffer_end} {buffer_end})
-	(loop-while {buffer != buffer_end})
-		(assign {*buffer} {char})
-		(assign {buffer + 1} {buffer})
-		(f-call 'stream 'write_char {inst, char})
+	(loop-while {length})
+		(assign {inst->stream_bufe - inst->stream_bufp} {gap})
+		(vpif {gap})
+			(vpif {gap > length})
+				(assign {length} {gap})
+			(endif)
+			(f-call 'sys_mem 'copy {buffer, inst->stream_bufp, gap} {buffer, inst->stream_bufp})
+			(assign {length - gap} {length})
+		(else)
+			(v-call 'stream 'write_next {inst})
+		(endif)
 	(loop-end)
 
 	(assign {inst} '(r0))
@@ -356,24 +369,21 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst)
-	(long 'char)
-
-	(push-scope)
-	(assign '(r0 r1) {inst, char})
-
-	(switch)
-	(case {inst->stream_bufp == inst->stream_bufe})
-		(v-call 'stream 'write_next {inst})
-		(breakif {inst->stream_bufp == inst->stream_bufe})
-	(default)
-		(assign {char} {*inst->stream_bufp})
-		(assign {inst->stream_bufp + 1} {inst->stream_bufp})
-	(endswitch)
-
-	(assign {inst} '(r0))
-	(pop-scope)
-	(return)
+	(vp-cpy-ir r0 stream_bufp r2)
+	(vp-cpy-ir r0 stream_bufe r3)
+	(vpif '(r2 == r3))
+		(vp-push r1)
+		(v-call 'stream 'write_next '(r0))
+		(vp-pop r1)
+		(vp-cpy-ir r0 stream_bufp r2)
+		(vp-cpy-ir r0 stream_bufe r3)
+		(gotoif '(r2 == r3) 'eof)
+	(endif)
+	(vp-cpy-ri-b r1 r2 0)
+	(vp-inc r2)
+	(vp-cpy-ri r2 r0 stream_bufp)
+(vp-label 'eof)
+	(vp-ret)
 
 (def-func-end)
 
@@ -386,24 +396,9 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst)
-	(pubyte 'buffer)
-	(long 'char)
-
-	;save inputs
-	(push-scope)
-	(assign '(r0 r1) {inst, buffer})
-
-	(loop-start)
-		(assign {*buffer} {char})
-		(breakifnot {char})
-		(assign {buffer + 1} {buffer})
-		(f-call 'stream 'write_char {inst, char})
-	(loop-end)
-
-	(assign {inst} '(r0))
-	(pop-scope)
-	(return)
+	(vp-cpy-rr r0 r3)
+	(f-call 'sys_string 'length '(r1) '(r1))
+	(f-jmp 'stream 'write '(r3 r0 r1))
 
 (def-func-end)
 
