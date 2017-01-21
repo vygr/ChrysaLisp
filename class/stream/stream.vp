@@ -227,25 +227,25 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst)
-	(ulong 'skip_char)
-	(long 'state)
-
-	(push-scope)
-	(assign '(r0 r1) {inst, skip_char})
-
+	(vp-cpy-ir r0 stream_bufp r2)
+	(vp-cpy-ir r0 stream_bufe r3)
 	(loop-start)
-		(loop-while {inst->stream_bufp == inst->stream_bufe})
-			(v-call 'stream 'read_next {inst} {state})
-			(gotoif {state == -1} 'exit)
+		(loop-while '(r2 == r3))
+			(vp-push r1)
+			(vp-cpy-ri r2 r0 stream_bufp)
+			(v-call 'stream 'read_next '(r0) '(r5))
+			(vp-pop r1)
+			(gotoif '(r5 == -1) 'exit)
+			(vp-cpy-ir r0 stream_bufp r2)
+			(vp-cpy-ir r0 stream_bufe r3)
 		(loop-end)
-		(breakif {*inst->stream_bufp != skip_char})
-		(assign {inst->stream_bufp + 1} {inst->stream_bufp})
+		(vp-cpy-ir-ub r2 0 r5)
+		(breakif '(r5 != r1))
+		(vp-inc r2)
 	(loop-end)
+	(vp-cpy-ri r2 r0 stream_bufp)
 (vp-label 'exit)
-	(assign {inst} '(r0))
-	(pop-scope)
-	(return)
+	(vp-ret)
 
 (def-func-end)
 
@@ -256,25 +256,25 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst)
-	(ulong 'skip_char)
-	(long 'state)
-
-	(push-scope)
-	(assign '(r0 r1) {inst, skip_char})
-
+	(vp-cpy-ir r0 stream_bufp r2)
+	(vp-cpy-ir r0 stream_bufe r3)
 	(loop-start)
-		(loop-while {inst->stream_bufp == inst->stream_bufe})
-			(v-call 'stream 'read_next {inst} {state})
-			(gotoif {state == -1} 'exit)
+		(loop-while '(r2 == r3))
+			(vp-push r1)
+			(vp-cpy-ri r2 r0 stream_bufp)
+			(v-call 'stream 'read_next '(r0) '(r5))
+			(vp-pop r1)
+			(gotoif '(r5 == -1) 'exit)
+			(vp-cpy-ir r0 stream_bufp r2)
+			(vp-cpy-ir r0 stream_bufe r3)
 		(loop-end)
-		(breakif {*inst->stream_bufp == skip_char})
-		(assign {inst->stream_bufp + 1} {inst->stream_bufp})
+		(vp-cpy-ir-ub r2 0 r5)
+		(breakif '(r5 == r1))
+		(vp-inc r2)
 	(loop-end)
+	(vp-cpy-ri r2 r0 stream_bufp)
 (vp-label 'exit)
-	(assign {inst} '(r0))
-	(pop-scope)
-	(return)
+	(vp-ret)
 
 (def-func-end)
 
