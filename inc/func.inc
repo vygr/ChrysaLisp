@@ -67,13 +67,13 @@
 (defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil)
 
 (defcfun link-sym (p)
-	(sym-cat "_ref_link_" (str p)))
+	(cat "_ref_link_" (str p)))
 
 (defcfun path-sym (p)
-	(sym-cat "_ref_path_" (str p)))
+	(cat "_ref_path_" (str p)))
 
 (defcfun string-sym (p)
-	(sym-cat "_ref_string_" (str p)))
+	(cat "_ref_string_" (str p)))
 
 (defcfun def-func (*name* &optional *func-stack*)
 	(print "-> " *name*)
@@ -115,18 +115,14 @@
 	(emit-passes)
 	(save *out-buffer* (cat "obj/" (str *func-name*))))
 
-(defmacro def-insert (n l)
-	`(defcfun ,n (s)
-		(defq i -1)
-		(while (and (lt (setq i (inc i)) (length ,l)) (not (eql s (elem i ,l)))))
-		(if (eq i (length ,l)) (push ,l s))
-		i))
+(defcfun fn-add-string (s)
+	(defq i -1)
+	(while (and (lt (setq i (inc i)) (length *strings*)) (not (eql s (elem i *strings*)))))
+	(if (eq i (length *strings*)) (push *strings* s)) i)
 
-(def-insert fn-add-string *strings*)
-(def-insert fn-add-path *paths*)
-
-(defcfun fn-string (s r)
-	(vp-lea-p (string-sym (fn-add-string s)) r))
+(defcfun fn-add-path (p)
+	(if (defq i (find p *paths*)) i
+		(dec (length (push *paths* p)))))
 
 (defcfun fn-add-link (p)
 	(push *links* (fn-add-path p)))
@@ -134,8 +130,10 @@
 (defcfun fn-find-link (p)
 	(defq i -1)
 	(while (and (lt (setq i (inc i)) (length *links*)) (not (eql p (elem (elem i *links*) *paths*)))))
-	(if (eq i (length *links*)) (fn-add-link p))
-	i)
+	(if (eq i (length *links*)) (fn-add-link p)) i)
+
+(defcfun fn-string (s r)
+	(vp-lea-p (string-sym (fn-add-string s)) r))
 
 (defcfun fn-bind (p r)
 	(if (def? p) (error "Can't bind to inline function !" p)
