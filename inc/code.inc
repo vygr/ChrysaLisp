@@ -342,7 +342,7 @@
 
 (defcfun map-remove-ignored ()
 	(defq s (list) d (list))
-	(each (lambda (x y) (unless (or (eql x y) (eql y '_)  (eql y "_")) (push s x) (push d y))) *src* *dst*)
+	(each (lambda (x y) (unless (or (eql x y) (eql y '_) (eql y "_")) (push s x) (push d y))) *src* *dst*)
 	(setq *src* s *dst* d))
 
 (defcfun match-any (d s)
@@ -360,8 +360,7 @@
 	(defq i -1 j (length *src*) d (elem d *dst*))
 	(while (ne (setq j (dec j)) -1)
 		(if (match-any d (elem j *src*))
-			(setq i j j 0)))
-	i)
+			(setq i j j 0))) i)
 
 (defcfun map-rotate (i j)
 	(setq *src* (cat (slice 0 i *src*) (slice j (inc j) *src*)
@@ -370,13 +369,12 @@
 					(slice i j *dst*) (slice (inc j) (length *dst*) *dst*))))
 
 (defcfun map-topology-sort ()
-	(defq i -1 c 1000 j nil)
+	(defq i -1 c 1000)
 	(while (and (ne (setq i (inc i)) (length *dst*)) (ne c 0))
-		(setq j (find-later-src i))
-		(if (gt j i)
-			(progn
-				(map-rotate i j)
-				(setq c (dec c)))))
+		(defq j (find-later-src i))
+		(when (gt j i)
+			(map-rotate i j)
+			(setq c (dec c) i (dec i))))
 	(when (ne i (length *dst*))
 		(error "Copy cycle detected !" (list *src* *dst*))))
 
