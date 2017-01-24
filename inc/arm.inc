@@ -43,13 +43,11 @@
 
 (defcfun emit-call-r (r))
 (defcfun emit-call-i (d c))
-(defcfun emit-call-d (d1 d2))
 (defcfun emit-call-p (l))
 
 (defcfun emit-jmp (l d))
 (defcfun emit-jmp-r (r))
 (defcfun emit-jmp-i (d c))
-(defcfun emit-jmp-d (d1 d2))
 (defcfun emit-jmp-p (l))
 
 (defcfun emit-lea-i (s c d))
