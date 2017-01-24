@@ -14,7 +14,6 @@
 
 	(ptr 'this 'args 'class 'value)
 	(ulong 'length)
-	(pubyte 'name_offset)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})
@@ -28,9 +27,7 @@
 			(f-call 'vector 'get_element {args, 1} {args})
 			(f-call 'obj 'inst_of {args, class} {value})
 			(vpif {value})
-				(assign {value - 1} {name_offset})
-				(assign {value - *name_offset} {value})
-				(f-call 'lisp 'sym_intern_cstr {this, value} {value})
+				(f-call 'lisp 'sym_intern_cstr {this, value - ubyte(value - 1)} {value})
 			(else)
 				(assign {this->lisp_sym_nil} {value})
 				(f-call 'ref 'ref {value})

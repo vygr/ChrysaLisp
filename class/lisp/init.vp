@@ -39,7 +39,6 @@
 	;all
 
 	(ptr 'this 'vtable 'stdin 'stdout 'stderr 'symbol 'table)
-	(pptr 'path_ptr)
 	(ulong 'ok)
 
 	(push-scope)
@@ -59,7 +58,7 @@
 		(vpifnot {this->lisp_symbols})
 			(f-path 'symbol 'compare)
 			(f-call 'unordered_set 'create (cat {@} _function_ {, 101}) {this->lisp_symbols})
-			(assign {this->lisp_symbols} {ptr ($symbols)})
+			(assign {this->lisp_symbols} {ptr($symbols)})
 		(endif)
 		(f-call 'unordered_map 'create {$match_obj, 31} {this->lisp_enviroment})
 
@@ -67,16 +66,14 @@
 		;fixup built in functions
 		(assign {$built_ins} {table})
 		(loop-while {table->built_in_symbol})
-			(assign {&table->built_in_symbol + table->built_in_symbol} {path_ptr})
-			(f-call 'lisp 'sym_intern_cstr {this, path_ptr} {symbol})
+			(f-call 'lisp 'sym_intern_cstr {this, &table->built_in_symbol + table->built_in_symbol} {symbol})
 			(vpif {table->built_in_field})
-				(assign {this + table->built_in_field} {path_ptr})
-				(assign {symbol} {*path_ptr})
+				(assign {symbol} {ptr(this + table->built_in_field)})
 			(endif)
 			(vpif {table->built_in_function})
-				(assign {&table->built_in_function + table->built_in_function} {path_ptr})
-				(f-call 'lisp 'built_in_func {this, symbol, *path_ptr, table->built_in_flags})
+				(f-call 'lisp 'built_in_func {this, symbol, ptr(&table->built_in_function + table->built_in_function), table->built_in_flags})
 			(endif)
+			(f-call 'ref 'deref {symbol})
 			(assign {table + built_in_hop} {table})
 		(loop-end)
 
