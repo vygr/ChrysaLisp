@@ -77,8 +77,8 @@
 
 (defcfun def-func (*name* &optional *func-stack*)
 	(print "-> " *name*)
-	(setq *func-name* *name* *switch-nxt* 0 *emit-buffer* (list 'progn))
-	(setq *strings* (list) *paths* (list) *links* (list) *distance* (list))
+	(emit-reset)
+	(setq *func-name* *name* *switch-nxt* 0 *strings* (list) *paths* (list) *links* (list))
 	(vp-label '_func_start)
 	(vp-long -1)
 	(vp-int `(sub ,(label-sym '_func_end) ,(label-sym '_func_start))
