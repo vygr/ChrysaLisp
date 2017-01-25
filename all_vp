@@ -31,6 +31,7 @@
 ./class/lisp/func_bxor.vp
 ./class/lisp/func_cat.vp
 ./class/lisp/func_char.vp
+./class/lisp/func_clear.vp
 ./class/lisp/func_code.vp
 ./class/lisp/func_cond.vp
 ./class/lisp/func_copy.vp
@@ -100,6 +101,7 @@
 ./class/lisp/repl_expand.vp
 ./class/lisp/repl_print.vp
 ./class/lisp/repl_read.vp
+./class/lisp/repl_read_char.vp
 ./class/lisp/repl_read_group.vp
 ./class/lisp/repl_read_list.vp
 ./class/lisp/repl_read_num.vp
