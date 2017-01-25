@@ -94,7 +94,7 @@
 	(push-scope))
 
 (defcfun def-func-end ()
-	(pop-scope)
+	(pop-scope-checked)
 	(each (lambda (s)
 		(vp-label (string-sym _e))
 		(vp-string s) (vp-byte 0)) *strings*)

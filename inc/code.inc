@@ -208,6 +208,13 @@
 		(vp-add-cr *var-sp* r4)
 		(setq *var-sp* 0)))
 
+(defcfun pop-scope-checked ()
+	(setq *var-sp* (elem 1 (pop *scopes*)))
+	(when (ne (length *scopes*) 0)
+		(setq *symbols* (slice 0 (elem 0 (elem -2 *scopes*)) *symbols*)))
+	(when (ne *var-sp* 0)
+		(error "Unbalenced scopes !" *var-sp*)))
+
 (defcfun unwind ()
 	(defq o (get-scope-offset 0))
 	(when (ne o 0)
