@@ -30,6 +30,7 @@
 	(endif)
 
 	(assign {this} '(r0))
+	(pop-scope)
 	(return)
 
 (def-func-end)
