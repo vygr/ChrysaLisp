@@ -76,6 +76,7 @@
 (import 'class/lisp/func_writechar.vp)
 (import 'class/lisp/func_writeline.vp)
 (import 'class/lisp/func_age.vp)
+(import 'class/lisp/func_clear.vp)
 (import 'class/lisp/func_pipe.vp)
 (import 'class/lisp/func_rpipe.vp)
 (import 'class/lisp/func_wpipe.vp)

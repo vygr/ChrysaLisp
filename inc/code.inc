@@ -418,13 +418,13 @@
 ; tokenizer
 ;;;;;;;;;;;
 
-(defcvar '*token* nil)
+(defcvar '*token* (list))
 
 (defmacro push-token (&rest b)
 	`(push *token* (list ~b)))
 
 (defcfun set-token-list (l)
-	(setq *token* (list))
+	(clear *token*)
 	(defq m -1 u 1 i 0 p 0 s nil c nil)
 	(while (lt i (length l))
 		(setq c (elem i l) s (find c {@$"-*~!+.?^</%&|=> )(][}) s (if s (inc s) 0)) ;"
@@ -488,13 +488,13 @@
 ; reverse polish
 ;;;;;;;;;;;;;;;;
 
-(defcvar '*rpn* nil)
+(defcvar '*rpn* (list))
 
 (defmacro push-rpn (s v)
 	`(push *rpn* (list (sym ,s) ,v)))
 
 (defcfun token-to-rpn ()
-	(setq *rpn* (list))
+	(clear *rpn*)
 	(defq o (list) i -1 k nil c nil s nil x nil v nil)
 	(while (lt (setq i (inc i)) (length *token*))
 		(setq k (elem 0 (elem i *token*)) c (elem 1 (elem i *token*)))
@@ -535,7 +535,7 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defcvar '*s* nil '*r* nil '*inst* nil
+(defcvar '*s* nil '*r* nil '*inst* (list)
 	'_v0 nil '_v1 nil '_v2 nil '_v3 nil '_v4 nil '_v5 nil '_v6 nil '_v7 nil
 	'_v8 nil '_v9 nil '_v10 nil '_v11 nil '_v12 nil '_v13 nil '_v14 nil '_v15 nil
 	'_t_0 nil '_t_1 nil '_t_2 nil '_t_3 nil '_t_4 nil '_t_5 nil '_t_6 nil '_t_7 nil
@@ -967,7 +967,7 @@
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack (length *src*))
-		(setq *inst* (list 'progn))
+		(push (clear *inst*) 'progn)
 		(each-rev (lambda (x)
 			(set-token-list x)
 			(token-to-rpn)
@@ -992,7 +992,7 @@
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack)
-		(setq *inst* (list 'progn))
+		(push (clear *inst*) 'progn)
 		(each (lambda (x)
 			(set-token-list x)
 			(token-to-rpn)
@@ -1018,7 +1018,7 @@
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack)
-		(setq *inst* (list 'progn))
+		(push (clear *inst*) 'progn)
 		(each (lambda (x)
 			(set-token-list x)
 			(token-to-rpn)
