@@ -333,7 +333,7 @@
 
 	;check if 1 char
 	(vpif '(r2 == 1))
-		(f-jmp 'stream 'write_char '(r0 (r1 0 ub))
+		(f-jmp 'stream 'write_char '(r0 (r1 0 ub)))
 	(endif)
 
 	;save inputs
