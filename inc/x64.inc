@@ -48,7 +48,7 @@
 			(emit-byte (add 0x80 (bit-shl dl 3) sl))
 			(if (or (eq s 4) (eq s 12)) (emit-byte 0x24))
 			(emit-int c))
-		(t (print "emit-ir constant out of range: " c))))
+		(t (error "emit-ir constant out of range" c))))
 
 (defcfun emit-ir-bs (o s c d)
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
@@ -66,7 +66,7 @@
 			(emit-byte (add 0x80 (bit-shl dl 3) sl))
 			(if (or (eq s 4) (eq s 12)) (emit-byte 0x24))
 			(emit-int c))
-		(t (print "emit-ir-bs constant out of range: " c))))
+		(t (error "emit-ir-bs constant out of range" c))))
 
 (defcfun emit-pr (o c d)
 	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c 7))
@@ -74,7 +74,7 @@
 		((le -0x80000000 c 0x7fffffff)
 			(emit-byte (add 0x48 (bit-shl dh 2)) o (add 0x5 (bit-shl dl 3)))
 			(emit-int c))
-		(t (print "emit-pr constant out of range: " c))))
+		(t (error "emit-pr constant out of range" c))))
 
 (defcfun emit-shift-cr (o c d)
 	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
@@ -84,7 +84,7 @@
 			(emit-byte 0xd1 (add o dl)))
 		((le c 0xff)
 			(emit-byte 0xc1 (add o dl) (bit-and c 0xff)))
-		(t (print "emit-shift-cr constant out of range: " c))))
+		(t (error "emit-shift-cr constant out of range" c))))
 
 (defcfun emit-shift-rr (o s d)
 	(cond
@@ -129,7 +129,7 @@
 			(emit-byte (add 0x80 o dl))
 			(if (or (eq d 4) (eq d 12)) (emit-byte 0x24))
 			(emit-int c))
-		(t (print "emit-call-jump-i constant out of range: " c))))
+		(t (error "emit-call-jump-i constant out of range" c))))
 
 (defcfun emit-push (&rest b)
 	(each (lambda (r)
@@ -154,7 +154,7 @@
 		((le -0x80000000 (sub m 6) 0x7fffffff)
 			(emit-byte 0xf (add 0x10 o))
 			(emit-int (sub c 6)))
-		(t (print "emit-branch constant out of range: " c))))
+		(t (error "emit-branch constant out of range" c))))
 
 (defcfun emit-syscall ()
 	(emit-byte 0xf 0x5))
@@ -172,7 +172,7 @@
 		((le -0x80000000 c 0x7fffffff)
 			(emit-byte 0xe8)
 			(emit-int c))
-		(t (print "emit-call constant out of range: " c))))
+		(t (error "emit-call constant out of range" c))))
 
 (defcfun emit-call-r (r) (emit-call-jump-r 0xd0 r))
 (defcfun emit-call-i (d c) (emit-call-jump-i 0x10 d c))
@@ -187,7 +187,7 @@
 		((le -0x80000000 (sub m 5) 0x7fffffff)
 			(emit-byte 0xe9)
 			(emit-int (sub c 5)))
-		(t (print "emit-jmp constant out of range: " c))))
+		(t (error "emit-jmp constant out of range" c))))
 
 (defcfun emit-jmp-r (r) (emit-call-jump-r 0xe0 r))
 (defcfun emit-jmp-i (d c) (emit-call-jump-i 0x20 d c))
@@ -233,7 +233,7 @@
 			(emit-byte (add 0x48 (bit-shl sh 2) dh) 0x89 (add 0x80 (bit-shl sl 3) dl))
 			(if (or (eq d 4) (eq d 12)) (emit-byte 0x24))
 			(emit-int c))
-		(t (print "emit-cpy-ri constant out of range: " c))))
+		(t (error "emit-cpy-ri constant out of range " c))))
 
 (defcfun emit-cpy-rd (d s1 s2)
 	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
@@ -252,7 +252,7 @@
 		((le -0x80000000 c 0x7fffffff)
 			(emit-byte (add 0x48 (bit-shl dh 2)) 0x89 (add 0x5 (bit-shl dl 3)))
 			(emit-int c))
-		(t (print "emit-cpy-rp constant out of range: " c))))
+		(t (error "emit-cpy-rp constant out of range" c))))
 
 (defcfun emit-cpy-ir-b (s c d) (emit-ir-bs 0xbe s c d))
 (defcfun emit-cpy-dr-b (s1 s2 d) (emit-dr-bs 0xbe s1 s2 d))
@@ -279,7 +279,7 @@
 			(emit-byte (add 0x80 (bit-shl dl 3) sl))
 			(if (or (eq s 4) (eq s 12)) (emit-byte 0x24))
 			(emit-int c))
-		(t (print "emit-cpy-ir-i constant out of range: " c))))
+		(t (error "emit-cpy-ir-i constant out of range" c))))
 
 (defcfun emit-cpy-dr-i (s1 s2 d)
 	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
@@ -309,7 +309,7 @@
 			(emit-byte (add 0x80 (bit-shl dl 3) sl))
 			(if (or (eq s 4) (eq s 12)) (emit-byte 0x24))
 			(emit-int c))
-		(t (print "emit-cpy-ir-ui constant out of range: " c))))
+		(t (error "emit-cpy-ir-ui constant out of range " c))))
 
 (defcfun emit-cpy-dr-ui (s1 s2 d)
 	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
@@ -340,7 +340,7 @@
 			(emit-byte (add 0x80 (bit-shl sl 3) dl))
 			(if (or (eq d 4) (eq d 12)) (emit-byte 0x24))
 			(emit-int c))
-		(t (print "emit-cpy-ri-b constant out of range: " c))))
+		(t (error "emit-cpy-ri-b constant out of range" c))))
 
 (defcfun emit-cpy-rd-b (r s1 s2)
 	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
@@ -372,7 +372,7 @@
 			(emit-byte (add 0x80 (bit-shl sl 3) dl))
 			(if (or (eq d 4) (eq d 12)) (emit-byte 0x24))
 			(emit-int c))
-		(t (print "emit-cpy-ri-s constant out of range: " c))))
+		(t (error "emit-cpy-ri-s constant out of range" c))))
 
 (defcfun emit-cpy-rd-s (r s1 s2)
 	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
@@ -404,7 +404,7 @@
 			(emit-byte (add 0x80 (bit-shl sl 3) dl))
 			(if (or (eq d 4) (eq d 12)) (emit-byte 0x24))
 			(emit-int c))
-		(t (print "emit-cpy-ri-i constant out of range: " c))))
+		(t (error "emit-cpy-ri-i constant out of range" c))))
 
 (defcfun emit-cpy-rd-i (r s1 s2)
 	(defq s1 (reg s1) s1l (bit-and 7 s1) s1h (bit-shr s1 3)
@@ -429,7 +429,7 @@
 				(emit-byte 0x05)
 				(emit-byte 0x81 (add 0xc0 rl)))
 			(emit-int c))
-		(t (print "emit-add-cr constant out of range: " c))))
+		(t (error "emit-add-cr constant out of range" c))))
 
 (defcfun emit-add-rr (s d) (emit-rr 0x01 s d))
 
@@ -444,7 +444,7 @@
 				(emit-byte 0x2d)
 				(emit-byte 0x81 (add 0xe8 rl)))
 			(emit-int c))
-		(t (print "emit-sub-cr constant out of range: " c))))
+		(t (error "emit-sub-cr constant out of range" c))))
 
 (defcfun emit-sub-rr (s d) (emit-rr 0x29 s d))
 
@@ -459,7 +459,7 @@
 				(emit-byte 0x3d)
 				(emit-byte 0x81 (add 0xf8 rl)))
 			(emit-int c))
-		(t (print "emit-cmp-cr constant out of range: " c))))
+		(t (error "emit-cmp-cr constant out of range" c))))
 
 (defcfun emit-cmp-rr (s d) (emit-rr 0x39 s d))
 
@@ -474,7 +474,7 @@
 				(emit-byte 0x25)
 				(emit-byte 0x81 (add 0xe0 rl)))
 			(emit-int c))
-		(t (print "emit-and-cr constant out of range: " c))))
+		(t (error "emit-and-cr constant out of range" c))))
 
 (defcfun emit-and-rr (s d) (unless (eql s d) (emit-rr 0x21 s d)))
 
@@ -489,7 +489,7 @@
 				(emit-byte 0x0d)
 				(emit-byte 0x81 (add 0xc8 rl)))
 			(emit-int c))
-		(t (print "emit-or-cr constant out of range: " c))))
+		(t (error "emit-or-cr constant out of range" c))))
 
 (defcfun emit-or-rr (s d) (unless (eql s d) (emit-rr 0x09 s d)))
 
@@ -504,7 +504,7 @@
 				(emit-byte 0x35)
 				(emit-byte 0x81 (add 0xf0 rl)))
 			(emit-int c))
-		(t (print "emit-xor-cr constant out of range: " c))))
+		(t (error "emit-xor-cr constant out of range" c))))
 
 (defcfun emit-xor-rr (s d) (emit-rr 0x31 s d))
 
@@ -525,7 +525,7 @@
 		((le -0x80000000 c 0x7fffffff)
 			(emit-byte (add 0x48 (bit-shl rh 2) rh) 0x69 (add 0xc0 rl (bit-shl rl 3)))
 			(emit-int c))
-		(t (print "emit-mul-cr constant out of range: " c))))
+		(t (error "emit-mul-cr constant out of range" c))))
 
 (defcfun emit-mul-rr (s d)
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
