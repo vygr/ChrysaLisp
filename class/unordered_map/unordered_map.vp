@@ -18,7 +18,7 @@
 	(vp-cpy-rr r0 r5)
 	(vp-cpy-rr r1 r6)
 
-	;create new string object
+	;create new unordered_map object
 	(f-call 'unordered_map 'new '() '(r0))
 	(vpif '(r0 != 0))
 		;init the object
