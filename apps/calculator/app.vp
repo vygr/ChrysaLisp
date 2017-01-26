@@ -70,6 +70,7 @@
 		(f-call 'button 'create {} {button})
 		(f-call 'button 'set_color {button, 0xffffff00})
 		(f-call 'string 'create_from_cstr {next} {string})
+		(f-call 'button 'set_font {button, "fonts/OpenSans-Regular.ttf", 42})
 		(f-call 'button 'set_text {button, string})
 		(f-call 'button 'set_flow_flags {button, flow_flag_align_hcenter | flow_flag_align_vcenter})
 		(f-call 'button 'add_back {button, grid_panel})
@@ -82,7 +83,7 @@
 
 	;set to pref size
 	(v-call 'window 'pref_size {window} {width, height})
-	(f-call 'window 'change {window, 920, 48, width + (width >> 1), height + (height >> 1)})
+	(f-call 'window 'change {window, 920, 48, width, height})
 
 	;set window owner
 	(f-call 'sys_task 'tcb {} {owner})
