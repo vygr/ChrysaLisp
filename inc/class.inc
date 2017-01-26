@@ -2,8 +2,8 @@
 ; class definition
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun class-name (n) (sym (cat "_class_" (str n))))
-(defcfun super-name (n) (sym (cat "_super_" (str n))))
+(defcfun class-name (n) (sym-cat "_class_" (str n)))
+(defcfun super-name (n) (sym-cat "_super_" (str n)))
 
 (defcvar '*class* nil (class-name 'null) '())
 
