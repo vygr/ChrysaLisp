@@ -420,8 +420,6 @@
 					(push p (sym-cat "class/class_" o)))
 				((eql k "(class-macro-new")
 					(push p (sym-cat "class/" o "/new")))
-				((eql k "(class-macro-new-clr")
-					(push p (sym-cat "class/" o "/new")))
 				((eql k "(class-macro-create")
 					(push p (sym-cat "class/" o "/create")))
 				((eql k "(def-func")

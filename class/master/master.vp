@@ -5,7 +5,7 @@
 (import 'class/slave/slave.inc)
 (import 'class/master/master.inc)
 
-(class-macro-new-clr 'master)
+(class-macro-new 'master)
 (class-macro-create 'master)
 
 (def-func 'class/master/init)
@@ -28,6 +28,7 @@
 	(s-call 'master 'init {inst, vtable} {error})
 	(vpif {error != 0})
 		;init state
+		(f-call 'sys_mem 'clear {&inst->master_start, master_end - master_start} {_})
 		(assign {stream_mail_state_stopped} {inst->master_state})
 	(endif)
 

@@ -15,10 +15,12 @@
 (def-method 'deinit 'class/master/deinit 'override)
 
 (def-struct 'master 'ref)
+	(offset 'master_start)
 	(ptr 'master_streams)
 	(ptr 'master_mailbox_array)
 	(pptr 'master_select_array)
 	(ulong 'master_state)
+	(offset 'master_end)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;
