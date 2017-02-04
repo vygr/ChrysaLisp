@@ -32,6 +32,7 @@
 (def-method 'get_parent 'class/view/get_parent 'static '(r0) '(r1))
 (def-method 'get_first 'class/view/get_first 'static '(r0) '(r1))
 (def-method 'get_last 'class/view/get_last 'static '(r0) '(r1))
+(def-method 'set_min_size 'class/view/set_min_size 'static '(r0 r10 r11))
 
 (def-method 'deinit 'class/view/deinit 'override)
 
@@ -68,4 +69,52 @@
 	(int 'view_w)
 	(int 'view_h)
 	(uint 'view_color)
+	(int 'view_min_w)
+	(int 'view_min_h)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
+
+(defcfun class/view/set_color ()
+	;inputs
+	;r0 = view object
+	;r1 = color
+	(vp-cpy-ri-i r1 r0 view_color))
+
+(defcfun class/view/get_color ()
+	;inputs
+	;r0 = view object
+	;outputs
+	;r0 = view object
+	;r1 = color
+	(vp-cpy-ir-ui r0 view_color r1))
+
+(defcfun class/view/set_flags ()
+	;inputs
+	;r0 = view object
+	;r1 = flags
+	(vp-cpy-ri r1 r0 view_flags))
+
+(defcfun class/view/set_owner ()
+	;inputs
+	;r0 = view object
+	;r1 = task tcb
+	(vp-cpy-ri r1 r0 view_tcb))
+
+(defcfun class/view/get_parent ()
+	;inputs
+	;r0 = view object
+	;outputs
+	;r0 = view object
+	;r1 = parent
+	(vp-cpy-ir r0 view_parent r1))
+
+(defcfun class/view/set_min_size ()
+	;inputs
+	;r0 = view object
+	;r10 = prefered width
+	;r11 = prefered height
+	(vp-cpy-ri-i r10 r0 view_min_w)
+	(vp-cpy-ri-i r11 r0 view_min_h))

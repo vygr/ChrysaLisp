@@ -25,6 +25,10 @@
 		(vp-cpy-ri r1 r0 view_opaque_region)
 		(vp-cpy-ri r1 r0 view_last_buttons)
 		(vp-cpy-ri-i r1 r0 view_color)
+		(vp-cpy-ri-i r1 r0 view_w)
+		(vp-cpy-ri-i r1 r0 view_h)
+		(vp-cpy-ri-i r1 r0 view_min_w)
+		(vp-cpy-ri-i r1 r0 view_min_h)
 		(vp-lea-i r0 view_list r1)
 		(lh-init r1 r2)
 	(endif)
@@ -582,19 +586,6 @@
 
 (def-func-end)
 
-(def-func 'class/view/get_color)
-	;inputs
-	;r0 = view object
-	;outputs
-	;r0 = view object
-	;r1 = color
-
-	;get color info
-	(vp-cpy-ir-ui r0 view_color r1)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/view/get_first)
 	;inputs
 	;r0 = view object
@@ -631,18 +622,6 @@
 	(else)
 		(vp-sub-cr view_node r1)
 	(endif)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/view/get_parent)
-	;inputs
-	;r0 = view object
-	;outputs
-	;r0 = view object
-	;r1 = parent
-
-	(vp-cpy-ir r0 view_parent r1)
 	(vp-ret)
 
 (def-func-end)
@@ -789,8 +768,8 @@
 	;trashes
 	;all but r0, r4
 
-	(vp-cpy-ir-i r0 view_w r10)
-	(vp-cpy-ir-i r0 view_h r11)
+	(vp-cpy-ir-i r0 view_min_w r10)
+	(vp-cpy-ir-i r0 view_min_h r11)
 	(vp-ret)
 
 (def-func-end)
@@ -807,37 +786,6 @@
 	(vp-cpy-ri-i r9 r0 view_y)
 	(vp-cpy-ri-i r10 r0 view_w)
 	(vp-cpy-ri-i r11 r0 view_h)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/view/set_color)
-	;inputs
-	;r0 = view object
-	;r1 = color
-
-	;set color info
-	(vp-cpy-ri-i r1 r0 view_color)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/view/set_flags)
-	;inputs
-	;r0 = view object
-	;r1 = flags
-
-	(vp-cpy-ri r1 r0 view_flags)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/view/set_owner)
-	;inputs
-	;r0 = view object
-	;r1 = task tcb
-
-	(vp-cpy-ri r1 r0 view_tcb)
 	(vp-ret)
 
 (def-func-end)

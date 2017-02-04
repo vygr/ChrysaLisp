@@ -2,7 +2,7 @@
 (import 'inc/gui.inc)
 (import 'inc/string.inc)
 (import 'class/window/window.inc)
-(import 'class/label/label.inc)
+(import 'class/button/button.inc)
 (import 'class/string/string.inc)
 (import 'class/vector/vector.inc)
 (import 'class/stream_msg_out/stream_msg_out.inc)
@@ -13,64 +13,72 @@
 
 	(defcvar 'buffer_size 120)
 
-	(def-struct 'shared)
+	(def-struct 'shared 'obj)
 		(ptr 'shared_master 'shared_vdu 'shared_history 'shared_window)
 		(ulong 'shared_history_index)
 		(pubyte 'shared_bufp)
 		(struct 'shared_buffer 'buffer)
+		(ubyte 'shared_closed)
 	(def-struct-end)
 
-	(struct 'myapp 'obj)
-	(struct 'shared 'shared)
+	(struct 'myapp 'shared)
 	(struct 'buffer 'buffer)
 	(ptr 'msg 'stream 'window_panel 'label 'string 'mymailbox 'mailbox)
 	(ulong 'owner 'length)
 	(long 'state)
 	(int 'width 'height)
 
+	(ptr 'button 'pressed)
+
 	;init app vars
 	(push-scope)
 	(f-path 'class 'obj)
 	(f-call 'obj 'init (cat {&myapp, @} _function_) {_})
-	(f-call 'master 'create {} {shared.shared_master})
-	(f-call 'vector 'create {} {shared.shared_history})
-	(assign {0} {shared.shared_history_index})
+	(f-call 'master 'create {} {myapp.shared_master})
+	(f-call 'vector 'create {} {myapp.shared_history})
+	(assign {0} {myapp.shared_history_index})
+	(assign {0} {myapp.shared_closed})
 
 	;create my window
-	(f-call 'window 'create {} {shared.shared_window})
-	(f-call 'window 'get_panel {shared.shared_window} {window_panel})
+	(f-call 'window 'create {} {myapp.shared_window})
+	(f-call 'window 'get_panel {myapp.shared_window} {window_panel})
 	(f-call 'string 'create_from_cstr {"Terminal"} {string})
-	(f-call 'window 'set_title {shared.shared_window, string})
+	(f-call 'window 'set_title {myapp.shared_window, string})
 	(f-call 'string 'create_from_cstr {"Ready"} {string})
-	(f-call 'window 'set_status {shared.shared_window, string})
-	(f-call 'window 'set_color {shared.shared_window, 0xc0000000})
+	(f-call 'window 'set_status {myapp.shared_window, string})
+	(f-call 'window 'set_color {myapp.shared_window, 0xc0000000})
 
 	;add my vdu
-	(f-call 'vdu 'create {} {shared.shared_vdu})
-	(f-call 'vdu 'set_text_color {shared.shared_vdu, 0xff00ff00})
-	(f-call 'vdu 'set_font {shared.shared_vdu, "fonts/Hack-Regular.ttf", 16})
-	(f-call 'vdu 'add_back {shared.shared_vdu, window_panel})
+	(f-call 'vdu 'create {} {myapp.shared_vdu})
+	(f-call 'vdu 'set_text_color {myapp.shared_vdu, 0xff00ff00})
+	(f-call 'vdu 'set_font {myapp.shared_vdu, "fonts/Hack-Regular.ttf", 16})
+	(f-call 'vdu 'add_back {myapp.shared_vdu, window_panel})
 
 	;set to pref size
-	(v-call 'window 'pref_size {shared.shared_window} {width, height})
-	(f-call 'window 'change {shared.shared_window, 0, 0, width, height})
+	(v-call 'window 'pref_size {myapp.shared_window} {width, height})
+	(f-call 'window 'change {myapp.shared_window, 0, 0, width, height})
 
 	;set window owner
 	(f-call 'sys_task 'tcb {} {owner})
-	(f-call 'window 'set_owner {shared.shared_window, owner})
+	(f-call 'window 'set_owner {myapp.shared_window, owner})
+
+	;set close action
+	(f-call 'window 'get_close {myapp.shared_window} {button})
+	(f-call 'button 'sig_pressed {button} {pressed})
+	(f-call 'button 'connect {button, pressed, &myapp, $on_press_close})
 
 	;add to screen and dirty
-	(f-call 'gui_gui 'add {shared.shared_window})
-	(f-call 'window 'dirty_all {shared.shared_window})
+	(f-call 'gui_gui 'add {myapp.shared_window})
+	(f-call 'window 'dirty_all {myapp.shared_window})
 
 	;set up term buffer
-	(assign {&shared.shared_buffer} {shared.shared_bufp})
+	(assign {&myapp.shared_buffer} {myapp.shared_bufp})
 
 	;app event loop
 	(f-call 'sys_task 'mailbox {} {mymailbox, _})
 	(loop-start)
 		;select on multiple mailboxes
-		(f-call 'master 'select {shared.shared_master, mymailbox} {mailbox})
+		(f-call 'master 'select {myapp.shared_master, mymailbox} {mailbox})
 
 		;which mailbox has mail ?
 		(vpif {mailbox == mymailbox})
@@ -78,28 +86,41 @@
 			(f-call 'sys_mail 'read {mailbox} {msg})
 			(v-call 'view 'event {msg->ev_msg_view, msg})
 			(vpif {msg->ev_msg_type == ev_type_key && msg->ev_msg_keycode > 0})
-				(l-call 'terminal_input {&shared, msg->ev_msg_key} '(r0 r1))
+				(l-call 'terminal_input {&myapp, msg->ev_msg_key} '(r0 r1))
 			(endif)
 			(f-call 'sys_mem 'free {msg})
 		(else)
 			;output from a pipe element
-			(f-call 'master 'get_stream {shared.shared_master, mailbox} {stream})
-			(l-call 'pipe_output {&shared, stream} '(r0 r1) '(r0) {state})
+			(f-call 'master 'get_stream {myapp.shared_master, mailbox} {stream})
+			(l-call 'pipe_output {&myapp, stream} '(r0 r1) '(r0) {state})
 			(vpif {state == -1})
 				;EOF
-				(f-call 'master 'stop {shared.shared_master})
+				(f-call 'master 'stop {myapp.shared_master})
 				(f-call 'string 'create_from_cstr {"Ready"} {string})
-				(f-call 'window 'set_status {shared.shared_window, string})
+				(f-call 'window 'set_status {myapp.shared_window, string})
 			(endif)
 		(endif)
 		(f-call 'sys_task 'yield)
-	(loop-end)
+	(loop-until {myapp.shared_closed})
 
 	;clean up
-	(f-call 'vector 'deref {shared.shared_history})
-	(f-call 'master 'deref {shared.shared_master})
-	(f-call 'window 'deref {shared.shared_window})
+	(f-call 'vector 'deref {myapp.shared_history})
+	(f-call 'master 'deref {myapp.shared_master})
+	(f-call 'window 'deref {myapp.shared_window})
 	(v-call 'obj 'deinit {&myapp})
+	(pop-scope)
+	(return)
+
+(vp-label 'on_press_close)
+	;inputs
+	;r0 = app local object
+	;r1 = close button object
+
+	(ptr 'inst 'button)
+
+	(push-scope)
+	(assign '(r0 r1) {inst, button})
+	(assign {1} {inst->shared_closed})
 	(pop-scope)
 	(return)
 

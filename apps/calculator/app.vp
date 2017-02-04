@@ -19,6 +19,7 @@
 		(struct 'shared_buffer 'buffer)
 		(ubyte 'shared_last_op)
 		(ubyte 'shared_last_flag)
+		(ubyte 'shared_closed)
 	(def-struct-end)
 
 	(struct 'myapp 'shared)
@@ -36,6 +37,7 @@
 	(assign {0} {myapp.shared_value})
 	(assign {0} {myapp.shared_last_op})
 	(assign {0} {myapp.shared_last_flag})
+	(assign {0} {myapp.shared_closed})
 
 	;create my window
 	(f-call 'window 'create {} {window})
@@ -89,6 +91,11 @@
 	(f-call 'sys_task 'tcb {} {owner})
 	(f-call 'window 'set_owner {window, owner})
 
+	;set close action
+	(f-call 'window 'get_close {window} {button})
+	(f-call 'button 'sig_pressed {button} {pressed})
+	(f-call 'button 'connect {button, pressed, &myapp, $on_press_close})
+
 	;add to screen and dirty
 	(f-call 'gui_gui 'add {window})
 	(f-call 'window 'dirty_all {window})
@@ -102,7 +109,7 @@
 
 		;free event message
 		(f-call 'sys_mem 'free {msg})
-	(loop-end)
+	(loop-until {myapp.shared_closed})
 
 	;deref window
 	(f-call 'window 'deref {window})
@@ -194,6 +201,19 @@
 	(endif)
 	(f-call 'string 'deref {button_string})
 	(f-call 'label 'dirty {inst->shared_display})
+	(pop-scope)
+	(return)
+
+(vp-label 'on_press_close)
+	;inputs
+	;r0 = app local object
+	;r1 = close button object
+
+	(ptr 'inst 'button)
+
+	(push-scope)
+	(assign '(r0 r1) {inst, button})
+	(assign {1} {inst->shared_closed})
 	(pop-scope)
 	(return)
 

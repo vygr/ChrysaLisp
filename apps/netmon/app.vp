@@ -4,7 +4,7 @@
 (import 'class/window/window.inc)
 (import 'class/flow/flow.inc)
 (import 'class/grid/grid.inc)
-(import 'class/label/label.inc)
+(import 'class/button/button.inc)
 (import 'class/progress/progress.inc)
 (import 'class/string/string.inc)
 
@@ -21,11 +21,16 @@
 
 	(defcvar 'num_samples 256)
 
+	(def-struct 'app 'obj)
+		(ubyte 'app_closed)
+	(def-struct-end)
+
 	(def-struct 'sel)
 		(ptr 'sel_select1)
 		(ptr 'sel_select2)
 	(def-struct-end)
 
+	(struct 'myapp 'app)
 	(struct 'select 'sel)
 	(ptr 'window 'window_panel 'panel1 'panel2 'left_panel 'right_panel 'trip)
 	(pptr 'task_progress)
@@ -42,9 +47,13 @@
 	(int 'width 'height)
 	(ulong 'owner)
 
+ 	(ptr 'button 'pressed)
+
 	;init app vars
 	(push-scope)
-	(assign {0} {max_tasks})
+	(f-path 'class 'obj)
+	(f-call 'obj 'init (cat {&myapp, @} _function_) {_})
+	(assign {0, 0} {max_tasks, myapp.app_closed})
 
 	;create my window
 	(f-call 'window 'create {} {window})
@@ -115,6 +124,11 @@
 	;set owner
 	(f-call 'sys_task 'tcb {} {owner})
 	(f-call 'window 'set_owner {window, owner})
+
+	;set close action
+	(f-call 'window 'get_close {window} {button})
+	(f-call 'button 'sig_pressed {button} {pressed})
+	(f-call 'button 'connect {button, pressed, &myapp, $on_press_close})
 
 	;add to screen and dirty
 	(f-call 'gui_gui 'add {window})
@@ -206,7 +220,7 @@
 
 		;be friendly
 		(f-call 'sys_task 'yield)
-	(loop-end)
+	(loop-until {myapp.app_closed})
 
 	;wait for outstanding replys
 	(loop-while {cpu_count != cpu_total})
@@ -233,7 +247,21 @@
 
 	;deref window
 	(f-call 'window 'deref {window})
+	(v-call 'obj 'deinit {&myapp})
 
+	(pop-scope)
+	(return)
+
+(vp-label 'on_press_close)
+	;inputs
+	;r0 = app local object
+	;r1 = close button object
+
+	(ptr 'inst 'button)
+
+	(push-scope)
+	(assign '(r0 r1) {inst, button})
+	(assign {1} {inst->app_closed})
 	(pop-scope)
 	(return)
 
