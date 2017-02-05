@@ -20,7 +20,6 @@
 	(ptr 'master_mailbox_array)
 	(pptr 'master_select_array)
 	(ulong 'master_state)
-	(offset 'master_end)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;

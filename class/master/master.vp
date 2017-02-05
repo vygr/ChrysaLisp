@@ -28,7 +28,7 @@
 	(s-call 'master 'init {inst, vtable} {error})
 	(vpif {error != 0})
 		;init state
-		(f-call 'sys_mem 'clear {&inst->master_start, master_end - master_start} {_})
+		(f-call 'sys_mem 'clear {&inst->master_start, master_size - master_start} {_})
 		(assign {stream_mail_state_stopped} {inst->master_state})
 	(endif)
 

@@ -47,7 +47,6 @@
 	(int 'window_offset_x)
 	(int 'window_offset_y)
 	(ulong 'window_drag_mode)
-	(offset 'window_end)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;
