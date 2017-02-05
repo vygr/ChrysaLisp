@@ -55,6 +55,7 @@
 	(s-call 'window 'init {this, vtable} {ok})
 	(vpif {ok})
 		;init myself
+		(f-call 'sys_mem 'clear {&this->window_start, window_end - window_start} {_})
 		(f-call 'window 'set_color {this, 0xffc0c0c0})
 
 		;add flow panel
@@ -109,10 +110,12 @@
 		(f-call 'flow 'set_flow_flags {this->window_panel, flow_flag_up | flow_flag_fillw | flow_flag_lasth})
 		(f-call 'flow 'add_back {this->window_panel, this->window_flow})
 
-		;add status label
-		(f-call 'label 'create {} {this->window_status})
-		(f-call 'label 'set_color {this->window_status, 0xff808080})
-		(f-call 'label 'add_back {this->window_status, this->window_panel})
+		;add status label ?
+		(vpif {flags & window_flag_status})
+			(f-call 'label 'create {} {this->window_status})
+			(f-call 'label 'set_color {this->window_status, 0xff808080})
+			(f-call 'label 'add_back {this->window_status, this->window_panel})
+		(endif)
 	(endif)
 
 	(assign {this, ok} '(r0 r1))
@@ -380,8 +383,11 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0) '((r4 local_inst)))
 
-	(f-call 'label 'set_text '((r0 window_status) r1))
-	(f-call 'label 'dirty '(r0))
+	(vp-cpy-ir r0 window_status r0)
+	(vpif '(r0 != 0))
+		(f-call 'label 'set_text '(r0 r1))
+		(f-call 'label 'dirty '(r0))
+	(endif)
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)

@@ -10,6 +10,7 @@
 (def-bit-end)
 
 (def-bit)
+	(bit 'window_flag_status)
 	(bit 'window_flag_close)
 	(bit 'window_flag_max)
 	(bit 'window_flag_min)
@@ -34,6 +35,7 @@
 (def-method 'mouse_move 'class/window/mouse_move 'override)
 
 (def-struct 'window 'view)
+	(offset 'window_start)
 	(ptr 'window_border)
 	(ptr 'window_title)
 	(ptr 'window_status)
@@ -45,6 +47,7 @@
 	(int 'window_offset_x)
 	(int 'window_offset_y)
 	(ulong 'window_drag_mode)
+	(offset 'window_end)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;
