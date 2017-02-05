@@ -22,7 +22,7 @@
 	(f-call 'obj 'init (cat {&myapp, @} _function_) {_})
 
 	;create my window
-	(f-call 'window 'create {} {window})
+	(f-call 'window 'create {0} {window})
 	(f-call 'window 'get_panel {window} {window_panel})
 	(f-call 'string 'create_from_cstr {"Launcher"} {string})
 	(f-call 'window 'set_title {window, string})

@@ -9,10 +9,16 @@
 	(bit 'window_drag_bottom)
 (def-bit-end)
 
+(def-bit)
+	(bit 'window_flag_close)
+	(bit 'window_flag_max)
+	(bit 'window_flag_min)
+(def-bit-end)
+
 (def-class 'window 'view)
-(def-method 'create 'class/window/create)
 (def-method 'new 'class/window/new)
-(def-method 'init 'class/window/init)
+(def-method 'create 'class/window/create 'static '(r0))
+(def-method 'init 'class/window/init 'static '(r0 r1 r2))
 (def-method 'set_title 'class/window/set_title 'static '(r0 r1))
 (def-method 'set_status 'class/window/set_status 'static '(r0 r1))
 (def-method 'get_panel 'class/window/get_panel 'static '(r0) '(r1))

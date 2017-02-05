@@ -40,7 +40,7 @@
 	(assign {0} {myapp.shared_closed})
 
 	;create my window
-	(f-call 'window 'create {} {window})
+	(f-call 'window 'create {window_flag_close} {window})
 	(f-call 'window 'get_panel {window} {window_panel})
 	(f-call 'string 'create_from_cstr {"Calculator"} {string})
 	(f-call 'window 'set_title {window, string})

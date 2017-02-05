@@ -7,20 +7,49 @@
 (import 'class/string/string.inc)
 
 (class-macro-new 'window)
-(class-macro-create 'window)
+
+(def-func 'class/window/create)
+	;inputs
+	;r0 = options flags
+	;outputs
+	;r0 = 0 if error, else object
+	;trashes
+	;all but r4
+
+	;save size of data
+	(vp-cpy-rr r0 r6)
+
+	;create new string object
+	(f-call 'window 'new '() '(r0))
+	(vpif '(r0 != 0))
+		;init the object
+		(f-path 'class 'window)
+		(f-call 'window 'init `(r0 (@ ,_function_) r6) '(r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(v-call 'window 'delete '(r0) '() 'r1)
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
 
 (def-func 'class/window/init)
 	;inputs
 	;r0 = window object
 	;r1 = vtable pointer
+	;r2 = options flags
 	;outputs
 	;r1 = 0 if error, else ok
+	;trashes
+	;all but r4
 
 	(ptr 'this 'vtable 'title_flow 'string)
-	(ulong 'ok 'min_width)
+	(ulong 'ok 'flags 'min_width)
 
 	(push-scope)
-	(assign '(r0 r1) {this, vtable})
+	(assign '(r0 r1 r2) {this, vtable, flags})
 
 	;init parent
 	(s-call 'window 'init {this, vtable} {ok})
@@ -38,29 +67,37 @@
 		(f-call 'flow 'set_flow_flags {title_flow, flow_flag_left | flow_flag_fillh | flow_flag_lastw})
 		(f-call 'flow 'add_back {title_flow, this->window_flow})
 
-		;add close button
+		;add close button ?
 		(f-call 'button 'create {} {this->window_close})
 		(f-call 'button 'set_color {this->window_close, 0xffd0d0d0})
 		(f-call 'button 'add_back {this->window_close, title_flow})
 		(f-call 'string 'create_from_cstr {"X"} {string})
 		(f-call 'button 'set_text {this->window_close, string})
 		(v-call 'button 'pref_size {this->window_close} {min_width, _})
+		(vpifnot {flags & window_flag_close})
+			(f-call 'button 'deref {this->window_close})
+			(assign {0} {this->window_close})
+		(endif)
 
 		;add max button
-		(f-call 'button 'create {} {this->window_max})
-		(f-call 'button 'set_color {this->window_max, 0xffd0d0d0})
-		(f-call 'button 'add_back {this->window_max, title_flow})
-		(f-call 'string 'create_from_cstr {"+"} {string})
-		(f-call 'button 'set_text {this->window_max, string})
-		(f-call 'button 'set_min_size {this->window_max, min_width, 0})
+		(vpif {flags & window_flag_max})
+			(f-call 'button 'create {} {this->window_max})
+			(f-call 'button 'set_color {this->window_max, 0xffd0d0d0})
+			(f-call 'button 'add_back {this->window_max, title_flow})
+			(f-call 'string 'create_from_cstr {"+"} {string})
+			(f-call 'button 'set_text {this->window_max, string})
+			(f-call 'button 'set_min_size {this->window_max, min_width, 0})
+		(endif)
 
 		;add min button
-		(f-call 'button 'create {} {this->window_min})
-		(f-call 'button 'set_color {this->window_min, 0xffd0d0d0})
-		(f-call 'button 'add_back {this->window_min, title_flow})
-		(f-call 'string 'create_from_cstr {"-"} {string})
-		(f-call 'button 'set_text {this->window_min, string})
-		(f-call 'button 'set_min_size {this->window_min, min_width, 0})
+		(vpif {flags & window_flag_min})
+			(f-call 'button 'create {} {this->window_min})
+			(f-call 'button 'set_color {this->window_min, 0xffd0d0d0})
+			(f-call 'button 'add_back {this->window_min, title_flow})
+			(f-call 'string 'create_from_cstr {"-"} {string})
+			(f-call 'button 'set_text {this->window_min, string})
+			(f-call 'button 'set_min_size {this->window_min, min_width, 0})
+		(endif)
 
 		;add title
 		(f-call 'title 'create {} {this->window_title})
@@ -89,14 +126,12 @@
 	;r0 = window object
 
 	(ptr 'this 'screen)
-	(int 'x 'y 'w 'h)
 
 	(push-scope)
 	(assign '(r0) {this})
 
-	;dirty my area on parent, ie GUI screen
+	;dirty my area on parent
 	(f-call 'window 'get_parent {this} {screen})
-	(f-call 'window 'get_bounds {this} {x, y, w, h})
 	(f-call 'view 'dirty_all {screen})
 
 	;deinit parent
