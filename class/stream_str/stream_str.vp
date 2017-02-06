@@ -3,32 +3,7 @@
 (import 'class/stream_str/stream_str.inc)
 
 (class-macro-new 'stream_str)
-
-(def-func 'class/stream_str/create)
-	;inputs
-	;r0 = string object
-	;outputs
-	;r0 = 0 if error, else object
-	;trashes
-	;r1-r3, r5
-
-	;create new stream_str object
-	(assign '(r0) '(r5))
-
-	(f-call 'stream_str 'new '() '(r0))
-	(vpif '(r0 != 0))
-		;init the object
-		(f-path 'class 'stream_str)
-		(f-call 'stream_str 'init `(r0 (@ ,_function_) r5) '(r1))
-		(vpif '(r1 == 0))
-			;error with init
-			(v-call 'stream_str 'delete '(r0) '() 'r1)
-			(vp-xor-rr r0 r0)
-		(endif)
-	(endif)
-	(vp-ret)
-
-(def-func-end)
+(class-macro-create 'stream_str 1)
 
 (def-func 'class/stream_str/init)
 	;inputs

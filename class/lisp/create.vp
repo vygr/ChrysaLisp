@@ -1,36 +1,4 @@
 (import 'inc/func.inc)
 (import 'class/lisp/lisp.inc)
 
-(def-func 'class/lisp/create)
-	;inputs
-	;r0 = stdin stream
-	;r1 = stdout stream
-	;r2 = stderr stream
-	;outputs
-	;r0 = 0 if error, else object
-	;trashes
-	;all
-
-	(ptr 'this 'stdin 'stdout 'stderr)
-	(ulong 'ok)
-
-	(push-scope)
-	(assign '(r0 r1 r2) {stdin, stdout, stderr})
-
-	(f-call 'lisp 'new {} {this})
-	(vpif {this != 0})
-		;init the object
-		(f-path 'class 'lisp)
-		(f-call 'lisp 'init (cat {this, @} _function_ {, stdin, stdout, stderr}) {ok})
-		(vpifnot {ok})
-			;error with init
-			(v-call 'lisp 'delete {this} {})
-			(assign {0} {this})
-		(endif)
-	(endif)
-
-	(assign {this} '(r0))
-	(pop-scope)
-	(return)
-
-(def-func-end)
+(class-macro-create 'lisp 3)

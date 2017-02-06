@@ -332,18 +332,23 @@
 				(vtable-emit %1 _function_)))
 	(def-func-end))
 
-(defcfun class-macro-create (%1)
+(defcfun class-macro-create (%1 &optional %2)
 	;%1 = class name
+	;%2 = number of args
+	(setq %2 (if %2 %2 0))
+	(defq %3 (slice 0 %2 '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11))
+		%4 (slice 0 %2 '(r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15)))
 	(def-func (sym-cat "class/" %1 "/create"))
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
-		;r1-r3
+		;all but r4
+		(assign %3 %4)
 		(f-call %1 'new '() '(r0))
 		(vpif '(r0 != 0))
 			;init the object
 			(f-path 'class %1)
-			(f-call %1 'init `(r0 (@ ,_function_)) '(r1))
+			(f-call %1 'init `(r0 (@ ,_function_) ~%4) '(r1))
 			(vpif '(r1 == 0))
 				;error with init
 				(v-call %1 'delete '(r0) '() r1)

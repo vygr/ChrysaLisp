@@ -3,36 +3,7 @@
 (import 'class/error/error.inc)
 
 (class-macro-new 'error)
-
-(def-func 'class/error/create)
-	;inputs
-	;r0 = description cstr pointer
-	;r1 = filename cstr pointer
-	;r2 = error payload object
-	;r3 = line number
-	;outputs
-	;r0 = 0 if error, else object
-	;trashes
-	;r1-r3, r5-r7
-
-	;save data
-	(assign '(r0 r1 r2 r3) '(r6 r7 r8 r9))
-
-	;create new string object
-	(f-call 'error 'new '() '(r0))
-	(vpif '(r0 != 0))
-		;init the object
-		(f-path 'class 'error)
-		(f-call 'error 'init `(r0 (@ ,_function_) r6 r7 r8 r9) '(r1))
-		(vpif '(r1 == 0))
-			;error with init
-			(v-call 'error 'delete '(r0) '() 'r1)
-			(vp-xor-rr r0 r0)
-		(endif)
-	(endif)
-	(vp-ret)
-
-(def-func-end)
+(class-macro-create 'error 4)
 
 (def-func 'class/error/init)
 	;inputs

@@ -5,35 +5,7 @@
 (import 'class/stream/stream.inc)
 
 (class-macro-new 'stream)
-
-(def-func 'class/stream/create)
-	;inputs
-	;r0 = object pointer, 0 if none
-	;r1 = buffer pointer, 0 if none
-	;r2 = buffer start
-	;r3 = buffer length
-	;outputs
-	;r0 = 0 if error, else object
-	;trashes
-	;r1-r3, r5-r8
-
-	;create new stream object
-	(assign '(r0 r1 r2 r3) '(r5 r6 r7 r8))
-
-	(f-call 'stream 'new '() '(r0))
-	(vpif '(r0 != 0))
-		;init the object
-		(f-path 'class 'stream)
-		(f-call 'stream 'init `(r0 (@ ,_function_) r5 r6 r7 r8) '(r1))
-		(vpif '(r1 == 0))
-			;error with init
-			(v-call 'stream 'delete '(r0) '() 'r1)
-			(vp-xor-rr r0 r0)
-		(endif)
-	(endif)
-	(vp-ret)
-
-(def-func-end)
+(class-macro-create 'stream 4)
 
 (def-func 'class/stream/init)
 	;inputs

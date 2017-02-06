@@ -7,33 +7,7 @@
 (import 'class/string/string.inc)
 
 (class-macro-new 'window)
-
-(def-func 'class/window/create)
-	;inputs
-	;r0 = options flags
-	;outputs
-	;r0 = 0 if error, else object
-	;trashes
-	;all but r4
-
-	;save size of data
-	(vp-cpy-rr r0 r6)
-
-	;create new string object
-	(f-call 'window 'new '() '(r0))
-	(vpif '(r0 != 0))
-		;init the object
-		(f-path 'class 'window)
-		(f-call 'window 'init `(r0 (@ ,_function_) r6) '(r1))
-		(vpif '(r1 == 0))
-			;error with init
-			(v-call 'window 'delete '(r0) '() 'r1)
-			(vp-xor-rr r0 r0)
-		(endif)
-	(endif)
-	(vp-ret)
-
-(def-func-end)
+(class-macro-create 'window 1)
 
 (def-func 'class/window/init)
 	;inputs
