@@ -337,7 +337,7 @@
 	;%2 = number of args
 	(setq %2 (if %2 %2 0))
 	(defq %3 (slice 0 %2 '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11))
-		%4 (slice 0 %2 '(r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15)))
+		%4 (slice 0 %2 '(r14 r15 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
 	(def-func (sym-cat "class/" %1 "/create"))
 		;outputs
 		;r0 = 0 if error, else object
