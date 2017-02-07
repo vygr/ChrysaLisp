@@ -11,14 +11,12 @@
 	;outputs
 	;r1 = 0 if error, else ok
 
+	;init myself
+	(vp-cpy-cr 1 r2)
+	(assign '(r2 r2) '((r0 grid_width i) (r0 grid_height i)))
+
 	;init parent
-	(s-call 'grid 'init '(r0 r1) '(r1))
-	(vpif '(r1 != 0))
-		;init myself
-		(vp-cpy-cr 1 r1)
-		(assign '(r1 r1) '((r0 grid_width i) (r0 grid_height i)))
-	(endif)
-	(vp-ret)
+	(s-jmp 'grid 'init '(r0 r1))
 
 (def-func-end)
 

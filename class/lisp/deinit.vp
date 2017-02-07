@@ -17,9 +17,8 @@
 	(f-call 'ref 'deref {this->lisp_enviroment})
 
 	;deinit parent
-	(s-call 'lisp 'deinit {this})
-
+	(assign {this} '(r0))
 	(pop-scope)
-	(return)
+	(s-jmp 'lisp 'deinit '(r0))
 
 (def-func-end)
