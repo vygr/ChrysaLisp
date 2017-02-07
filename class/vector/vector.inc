@@ -57,6 +57,6 @@
 	;r1 = object
 	;trashes
 	;r2
-	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-cpy-ir r0 vector_array r2)
+	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-cpy-dr r2 r1 r1))

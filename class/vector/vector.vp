@@ -13,16 +13,14 @@
 	;trashes
 	;all but r0, r4
 
+	;init myself
+	(vp-xor-rr r2 r2)
+	(vp-cpy-ri r2 r0 vector_array)
+	(vp-cpy-ri r2 r0 vector_length)
+	(vp-cpy-ri r2 r0 vector_capacity)
+
 	;init parent
-	(s-call 'vector 'init '(r0 r1) '(r1))
-	(vpif '(r1 != 0))
-		;init myself
-		(vp-xor-rr r2 r2)
-		(vp-cpy-ri r2 r0 vector_array)
-		(vp-cpy-ri r2 r0 vector_length)
-		(vp-cpy-ri r2 r0 vector_capacity)
-	(endif)
-	(vp-ret)
+	(s-jmp 'vector 'init '(r0 r1))
 
 (def-func-end)
 
@@ -60,21 +58,29 @@
 	(assign '(r0 r1 r2 r3) '((r4 local_inst) (r4 local_source) (r4 local_start) (r4 local_end)))
 
 	;extend existing vector
-	(vp-sub-rr r2 r3)
 	(vp-cpy-ir r0 vector_length r1)
+	(vp-sub-rr r2 r3)
 	(vp-add-rr r3 r1)
 	(f-call 'vector 'set_capacity '(r0 r1))
 
 	;copy elements
-	(vp-cpy-ir r4 local_start r5)
-	(vp-cpy-ir r4 local_end r6)
+	(assign '((r4 local_source) (r4 local_start) (r4 local_end)) '(r8 r5 r6))
+	(vp-cpy-ir r0 vector_length r7)
+	(vp-cpy-ir r0 vector_array r3)
+	(vp-shl-cr (pow2 ptr_size) r7)
+	(vp-add-rr r3 r7)
 	(loop-while '(r5 != r6))
-		(d-call 'vector 'ref_element '((r4 local_source) r5) '(r1))
-		(f-call 'vector 'push_back '((r4 local_inst) r1))
+		(d-call 'vector 'ref_element '(r8 r5) '(r1))
+		(vp-cpy-ri r1 r7 0)
+		(vp-add-cr ptr_size r7)
 		(vp-inc r5)
 	(loop-end)
 
 	(vp-cpy-ir r4 local_inst r0)
+	(vp-sub-rr r3 r7)
+	(vp-shr-cr (pow2 ptr_size) r7)
+	(vp-cpy-ri r7 r0 vector_length)
+
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -262,34 +268,25 @@
 	;trashes
 	;r2-r3, r5-r8
 
-	(def-struct 'local)
-		(ptr 'local_object)
-	(def-struct-end)
-
-	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r1) '((r4 local_object)))
-
 	;increase capacity ?
-	(vp-cpy-ir r0 vector_length r1)
-	(vp-inc r1)
-	(vp-cpy-ri r1 r0 vector_length)
-	(vp-cpy-ir r0 vector_capacity r2)
-	(vpif '(r1 > r2))
+	(vp-cpy-ir r0 vector_length r2)
+	(vp-cpy-ir r0 vector_capacity r3)
+	(vp-inc r2)
+	(vp-cpy-ri r2 r0 vector_length)
+	(vpif '(r2 > r3))
 		;double the capacity
-		(vp-add-rr r1 r1)
-		(f-call 'vector 'set_capacity '(r0 r1))
+		(vp-add-rr r2 r2)
+		(vp-push r1)
+		(f-call 'vector 'set_capacity '(r0 r2))
+		(vp-cpy-ir r0 vector_length r2)
+		(vp-pop r1)
 	(endif)
 
 	;save object
-	(vp-cpy-ir r4 local_object r1)
-	(vp-cpy-ir r0 vector_length r2)
 	(vp-cpy-ir r0 vector_array r3)
 	(vp-shl-cr (pow2 ptr_size) r2)
 	(vp-add-rr r2 r3)
 	(vp-cpy-ri r1 r3 (neg ptr_size))
-
-	(vp-add-cr local_size r4)
 	(vp-ret)
 
 (def-func-end)
