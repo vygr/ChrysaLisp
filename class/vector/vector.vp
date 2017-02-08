@@ -403,16 +403,20 @@
 	(f-call 'vector 'set_capacity '(r0 r1))
 
 	;copy elements
-	(vp-cpy-rr r10 r5)
-	(vp-cpy-rr r11 r6)
-	(loop-while '(r5 != r6))
-		(d-call 'vector 'ref_element '(r9 r5) '(r1))
-		(f-call 'vector 'push_back '(r12 r1))
-		(vp-inc r5)
+	(vp-cpy-ir r12 vector_array r3)
+	(vp-cpy-rr r9 r0)
+	(vp-cpy-rr r3 r7)
+	(loop-while '(r10 != r11))
+		(d-call 'vector 'ref_element '(r0 r10) '(r1))
+		(vp-cpy-ri r1 r7 0)
+		(vp-add-cr ptr_size r7)
+		(vp-inc r10)
 	(loop-end)
 
-	(vp-cpy-rr r9 r0)
+	(vp-sub-rr r3 r7)
 	(vp-cpy-rr r12 r1)
+	(vp-shr-cr (pow2 ptr_size) r7)
+	(vp-cpy-ri r7 r1 vector_length)
 	(vp-ret)
 
 (def-func-end)
