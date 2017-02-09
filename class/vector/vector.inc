@@ -26,6 +26,9 @@
 	(pptr 'vector_array)
 	(uint 'vector_length)
 	(uint 'vector_capacity)
+	(ptr 'vector_e1)
+	(ptr 'vector_e2)
+	(ptr 'vector_e3)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;
