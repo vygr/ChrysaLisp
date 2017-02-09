@@ -336,7 +336,7 @@
 		(vp-add-cr string_data r0)
 		(vp-cpy-ri r0 r4 local_next)
 		(vp-cpy-ir r4 local_vector r0)
-		(f-call 'vector 'for_each '(r0 0 (r0 vector_length) ($ callback) r4) '(r1))
+		(f-call 'vector 'for_each '(r0 0 (r0 vector_length ui) ($ callback) r4) '(r1))
 
 		(vp-cpy-ir r4 local_next r2)
 		(vp-cpy-ri-b r1 r2 0)
@@ -417,7 +417,7 @@
 	(assign '(r0 r1) '(r6 (r4 local_length)))
 
 	;get size of strings
-	(f-call 'vector 'for_each '(r0 0 (r0 vector_length) ($ callback) r4) '(_))
+	(f-call 'vector 'for_each '(r0 0 (r0 vector_length ui) ($ callback) r4) '(_))
 	(vp-cpy-ir r4 local_length r0)
 	(vp-add-cr local_size r4)
 

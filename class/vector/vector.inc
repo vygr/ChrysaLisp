@@ -24,8 +24,8 @@
 
 (def-struct 'vector 'sequence)
 	(pptr 'vector_array)
-	(ulong 'vector_length)
-	(ulong 'vector_capacity)
+	(uint 'vector_length)
+	(uint 'vector_capacity)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;
@@ -38,7 +38,7 @@
 	;outputs
 	;r0 = vector object
 	;r1 = vector capacity
-	(vp-cpy-ir r0 vector_capacity r1))
+	(vp-cpy-ir-ui r0 vector_capacity r1))
 
 (defcfun class/vector/get_length ()
 	;inputs
@@ -46,7 +46,7 @@
 	;outputs
 	;r0 = vector object
 	;r1 = vector length
-	(vp-cpy-ir r0 vector_length r1))
+	(vp-cpy-ir-ui r0 vector_length r1))
 
 (defcfun class/vector/get_element ()
 	;inputs

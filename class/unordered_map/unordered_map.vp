@@ -110,7 +110,7 @@
 
 	;search hash bucket
 	(f-call 'unordered_map 'get_bucket '(r0 r1) '(r0))
-	(f-call 'vector 'for_each '(r0 0 (r0 vector_length) ($ callback) r4) '(r1))
+	(f-call 'vector 'for_each '(r0 0 (r0 vector_length ui) ($ callback) r4) '(r1))
 	(vp-cpy-rr r0 r2)
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)
@@ -158,7 +158,7 @@
 
 	;search hash bucket
 	(f-call 'unordered_map 'get_bucket '(r0 r1) '(r0))
-	(f-call 'vector 'for_each '(r0 0 (r0 vector_length) ($ callback) r4) '(r1))
+	(f-call 'vector 'for_each '(r0 0 (r0 vector_length ui) ($ callback) r4) '(r1))
 	(vp-cpy-ri r0 r4 local_bucket)
 	(vpif '(r1 == 0))
 		;new key
@@ -171,7 +171,7 @@
 		(f-call 'pair 'create '(r0 (r4 local_value)) '(r0))
 		(f-call 'vector 'push_back '((r4 local_bucket) r0))
 		(vp-cpy-rr r0 r2)
-		(vp-cpy-ir r0 vector_length r1)
+		(vp-cpy-ir-ui r0 vector_length r1)
 		(vp-cpy-ir r0 vector_array r0)
 		(vp-shl-cr (pow2 ptr_size) r1)
 		(vp-add-rr r1 r0)
