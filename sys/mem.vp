@@ -109,7 +109,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_grow)
+(def-func 'sys/mem_realloc)
 	;inputs
 	;r0 = array
 	;r1 = array size
@@ -144,7 +144,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_grow_clr)
+(def-func 'sys/mem_realloc_clr)
 	;inputs
 	;r0 = array
 	;r1 = array size

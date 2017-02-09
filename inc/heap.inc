@@ -25,8 +25,8 @@
 (def-method 'fill 'sys/mem_fill 'static '(r0 r1 r2) '(r0))
 (def-method 'xor 'sys/mem_xor 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'copy 'sys/mem_copy 'static '(r0 r1 r2) '(r0 r1))
-(def-method 'grow 'sys/mem_grow 'static '(r0 r1 r2) '(r0 r1))
-(def-method 'grow_clr 'sys/mem_grow_clr 'static '(r0 r1 r2) '(r0 r1))
+(def-method 'realloc 'sys/mem_realloc 'static '(r0 r1 r2) '(r0 r1))
+(def-method 'realloc_clr 'sys/mem_realloc_clr 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'used 'sys/mem_used 'static '() '(r0))
 
 ;;;;;;;;;;;;;;;;;
