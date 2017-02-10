@@ -26,7 +26,7 @@
 (def-method 'xor 'sys/mem_xor 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'copy 'sys/mem_copy 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'realloc 'sys/mem_realloc 'static '(r0 r1 r2) '(r0 r1))
-(def-method 'realloc_clr 'sys/mem_realloc_clr 'static '(r0 r1 r2) '(r0 r1))
+(def-method 'recalloc 'sys/mem_recalloc 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'used 'sys/mem_used 'static '() '(r0))
 
 ;;;;;;;;;;;;;;;;;

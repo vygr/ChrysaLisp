@@ -144,7 +144,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_realloc_clr)
+(def-func 'sys/mem_recalloc)
 	;inputs
 	;r0 = array
 	;r1 = array size
