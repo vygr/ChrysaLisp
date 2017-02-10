@@ -44,13 +44,13 @@
 			((eql %3 'static)
 				(if (eql (elem 2 m) 'static)
 					(override)
-					(error "Virtual method allready exists !" %1)))
+					(error "Virtual method already exists !" %1)))
 			((eql %3 'virtual)
-				(error "Method allready exists !, use override ?" %1))
+				(error "Method already exists !, use override ?" %1))
 			((eql %3 'override)
 				(if (eql (elem 2 m) 'virtual)
 					(override)
-					(error "Static method allready exists !" %1)))
+					(error "Static method already exists !" %1)))
 			(t
 				(error "Must use static, virtual or override ! " %3)))
 		(cond
@@ -69,7 +69,7 @@
 (defcfun method-lookup (%1 %2)
 	;%1 = class name
 	;%2 = member name
-	;writes to s, v, c in parent enviroment !
+	;writes to s, v, c in parent environment !
 	(setq s 0 v ptr_size c (eval (class-name %1)))
 	(until (or (eq s (length c)) (eql (elem 0 (elem s c)) %2))
 		(if (eql (elem 2 (elem s c)) 'virtual) (setq v (add v ptr_size)))

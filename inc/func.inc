@@ -7,9 +7,9 @@
 (defcvar 'debug_mode t)
 (defcvar 'debug_emit nil)
 
-;;;;;;;;;;;;;;;;;;;;;;
-; kernel mail funcions
-;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+; kernel mail functions
+;;;;;;;;;;;;;;;;;;;;;;;
 
 (def-enum)
 	(enum 'kn_call_callback)

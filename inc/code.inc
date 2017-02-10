@@ -213,7 +213,7 @@
 	(when (ne (length *scopes*) 0)
 		(setq *symbols* (slice 0 (elem 0 (elem -2 *scopes*)) *symbols*)))
 	(when (ne *var-sp* 0)
-		(error "Unbalenced scopes !" *var-sp*)))
+		(error "Unbalanced scopes !" *var-sp*)))
 
 (defcfun unwind ()
 	(defq o (get-scope-offset 0))
@@ -265,8 +265,8 @@
 
 (defcfun operator (%1 %2 &optional %3 %4)
  	;%1 name
-	;%2 precidence
-	;%3 asociativity
+	;%2 precedence
+	;%3 associativity
 	;%4 compile macro
 	(setq %3 (if %3 %3 0) %4 (if %4 %4 compile-null))
 	(def-sym %1 'op (mul %2 2) %3 %4))
@@ -329,7 +329,7 @@
 (defcfun offset (f)
 	(if *struct*
 		(defcvar f *struct-offset*)
-		(error "Atempt to define offset into local stack !" f)))
+		(error "Attempt to define offset into local stack !" f)))
 
 (defcfun struct (f s)
 	(defq s (eval (sym-cat s "_size")))
@@ -356,10 +356,10 @@
 	(defq i (list? d) j (list? s))
 	(cond
 		(i (cond
-				(j (error "Ilegal src/dst !" (list s d)))
+				(j (error "Illegal src/dst !" (list s d)))
 				(t (find s d))))
 		(j (cond
-				(i (error "Ilegal src/dst !" (list s d)))
+				(i (error "Illegal src/dst !" (list s d)))
 				(t (find d s))))
 		(t (eql s d))))
 
@@ -421,9 +421,9 @@
 			((eql i '$) (vp-lea-p (elem 1 x) y))
 			(t (error "Invalid src parameter !" i)))) *src* *dst*))
 
-;;;;;;;;;;;
-; tokenizer
-;;;;;;;;;;;
+;;;;;;;;;;
+; tokenize
+;;;;;;;;;;
 
 (defcvar '*token* (list))
 
@@ -521,7 +521,7 @@
 							(push-rpn k -1))
 						(push-rpn "[]" -1))
 					(t
-						;precidence
+						;precedence
 						(setq s (get-sym k))
 						(unless s
 							(error "Operator not defined !" k))
@@ -963,9 +963,9 @@
 					(elem-set p *inst* '(progn))
 					(setq i (dec i)))))))
 
-;;;;;;;;;;;
-; assigment
-;;;;;;;;;;;
+;;;;;;;;;;;;
+; assignment
+;;;;;;;;;;;;
 
 (defcfun assign-asm-to-script (%1 %2)
 	(setq *src* %1 *dst* (map trim (split %2 ",")))

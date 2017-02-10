@@ -14,7 +14,7 @@ connections. There is no global bus based networking on purpose.
 Uses a virtual CPU instruction set to avoid use of x64/ARM native instructions.
 It will eventually run on ARM Linux for machines such as Raspberry PI and
 BeagleBone with no source modification. Currently it compiles to native code
-but there is no reason it can't also go via a bytecode form and runtime
+but there is no reason it can't also go via a byte code form and runtime
 translation.
 
 Register juggling for parameter passing is eliminated by having all functions
