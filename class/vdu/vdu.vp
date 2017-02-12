@@ -68,7 +68,7 @@
 	;all but r0, r4
 
 	(ptr 'inst 'ctx 'txt)
-	(uint 'x 'char 'bx 'by 'bx1 'by1)
+	(int 'x 'char 'bx 'by 'bx1 'by1)
 
 	;save inputs
 	(push-scope)
