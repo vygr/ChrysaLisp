@@ -21,6 +21,7 @@
 
 (def-class 'gui_region)
 (def-method 'translate 'gui/region_translate 'static '(r1 r8 r9))
+(def-method 'bounds 'gui/region_bounds 'static '(r1 r8 r9 r10 r11))
 (def-method 'clip_rect 'gui/region_clip_rect 'static '(r0 r1 r8 r9 r10 r11))
 (def-method 'remove_rect 'gui/region_remove_rect 'static '(r0 r1 r8 r9 r10 r11))
 (def-method 'cut_rect 'gui/region_cut_rect 'static '(r0 r1 r2 r8 r9 r10 r11))
