@@ -1171,7 +1171,7 @@
 	;r1, r12-r15
 
 	;is empty ?
-	(vp-cpy-ir r1 0 r1)
+	(vp-cpy-ir r1 ln_fnode_next r1)
 	(vpif '(r1 == 0))
 		(assign '(r1 r1 r1 r1) '(r8 r9 r10 r11))
 	(else)
