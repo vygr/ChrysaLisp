@@ -33,8 +33,8 @@
 	;save draw rectangle info
 	(vp-cpy-ri r0 r4 local_ctx)
 	(vp-cpy-ri r1 r4 local_texture)
-	(vp-cpy-ir-ui r0 gui_ctx_x r12)
-	(vp-cpy-ir-ui r0 gui_ctx_y r13)
+	(vp-cpy-ir-i r0 gui_ctx_x r12)
+	(vp-cpy-ir-i r0 gui_ctx_y r13)
 	(vp-add-rr r12 r8)
 	(vp-add-rr r13 r9)
 	(vp-cpy-ri-i r8 r4 (add local_drect sdl_rect_x))
@@ -127,8 +127,8 @@
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 r4 local_ctx)
-	(vp-cpy-ir-ui r0 gui_ctx_x r12)
-	(vp-cpy-ir-ui r0 gui_ctx_y r13)
+	(vp-cpy-ir-i r0 gui_ctx_x r12)
+	(vp-cpy-ir-i r0 gui_ctx_y r13)
 	(vp-add-rr r12 r8)
 	(vp-add-rr r13 r9)
 	(vp-cpy-ri-i r8 r4 (add local_rect sdl_rect_x))
@@ -242,8 +242,8 @@
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 r4 local_ctx)
-	(vp-cpy-ir-ui r0 gui_ctx_x r12)
-	(vp-cpy-ir-ui r0 gui_ctx_y r13)
+	(vp-cpy-ir-i r0 gui_ctx_x r12)
+	(vp-cpy-ir-i r0 gui_ctx_y r13)
 	(vp-add-rr r12 r8)
 	(vp-add-rr r13 r9)
 	(vp-cpy-ri-i r8 r4 (add local_rect sdl_rect_x))
