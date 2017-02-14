@@ -3,6 +3,8 @@ CPU := $(shell uname -m)
 
 all:		obj/main
 
+remake:		snapshot clean all
+
 snapshot:
 			rm $(OS).zip
 			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main $(OS).zip obj/*
