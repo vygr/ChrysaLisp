@@ -36,6 +36,7 @@
 
 (def-method 'deinit 'class/view/deinit 'override)
 
+(def-method 'add_child 'class/view/add_back 'virtual '(r0 r1))
 (def-method 'draw 'class/obj/null 'virtual '(r0 r1))
 (def-method 'hit 'class/view/hit 'virtual '(r0 r8 r9) '(r1))
 (def-method 'pref_size 'class/view/pref_size 'virtual '(r0) '(r10 r11))

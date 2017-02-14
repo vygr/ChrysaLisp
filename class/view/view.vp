@@ -77,18 +77,19 @@
 (def-func 'class/view/add_back)
 	;inputs
 	;r0 = view object
-	;r1 = parent view object
+	;r1 = child view object
 	;trashes
 	;r1-r3
 
 	;remove from any existing parent
-	(vp-cpy-rr r1 r3)
-	(f-call 'view 'sub '(r0))
+	(vp-cpy-rr r0 r3)
+	(f-call 'view 'sub '(r1))
 
 	;add to parent
 	(vp-cpy-ri r3 r0 view_parent)
-	(vp-add-cr view_list r3)
 	(vp-lea-i r0 view_node r2)
+	(vp-cpy-rr r3 r0)
+	(vp-add-cr view_list r3)
 	(lh-add-at-tail r3 r2 r1)
 	(vp-ret)
 
@@ -134,13 +135,14 @@
 	;r1-r3
 
 	;remove from any existing parent
-	(vp-cpy-rr r1 r3)
-	(f-call 'view 'sub '(r0))
+	(vp-cpy-rr r0 r3)
+	(f-call 'view 'sub '(r1))
 
 	;add to parent
 	(vp-cpy-ri r3 r0 view_parent)
-	(vp-add-cr view_list r3)
 	(vp-lea-i r0 view_node r2)
+	(vp-cpy-rr r3 r0)
+	(vp-add-cr view_list r3)
 	(lh-add-at-head r3 r2 r1)
 	(vp-ret)
 
@@ -849,12 +851,14 @@
 	;outputs
 	;r0 = view object
 	;trashes
-	;r2
+	;all but r0, r4
 
 	;are we allready front ?
 	(ln-is-first r0 view_node r1)
 	(vpif '(r1 != 0))
-		(f-call 'view 'add_front '(r0 (r0 view_parent)))
+		(vp-push r0)
+		(f-call 'view 'add_front '((r0 view_parent) r0))
+		(vp-pop r0)
 		(f-jmp 'view 'dirty_all '(r0))
 	(endif)
 	(vp-ret)
