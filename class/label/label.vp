@@ -24,9 +24,9 @@
 		(assert '(r0 != 0))
 		(f-call 'flow 'set_flags '(r0 0))
 		(f-call 'flow 'set_flow_flags '(r0 (bit-or flow_flag_right flow_flag_align_vcenter)))
-		(vp-cpy-ir r4 0 r1)
-		(vp-cpy-ri r0 r1 label_flow)
-		(f-call 'flow 'add_front '(r0 r1))
+		(vp-cpy-ir r4 0 r2)
+		(vp-cpy-ri r0 r2 label_flow)
+		(v-call 'label 'add_child '(r2 r0))
 
 		;add my text
 		(f-call 'text 'create '() '(r0))
@@ -34,10 +34,11 @@
 		(vp-cpy-ir r4 0 r1)
 		(vp-cpy-ri r0 r1 label_text)
 		(f-call 'text 'set_color '(r0 0))
-		(vp-cpy-ir r4 0 r1)
-		(f-call 'text 'add_front '(r0 (r1 label_flow)))
+		(vp-cpy-ir r4 0 r2)
+		(v-call 'flow 'add_child '((r2 label_flow) r0))
 
 		(vp-pop r0)
+		(vp-cpy-cr 1 r1)
 	(endif)
 	(vp-ret)
 
