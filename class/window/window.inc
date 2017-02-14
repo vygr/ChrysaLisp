@@ -22,12 +22,12 @@
 (def-method 'init 'class/window/init 'static '(r0 r1 r2))
 (def-method 'set_title 'class/window/set_title 'static '(r0 r1))
 (def-method 'set_status 'class/window/set_status 'static '(r0 r1))
-(def-method 'get_panel 'class/window/get_panel 'static '(r0) '(r1))
 (def-method 'get_close 'class/window/get_close 'static '(r0) '(r1))
 (def-method 'get_max 'class/window/get_max 'static '(r0) '(r1))
 (def-method 'get_min 'class/window/get_min 'static '(r0) '(r1))
 
 (def-method 'deinit 'class/window/deinit 'override)
+(def-method 'add_child 'class/window/add_child 'override)
 (def-method 'pref_size 'class/window/pref_size 'override)
 (def-method 'layout 'class/window/layout 'override)
 (def-method 'draw 'class/window/draw 'override)
@@ -52,14 +52,6 @@
 ;;;;;;;;;;;;;;;;
 ; inline methods
 ;;;;;;;;;;;;;;;;
-
-(defcfun class/window/get_panel ()
-	;inputs
-	;r0 = window object
-	;outputs
-	;r0 = window object
-	;r1 = window panel object
-	(vp-cpy-ir r0 window_panel r1))
 
 (defcfun class/window/get_close ()
 	;inputs

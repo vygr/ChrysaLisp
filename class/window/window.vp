@@ -35,17 +35,17 @@
 		;add flow panel
 		(f-call 'flow 'create {} {this->window_flow})
 		(f-call 'flow 'set_flow_flags {this->window_flow, flow_flag_down | flow_flag_fillw | flow_flag_lasth})
-		(f-call 'flow 'add_back {this->window_flow, this})
+		(f-call 'window 'add_back {this, this->window_flow})
 
 		;add title flow panel
 		(f-call 'flow 'create {} {title_flow})
 		(f-call 'flow 'set_flow_flags {title_flow, flow_flag_left | flow_flag_fillh | flow_flag_lastw})
-		(f-call 'flow 'add_back {title_flow, this->window_flow})
+		(v-call 'flow 'add_child {this->window_flow, title_flow})
 
 		;add close button ?
 		(f-call 'button 'create {} {this->window_close})
 		(f-call 'button 'set_color {this->window_close, 0xffd0d0d0})
-		(f-call 'button 'add_back {this->window_close, title_flow})
+		(v-call 'flow 'add_child {title_flow, this->window_close})
 		(f-call 'string 'create_from_cstr {"X"} {string})
 		(f-call 'button 'set_text {this->window_close, string})
 		(v-call 'button 'pref_size {this->window_close} {min_width, _})
@@ -58,7 +58,7 @@
 		(vpif {flags & window_flag_max})
 			(f-call 'button 'create {} {this->window_max})
 			(f-call 'button 'set_color {this->window_max, 0xffd0d0d0})
-			(f-call 'button 'add_back {this->window_max, title_flow})
+			(v-call 'flow 'add_child {title_flow, this->window_max})
 			(f-call 'string 'create_from_cstr {"+"} {string})
 			(f-call 'button 'set_text {this->window_max, string})
 			(f-call 'button 'set_min_size {this->window_max, min_width, 0})
@@ -68,7 +68,7 @@
 		(vpif {flags & window_flag_min})
 			(f-call 'button 'create {} {this->window_min})
 			(f-call 'button 'set_color {this->window_min, 0xffd0d0d0})
-			(f-call 'button 'add_back {this->window_min, title_flow})
+			(v-call 'flow 'add_child {title_flow, this->window_min})
 			(f-call 'string 'create_from_cstr {"-"} {string})
 			(f-call 'button 'set_text {this->window_min, string})
 			(f-call 'button 'set_min_size {this->window_min, min_width, 0})
@@ -77,18 +77,18 @@
 		;add title
 		(f-call 'title 'create {} {this->window_title})
 		(f-call 'title 'set_color {this->window_title, 0xffc0c0c0})
-		(f-call 'title 'add_back {this->window_title, title_flow})
+		(v-call 'flow 'add_child {title_flow, this->window_title})
 
 		;add status panel
 		(f-call 'flow 'create {} {this->window_panel})
 		(f-call 'flow 'set_flow_flags {this->window_panel, flow_flag_up | flow_flag_fillw | flow_flag_lasth})
-		(f-call 'flow 'add_back {this->window_panel, this->window_flow})
+		(v-call 'flow 'add_child {this->window_flow, this->window_panel})
 
 		;add status label ?
 		(vpif {flags & window_flag_status})
 			(f-call 'label 'create {} {this->window_status})
 			(f-call 'label 'set_color {this->window_status, 0xff808080})
-			(f-call 'label 'add_back {this->window_status, this->window_panel})
+			(v-call 'flow 'add_child {this->window_panel, this->window_status})
 		(endif)
 	(endif)
 
@@ -115,6 +115,20 @@
 	(assign {this} '(r0))
 	(pop-scope)
 	(s-jmp 'window 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/window/add_child)
+	;inputs
+	;r0 = window object
+	;r1 = child view object
+	;trashes
+	;all but r0, r4
+
+	(vp-push r0)
+	(v-call 'flow 'add_child '((r0 window_panel) r1))
+	(vp-pop r0)
+	(vp-ret)
 
 (def-func-end)
 
