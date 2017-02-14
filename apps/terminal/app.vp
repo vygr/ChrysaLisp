@@ -23,7 +23,7 @@
 
 	(struct 'myapp 'shared)
 	(struct 'buffer 'buffer)
-	(ptr 'msg 'stream 'window_panel 'label 'string 'mymailbox 'mailbox)
+	(ptr 'msg 'stream 'label 'string 'mymailbox 'mailbox)
 	(ulong 'owner 'length)
 	(long 'state)
 	(int 'width 'height)
@@ -41,7 +41,6 @@
 
 	;create my window
 	(f-call 'window 'create {window_flag_status | window_flag_close} {myapp.shared_window})
-	(f-call 'window 'get_panel {myapp.shared_window} {window_panel})
 	(f-call 'string 'create_from_cstr {"Terminal"} {string})
 	(f-call 'window 'set_title {myapp.shared_window, string})
 	(f-call 'string 'create_from_cstr {"Ready"} {string})
@@ -52,7 +51,7 @@
 	(f-call 'vdu 'create {} {myapp.shared_vdu})
 	(f-call 'vdu 'set_text_color {myapp.shared_vdu, 0xff00ff00})
 	(f-call 'vdu 'set_font {myapp.shared_vdu, "fonts/Hack-Regular.ttf", 16})
-	(f-call 'vdu 'add_back {myapp.shared_vdu, window_panel})
+	(v-call 'window 'add_child {myapp.shared_window, myapp.shared_vdu})
 
 	;set to pref size
 	(v-call 'window 'pref_size {myapp.shared_window} {width, height})

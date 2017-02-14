@@ -10,7 +10,7 @@
 (def-func 'apps/launcher/app)
 
 	(struct 'myapp 'obj)
-	(ptr 'msg 'window 'window_panel 'panel 'button 'string 'pressed)
+	(ptr 'msg 'window 'panel 'button 'string 'pressed)
 	(pubyte 'next)
 	(ulong 'owner)
 	(int 'width 'height)
@@ -23,7 +23,6 @@
 
 	;create my window
 	(f-call 'window 'create {0} {window})
-	(f-call 'window 'get_panel {window} {window_panel})
 	(f-call 'string 'create_from_cstr {"Launcher"} {string})
 	(f-call 'window 'set_title {window, string})
 	(f-call 'string 'create_from_cstr {"Status Text"} {string})
@@ -32,7 +31,7 @@
 	;add my app panel
 	(f-call 'flow 'create {} {panel})
 	(f-call 'flow 'set_flow_flags {panel, flow_flag_down | flow_flag_fillw})
-	(f-call 'flow 'add_back {panel, window_panel})
+	(v-call 'window 'add_child {window, panel})
 
 	;add launch buttons to my app panel
 	(assign {$launch_list} {next})
@@ -41,7 +40,7 @@
 		(f-call 'button 'set_color {button, 0xffffff00})
 		(f-call 'string 'create_from_cstr {next} {string})
 		(f-call 'button 'set_text {button, string})
-		(f-call 'button 'add_back {button, panel})
+		(v-call 'flow 'add_child {panel, button})
 		(f-call 'button 'sig_pressed {button} {pressed})
 		(f-call 'button 'connect {button, pressed, &myapp, $on_press})
 

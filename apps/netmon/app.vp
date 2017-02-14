@@ -32,7 +32,7 @@
 
 	(struct 'myapp 'app)
 	(struct 'select 'sel)
-	(ptr 'window 'window_panel 'panel1 'panel2 'left_panel 'right_panel 'trip)
+	(ptr 'window 'panel1 'panel2 'left_panel 'right_panel 'trip)
 	(pptr 'task_progress)
 	(puint 'durations)
 	(ulong 'value 'max_tasks 'max_memory 'total_memory 'start_time 'time 'total)
@@ -57,7 +57,6 @@
 
 	;create my window
 	(f-call 'window 'create {window_flag_close} {window})
-	(f-call 'window 'get_panel {window} {window_panel})
 	(f-call 'string 'create_from_cstr {"Network Monitor"} {string})
 	(f-call 'window 'set_title {window, string})
 	(f-call 'string 'create_from_cstr {"Status Text"} {string})
@@ -66,34 +65,34 @@
 	;add my panels
 	(f-call 'flow 'create {} {panel1})
 	(f-call 'flow 'set_flow_flags {panel1, flow_flag_down | flow_flag_fillw})
-	(f-call 'flow 'add_back {panel1, window_panel})
+	(v-call 'window 'add_child {window, panel1})
 	(f-call 'grid 'create {} {panel2})
 	(f-call 'grid 'set_grid {panel2, 2, 1})
-	(f-call 'grid 'add_back {panel2, panel1})
+	(v-call 'flow 'add_child {panel1, panel2})
 	(f-call 'flow 'create {} {left_panel})
 	(f-call 'flow 'set_flow_flags {left_panel, flow_flag_down | flow_flag_fillw})
-	(f-call 'flow 'add_back {left_panel, panel2})
+	(v-call 'grid 'add_child {panel2, left_panel})
 	(f-call 'flow 'create {} {right_panel})
 	(f-call 'flow 'set_flow_flags {right_panel, flow_flag_down | flow_flag_fillw})
-	(f-call 'flow 'add_back {right_panel, panel2})
+	(v-call 'grid 'add_child {panel2, right_panel})
 
 	;add my panel1 round trip bar
 	(f-call 'progress 'create {} {trip})
 	(f-call 'progress 'set_max {trip, 100})
 	(f-call 'progress 'set_color {trip, 0xff00ffff})
-	(f-call 'progress 'add_front {trip, panel1})
+	(v-call 'flow 'add_child {panel1, trip})
 
 	;add my panel2 headings
 	(f-call 'label 'create {} {label})
 	(f-call 'label 'set_color {label, 0xffffffff})
 	(f-call 'string 'create_from_cstr {"Tasks"} {string})
 	(f-call 'label 'set_text {label, string})
-	(f-call 'label 'add_back {label, left_panel})
+	(v-call 'flow 'add_child {left_panel, label})
 	(f-call 'label 'create {} {label})
 	(f-call 'label 'set_color {label, 0xffffffff})
 	(f-call 'string 'create_from_cstr {"Memory"} {string})
 	(f-call 'label 'set_text {label, string})
-	(f-call 'label 'add_back {label, right_panel})
+	(v-call 'flow 'add_child {right_panel, label})
 
 	;allocate array for progress bars and trip times
 	(f-call 'sys_cpu 'total {} {cpu_total})
@@ -107,12 +106,12 @@
 		(f-call 'progress 'create {} {progress})
 		(f-call 'progress 'set_max {progress, 1})
 		(f-call 'progress 'set_color {progress, 0xff00ff00})
-		(f-call 'progress 'add_back {progress, left_panel})
+		(v-call 'flow 'add_child {left_panel, progress})
 		(assign {progress} {task_progress[cpu_count * ptr_size * 2]})
 		(f-call 'progress 'create {} {progress})
 		(f-call 'progress 'set_max {progress, 1})
 		(f-call 'progress 'set_color {progress, 0xffff0000})
-		(f-call 'progress 'add_back {progress, right_panel})
+		(v-call 'flow 'add_child {right_panel, progress})
 		(assign {progress} {task_progress[cpu_count * ptr_size * 2 + ptr_size]})
 		(assign {cpu_count + 1} {cpu_count})
 	(loop-until {cpu_count == cpu_total})

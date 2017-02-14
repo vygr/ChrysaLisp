@@ -23,7 +23,7 @@
 	(def-struct-end)
 
 	(struct 'myapp 'shared)
-	(ptr 'msg 'window 'window_panel 'flow_panel 'grid_panel 'button 'pressed 'string)
+	(ptr 'msg 'window 'flow_panel 'grid_panel 'button 'pressed 'string)
 	(pubyte 'next)
 	(ulong 'owner)
 	(int 'width 'height)
@@ -41,7 +41,6 @@
 
 	;create my window
 	(f-call 'window 'create {window_flag_close} {window})
-	(f-call 'window 'get_panel {window} {window_panel})
 	(f-call 'string 'create_from_cstr {"Calculator"} {string})
 	(f-call 'window 'set_title {window, string})
 	(f-call 'string 'create_from_cstr {"Status Text"} {string})
@@ -50,7 +49,7 @@
 	;add my app flow panel
 	(f-call 'flow 'create {} {flow_panel})
 	(f-call 'flow 'set_flow_flags {flow_panel, flow_flag_down | flow_flag_fillw | flow_flag_lasth})
-	(f-call 'flow 'add_back {flow_panel, window_panel})
+	(v-call 'window 'add_child {window, flow_panel})
 
 	;add my display label
 	(f-call 'label 'create {} {myapp.shared_display})
@@ -59,12 +58,12 @@
 	(f-call 'label 'set_font {myapp.shared_display, "fonts/OpenSans-Regular.ttf", 24})
 	(f-call 'string 'create_from_cstr {"0"} {string})
 	(f-call 'label 'set_text {myapp.shared_display, string})
-	(f-call 'label 'add_back {myapp.shared_display, flow_panel})
+	(v-call 'flow 'add_child {flow_panel, myapp.shared_display})
 
 	;add my app grid panel
 	(f-call 'grid 'create {} {grid_panel})
 	(f-call 'grid 'set_grid {grid_panel, 4, 4})
-	(f-call 'grid 'add_back {grid_panel, flow_panel})
+	(v-call 'flow 'add_child {flow_panel, grid_panel})
 
 	;add buttons to my grid panel
 	(assign {$button_list} {next})
@@ -75,7 +74,7 @@
 		(f-call 'button 'set_font {button, "fonts/OpenSans-Regular.ttf", 42})
 		(f-call 'button 'set_text {button, string})
 		(f-call 'button 'set_flow_flags {button, flow_flag_align_hcenter | flow_flag_align_vcenter})
-		(f-call 'button 'add_back {button, grid_panel})
+		(v-call 'grid 'add_child {grid_panel, button})
 		(f-call 'button 'sig_pressed {button} {pressed})
 		(f-call 'button 'connect {button, pressed, &myapp, $on_press})
 
