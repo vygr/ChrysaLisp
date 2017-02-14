@@ -450,10 +450,13 @@
 	;inputs
 	;r0 = view object
 	;trashes
-	;r1-r3
+	;all but r0, r4
 
-	(f-bind 'gui_gui 'statics r1)
-	(f-jmp 'view 'add_front '(r0 (r1 gui_statics_screen)))
+	(vp-push r0)
+	(f-bind 'gui_gui 'statics r2)
+	(f-call 'view 'add_front '((r2 gui_statics_screen) r0))
+	(vp-pop r0)
+	(vp-ret)
 
 (def-func-end)
 
