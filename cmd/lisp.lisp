@@ -351,6 +351,22 @@
 		(elem-set i l x)
 		(elem-set _e l y)) l) l)
 
+;;;;;;;;;;;;
+; functional
+;;;;;;;;;;;;
+
+(defmacro curry (f x)
+	`(lambda (&rest _b) (apply ,f (cat (list ,x) _b))))
+
+(defmacro rcurry (f x)
+	`(lambda (&rest _b) (apply ,f (push _b ,x))))
+
+(defmacro compose (&rest b)
+	(defq l '_x)
+	(each-rev (lambda (x)
+		(setq l (list x l))) b)
+	`(lambda (_x) ,l))
+
 ;;;;;;;;;;;;;;
 ; VP Assembler
 ;;;;;;;;;;;;;;
