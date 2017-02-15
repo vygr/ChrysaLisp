@@ -403,3 +403,90 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-func 'class/window/connect_close)
+	;inputs
+	;r0 = window object
+	;r1 = reciever object
+	;r2 = reciever callback
+	;outputs
+	;r0 = window object
+	;trashes
+	;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(ptr 'local_obj)
+		(ptr 'local_callback)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(assign '(r0 r1 r2) '((r4 local_inst) (r4 local_obj) (r4 local_callback)))
+
+	(f-call 'button 'sig_pressed '((r0 window_close)) '(r1))
+	(f-call 'button 'connect '(r0 r1 (r4 local_obj) (r4 local_callback)))
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/window/connect_max)
+	;inputs
+	;r0 = window object
+	;r1 = reciever object
+	;r2 = reciever callback
+	;outputs
+	;r0 = window object
+	;trashes
+	;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(ptr 'local_obj)
+		(ptr 'local_callback)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(assign '(r0 r1 r2) '((r4 local_inst) (r4 local_obj) (r4 local_callback)))
+
+	(f-call 'button 'sig_pressed '((r0 window_max)) '(r1))
+	(f-call 'button 'connect '(r0 r1 (r4 local_obj) (r4 local_callback)))
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/window/connect_min)
+	;inputs
+	;r0 = window object
+	;r1 = reciever object
+	;r2 = reciever callback
+	;outputs
+	;r0 = window object
+	;trashes
+	;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'local_inst)
+		(ptr 'local_obj)
+		(ptr 'local_callback)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(assign '(r0 r1 r2) '((r4 local_inst) (r4 local_obj) (r4 local_callback)))
+
+	(f-call 'button 'sig_pressed '((r0 window_min)) '(r1))
+	(f-call 'button 'connect '(r0 r1 (r4 local_obj) (r4 local_callback)))
+
+	(vp-cpy-ir r4 local_inst r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)

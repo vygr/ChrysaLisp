@@ -47,8 +47,6 @@
 	(int 'width 'height)
 	(ulong 'owner)
 
- 	(ptr 'button 'pressed)
-
 	;init app vars
 	(push-scope)
 	(f-path 'class 'obj)
@@ -125,9 +123,7 @@
 	(f-call 'window 'set_owner {window, owner})
 
 	;set close action
-	(f-call 'window 'get_close {window} {button})
-	(f-call 'button 'sig_pressed {button} {pressed})
-	(f-call 'button 'connect {button, pressed, &myapp, $on_press_close})
+	(f-call 'window 'connect_close {window, &myapp, $on_window_close})
 
 	;add to screen and dirty
 	(f-call 'gui_gui 'add {window})
@@ -251,10 +247,10 @@
 	(pop-scope)
 	(return)
 
-(vp-label 'on_press_close)
+(vp-label 'on_window_close)
 	;inputs
 	;r0 = app local object
-	;r1 = close button object
+	;r1 = close object
 
 	(ptr 'inst 'button)
 

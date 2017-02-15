@@ -22,9 +22,9 @@
 (def-method 'init 'class/window/init 'static '(r0 r1 r2))
 (def-method 'set_title 'class/window/set_title 'static '(r0 r1))
 (def-method 'set_status 'class/window/set_status 'static '(r0 r1))
-(def-method 'get_close 'class/window/get_close 'static '(r0) '(r1))
-(def-method 'get_max 'class/window/get_max 'static '(r0) '(r1))
-(def-method 'get_min 'class/window/get_min 'static '(r0) '(r1))
+(def-method 'connect_close 'class/window/connect_close 'static '(r0 r1 r2))
+(def-method 'connect_max 'class/window/connect_max 'static '(r0 r1 r2))
+(def-method 'connect_min 'class/window/connect_min 'static '(r0 r1 r2))
 
 (def-method 'deinit 'class/window/deinit 'override)
 (def-method 'add_child 'class/window/add_child 'override)
@@ -48,31 +48,3 @@
 	(int 'window_offset_y)
 	(ulong 'window_drag_mode)
 (def-struct-end)
-
-;;;;;;;;;;;;;;;;
-; inline methods
-;;;;;;;;;;;;;;;;
-
-(defcfun class/window/get_close ()
-	;inputs
-	;r0 = window object
-	;outputs
-	;r0 = window object
-	;r1 = close button object
-	(vp-cpy-ir r0 window_close r1))
-
-(defcfun class/window/get_max ()
-	;inputs
-	;r0 = window object
-	;outputs
-	;r0 = window object
-	;r1 = max button object
-	(vp-cpy-ir r0 window_max r1))
-
-(defcfun class/window/get_min ()
-	;inputs
-	;r0 = window object
-	;outputs
-	;r0 = window object
-	;r1 = min button object
-	(vp-cpy-ir r0 window_min r1))
