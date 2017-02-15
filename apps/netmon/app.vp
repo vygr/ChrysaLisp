@@ -252,10 +252,10 @@
 	;r0 = app local object
 	;r1 = close object
 
-	(ptr 'inst 'button)
+	(ptr 'inst)
 
 	(push-scope)
-	(assign '(r0 r1) {inst, button})
+	(assign '(r0) {inst})
 	(assign {1} {inst->app_closed})
 	(pop-scope)
 	(return)
