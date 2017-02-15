@@ -49,6 +49,8 @@
 
 					(loop-start)
 						(f-call 'lisp 'repl_expand {this, &ast, 0} {cnt})
+;						(f-call 'lisp 'repl_print {this, this->lisp_stdout, ast})
+;						(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 					(loop-untilnot {cnt})
 
 					(f-call 'lisp 'repl_eval {this, ast} {value})
