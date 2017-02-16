@@ -9,8 +9,8 @@
 (def-func 'cmd/lisp 8192)
 
 	(ptr 'slave 'lisp 'args 'arg 'stream 'file 'repl_args 'value)
-	(ushort 'argc 'index)
 	(ulong 'length)
+	(ushort 'argc 'index)
 
 	(const 'char_lf 10)
 

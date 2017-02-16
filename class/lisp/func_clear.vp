@@ -16,7 +16,7 @@
 	(def-struct-end)
 
 	(ptr 'this 'value 'args)
-	(ulong 'length)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})

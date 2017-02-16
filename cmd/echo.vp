@@ -9,7 +9,7 @@
 	(const 'char_lf 10)
 
 	(ptr 'slave 'arg 'args 'stream)
-	(ulong 'argc 'index 'length)
+	(uint 'argc 'index 'length)
 
 	;init app vars
 	(push-scope)

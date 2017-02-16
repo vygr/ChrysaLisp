@@ -23,7 +23,7 @@
 	(pptr 'iter)
 
 	(ptr 'args)
-	(ulong 'length)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})

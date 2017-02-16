@@ -13,7 +13,8 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value 'arg1 'arg2)
-	(ulong 'length 'v1 'v2)
+	(ulong 'v1 'v2)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})

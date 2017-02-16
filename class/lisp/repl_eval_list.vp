@@ -13,7 +13,7 @@
 
 	(ptr 'this 'list)
 	(pptr 'iter)
-	(ulong 'index 'length)
+	(uint 'index 'length)
 
 	(push-scope)
 	(assign '(r0 r1 r2) {this, list, index})

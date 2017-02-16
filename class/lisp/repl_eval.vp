@@ -13,7 +13,7 @@
 	;r1 = value
 
 	(ptr 'this 'form 'value 'func 'args)
-	(ulong 'length)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {this, form})

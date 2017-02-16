@@ -32,7 +32,7 @@
 	(elseif {func->obj_vtable == @class/class_vector})
 		;lambda
 		(ptr 'vars)
-		(ulong 'length)
+		(uint 'length)
 		(push-scope)
 		(d-call 'vector 'get_length {func} {length})
 		(vpif {length > 1})

@@ -17,7 +17,7 @@
 	(def-struct-end)
 
 	(ptr 'this 'value 'args 'first)
-	(ulong 'length)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})
@@ -60,7 +60,7 @@
 
 	(pptr 'iter)
 	(ptr 'pdata 'elem)
-	(ulong 'length)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {pdata, iter})

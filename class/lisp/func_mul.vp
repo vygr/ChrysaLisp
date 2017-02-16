@@ -13,7 +13,8 @@
 
 	(ptr 'this 'args 'value)
 	(pptr 'iter)
-	(long 'length 'accum)
+	(long 'accum)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})

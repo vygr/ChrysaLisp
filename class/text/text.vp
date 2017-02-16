@@ -68,8 +68,8 @@
 
 	(ptr 'inst 'ctx 'txt)
 	(pptr 'words 'words_end)
-	(ulong 'length)
-	(long 'x)
+	(int 'x)
+	(uint 'length)
 
 	;save inputs
 	(push-scope)
@@ -149,7 +149,7 @@
 
 	(ptr 'inst)
 	(pptr 'words 'words_end)
-	(ulong 'width 'height 'length 'word_w)
+	(uint 'width 'height 'length 'word_w)
 
 	;save inputs
 	(push-scope)

@@ -16,7 +16,8 @@
 	(const 'char_lf 10)
 
 	(ptr 'this 'args 'stream 'ast 'value 'old_file 'old_line)
-	(ulong 'length 'char 'cnt)
+	(ulong 'char 'cnt)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})

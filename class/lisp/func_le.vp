@@ -23,7 +23,7 @@
 	(long 'num)
 
 	(ptr 'args 'first)
-	(ulong 'length)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})

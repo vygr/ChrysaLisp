@@ -13,7 +13,7 @@
 	;r1 = else value
 
 	(ptr 'this 'args 'class 'value)
-	(ulong 'length)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})

@@ -13,7 +13,8 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value 'stream)
-	(ulong 'length 'width)
+	(ulong 'length)
+	(uint 'width)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})

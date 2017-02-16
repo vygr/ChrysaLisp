@@ -16,7 +16,7 @@
 	(def-struct-end)
 
 	(ptr 'this 'cat_list 'args 'value)
-	(ulong 'length)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {this, args})
@@ -56,7 +56,7 @@
 
 	(pptr 'iter)
 	(ptr 'pdata 'elem 'list 'sym 'quote_list)
-	(ulong 'length)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {pdata, iter})

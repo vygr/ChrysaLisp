@@ -9,7 +9,7 @@
 (defcvar 'buffer_size 120)
 
 	(ptr 'slave 'stream 'vector 'string)
-	(ulong 'length)
+	(uint 'length)
 	(struct 'buffer 'buffer)
 
 	;init app vars
@@ -63,7 +63,7 @@
 	(const 'char_lf 10)
 
 	(ptr 'slave 'buffer)
-	(ulong 'length)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1 r2) {slave, buffer, length})

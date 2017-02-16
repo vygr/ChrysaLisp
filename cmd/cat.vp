@@ -10,7 +10,7 @@
 	(defcvar 'buffer_size 256)
 
 	(ptr 'slave 'arg 'args 'stream)
-	(ulong 'argc 'index 'length)
+	(uint 'argc 'index 'length)
 	(struct 'buffer 'buffer)
 
 	;init app vars

@@ -24,7 +24,7 @@
 
 	(ptr 'macro 'args)
 	(pptr 'iter 'miter)
-	(ulong 'length)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1 r2) {this, iter, cnt})

@@ -90,7 +90,7 @@
 	;all but r0, r4
 
 	(ptr 'inst 'mailbox)
-	(ulong 'length)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0 r1) {inst, mailbox})
@@ -124,9 +124,9 @@
 
 	(ptr 'inst 'buffer 'msg 'string 'commands 'args 'stream 'mbox 'ids 'prefix 'cmd)
 	(pubyte 'start)
-	(ulong 'length 'index 'started)
 	(struct 'nextid 'id)
 	(struct 'mailbox 'mailbox)
+	(uint 'length 'index 'started)
 
 	;init vars
 	(push-scope)
@@ -256,7 +256,7 @@
 	;all but r0, r4
 
 	(ptr 'inst 'msg 'stream)
-	(ulong 'length)
+	(uint 'length)
 
 	(push-scope)
 	(assign '(r0) {inst})
