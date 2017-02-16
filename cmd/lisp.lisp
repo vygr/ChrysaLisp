@@ -66,7 +66,7 @@
 		(while (le 0 (setq ,_c (dec ,_c))) ~b)))
 
 ;;;;;;;;;;;;
-; functional
+; Functional
 ;;;;;;;;;;;;
 
 (defmacro curry (f &rest b)
