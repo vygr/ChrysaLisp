@@ -354,17 +354,15 @@
 ; functional
 ;;;;;;;;;;;;
 
-(defmacro curry (f x)
-	`(lambda (&rest _b) (apply ,f (cat (list ,x) _b))))
+(defmacro curry (f &rest b)
+	`(lambda (&rest _b) (apply ,f (cat (list ~b) _b))))
 
-(defmacro rcurry (f x)
-	`(lambda (&rest _b) (apply ,f (push _b ,x))))
+(defmacro rcurry (f &rest b)
+	`(lambda (&rest _b) (apply ,f (cat _b (list ~b)))))
 
 (defmacro compose (&rest b)
-	(defq l '_x)
-	(each-rev (lambda (x)
-		(setq l (list x l))) b)
-	`(lambda (_x) ,l))
+	`(lambda (_x) ,(reduce (lambda (x y)
+		(list y x)) b '_x)))
 
 ;;;;;;;;;;;;;;
 ; VP Assembler
