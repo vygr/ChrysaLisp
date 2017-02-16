@@ -24,6 +24,7 @@
 (import 'class/lisp/func_copy.vp)
 (import 'class/lisp/func_def.vp)
 (import 'class/lisp/func_defined.vp)
+(import 'class/lisp/func_valued.vp)
 (import 'class/lisp/func_defmacro.vp)
 (import 'class/lisp/func_defq.vp)
 (import 'class/lisp/func_div.vp)

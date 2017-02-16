@@ -198,6 +198,7 @@
 	(built-in "inst-of" 0 'func_inst_of)
 	(built-in "split" 0 'func_split)
 	(built-in "def?" 0 'func_defined)
+	(built-in "val?" 0 'func_valued)
 	(built-in "find" 0 'func_find)
 	(built-in "age" 0 'func_age)
 	(built-in "error" 0 'func_error)

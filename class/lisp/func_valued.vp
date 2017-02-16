@@ -1,8 +1,9 @@
 (import 'inc/func.inc)
 (import 'class/vector/vector.inc)
+(import 'class/pair/pair.inc)
 (import 'class/lisp/lisp.inc)
 
-(def-func 'class/lisp/func_defined)
+(def-func 'class/lisp/func_valued)
 	;inputs
 	;r0 = lisp object
 	;r1 = args
@@ -11,6 +12,7 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value)
+	(pptr 'iter)
 	(uint 'length)
 
 	(push-scope)
@@ -20,18 +22,18 @@
 	(vpif {length == 1})
 		(f-call 'vector 'get_element {args, 0} {value})
 		(vpif {value->obj_vtable == @class/class_symbol})
-			(f-call 'lisp 'env_find {this, value} {value, _})
-			(vpif {value})
-				(assign {this->lisp_sym_t} {value})
+			(f-call 'lisp 'env_find {this, value} {iter, _})
+			(vpif {iter})
+				(f-call 'pair 'get_second {*iter} {value})
 			(else)
 				(assign {this->lisp_sym_nil} {value})
 			(endif)
 			(f-call 'ref 'ref {value})
 		(else)
-			(f-call 'lisp 'repl_error {this, "(def? var) not a symbol", args} {value})
+			(f-call 'lisp 'repl_error {this, "(val? var) not a symbol", args} {value})
 		(endif)
 	(else)
-		(f-call 'lisp 'repl_error {this, "(def? var) wrong number of args", args} {value})
+		(f-call 'lisp 'repl_error {this, "(val? var) wrong number of args", args} {value})
 	(endif)
 
 	(assign {this, value} '(r0 r1))

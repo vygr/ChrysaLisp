@@ -99,6 +99,7 @@
 (def-method 'func_inst_of 'class/lisp/func_inst_of 'static '(r0 r1) '(r1))
 (def-method 'func_split 'class/lisp/func_split 'static '(r0 r1) '(r1))
 (def-method 'func_defined 'class/lisp/func_defined 'static '(r0 r1) '(r1))
+(def-method 'func_valued 'class/lisp/func_valued 'static '(r0 r1) '(r1))
 (def-method 'func_find 'class/lisp/func_find 'static '(r0 r1) '(r1))
 (def-method 'func_age 'class/lisp/func_age 'static '(r0 r1) '(r1))
 (def-method 'func_error 'class/lisp/func_error 'static '(r0 r1) '(r1))
