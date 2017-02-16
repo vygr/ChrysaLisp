@@ -66,8 +66,18 @@
 		(while (le 0 (setq ,_c (dec ,_c))) ~b)))
 
 ;;;;;;;;;;;;
-; Map/Reduce
+; functional
 ;;;;;;;;;;;;
+
+(defmacro curry (f &rest b)
+	`(lambda (&rest _b) (apply ,f (cat (list ~b) _b))))
+
+(defmacro rcurry (f &rest b)
+	`(lambda (&rest _b) (apply ,f (cat _b (list ~b)))))
+
+(defmacro compose (&rest b)
+	`(lambda (_x) ,(reduce (lambda (x y)
+		(list y x)) b '_x)))
 
 (defun min-len (b)
 	(defq m (length (elem 0 b)) i 0)
@@ -349,20 +359,6 @@
 		(defq i (get-int (inc _e)) y (elem i l))
 		(elem-set i l x)
 		(elem-set _e l y)) l) l)
-
-;;;;;;;;;;;;
-; functional
-;;;;;;;;;;;;
-
-(defmacro curry (f &rest b)
-	`(lambda (&rest _b) (apply ,f (cat (list ~b) _b))))
-
-(defmacro rcurry (f &rest b)
-	`(lambda (&rest _b) (apply ,f (cat _b (list ~b)))))
-
-(defmacro compose (&rest b)
-	`(lambda (_x) ,(reduce (lambda (x y)
-		(list y x)) b '_x)))
 
 ;;;;;;;;;;;;;;
 ; VP Assembler
