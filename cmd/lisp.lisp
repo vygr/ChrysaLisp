@@ -54,8 +54,7 @@
 (defmacro or (x &rest b)
 	(if (eq 0 (length b)) x
 		(progn (defq _x (gensym))
-			`(progn (defq ,_x ,x)
-				(if ,_x ,_x (or ~b))))))
+			`(if (defq ,_x ,x) ,_x (or ~b)))))
 
 (defmacro and (x &rest b)
 	(if (eq 0 (length b)) x
@@ -424,7 +423,7 @@
 	(setq *compile-env* nil))
 
 (defun make-info (f)
-	;create lists of imediate dependancies and products
+	;create lists of immediate dependencies and products
 	(defq d (list 'cmd/lisp.lisp f) p (list))
 	(each-line f (lambda (l)
 		(when (le 2 (length (defq s (split l " "))) 3)
@@ -447,7 +446,7 @@
 	(defun func-obj (f)
 		(cat "obj/" f))
 	(defun load-func (f)
-		(if (def? f) (eval f)
+		(or (val? f)
 			(progn
 				(defq b (load (func-obj f))
 					h (slice fn_header_entry (defq l (read-int fn_header_links b)) b)
@@ -487,7 +486,7 @@
 	(merge-sym f (map sym *funcs*))
 	;load up all functions requested
 	(each load-func f)
-	;if recursive then load up all dependants
+	;if recursive then load up all dependents
 	(when r
 		(defq i -1)
 		(while (lt (setq i (inc i)) (length f))
@@ -515,7 +514,7 @@
 	(each (lambda (x) (push q (elem 0 x) (elem 1 x))) b)
 	(push q z)
 	(each (lambda (x) (push q (cat x (char 0)))) f)
-	;concatinate all sections and save
+	;concatenate all sections and save
 	(save (setq f (apply cat q)) (func-obj 'sys/boot_image))
 	(setq *env* nil)
 	(print "image -> " (func-obj 'sys/boot_image) " (" (length f) ")") nil)
@@ -540,9 +539,8 @@
 		(defun make-time (f)
 			;modification time of a file, cached
 			(defq s (sym-cat "_age_" f))
-			(if (def? s) (eval s)
-				(def *env* s (age f))))
-		;list of all file imports while defining dependancies and products
+			(or (val? s) (def *env* s (age f))))
+		;list of all file imports while defining dependencies and products
 		(while (lt (setq i (inc i)) (length *imports*))
 			(defq f (elem i *imports*) d (make-info f))
 			(merge-sym *imports* (elem 0 d))
@@ -551,13 +549,13 @@
 		;filter to only the .vp files
 		(setq *imports* (filter (lambda (f)
 			(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
-		;filter to only the files whos oldest product is older than any dependancy
+		;filter to only the files who's oldest product is older than any dependency
 		(setq *imports* (filter (lambda (f)
 			(defq d (eval (make-sym f)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d) i 1)
 			(while (lt (setq i (inc i)) (length d))
 				(merge-sym d (elem 0 (eval (make-sym (elem i d))))))
 			(some (lambda (x) (ge x p)) (map make-time d))) *imports*))
-		;drop the make enviroment and return the list to compile
+		;drop the make environment and return the list to compile
 		(setq *env* nil)
 		*imports*)) *os* *cpu* 8))
 

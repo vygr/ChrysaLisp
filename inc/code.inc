@@ -665,7 +665,7 @@
 (defcfun compile-cast (o)
 	(defq c (find (sym o) '(byte ubyte short ushort int uint long ulong ptr)))
 	(if c (set (type-sym (dec-stack)) (elem c "bBsSiIlLp"))
-		(error "Unkown type cast" o)))
+		(error "Unknown type cast" o)))
 
 (defcfun compile-member (o)
 	(defq s (dec *s*) x (vreg-sym (setq *s* (sub *s* 2))) y (vreg-sym s))
@@ -919,7 +919,7 @@
 							(elem-set 2 e `(add ,(elem 1 (elem p *inst*)) ,(elem 2 e)))
 							(setq i (dec i))))
 					(elem-set p *inst* '(progn))))
-			;variable writeing and offset folding
+			;variable writing and offset folding
 			((find o '(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i))
 				(defq r (elem 2 e))
 				(when (opt-find? i r `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
