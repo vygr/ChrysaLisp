@@ -80,7 +80,7 @@
 		(list y x)) _ '_)))
 
 (defun range (b e &optional s)
-	(defq s (if s s 1) l (list) s (abs s))
+	(defq l (list) s (if s (abs s) 1))
 	(if (le b e)
 		(while (le b e)
 			(push l b)
