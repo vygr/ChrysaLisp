@@ -21,7 +21,7 @@
 
 (defcfun print-emit-buffer ()
 	(each (lambda (x)
-		(print _e " -> " x)) *emit-buffer*))
+		(print _ " -> " x)) *emit-buffer*))
 
 (defcfun emit-label (s)
 	(set s *pc*))
