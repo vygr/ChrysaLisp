@@ -94,6 +94,16 @@
 	(while (lt (setq i (inc i)) (length _))
 		(defq e (length (elem i _)) m (if (lt m e) m e))) m)
 
+(defun each-mergeable (_f _l)
+	(defq _ -1)
+	(while (lt (setq _ (inc _)) (length _l))
+		(_f (elem _ _l))))
+
+(defun each-mergeable-rev (_f _l)
+	(defq _ (length _l))
+	(while (ge 0 (setq _ (dec _)))
+		(_f (elem _ _l))))
+
 (defun each (_f &rest _b)
 	(defq _ -1)
 	(cond
@@ -492,18 +502,17 @@
 	(each load-func f)
 	;if recursive then load up all dependents
 	(when r
-		(defq i -1)
-		(while (lt (setq i (inc i)) (length f))
-			(merge-sym f (elem 2 (load-func (elem i f))))))
+		(each-mergeable (lambda (i)
+			(merge-sym f (elem 2 (load-func i)))) f))
 	;list of all function bodies and links in order, list of offsets of link sections, offset of new path section
 	(defq b (map eval f) o (list) p (add (length z) (reduce (lambda (x y)
 		(setq x (add x (length (elem 0 y))))
 		(push o x)
 		(add x (length (elem 1 y)))) b 0)))
 	;list of all function names that will appear in new path section, and list of all new path offsets
-	(defq i (length f) s (list))
-	(while (ge (setq i (dec i)) 0)
-		(merge-sym f (elem 2 (eval (elem i f)))))
+	(each-mergeable-rev (lambda (i)
+		(merge-sym f (elem 2 (eval i)))) f)
+	(defq s (list))
 	(reduce (lambda (x y)
 		(push s x)
 		(add x (length y) 1)) f 0)
@@ -525,17 +534,17 @@
 
 (defun make-boot-all ()
 	(make-boot nil ((lambda ()
-		(defq *imports* (list 'make.inc) *products* (list) i -1)
+		(defq *imports* (list 'make.inc) *products* (list))
 		;lists of all file imports and products
-		(while (lt (setq i (inc i)) (length *imports*))
-			(defq d (make-info (elem i *imports*)))
+		(each-mergeable (lambda (i)
+			(defq d (make-info i))
 			(merge-sym *imports* (elem 0 d))
-			(merge-sym *products* (elem 1 d)))
+			(merge-sym *products* (elem 1 d))) *imports*)
 		*products*))))
 
 (defun make (&optional *os* *cpu*)
 	(compile ((lambda ()
-		(defq *env* (env 101) *imports* (list 'make.inc) i -1)
+		(defq *env* (env 101) *imports* (list 'make.inc))
 		(defun func-obj (f)
 			(cat "obj/" f))
 		(defun make-sym (f)
@@ -545,19 +554,19 @@
 			(defq s (sym-cat "_age_" f))
 			(or (val? s) (def *env* s (age f))))
 		;list of all file imports while defining dependencies and products
-		(while (lt (setq i (inc i)) (length *imports*))
-			(defq f (elem i *imports*) d (make-info f))
+		(each-mergeable (lambda (i)
+			(defq d (make-info i))
 			(merge-sym *imports* (elem 0 d))
 			(elem-set 1 d (map func-obj (elem 1 d)))
-			(def *env* (make-sym f) d))
+			(def *env* (make-sym i) d)) *imports*)
 		;filter to only the .vp files
 		(setq *imports* (filter (lambda (f)
 			(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
 		;filter to only the files who's oldest product is older than any dependency
 		(setq *imports* (filter (lambda (f)
-			(defq d (eval (make-sym f)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d) i 1)
-			(while (lt (setq i (inc i)) (length d))
-				(merge-sym d (elem 0 (eval (make-sym (elem i d))))))
+			(defq d (eval (make-sym f)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d))
+			(each-mergeable (lambda (i)
+				(merge-sym d (elem 0 (eval (make-sym i))))) d)
 			(some (lambda (x) (ge x p)) (map make-time d))) *imports*))
 		;drop the make environment and return the list to compile
 		(setq *env* nil)
@@ -566,11 +575,11 @@
 (defun make-all (&optional *os* *cpu*)
 	(defq n (time))
 	(compile ((lambda ()
-		(defq *imports* (list 'make.inc) i -1)
+		(defq *imports* (list 'make.inc))
 		;list of all file imports
-		(while (lt (setq i (inc i)) (length *imports*))
-			(defq d (make-info (elem i *imports*)))
-			(merge-sym *imports* (elem 0 d)))
+		(each-mergeable (lambda (i)
+			(defq d (make-info i))
+			(merge-sym *imports* (elem 0 d))) *imports*)
 		;filter to only the .vp files
 		(setq *imports* (filter (lambda (f)
 			(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
