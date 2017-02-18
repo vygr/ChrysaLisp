@@ -25,8 +25,6 @@
 	(f-call 'window 'create {0} {window})
 	(f-call 'string 'create_from_cstr {"Launcher"} {string})
 	(f-call 'window 'set_title {window, string})
-	(f-call 'string 'create_from_cstr {"Status Text"} {string})
-	(f-call 'window 'set_status {window, string})
 
 	;add my app panel
 	(f-call 'flow 'create {} {panel})

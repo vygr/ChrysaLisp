@@ -57,8 +57,6 @@
 	(f-call 'window 'create {window_flag_close} {window})
 	(f-call 'string 'create_from_cstr {"Network Monitor"} {string})
 	(f-call 'window 'set_title {window, string})
-	(f-call 'string 'create_from_cstr {"Status Text"} {string})
-	(f-call 'window 'set_status {window, string})
 
 	;add my panels
 	(f-call 'flow 'create {} {panel1})
