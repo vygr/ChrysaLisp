@@ -12,7 +12,6 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value)
-	(pptr 'iter)
 	(uint 'length)
 
 	(push-scope)
@@ -22,9 +21,9 @@
 	(vpif {length == 1})
 		(f-call 'vector 'get_element {args, 0} {value})
 		(vpif {value->obj_vtable == @class/class_symbol})
-			(f-call 'lisp 'env_find {this, value} {iter, _})
-			(vpif {iter})
-				(f-call 'pair 'get_second {*iter} {value})
+			(f-call 'lisp 'env_find {this, value} {value, _})
+			(vpif {value})
+				(f-call 'pair 'get_second {ptr(*value)} {value})
 			(else)
 				(assign {this->lisp_sym_nil} {value})
 			(endif)
