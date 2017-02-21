@@ -86,15 +86,6 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(pptr 'iter)
-	(ptr 'pdata)
-
-	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
-
-	(assign {(*iter)->obj_vtable == @class/class_string || (*iter)->obj_vtable == @class/class_symbol} '(r1))
-
-	(pop-scope)
-	(return)
+	(f-jmp 'obj 'inst_of '((r1 0) (@ class/class_string)))
 
 (def-func-end)
