@@ -11,7 +11,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value)
+	(ptr 'this 'args 'name 'value)
 	(uint 'length)
 
 	(push-scope)
@@ -19,9 +19,10 @@
 
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
-		(f-call 'vector 'get_element {args, 0} {value})
-		(vpif {value->obj_vtable == @class/class_string || value->obj_vtable == @class/class_symbol})
-			(f-call 'string 'create_from_file {&value->string_data} {value})
+		(f-call 'vector 'get_element {args, 0} {name})
+		(f-call 'obj 'inst_of {name, @class/class_string} {value})
+		(vpif {value})
+			(f-call 'string 'create_from_file {&name->string_data} {value})
 			(vpifnot {value})
 				(assign {this->lisp_sym_nil} {value})
 				(f-call 'ref 'ref {value})

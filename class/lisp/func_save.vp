@@ -13,15 +13,8 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(def-struct 'pdata)
-		(ptr 'pdata_this)
-		(ptr 'pdata_value)
-		(ptr 'pdata_handle)
-	(def-struct-end)
-
-	(ptr 'this 'value 'handle)
-
-	(ptr 'args 'name 'obj)
+	(ptr 'this 'args 'value 'name 'obj)
+	(ulong 'handle)
 	(uint 'length)
 
 	(push-scope)
@@ -30,9 +23,11 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 2})
 		(f-call 'vector 'get_element {args, 1} {name})
-		(vpif {name->obj_vtable == @class/class_string || name->obj_vtable == @class/class_symbol})
+		(f-call 'obj 'inst_of {name, @class/class_string} {value})
+		(vpif {value})
 			(f-call 'vector 'get_element {args, 0} {obj})
-			(vpif {obj->obj_vtable == @class/class_string})
+			(f-call 'obj 'inst_of {obj, @class/class_string} {value})
+			(vpif {value})
 				(f-call 'sys_io 'open {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth} {handle})
 				(vpif {handle >= 3})
 					(sys-write-string {handle, &obj->string_data, obj->string_length} {_})
