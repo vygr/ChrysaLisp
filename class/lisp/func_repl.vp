@@ -28,7 +28,8 @@
 		(f-call 'obj 'inst_of {stream, @class/class_stream} {value})
 		(vpif {value})
 			(f-call 'vector 'get_element {args, 1} {value})
-			(vpif {value->obj_vtable == @class/class_string || value->obj_vtable == @class/class_symbol})
+			(f-call 'obj 'inst_of {value, @class/class_string} {old_file})
+			(vpif {old_file})
 				;push old file and line, set to this stream info
 				(f-call 'lisp 'env_get {this, this->lisp_sym_stream_name} {old_file})
 				(f-call 'lisp 'env_get {this, this->lisp_sym_stream_line} {old_line})
