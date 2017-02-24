@@ -101,9 +101,7 @@
 	;outputs
 	;r1 = 0 if match
 
-	(vpif '(r0 == r1))
-		(vp-xor-rr r1 r1)
-	(endif)
+	(vp-sub-rr r0 r1)
 	(vp-ret)
 
 ;;;;;;;;;;;;;;;;
