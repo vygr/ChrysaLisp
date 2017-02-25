@@ -20,7 +20,7 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
 		(f-call 'vector 'get_element {args, 0} {args})
-		(vpif {args->obj_vtable == @class/class_vector})
+		(vpif (cat {args->obj_vtable == @} (f-path 'class 'vector)))
 			(d-call 'vector 'get_length {args} {length})
 			(vpif {length})
 				(f-call 'vector 'ref_back {args} {value})

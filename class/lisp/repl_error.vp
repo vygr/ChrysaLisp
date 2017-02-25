@@ -25,7 +25,8 @@
 	(f-call 'lisp 'env_find {this, this->lisp_sym_stream_name} {iter, _})
 	(vpif {iter})
 		(f-call 'pair 'get_second {*iter} {file})
-		(gotoif {file->obj_vtable != @class/class_string && file->obj_vtable != @class/class_symbol} 'nofile)
+		(f-call 'obj 'inst_of (cat {file, @} (f-path 'class 'string)) {value})
+		(gotoifnot {value} 'nofile)
 		(assign {&file->string_data} {file})
 	(else)
 	(vp-label 'nofile)
@@ -36,7 +37,7 @@
 	(f-call 'lisp 'env_find {this, this->lisp_sym_stream_line} {iter, _})
 	(vpif {iter})
 		(f-call 'pair 'get_second {*iter} {value})
-		(breakif {value->obj_vtable != @class/class_boxed_long})
+		(breakif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)))
 		(f-call 'boxed_long 'get_value {value} {line})
 	(endif)
 

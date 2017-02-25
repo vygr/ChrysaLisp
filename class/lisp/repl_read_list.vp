@@ -32,7 +32,7 @@
 	(f-call 'vector 'create {} {list})
 	(loop-while {char != -1 && char != char_rrb})
 		(f-call 'lisp 'repl_read {this, stream, char} {ast, char})
-		(vpif {ast->obj_vtable == @class/class_error})
+		(vpif (cat {ast->obj_vtable == @} (f-path 'class 'error)))
 			(f-call 'ref 'deref {list})
 			(assign {ast} {list})
 			(goto 'error)

@@ -51,7 +51,7 @@
 	(push-scope)
 	(assign '(r0 r1) {pdata, iter})
 
-	(vpif {(*iter)->obj_vtable == @class/class_boxed_long})
+	(vpif (cat {(*iter)->obj_vtable == @} (f-path 'class 'boxed_long)))
 		(f-call 'boxed_long 'get_value {*iter} {val})
 		(assign {*pdata | val} {*pdata})
 		(assign {1} '(r1))

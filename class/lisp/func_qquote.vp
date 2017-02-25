@@ -25,7 +25,7 @@
 	(vpif {length == 1})
 		(f-call 'vector 'get_element {args, 0} {args})
 		(switch)
-		(case {args->obj_vtable == @class/class_vector})
+		(case (cat {args->obj_vtable == @} (f-path 'class 'vector)))
 			(f-call 'vector 'create {} {cat_list})
 			(assign {this->lisp_sym_cat} {value})
 			(f-call 'ref 'ref {value})
@@ -62,7 +62,7 @@
 	(assign '(r0 r1) {pdata, iter})
 
 	(assign {*iter} {elem})
-	(vpif {elem->obj_vtable == @class/class_vector})
+	(vpif (cat {elem->obj_vtable == @} (f-path 'class 'vector)))
 		(d-call 'vector 'get_length {elem} {length})
 		(gotoifnot {length} 'list_quote)
 		(f-call 'vector 'get_element {elem, 0} {sym})

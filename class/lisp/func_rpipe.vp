@@ -24,7 +24,7 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
 		(f-call 'vector 'get_element {args, 0} {pipe})
-		(vpif {pipe->obj_vtable == @class/class_master})
+		(vpif (cat {pipe->obj_vtable == @} (f-path 'class 'master)))
 			(f-call 'master 'get_state {pipe} {state})
 			(vpif {state == stream_mail_state_started})
 				(f-call 'master 'select {pipe, 0} {value})

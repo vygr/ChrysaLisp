@@ -21,11 +21,11 @@
 	;evaluate based on type
 	(assign {form->obj_vtable} {func})
 	(switch)
-	(case {func == @class/class_symbol})
+	(case (cat {func == @} (f-path 'class 'symbol)))
 		;eval to symbol value
 		(f-call 'lisp 'env_get {this, form} {value})
 		(break)
-	(case {func == @class/class_vector})
+	(case (cat {func == @} (f-path 'class 'vector)))
 		(d-call 'vector 'get_length {form} {length})
 		(vpifnot {length})
 			;eval to nil
@@ -35,10 +35,10 @@
 			;apply function, eval args if needed
 			(f-call 'vector 'get_element {form, 0} {func})
 			(f-call 'lisp 'repl_eval {this, func} {value})
-			(breakif {value->obj_vtable == @class/class_error})
+			(breakif (cat {value->obj_vtable == @} (f-path 'class 'error)))
 			(assign {value} {func})
 			(switch)
-			(case {func->obj_vtable == @class/class_boxed_ptr})
+			(case (cat {func->obj_vtable == @} (f-path 'class 'boxed_ptr)))
 				(gotoifnot {func->boxed_ptr_value & 7} 'args_eval_apply)
 				(vpif {(func->boxed_ptr_value & 7) == type_apply})
 					(f-call 'lisp 'repl_apply {this, func, form} {value})
@@ -52,7 +52,7 @@
 			(vp-label 'args_eval_apply)
 				(d-call 'vector 'slice {form, 1, length} {args})
 				(f-call 'lisp 'repl_eval_list {this, args, 0} {value})
-				(vpif {value->obj_vtable != @class/class_error})
+				(vpif (cat {value->obj_vtable != @} (f-path 'class 'error)))
 					(f-call 'ref 'deref {value})
 					(f-call 'lisp 'repl_apply {this, func, args} {value})
 				(endif)

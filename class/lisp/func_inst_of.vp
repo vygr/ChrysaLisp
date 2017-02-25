@@ -21,7 +21,7 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 2})
 		(f-call 'vector 'get_element {args, 0} {class})
-		(vpif {class->obj_vtable == @class/class_symbol})
+		(vpif (cat {class->obj_vtable == @} (f-path 'class 'symbol)))
 			(f-call 'sys_load 'bind {class->string_data} {class})
 			(gotoifnot {class} 'error)
 			(f-call 'vector 'get_element {args, 1} {args})

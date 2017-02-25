@@ -28,7 +28,7 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length})
 		(f-call 'vector 'get_element {args, 0} {first})
-		(f-call 'obj 'inst_of {first, @class/class_string} {value})
+		(f-call 'obj 'inst_of (cat {first, @} (f-path 'class 'string)) {value})
 		(vpif {value})
 			(f-call 'vector 'for_each {args, 1, length, $callback2, &this} {value})
 			(vpifnot {value})
@@ -41,7 +41,7 @@
 			(else)
 				(f-call 'lisp 'repl_error {this, "(cat seq ...) not all strings", args} {value})
 			(endif)
-		(elseif {first->obj_vtable == @class/class_vector})
+		(elseif (cat {first->obj_vtable == @} (f-path 'class 'vector)))
 			(f-call 'vector 'create {} {value})
 			(f-call 'vector 'for_each {args, 0, length, $callback1, &this} {_})
 		(else)
@@ -70,7 +70,7 @@
 	(assign '(r0 r1) {pdata, iter})
 
 	(assign {*iter} {elem})
-	(vpif {elem->obj_vtable == @class/class_vector})
+	(vpif (cat {elem->obj_vtable == @} (f-path 'class 'vector)))
 		(d-call 'vector 'get_length {elem} {length})
 		(f-call 'vector 'append {pdata->pdata_value, elem, 0, length})
 		(assign {1} '(r1))
@@ -90,6 +90,6 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(f-jmp 'obj 'inst_of '((r1 0) (@ class/class_string)))
+	(f-jmp 'obj 'inst_of `((r1 0) (@ ,(f-path 'class 'string))))
 
 (def-func-end)

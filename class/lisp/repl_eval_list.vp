@@ -46,7 +46,7 @@
 	(f-call 'ref 'deref {*iter})
 	(assign {pdata} {*iter})
 
-	(assign {pdata->obj_vtable != @class/class_error} '(r1))
+	(assign (cat {pdata->obj_vtable != @} (f-path 'class 'error)) '(r1))
 	(pop-scope)
 	(return)
 

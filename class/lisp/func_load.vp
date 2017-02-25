@@ -20,7 +20,7 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
 		(f-call 'vector 'get_element {args, 0} {name})
-		(f-call 'obj 'inst_of {name, @class/class_string} {value})
+		(f-call 'obj 'inst_of (cat {name, @} (f-path 'class 'string)) {value})
 		(vpif {value})
 			(f-call 'string 'create_from_file {&name->string_data} {value})
 			(vpifnot {value})

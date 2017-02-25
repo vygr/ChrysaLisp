@@ -22,7 +22,7 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
 		(f-call 'vector 'get_element {args, 0} {pipe})
-		(f-call 'obj 'inst_of {pipe, @class/class_string} {value})
+		(f-call 'obj 'inst_of (cat {pipe, @} (f-path 'class 'string)) {value})
 		(vpif {value})
 			(f-call 'master 'create {} {value})
 			(f-call 'master 'start {value, &pipe->string_data, pipe->string_length})

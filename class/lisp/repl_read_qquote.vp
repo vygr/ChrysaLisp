@@ -27,7 +27,7 @@
 	(f-call 'ref 'ref {elem})
 	(f-call 'vector 'push_back {list, elem})
 	(f-call 'lisp 'repl_read {this, stream, char} {elem, char})
-	(vpif {elem->obj_vtable != @class/class_error})
+	(vpif (cat {elem->obj_vtable != @} (f-path 'class 'error)))
 		(f-call 'vector 'push_back {list, elem})
 	(else)
 		(f-call 'ref 'deref {list})

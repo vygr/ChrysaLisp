@@ -44,7 +44,7 @@
 	(assign '(r0 r1) {pdata, iter})
 
 	(f-call 'ref 'deref {pdata->pdata_value})
-	(vpif {(*iter)->obj_vtable == @class/class_vector})
+	(vpif (cat {(*iter)->obj_vtable == @} (f-path 'class 'vector)))
 		(assign {*iter} {pdata->pdata_value})
 		(f-call 'vector 'clear {pdata->pdata_value})
 		(f-call 'ref 'ref {pdata->pdata_value})

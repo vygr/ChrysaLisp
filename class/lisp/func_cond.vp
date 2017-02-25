@@ -44,12 +44,12 @@
 	(push-scope)
 	(assign '(r0 r1) {pdata, iter})
 
-	(vpif {(*iter)->obj_vtable == @class/class_vector})
+	(vpif (cat {(*iter)->obj_vtable == @} (f-path 'class 'vector)))
 		(d-call 'vector 'get_length {*iter} {length})
 		(vpif {length})
 			(f-call 'vector 'get_element {*iter, 0} {test})
 			(f-call 'lisp 'repl_eval {pdata->pdata_this, test} {test})
-			(vpif {test->obj_vtable == @class/class_error})
+			(vpif (cat {test->obj_vtable == @} (f-path 'class 'error)))
 				(f-call 'ref 'deref {pdata->pdata_value})
 				(assign {test} {pdata->pdata_value})
 				(assign {0} '(r1))
@@ -94,7 +94,7 @@
 	(f-call 'ref 'deref {pdata->pdata_value})
 	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {pdata->pdata_value})
 
-	(assign {pdata->pdata_value->obj_vtable != @class/class_error} '(r1))
+	(assign (cat {pdata->pdata_value->obj_vtable != @} (f-path 'class 'error)) '(r1))
 	(pop-scope)
 	(return)
 

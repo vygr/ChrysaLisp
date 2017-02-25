@@ -20,7 +20,7 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length > 1})
 		(f-call 'vector 'get_element {args, 0} {value})
-		(vpif {value->obj_vtable == @class/class_vector})
+		(vpif (cat {value->obj_vtable == @} (f-path 'class 'vector)))
 			(f-call 'ref 'ref {value})
 			(f-call 'vector 'for_each {args, 1, length, $callback, value} {_})
 		(else)

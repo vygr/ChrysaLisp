@@ -19,7 +19,7 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
 		(f-call 'vector 'get_element {args, 0} {args})
-		(vpif {args->obj_vtable == @class/class_vector})
+		(vpif (cat {args->obj_vtable == @} (f-path 'class 'vector)))
 			(d-call 'vector 'get_length {args} {length})
 			(d-call 'vector 'slice {args, 0, length} {args})
 			(f-call 'vector 'for_each {args, 0, length, $callback, 0} {_})
@@ -49,7 +49,7 @@
 	(assign '(r0 r1) {pdata, iter})
 
 	(assign {*iter} {pdata})
-	(vpif {pdata->obj_vtable == @class/class_vector})
+	(vpif (cat {pdata->obj_vtable == @} (f-path 'class 'vector)))
 		(d-call 'vector 'get_length {pdata} {length})
 		(d-call 'vector 'slice {pdata, 0, length} {pdata})
 		(f-call 'vector 'for_each {pdata, 0, length, $callback, 0} {_})

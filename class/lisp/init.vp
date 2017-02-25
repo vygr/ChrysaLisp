@@ -56,7 +56,7 @@
 		;interned symbols set and enviroments
 		(assign {ptr ($symbols)} {this->lisp_symbols})
 		(vpifnot {this->lisp_symbols})
-			(f-call 'unordered_set 'create (cat {@} (f-path 'symbol 'compare) {, 101}) {this->lisp_symbols})
+			(f-call 'unordered_set 'create (cat {@} (f-path 'symbol 'same) {, 101}) {this->lisp_symbols})
 			(assign {this->lisp_symbols} {ptr($symbols)})
 		(endif)
 		(f-call 'unordered_map 'create {$match_obj, 31} {this->lisp_enviroment})

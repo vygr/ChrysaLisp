@@ -25,10 +25,10 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 2})
 		(f-call 'vector 'get_element {args, 0} {stream})
-		(f-call 'obj 'inst_of {stream, @class/class_stream} {value})
+		(f-call 'obj 'inst_of (cat {stream, @} (f-path 'class 'stream)) {value})
 		(vpif {value})
 			(f-call 'vector 'get_element {args, 1} {value})
-			(f-call 'obj 'inst_of {value, @class/class_string} {old_file})
+			(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'string)) {old_file})
 			(vpif {old_file})
 				;push old file and line, set to this stream info
 				(f-call 'lisp 'env_get {this, this->lisp_sym_stream_name} {old_file})
@@ -62,7 +62,7 @@
 						(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 					(endif)
 
-					(gotoif {value->obj_vtable == @class/class_error} 'error)
+					(gotoif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'error)
 					(f-call 'ref 'deref {value})
 				(loop-end)
 

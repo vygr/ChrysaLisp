@@ -20,7 +20,7 @@
 	(f-call 'slave 'create {} {slave})
 	(vpif {slave})
 		;create string set
-		(f-call 'unordered_set 'create {@class/string/compare, 31} {set})
+		(f-call 'unordered_set 'create (cat {@} (f-path 'string 'same) {, 31}) {set})
 
 		;arg 1 is command name
 		(f-call 'slave 'get_args {slave} {args})

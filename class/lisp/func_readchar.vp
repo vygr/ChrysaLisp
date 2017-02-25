@@ -21,7 +21,7 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 1})
 		(f-call 'vector 'get_element {args, 0} {value})
-		(vpif {value->obj_vtable == @class/class_stream_str})
+		(vpif (cat {value->obj_vtable == @} (f-path 'class 'stream_str)))
 			(f-call 'stream_str 'read_char {value} {length})
 			(vpif {length == -1})
 				(assign {this->lisp_sym_nil} {value})

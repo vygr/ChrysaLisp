@@ -22,14 +22,14 @@
 	(push-scope)
 	(assign '(r0 r1 r2) {this, func, ast})
 
-	(vpif {func->obj_vtable == @class/class_boxed_ptr})
+	(vpif (cat {func->obj_vtable == @} (f-path 'class 'boxed_ptr)))
 		;built in or compiled function
 		(assign {this, ast, func} '(r0 r1 r2))
 		(vp-cpy-ir r2 boxed_ptr_value r2)
 		(vp-and-cr -8 r2)
 		(vp-call-r r2)
 		(assign '(r1) {value})
-	(elseif {func->obj_vtable == @class/class_vector})
+	(elseif (cat {func->obj_vtable == @} (f-path 'class 'vector)))
 		;lambda
 		(ptr 'vars)
 		(uint 'length)
@@ -41,7 +41,7 @@
 				(f-call 'lisp 'env_push {this})
 				(f-call 'vector 'get_element {func, 1} {vars})
 				(f-call 'lisp 'env_bind {this, vars, ast, 0} {value})
-				(vpif {value->obj_vtable != @class/class_error})
+				(vpif (cat {value->obj_vtable != @} (f-path 'class 'error)))
 					(f-call 'vector 'for_each {func, 2, length, $callback, &this} {_})
 				(endif)
 				(f-call 'lisp 'env_pop {this})
@@ -76,7 +76,7 @@
 	(f-call 'ref 'deref {pdata->pdata_value})
 	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {pdata->pdata_value})
 
-	(assign {pdata->pdata_value->obj_vtable != @class/class_error} '(r1))
+	(assign (cat {pdata->pdata_value->obj_vtable != @} (f-path 'class 'error)) '(r1))
 	(pop-scope)
 	(return)
 

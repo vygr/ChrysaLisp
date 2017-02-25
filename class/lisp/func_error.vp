@@ -21,7 +21,7 @@
 	(d-call 'vector 'get_length {args} {length})
 	(vpif {length == 2})
 		(f-call 'vector 'get_element {args, 0} {str})
-		(f-call 'obj 'inst_of {str, @class/class_string} {value})
+		(f-call 'obj 'inst_of (cat {str, @} (f-path 'class 'string)) {value})
 		(vpif {value})
 			(f-call 'vector 'get_element {args, 1} {value})
 			(f-call 'lisp 'repl_error {this, &str->string_data, value} {value})
