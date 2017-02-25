@@ -49,8 +49,7 @@
 
 	;init app vars
 	(push-scope)
-	(f-path 'class 'obj)
-	(f-call 'obj 'init (cat {&myapp, @} _function_) {_})
+	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)) {_})
 	(assign {0, 0} {max_tasks, myapp.app_closed})
 
 	;create my window

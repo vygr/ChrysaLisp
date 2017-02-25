@@ -21,8 +21,7 @@
 	(f-call 'string 'new '((& r0 (add string_size 1))) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-path 'class 'string)
-		(f-call 'string 'init `(r0 (@ ,_function_) 0 r6) '(r1))
+		(f-call 'string 'init `(r0 (@ ,(f-path 'class 'string)) 0 r6) '(r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
@@ -50,8 +49,7 @@
 	(f-call 'string 'new '((& r1 (add string_size 1))) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-path 'class 'string)
-		(f-call 'string 'init `(r0 (@ ,_function_) r6 r7) '(r1))
+		(f-call 'string 'init `(r0 (@ ,(f-path 'class 'string)) r6 r7) '(r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
@@ -110,8 +108,7 @@
 	(f-call 'string 'new '((& r1 (add string_size 1))) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-path 'class 'string)
-		(f-call 'string 'init2 `(r0 (@ ,_function_) r6 (r7 stat_fsize)) '(r1))
+		(f-call 'string 'init2 `(r0 (@ ,(f-path 'class 'string)) r6 (r7 stat_fsize)) '(r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
@@ -140,8 +137,7 @@
 	(push-scope)
 	(assign '(r0 r1) {num, base})
 
-	(f-path 'sys_load 'statics)
-	(assign (cat "@" _function_) {reloc})
+	(assign (cat "@" (f-path 'sys_load 'statics)) {reloc})
 	(assign {reloc->ld_statics_reloc_buffer} {reloc})
 	(assign {reloc} {buffer})
 	(vpif {num < 0})
@@ -387,8 +383,7 @@
 	(f-call 'string 'new '(r0) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-path 'class 'string)
-		(f-call 'string 'init1 `(r0 (@ ,_function_) r6 r7) '(r1))
+		(f-call 'string 'init1 `(r0 (@ ,(f-path 'class 'string)) r6 r7) '(r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
@@ -425,8 +420,7 @@
 	(f-call 'string 'new '(r0) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-path 'class 'string)
-		(f-call 'string 'init3 `(r0 (@ ,_function_) r6) '(r1))
+		(f-call 'string 'init3 `(r0 (@ ,(f-path 'class 'string)) r6) '(r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)

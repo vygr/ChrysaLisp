@@ -18,8 +18,7 @@
 
 	;init app vars
 	(push-scope)
-	(f-path 'class 'obj)
-	(f-call 'obj 'init (cat {&myapp, @} _function_) {_})
+	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)) {_})
 
 	;create my window
 	(f-call 'window 'create {0} {window})

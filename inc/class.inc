@@ -77,23 +77,19 @@
 	(if (eq s (length c))
 		(error "No such method !" (list %1 %2))))
 
-(defcfun f-path (%1 %2 &optional %3)
+(defcfun f-path (%1 %2)
 	;%1 = class name
 	;%2 = slot method name
-	;%3 = macro name
-	(setq %3 (if %3 %3 '_function_))
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
-	(defcvar %3 (elem 1 (elem s (eval (class-name %1))))))
+	(elem 1 (elem s (eval (class-name %1)))))
 
-(defcfun s-path (%1 %2 &optional %3)
+(defcfun s-path (%1 %2)
 	;%1 = class name
 	;%2 = slot method name
-	;%3 = macro name
-	(setq %3 (if %3 %3 '_function_) n (eval (super-name %1)))
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
-	(defcvar %3 (elem 1 (elem s (eval n)))))
+	(elem 1 (elem s (eval (eval (super-name %1))))))
 
 ;;;;;;;;;;;;;;;;
 ; method calling
@@ -322,14 +318,11 @@
 
 (defcfun class-macro-class (%1)
 	;%1 = class name
-	(f-path 'class %1)
-	(def-func _function_)
+	(def-func (f-path 'class %1))
 		(defq c (eval (super-name %1)))
 		(if (eql c 'null)
 			(vtable-emit %1)
-			(progn
-				(f-path 'class c)
-				(vtable-emit %1 _function_)))
+			(vtable-emit %1 (f-path 'class c)))
 	(def-func-end))
 
 (defcfun class-macro-create (%1 &optional %2)
@@ -347,8 +340,7 @@
 		(f-call %1 'new '() '(r0))
 		(vpif '(r0 != 0))
 			;init the object
-			(f-path 'class %1)
-			(f-call %1 'init `(r0 (@ ,_function_) ~%4) '(r1))
+			(f-call %1 'init `(r0 (@ ,(f-path 'class %1)) ~%4) '(r1))
 			(vpif '(r1 == 0))
 				;error with init
 				(v-call %1 'delete '(r0) '() r1)
