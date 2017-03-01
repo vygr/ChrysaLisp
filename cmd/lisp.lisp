@@ -53,16 +53,14 @@
 
 (defmacro or (x &rest b)
 	(if (eq 0 (length b)) x
-		(progn (defq _x (gensym))
-			`(if (defq ,_x ,x) ,_x (or ~b)))))
+		`(if (defq ,(defq _x (gensym)) ,x) ,_x (or ~b))))
 
 (defmacro and (x &rest b)
 	(if (eq 0 (length b)) x
 		`(if ,x (and ~b) nil)))
 
 (defmacro times (c &rest b)
-	(defq _c (gensym))
-	`(progn (defq ,_c ,c)
+	`(progn (defq ,(defq _c (gensym)) ,c)
 		(while (le 0 (setq ,_c (dec ,_c))) ~b)))
 
 ;;;;;;;;;;;;
