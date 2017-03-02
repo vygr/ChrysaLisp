@@ -133,15 +133,13 @@
 
 (defcfun emit-push (&rest b)
 	(each (lambda (r)
-		(setq r (reg r))
-		(if (ge r 8)
+		(if (ge (setq r (reg r)) 8)
 			(emit-byte 0x41 (add 0x48 r))
 			(emit-byte (add 0x50 r)))) b))
 
 (defcfun emit-pop (&rest b)
 	(each-rev (lambda (r)
-		(setq r (reg r))
-		(if (ge r 8)
+		(if (ge (setq r (reg r)) 8)
 			(emit-byte 0x41 (add 0x50 r))
 			(emit-byte (add 0x58 r)))) b))
 
@@ -167,9 +165,8 @@
 (defcfun emit-bge (l d) (emit-branch 0x7d (sub l *pc*) d))
 
 (defcfun emit-call (l)
-	(defq c (sub l *pc* 5))
 	(cond
-		((le -0x80000000 c 0x7fffffff)
+		((le -0x80000000 (defq c (sub l *pc* 5)) 0x7fffffff)
 			(emit-byte 0xe8)
 			(emit-int c))
 		(t (error "emit-call constant out of range" c))))
