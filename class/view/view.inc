@@ -61,8 +61,8 @@
 	(ptr 'view_dirty_region)
 	(ptr 'view_opaque_region)
 	(ptr 'view_ctx_node)
-	(ulong 'view_last_buttons)
-	(ulong 'view_flags)
+	(uint 'view_last_buttons)
+	(uint 'view_flags)
 	(int 'view_ctx_x)
 	(int 'view_ctx_y)
 	(int 'view_x)
@@ -96,7 +96,7 @@
 	;inputs
 	;r0 = view object
 	;r1 = flags
-	(vp-cpy-ri r1 r0 view_flags))
+	(vp-cpy-ri-i r1 r0 view_flags))
 
 (defcfun class/view/set_owner ()
 	;inputs

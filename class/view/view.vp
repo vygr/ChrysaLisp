@@ -17,13 +17,13 @@
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-cpy-cr view_flag_solid r1)
-		(vp-cpy-ri r1 r0 view_flags)
+		(vp-cpy-ri-i r1 r0 view_flags)
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri r1 r0 view_parent)
 		(vp-cpy-ri r1 r0 view_tcb)
 		(vp-cpy-ri r1 r0 view_dirty_region)
 		(vp-cpy-ri r1 r0 view_opaque_region)
-		(vp-cpy-ri r1 r0 view_last_buttons)
+		(vp-cpy-ri-i r1 r0 view_last_buttons)
 		(vp-cpy-ri-i r1 r0 view_color)
 		(vp-cpy-ri-i r1 r0 view_w)
 		(vp-cpy-ri-i r1 r0 view_h)
@@ -396,7 +396,7 @@
 	(case '(r2 == ev_type_mouse))
 		;so what state are we in ?
 		(vp-cpy-ir r1 ev_msg_buttons r2)
-		(vp-cpy-ir r0 view_last_buttons r3)
+		(vp-cpy-ir-ui r0 view_last_buttons r3)
 		(vpif '(r3 != 0))
 			;was down previously
 			(vpif '(r2 != 0))
@@ -404,14 +404,14 @@
 				(v-jmp 'view 'mouse_move '(r0 r1))
 			(else)
 				;is not down now, so release
-				(vp-cpy-ri r2 r0 view_last_buttons)
+				(vp-cpy-ri-i r2 r0 view_last_buttons)
 				(v-jmp 'view 'mouse_up '(r0 r1))
 			(endif)
 		(else)
 			;was not down previously
 			(vpif '(r2 != 0))
 				;is down now, so first down
-				(vp-cpy-ri r2 r0 view_last_buttons)
+				(vp-cpy-ri-i r2 r0 view_last_buttons)
 				(v-jmp 'view 'mouse_down '(r0 r1))
 			(else)
 				;is not down now, so hover
@@ -670,7 +670,7 @@
 				(vp-cpy-ir-i r0 view_h r1)
 				(vpif '(r9 < r1))
 					;hit ?
-					(vp-cpy-ir r0 view_flags r1)
+					(vp-cpy-ir-ui r0 view_flags r1)
 					(vp-and-cr view_flag_solid r1)
 					(vp-ret)
 				(endif)
@@ -723,7 +723,7 @@
 	(vp-sub-rr r1 r8)
 	(vp-cpy-ir-i r0 view_y r1)
 	(vp-sub-rr r1 r9)
-	(vp-cpy-ir r0 view_flags r1)
+	(vp-cpy-ir-ui r0 view_flags r1)
 	(vp-and-cr view_flag_solid r1)
 	(vp-ret)
 
