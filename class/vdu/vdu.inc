@@ -28,3 +28,13 @@
 	(ushort 'vdu_char_height)
 	(uint 'vdu_text_color)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
+
+(defcfun class/vdu/set_text_color ()
+	;inputs
+	;r0 = vdu object
+	;r1 = color
+	(vp-cpy-ri r1 r0 vdu_text_color))

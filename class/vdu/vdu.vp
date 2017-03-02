@@ -178,16 +178,6 @@
 
 (def-func-end)
 
-(def-func 'class/vdu/set_text_color)
-	;inputs
-	;r0 = vdu object
-	;r1 = color
-
-	(vp-cpy-ri r1 r0 vdu_text_color)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/vdu/print_char)
 	;inputs
 	;r0 = vdu object
