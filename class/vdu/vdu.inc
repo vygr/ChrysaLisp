@@ -37,4 +37,4 @@
 	;inputs
 	;r0 = vdu object
 	;r1 = color
-	(vp-cpy-ri r1 r0 vdu_text_color))
+	(vp-cpy-ri-i r1 r0 vdu_text_color))
