@@ -99,7 +99,7 @@
 
 (defun each-mergeable-rev (_f _l)
 	(defq _ (length _l))
-	(while (ge 0 (setq _ (dec _)))
+	(while (ge (setq _ (dec _)) 0)
 		(_f (elem _ _l))))
 
 (defun each (_f &rest _b)
