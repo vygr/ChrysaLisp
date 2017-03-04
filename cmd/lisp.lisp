@@ -521,12 +521,10 @@
 		(push l (char 0 8))
 		(elem-set 1 x (apply cat l))) b)
 	;build list of all sections of boot image
-	(defq q (list))
-	(each (lambda (x) (push q (elem 0 x) (elem 1 x))) b)
-	(push q z)
-	(each (lambda (x) (push q (cat x (char 0)))) f)
 	;concatenate all sections and save
-	(save (setq f (apply cat q)) (func-obj 'sys/boot_image))
+	(save (setq f (apply cat (reduce (lambda (x y)
+		(push x (cat y (char 0)))) f (push (reduce (lambda (x y)
+			(push x (elem 0 y) (elem 1 y))) b (list)) z)))) (func-obj 'sys/boot_image))
 	(setq *env* nil)
 	(print "image -> " (func-obj 'sys/boot_image) " (" (length f) ")") nil)
 
