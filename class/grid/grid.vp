@@ -35,10 +35,9 @@
 	(def-struct-end)
 
 	(vp-sub-cr local_size r4)
-	(vp-xor-rr r1 r1)
-	(vp-cpy-ri-i r1 r4 local_count)
-
 	(vp-xor-rr r10 r10)
+	(vp-cpy-ri-i r10 r4 local_count)
+
 	(vp-cpy-ir-i r0 view_w r9)
 	(vp-shl-cr fixed_point r9)
 	(vp-cpy-ir-ui r0 grid_width r8)
