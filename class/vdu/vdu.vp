@@ -214,6 +214,13 @@
 			(assign {32} {(inst->vdu_chars)[inst->vdu_cursor_y * inst->vdu_width + inst->vdu_cursor_x]})
 			(f-call 'vdu 'add_dirty {inst, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
 		(endif)
+	(elseif {char == 129})
+		;clear line
+		(vpif {inst->vdu_cursor_x != 0})
+			(f-call 'sys_mem 'fill {inst->vdu_chars + inst->vdu_cursor_y * inst->vdu_width, inst->vdu_width, 32} {_})
+			(f-call 'vdu 'add_dirty {inst, 0, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_char_height})
+			(assign {0} {inst->vdu_cursor_x})
+		(endif)
 	(elseif {char >= 32 && char < 127})
 		;printable char
 		(assign {char} {(inst->vdu_chars)[inst->vdu_cursor_y * inst->vdu_width + inst->vdu_cursor_x]})

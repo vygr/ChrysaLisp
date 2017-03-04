@@ -273,6 +273,7 @@
 	(endif)
 	(vpif {char == 129 || char == 130})
 		;cursor up/down
+		(f-call 'vdu 'print_char {shared->shared_vdu, 129})
 	(elseif {char == 9})
 		;tab
 		(f-call 'vdu 'print_char {shared->shared_vdu, 32})
