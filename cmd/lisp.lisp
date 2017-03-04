@@ -516,10 +516,9 @@
 		(add x (length y) 1)) f 0)
 	;create new link sections with offsets to new paths
 	(each (lambda (x)
-		(defq u (elem _ o) l (map (lambda (y)
-			(char (add (elem (find y f) s) (sub p u (mul _ 8))) 8)) (elem 2 x)))
-		(push l (char 0 8))
-		(elem-set 1 x (apply cat l))) b)
+		(defq u (elem _ o))
+		(elem-set 1 x (apply cat (push (map (lambda (y)
+			(char (add (elem (find y f) s) (sub p u (mul _ 8))) 8)) (elem 2 x)) (char 0 8))))) b)
 	;build list of all sections of boot image
 	;concatenate all sections and save
 	(save (setq f (apply cat (reduce (lambda (x y)
