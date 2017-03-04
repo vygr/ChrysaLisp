@@ -101,6 +101,8 @@
 			(loop-end)
 			(assign {by + 1} {by})
 		(loop-end)
+		(f-call 'gui_ctx 'set_color {ctx, inst->vdu_text_color})
+		(f-call 'gui_ctx 'filled_box {ctx, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
 	(endif)
 
 	(assign {inst} '(r0))
@@ -190,6 +192,9 @@
 	(push-scope)
 	(assign '(r0 r1) {inst, char})
 
+	;dirty old cursor area
+	(f-call 'vdu 'add_dirty {inst, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
+
 	;wrap cursor, maybe scroll
 	(vpif {inst->vdu_cursor_x >= inst->vdu_width})
 		(assign {0} {inst->vdu_cursor_x})
@@ -227,6 +232,9 @@
 		(f-call 'vdu 'add_dirty {inst, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
 		(assign {inst->vdu_cursor_x + 1} {inst->vdu_cursor_x})
 	(endif)
+
+	;dirty new cursor area
+	(f-call 'vdu 'add_dirty {inst, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
 
 	(pop-scope)
 	(return)
