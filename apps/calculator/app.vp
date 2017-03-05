@@ -31,12 +31,8 @@
 
 	;init app vars
 	(push-scope)
+	(f-call 'sys_mem 'clear {&myapp, shared_size} {_})
 	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)) {_})
-	(assign {0} {myapp.shared_accum})
-	(assign {0} {myapp.shared_value})
-	(assign {0} {myapp.shared_last_op})
-	(assign {0} {myapp.shared_last_flag})
-	(assign {0} {myapp.shared_closed})
 
 	;create my window
 	(f-call 'window 'create {window_flag_close} {window})

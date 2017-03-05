@@ -30,11 +30,10 @@
 
 	;init app vars
 	(push-scope)
+	(f-call 'sys_mem 'clear {&myapp, shared_size} {_})
 	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)) {_})
 	(f-call 'master 'create {} {myapp.shared_master})
 	(f-call 'vector 'create {} {myapp.shared_history})
-	(assign {0} {myapp.shared_history_index})
-	(assign {0} {myapp.shared_closed})
 
 	;create my window
 	(f-call 'window 'create {window_flag_status | window_flag_close} {myapp.shared_window})
