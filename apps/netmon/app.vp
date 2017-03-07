@@ -214,7 +214,7 @@
 		(f-call 'sys_task 'yield)
 	(loop-until {myapp.app_closed})
 
-	;wait for outstanding replys
+	;wait for outstanding replies
 	(loop-while {cpu_count != cpu_total})
 		(f-call 'sys_mail 'read {select.sel_select2} {msg})
 		(f-call 'sys_mem 'free {msg})
@@ -257,9 +257,7 @@
 	(pop-scope)
 	(return)
 
-(setq debug_emit t)
 (def-func-end)
-(setq debug_emit nil)
 
 (def-func 'apps/netmon/child)
 	;monitor task
