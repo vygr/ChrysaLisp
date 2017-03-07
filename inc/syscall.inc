@@ -111,8 +111,10 @@
 	(vp-xor-rr r2 r2)
 	(sys-call sys_gettimeofday)
 	(vp-pop r1)
-	(vp-cpy-ri r0 r1 timeval_sec)
-	(vp-cpy-ri r2 r1 timeval_usec))
+	(vpif '(r0 != 0))
+		(vp-cpy-ri r0 r1 timeval_sec)
+		(vp-cpy-ri r2 r1 timeval_usec)
+	(endif))
 
 )
 (when (eql *os* 'Linux)
