@@ -108,6 +108,7 @@
 	;time, timezone
 	(assign %1 '(r7 r6))
 	(vp-push r7)
+	(vp-xor r2 r2)
 	(sys-call sys_gettimeofday)
 	(vp-pop r1)
 	(vp-cpy-ri r0 r1 timeval_sec)
