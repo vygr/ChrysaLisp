@@ -74,7 +74,7 @@
 		(d-call 'vector 'ref_element '(r8 r5) '(r1))
 		(vp-cpy-rd r1 r3 r7)
 		(vp-add-cr ptr_size r7)
-		(vp-inc r5)
+		(vp-add-cr 1 r5)
 	(loop-end)
 
 	(vp-cpy-ir r4 local_inst r0)
@@ -224,7 +224,7 @@
 
 	(vp-cpy-ir-ui r0 vector_length r1)
 	(vp-cpy-ir r0 vector_array r2)
-	(vp-dec r1)
+	(vp-sub-cr 1 r1)
 	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-cpy-dr r2 r1 r1)
 	(vp-ret)
@@ -253,7 +253,7 @@
 
 	(vp-push r0)
 	(vp-cpy-ir-ui r0 vector_length r1)
-	(vp-dec r1)
+	(vp-sub-cr 1 r1)
 	(vp-cpy-ri-i r1 r0 vector_length)
 	(vp-cpy-ir r0 vector_array r0)
 	(vp-shl-cr (pow2 ptr_size) r1)
@@ -276,7 +276,7 @@
 	;increase capacity ?
 	(vp-cpy-ir-ui r0 vector_length r2)
 	(vp-cpy-ir-ui r0 vector_capacity r3)
-	(vp-inc r2)
+	(vp-add-cr 1 r2)
 	(vp-cpy-ri-i r2 r0 vector_length)
 	(vpif '(r2 > r3))
 		;double the capacity
@@ -307,7 +307,7 @@
 
 	(vp-cpy-ir-ui r0 vector_length r1)
 	(vp-cpy-rr r0 r2)
-	(vp-dec r1)
+	(vp-sub-cr 1 r1)
 	(vp-cpy-ir r0 vector_array r0)
 	(vp-shl-cr (pow2 ptr_size) r1)
 	(f-call 'ref 'ref '((r0 r1)))
@@ -426,7 +426,7 @@
 		(d-call 'vector 'ref_element '(r0 r10) '(r1))
 		(vp-cpy-rd r1 r3 r7)
 		(vp-add-cr ptr_size r7)
-		(vp-inc r10)
+		(vp-add-cr 1 r10)
 	(loop-end)
 
 	(vp-cpy-rr r12 r1)

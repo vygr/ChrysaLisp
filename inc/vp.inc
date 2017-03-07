@@ -219,8 +219,6 @@
 (defcfun vp-asr-rr (s d) (emit `(emit-asr-rr ,s ,d)))
 
 (defcfun vp-ret () (emit '(emit-ret)))
-(defcfun vp-inc (d) (emit `(emit-inc ,d)))
-(defcfun vp-dec (d) (emit `(emit-dec ,d)))
 (defcfun vp-xchg-rr (s d) (emit `(emit-xchg-rr ,s ,d)))
 (defcfun vp-ext-rr (s d) (emit `(emit-ext-rr ,s ,d ,(dec (length (push *distance* 0))))))
 (defcfun vp-div-rrr (d r q) (emit `(emit-div-rrr ,d ,r ,q)))

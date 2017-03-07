@@ -21,5 +21,5 @@
 	;trashes
 	;r1
 	(vp-cpy-ir r0 ref_count r1)
-	(vp-inc r1)
+	(vp-add-cr 1 r1)
 	(vp-cpy-ri r1 r0 ref_count))

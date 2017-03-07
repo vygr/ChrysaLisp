@@ -106,7 +106,7 @@
 		(vp-cpy-ir-ub r0 0xe5 r10)
 		(vp-or-rr r8 r10)
 		(loop-while '(r2 != 0))
-			(vp-dec r2)
+			(vp-sub-cr 1 r2)
 			(vp-cpy-dr-ub r0 r2 r8)
 			(vp-cpy-dr-ub r1 r2 r9)
 			(vpif '(r8 != r9))

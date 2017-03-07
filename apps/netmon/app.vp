@@ -257,7 +257,9 @@
 	(pop-scope)
 	(return)
 
+(setq debug_emit t)
 (def-func-end)
+(setq debug_emit nil)
 
 (def-func 'apps/netmon/child)
 	;monitor task

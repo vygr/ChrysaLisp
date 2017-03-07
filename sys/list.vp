@@ -32,7 +32,7 @@
 			(vp-ret)
 		(endif)
 		(breakif '(r3 == r1))
-		(vp-inc r0)
+		(vp-add-cr 1 r0)
 	(loop-end)
 	(vp-ret)
 
@@ -56,7 +56,7 @@
 			(vp-ret)
 		(endif)
 		(breakif '(r1 == 0))
-		(vp-dec r1)
+		(vp-sub-cr 1 r1)
 	(loop-end)
 	(vp-ret)
 

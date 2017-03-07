@@ -49,7 +49,7 @@
 
 	;fill in num cpu's with at least mine + 1
 	(f-call 'sys_cpu 'id '() '(r0))
-	(vp-inc r0)
+	(vp-add-cr 1 r0)
 	(f-bind 'sys_task 'statics r1)
 	(vp-cpy-ri r0 r1 tk_statics_cpu_total)
 
@@ -126,7 +126,7 @@
 				;increase size of network ?
 				(f-bind 'sys_task 'statics r0)
 				(vp-cpy-ir r15 kn_msg_link_route_origin r1)
-				(vp-inc r1)
+				(vp-add-cr 1 r1)
 				(vp-cpy-ir r0 tk_statics_cpu_total r14)
 				(vpif '(r1 > r14))
 					(vp-cpy-ri r1 r0 tk_statics_cpu_total)
@@ -193,7 +193,7 @@
 
 				;increment hop count
 				(vp-cpy-ir r15 kn_msg_link_route_hops r1)
-				(vp-inc r1)
+				(vp-add-cr 1 r1)
 				(vp-cpy-ri r1 r15 kn_msg_link_route_hops)
 
 				;get current via, set via to my cpu id

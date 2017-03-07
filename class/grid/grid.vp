@@ -76,7 +76,7 @@
 	(vp-sub-rr r9 r11)
 
 	(vp-cpy-ir-i r1 local_count r2)
-	(vp-inc r2)
+	(vp-add-cr 1 r2)
 	(vp-cpy-ri-i r2 r1 local_count)
 	(f-jmp 'view 'change '(r0 r8 r9 r10 r11))
 

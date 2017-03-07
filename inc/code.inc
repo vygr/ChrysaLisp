@@ -546,7 +546,8 @@
 	'_v0 nil '_v1 nil '_v2 nil '_v3 nil '_v4 nil '_v5 nil '_v6 nil '_v7 nil
 	'_v8 nil '_v9 nil '_v10 nil '_v11 nil '_v12 nil '_v13 nil '_v14 nil '_v15 nil
 	'_t_0 nil '_t_1 nil '_t_2 nil '_t_3 nil '_t_4 nil '_t_5 nil '_t_6 nil '_t_7 nil
-	'_t_8 nil '_t_9 nil '_t_10 nil '_t_11 nil '_t_12 nil '_t_13 nil '_t_14 nil '_t_15 nil)
+	'_t_8 nil '_t_9 nil '_t_10 nil '_t_11 nil '_t_12 nil '_t_13 nil '_t_14 nil '_t_15 nil
+	'debug_inst nil)
 
 (defmacro vreg-sym (n)
 	`(sym-cat "_v" (str ,n)))
@@ -765,7 +766,7 @@
 		`(vpif (list ,x '!= 0))
 			`(vp-xor-rr ,x ,x)
 			`(vpif (list ,y '!= 0))
-				`(vp-inc ,x)
+				`(vp-add-cr 1 ,x)
 			'(endif)
 		'(endif)))
 
@@ -776,7 +777,7 @@
 	(defq x (pop-value))
 	(add-inst
 		`(vpif (list ,x '== 0))
-			`(vp-inc ,x)
+			`(vp-add-cr 1 ,x)
 		'(else)
 			`(vp-xor-rr ,x ,x)
 		'(endif)))
@@ -977,11 +978,11 @@
 			(token-to-rpn)
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
-		(when debug_emit
+		(when debug_inst
 			(print "(assign pre opt: " %1 " -> " %2)
 			(each print *inst*))
 		(opt-inst-list)
-		(when debug_emit
+		(when debug_inst
 			(print "(assign post opt: " %1 " -> " %2)
 			(each print *inst*))
 		(each res-reg-def *src*)
@@ -1003,11 +1004,11 @@
 			(compile-rpn-list)
 			(pop-value)
 			(inc-stack)) *src*)
-		(when debug_emit
+		(when debug_inst
 			(print "(assign pre opt: " %1 " -> " %2)
 			(each print *inst*))
 		(opt-inst-list)
-		(when debug_emit
+		(when debug_inst
 			(print "(assign post opt: " %1 " -> " %2)
 			(each print *inst*))
 		(each res-reg-def *dst*)
@@ -1032,11 +1033,11 @@
 			(token-to-rpn)
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
-		(when debug_emit
+		(when debug_inst
 			(print "(assign pre opt: " %1 " -> " %2)
 			(each print *inst*))
 		(opt-inst-list)
-		(when debug_emit
+		(when debug_inst
 			(print "(assign post opt: " %1 " -> " %2)
 			(each print *inst*))
 		(fill-reg-def)

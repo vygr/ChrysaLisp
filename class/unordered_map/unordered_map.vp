@@ -164,7 +164,7 @@
 		;new key
 		(vp-cpy-ir r4 local_inst r0)
 		(vp-cpy-ir r0 unordered_set_length r1)
-		(vp-inc r1)
+		(vp-add-cr 1 r1)
 		(vp-cpy-ri r1 r0 unordered_set_length)
 		(f-call 'ref 'ref '((r4 local_value)))
 		(f-call 'ref 'ref '((r4 local_key)))

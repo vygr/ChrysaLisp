@@ -108,9 +108,6 @@
 (defcfun emit-asr-cr (c r))
 (defcfun emit-asr-rr (s d))
 
-(defcfun emit-inc (r))
-(defcfun emit-dec (r))
-
 (defcfun emit-xchg-rr (s d) (unless (eql s d)))
 (defcfun emit-ext-rr (s d b))
 
