@@ -332,7 +332,7 @@
 		(error "Attempt to define offset into local stack !" f)))
 
 (defcfun struct (f s)
-	(defq s (eval (sym-cat s "_size")))
+	(if (sym? s) (setq s (eval (sym-cat s "_size"))))
 	(cond
 		(*struct*
 			(defcvar f *struct-offset* (type-sym f) nil)

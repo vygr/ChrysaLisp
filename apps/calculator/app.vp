@@ -10,13 +10,11 @@
 
 (def-func 'apps/calculator/app)
 
-	(defcvar 'buffer_size 32)
-
 	(def-struct 'shared 'obj)
 		(ptr 'shared_display)
 		(long 'shared_accum)
 		(long 'shared_value)
-		(struct 'shared_buffer 'buffer)
+		(struct 'shared_buffer 32)
 		(ubyte 'shared_last_op)
 		(ubyte 'shared_last_flag)
 		(ubyte 'shared_closed)

@@ -11,12 +11,11 @@
 (def-struct-end)
 
 (def-func 'apps/terminal/tui)
-	(defcvar 'buffer_size 120)
 
 	(def-struct 'shared)
 		(ptr 'shared_master)
 		(pubyte 'shared_bufp)
-		(struct 'shared_buffer 'buffer)
+		(struct 'shared_buffer 120)
 	(def-struct-end)
 
 	(struct 'shared 'shared)
