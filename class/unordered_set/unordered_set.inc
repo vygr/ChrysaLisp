@@ -22,5 +22,6 @@
 (def-struct 'unordered_set 'sequence)
 	(ptr 'unordered_set_buckets)
 	(ptr 'unordered_set_key_callback)
-	(ulong 'unordered_set_length)
+	(uint 'unordered_set_num_buckets)
+	(uint 'unordered_set_length)
 (def-struct-end)

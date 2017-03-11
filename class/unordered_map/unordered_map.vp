@@ -66,8 +66,8 @@
 	(f-call 'unordered_map 'set_parent '((r4 local_obj) r2))
 	(f-call 'unordered_map 'for_each '((r4 local_inst) ($ callback) r4) '(_ _))
 	(vp-cpy-ir r4 local_obj r1)
-	(vp-cpy-ir r0 unordered_set_length r2)
-	(vp-cpy-ri r2 r1 unordered_set_length)
+	(vp-cpy-ir-ui r0 unordered_set_length r2)
+	(vp-cpy-ri-i r2 r1 unordered_set_length)
 
 	(vp-add-cr local_size r4)
 	(vp-ret)
@@ -163,9 +163,9 @@
 	(vpif '(r1 == 0))
 		;new key
 		(vp-cpy-ir r4 local_inst r0)
-		(vp-cpy-ir r0 unordered_set_length r1)
+		(vp-cpy-ir-ui r0 unordered_set_length r1)
 		(vp-add-cr 1 r1)
-		(vp-cpy-ri r1 r0 unordered_set_length)
+		(vp-cpy-ri-i r1 r0 unordered_set_length)
 		(f-call 'ref 'ref '((r4 local_value)))
 		(f-call 'ref 'ref '((r4 local_key)))
 		(f-call 'pair 'create '(r0 (r4 local_value)) '(r0))
@@ -226,7 +226,7 @@
 	(f-call 'unordered_map 'create '((r0 unordered_set_key_callback) 1) '(r1))
 	(vp-cpy-rr r11 r0)
 	(vp-sub-rr r10 r0)
-	(vp-cpy-ri r0 r1 unordered_set_length)
+	(vp-cpy-ri-i r0 r1 unordered_set_length)
 	(f-jmp 'unordered_map 'slice_impl '(r9 r1 ($ callback) r10 r11))
 
 (vp-label 'callback)
