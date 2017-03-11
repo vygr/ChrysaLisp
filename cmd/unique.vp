@@ -7,10 +7,11 @@
 
 (def-func 'cmd/unique)
 
-	(defcvar 'buffer_size 120)
+	(defcvar 'buffer_size 256)
 
 	(ptr 'slave 'arg 'args 'stream 'set)
-	(uint 'argc 'index 'length)
+	(uint 'argc 'index)
+	(int 'length)
 	(struct 'buffer 'buffer)
 
 	;init app vars
