@@ -1,6 +1,6 @@
-(import 'class/sequence/sequence.inc)
+(import 'class/sliceable/sliceable.inc)
 
-(def-class 'string 'sequence)
+(def-class 'string 'sliceable)
 (def-method 'create_raw 'class/string/create_raw 'static '(r0) '(r0))
 (def-method 'create_from_buffer 'class/string/create_from_buffer 'static '(r0 r1) '(r0))
 (def-method 'create_from_cstr 'class/string/create_from_cstr 'static '(r0) '(r0))
@@ -23,7 +23,7 @@
 (def-method 'ref_element 'class/string/ref_element 'override)
 (def-method 'slice 'class/string/slice 'override)
 
-(def-struct 'string 'sequence)
+(def-struct 'string 'sliceable)
 	(ulong 'string_length)
 	(ulong 'string_hashcode)
 	(offset 'string_data)

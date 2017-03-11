@@ -14,7 +14,6 @@
 (def-method 'deinit 'class/pair/deinit 'override)
 (def-method 'get_length 'class/pair/get_length 'override)
 (def-method 'ref_element 'class/pair/ref_element 'override)
-(def-method 'slice 'class/pair/slice 'override)
 
 (def-struct 'pair 'sequence)
 	(ptr 'pair_first)

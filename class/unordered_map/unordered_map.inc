@@ -11,7 +11,6 @@
 (def-method 'set_parent 'class/unordered_map/set_parent 'static '(r0 r1))
 
 (def-method 'deinit 'class/unordered_map/deinit 'override)
-(def-method 'slice 'class/unordered_map/slice 'override)
 
 (def-struct 'unordered_map 'unordered_set)
 	(ptr 'unordered_map_parent)

@@ -1,6 +1,6 @@
-(import 'class/sequence/sequence.inc)
+(import 'class/sliceable/sliceable.inc)
 
-(def-class 'vector 'sequence)
+(def-class 'vector 'sliceable)
 (def-method 'create 'class/vector/create)
 (def-method 'new 'class/vector/new)
 (def-method 'init 'class/vector/init)
@@ -22,7 +22,7 @@
 (def-method 'ref_element 'class/vector/ref_element 'override)
 (def-method 'slice 'class/vector/slice 'override)
 
-(def-struct 'vector 'sequence)
+(def-struct 'vector 'sliceable)
 	(pptr 'vector_array)
 	(uint 'vector_length)
 	(uint 'vector_capacity)
