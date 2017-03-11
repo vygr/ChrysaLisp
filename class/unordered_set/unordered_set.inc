@@ -10,7 +10,6 @@
 (def-method 'find 'class/unordered_set/find 'static '(r0 r1) '(r1 r2))
 (def-method 'insert 'class/unordered_set/insert 'static '(r0 r1) '(r1 r2))
 (def-method 'erase 'class/unordered_set/erase 'static '(r0 r1 r2))
-(def-method 'get_iter 'class/unordered_set/get_iter 'static '(r0 r1) '(r1 r2))
 (def-method 'copy 'class/unordered_set/copy 'static '(r0 r1) '(r1))
 
 (def-method 'deinit 'class/unordered_set/deinit 'override)
