@@ -166,7 +166,9 @@
 	;d = debug string
 	(when debug_mode
 		(vp-push r0 r1 r2 r3 r5)
-		(fn-string (if d d "") r0)
+		(if d
+			(vp-cpy-rr d r0)
+			(fn-string "" r0))
 		(vp-push r0)
 		(vp-lea-p '_func_name_start r0)
 		(vp-cpy-cr 0 r1)
