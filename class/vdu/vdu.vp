@@ -212,6 +212,13 @@
 		;line feed
 		(assign {0} {inst->vdu_cursor_x})
 		(assign {inst->vdu_cursor_y + 1} {inst->vdu_cursor_y})
+	(elseif {char == 9})
+		;tab
+		(assign {4 - (inst->vdu_cursor_x & 3)} {char})
+		(loop-start)
+			(f-call 'vdu 'print_char {inst, 32})
+			(assign {char - 1} {char})
+		(loop-untilnot {char})
 	(elseif {char == 128})
 		;backspace
 		(vpif {inst->vdu_cursor_x != 0})
