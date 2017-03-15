@@ -1,4 +1,5 @@
 (import 'inc/func.inc)
+(import 'class/ref/ref.inc)
 
 (def-func 'class/lisp/func_lambda)
 	;inputs
