@@ -51,13 +51,13 @@
 	(def-struct 'local)
 		(ptr 'local_inst)
 		(ptr 'local_source)
-		(ulong 'local_start)
-		(ulong 'local_end)
+		(uint 'local_start)
+		(uint 'local_end)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1 r2 r3) '((r4 local_inst) (r4 local_source) (r4 local_start) (r4 local_end)))
+	(assign '(r0 r1 r2 r3) '((r4 local_inst) (r4 local_source) (r4 local_start i) (r4 local_end i)))
 
 	;extend existing vector
 	(vp-cpy-ir-ui r0 vector_length r1)
@@ -66,7 +66,7 @@
 	(f-call 'vector 'set_capacity '(r0 r1))
 
 	;copy elements
-	(assign '((r4 local_source) (r4 local_start) (r4 local_end)) '(r8 r5 r6))
+	(assign '((r4 local_source) (r4 local_start ui) (r4 local_end ui)) '(r8 r5 r6))
 	(vp-cpy-ir-ui r0 vector_length r7)
 	(vp-cpy-ir r0 vector_array r3)
 	(vp-shl-cr (pow2 ptr_size) r7)
