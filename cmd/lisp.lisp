@@ -311,7 +311,6 @@
 		(setq s (slice 0 -2 s))) s)
 
 (defun trim (s &optional c)
-	(setq c (if c c " "))
 	(trim-start (trim-end s c) c))
 
 (defun to-num (s)
