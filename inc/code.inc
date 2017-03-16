@@ -158,7 +158,7 @@
 (defcvar '*enum* nil)
 
 (defcfun def-enum (&optional b)
-	(setq *enum* (if b b 0)))
+	(setq *enum* (opt b 0)))
 
 (defcfun def-enum-end ()
 	(setq *enum* nil))
@@ -174,7 +174,7 @@
 (defcvar '*bit* nil)
 
 (defcfun def-bit (&optional b)
-	(setq *bit* (if b b 0)))
+	(setq *bit* (opt b 0)))
 
 (defcfun def-bit-end ()
 	(setq *bit* nil))
@@ -244,7 +244,7 @@
 	;%3 value1
 	;%4 value2
 	;%5 aux data
-	(setq %1 (sym %1) %4 (if %4 %4 0) %5 (if %5 %5 nil))
+	(setq %1 (sym %1) %4 (opt %4 0))
 	(defq s (elem 0 (elem -2 *scopes*)))
 	(while (ne s (length *symbols*))
 		(if (eql %1 (elem 1 (elem s *symbols*)))
@@ -268,7 +268,7 @@
 	;%2 precedence
 	;%3 associativity
 	;%4 compile macro
-	(setq %3 (if %3 %3 0) %4 (if %4 %4 compile-null))
+	(setq %3 (opt %3 0) %4 (opt %4 compile-null))
 	(def-sym %1 'op (mul %2 2) %3 %4))
 
 ;;;;;;;;;;;;;;;;;
@@ -282,13 +282,13 @@
 	`(sym-cat "_t_" (str ,s)))
 
 (defcfun local-align (&optional x)
-	(setq x (if x x long_size))
+	(setq x (opt x long_size))
 	(if *struct*
 		(setq *struct-offset* (align *struct-offset* x))
 		(setq *var-sp* (align *var-sp* x))))
 
 (defcfun def-struct (s &optional o)
-	(setq *struct* s *struct-offset* (eval (sym-cat (if o o "null") "_size"))))
+	(setq *struct* s *struct-offset* (eval (sym-cat (opt o "null") "_size"))))
 
 (defcfun def-struct-end ()
 	(local-align ptr_size)
@@ -571,7 +571,7 @@
 
 (defcfun reset-reg-stack (&optional %1)
 	;%1 = reserved slots
-	(setq %1 (if %1 %1 0) *s* -1 *r* 0)
+	(setq %1 (opt %1 0) *s* -1 *r* 0)
 	(while (lt (inc-stack) %1)
 		(nil-type)))
 

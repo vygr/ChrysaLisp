@@ -85,7 +85,7 @@
 		`(sub ,(label-sym '_func_entry) ,(label-sym '_func_start))
 		`(sub ,(label-sym '_func_links) ,(label-sym '_func_start))
 		`(sub ,(label-sym '_func_paths) ,(label-sym '_func_start))
-		(if *func-stack* *func-stack* tk_stack_size))
+		(opt *func-stack* tk_stack_size))
 	(vp-label '_func_name_start)
 	(vp-string (str *name*))
 	(vp-byte 0 `(sub ,(label-sym '_func_entry) ,(label-sym '_func_name_start)))
@@ -178,7 +178,7 @@
 		(vp-pop r0 r1 r2 r3 r5)))
 
 (defcfun abort (&optional s)
-	(setq s (if s s "Abort !"))
+	(setq s (opt s "Abort !"))
 	(debug-str s)
 	(sys-exit '(1)))
 
@@ -188,7 +188,7 @@
 	;c = val2
 	;d = debug string
 	(when debug_mode
-		(setq d (if d d "Assert Failure !"))
+		(setq d (opt d "Assert Failure !"))
 		(vpifnot b)
 			(abort d)
 		(endif)))

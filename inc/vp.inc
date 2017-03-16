@@ -65,7 +65,7 @@
 
 (defcfun emit-align (a &optional b)
 	(when (ne *pass* 0)
-		(defq p *pc* b (if b (bit-and b 0xff) 0) s *out-stream*)
+		(defq p *pc* b (opt b 0) s *out-stream*)
 		(setq *pc* (align p a))
 		(while (le (setq p (inc p)) *pc*)
 			(write-char s b))))

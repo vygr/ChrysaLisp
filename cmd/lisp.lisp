@@ -20,6 +20,8 @@
 (defmacro sym? (x) `(inst-of 'class/class_symbol ,x))
 (defmacro num? (x) `(inst-of 'class/class_boxed_long ,x))
 
+(defmacro opt (x y &optional z) (cond (z `(if ,x ,z ,y)) (t `(if ,x ,x ,y))))
+
 ;;;;;;;;;;;;;
 ; Definitions
 ;;;;;;;;;;;;;
@@ -78,7 +80,7 @@
 		(list y x)) _ '_)))
 
 (defun range (b e &optional s)
-	(defq l (list) s (if s (abs s) 1))
+	(defq l (list) s (opt s 1 (abs s)))
 	(if (le b e)
 		(while (le b e)
 			(push l b)
@@ -301,12 +303,12 @@
 	(prin-b x j))
 
 (defun trim-start (s &optional c)
-	(setq c (if c c " "))
+	(setq c (opt c " "))
 	(while (and (ne 0 (length s)) (eql (elem 0 s) c))
 		(setq s (slice 1 -1 s))) s)
 
 (defun trim-end (s &optional c)
-	(setq c (if c c " "))
+	(setq c (opt c " "))
 	(while (and (ne 0 (length s)) (eql (elem -2 s) c))
 		(setq s (slice 0 -2 s))) s)
 
@@ -392,7 +394,7 @@
 		(setq o (sym (read-line f)))) o)
 
 (defun compile (*files* &optional *os* *cpu* *pipes*)
-	(defq *os* (if *os* *os* (platform)) *cpu* (if *cpu* *cpu* (cpu))
+	(defq *os* (opt *os* (platform)) *cpu* (opt *cpu* (cpu))
 		*pipes* (if *pipes* *pipes* 1) q (list) e (list))
 	(unless (list? *files*)
 		(setq *files* (list *files*)))
@@ -453,7 +455,7 @@
 	(list d p))
 
 (defun make-boot (&optional r *funcs*)
-	(defq *env* (env 101) *funcs* (if *funcs* *funcs* (list)) z (cat (char 0 8) (char 0 8)))
+	(defq *env* (env 101) *funcs* (opt *funcs* (list)) z (cat (char 0 8) (char 0 8)))
 	(defun func-obj (f)
 		(cat "obj/" f))
 	(defun load-func (f)
@@ -583,7 +585,7 @@
 	(print "Time " (div n 100) "." (mod n 100) " seconds") n)
 
 (defun make-test (&optional i)
-	(defq b 1000000 n 0 i (if i i 10))
+	(defq b 1000000 n 0 i (opt i 10))
 	(times i (setq n (make-all) b (if (lt n b) n b)))
 	(print "Best time " (div b 100) "." (mod b 100) " seconds") nil)
 
