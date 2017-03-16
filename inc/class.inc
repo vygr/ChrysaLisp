@@ -100,7 +100,6 @@
 	;%2 = member name
 	;%3 = in parameters
 	;%4 = out parameters
-	(setd %3 (list) %4 (list))
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
 	(defq m (elem s c))
@@ -114,7 +113,6 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
-	(setd %3 (list))
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
 	(defq m (elem s c))
@@ -139,7 +137,6 @@
 	;%2 = member name
 	;%3 = in parameters
 	;%4 = out parameters
-	(setd %3 (list) %4 (list))
 	(defq s nil v nil c nil)
 	(method-lookup (eval (super-name %1)) %2)
 	(defq m (elem s c))
@@ -154,7 +151,6 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
-	(setd %3 (list))
 	(defq s nil v nil c nil)
 	(method-lookup (eval (super-name %1)) %2)
 	(defq m (elem s c))
@@ -181,7 +177,7 @@
 	;%3 = in parameters
 	;%4 = out parameters
 	;%5 = dispatch reg
-	(setd %3 (list) %4 (list) %5 r15)
+	(setd %5 r15)
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
 	(defq m (elem s c))
@@ -200,7 +196,7 @@
 	;%2 = member name
 	;%3 = in parameters
 	;%4 = dispatch reg
-	(setd %3 (list) %4 r15)
+	(setd %4 r15)
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
 	(defq m (elem s c))
@@ -231,7 +227,6 @@
 	;%2 = member name
 	;%3 = in parameters
 	;%4 = out parameters
-	(setd %3 (list) %4 (list))
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
 	(defq m (elem s c))
@@ -245,7 +240,6 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
-	(setd %3 (list) %4 (list))
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
 	(defq m (elem s c))
@@ -271,7 +265,6 @@
 	;%3 = in regs
 	;%4 = out parameters
 	;%5 = out regs
-	(setd %2 (list) %3 (list) %4 (list) %5 (list))
 	(assign %2 %3)
 	(vp-call %1)
 	(assign %4 %5))
