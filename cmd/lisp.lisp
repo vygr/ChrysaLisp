@@ -307,12 +307,12 @@
 	(prin-b x j))
 
 (defun trim-start (s &optional c)
-	(setq c (opt c " "))
+	(setd c " ")
 	(while (and (ne 0 (length s)) (eql (elem 0 s) c))
 		(setq s (slice 1 -1 s))) s)
 
 (defun trim-end (s &optional c)
-	(setq c (opt c " "))
+	(setd c " ")
 	(while (and (ne 0 (length s)) (eql (elem -2 s) c))
 		(setq s (slice 0 -2 s))) s)
 
@@ -398,8 +398,8 @@
 		(setq o (sym (read-line f)))) o)
 
 (defun compile (*files* &optional *os* *cpu* *pipes*)
-	(defq *os* (opt *os* (platform)) *cpu* (opt *cpu* (cpu))
-		*pipes* (opt *pipes* 1) q (list) e (list))
+	(setd *os* (platform) *cpu* (cpu) *pipes* 1)
+	(defq q (list) e (list))
 	(unless (list? *files*)
 		(setq *files* (list *files*)))
 	(setq *files* (shuffle (map sym *files*)))
@@ -459,7 +459,8 @@
 	(list d p))
 
 (defun make-boot (&optional r *funcs*)
-	(defq *env* (env 101) *funcs* (opt *funcs* (list)) z (cat (char 0 8) (char 0 8)))
+	(setd *funcs* (list))
+	(defq *env* (env 101) z (cat (char 0 8) (char 0 8)))
 	(defun func-obj (f)
 		(cat "obj/" f))
 	(defun load-func (f)
