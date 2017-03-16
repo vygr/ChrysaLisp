@@ -66,29 +66,34 @@
 ; class calling
 ;;;;;;;;;;;;;;;
 
+(defmacro method-info (%1 %2)
+	`(progn
+		(defq s nil v nil m nil)
+		(method-lookup ,%1 ,%2)))
+
 (defcfun method-lookup (%1 %2)
 	;%1 = class name
 	;%2 = member name
-	;writes to s, v, c in parent environment !
-	(setq s 0 v ptr_size c (eval (class-name %1)))
+	;writes to s, v, m in parent environment !
+	(setq s 0 v ptr_size)
+	(defq c (eval (class-name %1)))
 	(until (or (eq s (length c)) (eql (elem 0 (elem s c)) %2))
 		(if (eql (elem 2 (elem s c)) 'virtual) (setq v (add v ptr_size)))
 		(setq s (inc s)))
 	(if (eq s (length c))
-		(error "No such method !" (list %1 %2))))
+		(error "No such method !" (list %1 %2)))
+	(setq m (elem s c)))
 
 (defcfun f-path (%1 %2)
 	;%1 = class name
 	;%2 = slot method name
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
-	(elem 1 (elem s (eval (class-name %1)))))
+	(method-info %1 %2)
+	(elem 1 m))
 
 (defcfun s-path (%1 %2)
 	;%1 = class name
 	;%2 = slot method name
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
+	(method-info %1 %2)
 	(elem 1 (elem s (eval (eval (super-name %1))))))
 
 ;;;;;;;;;;;;;;;;
@@ -100,9 +105,7 @@
 	;%2 = member name
 	;%3 = in parameters
 	;%4 = out parameters
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
-	(defq m (elem s c))
+	(method-info %1 %2)
 	(if (eql (elem 2 m) 'virtual)
 		(error "Method is virtual ! Use v-call ?" (list %1 %2)))
 	(assign %3 (elem 3 m))
@@ -113,9 +116,7 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
-	(defq m (elem s c))
+	(method-info %1 %2)
 	(if (eql (elem 2 m) 'virtual)
 		(error "Method is virtual ! Use v-jmp ?" (list %1 %2)))
 	(assign %3 (elem 3 m))
@@ -125,9 +126,7 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
-	(defq m (elem s c))
+	(method-info %1 %2)
 	(if (eql (elem 2 m) 'virtual)
 		(error "Method is virtual ! Use v-bind ?" (list %1 %2)))
 	(fn-bind (elem 1 m) %3))
@@ -137,9 +136,7 @@
 	;%2 = member name
 	;%3 = in parameters
 	;%4 = out parameters
-	(defq s nil v nil c nil)
-	(method-lookup (eval (super-name %1)) %2)
-	(defq m (elem s c))
+	(method-info (eval (super-name %1)) %2)
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
 			(error "Method is static !" (list (eval (super-name %1)) %2))))
@@ -151,9 +148,7 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
-	(defq s nil v nil c nil)
-	(method-lookup (eval (super-name %1)) %2)
-	(defq m (elem s c))
+	(method-info (eval (super-name %1)) %2)
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
 			(error "Method is static !" (list (eval (super-name %1)) %2))))
@@ -164,9 +159,7 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
-	(defq s nil v nil c nil)
-	(method-lookup (eval (super-name %1)) %2)
-	(defq m (elem s c))
+	(method-info (eval (super-name %1)) %2)
 	(if (eql (elem 2 m) 'static)
 		(error "Method is static !" (list (eval (super-name %1)) %2)))
 	(fn-bind (elem 1 m) %3))
@@ -178,9 +171,7 @@
 	;%4 = out parameters
 	;%5 = dispatch reg
 	(setd %5 r15)
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
-	(defq m (elem s c))
+	(method-info %1 %2)
 	(if (eql (elem 2 m) 'static)
 		(error "Method is static ! Use f-call ?" (list %1 %2)))
 	(setq s (elem 3 m))
@@ -197,9 +188,7 @@
 	;%3 = in parameters
 	;%4 = dispatch reg
 	(setd %4 r15)
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
-	(defq m (elem s c))
+	(method-info %1 %2)
 	(if (eql (elem 2 m) 'static)
 		(error "Method is static ! Use f-jmp ?" (list %1 %2)))
 	(setq s (elem 3 m))
@@ -214,9 +203,7 @@
 	;%2 = member name
 	;%3 = dispatch reg
 	(setd %3 r15)
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
-	(defq m (elem s c))
+	(method-info %1 %2)
 	(if (eql (elem 2 m) 'static)
 		(error "Method is static ! Use f-bind ?" (list %1 %2)))
 	(vp-cpy-ir r0 obj_vtable %3)
@@ -227,9 +214,7 @@
 	;%2 = member name
 	;%3 = in parameters
 	;%4 = out parameters
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
-	(defq m (elem s c))
+	(method-info %1 %2)
 	(if (eql (elem 2 m) 'static)
 		(error "Method is static ! Use f-call ?" (list %1 %2)))
 	(assign %3 (elem 3 m))
@@ -240,9 +225,7 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
-	(defq m (elem s c))
+	(method-info %1 %2)
 	(if (eql (elem 2 m) 'static)
 		(error "Method is static ! Use f-jmp ?" (list %1 %2)))
 	(assign %3 (elem 3 m))
@@ -252,9 +235,7 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = reg
-	(defq s nil v nil c nil)
-	(method-lookup %1 %2)
-	(defq m (elem s c))
+	(method-info %1 %2)
 	(if (eql (elem 2 m) 'static)
 		(error "Method is static ! Use f-bind ?" (list %1 %2)))
 	(fn-bind (elem 1 m) %3))
