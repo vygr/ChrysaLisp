@@ -1043,7 +1043,8 @@
 		(eval *inst*)
 		(undef-reg-def)))
 
-(defcfun assign (%1 %2)
+(defcfun assign (&optional %1 %2)
+	(setd %1 '() %2 '())
 	(defq s (str? %1) d (str? %2))
 	(cond
 		((and s d)
