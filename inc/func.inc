@@ -178,8 +178,7 @@
 		(vp-pop r0 r1 r2 r3 r5)))
 
 (defcfun abort (&optional s)
-	(setq s (opt s "Abort !"))
-	(debug-str s)
+	(debug-str (opt s "Abort !"))
 	(sys-exit '(1)))
 
 (defcfun assert (b &optional d)
@@ -188,7 +187,6 @@
 	;c = val2
 	;d = debug string
 	(when debug_mode
-		(setq d (opt d "Assert Failure !"))
 		(vpifnot b)
-			(abort d)
+			(abort (opt d "Assert Failure !"))
 		(endif)))

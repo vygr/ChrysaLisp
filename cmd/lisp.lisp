@@ -21,6 +21,10 @@
 (defmacro num? (x) `(inst-of 'class/class_boxed_long ,x))
 
 (defmacro opt (x y &optional z) (cond (z `(if ,x ,z ,y)) (t `(if ,x ,x ,y))))
+(defmacro setd (&rest b)
+	(defq i -2 l (list 'setq))
+	(while (lt (setq i (add i 2)) (length b))
+		(push l (elem i b) `(opt ,(elem i b) ,(elem (inc i) b)))) l)
 
 ;;;;;;;;;;;;;
 ; Definitions
@@ -395,7 +399,7 @@
 
 (defun compile (*files* &optional *os* *cpu* *pipes*)
 	(defq *os* (opt *os* (platform)) *cpu* (opt *cpu* (cpu))
-		*pipes* (if *pipes* *pipes* 1) q (list) e (list))
+		*pipes* (opt *pipes* 1) q (list) e (list))
 	(unless (list? *files*)
 		(setq *files* (list *files*)))
 	(setq *files* (shuffle (map sym *files*)))
@@ -585,8 +589,8 @@
 	(print "Time " (div n 100) "." (mod n 100) " seconds") n)
 
 (defun make-test (&optional i)
-	(defq b 1000000 n 0 i (opt i 10))
-	(times i (setq n (make-all) b (if (lt n b) n b)))
+	(defq b 1000000 n 0)
+	(times (opt i 10) (setq n (make-all) b (if (lt n b) n b)))
 	(print "Best time " (div b 100) "." (mod b 100) " seconds") nil)
 
 ;test code for OOPS stuff

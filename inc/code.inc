@@ -244,13 +244,13 @@
 	;%3 value1
 	;%4 value2
 	;%5 aux data
-	(setq %1 (sym %1) %4 (opt %4 0))
+	(setq %1 (sym %1))
 	(defq s (elem 0 (elem -2 *scopes*)))
 	(while (ne s (length *symbols*))
 		(if (eql %1 (elem 1 (elem s *symbols*)))
 			(error "Symbol redefined !" %1))
 		(setq s (inc s)))
-	(push *symbols* (list (length *scopes*) %1 %2 %3 %4 %5)))
+	(push *symbols* (list (length *scopes*) %1 %2 %3 (opt %4 0) %5)))
 
 (defcfun get-sym (%1)
 	;%1 name
@@ -268,8 +268,7 @@
 	;%2 precedence
 	;%3 associativity
 	;%4 compile macro
-	(setq %3 (opt %3 0) %4 (opt %4 compile-null))
-	(def-sym %1 'op (mul %2 2) %3 %4))
+	(def-sym %1 'op (mul %2 2) (opt %3 0) (opt %4 compile-null)))
 
 ;;;;;;;;;;;;;;;;;
 ; data structures
@@ -282,7 +281,7 @@
 	`(sym-cat "_t_" (str ,s)))
 
 (defcfun local-align (&optional x)
-	(setq x (opt x long_size))
+	(setd x long_size)
 	(if *struct*
 		(setq *struct-offset* (align *struct-offset* x))
 		(setq *var-sp* (align *var-sp* x))))

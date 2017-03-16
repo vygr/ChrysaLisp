@@ -27,7 +27,7 @@
 	;%3 = mode (static/virtual/override)
 	;%4 = in regs
 	;%5 = out regs
-	(setq %3 (opt %3 'static) %4 (opt %4 '()) %5 (opt %5 '()))
+	(setd %3 'static %4 '() %5 '())
 	(defq s 0 c (eval (class-name *class*))
 		m (some (lambda (m)
 			(if (eql (elem 0 m) %1) m
@@ -100,7 +100,7 @@
 	;%2 = member name
 	;%3 = in parameters
 	;%4 = out parameters
-	(setq %3 (opt %3 (list)) %4 (opt %4 (list)))
+	(setd %3 (list) %4 (list))
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
 	(defq m (elem s c))
@@ -114,7 +114,7 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
-	(setq %3 (opt %3 (list)))
+	(setd %3 (list))
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
 	(defq m (elem s c))
@@ -139,7 +139,7 @@
 	;%2 = member name
 	;%3 = in parameters
 	;%4 = out parameters
-	(setq %3 (opt %3 (list)) %4 (opt %4 (list)))
+	(setd %3 (list) %4 (list))
 	(defq s nil v nil c nil)
 	(method-lookup (eval (super-name %1)) %2)
 	(defq m (elem s c))
@@ -154,7 +154,7 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
-	(setq %3 (opt %3 (list)))
+	(setd %3 (list))
 	(defq s nil v nil c nil)
 	(method-lookup (eval (super-name %1)) %2)
 	(defq m (elem s c))
@@ -181,7 +181,7 @@
 	;%3 = in parameters
 	;%4 = out parameters
 	;%5 = dispatch reg
-	(setq %3 (opt %3 (list)) %4 (opt %4 (list)) %5 (opt %5 r15))
+	(setd %3 (list) %4 (list) %5 r15)
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
 	(defq m (elem s c))
@@ -200,7 +200,7 @@
 	;%2 = member name
 	;%3 = in parameters
 	;%4 = dispatch reg
-	(setq %3 (opt %3 (list)) %4 (opt %4 r15))
+	(setd %3 (list) %4 r15)
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
 	(defq m (elem s c))
@@ -217,7 +217,7 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = dispatch reg
-	(setq %3 (opt %3 r15))
+	(setd %3 r15)
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
 	(defq m (elem s c))
@@ -231,7 +231,7 @@
 	;%2 = member name
 	;%3 = in parameters
 	;%4 = out parameters
-	(setq %3 (opt %3 (list)) %4 (opt %4 (list)))
+	(setd %3 (list) %4 (list))
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
 	(defq m (elem s c))
@@ -245,7 +245,7 @@
 	;%1 = class name
 	;%2 = member name
 	;%3 = in parameters
-	(setq %3 (opt %3 (list)) %4 (opt %4 (list)))
+	(setd %3 (list) %4 (list))
 	(defq s nil v nil c nil)
 	(method-lookup %1 %2)
 	(defq m (elem s c))
@@ -271,7 +271,7 @@
 	;%3 = in regs
 	;%4 = out parameters
 	;%5 = out regs
-	(setq %2 (opt %2 (list)) %3 (opt %3 (list)) %4 (opt %4 (list)) %5 (opt %5 (list)))
+	(setd %2 (list) %3 (list) %4 (list) %5 (list))
 	(assign %2 %3)
 	(vp-call %1)
 	(assign %4 %5))
@@ -329,7 +329,7 @@
 (defcfun class-macro-create (%1 &optional %2)
 	;%1 = class name
 	;%2 = number of args
-	(setq %2 (opt %2 0))
+	(setd %2 0)
 	(defq %3 (slice 0 %2 '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11))
 		%4 (slice 0 %2 '(r14 r15 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
 	(def-func (sym-cat "class/" %1 "/create"))
