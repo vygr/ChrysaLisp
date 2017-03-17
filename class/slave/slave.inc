@@ -1,8 +1,8 @@
 (import 'class/ref/ref.inc)
 
 (def-class 'slave 'ref)
-(def-method 'create 'class/slave/create 'static '() '(r0))
-(def-method 'new 'class/slave/new 'static '() '(r0))
+(def-method 'create 'class/slave/create 'static nil '(r0))
+(def-method 'new 'class/slave/new 'static nil '(r0))
 (def-method 'init 'class/slave/init 'static '(r0 r1) '(r1))
 (def-method 'get_args 'class/slave/get_args 'static '(r0) '(r1))
 

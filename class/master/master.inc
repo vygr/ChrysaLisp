@@ -2,8 +2,8 @@
 (import 'class/vector/vector.inc)
 
 (def-class 'master 'ref)
-(def-method 'create 'class/master/create 'static '() '(r0))
-(def-method 'new 'class/master/new 'static '() '(r0))
+(def-method 'create 'class/master/create 'static nil '(r0))
+(def-method 'new 'class/master/new 'static nil '(r0))
 (def-method 'init 'class/master/init 'static '(r0 r1) '(r1))
 (def-method 'start 'class/master/start 'static '(r0 r1 r2))
 (def-method 'stop 'class/master/stop 'static '(r0))

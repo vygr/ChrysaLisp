@@ -27,7 +27,7 @@
 	;%3 = mode (static/virtual/override)
 	;%4 = in regs
 	;%5 = out regs
-	(setd %3 'static %4 '() %5 '())
+	(setd %3 'static)
 	(defq s 0 c (eval (class-name *class*))
 		m (some (lambda (m)
 			(if (eql (elem 0 m) %1) m
@@ -36,8 +36,8 @@
 		(setq m (cat m))
 		(elem-set s c m)
 		(elem-set 1 m %2)
-		(if (ne (length %4) 0) (elem-set 3 m %4))
-		(if (ne (length %5) 0) (elem-set 4 m %5)))
+		(if %4 (elem-set 3 m %4))
+		(if %5 (elem-set 4 m %5)))
 	(if m
 		(cond
 			;existing method

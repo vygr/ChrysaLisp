@@ -27,7 +27,7 @@
 (def-method 'copy 'sys/mem_copy 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'realloc 'sys/mem_realloc 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'recalloc 'sys/mem_recalloc 'static '(r0 r1 r2) '(r0 r1))
-(def-method 'used 'sys/mem_used 'static '() '(r0))
+(def-method 'used 'sys/mem_used 'static nil '(r0))
 
 ;;;;;;;;;;;;;;;;;
 ; heap structures

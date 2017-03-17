@@ -17,9 +17,9 @@
 (def-method 'debug_str 'sys/io_debug_str 'static '(r0 r1 r2 r3))
 
 (def-class 'sys_cpu)
-(def-method 'id 'sys/cpu_get_id 'static '() '(r0))
-(def-method 'time 'sys/cpu_get_time 'static '() '(r0))
-(def-method 'total 'sys/cpu_get_total 'static '() '(r0))
+(def-method 'id 'sys/cpu_get_id 'static nil '(r0))
+(def-method 'time 'sys/cpu_get_time 'static nil '(r0))
+(def-method 'total 'sys/cpu_get_total 'static nil '(r0))
 (def-method 'opts 'sys/opt_process 'static '(r0))
 
 (def-class 'sys_sys)
