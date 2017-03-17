@@ -93,8 +93,8 @@
 (defcfun s-path (%1 %2)
 	;%1 = class name
 	;%2 = slot method name
-	(method-info %1 %2)
-	(elem 1 (elem s (eval (eval (super-name %1))))))
+	(method-info (eval (super-name %1)) %2)
+	(elem 1 m))
 
 ;;;;;;;;;;;;;;;;
 ; method calling
