@@ -12,7 +12,7 @@
 	;%2 = parent class name
 	(if %2 (fn-add-link %2) (vp-long 0))
 	(each (lambda (m)
-		(if (eql (elem 2 m) 'virtual)
+		(if (or (eql (elem 2 m) 'virtual) (eql (elem 2 m) 'final))
 			(fn-add-link (elem 1 m)))) (eval (class-name %1))))
 
 (defcfun def-class (%1 &optional %2)
@@ -24,7 +24,7 @@
 (defcfun def-method (%1 %2 &optional %3 %4 %5)
 	;%1 = member name
 	;%2 = member function
-	;%3 = mode (static/virtual/override)
+	;%3 = mode (static/virtual/final/override)
 	;%4 = in regs
 	;%5 = out regs
 	(setd %3 'static)
@@ -48,19 +48,28 @@
 			((eql %3 'virtual)
 				(error "Method already exists !, use override ?" %1))
 			((eql %3 'override)
-				(if (eql (elem 2 m) 'virtual)
-					(override)
-					(error "Static method already exists !" %1)))
-			(t
-				(error "Must use static, virtual or override ! " %3)))
+				(cond
+					((eql (elem 2 m) 'virtual)
+						(override))
+					((eql (elem 2 m) 'final)
+						(error "Virtual method is final !" %1))
+					(t (error "Static method already exists !" %1))))
+			((eql %3 'final)
+				(cond
+					((eql (elem 2 m) 'virtual)
+						(override)
+						(elem-set 2 m %3))
+					((eql (elem 2 m) 'final)
+						(error "Virtual method is final !" %1))
+					(t (error "Static method already exists !" %1))))
+			(t (error "Must use static, virtual, final or override ! " %3)))
 		(cond
 			;new method
-			((or (eql %3 'static) (eql %3 'virtual))
+			((or (eql %3 'static) (eql %3 'virtual) (eql %3 'final))
 				(push c (list %1 %2 %3 %4 %5)))
 			((eql %3 'override)
 				(error "Method does not exist !" %1))
-			(t
-				(error "Must use static, virtual or override ! " %3)))))
+			(t (error "Must use static, virtual, final or override ! " %3)))))
 
 ;;;;;;;;;;;;;;;
 ; class calling
@@ -77,12 +86,12 @@
 	;writes to s, v, m in parent environment !
 	(setq s 0 v ptr_size)
 	(defq c (eval (class-name %1)))
-	(until (or (eq s (length c)) (eql (elem 0 (elem s c)) %2))
-		(if (eql (elem 2 (elem s c)) 'virtual) (setq v (add v ptr_size)))
+	(until (or (eq s (length c)) (eql (elem 0 (setq m (elem s c))) %2))
+		(if (or (eql (elem 2 m) 'virtual) (eql (elem 2 m) 'final))
+			(setq v (add v ptr_size)))
 		(setq s (inc s)))
 	(if (eq s (length c))
-		(error "No such method !" (list %1 %2)))
-	(setq m (elem s c)))
+		(error "No such method !" (list %1 %2))))
 
 (defcfun f-path (%1 %2)
 	;%1 = class name

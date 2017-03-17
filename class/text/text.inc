@@ -10,9 +10,9 @@
 (def-method 'ref_text 'class/text/ref_text 'static '(r0) '(r1))
 (def-method 'set_text_color 'class/text/set_text_color 'static '(r0 r1))
 
-(def-method 'deinit 'class/text/deinit 'override)
-(def-method 'pref_size 'class/text/pref_size 'override)
-(def-method 'draw 'class/text/draw 'override)
+(def-method 'deinit 'class/text/deinit 'final)
+(def-method 'pref_size 'class/text/pref_size 'final)
+(def-method 'draw 'class/text/draw 'final)
 
 (def-struct 'text 'view)
 	(ptr 'text_font)

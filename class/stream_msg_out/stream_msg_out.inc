@@ -7,9 +7,9 @@
 (def-method 'next_seq 'class/stream_msg_out/next_seq 'static '(r0 r1 r2) '(r0))
 (def-method 'set_state 'class/stream_msg_out/set_state 'static '(r0 r1))
 
-(def-method 'deinit 'class/stream_msg_out/deinit 'override)
-(def-method 'write_flush 'class/stream_msg_out/write_flush 'override)
-(def-method 'write_next 'class/stream_msg_out/write_next 'override)
+(def-method 'deinit 'class/stream_msg_out/deinit 'final)
+(def-method 'write_flush 'class/stream_msg_out/write_flush 'final)
+(def-method 'write_next 'class/stream_msg_out/write_next 'final)
 
 (def-struct 'stream_msg_out 'stream)
 	(ulong 'stream_msg_out_seqnum)

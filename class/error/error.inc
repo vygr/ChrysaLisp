@@ -9,7 +9,7 @@
 (def-method 'get_file 'class/error/get_file 'static '(r0) '(r1))
 (def-method 'get_line 'class/error/get_line 'static '(r0) '(r1))
 
-(def-method 'deinit 'class/error/deinit 'override)
+(def-method 'deinit 'class/error/deinit 'final)
 
 (def-struct 'error 'ref)
 	(ptr 'error_description)

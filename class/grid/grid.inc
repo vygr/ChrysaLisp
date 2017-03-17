@@ -6,8 +6,8 @@
 (def-method 'init 'class/grid/init)
 (def-method 'set_grid 'class/grid/set_grid 'static '(r0 r10 r11))
 
-(def-method 'pref_size 'class/grid/pref_size 'override)
-(def-method 'layout 'class/grid/layout 'override)
+(def-method 'pref_size 'class/grid/pref_size 'final)
+(def-method 'layout 'class/grid/layout 'final)
 
 (def-struct 'grid 'view)
 	(uint 'grid_width)

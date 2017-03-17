@@ -12,7 +12,7 @@
 (def-method 'select 'class/master/select 'static '(r0 r1) '(r1))
 (def-method 'get_input 'class/master/get_input 'static '(r0) '(r1))
 
-(def-method 'deinit 'class/master/deinit 'override)
+(def-method 'deinit 'class/master/deinit 'final)
 
 (def-struct 'master 'ref)
 	(offset 'master_start)

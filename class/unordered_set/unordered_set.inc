@@ -13,8 +13,8 @@
 (def-method 'copy 'class/unordered_set/copy 'static '(r0 r1) '(r1))
 
 (def-method 'deinit 'class/unordered_set/deinit 'override)
-(def-method 'get_length 'class/unordered_set/get_length 'override)
-(def-method 'ref_element 'class/unordered_set/ref_element 'override)
+(def-method 'get_length 'class/unordered_set/get_length 'final)
+(def-method 'ref_element 'class/unordered_set/ref_element 'final)
 
 (def-struct 'unordered_set 'sequence)
 	(ptr 'unordered_set_buckets)

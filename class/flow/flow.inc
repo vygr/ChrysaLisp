@@ -6,8 +6,8 @@
 (def-method 'init 'class/flow/init)
 (def-method 'set_flow_flags 'class/flow/set_flow_flags 'static '(r0 r1))
 
-(def-method 'pref_size 'class/flow/pref_size 'override)
-(def-method 'layout 'class/flow/layout 'override)
+(def-method 'pref_size 'class/flow/pref_size 'final)
+(def-method 'layout 'class/flow/layout 'final)
 
 (def-bit)
 	(bit 'flow_flag_left)

@@ -11,9 +11,9 @@
 (def-method 'set_second 'class/pair/set_second 'static '(r0 r1))
 (def-method 'set_first 'class/pair/set_first 'static '(r0 r1))
 
-(def-method 'deinit 'class/pair/deinit 'override)
-(def-method 'get_length 'class/pair/get_length 'override)
-(def-method 'ref_element 'class/pair/ref_element 'override)
+(def-method 'deinit 'class/pair/deinit 'final)
+(def-method 'get_length 'class/pair/get_length 'final)
+(def-method 'ref_element 'class/pair/ref_element 'final)
 
 (def-struct 'pair 'sequence)
 	(ptr 'pair_first)

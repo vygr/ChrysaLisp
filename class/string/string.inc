@@ -18,10 +18,10 @@
 (def-method 'same 'class/string/same 'static '(r0 r1) '(r1))
 (def-method 'find 'class/string/find 'static '(r0 r1) '(r1))
 
-(def-method 'hash 'class/string/hash 'override)
-(def-method 'get_length 'class/string/get_length 'override)
-(def-method 'ref_element 'class/string/ref_element 'override)
-(def-method 'slice 'class/string/slice 'override)
+(def-method 'hash 'class/string/hash 'final)
+(def-method 'get_length 'class/string/get_length 'final)
+(def-method 'ref_element 'class/string/ref_element 'final)
+(def-method 'slice 'class/string/slice 'final)
 
 (def-struct 'string 'sliceable)
 	(ulong 'string_length)

@@ -9,9 +9,9 @@
 (def-method 'print_char 'class/vdu/print_char 'static '(r0 r1))
 (def-method 'print_cstr 'class/vdu/print_cstr 'static '(r0 r1))
 
-(def-method 'deinit 'class/vdu/deinit 'override)
-(def-method 'pref_size 'class/vdu/pref_size 'override)
-(def-method 'draw 'class/vdu/draw 'override)
+(def-method 'deinit 'class/vdu/deinit 'final)
+(def-method 'pref_size 'class/vdu/pref_size 'final)
+(def-method 'draw 'class/vdu/draw 'final)
 
 (defcvar 'vdu_default_width 60)
 (defcvar 'vdu_default_height 40)

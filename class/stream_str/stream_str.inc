@@ -6,7 +6,7 @@
 (def-method 'init 'class/stream_str/init 'static '(r0 r1 r2) '(r1))
 (def-method 'ref_string 'class/stream_str/ref_string 'static '(r0) '(r1))
 
-(def-method 'write_next 'class/stream_str/write_next 'override)
+(def-method 'write_next 'class/stream_str/write_next 'final)
 
 (def-struct 'stream_str 'stream)
 (def-struct-end)

@@ -8,9 +8,9 @@
 (def-method 'set_max 'class/progress/set_max 'static '(r0 r1))
 (def-method 'set_val 'class/progress/set_val 'static '(r0 r1))
 
-(def-method 'pref_size 'class/progress/pref_size 'override)
-(def-method 'draw 'class/progress/draw 'override)
-(def-method 'layout 'class/progress/layout 'override)
+(def-method 'pref_size 'class/progress/pref_size 'final)
+(def-method 'draw 'class/progress/draw 'final)
+(def-method 'layout 'class/progress/layout 'final)
 
 (def-struct 'progress 'view)
 	(long 'progress_max)

@@ -6,7 +6,7 @@
 (def-method 'init 'class/slave/init 'static '(r0 r1) '(r1))
 (def-method 'get_args 'class/slave/get_args 'static '(r0) '(r1))
 
-(def-method 'deinit 'class/slave/deinit 'override)
+(def-method 'deinit 'class/slave/deinit 'final)
 
 (def-struct 'slave 'ref)
 	(ptr 'slave_stdin)
