@@ -8,7 +8,7 @@
 (def-method 'deref_if 'class/ref/deref_if 'static '(r0))
 
 (def-struct 'ref 'obj)
-	(ulong 'ref_count)
+	(uint 'ref_count)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;
@@ -20,6 +20,6 @@
 	;r0 = object
 	;trashes
 	;r1
-	(vp-cpy-ir r0 ref_count r1)
+	(vp-cpy-ir-ui r0 ref_count r1)
 	(vp-add-cr 1 r1)
-	(vp-cpy-ri r1 r0 ref_count))
+	(vp-cpy-ri-i r1 r0 ref_count))
