@@ -966,6 +966,9 @@
 ; assignment
 ;;;;;;;;;;;;
 
+(defcfun print-inst (_)
+	(and (list? _) (not (eql (elem 0 _) 'lambda)) (print _)))
+
 (defcfun assign-asm-to-script (%1 %2)
 	(setq *src* %1 *dst* (map trim (split %2 ",")))
 	(unless (eq (length *src*) (length *dst*))
@@ -980,12 +983,12 @@
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
 		(when debug_inst
-			(print "(assign pre opt: " %1 " -> " %2)
-			(each print *inst*))
+			(print "pre opt: " %1 " -> " %2)
+			(each print-inst *inst*))
 		(opt-inst-list)
 		(when debug_inst
-			(print "(assign post opt: " %1 " -> " %2)
-			(each print *inst*))
+			(print "post opt:")
+			(each print-inst *inst*))
 		(each res-reg-def *src*)
 		(fill-reg-def)
 		(eval *inst*)
@@ -1006,12 +1009,12 @@
 			(pop-value)
 			(inc-stack)) *src*)
 		(when debug_inst
-			(print "(assign pre opt: " %1 " -> " %2)
-			(each print *inst*))
+			(print "pre opt: " %1 " -> " %2)
+			(each print-inst *inst*))
 		(opt-inst-list)
 		(when debug_inst
-			(print "(assign post opt: " %1 " -> " %2)
-			(each print *inst*))
+			(print "post opt:")
+			(each print-inst *inst*))
 		(each res-reg-def *dst*)
 		(fill-reg-def)
 		(eval *inst*)
@@ -1035,12 +1038,12 @@
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
 		(when debug_inst
-			(print "(assign pre opt: " %1 " -> " %2)
-			(each print *inst*))
+			(print "pre opt: " %1 " -> " %2)
+			(each print-inst *inst*))
 		(opt-inst-list)
 		(when debug_inst
-			(print "(assign post opt: " %1 " -> " %2)
-			(each print *inst*))
+			(print "post opt:")
+			(each print-inst *inst*))
 		(fill-reg-def)
 		(eval *inst*)
 		(undef-reg-def)))
