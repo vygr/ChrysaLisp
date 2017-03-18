@@ -10,20 +10,10 @@
 (def-method 'layout 'class/flow/layout 'final)
 
 (def-bit)
-	(bit 'flow_flag_left)
-	(bit 'flow_flag_right)
-	(bit 'flow_flag_up)
-	(bit 'flow_flag_down)
-	(bit 'flow_flag_fillw)
-	(bit 'flow_flag_fillh)
-	(bit 'flow_flag_lastw)
-	(bit 'flow_flag_lasth)
-	(bit 'flow_flag_align_hcenter)
-	(bit 'flow_flag_align_hleft)
-	(bit 'flow_flag_align_hright)
-	(bit 'flow_flag_align_vcenter)
-	(bit 'flow_flag_align_vtop)
-	(bit 'flow_flag_align_vbottom)
+	(bit 'flow_flag_left 'flow_flag_right 'flow_flag_up 'flow_flag_down
+		'flow_flag_fillw 'flow_flag_fillh 'flow_flag_lastw 'flow_flag_lasth
+		'flow_flag_align_hcenter 'flow_flag_align_hleft 'flow_flag_align_hright
+		'flow_flag_align_vcenter 'flow_flag_align_vtop 'flow_flag_align_vbottom)
 (def-bit-end)
 
 (def-struct 'flow 'view)

@@ -111,9 +111,7 @@
 (def-method 'func_clear 'class/lisp/func_clear 'static '(r0 r1) '(r1))
 
 (def-enum)
-	(enum 'type_args_eval_apply)
-	(enum 'type_args_apply)
-	(enum 'type_apply)
+	(enum 'type_args_eval_apply 'type_args_apply 'type_apply)
 (def-enum-end)
 
 (def-struct 'lisp 'ref)

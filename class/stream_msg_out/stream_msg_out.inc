@@ -29,9 +29,7 @@
 (defcvar 'stream_msg_out_ack_shift 6)
 
 (def-enum)
-	(enum 'stream_mail_state_started)
-	(enum 'stream_mail_state_stopping)
-	(enum 'stream_mail_state_stopped)
+	(enum 'stream_mail_state_started 'stream_mail_state_stopping 'stream_mail_state_stopped)
 (def-enum-end)
 
 ;;;;;;;;;;;;;;;;

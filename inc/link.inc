@@ -13,8 +13,7 @@
 ;;;;;;;;;;;;;;;;;
 
 (def-enum)
-	(enum 'lk_chan_status_ready)
-	(enum 'lk_chan_status_busy)
+	(enum 'lk_chan_status_ready 'lk_chan_status_busy)
 (def-enum-end)
 
 (def-struct 'lk_table)

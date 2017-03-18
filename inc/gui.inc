@@ -85,8 +85,7 @@
 ;;;;;;;;;;;;;;;
 
 (def-enum)
-	(enum 'ev_type_mouse)
-	(enum 'ev_type_key)
+	(enum 'ev_type_mouse 'ev_type_key)
 (def-enum-end)
 
 (def-struct 'ev_msg 'msg_header)

@@ -3,17 +3,11 @@
 (defcvar 'window_border_size 4)
 
 (def-bit)
-	(bit 'window_drag_left)
-	(bit 'window_drag_right)
-	(bit 'window_drag_top)
-	(bit 'window_drag_bottom)
+	(bit 'window_drag_left 'window_drag_right 'window_drag_top 'window_drag_bottom)
 (def-bit-end)
 
 (def-bit)
-	(bit 'window_flag_status)
-	(bit 'window_flag_close)
-	(bit 'window_flag_max)
-	(bit 'window_flag_min)
+	(bit 'window_flag_status 'window_flag_close 'window_flag_max 'window_flag_min)
 (def-bit-end)
 
 (def-class 'window 'view)

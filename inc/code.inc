@@ -157,15 +157,16 @@
 
 (defcvar '*enum* nil)
 
-(defcfun def-enum (&optional b)
-	(setq *enum* (opt b 0)))
+(defcfun def-enum (&optional _)
+	(setq *enum* (opt _ 0)))
 
 (defcfun def-enum-end ()
 	(setq *enum* nil))
 
-(defcfun enum (b)
-	(defcvar b *enum*)
-	(setq *enum* (inc *enum*)))
+(defcfun enum (&rest _)
+	(each (lambda (_)
+		(defcvar _ *enum*)
+		(setq *enum* (inc *enum*))) _))
 
 ;;;;;;
 ; bits
@@ -173,15 +174,16 @@
 
 (defcvar '*bit* nil)
 
-(defcfun def-bit (&optional b)
-	(setq *bit* (opt b 0)))
+(defcfun def-bit (&optional _)
+	(setq *bit* (opt _ 0)))
 
 (defcfun def-bit-end ()
 	(setq *bit* nil))
 
-(defcfun bit (b)
-	(defcvar b (bit-shl 1 *bit*))
-	(setq *bit* (inc *bit*)))
+(defcfun bit (&rest _)
+	(each (lambda (_)
+		(defcvar _ (bit-shl 1 *bit*))
+		(setq *bit* (inc *bit*))) _))
 
 ;;;;;;;;;;;;;;
 ; symbol table

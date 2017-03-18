@@ -12,10 +12,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (def-enum)
-	(enum 'kn_call_callback)
-	(enum 'kn_call_task_open)
-	(enum 'kn_call_task_child)
-	(enum 'kn_call_task_route)
+	(enum 'kn_call_callback 'kn_call_task_open 'kn_call_task_child 'kn_call_task_route)
 (def-enum-end)
 
 ;;;;;;;;;;;;;;;;;;
