@@ -917,7 +917,7 @@
 						((eq m 1)
 							(elem-set 2 e `(add ,(elem 1 (elem p *inst*)) ,(elem 2 e)))
 							(setq i (dec i))))
-					(elem-set p *inst* '(lambda))))
+					(elem-set p *inst* (lambda))))
 			;variable writing and offset folding
 			((find o '(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i))
 				(defq r (elem 2 e))
@@ -929,7 +929,7 @@
 						((eq m 1)
 							(elem-set 3 e `(add ,(elem 1 (elem p *inst*)) ,(elem 3 e)))
 							(setq i (dec i))))
-					(elem-set p *inst* '(lambda))))
+					(elem-set p *inst* (lambda))))
 			;strength reduction
 			((and (eql o 'vp-mul-cr) (defq s (pow2 (eval (elem 1 e)))))
 				(elem-set 0 e 'vp-shl-cr)
@@ -948,7 +948,7 @@
 						((eq m 1)
 							(setq c (elem c '(add add mul bit-and bit-or bit-xor add add add)))))
 					(elem-set 1 e `(,c ,(elem 1 (elem p *inst*)) ,(elem 1 e)))
-					(elem-set p *inst* '(lambda))))
+					(elem-set p *inst* (lambda))))
 			;constant propagation
 			((defq c (find o '(vp-add-rr vp-sub-rr vp-mul-rr
 								vp-and-rr vp-or-rr vp-xor-rr
@@ -959,7 +959,7 @@
 											vp-and-cr vp-or-cr vp-xor-cr
 											vp-shl-cr vp-shr-cr vp-asr-cr)))
 					(elem-set 1 e (elem 1 (elem p *inst*)))
-					(elem-set p *inst* '(lambda))
+					(elem-set p *inst* (lambda))
 					(setq i (dec i)))))))
 
 ;;;;;;;;;;;;
