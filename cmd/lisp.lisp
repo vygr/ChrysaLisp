@@ -9,65 +9,65 @@
 ; Primitives
 ;;;;;;;;;;;;
 
-(defq list (lambda (&rest b) b))
+(defq list (lambda (&rest _) _))
 
-(defmacro inc (x) `(add ,x 1))
-(defmacro dec (x) `(sub ,x 1))
+(defmacro inc (_) `(add ,_ 1))
+(defmacro dec (_) `(sub ,_ 1))
 
-(defmacro obj? (x) `(inst-of 'class/class_obj ,x))
-(defmacro list? (x) `(inst-of 'class/class_vector ,x))
-(defmacro str? (x) `(inst-of 'class/class_string ,x))
-(defmacro sym? (x) `(inst-of 'class/class_symbol ,x))
-(defmacro num? (x) `(inst-of 'class/class_boxed_long ,x))
+(defmacro obj? (_) `(inst-of 'class/class_obj ,_))
+(defmacro list? (_) `(inst-of 'class/class_vector ,_))
+(defmacro str? (_) `(inst-of 'class/class_string ,_))
+(defmacro sym? (_) `(inst-of 'class/class_symbol ,_))
+(defmacro num? (_) `(inst-of 'class/class_boxed_long ,_))
 
 (defmacro opt (x y &optional z) (cond (z `(if ,x ,z ,y)) (t `(if ,x ,x ,y))))
-(defmacro setd (&rest b)
+(defmacro setd (&rest _)
 	(defq i -2 l (list 'setq))
-	(while (lt (setq i (add i 2)) (length b))
-		(push l (elem i b) `(opt ,(elem i b) ,(elem (inc i) b)))) l)
+	(while (lt (setq i (add i 2)) (length _))
+		(push l (elem i _) `(opt ,(elem i _) ,(elem (inc i) _)))) l)
 
 ;;;;;;;;;;;;;
 ; Definitions
 ;;;;;;;;;;;;;
 
-(defmacro defun (n a &rest b)
-	`(defq ,n (lambda ,a ~b)))
+(defmacro defun (n a &rest _)
+	`(defq ,n (lambda ,a ~_)))
 
 ;;;;;;;;
 ; Scopes
 ;;;;;;;;
 
-(defmacro let (l &rest b)
-	`((lambda ,(map (lambda (x) (elem 0 x)) l) ~b) ~(map (lambda (x) (elem 1 x)) l)))
+(defmacro let (l &rest _)
+	`((lambda ,(map (lambda (x) (elem 0 x)) l) ~_) ~(map (lambda (x) (elem 1 x)) l)))
 
 ;;;;;;;;;;;;;;
 ; Control flow
 ;;;;;;;;;;;;;;
 
-(defmacro if (x y &rest b)
-	(cond ((eq 0 (length b)) `(cond (,x ,y)))
-		(t `(cond (,x ,y) (t ~b)))))
+(defmacro if (x y &rest _)
+	(cond ((eq 0 (length _)) `(cond (,x ,y)))
+		(t `(cond (,x ,y) (t ~_)))))
 
-(defmacro when (x &rest b)
-	`(cond (,x ~b)))
+(defmacro when (x &rest _)
+	`(cond (,x ~_)))
 
-(defmacro unless (x &rest b)
-	`(cond ((not ,x) ~b)))
+(defmacro unless (x &rest _)
+	`(cond ((not ,x) ~_)))
 
-(defmacro until (x &rest b)
-	`(while (not ,x) ~b))
+(defmacro until (x &rest _)
+	`(while (not ,x) ~_))
 
-(defmacro or (x &rest b)
-	(if (eq 0 (length b)) x
-		`(if (defq ,(defq _x (gensym)) ,x) ,_x (or ~b))))
+(defmacro or (x &rest _)
+	(if (eq 0 (length _)) x
+		`(if (defq ,(defq _x (gensym)) ,x) ,_x (or ~_))))
 
-(defmacro and (x &rest b)
-	(if (eq 0 (length b)) x
-		`(if ,x (and ~b) nil)))
+(defmacro and (x &rest _)
+	(if (eq 0 (length _)) x
+		`(if ,x (and ~_) nil)))
 
-(defmacro times (c &rest b)
+(defmacro times (c &rest _)
 	`(progn (defq ,(defq _c (gensym)) ,c)
-		(while (le 0 (setq ,_c (dec ,_c))) ~b)))
+		(while (le 0 (setq ,_c (dec ,_c))) ~_)))
 
 ;;;;;;;;;;;;
 ; Functional
@@ -237,14 +237,14 @@
 ; Math functions
 ;;;;;;;;;;;;;;;;
 
-(defmacro minus (x)
-	(neg x))
+(defmacro minus (_)
+	(neg _))
 
-(defun neg (x)
-	(sub 0 x))
+(defun neg (_)
+	(sub 0 _))
 
-(defun abs (x)
-	(if (lt x 0) (neg x) x))
+(defun abs (_)
+	(if (lt _ 0) (neg _) _))
 
 (defun min (x y)
 	(if (lt x y) x y))
@@ -252,17 +252,17 @@
 (defun max (x y)
 	(if (lt x y) y x))
 
-(defun squared (x)
-	(mul x x))
+(defun squared (_)
+	(mul _ _))
 
-(defun cubed (x)
-	(mul x x x))
+(defun cubed (_)
+	(mul _ _ _))
 
 (defun divmod (x y)
 	(list (div x y) (mod x y)))
 
-(defun bit-not (x)
-	(bit-xor x -1))
+(defun bit-not (_)
+	(bit-xor _ -1))
 
 ;;;;;;;;;
 ; Streams
@@ -273,8 +273,8 @@
 	(while (defq _l (read-line _s))
 		(_b _l)))
 
-(defun print-file (f)
-	(each-line f print))
+(defun print-file (_)
+	(each-line _ print))
 
 ;;;;;;;;;;;
 ; Utilities
@@ -283,21 +283,20 @@
 (defun align (x a)
 	(bit-and (add x (dec a)) (neg a)))
 
-(defmacro ascii (c)
-	(code c))
+(defmacro ascii (_)
+	(code _))
 
-(defun to-base-char (x)
-	(elem x "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+(defun to-base-char (_)
+	(elem _ "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
 
-(defun from-base-char (c)
-	(setq c (code c))
+(defun from-base-char (_)
+	(setq _ (code _))
 	(cond
-		((ge c (ascii "a"))
-			(sub c (ascii "a") -10))
-		((ge c (ascii "A"))
-			(sub c (ascii "A") -10))
-		(t
-			(sub c (ascii "0")))))
+		((ge _ (ascii "a"))
+			(sub _ (ascii "a") -10))
+		((ge _ (ascii "A"))
+			(sub _ (ascii "A") -10))
+		(t (sub _ (ascii "0")))))
 
 (defun prin-base (x b j)
 	(defun prin-b (x j)
@@ -319,20 +318,20 @@
 (defun trim (s &optional c)
 	(trim-start (trim-end s c) c))
 
-(defun to-num (s)
+(defun to-num (_)
 	(defq n 0 b 10)
-	(when (gt (length s) 1)
-		(defq i (elem 1 s))
+	(when (gt (length _) 1)
+		(defq i (elem 1 _))
 		(cond
 			((eql i "x")
-				(setq b 16 s (slice 2 -1 s)))
+				(setq b 16 _ (slice 2 -1 _)))
 			((eql i "o")
-				(setq b 8 s (slice 2 -1 s)))
+				(setq b 8 _ (slice 2 -1 _)))
 			((eql i "b")
-				(setq b 2 s (slice 2 -1 s)))))
+				(setq b 2 _ (slice 2 -1 _)))))
 	(defq i -1)
-	(while (lt (setq i (inc i)) (length s))
-		(setq n (add (mul n b) (from-base-char (elem i s))))) n)
+	(while (lt (setq i (inc i)) (length _))
+		(setq n (add (mul n b) (from-base-char (elem i _))))) n)
 
 (defun match-list? (x y)
 	(when (eq (defq i (length x)) (length y))
@@ -340,10 +339,10 @@
 					(or (eql '_ (elem i y)) (eql (elem i x) (elem i y)))))
 		(lt i 0)))
 
-(defun pow2 (c)
+(defun pow2 (_)
 	(defq i -1 b nil)
 	(while (and (not b) (lt (setq i (inc i)) 64))
-		(if (eq c (bit-shl 1 i)) (setq b i))) b)
+		(if (eq _ (bit-shl 1 i)) (setq b i))) b)
 
 (defun insert (x y)
 	(when (notany (lambda (x) (eql x y)) x)
@@ -361,8 +360,8 @@
 	(each (lambda (y)
 		(unless (find y x) (push x y))) y))
 
-(defmacro sym-cat (&rest b)
-	`(sym (cat ~b)))
+(defmacro sym-cat (&rest _)
+	`(sym (cat ~_)))
 
 (defun every-pipe-line (_f _p)
 	(defq _d "" _v t)
