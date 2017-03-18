@@ -14,16 +14,6 @@
 
 (def-func-end)
 
-(def-func 'class/obj/create)
-	;outputs
-	;r0 = 0 if error, else object
-
-	;always error
-	(vp-xor-rr r0 r0)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/obj/destroy)
 	;inputs
 	;r0 = object
@@ -66,16 +56,6 @@
 	(vpif '(r1 == r2))
 		(vp-cpy-ir r0 obj_vtable r1)
 	(endif)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/obj/new)
-	;outputs
-	;r0 = 0 if error, else object
-
-	;always error
-	(vp-xor-rr r0 r0)
 	(vp-ret)
 
 (def-func-end)

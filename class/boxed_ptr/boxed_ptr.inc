@@ -1,8 +1,8 @@
 (import 'class/ref/ref.inc)
 
 (def-class 'boxed_ptr 'ref)
-(def-method 'create 'class/boxed_ptr/create)
-(def-method 'new 'class/boxed_ptr/new)
+(def-method 'create 'class/boxed_ptr/create 'static nil '(r0))
+(def-method 'new 'class/boxed_ptr/new 'static nil '(r0))
 (def-method 'init 'class/boxed_ptr/init)
 (def-method 'get_value 'class/boxed_ptr/get_value 'static '(r0) '(r1))
 (def-method 'set_value 'class/boxed_ptr/set_value 'static '(r0 r1))

@@ -1,8 +1,8 @@
 (import 'class/view/view.inc)
 
 (def-class 'text 'view)
-(def-method 'create 'class/text/create)
-(def-method 'new 'class/text/new)
+(def-method 'create 'class/text/create 'static nil '(r0))
+(def-method 'new 'class/text/new 'static nil '(r0))
 (def-method 'init 'class/text/init)
 (def-method 'set_font 'class/text/set_font 'static '(r0 r1 r2))
 (def-method 'set_text 'class/text/set_text 'static '(r0 r1))

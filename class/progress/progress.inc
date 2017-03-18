@@ -3,8 +3,8 @@
 (defcvar 'progress_border_size 1)
 
 (def-class 'progress 'view)
-(def-method 'create 'class/progress/create)
-(def-method 'new 'class/progress/new)
+(def-method 'create 'class/progress/create 'static nil '(r0))
+(def-method 'new 'class/progress/new 'static nil '(r0))
 (def-method 'set_max 'class/progress/set_max 'static '(r0 r1))
 (def-method 'set_val 'class/progress/set_val 'static '(r0 r1))
 

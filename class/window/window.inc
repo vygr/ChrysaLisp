@@ -11,8 +11,8 @@
 (def-bit-end)
 
 (def-class 'window 'view)
-(def-method 'new 'class/window/new)
-(def-method 'create 'class/window/create 'static '(r0))
+(def-method 'new 'class/window/new 'static nil '(r0))
+(def-method 'create 'class/window/create 'static '(r0) '(r0))
 (def-method 'init 'class/window/init 'static '(r0 r1 r2))
 (def-method 'set_title 'class/window/set_title 'static '(r0 r1))
 (def-method 'set_status 'class/window/set_status 'static '(r0 r1))

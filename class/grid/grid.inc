@@ -1,8 +1,8 @@
 (import 'class/view/view.inc)
 
 (def-class 'grid 'view)
-(def-method 'create 'class/grid/create)
-(def-method 'new 'class/grid/new)
+(def-method 'create 'class/grid/create 'static nil '(r0))
+(def-method 'new 'class/grid/new 'static nil '(r0))
 (def-method 'init 'class/grid/init)
 (def-method 'set_grid 'class/grid/set_grid 'static '(r0 r10 r11))
 

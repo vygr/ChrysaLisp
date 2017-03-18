@@ -1,8 +1,8 @@
 (import 'class/sliceable/sliceable.inc)
 
 (def-class 'vector 'sliceable)
-(def-method 'create 'class/vector/create)
-(def-method 'new 'class/vector/new)
+(def-method 'create 'class/vector/create 'static nil '(r0))
+(def-method 'new 'class/vector/new 'static nil '(r0))
 (def-method 'init 'class/vector/init)
 (def-method 'get_capacity 'class/vector/get_capacity 'static '(r0) '(r1))
 (def-method 'set_capacity 'class/vector/set_capacity 'static '(r0 r1))

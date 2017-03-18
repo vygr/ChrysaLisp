@@ -1,8 +1,8 @@
 (import 'class/view/view.inc)
 
 (def-class 'flow 'view)
-(def-method 'create 'class/flow/create)
-(def-method 'new 'class/flow/new)
+(def-method 'create 'class/flow/create 'static nil '(r0))
+(def-method 'new 'class/flow/new 'static nil '(r0))
 (def-method 'init 'class/flow/init)
 (def-method 'set_flow_flags 'class/flow/set_flow_flags 'static '(r0 r1))
 
