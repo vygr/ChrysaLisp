@@ -1,8 +1,6 @@
 (import 'class/component/component.inc)
 
 (def-class 'view 'component)
-(def-method 'create 'class/view/create)
-(def-method 'new 'class/view/new)
 (def-method 'init 'class/view/init)
 (def-method 'add_front 'class/view/add_front 'static '(r0 r1))
 (def-method 'add_back 'class/view/add_back 'static '(r0 r1))
@@ -54,6 +52,7 @@
 (def-bit-end)
 
 (def-struct 'view 'component)
+	(offset 'view_start)
 	(struct 'view_node 'ln_node)
 	(struct 'view_list 'lh_list)
 	(ptr 'view_parent)
