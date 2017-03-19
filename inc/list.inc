@@ -33,144 +33,144 @@
 ; list node macros
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun ln-get-forward (%1 %2)
+(defcfun ln-get-forward (_1 _2)
 	;inputs
-	;%1 = list node
-	;%2 = temp
+	;_1 = list node
+	;_2 = temp
 	;outputs
-	;%1 = list node
+	;_1 = list node
 	;trashes
-	;%2
+	;_2
 
-	(ln-get-succ %1 0 %2)
-	(vpif `(,%2 == 0))
-		(vp-cpy-ir %1 (neg lh_list_tail) %1)
+	(ln-get-succ _1 0 _2)
+	(vpif `(,_2 == 0))
+		(vp-cpy-ir _1 (neg lh_list_tail) _1)
 	(endif))
 
-(defcfun ln-get-backward (%1 %2)
+(defcfun ln-get-backward (_1 _2)
 	;inputs
-	;%1 = list node
-	;%2 = temp
+	;_1 = list node
+	;_2 = temp
 	;outputs
-	;%1 = list node
+	;_1 = list node
 	;trashes
-	;%2
+	;_2
 
-	(ln-get-pred %1 0 %2)
-	(vpif `(,%2 == 0))
-		(ln-get-tail %1 %1)
+	(ln-get-pred _1 0 _2)
+	(vpif `(,_2 == 0))
+		(ln-get-tail _1 _1)
 	(endif))
 
-(defcfun ln-set-succ (%1 %2)
+(defcfun ln-set-succ (_1 _2)
 	;inputs
-	;%1 = list node1
-	;%2 = list node2
+	;_1 = list node1
+	;_2 = list node2
 	;outputs
-	;%1 = list node1
-	;%2 = list node2
+	;_1 = list node1
+	;_2 = list node2
 
-	(vp-cpy-ri %2 %1 ln_node_succ))
+	(vp-cpy-ri _2 _1 ln_node_succ))
 
-(defcfun ln-set-pred (%1 %2)
+(defcfun ln-set-pred (_1 _2)
 	;inputs
-	;%1 = list node1
-	;%2 = list node2
+	;_1 = list node1
+	;_2 = list node2
 	;outputs
-	;%1 = list node1
-	;%2 = list node2
+	;_1 = list node1
+	;_2 = list node2
 
-	(vp-cpy-ri %2 %1 ln_node_pred))
+	(vp-cpy-ri _2 _1 ln_node_pred))
 
-(defcfun ln-get-succ (%1 %2 %3)
+(defcfun ln-get-succ (_1 _2 _3)
 	;inputs
-	;%1 = list node
-	;%2 = offset
-	;%3 = temp
+	;_1 = list node
+	;_2 = offset
+	;_3 = temp
 	;outputs
-	;%1 = list node
-	;%3 = succ
+	;_1 = list node
+	;_3 = succ
 
-	(vp-cpy-ir %1 (add ln_node_succ %2) %3))
+	(vp-cpy-ir _1 (add ln_node_succ _2) _3))
 
-(defcfun ln-get-pred (%1 %2 %3)
+(defcfun ln-get-pred (_1 _2 _3)
 	;inputs
-	;%1 = list node
-	;%2 = offset
-	;%3 = temp
+	;_1 = list node
+	;_2 = offset
+	;_3 = temp
 	;outputs
-	;%1 = list node
-	;%3 = pred
+	;_1 = list node
+	;_3 = pred
 
-	(vp-cpy-ir %1 (add ln_node_pred %2) %3))
+	(vp-cpy-ir _1 (add ln_node_pred _2) _3))
 
-(defcfun ln-add-node-after (%1 %2 %3)
+(defcfun ln-add-node-after (_1 _2 _3)
 	;inputs
-	;%1 = list node1
-	;%2 = list node2
-	;%3 = temp
+	;_1 = list node1
+	;_2 = list node2
+	;_3 = temp
 	;outputs
-	;%1 = list node1
-	;%2 = list node2
-	;%3 = list node1 succ
+	;_1 = list node1
+	;_2 = list node2
+	;_3 = list node1 succ
 
-	(ln-get-succ %1 0 %3)
-	(ln-set-succ %1 %2)
-	(ln-set-pred %3 %2)
-	(ln-set-succ %2 %3)
-	(ln-set-pred %2 %1))
+	(ln-get-succ _1 0 _3)
+	(ln-set-succ _1 _2)
+	(ln-set-pred _3 _2)
+	(ln-set-succ _2 _3)
+	(ln-set-pred _2 _1))
 
-(defcfun ln-add-node-before (%1 %2 %3)
+(defcfun ln-add-node-before (_1 _2 _3)
 	;inputs
-	;%1 = list node1
-	;%2 = list node2
-	;%3 = temp
+	;_1 = list node1
+	;_2 = list node2
+	;_3 = temp
 	;outputs
-	;%1 = list node1
-	;%2 = list node2
-	;%3 = list node1 pred
+	;_1 = list node1
+	;_2 = list node2
+	;_3 = list node1 pred
 
-	(ln-get-pred %1 0 %3)
-	(ln-set-succ %2 %1)
-	(ln-set-pred %2 %3)
-	(ln-set-succ %3 %2)
-	(ln-set-pred %1 %2))
+	(ln-get-pred _1 0 _3)
+	(ln-set-succ _2 _1)
+	(ln-set-pred _2 _3)
+	(ln-set-succ _3 _2)
+	(ln-set-pred _1 _2))
 
-(defcfun ln-remove-node (%1 %2)
+(defcfun ln-remove-node (_1 _2)
 	;inputs
-	;%1 = list node
-	;%2 = temp
+	;_1 = list node
+	;_2 = temp
 	;outputs
-	;%1 = list node pred
-	;%2 = list node succ
+	;_1 = list node pred
+	;_2 = list node succ
 
-	(ln-get-succ %1 0 %2)
-	(ln-get-pred %1 0 %1)
-	(ln-set-pred %2 %1)
-	(ln-set-succ %1 %2))
+	(ln-get-succ _1 0 _2)
+	(ln-get-pred _1 0 _1)
+	(ln-set-pred _2 _1)
+	(ln-set-succ _1 _2))
 
-(defcfun ln-is-first (%1 %2 %3)
+(defcfun ln-is-first (_1 _2 _3)
 	;inputs
-	;%1 = list node
-	;%2 = offset
-	;%3 = temp
+	;_1 = list node
+	;_2 = offset
+	;_3 = temp
 	;outputs
-	;%1 = list node
-	;%3 = 0 if first, else not
+	;_1 = list node
+	;_3 = 0 if first, else not
 
-	(ln-get-pred %1 %2 %3)
-	(ln-get-pred %3 0 %3))
+	(ln-get-pred _1 _2 _3)
+	(ln-get-pred _3 0 _3))
 
-(defcfun ln-is-last (%1 %2 %3)
+(defcfun ln-is-last (_1 _2 _3)
 	;inputs
-	;%1 = list node
-	;%2 = offset
-	;%3 = temp
+	;_1 = list node
+	;_2 = offset
+	;_3 = temp
 	;outputs
-	;%1 = list node
-	;%3 = 0 if last, else not
+	;_1 = list node
+	;_3 = 0 if last, else not
 
-	(ln-get-succ %1 %2 %3)
-	(ln-get-succ %3 0 %3))
+	(ln-get-succ _1 _2 _3)
+	(ln-get-succ _3 0 _3))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; list header macros
@@ -181,230 +181,230 @@
 (vp-label l)
 	(times lh_list_size (vp-byte 0)))
 
-(defcfun lh-init (%1 %2)
+(defcfun lh-init (_1 _2)
 	;inputs
-	;%1 = list head
-	;%2 = temp
+	;_1 = list head
+	;_2 = temp
 	;outputs
-	;%1 = list head
-	;%2 = list tail
+	;_1 = list head
+	;_2 = list tail
 
-	(vp-xor-rr %2 %2)
-	(vp-cpy-ri %2 %1 lh_list_tail)
-	(lh-set-tail %1 %1)
-	(vp-lea-i %1 lh_list_tail %2)
-	(lh-set-head %1 %2))
+	(vp-xor-rr _2 _2)
+	(vp-cpy-ri _2 _1 lh_list_tail)
+	(lh-set-tail _1 _1)
+	(vp-lea-i _1 lh_list_tail _2)
+	(lh-set-head _1 _2))
 
-(defcfun lh-set-head (%1 %2)
+(defcfun lh-set-head (_1 _2)
 	;inputs
-	;%1 = list head
-	;%2 = list node
+	;_1 = list head
+	;_2 = list node
 	;outputs
-	;%1 = list head
-	;%2 = list node
+	;_1 = list head
+	;_2 = list node
 
-	(vp-cpy-ri %2 %1 lh_list_head))
+	(vp-cpy-ri _2 _1 lh_list_head))
 
-(defcfun lh-set-tail (%1 %2)
+(defcfun lh-set-tail (_1 _2)
 	;inputs
-	;%1 = list head
-	;%2 = list node
+	;_1 = list head
+	;_2 = list node
 	;outputs
-	;%1 = list head
-	;%2 = list node
+	;_1 = list head
+	;_2 = list node
 
-	(vp-cpy-ri %2 %1 lh_list_tailpred))
+	(vp-cpy-ri _2 _1 lh_list_tailpred))
 
-(defcfun lh-get-head (%1 %2 %3)
+(defcfun lh-get-head (_1 _2 _3)
 	;inputs
-	;%1 = list head
-	;%2 = offset
-	;%3 = temp
+	;_1 = list head
+	;_2 = offset
+	;_3 = temp
 	;outputs
-	;%1 = list head
-	;%3 = list node
+	;_1 = list head
+	;_3 = list node
 
-	(vp-cpy-ir %1 (add lh_list_head %2) %3))
+	(vp-cpy-ir _1 (add lh_list_head _2) _3))
 
-(defcfun lh-get-tail (%1 %2 %3)
+(defcfun lh-get-tail (_1 _2 _3)
 	;inputs
-	;%1 = list head
-	;%2 = offset
-	;%3 = temp
+	;_1 = list head
+	;_2 = offset
+	;_3 = temp
 	;outputs
-	;%1 = list head
-	;%3 = list node
+	;_1 = list head
+	;_3 = list node
 
-	(vp-cpy-ir %1 (add lh_list_tailpred %2) %3))
+	(vp-cpy-ir _1 (add lh_list_tailpred _2) _3))
 
-(defcfun lh-add-at-head (%1 %2 %3)
+(defcfun lh-add-at-head (_1 _2 _3)
 	;inputs
-	;%1 = list head
-	;%2 = list node
-	;%3 = temp
+	;_1 = list head
+	;_2 = list node
+	;_3 = temp
 	;outputs
-	;%1 = list head
-	;%2 = list node
-	;%3 = list node succ
+	;_1 = list head
+	;_2 = list node
+	;_3 = list node succ
 
-	(ln-add-node-after %1 %2 %3))
+	(ln-add-node-after _1 _2 _3))
 
-(defcfun lh-add-at-tail (%1 %2 %3)
+(defcfun lh-add-at-tail (_1 _2 _3)
 	;inputs
-	;%1 = list head
-	;%2 = list node
-	;%3 = temp
+	;_1 = list head
+	;_2 = list node
+	;_3 = temp
 	;outputs
-	;%1 = list head
-	;%2 = list node
-	;%3 = list node pred
+	;_1 = list head
+	;_2 = list node
+	;_3 = list node pred
 
-	(vp-lea-i %1 lh_list_tail %1)
-	(ln-add-node-before %1 %2 %3)
-	(vp-lea-i %1 (neg lh_list_tail) %1))
+	(vp-lea-i _1 lh_list_tail _1)
+	(ln-add-node-before _1 _2 _3)
+	(vp-lea-i _1 (neg lh_list_tail) _1))
 
-(defcfun lh-remove-head (%1 %2 %3)
+(defcfun lh-remove-head (_1 _2 _3)
 	;inputs
-	;%1 = list head
-	;%2 = temp
-	;%3 = temp
+	;_1 = list head
+	;_2 = temp
+	;_3 = temp
 	;outputs
-	;%1 = list tail
-	;%2 = 0
-	;%3 = temp
+	;_1 = list tail
+	;_2 = 0
+	;_3 = temp
 	;else
-	;%1 = list node pred
-	;%2 = list node
-	;%3 = list node succ
+	;_1 = list node pred
+	;_2 = list node
+	;_3 = list node succ
 
-	(lh-get-head %1 0 %1)
-	(ln-get-succ %1 0 %2)
-	(vpif `(,%2 != 0))
-		(vp-cpy-rr %1 %2)
-		(ln-remove-node %1 %3)
+	(lh-get-head _1 0 _1)
+	(ln-get-succ _1 0 _2)
+	(vpif `(,_2 != 0))
+		(vp-cpy-rr _1 _2)
+		(ln-remove-node _1 _3)
 	(endif))
 
-(defcfun lh-remove-tail (%1 %2 %3)
+(defcfun lh-remove-tail (_1 _2 _3)
 	;inputs
-	;%1 = list head
-	;%2 = temp
-	;%3 = temp
+	;_1 = list head
+	;_2 = temp
+	;_3 = temp
 	;outputs
-	;%1 = list tailpred
-	;%2 = 0
-	;%3 = temp
+	;_1 = list tailpred
+	;_2 = 0
+	;_3 = temp
 	;else
-	;%1 = list node pred
-	;%2 = list node
-	;%3 = list node succ
+	;_1 = list node pred
+	;_2 = list node
+	;_3 = list node succ
 
-	(lh-get-tail %1 0 %1)
-	(ln-get-pred %1 0 %2)
-	(vpif `(,%2 != 0))
-		(vp-cpy-rr %1 %2)
-		(ln-remove-node %1 %3)
+	(lh-get-tail _1 0 _1)
+	(ln-get-pred _1 0 _2)
+	(vpif `(,_2 != 0))
+		(vp-cpy-rr _1 _2)
+		(ln-remove-node _1 _3)
 	(endif))
 
-(defcfun lh-is-empty (%1 %2 %3)
+(defcfun lh-is-empty (_1 _2 _3)
 	;inputs
-	;%1 = list head
-	;%2 = offset
-	;%3 = temp
+	;_1 = list head
+	;_2 = offset
+	;_3 = temp
 	;outputs
-	;%1 = list head
-	;%3 = 0 if empty, else not
+	;_1 = list head
+	;_3 = 0 if empty, else not
 
-	(ln-get-succ %1 %2 %3)
-	(ln-get-succ %3 0 %3))
+	(ln-get-succ _1 _2 _3)
+	(ln-get-succ _3 0 _3))
 
 ;;;;;;;;;;;;;;;;;;
 ; list loop macros
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun loop-list-forward (%1 %2 %3 %4)
+(defcfun loop-list-forward (_1 _2 _3 _4)
 	;inputs
-	;%1 = list head
-	;%2 = offset
-	;%3 = list node
-	;%4 = list node look ahead
+	;_1 = list head
+	;_2 = offset
+	;_3 = list node
+	;_4 = list node look ahead
 	;outputs
-	;%1 = list head
-	;%3 = list node
-	;%4 = list node look ahead
+	;_1 = list head
+	;_3 = list node
+	;_4 = list node look ahead
 
-	(lh-get-head %1 %2 %4)
+	(lh-get-head _1 _2 _4)
 	(loop-start)
-		(vp-cpy-rr %4 %3)
-		(ln-get-succ %4 0 %4)
-		(breakif `(,%4 == 0)))
+		(vp-cpy-rr _4 _3)
+		(ln-get-succ _4 0 _4)
+		(breakif `(,_4 == 0)))
 
-(defcfun loop-list-backward (%1 %2 %3 %4)
+(defcfun loop-list-backward (_1 _2 _3 _4)
 	;inputs
-	;%1 = list head
-	;%2 = offset
-	;%3 = list node
-	;%4 = list node look ahead
+	;_1 = list head
+	;_2 = offset
+	;_3 = list node
+	;_4 = list node look ahead
 	;outputs
-	;%1 = list head
-	;%3 = list node
-	;%4 = list node look ahead
+	;_1 = list head
+	;_3 = list node
+	;_4 = list node look ahead
 
-	(lh-get-tail %1 %2 %4)
+	(lh-get-tail _1 _2 _4)
 	(loop-start)
-		(vp-cpy-rr %4 %3)
-		(ln-get-pred %4 0 %4)
-		(breakif `(,%4 == 0)))
+		(vp-cpy-rr _4 _3)
+		(ln-get-pred _4 0 _4)
+		(breakif `(,_4 == 0)))
 
-(defcfun loop-flist-forward (%1 %2 %3 %4)
+(defcfun loop-flist-forward (_1 _2 _3 _4)
 	;inputs
-	;%1 = list head
-	;%2 = offset
-	;%3 = list node
-	;%4 = list last
+	;_1 = list head
+	;_2 = offset
+	;_3 = list node
+	;_4 = list last
 	;outputs
-	;%1 = list head
-	;%3 = list node
-	;%4 = list last
+	;_1 = list head
+	;_3 = list node
+	;_4 = list last
 
-	(vp-lea-i %1 %2 %3)
+	(vp-lea-i _1 _2 _3)
 	(loop-start)
-		(ln-next-fnode %3 %4))
+		(ln-next-fnode _3 _4))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; forward list macros
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defcfun ln-next-fnode (%1 %2)
+(defcfun ln-next-fnode (_1 _2)
 	;inputs
-	;%1 = node
-	;%2 = last
+	;_1 = node
+	;_2 = last
 	;trashes
-	;%1, %2
+	;_1, _2
 
-	(vp-cpy-rr %1 %2)
-	(vp-cpy-ir %1 ln_fnode_next %1)
-	(breakif `(,%1 == 0)))
+	(vp-cpy-rr _1 _2)
+	(vp-cpy-ir _1 ln_fnode_next _1)
+	(breakif `(,_1 == 0)))
 
-(defcfun ln-remove-fnode (%1 %2)
+(defcfun ln-remove-fnode (_1 _2)
 	;inputs
-	;%1 = node
-	;%2 = last
+	;_1 = node
+	;_2 = last
 	;trashes
-	;%1
+	;_1
 
-	(vp-cpy-ir %1 ln_fnode_next %1)
-	(vp-cpy-ri %1 %2 ln_fnode_next)
-	(vp-cpy-rr %2 %1))
+	(vp-cpy-ir _1 ln_fnode_next _1)
+	(vp-cpy-ri _1 _2 ln_fnode_next)
+	(vp-cpy-rr _2 _1))
 
-(defcfun ln-add-fnode (%1 %2 %3 %4)
+(defcfun ln-add-fnode (_1 _2 _3 _4)
 	;inputs
-	;%1 = list
-	;%2 = offset
-	;%3 = node
-	;%4 = temp
+	;_1 = list
+	;_2 = offset
+	;_3 = node
+	;_4 = temp
 	;trashes
-	;%4
+	;_4
 
-	(vp-cpy-ir %1 (add %2 ln_fnode_next) %4)
-	(vp-cpy-ri %4 %3 ln_fnode_next)
-	(vp-cpy-ri %3 %1 (add %2 ln_fnode_next)))
+	(vp-cpy-ir _1 (add _2 ln_fnode_next) _4)
+	(vp-cpy-ri _4 _3 ln_fnode_next)
+	(vp-cpy-ri _3 _1 (add _2 ln_fnode_next)))

@@ -2,7 +2,7 @@
 ; sign on
 ;;;;;;;;;
 
-(print "Asm-Kernel Lisp 1.0")
+(print "Asm-Kernel Lisp 1.1")
 (print "Press ESC/Enter to exit.")
 
 ;;;;;;;;;;;;
@@ -38,7 +38,7 @@
 ;;;;;;;;
 
 (defmacro let (l &rest _)
-	`((lambda ,(map (lambda (x) (elem 0 x)) l) ~_) ~(map (lambda (x) (elem 1 x)) l)))
+	`((lambda ,(map (lambda (_) (elem 0 _)) l) ~_) ~(map (lambda (_) (elem 1 _)) l)))
 
 ;;;;;;;;;;;;;;
 ; Control flow

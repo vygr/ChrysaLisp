@@ -62,33 +62,33 @@
 ; mail macros
 ;;;;;;;;;;;;;
 
-(defcfun ml-init (%1 %2 %3)
+(defcfun ml-init (_1 _2 _3)
 	;inputs
-	;%1 = mailbox
-	;%2 = temp
-	;%3 = temp
+	;_1 = mailbox
+	;_2 = temp
+	;_3 = temp
 	;outputs
-	;%1 = mailbox
+	;_1 = mailbox
 	;trashes
-	;%2, %3
+	;_2, _3
 
-	(vp-xor-rr %2 %2)
-	(vp-cpy-ri %2 %1 mailbox_tcb)
-	(lh-init %1 %2)
-	(vp-lea-i %1 mailbox_parcel_list %2)
-	(lh-init %2 %3))
+	(vp-xor-rr _2 _2)
+	(vp-cpy-ri _2 _1 mailbox_tcb)
+	(lh-init _1 _2)
+	(vp-lea-i _1 mailbox_parcel_list _2)
+	(lh-init _2 _3))
 
-(defcfun ml-temp-create (%1 %2)
+(defcfun ml-temp-create (_1 _2)
 	;inputs
-	;%1 = temp
-	;%2 = temp
+	;_1 = temp
+	;_2 = temp
 	;outputs
 	;r4 = mailbox
 	;trashes
-	;%1, %2
+	;_1, _2
 
 	(vp-sub-cr mailbox_size r4)
-	(ml-init r4 %1 %2))
+	(ml-init r4 _1 _2))
 
 (defcfun ml-temp-destroy ()
 	(vp-add-cr mailbox_size r4))

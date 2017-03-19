@@ -44,14 +44,14 @@
 ; heap macros
 ;;;;;;;;;;;;;
 
-(defcfun hp-freecell (%1 %2 %3)
+(defcfun hp-freecell (_1 _2 _3)
 	;inputs
-	;%1 = heap
-	;%2 = cell
-	;%3 = temp
+	;_1 = heap
+	;_2 = cell
+	;_3 = temp
 	;outputs
-	;%1 = heap
-	;%2 = cell
-	;%3 = old first cell
+	;_1 = heap
+	;_2 = cell
+	;_3 = old first cell
 
-	(ln-add-fnode %1 hp_heap_free_flist %2 %3))
+	(ln-add-fnode _1 hp_heap_free_flist _2 _3))

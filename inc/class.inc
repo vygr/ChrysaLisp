@@ -7,257 +7,257 @@
 
 (defcvar '*class* nil (class-name 'null) '())
 
-(defcfun vtable-emit (%1 &optional %2)
-	;%1 = class name
-	;%2 = parent class name
-	(if %2 (fn-add-link %2) (vp-long 0))
+(defcfun vtable-emit (_1 &optional _2)
+	;_1 = class name
+	;_2 = parent class name
+	(if _2 (fn-add-link _2) (vp-long 0))
 	(each (lambda (m)
 		(if (or (eql (elem 2 m) 'virtual) (eql (elem 2 m) 'final))
-			(fn-add-link (elem 1 m)))) (eval (class-name %1))))
+			(fn-add-link (elem 1 m)))) (eval (class-name _1))))
 
-(defcfun def-class (%1 &optional %2)
-	;%1 = class name
-	;%2 = super class name
-	(setq %2 (opt %2 'null) *class* %1)
-	(defcvar (super-name %1) %2 (class-name %1) (cat (eval (class-name %2)))))
+(defcfun def-class (_1 &optional _2)
+	;_1 = class name
+	;_2 = super class name
+	(setq _2 (opt _2 'null) *class* _1)
+	(defcvar (super-name _1) _2 (class-name _1) (cat (eval (class-name _2)))))
 
-(defcfun def-method (%1 %2 &optional %3 %4 %5)
-	;%1 = member name
-	;%2 = member function
-	;%3 = mode (static/virtual/final/override)
-	;%4 = in regs
-	;%5 = out regs
-	(setd %3 'static)
+(defcfun def-method (_1 _2 &optional _3 _4 _5)
+	;_1 = member name
+	;_2 = member function
+	;_3 = mode (static/virtual/final/override)
+	;_4 = in regs
+	;_5 = out regs
+	(setd _3 'static)
 	(defq s 0 c (eval (class-name *class*))
 		m (some (lambda (m)
-			(if (eql (elem 0 m) %1) m
+			(if (eql (elem 0 m) _1) m
 				(progn (setq s (inc s)) nil))) c))
 	(defun override ()
 		(setq m (cat m))
 		(elem-set s c m)
-		(elem-set 1 m %2)
-		(if %4 (elem-set 3 m %4))
-		(if %5 (elem-set 4 m %5)))
+		(elem-set 1 m _2)
+		(if _4 (elem-set 3 m _4))
+		(if _5 (elem-set 4 m _5)))
 	(if m
 		(cond
 			;existing method
-			((eql %3 'static)
+			((eql _3 'static)
 				(if (eql (elem 2 m) 'static)
 					(override)
-					(error "Virtual method already exists !" %1)))
-			((eql %3 'virtual)
-				(error "Method already exists !, use override ?" %1))
-			((eql %3 'override)
+					(error "Virtual method already exists !" _1)))
+			((eql _3 'virtual)
+				(error "Method already exists !, use override ?" _1))
+			((eql _3 'override)
 				(cond
 					((eql (elem 2 m) 'virtual)
 						(override))
 					((eql (elem 2 m) 'final)
-						(error "Virtual method is final !" %1))
-					(t (error "Static method already exists !" %1))))
-			((eql %3 'final)
+						(error "Virtual method is final !" _1))
+					(t (error "Static method already exists !" _1))))
+			((eql _3 'final)
 				(cond
 					((eql (elem 2 m) 'virtual)
 						(override)
-						(elem-set 2 m %3))
+						(elem-set 2 m _3))
 					((eql (elem 2 m) 'final)
-						(error "Virtual method is final !" %1))
-					(t (error "Static method already exists !" %1))))
-			(t (error "Must use static, virtual, final or override ! " %3)))
+						(error "Virtual method is final !" _1))
+					(t (error "Static method already exists !" _1))))
+			(t (error "Must use static, virtual, final or override ! " _3)))
 		(cond
 			;new method
-			((or (eql %3 'static) (eql %3 'virtual) (eql %3 'final))
-				(push c (list %1 %2 %3 %4 %5)))
-			((eql %3 'override)
-				(error "Method does not exist !" %1))
-			(t (error "Must use static, virtual, final or override ! " %3)))))
+			((or (eql _3 'static) (eql _3 'virtual) (eql _3 'final))
+				(push c (list _1 _2 _3 _4 _5)))
+			((eql _3 'override)
+				(error "Method does not exist !" _1))
+			(t (error "Must use static, virtual, final or override ! " _3)))))
 
 ;;;;;;;;;;;;;;;
 ; class calling
 ;;;;;;;;;;;;;;;
 
-(defmacro method-info (%1 %2)
+(defmacro method-info (_1 _2)
 	`(progn
 		(defq s nil v nil m nil)
-		(method-lookup ,%1 ,%2)))
+		(method-lookup ,_1 ,_2)))
 
-(defcfun method-lookup (%1 %2)
-	;%1 = class name
-	;%2 = member name
+(defcfun method-lookup (_1 _2)
+	;_1 = class name
+	;_2 = member name
 	;writes to s, v, m in parent environment !
 	(setq s 0 v ptr_size)
-	(defq c (eval (class-name %1)))
-	(until (or (eq s (length c)) (eql (elem 0 (setq m (elem s c))) %2))
+	(defq c (eval (class-name _1)))
+	(until (or (eq s (length c)) (eql (elem 0 (setq m (elem s c))) _2))
 		(if (or (eql (elem 2 m) 'virtual) (eql (elem 2 m) 'final))
 			(setq v (add v ptr_size)))
 		(setq s (inc s)))
 	(if (eq s (length c))
-		(error "No such method !" (list %1 %2))))
+		(error "No such method !" (list _1 _2))))
 
-(defcfun f-path (%1 %2)
-	;%1 = class name
-	;%2 = slot method name
-	(method-info %1 %2)
+(defcfun f-path (_1 _2)
+	;_1 = class name
+	;_2 = slot method name
+	(method-info _1 _2)
 	(elem 1 m))
 
-(defcfun s-path (%1 %2)
-	;%1 = class name
-	;%2 = slot method name
-	(method-info (eval (super-name %1)) %2)
+(defcfun s-path (_1 _2)
+	;_1 = class name
+	;_2 = slot method name
+	(method-info (eval (super-name _1)) _2)
 	(elem 1 m))
 
 ;;;;;;;;;;;;;;;;
 ; method calling
 ;;;;;;;;;;;;;;;;
 
-(defcfun f-call (%1 %2 &optional %3 %4)
-	;%1 = class name
-	;%2 = member name
-	;%3 = in parameters
-	;%4 = out parameters
-	(method-info %1 %2)
+(defcfun f-call (_1 _2 &optional _3 _4)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = out parameters
+	(method-info _1 _2)
 	(if (eql (elem 2 m) 'virtual)
-		(error "Method is virtual ! Use v-call ?" (list %1 %2)))
-	(assign %3 (elem 3 m))
+		(error "Method is virtual ! Use v-call ?" (list _1 _2)))
+	(assign _3 (elem 3 m))
 	(fn-call (elem 1 m))
-	(assign (elem 4 m) %4))
+	(assign (elem 4 m) _4))
 
-(defcfun f-jmp (%1 %2 &optional %3)
-	;%1 = class name
-	;%2 = member name
-	;%3 = in parameters
-	(method-info %1 %2)
+(defcfun f-jmp (_1 _2 &optional _3)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	(method-info _1 _2)
 	(if (eql (elem 2 m) 'virtual)
-		(error "Method is virtual ! Use v-jmp ?" (list %1 %2)))
-	(assign %3 (elem 3 m))
+		(error "Method is virtual ! Use v-jmp ?" (list _1 _2)))
+	(assign _3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
-(defcfun f-bind (%1 %2 %3)
-	;%1 = class name
-	;%2 = member name
-	;%3 = reg
-	(method-info %1 %2)
+(defcfun f-bind (_1 _2 _3)
+	;_1 = class name
+	;_2 = member name
+	;_3 = reg
+	(method-info _1 _2)
 	(if (eql (elem 2 m) 'virtual)
-		(error "Method is virtual ! Use v-bind ?" (list %1 %2)))
-	(fn-bind (elem 1 m) %3))
+		(error "Method is virtual ! Use v-bind ?" (list _1 _2)))
+	(fn-bind (elem 1 m) _3))
 
-(defcfun s-call (%1 %2 &optional %3 %4)
-	;%1 = class name
-	;%2 = member name
-	;%3 = in parameters
-	;%4 = out parameters
-	(method-info (eval (super-name %1)) %2)
+(defcfun s-call (_1 _2 &optional _3 _4)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = out parameters
+	(method-info (eval (super-name _1)) _2)
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
-			(error "Method is static !" (list (eval (super-name %1)) %2))))
-	(assign %3 (elem 3 m))
+			(error "Method is static !" (list (eval (super-name _1)) _2))))
+	(assign _3 (elem 3 m))
 	(fn-call (elem 1 m))
-	(assign (elem 4 m) %4))
+	(assign (elem 4 m) _4))
 
-(defcfun s-jmp (%1 %2 &optional %3)
-	;%1 = class name
-	;%2 = member name
-	;%3 = in parameters
-	(method-info (eval (super-name %1)) %2)
+(defcfun s-jmp (_1 _2 &optional _3)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	(method-info (eval (super-name _1)) _2)
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
-			(error "Method is static !" (list (eval (super-name %1)) %2))))
-	(assign %3 (elem 3 m))
+			(error "Method is static !" (list (eval (super-name _1)) _2))))
+	(assign _3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
-(defcfun s-bind (%1 %2 %3)
-	;%1 = class name
-	;%2 = member name
-	;%3 = reg
-	(method-info (eval (super-name %1)) %2)
+(defcfun s-bind (_1 _2 _3)
+	;_1 = class name
+	;_2 = member name
+	;_3 = reg
+	(method-info (eval (super-name _1)) _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static !" (list (eval (super-name %1)) %2)))
-	(fn-bind (elem 1 m) %3))
+		(error "Method is static !" (list (eval (super-name _1)) _2)))
+	(fn-bind (elem 1 m) _3))
 
-(defcfun v-call (%1 %2 &optional %3 %4 %5)
-	;%1 = class name
-	;%2 = member name
-	;%3 = in parameters
-	;%4 = out parameters
-	;%5 = dispatch reg
-	(setd %5 r15)
-	(method-info %1 %2)
+(defcfun v-call (_1 _2 &optional _3 _4 _5)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = out parameters
+	;_5 = dispatch reg
+	(setd _5 r15)
+	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static ! Use f-call ?" (list %1 %2)))
+		(error "Method is static ! Use f-call ?" (list _1 _2)))
 	(setq s (elem 3 m))
-	(if (str? %3)
-		(setq %3 (cat "RXX, " %3) s (cat (list %5) s)))
-	(assign %3 s)
-	(vp-cpy-ir r0 obj_vtable %5)
-	(vp-call-i %5 v)
-	(assign (elem 4 m) %4))
+	(if (str? _3)
+		(setq _3 (cat "RXX, " _3) s (cat (list _5) s)))
+	(assign _3 s)
+	(vp-cpy-ir r0 obj_vtable _5)
+	(vp-call-i _5 v)
+	(assign (elem 4 m) _4))
 
-(defcfun v-jmp (%1 %2 &optional %3 %4)
-	;%1 = class name
-	;%2 = member name
-	;%3 = in parameters
-	;%4 = dispatch reg
-	(setd %4 r15)
-	(method-info %1 %2)
+(defcfun v-jmp (_1 _2 &optional _3 _4)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = dispatch reg
+	(setd _4 r15)
+	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static ! Use f-jmp ?" (list %1 %2)))
+		(error "Method is static ! Use f-jmp ?" (list _1 _2)))
 	(setq s (elem 3 m))
-	(if (str? %3)
-		(setq %3 (cat "RXX, " %3) s (cat (list %4) s)))
-	(assign %3 s)
-	(vp-cpy-ir r0 obj_vtable %4)
-	(vp-jmp-i %4 v))
+	(if (str? _3)
+		(setq _3 (cat "RXX, " _3) s (cat (list _4) s)))
+	(assign _3 s)
+	(vp-cpy-ir r0 obj_vtable _4)
+	(vp-jmp-i _4 v))
 
-(defcfun v-bind (%1 %2 &optional %3)
-	;%1 = class name
-	;%2 = member name
-	;%3 = dispatch reg
-	(setd %3 r15)
-	(method-info %1 %2)
+(defcfun v-bind (_1 _2 &optional _3)
+	;_1 = class name
+	;_2 = member name
+	;_3 = dispatch reg
+	(setd _3 r15)
+	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static ! Use f-bind ?" (list %1 %2)))
-	(vp-cpy-ir r0 obj_vtable %3)
-	(vp-cpy-ir %3 v %3))
+		(error "Method is static ! Use f-bind ?" (list _1 _2)))
+	(vp-cpy-ir r0 obj_vtable _3)
+	(vp-cpy-ir _3 v _3))
 
-(defcfun d-call (%1 %2 &optional %3 %4)
-	;%1 = class name
-	;%2 = member name
-	;%3 = in parameters
-	;%4 = out parameters
-	(method-info %1 %2)
+(defcfun d-call (_1 _2 &optional _3 _4)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = out parameters
+	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static ! Use f-call ?" (list %1 %2)))
-	(assign %3 (elem 3 m))
+		(error "Method is static ! Use f-call ?" (list _1 _2)))
+	(assign _3 (elem 3 m))
 	(fn-call (elem 1 m))
-	(assign (elem 4 m) %4))
+	(assign (elem 4 m) _4))
 
-(defcfun d-jmp (%1 %2 &optional %3)
-	;%1 = class name
-	;%2 = member name
-	;%3 = in parameters
-	(method-info %1 %2)
+(defcfun d-jmp (_1 _2 &optional _3)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static ! Use f-jmp ?" (list %1 %2)))
-	(assign %3 (elem 3 m))
+		(error "Method is static ! Use f-jmp ?" (list _1 _2)))
+	(assign _3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
-(defcfun d-bind (%1 %2 %3)
-	;%1 = class name
-	;%2 = member name
-	;%3 = reg
-	(method-info %1 %2)
+(defcfun d-bind (_1 _2 _3)
+	;_1 = class name
+	;_2 = member name
+	;_3 = reg
+	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static ! Use f-bind ?" (list %1 %2)))
-	(fn-bind (elem 1 m) %3))
+		(error "Method is static ! Use f-bind ?" (list _1 _2)))
+	(fn-bind (elem 1 m) _3))
 
-(defcfun l-call (%1 &optional %2 %3 %4 %5)
-	;%1 = label
-	;%2 = in parameters
-	;%3 = in regs
-	;%4 = out parameters
-	;%5 = out regs
-	(assign %2 %3)
-	(vp-call %1)
-	(assign %4 %5))
+(defcfun l-call (_1 &optional _2 _3 _4 _5)
+	;_1 = label
+	;_2 = in parameters
+	;_3 = in regs
+	;_4 = out parameters
+	;_5 = out regs
+	(assign _2 _3)
+	(vp-call _1)
+	(assign _4 _5))
 
 ;;;;;;;;;;;;;;;;;
 ; virtual classes
@@ -300,46 +300,46 @@
 ; generic class construction
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defcfun class-macro-class (%1)
-	;%1 = class name
-	(def-func (f-path 'class %1))
-		(defq c (eval (super-name %1)))
+(defcfun class-macro-class (_1)
+	;_1 = class name
+	(def-func (f-path 'class _1))
+		(defq c (eval (super-name _1)))
 		(if (eql c 'null)
-			(vtable-emit %1)
-			(vtable-emit %1 (f-path 'class c)))
+			(vtable-emit _1)
+			(vtable-emit _1 (f-path 'class c)))
 	(def-func-end))
 
-(defcfun class-macro-create (%1 &optional %2)
-	;%1 = class name
-	;%2 = number of args
-	(setd %2 0)
-	(defq %3 (slice 0 %2 '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11))
-		%4 (slice 0 %2 '(r14 r15 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
-	(def-func (sym-cat "class/" %1 "/create"))
+(defcfun class-macro-create (_1 &optional _2)
+	;_1 = class name
+	;_2 = number of args
+	(setd _2 0)
+	(defq _3 (slice 0 _2 '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11))
+		_4 (slice 0 _2 '(r14 r15 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
+	(def-func (sym-cat "class/" _1 "/create"))
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
 		;all but r4
-		(assign %3 %4)
-		(f-call %1 'new '() '(r0))
+		(assign _3 _4)
+		(f-call _1 'new '() '(r0))
 		(vpif '(r0 != 0))
 			;init the object
-			(f-call %1 'init `(r0 (@ ,(f-path 'class %1)) ~%4) '(r1))
+			(f-call _1 'init `(r0 (@ ,(f-path 'class _1)) ~_4) '(r1))
 			(vpif '(r1 == 0))
 				;error with init
-				(v-call %1 'delete '(r0) '() r1)
+				(v-call _1 'delete '(r0) '() r1)
 				(vp-xor-rr r0 r0)
 			(endif)
 		(endif)
 		(vp-ret)
 	(def-func-end))
 
-(defcfun class-macro-new (%1)
-	;%1 = class name
-	(def-func (sym-cat "class/" %1 "/new"))
+(defcfun class-macro-new (_1)
+	;_1 = class name
+	(def-func (sym-cat "class/" _1 "/new"))
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
 		;r1-r3
-		(f-jmp 'sys_mem 'alloc `(,(sym-cat %1 "_size")))
+		(f-jmp 'sys_mem 'alloc `(,(sym-cat _1 "_size")))
 	(def-func-end))

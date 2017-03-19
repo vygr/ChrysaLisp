@@ -240,37 +240,37 @@
 				(setq o (add o (elem 1 (elem i *scopes*)))))))
 	o)
 
-(defcfun def-sym (%1 %2 %3 &optional %4 %5)
-	;%1 name
-	;%2 type
-	;%3 value1
-	;%4 value2
-	;%5 aux data
-	(setq %1 (sym %1))
+(defcfun def-sym (_1 _2 _3 &optional _4 _5)
+	;_1 name
+	;_2 type
+	;_3 value1
+	;_4 value2
+	;_5 aux data
+	(setq _1 (sym _1))
 	(defq s (elem 0 (elem -2 *scopes*)))
 	(while (ne s (length *symbols*))
-		(if (eql %1 (elem 1 (elem s *symbols*)))
-			(error "Symbol redefined !" %1))
+		(if (eql _1 (elem 1 (elem s *symbols*)))
+			(error "Symbol redefined !" _1))
 		(setq s (inc s)))
-	(push *symbols* (list (length *scopes*) %1 %2 %3 (opt %4 0) %5)))
+	(push *symbols* (list (length *scopes*) _1 _2 _3 (opt _4 0) _5)))
 
-(defcfun get-sym (%1)
-	;%1 name
-	(defq %1 (sym %1) i (length *symbols*) s nil)
-	(while (and (ge (setq i (dec i)) 0) (not (eql %1 (elem 1 (setq s (elem i *symbols*)))))))
+(defcfun get-sym (_1)
+	;_1 name
+	(defq _1 (sym _1) i (length *symbols*) s nil)
+	(while (and (ge (setq i (dec i)) 0) (not (eql _1 (elem 1 (setq s (elem i *symbols*)))))))
 	(if (ne i -1) s))
 
-(defcfun const (%1 %2)
-	;%1 name
-	;%2 value
-	(def-sym %1 'const %2))
+(defcfun const (_1 _2)
+	;_1 name
+	;_2 value
+	(def-sym _1 'const _2))
 
-(defcfun operator (%1 %2 &optional %3 %4)
- 	;%1 name
-	;%2 precedence
-	;%3 associativity
-	;%4 compile macro
-	(def-sym %1 'op (mul %2 2) (opt %3 0) (opt %4 compile-null)))
+(defcfun operator (_1 _2 &optional _3 _4)
+ 	;_1 name
+	;_2 precedence
+	;_3 associativity
+	;_4 compile macro
+	(def-sym _1 'op (mul _2 2) (opt _3 0) (opt _4 compile-null)))
 
 ;;;;;;;;;;;;;;;;;
 ; data structures
@@ -570,23 +570,23 @@
 	(while (lt (setq i (inc i)) 16)
 		(print (vreg-sym i) " -> " (eval (type-sym i)))))
 
-(defcfun reset-reg-stack (&optional %1)
-	;%1 = reserved slots
-	(setq %1 (opt %1 0) *s* -1 *r* 0)
-	(while (lt (inc-stack) %1)
+(defcfun reset-reg-stack (&optional _1)
+	;_1 = reserved slots
+	(setq _1 (opt _1 0) *s* -1 *r* 0)
+	(while (lt (inc-stack) _1)
 		(nil-type)))
 
-(defcfun res-reg-def (%1)
-	;%1 = 'rX'
-	(set (vreg-sym *r*) %1 (type-sym *r*) nil)
+(defcfun res-reg-def (_1)
+	;_1 = 'rX'
+	(set (vreg-sym *r*) _1 (type-sym *r*) nil)
 	(setq *r* (inc *r*)))
 
-(defcfun add-reg-def (%1)
-	;%1 = rX
+(defcfun add-reg-def (_1)
+	;_1 = rX
 	(defq i -1)
-	(while (and (lt (setq i (inc i)) *r*) (not (eql (eval (vreg-sym i)) %1))))
+	(while (and (lt (setq i (inc i)) *r*) (not (eql (eval (vreg-sym i)) _1))))
 	(when (eq i *r*)
-		(set (vreg-sym i) %1)
+		(set (vreg-sym i) _1)
 		(setq *r* (inc *r*))))
 
 (defcfun fill-reg-def ()
@@ -615,9 +615,9 @@
 (defcfun compile-null ()
 	(error "Null operator !" nil))
 
-(defcfun compile-const (%1)
+(defcfun compile-const (_1)
 	(nil-type)
-	(add-inst `(vp-cpy-cr ,%1 ,(vreg-sym *s*))))
+	(add-inst `(vp-cpy-cr ,_1 ,(vreg-sym *s*))))
 
 (defcfun compile-assign ()
 	(defq y (vreg-sym (dec-stack)) w (pop-type *s*) x (pop-value))
@@ -631,26 +631,26 @@
 										vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
 	(add-inst `(,w ,v 0 ,v)))
 
-(defcfun compile-ref (%1)
-	(defq s (get-sym %1))
+(defcfun compile-ref (_1)
+	(defq s (get-sym _1))
 	(cond
 		((not s)
 			;not in symbol table so figure out what it is
 			(cond
-				((le (ascii "0") (code (elem 0 %1)) (ascii "9"))
+				((le (ascii "0") (code (elem 0 _1)) (ascii "9"))
 					;number
-					(compile-const (to-num %1)))
-				((eql %1 'RXX)
+					(compile-const (to-num _1)))
+				((eql _1 'RXX)
 					;reserved slot
 					(nil-type))
-				((def? (type-sym %1))
+				((def? (type-sym _1))
 					;field/member
-					(set (type-sym *s*) (eval (type-sym %1)))
-					(add-inst `(vp-cpy-cr ,%1 ,(vreg-sym *s*))))
-				((def? %1)
+					(set (type-sym *s*) (eval (type-sym _1)))
+					(add-inst `(vp-cpy-cr ,_1 ,(vreg-sym *s*))))
+				((def? _1)
 					;equate
-					(compile-const %1))
-				(t (error "Symbol not defined !" %1))))
+					(compile-const _1))
+				(t (error "Symbol not defined !" _1))))
 		((eql 'const (elem 2 s))
 			;constant
 			(compile-const (elem 3 s)))
@@ -792,27 +792,27 @@
 			`(vp-cpy-rr ,z ,x)
 		'(endif)))
 
-(defcfun compile-operator (%1)
-	(defq s (get-sym %1))
+(defcfun compile-operator (_1)
+	(defq s (get-sym _1))
 	(cond
 		((not s)
-			(error "Operator not defined !" %1))
+			(error "Operator not defined !" _1))
 		((not (eql 'op (elem 2 s)))
-			(error "Not an operator !" %1))
+			(error "Not an operator !" _1))
 		(t
-			((elem 5 s) %1))))
+			((elem 5 s) _1))))
 
-(defcfun compile-string (%1)
+(defcfun compile-string (_1)
 	(nil-type)
-	(add-inst `(fn-string ,%1 ,(vreg-sym *s*))))
+	(add-inst `(fn-string ,_1 ,(vreg-sym *s*))))
 
-(defcfun compile-bind (%1)
+(defcfun compile-bind (_1)
 	(nil-type)
-	(add-inst `(fn-bind ',%1 ,(vreg-sym *s*))))
+	(add-inst `(fn-bind ',_1 ,(vreg-sym *s*))))
 
-(defcfun compile-label (%1)
+(defcfun compile-label (_1)
 	(nil-type)
-	(add-inst `(vp-lea-p ',%1 ,(vreg-sym *s*))))
+	(add-inst `(vp-lea-p ',_1 ,(vreg-sym *s*))))
 
 (defcfun compile-rpn-list ()
 	(defq i -1)
@@ -969,8 +969,8 @@
 (defcfun print-inst (_)
 	(and (list? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
-(defcfun assign-asm-to-script (%1 %2)
-	(setq *src* %1 *dst* (map trim (split %2 ",")))
+(defcfun assign-asm-to-script (_1 _2)
+	(setq *src* _1 *dst* (map trim (split _2 ",")))
 	(unless (eq (length *src*) (length *dst*))
 		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
@@ -983,7 +983,7 @@
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
 		(when debug_inst
-			(print "pre opt: " %1 " -> " %2)
+			(print "pre opt: " _1 " -> " _2)
 			(each print-inst *inst*))
 		(opt-inst-list)
 		(when debug_inst
@@ -994,8 +994,8 @@
 		(eval *inst*)
 		(undef-reg-def)))
 
-(defcfun assign-script-to-asm (%1 %2)
-	(setq *src* (map trim (split %1 ",")) *dst* %2)
+(defcfun assign-script-to-asm (_1 _2)
+	(setq *src* (map trim (split _1 ",")) *dst* _2)
 	(unless (eq (length *src*) (length *dst*))
 		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
@@ -1009,7 +1009,7 @@
 			(pop-value)
 			(inc-stack)) *src*)
 		(when debug_inst
-			(print "pre opt: " %1 " -> " %2)
+			(print "pre opt: " _1 " -> " _2)
 			(each print-inst *inst*))
 		(opt-inst-list)
 		(when debug_inst
@@ -1020,8 +1020,8 @@
 		(eval *inst*)
 		(undef-reg-def)))
 
-(defcfun assign-script-to-script (%1 %2)
-	(setq *src* (map trim (split %1 ",")) *dst* (map trim (split %2 ",")))
+(defcfun assign-script-to-script (_1 _2)
+	(setq *src* (map trim (split _1 ",")) *dst* (map trim (split _2 ",")))
 	(unless (eq (length *src*) (length *dst*))
 		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
@@ -1038,7 +1038,7 @@
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
 		(when debug_inst
-			(print "pre opt: " %1 " -> " %2)
+			(print "pre opt: " _1 " -> " _2)
 			(each print-inst *inst*))
 		(opt-inst-list)
 		(when debug_inst
@@ -1048,20 +1048,20 @@
 		(eval *inst*)
 		(undef-reg-def)))
 
-(defcfun assign (&optional %1 %2)
-	(setd %1 '() %2 '())
-	(defq s (str? %1) d (str? %2))
+(defcfun assign (&optional _1 _2)
+	(setd _1 '() _2 '())
+	(defq s (str? _1) d (str? _2))
 	(cond
 		((and s d)
 			;script -> script
-			(assign-script-to-script %1 %2))
+			(assign-script-to-script _1 _2))
 		((and s (not d))
 			;script -> asm
-			(assign-script-to-asm %1 %2))
+			(assign-script-to-asm _1 _2))
 		((and (not s) d)
 			;asm -> script
-			(assign-asm-to-script %1 %2))
+			(assign-asm-to-script _1 _2))
 		(t
 			;asm -> asm
-			(setq *src* %1 *dst* %2)
+			(setq *src* _1 *dst* _2)
 			(map-src-to-dst))))
