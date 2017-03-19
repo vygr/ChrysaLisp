@@ -5,8 +5,8 @@
 (import 'class/text/text.inc)
 (import 'class/string/string.inc)
 
-(class-macro-new 'text)
-(class-macro-create 'text)
+(gen-new 'text)
+(gen-create 'text)
 
 (def-func 'class/text/init)
 	;inputs

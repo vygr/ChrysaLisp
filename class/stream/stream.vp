@@ -4,8 +4,8 @@
 (import 'class/string/string.inc)
 (import 'class/stream/stream.inc)
 
-(class-macro-new 'stream)
-(class-macro-create 'stream 4)
+(gen-new 'stream)
+(gen-create 'stream 4)
 
 (def-func 'class/stream/init)
 	;inputs

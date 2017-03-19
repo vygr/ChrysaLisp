@@ -5,8 +5,8 @@
 (import 'class/slave/slave.inc)
 (import 'class/master/master.inc)
 
-(class-macro-new 'master)
-(class-macro-create 'master)
+(gen-new 'master)
+(gen-create 'master)
 
 (def-func 'class/master/init)
 	;inputs

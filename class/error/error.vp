@@ -2,8 +2,8 @@
 (import 'class/string/string.inc)
 (import 'class/error/error.inc)
 
-(class-macro-new 'error)
-(class-macro-create 'error 4)
+(gen-new 'error)
+(gen-create 'error 4)
 
 (def-func 'class/error/init)
 	;inputs

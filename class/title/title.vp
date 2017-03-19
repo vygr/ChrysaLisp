@@ -5,8 +5,8 @@
 (import 'class/title/title.inc)
 (import 'class/flow/flow.inc)
 
-(class-macro-new 'title)
-(class-macro-create 'title)
+(gen-new 'title)
+(gen-create 'title)
 
 (def-func 'class/title/draw)
 	;inputs

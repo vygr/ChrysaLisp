@@ -3,8 +3,8 @@
 (import 'class/pair/pair.inc)
 (import 'class/unordered_map/unordered_map.inc)
 
-(class-macro-new 'unordered_map)
-(class-macro-create 'unordered_map 2)
+(gen-new 'unordered_map)
+(gen-create 'unordered_map 2)
 
 (def-func 'class/unordered_map/init)
 	;inputs

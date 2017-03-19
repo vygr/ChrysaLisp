@@ -1,8 +1,8 @@
 (import 'inc/func.inc)
 (import 'class/boxed_ptr/boxed_ptr.inc)
 
-(class-macro-new 'boxed_ptr)
-(class-macro-create 'boxed_ptr)
+(gen-new 'boxed_ptr)
+(gen-create 'boxed_ptr)
 
 (def-func 'class/boxed_ptr/init)
 	;inputs

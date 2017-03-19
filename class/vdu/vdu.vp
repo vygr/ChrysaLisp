@@ -5,8 +5,8 @@
 (import 'class/vdu/vdu.inc)
 (import 'class/text/text.inc)
 
-(class-macro-new 'vdu)
-(class-macro-create 'vdu)
+(gen-new 'vdu)
+(gen-create 'vdu)
 
 (def-func 'class/vdu/init)
 	;inputs

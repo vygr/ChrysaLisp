@@ -1,8 +1,8 @@
 (import 'inc/func.inc)
 (import 'class/vector/vector.inc)
 
-(class-macro-new 'vector)
-(class-macro-create 'vector)
+(gen-new 'vector)
+(gen-create 'vector)
 
 (def-func 'class/vector/init)
 	;inputs

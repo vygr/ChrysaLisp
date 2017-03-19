@@ -3,8 +3,8 @@
 (import 'class/label/label.inc)
 (import 'class/flow/flow.inc)
 
-(class-macro-new 'label)
-(class-macro-create 'label)
+(gen-new 'label)
+(gen-create 'label)
 
 (def-func 'class/label/init)
 	;inputs

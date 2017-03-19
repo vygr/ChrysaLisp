@@ -1,8 +1,8 @@
 (import 'inc/func.inc)
 (import 'class/flow/flow.inc)
 
-(class-macro-new 'flow)
-(class-macro-create 'flow)
+(gen-new 'flow)
+(gen-create 'flow)
 
 (def-func 'class/flow/init)
 	;inputs

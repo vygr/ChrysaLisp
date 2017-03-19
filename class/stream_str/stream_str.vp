@@ -2,8 +2,8 @@
 (import 'class/string/string.inc)
 (import 'class/stream_str/stream_str.inc)
 
-(class-macro-new 'stream_str)
-(class-macro-create 'stream_str 1)
+(gen-new 'stream_str)
+(gen-create 'stream_str 1)
 
 (def-func 'class/stream_str/init)
 	;inputs

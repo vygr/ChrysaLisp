@@ -6,8 +6,8 @@
 (import 'class/flow/flow.inc)
 (import 'class/string/string.inc)
 
-(class-macro-new 'window)
-(class-macro-create 'window 1)
+(gen-new 'window)
+(gen-create 'window 1)
 
 (def-func 'class/window/init)
 	;inputs

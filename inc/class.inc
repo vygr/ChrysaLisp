@@ -300,7 +300,7 @@
 ; generic class construction
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defcfun class-macro-class (_1)
+(defcfun gen-class (_1)
 	;_1 = class name
 	(def-func (f-path 'class _1))
 		(defq c (eval (super-name _1)))
@@ -309,7 +309,7 @@
 			(vtable-emit _1 (f-path 'class c)))
 	(def-func-end))
 
-(defcfun class-macro-create (_1 &optional _2)
+(defcfun gen-create (_1 &optional _2)
 	;_1 = class name
 	;_2 = number of args
 	(setd _2 0)
@@ -334,7 +334,7 @@
 		(vp-ret)
 	(def-func-end))
 
-(defcfun class-macro-new (_1)
+(defcfun gen-new (_1)
 	;_1 = class name
 	(def-func (sym-cat "class/" _1 "/new"))
 		;outputs

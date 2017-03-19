@@ -4,8 +4,8 @@
 (import 'class/stream_msg_in/stream_msg_in.inc)
 (import 'class/slave/slave.inc)
 
-(class-macro-new 'slave)
-(class-macro-create 'slave)
+(gen-new 'slave)
+(gen-create 'slave)
 
 (def-func 'class/slave/init)
 	;inputs

@@ -1,8 +1,8 @@
 (import 'inc/func.inc)
 (import 'class/stream_msg_out/stream_msg_out.inc)
 
-(class-macro-new 'stream_msg_out)
-(class-macro-create 'stream_msg_out 2)
+(gen-new 'stream_msg_out)
+(gen-create 'stream_msg_out 2)
 
 (def-func 'class/stream_msg_out/init)
 	;inputs

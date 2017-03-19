@@ -1,8 +1,8 @@
 (import 'inc/func.inc)
 (import 'class/grid/grid.inc)
 
-(class-macro-new 'grid)
-(class-macro-create 'grid)
+(gen-new 'grid)
+(gen-create 'grid)
 
 (def-func 'class/grid/init)
 	;inputs

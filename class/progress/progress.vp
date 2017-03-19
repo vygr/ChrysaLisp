@@ -2,8 +2,8 @@
 (import 'inc/gui.inc)
 (import 'class/progress/progress.inc)
 
-(class-macro-new 'progress)
-(class-macro-create 'progress)
+(gen-new 'progress)
+(gen-create 'progress)
 
 (def-func 'class/progress/draw)
 	;inputs
