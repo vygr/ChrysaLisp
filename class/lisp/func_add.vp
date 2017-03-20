@@ -39,7 +39,7 @@
 	(f-call 'lisp 'repl_error {this, "(add val val ...) vals are not all numbers", args} {value})
 	(goto 'exit)
 
-	(pop-scope)
+	(pop-scope-nostack)
 
 (vp-label 'callback)
 	;inputs

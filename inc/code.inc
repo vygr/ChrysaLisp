@@ -195,7 +195,7 @@
 	(local-align)
 	(push *scopes* (list (length *symbols*) *var-sp*))
 	(when (ne *var-sp* 0)
-		(when debug_emit
+		(when debug_inst
 			(print "(vp-sub-cr " *var-sp* " " r4 ")"))
 		(vp-sub-cr *var-sp* r4)
 		(setq *var-sp* 0)))
@@ -205,10 +205,16 @@
 	(when (ne (length *scopes*) 0)
 		(setq *symbols* (slice 0 (elem 0 (elem -2 *scopes*)) *symbols*)))
 	(when (ne *var-sp* 0)
-		(when debug_emit
+		(when debug_inst
 			(print "(vp-add-cr " *var-sp* " " r4 ")"))
 		(vp-add-cr *var-sp* r4)
 		(setq *var-sp* 0)))
+
+(defcfun pop-scope-nostack ()
+	(setq *var-sp* (elem 1 (pop *scopes*)))
+	(when (ne (length *scopes*) 0)
+		(setq *symbols* (slice 0 (elem 0 (elem -2 *scopes*)) *symbols*)))
+	(setq *var-sp* 0))
 
 (defcfun pop-scope-checked ()
 	(setq *var-sp* (elem 1 (pop *scopes*)))
@@ -220,13 +226,13 @@
 (defcfun unwind ()
 	(defq o (get-scope-offset 0))
 	(when (ne o 0)
-		(when debug_emit
+		(when debug_inst
 			(print "(vp-add-cr " o " " r4 ")"))
 		(vp-add-cr o r4)))
 
 (defcfun return ()
 	(unwind)
-	(when debug_emit
+	(when debug_inst
 		(print "(vp-ret)"))
 	(vp-ret))
 
