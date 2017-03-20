@@ -210,7 +210,7 @@
 		(vp-add-cr *var-sp* r4)
 		(setq *var-sp* 0)))
 
-(defcfun pop-scope-nostack ()
+(defcfun pop-scope-syms ()
 	(setq *var-sp* (elem 1 (pop *scopes*)))
 	(when (ne (length *scopes*) 0)
 		(setq *symbols* (slice 0 (elem 0 (elem -2 *scopes*)) *symbols*)))
