@@ -36,11 +36,12 @@
 	(return)
 
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(defq var val ...) wrong number of args", args} {val})
-	(goto 'exit)
-
+	(assign {"(defq var val ...) wrong number of args"} {val})
+	(goto 'error)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(defq var val ...) not a symbol", args} {val})
+	(assign {"(defq var val ...) not a symbol"} {val})
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, val, args} {val})
 	(goto 'exit)
 
 	(pop-scope-syms)

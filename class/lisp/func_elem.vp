@@ -37,19 +37,18 @@
 	(return)
 
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(elem index seq) not enough args", args} {value})
-	(goto 'exit)
-
+	(assign {"(elem index seq) not enough args"} {value})
+	(goto 'error)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(elem index seq) not a sequence", args} {value})
-	(goto 'exit)
-
+	(assign {"(elem index seq) not a sequence"} {value})
+	(goto 'error)
 (vp-label 'error3)
-	(f-call 'lisp 'repl_error {this, "(elem index seq) not an index", args} {value})
-	(goto 'exit)
-
+	(assign {"(elem index seq) not an index"} {value})
+	(goto 'error)
 (vp-label 'error4)
-	(f-call 'lisp 'repl_error {this, "(elem index seq) index out of bounds", args} {value})
+	(assign {"(elem index seq) index out of bounds"} {value})
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, value, args} {value})
 	(goto 'exit)
 
 	(pop-scope-syms)

@@ -32,11 +32,12 @@
 	(return)
 
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(bit-xor val val ...) not enough args", args} {value})
-	(goto 'exit)
-
+	(assign {"(bit-xor val val ...) not enough args"} {value})
+	(goto 'error)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(bit-xor val val ...) vals are not all numbers", args} {value})
+	(assign {"(bit-xor val val ...) not all numbers"} {value})
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, value, args} {value})
 	(goto 'exit)
 
 	(pop-scope-syms)

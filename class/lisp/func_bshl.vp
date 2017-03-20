@@ -34,15 +34,15 @@
 	(return)
 
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(bit-shl num cnt) wrong number of args", args} {value})
-	(goto 'exit)
-
+	(assign {"(bit-shl num cnt) wrong number of args"} {value})
+	(goto 'error)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(bit-shl num cnt) not a number", args} {value})
-	(goto 'exit)
-
+	(assign {"(bit-shl num cnt) not a number"} {value})
+	(goto 'error)
 (vp-label 'error3)
-	(f-call 'lisp 'repl_error {this, "(bit-shl num cnt) not a count", args} {value})
+	(assign {"(bit-shl num cnt) not a count"} {value})
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, value, args} {value})
 	(goto 'exit)
 
 	(pop-scope-syms)
