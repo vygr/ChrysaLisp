@@ -18,17 +18,20 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(vpif {length == 1})
-		(f-call 'lisp 'func_copy {this, args} {args})
-		(loop-start)
-			(f-call 'lisp 'repl_expand {this, &args, 0} {length})
-		(loop-untilnot {length})
-	(else)
-		(f-call 'lisp 'repl_error {this, "(macroexpand form) wrong number of args", args} {args})
-	(endif)
+	(gotoif {length != 1} 'error)
+	(f-call 'lisp 'func_copy {this, args} {args})
+	(loop-start)
+		(f-call 'lisp 'repl_expand {this, &args, 0} {length})
+	(loop-untilnot {length})
 
+(vp-label 'exit)
 	(assign {this, args} '(r0 r1))
-	(pop-scope)
 	(return)
+
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, "(macroexpand form) wrong number of args", args} {args})
+	(goto 'exit)
+
+	(pop-scope-syms)
 
 (def-func-end)
