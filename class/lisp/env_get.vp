@@ -17,14 +17,17 @@
 	(assign '(r0 r1) {this, symbol})
 
 	(f-call 'lisp 'env_find {this, symbol} {iter, _})
-	(vpif {iter})
-		(f-call 'pair 'ref_second {*iter} {symbol})
-	(else)
-		(f-call 'lisp 'repl_error {this, "symbol not bound", symbol} {symbol})
-	(endif)
+	(gotoifnot {iter} 'error)
+	(f-call 'pair 'ref_second {*iter} {symbol})
 
+(vp-label 'exit)
 	(assign {this, symbol} '(r0 r1))
-	(pop-scope)
 	(return)
+
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, "symbol not bound", symbol} {symbol})
+	(goto 'exit)
+
+	(pop-scope-syms)
 
 (def-func-end)
