@@ -17,16 +17,19 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(vpif {length == 2})
-		(f-call 'vector 'get_element {args, 0} {func})
-		(f-call 'vector 'get_element {args, 1} {args})
-		(f-call 'lisp 'repl_apply {this, func, args} {args})
-	(else)
-		(f-call 'lisp 'repl_error {this, "(apply func args) wrong number of args", args} {args})
-	(endif)
+	(gotoif {length != 2} 'error)
+	(f-call 'vector 'get_element {args, 0} {func})
+	(f-call 'vector 'get_element {args, 1} {args})
+	(f-call 'lisp 'repl_apply {this, func, args} {args})
 
+(vp-label 'exit)
 	(assign {this, args} '(r0 r1))
-	(pop-scope)
 	(return)
+
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, "(apply func args) wrong number of args", args} {args})
+	(goto 'exit)
+
+	(pop-scope-syms)
 
 (def-func-end)

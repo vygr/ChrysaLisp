@@ -18,21 +18,25 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(vpif {length > 1})
-		(f-call 'vector 'get_element {args, 0} {value})
-		(vpif (cat {value->obj_vtable == @} (f-path 'class 'vector)))
-			(f-call 'ref 'ref {value})
-			(f-call 'vector 'for_each {args, 1, length, $callback, value} {_})
-		(else)
-			(f-call 'lisp 'repl_error {this, "(push list form ...) not a list", args} {value})
-		(endif)
-	(else)
-		(f-call 'lisp 'repl_error {this, "(push list form ...) not enough args", args} {value})
-	(endif)
+	(gotoif {length < 2} 'error1)
+	(f-call 'vector 'get_element {args, 0} {value})
+	(gotoif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error2)
+	(f-call 'ref 'ref {value})
+	(f-call 'vector 'for_each {args, 1, length, $callback, value} {_})
 
+(vp-label 'exit)
 	(assign {this, value} '(r0 r1))
-	(pop-scope)
 	(return)
+
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(push list form ...) not enough args", args} {value})
+	(goto 'exit)
+
+(vp-label 'error2)
+	(f-call 'lisp 'repl_error {this, "(push list form ...) not a list", args} {value})
+	(goto 'exit)
+
+	(pop-scope-syms)
 
 (vp-label 'callback)
 	;inputs
