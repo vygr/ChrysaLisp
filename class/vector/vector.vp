@@ -73,8 +73,8 @@
 	(loop-while '(r5 != r6))
 		(d-call 'vector 'ref_element '(r8 r5) '(r1))
 		(vp-cpy-rd r1 r3 r7)
-		(vp-add-cr ptr_size r7)
 		(vp-add-cr 1 r5)
+		(vp-add-cr ptr_size r7)
 	(loop-end)
 
 	(vp-cpy-ir r4 local_inst r0)
@@ -163,14 +163,14 @@
 
 	;process elements
 	(vp-cpy-ir r0 vector_array r0)
-	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-shl-cr (pow2 ptr_size) r2)
-	(vp-add-rr r0 r1)
+	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-add-rr r0 r2)
+	(vp-add-rr r0 r1)
 	(vp-cpy-ri r2 r4 local_end)
 	(loop-start)
-		(vp-cpy-ri r1 r4 local_next)
 		(vp-cpy-ir r4 local_end r0)
+		(vp-cpy-ri r1 r4 local_next)
 		(breakif '(r1 == r0))
 		(vp-cpy-ir r4 local_predicate_data r0)
 		(vp-call-i r4 local_predicate)
@@ -180,7 +180,7 @@
 	(loop-end)
 
 	;iterator of break point, else 0
-	(assign '((r4 local_inst) (r4 local_next) (r4 local_end)) '(r0 r1 r2))
+	(assign '((r4 local_next) (r4 local_end) (r4 local_inst)) '(r1 r2 r0))
 	(vpif '(r1 == r2))
 		(vp-xor-rr r1 r1)
 	(endif)
@@ -200,8 +200,8 @@
 	;r1-r3, r5
 
 	(vp-cpy-rr r1 r3)
-	(vp-cpy-ir r0 vector_array r2)
 	(vp-cpy-ir-ui r0 vector_length r1)
+	(vp-cpy-ir r0 vector_array r2)
 	(vp-shl-cr (pow2 ptr_size) r1)
 	(loop-start)
 		(vp-sub-cr ptr_size r1)
@@ -425,8 +425,8 @@
 	(loop-while '(r10 != r11))
 		(d-call 'vector 'ref_element '(r0 r10) '(r1))
 		(vp-cpy-rd r1 r3 r7)
-		(vp-add-cr ptr_size r7)
 		(vp-add-cr 1 r10)
+		(vp-add-cr ptr_size r7)
 	(loop-end)
 
 	(vp-cpy-rr r12 r1)
