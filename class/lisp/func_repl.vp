@@ -63,7 +63,7 @@
 			(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 		(endif)
 
-		(gotoif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'error)
+		(gotoif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
 		(f-call 'ref 'deref {value})
 	(loop-end)
 
