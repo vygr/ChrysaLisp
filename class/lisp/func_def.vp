@@ -18,7 +18,7 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoifnot {length >= 3 && (length & 1)} 'error1)
+	(gotoif {length < 3 || !(length & 1)} 'error1)
 	(f-call 'vector 'get_element {args, 0} {env})
 	(gotoif (cat {env->obj_vtable != @} (f-path 'class 'unordered_map)) 'error2)
 	(assign {1, 0} {index, val})
