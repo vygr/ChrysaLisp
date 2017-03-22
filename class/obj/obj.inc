@@ -12,3 +12,15 @@
 (def-struct 'obj)
 	(pptr 'obj_vtable)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
+
+(defcfun class/obj/init ()
+	;inputs
+	;r0 = object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+	(vp-cpy-ri r1 r0 obj_vtable))

@@ -1,24 +1,6 @@
 (import 'inc/func.inc)
 (import 'class/ref/ref.inc)
 
-(def-func 'class/ref/init)
-	;inputs
-	;r0 = object
-	;r1 = vtable pointer
-	;outputs
-	;r1 = 0 if error, else ok
-
-	;init parent
-	(s-call 'ref 'init '(r0 r1) '(r1))
-	(vpif '(r1 != 0))
-		;init myself
-		(vp-cpy-cr 1 r1)
-		(vp-cpy-ri-i r1 r0 ref_count)
-	(endif)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/ref/deref)
 	;inputs
 	;r0 = object

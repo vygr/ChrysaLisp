@@ -22,7 +22,8 @@
 	(vp-cpy-ri r2 r0 vector_array)
 
 	;init parent
-	(s-jmp 'vector 'init '(r0 r1))
+	(s-call 'vector 'init '(r0 r1) '(r1))
+	(vp-ret)
 
 (def-func-end)
 

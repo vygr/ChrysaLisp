@@ -25,7 +25,8 @@
 	(assign '(r2 r3 r5 r6) '((r0 stream_object) (r0 stream_buffer) (r0 stream_bufp) (r0 stream_bufe)))
 
 	;init parent
-	(s-jmp 'stream 'init '(r0 r1))
+	(s-call 'stream 'init '(r0 r1) '(r1))
+	(vp-ret)
 
 (def-func-end)
 

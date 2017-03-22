@@ -15,6 +15,16 @@
 ;inline methods
 ;;;;;;;;;;;;;;;
 
+(defcfun class/ref/init ()
+	;inputs
+	;r0 = object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+	(s-call 'ref 'init '(r0 r1) '(_))
+	(vp-cpy-cr 1 r1)
+	(vp-cpy-ri-i r1 r0 ref_count))
+
 (defcfun class/ref/ref ()
 	;inputs
 	;r0 = object

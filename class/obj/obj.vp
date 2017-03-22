@@ -1,19 +1,6 @@
 (import 'inc/func.inc)
 (import 'class/obj/obj.inc)
 
-(def-func 'class/obj/init)
-	;inputs
-	;r0 = object
-	;r1 = vtable pointer
-	;outputs
-	;r1 = 0 if error, else ok
-
-	;init the object
-	(vp-cpy-ri r1 r0 obj_vtable)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/obj/destroy)
 	;inputs
 	;r0 = object

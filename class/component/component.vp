@@ -10,12 +10,11 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	(s-call 'component 'init '(r0 r1) '(r1))
-	(vpif '(r1 != 0))
-		;init myself
-		(vp-lea-i r0 component_slot_list r1)
-		(lh-init r1 r2)
-	(endif)
+	(s-call 'component 'init '(r0 r1) '(_))
+
+	;init myself
+	(vp-lea-i r0 component_slot_list r1)
+	(lh-init r1 r2)
 	(vp-ret)
 
 (def-func-end)
