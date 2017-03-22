@@ -36,8 +36,8 @@
 (def-struct 'hp_heap)
 	(ptr 'hp_heap_free_flist)
 	(ptr 'hp_heap_block_flist)
-	(ulong 'hp_heap_cellsize)
-	(ulong 'hp_heap_blocksize)
+	(uint 'hp_heap_cellsize)
+	(uint 'hp_heap_blocksize)
 (def-struct-end)
 
 ;;;;;;;;;;;;;
