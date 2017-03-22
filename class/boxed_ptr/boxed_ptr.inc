@@ -15,6 +15,16 @@
 ;inline methods
 ;;;;;;;;;;;;;;;
 
+(defcfun class/boxed_ptr/init ()
+	;inputs
+	;r0 = object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+	(s-call 'boxed_ptr 'init '(r0 r1) '(r1))
+	(vp-xor-rr r2 r2)
+	(vp-cpy-ri r2 r0 boxed_ptr_value))
+
 (defcfun class/boxed_ptr/get_value ()
 	;inputs
 	;r0 = object

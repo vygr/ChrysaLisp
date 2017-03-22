@@ -24,6 +24,18 @@
 ;inline methods
 ;;;;;;;;;;;;;;;
 
+(defcfun class/pair/init ()
+	;inputs
+	;r0 = pair object
+	;r1 = vtable pointer
+	;r2 = first object
+	;r3 = second object
+	;outputs
+	;r1 = 0 if error, else ok
+	(vp-cpy-ri r2 r0 pair_first)
+	(vp-cpy-ri r3 r0 pair_second)
+	(s-call 'pair 'init '(r0 r1) '(r1)))
+
 (defcfun class/pair/get_length ()
 	;inputs
 	;r0 = pair object

@@ -35,6 +35,22 @@
 ;inline methods
 ;;;;;;;;;;;;;;;
 
+(defcfun class/vector/init ()
+	;inputs
+	;r0 = vector object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+	;trashes
+	;all but r0, r4
+	(vp-xor-rr r2 r2)
+	(vp-cpy-ri-i r2 r0 vector_length)
+	(vp-cpy-cr (bit-shr (sub vector_size vector_e1) (pow2 ptr_size)) r2)
+	(vp-cpy-ri-i r2 r0 vector_capacity)
+	(vp-lea-i r0 vector_e1 r2)
+	(vp-cpy-ri r2 r0 vector_array)
+	(s-call 'vector 'init '(r0 r1) '(r1)))
+
 (defcfun class/vector/get_capacity ()
 	;inputs
 	;r0 = vector object

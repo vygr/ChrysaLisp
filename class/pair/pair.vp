@@ -4,25 +4,6 @@
 (gen-new 'pair)
 (gen-create 'pair 2)
 
-(def-func 'class/pair/init)
-	;inputs
-	;r0 = pair object
-	;r1 = vtable pointer
-	;r2 = first object
-	;r3 = second object
-	;outputs
-	;r1 = 0 if error, else ok
-
-	;save inputs
-	(vp-cpy-ri r2 r0 pair_first)
-	(vp-cpy-ri r3 r0 pair_second)
-
-	;init parent
-	(s-call 'pair 'init '(r0 r1) '(r1))
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/pair/deinit)
 	;inputs
 	;r0 = pair object

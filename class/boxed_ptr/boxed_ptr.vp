@@ -3,20 +3,3 @@
 
 (gen-new 'boxed_ptr)
 (gen-create 'boxed_ptr)
-
-(def-func 'class/boxed_ptr/init)
-	;inputs
-	;r0 = object
-	;r1 = vtable pointer
-	;outputs
-	;r1 = 0 if error, else ok
-
-	;init myself
-	(vp-xor-rr r2 r2)
-	(vp-cpy-ri r2 r0 boxed_ptr_value)
-
-	;init parent
-	(s-call 'boxed_ptr 'init '(r0 r1) '(r1))
-	(vp-ret)
-
-(def-func-end)
