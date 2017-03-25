@@ -29,7 +29,7 @@
 	(offset 'string_data)
 (def-struct-end)
 
-(defcvar 'string_gap (sub 32 string_data 1))
+(defcvar 'string_gap (sub 64 string_data ptr_size 1))
 
 ;;;;;;;;;;;;;;;
 ;inline methods
