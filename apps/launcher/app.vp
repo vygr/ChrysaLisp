@@ -42,7 +42,7 @@
 		(f-call 'button 'connect {button, pressed, &myapp, $on_press})
 
 		(f-call 'sys_string 'length {next} {length})
-		(assign {next + length + 1} {next})
+		(assign {next + length + byte_size} {next})
 	(loop-end)
 
 	;set to pref size

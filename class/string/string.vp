@@ -18,7 +18,7 @@
 	(vp-cpy-rr r0 r6)
 
 	;create new string object
-	(f-call 'string 'new '((& r0 (add string_size 1))) '(r0))
+	(f-call 'string 'new '((& r0 (add string_size byte_size))) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
 		(f-call 'string 'init `(r0 (@ ,(f-path 'class 'string)) 0 r6) '(r1))
@@ -46,7 +46,7 @@
 	(vp-cpy-rr r1 r7)
 
 	;create new string object
-	(f-call 'string 'new '((& r1 (add string_size 1))) '(r0))
+	(f-call 'string 'new '((& r1 (add string_size byte_size))) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
 		(f-call 'string 'init `(r0 (@ ,(f-path 'class 'string)) r6 r7) '(r1))
@@ -105,7 +105,7 @@
 
 	;create new string object
 	(vp-cpy-ir r7 stat_fsize r1)
-	(f-call 'string 'new '((& r1 (add string_size 1))) '(r0))
+	(f-call 'string 'new '((& r1 (add string_size byte_size))) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
 		(f-call 'string 'init2 `(r0 (@ ,(f-path 'class 'string)) r6 (r7 stat_fsize)) '(r1))
@@ -142,7 +142,7 @@
 	(assign {reloc} {buffer})
 	(vpif {num < 0})
 		(assign {char_minus} {*buffer})
-		(assign {buffer + 1} {buffer})
+		(assign {buffer + byte_size} {buffer})
 		(assign {-num} {num})
 	(endif)
 	(f-call 'sys_string 'from_long {num, buffer, base})
@@ -236,7 +236,7 @@
 		(vp-cpy-ri-i r1 r0 string_length)
 		(f-call 'sys_mem 'copy '((& r6 string_data) (& r0 string_data) (r6 string_length ui)) '(_ r1))
 		(vp-cpy-ir-ui r7 string_length r2)
-		(vp-add-cr 1 r2)
+		(vp-add-cr byte_size r2)
 		(f-call 'sys_mem 'copy '((& r7 string_data) r1 r2) '(_ _))
 
 		(vp-cpy-ir r4 local_inst r0)
@@ -377,7 +377,7 @@
 	(vp-cpy-ir-ui r0 string_length r0)
 	(vp-cpy-ir-ui r1 string_length r2)
 	(vp-add-rr r2 r0)
-	(vp-add-cr (add string_size 1) r0)
+	(vp-add-cr (add string_size byte_size) r0)
 
 	;create new string object
 	(f-call 'string 'new '(r0) '(r0))
@@ -408,7 +408,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(vp-cpy-cr (add string_size 1) r1)
+	(vp-cpy-cr (add string_size byte_size) r1)
 	(assign '(r0 r1) '(r6 (r4 local_length)))
 
 	;get size of strings
@@ -468,7 +468,7 @@
 				(vp-cpy-dr-ub r6 r7 r1)
 				(vp-sub-rr r8 r1)
 				(gotoif '(r1 != 0) 'notsame)
-				(vp-add-cr 1 r7)
+				(vp-add-cr byte_size r7)
 				(breakif '(r7 == r2))
 			(loop-until '(r7 == r3))
 		(endif)
@@ -505,7 +505,7 @@
 				(vp-cpy-dr-ub r6 r3 r1)
 				(vp-sub-rr r7 r1)
 				(breakif '(r1 != 0))
-				(vp-add-cr 1 r3)
+				(vp-add-cr byte_size r3)
 			(loop-until '(r3 == r2))
 			(vp-ret)
 		(else)
@@ -562,7 +562,7 @@
 
 	(vp-push r0)
 	(vp-add-cr string_data r1)
-	(f-call 'string 'create_from_buffer '((& r0 r1) 1) '(r1))
+	(f-call 'string 'create_from_buffer '((& r0 r1) byte_size) '(r1))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -630,7 +630,7 @@
 	(vp-lea-i r0 string_data r2)
 	(vp-cpy-ir-ui r0 string_length r3)
 	(loop-start)
-		(vp-sub-cr 1 r3)
+		(vp-sub-cr byte_size r3)
 		(breakif '(r3 < 0))
 		(vp-cpy-dr-ub r2 r3 r5)
 	(loop-until '(r1 == r5))
