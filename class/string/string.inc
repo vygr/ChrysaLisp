@@ -25,7 +25,7 @@
 
 (def-struct 'string 'sliceable)
 	(uint 'string_length)
-	(ulong 'string_hashcode)
+	(uint 'string_hashcode)
 	(offset 'string_data)
 (def-struct-end)
 

@@ -178,7 +178,7 @@
 	(vpif '(r1 != 0))
 		(vp-cpy-ri r0 r4 local_inst)
 		(vp-xor-rr r1 r1)
-		(vp-cpy-ri r1 r0 string_hashcode)
+		(vp-cpy-ri-i r1 r0 string_hashcode)
 
 		;init myself
 		(vp-cpy-ir r4 local_length r2)
@@ -226,7 +226,7 @@
 		;init myself
 		(vp-cpy-ri r0 r4 local_inst)
 		(vp-xor-rr r1 r1)
-		(vp-cpy-ri r1 r0 string_hashcode)
+		(vp-cpy-ri-i r1 r0 string_hashcode)
 
 		(vp-cpy-ir r4 local_string1 r6)
 		(vp-cpy-ir r4 local_string2 r7)
@@ -271,7 +271,7 @@
 		;init myself
 		(vp-cpy-ri r0 r4 local_inst)
 		(vp-xor-rr r1 r1)
-		(vp-cpy-ri r1 r0 string_hashcode)
+		(vp-cpy-ri-i r1 r0 string_hashcode)
 
 		;open file
 		(vp-cpy-ir r4 local_filename r0)
@@ -327,7 +327,7 @@
 		;init myself
 		(vp-cpy-ri r0 r4 local_inst)
 		(vp-xor-rr r1 r1)
-		(vp-cpy-ri r1 r0 string_hashcode)
+		(vp-cpy-ri-i r1 r0 string_hashcode)
 
 		(vp-add-cr string_data r0)
 		(vp-cpy-ri r0 r4 local_next)
@@ -541,12 +541,12 @@
 	;all but r0, r4
 
 	;save inputs
-	(vp-cpy-ir r0 string_hashcode r1)
+	(vp-cpy-ir-ui r0 string_hashcode r1)
 	(vpif '(r1 == 0))
 		(vp-push r0)
 		(f-call 'sys_string 'hash '((& r0 string_data)) '(r1))
 		(vp-pop r0)
-		(vp-cpy-ri r1 r0 string_hashcode)
+		(vp-cpy-ri-i r1 r0 string_hashcode)
 	(endif)
 	(vp-ret)
 
