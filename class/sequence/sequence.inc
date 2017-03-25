@@ -5,4 +5,4 @@
 (def-method 'ref_element 'class/obj/null 'virtual '(r0 r1) '(r1))
 
 (def-struct 'sequence 'ref)
-(def-struct-end byte_size)
+(def-struct-end)

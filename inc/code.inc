@@ -297,8 +297,7 @@
 (defcfun def-struct (s &optional o)
 	(setq *struct* s *struct-offset* (eval (sym-cat (opt o "null") "_size"))))
 
-(defcfun def-struct-end (&optional a)
-	(local-align (opt a ptr_size))
+(defcfun def-struct-end ()
 	(defcvar (sym-cat *struct* "_size") *struct-offset*)
 	(setq *struct* nil *struct-offset* nil))
 
