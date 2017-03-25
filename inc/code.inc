@@ -289,7 +289,7 @@
 	`(sym-cat "_t_" (str ,s)))
 
 (defcfun local-align (&optional x)
-	(setd x long_size)
+	(setd x ptr_size)
 	(if *struct*
 		(setq *struct-offset* (align *struct-offset* x))
 		(setq *var-sp* (align *var-sp* x))))
@@ -297,8 +297,8 @@
 (defcfun def-struct (s &optional o)
 	(setq *struct* s *struct-offset* (eval (sym-cat (opt o "null") "_size"))))
 
-(defcfun def-struct-end ()
-	(local-align ptr_size)
+(defcfun def-struct-end (&optional a)
+	(local-align (opt a ptr_size))
 	(defcvar (sym-cat *struct* "_size") *struct-offset*)
 	(setq *struct* nil *struct-offset* nil))
 
