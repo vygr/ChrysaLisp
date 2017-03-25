@@ -15,6 +15,7 @@
 (def-method 'deinit 'class/master/deinit 'final)
 
 (def-struct 'master 'ref)
+	(local-align)
 	(offset 'master_start)
 	(ptr 'master_streams)
 	(ptr 'master_mailbox_array)
