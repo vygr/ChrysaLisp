@@ -9,7 +9,7 @@
 
 (def-struct 'ref 'obj)
 	(uint 'ref_count)
-(def-struct-end)
+(def-struct-end int_size)
 
 ;;;;;;;;;;;;;;;
 ;inline methods
