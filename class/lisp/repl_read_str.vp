@@ -22,7 +22,7 @@
 	(push-scope)
 	(assign '(r0 r1 r2) {this, stream, char})
 
-	(f-call 'string 'create_raw {23} {value})
+	(f-call 'string 'create_raw {string_gap} {value})
 	(f-call 'stream_str 'create {value} {str_stream})
 
 	(f-call 'stream 'read_char {stream} {char})
