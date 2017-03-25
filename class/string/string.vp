@@ -182,7 +182,7 @@
 
 		;init myself
 		(vp-cpy-ir r4 local_length r2)
-		(vp-cpy-ri r2 r0 string_length)
+		(vp-cpy-ri-i r2 r0 string_length)
 		(vp-cpy-ir r4 local_data r3)
 		(vpif '(r3 != 0))
 			(f-call 'sys_mem 'copy '(r3 (& r0 string_data) r2) '(_ r1))
@@ -230,12 +230,12 @@
 
 		(vp-cpy-ir r4 local_string1 r6)
 		(vp-cpy-ir r4 local_string2 r7)
-		(vp-cpy-ir r6 string_length r1)
-		(vp-cpy-ir r7 string_length r2)
+		(vp-cpy-ir-ui r6 string_length r1)
+		(vp-cpy-ir-ui r7 string_length r2)
 		(vp-add-rr r2 r1)
-		(vp-cpy-ri r1 r0 string_length)
-		(f-call 'sys_mem 'copy '((& r6 string_data) (& r0 string_data) (r6 string_length)) '(_ r1))
-		(vp-cpy-ir r7 string_length r2)
+		(vp-cpy-ri-i r1 r0 string_length)
+		(f-call 'sys_mem 'copy '((& r6 string_data) (& r0 string_data) (r6 string_length ui)) '(_ r1))
+		(vp-cpy-ir-ui r7 string_length r2)
 		(vp-add-cr 1 r2)
 		(f-call 'sys_mem 'copy '((& r7 string_data) r1 r2) '(_ _))
 
@@ -263,7 +263,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r2 r3) '((r4 local_filename) (r0 string_length)))
+	(assign '(r2 r3) '((r4 local_filename) (r0 string_length i)))
 
 	;init parent
 	(s-call 'string 'init '(r0 r1) '(r1))
@@ -282,7 +282,7 @@
 
 		;read into buffer
 		(vp-cpy-ir r4 local_inst r0)
-		(vp-cpy-ir r0 string_length r1)
+		(vp-cpy-ir-ui r0 string_length r1)
 		(vp-add-cr string_data r0)
 		(vp-xor-rr r2 r2)
 		(vp-cpy-rd-b r2 r0 r1)
@@ -339,7 +339,7 @@
 		(vp-cpy-ir r4 local_inst r0)
 		(vp-lea-i r0 string_data r3)
 		(vp-sub-rr r3 r2)
-		(vp-cpy-ri r2 r0 string_length)
+		(vp-cpy-ri-i r2 r0 string_length)
 		(vp-add-cr 1 r1)
 	(endif)
 
@@ -355,7 +355,7 @@
 
 	(vp-cpy-rr r0 r5)
 	(vp-cpy-ir r1 0 r1)
-	(f-call 'sys_mem 'copy '((& r1 string_data) (r5 local_next) (r1 string_length)) '(_ r1))
+	(f-call 'sys_mem 'copy '((& r1 string_data) (r5 local_next) (r1 string_length ui)) '(_ r1))
 	(vp-cpy-ri r1 r5 local_next)
 	(vp-ret)
 
@@ -374,8 +374,8 @@
 	(assign '(r0 r1) '(r6 r7))
 
 	;get size of strings
-	(vp-cpy-ir r0 string_length r0)
-	(vp-cpy-ir r1 string_length r2)
+	(vp-cpy-ir-ui r0 string_length r0)
+	(vp-cpy-ir-ui r1 string_length r2)
 	(vp-add-rr r2 r0)
 	(vp-add-cr (add string_size 1) r0)
 
@@ -438,7 +438,7 @@
 
 	(vp-cpy-ir r0 local_length r2)
 	(vp-cpy-ir r1 0 r1)
-	(vp-cpy-ir r1 string_length r1)
+	(vp-cpy-ir-ui r1 string_length r1)
 	(vp-add-rr r2 r1)
 	(vp-cpy-ri r1 r0 local_length)
 	(vp-ret)
@@ -456,8 +456,8 @@
 	;r2-r3, r5-r8
 
 	(vpif '(r0 != r1))
-		(vp-cpy-ir r0 string_length r2)
-		(vp-cpy-ir r1 string_length r3)
+		(vp-cpy-ir-ui r0 string_length r2)
+		(vp-cpy-ir-ui r1 string_length r3)
 		(vpif '(r2 != 0))
 			(breakif '(r3 == 0))
 			(vp-lea-i r0 string_data r5)
@@ -493,8 +493,8 @@
 	;r2-r3, r5-r7
 
 	(vpif '(r0 != r1))
-		(vp-cpy-ir r0 string_length r2)
-		(vp-cpy-ir r1 string_length r3)
+		(vp-cpy-ir-ui r0 string_length r2)
+		(vp-cpy-ir-ui r1 string_length r3)
 		(vp-sub-rr r2 r3)
 		(vpif '(r3 == 0))
 			(gotoif '(r2 == 0) 'same)
@@ -628,7 +628,7 @@
 	;r2-r3, r5
 
 	(vp-lea-i r0 string_data r2)
-	(vp-cpy-ir r0 string_length r3)
+	(vp-cpy-ir-ui r0 string_length r3)
 	(loop-start)
 		(vp-sub-cr 1 r3)
 		(breakif '(r3 < 0))

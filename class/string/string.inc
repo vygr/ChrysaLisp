@@ -24,10 +24,12 @@
 (def-method 'slice 'class/string/slice 'final)
 
 (def-struct 'string 'sliceable)
-	(ulong 'string_length)
+	(uint 'string_length)
 	(ulong 'string_hashcode)
 	(offset 'string_data)
 (def-struct-end)
+
+(defcvar 'string_gap (sub 32 string_data 1))
 
 ;;;;;;;;;;;;;;;
 ;inline methods
@@ -48,4 +50,4 @@
 	;outputs
 	;r0 = string object
 	;r1 = string length
-	(vp-cpy-ir r0 string_length r1))
+	(vp-cpy-ir-ui r0 string_length r1))
