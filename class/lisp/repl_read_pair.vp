@@ -1,5 +1,6 @@
 (import 'inc/func.inc)
 (import 'class/stream/stream.inc)
+(import 'class/string/string.inc)
 (import 'class/pair/pair.inc)
 (import 'class/lisp/lisp.inc)
 
@@ -12,9 +13,6 @@
 	;r0 = lisp object
 	;r1 = pair
 	;r2 = next char
-
-	(const 'char_space (ascii " "))
-	(const 'char_rsb (ascii "]"))
 
 	(ptr 'this 'stream 'pair 'first 'second)
 	(ulong 'char)

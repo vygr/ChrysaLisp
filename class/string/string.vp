@@ -128,8 +128,6 @@
 	;trashes
 	;all but r4
 
-	(const 'char_minus (ascii "-"))
-
 	(ptr 'this)
 	(pubyte 'buffer 'reloc)
 	(long 'num 'base)

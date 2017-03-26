@@ -2,6 +2,7 @@
 (import 'class/stream/stream.inc)
 (import 'class/vector/vector.inc)
 (import 'class/lisp/lisp.inc)
+(import 'class/string/string.inc)
 
 (def-func 'class/lisp/repl_read_list)
 	;inputs
@@ -12,11 +13,6 @@
 	;r0 = lisp object
 	;r1 = list
 	;r2 = next char
-
-	(const 'char_space (ascii " "))
-	(const 'char_rrb (ascii ")"))
-	(const 'char_semi (ascii ";"))
-	(const 'char_lf 10)
 
 	(ptr 'this 'stream 'list 'ast)
 	(ulong 'char)

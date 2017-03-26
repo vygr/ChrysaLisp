@@ -14,8 +14,6 @@
 	;r1 = string
 	;r2 = next char
 
-	(const 'char_double_quote 34)
-
 	(ptr 'this 'stream 'str_stream 'value)
 	(ulong 'char)
 

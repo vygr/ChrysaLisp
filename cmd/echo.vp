@@ -6,8 +6,6 @@
 
 (def-func 'cmd/echo)
 
-	(const 'char_lf 10)
-
 	(ptr 'slave 'arg 'args 'stream)
 	(uint 'argc 'index 'length)
 

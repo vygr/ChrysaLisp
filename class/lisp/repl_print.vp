@@ -17,22 +17,6 @@
 	;outputs
 	;r0 = lisp object
 
-	(const 'char_minus (ascii "-"))
-	(const 'char_quote (ascii "'"))
-	(const 'char_double_quote 34)
-	(const 'char_quasi_quote (ascii "`"))
-	(const 'char_unquote (ascii ","))
-	(const 'char_splicing (ascii "~"))
-	(const 'char_space (ascii " "))
-	(const 'char_lrb (ascii "("))
-	(const 'char_rrb (ascii ")"))
-	(const 'char_lcb (ascii "{"))
-	(const 'char_rcb (ascii "}"))
-	(const 'char_lsb (ascii "["))
-	(const 'char_rsb (ascii "]"))
-	(const 'char_lf 10)
-	(const 'char_at (ascii "@"))
-
 	(def-struct 'pdata)
 		(ptr 'pdata_this)
 		(ptr 'pdata_stream)
@@ -133,13 +117,13 @@
 					(f-call 'stream 'write_char {stream, char_quote})
 					(break)
 				(case {elem == this->lisp_sym_qquote})
-					(f-call 'stream 'write_char {stream, char_quasi_quote})
+					(f-call 'stream 'write_char {stream, char_tick})
 					(break)
 				(case {elem == this->lisp_sym_unquote})
-					(f-call 'stream 'write_char {stream, char_unquote})
+					(f-call 'stream 'write_char {stream, char_comma})
 					(break)
 				(case {elem == this->lisp_sym_splicing})
-					(f-call 'stream 'write_char {stream, char_splicing})
+					(f-call 'stream 'write_char {stream, char_tilda})
 					(break)
 				(default)
 					(goto 'notquote)
@@ -176,8 +160,6 @@
 	;r1 = element iterator
 	;outputs
 	;r1 = 0 if break, else not
-
-	(const 'char_space (ascii " "))
 
 	(pptr 'iter)
 	(ptr 'pdata)

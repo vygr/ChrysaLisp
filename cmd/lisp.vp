@@ -12,8 +12,6 @@
 	(ulong 'length)
 	(ushort 'argc 'index)
 
-	(const 'char_lf 10)
-
 	;init app vars
 	(push-scope)
 

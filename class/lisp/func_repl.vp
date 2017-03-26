@@ -4,6 +4,7 @@
 (import 'class/unordered_map/unordered_map.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
+(import 'class/string/string.inc)
 
 (def-func 'class/lisp/func_repl)
 	;inputs
@@ -12,8 +13,6 @@
 	;outputs
 	;r0 = lisp object
 	;r1 = value
-
-	(const 'char_lf 10)
 
 	(ptr 'this 'args 'stream 'ast 'value 'old_file 'old_line)
 	(ulong 'char 'cnt)

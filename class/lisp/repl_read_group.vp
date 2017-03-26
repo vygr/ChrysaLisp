@@ -14,8 +14,6 @@
 	;r1 = string
 	;r2 = next char
 
-	(const 'char_ccurly (ascii "}"))
-
 	(ptr 'this 'stream 'str_stream 'value)
 	(ulong 'char)
 
@@ -26,7 +24,7 @@
 	(f-call 'stream_str 'create {value} {str_stream})
 
 	(f-call 'stream 'read_char {stream} {char})
-	(loop-while {char != -1 && char != char_ccurly})
+	(loop-while {char != -1 && char != char_rcb})
 		(f-call 'stream 'write_char {str_stream, char})
 		(f-call 'stream 'read_char {stream} {char})
 	(loop-end)

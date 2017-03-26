@@ -111,14 +111,6 @@
 	;r0 = app local object
 	;r1 = button object
 
-	(const 'char_zero (ascii "0"))
-	(const 'char_nine (ascii "9"))
-	(const 'char_equal (ascii "="))
-	(const 'char_plus (ascii "+"))
-	(const 'char_minus (ascii "-"))
-	(const 'char_multiply (ascii "*"))
-	(const 'char_divide (ascii "/"))
-
 	(ptr 'inst 'button 'button_string 'display_string 'string 'string1 'string2)
 	(ubyte 'char)
 
@@ -137,10 +129,10 @@
 	(else)
 		(f-call 'label 'get_text {inst->shared_display} {display_string})
 		(assign {ubyte (button_string->string_data)} {char})
-		(vpif {char >= char_zero && char <= char_nine})
+		(vpif {char >= char_0 && char <= char_9})
 			;numeral
 			(assign {ubyte (display_string->string_data)} {char})
-			(vpif {char == char_zero || inst->shared_last_flag == 0})
+			(vpif {char == char_0 || inst->shared_last_flag == 0})
 				;clear it
 				(f-call 'string 'deref {display_string})
 				(f-call 'string 'create_from_cstr {""} {display_string})

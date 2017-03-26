@@ -50,8 +50,6 @@
 	;r0 = slave
 	;r1 = arg string
 
-	(const 'char_lf 10)
-
 	(ptr 'slave 'arg 'file 'stream)
 	(ulong 'char)
 

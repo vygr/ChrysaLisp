@@ -16,17 +16,6 @@
 	;r1 = number
 	;r2 = next char
 
-	(const 'char_0 (ascii "0"))
-	(const 'char_9 (ascii "9"))
-	(const 'char_a (ascii "a"))
-	(const 'char_z (ascii "z"))
-	(const 'char_ca (ascii "A"))
-	(const 'char_cz (ascii "Z"))
-	(const 'char_minus (ascii "-"))
-	(const 'char_x (ascii "x"))
-	(const 'char_b (ascii "b"))
-	(const 'char_o (ascii "o"))
-
 	(ptr 'this 'stream 'str_stream 'string 'num)
 	(pubyte 'buffer)
 	(long 'val)
@@ -42,7 +31,7 @@
 
 	(f-call 'string 'create_raw {string_gap} {string})
 	(f-call 'stream_str 'create {string} {str_stream})
-	(loop-while {char >= char_0 && char <= char_9 || char >= char_a && char <= char_z || char >= char_ca && char <= char_cz})
+	(loop-while {char >= char_0 && char <= char_9 || char >= char_a && char <= char_z || char >= char_A && char <= char_Z})
 		(f-call 'stream 'write_char {str_stream, char})
 		(f-call 'stream 'read_char {stream} {char})
 	(loop-end)

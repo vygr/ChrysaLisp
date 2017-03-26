@@ -60,8 +60,6 @@
 	;r1 = buffer
 	;r2 = length
 
-	(const 'char_lf 10)
-
 	(ptr 'slave 'buffer)
 	(uint 'length)
 

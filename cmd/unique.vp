@@ -62,7 +62,6 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(const 'char_lf 10)
 	(pptr 'iter)
 	(ptr 'pdata)
 
