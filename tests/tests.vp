@@ -11,7 +11,7 @@
 
 (def-func 'tests/array)
 
-	(const 'num_child 128)
+	(defcvar 'num_child 128)
 
 	(ptr 'tasks 'name 'ids 'msg)
 	(ulong 'cnt)
@@ -71,7 +71,7 @@
 
 (def-func 'tests/farm)
 
-	(const 'num_child 128)
+	(defcvar 'num_child 128)
 
 	(ptr 'name 'ids 'msg)
 	(ulong 'cnt)
@@ -126,7 +126,7 @@
 
 (def-func 'tests/global)
 
-	(const 'test_size 10000)
+	(defcvar 'test_size 10000)
 
 	(ptr 'name 'ids 'msg)
 	(ulong 'cnt 'total)
@@ -182,7 +182,7 @@
 
 (def-func 'tests/pipe)
 
-	(const 'num_child 128)
+	(defcvar 'num_child 128)
 
 	(ptr 'tasks 'name 'ids 'msg)
 	(ulong 'cnt)

@@ -262,11 +262,6 @@
 	(while (and (ge (setq i (dec i)) 0) (not (eql _1 (elem 1 (setq s (elem i *symbols*)))))))
 	(if (ne i -1) s))
 
-(defcfun const (_1 _2)
-	;_1 name
-	;_2 value
-	(def-sym _1 'const _2))
-
 (defcfun operator (_1 _2 &optional _3 _4)
  	;_1 name
 	;_2 precedence
@@ -652,9 +647,6 @@
 					;equate
 					(compile-const _1))
 				(t (error "Symbol not defined !" _1))))
-		((eql 'const (elem 2 s))
-			;constant
-			(compile-const (elem 3 s)))
 		((eql 'var (elem 2 s))
 			;variable
 			(set (type-sym *s*) (elem 5 s))
