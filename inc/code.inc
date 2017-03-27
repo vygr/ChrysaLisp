@@ -24,16 +24,14 @@
 		(progn
 			(assign e '(r0))
 			(vp-jmpif '(r0 != 0) l))
-		(progn
-			(vp-jmpif `(~e) l))))
+		(vp-jmpif `(~e) l)))
 
 (defcfun gotoifnot (e l)
 	(if (str? e)
 		(progn
 			(assign e '(r0))
 			(vp-jmpifnot '(r0 != 0) l))
-		(progn
-			(vp-jmpifnot `(~e) l))))
+		(vp-jmpifnot `(~e) l)))
 
 (defcfun switch ()
 	(push *switch-stk* *switch*)
@@ -58,8 +56,7 @@
 		(progn
 			(assign e '(r0))
 			(vp-jmpifnot '(r0 != 0) l))
-		(progn
-			(vp-jmpifnot `(~e) l))))
+		(vp-jmpifnot `(~e) l)))
 
 (defcfun casenot (e)
 	(default)
@@ -68,8 +65,7 @@
 		(progn
 			(assign e '(r0))
 			(vp-jmpif '(r0 != 0) l))
-		(progn
-			(vp-jmpif `(~e) l))))
+		(vp-jmpif `(~e) l)))
 
 (defcfun break ()
 	(vp-jmp (end-sym)))
