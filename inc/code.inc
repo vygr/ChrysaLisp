@@ -740,7 +740,7 @@
 	(defq y (pop-value) x (pop-value))
 	(add-inst
 		`(vpif (list ,x ',(sym o) ,y))
-			`(vp-cpy-cr 1 ,x)
+			`(vp-or-cr -1 ,x)
 		'(else)
 			`(vp-xor-rr ,x ,x)
 		'(endif)))
@@ -760,7 +760,7 @@
 		`(vpif (list ,x '!= 0))
 			`(vp-xor-rr ,x ,x)
 			`(vpif (list ,y '!= 0))
-				`(vp-add-cr 1 ,x)
+				`(vp-sub-cr 1 ,x)
 			'(endif)
 		'(endif)))
 
@@ -771,7 +771,7 @@
 	(defq x (pop-value))
 	(add-inst
 		`(vpif (list ,x '== 0))
-			`(vp-add-cr 1 ,x)
+			`(vp-sub-cr 1 ,x)
 		'(else)
 			`(vp-xor-rr ,x ,x)
 		'(endif)))
