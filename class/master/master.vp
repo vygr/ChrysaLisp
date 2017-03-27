@@ -119,9 +119,6 @@
 	;trashes
 	;all but r0, r4
 
-	(const 'pipe_char (ascii "|"))
-	(const 'space_char (ascii " "))
-
 	(ptr 'inst 'buffer 'msg 'string 'commands 'args 'stream 'mbox 'ids 'prefix 'cmd)
 	(pubyte 'start)
 	(struct 'nextid 'id)
@@ -146,9 +143,9 @@
 			(loop-while {index != length})
 				(assign {(args->vector_array)[index * ptr_size]} {string})
 				(f-call 'stream 'create {0, 0, &string->string_data, string->string_length} {stream})
-				(f-call 'stream 'skip {stream, space_char})
+				(f-call 'stream 'skip {stream, char_space})
 				(assign {stream->stream_bufp} {start})
-				(f-call 'stream 'skip_not {stream, space_char})
+				(f-call 'stream 'skip_not {stream, char_space})
 				(f-call 'string 'create_from_buffer {start, stream->stream_bufp - start} {string})
 				(f-call 'string 'append {prefix, string} {cmd})
 				(f-call 'vector 'push_back {commands, cmd})

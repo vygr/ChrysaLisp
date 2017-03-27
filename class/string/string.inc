@@ -33,6 +33,7 @@
 
 (defcvar 'char_lf 10)
 (defcvar 'char_space (ascii " "))
+(defcvar 'pipe_char (ascii "|"))
 (defcvar 'char_lrb (ascii "("))
 (defcvar 'char_rrb (ascii ")"))
 (defcvar 'char_lsb (ascii "["))

@@ -2,6 +2,7 @@
 (import 'class/vector/vector.inc)
 (import 'class/stream_msg_out/stream_msg_out.inc)
 (import 'class/stream_msg_in/stream_msg_in.inc)
+(import 'class/string/string.inc)
 (import 'class/slave/slave.inc)
 
 (gen-new 'slave)
@@ -15,8 +16,6 @@
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0, r4
-
-	(const 'space_char (ascii " "))
 
 	(ptr 'inst 'vtable 'stream 'msg 'mymailbox)
 	(ulong 'error)
@@ -39,7 +38,7 @@
 
 			;create args
 			(f-call 'stream 'create {0, 0, &msg->slave_mail_init_args, msg->msg_length - slave_mail_init_size} {stream})
-			(f-call 'stream 'split {stream, space_char} {inst->slave_args})
+			(f-call 'stream 'split {stream, char_space} {inst->slave_args})
 			(f-call 'stream 'deref {stream})
 
 			;send back ack
