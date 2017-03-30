@@ -20,18 +20,16 @@
 	(vp-jmp l))
 
 (defcfun gotoif (e l)
-	(if (str? e)
-		(progn
-			(assign e '(r0))
-			(vp-jmpif '(r0 != 0) l))
-		(vp-jmpif `(~e) l)))
+	(when (str? e)
+		(assign e '(r0))
+		(setq e '(r0 != 0)))
+	(vp-jmpif `(~e) l))
 
 (defcfun gotoifnot (e l)
-	(if (str? e)
-		(progn
-			(assign e '(r0))
-			(vp-jmpifnot '(r0 != 0) l))
-		(vp-jmpifnot `(~e) l)))
+	(when (str? e)
+		(assign e '(r0))
+		(setq e '(r0 != 0)))
+	(vp-jmpifnot `(~e) l))
 
 (defcfun switch ()
 	(push *switch-stk* *switch*)
@@ -51,81 +49,51 @@
 
 (defcfun case (e)
 	(default)
-	(defq c (eval (cnt-sym)) l (loc-sym c))
-	(if (str? e)
-		(progn
-			(assign e '(r0))
-			(vp-jmpifnot '(r0 != 0) l))
-		(vp-jmpifnot `(~e) l)))
+	(gotoifnot e (loc-sym (eval (cnt-sym)))))
 
 (defcfun casenot (e)
 	(default)
-	(defq c (eval (cnt-sym)) l (loc-sym c))
-	(if (str? e)
-		(progn
-			(assign e '(r0))
-			(vp-jmpif '(r0 != 0) l))
-		(vp-jmpif `(~e) l)))
+	(gotoif e (loc-sym (eval (cnt-sym)))))
 
 (defcfun break ()
 	(vp-jmp (end-sym)))
 
 (defcfun breakif (e)
-	(defq l (end-sym))
-	(if (str? e)
-		(progn
-			(assign e '(r0))
-			(vp-jmpif '(r0 != 0) l))
-		(vp-jmpif `(~e) l)))
+	(gotoif e (end-sym)))
 
 (defcfun breakifnot (e)
-	(defq l (end-sym))
-	(if (str? e)
-		(progn
-			(assign e '(r0))
-			(vp-jmpifnot '(r0 != 0) l))
-		(vp-jmpifnot `(~e) l)))
+	(gotoifnot e (end-sym)))
 
 (defcfun continue ()
 	(vp-jmp (beg-sym)))
 
 (defcfun continueif (e)
-	(defq l (beg-sym))
-	(if (str? e)
-		(progn
-			(assign e '(r0))
-			(vp-jmpif '(r0 != 0) l))
-		(vp-jmpif `(~e) l)))
+	(gotoif e (beg-sym)))
 
 (defcfun continueifnot (e)
-	(defq l (beg-sym))
-	(if (str? e)
-		(progn
-			(assign e '(r0))
-			(vp-jmpifnot '(r0 != 0) l))
-		(vp-jmpifnot `(~e) l)))
+	(gotoifnot e (beg-sym)))
 
 (defcfun loop-start ()
 	(switch))
 
 (defcfun loop-while (e)
 	(switch)
-	(breakifnot e))
+	(gotoifnot e (end-sym)))
 
 (defcfun loop-whilenot (e)
 	(switch)
-	(breakif e))
+	(gotoif e (end-sym)))
 
 (defcfun loop-end ()
 	(continue)
 	(endswitch))
 
 (defcfun loop-until (e)
-	(continueifnot e)
+	(gotoifnot e (beg-sym))
 	(endswitch))
 
 (defcfun loop-untilnot (e)
-	(continueif e)
+	(gotoif e (beg-sym))
 	(endswitch))
 
 (defcfun vpif (e)
