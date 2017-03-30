@@ -78,22 +78,22 @@
 
 (defcfun loop-while (e)
 	(switch)
-	(gotoifnot e (end-sym)))
+	(breakifnot e))
 
 (defcfun loop-whilenot (e)
 	(switch)
-	(gotoif e (end-sym)))
+	(breakif e))
 
 (defcfun loop-end ()
 	(continue)
 	(endswitch))
 
 (defcfun loop-until (e)
-	(gotoifnot e (beg-sym))
+	(continueifnot e)
 	(endswitch))
 
 (defcfun loop-untilnot (e)
-	(gotoif e (beg-sym))
+	(continueif e)
 	(endswitch))
 
 (defcfun vpif (e)
