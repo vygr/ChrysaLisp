@@ -431,17 +431,17 @@
 	(clear *token*)
 	(defq m -1 u 1 i 0 p 0 s nil c nil)
 	(while (lt i (length l))
-		(setq c (elem i l) s (find c {@$"-*~!+.?^</%&|=> )(][}) s (if s (inc s) 0)) ;"
+		(setq c (elem i l) s (find c {@$"-*~!+.^</%&|=> )(][}) s (if s (inc s) 0)) ;"
 		(cond
 			((eq m -1)
 				;scanning
 				(if (eql c " ")
 					(setq p (inc i))
 					(cond
-						((ge s 20)
+						((ge s 19)
 							;)(][
 							(push-token c s)
-							(setq p (inc i) u (bit-and (sub s 20) 1)))
+							(setq p (inc i) u (bit-and (sub s 19) 1)))
 						((or (eq s 0) (ge s 4))
 							;-*~!+.?^</%&|=> or symbol
 							(setq m s))
@@ -452,7 +452,7 @@
 			((gt m 3)
 				;op mode
 				(cond
-					((or (gt s 18) (lt s 12))
+					((or (gt s 17) (lt s 11))
 						;space, )([] or not </%&|=>
 						(cond
 							((eq u 1)
@@ -469,7 +469,7 @@
 						(setq c nil))))
 			((lt m 3)
 				;symbol mode
-				(if (or (eq s 0) (eq s 13))
+				(if (or (eq s 0) (eq s 12))
 					(setq c nil)
 					(progn
 						(defq s (slice p i l))
@@ -776,15 +776,6 @@
 			`(vp-xor-rr ,x ,x)
 		'(endif)))
 
-(defcfun compile-ternary (o)
-	(defq z (pop-value) y (pop-value) x (pop-value))
-	(add-inst
-		`(vpif (list ,x '!= 0))
-			`(vp-cpy-rr ,y ,x)
-		'(else)
-			`(vp-cpy-rr ,z ,x)
-		'(endif)))
-
 (defcfun compile-operator (_1)
 	(defq s (get-sym _1))
 	(cond
@@ -860,7 +851,6 @@
 (operator "|" 10 0 compile-or)
 (operator "&&" 11 0 compile-land)
 (operator "||" 12 0 compile-lor)
-(operator "?" 13 0 compile-ternary)
 (operator "(" 14)
 (operator ")" 14)
 (operator "[" 14)
