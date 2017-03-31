@@ -155,7 +155,6 @@
 						(vp-cpy-ri r6 r0 ev_msg_view)
 						(vp-cpy-ri r11 r0 ev_msg_keycode)
 						(vp-cpy-ri r12 r0 ev_msg_key)
-						;debug_long "code=", r11
 
 						;send mail to owner
 						(f-call 'sys_mail 'send '(r0))

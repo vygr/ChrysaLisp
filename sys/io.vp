@@ -117,28 +117,24 @@
 
 (def-func 'sys/io_debug_long)
 	;inputs
-	;r0 = function name
-	;r1 = line number
-	;r2 = debug string
-	;r3 = debug int
+	;r0 = info string
+	;r1 = debug string
+	;r2 = debug int
 	;trashes
 	;r0-r3, r5
 
 	(def-struct 'local)
-		(long 'local_name)
-		(long 'local_line)
-		(long 'local_string)
+		(ptr 'local_info)
+		(ptr 'local_string)
 		(long 'local_long)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1 r2 r3) '((r4 local_name) (r4 local_line) (r4 local_string) (r4 local_long)))
+	(assign '(r0 r1 r2) '((r4 local_info) (r4 local_string) (r4 local_long)))
 
-	(f-call 'sys_io 'string '((r4 local_name) 2))
-	(f-call 'sys_io 'string '("< " 2))
-	(f-call 'sys_io 'number '((r4 local_line) 2 10))
-	(f-call 'sys_io 'string '(" >: " r1))
+	(f-call 'sys_io 'string '((r4 local_info) 2))
+	(f-call 'sys_io 'char '((code " ") 2))
 	(f-call 'sys_io 'string '((r4 local_string) 2))
 	(f-call 'sys_io 'string '(" :-> 0x" 2))
 	(f-call 'sys_io 'number '((r4 local_long) 2 16))
@@ -151,28 +147,24 @@
 
 (def-func 'sys/io_debug_str)
 	;inputs
-	;r0 = function name
-	;r1 = line number
+	;r0 = info string
+	;r1 = debug string
 	;r2 = debug string
-	;r3 = debug string
 	;trashes
 	;r0-r3, r5
 
 	(def-struct 'local)
-		(long 'local_name)
-		(long 'local_line)
-		(long 'local_string)
+		(ptr 'local_info)
+		(ptr 'local_string)
 		(long 'local_str)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1 r2 r3) '((r4 local_name) (r4 local_line) (r4 local_string) (r4 local_str)))
+	(assign '(r0 r1 r2) '((r4 local_info) (r4 local_string) (r4 local_str)))
 
-	(f-call 'sys_io 'string '((r4 local_name) 2))
-	(f-call 'sys_io 'string '("< " 2))
-	(f-call 'sys_io 'number '((r4 local_line) 2 10))
-	(f-call 'sys_io 'string '(" >: " r1))
+	(f-call 'sys_io 'string '((r4 local_info) 2))
+	(f-call 'sys_io 'char '((code " ") 2))
 	(f-call 'sys_io 'string '((r4 local_string) 2))
 	(f-call 'sys_io 'string '(" :-> " 2))
 	(f-call 'sys_io 'string '((r4 local_str) 2))
