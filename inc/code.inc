@@ -41,8 +41,8 @@
 
 (defcmacro errorassign (e d)
 	(unless debug_mode
-		(setq e '(1)))
-	`(assign ,e ,d))
+		(setq e '(list 1))
+	`(assign ,e ,d)))
 
 (defcmacro errorcases (&rest e)
 	(if debug_mode
