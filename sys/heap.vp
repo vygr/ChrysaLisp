@@ -75,7 +75,7 @@
 		(sys-push-trashed)
 		(sys-mmap '(0 r1 (bit-or prot_read prot_write) (bit-or map_private map_anon) -1  0) '(r0))
 		(sys-pop-trashed)
-		(assert '(r0 != 0))
+		(errorif '(r0 == 0) 'error)
 		(f-bind 'sys_mem 'statics r3)
 		(vp-cpy-ir r3 0 r5)
 		(vp-add-rr r5 r1)
@@ -97,6 +97,10 @@
 		(vp-cpy-ri r2 r0 hp_heap_free_flist)
 		(vp-pop r5)
 	(loop-end)
+
+(errorcases
+(vp-label 'error)
+	(abort))
 
 (def-func-end)
 
