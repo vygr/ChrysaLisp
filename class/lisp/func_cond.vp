@@ -91,15 +91,9 @@
 
 	(f-call 'ref 'deref {pdata->pdata_value})
 	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {pdata->pdata_value})
-	(errorif (cat {pdata->pdata_value->obj_vtable == @} (f-path 'class 'error)) 'error4)
-	(vp-or-cr -1 r1)
+
+	(errorassign (cat {pdata->pdata_value->obj_vtable != @} (f-path 'class 'error)) '(r1))
+	(pop-scope)
 	(return)
-
-(errorcases
-(vp-label 'error4)
-	(vp-xor-rr r1 r1)
-	(return))
-
-	(pop-scope-syms)
 
 (def-func-end)

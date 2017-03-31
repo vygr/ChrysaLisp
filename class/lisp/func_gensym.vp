@@ -18,20 +18,24 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(vpifnot {length})
-		(f-call 'symbol 'create_from_long {this->lisp_nextsym, 10} {args})
-		(f-call 'symbol 'create_from_cstr {"G"} {prefix})
-		(f-call 'symbol 'append {prefix, args} {value})
-		(f-call 'ref 'deref {prefix})
-		(f-call 'ref 'deref {args})
-		(f-call 'lisp 'sym_intern {this, value} {value})
-		(assign {this->lisp_nextsym + 1} {this->lisp_nextsym})
-	(else)
-		(f-call 'lisp 'repl_error {this, "(gensym) wrong number of args", args} {value})
-	(endif)
+	(errorif {length} 'error)
+	(f-call 'symbol 'create_from_long {this->lisp_nextsym, 10} {args})
+	(f-call 'symbol 'create_from_cstr {"G"} {prefix})
+	(f-call 'symbol 'append {prefix, args} {value})
+	(f-call 'ref 'deref {prefix})
+	(f-call 'ref 'deref {args})
+	(f-call 'lisp 'sym_intern {this, value} {value})
+	(assign {this->lisp_nextsym + 1} {this->lisp_nextsym})
 
+(vp-label 'exit)
 	(assign {this, value} '(r0 r1))
-	(pop-scope)
 	(return)
+
+(errorcases
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, "(gensym) wrong number of args", args} {value})
+	(goto 'exit))
+
+	(pop-scope-syms)
 
 (def-func-end)

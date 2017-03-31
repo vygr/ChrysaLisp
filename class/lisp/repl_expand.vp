@@ -77,7 +77,7 @@
 	(f-call 'ref 'deref {pdata->pdata_form})
 	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {pdata->pdata_form})
 
-	(assign (cat {pdata->pdata_form->obj_vtable != @} (f-path 'class 'error)) '(r1))
+	(errorassign (cat {pdata->pdata_form->obj_vtable != @} (f-path 'class 'error)) '(r1))
 	(pop-scope)
 	(return)
 

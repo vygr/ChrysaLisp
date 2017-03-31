@@ -59,19 +59,18 @@
 	(push-scope)
 	(assign '(r0 r1) {pdata, iter})
 
-	(vpif (cat {(*iter)->obj_vtable == @} (f-path 'class 'boxed_long)))
-		(f-call 'boxed_long 'get_value {*iter} {val})
-		(vpif {val})
-			(assign {*pdata // val} {*pdata})
-			(vp-or-cr -1 r1)
-		(else)
-			(vp-xor-rr r1 r1)
-		(endif)
-	(else)
-		(vp-xor-rr r1 r1)
-	(endif)
-
-	(pop-scope)
+	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
+	(f-call 'boxed_long 'get_value {*iter} {val})
+	(errorifnot {val} 'error3)
+	(assign {*pdata // val} {*pdata})
+	(vp-or-cr -1 r1)
 	(return)
+
+(errorcases
+(vp-label 'error3)
+	(vp-xor-rr r1 r1)
+	(return))
+
+	(pop-scope-syms)
 
 (def-func-end)

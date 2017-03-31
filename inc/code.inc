@@ -39,6 +39,11 @@
 	(if debug_mode
 		`(gotoifnot ,e ,l)))
 
+(defcmacro errorassign (e d)
+	(unless debug_mode
+		(setq e '(1)))
+	`(assign ,e ,d))
+
 (defcmacro errorcases (&rest e)
 	(if debug_mode
 		`(progn ~e)))
