@@ -570,18 +570,19 @@
 		(setq *env* nil)
 		*imports*)) *os* *cpu* 8))
 
+(defun all-vp-files ()
+	(defq *imports* (list 'make.inc))
+	;list of all file imports
+	(each-mergeable (lambda (i)
+		(defq d (make-info i))
+		(merge-sym *imports* (elem 0 d))) *imports*)
+	;filter to only the .vp files
+	(filter (lambda (f)
+		(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
+
 (defun make-all (&optional *os* *cpu*)
 	(defq n (time))
-	(compile ((lambda ()
-		(defq *imports* (list 'make.inc))
-		;list of all file imports
-		(each-mergeable (lambda (i)
-			(defq d (make-info i))
-			(merge-sym *imports* (elem 0 d))) *imports*)
-		;filter to only the .vp files
-		(setq *imports* (filter (lambda (f)
-			(and (ge (length f) 3) (eql ".vp" (slice -4 -1 f)))) *imports*))
-		*imports*)) *os* *cpu* 8)
+	(compile (all-vp-files) *os* *cpu* 8)
 	(make-boot-all)
 	(setq n (div (sub (time) n) 10000))
 	(print "Time " (div n 100) "." (mod n 100) " seconds") n)
@@ -590,6 +591,9 @@
 	(defq b 1000000 n 0)
 	(times (opt i 10) (setq n (make-all) b (if (lt n b) n b)))
 	(print "Best time " (div b 100) "." (mod b 100) " seconds") nil)
+
+(defun compile-test ()
+	(each compile (all-vp-files)))
 
 ;test code for OOPS stuff
 ;issues with when to evaluate args to scope !
