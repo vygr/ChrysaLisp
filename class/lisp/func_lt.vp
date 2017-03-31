@@ -71,7 +71,7 @@
 		(f-call 'boxed_long 'get_value {*iter} {num})
 		(vpif {pdata->pdata_num < num})
 			(assign {num} {pdata->pdata_num})
-			(assign {1} '(r1))
+			(vp-or-cr -1 r1)
 			(return)
 		(else)
 			(f-call 'ref 'deref {pdata->pdata_value})
@@ -83,7 +83,7 @@
 		(f-call 'lisp 'repl_error {pdata->pdata_this, "(lt num num ...) not all numbers", *iter} {pdata->pdata_value})
 	(endif)
 
-	(assign {0} '(r1))
+	(vp-xor-rr r1 r1)
 	(pop-scope)
 	(return)
 

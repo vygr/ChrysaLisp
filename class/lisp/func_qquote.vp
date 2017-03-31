@@ -91,7 +91,7 @@
 			(f-call 'ref 'deref {pdata1.pdata_cat_list})
 			(pop-scope)
 			(gotoif {elem)} 'list_quote1)
-			(assign {0} '(r1))
+			(vp-xor-rr r1 r1)
 			(return)
 		(endswitch)
 	(else)
@@ -111,7 +111,7 @@
 	(endif)
 	(f-call 'vector 'push_back {pdata->pdata_cat_list, list})
 
-	(assign {1} '(r1))
+	(vp-or-cr -1 r1)
 	(pop-scope)
 	(return)
 

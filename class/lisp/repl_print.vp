@@ -173,7 +173,7 @@
 		(f-call 'stream 'write_char {pdata->pdata_stream, char_space})
 	(endif)
 
-	(assign {1} '(r1))
+	(vp-or-cr -1 r1)
 	(pop-scope)
 	(return)
 

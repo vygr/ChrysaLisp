@@ -56,7 +56,7 @@
 	(f-call 'ref 'ref {*iter})
 	(f-call 'vector 'push_back {pdata, *iter})
 
-	(assign {1} '(r1))
+	(vp-or-cr -1 r1)
 	(pop-scope)
 	(return)
 

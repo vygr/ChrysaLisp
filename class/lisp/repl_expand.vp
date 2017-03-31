@@ -96,7 +96,7 @@
 
 	(f-call 'lisp 'repl_expand {pdata->pdata_this, iter, pdata->pdata_cnt} {pdata->pdata_cnt})
 
-	(assign {1} '(r1))
+	(vp-or-cr -1 r1)
 	(pop-scope)
 	(return)
 

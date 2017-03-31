@@ -60,9 +60,9 @@
 	(vpif (cat {(*iter)->obj_vtable == @} (f-path 'class 'boxed_long)))
 		(f-call 'boxed_long 'get_value {*iter} {val})
 		(assign {*pdata + val} {*pdata})
-		(assign {1} '(r1))
+		(vp-or-cr -1 r1)
 	(else)
-		(assign {0} '(r1))
+		(vp-xor-rr r1 r1)
 	(endif)
 
 	(pop-scope)

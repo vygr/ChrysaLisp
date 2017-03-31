@@ -71,7 +71,7 @@
 	(f-call 'stream 'write {pdata->slave_stdout, &(*iter)->string_data, (*iter)->string_length})
 	(f-call 'stream 'write_char {pdata->slave_stdout, char_lf})
 
-	(assign {1} '(r1))
+	(vp-or-cr -1 r1)
 	(pop-scope)
 	(return)
 

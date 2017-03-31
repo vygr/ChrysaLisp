@@ -46,7 +46,7 @@
 		(f-call 'lisp 'repl_print {pdata, pdata->lisp_stdout, elem})
 	(endif)
 
-	(assign {1} '(r1))
+	(vp-or-cr -1 r1)
 	(pop-scope)
 	(return)
 

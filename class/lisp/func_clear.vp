@@ -44,17 +44,19 @@
 	(assign '(r0 r1) {pdata, iter})
 
 	(f-call 'ref 'deref {pdata->pdata_value})
-	(vpif (cat {(*iter)->obj_vtable == @} (f-path 'class 'vector)))
-		(assign {*iter} {pdata->pdata_value})
-		(f-call 'vector 'clear {pdata->pdata_value})
-		(f-call 'ref 'ref {pdata->pdata_value})
-		(assign {1} '(r1))
-	(else)
-		(f-call 'lisp 'repl_error {pdata->pdata_this, "(clear list ...) not a list", *iter} {pdata->pdata_value})
-		(assign {0} '(r1))
-	(endif)
-
-	(pop-scope)
+	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'vector)) 'error)
+	(assign {*iter} {pdata->pdata_value})
+	(f-call 'vector 'clear {pdata->pdata_value})
+	(f-call 'ref 'ref {pdata->pdata_value})
+	(vp-or-cr -1 r1)
 	(return)
+
+(errorcases
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {pdata->pdata_this, "(clear list ...) not a list", *iter} {pdata->pdata_value})
+	(vp-xor-rr r1 r1)
+	(return))
+
+	(pop-scope-syms)
 
 (def-func-end)
