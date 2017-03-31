@@ -78,18 +78,20 @@
 	(assign '(r0 r1) {pdata, iter})
 
 	(assign {*iter} {elem})
-	(vpif (cat {elem->obj_vtable == @} (f-path 'class 'vector)))
-		(d-call 'vector 'get_length {elem} {length})
-		(f-call 'vector 'append {pdata->pdata_value, elem, 0, length})
-		(assign {1} '(r1))
-	(else)
-		(f-call 'ref 'deref {pdata->pdata_value})
-		(f-call 'lisp 'repl_error {pdata->pdata_this, "(cat seq ...) not all lists", pdata->pdata_args} {pdata->pdata_value})
-		(assign {0} '(r1))
-	(endif)
-
-	(pop-scope)
+	(errorif (cat {elem->obj_vtable != @} (f-path 'class 'vector)) 'error4)
+	(d-call 'vector 'get_length {elem} {length})
+	(f-call 'vector 'append {pdata->pdata_value, elem, 0, length})
+	(assign {1} '(r1))
 	(return)
+
+(errorcases
+(vp-label 'error4)
+	(f-call 'ref 'deref {pdata->pdata_value})
+	(f-call 'lisp 'repl_error {pdata->pdata_this, "(cat seq ...) not all lists", pdata->pdata_args} {pdata->pdata_value})
+	(assign {0} '(r1))
+	(return))
+
+	(pop-scope-syms)
 
 (vp-label 'callback2)
 	;inputs
