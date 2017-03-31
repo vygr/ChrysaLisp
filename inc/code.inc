@@ -31,6 +31,18 @@
 		(setq e '(r0 != 0)))
 	(vp-jmpifnot `(~e) l))
 
+(defcmacro errorif (e l)
+	(if debug_mode
+		`(gotoif ,e ,l)))
+
+(defcmacro errorifnot (e l)
+	(if debug_mode
+		`(gotoifnot ,e ,l)))
+
+(defcmacro errorcases (&rest e)
+	(if debug_mode
+		`(progn ~e)))
+
 (defcfun switch ()
 	(push *switch-stk* *switch*)
 	(setq *switch* *switch-nxt* *switch-nxt* (inc *switch-nxt*))

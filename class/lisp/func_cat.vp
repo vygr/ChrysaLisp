@@ -26,12 +26,12 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoifnot {length} 'error1)
+	(errorifnot {length} 'error1)
 	(f-call 'vector 'get_element {args, 0} {first})
 	(f-call 'obj 'inst_of (cat {first, @} (f-path 'class 'string)) {value})
 	(vpif {value})
 		(f-call 'vector 'for_each {args, 1, length, $callback2, &this} {value})
-		(gotoif {value} 'error2)
+		(errorif {value} 'error2)
 		(vpif {length == 2})
 			(f-call 'vector 'get_element {args, 1} {value})
 			(f-call 'string 'append {first, value} {value})
@@ -39,7 +39,7 @@
 			(f-call 'string 'cat {args} {value})
 		(endif)
 	(else)
-		(gotoif (cat {first->obj_vtable != @} (f-path 'class 'vector)) 'error3)
+		(errorif (cat {first->obj_vtable != @} (f-path 'class 'vector)) 'error3)
 		(f-call 'vector 'create {} {value})
 		(f-call 'vector 'for_each {args, 0, length, $callback1, &this} {_})
 	(endif)
@@ -48,6 +48,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(cat seq ...) wrong number of args"} {value})
 	(goto 'error)
@@ -58,7 +59,7 @@
 	(assign {"(cat seq ...) not sequence type"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

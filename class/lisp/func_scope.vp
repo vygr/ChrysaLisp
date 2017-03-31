@@ -17,10 +17,10 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoifnot {length} 'error1)
+	(errorifnot {length} 'error1)
 	(f-call 'vector 'get_element {args, 0} {value})
 	(f-call 'lisp 'repl_eval {this, value} {value})
-	(gotoif (cat {value->obj_vtable != @} (f-path 'class 'unordered_map)) 'error2)
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'unordered_map)) 'error2)
 	(assign {this->lisp_enviroment} {env})
 	(assign {value} {this->lisp_enviroment})
 	(f-call 'lisp 'repl_eval_list {this, args, 1} {value})
@@ -40,6 +40,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(scope env ...) wrong number of args"} {value})
 	(goto 'error)
@@ -48,7 +49,7 @@
 	(assign {"(scope env ...) not an enviroment"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

@@ -19,10 +19,10 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoifnot {length == 0 || length == 1} 'error1)
+	(errorifnot {length == 0 || length == 1} 'error1)
 	(vpif {length})
 		(f-call 'vector 'get_element {args, 0} {value})
-		(gotoif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
+		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 		(f-call 'boxed_long 'get_value {value} {value})
 		(f-call 'unordered_map 'copy {this->lisp_enviroment, value} {value})
 		(f-call 'ref 'deref {this->lisp_enviroment})
@@ -37,6 +37,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(env num) wrong number of args"} {value})
 	(goto 'error)
@@ -44,7 +45,7 @@
 	(assign {"(env num) not a number"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

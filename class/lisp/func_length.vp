@@ -18,10 +18,10 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 1} 'error1)
+	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_element {args, 0} {args})
 	(f-call 'obj 'inst_of (cat {args, @} (f-path 'class 'sequence)) {value})
-	(gotoifnot {value} 'error2)
+	(errorifnot {value} 'error2)
 	(v-call 'sequence 'get_length {args} {length})
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, length})
@@ -30,6 +30,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(length seq) wrong number of args"} {value})
 	(goto 'error)
@@ -37,7 +38,7 @@
 	(assign {"(length seq) not a sequence"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

@@ -19,9 +19,9 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 1} 'error1)
+	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_element {args, 0} {value})
-	(gotoif (cat {value->obj_vtable != @} (f-path 'class 'stream_str)) 'error2)
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'stream_str)) 'error2)
 	(f-call 'stream_str 'read_char {value} {length})
 	(vpif {length == -1})
 		(assign {this->lisp_sym_nil} {value})
@@ -35,6 +35,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(read-char stream) wrong number of args"} {value})
 	(goto 'error)
@@ -42,7 +43,7 @@
 	(assign {"(read-char stream) not a stream"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

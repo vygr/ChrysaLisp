@@ -19,9 +19,9 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 1} 'error1)
+	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_element {args, 0} {value})
-	(gotoif (cat {value->obj_vtable != @} (f-path 'class 'string)) 'error2)
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'string)) 'error2)
 	(assign {ubyte (value->string_data)} {char})
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, char})
@@ -30,6 +30,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(code char) wrong number of args"} {value})
 	(goto 'error)
@@ -37,7 +38,7 @@
 	(assign {"(code char) not a string"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

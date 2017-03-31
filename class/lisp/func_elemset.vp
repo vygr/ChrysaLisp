@@ -18,17 +18,17 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 3} 'error1)
+	(errorif {length != 3} 'error1)
 	(f-call 'vector 'get_element {args, 1} {seq})
-	(gotoif (cat {seq->obj_vtable != @} (f-path 'class 'vector)) 'error2)
+	(errorif (cat {seq->obj_vtable != @} (f-path 'class 'vector)) 'error2)
 	(f-call 'vector 'get_element {args, 0} {value})
-	(gotoif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
 	(f-call 'boxed_long 'get_value {value} {index})
 	(d-call 'vector 'get_length {seq} {length})
 	(vpif {index < 0})
 		(assign {length + index + 1} {index})
 	(endif)
-	(gotoif {index < 0 || index >= length} 'error4)
+	(errorif {index < 0 || index >= length} 'error4)
 	(d-call 'vector 'ref_element {args, 2} {value})
 	(f-call 'vector 'set_element {seq, value, index})
 	(f-call 'ref 'ref {value})
@@ -37,6 +37,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(elem-set index list val) not enough args"} {value})
 	(goto 'error)
@@ -50,7 +51,7 @@
 	(assign {"(elem-set index list val) index out of bounds"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

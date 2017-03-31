@@ -21,9 +21,9 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 1} 'error1)
+	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_element {args, 0} {value})
-	(gotoif (cat {value->obj_vtable != @} (f-path 'class 'stream_str)) 'error2)
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'stream_str)) 'error2)
 	(assign (cat "@" (f-path 'sys_load 'statics)) {reloc})
 	(assign {reloc->ld_statics_reloc_buffer} {reloc})
 	(f-call 'stream_str 'read_line {value, reloc, ld_reloc_size} {length})
@@ -38,6 +38,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(read-line stream) wrong number of args"} {value})
 	(goto 'error)
@@ -45,7 +46,7 @@
 	(assign {"(read-line stream) not a stream"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

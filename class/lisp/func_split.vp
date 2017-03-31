@@ -18,17 +18,18 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 2} 'error1)
+	(errorif {length != 2} 'error1)
 	(f-call 'vector 'get_element {args, 0} {str})
-	(gotoif (cat {str->obj_vtable != @} (f-path 'class 'string)) 'error2)
+	(errorif (cat {str->obj_vtable != @} (f-path 'class 'string)) 'error2)
 	(f-call 'vector 'get_element {args, 1} {value})
-	(gotoif (cat {value->obj_vtable != @} (f-path 'class 'string)) 'error2)
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'string)) 'error2)
 	(f-call 'string 'split {str, ubyte (value->string_data)} {value})
 
 (vp-label 'exit)
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(split str char) wrong number of args"} {value})
 	(goto 'error)
@@ -36,7 +37,7 @@
 	(assign {"(split str char) not a string"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

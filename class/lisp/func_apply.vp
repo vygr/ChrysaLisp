@@ -17,7 +17,7 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 2} 'error)
+	(errorif {length != 2} 'error)
 	(f-call 'vector 'get_element {args, 0} {func})
 	(f-call 'vector 'get_element {args, 1} {args})
 	(f-call 'lisp 'repl_apply {this, func, args} {args})
@@ -26,9 +26,10 @@
 	(assign {this, args} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, "(apply func args) wrong number of args", args} {args})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

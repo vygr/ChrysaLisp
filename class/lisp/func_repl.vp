@@ -22,13 +22,13 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 2} 'error1)
+	(errorif {length != 2} 'error1)
 	(f-call 'vector 'get_element {args, 0} {stream})
 	(f-call 'obj 'inst_of (cat {stream, @} (f-path 'class 'stream)) {value})
-	(gotoifnot {value} 'error2)
+	(errorifnot {value} 'error2)
 	(f-call 'vector 'get_element {args, 1} {value})
 	(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'string)) {old_file})
-	(gotoifnot {old_file} 'error3)
+	(errorifnot {old_file} 'error3)
 
 	;push old file and line, set to this stream info
 	(f-call 'lisp 'env_get {this, this->lisp_sym_stream_name} {old_file})
@@ -62,7 +62,7 @@
 			(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 		(endif)
 
-		(gotoif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
+		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
 		(f-call 'ref 'deref {value})
 	(loop-end)
 
@@ -81,6 +81,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(repl stream filename) wrong number of args"} {value})
 	(goto 'error)
@@ -91,7 +92,7 @@
 	(assign {"(repl stream filename) not string"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

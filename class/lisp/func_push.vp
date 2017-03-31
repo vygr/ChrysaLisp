@@ -18,9 +18,9 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length < 2} 'error1)
+	(errorif {length < 2} 'error1)
 	(f-call 'vector 'get_element {args, 0} {value})
-	(gotoif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error2)
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error2)
 	(f-call 'ref 'ref {value})
 	(f-call 'vector 'for_each {args, 1, length, $callback, value} {_})
 
@@ -28,6 +28,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(push list form ...) not enough args"} {value})
 	(goto 'error)
@@ -35,7 +36,7 @@
 	(assign {"(push list form ...) not a list"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

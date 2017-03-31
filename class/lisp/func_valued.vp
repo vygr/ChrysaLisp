@@ -18,9 +18,9 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 1} 'error1)
+	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_element {args, 0} {value})
-	(gotoif (cat {value->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
 	(f-call 'lisp 'env_find {this, value} {value, _})
 	(vpif {value})
 		(f-call 'pair 'get_second {ptr(*value)} {value})
@@ -33,6 +33,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(val? var) wrong number of args"} {value})
 	(goto 'error)
@@ -40,7 +41,7 @@
 	(assign {"(val? var) not a symbol"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

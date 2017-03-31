@@ -18,7 +18,7 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length} 'error)
+	(errorif {length} 'error)
 	(f-call 'sys_cpu 'time {} {length})
 	(f-call 'boxed_long 'create {} {args})
 	(f-call 'boxed_long 'set_value {args, length})
@@ -27,9 +27,10 @@
 	(assign {this, args} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, "(time) wrong number of args", args} {args})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

@@ -20,19 +20,20 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 1} 'error1)
+	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_element {args, 0} {pipe})
 	(f-call 'obj 'inst_of (cat {pipe, @} (f-path 'class 'string)) {value})
-	(gotoifnot {value} 'error2)
+	(errorifnot {value} 'error2)
 	(f-call 'master 'create {} {value})
 	(f-call 'master 'start {value, &pipe->string_data, pipe->string_length})
 	(f-call 'master 'get_state {value} {state})
-	(gotoif {state != stream_mail_state_started} 'error3)
+	(errorif {state != stream_mail_state_started} 'error3)
 
 (vp-label 'exit)
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(pipe cmd) wrong number of args"} {value})
 	(goto 'error)
@@ -44,7 +45,7 @@
 	(assign {"(pipe cmd) error creating pipe"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

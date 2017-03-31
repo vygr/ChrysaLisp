@@ -20,11 +20,11 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 2} 'error1)
+	(errorif {length != 2} 'error1)
 	(f-call 'vector 'get_element {args, 0} {pipe})
-	(gotoif (cat {pipe->obj_vtable != @} (f-path 'class 'master)) 'error2)
+	(errorif (cat {pipe->obj_vtable != @} (f-path 'class 'master)) 'error2)
 	(f-call 'master 'get_state {pipe} {state})
-	(gotoifnot {state != stream_mail_state_stopped} 'error3)
+	(errorifnot {state != stream_mail_state_stopped} 'error3)
 	(f-call 'vector 'get_element {args, 1} {value})
 	(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'string)) {stream})
 	(vpif {stream})
@@ -33,7 +33,7 @@
 		(v-call 'stream 'write_flush {stream})
 		(f-call 'ref 'ref {value})
 	(else)
-		(gotoif {value != this->lisp_sym_nil} 'error4)
+		(errorif {value != this->lisp_sym_nil} 'error4)
 		;flush input
 		(f-call 'master 'get_input {pipe} {stream})
 		(v-call 'stream 'write_flush {stream})
@@ -48,6 +48,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(pipe-write pipe str) wrong number of args"} {value})
 	(goto 'error)
@@ -61,7 +62,7 @@
 	(assign {"(pipe-write pipe str) not string"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

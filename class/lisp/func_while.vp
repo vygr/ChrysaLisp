@@ -22,7 +22,7 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length < 1} 'error)
+	(errorif {length < 1} 'error)
 	(f-call 'sys_task 'yield)
 	(loop-start)
 		(f-call 'vector 'get_element {args, 0} {value})
@@ -38,9 +38,10 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, "(while tst form ...) wrong number of args", args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

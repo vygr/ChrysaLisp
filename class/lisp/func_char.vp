@@ -19,16 +19,16 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoifnot {length == 1 || length == 2} 'error1)
+	(errorifnot {length == 1 || length == 2} 'error1)
 	(assign {1} {width})
 	(vpif {length == 2})
 		(f-call 'vector 'get_element {args, 1} {value})
-		(gotoif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
+		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 		(f-call 'boxed_long 'get_value {value} {width})
 		(assign {((width - 1) & 7) + 1} {width})
 	(endif)
 	(f-call 'vector 'get_element {args, 0} {value})
-	(gotoif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 	(f-call 'boxed_long 'get_value {value} {length})
 	(f-call 'string 'create_from_buffer {&length, width} {value})
 
@@ -36,6 +36,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(char num [width]) wrong number of args"} {value})
 	(goto 'error)
@@ -43,7 +44,7 @@
 	(assign {"(char num [width]) not a number"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

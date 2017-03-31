@@ -17,16 +17,17 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 1} 'error)
+	(errorif {length != 1} 'error)
 	(d-call 'vector 'ref_element {args, 0} {args})
 
 (vp-label 'exit)
 	(assign {this, args} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, "(quote arg) wrong number of args", args} {args})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

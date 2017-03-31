@@ -18,14 +18,14 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length < 3 || !(length & 1)} 'error1)
+	(errorif {length < 3 || !(length & 1)} 'error1)
 	(f-call 'vector 'get_element {args, 0} {env})
-	(gotoif (cat {env->obj_vtable != @} (f-path 'class 'unordered_map)) 'error2)
+	(errorif (cat {env->obj_vtable != @} (f-path 'class 'unordered_map)) 'error2)
 	(assign {1, 0} {index, val})
 	(loop-start)
 		(f-call 'ref 'deref_if {val})
 		(f-call 'vector 'get_element {args, index} {var})
-		(gotoif (cat {var->obj_vtable != @} (f-path 'class 'symbol)) 'error3)
+		(errorif (cat {var->obj_vtable != @} (f-path 'class 'symbol)) 'error3)
 		(d-call 'vector 'ref_element {args, index + 1} {val})
 		(f-call 'unordered_map 'insert {env, var, val} {_, _})
 		(assign {index + 2} {index})
@@ -35,6 +35,7 @@
 	(assign {this, val} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(def env var val ...) wrong number of args"} {val})
 	(goto 'error)
@@ -45,7 +46,7 @@
 	(assign {"(def env var val ...) not a symbol"} {val})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, val, args} {val})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

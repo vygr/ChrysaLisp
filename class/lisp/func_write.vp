@@ -19,11 +19,11 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 2} 'error1)
+	(errorif {length != 2} 'error1)
 	(f-call 'vector 'get_element {args, 0} {stream})
-	(gotoif (cat {stream->obj_vtable != @} (f-path 'class 'stream_str)) 'error2)
+	(errorif (cat {stream->obj_vtable != @} (f-path 'class 'stream_str)) 'error2)
 	(f-call 'vector 'get_element {args, 1} {value})
-	(gotoif (cat {value->obj_vtable != @} (f-path 'class 'string)) 'error3)
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'string)) 'error3)
 	(f-call 'ref 'ref {value})
 	(f-call 'stream_str 'write {stream, &value->string_data, value->string_length})
 
@@ -31,6 +31,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(write stream str) wrong number of args"} {value})
 	(goto 'error)
@@ -41,7 +42,7 @@
 	(assign {"(write stream str) not a string"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

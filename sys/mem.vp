@@ -66,7 +66,7 @@
 	;trashes
 	;r2-r3
 
-	(gotoif '(r0 > (sub mem_block_max_size ptr_size)) 'error)
+	(errorif '(r0 > (sub mem_block_max_size ptr_size)) 'error)
 
 	;extra bytes for heap pointer
 	(vp-lea-i r0 ptr_size r1)
@@ -89,10 +89,11 @@
 	(vp-sub-cr ptr_size r1)
 	(vp-ret)
 
+(errorcases
 (vp-label 'error)
 	(vp-xor-rr r0 r0)
 	(vp-xor-rr r1 r1)
-	(vp-ret)
+	(vp-ret))
 
 (def-func-end)
 

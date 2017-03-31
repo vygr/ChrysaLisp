@@ -29,7 +29,7 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoifnot {length} 'error)
+	(errorifnot {length} 'error)
 	(assign {args->vector_array} {iter})
 	(assign {this->lisp_sym_t} {value})
 	(f-call 'ref 'ref {value})
@@ -39,9 +39,10 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, "(ne num num ...) wrong number of args", args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

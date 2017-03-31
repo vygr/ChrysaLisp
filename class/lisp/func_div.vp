@@ -20,12 +20,12 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length < 2} 'error1)
+	(errorif {length < 2} 'error1)
 	(f-call 'vector 'get_element {args, 0} {value})
-	(gotoif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 	(f-call 'boxed_long 'get_value {value} {accum})
 	(f-call 'vector 'for_each {args, 1, length, $callback, &accum} {iter})
-	(gotoif {iter} 'error2)
+	(errorif {iter} 'error2)
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, accum})
 
@@ -33,6 +33,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(div val val ...) not enough args"} {value})
 	(goto 'error)
@@ -40,7 +41,7 @@
 	(assign {"(div val val ...) not all numbers"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 

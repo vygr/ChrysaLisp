@@ -22,9 +22,9 @@
 	(assign '(r0 r1) {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
-	(gotoif {length != 1} 'error1)
+	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_element {args, 0} {pipe})
-	(gotoif (cat {pipe->obj_vtable != @} (f-path 'class 'master)) 'error2)
+	(errorif (cat {pipe->obj_vtable != @} (f-path 'class 'master)) 'error2)
 	(f-call 'master 'get_state {pipe} {state})
 	(vpif {state == stream_mail_state_started})
 		(f-call 'master 'select {pipe, 0} {value})
@@ -53,6 +53,7 @@
 	(assign {this, value} '(r0 r1))
 	(return)
 
+(errorcases
 (vp-label 'error1)
 	(assign {"(pipe-read pipe) wrong number of args"} {value})
 	(goto 'error)
@@ -60,7 +61,7 @@
 	(assign {"(pipe-read pipe) not pipe"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {value})
-	(goto 'exit)
+	(goto 'exit))
 
 	(pop-scope-syms)
 
