@@ -30,7 +30,7 @@
 	(f-call 'vector 'get_element {args, 0} {_, first})
 	(f-call 'obj 'inst_of (cat {first, @} (f-path 'class 'string)) {_, value})
 	(vpif {value})
-		(f-call 'vector 'for_each {args, 1, length, $callback2, &this} {value})
+		(f-call 'vector 'for_each {args, 1, length, $callback2, &this} {_, value})
 		(errorif {value} 'error2)
 		(vpif {length == 2})
 			(f-call 'vector 'get_element {args, 1} {_, value})

@@ -19,7 +19,7 @@
 
 	(assign {this->lisp_enviroment} {env})
 	(loop-start)
-		(f-call 'unordered_map 'find {env, symbol} {iter, bucket})
+		(f-call 'unordered_map 'find {env, symbol} {_, iter, bucket})
 		(breakif {iter})
 		(f-call 'unordered_map 'get_parent {env} {_, iter})
 		(breakifnot {iter})

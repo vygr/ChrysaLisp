@@ -29,7 +29,7 @@
 	(loop-end)
 
 	;intern the symbol
-	(f-call 'stream_str 'ref_string {str_stream} {value})
+	(f-call 'stream_str 'ref_string {str_stream} {_, value})
 	(f-call 'ref 'deref {str_stream})
 	(f-call 'lisp 'sym_intern {this, value} {_, value})
 

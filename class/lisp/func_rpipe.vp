@@ -41,7 +41,7 @@
 			;EOF
 			(f-call 'master 'stop {pipe})
 		(endif)
-		(f-call 'stream_str 'ref_string {str_stream} {value})
+		(f-call 'stream_str 'ref_string {str_stream} {_, value})
 		(f-call 'ref 'deref {str_stream})
 	(else)
 		;closed

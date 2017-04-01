@@ -31,7 +31,7 @@
 			(loop-start)
 				(d-call 'vector 'get_length {vector} {_, length})
 				(breakifnot {length})
-				(f-call 'vector 'ref_back {vector} {stream})
+				(f-call 'vector 'ref_back {vector} {_, stream})
 				(f-call 'vector 'pop_back {vector})
 				(loop-start)
 					(f-call 'stream 'read_line {stream, &buffer, buffer_size} {_, length})

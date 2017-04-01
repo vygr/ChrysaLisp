@@ -30,7 +30,7 @@
 	(loop-end)
 	(f-call 'stream 'read_char {stream} {_, char})
 
-	(f-call 'stream_str 'ref_string {str_stream} {value})
+	(f-call 'stream_str 'ref_string {str_stream} {_, value})
 	(f-call 'ref 'deref {str_stream})
 
 	(f-exit 'lisp 'repl_read_str {this, value, char})

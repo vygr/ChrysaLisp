@@ -19,7 +19,7 @@
 	(f-entry 'lisp 'repl_eval_list {this, list, index})
 
 	(d-call 'vector 'get_length {list} {_, length})
-	(f-call 'vector 'for_each {list, index, length, $callback, this} {iter})
+	(f-call 'vector 'for_each {list, index, length, $callback, this} {_, iter})
 	(vpif {iter})
 		(assign {*iter} {list})
 	(endif)

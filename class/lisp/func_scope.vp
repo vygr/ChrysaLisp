@@ -27,7 +27,7 @@
 	(vpif (cat {value->obj_vtable != @} (f-path 'class 'error)))
 		(f-call 'ref 'deref {value})
 		(vpif {length > 1})
-			(f-call 'vector 'ref_back {args} {value})
+			(f-call 'vector 'ref_back {args} {_, value})
 		(else)
 			(assign {this->lisp_sym_nil} {value})
 			(f-call 'ref 'ref {value})

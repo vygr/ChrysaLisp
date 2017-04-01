@@ -22,7 +22,7 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
 	(assign {1} {accum})
-	(f-call 'vector 'for_each {args, 0, length, $callback, &accum} {iter})
+	(f-call 'vector 'for_each {args, 0, length, $callback, &accum} {_, iter})
 	(errorif {iter} 'error2)
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, accum})

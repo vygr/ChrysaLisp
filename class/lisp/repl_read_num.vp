@@ -35,7 +35,7 @@
 		(f-call 'stream 'write_char {str_stream, char})
 		(f-call 'stream 'read_char {stream} {_, char})
 	(loop-end)
-	(f-call 'stream_str 'ref_string {str_stream} {string})
+	(f-call 'stream_str 'ref_string {str_stream} {_, string})
 	(f-call 'ref 'deref {str_stream})
 
 	;pick base

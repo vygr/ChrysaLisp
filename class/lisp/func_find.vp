@@ -28,7 +28,7 @@
 		(goto 'ok)
 	(else)
 		(errorif (cat {seq->obj_vtable != @} (f-path 'class 'vector)) 'error2)
-		(f-call 'vector 'find {seq, elem} {length})
+		(f-call 'vector 'find {seq, elem} {_, length})
 	(vp-label 'ok)
 		(vpif {length == -1})
 			(assign {this->lisp_sym_nil} {value})

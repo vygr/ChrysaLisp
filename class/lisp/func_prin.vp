@@ -20,7 +20,7 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(f-call 'vector 'for_each {args, 0, length, $callback, this})
-	(f-call 'vector 'ref_back {args} {args})
+	(f-call 'vector 'ref_back {args} {_, args})
 
 	(f-exit 'lisp 'func_prin {this, args})
 	(pop-scope)

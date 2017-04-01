@@ -329,7 +329,7 @@
 		(vp-add-cr string_data r0)
 		(vp-cpy-ri r0 r4 local_next)
 		(vp-cpy-ir r4 local_vector r0)
-		(f-call 'vector 'for_each '(r0 0 (r0 vector_length ui) ($ callback) r4) '(r1))
+		(f-call 'vector 'for_each '(r0 0 (r0 vector_length ui) ($ callback) r4) '(_ r1))
 
 		(vp-cpy-ir r4 local_next r2)
 		(vp-cpy-ri-b r1 r2 0)

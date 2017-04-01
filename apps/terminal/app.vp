@@ -172,7 +172,7 @@
 				(f-call 'vector 'push_back {shared->shared_history, string})
 				(assign {shared->shared_history_index + 1} {shared->shared_history_index})
 			(else)
-				(f-call 'vector 'ref_back {shared->shared_history} {last})
+				(f-call 'vector 'ref_back {shared->shared_history} {_, last})
 				(f-call 'string 'same {string, last} {_, notsame})
 				(f-call 'string 'deref {last})
 				(gotoif {notsame} 'new_entry)
