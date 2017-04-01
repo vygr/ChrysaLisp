@@ -21,7 +21,7 @@
 		(vp-cpy-ri r1 r0 button_state)
 		(vp-lea-i r0 button_pressed_signal r1)
 		(lh-init r1 r2)
-		(f-call 'button 'set_flow_flags '(r0 (bit-or flow_flag_down flow_flag_align_hcenter)))
+		(f-call 'button 'set_flow_flags '(r0 (bit-or flow_flag_down flow_flag_align_hcenter)) '(_))
 	(endif)
 	(vp-ret)
 

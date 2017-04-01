@@ -133,7 +133,7 @@
 		(error "Method is virtual ! Use v-call ?" (list _1 _2)))
 	(assign _3 (elem 3 m))
 	(fn-call (elem 1 m))
-	(assign (elem 4 m) _4))
+	(if _4 (assign (elem 4 m) _4)))
 
 (defcfun f-jmp (_1 _2 &optional _3)
 	;_1 = class name
@@ -165,7 +165,7 @@
 			(error "Method is static !" (list (eval (super-name _1)) _2))))
 	(assign _3 (elem 3 m))
 	(fn-call (elem 1 m))
-	(assign (elem 4 m) _4))
+	(if _4 (assign (elem 4 m) _4)))
 
 (defcfun s-jmp (_1 _2 &optional _3)
 	;_1 = class name
@@ -203,7 +203,7 @@
 	(assign _3 s)
 	(vp-cpy-ir r0 obj_vtable _5)
 	(vp-call-i _5 v)
-	(assign (elem 4 m) _4))
+	(if _4 (assign (elem 4 m) _4)))
 
 (defcfun v-jmp (_1 _2 &optional _3 _4)
 	;_1 = class name
@@ -242,7 +242,7 @@
 		(error "Method is static ! Use f-call ?" (list _1 _2)))
 	(assign _3 (elem 3 m))
 	(fn-call (elem 1 m))
-	(assign (elem 4 m) _4))
+	(if _4 (assign (elem 4 m) _4)))
 
 (defcfun d-jmp (_1 _2 &optional _3)
 	;_1 = class name
@@ -271,7 +271,7 @@
 	;_5 = out regs
 	(assign _2 _3)
 	(vp-call _1)
-	(assign _4 _5))
+	(if _5 (assign _4 _5)))
 
 ;;;;;;;;;;;;;;;;;
 ; virtual classes

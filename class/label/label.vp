@@ -14,7 +14,7 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	(s-call 'label 'init '(r0 r1) '(_ r1))
+	(s-call 'label 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		(vp-push r0)
 
@@ -71,7 +71,7 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0) '((r4 local_inst)))
 
-	(f-call 'text 'get_text '((r0 label_text)) '(r1))
+	(f-call 'text 'get_text '((r0 label_text)) '(_ r1))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)
@@ -94,7 +94,7 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0) '((r4 local_inst)))
 
-	(f-call 'text 'ref_text '((r0 label_text)) '(r1))
+	(f-call 'text 'ref_text '((r0 label_text)) '(_ r1))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)
@@ -190,7 +190,7 @@
 	;all but r0, r4
 
 	(vp-push r0)
-	(f-call 'text 'set_font '((r0 label_text) r1 r2))
+	(f-call 'text 'set_font '((r0 label_text) r1 r2) '(_))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -211,7 +211,7 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0) '((r4 local_inst)))
 
-	(f-call 'text 'set_text '((r0 label_text) r1))
+	(f-call 'text 'set_text '((r0 label_text) r1) '(_))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(v-call 'label 'layout '((r0 label_flow)))

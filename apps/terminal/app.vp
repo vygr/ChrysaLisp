@@ -42,8 +42,8 @@
 
 	;add my vdu
 	(f-call 'vdu 'create {} {myapp.shared_vdu})
-	(f-call 'vdu 'set_text_color {myapp.shared_vdu, 0xff00ff00})
-	(f-call 'vdu 'set_font {myapp.shared_vdu, "fonts/Hack-Regular.ttf", 16})
+	(f-call 'vdu 'set_text_color {myapp.shared_vdu, 0xff00ff00} '(_))
+	(f-call 'vdu 'set_font {myapp.shared_vdu, "fonts/Hack-Regular.ttf", 16} '(_))
 	(v-call 'window 'add_child {myapp.shared_window, myapp.shared_vdu})
 
 	;set to pref size

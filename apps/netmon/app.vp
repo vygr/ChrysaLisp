@@ -81,12 +81,12 @@
 	(f-call 'label 'create {} {label})
 	(f-call 'label 'set_color {label, 0xffffffff})
 	(f-call 'string 'create_from_cstr {"Tasks"} {string})
-	(f-call 'label 'set_text {label, string})
+	(f-call 'label 'set_text {label, string} '(_))
 	(v-call 'flow 'add_child {left_panel, label})
 	(f-call 'label 'create {} {label})
 	(f-call 'label 'set_color {label, 0xffffffff})
 	(f-call 'string 'create_from_cstr {"Memory"} {string})
-	(f-call 'label 'set_text {label, string})
+	(f-call 'label 'set_text {label, string} '(_))
 	(v-call 'flow 'add_child {right_panel, label})
 
 	;allocate array for progress bars and trip times

@@ -16,7 +16,7 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	(s-call 'vdu 'init '(r0 r1) '(_ r1))
+	(s-call 'vdu 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		(vp-push r0)
 
@@ -34,7 +34,7 @@
 		(f-call 'sys_mem 'alloc '((mul 128 ptr_size)) '((r5 vdu_textures) _))
 
 		(vp-pop r0)
-		(f-call 'vdu 'set_font '(r0 "fonts/Hack-Regular.ttf" 16))
+		(f-call 'vdu 'set_font '(r0 "fonts/Hack-Regular.ttf" 16) '(_))
 		(vp-cpy-cr 1 r1)
 	(endif)
 	(vp-ret)
@@ -216,7 +216,7 @@
 		;tab
 		(assign {4 - (inst->vdu_cursor_x & 3)} {char})
 		(loop-start)
-			(f-call 'vdu 'print_char {inst, 32})
+			(f-call 'vdu 'print_char {inst, 32} '(_))
 			(assign {char - 1} {char})
 		(loop-untilnot {char})
 	(elseif {char == 128})
@@ -262,7 +262,7 @@
 
 	;print chars
 	(loop-while {*charp})
-		(f-call 'vdu 'print_char {inst, *charp})
+		(f-call 'vdu 'print_char {inst, *charp} '(_))
 		(assign {charp + 1} {charp})
 	(loop-end)
 
