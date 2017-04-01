@@ -66,7 +66,7 @@
 		(f-call 'button 'set_text {button, string})
 		(f-call 'button 'set_flow_flags {button, flow_flag_align_hcenter | flow_flag_align_vcenter})
 		(v-call 'grid 'add_child {grid_panel, button})
-		(f-call 'button 'sig_pressed {button} {pressed})
+		(f-call 'button 'sig_pressed {button} {_, pressed})
 		(f-call 'button 'connect {button, pressed, &myapp, $on_press})
 
 		(f-call 'sys_string 'length {next} {length})

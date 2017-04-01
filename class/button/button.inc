@@ -10,7 +10,7 @@
 (def-method 'create 'class/button/create)
 (def-method 'new 'class/button/new)
 (def-method 'init 'class/button/init)
-(def-method 'sig_pressed 'class/button/sig_pressed 'static '(r0) '(r1))
+(def-method 'sig_pressed 'class/button/sig_pressed 'static '(r0) '(r0 r1))
 
 (def-method 'deinit 'class/button/deinit 'final)
 (def-method 'pref_size 'class/button/pref_size 'final)

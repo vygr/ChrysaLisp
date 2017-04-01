@@ -23,7 +23,7 @@
 	(errorif (cat {str->obj_vtable != @} (f-path 'class 'string)) 'error2)
 	(f-call 'vector 'get_element {args, 1} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'string)) 'error2)
-	(f-call 'string 'split {str, ubyte (value->string_data)} {value})
+	(f-call 'string 'split {str, ubyte (value->string_data)} {_, value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_split {this, value})

@@ -38,7 +38,7 @@
 		(f-call 'string 'create_from_cstr {next} {string})
 		(f-call 'button 'set_text {button, string})
 		(v-call 'flow 'add_child {panel, button})
-		(f-call 'button 'sig_pressed {button} {pressed})
+		(f-call 'button 'sig_pressed {button} {_, pressed})
 		(f-call 'button 'connect {button, pressed, &myapp, $on_press})
 
 		(f-call 'sys_string 'length {next} {length})

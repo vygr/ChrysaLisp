@@ -424,7 +424,7 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0 r1 r2) '((r4 local_inst) (r4 local_obj) (r4 local_callback)))
 
-	(f-call 'button 'sig_pressed '((r0 window_close)) '(r1))
+	(f-call 'button 'sig_pressed '((r0 window_close)) '(_ r1))
 	(f-call 'button 'connect '(r0 r1 (r4 local_obj) (r4 local_callback)))
 
 	(vp-cpy-ir r4 local_inst r0)
@@ -453,7 +453,7 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0 r1 r2) '((r4 local_inst) (r4 local_obj) (r4 local_callback)))
 
-	(f-call 'button 'sig_pressed '((r0 window_max)) '(r1))
+	(f-call 'button 'sig_pressed '((r0 window_max)) '(_ r1))
 	(f-call 'button 'connect '(r0 r1 (r4 local_obj) (r4 local_callback)))
 
 	(vp-cpy-ir r4 local_inst r0)
@@ -482,7 +482,7 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0 r1 r2) '((r4 local_inst) (r4 local_obj) (r4 local_callback)))
 
-	(f-call 'button 'sig_pressed '((r0 window_min)) '(r1))
+	(f-call 'button 'sig_pressed '((r0 window_min)) '(_ r1))
 	(f-call 'button 'connect '(r0 r1 (r4 local_obj) (r4 local_callback)))
 
 	(vp-cpy-ir r4 local_inst r0)

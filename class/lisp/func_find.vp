@@ -24,7 +24,7 @@
 	(f-call 'vector 'get_element {args, 1} {_, seq})
 	(vpif (cat {seq->obj_vtable == @} (f-path 'class 'string)))
 		(errorif (cat {elem->obj_vtable != @} (f-path 'class 'string)) 'error2)
-		(f-call 'string 'find {seq, ubyte (elem->string_data)} {length})
+		(f-call 'string 'find {seq, ubyte (elem->string_data)} {_, length})
 		(goto 'ok)
 	(else)
 		(errorif (cat {seq->obj_vtable != @} (f-path 'class 'vector)) 'error2)
