@@ -16,7 +16,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_strstream {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
 	(errorif {length != 1} 'error1)
@@ -26,7 +26,7 @@
 	(f-call 'stream_str 'create {value} {value})
 
 (vp-label 'exit)
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'func_strstream {this, value})
 	(return)
 
 (errorcases

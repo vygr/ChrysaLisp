@@ -16,7 +16,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_str {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
 	(errorif {length != 1} 'error)
@@ -37,7 +37,7 @@
 	(endif)
 
 (vp-label 'exit)
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'func_str {this, value})
 	(return)
 
 (errorcases

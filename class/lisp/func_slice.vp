@@ -16,7 +16,7 @@
 	(int 'length 'start 'end)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_slice {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
 	(errorif {length != 3} 'error1)
@@ -40,7 +40,7 @@
 	(v-call 'sliceable 'slice {slc, start, end} {value})
 
 (vp-label 'exit)
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'func_slice {this, value})
 	(return)
 
 (errorcases

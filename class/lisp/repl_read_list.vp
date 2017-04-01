@@ -18,7 +18,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, stream, char})
+	(f-entry 'lisp 'repl_read_list {this, stream, char})
 
 	;skip "(" and white space
 	(loop-start)
@@ -50,7 +50,7 @@
 	(f-call 'stream 'read_char {stream} {char})
 
 (vp-label 'error)
-	(assign {this, list, char} '(r0 r1 r2))
+	(f-exit 'lisp 'repl_read_list {this, list, char})
 	(pop-scope)
 	(return)
 

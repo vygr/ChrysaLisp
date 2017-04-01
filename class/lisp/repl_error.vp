@@ -20,7 +20,7 @@
 	(ulong 'line)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, desc, payload})
+	(f-entry 'lisp 'repl_error {this, desc, payload})
 
 	(f-call 'lisp 'env_find {this, this->lisp_sym_stream_name} {_, iter, _})
 	(vpif {iter})
@@ -43,7 +43,7 @@
 
 	(f-call 'error 'create {desc, file, payload, line} {value})
 
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'repl_error {this, value})
 	(pop-scope)
 	(return)
 

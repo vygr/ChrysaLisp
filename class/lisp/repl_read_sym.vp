@@ -18,7 +18,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, stream, char})
+	(f-entry 'lisp 'repl_read_sym {this, stream, char})
 
 	(f-call 'symbol 'create_raw {string_gap} {value})
 	(f-call 'stream_str 'create {value} {str_stream})
@@ -33,7 +33,7 @@
 	(f-call 'ref 'deref {str_stream})
 	(f-call 'lisp 'sym_intern {this, value} {_, value})
 
-	(assign {this, value, char} '(r0 r1 r2))
+	(f-exit 'lisp 'repl_read_sym {this, value, char})
 	(pop-scope)
 	(return)
 

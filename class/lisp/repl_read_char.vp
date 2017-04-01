@@ -18,7 +18,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, stream, char})
+	(f-entry 'lisp 'repl_read_char {this, stream, char})
 
 	(vpif {char == 10})
 		(f-call 'lisp 'env_find {this, this->lisp_sym_stream_line} {_, iter, _})
@@ -29,7 +29,7 @@
 
 	(f-call 'stream 'read_char {stream} {char})
 
-	(assign {this, char} '(r0 r1))
+	(f-exit 'lisp 'repl_read_char {this, char})
 	(pop-scope)
 	(return)
 

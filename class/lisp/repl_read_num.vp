@@ -22,9 +22,9 @@
 	(int 'char 'sign)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, stream, char})
-	(assign {char} {sign})
+	(f-entry 'lisp 'repl_read_num {this, stream, char})
 
+	(assign {char} {sign})
 	(vpif {char == char_minus})
 		(f-call 'stream 'read_char {stream} {char})
 	(endif)
@@ -60,7 +60,7 @@
 	(f-call 'boxed_long 'set_value {num, val})
 	(f-call 'ref 'deref {string})
 
-	(assign {this, num, char} '(r0 r1 r2))
+	(f-exit 'lisp 'repl_read_num {this, num, char})
 	(pop-scope)
 	(return)
 

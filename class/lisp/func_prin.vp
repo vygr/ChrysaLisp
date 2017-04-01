@@ -16,13 +16,13 @@
 	(uint 'length)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_prin {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
 	(f-call 'vector 'for_each {args, 0, length, $callback, this} {_})
 	(f-call 'vector 'ref_back {args} {args})
 
-	(assign {this, args} '(r0 r1))
+	(f-exit 'lisp 'func_prin {this, args})
 	(pop-scope)
 	(return)
 

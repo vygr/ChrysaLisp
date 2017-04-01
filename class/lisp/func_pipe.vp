@@ -17,7 +17,7 @@
 	(uint 'length 'state)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_pipe {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
 	(errorif {length != 1} 'error1)
@@ -30,7 +30,7 @@
 	(errorif {state != stream_mail_state_started} 'error3)
 
 (vp-label 'exit)
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'func_pipe {this, value})
 	(return)
 
 (errorcases

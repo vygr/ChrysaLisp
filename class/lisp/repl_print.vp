@@ -30,7 +30,7 @@
 	(ptr 'value 'elem)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, stream, value})
+	(f-entry 'lisp 'repl_print {this, stream, value})
 
 	(vpifnot {value})
 		(f-call 'stream 'write_char {stream, char_lf})
@@ -150,7 +150,7 @@
 		(endswitch)
 	(endif)
 
-	(assign {this} '(r0))
+	(f-exit 'lisp 'repl_print {this})
 	(pop-scope)
 	(return)
 

@@ -18,7 +18,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, stream, char})
+	(f-entry 'lisp 'repl_read_pair {this, stream, char})
 
 	;skip "["
 	(f-call 'stream 'read_char {stream} {char})
@@ -48,8 +48,9 @@
 		(f-call 'ref 'deref {first})
 		(f-call 'lisp 'repl_error {this, "expected >", this->lisp_sym_nil} {_, pair})
 	(endif)
+
 (vp-label 'error)
-	(assign {this, pair, char} '(r0 r1 r2))
+	(f-exit 'lisp 'repl_read_pair {this, pair, char})
 	(pop-scope)
 	(return)
 

@@ -13,12 +13,12 @@
 	(ptr 'this 'symbol 'intern)
 
 	(push-scope)
-	(assign '(r0 r1) {this, symbol})
+	(f-entry 'lisp 'sym_intern_cstr {this, symbol})
 
 	(f-call 'symbol 'create_from_cstr {symbol} {symbol})
 	(f-call 'lisp 'sym_intern {this, symbol} {_, intern})
 
-	(assign {this, intern} '(r0 r1))
+	(f-exit 'lisp 'sym_intern_cstr {this, intern})
 	(pop-scope)
 	(return)
 

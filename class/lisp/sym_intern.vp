@@ -14,14 +14,14 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(assign '(r0 r1) {this, symbol})
+	(f-entry 'lisp 'sym_intern {this, symbol})
 
 	(f-call 'unordered_set 'insert {this->lisp_symbols, symbol} {iter, _})
 	(f-call 'ref 'deref {symbol})
 	(assign {*iter} {symbol})
 	(f-call 'ref 'ref {symbol})
 
-	(assign {this, symbol} '(r0 r1))
+	(f-exit 'lisp 'sym_intern {this, symbol})
 	(pop-scope)
 	(return)
 

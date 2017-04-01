@@ -14,12 +14,12 @@
 	(ptr 'this 'args)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_print {this, args})
 
 	(f-call 'lisp 'func_prin {this, args} {_, args})
 	(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 
-	(assign {this, args} '(r0 r1))
+	(f-exit 'lisp 'func_print {this, args})
 	(pop-scope)
 	(return)
 

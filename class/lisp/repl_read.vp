@@ -18,7 +18,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, stream, char})
+	(f-entry 'lisp 'repl_read {this, stream, char})
 
 	;skip white space
 (vp-label 'skip_white)
@@ -80,7 +80,7 @@
 		(f-call 'ref 'ref {ast})
 	(endif)
 
-	(assign {this, ast, char} '(r0 r1 r2))
+	(f-exit 'lisp 'repl_read {this, ast, char})
 	(pop-scope)
 	(return)
 

@@ -17,7 +17,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, stream, char})
+	(f-entry 'lisp 'repl_read_quote {this, stream, char})
 
 	;skip "'"
 	(f-call 'stream 'read_char {stream} {char})
@@ -34,7 +34,7 @@
 		(assign {elem} {list})
 	(endif)
 
-	(assign {this, list, char} '(r0 r1 r2))
+	(f-exit 'lisp 'repl_read_quote {this, list, char})
 	(pop-scope)
 	(return)
 

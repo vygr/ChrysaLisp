@@ -27,7 +27,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, iter, cnt})
+	(f-entry 'lisp 'repl_expand {this, iter, cnt})
 
 	(assign {*iter} {form})
 	(vpif (cat {form->obj_vtable == @} (f-path 'class 'vector)))
@@ -57,7 +57,7 @@
 		(endif)
 	(endif)
 
-	(assign {this, cnt} '(r0 r1))
+	(f-exit 'lisp 'repl_expand {this, cnt})
 	(pop-scope)
 	(return)
 

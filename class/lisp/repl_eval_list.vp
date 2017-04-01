@@ -16,7 +16,7 @@
 	(uint 'index 'length)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, list, index})
+	(f-entry 'lisp 'repl_eval_list {this, list, index})
 
 	(d-call 'vector 'get_length {list} {length})
 	(f-call 'vector 'for_each {list, index, length, $callback, this} {iter})
@@ -25,7 +25,7 @@
 	(endif)
 	(f-call 'ref 'ref {list})
 
-	(assign {this, list} '(r0 r1))
+	(f-exit 'lisp 'repl_eval_list {this, list})
 	(pop-scope)
 	(return)
 
