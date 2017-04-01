@@ -73,7 +73,7 @@
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1) {this, ctx})
+	(f-entry 'text 'draw {this, ctx})
 
 	;draw text
 	(vpif {this->text_string && this->text_font})
@@ -91,7 +91,7 @@
 		(loop-until {words == words_end})
 	(endif)
 
-	(assign {this} '(r0))
+	(f-exit 'text 'draw {this})
 	(pop-scope)
 	(return)
 
@@ -125,14 +125,13 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_inst)))
+	(f-entry 'text 'ref_text '((r4 local_inst)))
 
 	;reference the string
 	(vp-cpy-ir r0 text_string r0)
-	(f-call 'string 'ref_if '(r0))
-	(vp-cpy-rr r0 r1)
+	(f-call 'string 'ref_if '(r0) '(r1))
 
-	(vp-cpy-ir r4 local_inst r0)
+	(f-exit 'text 'ref_text '((r4 local_inst) r1))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -153,7 +152,7 @@
 
 	;save inputs
 	(push-scope)
-	(assign '(r0) {this})
+	(f-entry 'text 'pref_size {this})
 
 	;bounds of text
 	(assign {0, 0} {width, height})
@@ -169,7 +168,7 @@
 		(assign {width + (length - 1) * (height >> 2)} {width})
 	(endif)
 
-	(assign {this, width, height} '(r0 r10 r11))
+	(f-exit 'text 'pref_size {this, width, height})
 	(pop-scope)
 	(return)
 
@@ -189,7 +188,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_inst)))
+	(f-entry 'text 'set_font '((r4 local_inst) r1 r2))
 
 	;open font
 	(f-call 'gui_font 'open '(r1 r2) '(r0))
@@ -197,7 +196,7 @@
 	(vp-cpy-ir r4 local_inst r1)
 	(vp-cpy-ri r0 r1 text_font)
 
-	(vp-cpy-ir r4 local_inst r0)
+	(f-exit 'text 'set_font '(r1))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -217,7 +216,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1) '((r4 local_inst) (r4 local_string)))
+	(f-entry 'text 'set_text '((r4 local_inst) (r4 local_string)))
 
 	;deref the old string and words
 	(vp-cpy-ir r0 text_string r0)
