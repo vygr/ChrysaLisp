@@ -22,10 +22,10 @@
 
 	;read init args
 	(push-scope)
-	(assign '(r0 r1) {inst, vtable})
+	(f-entry 'slave 'init {inst, vtable})
 
 	;init parent
-	(s-call 'slave 'init {inst, vtable} {error})
+	(s-call 'slave 'init {inst, vtable} {_, error})
 	(vpif {error != 0})
 		;init myself
 		(f-call 'sys_task 'mailbox {} {mymailbox, _})
@@ -39,7 +39,7 @@
 			;create args
 			(f-call 'stream 'create {0, 0, &msg->slave_mail_init_args, msg->msg_length - slave_mail_init_size} {stream})
 			(f-call 'stream 'split {stream, char_space} {inst->slave_args})
-			(f-call 'stream 'deref {stream})
+			(f-call 'stream 'deref {stream} '(_))
 
 			;send back ack
 			(assign {msg->slave_mail_init_ack_id.id_mbox} {msg->msg_dest.id_mbox})
@@ -68,7 +68,7 @@
 	(ptr 'inst 'msg)
 
 	(push-scope)
-	(assign '(r0) {inst})
+	(f-entry 'slave 'deinit {inst})
 
 	;flush remaining
 	(v-call 'stream_msg_out 'write_flush {inst->slave_stderr})
@@ -93,17 +93,16 @@
 	(v-call 'stream_msg_out 'write_flush {inst->slave_stderr})
 
 	;free stdin, stdout and stderr
-	(f-call 'stream_msg_in 'deref {inst->slave_stdin})
-	(f-call 'stream_msg_out 'deref {inst->slave_stdout})
-	(f-call 'stream_msg_out 'deref {inst->slave_stderr})
+	(f-call 'stream_msg_in 'deref {inst->slave_stdin} '(_))
+	(f-call 'stream_msg_out 'deref {inst->slave_stdout} '(_))
+	(f-call 'stream_msg_out 'deref {inst->slave_stderr} '(_))
 
 	;free args
-	(f-call 'vector 'deref {inst->slave_args})
-
-	(assign {inst} '(r0))
-	(pop-scope)
+	(f-call 'vector 'deref {inst->slave_args} '(_))
 
 	;deinit parent
+	(assign {inst} '(r0))
+	(pop-scope)
 	(s-jmp 'slave 'deinit '(r0))
 
 (def-func-end)

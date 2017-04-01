@@ -16,10 +16,10 @@
 	(push-scope)
 	(f-entry 'lisp 'func_apply {this, args})
 
-	(d-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error)
-	(f-call 'vector 'get_element {args, 0} {func})
-	(f-call 'vector 'get_element {args, 1} {args})
+	(f-call 'vector 'get_element {args, 0} {_, func})
+	(f-call 'vector 'get_element {args, 1} {_, args})
 	(f-call 'lisp 'repl_apply {this, func, args} {_,args})
 
 (vp-label 'exit)

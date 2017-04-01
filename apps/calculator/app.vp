@@ -30,7 +30,7 @@
 	;init app vars
 	(push-scope)
 	(f-call 'sys_mem 'clear {&myapp, shared_size} {_})
-	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)) {_})
+	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)) '(_ _))
 
 	;create my window
 	(f-call 'window 'create {window_flag_close} {window})
@@ -100,7 +100,7 @@
 	(loop-until {myapp.shared_closed})
 
 	;deref window
-	(f-call 'window 'deref {window})
+	(f-call 'window 'deref {window} '(_))
 	(v-call 'obj 'deinit {&myapp})
 
 	(pop-scope)
@@ -134,7 +134,7 @@
 			(assign {ubyte (display_string->string_data)} {char})
 			(vpif {char == char_0 || inst->shared_last_flag == 0})
 				;clear it
-				(f-call 'string 'deref {display_string})
+				(f-call 'string 'deref {display_string} '(_))
 				(f-call 'string 'create_from_cstr {""} {display_string})
 				(assign {1} {inst->shared_last_flag})
 			(endif)
@@ -169,8 +169,8 @@
 				(f-call 'string 'create_from_cstr {"-"} {string1})
 				(f-call 'string 'create_from_cstr {&inst->shared_buffer} {string2})
 				(f-call 'string 'append {string1, string2} {string})
-				(f-call 'string 'deref {string1})
-				(f-call 'string 'deref {string2})
+				(f-call 'string 'deref {string1} '(_))
+				(f-call 'string 'deref {string2} '(_))
 			(else)
 				;positive accum
 				(f-call 'sys_string 'from_long {inst->shared_accum, &inst->shared_buffer, 10})
@@ -179,7 +179,7 @@
 		(endif)
 		(f-call 'label 'set_text {inst->shared_display, string})
 	(endif)
-	(f-call 'string 'deref {button_string})
+	(f-call 'string 'deref {button_string} '(_))
 	(f-call 'label 'dirty {inst->shared_display})
 	(pop-scope)
 	(return)

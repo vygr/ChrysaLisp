@@ -21,7 +21,7 @@
 	;r1 = vtable pointer
 	;outputs
 	;r1 = 0 if error, else ok
-	(s-call 'boxed_ptr 'init '(r0 r1) '(r1))
+	(s-call 'boxed_ptr 'init '(r0 r1) '(_ r1))
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri r2 r0 boxed_ptr_value))
 

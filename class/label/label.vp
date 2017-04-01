@@ -14,7 +14,7 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	(s-call 'label 'init '(r0 r1) '(r1))
+	(s-call 'label 'init '(r0 r1) '(_ r1))
 	(vpif '(r1 != 0))
 		(vp-push r0)
 

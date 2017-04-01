@@ -16,9 +16,9 @@
 	(push-scope)
 	(f-entry 'lisp 'func_defined {this, args})
 
-	(d-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error1)
-	(f-call 'vector 'get_element {args, 0} {value})
+	(f-call 'vector 'get_element {args, 0} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
 	(f-call 'lisp 'env_find {this, value} {_, value, _})
 	(vpif {value})
@@ -26,7 +26,7 @@
 	(else)
 		(assign {this->lisp_sym_nil} {value})
 	(endif)
-	(f-call 'ref 'ref {value})
+	(f-call 'ref 'ref {value} '(_))
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_defined {this, value})

@@ -10,7 +10,7 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	(s-call 'view 'init '(r0 r1) '(r1))
+	(s-call 'view 'init '(r0 r1) '(_ r1))
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-push r0)
@@ -43,7 +43,7 @@
 		(vp-sub-cr view_node r0)
 		(vp-push r1)
 		(f-call 'view 'sub '(r0))
-		(f-call 'view 'deref '(r0))
+		(f-call 'view 'deref '(r0) '(_))
 		(vp-pop r1)
 	(loop-end)
 

@@ -44,7 +44,7 @@
 	;app event loop
 	(loop-start)
 		;select on multiple mailboxes
-		(f-call 'master 'select {shared.shared_master, tui_id.id_mbox} {mailbox})
+		(f-call 'master 'select {shared.shared_master, tui_id.id_mbox} {_, mailbox})
 
 		;which mailbox has mail ?
 		(vpif {mailbox == tui_id.id_mbox})
@@ -54,18 +54,18 @@
 			(f-call 'sys_mem 'free {msg})
 		(else)
 			;output from a pipe element
-			(f-call 'master 'get_stream {shared.shared_master, mailbox} {stream})
+			(f-call 'master 'get_stream {shared.shared_master, mailbox} {_, stream})
 			(l-call 'pipe_output {&shared, stream} '(r0 r1) '(r0) {state})
 			(vpif {state == -1})
 				;EOF
-				(f-call 'master 'stop {shared.shared_master})
+				(f-call 'master 'stop {shared.shared_master} '(_))
 			(endif)
 		(endif)
 		(f-call 'sys_task 'yield)
 	(loop-end)
 
 	;clean up
-	(f-call 'master 'deref {shared.shared_master})
+	(f-call 'master 'deref {shared.shared_master} '(_))
 	(pop-scope)
 	(return)
 
@@ -116,14 +116,14 @@
 	;send line ?
 	(vpif {char == 10 || char == 13})
 		;what state ?
-		(f-call 'master 'get_state {shared->shared_master} {state})
+		(f-call 'master 'get_state {shared->shared_master} {_, state})
 		(vpif {state == stream_mail_state_stopped})
 			;start new pipe
 			(breakifnot {length})
-			(f-call 'master 'start {shared->shared_master, &shared->shared_buffer, length})
+			(f-call 'master 'start {shared->shared_master, &shared->shared_buffer, length} '(_))
 		(else)
 			;feed active pipe
-			(f-call 'master 'get_input {shared->shared_master} {stream})
+			(f-call 'master 'get_input {shared->shared_master} {_, stream})
 			(f-call 'stream 'write {stream, &shared->shared_buffer, length})
 			(f-call 'stream 'write_char {stream, 10})
 			(v-call 'stream 'write_flush {stream})
@@ -131,10 +131,10 @@
 		(assign {&shared->shared_buffer} {shared->shared_bufp})
 	(elseif {char == 27})
 		;esc
-		(f-call 'master 'get_state {shared->shared_master} {state})
+		(f-call 'master 'get_state {shared->shared_master} {_, state})
 		(vpif {state == stream_mail_state_started})
 			;feed active pipe, then EOF
-			(f-call 'master 'get_input {shared->shared_master} {stream})
+			(f-call 'master 'get_input {shared->shared_master} {_, stream})
 			(f-call 'stream 'write {stream, &shared->shared_buffer, length})
 			(v-call 'stream 'write_flush {stream})
 			(assign {&shared->shared_buffer} {shared->shared_bufp})

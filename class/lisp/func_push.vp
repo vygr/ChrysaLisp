@@ -17,11 +17,11 @@
 	(push-scope)
 	(f-entry 'lisp 'func_push {this, args})
 
-	(d-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
-	(f-call 'vector 'get_element {args, 0} {value})
+	(f-call 'vector 'get_element {args, 0} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error2)
-	(f-call 'ref 'ref {value})
+	(f-call 'ref 'ref {value} '(_))
 	(f-call 'vector 'for_each {args, 1, length, $callback, value} {_})
 
 (vp-label 'exit)
@@ -53,7 +53,7 @@
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
 
-	(f-call 'ref 'ref {*iter})
+	(f-call 'ref 'ref {*iter} '(_))
 	(f-call 'vector 'push_back {pdata, *iter})
 
 	(f-exit 'vector 'callback '(1))

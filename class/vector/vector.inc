@@ -8,7 +8,7 @@
 (def-method 'set_capacity 'class/vector/set_capacity 'static '(r0 r1))
 (def-method 'ref_back 'class/vector/ref_back 'static '(r0) '(r1))
 (def-method 'get_back 'class/vector/get_back 'static '(r0) '(r1))
-(def-method 'get_element 'class/vector/get_element 'static '(r0 r1) '(r1))
+(def-method 'get_element 'class/vector/get_element 'static '(r0 r1) '(r0 r1))
 (def-method 'find 'class/vector/find 'static '(r0 r1) '(r1))
 (def-method 'push_back 'class/vector/push_back 'static '(r0 r1))
 (def-method 'pop_back 'class/vector/pop_back 'static '(r0))
@@ -50,7 +50,7 @@
 	(vp-cpy-ri-i r2 r0 vector_capacity)
 	(vp-lea-i r0 vector_e1 r2)
 	(vp-cpy-ri r2 r0 vector_array)
-	(s-call 'vector 'init '(r0 r1) '(r1)))
+	(s-call 'vector 'init '(r0 r1) '(_ r1)))
 
 (defcfun class/vector/get_capacity ()
 	;inputs

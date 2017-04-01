@@ -19,7 +19,7 @@
 		(loop-until {eof == -1})
 
 		;clean up
-		(f-call 'slave 'deref {slave})
+		(f-call 'slave 'deref {slave} '(_))
 	(endif)
 	(pop-scope)
 	(return)

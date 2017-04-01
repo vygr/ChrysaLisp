@@ -147,7 +147,7 @@
 	(assign '(r0) {tasks})
 
 	;create output array
-	(d-call 'vector 'get_length {tasks} {length})
+	(d-call 'vector 'get_length {tasks} {_, length})
 	(f-call 'sys_mem 'alloc {length * id_size} {ids, _})
 
 	;init temp mailbox
@@ -373,7 +373,7 @@
 	(assign '(r0) {tasks})
 
 	;create output array
-	(d-call 'vector 'get_length {tasks} {length})
+	(d-call 'vector 'get_length {tasks} {_, length})
 	(f-call 'sys_mem 'alloc {length * id_size} {ids, _})
 
 	;init temp mailbox

@@ -16,7 +16,7 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	(s-call 'text 'init '(r0 r1) '(r1))
+	(s-call 'text 'init '(r0 r1) '(_ r1))
 	(vpif '(r1 != 0))
 		(vp-push r0)
 
@@ -48,9 +48,9 @@
 	;deref any string and words objects
 	(vp-cpy-ir r0 text_string r0)
 	(vpif '(r0 != 0))
-		(f-call 'string 'deref '(r0))
+		(f-call 'string 'deref '(r0) '(_))
 		(vp-cpy-ir r4 0 r0)
-		(f-call 'vector 'deref '((r0 text_words)))
+		(f-call 'vector 'deref '((r0 text_words)) '(_))
 	(endif)
 
 	;deinit parent
@@ -78,7 +78,7 @@
 	;draw text
 	(vpif {inst->text_string && inst->text_font})
 		(assign {inst->text_words->vector_array} {words})
-		(d-call 'vector 'get_length {inst->text_words} {length})
+		(d-call 'vector 'get_length {inst->text_words} {_, length})
 		(assign {&words[length * ptr_size]} {words_end})
 		(assign {0} {x})
 		(loop-start)
@@ -129,7 +129,7 @@
 
 	;reference the string
 	(vp-cpy-ir r0 text_string r0)
-	(f-call 'string 'ref_if '(r0))
+	(f-call 'string 'ref_if '(r0) '(_))
 	(vp-cpy-rr r0 r1)
 
 	(vp-cpy-ir r4 local_inst r0)
@@ -159,7 +159,7 @@
 	(assign {0, 0} {width, height})
 	(vpif {inst->text_string && inst->text_font})
 		(assign {inst->text_words->vector_array} {words})
-		(d-call 'vector 'get_length {inst->text_words} {length})
+		(d-call 'vector 'get_length {inst->text_words} {_, length})
 		(assign {&words[length * ptr_size]} {words_end})
 		(loop-start)
 			(f-call 'gui_font 'bounds {inst->text_font, *words} {word_w, height})
@@ -222,12 +222,12 @@
 	;deref the old string and words
 	(vp-cpy-ir r0 text_string r0)
 	(vpif '(r0 != 0))
-		(f-call 'string 'deref '(r0))
+		(f-call 'string 'deref '(r0) '(_))
 		(vp-cpy-ir r4 local_inst r0)
 		(vp-cpy-ir r0 text_words r1)
 		(vp-xor-rr r2 r2)
 		(vp-cpy-ri r2 r0 text_words)
-		(f-call 'string 'deref '(r1))
+		(f-call 'string 'deref '(r1) '(_))
 	(endif)
 
 	;transfer reference to new string

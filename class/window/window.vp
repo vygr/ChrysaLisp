@@ -26,7 +26,7 @@
 	(assign '(r0 r1 r2) {this, vtable, flags})
 
 	;init parent
-	(s-call 'window 'init {this, vtable} {ok})
+	(s-call 'window 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init myself
 		(f-call 'sys_mem 'clear {&this->window_start, window_size - window_start} {_})
@@ -50,7 +50,7 @@
 		(f-call 'button 'set_text {this->window_close, string})
 		(v-call 'button 'pref_size {this->window_close} {min_width, _})
 		(vpifnot {flags & window_flag_close})
-			(f-call 'button 'deref {this->window_close})
+			(f-call 'button 'deref {this->window_close} '(_))
 			(assign {0} {this->window_close})
 		(endif)
 

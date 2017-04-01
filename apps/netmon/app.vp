@@ -49,7 +49,7 @@
 
 	;init app vars
 	(push-scope)
-	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)) {_})
+	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)) '(_ _))
 	(assign {0, 0} {max_tasks, myapp.app_closed})
 
 	;create my window
@@ -129,7 +129,7 @@
 	;open global farm
 	(f-call 'string 'create_from_cstr {"apps/netmon/child"} {string})
 	(f-call 'sys_task 'open_global {string, cpu_total} {task_mailboxes})
-	(f-call 'string 'deref {string})
+	(f-call 'string 'deref {string} '(_))
 
 	;init task mailbox
 	(f-call 'sys_mail 'init_mailbox {&task_mailbox})
@@ -238,7 +238,7 @@
 	(f-call 'sys_mem 'free {task_progress})
 
 	;deref window
-	(f-call 'window 'deref {window})
+	(f-call 'window 'deref {window} '(_))
 	(v-call 'obj 'deinit {&myapp})
 
 	(pop-scope)

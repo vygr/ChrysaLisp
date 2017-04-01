@@ -24,13 +24,13 @@
 
 	(f-call 'vector 'create {} {list})
 	(assign {this->lisp_sym_splicing} {elem})
-	(f-call 'ref 'ref {elem})
+	(f-call 'ref 'ref {elem} '(_))
 	(f-call 'vector 'push_back {list, elem})
 	(f-call 'lisp 'repl_read {this, stream, char} {_, elem, char})
 	(vpif (cat {elem->obj_vtable != @} (f-path 'class 'error)))
 		(f-call 'vector 'push_back {list, elem})
 	(else)
-		(f-call 'ref 'deref {list})
+		(f-call 'ref 'deref {list} '(_))
 		(assign {elem} {list})
 	(endif)
 

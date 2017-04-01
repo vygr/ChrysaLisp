@@ -16,7 +16,7 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	(s-call 'vdu 'init '(r0 r1) '(r1))
+	(s-call 'vdu 'init '(r0 r1) '(_ r1))
 	(vpif '(r1 != 0))
 		(vp-push r0)
 
@@ -171,7 +171,7 @@
 			(assign {txt} {(inst->vdu_textures)[ptr_size * (code - 33)]})
 			(assign {code + 1} {code})
 		(loop-until {code == 127})
-		(f-call 'string 'deref {word})
+		(f-call 'string 'deref {word} '(_))
 	(endif)
 
 	(assign {inst} '(r0))

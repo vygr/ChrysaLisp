@@ -28,11 +28,11 @@
 	(push-scope)
 	(f-entry 'lisp 'func_ne {this, args})
 
-	(d-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorifnot {length} 'error)
 	(assign {args->vector_array} {iter})
 	(assign {this->lisp_sym_t} {value})
-	(f-call 'ref 'ref {value})
+	(f-call 'ref 'ref {value} '(_))
 	(f-call 'vector 'for_each {args, 0, length, $callback, &this} {_})
 
 (vp-label 'exit)
@@ -66,9 +66,9 @@
 		(assign {iter - ptr_size} {iter})
 		(f-call 'boxed_long 'get_value {*iter} {num1})
 		(continueif {num != num1})
-		(f-call 'ref 'deref {pdata->pdata_value})
+		(f-call 'ref 'deref {pdata->pdata_value} '(_))
 		(assign {pdata->pdata_this->lisp_sym_nil} {pdata->pdata_value})
-		(f-call 'ref 'ref {pdata->pdata_value})
+		(f-call 'ref 'ref {pdata->pdata_value} '(_))
 		(f-exit 'vector 'callback '(0))
 		(return)
 	(loop-end)
@@ -78,7 +78,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'ref 'deref {pdata->pdata_value})
+	(f-call 'ref 'deref {pdata->pdata_value} '(_))
 	(f-call 'lisp 'repl_error {pdata->pdata_this, "(ne num num ...) not all numbers", *iter} {_, pdata->pdata_value})
 	(f-exit 'vector 'callback '(0))
 	(return))

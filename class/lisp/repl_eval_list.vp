@@ -18,12 +18,12 @@
 	(push-scope)
 	(f-entry 'lisp 'repl_eval_list {this, list, index})
 
-	(d-call 'vector 'get_length {list} {length})
+	(d-call 'vector 'get_length {list} {_, length})
 	(f-call 'vector 'for_each {list, index, length, $callback, this} {iter})
 	(vpif {iter})
 		(assign {*iter} {list})
 	(endif)
-	(f-call 'ref 'ref {list})
+	(f-call 'ref 'ref {list} '(_))
 
 	(f-exit 'lisp 'repl_eval_list {this, list})
 	(pop-scope)
@@ -43,7 +43,7 @@
 	(f-entry 'vector 'callback {pdata, iter})
 
 	(f-call 'lisp 'repl_eval {pdata, *iter} {_, pdata})
-	(f-call 'ref 'deref {*iter})
+	(f-call 'ref 'deref {*iter} '(_))
 	(assign {pdata} {*iter})
 
 	(errorassign (cat {pdata->obj_vtable != @} (f-path 'class 'error)) '(r1))

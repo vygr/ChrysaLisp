@@ -38,12 +38,12 @@
 	(push-scope)
 
 	(errorif (cat {func->obj_vtable != @} (f-path 'class 'vector)) 'error2)
-	(d-call 'vector 'get_length {func} {length})
+	(d-call 'vector 'get_length {func} {_, length})
 	(errorif {length < 2} 'error1)
-	(f-call 'vector 'get_element {func, 0} {vars})
+	(f-call 'vector 'get_element {func, 0} {_, vars})
 	(errorif {vars != this->lisp_sym_lambda} 'error2)
 	(f-call 'lisp 'env_push {this} '(_))
-	(f-call 'vector 'get_element {func, 1} {vars})
+	(f-call 'vector 'get_element {func, 1} {_, vars})
 	(f-call 'lisp 'env_bind {this, vars, ast, 0} {_,value})
 	(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit1)
 	(f-call 'vector 'for_each {func, 2, length, $callback, &this} {_})
@@ -79,7 +79,7 @@
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
 
-	(f-call 'ref 'deref {pdata->pdata_value})
+	(f-call 'ref 'deref {pdata->pdata_value} '(_))
 	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_,pdata->pdata_value})
 	(errorif (cat {pdata->pdata_value->obj_vtable == @} (f-path 'class 'error)) 'error3)
 

@@ -17,11 +17,11 @@
 	(push-scope)
 	(f-entry 'lisp 'func_split {this, args})
 
-	(d-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
-	(f-call 'vector 'get_element {args, 0} {str})
+	(f-call 'vector 'get_element {args, 0} {_, str})
 	(errorif (cat {str->obj_vtable != @} (f-path 'class 'string)) 'error2)
-	(f-call 'vector 'get_element {args, 1} {value})
+	(f-call 'vector 'get_element {args, 1} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'string)) 'error2)
 	(f-call 'string 'split {str, ubyte (value->string_data)} {value})
 

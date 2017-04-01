@@ -18,9 +18,9 @@
 	(push-scope)
 	(f-entry 'lisp 'func_code {this, args})
 
-	(d-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error1)
-	(f-call 'vector 'get_element {args, 0} {value})
+	(f-call 'vector 'get_element {args, 0} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'string)) 'error2)
 	(assign {ubyte (value->string_data)} {char})
 	(f-call 'boxed_long 'create {} {value})

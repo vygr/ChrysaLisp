@@ -20,13 +20,13 @@
 	(f-call 'slave 'create {} {slave})
 	(vpif {slave})
 		;cat files to stdout, arg 1 is command name
-		(f-call 'slave 'get_args {slave} {args})
-		(d-call 'vector 'get_length {args} {argc})
+		(f-call 'slave 'get_args {slave} {_, args})
+		(d-call 'vector 'get_length {args} {_, argc})
 		(vpif {argc != 1})
 			;names from command line
 			(assign {1} {index})
 			(loop-while {index != argc})
-				(d-call 'vector 'ref_element {args, index} {arg})
+				(d-call 'vector 'ref_element {args, index} {_, arg})
 				(l-call 'cat_string {slave, arg} '(r0 r1))
 				(assign {index + 1} {index})
 			(loop-end)
@@ -41,7 +41,7 @@
 		(endif)
 
 		;clean up
-		(f-call 'slave 'deref {slave})
+		(f-call 'slave 'deref {slave} '(_))
 	(endif)
 	(pop-scope)
 	(return)
@@ -57,7 +57,7 @@
 	(assign '(r0 r1) {slave, arg})
 
 	(f-call 'string 'create_from_file {&arg->string_data} {file})
-	(f-call 'string 'deref {arg})
+	(f-call 'string 'deref {arg} '(_))
 	(vpif {file})
 		(f-call 'stream_str 'create {file} {stream})
 		(loop-start)
@@ -66,7 +66,7 @@
 			(f-call 'stream 'write_char {slave->slave_stdout, char})
 		(loop-end)
 		(v-call 'stream 'write_flush {slave->slave_stdout})
-		(f-call 'stream 'deref {stream})
+		(f-call 'stream 'deref {stream} '(_))
 		(f-call 'sys_task 'yield)
 	(endif)
 

@@ -25,7 +25,7 @@
 	(f-call 'lisp 'env_find {this, this->lisp_sym_stream_name} {_, iter, _})
 	(vpif {iter})
 		(f-call 'pair 'get_second {*iter} {file})
-		(f-call 'obj 'inst_of (cat {file, @} (f-path 'class 'string)) {value})
+		(f-call 'obj 'inst_of (cat {file, @} (f-path 'class 'string)) {_, value})
 		(gotoifnot {value} 'nofile)
 		(assign {&file->string_data} {file})
 	(else)

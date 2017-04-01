@@ -41,7 +41,7 @@
 
 	;inc ref count
 	(vpif '(r0 != 0))
-		(f-call 'ref 'ref '(r0))
+		(f-call 'ref 'ref '(r0) '(_))
 	(endif)
 	(vp-ret)
 

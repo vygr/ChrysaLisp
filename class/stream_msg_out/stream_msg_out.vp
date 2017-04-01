@@ -19,7 +19,7 @@
 	(assign '(r2 r3) '((r0 (add stream_msg_out_id id_mbox)) (r0 (add stream_msg_out_id id_cpu))))
 
 	;init parent
-	(s-call 'stream_msg_out 'init '(r0 r1 0 0 0 0) '(r1))
+	(s-call 'stream_msg_out 'init '(r0 r1 0 0 0 0) '(_ r1))
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-xor-rr r1 r1)

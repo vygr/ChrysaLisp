@@ -17,9 +17,9 @@
 	(f-entry 'lisp 'sym_intern {this, symbol})
 
 	(f-call 'unordered_set 'insert {this->lisp_symbols, symbol} {iter, _})
-	(f-call 'ref 'deref {symbol})
+	(f-call 'ref 'deref {symbol} '(_))
 	(assign {*iter} {symbol})
-	(f-call 'ref 'ref {symbol})
+	(f-call 'ref 'ref {symbol} '(_))
 
 	(f-exit 'lisp 'sym_intern {this, symbol})
 	(pop-scope)

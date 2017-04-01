@@ -10,7 +10,7 @@
 	;r1 = value
 
 	(vp-cpy-rr r0 r2)
-	(f-call 'ref 'ref '(r1))
+	(f-call 'ref 'ref '(r1) '(_))
 	(vp-cpy-rr r0 r1)
 	(vp-cpy-rr r2 r0)
 	(vp-ret)

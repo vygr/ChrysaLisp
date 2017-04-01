@@ -15,8 +15,8 @@
 
 	(f-call 'unordered_map 'get_parent {this->lisp_enviroment} {env})
 	(vpif {env})
-		(f-call 'ref 'ref {env})
-		(f-call 'ref 'deref {this->lisp_enviroment})
+		(f-call 'ref 'ref {env} '(_))
+		(f-call 'ref 'deref {this->lisp_enviroment} '(_))
 		(assign {env} {this->lisp_enviroment})
 	(endif)
 

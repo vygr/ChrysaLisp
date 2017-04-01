@@ -338,7 +338,7 @@
 		(f-call _1 'new '() '(r0))
 		(vpif '(r0 != 0))
 			;init the object
-			(f-call _1 'init `(r0 (@ ,(f-path 'class _1)) ~_4) '(r1))
+			(f-call _1 'init `(r0 (@ ,(f-path 'class _1)) ~_4) '(r0 r1))
 			(vpif '(r1 == 0))
 				;error with init
 				(v-call _1 'delete '(r0) '() r1)

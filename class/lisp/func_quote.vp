@@ -16,9 +16,9 @@
 	(push-scope)
 	(f-entry 'lisp 'func_quote {this, args})
 
-	(d-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error)
-	(d-call 'vector 'ref_element {args, 0} {args})
+	(d-call 'vector 'ref_element {args, 0} {_, args})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_quote {this, args})

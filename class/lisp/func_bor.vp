@@ -19,7 +19,7 @@
 	(push-scope)
 	(f-entry 'lisp 'func_bor {this, args})
 
-	(d-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
 	(assign {0} {accum})
 	(f-call 'vector 'for_each {args, 0, length, $callback, &accum} {iter})

@@ -20,7 +20,7 @@
 	(f-call 'boxed_ptr 'create {} {func})
 	(f-call 'boxed_ptr 'set_value {func, func_ptr | func_flags})
 	(f-call 'unordered_map 'insert {this->lisp_enviroment, symbol, func} {_, _})
-	(f-call 'ref 'deref {func})
+	(f-call 'ref 'deref {func} '(_))
 
 	(f-exit 'lisp 'built_in_func {this})
 	(pop-scope)

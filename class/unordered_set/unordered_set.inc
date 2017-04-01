@@ -3,7 +3,7 @@
 (def-class 'unordered_set 'sequence)
 (def-method 'create 'class/unordered_set/create 'static '(r0 r1) '(r0))
 (def-method 'new 'class/unordered_set/new 'static nil '(r0))
-(def-method 'init 'class/unordered_set/init 'static '(r0 r1 r2 r3) '(r1))
+(def-method 'init 'class/unordered_set/init 'static '(r0 r1 r2 r3))
 (def-method 'get_bucket 'class/unordered_set/get_bucket 'static '(r0 r1) '(r1))
 (def-method 'clear 'class/unordered_set/clear 'static '(r0))
 (def-method 'for_each 'class/unordered_set/for_each 'static '(r0 r1 r2) '(r1 r2))

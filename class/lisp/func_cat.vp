@@ -25,15 +25,15 @@
 	(push-scope)
 	(f-entry 'lisp 'func_cat {this, args})
 
-	(d-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorifnot {length} 'error1)
-	(f-call 'vector 'get_element {args, 0} {first})
-	(f-call 'obj 'inst_of (cat {first, @} (f-path 'class 'string)) {value})
+	(f-call 'vector 'get_element {args, 0} {_, first})
+	(f-call 'obj 'inst_of (cat {first, @} (f-path 'class 'string)) {_, value})
 	(vpif {value})
 		(f-call 'vector 'for_each {args, 1, length, $callback2, &this} {value})
 		(errorif {value} 'error2)
 		(vpif {length == 2})
-			(f-call 'vector 'get_element {args, 1} {value})
+			(f-call 'vector 'get_element {args, 1} {_, value})
 			(f-call 'string 'append {first, value} {value})
 		(else)
 			(f-call 'string 'cat {args} {value})
@@ -79,7 +79,7 @@
 
 	(assign {*iter} {elem})
 	(errorif (cat {elem->obj_vtable != @} (f-path 'class 'vector)) 'error4)
-	(d-call 'vector 'get_length {elem} {length})
+	(d-call 'vector 'get_length {elem} {_, length})
 	(f-call 'vector 'append {pdata->pdata_value, elem, 0, length})
 
 	(f-exit 'vector 'callback '(1))
@@ -87,7 +87,7 @@
 
 (errorcases
 (vp-label 'error4)
-	(f-call 'ref 'deref {pdata->pdata_value})
+	(f-call 'ref 'deref {pdata->pdata_value} '(_))
 	(f-call 'lisp 'repl_error {pdata->pdata_this, "(cat seq ...) not all lists", pdata->pdata_args} {_, pdata->pdata_value})
 	(f-exit 'vector 'callback '(0))
 	(return))

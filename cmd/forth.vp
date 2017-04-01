@@ -29,7 +29,7 @@
 			;priority to stack input
 			;this allows forth to push include files on this input stack
 			(loop-start)
-				(d-call 'vector 'get_length {vector} {length})
+				(d-call 'vector 'get_length {vector} {_, length})
 				(breakifnot {length})
 				(f-call 'vector 'ref_back {vector} {stream})
 				(f-call 'vector 'pop_back {vector})
@@ -38,7 +38,7 @@
 					(breakif {length == -1})
 					(l-call 'input {slave, &buffer, length} '(r0 r1 r2))
 				(loop-end)
-				(f-call 'stream 'deref {stream})
+				(f-call 'stream 'deref {stream} '(_))
 			(loop-end)
 
 			;read stdin, exit if EOF
@@ -48,8 +48,8 @@
 		(loop-end)
 
 		;clean up
-		(f-call 'vector 'deref {vector})
-		(f-call 'slave 'deref {slave})
+		(f-call 'vector 'deref {vector} '(_))
+		(f-call 'slave 'deref {slave} '(_))
 	(endif)
 	(pop-scope)
 	(return)

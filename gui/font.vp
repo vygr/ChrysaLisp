@@ -220,7 +220,7 @@
 	(f-bind 'gui_font 'statics r5)
 
 	;string hash to bucket
-	(v-call 'string 'hash '(r1) '(r0))
+	(v-call 'string 'hash '(r1) '(_ r0))
 	(vp-cpy-cr ft_num_buckets r1)
 	(vp-xor-rr r2 r2)
 	(vp-div-rrr r1 r2 r0)

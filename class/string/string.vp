@@ -21,7 +21,7 @@
 	(f-call 'string 'new '((& r0 (add string_size byte_size))) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'string 'init `(r0 (@ ,(f-path 'class 'string)) 0 r6) '(r1))
+		(f-call 'string 'init `(r0 (@ ,(f-path 'class 'string)) 0 r6) '(_ r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
@@ -49,7 +49,7 @@
 	(f-call 'string 'new '((& r1 (add string_size byte_size))) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'string 'init `(r0 (@ ,(f-path 'class 'string)) r6 r7) '(r1))
+		(f-call 'string 'init `(r0 (@ ,(f-path 'class 'string)) r6 r7) '(_ r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
@@ -108,7 +108,7 @@
 	(f-call 'string 'new '((& r1 (add string_size byte_size))) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'string 'init2 `(r0 (@ ,(f-path 'class 'string)) r6 (r7 stat_fsize)) '(r1))
+		(f-call 'string 'init2 `(r0 (@ ,(f-path 'class 'string)) r6 (r7 stat_fsize)) '(_ r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
@@ -172,7 +172,7 @@
 	(assign '(r2 r3) '((r4 local_data) (r4 local_length)))
 
 	;init parent
-	(s-call 'string 'init '(r0 r1) '(r1))
+	(s-call 'string 'init '(r0 r1) '(_ r1))
 	(vpif '(r1 != 0))
 		(vp-cpy-ri r0 r4 local_inst)
 		(vp-xor-rr r1 r1)
@@ -219,7 +219,7 @@
 	(assign '(r2 r3) '((r4 local_string1) (r4 local_string2)))
 
 	;init parent
-	(s-call 'string 'init '(r0 r1) '(r1))
+	(s-call 'string 'init '(r0 r1) '(_ r1))
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-cpy-ri r0 r4 local_inst)
@@ -264,7 +264,7 @@
 	(assign '(r2 r3) '((r4 local_filename) (r0 string_length i)))
 
 	;init parent
-	(s-call 'string 'init '(r0 r1) '(r1))
+	(s-call 'string 'init '(r0 r1) '(_ r1))
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-cpy-ri r0 r4 local_inst)
@@ -320,7 +320,7 @@
 	(assign '(r2) '((r4 local_vector)))
 
 	;init parent
-	(s-call 'string 'init '(r0 r1) '(r1))
+	(s-call 'string 'init '(r0 r1) '(_ r1))
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-cpy-ri r0 r4 local_inst)
@@ -381,7 +381,7 @@
 	(f-call 'string 'new '(r0) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'string 'init1 `(r0 (@ ,(f-path 'class 'string)) r6 r7) '(r1))
+		(f-call 'string 'init1 `(r0 (@ ,(f-path 'class 'string)) r6 r7) '(_ r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
@@ -418,7 +418,7 @@
 	(f-call 'string 'new '(r0) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'string 'init3 `(r0 (@ ,(f-path 'class 'string)) r6) '(r1))
+		(f-call 'string 'init3 `(r0 (@ ,(f-path 'class 'string)) r6) '(_ r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
@@ -607,7 +607,7 @@
 	;create string split
 	(f-call 'stream 'create {0, 0, &inst->string_data, inst->string_length} {stream})
 	(f-call 'stream 'split {stream, char} {splits})
-	(f-call 'stream 'deref {stream})
+	(f-call 'stream 'deref {stream} '(_))
 
 	(assign {inst, splits} '(r0 r1))
 	(pop-scope)

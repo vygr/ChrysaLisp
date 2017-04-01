@@ -21,17 +21,17 @@
 	(push-scope)
 	(f-entry 'lisp 'func_while {this, args})
 
-	(d-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 1} 'error)
 	(f-call 'sys_task 'yield)
 	(loop-start)
-		(f-call 'vector 'get_element {args, 0} {value})
+		(f-call 'vector 'get_element {args, 0} {_, value})
 		(f-call 'lisp 'repl_eval {this, value} {_, value})
 		(breakif (cat {value->obj_vtable == @} (f-path 'class 'error)))
 		(breakif {value == this->lisp_sym_nil})
 		(f-call 'vector 'for_each {args, 1, length, $callback, &this} {_})
 		(breakif (cat {value->obj_vtable == @} (f-path 'class 'error)))
-		(f-call 'ref 'deref {value})
+		(f-call 'ref 'deref {value} '(_))
 	(loop-end)
 
 (vp-label 'exit)
@@ -58,7 +58,7 @@
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
 
-	(f-call 'ref 'deref {pdata->pdata_value})
+	(f-call 'ref 'deref {pdata->pdata_value} '(_))
 	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_,pdata->pdata_value})
 
 	(errorassign (cat {pdata->pdata_value->obj_vtable != @} (f-path 'class 'error)) '(r1))

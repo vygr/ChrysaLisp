@@ -19,9 +19,9 @@
 	(push-scope)
 	(f-entry 'lisp 'func_div {this, args})
 
-	(d-call 'vector 'get_length {args} {length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
-	(f-call 'vector 'get_element {args, 0} {value})
+	(f-call 'vector 'get_element {args, 0} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 	(f-call 'boxed_long 'get_value {value} {accum})
 	(f-call 'vector 'for_each {args, 1, length, $callback, &accum} {iter})
