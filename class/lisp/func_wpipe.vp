@@ -31,7 +31,7 @@
 		(f-call 'master 'get_input {pipe} {_, stream})
 		(f-call 'stream 'write {stream, &value->string_data, value->string_length})
 		(v-call 'stream 'write_flush {stream})
-		(f-call 'ref 'ref {value} '(_))
+		(f-call 'ref 'ref {value})
 	(else)
 		(errorif {value != this->lisp_sym_nil} 'error4)
 		;flush input
@@ -41,7 +41,7 @@
 		(f-call 'stream_msg_out 'set_state {stream, stream_mail_state_stopping})
 		(v-call 'stream 'write_next {stream})
 		(v-call 'stream 'write_flush {stream})
-		(f-call 'ref 'ref {value} '(_))
+		(f-call 'ref 'ref {value})
 	(endif)
 
 (vp-label 'exit)

@@ -118,7 +118,7 @@
 	(vp-add-rr r12 r11)
 
 	;clear tx channel
-	(f-call 'sys_mem 'clear '(r10 lk_chan_size) '(_))
+	(f-call 'sys_mem 'clear '(r10 lk_chan_size))
 
 	;read and write messages through the shared buffer in r12
 	(vp-xor-rr r9 r9)

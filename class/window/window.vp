@@ -47,10 +47,10 @@
 		(f-call 'button 'set_color {this->window_close, 0xffd0d0d0})
 		(v-call 'flow 'add_child {title_flow, this->window_close})
 		(f-call 'string 'create_from_cstr {"X"} {string})
-		(f-call 'button 'set_text {this->window_close, string} '(_))
-		(v-call 'button 'pref_size {this->window_close} {min_width, _})
+		(f-call 'button 'set_text {this->window_close, string})
+		(v-call 'button 'pref_size {this->window_close} {_, min_width, _})
 		(vpifnot {flags & window_flag_close})
-			(f-call 'button 'deref {this->window_close} '(_))
+			(f-call 'button 'deref {this->window_close})
 			(assign {0} {this->window_close})
 		(endif)
 
@@ -60,7 +60,7 @@
 			(f-call 'button 'set_color {this->window_max, 0xffd0d0d0})
 			(v-call 'flow 'add_child {title_flow, this->window_max})
 			(f-call 'string 'create_from_cstr {"+"} {string})
-			(f-call 'button 'set_text {this->window_max, string} '(_))
+			(f-call 'button 'set_text {this->window_max, string})
 			(f-call 'button 'set_min_size {this->window_max, min_width, 0})
 		(endif)
 
@@ -70,7 +70,7 @@
 			(f-call 'button 'set_color {this->window_min, 0xffd0d0d0})
 			(v-call 'flow 'add_child {title_flow, this->window_min})
 			(f-call 'string 'create_from_cstr {"-"} {string})
-			(f-call 'button 'set_text {this->window_min, string} '(_))
+			(f-call 'button 'set_text {this->window_min, string})
 			(f-call 'button 'set_min_size {this->window_min, min_width, 0})
 		(endif)
 
@@ -108,7 +108,7 @@
 	(assign '(r0) {this})
 
 	;dirty my area on parent
-	(f-call 'window 'get_parent {this} {screen})
+	(f-call 'window 'get_parent {this} {_, screen})
 	(f-call 'view 'dirty_all {screen})
 
 	;deinit parent
@@ -240,12 +240,12 @@
 	(f-call 'window 'dirty '(r0))
 
 	;get smallest size
-	(v-call 'window 'pref_size '(r0) '(r10 r11))
+	(v-call 'window 'pref_size '(r0) '(_ r10 r11))
 	(vp-cpy-rr r10 r12)
 	(vp-cpy-rr r11 r13)
 
 	;save old bounds
-	(f-call 'window 'get_bounds '(r0) '((r4 local_old_x i) (r4 local_old_y i) r10 r11))
+	(f-call 'window 'get_bounds '(r0) '(_ (r4 local_old_x i) (r4 local_old_y i) r10 r11))
 
 	;get abolute cords of corners
 	(vp-add-rr r8 r10)
@@ -348,7 +348,7 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0) '((r4 local_inst)))
 
-	(v-call 'flow 'pref_size '((r0 window_flow)) '(r10 r11))
+	(v-call 'flow 'pref_size '((r0 window_flow)) '(_ r10 r11))
 	(vp-add-cr (mul window_border_size 2) r10)
 	(vp-add-cr (mul window_border_size 2) r11)
 
@@ -373,7 +373,7 @@
 
 	(vp-cpy-ir r0 window_status r0)
 	(vpif '(r0 != 0))
-		(f-call 'label 'set_text '(r0 r1) '(_))
+		(f-call 'label 'set_text '(r0 r1))
 		(f-call 'label 'dirty '(r0))
 	(endif)
 
@@ -396,7 +396,7 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0) '((r4 local_inst)))
 
-	(f-call 'title 'set_text '((r0 window_title) r1) '(_))
+	(f-call 'title 'set_text '((r0 window_title) r1))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)

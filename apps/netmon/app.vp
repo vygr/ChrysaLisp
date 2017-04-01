@@ -81,12 +81,12 @@
 	(f-call 'label 'create {} {label})
 	(f-call 'label 'set_color {label, 0xffffffff})
 	(f-call 'string 'create_from_cstr {"Tasks"} {string})
-	(f-call 'label 'set_text {label, string} '(_))
+	(f-call 'label 'set_text {label, string})
 	(v-call 'flow 'add_child {left_panel, label})
 	(f-call 'label 'create {} {label})
 	(f-call 'label 'set_color {label, 0xffffffff})
 	(f-call 'string 'create_from_cstr {"Memory"} {string})
-	(f-call 'label 'set_text {label, string} '(_))
+	(f-call 'label 'set_text {label, string})
 	(v-call 'flow 'add_child {right_panel, label})
 
 	;allocate array for progress bars and trip times
@@ -112,7 +112,7 @@
 	(loop-until {cpu_count == cpu_total})
 
 	;set to pref size
-	(v-call 'window 'pref_size {window} {width, height})
+	(v-call 'window 'pref_size {window} {_, width, height})
 	(f-call 'window 'change {window, 32, 32, width, height})
 
 	;set owner
@@ -129,7 +129,7 @@
 	;open global farm
 	(f-call 'string 'create_from_cstr {"apps/netmon/child"} {string})
 	(f-call 'sys_task 'open_global {string, cpu_total} {task_mailboxes})
-	(f-call 'string 'deref {string} '(_))
+	(f-call 'string 'deref {string})
 
 	;init task mailbox
 	(f-call 'sys_mail 'init_mailbox {&task_mailbox})
@@ -238,7 +238,7 @@
 	(f-call 'sys_mem 'free {task_progress})
 
 	;deref window
-	(f-call 'window 'deref {window} '(_))
+	(f-call 'window 'deref {window})
 	(v-call 'obj 'deinit {&myapp})
 
 	(pop-scope)

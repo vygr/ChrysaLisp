@@ -30,11 +30,11 @@
 		(vp-cpy-ri-i r0 r5 vdu_height)
 		(f-call 'sys_mem 'alloc '((mul vdu_default_width vdu_default_height)) '(r0 r1))
 		(vp-cpy-ri r0 r5 vdu_chars)
-		(f-call 'sys_mem 'fill `(r0 r1 (ascii " ")) '(_))
+		(f-call 'sys_mem 'fill `(r0 r1 (ascii " ")))
 		(f-call 'sys_mem 'alloc '((mul 128 ptr_size)) '((r5 vdu_textures) _))
 
 		(vp-pop r0)
-		(f-call 'vdu 'set_font '(r0 "fonts/Hack-Regular.ttf" 16) '(_))
+		(f-call 'vdu 'set_font '(r0 "fonts/Hack-Regular.ttf" 16))
 		(vp-cpy-cr 1 r1)
 	(endif)
 	(vp-ret)
@@ -171,7 +171,7 @@
 			(assign {txt} {(inst->vdu_textures)[ptr_size * (code - 33)]})
 			(assign {code + 1} {code})
 		(loop-until {code == 127})
-		(f-call 'string 'deref {word} '(_))
+		(f-call 'string 'deref {word})
 	(endif)
 
 	(assign {inst} '(r0))
@@ -203,7 +203,7 @@
 	(vpif {inst->vdu_cursor_y >= inst->vdu_height})
 		(assign {0} {inst->vdu_cursor_x})
 		(assign {inst->vdu_height - 1} {inst->vdu_cursor_y})
-		(f-call 'sys_mem 'copy {inst->vdu_chars + inst->vdu_width, inst->vdu_chars, (inst->vdu_height - 1) * inst->vdu_width} {_, _})
+		(f-call 'sys_mem 'copy {inst->vdu_chars + inst->vdu_width, inst->vdu_chars, (inst->vdu_height - 1) * inst->vdu_width})
 		(f-call 'sys_mem 'fill {inst->vdu_chars + (inst->vdu_height - 1) * inst->vdu_width, inst->vdu_width, 32} {_})
 		(f-call 'vdu 'dirty {inst})
 	(endif)
@@ -216,7 +216,7 @@
 		;tab
 		(assign {4 - (inst->vdu_cursor_x & 3)} {char})
 		(loop-start)
-			(f-call 'vdu 'print_char {inst, 32} '(_))
+			(f-call 'vdu 'print_char {inst, 32})
 			(assign {char - 1} {char})
 		(loop-untilnot {char})
 	(elseif {char == 128})
@@ -262,7 +262,7 @@
 
 	;print chars
 	(loop-while {*charp})
-		(f-call 'vdu 'print_char {inst, *charp} '(_))
+		(f-call 'vdu 'print_char {inst, *charp})
 		(assign {charp + 1} {charp})
 	(loop-end)
 

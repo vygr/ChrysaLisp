@@ -41,7 +41,7 @@
 		(endif)
 
 		;clean up
-		(f-call 'slave 'deref {slave} '(_))
+		(f-call 'slave 'deref {slave})
 	(endif)
 	(pop-scope)
 	(return)
@@ -57,7 +57,7 @@
 	(assign '(r0 r1) {slave, arg})
 
 	(f-call 'string 'create_from_file {&arg->string_data} {file})
-	(f-call 'string 'deref {arg} '(_))
+	(f-call 'string 'deref {arg})
 	(vpif {file})
 		(f-call 'stream_str 'create {file} {stream})
 		(loop-start)
@@ -66,7 +66,7 @@
 			(f-call 'stream 'write_char {slave->slave_stdout, char})
 		(loop-end)
 		(v-call 'stream 'write_flush {slave->slave_stdout})
-		(f-call 'stream 'deref {stream} '(_))
+		(f-call 'stream 'deref {stream})
 		(f-call 'sys_task 'yield)
 	(endif)
 

@@ -150,7 +150,7 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0) '((r4 local_inst)))
 
-	(v-call 'flow 'pref_size '((r0 label_flow)) '(r10 r11))
+	(v-call 'flow 'pref_size '((r0 label_flow)) '(_ r10 r11))
 	(vp-add-cr (mul label_border_size 2) r10)
 	(vp-add-cr (mul label_border_size 2) r11)
 	(vp-cpy-ir r4 local_inst r0)
@@ -190,7 +190,7 @@
 	;all but r0, r4
 
 	(vp-push r0)
-	(f-call 'text 'set_font '((r0 label_text) r1 r2) '(_))
+	(f-call 'text 'set_font '((r0 label_text) r1 r2))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -211,7 +211,7 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0) '((r4 local_inst)))
 
-	(f-call 'text 'set_text '((r0 label_text) r1) '(_))
+	(f-call 'text 'set_text '((r0 label_text) r1))
 
 	(vp-cpy-ir r4 local_inst r0)
 	(v-call 'label 'layout '((r0 label_flow)))

@@ -29,7 +29,7 @@
 	(f-call 'stream_str 'read_line {value, reloc, ld_reloc_size} {length})
 	(vpif {length == -1})
 		(assign {this->lisp_sym_nil} {value})
-		(f-call 'ref 'ref {value} '(_))
+		(f-call 'ref 'ref {value})
 	(else)
 		(f-call 'string 'create_from_buffer {reloc, length} {value})
 	(endif)

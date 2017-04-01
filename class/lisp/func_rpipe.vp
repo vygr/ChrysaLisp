@@ -39,14 +39,14 @@
 		(loop-untilnot {ready})
 		(vpif {char == -1})
 			;EOF
-			(f-call 'master 'stop {pipe} '(_))
+			(f-call 'master 'stop {pipe})
 		(endif)
 		(f-call 'stream_str 'ref_string {str_stream} {value})
-		(f-call 'ref 'deref {str_stream} '(_))
+		(f-call 'ref 'deref {str_stream})
 	(else)
 		;closed
 		(assign {this->lisp_sym_nil} {value})
-		(f-call 'ref 'ref {value} '(_))
+		(f-call 'ref 'ref {value})
 	(endif)
 
 (vp-label 'exit)

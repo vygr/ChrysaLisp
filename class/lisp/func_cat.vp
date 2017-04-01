@@ -87,7 +87,7 @@
 
 (errorcases
 (vp-label 'error4)
-	(f-call 'ref 'deref {pdata->pdata_value} '(_))
+	(f-call 'ref 'deref {pdata->pdata_value})
 	(f-call 'lisp 'repl_error {pdata->pdata_this, "(cat seq ...) not all lists", pdata->pdata_args} {_, pdata->pdata_value})
 	(f-exit 'vector 'callback '(0))
 	(return))

@@ -14,7 +14,7 @@
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-push r0)
-		(f-call 'sys_mem 'clear '((& r0 view_start) (sub view_size view_start)) '(_))
+		(f-call 'sys_mem 'clear '((& r0 view_start) (sub view_size view_start)))
 		(vp-pop r0)
 		(vp-cpy-cr view_flag_solid r1)
 		(vp-cpy-ri-i r1 r0 view_flags)
@@ -43,7 +43,7 @@
 		(vp-sub-cr view_node r0)
 		(vp-push r1)
 		(f-call 'view 'sub '(r0))
-		(f-call 'view 'deref '(r0) '(_))
+		(f-call 'view 'deref '(r0))
 		(vp-pop r1)
 	(loop-end)
 
@@ -362,7 +362,7 @@
 	(vp-sub-cr local_size r4)
 	(vp-cpy-ri r0 r4 local_inst)
 
-	(f-call 'view 'get_bounds '(r0) '(r8 r9 r10 r11))
+	(f-call 'view 'get_bounds '(r0) '(_ r8 r9 r10 r11))
 	(vp-cpy-rr r0 r5)
 	(f-call 'gui_ctx 'panel '(r1 (r5 view_color ui) r2 r3 0 0 r10 r11) '())
 
@@ -718,7 +718,7 @@
 
 (vp-label 'hit_up_callback)
 	(vp-cpy-rr r1 r2)
-	(v-call 'view 'hit '(r0 r8 r9) '(r1))
+	(v-call 'view 'hit '(r0 r8 r9) '(r0 r1))
 	(vpif '(r1 != 0))
 		;early exit back to caller !
 		(vp-cpy-rr r2 r4)

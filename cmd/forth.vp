@@ -38,7 +38,7 @@
 					(breakif {length == -1})
 					(l-call 'input {slave, &buffer, length} '(r0 r1 r2))
 				(loop-end)
-				(f-call 'stream 'deref {stream} '(_))
+				(f-call 'stream 'deref {stream})
 			(loop-end)
 
 			;read stdin, exit if EOF
@@ -48,8 +48,8 @@
 		(loop-end)
 
 		;clean up
-		(f-call 'vector 'deref {vector} '(_))
-		(f-call 'slave 'deref {slave} '(_))
+		(f-call 'vector 'deref {vector})
+		(f-call 'slave 'deref {slave})
 	(endif)
 	(pop-scope)
 	(return)

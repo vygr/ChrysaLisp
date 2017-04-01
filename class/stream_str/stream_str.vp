@@ -38,7 +38,7 @@
 	(vp-lea-i r0 string_data r2)
 	(vp-sub-rr r2 r1)
 	(vp-cpy-ri-i r1 r0 string_length)
-	(f-call 'string 'ref '(r0) '(_))
+	(f-call 'string 'ref '(r0))
 	(vp-cpy-rr r0 r1)
 	(vp-pop r0)
 	(vp-ret)
@@ -64,7 +64,7 @@
 	(f-call 'sys_mem 'copy {inst->stream_object, new_str, length} {_, inst->stream_bufp})
 	(assign {new_str + new_length - 1} {inst->stream_bufe})
 	(assign {1} {new_str->ref_count})
-	(f-call 'string 'deref {inst->stream_object} '(_))
+	(f-call 'string 'deref {inst->stream_object})
 	(assign {new_str} {inst->stream_object})
 
 	(assign {inst} '(r0))

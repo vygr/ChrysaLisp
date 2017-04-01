@@ -21,7 +21,7 @@
 	(loop-start)
 		(f-call 'unordered_map 'find {env, symbol} {iter, bucket})
 		(breakif {iter})
-		(f-call 'unordered_map 'get_parent {env} {iter})
+		(f-call 'unordered_map 'get_parent {env} {_, iter})
 		(breakifnot {iter})
 		(assign {iter} {env})
 	(loop-end)

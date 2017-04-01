@@ -36,7 +36,7 @@
 		(f-call 'string 'create_from_cstr '((r1 error_file)) '(r0))
 		(vp-cpy-ir r4 local_inst r1)
 		(vp-cpy-ri r0 r1 error_file)
-		(f-call 'ref 'ref '((r1 error_object)) '(_))
+		(f-call 'ref 'ref '((r1 error_object)))
 		(vp-cpy-ir r4 local_inst r0)
 	(endif)
 
@@ -52,11 +52,11 @@
 	;all but r0, r4
 
 	(vp-push r0)
-	(f-call 'ref 'deref '((r0 error_description)) '(_))
+	(f-call 'ref 'deref '((r0 error_description)))
 	(vp-cpy-ir r4 0 r0)
-	(f-call 'ref 'deref '((r0 error_file)) '(_))
+	(f-call 'ref 'deref '((r0 error_file)))
 	(vp-cpy-ir r4 0 r0)
-	(f-call 'ref 'deref '((r0 error_object)) '(_))
+	(f-call 'ref 'deref '((r0 error_object)))
 	(vp-pop r0)
 	(s-jmp 'error 'deinit '(r0))
 

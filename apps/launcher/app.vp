@@ -36,7 +36,7 @@
 		(f-call 'button 'create {} {button})
 		(f-call 'button 'set_color {button, 0xffffff00})
 		(f-call 'string 'create_from_cstr {next} {string})
-		(f-call 'button 'set_text {button, string} '(_))
+		(f-call 'button 'set_text {button, string})
 		(v-call 'flow 'add_child {panel, button})
 		(f-call 'button 'sig_pressed {button} {_, pressed})
 		(f-call 'button 'connect {button, pressed, &myapp, $on_press})
@@ -46,7 +46,7 @@
 	(loop-end)
 
 	;set to pref size
-	(v-call 'window 'pref_size {window} {width, height})
+	(v-call 'window 'pref_size {window} {_, width, height})
 	(f-call 'window 'change {window, 400, 256, width + 40, height})
 
 	;set window owner
@@ -69,7 +69,7 @@
 	(loop-end)
 
 	;deref window
-	(f-call 'window 'deref {window} '(_))
+	(f-call 'window 'deref {window})
 	(v-call 'obj 'deinit {&myapp})
 	(pop-scope)
 	(return)
@@ -84,7 +84,7 @@
 	(push-scope)
 	(assign '(r0 r1) {inst, button})
 	(f-call 'button 'get_text {button} {_, string})
-	(f-call 'sys_task 'open {string} {_, _})
+	(f-call 'sys_task 'open {string})
 	(pop-scope)
 	(return)
 

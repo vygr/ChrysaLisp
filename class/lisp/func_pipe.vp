@@ -25,7 +25,7 @@
 	(f-call 'obj 'inst_of (cat {pipe, @} (f-path 'class 'string)) {_, value})
 	(errorifnot {value} 'error2)
 	(f-call 'master 'create {} {value})
-	(f-call 'master 'start {value, &pipe->string_data, pipe->string_length} '(_))
+	(f-call 'master 'start {value, &pipe->string_data, pipe->string_length})
 	(f-call 'master 'get_state {value} {_, state})
 	(errorif {state != stream_mail_state_started} 'error3)
 
@@ -41,7 +41,7 @@
 	(assign {"(pipe cmd) not string"} {value})
 	(goto 'error)
 (vp-label 'error3)
-	(f-call 'ref 'deref {value} '(_))
+	(f-call 'ref 'deref {value})
 	(assign {"(pipe cmd) error creating pipe"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {_, value})

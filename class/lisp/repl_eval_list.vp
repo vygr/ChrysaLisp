@@ -23,7 +23,7 @@
 	(vpif {iter})
 		(assign {*iter} {list})
 	(endif)
-	(f-call 'ref 'ref {list} '(_))
+	(f-call 'ref 'ref {list})
 
 	(f-exit 'lisp 'repl_eval_list {this, list})
 	(pop-scope)
@@ -43,7 +43,7 @@
 	(f-entry 'vector 'callback {pdata, iter})
 
 	(f-call 'lisp 'repl_eval {pdata, *iter} {_, pdata})
-	(f-call 'ref 'deref {*iter} '(_))
+	(f-call 'ref 'deref {*iter})
 	(assign {pdata} {*iter})
 
 	(errorassign (cat {pdata->obj_vtable != @} (f-path 'class 'error)) '(r1))

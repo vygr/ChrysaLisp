@@ -25,7 +25,7 @@
 	(f-call 'string 'create_from_file {&name->string_data} {value})
 	(vpifnot {value})
 		(assign {this->lisp_sym_nil} {value})
-		(f-call 'ref 'ref {value} '(_))
+		(f-call 'ref 'ref {value})
 	(endif)
 
 (vp-label 'exit)

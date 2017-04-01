@@ -23,11 +23,11 @@
 	(errorif (cat {env->obj_vtable != @} (f-path 'class 'unordered_map)) 'error2)
 	(assign {1, 0} {index, val})
 	(loop-start)
-		(f-call 'ref 'deref_if {val} '(_))
+		(f-call 'ref 'deref_if {val})
 		(f-call 'vector 'get_element {args, index} {_, var})
 		(errorif (cat {var->obj_vtable != @} (f-path 'class 'symbol)) 'error3)
 		(d-call 'vector 'ref_element {args, index + 1} {_, val})
-		(f-call 'unordered_map 'insert {env, var, val} {_, _})
+		(f-call 'unordered_map 'insert {env, var, val})
 		(assign {index + 2} {index})
 	(loop-until {index == length})
 

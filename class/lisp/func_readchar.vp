@@ -25,7 +25,7 @@
 	(f-call 'stream_str 'read_char {value} {length})
 	(vpif {length == -1})
 		(assign {this->lisp_sym_nil} {value})
-		(f-call 'ref 'ref {value} '(_))
+		(f-call 'ref 'ref {value})
 	(else)
 		(f-call 'boxed_long 'create {} {value})
 		(f-call 'boxed_long 'set_value {value, length})

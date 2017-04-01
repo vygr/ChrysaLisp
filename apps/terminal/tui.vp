@@ -58,14 +58,14 @@
 			(l-call 'pipe_output {&shared, stream} '(r0 r1) '(r0) {state})
 			(vpif {state == -1})
 				;EOF
-				(f-call 'master 'stop {shared.shared_master} '(_))
+				(f-call 'master 'stop {shared.shared_master})
 			(endif)
 		(endif)
 		(f-call 'sys_task 'yield)
 	(loop-end)
 
 	;clean up
-	(f-call 'master 'deref {shared.shared_master} '(_))
+	(f-call 'master 'deref {shared.shared_master})
 	(pop-scope)
 	(return)
 
@@ -120,7 +120,7 @@
 		(vpif {state == stream_mail_state_stopped})
 			;start new pipe
 			(breakifnot {length})
-			(f-call 'master 'start {shared->shared_master, &shared->shared_buffer, length} '(_))
+			(f-call 'master 'start {shared->shared_master, &shared->shared_buffer, length})
 		(else)
 			;feed active pipe
 			(f-call 'master 'get_input {shared->shared_master} {_, stream})

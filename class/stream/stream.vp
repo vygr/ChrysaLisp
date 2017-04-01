@@ -38,7 +38,7 @@
 
 	;deref any buffer object
 	(vp-push r0)
-	(f-call 'ref 'deref_if '((r0 stream_object)) '(_))
+	(f-call 'ref 'deref_if '((r0 stream_object)))
 
 	;free any buffer
 	(vp-cpy-ir r4 0 r0)

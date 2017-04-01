@@ -22,7 +22,7 @@
 	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_element {args, 0} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'string)) 'error2)
-	(f-call 'ref 'ref {value} '(_))
+	(f-call 'ref 'ref {value})
 	(f-call 'stream_str 'create {value} {value})
 
 (vp-label 'exit)

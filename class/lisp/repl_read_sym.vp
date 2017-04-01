@@ -30,7 +30,7 @@
 
 	;intern the symbol
 	(f-call 'stream_str 'ref_string {str_stream} {value})
-	(f-call 'ref 'deref {str_stream} '(_))
+	(f-call 'ref 'deref {str_stream})
 	(f-call 'lisp 'sym_intern {this, value} {_, value})
 
 	(f-exit 'lisp 'repl_read_sym {this, value, char})

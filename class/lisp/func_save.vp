@@ -33,7 +33,7 @@
 	(sys-write-string {handle, &obj->string_data, obj->string_length} {_})
 	(f-call 'sys_io 'close {handle})
 	(assign {obj} {value})
-	(f-call 'ref 'ref {value} '(_))
+	(f-call 'ref 'ref {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_save {this, value})

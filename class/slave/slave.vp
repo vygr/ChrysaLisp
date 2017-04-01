@@ -39,7 +39,7 @@
 			;create args
 			(f-call 'stream 'create {0, 0, &msg->slave_mail_init_args, msg->msg_length - slave_mail_init_size} {stream})
 			(f-call 'stream 'split {stream, char_space} {inst->slave_args})
-			(f-call 'stream 'deref {stream} '(_))
+			(f-call 'stream 'deref {stream})
 
 			;send back ack
 			(assign {msg->slave_mail_init_ack_id.id_mbox} {msg->msg_dest.id_mbox})
@@ -93,12 +93,12 @@
 	(v-call 'stream_msg_out 'write_flush {inst->slave_stderr})
 
 	;free stdin, stdout and stderr
-	(f-call 'stream_msg_in 'deref {inst->slave_stdin} '(_))
-	(f-call 'stream_msg_out 'deref {inst->slave_stdout} '(_))
-	(f-call 'stream_msg_out 'deref {inst->slave_stderr} '(_))
+	(f-call 'stream_msg_in 'deref {inst->slave_stdin})
+	(f-call 'stream_msg_out 'deref {inst->slave_stdout})
+	(f-call 'stream_msg_out 'deref {inst->slave_stderr})
 
 	;free args
-	(f-call 'vector 'deref {inst->slave_args} '(_))
+	(f-call 'vector 'deref {inst->slave_args})
 
 	;deinit parent
 	(assign {inst} '(r0))

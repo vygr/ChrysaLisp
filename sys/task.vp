@@ -166,7 +166,7 @@
 		(assign {cpu} {msg->kn_msg_reply_id.id_cpu})
 		(assign {kn_call_task_child} {msg->kn_msg_function})
 		(assign {&ids[index * id_size]} {msg->kn_msg_user})
-		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1} {_, _})
+		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1})
 		(f-call 'sys_mail 'send {msg})
 		(assign {index + 1} {index})
 	(loop-end)
@@ -229,7 +229,7 @@
 	(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
 	(f-call 'sys_cpu 'id {} {msg->kn_msg_reply_id.id_cpu})
 	(assign {kn_call_task_open} {msg->kn_msg_function})
-	(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_open_pathname, name->string_length + 1} {_, _})
+	(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_open_pathname, name->string_length + 1})
 	(f-call 'sys_mail 'send {msg})
 
 	;wait for reply
@@ -280,7 +280,7 @@
 		(assign {cpu} {msg->kn_msg_reply_id.id_cpu})
 		(assign {kn_call_task_child} {msg->kn_msg_function})
 		(assign {&ids[index * id_size]} {msg->kn_msg_user})
-		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1} {_, _})
+		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1})
 		(f-call 'sys_mail 'send {msg})
 		(assign {index + 1} {index})
 	(loop-end)
@@ -335,7 +335,7 @@
 		(f-call 'sys_cpu 'id {} {msg->kn_msg_reply_id.id_cpu})
 		(assign {kn_call_task_open} {msg->kn_msg_function})
 		(assign {&ids[index * id_size]} {msg->kn_msg_user})
-		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_open_pathname, name->string_length + 1} {_, _})
+		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_open_pathname, name->string_length + 1})
 		(f-call 'sys_mail 'send {msg})
 		(assign {index + 1} {index})
 	(loop-end)
@@ -391,7 +391,7 @@
 		(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
 		(f-call 'sys_cpu 'id {} {msg->kn_msg_reply_id.id_cpu})
 		(assign {kn_call_task_child} {msg->kn_msg_function})
-		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1} {_, _})
+		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1})
 
 		;send mail to kernel, wait for reply
 		(f-call 'sys_mail 'send {msg})
@@ -443,7 +443,7 @@
 	(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
 	(f-call 'sys_cpu 'id {} {msg->kn_msg_reply_id.id_cpu})
 	(assign {kn_call_task_child} {msg->kn_msg_function})
-	(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1} {_, _})
+	(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1})
 	(f-call 'sys_mail 'send {msg})
 
 	;wait for reply

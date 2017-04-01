@@ -31,7 +31,7 @@
 	(f-call 'stream 'read_char {stream} {char})
 
 	(f-call 'stream_str 'ref_string {str_stream} {value})
-	(f-call 'ref 'deref {str_stream} '(_))
+	(f-call 'ref 'deref {str_stream})
 
 	(f-exit 'lisp 'repl_read_group {this, value, char})
 	(pop-scope)

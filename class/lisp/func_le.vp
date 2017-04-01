@@ -34,7 +34,7 @@
 	(errorif (cat {first->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 	(f-call 'boxed_long 'get_value {first} {num})
 	(assign {this->lisp_sym_t} {value})
-	(f-call 'ref 'ref {value} '(_))
+	(f-call 'ref 'ref {value})
 	(f-call 'vector 'for_each {args, 1, length, $callback, &this} {_})
 
 (vp-label 'exit)
@@ -73,16 +73,16 @@
 		(assign {num} {pdata->pdata_num})
 		(f-exit 'vector 'callback '(1))
 	(else)
-		(f-call 'ref 'deref {pdata->pdata_value} '(_))
+		(f-call 'ref 'deref {pdata->pdata_value})
 		(assign {pdata->pdata_this->lisp_sym_nil} {pdata->pdata_value})
-		(f-call 'ref 'ref {pdata->pdata_value} '(_))
+		(f-call 'ref 'ref {pdata->pdata_value})
 		(f-exit 'vector 'callback '(0))
 	(endif)
 	(return)
 
 (errorcases
 (vp-label 'error3)
-	(f-call 'ref 'deref {pdata->pdata_value} '(_))
+	(f-call 'ref 'deref {pdata->pdata_value})
 	(f-call 'lisp 'repl_error {pdata->pdata_this, "(le num num ...) not all numbers", *iter} {_, pdata->pdata_value})
 	(f-exit 'vector 'callback '(0))
 	(return))

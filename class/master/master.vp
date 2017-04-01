@@ -45,7 +45,7 @@
 	;all but r0, r4
 
 	;call stop
-	(f-call 'master 'stop '(r0) '(_))
+	(f-call 'master 'stop '(r0))
 
 	;deinit parent
 	(s-jmp 'master 'deinit '(r0))
@@ -133,7 +133,7 @@
 		;split pipe into separate commands and args
 		(f-call 'stream 'create {0, 0, buffer, length} {stream})
 		(f-call 'stream 'split {stream, pipe_char} {args})
-		(f-call 'stream 'deref {stream} '(_))
+		(f-call 'stream 'deref {stream})
 		(d-call 'vector 'get_length {args} {_, length})
 		(vpif {length != 0})
 			;create command pipeline
@@ -150,15 +150,15 @@
 				(f-call 'string 'create_from_buffer {start, stream->stream_bufp - start} {string})
 				(f-call 'string 'append {prefix, string} {cmd})
 				(f-call 'vector 'push_back {commands, cmd})
-				(f-call 'string 'deref {string} '(_))
-				(f-call 'stream 'deref {stream} '(_))
+				(f-call 'string 'deref {string})
+				(f-call 'stream 'deref {stream})
 				(assign {index + 1} {index})
 			(loop-end)
-			(f-call 'string 'deref {prefix} '(_))
+			(f-call 'string 'deref {prefix})
 
 			;open command pipeline
 			(f-call 'sys_task 'open_pipe {commands} {ids})
-			(f-call 'vector 'deref {commands} '(_))
+			(f-call 'vector 'deref {commands})
 
 			;count how many started
 			(assign {0, 0} {started, index})
@@ -195,7 +195,7 @@
 					(assign {index - 1} {index})
 					(assign {(args->vector_array)[index * ptr_size]} {string})
 					(f-call 'sys_mail 'alloc_parcel {slave_mail_init_size + string->string_length} {msg})
-					(f-call 'sys_mem 'copy {&string->string_data, &msg->slave_mail_init_args, string->string_length} {_, _})
+					(f-call 'sys_mem 'copy {&string->string_data, &msg->slave_mail_init_args, string->string_length})
 					(assign {nextid.id_mbox} {msg->slave_mail_init_stdout_id.id_mbox})
 					(assign {nextid.id_cpu} {msg->slave_mail_init_stdout_id.id_cpu})
 					(assign {&(this->master_mailbox_array)[(index + 1) * mailbox_size]} {msg->slave_mail_init_stderr_id.id_mbox})
@@ -215,7 +215,7 @@
 
 				;create input stream, free the unused space keeper stream
 				(assign {*this->master_streams->vector_array} {stream})
-				(f-call 'stream_msg_in 'deref {stream} '(_))
+				(f-call 'stream_msg_in 'deref {stream})
 				(f-call 'stream_msg_out 'create {nextid.id_mbox, nextid.id_cpu} {stream})
 				(assign {stream} {*this->master_streams->vector_array})
 
@@ -238,7 +238,7 @@
 		(endif)
 
 		;free args
-		(f-call 'vector 'deref {args} '(_))
+		(f-call 'vector 'deref {args})
 	(endif)
 
 	(f-exit 'master 'start {this})
@@ -286,7 +286,7 @@
 		(loop-end)
 
 		;free streams, select and mailbox array
-		(f-call 'vector 'deref {this->master_streams} '(_))
+		(f-call 'vector 'deref {this->master_streams})
 		(f-call 'sys_mem 'free {this->master_select_array})
 		(f-call 'sys_mem 'free {this->master_mailbox_array})
 

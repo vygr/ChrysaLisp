@@ -29,7 +29,7 @@
 	(loop-while {char != -1 && char != char_rrb})
 		(f-call 'lisp 'repl_read {this, stream, char} {_, ast, char})
 		(vpif (cat {ast->obj_vtable == @} (f-path 'class 'error)))
-			(f-call 'ref 'deref {list} '(_))
+			(f-call 'ref 'deref {list})
 			(assign {ast} {list})
 			(goto 'error)
 		(endif)

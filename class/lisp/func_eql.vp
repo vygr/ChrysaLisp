@@ -39,7 +39,7 @@
 	(vp-label 'same)
 		(assign {this->lisp_sym_t} {value})
 	(endswitch)
-	(f-call 'ref 'ref {value} '(_))
+	(f-call 'ref 'ref {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_eql {this, value})

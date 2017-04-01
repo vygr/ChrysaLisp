@@ -31,7 +31,7 @@
 	(errorif {index < 0 || index >= length} 'error4)
 	(d-call 'vector 'ref_element {args, 2} {_, value})
 	(f-call 'vector 'set_element {seq, value, index})
-	(f-call 'ref 'ref {value} '(_))
+	(f-call 'ref 'ref {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_elemset {this, value})

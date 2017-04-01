@@ -36,7 +36,7 @@
 		(f-call 'stream 'read_char {stream} {char})
 	(loop-end)
 	(f-call 'stream_str 'ref_string {str_stream} {string})
-	(f-call 'ref 'deref {str_stream} '(_))
+	(f-call 'ref 'deref {str_stream})
 
 	;pick base
 	(assign {&string->string_data} {buffer})
@@ -58,7 +58,7 @@
 		(assign {-val} {val})
 	(endif)
 	(f-call 'boxed_long 'set_value {num, val})
-	(f-call 'ref 'deref {string} '(_))
+	(f-call 'ref 'deref {string})
 
 	(f-exit 'lisp 'repl_read_num {this, num, char})
 	(pop-scope)

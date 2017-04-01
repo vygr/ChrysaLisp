@@ -21,7 +21,7 @@
 		(vp-cpy-ri r1 r0 button_state)
 		(vp-lea-i r0 button_pressed_signal r1)
 		(lh-init r1 r2)
-		(f-call 'button 'set_flow_flags '(r0 (bit-or flow_flag_down flow_flag_align_hcenter)) '(_))
+		(f-call 'button 'set_flow_flags '(r0 (bit-or flow_flag_down flow_flag_align_hcenter)))
 	(endif)
 	(vp-ret)
 
@@ -100,7 +100,7 @@
 	;trashes
 	;all but r0, r4
 
-	(s-call 'button 'pref_size '(r0) '(r10 r11))
+	(s-call 'button 'pref_size '(r0) '(_ r10 r11))
 	(vp-add-cr (mul button_border_size 2) r10)
 	(vp-add-cr (mul button_border_size 2) r11)
 	(vp-ret)
@@ -158,7 +158,7 @@
 	;all but r0, r4
 
 	;hit ?
-	(v-call 'button 'hit '(r0 (r1 ev_msg_rx i) (r1 ev_msg_ry i)) '(r1))
+	(v-call 'button 'hit '(r0 (r1 ev_msg_rx i) (r1 ev_msg_ry i)) '(r0 r1))
 
 	;is mouse over button ?
 	(vp-cpy-ir r0 button_state r2)

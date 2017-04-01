@@ -27,7 +27,7 @@
 	(else)
 		(assign {this->lisp_sym_nil} {value})
 	(endif)
-	(f-call 'ref 'ref {value} '(_))
+	(f-call 'ref 'ref {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_valued {this, value})

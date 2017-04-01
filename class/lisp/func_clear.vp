@@ -22,7 +22,7 @@
 	(f-entry 'lisp 'func_clear {this, args})
 
 	(assign {this->lisp_sym_nil} {value})
-	(f-call 'ref 'ref {value} '(_))
+	(f-call 'ref 'ref {value})
 	(d-call 'vector 'get_length {args} {_, length})
 	(f-call 'vector 'for_each {args, 0, length, $callback, &this} {_})
 
@@ -43,11 +43,11 @@
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
 
-	(f-call 'ref 'deref {pdata->pdata_value} '(_))
+	(f-call 'ref 'deref {pdata->pdata_value})
 	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'vector)) 'error)
 	(assign {*iter} {pdata->pdata_value})
 	(f-call 'vector 'clear {pdata->pdata_value})
-	(f-call 'ref 'ref {pdata->pdata_value} '(_))
+	(f-call 'ref 'ref {pdata->pdata_value})
 
 	(f-exit 'vector 'callback '(1))
 	(return)

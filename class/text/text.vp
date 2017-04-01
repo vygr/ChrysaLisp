@@ -48,9 +48,9 @@
 	;deref any string and words objects
 	(vp-cpy-ir r0 text_string r0)
 	(vpif '(r0 != 0))
-		(f-call 'string 'deref '(r0) '(_))
+		(f-call 'string 'deref '(r0))
 		(vp-cpy-ir r4 0 r0)
-		(f-call 'vector 'deref '((r0 text_words)) '(_))
+		(f-call 'vector 'deref '((r0 text_words)))
 	(endif)
 
 	;deinit parent
@@ -129,7 +129,7 @@
 
 	;reference the string
 	(vp-cpy-ir r0 text_string r0)
-	(f-call 'string 'ref_if '(r0) '(_))
+	(f-call 'string 'ref_if '(r0))
 	(vp-cpy-rr r0 r1)
 
 	(vp-cpy-ir r4 local_inst r0)
@@ -222,12 +222,12 @@
 	;deref the old string and words
 	(vp-cpy-ir r0 text_string r0)
 	(vpif '(r0 != 0))
-		(f-call 'string 'deref '(r0) '(_))
+		(f-call 'string 'deref '(r0))
 		(vp-cpy-ir r4 local_inst r0)
 		(vp-cpy-ir r0 text_words r1)
 		(vp-xor-rr r2 r2)
 		(vp-cpy-ri r2 r0 text_words)
-		(f-call 'string 'deref '(r1) '(_))
+		(f-call 'string 'deref '(r1))
 	(endif)
 
 	;transfer reference to new string

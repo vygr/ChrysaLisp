@@ -22,7 +22,7 @@
 	(f-entry 'lisp 'func_cond {this, args})
 
 	(assign {this->lisp_sym_nil} {value})
-	(f-call 'ref 'ref {value} '(_))
+	(f-call 'ref 'ref {value})
 	(d-call 'vector 'get_length {args} {_, length})
 	(f-call 'vector 'for_each {args, 0, length, $callback, &this} {_})
 
@@ -51,10 +51,10 @@
 	(f-call 'lisp 'repl_eval {pdata->pdata_this, test} {_, test})
 	(errorif (cat {test->obj_vtable == @} (f-path 'class 'error)) 'error)
 	(vpif {test == pdata->pdata_this->lisp_sym_nil})
-		(f-call 'ref 'deref {test} '(_))
+		(f-call 'ref 'deref {test})
 		(f-exit 'vector 'callback '(1))
 	(else)
-		(f-call 'ref 'deref {test} '(_))
+		(f-call 'ref 'deref {test})
 		(f-call 'vector 'for_each {*iter, 1, length, $callback1, pdata} {_})
 		(f-exit 'vector 'callback '(0))
 	(endif)
@@ -69,7 +69,7 @@
 (vp-label 'error3)
 	(f-call 'lisp 'repl_error {pdata->pdata_this, test, *iter} {_, test})
 (vp-label 'error)
-	(f-call 'ref 'deref {pdata->pdata_value} '(_))
+	(f-call 'ref 'deref {pdata->pdata_value})
 	(assign {test} {pdata->pdata_value})
 	(f-exit 'vector 'callback '(0))
 	(return))
@@ -89,7 +89,7 @@
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
 
-	(f-call 'ref 'deref {pdata->pdata_value} '(_))
+	(f-call 'ref 'deref {pdata->pdata_value})
 	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_, pdata->pdata_value})
 
 	(errorassign (cat {pdata->pdata_value->obj_vtable != @} (f-path 'class 'error)) '(r1))

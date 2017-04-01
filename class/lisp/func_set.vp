@@ -20,7 +20,7 @@
 	(errorif {length < 2 || (length & 1)} 'error1)
 	(assign {0, 0} {index, val})
 	(loop-start)
-		(f-call 'ref 'deref_if {val} '(_))
+		(f-call 'ref 'deref_if {val})
 		(f-call 'vector 'get_element {args, index} {_, var})
 		(errorif (cat {var->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
 		(f-call 'vector 'get_element {args, index + 1} {_, val})

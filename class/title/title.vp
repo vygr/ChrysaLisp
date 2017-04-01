@@ -104,7 +104,7 @@
 
 	;get new window position
 	(vp-cpy-ir r4 local_inst r0)
-	(f-call 'title 'get_relative '(r0 (r4 local_window) (r0 title_last_x i) (r0 title_last_y i)) '(r8 r9))
+	(f-call 'title 'get_relative '(r0 (r4 local_window) (r0 title_last_x i) (r0 title_last_y i)) '(_ r8 r9))
 	(vp-cpy-ir r4 local_event r1)
 	(vp-cpy-ir-i r1 ev_msg_x r10)
 	(vp-cpy-ir-i r1 ev_msg_y r11)
@@ -144,7 +144,7 @@
 	;trashes
 	;all but r0, r4
 
-	(s-call 'title 'pref_size '(r0) '(r10 r11))
+	(s-call 'title 'pref_size '(r0) '(_ r10 r11))
 	(vp-add-cr (mul title_border_size 2) r10)
 	(vp-add-cr (mul title_border_size 2) r11)
 	(vp-ret)

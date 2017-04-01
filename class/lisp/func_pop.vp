@@ -27,7 +27,7 @@
 		(f-call 'vector 'pop_back {args})
 	(else)
 		(assign {this->lisp_sym_nil} {value})
-		(f-call 'ref 'ref {value} '(_))
+		(f-call 'ref 'ref {value})
 	(endif)
 
 (vp-label 'exit)

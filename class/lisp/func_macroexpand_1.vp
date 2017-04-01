@@ -21,7 +21,7 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error)
 	(f-call 'lisp 'func_copy {this, args} {_, args})
-	(f-call 'lisp 'repl_expand {this, &args, 0} {_, _})
+	(f-call 'lisp 'repl_expand {this, &args, 0})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_macroexpand_1 {this, args})

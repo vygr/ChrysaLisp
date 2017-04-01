@@ -23,7 +23,7 @@
 	(f-call 'vector 'get_element {args, 0} {_, args})
 	(vpif (cat {args->obj_vtable == @} (f-path 'class 'symbol)))
 		(assign {args} {value})
-		(f-call 'ref 'ref {value} '(_))
+		(f-call 'ref 'ref {value})
 	(else)
 		(errorif (cat {args->obj_vtable != @} (f-path 'class 'string)) 'error2)
 		(f-call 'symbol 'create_from_buffer {args->string_data, args->string_length} {value})
