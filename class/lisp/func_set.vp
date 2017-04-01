@@ -24,7 +24,7 @@
 		(f-call 'vector 'get_element {args, index} {var})
 		(errorif (cat {var->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
 		(f-call 'vector 'get_element {args, index + 1} {val})
-		(f-call 'lisp 'env_set {this, var, val} {val})
+		(f-call 'lisp 'env_set {this, var, val} {_, val})
 		(breakif (cat {val->obj_vtable == @} (f-path 'class 'error)))
 		(assign {index + 2} {index})
 	(loop-until {index == length})
@@ -40,7 +40,7 @@
 (vp-label 'error2)
 	(assign {"(set var val ...) not a symbol"} {val})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, val, args} {val})
+	(f-call 'lisp 'repl_error {this, val, args} {_, val})
 	(goto 'exit))
 
 	(pop-scope-syms)

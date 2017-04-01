@@ -41,7 +41,7 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
+	(f-entry 'vector 'callback {pdata, iter})
 
 	(f-call 'ref 'deref {pdata->pdata_value})
 	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'vector)) 'error)
@@ -53,7 +53,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {pdata->pdata_this, "(clear list ...) not a list", *iter} {pdata->pdata_value})
+	(f-call 'lisp 'repl_error {pdata->pdata_this, "(clear list ...) not a list", *iter} {_, pdata->pdata_value})
 	(vp-xor-rr r1 r1)
 	(return))
 

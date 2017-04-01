@@ -44,7 +44,7 @@
 	(f-call 'ref 'deref {value})
 	(assign {"(pipe cmd) error creating pipe"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {value})
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

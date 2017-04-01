@@ -31,7 +31,7 @@
 	;intern the symbol
 	(f-call 'stream_str 'ref_string {str_stream} {value})
 	(f-call 'ref 'deref {str_stream})
-	(f-call 'lisp 'sym_intern {this, value} {value})
+	(f-call 'lisp 'sym_intern {this, value} {_, value})
 
 	(assign {this, value, char} '(r0 r1 r2))
 	(pop-scope)

@@ -31,13 +31,13 @@
 	(errorifnot {old_file} 'error3)
 
 	;push old file and line, set to this stream info
-	(f-call 'lisp 'env_get {this, this->lisp_sym_stream_name} {old_file})
-	(f-call 'lisp 'env_get {this, this->lisp_sym_stream_line} {old_line})
-	(f-call 'lisp 'env_set {this, this->lisp_sym_stream_name, value} {value})
+	(f-call 'lisp 'env_get {this, this->lisp_sym_stream_name} {_, old_file})
+	(f-call 'lisp 'env_get {this, this->lisp_sym_stream_line} {_, old_line})
+	(f-call 'lisp 'env_set {this, this->lisp_sym_stream_name, value} {_, value})
 	(f-call 'ref 'deref {value})
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, 1})
-	(f-call 'lisp 'env_set {this, this->lisp_sym_stream_line, value} {ast})
+	(f-call 'lisp 'env_set {this, this->lisp_sym_stream_line, value} {_, ast})
 	(f-call 'ref 'deref {value})
 	(f-call 'ref 'deref {ast})
 
@@ -46,19 +46,19 @@
 		(v-call 'stream 'write_flush {this->lisp_stdout})
 		(v-call 'stream 'write_flush {this->lisp_stderr})
 
-		(f-call 'lisp 'repl_read {this, stream, char} {ast, char})
+		(f-call 'lisp 'repl_read {this, stream, char} {_, ast, char})
 		(breakif {char == -1})
 
 		(loop-start)
-			(f-call 'lisp 'repl_expand {this, &ast, 0} {cnt})
-;			(f-call 'lisp 'repl_print {this, this->lisp_stdout, ast})
+			(f-call 'lisp 'repl_expand {this, &ast, 0} {_, cnt})
+;			(f-call 'lisp 'repl_print {this, this->lisp_stdout, ast} '(_))
 ;			(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 		(loop-untilnot {cnt})
 
-		(f-call 'lisp 'repl_eval {this, ast} {value})
+		(f-call 'lisp 'repl_eval {this, ast} {_,value})
 		(f-call 'ref 'deref {ast})
 		(vpif {stream == this->lisp_stdin})
-			(f-call 'lisp 'repl_print {this, this->lisp_stdout, value})
+			(f-call 'lisp 'repl_print {this, this->lisp_stdout, value} '(_))
 			(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 		(endif)
 
@@ -67,10 +67,10 @@
 	(loop-end)
 
 	;pop old file and line info
-	(f-call 'lisp 'env_set {this, this->lisp_sym_stream_name, old_file} {value})
+	(f-call 'lisp 'env_set {this, this->lisp_sym_stream_name, old_file} {_, value})
 	(f-call 'ref 'deref {old_file})
 	(f-call 'ref 'deref {value})
-	(f-call 'lisp 'env_set {this, this->lisp_sym_stream_line, old_line} {value})
+	(f-call 'lisp 'env_set {this, this->lisp_sym_stream_line, old_line} {_, value})
 	(f-call 'ref 'deref {old_line})
 	(f-call 'ref 'deref {value})
 
@@ -91,7 +91,7 @@
 (vp-label 'error3)
 	(assign {"(repl stream filename) not string"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {value})
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

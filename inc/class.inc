@@ -105,6 +105,20 @@
 	(method-info (eval (super-name _1)) _2)
 	(elem 1 m))
 
+(defcfun f-entry (_1 _2 _3)
+	;_1 = class name
+	;_2 = slot method name
+	;_3 = in parameters
+	(method-info _1 _2)
+	(assign (elem 3 m) _3))
+
+(defcfun f-exit (_1 _2 _3)
+	;_1 = class name
+	;_2 = slot method name
+	;_3 = out parameters
+	(method-info _1 _2)
+	(assign _3 (elem 4 m)))
+
 ;;;;;;;;;;;;;;;;
 ; method calling
 ;;;;;;;;;;;;;;;;

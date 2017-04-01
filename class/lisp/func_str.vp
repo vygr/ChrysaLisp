@@ -31,7 +31,7 @@
 	(else)
 		(f-call 'string 'create_raw {string_gap} {value})
 		(f-call 'stream_str 'create {value} {stream})
-		(f-call 'lisp 'repl_print {this, stream, args})
+		(f-call 'lisp 'repl_print {this, stream, args} '(_))
 		(f-call 'stream_str 'ref_string {stream} {value})
 		(f-call 'ref 'deref {stream})
 	(endif)
@@ -42,7 +42,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(str arg) wrong number of args", args} {value})
+	(f-call 'lisp 'repl_error {this, "(str arg) wrong number of args", args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

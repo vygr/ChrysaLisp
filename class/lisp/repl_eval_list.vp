@@ -40,9 +40,9 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
+	(f-entry 'vector 'callback {pdata, iter})
 
-	(f-call 'lisp 'repl_eval {pdata, *iter} {pdata})
+	(f-call 'lisp 'repl_eval {pdata, *iter} {_, pdata})
 	(f-call 'ref 'deref {*iter})
 	(assign {pdata} {*iter})
 

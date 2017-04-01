@@ -28,7 +28,7 @@
 	(f-call 'vector 'get_element {args, 1} {args})
 	(f-call 'obj 'inst_of {args, class} {value})
 	(vpif {value})
-		(f-call 'lisp 'sym_intern_cstr {this, value - ubyte(value - 1)} {value})
+		(f-call 'lisp 'sym_intern_cstr {this, value - ubyte(value - 1)} {_, value})
 	(else)
 		(assign {this->lisp_sym_nil} {value})
 		(f-call 'ref 'ref {value})
@@ -45,7 +45,7 @@
 (vp-label 'error1)
 	(assign {"(inst-of class obj) wrong number of args"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {value})
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

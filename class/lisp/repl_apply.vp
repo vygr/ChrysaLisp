@@ -20,7 +20,7 @@
 	(ptr 'this 'value 'func 'ast)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, func, ast})
+	(f-entry 'lisp 'repl_apply {this, func, ast})
 
 	(vpif (cat {func->obj_vtable == @} (f-path 'class 'boxed_ptr)))
 		;built in or compiled function
@@ -42,15 +42,15 @@
 	(errorif {length < 2} 'error1)
 	(f-call 'vector 'get_element {func, 0} {vars})
 	(errorif {vars != this->lisp_sym_lambda} 'error2)
-	(f-call 'lisp 'env_push {this})
+	(f-call 'lisp 'env_push {this} '(_))
 	(f-call 'vector 'get_element {func, 1} {vars})
-	(f-call 'lisp 'env_bind {this, vars, ast, 0} {value})
+	(f-call 'lisp 'env_bind {this, vars, ast, 0} {_,value})
 	(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit1)
 	(f-call 'vector 'for_each {func, 2, length, $callback, &this} {_})
 (vp-label 'exit1)
-	(f-call 'lisp 'env_pop {this})
+	(f-call 'lisp 'env_pop {this} '(_))
 (vp-label 'exit)
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'repl_apply {this, value})
 	(return)
 
 (errorcases
@@ -60,7 +60,7 @@
 (vp-label 'error1)
 	(assign {"(lambda vars body) wrong number of args"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, func} {value})
+	(f-call 'lisp 'repl_error {this, value, func} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
@@ -77,17 +77,18 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
+	(f-entry 'vector 'callback {pdata, iter})
 
 	(f-call 'ref 'deref {pdata->pdata_value})
-	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {pdata->pdata_value})
+	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_,pdata->pdata_value})
 	(errorif (cat {pdata->pdata_value->obj_vtable == @} (f-path 'class 'error)) 'error3)
-	(vp-or-cr -1 r1)
+
+	(f-exit 'vector 'callback '(1))
 	(return)
 
 (errorcases
 (vp-label 'error3)
-	(vp-xor-rr r1 r1)
+	(f-exit 'vector 'callback '(0))
 	(return))
 
 	(pop-scope-syms)

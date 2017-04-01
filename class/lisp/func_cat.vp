@@ -58,7 +58,7 @@
 (vp-label 'error3)
 	(assign {"(cat seq ...) not sequence type"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {value})
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
@@ -75,7 +75,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
+	(f-entry 'vector 'callback {pdata, iter})
 
 	(assign {*iter} {elem})
 	(errorif (cat {elem->obj_vtable != @} (f-path 'class 'vector)) 'error4)
@@ -87,7 +87,7 @@
 (errorcases
 (vp-label 'error4)
 	(f-call 'ref 'deref {pdata->pdata_value})
-	(f-call 'lisp 'repl_error {pdata->pdata_this, "(cat seq ...) not all lists", pdata->pdata_args} {pdata->pdata_value})
+	(f-call 'lisp 'repl_error {pdata->pdata_this, "(cat seq ...) not all lists", pdata->pdata_args} {_, pdata->pdata_value})
 	(vp-xor-rr r1 r1)
 	(return))
 

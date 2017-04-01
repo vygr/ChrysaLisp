@@ -20,7 +20,7 @@
 	(errorif {length != 2} 'error)
 	(f-call 'vector 'get_element {args, 0} {func})
 	(f-call 'vector 'get_element {args, 1} {args})
-	(f-call 'lisp 'repl_apply {this, func, args} {args})
+	(f-call 'lisp 'repl_apply {this, func, args} {_,args})
 
 (vp-label 'exit)
 	(assign {this, args} '(r0 r1))
@@ -28,7 +28,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(apply func args) wrong number of args", args} {args})
+	(f-call 'lisp 'repl_error {this, "(apply func args) wrong number of args", args} {_, args})
 	(goto 'exit))
 
 	(pop-scope-syms)

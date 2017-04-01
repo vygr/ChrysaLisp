@@ -26,7 +26,7 @@
 	(assign {this->lisp_sym_quote} {elem})
 	(f-call 'ref 'ref {elem})
 	(f-call 'vector 'push_back {list, elem})
-	(f-call 'lisp 'repl_read {this, stream, char} {elem, char})
+	(f-call 'lisp 'repl_read {this, stream, char} {_, elem, char})
 	(vpif (cat {elem->obj_vtable != @} (f-path 'class 'error)))
 		(f-call 'vector 'push_back {list, elem})
 	(else)

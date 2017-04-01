@@ -60,7 +60,7 @@
 (vp-label 'error2)
 	(assign {"(pipe-read pipe) not pipe"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {value})
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

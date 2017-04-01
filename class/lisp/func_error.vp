@@ -24,7 +24,7 @@
 	(f-call 'obj 'inst_of (cat {str, @} (f-path 'class 'string)) {value})
 	(errorifnot {value} 'error2)
 	(f-call 'vector 'get_element {args, 1} {value})
-	(f-call 'lisp 'repl_error {this, &str->string_data, value} {value})
+	(f-call 'lisp 'repl_error {this, &str->string_data, value} {_, value})
 
 (vp-label 'exit)
 	(assign {this, value} '(r0 r1))
@@ -37,7 +37,7 @@
 (vp-label 'error2)
 	(assign {"(error desc obj) not a string"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {value})
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

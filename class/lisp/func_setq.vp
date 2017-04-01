@@ -14,7 +14,7 @@
 	(uint 'length 'index)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_setq {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
 	(errorif {length < 2 || (length & 1)} 'error1)
@@ -24,17 +24,17 @@
 		(f-call 'vector 'get_element {args, index} {var})
 		(errorif (cat {var->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
 		(f-call 'vector 'get_element {args, index + 1} {val})
-		(f-call 'lisp 'repl_eval {this, val} {val})
+		(f-call 'lisp 'repl_eval {this, val} {_,val})
 		(breakif (cat {val->obj_vtable == @} (f-path 'class 'error)))
 		(assign {val} {eval})
-		(f-call 'lisp 'env_set {this, var, eval} {val})
+		(f-call 'lisp 'env_set {this, var, eval} {_, val})
 		(f-call 'ref 'deref {eval})
 		(breakif (cat {val->obj_vtable == @} (f-path 'class 'error)))
 		(assign {index + 2} {index})
 	(loop-until {index == length})
 
 (vp-label 'exit)
-	(assign {this, val} '(r0 r1))
+	(f-exit 'lisp 'func_setq {this, val})
 	(return)
 
 (errorcases
@@ -44,7 +44,7 @@
 (vp-label 'error2)
 	(assign {"(setq var val ...) not a symbol"} {val})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, val, args} {val})
+	(f-call 'lisp 'repl_error {this, val, args} {_, val})
 	(goto 'exit))
 
 	(pop-scope-syms)

@@ -16,6 +16,7 @@
 (def-method 'for_each 'class/vector/for_each 'static '(r0 r1 r2 r3 r5) '(r1))
 (def-method 'set_element 'class/vector/set_element 'static '(r0 r1 r2))
 (def-method 'append 'class/vector/append 'static '(r0 r1 r2 r3))
+(def-method 'callback 'class/obj/null 'static '(r0 r1) '(r1))
 
 (def-method 'deinit 'class/vector/deinit 'final)
 (def-method 'get_length 'class/vector/get_length 'final)

@@ -33,7 +33,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(copy form) wrong number of args", args} {args})
+	(f-call 'lisp 'repl_error {this, "(copy form) wrong number of args", args} {_, args})
 	(goto 'exit))
 
 	(pop-scope-syms)
@@ -50,7 +50,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
+	(f-entry 'vector 'callback {pdata, iter})
 
 	(assign {*iter} {pdata})
 	(vpif (cat {pdata->obj_vtable == @} (f-path 'class 'vector)))

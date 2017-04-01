@@ -24,7 +24,7 @@
 	(f-call 'symbol 'append {prefix, args} {value})
 	(f-call 'ref 'deref {prefix})
 	(f-call 'ref 'deref {args})
-	(f-call 'lisp 'sym_intern {this, value} {value})
+	(f-call 'lisp 'sym_intern {this, value} {_, value})
 	(assign {this->lisp_nextsym + 1} {this->lisp_nextsym})
 
 (vp-label 'exit)
@@ -33,7 +33,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(gensym) wrong number of args", args} {value})
+	(f-call 'lisp 'repl_error {this, "(gensym) wrong number of args", args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

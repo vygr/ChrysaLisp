@@ -22,12 +22,12 @@
 
 	;skip "(" and white space
 	(loop-start)
-		(f-call 'lisp 'repl_read_char {this, stream, char} {char})
+		(f-call 'lisp 'repl_read_char {this, stream, char} {_, char})
 	(loop-until {char > char_space || char == -1})
 
 	(f-call 'vector 'create {} {list})
 	(loop-while {char != -1 && char != char_rrb})
-		(f-call 'lisp 'repl_read {this, stream, char} {ast, char})
+		(f-call 'lisp 'repl_read {this, stream, char} {_, ast, char})
 		(vpif (cat {ast->obj_vtable == @} (f-path 'class 'error)))
 			(f-call 'ref 'deref {list})
 			(assign {ast} {list})
@@ -38,7 +38,7 @@
 		;skip white space/comments
 		(loop-start)
 			(loop-while {char <= char_space && char != -1})
-				(f-call 'lisp 'repl_read_char {this, stream, char} {char})
+				(f-call 'lisp 'repl_read_char {this, stream, char} {_, char})
 			(loop-end)
 			(breakif {char != char_semi})
 			(f-call 'stream 'skip_not {stream, char_lf})

@@ -40,7 +40,7 @@
 (vp-label 'error2)
 	(assign {"(div val val ...) not all numbers"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {value})
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
@@ -57,7 +57,7 @@
 	(long 'val)
 
 	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
+	(f-entry 'vector 'callback {pdata, iter})
 
 	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
 	(f-call 'boxed_long 'get_value {*iter} {val})

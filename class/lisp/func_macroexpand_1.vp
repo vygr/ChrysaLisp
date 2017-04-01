@@ -20,8 +20,8 @@
 
 	(d-call 'vector 'get_length {args} {length})
 	(errorif {length != 1} 'error)
-	(f-call 'lisp 'func_copy {this, args} {args})
-	(f-call 'lisp 'repl_expand {this, &args, 0} {_})
+	(f-call 'lisp 'func_copy {this, args} {_, args})
+	(f-call 'lisp 'repl_expand {this, &args, 0} {_, _})
 
 (vp-label 'exit)
 	(assign {this, args} '(r0 r1))
@@ -29,7 +29,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(macroexpand-1 form) wrong number of args", args} {args})
+	(f-call 'lisp 'repl_error {this, "(macroexpand-1 form) wrong number of args", args} {_, args})
 	(goto 'exit))
 
 	(pop-scope-syms)

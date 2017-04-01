@@ -36,19 +36,19 @@
 		(f-call 'vector 'get_element {form, 0} {macro})
 		(breakif {macro == this->lisp_sym_quote})
 		(vpif (cat {macro->obj_vtable == @} (f-path 'class 'symbol)))
-			(f-call 'lisp 'env_find {this, macro} {miter, _})
+			(f-call 'lisp 'env_find {this, macro} {_, miter, _})
 			(gotoifnot {miter} 'decend)
 			(f-call 'pair 'get_second {*miter} {macro})
 			(gotoif (cat {macro->obj_vtable != @} (f-path 'class 'vector)) 'decend)
 			(f-call 'vector 'get_element {macro, 0} {args})
 			(gotoif {args != this->lisp_sym_macro} 'decend)
-			(f-call 'lisp 'env_push {this})
+			(f-call 'lisp 'env_push {this} '(_))
 			(f-call 'vector 'get_element {macro, 1} {args})
-			(f-call 'lisp 'env_bind {this, args, form, 1} {form})
+			(f-call 'lisp 'env_bind {this, args, form, 1} {_,form})
 			(vpif (cat {form->obj_vtable != @} (f-path 'class 'error)))
 				(f-call 'vector 'for_each {macro, 2, macro->vector_length, $callback1, &this} {_})
 			(endif)
-			(f-call 'lisp 'env_pop {this})
+			(f-call 'lisp 'env_pop {this} '(_))
 			(f-call 'ref 'deref {*iter})
 			(assign {form, cnt + 1} {*iter, cnt})
 		(else)
@@ -72,10 +72,10 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
+	(f-entry 'vector 'callback {pdata, iter})
 
 	(f-call 'ref 'deref {pdata->pdata_form})
-	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {pdata->pdata_form})
+	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_,pdata->pdata_form})
 
 	(errorassign (cat {pdata->pdata_form->obj_vtable != @} (f-path 'class 'error)) '(r1))
 	(pop-scope)
@@ -92,9 +92,9 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
+	(f-entry 'vector 'callback {pdata, iter})
 
-	(f-call 'lisp 'repl_expand {pdata->pdata_this, iter, pdata->pdata_cnt} {pdata->pdata_cnt})
+	(f-call 'lisp 'repl_expand {pdata->pdata_this, iter, pdata->pdata_cnt} {_, pdata->pdata_cnt})
 
 	(vp-or-cr -1 r1)
 	(pop-scope)

@@ -23,12 +23,12 @@
 	;skip "["
 	(f-call 'stream 'read_char {stream} {char})
 
-	(f-call 'lisp 'repl_read {this, stream, char} {first, char})
+	(f-call 'lisp 'repl_read {this, stream, char} {_, first, char})
 	(vpif (cat {first->obj_vtable == @} (f-path 'class 'error)))
 		(assign {first} {pair})
 		(goto 'error)
 	(endif)
-	(f-call 'lisp 'repl_read {this, stream, char} {second, char})
+	(f-call 'lisp 'repl_read {this, stream, char} {_, second, char})
 	(vpif (cat {second->obj_vtable == @} (f-path 'class 'error)))
 		(f-call 'ref 'deref {first})
 		(assign {second} {pair})
@@ -37,7 +37,7 @@
 
 	;skip white space
 	(loop-while {char <= char_space && char != -1})
-		(f-call 'lisp 'repl_read_char {this, stream, char} {char})
+		(f-call 'lisp 'repl_read_char {this, stream, char} {_, char})
 	(loop-end)
 
 	(vpif {char == char_rsb})
@@ -46,7 +46,7 @@
 	(else)
 		(f-call 'ref 'deref {second})
 		(f-call 'ref 'deref {first})
-		(f-call 'lisp 'repl_error {this, "expected >", this->lisp_sym_nil} {pair})
+		(f-call 'lisp 'repl_error {this, "expected >", this->lisp_sym_nil} {_, pair})
 	(endif)
 (vp-label 'error)
 	(assign {this, pair, char} '(r0 r1 r2))

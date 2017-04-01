@@ -17,7 +17,7 @@
 	(push-scope)
 	(assign '(r0 r1 r2) {this, symbol, value})
 
-	(f-call 'lisp 'env_find {this, symbol} {iter, _})
+	(f-call 'lisp 'env_find {this, symbol} {_, iter, _})
 	(errorifnot {iter} 'error)
 	(f-call 'ref 'ref {value})
 	(f-call 'ref 'ref {value})
@@ -29,7 +29,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "symbol not bound", symbol} {value})
+	(f-call 'lisp 'repl_error {this, "symbol not bound", symbol} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

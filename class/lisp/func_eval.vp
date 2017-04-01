@@ -19,7 +19,7 @@
 	(d-call 'vector 'get_length {args} {length})
 	(errorif {length != 1} 'error)
 	(f-call 'vector 'get_element {args, 0} {args})
-	(f-call 'lisp 'repl_eval {this, args} {args})
+	(f-call 'lisp 'repl_eval {this, args} {_,args})
 
 (vp-label 'exit)
 	(assign {this, args} '(r0 r1))
@@ -27,7 +27,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(eval form) wrong number of args", args} {args})
+	(f-call 'lisp 'repl_error {this, "(eval form) wrong number of args", args} {_, args})
 	(goto 'exit))
 
 	(pop-scope-syms)

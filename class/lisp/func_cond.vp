@@ -42,13 +42,13 @@
 	(uint 'length)
 
 	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
+	(f-entry 'vector 'callback {pdata, iter})
 
 	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'vector)) 'error1)
 	(d-call 'vector 'get_length {*iter} {length})
 	(errorifnot {length} 'error2)
 	(f-call 'vector 'get_element {*iter, 0} {test})
-	(f-call 'lisp 'repl_eval {pdata->pdata_this, test} {test})
+	(f-call 'lisp 'repl_eval {pdata->pdata_this, test} {_, test})
 	(errorif (cat {test->obj_vtable == @} (f-path 'class 'error)) 'error)
 	(vpif {test == pdata->pdata_this->lisp_sym_nil})
 		(f-call 'ref 'deref {test})
@@ -67,7 +67,7 @@
 (vp-label 'error2)
 	(assign {"(cond (tst form ...) ...) clause wrong number of args"} {test})
 (vp-label 'error3)
-	(f-call 'lisp 'repl_error {pdata->pdata_this, test, *iter} {test})
+	(f-call 'lisp 'repl_error {pdata->pdata_this, test, *iter} {_, test})
 (vp-label 'error)
 	(f-call 'ref 'deref {pdata->pdata_value})
 	(assign {test} {pdata->pdata_value})
@@ -87,10 +87,10 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
+	(f-entry 'vector 'callback {pdata, iter})
 
 	(f-call 'ref 'deref {pdata->pdata_value})
-	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {pdata->pdata_value})
+	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_, pdata->pdata_value})
 
 	(errorassign (cat {pdata->pdata_value->obj_vtable != @} (f-path 'class 'error)) '(r1))
 	(pop-scope)

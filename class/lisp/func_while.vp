@@ -26,7 +26,7 @@
 	(f-call 'sys_task 'yield)
 	(loop-start)
 		(f-call 'vector 'get_element {args, 0} {value})
-		(f-call 'lisp 'repl_eval {this, value} {value})
+		(f-call 'lisp 'repl_eval {this, value} {_, value})
 		(breakif (cat {value->obj_vtable == @} (f-path 'class 'error)))
 		(breakif {value == this->lisp_sym_nil})
 		(f-call 'vector 'for_each {args, 1, length, $callback, &this} {_})
@@ -40,7 +40,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(while tst form ...) wrong number of args", args} {value})
+	(f-call 'lisp 'repl_error {this, "(while tst form ...) wrong number of args", args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
@@ -56,10 +56,10 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
+	(f-entry 'vector 'callback {pdata, iter})
 
 	(f-call 'ref 'deref {pdata->pdata_value})
-	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {pdata->pdata_value})
+	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_,pdata->pdata_value})
 
 	(errorassign (cat {pdata->pdata_value->obj_vtable != @} (f-path 'class 'error)) '(r1))
 	(pop-scope)

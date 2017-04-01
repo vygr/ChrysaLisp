@@ -20,7 +20,7 @@
 	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_element {args, 0} {value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
-	(f-call 'lisp 'env_find {this, value} {value, _})
+	(f-call 'lisp 'env_find {this, value} {_, value, _})
 	(vpif {value})
 		(assign {this->lisp_sym_t} {value})
 	(else)
@@ -39,7 +39,7 @@
 (vp-label 'error2)
 	(assign {"(def? var) not a symbol"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {value})
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

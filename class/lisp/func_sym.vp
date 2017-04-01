@@ -27,7 +27,7 @@
 	(else)
 		(errorif (cat {args->obj_vtable != @} (f-path 'class 'string)) 'error2)
 		(f-call 'symbol 'create_from_buffer {args->string_data, args->string_length} {value})
-		(f-call 'lisp 'sym_intern {this, value} {value})
+		(f-call 'lisp 'sym_intern {this, value} {_, value})
 	(endif)
 
 (vp-label 'exit)
@@ -41,7 +41,7 @@
 (vp-label 'error2)
 	(assign {"(sym arg) not string"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {value})
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

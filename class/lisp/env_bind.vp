@@ -17,7 +17,7 @@
 	(ushort 'len_vars 'len_vals 'index_vars 'index_vals 'state)
 
 	(push-scope)
-	(assign '(r0 r1 r2 r3) {this, vars, vals, index_vals})
+	(f-entry 'lisp 'env_bind {this, vars, vals, index_vals})
 
 	(errorif (cat {vars->obj_vtable != @} (f-path 'class 'vector)) 'error1)
 	(errorif (cat {vals->obj_vtable != @} (f-path 'class 'vector)) 'error2)
@@ -59,22 +59,22 @@
 	(errorif {index_vals != len_vals} 'error4)
 
 (vp-label 'exit)
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'env_bind {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(bind vars vals) vars not a list", vars} {value})
+	(f-call 'lisp 'repl_error {this, "(bind vars vals) vars not a list", vars} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(bind vars vals) vals not a list", vals} {value})
+	(f-call 'lisp 'repl_error {this, "(bind vars vals) vals not a list", vals} {_, value})
 	(goto 'exit)
 (vp-label 'error3)
-	(f-call 'lisp 'repl_error {this, "(bind vars vals) not a symbol", vars} {value})
+	(f-call 'lisp 'repl_error {this, "(bind vars vals) not a symbol", vars} {_, value})
 	(goto 'exit)
 (vp-label 'error4)
 	(f-call 'ref 'deref {value})
-	(f-call 'lisp 'repl_error {this, "(bind vars vals) wrong number of vals", vals} {value})
+	(f-call 'lisp 'repl_error {this, "(bind vars vals) wrong number of vals", vals} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

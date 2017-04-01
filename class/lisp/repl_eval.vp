@@ -16,14 +16,14 @@
 	(uint 'length)
 
 	(push-scope)
-	(assign '(r0 r1) {this, form})
+	(f-entry 'lisp 'repl_eval {this, form})
 
 	;evaluate based on type
 	(assign {form->obj_vtable} {func})
 	(switch)
 	(case (cat {func == @} (f-path 'class 'symbol)))
 		;eval to symbol value
-		(f-call 'lisp 'env_get {this, form} {value})
+		(f-call 'lisp 'env_get {this, form} {_, value})
 		(break)
 	(case (cat {func == @} (f-path 'class 'vector)))
 		(d-call 'vector 'get_length {form} {length})
@@ -34,27 +34,27 @@
 		(else)
 			;apply function, eval args if needed
 			(f-call 'vector 'get_element {form, 0} {func})
-			(f-call 'lisp 'repl_eval {this, func} {value})
+			(f-call 'lisp 'repl_eval {this, func} {_, value})
 			(breakif (cat {value->obj_vtable == @} (f-path 'class 'error)))
 			(assign {value} {func})
 			(switch)
 			(case (cat {func->obj_vtable == @} (f-path 'class 'boxed_ptr)))
 				(gotoifnot {func->boxed_ptr_value & 7} 'args_eval_apply)
 				(vpif {(func->boxed_ptr_value & 7) == type_apply})
-					(f-call 'lisp 'repl_apply {this, func, form} {value})
+					(f-call 'lisp 'repl_apply {this, func, form} {_, value})
 				(else) ;type_args_apply
 					(d-call 'vector 'slice {form, 1, length} {args})
-					(f-call 'lisp 'repl_apply {this, func, args} {value})
+					(f-call 'lisp 'repl_apply {this, func, args} {_, value})
 					(f-call 'ref 'deref {args})
 				(endif)
 				(break)
 			(default)
 			(vp-label 'args_eval_apply)
 				(d-call 'vector 'slice {form, 1, length} {args})
-				(f-call 'lisp 'repl_eval_list {this, args, 0} {value})
+				(f-call 'lisp 'repl_eval_list {this, args, 0} {_, value})
 				(vpif (cat {value->obj_vtable != @} (f-path 'class 'error)))
 					(f-call 'ref 'deref {value})
-					(f-call 'lisp 'repl_apply {this, func, args} {value})
+					(f-call 'lisp 'repl_apply {this, func, args} {_,value})
 				(endif)
 				(f-call 'ref 'deref {args})
 			(endswitch)
@@ -67,7 +67,7 @@
 		(f-call 'ref 'ref {value})
 	(endswitch)
 
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'repl_eval {this, value})
 	(pop-scope)
 	(return)
 

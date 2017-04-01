@@ -48,7 +48,7 @@
 (vp-label 'error2)
 	(assign {"(le num num ...) not all numbers"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {value})
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
@@ -65,7 +65,7 @@
 	(long 'num)
 
 	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
+	(f-entry 'vector 'callback {pdata, iter})
 
 	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
 	(f-call 'boxed_long 'get_value {*iter} {num})
@@ -83,7 +83,7 @@
 (errorcases
 (vp-label 'error3)
 	(f-call 'ref 'deref {pdata->pdata_value})
-	(f-call 'lisp 'repl_error {pdata->pdata_this, "(le num num ...) not all numbers", *iter} {pdata->pdata_value})
+	(f-call 'lisp 'repl_error {pdata->pdata_this, "(le num num ...) not all numbers", *iter} {_, pdata->pdata_value})
 	(vp-xor-rr r1 r1)
 	(return))
 

@@ -66,7 +66,7 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(assign '(r0 r1) {pdata, iter})
+	(f-entry 'vector 'callback {pdata, iter})
 
 	(f-call 'stream 'write {pdata->slave_stdout, &(*iter)->string_data, (*iter)->string_length})
 	(f-call 'stream 'write_char {pdata->slave_stdout, char_lf})

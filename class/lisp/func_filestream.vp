@@ -43,7 +43,7 @@
 (vp-label 'error1)
 	(assign {"(file-stream filename) not enough args"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {value})
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
