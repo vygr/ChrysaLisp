@@ -72,7 +72,7 @@
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1) {this, ctx})
+	(f-entry 'vdu 'draw {this, ctx})
 
 	;draw vdu chars
 	(vpif {this->vdu_font})
@@ -105,7 +105,7 @@
 		(f-call 'gui_ctx 'filled_box {ctx, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 	(endif)
 
-	(assign {this} '(r0))
+	(f-exit 'vdu 'draw {this})
 	(pop-scope)
 	(return)
 
@@ -125,12 +125,12 @@
 
 	;save inputs
 	(push-scope)
-	(assign '(r0) {this})
+	(f-entry 'vdu 'pref_size {this})
 
 	;bounds of vdu
 	(assign {this->vdu_width * this->vdu_char_width, this->vdu_height * this->vdu_char_height} {width, height})
 
-	(assign {this, width, height} '(r0 r10 r11))
+	(f-exit 'vdu 'pref_size {this, width, height})
 	(pop-scope)
 	(return)
 
@@ -150,7 +150,7 @@
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1 r2) {this, name, points})
+	(f-entry 'vdu 'set_font {this, name, points})
 
 	;set char size
 	(assign {points + (points >> 2)} {this->vdu_char_height})
@@ -174,7 +174,7 @@
 		(f-call 'string 'deref {word})
 	(endif)
 
-	(assign {this} '(r0))
+	(f-exit 'vdu 'set_font {this})
 	(pop-scope)
 	(return)
 
@@ -184,13 +184,15 @@
 	;inputs
 	;r0 = vdu object
 	;r1 = char
+	;outputs
+	;r0 = vdu object
 
 	(ptr 'this)
 	(ubyte 'char)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1) {this, char})
+	(f-entry 'vdu 'print_char {this, char})
 
 	;dirty old cursor area
 	(f-call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
@@ -243,6 +245,7 @@
 	;dirty new cursor area
 	(f-call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 
+	(f-exit 'vdu 'print_char {this})
 	(pop-scope)
 	(return)
 
@@ -252,13 +255,15 @@
 	;inputs
 	;r0 = vdu object
 	;r1 = c string pointer
+	;outputs
+	;r0 = vdu object
 
 	(ptr 'this)
 	(pubyte 'charp)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1) {this, charp})
+	(f-entry 'vdu 'print_cstr {this, charp})
 
 	;print chars
 	(loop-while {*charp})
@@ -266,6 +271,7 @@
 		(assign {charp + 1} {charp})
 	(loop-end)
 
+	(f-exit 'vdu 'print_cstr {this})
 	(pop-scope)
 	(return)
 

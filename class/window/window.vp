@@ -23,7 +23,7 @@
 	(ulong 'ok 'flags 'min_width)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, vtable, flags})
+	(f-entry 'window 'init {this, vtable, flags})
 
 	;init parent
 	(s-call 'window 'init {this, vtable} {_, ok})
@@ -92,7 +92,7 @@
 		(endif)
 	(endif)
 
-	(assign {this, ok} '(r0 r1))
+	(f-exit 'window 'init {this, ok})
 	(pop-scope)
 	(return)
 
@@ -105,7 +105,7 @@
 	(ptr 'this 'screen)
 
 	(push-scope)
-	(assign '(r0) {this})
+	(f-entry 'window 'deinit {this})
 
 	;dirty my area on parent
 	(f-call 'window 'get_parent {this} {_, screen})
@@ -155,7 +155,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_inst)))
+	(f-entry 'window 'layout '((r4 local_inst)))
 
 	(vp-cpy-ir-i r0 view_w r10)
 	(vp-cpy-ir-i r0 view_h r11)
@@ -234,7 +234,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1) '((r4 local_inst) (r4 local_event)))
+	(f-entry 'window 'mouse_move '((r4 local_inst) (r4 local_event)))
 
 	;dirty old area
 	(f-call 'window 'dirty '(r0))
@@ -346,7 +346,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_inst)))
+	(f-entry 'window 'pref_size '((r4 local_inst)))
 
 	(v-call 'flow 'pref_size '((r0 window_flow)) '(_ r10 r11))
 	(vp-add-cr (mul window_border_size 2) r10)
