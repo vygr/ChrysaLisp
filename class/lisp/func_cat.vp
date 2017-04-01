@@ -23,7 +23,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_cat {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
 	(errorifnot {length} 'error1)
@@ -45,7 +45,7 @@
 	(endif)
 
 (vp-label 'exit)
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'func_cat {this, value})
 	(return)
 
 (errorcases
@@ -81,14 +81,15 @@
 	(errorif (cat {elem->obj_vtable != @} (f-path 'class 'vector)) 'error4)
 	(d-call 'vector 'get_length {elem} {length})
 	(f-call 'vector 'append {pdata->pdata_value, elem, 0, length})
-	(vp-or-cr -1 r1)
+
+	(f-exit 'vector 'callback '(1))
 	(return)
 
 (errorcases
 (vp-label 'error4)
 	(f-call 'ref 'deref {pdata->pdata_value})
 	(f-call 'lisp 'repl_error {pdata->pdata_this, "(cat seq ...) not all lists", pdata->pdata_args} {_, pdata->pdata_value})
-	(vp-xor-rr r1 r1)
+	(f-exit 'vector 'callback '(0))
 	(return))
 
 	(pop-scope-syms)

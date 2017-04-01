@@ -15,7 +15,7 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(assign '(r0 r1) {this, symbol})
+	(f-entry 'lisp 'env_find {this, symbol})
 
 	(assign {this->lisp_enviroment} {env})
 	(loop-start)
@@ -26,7 +26,7 @@
 		(assign {iter} {env})
 	(loop-end)
 
-	(assign {this, iter, bucket} '(r0 r1 r2))
+	(f-exit 'lisp 'env_find {this, iter, bucket})
 	(pop-scope)
 	(return)
 

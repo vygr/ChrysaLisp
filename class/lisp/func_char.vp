@@ -16,7 +16,7 @@
 	(ulong 'length 'width)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_char {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
 	(errorifnot {length == 1 || length == 2} 'error1)
@@ -33,7 +33,7 @@
 	(f-call 'string 'create_from_buffer {&length, width} {value})
 
 (vp-label 'exit)
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'func_char {this, value})
 	(return)
 
 (errorcases

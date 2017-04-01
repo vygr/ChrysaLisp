@@ -11,7 +11,7 @@
 	(ptr 'this 'env)
 
 	(push-scope)
-	(assign '(r0) {this})
+	(f-entry 'lisp 'env_pop {this})
 
 	(f-call 'unordered_map 'get_parent {this->lisp_enviroment} {env})
 	(vpif {env})
@@ -20,7 +20,7 @@
 		(assign {env} {this->lisp_enviroment})
 	(endif)
 
-	(assign {this} '(r0))
+	(f-exit 'lisp 'env_pop {this})
 	(pop-scope)
 	(return)
 

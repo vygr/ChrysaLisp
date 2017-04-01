@@ -71,12 +71,12 @@
 	(f-call 'boxed_long 'get_value {*iter} {num})
 	(vpif {pdata->pdata_num > num})
 		(assign {num} {pdata->pdata_num})
-		(vp-or-cr -1 r1)
+		(f-exit 'vector 'callback '(1))
 	(else)
 		(f-call 'ref 'deref {pdata->pdata_value})
 		(assign {pdata->pdata_this->lisp_sym_nil} {pdata->pdata_value})
 		(f-call 'ref 'ref {pdata->pdata_value})
-		(vp-xor-rr r1 r1)
+		(f-exit 'vector 'callback '(0))
 	(endif)
 	(return)
 
@@ -84,7 +84,7 @@
 (vp-label 'error3)
 	(f-call 'ref 'deref {pdata->pdata_value})
 	(f-call 'lisp 'repl_error {pdata->pdata_this, "(gt num num ...) not all numbers", *iter} {_, pdata->pdata_value})
-	(vp-xor-rr r1 r1)
+	(f-exit 'vector 'callback '(0))
 	(return))
 
 	(pop-scope-syms)

@@ -19,14 +19,14 @@
 	(uint 'length)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_clear {this, args})
 
 	(assign {this->lisp_sym_nil} {value})
 	(f-call 'ref 'ref {value})
 	(d-call 'vector 'get_length {args} {length})
 	(f-call 'vector 'for_each {args, 0, length, $callback, &this} {_})
 
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'func_clear {this, value})
 	(pop-scope)
 	(return)
 
@@ -48,13 +48,14 @@
 	(assign {*iter} {pdata->pdata_value})
 	(f-call 'vector 'clear {pdata->pdata_value})
 	(f-call 'ref 'ref {pdata->pdata_value})
-	(vp-or-cr -1 r1)
+
+	(f-exit 'vector 'callback '(1))
 	(return)
 
 (errorcases
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {pdata->pdata_this, "(clear list ...) not a list", *iter} {_, pdata->pdata_value})
-	(vp-xor-rr r1 r1)
+	(f-exit 'vector 'callback '(0))
 	(return))
 
 	(pop-scope-syms)

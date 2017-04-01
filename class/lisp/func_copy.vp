@@ -14,7 +14,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_copy {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
 	(errorif {length != 1} 'error)
@@ -28,7 +28,7 @@
 	(endif)
 
 (vp-label 'exit)
-	(assign {this, args} '(r0 r1))
+	(f-exit 'lisp 'func_copy {this, args})
 	(return)
 
 (errorcases
@@ -61,7 +61,7 @@
 		(assign {pdata} {*iter})
 	(endif)
 
-	(vp-or-cr -1 r1)
+	(f-exit 'vector 'callback '(1))
 	(pop-scope)
 	(return)
 

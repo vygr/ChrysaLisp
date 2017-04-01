@@ -19,14 +19,14 @@
 	(uint 'length)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_cond {this, args})
 
 	(assign {this->lisp_sym_nil} {value})
 	(f-call 'ref 'ref {value})
 	(d-call 'vector 'get_length {args} {length})
 	(f-call 'vector 'for_each {args, 0, length, $callback, &this} {_})
 
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'func_cond {this, value})
 	(pop-scope)
 	(return)
 
@@ -52,11 +52,11 @@
 	(errorif (cat {test->obj_vtable == @} (f-path 'class 'error)) 'error)
 	(vpif {test == pdata->pdata_this->lisp_sym_nil})
 		(f-call 'ref 'deref {test})
-		(vp-or-cr -1 r1)
+		(f-exit 'vector 'callback '(1))
 	(else)
 		(f-call 'ref 'deref {test})
 		(f-call 'vector 'for_each {*iter, 1, length, $callback1, pdata} {_})
-		(vp-xor-rr r1 r1)
+		(f-exit 'vector 'callback '(0))
 	(endif)
 	(return)
 
@@ -71,7 +71,7 @@
 (vp-label 'error)
 	(f-call 'ref 'deref {pdata->pdata_value})
 	(assign {test} {pdata->pdata_value})
-	(vp-xor-rr r1 r1)
+	(f-exit 'vector 'callback '(0))
 	(return))
 
 	(pop-scope-syms)

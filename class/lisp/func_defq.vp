@@ -15,7 +15,7 @@
 	(uint 'length 'index)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_defq {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
 	(errorif {length < 2 || (length & 1)} 'error1)
@@ -32,7 +32,7 @@
 	(loop-until {index == length})
 
 (vp-label 'exit)
-	(assign {this, val} '(r0 r1))
+	(f-exit 'lisp 'func_defq {this, val})
 	(return)
 
 (errorcases

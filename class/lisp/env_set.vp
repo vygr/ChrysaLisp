@@ -15,7 +15,7 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(assign '(r0 r1 r2) {this, symbol, value})
+	(f-entry 'lisp 'env_set {this, symbol, value})
 
 	(f-call 'lisp 'env_find {this, symbol} {_, iter, _})
 	(errorifnot {iter} 'error)
@@ -24,7 +24,7 @@
 	(f-call 'pair 'set_second {*iter, value})
 
 (vp-label 'exit)
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'env_set {this, value})
 	(return)
 
 (errorcases

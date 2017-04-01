@@ -11,13 +11,13 @@
 	(ptr 'this 'env)
 
 	(push-scope)
-	(assign '(r0 r1) {this, env})
+	(f-entry 'lisp 'env_push {this})
 
 	(f-call 'unordered_map 'create {this->lisp_enviroment->unordered_set_key_callback, 1} {env})
 	(f-call 'unordered_map 'set_parent {env, this->lisp_enviroment})
 	(assign {env} {this->lisp_enviroment})
 
-	(assign {this} '(r0))
+	(f-exit 'lisp 'env_push {this})
 	(pop-scope)
 	(return)
 

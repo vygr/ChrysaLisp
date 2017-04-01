@@ -14,14 +14,14 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(assign '(r0 r1) {this, symbol})
+	(f-entry 'lisp 'env_get {this, symbol})
 
 	(f-call 'lisp 'env_find {this, symbol} {_, iter, _})
 	(errorifnot {iter} 'error)
 	(f-call 'pair 'ref_second {*iter} {symbol})
 
 (vp-label 'exit)
-	(assign {this, symbol} '(r0 r1))
+	(f-exit 'lisp 'env_get {this, symbol})
 	(return)
 
 (errorcases

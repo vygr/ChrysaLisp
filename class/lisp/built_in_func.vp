@@ -15,14 +15,14 @@
 	(ptr 'this 'symbol 'func_ptr 'func_flags 'func)
 
 	(push-scope)
-	(assign '(r0 r1 r2 r3) {this, symbol, func_ptr, func_flags})
+	(f-entry 'lisp 'built_in_func {this, symbol, func_ptr, func_flags})
 
 	(f-call 'boxed_ptr 'create {} {func})
 	(f-call 'boxed_ptr 'set_value {func, func_ptr | func_flags})
 	(f-call 'unordered_map 'insert {this->lisp_enviroment, symbol, func} {_, _})
 	(f-call 'ref 'deref {func})
 
-	(assign {this} '(r0))
+	(f-exit 'lisp 'built_in_func {this})
 	(pop-scope)
 	(return)
 
