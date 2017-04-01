@@ -15,7 +15,7 @@
 	(int 'length 'index)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_elem {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
 	(errorif {length != 2} 'error1)
@@ -33,7 +33,7 @@
 	(v-call 'sequence 'ref_element {seq, index} {value})
 
 (vp-label 'exit)
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'func_elem {this, value})
 	(return)
 
 (errorcases

@@ -15,7 +15,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(assign '(r0 r1) {this, args})
+	(f-entry 'lisp 'func_gensym {this, args})
 
 	(d-call 'vector 'get_length {args} {length})
 	(errorif {length} 'error)
@@ -28,7 +28,7 @@
 	(assign {this->lisp_nextsym + 1} {this->lisp_nextsym})
 
 (vp-label 'exit)
-	(assign {this, value} '(r0 r1))
+	(f-exit 'lisp 'func_gensym {this, value})
 	(return)
 
 (errorcases
