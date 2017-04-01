@@ -42,12 +42,12 @@
 			(loop-end)
 			(breakif {char != char_semi})
 			(f-call 'stream 'skip_not {stream, char_lf})
-			(f-call 'stream 'read_char {stream} {char})
+			(f-call 'stream 'read_char {stream} {_, char})
 		(loop-end)
 	(loop-end)
 
 	;skip ")"
-	(f-call 'stream 'read_char {stream} {char})
+	(f-call 'stream 'read_char {stream} {_, char})
 
 (vp-label 'error)
 	(f-exit 'lisp 'repl_read_list {this, list, char})

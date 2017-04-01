@@ -133,7 +133,7 @@
 		(vp-cpy-rr r1 r8)
 		(vpif '(r6 != 0))
 			;copy over old data
-			(f-call 'sys_mem 'copy '(r5 r7 r6) '(_ _))
+			(f-call 'sys_mem 'copy '(r5 r7 r6))
 
 			;free existing
 			(f-call 'sys_mem 'free '(r5))
@@ -172,7 +172,7 @@
 
 		(vpif '(r6 != 0))
 			;copy over old data
-			(f-call 'sys_mem 'copy '(r5 r7 r6) '(_ _))
+			(f-call 'sys_mem 'copy '(r5 r7 r6))
 
 			;free existing
 			(f-call 'sys_mem 'free '(r5))

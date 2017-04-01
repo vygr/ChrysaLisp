@@ -61,31 +61,31 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst)
+	(ptr 'this)
 	(pubyte 'buffer 'buffer_end 'start)
 	(long 'char)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1 r2) {inst, buffer, buffer_end})
+	(assign '(r0 r1 r2) {this, buffer, buffer_end})
 
 	(vpif {buffer_end == 0})
-		(assign {inst, 0} '(r0 r1))
+		(assign {this, 0} '(r0 r1))
 		(return)
 	(endif)
 
 	(assign {buffer, buffer + buffer_end} {start, buffer_end})
 	(loop-start)
-		(f-call 'stream 'read_char {inst} {char})
+		(f-call 'stream 'read_char {this} {_, char})
 		(breakif {char < 0})
 		(assign {char} {*buffer})
 		(assign {buffer + 1} {buffer})
 	(loop-until {buffer == buffer_end})
 
 	(vpif {buffer != start})
-		(assign {inst, buffer - start} '(r0 r1))
+		(assign {this, buffer - start} '(r0 r1))
 	(else)
-		(assign {inst, char} '(r0 r1))
+		(assign {this, char} '(r0 r1))
 	(endif)
 	(pop-scope)
 	(return)
@@ -105,7 +105,7 @@
 	(vp-cpy-ir r0 stream_bufe r1)
 	(vpif '(r1 == r2))
 		(loop-start)
-			(v-call 'stream 'read_next '(r0) '(r1))
+			(v-call 'stream 'read_next '(r0) '(r0 r1))
 			(gotoif '(r1 == -1) 'eof)
 			(vp-cpy-ir r0 stream_bufp r2)
 			(vp-cpy-ir r0 stream_bufe r1)
@@ -130,22 +130,22 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst)
+	(ptr 'this)
 	(pubyte 'buffer 'buffer_end 'start)
 	(long 'char)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1 r2) {inst, buffer, buffer_end})
+	(assign '(r0 r1 r2) {this, buffer, buffer_end})
 
 	(vpif {buffer_end == 0})
-		(assign {inst, 0} '(r0 r1))
+		(assign {this, 0} '(r0 r1))
 		(return)
 	(endif)
 
 	(assign {buffer, buffer + buffer_end} {start, buffer_end})
 	(loop-start)
-		(f-call 'stream 'read_char {inst} {char})
+		(f-call 'stream 'read_char {this} {_, char})
 		(continueif {char == 13})
 		(breakif {char == 10 || char < 0})
 		(assign {char} {*buffer})
@@ -153,9 +153,9 @@
 	(loop-until {buffer == buffer_end})
 
 	(vpif {buffer == start && char < 0})
-		(assign {inst, char} '(r0 r1))
+		(assign {this, char} '(r0 r1))
 	(else)
-		(assign {inst, buffer - start} '(r0 r1))
+		(assign {this, buffer - start} '(r0 r1))
 	(endif)
 	(pop-scope)
 	(return)
@@ -185,7 +185,7 @@
 	;trashes
 	;all but r0, r4
 
-	(f-call 'stream 'available '(r0) '(r1))
+	(f-call 'stream 'available '(r0) '(_ r1))
 	(vp-ret)
 
 (def-func-end)
@@ -203,7 +203,7 @@
 		(loop-while '(r2 == r3))
 			(vp-push r1)
 			(vp-cpy-ri r2 r0 stream_bufp)
-			(v-call 'stream 'read_next '(r0) '(r5))
+			(v-call 'stream 'read_next '(r0) '(r0 r5))
 			(vp-pop r1)
 			(gotoif '(r5 == -1) 'exit)
 			(vp-cpy-ir r0 stream_bufp r2)
@@ -232,7 +232,7 @@
 		(loop-while '(r2 == r3))
 			(vp-push r1)
 			(vp-cpy-ri r2 r0 stream_bufp)
-			(v-call 'stream 'read_next '(r0) '(r5))
+			(v-call 'stream 'read_next '(r0) '(r0 r5))
 			(vp-pop r1)
 			(gotoif '(r5 == -1) 'exit)
 			(vp-cpy-ir r0 stream_bufp r2)
@@ -258,30 +258,30 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst 'splits 'string)
+	(ptr 'this 'splits 'string)
 	(pubyte 'start)
 	(ulong 'length)
 	(ubyte 'char)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1) {inst, char})
+	(assign '(r0 r1) {this, char})
 
 	;create output vector
 	(f-call 'vector 'create {} {splits})
 
 	;fill vector with splits
 	(loop-start)
-		(f-call 'stream 'skip {inst, char})
-		(assign {inst->stream_bufp} {start})
-		(f-call 'stream 'skip_not {inst, char})
-		(assign {inst->stream_bufp - start} {length})
+		(f-call 'stream 'skip {this, char})
+		(assign {this->stream_bufp} {start})
+		(f-call 'stream 'skip_not {this, char})
+		(assign {this->stream_bufp - start} {length})
 		(breakif {length == 0})
 		(f-call 'string 'create_from_buffer {start, length} {string})
 		(f-call 'vector 'push_back {splits, string})
 	(loop-end)
 
-	(assign {inst, splits} '(r0 r1))
+	(assign {this, splits} '(r0 r1))
 	(pop-scope)
 	(return)
 
@@ -297,7 +297,7 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst)
+	(ptr 'this)
 	(pubyte 'buffer)
 	(uint 'length 'gap)
 
@@ -308,22 +308,22 @@
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1 r2) {inst, buffer, length})
+	(assign '(r0 r1 r2) {this, buffer, length})
 
 	(loop-while {length})
-		(assign {inst->stream_bufe - inst->stream_bufp} {gap})
+		(assign {this->stream_bufe - this->stream_bufp} {gap})
 		(vpif {gap})
 			(vpif {gap > length})
 				(assign {length} {gap})
 			(endif)
-			(f-call 'sys_mem 'copy {buffer, inst->stream_bufp, gap} {buffer, inst->stream_bufp})
+			(f-call 'sys_mem 'copy {buffer, this->stream_bufp, gap} {buffer, this->stream_bufp})
 			(assign {length - gap} {length})
 		(else)
-			(v-call 'stream 'write_next {inst})
+			(v-call 'stream 'write_next {this})
 		(endif)
 	(loop-end)
 
-	(assign {inst} '(r0))
+	(assign {this} '(r0))
 	(pop-scope)
 	(return)
 

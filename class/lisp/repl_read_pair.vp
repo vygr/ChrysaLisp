@@ -21,7 +21,7 @@
 	(f-entry 'lisp 'repl_read_pair {this, stream, char})
 
 	;skip "["
-	(f-call 'stream 'read_char {stream} {char})
+	(f-call 'stream 'read_char {stream} {_, char})
 
 	(f-call 'lisp 'repl_read {this, stream, char} {_, first, char})
 	(vpif (cat {first->obj_vtable == @} (f-path 'class 'error)))
@@ -41,7 +41,7 @@
 	(loop-end)
 
 	(vpif {char == char_rsb})
-		(f-call 'stream 'read_char {stream} {char})
+		(f-call 'stream 'read_char {stream} {_, char})
 		(f-call 'pair 'create {first, second} {pair})
 	(else)
 		(f-call 'ref 'deref {second})

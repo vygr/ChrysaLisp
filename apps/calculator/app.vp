@@ -29,8 +29,8 @@
 
 	;init app vars
 	(push-scope)
-	(f-call 'sys_mem 'clear {&myapp, shared_size} {_})
-	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)) '(_ _))
+	(f-call 'sys_mem 'clear {&myapp, shared_size})
+	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)))
 
 	;create my window
 	(f-call 'window 'create {window_flag_close} {window})
@@ -111,76 +111,76 @@
 	;r0 = app local object
 	;r1 = button object
 
-	(ptr 'inst 'button 'button_string 'display_string 'string 'string1 'string2)
+	(ptr 'this 'button 'button_string 'display_string 'string 'string1 'string2)
 	(ubyte 'char)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1) {inst, button})
+	(assign '(r0 r1) {this, button})
 	(f-call 'button 'ref_text {button} {_, button_string})
 	(vpif {button_string->string_length == 2})
 		;AC
 		(f-call 'string 'create_from_cstr {"0"} {string})
-		(f-call 'label 'set_text {inst->shared_display, string})
-		(assign {0} {inst->shared_accum})
-		(assign {0} {inst->shared_value})
-		(assign {0} {inst->shared_last_op})
-		(assign {0} {inst->shared_last_flag})
+		(f-call 'label 'set_text {this->shared_display, string})
+		(assign {0} {this->shared_accum})
+		(assign {0} {this->shared_value})
+		(assign {0} {this->shared_last_op})
+		(assign {0} {this->shared_last_flag})
 	(else)
-		(f-call 'label 'get_text {inst->shared_display} {_, display_string})
+		(f-call 'label 'get_text {this->shared_display} {_, display_string})
 		(assign {ubyte (button_string->string_data)} {char})
 		(vpif {char >= char_0 && char <= char_9})
 			;numeral
 			(assign {ubyte (display_string->string_data)} {char})
-			(vpif {char == char_0 || inst->shared_last_flag == 0})
+			(vpif {char == char_0 || this->shared_last_flag == 0})
 				;clear it
 				(f-call 'string 'deref {display_string})
 				(f-call 'string 'create_from_cstr {""} {display_string})
-				(assign {1} {inst->shared_last_flag})
+				(assign {1} {this->shared_last_flag})
 			(endif)
 			;append numeral
 			(f-call 'string 'append {display_string, button_string} {string})
-			(f-call 'sys_string 'to_long {&string->string_data, 10} {inst->shared_value})
+			(f-call 'sys_string 'to_long {&string->string_data, 10} {this->shared_value})
 		(else)
 			;operator
-			(vpif {inst->shared_last_op == char_plus})
+			(vpif {this->shared_last_op == char_plus})
 				;+
-				(assign {inst->shared_accum + inst->shared_value} {inst->shared_accum})
-			(elseif {inst->shared_last_op == char_minus})
+				(assign {this->shared_accum + this->shared_value} {this->shared_accum})
+			(elseif {this->shared_last_op == char_minus})
 				;-
-				(assign {inst->shared_accum - inst->shared_value} {inst->shared_accum})
-			(elseif {inst->shared_last_op == char_multiply})
+				(assign {this->shared_accum - this->shared_value} {this->shared_accum})
+			(elseif {this->shared_last_op == char_multiply})
 				;*
-				(assign {inst->shared_accum * inst->shared_value} {inst->shared_accum})
-			(elseif {inst->shared_last_op == char_divide && inst->shared_value != 0})
+				(assign {this->shared_accum * this->shared_value} {this->shared_accum})
+			(elseif {this->shared_last_op == char_divide && this->shared_value != 0})
 				;/
-				(assign {inst->shared_accum // inst->shared_value} {inst->shared_accum})
+				(assign {this->shared_accum // this->shared_value} {this->shared_accum})
 			(else)
 				;equals
-				(assign {inst->shared_value} {inst->shared_accum})
+				(assign {this->shared_value} {this->shared_accum})
 			(endif)
 			(vpif {char != char_equal})
-				(assign {char} {inst->shared_last_op})
+				(assign {char} {this->shared_last_op})
 			(endif)
-			(assign {0} {inst->shared_last_flag})
-			(vpif {inst->shared_accum < 0})
+			(assign {0} {this->shared_last_flag})
+			(vpif {this->shared_accum < 0})
 				;negative accum
-				(f-call 'sys_string 'from_long {- inst->shared_accum, &inst->shared_buffer, 10})
+				(f-call 'sys_string 'from_long {- this->shared_accum, &this->shared_buffer, 10})
 				(f-call 'string 'create_from_cstr {"-"} {string1})
-				(f-call 'string 'create_from_cstr {&inst->shared_buffer} {string2})
+				(f-call 'string 'create_from_cstr {&this->shared_buffer} {string2})
 				(f-call 'string 'append {string1, string2} {string})
 				(f-call 'string 'deref {string1})
 				(f-call 'string 'deref {string2})
 			(else)
 				;positive accum
-				(f-call 'sys_string 'from_long {inst->shared_accum, &inst->shared_buffer, 10})
-				(f-call 'string 'create_from_cstr {&inst->shared_buffer} {string})
+				(f-call 'sys_string 'from_long {this->shared_accum, &this->shared_buffer, 10})
+				(f-call 'string 'create_from_cstr {&this->shared_buffer} {string})
 			(endif)
 		(endif)
-		(f-call 'label 'set_text {inst->shared_display, string})
+		(f-call 'label 'set_text {this->shared_display, string})
 	(endif)
 	(f-call 'string 'deref {button_string})
-	(f-call 'label 'dirty {inst->shared_display})
+	(f-call 'label 'dirty {this->shared_display})
 	(pop-scope)
 	(return)
 
@@ -189,11 +189,11 @@
 	;r0 = app local object
 	;r1 = close object
 
-	(ptr 'inst)
+	(ptr 'this)
 
 	(push-scope)
-	(assign '(r0) {inst})
-	(assign {1} {inst->shared_closed})
+	(assign '(r0) {this})
+	(assign {1} {this->shared_closed})
 	(pop-scope)
 	(return)
 

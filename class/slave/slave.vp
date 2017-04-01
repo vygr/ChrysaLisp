@@ -17,28 +17,28 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst 'vtable 'stream 'msg 'mymailbox)
+	(ptr 'this 'vtable 'stream 'msg 'mymailbox)
 	(ulong 'error)
 
 	;read init args
 	(push-scope)
-	(f-entry 'slave 'init {inst, vtable})
+	(f-entry 'slave 'init {this, vtable})
 
 	;init parent
-	(s-call 'slave 'init {inst, vtable} {_, error})
+	(s-call 'slave 'init {this, vtable} {_, error})
 	(vpif {error != 0})
 		;init myself
 		(f-call 'sys_task 'mailbox {} {mymailbox, _})
 		(f-call 'sys_mail 'read {mymailbox} {msg})
 		(vpif {msg->msg_length != msg_header_size})
 			;create stdin, stdout, stderr
-			(f-call 'stream_msg_in 'create {mymailbox} {inst->slave_stdin})
-			(f-call 'stream_msg_out 'create {msg->slave_mail_init_stdout_id.id_mbox, msg->slave_mail_init_stdout_id.id_cpu} {inst->slave_stdout})
-			(f-call 'stream_msg_out 'create {msg->slave_mail_init_stderr_id.id_mbox, msg->slave_mail_init_stderr_id.id_cpu} {inst->slave_stderr})
+			(f-call 'stream_msg_in 'create {mymailbox} {this->slave_stdin})
+			(f-call 'stream_msg_out 'create {msg->slave_mail_init_stdout_id.id_mbox, msg->slave_mail_init_stdout_id.id_cpu} {this->slave_stdout})
+			(f-call 'stream_msg_out 'create {msg->slave_mail_init_stderr_id.id_mbox, msg->slave_mail_init_stderr_id.id_cpu} {this->slave_stderr})
 
 			;create args
 			(f-call 'stream 'create {0, 0, &msg->slave_mail_init_args, msg->msg_length - slave_mail_init_size} {stream})
-			(f-call 'stream 'split {stream, char_space} {inst->slave_args})
+			(f-call 'stream 'split {stream, char_space} {_, this->slave_args})
 			(f-call 'stream 'deref {stream})
 
 			;send back ack
@@ -53,7 +53,7 @@
 		(endif)
 	(endif)
 
-	(assign {inst, error} '(r0 r1))
+	(assign {this, error} '(r0 r1))
 	(pop-scope)
 	(return)
 
@@ -65,43 +65,43 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst 'msg)
+	(ptr 'this 'msg)
 
 	(push-scope)
-	(f-entry 'slave 'deinit {inst})
+	(f-entry 'slave 'deinit {this})
 
 	;flush remaining
-	(v-call 'stream_msg_out 'write_flush {inst->slave_stderr})
-	(v-call 'stream_msg_out 'write_flush {inst->slave_stdout})
+	(v-call 'stream_msg_out 'write_flush {this->slave_stderr})
+	(v-call 'stream_msg_out 'write_flush {this->slave_stdout})
 
 	;send stopping on stdout
-	(f-call 'stream_msg_out 'set_state {inst->slave_stdout, stream_mail_state_stopping})
-	(v-call 'stream_msg_out 'write_next {inst->slave_stdout})
-	(v-call 'stream_msg_out 'write_flush {inst->slave_stdout})
+	(f-call 'stream_msg_out 'set_state {this->slave_stdout, stream_mail_state_stopping})
+	(v-call 'stream_msg_out 'write_next {this->slave_stdout})
+	(v-call 'stream_msg_out 'write_flush {this->slave_stdout})
 
 	;wait for stopped
 	(loop-start)
-		(v-call 'stream_msg_in 'read_next {inst->slave_stdin} {_})
-	(loop-until {inst->slave_stdin->stream_msg_in_state == stream_mail_state_stopped})
+		(v-call 'stream_msg_in 'read_next {this->slave_stdin})
+	(loop-until {this->slave_stdin->stream_msg_in_state == stream_mail_state_stopped})
 
 	;send stopped on stdout and stderr
-	(f-call 'stream_msg_out 'set_state {inst->slave_stdout, stream_mail_state_stopped})
-	(f-call 'stream_msg_out 'set_state {inst->slave_stderr, stream_mail_state_stopped})
-	(v-call 'stream_msg_out 'write_next {inst->slave_stdout})
-	(v-call 'stream_msg_out 'write_flush {inst->slave_stdout})
-	(v-call 'stream_msg_out 'write_next {inst->slave_stderr})
-	(v-call 'stream_msg_out 'write_flush {inst->slave_stderr})
+	(f-call 'stream_msg_out 'set_state {this->slave_stdout, stream_mail_state_stopped})
+	(f-call 'stream_msg_out 'set_state {this->slave_stderr, stream_mail_state_stopped})
+	(v-call 'stream_msg_out 'write_next {this->slave_stdout})
+	(v-call 'stream_msg_out 'write_flush {this->slave_stdout})
+	(v-call 'stream_msg_out 'write_next {this->slave_stderr})
+	(v-call 'stream_msg_out 'write_flush {this->slave_stderr})
 
 	;free stdin, stdout and stderr
-	(f-call 'stream_msg_in 'deref {inst->slave_stdin})
-	(f-call 'stream_msg_out 'deref {inst->slave_stdout})
-	(f-call 'stream_msg_out 'deref {inst->slave_stderr})
+	(f-call 'stream_msg_in 'deref {this->slave_stdin})
+	(f-call 'stream_msg_out 'deref {this->slave_stdout})
+	(f-call 'stream_msg_out 'deref {this->slave_stderr})
 
 	;free args
-	(f-call 'vector 'deref {inst->slave_args})
+	(f-call 'vector 'deref {this->slave_args})
 
 	;deinit parent
-	(assign {inst} '(r0))
+	(assign {this} '(r0))
 	(pop-scope)
 	(s-jmp 'slave 'deinit '(r0))
 

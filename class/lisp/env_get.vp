@@ -18,7 +18,7 @@
 
 	(f-call 'lisp 'env_find {this, symbol} {_, iter, _})
 	(errorifnot {iter} 'error)
-	(f-call 'pair 'ref_second {*iter} {symbol})
+	(f-call 'pair 'ref_second {*iter} {_, symbol})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'env_get {this, symbol})

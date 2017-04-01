@@ -20,7 +20,7 @@
 	(f-entry 'lisp 'repl_read_qquote {this, stream, char})
 
 	;skip "`"
-	(f-call 'stream 'read_char {stream} {char})
+	(f-call 'stream 'read_char {stream} {_, char})
 
 	(f-call 'vector 'create {} {list})
 	(assign {this->lisp_sym_qquote} {elem})

@@ -302,7 +302,7 @@
 		;copy fragment data, round up for speed
 		(vp-add-cr (dec ptr_size) r2)
 		(vp-and-cr (neg ptr_size) r2)
-		(f-call 'sys_mem 'copy '(r0 r1 r2) '(_ _))
+		(f-call 'sys_mem 'copy '(r0 r1 r2))
 
 		;got all needed ?
 		(vp-cpy-ir r14 msg_length r1)
@@ -373,7 +373,7 @@
 			;copy data block, round up for speed
 			(vp-add-cr (dec ptr_size) r2)
 			(vp-and-cr (neg ptr_size) r2)
-			(f-call 'sys_mem 'copy '(r0 r1 r2) '(_ _))
+			(f-call 'sys_mem 'copy '(r0 r1 r2))
 
 			;queue it on the outgoing packet list
 			(f-bind 'sys_mail 'statics r0)

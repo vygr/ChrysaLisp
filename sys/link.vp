@@ -161,7 +161,7 @@
 				(vp-cpy-ir r9 msg_length r2)
 				(vp-add-cr (dec ptr_size) r2)
 				(vp-and-cr (neg ptr_size) r2)
-				(f-call 'sys_mem 'copy '(r9 r1 r2) '(_ _))
+				(f-call 'sys_mem 'copy '(r9 r1 r2))
 
 				;free message
 				(f-call 'sys_mem 'free '(r9))
@@ -187,7 +187,7 @@
 			(vp-cpy-ir r0 msg_length r2)
 			(vp-add-cr (dec ptr_size) r2)
 			(vp-and-cr (neg ptr_size) r2)
-			(f-call 'sys_mem 'copy '(r0 r1 r2) '(_ _))
+			(f-call 'sys_mem 'copy '(r0 r1 r2))
 
 			;send onwards
 			(f-call 'sys_mail 'send '(r8))

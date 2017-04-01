@@ -18,7 +18,7 @@
 
 	;init app vars
 	(push-scope)
-	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)) '(_ _))
+	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)))
 
 	;create my window
 	(f-call 'window 'create {0} {window})
@@ -79,10 +79,10 @@
 	;r0 = app local object
 	;r1 = button object
 
-	(ptr 'inst 'button 'string)
+	(ptr 'this 'button 'string)
 
 	(push-scope)
-	(assign '(r0 r1) {inst, button})
+	(assign '(r0 r1) {this, button})
 	(f-call 'button 'get_text {button} {_, string})
 	(f-call 'sys_task 'open {string})
 	(pop-scope)

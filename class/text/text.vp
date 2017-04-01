@@ -66,32 +66,32 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst 'ctx 'txt)
+	(ptr 'this 'ctx 'txt)
 	(pptr 'words 'words_end)
 	(int 'x)
 	(uint 'length)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1) {inst, ctx})
+	(assign '(r0 r1) {this, ctx})
 
 	;draw text
-	(vpif {inst->text_string && inst->text_font})
-		(assign {inst->text_words->vector_array} {words})
-		(d-call 'vector 'get_length {inst->text_words} {_, length})
+	(vpif {this->text_string && this->text_font})
+		(assign {this->text_words->vector_array} {words})
+		(d-call 'vector 'get_length {this->text_words} {_, length})
 		(assign {&words[length * ptr_size]} {words_end})
 		(assign {0} {x})
 		(loop-start)
-			(f-call 'gui_font 'text {inst->text_font, *words} {txt})
+			(f-call 'gui_font 'text {this->text_font, *words} {txt})
 			(vpif {txt})
-				(f-call 'gui_ctx 'blit {ctx, txt->ft_text_texture, inst->text_text_color, x, 0, txt->ft_text_width, txt->ft_text_height})
+				(f-call 'gui_ctx 'blit {ctx, txt->ft_text_texture, this->text_text_color, x, 0, txt->ft_text_width, txt->ft_text_height})
 				(assign {x + txt->ft_text_width + (txt->ft_text_height >> 2)} {x})
 			(endif)
 			(assign {words + ptr_size} {words})
 		(loop-until {words == words_end})
 	(endif)
 
-	(assign {inst} '(r0))
+	(assign {this} '(r0))
 	(pop-scope)
 	(return)
 
@@ -147,29 +147,29 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst)
+	(ptr 'this)
 	(pptr 'words 'words_end)
 	(uint 'width 'height 'length 'word_w)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0) {inst})
+	(assign '(r0) {this})
 
 	;bounds of text
 	(assign {0, 0} {width, height})
-	(vpif {inst->text_string && inst->text_font})
-		(assign {inst->text_words->vector_array} {words})
-		(d-call 'vector 'get_length {inst->text_words} {_, length})
+	(vpif {this->text_string && this->text_font})
+		(assign {this->text_words->vector_array} {words})
+		(d-call 'vector 'get_length {this->text_words} {_, length})
 		(assign {&words[length * ptr_size]} {words_end})
 		(loop-start)
-			(f-call 'gui_font 'bounds {inst->text_font, *words} {word_w, height})
+			(f-call 'gui_font 'bounds {this->text_font, *words} {word_w, height})
 			(assign {words + ptr_size} {words})
 			(assign {width + word_w} {width})
 		(loop-until {words == words_end})
 		(assign {width + (length - 1) * (height >> 2)} {width})
 	(endif)
 
-	(assign {inst, width, height} '(r0 r10 r11))
+	(assign {this, width, height} '(r0 r10 r11))
 	(pop-scope)
 	(return)
 

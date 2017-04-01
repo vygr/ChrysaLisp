@@ -29,7 +29,7 @@
 	(s-call 'window 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init myself
-		(f-call 'sys_mem 'clear {&this->window_start, window_size - window_start} {_})
+		(f-call 'sys_mem 'clear {&this->window_start, window_size - window_start})
 		(f-call 'window 'set_color {this, 0xffc0c0c0})
 
 		;add flow panel

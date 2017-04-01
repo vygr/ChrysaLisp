@@ -23,11 +23,11 @@
 	(vpif {char == 10})
 		(f-call 'lisp 'env_find {this, this->lisp_sym_stream_line} {_, iter, _})
 		(breakifnot {iter})
-		(f-call 'pair 'get_second {*iter} {line})
+		(f-call 'pair 'get_second {*iter} {_, line})
 		(assign {line->boxed_ptr_value + 1} {line->boxed_ptr_value})
 	(endif)
 
-	(f-call 'stream 'read_char {stream} {char})
+	(f-call 'stream 'read_char {stream} {_, char})
 
 	(f-exit 'lisp 'repl_read_char {this, char})
 	(pop-scope)

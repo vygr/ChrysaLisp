@@ -53,21 +53,21 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst 'new_str)
+	(ptr 'this 'new_str)
 	(uint 'length 'new_length)
 
 	(push-scope)
-	(assign '(r0) {inst})
+	(assign '(r0) {this})
 
-	(assign {inst->stream_bufp - inst->stream_object} {length})
+	(assign {this->stream_bufp - this->stream_object} {length})
 	(f-call 'sys_mem 'alloc {length * 2} {new_str, new_length})
-	(f-call 'sys_mem 'copy {inst->stream_object, new_str, length} {_, inst->stream_bufp})
-	(assign {new_str + new_length - 1} {inst->stream_bufe})
+	(f-call 'sys_mem 'copy {this->stream_object, new_str, length} {_, this->stream_bufp})
+	(assign {new_str + new_length - 1} {this->stream_bufe})
 	(assign {1} {new_str->ref_count})
-	(f-call 'string 'deref {inst->stream_object})
-	(assign {new_str} {inst->stream_object})
+	(f-call 'string 'deref {this->stream_object})
+	(assign {new_str} {this->stream_object})
 
-	(assign {inst} '(r0))
+	(assign {this} '(r0))
 	(pop-scope)
 	(return)
 

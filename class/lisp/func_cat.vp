@@ -41,7 +41,7 @@
 	(else)
 		(errorif (cat {first->obj_vtable != @} (f-path 'class 'vector)) 'error3)
 		(f-call 'vector 'create {} {value})
-		(f-call 'vector 'for_each {args, 0, length, $callback1, &this} {_})
+		(f-call 'vector 'for_each {args, 0, length, $callback1, &this})
 	(endif)
 
 (vp-label 'exit)

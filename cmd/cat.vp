@@ -33,7 +33,7 @@
 		(else)
 			;names from stdin
 			(loop-start)
-				(f-call 'stream 'read_line {slave->slave_stdin, &buffer, buffer_size} {length})
+				(f-call 'stream 'read_line {slave->slave_stdin, &buffer, buffer_size} {_, length})
 				(breakif {length == -1})
 				(f-call 'string 'create_from_buffer {&buffer, length} {arg})
 				(l-call 'cat_string {slave, arg} '(r0 r1))
@@ -61,7 +61,7 @@
 	(vpif {file})
 		(f-call 'stream_str 'create {file} {stream})
 		(loop-start)
-			(f-call 'stream 'read_char {stream} {char})
+			(f-call 'stream 'read_char {stream} {_, char})
 			(breakif {char == -1})
 			(f-call 'stream 'write_char {slave->slave_stdout, char})
 		(loop-end)

@@ -46,7 +46,7 @@
 	(f-call 'vector 'get_element {func, 1} {_, vars})
 	(f-call 'lisp 'env_bind {this, vars, ast, 0} {_,value})
 	(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit1)
-	(f-call 'vector 'for_each {func, 2, length, $callback, &this} {_})
+	(f-call 'vector 'for_each {func, 2, length, $callback, &this})
 (vp-label 'exit1)
 	(f-call 'lisp 'env_pop {this})
 (vp-label 'exit)

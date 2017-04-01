@@ -21,7 +21,7 @@
 	;r1 = vtable pointer
 	;outputs
 	;r1 = 0 if error, else ok
-	(s-call 'ref 'init '(r0 r1) '(_ _))
+	(s-call 'ref 'init '(r0 r1))
 	(vp-cpy-cr 1 r1)
 	(vp-cpy-ri-i r1 r0 ref_count))
 

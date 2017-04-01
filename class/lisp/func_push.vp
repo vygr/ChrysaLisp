@@ -22,7 +22,7 @@
 	(f-call 'vector 'get_element {args, 0} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error2)
 	(f-call 'ref 'ref {value})
-	(f-call 'vector 'for_each {args, 1, length, $callback, value} {_})
+	(f-call 'vector 'for_each {args, 1, length, $callback, value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_push {this, value})

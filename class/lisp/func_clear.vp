@@ -24,7 +24,7 @@
 	(assign {this->lisp_sym_nil} {value})
 	(f-call 'ref 'ref {value})
 	(d-call 'vector 'get_length {args} {_, length})
-	(f-call 'vector 'for_each {args, 0, length, $callback, &this} {_})
+	(f-call 'vector 'for_each {args, 0, length, $callback, &this})
 
 	(f-exit 'lisp 'func_clear {this, value})
 	(pop-scope)

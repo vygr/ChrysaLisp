@@ -84,10 +84,10 @@
 	(assign '(r0 r1) {shared, stream})
 
 	(loop-start)
-		(f-call 'stream 'read_char {stream} {char})
+		(f-call 'stream 'read_char {stream} {_, char})
 		(breakif {char == -1})
 		(l-call 'terminal_output {shared, char} '(r0 r1))
-		(v-call 'stream 'read_ready {stream} {ready})
+		(v-call 'stream 'read_ready {stream} {_, ready})
 	(loop-untilnot {ready})
 
 	(assign {char} '(r0))
@@ -194,7 +194,7 @@
 
 	;non block on stdin
 	(sys-fcntl {0, f_getfl, 0} {char})
-	(sys-fcntl {0, f_setfl, char | o_nonblock} {_})
+	(sys-fcntl {0, f_setfl, char | o_nonblock} '(_))
 
 	;poll stdin and send char to tui
 	(loop-start)

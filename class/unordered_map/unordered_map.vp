@@ -64,7 +64,7 @@
 	(f-call 'unordered_map 'get_parent '((r4 local_inst)) '(_ r2))
 	(f-call 'ref 'ref_if '(r2))
 	(f-call 'unordered_map 'set_parent '((r4 local_obj) r2))
-	(f-call 'unordered_map 'for_each '((r4 local_inst) ($ callback) r4) '(_ _))
+	(f-call 'unordered_map 'for_each '((r4 local_inst) ($ callback) r4))
 	(vp-cpy-ir r4 local_obj r1)
 	(vp-cpy-ir-ui r0 unordered_set_length r2)
 	(vp-cpy-ri-i r2 r1 unordered_set_length)

@@ -170,7 +170,7 @@
 			(vp-cpy-ir r14 local_points r0)
 			(vp-cpy-ri r0 r13 ft_font_points)
 			(vp-cpy-ri r5 r13 ft_font_handle)
-			(f-call 'sys_string 'copy '((r14 local_font) (& r13 ft_font_name)) '(_ _))
+			(f-call 'sys_string 'copy '((r14 local_font) (& r13 ft_font_name)))
 
 			;fill in ascent, descent and height
 			(ttf-font-ascent '(r13 ft_font_handle))
@@ -287,7 +287,7 @@
 			(vp-cpy-ir r14 local_font r0)
 			(vp-cpy-ri r0 r13 ft_text_font)
 			(vp-cpy-ri r5 r13 ft_text_texture)
-			(f-call 'sys_string 'copy '((r14 local_text) (& r13 ft_text_name)) '(_ _))
+			(f-call 'sys_string 'copy '((r14 local_text) (& r13 ft_text_name)))
 
 			;fill in width and height
 			(vp-cpy-ir r14 local_width r10)

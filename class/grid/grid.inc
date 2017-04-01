@@ -4,7 +4,7 @@
 (def-method 'create 'class/grid/create 'static nil '(r0))
 (def-method 'new 'class/grid/new 'static nil '(r0))
 (def-method 'init 'class/grid/init)
-(def-method 'set_grid 'class/grid/set_grid 'static '(r0 r10 r11))
+(def-method 'set_grid 'class/grid/set_grid 'static '(r0 r10 r11) '(r0))
 
 (def-method 'pref_size 'class/grid/pref_size 'final)
 (def-method 'layout 'class/grid/layout 'final)

@@ -10,7 +10,7 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	(s-call 'component 'init '(r0 r1) '(_ _))
+	(s-call 'component 'init '(r0 r1))
 
 	;init myself
 	(vp-lea-i r0 component_slot_list r1)
@@ -64,7 +64,7 @@
 	(vp-lea-i r5 component_slot_list r6)
 	(lh-add-at-tail r6 r2 r3)
 
-	;restore inst
+	;restore this
 	(vp-cpy-rr r5 r0)
 	(vp-ret)
 
@@ -98,7 +98,7 @@
 	;clear signal list
 	(lh-init r6 r1)
 
-	;restore inst
+	;restore this
 	(vp-cpy-rr r7 r0)
 	(vp-ret)
 
@@ -137,7 +137,7 @@
 		(hp-freecell r0 r2 r1)
 	(loop-end)
 
-	;restore inst
+	;restore this
 	(vp-cpy-rr r7 r0)
 	(vp-ret)
 
@@ -150,8 +150,8 @@
 	;trashes
 	;all but r0, r4
 		;callback api
-		;r0 = target inst
-		;r1 = source inst
+		;r0 = target this
+		;r1 = source this
 		;r15 = dispatch register
 		;rest as passed by call to emit
 		;callback should normally save register the signal sends
@@ -179,7 +179,7 @@
 		(vp-cpy-ir r4 local_next r1)
 	(loop-end)
 
-	;restore inst
+	;restore this
 	(vp-cpy-ir r4 local_inst r0)
 	(vp-add-cr local_size r4)
 	(vp-ret)

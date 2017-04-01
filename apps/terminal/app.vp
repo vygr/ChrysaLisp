@@ -27,8 +27,8 @@
 
 	;init app vars
 	(push-scope)
-	(f-call 'sys_mem 'clear {&myapp, shared_size} {_})
-	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)) '(_ _))
+	(f-call 'sys_mem 'clear {&myapp, shared_size})
+	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)))
 	(f-call 'master 'create {} {myapp.shared_master})
 	(f-call 'vector 'create {} {myapp.shared_history})
 
@@ -106,11 +106,11 @@
 	;r0 = app local object
 	;r1 = close object
 
-	(ptr 'inst)
+	(ptr 'this)
 
 	(push-scope)
-	(assign '(r0) {inst})
-	(assign {1} {inst->shared_closed})
+	(assign '(r0) {this})
+	(assign {1} {this->shared_closed})
 	(pop-scope)
 	(return)
 
@@ -129,10 +129,10 @@
 	(assign '(r0 r1) {shared, stream})
 
 	(loop-start)
-		(f-call 'stream 'read_char {stream} {char})
+		(f-call 'stream 'read_char {stream} {_, char})
 		(breakif {char == -1})
 		(l-call 'terminal_output {shared, char} '(r0 r1))
-		(v-call 'stream 'read_ready {stream} {ready})
+		(v-call 'stream 'read_ready {stream} {_, ready})
 	(loop-untilnot {ready})
 
 	(assign {char} '(r0))

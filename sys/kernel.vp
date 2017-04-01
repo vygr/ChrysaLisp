@@ -213,7 +213,7 @@
 					(vp-cpy-ir r15 msg_length r2)
 					(vp-add-cr (dec ptr_size) r2)
 					(vp-and-cr (neg ptr_size) r2)
-					(f-call 'sys_mem 'copy '(r0 r1 r2) '(_ _))
+					(f-call 'sys_mem 'copy '(r0 r1 r2))
 					(vp-cpy-ri r11 r5 (add msg_dest id_cpu))
 					(f-call 'sys_mail 'send '(r5))
 				(loop-end)

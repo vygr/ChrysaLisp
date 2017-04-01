@@ -26,7 +26,7 @@
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'stream_str)) 'error2)
 	(assign (cat "@" (f-path 'sys_load 'statics)) {reloc})
 	(assign {reloc->ld_statics_reloc_buffer} {reloc})
-	(f-call 'stream_str 'read_line {value, reloc, ld_reloc_size} {length})
+	(f-call 'stream_str 'read_line {value, reloc, ld_reloc_size} {_, length})
 	(vpif {length == -1})
 		(assign {this->lisp_sym_nil} {value})
 		(f-call 'ref 'ref {value})

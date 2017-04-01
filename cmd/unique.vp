@@ -37,7 +37,7 @@
 		(else)
 			;from stdin
 			(loop-start)
-				(f-call 'stream 'read_line {slave->slave_stdin, &buffer, buffer_size} {length})
+				(f-call 'stream 'read_line {slave->slave_stdin, &buffer, buffer_size} {_, length})
 				(breakif {length == -1})
 				(f-call 'string 'create_from_buffer {&buffer, length} {arg})
 				(f-call 'unordered_set 'insert {set, arg})

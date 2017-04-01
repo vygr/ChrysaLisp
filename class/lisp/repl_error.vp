@@ -24,7 +24,7 @@
 
 	(f-call 'lisp 'env_find {this, this->lisp_sym_stream_name} {_, iter, _})
 	(vpif {iter})
-		(f-call 'pair 'get_second {*iter} {file})
+		(f-call 'pair 'get_second {*iter} {_, file})
 		(f-call 'obj 'inst_of (cat {file, @} (f-path 'class 'string)) {_, value})
 		(gotoifnot {value} 'nofile)
 		(assign {&file->string_data} {file})
@@ -36,7 +36,7 @@
 	(assign {0} {line})
 	(f-call 'lisp 'env_find {this, this->lisp_sym_stream_line} {_, iter, _})
 	(vpif {iter})
-		(f-call 'pair 'get_second {*iter} {value})
+		(f-call 'pair 'get_second {*iter} {_, value})
 		(breakif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)))
 		(f-call 'boxed_long 'get_value {value} {line})
 	(endif)

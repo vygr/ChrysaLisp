@@ -35,7 +35,7 @@
 	(f-call 'boxed_long 'get_value {first} {num})
 	(assign {this->lisp_sym_t} {value})
 	(f-call 'ref 'ref {value})
-	(f-call 'vector 'for_each {args, 1, length, $callback, &this} {_})
+	(f-call 'vector 'for_each {args, 1, length, $callback, &this})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_le {this, value})

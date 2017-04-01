@@ -29,7 +29,7 @@
 		(f-call 'lisp 'repl_eval {this, value} {_, value})
 		(breakif (cat {value->obj_vtable == @} (f-path 'class 'error)))
 		(breakif {value == this->lisp_sym_nil})
-		(f-call 'vector 'for_each {args, 1, length, $callback, &this} {_})
+		(f-call 'vector 'for_each {args, 1, length, $callback, &this})
 		(breakif (cat {value->obj_vtable == @} (f-path 'class 'error)))
 		(f-call 'ref 'deref {value})
 	(loop-end)

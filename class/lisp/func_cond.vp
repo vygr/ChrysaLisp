@@ -24,7 +24,7 @@
 	(assign {this->lisp_sym_nil} {value})
 	(f-call 'ref 'ref {value})
 	(d-call 'vector 'get_length {args} {_, length})
-	(f-call 'vector 'for_each {args, 0, length, $callback, &this} {_})
+	(f-call 'vector 'for_each {args, 0, length, $callback, &this})
 
 	(f-exit 'lisp 'func_cond {this, value})
 	(pop-scope)
@@ -55,7 +55,7 @@
 		(f-exit 'vector 'callback '(1))
 	(else)
 		(f-call 'ref 'deref {test})
-		(f-call 'vector 'for_each {*iter, 1, length, $callback1, pdata} {_})
+		(f-call 'vector 'for_each {*iter, 1, length, $callback1, pdata})
 		(f-exit 'vector 'callback '(0))
 	(endif)
 	(return)

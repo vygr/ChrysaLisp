@@ -32,10 +32,10 @@
 		(f-call 'string 'create_raw {string_gap} {value})
 		(f-call 'stream_str 'create {value} {str_stream})
 		(loop-start)
-			(f-call 'stream 'read_char {stream} {char})
+			(f-call 'stream 'read_char {stream} {_, char})
 			(breakif {char == -1})
 			(f-call 'stream 'write_char {str_stream, char})
-			(v-call 'stream 'read_ready {stream} {ready})
+			(v-call 'stream 'read_ready {stream} {_, ready})
 		(loop-untilnot {ready})
 		(vpif {char == -1})
 			;EOF

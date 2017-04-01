@@ -33,7 +33,7 @@
 	(assign {args->vector_array} {iter})
 	(assign {this->lisp_sym_t} {value})
 	(f-call 'ref 'ref {value})
-	(f-call 'vector 'for_each {args, 0, length, $callback, &this} {_})
+	(f-call 'vector 'for_each {args, 0, length, $callback, &this})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_ne {this, value})

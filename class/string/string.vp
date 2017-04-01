@@ -234,7 +234,7 @@
 		(f-call 'sys_mem 'copy '((& r6 string_data) (& r0 string_data) (r6 string_length ui)) '(_ r1))
 		(vp-cpy-ir-ui r7 string_length r2)
 		(vp-add-cr byte_size r2)
-		(f-call 'sys_mem 'copy '((& r7 string_data) r1 r2) '(_ _))
+		(f-call 'sys_mem 'copy '((& r7 string_data) r1 r2))
 
 		(vp-cpy-ir r4 local_inst r0)
 	(endif)
@@ -605,7 +605,7 @@
 
 	;create string split
 	(f-call 'stream 'create {0, 0, &this->string_data, this->string_length} {stream})
-	(f-call 'stream 'split {stream, char} {splits})
+	(f-call 'stream 'split {stream, char} {_, splits})
 	(f-call 'stream 'deref {stream})
 
 	(f-exit 'string 'split {this, splits})

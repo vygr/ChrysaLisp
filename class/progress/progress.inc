@@ -5,8 +5,8 @@
 (def-class 'progress 'view)
 (def-method 'create 'class/progress/create 'static nil '(r0))
 (def-method 'new 'class/progress/new 'static nil '(r0))
-(def-method 'set_max 'class/progress/set_max 'static '(r0 r1))
-(def-method 'set_val 'class/progress/set_val 'static '(r0 r1))
+(def-method 'set_max 'class/progress/set_max 'static '(r0 r1) '(r0))
+(def-method 'set_val 'class/progress/set_val 'static '(r0 r1) '(r0))
 
 (def-method 'pref_size 'class/progress/pref_size 'final)
 (def-method 'draw 'class/progress/draw 'final)

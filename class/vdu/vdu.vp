@@ -67,45 +67,45 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst 'ctx 'txt)
+	(ptr 'this 'ctx 'txt)
 	(int 'x 'char 'bx 'by 'bx1 'by1)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1) {inst, ctx})
+	(assign '(r0 r1) {this, ctx})
 
 	;draw vdu chars
-	(vpif {inst->vdu_font})
+	(vpif {this->vdu_font})
 		(f-call 'gui_region 'bounds {ctx->gui_ctx_dirty_region} {bx, by, bx1, by1})
-		(assign {(bx - ctx->gui_ctx_x) / inst->vdu_char_width} {bx})
-		(assign {(bx1 - ctx->gui_ctx_x - 1) / inst->vdu_char_width} {bx1})
-		(assign {(by - ctx->gui_ctx_y) / inst->vdu_char_height} {by})
-		(assign {(by1 - ctx->gui_ctx_y - 1) / inst->vdu_char_height} {by1})
-		(vpif {bx1 >= inst->vdu_width})
-			(assign {inst->vdu_width - 1} {bx1})
+		(assign {(bx - ctx->gui_ctx_x) / this->vdu_char_width} {bx})
+		(assign {(bx1 - ctx->gui_ctx_x - 1) / this->vdu_char_width} {bx1})
+		(assign {(by - ctx->gui_ctx_y) / this->vdu_char_height} {by})
+		(assign {(by1 - ctx->gui_ctx_y - 1) / this->vdu_char_height} {by1})
+		(vpif {bx1 >= this->vdu_width})
+			(assign {this->vdu_width - 1} {bx1})
 		(endif)
-		(vpif {by1 >= inst->vdu_height})
-			(assign {inst->vdu_height - 1} {by1})
+		(vpif {by1 >= this->vdu_height})
+			(assign {this->vdu_height - 1} {by1})
 		(endif)
 		(loop-while {by <= by1})
 			(assign {bx} {x})
 			(loop-while {x <= bx1})
-				(assign {(inst->vdu_chars)[by * inst->vdu_width + x]} {char})
+				(assign {(this->vdu_chars)[by * this->vdu_width + x]} {char})
 				(vpif {char > 32 && char < 127})
-					(assign {(inst->vdu_textures)[ptr_size * (char - 33)]} {txt})
+					(assign {(this->vdu_textures)[ptr_size * (char - 33)]} {txt})
 					(vpif {txt})
-						(f-call 'gui_ctx 'blit {ctx, txt->ft_text_texture, inst->vdu_text_color, x * inst->vdu_char_width, by * inst->vdu_char_height, txt->ft_text_width, txt->ft_text_height})
+						(f-call 'gui_ctx 'blit {ctx, txt->ft_text_texture, this->vdu_text_color, x * this->vdu_char_width, by * this->vdu_char_height, txt->ft_text_width, txt->ft_text_height})
 					(endif)
 				(endif)
 				(assign {x + 1} {x})
 			(loop-end)
 			(assign {by + 1} {by})
 		(loop-end)
-		(f-call 'gui_ctx 'set_color {ctx, inst->vdu_text_color})
-		(f-call 'gui_ctx 'filled_box {ctx, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
+		(f-call 'gui_ctx 'set_color {ctx, this->vdu_text_color})
+		(f-call 'gui_ctx 'filled_box {ctx, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 	(endif)
 
-	(assign {inst} '(r0))
+	(assign {this} '(r0))
 	(pop-scope)
 	(return)
 
@@ -120,17 +120,17 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst)
+	(ptr 'this)
 	(ulong 'width 'height)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0) {inst})
+	(assign '(r0) {this})
 
 	;bounds of vdu
-	(assign {inst->vdu_width * inst->vdu_char_width, inst->vdu_height * inst->vdu_char_height} {width, height})
+	(assign {this->vdu_width * this->vdu_char_width, this->vdu_height * this->vdu_char_height} {width, height})
 
-	(assign {inst, width, height} '(r0 r10 r11))
+	(assign {this, width, height} '(r0 r10 r11))
 	(pop-scope)
 	(return)
 
@@ -144,37 +144,37 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'inst 'name 'word 'txt)
+	(ptr 'this 'name 'word 'txt)
 	(pulong 'wordp)
 	(ulong 'points 'code)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1 r2) {inst, name, points})
+	(assign '(r0 r1 r2) {this, name, points})
 
 	;set char size
-	(assign {points + (points >> 2)} {inst->vdu_char_height})
-	(assign {points * 10 >> 4} {inst->vdu_char_width})
+	(assign {points + (points >> 2)} {this->vdu_char_height})
+	(assign {points * 10 >> 4} {this->vdu_char_width})
 
 	;open font
-	(f-call 'gui_font 'open {name, points} {inst->vdu_font})
+	(f-call 'gui_font 'open {name, points} {this->vdu_font})
 
 	;cache char textures
-	(vpif {inst->vdu_font})
+	(vpif {this->vdu_font})
 		(f-call 'string 'create_from_cstr {" "} {word})
 		(assign {&word->string_data} {wordp})
 		(assign {33} {code})
 		(loop-start)
 			(assign {code} {*wordp})
 			(assign {0} {word->string_hashcode})
-			(f-call 'gui_font 'text {inst->vdu_font, word} {txt})
-			(assign {txt} {(inst->vdu_textures)[ptr_size * (code - 33)]})
+			(f-call 'gui_font 'text {this->vdu_font, word} {txt})
+			(assign {txt} {(this->vdu_textures)[ptr_size * (code - 33)]})
 			(assign {code + 1} {code})
 		(loop-until {code == 127})
 		(f-call 'string 'deref {word})
 	(endif)
 
-	(assign {inst} '(r0))
+	(assign {this} '(r0))
 	(pop-scope)
 	(return)
 
@@ -185,63 +185,63 @@
 	;r0 = vdu object
 	;r1 = char
 
-	(ptr 'inst)
+	(ptr 'this)
 	(ubyte 'char)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1) {inst, char})
+	(assign '(r0 r1) {this, char})
 
 	;dirty old cursor area
-	(f-call 'vdu 'add_dirty {inst, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
+	(f-call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 
 	;wrap cursor, maybe scroll
-	(vpif {inst->vdu_cursor_x >= inst->vdu_width})
-		(assign {0} {inst->vdu_cursor_x})
-		(assign {inst->vdu_cursor_y + 1} {inst->vdu_cursor_y})
+	(vpif {this->vdu_cursor_x >= this->vdu_width})
+		(assign {0} {this->vdu_cursor_x})
+		(assign {this->vdu_cursor_y + 1} {this->vdu_cursor_y})
 	(endif)
-	(vpif {inst->vdu_cursor_y >= inst->vdu_height})
-		(assign {0} {inst->vdu_cursor_x})
-		(assign {inst->vdu_height - 1} {inst->vdu_cursor_y})
-		(f-call 'sys_mem 'copy {inst->vdu_chars + inst->vdu_width, inst->vdu_chars, (inst->vdu_height - 1) * inst->vdu_width})
-		(f-call 'sys_mem 'fill {inst->vdu_chars + (inst->vdu_height - 1) * inst->vdu_width, inst->vdu_width, 32} {_})
-		(f-call 'vdu 'dirty {inst})
+	(vpif {this->vdu_cursor_y >= this->vdu_height})
+		(assign {0} {this->vdu_cursor_x})
+		(assign {this->vdu_height - 1} {this->vdu_cursor_y})
+		(f-call 'sys_mem 'copy {this->vdu_chars + this->vdu_width, this->vdu_chars, (this->vdu_height - 1) * this->vdu_width})
+		(f-call 'sys_mem 'fill {this->vdu_chars + (this->vdu_height - 1) * this->vdu_width, this->vdu_width, 32})
+		(f-call 'vdu 'dirty {this})
 	(endif)
 
 	(vpif {char == 10})
 		;line feed
-		(assign {0} {inst->vdu_cursor_x})
-		(assign {inst->vdu_cursor_y + 1} {inst->vdu_cursor_y})
+		(assign {0} {this->vdu_cursor_x})
+		(assign {this->vdu_cursor_y + 1} {this->vdu_cursor_y})
 	(elseif {char == 9})
 		;tab
-		(assign {4 - (inst->vdu_cursor_x & 3)} {char})
+		(assign {4 - (this->vdu_cursor_x & 3)} {char})
 		(loop-start)
-			(f-call 'vdu 'print_char {inst, 32})
+			(f-call 'vdu 'print_char {this, 32})
 			(assign {char - 1} {char})
 		(loop-untilnot {char})
 	(elseif {char == 128})
 		;backspace
-		(vpif {inst->vdu_cursor_x != 0})
-			(assign {inst->vdu_cursor_x - 1} {inst->vdu_cursor_x})
-			(assign {32} {(inst->vdu_chars)[inst->vdu_cursor_y * inst->vdu_width + inst->vdu_cursor_x]})
-			(f-call 'vdu 'add_dirty {inst, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
+		(vpif {this->vdu_cursor_x != 0})
+			(assign {this->vdu_cursor_x - 1} {this->vdu_cursor_x})
+			(assign {32} {(this->vdu_chars)[this->vdu_cursor_y * this->vdu_width + this->vdu_cursor_x]})
+			(f-call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 		(endif)
 	(elseif {char == 129})
 		;clear line
-		(vpif {inst->vdu_cursor_x != 0})
-			(f-call 'sys_mem 'fill {inst->vdu_chars + inst->vdu_cursor_y * inst->vdu_width, inst->vdu_width, 32} {_})
-			(f-call 'vdu 'add_dirty {inst, 0, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_char_height})
-			(assign {0} {inst->vdu_cursor_x})
+		(vpif {this->vdu_cursor_x != 0})
+			(f-call 'sys_mem 'fill {this->vdu_chars + this->vdu_cursor_y * this->vdu_width, this->vdu_width, 32})
+			(f-call 'vdu 'add_dirty {this, 0, this->vdu_cursor_y * this->vdu_char_height, this->vdu_cursor_x * this->vdu_char_width, this->vdu_char_height})
+			(assign {0} {this->vdu_cursor_x})
 		(endif)
 	(elseif {char >= 32 && char < 127})
 		;printable char
-		(assign {char} {(inst->vdu_chars)[inst->vdu_cursor_y * inst->vdu_width + inst->vdu_cursor_x]})
-		(f-call 'vdu 'add_dirty {inst, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
-		(assign {inst->vdu_cursor_x + 1} {inst->vdu_cursor_x})
+		(assign {char} {(this->vdu_chars)[this->vdu_cursor_y * this->vdu_width + this->vdu_cursor_x]})
+		(f-call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
+		(assign {this->vdu_cursor_x + 1} {this->vdu_cursor_x})
 	(endif)
 
 	;dirty new cursor area
-	(f-call 'vdu 'add_dirty {inst, inst->vdu_cursor_x * inst->vdu_char_width, inst->vdu_cursor_y * inst->vdu_char_height, inst->vdu_char_width, inst->vdu_char_height})
+	(f-call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 
 	(pop-scope)
 	(return)
@@ -253,16 +253,16 @@
 	;r0 = vdu object
 	;r1 = c string pointer
 
-	(ptr 'inst)
+	(ptr 'this)
 	(pubyte 'charp)
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1) {inst, charp})
+	(assign '(r0 r1) {this, charp})
 
 	;print chars
 	(loop-while {*charp})
-		(f-call 'vdu 'print_char {inst, *charp})
+		(f-call 'vdu 'print_char {this, *charp})
 		(assign {charp + 1} {charp})
 	(loop-end)
 

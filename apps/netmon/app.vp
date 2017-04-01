@@ -49,7 +49,7 @@
 
 	;init app vars
 	(push-scope)
-	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)) '(_ _))
+	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)))
 	(assign {0, 0} {max_tasks, myapp.app_closed})
 
 	;create my window
@@ -93,7 +93,7 @@
 	(f-call 'sys_cpu 'total {} {cpu_total})
 	(f-call 'sys_mem 'alloc {cpu_total * ptr_size * 2} {task_progress, _})
 	(f-call 'sys_mem 'alloc {num_samples * int_size} {durations, _})
-	(f-call 'sys_mem 'clear {durations, num_samples * int_size} {_})
+	(f-call 'sys_mem 'clear {durations, num_samples * int_size})
 
 	;add num cpus progress bars to my app panel2
 	(assign {0} {cpu_count})
@@ -249,11 +249,11 @@
 	;r0 = app local object
 	;r1 = close object
 
-	(ptr 'inst)
+	(ptr 'this)
 
 	(push-scope)
-	(assign '(r0) {inst})
-	(assign {1} {inst->app_closed})
+	(assign '(r0) {this})
+	(assign {1} {this->app_closed})
 	(pop-scope)
 	(return)
 

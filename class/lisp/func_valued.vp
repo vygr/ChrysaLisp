@@ -23,7 +23,7 @@
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
 	(f-call 'lisp 'env_find {this, value} {_, value, _})
 	(vpif {value})
-		(f-call 'pair 'get_second {ptr(*value)} {value})
+		(f-call 'pair 'get_second {ptr(*value)} {_, value})
 	(else)
 		(assign {this->lisp_sym_nil} {value})
 	(endif)
