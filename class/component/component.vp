@@ -10,7 +10,7 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	(s-call 'component 'init '(r0 r1))
+	(s-call 'component 'init '(r0 r1) '(r0 _))
 
 	;init myself
 	(vp-lea-i r0 component_slot_list r1)
@@ -26,7 +26,7 @@
 	;all but r0, r4
 
 	;disconnnect all slots
-	(f-call 'component 'disconnect_slot '(r0 0))
+	(f-call 'component 'disconnect_slot '(r0 0) '(r0))
 
 	;deinit parent
 	(s-jmp 'component 'deinit '(r0))
@@ -43,7 +43,7 @@
 	;all but r0, r4
 
 	;save inputs
-	(assign '(r0 r1 r2 r3) '(r5 r6 r7 r8))
+	(f-entry 'component 'connect '(r5 r6 r7 r8))
 
 	;gui sigslot heap
 	(f-bind 'gui_gui 'statics r0)
@@ -65,7 +65,7 @@
 	(lh-add-at-tail r6 r2 r3)
 
 	;restore this
-	(vp-cpy-rr r5 r0)
+	(f-exit 'component 'connect '(r5))
 	(vp-ret)
 
 (def-func-end)
@@ -78,7 +78,7 @@
 	;all but r0, r4
 
 	;save inputs
-	(assign '(r0 r1) '(r7 r6))
+	(f-entry 'component 'disconnect_sig '(r7 r6))
 
 	;gui sigslot heap
 	(f-bind 'gui_gui 'statics r0)
@@ -99,7 +99,7 @@
 	(lh-init r6 r1)
 
 	;restore this
-	(vp-cpy-rr r7 r0)
+	(f-exit 'component 'disconnect_sig '(r7))
 	(vp-ret)
 
 (def-func-end)
@@ -112,7 +112,7 @@
 	;all but r0, r4
 
 	;save inputs
-	(assign '(r0 r1) '(r7 r6))
+	(f-entry 'component 'disconnect_slot '(r7 r6))
 
 	;gui sigslot heap
 	(f-bind 'gui_gui 'statics r0)
@@ -138,7 +138,7 @@
 	(loop-end)
 
 	;restore this
-	(vp-cpy-rr r7 r0)
+	(f-exit 'component 'disconnect_slot '(r7))
 	(vp-ret)
 
 (def-func-end)
@@ -164,7 +164,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_inst)))
+	(f-entry 'component 'emit '((r4 local_inst) r1))
 
 	;emit the signal
 	(loop-list-forward r1 0 r0 r1)
@@ -180,7 +180,7 @@
 	(loop-end)
 
 	;restore this
-	(vp-cpy-ir r4 local_inst r0)
+	(f-exit 'component 'emit '((r4 local_inst)))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 

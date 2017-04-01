@@ -32,7 +32,7 @@
 		(assign {stream_mail_state_stopped} {this->master_state})
 	(endif)
 
-	(assign {this, error} '(r0 r1))
+	(f-exit 'master 'init {this, error})
 	(pop-scope)
 	(return)
 

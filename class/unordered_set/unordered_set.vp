@@ -22,10 +22,10 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r2 r3) '((r4 local_inst) (r0 unordered_set_key_callback) (r0 unordered_set_num_buckets i)))
+	(f-entry 'unordered_set 'init '((r4 local_inst) r1 (r0 unordered_set_key_callback) (r0 unordered_set_num_buckets i)))
 
 	;init parent
-	(s-call 'unordered_set 'init '(r0 r1) '(_ r1))
+	(s-call 'unordered_set 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-xor-rr r1 r1)
@@ -162,7 +162,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1 r2) '((r4 local_inst) (r4 local_iter) (r4 local_bucket)))
+	(f-entry 'unordered_set 'erase '((r4 local_inst) (r4 local_iter) (r4 local_bucket)))
 
 	(vp-cpy-ir-ui r0 unordered_set_length r2)
 	(vp-sub-cr 1 r2)
@@ -183,7 +183,7 @@
 		(vp-cpy-ri r1 r0 0)
 	(endif)
 
-	(vp-cpy-ir r4 local_inst r0)
+	(f-exit 'unordered_set 'erase '((r4 local_inst)))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -207,13 +207,13 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1) '((r4 local_inst) (r4 local_key)))
+	(f-entry 'unordered_set 'find '((r4 local_inst) (r4 local_key)))
 
 	;search hash bucket
 	(f-call 'unordered_set 'get_bucket '(r0 r1) '(_ r0))
-	(f-call 'vector 'for_each '(r0 0 (r0 vector_length ui) ($ callback) r4) '(_ r1))
-	(vp-cpy-rr r0 r2)
-	(vp-cpy-ir r4 local_inst r0)
+	(f-call 'vector 'for_each '(r0 0 (r0 vector_length ui) ($ callback) r4) '(r2 r1))
+
+	(f-exit 'unordered_set 'find '((r4 local_inst) r1 r2))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -260,7 +260,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_inst)))
+	(f-entry 'unordered_set 'for_each '((r4 local_inst) r1 r2))
 
 	;for all buckets
 	(vp-cpy-ir-ui r0 unordered_set_num_buckets r3)
@@ -278,7 +278,8 @@
 			(vp-cpy-ir r4 local_iter r1)
 		(endif)
 	(endif)
-	(vp-cpy-ir r4 local_inst r0)
+
+	(f-exit 'unordered_set 'for_each '((r4 local_inst) r1 r2))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -372,7 +373,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1) '((r4 local_inst) (r4 local_key)))
+	(f-entry 'unordered_set 'insert '((r4 local_inst) (r4 local_key)))
 
 	;search hash bucket
 	(f-call 'unordered_set 'get_bucket '(r0 r1) '(_ r0))
@@ -394,7 +395,7 @@
 		(vp-lea-i r0 (neg ptr_size) r1)
 	(endif)
 
-	(vp-cpy-ir r4 local_inst r0)
+	(f-exit 'unordered_set 'insert '((r4 local_inst)))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 

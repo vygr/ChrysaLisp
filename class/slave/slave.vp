@@ -53,7 +53,7 @@
 		(endif)
 	(endif)
 
-	(assign {this, error} '(r0 r1))
+	(f-exit 'slave 'init {this, error})
 	(pop-scope)
 	(return)
 
