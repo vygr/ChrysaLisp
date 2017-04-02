@@ -858,15 +858,15 @@
 
 (defcfun opt-find-1 (i r x)
 	(while (and (gt (setq i (dec i)) 0)
-				(not (match-list? (defq e (elem i *this*)) x)))
+				(not (match? (defq e (elem i *this*)) x)))
 		(if (or (find r e) (find (elem 0 e) '(vpif elseif else endif))) (setq i 0)))
 	(setq m 0 p (if (lt i 1) nil i)))
 
 (defcfun opt-find-2 (i r x y)
 	(defq e nil)
 	(while (and (gt (setq i (dec i)) 0)
-				(not (match-list? (setq m 0 e (elem i *this*)) x))
-				(not (match-list? (setq m 1 e e) y)))
+				(not (match? (setq m 0 e (elem i *this*)) x))
+				(not (match? (setq m 1 e e) y)))
 		(if (or (find r e) (find (elem 0 e) '(vpif elseif else endif))) (setq i 0)))
 	(setq p (if (lt i 1) nil i)))
 

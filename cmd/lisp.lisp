@@ -333,12 +333,6 @@
 	(while (lt (setq i (inc i)) (length _))
 		(setq n (add (mul n b) (from-base-char (elem i _))))) n)
 
-(defun match-list? (x y)
-	(when (eq (defq i (length x)) (length y))
-		(while (and (ge (setq i (dec i)) 0)
-					(or (eql '_ (elem i y)) (eql (elem i x) (elem i y)))))
-		(lt i 0)))
-
 (defun pow2 (_)
 	(defq i -1 b nil)
 	(while (and (not b) (lt (setq i (inc i)) 64))

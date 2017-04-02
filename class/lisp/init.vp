@@ -203,6 +203,7 @@
 	(built-in "pipe-write" 0 'func_wpipe)
 	(built-in "time" 0 'func_time)
 	(built-in "clear" 0 'func_clear)
+	(built-in "match?" 0 'func_match)
 	(vp-short 0)
 
 (def-func-end)

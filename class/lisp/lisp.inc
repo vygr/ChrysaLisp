@@ -108,6 +108,7 @@
 (def-method 'func_wpipe 'class/lisp/func_wpipe 'static '(r0 r1) '(r0 r1))
 (def-method 'func_time 'class/lisp/func_time 'static '(r0 r1) '(r0 r1))
 (def-method 'func_clear 'class/lisp/func_clear 'static '(r0 r1) '(r0 r1))
+(def-method 'func_match 'class/lisp/func_match 'static '(r0 r1) '(r0 r1))
 
 (def-enum)
 	(enum 'type_args_eval_apply 'type_args_apply 'type_apply)

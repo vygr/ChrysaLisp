@@ -1,0 +1,61 @@
+(import 'inc/func.inc)
+(import 'class/vector/vector.inc)
+(import 'class/string/string.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_match)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = else value
+
+	(ptr 'this 'args 'l1 'l2 'value1 'value2)
+	(uint 'length1 'length2)
+
+	(push-scope)
+	(f-entry 'lisp 'func_match {this, args})
+
+	(d-call 'vector 'get_length {args} {_, length1})
+	(errorif {length1 != 2} 'error1)
+	(f-call 'vector 'get_element {args, 0} {_, l1})
+	(errorif (cat {l1->obj_vtable != @} (f-path 'class 'vector)) 'error2)
+	(f-call 'vector 'get_element {args, 1} {_, l2})
+	(errorif (cat {l2->obj_vtable != @} (f-path 'class 'vector)) 'error2)
+	(d-call 'vector 'get_length {l1} {_, length1})
+	(d-call 'vector 'get_length {l2} {_, length2})
+	(vpif {length1 == length2})
+		(loop-while {length1})
+			(assign {length1 - 1} {length1})
+			(f-call 'vector 'get_element {l1, length1} {_, value1})
+			(f-call 'vector 'get_element {l2, length1} {_, value2})
+			(continueif {value1 == value2})
+			(f-call 'obj 'inst_of (cat {value2, @} (f-path 'class 'string)) {_, args})
+			(gotoifnot {args} 'nomatch)
+			(gotoif {ushort(value2->string_data) != char_underscore} 'nomatch)
+		(loop-end)
+		(assign {this->lisp_sym_t} {value1})
+	(else)
+	(vp-label 'nomatch)
+		(assign {this->lisp_sym_nil} {value1})
+	(endif)
+	(f-call 'ref 'ref {value1})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'func_match {this, value1})
+	(return)
+
+(errorcases
+(vp-label 'error2)
+	(assign {"(match? list list) not a list"} {value1})
+	(goto 'error)
+(vp-label 'error1)
+	(assign {"(match? list list) wrong number of args"} {value1})
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, value1, args} {_, value1})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)
