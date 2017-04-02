@@ -77,7 +77,6 @@
 	(vp-cpy-rr r0 r8)
 	(vp-cpy-rr r1 r9)
 	(f-call 'sys_mail 'alloc '() '(r0))
-	(assert '(r0 != 0))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 r0 (add msg_dest id_mbox))
 	(vp-cpy-ri r9 r0 (add msg_dest id_cpu))
@@ -180,7 +179,6 @@
 			;allocate msg, copy over data
 			;round up to next 8 byte boundary for speed
 			(f-call 'sys_mail 'alloc '() '(r0))
-			(assert '(r0 != 0))
 			(vp-cpy-rr r0 r8)
 			(vp-cpy-rr r0 r1)
 			(vp-lea-i r11 lk_chan_msg r0)

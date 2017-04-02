@@ -128,7 +128,6 @@
 	(vpif '(r2 > r1))
 		;alloc new table
 		(f-call 'sys_mem 'alloc '(r2) '(r0 _))
-		(assert '(r0 != 0))
 		(vp-cpy-rr r0 r7)
 		(vp-cpy-rr r1 r8)
 		(vpif '(r6 != 0))
@@ -163,7 +162,6 @@
 	(vpif '(r2 > r1))
 		;alloc new table
 		(f-call 'sys_mem 'alloc '(r2) '(r0 _))
-		(assert '(r0 != 0))
 		(vp-cpy-rr r0 r7)
 		(vp-cpy-rr r1 r8)
 

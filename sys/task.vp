@@ -69,7 +69,6 @@
 
 	;allocate mail message
 	(f-call 'sys_mail 'alloc '() '(r3))
-	(assert '(r0 != 0))
 
 	;fill in destination, reply and function
 	(f-call 'sys_cpu 'id '() '(r0))

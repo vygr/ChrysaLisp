@@ -206,7 +206,6 @@
 					(vp-cpy-ir r12 lk_node_cpu_id r11)
 					(continueif '(r11 == r14))
 					(f-call 'sys_mail 'alloc '() '(r0))
-					(assert '(r0 != 0))
 					(vp-cpy-rr r0 r5)
 					(vp-cpy-rr r0 r1)
 					(vp-cpy-rr r15 r0)
