@@ -593,29 +593,3 @@
 
 (defun compile-test ()
 	(each compile (all-vp-files)))
-
-;test code for OOPS stuff
-;issues with when to evaluate args to scope !
-
-(defmacro constructor (n a &rest b)
-	`(defun ,n ,a ((lambda () ~b (env)))))
-
-(defmacro scope-progn (o &rest b)
-	`(scope ,o ((lambda () ~b))))
-
-(constructor make-button (x y w h)
-	(defq m_x x m_y y m_w w m_h h)
-	(defun get-pos ()
-		(list m_x m_y))
-	(defun set-pos (x y)
-		(setq m_x x m_y y))
-	(defun set-size (w h)
-		(setq m_w w m_h h))
-	(defun get-size ()
-		(list m_w m_h)))
-
-(defq button (make-button 0 0 256 32))
-;(scope-progn button (print (get-pos)) (print (get-size)))
-(scope-progn button (set-pos 50 100) (set-size 100 120))
-;(scope-progn button (print (get-pos)) (print (get-size)))
-(setq button nil)
