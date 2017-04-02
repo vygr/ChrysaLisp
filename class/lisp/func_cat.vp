@@ -82,7 +82,7 @@
 	(d-call 'vector 'get_length {elem} {_, length})
 	(f-call 'vector 'append {pdata->pdata_value, elem, 0, length})
 
-	(f-exit 'vector 'callback '(1))
+	(f-exit 'vector 'callback '(-1))
 	(return)
 
 (errorcases

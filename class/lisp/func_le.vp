@@ -71,7 +71,7 @@
 	(f-call 'boxed_long 'get_value {*iter} {num})
 	(vpif {pdata->pdata_num <= num})
 		(assign {num} {pdata->pdata_num})
-		(f-exit 'vector 'callback '(1))
+		(f-exit 'vector 'callback '(-1))
 	(else)
 		(f-call 'ref 'deref {pdata->pdata_value})
 		(assign {pdata->pdata_this->lisp_sym_nil} {pdata->pdata_value})

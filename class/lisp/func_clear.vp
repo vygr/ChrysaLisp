@@ -49,7 +49,7 @@
 	(f-call 'vector 'clear {pdata->pdata_value})
 	(f-call 'ref 'ref {pdata->pdata_value})
 
-	(f-exit 'vector 'callback '(1))
+	(f-exit 'vector 'callback '(-1))
 	(return)
 
 (errorcases

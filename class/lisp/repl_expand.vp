@@ -96,7 +96,7 @@
 
 	(f-call 'lisp 'repl_expand {pdata->pdata_this, iter, pdata->pdata_cnt} {_, pdata->pdata_cnt})
 
-	(f-exit 'vector 'callback '(1))
+	(f-exit 'vector 'callback '(-1))
 	(pop-scope)
 	(return)
 

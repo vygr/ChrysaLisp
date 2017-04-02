@@ -199,6 +199,8 @@
 	(cond
 		((eq 0 c)
 			(emit-xor-rr r r))
+		((eq -1 c)
+			(emit-or-cr -1 r))
 		((le 0 c 0xffffffff)
 			(if (ge rn 8) (emit-byte 0x41))
 			(emit-byte (add 0xb8 rl))

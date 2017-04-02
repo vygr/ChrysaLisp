@@ -52,7 +52,7 @@
 	(errorif (cat {test->obj_vtable == @} (f-path 'class 'error)) 'error)
 	(vpif {test == pdata->pdata_this->lisp_sym_nil})
 		(f-call 'ref 'deref {test})
-		(f-exit 'vector 'callback '(1))
+		(f-exit 'vector 'callback '(-1))
 	(else)
 		(f-call 'ref 'deref {test})
 		(f-call 'vector 'for_each {*iter, 1, length, $callback1, pdata})

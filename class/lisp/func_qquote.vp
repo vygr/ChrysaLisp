@@ -113,7 +113,7 @@
 	(endif)
 	(f-call 'vector 'push_back {pdata->pdata_cat_list, list})
 
-	(f-exit 'vector 'callback '(1))
+	(f-exit 'vector 'callback '(-1))
 	(pop-scope)
 	(return)
 

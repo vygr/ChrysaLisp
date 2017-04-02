@@ -46,7 +46,7 @@
 		(f-call 'lisp 'repl_print {pdata, pdata->lisp_stdout, elem})
 	(endif)
 
-	(f-exit 'vector 'callback '(1))
+	(f-exit 'vector 'callback '(-1))
 	(pop-scope)
 	(return)
 

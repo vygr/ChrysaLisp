@@ -83,7 +83,7 @@
 	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_,pdata->pdata_value})
 	(errorif (cat {pdata->pdata_value->obj_vtable == @} (f-path 'class 'error)) 'error3)
 
-	(f-exit 'vector 'callback '(1))
+	(f-exit 'vector 'callback '(-1))
 	(return)
 
 (errorcases
