@@ -55,8 +55,7 @@
 	(vp-label (beg-sym)))
 
 (defcfun default ()
-	(defq s (cnt-sym) c (eval s))
-	(vp-label (loc-sym c))
+	(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
 	(set s (inc c)))
 
 (defcfun endswitch ()
@@ -205,8 +204,7 @@
 		(error "Unbalanced scopes !" *var-sp*)))
 
 (defcfun unwind ()
-	(defq o (get-scope-offset 0))
-	(when (ne o 0)
+	(when (ne (defq o (get-scope-offset 0)) 0)
 		(when debug_inst
 			(print "(vp-add-cr " o " " r4 ")"))
 		(vp-add-cr o r4)))
@@ -218,14 +216,12 @@
 	(vp-ret))
 
 (defcfun get-scope-offset (s)
-	(defq o 0)
 	(if (ge s (length *scopes*))
 		(error "Symbol not in scope !" s)
 		(progn
-			(defq i (length *scopes*))
+			(defq i (length *scopes*) o 0)
 			(while (lt s (setq i (dec i)))
-				(setq o (add o (elem 1 (elem i *scopes*)))))))
-	o)
+				(setq o (add o (elem 1 (elem i *scopes*))))))) o)
 
 (defcfun def-sym (_1 _2 _3 &optional _4 _5)
 	;_1 name
@@ -458,8 +454,8 @@
 				(if (or (eq s 0) (eq s 12))
 					(setq c nil)
 					(progn
-						(defq s (slice p i l))
-						(if (find (sym s) '(byte ubyte short ushort int uint long ulong ptr))
+						(if (find (sym (defq s (slice p i l)))
+								'(byte ubyte short ushort int uint long ulong ptr))
 							(push-token s 4)
 							(push-token s m))
 						(setq p i u 0 m -1))))
