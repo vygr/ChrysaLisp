@@ -489,12 +489,9 @@
 	(while (lt (setq i (inc i)) (length *token*))
 		(setq k (elem 0 (elem i *token*)) c (elem 1 (elem i *token*)))
 		(cond
-			((gt c 3)
-				;operator
+			((gt c 3) ;operator
 				(cond
-					((eql k "(")
-						(push o k))
-					((eql k "[")
+					((find k "([")
 						(push o k))
 					((eql k ")")
 						(while (and (not (eql "(" (setq k (pop o)))) k)
@@ -503,10 +500,8 @@
 						(while (and (not (eql "[" (setq k (pop o)))) k)
 							(push-rpn k -1))
 						(push-rpn "[]" -1))
-					(t
-						;precedence
-						(setq s (get-sym k))
-						(unless s
+					(t ;precedence
+						(unless (setq s (get-sym k))
 							(error "Operator not defined !" k))
 						(setq v (sub (elem 3 s) (elem 4 s)) x t)
 						(while (and x (ne 0 (length o)))
@@ -515,8 +510,7 @@
 								(push-rpn (pop o) -1)
 								(setq x nil)))
 						(push o k))))
-			(t
-				;string or symbol
+			(t ;string or symbol
 				(push-rpn k c))))
 	(each-rev (lambda (x)
 		(push-rpn x -1)) o))
@@ -580,8 +574,7 @@
 		(set (vreg-sym i) nil (type-sym i) nil)))
 
 (defcfun pop-type (s)
-	(defq u (type-sym s) w (eval u))
-	(if w
+	(if (defq u (type-sym s) w (eval u))
 		(progn
 			(defq v (slice 1 -1 w) v (if (eql v "") nil v))
 			(set u v)
@@ -614,9 +607,8 @@
 	(add-this `(,w ,v 0 ,v)))
 
 (defcfun compile-ref (_1)
-	(defq s (get-sym _1))
 	(cond
-		((not s)
+		((not (defq s (get-sym _1)))
 			;not in symbol table so figure out what it is
 			(cond
 				((le (ascii "0") (code (elem 0 _1)) (ascii "9"))
@@ -644,8 +636,8 @@
 		(compile-deref)))
 
 (defcfun compile-cast (o)
-	(defq c (find (sym o) '(byte ubyte short ushort int uint long ulong ptr)))
-	(if c (set (type-sym (dec-stack)) (elem c "bBsSiIlLp"))
+	(if (defq c (find (sym o) '(byte ubyte short ushort int uint long ulong ptr)))
+		(set (type-sym (dec-stack)) (elem c "bBsSiIlLp"))
 		(error "Unknown type cast" o)))
 
 (defcfun compile-member (o)
@@ -763,9 +755,8 @@
 		'(endif)))
 
 (defcfun compile-operator (_1)
-	(defq s (get-sym _1))
 	(cond
-		((not s)
+		((not (defq s (get-sym _1)))
 			(error "Operator not defined !" _1))
 		((not (eql 'op (elem 2 s)))
 			(error "Not an operator !" _1))
@@ -851,9 +842,9 @@
 	;results in p and m of parent env !
 	(cond
 		((eq 1 (length b))
-			`(opt-find-1 ,i r ~b))
+			`(opt-find-1 ,i ,r ~b))
 		((eq 2 (length b))
-			`(opt-find-2 ,i r ~b))
+			`(opt-find-2 ,i ,r ~b))
 		(t (error "Wrong number of args in opt-find?" b))))
 
 (defcfun opt-find-1 (i r x)
@@ -873,12 +864,11 @@
 (defcfun opt-this-list ()
 	(defq i 0 p nil m nil)
 	(while (lt (setq i (inc i)) (length *this*))
-		(defq e (elem i *this*) o (elem 0 e))
 		(cond
 			;variable loading and offset folding
-			((find o '(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui))
-				(defq r (elem 1 e))
-				(when (opt-find? i r `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
+			((find (defq e (elem i *this*) o (elem 0 e))
+				'(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui))
+				(when (opt-find? i (defq r (elem 1 e)) `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((eq m 0)
 							(elem-set 1 e r4)
@@ -889,8 +879,7 @@
 					(elem-set p *this* (lambda))))
 			;variable writing and offset folding
 			((find o '(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i))
-				(defq r (elem 2 e))
-				(when (opt-find? i r `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
+				(when (opt-find? i (defq r (elem 2 e)) `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((eq m 0)
 							(elem-set 2 e r4)
@@ -908,8 +897,7 @@
 			((defq l '(vp-add-cr vp-sub-cr vp-mul-cr
 						vp-and-cr vp-or-cr vp-xor-cr
 						vp-shl-cr vp-shr-cr vp-asr-cr) c (find o l))
-				(defq r (elem 2 e))
-				(when (opt-find? i r `(vp-cpy-cr _ ,r) `(,(elem c l) _ ,r))
+				(when (opt-find? i (defq r (elem 2 e)) `(vp-cpy-cr _ ,r) `(,(elem c l) _ ,r))
 					(cond
 						((eq m 0)
 							(setq c (elem c '(add sub mul bit-and bit-or bit-xor bit-shl bit-shr bit-asr)))
@@ -922,8 +910,7 @@
 			((defq c (find o '(vp-add-rr vp-sub-rr vp-mul-rr
 								vp-and-rr vp-or-rr vp-xor-rr
 								vp-shl-rr vp-shr-rr vp-asr-rr)))
-				(defq r (elem 1 e))
-				(when (opt-find? i r `(vp-cpy-cr _ ,r))
+				(when (opt-find? i (defq r (elem 1 e)) `(vp-cpy-cr _ ,r))
 					(elem-set 0 e (elem c '(vp-add-cr vp-sub-cr vp-mul-cr
 											vp-and-cr vp-or-cr vp-xor-cr
 											vp-shl-cr vp-shr-cr vp-asr-cr)))
