@@ -335,7 +335,7 @@
 	(setq *src* s *dst* d))
 
 (defcfun match-any (d s)
-	(defq i (list? d) j (list? s))
+	(defq i (lst? d) j (lst? s))
 	(cond
 		(i (cond
 				(j (error "Illegal src/dst !" (list s d)))
@@ -936,7 +936,7 @@
 ;;;;;;;;;;;;
 
 (defcfun print-this (_)
-	(and (list? _) (not (eql (elem 0 _) 'lambda)) (print _)))
+	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
 (defcfun assign-asm-to-script (_1 _2)
 	(setq *src* _1 *dst* (map trim (split _2 ",")))

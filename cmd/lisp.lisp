@@ -10,12 +10,13 @@
 ;;;;;;;;;;;;
 
 (defq list (lambda (&rest _) _))
+(defmacro defun (n a &rest _) `(defq ,n (lambda ,a ~_)))
 
 (defmacro inc (_) `(add ,_ 1))
 (defmacro dec (_) `(sub ,_ 1))
 
 (defmacro obj? (_) `(inst-of 'class/class_obj ,_))
-(defmacro list? (_) `(inst-of 'class/class_vector ,_))
+(defmacro lst? (_) `(inst-of 'class/class_vector ,_))
 (defmacro str? (_) `(inst-of 'class/class_string ,_))
 (defmacro sym? (_) `(inst-of 'class/class_symbol ,_))
 (defmacro num? (_) `(inst-of 'class/class_boxed_long ,_))
@@ -25,13 +26,6 @@
 	(defq i -2 l (list 'setq))
 	(while (lt (setq i (add i 2)) (length _))
 		(push l (elem i _) `(opt ,(elem i _) ,(elem (inc i) _)))) l)
-
-;;;;;;;;;;;;;
-; Definitions
-;;;;;;;;;;;;;
-
-(defmacro defun (n a &rest _)
-	`(defq ,n (lambda ,a ~_)))
 
 ;;;;;;;;
 ; Scopes
@@ -393,7 +387,7 @@
 (defun compile (*files* &optional *os* *cpu* *pipes*)
 	(setd *os* (platform) *cpu* (cpu) *pipes* 1)
 	(defq q (list) e (list))
-	(unless (list? *files*)
+	(unless (lst? *files*)
 		(setq *files* (list *files*)))
 	(setq *files* (shuffle (map sym *files*)))
 	(while (gt *pipes* 0)
@@ -477,7 +471,7 @@
 				(setq j (inc j)))
 			(push l (sym (slice k j _)))
 			(setq i (add i 8))) l)
-	(unless (list? *funcs*)
+	(unless (lst? *funcs*)
 		(setq *funcs* (list *funcs*)))
 	(defq fn_header_length 8 fn_header_entry 12 fn_header_links 16 fn_header_paths 20 f (list
 	;must be first function !
