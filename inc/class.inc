@@ -317,9 +317,7 @@
 	;_1 = class name
 	(def-func (f-path 'class _1))
 		(defq c (eval (super-name _1)))
-		(if (eql c 'null)
-			(vtable-emit _1)
-			(vtable-emit _1 (f-path 'class c)))
+		(vtable-emit _1 (unless (eql c 'null) (f-path 'class c)))
 	(def-func-end))
 
 (defcfun gen-create (_1 &optional _2)
