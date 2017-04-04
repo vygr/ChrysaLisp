@@ -7,10 +7,11 @@
 
 (defcvar '*class* nil (class-name 'null) '())
 
-(defcfun vtable-emit (_1 &optional _2)
+(defcfun vtable-emit (_1)
 	;_1 = class name
-	;_2 = parent class name
-	(if _2 (fn-add-link _2) (vp-long 0))
+	(if (eql (defq s (eval (super-name _1))) 'null)
+		(vp-long 0)
+		(fn-add-link (f-path 'class s)))
 	(each (lambda (m)
 		(if (or (eql (elem 2 m) 'virtual) (eql (elem 2 m) 'final))
 			(fn-add-link (elem 1 m)))) (eval (class-name _1))))
@@ -316,8 +317,7 @@
 (defcfun gen-class (_1)
 	;_1 = class name
 	(def-func (f-path 'class _1))
-		(defq c (eval (super-name _1)))
-		(vtable-emit _1 (unless (eql c 'null) (f-path 'class c)))
+		(vtable-emit _1)
 	(def-func-end))
 
 (defcfun gen-create (_1 &optional _2)
