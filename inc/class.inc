@@ -77,14 +77,13 @@
 
 (defmacro method-info (_1 _2)
 	`(progn
-		(defq s nil v nil m nil)
+		(defq s 0 v ptr_size m nil)
 		(method-lookup ,_1 ,_2)))
 
 (defcfun method-lookup (_1 _2)
 	;_1 = class name
 	;_2 = member name
 	;writes to s, v, m in parent environment !
-	(setq s 0 v ptr_size)
 	(defq c (eval (class-name _1)))
 	(until (or (eq s (length c)) (eql (elem 0 (setq m (elem s c))) _2))
 		(if (or (eql (elem 2 m) 'virtual) (eql (elem 2 m) 'final))
