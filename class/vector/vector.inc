@@ -27,9 +27,9 @@
 	(pptr 'vector_array)
 	(uint 'vector_length)
 	(uint 'vector_capacity)
+	(ptr 'vector_e0)
 	(ptr 'vector_e1)
 	(ptr 'vector_e2)
-	(ptr 'vector_e3)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;
@@ -46,9 +46,9 @@
 	;all but r0, r4
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri-i r2 r0 vector_length)
-	(vp-cpy-cr (bit-shr (sub vector_size vector_e1) (pow2 ptr_size)) r2)
+	(vp-cpy-cr (bit-shr (sub vector_size vector_e0) (pow2 ptr_size)) r2)
 	(vp-cpy-ri-i r2 r0 vector_capacity)
-	(vp-lea-i r0 vector_e1 r2)
+	(vp-lea-i r0 vector_e0 r2)
 	(vp-cpy-ri r2 r0 vector_array)
 	(s-call 'vector 'init '(r0 r1) '(_ r1)))
 
