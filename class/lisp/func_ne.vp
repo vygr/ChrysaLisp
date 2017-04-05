@@ -53,8 +53,8 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(pptr 'iter)
 	(ptr 'pdata)
+	(pptr 'iter)
 	(long 'num 'num1)
 
 	(push-scope)

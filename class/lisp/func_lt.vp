@@ -60,9 +60,8 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(pptr 'iter)
 	(ptr 'pdata)
-	(long 'num)
+	(union '(pptr 'iter) '(long 'num))
 
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
