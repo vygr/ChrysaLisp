@@ -16,7 +16,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'lisp 'func_bshr {this, args})
+	(f-entry 'lisp 'func_bshl {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
