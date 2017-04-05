@@ -26,9 +26,8 @@
 	(f-call 'vector 'get_element {args, 1} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
 	(f-call 'boxed_long 'get_value {value} {length})
-	(assign {num >> length} {num})
 	(f-call 'boxed_long 'create {} {value})
-	(f-call 'boxed_long 'set_value {value, num})
+	(f-call 'boxed_long 'set_value {value, num >> length})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_bshr {this, value})
