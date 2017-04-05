@@ -19,10 +19,10 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error)
 	(f-call 'vector 'get_element {args, 0} {_, args})
-	(f-call 'lisp 'repl_eval {this, args} {_,args})
+	(f-call 'lisp 'repl_eval {this, args} {_, args})
 
 (vp-label 'exit)
-	(f-exit 'lisp 'func_eval {this, value})
+	(f-exit 'lisp 'func_eval {this, args})
 	(return)
 
 (errorcases
