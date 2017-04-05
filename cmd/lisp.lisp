@@ -15,11 +15,11 @@
 (defmacro inc (_) `(add ,_ 1))
 (defmacro dec (_) `(sub ,_ 1))
 
-(defmacro obj? (_) `(inst-of 'class/class_obj ,_))
-(defmacro lst? (_) `(inst-of 'class/class_vector ,_))
-(defmacro str? (_) `(inst-of 'class/class_string ,_))
-(defmacro sym? (_) `(inst-of 'class/class_symbol ,_))
-(defmacro num? (_) `(inst-of 'class/class_boxed_long ,_))
+(defun obj? (_) (inst-of 'class/class_obj _))
+(defun lst? (_) (inst-of 'class/class_vector _))
+(defun str? (_) (inst-of 'class/class_string _))
+(defun sym? (_) (inst-of 'class/class_symbol _))
+(defun num? (_) (inst-of 'class/class_boxed_long _))
 
 (defmacro opt (x y &optional z) (cond (z `(if ,x ,z ,y)) (t `(if ,x ,x ,y))))
 (defmacro setd (&rest _)
