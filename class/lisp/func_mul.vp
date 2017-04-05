@@ -11,8 +11,8 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value)
-	(pptr 'iter)
+	(ptr 'this 'args)
+	(union '(ptr 'value) '(pptr 'iter))
 	(long 'accum)
 	(uint 'length)
 
@@ -50,9 +50,8 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(pptr 'iter)
 	(plong 'pdata)
-	(long 'val)
+	(union '(pptr 'iter) '(long 'val))
 
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
