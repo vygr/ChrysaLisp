@@ -55,7 +55,7 @@
 ;			(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 		(loop-untilnot {cnt})
 
-		(f-call 'lisp 'repl_eval {this, ast} {_,value})
+		(f-call 'lisp 'repl_eval {this, ast} {_, value})
 		(f-call 'ref 'deref {ast})
 		(vpif {stream == this->lisp_stdin})
 			(f-call 'lisp 'repl_print {this, this->lisp_stdout, value})

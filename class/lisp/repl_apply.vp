@@ -44,7 +44,7 @@
 	(errorif {vars != this->lisp_sym_lambda} 'error2)
 	(f-call 'lisp 'env_push {this})
 	(f-call 'vector 'get_element {func, 1} {_, vars})
-	(f-call 'lisp 'env_bind {this, vars, ast, 0} {_,value})
+	(f-call 'lisp 'env_bind {this, vars, ast, 0} {_, value})
 	(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit1)
 	(f-call 'vector 'for_each {func, 2, length, $callback, &this})
 (vp-label 'exit1)
@@ -73,14 +73,14 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(pptr 'iter)
 	(ptr 'pdata)
+	(pptr 'iter)
 
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
 
 	(f-call 'ref 'deref {pdata->pdata_value})
-	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_,pdata->pdata_value})
+	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_, pdata->pdata_value})
 	(errorif (cat {pdata->pdata_value->obj_vtable == @} (f-path 'class 'error)) 'error3)
 
 	(f-exit 'vector 'callback '(-1))

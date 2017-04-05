@@ -20,7 +20,7 @@
 	(errorif {length != 2} 'error)
 	(f-call 'vector 'get_element {args, 0} {_, func})
 	(f-call 'vector 'get_element {args, 1} {_, args})
-	(f-call 'lisp 'repl_apply {this, func, args} {_,args})
+	(f-call 'lisp 'repl_apply {this, func, args} {_, args})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_apply {this, args})
