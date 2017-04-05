@@ -319,6 +319,25 @@
 			(def-sym f 'var *var-sp* 0 "")
 			(setq *var-sp* (add *var-sp* s)))))
 
+(defcfun union (&rest _)
+	(if (notevery lst? _)
+		(error "Union needs lists as paramaters !" _))
+	(cond
+		(*struct*
+			(defq o *struct-offset* m o)
+			(each (lambda (_)
+				(setq *struct-offset* o)
+				(eval _)
+				(setq m (max m *struct-offset*))) _)
+			(setq *struct-offset* m))
+		(t
+			(defq o *var-sp* m o)
+			(each (lambda (_)
+				(setq *var-sp* o)
+				(eval _)
+				(setq m (max m *var-sp*))) _)
+			(setq *var-sp* m))))
+
 ;;;;;;;;;;;;;;;;;;;;
 ; parameter handling
 ;;;;;;;;;;;;;;;;;;;;
