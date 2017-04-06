@@ -41,8 +41,8 @@
 
 (defcmacro errorassign (e d)
 	(unless debug_mode
-		(setq e '(list 1))
-	`(assign ,e ,d)))
+		(setq e '(list 1)))
+	`(assign ,e ,d))
 
 (defcmacro errorcases (&rest e)
 	(if debug_mode
@@ -644,7 +644,8 @@
 			;variable
 			(set (type-sym *s*) (elem 5 s))
 			(setq s (add (get-scope-offset (elem 0 s)) (elem 3 s)))
-			(add-this `(vp-lea-i r4 ,s ,(vreg-sym *s*))))))
+			(add-this `(vp-lea-i r4 ,s ,(vreg-sym *s*))))
+		(t (error "Symbol not a variable !" _1))))
 
 (defcfun compile-deref? ()
 	(when (eval (type-sym *s*))

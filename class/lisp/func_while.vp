@@ -27,10 +27,10 @@
 	(loop-start)
 		(f-call 'vector 'get_element {args, 0} {_, value})
 		(f-call 'lisp 'repl_eval {this, value} {_, value})
-		(breakif (cat {value->obj_vtable == @} (f-path 'class 'error)))
 		(breakif {value == this->lisp_sym_nil})
+		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
 		(f-call 'vector 'for_each {args, 1, length, $callback, &this})
-		(breakif (cat {value->obj_vtable == @} (f-path 'class 'error)))
+		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
 		(f-call 'ref 'deref {value})
 	(loop-end)
 
@@ -52,14 +52,14 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(pptr 'iter)
 	(ptr 'pdata)
+	(pptr 'iter)
 
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
 
 	(f-call 'ref 'deref {pdata->pdata_value})
-	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_,pdata->pdata_value})
+	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_, pdata->pdata_value})
 
 	(errorassign (cat {pdata->pdata_value->obj_vtable != @} (f-path 'class 'error)) '(r1))
 	(pop-scope)
