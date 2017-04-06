@@ -12,10 +12,10 @@
 (def-method 'deinit 'class/error/deinit 'final)
 
 (def-struct 'error 'ref)
-	(ptr 'error_description)
-	(ptr 'error_object)
-	(ptr 'error_file)
-	(ulong 'error_line)
+	(ptr 'description)
+	(ptr 'object)
+	(ptr 'file)
+	(ulong 'line)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;

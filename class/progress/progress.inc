@@ -13,8 +13,8 @@
 (def-method 'layout 'class/progress/layout 'final)
 
 (def-struct 'progress 'view)
-	(long 'progress_max)
-	(long 'progress_val)
+	(long 'max)
+	(long 'val)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;

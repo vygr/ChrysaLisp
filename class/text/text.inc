@@ -15,8 +15,8 @@
 (def-method 'draw 'class/text/draw 'final)
 
 (def-struct 'text 'view)
-	(ptr 'text_font)
-	(ptr 'text_string)
-	(ptr 'text_words)
-	(uint 'text_text_color)
+	(ptr 'font)
+	(ptr 'string)
+	(ptr 'words)
+	(uint 'text_color)
 (def-struct-end)

@@ -95,7 +95,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -148,7 +148,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -186,9 +186,9 @@
 		;r0 = child view object
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_data)
-		(ptr 'local_callback)
+		(ptr 'inst)
+		(ptr 'data)
+		(ptr 'callback)
 	(def-struct-end)
 
 	(vp-sub-cr local_size r4)
@@ -235,10 +235,10 @@
 		;r1 = 0 if should not decend after down callback
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_data)
-		(ptr 'local_down)
-		(ptr 'local_up)
+		(ptr 'inst)
+		(ptr 'data)
+		(ptr 'down)
+		(ptr 'up)
 	(def-struct-end)
 
 	(vp-sub-cr local_size r4)
@@ -355,7 +355,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -458,9 +458,9 @@
 		;r0 = child view object
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_data)
-		(ptr 'local_callback)
+		(ptr 'inst)
+		(ptr 'data)
+		(ptr 'callback)
 	(def-struct-end)
 
 	(vp-sub-cr local_size r4)
@@ -507,10 +507,10 @@
 		;r1 = 0 if should not decend after down callback
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_data)
-		(ptr 'local_down)
-		(ptr 'local_up)
+		(ptr 'inst)
+		(ptr 'data)
+		(ptr 'down)
+		(ptr 'up)
 	(def-struct-end)
 
 	(vp-sub-cr local_size r4)
@@ -685,9 +685,9 @@
 	;r1-r3
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_hit)
-		(ptr 'local_jump)
+		(ptr 'inst)
+		(ptr 'hit)
+		(ptr 'jump)
 	(def-struct-end)
 
 	;save inputs
@@ -813,7 +813,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs

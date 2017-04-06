@@ -13,7 +13,7 @@
 (def-method 'deinit 'class/unordered_map/deinit 'final)
 
 (def-struct 'unordered_map 'unordered_set)
-	(ptr 'unordered_map_parent)
+	(ptr 'parent)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;

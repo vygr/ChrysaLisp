@@ -135,35 +135,35 @@
 ; enums
 ;;;;;;;
 
-(defcvar '*enum* nil)
+(defcvar '*enum* nil '*enum-offset* nil)
 
-(defcfun def-enum (&optional _)
-	(setq *enum* (opt _ 0)))
+(defcfun def-enum (_1 &optional _2)
+	(setq *enum* _1 *enum-offset* (opt _2 0)))
 
 (defcfun def-enum-end ()
-	(setq *enum* nil))
+	(setq *enum* nil *enum-offset* nil))
 
 (defcfun enum (&rest _)
 	(each (lambda (_)
-		(defcvar _ *enum*)
-		(setq *enum* (inc *enum*))) _))
+		(defcvar (sym-cat *enum* "_" _) *enum-offset*)
+		(setq *enum-offset* (inc *enum-offset*))) _))
 
 ;;;;;;
 ; bits
 ;;;;;;
 
-(defcvar '*bit* nil)
+(defcvar '*bit* nil '*bit-offset* nil)
 
-(defcfun def-bit (&optional _)
-	(setq *bit* (opt _ 0)))
+(defcfun def-bit (_1 &optional _2)
+	(setq *bit* _1 *bit-offset* (opt _2 0)))
 
 (defcfun def-bit-end ()
-	(setq *bit* nil))
+	(setq *bit* nil *bit-offset* nil))
 
 (defcfun bit (&rest _)
 	(each (lambda (_)
-		(defcvar _ (bit-shl 1 *bit*))
-		(setq *bit* (inc *bit*))) _))
+		(defcvar (sym-cat *bit* "_" _) (bit-shl 1 *bit-offset*))
+		(setq *bit-offset* (inc *bit-offset*))) _))
 
 ;;;;;;;;;;;;;;
 ; symbol table
@@ -201,7 +201,7 @@
 	(when (ne (length *scopes*) 0)
 		(setq *symbols* (slice 0 (elem 0 (elem -2 *scopes*)) *symbols*)))
 	(when (ne *var-sp* 0)
-		(error "Unbalanced scopes !" *var-sp*)))
+		(throw "Unbalanced scopes !" *var-sp*)))
 
 (defcfun unwind ()
 	(when (ne (defq o (get-scope-offset 0)) 0)
@@ -217,7 +217,7 @@
 
 (defcfun get-scope-offset (s)
 	(if (ge s (length *scopes*))
-		(error "Symbol not in scope !" s)
+		(throw "Symbol not in scope !" s)
 		(progn
 			(defq i (length *scopes*) o 0)
 			(while (lt s (setq i (dec i)))
@@ -233,7 +233,7 @@
 	(defq s (elem 0 (elem -2 *scopes*)))
 	(while (ne s (length *symbols*))
 		(if (eql _1 (elem 1 (elem s *symbols*)))
-			(error "Symbol redefined !" _1))
+			(throw "Symbol redefined !" _1))
 		(setq s (inc s)))
 	(push *symbols* (list (length *scopes*) _1 _2 _3 (opt _4 0) _5)))
 
@@ -257,14 +257,17 @@
 (defcvar '*struct* nil '*struct-offset* nil
 	'null_size 0 'byte_size 1 'short_size 2 'int_size 4 'long_size 8 'ptr_size 8)
 
-(defmacro type-sym (s)
-	`(sym-cat "_t_" (str ,s)))
+(defmacro type-sym (_)
+	`(sym-cat "_t_" (str ,_)))
 
-(defcfun local-align (&optional x)
-	(setd x ptr_size)
+(defmacro struct-sym (_)
+	`(sym-cat *struct* "_" ,_))
+
+(defcfun local-align (&optional _)
+	(setd _ ptr_size)
 	(if *struct*
-		(setq *struct-offset* (align *struct-offset* x))
-		(setq *var-sp* (align *var-sp* x))))
+		(setq *struct-offset* (align *struct-offset* _))
+		(setq *var-sp* (align *var-sp* _))))
 
 (defcfun def-struct (s &optional o)
 	(setq *struct* s *struct-offset* (eval (sym-cat (opt o "null") "_size"))))
@@ -279,7 +282,7 @@
 			(local-align ,s)
 			(cond
 				(*struct*
-					(defcvar x *struct-offset* (type-sym x) ,y)
+					(defcvar (struct-sym x) *struct-offset* (type-sym (struct-sym x)) ,y)
 					(setq *struct-offset* (add *struct-offset* ,s)))
 				(t
 					(def-sym x 'var *var-sp* 0 ,y)
@@ -304,16 +307,16 @@
 (def-type pulong ptr_size "pL")
 (def-type pptr ptr_size "pp")
 
-(defcfun offset (f)
+(defcfun offset (_)
 	(if *struct*
-		(defcvar f *struct-offset*)
-		(error "Attempt to define offset into local stack !" f)))
+		(defcvar (sym-cat *struct* "_" _) *struct-offset*)
+		(throw "Attempt to define offset into local stack !" _)))
 
 (defcfun struct (f s)
 	(if (sym? s) (setq s (eval (sym-cat s "_size"))))
 	(cond
 		(*struct*
-			(defcvar f *struct-offset* (type-sym f) nil)
+			(defcvar (sym-cat *struct* "_" f) *struct-offset* (type-sym f) nil)
 			(setq *struct-offset* (add *struct-offset* s)))
 		(t
 			(def-sym f 'var *var-sp* 0 "")
@@ -321,7 +324,7 @@
 
 (defcfun union (&rest _)
 	(if (notevery lst? _)
-		(error "Union needs lists as paramaters !" _))
+		(throw "Union needs lists as paramaters !" _))
 	(cond
 		(*struct*
 			(defq o *struct-offset* m o)
@@ -353,10 +356,10 @@
 	(defq i (lst? d) j (lst? s))
 	(cond
 		(i (cond
-				(j (error "Illegal src/dst !" (list s d)))
+				(j (throw "Illegal src/dst !" (list s d)))
 				(t (find s d))))
 		(j (cond
-				(i (error "Illegal src/dst !" (list s d)))
+				(i (throw "Illegal src/dst !" (list s d)))
 				(t (find d s))))
 		(t (eql s d))))
 
@@ -382,11 +385,11 @@
 				(setq c (dec c)))
 			(setq i (inc i))))
 	(when (ne i l)
-		(error "Copy cycle detected !" (list *src* *dst*))))
+		(throw "Copy cycle detected !" (list *src* *dst*))))
 
 (defcfun map-src-to-dst ()
 	(when (ne (length *src*) (length *dst*))
-		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
+		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(map-topology-sort)
@@ -402,7 +405,7 @@
 						((eql i 'is) (vp-cpy-ri-s x (elem 0 y) (elem 1 y)))
 						((eql i 'ii) (vp-cpy-ri-i x (elem 0 y) (elem 1 y)))
 						((eql i 'd) (vp-cpy-rd x (elem 0 y) (elem 1 y)))
-						(t (error "Invalid dst parameter !" i))))
+						(t (throw "Invalid dst parameter !" i))))
 				((eql i 'c) (vp-cpy-cr x y))
 				((eql i 'i) (vp-cpy-ir (elem 0 x) (elem 1 x) y))
 				((eql i 'ib) (vp-cpy-ir-b (elem 0 x) (elem 1 x) y))
@@ -417,7 +420,7 @@
 				((eql i 's) (fn-string x y))
 				((eql i '@) (fn-bind (elem 1 x) y))
 				((eql i '$) (vp-lea-p (elem 1 x) y))
-				(t (error "Invalid src parameter !" i)))) *src* *dst*)))
+				(t (throw "Invalid src parameter !" i)))) *src* *dst*)))
 
 ;;;;;;;;;;
 ; tokenize
@@ -460,7 +463,7 @@
 								;unary operator
 								(if (setq s (find (slice p i l) "-*&~!"))
 									(push-token (elem s "_#:~!") m)
-									(error "Unknown unary operator !" (slice p i l))))
+									(throw "Unknown unary operator !" (slice p i l))))
 							(t
 								;binary operator
 								(push-token (slice p i l) m)
@@ -517,7 +520,7 @@
 						(push-rpn "[]" -1))
 					(t ;precedence
 						(unless (setq s (get-sym k))
-							(error "Operator not defined !" k))
+							(throw "Operator not defined !" k))
 						(setq v (sub (elem 3 s) (elem 4 s)) x t)
 						(while (and x (ne 0 (length o)))
 							(setq s (get-sym (elem -2 o)))
@@ -594,7 +597,7 @@
 			(defq v (slice 1 -1 w) v (if (eql v "") nil v))
 			(set u v)
 			(elem 0 w))
-		(error "No type info !" u)))
+		(throw "No type info !" u)))
 
 (defcfun pop-value ()
 	(dec-stack)
@@ -603,7 +606,7 @@
 	(vreg-sym *s*))
 
 (defcfun compile-null ()
-	(error "Null operator !" nil))
+	(throw "Null operator !" nil))
 
 (defcfun compile-const (_1)
 	(nil-type)
@@ -639,13 +642,13 @@
 				((def? _1)
 					;equate
 					(compile-const _1))
-				(t (error "Symbol not defined !" _1))))
+				(t (throw "Symbol not defined !" _1))))
 		((eql 'var (elem 2 s))
 			;variable
 			(set (type-sym *s*) (elem 5 s))
 			(setq s (add (get-scope-offset (elem 0 s)) (elem 3 s)))
 			(add-this `(vp-lea-i r4 ,s ,(vreg-sym *s*))))
-		(t (error "Symbol not a variable !" _1))))
+		(t (throw "Symbol not a variable !" _1))))
 
 (defcfun compile-deref? ()
 	(when (eval (type-sym *s*))
@@ -654,7 +657,7 @@
 (defcfun compile-cast (o)
 	(if (defq c (find (sym o) '(byte ubyte short ushort int uint long ulong ptr)))
 		(set (type-sym (dec-stack)) (elem c "bBsSiIlLp"))
-		(error "Unknown type cast" o)))
+		(throw "Unknown type cast" o)))
 
 (defcfun compile-member (o)
 	(defq s (dec *s*) x (vreg-sym (setq *s* (sub *s* 2))) y (vreg-sym s))
@@ -773,9 +776,9 @@
 (defcfun compile-operator (_1)
 	(cond
 		((not (defq s (get-sym _1)))
-			(error "Operator not defined !" _1))
+			(throw "Operator not defined !" _1))
 		((not (eql 'op (elem 2 s)))
-			(error "Not an operator !" _1))
+			(throw "Not an operator !" _1))
 		(t
 			((elem 5 s) _1))))
 
@@ -802,7 +805,7 @@
 				(compile-bind k)
 				(compile-label k)
 				(compile-string (str k)))))
-			(error "Unknown token type !" k))
+			(throw "Unknown token type !" k))
 		(setq *s* (inc *s*))))
 
 (push-scope)
@@ -861,7 +864,7 @@
 			`(opt-find-1 ,i ,r ~b))
 		((eq 2 (length b))
 			`(opt-find-2 ,i ,r ~b))
-		(t (error "Wrong number of args in opt-find?" b))))
+		(t (throw "Wrong number of args in opt-find?" b))))
 
 (defcfun opt-find-1 (i r x)
 	(while (and (gt (setq i (dec i)) 0)
@@ -944,7 +947,7 @@
 (defcfun assign-asm-to-script (_1 _2)
 	(setq *src* _1 *dst* (map trim (split _2 ",")))
 	(unless (eq (length *src*) (length *dst*))
-		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
+		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack (length *src*))
@@ -969,7 +972,7 @@
 (defcfun assign-script-to-asm (_1 _2)
 	(setq *src* (map trim (split _1 ",")) *dst* _2)
 	(unless (eq (length *src*) (length *dst*))
-		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
+		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack)
@@ -995,7 +998,7 @@
 (defcfun assign-script-to-script (_1 _2)
 	(setq *src* (map trim (split _1 ",")) *dst* (map trim (split _2 ",")))
 	(unless (eq (length *src*) (length *dst*))
-		(error "Mismatching number of src/dst parameters !" (list *src* *dst*)))
+		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack)

@@ -8,7 +8,7 @@
 (def-method 'deref_if 'class/ref/deref_if 'static '(r0) '(r0))
 
 (def-struct 'ref 'obj)
-	(uint 'ref_count)
+	(uint 'count)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;

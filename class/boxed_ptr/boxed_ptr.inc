@@ -8,7 +8,7 @@
 (def-method 'set_value 'class/boxed_ptr/set_value 'static '(r0 r1))
 
 (def-struct 'boxed_ptr 'ref)
-	(ptr 'boxed_ptr_value)
+	(ptr 'value)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;

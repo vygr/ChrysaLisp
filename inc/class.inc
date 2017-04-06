@@ -45,32 +45,32 @@
 			((eql _3 'static)
 				(if (eql (elem 2 m) 'static)
 					(override)
-					(error "Virtual method already exists !" _1)))
+					(throw "Virtual method already exists !" _1)))
 			((eql _3 'virtual)
-				(error "Method already exists !, use override ?" _1))
+				(throw "Method already exists !, use override ?" _1))
 			((eql _3 'override)
 				(cond
 					((eql (elem 2 m) 'virtual)
 						(override))
 					((eql (elem 2 m) 'final)
-						(error "Virtual method is final !" _1))
-					(t (error "Static method already exists !" _1))))
+						(throw "Virtual method is final !" _1))
+					(t (throw "Static method already exists !" _1))))
 			((eql _3 'final)
 				(cond
 					((eql (elem 2 m) 'virtual)
 						(override)
 						(elem-set 2 m _3))
 					((eql (elem 2 m) 'final)
-						(error "Virtual method is final !" _1))
-					(t (error "Static method already exists !" _1))))
-			(t (error "Must use static, virtual, final or override ! " _3)))
+						(throw "Virtual method is final !" _1))
+					(t (throw "Static method already exists !" _1))))
+			(t (throw "Must use static, virtual, final or override ! " _3)))
 		(cond
 			;new method
 			((or (eql _3 'static) (eql _3 'virtual) (eql _3 'final))
 				(push c (list _1 _2 _3 _4 _5)))
 			((eql _3 'override)
-				(error "Method does not exist !" _1))
-			(t (error "Must use static, virtual, final or override ! " _3)))))
+				(throw "Method does not exist !" _1))
+			(t (throw "Must use static, virtual, final or override ! " _3)))))
 
 ;;;;;;;;;;;;;;;
 ; class calling
@@ -91,7 +91,7 @@
 			(setq v (add v ptr_size)))
 		(setq s (inc s)))
 	(if (eq s (length c))
-		(error "No such method !" (list _1 _2))))
+		(throw "No such method !" (list _1 _2))))
 
 (defcfun f-path (_1 _2)
 	;_1 = class name
@@ -130,7 +130,7 @@
 	;_4 = out parameters
 	(method-info _1 _2)
 	(if (eql (elem 2 m) 'virtual)
-		(error "Method is virtual ! Use v-call ?" (list _1 _2)))
+		(throw "Method is virtual ! Use v-call ?" (list _1 _2)))
 	(assign _3 (elem 3 m))
 	(fn-call (elem 1 m))
 	(if _4 (assign (elem 4 m) _4)))
@@ -141,7 +141,7 @@
 	;_3 = in parameters
 	(method-info _1 _2)
 	(if (eql (elem 2 m) 'virtual)
-		(error "Method is virtual ! Use v-jmp ?" (list _1 _2)))
+		(throw "Method is virtual ! Use v-jmp ?" (list _1 _2)))
 	(assign _3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
@@ -151,7 +151,7 @@
 	;_3 = reg
 	(method-info _1 _2)
 	(if (eql (elem 2 m) 'virtual)
-		(error "Method is virtual ! Use v-bind ?" (list _1 _2)))
+		(throw "Method is virtual ! Use v-bind ?" (list _1 _2)))
 	(fn-bind (elem 1 m) _3))
 
 (defcfun s-call (_1 _2 &optional _3 _4)
@@ -162,7 +162,7 @@
 	(method-info (eval (super-name _1)) _2)
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
-			(error "Method is static !" (list (eval (super-name _1)) _2))))
+			(throw "Method is static !" (list (eval (super-name _1)) _2))))
 	(assign _3 (elem 3 m))
 	(fn-call (elem 1 m))
 	(if _4 (assign (elem 4 m) _4)))
@@ -174,7 +174,7 @@
 	(method-info (eval (super-name _1)) _2)
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
-			(error "Method is static !" (list (eval (super-name _1)) _2))))
+			(throw "Method is static !" (list (eval (super-name _1)) _2))))
 	(assign _3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
@@ -184,7 +184,7 @@
 	;_3 = reg
 	(method-info (eval (super-name _1)) _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static !" (list (eval (super-name _1)) _2)))
+		(throw "Method is static !" (list (eval (super-name _1)) _2)))
 	(fn-bind (elem 1 m) _3))
 
 (defcfun v-call (_1 _2 &optional _3 _4 _5)
@@ -196,7 +196,7 @@
 	(setd _5 r15)
 	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static ! Use f-call ?" (list _1 _2)))
+		(throw "Method is static ! Use f-call ?" (list _1 _2)))
 	(setq s (elem 3 m))
 	(if (str? _3)
 		(setq _3 (cat "RXX, " _3) s (cat (list _5) s)))
@@ -213,7 +213,7 @@
 	(setd _4 r15)
 	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static ! Use f-jmp ?" (list _1 _2)))
+		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
 	(setq s (elem 3 m))
 	(if (str? _3)
 		(setq _3 (cat "RXX, " _3) s (cat (list _4) s)))
@@ -228,7 +228,7 @@
 	(setd _3 r15)
 	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static ! Use f-bind ?" (list _1 _2)))
+		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
 	(vp-cpy-ir r0 obj_vtable _3)
 	(vp-cpy-ir _3 v _3))
 
@@ -239,7 +239,7 @@
 	;_4 = out parameters
 	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static ! Use f-call ?" (list _1 _2)))
+		(throw "Method is static ! Use f-call ?" (list _1 _2)))
 	(assign _3 (elem 3 m))
 	(fn-call (elem 1 m))
 	(if _4 (assign (elem 4 m) _4)))
@@ -250,7 +250,7 @@
 	;_3 = in parameters
 	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static ! Use f-jmp ?" (list _1 _2)))
+		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
 	(assign _3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
@@ -260,7 +260,7 @@
 	;_3 = reg
 	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
-		(error "Method is static ! Use f-bind ?" (list _1 _2)))
+		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
 	(fn-bind (elem 1 m) _3))
 
 (defcfun l-call (_1 &optional _2 _3 _4 _5)

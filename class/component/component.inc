@@ -10,5 +10,5 @@
 (def-method 'deinit 'class/component/deinit 'override)
 
 (def-struct 'component 'ref)
-	(struct 'component_slot_list 'lh_list)
+	(struct 'slot_list 'lh_list)
 (def-struct-end)

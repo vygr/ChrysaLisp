@@ -157,8 +157,8 @@
 		;but it could filter or adjust them for fancy reasons !
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_next)
+		(ptr 'inst)
+		(ptr 'next)
 	(def-struct-end)
 
 	;save inputs

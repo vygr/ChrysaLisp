@@ -32,7 +32,7 @@
 (def-func 'gui/font_deinit)
 
 	(def-struct 'local)
-		(ptr 'local_old_stack)
+		(ptr 'old_stack)
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
@@ -103,9 +103,9 @@
 	;all but r4
 
 	(def-struct 'local)
-		(long 'local_font)
-		(long 'local_points)
-		(long 'local_handle)
+		(long 'font)
+		(long 'points)
+		(long 'handle)
 	(def-struct-end)
 
 	;save inputs
@@ -201,13 +201,13 @@
 	;all but r4
 
 	(def-struct 'local)
-		(ptr 'local_font)
-		(ptr 'local_text)
-		(ptr 'local_bucket)
-		(ulong 'local_handle)
-		(long 'local_surface)
-		(long 'local_width)
-		(long 'local_height)
+		(ptr 'font)
+		(ptr 'text)
+		(ptr 'bucket)
+		(ulong 'handle)
+		(long 'surface)
+		(long 'width)
+		(long 'height)
 	(def-struct-end)
 
 	;save inputs

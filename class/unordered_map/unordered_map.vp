@@ -52,8 +52,8 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_obj)	;must be first
-		(ptr 'local_inst)
+		(ptr 'obj)	;must be first
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -100,8 +100,8 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_key)
+		(ptr 'inst)
+		(ptr 'key)
 	(def-struct-end)
 
 	;save inputs
@@ -144,12 +144,12 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_key)
-		(ptr 'local_value)
-		(ptr 'local_iter)
-		(ptr 'local_bucket)
-		(ptr 'local_pair)
+		(ptr 'inst)
+		(ptr 'key)
+		(ptr 'value)
+		(ptr 'iter)
+		(ptr 'bucket)
+		(ptr 'pair)
 	(def-struct-end)
 
 	;save inputs
@@ -219,8 +219,8 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_obj)
+		(ptr 'inst)
+		(ptr 'obj)
 	(def-struct-end)
 
 	;save inputs

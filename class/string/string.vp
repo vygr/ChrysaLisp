@@ -161,9 +161,9 @@
 	;r1 = 0 if error, else ok
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(long 'local_data)
-		(long 'local_length)
+		(ptr 'inst)
+		(long 'data)
+		(long 'length)
 	(def-struct-end)
 
 	;save inputs
@@ -208,9 +208,9 @@
 	;r1 = 0 if error, else ok
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(long 'local_string1)
-		(long 'local_string2)
+		(ptr 'inst)
+		(long 'string1)
+		(long 'string2)
 	(def-struct-end)
 
 	;save inputs
@@ -254,8 +254,8 @@
 	;r1 = 0 if error, else ok
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(long 'local_filename)
+		(ptr 'inst)
+		(long 'filename)
 	(def-struct-end)
 
 	;save inputs
@@ -309,9 +309,9 @@
 	;r1 = 0 if error, else ok
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_vector)
-		(ptr 'local_next)
+		(ptr 'inst)
+		(ptr 'vector)
+		(ptr 'next)
 	(def-struct-end)
 
 	;save inputs
@@ -400,7 +400,7 @@
 	;r1-r3, r5-r7
 
 	(def-struct 'local)
-		(ptr 'local_length)
+		(ptr 'length)
 	(def-struct-end)
 
 	;save inputs

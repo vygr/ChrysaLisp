@@ -23,10 +23,10 @@
 (def-method 'write_flush 'class/stream/write_flush 'virtual '(r0) '(r0))
 
 (def-struct 'stream 'ref)
-	(ptr 'stream_object)
-	(ptr 'stream_buffer)
-	(pubyte 'stream_bufp)
-	(pubyte 'stream_bufe)
+	(ptr 'object)
+	(ptr 'buffer)
+	(pubyte 'bufp)
+	(pubyte 'bufe)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;

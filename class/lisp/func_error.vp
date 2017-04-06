@@ -32,10 +32,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(error desc obj) wrong number of args"} {value})
+	(assign {"(throw desc obj) wrong number of args"} {value})
 	(goto 'error)
 (vp-label 'error2)
-	(assign {"(error desc obj) not a string"} {value})
+	(assign {"(throw desc obj) not a string"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))

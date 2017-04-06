@@ -17,7 +17,7 @@
 	;r2-r3, r5-r8
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -155,9 +155,9 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_iter)
-		(ptr 'local_bucket)
+		(ptr 'inst)
+		(ptr 'iter)
+		(ptr 'bucket)
 	(def-struct-end)
 
 	;save inputs
@@ -201,8 +201,8 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_key)
+		(ptr 'inst)
+		(ptr 'key)
 	(def-struct-end)
 
 	;save inputs
@@ -252,10 +252,10 @@
 		;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_predicate)
-		(ptr 'local_predicate_data)
-		(ptr 'local_iter)
+		(ptr 'inst)
+		(ptr 'predicate)
+		(ptr 'predicate_data)
+		(ptr 'iter)
 	(def-struct-end)
 
 	;save inputs
@@ -316,8 +316,8 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(uint 'local_length)
+		(ptr 'inst)
+		(uint 'length)
 	(def-struct-end)
 
 	;search hash bucket
@@ -367,8 +367,8 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_key)
+		(ptr 'inst)
+		(ptr 'key)
 	(def-struct-end)
 
 	;save inputs

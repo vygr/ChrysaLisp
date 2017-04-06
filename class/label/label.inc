@@ -18,6 +18,6 @@
 (def-method 'layout 'class/label/layout 'override)
 
 (def-struct 'label 'view)
-	(ptr 'label_flow)
-	(ptr 'label_text)
+	(ptr 'flow)
+	(ptr 'text)
 (def-struct-end)

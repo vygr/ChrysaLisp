@@ -11,8 +11,8 @@
 	;r1 = else value
 
 	(def-struct 'pdata)
-		(ptr 'pdata_this)
-		(ptr 'pdata_value)
+		(ptr 'this)
+		(ptr 'value)
 	(def-struct-end)
 
 	(ptr 'this 'value 'args)

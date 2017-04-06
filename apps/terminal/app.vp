@@ -12,11 +12,11 @@
 (def-func 'apps/terminal/app)
 
 	(def-struct 'shared 'obj)
-		(ptr 'shared_master 'shared_vdu 'shared_history 'shared_window)
-		(ulong 'shared_history_index)
-		(pubyte 'shared_bufp)
-		(struct 'shared_buffer 120)
-		(ubyte 'shared_closed)
+		(ptr 'master 'vdu 'history 'window)
+		(ulong 'history_index)
+		(pubyte 'bufp)
+		(struct 'buffer 120)
+		(ubyte 'closed)
 	(def-struct-end)
 
 	(struct 'myapp 'shared)

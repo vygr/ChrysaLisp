@@ -16,8 +16,8 @@
 (def-method 'ref_element 'class/pair/ref_element 'final)
 
 (def-struct 'pair 'sequence)
-	(ptr 'pair_first)
-	(ptr 'pair_second)
+	(ptr 'first)
+	(ptr 'second)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;

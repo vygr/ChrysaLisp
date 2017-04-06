@@ -34,10 +34,10 @@
 ;;;;;;;;;;;;;;;;;
 
 (def-struct 'hp_heap)
-	(ptr 'hp_heap_free_flist)
-	(ptr 'hp_heap_block_flist)
-	(uint 'hp_heap_cellsize)
-	(uint 'hp_heap_blocksize)
+	(ptr 'free_flist)
+	(ptr 'block_flist)
+	(uint 'cellsize)
+	(uint 'blocksize)
 (def-struct-end)
 
 ;;;;;;;;;;;;;

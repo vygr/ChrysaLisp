@@ -13,6 +13,6 @@
 (def-method 'mouse_move 'class/title/mouse_move 'final)
 
 (def-struct 'title 'label)
-	(int 'title_last_x)
-	(int 'title_last_y)
+	(int 'last_x)
+	(int 'last_y)
 (def-struct-end)

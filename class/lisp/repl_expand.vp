@@ -14,9 +14,9 @@
 	;r1 = expantion count
 
 	(def-struct 'pdata)
-		(ptr 'pdata_this)
-		(ptr 'pdata_form)
-		(ulong 'pdata_cnt)
+		(ptr 'this)
+		(ptr 'form)
+		(ulong 'cnt)
 	(def-struct-end)
 
 	(ptr 'this 'form)

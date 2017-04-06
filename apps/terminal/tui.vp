@@ -3,19 +3,19 @@
 (import 'class/stream_msg_out/stream_msg_out.inc)
 
 (def-struct 'tui_msg 'msg_header)
-	(struct 'tui_msg_reply_id 'id)
+	(struct 'reply_id 'id)
 (def-struct-end)
 
 (def-struct 'stdin_msg 'msg_header)
-	(ulong 'stdin_msg_char)
+	(ulong 'char)
 (def-struct-end)
 
 (def-func 'apps/terminal/tui)
 
 	(def-struct 'shared)
-		(ptr 'shared_master)
-		(pubyte 'shared_bufp)
-		(struct 'shared_buffer 120)
+		(ptr 'master)
+		(pubyte 'bufp)
+		(struct 'buffer 120)
 	(def-struct-end)
 
 	(struct 'shared 'shared)

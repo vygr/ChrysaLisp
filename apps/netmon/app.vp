@@ -9,12 +9,12 @@
 (import 'class/string/string.inc)
 
 (def-struct 'sample_msg 'msg_header)
-	(ulong 'sample_msg_index)
-	(ulong 'sample_msg_task_count)
-	(ulong 'sample_msg_mem_used)
-	(offset 'sample_msg_reply_size)
-	(ulong 'sample_msg_command)
-	(struct 'sample_msg_reply_id 'id)
+	(ulong 'index)
+	(ulong 'task_count)
+	(ulong 'mem_used)
+	(offset 'reply_size)
+	(ulong 'command)
+	(struct 'reply_id 'id)
 (def-struct-end)
 
 (def-func 'apps/netmon/app)
@@ -22,12 +22,12 @@
 	(defcvar 'num_samples 256)
 
 	(def-struct 'app 'obj)
-		(ubyte 'app_closed)
+		(ubyte 'closed)
 	(def-struct-end)
 
 	(def-struct 'sel)
-		(ptr 'sel_select1)
-		(ptr 'sel_select2)
+		(ptr 'select1)
+		(ptr 'select2)
 	(def-struct-end)
 
 	(struct 'myapp 'app)

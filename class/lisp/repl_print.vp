@@ -18,10 +18,10 @@
 	;r0 = lisp object
 
 	(def-struct 'pdata)
-		(ptr 'pdata_this)
-		(ptr 'pdata_stream)
-		(uint 'pdata_index)
-		(uint 'pdata_length)
+		(ptr 'this)
+		(ptr 'stream)
+		(uint 'index)
+		(uint 'length)
 	(def-struct-end)
 
 	(ptr 'this 'stream)

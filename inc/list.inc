@@ -15,18 +15,18 @@
 ;;;;;;;;;;;;;;;;;
 
 (def-struct 'lh_list)
-	(ptr 'lh_list_head)
-	(ptr 'lh_list_tail)
-	(ptr 'lh_list_tailpred)
+	(ptr 'head)
+	(ptr 'tail)
+	(ptr 'tailpred)
 (def-struct-end)
 
 (def-struct 'ln_node)
-	(ptr 'ln_node_succ)
-	(ptr 'ln_node_pred)
+	(ptr 'succ)
+	(ptr 'pred)
 (def-struct-end)
 
 (def-struct 'ln_fnode)
-	(ptr 'ln_fnode_next)
+	(ptr 'next)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;;;

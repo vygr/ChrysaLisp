@@ -10,8 +10,8 @@
 (def-method 'layout 'class/grid/layout 'final)
 
 (def-struct 'grid 'view)
-	(uint 'grid_width)
-	(uint 'grid_height)
+	(uint 'width)
+	(uint 'height)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;

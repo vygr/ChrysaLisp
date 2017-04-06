@@ -27,8 +27,8 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(int 'local_x)
-		(int 'local_y)
+		(int 'x)
+		(int 'y)
 	(def-struct-end)
 
 	(vp-sub-cr local_size r4)
@@ -203,8 +203,8 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(int 'local_w)
-		(int 'local_h)
+		(int 'w)
+		(int 'h)
 	(def-struct-end)
 
 	(vp-sub-cr local_size r4)

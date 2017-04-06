@@ -27,10 +27,10 @@
 	;r1-r3, r5-r8
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_source)
-		(uint 'local_start)
-		(uint 'local_end)
+		(ptr 'inst)
+		(ptr 'source)
+		(uint 'start)
+		(uint 'end)
 	(def-struct-end)
 
 	;save inputs
@@ -128,11 +128,11 @@
 		;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_predicate)
-		(ptr 'local_predicate_data)
-		(ptr 'local_next)
-		(ptr 'local_end)
+		(ptr 'inst)
+		(ptr 'predicate)
+		(ptr 'predicate_data)
+		(ptr 'next)
+		(ptr 'end)
 	(def-struct-end)
 
 	;save inputs

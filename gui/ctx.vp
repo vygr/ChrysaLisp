@@ -15,13 +15,13 @@
 	;all but r4
 
 	(def-struct 'local)
-		(struct 'local_drect 'sdl_rect)
-		(struct 'local_srect 'sdl_rect)
-		(struct 'local_clip_rect 'sdl_rect)
-		(ptr 'local_ctx)
-		(ulong 'local_texture)
-		(ptr 'local_dirty_rect)
-		(ptr 'local_old_stack)
+		(struct 'drect 'sdl_rect)
+		(struct 'srect 'sdl_rect)
+		(struct 'clip_rect 'sdl_rect)
+		(ptr 'ctx)
+		(ulong 'texture)
+		(ptr 'dirty_rect)
+		(ptr 'old_stack)
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
@@ -112,11 +112,11 @@
 	;all but r4
 
 	(def-struct 'local)
-		(struct 'local_rect 'sdl_rect)
-		(struct 'local_clip_rect 'sdl_rect)
-		(ptr 'local_ctx)
-		(ptr 'local_dirty_rect)
-		(ptr 'local_old_stack)
+		(struct 'rect 'sdl_rect)
+		(struct 'clip_rect 'sdl_rect)
+		(ptr 'ctx)
+		(ptr 'dirty_rect)
+		(ptr 'old_stack)
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
@@ -227,11 +227,11 @@
 	;all but r4
 
 	(def-struct 'local)
-		(struct 'local_rect 'sdl_rect)
-		(struct 'local_clip_rect 'sdl_rect)
-		(ptr 'local_ctx)
-		(ptr 'local_dirty_rect)
-		(ptr 'local_old_stack)
+		(struct 'rect 'sdl_rect)
+		(struct 'clip_rect 'sdl_rect)
+		(ptr 'ctx)
+		(ptr 'dirty_rect)
+		(ptr 'old_stack)
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
@@ -308,14 +308,14 @@
 	;all r4
 
 	(def-struct 'local)
-		(ptr 'local_ctx)
-		(long 'local_flags)
-		(uint 'local_color)
-		(int 'local_depth)
-		(int 'local_x)
-		(int 'local_y)
-		(int 'local_w)
-		(int 'local_h)
+		(ptr 'ctx)
+		(long 'flags)
+		(uint 'color)
+		(int 'depth)
+		(int 'x)
+		(int 'y)
+		(int 'w)
+		(int 'h)
 	(def-struct-end)
 
 	;save inputs
@@ -420,7 +420,7 @@
 	;all but r4
 
 	(def-struct 'local)
-		(long 'local_old_stack)
+		(long 'old_stack)
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl

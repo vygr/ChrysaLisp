@@ -12,24 +12,24 @@
 (def-method 'write_next 'class/stream_msg_out/write_next 'final)
 
 (def-struct 'stream_msg_out 'stream)
-	(ulong 'stream_msg_out_seqnum)
-	(ulong 'stream_msg_out_state)
-	(struct 'stream_msg_out_id 'id)
-	(ulong 'stream_msg_out_ack_seqnum)
-	(struct 'stream_msg_out_ack_mailbox 'mailbox)
+	(ulong 'seqnum)
+	(ulong 'state)
+	(struct 'id 'id)
+	(ulong 'ack_seqnum)
+	(struct 'ack_mailbox 'mailbox)
 (def-struct-end)
 
 (def-struct 'stream_mail 'msg_header)
-	(ulong 'stream_mail_seqnum)
-	(ulong 'stream_mail_state)
-	(struct 'stream_mail_ack_id 'id)
-	(offset 'stream_mail_data)
+	(ulong 'seqnum)
+	(ulong 'state)
+	(struct 'ack_id 'id)
+	(offset 'data)
 (def-struct-end)
 
 (defcvar 'stream_msg_out_ack_shift 6)
 
-(def-enum)
-	(enum 'stream_mail_state_started 'stream_mail_state_stopping 'stream_mail_state_stopped)
+(def-enum 'stream_mail_state)
+	(enum 'started 'stopping 'stopped)
 (def-enum-end)
 
 ;;;;;;;;;;;;;;;;

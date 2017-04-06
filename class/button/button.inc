@@ -2,8 +2,8 @@
 
 (defcvar 'button_border_size 2)
 
-(def-bit)
-	(bit 'button_state_pressed)
+(def-bit 'button_state)
+	(bit 'pressed)
 (def-bit-end)
 
 (def-class 'button 'label)
@@ -21,6 +21,6 @@
 (def-method 'mouse_move 'class/button/mouse_move 'final)
 
 (def-struct 'button 'label)
-	(ulong 'button_state)
-	(struct 'button_pressed_signal 'lh_list)
+	(ulong 'state)
+	(struct 'pressed_signal 'lh_list)
 (def-struct-end)

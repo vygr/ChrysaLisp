@@ -16,11 +16,11 @@
 
 (def-struct 'master 'ref)
 	(local-align)
-	(offset 'master_start)
-	(ptr 'master_streams)
-	(ptr 'master_mailbox_array)
-	(pptr 'master_select_array)
-	(ulong 'master_state)
+	(offset 'start)
+	(ptr 'streams)
+	(ptr 'mailbox_array)
+	(pptr 'select_array)
+	(ulong 'state)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;

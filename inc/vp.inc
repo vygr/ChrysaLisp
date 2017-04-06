@@ -118,7 +118,7 @@
 	(cond
 		((eql c 'c) (vp-cmp-cr s d))
 		((eql c 'r) (vp-cmp-rr s d))
-		(t (error "No such compare mode" c)))
+		(t (throw "No such compare mode" c)))
 	(cond
 		((eql o '==) (vp-beq l))
 		((eql o '!=) (vp-bne l))
@@ -126,14 +126,14 @@
 		((eql o '>) (vp-bgt l))
 		((eql o '<=) (vp-ble l))
 		((eql o '>=) (vp-bge l))
-		(t (error "No such comparator" o))))
+		(t (throw "No such comparator" o))))
 
 (defcfun vp-jmpifnot (b l)
 	(defq d (elem 0 b) o (elem 1 b) s (elem 2 b) c (type s))
 	(cond
 		((eql c 'c) (vp-cmp-cr s d))
 		((eql c 'r) (vp-cmp-rr s d))
-		(t (error "No such compare mode" c)))
+		(t (throw "No such compare mode" c)))
 	(cond
 		((eql o '==) (vp-bne l))
 		((eql o '!=) (vp-beq l))
@@ -141,7 +141,7 @@
 		((eql o '>) (vp-ble l))
 		((eql o '<=) (vp-bgt l))
 		((eql o '>=) (vp-blt l))
-		(t (error "No such comparator" o))))
+		(t (throw "No such comparator" o))))
 
 (defcfun vp-beq (l) (emit `(emit-beq ,(label-sym l) ,(dec (length (push *distance* 0))))))
 (defcfun vp-bne (l) (emit `(emit-bne ,(label-sym l) ,(dec (length (push *distance* 0))))))
@@ -234,4 +234,4 @@
 (import 'inc/x64.inc))
 ((eql *cpu* 'ARM)
 (import 'inc/arm.inc))
-(t (error "No such CPU !" *cpu*)))
+(t (throw "No such CPU !" *cpu*)))

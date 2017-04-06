@@ -27,7 +27,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -77,11 +77,11 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(long 'local_window)
-		(long 'local_event)
-		(int 'local_old_x)
-		(int 'local_old_y)
+		(ptr 'inst)
+		(long 'window)
+		(long 'event)
+		(int 'old_x)
+		(int 'old_y)
 	(def-struct-end)
 
 	;save old window bounds

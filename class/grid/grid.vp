@@ -29,9 +29,9 @@
 	(defcvar 'fixed_point 8)
 
 	(def-struct 'local)
-		(int 'local_count)
-		(int 'local_cell_w)
-		(int 'local_cell_h)
+		(int 'count)
+		(int 'cell_w)
+		(int 'cell_h)
 	(def-struct-end)
 
 	(vp-sub-cr local_size r4)
@@ -92,8 +92,8 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(int 'local_w)
-		(int 'local_h)
+		(int 'w)
+		(int 'h)
 	(def-struct-end)
 
 	(vp-sub-cr local_size r4)

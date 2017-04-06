@@ -31,7 +31,7 @@
 			(vp-cpy-cr (add _1 0x2000000) r0))
 		((eql *os* 'Linux)
 			(vp-cpy-cr _1 r0))
-		(t (error "Invalid platform setting" *os*)))
+		(t (throw "Invalid platform setting" *os*)))
 	(vp-syscall))
 
 (when (eql *os* 'Darwin)
@@ -197,13 +197,13 @@
 ;;;;;;;;;;;;;;;;
 
 (def-struct 'timeval)
-	(long 'timeval_sec)
-	(long 'timeval_usec)
+	(long 'sec)
+	(long 'usec)
 (def-struct-end)
 
 (def-struct 'timezone)
-	(int 'timeval_minuteswest)
-	(int 'timeval_dsttime)
+	(int 'minuteswest)
+	(int 'dsttime)
 (def-struct-end)
 
 (defcfun sys-push-trashed ()

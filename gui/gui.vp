@@ -33,17 +33,17 @@
 
 (def-func 'gui/gui)
 	(def-struct 'local)
-		(int 'local_x_pos)
-		(int 'local_y_pos)
-		(long 'local_buttons)
-		(int 'local_last_x_pos)
-		(int 'local_last_y_pos)
-		(long 'local_last_buttons)
-		(ptr 'local_last_view)
-		(ptr 'local_key_view)
-		(ptr 'local_keymap)
-		(uint 'local_keymap_size)
-		(ptr 'local_old_keymap)
+		(int 'x_pos)
+		(int 'y_pos)
+		(long 'buttons)
+		(int 'last_x_pos)
+		(int 'last_y_pos)
+		(long 'last_buttons)
+		(ptr 'last_view)
+		(ptr 'key_view)
+		(ptr 'keymap)
+		(uint 'keymap_size)
+		(ptr 'old_keymap)
 	(def-struct-end)
 
 	;init vars
@@ -270,8 +270,8 @@
 	;r0 = user data
 
 	(def-struct 'klocal)
-		(long 'klocal_old_stack)
-		(long 'klocal_user)
+		(long 'old_stack)
+		(long 'user)
 	(def-struct-end)
 
 	;align stack
@@ -464,10 +464,10 @@
 	;all but r4
 
 	(def-struct 'local)
-		(ptr 'local_root)
-		(ptr 'local_ctx_flist)
-		(ptr 'local_ctx_next)
-		(struct 'local_ctx 'gui_ctx)
+		(ptr 'root)
+		(ptr 'ctx_flist)
+		(ptr 'ctx_next)
+		(struct 'ctx 'gui_ctx)
 	(def-struct-end)
 
 	;save inputs
@@ -560,10 +560,10 @@
 
 (vp-label 'visible_up_callback)
 	(def-struct 'vis)
-		(ptr 'vis_inst)
-		(ptr 'vis_root)
-		(ptr 'vis_next)
-		(ptr 'vis_region)
+		(ptr 'inst)
+		(ptr 'root)
+		(ptr 'next)
+		(ptr 'region)
 	(def-struct-end)
 
 	;save inputs
@@ -667,9 +667,9 @@
 
 (vp-label 'distribute_down_callback)
 	(def-struct 'dist)
-		(ptr 'dist_inst)
-		(ptr 'dist_data)
-		(ptr 'dist_next)
+		(ptr 'inst)
+		(ptr 'data)
+		(ptr 'next)
 	(def-struct-end)
 
 	;save inputs

@@ -14,9 +14,9 @@
 	;r1 = value
 
 	(def-struct 'pdata)
-		(ptr 'pdata_this)
-		(ptr 'pdata_value)
-		(pptr 'pdata_iter)
+		(ptr 'this)
+		(ptr 'value)
+		(pptr 'iter)
 	(def-struct-end)
 
 	(ptr 'this 'value)

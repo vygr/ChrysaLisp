@@ -24,12 +24,12 @@
 (def-method 'slice 'class/vector/slice 'final)
 
 (def-struct 'vector 'sliceable)
-	(pptr 'vector_array)
-	(uint 'vector_length)
-	(uint 'vector_capacity)
-	(ptr 'vector_e0)
-	(ptr 'vector_e1)
-	(ptr 'vector_e2)
+	(pptr 'array)
+	(uint 'length)
+	(uint 'capacity)
+	(ptr 'e0)
+	(ptr 'e1)
+	(ptr 'e2)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;

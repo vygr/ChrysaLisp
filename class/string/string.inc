@@ -24,9 +24,9 @@
 (def-method 'slice 'class/string/slice 'final)
 
 (def-struct 'string 'sliceable)
-	(uint 'string_length)
-	(uint 'string_hashcode)
-	(offset 'string_data)
+	(uint 'length)
+	(uint 'hashcode)
+	(offset 'data)
 (def-struct-end)
 
 (defcvar 'string_gap (sub 64 string_data ptr_size byte_size))

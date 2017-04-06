@@ -11,8 +11,8 @@
 ; kernel mail functions
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-(def-enum)
-	(enum 'kn_call_callback 'kn_call_task_open 'kn_call_task_child 'kn_call_task_route)
+(def-enum 'kn_call)
+	(enum 'callback 'task_open 'task_child 'task_route)
 (def-enum-end)
 
 ;;;;;;;;;;;;;;;;;;
@@ -20,28 +20,28 @@
 ;;;;;;;;;;;;;;;;;;
 
 (def-struct 'kn_msg 'msg_header)
-	(ulong 'kn_msg_user)
-	(struct 'kn_msg_reply_id 'id)
-	(offset 'kn_msg_reply_size)
-	(ulong 'kn_msg_function)
+	(ulong 'user)
+	(struct 'reply_id 'id)
+	(offset 'reply_size)
+	(ulong 'function)
 (def-struct-end)
 
 (def-struct 'kn_msg_callback 'kn_msg)
-	(ptr 'kn_msg_callback_addr)
+	(ptr 'addr)
 (def-struct-end)
 
 (def-struct 'kn_msg_open 'kn_msg)
-	(offset 'kn_msg_open_pathname)
+	(offset 'pathname)
 (def-struct-end)
 
 (def-struct 'kn_msg_child 'kn_msg)
-	(offset 'kn_msg_child_pathname)
+	(offset 'pathname)
 (def-struct-end)
 
 (def-struct 'kn_msg_link_route 'kn_msg)
-	(ulong 'kn_msg_link_route_origin)
-	(ulong 'kn_msg_link_route_via)
-	(ulong 'kn_msg_link_route_hops)
+	(ulong 'origin)
+	(ulong 'via)
+	(ulong 'hops)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;;
@@ -49,12 +49,12 @@
 ;;;;;;;;;;;;;;;;;
 
 (def-struct 'fn_header 'ln_fnode)
-	(uint 'fn_header_length)
-	(uint 'fn_header_entry)
-	(uint 'fn_header_links)
-	(uint 'fn_header_paths)
-	(uint 'fn_header_stack)
-	(offset 'fn_header_pathname)
+	(uint 'length)
+	(uint 'entry)
+	(uint 'links)
+	(uint 'paths)
+	(uint 'stack)
+	(offset 'pathname)
 (def-struct-end)
 
 ;;;;;;;;;;;
@@ -133,7 +133,7 @@
 	(vp-lea-p (string-sym (fn-add-string s)) r))
 
 (defcfun fn-bind (p r)
-	(if (def? p) (error "Can't bind to inline function !" p)
+	(if (def? p) (throw "Can't bind to inline function !" p)
 		(vp-cpy-pr (link-sym (fn-find-link p)) r)))
 
 (defcfun fn-call (p)
@@ -141,7 +141,7 @@
 		(vp-call-p (link-sym (fn-find-link p)))))
 
 (defcfun fn-jmp (p)
-	(if (def? p) (error "Can't jump to inline function !" p)
+	(if (def? p) (throw "Can't jump to inline function !" p)
 		(vp-jmp-p (link-sym (fn-find-link p)))))
 
 (defcfun debug-long (s i)

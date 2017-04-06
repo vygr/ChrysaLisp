@@ -12,36 +12,36 @@
 ; link structures
 ;;;;;;;;;;;;;;;;;
 
-(def-enum)
-	(enum 'lk_chan_status_ready 'lk_chan_status_busy)
+(def-enum 'lk_chan_status)
+	(enum 'ready 'busy)
 (def-enum-end)
 
 (def-struct 'lk_table)
-	(ptr 'lk_table_array)
-	(ulong 'lk_table_array_size)
+	(ptr 'array)
+	(ulong 'array_size)
 (def-struct-end)
 
 (def-struct 'lk_node 'ln_node)
-	(struct 'lk_node_table 'lk_table)
-	(ulong 'lk_node_cpu_id)
-	(ulong 'lk_node_task_count)
+	(struct 'table 'lk_table)
+	(ulong 'cpu_id)
+	(ulong 'task_count)
 (def-struct-end)
 
 (def-struct 'lk_statics)
-	(struct 'lk_statics_links_list 'lh_list)
+	(struct 'links_list 'lh_list)
 (def-struct-end)
 
 (def-struct 'lk_chan)
-	(ulong 'lk_chan_status)
-	(ulong 'lk_chan_task_count)
-	(struct 'lk_chan_msg 'msg)
+	(ulong 'status)
+	(ulong 'task_count)
+	(struct 'msg 'msg)
 (def-struct-end)
 
 (def-struct 'lk_buffer)
-	(struct 'lk_buffer_chan_1 'lk_chan)
-	(struct 'lk_buffer_chan_2 'lk_chan)
+	(struct 'chan_1 'lk_chan)
+	(struct 'chan_2 'lk_chan)
 (def-struct-end)
 
 (def-struct 'lk_route)
-	(ulong 'lk_route_hops)
+	(ulong 'hops)
 (def-struct-end)

@@ -9,17 +9,17 @@
 (def-method 'deinit 'class/slave/deinit 'final)
 
 (def-struct 'slave 'ref)
-	(ptr 'slave_stdin)
-	(ptr 'slave_stdout)
-	(ptr 'slave_stderr)
-	(ptr 'slave_args)
+	(ptr 'stdin)
+	(ptr 'stdout)
+	(ptr 'stderr)
+	(ptr 'args)
 (def-struct-end)
 
 (def-struct 'slave_mail_init 'msg_header)
-	(struct 'slave_mail_init_stdout_id 'id)
-	(struct 'slave_mail_init_stderr_id 'id)
-	(struct 'slave_mail_init_ack_id 'id)
-	(offset 'slave_mail_init_args)
+	(struct 'stdout_id 'id)
+	(struct 'stderr_id 'id)
+	(struct 'ack_id 'id)
+	(offset 'args)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;

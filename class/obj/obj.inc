@@ -10,7 +10,7 @@
 (def-method 'hash 'class/obj/hash 'virtual '(r0) '(r0 r1))
 
 (def-struct 'obj)
-	(pptr 'obj_vtable)
+	(pptr 'vtable)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;

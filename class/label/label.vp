@@ -62,7 +62,7 @@
 	;r1 = 0, else string object
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -85,7 +85,7 @@
 	;r1 = 0, else string object
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -107,7 +107,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -141,7 +141,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -202,7 +202,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -228,7 +228,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs

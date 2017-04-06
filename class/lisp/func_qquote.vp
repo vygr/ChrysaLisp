@@ -11,8 +11,8 @@
 	;r1 = value
 
 	(def-struct 'pdata)
-		(ptr 'pdata_this)
-		(ptr 'pdata_cat_list)
+		(ptr 'this)
+		(ptr 'cat_list)
 	(def-struct-end)
 
 	(ptr 'this 'cat_list 'args 'value)

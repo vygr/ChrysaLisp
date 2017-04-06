@@ -120,7 +120,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -183,7 +183,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -210,8 +210,8 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(long 'local_string)
+		(ptr 'inst)
+		(long 'string)
 	(def-struct-end)
 
 	;save inputs

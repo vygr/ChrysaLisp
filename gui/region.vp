@@ -225,11 +225,11 @@
 	;r1-r3, r5-r15
 
 	(def-struct 'local)
-		(ptr 'local_node)
-		(ptr 'local_slist)
-		(ptr 'local_dlist)
-		(int 'local_dx)
-		(int 'local_dy)
+		(ptr 'node)
+		(ptr 'slist)
+		(ptr 'dlist)
+		(int 'dx)
+		(int 'dy)
 	(def-struct-end)
 
 	;save inputs
@@ -817,10 +817,10 @@
 	;r1-r3, r5-r15
 
 	(def-struct 'local)
-		(ptr 'local_node)
-		(ptr 'local_dlist)
-		(int 'local_dx)
-		(int 'local_dy)
+		(ptr 'node)
+		(ptr 'dlist)
+		(int 'dx)
+		(int 'dy)
 	(def-struct-end)
 
 	;save inputs
@@ -1109,10 +1109,10 @@
 	;r1-r3, r5-r15
 
 	(def-struct 'local)
-		(ptr 'local_node)
-		(ptr 'local_dlist)
-		(int 'local_dx)
-		(int 'local_dy)
+		(ptr 'node)
+		(ptr 'dlist)
+		(int 'dx)
+		(int 'dy)
 	(def-struct-end)
 
 	;save inputs

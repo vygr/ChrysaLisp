@@ -17,8 +17,8 @@
 (def-method 'ref_element 'class/unordered_set/ref_element 'final)
 
 (def-struct 'unordered_set 'sequence)
-	(ptr 'unordered_set_buckets)
-	(ptr 'unordered_set_key_callback)
-	(uint 'unordered_set_num_buckets)
-	(uint 'unordered_set_length)
+	(ptr 'buckets)
+	(ptr 'key_callback)
+	(uint 'num_buckets)
+	(uint 'length)
 (def-struct-end)

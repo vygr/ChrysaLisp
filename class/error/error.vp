@@ -19,7 +19,7 @@
 	;r1-r3, r5-r7
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs

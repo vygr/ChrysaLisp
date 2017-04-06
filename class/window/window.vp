@@ -150,7 +150,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -226,10 +226,10 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_event)
-		(int 'local_old_x)
-		(int 'local_old_y)
+		(ptr 'inst)
+		(ptr 'event)
+		(int 'old_x)
+		(int 'old_y)
 	(def-struct-end)
 
 	;save inputs
@@ -341,7 +341,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -364,7 +364,7 @@
 	;r1 = 0, else status string object
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -389,7 +389,7 @@
 	;r1 = 0, else title string object
 
 	(def-struct 'local)
-		(ptr 'local_inst)
+		(ptr 'inst)
 	(def-struct-end)
 
 	;save inputs
@@ -415,9 +415,9 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_obj)
-		(ptr 'local_callback)
+		(ptr 'inst)
+		(ptr 'obj)
+		(ptr 'callback)
 	(def-struct-end)
 
 	;save inputs
@@ -444,9 +444,9 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_obj)
-		(ptr 'local_callback)
+		(ptr 'inst)
+		(ptr 'obj)
+		(ptr 'callback)
 	(def-struct-end)
 
 	;save inputs
@@ -473,9 +473,9 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'local_inst)
-		(ptr 'local_obj)
-		(ptr 'local_callback)
+		(ptr 'inst)
+		(ptr 'obj)
+		(ptr 'callback)
 	(def-struct-end)
 
 	;save inputs
