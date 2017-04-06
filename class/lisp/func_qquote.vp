@@ -56,8 +56,8 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(pptr 'iter)
 	(ptr 'pdata 'elem 'list 'sym 'quote_list)
+	(pptr 'iter)
 	(uint 'length)
 
 	(push-scope)

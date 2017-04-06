@@ -47,8 +47,8 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(pptr 'iter)
 	(ptr 'pdata)
+	(pptr 'iter)
 
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
