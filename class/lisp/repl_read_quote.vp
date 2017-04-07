@@ -27,15 +27,19 @@
 	(f-call 'ref 'ref {elem})
 	(f-call 'vector 'push_back {list, elem})
 	(f-call 'lisp 'repl_read {this, stream, char} {_, elem, char})
-	(vpif (cat {elem->obj_vtable != @} (f-path 'class 'error)))
-		(f-call 'vector 'push_back {list, elem})
-	(else)
-		(f-call 'ref 'deref {list})
-		(assign {elem} {list})
-	(endif)
+	(errorif (cat {elem->obj_vtable == @} (f-path 'class 'error)) 'error)
+	(f-call 'vector 'push_back {list, elem})
 
+(vp-label 'exit)
 	(f-exit 'lisp 'repl_read_quote {this, list, char})
-	(pop-scope)
 	(return)
+
+(errorcases
+(vp-label 'error)
+	(f-call 'ref 'deref {list})
+	(assign {elem} {list})
+	(goto 'exit))
+
+	(pop-scope-syms)
 
 (def-func-end)

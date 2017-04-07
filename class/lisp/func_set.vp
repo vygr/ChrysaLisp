@@ -25,7 +25,7 @@
 		(errorif (cat {var->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
 		(f-call 'vector 'get_element {args, index + 1} {_, val})
 		(f-call 'lisp 'env_set {this, var, val} {_, val})
-		(breakif (cat {val->obj_vtable == @} (f-path 'class 'error)))
+		(errorif (cat {val->obj_vtable == @} (f-path 'class 'error)) 'exit)
 		(assign {index + 2} {index})
 	(loop-until {index == length})
 
