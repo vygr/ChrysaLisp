@@ -10,7 +10,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(def-struct 'pdata)
+	(def-struct 'local)
 		(ptr 'this)
 		(ptr 'value)
 	(def-struct-end)
@@ -48,9 +48,9 @@
 	(d-call 'vector 'get_length {*iter} {_, length})
 	(errorifnot {length} 'error2)
 	(f-call 'vector 'get_element {*iter, 0} {_, test})
-	(f-call 'lisp 'repl_eval {pdata->pdata_this, test} {_, test})
+	(f-call 'lisp 'repl_eval {pdata->local_this, test} {_, test})
 	(errorif (cat {test->obj_vtable == @} (f-path 'class 'error)) 'error)
-	(vpif {test == pdata->pdata_this->lisp_sym_nil})
+	(vpif {test == pdata->local_this->lisp_sym_nil})
 		(f-call 'ref 'deref {test})
 		(f-exit 'vector 'callback '(-1))
 	(else)
@@ -67,10 +67,10 @@
 (vp-label 'error2)
 	(assign {"(cond (tst form ...) ...) clause wrong number of args"} {test})
 (vp-label 'error3)
-	(f-call 'lisp 'repl_error {pdata->pdata_this, test, *iter} {_, test})
+	(f-call 'lisp 'repl_error {pdata->local_this, test, *iter} {_, test})
 (vp-label 'error)
-	(f-call 'ref 'deref {pdata->pdata_value})
-	(assign {test} {pdata->pdata_value})
+	(f-call 'ref 'deref {pdata->local_value})
+	(assign {test} {pdata->local_value})
 	(f-exit 'vector 'callback '(0))
 	(return))
 
@@ -89,10 +89,10 @@
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
 
-	(f-call 'ref 'deref {pdata->pdata_value})
-	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_, pdata->pdata_value})
+	(f-call 'ref 'deref {pdata->local_value})
+	(f-call 'lisp 'repl_eval {pdata->local_this, *iter} {_, pdata->local_value})
 
-	(errorassign (cat {pdata->pdata_value->obj_vtable != @} (f-path 'class 'error)) '(r1))
+	(errorassign (cat {pdata->local_value->obj_vtable != @} (f-path 'class 'error)) '(r1))
 	(pop-scope)
 	(return)
 

@@ -17,7 +17,7 @@
 	;outputs
 	;r0 = lisp object
 
-	(def-struct 'pdata)
+	(def-struct 'local)
 		(ptr 'this)
 		(ptr 'stream)
 		(uint 'index)
@@ -70,7 +70,7 @@
 			(f-call 'stream 'write_char {stream, char_rsb})
 			(break)
 		(case (cat {elem == @} (f-path 'class 'unordered_set)))
-			(struct 'pdata 'pdata)
+			(struct 'pdata 'local)
 			(push-scope)
 			(f-call 'stream 'write_char {stream, char_lsb})
 			(d-call 'unordered_set 'get_length {value} {_, length})
@@ -80,7 +80,7 @@
 			(pop-scope)
 			(break)
 		(case (cat {elem == @} (f-path 'class 'unordered_map)))
-			(struct 'pdata 'pdata)
+			(struct 'pdata 'local)
 			(push-scope)
 			(f-call 'stream 'write_char {stream, char_lcb})
 			(d-call 'unordered_map 'get_length {value} {_, length})
@@ -107,7 +107,7 @@
 			(f-call 'stream 'write_cstr {stream, ")"})
 			(break)
 		(case (cat {elem == @} (f-path 'class 'vector)))
-			(struct 'pdata 'pdata)
+			(struct 'pdata 'local)
 			(push-scope)
 			(d-call 'vector 'get_length {value} {_, length})
 			(vpif {length})
@@ -167,10 +167,10 @@
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
 
-	(f-call 'lisp 'repl_print {pdata->pdata_this, pdata->pdata_stream, *iter})
-	(assign {pdata->pdata_index + 1} {pdata->pdata_index})
-	(vpif {pdata->pdata_index != pdata->pdata_length})
-		(f-call 'stream 'write_char {pdata->pdata_stream, char_space})
+	(f-call 'lisp 'repl_print {pdata->local_this, pdata->local_stream, *iter})
+	(assign {pdata->local_index + 1} {pdata->local_index})
+	(vpif {pdata->local_index != pdata->local_length})
+		(f-call 'stream 'write_char {pdata->local_stream, char_space})
 	(endif)
 
 	(f-exit 'vector 'callback '(-1))

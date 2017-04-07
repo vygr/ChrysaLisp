@@ -11,7 +11,7 @@
 
 (def-func 'apps/terminal/app)
 
-	(def-struct 'shared 'obj)
+	(def-struct 'local 'obj)
 		(ptr 'master 'vdu 'history 'window)
 		(ulong 'history_index)
 		(pubyte 'bufp)
@@ -19,7 +19,7 @@
 		(ubyte 'closed)
 	(def-struct-end)
 
-	(struct 'myapp 'shared)
+	(struct 'myapp 'local)
 	(ptr 'msg 'stream 'label 'string 'mymailbox 'mailbox)
 	(ulong 'owner 'length)
 	(long 'state)
@@ -27,48 +27,48 @@
 
 	;init app vars
 	(push-scope)
-	(f-call 'sys_mem 'clear {&myapp, shared_size})
+	(f-call 'sys_mem 'clear {&myapp, local_size})
 	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)))
-	(f-call 'master 'create {} {myapp.shared_master})
-	(f-call 'vector 'create {} {myapp.shared_history})
+	(f-call 'master 'create {} {myapp.local_master})
+	(f-call 'vector 'create {} {myapp.local_history})
 
 	;create my window
-	(f-call 'window 'create {window_flag_status | window_flag_close} {myapp.shared_window})
+	(f-call 'window 'create {window_flag_status | window_flag_close} {myapp.local_window})
 	(f-call 'string 'create_from_cstr {"Terminal"} {string})
-	(f-call 'window 'set_title {myapp.shared_window, string})
+	(f-call 'window 'set_title {myapp.local_window, string})
 	(f-call 'string 'create_from_cstr {"Ready"} {string})
-	(f-call 'window 'set_status {myapp.shared_window, string})
-	(f-call 'window 'set_color {myapp.shared_window, 0xc0000000})
+	(f-call 'window 'set_status {myapp.local_window, string})
+	(f-call 'window 'set_color {myapp.local_window, 0xc0000000})
 
 	;add my vdu
-	(f-call 'vdu 'create {} {myapp.shared_vdu})
-	(f-call 'vdu 'set_text_color {myapp.shared_vdu, 0xff00ff00})
-	(f-call 'vdu 'set_font {myapp.shared_vdu, "fonts/Hack-Regular.ttf", 16})
-	(v-call 'window 'add_child {myapp.shared_window, myapp.shared_vdu})
+	(f-call 'vdu 'create {} {myapp.local_vdu})
+	(f-call 'vdu 'set_text_color {myapp.local_vdu, 0xff00ff00})
+	(f-call 'vdu 'set_font {myapp.local_vdu, "fonts/Hack-Regular.ttf", 16})
+	(v-call 'window 'add_child {myapp.local_window, myapp.local_vdu})
 
 	;set to pref size
-	(v-call 'window 'pref_size {myapp.shared_window} {_, width, height})
-	(f-call 'window 'change {myapp.shared_window, 0, 0, width, height})
+	(v-call 'window 'pref_size {myapp.local_window} {_, width, height})
+	(f-call 'window 'change {myapp.local_window, 0, 0, width, height})
 
 	;set window owner
 	(f-call 'sys_task 'tcb {} {owner})
-	(f-call 'window 'set_owner {myapp.shared_window, owner})
+	(f-call 'window 'set_owner {myapp.local_window, owner})
 
 	;set close action
-	(f-call 'window 'connect_close {myapp.shared_window, &myapp, $on_window_close})
+	(f-call 'window 'connect_close {myapp.local_window, &myapp, $on_window_close})
 
 	;add to screen and dirty
-	(f-call 'gui_gui 'add {myapp.shared_window})
-	(f-call 'window 'dirty_all {myapp.shared_window})
+	(f-call 'gui_gui 'add {myapp.local_window})
+	(f-call 'window 'dirty_all {myapp.local_window})
 
 	;set up term buffer
-	(assign {&myapp.shared_buffer} {myapp.shared_bufp})
+	(assign {&myapp.local_buffer} {myapp.local_bufp})
 
 	;app event loop
 	(f-call 'sys_task 'mailbox {} {mymailbox, _})
 	(loop-start)
 		;select on multiple mailboxes
-		(f-call 'master 'select {myapp.shared_master, mymailbox} {_, mailbox})
+		(f-call 'master 'select {myapp.local_master, mymailbox} {_, mailbox})
 
 		;which mailbox has mail ?
 		(vpif {mailbox == mymailbox})
@@ -81,22 +81,22 @@
 			(f-call 'sys_mem 'free {msg})
 		(else)
 			;output from a pipe element
-			(f-call 'master 'get_stream {myapp.shared_master, mailbox} {_, stream})
+			(f-call 'master 'get_stream {myapp.local_master, mailbox} {_, stream})
 			(l-call 'pipe_output {&myapp, stream} '(r0 r1) '(r0) {state})
 			(vpif {state == -1})
 				;EOF
-				(f-call 'master 'stop {myapp.shared_master})
+				(f-call 'master 'stop {myapp.local_master})
 				(f-call 'string 'create_from_cstr {"Ready"} {string})
-				(f-call 'window 'set_status {myapp.shared_window, string})
+				(f-call 'window 'set_status {myapp.local_window, string})
 			(endif)
 		(endif)
 		(f-call 'sys_task 'yield)
-	(loop-until {myapp.shared_closed})
+	(loop-until {myapp.local_closed})
 
 	;clean up
-	(f-call 'vector 'deref {myapp.shared_history})
-	(f-call 'master 'deref {myapp.shared_master})
-	(f-call 'window 'deref {myapp.shared_window})
+	(f-call 'vector 'deref {myapp.local_history})
+	(f-call 'master 'deref {myapp.local_master})
+	(f-call 'window 'deref {myapp.local_window})
 	(v-call 'obj 'deinit {&myapp})
 	(pop-scope)
 	(return)
@@ -110,28 +110,28 @@
 
 	(push-scope)
 	(assign '(r0) {this})
-	(assign {1} {this->shared_closed})
+	(assign {1} {this->local_closed})
 	(pop-scope)
 	(return)
 
 (vp-label 'pipe_output)
 	;inputs
-	;r0 = shared
+	;r0 = local
 	;r1 = stream
 	;outputs
 	;r0 = -1 if EOF
 
-	(ptr 'shared 'stream)
+	(ptr 'local 'stream)
 	(long 'char)
 	(ulong 'ready)
 
 	(push-scope)
-	(assign '(r0 r1) {shared, stream})
+	(assign '(r0 r1) {local, stream})
 
 	(loop-start)
 		(f-call 'stream 'read_char {stream} {_, char})
 		(breakif {char == -1})
-		(l-call 'terminal_output {shared, char} '(r0 r1))
+		(l-call 'terminal_output {local, char} '(r0 r1))
 		(v-call 'stream 'read_ready {stream} {_, ready})
 	(loop-untilnot {ready})
 
@@ -141,38 +141,38 @@
 
 (vp-label 'terminal_input)
 	;inputs
-	;r0 = shared
+	;r0 = local
 	;r1 = char input
 
-	(ptr 'shared 'string 'last 'stream)
+	(ptr 'local 'string 'last 'stream)
 	(ulong 'length 'notsame)
 	(ubyte 'char 'state)
 
 	(push-scope)
-	(assign '(r0 r1) {shared, char})
+	(assign '(r0 r1) {local, char})
 
 	;echo char to terminal
-	(l-call 'terminal_output {shared, char} '(r0 r1))
+	(l-call 'terminal_output {local, char} '(r0 r1))
 
 	;buffer char
-	(assign {char} {*shared->shared_bufp})
-	(assign {shared->shared_bufp - &shared->shared_buffer} {length})
+	(assign {char} {*local->local_bufp})
+	(assign {local->local_bufp - &local->local_buffer} {length})
 
 	;send line ?
 	(vpif {char == 10 || char == 13})
 		;what state ?
-		(f-call 'master 'get_state {shared->shared_master} {_, state})
+		(f-call 'master 'get_state {local->local_master} {_, state})
 		(vpif {state == stream_mail_state_stopped})
 			;push new history entry if not same as last entry
 			(breakifnot {length})
-			(f-call 'string 'create_from_buffer {&shared->shared_buffer, length} {string})
-			(d-call 'vector 'get_length {shared->shared_history} {_, shared->shared_history_index})
-			(vpifnot {shared->shared_history_index})
+			(f-call 'string 'create_from_buffer {&local->local_buffer, length} {string})
+			(d-call 'vector 'get_length {local->local_history} {_, local->local_history_index})
+			(vpifnot {local->local_history_index})
 			(vp-label 'new_entry)
-				(f-call 'vector 'push_back {shared->shared_history, string})
-				(assign {shared->shared_history_index + 1} {shared->shared_history_index})
+				(f-call 'vector 'push_back {local->local_history, string})
+				(assign {local->local_history_index + 1} {local->local_history_index})
 			(else)
-				(f-call 'vector 'ref_back {shared->shared_history} {_, last})
+				(f-call 'vector 'ref_back {local->local_history} {_, last})
 				(f-call 'string 'same {string, last} {_, notsame})
 				(f-call 'string 'deref {last})
 				(gotoif {notsame} 'new_entry)
@@ -180,67 +180,67 @@
 			(endif)
 
 			;start new pipe
-			(f-call 'master 'start {shared->shared_master, &shared->shared_buffer, length})
-			(f-call 'master 'get_state {shared->shared_master} {_, state})
+			(f-call 'master 'start {local->local_master, &local->local_buffer, length})
+			(f-call 'master 'get_state {local->local_master} {_, state})
 			(breakif {state != stream_mail_state_started})
 			(f-call 'string 'create_from_cstr {"Busy"} {string})
-			(f-call 'window 'set_status {shared->shared_window, string})
+			(f-call 'window 'set_status {local->local_window, string})
 		(else)
 			;feed active pipe
-			(f-call 'master 'get_input {shared->shared_master} {_, stream})
-			(f-call 'stream 'write {stream, &shared->shared_buffer, length})
+			(f-call 'master 'get_input {local->local_master} {_, stream})
+			(f-call 'stream 'write {stream, &local->local_buffer, length})
 			(f-call 'stream 'write_char {stream, 10})
 			(v-call 'stream 'write_flush {stream})
 		(endif)
-		(assign {&shared->shared_buffer} {shared->shared_bufp})
+		(assign {&local->local_buffer} {local->local_bufp})
 	(elseif {char == 128})
 		;backspace
 		(vpif {length})
-			(assign {shared->shared_bufp - 1} {shared->shared_bufp})
+			(assign {local->local_bufp - 1} {local->local_bufp})
 		(endif)
 	(elseif {char == 129})
 		;cursor up
-		(f-call 'master 'get_state {shared->shared_master} {_, state})
+		(f-call 'master 'get_state {local->local_master} {_, state})
 		(vpif {state == stream_mail_state_stopped})
-			(d-call 'vector 'get_length {shared->shared_history} {_, length})
+			(d-call 'vector 'get_length {local->local_history} {_, length})
 			(breakifnot {length})
-			(vpif {shared->shared_history_index})
-				(assign {shared->shared_history_index - 1} {shared->shared_history_index})
+			(vpif {local->local_history_index})
+				(assign {local->local_history_index - 1} {local->local_history_index})
 			(endif)
-			(d-call 'vector 'ref_element {shared->shared_history, shared->shared_history_index} {_, string})
-			(f-call 'sys_mem 'copy {&string->string_data, &shared->shared_buffer, string->string_length} {_, shared->shared_bufp})
+			(d-call 'vector 'ref_element {local->local_history, local->local_history_index} {_, string})
+			(f-call 'sys_mem 'copy {&string->string_data, &local->local_buffer, string->string_length} {_, local->local_bufp})
 			(f-call 'stream 'create {string, 0, &string->string_data, string->string_length} {stream})
-			(l-call 'pipe_output {shared, stream} '(r0 r1))
+			(l-call 'pipe_output {local, stream} '(r0 r1))
 			(f-call 'stream 'deref {stream})
 		(endif)
 	(elseif {char == 130})
 		;cursor down
-		(f-call 'master 'get_state {shared->shared_master} {_, state})
+		(f-call 'master 'get_state {local->local_master} {_, state})
 		(vpif {state == stream_mail_state_stopped})
-			(d-call 'vector 'get_length {shared->shared_history} {_, length})
-			(assign {shared->shared_history_index + 1} {shared->shared_history_index})
-			(vpif {shared->shared_history_index > length})
-				(assign {length} {shared->shared_history_index})
+			(d-call 'vector 'get_length {local->local_history} {_, length})
+			(assign {local->local_history_index + 1} {local->local_history_index})
+			(vpif {local->local_history_index > length})
+				(assign {length} {local->local_history_index})
 			(endif)
-			(vpif {shared->shared_history_index == length})
+			(vpif {local->local_history_index == length})
 				(f-call 'string 'create_from_cstr {""} {string})
 			(else)
-				(d-call 'vector 'ref_element {shared->shared_history, shared->shared_history_index} {_, string})
+				(d-call 'vector 'ref_element {local->local_history, local->local_history_index} {_, string})
 			(endif)
-			(f-call 'sys_mem 'copy {&string->string_data, &shared->shared_buffer, string->string_length} {_, shared->shared_bufp})
+			(f-call 'sys_mem 'copy {&string->string_data, &local->local_buffer, string->string_length} {_, local->local_bufp})
 			(f-call 'stream 'create {string, 0, &string->string_data, string->string_length} {stream})
-			(l-call 'pipe_output {shared, stream} '(r0 r1))
+			(l-call 'pipe_output {local, stream} '(r0 r1))
 			(f-call 'stream 'deref {stream})
 		(endif)
 	(elseif {char == 27})
 		;esc
-		(f-call 'master 'get_state {shared->shared_master} {_, state})
+		(f-call 'master 'get_state {local->local_master} {_, state})
 		(vpif {state == stream_mail_state_started})
 			;feed active pipe, then EOF
-			(f-call 'master 'get_input {shared->shared_master} {_, stream})
-			(f-call 'stream 'write {stream, &shared->shared_buffer, length})
+			(f-call 'master 'get_input {local->local_master} {_, stream})
+			(f-call 'stream 'write {stream, &local->local_buffer, length})
 			(v-call 'stream 'write_flush {stream})
-			(assign {&shared->shared_buffer} {shared->shared_bufp})
+			(assign {&local->local_buffer} {local->local_bufp})
 
 			;send stopping
 			(f-call 'stream_msg_out 'set_state {stream, stream_mail_state_stopping})
@@ -249,30 +249,30 @@
 		(endif)
 	(elseif {char >= 32 && char < 127})
 		;next char
-		(assign {shared->shared_bufp + 1} {shared->shared_bufp})
+		(assign {local->local_bufp + 1} {local->local_bufp})
 	(endif)
 	(pop-scope)
 	(return)
 
 (vp-label 'terminal_output)
 	;inputs
-	;r0 = shared
+	;r0 = local
 	;r1 = char output
 
-	(ptr 'shared 'label 'string 'line_string 'new_line_string)
+	(ptr 'local 'label 'string 'line_string 'new_line_string)
 	(ulong 'length 'char)
 
 	(push-scope)
-	(assign '(r0 r1) {shared, char})
+	(assign '(r0 r1) {local, char})
 	(vpif {char == 13})
 		(assign {10} {char})
 	(endif)
 	(vpif {char == 129 || char == 130})
 		;cursor up/down
-		(f-call 'vdu 'print_char {shared->shared_vdu, 129})
+		(f-call 'vdu 'print_char {local->local_vdu, 129})
 	(else)
 		;print char
-		(f-call 'vdu 'print_char {shared->shared_vdu, char})
+		(f-call 'vdu 'print_char {local->local_vdu, char})
 	(endif)
 	(pop-scope)
 	(return)

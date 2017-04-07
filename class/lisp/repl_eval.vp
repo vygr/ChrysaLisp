@@ -40,7 +40,7 @@
 			(switch)
 			(case (cat {func->obj_vtable == @} (f-path 'class 'boxed_ptr)))
 				(gotoifnot {func->boxed_ptr_value & 7} 'args_eval_apply)
-				(vpif {(func->boxed_ptr_value & 7) == type_apply})
+				(vpif {(func->boxed_ptr_value & 7) == func_type_apply})
 					(f-call 'lisp 'repl_apply {this, func, form} {_, value})
 				(else) ;type_args_apply
 					(d-call 'vector 'slice {form, 1, length} {_, args})

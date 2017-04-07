@@ -10,7 +10,7 @@
 	;r0 = lisp object
 	;r1 = else value
 
-	(def-struct 'pdata)
+	(def-struct 'local)
 		(ptr 'this)
 		(ptr 'value)
 	(def-struct-end)
@@ -43,18 +43,18 @@
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
 
-	(f-call 'ref 'deref {pdata->pdata_value})
+	(f-call 'ref 'deref {pdata->local_value})
 	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'vector)) 'error)
-	(assign {*iter} {pdata->pdata_value})
-	(f-call 'vector 'clear {pdata->pdata_value})
-	(f-call 'ref 'ref {pdata->pdata_value})
+	(assign {*iter} {pdata->local_value})
+	(f-call 'vector 'clear {pdata->local_value})
+	(f-call 'ref 'ref {pdata->local_value})
 
 	(f-exit 'vector 'callback '(-1))
 	(return)
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {pdata->pdata_this, "(clear list ...) not a list", *iter} {_, pdata->pdata_value})
+	(f-call 'lisp 'repl_error {pdata->local_this, "(clear list ...) not a list", *iter} {_, pdata->local_value})
 	(f-exit 'vector 'callback '(0))
 	(return))
 

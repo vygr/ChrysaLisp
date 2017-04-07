@@ -12,7 +12,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(def-struct 'pdata)
+	(def-struct 'local)
 		(ptr 'this)
 		(ptr 'value)
 	(def-struct-end)
@@ -79,9 +79,9 @@
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
 
-	(f-call 'ref 'deref {pdata->pdata_value})
-	(f-call 'lisp 'repl_eval {pdata->pdata_this, *iter} {_, pdata->pdata_value})
-	(errorif (cat {pdata->pdata_value->obj_vtable == @} (f-path 'class 'error)) 'error3)
+	(f-call 'ref 'deref {pdata->local_value})
+	(f-call 'lisp 'repl_eval {pdata->local_this, *iter} {_, pdata->local_value})
+	(errorif (cat {pdata->local_value->obj_vtable == @} (f-path 'class 'error)) 'error3)
 
 	(f-exit 'vector 'callback '(-1))
 	(return)

@@ -145,7 +145,10 @@
 
 (defcfun enum (&rest _)
 	(each (lambda (_)
-		(defcvar (sym-cat *enum* "_" _) *enum-offset*)
+		(setq _ (sym-cat *enum* "_" _))
+		(if (def? _)
+			(throw "Enum redefined !" _))
+		(defcvar _ *enum-offset*)
 		(setq *enum-offset* (inc *enum-offset*))) _))
 
 ;;;;;;
@@ -162,7 +165,10 @@
 
 (defcfun bit (&rest _)
 	(each (lambda (_)
-		(defcvar (sym-cat *bit* "_" _) (bit-shl 1 *bit-offset*))
+		(setq _ (sym-cat *bit* "_" _))
+		(if (def? _)
+			(throw "Bit redefined !" _))
+		(defcvar _ (bit-shl 1 *bit-offset*))
 		(setq *bit-offset* (inc *bit-offset*))) _))
 
 ;;;;;;;;;;;;;;
@@ -263,6 +269,12 @@
 (defmacro struct-sym (_)
 	`(sym-cat *struct* "_" ,_))
 
+(defcfun check-field (_)
+	(setq _ (struct-sym _))
+	(unless (eql *struct* 'local)
+		(if (def? _)
+			(throw "Field redefined !" _))) _)
+
 (defcfun local-align (&optional _)
 	(setd _ ptr_size)
 	(if *struct*
@@ -278,14 +290,15 @@
 
 (defmacro def-type (n s y)
 	`(defcfun ,n (&rest f)
-		(each (lambda (x)
+		(each (lambda (_)
 			(local-align ,s)
 			(cond
 				(*struct*
-					(defcvar (struct-sym x) *struct-offset* (type-sym (struct-sym x)) ,y)
+					(setq _ (check-field _))
+					(defcvar _ *struct-offset* (type-sym _) ,y)
 					(setq *struct-offset* (add *struct-offset* ,s)))
 				(t
-					(def-sym x 'var *var-sp* 0 ,y)
+					(def-sym _ 'var *var-sp* 0 ,y)
 					(setq *var-sp* (add *var-sp* ,s))))) f)))
 
 (def-type byte byte_size "b")
@@ -308,18 +321,22 @@
 (def-type pptr ptr_size "pp")
 
 (defcfun offset (_)
-	(if *struct*
-		(defcvar (sym-cat *struct* "_" _) *struct-offset*)
-		(throw "Attempt to define offset into local stack !" _)))
+	(cond
+		(*struct*
+			(setq _ (check-field _))
+			(defcvar _ *struct-offset*))
+		(t
+			(throw "Attempt to define offset into local stack !" _))))
 
-(defcfun struct (f s)
+(defcfun struct (_ s)
 	(if (sym? s) (setq s (eval (sym-cat s "_size"))))
 	(cond
 		(*struct*
-			(defcvar (sym-cat *struct* "_" f) *struct-offset* (type-sym f) nil)
+			(setq _ (check-field _))
+			(defcvar _ *struct-offset* (type-sym _) nil)
 			(setq *struct-offset* (add *struct-offset* s)))
 		(t
-			(def-sym f 'var *var-sp* 0 "")
+			(def-sym _ 'var *var-sp* 0 "")
 			(setq *var-sp* (add *var-sp* s)))))
 
 (defcfun union (&rest _)

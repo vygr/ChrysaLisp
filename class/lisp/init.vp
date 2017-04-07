@@ -23,7 +23,7 @@
 		`(sub ,(label-sym (string-sym (fn-add-string s))) *pc*)
 		f
 		(if u `(sub ,(label-sym (link-sym (fn-find-link (f-path 'lisp u)))) *pc* 4) 0)
-		(if g g type_args_eval_apply)))
+		(if g g func_type_args_eval_apply)))
 
 (def-func 'class/lisp/init)
 	;inputs
@@ -125,16 +125,16 @@
 	(built-in "*stream-name*" lisp_sym_stream_name)
 	(built-in "*stream-line*" lisp_sym_stream_line)
 
-	(built-in "lambda" lisp_sym_lambda 'func_lambda type_apply)
-	(built-in "macro" lisp_sym_macro 'func_lambda type_apply)
+	(built-in "lambda" lisp_sym_lambda 'func_lambda func_type_apply)
+	(built-in "macro" lisp_sym_macro 'func_lambda func_type_apply)
 
-	(built-in "defq" 0 'func_defq type_args_apply)
-	(built-in "setq" 0 'func_setq type_args_apply)
-	(built-in "cond" 0 'func_cond type_args_apply)
-	(built-in "defmacro" 0 'func_defmacro type_args_apply)
-	(built-in "while" 0 'func_while type_args_apply)
-	(built-in "quote" lisp_sym_quote 'func_quote type_args_apply)
-	(built-in "quasi-quote" lisp_sym_qquote 'func_qquote type_args_apply)
+	(built-in "defq" 0 'func_defq func_type_args_apply)
+	(built-in "setq" 0 'func_setq func_type_args_apply)
+	(built-in "cond" 0 'func_cond func_type_args_apply)
+	(built-in "defmacro" 0 'func_defmacro func_type_args_apply)
+	(built-in "while" 0 'func_while func_type_args_apply)
+	(built-in "quote" lisp_sym_quote 'func_quote func_type_args_apply)
+	(built-in "quasi-quote" lisp_sym_qquote 'func_qquote func_type_args_apply)
 
 	(built-in "unquote" lisp_sym_unquote)
 	(built-in "unquote-splicing" lisp_sym_splicing)

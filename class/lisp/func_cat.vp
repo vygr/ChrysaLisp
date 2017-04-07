@@ -11,7 +11,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(def-struct 'pdata)
+	(def-struct 'local)
 		(ptr 'this)
 		(ptr 'args)
 		(ptr 'value)
@@ -80,15 +80,15 @@
 	(assign {*iter} {elem})
 	(errorif (cat {elem->obj_vtable != @} (f-path 'class 'vector)) 'error4)
 	(d-call 'vector 'get_length {elem} {_, length})
-	(f-call 'vector 'append {pdata->pdata_value, elem, 0, length})
+	(f-call 'vector 'append {pdata->local_value, elem, 0, length})
 
 	(f-exit 'vector 'callback '(-1))
 	(return)
 
 (errorcases
 (vp-label 'error4)
-	(f-call 'ref 'deref {pdata->pdata_value})
-	(f-call 'lisp 'repl_error {pdata->pdata_this, "(cat seq ...) not all lists", pdata->pdata_args} {_, pdata->pdata_value})
+	(f-call 'ref 'deref {pdata->local_value})
+	(f-call 'lisp 'repl_error {pdata->local_this, "(cat seq ...) not all lists", pdata->local_args} {_, pdata->local_value})
 	(f-exit 'vector 'callback '(0))
 	(return))
 

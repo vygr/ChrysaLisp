@@ -13,7 +13,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(def-struct 'pdata)
+	(def-struct 'local)
 		(ptr 'this)
 		(ptr 'value)
 		(pptr 'iter)
@@ -62,13 +62,13 @@
 
 	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'boxed_long)) 'error1)
 	(f-call 'boxed_long 'get_value {*iter} {num})
-	(loop-while {iter != pdata->pdata_iter})
+	(loop-while {iter != pdata->local_iter})
 		(assign {iter - ptr_size} {iter})
 		(f-call 'boxed_long 'get_value {*iter} {num1})
 		(continueif {num != num1})
-		(f-call 'ref 'deref {pdata->pdata_value})
-		(assign {pdata->pdata_this->lisp_sym_nil} {pdata->pdata_value})
-		(f-call 'ref 'ref {pdata->pdata_value})
+		(f-call 'ref 'deref {pdata->local_value})
+		(assign {pdata->local_this->lisp_sym_nil} {pdata->local_value})
+		(f-call 'ref 'ref {pdata->local_value})
 		(f-exit 'vector 'callback '(0))
 		(return)
 	(loop-end)
@@ -78,8 +78,8 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'ref 'deref {pdata->pdata_value})
-	(f-call 'lisp 'repl_error {pdata->pdata_this, "(ne num num ...) not all numbers", *iter} {_, pdata->pdata_value})
+	(f-call 'ref 'deref {pdata->local_value})
+	(f-call 'lisp 'repl_error {pdata->local_this, "(ne num num ...) not all numbers", *iter} {_, pdata->local_value})
 	(f-exit 'vector 'callback '(0))
 	(return))
 

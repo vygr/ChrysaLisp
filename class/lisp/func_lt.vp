@@ -13,7 +13,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(def-struct 'pdata)
+	(def-struct 'local)
 		(ptr 'this)
 		(ptr 'value)
 		(long 'num)
@@ -68,21 +68,21 @@
 
 	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
 	(f-call 'boxed_long 'get_value {*iter} {num})
-	(vpif {pdata->pdata_num < num})
-		(assign {num} {pdata->pdata_num})
+	(vpif {pdata->local_num < num})
+		(assign {num} {pdata->local_num})
 		(f-exit 'vector 'callback '(-1))
 	(else)
-		(f-call 'ref 'deref {pdata->pdata_value})
-		(assign {pdata->pdata_this->lisp_sym_nil} {pdata->pdata_value})
-		(f-call 'ref 'ref {pdata->pdata_value})
+		(f-call 'ref 'deref {pdata->local_value})
+		(assign {pdata->local_this->lisp_sym_nil} {pdata->local_value})
+		(f-call 'ref 'ref {pdata->local_value})
 		(f-exit 'vector 'callback '(0))
 	(endif)
 	(return)
 
 (errorcases
 (vp-label 'error3)
-	(f-call 'ref 'deref {pdata->pdata_value})
-	(f-call 'lisp 'repl_error {pdata->pdata_this, "(lt num num ...) not all numbers", *iter} {_, pdata->pdata_value})
+	(f-call 'ref 'deref {pdata->local_value})
+	(f-call 'lisp 'repl_error {pdata->local_this, "(lt num num ...) not all numbers", *iter} {_, pdata->local_value})
 	(f-exit 'vector 'callback '(0))
 	(return))
 

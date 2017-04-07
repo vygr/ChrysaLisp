@@ -12,13 +12,13 @@
 
 (def-func 'apps/terminal/tui)
 
-	(def-struct 'shared)
+	(def-struct 'local)
 		(ptr 'master)
 		(pubyte 'bufp)
 		(struct 'buffer 120)
 	(def-struct-end)
 
-	(struct 'shared 'shared)
+	(struct 'local 'local)
 	(struct 'stdin_id 'id)
 	(struct 'tui_id 'id)
 	(ptr 'msg 'mailbox 'stream)
@@ -26,8 +26,8 @@
 
 	;init app vars
 	(push-scope)
-	(f-call 'master 'create {} {shared.shared_master})
-	(assign {&shared.shared_buffer} {shared.shared_bufp})
+	(f-call 'master 'create {} {local.local_master})
+	(assign {&local.local_buffer} {local.local_bufp})
 	(f-call 'sys_task 'mailbox {} {tui_id.id_mbox, tui_id.id_cpu})
 
 	;start stdin polling task and send it tui mailbox id
@@ -44,49 +44,49 @@
 	;app event loop
 	(loop-start)
 		;select on multiple mailboxes
-		(f-call 'master 'select {shared.shared_master, tui_id.id_mbox} {_, mailbox})
+		(f-call 'master 'select {local.local_master, tui_id.id_mbox} {_, mailbox})
 
 		;which mailbox has mail ?
 		(vpif {mailbox == tui_id.id_mbox})
 			;dispatch event to terminal
 			(f-call 'sys_mail 'read {mailbox} {msg})
-			(l-call 'terminal_input {&shared, msg->stdin_msg_char} '(r0 r1))
+			(l-call 'terminal_input {&local, msg->stdin_msg_char} '(r0 r1))
 			(f-call 'sys_mem 'free {msg})
 		(else)
 			;output from a pipe element
-			(f-call 'master 'get_stream {shared.shared_master, mailbox} {_, stream})
-			(l-call 'pipe_output {&shared, stream} '(r0 r1) '(r0) {state})
+			(f-call 'master 'get_stream {local.local_master, mailbox} {_, stream})
+			(l-call 'pipe_output {&local, stream} '(r0 r1) '(r0) {state})
 			(vpif {state == -1})
 				;EOF
-				(f-call 'master 'stop {shared.shared_master})
+				(f-call 'master 'stop {local.local_master})
 			(endif)
 		(endif)
 		(f-call 'sys_task 'yield)
 	(loop-end)
 
 	;clean up
-	(f-call 'master 'deref {shared.shared_master})
+	(f-call 'master 'deref {local.local_master})
 	(pop-scope)
 	(return)
 
 (vp-label 'pipe_output)
 	;inputs
-	;r0 = shared
+	;r0 = local
 	;r1 = stream
 	;outputs
 	;r0 = -1 if EOF
 
-	(ptr 'shared 'stream)
+	(ptr 'local 'stream)
 	(long 'char)
 	(ulong 'ready)
 
 	(push-scope)
-	(assign '(r0 r1) {shared, stream})
+	(assign '(r0 r1) {local, stream})
 
 	(loop-start)
 		(f-call 'stream 'read_char {stream} {_, char})
 		(breakif {char == -1})
-		(l-call 'terminal_output {shared, char} '(r0 r1))
+		(l-call 'terminal_output {local, char} '(r0 r1))
 		(v-call 'stream 'read_ready {stream} {_, ready})
 	(loop-untilnot {ready})
 
@@ -96,48 +96,48 @@
 
 (vp-label 'terminal_input)
 	;inputs
-	;r0 = shared
+	;r0 = local
 	;r1 = char input
 
-	(ptr 'shared 'string 'last 'stream)
+	(ptr 'local 'string 'last 'stream)
 	(ulong 'length 'notsame)
 	(ubyte 'char 'state)
 
 	(push-scope)
-	(assign '(r0 r1) {shared, char})
+	(assign '(r0 r1) {local, char})
 
 	;echo char to terminal
-;	(l-call 'terminal_output {shared, char} '(r0 r1))
+;	(l-call 'terminal_output {local, char} '(r0 r1))
 
 	;buffer char
-	(assign {char} {*shared->shared_bufp})
-	(assign {shared->shared_bufp - &shared->shared_buffer} {length})
+	(assign {char} {*local->local_bufp})
+	(assign {local->local_bufp - &local->local_buffer} {length})
 
 	;send line ?
 	(vpif {char == 10 || char == 13})
 		;what state ?
-		(f-call 'master 'get_state {shared->shared_master} {_, state})
+		(f-call 'master 'get_state {local->local_master} {_, state})
 		(vpif {state == stream_mail_state_stopped})
 			;start new pipe
 			(breakifnot {length})
-			(f-call 'master 'start {shared->shared_master, &shared->shared_buffer, length})
+			(f-call 'master 'start {local->local_master, &local->local_buffer, length})
 		(else)
 			;feed active pipe
-			(f-call 'master 'get_input {shared->shared_master} {_, stream})
-			(f-call 'stream 'write {stream, &shared->shared_buffer, length})
+			(f-call 'master 'get_input {local->local_master} {_, stream})
+			(f-call 'stream 'write {stream, &local->local_buffer, length})
 			(f-call 'stream 'write_char {stream, 10})
 			(v-call 'stream 'write_flush {stream})
 		(endif)
-		(assign {&shared->shared_buffer} {shared->shared_bufp})
+		(assign {&local->local_buffer} {local->local_bufp})
 	(elseif {char == 27})
 		;esc
-		(f-call 'master 'get_state {shared->shared_master} {_, state})
+		(f-call 'master 'get_state {local->local_master} {_, state})
 		(vpif {state == stream_mail_state_started})
 			;feed active pipe, then EOF
-			(f-call 'master 'get_input {shared->shared_master} {_, stream})
-			(f-call 'stream 'write {stream, &shared->shared_buffer, length})
+			(f-call 'master 'get_input {local->local_master} {_, stream})
+			(f-call 'stream 'write {stream, &local->local_buffer, length})
 			(v-call 'stream 'write_flush {stream})
-			(assign {&shared->shared_buffer} {shared->shared_bufp})
+			(assign {&local->local_buffer} {local->local_bufp})
 
 			;send stopping
 			(f-call 'stream_msg_out 'set_state {stream, stream_mail_state_stopping})
@@ -146,21 +146,21 @@
 		(endif)
 	(elseif {char >= 32 && char < 127})
 		;next char
-		(assign {shared->shared_bufp + 1} {shared->shared_bufp})
+		(assign {local->local_bufp + 1} {local->local_bufp})
 	(endif)
 	(pop-scope)
 	(return)
 
 (vp-label 'terminal_output)
 	;inputs
-	;r0 = shared
+	;r0 = local
 	;r1 = char output
 
-	(ptr 'shared)
+	(ptr 'local)
 	(ulong 'char)
 
 	(push-scope)
-	(assign '(r0 r1) {shared, char})
+	(assign '(r0 r1) {local, char})
 
 	(vpif {char == 9})
 		;tab
