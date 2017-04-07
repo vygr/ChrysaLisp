@@ -14,7 +14,7 @@
 	;r1 = value
 
 	(ptr 'this 'vars 'vals 'symbol 'value)
-	(ushort 'len_vars 'len_vals 'index_vars 'index_vals 'state)
+	(ubyte 'index_vars 'index_vals 'len_vars 'len_vals 'state)
 
 	(push-scope)
 	(f-entry 'lisp 'env_bind {this, vars, vals, index_vals})
@@ -40,7 +40,7 @@
 		(vpif {state == 1})
 			;rest
 			(d-call 'vector 'slice {vals, index_vals, len_vals} {_, value})
-			(assign {len_vars, len_vals} {index_vars, index_vals})
+			(assign {index_vars + 1, len_vals} {index_vars, index_vals})
 		(elseif {state == 2})
 			;optional
 			(gotoif {index_vals != len_vals} 'normal)
@@ -49,11 +49,11 @@
 			(assign {index_vars + 1} {index_vars})
 		(else)
 			;normal
-			(gotoif {index_vals == len_vals} 'exit)
+			(errorif {index_vals == len_vals} 'error)
 		(vp-label 'normal)
 			(d-call 'vector 'ref_element {vals, index_vals} {_, value})
 			(assign {index_vars + 1, index_vals + 1} {index_vars, index_vals})
-		(endswitch)
+		(endif)
 		(f-call 'unordered_map 'insert {this->lisp_enviroment, symbol, value})
 	(loop-end)
 	(errorif {index_vals != len_vals} 'error4)
@@ -74,6 +74,7 @@
 	(goto 'exit)
 (vp-label 'error4)
 	(f-call 'ref 'deref {value})
+(vp-label 'error)
 	(f-call 'lisp 'repl_error {this, "(bind vars vals) wrong number of vals", vals} {_, value})
 	(goto 'exit))
 
