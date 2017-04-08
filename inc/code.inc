@@ -175,44 +175,50 @@
 ; symbol table
 ;;;;;;;;;;;;;;
 
-(defcvar '*scopes* (list) '*symbols* (list) '*var-sp* 0)
+(defcvar '*var-sp* 0 '*scopes* (list (list 0 (list) (list))))
+
+(defcfun get-scope-offset (_)
+	(defq o 0 i (length *scopes*))
+	(while (gt (setq i (dec i)) _)
+		(setq o (add o (elem 0 (elem i *scopes*))))) o)
 
 (defcfun push-scope ()
 	(local-align)
-	(push *scopes* (list (length *symbols*) *var-sp*))
+	(elem-set 0 (defq _ (pop *scopes*)) *var-sp*)
+	(push *scopes* _ (list 0 (list) (list)))
 	(when (ne *var-sp* 0)
 		(when debug_inst
-			(print "(vp-sub-cr " *var-sp* " " r4 ")"))
+			(print "(vp-sub-cr " *var-sp* " r4)"))
 		(vp-sub-cr *var-sp* r4)
 		(setq *var-sp* 0)))
 
+(defcfun pop-scope-syms ()
+	(pop *scopes*)
+	(pop *scopes*)
+	(push *scopes* (list 0 (list) (list)))
+	(setq *var-sp* 0))
+
 (defcfun pop-scope ()
-	(setq *var-sp* (elem 1 (pop *scopes*)))
-	(when (ne (length *scopes*) 0)
-		(setq *symbols* (slice 0 (elem 0 (elem -2 *scopes*)) *symbols*)))
+	(pop *scopes*)
+	(setq *var-sp* (elem 0 (pop *scopes*)))
+	(push *scopes* (list 0 (list) (list)))
 	(when (ne *var-sp* 0)
 		(when debug_inst
-			(print "(vp-add-cr " *var-sp* " " r4 ")"))
+			(print "(vp-add-cr " *var-sp* " r4)"))
 		(vp-add-cr *var-sp* r4)
 		(setq *var-sp* 0)))
 
-(defcfun pop-scope-syms ()
-	(setq *var-sp* (elem 1 (pop *scopes*)))
-	(when (ne (length *scopes*) 0)
-		(setq *symbols* (slice 0 (elem 0 (elem -2 *scopes*)) *symbols*)))
-	(setq *var-sp* 0))
-
 (defcfun pop-scope-checked ()
-	(setq *var-sp* (elem 1 (pop *scopes*)))
-	(when (ne (length *scopes*) 0)
-		(setq *symbols* (slice 0 (elem 0 (elem -2 *scopes*)) *symbols*)))
+	(pop *scopes*)
+	(setq *var-sp* (elem 0 (pop *scopes*)))
+	(push *scopes* (list 0 (list) (list)))
 	(when (ne *var-sp* 0)
 		(throw "Unbalanced scopes !" *var-sp*)))
 
 (defcfun unwind ()
-	(when (ne (defq o (get-scope-offset 0)) 0)
+	(when (ne (defq o (get-scope-offset -1)) 0)
 		(when debug_inst
-			(print "(vp-add-cr " o " " r4 ")"))
+			(print "(vp-add-cr " o " r4)"))
 		(vp-add-cr o r4)))
 
 (defcfun return ()
@@ -221,14 +227,6 @@
 		(print "(vp-ret)"))
 	(vp-ret))
 
-(defcfun get-scope-offset (s)
-	(if (ge s (length *scopes*))
-		(throw "Symbol not in scope !" s)
-		(progn
-			(defq i (length *scopes*) o 0)
-			(while (lt s (setq i (dec i)))
-				(setq o (add o (elem 1 (elem i *scopes*))))))) o)
-
 (defcfun def-sym (_1 _2 _3 &optional _4 _5)
 	;_1 name
 	;_2 type
@@ -236,18 +234,19 @@
 	;_4 value2
 	;_5 aux data
 	(setq _1 (sym _1))
-	(defq s (elem 0 (elem -2 *scopes*)))
-	(while (ne s (length *symbols*))
-		(if (eql _1 (elem 1 (elem s *symbols*)))
-			(throw "Symbol redefined !" _1))
-		(setq s (inc s)))
-	(push *symbols* (list (length *scopes*) _1 _2 _3 (opt _4 0) _5)))
+	(if (find _1 (elem 1 (defq _ (pop *scopes*))))
+		(throw "Symbol redefined !" _1))
+	(push (elem 1 _) _1)
+	(push (elem 2 _) (list (length *scopes*) _2 _3 (opt _4 0) _5))
+	(push *scopes* _))
 
 (defcfun get-sym (_1)
 	;_1 name
-	(defq _1 (sym _1) i (length *symbols*) s nil)
-	(while (and (ge (setq i (dec i)) 0) (not (eql _1 (elem 1 (setq s (elem i *symbols*)))))))
-	(if (ne i -1) s))
+	(setq _1 (sym _1))
+	(defq _ (length *scopes*))
+	(while (and (ge (setq _ (dec _)) 0)
+				(not (defq s (find _1 (elem 1 (elem _ *scopes*)))))))
+	(if (ge _ 0) (elem s (elem 2 (elem _ *scopes*))) nil))
 
 (defcfun operator (_1 _2 &optional _3 _4)
  	;_1 name
@@ -538,10 +537,10 @@
 					(t ;precedence
 						(unless (setq s (get-sym k))
 							(throw "Operator not defined !" k))
-						(setq v (sub (elem 3 s) (elem 4 s)) x t)
+						(setq v (sub (elem 2 s) (elem 3 s)) x t)
 						(while (and x (ne 0 (length o)))
 							(setq s (get-sym (elem -2 o)))
-							(if (ge v (elem 3 s))
+							(if (ge v (elem 2 s))
 								(push-rpn (pop o) -1)
 								(setq x nil)))
 						(push o k))))
@@ -660,10 +659,10 @@
 					;equate
 					(compile-const _1))
 				(t (throw "Symbol not defined !" _1))))
-		((eql 'var (elem 2 s))
+		((eql 'var (elem 1 s))
 			;variable
-			(set (type-sym *s*) (elem 5 s))
-			(setq s (add (get-scope-offset (elem 0 s)) (elem 3 s)))
+			(set (type-sym *s*) (elem 4 s))
+			(setq s (add (get-scope-offset (elem 0 s)) (elem 2 s)))
 			(add-this `(vp-lea-i r4 ,s ,(vreg-sym *s*))))
 		(t (throw "Symbol not a variable !" _1))))
 
@@ -794,10 +793,10 @@
 	(cond
 		((not (defq s (get-sym _1)))
 			(throw "Operator not defined !" _1))
-		((not (eql 'op (elem 2 s)))
+		((not (eql 'op (elem 1 s)))
 			(throw "Not an operator !" _1))
 		(t
-			((elem 5 s) _1))))
+			((elem 4 s) _1))))
 
 (defcfun compile-string (_1)
 	(nil-type)
