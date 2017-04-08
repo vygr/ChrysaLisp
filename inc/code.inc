@@ -227,17 +227,17 @@
 		(print "(vp-ret)"))
 	(vp-ret))
 
-(defcfun def-sym (_1 _2 _3 &optional _4 _5)
+(defcfun def-sym (_1 _2 _3 _4 _5)
 	;_1 name
 	;_2 type
 	;_3 value1
 	;_4 value2
-	;_5 aux data
+	;_5 value2
 	(setq _1 (sym _1))
 	(if (find _1 (elem 1 (defq _ (pop *syms*))))
 		(throw "Symbol redefined !" _1))
 	(push (elem 1 _) _1)
-	(push (elem 2 _) (list (length *syms*) _2 _3 (opt _4 0) _5))
+	(push (elem 2 _) (list (length *syms*) _2 _3 _4 _5))
 	(push *syms* _))
 
 (defcfun get-sym (_1)
