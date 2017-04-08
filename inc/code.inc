@@ -175,45 +175,45 @@
 ; symbol table
 ;;;;;;;;;;;;;;
 
-(defcvar '*var-sp* 0 '*scopes* (list (list 0 (list) (list))))
+(defcvar '*sym-sp* 0 '*syms* (list (list 0 (list) (list))))
 
 (defcfun get-scope-offset (_)
-	(defq o 0 i (length *scopes*))
+	(defq o 0 i (length *syms*))
 	(while (gt (setq i (dec i)) _)
-		(setq o (add o (elem 0 (elem i *scopes*))))) o)
+		(setq o (add o (elem 0 (elem i *syms*))))) o)
 
 (defcfun push-scope ()
 	(local-align)
-	(elem-set 0 (defq _ (pop *scopes*)) *var-sp*)
-	(push *scopes* _ (list 0 (list) (list)))
-	(when (ne *var-sp* 0)
+	(elem-set 0 (defq _ (pop *syms*)) *sym-sp*)
+	(push *syms* _ (list 0 (list) (list)))
+	(when (ne *sym-sp* 0)
 		(when debug_inst
-			(print "(vp-sub-cr " *var-sp* " r4)"))
-		(vp-sub-cr *var-sp* r4)
-		(setq *var-sp* 0)))
+			(print "(vp-sub-cr " *sym-sp* " r4)"))
+		(vp-sub-cr *sym-sp* r4)
+		(setq *sym-sp* 0)))
 
 (defcfun pop-scope-syms ()
-	(pop *scopes*)
-	(pop *scopes*)
-	(push *scopes* (list 0 (list) (list)))
-	(setq *var-sp* 0))
+	(pop *syms*)
+	(pop *syms*)
+	(push *syms* (list 0 (list) (list)))
+	(setq *sym-sp* 0))
 
 (defcfun pop-scope ()
-	(pop *scopes*)
-	(setq *var-sp* (elem 0 (pop *scopes*)))
-	(push *scopes* (list 0 (list) (list)))
-	(when (ne *var-sp* 0)
+	(pop *syms*)
+	(setq *sym-sp* (elem 0 (pop *syms*)))
+	(push *syms* (list 0 (list) (list)))
+	(when (ne *sym-sp* 0)
 		(when debug_inst
-			(print "(vp-add-cr " *var-sp* " r4)"))
-		(vp-add-cr *var-sp* r4)
-		(setq *var-sp* 0)))
+			(print "(vp-add-cr " *sym-sp* " r4)"))
+		(vp-add-cr *sym-sp* r4)
+		(setq *sym-sp* 0)))
 
 (defcfun pop-scope-checked ()
-	(pop *scopes*)
-	(setq *var-sp* (elem 0 (pop *scopes*)))
-	(push *scopes* (list 0 (list) (list)))
-	(when (ne *var-sp* 0)
-		(throw "Unbalanced scopes !" *var-sp*)))
+	(pop *syms*)
+	(setq *sym-sp* (elem 0 (pop *syms*)))
+	(push *syms* (list 0 (list) (list)))
+	(when (ne *sym-sp* 0)
+		(throw "Unbalanced scopes !" *sym-sp*)))
 
 (defcfun unwind ()
 	(when (ne (defq o (get-scope-offset -1)) 0)
@@ -234,19 +234,19 @@
 	;_4 value2
 	;_5 aux data
 	(setq _1 (sym _1))
-	(if (find _1 (elem 1 (defq _ (pop *scopes*))))
+	(if (find _1 (elem 1 (defq _ (pop *syms*))))
 		(throw "Symbol redefined !" _1))
 	(push (elem 1 _) _1)
-	(push (elem 2 _) (list (length *scopes*) _2 _3 (opt _4 0) _5))
-	(push *scopes* _))
+	(push (elem 2 _) (list (length *syms*) _2 _3 (opt _4 0) _5))
+	(push *syms* _))
 
 (defcfun get-sym (_1)
 	;_1 name
 	(setq _1 (sym _1))
-	(defq _ (length *scopes*))
+	(defq _ (length *syms*))
 	(while (and (ge (setq _ (dec _)) 0)
-				(not (defq s (find _1 (elem 1 (elem _ *scopes*)))))))
-	(if (ge _ 0) (elem s (elem 2 (elem _ *scopes*))) nil))
+				(not (defq s (find _1 (elem 1 (elem _ *syms*)))))))
+	(if (ge _ 0) (elem s (elem 2 (elem _ *syms*))) nil))
 
 (defcfun operator (_1 _2 &optional _3 _4)
  	;_1 name
@@ -278,7 +278,7 @@
 	(setd _ ptr_size)
 	(if *struct*
 		(setq *struct-offset* (align *struct-offset* _))
-		(setq *var-sp* (align *var-sp* _))))
+		(setq *sym-sp* (align *sym-sp* _))))
 
 (defcfun def-struct (s &optional o)
 	(setq *struct* s *struct-offset* (eval (sym-cat (opt o "null") "_size"))))
@@ -297,8 +297,8 @@
 					(defcvar _ *struct-offset* (type-sym _) ,y)
 					(setq *struct-offset* (add *struct-offset* ,s)))
 				(t
-					(def-sym _ 'var *var-sp* 0 ,y)
-					(setq *var-sp* (add *var-sp* ,s))))) f)))
+					(def-sym _ 'var *sym-sp* 0 ,y)
+					(setq *sym-sp* (add *sym-sp* ,s))))) f)))
 
 (def-type byte byte_size "b")
 (def-type ubyte byte_size "B")
@@ -335,8 +335,8 @@
 			(defcvar _ *struct-offset* (type-sym _) nil)
 			(setq *struct-offset* (add *struct-offset* s)))
 		(t
-			(def-sym _ 'var *var-sp* 0 "")
-			(setq *var-sp* (add *var-sp* s)))))
+			(def-sym _ 'var *sym-sp* 0 "")
+			(setq *sym-sp* (add *sym-sp* s)))))
 
 (defcfun union (&rest _)
 	(if (notevery lst? _)
@@ -350,12 +350,12 @@
 				(setq m (max m *struct-offset*))) _)
 			(setq *struct-offset* m))
 		(t
-			(defq o *var-sp* m o)
+			(defq o *sym-sp* m o)
 			(each (lambda (_)
-				(setq *var-sp* o)
+				(setq *sym-sp* o)
 				(eval _)
-				(setq m (max m *var-sp*))) _)
-			(setq *var-sp* m))))
+				(setq m (max m *sym-sp*))) _)
+			(setq *sym-sp* m))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; parameter handling
