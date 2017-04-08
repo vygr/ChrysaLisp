@@ -553,7 +553,7 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defcvar '*s* nil '*r* nil '*this* (list)
+(defcvar '*s* nil '*r* nil '*inst* (list)
 	'_v0 nil '_v1 nil '_v2 nil '_v3 nil '_v4 nil '_v5 nil '_v6 nil '_v7 nil
 	'_v8 nil '_v9 nil '_v10 nil '_v11 nil '_v12 nil '_v13 nil '_v14 nil '_v15 nil
 	'_t_0 nil '_t_1 nil '_t_2 nil '_t_3 nil '_t_4 nil '_t_5 nil '_t_6 nil '_t_7 nil
@@ -572,8 +572,8 @@
 (defmacro nil-type ()
 	'(set (type-sym *s*) nil))
 
-(defmacro add-this (&rest b)
-	`(push *this* ~b))
+(defmacro add-inst (&rest b)
+	`(push *inst* ~b))
 
 (defcfun print-reg-stack ()
 	(defq i -1)
@@ -626,19 +626,19 @@
 
 (defcfun compile-const (_1)
 	(nil-type)
-	(add-this `(vp-cpy-cr ,_1 ,(vreg-sym *s*))))
+	(add-inst `(vp-cpy-cr ,_1 ,(vreg-sym *s*))))
 
 (defcfun compile-assign ()
 	(defq y (vreg-sym (dec-stack)) w (pop-type *s*) x (pop-value))
 	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
 										vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
-	(add-this `(,w ,x ,y 0)))
+	(add-inst `(,w ,x ,y 0)))
 
 (defcfun compile-deref ()
 	(defq v (vreg-sym *s*) w (pop-type *s*))
 	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
 										vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
-	(add-this `(,w ,v 0 ,v)))
+	(add-inst `(,w ,v 0 ,v)))
 
 (defcfun compile-ref (_1)
 	(cond
@@ -654,7 +654,7 @@
 				((def? (type-sym _1))
 					;field/member
 					(set (type-sym *s*) (eval (type-sym _1)))
-					(add-this `(vp-cpy-cr ,_1 ,(vreg-sym *s*))))
+					(add-inst `(vp-cpy-cr ,_1 ,(vreg-sym *s*))))
 				((def? _1)
 					;equate
 					(compile-const _1))
@@ -663,7 +663,7 @@
 			;variable
 			(set (type-sym *s*) (elem 4 s))
 			(setq s (add (get-scope-offset (elem 0 s)) (elem 2 s)))
-			(add-this `(vp-lea-i r4 ,s ,(vreg-sym *s*))))
+			(add-inst `(vp-lea-i r4 ,s ,(vreg-sym *s*))))
 		(t (throw "Symbol not a variable !" _1))))
 
 (defcfun compile-deref? ()
@@ -678,7 +678,7 @@
 (defcfun compile-member (o)
 	(defq s (dec *s*) x (vreg-sym (setq *s* (sub *s* 2))) y (vreg-sym s))
 	(compile-deref)
-	(add-this `(vp-add-rr ,y ,x))
+	(add-inst `(vp-add-rr ,y ,x))
 	(set (type-sym *s*) (eval (type-sym s))))
 
 (defcfun compile-uaddrof (o)
@@ -686,72 +686,72 @@
 
 (defcfun compile-field (o)
 	(defq s (dec *s*) x (vreg-sym (setq *s* (sub *s* 2))) y (vreg-sym s))
-	(add-this `(vp-add-rr ,y ,x))
+	(add-inst `(vp-add-rr ,y ,x))
 	(set (type-sym *s*) (eval (type-sym s))))
 
 (defcfun compile-index (o)
 	(defq y (pop-value))
 	(dec-stack)
 	(compile-deref)
-	(add-this `(vp-add-rr ,y ,(vreg-sym *s*))))
+	(add-inst `(vp-add-rr ,y ,(vreg-sym *s*))))
 
 (defcfun compile-uminus (o)
-	(add-this `(vp-mul-cr -1 ,(pop-value))))
+	(add-inst `(vp-mul-cr -1 ,(pop-value))))
 
 (defcfun compile-uderef (o)
 	(dec-stack)
 	(compile-deref))
 
 (defcfun compile-unot (o)
-	(add-this `(vp-xor-cr -1 ,(pop-value))))
+	(add-inst `(vp-xor-cr -1 ,(pop-value))))
 
 (defcfun compile-mul (o)
-	(add-this `(vp-mul-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-mul-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-divu (o)
 	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
-	(add-this
+	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr-u ,z ,y ,x)))
 
 (defcfun compile-remu (o)
 	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
-	(add-this
+	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr-u ,z ,y ,x)
 		`(vp-cpy-rr ,y ,x)))
 
 (defcfun compile-div (o)
 	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
-	(add-this
+	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr ,z ,y ,x)))
 
 (defcfun compile-rem (o)
 	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
-	(add-this
+	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr ,z ,y ,x)
 		`(vp-cpy-rr ,y ,x)))
 
 (defcfun compile-plus (o)
-	(add-this `(vp-add-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-add-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-minus (o)
-	(add-this `(vp-sub-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-sub-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-lshift (o)
-	(add-this `(vp-shl-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-shl-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-rshift (o)
-	(add-this `(vp-shr-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-shr-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-arshift (o)
-	(add-this `(vp-asr-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-asr-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-cmp (o)
 	(defq y (pop-value) x (pop-value))
-	(add-this
+	(add-inst
 		`(vpif (list ,x ',(sym o) ,y))
 			`(vp-or-cr -1 ,x)
 		'(else)
@@ -759,17 +759,17 @@
 		'(endif)))
 
 (defcfun compile-and (o)
-	(add-this `(vp-and-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-and-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-xor (o)
-	(add-this `(vp-xor-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-xor-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-or (o)
-	(add-this `(vp-or-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-or-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-land (o)
 	(defq y (pop-value) x (pop-value))
-	(add-this
+	(add-inst
 		`(vpif (list ,x '!= 0))
 			`(vp-xor-rr ,x ,x)
 			`(vpif (list ,y '!= 0))
@@ -778,11 +778,11 @@
 		'(endif)))
 
 (defcfun compile-lor (o)
-	(add-this `(vp-or-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-or-rr ,(pop-value) ,(pop-value))))
 
 (defcfun compile-ulnot (o)
 	(defq x (pop-value))
-	(add-this
+	(add-inst
 		`(vpif (list ,x '== 0))
 			`(vp-sub-cr 1 ,x)
 		'(else)
@@ -800,15 +800,15 @@
 
 (defcfun compile-string (_1)
 	(nil-type)
-	(add-this `(fn-string ,_1 ,(vreg-sym *s*))))
+	(add-inst `(fn-string ,_1 ,(vreg-sym *s*))))
 
 (defcfun compile-bind (_1)
 	(nil-type)
-	(add-this `(fn-bind ',_1 ,(vreg-sym *s*))))
+	(add-inst `(fn-bind ',_1 ,(vreg-sym *s*))))
 
 (defcfun compile-label (_1)
 	(nil-type)
-	(add-this `(vp-lea-p ',_1 ,(vreg-sym *s*))))
+	(add-inst `(vp-lea-p ',_1 ,(vreg-sym *s*))))
 
 (defcfun compile-rpn-list ()
 	(defq i -1)
@@ -884,45 +884,45 @@
 
 (defcfun opt-find-1 (i r x)
 	(while (and (gt (setq i (dec i)) 0)
-				(not (match? (defq e (elem i *this*)) x)))
+				(not (match? (defq e (elem i *inst*)) x)))
 		(if (or (find r e) (find (elem 0 e) '(vpif else endif))) (setq i 0)))
 	(setq p (if (le i 0) nil i)))
 
 (defcfun opt-find-2 (i r x y)
 	(defq e nil)
 	(while (and (gt (setq i (dec i)) 0)
-				(not (match? (setq m 0 e (elem i *this*)) x))
+				(not (match? (setq m 0 e (elem i *inst*)) x))
 				(not (match? (setq m 1 e e) y)))
 		(if (or (find r e) (find (elem 0 e) '(vpif else endif))) (setq i 0)))
 	(setq p (if (le i 0) nil i)))
 
 (defcfun opt-this-list ()
 	(defq i 0 p nil m nil)
-	(while (lt (setq i (inc i)) (length *this*))
+	(while (lt (setq i (inc i)) (length *inst*))
 		(cond
 			;variable loading and offset folding
-			((find (defq e (elem i *this*) o (elem 0 e))
+			((find (defq e (elem i *inst*) o (elem 0 e))
 				'(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui))
 				(when (opt-find? i (defq r (elem 1 e)) `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((eq m 0)
 							(elem-set 1 e r4)
-							(elem-set 2 e `(add ,(elem 2 (elem p *this*)) ,(elem 2 e))))
+							(elem-set 2 e `(add ,(elem 2 (elem p *inst*)) ,(elem 2 e))))
 						((eq m 1)
-							(elem-set 2 e `(add ,(elem 1 (elem p *this*)) ,(elem 2 e)))
+							(elem-set 2 e `(add ,(elem 1 (elem p *inst*)) ,(elem 2 e)))
 							(setq i (dec i))))
-					(elem-set p *this* (lambda))))
+					(elem-set p *inst* (lambda))))
 			;variable writing and offset folding
 			((find o '(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i))
 				(when (opt-find? i (defq r (elem 2 e)) `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((eq m 0)
 							(elem-set 2 e r4)
-							(elem-set 3 e `(add ,(elem 2 (elem p *this*)) ,(elem 3 e))))
+							(elem-set 3 e `(add ,(elem 2 (elem p *inst*)) ,(elem 3 e))))
 						((eq m 1)
-							(elem-set 3 e `(add ,(elem 1 (elem p *this*)) ,(elem 3 e)))
+							(elem-set 3 e `(add ,(elem 1 (elem p *inst*)) ,(elem 3 e)))
 							(setq i (dec i))))
-					(elem-set p *this* (lambda))))
+					(elem-set p *inst* (lambda))))
 			;strength reduction
 			((and (eql o 'vp-mul-cr) (defq s (pow2 (eval (elem 1 e)))))
 				(elem-set 0 e 'vp-shl-cr)
@@ -939,8 +939,8 @@
 							(elem-set 0 e 'vp-cpy-cr))
 						((eq m 1)
 							(setq c (elem c '(add add mul bit-and bit-or bit-xor add add add)))))
-					(elem-set 1 e `(,c ,(elem 1 (elem p *this*)) ,(elem 1 e)))
-					(elem-set p *this* (lambda))))
+					(elem-set 1 e `(,c ,(elem 1 (elem p *inst*)) ,(elem 1 e)))
+					(elem-set p *inst* (lambda))))
 			;constant propagation
 			((defq c (find o '(vp-add-rr vp-sub-rr vp-mul-rr
 								vp-and-rr vp-or-rr vp-xor-rr
@@ -949,8 +949,8 @@
 					(elem-set 0 e (elem c '(vp-add-cr vp-sub-cr vp-mul-cr
 											vp-and-cr vp-or-cr vp-xor-cr
 											vp-shl-cr vp-shr-cr vp-asr-cr)))
-					(elem-set 1 e (elem 1 (elem p *this*)))
-					(elem-set p *this* (lambda))
+					(elem-set 1 e (elem 1 (elem p *inst*)))
+					(elem-set p *inst* (lambda))
 					(setq i (dec i)))))))
 
 ;;;;;;;;;;;;
@@ -967,7 +967,7 @@
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack (length *src*))
-		(push (clear *this*) 'progn)
+		(push (clear *inst*) 'progn)
 		(each-rev (lambda (_)
 			(set-token-list _)
 			(token-to-rpn)
@@ -975,14 +975,14 @@
 			(compile-assign)) *dst*)
 		(when debug_inst
 			(print "pre opt: " _1 " -> " _2)
-			(each print-this *this*))
+			(each print-this *inst*))
 		(opt-this-list)
 		(when debug_inst
 			(print "post opt:")
-			(each print-this *this*))
+			(each print-this *inst*))
 		(each res-reg-def *src*)
 		(fill-reg-def)
-		(eval *this*)
+		(eval *inst*)
 		(undef-reg-def)))
 
 (defcfun assign-script-to-asm (_1 _2)
@@ -992,7 +992,7 @@
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack)
-		(push (clear *this*) 'progn)
+		(push (clear *inst*) 'progn)
 		(each (lambda (_)
 			(set-token-list _)
 			(token-to-rpn)
@@ -1001,14 +1001,14 @@
 			(inc-stack)) *src*)
 		(when debug_inst
 			(print "pre opt: " _1 " -> " _2)
-			(each print-this *this*))
+			(each print-this *inst*))
 		(opt-this-list)
 		(when debug_inst
 			(print "post opt:")
-			(each print-this *this*))
+			(each print-this *inst*))
 		(each res-reg-def *dst*)
 		(fill-reg-def)
-		(eval *this*)
+		(eval *inst*)
 		(undef-reg-def)))
 
 (defcfun assign-script-to-script (_1 _2)
@@ -1018,7 +1018,7 @@
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack)
-		(push (clear *this*) 'progn)
+		(push (clear *inst*) 'progn)
 		(each (lambda (_)
 			(set-token-list _)
 			(token-to-rpn)
@@ -1030,13 +1030,13 @@
 			(compile-assign)) *dst*)
 		(when debug_inst
 			(print "pre opt: " _1 " -> " _2)
-			(each print-this *this*))
+			(each print-this *inst*))
 		(opt-this-list)
 		(when debug_inst
 			(print "post opt:")
-			(each print-this *this*))
+			(each print-this *inst*))
 		(fill-reg-def)
-		(eval *this*)
+		(eval *inst*)
 		(undef-reg-def)))
 
 (defcfun assign (&optional _1 _2)
