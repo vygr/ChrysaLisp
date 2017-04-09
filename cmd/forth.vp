@@ -9,7 +9,7 @@
 (defcvar 'buffer_size 120)
 
 	(ptr 'slave 'stream 'vector 'string)
-	(uint 'length)
+	(int 'length)
 	(struct 'buffer 'buffer)
 
 	;init app vars
