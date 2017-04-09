@@ -888,7 +888,7 @@
 		(if (or (find r e) (find (elem 0 e) '(vpif else endif))) (setq i 0)))
 	(setq p (if (le i 0) nil i)))
 
-(defcfun opt-this-list ()
+(defcfun opt-inst-list ()
 	(defq i 0 p nil m nil)
 	(while (lt (setq i (inc i)) (length *inst*))
 		(cond
@@ -949,7 +949,7 @@
 ; assignment
 ;;;;;;;;;;;;
 
-(defcfun print-this (_)
+(defcfun print-inst (_)
 	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
 (defcfun assign-asm-to-script (_1 _2)
@@ -967,11 +967,11 @@
 			(compile-assign)) *dst*)
 		(when debug_inst
 			(print "pre opt: " _1 " -> " _2)
-			(each print-this *inst*))
-		(opt-this-list)
+			(each print-inst *inst*))
+		(opt-inst-list)
 		(when debug_inst
 			(print "post opt:")
-			(each print-this *inst*))
+			(each print-inst *inst*))
 		(each res-reg-def *src*)
 		(fill-reg-def)
 		(eval *inst*)
@@ -993,11 +993,11 @@
 			(inc-stack)) *src*)
 		(when debug_inst
 			(print "pre opt: " _1 " -> " _2)
-			(each print-this *inst*))
-		(opt-this-list)
+			(each print-inst *inst*))
+		(opt-inst-list)
 		(when debug_inst
 			(print "post opt:")
-			(each print-this *inst*))
+			(each print-inst *inst*))
 		(each res-reg-def *dst*)
 		(fill-reg-def)
 		(eval *inst*)
@@ -1022,11 +1022,11 @@
 			(compile-assign)) *dst*)
 		(when debug_inst
 			(print "pre opt: " _1 " -> " _2)
-			(each print-this *inst*))
-		(opt-this-list)
+			(each print-inst *inst*))
+		(opt-inst-list)
 		(when debug_inst
 			(print "post opt:")
-			(each print-this *inst*))
+			(each print-inst *inst*))
 		(fill-reg-def)
 		(eval *inst*)
 		(undef-reg-def)))
