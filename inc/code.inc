@@ -177,7 +177,7 @@
 
 (defcvar '*sym-sp* 0 '*syms* (list (list 0 (list) (list))))
 
-(defcfun get-scope-offset (_)
+(defcfun get-scope (_)
 	(defq o 0 i (length *syms*))
 	(while (gt (setq i (dec i)) _)
 		(setq o (add o (elem 0 (elem i *syms*))))) o)
@@ -216,7 +216,7 @@
 		(throw "Unbalanced scopes !" *sym-sp*)))
 
 (defcfun unwind ()
-	(when (ne (defq o (get-scope-offset -1)) 0)
+	(when (ne (defq o (get-scope -1)) 0)
 		(when debug_inst
 			(print "(vp-add-cr " o " r4)"))
 		(vp-add-cr o r4)))
@@ -257,7 +257,7 @@
 ; data structures
 ;;;;;;;;;;;;;;;;;
 
-(defcvar '*struct* nil '*struct-offset* nil
+(defcvar '*struct* nil '*struct-sp* nil
 	'null_size 0 'byte_size 1 'short_size 2 'int_size 4 'long_size 8 'ptr_size 8)
 
 (defmacro type-sym (_)
@@ -275,15 +275,15 @@
 (defcfun local-align (&optional _)
 	(setd _ ptr_size)
 	(if *struct*
-		(setq *struct-offset* (align *struct-offset* _))
+		(setq *struct-sp* (align *struct-sp* _))
 		(setq *sym-sp* (align *sym-sp* _))))
 
 (defcfun def-struct (s &optional o)
-	(setq *struct* s *struct-offset* (eval (sym-cat (opt o "null") "_size"))))
+	(setq *struct* s *struct-sp* (eval (sym-cat (opt o "null") "_size"))))
 
 (defcfun def-struct-end ()
-	(defcvar (sym-cat *struct* "_size") *struct-offset*)
-	(setq *struct* nil *struct-offset* nil))
+	(defcvar (sym-cat *struct* "_size") *struct-sp*)
+	(setq *struct* nil *struct-sp* nil))
 
 (defmacro def-type (n s y)
 	`(defcfun ,n (&rest f)
@@ -292,8 +292,8 @@
 			(cond
 				(*struct*
 					(setq _ (check-field _))
-					(defcvar _ *struct-offset* (type-sym _) ,y)
-					(setq *struct-offset* (add *struct-offset* ,s)))
+					(defcvar _ *struct-sp* (type-sym _) ,y)
+					(setq *struct-sp* (add *struct-sp* ,s)))
 				(t
 					(def-sym _ 'var *sym-sp* ,y)
 					(setq *sym-sp* (add *sym-sp* ,s))))) f)))
@@ -321,7 +321,7 @@
 	(cond
 		(*struct*
 			(setq _ (check-field _))
-			(defcvar _ *struct-offset*))
+			(defcvar _ *struct-sp*))
 		(t
 			(throw "Attempt to define offset into local stack !" _))))
 
@@ -330,8 +330,8 @@
 	(cond
 		(*struct*
 			(setq _ (check-field _))
-			(defcvar _ *struct-offset* (type-sym _) nil)
-			(setq *struct-offset* (add *struct-offset* s)))
+			(defcvar _ *struct-sp* (type-sym _) nil)
+			(setq *struct-sp* (add *struct-sp* s)))
 		(t
 			(def-sym _ 'var *sym-sp* 0 "")
 			(setq *sym-sp* (add *sym-sp* s)))))
@@ -341,12 +341,12 @@
 		(throw "Union needs lists as paramaters !" _))
 	(cond
 		(*struct*
-			(defq o *struct-offset* m o)
+			(defq o *struct-sp* m o)
 			(each (lambda (_)
-				(setq *struct-offset* o)
+				(setq *struct-sp* o)
 				(eval _)
-				(setq m (max m *struct-offset*))) _)
-			(setq *struct-offset* m))
+				(setq m (max m *struct-sp*))) _)
+			(setq *struct-sp* m))
 		(t
 			(defq o *sym-sp* m o)
 			(each (lambda (_)
@@ -660,7 +660,7 @@
 		((eql 'var (elem 1 s))
 			;variable
 			(set (type-sym *s*) (elem 3 s))
-			(setq s (add (get-scope-offset (elem 0 s)) (elem 2 s)))
+			(setq s (add (get-scope (elem 0 s)) (elem 2 s)))
 			(add-inst `(vp-lea-i r4 ,s ,(vreg-sym *s*))))
 		(t (throw "Symbol not a variable !" _1))))
 
