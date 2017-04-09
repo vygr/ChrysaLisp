@@ -824,7 +824,6 @@
 			(throw "Unknown token type !" k))
 		(setq *s* (inc *s*))))
 
-(push-scope)
 (operator "ptr" 0 1 compile-cast)
 (operator "byte" 0 1 compile-cast)
 (operator "ubyte" 0 1 compile-cast)
