@@ -11,15 +11,16 @@
 
 (defq list (lambda (&rest _) _))
 (defmacro defun (n a &rest _) `(defq ,n (lambda ,a ~_)))
-
-(defmacro inc (_) `(add ,_ 1))
-(defmacro dec (_) `(sub ,_ 1))
+(defun umap () (env 101))
 
 (defun obj? (_) (inst-of 'class/class_obj _))
 (defun lst? (_) (inst-of 'class/class_vector _))
 (defun str? (_) (inst-of 'class/class_string _))
 (defun sym? (_) (inst-of 'class/class_symbol _))
 (defun num? (_) (inst-of 'class/class_boxed_long _))
+
+(defmacro inc (_) `(add ,_ 1))
+(defmacro dec (_) `(sub ,_ 1))
 
 (defmacro opt (x y &optional z) (cond (z `(if ,x ,z ,y)) (t `(if ,x ,x ,y))))
 (defmacro setd (&rest _)
@@ -153,6 +154,25 @@
 		(t
 			(defq _m (min-len _b))
 			(while (lt (setq _ (inc _)) _m)
+				(defq _a (list) _i -1)
+				(while (lt (setq _i (inc _i)) (length _b))
+					(push _a (elem _ (elem _i _b))))
+				(push _l (apply _f _a))))) _l)
+
+(defun map-rev (_f &rest _b)
+	(defq _l (list))
+	(cond
+		((eq 1 (length _b))
+			(defq _b (elem 0 _b) _ (length _b))
+			(while (ge (setq _ (dec _)) 0)
+				(push _l (_f (elem _ _b)))))
+		((eq 2 (length _b))
+			(defq _c (elem 0 _b) _b (elem 1 _b) _ (min (length _b) (length _c)))
+			(while (ge (setq _ (dec _)) 0)
+				(push _l (_f (elem _ _c) (elem _ _b)))))
+		(t
+			(defq _ (min-len _b))
+			(while (ge (setq _ (dec _)) 0)
 				(defq _a (list) _i -1)
 				(while (lt (setq _i (inc _i)) (length _b))
 					(push _a (elem _ (elem _i _b))))

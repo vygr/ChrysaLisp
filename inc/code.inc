@@ -960,7 +960,7 @@
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack (length *src*))
 		(push (clear *inst*) 'progn)
-		(each-rev (lambda (_)
+		(each (lambda (_)
 			(set-token-list _)
 			(token-to-rpn)
 			(compile-rpn-list)
@@ -972,7 +972,7 @@
 		(when debug_inst
 			(print "post opt:")
 			(each print-inst *inst*))
-		(each res-reg-def *src*)
+		(each-rev res-reg-def *src*)
 		(fill-reg-def)
 		(eval *inst*)
 		(undef-reg-def)))
