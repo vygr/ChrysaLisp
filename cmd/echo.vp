@@ -7,7 +7,7 @@
 (def-func 'cmd/echo)
 
 	(ptr 'slave 'arg 'args 'stream)
-	(uint 'argc 'index 'length)
+	(uint 'argc 'index)
 
 	;init app vars
 	(push-scope)

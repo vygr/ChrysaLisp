@@ -5,7 +5,7 @@
 (def-func 'cmd/null)
 
 	(ptr 'slave)
-	(ulong 'eof)
+	(int 'eof)
 
 	;init app vars
 	(push-scope)

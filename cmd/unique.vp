@@ -10,8 +10,8 @@
 	(defcvar 'buffer_size 256)
 
 	(ptr 'slave 'arg 'args 'stream 'set)
-	(uint 'argc 'index)
-	(int 'length)
+	(uint 'argc)
+	(union '(int 'length) '(uint 'index))
 	(struct 'buffer 'buffer)
 
 	;init app vars
@@ -62,8 +62,8 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(pptr 'iter)
 	(ptr 'pdata)
+	(pptr 'iter)
 
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
