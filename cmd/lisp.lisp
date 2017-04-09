@@ -11,7 +11,6 @@
 
 (defq list (lambda (&rest _) _))
 (defmacro defun (n a &rest _) `(defq ,n (lambda ,a ~_)))
-(defun umap () (env 101))
 
 (defun obj? (_) (inst-of 'class/class_obj _))
 (defun lst? (_) (inst-of 'class/class_vector _))

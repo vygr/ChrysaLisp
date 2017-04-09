@@ -5,6 +5,7 @@
 
 (gen-new 'unordered_map)
 (gen-create 'unordered_map 2)
+(gen-class 'unordered_map)
 
 (def-func 'class/unordered_map/init)
 	;inputs

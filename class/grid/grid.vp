@@ -3,6 +3,7 @@
 
 (gen-new 'grid)
 (gen-create 'grid)
+(gen-class 'grid)
 
 (def-func 'class/grid/init)
 	;inputs

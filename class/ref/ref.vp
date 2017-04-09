@@ -1,6 +1,8 @@
 (import 'inc/func.inc)
 (import 'class/ref/ref.inc)
 
+(gen-class 'ref)
+
 (def-func 'class/ref/deref)
 	;inputs
 	;r0 = object

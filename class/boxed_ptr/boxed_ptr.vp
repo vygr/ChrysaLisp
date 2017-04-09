@@ -3,3 +3,4 @@
 
 (gen-new 'boxed_ptr)
 (gen-create 'boxed_ptr)
+(gen-class 'boxed_ptr)

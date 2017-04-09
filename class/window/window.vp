@@ -8,6 +8,7 @@
 
 (gen-new 'window)
 (gen-create 'window 1)
+(gen-class 'window)
 
 (def-func 'class/window/init)
 	;inputs

@@ -1,6 +1,8 @@
 (import 'inc/func.inc)
 (import 'class/obj/obj.inc)
 
+(gen-class 'obj)
+
 (def-func 'class/obj/destroy)
 	;inputs
 	;r0 = object

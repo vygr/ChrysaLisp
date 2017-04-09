@@ -7,6 +7,7 @@
 
 (gen-new 'text)
 (gen-create 'text)
+(gen-class 'text)
 
 (def-func 'class/text/init)
 	;inputs

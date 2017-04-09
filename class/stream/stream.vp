@@ -6,6 +6,7 @@
 
 (gen-new 'stream)
 (gen-create 'stream 4)
+(gen-class 'stream)
 
 (def-func 'class/stream/init)
 	;inputs

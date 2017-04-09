@@ -1,4 +1,0 @@
-(import 'inc/func.inc)
-(import 'class/lisp/lisp.inc)
-
-(gen-new 'lisp)

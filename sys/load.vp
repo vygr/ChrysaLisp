@@ -220,20 +220,14 @@
 
 (when list_loaded
 	;print loaded function name
-	(vp-lea-p 'loaded_name r0)
-	(sys-push-trashed)
-	(sys-write-string `(2 r0 (sub ,(label-sym 'loaded_name_end) ,(label-sym 'loaded_name))) '(_))
-	(sys-pop-trashed)
 	(vp-cpy-rr r7 r0)
 	(vp-call 'string_skip)
 	(vp-lea-i r0 -1 r1)
 	(vp-sub-rr r7 r1)
 	(sys-push-trashed)
 	(sys-write-string '(2 r7 r1) '(_))
-	(sys-write-char '(2 "'") '(_))
 	(sys-write-char '(2 10) '(_))
-	(sys-pop-trashed)
-)
+	(sys-pop-trashed))
 
 	;open function file
 	(sys-push-trashed)
@@ -405,10 +399,5 @@
 (vp-label 'size_error)
 	(vp-string "Length field error !") (vp-byte 10)
 (vp-label 'size_error_end)
-
-(when list_loaded
-	(vp-label 'loaded_name)
-		(vp-string "'")
-	(vp-label 'loaded_name_end))
 
 (def-func-end)

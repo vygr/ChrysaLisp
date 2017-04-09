@@ -6,6 +6,8 @@
 (import 'class/stream/stream.inc)
 (import 'class/vector/vector.inc)
 
+(gen-class 'string)
+
 (def-func 'class/string/create_raw)
 	;inputs
 	;r0 = string length

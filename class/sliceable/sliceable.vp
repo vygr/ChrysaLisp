@@ -1,0 +1,4 @@
+(import 'inc/func.inc)
+(import 'class/sliceable/sliceable.inc)
+
+(gen-class 'sliceable)

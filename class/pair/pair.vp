@@ -3,6 +3,7 @@
 
 (gen-new 'pair)
 (gen-create 'pair 2)
+(gen-class 'pair)
 
 (def-func 'class/pair/deinit)
 	;inputs

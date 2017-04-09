@@ -4,6 +4,7 @@
 
 (gen-new 'unordered_set)
 (gen-create 'unordered_set 2)
+(gen-class 'unordered_set)
 
 (def-func 'class/unordered_set/init)
 	;inputs

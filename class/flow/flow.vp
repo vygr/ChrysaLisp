@@ -3,6 +3,7 @@
 
 (gen-new 'flow)
 (gen-create 'flow)
+(gen-class 'flow)
 
 (def-func 'class/flow/init)
 	;inputs

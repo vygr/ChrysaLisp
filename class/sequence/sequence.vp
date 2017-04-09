@@ -1,0 +1,4 @@
+(import 'inc/func.inc)
+(import 'class/sequence/sequence.inc)
+
+(gen-class 'sequence)

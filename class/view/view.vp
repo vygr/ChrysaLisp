@@ -2,6 +2,8 @@
 (import 'inc/gui.inc)
 (import 'class/view/view.inc)
 
+(gen-class 'view)
+
 (def-func 'class/view/init)
 	;inputs
 	;r0 = object

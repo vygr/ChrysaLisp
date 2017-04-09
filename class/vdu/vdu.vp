@@ -7,6 +7,7 @@
 
 (gen-new 'vdu)
 (gen-create 'vdu)
+(gen-class 'vdu)
 
 (def-func 'class/vdu/init)
 	;inputs

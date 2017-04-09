@@ -7,6 +7,7 @@
 
 (gen-new 'master)
 (gen-create 'master)
+(gen-class 'master)
 
 (def-func 'class/master/init)
 	;inputs

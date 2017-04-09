@@ -2,6 +2,8 @@
 (import 'inc/gui.inc)
 (import 'class/component/component.inc)
 
+(gen-class 'component)
+
 (def-func 'class/component/init)
 	;inputs
 	;r0 = component object

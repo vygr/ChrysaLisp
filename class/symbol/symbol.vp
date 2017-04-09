@@ -1,6 +1,8 @@
 (import 'inc/func.inc)
 (import 'class/symbol/symbol.inc)
 
+(gen-class 'symbol)
+
 (def-func 'class/symbol/create_raw)
 	;inputs
 	;r0 = length

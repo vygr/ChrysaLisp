@@ -5,6 +5,7 @@
 
 (gen-new 'button)
 (gen-create 'button)
+(gen-class 'button)
 
 (def-func 'class/button/init)
 	;inputs

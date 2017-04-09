@@ -2,3 +2,5 @@
 (import 'class/lisp/lisp.inc)
 
 (gen-create 'lisp 3)
+(gen-class 'lisp)
+(gen-new 'lisp)

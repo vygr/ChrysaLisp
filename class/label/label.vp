@@ -5,6 +5,7 @@
 
 (gen-new 'label)
 (gen-create 'label)
+(gen-class 'label)
 
 (def-func 'class/label/init)
 	;inputs

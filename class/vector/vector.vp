@@ -3,6 +3,7 @@
 
 (gen-new 'vector)
 (gen-create 'vector)
+(gen-class 'vector)
 
 (def-func 'class/vector/deinit)
 	;inputs

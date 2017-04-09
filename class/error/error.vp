@@ -4,6 +4,7 @@
 
 (gen-new 'error)
 (gen-create 'error 4)
+(gen-class 'error)
 
 (def-func 'class/error/init)
 	;inputs

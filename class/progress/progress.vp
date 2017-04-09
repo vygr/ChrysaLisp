@@ -4,6 +4,7 @@
 
 (gen-new 'progress)
 (gen-create 'progress)
+(gen-class 'progress)
 
 (def-func 'class/progress/draw)
 	;inputs
