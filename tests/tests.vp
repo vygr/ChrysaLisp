@@ -14,7 +14,7 @@
 	(defcvar 'num_child 128)
 
 	(ptr 'tasks 'name 'ids 'msg)
-	(ulong 'cnt)
+	(uint 'cnt)
 
 	(push-scope)
 
@@ -52,7 +52,7 @@
 (def-func 'tests/array_child)
 
 	(ptr 'msg)
-	(ulong 'num)
+	(uint 'num)
 
 	(push-scope)
 
@@ -74,7 +74,7 @@
 	(defcvar 'num_child 128)
 
 	(ptr 'name 'ids 'msg)
-	(ulong 'cnt)
+	(uint 'cnt)
 
 	(push-scope)
 
@@ -107,7 +107,7 @@
 (def-func 'tests/farm_child)
 
 	(ptr 'msg)
-	(ulong 'num)
+	(uint 'num)
 
 	(push-scope)
 
@@ -129,7 +129,7 @@
 	(defcvar 'test_size 10000)
 
 	(ptr 'name 'ids 'msg)
-	(ulong 'cnt 'total)
+	(uint 'cnt 'total)
 
 	(push-scope)
 
@@ -163,7 +163,7 @@
 (def-func 'tests/global_child)
 
 	(ptr 'msg)
-	(ulong 'num)
+	(uint 'num)
 
 	(push-scope)
 
@@ -185,7 +185,7 @@
 	(defcvar 'num_child 128)
 
 	(ptr 'tasks 'name 'ids 'msg)
-	(ulong 'cnt)
+	(uint 'cnt)
 
 	(push-scope)
 
@@ -223,7 +223,7 @@
 (def-func 'tests/pipe_child)
 
 	(ptr 'msg)
-	(ulong 'num)
+	(uint 'num)
 
 	(push-scope)
 	;read exit command etc
