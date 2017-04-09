@@ -227,17 +227,15 @@
 		(print "(vp-ret)"))
 	(vp-ret))
 
-(defcfun def-sym (_1 _2 _3 _4 _5)
+(defcfun def-sym (_1 _2 &rest _3)
 	;_1 name
 	;_2 type
-	;_3 value1
-	;_4 value2
-	;_5 value2
+	;_3 values
 	(setq _1 (sym _1))
 	(if (find _1 (elem 1 (defq _ (pop *syms*))))
 		(throw "Symbol redefined !" _1))
 	(push (elem 1 _) _1)
-	(push (elem 2 _) (list (length *syms*) _2 _3 _4 _5))
+	(push (elem 2 _) (cat (list (length *syms*) _2) _3))
 	(push *syms* _))
 
 (defcfun get-sym (_1)
@@ -297,7 +295,7 @@
 					(defcvar _ *struct-offset* (type-sym _) ,y)
 					(setq *struct-offset* (add *struct-offset* ,s)))
 				(t
-					(def-sym _ 'var *sym-sp* 0 ,y)
+					(def-sym _ 'var *sym-sp* ,y)
 					(setq *sym-sp* (add *sym-sp* ,s))))) f)))
 
 (def-type byte byte_size "b")
@@ -661,7 +659,7 @@
 				(t (throw "Symbol not defined !" _1))))
 		((eql 'var (elem 1 s))
 			;variable
-			(set (type-sym *s*) (elem 4 s))
+			(set (type-sym *s*) (elem 3 s))
 			(setq s (add (get-scope-offset (elem 0 s)) (elem 2 s)))
 			(add-inst `(vp-lea-i r4 ,s ,(vreg-sym *s*))))
 		(t (throw "Symbol not a variable !" _1))))
