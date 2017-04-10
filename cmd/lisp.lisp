@@ -93,9 +93,7 @@
 		(_f (elem _ _l))))
 
 (defun each-mergeable-rev (_f _l)
-	(defq _ (length _l))
-	(while (ge (setq _ (dec _)) 0)
-		(_f (elem _ _l))))
+	(each! nil _f progn (list _l)))
 
 (defun each (_f &rest _b)
 	(each! t _f progn _b))
