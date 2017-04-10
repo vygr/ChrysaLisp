@@ -1,0 +1,131 @@
+(import 'inc/func.inc)
+(import 'class/vector/vector.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/unordered_map/unordered_map.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_each)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'min_len)
+	(def-struct-end)
+
+	(ptr 'this)
+	(uint 'min_length)
+
+	(ptr 'args 'value 'lists 'func 'accum 'elem 'params)
+	(uint 'length 'index 'elem_index 'dir_index)
+	(int 'dir)
+
+	(push-scope)
+	(f-entry 'lisp 'func_each {this, args})
+	(f-call 'lisp 'env_push {this})
+
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorif {length != 4} 'error1)
+	(f-call 'vector 'get_element {args, 0} {_, value})
+	(assign {value == this->lisp_sym_nil} {dir})
+	(f-call 'vector 'get_element {args, 1} {_, func})
+	(f-call 'vector 'get_element {args, 2} {_, accum})
+	(f-call 'vector 'get_element {args, 3} {_, lists})
+	(errorif (cat {lists->obj_vtable != @} (f-path 'class 'vector)) 'error2)
+	(d-call 'vector 'get_length {lists} {_, length})
+	(assign {100000000} {min_length})
+	(f-call 'vector 'for_each {lists, 0, length, $callback1, &this} {_, value})
+	(errorif {value} 'error3)
+	(assign {0} {elem_index})
+	(f-call 'vector 'create {} {params})
+	(loop-while {elem_index != min_length})
+		(assign {elem_index} {dir_index})
+		(vpif {dir})
+			(assign {min_length - dir_index - 1} {dir_index})
+		(endif)
+
+		(assign {0} {index})
+		(loop-while {index != length})
+			(f-call 'vector 'get_element {lists, index} {_, elem})
+			(d-call 'vector 'ref_element {elem, dir_index} {_, value})
+			(f-call 'vector 'push_back {params, value})
+			(assign {index + 1} {index})
+		(loop-end)
+
+		(f-call 'boxed_long 'create {} {value})
+		(f-call 'boxed_long 'set_value {value, dir_index})
+		(f-call 'unordered_map 'insert {this->lisp_enviroment, this->lisp_sym_underscore, value})
+		(f-call 'ref 'deref {value})
+
+		(f-call 'lisp 'repl_apply {this, func, params} {_, value})
+		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'error4)
+		(f-call 'vector 'clear {params})
+		(f-call 'vector 'push_back {params, value})
+		(f-call 'lisp 'repl_apply {this, accum, params} {_, value})
+		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'error4)
+		(f-call 'vector 'clear {params})
+		(f-call 'ref 'deref {value})
+		(assign {elem_index + 1} {elem_index})
+	(loop-end)
+	(f-call 'vector 'deref {params})
+	(assign {this->lisp_sym_nil} {value})
+	(f-call 'ref 'ref {value})
+
+(vp-label 'exit)
+	(f-call 'lisp 'env_pop {this})
+	(f-exit 'lisp 'func_each {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(assign {"(each! dir func accum list) wrong number of args"} {value})
+	(goto 'error)
+(vp-label 'error2)
+	(assign {"(each! dir func accum list) not a list"} {value})
+	(goto 'error)
+(vp-label 'error3)
+	(assign {"(each! dir func accum list) not a list of lists"} {value})
+	(goto 'error)
+(vp-label 'error4)
+	(f-call 'vector 'deref {params})
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(vp-label 'callback1)
+	;inputs
+	;r0 = predicate data pointer
+	;r1 = element iterator
+	;outputs
+	;r1 = 0 if break, else not
+
+	(ptr 'pdata)
+	(pptr 'iter)
+	(uint 'length)
+
+	(push-scope)
+	(f-entry 'vector 'callback {pdata, iter})
+
+	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'vector)) 'error10)
+	(d-call 'vector 'get_length {*iter} {_, length})
+	(vpif {length < pdata->local_min_len})
+		(assign {length} {pdata->local_min_len})
+	(endif)
+
+	(f-exit 'vector 'callback '(-1))
+	(return)
+
+(errorcases
+(vp-label 'error10)
+	(f-exit 'vector 'callback '(0))
+	(return))
+
+	(pop-scope-syms)
+
+(def-func-end)

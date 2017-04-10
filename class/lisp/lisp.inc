@@ -109,6 +109,7 @@
 (def-method 'func_time 'class/lisp/func_time 'static '(r0 r1) '(r0 r1))
 (def-method 'func_clear 'class/lisp/func_clear 'static '(r0 r1) '(r0 r1))
 (def-method 'func_match 'class/lisp/func_match 'static '(r0 r1) '(r0 r1))
+(def-method 'func_each 'class/lisp/func_each 'static '(r0 r1) '(r0 r1))
 
 (def-enum 'func_type)
 	(enum 'args_eval_apply 'args_apply 'apply)
@@ -135,4 +136,5 @@
 	(ptr 'sym_list)
 	(ptr 'sym_stream_name)
 	(ptr 'sym_stream_line)
+	(ptr 'sym_underscore)
 (def-struct-end)

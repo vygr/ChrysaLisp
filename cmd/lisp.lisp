@@ -87,11 +87,6 @@
 			(push l b)
 			(setq b (sub b s)))) l)
 
-(defun min-len (_)
-	(defq m (length (elem 0 _)) i 0)
-	(while (lt (setq i (inc i)) (length _))
-		(defq e (length (elem i _)) m (if (lt m e) m e))) m)
-
 (defun each-mergeable (_f _l)
 	(defq _ -1)
 	(while (lt (setq _ (inc _)) (length _l))
@@ -103,100 +98,42 @@
 		(_f (elem _ _l))))
 
 (defun each (_f &rest _b)
-	(defq _ -1)
-	(cond
-		((eq 1 (length _b))
-			(defq _b (elem 0 _b) _m (length _b))
-			(while (lt (setq _ (inc _)) _m)
-				(_f (elem _ _b))))
-		((eq 2 (length _b))
-			(defq _c (elem 0 _b) _b (elem 1 _b) _m (min (length _b) (length _c)))
-			(while (lt (setq _ (inc _)) _m)
-				(_f (elem _ _c) (elem _ _b))))
-		(t
-			(defq _m (min-len _b))
-			(while (lt (setq _ (inc _)) _m)
-				(defq _a (list) _i -1)
-				(while (lt (setq _i (inc _i)) (length _b))
-					(push _a (elem _ (elem _i _b))))
-				(apply _f _a)))))
+	(each! t _f progn _b))
 
 (defun each-rev (_f &rest _b)
-	(cond
-		((eq 1 (length _b))
-			(defq _b (elem 0 _b) _ (length _b))
-			(while (ge (setq _ (dec _)) 0)
-				(_f (elem _ _b))))
-		((eq 2 (length _b))
-			(defq _c (elem 0 _b) _b (elem 1 _b) _ (min (length _b) (length _c)))
-			(while (ge (setq _ (dec _)) 0)
-				(_f (elem _ _c) (elem _ _b))))
-		(t
-			(defq _ (min-len _b))
-			(while (ge (setq _ (dec _)) 0)
-				(defq _a (list) _i -1)
-				(while (lt (setq _i (inc _i)) (length _b))
-					(push _a (elem _ (elem _i _b))))
-				(apply _f _a)))))
+	(each! nil _f progn _b))
 
 (defun map (_f &rest _b)
-	(defq _l (list) _ -1)
-	(cond
-		((eq 1 (length _b))
-			(defq _b (elem 0 _b) _m (length _b))
-			(while (lt (setq _ (inc _)) _m)
-				(push _l (_f (elem _ _b)))))
-		((eq 2 (length _b))
-			(defq _c (elem 0 _b) _b (elem 1 _b) _m (min (length _b) (length _c)))
-			(while (lt (setq _ (inc _)) _m)
-				(push _l (_f (elem _ _c) (elem _ _b)))))
-		(t
-			(defq _m (min-len _b))
-			(while (lt (setq _ (inc _)) _m)
-				(defq _a (list) _i -1)
-				(while (lt (setq _i (inc _i)) (length _b))
-					(push _a (elem _ (elem _i _b))))
-				(push _l (apply _f _a))))) _l)
+	(defq _l (list))
+	(each! t _f (lambda (_)
+		(push _l _)) _b) _l)
 
 (defun map-rev (_f &rest _b)
 	(defq _l (list))
-	(cond
-		((eq 1 (length _b))
-			(defq _b (elem 0 _b) _ (length _b))
-			(while (ge (setq _ (dec _)) 0)
-				(push _l (_f (elem _ _b)))))
-		((eq 2 (length _b))
-			(defq _c (elem 0 _b) _b (elem 1 _b) _ (min (length _b) (length _c)))
-			(while (ge (setq _ (dec _)) 0)
-				(push _l (_f (elem _ _c) (elem _ _b)))))
-		(t
-			(defq _ (min-len _b))
-			(while (ge (setq _ (dec _)) 0)
-				(defq _a (list) _i -1)
-				(while (lt (setq _i (inc _i)) (length _b))
-					(push _a (elem _ (elem _i _b))))
-				(push _l (apply _f _a))))) _l)
+	(each! nil _f (lambda (_)
+		(push _l _)) _b) _l)
 
-(defun reduce (_f _l &rest _a)
-	(if (eq 0 (length _a))
-		(defq _ 0 _a (elem 0 _l))
-		(defq _ -1 _a (elem 0 _a)))
+(defun filter (_f _b)
+	(defq _l (list))
+	(each! t _f (lambda (_p)
+		(if _p (push _l (elem _ _b)))) (list _b)) _l)
+
+(defun reduce (_f _l &optional _a)
+	(if _a (defq _ -1)
+		(defq _ 0 _a (elem 0 _l)))
 	(while (lt (setq _ (inc _)) (length _l))
 		(setq _a (_f _a (elem _ _l)))) _a)
-
-(defmacro zip (&rest _)
- 	`(map list ~_))
-
-(defun filter (_f _l)
-	(defq _ -1 _o (list))
-	(while (lt (setq _ (inc _)) (length _l))
-		(if (_f (defq _i (elem _ _l))) (push _o _i))) _o)
 
 ;;;;;;;;;;;;
 ; Predicates
 ;;;;;;;;;;;;
 
-(defun some-impl (_f _b)
+(defun min-len (_)
+	(defq m (length (elem 0 _)) i 0)
+	(while (lt (setq i (inc i)) (length _))
+		(defq e (length (elem i _)) m (if (lt m e) m e))) m)
+
+(defun some! (_f _b)
 	(defq _ -1 _v nil)
 	(cond
 		((eq 1 (length _b))
@@ -215,7 +152,7 @@
 					(push _a (elem _ (elem _i _b))))
 				(setq _v (apply _f _a))))) _v)
 
-(defun every-impl (_f _b)
+(defun every! (_f _b)
 	(defq _ -1 _v t)
 	(cond
 		((eq 1 (length _b))
@@ -234,10 +171,17 @@
 					(push _a (elem _ (elem _i _b))))
 				(setq _v (apply _f _a))))) _v)
 
-(defun some (_f &rest _b) (some-impl _f _b))
-(defun every (_f &rest _b) (every-impl _f _b))
-(defun notany (_f &rest _b) (not (some-impl _f _b)))
-(defun notevery (_f &rest _b) (not (every-impl _f _b)))
+(defun some (_f &rest _b)
+	(some! _f _b))
+
+(defun every (_f &rest _b)
+	(every! _f _b))
+
+(defun notany (_f &rest _b)
+	(not (some! _f _b)))
+
+(defun notevery (_f &rest _b)
+	(not (every! _f _b)))
 
 ;;;;;;;;;;;;
 ; Comparison
