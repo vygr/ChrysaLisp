@@ -178,9 +178,10 @@
 (defcvar '*sym-sp* 0 '*syms* (list (list 0 (list) (list))))
 
 (defcfun get-scope (_)
-	(defq o 0 i (length *syms*))
-	(while (gt (setq i (dec i)) _)
-		(setq o (add o (elem 0 (elem i *syms*))))) o)
+	(defq o 0)
+	(each! t (inc _) -2
+		(lambda (_) (setq o (add o (elem 0 _))))
+		progn (list *syms*)) o)
 
 (defcfun push-scope ()
 	(local-align)
