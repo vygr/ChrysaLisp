@@ -8,7 +8,7 @@
 	`(push *emit-buffer* ,f))
 
 (defcfun emit-reset ()
-	(push (clear *distance* *emit-buffer*) 'progn))
+	(push (clear *distance* *emit-buffer*) progn))
 
 (defcfun emit-passes ()
 	(defq *pass* 0 *pc* 0 *out-stream* (string-stream *out-buffer*) b nil)
