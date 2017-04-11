@@ -51,7 +51,7 @@
 		(assign {0} {index})
 		(loop-while {index != length})
 			(f-call 'vector 'get_element {lists, index} {_, elem})
-			(d-call 'vector 'ref_element {elem, dir_index} {_, value})
+			(v-call 'sequence 'ref_element {elem, dir_index} {_, value})
 			(f-call 'vector 'push_back {params, value})
 			(assign {index + 1} {index})
 		(loop-end)
@@ -88,7 +88,7 @@
 	(assign {"(each! dir func accum list) not a list"} {value})
 	(goto 'error)
 (vp-label 'error3)
-	(assign {"(each! dir func accum list) not a list of lists"} {value})
+	(assign {"(each! dir func accum list) not a list of seq"} {value})
 	(goto 'error)
 (vp-label 'error4)
 	(f-call 'vector 'deref {params})
@@ -105,15 +105,16 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(ptr 'pdata)
+	(ptr 'pdata 'type)
 	(pptr 'iter)
 	(uint 'length)
 
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
 
-	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'vector)) 'error10)
-	(d-call 'vector 'get_length {*iter} {_, length})
+	(f-call 'obj 'inst_of (cat {*iter, @} (f-path 'class 'sequence)) {_, type})
+	(errorifnot {type} 'error10)
+	(v-call 'sequence 'get_length {*iter} {_, length})
 	(vpif {length < pdata->local_min_len})
 		(assign {length} {pdata->local_min_len})
 	(endif)
