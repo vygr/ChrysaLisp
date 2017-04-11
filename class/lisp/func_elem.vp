@@ -20,8 +20,11 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
 	(f-call 'vector 'get_element {args, 1} {_, seq})
+
+(errorcases
 	(f-call 'obj 'inst_of (cat {seq, @} (f-path 'class 'sequence)) {_, value})
-	(errorifnot {value} 'error2)
+	(errorifnot {value} 'error2))
+
 	(f-call 'vector 'get_element {args, 0} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
 	(f-call 'boxed_long 'get_value {value} {index})

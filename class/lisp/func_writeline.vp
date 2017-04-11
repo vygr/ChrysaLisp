@@ -23,8 +23,11 @@
 	(f-call 'vector 'get_element {args, 0} {_, stream})
 	(errorif (cat {stream->obj_vtable != @} (f-path 'class 'stream_str)) 'error2)
 	(f-call 'vector 'get_element {args, 1} {_, str})
+
+(errorcases
 	(f-call 'obj 'inst_of (cat {str, @} (f-path 'class 'string)) {_, value})
-	(errorifnot {value} 'error3)
+	(errorifnot {value} 'error3))
+
 	(f-call 'ref 'ref {str})
 	(f-call 'stream_str 'write {stream, &str->string_data, str->string_length})
 	(f-call 'stream_str 'write_char {stream, 10})

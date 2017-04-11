@@ -22,8 +22,11 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_element {args, 0} {_, pipe})
+
+(errorcases
 	(f-call 'obj 'inst_of (cat {pipe, @} (f-path 'class 'string)) {_, value})
-	(errorifnot {value} 'error2)
+	(errorifnot {value} 'error2))
+
 	(f-call 'master 'create {} {value})
 	(f-call 'master 'start {value, &pipe->string_data, pipe->string_length})
 	(f-call 'master 'get_state {value} {_, state})

@@ -105,15 +105,21 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(ptr 'pdata 'type)
+	(ptr 'pdata)
 	(pptr 'iter)
+
+(errorcases
+	(ptr 'type))
+
 	(uint 'length)
 
 	(push-scope)
 	(f-entry 'vector 'callback {pdata, iter})
 
+(errorcases
 	(f-call 'obj 'inst_of (cat {*iter, @} (f-path 'class 'sequence)) {_, type})
-	(errorifnot {type} 'error10)
+	(errorifnot {type} 'error10))
+
 	(v-call 'sequence 'get_length {*iter} {_, length})
 	(vpif {length < pdata->local_min_len})
 		(assign {length} {pdata->local_min_len})

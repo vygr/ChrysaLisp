@@ -21,8 +21,11 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
 	(f-call 'vector 'get_element {args, 0} {_, class})
+
+(errorcases
 	(f-call 'obj 'inst_of (cat {class, @} (f-path 'class 'string)) {_, value})
-	(errorifnot {value} 'error2)
+	(errorifnot {value} 'error2))
+
 	(f-call 'sys_load 'bind {class->string_data} {class})
 	(errorifnot {class} 'error2)
 	(f-call 'vector 'get_element {args, 1} {_, args})

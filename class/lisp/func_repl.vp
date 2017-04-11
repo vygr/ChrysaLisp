@@ -24,11 +24,16 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
 	(f-call 'vector 'get_element {args, 0} {_, stream})
+
+(errorcases
 	(f-call 'obj 'inst_of (cat {stream, @} (f-path 'class 'stream)) {_, value})
-	(errorifnot {value} 'error2)
+	(errorifnot {value} 'error2))
+
 	(f-call 'vector 'get_element {args, 1} {_, value})
+
+(errorcases
 	(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'string)) {_, old_file})
-	(errorifnot {old_file} 'error3)
+	(errorifnot {old_file} 'error3))
 
 	;push old file and line, set to this stream info
 	(f-call 'lisp 'env_get {this, this->lisp_sym_stream_name} {_, old_file})

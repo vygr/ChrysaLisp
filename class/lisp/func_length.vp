@@ -20,8 +20,11 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_element {args, 0} {_, args})
+
+(errorcases
 	(f-call 'obj 'inst_of (cat {args, @} (f-path 'class 'sequence)) {_, value})
-	(errorifnot {value} 'error2)
+	(errorifnot {value} 'error2))
+
 	(v-call 'sequence 'get_length {args} {_, length})
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, length})

@@ -21,8 +21,11 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
 	(f-call 'vector 'get_element {args, 0} {_, str})
+
+(errorcases
 	(f-call 'obj 'inst_of (cat {str, @} (f-path 'class 'string)) {_, value})
-	(errorifnot {value} 'error2)
+	(errorifnot {value} 'error2))
+
 	(f-call 'vector 'get_element {args, 1} {_, value})
 	(f-call 'lisp 'repl_error {this, &str->string_data, value} {_, value})
 

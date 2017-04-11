@@ -22,8 +22,11 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_element {args, 0} {_, name})
+
+(errorcases
 	(f-call 'obj 'inst_of (cat {name, @} (f-path 'class 'string)) {_, value})
-	(errorifnot {value} 'error2)
+	(errorifnot {value} 'error2))
+
 	(f-call 'sys_io 'age {&name->string_data} {length})
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, length})
