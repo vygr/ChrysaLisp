@@ -564,6 +564,11 @@
 		(vp-cpy-cr tk_node_size r1)
 	(endif)
 
+(errorcases
+	(vp-push r0 r1)
+	(f-call 'sys_mem 'clear '(r0 r1) '(_))
+	(vp-pop r0 r1))
+
 	;initialise task mailbox etc
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri r2 r0 0)
@@ -593,6 +598,18 @@
 	(vp-cpy-ir r0 tk_statics_current_tcb r1)
 	(vp-cpy-rr r1 r2)
 	(ln-remove-node r2 r15)
+
+(errorcases
+	;test stack space canary
+	(vp-lea-i r1 tk_node_stackspace r2)
+	(vp-lea-i r1 (add tk_node_stackspace 1024) r3)
+	(vp-xor-rr r5 r5)
+	(loop-while '(r2 != r3))
+		(vp-cpy-ir r2 0 r6)
+		(vp-or-rr r6 r5)
+		(vp-add-cr ptr_size r2)
+	(loop-end)
+	(assert '(r5 == 0) "Stack overrun !"))
 
 	;decrement task count
 	(vp-cpy-ir r0 tk_statics_task_count r2)
