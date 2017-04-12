@@ -93,13 +93,13 @@
 		(_f (elem _ _l))))
 
 (defun each-mergeable-rev (_f _l)
-	(each! nil nil nil _f progn (list _l)))
+	(each! nil nil nil _f nil (list _l)))
 
 (defun each (_f &rest _b)
-	(each! t nil nil _f progn _b))
+	(each! t nil nil _f nil _b))
 
 (defun each-rev (_f &rest _b)
-	(each! nil nil nil _f progn _b))
+	(each! nil nil nil _f nil _b))
 
 (defun map (_f &rest _b)
 	(defq _l (list))

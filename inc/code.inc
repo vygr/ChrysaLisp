@@ -179,9 +179,8 @@
 
 (defcfun get-scope (_)
 	(defq o 0)
-	(each! t (inc _) -2
-		(lambda (_) (setq o (add o (elem 0 _))))
-		progn (list *syms*)) o)
+	(each! t (inc _) -2 (lambda (_)
+			(setq o (add o (elem 0 _)))) nil (list *syms*)) o)
 
 (defcfun push-scope ()
 	(local-align)
