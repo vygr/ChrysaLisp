@@ -35,7 +35,7 @@
 	(errorifnot {value} 'error3))
 
 	(f-call 'sys_io 'open {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth} {handle})
-	(errorif {handle < 4} 'error4)
+	(errorif {handle < 3} 'error4)
 	(sys-write-string {handle, &obj->string_data, obj->string_length} '(_))
 	(f-call 'sys_io 'close {handle})
 	(assign {obj} {value})
