@@ -67,21 +67,6 @@
 ; Functional
 ;;;;;;;;;;;;
 
-(defun each! (_ed _es _ee _ef _ea _eq)
-	(defq _em (min-len _eq) _li (length _eq))
-	(setd _es 0 _ee _em)
-	(if (lt _es 0) (setq _es (add _em _es 1)))
-	(if (lt _ee 0) (setq _ee (add _em _ee 1)))
-	(setq _em (setq _es (dec _es)))
-	(while (ne (setq _es (inc _es)) _ee)
-		(if _ed
-			(defq _ _es)
-			(defq _ (sub (add _em _ee) _es)))
-		(defq _ep (list) _ei -1)
-		(while (lt (setq _ei (inc _ei)) _li)
-			(push _ep (elem _ (elem _ei _eq))))
-		(_ea (apply _ef _ep))))
-
 (defmacro curry (f &rest _)
 	`(lambda (&rest _) (apply ,f (cat (list ~_) _))))
 
@@ -532,7 +517,7 @@
 			(some (lambda (_) (ge _ p)) (map make-time d))) *imports*))
 		;drop the make environment and return the list to compile
 		(setq *env* nil)
-		*imports*)) *os* *cpu* 1))
+		*imports*)) *os* *cpu* 8))
 
 (defun all-vp-files ()
 	(defq *imports* (list 'make.inc))
