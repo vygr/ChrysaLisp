@@ -6,7 +6,7 @@
 (import 'class/symbol/symbol.inc)
 (import 'class/lisp/lisp.inc)
 
-(def-func 'cmd/lisp 32768)
+(def-func 'cmd/lisp 8192)
 
 	(ptr 'slave 'lisp 'args 'arg 'stream 'file 'repl_args 'value)
 	(uint 'argc)
