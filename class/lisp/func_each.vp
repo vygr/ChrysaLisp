@@ -14,16 +14,16 @@
 
 	(def-struct 'local)
 		(ptr 'this)
-		(ptr 'min_len)
+		(uint 'min_len)
 	(def-struct-end)
 
 	(ptr 'this)
 	(uint 'min_length)
 
+	(uint 'length)
 	(ptr 'args 'value 'lists 'func 'accum 'elem 'params)
 	(uint 'list_index 'dir_index)
 	(int 'start 'end 'dir)
-	(uint 'length)
 
 	(push-scope)
 	(f-entry 'lisp 'func_each {this, args})
