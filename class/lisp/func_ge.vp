@@ -13,33 +13,39 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'value)
-		(long 'num)
-	(def-struct-end)
-
-	(ptr 'this 'value)
-	(long 'num)
-
-	(ptr 'args 'first)
-	(uint 'length)
+	(ptr 'this 'args 'value)
+	(pptr 'iter_start 'iter_end)
+	(union '(long 'accum 'num) '(uint 'length))
 
 	(push-scope)
 	(f-entry 'lisp 'func_ge {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, first})
-	(errorif (cat {first->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
-	(f-call 'boxed_long 'get_value {first} {num})
+	(f-call 'vector 'get_element {args, 0} {_, value})
+	(f-call 'vector 'get_iter {args, 1} {_, iter_start})
+	(f-call 'vector 'get_iter {args, length} {_, iter_end})
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
+	(f-call 'boxed_long 'get_value {value} {accum})
+	(loop-start)
+		(assign {*iter_start} {value})
+		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
+		(f-call 'boxed_long 'get_value {value} {num})
+		(gotoif {num > accum} 'fail)
+		(assign {num} {accum})
+		(assign {iter_start + ptr_size} {iter_start})
+	(loop-until {iter_start == iter_end})
 	(assign {this->lisp_sym_t} {value})
+(vp-label 'exit1)
 	(f-call 'ref 'ref {value})
-	(f-call 'vector 'for_each {args, 1, length, $callback, &this})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_ge {this, value})
 	(return)
+
+(vp-label 'fail)
+	(assign {this->lisp_sym_nil} {value})
+	(goto 'exit1)
 
 (errorcases
 (vp-label 'error1)
@@ -50,41 +56,6 @@
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
-
-	(pop-scope-syms)
-
-(vp-label 'callback)
-	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
-	;outputs
-	;r1 = 0 if break, else not
-
-	(ptr 'pdata)
-	(union '(pptr 'iter) '(long 'num))
-
-	(push-scope)
-	(f-entry 'vector 'callback {pdata, iter})
-
-	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
-	(f-call 'boxed_long 'get_value {*iter} {num})
-	(vpif {pdata->local_num >= num})
-		(assign {num} {pdata->local_num})
-		(f-exit 'vector 'callback '(-1))
-	(else)
-		(f-call 'ref 'deref {pdata->local_value})
-		(assign {pdata->local_this->lisp_sym_nil} {pdata->local_value})
-		(f-call 'ref 'ref {pdata->local_value})
-		(f-exit 'vector 'callback '(0))
-	(endif)
-	(return)
-
-(errorcases
-(vp-label 'error3)
-	(f-call 'ref 'deref {pdata->local_value})
-	(f-call 'lisp 'repl_error {pdata->local_this, "(ge num num ...) not all numbers", *iter} {_, pdata->local_value})
-	(f-exit 'vector 'callback '(0))
-	(return))
 
 	(pop-scope-syms)
 

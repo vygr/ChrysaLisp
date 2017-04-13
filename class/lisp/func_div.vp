@@ -16,7 +16,7 @@
 	(union '(long 'accum 'num) '(uint 'length))
 
 	(push-scope)
-	(f-entry 'lisp 'func_add {this, args})
+	(f-entry 'lisp 'func_div {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
@@ -36,7 +36,7 @@
 	(f-call 'boxed_long 'set_value {value, accum})
 
 (vp-label 'exit)
-	(f-exit 'lisp 'func_add {this, value})
+	(f-exit 'lisp 'func_div {this, value})
 	(return)
 
 (errorcases
