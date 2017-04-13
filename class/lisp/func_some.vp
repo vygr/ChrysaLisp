@@ -1,0 +1,162 @@
+(import 'inc/func.inc)
+(import 'class/vector/vector.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/unordered_map/unordered_map.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_some)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(def-struct 'local)
+		(ptr 'this)
+		(uint 'min_len)
+	(def-struct-end)
+
+	(ptr 'this)
+	(union '(uint 'min_length) '(uint 'list_index))
+
+	(uint 'length)
+	(ptr 'args 'value 'lists 'func 'mode 'elem 'params)
+	(int 'start 'end 'dir)
+
+	(push-scope)
+	(f-entry 'lisp 'func_each {this, args})
+	(f-call 'lisp 'env_push {this})
+
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorif {length != 5} 'error1)
+	(f-call 'vector 'get_element {args, 2} {_, mode})
+	(f-call 'vector 'get_element {args, 3} {_, func})
+	(f-call 'vector 'get_element {args, 4} {_, lists})
+	(errorif (cat {lists->obj_vtable != @} (f-path 'class 'vector)) 'error2)
+	(d-call 'vector 'get_length {lists} {_, length})
+	(assign {1000000} {min_length})
+	(f-call 'vector 'for_each {lists, 0, length, $callback1, &this} {_, value})
+	(errorif {value} 'error3)
+
+	(assign {this->lisp_sym_nil} {value})
+	(f-call 'ref 'ref {value})
+
+	(vpif {min_length != 1000000})
+		(assign {0} {start})
+		(f-call 'vector 'get_element {args, 0} {_, elem})
+		(vpif {elem != this->lisp_sym_nil})
+			(errorif (cat {elem->obj_vtable != @} (f-path 'class 'boxed_long)) 'error4)
+			(f-call 'boxed_long 'get_value {elem} {start})
+		(endif)
+		(assign {min_length} {end})
+		(f-call 'vector 'get_element {args, 1} {_, elem})
+		(vpif {elem != this->lisp_sym_nil})
+			(errorif (cat {elem->obj_vtable != @} (f-path 'class 'boxed_long)) 'error4)
+			(f-call 'boxed_long 'get_value {elem} {end})
+		(endif)
+		(vpif {start < 0})
+			(assign {min_length + start + 1} {start})
+		(endif)
+		(vpif {end < 0})
+			(assign {min_length + end + 1} {end})
+		(endif)
+		(errorif {start < 0 || start > min_length || end < 0 || end > min_length} 'error4)
+		(assign {1} {dir})
+		(vpif {start > end})
+			(assign {dir * -1, start - 1, end - 1} {dir, start, end})
+		(endif)
+			
+		(f-call 'vector 'create {} {params})
+		(loop-while {start != end})
+			(f-call 'ref 'deref {value})
+
+			(assign {0} {list_index})
+			(loop-while {list_index != length})
+				(f-call 'vector 'get_element {lists, list_index} {_, elem})
+				(v-call 'sequence 'ref_element {elem, start} {_, value})
+				(f-call 'vector 'push_back {params, value})
+				(assign {list_index + 1} {list_index})
+			(loop-end)
+
+			(f-call 'boxed_long 'create {} {value})
+			(f-call 'boxed_long 'set_value {value, start})
+			(f-call 'unordered_map 'insert {this->lisp_enviroment, this->lisp_sym_underscore, value})
+			(f-call 'ref 'deref {value})
+
+			(f-call 'lisp 'repl_apply {this, func, params} {_, value})
+			(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'error5)
+			(breakif {mode != this->lisp_sym_nil && value != this->lisp_sym_nil})
+			(breakif {mode == this->lisp_sym_nil && value == this->lisp_sym_nil})
+			(f-call 'vector 'clear {params})
+			(assign {start + dir} {start})
+		(loop-end)
+		(f-call 'vector 'deref {params})
+	(endif)
+
+(vp-label 'exit)
+	(f-call 'lisp 'env_pop {this})
+	(f-exit 'lisp 'func_each {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(assign {"(some! start end mode func list) wrong number of args"} {value})
+	(goto 'error)
+(vp-label 'error2)
+	(assign {"(some! start end mode func list) not a list"} {value})
+	(goto 'error)
+(vp-label 'error3)
+	(assign {"(some! start end mode func list) not a list of seq"} {value})
+	(goto 'error)
+(vp-label 'error4)
+	(f-call 'ref 'deref {value})
+	(assign {"(some! start end mode func list) not valid index"} {value})
+	(goto 'error)
+(vp-label 'error5)
+	(f-call 'vector 'deref {params})
+	(goto 'exit)
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(vp-label 'callback1)
+	;inputs
+	;r0 = predicate data pointer
+	;r1 = element iterator
+	;outputs
+	;r1 = 0 if break, else not
+
+	(ptr 'pdata)
+	(pptr 'iter)
+
+(errorcases
+	(ptr 'type))
+
+	(uint 'length)
+
+	(push-scope)
+	(f-entry 'vector 'callback {pdata, iter})
+
+(errorcases
+	(f-call 'obj 'inst_of (cat {*iter, @} (f-path 'class 'sequence)) {_, type})
+	(errorifnot {type} 'error10))
+
+	(v-call 'sequence 'get_length {*iter} {_, length})
+	(vpif {length < pdata->local_min_len})
+		(assign {length} {pdata->local_min_len})
+	(endif)
+
+	(f-exit 'vector 'callback '(-1))
+	(return)
+
+(errorcases
+(vp-label 'error10)
+	(f-exit 'vector 'callback '(0))
+	(return))
+
+	(pop-scope-syms)
+
+(def-func-end)

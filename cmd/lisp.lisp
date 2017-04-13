@@ -126,60 +126,17 @@
 ; Predicates
 ;;;;;;;;;;;;
 
-(defun min-len (_)
-	(defq m (length (elem 0 _)) i 0)
-	(while (lt (setq i (inc i)) (length _))
-		(defq e (length (elem i _)) m (if (lt m e) m e))) m)
-
-(defun some! (_f _b)
-	(defq _ -1 _v nil)
-	(cond
-		((eq 1 (length _b))
-			(defq _b (elem 0 _b) _m (length _b))
-			(while (and (not _v) (lt (setq _ (inc _)) _m))
-				(setq _v (_f (elem _ _b)))))
-		((eq 2 (length _b))
-			(defq _c (elem 0 _b) _b (elem 1 _b) _m (min (length _b) (length _c)))
-			(while (and (not _v) (lt (setq _ (inc _)) _m))
-				(setq _v (_f (elem _ _c) (elem _ _b)))))
-		(t
-			(defq _m (min-len _b))
-			(while (and (not _v) (lt (setq _ (inc _)) _m))
-				(defq _a (list) _i -1)
-				(while (lt (setq _i (inc _i)) (length _b))
-					(push _a (elem _ (elem _i _b))))
-				(setq _v (apply _f _a))))) _v)
-
-(defun every! (_f _b)
-	(defq _ -1 _v t)
-	(cond
-		((eq 1 (length _b))
-			(defq _b (elem 0 _b) _m (length _b))
-			(while (and _v (lt (setq _ (inc _)) _m))
-				(setq _v (_f (elem _ _b)))))
-		((eq 2 (length _b))
-			(defq _c (elem 0 _b) _b (elem 1 _b) _m (min (length _b) (length _c)))
-			(while (and _v (lt (setq _ (inc _)) _m))
-				(setq _v (_f (elem _ _c) (elem _ _b)))))
-		(t
-			(defq _m (min-len _b))
-			(while (and _v (lt (setq _ (inc _)) _m))
-				(defq _a (list) _i -1)
-				(while (lt (setq _i (inc _i)) (length _b))
-					(push _a (elem _ (elem _i _b))))
-				(setq _v (apply _f _a))))) _v)
-
 (defun some (_f &rest _b)
-	(some! _f _b))
+	(some! nil nil t _f _b))
 
 (defun every (_f &rest _b)
-	(every! _f _b))
+	(some! nil nil nil _f _b))
 
 (defun notany (_f &rest _b)
-	(not (some! _f _b)))
+	(not (some! nil nil t _f _b)))
 
 (defun notevery (_f &rest _b)
-	(not (every! _f _b)))
+	(not (some! nil nil nil _f _b)))
 
 ;;;;;;;;;;;;
 ; Comparison

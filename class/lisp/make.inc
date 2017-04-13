@@ -72,6 +72,7 @@
 (import 'class/lisp/func_str.vp)
 (import 'class/lisp/func_strstream.vp)
 (import 'class/lisp/func_sub.vp)
+(import 'class/lisp/func_some.vp)
 (import 'class/lisp/func_sym.vp)
 (import 'class/lisp/func_time.vp)
 (import 'class/lisp/func_valued.vp)
