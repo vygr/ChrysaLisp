@@ -12,17 +12,11 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(def-struct 'local)
-		(ptr 'this)
-		(uint 'min_len)
-	(def-struct-end)
-
-	(ptr 'this)
-	(union '(uint 'min_length) '(uint 'list_index))
-
-	(uint 'length)
-	(ptr 'args 'value 'lists 'func 'mode 'elem 'params)
+	(ptr 'this 'args 'value 'lists 'func 'mode 'type)
+	(union '(ptr 'elem 'params) '(pptr 'iter_start 'iter_end))
 	(int 'start 'end 'dir)
+	(uint 'length 'min_length)
+	(union '(uint 'seq_length) '(uint 'list_index))
 
 	(push-scope)
 	(f-entry 'lisp 'func_each {this, args})
@@ -34,10 +28,21 @@
 	(f-call 'vector 'get_element {args, 3} {_, func})
 	(f-call 'vector 'get_element {args, 4} {_, lists})
 	(errorif (cat {lists->obj_vtable != @} (f-path 'class 'vector)) 'error2)
-	(d-call 'vector 'get_length {lists} {_, length})
+
 	(assign {1000000} {min_length})
-	(f-call 'vector 'for_each {lists, 0, length, $callback1, &this} {_, value})
-	(errorif {value} 'error3)
+	(d-call 'vector 'get_length {lists} {_, length})
+	(f-call 'vector 'get_iter {lists, 0} {_, iter_start})
+	(f-call 'vector 'get_iter {lists, length} {_, iter_end})
+	(loop-while {iter_start != iter_end})
+		(assign {*iter_start} {value})
+		(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'sequence)) {_, type})
+		(errorifnot {type} 'error3)
+		(v-call 'sequence 'get_length {value} {_, seq_length})
+		(vpif {seq_length < min_length})
+			(assign {seq_length} {min_length})
+		(endif)
+		(assign {iter_start + ptr_size} {iter_start})
+	(loop-end)
 
 	(assign {this->lisp_sym_nil} {value})
 	(f-call 'ref 'ref {value})
@@ -119,43 +124,6 @@
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
-
-	(pop-scope-syms)
-
-(vp-label 'callback1)
-	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
-	;outputs
-	;r1 = 0 if break, else not
-
-	(ptr 'pdata)
-	(pptr 'iter)
-
-(errorcases
-	(ptr 'type))
-
-	(uint 'length)
-
-	(push-scope)
-	(f-entry 'vector 'callback {pdata, iter})
-
-(errorcases
-	(f-call 'obj 'inst_of (cat {*iter, @} (f-path 'class 'sequence)) {_, type})
-	(errorifnot {type} 'error10))
-
-	(v-call 'sequence 'get_length {*iter} {_, length})
-	(vpif {length < pdata->local_min_len})
-		(assign {length} {pdata->local_min_len})
-	(endif)
-
-	(f-exit 'vector 'callback '(-1))
-	(return)
-
-(errorcases
-(vp-label 'error10)
-	(f-exit 'vector 'callback '(0))
-	(return))
 
 	(pop-scope-syms)
 
