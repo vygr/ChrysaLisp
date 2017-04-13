@@ -1,0 +1,24 @@
+(import 'inc/func.inc)
+(import 'class/vector/vector.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_list)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args)
+
+	(push-scope)
+	(f-entry 'lisp 'func_list {this, args})
+
+	(f-call 'vector 'slice {args, 0, args->vector_length} {_, args})
+
+	(f-exit 'lisp 'func_list {this, args})
+	(pop-scope)
+	(return)
+
+(def-func-end)

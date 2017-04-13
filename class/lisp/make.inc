@@ -45,6 +45,7 @@
 (import 'class/lisp/func_length.vp)
 (import 'class/lisp/func_load.vp)
 (import 'class/lisp/func_lt.vp)
+(import 'class/lisp/func_list.vp)
 (import 'class/lisp/func_macroexpand_1.vp)
 (import 'class/lisp/func_macroexpand.vp)
 (import 'class/lisp/func_match.vp)

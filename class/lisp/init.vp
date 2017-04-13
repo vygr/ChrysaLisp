@@ -207,6 +207,7 @@
 	(built-in "match?" 0 'func_match)
 	(built-in "each!" 0 'func_each)
 	(built-in "some!" 0 'func_some)
+	(built-in "list" 0 'func_list)
 	(vp-short 0)
 
 (def-func-end)

@@ -9,7 +9,6 @@
 ; Primitives
 ;;;;;;;;;;;;
 
-(defq list (lambda (&rest _) _))
 (defmacro defun (n a &rest _) `(defq ,n (lambda ,a ~_)))
 
 (defun obj? (_) (inst-of 'class/class_obj _))
