@@ -11,15 +11,8 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'args)
-		(ptr 'value)
-	(def-struct-end)
-
-	(ptr 'this 'args 'value)
-
-	(ptr 'first)
+	(ptr 'this 'args 'value 'elem 'type)
+	(pptr 'iter_start 'iter_end)
 	(uint 'length)
 
 	(push-scope)
@@ -27,24 +20,37 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorifnot {length} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, first})
-	(f-call 'obj 'inst_of (cat {first, @} (f-path 'class 'string)) {_, value})
-	(vpif {value})
-
+	(f-call 'vector 'get_element {args, 0} {_, elem})
+	(f-call 'obj 'inst_of (cat {elem, @} (f-path 'class 'string)) {_, type})
+	(vpif {type})
 	(errorcases
-		(f-call 'vector 'for_each {args, 1, length, $callback2, &this} {_, value})
-		(errorif {value} 'error2))
-
+		(f-call 'vector 'get_iter {args, 1} {_, iter_start})
+		(f-call 'vector 'get_iter {args, length} {_, iter_end})
+		(loop-while {iter_start != iter_end})
+			(f-call 'obj 'inst_of (cat {*iter_start, @} (f-path 'class 'string)) {_, type})
+			(errorifnot {type} 'error2)
+			(assign {iter_start + ptr_size} {iter_start})
+		(loop-end))
 		(vpif {length == 2})
 			(f-call 'vector 'get_element {args, 1} {_, value})
-			(f-call 'string 'append {first, value} {value})
+			(f-call 'string 'append {elem, value} {value})
 		(else)
 			(f-call 'string 'cat {args} {value})
 		(endif)
 	(else)
-		(errorif (cat {first->obj_vtable != @} (f-path 'class 'vector)) 'error3)
+		(errorif (cat {elem->obj_vtable != @} (f-path 'class 'vector)) 'error3)
 		(f-call 'vector 'create {} {value})
-		(f-call 'vector 'for_each {args, 0, length, $callback1, &this})
+		(f-call 'vector 'get_iter {args, 0} {_, iter_start})
+		(f-call 'vector 'get_iter {args, length} {_, iter_end})
+		(loop-while {iter_start != iter_end})
+			(assign {*iter_start} {elem})
+		(errorcases
+			(f-call 'obj 'inst_of (cat {elem, @} (f-path 'class 'vector)) {_, type})
+			(errorifnot {type} 'error4))
+			(d-call 'vector 'get_length {elem} {_, length})
+			(f-call 'vector 'append {value, elem, 0, length})
+			(assign {iter_start + ptr_size} {iter_start})
+		(loop-end)
 	(endif)
 
 (vp-label 'exit)
@@ -60,50 +66,14 @@
 	(goto 'error)
 (vp-label 'error3)
 	(assign {"(cat seq ...) not sequence type"} {value})
+	(goto 'error)
+(vp-label 'error4)
+	(f-call 'ref 'deref {value})
+	(assign {"(cat seq ...) not all lists"} {value})
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
-
-(vp-label 'callback1)
-	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
-	;outputs
-	;r1 = 0 if break, else not
-
-	(pptr 'iter)
-	(ptr 'pdata 'elem)
-	(uint 'length)
-
-	(push-scope)
-	(f-entry 'vector 'callback {pdata, iter})
-
-	(assign {*iter} {elem})
-	(errorif (cat {elem->obj_vtable != @} (f-path 'class 'vector)) 'error4)
-	(d-call 'vector 'get_length {elem} {_, length})
-	(f-call 'vector 'append {pdata->local_value, elem, 0, length})
-
-	(f-exit 'vector 'callback '(-1))
-	(return)
-
-(errorcases
-(vp-label 'error4)
-	(f-call 'ref 'deref {pdata->local_value})
-	(f-call 'lisp 'repl_error {pdata->local_this, "(cat seq ...) not all lists", pdata->local_args} {_, pdata->local_value})
-	(f-exit 'vector 'callback '(0))
-	(return))
-
-	(pop-scope-syms)
-
-(errorcases
-(vp-label 'callback2)
-	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
-	;outputs
-	;r1 = 0 if break, else not
-	(f-jmp 'obj 'inst_of `((r1 0) (@ ,(f-path 'class 'string)))))
 
 (def-func-end)

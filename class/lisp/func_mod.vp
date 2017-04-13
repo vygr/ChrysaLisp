@@ -11,26 +11,32 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args)
-	(union '(ptr 'value) '(pptr 'iter))
-	(long 'accum)
-	(uint 'length)
+	(ptr 'this 'args 'value)
+	(pptr 'iter_start 'iter_end)
+	(union '(long 'accum 'num) '(uint 'length))
 
 	(push-scope)
-	(f-entry 'lisp 'func_mod {this, args})
+	(f-entry 'lisp 'func_add {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
 	(f-call 'vector 'get_element {args, 0} {_, value})
+	(f-call 'vector 'get_iter {args, 1} {_, iter_start})
+	(f-call 'vector 'get_iter {args, length} {_, iter_end})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 	(f-call 'boxed_long 'get_value {value} {accum})
-	(f-call 'vector 'for_each {args, 1, length, $callback, &accum} {_, iter})
-	(errorif {iter} 'error2)
+	(loop-start)
+		(assign {*iter_start} {value})
+		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
+		(f-call 'boxed_long 'get_value {value} {num})
+		(assign {accum %% num} {accum})
+		(assign {iter_start + ptr_size} {iter_start})
+	(loop-until {iter_start == iter_end})
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, accum})
 
 (vp-label 'exit)
-	(f-exit 'lisp 'func_mod {this, value})
+	(f-exit 'lisp 'func_add {this, value})
 	(return)
 
 (errorcases
@@ -42,34 +48,6 @@
 (vp-label 'error)
 	(f-call 'lisp 'repl_error {this, value, args} {_, value})
 	(goto 'exit))
-
-	(pop-scope-syms)
-
-(vp-label 'callback)
-	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
-	;outputs
-	;r1 = 0 if break, else not
-
-	(plong 'pdata)
-	(union '(pptr 'iter) '(long 'val))
-
-	(push-scope)
-	(f-entry 'vector 'callback {pdata, iter})
-
-	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
-	(f-call 'boxed_long 'get_value {*iter} {val})
-	(errorifnot {val} 'error3)
-	(assign {*pdata %% val} {*pdata})
-
-	(f-exit 'vector 'callback '(-1))
-	(return)
-
-(errorcases
-(vp-label 'error3)
-	(f-exit 'vector 'callback '(0))
-	(return))
 
 	(pop-scope-syms)
 

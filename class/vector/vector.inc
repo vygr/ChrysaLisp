@@ -16,6 +16,7 @@
 (def-method 'for_each 'class/vector/for_each 'static '(r0 r1 r2 r3 r5) '(r0 r1))
 (def-method 'set_element 'class/vector/set_element 'static '(r0 r1 r2)'(r0))
 (def-method 'append 'class/vector/append 'static '(r0 r1 r2 r3) '(r0))
+(def-method 'get_iter 'class/vector/get_iter 'static '(r0 r1) '(r0 r1))
 (def-method 'callback 'class/obj/null 'static '(r0 r1) '(r1))
 
 (def-method 'deinit 'class/vector/deinit 'final)
@@ -80,3 +81,16 @@
 	(vp-cpy-ir r0 vector_array r2)
 	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-cpy-dr r2 r1 r1))
+
+(defcfun class/vector/get_iter ()
+	;inputs
+	;r0 = vector object
+	;r1 = vector element
+	;outputs
+	;r0 = vector object
+	;r1 = iter pointer
+	;trashes
+	;r2
+	(vp-cpy-ir r0 vector_array r2)
+	(vp-shl-cr (pow2 ptr_size) r1)
+	(vp-add-rr r2 r1))
