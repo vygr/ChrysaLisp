@@ -93,28 +93,28 @@
 		(_f (elem _ _l))))
 
 (defun each-mergeable-rev (_f _l)
-	(each! nil nil nil _f nil (list _l)))
+	(each! -1 0 nil _f (list _l)))
 
 (defun each (_f &rest _b)
-	(each! t nil nil _f nil _b))
+	(each! nil nil nil _f _b))
 
 (defun each-rev (_f &rest _b)
-	(each! nil nil nil _f nil _b))
+	(each! -1 0 nil _f _b))
 
 (defun map (_f &rest _b)
 	(defq _l (list))
-	(each! t nil nil _f (lambda (_)
-		(push _l _)) _b) _l)
+	(each! nil nil (lambda (_)
+		(push _l _)) _f _b) _l)
 
 (defun map-rev (_f &rest _b)
 	(defq _l (list))
-	(each! nil nil nil _f (lambda (_)
-		(push _l _)) _b) _l)
+	(each! -1 0 (lambda (_)
+		(push _l _)) _f _b) _l)
 
 (defun filter (_f _b)
 	(defq _l (list))
-	(each! t nil nil _f (lambda (_p)
-		(if _p (push _l (elem _ _b)))) (list _b)) _l)
+	(each! nil nil (lambda (_p)
+		(if _p (push _l (elem _ _b)))) _f (list _b)) _l)
 
 (defun reduce (_f _l &optional _a)
 	(if _a (defq _ -1)
