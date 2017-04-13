@@ -1,6 +1,5 @@
 (import 'inc/func.inc)
 (import 'class/vector/vector.inc)
-(import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_push)
@@ -21,8 +20,8 @@
 	(errorif {length < 2} 'error1)
 	(f-call 'vector 'get_element {args, 0} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error2)
+	(f-call 'vector 'append {value, args, 1, length})
 	(f-call 'ref 'ref {value})
-	(f-call 'vector 'for_each {args, 1, length, $callback, value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_push {this, value})
@@ -39,25 +38,5 @@
 	(goto 'exit))
 
 	(pop-scope-syms)
-
-(vp-label 'callback)
-	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
-	;outputs
-	;r1 = 0 if break, else not
-
-	(ptr 'pdata)
-	(pptr 'iter)
-
-	(push-scope)
-	(f-entry 'vector 'callback {pdata, iter})
-
-	(f-call 'ref 'ref {*iter})
-	(f-call 'vector 'push_back {pdata, *iter})
-
-	(f-exit 'vector 'callback '(-1))
-	(pop-scope)
-	(return)
 
 (def-func-end)
