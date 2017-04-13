@@ -94,21 +94,21 @@
 (defun each-mergeable-rev (_f _l)
 	(each! -1 0 nil _f (list _l)))
 
-(defun each (_f &rest _b)
-	(each! nil nil nil _f _b))
+(defun each (_f &rest _)
+	(each! nil nil nil _f _))
 
-(defun each-rev (_f &rest _b)
-	(each! -1 0 nil _f _b))
+(defun each-rev (_f &rest _)
+	(each! -1 0 nil _f _))
 
-(defun map (_f &rest _b)
+(defun map (_f &rest _)
 	(defq _l (list))
 	(each! nil nil (lambda (_)
-		(push _l _)) _f _b) _l)
+		(push _l _)) _f _) _l)
 
-(defun map-rev (_f &rest _b)
+(defun map-rev (_f &rest _)
 	(defq _l (list))
 	(each! -1 0 (lambda (_)
-		(push _l _)) _f _b) _l)
+		(push _l _)) _f _) _l)
 
 (defun filter (_f _b)
 	(defq _l (list))
@@ -125,17 +125,17 @@
 ; Predicates
 ;;;;;;;;;;;;
 
-(defun some (_f &rest _b)
-	(some! nil nil t _f _b))
+(defun some (_f &rest _)
+	(some! nil nil t _f _))
 
-(defun every (_f &rest _b)
-	(some! nil nil nil _f _b))
+(defun every (_f &rest _)
+	(some! nil nil nil _f _))
 
-(defun notany (_f &rest _b)
-	(not (some! nil nil t _f _b)))
+(defun notany (_f &rest _)
+	(not (some! nil nil t _f _)))
 
-(defun notevery (_f &rest _b)
-	(not (some! nil nil nil _f _b)))
+(defun notevery (_f &rest _)
+	(not (some! nil nil nil _f _)))
 
 ;;;;;;;;;;;;
 ; Comparison
