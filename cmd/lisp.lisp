@@ -179,10 +179,10 @@
 ; Streams
 ;;;;;;;;;
 
-(defun each-line (_f _b)
-	(defq _s (file-stream _f))
+(defun each-line (_ _f)
+	(defq _s (file-stream _))
 	(while (defq _l (read-line _s))
-		(_b _l)))
+		(_f _l)))
 
 (defun print-file (_)
 	(each-line _ print))
@@ -191,8 +191,8 @@
 ; Utilities
 ;;;;;;;;;;;
 
-(defun align (x a)
-	(bit-and (add x (dec a)) (neg a)))
+(defun align (_ _a)
+	(bit-and (add _ (dec _a)) (neg _a)))
 
 (defmacro ascii (_)
 	(code _))
