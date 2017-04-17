@@ -10,90 +10,54 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'value)
-	(def-struct-end)
-
-	(ptr 'this 'value 'args)
-	(uint 'length)
+	(ptr 'this 'args 'value)
+	(pptr 'iter_begin 'iter_end 'clause_iter_begin 'clause_iter_end)
 
 	(push-scope)
 	(f-entry 'lisp 'func_cond {this, args})
 
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(f-call 'vector 'get_end {args} {_, iter_end})
+	(loop-while {iter_begin != iter_end})
+		(assign {*iter_begin} {value})
+		(errorif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error1)
+		(f-call 'vector 'get_begin {value} {_, clause_iter_begin})
+		(f-call 'vector 'get_end {value} {_, clause_iter_end})
+		(errorif {clause_iter_begin == clause_iter_end} 'error2)
+		(f-call 'lisp 'repl_eval {this, *clause_iter_begin} {_, value})
+		(vpif {value != this->lisp_sym_nil})
+			(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
+			(f-call 'ref 'deref {value})
+			(assign {this->lisp_sym_nil} {value})
+			(f-call 'ref 'ref {value})
+			(loop-start)
+				(assign {clause_iter_begin + ptr_size} {clause_iter_begin})
+				(gotoif {clause_iter_begin == clause_iter_end} 'exit)
+				(f-call 'ref 'deref {value})
+				(f-call 'lisp 'repl_eval {this, *clause_iter_begin} {_, value})
+				(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
+			(loop-end)
+		(endif)
+		(f-call 'ref 'deref {value})
+		(assign {iter_begin + ptr_size} {iter_begin})
+	(loop-end)
 	(assign {this->lisp_sym_nil} {value})
 	(f-call 'ref 'ref {value})
-	(d-call 'vector 'get_length {args} {_, length})
-	(f-call 'vector 'for_each {args, 0, length, $callback, &this})
 
+(vp-label 'exit)
 	(f-exit 'lisp 'func_cond {this, value})
-	(pop-scope)
-	(return)
-
-(vp-label 'callback)
-	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
-	;outputs
-	;r1 = 0 if break, else not
-
-	(pptr 'iter)
-	(ptr 'pdata 'test)
-	(uint 'length)
-
-	(push-scope)
-	(f-entry 'vector 'callback {pdata, iter})
-
-	(errorif (cat {(*iter)->obj_vtable != @} (f-path 'class 'vector)) 'error1)
-	(d-call 'vector 'get_length {*iter} {_, length})
-	(errorifnot {length} 'error2)
-	(f-call 'vector 'get_element {*iter, 0} {_, test})
-	(f-call 'lisp 'repl_eval {pdata->local_this, test} {_, test})
-	(errorif (cat {test->obj_vtable == @} (f-path 'class 'error)) 'error)
-	(vpif {test == pdata->local_this->lisp_sym_nil})
-		(f-call 'ref 'deref {test})
-		(f-exit 'vector 'callback '(-1))
-	(else)
-		(f-call 'ref 'deref {test})
-		(f-call 'vector 'for_each {*iter, 1, length, $callback1, pdata})
-		(f-exit 'vector 'callback '(0))
-	(endif)
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(cond (tst form ...) ...) clause not list"} {test})
-	(goto 'error3)
+	(assign {"(cond (tst form ...) ...) clause not list"} {value})
+	(goto 'error)
 (vp-label 'error2)
-	(assign {"(cond (tst form ...) ...) clause wrong number of args"} {test})
-(vp-label 'error3)
-	(f-call 'lisp 'repl_error {pdata->local_this, test, *iter} {_, test})
+	(assign {"(cond (tst form ...) ...) clause wrong number of args"} {value})
 (vp-label 'error)
-	(f-call 'ref 'deref {pdata->local_value})
-	(assign {test} {pdata->local_value})
-	(f-exit 'vector 'callback '(0))
-	(return))
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
+	(goto 'exit))
 
 	(pop-scope-syms)
-
-(vp-label 'callback1)
-	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
-	;outputs
-	;r1 = 0 if break, else not
-
-	(ptr 'pdata)
-	(pptr 'iter)
-
-	(push-scope)
-	(f-entry 'vector 'callback {pdata, iter})
-
-	(f-call 'ref 'deref {pdata->local_value})
-	(f-call 'lisp 'repl_eval {pdata->local_this, *iter} {_, pdata->local_value})
-
-	(errorassign (cat {pdata->local_value->obj_vtable != @} (f-path 'class 'error)) '(r1))
-	(pop-scope)
-	(return)
 
 (def-func-end)
