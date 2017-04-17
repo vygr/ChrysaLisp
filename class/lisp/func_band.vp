@@ -12,7 +12,7 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value)
-	(pptr 'iter_start 'iter_end)
+	(pptr 'iter_begin 'iter_end)
 	(union '(long 'accum 'num) '(uint 'length))
 
 	(push-scope)
@@ -20,16 +20,16 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
-	(f-call 'vector 'get_iter {args, 0} {_, iter_start})
-	(f-call 'vector 'get_iter {args, length} {_, iter_end})
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(f-call 'vector 'get_end {args} {_, iter_end})
 	(assign {-1} {accum})
 	(loop-start)
-		(assign {*iter_start} {value})
+		(assign {*iter_begin} {value})
 		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 		(f-call 'boxed_long 'get_value {value} {num})
 		(assign {accum & num} {accum})
-		(assign {iter_start + ptr_size} {iter_start})
-	(loop-until {iter_start == iter_end})
+		(assign {iter_begin + ptr_size} {iter_begin})
+	(loop-until {iter_begin == iter_end})
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, accum})
 

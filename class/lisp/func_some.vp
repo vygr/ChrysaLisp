@@ -13,7 +13,7 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value 'lists 'func 'mode 'type)
-	(union '(ptr 'elem 'params) '(pptr 'iter_start 'iter_end))
+	(union '(ptr 'elem 'params) '(pptr 'iter_begin 'iter_end))
 	(int 'start 'end 'dir)
 	(uint 'length 'min_length)
 	(union '(uint 'seq_length) '(uint 'list_index))
@@ -31,17 +31,17 @@
 
 	(assign {1000000} {min_length})
 	(d-call 'vector 'get_length {lists} {_, length})
-	(f-call 'vector 'get_iter {lists, 0} {_, iter_start})
+	(f-call 'vector 'get_iter {lists, 0} {_, iter_begin})
 	(f-call 'vector 'get_iter {lists, length} {_, iter_end})
-	(loop-while {iter_start != iter_end})
-		(assign {*iter_start} {value})
+	(loop-while {iter_begin != iter_end})
+		(assign {*iter_begin} {value})
 		(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'sequence)) {_, type})
 		(errorifnot {type} 'error3)
 		(v-call 'sequence 'get_length {value} {_, seq_length})
 		(vpif {seq_length < min_length})
 			(assign {seq_length} {min_length})
 		(endif)
-		(assign {iter_start + ptr_size} {iter_start})
+		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-end)
 
 	(assign {this->lisp_sym_nil} {value})

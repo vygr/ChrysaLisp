@@ -12,7 +12,7 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value 'elem 'type)
-	(pptr 'iter_start 'iter_end)
+	(pptr 'iter_begin 'iter_end)
 	(uint 'length)
 
 	(push-scope)
@@ -20,16 +20,17 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorifnot {length} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, elem})
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(f-call 'vector 'get_end {args} {_, iter_end})
+	(assign {*iter_begin} {elem})
 	(f-call 'obj 'inst_of (cat {elem, @} (f-path 'class 'string)) {_, type})
 	(vpif {type})
 	(errorcases
-		(f-call 'vector 'get_iter {args, 1} {_, iter_start})
-		(f-call 'vector 'get_iter {args, length} {_, iter_end})
-		(loop-while {iter_start != iter_end})
-			(f-call 'obj 'inst_of (cat {*iter_start, @} (f-path 'class 'string)) {_, type})
+		(loop-start)
+			(assign {iter_begin + ptr_size} {iter_begin})
+			(breakif {iter_begin == iter_end})
+			(f-call 'obj 'inst_of (cat {*iter_begin, @} (f-path 'class 'string)) {_, type})
 			(errorifnot {type} 'error2)
-			(assign {iter_start + ptr_size} {iter_start})
 		(loop-end))
 		(vpif {length == 2})
 			(f-call 'vector 'get_element {args, 1} {_, value})
@@ -40,16 +41,14 @@
 	(else)
 		(errorif (cat {elem->obj_vtable != @} (f-path 'class 'vector)) 'error3)
 		(f-call 'vector 'create {} {value})
-		(f-call 'vector 'get_iter {args, 0} {_, iter_start})
-		(f-call 'vector 'get_iter {args, length} {_, iter_end})
-		(loop-while {iter_start != iter_end})
-			(assign {*iter_start} {elem})
+		(loop-while {iter_begin != iter_end})
+			(assign {*iter_begin} {elem})
 		(errorcases
 			(f-call 'obj 'inst_of (cat {elem, @} (f-path 'class 'vector)) {_, type})
 			(errorifnot {type} 'error4))
 			(d-call 'vector 'get_length {elem} {_, length})
 			(f-call 'vector 'append {value, elem, 0, length})
-			(assign {iter_start + ptr_size} {iter_start})
+			(assign {iter_begin + ptr_size} {iter_begin})
 		(loop-end)
 	(endif)
 

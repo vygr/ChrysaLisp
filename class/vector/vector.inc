@@ -17,6 +17,8 @@
 (def-method 'set_element 'class/vector/set_element 'static '(r0 r1 r2)'(r0))
 (def-method 'append 'class/vector/append 'static '(r0 r1 r2 r3) '(r0))
 (def-method 'get_iter 'class/vector/get_iter 'static '(r0 r1) '(r0 r1))
+(def-method 'get_begin 'class/vector/get_begin 'static '(r0) '(r0 r1))
+(def-method 'get_end 'class/vector/get_end 'static '(r0) '(r0 r1))
 (def-method 'callback 'class/obj/null 'static '(r0 r1) '(r1))
 
 (def-method 'deinit 'class/vector/deinit 'final)
@@ -94,3 +96,21 @@
 	(vp-cpy-ir r0 vector_array r2)
 	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-add-rr r2 r1))
+
+(defcfun class/vector/get_begin ()
+	;inputs
+	;r0 = vector object
+	;outputs
+	;r0 = vector object
+	;r1 = iter pointer
+	(vp-cpy-ir r0 vector_array r1))
+
+(defcfun class/vector/get_end ()
+	;inputs
+	;r0 = vector object
+	;outputs
+	;r0 = vector object
+	;r1 = iter pointer
+	;trashes
+	;r2
+	(f-call 'vector 'get_iter '(r0 (r0 vector_length ui))))
