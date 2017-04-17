@@ -12,24 +12,25 @@
 	;r1 = value
 
 	(ptr 'this 'args 'var 'val)
-	(uint 'length 'index)
+	(union '(pptr 'iter_begin 'iter_end) '(uint 'length))
 
 	(push-scope)
 	(f-entry 'lisp 'func_defq {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2 || (length & 1)} 'error1)
-	(assign {0, 0} {index, val})
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(f-call 'vector 'get_end {args} {_, iter_end})
+	(assign {0} {val})
 	(loop-start)
 		(f-call 'ref 'deref_if {val})
-		(f-call 'vector 'get_element {args, index} {_, var})
+		(assign {iter_begin[ptr_size * 0]} {var})
 		(errorif (cat {var->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
-		(f-call 'vector 'get_element {args, index + 1} {_, val})
-		(f-call 'lisp 'repl_eval {this, val} {_, val})
+		(f-call 'lisp 'repl_eval {this, iter_begin[ptr_size * 1]} {_, val})
 		(errorif (cat {val->obj_vtable == @} (f-path 'class 'error)) 'exit)
 		(f-call 'unordered_map 'insert {this->lisp_enviroment, var, val})
-		(assign {index + 2} {index})
-	(loop-until {index == length})
+		(assign {&iter_begin[ptr_size * 2]} {iter_begin})
+	(loop-until {iter_begin == iter_end})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_defq {this, val})
