@@ -68,7 +68,7 @@
 		(vpif {start > end})
 			(assign {dir * -1, start - 1, end - 1} {dir, start, end})
 		(endif)
-			
+
 		(assign {params[ptr_size * 2]} {accum})
 		(assign {params[ptr_size * 3]} {func})
 		(f-call 'vector 'create {} {params})
