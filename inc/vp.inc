@@ -69,9 +69,10 @@
 				(when (and (eql (elem 0 e1) (elem c '(emit-cpy-ri)))
 						(eql (elem 2 e1) (elem 1 e))
 						(eq (eval (elem 3 e1)) (eval (elem 2 e))))
-					(if (eql (elem 1 e1) (elem 3 e))
-						(elem-set _ *emit-buffer* (lambda))
-						(elem-set _ *emit-buffer* (list 'emit-cpy-rr (elem 1 e1) (elem 3 e))))))))
+					(elem-set _ *emit-buffer*
+						(if (eql (elem 1 e1) (elem 3 e))
+							(lambda)
+							(list 'emit-cpy-rr (elem 1 e1) (elem 3 e))))))))
 	(list *emit-buffer*)))
 
 ;;;;;;;;;;;;;;;;;
