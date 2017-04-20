@@ -109,6 +109,7 @@
 	(vp-label '_func_end)
 	(when debug_emit
 		(print-emit-buffer))
+	(opt-emit-buffer)
 	(emit-passes)
 	(save *out-buffer* (cat "obj/" (str *func-name*))))
 

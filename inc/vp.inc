@@ -61,6 +61,19 @@
 		(while (le (setq p (inc p)) *pc*)
 			(write-char s b))))
 
+(defcfun opt-emit-buffer ()
+	(each! 1 nil nil (lambda (e)
+		(cond
+			((defq c (find (elem 0 e) '(emit-cpy-ir)))
+				(defq e1 (elem (dec _) *emit-buffer*))
+				(when (and (eql (elem 0 e1) (elem c '(emit-cpy-ri)))
+						(eql (elem 2 e1) (elem 1 e))
+						(eq (eval (elem 3 e1)) (eval (elem 2 e))))
+					(if (eql (elem 1 e1) (elem 3 e))
+						(elem-set _ *emit-buffer* (lambda))
+						(elem-set _ *emit-buffer* (list 'emit-cpy-rr (elem 1 e1) (elem 3 e))))))))
+	(list *emit-buffer*)))
+
 ;;;;;;;;;;;;;;;;;
 ; VP Instructions
 ;;;;;;;;;;;;;;;;;
