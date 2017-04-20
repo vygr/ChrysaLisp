@@ -64,9 +64,9 @@
 (defcfun opt-emit-buffer ()
 	(each! 1 nil nil (lambda (e)
 		(cond
-			((defq c (find (elem 0 e) '(emit-cpy-ir)))
+			((defq c (find (elem 0 e) '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-ub)))
 				(defq e1 (elem (dec _) *emit-buffer*))
-				(when (and (eql (elem 0 e1) (elem c '(emit-cpy-ri)))
+				(when (and (eql (elem 0 e1) (elem c '(emit-cpy-ri emit-cpy-ri-i emit-cpy-ri-b)))
 						(eql (elem 2 e1) (elem 1 e))
 						(eq (eval (elem 3 e1)) (eval (elem 2 e))))
 					(elem-set _ *emit-buffer*
