@@ -51,8 +51,7 @@
 (defcfun switch ()
 	(push *switch-stk* *switch*)
 	(setq *switch* *switch-nxt* *switch-nxt* (inc *switch-nxt*))
-	(defcvar (cnt-sym) 0)
-	(vp-label (beg-sym)))
+	(defcvar (cnt-sym) 0))
 
 (defcfun default ()
 	(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
@@ -90,14 +89,17 @@
 	(gotoifnot e (beg-sym)))
 
 (defcfun loop-start ()
-	(switch))
+	(switch)
+	(vp-label (beg-sym)))
 
 (defcfun loop-while (e)
 	(switch)
+	(vp-label (beg-sym))
 	(breakifnot e))
 
 (defcfun loop-whilenot (e)
 	(switch)
+	(vp-label (beg-sym))
 	(breakif e))
 
 (defcfun loop-end ()
@@ -114,11 +116,11 @@
 
 (defcfun vpif (e)
 	(switch)
-	(case e))
+	(gotoifnot e (loc-sym (eval (cnt-sym)))))
 
 (defcfun vpifnot (e)
 	(switch)
-	(casenot e))
+	(gotoif e (loc-sym (eval (cnt-sym)))))
 
 (defcfun elseif (e)
 	(break)

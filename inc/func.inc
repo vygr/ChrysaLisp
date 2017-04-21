@@ -107,9 +107,9 @@
 		(vp-string (str s)) (vp-byte 0)) *paths*)
 	(vp-align ptr_size)
 	(vp-label '_func_end)
+	(opt-emit-buffer)
 	(when debug_emit
 		(print-emit-buffer))
-	(opt-emit-buffer)
 	(emit-passes)
 	(save *out-buffer* (cat "obj/" (str *func-name*))))
 
