@@ -61,18 +61,30 @@
 		(while (le (setq p (inc p)) *pc*)
 			(write-char s b))))
 
+(defcfun opt-emit-find (_ o b i)
+	(while (and (gt (setq _ (dec _)) 0)
+				(not (and (eql o (elem 0 (defq e (elem _ *emit-buffer*))))
+						(eql b (elem 2 e))
+						(eq i (eval (elem 3 e))))))
+		(if (or (eql b (elem -2 e))
+				(find (elem 0 e) '(emit-label emit-ret emit-pop emit-xchg-rr emit-div-rrr
+					emit-div-rrr-u emit-syscall emit-call emit-call-i emit-call-r emit-call-p)))
+			(setq _ 0)))
+	(if (le _ 0) nil _))
+
 (defcfun opt-emit-buffer ()
-	(each! 1 nil nil (lambda (e)
+	(each! 2 nil nil (lambda (e)
 		(cond
 			((defq c (find (elem 0 e) '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-ub)))
-				(defq e1 (elem (dec _) *emit-buffer*))
-				(when (and (eql (elem 0 e1) (elem c '(emit-cpy-ri emit-cpy-ri-i emit-cpy-ri-b)))
-						(eql (elem 2 e1) (elem 1 e))
-						(eq (eval (elem 3 e1)) (eval (elem 2 e))))
-					(elem-set _ *emit-buffer*
-						(if (eql (elem 1 e1) (elem 3 e))
-							(lambda)
-							(list 'emit-cpy-rr (elem 1 e1) (elem 3 e))))))))
+				(when (defq w (opt-emit-find _ (elem c '(emit-cpy-ri emit-cpy-ri-i emit-cpy-ri-b))
+									(elem 1 e) (eval (elem 2 e))))
+					(defq r (elem 1 (elem w *emit-buffer*)))
+					(when (not (some! (inc w) _ t (lambda (_)
+							(eql r (elem -2 _))) (list *emit-buffer*)))
+						(elem-set _ *emit-buffer*
+							(if (eql r (elem 3 e))
+								(lambda)
+								(list 'emit-cpy-rr r (elem 3 e)))))))))
 	(list *emit-buffer*)))
 
 ;;;;;;;;;;;;;;;;;
