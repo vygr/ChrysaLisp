@@ -19,9 +19,8 @@
 		(eval *emit-buffer*)
 		(setq *out-buffer* (str *out-stream*) *pass* (inc *pass*))))
 
-(defcfun print-emit-buffer ()
-	(each (lambda (i)
-		(print _ " -> " i)) *emit-buffer*))
+(defcfun print-emit (_)
+	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
 (defcfun emit-label (_)
 	(set _ *pc*))
@@ -67,8 +66,8 @@
 						(eql b (elem 2 e))
 						(eq i (eval (elem 3 e))))))
 		(if (or (eql b (elem -2 e))
-				(find (elem 0 e) '(emit-label emit-ret emit-pop emit-xchg-rr emit-div-rrr
-					emit-div-rrr-u emit-syscall emit-call emit-call-i emit-call-r emit-call-p)))
+				(find (elem 0 e) '(emit-label emit-pop emit-xchg-rr emit-div-rrr emit-div-rrr-u
+							emit-syscall emit-call emit-call-i emit-call-r emit-call-p)))
 			(setq _ 0)))
 	(if (le _ 0) nil _))
 
