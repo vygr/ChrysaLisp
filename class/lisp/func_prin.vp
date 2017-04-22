@@ -12,7 +12,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'elem)
+	(ptr 'this 'value)
 	(union '(pptr 'iter_end) '(ptr 'args))
 	(union '(pptr 'iter_begin) '(uint 'length))
 
@@ -24,21 +24,20 @@
 		(f-call 'vector 'get_begin {args} {_, iter_begin})
 		(f-call 'vector 'get_end {args} {_, iter_end})
 		(loop-start)
-			(assign {*iter_begin} {elem})
-			(vpif (cat {elem->obj_vtable == @} (f-path 'class 'string)))
-				(f-call 'stream 'write {this->lisp_stdout, &elem->string_data, elem->string_length})
+			(assign {*iter_begin} {value})
+			(vpif (cat {value->obj_vtable == @} (f-path 'class 'string)))
+				(f-call 'stream 'write {this->lisp_stdout, &value->string_data, value->string_length})
 			(else)
-				(f-call 'lisp 'repl_print {this, this->lisp_stdout, elem})
+				(f-call 'lisp 'repl_print {this, this->lisp_stdout, value})
 			(endif)
 			(assign {iter_begin + ptr_size} {iter_begin})
 		(loop-until {iter_begin == iter_end})
-		(assign {iter_end[-ptr_size]} {args})
 	(else)
-		(assign {this->lisp_sym_nil} {args})
+		(assign {this->lisp_sym_nil} {value})
 	(endif)
-	(f-call 'ref 'ref {args})
+	(f-call 'ref 'ref {value})
 
-	(f-exit 'lisp 'func_prin {this, args})
+	(f-exit 'lisp 'func_prin {this, value})
 	(pop-scope)
 	(return)
 
