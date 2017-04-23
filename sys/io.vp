@@ -12,9 +12,11 @@
 	;outputs
 	;r0 = fd
 
+	(f-entry 'sys_io 'open '(r0 r1 r2))
 	(sys-push-trashed)
 	(sys-open '(r0 r1 r2) '(r0))
 	(sys-pop-trashed)
+	(f-exit 'sys_io 'open '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -23,6 +25,7 @@
 	;inputs
 	;r0 = fd
 
+	(f-entry 'sys_io 'close '(r0))
 	(sys-push-trashed)
 	(sys-close '(r0) '(_))
 	(sys-pop-trashed)
@@ -40,6 +43,7 @@
 	;trashes
 	;r0-r3, r5
 
+	(f-entry 'sys_io 'read '(r0 r1 r2))
 	(vp-cpy-rr r0 r3)
 	(vp-cpy-rr r0 r5)
 	(vp-add-rr r0 r1)
@@ -52,6 +56,7 @@
 	(loop-until '(r0 == 10))
 	(vp-cpy-rr r5 r0)
 	(vp-sub-rr r3 r0)
+	(f-exit 'sys_io 'read '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -63,6 +68,7 @@
 	;trashes
 	;r0
 
+	(f-entry 'sys_io 'char '(r0 r1))
 	(sys-push-trashed)
 	(sys-write-char '(r1 r0) '(_))
 	(sys-pop-trashed)
@@ -77,7 +83,7 @@
 	;trashes
 	;r0-r3
 
-	(vp-cpy-rr r1 r3)
+	(f-entry 'sys_io 'string '(r0 r3))
 	(f-call 'sys_string 'length '(r0) '(r0 r1))
 	(sys-push-trashed)
 	(sys-write-string '(r3 r0 r1) '(_))
@@ -94,7 +100,7 @@
 	;trashes
 	;r0, r2-r3, r5
 
-	(vp-cpy-rr r2 r3)	;base
+	(f-entry 'sys_io 'number '(r0 r1 r3))
 	(vp-cpy-rr r4 r5)	;stack location
 	(loop-start)
 		(vp-xor-rr r2 r2)
@@ -131,7 +137,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1 r2) '((r4 local_info) (r4 local_string) (r4 local_long)))
+	(f-entry 'sys_io 'debug_long '((r4 local_info) (r4 local_string) (r4 local_long)))
 
 	(f-call 'sys_io 'string '((r4 local_info) 2))
 	(f-call 'sys_io 'char '((code " ") 2))
@@ -161,7 +167,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1 r2) '((r4 local_info) (r4 local_string) (r4 local_str)))
+	(f-entry 'sys_io 'debug_str '((r4 local_info) (r4 local_string) (r4 local_str)))
 
 	(f-call 'sys_io 'string '((r4 local_info) 2))
 	(f-call 'sys_io 'char '((code " ") 2))
@@ -184,7 +190,7 @@
 	;r0-r2
 
 	;save filename
-	(vp-cpy-rr r0 r2)
+	(f-entry 'sys_io 'age '(r2))
 
 	;get file data
 	(f-bind 'sys_load 'statics r1)
@@ -198,7 +204,7 @@
 	(endif)
 
 	;get file modified date
-	(vp-cpy-ir r1 stat_mtime r0)
+	(f-exit 'sys_io 'age '((r1 stat_mtime)))
 	(vp-ret)
 
 (def-func-end)
