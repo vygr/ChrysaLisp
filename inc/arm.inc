@@ -109,7 +109,7 @@
 (defcfun emit-asr-rr (s d))
 
 (defcfun emit-xchg-rr (s d) (unless (eql s d)))
-(defcfun emit-ext-rr (s d b))
+(defcfun emit-ext-rr (b s d))
 
 (defcfun emit-div-rrr (s d1 d2))
 (defcfun emit-div-rrr-u (s d1 d2))

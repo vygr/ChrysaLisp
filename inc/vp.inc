@@ -67,7 +67,7 @@
 						(eq i (eval (elem 3 e))))))
 		(if (or (eql b (elem -2 e))
 				(find (elem 0 e) '(emit-label emit-pop emit-xchg-rr emit-div-rrr emit-div-rrr-u
-							emit-ext-rr emit-syscall emit-call emit-call-i emit-call-r emit-call-p)))
+							emit-syscall emit-call emit-call-i emit-call-r emit-call-p)))
 			(setq _ 0)))
 	(if (le _ 0) nil _))
 
@@ -236,7 +236,7 @@
 
 (defcfun vp-ret () (emit '(emit-ret)))
 (defcfun vp-xchg-rr (s d) (emit `(emit-xchg-rr ,s ,d)))
-(defcfun vp-ext-rr (s d) (emit `(emit-ext-rr ,s ,d ,(dec (length (push *distance* 0))))))
+(defcfun vp-ext-rr (s d) (emit `(emit-ext-rr ,(dec (length (push *distance* 0))) ,s ,d)))
 (defcfun vp-div-rrr (d r q) (emit `(emit-div-rrr ,d ,r ,q)))
 (defcfun vp-div-rrr-u (d r q) (emit `(emit-div-rrr-u ,d ,r ,q)))
 (defcfun vp-syscall () (emit `(emit-syscall)))
