@@ -69,7 +69,7 @@
 				(find (elem 0 e) '(emit-label emit-pop emit-xchg-rr emit-div-rrr emit-div-rrr-u
 							emit-syscall emit-call emit-call-i emit-call-r emit-call-p)))
 			(setq _ 0)))
-	(if (le _ 0) nil _))
+	(if (gt _ 0) _))
 
 (defcfun opt-emit-buffer ()
 	(each! 2 nil nil (lambda (e)

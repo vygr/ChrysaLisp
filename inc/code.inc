@@ -880,7 +880,7 @@
 	(while (and (gt (setq i (dec i)) 0)
 				(not (match? (defq e (elem i *inst*)) x)))
 		(if (or (find r e) (find (elem 0 e) '(vpif else endif))) (setq i 0)))
-	(setq p (if (le i 0) nil i)))
+	(setq p (if (gt i 0) i)))
 
 (defcfun opt-find-2 (i r x y)
 	(defq e nil)
@@ -888,7 +888,7 @@
 				(not (match? (setq m 0 e (elem i *inst*)) x))
 				(not (match? (setq m 1 e e) y)))
 		(if (or (find r e) (find (elem 0 e) '(vpif else endif))) (setq i 0)))
-	(setq p (if (le i 0) nil i)))
+	(setq p (if (gt i 0) i)))
 
 (defcfun opt-inst-list ()
 	(defq i 0 p nil m nil)
