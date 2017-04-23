@@ -1,5 +1,6 @@
 (import 'inc/func.inc)
 (import 'inc/task.inc)
+(import 'inc/math.inc)
 
 (def-func 'sys/math_random)
 	;inputs
@@ -9,6 +10,7 @@
 	;trashes
 	;r1-r2
 
+	(f-entry 'sys_math 'random '(r0))
 	(vp-cpy-rr r0 r1)
 	(vp-cpy-pr 'seed r0)
 	(vp-mul-cr 17 r0)
@@ -18,6 +20,7 @@
 	(vp-xor-rr r2 r2)
 	(vp-div-rrr r1 r2 r0)
 	(vp-cpy-rr r2 r0)
+	(f-exit 'sys_math 'random '(r0))
 	(vp-ret)
 
 	(vp-align ptr_size)

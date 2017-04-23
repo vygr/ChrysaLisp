@@ -7,7 +7,7 @@
 	;r0 = cpu ID
 
 	(f-bind 'sys_task 'statics r0)
-	(vp-cpy-ir r0 tk_statics_cpu_id r0)
+	(f-exit 'sys_cpu 'id '((r0 tk_statics_cpu_id)))
 	(vp-ret)
 
 (def-func-end)
@@ -26,6 +26,7 @@
 	(vp-add-rr r1 r0)
 	(vp-add-cr timeval_size r4)
 	(sys-pop-trashed)
+	(f-exit 'sys_cpu 'time '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -35,7 +36,7 @@
 	;r0 = cpu total
 
 	(f-bind 'sys_task 'statics r0)
-	(vp-cpy-ir r0 tk_statics_cpu_total r0)
+	(f-exit 'sys_cpu 'total '((r0 tk_statics_cpu_total)))
 	(vp-ret)
 
 (def-func-end)

@@ -28,7 +28,7 @@
 				(vp-call-r r0)
 				(vp-jmp 'next_arg)
 			(endif)
-			(f-call 'sys_string 'length '(r12) '(r1))
+			(f-call 'sys_string 'length '(r12) '(_ r1))
 			(vp-add-rr r1 r12)
 			(vp-add-cr ptr_size r12)
 			(vp-and-cr (neg ptr_size) r12)

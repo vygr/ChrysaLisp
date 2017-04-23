@@ -78,7 +78,7 @@
 	;r0-r3
 
 	(vp-cpy-rr r1 r3)
-	(f-call 'sys_string 'length '(r0) '(r1))
+	(f-call 'sys_string 'length '(r0) '(r0 r1))
 	(sys-push-trashed)
 	(sys-write-string '(r3 r0 r1) '(_))
 	(sys-pop-trashed)

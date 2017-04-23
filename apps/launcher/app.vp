@@ -41,7 +41,7 @@
 		(f-call 'button 'sig_pressed {button} {_, pressed})
 		(f-call 'button 'connect {button, pressed, &myapp, $on_press})
 
-		(f-call 'sys_string 'length {next} {length})
+		(f-call 'sys_string 'length {next} {_, length})
 		(assign {next + length + byte_size} {next})
 	(loop-end)
 

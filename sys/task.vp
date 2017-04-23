@@ -558,7 +558,7 @@
 		(f-call 'sys_mem 'alloc '(r1) '(r0 r1))
 	(else)
 		(vp-add-cr tk_statics_task_heap r0)
-		(f-call 'sys_heap 'alloc '(r0) '(r1))
+		(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
 		(vp-cpy-ri r0 r1 0)
 		(vp-lea-i r1 ptr_size r0)
 		(vp-cpy-cr tk_node_size r1)

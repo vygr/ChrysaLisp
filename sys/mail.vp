@@ -68,7 +68,7 @@
 
 	(f-bind 'sys_mail 'statics r0)
 	(vp-add-cr ml_statics_heap r0)
-	(f-call 'sys_heap 'alloc '(r0) '(r1))
+	(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
 	(vp-cpy-ri r0 r1 0)
 	(vp-lea-i r1 ptr_size r0)
 	(vp-cpy-cr msg_header_size r1)

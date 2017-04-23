@@ -163,7 +163,7 @@
 		(ttf-open-font '(r14 local_font) '(r14 local_points))
 		(vpif '(r0 != 0))
 			(vp-cpy-rr r0 r5)
-			(f-call 'sys_string 'length '((r14 local_font)) '(r1))
+			(f-call 'sys_string 'length '((r14 local_font)) '(_ r1))
 			(f-call 'sys_mem 'alloc '((& r1 (add ft_font_size 1))) '(r13 _))
 
 			(vp-cpy-ir r14 local_points r0)
@@ -279,7 +279,7 @@
 		(vpif '(r0 != 0))
 			(vp-cpy-rr r0 r5)
 
-			(f-call 'sys_string 'length '((r14 local_text)) '(r1))
+			(f-call 'sys_string 'length '((r14 local_text)) '(_ r1))
 			(f-call 'sys_mem 'alloc '((& r1 (add ft_text_size 1))) '(r13 _))
 
 			(vp-cpy-ir r14 local_font r0)

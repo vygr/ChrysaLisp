@@ -52,7 +52,7 @@
 	(vp-add-cr gui_statics_sigslot_heap r0)
 
 	;create sigslot record
-	(f-call 'sys_heap 'alloc '(r0) '(r1))
+	(f-call 'sys_heap 'alloc '(r0) '(_ r1))
 
 	;fill in target and method
 	(vp-cpy-ri r7 r1 gui_sigslot_inst)
