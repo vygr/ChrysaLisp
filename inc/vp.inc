@@ -67,7 +67,7 @@
 						(eq i (eval (elem 3 e))))))
 		(if (or (eql b (elem -2 e))
 				(find (elem 0 e) '(emit-label emit-pop emit-xchg-rr emit-div-rrr emit-div-rrr-u
-							emit-syscall emit-call emit-call-i emit-call-r emit-call-p)))
+							emit-ext-rr emit-syscall emit-call emit-call-i emit-call-r emit-call-p)))
 			(setq _ 0)))
 	(if (le _ 0) nil _))
 
