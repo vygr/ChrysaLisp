@@ -60,30 +60,57 @@
 		(while (le (setq p (inc p)) *pc*)
 			(write-char s b))))
 
-(defcfun opt-emit-find (_ o b i)
+(defmacro opt-emit-kill-list ()
+	''(emit-label emit-pop emit-xchg-rr emit-div-rrr emit-div-rrr-u
+		emit-syscall emit-call emit-call-i emit-call-r emit-call-p))
+
+(defcfun opt-emit-find-rw (_ r w b i)
 	(while (and (gt (setq _ (dec _)) 0)
-				(not (and (eql o (elem 0 (defq e (elem _ *emit-buffer*))))
-						(eql b (elem 2 e))
-						(eq i (eval (elem 3 e))))))
+				(not (or (and (eql w (elem 0 (defq e (elem _ *emit-buffer*))))
+							(eql b (elem 2 e))
+							(eq i (eval (elem 3 e)))
+							(setq c 1))
+						(and (eql r (elem 0 e))
+							(eql b (elem 1 e))
+							(not (eql b (elem 3 e)))
+							(eq i (eval (elem 2 e)))
+							(setq c 3)))))
 		(if (or (eql b (elem -2 e))
-				(find (elem 0 e) '(emit-label emit-pop emit-xchg-rr emit-div-rrr emit-div-rrr-u
-							emit-syscall emit-call emit-call-i emit-call-r emit-call-p)))
+				(find (elem 0 e) (opt-emit-kill-list)))
 			(setq _ 0)))
 	(if (gt _ 0) _))
+
+(defcfun opt-emit-find-use (_ o b)
+	(defq l (length *emit-buffer*))
+	(while (and (lt (setq _ (inc _)) l)
+				(not (and (eql o (elem 0 (defq e (elem _ *emit-buffer*))))
+						(eql b (elem 1 e)))))
+		(if (or (find b e)
+				(find (elem 0 e) (opt-emit-kill-list)))
+			(setq _ l)))
+	(if (lt _ l) _))
 
 (defcfun opt-emit-buffer ()
 	(each! 2 nil nil (lambda (e)
 		(cond
-			((defq c (find (elem 0 e) '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-ub)))
-				(when (defq w (opt-emit-find _ (elem c '(emit-cpy-ri emit-cpy-ri-i emit-cpy-ri-b))
-									(elem 1 e) (eval (elem 2 e))))
-					(defq r (elem 1 (elem w *emit-buffer*)))
-					(when (not (some! (inc w) _ t (lambda (_)
-							(eql r (elem -2 _))) (list *emit-buffer*)))
-						(elem-set _ *emit-buffer*
-							(if (eql r (elem 3 e))
-								(lambda)
-								(list 'emit-cpy-rr r (elem 3 e)))))))))
+			;read after read/write
+			((defq c (find (defq o (elem 0 e)) '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-ub)))
+				(when (defq w (opt-emit-find-rw _
+								(elem c '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-ub))
+								(elem c '(emit-cpy-ri emit-cpy-ri-i emit-cpy-ri-b))
+								(elem 1 e) (eval (elem 2 e))))
+						(defq r (elem c (elem w *emit-buffer*)))
+						(when (not (some! (inc w) _ t (lambda (_)
+								(eql r (elem -2 _))) (list *emit-buffer*)))
+							(elem-set _ *emit-buffer*
+								(if (eql r (elem 3 e))
+									(lambda)
+									(list 'emit-cpy-rr r (elem 3 e)))))))
+			;compare constant forwarding
+			((and (eql o 'emit-cpy-cr) (le -0x80000000 (eval (elem 1 e)) 0x7fffffff))
+				(when (defq u (opt-emit-find-use _ 'emit-cmp-rr (elem 2 e)))
+					(elem-set u *emit-buffer* (list 'emit-cmp-cr (elem 1 e) (elem 2 (elem u *emit-buffer*))))
+					(elem-set _ *emit-buffer* (lambda))))))
 	(list *emit-buffer*)))
 
 ;;;;;;;;;;;;;;;;;
