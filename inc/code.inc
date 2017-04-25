@@ -548,15 +548,11 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defcvar '*s* nil '*r* nil '*inst* (list)
-	'_v0 nil '_v1 nil '_v2 nil '_v3 nil '_v4 nil '_v5 nil '_v6 nil '_v7 nil
-	'_v8 nil '_v9 nil '_v10 nil '_v11 nil '_v12 nil '_v13 nil '_v14 nil '_v15 nil
-	'_t_0 nil '_t_1 nil '_t_2 nil '_t_3 nil '_t_4 nil '_t_5 nil '_t_6 nil '_t_7 nil
-	'_t_8 nil '_t_9 nil '_t_10 nil '_t_11 nil '_t_12 nil '_t_13 nil '_t_14 nil '_t_15 nil
-	'debug_inst nil)
-
 (defmacro vreg-sym (n)
-	`(sym-cat "_v" (str ,n)))
+	`(sym-cat "_v_" (str ,n)))
+
+(defcvar '*s* nil '*r* nil '*inst* (list) 'debug_inst nil)
+(each (lambda (_) (defcvar (vreg-sym _) nil (type-sym _) nil)) (range 0 15))
 
 (defmacro inc-stack ()
 	'(setq *s* (inc *s*)))
