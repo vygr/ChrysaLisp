@@ -4,40 +4,41 @@
 ; sdl2 structures
 ;;;;;;;;;;;;;;;;;
 
-(def-struct 'sdl)
-	(byte 'SDL_SetMainReady)
-	(byte 'SDL_Init)
-	(byte 'SDL_Quit)
-	(byte 'SDL_CreateWindow)
-	(byte 'SDL_CreateWindowAndRenderer)
-	(byte 'SDL_DestroyWindow)
-	(byte 'SDL_Delay)
-	(byte 'SDL_CreateRenderer)
-	(byte 'SDL_SetRenderDrawColor)
-	(byte 'SDL_RenderFillRect)
-	(byte 'SDL_RenderPresent)
-	(byte 'SDL_RenderSetClipRect)
-	(byte 'SDL_SetRenderDrawBlendMode)
-	(byte 'SDL_PumpEvents)
-	(byte 'SDL_GetMouseState)
-	(byte 'SDL_GetKeyboardState)
-	(byte 'SDL_RenderDrawRect)
-	(byte 'SDL_FreeSurface)
-	(byte 'SDL_CreateTextureFromSurface)
-	(byte 'SDL_DestroyTexture)
-	(byte 'SDL_RenderCopy)
-	(byte 'SDL_SetTextureBlendMode)
-	(byte 'SDL_SetTextureColorMod)
+(def-enum 'sdl)
+	(enum
+		'SDL_SetMainReady
+		'SDL_Init
+		'SDL_Quit
+		'SDL_CreateWindow
+		'SDL_CreateWindowAndRenderer
+		'SDL_DestroyWindow
+		'SDL_Delay
+		'SDL_CreateRenderer
+		'SDL_SetRenderDrawColor
+		'SDL_RenderFillRect
+		'SDL_RenderPresent
+		'SDL_RenderSetClipRect
+		'SDL_SetRenderDrawBlendMode
+		'SDL_PumpEvents
+		'SDL_GetMouseState
+		'SDL_GetKeyboardState
+		'SDL_RenderDrawRect
+		'SDL_FreeSurface
+		'SDL_CreateTextureFromSurface
+		'SDL_DestroyTexture
+		'SDL_RenderCopy
+		'SDL_SetTextureBlendMode
+		'SDL_SetTextureColorMod
 
-	(byte 'TTF_Init)
-	(byte 'TTF_Quit)
-	(byte 'TTF_OpenFont)
-	(byte 'TTF_CloseFont)
-	(byte 'TTF_SizeUTF8)
-	(byte 'TTF_FontAscent)
-	(byte 'TTF_FontDescent)
-	(byte 'TTF_FontHeight)
-	(byte 'TTF_RenderUTF8_Blended)
+		'TTF_Init
+		'TTF_Quit
+		'TTF_OpenFont
+		'TTF_CloseFont
+		'TTF_SizeUTF8
+		'TTF_FontAscent
+		'TTF_FontDescent
+		'TTF_FontHeight
+		'TTF_RenderUTF8_Blended)
 (def-struct-end)
 
 (defcvar 'SDL_INIT_TIMER 0x00000001)
