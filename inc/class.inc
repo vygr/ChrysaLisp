@@ -2,25 +2,28 @@
 ; class definition
 ;;;;;;;;;;;;;;;;;;
 
-(defcfun class-name (n) (sym-cat "_class_" (str n)))
-(defcfun super-name (n) (sym-cat "_super_" (str n)))
+(defmacro class-sym (_)
+	`(sym-cat "_class_" ,_))
 
-(defcvar '*class* nil (class-name 'null) '())
+(defmacro super-sym (_)
+	`(sym-cat "_super_" ,_))
+
+(defcvar '*class* nil (class-sym 'null) '())
 
 (defcfun vtable-emit (_1)
 	;_1 = class name
-	(if (eql (defq s (eval (super-name _1))) 'null)
+	(if (eql (defq s (eval (super-sym _1))) 'null)
 		(vp-long 0)
 		(fn-add-link (f-path 'class s)))
 	(each (lambda (m)
 		(if (or (eql (elem 2 m) 'virtual) (eql (elem 2 m) 'final))
-			(fn-add-link (elem 1 m)))) (eval (class-name _1))))
+			(fn-add-link (elem 1 m)))) (eval (class-sym _1))))
 
 (defcfun def-class (_1 &optional _2)
 	;_1 = class name
 	;_2 = super class name
 	(setq _2 (opt _2 'null) *class* _1)
-	(defcvar (super-name _1) _2 (class-name _1) (cat (eval (class-name _2)))))
+	(defcvar (super-sym _1) _2 (class-sym _1) (cat (eval (class-sym _2)))))
 
 (defcfun def-method (_1 _2 &optional _3 _4 _5)
 	;_1 = member name
@@ -29,7 +32,7 @@
 	;_4 = in regs
 	;_5 = out regs
 	(setd _3 'static)
-	(defq s 0 c (eval (class-name *class*))
+	(defq s 0 c (eval (class-sym *class*))
 		m (some (lambda (m)
 			(if (eql (elem 0 m) _1) m
 				(progn (setq s (inc s)) nil))) c))
@@ -85,7 +88,7 @@
 	;_1 = class name
 	;_2 = member name
 	;writes to s, v, m in parent environment !
-	(defq c (eval (class-name _1)))
+	(defq c (eval (class-sym _1)))
 	(until (or (eq s (length c)) (eql (elem 0 (setq m (elem s c))) _2))
 		(if (or (eql (elem 2 m) 'virtual) (eql (elem 2 m) 'final))
 			(setq v (add v ptr_size)))
@@ -102,7 +105,7 @@
 (defcfun s-path (_1 _2)
 	;_1 = class name
 	;_2 = slot method name
-	(method-info (eval (super-name _1)) _2)
+	(method-info (eval (super-sym _1)) _2)
 	(elem 1 m))
 
 (defcfun f-entry (_1 _2 _3)
@@ -159,10 +162,10 @@
 	;_2 = member name
 	;_3 = in parameters
 	;_4 = out parameters
-	(method-info (eval (super-name _1)) _2)
+	(method-info (eval (super-sym _1)) _2)
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
-			(throw "Method is static !" (list (eval (super-name _1)) _2))))
+			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
 	(assign _3 (elem 3 m))
 	(fn-call (elem 1 m))
 	(if _4 (assign (elem 4 m) _4)))
@@ -171,10 +174,10 @@
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
-	(method-info (eval (super-name _1)) _2)
+	(method-info (eval (super-sym _1)) _2)
 	(if (eql (elem 2 m) 'static)
 		(unless (eql (elem 0 m) 'init)
-			(throw "Method is static !" (list (eval (super-name _1)) _2))))
+			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
 	(assign _3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
@@ -182,9 +185,9 @@
 	;_1 = class name
 	;_2 = member name
 	;_3 = reg
-	(method-info (eval (super-name _1)) _2)
+	(method-info (eval (super-sym _1)) _2)
 	(if (eql (elem 2 m) 'static)
-		(throw "Method is static !" (list (eval (super-name _1)) _2)))
+		(throw "Method is static !" (list (eval (super-sym _1)) _2)))
 	(fn-bind (elem 1 m) _3))
 
 (defcfun v-call (_1 _2 &optional _3 _4 _5)
