@@ -120,7 +120,7 @@
 ; VP Instructions
 ;;;;;;;;;;;;;;;;;
 
-(each (lambda (_) (defcvar (defq r (sym-cat 'r (str _))) r)) (range 0 15))
+(each (lambda (_) (defcvar (defq r (sym-cat "r" (str _))) r)) (range 0 15))
 
 (defcfun type (o)
 	(defq i (obj? o))
