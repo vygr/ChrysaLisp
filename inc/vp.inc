@@ -94,10 +94,13 @@
 	(each! 2 nil nil (lambda (e)
 		(cond
 			;read after read/write
-			((defq c (find (defq o (elem 0 e)) '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-ub)))
+			((defq c (find (defq o (elem 0 e)) '(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub
+						 				emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir)))
 				(when (defq w (opt-emit-find-rw _
-								(elem c '(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-ub))
-								(elem c '(emit-cpy-ri emit-cpy-ri-i emit-cpy-ri-b))
+								(elem c '(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub
+								 		emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir))
+								(elem c '(emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b
+										emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri))
 								(elem 1 e) (eval (elem 2 e))))
 						(defq r (elem c (elem w *emit-buffer*)))
 						(when (not (some! (inc w) _ t (lambda (_)
