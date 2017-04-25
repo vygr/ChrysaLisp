@@ -14,7 +14,7 @@
 	;r1 = value
 
 	(ptr 'this 'vars 'vals 'symbol 'value)
-	(ubyte 'index_vars 'index_vals 'len_vars 'len_vals 'state)
+	(uint 'index_vars 'index_vals 'len_vars 'len_vals 'state)
 
 	(push-scope)
 	(f-entry 'lisp 'env_bind {this, vars, vals, index_vals})
