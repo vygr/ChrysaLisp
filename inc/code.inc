@@ -541,8 +541,8 @@
 						(push o k))))
 			(t ;string or symbol
 				(push-rpn k c))))
-	(each-rev (lambda (x)
-		(push-rpn x -1)) o))
+	(while (defq _ (pop o))
+		(push-rpn _ -1)))
 
 ;;;;;;;;;;;;;
 ; compilation
