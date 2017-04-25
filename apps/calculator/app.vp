@@ -15,9 +15,9 @@
 		(long 'accum)
 		(long 'value)
 		(struct 'buffer 32)
-		(ubyte 'last_op)
-		(ubyte 'last_flag)
-		(ubyte 'closed)
+		(uint 'last_op)
+		(uint 'last_flag)
+		(uint 'closed)
 	(def-struct-end)
 
 	(struct 'myapp 'local)
@@ -25,7 +25,7 @@
 	(pubyte 'next)
 	(ulong 'owner)
 	(int 'width 'height)
-	(ubyte 'length)
+	(uint 'length)
 
 	;init app vars
 	(push-scope)
@@ -112,7 +112,7 @@
 	;r1 = button object
 
 	(ptr 'this 'button 'button_string 'display_string 'string 'string1 'string2)
-	(ubyte 'char)
+	(uint 'char)
 
 	;save inputs
 	(push-scope)

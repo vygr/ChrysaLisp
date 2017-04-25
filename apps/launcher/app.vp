@@ -14,7 +14,7 @@
 	(pubyte 'next)
 	(ulong 'owner)
 	(int 'width 'height)
-	(ubyte 'length)
+	(uint 'length)
 
 	;init app vars
 	(push-scope)

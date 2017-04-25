@@ -16,7 +16,7 @@
 		(ulong 'history_index)
 		(pubyte 'bufp)
 		(struct 'buffer 120)
-		(ubyte 'closed)
+		(uint 'closed)
 	(def-struct-end)
 
 	(struct 'myapp 'local)
@@ -146,7 +146,7 @@
 
 	(ptr 'local 'string 'last 'stream)
 	(ulong 'length 'notsame)
-	(ubyte 'char 'state)
+	(uint 'char 'state)
 
 	(push-scope)
 	(assign '(r0 r1) {local, char})

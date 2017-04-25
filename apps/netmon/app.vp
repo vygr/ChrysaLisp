@@ -22,7 +22,7 @@
 	(defcvar 'num_samples 256)
 
 	(def-struct 'app 'obj)
-		(ubyte 'closed)
+		(uint 'closed)
 	(def-struct-end)
 
 	(def-struct 'sel)

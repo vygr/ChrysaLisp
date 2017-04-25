@@ -262,7 +262,7 @@
 	(ptr 'this 'splits 'string)
 	(pubyte 'start)
 	(ulong 'length)
-	(ubyte 'char)
+	(uint 'char)
 
 	;save inputs
 	(push-scope)

@@ -101,7 +101,7 @@
 
 	(ptr 'local 'string 'last 'stream)
 	(ulong 'length 'notsame)
-	(ubyte 'char 'state)
+	(uint 'char 'state)
 
 	(push-scope)
 	(assign '(r0 r1) {local, char})

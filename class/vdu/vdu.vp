@@ -189,7 +189,7 @@
 	;r0 = vdu object
 
 	(ptr 'this)
-	(ubyte 'char)
+	(uint 'char)
 
 	;save inputs
 	(push-scope)
