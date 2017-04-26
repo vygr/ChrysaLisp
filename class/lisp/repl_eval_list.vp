@@ -11,42 +11,28 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'list)
-	(pptr 'iter)
-	(uint 'index 'length)
+	(ptr 'this 'value)
+	(union '(pptr 'iter_begin 'iter_end) '(uint 'index))
 
 	(push-scope)
-	(f-entry 'lisp 'repl_eval_list {this, list, index})
+	(f-entry 'lisp 'repl_eval_list {this, value, index})
 
-	(d-call 'vector 'get_length {list} {_, length})
-	(f-call 'vector 'for_each {list, index, length, $callback, this} {_, iter})
-	(vpif {iter})
-		(assign {*iter} {list})
-	(endif)
-	(f-call 'ref 'ref {list})
+	(f-call 'vector 'get_iter {value, index} {_, iter_begin})
+	(f-call 'vector 'get_end {value} {_, iter_end})
+	(assign {this->lisp_sym_nil} {value})
+	(f-call 'ref 'ref {value})
+	(loop-while {iter_begin != iter_end})
+		(f-call 'ref 'deref {value})
+		(f-call 'lisp 'repl_eval {this, *iter_begin} {_, value})
+		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
+		(f-call 'ref 'deref {*iter_begin})
+		(assign {value} {*iter_begin})
+		(f-call 'ref 'ref {value})
+		(assign {iter_begin + ptr_size} {iter_begin})
+	(loop-end)
 
-	(f-exit 'lisp 'repl_eval_list {this, list})
-	(pop-scope)
-	(return)
-
-(vp-label 'callback)
-	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
-	;outputs
-	;r1 = 0 if break, else not
-
-	(ptr 'pdata)
-	(pptr 'iter)
-
-	(push-scope)
-	(f-entry 'vector 'callback {pdata, iter})
-
-	(f-call 'lisp 'repl_eval {pdata, *iter} {_, pdata})
-	(f-call 'ref 'deref {*iter})
-	(assign {pdata} {*iter})
-
-	(errorassign (cat {pdata->obj_vtable != @} (f-path 'class 'error)) '(r1))
+(vp-label 'exit)
+	(f-exit 'lisp 'repl_eval_list {this, value})
 	(pop-scope)
 	(return)
 
