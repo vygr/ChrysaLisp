@@ -22,7 +22,7 @@
 
 	;skip white space
 (vp-label 'skip_white)
-	(loop-while {char <= char_space && char != -1})
+	(loop-whilenot {char > char_space || char == -1})
 		(f-call 'lisp 'repl_read_char {this, stream, char} {_, char})
 	(loop-end)
 

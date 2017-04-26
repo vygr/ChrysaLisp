@@ -23,7 +23,7 @@
 	(f-call 'symbol 'create_raw {string_gap} {value})
 	(f-call 'stream_str 'create {value} {str_stream})
 
-	(loop-while {char > char_space && char != char_lrb && char != char_rrb && char != char_quote})
+	(loop-whilenot {char <= char_space || char == char_lrb || char == char_rrb || char == char_quote})
 		(f-call 'stream 'write_char {str_stream, char})
 		(f-call 'stream 'read_char {stream} {_, char})
 	(loop-end)

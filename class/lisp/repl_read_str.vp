@@ -24,7 +24,7 @@
 	(f-call 'stream_str 'create {value} {str_stream})
 
 	(f-call 'stream 'read_char {stream} {_, char})
-	(loop-while {char != -1 && char != char_double_quote})
+	(loop-whilenot {char == -1 || char == char_double_quote})
 		(f-call 'stream 'write_char {str_stream, char})
 		(f-call 'stream 'read_char {stream} {_, char})
 	(loop-end)
