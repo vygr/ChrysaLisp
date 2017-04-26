@@ -15,7 +15,7 @@
 	;r2 = next char
 
 	(ptr 'this 'stream 'str_stream 'value)
-	(ulong 'char)
+	(int 'char)
 
 	(push-scope)
 	(f-entry 'lisp 'repl_read_str {this, stream, char})

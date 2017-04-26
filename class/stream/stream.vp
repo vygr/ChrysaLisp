@@ -64,7 +64,7 @@
 
 	(ptr 'this)
 	(pubyte 'buffer 'buffer_end 'start)
-	(long 'char)
+	(int 'char)
 
 	;save inputs
 	(push-scope)
@@ -133,7 +133,7 @@
 
 	(ptr 'this)
 	(pubyte 'buffer 'buffer_end 'start)
-	(long 'char)
+	(int 'char)
 
 	;save inputs
 	(push-scope)
@@ -262,7 +262,7 @@
 	(ptr 'this 'splits 'string)
 	(pubyte 'start)
 	(ulong 'length)
-	(uint 'char)
+	(int 'char)
 
 	;save inputs
 	(push-scope)
