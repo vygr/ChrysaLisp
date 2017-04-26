@@ -30,7 +30,7 @@
 (def-method 'repl_read_group 'class/lisp/repl_read_group 'static '(r0 r1 r2) '(r0 r1 r2))
 (def-method 'repl_read_num 'class/lisp/repl_read_num 'static '(r0 r1 r2) '(r0 r1 r2))
 (def-method 'repl_eval 'class/lisp/repl_eval 'static '(r0 r1) '(r0 r1))
-(def-method 'repl_eval_list 'class/lisp/repl_eval_list 'static '(r0 r1 r2) '(r0 r1))
+(def-method 'repl_eval_list 'class/lisp/repl_eval_list 'static '(r0 r1) '(r0 r1))
 (def-method 'repl_apply 'class/lisp/repl_apply 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'repl_print 'class/lisp/repl_print 'static '(r0 r1 r2) '(r0))
 (def-method 'repl_expand 'class/lisp/repl_expand 'static '(r0 r1 r2) '(r0 r1))
