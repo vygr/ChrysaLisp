@@ -12,7 +12,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value 'arg1 'arg2 'type)
+	(ptr 'this 'args 'value 'arg1 'arg2)
 	(union '(uint 'length) '(int 'result))
 
 	(push-scope)
@@ -20,15 +20,14 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
-	(f-call 'boxed_long 'create {} {value})
-	(f-call 'ref 'ref {value})
 	(f-call 'vector 'get_element {args, 0} {_, arg1})
 	(f-call 'vector 'get_element {args, 1} {_, arg2})
+	(f-call 'obj 'inst_of (cat {arg1, @} (f-path 'class 'string)) {_, value})
+	(errorifnot {value} 'error2)
+	(f-call 'obj 'inst_of (cat {arg2, @} (f-path 'class 'string)) {_, value})
+	(errorifnot {value} 'error2)
+	(f-call 'boxed_long 'create {} {value})
 	(vpif {arg1 != arg2})
-		(f-call 'obj 'inst_of (cat {arg1, @} (f-path 'class 'string)) {_, type})
-		(errorifnot {type} 'error2)
-		(f-call 'obj 'inst_of (cat {arg2, @} (f-path 'class 'string)) {_, type})
-		(errorifnot {type} 'error2)
 		(f-call 'string 'compare {arg1, arg2} {_, result})
 		(f-call 'boxed_long 'set_value {value, result})
 	(endif)
@@ -39,7 +38,6 @@
 
 (errorcases
 (vp-label 'error2)
-	(f-call 'ref 'deref {value})
 	(assign {"(cmp str str) not a string"} {value})
 	(goto 'error)
 (vp-label 'error1)
