@@ -15,7 +15,7 @@
 		(ptr 'master 'vdu 'history 'window)
 		(ulong 'history_index)
 		(pubyte 'bufp)
-		(struct 'buffer 120)
+		(struct 'buffer 256)
 		(uint 'closed)
 	(def-struct-end)
 

@@ -15,7 +15,7 @@
 	(def-struct 'local)
 		(ptr 'master)
 		(pubyte 'bufp)
-		(struct 'buffer 120)
+		(struct 'buffer 256)
 	(def-struct-end)
 
 	(struct 'local 'local)
