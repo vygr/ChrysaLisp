@@ -288,7 +288,8 @@
 		(elem-set _ l y)) l) l)
 
 (defun sorted (_f _a &optional _l _h)
-	(sort _f (cat _a) _l _h))
+	(setd _l 0 _h (length _a))
+	(sort _f (slice _l _h _a)))
 
 (defun sort (_f _a &optional _l _h)
 	(setd _l 0 _h (length _a))
