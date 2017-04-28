@@ -297,22 +297,20 @@
 	(while (setq _h (pop _q) _l (pop _q))
 		(when (lt _l _h)
 			(defq _p (partition _f _a _l _h))
-			(push _q _l _p)
-			(push _q (inc _p) _h))) _a)
+			(push (push _q _l _p) (inc _p) _h))) _a)
+
+(defun swap (_ _1 _2)
+	(when (ne _1 _2)
+		(defq _t (elem _1 _))
+		(elem-set _1 _ (elem _2 _))
+		(elem-set _2 _ _t)))
 
 (defun partition (_f _a _l _h)
 	(defq _i _l _p (elem _i _a) _j _l)
 	(while (lt (setq _j (inc _j)) _h)
 		(when (_f (elem _j _a) _p)
-			(setq _i (inc _i))
-			(when (ne _i _j)
-				(defq _s (elem _j _a))
-				(elem-set _j _a (elem _i _a))
-				(elem-set _i _a _s))))
-	(when (ne _l _i)
-		(defq _s (elem _l _a))
-		(elem-set _l _a (elem _i _a))
-		(elem-set _i _a _s)) _i)
+			(swap _a (setq _i (inc _i)) _j)))
+	(swap _a _i _l) _i)
 
 ;;;;;;;;;;;;;;
 ; VP Assembler
