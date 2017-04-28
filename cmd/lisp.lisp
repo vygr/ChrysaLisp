@@ -293,10 +293,12 @@
 
 (defun sort (_f _a &optional _l _h)
 	(setd _l 0 _h (length _a))
-	(when (lt _l _h)
-		(defq _p (partition _f _a _l _h))
-		(sort _f _a _l _p)
-		(sort _f _a (inc _p) _h)) _a)
+	(defq _q (list _l _h))
+	(while (setq _h (pop _q) _l (pop _q))
+		(when (lt _l _h)
+			(defq _p (partition _f _a _l _h))
+			(push _q _l _p)
+			(push _q (inc _p) _h))) _a)
 
 (defun partition (_f _a _l _h)
 	(defq _i _l _p (elem _i _a) _j _l)
@@ -435,6 +437,8 @@
 	(when r
 		(each-mergeable (lambda (_)
 			(merge-sym f (elem 2 (load-func _)))) f))
+	;sort into order
+	(sort (lambda (x y) (gt (cmp x y) 0)) f 6)
 	;list of all function bodies and links in order, list of offsets of link sections, offset of new path section
 	(defq b (map eval f) o (list) p (add (length z) (reduce (lambda (x y)
 		(setq x (add x (length (elem 0 y))))
