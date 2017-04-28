@@ -1,0 +1,53 @@
+(import 'inc/func.inc)
+(import 'class/vector/vector.inc)
+(import 'class/string/string.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_cmp)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value 'arg1 'arg2 'type)
+	(union '(uint 'length) '(int 'result))
+
+	(push-scope)
+	(f-entry 'lisp 'func_cmp {this, args})
+
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorif {length != 2} 'error1)
+	(f-call 'boxed_long 'create {} {value})
+	(f-call 'ref 'ref {value})
+	(f-call 'vector 'get_element {args, 0} {_, arg1})
+	(f-call 'vector 'get_element {args, 1} {_, arg2})
+	(vpif {arg1 != arg2})
+		(f-call 'obj 'inst_of (cat {arg1, @} (f-path 'class 'string)) {_, type})
+		(errorifnot {type} 'error2)
+		(f-call 'obj 'inst_of (cat {arg2, @} (f-path 'class 'string)) {_, type})
+		(errorifnot {type} 'error2)
+		(f-call 'string 'compare {arg1, arg2} {_, result})
+		(f-call 'boxed_long 'set_value {value, result})
+	(endif)
+
+(vp-label 'exit)
+	(f-exit 'lisp 'func_cmp {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error2)
+	(f-call 'ref 'deref {value})
+	(assign {"(cmp str str) not a string"} {value})
+	(goto 'error)
+(vp-label 'error1)
+	(assign {"(cmp str str) wrong number of args"} {value})
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)

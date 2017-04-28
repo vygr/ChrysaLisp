@@ -208,6 +208,7 @@
 	(built-in "each!" 0 'func_each)
 	(built-in "some!" 0 'func_some)
 	(built-in "list" 0 'func_list)
+	(built-in "cmp" 0 'func_cmp)
 	(vp-short 0)
 
 (def-func-end)

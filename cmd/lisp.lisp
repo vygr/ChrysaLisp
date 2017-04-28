@@ -287,6 +287,27 @@
 		(elem-set i l x)
 		(elem-set _ l y)) l) l)
 
+(defun sort (a l h &optional _f)
+	(setd _f lt)
+	(when (lt l h)
+		(defq p (partition a l h _f))
+		(sort a l p _f)
+		(sort a (inc p) h _f)) a)
+
+(defun partition (a l h _f)
+	(defq i l p (elem i a) j l)
+	(while (lt (setq j (inc j)) h)
+		(when (_f (elem j a) p)
+			(setq i (inc i))
+			(when (ne i j)
+				(defq s (elem j a))
+				(elem-set j a (elem i a))
+				(elem-set i a s))))
+	(when (ne l i)
+		(defq s (elem l a))
+		(elem-set l a (elem i a))
+		(elem-set i a s)) i)
+
 ;;;;;;;;;;;;;;
 ; VP Assembler
 ;;;;;;;;;;;;;;
