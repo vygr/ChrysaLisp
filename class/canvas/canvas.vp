@@ -299,15 +299,15 @@
 (def-func 'class/canvas/set_pixel)
 	;inputs
 	;r0 = canvas object
+	;r1 = colour
 	;r8 = x
 	;r9 = y
-	;r1 = colour
 	;outputs
 	;r0 = canvas object
 	;trashes
 	;r2-r3, r8-r9
 
-	(f-entry 'canvas 'set_pixel '(r0 r8 r9 r1))
+	(f-entry 'canvas 'set_pixel '(r0 r1 r8 r9))
 
 	;clip check
 	(switch)
