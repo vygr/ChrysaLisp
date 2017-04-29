@@ -126,6 +126,10 @@
 	(break)
 	(case e))
 
+(defcfun elseifnot (e)
+	(break)
+	(casenot e))
+
 (defcfun else ()
 	(break)
 	(default))
