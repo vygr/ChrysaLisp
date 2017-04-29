@@ -31,7 +31,11 @@
 
 (defcvar 'string_gap (sub 64 string_data ptr_size byte_size))
 
+(defcvar 'char_backspace 8)
+(defcvar 'char_tab 9)
 (defcvar 'char_lf 10)
+(defcvar 'char_cr 13)
+(defcvar 'char_esc 27)
 (defcvar 'char_space (ascii " "))
 (defcvar 'char_underscore (ascii "_"))
 (defcvar 'pipe_char (ascii "|"))

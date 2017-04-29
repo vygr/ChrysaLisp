@@ -3,6 +3,7 @@
 (import 'inc/string.inc)
 (import 'inc/load.inc)
 (import 'inc/task.inc)
+(import 'class/string/string.inc)
 
 (def-func 'sys/io_open)
 	;inputs
@@ -53,7 +54,7 @@
 		(sys-pop-trashed)
 		(vp-cpy-ri-b r0 r5 0)
 		(vp-add-cr byte_size r5)
-	(loop-until '(r0 == 10))
+	(loop-until '(r0 == char_lf))
 	(vp-cpy-rr r5 r0)
 	(vp-sub-rr r3 r0)
 	(f-exit 'sys_io 'read '(r0))
@@ -144,7 +145,7 @@
 	(f-call 'sys_io 'string '((r4 local_string) 2))
 	(f-call 'sys_io 'string '(" :-> 0x" 2))
 	(f-call 'sys_io 'number '((r4 local_long) 2 16))
-	(f-call 'sys_io 'char '(10 2))
+	(f-call 'sys_io 'char '(char_lf 2))
 
 	(vp-add-cr local_size r4)
 	(vp-ret)
@@ -174,7 +175,7 @@
 	(f-call 'sys_io 'string '((r4 local_string) 2))
 	(f-call 'sys_io 'string '(" :-> " 2))
 	(f-call 'sys_io 'string '((r4 local_str) 2))
-	(f-call 'sys_io 'char '(10 2))
+	(f-call 'sys_io 'char '(char_lf 2))
 
 	(vp-add-cr local_size r4)
 	(vp-ret)

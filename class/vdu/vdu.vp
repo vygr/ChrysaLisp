@@ -211,18 +211,18 @@
 		(f-call 'vdu 'dirty {this})
 	(endif)
 
-	(vpif {char == 10})
+	(vpif {char == char_lf})
 		;line feed
 		(assign {0} {this->vdu_cursor_x})
 		(assign {this->vdu_cursor_y + 1} {this->vdu_cursor_y})
-	(elseif {char == 9})
+	(elseif {char == char_tab})
 		;tab
 		(assign {4 - (this->vdu_cursor_x & 3)} {char})
 		(loop-start)
 			(f-call 'vdu 'print_char {this, 32})
 			(assign {char - 1} {char})
 		(loop-untilnot {char})
-	(elseif {char == 128})
+	(elseif {char == char_backspace})
 		;backspace
 		(vpif {this->vdu_cursor_x != 0})
 			(assign {this->vdu_cursor_x - 1} {this->vdu_cursor_x})
@@ -236,7 +236,7 @@
 			(f-call 'vdu 'add_dirty {this, 0, this->vdu_cursor_y * this->vdu_char_height, this->vdu_cursor_x * this->vdu_char_width, this->vdu_char_height})
 			(assign {0} {this->vdu_cursor_x})
 		(endif)
-	(elseif {char >= 32 && char < 127})
+	(elseif {char >= char_space && char < 127})
 		;printable char
 		(assign {char} {(this->vdu_chars)[this->vdu_cursor_y * this->vdu_width + this->vdu_cursor_x]})
 		(f-call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})

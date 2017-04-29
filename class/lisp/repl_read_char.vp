@@ -1,5 +1,6 @@
 (import 'inc/func.inc)
 (import 'class/stream/stream.inc)
+(import 'class/string/string.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/pair/pair.inc)
 (import 'class/lisp/lisp.inc)
@@ -20,7 +21,7 @@
 	(push-scope)
 	(f-entry 'lisp 'repl_read_char {this, stream, char})
 
-	(vpif {char == 10})
+	(vpif {char == char_lf})
 		(f-call 'lisp 'env_find {this, this->lisp_sym_stream_line} {_, iter, _})
 		(breakifnot {iter})
 		(f-call 'pair 'get_second {*iter} {_, line})

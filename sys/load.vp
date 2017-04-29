@@ -1,5 +1,6 @@
 (import 'inc/func.inc)
 (import 'inc/load.inc)
+(import 'class/string/string.inc)
 
 (defcvar 'list_loaded nil)
 
@@ -91,7 +92,7 @@
 				(vp-add-rr r2 r0)
 				(vp-sub-rr r0 r1)
 				(sys-write-string '(2 r0 r1) '(_))
-				(vp-cpy-cr 10 r1)
+				(vp-cpy-cr char_lf r1)
 				(sys-write-char '(2 r1) '(_))
 				(sys-exit '(1))
 			(endif)
@@ -226,7 +227,7 @@
 	(vp-sub-rr r7 r1)
 	(sys-push-trashed)
 	(sys-write-string '(2 r7 r1) '(_))
-	(sys-write-char '(2 10) '(_))
+	(sys-write-char '(2 char_lf) '(_))
 	(sys-pop-trashed))
 
 	;open function file
@@ -331,7 +332,7 @@
 			(vp-cpy-ir r0 0 r0)
 			(vp-sub-rr r0 r1)
 			(sys-write-string '(2 r0 r1) '(_))
-			(vp-cpy-cr 10 r1)
+			(vp-cpy-cr char_lf r1)
 			(sys-write-char '(2 r1) '(_))
 			(sys-exit '(1))
 		(endif)
@@ -393,11 +394,11 @@
 (vp-label 'bind_error_end)
 
 (vp-label 'reloc_error)
-	(vp-string "Reloc buffer overflow !") (vp-byte 10)
+	(vp-string "Reloc buffer overflow !") (vp-byte char_lf)
 (vp-label 'reloc_error_end)
 
 (vp-label 'size_error)
-	(vp-string "Length field error !") (vp-byte 10)
+	(vp-string "Length field error !") (vp-byte char_lf)
 (vp-label 'size_error_end)
 
 (def-func-end)

@@ -4,6 +4,7 @@
 (import 'inc/heap.inc)
 (import 'inc/sdl2.inc)
 (import 'class/label/label.inc)
+(import 'class/string/string.inc)
 
 (defcvar 'dual_buffers t)
 
@@ -428,11 +429,11 @@
 	(vp-byte 55) (vp-string ".>")
 	(vp-byte 56) (vp-string "/?")
 	(vp-byte 0x64) (vp-string "`~")
-	(vp-byte 40 13 13)		;return
-	(vp-byte 41 27 27)		;escape
-	(vp-byte 42 128 128)	;backspace
-	(vp-byte 43 9 9)		;tab
-	(vp-byte 44 32 32)		;space
+	(vp-byte 40 char_cr char_cr)		;return
+	(vp-byte 41 char_esc char_esc)		;escape
+	(vp-byte 42 char_backspace char_backspace)	;backspace
+	(vp-byte 43 char_tab char_tab)		;tab
+	(vp-byte 44 char_space char_space)		;space
 	(vp-byte 0xe1 0 0)		;left shift
 	(vp-byte 0xe5 0 0)		;right shift
 	(vp-byte 0x50 0 0)		;left
