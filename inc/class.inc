@@ -312,6 +312,7 @@
 (def-method 'sliceable 'class/class_sliceable)
 (def-method 'error 'class/class_error)
 (def-method 'vdu 'class/class_vdu)
+(def-method 'canvas 'class/class_canvas)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction

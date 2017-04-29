@@ -5,7 +5,6 @@
 (import 'inc/load.inc)
 (import 'inc/font.inc)
 (import 'inc/sdl2.inc)
-(import 'inc/gui.inc)
 
 ;;;;;;;;;;;;;
 ; kernel task
@@ -275,7 +274,7 @@
 		(vpif '(r0 < 1))
 			(vp-cpy-cr 1 r0)
 		(endif)
-		(sdl-delay r0)
+		(sdl-delay '(r0))
 	(loop-end)
 
 	;free any kernel routing table

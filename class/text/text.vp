@@ -121,18 +121,18 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'text 'ref_text '((r4 local_inst)))
+	(f-entry 'text 'ref_text '((r4 local_this)))
 
 	;reference the string
 	(vp-cpy-ir r0 text_string r0)
 	(f-call 'string 'ref_if '(r0) '(r1))
 
-	(f-exit 'text 'ref_text '((r4 local_inst) r1))
+	(f-exit 'text 'ref_text '((r4 local_this) r1))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -184,17 +184,17 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'text 'set_font '((r4 local_inst) r1 r2))
+	(f-entry 'text 'set_font '((r4 local_this) r1 r2))
 
 	;open font
 	(f-call 'gui_font 'open '(r1 r2) '(r0))
 
-	(vp-cpy-ir r4 local_inst r1)
+	(vp-cpy-ir r4 local_this r1)
 	(vp-cpy-ri r0 r1 text_font)
 
 	(f-exit 'text 'set_font '(r1))
@@ -211,19 +211,19 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(long 'string)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'text 'set_text '((r4 local_inst) (r4 local_string)))
+	(f-entry 'text 'set_text '((r4 local_this) (r4 local_string)))
 
 	;deref the old string and words
 	(vp-cpy-ir r0 text_string r0)
 	(vpif '(r0 != 0))
 		(f-call 'string 'deref '(r0))
-		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r4 local_this r0)
 		(vp-cpy-ir r0 text_words r1)
 		(vp-xor-rr r2 r2)
 		(vp-cpy-ri r2 r0 text_words)
@@ -231,12 +231,12 @@
 	(endif)
 
 	;transfer reference to new string
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-cpy-ir r4 local_string r1)
 	(vp-cpy-ri r1 r0 text_string)
 	(vpif '(r1 != 0))
 		(f-call 'string 'split '(r1 32) '(_ r1))
-		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r4 local_this r0)
 		(vp-cpy-ri r1 r0 text_words)
 	(endif)
 

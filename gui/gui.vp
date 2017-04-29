@@ -1,5 +1,4 @@
 (import 'inc/func.inc)
-(import 'inc/gui.inc)
 (import 'inc/task.inc)
 (import 'inc/heap.inc)
 (import 'inc/sdl2.inc)
@@ -288,21 +287,21 @@
 	(vpif '(r1 == 0))
 		;init sdl2
 		(sdl-set-main-ready)
-		(sdl-init SDL_INIT_VIDEO)
+		(sdl-init '(SDL_INIT_VIDEO))
 		(ttf-init)
 
 		;create window
-		(sdl-create-window '($ title) SDL_WINDOWPOS_UNDEFINED SDL_WINDOWPOS_UNDEFINED SCREEN_WIDTH SCREEN_HEIGHT SDL_WINDOW_OPENGL)
+		(sdl-create-window '(($ title) SDL_WINDOWPOS_UNDEFINED SDL_WINDOWPOS_UNDEFINED SCREEN_WIDTH SCREEN_HEIGHT SDL_WINDOW_OPENGL))
 		(f-bind 'gui_gui 'statics r1)
 		(vp-cpy-ri r0 r1 gui_statics_window)
 
 		;create renderer
-		(sdl-create-renderer r0 -1 (bit-or SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+		(sdl-create-renderer '(r0 -1 (bit-or SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC)))
 		(f-bind 'gui_gui 'statics r1)
 		(vp-cpy-ri r0 r1 gui_statics_renderer)
 
 		;set blend mode
-		(sdl-set-render-draw-blend-mode r0 SDL_BLENDMODE_BLEND)
+		(sdl-set-render-draw-blend-mode '(r0 SDL_BLENDMODE_BLEND))
 	(endif)
 
 	;update screen
@@ -316,13 +315,13 @@
 		(vp-cpy-ir r4 klocal_user r0)
 		(vp-lea-i r0 local_x_pos r1)
 		(vp-lea-i r0 local_y_pos r2)
-		(sdl-get-mouse-state r1 r2)
+		(sdl-get-mouse-state '(r1 r2))
 		(vp-cpy-ir r4 klocal_user r1)
 		(vp-cpy-ri r0 r1 local_buttons)
 
 		;get keyboard state
 		(vp-add-cr local_keymap_size r1)
-		(sdl-get-keyboard-state r1)
+		(sdl-get-keyboard-state '(r1))
 		(vp-cpy-ir r4 klocal_user r1)
 		(vp-cpy-ri r0 r1 local_keymap)
 
@@ -332,7 +331,7 @@
 
 		;refresh the window
 		(f-bind 'gui_gui 'statics r0)
-		(sdl-render-present '(r0 gui_statics_renderer))
+		(sdl-render-present '((r0 gui_statics_renderer)))
 	(endif)
 
 	(vp-cpy-ir r4 klocal_old_stack r4)
@@ -368,7 +367,7 @@
 		(vp-cpy-rr r4 r15)
 		(vp-and-cr -16 r4)
 
-		(sdl-destroy-window r14)
+		(sdl-destroy-window '(r14))
 		(ttf-quit)
 		(sdl-quit)
 
@@ -561,7 +560,7 @@
 
 (vp-label 'visible_up_callback)
 	(def-struct 'vis)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'root)
 		(ptr 'next)
 		(ptr 'region)
@@ -569,7 +568,7 @@
 
 	;save inputs
 	(vp-sub-cr vis_size r4)
-	(vp-cpy-ri r0 r4 vis_inst)
+	(vp-cpy-ri r0 r4 vis_this)
 	(vp-cpy-ri r1 r4 vis_root)
 
 	;region heap
@@ -577,7 +576,7 @@
 	(vp-add-cr gui_statics_rect_heap r0)
 
 	;remove opaque region from ancestors if not root
-	(vp-cpy-ir r4 vis_inst r1)
+	(vp-cpy-ir r4 vis_this r1)
 	(vp-cpy-ir r4 vis_root r2)
 	(vpif '(r1 != r2))
 		;remove my opaque region from ancestors
@@ -597,7 +596,7 @@
 		(f-call 'gui_region 'copy_rect '(r0 r1 r2 r8 r9 r10 r11) '(r0))
 
 		;remove from ancestors
-		(vp-cpy-ir r4 vis_inst r1)
+		(vp-cpy-ir r4 vis_this r1)
 		(loop-start)
 			(vp-cpy-ir r1 view_parent r2)
 			(vp-cpy-ri r2 r4 vis_next)
@@ -632,7 +631,7 @@
 	(endif)
 
 	;clip local dirty region with parent bounds if not root
-	(vp-cpy-ir r4 vis_inst r1)
+	(vp-cpy-ir r4 vis_this r1)
 	(vp-cpy-ir r1 view_parent r2)
 	(vp-cpy-ir r4 vis_root r3)
 	(vpif '(r1 == r3))
@@ -647,7 +646,7 @@
 	(f-call 'gui_region 'clip_rect '(r0 r1 r8 r9 r10 r11) '(r0))
 
 	;paste local dirty region onto parent if not root
-	(vp-cpy-ir r4 vis_inst r1)
+	(vp-cpy-ir r4 vis_this r1)
 	(vp-cpy-ir r4 vis_root r3)
 	(vpif '(r1 != r3))
 		(assign '((r1 view_x i) (r1 view_y i)) '(r8 r9))
@@ -657,25 +656,25 @@
 		(f-call 'gui_region 'paste_region '(r0 r1 r2 r8 r9) '(r0))
 
 		;free local dirty region
-		(vp-cpy-ir r4 vis_inst r1)
+		(vp-cpy-ir r4 vis_this r1)
 		(vp-add-cr view_dirty_region r1)
 		(f-call 'gui_region 'free '(r0 r1))
 	(endif)
 
-	(vp-cpy-ir r4 vis_inst r0)
+	(vp-cpy-ir r4 vis_this r0)
 	(vp-add-cr vis_size r4)
 	(vp-ret)
 
 (vp-label 'distribute_down_callback)
 	(def-struct 'dist)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'data)
 		(ptr 'next)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr dist_size r4)
-	(vp-cpy-ri r0 r4 dist_inst)
+	(vp-cpy-ri r0 r4 dist_this)
 	(vp-cpy-ri r1 r4 dist_data)
 
 	;region heap
@@ -683,7 +682,7 @@
 	(vp-add-cr gui_statics_rect_heap r0)
 
 	;copy view from parent if not root
-	(vp-cpy-ir r4 dist_inst r2)
+	(vp-cpy-ir r4 dist_this r2)
 	(vp-cpy-ir r1 local_root r3)
 	(vpif '(r2 != r3))
 		;copy my area from parent
@@ -696,16 +695,16 @@
 		(f-call 'gui_region 'copy_rect '(r0 r1 r2 r8 r9 r10 r11) '(r0))
 
 		;did we find any
-		(vp-cpy-ir r4 dist_inst r1)
+		(vp-cpy-ir r4 dist_this r1)
 		(vp-cpy-ir r1 view_dirty_region r1)
 		(vpif '(r1 != 0))
 			;remove my opaque region from ancestors
-			(vp-cpy-ir r4 dist_inst r2)
+			(vp-cpy-ir r4 dist_this r2)
 			(loop-start)
 				(vp-cpy-ir r2 view_parent r2)
 				(vp-cpy-ri r2 r4 dist_next)
 
-				(vp-cpy-ir r4 dist_inst r1)
+				(vp-cpy-ir r4 dist_this r1)
 				(assign '((r1 view_ctx_x i) (r1 view_ctx_y i)) '(r8 r9))
 				(vp-add-cr view_opaque_region r1)
 				(vp-add-cr view_dirty_region r2)
@@ -719,7 +718,7 @@
 	(endif)
 
 	;r1 will be 0 or not depending on haveing any dirty region
-	(vp-cpy-ir r4 dist_inst r0)
+	(vp-cpy-ir r4 dist_this r0)
 	(vp-add-cr dist_size r4)
 	(vp-ret)
 

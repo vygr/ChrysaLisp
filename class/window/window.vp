@@ -151,12 +151,12 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'window 'layout '((r4 local_inst)))
+	(f-entry 'window 'layout '((r4 local_this)))
 
 	(vp-cpy-ir-i r0 view_w r10)
 	(vp-cpy-ir-i r0 view_h r11)
@@ -164,7 +164,7 @@
 	(vp-sub-cr (mul window_border_size 2) r11)
 	(f-call 'flow 'change '((r0 window_flow) window_border_size window_border_size r10 r11))
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-cpy-ir-ui r0 view_color r1)
 	(vp-shr-cr 24 r1)
 	(vpif '(r1 == 0xff))
@@ -227,7 +227,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'event)
 		(int 'old_x)
 		(int 'old_y)
@@ -235,7 +235,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'window 'mouse_move '((r4 local_inst) (r4 local_event)))
+	(f-entry 'window 'mouse_move '((r4 local_this) (r4 local_event)))
 
 	;dirty old area
 	(f-call 'window 'dirty '(r0))
@@ -326,7 +326,7 @@
 	(vp-lea-i r0 view_dirty_region r1)
 	(f-call 'gui_region 'translate '(r1 r8 r9))
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-add-cr local_size r4)
 	(f-jmp 'window 'dirty_all '(r0))
 
@@ -342,18 +342,18 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'window 'pref_size '((r4 local_inst)))
+	(f-entry 'window 'pref_size '((r4 local_this)))
 
 	(v-call 'flow 'pref_size '((r0 window_flow)) '(_ r10 r11))
 	(vp-add-cr (mul window_border_size 2) r10)
 	(vp-add-cr (mul window_border_size 2) r11)
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -365,12 +365,12 @@
 	;r1 = 0, else status string object
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_inst)))
+	(assign '(r0) '((r4 local_this)))
 
 	(vp-cpy-ir r0 window_status r0)
 	(vpif '(r0 != 0))
@@ -378,7 +378,7 @@
 		(f-call 'label 'dirty '(r0))
 	(endif)
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -390,16 +390,16 @@
 	;r1 = 0, else title string object
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_inst)))
+	(assign '(r0) '((r4 local_this)))
 
 	(f-call 'title 'set_text '((r0 window_title) r1))
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -416,19 +416,19 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'obj)
 		(ptr 'callback)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1 r2) '((r4 local_inst) (r4 local_obj) (r4 local_callback)))
+	(assign '(r0 r1 r2) '((r4 local_this) (r4 local_obj) (r4 local_callback)))
 
 	(f-call 'button 'sig_pressed '((r0 window_close)) '(_ r1))
 	(f-call 'button 'connect '(r0 r1 (r4 local_obj) (r4 local_callback)))
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -445,19 +445,19 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'obj)
 		(ptr 'callback)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1 r2) '((r4 local_inst) (r4 local_obj) (r4 local_callback)))
+	(assign '(r0 r1 r2) '((r4 local_this) (r4 local_obj) (r4 local_callback)))
 
 	(f-call 'button 'sig_pressed '((r0 window_max)) '(_ r1))
 	(f-call 'button 'connect '(r0 r1 (r4 local_obj) (r4 local_callback)))
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -474,19 +474,19 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'obj)
 		(ptr 'callback)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r1 r2) '((r4 local_inst) (r4 local_obj) (r4 local_callback)))
+	(assign '(r0 r1 r2) '((r4 local_this) (r4 local_obj) (r4 local_callback)))
 
 	(f-call 'button 'sig_pressed '((r0 window_min)) '(_ r1))
 	(f-call 'button 'connect '(r0 r1 (r4 local_obj) (r4 local_callback)))
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 

@@ -67,12 +67,12 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_inst)
+	(vp-cpy-ri r0 r4 local_this)
 
 	(vp-cpy-cr button_border_size r8)
 	(vp-cpy-ir-i r0 view_w r10)
@@ -86,7 +86,7 @@
 	(endif)
 	(f-call 'flow 'change '((r0 label_flow) r8 r8 r10 r11))
 
-	(f-call 'button 'opaque '((r4 local_inst)))
+	(f-call 'button 'opaque '((r4 local_this)))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 

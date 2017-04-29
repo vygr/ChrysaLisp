@@ -29,3 +29,4 @@
 (import 'class/vector/make.inc)
 (import 'class/view/make.inc)
 (import 'class/window/make.inc)
+(import 'class/canvas/make.inc)

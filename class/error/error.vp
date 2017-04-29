@@ -20,25 +20,25 @@
 	;r1-r3, r5-r7
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r2 r3 r5 r6) '((r4 local_inst) (r0 error_description) (r0 error_file) (r0 error_object) (r0 error_line)))
+	(assign '(r0 r2 r3 r5 r6) '((r4 local_this) (r0 error_description) (r0 error_file) (r0 error_object) (r0 error_line)))
 
 	;init parent
 	(s-call 'error 'init '(r0 r1) '(_ r1))
 	(vpif '(r1 != 0))
 		;init self
 		(f-call 'string 'create_from_cstr '((r0 error_description)) '(r0))
-		(vp-cpy-ir r4 local_inst r1)
+		(vp-cpy-ir r4 local_this r1)
 		(vp-cpy-ri r0 r1 error_description)
 		(f-call 'string 'create_from_cstr '((r1 error_file)) '(r0))
-		(vp-cpy-ir r4 local_inst r1)
+		(vp-cpy-ir r4 local_this r1)
 		(vp-cpy-ri r0 r1 error_file)
 		(f-call 'ref 'ref '((r1 error_object)))
-		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r4 local_this r0)
 	(endif)
 
 	(vp-add-cr local_size r4)

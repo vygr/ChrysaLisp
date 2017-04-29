@@ -1,6 +1,5 @@
 (import 'inc/func.inc)
 (import 'inc/sdl2.inc)
-(import 'inc/gui.inc)
 
 (def-func 'gui/ctx_blit)
 	;inputs
@@ -55,7 +54,7 @@
 	(vp-and-cr 0xff r3)
 	(vp-and-cr 0xff r2)
 	(vp-and-cr 0xff r1)
-	(sdl-set-texture-color-mod '(r4 local_texture) r3 r2 r1)
+	(sdl-set-texture-color-mod '((r4 local_texture) r3 r2 r1))
 
 	;for each rect on the dirty region
 	(vp-cpy-ir r4 local_ctx r0)
@@ -87,11 +86,11 @@
 		(vp-cpy-ri-i r10 r4 (add local_clip_rect sdl_rect_w))
 		(vp-cpy-ri-i r11 r4 (add local_clip_rect sdl_rect_h))
 		(vp-cpy-ir r4 local_ctx r0)
-		(sdl-render-set-clip-rect '(r0 gui_ctx_sdl_ctx) '(& r4 local_clip_rect))
+		(sdl-render-set-clip-rect '((r0 gui_ctx_sdl_ctx) (& r4 local_clip_rect)))
 
 		;blit the texture
 		(vp-cpy-ir r4 local_ctx r0)
-		(sdl-render-copy '(r0 gui_ctx_sdl_ctx) '(r4 local_texture) '(& r4 local_srect) '(& r4 local_drect))
+		(sdl-render-copy '((r0 gui_ctx_sdl_ctx) (r4 local_texture) (& r4 local_srect) (& r4 local_drect)))
 
 		(vp-cpy-ir r4 local_dirty_rect r0)
 	(loop-end)
@@ -165,11 +164,11 @@
 		(vp-cpy-ri-i r10 r4 (add local_clip_rect sdl_rect_w))
 		(vp-cpy-ri-i r11 r4 (add local_clip_rect sdl_rect_h))
 		(vp-cpy-ir r4 local_ctx r0)
-		(sdl-render-set-clip-rect '(r0 gui_ctx_sdl_ctx) '(& r4 local_clip_rect))
+		(sdl-render-set-clip-rect '((r0 gui_ctx_sdl_ctx) (& r4 local_clip_rect)))
 
 		;draw the rectangle
 		(vp-cpy-ir r4 local_ctx r0)
-		(sdl-render-draw-rect '(r0 gui_ctx_sdl_ctx) '(& r4 local_rect))
+		(sdl-render-draw-rect '((r0 gui_ctx_sdl_ctx) (& r4 local_rect)))
 
 		(vp-cpy-ir r4 local_dirty_rect r0)
 	(loop-end)
@@ -280,11 +279,11 @@
 		(vp-cpy-ri-i r10 r4 (add local_clip_rect sdl_rect_w))
 		(vp-cpy-ri-i r11 r4 (add local_clip_rect sdl_rect_h))
 		(vp-cpy-ir r4 local_ctx r0)
-		(sdl-render-set-clip-rect '(r0 gui_ctx_sdl_ctx) '(& r4 local_clip_rect))
+		(sdl-render-set-clip-rect '((r0 gui_ctx_sdl_ctx) (& r4 local_clip_rect)))
 
 		;draw the rectangle
 		(vp-cpy-ir r4 local_ctx r0)
-		(sdl-render-fill-rect '(r0 gui_ctx_sdl_ctx) '(& r4 local_rect))
+		(sdl-render-fill-rect '((r0 gui_ctx_sdl_ctx) (& r4 local_rect)))
 
 		(vp-cpy-ir r4 local_dirty_rect r0)
 	(loop-end)
@@ -440,7 +439,7 @@
 	(vp-and-cr 0xff r9)
 	(vp-and-cr 0xff r10)
 	(vp-and-cr 0xff r11)
-	(sdl-set-render-draw-color '(r0 gui_ctx_sdl_ctx) r8 r9 r10 r11)
+	(sdl-set-render-draw-color '((r0 gui_ctx_sdl_ctx) r8 r9 r10 r11))
 
 	(vp-cpy-ir r4 local_old_stack r4)
 	(vp-ret)

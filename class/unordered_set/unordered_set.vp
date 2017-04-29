@@ -18,12 +18,12 @@
 	;r2-r3, r5-r8
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'unordered_set 'init '((r4 local_inst) r1 (r0 unordered_set_key_callback) (r0 unordered_set_num_buckets i)))
+	(f-entry 'unordered_set 'init '((r4 local_this) r1 (r0 unordered_set_key_callback) (r0 unordered_set_num_buckets i)))
 
 	;init parent
 	(s-call 'unordered_set 'init '(r0 r1) '(r0 r1))
@@ -32,7 +32,7 @@
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri-i r1 r0 unordered_set_length)
 		(f-call 'vector 'create '() '(r0))
-		(vp-cpy-ir r4 local_inst r1)
+		(vp-cpy-ir r4 local_this r1)
 		(vp-cpy-ri r0 r1 unordered_set_buckets)
 		(vp-cpy-ir-ui r1 unordered_set_num_buckets r1)
 		(vpif '(r1 != 1))
@@ -41,7 +41,7 @@
 			(f-call 'vector 'for_each '(r0 0 (r0 vector_length ui) ($ callback) 0) '(_ r1))
 			(vp-add-cr 1 r1)
 		(endif)
-		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r4 local_this r0)
 	(endif)
 
 	(vp-add-cr local_size r4)
@@ -156,14 +156,14 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'iter)
 		(ptr 'bucket)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'unordered_set 'erase '((r4 local_inst) (r4 local_iter) (r4 local_bucket)))
+	(f-entry 'unordered_set 'erase '((r4 local_this) (r4 local_iter) (r4 local_bucket)))
 
 	(vp-cpy-ir-ui r0 unordered_set_length r2)
 	(vp-sub-cr 1 r2)
@@ -184,7 +184,7 @@
 		(vp-cpy-ri r1 r0 0)
 	(endif)
 
-	(f-exit 'unordered_set 'erase '((r4 local_inst)))
+	(f-exit 'unordered_set 'erase '((r4 local_this)))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -202,19 +202,19 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'key)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'unordered_set 'find '((r4 local_inst) (r4 local_key)))
+	(f-entry 'unordered_set 'find '((r4 local_this) (r4 local_key)))
 
 	;search hash bucket
 	(f-call 'unordered_set 'get_bucket '(r0 r1) '(_ r0))
 	(f-call 'vector 'for_each '(r0 0 (r0 vector_length ui) ($ callback) r4) '(r2 r1))
 
-	(f-exit 'unordered_set 'find '((r4 local_inst) r1 r2))
+	(f-exit 'unordered_set 'find '((r4 local_this) r1 r2))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -226,7 +226,7 @@
 	;r1 = 0 if break, else not
 
 	(vp-cpy-ir r1 0 r1)
-	(vp-cpy-ir r0 local_inst r2)
+	(vp-cpy-ir r0 local_this r2)
 	(vp-cpy-ir r0 local_key r0)
 	(vp-jmp-i r2 unordered_set_key_callback)
 
@@ -253,7 +253,7 @@
 		;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'predicate)
 		(ptr 'predicate_data)
 		(ptr 'iter)
@@ -261,7 +261,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'unordered_set 'for_each '((r4 local_inst) r1 r2))
+	(f-entry 'unordered_set 'for_each '((r4 local_this) r1 r2))
 
 	;for all buckets
 	(vp-cpy-ir-ui r0 unordered_set_num_buckets r3)
@@ -280,7 +280,7 @@
 		(endif)
 	(endif)
 
-	(f-exit 'unordered_set 'for_each '((r4 local_inst) r1 r2))
+	(f-exit 'unordered_set 'for_each '((r4 local_this) r1 r2))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -317,7 +317,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(uint 'length)
 	(def-struct-end)
 
@@ -326,16 +326,16 @@
 	(vpif '(r2 != 1))
 		;save inputs
 		(vp-sub-cr local_size r4)
-		(assign '(r0 r2) '((r4 local_inst) (r4 local_length i)))
+		(assign '(r0 r2) '((r4 local_this) (r4 local_length i)))
 
 		(v-call 'obj 'hash '(r1) '(_ r0))
 		(vp-cpy-ir-ui r4 local_length r1)
 		(vp-xor-rr r2 r2)
 		(vp-div-rrr-u r1 r2 r0)
-		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r4 local_this r0)
 		(f-call 'vector 'get_element '((r0 unordered_set_buckets) r2) '(_ r1))
 
-		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r4 local_this r0)
 		(vp-add-cr local_size r4)
 	(else)
 		(vp-cpy-ir r0 unordered_set_buckets r1)
@@ -368,13 +368,13 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'key)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'unordered_set 'insert '((r4 local_inst) (r4 local_key)))
+	(f-entry 'unordered_set 'insert '((r4 local_this) (r4 local_key)))
 
 	;search hash bucket
 	(f-call 'unordered_set 'get_bucket '(r0 r1) '(_ r0))
@@ -382,7 +382,7 @@
 	(vp-cpy-rr r0 r2)
 	(vpif '(r1 == 0))
 		;new key
-		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r4 local_this r0)
 		(vp-cpy-ir-ui r0 unordered_set_length r1)
 		(vp-add-cr 1 r1)
 		(vp-cpy-ri-i r1 r0 unordered_set_length)
@@ -396,7 +396,7 @@
 		(vp-lea-i r0 (neg ptr_size) r1)
 	(endif)
 
-	(f-exit 'unordered_set 'insert '((r4 local_inst) r1 r2))
+	(f-exit 'unordered_set 'insert '((r4 local_this) r1 r2))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -408,7 +408,7 @@
 	;r1 = 0 if break, else not
 
 	(vp-cpy-ir r1 0 r1)
-	(vp-cpy-ir r0 local_inst r2)
+	(vp-cpy-ir r0 local_this r2)
 	(vp-cpy-ir r0 local_key r0)
 	(vp-jmp-i r2 unordered_set_key_callback)
 

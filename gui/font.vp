@@ -2,7 +2,6 @@
 (import 'inc/font.inc)
 (import 'inc/string.inc)
 (import 'inc/sdl2.inc)
-(import 'inc/gui.inc)
 (import 'class/string/string.inc)
 
 (def-func 'gui/font_statics)
@@ -51,7 +50,7 @@
 		(loop-flist-forward r10 0 r14 r13)
 			(vp-cpy-rr r14 r12)
 			(ln-remove-fnode r14 r13)
-			(sdl-destroy-texture '(r12 ft_text_texture))
+			(sdl-destroy-texture '((r12 ft_text_texture)))
 			(f-call 'sys_mem 'free '(r12))
 		(loop-end)
 		(vp-add-cr ptr_size r10)
@@ -61,7 +60,7 @@
 	(loop-flist-forward r15 ft_statics_font_flist r14 r13)
 		(vp-cpy-rr r14 r12)
 		(ln-remove-fnode r14 r13)
-		(ttf-close-font '(r12 ft_font_handle))
+		(ttf-close-font '((r12 ft_font_handle)))
 		(f-call 'sys_mem 'free '(r12))
 	(loop-end)
 
@@ -160,7 +159,7 @@
 	;did we find it ?
 	(vp-cpy-rr r5 r0)
 	(vpif '(r5 == 0))
-		(ttf-open-font '(r14 local_font) '(r14 local_points))
+		(ttf-open-font '((r14 local_font) (r14 local_points)))
 		(vpif '(r0 != 0))
 			(vp-cpy-rr r0 r5)
 			(f-call 'sys_string 'length '((r14 local_font)) '(_ r1))
@@ -172,11 +171,11 @@
 			(f-call 'sys_string 'copy '((r14 local_font) (& r13 ft_font_name)))
 
 			;fill in ascent, descent and height
-			(ttf-font-ascent '(r13 ft_font_handle))
+			(ttf-font-ascent '((r13 ft_font_handle)))
 			(vp-cpy-ri r0 r13 ft_font_ascent)
-			(ttf-font-descent '(r13 ft_font_handle))
+			(ttf-font-descent '((r13 ft_font_handle)))
 			(vp-cpy-ri r0 r13 ft_font_descent)
-			(ttf-font-height '(r13 ft_font_handle))
+			(ttf-font-height '((r13 ft_font_handle)))
 			(vp-cpy-ri r0 r13 ft_font_height)
 
 			(vp-cpy-rr r13 r0)
@@ -265,7 +264,7 @@
 	(vp-cpy-rr r0 r14)
 
 	(vp-cpy-ir r14 local_font r0)
-	(ttf-render-utf8-blended '(r0 ft_font_handle) '(r14 local_text) 0xffffff)
+	(ttf-render-utf8-blended '((r0 ft_font_handle) (r14 local_text) 0xffffff))
 	(vpif '(r0 != 0))
 		(vp-cpy-ri r0 r14 local_surface)
 		(vp-cpy-ir-ui r0 sdl_surface_w r10)
@@ -275,7 +274,7 @@
 
 		;create texture
 		(f-bind 'gui_gui 'statics r0)
-		(sdl-create-texture-from-surface '(r0 gui_statics_renderer) '(r14 local_surface))
+		(sdl-create-texture-from-surface '((r0 gui_statics_renderer) (r14 local_surface)))
 		(vpif '(r0 != 0))
 			(vp-cpy-rr r0 r5)
 
@@ -294,14 +293,14 @@
 			(vp-cpy-ri r11 r13 ft_text_height)
 
 			;texture blend mode
-			(sdl-set-texture-blend-mode '(r13 ft_text_texture) SDL_BLENDMODE_BLEND)
+			(sdl-set-texture-blend-mode '((r13 ft_text_texture) SDL_BLENDMODE_BLEND))
 
 			(vp-cpy-rr r13 r0)
 			(vp-cpy-ir r14 local_bucket r5)
 			(ln-add-fnode r5 0 r0 r1)
 		(endif)
 		(vp-cpy-ri r0 r14 local_handle)
-		(sdl-free-surface '(r14 local_surface))
+		(sdl-free-surface '((r14 local_surface)))
 		(vp-cpy-ir r14 local_handle r0)
 	(endif)
 	(vp-cpy-ri r0 r14 local_handle)

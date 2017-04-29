@@ -54,18 +54,18 @@
 
 	(def-struct 'local)
 		(ptr 'obj)	;must be first
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'unordered_map 'copy '((r4 local_inst) r1))
+	(f-entry 'unordered_map 'copy '((r4 local_this) r1))
 
 	(f-call 'unordered_map 'create '((r0 unordered_set_key_callback) r1) '((r4 local_obj)))
-	(f-call 'unordered_map 'get_parent '((r4 local_inst)) '(_ r2))
+	(f-call 'unordered_map 'get_parent '((r4 local_this)) '(_ r2))
 	(f-call 'ref 'ref_if '(r2))
 	(f-call 'unordered_map 'set_parent '((r4 local_obj) r2))
-	(f-call 'unordered_map 'for_each '((r4 local_inst) ($ callback) r4))
+	(f-call 'unordered_map 'for_each '((r4 local_this) ($ callback) r4))
 	(vp-cpy-ir r4 local_obj r1)
 	(vp-cpy-ir-ui r0 unordered_set_length r2)
 	(vp-cpy-ri-i r2 r1 unordered_set_length)
@@ -101,19 +101,19 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'key)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'unordered_map 'find '((r4 local_inst) (r4 local_key)))
+	(f-entry 'unordered_map 'find '((r4 local_this) (r4 local_key)))
 
 	;search hash bucket
 	(f-call 'unordered_map 'get_bucket '(r0 r1) '(_ r0))
 	(f-call 'vector 'for_each '(r0 0 (r0 vector_length ui) ($ callback) r4) '(r2 r1))
 
-	(f-exit 'unordered_map 'find '((r4 local_inst) r1 r2))
+	(f-exit 'unordered_map 'find '((r4 local_this) r1 r2))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -126,7 +126,7 @@
 
 	(vp-cpy-ir r1 0 r1)
 	(vp-cpy-ir r1 pair_first r1)
-	(vp-cpy-ir r0 local_inst r2)
+	(vp-cpy-ir r0 local_this r2)
 	(vp-cpy-ir r0 local_key r0)
 	(vp-jmp-i r2 unordered_set_key_callback)
 
@@ -145,7 +145,7 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'key)
 		(ptr 'value)
 		(ptr 'iter)
@@ -155,7 +155,7 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'unordered_map 'insert '((r4 local_inst) (r4 local_key) (r4 local_value)))
+	(f-entry 'unordered_map 'insert '((r4 local_this) (r4 local_key) (r4 local_value)))
 
 	;search hash bucket
 	(f-call 'unordered_map 'get_bucket '(r0 r1) '(_ r0))
@@ -163,7 +163,7 @@
 	(vp-cpy-ri r0 r4 local_bucket)
 	(vpif '(r1 == 0))
 		;new key
-		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r4 local_this r0)
 		(vp-cpy-ir-ui r0 unordered_set_length r1)
 		(vp-add-cr 1 r1)
 		(vp-cpy-ri-i r1 r0 unordered_set_length)
@@ -191,7 +191,7 @@
 		(vp-cpy-ir r4 local_bucket r2)
 	(endif)
 
-	(f-exit 'unordered_map 'insert '((r4 local_inst) r1 r2))
+	(f-exit 'unordered_map 'insert '((r4 local_this) r1 r2))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -204,7 +204,7 @@
 
 	(vp-cpy-ir r1 0 r1)
 	(vp-cpy-ir r1 pair_first r1)
-	(vp-cpy-ir r0 local_inst r2)
+	(vp-cpy-ir r0 local_this r2)
 	(vp-cpy-ir r0 local_key r0)
 	(vp-jmp-i r2 unordered_set_key_callback)
 
@@ -220,16 +220,16 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'obj)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'unordered_map 'set_parent '((r4 local_inst) (r4 local_obj)))
+	(f-entry 'unordered_map 'set_parent '((r4 local_this) (r4 local_obj)))
 
 	(f-call 'ref 'deref_if '((r0 unordered_map_parent)))
-	(assign '((r4 local_inst) (r4 local_obj)) '(r0 r1))
+	(assign '((r4 local_this) (r4 local_obj)) '(r0 r1))
 	(vp-cpy-ri r1 r0 unordered_map_parent)
 
 	(vp-add-cr local_size r4)

@@ -163,7 +163,7 @@
 	;r1 = 0 if error, else ok
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(long 'data)
 		(long 'length)
 	(def-struct-end)
@@ -175,7 +175,7 @@
 	;init parent
 	(s-call 'string 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
-		(vp-cpy-ri r0 r4 local_inst)
+		(vp-cpy-ri r0 r4 local_this)
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
 
@@ -192,7 +192,7 @@
 		(vp-xor-rr r0 r0)
 		(vp-cpy-ri-b r0 r1 0)
 
-		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r4 local_this r0)
 	(endif)
 
 	(vp-add-cr local_size r4)
@@ -210,7 +210,7 @@
 	;r1 = 0 if error, else ok
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(long 'string1)
 		(long 'string2)
 	(def-struct-end)
@@ -223,7 +223,7 @@
 	(s-call 'string 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
-		(vp-cpy-ri r0 r4 local_inst)
+		(vp-cpy-ri r0 r4 local_this)
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
 
@@ -238,7 +238,7 @@
 		(vp-add-cr byte_size r2)
 		(f-call 'sys_mem 'copy '((& r7 string_data) r1 r2))
 
-		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r4 local_this r0)
 	(endif)
 
 	(vp-add-cr local_size r4)
@@ -256,7 +256,7 @@
 	;r1 = 0 if error, else ok
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(long 'filename)
 	(def-struct-end)
 
@@ -268,7 +268,7 @@
 	(s-call 'string 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
-		(vp-cpy-ri r0 r4 local_inst)
+		(vp-cpy-ri r0 r4 local_this)
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
 
@@ -280,7 +280,7 @@
 		(vp-cpy-rr r0 r7)
 
 		;read into buffer
-		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r4 local_this r0)
 		(vp-cpy-ir-ui r0 string_length r1)
 		(vp-add-cr string_data r0)
 		(vp-xor-rr r2 r2)
@@ -294,7 +294,7 @@
 		(sys-close '(r7) '(_))
 		(sys-pop-trashed)
 
-		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r4 local_this r0)
 		(vp-cpy-rr r0 r1)
 	(endif)
 	(vp-add-cr local_size r4)
@@ -311,7 +311,7 @@
 	;r1 = 0 if error, else ok
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'vector)
 		(ptr 'next)
 	(def-struct-end)
@@ -324,7 +324,7 @@
 	(s-call 'string 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
-		(vp-cpy-ri r0 r4 local_inst)
+		(vp-cpy-ri r0 r4 local_this)
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
 
@@ -335,7 +335,7 @@
 
 		(vp-cpy-ir r4 local_next r2)
 		(vp-cpy-ri-b r1 r2 0)
-		(vp-cpy-ir r4 local_inst r0)
+		(vp-cpy-ir r4 local_this r0)
 		(vp-lea-i r0 string_data r3)
 		(vp-sub-rr r3 r2)
 		(vp-cpy-ri-i r2 r0 string_length)

@@ -159,13 +159,13 @@
 		;but it could filter or adjust them for fancy reasons !
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'next)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'component 'emit '((r4 local_inst) r1))
+	(f-entry 'component 'emit '((r4 local_this) r1))
 
 	;emit the signal
 	(loop-list-forward r1 0 r0 r1)
@@ -174,14 +174,14 @@
 		;call method on target component object
 		(vp-cpy-ir r0 gui_sigslot_addr r15)
 		(vp-cpy-ir r0 gui_sigslot_inst r0)
-		(vp-cpy-ir r4 local_inst r1)
+		(vp-cpy-ir r4 local_this r1)
 		(vp-call-r r15)
 
 		(vp-cpy-ir r4 local_next r1)
 	(loop-end)
 
 	;restore this
-	(f-exit 'component 'emit '((r4 local_inst)))
+	(f-exit 'component 'emit '((r4 local_this)))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 

@@ -97,12 +97,12 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_inst)))
+	(assign '(r0) '((r4 local_this)))
 
 	;paste dirty region
 	(vp-add-rr r8 r10)
@@ -112,7 +112,7 @@
 	(vp-add-cr gui_statics_rect_heap r0)
 	(f-call 'gui_region 'paste_rect '(r0 r1 r8 r9 r10 r11))
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -150,12 +150,12 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_inst)))
+	(assign '(r0) '((r4 local_this)))
 
 	;paste opaque region
 	(vp-add-rr r8 r10)
@@ -165,7 +165,7 @@
 	(vp-add-cr gui_statics_rect_heap r0)
 	(f-call 'gui_region 'paste_rect '(r0 r1 r8 r9 r10 r11))
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -188,13 +188,13 @@
 		;r0 = child view object
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'data)
 		(ptr 'callback)
 	(def-struct-end)
 
 	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_inst)
+	(vp-cpy-ri r0 r4 local_this)
 	(vp-cpy-ri r1 r4 local_data)
 	(vp-cpy-ri r2 r4 local_callback)
 
@@ -212,7 +212,7 @@
 		(ln-get-pred r0 view_node r0)
 	(loop-end)
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -237,14 +237,14 @@
 		;r1 = 0 if should not decend after down callback
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'data)
 		(ptr 'down)
 		(ptr 'up)
 	(def-struct-end)
 
 	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_inst)
+	(vp-cpy-ri r0 r4 local_this)
 	(vp-cpy-ri r1 r4 local_data)
 	(vp-cpy-ri r2 r4 local_down)
 	(vp-cpy-ri r3 r4 local_up)
@@ -270,7 +270,7 @@
 		(vp-call-i r4 local_up)
 
 		;back at root ?
-		(vp-cpy-ir r4 local_inst r2)
+		(vp-cpy-ir r4 local_this r2)
 		(breakif '(r0 == r2))
 
 		;across to sibling
@@ -357,18 +357,18 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_inst)
+	(vp-cpy-ri r0 r4 local_this)
 
 	(f-call 'view 'get_bounds '(r0) '(_ r8 r9 r10 r11))
 	(vp-cpy-rr r0 r5)
 	(f-call 'gui_ctx 'panel '(r1 (r5 view_color ui) r2 r3 0 0 r10 r11) '())
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -460,13 +460,13 @@
 		;r0 = child view object
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'data)
 		(ptr 'callback)
 	(def-struct-end)
 
 	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_inst)
+	(vp-cpy-ri r0 r4 local_this)
 	(vp-cpy-ri r1 r4 local_data)
 	(vp-cpy-ri r2 r4 local_callback)
 
@@ -484,7 +484,7 @@
 		(ln-get-succ r0 view_node r0)
 	(loop-end)
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -509,14 +509,14 @@
 		;r1 = 0 if should not decend after down callback
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'data)
 		(ptr 'down)
 		(ptr 'up)
 	(def-struct-end)
 
 	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_inst)
+	(vp-cpy-ri r0 r4 local_this)
 	(vp-cpy-ri r1 r4 local_data)
 	(vp-cpy-ri r2 r4 local_down)
 	(vp-cpy-ri r3 r4 local_up)
@@ -542,7 +542,7 @@
 		(vp-call-i r4 local_up)
 
 		;back at root ?
-		(vp-cpy-ir r4 local_inst r2)
+		(vp-cpy-ir r4 local_this r2)
 		(breakif '(r0 == r2))
 
 		;across to sibling
@@ -687,14 +687,14 @@
 	;r1-r3
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 		(ptr 'hit)
 		(ptr 'jump)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_inst)
+	(vp-cpy-ri r0 r4 local_this)
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 r4 local_hit)
 	(vp-lea-p 'early_ret r1)
@@ -704,7 +704,7 @@
 	(f-call 'view 'forward_tree '(r0 r4 ($ hit_down_callback) ($ hit_up_callback)))
 
 (vp-label 'early_ret)
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-cpy-ir r4 local_hit r1)
 	(vp-add-cr local_size r4)
 	(vp-ret)
@@ -815,12 +815,12 @@
 	;all but r0, r4
 
 	(def-struct 'local)
-		(ptr 'inst)
+		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_inst)))
+	(assign '(r0) '((r4 local_this)))
 
 	;cut opaque region
 	(vp-add-rr r8 r10)
@@ -830,7 +830,7 @@
 	(vp-add-cr gui_statics_rect_heap r0)
 	(f-call 'gui_region 'remove_rect '(r0 r1 r8 r9 r10 r11))
 
-	(vp-cpy-ir r4 local_inst r0)
+	(vp-cpy-ir r4 local_this r0)
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
