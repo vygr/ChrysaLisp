@@ -6,7 +6,8 @@
 (def-method 'init 'class/canvas/init 'static '(r0 r1 r2 r3) '(r0 r1))
 (def-method 'swap 'class/canvas/swap 'static '(r0) '(r0))
 (def-method 'fill 'class/canvas/fill 'static '(r0 r1) '(r0))
-(def-method 'set_pixel 'class/canvas/set_pixel 'static '(r0 r1 r2 r3) '(r0))
+(def-method 'set_clip 'class/canvas/set_clip 'static '(r0 r8 r9 r10 r11) '(r0))
+(def-method 'set_pixel 'class/canvas/set_pixel 'static '(r0 r8 r9 r1) '(r0))
 
 (def-method 'deinit 'class/canvas/deinit 'override)
 (def-method 'pref_size 'class/canvas/pref_size 'override)
@@ -18,4 +19,8 @@
 	(uint 'width)
 	(uint 'height)
 	(uint 'stride)
+	(uint 'cx)
+	(uint 'cy)
+	(uint 'cx1)
+	(uint 'cy1)
 (def-struct-end)
