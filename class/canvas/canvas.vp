@@ -1,0 +1,127 @@
+(import 'inc/func.inc)
+(import 'inc/sdl2.inc)
+(import 'class/text/text.inc)
+(import 'class/canvas/canvas.inc)
+(import 'class/flow/flow.inc)
+
+(gen-new 'canvas)
+(gen-class 'canvas)
+
+(def-func 'class/canvas/create)
+	;inputs
+	;r0 = width
+	;r1 = height
+	;outputs
+	;r0 = 0 if error, else object
+	;trashes
+	;r1-r3, r5-r7
+
+	;save inputs
+	(f-entry 'canvas 'create '(r6 r7))
+
+	;create new object
+	(f-call 'canvas 'new nil '(r0))
+	(vpif '(r0 != 0))
+		;init the object
+		(f-call 'canvas 'init `(r0 (@ ,(f-path 'class 'canvas)) r6 r7) '(r0 r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(v-call 'canvas 'delete '(r0) '() 'r1)
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+
+	(f-exit 'canvas 'create '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/canvas/init)
+	;inputs
+	;r0 = canvas object
+	;r1 = vtable pointer
+	;r2 = width
+	;r3 = height
+	;outputs
+	;r1 = 0 if error, else ok
+
+	;save inputs
+	(f-entry 'canvas 'init '(r0 r1 (r0 canvas_width i) (r0 canvas_height i)))
+
+	;init parent
+	(s-call 'canvas 'init '(r0 r1) '(r0 r1))
+	(vpif '(r1 != 0))
+		(vp-push r0)
+		(vp-xor-rr r2 r2)
+		(vp-cpy-ri r2 r0 canvas_texture)
+
+		;pixel buffer
+		(vp-cpy-ir-ui r0 canvas_width r1)
+		(vp-cpy-ir-ui r0 canvas_height r2)
+		(vp-mul-rr r2 r1)
+		(vp-mul-cr int_size r1)
+		(f-call 'sys_mem 'alloc '(r1) '(r1 _))
+		(vp-pop r0)
+		(vp-cpy-ri r1 r0 canvas_data)
+	(endif)
+
+	(f-exit 'canvas 'init '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/canvas/deinit)
+	;inputs
+	;r0 = canvas object
+
+	(def-struct 'local)
+		(ptr 'this)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(f-entry 'canvas 'deinit '((r4 local_this)))
+
+	;free any pixel buffer
+	(f-call 'sys_mem 'free '((r0 canvas_data)))
+
+	;free any sdl texture
+	(vp-cpy-ir r0 canvas_texture r1)
+	(vpif '(r1 != 0))
+		(sdl-destroy-texture '(r1))
+	(endif)
+
+	;parent deinit
+	(vp-cpy-ir r4 local_this r0)
+	(vp-add-cr local_size r4)
+	(s-jmp 'canvas 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/canvas/draw)
+	;inputs
+	;r0 = view object
+	;r1 = ctx object
+	;trashes
+	;all but r0, r4
+
+	(f-entry 'canvas 'draw '(r0 r1))
+	(f-exit 'canvas 'draw '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/canvas/pref_size)
+	;inputs
+	;r0 = canvas object
+	;outputs
+	;r10 = prefered width
+	;r11 = prefered height
+	;trashes
+	;all but r0, r4
+
+	(f-entry 'canvas 'pref_size '(r0))
+	(f-exit 'canvas 'pref_size '(r0 (r0 canvas_width ui) (r0 canvas_height ui)))
+	(vp-ret)
+
+(def-func-end)

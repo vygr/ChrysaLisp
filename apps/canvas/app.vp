@@ -1,0 +1,79 @@
+(import 'inc/func.inc)
+(import 'inc/mail.inc)
+(import 'inc/gui.inc)
+(import 'class/window/window.inc)
+(import 'class/string/string.inc)
+(import 'class/canvas/canvas.inc)
+
+(def-func 'apps/canvas/app)
+
+	(def-struct 'local 'obj)
+		(uint 'closed)
+	(def-struct-end)
+
+	(struct 'myapp 'local)
+	(ptr 'msg 'window 'canvas 'string)
+	(ulong 'owner)
+	(int 'width 'height)
+
+	;init app vars
+	(push-scope)
+	(f-call 'sys_mem 'clear {&myapp, local_size})
+	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)))
+
+	;create my window
+	(f-call 'window 'create {window_flag_close} {window})
+	(f-call 'string 'create_from_cstr {"Canvas"} {string})
+	(f-call 'window 'set_title {window, string})
+
+	;add my app canvas
+	(f-call 'canvas 'create {512, 512} {canvas})
+	(v-call 'window 'add_child {window, canvas})
+
+	;set to pref size
+	(v-call 'window 'pref_size {window} {_, width, height})
+	(f-call 'window 'change {window, 512, 256, width, height})
+
+	;set window owner
+	(f-call 'sys_task 'tcb {} {owner})
+	(f-call 'window 'set_owner {window, owner})
+
+	;set close action
+	(f-call 'window 'connect_close {window, &myapp, $on_window_close})
+
+	;add to screen and dirty
+	(f-call 'gui_gui 'add {window})
+	(f-call 'window 'dirty_all {window})
+
+	;app event loop
+	(loop-start)
+		(f-call 'sys_mail 'mymail {} {msg})
+
+		;dispatch event to view
+		(v-call 'view 'event {msg->ev_msg_view, msg})
+
+		;free event message
+		(f-call 'sys_mem 'free {msg})
+	(loop-until {myapp.local_closed})
+
+	;deref window
+	(f-call 'window 'deref {window})
+	(v-call 'obj 'deinit {&myapp})
+
+	(pop-scope)
+	(return)
+
+(vp-label 'on_window_close)
+	;inputs
+	;r0 = app local object
+	;r1 = close object
+
+	(ptr 'this)
+
+	(push-scope)
+	(assign '(r0) {this})
+	(assign {1} {this->local_closed})
+	(pop-scope)
+	(return)
+
+(def-func-end)

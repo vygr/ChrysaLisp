@@ -1,0 +1,18 @@
+(import 'class/view/view.inc)
+
+(def-class 'canvas 'view)
+(def-method 'create 'class/canvas/create 'static '(r0 r1) '(r0))
+(def-method 'new 'class/canvas/new 'static nil '(r0))
+(def-method 'init 'class/canvas/init 'static '(r0 r1 r2 r3) '(r0 r1))
+
+(def-method 'deinit 'class/canvas/deinit 'override)
+(def-method 'pref_size 'class/canvas/pref_size 'override)
+(def-method 'draw 'class/canvas/draw 'override)
+
+(def-struct 'canvas 'view)
+	(ulong 'texture)
+	(ptr 'data)
+	(uint 'width)
+	(uint 'height)
+	(uint 'stride)
+(def-struct-end)
