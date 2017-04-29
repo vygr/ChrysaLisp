@@ -10,7 +10,7 @@
 
 	(ptr 'slave 'stream 'vector 'string)
 	(int 'length)
-	(struct 'buffer 'buffer)
+	(struct 'buffer buf_size)
 
 	;init app vars
 	(push-scope)
