@@ -5,6 +5,7 @@
 (def-method 'new 'class/canvas/new 'static nil '(r0))
 (def-method 'init 'class/canvas/init 'static '(r0 r1 r2 r3) '(r0 r1))
 (def-method 'swap 'class/canvas/swap 'static '(r0) '(r0))
+(def-method 'fill 'class/canvas/fill 'static '(r0 r1) '(r0))
 (def-method 'set_pixel 'class/canvas/set_pixel 'static '(r0 r1 r2 r3) '(r0))
 
 (def-method 'deinit 'class/canvas/deinit 'override)

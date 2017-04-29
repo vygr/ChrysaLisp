@@ -46,16 +46,7 @@
 	(f-call 'window 'dirty_all {window})
 
 	;test pixel drawing
-	(assign {0} {y})
-	(loop-start)
-		(assign {0} {x})
-		(loop-start)
-			(f-call 'canvas 'set_pixel {canvas, x, y, 0xff000000})
-			(assign {x + 1} {x})
-		(loop-until {x == width})
-		(assign {y + 1} {y})
-	(loop-until {y == height})
-
+	(f-call 'canvas 'fill {canvas, 0xff000000})
 	(assign {0, 10} {x, y})
 	(loop-start)
 		(f-call 'canvas 'set_pixel {canvas, x, y, 0xff0000ff})
