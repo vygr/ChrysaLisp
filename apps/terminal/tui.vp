@@ -1,6 +1,7 @@
 (import 'inc/func.inc)
 (import 'class/master/master.inc)
 (import 'class/stream_msg_out/stream_msg_out.inc)
+(import 'class/string/string.inc)
 
 (def-struct 'tui_msg 'msg_header)
 	(struct 'reply_id 'id)
@@ -12,10 +13,12 @@
 
 (def-func 'apps/terminal/tui)
 
+	(defcvar 'buf_size 256)
+
 	(def-struct 'local)
 		(ptr 'master)
 		(pubyte 'bufp)
-		(struct 'buffer 256)
+		(struct 'buffer buf_size)
 	(def-struct-end)
 
 	(struct 'local 'local)
@@ -77,8 +80,7 @@
 	;r0 = -1 if EOF
 
 	(ptr 'local 'stream)
-	(long 'char)
-	(ulong 'ready)
+	(int 'char 'ready)
 
 	(push-scope)
 	(assign '(r0 r1) {local, stream})
@@ -101,7 +103,7 @@
 
 	(ptr 'local 'string 'last 'stream)
 	(ulong 'length 'notsame)
-	(uint 'char 'state)
+	(int 'char 'state)
 
 	(push-scope)
 	(assign '(r0 r1) {local, char})
@@ -114,7 +116,7 @@
 	(assign {local->local_bufp - &local->local_buffer} {length})
 
 	;send line ?
-	(vpif {char == 10 || char == 13})
+	(vpif {char == char_lf || char == char_cr})
 		;what state ?
 		(f-call 'master 'get_state {local->local_master} {_, state})
 		(vpif {state == stream_mail_state_stopped})
@@ -125,11 +127,11 @@
 			;feed active pipe
 			(f-call 'master 'get_input {local->local_master} {_, stream})
 			(f-call 'stream 'write {stream, &local->local_buffer, length})
-			(f-call 'stream 'write_char {stream, 10})
+			(f-call 'stream 'write_char {stream, char_lf})
 			(v-call 'stream 'write_flush {stream})
 		(endif)
 		(assign {&local->local_buffer} {local->local_bufp})
-	(elseif {char == 27})
+	(elseif {char == char_esc})
 		;esc
 		(f-call 'master 'get_state {local->local_master} {_, state})
 		(vpif {state == stream_mail_state_started})
@@ -144,7 +146,7 @@
 			(v-call 'stream 'write_next {stream})
 			(v-call 'stream 'write_flush {stream})
 		(endif)
-	(elseif {char >= 32 && char < 127})
+	(elseifnot {char < char_space || char >= 127 || length == buf_size})
 		;next char
 		(assign {local->local_bufp + 1} {local->local_bufp})
 	(endif)
@@ -157,17 +159,17 @@
 	;r1 = char output
 
 	(ptr 'local)
-	(ulong 'char)
+	(int 'char)
 
 	(push-scope)
 	(assign '(r0 r1) {local, char})
 
-	(vpif {char == 9})
+	(vpif {char == char_tab})
 		;tab
-		(f-call 'sys_io 'char {32, 1})
-		(f-call 'sys_io 'char {32, 1})
-		(f-call 'sys_io 'char {32, 1})
-		(f-call 'sys_io 'char {32, 1})
+		(f-call 'sys_io 'char {char_space, 1})
+		(f-call 'sys_io 'char {char_space, 1})
+		(f-call 'sys_io 'char {char_space, 1})
+		(f-call 'sys_io 'char {char_space, 1})
 	(else)
 		(f-call 'sys_io 'char {char, 1})
 	(endif)
@@ -182,7 +184,7 @@
 
 	(ptr 'msg)
 	(struct 'tui_id 'id)
-	(ulong 'char)
+	(int 'char)
 
 	(push-scope)
 
