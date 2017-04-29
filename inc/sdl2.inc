@@ -9,6 +9,7 @@
 	(enum
 		'SDL_SetMainReady
 		'SDL_Init
+		'SDL_GetError
 		'SDL_Quit
 		'SDL_CreateWindow
 		'SDL_CreateWindowAndRenderer
@@ -30,6 +31,7 @@
 		'SDL_RenderCopy
 		'SDL_SetTextureBlendMode
 		'SDL_SetTextureColorMod
+		'SDL_CreateRGBSurfaceFrom
 
 		'TTF_Init
 		'TTF_Quit
@@ -120,6 +122,9 @@
 	(assign _ '(r7))
 	(sdl-call sdl_SDL_Init))
 
+(defcfun sdl-get-error ()
+	(sdl-call sdl_SDL_GetError))
+
 (defcfun sdl-delay (_)
 	;time
 	(assign _ '(r7))
@@ -200,6 +205,14 @@
 	;renderer**, surface*
 	(assign _ '(r7 r6))
 	(sdl-call sdl_SDL_CreateTextureFromSurface))
+
+(defcfun sdl-create-rgb-surface-from (_)
+	;pixels*, w, h, d, stride, rmask, gmask, bmask, amask
+	(assign _ '(r7 r6 r2 r1 r8 r9 r10 r11 r12))
+	(vp-xor-rr r0 r0)
+	(vp-push r0 r12 r11 r10)
+	(sdl-call sdl_SDL_CreateRGBSurfaceFrom)
+	(vp-add-cr (mul ptr_size 4) r4))
 
 (defcfun sdl-destroy-texture (_)
 	;texture*

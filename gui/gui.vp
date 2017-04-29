@@ -270,7 +270,7 @@
 	;r0 = user data
 
 	(def-struct 'klocal)
-		(long 'old_stack)
+		(ptr 'old_stack)
 		(long 'user)
 	(def-struct-end)
 

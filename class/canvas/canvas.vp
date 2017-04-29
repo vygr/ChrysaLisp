@@ -58,8 +58,9 @@
 		;pixel buffer
 		(vp-cpy-ir-ui r0 canvas_width r1)
 		(vp-cpy-ir-ui r0 canvas_height r2)
-		(vp-mul-rr r2 r1)
 		(vp-mul-cr int_size r1)
+		(vp-cpy-ri r1 r0 canvas_stride)
+		(vp-mul-rr r2 r1)
 		(f-call 'sys_mem 'alloc '(r1) '(r1 _))
 		(vp-pop r0)
 		(vp-cpy-ri r1 r0 canvas_data)
@@ -74,39 +75,130 @@
 	;inputs
 	;r0 = canvas object
 
+	;kernel callback
+	(vp-push r0)
+	(f-call 'sys_task 'callback '(($ callback) r0))
+	(vp-pop r0)
+	(s-jmp 'canvas 'deinit '(r0))
+
+(vp-label 'callback)
+	;inputs
+	;r0 = user data
+
 	(def-struct 'local)
 		(ptr 'this)
+		(ptr 'old_stack)
 	(def-struct-end)
 
-	;save inputs
+	;align stack for SDL
+	(vp-cpy-rr r4 r15)
 	(vp-sub-cr local_size r4)
+	(vp-and-cr -16 r4)
+	(vp-cpy-ri r15 r4 local_old_stack)
+
+	;save inputs
 	(f-entry 'canvas 'deinit '((r4 local_this)))
 
 	;free any pixel buffer
 	(f-call 'sys_mem 'free '((r0 canvas_data)))
 
 	;free any sdl texture
+	(vp-cpy-ir r4 local_this r0)
 	(vp-cpy-ir r0 canvas_texture r1)
 	(vpif '(r1 != 0))
 		(sdl-destroy-texture '(r1))
 	(endif)
 
-	;parent deinit
-	(vp-cpy-ir r4 local_this r0)
-	(vp-add-cr local_size r4)
-	(s-jmp 'canvas 'deinit '(r0))
+	(vp-cpy-ir r4 local_old_stack r4)
+	(vp-ret)
 
 (def-func-end)
 
 (def-func 'class/canvas/draw)
 	;inputs
-	;r0 = view object
+	;r0 = canvas object
 	;r1 = ctx object
 	;trashes
 	;all but r0, r4
 
-	(f-entry 'canvas 'draw '(r0 r1))
-	(f-exit 'canvas 'draw '(r0))
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'ctx)
+		(ptr 'surface)
+		(ptr 'old_stack)
+	(def-struct-end)
+
+	;align stack to 16 bytes for SDl
+	(vp-cpy-rr r4 r15)
+	(vp-sub-cr local_size r4)
+	(vp-and-cr -16 r4)
+	(vp-cpy-ri r15 r4 local_old_stack)
+
+	;save inputs
+	(f-entry 'canvas 'draw '((r4 local_this) (r4 local_ctx)))
+
+	;if no texture then create from pixel buffer
+	(vp-cpy-ir r0 canvas_texture r1)
+	(vpif '(r1 == 0))
+		;create SDL surface from pixel buffer, convert to texture
+		(sdl-create-rgb-surface-from '((r0 canvas_data) (r0 canvas_width ui) (r0 canvas_height ui)
+										32 (r0 canvas_stride ui) 0xff 0xff00 0xff0000 0xff000000))
+		(vp-cpy-ri r0 r4 local_surface)
+		(vp-cpy-ir r4 local_ctx r1)
+		(sdl-create-texture-from-surface '((r1 gui_ctx_sdl_ctx) r0))
+		(vp-cpy-ir r4 local_this r1)
+		(vp-cpy-ri r0 r1 canvas_texture)
+		(sdl-free-surface '((r4 local_surface)))
+	(endif)
+
+	;blit texture
+	(vp-cpy-ir r4 local_this r0)
+	(vp-cpy-ir r0 canvas_texture r1)
+	(vpif '(r1 != 0))
+		(f-call 'gui_ctx 'blit '((r4 local_ctx) r1 0xffffff 0 0 (r0 canvas_width ui) (r0 canvas_height ui)))
+	(endif)
+
+	(f-exit 'canvas 'draw '((r4 local_this)))
+	(vp-cpy-ir r4 local_old_stack r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/canvas/swap)
+	;inputs
+	;r0 = canvas object
+	;trashes
+	;all but r0, r4
+
+	;kernel callback
+	(vp-push r0)
+	(f-call 'sys_task 'callback '(($ callback) r0))
+	(vp-pop r0)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;r0 = user data
+
+	(def-struct 'local)
+		(ptr 'old_stack)
+	(def-struct-end)
+
+	;align stack to 16 bytes for SDl
+	(vp-cpy-rr r4 r15)
+	(vp-sub-cr local_size r4)
+	(vp-and-cr -16 r4)
+	(vp-cpy-ri r15 r4 local_old_stack)
+
+	;free any sdl texture
+	(vp-cpy-ir r0 canvas_texture r1)
+	(vpif '(r1 != 0))
+		(vp-xor-rr r2 r2)
+		(vp-cpy-ri r2 r0 canvas_texture)
+		(sdl-destroy-texture '(r1))
+	(endif)
+
+	(vp-cpy-ir r4 local_old_stack r4)
 	(vp-ret)
 
 (def-func-end)
@@ -122,6 +214,42 @@
 
 	(f-entry 'canvas 'pref_size '(r0))
 	(f-exit 'canvas 'pref_size '(r0 (r0 canvas_width ui) (r0 canvas_height ui)))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/canvas/set_pixel)
+	;inputs
+	;r0 = canvas object
+	;r1 = x
+	;r2 = y
+	;r3 = colour
+	;outputs
+	;r0 = canvas object
+	;trashes
+	;r1-r3, r5-r6
+
+	(f-entry 'canvas 'set_pixel '(r0 r1 r2 r3))
+
+	;clip check
+	(vpif '(r1 >= 0))
+		(vpif '(r2 >= 0))
+			(vp-cpy-ir-ui r0 canvas_width r5)
+			(vpif '(r1 < r5))
+				(vp-cpy-ir-ui r0 canvas_height r5)
+				(vpif '(r2 < r5))
+					(vp-cpy-ir-ui r0 canvas_stride r5)
+					(vp-cpy-ir r0 canvas_data r6)
+					(vp-mul-rr r5 r2)
+					(vp-shl-cr (pow2 int_size) r1)
+					(vp-add-rr r2 r1)
+					(vp-cpy-rd r3 r6 r1)
+				(endif)
+			(endif)
+		(endif)
+	(endif)
+
+	(f-exit 'canvas 'set_pixel '(r0))
 	(vp-ret)
 
 (def-func-end)

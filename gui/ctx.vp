@@ -419,7 +419,7 @@
 	;all but r4
 
 	(def-struct 'local)
-		(long 'old_stack)
+		(ptr 'old_stack)
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl

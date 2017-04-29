@@ -3,6 +3,7 @@
 %ifidn OS, Darwin
 	extern _SDL_SetMainReady
 	extern _SDL_Init
+	extern _SDL_GetError
 	extern _SDL_Quit
 	extern _SDL_CreateWindow
 	extern _SDL_CreateWindowAndRenderer
@@ -24,6 +25,7 @@
 	extern _SDL_RenderCopy
 	extern _SDL_SetTextureBlendMode
 	extern _SDL_SetTextureColorMod
+	extern _SDL_CreateRGBSurfaceFrom
 
 	extern _TTF_Init
 	extern _TTF_Quit
@@ -37,6 +39,7 @@
 %elifidn OS, Linux
 	extern SDL_SetMainReady
 	extern SDL_Init
+	extern SDL_GetError
 	extern SDL_Quit
 	extern SDL_CreateWindow
 	extern SDL_CreateWindowAndRenderer
@@ -58,6 +61,7 @@
 	extern SDL_RenderCopy
 	extern SDL_SetTextureBlendMode
 	extern SDL_SetTextureColorMod
+	extern SDL_CreateRGBSurfaceFrom
 
 	extern TTF_Init
 	extern TTF_Quit
@@ -106,6 +110,7 @@ sdl_func_table:
 %ifidn OS, Darwin
 	dq _SDL_SetMainReady
 	dq _SDL_Init
+	dq _SDL_GetError
 	dq _SDL_Quit
 	dq _SDL_CreateWindow
 	dq _SDL_CreateWindowAndRenderer
@@ -127,6 +132,7 @@ sdl_func_table:
 	dq _SDL_RenderCopy
 	dq _SDL_SetTextureBlendMode
 	dq _SDL_SetTextureColorMod
+	dq _SDL_CreateRGBSurfaceFrom
 
 	dq _TTF_Init
 	dq _TTF_Quit
@@ -140,6 +146,7 @@ sdl_func_table:
 %elifidn OS, Linux
 	dq SDL_SetMainReady
 	dq SDL_Init
+	dq SDL_GetError
 	dq SDL_Quit
 	dq SDL_CreateWindow
 	dq SDL_CreateWindowAndRenderer
@@ -161,6 +168,7 @@ sdl_func_table:
 	dq SDL_RenderCopy
 	dq SDL_SetTextureBlendMode
 	dq SDL_SetTextureColorMod
+	dq SDL_CreateRGBSurfaceFrom
 
 	dq TTF_Init
 	dq TTF_Quit

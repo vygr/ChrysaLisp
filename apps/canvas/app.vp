@@ -14,7 +14,7 @@
 	(struct 'myapp 'local)
 	(ptr 'msg 'window 'canvas 'string)
 	(ulong 'owner)
-	(int 'width 'height)
+	(int 'x 'y 'width 'height)
 
 	;init app vars
 	(push-scope)
@@ -44,6 +44,33 @@
 	;add to screen and dirty
 	(f-call 'gui_gui 'add {window})
 	(f-call 'window 'dirty_all {window})
+
+	;test pixel drawing
+	(assign {0} {y})
+	(loop-start)
+		(assign {0} {x})
+		(loop-start)
+			(f-call 'canvas 'set_pixel {canvas, x, y, 0xff000000})
+			(assign {x + 1} {x})
+		(loop-until {x == width})
+		(assign {y + 1} {y})
+	(loop-until {y == height})
+
+	(assign {0, 10} {x, y})
+	(loop-start)
+		(f-call 'canvas 'set_pixel {canvas, x, y, 0xff0000ff})
+		(assign {x + 1} {x})
+	(loop-until {x == width})
+	(assign {0, 20} {x, y})
+	(loop-start)
+		(f-call 'canvas 'set_pixel {canvas, x, y, 0xff00ff00})
+		(assign {x + 1} {x})
+	(loop-until {x == width})
+	(assign {0, 30} {x, y})
+	(loop-start)
+		(f-call 'canvas 'set_pixel {canvas, x, y, 0xffff0000})
+		(assign {x + 1} {x})
+	(loop-until {x == width})
 
 	;app event loop
 	(loop-start)
