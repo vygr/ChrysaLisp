@@ -7,6 +7,7 @@
 (def-method 'ref_string 'class/stream_str/ref_string 'static '(r0) '(r0 r1))
 
 (def-method 'write_next 'class/stream_str/write_next 'final)
+(def-method 'write_flush 'class/obj/null 'final)
 
 (def-struct 'stream_str 'stream)
 (def-struct-end)
