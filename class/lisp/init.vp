@@ -55,6 +55,9 @@
 		(assign {stdin} {this->lisp_stdin})
 		(assign {stdout} {this->lisp_stdout})
 		(assign {stderr} {this->lisp_stderr})
+		(f-call 'ref 'ref {stdin})
+		(f-call 'ref 'ref {stdout})
+		(f-call 'ref 'ref {stderr})
 		(assign {0} {this->lisp_nextsym})
 
 		;interned symbols set and enviroments
