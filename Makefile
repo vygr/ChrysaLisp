@@ -6,7 +6,7 @@ all:		obj/main
 remake:		snapshot clean all
 
 undo:
-			unzip -nq $(OS)_old.zip
+			unzip -oq $(OS)_old.zip
 			nasm -dOS=$(OS) -f macho64 -o obj/main.o main.nasm
 			clang -o obj/main -e main obj/main.o -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
 
