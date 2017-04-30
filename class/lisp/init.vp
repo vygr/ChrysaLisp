@@ -232,6 +232,7 @@
 	(built-in "some!" 0 'func_some)
 	(built-in "list" 0 'func_list)
 	(built-in "cmp" 0 'func_cmp)
+	(built-in "pixel" 0 'func_pixel)
 	(vp-short 0)
 
 (def-func-end)

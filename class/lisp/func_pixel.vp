@@ -1,0 +1,61 @@
+(import 'inc/func.inc)
+(import 'class/vector/vector.inc)
+(import 'class/canvas/canvas.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_pixel)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = else value
+
+	(ptr 'this 'args 'value 'num)
+	(uint 'col)
+	(uint 'x 'y 'length)
+
+	(push-scope)
+	(f-entry 'lisp 'func_pixel {this, args})
+
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorif {length != 1 || length != 4} 'error1)
+	(f-call 'vector 'get_element {args, 0} {_, value})
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error2)
+	(vpif {length})
+		(f-call 'vector 'get_element {args, 1} {_, num})
+		(errorif (cat {num->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
+		(f-call 'boxed_long 'get_value {num} {_, col})
+		(f-call 'vector 'get_element {args, 2} {_, num})
+		(errorif (cat {num->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
+		(f-call 'boxed_long 'get_value {num} {_, x})
+		(f-call 'vector 'get_element {args, 3} {_, num})
+		(errorif (cat {num->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
+		(f-call 'boxed_long 'get_value {num} {_, y})
+		(f-call 'canvas 'set_pixel {value, col, x, y})
+	(else)
+		(f-call 'canvas 'swap {value})
+	(endif)
+	(f-call 'ref 'ref {value})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'func_pixel {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(assign {"(pixel canvas col x y) wrong num of args"} {value})
+	(goto 'error)
+(vp-label 'error2)
+	(assign {"(pixel canvas col x y) not a canvas"} {value})
+	(goto 'error)
+(vp-label 'error3)
+	(assign {"(pixel canvas col x y) not a number"} {value})
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)
