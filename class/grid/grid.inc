@@ -18,6 +18,16 @@
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
+(defcfun class/grid/init ()
+	;inputs
+	;r0 = grid object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+	(vp-cpy-cr 1 r2)
+	(assign '(r2 r2) '((r0 grid_width i) (r0 grid_height i)))
+	(s-call 'grid 'init '(r0 r1) '(_ r1)))
+
 (defcfun class/grid/set_grid ()
 	;inputs
 	;r0 = view object

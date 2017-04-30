@@ -20,9 +20,9 @@
 	(ptr 'second)
 (def-struct-end)
 
-;;;;;;;;;;;;;;;
-;inline methods
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+;;inline methods
+;;;;;;;;;;;;;;;;
 
 (defcfun class/pair/init ()
 	;inputs

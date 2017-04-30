@@ -20,3 +20,21 @@
 	(ptr 'words)
 	(uint 'text_color)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
+
+(defcfun class/text/get_text ()
+	;inputs
+	;r0 = text object
+	;outputs
+	;r0 = text object
+	;r1 = 0 else, string object
+	(vp-cpy-ir r0 text_string r1))
+
+(defcfun class/text/set_text_color ()
+	;inputs
+	;r0 = text object
+	;r1 = color
+	(vp-cpy-ri-i r1 r0 text_text_color))

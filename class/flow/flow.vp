@@ -5,22 +5,6 @@
 (gen-create 'flow)
 (gen-class 'flow)
 
-(def-func 'class/flow/init)
-	;inputs
-	;r0 = flow object
-	;r1 = vtable pointer
-	;outputs
-	;r1 = 0 if error, else ok
-
-	;init myself
-	(vp-xor-rr r2 r2)
-	(vp-cpy-ri r2 r0 flow_flags)
-
-	;init parent
-	(s-jmp 'flow 'init '(r0 r1))
-
-(def-func-end)
-
 (def-func 'class/flow/layout)
 	;inputs
 	;r0 = flow object

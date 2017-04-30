@@ -98,19 +98,6 @@
 
 (def-func-end)
 
-(def-func 'class/text/get_text)
-	;inputs
-	;r0 = text object
-	;outputs
-	;r0 = text object
-	;r1 = 0 else, string object
-
-	;get the string
-	(vp-cpy-ir r0 text_string r1)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/text/ref_text)
 	;inputs
 	;r0 = text object
@@ -241,16 +228,6 @@
 	(endif)
 
 	(vp-add-cr local_size r4)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/text/set_text_color)
-	;inputs
-	;r0 = text object
-	;r1 = color
-
-	(vp-cpy-ri-i r1 r0 text_text_color)
 	(vp-ret)
 
 (def-func-end)

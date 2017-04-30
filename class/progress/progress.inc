@@ -5,6 +5,7 @@
 (def-class 'progress 'view)
 (def-method 'create 'class/progress/create 'static nil '(r0))
 (def-method 'new 'class/progress/new 'static nil '(r0))
+(def-method 'init 'class/progress/init)
 (def-method 'set_max 'class/progress/set_max 'static '(r0 r1) '(r0))
 (def-method 'set_val 'class/progress/set_val 'static '(r0 r1) '(r0))
 
@@ -20,6 +21,16 @@
 ;;;;;;;;;;;;;;;;
 ; inline methods
 ;;;;;;;;;;;;;;;;
+
+(defcfun class/progress/init ()
+	;inputs
+	;r0 = pair object
+	;r1 = vtable pointer
+	;outputs
+	;r1 = 0 if error, else ok
+	(vp-xor-rr r2 r2)
+	(assign '(r2 r2) '((r0 progress_max) (r0 progress_val)))
+	(s-call 'progress 'init '(r0 r1) '(_ r1)))
 
 (defcfun class/progress/set_max ()
 	;inputs
