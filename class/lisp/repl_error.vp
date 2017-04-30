@@ -38,7 +38,7 @@
 	(vpif {iter})
 		(f-call 'pair 'get_second {*iter} {_, value})
 		(breakif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)))
-		(f-call 'boxed_long 'get_value {value} {line})
+		(f-call 'boxed_long 'get_value {value} {_, line})
 	(endif)
 
 	(f-call 'error 'create {desc, file, payload, line} {value})

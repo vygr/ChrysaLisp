@@ -23,7 +23,7 @@
 	(vpif {length})
 		(f-call 'vector 'get_element {args, 0} {_, value})
 		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
-		(f-call 'boxed_long 'get_value {value} {value})
+		(f-call 'boxed_long 'get_value {value} {_, value})
 		(f-call 'unordered_map 'copy {this->lisp_enviroment, value} {_, value})
 		(f-call 'ref 'deref {this->lisp_enviroment})
 		(assign {value} {this->lisp_enviroment})

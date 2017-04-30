@@ -28,10 +28,10 @@
 
 	(f-call 'vector 'get_element {args, 0} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
-	(f-call 'boxed_long 'get_value {value} {start})
+	(f-call 'boxed_long 'get_value {value} {_, start})
 	(f-call 'vector 'get_element {args, 1} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
-	(f-call 'boxed_long 'get_value {value} {end})
+	(f-call 'boxed_long 'get_value {value} {_, end})
 	(v-call 'sliceable 'get_length {slc} {_, length})
 	(vpif {start < 0})
 		(assign {length + start + 1} {start})

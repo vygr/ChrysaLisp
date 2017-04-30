@@ -26,7 +26,7 @@
 	(loop-start)
 		(assign {*iter_begin} {value})
 		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
-		(f-call 'boxed_long 'get_value {value} {num})
+		(f-call 'boxed_long 'get_value {value} {_, num})
 		(assign {accum ^ num} {accum})
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-until {iter_begin == iter_end})

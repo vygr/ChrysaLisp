@@ -27,7 +27,7 @@
 
 	(f-call 'vector 'get_element {args, 0} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
-	(f-call 'boxed_long 'get_value {value} {index})
+	(f-call 'boxed_long 'get_value {value} {_, index})
 	(v-call 'sequence 'get_length {seq} {_, length})
 	(vpif {index < 0})
 		(assign {length + index + 1} {index})

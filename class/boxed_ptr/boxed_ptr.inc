@@ -4,8 +4,8 @@
 (def-method 'create 'class/boxed_ptr/create 'static nil '(r0))
 (def-method 'new 'class/boxed_ptr/new 'static nil '(r0))
 (def-method 'init 'class/boxed_ptr/init)
-(def-method 'get_value 'class/boxed_ptr/get_value 'static '(r0) '(r1))
-(def-method 'set_value 'class/boxed_ptr/set_value 'static '(r0 r1))
+(def-method 'get_value 'class/boxed_ptr/get_value 'static '(r0) '(r0 r1))
+(def-method 'set_value 'class/boxed_ptr/set_value 'static '(r0 r1) '(r0))
 
 (def-struct 'boxed_ptr 'ref)
 	(ptr 'value)
