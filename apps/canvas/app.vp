@@ -128,13 +128,13 @@
 	(f-call 'ref 'deref {value})
 	(f-call 'ref 'deref {args})
 
-	;run any canvas.lisp
-	(f-call 'string 'create_from_file {"apps/canvas/canvas.lisp"} {file})
+	;run any app.lisp
+	(f-call 'string 'create_from_file {"apps/canvas/app.lisp"} {file})
 	(vpif {file})
 		;REPL from file stream
 		(f-call 'vector 'create {} {args})
 		(f-call 'stream_str 'create {file} {stream})
-		(f-call 'string 'create_from_cstr {"apps/canvas/canvas.lisp"} {file})
+		(f-call 'string 'create_from_cstr {"apps/canvas/app.lisp"} {file})
 		(f-call 'vector 'push_back {args, stream})
 		(f-call 'vector 'push_back {args, file})
 		(f-call 'lisp 'func_repl {lisp, args} {_, value})
