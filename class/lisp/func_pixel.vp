@@ -13,8 +13,8 @@
 	;r1 = else value
 
 	(ptr 'this 'args 'value 'num)
-	(uint 'col)
-	(uint 'x 'y 'length)
+	(union '(uint 'length) '(uint 'col))
+	(int 'x 'y)
 
 	(push-scope)
 	(f-entry 'lisp 'func_pixel {this, args})
@@ -22,8 +22,8 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorifnot {length == 1 || length == 4} 'error1)
 	(f-call 'vector 'get_element {args, 0} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error2)
-	(vpif {length})
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'canvas)) 'error2)
+	(vpif {length == 4})
 		(f-call 'vector 'get_element {args, 1} {_, num})
 		(errorif (cat {num->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
 		(f-call 'boxed_long 'get_value {num} {_, col})
@@ -36,6 +36,7 @@
 		(f-call 'canvas 'set_pixel {value, col, x, y})
 	(else)
 		(f-call 'canvas 'swap {value})
+		(f-call 'canvas 'dirty {value})
 	(endif)
 	(f-call 'ref 'ref {value})
 
