@@ -141,6 +141,15 @@
 ; Math functions
 ;;;;;;;;;;;;;;;;
 
+(defq min-long (bit-shl -1 63))
+(defq max-long (bit-shr -1 1))
+
+(defun sign (_)
+	(cond
+		((eq _ 0) 0)
+		((lt _ 0) -1)
+		(t 1)))
+
 (defmacro minus (_)
 	(neg _))
 
@@ -167,6 +176,32 @@
 
 (defun bit-not (_)
 	(bit-xor _ -1))
+
+;;;;;;;;;;;;;;;;;;
+; Fixed point math
+;;;;;;;;;;;;;;;;;;
+
+(defq fp-shift 16 fp-one (bit-shl 1 fp-shift) fp-half (bit-asr fp-one 1))
+
+(defun fp-mul (&rest _)
+	(reduce (lambda (x y)
+		(bit-asr (mul x y) fp-shift)) _))
+
+(defun fp-div (&rest _)
+	(reduce (lambda (x y)
+		(div (bit-shl x fp-shift) y)) _))
+
+(defun fp-val (_)
+	(bit-shl _ fp-shift))
+
+(defun fp-vec (&rest _)
+	(map fp-val _))
+
+(defun fp-sqrt (_)
+	(defq x fp-one n_one (bit-shl _ fp-shift) _x x)
+	(setq x (bit-shr (add x (div n_one x)) 1))
+	(while (ne _x x)
+		(setq _x x x (bit-shr (add x (div n_one x)) 1))) x)
 
 ;;;;;;;;;
 ; Streams
