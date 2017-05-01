@@ -33,3 +33,9 @@
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri r2 r0 flow_flags)
 	(s-call 'flow 'init '(r0 r1) '(_ r1)))
+
+(defcfun class/flow/set_flow_flags ()
+	;inputs
+	;r0 = view object
+	;r1 = flags
+	(vp-cpy-ri r1 r0 flow_flags))

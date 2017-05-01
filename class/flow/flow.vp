@@ -33,7 +33,7 @@
 		(vp-cpy-ri-i r1 r4 local_y)
 	(endif)
 
-	(f-call 'flow 'forward '(r0 r4 ($ callback)))
+	(f-call 'flow 'forward '(r0 r4 ($ callback)) '(r0))
 
 	(vp-add-cr local_size r4)
 	(vp-ret)
@@ -197,7 +197,7 @@
 	(vp-cpy-ri-i r1 r4 local_w)
 	(vp-cpy-ri-i r1 r4 local_h)
 
-	(f-call 'flow 'forward '(r0 r4 ($ callback)))
+	(f-call 'flow 'forward '(r0 r4 ($ callback)) '(r0))
 
 	(vp-cpy-ir-i r4 local_w r10)
 	(vp-cpy-ir-i r4 local_h r11)
@@ -233,16 +233,6 @@
 	(vpif '(r11 > r3))
 		(vp-cpy-ri-i r11 r1 local_h)
 	(endif)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/flow/set_flow_flags)
-	;inputs
-	;r0 = view object
-	;r1 = flags
-
-	(vp-cpy-ri r1 r0 flow_flags)
 	(vp-ret)
 
 (def-func-end)
