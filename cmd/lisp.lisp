@@ -211,6 +211,10 @@
 	(setq _ (div (sub (time) _) 10000))
 	(print "Time " (div _ 100) "." (mod _ 100) " seconds") _)
 
+(defun remake ()
+	(make)
+	(make-boot-all))
+
 (defun make-test (&optional i)
 	(defq b 1000000 n 0)
 	(times (opt i 10) (setq n (make-all) b (if (lt n b) n b)))
