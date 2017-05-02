@@ -239,6 +239,15 @@
 							(vec-sub-2d p1 rv)
 							(vec-add-2d p1 (vec-perp-2d rv))
 							(vec-add-2d p1 rv)))
+					((eq capstyle 3)
+						;round cap
+						(defq rvx (elem 0 rv) rvy (elem 1 rv) a 0)
+						(while (le a fp-pi)
+							(defq s (fp-sin a) c (fp-cos a))
+							(push out-points
+								(vec-sub-2d p1 (list (sub (fp-mul rvx c) (fp-mul rvy s))
+													(add (fp-mul rvx s) (fp-mul rvy c)))))
+							(setq a (add a (div fp-pi 32)))))
 					(t (throw "Missing capsytle " capstyle)))
 				(while (and (ne index -1) (ne index (length points)))
 					(defq p1 p2 l1-v l2-v l1-npv l2-npv
@@ -252,7 +261,7 @@
 					(cond
 						((or (le c 0) (eq joinstyle 0))
 							;mitre join
-							(defq s (sin (acos c))
+							(defq s (fp-sin (acos c))
 								bv (vec-scale-2d nbv (fp-div radius s)))
 							(push out-points
 								(vec-add-2d p1 bv)))
@@ -264,3 +273,4 @@
 						(t (throw "Missing joinstyle " joinstyle))))
 				(setq step (neg step) index (add index step)))
 				out-points)))
+

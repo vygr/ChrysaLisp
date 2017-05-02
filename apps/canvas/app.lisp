@@ -21,15 +21,15 @@
 (defun fpoly (p)
 	(defq e (list) ys max-long ye min-long)
 	(reduce (lambda (p1 p2)
-		(defq x1 (add (elem 0 p1) fp-half) y1 (add (elem 1 p1) fp-half) l1 (bit-asr y1 fp-shift)
-			x2 (add (elem 0 p2) fp-half) y2 (add (elem 1 p2) fp-half) l2 (bit-asr y2 fp-shift))
+		(defq x1 (add (elem 0 p1) fp-half) y1 (bit-asr (add (elem 1 p1) fp-half) fp-shift)
+			x2 (add (elem 0 p2) fp-half) y2 (bit-asr (add (elem 1 p2) fp-half) fp-shift))
 		(cond
-			((lt l1 l2)
-				(setq ys (min ys l1) ye (max ye l2))
-				(push e (list x1 l1 l2 (fp-div (sub x2 x1) (sub y2 y1)))))
-			((gt l1 l2)
-				(setq ys (min ys l2) ye (max ye l1))
-				(push e (list x2 l2 l1 (fp-div (sub x1 x2) (sub y1 y2))))))
+			((lt y1 y2)
+				(setq ys (min ys y1) ye (max ye y2))
+				(push e (list x1 y1 y2 (div (sub x2 x1) (sub y2 y1)))))
+			((gt y1 y2)
+				(setq ys (min ys y2) ye (max ye y1))
+				(push e (list x2 y2 y1 (div (sub x1 x2) (sub y1 y2))))))
 		p2) p (elem -2 p))
 	(sort (lambda (e1 e2)
 		(lt (elem 1 e1) (elem 1 e2))) e)
@@ -52,6 +52,12 @@
 			(setq x1 (bit-asr x1 fp-shift) x2 (bit-asr x2 fp-shift))
 			(hline x1 ys (sub x2 x1)))))
 
+(defun circle (x y r)
+	(defq p (list) a 0 s (div fp-2pi 128))
+	(while (lt a fp-2pi)
+		(push p (list (add x (fp-mul r (fp-sin a))) (add y (fp-mul r (fp-cos a)))))
+		(setq a (add a s))) p)
+
 (set-brush-col 0)
 (fbox 0 0 512 512)
 
@@ -60,6 +66,9 @@
 			(fp-vec 384 512) (fp-vec 512 0) (fp-vec 16 512)))
 
 (set-brush-col 0xff00ff00)
-(fpoly (thicken-path-2d (list (fp-vec 20 20) (fp-vec 300 190)) (fp-val 10) 0 1))
+(fpoly (thicken-path-2d (list (fp-vec 40 30) (fp-vec 450 480)) (fp-val 20) 3 1))
+
+(set-brush-col 0xffff0000)
+(fpoly (circle (fp-val 256) (fp-val 256) (fp-val 128)))
 
 (pixel canvas)
