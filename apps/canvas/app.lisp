@@ -63,6 +63,10 @@
 (fpoly (circle (fp-val 256) (fp-val 256) (fp-val 128)))
 
 (set-brush-col 0xff00ff00)
-(fpoly (thicken-path-2d (list (fp-vec 40 30) (fp-vec 420 80) (fp-vec 450 480)) (fp-val 20) 3 1))
+(fpoly (stroke-polyline-2d (list (fp-vec 40 30) (fp-vec 420 80) (fp-vec 450 480)) (fp-val 20) 3 1))
+
+(set-brush-col 0xff00ffff)
+(fpoly (stroke-polyline-2d (bezier-polyline-2d (fp-vec 40 490) (fp-vec 40 0)
+											(fp-vec 500 512) (fp-vec 500 30) (fp-val (mul fp-one 10))) (fp-val 20) 3 1))
 
 (pixel canvas)

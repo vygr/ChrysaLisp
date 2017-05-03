@@ -12,7 +12,7 @@
 (defun vec-chebyshev-distance (p1 p2)
 	(reduce max (map (lambda (x y) (abs (sub x y))) p1 p2)))
 
-(defun vec-reciprical-distance (p1 p2)
+(defun vec-reciprocal-distance (p1 p2)
 	(defq d (manhattan-distance p1 p2))
 	(if (eq d 0) (1) (fp-div 1 d)))
 
@@ -47,7 +47,7 @@
 	(defq l (vec-length p))
 	(if (eq l 0)
 		(vec-scale p 0)
-		(vec-scale p (fp-div 1 l))))
+		(vec-scale p (fp-div fp-one l))))
 
 (defun vec-distance-to-line (p p1 p2)
 	(defq lv (vec-sub p2 p1)
@@ -140,13 +140,14 @@
 	(defq l (vec-length-2d p))
 	(if (eq l 0)
 		(list 0 0)
-		(list (fp-div (elem 0 p) l) (fp-div (elem 1 p) l))))
+		(list (fp-mul (elem 0 p) (setq l (fp-div fp-one l))) (fp-mul (elem 1 p) l))))
 
 (defun vec-norm-3d (p)
 	(defq l (vec-length-3d p))
 	(if (eq l 0)
 		(list 0 0 0)
-		(list (fp-div (elem 0 p) l) (fp-div (elem 1 p) l) (fp-div (elem 2 p) l))))
+		(list (fp-mul (elem 0 p) (setq l (fp-div fp-one l)))
+			(fp-mul (elem 1 p) l) (fp-mul (elem 2 p) l))))
 
 (defun vec-distance-2d (p1 p2)
 	(vec-length-2d (vec-sub-2d p2 p1)))
@@ -208,26 +209,6 @@
 				(vec-distance-squared-3d p p2)
 				(vec-distance-squared-3d p (vec-add-3d p1 (vec-scale-3d lv (fp-div c1 c2))))))))
 
-(defun vec-collide-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
-	(defq av (vec-sub-2d l1_p2 l1_p1)
-		bv (vec-sub-2d l2_p2 l2_p1)
-		cv (vec-sub-2d l2_p2 l1_p1)
-		axb (vec-det-2d av bv)
-		axc (vec-det-2d av cv)
-		cxb (vec-det-2d cv bv))
-	(cond
-		((eq axb 0))
-		((gt axb 0)
-			(cond
-				((or (lt axc 0) (gt axc axb)))
-				((or (lt cxb 0) (gt cxb axb)))
-				(t t)))
-		(t
-			(cond
-				((or (gt axc 0) (lt axc axb)))
-				((or (gt cxb 0) (lt cxb axb)))
-				(t t)))))
-
 (defun vec-intersect-2d (l1_p1 av l2_p1 bv)
 	(defq axb (vec-det-2d av bv)
 		da (vec-det-2d (vec-add-2d l1_p1 av) l1_p1)
@@ -256,21 +237,41 @@
 				(list da (elem 1 av))
 				(list db (elem 1 bv))) axb))))
 
+(defun vec-collide-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
+	(defq av (vec-sub-2d l1_p2 l1_p1)
+		bv (vec-sub-2d l2_p2 l2_p1)
+		cv (vec-sub-2d l2_p2 l1_p1)
+		axb (vec-det-2d av bv)
+		axc (vec-det-2d av cv)
+		cxb (vec-det-2d cv bv))
+	(cond
+		((eq axb 0))
+		((gt axb 0)
+			(cond
+				((or (lt axc 0) (gt axc axb)))
+				((or (lt cxb 0) (gt cxb axb)))
+				(t t)))
+		(t
+			(cond
+				((or (gt axc 0) (lt axc axb)))
+				((or (gt cxb 0) (lt cxb axb)))
+				(t t)))))
+
 (defun vec-collide-thick-lines-2d (l1_p1 l1_p2 l2_p1 tl2_p2 r)
 	(cond
 		((vec-collide-lines-2d l1_p1 l1_p2 l2_p1 l2_p2) t)
 		((le (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) (setq r (fp-mul r r))) t)
-		((le (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) (setq r (fp-mul r r))) t)
-		((le (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) (setq r (fp-mul r r))) t)
-		((le (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) (setq r (fp-mul r r))) t)))
+		((le (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) r) t)
+		((le (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) r) t)
+		((le (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) r) t)))
 
 ;generic path stuff
 
-(defun thicken-path-2d (points radius capstyle joinstyle)
+(defun stroke-polyline-2d (points radius capstyle joinstyle)
 	(if (eq radius 0)
 		(cat points (slice -2 -1 points))
 		(progn
-			(defq index 0 step 1 out-points (list) sides 2)
+			(defq index 0 step 1 out_points (list) sides 2)
 			(while (ge (setq sides (dec sides)) 0)
 				(defq p1 (elem index points)
 					index (add index step)
@@ -283,18 +284,18 @@
 				(cond
 					((eq capstyle 0)
 						;butt cap
-						(push out-points
+						(push out_points
 							(vec-sub-2d p1 l2_rv)
 							(vec-add-2d p1 l2_rv)))
 					((eq capstyle 1)
 						;square cap
 						(defq p0 (vec-add-2d p1 (vec-perp-2d l2_rv)))
-						(push out-points
+						(push out_points
 							(vec-sub-2d p0 l2_rv)
 							(vec-add-2d p0 l2_rv)))
 					((eq capstyle 2)
 						;triangle cap
-						(push out-points
+						(push out_points
 							(vec-sub-2d p1 l2_rv)
 							(vec-add-2d p1 (vec-perp-2d l2_rv))
 							(vec-add-2d p1 l2_rv)))
@@ -303,7 +304,7 @@
 						(defq rvx (elem 0 l2_rv) rvy (elem 1 l2_rv) a 0)
 						(while (le a fp-pi)
 							(defq s (fp-sin a) c (fp-cos a))
-							(push out-points
+							(push out_points
 								(vec-sub-2d p1 (list (sub (fp-mul rvx c) (fp-mul rvy s))
 													(add (fp-mul rvx s) (fp-mul rvy c)))))
 							(setq a (add a (div fp-pi 32)))))
@@ -321,14 +322,53 @@
 					(cond
 						((or (le c 0) (eq joinstyle 0))
 							;mitre join
-							(push out-points (vec-intersect-2d
+							(push out_points (vec-intersect-2d
 								(vec-add-2d p1 l1_rv) l1_v
 								(vec-add-2d p1 l2_rv) l2_v)))
 						((eq joinstyle 1)
 							;bevel join
-							(push out-points
+							(push out_points
 								(vec-add-2d p1 l1_rv)
 								(vec-add-2d p1 l2_rv)))
 						(t (throw "Missing joinstyle " joinstyle))))
 				(setq step (neg step) index (add index step)))
-				out-points)))
+				out_points)))
+
+(defun recursive-bezier (x1 y1 x2 y2 x3 y3 x4 y4 points distance_tolerance)
+	;calculate all the mid-points of the line segments
+	(defq x12 (bit-asr (add x1 x2) 1)
+		y12 (bit-asr (add y1 y2) 1)
+		x23 (bit-asr (add x2 x3) 1)
+		y23 (bit-asr (add y2 y3) 1)
+		x34 (bit-asr (add x3 x4) 1)
+		y34 (bit-asr (add y3 y4) 1)
+		x123 (bit-asr (add x12 x23) 1)
+		y123 (bit-asr (add y12 y23) 1)
+		x234 (bit-asr (add x23 x34) 1)
+		y234 (bit-asr (add y23 y34) 1)
+		x1234 (bit-asr (add x123 x234) 1)
+		y1234 (bit-asr (add y123 y234) 1))
+
+	;try to approximate the full cubic curve by a single straight line
+	(defq dx (sub x4 x1) dy (sub y4 y1)
+		d2 (abs (sub (fp-mul (sub x2 x4) dy) (fp-mul (sub y2 y4) dx)))
+		d3 (abs (sub (fp-mul (sub x3 x4) dy) (fp-mul (sub y3 y4) dx))))
+
+	(cond
+		((lt (fp-mul (add d2 d3) (add d2 d3))
+				(fp-mul distance_tolerance (add (fp-mul dx dx) (fp-mul dy dy))))
+			(push points (fp-vec x1234 y1234)))
+		(t
+			;continue subdivision
+			(recursive-bezier x1 y1 x12 y12 x123 y123 x1234 y1234 points distance_tolerance)
+			(recursive-bezier x1234 y1234 x234 y234 x34 y34 x4 y4 points distance_tolerance))))
+
+(defun bezier-polyline-2d (p1 p2 p3 p4 distance_tolerance)
+	(defq points (list)
+		p1x (elem 0 p1) p1y (elem 1 p1)
+		p2x (elem 0 p2) p2y (elem 1 p2)
+		p3x (elem 0 p3) p3y (elem 1 p3)
+		p4x (elem 0 p4) p4y (elem 1 p4))
+	(push points p1)
+;	(recursive-bezier p1x p1y p2x p2y p3x p3y p4x p4y points distance_tolerance)
+	(push points p4) points)
