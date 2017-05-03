@@ -59,10 +59,10 @@
 (fpoly (list (fp-vec 0 0) (fp-vec 128 512) (fp-vec 256 0)
 			(fp-vec 384 512) (fp-vec 512 0) (fp-vec 16 512)))
 
-(set-brush-col 0xff00ff00)
-(fpoly (thicken-path-2d (list (fp-vec 40 30) (fp-vec 450 480)) (fp-val 20) 3 1))
-
 (set-brush-col 0xffff0000)
 (fpoly (circle (fp-val 256) (fp-val 256) (fp-val 128)))
+
+(set-brush-col 0xff00ff00)
+(fpoly (thicken-path-2d (list (fp-vec 40 30) (fp-vec 420 80) (fp-vec 450 480)) (fp-val 20) 3 1))
 
 (pixel canvas)

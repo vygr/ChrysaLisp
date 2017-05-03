@@ -105,6 +105,9 @@
 (defun vec-perp-2d (p)
 	(list (elem 1 p) (neg (elem 0 p))))
 
+(defun vec-det-2d (p1 p2)
+	(sub (fp-mul (elem 0 p1) (elem 1 p2)) (fp-mul (elem 1 p1) (elem 0 p2))))
+
 (defun vec-cross-3d (p1 p2)
 	(defq x1 (elem 0 p1) y1 (elem 1 p1) z1 (elem 2 p1)
 		x2 (elem 0 p2) y2 (elem 1 p2) z2 (elem 2 p2))
@@ -205,6 +208,62 @@
 				(vec-distance-squared-3d p p2)
 				(vec-distance-squared-3d p (vec-add-3d p1 (vec-scale-3d lv (fp-div c1 c2))))))))
 
+(defun vec-collide-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
+	(defq av (vec-sub-2d l1_p2 l1_p1)
+		bv (vec-sub-2d l2_p2 l2_p1)
+		cv (vec-sub-2d l2_p2 l1_p1)
+		axb (vec-det-2d av bv)
+		axc (vec-det-2d av cv)
+		cxb (vec-det-2d cv bv))
+	(cond
+		((eq axb 0))
+		((gt axb 0)
+			(cond
+				((or (lt axc 0) (gt axc axb)))
+				((or (lt cxb 0) (gt cxb axb)))
+				(t t)))
+		(t
+			(cond
+				((or (gt axc 0) (lt axc axb)))
+				((or (gt cxb 0) (lt cxb axb)))
+				(t t)))))
+
+(defun vec-intersect-2d (l1_p1 av l2_p1 bv)
+	(defq axb (vec-det-2d av bv)
+		da (vec-det-2d (vec-add-2d l1_p1 av) l1_p1)
+		db (vec-det-2d (vec-add-2d l2_p1 bv) l2_p1))
+	(if (ne axb 0)
+		(list
+			(fp-div (vec-det-2d
+				(list da (elem 0 av))
+				(list db (elem 0 bv))) axb)
+			(fp-div (vec-det-2d
+				(list da (elem 1 av))
+				(list db (elem 1 bv))) axb))))
+
+(defun vec-intersect-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
+	(defq av (vec-sub-2d l1_p2 l1_p1)
+		bv (vec-sub-2d l2_p2 l2_p1)
+		axb (vec-det-2d av bv)
+		da (vec-det-2d l1_p2 l1_p1)
+		db (vec-det-2d l2_p2 l2_p1))
+	(if (ne axb 0)
+		(list
+			(fp-div (vec-det-2d
+				(list da (elem 0 av))
+				(list db (elem 0 bv))) axb)
+			(fp-div (vec-det-2d
+				(list da (elem 1 av))
+				(list db (elem 1 bv))) axb))))
+
+(defun vec-collide-thick-lines-2d (l1_p1 l1_p2 l2_p1 tl2_p2 r)
+	(cond
+		((vec-collide-lines-2d l1_p1 l1_p2 l2_p1 l2_p2) t)
+		((le (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) (setq r (fp-mul r r))) t)
+		((le (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) (setq r (fp-mul r r))) t)
+		((le (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) (setq r (fp-mul r r))) t)
+		((le (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) (setq r (fp-mul r r))) t)))
+
 ;generic path stuff
 
 (defun thicken-path-2d (points radius capstyle joinstyle)
@@ -217,31 +276,31 @@
 					index (add index step)
 					p2 (elem index points)
 					index (add index step)
-					l2-v (vec-sub-2d p2 p1)
-					l2-pv (vec-perp-2d l2-v)
-					l2-npv (vec-norm-2d l2-pv)
-					rv (vec-scale-2d l2-npv radius))
+					l2_v (vec-sub-2d p2 p1)
+					l2_pv (vec-perp-2d l2_v)
+					l2_npv (vec-norm-2d l2_pv)
+					l2_rv (vec-scale-2d l2_npv radius))
 				(cond
 					((eq capstyle 0)
 						;butt cap
 						(push out-points
-							(vec-sub-2d p1 rv)
-							(vec-add-2d p1 rv)))
+							(vec-sub-2d p1 l2_rv)
+							(vec-add-2d p1 l2_rv)))
 					((eq capstyle 1)
 						;square cap
-						(defq p0 (vec-add-2d p1 (vec-perp-2d rv)))
+						(defq p0 (vec-add-2d p1 (vec-perp-2d l2_rv)))
 						(push out-points
-							(vec-sub-2d p0 rv)
-							(vec-add-2d p0 rv)))
+							(vec-sub-2d p0 l2_rv)
+							(vec-add-2d p0 l2_rv)))
 					((eq capstyle 2)
 						;triangle cap
 						(push out-points
-							(vec-sub-2d p1 rv)
-							(vec-add-2d p1 (vec-perp-2d rv))
-							(vec-add-2d p1 rv)))
+							(vec-sub-2d p1 l2_rv)
+							(vec-add-2d p1 (vec-perp-2d l2_rv))
+							(vec-add-2d p1 l2_rv)))
 					((eq capstyle 3)
 						;round cap
-						(defq rvx (elem 0 rv) rvy (elem 1 rv) a 0)
+						(defq rvx (elem 0 l2_rv) rvy (elem 1 l2_rv) a 0)
 						(while (le a fp-pi)
 							(defq s (fp-sin a) c (fp-cos a))
 							(push out-points
@@ -250,27 +309,26 @@
 							(setq a (add a (div fp-pi 32)))))
 					(t (throw "Missing capsytle " capstyle)))
 				(while (and (ne index -1) (ne index (length points)))
-					(defq p1 p2 l1-v l2-v l1-npv l2-npv
+					(defq p1 p2 l1_v l2_v l1_npv l2_npv l1_rv l2_rv
 						p2 (elem index points)
 						index (add index step)
-						l2-v (vec-sub-2d p2 p1)
-						l2-pv (vec-perp-2d l2-v)
-						l2-npv (vec-norm-2d l2-pv)
-						nbv (vec-norm-2d (vec-scale-2d (vec-add-2d l1-npv l2-npv) fp-half))
-						c (vec-dot-2d nbv (vec-norm-2d l1-v)))
+						l2_v (vec-sub-2d p2 p1)
+						l2_pv (vec-perp-2d l2_v)
+						l2_npv (vec-norm-2d l2_pv)
+						l2_rv (vec-scale-2d l2_npv radius)
+						nbv (vec-norm-2d (vec-scale-2d (vec-add-2d l1_npv l2_npv) fp-half))
+						c (vec-dot-2d nbv (vec-norm-2d l1_v)))
 					(cond
 						((or (le c 0) (eq joinstyle 0))
 							;mitre join
-							(defq s (fp-sin (acos c))
-								bv (vec-scale-2d nbv (fp-div radius s)))
-							(push out-points
-								(vec-add-2d p1 bv)))
+							(push out-points (vec-intersect-2d
+								(vec-add-2d p1 l1_rv) l1_v
+								(vec-add-2d p1 l2_rv) l2_v)))
 						((eq joinstyle 1)
 							;bevel join
 							(push out-points
-								(vec-add-2d p1 (vec-scale-2d l1-npv radius))
-								(vec-add-2d p1 (vec-scale-2d l2-npv radius))))
+								(vec-add-2d p1 l1_rv)
+								(vec-add-2d p1 l2_rv)))
 						(t (throw "Missing joinstyle " joinstyle))))
 				(setq step (neg step) index (add index step)))
 				out-points)))
-
