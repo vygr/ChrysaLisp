@@ -210,17 +210,17 @@
 
 (defun fp-sin (_)
 	(setq _ (sub (fp-mod _ fp-2pi) fp-pi))
-	(defq u (fp-div _ fp-pi) tp fp-one tc u y 0 i -1)
+	(defq tc (fp-div _ fp-pi) tp fp-one u (bit-shl tc 1) y 0 i -1)
 	(while (lt (setq i (inc i)) 9)
 		(setq y (add y (fp-mul tc (elem i '(-37305 0 43707 0 -6834 0 448 0 -16)))))
-		(defq tn (sub (mul 2 (fp-mul u tc)) tp) tp tc tc tn)) y)
+		(defq tn (sub (fp-mul u tc) tp) tp tc tc tn)) y)
 
 (defun fp-cos (_)
 	(setq _ (sub (fp-mod _ fp-2pi) fp-pi))
-	(defq u (fp-div _ fp-pi) tp fp-one tc u y 19939 i -1)
+	(defq tc (fp-div _ fp-pi) tp fp-one u (bit-shl tc 1) y 19939 i -1)
 	(while (lt (setq i (inc i)) 10)
 		(setq y (add y (fp-mul tc (elem i '(0 63627 0 -19848 0 1907 0 -91 0 3)))))
-		(defq tn (sub (mul 2 (fp-mul u tc)) tp) tp tc tc tn)) y)
+		(defq tn (sub (fp-mul u tc) tp) tp tc tc tn)) y)
 
 ;;;;;;;;;
 ; Streams

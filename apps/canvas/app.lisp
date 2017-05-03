@@ -7,16 +7,10 @@
 (defun set-pen-width (w) (setq pen-width w))
 (defun set-brush-col (c) (setq brush-col c))
 
-(defun hline (x y w)
-	(when (gt w 0)
-		(defq w (add x w) x (dec x))
-		(while (lt (setq x (inc x)) w)
-			(pixel canvas brush-col x y))))
-
 (defun fbox (x y w h)
 	(defq h (add y h) y (dec y))
 	(while (lt (setq y (inc y)) h)
-		(hline x y w)))
+		(pixel canvas brush-col x y w)))
 
 (defun fpoly (p)
 	(defq e (list) ys max-long ye min-long)
@@ -50,7 +44,7 @@
 			(elem-set 0 e1 (add x1 (elem 3 e1)))
 			(elem-set 0 e2 (add x2 (elem 3 e2)))
 			(setq x1 (bit-asr x1 fp-shift) x2 (bit-asr x2 fp-shift))
-			(hline x1 ys (sub x2 x1)))))
+			(pixel canvas brush-col x1 ys (sub x2 x1)))))
 
 (defun circle (x y r)
 	(defq p (list) a 0 s (div fp-2pi 128))
