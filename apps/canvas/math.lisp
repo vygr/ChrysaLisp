@@ -334,41 +334,36 @@
 				(setq step (neg step) index (add index step)))
 				out_points)))
 
-(defun recursive-bezier (x1 y1 x2 y2 x3 y3 x4 y4 points distance_tolerance)
-	;calculate all the mid-points of the line segments
-	(defq x12 (bit-asr (add x1 x2) 1)
-		y12 (bit-asr (add y1 y2) 1)
-		x23 (bit-asr (add x2 x3) 1)
-		y23 (bit-asr (add y2 y3) 1)
-		x34 (bit-asr (add x3 x4) 1)
-		y34 (bit-asr (add y3 y4) 1)
-		x123 (bit-asr (add x12 x23) 1)
-		y123 (bit-asr (add y12 y23) 1)
-		x234 (bit-asr (add x23 x34) 1)
-		y234 (bit-asr (add y23 y34) 1)
-		x1234 (bit-asr (add x123 x234) 1)
-		y1234 (bit-asr (add y123 y234) 1))
+(defun bezier-polyline-2d (p1 p2 p3 p4 res)
+	(defq points (list p1) stack (cat p1 p2 p3 p4))
+	(while (defq y4 (pop stack) x4 (pop stack)
+		y3 (pop stack) x3 (pop stack)
+		y2 (pop stack) x2 (pop stack)
+		y1 (pop stack) x1 (pop stack))
 
-	;try to approximate the full cubic curve by a single straight line
-	(defq dx (sub x4 x1) dy (sub y4 y1)
-		d2 (abs (sub (fp-mul (sub x2 x4) dy) (fp-mul (sub y2 y4) dx)))
-		d3 (abs (sub (fp-mul (sub x3 x4) dy) (fp-mul (sub y3 y4) dx))))
+		;calculate all the mid-points of the line segments
+		(defq x12 (bit-asr (add x1 x2) 1)
+			y12 (bit-asr (add y1 y2) 1)
+			x23 (bit-asr (add x2 x3) 1)
+			y23 (bit-asr (add y2 y3) 1)
+			x34 (bit-asr (add x3 x4) 1)
+			y34 (bit-asr (add y3 y4) 1)
+			x123 (bit-asr (add x12 x23) 1)
+			y123 (bit-asr (add y12 y23) 1)
+			x234 (bit-asr (add x23 x34) 1)
+			y234 (bit-asr (add y23 y34) 1)
+			x1234 (bit-asr (add x123 x234) 1)
+			y1234 (bit-asr (add y123 y234) 1))
 
-	(cond
-		((lt (fp-mul (add d2 d3) (add d2 d3))
-				(fp-mul distance_tolerance (add (fp-mul dx dx) (fp-mul dy dy))))
-			(push points (fp-vec x1234 y1234)))
-		(t
-			;continue subdivision
-			(recursive-bezier x1 y1 x12 y12 x123 y123 x1234 y1234 points distance_tolerance)
-			(recursive-bezier x1234 y1234 x234 y234 x34 y34 x4 y4 points distance_tolerance))))
-
-(defun bezier-polyline-2d (p1 p2 p3 p4 distance_tolerance)
-	(defq points (list)
-		p1x (elem 0 p1) p1y (elem 1 p1)
-		p2x (elem 0 p2) p2y (elem 1 p2)
-		p3x (elem 0 p3) p3y (elem 1 p3)
-		p4x (elem 0 p4) p4y (elem 1 p4))
-	(push points p1)
-;	(recursive-bezier p1x p1y p2x p2y p3x p3y p4x p4y points distance_tolerance)
+		;try to approximate the full cubic curve by a single straight line
+		(defq dx (bit-asr (sub x4 x1) fp-shift) dy (bit-asr (sub y4 y1) fp-shift)
+			d2 (abs (sub (mul (bit-asr (sub x2 x4) fp-shift) dy) (mul (bit-asr (sub y2 y4) fp-shift) dx)))
+			d3 (abs (sub (mul (bit-asr (sub x3 x4) fp-shift) dy) (mul (bit-asr (sub y3 y4) fp-shift) dx))))
+		(cond
+			((le (mul (add d2 d3) (add d2 d3)) (mul res (add (mul dx dx) (mul dy dy))))
+				(push points (list x1234 y1234)))
+			(t
+				;continue subdivision
+				(push stack x1234 y1234 x234 y234 x34 y34 x4 y4)
+				(push stack x1 y1 x12 y12 x123 y123 x1234 y1234))))
 	(push points p4) points)

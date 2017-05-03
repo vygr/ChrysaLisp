@@ -182,7 +182,7 @@
 ;;;;;;;;;;;;;;;;;;
 
 (defq fp-shift 16 fp-one (bit-shl 1 fp-shift) fp-half (bit-asr fp-one 1)
-	fp-pi 205887 fp-2pi 411774)
+	fp-quarter (bit-asr fp-half 1) fp-pi 205887 fp-2pi 411774)
 
 (defun fp-val (_)
 	(bit-shl _ fp-shift))
