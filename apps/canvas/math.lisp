@@ -342,28 +342,25 @@
 		y1 (pop stack) x1 (pop stack))
 
 		;calculate all the mid-points of the line segments
-		(defq x12 (bit-asr (add x1 x2) 1)
-			y12 (bit-asr (add y1 y2) 1)
-			x23 (bit-asr (add x2 x3) 1)
-			y23 (bit-asr (add y2 y3) 1)
-			x34 (bit-asr (add x3 x4) 1)
-			y34 (bit-asr (add y3 y4) 1)
-			x123 (bit-asr (add x12 x23) 1)
-			y123 (bit-asr (add y12 y23) 1)
-			x234 (bit-asr (add x23 x34) 1)
-			y234 (bit-asr (add y23 y34) 1)
-			x1234 (bit-asr (add x123 x234) 1)
-			y1234 (bit-asr (add y123 y234) 1))
+		(defq x12 (bit-asr (add x1 x2) 1) y12 (bit-asr (add y1 y2) 1)
+			x23 (bit-asr (add x2 x3) 1) y23 (bit-asr (add y2 y3) 1)
+			x34 (bit-asr (add x3 x4) 1) y34 (bit-asr (add y3 y4) 1)
+			x123 (bit-asr (add x12 x23) 1) y123 (bit-asr (add y12 y23) 1)
+			x234 (bit-asr (add x23 x34) 1) y234 (bit-asr (add y23 y34) 1)
+			x1234 (bit-asr (add x123 x234) 1) y1234 (bit-asr (add y123 y234) 1))
 
 		;try to approximate the full cubic curve by a single straight line
 		(defq dx (bit-asr (sub x4 x1) fp-shift) dy (bit-asr (sub y4 y1) fp-shift)
-			d2 (abs (sub (mul (bit-asr (sub x2 x4) fp-shift) dy) (mul (bit-asr (sub y2 y4) fp-shift) dx)))
-			d3 (abs (sub (mul (bit-asr (sub x3 x4) fp-shift) dy) (mul (bit-asr (sub y3 y4) fp-shift) dx))))
+			d2 (abs (sub (mul (bit-asr (sub x2 x4) fp-shift) dy)
+						(mul (bit-asr (sub y2 y4) fp-shift) dx)))
+			d3 (abs (sub (mul (bit-asr (sub x3 x4) fp-shift) dy)
+						(mul (bit-asr (sub y3 y4) fp-shift) dx))))
 		(cond
-			((le (mul (add d2 d3) (add d2 d3)) (mul res (add (mul dx dx) (mul dy dy))))
+			((le (mul (add d2 d3) (add d2 d3))
+					(mul res (add (mul dx dx) (mul dy dy))))
 				(push points (list x1234 y1234)))
 			(t
 				;continue subdivision
-				(push stack x1234 y1234 x234 y234 x34 y34 x4 y4)
-				(push stack x1 y1 x12 y12 x123 y123 x1234 y1234))))
+				(push stack x1234 y1234 x234 y234 x34 y34 x4 y4
+							x1 y1 x12 y12 x123 y123 x1234 y1234))))
 	(push points p4) points)
