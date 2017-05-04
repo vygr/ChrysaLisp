@@ -292,7 +292,7 @@
 		;flatness test
 		(cond
 			((le (add (abs (sub (add x1 x3) x2 x2))
-					(abs (sub (add y1 y3) y2 y2))) fp-one)
+					(abs (sub (add y1 y3) y2 y2))) fp-two)
 				(push out_points (vec-add-2d p1 bv)))
 			(t
 				;continue subdivision
@@ -319,7 +319,7 @@
 			((le (add (abs (sub (add x1 x3) x2 x2))
 					(abs (sub (add y1 y3) y2 y2))
 					(abs (sub (add x2 x4) x3 x3))
-					(abs (sub (add y2 y4) y3 y3))) fp-one)
+					(abs (sub (add y2 y4) y3 y3))) fp-two)
 				(push out_points (list x1234 y1234)))
 			(t
 				;continue subdivision

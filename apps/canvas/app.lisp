@@ -55,8 +55,8 @@
 			(fp-vec 384 512) (fp-vec 512 0) (fp-vec 16 512)))
 
 (set-brush-col 0xffff0000)
-(fpoly (arc-polyline-2d (list) (fp-vec 240 256) (fp-val 150) fp-one fp-2pi)
-	(arc-polyline-2d (list) (fp-vec 240 256) (fp-val 100) fp-one fp-2pi))
+(fpoly (arc-polyline-2d (list) (fp-vec 240 256) (fp-val 200) 0 fp-2pi)
+	(arc-polyline-2d (list) (fp-vec 240 256) (fp-val 100) 0 fp-2pi))
 
 (set-brush-col 0xff00ff00)
 (fpoly (stroke-polyline-2d (list (fp-vec 50 50) (fp-vec 350 80) (fp-vec 450 480)) (fp-val 35) 4 2))
