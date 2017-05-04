@@ -1,12 +1,11 @@
 ;math tools
 (run 'apps/canvas/math.lisp)
 
-(defq canvas (pop argv) pen-col 0 brush-col 0 pen-width 0 curve-res 8)
+(defq canvas (pop argv) pen-col 0 brush-col 0 pen-width 0)
 
 (defun set-pen-col (c) (setq pen-col c))
 (defun set-pen-width (w) (setq pen-width w))
 (defun set-brush-col (c) (setq brush-col c))
-(defun set-res (curve-res) (setq curve-res r))
 
 (defun fbox (x y w h)
 	(defq h (add y h) y (dec y))
@@ -56,14 +55,14 @@
 			(fp-vec 384 512) (fp-vec 512 0) (fp-vec 16 512)))
 
 (set-brush-col 0xffff0000)
-(fpoly (arc-polyline-2d (list) (fp-vec 240 256) (fp-val 128) 0 fp-2pi 128)
-	(arc-polyline-2d (list) (fp-vec 240 256) (fp-val 100) 0 fp-2pi 128))
+(fpoly (arc-polyline-2d (list) (fp-vec 240 256) (fp-val 150) fp-one fp-2pi)
+	(arc-polyline-2d (list) (fp-vec 240 256) (fp-val 100) fp-one fp-2pi))
 
 (set-brush-col 0xff00ff00)
-(fpoly (stroke-polyline-2d (list (fp-vec 50 50) (fp-vec 350 80) (fp-vec 450 480)) (fp-val 25) 4 2 curve-res))
+(fpoly (stroke-polyline-2d (list (fp-vec 50 50) (fp-vec 350 80) (fp-vec 450 480)) (fp-val 35) 4 2))
 
 (set-brush-col 0xff00ffff)
 (fpoly (stroke-polyline-2d (bezier-polyline-2d (list) (fp-vec 40 480) (fp-vec 50 50)
-							(fp-vec 60 512) (fp-vec 480 40) curve-res) (fp-val 15) 3 1 curve-res))
+							(fp-vec 60 512) (fp-vec 480 40)) (fp-val 15) 3 1))
 
 (pixel canvas)

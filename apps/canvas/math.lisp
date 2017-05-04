@@ -267,37 +267,39 @@
 
 ;generic path stuff
 
-(defun arc-polyline-2d (out_points p r a1 a2 res)
-	(defq s (div a2 res) i -1)
-	(while (le (setq i (inc i)) res)
-		(push out_points (vec-add-2d p
-			(list (fp-mul r (fp-sin a1))
-				(fp-mul r (fp-cos a1)))))
-		(setq a1 (add a1 s))) out_points)
+(defun arc-polyline-2d (out_points p r a1 a2)
+	(cond
+		((le a2 fp-one)
+			(setq a2 (add a1 a2))
+			(defq v1 (list (fp-mul r (fp-sin a1)) (fp-mul r (fp-cos a1)))
+				v2 (list (fp-mul r (fp-sin a2)) (fp-mul r (fp-cos a2))))
+			(clerp-polyline-2d out_points p v1 v2 r))
+		(t
+			(defq a2 (bit-asr a2 1) ad (add a1 a2))
+			(arc-polyline-2d out_points p r a1 a2)
+			(arc-polyline-2d out_points p r ad a2))) out_points)
 
-(defun clerp-polyline-2d (out_points p1 v2 v3 r res)
+(defun clerp-polyline-2d (out_points p1 v2 v3 r)
 	(defq stack (list v2 v3))
 	(push out_points (vec-add-2d p1 v2))
 	(while (defq v4 (pop stack) v2 (pop stack))
 		;calculate the mid-point
-		(defq nbv (vec-scale-2d (vec-norm-2d (vec-add-2d v2 v4)) r))
+		(defq bv (vec-scale-2d (vec-norm-2d (vec-add-2d v2 v4)) r)
+			x1 (elem 0 v2) y1 (elem 1 v2)
+			x2 (elem 0 bv) y2 (elem 1 bv)
+			x3 (elem 0 v4) y3 (elem 1 v4))
 
 		;flatness test
-		(defq x1 (elem 0 v2) y1 (elem 1 v2)
-			x2 (elem 0 nbv) y2 (elem 1 nbv)
-			x3 (elem 0 v4) y3 (elem 1 v4)
-			dx (bit-asr (sub x3 x1) fp-shift) dy (bit-asr (sub y3 y1) fp-shift)
-			d2 (sub (mul (bit-asr (sub x2 x3) fp-shift) dy)
-					(mul (bit-asr (sub y2 y3) fp-shift) dx)))
 		(cond
-			((le (mul d2 d2) (mul res (add (mul dx dx) (mul dy dy))))
-				(push out_points (vec-add-2d p1 nbv)))
+			((le (add (abs (sub (add x1 x3) x2 x2))
+					(abs (sub (add y1 y3) y2 y2))) fp-one)
+				(push out_points (vec-add-2d p1 bv)))
 			(t
 				;continue subdivision
-				(push stack nbv v4 v2 nbv))))
+				(push stack bv v4 v2 bv))))
 	(push out_points (vec-add-2d p1 v3)) out_points)
 
-(defun bezier-polyline-2d (out_points p1 p2 p3 p4 res)
+(defun bezier-polyline-2d (out_points p1 p2 p3 p4)
 	(defq stack (cat p1 p2 p3 p4))
 	(push out_points p1)
 	(while (defq y4 (pop stack) x4 (pop stack)
@@ -313,15 +315,11 @@
 			x234 (bit-asr (add x23 x34) 1) y234 (bit-asr (add y23 y34) 1)
 			x1234 (bit-asr (add x123 x234) 1) y1234 (bit-asr (add y123 y234) 1))
 
-		;try to approximate the full cubic curve by a single straight line
-		(defq dx (bit-asr (sub x4 x1) fp-shift) dy (bit-asr (sub y4 y1) fp-shift)
-			d2 (abs (sub (mul (bit-asr (sub x2 x4) fp-shift) dy)
-						(mul (bit-asr (sub y2 y4) fp-shift) dx)))
-			d3 (abs (sub (mul (bit-asr (sub x3 x4) fp-shift) dy)
-						(mul (bit-asr (sub y3 y4) fp-shift) dx))))
 		(cond
-			((le (mul (add d2 d3) (add d2 d3))
-					(mul res (add (mul dx dx) (mul dy dy))))
+			((le (add (abs (sub (add x1 x3) x2 x2))
+					(abs (sub (add y1 y3) y2 y2))
+					(abs (sub (add x2 x4) x3 x3))
+					(abs (sub (add y2 y4) y3 y3))) fp-one)
 				(push out_points (list x1234 y1234)))
 			(t
 				;continue subdivision
@@ -329,11 +327,11 @@
 							x1 y1 x12 y12 x123 y123 x1234 y1234))))
 	(push out_points p4) out_points)
 
-(defun stroke-polyline-2d (points radius capstyle joinstyle res)
+(defun stroke-polyline-2d (points radius capstyle joinstyle)
 	(if (eq radius 0)
 		(cat points (slice -2 -1 points))
 		(progn
-			(defq index 0 step 1 out_points (list) sides 2 res (bit-asr res 2))
+			(defq index 0 step 1 out_points (list) sides 2)
 			(while (ge (setq sides (dec sides)) 0)
 				(defq p1 (elem index points)
 					index (add index step)
@@ -372,13 +370,9 @@
 							(vec-add-2d p1 l2_rv)))
 					((eq capstyle 4)
 						;round cap
-						(defq rvx (elem 0 l2_rv) rvy (elem 1 l2_rv) a 0)
-						(while (le a fp-pi)
-							(defq s (fp-sin a) c (fp-cos a))
-							(push out_points
-								(vec-sub-2d p1 (list (sub (fp-mul rvx c) (fp-mul rvy s))
-													(add (fp-mul rvx s) (fp-mul rvy c)))))
-							(setq a (add a (div fp-pi 32)))))
+						(defq pv (vec-perp-2d l2_rv))
+						(clerp-polyline-2d out_points p1 (vec-scale-2d l2_rv (neg fp-one)) pv radius)
+						(clerp-polyline-2d out_points p1 pv l2_rv radius))
 					(t (throw "Missing capsytle " capstyle)))
 				(while (and (ne index -1) (ne index (length points)))
 					(defq p1 p2 l1_v l2_v l1_npv l2_npv l1_rv l2_rv
@@ -403,7 +397,7 @@
 								(vec-add-2d p1 l2_rv)))
 						((eq joinstyle 2)
 							;rounded join
-							(clerp-polyline-2d out_points p1 l1_rv l2_rv radius res))
+							(clerp-polyline-2d out_points p1 l1_rv l2_rv radius))
 						(t (throw "Missing joinstyle " joinstyle))))
 				(setq step (neg step) index (add index step)))
 				out_points)))
