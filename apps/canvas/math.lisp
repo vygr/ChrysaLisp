@@ -275,6 +275,28 @@
 				(fp-mul r (fp-cos a1)))))
 		(setq a1 (add a1 s))) out_points)
 
+(defun clerp-polyline-2d (out_points p1 v2 v3 r res)
+	(defq stack (list v2 v3))
+	(push out_points (vec-add-2d p1 v2))
+	(while (defq v4 (pop stack) v2 (pop stack))
+		;calculate the mid-point
+		(defq nbv (vec-scale-2d (vec-norm-2d (vec-add-2d v2 v4)) r))
+
+		;flatness test
+		(defq x1 (elem 0 v2) y1 (elem 1 v2)
+			x2 (elem 0 nbv) y2 (elem 1 nbv)
+			x3 (elem 0 v4) y3 (elem 1 v4)
+			dx (bit-asr (sub x3 x1) fp-shift) dy (bit-asr (sub y3 y1) fp-shift)
+			d2 (sub (mul (bit-asr (sub x2 x3) fp-shift) dy)
+					(mul (bit-asr (sub y2 y3) fp-shift) dx)))
+		(cond
+			((le (mul d2 d2) (mul res (add (mul dx dx) (mul dy dy))))
+				(push out_points (vec-add-2d p1 nbv)))
+			(t
+				;continue subdivision
+				(push stack nbv v4 v2 nbv))))
+	(push out_points (vec-add-2d p1 v3)) out_points)
+
 (defun bezier-polyline-2d (out_points p1 p2 p3 p4 res)
 	(defq stack (cat p1 p2 p3 p4))
 	(push out_points p1)
@@ -307,11 +329,11 @@
 							x1 y1 x12 y12 x123 y123 x1234 y1234))))
 	(push out_points p4) out_points)
 
-(defun stroke-polyline-2d (points radius capstyle joinstyle)
+(defun stroke-polyline-2d (points radius capstyle joinstyle res)
 	(if (eq radius 0)
 		(cat points (slice -2 -1 points))
 		(progn
-			(defq index 0 step 1 out_points (list) sides 2)
+			(defq index 0 step 1 out_points (list) sides 2 res (bit-asr res 2))
 			(while (ge (setq sides (dec sides)) 0)
 				(defq p1 (elem index points)
 					index (add index step)
@@ -366,7 +388,7 @@
 						l2_pv (vec-perp-2d l2_v)
 						l2_npv (vec-norm-2d l2_pv)
 						l2_rv (vec-scale-2d l2_npv radius)
-						nbv (vec-norm-2d (vec-scale-2d (vec-add-2d l1_npv l2_npv) fp-half))
+						nbv (vec-norm-2d (vec-add-2d l1_npv l2_npv))
 						c (vec-dot-2d nbv (vec-norm-2d l1_v)))
 					(cond
 						((or (le c 0) (eq joinstyle 0))
@@ -379,6 +401,9 @@
 							(push out_points
 								(vec-add-2d p1 l1_rv)
 								(vec-add-2d p1 l2_rv)))
+						((eq joinstyle 2)
+							;rounded join
+							(clerp-polyline-2d out_points p1 l1_rv l2_rv radius res))
 						(t (throw "Missing joinstyle " joinstyle))))
 				(setq step (neg step) index (add index step)))
 				out_points)))
