@@ -1,11 +1,12 @@
 ;math tools
 (run 'apps/canvas/math.lisp)
 
-(defq canvas (pop argv) pen-col 0 brush-col 0 pen-width 0)
+(defq canvas (pop argv) pen-col 0 brush-col 0 pen-width 0 curve-res 8)
 
 (defun set-pen-col (c) (setq pen-col c))
 (defun set-pen-width (w) (setq pen-width w))
 (defun set-brush-col (c) (setq brush-col c))
+(defun set-res (curve-res) (setq curve-res r))
 
 (defun fbox (x y w h)
 	(defq h (add y h) y (dec y))
@@ -59,10 +60,10 @@
 	(arc-polyline-2d (list) (fp-vec 240 256) (fp-val 100) 0 fp-2pi 128))
 
 (set-brush-col 0xff00ff00)
-(fpoly (stroke-polyline-2d (list (fp-vec 40 30) (fp-vec 350 80) (fp-vec 450 480)) (fp-val 20) 4 1))
+(fpoly (stroke-polyline-2d (list (fp-vec 50 50) (fp-vec 350 80) (fp-vec 450 480)) (fp-val 25) 4 2 curve-res))
 
 (set-brush-col 0xff00ffff)
-(fpoly (stroke-polyline-2d (bezier-polyline-2d  (list) (fp-vec 40 480) (fp-vec 50 50)
-							(fp-vec 60 512) (fp-vec 480 40) 15) (fp-val 15) 3 1))
+(fpoly (stroke-polyline-2d (bezier-polyline-2d (list) (fp-vec 40 480) (fp-vec 50 50)
+							(fp-vec 60 512) (fp-vec 480 40) curve-res) (fp-val 15) 3 1 curve-res))
 
 (pixel canvas)
