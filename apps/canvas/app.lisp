@@ -1,5 +1,5 @@
 ;math tools
-(repl (file-stream "apps/canvas/math.lisp") "apps/canvas/math.lisp")
+(run 'apps/canvas/math.lisp)
 
 (defq canvas (pop argv) pen-col 0 brush-col 0 pen-width 0)
 
@@ -46,12 +46,6 @@
 			(setq x1 (bit-asr x1 fp-shift) x2 (bit-asr x2 fp-shift))
 			(pixel canvas brush-col x1 ys (sub x2 x1)))))
 
-(defun circle (x y r)
-	(defq p (list) a 0 s (div fp-2pi 128))
-	(while (lt a fp-2pi)
-		(push p (list (add x (fp-mul r (fp-sin a))) (add y (fp-mul r (fp-cos a)))))
-		(setq a (add a s))) p)
-
 (set-brush-col 0)
 (fbox 0 0 512 512)
 
@@ -60,13 +54,13 @@
 			(fp-vec 384 512) (fp-vec 512 0) (fp-vec 16 512)))
 
 (set-brush-col 0xffff0000)
-(fpoly (circle (fp-val 256) (fp-val 256) (fp-val 128)))
+(fpoly (arc-polyline-2d (list) (fp-vec 240 256) (fp-val 128) 0 fp-2pi 128))
 
 (set-brush-col 0xff00ff00)
-(fpoly (stroke-polyline-2d (list (fp-vec 40 30) (fp-vec 350 80) (fp-vec 450 480)) (fp-val 20) 3 1))
+(fpoly (stroke-polyline-2d (list (fp-vec 40 30) (fp-vec 350 80) (fp-vec 450 480)) (fp-val 20) 4 1))
 
 (set-brush-col 0xff00ffff)
-(fpoly (stroke-polyline-2d (bezier-polyline-2d (fp-vec 40 480) (fp-vec 50 50)
-							(fp-vec 60 512) (fp-vec 480 40) 15) (fp-val 15) 2 1))
+(fpoly (stroke-polyline-2d (bezier-polyline-2d  (list) (fp-vec 40 480) (fp-vec 50 50)
+							(fp-vec 60 512) (fp-vec 480 40) 15) (fp-val 15) 3 1))
 
 (pixel canvas)
