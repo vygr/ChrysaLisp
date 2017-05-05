@@ -1,7 +1,9 @@
 ;math tools
 (run 'apps/canvas/math.lisp)
 
-(defq canvas (pop argv) pen-col 0 brush-col 0 pen-width 0)
+(defq canvas (pop argv) pen-col 0 brush-col 0 pen-width 0
+	mitre-join 0 bevel-join 1 round-join 2
+	butt-cap 0 square-cap 1 tri-cap 2 arrow-cap 3 round-cap 4)
 
 (defun set-pen-col (c) (setq pen-col c))
 (defun set-pen-width (w) (setq pen-width w))
@@ -51,18 +53,61 @@
 (fbox 0 0 512 512)
 
 (set-brush-col 0xff0000ff)
-(fpoly (list (fp-vec 0 0) (fp-vec 128 512) (fp-vec 256 0)
-			(fp-vec 384 512) (fp-vec 512 0) (fp-vec 16 512)))
-
-(set-brush-col 0xffff0000)
-(fpoly (arc-polyline-2d (list) (fp-vec 240 256) (fp-val 200) 0 fp-2pi)
-	(arc-polyline-2d (list) (fp-vec 240 256) (fp-val 100) 0 fp-2pi))
+(fpoly
+	(list
+		(fp-vec 0 0)
+		(fp-vec 128 512)
+		(fp-vec 256 0)
+		(fp-vec 384 512)
+		(fp-vec 512 0)
+		(fp-vec 16 512)))
 
 (set-brush-col 0xff00ff00)
-(fpoly (stroke-polyline-2d (list (fp-vec 50 50) (fp-vec 350 80) (fp-vec 450 480)) (fp-val 35) 4 2))
+(fpoly
+	(stroke-polyline-2d
+		(list)
+		(list
+			(fp-vec 50 50)
+			(fp-vec 350 80)
+			(fp-vec 450 480))
+		(fp-val 35)
+		round-join
+		round-cap))
 
 (set-brush-col 0xff00ffff)
-(fpoly (stroke-polyline-2d (bezier-polyline-2d (list) (fp-vec 40 480) (fp-vec 50 50)
-							(fp-vec 60 512) (fp-vec 480 40)) (fp-val 15) 3 1))
+(apply fpoly
+	(stroke-polygon-2d
+		(list)
+		(stroke-polyline-2d
+			(list)
+			(bezier-polyline-2d
+				(list)
+				(fp-vec 50 470)
+				(fp-vec 90 100)
+				(fp-vec 200 200)
+				(fp-vec 470 40))
+			(fp-val 15)
+			bevel-join
+			arrow-cap)
+		(fp-val 5)
+		mitre-join))
+
+(set-brush-col 0xffff0000)
+(apply fpoly
+	(stroke-polygon-2d
+		(list)
+		(stroke-polyline-2d
+			(list)
+			(arc-polyline-2d
+				(list)
+				(fp-vec 240 256)
+				(fp-val 150)
+				fp-2pi
+				fp-pi)
+			(fp-val 30)
+			bevel-join
+			square-cap)
+		(fp-val 20)
+		mitre-join))
 
 (pixel canvas)
