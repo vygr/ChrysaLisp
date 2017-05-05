@@ -68,9 +68,9 @@
 		round-join
 		round-cap
 		round-cap
-		(list (fp-vec 50 50)
+		(list (list (fp-vec 50 50)
 			(fp-vec 350 80)
-			(fp-vec 450 480))))
+			(fp-vec 450 480)))))
 
 (set-brush-col 0xff00ffff)
 (fpoly
@@ -84,12 +84,12 @@
 			bevel-join
 			round-cap
 			arrow-cap
-			(gen-bezier-polyline-2d
+			(list (gen-bezier-polyline-2d
 				(list)
 				(fp-vec 50 470)
 				(fp-vec 90 100)
 				(fp-vec 200 200)
-				(fp-vec 470 40)))))
+				(fp-vec 470 40))))))
 
 (set-brush-col 0xffff0000)
 (fpoly
@@ -103,17 +103,18 @@
 			bevel-join
 			square-cap
 			tri-cap
-			(gen-arc-polyline-2d
-				(list)
-				(fp-vec 240 256)
-				(fp-val 150)
-				fp-one
-				fp-one)
-			(gen-arc-polyline-2d
-				(list)
-				(fp-vec 240 256)
-				(fp-val 80)
-				fp-four
-				fp-two))))
+			(list
+				(gen-arc-polyline-2d
+					(list)
+					(fp-vec 240 256)
+					(fp-val 150)
+					fp-one
+					fp-one)
+				(gen-arc-polyline-2d
+					(list)
+					(fp-vec 240 256)
+					(fp-val 80)
+					fp-four
+					fp-two)))))
 
 (pixel canvas)

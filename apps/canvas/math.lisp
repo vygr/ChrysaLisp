@@ -349,7 +349,7 @@
 							x1 y1 x12 y12 x123 y123 x1234 y1234))))
 	(push out_points p4))
 
-(defun gen-polyline-joints-2d (out_points points p1 p2 i j)
+(defun gen-polyline-joints-2d (out_points in_points p1 p2 i j)
 	(when (ne r 0)
 		(defq l2_v (vec-sub-2d p2 p1)
 			l2_pv (vec-perp-2d l2_v)
@@ -378,10 +378,10 @@
 				((eq join_style round-join)
 					;rounded join
 					(gen-clerp-polyline-2d out_points p1 l1_rv l2_rv r))
-				(t (throw "Missing join style " join_style)))) (list points)))
+				(t (throw "Missing join style " join_style)))) (list in_points)))
 	out_points)
 
-(defun stroke-polyline-2d (out_polygons r join_style cap1_style cap2_style &rest in_polylines)
+(defun stroke-polyline-2d (out_polygons r join_style cap1_style cap2_style in_polylines)
  	(when (ne r 0)
 	 	(each (lambda (_)
 			(setq _ (remove-coincident-polyline-2d _))
