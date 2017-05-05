@@ -13,7 +13,7 @@
 	(while (lt (setq y (inc y)) h)
 		(pixel canvas brush-col x y w)))
 
-(defun fpoly (&rest _)
+(defun fpoly (_)
 	(defq e (list) ys max-long ye min-long)
 	(each (lambda (_)
 		(reduce (lambda (p1 p2)
@@ -52,14 +52,13 @@
 (fbox 0 0 512 512)
 
 (set-brush-col 0xff0000ff)
-(fpoly
-	(list
-		(fp-vec 0 0)
-		(fp-vec 128 512)
-		(fp-vec 256 0)
-		(fp-vec 384 512)
-		(fp-vec 512 0)
-		(fp-vec 16 512)))
+(fpoly (list (list
+	(fp-vec 0 0)
+	(fp-vec 128 512)
+	(fp-vec 256 0)
+	(fp-vec 384 512)
+	(fp-vec 512 0)
+	(fp-vec 16 512))))
 
 (set-brush-col 0xff00ff00)
 (fpoly
@@ -69,13 +68,12 @@
 		round-join
 		round-cap
 		round-cap
-		(list
-			(fp-vec 50 50)
+		(list (fp-vec 50 50)
 			(fp-vec 350 80)
 			(fp-vec 450 480))))
 
 (set-brush-col 0xff00ffff)
-(apply fpoly
+(fpoly
 	(stroke-polygon-2d
 		(list)
 		(fp-val 5)
@@ -86,7 +84,7 @@
 			bevel-join
 			round-cap
 			arrow-cap
-			(bezier-polyline-2d
+			(gen-bezier-polyline-2d
 				(list)
 				(fp-vec 50 470)
 				(fp-vec 90 100)
@@ -94,7 +92,7 @@
 				(fp-vec 470 40)))))
 
 (set-brush-col 0xffff0000)
-(apply fpoly
+(fpoly
 	(stroke-polygon-2d
 		(list)
 		(fp-val 15)
@@ -104,12 +102,18 @@
 			(fp-val 25)
 			bevel-join
 			square-cap
-			square-cap
-			(arc-polyline-2d
+			tri-cap
+			(gen-arc-polyline-2d
 				(list)
 				(fp-vec 240 256)
 				(fp-val 150)
-				fp-2pi
-				fp-pi))))
+				fp-one
+				fp-one)
+			(gen-arc-polyline-2d
+				(list)
+				(fp-vec 240 256)
+				(fp-val 80)
+				fp-four
+				fp-two))))
 
 (pixel canvas)

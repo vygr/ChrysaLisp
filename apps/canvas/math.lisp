@@ -284,21 +284,22 @@
 			(eq (elem 1 p1) (elem 1 p2)))
 		(pop _)) _)
 
-(defun arc-polyline-2d (out_points p r a1 a2)
+(defun gen-arc-polyline-2d (out_points p r a1 a2)
 	(when (ne r 0)
+		(setq a1 (fp-mod a1 fp-2pi) a2 (if (gt a2 fp-2pi) (fp-mod a2 fp-2pi) a2))
 		(cond
-			((le a2 fp-one)
+			((le a2 fp-three)
 				(setq a2 (add a1 a2))
 				(defq v1 (list (fp-mul r (fp-sin a1)) (fp-mul r (fp-cos a1)))
 					v2 (list (fp-mul r (fp-sin a2)) (fp-mul r (fp-cos a2))))
-				(clerp-polyline-2d out_points p v1 v2 r))
+				(gen-clerp-polyline-2d out_points p v1 v2 r))
 			(t
-				(defq a2 (bit-asr a2 1) ad (add a1 a2))
-				(arc-polyline-2d out_points p r a1 a2)
-				(arc-polyline-2d out_points p r ad a2))))
+				(defq ah (bit-asr a2 1) a2 (add a1 ah))
+				(gen-arc-polyline-2d out_points p r a1 ah)
+				(gen-arc-polyline-2d out_points p r a2 ah))))
 	out_points)
 
-(defun clerp-polyline-2d (out_points p1 v2 v3 r)
+(defun gen-clerp-polyline-2d (out_points p1 v2 v3 r)
 	(when (ne r 0)
 		(defq stack (list v2 v3))
 		(push out_points (vec-add-2d p1 v2))
@@ -320,7 +321,7 @@
 		(push out_points (vec-add-2d p1 v3)))
 	out_points)
 
-(defun bezier-polyline-2d (out_points p1 p2 p3 p4)
+(defun gen-bezier-polyline-2d (out_points p1 p2 p3 p4)
 	(defq stack (cat p1 p2 p3 p4))
 	(push out_points p1)
 	(while (defq y4 (pop stack) x4 (pop stack)
@@ -348,82 +349,7 @@
 							x1 y1 x12 y12 x123 y123 x1234 y1234))))
 	(push out_points p4))
 
-(defun stroke-polyline-2d (out_points r join_style cap1_style cap2_style points)
- 	(when (ne r 0)
-		(setq points (remove-coincident-polyline-2d points))
-		(defq index 0 step 1 sides 2)
-		(while (ge (setq sides (dec sides)) 0)
-			(defq p1 (elem index points)
-				index (add index step)
-				p2 (elem index points)
-				index (add index step)
-				l2_v (vec-sub-2d p2 p1)
-				l2_pv (vec-perp-2d l2_v)
-				l2_npv (vec-norm-2d l2_pv)
-				l2_rv (vec-scale-2d l2_npv r)
-				c (if (eq sides 0) cap2_style cap1_style))
-			(cond
-				((eq c butt-cap)
-					;butt cap
-					(push out_points
-						(vec-sub-2d p1 l2_rv)
-						(vec-add-2d p1 l2_rv)))
-				((eq c square-cap)
-					;square cap
-					(defq p0 (vec-add-2d p1 (vec-perp-2d l2_rv)))
-					(push out_points
-						(vec-sub-2d p0 l2_rv)
-						(vec-add-2d p0 l2_rv)))
-				((eq c tri-cap)
-					;triangle cap
-					(push out_points
-						(vec-sub-2d p1 l2_rv)
-						(vec-add-2d p1 (vec-perp-2d l2_rv))
-						(vec-add-2d p1 l2_rv)))
-				((eq c arrow-cap)
-					;arrow cap
-					(defq rv (vec-scale-2d l2_rv fp-two))
-					(push out_points
-						(vec-sub-2d p1 l2_rv)
-						(vec-sub-2d p1 rv)
-						(vec-add-2d p1 (vec-perp-2d rv))
-						(vec-add-2d p1 rv)
-						(vec-add-2d p1 l2_rv)))
-				((eq c round-cap)
-					;round cap
-					(defq pv (vec-perp-2d l2_rv))
-					(clerp-polyline-2d out_points p1 (vec-scale-2d l2_rv (neg fp-one)) pv r)
-					(clerp-polyline-2d out_points p1 pv l2_rv r))
-				(t (throw "Missing cap sytle " c)))
-			(while (and (ne index -1) (ne index (length points)))
-				(defq p1 p2 l1_v l2_v l1_npv l2_npv l1_rv l2_rv
-					p2 (elem index points)
-					index (add index step)
-					l2_v (vec-sub-2d p2 p1)
-					l2_pv (vec-perp-2d l2_v)
-					l2_npv (vec-norm-2d l2_pv)
-					l2_rv (vec-scale-2d l2_npv r)
-					nbv (vec-norm-2d (vec-add-2d l1_npv l2_npv))
-					c (vec-dot-2d nbv (vec-norm-2d l1_v)))
-				(cond
-					((or (le c 0) (eq join_style mitre-join))
-						;mitre join
-						(push out_points (vec-intersect-2d
-							(vec-add-2d p1 l1_rv) l1_v
-							(vec-add-2d p1 l2_rv) l2_v)))
-					((eq join_style bevel-join)
-						;bevel join
-						(push out_points
-							(vec-add-2d p1 l1_rv)
-							(vec-add-2d p1 l2_rv)))
-					((eq join_style round-join)
-						;rounded join
-						(clerp-polyline-2d out_points p1 l1_rv l2_rv r))
-					(t (throw "Missing join style " join_style))))
-			(setq step (neg step) index (add index step))))
-	out_points)
-
-(defun stroke-polyline-joints-2d (out_points points p1 p2 i j)
+(defun gen-polyline-joints-2d (out_points points p1 p2 i j)
 	(when (ne r 0)
 		(defq l2_v (vec-sub-2d p2 p1)
 			l2_pv (vec-perp-2d l2_v)
@@ -451,13 +377,92 @@
 						(vec-add-2d p1 l2_rv)))
 				((eq join_style round-join)
 					;rounded join
-					(clerp-polyline-2d out_points p1 l1_rv l2_rv r))
+					(gen-clerp-polyline-2d out_points p1 l1_rv l2_rv r))
 				(t (throw "Missing join style " join_style)))) (list points)))
 	out_points)
 
-(defun stroke-polygon-2d (out_polygons r join_style points)
+(defun stroke-polyline-2d (out_polygons r join_style cap1_style cap2_style &rest in_polylines)
+ 	(when (ne r 0)
+	 	(each (lambda (_)
+			(setq _ (remove-coincident-polyline-2d _))
+			(defq index 0 step 1 sides 2 out_points (list))
+			(while (ge (setq sides (dec sides)) 0)
+				(defq p1 (elem index _)
+					index (add index step)
+					p2 (elem index _)
+					index (add index step)
+					l2_v (vec-sub-2d p2 p1)
+					l2_pv (vec-perp-2d l2_v)
+					l2_npv (vec-norm-2d l2_pv)
+					l2_rv (vec-scale-2d l2_npv r)
+					c (if (eq sides 0) cap2_style cap1_style))
+				(cond
+					((eq c butt-cap)
+						;butt cap
+						(push out_points
+							(vec-sub-2d p1 l2_rv)
+							(vec-add-2d p1 l2_rv)))
+					((eq c square-cap)
+						;square cap
+						(defq p0 (vec-add-2d p1 (vec-perp-2d l2_rv)))
+						(push out_points
+							(vec-sub-2d p0 l2_rv)
+							(vec-add-2d p0 l2_rv)))
+					((eq c tri-cap)
+						;triangle cap
+						(push out_points
+							(vec-sub-2d p1 l2_rv)
+							(vec-add-2d p1 (vec-perp-2d l2_rv))
+							(vec-add-2d p1 l2_rv)))
+					((eq c arrow-cap)
+						;arrow cap
+						(defq rv (vec-scale-2d l2_rv fp-two))
+						(push out_points
+							(vec-sub-2d p1 l2_rv)
+							(vec-sub-2d p1 rv)
+							(vec-add-2d p1 (vec-perp-2d rv))
+							(vec-add-2d p1 rv)
+							(vec-add-2d p1 l2_rv)))
+					((eq c round-cap)
+						;round cap
+						(defq pv (vec-perp-2d l2_rv))
+						(gen-clerp-polyline-2d out_points p1 (vec-scale-2d l2_rv (neg fp-one)) pv r)
+						(gen-clerp-polyline-2d out_points p1 pv l2_rv r))
+					(t (throw "Missing cap sytle " c)))
+				(while (and (ne index -1) (ne index (length _)))
+					(defq p1 p2 l1_v l2_v l1_npv l2_npv l1_rv l2_rv
+						p2 (elem index _)
+						index (add index step)
+						l2_v (vec-sub-2d p2 p1)
+						l2_pv (vec-perp-2d l2_v)
+						l2_npv (vec-norm-2d l2_pv)
+						l2_rv (vec-scale-2d l2_npv r)
+						nbv (vec-norm-2d (vec-add-2d l1_npv l2_npv))
+						c (vec-dot-2d nbv (vec-norm-2d l1_v)))
+					(cond
+						((or (le c 0) (eq join_style mitre-join))
+							;mitre join
+							(push out_points (vec-intersect-2d
+								(vec-add-2d p1 l1_rv) l1_v
+								(vec-add-2d p1 l2_rv) l2_v)))
+						((eq join_style bevel-join)
+							;bevel join
+							(push out_points
+								(vec-add-2d p1 l1_rv)
+								(vec-add-2d p1 l2_rv)))
+						((eq join_style round-join)
+							;rounded join
+							(gen-clerp-polyline-2d out_points p1 l1_rv l2_rv r))
+						(t (throw "Missing join style " join_style))))
+				(setq step (neg step) index (add index step)))
+			(push out_polygons out_points)) in_polylines))
+	out_polygons)
+
+(defun stroke-polygon-2d (out_polygons r join_style in_polygons)
 	(when (ne r 0)
-		(setq points (remove-coincident-polygon-2d points))
-		(push out_polygons (stroke-polyline-joints-2d (list) points (elem -3 points) (elem -2 points) 0 (length points)))
-		(push out_polygons (stroke-polyline-joints-2d (list) points (elem 1 points) (elem 0 points) (length points) 0)))
+		(each (lambda (_)
+			(setq _ (remove-coincident-polygon-2d _))
+			(push out_polygons (gen-polyline-joints-2d (list) _ (elem -3 _) (elem -2 _) 0 (length _)))
+			(push out_polygons (gen-polyline-joints-2d (list) _ (elem 1 _) (elem 0 _) (length _) 0)))
+			in_polygons))
 	out_polygons)
