@@ -23,7 +23,7 @@
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 	(f-call 'boxed_long 'get_value {value} {_, num})
 	(f-call 'vector 'get_element {args, 1} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 	(f-call 'boxed_long 'get_value {value} {_, length})
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, num << length})
@@ -34,15 +34,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(bit-shl num cnt) wrong number of args"} {value})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(bit-shl num cnt)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
 (vp-label 'error2)
-	(assign {"(bit-shl num cnt) not a number"} {value})
-	(goto 'error)
-(vp-label 'error3)
-	(assign {"(bit-shl num cnt) not a count"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(bit-shl num cnt)", error_msg_not_a_number, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

@@ -54,12 +54,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(pipe-read pipe) wrong number of args"} {value})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(pipe-read pipe)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
 (vp-label 'error2)
-	(assign {"(pipe-read pipe) not pipe"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(pipe-read pipe)", error_msg_not_a_pipe, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

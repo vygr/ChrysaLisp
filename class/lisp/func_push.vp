@@ -28,10 +28,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(push list)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(push list form ...)", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(push list)", error_msg_not_a_list, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(push list form ...)", error_msg_not_a_list, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

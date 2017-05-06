@@ -69,3 +69,8 @@
 (deferror "symbol_not_bound")
 (deferror "not_a_filename")
 (deferror "not_a_list")
+(deferror "not_a_sequence")
+(deferror "not_a_string")
+(deferror "not_a_pipe")
+(deferror "not_a_number")
+(deferror "open_error")
