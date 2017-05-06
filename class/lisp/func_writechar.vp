@@ -50,7 +50,7 @@
 (vp-label 'error3)
 	(assign {"(write-char stream num [width]) not a number"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {_, value})
+	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

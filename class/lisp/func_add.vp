@@ -1,4 +1,5 @@
 (import 'inc/func.inc)
+(import 'class/error/error.inc)
 (import 'class/vector/vector.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
@@ -39,12 +40,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(add val val ...) not enough args"} {value})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(add num num ...)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
 (vp-label 'error2)
-	(assign {"(add val val ...) not all numbers"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(add num num ...)", error_msg_not_all_nums, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

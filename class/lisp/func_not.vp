@@ -1,4 +1,5 @@
 (import 'inc/func.inc)
+(import 'class/error/error.inc)
 (import 'class/vector/vector.inc)
 (import 'class/lisp/lisp.inc)
 
@@ -17,7 +18,7 @@
 	(f-entry 'lisp 'func_not {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error)
+	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_element {args, 0} {_, args})
 	(vpif {args == this->lisp_sym_nil})
 		(assign {this->lisp_sym_t} {args})
@@ -31,8 +32,8 @@
 	(return)
 
 (errorcases
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(not form) wrong number of args", args} {_, args})
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(not form)", error_msg_wrong_num_of_args, args} {_, args})
 	(goto 'exit))
 
 	(pop-scope-syms)

@@ -67,7 +67,7 @@
 (vp-label 'error1)
 	(assign {"(lambda vars body) wrong number of args"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, func} {_, value})
+	(f-call 'lisp 'repl_error {this, value, 0, func} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

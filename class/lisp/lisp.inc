@@ -34,7 +34,7 @@
 (def-method 'repl_apply 'class/lisp/repl_apply 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'repl_print 'class/lisp/repl_print 'static '(r0 r1 r2) '(r0))
 (def-method 'repl_expand 'class/lisp/repl_expand 'static '(r0 r1 r2) '(r0 r1))
-(def-method 'repl_error 'class/lisp/repl_error 'static '(r0 r1 r2) '(r0 r1))
+(def-method 'repl_error 'class/lisp/repl_error 'static '(r0 r1 r2 r3) '(r0 r1))
 
 (def-method 'func_macroexpand_1 'class/lisp/func_macroexpand_1 'static '(r0 r1) '(r0 r1))
 (def-method 'func_macroexpand 'class/lisp/func_macroexpand 'static '(r0 r1) '(r0 r1))

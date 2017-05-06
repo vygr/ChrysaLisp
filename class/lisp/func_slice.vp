@@ -59,7 +59,7 @@
 (vp-label 'error4)
 	(assign {"(slice start end slc) index out of bounds"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {_, value})
+	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

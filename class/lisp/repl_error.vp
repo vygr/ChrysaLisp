@@ -10,17 +10,18 @@
 	;inputs
 	;r0 = lisp object
 	;r1 = description cstr pointer
-	;r2 = error payload object
+	;r2 = 0, else error msg number
+	;r3 = error payload object
 	;outputs
 	;r0 = lisp object
 	;r1 = error object
 
 	(ptr 'this 'desc 'payload 'file 'value)
 	(pptr 'iter)
-	(ulong 'line)
+	(uint 'msg 'line)
 
 	(push-scope)
-	(f-entry 'lisp 'repl_error {this, desc, payload})
+	(f-entry 'lisp 'repl_error {this, desc, msg, payload})
 
 	(f-call 'lisp 'env_find {this, this->lisp_sym_stream_name} {_, iter, _})
 	(vpif {iter})
@@ -41,7 +42,7 @@
 		(f-call 'boxed_long 'get_value {value} {_, line})
 	(endif)
 
-	(f-call 'error 'create {desc, file, payload, line} {value})
+	(f-call 'error 'create {desc, msg, payload, file, line} {value})
 
 	(f-exit 'lisp 'repl_error {this, value})
 	(pop-scope)

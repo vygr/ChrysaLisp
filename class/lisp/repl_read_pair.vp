@@ -52,7 +52,7 @@
 (vp-label 'error3)
 	(f-call 'ref 'deref {second})
 	(f-call 'ref 'deref {first})
-	(f-call 'lisp 'repl_error {this, "expected >", this->lisp_sym_nil} {_, pair})
+	(f-call 'lisp 'repl_error {this, "expected >", 0, this->lisp_sym_nil} {_, pair})
 	(goto 'exit))
 
 	(pop-scope-syms)

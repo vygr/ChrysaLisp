@@ -1,9 +1,10 @@
 (import 'inc/func.inc)
+(import 'inc/string.inc)
 (import 'class/string/string.inc)
 (import 'class/error/error.inc)
 
 (gen-new 'error)
-(gen-create 'error 4)
+(gen-create 'error 5)
 (gen-class 'error)
 
 (def-func 'class/error/init)
@@ -11,9 +12,10 @@
 	;r0 = error object
 	;r1 = vtable pointer
 	;r2 = description cstr pointer
-	;r3 = filename cstr pointer
+	;r3 = 0, else error msg index
 	;r5 = error payload object
-	;r6 = line number
+	;r6 = filename cstr pointer
+	;r7 = line number
 	;outputs
 	;r1 = 0 if error, else ok
 	;trashes
@@ -25,7 +27,8 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(assign '(r0 r2 r3 r5 r6) '((r4 local_this) (r0 error_description) (r0 error_file) (r0 error_object) (r0 error_line)))
+	(assign '(r0 r2 r3 r5 r6 r7) '((r4 local_this) (r0 error_description) (r0 error_msg i)
+									(r0 error_object) (r0 error_file) (r0 error_line i)))
 
 	;init parent
 	(s-call 'error 'init '(r0 r1) '(_ r1))
@@ -60,5 +63,41 @@
 	(f-call 'ref 'deref '((r0 error_object)))
 	(vp-pop r0)
 	(s-jmp 'error 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/error/get_msg)
+	;inputs
+	;r0 = error object
+	;outputs
+	;r0 = error object
+	;r1 = error string
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'msg)
+	(pubyte 'next)
+	(uint 'length 'cnt)
+
+	(push-scope)
+	(f-entry 'error 'get_msg {this})
+
+	(assign {$unknown, $msgs, this->error_msg} {msg, next, cnt})
+	(loop-while {*next && cnt})
+		(assign {next} {msg})
+		(f-call 'sys_string 'length {next} {_, length})
+		(assign {next + length + byte_size, cnt - 1} {next, cnt})
+	(loop-end)
+
+	(f-exit 'error 'get_msg {this, msg})
+	(pop-scope)
+	(return)
+
+(vp-label 'msgs)
+	(vp-string "wrong num of args") (vp-byte 0)
+	(vp-string "not all numbers") (vp-byte 0)
+(vp-label 'unknown)
+	(vp-string "unknown error !") (vp-byte 0)
+	(vp-byte 0)
 
 (def-func-end)

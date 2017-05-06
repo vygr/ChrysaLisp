@@ -27,7 +27,7 @@
 	(errorifnot {value} 'error2))
 
 	(f-call 'vector 'get_element {args, 1} {_, value})
-	(f-call 'lisp 'repl_error {this, &str->string_data, value} {_, value})
+	(f-call 'lisp 'repl_error {this, &str->string_data, 0, value} {_, value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_error {this, value})
@@ -40,7 +40,7 @@
 (vp-label 'error2)
 	(assign {"(throw desc obj) not a string"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {_, value})
+	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

@@ -124,7 +124,7 @@
 	(f-call 'vector 'deref {params})
 	(goto 'exit)
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {_, value})
+	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

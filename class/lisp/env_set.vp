@@ -29,7 +29,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "symbol not bound", symbol} {_, value})
+	(f-call 'lisp 'repl_error {this, "symbol not bound", 0, symbol} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

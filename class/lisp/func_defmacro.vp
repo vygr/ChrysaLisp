@@ -43,7 +43,7 @@
 (vp-label 'error3)
 	(assign {"(defmacro name vars body) name is not a symbol"} {name})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, name, args} {_, name})
+	(f-call 'lisp 'repl_error {this, name, 0, args} {_, name})
 	(goto 'exit))
 
 	(pop-scope-syms)

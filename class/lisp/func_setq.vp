@@ -45,7 +45,7 @@
 (vp-label 'error2)
 	(assign {"(setq var val ...) not a symbol"} {val})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, val, args} {_, val})
+	(f-call 'lisp 'repl_error {this, val, 0, args} {_, val})
 	(goto 'exit))
 
 	(pop-scope-syms)

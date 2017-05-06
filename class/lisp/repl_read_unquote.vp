@@ -31,7 +31,7 @@
 		(f-call 'vector 'push_back {list, elem})
 	(else)
 		(f-call 'ref 'deref {list})
-		(f-call 'lisp 'repl_error {this, "read unquote error", this->lisp_sym_nil} {_, list})
+		(f-call 'lisp 'repl_error {this, "read unquote error", 0, this->lisp_sym_nil} {_, list})
 	(endif)
 
 	(f-exit 'lisp 'repl_read_unquote {this, list, char})

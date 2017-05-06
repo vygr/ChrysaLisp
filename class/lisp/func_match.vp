@@ -57,7 +57,7 @@
 (vp-label 'error1)
 	(assign {"(match? list list) wrong number of args"} {value1})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value1, args} {_, value1})
+	(f-call 'lisp 'repl_error {this, value1, 0, args} {_, value1})
 	(goto 'exit))
 
 	(pop-scope-syms)

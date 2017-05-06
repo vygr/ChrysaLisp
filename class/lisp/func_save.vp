@@ -58,7 +58,7 @@
 (vp-label 'error4)
 	(assign {"(save str filename) open error"} {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, args} {_, value})
+	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
