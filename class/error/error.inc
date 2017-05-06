@@ -68,3 +68,4 @@
 (deferror "not_all_nums")
 (deferror "symbol_not_bound")
 (deferror "not_a_filename")
+(deferror "not_a_list")

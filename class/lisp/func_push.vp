@@ -28,12 +28,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(push list form ...) not enough args"} {value})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(push list)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
 (vp-label 'error2)
-	(assign {"(push list form ...) not a list"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(push list)", error_msg_not_a_list, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

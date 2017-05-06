@@ -82,7 +82,7 @@
 	(push-scope)
 	(f-entry 'error 'get_msg {this})
 
-	(assign {$unknown, $msgs, this->error_msg} {msg, next, cnt})
+	(assign {"", $msgs, this->error_msg} {msg, next, cnt})
 	(loop-while {*next && cnt})
 		(assign {next} {msg})
 		(f-call 'sys_string 'length {next} {_, length})
@@ -95,10 +95,11 @@
 
 (vp-label 'msgs)
 (errorcases
-	(vp-string "wrong num of args") (vp-byte 0)
-	(vp-string "not all numbers") (vp-byte 0)
-	(vp-string "symbol not bound") (vp-byte 0)
-	(vp-string "not a filename") (vp-byte 0)
+	(vp-string "wrong num of args !") (vp-byte 0)
+	(vp-string "not all numbers !") (vp-byte 0)
+	(vp-string "symbol not bound !") (vp-byte 0)
+	(vp-string "not a filename !") (vp-byte 0)
+	(vp-string "not a list !") (vp-byte 0)
 )
 (vp-label 'unknown)
 	(vp-string "unknown error !") (vp-byte 0)
