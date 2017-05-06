@@ -1,0 +1,55 @@
+(import 'inc/func.inc)
+(import 'class/vector/vector.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_fdiv)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(pptr 'iter_begin 'iter_end)
+	(union '(long 'accum 'num) '(uint 'length))
+
+	(push-scope)
+	(f-entry 'lisp 'func_fdiv {this, args})
+
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorif {length < 2} 'error1)
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(f-call 'vector 'get_end {args} {_, iter_end})
+	(assign {*iter_begin} {value})
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
+	(f-call 'boxed_long 'get_value {value} {_, accum})
+	(loop-start)
+		(assign {iter_begin + ptr_size} {iter_begin})
+		(breakif {iter_begin == iter_end})
+		(assign {*iter_begin} {value})
+		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
+		(f-call 'boxed_long 'get_value {value} {_, num})
+		(assign {accum </ num} {accum})
+	(loop-end)
+	(f-call 'boxed_long 'create {} {value})
+	(f-call 'boxed_long 'set_value {value, accum})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'func_fdiv {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(assign {"(fdiv val val ...) not enough args"} {value})
+	(goto 'error)
+(vp-label 'error2)
+	(assign {"(fdiv val val ...) not all numbers"} {value})
+(vp-label 'error)
+	(f-call 'lisp 'repl_error {this, value, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)

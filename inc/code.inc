@@ -703,6 +703,12 @@
 (defcfun compile-mul (o)
 	(add-inst `(vp-mul-rr ,(pop-value) ,(pop-value))))
 
+(defcfun compile-fmul (o)
+	(defq x (pop-value) y (pop-value))
+	(add-inst
+		`(vp-mul-rr ,x ,y)
+		`(vp-asr-cr 16 ,y)))
+
 (defcfun compile-divu (o)
 	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
 	(add-inst
@@ -719,6 +725,13 @@
 (defcfun compile-div (o)
 	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
 	(add-inst
+		`(vp-ext-rr ,x ,y)
+		`(vp-div-rrr ,z ,y ,x)))
+
+(defcfun compile-fdiv (o)
+	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
+	(add-inst
+		`(vp-shl-cr 16 ,x)
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr ,z ,y ,x)))
 
@@ -836,6 +849,8 @@
 (operator "#" 2 1 compile-uderef)
 (operator "~" 2 1 compile-unot)
 (operator "!" 2 1 compile-ulnot)
+(operator "*>" 3 0 compile-fmul)
+(operator "</" 3 0 compile-fdiv)
 (operator "*" 3 0 compile-mul)
 (operator "/" 3 0 compile-divu)
 (operator "%" 3 0 compile-remu)
