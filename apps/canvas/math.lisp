@@ -34,7 +34,7 @@
 	(reduce add (map (lambda (x y) (fmul x y)) p1 p2)))
 
 (defun vec-length (p)
-	(fp-sqrt (vec-dot p p)))
+	(fsqrt (vec-dot p p)))
 
 (defun vec-distance (p1 p2)
 	(vec-length (vec-sub p1 p2)))
@@ -125,10 +125,10 @@
 		(fmul (elem 2 p1) (elem 2 p2))))
 
 (defun vec-length-2d (p)
-	(fp-sqrt (vec-dot-2d p p)))
+	(fsqrt (vec-dot-2d p p)))
 
 (defun vec-length-3d (p)
-	(fp-sqrt (vec-dot-3d p p)))
+	(fsqrt (vec-dot-3d p p)))
 
 (defun vec-length-squared-2d (p)
 	(vec-dot-2d p p))
@@ -286,12 +286,12 @@
 
 (defun gen-arc-polyline-2d (out_points p r a1 a2)
 	(when (ne r 0)
-		(setq a1 (fp-mod a1 fp-2pi) a2 (if (gt a2 fp-2pi) (fp-mod a2 fp-2pi) a2))
+		(setq a1 (fmod a1 fp-2pi) a2 (if (gt a2 fp-2pi) (fmod a2 fp-2pi) a2))
 		(cond
 			((le a2 fp-three)
 				(setq a2 (add a1 a2))
-				(defq v1 (list (fmul r (fp-sin a1)) (fmul r (fp-cos a1)))
-					v2 (list (fmul r (fp-sin a2)) (fmul r (fp-cos a2))))
+				(defq v1 (list (fmul r (fsin a1)) (fmul r (fcos a1)))
+					v2 (list (fmul r (fsin a2)) (fmul r (fcos a2))))
 				(gen-clerp-polyline-2d out_points p v1 v2 r))
 			(t
 				(defq ah (bit-asr a2 1) a2 (add a1 ah))
