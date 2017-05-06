@@ -1,5 +1,4 @@
 (import 'inc/func.inc)
-(import 'class/vector/vector.inc)
 (import 'class/string/string.inc)
 (import 'class/symbol/symbol.inc)
 (import 'class/lisp/lisp.inc)

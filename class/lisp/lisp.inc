@@ -1,4 +1,6 @@
 (import 'class/ref/ref.inc)
+(import 'class/error/error.inc)
+(import 'class/vector/vector.inc)
 
 (def-class 'lisp 'ref)
 (def-method 'create 'class/lisp/create 'static '(r0 r1 r2) '(r0))

@@ -1,7 +1,6 @@
 (import 'inc/func.inc)
 (import 'class/unordered_map/unordered_map.inc)
 (import 'class/pair/pair.inc)
-(import 'class/vector/vector.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/repl_expand)

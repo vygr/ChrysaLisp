@@ -1,5 +1,4 @@
 (import 'inc/func.inc)
-(import 'class/vector/vector.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_list)

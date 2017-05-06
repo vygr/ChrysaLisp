@@ -1,6 +1,5 @@
 (import 'inc/func.inc)
 (import 'inc/syscall.inc)
-(import 'class/vector/vector.inc)
 (import 'class/string/string.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
@@ -37,12 +36,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(age filename) wrong number of args"} {value})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(age filename)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
 (vp-label 'error2)
-	(assign {"(age filename) not filename"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(age filename)", error_msg_not_a_filename, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

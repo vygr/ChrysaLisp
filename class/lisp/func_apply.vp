@@ -1,5 +1,4 @@
 (import 'inc/func.inc)
-(import 'class/vector/vector.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_apply)
@@ -28,7 +27,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(apply func args) wrong number of args", 0, args} {_, args})
+	(f-call 'lisp 'repl_error {this, "(apply func args)", error_msg_wrong_num_of_args, args} {_, args})
 	(goto 'exit))
 
 	(pop-scope-syms)

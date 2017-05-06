@@ -1,6 +1,4 @@
 (import 'inc/func.inc)
-(import 'class/error/error.inc)
-(import 'class/vector/vector.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 

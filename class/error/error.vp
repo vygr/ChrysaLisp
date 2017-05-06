@@ -94,8 +94,12 @@
 	(return)
 
 (vp-label 'msgs)
+(errorcases
 	(vp-string "wrong num of args") (vp-byte 0)
 	(vp-string "not all numbers") (vp-byte 0)
+	(vp-string "symbol not bound") (vp-byte 0)
+	(vp-string "not a filename") (vp-byte 0)
+)
 (vp-label 'unknown)
 	(vp-string "unknown error !") (vp-byte 0)
 	(vp-byte 0)
