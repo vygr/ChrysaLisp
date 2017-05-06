@@ -19,7 +19,7 @@
 	(f-entry 'lisp 'func_eql {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 2} 'error)
+	(errorif {length != 2} 'error1)
 	(f-call 'vector 'get_element {args, 0} {_, arg1})
 	(f-call 'vector 'get_element {args, 1} {_, arg2})
 	(gotoif {arg1 == arg2} 'same)
@@ -45,8 +45,8 @@
 	(return)
 
 (errorcases
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(eql form form) wrong number of args", 0, args} {_, value})
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(eql form form)", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

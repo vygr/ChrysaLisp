@@ -50,13 +50,11 @@
 	(return)
 
 (errorcases
-(vp-label 'error2)
-	(assign {"(match? list list) not a list"} {value1})
-	(goto 'error)
 (vp-label 'error1)
-	(assign {"(match? list list) wrong number of args"} {value1})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value1, 0, args} {_, value1})
+	(f-call 'lisp 'repl_error {this, "(match? list list)", error_msg_wrong_num_of_args, args} {_, value1})
+	(goto 'exit)
+(vp-label 'error2)
+	(f-call 'lisp 'repl_error {this, "(match? list list)", error_msg_not_a_list, args} {_, value1})
 	(goto 'exit))
 
 	(pop-scope-syms)

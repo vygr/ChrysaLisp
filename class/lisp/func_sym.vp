@@ -35,12 +35,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(sym arg) wrong number of args"} {value})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(sym arg)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
 (vp-label 'error2)
-	(assign {"(sym arg) not string"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(sym arg)", error_msg_not_a_string, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

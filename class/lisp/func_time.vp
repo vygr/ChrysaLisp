@@ -17,7 +17,7 @@
 	(f-entry 'lisp 'func_time {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length} 'error)
+	(errorif {length} 'error1)
 	(f-call 'sys_cpu 'time {} {length})
 	(f-call 'boxed_long 'create {} {args})
 	(f-call 'boxed_long 'set_value {args, length})
@@ -27,9 +27,10 @@
 	(return)
 
 (errorcases
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(time) wrong number of args", 0, args} {_, args})
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(time)", error_msg_wrong_num_of_args, args} {_, args})
 	(goto 'exit))
+
 
 	(pop-scope-syms)
 

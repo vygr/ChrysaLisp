@@ -60,13 +60,11 @@
 	(return)
 
 (errorcases
-(vp-label 'error2)
-	(assign {"(lambda vars body) not a lambda list"} {value})
-	(goto 'error)
 (vp-label 'error1)
-	(assign {"(lambda vars body) wrong number of args"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, func} {_, value})
+	(f-call 'lisp 'repl_error {this, "(lambda vars body)", error_msg_wrong_num_of_args, func} {_, value})
+	(goto 'exit)
+(vp-label 'error2)
+	(f-call 'lisp 'repl_error {this, "(lambda vars body)", error_msg_not_a_lambda, func} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

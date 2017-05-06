@@ -17,7 +17,7 @@
 	(f-entry 'lisp 'func_gensym {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length} 'error)
+	(errorif {length} 'error1)
 	(f-call 'symbol 'create_from_long {this->lisp_nextsym, 10} {args})
 	(f-call 'symbol 'create_from_cstr {"G"} {prefix})
 	(f-call 'symbol 'append {prefix, args} {value})
@@ -31,8 +31,8 @@
 	(return)
 
 (errorcases
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(gensym) wrong number of args", 0, args} {_, value})
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(gensym)", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

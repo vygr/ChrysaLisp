@@ -16,7 +16,7 @@
 	(f-entry 'lisp 'func_quote {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error)
+	(errorif {length != 1} 'error1)
 	(d-call 'vector 'ref_element {args, 0} {_, args})
 
 (vp-label 'exit)
@@ -24,8 +24,8 @@
 	(return)
 
 (errorcases
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(quote arg) wrong number of args", 0, args} {_, args})
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(quote arg)", error_msg_wrong_num_of_args, args} {_, args})
 	(goto 'exit))
 
 	(pop-scope-syms)

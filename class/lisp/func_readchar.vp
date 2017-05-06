@@ -36,12 +36,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(read-char stream) wrong number of args"} {value})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(read-char stream)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
 (vp-label 'error2)
-	(assign {"(read-char stream) not a stream"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(read-char stream)", error_msg_not_a_stream, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

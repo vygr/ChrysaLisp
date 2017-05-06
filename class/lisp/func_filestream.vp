@@ -39,13 +39,11 @@
 	(return)
 
 (errorcases
-(vp-label 'error2)
-	(assign {"(file-stream filename) filename not a filename"} {value})
-	(goto 'error)
 (vp-label 'error1)
-	(assign {"(file-stream filename) not enough args"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(file-stream filename)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
+(vp-label 'error2)
+	(f-call 'lisp 'repl_error {this, "(file-stream filename)", error_msg_not_a_filename, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

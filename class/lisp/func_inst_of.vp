@@ -41,13 +41,11 @@
 	(return)
 
 (errorcases
-(vp-label 'error2)
-	(assign {"(inst-of class obj) not a class"} {value})
-	(goto 'error)
 (vp-label 'error1)
-	(assign {"(inst-of class obj) wrong number of args"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(inst-of class obj)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
+(vp-label 'error2)
+	(f-call 'lisp 'repl_error {this, "(inst-of class obj)", error_msg_not_a_class, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

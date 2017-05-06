@@ -41,15 +41,13 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(write-char stream num [width]) wrong number of args"} {value})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(write-char stream num [width])", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
 (vp-label 'error2)
-	(assign {"(write-char stream num [width]) not a stream"} {value})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(write-char stream num [width])", error_msg_not_a_stream, args} {_, value})
+	(goto 'exit)
 (vp-label 'error3)
-	(assign {"(write-char stream num [width]) not a number"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(write-char stream num [width])", error_msg_not_a_number, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

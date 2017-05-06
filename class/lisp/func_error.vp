@@ -34,12 +34,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(throw desc obj) wrong number of args"} {value})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(throw desc obj)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
 (vp-label 'error2)
-	(assign {"(throw desc obj) not a string"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(throw desc obj)", error_msg_not_a_string, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

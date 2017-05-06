@@ -38,12 +38,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(env num) wrong number of args"} {value})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(env num)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
 (vp-label 'error2)
-	(assign {"(env num) not a number"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(env num)", error_msg_not_a_number, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
