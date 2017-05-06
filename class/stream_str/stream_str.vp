@@ -73,3 +73,27 @@
 	(return)
 
 (def-func-end)
+
+(def-func 'class/stream_str/write_flush)
+	;inputs
+	;r0 = stream_str object
+	;outputs
+	;r0 = stream_str object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'data)
+
+	(push-scope)
+	(assign '(r0) {this})
+
+	(assign {0} {*this->stream_bufp})
+	(assign {&this->stream_object->string_data} {data})
+	(f-call 'sys_io 'string {data, 1})
+	(assign {data} {this->stream_bufp})
+
+	(assign {this} '(r0))
+	(pop-scope)
+	(return)
+
+(def-func-end)
