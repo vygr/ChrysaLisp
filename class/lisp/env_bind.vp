@@ -63,18 +63,18 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(bind vars vals) vars not a list", 0, vars} {_, value})
+	(f-call 'lisp 'repl_error {this, "(bind vars vals)", error_msg_not_a_list, vars} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(bind vars vals) vals not a list", 0, vals} {_, value})
+	(f-call 'lisp 'repl_error {this, "(bind vars vals)", error_msg_not_a_list, vals} {_, value})
 	(goto 'exit)
 (vp-label 'error3)
-	(f-call 'lisp 'repl_error {this, "(bind vars vals) not a symbol", 0, vars} {_, value})
+	(f-call 'lisp 'repl_error {this, "(bind vars vals)", error_msg_not_a_symbol, vars} {_, value})
 	(goto 'exit)
 (vp-label 'error4)
 	(f-call 'ref 'deref {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(bind vars vals) wrong number of vals", 0, vals} {_, value})
+	(f-call 'lisp 'repl_error {this, "(bind vars vals)", error_msg_wrong_num_of_args, vals} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

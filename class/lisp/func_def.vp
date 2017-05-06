@@ -39,15 +39,13 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(def env var val ...) wrong number of args"} {val})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(def env var val ...)", error_msg_wrong_num_of_args, args} {_, val})
+	(goto 'exit)
 (vp-label 'error2)
-	(assign {"(def env var val ...) not an enviroment"} {val})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(def env var val ...)", error_msg_not_an_enviroment, args} {_, val})
+	(goto 'exit)
 (vp-label 'error3)
-	(assign {"(def env var val ...) not a symbol"} {val})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, val, 0, args} {_, val})
+	(f-call 'lisp 'repl_error {this, "(def env var val ...)", error_msg_not_a_symbol, args} {_, val})
 	(goto 'exit))
 
 	(pop-scope-syms)

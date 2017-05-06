@@ -19,10 +19,10 @@
 	(f-call 'vector 'get_end {args} {_, iter_end})
 	(loop-while {iter_begin != iter_end})
 		(assign {*iter_begin} {value})
-		(errorif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error1)
+		(errorif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error2)
 		(f-call 'vector 'get_begin {value} {_, clause_iter_begin})
 		(f-call 'vector 'get_end {value} {_, clause_iter_end})
-		(errorif {clause_iter_begin == clause_iter_end} 'error2)
+		(errorif {clause_iter_begin == clause_iter_end} 'error1)
 		(f-call 'lisp 'repl_eval {this, *clause_iter_begin} {_, value})
 		(vpif {value != this->lisp_sym_nil})
 			(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
@@ -49,12 +49,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(cond (tst form ...) ...) clause not list"} {value})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(cond (tst form ...) ...)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
 (vp-label 'error2)
-	(assign {"(cond (tst form ...) ...) clause wrong number of args"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(cond (tst form ...) ...)", error_msg_not_a_list, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

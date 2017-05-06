@@ -10,7 +10,7 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'vars 'name)
+	(ptr 'this 'args 'vars 'value)
 	(uint 'length)
 
 	(push-scope)
@@ -20,29 +20,27 @@
 	(errorif {length < 3} 'error1)
 	(f-call 'vector 'get_element {args, 1} {_, vars})
 	(errorif (cat {vars->obj_vtable != @} (f-path 'class 'vector)) 'error2)
-	(f-call 'vector 'get_element {args, 0} {_, name})
-	(errorif (cat {name->obj_vtable != @} (f-path 'class 'symbol)) 'error3)
-	(f-call 'ref 'ref {name})
+	(f-call 'vector 'get_element {args, 0} {_, value})
+	(errorif (cat {value->obj_vtable != @} (f-path 'class 'symbol)) 'error3)
+	(f-call 'ref 'ref {value})
 	(assign {this->lisp_sym_macro} {vars})
 	(f-call 'ref 'ref {vars})
 	(f-call 'vector 'set_element {args, vars, 0})
-	(f-call 'unordered_map 'insert {this->lisp_enviroment, name, args})
+	(f-call 'unordered_map 'insert {this->lisp_enviroment, value, args})
 
 (vp-label 'exit)
-	(f-exit 'lisp 'func_defmacro {this, name})
+	(f-exit 'lisp 'func_defmacro {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(assign {"(defmacro name vars body) wrong number of args"} {name})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(defmacro name vars body)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
 (vp-label 'error2)
-	(assign {"(defmacro name vars body) vars is not a list"} {name})
-	(goto 'error)
+	(f-call 'lisp 'repl_error {this, "(defmacro name vars body)", error_msg_not_a_list, args} {_, value})
+	(goto 'exit)
 (vp-label 'error3)
-	(assign {"(defmacro name vars body) name is not a symbol"} {name})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, name, 0, args} {_, name})
+	(f-call 'lisp 'repl_error {this, "(defmacro name vars body)", error_msg_not_a_symbol, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

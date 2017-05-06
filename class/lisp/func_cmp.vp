@@ -36,13 +36,11 @@
 	(return)
 
 (errorcases
-(vp-label 'error2)
-	(assign {"(cmp str str) not a string"} {value})
-	(goto 'error)
 (vp-label 'error1)
-	(assign {"(cmp str str) wrong number of args"} {value})
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, value, 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(cmp str str)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit)
+(vp-label 'error2)
+	(f-call 'lisp 'repl_error {this, "(cmp str str)", error_msg_not_a_string, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

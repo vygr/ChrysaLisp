@@ -37,7 +37,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(clear list ...) not a list", 0, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(clear list ...)", error_msg_not_a_list, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
