@@ -1,7 +1,8 @@
-Asm_Kernel
+ChrysaLisp
 ==========
 
-Assembler 64 bit OS. MIMD, multi CPU, multi threaded, multi core, multi user.
+Assembler/C-Script/Lisp 64 bit OS. MIMD, multi CPU, multi threaded, multi core,
+multi user.
 
 Runs on OSX or Linux. Could move to bare metal eventually but it's useful for
 now to run hosted while experimenting.

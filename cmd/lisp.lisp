@@ -2,7 +2,7 @@
 ; sign on
 ;;;;;;;;;
 
-(print "Asm-Kernel Lisp 1.1")
+(print "ChrysaLisp 1.1")
 (print "Press ESC/Enter to exit.")
 
 ;;;;;;;;;;;;;;
