@@ -272,16 +272,16 @@
 		(cond
 			((ne (length l) 0)
 				(defq p (elem -2 l))
-				(if (or (ne (elem 0 p) (elem 0 _))
-						(ne (elem 1 p) (elem 1 _)))
+				(if (or (ge (abs (sub (elem 0 p) (elem 0 _))) 2)
+						(ge (abs (sub (elem 1 p) (elem 1 _))) 2))
 					(push l _)))
 			(t (push l _))) l) _ (list)))
 
 (defun remove-coincident-polygon-2d (_)
 	(defq _ (remove-coincident-polyline-2d _)
 		p1 (elem 0 _) p2 (elem -2 _))
-	(if (and (eq (elem 0 p1) (elem 0 p2))
-			(eq (elem 1 p1) (elem 1 p2)))
+	(if (and (lt (abs (sub (elem 0 p1) (elem 0 p2))) 2)
+			(lt (abs (sub (elem 1 p1) (elem 1 p2))) 2))
 		(pop _)) _)
 
 (defun gen-arc-polyline-2d (out_points p r a1 a2)
