@@ -93,6 +93,7 @@
 
 (errorcases
 (vp-label 'error)
+	(debug-str "Malloc fail !!!")
 	(f-exit 'sys_mem 'alloc '(0 0))
 	(vp-ret))
 
