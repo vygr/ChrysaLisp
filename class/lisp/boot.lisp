@@ -184,7 +184,7 @@
 ;;;;;;;;;;;;;;;;;;
 
 (defq fp-shift 16 fp-one (bit-shl 1 fp-shift) fp-two (add fp-one fp-one)
-	fp-three (add fp-one fp-two) fp-four (add fp-two fp-two)
+	fp-three (add fp-one fp-two) fp-four (add fp-two fp-two) fp-five (add fp-two fp-three)
 	fp-half (bit-asr fp-one 1) fp-quarter (bit-asr fp-half 1)
 	fp-2pi 411774 fp-pi 205887 fp-hpi 102943 fp-qpi 51471)
 

@@ -106,13 +106,15 @@
 			(list
 				(gen-arc-polyline-2d
 					(list)
-					(list (div canvas_width 3) (add (div canvas_height 2) (div canvas_height 8)))
+					(list (add (div canvas_width 3) (div canvas_width 16))
+						(add (div canvas_height 2) (div canvas_height 8)))
 					(div canvas_width 4)
 					fp-one
 					fp-one)
 				(gen-arc-polyline-2d
 					(list)
-					(list (div canvas_width 3) (add (div canvas_height 2) (div canvas_height 8)))
+					(list (add (div canvas_width 3) (div canvas_width 16))
+						(add (div canvas_height 2) (div canvas_height 8)))
 					(div canvas_width 8)
 					fp-four
 					fp-two)))))

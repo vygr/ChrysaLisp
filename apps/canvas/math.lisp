@@ -267,21 +267,19 @@
 
 ;generic path stuff
 
+(defun coincident-2d (p1 p2)
+	(and (lt (abs (sub (elem 0 p1) (elem 0 p2))) fp-quarter)
+		(lt (abs (sub (elem 1 p1) (elem 1 p2))) fp-quarter)))
+
 (defun remove-coincident-polyline-2d (_)
 	(reduce (lambda (l _)
-		(cond
-			((ne (length l) 0)
-				(defq p (elem -2 l))
-				(if (or (ge (abs (sub (elem 0 p) (elem 0 _))) 2)
-						(ge (abs (sub (elem 1 p) (elem 1 _))) 2))
-					(push l _)))
-			(t (push l _))) l) _ (list)))
+		(if (or (eq (length l) 0)
+				(not (coincident-2d (elem -2 l) _)))
+			(push l _) l)) _ (list)))
 
 (defun remove-coincident-polygon-2d (_)
-	(defq _ (remove-coincident-polyline-2d _)
-		p1 (elem 0 _) p2 (elem -2 _))
-	(if (and (lt (abs (sub (elem 0 p1) (elem 0 p2))) 2)
-			(lt (abs (sub (elem 1 p1) (elem 1 p2))) 2))
+	(setq _ (remove-coincident-polyline-2d _))
+	(if (coincident-2d (elem 0 _) (elem -2 _))
 		(pop _)) _)
 
 (defun gen-arc-polyline-2d (out_points p r a1 a2)
