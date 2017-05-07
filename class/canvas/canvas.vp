@@ -440,43 +440,24 @@
 
 	(ptr 'this 'source)
 	(puint 'data 'dsrc)
+	(uint 'x 'y 'x2 'y2)
+	(uint 'x1a 'x1b 'x1c 'x1d 'y1a 'y1b 'y1c 'y1d)
+	(uint 'a 'r 'g 'b 'q 'weight_x 'weight_y)
 	(long 'fw 'fh)
-	(long 'weight_div)
-	(uint 'weight_shift)
-	(uint 'x2 'y2)
-	(uint 'x1a 'x1b 'x1c 'x1d)
-	(uint 'y1a 'y1b 'y1c 'y1d)
-	(uint 'a 'r 'g 'b 'q 'c 'w)
-	(uint 'a_src 'r_src 'g_src 'b_src)
-	(uint 'weight_x 'weight_y 'x 'y)
-	(long 'source_texels_per_out_pixel 'weight_per_pixel 'accum_per_pixel)
 
 	(push-scope)
 	(f-entry 'canvas 'resize {this, source})
 
-	(assign {0} {weight_shift})
-	(assign {source->canvas_width * source->canvas_height </ ((this->canvas_width + 1) * (this->canvas_height + 1))}
-			{source_texels_per_out_pixel})
-	(assign {source_texels_per_out_pixel * 256 * 256} {weight_per_pixel})
-	(assign {weight_per_pixel * 256} {accum_per_pixel})
-	(assign {accum_per_pixel / 4294967000} {weight_div})
-	(vpif {weight_div > (1 << 16)})
-		;weight_shift = (int)ceilf(logf((float)weight_div) / logf(2.0f));
-	(endif)
-	(vpif {weight_shift > 15})
-		(assign {15} {weight_shift})
+	(assign {(this->canvas_width + 1) * int_size} {x})
+	(vpif {x > this->canvas_resize_buf_size})
+		(vpif {this->canvas_resize_buf})
+			(f-call 'sys_mem 'free {this->canvas_resize_buf})
+		(endif)
+		(f-call 'sys_mem 'alloc {x} {this->canvas_resize_buf, this->canvas_resize_buf_size})
 	(endif)
 
 	(assign {(source->canvas_width * 256) </ this->canvas_width} {fw})
 	(assign {(source->canvas_height * 256) </ this->canvas_height} {fh})
-
-	(assign {(this->canvas_width + 1) * int_size} {w})
-	(vpif {w > this->canvas_resize_buf_size})
-		(vpif {this->canvas_resize_buf})
-			(f-call 'sys_mem 'free {this->canvas_resize_buf})
-		(endif)
-		(f-call 'sys_mem 'alloc {w} {this->canvas_resize_buf, this->canvas_resize_buf_size})
-	(endif)
 
 	(assign {0} {x2})
 	(loop-while {x2 < this->canvas_width})
@@ -526,7 +507,7 @@
 					(endif)
 
 					;multiply pixel cahnnels by the pixel weight and accumalate
-					(assign {*dsrc, weight_x * weight_y >> weight_shift, r, g, b, a, q}
+					(assign {*dsrc, weight_x * weight_y, r, g, b, a, q}
 							'(r0 r5 r8 r9 r10 r11 r12))
 					(vp-cpy-rr r0 r1)
 					(vp-cpy-rr r0 r2)
