@@ -110,7 +110,7 @@
 									(lambda)
 									(list 'emit-cpy-rr r (elem 3 e)))))))
 			;compare constant forwarding
-			((and nil (eql o 'emit-cpy-cr) (le -0x80000000 (eval (elem 1 e)) 0x7fffffff))
+			((and (eql o 'emit-cpy-cr) (le -0x80000000 (eval (elem 1 e)) 0x7fffffff))
 				(when (defq u (opt-emit-find-use _ 'emit-cmp-rr (elem 2 e)))
 					(elem-set u *emit-buffer* (list 'emit-cmp-cr (elem 1 e) (elem 2 (elem u *emit-buffer*))))
 					(elem-set _ *emit-buffer* (lambda))))))
