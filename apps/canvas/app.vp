@@ -19,7 +19,7 @@
 
 (def-func 'apps/canvas/app)
 
-	(defcvar 'scale (add fp-four fp-one))
+	(defcvar 'scale fp-three)
 
 	(def-struct 'local 'obj)
 		(uint 'closed)
