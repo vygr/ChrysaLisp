@@ -12,7 +12,7 @@
 (def-method 'reset 'sys/heap_reset 'static '(r0) '(r0))
 
 (defcvar 'mem_block_min_size 0x000020)
-(defcvar 'mem_block_max_size 0x800000)
+(defcvar 'mem_block_max_size 0x4000000)
 (defcvar 'mem_block_blk_size (mul 16 1024))
 
 (def-class 'sys_mem)
