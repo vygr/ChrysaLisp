@@ -19,7 +19,7 @@
 
 (def-func 'apps/canvas/app)
 
-	(defcvar 'scale fp-three)
+	(defcvar 'app_width 640 'app_height 640 'app_scale fp-three)
 
 	(def-struct 'local 'obj)
 		(uint 'closed)
@@ -42,7 +42,7 @@
 	(f-call 'window 'set_title {window, string})
 
 	;add my app canvas
-	(f-call 'canvas 'create {512, 512, scale} {canvas})
+	(f-call 'canvas 'create {app_width, app_height, app_scale} {canvas})
 	(v-call 'window 'add_child {window, canvas})
 
 	;set to pref size
@@ -71,9 +71,9 @@
 	(assign {lisp_id.id_mbox} {msg->msg_dest.id_mbox})
 	(assign {lisp_id.id_cpu} {msg->msg_dest.id_cpu})
 	(assign {canvas} {msg->canvas_msg_arg0})
-	(assign {512 << 16} {msg->canvas_msg_arg1})
-	(assign {512 << 16} {msg->canvas_msg_arg2})
-	(assign {scale} {msg->canvas_msg_arg3})
+	(assign {app_width << 16} {msg->canvas_msg_arg1})
+	(assign {app_height << 16} {msg->canvas_msg_arg2})
+	(assign {app_scale} {msg->canvas_msg_arg3})
 	(f-call 'canvas 'ref {canvas})
 	(assign {canvas_msg_size} {msg->msg_length})
 	(f-call 'sys_mail 'send {msg})
@@ -164,7 +164,6 @@
 		(f-call 'vector 'deref {args})
 
 		;flush any output
-		(f-call 'stream 'write_char {lisp->lisp_stderr, char_lf})
 		(v-call 'stream 'write_flush {lisp->lisp_stderr})
 	(endif)
 
