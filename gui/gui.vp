@@ -376,7 +376,7 @@
 	(vp-ret)
 
 (vp-label 'title)
-	(vp-string "Asm Kernel GUI Window") (vp-byte 0)
+	(vp-string "ChrysaLisp GUI Window") (vp-byte 0)
 
 (vp-label 'scan_codes)
 	(vp-byte 4) (vp-string "aA")
