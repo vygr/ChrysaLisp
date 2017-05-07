@@ -57,62 +57,63 @@
 	(list (fmul canvas_width fp-half) 0)
 	(list (add (fmul canvas_width fp-half) (fmul canvas_width fp-quarter)) canvas_height)
 	(list canvas_width 0)
-	(list 0 canvas_height))))
+	(list (div canvas_width 16) canvas_height))))
 
 (set-brush-col 0xff00ff00)
 (fpoly
 	(stroke-polyline-2d
 		(list)
-		(fp-val 30)
+		(div canvas_width 16)
 		round-join
 		round-cap
 		round-cap
-		(list (list (fp-vec 50 50)
-			(fp-vec 350 80)
-			(fp-vec 450 480)))))
+		(list (list
+			(list (div canvas_width 8) (div canvas_height 8))
+			(list (sub canvas_width (div canvas_width 4)) (div canvas_height 6))
+			(list (sub canvas_width (div canvas_width 8)) (sub canvas_height (div canvas_height 8)))))))
 
 (set-brush-col 0xff00ffff)
 (fpoly
 	(stroke-polygon-2d
 		(list)
-		(fp-val 5)
+		(div canvas_width 100)
 		mitre-join
 		(stroke-polyline-2d
 			(list)
-			(fp-val 15)
+			(div canvas_width 30)
 			bevel-join
 			round-cap
 			arrow-cap
 			(list (gen-bezier-polyline-2d
 				(list)
-				(fp-vec 50 470)
-				(fp-vec 90 100)
-				(fp-vec 200 200)
-				(fp-vec 470 40))))))
+				(list (div canvas_width 16) (sub canvas_height (div canvas_height 16)))
+				(list (div canvas_width 8) (div canvas_height 16))
+				(list (div canvas_width 4) (div canvas_height 3))
+				(list (sub canvas_width (div canvas_width 10)) (div canvas_height 10)))))))
 
 (set-brush-col 0xffff0000)
 (fpoly
 	(stroke-polygon-2d
 		(list)
-		(fp-val 15)
+		(div canvas_width 40)
 		mitre-join
 		(stroke-polyline-2d
 			(list)
-			(fp-val 25)
+			(div canvas_width 20)
 			bevel-join
 			square-cap
 			tri-cap
 			(list
 				(gen-arc-polyline-2d
 					(list)
-					(fp-vec 240 256)
-					(fp-val 150)
+					(list (div canvas_width 3) (add (div canvas_height 2) (div canvas_height 8)))
+					(div canvas_width 4)
 					fp-one
 					fp-one)
 				(gen-arc-polyline-2d
 					(list)
-					(fp-vec 240 256)
-					(fp-val 80)
+					(list (div canvas_width 3) (add (div canvas_height 2) (div canvas_height 8)))
+					(div canvas_width 8)
 					fp-four
 					fp-two)))))
 
