@@ -4,17 +4,22 @@
 (import 'class/window/window.inc)
 (import 'class/string/string.inc)
 (import 'class/canvas/canvas.inc)
-(import 'class/vector/vector.inc)
 (import 'class/stream/stream.inc)
 (import 'class/stream_str/stream_str.inc)
 (import 'class/unordered_map/unordered_map.inc)
+(import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-struct 'canvas_msg 'msg_header)
 	(ptr 'arg0)
+	(long 'arg1)
+	(long 'arg2)
+	(long 'arg3)
 (def-struct-end)
 
 (def-func 'apps/canvas/app)
+
+	(defcvar 'scale (add fp-four fp-one))
 
 	(def-struct 'local 'obj)
 		(uint 'closed)
@@ -37,7 +42,7 @@
 	(f-call 'window 'set_title {window, string})
 
 	;add my app canvas
-	(f-call 'canvas 'create {512, 512} {canvas})
+	(f-call 'canvas 'create {512, 512, scale} {canvas})
 	(v-call 'window 'add_child {window, canvas})
 
 	;set to pref size
@@ -66,6 +71,9 @@
 	(assign {lisp_id.id_mbox} {msg->msg_dest.id_mbox})
 	(assign {lisp_id.id_cpu} {msg->msg_dest.id_cpu})
 	(assign {canvas} {msg->canvas_msg_arg0})
+	(assign {512 << 16} {msg->canvas_msg_arg1})
+	(assign {512 << 16} {msg->canvas_msg_arg2})
+	(assign {scale} {msg->canvas_msg_arg3})
 	(f-call 'canvas 'ref {canvas})
 	(assign {canvas_msg_size} {msg->msg_length})
 	(f-call 'sys_mail 'send {msg})
@@ -122,6 +130,15 @@
 	(f-call 'sys_mail 'mymail {} {msg})
 	(f-call 'vector 'create {} {args})
 	(f-call 'vector 'push_back {args, msg->canvas_msg_arg0})
+	(f-call 'boxed_long 'create {} {value})
+	(f-call 'boxed_long 'set_value {value, msg->canvas_msg_arg1})
+	(f-call 'vector 'push_back {args, value})
+	(f-call 'boxed_long 'create {} {value})
+	(f-call 'boxed_long 'set_value {value, msg->canvas_msg_arg2})
+	(f-call 'vector 'push_back {args, value})
+	(f-call 'boxed_long 'create {} {value})
+	(f-call 'boxed_long 'set_value {value, msg->canvas_msg_arg3})
+	(f-call 'vector 'push_back {args, value})
 	(f-call 'sys_mem 'free {msg})
 	(f-call 'lisp 'sym_intern_cstr {lisp, "argv"} {_, value})
 	(f-call 'unordered_map 'insert {lisp->lisp_enviroment, value, args})

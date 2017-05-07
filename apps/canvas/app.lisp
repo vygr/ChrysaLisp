@@ -1,7 +1,8 @@
 ;math tools
 (run 'apps/canvas/math.lisp)
 
-(defq canvas (pop argv) pen-col 0 brush-col 0
+(defq canvas_scale (pop argv) canvas_height (pop argv) canvas_width (pop argv) canvas (pop argv)
+	pen-col 0 brush-col 0
 	mitre-join 0 bevel-join 1 round-join 2
 	butt-cap 0 square-cap 1 tri-cap 2 arrow-cap 3 round-cap 4)
 
@@ -16,6 +17,7 @@
 (defun fpoly (_)
 	(defq e (list) ys max-long ye min-long)
 	(each (lambda (_)
+		(setq _ (map (lambda (_) (vec-scale-2d _ canvas_scale)) _))
 		(reduce (lambda (p1 p2)
 			(defq x1 (add (elem 0 p1) fp-half) y1 (bit-asr (add (elem 1 p1) fp-half) fp-shift)
 				x2 (add (elem 0 p2) fp-half) y2 (bit-asr (add (elem 1 p2) fp-half) fp-shift))
@@ -48,17 +50,14 @@
 			(setq x1 (bit-asr x1 fp-shift) x2 (bit-asr x2 fp-shift))
 			(pixel canvas brush-col x1 ys (sub x2 x1)))))
 
-(set-brush-col 0)
-(fbox 0 0 512 512)
-
 (set-brush-col 0xff0000ff)
 (fpoly (list (list
-	(fp-vec 0 0)
-	(fp-vec 128 512)
-	(fp-vec 256 0)
-	(fp-vec 384 512)
-	(fp-vec 512 0)
-	(fp-vec 16 512))))
+	(list 0 0)
+	(list (fmul canvas_width fp-quarter) canvas_height)
+	(list (fmul canvas_width fp-half) 0)
+	(list (add (fmul canvas_width fp-half) (fmul canvas_width fp-quarter)) canvas_height)
+	(list canvas_width 0)
+	(list 0 canvas_height))))
 
 (set-brush-col 0xff00ff00)
 (fpoly

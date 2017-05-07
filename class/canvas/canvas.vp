@@ -11,19 +11,20 @@
 	;inputs
 	;r0 = width
 	;r1 = height
+	;r2 = aa scale, 16.16
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes
 	;r1-r3, r5-r7
 
 	;save inputs
-	(f-entry 'canvas 'create '(r5 r6))
+	(f-entry 'canvas 'create '(r5 r6 r7))
 
 	;create new object
 	(f-call 'canvas 'new nil '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'canvas 'init `(r0 (@ ,(f-path 'class 'canvas)) r5 r6) '(r0 r1))
+		(f-call 'canvas 'init `(r0 (@ ,(f-path 'class 'canvas)) r5 r6 r7) '(r0 r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'canvas 'delete '(r0) '() 'r1)
@@ -42,11 +43,12 @@
 	;r1 = vtable pointer
 	;r2 = width
 	;r3 = height
+	;r5 = aa scale, 16.16
 	;outputs
 	;r1 = 0 if error, else ok
 
 	;save inputs
-	(f-entry 'canvas 'init '(r0 r1 (r0 canvas_width i) (r0 canvas_height i)))
+	(f-entry 'canvas 'init '(r0 r1 (r0 canvas_width i) (r0 canvas_height i) (r0 canvas_aa_scale i)))
 
 	;init parent
 	(s-call 'canvas 'init '(r0 r1) '(r0 r1))
@@ -54,11 +56,25 @@
 		(vp-push r0)
 		(vp-xor-rr r2 r2)
 		(vp-cpy-ri r2 r0 canvas_texture)
+		(vp-cpy-ri r2 r0 canvas_resize_buf)
+		(vp-cpy-ri-i r2 r0 canvas_resize_buf_size)
 		(vp-cpy-ri-i r2 r0 canvas_cx)
 		(vp-cpy-ri-i r2 r0 canvas_cy)
 
+		(vp-cpy-ir-i r0 canvas_aa_scale r3)
+		(vp-cpy-cr (bit-shl fp-one 16) r2)
+		(vp-xor-rr r1 r1)
+		(vp-div-rrr r3 r1 r2)
+		(vp-cpy-ri-i r2 r0 canvas_aa_scale_r)
+		(vp-cpy-ir-i r0 canvas_aa_scale r3)
 		(vp-cpy-ir-ui r0 canvas_width r1)
 		(vp-cpy-ir-ui r0 canvas_height r2)
+		(vp-mul-rr r3 r1)
+		(vp-mul-rr r3 r2)
+		(vp-asr-cr 16 r1)
+		(vp-asr-cr 16 r2)
+		(vp-cpy-ri-i r1 r0 canvas_width)
+		(vp-cpy-ri-i r1 r0 canvas_height)
 		(vp-cpy-ri-i r1 r0 canvas_cx1)
 		(vp-cpy-ri-i r2 r0 canvas_cy1)
 
@@ -107,6 +123,10 @@
 	;free any pixel buffer
 	(f-call 'sys_mem 'free '((r0 canvas_data)))
 
+	;free any resize buffer
+	(vp-cpy-ir r4 local_this r0)
+	(f-call 'sys_mem 'free '((r0 canvas_resize_buf)))
+
 	;free any sdl texture
 	(vp-cpy-ir r4 local_this r0)
 	(vp-cpy-ir r0 canvas_texture r1)
@@ -130,6 +150,7 @@
 		(ptr 'this)
 		(ptr 'ctx)
 		(ptr 'surface)
+		(ptr 'temp_canvas)
 		(ptr 'old_stack)
 	(def-struct-end)
 
@@ -146,6 +167,16 @@
 	(vp-cpy-ir r0 canvas_texture r1)
 	(vpif '(r1 == 0))
 		;create SDL surface from pixel buffer, convert to texture
+		(vp-cpy-ir-i r0 canvas_aa_scale_r r8)
+		(vp-cpy-ir-ui r0 canvas_width r10)
+		(vp-cpy-ir-ui r0 canvas_height r11)
+		(vp-mul-rr r8 r10)
+		(vp-mul-rr r8 r11)
+		(vp-asr-cr 16 r10)
+		(vp-asr-cr 16 r11)
+		(f-call 'canvas 'create '(r10 r11 fp-one) '(r0))
+		(vp-cpy-ri r0 r4 local_temp_canvas)
+		(f-call 'canvas 'resize '(r0 (r4 local_this)))
 		(sdl-create-rgb-surface-from '((r0 canvas_data) (r0 canvas_width ui) (r0 canvas_height ui)
 										32 (r0 canvas_stride ui) 0xff 0xff00 0xff0000 0xff000000))
 		(vp-cpy-ri r0 r4 local_surface)
@@ -154,13 +185,21 @@
 		(vp-cpy-ir r4 local_this r1)
 		(vp-cpy-ri r0 r1 canvas_texture)
 		(sdl-free-surface '((r4 local_surface)))
+		(f-call 'canvas 'deref '((r4 local_temp_canvas)))
 	(endif)
 
 	;blit texture
 	(vp-cpy-ir r4 local_this r0)
 	(vp-cpy-ir r0 canvas_texture r1)
 	(vpif '(r1 != 0))
-		(f-call 'gui_ctx 'blit '((r4 local_ctx) r1 0xffffff 0 0 (r0 canvas_width ui) (r0 canvas_height ui)))
+		(vp-cpy-ir-i r0 canvas_aa_scale_r r8)
+		(vp-cpy-ir-ui r0 canvas_width r10)
+		(vp-cpy-ir-ui r0 canvas_height r11)
+		(vp-mul-rr r8 r10)
+		(vp-mul-rr r8 r11)
+		(vp-asr-cr 16 r10)
+		(vp-asr-cr 16 r11)
+		(f-call 'gui_ctx 'blit '((r4 local_ctx) r1 0xffffff 0 0 r10 r11))
 	(endif)
 
 	(f-exit 'canvas 'draw '((r4 local_this)))
@@ -218,7 +257,16 @@
 	;all but r0, r4
 
 	(f-entry 'canvas 'pref_size '(r0))
-	(f-exit 'canvas 'pref_size '(r0 (r0 canvas_width ui) (r0 canvas_height ui)))
+
+	(vp-cpy-ir-i r0 canvas_aa_scale_r r8)
+	(vp-cpy-ir-ui r0 canvas_width r10)
+	(vp-cpy-ir-ui r0 canvas_height r11)
+	(vp-mul-rr r8 r10)
+	(vp-mul-rr r8 r11)
+	(vp-asr-cr 16 r10)
+	(vp-asr-cr 16 r11)
+
+	(f-exit 'canvas 'pref_size '(r0 r10 r11))
 	(vp-ret)
 
 (def-func-end)
@@ -378,5 +426,144 @@
 
 	(f-exit 'canvas 'set_hline '(r0))
 	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/canvas/resize)
+	;inputs
+	;r0 = canvas object
+	;r1 = source canvas object
+	;outputs
+	;r0 = canvas object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'source)
+	(puint 'data 'dsrc)
+	(long 'fw 'fh)
+	(long 'weight_div)
+	(uint 'weight_shift)
+	(uint 'x2 'y2)
+	(uint 'x1a 'x1b 'x1c 'x1d)
+	(uint 'y1a 'y1b 'y1c 'y1d)
+	(uint 'a 'r 'g 'b 'q 'c 'w)
+	(uint 'a_src 'r_src 'g_src 'b_src)
+	(uint 'weight_x 'weight_y 'x 'y)
+	(long 'source_texels_per_out_pixel 'weight_per_pixel 'accum_per_pixel)
+
+	(push-scope)
+	(f-entry 'canvas 'resize {this, source})
+
+	(assign {0} {weight_shift})
+	(assign {source->canvas_width * source->canvas_height </ ((this->canvas_width + 1) * (this->canvas_height + 1))}
+			{source_texels_per_out_pixel})
+	(assign {source_texels_per_out_pixel * 256 * 256} {weight_per_pixel})
+	(assign {weight_per_pixel * 256} {accum_per_pixel})
+	(assign {accum_per_pixel / 4294967000} {weight_div})
+	(vpif {weight_div > (1 << 16)})
+		;weight_shift = (int)ceilf(logf((float)weight_div) / logf(2.0f));
+	(endif)
+	(vpif {weight_shift > 15})
+		(assign {15} {weight_shift})
+	(endif)
+
+	(assign {(source->canvas_width * 256) </ this->canvas_width} {fw})
+	(assign {(source->canvas_height * 256) </ this->canvas_height} {fh})
+
+	(assign {(this->canvas_width + 1) * int_size} {w})
+	(vpif {w > this->canvas_resize_buf_size})
+		(vpif {this->canvas_resize_buf})
+			(f-call 'sys_mem 'free {this->canvas_resize_buf})
+		(endif)
+		(f-call 'sys_mem 'alloc {w} {this->canvas_resize_buf, this->canvas_resize_buf_size})
+	(endif)
+
+	(assign {0} {x2})
+	(loop-while {x2 < this->canvas_width})
+		(assign {x2 *> fw} {(this->canvas_resize_buf)[x2 * int_size]})
+		(assign {x2 + 1} {x2})
+	(loop-end)
+	(assign {source->canvas_width * 256} {(this->canvas_resize_buf)[x2 * int_size]})
+
+	(assign {this->canvas_data} {data})
+	(assign {0} {y2})
+	(loop-while {y2 < this->canvas_height})
+		(assign {y2 *> fh} {y1a})
+		(assign {y1a >> 8} {y1c})
+		(assign {((y2 + 1) *> fh) - 1} {y1b})
+		(assign {y1b >> 8} {y1d})
+
+		(assign {0} {x2})
+		(loop-while {x2 < this->canvas_width})
+			(assign {(this->canvas_resize_buf)[x2 * int_size]} {x1a})
+			(assign {x1a >> 8} {x1c})
+			(assign {(this->canvas_resize_buf)[(x2 + 1) * int_size] - 1} {x1b})
+			(assign {x1b >> 8} {x1d})
+
+			(assign {0, 0, 0, 0, 0} {a, r, g, b, q})
+
+			(assign {y1c} {y})
+			(loop-while {y < y1d})
+				(assign {256} {weight_y})
+				(vpif {y1c != y1d})
+					(vpif {y == y1c})
+						(assign {weight_y - (y1a & 0xFF)} {weight_y})
+					(elseif {y == y1d})
+						(assign {(y1b & 0xFF) + 1} {weight_y})
+					(endif)
+				(endif)
+
+				(assign {&(source->canvas_data)[(y * source->canvas_width + x1c) * int_size]} {dsrc})
+				(assign {x1c} {x})
+				(loop-while {x < x1d})
+					(assign {256} {weight_x})
+					(vpif {x1c != x1d})
+						(vpif {x == x1c})
+							(assign {weight_x - (x1a & 0xFF)} {weight_x})
+						(elseif {x == x1d})
+							(assign {(x1b & 0xFF) + 1} {weight_x})
+						(endif)
+					(endif)
+
+					;multiply pixel cahnnels by the pixel weight and accumalate
+					(assign {*dsrc, weight_x * weight_y >> weight_shift, r, g, b, a, q}
+							'(r0 r5 r8 r9 r10 r11 r12))
+					(vp-cpy-rr r0 r1)
+					(vp-cpy-rr r0 r2)
+					(vp-cpy-rr r0 r3)
+					(vp-shr-cr 8 r1)
+					(vp-shr-cr 16 r2)
+					(vp-shr-cr 24 r3)
+					(vp-and-cr 0xff r0)
+					(vp-and-cr 0xff r1)
+					(vp-and-cr 0xff r2)
+					(vp-mul-rr r5 r0)
+					(vp-mul-rr r5 r1)
+					(vp-mul-rr r5 r2)
+					(vp-mul-rr r5 r3)
+					(vp-add-rr r8 r0)
+					(vp-add-rr r9 r1)
+					(vp-add-rr r10 r2)
+					(vp-add-rr r11 r3)
+					(vp-add-rr r5 r12)
+					(assign '(r0 r1 r2 r3 r12) {r, g, b, a, q})
+
+					(assign {dsrc + int_size} {dsrc})
+					(assign {x + 1} {x})
+				(loop-end)
+				(assign {y + 1} {y})
+			(loop-end)
+
+			(assign {(r / q) | ((g / q) << 8) | ((b / q) << 16) | ((a / q) << 24)} {*data})
+			(assign {data + int_size} {data})
+
+			(assign {x2 + 1} {x2})
+		(loop-end)
+		(assign {y2 + 1} {y2})
+	(loop-end)
+
+	(f-exit 'canvas 'resize {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
