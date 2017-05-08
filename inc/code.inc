@@ -446,23 +446,31 @@
 (defmacro push-token (&rest b)
 	`(push *token* (list ~b)))
 
+(defmacro is_white_space_char (_)
+	`(not (lt (ascii " ") (code ,_) 127)))
+
+(defmacro is_symbol_char (_)
+	`(find ,_ "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"))
+
 (defcfun set-token-list (l)
 	(clear *token*)
-	(defq m -1 u 1 i 0 p 0 s nil c nil)
+	(defq m -1 u 1 i 0 p 0)
 	(while (lt i (length l))
-		(setq c (elem i l) s (find c {@$"-*~!+.^</%&|=> )(][}) s (if s (inc s) 0)) ;"
+		(defq c (elem i l)
+			s (find c {@$"-*~!+.^)(][</%&|=>}) ;"
+			s (if s (inc s) 0))
 		(cond
 			((eq m -1)
 				;scanning
-				(if (eql c " ")
+				(if (is_white_space_char c)
 					(setq p (inc i))
 					(cond
-						((ge s 19)
+						((find c ")(][")
 							;)(][
 							(push-token c s)
-							(setq p (inc i) u (bit-and (sub s 19) 1)))
+							(setq p (inc i) u (bit-and (sub s 11) 1)))
 						((or (eq s 0) (ge s 4))
-							;-*~!+.?^</%&|=> or symbol
+							;-*~!+.?^</%&|=> or not whitespace
 							(setq m s))
 						(t
 							;@$"
@@ -471,8 +479,8 @@
 			((gt m 3)
 				;op mode
 				(cond
-					((or (gt s 17) (lt s 11))
-						;space, )([] or not </%&|=>
+					((or (is_white_space_char c) (lt s 15))
+						;white space, )([] or not </%&|=>
 						(cond
 							((eq u 1)
 								;unary operator
@@ -488,7 +496,7 @@
 						(setq c nil))))
 			((lt m 3)
 				;symbol mode
-				(if (or (eq s 0) (eq s 12))
+				(if (is_symbol_char c)
 					(setq c nil)
 					(progn
 						(if (find (sym (defq s (slice p i l)))
