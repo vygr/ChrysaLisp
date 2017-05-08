@@ -57,65 +57,65 @@
 	(list (fmul canvas_width 0.5) 0)
 	(list (add (fmul canvas_width 0.5) (fmul canvas_width 0.25)) canvas_height)
 	(list canvas_width 0)
-	(list (div canvas_width 16) canvas_height))))
+	(list (fmul canvas_width 0x0.1) canvas_height))))
 
 (set-brush-col 0xff00ff00)
 (fpoly
 	(stroke-polyline-2d
 		(list)
-		(div canvas_width 16)
+		(fmul canvas_width 0x0.1)
 		round-join
 		round-cap
 		round-cap
 		(list (list
-			(list (div canvas_width 8) (div canvas_height 8))
-			(list (sub canvas_width (div canvas_width 4)) (div canvas_height 6))
-			(list (sub canvas_width (div canvas_width 8)) (sub canvas_height (div canvas_height 8)))))))
+			(list (fmul canvas_width 0o0.1) (fmul canvas_height 0o0.1))
+			(list (sub canvas_width (fmul canvas_width 0.25)) (fmul canvas_height 0.166))
+			(list (sub canvas_width (fmul canvas_width 0o0.1)) (sub canvas_height (fmul canvas_height 0o0.1)))))))
 
 (set-brush-col 0xff00ffff)
 (fpoly
 	(stroke-polygon-2d
 		(list)
-		(div canvas_width 100)
+		(fmul canvas_width 0.01)
 		mitre-join
 		(stroke-polyline-2d
 			(list)
-			(div canvas_width 30)
+			(fmul canvas_width 0.033)
 			bevel-join
 			round-cap
 			arrow-cap
 			(list (gen-bezier-polyline-2d
 				(list)
-				(list (div canvas_width 16) (sub canvas_height (div canvas_height 16)))
-				(list (div canvas_width 8) (div canvas_height 16))
-				(list (div canvas_width 4) (div canvas_height 3))
-				(list (sub canvas_width (div canvas_width 10)) (div canvas_height 10)))))))
+				(list (fmul canvas_width 0x0.1) (sub canvas_height (fmul canvas_height 0x0.1)))
+				(list (fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1))
+				(list (fmul canvas_width 0.25) (fmul canvas_height 0.33))
+				(list (sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)))))))
 
 (set-brush-col 0xffff0000)
 (fpoly
 	(stroke-polygon-2d
 		(list)
-		(div canvas_width 40)
+		(fmul canvas_width 0.025)
 		mitre-join
 		(stroke-polyline-2d
 			(list)
-			(div canvas_width 20)
+			(fmul canvas_width 0.05)
 			bevel-join
 			square-cap
 			tri-cap
 			(list
 				(gen-arc-polyline-2d
 					(list)
-					(list (add (div canvas_width 3) (div canvas_width 16))
-						(add (div canvas_height 2) (div canvas_height 8)))
-					(div canvas_width 4)
+					(list (add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
+						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1)))
+					(fmul canvas_width 0.25)
 					1.0
 					1.0)
 				(gen-arc-polyline-2d
 					(list)
-					(list (add (div canvas_width 3) (div canvas_width 16))
-						(add (div canvas_height 2) (div canvas_height 8)))
-					(div canvas_width 8)
+					(list (add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
+						(add (fmul canvas_height 0.25) (fmul canvas_height 0o0.1)))
+					(fmul canvas_width 0o0.1)
 					4.0
 					2.0)))))
 
