@@ -31,7 +31,7 @@
 
 	(f-call 'string 'create_raw {string_gap} {string})
 	(f-call 'stream_str 'create {string} {str_stream})
-	(loop-while {char >= char_0 && char <= char_9 || char >= char_a && char <= char_z || char >= char_A && char <= char_Z})
+	(loop-while {char == char_dot || char >= char_0 && char <= char_9 || char >= char_a && char <= char_z || char >= char_A && char <= char_Z})
 		(f-call 'stream 'write_char {str_stream, char})
 		(f-call 'stream 'read_char {stream} {_, char})
 	(loop-end)

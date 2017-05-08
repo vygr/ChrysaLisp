@@ -62,7 +62,7 @@
 		(vp-cpy-ri-i r2 r0 canvas_cy)
 
 		(vp-cpy-ir-i r0 canvas_aa_scale r3)
-		(vp-cpy-cr (bit-shl fp-one 16) r2)
+		(vp-cpy-cr (bit-shl 1.0 16) r2)
 		(vp-xor-rr r1 r1)
 		(vp-div-rrr r3 r1 r2)
 		(vp-cpy-ri-i r2 r0 canvas_aa_scale_r)
@@ -174,7 +174,7 @@
 		(vp-mul-rr r8 r11)
 		(vp-asr-cr 16 r10)
 		(vp-asr-cr 16 r11)
-		(f-call 'canvas 'create '(r10 r11 fp-one) '(r0))
+		(f-call 'canvas 'create '(r10 r11 1.0) '(r0))
 		(vp-cpy-ri r0 r4 local_temp_canvas)
 		(f-call 'canvas 'resize '(r0 (r4 local_this)))
 		(sdl-create-rgb-surface-from '((r0 canvas_data) (r0 canvas_width ui) (r0 canvas_height ui)

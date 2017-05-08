@@ -14,7 +14,7 @@
 
 (defun vec-reciprocal-distance (p1 p2)
 	(defq d (manhattan-distance p1 p2))
-	(if (eq d 0) (1) (fdiv 1 d)))
+	(if (eq d 0) (1.0) (fdiv 1.0 d)))
 
 ;generic vector stuff
 
@@ -47,7 +47,7 @@
 	(defq l (vec-length p))
 	(if (eq l 0)
 		(vec-scale p 0)
-		(vec-scale p (fdiv fp-one l))))
+		(vec-scale p (fdiv 1.0 l))))
 
 (defun vec-distance-to-line (p p1 p2)
 	(defq lv (vec-sub p2 p1)
@@ -140,13 +140,13 @@
 	(defq l (vec-length-2d p))
 	(if (eq l 0)
 		(list 0 0)
-		(list (fmul (elem 0 p) (setq l (fdiv fp-one l))) (fmul (elem 1 p) l))))
+		(list (fmul (elem 0 p) (setq l (fdiv 1.0 l))) (fmul (elem 1 p) l))))
 
 (defun vec-norm-3d (p)
 	(defq l (vec-length-3d p))
 	(if (eq l 0)
 		(list 0 0 0)
-		(list (fmul (elem 0 p) (setq l (fdiv fp-one l)))
+		(list (fmul (elem 0 p) (setq l (fdiv 1.0 l)))
 			(fmul (elem 1 p) l) (fmul (elem 2 p) l))))
 
 (defun vec-distance-2d (p1 p2)
@@ -286,7 +286,7 @@
 	(when (ne r 0)
 		(setq a1 (fmod a1 fp-2pi) a2 (if (gt a2 fp-2pi) (fmod a2 fp-2pi) a2))
 		(cond
-			((le a2 fp-three)
+			((le a2 3.0)
 				(setq a2 (add a1 a2))
 				(defq v1 (list (fmul r (fsin a1)) (fmul r (fcos a1)))
 					v2 (list (fmul r (fsin a2)) (fmul r (fcos a2))))
@@ -311,7 +311,7 @@
 			;flatness test
 			(cond
 				((le (add (abs (sub (add x1 x3) x2 x2))
-						(abs (sub (add y1 y3) y2 y2))) fp-two)
+						(abs (sub (add y1 y3) y2 y2))) 2.0)
 					(push out_points (vec-add-2d p1 bv)))
 				(t
 					;continue subdivision
@@ -339,7 +339,7 @@
 			((le (add (abs (sub (add x1 x3) x2 x2))
 					(abs (sub (add y1 y3) y2 y2))
 					(abs (sub (add x2 x4) x3 x3))
-					(abs (sub (add y2 y4) y3 y3))) fp-two)
+					(abs (sub (add y2 y4) y3 y3))) 2.0)
 				(push out_points (list x1234 y1234)))
 			(t
 				;continue subdivision
@@ -414,7 +414,7 @@
 							(vec-add-2d p1 l2_rv)))
 					((eq c arrow-cap)
 						;arrow cap
-						(defq rv (vec-scale-2d l2_rv fp-two))
+						(defq rv (vec-scale-2d l2_rv 2.0))
 						(push out_points
 							(vec-sub-2d p1 l2_rv)
 							(vec-sub-2d p1 rv)
@@ -424,7 +424,7 @@
 					((eq c round-cap)
 						;round cap
 						(defq pv (vec-perp-2d l2_rv))
-						(gen-clerp-polyline-2d out_points p1 (vec-scale-2d l2_rv (neg fp-one)) pv r)
+						(gen-clerp-polyline-2d out_points p1 (vec-scale-2d l2_rv (neg 1.0)) pv r)
 						(gen-clerp-polyline-2d out_points p1 pv l2_rv r))
 					(t (throw "Missing cap sytle " c)))
 				(while (and (ne index -1) (ne index (length _)))

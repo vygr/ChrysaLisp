@@ -109,14 +109,14 @@
 					(list (add (div canvas_width 3) (div canvas_width 16))
 						(add (div canvas_height 2) (div canvas_height 8)))
 					(div canvas_width 4)
-					fp-one
-					fp-one)
+					1.0
+					1.0)
 				(gen-arc-polyline-2d
 					(list)
 					(list (add (div canvas_width 3) (div canvas_width 16))
 						(add (div canvas_height 2) (div canvas_height 8)))
 					(div canvas_width 8)
-					fp-four
-					fp-two)))))
+					4.0
+					2.0)))))
 
 (pixel canvas)

@@ -51,6 +51,7 @@
 (defcvar 'char_comma (ascii ","))
 (defcvar 'char_tilda (ascii "~"))
 (defcvar 'char_semi (ascii ";"))
+(defcvar 'char_dot (ascii "."))
 (defcvar 'char_at (ascii "@"))
 (defcvar 'char_equal (ascii "="))
 (defcvar 'char_plus (ascii "+"))

@@ -183,10 +183,7 @@
 ; Fixed point math
 ;;;;;;;;;;;;;;;;;;
 
-(defq fp-shift 16 fp-one (bit-shl 1 fp-shift) fp-two (add fp-one fp-one)
-	fp-three (add fp-one fp-two) fp-four (add fp-two fp-two) fp-five (add fp-two fp-three)
-	fp-half (bit-asr fp-one 1) fp-quarter (bit-asr fp-half 1)
-	fp-2pi 411774 fp-pi 205887 fp-hpi 102943 fp-qpi 51471)
+(defq fp-shift 16 fp-2pi 411774 fp-pi 205887 fp-hpi 102943 fp-qpi 51471)
 
 (defun fp-val (_)
 	(bit-shl _ fp-shift))
@@ -199,21 +196,21 @@
 		(sub x (mul (bit-asr (fdiv x y) fp-shift) y))) _))
 
 (defun fsqrt (_)
-	(defq x fp-one n_one (bit-shl _ fp-shift) _x x)
+	(defq x 1.0 n_one (bit-shl _ fp-shift) _x x)
 	(setq x (bit-shr (add x (div n_one x)) 1))
 	(while (ne _x x)
 		(setq _x x x (bit-shr (add x (div n_one x)) 1))) x)
 
 (defun fsin (_)
 	(setq _ (sub (fmod _ fp-2pi) fp-pi))
-	(defq tc (fdiv _ fp-pi) tp fp-one u (bit-shl tc 1) y 0 i -1)
+	(defq tc (fdiv _ fp-pi) tp 1.0 u (bit-shl tc 1) y 0 i -1)
 	(while (lt (setq i (inc i)) 9)
 		(setq y (add y (fmul tc (elem i '(-37305 0 43707 0 -6834 0 448 0 -16)))))
 		(defq tn (sub (fmul u tc) tp) tp tc tc tn)) y)
 
 (defun fcos (_)
 	(setq _ (sub (fmod _ fp-2pi) fp-pi))
-	(defq tc (fdiv _ fp-pi) tp fp-one u (bit-shl tc 1) y 19939 i -1)
+	(defq tc (fdiv _ fp-pi) tp 1.0 u (bit-shl tc 1) y 19939 i -1)
 	(while (lt (setq i (inc i)) 10)
 		(setq y (add y (fmul tc (elem i '(0 63627 0 -19848 0 1907 0 -91 0 3)))))
 		(defq tn (sub (fmul u tc) tp) tp tc tc tn)) y)
@@ -288,9 +285,13 @@
 				(setq b 8 _ (slice 2 -1 _)))
 			((eql i "b")
 				(setq b 2 _ (slice 2 -1 _)))))
-	(defq i -1)
+	(defq i -1 f 0)
 	(while (lt (setq i (inc i)) (length _))
-		(setq n (add (mul n b) (from-base-char (elem i _))))) n)
+		(defq c (elem i _))
+		(if (eql c ".")
+			(setq f 1)
+			(defq d (from-base-char c) n (add (mul n b) d) f (mul f b))))
+	(if (eq f 0) n (fdiv n f)))
 
 (defun pow2 (_)
 	(defq i -1 b nil)
