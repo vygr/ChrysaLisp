@@ -283,7 +283,7 @@
 		(pop _)) _)
 
 (defun gen-arc-polyline-2d (out_points p r a1 a2)
-	(when (ne r 0)
+	(when (ge r 0.5)
 		(setq a1 (fmod a1 fp-2pi) a2 (if (gt a2 fp-2pi) (fmod a2 fp-2pi) a2))
 		(cond
 			((le a2 3.0)
@@ -298,7 +298,7 @@
 	out_points)
 
 (defun gen-clerp-polyline-2d (out_points p1 v2 v3 r)
-	(when (ne r 0)
+	(when (ge r 0.5)
 		(defq stack (list v2 v3))
 		(push out_points (vec-add-2d p1 v2))
 		(while (defq v4 (pop stack) v2 (pop stack))
@@ -348,7 +348,7 @@
 	(push out_points p4))
 
 (defun gen-polyline-joints-2d (out_points in_points p1 p2 i j)
-	(when (ne r 0)
+	(when (ge r 0.5)
 		(defq l2_v (vec-sub-2d p2 p1)
 			l2_pv (vec-perp-2d l2_v)
 			l2_npv (vec-norm-2d l2_pv)
@@ -380,7 +380,7 @@
 	out_points)
 
 (defun stroke-polyline-2d (out_polygons r join_style cap1_style cap2_style in_polylines)
- 	(when (ne r 0)
+ 	(when (ge r 0.5)
 	 	(each (lambda (_)
 			(setq _ (remove-coincident-polyline-2d _))
 			(defq index 0 step 1 sides 2 out_points (list))
@@ -457,7 +457,7 @@
 	out_polygons)
 
 (defun stroke-polygon-2d (out_polygons r join_style in_polygons)
-	(when (ne r 0)
+	(when (ge r 0.5)
 		(each (lambda (_)
 			(setq _ (remove-coincident-polygon-2d _))
 			(push out_polygons (gen-polyline-joints-2d (list) _ (elem -3 _) (elem -2 _) 0 (length _)))
