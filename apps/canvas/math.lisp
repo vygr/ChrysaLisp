@@ -268,8 +268,8 @@
 ;generic path stuff
 
 (defun coincident-2d (p1 p2)
-	(and (lt (abs (sub (elem 0 p1) (elem 0 p2))) fp-quarter)
-		(lt (abs (sub (elem 1 p1) (elem 1 p2))) fp-quarter)))
+	(and (lt (abs (sub (elem 0 p1) (elem 0 p2))) 0.25)
+		(lt (abs (sub (elem 1 p1) (elem 1 p2))) 0.25)))
 
 (defun remove-coincident-polyline-2d (_)
 	(reduce (lambda (l _)

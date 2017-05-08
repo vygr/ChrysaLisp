@@ -19,8 +19,8 @@
 	(each (lambda (_)
 		(setq _ (map (lambda (_) (vec-scale-2d _ canvas_scale)) _))
 		(reduce (lambda (p1 p2)
-			(defq x1 (add (elem 0 p1) fp-half) y1 (bit-asr (add (elem 1 p1) fp-half) fp-shift)
-				x2 (add (elem 0 p2) fp-half) y2 (bit-asr (add (elem 1 p2) fp-half) fp-shift))
+			(defq x1 (add (elem 0 p1) 0.5) y1 (bit-asr (add (elem 1 p1) 0.5) fp-shift)
+				x2 (add (elem 0 p2) 0.5) y2 (bit-asr (add (elem 1 p2) 0.5) fp-shift))
 			(cond
 				((lt y1 y2)
 					(setq ys (min ys y1) ye (max ye y2))
@@ -53,9 +53,9 @@
 (set-brush-col 0xff0000ff)
 (fpoly (list (list
 	(list 0 0)
-	(list (fmul canvas_width fp-quarter) canvas_height)
-	(list (fmul canvas_width fp-half) 0)
-	(list (add (fmul canvas_width fp-half) (fmul canvas_width fp-quarter)) canvas_height)
+	(list (fmul canvas_width 0.25) canvas_height)
+	(list (fmul canvas_width 0.5) 0)
+	(list (add (fmul canvas_width 0.5) (fmul canvas_width 0.25)) canvas_height)
 	(list canvas_width 0)
 	(list (div canvas_width 16) canvas_height))))
 
