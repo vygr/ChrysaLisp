@@ -67,7 +67,7 @@
 	(vpif '(r0 != 0))
 		(f-call 'sys_load 'bind '(r0) '(r0))
 		(vpif '(r0 != 0))
-			(f-call 'sys_task 'start '(r0) '(r0 r1))
+			(f-call 'sys_task 'start '(r0))
 		(endif)
 	(endif)
 	(vp-ret)
@@ -83,8 +83,7 @@
 	(vp-cpy-ir r14 0 r0)
 	(vpif '(r0 != 0))
 		;start link
-		(f-call 'sys_task 'start `((@ ,(f-path 'sys_link 'link))) '(r0 r5))
-		(f-call 'sys_cpu 'id '() '(r6))
+		(f-call 'sys_task 'start `((@ ,(f-path 'sys_link 'link))) '(r0 r5 r6))
 
 		;allocate params message
 		(f-call 'sys_mail 'alloc '() '(r7))

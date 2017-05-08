@@ -78,7 +78,7 @@
 
 	;for now fire up the test apps
 	;this might be an gui auto run list eventually
-	(f-call 'sys_task 'start '((@ apps/launcher/app)) '(r0 r1))
+	(f-call 'sys_task 'start '((@ apps/launcher/app)))
 
 	;gui event loop
 	(loop-start)

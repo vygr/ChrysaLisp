@@ -15,7 +15,7 @@
 (def-method 'tcb 'sys/task_tcb 'static nil '(r0))
 (def-method 'mailbox 'sys/task_mailbox 'static nil '(r0 r1))
 (def-method 'callback 'sys/task_callback 'static '(r0 r1))
-(def-method 'start 'sys/task_start 'static '(r0) '(r0 r1))
+(def-method 'start 'sys/task_start 'static '(r0) '(r0 r1 r2))
 (def-method 'stop 'sys/task_stop)
 (def-method 'restore 'sys/task_restore)
 (def-method 'yield 'sys/task_yield)

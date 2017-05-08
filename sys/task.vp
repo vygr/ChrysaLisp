@@ -535,9 +535,10 @@
 	;r0 = new task func pointer
 	;outputs
 	;r0 = new task control block
-	;r1 = new task mailbox
+	;r1 = new task mailbox id
+	;r2 = new task mailbox id
 	;trashes
-	;r2-r3, r5-r6
+	;r3, r5-r6
 
 	;save prog counter
 	(vp-cpy-rr r0 r5)
@@ -586,8 +587,9 @@
 	;resume new task
 	(f-call 'sys_task 'resume '(r0))
 
-	;return mailbox pointer
-	(vp-lea-i r0 tk_node_mailbox r1)
+	;return mailbox
+	(f-bind 'sys_task 'statics r2)
+	(f-exit 'sys_task 'start '(r0 (& r0 tk_node_mailbox) (r2 tk_statics_cpu_id)))
 	(vp-ret)
 
 (def-func-end)

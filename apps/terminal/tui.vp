@@ -34,8 +34,7 @@
 	(f-call 'sys_task 'mailbox {} {tui_id.id_mbox, tui_id.id_cpu})
 
 	;start stdin polling task and send it tui mailbox id
-	(f-call 'sys_task 'start {@apps/terminal/tui_child} {_, stdin_id.id_mbox})
-	(assign {tui_id.id_cpu} {stdin_id.id_cpu})
+	(f-call 'sys_task 'start {@apps/terminal/tui_child} {_, stdin_id.id_mbox, stdin_id.id_cpu})
 	(f-call 'sys_mail 'alloc {} {msg})
 	(assign {stdin_id.id_mbox} {msg->msg_dest.id_mbox})
 	(assign {stdin_id.id_cpu} {msg->msg_dest.id_cpu})

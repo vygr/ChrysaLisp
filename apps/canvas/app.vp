@@ -65,8 +65,7 @@
 	(f-call 'canvas 'swap {canvas})
 
 	;start lisp task and send it args
-	(f-call 'sys_task 'start {@apps/canvas/lisp} {_, lisp_id.id_mbox})
-	(f-call 'sys_task 'mailbox {} {_, lisp_id.id_cpu})
+	(f-call 'sys_task 'start {@apps/canvas/lisp} {_, lisp_id.id_mbox, lisp_id.id_cpu})
 	(f-call 'sys_mail 'alloc {} {msg})
 	(assign {lisp_id.id_mbox} {msg->msg_dest.id_mbox})
 	(assign {lisp_id.id_cpu} {msg->msg_dest.id_cpu})
