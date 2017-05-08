@@ -114,7 +114,7 @@
 				(gen-arc-polyline-2d
 					(list)
 					(list (add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
-						(add (fmul canvas_height 0.25) (fmul canvas_height 0o0.1)))
+						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1)))
 					(fmul canvas_width 0o0.1)
 					4.0
 					2.0)))))
