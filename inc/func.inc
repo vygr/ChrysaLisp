@@ -4,9 +4,6 @@
 (import 'inc/task.inc)
 (import 'inc/syscall.inc)
 
-(defcvar 'debug_mode t)
-(defcvar 'debug_emit nil)
-
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail functions
 ;;;;;;;;;;;;;;;;;;;;;;;

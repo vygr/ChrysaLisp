@@ -555,7 +555,7 @@
 (defmacro vreg-sym (n)
 	`(sym-cat "_v_" (str ,n)))
 
-(defcvar '*s* nil '*r* nil '*inst* (list) 'debug_inst nil)
+(defcvar '*s* nil '*r* nil '*inst* (list))
 (each (lambda (_) (defcvar (vreg-sym _) nil (type-sym _) nil)) (range 0 15))
 
 (defmacro inc-stack ()

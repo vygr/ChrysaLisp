@@ -9,6 +9,8 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
+(defq debug_mode t debug_emit nil debug_inst nil)
+
 (defun platform ()
 	(defq o 'Darwin)
 	(when (defq f (file-stream 'platform))
