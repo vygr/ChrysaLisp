@@ -861,7 +861,6 @@
 
 (defcfun compile-rpn-list ()
 	(each (lambda (_)
-		(if debug_inst (print _))
 		(defq k (elem 0 _) c (inc (elem 1 _)))
 		(if (le 0 c 5)
 			(eval (elem c
