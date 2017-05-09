@@ -452,13 +452,22 @@
 (defmacro is_symbol_char (_)
 	`(find ,_ "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"))
 
+(defmacro is_label_char (_)
+	`(find ,_ "0123456789_abcdefghijklmnopqrstuvwxyz"))
+
+(defmacro is_numeral_char (_)
+	`(find ,_ "0123456789"))
+
+(defmacro is_allowed_number_char (_)
+	`(find ,_ "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789"))
+
 (defcfun set-token-list (l)
 	(clear *token*)
 	(defq m -1 u 1 i 0 p 0)
 	(while (lt i (length l))
 		(defq c (elem i l)
 			s (find c {@$"-*~!+.^)(][</%&|=>}) ;"
-			s (if s (inc s) 0))
+			s (if s (add s 2) 0))
 		(cond
 			((eq m -1)
 				;scanning
@@ -468,19 +477,22 @@
 						((find c ")(][")
 							;)(][
 							(push-token c s)
-							(setq p (inc i) u (bit-and (sub s 11) 1)))
-						((or (eq s 0) (ge s 4))
-							;-*~!+.?^</%&|=> or not whitespace
+							(setq p (inc i) u (bit-and (sub s 12) 1)))
+						((ge s 5)
+							;-*~!+.?^</%&|=>
 							(setq m s))
+						((eq s 0)
+							;not whitespace
+							(setq m (if (is_numeral_char c) 0 1)))
 						(t
 							;@$"
 							(setq p (inc i) m s))))
 				(setq c nil))
-			((gt m 3)
+			((ge m 5)
 				;op mode
 				(cond
-					((or (is_white_space_char c) (lt s 15))
-						;white space, )([] or not </%&|=>
+					((or (is_white_space_char c) (lt s 16))
+						;white space, )([]
 						(cond
 							((eq u 1)
 								;unary operator
@@ -494,19 +506,40 @@
 						(setq p i m -1))
 					(t
 						(setq c nil))))
-			((lt m 3)
+			((eq m 0)
+				;number mode
+				(if (is_allowed_number_char c)
+					(setq c nil)
+					(progn
+						(push-token (slice p i l) m)
+						(setq p i u 0 m -1))))
+			((eq m 1)
 				;symbol mode
 				(if (is_symbol_char c)
 					(setq c nil)
 					(progn
 						(if (find (sym (defq s (slice p i l)))
 								'(byte ubyte short ushort int uint long ulong ptr))
-							(push-token s 4)
+							(push-token s 5)
 							(push-token s m))
+						(setq p i u 0 m -1))))
+			((eq m 2)
+				;bind
+				(if (is_symbol_char c)
+					(setq c nil)
+					(progn
+						(push-token (slice p i l) m)
+						(setq p i u 0 m -1))))
+			((eq m 3)
+				;label
+				(if (is_label_char c)
+					(setq c nil)
+					(progn
+						(push-token (slice p i l) m)
 						(setq p i u 0 m -1))))
 			(t
 				;string mode
-				(if (ne s 3)
+				(if (ne s 4)
 					(setq c nil)
 					(progn
 						(push-token (slice p i l) m)
@@ -526,11 +559,11 @@
 
 (defcfun token-to-rpn ()
 	(clear *rpn*)
-	(defq o (list) i -1 k nil c nil s nil x nil v nil)
-	(while (lt (setq i (inc i)) (length *token*))
-		(setq k (elem 0 (elem i *token*)) c (elem 1 (elem i *token*)))
+	(defq o (list))
+	(each (lambda (_)
+		(defq k (elem 0 _) c (elem 1 _))
 		(cond
-			((gt c 3) ;operator
+			((ge c 5) ;operator
 				(cond
 					((find k "([")
 						(push o k))
@@ -542,17 +575,17 @@
 							(push-rpn k -1))
 						(push-rpn "[]" -1))
 					(t ;precedence
-						(unless (setq s (get-sym k))
+						(unless (defq s (get-sym k))
 							(throw "Operator not defined !" k))
-						(setq v (sub (elem 2 s) (elem 3 s)) x t)
+						(defq v (sub (elem 2 s) (elem 3 s)) x t)
 						(while (and x (ne 0 (length o)))
 							(setq s (get-sym (elem -2 o)))
 							(if (ge v (elem 2 s))
 								(push-rpn (pop o) -1)
 								(setq x nil)))
 						(push o k))))
-			(t ;string or symbol
-				(push-rpn k c))))
+			(t ;number, symbol, string, symbol, bind, label
+				(push-rpn k c)))) *token*)
 	(while (defq _ (pop o))
 		(push-rpn _ -1)))
 
@@ -643,14 +676,14 @@
 										vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
 	(add-inst `(,w ,v 0 ,v)))
 
+(defcfun compile-num (_1)
+	(compile-const (to-num _1)))
+
 (defcfun compile-ref (_1)
 	(cond
 		((not (defq s (get-sym _1)))
 			;not in symbol table so figure out what it is
 			(cond
-				((le (ascii "0") (code (elem 0 _1)) (ascii "9"))
-					;number
-					(compile-const (to-num _1)))
 				((eql _1 'RXX)
 					;reserved slot
 					(nil-type))
@@ -827,18 +860,19 @@
 	(add-inst `(vp-lea-p ',_1 ,(vreg-sym *s*))))
 
 (defcfun compile-rpn-list ()
-	(defq i -1)
-	(while (lt (setq i (inc i)) (length *rpn*))
-		(defq k (elem 0 (elem i *rpn*)) c (inc (elem 1 (elem i *rpn*))))
-		(if (le 0 c 4)
+	(each (lambda (_)
+		(if debug_inst (print _))
+		(defq k (elem 0 _) c (inc (elem 1 _)))
+		(if (le 0 c 5)
 			(eval (elem c
 				'((compile-operator k)
+				(compile-num k)
 				(compile-ref k)
 				(compile-bind k)
 				(compile-label k)
 				(compile-string (str k)))))
 			(throw "Unknown token type !" k))
-		(setq *s* (inc *s*))))
+		(setq *s* (inc *s*))) *rpn*))
 
 (operator "ptr" 0 1 compile-cast)
 (operator "byte" 0 1 compile-cast)
