@@ -75,8 +75,7 @@
 			(f-call 'lisp 'repl_read_sym {this, stream, char} {_, ast, char})
 		(endswitch)
 	(else)
-		(assign {this->lisp_sym_nil} {ast})
-		(f-call 'ref 'ref {ast})
+		(f-call 'ref 'ref {this->lisp_sym_nil} {ast})
 	(endif)
 
 	(f-exit 'lisp 'repl_read {this, ast, char})

@@ -19,8 +19,7 @@
 	(vpif {length})
 		(f-call 'vector 'ref_back {args} {_, args})
 	(else)
-		(assign {this->lisp_sym_nil} {args})
-		(f-call 'ref 'ref {args})
+		(f-call 'ref 'ref {this->lisp_sym_nil} {args})
 	(endif)
 
 	(f-exit 'lisp 'func_progn {this, args})

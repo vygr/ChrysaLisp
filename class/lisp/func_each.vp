@@ -98,8 +98,7 @@
 		(loop-end)
 		(f-call 'vector 'deref {params})
 	(endif)
-	(assign {this->lisp_sym_nil} {value})
-	(f-call 'ref 'ref {value})
+	(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 
 (vp-label 'exit)
 	(f-call 'lisp 'env_pop {this})

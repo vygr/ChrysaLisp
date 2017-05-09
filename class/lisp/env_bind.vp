@@ -21,8 +21,7 @@
 	(errorif (cat {vars->obj_vtable != @} (f-path 'class 'vector)) 'error1)
 	(errorif (cat {vals->obj_vtable != @} (f-path 'class 'vector)) 'error2)
 	(assign {0, 0} {index_vars, state})
-	(assign {this->lisp_sym_nil} {value})
-	(f-call 'ref 'ref {value})
+	(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 	(d-call 'vector 'get_length {vars} {_, len_vars})
 	(d-call 'vector 'get_length {vals} {_, len_vals})
 	(loop-while {index_vars != len_vars})
@@ -43,8 +42,7 @@
 		(elseif {state == 2})
 			;optional
 			(gotoif {index_vals != len_vals} 'normal)
-			(assign {this->lisp_sym_nil} {value})
-			(f-call 'ref 'ref {value})
+			(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 			(assign {index_vars + 1} {index_vars})
 		(else)
 			;normal

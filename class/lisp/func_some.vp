@@ -43,8 +43,7 @@
 		(assign {iter + ptr_size} {iter})
 	(loop-end)
 
-	(assign {this->lisp_sym_nil} {value})
-	(f-call 'ref 'ref {value})
+	(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 
 	(vpif {length != 1000000})
 		(assign {0} {start})

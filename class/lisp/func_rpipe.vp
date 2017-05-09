@@ -44,8 +44,7 @@
 		(f-call 'ref 'deref {str_stream})
 	(else)
 		;closed
-		(assign {this->lisp_sym_nil} {value})
-		(f-call 'ref 'ref {value})
+		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
 (vp-label 'exit)

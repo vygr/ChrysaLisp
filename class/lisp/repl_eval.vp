@@ -28,8 +28,7 @@
 		(d-call 'vector 'get_length {form} {_, length})
 		(vpifnot {length})
 			;eval to nil
-			(assign {this->lisp_sym_nil} {value})
-			(f-call 'ref 'ref {value})
+			(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 		(else)
 			;apply function, eval args if needed
 			(f-call 'vector 'get_element {form, 0} {_, func})
