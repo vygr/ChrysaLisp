@@ -12,23 +12,20 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'name 'value)
-	(ulong 'length)
+	(ptr 'this 'value)
+	(ulong 'age)
 
 	(push-scope)
-	(f-entry 'lisp 'func_age {this, args})
-
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, name})
+	(f-entry 'lisp 'func_age {this, value})
 
 (errorcases
-	(f-call 'obj 'inst_of (cat {name, @} (f-path 'class 'string)) {_, value})
-	(errorifnot {value} 'error2))
+	(f-call 'lisp 'env_args_type {this, value, $sig, 1} {_, age})
+	(errorifnot {age} 'error1))
 
-	(f-call 'sys_io 'age {&name->string_data} {length})
+	(f-call 'vector 'get_element {value, 0} {_, value})
+	(f-call 'sys_io 'age {&value->string_data} {age})
 	(f-call 'boxed_long 'create {} {value})
-	(f-call 'boxed_long 'set_value {value, length})
+	(f-call 'boxed_long 'set_value {value, age})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_age {this, value})
@@ -36,11 +33,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(age filename)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(age filename)", error_msg_wrong_args_type, value} {_, value})
 	(goto 'exit)
-(vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(age filename)", error_msg_not_a_filename, args} {_, value})
-	(goto 'exit))
+	(signature 'sig 'string))
 
 	(pop-scope-syms)
 
