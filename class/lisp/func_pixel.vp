@@ -3,10 +3,6 @@
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 
-(defun class-type-entry (_)
-	;method
-	(vp-short `(sub ,(label-sym (link-sym (fn-find-link (f-path 'class _)))) *pc*)))
-
 (def-func 'class/lisp/func_pixel)
 	;inputs
 	;r0 = lisp object
@@ -30,7 +26,7 @@
 	(switch)
 	(case (cat {slot == } (str (method-slot 'canvas 'swap))))
 	(errorcases
-		(f-call 'lisp 'env_args_type {this, args, $canvas_swap_args, 2} {_, slot})
+		(f-call 'lisp 'env_args_type {this, args, $canvas_swap, 2} {_, slot})
 		(errorifnot {slot} 'error1))
 		(f-call 'lisp 'env_args_set {this, args, &argslot})
 		(f-call 'canvas 'swap {arg0})
@@ -38,14 +34,14 @@
 		(break)
 	(case (cat {slot == } (str (method-slot 'canvas 'set_pixel))))
 	(errorcases
-		(f-call 'lisp 'env_args_type {this, args, $canvas_set_pixel_args, 5} {_, slot})
+		(f-call 'lisp 'env_args_type {this, args, $canvas_set_pixel, 5} {_, slot})
 		(errorifnot {slot} 'error1))
 		(f-call 'lisp 'env_args_set {this, args, &argslot})
 		(f-call 'canvas 'set_pixel {arg0, arg1, arg2, arg3})
 		(break)
 	(case (cat {slot == } (str (method-slot 'canvas 'set_hline))))
 	(errorcases
-		(f-call 'lisp 'env_args_type {this, args, $canvas_set_hline_args, 6} {_, slot})
+		(f-call 'lisp 'env_args_type {this, args, $canvas_set_hline, 6} {_, slot})
 		(errorifnot {slot} 'error1))
 		(f-call 'lisp 'env_args_set {this, args, &argslot})
 		(f-call 'canvas 'set_hline {arg0, arg1, arg2, arg3, arg4})
@@ -64,24 +60,9 @@
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(pixel slot canvas ...)", error_msg_wrong_args_type, args} {_, value})
 	(goto 'exit)
-
-	(vp-align short_size)
-(vp-label 'canvas_swap_args)
-	(class-type-entry 'boxed_long)
-	(class-type-entry 'canvas)
-(vp-label 'canvas_set_pixel_args)
-	(class-type-entry 'boxed_long)
-	(class-type-entry 'canvas)
-	(class-type-entry 'boxed_long)
-	(class-type-entry 'boxed_long)
-	(class-type-entry 'boxed_long)
-(vp-label 'canvas_set_hline_args)
-	(class-type-entry 'boxed_long)
-	(class-type-entry 'canvas)
-	(class-type-entry 'boxed_long)
-	(class-type-entry 'boxed_long)
-	(class-type-entry 'boxed_long)
-	(class-type-entry 'boxed_long))
+	(signature 'canvas_swap 'boxed_long 'canvas)
+	(signature 'canvas_set_pixel 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'canvas_set_hline 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long))
 
 	(pop-scope-syms)
 

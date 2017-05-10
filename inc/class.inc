@@ -320,6 +320,12 @@
 (def-method 'vdu 'class/class_vdu)
 (def-method 'canvas 'class/class_canvas)
 
+(defcfun signature (l &rest _)
+	(vp-align short_size)
+(vp-label l)
+	(each (lambda (_)
+		(vp-short `(sub ,(label-sym (link-sym (fn-find-link (f-path 'class _)))) *pc*))) _))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
