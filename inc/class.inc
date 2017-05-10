@@ -84,6 +84,12 @@
 		(defq s 0 v ptr_size m nil)
 		(method-lookup ,_1 ,_2)))
 
+(defcfun method-slot (_1 _2)
+	;_1 = class name
+	;_2 = member name
+	(defq s 0 v ptr_size m nil)
+	(method-lookup _1 _2) s)
+
 (defcfun method-lookup (_1 _2)
 	;_1 = class name
 	;_2 = member name

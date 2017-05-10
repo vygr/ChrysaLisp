@@ -1,0 +1,34 @@
+(import 'inc/func.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/env_args_set)
+	;inputs
+	;r0 = lisp object
+	;r1 = args vector
+	;r2 = args dest pointer
+	;outputs
+	;r0 = lisp object
+
+	(ptr 'this 'args 'value)
+	(pptr 'iter_begin 'iter_end 'dest)
+
+	(push-scope)
+	(f-entry 'lisp 'env_args_set {this, args, dest})
+
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(f-call 'vector 'get_end {args} {_, iter_end})
+	(loop-while {iter_begin != iter_end})
+		(assign {*iter_begin} {value})
+		(vpif (cat {value->obj_vtable == @} (f-path 'class 'boxed_long)))
+			(f-call 'boxed_long 'get_value {value} {_, value})
+		(endif)
+		(assign {value} {*dest})
+		(assign {iter_begin + ptr_size, dest + ptr_size} {iter_begin, dest})
+	(loop-end)
+
+	(f-exit 'lisp 'env_args_set {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

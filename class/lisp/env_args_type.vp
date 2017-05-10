@@ -1,0 +1,44 @@
+(import 'inc/func.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/env_args_type)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;r2 = types pointer
+	;r3 = argc
+	;outputs
+	;r0 = lisp object
+	;r1 = 0 if error, else ok
+
+	(ptr 'this 'args 'value)
+	(pushort 'types)
+	(union '(pptr 'iter_begin 'iter_end) '(uint 'argc 'length))
+
+	(push-scope)
+	(f-entry 'lisp 'env_args_type {this, args, types, argc})
+
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorif {length != argc} 'error)
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(f-call 'vector 'get_end {args} {_, iter_end})
+	(loop-while {iter_begin != iter_end})
+		(f-call 'obj 'inst_of {*iter_begin, ptr(*types + types)} {_, value})
+		(errorifnot {value} 'error)
+		(assign {iter_begin + ptr_size} {iter_begin})
+		(assign {types + short_size} {types})
+	(loop-end)
+	(assign {-1} {value})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'env_args_type {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error)
+	(assign {0} {value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)

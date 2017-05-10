@@ -1,10 +1,20 @@
-;math tools
+;math tools and canvas class imported into this env
+(defq *compile-env* (env 101) *imports* (list) *cpu* 'x86_64 *os* 'Darwin)
+(defmacro defcvar (&rest b) `(def *compile-env* ~b))
+(defmacro defcfun (n a &rest b) `(def *compile-env* ',n (lambda ,a ~b)))
+(defmacro defcmacro (n a &rest b) `(def *compile-env* ',n (macro ,a ~b)))
+(defun import (_) (unless (find _ *imports*) (push *imports* _) (run _)))
+(import 'inc/func.inc)
+(import 'class/canvas/canvas.inc)
 (run 'apps/canvas/math.lisp)
 
 (defq canvas_scale (pop argv) canvas_height (pop argv) canvas_width (pop argv) canvas (pop argv)
 	pen-col 0 brush-col 0
 	mitre-join 0 bevel-join 1 round-join 2
-	butt-cap 0 square-cap 1 tri-cap 2 arrow-cap 3 round-cap 4)
+	butt-cap 0 square-cap 1 tri-cap 2 arrow-cap 3 round-cap 4
+	canvas-set-pixel (method-slot 'canvas 'set_pixel)
+	canvas-set-hline (method-slot 'canvas 'set_hline)
+	canvas-swap (method-slot 'canvas 'swap))
 
 (defun set-pen-col (_) (setq pen-col _))
 (defun set-brush-col (_) (setq brush-col _))
@@ -48,7 +58,7 @@
 			(elem-set 0 e1 (add x1 (elem 3 e1)))
 			(elem-set 0 e2 (add x2 (elem 3 e2)))
 			(setq x1 (bit-asr x1 fp-shift) x2 (bit-asr x2 fp-shift))
-			(pixel canvas brush-col x1 ys (sub x2 x1)))))
+			(pixel canvas-set-hline canvas brush-col x1 ys (sub x2 x1)))))
 
 (set-brush-col 0xff0000ff)
 (fpoly (list (list
@@ -119,4 +129,4 @@
 					4.0
 					2.0)))))
 
-(pixel canvas)
+(pixel canvas-swap canvas)

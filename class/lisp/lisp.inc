@@ -18,6 +18,8 @@
 (def-method 'env_set 'class/lisp/env_set 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'env_get 'class/lisp/env_get 'static '(r0 r1) '(r0 r1))
 (def-method 'env_bind 'class/lisp/env_bind 'static '(r0 r1 r2 r3) '(r0 r1))
+(def-method 'env_args_set 'class/lisp/env_args_set 'static '(r0 r1 r2) '(r0))
+(def-method 'env_args_type 'class/lisp/env_args_type 'static '(r0 r1 r2 r3) '(r0 r1))
 
 (def-method 'repl_read 'class/lisp/repl_read 'static '(r0 r1 r2) '(r0 r1 r2))
 (def-method 'repl_read_char 'class/lisp/repl_read_char 'static '(r0 r1 r2) '(r0 r1))

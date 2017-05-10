@@ -6,6 +6,8 @@
 (import 'class/lisp/env_pop.vp)
 (import 'class/lisp/env_push.vp)
 (import 'class/lisp/env_set.vp)
+(import 'class/lisp/env_args_set.vp)
+(import 'class/lisp/env_args_type.vp)
 (import 'class/lisp/func_add.vp)
 (import 'class/lisp/func_age.vp)
 (import 'class/lisp/func_apply.vp)
