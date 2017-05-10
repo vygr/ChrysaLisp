@@ -3,7 +3,7 @@
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 
-(def-func 'class/lisp/func_pixel)
+(def-func 'class/lisp/func_call)
 	;inputs
 	;r0 = lisp object
 	;r1 = args
@@ -16,7 +16,7 @@
 	(long 'argslot 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5)
 
 	(push-scope)
-	(f-entry 'lisp 'func_pixel {this, args})
+	(f-entry 'lisp 'func_call {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorifnot {length} 'error1)
@@ -53,12 +53,12 @@
 	(f-call 'ref 'ref {arg0} {value})
 
 (vp-label 'exit)
-	(f-exit 'lisp 'func_pixel {this, value})
+	(f-exit 'lisp 'func_call {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(pixel slot canvas ...)", error_msg_wrong_args_type, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(call slot obj ...)", error_msg_wrong_args_type, args} {_, value})
 	(goto 'exit)
 	(signature 'canvas_swap 'boxed_long 'canvas)
 	(signature 'canvas_set_pixel 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long)

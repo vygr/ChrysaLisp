@@ -64,7 +64,7 @@
 (import 'class/lisp/func_print.vp)
 (import 'class/lisp/func_progn.vp)
 (import 'class/lisp/func_push.vp)
-(import 'class/lisp/func_pixel.vp)
+(import 'class/lisp/func_call.vp)
 (import 'class/lisp/func_qquote.vp)
 (import 'class/lisp/func_quote.vp)
 (import 'class/lisp/func_readchar.vp)
