@@ -33,7 +33,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(age filename)", error_msg_wrong_args_type, value} {_, value})
+	(f-call 'lisp 'repl_error {this, "(age filename)", error_msg_wrong_types, value} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string))
 
