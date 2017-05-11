@@ -19,9 +19,7 @@
 (run 'apps/canvas/math.lisp)
 
 (defq canvas_scale (pop argv) canvas_height (pop argv) canvas_width (pop argv) canvas (pop argv)
-	pen-col 0 brush-col 0
-	mitre-join 0 bevel-join 1 round-join 2
-	butt-cap 0 square-cap 1 tri-cap 2 arrow-cap 3 round-cap 4)
+	pen-col 0 brush-col 0)
 
 (defun set-pen-col (_) (setq pen-col _))
 (defun set-brush-col (_) (setq brush-col _))

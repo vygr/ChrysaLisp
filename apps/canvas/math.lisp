@@ -267,6 +267,9 @@
 
 ;generic path stuff
 
+(defq mitre-join 0 bevel-join 1 round-join 2
+	butt-cap 0 square-cap 1 tri-cap 2 arrow-cap 3 round-cap 4)
+
 (defun coincident-2d (p1 p2)
 	(and (lt (abs (sub (elem 0 p1) (elem 0 p2))) 0.25)
 		(lt (abs (sub (elem 1 p1) (elem 1 p2))) 0.25)))
