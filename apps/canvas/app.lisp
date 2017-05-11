@@ -1,12 +1,11 @@
 ;import canvas class method slots, better way coming soon !
 (defq canvas-set-pixel nil canvas-set-fbox nil canvas-set-hline nil canvas-fill nil canvas-swap nil)
 ((lambda ()
-	(defq *compile-env* (env 101) *imports* (list) *cpu* 'x86_64 *os* 'Darwin)
+	(defq *compile-env* (env 101) *imports* (list))
 	(defmacro defcvar (&rest b) `(def *compile-env* ~b))
 	(defmacro defcfun (n a &rest b) `(def *compile-env* ',n (lambda ,a ~b)))
 	(defmacro defcmacro (n a &rest b) `(def *compile-env* ',n (macro ,a ~b)))
 	(defun import (_) (unless (find _ *imports*) (push *imports* _) (run _)))
-	(import 'inc/func.inc)
 	(import 'class/canvas/canvas.inc)
 	(setq canvas-set-pixel (method-slot 'canvas 'set_pixel)
 		canvas-set-hline (method-slot 'canvas 'set_hline)
