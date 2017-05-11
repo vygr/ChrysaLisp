@@ -10,23 +10,22 @@
 	;r0 = lisp object
 	;r1 = else value
 
-	(ptr 'this 'args 'value)
-	(ulong 'num)
-	(uint 'length)
+	(ptr 'this 'value)
+	(union '(pptr 'iter_begin) '(ptr 'args))
+	(long 'num 'shift)
 
 	(push-scope)
 	(f-entry 'lisp 'func_bshr {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 2} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
-	(f-call 'boxed_long 'get_value {value} {_, num})
-	(f-call 'vector 'get_element {args, 1} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
-	(f-call 'boxed_long 'get_value {value} {_, length})
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(f-call 'boxed_long 'get_value {iter_begin[0]} {_, num})
+	(f-call 'boxed_long 'get_value {iter_begin[ptr_size]} {_, shift})
 	(f-call 'boxed_long 'create {} {value})
-	(f-call 'boxed_long 'set_value {value, num >> length})
+	(f-call 'boxed_long 'set_value {value, num >> shift})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_bshr {this, value})
@@ -34,11 +33,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(bit-shr num cnt)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(bit-bshr num cnt)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-(vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(bit-shr num cnt)", error_msg_not_a_number, args} {_, value})
-	(goto 'exit))
+	(signature 'sig 'boxed_long 'boxed_long))
 
 	(pop-scope-syms)
 

@@ -9,26 +9,28 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'func)
-	(uint 'length)
+	(ptr 'this 'args)
+	(pptr 'iter_begin)
 
 	(push-scope)
 	(f-entry 'lisp 'func_apply {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 2} 'error)
-	(f-call 'vector 'get_element {args, 0} {_, func})
-	(f-call 'vector 'get_element {args, 1} {_, args})
-	(f-call 'lisp 'repl_apply {this, func, args} {_, args})
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, iter_begin})
+	(errorifnot {iter_begin} 'error1))
+
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(f-call 'lisp 'repl_apply {this, iter_begin[0], iter_begin[ptr_size]} {_, args})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_apply {this, args})
 	(return)
 
 (errorcases
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(apply func args)", error_msg_wrong_num_of_args, args} {_, args})
-	(goto 'exit))
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(apply func args)", error_msg_wrong_types, args} {_, args})
+	(goto 'exit)
+	(signature 'sig 'obj 'vector))
 
 	(pop-scope-syms)
 
