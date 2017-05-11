@@ -12,36 +12,41 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value 'pipe 'stream)
-	(uint 'length 'state)
+	(ptr 'this 'args 'value 'pipe)
+	(union
+		'(pptr 'iter_begin)
+		'(ptr 'stream)
+		'(uint 'state))
 
 	(push-scope)
 	(f-entry 'lisp 'func_wpipe {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 2} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, pipe})
-	(errorif (cat {pipe->obj_vtable != @} (f-path 'class 'master)) 'error2)
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(assign {iter_begin[0], iter_begin[ptr_size]} {pipe, value})
 	(f-call 'master 'get_state {pipe} {_, state})
-	(errorifnot {state != stream_mail_state_stopped} 'error3)
-	(f-call 'vector 'get_element {args, 1} {_, value})
+	(errorifnot {state != stream_mail_state_stopped} 'error2)
 	(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'string)) {_, stream})
-	(vpif {stream})
+	(switch)
+	(case {stream})
 		(f-call 'master 'get_input {pipe} {_, stream})
 		(f-call 'stream 'write {stream, &value->string_data, value->string_length})
-		(v-call 'stream 'write_flush {stream})
-		(f-call 'ref 'ref {value})
-	(else)
-		(errorif {value != this->lisp_sym_nil} 'error4)
+		(goto 'flush)
+	(default)
+		(errorif {value != this->lisp_sym_nil} 'error1)
 		;flush input
 		(f-call 'master 'get_input {pipe} {_, stream})
 		(v-call 'stream 'write_flush {stream})
 		;send stopping
 		(f-call 'stream_msg_out 'set_state {stream, stream_mail_state_stopping})
 		(v-call 'stream 'write_next {stream})
+	(vp-label 'flush)
 		(v-call 'stream 'write_flush {stream})
-		(f-call 'ref 'ref {value})
 	(endif)
+	(f-call 'ref 'ref {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_wpipe {this, value})
@@ -49,17 +54,12 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_not_a_pipe, args} {_, value})
-	(goto 'exit)
-(vp-label 'error3)
 	(f-call 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_open_error, args} {_, value})
 	(goto 'exit)
-(vp-label 'error4)
-	(f-call 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_not_a_string, args} {_, value})
-	(goto 'exit))
+	(signature 'sig 'master 'obj))
 
 	(pop-scope-syms)
 
