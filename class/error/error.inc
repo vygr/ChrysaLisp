@@ -84,4 +84,4 @@
 (deferror "open_error")
 (deferror "symbol_not_bound")
 (deferror "wrong_num_of_args")
-(deferror "wrong_args_type")
+(deferror "wrong_types")

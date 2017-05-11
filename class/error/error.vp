@@ -115,7 +115,7 @@
 	(vp-string "open error !") (vp-byte 0)
 	(vp-string "symbol not bound !") (vp-byte 0)
 	(vp-string "wrong num of args !") (vp-byte 0)
-	(vp-string "wrong args type/s !") (vp-byte 0)
+	(vp-string "wrong type/s !") (vp-byte 0)
 )
 (vp-label 'unknown)
 	(vp-string "unknown error !") (vp-byte 0)
