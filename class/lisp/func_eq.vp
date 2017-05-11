@@ -12,26 +12,24 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value)
-	(pptr 'iter_begin 'iter_end)
-	(union '(long 'accum 'num) '(uint 'length))
+	(ptr 'this 'args)
+	(union '(pptr 'iter_begin 'iter_end) '(ptr 'value))
+	(long 'accum 'num)
 
 	(push-scope)
 	(f-entry 'lisp 'func_eq {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length < 2} 'error1)
+(errorcases
+	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'boxed_long) {, -2}) {_, value})
+	(errorifnot {value} 'error1))
+
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(f-call 'vector 'get_end {args} {_, iter_end})
-	(assign {*iter_begin} {value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
-	(f-call 'boxed_long 'get_value {value} {_, accum})
+	(f-call 'boxed_long 'get_value {*iter_begin} {_, accum})
 	(loop-start)
 		(assign {iter_begin + ptr_size} {iter_begin})
 		(breakif {iter_begin == iter_end})
-		(assign {*iter_begin} {value})
-		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
-		(f-call 'boxed_long 'get_value {value} {_, num})
+		(f-call 'boxed_long 'get_value {*iter_begin} {_, num})
 		(gotoif {num != accum} 'fail)
 	(loop-end)
 	(assign {this->lisp_sym_t} {value})
@@ -48,10 +46,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(eq num num ...)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'exit)
-(vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(eq num num ...)", error_msg_not_all_nums, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(eq num num ...)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

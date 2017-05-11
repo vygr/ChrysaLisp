@@ -12,19 +12,20 @@
 
 	(ptr 'this 'args 'value)
 	(pptr 'iter_begin 'iter_end)
-	(union '(long 'accum 'num) '(uint 'length))
+	(long 'accum 'num)
 
 	(push-scope)
 	(f-entry 'lisp 'func_band {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length < 2} 'error1)
+(errorcases
+	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'boxed_long) {, -2}) {_, value})
+	(errorifnot {value} 'error1))
+
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(f-call 'vector 'get_end {args} {_, iter_end})
 	(assign {-1} {accum})
 	(loop-start)
 		(assign {*iter_begin} {value})
-		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 		(f-call 'boxed_long 'get_value {value} {_, num})
 		(assign {accum & num} {accum})
 		(assign {iter_begin + ptr_size} {iter_begin})
@@ -38,10 +39,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(bit-and num num ...)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'exit)
-(vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(bit-and num num ...)", error_msg_not_all_nums, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(bit-and num num ...)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
