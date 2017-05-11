@@ -355,3 +355,15 @@
 		(when (_f (elem _j _a) _p)
 			(swap _a (setq _i (inc _i)) _j)))
 	(swap _a _i _l) _i)
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+; Compilation enviroment
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun within-compile-env (_)
+	(defq *compile-env* (env 101) *imports* (list))
+	(defmacro defcvar (&rest b) `(def *compile-env* ~b))
+	(defmacro defcfun (n a &rest b) `(def *compile-env* ',n (lambda ,a ~b)))
+	(defmacro defcmacro (n a &rest b) `(def *compile-env* ',n (macro ,a ~b)))
+	(defun import (_) (unless (find _ *imports*) (push *imports* _) (run _)))
+	(_) (setq *compile-env* nil))

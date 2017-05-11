@@ -46,20 +46,9 @@
 	(print "Done") nil)
 
 (defun compile-pipe (*files* *os* *cpu*)
-	(defq *compile-env* (env 101) *imports* (list))
-	(defmacro defcvar (&rest b)
-		`(def *compile-env* ~b))
-	(defmacro defcfun (n a &rest b)
-		`(def *compile-env* ',n (lambda ,a ~b)))
-	(defmacro defcmacro (n a &rest b)
-		`(def *compile-env* ',n (macro ,a ~b)))
-	(defun import (_)
-		(unless (find _ *imports*)
-			(push *imports* _)
-			(run _)))
-	(each import *files*)
-	(print "Done")
-	(setq *compile-env* nil))
+	(within-compile-env (lambda ()
+		(each import *files*)
+		(print "Done"))))
 
 (defun make-info (_)
 	;create lists of immediate dependencies and products
