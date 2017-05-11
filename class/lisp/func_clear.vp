@@ -23,7 +23,6 @@
 			(assign {*iter_begin} {value})
 			(errorif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error)
 			(f-call 'vector 'clear {value})
-			(f-call 'ref 'ref {value})
 			(assign {iter_begin + ptr_size} {iter_begin})
 		(loop-until {iter_begin == iter_end})
 	(else)
