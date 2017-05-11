@@ -13,7 +13,9 @@
 
 	(ptr 'this 'args 'value)
 	(pushort 'types)
-	(union '(pptr 'iter_begin 'iter_end) '(int 'argc 'length))
+	(union
+		'(pptr 'iter_begin 'iter_end)
+		'(int 'argc 'length))
 
 	(push-scope)
 	(f-entry 'lisp 'env_args_type {this, args, types, argc})

@@ -10,7 +10,9 @@
 
 	(ptr 'slave 'lisp 'args 'arg 'stream 'file 'repl_args 'value)
 	(uint 'argc)
-	(union '(uint 'index) '(int 'length))
+	(union
+		'(uint 'index)
+		'(int 'length))
 
 	;init app vars
 	(push-scope)

@@ -13,7 +13,9 @@
 	;r1 = value
 
 	(ptr 'this 'args)
-	(union '(pptr 'iter_begin 'iter_end) '(ptr 'value))
+	(union
+		'(pptr 'iter_begin 'iter_end)
+		'(ptr 'value))
 	(long 'accum 'num)
 
 	(push-scope)

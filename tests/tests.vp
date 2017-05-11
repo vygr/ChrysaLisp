@@ -14,7 +14,9 @@
 	(defcvar 'num_child 128)
 
 	(ptr 'tasks 'ids)
-	(union '(ptr 'name) '(ptr 'msg))
+	(union
+		'(ptr 'name)
+		'(ptr 'msg))
 	(uint 'cnt)
 
 	(push-scope)
@@ -52,7 +54,9 @@
 
 (def-func 'tests/array_child)
 
-	(union '(ptr 'msg) '(uint 'num))
+	(union
+		'(ptr 'msg)
+		'(uint 'num))
 
 	(push-scope)
 
@@ -106,7 +110,9 @@
 
 (def-func 'tests/farm_child)
 
-	(union '(ptr 'msg) '(uint 'num))
+	(union
+		'(ptr 'msg)
+		'(uint 'num))
 
 	(push-scope)
 
@@ -161,7 +167,9 @@
 
 (def-func 'tests/global_child)
 
-	(union '(ptr 'msg) '(uint 'num))
+	(union
+		'(ptr 'msg)
+		'(uint 'num))
 
 	(push-scope)
 
@@ -183,7 +191,9 @@
 	(defcvar 'num_child 128)
 
 	(ptr 'tasks 'ids)
-	(union '(ptr 'name) '(ptr 'msg))
+	(union
+		'(ptr 'name)
+		'(ptr 'msg))
 	(uint 'cnt)
 
 	(push-scope)
@@ -221,7 +231,9 @@
 
 (def-func 'tests/pipe_child)
 
-	(union '(ptr 'msg) '(uint 'num))
+	(union
+		'(ptr 'msg)
+		'(uint 'num))
 
 	(push-scope)
 	;read exit command etc

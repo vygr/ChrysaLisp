@@ -11,20 +11,22 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value 'arg1 'arg2)
-	(union '(uint 'length) '(int 'result))
+	(ptr 'this 'value 'arg1)
+	(union
+		'(pptr 'iter_begin)
+		'(ptr 'args)
+		'(ptr 'arg2)
+		'(int 'result))
 
 	(push-scope)
 	(f-entry 'lisp 'func_cmp {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 2} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, arg1})
-	(f-call 'vector 'get_element {args, 1} {_, arg2})
-	(f-call 'obj 'inst_of (cat {arg1, @} (f-path 'class 'string)) {_, value})
-	(errorifnot {value} 'error2)
-	(f-call 'obj 'inst_of (cat {arg2, @} (f-path 'class 'string)) {_, value})
-	(errorifnot {value} 'error2)
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(assign {iter_begin[0], iter_begin[ptr_size]} {arg1, arg2})
 	(f-call 'boxed_long 'create {} {value})
 	(vpif {arg1 != arg2})
 		(f-call 'string 'compare {arg1, arg2} {_, result})
@@ -37,11 +39,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(cmp str str)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(cmp str str)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-(vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(cmp str str)", error_msg_not_a_string, args} {_, value})
-	(goto 'exit))
+	(signature 'sig 'string 'string))
 
 	(pop-scope-syms)
 

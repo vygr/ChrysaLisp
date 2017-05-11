@@ -11,17 +11,20 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value)
-	(uint 'length 'char)
+	(ptr 'this 'value)
+	(union
+		'(ptr 'args)
+		'(uint 'char))
 
 	(push-scope)
 	(f-entry 'lisp 'func_code {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error1)
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
+
 	(f-call 'vector 'get_element {args, 0} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'string)) 'error2)
-	(assign {ubyte (value->string_data)} {char})
+	(assign {ubyte(value->string_data)} {char})
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, char})
 
@@ -31,11 +34,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(code char)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(code char)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-(vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(code char)", error_msg_not_a_string, args} {_, value})
-	(goto 'exit))
+	(signature 'sig 'string))
 
 	(pop-scope-syms)
 

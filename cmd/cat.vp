@@ -11,7 +11,9 @@
 
 	(ptr 'slave 'arg 'args 'stream)
 	(uint 'argc)
-	(union '(uint 'index) '(int 'length))
+	(union
+		'(uint 'index)
+		'(int 'length))
 	(struct 'buffer 'buffer)
 
 	;init app vars

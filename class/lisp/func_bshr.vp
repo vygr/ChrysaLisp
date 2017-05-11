@@ -11,8 +11,9 @@
 	;r1 = else value
 
 	(ptr 'this 'value)
-	(union '(pptr 'iter_begin) '(ptr 'args))
-	(long 'num 'shift)
+	(union
+		'(pptr 'iter_begin 'args)
+		'(long 'shift 'num))
 
 	(push-scope)
 	(f-entry 'lisp 'func_bshr {this, args})

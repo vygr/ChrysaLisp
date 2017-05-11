@@ -10,27 +10,28 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'seq 'value)
+	(ptr 'this 'args 'value 'seq)
+	(pptr 'iter_begin)
 	(int 'length 'index)
 
 	(push-scope)
 	(f-entry 'lisp 'func_elemset {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 3} 'error1)
-	(f-call 'vector 'get_element {args, 1} {_, seq})
-	(errorif (cat {seq->obj_vtable != @} (f-path 'class 'vector)) 'error2)
-	(f-call 'vector 'get_element {args, 0} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(assign {iter_begin[0], iter_begin[ptr_size]} {value, seq})
 	(f-call 'boxed_long 'get_value {value} {_, index})
 	(d-call 'vector 'get_length {seq} {_, length})
 	(vpif {index < 0})
 		(assign {length + index + 1} {index})
 	(endif)
-	(errorif {index < 0 || index >= length} 'error4)
-	(d-call 'vector 'ref_element {args, 2} {_, value})
-	(f-call 'vector 'set_element {seq, value, index})
+	(errorif {index < 0 || index >= length} 'error2)
+	(f-call 'ref 'ref {iter_begin[ptr_size * 2]} {value})
 	(f-call 'ref 'ref {value})
+	(f-call 'vector 'set_element {seq, value, index})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_elemset {this, value})
@@ -38,17 +39,11 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'exit)
+	(f-call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_wrong_types, args} {_, value})
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_not_a_list, args} {_, value})
-	(goto 'exit)
-(vp-label 'error3)
-	(f-call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_not_a_number, args} {_, value})
-	(goto 'exit)
-(vp-label 'error4)
 	(f-call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_not_valid_index, args} {_, value})
-	(goto 'exit))
+	(goto 'exit)
+	(signature 'sig 'boxed_long 'vector 'obj))
 
 	(pop-scope-syms)
 

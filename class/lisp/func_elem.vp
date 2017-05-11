@@ -10,28 +10,27 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'seq 'value)
+	(ptr 'this 'args 'value)
 	(int 'length 'index)
+	(union
+		'(pptr 'iter_begin)
+		'(ptr 'seq))
 
 	(push-scope)
 	(f-entry 'lisp 'func_elem {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 2} 'error1)
-	(f-call 'vector 'get_element {args, 1} {_, seq})
-
 (errorcases
-	(f-call 'obj 'inst_of (cat {seq, @} (f-path 'class 'sequence)) {_, value})
-	(errorifnot {value} 'error2))
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_element {args, 0} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(assign {iter_begin[0], iter_begin[ptr_size]} {value, seq})
 	(f-call 'boxed_long 'get_value {value} {_, index})
 	(v-call 'sequence 'get_length {seq} {_, length})
 	(vpif {index < 0})
 		(assign {length + index + 1} {index})
 	(endif)
-	(errorif {index < 0 || index >= length} 'error4)
+	(errorif {index < 0 || index >= length} 'error2)
 	(v-call 'sequence 'ref_element {seq, index} {_, value})
 
 (vp-label 'exit)
@@ -40,17 +39,12 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(elem index seq)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(elem index seq)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(elem index seq)", error_msg_not_a_sequence, args} {_, value})
-	(goto 'exit)
-(vp-label 'error3)
-	(f-call 'lisp 'repl_error {this, "(elem index seq)", error_msg_not_a_number, args} {_, value})
-	(goto 'exit)
-(vp-label 'error4)
 	(f-call 'lisp 'repl_error {this, "(elem index seq)", error_msg_not_valid_index, args} {_, value})
-	(goto 'exit))
+	(goto 'exit)
+	(signature 'sig 'boxed_long 'sequence))
 
 	(pop-scope-syms)
 

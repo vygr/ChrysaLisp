@@ -12,8 +12,12 @@
 	;r1 = value
 
 	(ptr 'this 'value)
-	(union '(pptr 'iter_end) '(ptr 'args))
-	(union '(pptr 'iter_begin) '(uint 'length))
+	(union
+		'(pptr 'iter_end)
+		'(ptr 'args))
+	(union
+		'(pptr 'iter_begin)
+		'(uint 'length))
 
 	(push-scope)
 	(f-entry 'lisp 'func_prin {this, args})

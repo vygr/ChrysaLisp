@@ -12,10 +12,15 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value 'accum)
-	(union '(ptr 'lists) '(ptr 'func) '(ptr 'type))
+	(union
+		'(ptr 'lists)
+		'(ptr 'func)
+		'(ptr 'type))
 	(pptr 'iter 'iter_begin 'iter_end 'params)
 	(int 'start 'end)
-	(union '(int 'dir) '(uint 'seq_length))
+	(union
+		'(int 'dir)
+		'(uint 'seq_length))
 	(uint 'length)
 
 	(push-scope)

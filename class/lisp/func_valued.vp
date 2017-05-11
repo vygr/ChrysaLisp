@@ -11,15 +11,15 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value)
-	(uint 'length)
 
 	(push-scope)
 	(f-entry 'lisp 'func_valued {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error1)
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
+
 	(f-call 'vector 'get_element {args, 0} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
 	(f-call 'lisp 'env_find {this, value} {_, value, _})
 	(vpif {value})
 		(f-call 'pair 'get_second {ptr(*value)} {_, value})
@@ -34,11 +34,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(val? var)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(val? var)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-(vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(val? var)", error_msg_not_a_symbol, args} {_, value})
-	(goto 'exit))
+	(signature 'sig 'symbol))
 
 	(pop-scope-syms)
 

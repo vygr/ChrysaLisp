@@ -40,7 +40,8 @@
 	;all
 
 	(ptr 'this)
-	(union '(ptr 'vtable 'stdin 'stdout 'stderr 'symbol 'table)
+	(union
+		'(ptr 'vtable 'stdin 'stdout 'stderr 'symbol 'table)
 		'(ptr 'repl_args 'value 'string 'file 'stream))
 	(ulong 'ok)
 

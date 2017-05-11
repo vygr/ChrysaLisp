@@ -12,7 +12,9 @@
 
 	(ptr 'this 'args 'value1 'value2)
 	(pptr 'iter_begin 'iter_end)
-	(union '(pptr 'iter) '(uint 'length1 'length2))
+	(union
+		'(pptr 'iter)
+		'(uint 'length1 'length2))
 
 	(push-scope)
 	(f-entry 'lisp 'func_match {this, args})

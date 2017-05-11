@@ -12,7 +12,9 @@
 	;r1 = value
 
 	(ptr 'this 'ast)
-	(union '(ptr 'func) '(pptr 'iter_end))
+	(union
+		'(ptr 'func)
+		'(pptr 'iter_end))
 
 	(push-scope)
 	(f-entry 'lisp 'repl_apply {this, func, ast})
