@@ -19,10 +19,11 @@
 	(push-scope)
 	(f-entry 'lisp 'func_readline {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error1)
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
+
 	(f-call 'vector 'get_element {args, 0} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'stream_str)) 'error2)
 	(assign (cat "@" (f-path 'sys_load 'statics)) {reloc})
 	(assign {reloc->ld_statics_reloc_buffer} {reloc})
 	(f-call 'stream_str 'read_line {value, reloc, ld_reloc_size} {_, length})
@@ -38,11 +39,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(read-line stream)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(read-line stream)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-(vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(read-line stream)", error_msg_not_a_stream, args} {_, value})
-	(goto 'exit))
+	(signature 'sig 'stream_str))
 
 	(pop-scope-syms)
 

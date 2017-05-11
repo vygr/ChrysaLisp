@@ -19,13 +19,12 @@
 	(push-scope)
 	(f-entry 'lisp 'func_match {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length1})
-	(errorif {length1 != 2} 'error1)
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value1})
+	(errorifnot {value1} 'error1))
+
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
-	(assign {iter_begin[ptr_size * 0]} {value1})
-	(errorif (cat {value1->obj_vtable != @} (f-path 'class 'vector)) 'error2)
-	(assign {iter_begin[ptr_size * 1]} {value2})
-	(errorif (cat {value2->obj_vtable != @} (f-path 'class 'vector)) 'error2)
+	(assign {iter_begin[0], iter_begin[ptr_size]} {value1, value2})
 	(d-call 'vector 'get_length {value1} {_, length1})
 	(d-call 'vector 'get_length {value2} {_, length2})
 	(vpif {length1 == length2})
@@ -53,11 +52,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(match? list list)", error_msg_wrong_num_of_args, args} {_, value1})
+	(f-call 'lisp 'repl_error {this, "(match? list list)", error_msg_wrong_types, args} {_, value1})
 	(goto 'exit)
-(vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(match? list list)", error_msg_not_a_list, args} {_, value1})
-	(goto 'exit))
+	(signature 'sig 'vector 'vector))
 
 	(pop-scope-syms)
 

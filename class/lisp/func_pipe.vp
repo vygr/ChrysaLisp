@@ -12,24 +12,23 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value 'pipe)
-	(uint 'length 'state)
+	(ptr 'this 'args 'value)
+	(union
+		'(ptr 'pipe)
+		'(uint 'state))
 
 	(push-scope)
 	(f-entry 'lisp 'func_pipe {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, pipe})
-
 (errorcases
-	(f-call 'obj 'inst_of (cat {pipe, @} (f-path 'class 'string)) {_, value})
-	(errorifnot {value} 'error2))
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
 
+	(f-call 'vector 'get_element {args, 0} {_, pipe})
 	(f-call 'master 'create {} {value})
 	(f-call 'master 'start {value, &pipe->string_data, pipe->string_length})
 	(f-call 'master 'get_state {value} {_, state})
-	(errorif {state != stream_mail_state_started} 'error3)
+	(errorif {state != stream_mail_state_started} 'error2)
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_pipe {this, value})
@@ -37,14 +36,12 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(pipe cmd)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(pipe cmd)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(pipe cmd)", error_msg_not_a_string, args} {_, value})
-	(goto 'exit)
-(vp-label 'error3)
 	(f-call 'lisp 'repl_error {this, "(pipe cmd)", error_msg_open_error, args} {_, value})
-	(goto 'exit))
+	(goto 'exit)
+	(signature 'sig 'string))
 
 	(pop-scope-syms)
 

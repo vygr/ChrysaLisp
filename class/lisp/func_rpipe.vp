@@ -20,10 +20,11 @@
 	(push-scope)
 	(f-entry 'lisp 'func_rpipe {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error1)
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
+
 	(f-call 'vector 'get_element {args, 0} {_, pipe})
-	(errorif (cat {pipe->obj_vtable != @} (f-path 'class 'master)) 'error2)
 	(f-call 'master 'get_state {pipe} {_, state})
 	(vpif {state == stream_mail_state_started})
 		(f-call 'master 'select {pipe, 0} {_, value})
@@ -53,11 +54,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(pipe-read pipe)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(pipe-read pipe)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-(vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(pipe-read pipe)", error_msg_not_a_pipe, args} {_, value})
-	(goto 'exit))
+	(signature 'sig 'master))
 
 	(pop-scope-syms)
 

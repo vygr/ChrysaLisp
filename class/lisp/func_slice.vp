@@ -11,26 +11,23 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'slc 'value)
-	(int 'length 'start 'end)
+	(ptr 'this 'args 'slc 'value1 'value2)
+	(union
+		'(pptr 'iter_begin)
+		'(int 'length 'start 'end))
 
 	(push-scope)
 	(f-entry 'lisp 'func_slice {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 3} 'error1)
-	(f-call 'vector 'get_element {args, 2} {_, slc})
-
 (errorcases
-	(f-call 'obj 'inst_of (cat {slc, @} (f-path 'class 'sliceable)) {_, value})
-	(errorifnot {value} 'error2))
+	(f-call 'lisp 'env_args_type {this, args, $sig, 3} {_, value1})
+	(errorifnot {value1} 'error1))
 
-	(f-call 'vector 'get_element {args, 0} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
-	(f-call 'boxed_long 'get_value {value} {_, start})
-	(f-call 'vector 'get_element {args, 1} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
-	(f-call 'boxed_long 'get_value {value} {_, end})
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(assign {iter_begin[0], iter_begin[ptr_size], iter_begin[ptr_size * 2]} {value1, value2, slc})
+
+	(f-call 'boxed_long 'get_value {value1} {_, start})
+	(f-call 'boxed_long 'get_value {value2} {_, end})
 	(v-call 'sliceable 'get_length {slc} {_, length})
 	(vpif {start < 0})
 		(assign {length + start + 1} {start})
@@ -38,26 +35,21 @@
 	(vpif {end < 0})
 		(assign {length + end + 1} {end})
 	(endif)
-	(errorif {start > end || start < 0 || end > length} 'error4)
-	(v-call 'sliceable 'slice {slc, start, end} {_, value})
+	(errorif {start > end || start < 0 || end > length} 'error2)
+	(v-call 'sliceable 'slice {slc, start, end} {_, value1})
 
 (vp-label 'exit)
-	(f-exit 'lisp 'func_slice {this, value})
+	(f-exit 'lisp 'func_slice {this, value1})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(slice start end slc)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(slice start end slc)", error_msg_wrong_types, args} {_, value1})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(slice start end slc)", error_msg_not_a_sliceable, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(slice start end slc)", error_msg_not_valid_index, args} {_, value1})
 	(goto 'exit)
-(vp-label 'error3)
-	(f-call 'lisp 'repl_error {this, "(slice start end slc)", error_msg_not_a_number, args} {_, value})
-	(goto 'exit)
-(vp-label 'error4)
-	(f-call 'lisp 'repl_error {this, "(slice start end slc)", error_msg_not_valid_index, args} {_, value})
-	(goto 'exit))
+	(signature 'sig 'boxed_long 'boxed_long 'sliceable))
 
 	(pop-scope-syms)
 

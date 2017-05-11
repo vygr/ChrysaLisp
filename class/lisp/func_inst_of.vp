@@ -11,24 +11,24 @@
 	;r0 = lisp object
 	;r1 = else value
 
-	(ptr 'this 'args 'class 'value)
-	(uint 'length)
+	(ptr 'this 'value)
+	(union
+		'(pptr 'iter_begin)
+		'(ptr 'args)
+		'(ptr 'class))
 
 	(push-scope)
 	(f-entry 'lisp 'func_inst_of {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 2} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, class})
-
 (errorcases
-	(f-call 'obj 'inst_of (cat {class, @} (f-path 'class 'string)) {_, value})
-	(errorifnot {value} 'error2))
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
 
-	(f-call 'sys_load 'bind {class->string_data} {class})
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(assign {iter_begin[0], iter_begin[ptr_size]} {class, value})
+	(f-call 'sys_load 'bind {&class->string_data} {class})
 	(errorifnot {class} 'error2)
-	(f-call 'vector 'get_element {args, 1} {_, args})
-	(f-call 'obj 'inst_of {args, class} {_, value})
+	(f-call 'obj 'inst_of {value, class} {_, value})
 	(vpif {value})
 		(f-call 'lisp 'sym_intern_cstr {this, value - ubyte(value - 1)} {_, value})
 	(else)
@@ -41,11 +41,12 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(inst-of class obj)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(inst-of class obj)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
 	(f-call 'lisp 'repl_error {this, "(inst-of class obj)", error_msg_not_a_class, args} {_, value})
-	(goto 'exit))
+	(goto 'exit)
+	(signature 'sig 'string 'obj))
 
 	(pop-scope-syms)
 

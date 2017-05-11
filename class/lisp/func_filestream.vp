@@ -12,21 +12,17 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'name 'value)
-	(uint 'length)
+	(ptr 'this 'args 'value)
 
 	(push-scope)
 	(f-entry 'lisp 'func_filestream {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, name})
-
 (errorcases
-	(f-call 'obj 'inst_of (cat {name, @} (f-path 'class 'string)) {_, value})
-	(errorifnot {value} 'error2))
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
 
-	(f-call 'string 'create_from_file {&name->string_data} {value})
+	(f-call 'vector 'get_element {args, 0} {_, value})
+	(f-call 'string 'create_from_file {&value->string_data} {value})
 	(vpif {value})
 		(f-call 'stream_str 'create {value} {value})
 	(else)
@@ -39,11 +35,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(file-stream filename)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(file-stream filename)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-(vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(file-stream filename)", error_msg_not_a_filename, args} {_, value})
-	(goto 'exit))
+	(signature 'sig 'string))
 
 	(pop-scope-syms)
 

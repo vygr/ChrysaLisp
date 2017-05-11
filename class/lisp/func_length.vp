@@ -10,20 +10,19 @@
 	;r0 = lisp object
 	;r1 = else value
 
-	(ptr 'this 'args 'value)
-	(ulong 'length)
+	(ptr 'this 'value)
+	(union
+		'(ptr 'args)
+		'(uint 'length))
 
 	(push-scope)
 	(f-entry 'lisp 'func_length {this, args})
 
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, args})
-
 (errorcases
-	(f-call 'obj 'inst_of (cat {args, @} (f-path 'class 'sequence)) {_, value})
-	(errorifnot {value} 'error2))
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
 
+	(f-call 'vector 'get_element {args, 0} {_, args})
 	(v-call 'sequence 'get_length {args} {_, length})
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, length})
@@ -34,11 +33,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(length seq)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(length seq)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-(vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(length seq)", error_msg_not_a_sequence, args} {_, value})
-	(goto 'exit))
+	(signature 'sig 'sequence))
 
 	(pop-scope-syms)
 
