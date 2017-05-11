@@ -24,6 +24,27 @@
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error1)
 	(f-call 'boxed_long 'get_value {value} {_, slot})
 	(switch)
+	(case (cat {slot == } (str (method-slot 'canvas 'set_hline))))
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $canvas_set_hline, 6} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &argslot})
+		(f-call 'canvas 'set_hline {arg0, arg1, arg2, arg3, arg4})
+		(break)
+	(case (cat {slot == } (str (method-slot 'canvas 'set_fbox))))
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $canvas_set_fbox, 7} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &argslot})
+		(f-call 'canvas 'set_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
+		(break)
+	(case (cat {slot == } (str (method-slot 'canvas 'fill))))
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $canvas_fill, 3} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &argslot})
+		(f-call 'canvas 'fill {arg0, arg1})
+		(break)
 	(case (cat {slot == } (str (method-slot 'canvas 'swap))))
 	(errorcases
 		(f-call 'lisp 'env_args_type {this, args, $canvas_swap, 2} {_, slot})
@@ -38,13 +59,6 @@
 		(errorifnot {slot} 'error1))
 		(f-call 'lisp 'env_args_set {this, args, &argslot})
 		(f-call 'canvas 'set_pixel {arg0, arg1, arg2, arg3})
-		(break)
-	(case (cat {slot == } (str (method-slot 'canvas 'set_hline))))
-	(errorcases
-		(f-call 'lisp 'env_args_type {this, args, $canvas_set_hline, 6} {_, slot})
-		(errorifnot {slot} 'error1))
-		(f-call 'lisp 'env_args_set {this, args, &argslot})
-		(f-call 'canvas 'set_hline {arg0, arg1, arg2, arg3, arg4})
 		(break)
 	(default)
 	(errorcases
@@ -61,8 +75,10 @@
 	(f-call 'lisp 'repl_error {this, "(call slot obj ...)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'canvas_swap 'boxed_long 'canvas)
+	(signature 'canvas_fill 'boxed_long 'canvas 'boxed_long)
 	(signature 'canvas_set_pixel 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long)
-	(signature 'canvas_set_hline 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long))
+	(signature 'canvas_set_hline 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'canvas_set_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long))
 
 	(pop-scope-syms)
 

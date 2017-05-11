@@ -1,5 +1,5 @@
 ;import canvas class method slots, better way coming soon !
-(defq canvas-set-pixel nil canvas-set-hline nil canvas-swap nil)
+(defq canvas-set-pixel nil canvas-set-fbox nil canvas-set-hline nil canvas-fill nil canvas-swap nil)
 ((lambda ()
 	(defq *compile-env* (env 101) *imports* (list) *cpu* 'x86_64 *os* 'Darwin)
 	(defmacro defcvar (&rest b) `(def *compile-env* ~b))
@@ -10,6 +10,8 @@
 	(import 'class/canvas/canvas.inc)
 	(setq canvas-set-pixel (method-slot 'canvas 'set_pixel)
 		canvas-set-hline (method-slot 'canvas 'set_hline)
+		canvas-set-fbox (method-slot 'canvas 'set_fbox)
+		canvas-fill (method-slot 'canvas 'fill)
 		canvas-swap (method-slot 'canvas 'swap)
 		*compile-env* nil)))
 
@@ -23,11 +25,6 @@
 
 (defun set-pen-col (_) (setq pen-col _))
 (defun set-brush-col (_) (setq brush-col _))
-
-(defun fbox (x y w h)
-	(defq h (add y h) y (dec y))
-	(while (lt (setq y (inc y)) h)
-		(call canvas brush-col x y w)))
 
 (defun fpoly (_)
 	(defq e (list) ys max-long ye min-long)
@@ -64,6 +61,11 @@
 			(elem-set 0 e2 (add x2 (elem 3 e2)))
 			(setq x1 (bit-asr x1 fp-shift) x2 (bit-asr x2 fp-shift))
 			(call canvas-set-hline canvas brush-col x1 ys (sub x2 x1)))))
+
+(call canvas-fill canvas 0xff202020)
+(call canvas-set-fbox canvas 0xffffffff
+	(div (fmul canvas_width canvas_scale 0.1) 1.0) (div (fmul canvas_height canvas_scale 0.05) 1.0)
+	(div (fmul canvas_width canvas_scale 0.5) 1.0) (div (fmul canvas_height canvas_scale 0.5) 1.0))
 
 (set-brush-col 0xff0000ff)
 (fpoly (list (list
