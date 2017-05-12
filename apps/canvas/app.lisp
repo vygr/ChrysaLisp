@@ -84,9 +84,9 @@
 	(stroke-polyline-2d
 		(list)
 		(fmul canvas_width 0x0.1)
-		round-join
-		round-cap
-		round-cap
+		join-round
+		cap-round
+		cap-round
 		(list (list
 			(list (fmul canvas_width 0o0.1) (fmul canvas_height 0o0.1))
 			(list (sub canvas_width (fmul canvas_width 0.25)) (fmul canvas_height 0.166))
@@ -97,13 +97,13 @@
 	(stroke-polygon-2d
 		(list)
 		(fmul canvas_width 0.01)
-		mitre-join
+		join-miter
 		(stroke-polyline-2d
 			(list)
 			(fmul canvas_width 0.033)
-			bevel-join
-			round-cap
-			arrow-cap
+			join-bevel
+			cap-round
+			cap-arrow
 			(list (gen-bezier-polyline-2d
 				(list)
 				(list (fmul canvas_width 0x0.1) (sub canvas_height (fmul canvas_height 0x0.1)))
@@ -116,13 +116,13 @@
 	(stroke-polygon-2d
 		(list)
 		(fmul canvas_width 0.025)
-		mitre-join
+		join-miter
 		(stroke-polyline-2d
 			(list)
 			(fmul canvas_width 0.05)
-			bevel-join
-			square-cap
-			tri-cap
+			join-bevel
+			cap-square
+			cap-tri
 			(list
 				(gen-arc-polyline-2d
 					(list)

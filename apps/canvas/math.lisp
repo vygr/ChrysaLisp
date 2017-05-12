@@ -267,8 +267,8 @@
 
 ;generic path stuff
 
-(defq mitre-join 0 bevel-join 1 round-join 2
-	butt-cap 0 square-cap 1 tri-cap 2 arrow-cap 3 round-cap 4)
+(defq join-miter 0 join-bevel 1 join-round 2
+	cap-butt 0 cap-square 1 cap-tri 2 cap-arrow 3 cap-round 4)
 
 (defun coincident-2d (p1 p2)
 	(and (lt (abs (sub (elem 0 p1) (elem 0 p2))) 0.25)
@@ -366,17 +366,17 @@
 			(defq nbv (vec-norm-2d (vec-add-2d l1_npv l2_npv))
 				c (vec-dot-2d nbv (vec-norm-2d l1_v)))
 			(cond
-				((or (le c 0) (eq join_style mitre-join))
+				((or (le c 0) (eq join_style join-miter))
 					;mitre join
 					(push out_points (vec-intersect-2d
 						(vec-add-2d p1 l1_rv) l1_v
 						(vec-add-2d p1 l2_rv) l2_v)))
-				((eq join_style bevel-join)
+				((eq join_style join-bevel)
 					;bevel join
 					(push out_points
 						(vec-add-2d p1 l1_rv)
 						(vec-add-2d p1 l2_rv)))
-				((eq join_style round-join)
+				((eq join_style join-round)
 					;rounded join
 					(gen-clerp-polyline-2d out_points p1 l1_rv l2_rv r))
 				(t (throw "Missing join style " join_style)))) (list in_points)))
@@ -398,24 +398,24 @@
 					l2_rv (vec-scale-2d l2_npv r)
 					c (if (eq sides 0) cap2_style cap1_style))
 				(cond
-					((eq c butt-cap)
+					((eq c cap-butt)
 						;butt cap
 						(push out_points
 							(vec-sub-2d p1 l2_rv)
 							(vec-add-2d p1 l2_rv)))
-					((eq c square-cap)
+					((eq c cap-square)
 						;square cap
 						(defq p0 (vec-add-2d p1 (vec-perp-2d l2_rv)))
 						(push out_points
 							(vec-sub-2d p0 l2_rv)
 							(vec-add-2d p0 l2_rv)))
-					((eq c tri-cap)
+					((eq c cap-tri)
 						;triangle cap
 						(push out_points
 							(vec-sub-2d p1 l2_rv)
 							(vec-add-2d p1 (vec-perp-2d l2_rv))
 							(vec-add-2d p1 l2_rv)))
-					((eq c arrow-cap)
+					((eq c cap-arrow)
 						;arrow cap
 						(defq rv (vec-scale-2d l2_rv 2.0))
 						(push out_points
@@ -424,7 +424,7 @@
 							(vec-add-2d p1 (vec-perp-2d rv))
 							(vec-add-2d p1 rv)
 							(vec-add-2d p1 l2_rv)))
-					((eq c round-cap)
+					((eq c cap-round)
 						;round cap
 						(defq pv (vec-perp-2d l2_rv))
 						(gen-clerp-polyline-2d out_points p1 (vec-scale-2d l2_rv (neg 1.0)) pv r)
@@ -441,17 +441,17 @@
 						nbv (vec-norm-2d (vec-add-2d l1_npv l2_npv))
 						c (vec-dot-2d nbv (vec-norm-2d l1_v)))
 					(cond
-						((or (le c 0) (eq join_style mitre-join))
+						((or (le c 0) (eq join_style join-miter))
 							;mitre join
 							(push out_points (vec-intersect-2d
 								(vec-add-2d p1 l1_rv) l1_v
 								(vec-add-2d p1 l2_rv) l2_v)))
-						((eq join_style bevel-join)
+						((eq join_style join-bevel)
 							;bevel join
 							(push out_points
 								(vec-add-2d p1 l1_rv)
 								(vec-add-2d p1 l2_rv)))
-						((eq join_style round-join)
+						((eq join_style join-round)
 							;rounded join
 							(gen-clerp-polyline-2d out_points p1 l1_rv l2_rv r))
 						(t (throw "Missing join style " join_style))))
