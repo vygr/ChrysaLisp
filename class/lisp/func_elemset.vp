@@ -31,7 +31,7 @@
 	(errorif {index < 0 || index >= length} 'error2)
 	(f-call 'ref 'ref {iter_begin[ptr_size * 2]} {value})
 	(f-call 'ref 'ref {value})
-	(f-call 'vector 'set_element {seq, value, index})
+	(d-call 'vector 'set_element {seq, value, index})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_elemset {this, value})

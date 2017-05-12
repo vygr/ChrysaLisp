@@ -173,7 +173,7 @@
 				(f-call 'vector 'push_back {local->local_history, string})
 				(assign {local->local_history_index + 1} {local->local_history_index})
 			(else)
-				(f-call 'vector 'ref_back {local->local_history} {_, last})
+				(d-call 'vector 'ref_back {local->local_history} {_, last})
 				(f-call 'string 'same {string, last} {_, notsame})
 				(f-call 'string 'deref {last})
 				(gotoif {notsame} 'new_entry)

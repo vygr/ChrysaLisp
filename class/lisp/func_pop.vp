@@ -1,5 +1,5 @@
 (import 'inc/func.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/array/array.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_pop)
@@ -21,10 +21,10 @@
 	(errorifnot {value} 'error1))
 
 	(f-call 'vector 'get_element {args, 0} {_, args})
-	(d-call 'vector 'get_length {args} {_, length})
+	(v-call 'array 'get_length {args} {_, length})
 	(vpif {length})
-		(f-call 'vector 'ref_back {args} {_, value})
-		(f-call 'vector 'pop_back {args})
+		(v-call 'array 'ref_back {args} {_, value})
+		(v-call 'array 'pop_back {args})
 	(else)
 		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 	(endif)
@@ -35,9 +35,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(pop list)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(pop array)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'vector))
+	(signature 'sig 'array))
 
 	(pop-scope-syms)
 

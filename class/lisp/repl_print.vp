@@ -200,7 +200,8 @@
 	(push-scope)
 	(f-entry 'array 'callback {pdata, iter})
 
-	(f-call 'string 'create_from_long {*iter, 10} {value})
+	(f-call 'string 'create_from_long {*iter, 16} {value})
+	(f-call 'stream 'write_cstr {pdata->local_stream, "0x"})
 	(f-call 'stream 'write {pdata->local_stream, &value->string_data, value->string_length})
 	(f-call 'ref 'deref {value})
 	(assign {pdata->local_index + 1} {pdata->local_index})

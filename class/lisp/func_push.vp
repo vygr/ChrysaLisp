@@ -1,4 +1,5 @@
 (import 'inc/func.inc)
+(import 'class/array/array.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_push)
@@ -9,7 +10,8 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value)
+	(ptr 'this 'args 'value 'array)
+	(pptr 'iter_begin)
 	(uint 'length)
 
 	(push-scope)
@@ -18,8 +20,17 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
 	(f-call 'vector 'get_element {args, 0} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error2)
-	(f-call 'vector 'append {value, args, 1, length})
+	(vpif (cat {value->obj_vtable == @} (f-path 'class 'vector)))
+		(d-call 'vector 'append {value, args, 1, length})
+	(else)
+		(errorif (cat {value->obj_vtable != @} (f-path 'class 'array)) 'error1)
+		(f-call 'array 'create {} {array})
+		(f-call 'array 'set_capacity {array, length})
+		(f-call 'array 'get_begin {array} {_, iter_begin})
+		(f-call 'lisp 'env_args_set {this, args, iter_begin})
+		(d-call 'array 'append {value, array, 1, length})
+		(f-call 'ref 'deref {array})
+	(endif)
 	(f-call 'ref 'ref {value})
 
 (vp-label 'exit)
@@ -28,10 +39,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(push list form ...)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'exit)
-(vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(push list form ...)", error_msg_not_a_list, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(push array form ...)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

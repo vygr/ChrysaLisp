@@ -46,7 +46,7 @@
 			(f-call 'obj 'inst_of (cat {elem, @} (f-path 'class 'vector)) {_, type})
 			(errorifnot {type} 'error4))
 			(d-call 'vector 'get_length {elem} {_, length})
-			(f-call 'vector 'append {value, elem, 0, length})
+			(d-call 'vector 'append {value, elem, 0, length})
 			(assign {iter_begin + ptr_size} {iter_begin})
 		(loop-end)
 	(endif)

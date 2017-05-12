@@ -218,9 +218,7 @@
 	;trashes
 	;r1
 
-	(vp-cpy-ir-ui r0 array_length r1)
-	(vp-sub-cr 1 r1)
-	(vp-cpy-ri-i r1 r0 array_length)
+	(class/array/pop_back)
 	(vp-ret)
 
 (def-func-end)
@@ -353,9 +351,7 @@
 	;trashes
 	;r2-r3
 
-	(vp-cpy-ir r0 array_array r3)
-	(vp-shl-cr (pow2 ptr_size) r2)
-	(vp-cpy-rd r1 r3 r2)
+	(class/array/set_element)
 	(vp-ret)
 
 (def-func-end)
@@ -387,9 +383,9 @@
 	(vp-shl-cr (pow2 ptr_size) r10)
 	(vp-shl-cr (pow2 ptr_size) r11)
 	(vp-sub-rr r10 r11)
-	(f-call 'sys_mem 'copy '((r12 r0) r1 r11))
-	(vp-cpy-rr r9 r0)
-	(vp-cpy-rr r12 r1)
+	(f-call 'sys_mem 'copy '((& r0 r10) r1 r11))
+
+	(f-exit 'array 'slice '(r9 r12))
 	(vp-ret)
 
 (def-func-end)

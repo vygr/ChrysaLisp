@@ -6,21 +6,21 @@
 (def-method 'init 'class/array/init)
 (def-method 'get_capacity 'class/array/get_capacity 'static '(r0) '(r0 r1))
 (def-method 'set_capacity 'class/array/set_capacity 'static '(r0 r1)'(r0))
-(def-method 'ref_back 'class/array/ref_back 'static '(r0) '(r0 r1))
+(def-method 'find 'class/array/find 'static '(r0 r1) '(r0 r1))
+(def-method 'for_each 'class/array/for_each 'static '(r0 r1 r2 r3 r5) '(r0 r1))
 (def-method 'get_back 'class/array/get_back 'static '(r0) '(r0 r1))
 (def-method 'get_element 'class/array/get_element 'static '(r0 r1) '(r0 r1))
-(def-method 'find 'class/array/find 'static '(r0 r1) '(r0 r1))
 (def-method 'push_back 'class/array/push_back 'static '(r0 r1) '(r0))
-(def-method 'pop_back 'class/array/pop_back 'static '(r0) '(r0))
-(def-method 'for_each 'class/array/for_each 'static '(r0 r1 r2 r3 r5) '(r0 r1))
-(def-method 'set_element 'class/array/set_element 'static '(r0 r1 r2) '(r0))
-(def-method 'append 'class/array/append 'static '(r0 r1 r2 r3) '(r0))
 (def-method 'get_iter 'class/array/get_iter 'static '(r0 r1) '(r0 r1))
 (def-method 'get_begin 'class/array/get_begin 'static '(r0) '(r0 r1))
 (def-method 'get_end 'class/array/get_end 'static '(r0) '(r0 r1))
 (def-method 'callback 'class/obj/null 'static '(r0 r1) '(r1))
 
 (def-method 'clear 'class/array/clear 'virtual '(r0) '(r0))
+(def-method 'ref_back 'class/array/ref_back 'virtual '(r0) '(r0 r1))
+(def-method 'pop_back 'class/array/pop_back 'virtual '(r0) '(r0))
+(def-method 'set_element 'class/array/set_element 'virtual '(r0 r1 r2) '(r0))
+(def-method 'append 'class/array/append 'virtual '(r0 r1 r2 r3) '(r0))
 
 (def-method 'deinit 'class/array/deinit 'override)
 (def-method 'get_length 'class/array/get_length 'override)
@@ -115,3 +115,27 @@
 	;trashes
 	;r2
 	(f-call 'array 'get_iter '(r0 (r0 array_length ui))))
+
+(defcfun class/array/pop_back ()
+	;inputs
+	;r0 = array object
+	;outputs
+	;r0 = array object
+	;trashes
+	;r1
+	(vp-cpy-ir-ui r0 array_length r1)
+	(vp-sub-cr 1 r1)
+	(vp-cpy-ri-i r1 r0 array_length))
+
+(defcfun class/array/set_element ()
+	;inputs
+	;r0 = array object
+	;r1 = object
+	;r2 = array element
+	;outputs
+	;r0 = array object
+	;trashes
+	;r2-r3
+	(vp-cpy-ir r0 array_array r3)
+	(vp-shl-cr (pow2 ptr_size) r2)
+	(vp-cpy-rd r1 r3 r2))
