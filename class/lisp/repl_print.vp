@@ -1,6 +1,7 @@
 (import 'inc/func.inc)
 (import 'class/stream/stream.inc)
 (import 'class/string/string.inc)
+(import 'class/array/array.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/pair/pair.inc)
 (import 'class/unordered_set/unordered_set.inc)
@@ -71,7 +72,6 @@
 			(struct 'pdata 'local)
 			(push-scope)
 			(f-call 'stream 'write_char {stream, char_lsb})
-			(d-call 'unordered_set 'get_length {value} {_, length})
 			(assign {this, stream, 0} {this, stream, index})
 			(f-call 'unordered_set 'for_each {value, $callback, &this})
 			(f-call 'stream 'write_char {stream, char_rsb})
@@ -81,10 +81,19 @@
 			(struct 'pdata 'local)
 			(push-scope)
 			(f-call 'stream 'write_char {stream, char_lcb})
-			(d-call 'unordered_map 'get_length {value} {_, length})
 			(assign {this, stream, 0} {this, stream, index})
 			(f-call 'unordered_map 'for_each {value, $callback, &this})
 			(f-call 'stream 'write_char {stream, char_rcb})
+			(pop-scope)
+			(break)
+		(case (cat {elem == @} (f-path 'class 'array)))
+			(struct 'pdata 'local)
+			(push-scope)
+			(f-call 'stream 'write_char {stream, char_lsb})
+			(d-call 'array 'get_length {value} {_, length})
+			(assign {this, stream, 0} {this, stream, index})
+			(f-call 'array 'for_each {value, 0, length, $callback1, &this})
+			(f-call 'stream 'write_char {stream, char_rsb})
 			(pop-scope)
 			(break)
 		(case (cat {elem == @} (f-path 'class 'error)))
@@ -166,7 +175,7 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(f-entry 'vector 'callback {pdata, iter})
+	(f-entry 'array 'callback {pdata, iter})
 
 	(f-call 'lisp 'repl_print {pdata->local_this, pdata->local_stream, *iter})
 	(assign {pdata->local_index + 1} {pdata->local_index})
@@ -174,7 +183,32 @@
 		(f-call 'stream 'write_char {pdata->local_stream, char_space})
 	(endif)
 
-	(f-exit 'vector 'callback '(-1))
+	(f-exit 'array 'callback '(-1))
+	(pop-scope)
+	(return)
+
+(vp-label 'callback1)
+	;inputs
+	;r0 = predicate data pointer
+	;r1 = element iterator
+	;outputs
+	;r1 = 0 if break, else not
+
+	(ptr 'pdata 'value)
+	(plong 'iter)
+
+	(push-scope)
+	(f-entry 'array 'callback {pdata, iter})
+
+	(f-call 'string 'create_from_long {*iter, 10} {value})
+	(f-call 'stream 'write {pdata->local_stream, &value->string_data, value->string_length})
+	(f-call 'ref 'deref {value})
+	(assign {pdata->local_index + 1} {pdata->local_index})
+	(vpif {pdata->local_index != pdata->local_length})
+		(f-call 'stream 'write_char {pdata->local_stream, char_space})
+	(endif)
+
+	(f-exit 'array 'callback '(-1))
 	(pop-scope)
 	(return)
 

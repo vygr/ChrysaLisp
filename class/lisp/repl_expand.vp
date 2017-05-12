@@ -45,7 +45,7 @@
 			(f-call 'vector 'get_element {macro, 1} {_, args})
 			(f-call 'lisp 'env_bind {this, args, form, 1} {_, form})
 			(errorif (cat {form->obj_vtable == @} (f-path 'class 'error)) 'error)
-			(f-call 'vector 'for_each {macro, 2, macro->vector_length, $callback1, &this})
+			(f-call 'vector 'for_each {macro, 2, macro->array_length, $callback1, &this})
 		(vp-label 'error)
 			(f-call 'lisp 'env_pop {this})
 			(f-call 'ref 'deref {*iter})
@@ -71,7 +71,7 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(f-entry 'vector 'callback {pdata, iter})
+	(f-entry 'array 'callback {pdata, iter})
 
 	(f-call 'ref 'deref {pdata->local_form})
 	(f-call 'lisp 'repl_eval {pdata->local_this, *iter} {_, pdata->local_form})
@@ -91,11 +91,11 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(f-entry 'vector 'callback {pdata, iter})
+	(f-entry 'array 'callback {pdata, iter})
 
 	(f-call 'lisp 'repl_expand {pdata->local_this, iter, pdata->local_cnt} {_, pdata->local_cnt})
 
-	(f-exit 'vector 'callback '(-1))
+	(f-exit 'array 'callback '(-1))
 	(pop-scope)
 	(return)
 

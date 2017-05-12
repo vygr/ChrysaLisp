@@ -11,6 +11,7 @@
 (import 'class/lisp/func_add.vp)
 (import 'class/lisp/func_age.vp)
 (import 'class/lisp/func_apply.vp)
+(import 'class/lisp/func_array.vp)
 (import 'class/lisp/func_band.vp)
 (import 'class/lisp/func_basr.vp)
 (import 'class/lisp/func_bor.vp)

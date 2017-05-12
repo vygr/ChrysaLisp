@@ -14,7 +14,7 @@
 	(push-scope)
 	(f-entry 'lisp 'func_list {this, args})
 
-	(f-call 'vector 'slice {args, 0, args->vector_length} {_, args})
+	(d-call 'vector 'slice {args, 0, args->array_length} {_, args})
 
 	(f-exit 'lisp 'func_list {this, args})
 	(pop-scope)

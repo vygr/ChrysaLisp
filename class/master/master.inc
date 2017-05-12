@@ -34,7 +34,7 @@
 	;r0 = master object
 	;r1 = input stream object
 	(vp-cpy-ir r0 master_streams r1)
-	(vp-cpy-ir r1 vector_array r1)
+	(vp-cpy-ir r1 array_array r1)
 	(vp-cpy-ir r1 0 r1))
 
 (defcfun class/master/get_state ()

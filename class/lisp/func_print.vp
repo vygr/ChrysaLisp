@@ -18,7 +18,7 @@
 
 	(f-call 'lisp 'func_prin {this, args} {_, args})
 	(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
-	(vpifnot {args->vector_length})
+	(vpifnot {args->array_length})
 		(v-call 'stream 'write_flush {this->lisp_stdout})
 	(endif)
 

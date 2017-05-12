@@ -97,7 +97,7 @@
 			(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'error5)
 			(breakif {mode != this->lisp_sym_nil && value != this->lisp_sym_nil})
 			(breakif {mode == this->lisp_sym_nil && value == this->lisp_sym_nil})
-			(f-call 'vector 'clear {params})
+			(d-call 'vector 'clear {params})
 			(assign {start + dir} {start})
 		(loop-end)
 		(f-call 'vector 'deref {params})

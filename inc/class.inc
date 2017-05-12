@@ -138,8 +138,8 @@
 	;_3 = in parameters
 	;_4 = out parameters
 	(method-info _1 _2)
-	(if (eql (elem 2 m) 'virtual)
-		(throw "Method is virtual ! Use v-call ?" (list _1 _2)))
+	(if (not (eql (elem 2 m) 'static))
+		(throw "Method is not static ! Use v-call ?" (list _1 _2)))
 	(assign _3 (elem 3 m))
 	(fn-call (elem 1 m))
 	(if _4 (assign (elem 4 m) _4)))
@@ -149,8 +149,8 @@
 	;_2 = member name
 	;_3 = in parameters
 	(method-info _1 _2)
-	(if (eql (elem 2 m) 'virtual)
-		(throw "Method is virtual ! Use v-jmp ?" (list _1 _2)))
+	(if (not (eql (elem 2 m) 'static))
+		(throw "Method is not static ! Use v-jmp ?" (list _1 _2)))
 	(assign _3 (elem 3 m))
 	(fn-jmp (elem 1 m)))
 
@@ -159,8 +159,8 @@
 	;_2 = member name
 	;_3 = reg
 	(method-info _1 _2)
-	(if (eql (elem 2 m) 'virtual)
-		(throw "Method is virtual ! Use v-bind ?" (list _1 _2)))
+	(if (not (eql (elem 2 m) 'static))
+		(throw "Method is not static ! Use v-bind ?" (list _1 _2)))
 	(fn-bind (elem 1 m) _3))
 
 (defcfun s-call (_1 _2 &optional _3 _4)
@@ -291,6 +291,7 @@
 (def-method 'ref 'class/class_ref)
 (def-method 'component 'class/class_component)
 (def-method 'string 'class/class_string)
+(def-method 'array 'class/class_array)
 (def-method 'vector 'class/class_vector)
 (def-method 'pair 'class/class_pair)
 (def-method 'unordered_set 'class/class_unordered_set)

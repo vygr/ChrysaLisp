@@ -16,14 +16,14 @@
 	(f-entry 'lisp 'func_clear {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'vector) {, -1}) {_, value})
+	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'array) {, -1}) {_, value})
 	(errorifnot {value} 'error))
 
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(f-call 'vector 'get_end {args} {_, iter_end})
 	(loop-start)
 		(assign {*iter_begin} {value})
-		(f-call 'vector 'clear {value})
+		(v-call 'array 'clear {value})
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-until {iter_begin == iter_end})
 	(f-call 'ref 'ref {value})
@@ -34,7 +34,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(clear list ...)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(clear array ...)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

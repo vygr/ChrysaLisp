@@ -1,0 +1,395 @@
+(import 'inc/func.inc)
+(import 'class/array/array.inc)
+(import 'class/boxed_long/boxed_long.inc)
+
+(gen-new 'array)
+(gen-create 'array)
+(gen-class 'array)
+
+(def-func 'class/array/deinit)
+	;inputs
+	;r0 = array object
+	;trashes
+	;all but r0, r4
+
+	(d-call 'array 'clear '(r0))
+	(s-jmp 'array 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/array/append)
+	;inputs
+	;r0 = array object
+	;r1 = source array object
+	;r2 = array element start
+	;r3 = array element end
+	;outputs
+	;r0 = array object
+	;trashes
+	;r1-r3, r5-r8
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'source)
+		(uint 'start)
+		(uint 'end)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(f-entry 'array 'append '((r4 local_this) (r4 local_source) (r4 local_start i) (r4 local_end i)))
+
+	;extend existing array
+	(vp-cpy-ir-ui r0 array_length r1)
+	(vp-sub-rr r2 r3)
+	(vp-add-rr r3 r1)
+	(f-call 'array 'set_capacity '(r0 r1))
+
+	;copy elements
+	(assign '((r4 local_source) (r4 local_start ui) (r4 local_end ui)) '(r3 r1 r2))
+	(vp-cpy-ir-ui r0 array_length r5)
+	(vp-sub-rr r1 r2)
+	(vp-cpy-rr r5 r6)
+	(vp-shl-cr (pow2 ptr_size) r5)
+	(vp-add-rr r2 r6)
+	(vp-cpy-ir r3 array_array r3)
+	(vp-cpy-ri-i r6 r0 array_length)
+	(vp-cpy-ir r0 array_array r6)
+	(vp-shl-cr (pow2 ptr_size) r1)
+	(vp-shl-cr (pow2 ptr_size) r2)
+	(vp-add-rr r6 r5)
+	(vp-add-rr r3 r1)
+	(f-call 'sys_mem 'copy '(r1 r5 r2))
+
+	(vp-cpy-ir r4 local_this r0)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/array/clear)
+	;inputs
+	;r0 = array object
+	;outputs
+	;r0 = array object
+	;trashes
+	;all but r0, r4
+
+	;free any dynamic array
+	(vp-lea-i r0 array_e0 r1)
+	(vp-cpy-ir r0 array_array r2)
+	(vpif '(r2 != r1))
+		(vp-cpy-rr r0 r5)
+		(f-call 'sys_mem 'free '(r2))
+		(vp-cpy-rr r5 r0)
+	(endif)
+
+	;init myself
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri-i r1 r0 array_length)
+	(vp-cpy-cr (bit-shr (sub array_size array_e0) (pow2 ptr_size)) r1)
+	(vp-cpy-ri-i r1 r0 array_capacity)
+	(vp-lea-i r0 array_e0 r1)
+	(vp-cpy-ri r1 r0 array_array)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/array/for_each)
+	;inputs
+	;r0 = array object
+	;r1 = start index
+	;r2 = end index
+	;r3 = predicate function pointer
+	;r5 = predicate data pointer
+	;outputs
+	;r0 = array object
+	;r1 = 0, else break iterator
+	;trashes
+	;all but r0, r4
+		;callback predicate
+		;inputs
+		;r0 = predicate data pointer
+		;r1 = element iterator
+		;outputs
+		;r1 = 0 if break, else not
+		;trashes
+		;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'predicate)
+		(ptr 'predicate_data)
+		(ptr 'next)
+		(ptr 'end)
+	(def-struct-end)
+
+	;save inputs
+	(vp-sub-cr local_size r4)
+	(assign '(r0 r3 r5) '((r4 local_this) (r4 local_predicate) (r4 local_predicate_data)))
+
+	;process elements
+	(vp-cpy-ir r0 array_array r0)
+	(vp-shl-cr (pow2 ptr_size) r2)
+	(vp-shl-cr (pow2 ptr_size) r1)
+	(vp-add-rr r0 r2)
+	(vp-add-rr r0 r1)
+	(vp-cpy-ri r2 r4 local_end)
+	(loop-start)
+		(vp-cpy-ir r4 local_end r0)
+		(vp-cpy-ri r1 r4 local_next)
+		(breakif '(r1 == r0))
+		(vp-cpy-ir r4 local_predicate_data r0)
+		(vp-call-i r4 local_predicate)
+		(breakif '(r1 == 0))
+		(vp-cpy-ir r4 local_next r1)
+		(vp-add-cr ptr_size r1)
+	(loop-end)
+
+	;iterator of break point, else 0
+	(assign '((r4 local_next) (r4 local_end) (r4 local_this)) '(r1 r2 r0))
+	(vpif '(r1 == r2))
+		(vp-xor-rr r1 r1)
+	(endif)
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/array/find)
+	;inputs
+	;r0 = array object
+	;r1 = element
+	;outputs
+	;r0 = array object
+	;r1 = -1, else index
+	;trashes
+	;r1-r3, r5
+
+	(vp-cpy-rr r1 r3)
+	(vp-cpy-ir-ui r0 array_length r1)
+	(vp-cpy-ir r0 array_array r2)
+	(vp-shl-cr (pow2 ptr_size) r1)
+	(loop-start)
+		(vp-sub-cr ptr_size r1)
+		(breakif '(r1 < 0))
+		(vp-cpy-dr r2 r1 r5)
+	(loop-until '(r3 == r5))
+	(vp-asr-cr (pow2 ptr_size) r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/array/get_back)
+	;inputs
+	;r0 = array object
+	;outputs
+	;r0 = array object
+	;r1 = element
+	;trashes
+	;r2
+
+	(vp-cpy-ir-ui r0 array_length r1)
+	(vp-cpy-ir r0 array_array r2)
+	(vp-sub-cr 1 r1)
+	(vp-shl-cr (pow2 ptr_size) r1)
+	(vp-cpy-dr r2 r1 r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/array/get_length)
+	;inputs
+	;r0 = array object
+	;outputs
+	;r0 = array object
+	;r1 = array length
+
+	(class/array/get_length)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/array/pop_back)
+	;inputs
+	;r0 = array object
+	;outputs
+	;r0 = array object
+	;trashes
+	;r1
+
+	(vp-cpy-ir-ui r0 array_length r1)
+	(vp-sub-cr 1 r1)
+	(vp-cpy-ri-i r1 r0 array_length)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/array/push_back)
+	;inputs
+	;r0 = array object
+	;r1 = element
+	;outputs
+	;r0 = array object
+	;r1 = element
+	;trashes
+	;r2-r3, r5-r8
+
+	;increase capacity ?
+	(vp-cpy-ir-ui r0 array_length r2)
+	(vp-cpy-ir-ui r0 array_capacity r3)
+	(vp-add-cr 1 r2)
+	(vp-cpy-ri-i r2 r0 array_length)
+	(vpif '(r2 > r3))
+		;double the capacity
+		(vp-add-rr r3 r3)
+		(vp-push r1)
+		(f-call 'array 'set_capacity '(r0 r3))
+		(vp-cpy-ir-ui r0 array_length r2)
+		(vp-pop r1)
+	(endif)
+
+	;save object
+	(vp-cpy-ir r0 array_array r3)
+	(vp-shl-cr (pow2 ptr_size) r2)
+	(vp-add-rr r2 r3)
+	(vp-cpy-ri r1 r3 (neg ptr_size))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/array/ref_back)
+	;inputs
+	;r0 = array object
+	;outputs
+	;r0 = array object
+	;r1 = boxed_long object pointer
+	;trashes
+	;all but r0, r4
+
+	(vp-cpy-ir-ui r0 array_length r1)
+	(vp-cpy-ir r0 array_array r0)
+	(vp-sub-cr 1 r1)
+	(vp-shl-cr (pow2 ptr_size) r1)
+	(vp-cpy-dr r0 r1 r1)
+	(vp-push r0 r1)
+	(f-call 'boxed_long 'create '() '(r1))
+	(vp-pop r2)
+	(vp-cpy-ri r2 r1 boxed_ptr_value)
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/array/ref_element)
+	;inputs
+	;r0 = array object
+	;r1 = array element
+	;outputs
+	;r0 = array object
+	;r1 = boxed_long object pointer
+	;trashes
+	;all but r0, r4
+
+	(vp-cpy-ir r0 array_array r0)
+	(vp-shl-cr (pow2 ptr_size) r1)
+	(vp-cpy-dr r0 r1 r1)
+	(vp-push r0 r1)
+	(f-call 'boxed_long 'create '() '(r1))
+	(vp-pop r2)
+	(vp-cpy-ri r2 r1 boxed_ptr_value)
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/array/set_capacity)
+	;inputs
+	;r0 = array object
+	;r1 = array capacity
+	;outputs
+	;r0 = array object
+	;trashes
+	;r1-r3, r5-r8
+
+	;do we allready have room ?
+	(vp-cpy-ir-ui r0 array_capacity r2)
+	(vpif '(r1 > r2))
+		;realloc the dynamic array
+		(vp-push r0)
+		(vp-shl-cr (pow2 ptr_size) r1)
+		(vp-lea-i r0 array_e0 r3)
+		(vp-cpy-ir r0 array_array r0)
+		(vpif '(r0 == r3))
+			(f-call 'sys_mem 'alloc '(r1) '(r1 r2))
+			(vp-pop r0)
+			(vp-cpy-ir r0 array_e0 r5)
+			(vp-cpy-ir r0 array_e1 r6)
+			(vp-cpy-ir r0 array_e2 r7)
+			(vp-cpy-ri r5 r1 (sub array_e0 array_e0))
+			(vp-cpy-ri r6 r1 (sub array_e1 array_e0))
+			(vp-cpy-ri r7 r1 (sub array_e2 array_e0))
+		(else)
+			(vp-shl-cr (pow2 ptr_size) r2)
+			(vp-xchg-rr r1 r2)
+			(f-call 'sys_mem 'realloc '(r0 r1 r2) '(r1 r2))
+			(vp-pop r0)
+		(endif)
+		(vp-shr-cr (pow2 ptr_size) r2)
+		(vp-cpy-ri r1 r0 array_array)
+		(vp-cpy-ri-i r2 r0 array_capacity)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/array/set_element)
+	;inputs
+	;r0 = array object
+	;r1 = object
+	;r2 = array element
+	;outputs
+	;r0 = array object
+	;trashes
+	;r2-r3
+
+	(vp-cpy-ir r0 array_array r3)
+	(vp-shl-cr (pow2 ptr_size) r2)
+	(vp-cpy-rd r1 r3 r2)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/array/slice)
+	;inputs
+	;r0 = array object
+	;r1 = array element start
+	;r2 = array element end
+	;outputs
+	;r0 = array object
+	;r1 = slice array object
+	;trashes
+	;r1-r3, r5-r12
+
+	;save inputs
+	(f-entry 'array 'slice '(r9 r10 r11))
+
+	;create new array
+	(f-call 'array 'create '() '(r12))
+	(vp-cpy-rr r11 r1)
+	(vp-sub-rr r10 r1)
+	(vp-cpy-ri-i r1 r0 array_length)
+	(f-call 'array 'set_capacity '(r0 r1))
+
+	;copy elements
+	(vp-cpy-ir r12 array_array r1)
+	(vp-cpy-ir r9 array_array r0)
+	(vp-shl-cr (pow2 ptr_size) r10)
+	(vp-shl-cr (pow2 ptr_size) r11)
+	(vp-sub-rr r10 r11)
+	(f-call 'sys_mem 'copy '((r12 r0) r1 r11))
+	(vp-cpy-rr r9 r0)
+	(vp-cpy-rr r12 r1)
+	(vp-ret)
+
+(def-func-end)

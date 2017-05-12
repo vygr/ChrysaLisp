@@ -27,6 +27,7 @@
 (import 'class/unordered_set/make.inc)
 (import 'class/vdu/make.inc)
 (import 'class/vector/make.inc)
+(import 'class/array/make.inc)
 (import 'class/view/make.inc)
 (import 'class/window/make.inc)
 (import 'class/canvas/make.inc)

@@ -78,7 +78,7 @@
 
 	;draw text
 	(vpif {this->text_string && this->text_font})
-		(assign {this->text_words->vector_array} {words})
+		(assign {this->text_words->array_array} {words})
 		(d-call 'vector 'get_length {this->text_words} {_, length})
 		(assign {&words[length * ptr_size]} {words_end})
 		(assign {0} {x})
@@ -145,7 +145,7 @@
 	;bounds of text
 	(assign {0, 0} {width, height})
 	(vpif {this->text_string && this->text_font})
-		(assign {this->text_words->vector_array} {words})
+		(assign {this->text_words->array_array} {words})
 		(d-call 'vector 'get_length {this->text_words} {_, length})
 		(assign {&words[length * ptr_size]} {words_end})
 		(loop-start)
