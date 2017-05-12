@@ -1,5 +1,4 @@
 (import 'inc/func.inc)
-(import 'class/array/array.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_array)
@@ -11,35 +10,19 @@
 	;r1 = else value
 
 	(ptr 'this 'args 'value)
-	(union
-		'(pptr 'iter_begin)
-		'(uint 'length))
+	(pptr 'iter_begin)
 
 	(push-scope)
 	(f-entry 'lisp 'func_array {this, args})
 
-(errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
-	(errorifnot {value} 'error))
-
-	(f-call 'vector 'get_element {args, 0} {_, args})
-	(d-call 'vector 'get_length {args} {_, length})
 	(f-call 'array 'create {} {value})
-	(f-call 'array 'set_capacity {value, length})
-	(assign {length} {value->array_length})
+	(f-call 'array 'set_capacity {value, args->array_length})
+	(assign {args->array_length} {value->array_length})
 	(f-call 'array 'get_begin {value} {_, iter_begin})
 	(f-call 'lisp 'env_args_set {this, args, iter_begin})
 
-(vp-label 'exit)
 	(f-exit 'lisp 'func_array {this, value})
+	(pop-scope)
 	(return)
-
-(errorcases
-(vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(array list)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
-	(signature 'sig 'vector))
-
-	(pop-scope-syms)
 
 (def-func-end)

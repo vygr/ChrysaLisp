@@ -1,7 +1,6 @@
 (import 'inc/func.inc)
 (import 'class/stream/stream.inc)
 (import 'class/string/string.inc)
-(import 'class/array/array.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/pair/pair.inc)
 (import 'class/unordered_set/unordered_set.inc)

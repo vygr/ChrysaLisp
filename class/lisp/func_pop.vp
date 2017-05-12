@@ -1,5 +1,4 @@
 (import 'inc/func.inc)
-(import 'class/array/array.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_pop)
