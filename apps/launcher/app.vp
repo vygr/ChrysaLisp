@@ -92,6 +92,7 @@
 	(vp-string "apps/netmon/app") (vp-byte 0)
 	(vp-string "apps/terminal/app") (vp-byte 0)
 	(vp-string "apps/canvas/app") (vp-byte 0)
+	(vp-string "apps/raymarch/app") (vp-byte 0)
 	(vp-string "apps/calculator/app") (vp-byte 0)
 	(vp-string "tests/farm") (vp-byte 0)
 	(vp-string "tests/array") (vp-byte 0)
