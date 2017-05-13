@@ -7,16 +7,18 @@
 	;r0 = lisp object
 	;r1 = args vector
 	;r2 = args dest pointer
+	;r3 = args offset
 	;outputs
 	;r0 = lisp object
 
 	(ptr 'this 'args 'value)
 	(pptr 'iter_begin 'iter_end 'dest)
+	(uint 'start)
 
 	(push-scope)
-	(f-entry 'lisp 'env_args_set {this, args, dest})
+	(f-entry 'lisp 'env_args_set {this, args, dest, start})
 
-	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(f-call 'vector 'get_iter {args, start} {_, iter_begin})
 	(f-call 'vector 'get_end {args} {_, iter_end})
 	(loop-while {iter_begin != iter_end})
 		(assign {*iter_begin} {value})

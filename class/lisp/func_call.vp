@@ -13,7 +13,7 @@
 
 	(ptr 'this 'args 'value)
 	(uint 'length 'slot)
-	(long 'argslot 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5)
+	(long 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5)
 
 	(push-scope)
 	(f-entry 'lisp 'func_call {this, args})
@@ -28,28 +28,28 @@
 	(errorcases
 		(f-call 'lisp 'env_args_type {this, args, $canvas_set_hline, 6} {_, slot})
 		(errorifnot {slot} 'error1))
-		(f-call 'lisp 'env_args_set {this, args, &argslot})
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(f-call 'canvas 'set_hline {arg0, arg1, arg2, arg3, arg4})
 		(break)
 	(case (cat {slot == } (str (method-slot 'canvas 'set_fbox))))
 	(errorcases
 		(f-call 'lisp 'env_args_type {this, args, $canvas_set_fbox, 7} {_, slot})
 		(errorifnot {slot} 'error1))
-		(f-call 'lisp 'env_args_set {this, args, &argslot})
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(f-call 'canvas 'set_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
 		(break)
 	(case (cat {slot == } (str (method-slot 'canvas 'fill))))
 	(errorcases
 		(f-call 'lisp 'env_args_type {this, args, $canvas_fill, 3} {_, slot})
 		(errorifnot {slot} 'error1))
-		(f-call 'lisp 'env_args_set {this, args, &argslot})
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(f-call 'canvas 'fill {arg0, arg1})
 		(break)
 	(case (cat {slot == } (str (method-slot 'canvas 'swap))))
 	(errorcases
 		(f-call 'lisp 'env_args_type {this, args, $canvas_swap, 2} {_, slot})
 		(errorifnot {slot} 'error1))
-		(f-call 'lisp 'env_args_set {this, args, &argslot})
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(f-call 'canvas 'swap {arg0})
 		(f-call 'canvas 'dirty {arg0})
 		(break)
@@ -57,7 +57,7 @@
 	(errorcases
 		(f-call 'lisp 'env_args_type {this, args, $canvas_set_pixel, 5} {_, slot})
 		(errorifnot {slot} 'error1))
-		(f-call 'lisp 'env_args_set {this, args, &argslot})
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(f-call 'canvas 'set_pixel {arg0, arg1, arg2, arg3})
 		(break)
 	(default)

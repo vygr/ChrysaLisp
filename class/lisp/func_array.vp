@@ -10,16 +10,19 @@
 	;r1 = else value
 
 	(ptr 'this 'args 'value)
-	(pptr 'iter_begin)
+	(union
+		'(pptr 'iter_begin)
+		'(uint 'length))
 
 	(push-scope)
 	(f-entry 'lisp 'func_array {this, args})
 
 	(f-call 'array 'create {} {value})
-	(f-call 'array 'set_capacity {value, args->array_length})
-	(assign {args->array_length} {value->array_length})
+	(d-call 'vector 'get_length {args} {_, length})
+	(f-call 'array 'set_capacity {value, length})
+	(f-call 'array 'set_length {value, length})
 	(f-call 'array 'get_begin {value} {_, iter_begin})
-	(f-call 'lisp 'env_args_set {this, args, iter_begin})
+	(f-call 'lisp 'env_args_set {this, args, iter_begin, 0})
 
 	(f-exit 'lisp 'func_array {this, value})
 	(pop-scope)
