@@ -9,9 +9,9 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value 'array)
-	(pptr 'iter_begin)
-	(uint 'length)
+	(ptr 'this 'args 'value)
+	(pptr 'iter_end)
+	(uint 'length 'alength)
 
 	(push-scope)
 	(f-entry 'lisp 'func_push {this, args})
@@ -23,12 +23,12 @@
 		(d-call 'vector 'append {value, args, 1, length})
 	(else)
 		(errorif (cat {value->obj_vtable != @} (f-path 'class 'array)) 'error1)
-		(f-call 'array 'create {} {array})
-		(f-call 'array 'set_capacity {array, length})
-		(f-call 'array 'get_begin {array} {_, iter_begin})
-		(f-call 'lisp 'env_args_set {this, args, iter_begin})
-		(d-call 'array 'append {value, array, 1, length})
-		(f-call 'ref 'deref {array})
+		(d-call 'array 'get_length {value} {_, alength})
+		(assign {alength + length - 1} {alength})
+		(f-call 'array 'set_capacity {value, alength})
+		(f-call 'array 'get_end {value} {_, iter_end})
+		(f-call 'array 'set_length {value, alength})
+		(f-call 'lisp 'env_args_set {this, args, iter_end, 1})
 	(endif)
 	(f-call 'ref 'ref {value})
 
