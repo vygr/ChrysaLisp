@@ -74,7 +74,7 @@
 		(vp-asr-cr 16 r1)
 		(vp-asr-cr 16 r2)
 		(vp-cpy-ri-i r1 r0 canvas_width)
-		(vp-cpy-ri-i r1 r0 canvas_height)
+		(vp-cpy-ri-i r2 r0 canvas_height)
 		(vp-cpy-ri-i r1 r0 canvas_cx1)
 		(vp-cpy-ri-i r2 r0 canvas_cy1)
 
