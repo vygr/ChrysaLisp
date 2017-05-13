@@ -6,6 +6,7 @@
 (def-method 'init 'class/array/init)
 (def-method 'get_capacity 'class/array/get_capacity 'static '(r0) '(r0 r1))
 (def-method 'set_capacity 'class/array/set_capacity 'static '(r0 r1)'(r0))
+(def-method 'set_length 'class/array/set_length 'static '(r0 r1)'(r0))
 (def-method 'find 'class/array/find 'static '(r0 r1) '(r0 r1))
 (def-method 'for_each 'class/array/for_each 'static '(r0 r1 r2 r3 r5) '(r0 r1))
 (def-method 'get_back 'class/array/get_back 'static '(r0) '(r0 r1))
@@ -71,6 +72,14 @@
 	;r0 = array object
 	;r1 = array length
 	(vp-cpy-ir-ui r0 array_length r1))
+
+(defcfun class/array/set_length ()
+	;inputs
+	;r0 = array object
+	;r1 = array length
+	;outputs
+	;r0 = array object
+	(vp-cpy-ri-i r1 r0 array_length))
 
 (defcfun class/array/get_element ()
 	;inputs
