@@ -68,12 +68,12 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(f-entry 'array 'callback {pdata, iter})
+	(f-entry 'array 'each_callback {pdata, iter})
 
 	(f-call 'stream 'write {pdata->slave_stdout, &(*iter)->string_data, (*iter)->string_length})
 	(f-call 'stream 'write_char {pdata->slave_stdout, char_lf})
 
-	(f-exit 'array 'callback '(-1))
+	(f-exit 'array 'each_callback '(-1))
 	(pop-scope)
 	(return)
 

@@ -174,7 +174,7 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(f-entry 'array 'callback {pdata, iter})
+	(f-entry 'array 'each_callback {pdata, iter})
 
 	(f-call 'lisp 'repl_print {pdata->local_this, pdata->local_stream, *iter})
 	(assign {pdata->local_index + 1} {pdata->local_index})
@@ -182,7 +182,7 @@
 		(f-call 'stream 'write_char {pdata->local_stream, char_space})
 	(endif)
 
-	(f-exit 'array 'callback '(-1))
+	(f-exit 'array 'each_callback '(-1))
 	(pop-scope)
 	(return)
 
@@ -197,7 +197,7 @@
 	(plong 'iter)
 
 	(push-scope)
-	(f-entry 'array 'callback {pdata, iter})
+	(f-entry 'array 'each_callback {pdata, iter})
 
 	(f-call 'string 'create_from_long {*iter, 16} {value})
 	(f-call 'stream 'write_cstr {pdata->local_stream, "0x"})
@@ -208,7 +208,7 @@
 		(f-call 'stream 'write_char {pdata->local_stream, char_space})
 	(endif)
 
-	(f-exit 'array 'callback '(-1))
+	(f-exit 'array 'each_callback '(-1))
 	(pop-scope)
 	(return)
 

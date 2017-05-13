@@ -389,3 +389,130 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-func 'class/array/partition)
+	;inputs
+	;r0 = array object
+	;r1 = lower partition iter
+	;r2 = upper partition iter
+	;r3 = sort callback
+	;r5 = sort context
+	;outputs
+	;r0 = array object
+	;r1 = partition iter
+	;trashes
+	;all but r0, r4
+		;sort callback
+		;inputs
+		;r0 = context
+		;r1 = iter1
+		;r2 = iter2
+		;outputs
+		;r0 = 0, -1
+		;trashes
+		;all but r0, r4
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'func)
+		(ptr 'ctx)
+		(ptr 'pivot)
+		(ptr 'iter)
+		(ptr 'lower)
+		(ptr 'upper)
+	(def-struct-end)
+
+	(vp-sub-cr local_size r4)
+	(f-entry 'array 'partition '((r4 local_this) (r4 local_lower) (r4 local_upper) (r4 local_func) (r4 local_ctx)))
+
+	(vp-cpy-ri r1 r4 local_iter)
+	(vp-cpy-ri r1 r4 local_pivot)
+	(loop-start)
+		(vp-add-cr ptr_size r1)
+		(breakif '(r1 >= r2))
+		(vp-cpy-ir r4 local_ctx r0)
+		(vp-cpy-ir r4 local_lower r2)
+		(vp-cpy-ri r1 r4 local_iter)
+		(vp-call-i r4 local_func)
+		(vp-cpy-ir r4 local_iter r1)
+		(vp-cpy-ir r4 local_upper r2)
+		(continueif '(r0 == 0))
+		(vp-cpy-ir r4 local_pivot r0)
+		(vp-add-cr ptr_size r0)
+		(vp-cpy-ri r0 r4 local_pivot)
+		(continueif '(r0 == r1))
+		(vp-cpy-ir r0 0 r3)
+		(vp-cpy-ir r1 0 r5)
+		(vp-cpy-ri r3 r1 0)
+		(vp-cpy-ri r5 r0 0)
+	(loop-end)
+	(vp-cpy-ir r4 local_pivot r1)
+	(vp-cpy-ir r4 local_lower r0)
+	(vpif '(r1 != r0))
+		(vp-cpy-ir r0 0 r2)
+		(vp-cpy-ir r1 0 r3)
+		(vp-cpy-ri r2 r1 0)
+		(vp-cpy-ri r3 r0 0)
+	(endif)
+
+	(f-exit 'array 'partition '((r4 local_this) r1))
+	(vp-add-cr local_size r4)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/array/sort)
+	;inputs
+	;r0 = array object
+	;r1 = lower iter
+	;r2 = upper iter
+	;r3 = compare callback
+	;r5 = sort context
+	;outputs
+	;r0 = array object
+	;trashes
+	;all but r0, r4
+		;sort callback
+		;inputs
+		;r0 = context
+		;r1 = iter1
+		;r2 = iter2
+		;outputs
+		;r0 = 0, -1
+		;trashes
+		;all but r0, r4
+
+	(ptr 'this 'func 'ctx 'que)
+	(pptr 'pivot 'iter_begin)
+	(union
+		'(uint 'low 'high)
+		'(ulong 'interval))
+	(pptr 'lower 'upper)
+	(uint 'length)
+
+	(push-scope)
+	(f-entry 'array 'sort {this, lower, upper, func, ctx})
+
+	(f-call 'array 'get_begin {this} {_, iter_begin})
+	(f-call 'array 'create {} {que})
+	(assign {(lower - iter_begin) >> 3, (upper - iter_begin) >> 3} {low, high})
+	(f-call 'array 'push_back {que, interval})
+	(loop-start)
+		(d-call 'array 'get_length {que} {_, length})
+		(breakifnot {length})
+		(f-call 'array 'get_back {que} {_, interval})
+		(d-call 'array 'pop_back {que})
+		(continueif {low >= high})
+		(f-call 'array 'partition {this, (low << 3) + iter_begin, (high << 3) + iter_begin, func, ctx} {_, pivot})
+		(assign {high, (pivot - iter_begin) >> 3} {length, high})
+		(f-call 'array 'push_back {que, interval})
+		(assign {high + 1, length} {low, high})
+		(f-call 'array 'push_back {que, interval})
+	(loop-end)
+	(f-call 'array 'deref {que})
+
+	(f-exit 'array 'sort {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

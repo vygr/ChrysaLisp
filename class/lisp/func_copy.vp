@@ -49,7 +49,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'array 'callback {pdata, iter})
+	(f-entry 'array 'each_callback {pdata, iter})
 
 	(assign {*iter} {pdata})
 	(vpif (cat {pdata->obj_vtable == @} (f-path 'class 'vector)))
@@ -60,7 +60,7 @@
 		(assign {pdata} {*iter})
 	(endif)
 
-	(f-exit 'array 'callback '(-1))
+	(f-exit 'array 'each_callback '(-1))
 	(pop-scope)
 	(return)
 

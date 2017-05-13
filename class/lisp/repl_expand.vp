@@ -71,7 +71,7 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(f-entry 'array 'callback {pdata, iter})
+	(f-entry 'array 'each_callback {pdata, iter})
 
 	(f-call 'ref 'deref {pdata->local_form})
 	(f-call 'lisp 'repl_eval {pdata->local_this, *iter} {_, pdata->local_form})
@@ -91,11 +91,11 @@
 	(ptr 'pdata)
 
 	(push-scope)
-	(f-entry 'array 'callback {pdata, iter})
+	(f-entry 'array 'each_callback {pdata, iter})
 
 	(f-call 'lisp 'repl_expand {pdata->local_this, iter, pdata->local_cnt} {_, pdata->local_cnt})
 
-	(f-exit 'array 'callback '(-1))
+	(f-exit 'array 'each_callback '(-1))
 	(pop-scope)
 	(return)
 
