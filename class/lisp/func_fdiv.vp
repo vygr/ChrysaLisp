@@ -28,6 +28,7 @@
 		(assign {iter_begin + ptr_size} {iter_begin})
 		(breakif {iter_begin == iter_end})
 		(f-call 'boxed_long 'get_value {*iter_begin} {_, num})
+		(errorifnot {num} 'error1)
 		(assign {accum </ num} {accum})
 	(loop-end)
 	(f-call 'boxed_long 'create {} {value})
