@@ -59,8 +59,8 @@
 	(vpif '(r1 > r0))
 		(vp-add-cr 1 r0)
 	(endif)
-	(vp-ret)
 
 	(f-exit 'sys_math 'isqrt '(r0))
+	(vp-ret)
 
 (def-func-end)
