@@ -73,8 +73,8 @@
 				color (lighting surface_pos surface_norm ray_origin))
 			(vec-clamp color 0.0 0.999))))
 
-(defun screen (w h)
-	(defq y 0 w (div w 1.0) h (div h 1.0) w2 (div w 2) h2 (div h 2))
+(defun screen (w h s)
+	(defq y 0 w (div (fmul w s) 1.0) h (div (fmul h s) 1.0) w2 (div w 2) h2 (div h 2))
 	(while (lt y h)
 		(defq x 0)
 		(while (lt x w)
@@ -95,4 +95,4 @@
 		(call canvas-swap canvas)
 		(setq y (inc y))))
 
-(screen canvas_width canvas_height)
+(screen canvas_width canvas_height canvas_scale)
