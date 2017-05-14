@@ -28,3 +28,39 @@
 	(vp-long 1234567890)
 
 (def-func-end)
+
+(def-func 'sys/math_isqrt)
+	;inputs
+	;r0 = number
+	;outputs
+	;r0 = sqrt
+	;trashes
+	;r1-r3
+
+	(f-entry 'sys_math 'isqrt '(r1))
+
+	(vp-xor-rr r0 r0)
+	(vp-cpy-cr 0x4000000000000000 r2)
+	(loop-while '(r2 > r1))
+		(vp-shr-cr 2 r2)
+	(loop-end)
+	(loop-while '(r2 != 0))
+		(vp-lea-d r0 r2 r3)
+		(vpif '(r1 > r3))
+			(vp-cpy-rr r2 r3)
+			(vp-sub-rr r0 r1)
+			(vp-shl-cr 1 r3)
+			(vp-sub-rr r2 r1)
+			(vp-add-rr r3 r0)
+		(endif)
+		(vp-shr-cr 1 r0)
+		(vp-shr-cr 2 r2)
+	(loop-end)
+	(vpif '(r1 > r0))
+		(vp-add-cr 1 r0)
+	(endif)
+	(vp-ret)
+
+	(f-exit 'sys_math 'isqrt '(r0))
+
+(def-func-end)
