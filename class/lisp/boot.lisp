@@ -207,13 +207,6 @@
 		(sub _ (bit-and fp-frac-mask _))))
 
 (defun fsqrt (_)
-	(defq x 1.0 n_one (mul _ 1.0) _x x)
-	(setq x (bit-shr (add x (div n_one x)) 1))
-	(defq i 10)
-	(while (and (ne _x x) (ne (setq i (dec i)) 0))
-		(setq _x x x (bit-shr (add x (div n_one x)) 1))) x)
-
-(defun fsqrt (_)
 	(isqrt (bit-shl _ 16)))
 
 (defun fsin (_)
