@@ -19,7 +19,7 @@
 
 (def-func 'apps/raymarch/app)
 
-	(defcvar 'app_width 640 'app_height 480 'app_scale 1.0)
+	(defcvar 'app_width 400 'app_height 400 'app_scale 1.0)
 
 	(def-struct 'local 'obj)
 		(uint 'closed)
@@ -37,7 +37,7 @@
 
 	;create my window
 	(f-call 'window 'create {window_flag_close} {window})
-	(f-call 'string 'create_from_cstr {"Raymarch"} {string})
+	(f-call 'string 'create_from_cstr {"Raymarch - GPUs are seriously fast !"} {string})
 	(f-call 'window 'set_title {window, string})
 
 	;add my app canvas
