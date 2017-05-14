@@ -183,7 +183,8 @@
 ; Fixed point math
 ;;;;;;;;;;;;;;;;;;
 
-(defq fp-shift 16 fp-2pi 411774 fp-pi 205887 fp-hpi 102943 fp-qpi 51471)
+(defq fp-shift 16 fp-2pi 411774 fp-pi 205887 fp-hpi 102943 fp-qpi 51471
+	fp-int-mask (bit-shl -1 fp-shift) fp-frac-mask (bit-not fp-int-mask))
 
 (defun fp-val (_)
 	(bit-shl _ fp-shift))
@@ -195,10 +196,21 @@
 	(reduce (lambda (x y)
 		(sub x (mul (bit-asr (fdiv x y) fp-shift) y))) _))
 
+(defun ffrac (_)
+	(if (ge _ 0)
+		(bit-and fp-frac-mask _)
+		(sub 1.0 (bit-and fp-frac-mask _))))
+
+(defun ffloor (_)
+	(if (ge _ 0)
+		(bit-and fp-int-mask _)
+		(sub _ (bit-and fp-frac-mask _))))
+
 (defun fsqrt (_)
-	(defq x 1.0 n_one (bit-shl _ fp-shift) _x x)
+	(defq x 1.0 n_one (mul _ 1.0) _x x)
 	(setq x (bit-shr (add x (div n_one x)) 1))
-	(while (ne _x x)
+	(defq i 10)
+	(while (and (ne _x x) (ne (setq i (dec i)) 0))
 		(setq _x x x (bit-shr (add x (div n_one x)) 1))) x)
 
 (defun fsin (_)
