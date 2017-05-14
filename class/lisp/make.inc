@@ -35,6 +35,7 @@
 (import 'class/lisp/func_elem.vp)
 (import 'class/lisp/func_elemset.vp)
 (import 'class/lisp/func_env.vp)
+(import 'class/lisp/func_isqrt.vp)
 (import 'class/lisp/func_eq.vp)
 (import 'class/lisp/func_eql.vp)
 (import 'class/lisp/func_error.vp)

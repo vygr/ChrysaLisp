@@ -1,0 +1,64 @@
+(import 'inc/func.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_isqrt)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(ulong 'accum)
+
+	(push-scope)
+	(f-entry 'lisp 'func_isqrt {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type (cat {this, args, $sig, 1}) {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'vector 'get_element {args, 0} '(_ r0))
+	(f-call 'boxed_long 'get_value '(r0) '(_ r1))
+	(errorif '(r1 < 0) 'error1)
+
+	(vp-xor-rr r0 r0)
+	(vp-cpy-cr 0x4000000000000000 r2)
+	(loop-while '(r2 > r1))
+		(vp-shr-cr 2 r2)
+	(loop-end)
+	(loop-while '(r2 != 0))
+		(vp-lea-d r0 r2 r3)
+		(vpif '(r1 > r3))
+			(vp-cpy-rr r2 r3)
+			(vp-sub-rr r0 r1)
+			(vp-shl-cr 1 r3)
+			(vp-sub-rr r2 r1)
+			(vp-add-rr r3 r0)
+		(endif)
+		(vp-shr-cr 1 r0)
+		(vp-shr-cr 2 r2)
+	(loop-end)
+	(vpif '(r1 > r0))
+		(vp-add-cr 1 r0)
+	(endif)
+
+	(assign '(r0) {accum})
+	(f-call 'boxed_long 'create {} {value})
+	(f-call 'boxed_long 'set_value {value, accum})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'func_isqrt {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(isqrt num)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'boxed_long))
+
+	(pop-scope-syms)
+
+(def-func-end)

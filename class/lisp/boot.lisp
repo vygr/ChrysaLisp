@@ -213,18 +213,6 @@
 	(while (and (ne _x x) (ne (setq i (dec i)) 0))
 		(setq _x x x (bit-shr (add x (div n_one x)) 1))) x)
 
-(defun isqrt (_)
-	(defq res 0 op _ one 0x4000000000000000)
-	(while (gt one op)
-		(setq one (bit-shr one 2)))
-	(while (ne one 0)
-		(when (ge op (add res one))
-			(setq op (sub op res one)
-				res (add res (bit-shl one 1))))
-		(setq res (bit-shr res 1)
-			one (bit-shr one 2)))
-	(if (gt op res) (inc res) res))
-
 (defun fsqrt (_)
 	(isqrt (bit-shl _ 16)))
 

@@ -239,6 +239,7 @@
 	(built-in "cmp" 0 'func_cmp)
 	(built-in "call" 0 'func_call)
 	(built-in "array" 0 'func_array)
+	(built-in "isqrt" 0 'func_isqrt)
 	(vp-short 0)
 
 (def-func-end)
