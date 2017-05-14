@@ -186,12 +186,6 @@
 (defq fp-shift 16 fp-2pi 411774 fp-pi 205887 fp-hpi 102943 fp-qpi 51471
 	fp-int-mask (bit-shl -1 fp-shift) fp-frac-mask (bit-not fp-int-mask))
 
-(defun fp-val (_)
-	(bit-shl _ fp-shift))
-
-(defun fp-vec (&rest _)
-	(map fp-val _))
-
 (defun fmod (&rest _)
 	(reduce (lambda (x y)
 		(sub x (mul (bit-asr (fdiv x y) fp-shift) y))) _))
