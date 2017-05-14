@@ -18,6 +18,9 @@
 
 ;generic vector stuff
 
+(defun vec-clamp (p i j)
+	(map (lambda (_) (max i (min j _))) p))
+
 (defun vec-equal (p1 p2)
 	(eq (manhattan-distance p1 p2) 0))
 
@@ -27,8 +30,20 @@
 (defun vec-sub (p1 p2)
 	(map sub p1 p2))
 
+(defun vec-mul (p1 p2)
+	(map fmul p1 p2))
+
 (defun vec-scale (p s)
 	(map (lambda (_) (fmul _ s)) p))
+
+(defun vec-mod (p s)
+	(map (lambda (_) (fmod _ s)) p))
+
+(defun vec-floor (p)
+	(map (lambda (_) (ffloor _)) p))
+
+(defun vec-frac (p)
+	(map (lambda (_) (ffrac _)) p))
 
 (defun vec-dot (p1 p2)
 	(reduce add (map (lambda (x y) (fmul x y)) p1 p2)))
@@ -93,6 +108,23 @@
 		(sub (elem 1 p1) (elem 1 p2))
 		(sub (elem 2 p1) (elem 2 p2))))
 
+(defun vec-mul-2d (p1 p2)
+	(list (fmul (elem 0 p1) (elem 0 p2))
+		(fmul (elem 1 p1) (elem 1 p2))))
+
+(defun vec-mul-3d (p1 p2)
+	(list (fmul (elem 0 p1) (elem 0 p2))
+		(fmul (elem 1 p1) (elem 1 p2))
+		(fmul (elem 2 p1) (elem 2 p2))))
+
+(defun vec-mod-3d (p s)
+	(list (fmod (elem 0 p) s)
+		(fmod (elem 1 p) s)
+		(fmod (elem 2 p) s)))
+
+(defun vec-floor-3d (p)
+	(list (ffloor (elem 0 p)) (ffloor (elem 1 p)) (ffloor (elem 2 p))))
+
 (defun vec-scale-2d (p s)
 	(list (fmul (elem 0 p) s)
 		(fmul (elem 1 p) s)))
@@ -123,6 +155,9 @@
 	(add (fmul (elem 0 p1) (elem 0 p2))
 		(fmul (elem 1 p1) (elem 1 p2))
 		(fmul (elem 2 p1) (elem 2 p2))))
+
+(defun vec-reflect-3d (p n)
+	(vec-sub-3d p (vec-scale-3d n (fmul (vec-dot-3d p n) 2.0))))
 
 (defun vec-length-2d (p)
 	(fsqrt (vec-dot-2d p p)))
