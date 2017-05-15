@@ -1,5 +1,5 @@
-(import 'inc/func.inc)
-(import 'inc/gui.inc)
+(import 'sys/func.inc)
+(import 'gui/gui.inc)
 
 (def-func 'gui/region_clip_rect)
 	;inputs

@@ -1,5 +1,5 @@
-(import 'inc/func.inc)
-(import 'inc/sdl2.inc)
+(import 'sys/func.inc)
+(import 'gui/sdl2.inc)
 (import 'class/text/text.inc)
 (import 'class/canvas/canvas.inc)
 (import 'class/flow/flow.inc)

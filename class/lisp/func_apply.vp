@@ -1,4 +1,4 @@
-(import 'inc/func.inc)
+(import 'sys/func.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_apply)

@@ -1,5 +1,5 @@
-(import 'inc/func.inc)
-(import 'inc/list.inc)
+(import 'sys/func.inc)
+(import 'sys/list.inc)
 
 (def-func 'sys/list_init)
 	;inputs

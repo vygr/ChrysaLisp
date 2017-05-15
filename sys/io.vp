@@ -1,8 +1,8 @@
-(import 'inc/func.inc)
-(import 'inc/syscall.inc)
-(import 'inc/string.inc)
-(import 'inc/load.inc)
-(import 'inc/task.inc)
+(import 'sys/func.inc)
+(import 'sys/syscall.inc)
+(import 'sys/string.inc)
+(import 'sys/load.inc)
+(import 'sys/task.inc)
 (import 'class/string/string.inc)
 
 (def-func 'sys/io_open)

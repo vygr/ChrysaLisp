@@ -1,4 +1,4 @@
-(import 'inc/class.inc)
+(import 'sys/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; string static class

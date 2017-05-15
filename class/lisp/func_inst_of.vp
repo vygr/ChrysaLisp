@@ -1,5 +1,5 @@
-(import 'inc/func.inc)
-(import 'inc/load.inc)
+(import 'sys/func.inc)
+(import 'sys/load.inc)
 (import 'class/symbol/symbol.inc)
 (import 'class/lisp/lisp.inc)
 

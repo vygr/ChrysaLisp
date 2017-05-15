@@ -1,8 +1,8 @@
-(import 'inc/code.inc)
-(import 'inc/mail.inc)
-(import 'inc/vp.inc)
-(import 'inc/task.inc)
-(import 'inc/syscall.inc)
+(import 'sys/code.inc)
+(import 'sys/mail.inc)
+(import 'sys/vp.inc)
+(import 'sys/task.inc)
+(import 'sys/syscall.inc)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail functions

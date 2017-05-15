@@ -1,5 +1,5 @@
-(import 'inc/func.inc)
-(import 'inc/gui.inc)
+(import 'sys/func.inc)
+(import 'gui/gui.inc)
 (import 'class/window/window.inc)
 (import 'class/title/title.inc)
 (import 'class/button/button.inc)

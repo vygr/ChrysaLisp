@@ -1,6 +1,6 @@
-(import 'inc/func.inc)
-(import 'inc/mail.inc)
-(import 'inc/task.inc)
+(import 'sys/func.inc)
+(import 'sys/mail.inc)
+(import 'sys/task.inc)
 
 (def-func 'sys/mail_statics)
 	(times ml_statics_size (vp-byte 0))

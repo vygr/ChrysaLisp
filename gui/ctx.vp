@@ -1,5 +1,5 @@
-(import 'inc/func.inc)
-(import 'inc/sdl2.inc)
+(import 'sys/func.inc)
+(import 'gui/sdl2.inc)
 
 (def-func 'gui/ctx_blit)
 	;inputs

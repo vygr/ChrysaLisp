@@ -1,4 +1,4 @@
-(import 'inc/func.inc)
+(import 'sys/func.inc)
 (import 'class/slave/slave.inc)
 (import 'class/vector/vector.inc)
 (import 'class/stream/stream.inc)

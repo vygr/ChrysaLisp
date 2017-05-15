@@ -1,5 +1,5 @@
-(import 'inc/class.inc)
-(import 'inc/code.inc)
+(import 'sys/class.inc)
+(import 'sys/code.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; list static class

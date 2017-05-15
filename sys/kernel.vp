@@ -1,10 +1,10 @@
-(import 'inc/func.inc)
-(import 'inc/mail.inc)
-(import 'inc/task.inc)
-(import 'inc/link.inc)
-(import 'inc/load.inc)
-(import 'inc/font.inc)
-(import 'inc/sdl2.inc)
+(import 'sys/func.inc)
+(import 'sys/mail.inc)
+(import 'sys/task.inc)
+(import 'sys/link.inc)
+(import 'sys/load.inc)
+(import 'gui/font.inc)
+(import 'gui/sdl2.inc)
 
 ;;;;;;;;;;;;;
 ; kernel task

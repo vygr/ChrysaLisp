@@ -1,4 +1,4 @@
-(import 'inc/func.inc)
+(import 'sys/func.inc)
 (import 'class/stream/stream.inc)
 (import 'class/lisp/lisp.inc)
 (import 'class/string/string.inc)

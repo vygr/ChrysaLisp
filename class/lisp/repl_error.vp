@@ -1,4 +1,4 @@
-(import 'inc/func.inc)
+(import 'sys/func.inc)
 (import 'class/symbol/symbol.inc)
 (import 'class/pair/pair.inc)
 (import 'class/boxed_long/boxed_long.inc)

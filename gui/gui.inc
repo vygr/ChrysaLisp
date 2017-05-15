@@ -1,8 +1,8 @@
-(import 'inc/class.inc)
-(import 'inc/code.inc)
-(import 'inc/heap.inc)
-(import 'inc/list.inc)
-(import 'inc/mail.inc)
+(import 'sys/class.inc)
+(import 'sys/code.inc)
+(import 'sys/heap.inc)
+(import 'sys/list.inc)
+(import 'sys/mail.inc)
 
 (defcvar 'SCREEN_WIDTH 1280)
 (defcvar 'SCREEN_HEIGHT 960)

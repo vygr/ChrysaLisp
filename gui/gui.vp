@@ -1,7 +1,7 @@
-(import 'inc/func.inc)
-(import 'inc/task.inc)
-(import 'inc/heap.inc)
-(import 'inc/sdl2.inc)
+(import 'sys/func.inc)
+(import 'sys/task.inc)
+(import 'sys/heap.inc)
+(import 'gui/sdl2.inc)
 (import 'class/label/label.inc)
 (import 'class/string/string.inc)
 

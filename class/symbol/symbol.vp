@@ -1,4 +1,4 @@
-(import 'inc/func.inc)
+(import 'sys/func.inc)
 (import 'class/symbol/symbol.inc)
 
 (gen-class 'symbol)

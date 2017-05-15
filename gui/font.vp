@@ -1,7 +1,7 @@
-(import 'inc/func.inc)
-(import 'inc/font.inc)
-(import 'inc/string.inc)
-(import 'inc/sdl2.inc)
+(import 'sys/func.inc)
+(import 'gui/font.inc)
+(import 'sys/string.inc)
+(import 'gui/sdl2.inc)
 (import 'class/string/string.inc)
 
 (def-func 'gui/font_statics)

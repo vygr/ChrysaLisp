@@ -1,5 +1,5 @@
-(import 'inc/func.inc)
-(import 'math/math.inc)
+(import 'sys/func.inc)
+(import 'sys/math/math.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 

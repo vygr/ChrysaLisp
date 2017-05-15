@@ -1,5 +1,5 @@
-(import 'inc/code.inc)
-(import 'inc/gui.inc)
+(import 'sys/code.inc)
+(import 'gui/gui.inc)
 
 ;;;;;;;;;;;;;;;;;
 ; sdl2 structures

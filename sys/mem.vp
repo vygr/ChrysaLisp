@@ -1,5 +1,5 @@
-(import 'inc/func.inc)
-(import 'inc/heap.inc)
+(import 'sys/func.inc)
+(import 'sys/heap.inc)
 
 (def-func 'sys/mem_statics)
 

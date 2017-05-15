@@ -1,7 +1,7 @@
-(import 'inc/func.inc)
-(import 'inc/task.inc)
-(import 'math/math.inc)
-(import 'inc/mail.inc)
+(import 'sys/func.inc)
+(import 'sys/task.inc)
+(import 'sys/math/math.inc)
+(import 'sys/mail.inc)
 (import 'class/vector/vector.inc)
 (import 'class/string/string.inc)
 

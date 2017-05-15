@@ -42,8 +42,8 @@ copy of a function is loaded regardless of how many tasks use that function.
 
 The interface to the system functions is provided as a set of static classes,
 easing use and removing the need to remember static function locations, plus
-decoupling the source from changes at the system level. Look in the inc/
-directory to see the interface definitions.
+decoupling the source from changes at the system level. Look in the sys/*.inc
+files to see the interface definitions.
 
 A command terminal with a familiar interface for pipe style command line
 applications is provided with args vector, stdin, stdout, stderr etc. Classes

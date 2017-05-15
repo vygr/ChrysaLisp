@@ -1,4 +1,4 @@
-(import 'inc/func.inc)
+(import 'sys/func.inc)
 (import 'class/string/string.inc)
 (import 'class/boxed_ptr/boxed_ptr.inc)
 (import 'class/lisp/lisp.inc)

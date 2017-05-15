@@ -1,4 +1,4 @@
-(import 'inc/func.inc)
+(import 'sys/func.inc)
 (import 'class/string/string.inc)
 (import 'class/stream_msg_out/stream_msg_out.inc)
 (import 'class/stream_msg_in/stream_msg_in.inc)

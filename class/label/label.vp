@@ -1,4 +1,4 @@
-(import 'inc/func.inc)
+(import 'sys/func.inc)
 (import 'class/text/text.inc)
 (import 'class/label/label.inc)
 (import 'class/flow/flow.inc)

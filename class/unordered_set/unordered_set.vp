@@ -1,4 +1,4 @@
-(import 'inc/func.inc)
+(import 'sys/func.inc)
 (import 'class/vector/vector.inc)
 (import 'class/unordered_set/unordered_set.inc)
 

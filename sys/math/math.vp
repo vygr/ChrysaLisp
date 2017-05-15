@@ -1,7 +1,7 @@
-(import 'inc/func.inc)
-(import 'math/math.inc)
+(import 'sys/func.inc)
+(import 'sys/math/math.inc)
 
-(def-func 'math/random)
+(def-func 'sys/math/random)
 	;inputs
 	;r0 = random range
 	;outputs
@@ -30,7 +30,7 @@
 
 (def-func-end)
 
-(def-func 'math/isqrt)
+(def-func 'sys/math/isqrt)
 	;inputs
 	;r0 = number
 	;outputs
@@ -66,7 +66,7 @@
 
 (def-func-end)
 
-(def-func 'math/fmod)
+(def-func 'sys/math/fmod)
 	;inputs
 	;r0 = 16.16 number
 	;r1 = 16.16 number
@@ -91,7 +91,7 @@
 
 (def-func-end)
 
-(def-func 'math/fsin)
+(def-func 'sys/math/fsin)
 	;inputs
 	;r0 = 16.16 angle in radians
 	;outputs
@@ -219,7 +219,7 @@
 
 (def-func-end)
 
-(def-func 'math/fcos)
+(def-func 'sys/math/fcos)
 	;inputs
 	;r0 = 16.16 angle in radians
 	;outputs

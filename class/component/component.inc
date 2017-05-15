@@ -1,4 +1,4 @@
-(import 'inc/list.inc)
+(import 'sys/list.inc)
 (import 'class/ref/ref.inc)
 
 (def-class 'component 'ref)
