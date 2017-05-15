@@ -171,6 +171,15 @@ make snapshot_linux
 
 This will create a Linux.zip snapshot zip file of the obj/ directory.
 
+make backup
+
+This will copy the Darwin.zip/Linux.zip to *_old.zip
+
+make undo
+
+This will copy the *_old.zip to Darwin.zip/Linux.zip unzip it and remake. So
+stepping back to the system as was when the last 'make backup' was done.
+
 Clean with:
 
 make clean
