@@ -1,6 +1,6 @@
 (import 'inc/func.inc)
 (import 'inc/task.inc)
-(import 'inc/math.inc)
+(import 'math/math.inc)
 (import 'inc/mail.inc)
 (import 'class/vector/vector.inc)
 (import 'class/string/string.inc)
@@ -65,7 +65,7 @@
 	(f-call 'sys_mem 'free {msg})
 
 	;wait a bit
-	(f-call 'sys_math 'random {1000000} {num})
+	(f-call 'math 'random {1000000} {num})
 	(f-call 'sys_task 'sleep {num + 1000000})
 
 	(pop-scope)
@@ -121,7 +121,7 @@
 	(f-call 'sys_mem 'free {msg})
 
 	;wait a bit
-	(f-call 'sys_math 'random {1000000} {num})
+	(f-call 'math 'random {1000000} {num})
 	(f-call 'sys_task 'sleep {num + 1000000})
 
 	(pop-scope)
@@ -174,7 +174,7 @@
 	(push-scope)
 
 	;wait a bit
-	(f-call 'sys_math 'random {1000000} {num})
+	(f-call 'math 'random {1000000} {num})
 	(f-call 'sys_task 'sleep {num + 1000000})
 
 	;read command
@@ -241,7 +241,7 @@
 	(f-call 'sys_mem 'free {msg})
 
 	;wait a bit
-	(f-call 'sys_math 'random {1000000} {num})
+	(f-call 'math 'random {1000000} {num})
 	(f-call 'sys_task 'sleep {num + 1000000})
 
 	(pop-scope)

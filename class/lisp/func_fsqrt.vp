@@ -1,9 +1,9 @@
 (import 'inc/func.inc)
-(import 'inc/math.inc)
+(import 'math/math.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 
-(def-func 'class/lisp/func_isqrt)
+(def-func 'class/lisp/func_fsqrt)
 	;inputs
 	;r0 = lisp object
 	;r1 = args
@@ -11,11 +11,13 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value)
-	(ulong 'accum)
+	(ptr 'this 'value)
+	(union
+		'(ptr 'args)
+		'(long 'num))
 
 	(push-scope)
-	(f-entry 'lisp 'func_isqrt {this, args})
+	(f-entry 'lisp 'func_fsqrt {this, args})
 
 (errorcases
 	(f-call 'lisp 'env_args_type (cat {this, args, $sig, 1}) {_, value})
@@ -24,17 +26,17 @@
 	(f-call 'vector 'get_element {args, 0} {_, value})
 	(f-call 'boxed_long 'get_value {value} '(_ r0))
 	(errorif '(r0 < 0) 'error1)
-	(f-call 'sys_math 'isqrt '(r0) {accum})
+	(f-call 'math 'fsqrt '(r0) {num})
 	(f-call 'boxed_long 'create {} {value})
-	(f-call 'boxed_long 'set_value {value, accum})
+	(f-call 'boxed_long 'set_value {value, num})
 
 (vp-label 'exit)
-	(f-exit 'lisp 'func_isqrt {this, value})
+	(f-exit 'lisp 'func_fsqrt {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(isqrt num)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(fsqrt num)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'boxed_long))
 

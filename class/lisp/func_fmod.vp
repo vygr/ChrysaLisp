@@ -1,8 +1,9 @@
 (import 'inc/func.inc)
+(import 'math/math.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 
-(def-func 'class/lisp/func_fdiv)
+(def-func 'class/lisp/func_fmod)
 	;inputs
 	;r0 = lisp object
 	;r1 = args
@@ -21,7 +22,7 @@
 	(long 'accum)
 
 	(push-scope)
-	(f-entry 'lisp 'func_fdiv {this, args})
+	(f-entry 'lisp 'func_mod {this, args})
 
 (errorcases
 	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'boxed_long) {, -2}) {_, value})
@@ -35,18 +36,18 @@
 		(breakif {iter_begin == iter_end})
 		(f-call 'boxed_long 'get_value {*iter_begin} {_, num})
 		(errorifnot {num} 'error1)
-		(assign {accum </ num} {accum})
+		(f-call 'math 'fmod {accum, num} {accum})
 	(loop-end)
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, accum})
 
 (vp-label 'exit)
-	(f-exit 'lisp 'func_fdiv {this, value})
+	(f-exit 'lisp 'func_fmod {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(fdiv num num ...)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(fmod num num ...)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

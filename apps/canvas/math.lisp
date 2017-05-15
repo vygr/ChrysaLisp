@@ -40,10 +40,10 @@
 	(map (lambda (_) (fmod _ s)) p))
 
 (defun vec-floor (p)
-	(map (lambda (_) (ffloor _)) p))
+	(map (lambda (_) (floor _)) p))
 
 (defun vec-frac (p)
-	(map (lambda (_) (ffrac _)) p))
+	(map (lambda (_) (frac _)) p))
 
 (defun vec-dot (p1 p2)
 	(reduce add (map (lambda (x y) (fmul x y)) p1 p2)))
@@ -123,7 +123,7 @@
 		(fmod (elem 2 p) s)))
 
 (defun vec-floor-3d (p)
-	(list (ffloor (elem 0 p)) (ffloor (elem 1 p)) (ffloor (elem 2 p))))
+	(list (floor (elem 0 p)) (floor (elem 1 p)) (floor (elem 2 p))))
 
 (defun vec-scale-2d (p s)
 	(list (fmul (elem 0 p) s)
@@ -322,7 +322,7 @@
 
 (defun gen-arc-polyline-2d (out_points p r a1 a2)
 	(when (ge r 0.5)
-		(setq a1 (fmod a1 fp-2pi) a2 (if (gt a2 fp-2pi) (fmod a2 fp-2pi) a2))
+		(setq a1 (fmod a1 fp_2pi) a2 (if (gt a2 fp_2pi) (fmod a2 fp_2pi) a2))
 		(cond
 			((le a2 3.0)
 				(setq a2 (add a1 a2))

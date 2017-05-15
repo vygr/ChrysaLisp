@@ -22,8 +22,8 @@
 	(each (lambda (_)
 		(setq _ (map (lambda (_) (vec-scale-2d _ canvas_scale)) _))
 		(reduce (lambda (p1 p2)
-			(defq x1 (add (elem 0 p1) 0.5) y1 (bit-asr (add (elem 1 p1) 0.5) fp-shift)
-				x2 (add (elem 0 p2) 0.5) y2 (bit-asr (add (elem 1 p2) 0.5) fp-shift))
+			(defq x1 (add (elem 0 p1) 0.5) y1 (bit-asr (add (elem 1 p1) 0.5) fp_shift)
+				x2 (add (elem 0 p2) 0.5) y2 (bit-asr (add (elem 1 p2) 0.5) fp_shift))
 			(cond
 				((lt y1 y2)
 					(setq ys (min ys y1) ye (max ye y2))
@@ -53,7 +53,7 @@
 					(while (ne w 0)
 						(defq k (inc k) e2 (elem k e) x2 (elem 0 e2) w (add w (elem 4 e2)))
 						(elem-set 0 e2 (add x2 (elem 3 e2))))
-					(setq x1 (bit-asr x1 fp-shift) x2 (bit-asr x2 fp-shift))
+					(setq x1 (bit-asr x1 fp_shift) x2 (bit-asr x2 fp_shift))
 					(call canvas-set-hline canvas brush-col x1 ys (sub x2 x1))))
 			(t ;odd-even winding
 				(defq k (sub i 2))
@@ -62,7 +62,7 @@
 						x1 (elem 0 e1) x2 (elem 0 e2))
 					(elem-set 0 e1 (add x1 (elem 3 e1)))
 					(elem-set 0 e2 (add x2 (elem 3 e2)))
-					(setq x1 (bit-asr x1 fp-shift) x2 (bit-asr x2 fp-shift))
+					(setq x1 (bit-asr x1 fp_shift) x2 (bit-asr x2 fp_shift))
 					(call canvas-set-hline canvas brush-col x1 ys (sub x2 x1)))))))
 
 (call canvas-fill canvas 0xff202020)

@@ -10,9 +10,15 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value)
-	(pptr 'iter_begin 'iter_end)
-	(long 'accum 'num)
+	(ptr 'this)
+	(pptr 'iter_begin)
+	(union
+		'(ptr 'args)
+		'(pptr 'iter_end))
+	(union
+		'(ptr 'value)
+		'(long 'num))
+	(long 'accum)
 
 	(push-scope)
 	(f-entry 'lisp 'func_mod {this, args})

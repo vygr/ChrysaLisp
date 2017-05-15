@@ -1,0 +1,361 @@
+(import 'inc/func.inc)
+(import 'math/math.inc)
+
+(def-func 'math/random)
+	;inputs
+	;r0 = random range
+	;outputs
+	;r0 = random number in range
+	;trashes
+	;r1-r2
+
+	(f-entry 'math 'random '(r0))
+
+	(vp-cpy-rr r0 r1)
+	(vp-cpy-pr 'seed r0)
+	(vp-mul-cr 17 r0)
+	(vp-cpy-cr 0xa5a5a5a5a5a5a5a5 r2)
+	(vp-xor-rr r2 r0)
+	(vp-cpy-rp r0 'seed)
+	(vp-xor-rr r2 r2)
+	(vp-div-rrr r1 r2 r0)
+	(vp-cpy-rr r2 r0)
+
+	(f-exit 'math 'random '(r0))
+	(vp-ret)
+
+	(vp-align ptr_size)
+(vp-label 'seed)
+	(vp-long 1234567890)
+
+(def-func-end)
+
+(def-func 'math/isqrt)
+	;inputs
+	;r0 = number
+	;outputs
+	;r0 = sqrt
+	;trashes
+	;r1-r3
+
+	(f-entry 'math 'isqrt '(r1))
+
+	(vp-xor-rr r0 r0)
+	(vp-cpy-cr 0x4000000000000000 r2)
+	(loop-while '(r2 > r1))
+		(vp-shr-cr 2 r2)
+	(loop-end)
+	(loop-while '(r2 != 0))
+		(vp-lea-d r0 r2 r3)
+		(vpif '(r1 > r3))
+			(vp-cpy-rr r2 r3)
+			(vp-sub-rr r0 r1)
+			(vp-shl-cr 1 r3)
+			(vp-sub-rr r2 r1)
+			(vp-add-rr r3 r0)
+		(endif)
+		(vp-shr-cr 1 r0)
+		(vp-shr-cr 2 r2)
+	(loop-end)
+	(vpif '(r1 > r0))
+		(vp-add-cr 1 r0)
+	(endif)
+
+	(f-exit 'math 'isqrt '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'math/fmod)
+	;inputs
+	;r0 = 16.16 number
+	;r1 = 16.16 number
+	;outputs
+	;r0 = 16.16 fmod
+	;trashes
+	;r1-r3
+
+	(f-entry 'math 'fmod '(r0 r1))
+
+	(vp-cpy-rr r0 r3)
+	(vp-shl-cr fp_shift r0)
+	(vp-ext-rr r0 r2)
+	(vp-div-rrr r1 r2 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-mul-rr r0 r1)
+	(vp-cpy-rr r3 r0)
+	(vp-sub-rr r1 r0)
+
+	(f-exit 'math 'fmod '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'math/fsin)
+	;inputs
+	;r0 = 16.16 angle in radians
+	;outputs
+	;r0 = 16.16 sine
+	;trashes
+	;r1-r3, r5
+
+	(f-entry 'math 'fsin '(r0))
+
+	(f-call 'math 'fmod '(r0 fp_2pi) '(r0))
+
+	;(assign {(res - fp_pi) *> fp_rpi} {tc})
+	;(assign {1.0} {tp})
+	;(assign {tc << 1} {u})
+
+	(vp-cpy-rr r0 r3)
+	(vp-sub-cr fp_pi r0)
+	(vp-mul-cr fp_rpi r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-cpy-cr 1.0 r1)
+	(vp-cpy-rr r0 r5)
+	(vp-shl-cr 1 r5)
+
+	;(assign {-37305 *> tc} {res})
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r0 r3)
+	(vp-mul-cr -37305 r3)
+	(vp-asr-cr fp_shift r3)
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {43707 *> tc + res} {res})
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r0 r2)
+	(vp-mul-cr 43707 r2)
+	(vp-asr-cr fp_shift r2)
+	(vp-add-rr r2 r3)
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {-6834 *> tc + res} {res})
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r0 r2)
+	(vp-mul-cr -6834 r2)
+	(vp-asr-cr fp_shift r2)
+	(vp-add-rr r2 r3)
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {448 *> tc + res} {res})
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r0 r2)
+	(vp-mul-cr 448 r2)
+	(vp-asr-cr fp_shift r2)
+	(vp-add-rr r2 r3)
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {u *> tc - tp} {tc})
+	;(assign {-16 *> tc + res} '(r0))
+
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r1 r0)
+	(vp-mul-cr -16 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-add-rr r3 r0)
+
+	(f-exit 'math 'fsin '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'math/fcos)
+	;inputs
+	;r0 = 16.16 angle in radians
+	;outputs
+	;r0 = 16.16 cosine
+	;trashes
+	;r1-r3, r5
+
+	(push-scope)
+	(f-entry 'math 'fcos '(r0))
+
+	(f-call 'math 'fmod '(r0 fp_2pi) '(r0))
+
+	;(assign {(res - fp_pi) *> fp_rpi} {tc})
+	;(assign {1.0} {tp})
+	;(assign {tc << 1} {u})
+	;(assign {19939} {res})
+
+	(vp-sub-cr fp_pi r0)
+	(vp-mul-cr fp_rpi r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-cpy-cr 1.0 r1)
+	(vp-cpy-rr r0 r5)
+	(vp-shl-cr 1 r5)
+	(vp-cpy-cr 19939 r3)
+
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {63627 *> tc + res} {res})
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r0 r2)
+	(vp-mul-cr 63627 r2)
+	(vp-asr-cr fp_shift r2)
+	(vp-add-rr r2 r3)
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {-19848 *> tc + res} {res})
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r0 r2)
+	(vp-mul-cr -19848 r2)
+	(vp-asr-cr fp_shift r2)
+	(vp-add-rr r2 r3)
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {1907 *> tc + res} {res})
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r0 r2)
+	(vp-mul-cr 1907 r2)
+	(vp-asr-cr fp_shift r2)
+	(vp-add-rr r2 r3)
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {-91 *> tc + res} {res})
+	;(assign {u *> tc - tp} {tn})
+	;(assign {tc} {tp})
+	;(assign {tn} {tc})
+
+	(vp-cpy-rr r0 r2)
+	(vp-mul-cr -91 r2)
+	(vp-asr-cr fp_shift r2)
+	(vp-add-rr r2 r3)
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-rr r0 r1)
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r2 r0)
+
+	;(assign {u *> tc - tp} {tc})
+	;(assign {3 *> tc + res} '(r0))
+
+	(vp-mul-rr r5 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-sub-rr r1 r0)
+	(vp-mul-cr 3 r0)
+	(vp-asr-cr fp_shift r0)
+	(vp-add-rr r3 r0)
+
+	(f-exit 'math 'fcos '(r0))
+	(vp-ret)
+
+(def-func-end)

@@ -183,39 +183,8 @@
 ; Fixed point math
 ;;;;;;;;;;;;;;;;;;
 
-(defq fp-shift 16 fp-2pi 411774 fp-pi 205887 fp-hpi 102943 fp-qpi 51471
-	fp-int-mask (bit-shl -1 fp-shift) fp-frac-mask (bit-not fp-int-mask))
-
-(defun fmod (&rest _)
-	(reduce (lambda (x y)
-		(sub x (mul (bit-asr (fdiv x y) fp-shift) y))) _))
-
-(defun ffrac (_)
-	(if (ge _ 0)
-		(bit-and fp-frac-mask _)
-		(sub 1.0 (bit-and fp-frac-mask _))))
-
-(defun ffloor (_)
-	(if (ge _ 0)
-		(bit-and fp-int-mask _)
-		(sub _ (bit-and fp-frac-mask _))))
-
-(defun fsqrt (_)
-	(isqrt (bit-shl _ 16)))
-
-(defun fsin (_)
-	(setq _ (sub (fmod _ fp-2pi) fp-pi))
-	(defq tc (fdiv _ fp-pi) tp 1.0 u (bit-shl tc 1) y 0 i -1)
-	(while (lt (setq i (inc i)) 9)
-		(setq y (add y (fmul tc (elem i '(-37305 0 43707 0 -6834 0 448 0 -16)))))
-		(defq tn (sub (fmul u tc) tp) tp tc tc tn)) y)
-
-(defun fcos (_)
-	(setq _ (sub (fmod _ fp-2pi) fp-pi))
-	(defq tc (fdiv _ fp-pi) tp 1.0 u (bit-shl tc 1) y 19939 i -1)
-	(while (lt (setq i (inc i)) 10)
-		(setq y (add y (fmul tc (elem i '(0 63627 0 -19848 0 1907 0 -91 0 3)))))
-		(defq tn (sub (fmul u tc) tp) tp tc tc tn)) y)
+(defq fp_shift 16 fp_2pi 411774 fp_pi 205887 fp_hpi 102943 fp_qpi 51471
+	fp_int_mask (bit-shl -1 fp_shift) fp_frac_mask (bit-not fp_int_mask))
 
 ;;;;;;;;;
 ; Streams

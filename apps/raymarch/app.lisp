@@ -26,9 +26,9 @@
 
 ;the scene
 (defun scene (p)
-	(setq p (list (sub (ffrac (elem 0 p)) 0.5)
-				(sub (ffrac (elem 1 p)) 0.5)
-				(sub (ffrac (elem 2 p)) 0.5)))
+	(setq p (list (sub (frac (elem 0 p)) 0.5)
+				(sub (frac (elem 1 p)) 0.5)
+				(sub (frac (elem 2 p)) 0.5)))
 	(sphere p (list 0.0 0.0 0.0) 0.35))
 
 (defun get-normal (p)
@@ -91,6 +91,7 @@
 				b (bit-shr (elem 2 col) 8)
 				col (add r (bit-shl g 8) (bit-shl b 16) 0xff000000))
 			(call canvas-set-pixel canvas col x y)
+			(while nil) ;while does a yield call !
 			(setq x (inc x)))
 		(call canvas-swap canvas)
 		(setq y (inc y))))

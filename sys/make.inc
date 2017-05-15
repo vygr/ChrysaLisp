@@ -9,5 +9,4 @@
 (import 'sys/list.vp)
 (import 'sys/io.vp)
 (import 'sys/task.vp)
-(import 'sys/math.vp)
 (import 'sys/opt.vp)
