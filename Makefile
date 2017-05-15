@@ -10,6 +10,9 @@ undo:
 			nasm -dOS=$(OS) -f macho64 -o obj/main.o main.nasm
 			clang -o obj/main -e main obj/main.o -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
 
+backup:
+			cp -f $(OS).zip $(OS)_old.zip
+
 snapshot:
 			rm $(OS).zip
 			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main $(OS).zip obj/*
