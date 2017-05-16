@@ -35,10 +35,11 @@
 	(uint 'cy1)
 (def-struct-end)
 
-(defcvar
-	'edge_x 0
-	'edge_ys 4
-	'edge_ye 8
-	'edge_dda 12
-	'edge_w 16
-	'edge_size 24)
+(def-struct 'edge)
+	(int 'x)
+	(int 'ys)
+	(int 'ye)
+	(int 'dda)
+	(int 'w)
+	(local-align)
+(def-struct-end)
