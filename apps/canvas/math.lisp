@@ -4,7 +4,7 @@
 	(reduce add (map (lambda (x y) (abs (sub x y))) p1 p2)))
 
 (defun vec-euclidean-distance (p1 p2)
-	(sqrt (reduce add (map (lambda (x y) (fmul (sub x y) (sub x y))) p1 p2))))
+	(fsqrt (reduce add (map (lambda (x y) (fmul (sub x y) (sub x y))) p1 p2))))
 
 (defun vec-squared-euclidean-distance (p1 p2)
 	(reduce add (map (lambda (x y) (fmul (sub x y) (sub x y))) p1 p2)))

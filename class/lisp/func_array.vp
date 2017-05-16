@@ -11,7 +11,7 @@
 
 	(ptr 'this 'args 'value)
 	(union
-		'(pptr 'iter_begin 'iter_end)
+		'(pptr 'iter_begin)
 		'(uint 'length))
 
 	(push-scope)

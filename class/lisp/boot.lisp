@@ -143,8 +143,8 @@
 ; Math functions
 ;;;;;;;;;;;;;;;;
 
-(defq min-long (bit-shl -1 63))
-(defq max-long (bit-shr -1 1))
+(defq min_long (bit-shl -1 63) max_long (bit-shr -1 1)
+	min_int (bit-shl -1 31) max_int (bit-shr -1 33))
 
 (defun sign (_)
 	(cond
@@ -323,7 +323,7 @@
 (defun partition (_f _a _l _h)
 	(defq _i _l _p (elem _i _a) _j _l)
 	(while (lt (setq _j (inc _j)) _h)
-		(when (_f (elem _j _a) _p)
+		(when (lt (_f (elem _j _a) _p) 0)
 			(swap _a (setq _i (inc _i)) _j)))
 	(swap _a _i _l) _i)
 

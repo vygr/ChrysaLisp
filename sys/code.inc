@@ -213,7 +213,7 @@
 
 (defcfun pop-scope-checked ()
 	(defq _ (pop-scope-syms))
-	(when (ne _ 0)
+	(when (ne (length *syms*) 2)
 		(throw "Unbalanced scopes !" _)))
 
 (defcfun unwind ()

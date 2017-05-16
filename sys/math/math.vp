@@ -100,7 +100,6 @@
 	;r1-r3, r5
 
 	(f-entry 'math 'fsin '(r0))
-
 	(f-call 'math 'fmod '(r0 fp_2pi) '(r0))
 
 	;(assign {(res - fp_pi) *> fp_rpi} {tc})
@@ -227,9 +226,7 @@
 	;trashes
 	;r1-r3, r5
 
-	(push-scope)
 	(f-entry 'math 'fcos '(r0))
-
 	(f-call 'math 'fmod '(r0 fp_2pi) '(r0))
 
 	;(assign {(res - fp_pi) *> fp_rpi} {tc})

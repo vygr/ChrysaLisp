@@ -60,6 +60,13 @@
 		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(f-call 'canvas 'set_pixel {arg0, arg1, arg2, arg3})
 		(break)
+	(case (cat {slot == } (str (method-slot 'canvas 'set_fpoly))))
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $canvas_set_fpoly, 5} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'canvas 'set_fpoly {arg0, arg1, arg2, arg3})
+		(break)
 	(default)
 	(errorcases
 		(goto 'error1))
@@ -78,7 +85,8 @@
 	(signature 'canvas_fill 'boxed_long 'canvas 'boxed_long)
 	(signature 'canvas_set_pixel 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'canvas_set_hline 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
-	(signature 'canvas_set_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long))
+	(signature 'canvas_set_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'canvas_set_fpoly 'boxed_long 'canvas 'boxed_long 'boxed_long 'vector))
 
 	(pop-scope-syms)
 
