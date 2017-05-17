@@ -732,7 +732,7 @@
 	(loop-end)
 	(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_intervals, iter_i, iter_end, $sort_on_y, 0})
 
-	(loop-while {ys != ye})
+	(loop-while {ys < ye})
 		;mark edges that end on this scan line
 		(assign {iter_i} {iter_k})
 		(loop-while {iter_k != iter_j})
