@@ -1,5 +1,6 @@
-ChrysaLisp
-==========
+# ChrysaLisp
+
+![](./screen_shot.png)
 
 Assembler/C-Script/Lisp 64 bit OS. MIMD, multi CPU, multi threaded, multi core,
 multi user.
@@ -24,7 +25,7 @@ mapped automatically using a topological sort. None DAG mappings are detected
 so the user can break them with a temporary if required. Operators are provided
 to simplify binding of parameters to dynamic bound functions, relative
 addresses, auto defined string pools, references and local stack frame values.
-Unused output parameters can be ignored with a _.
+Unused output parameters can be ignored with an _.
 
 There is a powerful object and class system, not just for an assembler, but
 quite as capable as a high level language. Static classes or virtual classes
@@ -53,12 +54,22 @@ applications it is very useful for the composition of tools and hides all the
 message passing behind a familiar streams based API.
 
 A Common Lisp like interpreter is provided. This is available from the command
-line, via the command 'lisp'. To build the entire system type (make),
-calculates minimum compile workload, or (make-all) to do everything regardless,
-at the Lisp command prompt. This Lisp has a C-Script 'snippets' capability to
-allow mixing of C-Script compiled expressions within assignment and function
-calling code. An elementary optimise pass exists for these expressions and more
-will be done shortly.
+line, via the command `lisp`. To build the entire system type `(make)`,
+calculates minimum compile workload, or `(make-all)` to do everything
+regardless, at the Lisp command prompt. This Lisp has a C-Script 'snippets'
+capability to allow mixing of C-Script compiled expressions within assignment
+and function calling code. An elementary optimise pass exists for these
+expressions and more will be done shortly. Both the virtual assembler and
+C-Script compiler are written in Lisp, look in the *sys/code.inc*,
+*sys/func.inc*, *sys/x64.inc* and *sys/vp.inc* for how this is done. Some of
+the Lisp primitives are constructed via a boot script that each instance of a
+Lisp class runs on construction, see *class/lisp/boot.lisp* for details. The
+compilation and make environment, along with all the compile and make commands
+is created via the Lisp command line tool in *cmd/lisp.lisp*, again this auto
+runs for each instance of the `lisp` command ran from the terminal. You can
+extend this with any number of additional files, just place them after the lisp
+command and they will execute after the *cmd/lisp.lisp* file and before
+processing of stdin.
 
 Network link routing tables are created on booting a link, and the process is
 distributed in nature, each link starts a flood fill that eventually reaches
@@ -69,20 +80,24 @@ over parallel routes simultaneously. Large messages are broken into smaller
 fragments on sending and reconstructed at the destination to maximize use of
 available routes.
 
-The -run command line option launches tasks on booting that CPU, such as the
-test suit or experimental GUI (a work in progress, -run gui/gui).
+The `-run` command line option launches tasks on booting that CPU, such as the
+test suit or experimental GUI (a work in progress, `-run gui/gui`). You can
+change the network launch script to run more than one GUI session if you want,
+try launching the GUI on more than CPU 0, look in *funcs.sh* at the
+`boot_cpu_gui` function ! :)
 
-The -l command line option creates a link, currently up to 1000 CPU's are
-allowed but that is easy to adjust in the sys/link.vp file and is due to the
+The `-l` command line option creates a link, currently up to 1000 CPU's are
+allowed but that is easy to adjust in the *sys/link.vp* file and is due to the
 very simple link parameter parsing. The lower numbered CPU always comes first !
-The shared memory link files are created in a tmp folder from the current
-directory ./tmp, so for example ./tmp/000-001 would be the link file for the
-link between CPU 000 and 001.
+The shared memory link files are created in the tmp folder */tmp*, so for
+example */tmp/000-001* would be the link file for the link between CPU 000 and
+001.
 
-The -cpu command line option just labels the CPU with it's ID.
+The `-cpu` command line option just labels the CPU with it's ID.
 
 An example network viewed with ps looks like this for a 4x4 mesh network:
 
+```
 ./main -cpu 15 -l 011-015 -l 003-015 -l 014-015 -l 012-015
 ./main -cpu 14 -l 010-014 -l 002-014 -l 013-014 -l 014-015
 ./main -cpu 13 -l 009-013 -l 001-013 -l 012-013 -l 013-014
@@ -99,11 +114,14 @@ An example network viewed with ps looks like this for a 4x4 mesh network:
 ./main -cpu 2 -l 002-014 -l 002-006 -l 001-002 -l 002-003
 ./main -cpu 1 -l 001-013 -l 001-005 -l 000-001 -l 001-002
 ./main -cpu 0 -l 000-012 -l 000-004 -l 000-003 -l 000-001 -run gui/gui
+```
 
 
 Make with:
 
+```
 make -j
+```
 
 Requires NASM, SDL2 and the SDL2_TTF library to be installed. NASM is required
 for building the platform bootstrap, SDL2 and SDL2_ttf are for the experimental
@@ -111,75 +129,106 @@ GUI.
 
 Requirements:
 Linux: Tested on Ubuntu 16-10
+```
 sudo apt-get install nasm clang libsdl2-ttf-dev
+```
 
 Run with:
 
+```
 ./run_tui.sh <num_cpus>
+```
 
 Text user interface based fully connected network. Each CPU has links to every
 other CPU. Careful with this as you can end up with a very large number of link
 files and shared memory regions. CPU 0 launches a terminal to the host system.
 
+```
 ./run.sh <num_cpus>
+```
 
 Fully connected network. Each CPU has links to every other CPU. Careful with
 this as you can end up with a very large number of link files and shared memory
 regions. CPU 0 launches a GUI.
 
+```
 ./run_star.sh <num_cpus>
+```
 
 Star connected network. Each CPU has a link to the first CPU. CPU 0 launches a
 GUI.
 
+```
 ./run_ring.sh <num_cpus>
+```
 
 Ring connected network. Each CPU has links to the next and previous CPU's. CPU
 0 launches a GUI.
 
+```
 ./run_tree.sh <num_cpus>
+```
 
 Tree connected network. Each CPU has links to its parent CPU and up to two
 child CPU's. CPU 0 launches a GUI.
 
+```
 ./run_mesh.sh <num_cpus on a side>
+```
 
 Mesh connected network. Each CPU has links to 4 adjacent CPU's. This is similar
 to Transputer meshes. CPU 0 launches a GUI.
 
+```
 ./run_cube.sh <num_cpus on a side>
+```
 
 Cube connected network. Each CPU has links to 6 adjacent CPU's. This is similar
 to TMS320C40 meshes. CPU 0 launches a GUI.
 
 Stop with:
 
+```
 ./stop.sh
+```
 
 Snapshot with:
 
+```
 make snapshot
+```
 
-This will create a snapshot zip file of the obj/ directory for the current
-platform. For example Darwin.zip or Linux.zip.
+This will create a snapshot zip file of the *obj/* directory for the current
+platform. For example *Darwin.zip* or *Linux.zip*.
 
+```
 make snapshot_darwin
+```
 
-This will create a Darwin.zip snapshot zip file of the obj/ directory.
+This will create a *Darwin.zip* snapshot zip file of the *obj/* directory.
 
+```
 make snapshot_linux
+```
 
-This will create a Linux.zip snapshot zip file of the obj/ directory.
+This will create a *Linux.zip* snapshot zip file of the *obj/* directory.
 
+```
 make backup
+```
 
-This will copy the Darwin.zip/Linux.zip to *_old.zip
+This will copy the *Darwin.zip/Linux.zip* to *xxx_old.zip*
 
+```
 make undo
+```
 
-This will copy the *_old.zip to Darwin.zip/Linux.zip unzip it and remake. So
-stepping back to the system as was when the last 'make backup' was done.
+This will copy the *xxx_old.zip* to *Darwin.zip/Linux.zip* unzip it and
+remakes. So stepping back to the system as was when the last `make backup` was
+done.
 
 Clean with:
 
+```
 make clean
+```
