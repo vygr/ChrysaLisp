@@ -87,13 +87,16 @@
 		(vp-cpy-ir r4 0 r1)
 		(vp-cpy-ri r0 r1 canvas_data)
 
-		;edge arrays
+		;edge arrays, sort interval stack
 		(f-call 'array 'create '() '(r0))
 		(vp-cpy-ir r4 0 r1)
 		(vp-cpy-ri r0 r1 canvas_edges)
 		(f-call 'array 'create '() '(r0))
 		(vp-cpy-ir r4 0 r1)
 		(vp-cpy-ri r0 r1 canvas_edge_tracker)
+		(f-call 'array 'create '() '(r0))
+		(vp-cpy-ir r4 0 r1)
+		(vp-cpy-ri r0 r1 canvas_intervals)
 
 		(vp-pop r0)
 	(endif)
@@ -131,11 +134,13 @@
 	;save inputs
 	(f-entry 'canvas 'deinit '((r4 local_this)))
 
-	;free edge trackers
+	;free edge trackers, intervals
 	(vp-cpy-ir r4 local_this r0)
 	(f-call 'array 'deref '((r0 canvas_edges)))
 	(vp-cpy-ir r4 local_this r0)
 	(f-call 'array 'deref '((r0 canvas_edge_tracker)))
+	(vp-cpy-ir r4 local_this r0)
+	(f-call 'array 'deref '((r0 canvas_intervals)))
 
 	;free any pixel buffer
 	(vp-cpy-ir r4 local_this r0)
@@ -664,9 +669,8 @@
 	(push-scope)
 	(f-entry 'canvas 'set_fpoly {this, color, mode, polygons})
 
-	;fill edge tracker, find min and max y, clip edges not visible
+	;fill edges, find min and max y, clip edges not visible or redundant
 	(f-call 'array 'set_length {this->canvas_edges, 0})
-	(f-call 'array 'set_length {this->canvas_edge_tracker, 0})
 	(assign {max_int, min_int} {ys, ye})
 	(f-call 'vector 'get_begin {polygons} {_, iter_begin_polygons})
 	(f-call 'vector 'get_end {polygons} {_, iter_end_polygons})
@@ -691,8 +695,8 @@
 					(f-call 'array 'set_length {this->canvas_edges, length + (edge_size >> 3)})
 					(f-call 'array 'get_iter {this->canvas_edges, length} {_, iter_edge1})
 					(assign {x1, y1, y2, (x2 - x1) // (y2 - y1), 1}
-						{iter_edge1[&edge_x], iter_edge1[&edge_ys], iter_edge1[&edge_ye],
-						iter_edge1[&edge_dda], iter_edge1[&edge_w]})
+						{iter_edge1->edge_x, iter_edge1->edge_ys, iter_edge1->edge_ye,
+						iter_edge1->edge_dda, iter_edge1->edge_w})
 				(elseif {y1 > y2})
 					(breakif {y2 >= this->canvas_cy1})
 					(vpif {y2 < ys})
@@ -706,8 +710,8 @@
 					(f-call 'array 'set_length {this->canvas_edges, length + (edge_size >> 3)})
 					(f-call 'array 'get_iter {this->canvas_edges, length} {_, iter_edge1})
 					(assign {x2, y2, y1, (x1 - x2) // (y1 - y2), -1}
-						{iter_edge1[&edge_x], iter_edge1[&edge_ys], iter_edge1[&edge_ye],
-						iter_edge1[&edge_dda], iter_edge1[&edge_w]})
+						{iter_edge1->edge_x, iter_edge1->edge_ys, iter_edge1->edge_ye,
+						iter_edge1->edge_dda, iter_edge1->edge_w})
 				(endif)
 				(assign {iter_begin_polygon[0], iter_begin_polygon[int_size]} {x1, y1})
 				(assign {iter_begin_polygon + ptr_size} {iter_begin_polygon})
@@ -716,39 +720,41 @@
 		(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
 	(loop-end)
 
+	;edge pointers into tracker for sorting
 	(f-call 'array 'get_begin {this->canvas_edges} {_, iter_edge1})
 	(f-call 'array 'get_end {this->canvas_edges} {_, iter_edge2})
-	(loop-while {iter_edge1 != iter_edge2})
-		(f-call 'array 'push_back {this->canvas_edge_tracker, iter_edge1})
-		(assign {iter_edge1 + edge_size} {iter_edge1})
-	(loop-end)
-
+	(f-call 'array 'set_capacity {this->canvas_edge_tracker, (iter_edge2 - iter_edge1) / edge_size})
 	(f-call 'array 'get_begin {this->canvas_edge_tracker} {_, iter_i})
-	(f-call 'array 'get_end {this->canvas_edge_tracker} {_, iter_end})
-	(f-call 'array 'sort {this->canvas_edge_tracker, iter_i, iter_end, $sort_on_y, 0})
-	(assign {iter_i} {iter_j})
+	(assign {iter_i, iter_i} {iter_j, iter_end})
+	(loop-while {iter_edge1 != iter_edge2})
+		(assign {iter_edge1} {*iter_end})
+		(assign {iter_edge1 + edge_size, iter_end + ptr_size} {iter_edge1, iter_end})
+	(loop-end)
+	(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_intervals, iter_i, iter_end, $sort_on_y, 0})
 
-	(loop-while {ys < ye})
+	(loop-while {ys != ye})
+		;mark edges that end on this scan line
 		(assign {iter_i} {iter_k})
 		(loop-while {iter_k != iter_j})
 			(assign {*iter_k} {iter_edge1})
-			(vpif {iter_edge1[&edge_ye] == ys})
-				(assign {min_int} {iter_edge1[&edge_x]})
+			(vpif {iter_edge1->edge_ye == ys})
+				(assign {min_int} {iter_edge1->edge_x})
 			(endif)
 			(assign {iter_k + ptr_size} {iter_k})
 		(loop-end)
 
+		;include new edges that begin on this scan line
 		(loop-while {iter_j != iter_end})
-			(assign {*iter_j} {iter_edge1})
-			(breakif {iter_edge1[&edge_ys] != ys})
+			(breakif {(*iter_j)->edge_ys != ys})
 			(assign {iter_j + ptr_size} {iter_j})
 		(loop-end)
 
-		(f-call 'array 'sort {this->canvas_edge_tracker, iter_i, iter_j, $sort_on_x, 0})
+		;sort on x, plus move all marked dead edges to front !
+		(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_intervals, iter_i, iter_j, $sort_on_x, 0})
 
+		;remove all dead edges
 		(loop-while {iter_i != iter_j})
-			(assign {*iter_i} {iter_edge1})
-			(breakif {iter_edge1[&edge_x] != min_int})
+			(breakif {(*iter_i)->edge_x != min_int})
 			(assign {iter_i + ptr_size} {iter_i})
 		(loop-end)
 
@@ -758,9 +764,9 @@
 			(loop-while {iter_k < iter_j})
 				(assign {iter_k[0]} {iter_edge1})
 				(assign {iter_k[ptr_size]} {iter_edge2})
-				(assign {iter_edge1[&edge_x], iter_edge2[&edge_x]} {x1, x2})
-				(assign {x1 + iter_edge1[&edge_dda], x2 + iter_edge2[&edge_dda]}
-					{iter_edge1[&edge_x], iter_edge2[&edge_x]})
+				(assign {iter_edge1->edge_x, iter_edge2->edge_x} {x1, x2})
+				(assign {x1 + iter_edge1->edge_dda, x2 + iter_edge2->edge_dda}
+					{iter_edge1->edge_x, iter_edge2->edge_x})
 				(assign {x1 >>> fp_shift, x2 >>> fp_shift} {x1, x2})
 				(f-call 'canvas 'set_hline {this, color, x1, ys, x2 - x1})
 				(assign {iter_k + ptr_size * 2} {iter_k})
@@ -770,13 +776,13 @@
 			(assign {iter_i} {iter_k})
 			(loop-while {iter_k < iter_j})
 				(assign {*iter_k} {iter_edge1})
-				(assign {iter_edge1[&edge_x], iter_edge1[&edge_w]} {x1, w})
-				(assign {x1 + iter_edge1[&edge_dda]} {iter_edge1[&edge_x]})
+				(assign {iter_edge1->edge_x, iter_edge1->edge_w} {x1, w})
+				(assign {x1 + iter_edge1->edge_dda} {iter_edge1->edge_x})
 				(loop-while {w != 0})
 					(assign {iter_k + ptr_size} {iter_k})
 					(assign {*iter_k} {iter_edge2})
-					(assign {iter_edge2[&edge_x], iter_edge2[&edge_w] + w} {x2, w})
-					(assign {x2 + iter_edge2[&edge_dda]} {iter_edge2[&edge_x]})
+					(assign {iter_edge2->edge_x, iter_edge2->edge_w + w} {x2, w})
+					(assign {x2 + iter_edge2->edge_dda} {iter_edge2->edge_x})
 				(loop-end)
 				(assign {x1 >>> fp_shift, x2 >>> fp_shift} {x1, x2})
 				(f-call 'canvas 'set_hline {this, color, x1, ys, x2 - x1})

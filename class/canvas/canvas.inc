@@ -22,6 +22,7 @@
 	(ptr 'data)
 	(ptr 'edges)
 	(ptr 'edge_tracker)
+	(ptr 'intervals)
 	(puint 'resize_buf)
 	(uint 'resize_buf_size)
 	(int 'aa_scale)
