@@ -284,8 +284,8 @@
 	;inputs
 	;r0 = canvas object
 	;outputs
-	;r10 = prefered width
-	;r11 = prefered height
+	;r10 = preferred width
+	;r11 = preferred height
 	;trashes
 	;all but r0, r4
 
@@ -602,7 +602,7 @@
 						(endif)
 					(endif)
 
-					;multiply pixel cahnnels by the pixel weight and accumalate
+					;multiply pixel channels by the pixel weight and accumulate
 					(assign {*dsrc, weight_x * weight_y, r, g, b, a, q}
 							'(r0 r5 r8 r9 r10 r11 r12))
 					(vp-cpy-rr r0 r1)
