@@ -42,6 +42,7 @@ function wrap
 
 function boot_cpu_gui
 {
+#	if [ $1 -lt 2 ]
 	if [ $1 -lt 1 ]
 	then
 		./obj/main -cpu $1 $2 -run gui/gui &
