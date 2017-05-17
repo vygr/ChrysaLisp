@@ -9,7 +9,7 @@
 (def-method 'set_length 'class/array/set_length 'static '(r0 r1) '(r0))
 (def-method 'find 'class/array/find 'static '(r0 r1) '(r0 r1))
 (def-method 'for_each 'class/array/for_each 'static '(r0 r1 r2 r3 r5) '(r0 r1))
-(def-method 'sort 'class/array/sort 'static '(r0 r1 r2 r3 r5) '(r0))
+(def-method 'sort 'class/array/sort 'static '(r0 r1 r2 r3 r5 r6) '(r0))
 (def-method 'partition 'class/array/partition 'static '(r0 r1 r2 r3 r5) '(r0 r1))
 (def-method 'get_back 'class/array/get_back 'static '(r0) '(r0 r1))
 (def-method 'get_element 'class/array/get_element 'static '(r0 r1) '(r0 r1))

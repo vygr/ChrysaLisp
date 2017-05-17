@@ -464,10 +464,11 @@
 (def-func 'class/array/sort)
 	;inputs
 	;r0 = array object
-	;r1 = lower iter
-	;r2 = upper iter
-	;r3 = compare callback
-	;r5 = sort context
+	;r1 = sort interval array
+	;r2 = lower iter
+	;r3 = upper iter
+	;r5 = compare callback
+	;r6 = sort context
 	;outputs
 	;r0 = array object
 	;trashes
@@ -492,11 +493,11 @@
 		'(uint 'length))
 
 	(push-scope)
-	(f-entry 'array 'sort {this, lower, upper, func, ctx})
+	(f-entry 'array 'sort {this, que, lower, upper, func, ctx})
 
 	(f-call 'array 'get_begin {this} {_, iter_begin})
-	(f-call 'array 'create {} {que})
 	(assign {(lower - iter_begin) >> 3, (upper - iter_begin) >> 3} {low, high})
+	(f-call 'array 'set_length {que, 0})
 	(f-call 'array 'push_back {que, interval})
 	(loop-start)
 		(d-call 'array 'get_length {que} {_, length})
@@ -511,7 +512,6 @@
 		(assign {high + 1, length} {low, high})
 		(f-call 'array 'push_back {que, interval})
 	(loop-end)
-	(f-call 'array 'deref {que})
 
 	(f-exit 'array 'sort {this})
 	(pop-scope)
