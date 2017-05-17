@@ -43,8 +43,8 @@ copy of a function is loaded regardless of how many tasks use that function.
 
 The interface to the system functions is provided as a set of static classes,
 easing use and removing the need to remember static function locations, plus
-decoupling the source from changes at the system level. Look in the sys/*.inc
-files to see the interface definitions.
+decoupling the source from changes at the system level. Look in the
+*sys/xxx.inc* files to see the interface definitions.
 
 A command terminal with a familiar interface for pipe style command line
 applications is provided with args vector, stdin, stdout, stderr etc. Classes
@@ -70,6 +70,12 @@ runs for each instance of the `lisp` command ran from the terminal. You can
 extend this with any number of additional files, just place them after the lisp
 command and they will execute after the *cmd/lisp.lisp* file and before
 processing of stdin.
+
+Don't get the idea that due to being coded in interpreted Lisp the assembler
+and compiler will be slow. A full cleaned system build from source, including
+creation of a full recursive pre-bound boot image file, takes on the order of 7
+seconds on a 2014 MacBook Pro ! Dev cycle `(make)` and `(remake)` under 1
+second. It ain't slow.
 
 Network link routing tables are created on booting a link, and the process is
 distributed in nature, each link starts a flood fill that eventually reaches
@@ -224,7 +230,7 @@ make undo
 ```
 
 This will copy the *xxx_old.zip* to *Darwin.zip/Linux.zip* unzip it and
-remakes. So stepping back to the system as was when the last `make backup` was
+remake. So stepping back to the system as was when the last `make backup` was
 done.
 
 Clean with:
