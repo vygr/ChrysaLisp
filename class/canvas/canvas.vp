@@ -191,33 +191,24 @@
 	(vpif '(r1 == 0))
 		;create SDL surface from pixel buffer, convert to texture
 		(vp-cpy-ir-i r0 canvas_aa_scale_r r8)
-		(vpif '(r8 != 1.0))
-			(vp-cpy-ir-ui r0 canvas_width r10)
-			(vp-cpy-ir-ui r0 canvas_height r11)
-			(vp-mul-rr r8 r10)
-			(vp-mul-rr r8 r11)
-			(vp-asr-cr 16 r10)
-			(vp-asr-cr 16 r11)
-			(f-call 'canvas 'create '(r10 r11 1.0) '(r0))
-			(vp-cpy-ri r0 r4 local_temp_canvas)
-			(f-call 'canvas 'resize '(r0 (r4 local_this)))
-			(sdl-create-rgb-surface-from '((r0 canvas_data) (r0 canvas_width ui) (r0 canvas_height ui)
-											32 (r0 canvas_stride ui) 0xff 0xff00 0xff0000 0xff000000))
-			(vp-cpy-ri r0 r4 local_surface)
-			(vp-cpy-ir r4 local_ctx r1)
-			(sdl-create-texture-from-surface '((r1 gui_ctx_sdl_ctx) r0))
-			(vp-cpy-ir r4 local_this r1)
-			(vp-cpy-ri r0 r1 canvas_texture)
-			(f-call 'canvas 'deref '((r4 local_temp_canvas)))
-		(else)
-			(sdl-create-rgb-surface-from '((r0 canvas_data) (r0 canvas_width ui) (r0 canvas_height ui)
-											32 (r0 canvas_stride ui) 0xff 0xff00 0xff0000 0xff000000))
-			(vp-cpy-ri r0 r4 local_surface)
-			(vp-cpy-ir r4 local_ctx r1)
-			(sdl-create-texture-from-surface '((r1 gui_ctx_sdl_ctx) r0))
-			(vp-cpy-ir r4 local_this r1)
-			(vp-cpy-ri r0 r1 canvas_texture)
-		(endif)
+		(vp-cpy-ir-ui r0 canvas_width r10)
+		(vp-cpy-ir-ui r0 canvas_height r11)
+		(vp-mul-rr r8 r10)
+		(vp-mul-rr r8 r11)
+		(vp-asr-cr 16 r10)
+		(vp-asr-cr 16 r11)
+		(f-call 'canvas 'create '(r10 r11 1.0) '(r0))
+		(vp-cpy-ri r0 r4 local_temp_canvas)
+		(f-call 'canvas 'resize '(r0 (r4 local_this)))
+		(f-call 'canvas 'norm '(r0))
+		(sdl-create-rgb-surface-from '((r0 canvas_data) (r0 canvas_width ui) (r0 canvas_height ui)
+										32 (r0 canvas_stride ui) 0xff 0xff00 0xff0000 0xff000000))
+		(vp-cpy-ri r0 r4 local_surface)
+		(vp-cpy-ir r4 local_ctx r1)
+		(sdl-create-texture-from-surface '((r1 gui_ctx_sdl_ctx) r0))
+		(vp-cpy-ir r4 local_this r1)
+		(vp-cpy-ri r0 r1 canvas_texture)
+		(f-call 'canvas 'deref '((r4 local_temp_canvas)))
 	(endif)
 	(sdl-free-surface '((r4 local_surface)))
 
@@ -304,6 +295,59 @@
 
 (def-func-end)
 
+(defun premul (a r g b)
+	(vp-cpy-rr a r)
+	(vp-cpy-rr a g)
+	(vp-cpy-rr a b)
+	(vp-shr-cr 24 a)
+	(vp-and-cr 0xff0000 r)
+	(vp-and-cr 0xff00 g)
+	(vp-and-cr 0xff b)
+	(vp-mul-rr a r)
+	(vp-mul-rr a g)
+	(vp-mul-rr a b)
+	(vp-shr-cr 8 r)
+	(vp-shr-cr 8 g)
+	(vp-shr-cr 8 b)
+	(vp-shl-cr 24 a)
+	(vp-and-cr 0xff0000 r)
+	(vp-and-cr 0xff00 g)
+	(vp-and-cr 0xff b)
+	(vp-add-rr r a)
+	(vp-add-rr g a)
+	(vp-add-rr b a))
+
+(defun demul (a r g b a1)
+	(vp-cpy-rr a r)
+	(vp-shr-cr 24 r)
+	(vpif (list r '!= 0))
+		(vpif (list r '!= 0xff))
+			(vp-xor-rr b b)
+			(vp-cpy-cr (mul 255 256) a1)
+			(vp-div-rrr-u r b a1)
+			(vp-cpy-rr a r)
+			(vp-cpy-rr a g)
+			(vp-cpy-rr a b)
+			(vp-shr-cr 24 a)
+			(vp-and-cr 0xff0000 r)
+			(vp-and-cr 0xff00 g)
+			(vp-and-cr 0xff b)
+			(vp-mul-rr a1 r)
+			(vp-mul-rr a1 g)
+			(vp-mul-rr a1 b)
+			(vp-shr-cr 8 r)
+			(vp-shr-cr 8 g)
+			(vp-shr-cr 8 b)
+			(vp-shl-cr 24 a)
+			(vp-and-cr 0xff0000 r)
+			(vp-and-cr 0xff00 g)
+			(vp-and-cr 0xff b)
+			(vp-add-rr r a)
+			(vp-add-rr g a)
+			(vp-add-rr b a)
+		(endif)
+	(endif))
+
 (def-func 'class/canvas/fill)
 	;inputs
 	;r0 = canvas object
@@ -315,6 +359,7 @@
 
 	(f-entry 'canvas 'fill '(r0 r1))
 
+	(premul r1 r2 r3 r5)
 	(vp-cpy-ir r0 canvas_data r2)
 	(vp-cpy-ir-ui r0 canvas_stride r3)
 	(vp-cpy-ir-ui r0 canvas_height r5)
@@ -326,6 +371,35 @@
 	(loop-until '(r2 == r3))
 
 	(f-exit 'canvas 'fill '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/canvas/norm)
+	;inputs
+	;r0 = canvas object
+	;outputs
+	;r0 = canvas object
+	;trashes
+	;r1-r3, r5-r7
+
+	(f-entry 'canvas 'norm '(r0))
+
+	(vp-push r0)
+	(vp-cpy-ir r0 canvas_data r3)
+	(vp-cpy-ir-ui r0 canvas_stride r5)
+	(vp-cpy-ir-ui r0 canvas_height r1)
+	(vp-mul-rr r1 r5)
+	(vp-add-rr r3 r5)
+	(loop-start)
+		(vp-cpy-ir-ui r3 0 r1)
+		(demul r1 r6 r7 r2 r0)
+		(vp-cpy-ri-i r1 r3 0)
+		(vp-add-cr int_size r3)
+	(loop-until '(r3 == r5))
+	(vp-pop r0)
+
+	(f-exit 'canvas 'norm '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -377,150 +451,71 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/set_pixel)
+(def-func 'class/canvas/hline_noclip)
 	;inputs
 	;r0 = canvas object
 	;r1 = colour
 	;r8 = x
 	;r9 = y
-	;outputs
-	;r0 = canvas object
-	;trashes
-	;r2-r3, r8-r9
-
-	(f-entry 'canvas 'set_pixel '(r0 r1 r8 r9))
-
-	;clip check
-	(switch)
-	(vp-cpy-ir-ui r0 canvas_cx r2)
-	(breakif '(r8 < r2))
-	(vp-cpy-ir-ui r0 canvas_cy r2)
-	(breakif '(r9 < r2))
-	(vp-cpy-ir-ui r0 canvas_cx1 r2)
-	(breakif '(r8 >= r2))
-	(vp-cpy-ir-ui r0 canvas_cy1 r2)
-	(breakif '(r9 >= r2))
-		(vp-cpy-ir-ui r0 canvas_stride r2)
-		(vp-cpy-ir r0 canvas_data r3)
-		(vp-mul-rr r2 r9)
-		(vp-shl-cr (pow2 int_size) r8)
-		(vp-add-rr r9 r3)
-		(vp-cpy-rd-i r1 r3 r8)
-	(endswitch)
-
-	(f-exit 'canvas 'set_pixel '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/canvas/set_hline)
-	;inputs
-	;r0 = canvas object
-	;r1 = colour
-	;r8 = x
-	;r9 = y
-	;r10 = w
+	;r10 = x1
 	;outputs
 	;r0 = canvas object
 	;trashes
 	;r2-r3, r8-r10
 
-	(f-entry 'canvas 'set_hline '(r0 r1 r8 r9 r10))
+	(f-entry 'canvas 'hline_noclip '(r0 r1 r8 r9 r10))
 
-	;clip check
-	(switch)
-	(breakif '(r10 <= 0))
-	(vp-cpy-ir-ui r0 canvas_cy r2)
-	(breakif '(r9 < r2))
-	(vp-cpy-ir-ui r0 canvas_cy1 r2)
-	(breakif '(r9 >= r2))
-	(vp-cpy-ir-ui r0 canvas_cx r2)
-	(vp-add-rr r8 r10)
-	(breakif '(r10 <= r2))
-	(vp-cpy-ir-ui r0 canvas_cx1 r3)
-	(breakif '(r8 >= r3))
-		(vpif '(r8 < r2))
-			(vp-cpy-rr r2 r8)
-		(endif)
-		(vpif '(r10 > r3))
-			(vp-cpy-rr r3 r10)
-		(endif)
-		(vp-cpy-ir-ui r0 canvas_stride r2)
-		(vp-cpy-ir r0 canvas_data r3)
-		(vp-mul-rr r2 r9)
-		(vp-shl-cr (pow2 int_size) r8)
-		(vp-shl-cr (pow2 int_size) r10)
-		(vp-add-rr r9 r3)
-		(loop-start)
-			(vp-cpy-rd-i r1 r3 r8)
-			(vp-add-cr int_size r8)
-		(loop-until '(r8 == r10))
-	(endswitch)
+	(vp-cpy-ir-ui r0 canvas_stride r2)
+	(vp-cpy-ir r0 canvas_data r3)
+	(vp-mul-rr r2 r9)
+	(vp-shl-cr (pow2 int_size) r8)
+	(vp-shl-cr (pow2 int_size) r10)
+	(vp-add-rr r9 r3)
+	(loop-start)
+		(vp-cpy-rd-i r1 r3 r8)
+		(vp-add-cr int_size r8)
+	(loop-until '(r8 == r10))
 
-	(f-exit 'canvas 'set_hline '(r0))
+	(f-exit 'canvas 'hline_noclip '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'class/canvas/set_fbox)
+(def-func 'class/canvas/hline)
 	;inputs
 	;r0 = canvas object
 	;r1 = colour
 	;r8 = x
 	;r9 = y
-	;r10 = w
-	;r11 = h
+	;r10 = x1
 	;outputs
 	;r0 = canvas object
 	;trashes
-	;r2-r3, r5-r11
+	;r2-r3, r8-r10
 
-	(f-entry 'canvas 'set_fbox '(r0 r1 r8 r9 r10 r11))
+	(f-entry 'canvas 'hline '(r0 r1 r8 r9 r10))
 
 	;clip check
 	(switch)
-	(breakif '(r10 <= 0))
-	(breakif '(r11 <= 0))
+	(breakif '(r10 <= r8))
+	(vp-cpy-ir-ui r0 canvas_cy r2)
+	(breakif '(r9 < r2))
+	(vp-cpy-ir-ui r0 canvas_cy1 r2)
+	(breakif '(r9 >= r2))
 	(vp-cpy-ir-ui r0 canvas_cx r2)
-	(vp-add-rr r8 r10)
 	(breakif '(r10 <= r2))
 	(vp-cpy-ir-ui r0 canvas_cx1 r3)
 	(breakif '(r8 >= r3))
-	(vp-cpy-ir-ui r0 canvas_cy r5)
-	(vp-add-rr r9 r11)
-	(breakif '(r11 <= r5))
-	(vp-cpy-ir-ui r0 canvas_cy1 r6)
-	(breakif '(r9 >= r6))
 		(vpif '(r8 < r2))
 			(vp-cpy-rr r2 r8)
 		(endif)
 		(vpif '(r10 > r3))
 			(vp-cpy-rr r3 r10)
 		(endif)
-		(vpif '(r9 < r5))
-			(vp-cpy-rr r5 r9)
-		(endif)
-		(vpif '(r11 > r6))
-			(vp-cpy-rr r6 r11)
-		(endif)
-		(vp-cpy-ir-ui r0 canvas_stride r2)
-		(vp-cpy-ir r0 canvas_data r3)
-		(vp-mul-rr r2 r9)
-		(vp-mul-rr r2 r11)
-		(vp-shl-cr (pow2 int_size) r8)
-		(vp-shl-cr (pow2 int_size) r10)
-		(loop-start)
-			(vp-lea-d r9 r8 r5)
-			(vp-lea-d r9 r10 r6)
-			(loop-start)
-				(vp-cpy-rd-i r1 r3 r5)
-				(vp-add-cr int_size r5)
-			(loop-until '(r5 == r6))
-			(vp-add-rr r2 r9)
-		(loop-until '(r9 == r11))
+		(f-jmp 'canvas 'hline_noclip '(r0 r1 r8 r9 r10))
 	(endswitch)
 
-	(f-exit 'canvas 'set_fbox '(r0))
+	(f-exit 'canvas 'hline '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -580,11 +575,11 @@
 			(assign {0, 0, 0, 0, 0} {a, r, g, b, q})
 
 			(assign {y1c} {y})
-			(loop-while {y < y1d})
+			(loop-while {y <= y1d})
 				(assign {256} {weight_y})
 				(vpif {y1c != y1d})
 					(vpif {y == y1c})
-						(assign {weight_y - (y1a & 0xFF)} {weight_y})
+						(assign {256 - (y1a & 0xFF)} {weight_y})
 					(elseif {y == y1d})
 						(assign {(y1b & 0xFF) + 1} {weight_y})
 					(endif)
@@ -592,11 +587,11 @@
 
 				(assign {&(source->canvas_data)[(y * source->canvas_width + x1c) * int_size]} {dsrc})
 				(assign {x1c} {x})
-				(loop-while {x < x1d})
+				(loop-while {x <= x1d})
 					(assign {256} {weight_x})
 					(vpif {x1c != x1d})
 						(vpif {x == x1c})
-							(assign {weight_x - (x1a & 0xFF)} {weight_x})
+							(assign {256 - (x1a & 0xFF)} {weight_x})
 						(elseif {x == x1d})
 							(assign {(x1b & 0xFF) + 1} {weight_x})
 						(endif)
@@ -645,18 +640,77 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/set_fpoly)
+(def-func 'class/canvas/fbox)
 	;inputs
 	;r0 = canvas object
-	;r1 = fill color
-	;r2 = fill mode
-	;r3 = vector of polygon arrays
+	;r1 = colour
+	;r2 = span fill function
+	;r8 = x
+	;r9 = y
+	;r10 = w
+	;r11 = h
 	;outputs
 	;r0 = canvas object
 	;trashes
 	;all but r0, r4
 
-	(ptr 'this)
+	(ptr 'this 'span)
+	(uint 'color)
+	(int 'x 'y 'w 'h)
+
+	(push-scope)
+	(f-entry 'canvas 'fbox {this, color, span, x, y, w, h})
+
+	;clip check
+	(switch)
+	(breakif {w <= 0})
+	(breakif {h <= 0})
+	(assign {x + w, y + h} {w, h})
+	(breakif {x >= this->canvas_cx1})
+	(breakif {w <= this->canvas_cx})
+	(breakif {y >= this->canvas_cy1})
+	(breakif {h <= this->canvas_cy})
+		(vpif {x < this->canvas_cx})
+			(assign {this->canvas_cx} {x})
+		(endif)
+		(vpif {w > this->canvas_cx1})
+			(assign {this->canvas_cx1} {w})
+		(endif)
+		(vpif {y < this->canvas_cy})
+			(assign {this->canvas_cy} {y})
+		(endif)
+		(vpif {h > this->canvas_cy1})
+			(assign {this->canvas_cy1} {h})
+		(endif)
+		(assign {color} '(r0))
+		(premul r0 r1 r2 r3)
+		(assign '(r0) {color})
+		(loop-start)
+			(assign {this, color, x, y, w, span} '(r0 r1 r8 r9 r10 r2))
+			(vp-call-r r2)
+			(assign {y + 1} {y})
+		(loop-until {y == h})
+	(endswitch)
+
+	(f-exit 'canvas 'fbox {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/canvas/fpoly)
+	;inputs
+	;r0 = canvas object
+	;r1 = vector of polygon arrays
+	;r2 = fill color
+	;r3 = fill mode
+	;r5 = span fill function
+	;outputs
+	;r0 = canvas object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'span)
 	(union
 		'(ptr 'polygons)
 		'(pptr 'iter_end_polygons 'iter_begin_polygons)
@@ -667,7 +721,12 @@
 	(uint 'mode 'color 'length)
 
 	(push-scope)
-	(f-entry 'canvas 'set_fpoly {this, color, mode, polygons})
+	(f-entry 'canvas 'fpoly {this, polygons, color, mode, span})
+
+	;premul the color
+	(assign {color} '(r0))
+	(premul r0 r1 r2 r3)
+	(assign '(r0) {color})
 
 	;fill edges, find min and max y, clip edges not visible or redundant
 	(f-call 'array 'set_length {this->canvas_edges, 0})
@@ -768,7 +827,8 @@
 				(assign {x1 + iter_edge1->edge_dda, x2 + iter_edge2->edge_dda}
 					{iter_edge1->edge_x, iter_edge2->edge_x})
 				(assign {x1 >>> fp_shift, x2 >>> fp_shift} {x1, x2})
-				(f-call 'canvas 'set_hline {this, color, x1, ys, x2 - x1})
+				(assign {this, color, span, x1, ys, x2} '(r0 r1 r2 r8 r9 r10))
+				(vp-call-r r2)
 				(assign {iter_k + ptr_size * 2} {iter_k})
 			(loop-end)
 		(else)
@@ -785,7 +845,8 @@
 					(assign {x2 + iter_edge2->edge_dda} {iter_edge2->edge_x})
 				(loop-end)
 				(assign {x1 >>> fp_shift, x2 >>> fp_shift} {x1, x2})
-				(f-call 'canvas 'set_hline {this, color, x1, ys, x2 - x1})
+				(assign {this, color, span, x1, ys, x2} '(r0 r1 r2 r8 r9 r10))
+				(vp-call-r r2)
 				(assign {iter_k + ptr_size} {iter_k})
 			(loop-end)
 		(endif)
@@ -793,7 +854,7 @@
 		(assign {ys + 1} {ys})
 	(loop-end)
 
-	(f-exit 'canvas 'set_fpoly {this})
+	(f-exit 'canvas 'fpoly {this})
 	(pop-scope)
 	(return)
 

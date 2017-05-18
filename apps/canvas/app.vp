@@ -60,7 +60,7 @@
 	(f-call 'window 'dirty_all {window})
 
 	;clear canvas
-	(f-call 'canvas 'fill {canvas, 0xff000000})
+	(f-call 'canvas 'fill {canvas, 0x00000000})
 	(f-call 'canvas 'swap {canvas})
 
 	;start lisp task and send it args

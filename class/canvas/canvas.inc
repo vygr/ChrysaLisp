@@ -7,9 +7,12 @@
 (def-method 'swap 'class/canvas/swap 'static '(r0) '(r0))
 (def-method 'resize 'class/canvas/resize 'static '(r0 r1) '(r0))
 (def-method 'fill 'class/canvas/fill 'static '(r0 r1) '(r0))
+(def-method 'norm 'class/canvas/norm 'static '(r0) '(r0))
+(def-method 'hline_noclip 'class/canvas/hline_noclip 'static '(r0 r1 r8 r9 r10) '(r0))
+(def-method 'hline 'class/canvas/hline 'static '(r0 r1 r8 r9 r10) '(r0))
+(def-method 'fbox 'class/canvas/fbox 'static '(r0 r1 r2 r8 r9 r10 r11) '(r0))
+(def-method 'fpoly 'class/canvas/fpoly 'static '(r0 r1 r2 r3 r5) '(r0))
 (def-method 'set_clip 'class/canvas/set_clip 'static '(r0 r8 r9 r10 r11) '(r0))
-(def-method 'set_pixel 'class/canvas/set_pixel 'static '(r0 r1 r8 r9) '(r0))
-(def-method 'set_hline 'class/canvas/set_hline 'static '(r0 r1 r8 r9 r10) '(r0))
 (def-method 'set_fbox 'class/canvas/set_fbox 'static '(r0 r1 r8 r9 r10 r11) '(r0))
 (def-method 'set_fpoly 'class/canvas/set_fpoly 'static '(r0 r1 r2 r3) '(r0))
 
@@ -44,3 +47,33 @@
 	(int 'w)
 	(local-align)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
+
+(defcfun class/canvas/set_fbox ()
+	;inputs
+	;r0 = canvas object
+	;r1 = colour
+	;r8 = x
+	;r9 = y
+	;r10 = w
+	;r11 = h
+	;outputs
+	;r0 = canvas object
+	;trashes
+	;all but r0, r4
+	(f-call 'canvas 'fbox `(r0 r1 (@ ,(f-path 'canvas 'hline_noclip)) r8 r9 r10 r11)))
+
+(defcfun class/canvas/set_fpoly ()
+	;inputs
+	;r0 = canvas object
+	;r1 = vector of polygon arrays
+	;r2 = fill color
+	;r3 = fill mode
+	;outputs
+	;r0 = canvas object
+	;trashes
+	;all but r0, r4
+	(f-call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'hline)))))

@@ -1,12 +1,9 @@
 ;import canvas class method slots
-(defq canvas-set-pixel nil canvas-set-fbox nil canvas-set-hline nil
-	canvas-set-fpoly nil canvas-fill nil canvas-swap nil)
+(defq canvas-set-fbox nil canvas-set-fpoly nil canvas-fill nil canvas-swap nil)
 (within-compile-env (lambda ()
 	(import 'class/canvas/canvas.inc)
-	(setq canvas-set-pixel (method-slot 'canvas 'set_pixel)
+	(setq canvas-set-fbox (method-slot 'canvas 'set_fbox)
 		canvas-set-fpoly (method-slot 'canvas 'set_fpoly)
-		canvas-set-hline (method-slot 'canvas 'set_hline)
-		canvas-set-fbox (method-slot 'canvas 'set_fbox)
 		canvas-fill (method-slot 'canvas 'fill)
 		canvas-swap (method-slot 'canvas 'swap))))
 
@@ -23,9 +20,9 @@
 			(setq _ (vec-scale-2d _ canvas_scale))
 			(push polygon (bit-or (bit-shl (elem 1 _) 32) (bit-and 0xffffffff (elem 0 _))))) _)
 		(push polygons polygon)) _)
-	(call canvas-set-fpoly canvas col m polygons))
+	(call canvas-set-fpoly canvas polygons col m))
 
-(call canvas-fill canvas 0xff202020)
+(call canvas-fill canvas 0x00000000)
 (call canvas-set-fbox canvas 0xffffffff
 	(div (fmul canvas_width canvas_scale 0.1) 1.0) (div (fmul canvas_height canvas_scale 0.05) 1.0)
 	(div (fmul canvas_width canvas_scale 0.5) 1.0) (div (fmul canvas_height canvas_scale 0.5) 1.0))

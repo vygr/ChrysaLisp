@@ -24,13 +24,6 @@
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error1)
 	(f-call 'boxed_long 'get_value {value} {_, slot})
 	(switch)
-	(case (cat {slot == } (str (method-slot 'canvas 'set_hline))))
-	(errorcases
-		(f-call 'lisp 'env_args_type {this, args, $canvas_set_hline, 6} {_, slot})
-		(errorifnot {slot} 'error1))
-		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-		(f-call 'canvas 'set_hline {arg0, arg1, arg2, arg3, arg4})
-		(break)
 	(case (cat {slot == } (str (method-slot 'canvas 'set_fbox))))
 	(errorcases
 		(f-call 'lisp 'env_args_type {this, args, $canvas_set_fbox, 7} {_, slot})
@@ -52,13 +45,6 @@
 		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(f-call 'canvas 'swap {arg0})
 		(f-call 'canvas 'dirty {arg0})
-		(break)
-	(case (cat {slot == } (str (method-slot 'canvas 'set_pixel))))
-	(errorcases
-		(f-call 'lisp 'env_args_type {this, args, $canvas_set_pixel, 5} {_, slot})
-		(errorifnot {slot} 'error1))
-		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-		(f-call 'canvas 'set_pixel {arg0, arg1, arg2, arg3})
 		(break)
 	(case (cat {slot == } (str (method-slot 'canvas 'set_fpoly))))
 	(errorcases
@@ -83,10 +69,8 @@
 	(goto 'exit)
 	(signature 'canvas_swap 'boxed_long 'canvas)
 	(signature 'canvas_fill 'boxed_long 'canvas 'boxed_long)
-	(signature 'canvas_set_pixel 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long)
-	(signature 'canvas_set_hline 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'canvas_set_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
-	(signature 'canvas_set_fpoly 'boxed_long 'canvas 'boxed_long 'boxed_long 'vector))
+	(signature 'canvas_set_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long))
 
 	(pop-scope-syms)
 
