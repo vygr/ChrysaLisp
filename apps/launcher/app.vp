@@ -47,7 +47,7 @@
 
 	;set to pref size
 	(v-call 'window 'pref_size {window} {_, width, height})
-	(f-call 'window 'change {window, 400, 256, width + 40, height})
+	(f-call 'window 'change {window, 32, 32, width + 40, height})
 
 	;set window owner
 	(f-call 'sys_task 'tcb {} {owner})

@@ -180,9 +180,9 @@
 
 (def-func 'gui/ctx_brighter)
 	;inputs
-	;r1 = colour
+	;r1 = color
 	;inputs
-	;r1 = brighter colour
+	;r1 = brighter color
 	;trashes
 	;r2, r3
 
@@ -199,9 +199,9 @@
 
 (def-func 'gui/ctx_darker)
 	;inputs
-	;r1 = colour
+	;r1 = color
 	;inputs
-	;r1 = darker colour
+	;r1 = darker color
 	;trashes
 	;r2, r3
 
@@ -337,7 +337,7 @@
 
 	(vp-cpy-ir-i r4 local_depth r12)
 	(vpif '(r12 > 0))
-		;brighter colour
+		;brighter color
 		(f-call 'gui_ctx 'brighter '((r4 local_color ui)) '(r1))
 		(f-call 'gui_ctx 'set_color '((r4 local_ctx) r1))
 
@@ -350,7 +350,7 @@
 		(vp-sub-rr r10 r11)
 		(f-call 'gui_ctx 'filled_box '((r4 local_ctx) r8 r9 r10 r11))
 
-		;darker colour
+		;darker color
 		(f-call 'gui_ctx 'darker '((r4 local_color ui)) '(r1))
 		(f-call 'gui_ctx 'set_color '((r4 local_ctx) r1))
 
@@ -374,7 +374,7 @@
 		(vp-mul-cr -1 r12)
 		(vp-cpy-ri-i r12 r4 local_depth)
 
-		;darker colour
+		;darker color
 		(f-call 'gui_ctx 'darker '((r4 local_color ui)) '(r1))
 		(f-call 'gui_ctx 'set_color '((r4 local_ctx) r1))
 
@@ -389,7 +389,7 @@
 		(vp-sub-rr r10 r11)
 		(f-call 'gui_ctx 'filled_box '((r4 local_ctx) r8 r9 r10 r11))
 
-		;brighter colour
+		;brighter color
 		(f-call 'gui_ctx 'brighter '((r4 local_color ui)) '(r1))
 		(f-call 'gui_ctx 'set_color '((r4 local_ctx) r1))
 

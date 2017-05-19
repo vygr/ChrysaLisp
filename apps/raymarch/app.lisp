@@ -1,10 +1,10 @@
 ;import canvas class method slots
-(defq canvas-set-fbox nil canvas-fill nil canvas-swap nil)
+(defq slot_set_fbox nil slot_fill nil slot_swap nil)
 (within-compile-env (lambda ()
 	(import 'class/canvas/canvas.inc)
-	(setq canvas-set-fbox (method-slot 'canvas 'set_fbox)
-		canvas-fill (method-slot 'canvas 'fill)
-		canvas-swap (method-slot 'canvas 'swap))))
+	(setq slot_set_fbox (method-slot 'canvas 'set_fbox)
+		slot_fill (method-slot 'canvas 'fill)
+		slot_swap (method-slot 'canvas 'swap))))
 
 ;math tools
 (run 'apps/canvas/math.lisp)
@@ -88,10 +88,10 @@
 				g (bit-shr (elem 1 col) 8)
 				b (bit-shr (elem 2 col) 8)
 				col (add r (bit-shl g 8) (bit-shl b 16) 0xff000000))
-			(call canvas-set-fbox canvas col x y 1 1)
+			(call slot_set_fbox canvas col x y 1 1)
 			(while nil) ;while does a yield call !
 			(setq x (inc x)))
-		(call canvas-swap canvas)
+		(call slot_swap canvas)
 		(setq y (inc y))))
 
 (screen canvas_width canvas_height canvas_scale)

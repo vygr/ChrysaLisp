@@ -7,14 +7,23 @@
 (def-method 'swap 'class/canvas/swap 'static '(r0) '(r0))
 (def-method 'resize 'class/canvas/resize 'static '(r0 r1) '(r0))
 (def-method 'fill 'class/canvas/fill 'static '(r0 r1) '(r0))
-(def-method 'norm 'class/canvas/norm 'static '(r0) '(r0))
-(def-method 'hline_noclip 'class/canvas/hline_noclip 'static '(r0 r1 r8 r9 r10) '(r0))
-(def-method 'hline 'class/canvas/hline 'static '(r0 r1 r8 r9 r10) '(r0))
+(def-method 'to_premul 'class/canvas/to_premul 'static '(r0 r1) '(r0 r1))
+(def-method 'to_argb 'class/canvas/to_argb 'static '(r0 r1) '(r0 r1))
+(def-method 'as_argb 'class/canvas/as_argb 'static '(r0) '(r0))
+(def-method 'as_premul 'class/canvas/as_premul 'static '(r0) '(r0))
 (def-method 'fbox 'class/canvas/fbox 'static '(r0 r1 r2 r8 r9 r10 r11) '(r0))
 (def-method 'fpoly 'class/canvas/fpoly 'static '(r0 r1 r2 r3 r5) '(r0))
 (def-method 'set_clip 'class/canvas/set_clip 'static '(r0 r8 r9 r10 r11) '(r0))
+
+(def-method 'set_span_noclip 'class/canvas/set_span_noclip 'static '(r0 r1 r8 r9 r10) '(r0))
+(def-method 'set_span 'class/canvas/set_span 'static '(r0 r1 r8 r9 r10) '(r0))
 (def-method 'set_fbox 'class/canvas/set_fbox 'static '(r0 r1 r8 r9 r10 r11) '(r0))
 (def-method 'set_fpoly 'class/canvas/set_fpoly 'static '(r0 r1 r2 r3) '(r0))
+
+(def-method 'blend_span_noclip 'class/canvas/blend_span_noclip 'static '(r0 r1 r8 r9 r10) '(r0))
+(def-method 'blend_span 'class/canvas/blend_span 'static '(r0 r1 r8 r9 r10) '(r0))
+(def-method 'blend_fbox 'class/canvas/blend_fbox 'static '(r0 r1 r8 r9 r10 r11) '(r0))
+(def-method 'blend_fpoly 'class/canvas/blend_fpoly 'static '(r0 r1 r2 r3) '(r0))
 
 (def-method 'deinit 'class/canvas/deinit 'override)
 (def-method 'pref_size 'class/canvas/pref_size 'override)
@@ -55,7 +64,7 @@
 (defcfun class/canvas/set_fbox ()
 	;inputs
 	;r0 = canvas object
-	;r1 = colour
+	;r1 = color
 	;r8 = x
 	;r9 = y
 	;r10 = w
@@ -64,16 +73,42 @@
 	;r0 = canvas object
 	;trashes
 	;all but r0, r4
-	(f-call 'canvas 'fbox `(r0 r1 (@ ,(f-path 'canvas 'hline_noclip)) r8 r9 r10 r11)))
+	(f-call 'canvas 'fbox `(r0 r1 (@ ,(f-path 'canvas 'set_span_noclip)) r8 r9 r10 r11)))
 
 (defcfun class/canvas/set_fpoly ()
 	;inputs
 	;r0 = canvas object
 	;r1 = vector of polygon arrays
-	;r2 = fill color
-	;r3 = fill mode
+	;r2 = color
+	;r3 = winding mode (0/1)
 	;outputs
 	;r0 = canvas object
 	;trashes
 	;all but r0, r4
-	(f-call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'hline)))))
+	(f-call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'set_span)))))
+
+(defcfun class/canvas/blend_fbox ()
+	;inputs
+	;r0 = canvas object
+	;r1 = color
+	;r8 = x
+	;r9 = y
+	;r10 = w
+	;r11 = h
+	;outputs
+	;r0 = canvas object
+	;trashes
+	;all but r0, r4
+	(f-call 'canvas 'fbox `(r0 r1 (@ ,(f-path 'canvas 'blend_span_noclip)) r8 r9 r10 r11)))
+
+(defcfun class/canvas/blend_fpoly ()
+	;inputs
+	;r0 = canvas object
+	;r1 = vector of polygon arrays
+	;r2 = color
+	;r3 = winding mode (0/1)
+	;outputs
+	;r0 = canvas object
+	;trashes
+	;all but r0, r4
+	(f-call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'blend_span)))))

@@ -24,13 +24,6 @@
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error1)
 	(f-call 'boxed_long 'get_value {value} {_, slot})
 	(switch)
-	(case (cat {slot == } (str (method-slot 'canvas 'set_fbox))))
-	(errorcases
-		(f-call 'lisp 'env_args_type {this, args, $canvas_set_fbox, 7} {_, slot})
-		(errorifnot {slot} 'error1))
-		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-		(f-call 'canvas 'set_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
-		(break)
 	(case (cat {slot == } (str (method-slot 'canvas 'fill))))
 	(errorcases
 		(f-call 'lisp 'env_args_type {this, args, $canvas_fill, 3} {_, slot})
@@ -46,12 +39,33 @@
 		(f-call 'canvas 'swap {arg0})
 		(f-call 'canvas 'dirty {arg0})
 		(break)
+	(case (cat {slot == } (str (method-slot 'canvas 'set_fbox))))
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $canvas_set_fbox, 7} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'canvas 'set_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
+		(break)
 	(case (cat {slot == } (str (method-slot 'canvas 'set_fpoly))))
 	(errorcases
 		(f-call 'lisp 'env_args_type {this, args, $canvas_set_fpoly, 5} {_, slot})
 		(errorifnot {slot} 'error1))
 		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(f-call 'canvas 'set_fpoly {arg0, arg1, arg2, arg3})
+		(break)
+	(case (cat {slot == } (str (method-slot 'canvas 'blend_fbox))))
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $canvas_blend_fbox, 7} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'canvas 'blend_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
+		(break)
+	(case (cat {slot == } (str (method-slot 'canvas 'blend_fpoly))))
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $canvas_blend_fpoly, 5} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'canvas 'blend_fpoly {arg0, arg1, arg2, arg3})
 		(break)
 	(default)
 	(errorcases
@@ -70,7 +84,9 @@
 	(signature 'canvas_swap 'boxed_long 'canvas)
 	(signature 'canvas_fill 'boxed_long 'canvas 'boxed_long)
 	(signature 'canvas_set_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
-	(signature 'canvas_set_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long))
+	(signature 'canvas_set_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long)
+	(signature 'canvas_blend_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'canvas_blend_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long))
 
 	(pop-scope-syms)
 

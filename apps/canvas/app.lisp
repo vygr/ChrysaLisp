@@ -1,11 +1,12 @@
 ;import canvas class method slots
-(defq canvas-set-fbox nil canvas-set-fpoly nil canvas-fill nil canvas-swap nil)
+(defq slot_set_fbox nil slot_set_fpoly nil slot_blend_fpoly nil slot_fill nil slot_swap nil)
 (within-compile-env (lambda ()
 	(import 'class/canvas/canvas.inc)
-	(setq canvas-set-fbox (method-slot 'canvas 'set_fbox)
-		canvas-set-fpoly (method-slot 'canvas 'set_fpoly)
-		canvas-fill (method-slot 'canvas 'fill)
-		canvas-swap (method-slot 'canvas 'swap))))
+	(setq slot_set_fbox (method-slot 'canvas 'set_fbox)
+		slot_set_fpoly (method-slot 'canvas 'set_fpoly)
+		slot_blend_fpoly (method-slot 'canvas 'blend_fpoly)
+		slot_fill (method-slot 'canvas 'fill)
+		slot_swap (method-slot 'canvas 'swap))))
 
 ;math tools
 (run 'apps/canvas/math.lisp)
@@ -20,10 +21,20 @@
 			(setq _ (vec-scale-2d _ canvas_scale))
 			(push polygon (bit-or (bit-shl (elem 1 _) 32) (bit-and 0xffffffff (elem 0 _))))) _)
 		(push polygons polygon)) _)
-	(call canvas-set-fpoly canvas polygons col m))
+	(call slot_set_fpoly canvas polygons col m))
 
-(call canvas-fill canvas 0x00000000)
-(call canvas-set-fbox canvas 0xffffffff
+(defun bpoly (col m _)
+	(defq polygons (list))
+	(each (lambda (_)
+		(defq polygon (array))
+		(each (lambda (_)
+			(setq _ (vec-scale-2d _ canvas_scale))
+			(push polygon (bit-or (bit-shl (elem 1 _) 32) (bit-and 0xffffffff (elem 0 _))))) _)
+		(push polygons polygon)) _)
+	(call slot_blend_fpoly canvas polygons col m))
+
+(call slot_fill canvas 0x00000000)
+(call slot_set_fbox canvas 0xffffffff
 	(div (fmul canvas_width canvas_scale 0.1) 1.0) (div (fmul canvas_height canvas_scale 0.05) 1.0)
 	(div (fmul canvas_width canvas_scale 0.5) 1.0) (div (fmul canvas_height canvas_scale 0.5) 1.0))
 
@@ -35,7 +46,7 @@
 	(list canvas_width 0)
 	(list (fmul canvas_width 0x0.1) canvas_height))))
 
-(fpoly 0xff00ff00 0
+(bpoly 0xc000ff00 0
 	(stroke-polyline-2d
 		(list)
 		(fmul canvas_width 0x0.1)
@@ -65,7 +76,7 @@
 				(list (fmul canvas_width 0.25) (fmul canvas_height 0.33))
 				(list (sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)))))))
 
-(fpoly 0xffff0000 0
+(bpoly 0xc0ff0000 0
 	(stroke-polygon-2d
 		(list)
 		(fmul canvas_width 0.025)
@@ -92,4 +103,4 @@
 					4.0
 					2.0)))))
 
-(call canvas-swap canvas)
+(call slot_swap canvas)

@@ -30,7 +30,7 @@
 	(f-call 'progress 'get_bounds '((r4 local_this)) '(_ _ _ r10 r11))
 	(f-call 'gui_ctx 'box '((r4 local_ctx) 0 0 r10 r11))
 
-	;darker colour
+	;darker color
 	(f-call 'view 'get_color '((r4 local_this)) '(_ r1))
 	(f-call 'gui_ctx 'darker '(r1) '(r1))
 	(f-call 'gui_ctx 'set_color '((r4 local_ctx) r1))
@@ -52,7 +52,7 @@
 	(vp-cpy-ri r12 r4 local_fill_remain)
 	(f-call 'gui_ctx 'filled_box '((r4 local_ctx) progress_border_size progress_border_size r10 r11))
 
-	;very darker colour
+	;very darker color
 	(f-call 'view 'get_color '((r4 local_this)) '(_ r1))
 	(f-call 'gui_ctx 'darker '(r1) '(r1))
 	(f-call 'gui_ctx 'darker '(r1) '(r1))
