@@ -630,7 +630,7 @@
 	;outputs
 	;r0 = canvas object
 	;trashes
-	;all but r0, r4
+	;r2-r3 r5-r10
 
 	(f-entry 'canvas 'blend_span '(r0 r1 r8 r9 r10))
 
