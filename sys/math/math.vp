@@ -381,21 +381,17 @@
 
 	;already 8 values on vector stack !
 	(vec-set 8)
-
 	(vec-add 2)
 	(vec-load 2 {p2x, p2y})
 	(vec-det 2)
 	(vec-store 1 {db})
-
 	(vec-add 2)
 	(vec-load 2 {p1x, p1y})
 	(vec-det 2)
 	(vec-store 1 {da})
-
 	(vec-load 2 {v1x, v1y} {v2x, v2y})
 	(vec-det 2)
 	(vec-store 1 {axb})
-
 	(vpif {axb})
 		(assign {1.0 </ axb} {axb})
 		(vec-load 2 {da, v1x} {db, v2x})
@@ -405,6 +401,7 @@
 		(vec-load 1 {axb})
 		(vec-scale 2)
 	(endif)
+	(vec-set 0)
 
 	(f-exit 'math 'vec_intersect '(r0 r1))
 	(pop-scope)
