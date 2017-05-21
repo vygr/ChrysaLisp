@@ -8,7 +8,14 @@
 (defmacro super-sym (_)
 	`(sym-cat "_super_" ,_))
 
-(defcvar '*class* nil (class-sym 'null) '())
+(defcvar '*class* nil (class-sym 'null) '() '*args* (list))
+(each (lambda (_) (push *args* (list))) (range 0 16))
+
+(defcfun intern-args (l)
+	(when l
+		(defq _ (some! nil nil t (lambda (_)
+			(and (match? _ l) _)) (list (defq b (elem (length l) *args*)))))
+		(if _ _ (progn (push b l) l))))
 
 (defcfun vtable-emit (_1)
 	;_1 = class name
@@ -40,8 +47,8 @@
 		(setq m (cat m))
 		(elem-set s c m)
 		(elem-set 1 m _2)
-		(if _4 (elem-set 3 m _4))
-		(if _5 (elem-set 4 m _5)))
+		(if _4 (elem-set 3 m (intern-args _4)))
+		(if _5 (elem-set 4 m (intern-args _5))))
 	(if m
 		(cond
 			;existing method
@@ -70,7 +77,7 @@
 		(cond
 			;new method
 			((or (eql _3 'static) (eql _3 'virtual) (eql _3 'final))
-				(push c (list _1 _2 _3 _4 _5)))
+				(push c (list _1 _2 _3 (intern-args _4) (intern-args _5))))
 			((eql _3 'override)
 				(throw "Method does not exist !" _1))
 			(t (throw "Must use static, virtual, final or override ! " _3)))))

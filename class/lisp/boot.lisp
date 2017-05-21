@@ -327,9 +327,9 @@
 			(swap _a (setq _i (inc _i)) _j)))
 	(swap _a _i _l) _i)
 
-;;;;;;;;;;;;;;;;;;;;;;;;
-; Compilation enviroment
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+; Compilation environment
+;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun within-compile-env (_)
 	(defq *compile-env* (env 101) *imports* (list))
