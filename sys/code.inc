@@ -617,7 +617,7 @@
 	(setd _1 0)
 	(setq *s* _1 *r* 0)
 	(each! nil _1 nil (lambda (_)
-		(set _ nil)) (list *vregt*)))
+		(set _ nil)) (list (slice 0 _1 *vregt*))))
 
 (defcfun res-reg-def (_1)
 	;_1 = 'rX'
