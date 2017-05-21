@@ -377,7 +377,8 @@
 	(int 'axb 'da 'db)
 
 	(push-scope)
-	(f-entry 'math 'vec_intersect {p1x, p1y, v1x, v1y, p2x, p2y, v2x, v2y})
+	(f-entry 'math 'vec_intersect '(r0 r1 r2 r3 r5 r6 r7 r8))
+	(assign '(r0 r1 r2 r3 r5 r6 r7 r8) {p1x, p1y, v1x, v1y, p2x, p2y, v2x, v2y})
 
 	;already 8 values on vector stack !
 	(vec-set 8)
