@@ -74,10 +74,10 @@
 (defun range (b e &optional s)
 	(defq l (list) s (opt s 1 (abs s)))
 	(if (le b e)
-		(while (le b e)
+		(while (lt b e)
 			(push l b)
 			(setq b (add b s)))
-		(while (ge b e)
+		(while (gt b e)
 			(push l b)
 			(setq b (sub b s)))) l)
 
