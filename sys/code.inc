@@ -593,11 +593,12 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defmacro vreg-sym (n)
-	`(sym-cat "_v_" (str ,n)))
-
-(defcvar '*s* nil '*r* nil '*inst* (list))
-(each (lambda (_) (defcvar (vreg-sym _) nil (type-sym _) nil)) (range 0 15))
+(defcvar '*s* nil '*r* nil '*inst* (list)
+	'*vreg* '(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14)
+	'*vregt* '(_t0 _t1 _t2 _t3 _t4 _t5 _t6 _t7 _t8 _t9 _t10 _t11 _t12 _t13 _t14))
+(defmacro vreg-sym (_) `(elem ,_ *vreg*))
+(defmacro vreg-type-sym (_) `(elem ,_ *vregt*))
+(each (lambda (_) (defcvar (vreg-sym _) nil (vreg-type-sym _) nil)) (range 0 15))
 
 (defmacro inc-stack ()
 	'(setq *s* (inc *s*)))
@@ -606,45 +607,39 @@
 	'(setq *s* (dec *s*)))
 
 (defmacro nil-type ()
-	'(set (type-sym *s*) nil))
+	'(set (vreg-type-sym *s*) nil))
 
 (defmacro add-inst (&rest b)
 	`(push *inst* ~b))
 
-(defcfun print-reg-stack ()
-	(defq i -1)
-	(while (lt (setq i (inc i)) 16)
-		(print (vreg-sym i) " -> " (eval (type-sym i)))))
-
 (defcfun reset-reg-stack (&optional _1)
 	;_1 = reserved slots
-	(setq _1 (opt _1 0) *s* -1 *r* 0)
-	(while (lt (inc-stack) _1)
-		(nil-type)))
+	(setd _1 0)
+	(setq *s* _1 *r* 0)
+	(each! nil _1 nil (lambda (_)
+		(set _ nil)) (list *vregt*)))
 
 (defcfun res-reg-def (_1)
 	;_1 = 'rX'
-	(set (vreg-sym *r*) _1 (type-sym *r*) nil)
+	(set (vreg-sym *r*) _1 (vreg-type-sym *r*) nil)
 	(setq *r* (inc *r*)))
 
 (defcfun add-reg-def (_1)
 	;_1 = rX
-	(defq i -1)
-	(while (and (lt (setq i (inc i)) *r*) (not (eql (eval (vreg-sym i)) _1))))
-	(when (eq i *r*)
-		(set (vreg-sym i) _1)
+	(unless (find _1 (map eval (slice 0 *r* *vreg*)))
+		(set (vreg-sym *r*) _1)
 		(setq *r* (inc *r*))))
 
 (defcfun fill-reg-def ()
-	(each add-reg-def '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15)))
+	(each! nil nil nil add-reg-def
+		'((r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))))
 
 (defcfun undef-reg-def ()
-	(defq i -1)
-	(while (lt (setq i (inc i)) *r*)
-		(set (vreg-sym i) nil (type-sym i) nil)))
+	(each! nil nil nil (lambda (_1 _2)
+		(set _1 nil _2 nil)) (list (slice 0 *r* *vreg*) (slice 0 *r* *vregt*))))
 
 (defcfun pop-type (s)
-	(if (defq u (type-sym s) w (eval u))
+	(if (defq u (vreg-type-sym s) w (eval u))
 		(progn
 			(defq v (slice 1 -1 w) v (if (eql v "") nil v))
 			(set u v)
@@ -689,7 +684,7 @@
 					(nil-type))
 				((def? (type-sym _1))
 					;field/member
-					(set (type-sym *s*) (eval (type-sym _1)))
+					(set (vreg-type-sym *s*) (eval (type-sym _1)))
 					(add-inst `(vp-cpy-cr ,_1 ,(vreg-sym *s*))))
 				((def? _1)
 					;equate
@@ -697,33 +692,33 @@
 				(t (throw "Symbol not defined !" _1))))
 		((eql 'var (elem 1 s))
 			;variable
-			(set (type-sym *s*) (elem 3 s))
+			(set (vreg-type-sym *s*) (elem 3 s))
 			(setq s (add (get-scope (elem 0 s)) (elem 2 s)))
 			(add-inst `(vp-lea-i r4 ,s ,(vreg-sym *s*))))
 		(t (throw "Symbol not a variable !" _1))))
 
 (defcfun compile-deref? ()
-	(when (eval (type-sym *s*))
+	(when (eval (vreg-type-sym *s*))
 		(compile-deref)))
 
 (defcfun compile-cast (o)
 	(if (defq c (find (sym o) '(byte ubyte short ushort int uint long ulong ptr)))
-		(set (type-sym (dec-stack)) (elem c "bBsSiIlLp"))
+		(set (vreg-type-sym (dec-stack)) (elem c "bBsSiIlLp"))
 		(throw "Unknown type cast" o)))
 
 (defcfun compile-member (o)
 	(defq s (dec *s*) x (vreg-sym (setq *s* (sub *s* 2))) y (vreg-sym s))
 	(compile-deref)
 	(add-inst `(vp-add-rr ,y ,x))
-	(set (type-sym *s*) (eval (type-sym s))))
+	(set (vreg-type-sym *s*) (eval (vreg-type-sym s))))
 
 (defcfun compile-uaddrof (o)
-	(set (type-sym (dec-stack)) nil))
+	(set (vreg-type-sym (dec-stack)) nil))
 
 (defcfun compile-field (o)
 	(defq s (dec *s*) x (vreg-sym (setq *s* (sub *s* 2))) y (vreg-sym s))
 	(add-inst `(vp-add-rr ,y ,x))
-	(set (type-sym *s*) (eval (type-sym s))))
+	(set (vreg-type-sym *s*) (eval (vreg-type-sym s))))
 
 (defcfun compile-index (o)
 	(defq y (pop-value))
