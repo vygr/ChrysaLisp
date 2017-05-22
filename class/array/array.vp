@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/array/array.inc)
+(import 'sys/math/math.inc)
 (import 'class/boxed_long/boxed_long.inc)
 
 (gen-new 'array)
@@ -514,6 +515,98 @@
 	(loop-end)
 
 	(f-exit 'array 'sort {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/array/rem-co-polyline)
+	;inputs
+	;r0 = array object
+	;outputs
+	;r0 = array object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this)
+	(pptr 'iter_begin 'iter_end)
+
+	(push-scope)
+	(f-entry 'array 'rem-co-polyline {this})
+
+	(f-call 'array 'get_begin {this} {_, iter_begin})
+	(f-call 'array 'get_end {this} {_, iter_end})
+
+	(vec-set 0)
+	(vec-load 2 {iter_end, iter_begin})
+	(vec-dup 2)
+	(vec-dif 2)
+	(vpif `(,(elem 0 (vec-pop 1)) > ptr_size))
+		(vec-dup 1)
+		(defq v (vec-top 3) e (elem 0 v) s (elem 1 v) d (elem 2 v))
+		(loop-start)
+			(vp-add-cr ptr_size s)
+			(defq p1 (vec-push 2) p2 (vec-push 2))
+			(vp-cpy-ir-i d 0 (elem 0 p1))
+			(vp-cpy-ir-i d 4 (elem 1 p1))
+			(vp-cpy-ir-i s 0 (elem 0 p2))
+			(vp-cpy-ir-i s 4 (elem 1 p2))
+			(vec-manhattan 2)
+			(vpif `(,(elem 0 (vec-pop 1)) >= 0.5))
+				(vp-add-cr ptr_size d)
+				(vpif `(,s != ,d))
+					(defq p (vec-tmp 1))
+					(vp-cpy-ir s 0 (elem 0 p))
+					(vp-cpy-ri (elem 0 p) d 0)
+				(endif)
+			(endif)
+		(loop-until `(,s == ,e))
+		(vec-store 1 {iter_end})
+		(f-call 'array 'set_length {this, iter_end - iter_begin >> 3})
+	(endif)
+
+	(f-exit 'array 'rem-co-polyline {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/array/rem-co-polygon)
+	;inputs
+	;r0 = array object
+	;outputs
+	;r0 = array object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this)
+	(pptr 'iter_begin 'iter_end)
+
+	(push-scope)
+	(f-entry 'array 'rem-co-polygon {this})
+
+	(f-call 'array 'rem-co-polyline {this})
+	(f-call 'array 'get_begin {this} {_, iter_begin})
+	(f-call 'array 'get_end {this} {_, iter_end})
+
+	(vec-set 0)
+	(vec-load 2 {iter_end, iter_begin})
+	(vec-dup 2)
+	(vec-dif 2)
+	(vpif `(,(elem 0 (vec-pop 1)) > ptr_size))
+		(defq v (vec-top 2) v1 (elem 0 v) v2 (elem 1 v)
+			p1 (vec-push 2) p2 (vec-push 2))
+		(vp-cpy-ir-i v1 0 (elem 0 p1))
+		(vp-cpy-ir-i v1 4 (elem 1 p1))
+		(vp-cpy-ir-i v2 -8 (elem 0 p2))
+		(vp-cpy-ir-i v2 -4 (elem 1 p2))
+		(vec-manhattan 2)
+		(vpif `(,(elem 0 (vec-pop 1)) < 0.5))
+			(d-call 'array 'pop_back {this})
+		(endif)
+	(endif)
+
+	(f-exit 'array 'rem-co-polygon {this})
 	(pop-scope)
 	(return)
 
