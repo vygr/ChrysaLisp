@@ -132,15 +132,21 @@
 
 (defcfun vec-shl (n s)
 	(each (lambda (v)
-		(vp-shl-cr s v)) (vec-top n)))
+		(if (reg s)
+			(vp-shl-rr s v)
+			(vp-shl-cr s v))) (vec-top n)))
 
 (defcfun vec-shr (n s)
 	(each (lambda (v)
-		(vp-shr-cr s v)) (vec-top n)))
+		(if (reg s)
+			(vp-shr-rr s v)
+			(vp-shr-cr s v))) (vec-top n)))
 
 (defcfun vec-asr (n s)
 	(each (lambda (v)
-		(vp-asr-cr s v)) (vec-top n)))
+		(if (reg s)
+			(vp-asr-rr s v)
+			(vp-asr-cr s v))) (vec-top n)))
 
 (defcfun vec-abs (n)
 	(each (lambda (v)
@@ -170,7 +176,9 @@
 (defcfun vec-scale (n &optional s)
 	(setd s (elem 0 (vec-pop 1)))
 	(each (lambda (v)
-		(vp-mul-rr s v)) (vec-top n))
+		(if (reg s)
+			(vp-mul-rr s v)
+			(vp-mul-cr s v))) (vec-top n))
 	(vec-asr n fp_shift))
 
 (defcfun vec-perp ()
