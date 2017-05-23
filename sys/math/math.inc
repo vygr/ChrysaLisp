@@ -82,6 +82,9 @@
 (defcfun vec-tmp (n)
 	(slice *vsp* (add *vsp* n) *vr*))
 
+(defcmacro vec-def (v &rest _)
+	`(defq _v ,v ~(reduce cat (map (lambda (s) (list s (list 'elem _ '_v))) _))))
+
 (defcfun vec-load (n &rest _)
 	(each (lambda (_)
 		(assign _ (vec-push n))) _))
