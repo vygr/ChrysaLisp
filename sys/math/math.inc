@@ -90,6 +90,26 @@
 	(each (lambda (_)
 		(assign (vec-pop n) _)) _))
 
+(defcfun vec-load-int (n r &optional i)
+	(setd i 0)
+	(each (lambda (v)
+		(vp-cpy-ir-i r (add i (mul _ int_size)) v)) (vec-push n)))
+
+(defcfun vec-store-int (n r &optional i)
+	(setd i 0)
+	(each (lambda (v)
+		(vp-cpy-ri-i v r (add i (mul _ int_size)))) (vec-pop n)))
+
+(defcfun vec-load-long (n r &optional i)
+	(setd i 0)
+	(each (lambda (v)
+		(vp-cpy-ir r (add i (mul _ long_size)) v)) (vec-push n)))
+
+(defcfun vec-store-long (n r &optional i)
+	(setd i 0)
+	(each (lambda (v)
+		(vp-cpy-ri v r (add i (mul _ long_size)))) (vec-pop n)))
+
 (defcfun vec-clr (n)
 	(each (lambda (v)
 		(vp-xor-rr v v)) (vec-top n)))
