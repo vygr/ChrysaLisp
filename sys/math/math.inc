@@ -87,11 +87,11 @@
 
 (defcfun vec-load (n &rest _)
 	(each (lambda (_)
-		(assign _ (vec-push n))) _))
+		(assign _ (vec-push n) (slice *vsp* -1 *vr*))) _))
 
 (defcfun vec-store (n &rest _)
 	(each (lambda (_)
-		(assign (vec-pop n) _)) _))
+		(assign (vec-pop n) _ (slice *vsp* -1 *vr*))) _))
 
 (defcfun vec-load-int (n r &optional i)
 	(setd i 0)

@@ -630,9 +630,9 @@
 		(set (vreg-sym *r*) _1)
 		(setq *r* (inc *r*))))
 
-(defcfun fill-reg-def ()
-	(each! nil nil nil add-reg-def
-		'((r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))))
+(defcfun fill-reg-def (&optional _)
+	(setd _ '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
+	(each! nil nil nil add-reg-def (list _)))
 
 (defcfun undef-reg-def ()
 	(each! nil nil nil (lambda (_1 _2)
@@ -1005,7 +1005,7 @@
 (defcfun print-inst (_)
 	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
-(defcfun assign-asm-to-script (_1 _2)
+(defcfun assign-asm-to-script (_1 _2 _3)
 	(setq *src* _1 *dst* (map trim (split _2 ",")))
 	(unless (eq (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
@@ -1026,11 +1026,11 @@
 			(print "post opt:")
 			(each print-inst *inst*))
 		(each-rev res-reg-def *src*)
-		(fill-reg-def)
+		(fill-reg-def _3)
 		(eval *inst*)
 		(undef-reg-def)))
 
-(defcfun assign-script-to-asm (_1 _2)
+(defcfun assign-script-to-asm (_1 _2 _3)
 	(setq *src* (map trim (split _1 ",")) *dst* _2)
 	(unless (eq (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
@@ -1052,11 +1052,11 @@
 			(print "post opt:")
 			(each print-inst *inst*))
 		(each res-reg-def *dst*)
-		(fill-reg-def)
+		(fill-reg-def _3)
 		(eval *inst*)
 		(undef-reg-def)))
 
-(defcfun assign-script-to-script (_1 _2)
+(defcfun assign-script-to-script (_1 _2 _3)
 	(setq *src* (map trim (split _1 ",")) *dst* (map trim (split _2 ",")))
 	(unless (eq (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
@@ -1080,23 +1080,23 @@
 		(when debug_inst
 			(print "post opt:")
 			(each print-inst *inst*))
-		(fill-reg-def)
+		(fill-reg-def _3)
 		(eval *inst*)
 		(undef-reg-def)))
 
-(defcfun assign (&optional _1 _2)
+(defcfun assign (&optional _1 _2 _3)
 	(setd _1 '() _2 '())
 	(defq s (str? _1) d (str? _2))
 	(cond
 		((and s d)
 			;script -> script
-			(assign-script-to-script _1 _2))
+			(assign-script-to-script _1 _2 _3))
 		((and s (not d))
 			;script -> asm
-			(assign-script-to-asm _1 _2))
+			(assign-script-to-asm _1 _2 _3))
 		((and (not s) d)
 			;asm -> script
-			(assign-asm-to-script _1 _2))
+			(assign-asm-to-script _1 _2 _3))
 		(t
 			;asm -> asm
 			(setq *src* _1 *dst* _2)
