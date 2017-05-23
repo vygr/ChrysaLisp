@@ -20,8 +20,8 @@
 (def-method 'each_callback 'class/obj/null 'static '(r0 r1) '(r1))
 (def-method 'sort_callback 'class/obj/null 'static '(r0 r1 r2) '(r0))
 
-(def-method 'rem_co_polyline 'class/array/rem_co_polyline 'static '(r0 r1 r3) '(r0))
-(def-method 'rem_co_polygon 'class/array/rem_co_polygon 'static '(r0 r1 r3) '(r0))
+(def-method 'rem_co_polyline 'class/array/rem_co_polyline 'static '(r0 r1 r2) '(r0))
+(def-method 'rem_co_polygon 'class/array/rem_co_polygon 'static '(r0 r1 r2) '(r0))
 
 (def-method 'clear 'class/array/clear 'virtual '(r0) '(r0))
 (def-method 'ref_back 'class/array/ref_back 'virtual '(r0) '(r0 r1))
