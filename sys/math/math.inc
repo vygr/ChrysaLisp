@@ -208,7 +208,7 @@
 	(vec-asr n fp_shift))
 
 (defcfun vec-perp ()
-	(defq v (vec-top 2) x (elem 0 v) y (elem 1 v))
+	(vec-def (vec-top 2) x y)
 	(vp-xchg-rr x y)
 	(vp-mul-cr -1 y))
 
@@ -229,19 +229,19 @@
 
 (defcfun vec-length (n)
 	(vec-length-squared n)
-	(defq v (vec-top 1) r (slice 0 (dec (if (ge *vsp* 4) 4 *vsp*) *vr*)))
+	(defq r (slice 0 (dec (if (ge *vsp* 4) 4 *vsp*) *vr*)))
 	(if (ne (length r) 0) (apply vp-push r))
-	(f-call 'math 'fsqrt v v)
+	(f-call 'math 'fsqrt (vec-top 1) (vec-top 1))
 	(if (ne (length r) 0) (apply vp-pop r)))
 
 (defcfun vec-norm (n)
 	(vec-dup n)
 	(vec-length n)
-	(defq r (vec-tmp 2) l (elem 0 (vec-pop 1)))
+	(vec-def (vec-tmp 2) rl rh)
+	(vec-def (vec-pop 1) l)
 	(vpif `(,l == 0))
 		(vec-clr n)
 	(else)
-		(defq rl (elem 0 r) rh (elem 1 r))
 		(vp-cpy-cr (bit-shl 1.0 fp_shift) rl)
 		(vp-xor-rr rh rh)
 		(vp-div-rrr l rh rl)
