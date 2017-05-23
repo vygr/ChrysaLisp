@@ -562,14 +562,16 @@
 			(endif)
 		(loop-until `(,s == ,e))
 		(vec-store 1 {iter_end})
-		(f-call 'array 'set_length {this, iter_end - iter_begin >> 3})
+		(f-call 'array 'set_length {this, (iter_end - iter_begin >> 3) + 1})
 	(endif)
 
 	(f-exit 'array 'rem_co_polyline {this})
 	(pop-scope)
 	(return)
 
+(defq debug_emit t)
 (def-func-end)
+(defq debug_emit nil)
 
 (def-func 'class/array/rem_co_polygon)
 	;inputs
