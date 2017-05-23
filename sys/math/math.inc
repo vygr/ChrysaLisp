@@ -70,6 +70,9 @@
 (defcvar '*vsp* 0 '*vr* '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
 (defcfun vec-set (_) (setq *vsp* _))
 
+(defcmacro vec-assign (_1 _2)
+	`(assign ,_1 ,_2 (slice *vsp* -1 *vr*)))
+
 (defcfun vec-push (n)
 	(slice *vsp* (setq *vsp* (add *vsp* n)) *vr*))
 
@@ -87,11 +90,11 @@
 
 (defcfun vec-load (n &rest _)
 	(each (lambda (_)
-		(assign _ (vec-push n) (slice *vsp* -1 *vr*))) _))
+		(vec-assign _ (vec-push n))) _))
 
 (defcfun vec-store (n &rest _)
 	(each (lambda (_)
-		(assign (vec-pop n) _ (slice *vsp* -1 *vr*))) _))
+		(vec-assign (vec-pop n) _)) _))
 
 (defcfun vec-load-int (n r &optional i)
 	(setd i 0)
