@@ -523,26 +523,28 @@
 (def-func 'class/array/rem_co_polyline)
 	;inputs
 	;r0 = array object
+	;r1 = dest array object, can be same
 	;outputs
 	;r0 = array object
 	;trashes
 	;all but r0, r4
 
-	(ptr 'this)
-	(pptr 'iter_begin 'iter_end)
+	(ptr 'this 'that)
+	(pptr 'iter_begin 'iter_end 'iter_that)
 
 	(push-scope)
-	(f-entry 'array 'rem_co_polyline {this})
+	(f-entry 'array 'rem_co_polyline {this, that})
 
 	(f-call 'array 'get_begin {this} {_, iter_begin})
 	(f-call 'array 'get_end {this} {_, iter_end})
+	(f-call 'array 'get_begin {that} {_, iter_that})
 
 	(vec-set 0)
 	(vec-load 2 {iter_end, iter_begin})
 	(vec-dup 2)
 	(vec-dif 2)
 	(vpif `(,(elem 0 (vec-pop 1)) > long_size))
-		(vec-dup 1)
+		(vec-load 1 {iter_that})
 		(vec-def (vec-top 3) e s d)
 		(loop-start)
 			(vp-add-cr long_size s)
@@ -558,7 +560,7 @@
 			(endif)
 		(loop-until `(,s == ,e))
 		(vec-store 1 {iter_end})
-		(f-call 'array 'set_length {this, (iter_end - iter_begin >> 3) + 1})
+		(f-call 'array 'set_length {that, (iter_end - iter_that >> 3) + 1})
 	(endif)
 
 	(f-exit 'array 'rem_co_polyline {this})
@@ -570,20 +572,21 @@
 (def-func 'class/array/rem_co_polygon)
 	;inputs
 	;r0 = array object
+	;r1 = dest array object, can be same
 	;outputs
 	;r0 = array object
 	;trashes
 	;all but r0, r4
 
-	(ptr 'this)
+	(ptr 'this 'that)
 	(pptr 'iter_begin 'iter_end)
 
 	(push-scope)
-	(f-entry 'array 'rem_co_polygon {this})
+	(f-entry 'array 'rem_co_polygon {this, that})
 
-	(f-call 'array 'rem_co_polyline {this})
-	(f-call 'array 'get_begin {this} {_, iter_begin})
-	(f-call 'array 'get_end {this} {_, iter_end})
+	(f-call 'array 'rem_co_polyline {this, that})
+	(f-call 'array 'get_begin {that} {_, iter_begin})
+	(f-call 'array 'get_end {that} {_, iter_end})
 
 	(vec-set 0)
 	(vec-load 2 {iter_end, iter_begin})
@@ -595,7 +598,7 @@
 		(vec-load-int 2 e (neg long_size))
 		(vec-manhattan 2)
 		(vpif `(,(elem 0 (vec-pop 1)) < 0.5))
-			(d-call 'array 'pop_back {this})
+			(d-call 'array 'pop_back {that})
 		(endif)
 	(endif)
 
