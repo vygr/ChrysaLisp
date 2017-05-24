@@ -101,3 +101,99 @@
 	(return)
 
 (def-func-end)
+
+(def-func 'class/points/gen_clerp)
+	;inputs
+	;r0 = points object
+	;r1 = stack array
+	;r2 = 16.16 c.x
+	;r3 = 16.16 c.y
+	;r5 = 16.16 v1.x
+	;r6 = 16.16 v1.y
+	;r7 = 16.16 v2.x
+	;r8 = 16.16 v2.y
+	;r9 = 16.16 radius
+	;outputs
+	;r0 = points object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'stack)
+	(union
+		'(ulong 'c 'v1 'v2 'v3 'bv)
+		'(int 'cx 'cy 'v1x 'v1y 'v2x 'v2y 'v3x 'v3y 'bvx 'bvy))
+	(int 'radius)
+	(uint 'length)
+
+	(push-scope)
+	(f-entry 'points 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius})
+
+	(vpif {radius >= 0.5})
+		(f-call 'array 'set_length {stack, 0})
+		(f-call 'array 'push_back {stack, v1})
+		(f-call 'array 'push_back {stack, v2})
+
+		;output first point
+		(vec-set 0)
+		(vec-load 2 {cx, cy} {v1x, v1y})
+		(vec-add 2)
+		(vec-store 2 {bvx, bvy})
+		(f-call 'array 'push_back {this, bv})
+
+		(loop-start)
+			(d-call 'array 'get_length {stack} {_, length})
+			(breakifnot {length})
+			(f-call 'array 'get_back {this} {_, v3})
+			(d-call 'array 'pop_back {this})
+			(f-call 'array 'get_back {this} {_, v1})
+			(d-call 'array 'pop_back {this})
+
+			;calculate the mid-point
+			(vec-load 2 {v1x, v1y} {v3x, v3y})
+			(vec-add 2)
+			(vec-norm 2)
+			(vec-load 1 {radius})
+			(vec-scale 2)
+			(vec-store 2 {bvx, bvy})
+
+			;flatness test
+			(vec-load 1 {v1x} {v3x})
+			(vec-add 1)
+			(vec-load 1 {bvx})
+			(vec-dup 1)
+			(vec-dif 3)
+			(vec-load 1 {v1y} {v3y})
+			(vec-add 1)
+			(vec-load 1 {bvy})
+			(vec-dup 1)
+			(vec-dif 3)
+			(vec-abs 2)
+			(vec-sum 2)
+
+			(vpif `(,(elem 0 (vec-pop 1)) <= 2.0))
+				;output point
+				(vec-load 2 {cx, cy} {bvx, bvy})
+				(vec-add 2)
+				(vec-store 2 {bvx, bvy})
+				(f-call 'array 'push_back {this, bv})
+			(else)
+				;continue subdivision
+				(f-call 'array 'push_back {stack, bv})
+				(f-call 'array 'push_back {stack, v3})
+				(f-call 'array 'push_back {stack, v1})
+				(f-call 'array 'push_back {stack, bv})
+			(endif)
+		(loop-end)
+
+		;output last point
+		(vec-load 2 {cx, cy} {v2x, v2y})
+		(vec-add 2)
+		(vec-store 2 {bvx, bvy})
+		(f-call 'array 'push_back {this, bv})
+	(endif)
+
+	(f-exit 'points 'gen_clerp {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

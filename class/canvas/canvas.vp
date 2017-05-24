@@ -784,7 +784,7 @@
 	;inputs
 	;r0 = canvas object
 	;r1 = color
-	;r2 = span fill function
+	;r2 = span function
 	;r8 = x
 	;r9 = y
 	;r10 = w
