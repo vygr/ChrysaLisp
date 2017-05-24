@@ -70,17 +70,17 @@
 	(default)
 	(gotoif e (loc-sym (eval (cnt-sym)))))
 
-(defcfun break ()
-	(vp-jmp (end-sym)))
+(defcfun break (&optional _)
+	(goto (if _ _ (end-sym))))
 
-(defcfun breakif (e)
-	(gotoif e (end-sym)))
+(defcfun breakif (e &optional _)
+	(gotoif e (if _ _ (end-sym))))
 
-(defcfun breakifnot (e)
-	(gotoifnot e (end-sym)))
+(defcfun breakifnot (e &optional _)
+	(gotoifnot e (if _ _ (end-sym))))
 
 (defcfun continue ()
-	(vp-jmp (beg-sym)))
+	(goto (beg-sym)))
 
 (defcfun continueif (e)
 	(gotoif e (beg-sym)))
@@ -88,9 +88,10 @@
 (defcfun continueifnot (e)
 	(gotoifnot e (beg-sym)))
 
-(defcfun loop-start ()
+(defcfun loop-start (&optional _)
 	(switch)
-	(vp-label (beg-sym)))
+	(vp-label (beg-sym))
+	(if _ (defcvar _ (end-sym))))
 
 (defcfun loop-while (e)
 	(switch)
