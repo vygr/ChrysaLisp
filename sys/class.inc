@@ -327,6 +327,7 @@
 (def-method 'error 'class/class_error)
 (def-method 'vdu 'class/class_vdu)
 (def-method 'canvas 'class/class_canvas)
+(def-method 'points 'class/class_points)
 
 (defcfun signature (l &rest _)
 	(vp-align short_size)
