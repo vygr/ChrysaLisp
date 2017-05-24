@@ -464,7 +464,7 @@
 (def-func 'class/array/sort)
 	;inputs
 	;r0 = array object
-	;r1 = sort interval array
+	;r1 = stack array
 	;r2 = lower iter
 	;r3 = upper iter
 	;r5 = compare callback
@@ -483,34 +483,34 @@
 		;trashes
 		;all but r0, r4
 
-	(ptr 'this 'func 'ctx 'que)
+	(ptr 'this 'func 'ctx 'stack)
 	(pptr 'pivot 'iter_begin)
 	(union
 		'(uint 'low 'high)
 		'(ulong 'interval))
 	(union
 		'(pptr 'lower 'upper)
-		'(uint 'length))
+		'(uint 'start 'length))
 
 	(push-scope)
-	(f-entry 'array 'sort {this, que, lower, upper, func, ctx})
+	(f-entry 'array 'sort {this, stack, lower, upper, func, ctx})
 
 	(f-call 'array 'get_begin {this} {_, iter_begin})
 	(assign {(lower - iter_begin) >> 3, (upper - iter_begin) >> 3} {low, high})
-	(f-call 'array 'set_length {que, 0})
-	(f-call 'array 'push_back {que, interval})
+	(d-call 'array 'get_length {stack} {_, start})
+	(f-call 'array 'push_back {stack, interval})
 	(loop-start)
-		(d-call 'array 'get_length {que} {_, length})
-		(breakifnot {length})
-		(f-call 'array 'get_back {que} {_, interval})
-		(d-call 'array 'pop_back {que})
+		(d-call 'array 'get_length {stack} {_, length})
+		(breakif {length == start})
+		(f-call 'array 'get_back {stack} {_, interval})
+		(d-call 'array 'pop_back {stack})
 		(continueif {low >= high})
 		(f-call 'array 'partition {this, low * ptr_size + iter_begin, high * ptr_size + iter_begin, func, ctx} {_, pivot})
 		(assign {high} {length})
 		(assign {(pivot - iter_begin) >> 3} {high})
-		(f-call 'array 'push_back {que, interval})
+		(f-call 'array 'push_back {stack, interval})
 		(assign {high + 1, length} {low, high})
-		(f-call 'array 'push_back {que, interval})
+		(f-call 'array 'push_back {stack, interval})
 	(loop-end)
 
 	(f-exit 'array 'sort {this})

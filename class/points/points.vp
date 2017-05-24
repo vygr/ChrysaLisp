@@ -123,13 +123,13 @@
 		'(ulong 'c 'v1 'v2 'v3 'bv)
 		'(int 'cx 'cy 'v1x 'v1y 'v2x 'v2y 'v3x 'v3y 'bvx 'bvy))
 	(int 'radius)
-	(uint 'length)
+	(uint 'start 'length)
 
 	(push-scope)
 	(f-entry 'points 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius})
 
 	(vpif {radius >= 0.5})
-		(f-call 'array 'set_length {stack, 0})
+		(d-call 'array 'get_length {stack} {_, start})
 		(f-call 'array 'push_back {stack, v1})
 		(f-call 'array 'push_back {stack, v2})
 
@@ -142,7 +142,7 @@
 
 		(loop-start)
 			(d-call 'array 'get_length {stack} {_, length})
-			(breakifnot {length})
+			(breakif {length == start})
 			(f-call 'array 'get_back {this} {_, v3})
 			(d-call 'array 'pop_back {this})
 			(f-call 'array 'get_back {this} {_, v1})
