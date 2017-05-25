@@ -199,6 +199,65 @@
 
 (def-func-end)
 
+(def-func 'class/points/gen_arc)
+	;inputs
+	;r0 = points object
+	;r1 = stack array
+	;r2 = 16.16 c.x
+	;r3 = 16.16 c.y
+	;r5 = 16.16 a1
+	;r6 = 16.16 a2
+	;r7 = 16.16 radius
+	;r8 = 16.16 tolerance
+	;outputs
+	;r0 = points object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'stack)
+	(int 'cx 'cy 'radius 'eps)
+	(union
+		'(int 'ca1 'ca2)
+		'(int 'a1 'a2)
+		'(int 'v1x 'v2x))
+	(union
+		'(int 'sa1 'sa2)
+		'(int 'v1y 'v2y)
+		'(int 'ah))
+
+	(push-scope)
+	(f-entry 'points 'gen_arc {this, stack, cx, cy, a1, a2, radius, eps})
+
+	(vpif {radius >= 0.5})
+		(vpif {a1 > fp_2pi})
+			(f-call 'math 'fmod {a1, fp_2pi} {a1})
+		(endif)
+		(vpif {a2 > fp_2pi})
+			(f-call 'math 'fmod {a2, fp_2pi} {a2})
+		(endif)
+
+		(vpif {a2 <= 3.0})
+			(f-call 'math 'fsin {a1} {sa1})
+			(f-call 'math 'fcos {a1} {ca1})
+			(f-call 'math 'fsin {a2} {sa2})
+			(f-call 'math 'fcos {a2} {ca2})
+			(assign {sa1 *> radius, ca1 *> radius} {v1x, v1y})
+			(assign {sa2 *> radius, ca2 *> radius} {v2x, v2y})
+			(f-call 'points 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius, eps})
+		(else)
+			(assign {a2 >>> 1} {ah})
+			(assign {a1 + ah} {a2})
+			(f-call 'points 'gen_arc {this, stack, cx, cy, a1, ah, radius, eps})
+			(f-call 'points 'gen_arc {this, stack, cx, cy, a2, ah, radius, eps})
+		(endif)
+	(endif)
+
+	(f-exit 'points 'gen_arc {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
 (def-func 'class/points/gen_bezier)
 	;inputs
 	;r0 = points object
