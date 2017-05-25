@@ -97,7 +97,7 @@
 		(vp-cpy-ri r0 r1 canvas_edge_tracker)
 		(f-call 'array 'create '() '(r0))
 		(vp-cpy-ir r4 0 r1)
-		(vp-cpy-ri r0 r1 canvas_intervals)
+		(vp-cpy-ri r0 r1 canvas_stack)
 
 		(vp-pop r0)
 	(endif)
@@ -141,7 +141,7 @@
 	(vp-cpy-ir r4 local_this r0)
 	(f-call 'array 'deref '((r0 canvas_edge_tracker)))
 	(vp-cpy-ir r4 local_this r0)
-	(f-call 'array 'deref '((r0 canvas_intervals)))
+	(f-call 'array 'deref '((r0 canvas_stack)))
 
 	;free any pixel buffer
 	(vp-cpy-ir r4 local_this r0)
@@ -923,7 +923,7 @@
 		(assign {iter_edge1} {*iter_end})
 		(assign {iter_edge1 + edge_size, iter_end + ptr_size} {iter_edge1, iter_end})
 	(loop-end)
-	(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_intervals, iter_i, iter_end, $sort_on_y, 0})
+	(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_end, $sort_on_y, 0})
 
 	(loop-while {ys < ye})
 		;mark edges that end on this scan line
@@ -947,7 +947,7 @@
 		(assign '(r1) {iter_j})
 
 		;sort on x, plus move all marked dead edges to front !
-		(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_intervals, iter_i, iter_j, $sort_on_x, 0})
+		(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_j, $sort_on_x, 0})
 
 		;remove all dead edges
 		(assign {iter_i, iter_j, min_int} '(r0 r1 r2))
