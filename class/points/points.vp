@@ -119,8 +119,8 @@
 
 	(ptr 'this 'stack)
 	(union
-		'(ulong 'c 'v1 'v2 'v3 'bv)
-		'(int 'cx 'cy 'v1x 'v1y 'v2x 'v2y 'v3x 'v3y 'bvx 'bvy))
+		'(ulong 'c 'v1 'v2 'bv)
+		'(int 'cx 'cy 'v1x 'v1y 'v2x 'v2y 'bvx 'bvy))
 	(int 'radius 'eps)
 	(uint 'start 'length)
 
@@ -128,10 +128,6 @@
 	(f-entry 'points 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius, eps})
 
 	(vpif {radius >= 0.5})
-		(d-call 'array 'get_length {stack} {_, start})
-		(f-call 'array 'push_back {stack, v1})
-		(f-call 'array 'push_back {stack, v2})
-
 		;output first point
 		(vec-set 0)
 		(vec-load 2 {cx, cy} {v1x, v1y})
@@ -139,16 +135,10 @@
 		(vec-store 2 {bvx, bvy})
 		(f-call 'points 'push_back {this, bv})
 
+		(d-call 'array 'get_length {stack} {_, start})
 		(loop-start)
-			(d-call 'array 'get_length {stack} {_, length})
-			(breakif {length == start})
-			(f-call 'array 'get_back {stack} {_, v3})
-			(d-call 'array 'pop_back {stack})
-			(f-call 'array 'get_back {stack} {_, v1})
-			(d-call 'array 'pop_back {stack})
-
 			;calculate the mid-point
-			(vec-load 2 {v1x, v1y} {v3x, v3y})
+			(vec-load 2 {v1x, v1y} {v2x, v2y})
 			(vec-add 2)
 			(vec-norm 2)
 			(vec-load 1 {radius})
@@ -156,12 +146,12 @@
 			(vec-store 2 {bvx, bvy})
 
 			;flatness test
-			(vec-load 1 {v1x} {v3x})
+			(vec-load 1 {v1x} {v2x})
 			(vec-add 1)
 			(vec-load 1 {bvx})
 			(vec-dup 1)
 			(vec-dif 3)
-			(vec-load 1 {v1y} {v3y})
+			(vec-load 1 {v1y} {v2y})
 			(vec-add 1)
 			(vec-load 1 {bvy})
 			(vec-dup 1)
@@ -180,10 +170,17 @@
 			(else)
 				;continue subdivision
 				(f-call 'array 'push_back {stack, bv})
-				(f-call 'array 'push_back {stack, v3})
+				(f-call 'array 'push_back {stack, v2})
 				(f-call 'array 'push_back {stack, v1})
 				(f-call 'array 'push_back {stack, bv})
 			(endif)
+
+			(d-call 'array 'get_length {stack} {_, length})
+			(breakif {length == start})
+			(f-call 'array 'get_back {stack} {_, v2})
+			(d-call 'array 'pop_back {stack})
+			(f-call 'array 'get_back {stack} {_, v1})
+			(d-call 'array 'pop_back {stack})
 		(loop-end)
 
 		;output last point
@@ -289,28 +286,12 @@
 	(push-scope)
 	(f-entry 'points 'gen_bezier {this, stack, p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y, eps})
 
-	(d-call 'array 'get_length {stack} {_, start})
-	(f-call 'array 'push_back {stack, p1})
-	(f-call 'array 'push_back {stack, p2})
-	(f-call 'array 'push_back {stack, p3})
-	(f-call 'array 'push_back {stack, p4})
-
 	;output first point
 	(vec-set 0)
 	(f-call 'points 'push_back {this, p1})
 
+	(d-call 'array 'get_length {stack} {_, start})
 	(loop-start)
-		(d-call 'array 'get_length {stack} {_, length})
-		(breakif {length == start})
-		(f-call 'array 'get_back {stack} {_, p4})
-		(d-call 'array 'pop_back {stack})
-		(f-call 'array 'get_back {stack} {_, p3})
-		(d-call 'array 'pop_back {stack})
-		(f-call 'array 'get_back {stack} {_, p2})
-		(d-call 'array 'pop_back {stack})
-		(f-call 'array 'get_back {stack} {_, p1})
-		(d-call 'array 'pop_back {stack})
-
 		;calculate the mid-points
 		(vec-load 6 {p1x, p1y, p2x, p2y, p3x, p3y})
 		(vec-load 6 {p2x, p2y, p3x, p3y, p4x, p4y})
@@ -367,6 +348,17 @@
 			(f-call 'array 'push_back {stack, p123})
 			(f-call 'array 'push_back {stack, p1234})
 		(endif)
+
+		(d-call 'array 'get_length {stack} {_, length})
+		(breakif {length == start})
+		(f-call 'array 'get_back {stack} {_, p4})
+		(d-call 'array 'pop_back {stack})
+		(f-call 'array 'get_back {stack} {_, p3})
+		(d-call 'array 'pop_back {stack})
+		(f-call 'array 'get_back {stack} {_, p2})
+		(d-call 'array 'pop_back {stack})
+		(f-call 'array 'get_back {stack} {_, p1})
+		(d-call 'array 'pop_back {stack})
 	(loop-end)
 
 	;output last point
