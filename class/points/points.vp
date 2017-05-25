@@ -195,3 +195,129 @@
 	(return)
 
 (def-func-end)
+
+(def-func 'class/points/gen_bezier)
+	;inputs
+	;r0 = points object
+	;r1 = stack array
+	;r2 = 16.16 p1.x
+	;r3 = 16.16 p1.y
+	;r5 = 16.16 p2.x
+	;r6 = 16.16 p2.y
+	;r7 = 16.16 p3.x
+	;r8 = 16.16 p3.y
+	;r9 = 16.16 p3.x
+	;r10 = 16.16 p3.y
+	;outputs
+	;r0 = points object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'stack)
+	(union
+		'(ulong 'p1 'p2 'p3 'p4)
+		'(int 'p1x 'p1y 'p2x 'p2y 'p3x 'p3y 'p4x 'p4y))
+	(union
+		'(ulong 'p12 'p23 'p34 'p123 'p234 'p1234)
+		'(int 'p12x 'p12y 'p23x 'p23y 'p34x 'p34y 'p123x 'p123y 'p234x 'p234y 'p1234x 'p1234y))
+	(uint 'start 'length)
+
+	(push-scope)
+	(f-entry 'points 'gen_bezier {this, stack, p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y})
+
+	(d-call 'array 'get_length {stack} {_, start})
+	(f-call 'array 'push_back {stack, p1})
+	(f-call 'array 'push_back {stack, p2})
+	(f-call 'array 'push_back {stack, p3})
+	(f-call 'array 'push_back {stack, p4})
+
+	;output first point
+	(vec-set 0)
+	(f-call 'points 'push_back {this, p1})
+
+	(loop-start)
+		(d-call 'array 'get_length {stack} {_, length})
+		(breakif {length == start})
+		(f-call 'array 'get_back {stack} {_, p4})
+		(d-call 'array 'pop_back {stack})
+		(f-call 'array 'get_back {stack} {_, p3})
+		(d-call 'array 'pop_back {stack})
+		(f-call 'array 'get_back {stack} {_, p2})
+		(d-call 'array 'pop_back {stack})
+		(f-call 'array 'get_back {stack} {_, p1})
+		(d-call 'array 'pop_back {stack})
+
+		;calculate the mid-points
+		(vec-load 2 {p1x, p1y} {p2x, p2y})
+		(vec-add 2)
+		(vec-asr 2 1)
+		(vec-store 2 {p12x, p12y})
+		(vec-load 2 {p2x, p2y} {p3x, p3y})
+		(vec-add 2)
+		(vec-asr 2 1)
+		(vec-store 2 {p23x, p23y})
+		(vec-load 2 {p3x, p3y} {p4x, p4y})
+		(vec-add 2)
+		(vec-asr 2 1)
+		(vec-store 2 {p34x, p34y})
+		(vec-load 2 {p12x, p12y} {p23x, p23y})
+		(vec-add 2)
+		(vec-asr 2 1)
+		(vec-store 2 {p123x, p123y})
+		(vec-load 2 {p23x, p23y} {p34x, p34y})
+		(vec-add 2)
+		(vec-asr 2 1)
+		(vec-store 2 {p234x, p234y})
+		(vec-load 2 {p123x, p123y} {p234x, p234y})
+		(vec-add 2)
+		(vec-asr 2 1)
+		(vec-store 2 {p1234x, p1234y})
+
+		;flatness test
+		(vec-load 1 {p1x} {p3x})
+		(vec-add 1)
+		(vec-load 1 {p2x})
+		(vec-dup 1)
+		(vec-dif 3)
+		(vec-load 1 {p1y} {p3y})
+		(vec-add 1)
+		(vec-load 1 {p2y})
+		(vec-dup 1)
+		(vec-dif 3)
+		(vec-load 1 {p2x} {p4x})
+		(vec-add 1)
+		(vec-load 1 {p3x})
+		(vec-dup 1)
+		(vec-dif 3)
+		(vec-load 1 {p2y} {p4y})
+		(vec-add 1)
+		(vec-load 1 {p3y})
+		(vec-dup 1)
+		(vec-dif 3)
+		(vec-abs 4)
+		(vec-sum 4)
+
+		(vpif `(,(elem 0 (vec-pop 1)) <= 2.0))
+			;output point
+			(f-call 'points 'push_back {this, p1234})
+		(else)
+			;continue subdivision
+			(f-call 'array 'push_back {stack, p1234})
+			(f-call 'array 'push_back {stack, p234})
+			(f-call 'array 'push_back {stack, p34})
+			(f-call 'array 'push_back {stack, p4})
+			(f-call 'array 'push_back {stack, p1})
+			(f-call 'array 'push_back {stack, p12})
+			(f-call 'array 'push_back {stack, p123})
+			(f-call 'array 'push_back {stack, p1234})
+		(endif)
+	(loop-end)
+
+	;output last point
+	(f-call 'points 'push_back {this, p4})
+
+	(f-exit 'points 'gen_bezier {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
