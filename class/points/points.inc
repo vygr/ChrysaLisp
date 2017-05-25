@@ -12,6 +12,14 @@
 (def-struct 'points 'array)
 (def-struct-end)
 
+(def-enum 'join)
+	(enum 'miter 'bevel 'round)
+(def-enum-end)
+
+(def-enum 'cap)
+	(enum 'butt 'square 'tri 'arrow 'round)
+(def-enum-end)
+
 ;;;;;;;;;;;;;;;
 ;inline methods
 ;;;;;;;;;;;;;;;
