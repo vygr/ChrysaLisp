@@ -111,6 +111,7 @@
 	;r7 = 16.16 v2.x
 	;r8 = 16.16 v2.y
 	;r9 = 16.16 radius
+	;r10 = 16.16 tolerance
 	;outputs
 	;r0 = points object
 	;trashes
@@ -120,11 +121,11 @@
 	(union
 		'(ulong 'c 'v1 'v2 'v3 'bv)
 		'(int 'cx 'cy 'v1x 'v1y 'v2x 'v2y 'v3x 'v3y 'bvx 'bvy))
-	(int 'radius)
+	(int 'radius 'eps)
 	(uint 'start 'length)
 
 	(push-scope)
-	(f-entry 'points 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius})
+	(f-entry 'points 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius, eps})
 
 	(vpif {radius >= 0.5})
 		(d-call 'array 'get_length {stack} {_, start})
@@ -168,7 +169,9 @@
 			(vec-abs 2)
 			(vec-sum 2)
 
-			(vpif `(,(elem 0 (vec-pop 1)) <= 2.0))
+			(vec-load 1 {eps})
+			(vec-def (vec-pop 2) d e)
+			(vpif `(,d <= ,e))
 				;output point
 				(vec-load 2 {cx, cy} {bvx, bvy})
 				(vec-add 2)
@@ -208,6 +211,7 @@
 	;r8 = 16.16 p3.y
 	;r9 = 16.16 p3.x
 	;r10 = 16.16 p3.y
+	;r11 = 16.16 tolerance
 	;outputs
 	;r0 = points object
 	;trashes
@@ -221,9 +225,10 @@
 		'(ulong 'p12 'p23 'p34 'p123 'p234 'p1234)
 		'(int 'p12x 'p12y 'p23x 'p23y 'p34x 'p34y 'p123x 'p123y 'p234x 'p234y 'p1234x 'p1234y))
 	(uint 'start 'length)
+	(int 'eps)
 
 	(push-scope)
-	(f-entry 'points 'gen_bezier {this, stack, p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y})
+	(f-entry 'points 'gen_bezier {this, stack, p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y, eps})
 
 	(d-call 'array 'get_length {stack} {_, start})
 	(f-call 'array 'push_back {stack, p1})
@@ -287,7 +292,9 @@
 		(vec-abs 4)
 		(vec-sum 4)
 
-		(vpif `(,(elem 0 (vec-pop 1)) <= 2.0))
+		(vec-load 1 {eps})
+		(vec-def (vec-pop 2) d e)
+		(vpif `(,d <= ,e))
 			;output point
 			(f-call 'points 'push_back {this, p1234})
 		(else)
