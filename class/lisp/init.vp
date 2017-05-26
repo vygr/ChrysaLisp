@@ -239,6 +239,7 @@
 	(built-in "cmp" 0 'func_cmp)
 	(built-in "call" 0 'func_call)
 	(built-in "array" 0 'func_array)
+	(built-in "points" 0 'func_points)
 	(built-in "fsqrt" 0 'func_fsqrt)
 	(built-in "fmod" 0 'func_fmod)
 	(built-in "frac" 0 'func_frac)

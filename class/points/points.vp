@@ -213,25 +213,20 @@
 
 	(ptr 'this 'stack)
 	(int 'cx 'cy 'radius 'eps)
-	(union
-		'(int 'ca1 'ca2)
-		'(int 'a1 'a2)
-		'(int 'v1x 'v2x))
-	(union
-		'(int 'sa1 'sa2)
-		'(int 'v1y 'v2y)
-		'(int 'ah))
+
+	(int 'ca1 'ca2)
+	(int 'a1 'a2)
+	(int 'v1x 'v2x)
+	(int 'sa1 'sa2)
+	(int 'v1y 'v2y)
+	(int 'ah)
 
 	(push-scope)
 	(f-entry 'points 'gen_arc {this, stack, cx, cy, a1, a2, radius, eps})
 
 	(vpif {radius >= 0.5})
-		(vpif {a1 > fp_2pi})
-			(f-call 'math 'fmod {a1, fp_2pi} {a1})
-		(endif)
-		(vpif {a2 > fp_2pi})
-			(f-call 'math 'fmod {a2, fp_2pi} {a2})
-		(endif)
+		(f-call 'math 'fmod {a1, fp_2pi} {a1})
+		(f-call 'math 'fmod {a2, fp_2pi} {a2})
 
 		(vpif {a2 <= 3.0})
 			(f-call 'math 'fsin {a1} {sa1})

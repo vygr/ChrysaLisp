@@ -121,6 +121,7 @@
 (def-method 'func_cmp 'class/lisp/func_cmp 'static '(r0 r1) '(r0 r1))
 (def-method 'func_call 'class/lisp/func_call 'static '(r0 r1) '(r0 r1))
 (def-method 'func_array 'class/lisp/func_array 'static '(r0 r1) '(r0 r1))
+(def-method 'func_points 'class/lisp/func_points 'static '(r0 r1) '(r0 r1))
 (def-method 'func_fsqrt 'class/lisp/func_fsqrt 'static '(r0 r1) '(r0 r1))
 (def-method 'func_fmod 'class/lisp/func_fmod 'static '(r0 r1) '(r0 r1))
 (def-method 'func_frac 'class/lisp/func_frac 'static '(r0 r1) '(r0 r1))

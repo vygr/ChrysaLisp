@@ -1,0 +1,32 @@
+(import 'sys/func.inc)
+(import 'class/points/points.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_points)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = else value
+
+	(ptr 'this 'args 'value)
+	(union
+		'(pptr 'iter_begin)
+		'(uint 'length))
+
+	(push-scope)
+	(f-entry 'lisp 'func_points {this, args})
+
+	(f-call 'points 'create {} {value})
+	(d-call 'vector 'get_length {args} {_, length})
+	(f-call 'points 'set_capacity {value, length})
+	(f-call 'points 'set_length {value, length})
+	(f-call 'points 'get_begin {value} {_, iter_begin})
+	(f-call 'lisp 'env_args_set {this, args, iter_begin, 0})
+
+	(f-exit 'lisp 'func_points {this, value})
+	(pop-scope)
+	(return)
+
+(def-func-end)

@@ -85,7 +85,7 @@
 			(f-call 'stream 'write_char {stream, char_rcb})
 			(pop-scope)
 			(break)
-		(case (cat {elem == @} (f-path 'class 'array)))
+		(case (cat {elem == @} (f-path 'class 'array) { || elem == @} (f-path 'class 'points)))
 			(struct 'pdata 'local)
 			(push-scope)
 			(f-call 'stream 'write_char {stream, char_lsb})
