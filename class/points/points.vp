@@ -214,13 +214,14 @@
 
 	(ptr 'this 'stack)
 	(int 'cx 'cy 'radius 'eps)
-
-	(int 'ca1 'ca2)
-	(int 'a1 'a2)
-	(int 'v1x 'v2x)
-	(int 'sa1 'sa2)
-	(int 'v1y 'v2y)
-	(int 'ah)
+	(union
+		'(int 'ca1 'ca2)
+		'(int 'a1 'a2)
+		'(int 'v1x 'v2x))
+	(union
+		'(int 'sa1 'sa2)
+		'(int 'v1y 'v2y)
+		'(int 'ah))
 
 	(push-scope)
 	(f-entry 'points 'gen_arc {this, stack, cx, cy, a1, a2, radius, eps})
@@ -367,6 +368,173 @@
 
 (def-func-end)
 
+(def-func 'class/points/gen_polyline_joints)
+	;inputs
+	;r0 = points object
+	;r1 = in points iter_i
+	;r2 = in points iter_j
+	;r3 = stack array
+	;r5 = 16.16 p1.x
+	;r6 = 16.16 p1.y
+	;r7 = 16.16 p2.x
+	;r8 = 16.16 p2.y
+	;r9 = join style
+	;r10 = 16.16 radius
+	;r11 = 16.16 tolerance
+	;outputs
+	;r0 = points object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'stack)
+	(pulong 'iter_i 'iter_j)
+	(union
+		'(ulong 'p1 'p2 'p)
+		'(int 'p1x 'p1y 'p2x 'p2y 'px 'py))
+	(int 'p0x 'p0y)
+	(int 'radius 'eps 'step)
+	(int 'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy)
+	(int 'l1_vx 'l1_vy 'l1_pvx 'l1_pvy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy)
+	(int 'c)
+	(byte 'join_style)
+
+	(push-scope)
+	(f-entry 'points 'gen_polyline_joints {this, iter_i, iter_j, stack, p1x, p1y, p2x, p2y, join_style, radius, eps})
+
+	(vpif {radius >= 0.5 && iter_i != iter_j})
+		(vpif {iter_j > iter_i})
+			(assign {long_size} {step})
+		(else)
+			(assign {-long_size} {step})
+		(endif)
+
+		(vec-set 0)
+		(vec-load 2 {p2x, p2y} {p1x, p1y})
+		(vec-sub 2)
+		(vec-dup 2)
+		(vec-store 2 {l2_vx, l2_vy})
+		(vec-perp)
+		(vec-dup 2)
+		(vec-store 2 {l2_pvx, l2_pvy})
+		(vec-norm 2)
+		(vec-dup 2)
+		(vec-store 2 {l2_npvx, l2_npvy})
+		(vec-load 1 {radius})
+		(vec-scale 2)
+		(vec-store 2 {l2_rvx, l2_rvy})
+
+		(loop-start)
+			(vec-load 8 {p2x, p2y, l2_vx, l2_vy, l2_npvx, l2_npvy, l2_rvx, l2_rvy})
+			(vec-store 8 {p1x, p1y, l1_vx, l1_vy, l1_npvx, l1_npvy, l1_rvx, l1_rvy})
+			(assign {*iter_i} {p2})
+			(assign {iter_i + step} {iter_i})
+			(vec-load 2 {p2x, p2y} {p1x, p1y})
+			(vec-sub 2)
+			(vec-dup 2)
+			(vec-store 2 {l2_vx, l2_vy})
+			(vec-perp)
+			(vec-dup 2)
+			(vec-store 2 {l2_pvx, l2_pvy})
+			(vec-norm 2)
+			(vec-dup 2)
+			(vec-store 2 {l2_npvx, l2_npvy})
+			(vec-load 1 {radius})
+			(vec-scale 2)
+			(vec-store 2 {l2_rvx, l2_rvy})
+
+			;what kind of join
+			(vec-load 2 {l1_npvx, l1_npvy} {l2_npvx, l2_npvy})
+			(vec-perp)
+			(vec-dot 2)
+			(vec-store 1 {c})
+
+			(switch)
+			(case {c <= 0 || join_style == join_miter})
+				;mitre join
+				(vec-load 2 {p1x, p1y} {l1_rvx, l1_rvy})
+				(vec-add 2)
+				(vec-store 2 {p0x, p0y})
+				(vec-load 2 {p1x, p1y} {l2_rvx, l2_rvy})
+				(vec-add 2)
+				(vec-store 2 {px, py})
+				(f-call 'math 'vec_intersect {p0x, p0y, l1_vx, l1_vy, px, py, l2_vx, l2_vy} {px, py})
+				(f-call 'points 'push_back {this, p})
+				(break)
+			(case {join_style == join_bevel})
+				;bevel join
+				(vec-load 2 {p1x, p1y} {l1_rvx, l1_rvy})
+				(vec-add 2)
+				(vec-store 2 {px, py})
+				(f-call 'points 'push_back {this, p})
+				(vec-load 2 {p1x, p1y} {l2_rvx, l2_rvy})
+				(vec-add 2)
+				(vec-store 2 {px, py})
+				(f-call 'points 'push_back {this, p})
+				(break)
+			(default)
+				;rounded join
+				(f-call 'points 'gen_clerp {this, stack, p1x, p1y, l1_rvx, l1_rvy, l2_rvx, l2_rvy, radius, eps})
+			(endswitch)
+		(loop-until {iter_i == iter_j})
+	(endif)
+
+	(f-exit 'points 'gen_polyline_joints {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/points/stroke_polygons)
+	;r0 = vector for output polygons
+	;r1 = vector of input polygons
+	;r2 = stack array
+	;r3 = join style
+	;r5 = 16.16 radius
+	;r6 = 16.16 tolerance
+	;outputs
+	;r0 = vector for output polygons
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'in_polygons 'stack 'polygon)
+	(pptr 'iter_begin_polygons 'iter_end_polygons)
+	(pulong 'iter_begin_polyline 'iter_end_polyline)
+	(union
+		'(ulong 'p1 'p2)
+		'(int 'p1x 'p1y 'p2x 'p2y))
+	(int 'radius 'eps)
+	(byte 'join_style)
+
+	(push-scope)
+	(f-entry 'points 'stroke_polygons {this, in_polygons, stack, join_style, radius, eps})
+
+	(vpif {radius >= 0.5})
+		(f-call 'vector 'get_begin {in_polygons} {_, iter_begin_polygons})
+		(f-call 'vector 'get_end {in_polygons} {_, iter_end_polygons})
+		(loop-while {iter_begin_polygons != iter_end_polygons})
+			(f-call 'points 'rem_co_polygon {*iter_begin_polygons, *iter_begin_polygons, 0.5})
+			(f-call 'vector 'get_begin {*iter_begin_polygons} {_, iter_begin_polyline})
+			(f-call 'vector 'get_end {*iter_begin_polygons} {_, iter_end_polyline})
+			(f-call 'points 'create {} {polygon})
+			(assign {iter_end_polyline[-long_size * 2], iter_end_polyline[-long_size]} {p1, p2})
+			(f-call 'points 'gen_polyline_joints {polygon, iter_begin_polyline, iter_end_polyline,
+				stack, p1x, p1y, p2x, p2y, join_style, radius, eps})
+			(f-call 'vector 'push_back {this, polygon})
+;			(f-call 'points 'create {} {polygon})
+;			(assign {iter_begin_polyline[long_size], *iter_begin_polyline} {p1, p2})
+;			(f-call 'points 'gen_polyline_joints {polygon, iter_end_polyline - long_size, iter_begin_polyline - long_size,
+;				stack, p1x, p1y, p2x, p2y, join_style, radius, eps})
+;			(f-call 'vector 'push_back {this, polygon})
+			(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
+		(loop-end)
+	(endif)
+
+	(f-exit 'points 'stroke_polygons {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
 (def-func 'class/points/stroke_polylines)
 	;inputs
 	;r0 = vector for output polygons
@@ -385,12 +553,14 @@
 	(ptr 'this 'in_polylines 'stack 'out_points)
 	(pptr 'iter_begin_polylines 'iter_end_polylines)
 	(union
-		'(ulong 'p1 'p2 'p0 'p)
-		'(int 'p1x 'p1y 'p2x 'p2y 'p0x 'p0y 'px 'py))
-	(int 'radius 'eps 'join_style 'cap1_style 'cap2_style 'index 'step)
+		'(ulong 'p1 'p2 'p)
+		'(int 'p1x 'p1y 'p2x 'p2y 'px 'py))
+	(int 'p0x 'p0y)
+	(int 'radius 'eps 'index 'step)
 	(int 'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy)
 	(int 'l1_vx 'l1_vy 'l1_pvx 'l1_pvy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy)
 	(int 'rvx 'rvy 'c 'length)
+	(byte 'join_style 'cap1_style 'cap2_style)
 
 	(push-scope)
 	(f-entry 'points 'stroke_polylines {this, in_polylines, stack, join_style, cap1_style, cap2_style, radius, eps})
@@ -400,15 +570,15 @@
 		(f-call 'vector 'get_begin {in_polylines} {_, iter_begin_polylines})
 		(f-call 'vector 'get_end {in_polylines} {_, iter_end_polylines})
 		(loop-while {iter_begin_polylines != iter_end_polylines})
-			(f-call 'points 'rem_co_polyline {*iter_begin_polylines, *iter_begin_polylines, stack})
+			(f-call 'points 'rem_co_polyline {*iter_begin_polylines, *iter_begin_polylines, 0.5})
 			(d-call 'points 'get_length {*iter_begin_polylines} {_, length})
 			(f-call 'points 'create {} {out_points})
 			(assign {0, 1} {index, step})
 			(loop-start)
 				(f-call 'points 'get_element {*iter_begin_polylines, index} {_, p1})
-				(assign {index + 1} {index})
+				(assign {index + step} {index})
 				(f-call 'points 'get_element {*iter_begin_polylines, index} {_, p2})
-				(assign {index + 1} {index})
+				(assign {index + step} {index})
 				(vec-load 2 {p2x, p2y} {p1x, p1y})
 				(vec-sub 2)
 				(vec-dup 2)
@@ -428,16 +598,15 @@
 				(else)
 					(assign {cap2_style} {c})
 				(endif)
-
 				(switch)
 				(case {c == cap_butt})
 					;butt cap
 					(vec-load 2 {p1x, p1y} {l2_rvx, l2_rvy})
-					(vec-add 2)
+					(vec-sub 2)
 					(vec-store 2 {px, py})
 					(f-call 'points 'push_back {out_points, p})
 					(vec-load 2 {p1x, p1y} {l2_rvx, l2_rvy})
-					(vec-sub 2)
+					(vec-add 2)
 					(vec-store 2 {px, py})
 					(f-call 'points 'push_back {out_points, p})
 					(break)
@@ -448,11 +617,11 @@
 					(vec-add 2)
 					(vec-store 2 {p0x, p0y})
 					(vec-load 2 {p0x, p0y} {l2_rvx, l2_rvy})
-					(vec-add 2)
+					(vec-sub 2)
 					(vec-store 2 {px, py})
 					(f-call 'points 'push_back {out_points, p})
 					(vec-load 2 {p0x, p0y} {l2_rvx, l2_rvy})
-					(vec-sub 2)
+					(vec-add 2)
 					(vec-store 2 {px, py})
 					(f-call 'points 'push_back {out_points, p})
 					(break)
@@ -487,7 +656,7 @@
 					(f-call 'points 'push_back {out_points, p})
 					(vec-load 2 {p1x, p1y} {rvx, rvy})
 					(vec-perp)
-					(vec-sub 2)
+					(vec-add 2)
 					(vec-store 2 {px, py})
 					(f-call 'points 'push_back {out_points, p})
 					(vec-load 2 {p1x, p1y} {rvx, rvy})
@@ -511,7 +680,7 @@
 					(vec-load 8 {p2x, p2y, l2_vx, l2_vy, l2_npvx, l2_npvy, l2_rvx, l2_rvy})
 					(vec-store 8 {p1x, p1y, l1_vx, l1_vy, l1_npvx, l1_npvy, l1_rvx, l1_rvy})
 					(f-call 'points 'get_element {*iter_begin_polylines, index} {_, p2})
-					(assign {index + 1} {index})
+					(assign {index + step} {index})
 					(vec-load 2 {p2x, p2y} {p1x, p1y})
 					(vec-sub 2)
 					(vec-dup 2)
@@ -528,15 +697,12 @@
 
 					;what kind of join
 					(vec-load 2 {l1_npvx, l1_npvy} {l2_npvx, l2_npvy})
-					(vec-add 2)
-					(vec-norm 2)
-					(vec-load 2 {l1_vx, l1_vy})
-					(vec-norm 2)
+					(vec-perp)
 					(vec-dot 2)
 					(vec-store 1 {c})
 
 					(switch)
-					(case {c <=0 || join_style == join_miter})
+					(case {c <= 0 || join_style == join_miter})
 						;mitre join
 						(vec-load 2 {p1x, p1y} {l1_rvx, l1_rvy})
 						(vec-add 2)
