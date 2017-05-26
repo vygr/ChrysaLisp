@@ -22,7 +22,9 @@
 	(vpif (cat {value->obj_vtable == @} (f-path 'class 'vector)))
 		(d-call 'vector 'append {value, args, 1, length})
 	(else)
-		(errorif (cat {value->obj_vtable != @} (f-path 'class 'array)) 'error1)
+	(errorcases
+		(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'array)) {_, iter_end})
+		(errorifnot {iter_end} 'error1))
 		(d-call 'array 'get_length {value} {_, alength})
 		(assign {alength + length - 1} {alength})
 		(f-call 'array 'set_capacity {value, alength})
