@@ -9,6 +9,8 @@
 (def-method 'gen_arc 'class/points/gen_arc 'static '(r0 r1 r2 r3 r5 r6 r7 r8) '(r0))
 (def-method 'gen_bezier 'class/points/gen_bezier 'static '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11) '(r0))
 
+(def-method 'stroke_polylines 'class/points/stroke_polylines 'static '(r0 r1 r2 r3 r5 r6 r7 r8) '(r0))
+
 (def-struct 'points 'array)
 (def-struct-end)
 

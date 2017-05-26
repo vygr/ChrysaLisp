@@ -92,6 +92,13 @@
 			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 			(f-call 'points 'gen_arc {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7})
 			(break)
+		(case (cat {slot == } (str (method-slot 'points 'stroke_polylines))))
+		(errorcases
+			(f-call 'lisp 'env_args_type {this, args, $points_stroke_polylines, 9} {_, slot})
+			(errorifnot {slot} 'error1))
+			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+			(f-call 'points 'stroke_polylines {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7})
+			(break)
 		(default)
 		(errorcases
 			(goto 'error1))
@@ -120,7 +127,9 @@
 	(signature 'points_gen_arc 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long
 									'boxed_long 'boxed_long)
 	(signature 'points_gen_bezier 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long
-									'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long))
+									'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'points_stroke_polylines 'boxed_long 'vector 'vector 'array 'boxed_long
+									'boxed_long 'boxed_long 'boxed_long 'boxed_long))
 
 	(pop-scope-syms)
 
