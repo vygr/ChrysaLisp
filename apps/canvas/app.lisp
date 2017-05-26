@@ -82,7 +82,6 @@
 					(sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)
 					2.0))))))
 
-(when nil
 (bpoly 0xc0ff0000 0
 	(stroke-polygon-2d
 		(list)
@@ -107,6 +106,5 @@
 						(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
 						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))
 						4.0 2.0 (fmul canvas_width 0o0.1) 2.0))))))
-)
 
 (call slot_swap canvas)

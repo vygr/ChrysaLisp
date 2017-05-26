@@ -229,6 +229,7 @@
 		(f-call 'math 'fmod {a2, fp_2pi} {a2})
 
 		(vpif {a2 <= 3.0})
+			(assign {a1 + a2} {a2})
 			(f-call 'math 'fsin {a1} {sa1})
 			(f-call 'math 'fcos {a1} {ca1})
 			(f-call 'math 'fsin {a2} {sa2})
