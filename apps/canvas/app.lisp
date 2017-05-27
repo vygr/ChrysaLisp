@@ -17,7 +17,8 @@
 ;math tools
 (run 'apps/canvas/math.lisp)
 
-(defq canvas_scale (pop argv) canvas_height (pop argv) canvas_width (pop argv) canvas (pop argv))
+(defq canvas_scale (pop argv) canvas_height (pop argv) canvas_width (pop argv) canvas (pop argv)
+	stack (array))
 
 (defun as-points (_)
 	(defq polygon (points))
@@ -55,7 +56,7 @@
 			(list (fmul canvas_width 0o0.1) (fmul canvas_height 0o0.1))
 			(list (sub canvas_width (fmul canvas_width 0.25)) (fmul canvas_height 0.166))
 			(list (sub canvas_width (fmul canvas_width 0o0.1)) (sub canvas_height (fmul canvas_height 0o0.1))))))
-		(array)
+		stack
 		join-round
 		cap-round
 		cap-round
@@ -65,19 +66,19 @@
 (fpoly 0xff00ffff 1
 	(call slot_stroke_polygons (list)
 		(call slot_stroke_polylines (list)
-			(list (call slot_gen_bezier (points) (array)
+			(list (call slot_gen_bezier (points) stack
 				(fmul canvas_width 0x0.1) (sub canvas_height (fmul canvas_height 0x0.1))
 				(fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1)
 				(fmul canvas_width 0.25) (fmul canvas_height 0.33)
 				(sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)
 				2.0))
-			(array)
+			stack
 			join-bevel
 			cap-round
 			cap-arrow
 			(fmul canvas_width 0.033)
 			2.0)
-		(array)
+		stack
 		join-miter
 		(fmul canvas_width 0.01)
 		2.0))
@@ -86,21 +87,21 @@
 	(call slot_stroke_polygons (list)
 		(call slot_stroke_polylines (list)
 			(list
-				(call slot_gen_arc (points) (array)
+				(call slot_gen_arc (points) stack
 					(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
 					(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))
 					1.0 1.0 (fmul canvas_width 0.25) 2.0)
-				(call slot_gen_arc (points) (array)
+				(call slot_gen_arc (points) stack
 					(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
 					(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))
 					4.0 2.0 (fmul canvas_width 0o0.1) 2.0))
-			(array)
+			stack
 			join-bevel
 			cap-square
 			cap-tri
 			(fmul canvas_width 0.05)
 			2.0)
-		(array)
+		stack
 		join-miter
 		(fmul canvas_width 0.025)
 		2.0))
