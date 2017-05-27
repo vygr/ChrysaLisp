@@ -401,6 +401,12 @@
 		(vec-load 1 {axb})
 		(vec-dup 1)
 		(vec-div 2)
+	(else)
+		(vec-load 2 {p2x, p2y})
+		(vec-load 2 {p1x, p1y})
+		(vec-add 2)
+		(vec-load 1 {0.5})
+		(vec-scale 2)
 	(endif)
 	(vec-set 0)
 
