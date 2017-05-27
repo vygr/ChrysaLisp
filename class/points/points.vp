@@ -381,15 +381,13 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'this 'stack)
-	(pulong 'iter_i 'iter_j)
 	(union
-		'(ulong 'p1 'p2 'p0 'p)
-		'(int 'p1x 'p1y 'p2x 'p2y 'p0x 'p0y 'px 'py))
-	(union
-		'(ulong 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_pv 'l1_npv 'l1_rv)
-		'(int 'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy
+		'(ulong 'p1 'p2 'p0 'p 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_pv 'l1_npv 'l1_rv)
+		'(int 'p1x 'p1y 'p2x 'p2y 'p0x 'p0y 'px 'py
+			'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy
 			'l1_vx 'l1_vy 'l1_pvx 'l1_pvy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy))
+	(pulong 'iter_i 'iter_j)
+	(ptr 'this 'stack)
 	(int 'radius 'eps 'step 'c)
 	(byte 'join_style)
 
@@ -421,8 +419,7 @@
 		(loop-start)
 			(vec-load 4 {p2, l2_v, l2_npv, l2_rv})
 			(vec-store 4 {p1, l1_v, l1_npv, l1_rv})
-			(assign {*iter_i} {p2})
-			(assign {iter_i + step} {iter_i})
+			(assign {*iter_i, iter_i + step} {p2, iter_i})
 			(vec-load 2 {p2x, p2y} {p1x, p1y})
 			(vec-sub 2)
 			(vec-dup 2)
@@ -545,35 +542,34 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'this 'in_polylines 'stack 'out_points)
-	(pptr 'iter_begin_polylines 'iter_end_polylines)
 	(union
-		'(ulong 'p1 'p2 'p0 'p)
-		'(int 'p1x 'p1y 'p2x 'p2y 'p0x 'p0y 'px 'py))
-	(union
-		'(ulong 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_pv 'l1_npv 'l1_rv)
-		'(int 'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy
+		'(ulong 'p1 'p2 'p0 'p 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_pv 'l1_npv 'l1_rv)
+		'(int 'p1x 'p1y 'p2x 'p2y 'p0x 'p0y 'px 'py
+			'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy
 			'l1_vx 'l1_vy 'l1_pvx 'l1_pvy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy))
-	(int 'radius 'eps 'index 'step 'c 'length)
+	(pulong 'iter 'iter_begin 'iter_end)
+	(pptr 'iter_begin_polylines 'iter_end_polylines)
+	(ptr 'this 'stack 'out_points)
+	(int 'radius 'eps 'step 'c)
 	(byte 'join_style 'cap1_style 'cap2_style)
 
 	(push-scope)
-	(f-entry 'points 'stroke_polylines {this, stack, in_polylines, join_style, cap1_style, cap2_style, radius, eps})
+	(f-entry 'points 'stroke_polylines {this, stack, iter_end_polylines, join_style, cap1_style, cap2_style, radius, eps})
 
 	(vpif {radius >= 0.5})
 		(vec-set 0)
-		(f-call 'vector 'get_begin {in_polylines} {_, iter_begin_polylines})
-		(f-call 'vector 'get_end {in_polylines} {_, iter_end_polylines})
+		(f-call 'vector 'get_begin {iter_end_polylines} {_, iter_begin_polylines})
+		(f-call 'vector 'get_end {iter_end_polylines} {_, iter_end_polylines})
 		(loop-while {iter_begin_polylines != iter_end_polylines})
-			(f-call 'points 'rem_co_polyline {*iter_begin_polylines, *iter_begin_polylines, 0.5})
-			(d-call 'points 'get_length {*iter_begin_polylines} {_, length})
+			(assign {*iter_begin_polylines} {iter_begin})
+			(f-call 'points 'rem_co_polyline {iter_begin, iter_begin, 0.5})
+			(f-call 'points 'get_begin {iter_begin} {_, iter})
+			(f-call 'points 'get_end {iter_begin} {_, iter_end})
 			(f-call 'points 'create {} {out_points})
-			(assign {0, 1} {index, step})
+			(assign {iter - long_size, long_size} {iter_begin, step})
 			(loop-start)
-				(f-call 'points 'get_element {*iter_begin_polylines, index} {_, p1})
-				(assign {index + step} {index})
-				(f-call 'points 'get_element {*iter_begin_polylines, index} {_, p2})
-				(assign {index + step} {index})
+				(assign {*iter, iter + step} {p1, iter})
+				(assign {*iter, iter + step} {p2, iter})
 				(vec-load 2 {p2x, p2y} {p1x, p1y})
 				(vec-sub 2)
 				(vec-dup 2)
@@ -675,11 +671,10 @@
 					(f-call 'points 'gen_clerp {out_points, stack, p1, p, p0, radius, eps})
 					(f-call 'points 'gen_clerp {out_points, stack, p1, p0, l2_rv, radius, eps})
 				(endswitch)
-				(loop-while {index != -1 && index != length})
+				(loop-while {iter != iter_begin && iter != iter_end})
 					(vec-load 4 {p2, l2_v, l2_npv, l2_rv})
 					(vec-store 4 {p1, l1_v, l1_npv, l1_rv})
-					(f-call 'points 'get_element {*iter_begin_polylines, index} {_, p2})
-					(assign {index + step} {index})
+					(assign {*iter, iter + step} {p2, iter})
 					(vec-load 2 {p2x, p2y} {p1x, p1y})
 					(vec-sub 2)
 					(vec-dup 2)
@@ -730,7 +725,7 @@
 				(loop-end)
 				(breakif {step < 0})
 				(assign {-step} {step})
-				(assign {index + step} {index})
+				(assign {iter + step} {iter})
 			(loop-end)
 			(f-call 'vector 'push_back {this, out_points})
 			(assign {iter_begin_polylines + ptr_size} {iter_begin_polylines})
