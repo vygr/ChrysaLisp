@@ -520,11 +520,11 @@
 			(f-call 'points 'gen_polyline_joints {polygon, iter_begin_polyline, iter_end_polyline,
 				stack, p1x, p1y, p2x, p2y, join_style, radius, eps})
 			(f-call 'vector 'push_back {this, polygon})
-;			(f-call 'points 'create {} {polygon})
-;			(assign {iter_begin_polyline[long_size], *iter_begin_polyline} {p1, p2})
-;			(f-call 'points 'gen_polyline_joints {polygon, iter_end_polyline - long_size, iter_begin_polyline - long_size,
-;				stack, p1x, p1y, p2x, p2y, join_style, radius, eps})
-;			(f-call 'vector 'push_back {this, polygon})
+			(f-call 'points 'create {} {polygon})
+			(assign {iter_begin_polyline[long_size], *iter_begin_polyline} {p1, p2})
+			(f-call 'points 'gen_polyline_joints {polygon, iter_end_polyline - long_size, iter_begin_polyline - long_size,
+				stack, p1x, p1y, p2x, p2y, join_style, radius, eps})
+			(f-call 'vector 'push_back {this, polygon})
 			(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
 		(loop-end)
 	(endif)

@@ -62,7 +62,6 @@
 		(fmul canvas_width 0x0.1)
 		2.0))
 
-(when nil
 (fpoly 0xff00ffff 1
 	(call slot_stroke_polygons (list)
 		(call slot_stroke_polylines (list)
@@ -71,41 +70,39 @@
 				(fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1)
 				(fmul canvas_width 0.25) (fmul canvas_height 0.33)
 				(sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)
-				10.0))
+				2.0))
 			(array)
 			join-bevel
-			cap-butt
-			cap-butt
+			cap-round
+			cap-arrow
 			(fmul canvas_width 0.033)
 			2.0)
 		(array)
-		join-bevel
+		join-miter
 		(fmul canvas_width 0.01)
 		2.0))
 
 (bpoly 0xc0ff0000 0
-	(stroke-polygon-2d
-		(list)
-		(fmul canvas_width 0.025)
-		join-miter
-		(stroke-polyline-2d
-			(list)
-			(fmul canvas_width 0.05)
+	(call slot_stroke_polygons (list)
+		(call slot_stroke_polylines (list)
+			(list
+				(call slot_gen_arc (points) (array)
+					(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
+					(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))
+					1.0 1.0 (fmul canvas_width 0.25) 2.0)
+				(call slot_gen_arc (points) (array)
+					(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
+					(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))
+					4.0 2.0 (fmul canvas_width 0o0.1) 2.0))
+			(array)
 			join-bevel
 			cap-square
 			cap-tri
-			(list
-				(map (lambda (_)
-					(list (bit-asr (bit-shl _ 32) 32) (bit-asr _ 32)))
-					(call slot_gen_arc (points) (array)
-						(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
-						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))
-						1.0 1.0 (fmul canvas_width 0.25) 2.0))
-				(map (lambda (_)
-					(list (bit-asr (bit-shl _ 32) 32) (bit-asr _ 32)))
-					(call slot_gen_arc (points) (array)
-						(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
-						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))
-						4.0 2.0 (fmul canvas_width 0o0.1) 2.0))))))
-)
+			(fmul canvas_width 0.05)
+			2.0)
+		(array)
+		join-miter
+		(fmul canvas_width 0.025)
+		2.0))
+
 (call slot_swap canvas)
