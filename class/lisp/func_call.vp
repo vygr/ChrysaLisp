@@ -80,17 +80,17 @@
 		(switch)
 		(case (cat {slot == } (str (method-slot 'points 'gen_bezier))))
 		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $points_gen_bezier, 12} {_, slot})
+			(f-call 'lisp 'env_args_type {this, args, $points_gen_bezier, 8} {_, slot})
 			(errorifnot {slot} 'error1))
 			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'points 'gen_bezier {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10})
+			(f-call 'points 'gen_bezier {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
 			(break)
 		(case (cat {slot == } (str (method-slot 'points 'gen_arc))))
 		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $points_gen_arc, 9} {_, slot})
+			(f-call 'lisp 'env_args_type {this, args, $points_gen_arc, 8} {_, slot})
 			(errorifnot {slot} 'error1))
 			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'points 'gen_arc {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7})
+			(f-call 'points 'gen_arc {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
 			(break)
 		(default)
 		(errorcases
@@ -138,10 +138,8 @@
 	(signature 'canvas_set_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long)
 	(signature 'canvas_blend_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'canvas_blend_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long)
-	(signature 'points_gen_arc 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long
-									'boxed_long 'boxed_long)
-	(signature 'points_gen_bezier 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long
-									'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'points_gen_arc 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'points_gen_bezier 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'points_stroke_polygons 'boxed_long 'vector 'array 'vector 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'points_stroke_polylines 'boxed_long 'vector 'array 'vector 'boxed_long
 									'boxed_long 'boxed_long 'boxed_long 'boxed_long))

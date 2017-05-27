@@ -20,10 +20,13 @@
 (defq canvas_scale (pop argv) canvas_height (pop argv) canvas_width (pop argv) canvas (pop argv)
 	stack (array))
 
+(defun as-point (_)
+	(bit-or (bit-shl (elem 1 _) 32) (bit-and 0xffffffff (elem 0 _))))
+
 (defun as-points (_)
 	(defq polygon (points))
 	(each (lambda (_)
-		(push polygon (bit-or (bit-shl (elem 1 _) 32) (bit-and 0xffffffff (elem 0 _))))) _) polygon)
+		(push polygon (as-point _))) _) polygon)
 
 (defun scale-points (_)
 	(defq polygon (points))
@@ -66,10 +69,10 @@
 	(call slot_stroke_polygons (list) stack
 		(call slot_stroke_polylines (list) stack
 			(list (call slot_gen_bezier (points) stack
-				(fmul canvas_width 0x0.1) (sub canvas_height (fmul canvas_height 0x0.1))
-				(fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1)
-				(fmul canvas_width 0.25) (fmul canvas_height 0.33)
-				(sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)
+				(as-point (list (fmul canvas_width 0x0.1) (sub canvas_height (fmul canvas_height 0x0.1))))
+				(as-point (list (fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1)))
+				(as-point (list (fmul canvas_width 0.25) (fmul canvas_height 0.33)))
+				(as-point (list (sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)))
 				2.0))
 			join-bevel
 			cap-round
@@ -85,12 +88,14 @@
 		(call slot_stroke_polylines (list) stack
 			(list
 				(call slot_gen_arc (points) stack
-					(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
-					(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))
+					(as-point (list
+						(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
+						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))))
 					1.0 1.0 (fmul canvas_width 0.25) 2.0)
 				(call slot_gen_arc (points) stack
-					(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
-					(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))
+					(as-point (list
+						(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
+						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))))
 					4.0 2.0 (fmul canvas_width 0o0.1) 2.0))
 			join-bevel
 			cap-square

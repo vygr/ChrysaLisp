@@ -105,14 +105,11 @@
 	;inputs
 	;r0 = points object
 	;r1 = stack array
-	;r2 = 16.16 c.x
-	;r3 = 16.16 c.y
-	;r5 = 16.16 v1.x
-	;r6 = 16.16 v1.y
-	;r7 = 16.16 v2.x
-	;r8 = 16.16 v2.y
-	;r9 = 16.16 radius
-	;r10 = 16.16 tolerance
+	;r2 = 16.16/16.16 c.xy
+	;r3 = 16.16/16.16 v1.xy
+	;r5 = 16.16/16.16 v2.xy
+	;r6 = 16.16 radius
+	;r7 = 16.16 tolerance
 	;outputs
 	;r0 = points object
 	;trashes
@@ -126,7 +123,7 @@
 	(uint 'start 'length)
 
 	(push-scope)
-	(f-entry 'points 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius, eps})
+	(f-entry 'points 'gen_clerp {this, stack, c, v1, v2, radius, eps})
 
 	(vpif {radius >= 0.5})
 		;output first point
@@ -201,30 +198,27 @@
 	;inputs
 	;r0 = points object
 	;r1 = stack array
-	;r2 = 16.16 c.x
-	;r3 = 16.16 c.y
-	;r5 = 16.16 a1
-	;r6 = 16.16 a2
-	;r7 = 16.16 radius
-	;r8 = 16.16 tolerance
+	;r2 = 16.16/16.16 c.xy
+	;r3 = 16.16 a1
+	;r5 = 16.16 a2
+	;r6 = 16.16 radius
+	;r7 = 16.16 tolerance
 	;outputs
 	;r0 = points object
 	;trashes
 	;all but r0, r4
 
 	(ptr 'this 'stack)
-	(int 'cx 'cy 'radius 'eps)
 	(union
-		'(int 'ca1 'ca2)
-		'(int 'a1 'a2)
-		'(int 'v1x 'v2x))
+		'(ulong 'c 'v1 'v2)
+		'(int 'cx 'cy 'v1x 'v1y 'v2x 'v2y))
 	(union
-		'(int 'sa1 'sa2)
-		'(int 'v1y 'v2y)
-		'(int 'ah))
+		'(int 'ca1 'ca2 'sa1 'sa2)
+		'(int 'a1 'a2 'ah))
+	(int 'radius 'eps)
 
 	(push-scope)
-	(f-entry 'points 'gen_arc {this, stack, cx, cy, a1, a2, radius, eps})
+	(f-entry 'points 'gen_arc {this, stack, c, a1, a2, radius, eps})
 
 	(vpif {radius >= 0.5})
 		(f-call 'math 'fmod {a1, fp_2pi} {a1})
@@ -236,14 +230,15 @@
 			(f-call 'math 'fcos {a1} {ca1})
 			(f-call 'math 'fsin {a2} {sa2})
 			(f-call 'math 'fcos {a2} {ca2})
-			(assign {sa1 *> radius, ca1 *> radius} {v1x, v1y})
-			(assign {sa2 *> radius, ca2 *> radius} {v2x, v2y})
-			(f-call 'points 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius, eps})
+			(vec-load 5 {sa1, ca1, sa2, ca2, radius})
+			(vec-scale 4)
+			(vec-store 2 {v2x, v2y} {v1x, v1y})
+			(f-call 'points 'gen_clerp {this, stack, c, v1, v2, radius, eps})
 		(else)
 			(assign {a2 >>> 1} {ah})
 			(assign {a1 + ah} {a2})
-			(f-call 'points 'gen_arc {this, stack, cx, cy, a1, ah, radius, eps})
-			(f-call 'points 'gen_arc {this, stack, cx, cy, a2, ah, radius, eps})
+			(f-call 'points 'gen_arc {this, stack, c, a1, ah, radius, eps})
+			(f-call 'points 'gen_arc {this, stack, c, a2, ah, radius, eps})
 		(endif)
 	(endif)
 
@@ -257,15 +252,11 @@
 	;inputs
 	;r0 = points object
 	;r1 = stack array
-	;r2 = 16.16 p1.x
-	;r3 = 16.16 p1.y
-	;r5 = 16.16 p2.x
-	;r6 = 16.16 p2.y
-	;r7 = 16.16 p3.x
-	;r8 = 16.16 p3.y
-	;r9 = 16.16 p3.x
-	;r10 = 16.16 p3.y
-	;r11 = 16.16 tolerance
+	;r2 = 16.16/16.16 p1.xy
+	;r3 = 16.16/16.16 p2.xy
+	;r5 = 16.16/16.16 p3.xy
+	;r6 = 16.16/16.16 p4.xy
+	;r7 = 16.16 tolerance
 	;outputs
 	;r0 = points object
 	;trashes
@@ -282,7 +273,7 @@
 	(int 'eps)
 
 	(push-scope)
-	(f-entry 'points 'gen_bezier {this, stack, p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y, eps})
+	(f-entry 'points 'gen_bezier {this, stack, p1, p2, p3, p4, eps})
 
 	;output first point
 	(vec-set 0)
@@ -374,13 +365,11 @@
 	;r1 = stack array
 	;r2 = in points iter_i
 	;r3 = in points iter_j
-	;r5 = 16.16 p1.x
-	;r6 = 16.16 p1.y
-	;r7 = 16.16 p2.x
-	;r8 = 16.16 p2.y
-	;r9 = join style
-	;r10 = 16.16 radius
-	;r11 = 16.16 tolerance
+	;r5 = 16.16/16.16 p1.xy
+	;r6 = 16.16/16.16 p2.xy
+	;r7 = join style
+	;r8 = 16.16 radius
+	;r9 = 16.16 tolerance
 	;outputs
 	;r0 = points object
 	;trashes
@@ -389,17 +378,17 @@
 	(ptr 'this 'stack)
 	(pulong 'iter_i 'iter_j)
 	(union
-		'(ulong 'p1 'p2 'p)
-		'(int 'p1x 'p1y 'p2x 'p2y 'px 'py))
-	(int 'p0x 'p0y)
-	(int 'radius 'eps 'step)
-	(int 'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy)
-	(int 'l1_vx 'l1_vy 'l1_pvx 'l1_pvy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy)
-	(int 'c)
+		'(ulong 'p1 'p2 'p0 'p)
+		'(int 'p1x 'p1y 'p2x 'p2y 'p0x 'p0y 'px 'py))
+	(union
+		'(ulong 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_pv 'l1_npv 'l1_rv)
+		'(int 'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy
+			'l1_vx 'l1_vy 'l1_pvx 'l1_pvy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy))
+	(int 'radius 'eps 'step 'c)
 	(byte 'join_style)
 
 	(push-scope)
-	(f-entry 'points 'gen_polyline_joints {this, stack, iter_i, iter_j, p1x, p1y, p2x, p2y, join_style, radius, eps})
+	(f-entry 'points 'gen_polyline_joints {this, stack, iter_i, iter_j, p1, p2, join_style, radius, eps})
 
 	(vpif {radius >= 0.5 && iter_i != iter_j})
 		(vpif {iter_j > iter_i})
@@ -424,8 +413,8 @@
 		(vec-store 2 {l2_rvx, l2_rvy})
 
 		(loop-start)
-			(vec-load 8 {p2x, p2y, l2_vx, l2_vy, l2_npvx, l2_npvy, l2_rvx, l2_rvy})
-			(vec-store 8 {p1x, p1y, l1_vx, l1_vy, l1_npvx, l1_npvy, l1_rvx, l1_rvy})
+			(vec-load 4 {p2, l2_v, l2_npv, l2_rv})
+			(vec-store 4 {p1, l1_v, l1_npv, l1_rv})
 			(assign {*iter_i} {p2})
 			(assign {iter_i + step} {iter_i})
 			(vec-load 2 {p2x, p2y} {p1x, p1y})
@@ -457,7 +446,7 @@
 				(vec-load 2 {p1x, p1y} {l2_rvx, l2_rvy})
 				(vec-add 2)
 				(vec-store 2 {px, py})
-				(f-call 'math 'vec_intersect {p0x, p0y, l1_vx, l1_vy, px, py, l2_vx, l2_vy} {px, py})
+				(f-call 'math 'vec_intersect {p0, l1_v, p, l2_v} {p})
 				(f-call 'points 'push_back {this, p})
 				(break)
 			(case {join_style == join_bevel})
@@ -473,7 +462,7 @@
 				(break)
 			(default)
 				;rounded join
-				(f-call 'points 'gen_clerp {this, stack, p1x, p1y, l1_rvx, l1_rvy, l2_rvx, l2_rvy, radius, eps})
+				(f-call 'points 'gen_clerp {this, stack, p1, l1_rv, l2_rv, radius, eps})
 			(endswitch)
 		(loop-until {iter_i == iter_j})
 	(endif)
@@ -518,12 +507,12 @@
 			(f-call 'points 'create {} {polygon})
 			(assign {iter_end_polyline[-long_size * 2], iter_end_polyline[-long_size]} {p1, p2})
 			(f-call 'points 'gen_polyline_joints {polygon, stack, iter_begin_polyline, iter_end_polyline,
-				p1x, p1y, p2x, p2y, join_style, radius, eps})
+				p1, p2, join_style, radius, eps})
 			(f-call 'vector 'push_back {this, polygon})
 			(f-call 'points 'create {} {polygon})
 			(assign {iter_begin_polyline[long_size], *iter_begin_polyline} {p1, p2})
 			(f-call 'points 'gen_polyline_joints {polygon, stack, iter_end_polyline - long_size, iter_begin_polyline - long_size,
-				p1x, p1y, p2x, p2y, join_style, radius, eps})
+				p1, p2, join_style, radius, eps})
 			(f-call 'vector 'push_back {this, polygon})
 			(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
 		(loop-end)
@@ -553,13 +542,13 @@
 	(ptr 'this 'in_polylines 'stack 'out_points)
 	(pptr 'iter_begin_polylines 'iter_end_polylines)
 	(union
-		'(ulong 'p1 'p2 'p)
-		'(int 'p1x 'p1y 'p2x 'p2y 'px 'py))
-	(int 'p0x 'p0y)
-	(int 'radius 'eps 'index 'step)
-	(int 'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy)
-	(int 'l1_vx 'l1_vy 'l1_pvx 'l1_pvy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy)
-	(int 'rvx 'rvy 'c 'length)
+		'(ulong 'p1 'p2 'p0 'p)
+		'(int 'p1x 'p1y 'p2x 'p2y 'p0x 'p0y 'px 'py))
+	(union
+		'(ulong 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_pv 'l1_npv 'l1_rv)
+		'(int 'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy
+			'l1_vx 'l1_vy 'l1_pvx 'l1_pvy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy))
+	(int 'radius 'eps 'index 'step 'c 'length)
 	(byte 'join_style 'cap1_style 'cap2_style)
 
 	(push-scope)
@@ -645,21 +634,21 @@
 					;arrow cap
 					(vec-load 3 {l2_rvx, l2_rvy, 2.0})
 					(vec-scale 2)
-					(vec-store 2 {rvx, rvy})
+					(vec-store 2 {p0x, p0y})
 					(vec-load 2 {p1x, p1y} {l2_rvx, l2_rvy})
 					(vec-sub 2)
 					(vec-store 2 {px, py})
 					(f-call 'points 'push_back {out_points, p})
-					(vec-load 2 {p1x, p1y} {rvx, rvy})
+					(vec-load 2 {p1x, p1y} {p0x, p0y})
 					(vec-sub 2)
 					(vec-store 2 {px, py})
 					(f-call 'points 'push_back {out_points, p})
-					(vec-load 2 {p1x, p1y} {rvx, rvy})
+					(vec-load 2 {p1x, p1y} {p0x, p0y})
 					(vec-perp)
 					(vec-add 2)
 					(vec-store 2 {px, py})
 					(f-call 'points 'push_back {out_points, p})
-					(vec-load 2 {p1x, p1y} {rvx, rvy})
+					(vec-load 2 {p1x, p1y} {p0x, p0y})
 					(vec-add 2)
 					(vec-store 2 {px, py})
 					(f-call 'points 'push_back {out_points, p})
@@ -671,14 +660,18 @@
 				(default)
 					;round cap
 					(vec-load 2 {l2_rvx, l2_rvy})
+					(vec-dup 2)
 					(vec-perp)
-					(vec-store 2 {rvx, rvy})
-					(f-call 'points 'gen_clerp {out_points, stack, p1x, p1y, l2_rvx * -1, l2_rvy * -1, rvx, rvy, radius, eps})
-					(f-call 'points 'gen_clerp {out_points, stack, p1x, p1y, rvx, rvy, l2_rvx, l2_rvy, radius, eps})
+					(vec-store 2 {p0x, p0y})
+					(vec-load 1 {-1.0})
+					(vec-scale 2)
+					(vec-store 2 {px, py})
+					(f-call 'points 'gen_clerp {out_points, stack, p1, p, p0, radius, eps})
+					(f-call 'points 'gen_clerp {out_points, stack, p1, p0, l2_rv, radius, eps})
 				(endswitch)
 				(loop-while {index != -1 && index != length})
-					(vec-load 8 {p2x, p2y, l2_vx, l2_vy, l2_npvx, l2_npvy, l2_rvx, l2_rvy})
-					(vec-store 8 {p1x, p1y, l1_vx, l1_vy, l1_npvx, l1_npvy, l1_rvx, l1_rvy})
+					(vec-load 4 {p2, l2_v, l2_npv, l2_rv})
+					(vec-store 4 {p1, l1_v, l1_npv, l1_rv})
 					(f-call 'points 'get_element {*iter_begin_polylines, index} {_, p2})
 					(assign {index + step} {index})
 					(vec-load 2 {p2x, p2y} {p1x, p1y})
@@ -710,7 +703,7 @@
 						(vec-load 2 {p1x, p1y} {l2_rvx, l2_rvy})
 						(vec-add 2)
 						(vec-store 2 {px, py})
-						(f-call 'math 'vec_intersect {p0x, p0y, l1_vx, l1_vy, px, py, l2_vx, l2_vy} {px, py})
+						(f-call 'math 'vec_intersect {p0, l1_v, p, l2_v} {p})
 						(f-call 'points 'push_back {out_points, p})
 						(break)
 					(case {join_style == join_bevel})
@@ -726,7 +719,7 @@
 						(break)
 					(default)
 						;rounded join
-						(f-call 'points 'gen_clerp {out_points, stack, p1x, p1y, l1_rvx, l1_rvy, l2_rvx, l2_rvy, radius, eps})
+						(f-call 'points 'gen_clerp {out_points, stack, p1, l1_rv, l2_rv, radius, eps})
 					(endswitch)
 				(loop-end)
 				(breakif {step < 0})
