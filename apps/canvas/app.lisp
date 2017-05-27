@@ -24,7 +24,7 @@
 	(bit-or (bit-shl (elem 1 _) 32) (bit-and 0xffffffff (elem 0 _))))
 
 (defun as-points (_)
-	(apply array (map as-point _)))
+	(apply points (map as-point _)))
 
 (defun scale-points (_)
 	(defq polygon (points))
