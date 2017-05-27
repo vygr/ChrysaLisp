@@ -116,6 +116,7 @@
 	;all but r0, r4
 
 	(ptr 'this 'stack)
+	(pulong 'iter_end)
 	(union
 		'(ulong 'c 'v1 'v2 'bv)
 		'(int 'cx 'cy 'v1x 'v1y 'v2x 'v2y 'bvx 'bvy))
@@ -167,18 +168,24 @@
 				(f-call 'points 'push_back {this, bv})
 			(else)
 				;continue subdivision
-				(f-call 'array 'push_back {stack, bv})
-				(f-call 'array 'push_back {stack, v2})
-				(f-call 'array 'push_back {stack, v1})
-				(f-call 'array 'push_back {stack, bv})
+				(d-call 'array 'get_length {stack} {_, length})
+				(f-call 'array 'set_capacity {stack, length + 4})
+				(f-call 'array 'get_end {stack} {_, iter_end})
+				(f-call 'array 'set_length {stack, length + 4})
+				(vec-load 5 {bv, v2, v1, bv, iter_end})
+				(vec-def (vec-pop 1) p)
+				(vec-store-long 4 p)
 			(endif)
 
 			(d-call 'array 'get_length {stack} {_, length})
 			(breakif {length == start})
-			(f-call 'array 'get_back {stack} {_, v2})
-			(d-call 'array 'pop_back {stack})
-			(f-call 'array 'get_back {stack} {_, v1})
-			(d-call 'array 'pop_back {stack})
+			(f-call 'array 'set_length {stack, length - 2})
+			(f-call 'array 'get_end {stack} {_, iter_end})
+			(vec-load 1 {iter_end})
+			(vec-def (vec-top 1) p)
+			(vec-load-long 2 p)
+			(vec-store 2 {v1, v2})
+			(vec-pop 1)
 		(loop-end)
 
 		;output last point
@@ -263,6 +270,7 @@
 	;all but r0, r4
 
 	(ptr 'this 'stack)
+	(pulong 'iter_end)
 	(union
 		'(ulong 'p1 'p2 'p3 'p4)
 		'(int 'p1x 'p1y 'p2x 'p2y 'p3x 'p3y 'p4x 'p4y))
@@ -328,26 +336,24 @@
 			(f-call 'points 'push_back {this, p1234})
 		(else)
 			;continue subdivision
-			(f-call 'array 'push_back {stack, p1234})
-			(f-call 'array 'push_back {stack, p234})
-			(f-call 'array 'push_back {stack, p34})
-			(f-call 'array 'push_back {stack, p4})
-			(f-call 'array 'push_back {stack, p1})
-			(f-call 'array 'push_back {stack, p12})
-			(f-call 'array 'push_back {stack, p123})
-			(f-call 'array 'push_back {stack, p1234})
+			(d-call 'array 'get_length {stack} {_, length})
+			(f-call 'array 'set_capacity {stack, length + 8})
+			(f-call 'array 'get_end {stack} {_, iter_end})
+			(f-call 'array 'set_length {stack, length + 8})
+			(vec-load 9 {p1234, p234, p34, p4, p1, p12, p123, p1234, iter_end})
+			(vec-def (vec-pop 1) p)
+			(vec-store-long 8 p)
 		(endif)
 
 		(d-call 'array 'get_length {stack} {_, length})
 		(breakif {length == start})
-		(f-call 'array 'get_back {stack} {_, p4})
-		(d-call 'array 'pop_back {stack})
-		(f-call 'array 'get_back {stack} {_, p3})
-		(d-call 'array 'pop_back {stack})
-		(f-call 'array 'get_back {stack} {_, p2})
-		(d-call 'array 'pop_back {stack})
-		(f-call 'array 'get_back {stack} {_, p1})
-		(d-call 'array 'pop_back {stack})
+		(f-call 'array 'set_length {stack, length - 4})
+		(f-call 'array 'get_end {stack} {_, iter_end})
+		(vec-load 1 {iter_end})
+		(vec-def (vec-top 1) p)
+		(vec-load-long 4 p)
+		(vec-store 4 {p1, p2, p3, p4})
+		(vec-pop 1)
 	(loop-end)
 
 	;output last point
