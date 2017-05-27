@@ -61,7 +61,7 @@
 		cap-round
 		cap-round
 		(fmul canvas_width 0x0.1)
-		2.0))
+		1.0))
 
 (fpoly 0xff00ffff 1
 	(call slot_stroke_polygons (list) stack
@@ -71,15 +71,15 @@
 				(as-point (list (fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1)))
 				(as-point (list (fmul canvas_width 0.25) (fmul canvas_height 0.33)))
 				(as-point (list (sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)))
-				2.0))
+				1.0))
 			join-bevel
 			cap-round
 			cap-arrow
 			(fmul canvas_width 0.033)
-			2.0)
+			1.0)
 		join-miter
 		(fmul canvas_width 0.01)
-		2.0))
+		1.0))
 
 (bpoly 0xc0ff0000 0
 	(call slot_stroke_polygons (list) stack
@@ -89,19 +89,19 @@
 					(as-point (list
 						(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
 						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))))
-					1.0 1.0 (fmul canvas_width 0.25) 2.0)
+					1.0 1.0 (fmul canvas_width 0.25) 1.0)
 				(call slot_gen_arc (points) stack
 					(as-point (list
 						(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
 						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))))
-					4.0 2.0 (fmul canvas_width 0o0.1) 2.0))
+					4.0 2.0 (fmul canvas_width 0o0.1) 1.0))
 			join-bevel
 			cap-square
 			cap-tri
 			(fmul canvas_width 0.05)
-			2.0)
+			1.0)
 		join-miter
 		(fmul canvas_width 0.025)
-		2.0))
+		1.0))
 
 (call slot_swap canvas)
