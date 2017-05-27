@@ -374,7 +374,7 @@
 	;all
 
 	(int 'p1x 'p1y 'v1x 'v1y 'p2x 'p2y 'v2x 'v2y)
-	(int 'axb 'da 'db)
+	(long 'axb 'da 'db)
 
 	(push-scope)
 	(f-entry 'math 'vec_intersect '(r0 r1 r2 r3 r5 r6 r7 r8))
@@ -394,13 +394,13 @@
 	(vec-det 2)
 	(vec-store 1 {axb})
 	(vpif {axb})
-		(assign {1.0 </ axb} {axb})
 		(vec-load 2 {da, v1x} {db, v2x})
 		(vec-det 2)
 		(vec-load 2 {da, v1y} {db, v2y})
 		(vec-det 2)
 		(vec-load 1 {axb})
-		(vec-scale 2)
+		(vec-dup 1)
+		(vec-div 2)
 	(endif)
 	(vec-set 0)
 
