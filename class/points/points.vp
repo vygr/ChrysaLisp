@@ -272,11 +272,9 @@
 	(ptr 'this 'stack)
 	(pulong 'iter_end)
 	(union
-		'(ulong 'p1 'p2 'p3 'p4)
-		'(int 'p1x 'p1y 'p2x 'p2y 'p3x 'p3y 'p4x 'p4y))
-	(union
-		'(ulong 'p12 'p23 'p34 'p123 'p234 'p1234)
-		'(int 'p12x 'p12y 'p23x 'p23y 'p34x 'p34y 'p123x 'p123y 'p234x 'p234y 'p1234x 'p1234y))
+		'(ulong 'p1 'p2 'p3 'p4 'p12 'p23 'p34 'p123 'p234 'p1234)
+		'(int 'p1x 'p1y 'p2x 'p2y 'p3x 'p3y 'p4x 'p4y
+			'p12x 'p12y 'p23x 'p23y 'p34x 'p34y 'p123x 'p123y 'p234x 'p234y 'p1234x 'p1234y))
 	(uint 'start 'length)
 	(int 'eps)
 
@@ -291,12 +289,14 @@
 	(loop-start)
 		;calculate the mid-points
 		(vec-load 6 {p1x, p1y, p2x, p2y, p3x, p3y})
-		(vec-load 6 {p2x, p2y, p3x, p3y, p4x, p4y})
+		(vec-dup 4)
+		(vec-load 2 {p4x, p4y})
 		(vec-add 6)
 		(vec-asr 6 1)
 		(vec-store 6 {p12x, p12y, p23x, p23y, p34x, p34y})
 		(vec-load 4 {p12x, p12y, p23x, p23y})
-		(vec-load 4 {p23x, p23y, p34x, p34y})
+		(vec-dup 2)
+		(vec-load 2 {p34x, p34y})
 		(vec-add 4)
 		(vec-asr 4 1)
 		(vec-store 4 {p123x, p123y, p234x, p234y})
