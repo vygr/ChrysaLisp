@@ -863,7 +863,7 @@
 	(f-call 'canvas 'to_premul {this, color} {_, color})
 
 	;fill edges, find min and max y, clip edges not visible or redundant
-	(f-call 'array 'set_length {this->canvas_edges, 0})
+	(d-call 'array 'clear {this->canvas_edges})
 	(assign {max_int, min_int} {ys, ye})
 	(f-call 'vector 'get_begin {polygons} {_, iter_begin_polygons})
 	(f-call 'vector 'get_end {polygons} {_, iter_end_polygons})

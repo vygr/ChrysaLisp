@@ -60,6 +60,16 @@
 	(vp-cpy-ri r2 r0 array_array)
 	(s-call 'array 'init '(r0 r1) '(_ r1)))
 
+(defcfun class/array/clear ()
+	;inputs
+	;r0 = array object
+	;outputs
+	;r0 = array object
+	;trashes
+	;r1
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri-i r1 r0 array_length))
+
 (defcfun class/array/get_capacity ()
 	;inputs
 	;r0 = array object

@@ -74,7 +74,8 @@
 
 	;deref all elements
 	(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) 0))
-	(s-jmp 'vector 'clear '(r0))
+	(s-call 'vector 'clear '(r0))
+	(vp-ret)
 
 (vp-label 'callback)
 	;inputs
