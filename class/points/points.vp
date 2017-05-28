@@ -173,8 +173,8 @@
 				(f-call 'array 'get_end {stack} {_, iter_end})
 				(f-call 'array 'set_length {stack, length + 4})
 				(vec-load 5 {bv, v2, v1, bv, iter_end})
-				(vec-def (vec-pop 1) p4)
-				(vec-store-long 4 p4)
+				(vec-def (vec-pop 1) p)
+				(vec-store-long 4 p)
 			(endif)
 
 			(d-call 'array 'get_length {stack} {_, length})
@@ -182,8 +182,8 @@
 			(f-call 'array 'set_length {stack, length - 2})
 			(f-call 'array 'get_end {stack} {_, iter_end})
 			(vec-load 1 {iter_end})
-			(vec-def (vec-top 1) p4)
-			(vec-load-long 2 p4)
+			(vec-def (vec-top 1) p)
+			(vec-load-long 2 p)
 			(vec-store 2 {v1, v2})
 			(vec-pop 1)
 		(loop-end)
@@ -341,8 +341,8 @@
 			(f-call 'array 'get_end {stack} {_, iter_end})
 			(f-call 'array 'set_length {stack, length + 8})
 			(vec-load 9 {p1234, p234, p34, p4, p1, p12, p123, p1234, iter_end})
-			(vec-def (vec-pop 1) p4)
-			(vec-store-long 8 p4)
+			(vec-def (vec-pop 1) p)
+			(vec-store-long 8 p)
 		(endif)
 
 		(d-call 'array 'get_length {stack} {_, length})
@@ -350,8 +350,8 @@
 		(f-call 'array 'set_length {stack, length - 4})
 		(f-call 'array 'get_end {stack} {_, iter_end})
 		(vec-load 1 {iter_end})
-		(vec-def (vec-top 1) p4)
-		(vec-load-long 4 p4)
+		(vec-def (vec-top 1) p)
+		(vec-load-long 4 p)
 		(vec-store 4 {p1, p2, p3, p4})
 		(vec-pop 1)
 	(loop-end)
@@ -382,8 +382,8 @@
 	;all but r0, r4
 
 	(union
-		'(ulong 'p1 'p2 'p3 'p4 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_pv 'l1_npv 'l1_rv)
-		'(int 'p1x 'p1y 'p2x 'p2y 'p3x 'p3y 'p4x 'p4y
+		'(ulong 'p1 'p2 'p3 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_pv 'l1_npv 'l1_rv)
+		'(int 'p1x 'p1y 'p2x 'p2y 'p3x 'p3y
 			'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy
 			'l1_vx 'l1_vy 'l1_pvx 'l1_pvy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy))
 	(pulong 'iter_i 'iter_j)
@@ -447,9 +447,9 @@
 				(vec-dup 2)
 				(vec-load 4 {l1_rvx, l1_rvy, l2_rvx, l2_rvy})
 				(vec-add 4)
-				(vec-store 4 {p3x, p3y, p4x, p4y})
-				(f-call 'math 'vec_intersect {p3, l1_v, p4, l2_v} {p4})
-				(f-call 'points 'push_back {this, p4})
+				(vec-store 4 {p3x, p3y, p1x, p1y})
+				(f-call 'math 'vec_intersect {p3, l1_v, p1, l2_v} {p1})
+				(f-call 'points 'push_back {this, p1})
 				(break)
 			(case {join_style == join_bevel})
 				;bevel join
@@ -457,9 +457,9 @@
 				(vec-dup 2)
 				(vec-load 4 {l1_rvx, l1_rvy, l2_rvx, l2_rvy})
 				(vec-add 4)
-				(vec-store 4 {p3x, p3y, p4x, p4y})
+				(vec-store 4 {p3x, p3y, p1x, p1y})
 				(f-call 'points 'push_back {this, p3})
-				(f-call 'points 'push_back {this, p4})
+				(f-call 'points 'push_back {this, p1})
 				(break)
 			(default)
 				;rounded join
@@ -489,9 +489,6 @@
 	(ptr 'this 'in_polygons 'stack 'polygon)
 	(pptr 'iter_begin_polygons 'iter_end_polygons)
 	(pulong 'iter_begin_polyline 'iter_end_polyline)
-	(union
-		'(ulong 'p1 'p2)
-		'(int 'p1x 'p1y 'p2x 'p2y))
 	(int 'radius 'eps)
 	(byte 'join_style)
 
@@ -506,14 +503,12 @@
 			(f-call 'vector 'get_begin {*iter_begin_polygons} {_, iter_begin_polyline})
 			(f-call 'vector 'get_end {*iter_begin_polygons} {_, iter_end_polyline})
 			(f-call 'points 'create {} {polygon})
-			(assign {iter_end_polyline[-long_size * 2], iter_end_polyline[-long_size]} {p1, p2})
 			(f-call 'points 'gen_polyline_joints {polygon, stack, iter_begin_polyline, iter_end_polyline,
-				p1, p2, join_style, radius, eps})
+				iter_end_polyline[-long_size * 2], iter_end_polyline[-long_size], join_style, radius, eps})
 			(f-call 'vector 'push_back {this, polygon})
 			(f-call 'points 'create {} {polygon})
-			(assign {iter_begin_polyline[long_size], *iter_begin_polyline} {p1, p2})
 			(f-call 'points 'gen_polyline_joints {polygon, stack, iter_end_polyline - long_size, iter_begin_polyline - long_size,
-				p1, p2, join_style, radius, eps})
+				iter_begin_polyline[long_size], *iter_begin_polyline, join_style, radius, eps})
 			(f-call 'vector 'push_back {this, polygon})
 			(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
 		(loop-end)
@@ -700,9 +695,9 @@
 						(vec-dup 2)
 						(vec-load 4 {l1_rvx, l1_rvy, l2_rvx, l2_rvy})
 						(vec-add 4)
-						(vec-store 4 {p3x, p3y, p4x, p4y})
-						(f-call 'math 'vec_intersect {p3, l1_v, p4, l2_v} {p4})
-						(f-call 'points 'push_back {out_points, p4})
+						(vec-store 4 {p3x, p3y, p1x, p1y})
+						(f-call 'math 'vec_intersect {p3, l1_v, p1, l2_v} {p1})
+						(f-call 'points 'push_back {out_points, p1})
 						(break)
 					(case {join_style == join_bevel})
 						;bevel join
@@ -710,9 +705,9 @@
 						(vec-dup 2)
 						(vec-load 4 {l1_rvx, l1_rvy, l2_rvx, l2_rvy})
 						(vec-add 4)
-						(vec-store 4 {p3x, p3y, p4x, p4y})
+						(vec-store 4 {p3x, p3y, p1x, p1y})
 						(f-call 'points 'push_back {out_points, p3})
-						(f-call 'points 'push_back {out_points, p4})
+						(f-call 'points 'push_back {out_points, p1})
 						(break)
 					(default)
 						;rounded join
