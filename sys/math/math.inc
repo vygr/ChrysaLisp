@@ -96,6 +96,10 @@
 	(each (lambda (_)
 		(vec-assign (vec-pop n) _)) _))
 
+(defcfun vec-tee (n &rest _)
+	(each (lambda (_)
+		(vec-assign (vec-top n) _)) _))
+
 (defcfun vec-load-int (n r &optional i)
 	(setd i 0)
 	(each (lambda (v)
