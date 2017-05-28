@@ -83,7 +83,7 @@
 	;r1
 
 	;reset length
-	(d-call 'array 'clear '(r0) '(r0))
+	(class/array/clear)
 	(vp-ret)
 
 (def-func-end)
