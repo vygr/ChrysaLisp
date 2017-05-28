@@ -577,8 +577,7 @@
 				(case {c == cap_butt})
 					;butt cap
 					(vec-load 2 {p1x, p1y})
-					(vec-set 0)
-					(goto 'out_cap)
+					(vec-goto 'out_cap)
 				(case {c == cap_square})
 					;square cap
 					(vec-load 2 {p1x, p1y} {l2_rvx, l2_rvy})
@@ -588,8 +587,7 @@
 					(vec-load 2 {l2_rvx, l2_rvy})
 					(vec-dup 4)
 					(vec-sub 2)
-					(vec-set 0)
-					(goto 'store_p3p4)
+					(vec-goto 'store_p3p4)
 				(case {c == cap_tri})
 					;triangle cap
 					(vec-load 2 {p1x, p1y} {l2_rvx, l2_rvy})
