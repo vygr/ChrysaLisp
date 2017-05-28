@@ -134,10 +134,20 @@
 
 (defcfun vec-mul (n)
 	(each (lambda (v2 v1)
-		(vp-mul-rr v2 v1)) (vec-pop n) (vec-top n))
-	(vec-asr n fp_shift))
+		(vp-mul-rr v2 v1)) (vec-pop n) (vec-top n)))
 
 (defcfun vec-div (n)
+	(defq v3 (vec-tmp n) v2 (vec-pop n) v1 (vec-top n))
+	(each (lambda (v3 v1)
+		(vp-ext-rr v1 v3)) v3 v1)
+	(each (lambda (v3 v2 v1)
+		(vp-div-rrr v2 v3 v1)) v3 v2 v1))
+
+(defcfun vec-fmul (n)
+	(vec-mul n)
+	(vec-asr n fp_shift))
+
+(defcfun vec-fdiv (n)
 	(defq v3 (vec-tmp n) v2 (vec-pop n) v1 (vec-top n))
 	(each (lambda (v)
 		(vp-shl-cr fp_shift v)) v1)
@@ -196,7 +206,10 @@
 
 (defcfun vec-square (n)
 	(each (lambda (v)
-		(vp-mul-rr v v)) (vec-top n))
+		(vp-mul-rr v v)) (vec-top n)))
+
+(defcfun vec-fsquare (n)
+	(vec-square n)
 	(vec-asr n fp_shift))
 
 (defcfun vec-scale (n &optional s)
@@ -204,7 +217,10 @@
 	(each (lambda (v)
 		(if (reg s)
 			(vp-mul-rr s v)
-			(vp-mul-cr s v))) (vec-top n))
+			(vp-mul-cr s v))) (vec-top n)))
+
+(defcfun vec-fscale (n &optional s)
+	(vec-scale n s)
 	(vec-asr n fp_shift))
 
 (defcfun vec-perp ()
@@ -212,31 +228,31 @@
 	(vp-xchg-rr x y)
 	(vp-mul-cr -1 y))
 
-(defcfun vec-dot (n)
-	(vec-mul n)
+(defcfun vec-fdot (n)
+	(vec-fmul n)
 	(vec-sum n))
 
-(defcfun vec-det (n)
+(defcfun vec-fdet (n)
 	(defq v2 (vec-pop n))
 	(each (lambda (v)
 		(vp-mul-rr (elem (sub n _ 1) v2) v)) (vec-top n))
 	(vec-asr n fp_shift)
 	(vec-dif n))
 
-(defcfun vec-length-squared (n)
-	(vec-square n)
+(defcfun vec-flength-squared (n)
+	(vec-fsquare n)
 	(vec-sum n))
 
-(defcfun vec-length (n)
-	(vec-length-squared n)
+(defcfun vec-flength (n)
+	(vec-flength-squared n)
 	(defq r (slice 0 (dec (if (ge *vsp* 4) 4 *vsp*)) *vr*))
 	(if (ne (length r) 0) (apply vp-push r))
 	(f-call 'math 'fsqrt (vec-top 1) (vec-top 1))
 	(if (ne (length r) 0) (apply vp-pop r)))
 
-(defcfun vec-norm (n)
+(defcfun vec-fnorm (n)
 	(vec-dup n)
-	(vec-length n)
+	(vec-flength n)
 	(vec-def (vec-tmp 2) rl rh)
 	(vec-def (vec-pop 1) l)
 	(vpif `(,l == 0))
@@ -245,7 +261,7 @@
 		(vp-cpy-cr (bit-shl 1.0 fp_shift) rl)
 		(vp-xor-rr rh rh)
 		(vp-div-rrr l rh rl)
-		(vec-scale n rl)
+		(vec-fscale n rl)
 	(endif))
 
 (defcfun vec-manhattan (n)
