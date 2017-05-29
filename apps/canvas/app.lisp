@@ -63,32 +63,30 @@
 		(fmul canvas_width 0x0.1)
 		eps))
 
-(defun neon-outline (_)
-	(fpoly 0xff00ffff 1
-		(defq _
-			(call slot_stroke_polygons (list) stack _ join-miter (fmul canvas_width 0.01) eps)))
-	(bpoly 0xc040c0ff 0
-		(defq _
-			(call slot_stroke_polygons (list) stack _ join-miter (fmul canvas_width 0.005) eps))))
-
-(neon-outline
-	(call slot_stroke_polylines (list) stack
-		(list (call slot_gen_bezier (points) stack
-			(as-point (list (fmul canvas_width 0x0.1) (sub canvas_height (fmul canvas_height 0x0.1))))
-			(as-point (list (fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1)))
-			(as-point (list (fmul canvas_width 0.25) (fmul canvas_height 0.33)))
-			(as-point (list (sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)))
-			eps))
-		join-bevel cap-round cap-arrow (fmul canvas_width 0.033) eps))
-
-(neon-outline
-	(call slot_stroke_polygons (list) stack
-		(list (call slot_gen_arc (points) stack
-			(as-point (list (fmul canvas_width 0.825) (fmul canvas_height 0.45)))
-			0.0 fp_2pi (fmul canvas_width 0.1) eps))
+(fpoly 0xff00ffff 1
+	(defq p (call slot_stroke_polygons (list) stack
+		(call slot_stroke_polylines (list) stack
+			(list (call slot_gen_bezier (points) stack
+				(as-point (list (fmul canvas_width 0x0.1) (sub canvas_height (fmul canvas_height 0x0.1))))
+				(as-point (list (fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1)))
+				(as-point (list (fmul canvas_width 0.25) (fmul canvas_height 0.33)))
+				(as-point (list (sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)))
+				eps))
+			join-bevel cap-round cap-arrow (fmul canvas_width 0.033) eps)
 		join-miter
-		(fmul canvas_width 0.025)
-		eps))
+		(fmul canvas_width 0.011)
+		eps)))
+(bpoly 0x80000000 0 (slice 1 2 p))
+
+(bpoly 0xd0ff00ff 1
+	(defq p (call slot_stroke_polygons (list) stack
+		(list (call slot_gen_arc (points) stack
+			(as-point (list (fmul canvas_width 0.81) (fmul canvas_height 0.5)))
+			0.0 fp_2pi (fmul canvas_width 0.125) 1.0))
+		join-miter
+		(fmul canvas_width 0.02)
+		eps)))
+(bpoly 0x60000000 0 (slice 0 1 p))
 
 (bpoly 0xc0ff0000 0
 	(defq polygons (call slot_stroke_polygons (list) stack
