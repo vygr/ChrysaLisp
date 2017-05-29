@@ -18,7 +18,7 @@
 (run 'apps/canvas/math.lisp)
 
 (defq canvas_scale (pop argv) canvas_height (pop argv) canvas_width (pop argv) canvas (pop argv)
-	stack (array))
+	stack (array) eps 1.0)
 
 (defun as-point (_)
 	(bit-or (bit-shl (elem 1 _) 32) (bit-and 0xffffffff (elem 0 _))))
@@ -61,7 +61,7 @@
 		cap-round
 		cap-round
 		(fmul canvas_width 0x0.1)
-		1.0))
+		eps))
 
 (fpoly 0xff00ffff 1
 	(call slot_stroke_polygons (list) stack
@@ -71,15 +71,15 @@
 				(as-point (list (fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1)))
 				(as-point (list (fmul canvas_width 0.25) (fmul canvas_height 0.33)))
 				(as-point (list (sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)))
-				1.0))
+				eps))
 			join-bevel
 			cap-round
 			cap-arrow
 			(fmul canvas_width 0.033)
-			1.0)
+			eps)
 		join-miter
 		(fmul canvas_width 0.01)
-		1.0))
+		eps))
 
 (bpoly 0xc0ff0000 0
 	(call slot_stroke_polygons (list) stack
@@ -89,19 +89,19 @@
 					(as-point (list
 						(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
 						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))))
-					1.0 1.0 (fmul canvas_width 0.25) 1.0)
+					1.0 1.0 (fmul canvas_width 0.25) eps)
 				(call slot_gen_arc (points) stack
 					(as-point (list
 						(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
 						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))))
-					4.0 2.0 (fmul canvas_width 0o0.1) 1.0))
+					4.0 2.0 (fmul canvas_width 0o0.1) eps))
 			join-bevel
 			cap-square
 			cap-tri
 			(fmul canvas_width 0.05)
-			1.0)
+			eps)
 		join-miter
 		(fmul canvas_width 0.025)
-		1.0))
+		eps))
 
 (call slot_swap canvas)
