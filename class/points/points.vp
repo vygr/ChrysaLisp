@@ -229,7 +229,9 @@
 
 	(vpif {radius >= 0.5})
 		(f-call 'math 'fmod {a1, fp_2pi} {a1})
-		(f-call 'math 'fmod {a2, fp_2pi} {a2})
+		(vpif {a2 > fp_2pi})
+			(f-call 'math 'fmod {a2, fp_2pi} {a2})
+		(endif)
 
 		(vpif {a2 <= 3.0})
 			(assign {a1 + a2} {a2})
