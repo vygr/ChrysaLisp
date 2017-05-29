@@ -63,33 +63,42 @@
 		(fmul canvas_width 0x0.1)
 		eps))
 
-(fpoly 0xff00ffff 1
+(defun neon-outline (_)
+	(fpoly 0xff00ffff 1
+		(defq _
+			(call slot_stroke_polygons (list) stack _ join-miter (fmul canvas_width 0.01) eps)))
+	(bpoly 0xc040c0ff 0
+		(defq _
+			(call slot_stroke_polygons (list) stack _ join-miter (fmul canvas_width 0.005) eps))))
+
+(neon-outline
+	(call slot_stroke_polylines (list) stack
+		(list (call slot_gen_bezier (points) stack
+			(as-point (list (fmul canvas_width 0x0.1) (sub canvas_height (fmul canvas_height 0x0.1))))
+			(as-point (list (fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1)))
+			(as-point (list (fmul canvas_width 0.25) (fmul canvas_height 0.33)))
+			(as-point (list (sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)))
+			eps))
+		join-bevel cap-round cap-arrow (fmul canvas_width 0.033) eps))
+
+(neon-outline
 	(call slot_stroke_polygons (list) stack
-		(call slot_stroke_polylines (list) stack
-			(list (call slot_gen_bezier (points) stack
-				(as-point (list (fmul canvas_width 0x0.1) (sub canvas_height (fmul canvas_height 0x0.1))))
-				(as-point (list (fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1)))
-				(as-point (list (fmul canvas_width 0.25) (fmul canvas_height 0.33)))
-				(as-point (list (sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)))
-				eps))
-			join-bevel
-			cap-round
-			cap-arrow
-			(fmul canvas_width 0.033)
-			eps)
+		(list (call slot_gen_arc (points) stack
+			(as-point (list (fmul canvas_width 0.825) (fmul canvas_height 0.45)))
+			0.0 fp_2pi (fmul canvas_width 0.1) eps))
 		join-miter
-		(fmul canvas_width 0.01)
+		(fmul canvas_width 0.025)
 		eps))
 
 (bpoly 0xc0ff0000 0
-	(call slot_stroke_polygons (list) stack
+	(defq polygons (call slot_stroke_polygons (list) stack
 		(call slot_stroke_polylines (list) stack
 			(list
 				(call slot_gen_arc (points) stack
 					(as-point (list
 						(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
 						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))))
-					1.0 1.0 (fmul canvas_width 0.25) eps)
+					0.9 1.5 (fmul canvas_width 0.2) eps)
 				(call slot_gen_arc (points) stack
 					(as-point (list
 						(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
@@ -102,6 +111,8 @@
 			eps)
 		join-miter
 		(fmul canvas_width 0.025)
-		eps))
+		eps)))
+(bpoly 0x80ffff00 0
+	(list (elem 1 polygons) (elem 3 polygons)))
 
 (call slot_swap canvas)
