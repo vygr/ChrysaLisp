@@ -82,7 +82,7 @@
 	(defq p (call slot_stroke_polygons (list) stack
 		(list (call slot_gen_arc (points) stack
 			(as-point (list (fmul canvas_width 0.81) (fmul canvas_height 0.5)))
-			0.0 fp_2pi (fmul canvas_width 0.125) 1.0))
+			0.0 fp_2pi (fmul canvas_width 0.125) eps))
 		join-miter
 		(fmul canvas_width 0.02)
 		eps)))
