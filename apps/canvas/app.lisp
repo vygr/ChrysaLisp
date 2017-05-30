@@ -43,7 +43,7 @@
 	(div (fmul canvas_width canvas_scale 0.1) 1.0) (div (fmul canvas_height canvas_scale 0.05) 1.0)
 	(div (fmul canvas_width canvas_scale 0.5) 1.0) (div (fmul canvas_height canvas_scale 0.5) 1.0))
 
-(fpoly 0xff0000ff 0 (list (as-points (list
+(fpoly 0xff0000ff 1 (list (as-points (list
 	(list 0 0)
 	(list (fmul canvas_width 0.25) canvas_height)
 	(list (fmul canvas_width 0.5) 0)
@@ -63,7 +63,7 @@
 		(fmul canvas_width 0x0.1)
 		eps))
 
-(fpoly 0xff00ffff 1
+(fpoly 0xff00ffff 0
 	(defq p (call slot_stroke_polygons (list) stack
 		(call slot_stroke_polylines (list) stack
 			(list (call slot_gen_bezier (points) stack
@@ -78,7 +78,7 @@
 		eps)))
 (bpoly 0x80000000 0 (slice 1 2 p))
 
-(bpoly 0xd0ff00ff 1
+(bpoly 0xd0ff00ff 0
 	(defq p (call slot_stroke_polygons (list) stack
 		(list (call slot_gen_arc (points) stack
 			(as-point (list (fmul canvas_width 0.81) (fmul canvas_height 0.5)))
