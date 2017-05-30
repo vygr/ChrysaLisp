@@ -127,6 +127,7 @@
 	(f-entry 'points 'gen_clerp {this, stack, c, v1, v2, radius, eps})
 
 	(vpif {radius >= 0.5})
+		(vec-set 0)
 		(vec-load 1 {8.0} {eps})
 		(vec-fmul 1)
 		(vec-load 1 {8.0})
@@ -134,7 +135,6 @@
 		(vec-store 1 {eps})
 
 		;output first point
-		(vec-set 0)
 		(vec-load 2 {cx, cy} {v1x, v1y})
 		(vec-add 2)
 		(vec-store 2 {bvx, bvy})
