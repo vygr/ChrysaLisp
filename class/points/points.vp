@@ -128,9 +128,9 @@
 
 	(vpif {radius >= 0.5})
 		(vec-set 0)
-		(vec-load 1 {16.0} {eps})
+		(vec-load 1 {256.0} {eps})
 		(vec-fmul 1)
-		(vec-load 1 {8.0})
+		(vec-load 1 {64.0})
 		(vec-max 2)
 		(vec-store 1 {eps})
 
@@ -159,7 +159,8 @@
 
 			;flatness test
 			(vec-load 2 {v1x, v1y} {v2x, v2y})
-			(vec-manhattan 2)
+			(vec-sub 2)
+			(vec-flength-squared 2)
 			(vec-load 1 {eps})
 			(vec-def (vec-pop 2) d e)
 			(vpif `(,d <= ,e))
