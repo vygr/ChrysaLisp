@@ -6,8 +6,6 @@
 
 (def-class 'math)
 (def-method 'random 'sys/math/random 'static '(r0) '(r0))
-(def-method 'frac 'sys/math/frac 'static '(r0) '(r0))
-(def-method 'floor 'sys/math/floor 'static '(r0) '(r0))
 (def-method 'fmod 'sys/math/fmod 'static '(r0 r1) '(r0))
 (def-method 'isqrt 'sys/math/isqrt 'static '(r0) '(r0))
 (def-method 'fsqrt 'sys/math/fsqrt 'static '(r0) '(r0))
@@ -31,37 +29,6 @@
 	;r1-r3
 	(vp-shl-cr fp_shift r0)
 	(f-call 'math 'isqrt '(r0) '(r0)))
-
-(defcfun sys/math/frac ()
-	;inputs
-	;r0 = 16.16 number
-	;outputs
-	;r0 = 16.16 fraction
-	;trashes
-	;r1
-	(vpif '(r0 >= 0))
-		(vp-and-cr fp_frac_mask r0)
-	(else)
-		(vp-cpy-rr r0 r1)
-		(vp-cpy-cr 1.0 r0)
-		(vp-and-cr fp_frac_mask r1)
-		(vp-sub-rr r1 r0)
-	(endif))
-
-(defcfun sys/math/floor ()
-	;inputs
-	;r0 = 16.16 number
-	;outputs
-	;r0 = 16.16 floor
-	;trashes
-	;r1
-	(vpif '(r0 >= 0))
-		(vp-and-cr fp_int_mask r0)
-	(else)
-		(vp-cpy-rr r0 r1)
-		(vp-and-cr fp_frac_mask r1)
-		(vp-sub-rr r1 r0)
-	(endif))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; vector math codegen
@@ -124,6 +91,29 @@
 	(each (lambda (v)
 		(vp-cpy-ri v r (add i (mul _ long_size)))) (vec-pop n)))
 
+(defcfun vec-frac (n)
+	(vec-def (vec-tmp 1) r)
+	(each (lambda (v)
+		(vpif `(,v >= 0))
+			(vp-and-cr fp_frac_mask v)
+		(else)
+			(vp-cpy-rr v r)
+			(vp-cpy-cr 1.0 v)
+			(vp-and-cr fp_frac_mask r)
+			(vp-sub-rr r v)
+		(endif)) (vec-top n)))
+
+(defcfun vec-floor (n)
+	(vec-def (vec-tmp 1) r)
+	(each (lambda (v)
+		(vpif `(,v >= 0))
+			(vp-and-cr fp_int_mask v)
+		(else)
+			(vp-cpy-rr v r)
+			(vp-and-cr fp_frac_mask r)
+			(vp-sub-rr r v)
+		(endif)) (vec-top n)))
+
 (defcfun vec-clr (n)
 	(each (lambda (v)
 		(vp-xor-rr v v)) (vec-top n)))
@@ -151,6 +141,13 @@
 	(each (lambda (v3 v2 v1)
 		(vp-div-rrr v2 v3 v1)) v3 v2 v1))
 
+(defcfun vec-mod (n)
+	(defq v3 (vec-push n) v2 (vec-pop n) v1 (vec-top n))
+	(each (lambda (v3 v1)
+		(vp-ext-rr v1 v3)) v3 v1)
+	(each (lambda (v3 v2 v1)
+		(vp-mod-rrr v2 v3 v1)) v3 v2 v1))
+
 (defcfun vec-fmul (n)
 	(vec-mul n)
 	(vec-asr n fp_shift))
@@ -163,6 +160,27 @@
 		(vp-ext-rr v1 v3)) v3 v1)
 	(each (lambda (v3 v2 v1)
 		(vp-div-rrr v2 v3 v1)) v3 v2 v1))
+
+(defcfun vec-fmod (n)
+	(defq v3 (vec-push n) v4 (vec-tmp n))
+	(vec-pop n)
+	(defq v2 (vec-pop n) v1 (vec-top n))
+	(each (lambda (v4 v1)
+		(vp-cpy-rr v1 v4)) v4 v1)
+	(each (lambda (v)
+		(vp-shl-cr fp_shift v)) v1)
+	(each (lambda (v3 v1)
+		(vp-ext-rr v1 v3)) v3 v1)
+	(each (lambda (v3 v2 v1)
+		(vp-div-rrr v2 v3 v1)) v3 v2 v1)
+	(each (lambda (v)
+		(vp-asr-cr fp_shift v)) v1)
+	(each (lambda (v2 v1)
+		(vp-mul-rr v1 v2)) v2 v1)
+	(each (lambda (v4 v1)
+		(vp-cpy-rr v4 v1)) v4 v1)
+	(each (lambda (v2 v1)
+		(vp-sub-rr v2 v1)) v2 v1))
 
 (defcfun vec-sum (n)
 	(reduce (lambda (v1 v2)
