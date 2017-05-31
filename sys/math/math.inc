@@ -6,7 +6,6 @@
 
 (def-class 'math)
 (def-method 'random 'sys/math/random 'static '(r0) '(r0))
-(def-method 'fmod 'sys/math/fmod 'static '(r0 r1) '(r0))
 (def-method 'isqrt 'sys/math/isqrt 'static '(r0) '(r0))
 (def-method 'fsqrt 'sys/math/fsqrt 'static '(r0) '(r0))
 (def-method 'fsin 'sys/math/fsin 'static '(r0) '(r0))
