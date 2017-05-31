@@ -258,6 +258,10 @@
 	(f-call 'math 'fsqrt (vec-top 1) (vec-top 1))
 	(if (ne (length r) 0) (apply vp-pop r)))
 
+(defcfun vec-fdistance-squared (n)
+	(vec-sub n)
+	(vec-flength-squared n))
+
 (defcfun vec-fnorm (n)
 	(vec-dup n)
 	(vec-flength n)
