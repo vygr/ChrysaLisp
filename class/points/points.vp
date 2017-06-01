@@ -10,7 +10,7 @@
 (def-func 'class/points/rem_co_polyline)
 	;inputs
 	;r0 = points object
-	;r1 = dest points object, can be same
+	;r1 = source points object, can be same
 	;r2 = 16.16 tolerance
 	;outputs
 	;r0 = points object
@@ -18,15 +18,15 @@
 	;all but r0, r4
 
 	(ptr 'this 'that)
-	(pptr 'iter_begin 'iter_end 'iter_that)
+	(pptr 'iter_begin 'iter_end 'iter_this)
 	(int 'eps)
 
 	(push-scope)
 	(f-entry 'points 'rem_co_polyline {this, that, eps})
 
-	(f-call 'points 'get_begin {this} {_, iter_begin})
-	(f-call 'points 'get_end {this} {_, iter_end})
-	(f-call 'points 'get_begin {that} {_, iter_that})
+	(f-call 'points 'get_begin {that} {_, iter_begin})
+	(f-call 'points 'get_end {that} {_, iter_end})
+	(f-call 'points 'get_begin {this} {_, iter_this})
 
 	(vec-set 0)
 	(vec-load 2 {iter_end, iter_begin})
@@ -35,7 +35,7 @@
 	(vpif `(,(elem 0 (vec-pop 1)) > long_size))
 		(vec-load 1 {eps})
 		(vec-fsquare 1)
-		(vec-load 1 {iter_that})
+		(vec-load 1 {iter_this})
 		(vec-def (vec-top 4) e i x j)
 		(loop-start 'outer_loop)
 			(vpif `(,i != ,j))
@@ -52,7 +52,7 @@
 			(vp-add-cr long_size j)
 		(loop-end)
 		(vec-store 1 {iter_end})
-		(f-call 'points 'set_length {that, (iter_end - iter_that >> 3) + 1})
+		(f-call 'points 'set_length {this, (iter_end - iter_this >> 3) + 1})
 	(endif)
 
 	(f-exit 'points 'rem_co_polyline {this})
@@ -64,7 +64,7 @@
 (def-func 'class/points/rem_co_polygon)
 	;inputs
 	;r0 = points object
-	;r1 = dest points object, can be same
+	;r1 = source points object, can be same
 	;r2 = 16.16 tolerance
 	;outputs
 	;r0 = points object
@@ -79,8 +79,8 @@
 	(f-entry 'points 'rem_co_polygon {this, that, eps})
 
 	(f-call 'points 'rem_co_polyline {this, that, eps})
-	(f-call 'points 'get_begin {that} {_, iter_begin})
-	(f-call 'points 'get_end {that} {_, iter_end})
+	(f-call 'points 'get_begin {this} {_, iter_begin})
+	(f-call 'points 'get_end {this} {_, iter_end})
 
 	(vec-set 0)
 	(vec-load 2 {iter_end, iter_begin})
@@ -94,7 +94,7 @@
 		(vec-load-int 2 e (neg long_size))
 		(vec-fdistance-squared 2)
 		(vpif `(,(elem 0 (vec-pop 1)) < ,x))
-			(d-call 'points 'pop_back {that})
+			(d-call 'points 'pop_back {this})
 		(endif)
 	(endif)
 
@@ -107,7 +107,7 @@
 (def-func 'class/points/transform)
 	;inputs
 	;r0 = points object
-	;r1 = dest points object, can be same
+	;r1 = source points object, can be same
 	;r2 = 16.16/16.16 m1xy
 	;r3 = 16.16/16.16 m2xy
 	;r5 = 16.16/16.16 trxy
@@ -117,7 +117,7 @@
 	;all but r0, r4
 
 	(ptr 'this 'that)
-	(pptr 'iter_begin 'iter_end 'iter_that)
+	(pptr 'iter_begin 'iter_end 'iter_this)
 	(union
 		'(ulong 'm1 'm2 'tr)
 		'(int 'm1x 'm1y 'm2x 'm2y 'trx 'try))
@@ -125,12 +125,12 @@
 	(push-scope)
 	(f-entry 'points 'transform {this, that, m1, m2, tr})
 
-	(f-call 'points 'get_begin {this} {_, iter_begin})
-	(f-call 'points 'get_end {this} {_, iter_end})
-	(f-call 'points 'get_begin {that} {_, iter_that})
+	(f-call 'points 'get_begin {that} {_, iter_begin})
+	(f-call 'points 'get_end {that} {_, iter_end})
+	(f-call 'points 'get_begin {this} {_, iter_this})
 
 	(vec-set 0)
-	(vec-load 3 {iter_end, iter_begin, iter_that})
+	(vec-load 3 {iter_end, iter_begin, iter_this})
 	(vec-def (vec-top 3) e i j)
 	(vec-load 2 {trx, try})
 	(defq vtr (vec-top 2))
