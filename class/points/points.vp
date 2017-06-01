@@ -103,3 +103,54 @@
 	(return)
 
 (def-func-end)
+
+(def-func 'class/points/transform)
+	;inputs
+	;r0 = points object
+	;r1 = dest points object, can be same
+	;r2 = 16.16/16.16 m1xy
+	;r3 = 16.16/16.16 m2xy
+	;r5 = 16.16/16.16 trxy
+	;outputs
+	;r0 = points object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'that)
+	(pptr 'iter_begin 'iter_end 'iter_that)
+	(union
+		'(ulong 'm1 'm2 'tr)
+		'(int 'm1x 'm1y 'm2x 'm2y 'trx 'try))
+
+	(push-scope)
+	(f-entry 'points 'transform {this, that, m1, m2, tr})
+
+	(f-call 'points 'get_begin {this} {_, iter_begin})
+	(f-call 'points 'get_end {this} {_, iter_end})
+	(f-call 'points 'get_begin {that} {_, iter_that})
+
+	(vec-set 0)
+	(vec-load 3 {iter_end, iter_begin, iter_that})
+	(vec-def (vec-top 3) e i j)
+	(vec-load 2 {trx, try})
+	(defq vtr (vec-top 2))
+	(loop-while `(,i != ,e))
+		(vec-load-int 2 i)
+		(defq vxy (vec-top 2))
+		(vec-load 2 {m1x, m1y})
+		(vec-fdot 2 vxy)
+		(vec-load 2 {m2x, m2y})
+		(vec-fdot 2 vxy)
+		(vec-add 2 vtr)
+		(vec-store-int 2 j)
+		(vp-add-cr long_size i)
+		(vp-add-cr long_size j)
+	(loop-end)
+
+	(f-exit 'points 'transform {this})
+	(pop-scope)
+	(return)
+
+(setq debug_emit t)
+(def-func-end)
+(setq debug_emit nil)
