@@ -92,6 +92,13 @@
 			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 			(f-call 'points 'gen_arc {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
 			(break)
+		(case (cat {slot == } (str (method-slot 'points 'transform))))
+		(errorcases
+			(f-call 'lisp 'env_args_type {this, args, $points_transform, 6} {_, slot})
+			(errorifnot {slot} 'error1))
+			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+			(f-call 'points 'transform {arg0, arg1, arg2, arg3, arg4})
+			(break)
 		(default)
 		(errorcases
 			(goto 'error1))
@@ -138,6 +145,7 @@
 	(signature 'canvas_set_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long)
 	(signature 'canvas_blend_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'canvas_blend_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long)
+	(signature 'points_transform 'boxed_long 'points 'points 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'points_gen_arc 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'points_gen_bezier 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'points_stroke_polygons 'boxed_long 'vector 'array 'vector 'boxed_long 'boxed_long 'boxed_long)
