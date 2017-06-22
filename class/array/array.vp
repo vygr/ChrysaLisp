@@ -68,7 +68,7 @@
 	(vp-add-rr r3 r1)
 	(f-call 'sys_mem 'copy '(r1 r5 r2))
 
-	(vp-cpy-ir r4 local_this r0)
+	(f-exit 'array 'append '((r4 local_this)))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
