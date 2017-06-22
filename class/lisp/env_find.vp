@@ -17,7 +17,7 @@
 	(push-scope)
 	(f-entry 'lisp 'env_find {this, symbol})
 
-	(assign {this->lisp_enviroment} {env})
+	(assign {this->lisp_environment} {env})
 	(loop-start)
 		(f-call 'unordered_map 'find {env, symbol} {_, iter, bucket})
 		(breakif {iter})

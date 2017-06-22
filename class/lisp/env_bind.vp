@@ -51,7 +51,7 @@
 			(d-call 'vector 'ref_element {vals, index_vals} {_, value})
 			(assign {index_vars + 1, index_vals + 1} {index_vars, index_vals})
 		(endif)
-		(f-call 'unordered_map 'insert {this->lisp_enviroment, symbol, value})
+		(f-call 'unordered_map 'insert {this->lisp_environment, symbol, value})
 	(loop-end)
 	(errorif {index_vals != len_vals} 'error4)
 

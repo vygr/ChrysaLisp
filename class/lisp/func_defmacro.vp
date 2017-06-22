@@ -26,7 +26,7 @@
 	(assign {this->lisp_sym_macro} {vars})
 	(f-call 'ref 'ref {vars})
 	(d-call 'vector 'set_element {args, vars, 0})
-	(f-call 'unordered_map 'insert {this->lisp_enviroment, value, args})
+	(f-call 'unordered_map 'insert {this->lisp_environment, value, args})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_defmacro {this, value})

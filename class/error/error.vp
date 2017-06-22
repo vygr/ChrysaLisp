@@ -110,7 +110,7 @@
 	(vp-string "not all lists !") (vp-byte 0)
 	(vp-string "not all numbers !") (vp-byte 0)
 	(vp-string "not all strings !") (vp-byte 0)
-	(vp-string "not an enviroment !") (vp-byte 0)
+	(vp-string "not an environment !") (vp-byte 0)
 	(vp-string "not valid index !") (vp-byte 0)
 	(vp-string "open error !") (vp-byte 0)
 	(vp-string "symbol not bound !") (vp-byte 0)

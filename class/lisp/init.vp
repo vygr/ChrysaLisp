@@ -60,13 +60,13 @@
 		(f-call 'ref 'ref {stderr})
 		(assign {0} {this->lisp_nextsym})
 
-		;interned symbols set and enviroments
+		;interned symbols set and environments
 		(assign {ptr ($symbols)} {this->lisp_symbols})
 		(vpifnot {this->lisp_symbols})
 			(f-call 'unordered_set 'create (cat {@} (f-path 'symbol 'same) {, 101}) {this->lisp_symbols})
 			(assign {this->lisp_symbols} {ptr($symbols)})
 		(endif)
-		(f-call 'unordered_map 'create {$match_obj, 31} {this->lisp_enviroment})
+		(f-call 'unordered_map 'create {$match_obj, 31} {this->lisp_environment})
 
 		;intern standard built in symbols
 		;fixup built in functions
@@ -84,15 +84,15 @@
 		(loop-end)
 
 		;standard self evaulating symbols
-		(f-call 'unordered_map 'insert {this->lisp_enviroment, this->lisp_sym_nil, this->lisp_sym_nil})
-		(f-call 'unordered_map 'insert {this->lisp_enviroment, this->lisp_sym_t, this->lisp_sym_t})
+		(f-call 'unordered_map 'insert {this->lisp_environment, this->lisp_sym_nil, this->lisp_sym_nil})
+		(f-call 'unordered_map 'insert {this->lisp_environment, this->lisp_sym_t, this->lisp_sym_t})
 
 		;define *stream-name* and *stream-line*
 		(f-call 'string 'create_from_cstr {"Asm-Lisp"} {symbol})
-		(f-call 'unordered_map 'insert {this->lisp_enviroment, this->lisp_sym_stream_name, symbol})
+		(f-call 'unordered_map 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
 		(f-call 'ref 'deref {symbol})
 		(f-call 'boxed_long 'create {} {symbol})
-		(f-call 'unordered_map 'insert {this->lisp_enviroment, this->lisp_sym_stream_line, symbol})
+		(f-call 'unordered_map 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
 		(f-call 'ref 'deref {symbol})
 	(endif)
 

@@ -13,11 +13,11 @@
 	(push-scope)
 	(f-entry 'lisp 'env_pop {this})
 
-	(f-call 'unordered_map 'get_parent {this->lisp_enviroment} {_, env})
+	(f-call 'unordered_map 'get_parent {this->lisp_environment} {_, env})
 	(vpif {env})
 		(f-call 'ref 'ref {env})
-		(f-call 'ref 'deref {this->lisp_enviroment})
-		(assign {env} {this->lisp_enviroment})
+		(f-call 'ref 'deref {this->lisp_environment})
+		(assign {env} {this->lisp_environment})
 	(endif)
 
 	(f-exit 'lisp 'env_pop {this})

@@ -135,7 +135,7 @@
 	(f-call 'vector 'push_back {args, value})
 	(f-call 'sys_mem 'free {msg})
 	(f-call 'lisp 'sym_intern_cstr {lisp, "argv"} {_, value})
-	(f-call 'unordered_map 'insert {lisp->lisp_enviroment, value, args})
+	(f-call 'unordered_map 'insert {lisp->lisp_environment, value, args})
 	(f-call 'ref 'deref {value})
 	(f-call 'ref 'deref {args})
 

@@ -44,7 +44,7 @@
 	(f-call 'lisp 'repl_error {this, "(def env var val ...)", error_msg_wrong_num_of_args, args} {_, val})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(def env var val ...)", error_msg_not_an_enviroment, args} {_, val})
+	(f-call 'lisp 'repl_error {this, "(def env var val ...)", error_msg_not_an_environment, args} {_, val})
 	(goto 'exit)
 (vp-label 'error3)
 	(f-call 'lisp 'repl_error {this, "(def env var val ...)", error_msg_not_a_symbol, args} {_, val})

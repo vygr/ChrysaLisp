@@ -79,7 +79,7 @@
 (deferror "not_all_lists")
 (deferror "not_all_nums")
 (deferror "not_all_strings")
-(deferror "not_an_enviroment")
+(deferror "not_an_environment")
 (deferror "not_valid_index")
 (deferror "open_error")
 (deferror "symbol_not_bound")

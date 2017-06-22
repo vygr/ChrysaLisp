@@ -9,7 +9,7 @@
 	;r1 = args
 	;outputs
 	;r0 = lisp object
-	;r1 = enviroment
+	;r1 = environment
 
 	(ptr 'this 'args 'value)
 	(uint 'length)
@@ -23,12 +23,12 @@
 		(f-call 'vector 'get_element {args, 0} {_, value})
 		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 		(f-call 'boxed_long 'get_value {value} {_, value})
-		(f-call 'unordered_map 'copy {this->lisp_enviroment, value} {_, value})
-		(f-call 'ref 'deref {this->lisp_enviroment})
-		(assign {value} {this->lisp_enviroment})
+		(f-call 'unordered_map 'copy {this->lisp_environment, value} {_, value})
+		(f-call 'ref 'deref {this->lisp_environment})
+		(assign {value} {this->lisp_environment})
 		(f-call 'ref 'ref {value})
 	(else)
-		(assign {this->lisp_enviroment} {value})
+		(assign {this->lisp_environment} {value})
 		(f-call 'ref 'ref {value})
 	(endif)
 

@@ -138,7 +138,7 @@
 	(ptr 'stdout)
 	(ptr 'stderr)
 	(ptr 'symbols)
-	(ptr 'enviroment)
+	(ptr 'environment)
 	(ulong 'nextsym)
 	(ptr 'sym_optional)
 	(ptr 'sym_rest)
