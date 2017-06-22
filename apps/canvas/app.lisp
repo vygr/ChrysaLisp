@@ -34,6 +34,13 @@
 			(as-point (list 0.0 canvas_scale))
 			(as-point (list 0.0 0.0)))) _))
 
+(defun transform_norm (_)
+	(map (lambda (_)
+		(call slot_transform _ _
+			(as-point (list (fmul canvas_width canvas_scale) 0.0))
+			(as-point (list 0.0 (fmul canvas_height canvas_scale)))
+			(as-point (list 0.0 0.0)))) _))
+
 (defun fpoly (col mode _)
 	(call slot_set_fpoly canvas _ col mode))
 
@@ -45,20 +52,21 @@
 	(div (fmul canvas_width canvas_scale 0.1) 1.0) (div (fmul canvas_height canvas_scale 0.05) 1.0)
 	(div (fmul canvas_width canvas_scale 0.5) 1.0) (div (fmul canvas_height canvas_scale 0.5) 1.0))
 
-(fpoly 0xff0000ff 1 (transform (list (as-points (list
+(fpoly 0xff0000ff 1 (transform_norm (list (as-points (list
 	(list 0 0)
-	(list (fmul canvas_width 0.25) canvas_height)
-	(list (fmul canvas_width 0.5) 0)
-	(list (add (fmul canvas_width 0.5) (fmul canvas_width 0.25)) canvas_height)
-	(list canvas_width 0)
-	(list (fmul canvas_width 0x0.1) canvas_height))))))
+	(list 0.25 1.0)
+	(list 0.5 0)
+	(list 0.75 1.0)
+	(list 1.0 0)
+	(list 0x0.1 1.0))))))
 
 (bpoly 0xc000ff00 1 (transform
 	(call slot_stroke_polylines (list) stack
-		(list (as-points (list
-			(list (fmul canvas_width 0o0.1) (fmul canvas_height 0o0.1))
-			(list (sub canvas_width (fmul canvas_width 0.25)) (fmul canvas_height 0.166))
-			(list (sub canvas_width (fmul canvas_width 0o0.1)) (sub canvas_height (fmul canvas_height 0o0.1))))))
+		(list
+			(as-points (list
+				(list (fmul canvas_width 0o0.1) (fmul canvas_height 0o0.1))
+				(list (sub canvas_width (fmul canvas_width 0.25)) (fmul canvas_height 0.166))
+				(list (sub canvas_width (fmul canvas_width 0o0.1)) (sub canvas_height (fmul canvas_height 0o0.1))))))
 		join-round
 		cap-round
 		cap-round
@@ -68,13 +76,18 @@
 (fpoly 0xff00ffff 0 (defq p (transform
 	(call slot_stroke_polygons (list) stack
 		(call slot_stroke_polylines (list) stack
-			(list (call slot_gen_bezier (points) stack
-				(as-point (list (fmul canvas_width 0x0.1) (sub canvas_height (fmul canvas_height 0x0.1))))
-				(as-point (list (fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1)))
-				(as-point (list (fmul canvas_width 0.25) (fmul canvas_height 0.33)))
-				(as-point (list (sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)))
-				eps))
-			join-bevel cap-round cap-arrow (fmul canvas_width 0.033) eps)
+			(list
+				(call slot_gen_bezier (points) stack
+					(as-point (list (fmul canvas_width 0x0.1) (sub canvas_height (fmul canvas_height 0x0.1))))
+					(as-point (list (fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1)))
+					(as-point (list (fmul canvas_width 0.25) (fmul canvas_height 0.33)))
+					(as-point (list (sub canvas_width (fmul canvas_width 0.1)) (fmul canvas_height 0.1)))
+					eps))
+			join-bevel
+			cap-round
+			cap-arrow
+			(fmul canvas_width 0.033)
+			eps)
 		join-miter
 		(fmul canvas_width 0.011)
 		eps))))
@@ -82,9 +95,13 @@
 
 (bpoly 0xd0ff00ff 0 (defq p (transform
 	(call slot_stroke_polygons (list) stack
-		(list (call slot_gen_arc (points) stack
-			(as-point (list (fmul canvas_width 0.81) (fmul canvas_height 0.5)))
-			0.0 fp_2pi (fmul canvas_width 0.125) eps))
+		(list
+			(call slot_gen_arc (points) stack
+				(as-point (list (fmul canvas_width 0.81) (fmul canvas_height 0.5)))
+				0.0
+				fp_2pi
+				(fmul canvas_width 0.125)
+				eps))
 		join-miter
 		(fmul canvas_width 0.02)
 		eps))))
@@ -98,12 +115,18 @@
 					(as-point (list
 						(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
 						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))))
-					0.9 1.5 (fmul canvas_width 0.2) eps)
+					0.9
+					1.5
+					(fmul canvas_width 0.2)
+					eps)
 				(call slot_gen_arc (points) stack
 					(as-point (list
 						(add (fmul canvas_width 0.33) (fmul canvas_width 0x0.1))
 						(add (fmul canvas_height 0.5) (fmul canvas_height 0o0.1))))
-					4.0 2.0 (fmul canvas_width 0o0.1) eps))
+					4.0
+					2.0
+					(fmul canvas_width 0o0.1)
+					eps))
 			join-bevel
 			cap-square
 			cap-tri
