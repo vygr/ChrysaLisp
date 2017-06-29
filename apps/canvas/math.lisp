@@ -357,7 +357,7 @@
 		(push out_points (vec-add-2d p1 v3)))
 	out_points)
 
-(defun gen-bezier-polyline-2d (out_points p1 p2 p3 p4)
+(defun gen-cubic-polyline-2d (out_points p1 p2 p3 p4)
 	(defq stack (cat p1 p2 p3 p4))
 	(push out_points p1)
 	(while (defq y4 (pop stack) x4 (pop stack)

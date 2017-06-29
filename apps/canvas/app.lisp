@@ -1,6 +1,6 @@
 ;import canvas and points method slots
 (defq slot_set_fbox nil slot_set_fpoly nil slot_blend_fpoly nil slot_fill nil slot_swap nil
-	slot_transform nil slot_gen_bezier nil slot_gen_arc nil slot_stroke_polylines nil slot_stroke_polygons nil)
+	slot_transform nil slot_gen_cubic nil slot_gen_arc nil slot_stroke_polylines nil slot_stroke_polygons nil)
 (within-compile-env (lambda ()
 	(import 'class/canvas/canvas.inc)
 	(import 'class/points/points.inc)
@@ -12,7 +12,7 @@
 		slot_transform (method-slot 'points 'transform)
 		slot_stroke_polylines (method-slot 'points 'stroke_polylines)
 		slot_stroke_polygons (method-slot 'points 'stroke_polygons)
-		slot_gen_bezier (method-slot 'points 'gen_bezier)
+		slot_gen_cubic (method-slot 'points 'gen_cubic)
 		slot_gen_arc (method-slot 'points 'gen_arc))))
 
 ;math tools
@@ -77,7 +77,7 @@
 	(call slot_stroke_polygons (list) stack
 		(call slot_stroke_polylines (list) stack
 			(list
-				(call slot_gen_bezier (points) stack
+				(call slot_gen_cubic (points) stack
 					(as-point (list (fmul canvas_width 0x0.1) (sub canvas_height (fmul canvas_height 0x0.1))))
 					(as-point (list (fmul canvas_width 0o0.1) (fmul canvas_height 0x0.1)))
 					(as-point (list (fmul canvas_width 0.25) (fmul canvas_height 0.33)))

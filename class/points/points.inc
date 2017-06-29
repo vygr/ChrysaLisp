@@ -9,7 +9,8 @@
 
 (def-method 'gen_clerp 'class/points/gen_clerp 'static '(r0 r1 r2 r3 r5 r6 r7) '(r0))
 (def-method 'gen_arc 'class/points/gen_arc 'static '(r0 r1 r2 r3 r5 r6 r7) '(r0))
-(def-method 'gen_bezier 'class/points/gen_bezier 'static '(r0 r1 r2 r3 r5 r6 r7) '(r0))
+(def-method 'gen_quadratic 'class/points/gen_quadratic 'static '(r0 r1 r2 r3 r5 r6) '(r0))
+(def-method 'gen_cubic 'class/points/gen_cubic 'static '(r0 r1 r2 r3 r5 r6 r7) '(r0))
 
 (def-method 'stroke_joints 'class/points/stroke_joints 'static '(r0 r1 r2 r3 r5 r6 r7 r8 r9) '(r0))
 (def-method 'stroke_polylines 'class/points/stroke_polylines 'static '(r0 r1 r2 r3 r5 r6 r7 r8) '(r0))

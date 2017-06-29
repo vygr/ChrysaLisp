@@ -78,12 +78,19 @@
 		(break)
 	(case (cat {value->obj_vtable == @} (f-path 'class 'points)))
 		(switch)
-		(case (cat {slot == } (str (method-slot 'points 'gen_bezier))))
+		(case (cat {slot == } (str (method-slot 'points 'gen_quadratic))))
 		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $points_gen_bezier, 8} {_, slot})
+			(f-call 'lisp 'env_args_type {this, args, $points_gen_quadratic, 7} {_, slot})
 			(errorifnot {slot} 'error1))
 			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'points 'gen_bezier {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
+			(f-call 'points 'gen_quadratic {arg0, arg1, arg2, arg3, arg4, arg5})
+			(break)
+		(case (cat {slot == } (str (method-slot 'points 'gen_cubic))))
+		(errorcases
+			(f-call 'lisp 'env_args_type {this, args, $points_gen_cubic, 8} {_, slot})
+			(errorifnot {slot} 'error1))
+			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+			(f-call 'points 'gen_cubic {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
 			(break)
 		(case (cat {slot == } (str (method-slot 'points 'gen_arc))))
 		(errorcases
@@ -147,7 +154,8 @@
 	(signature 'canvas_blend_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long)
 	(signature 'points_transform 'boxed_long 'points 'points 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'points_gen_arc 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
-	(signature 'points_gen_bezier 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'points_gen_quadratic 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'points_gen_cubic 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'points_stroke_polygons 'boxed_long 'vector 'array 'vector 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'points_stroke_polylines 'boxed_long 'vector 'array 'vector 'boxed_long
 									'boxed_long 'boxed_long 'boxed_long 'boxed_long))
