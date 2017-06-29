@@ -1,6 +1,7 @@
 ;import canvas and points method slots
 (defq slot_set_fbox nil slot_set_fpoly nil slot_blend_fpoly nil slot_fill nil slot_swap nil
-	slot_transform nil slot_gen_cubic nil slot_gen_arc nil slot_stroke_polylines nil slot_stroke_polygons nil)
+	slot_transform nil slot_gen_quadratic nil slot_gen_cubic nil slot_gen_arc nil
+	slot_stroke_polylines nil slot_stroke_polygons nil)
 (within-compile-env (lambda ()
 	(import 'class/canvas/canvas.inc)
 	(import 'class/points/points.inc)
@@ -12,6 +13,7 @@
 		slot_transform (method-slot 'points 'transform)
 		slot_stroke_polylines (method-slot 'points 'stroke_polylines)
 		slot_stroke_polygons (method-slot 'points 'stroke_polygons)
+		slot_gen_quadratic (method-slot 'points 'gen_quadratic)
 		slot_gen_cubic (method-slot 'points 'gen_cubic)
 		slot_gen_arc (method-slot 'points 'gen_arc))))
 
@@ -59,6 +61,20 @@
 	(list 0.75 1.0)
 	(list 1.0 0)
 	(list 0x0.1 1.0))))))
+
+(fpoly 0xfffff00f 0 (defq p (transform
+	(call slot_stroke_polylines (list) stack
+		(list
+			(call slot_gen_quadratic (points) stack
+				(as-point (list (fmul canvas_width 0x0.1) (sub canvas_height (fmul canvas_height 0o0.2))))
+				(as-point (list (fmul canvas_width 0.3) (fmul canvas_height -0.5)))
+				(as-point (list (sub canvas_width (fmul canvas_width 0x0.1)) (sub canvas_height (fmul canvas_height 0o0.4))))
+				eps))
+		join-bevel
+		cap-square
+		cap-square
+		(fmul canvas_width 0.05)
+		eps))))
 
 (bpoly 0xc000ff00 1 (transform
 	(call slot_stroke_polylines (list) stack
