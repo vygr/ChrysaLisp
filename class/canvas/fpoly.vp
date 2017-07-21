@@ -1,0 +1,195 @@
+(import 'sys/func.inc)
+(import 'class/canvas/canvas.inc)
+(import 'class/vector/vector.inc)
+(import 'class/points/points.inc)
+
+(def-func 'class/canvas/fpoly)
+	;inputs
+	;r0 = canvas object
+	;r1 = vector of points objects
+	;r2 = color
+	;r3 = mode
+	;r5 = span function
+	;outputs
+	;r0 = canvas object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'span)
+	(union
+		'(ptr 'polygons)
+		'(pptr 'iter_end_polygons 'iter_begin_polygons)
+		'(pptr 'iter_i 'iter_j 'iter_k 'iter_end))
+	(pint 'iter_edge1 'iter_edge2)
+	(pint 'iter_begin_polygon 'iter_end_polygon)
+	(int 'ys 'ye 'x1 'y1 'x2 'y2 'w)
+	(uint 'mode 'color 'length)
+
+	(push-scope)
+	(f-entry 'canvas 'fpoly {this, polygons, color, mode, span})
+	(f-call 'canvas 'to_premul {this, color} {_, color})
+
+	;fill edges, find min and max y, clip edges not visible or redundant
+	(d-call 'array 'clear {this->canvas_edges})
+	(assign {max_int, min_int} {ys, ye})
+	(f-call 'vector 'get_begin {polygons} {_, iter_begin_polygons})
+	(f-call 'vector 'get_end {polygons} {_, iter_end_polygons})
+	(loop-while {iter_begin_polygons != iter_end_polygons})
+		(f-call 'points 'get_begin {*iter_begin_polygons} {_, iter_begin_polygon})
+		(f-call 'points 'get_end {*iter_begin_polygons} {_, iter_end_polygon})
+		(vpif {iter_end_polygon - iter_begin_polygon >= ptr_size * 3})
+			(assign {iter_end_polygon[-ptr_size], iter_end_polygon[-int_size]} {x1, y1})
+			(loop-start)
+				(assign {iter_begin_polygon[0], iter_begin_polygon[int_size]} {x2, y2})
+				(assign {x1 + 0.5, (y1 + 0.5) >>> fp_shift, x2 + 0.5, (y2 + 0.5) >>> fp_shift} {x1, y1, x2, y2})
+				(vpif {y1 < y2})
+					(breakif {y2 <= this->canvas_cy})
+					(vpif {y1 < ys})
+						(assign {y1} {ys})
+					(endif)
+					(vpif {y2 > ye})
+						(assign {y2} {ye})
+					(endif)
+					(d-call 'array 'get_length {this->canvas_edges} {_, length})
+					(f-call 'array 'set_capacity {this->canvas_edges, length + (edge_size >> 3)})
+					(f-call 'array 'set_length {this->canvas_edges, length + (edge_size >> 3)})
+					(f-call 'array 'get_iter {this->canvas_edges, length} {_, iter_edge1})
+					(assign {x1, y1, y2, (x2 - x1) // (y2 - y1), 1}
+						{iter_edge1->edge_x, iter_edge1->edge_ys, iter_edge1->edge_ye,
+						iter_edge1->edge_dda, iter_edge1->edge_w})
+				(elseif {y1 > y2})
+					(breakif {y2 >= this->canvas_cy1})
+					(vpif {y2 < ys})
+						(assign {y2} {ys})
+					(endif)
+					(vpif {y1 > ye})
+						(assign {y1} {ye})
+					(endif)
+					(d-call 'array 'get_length {this->canvas_edges} {_, length})
+					(f-call 'array 'set_capacity {this->canvas_edges, length + (edge_size >> 3)})
+					(f-call 'array 'set_length {this->canvas_edges, length + (edge_size >> 3)})
+					(f-call 'array 'get_iter {this->canvas_edges, length} {_, iter_edge1})
+					(assign {x2, y2, y1, (x1 - x2) // (y1 - y2), -1}
+						{iter_edge1->edge_x, iter_edge1->edge_ys, iter_edge1->edge_ye,
+						iter_edge1->edge_dda, iter_edge1->edge_w})
+				(endif)
+				(assign {iter_begin_polygon[0], iter_begin_polygon[int_size]} {x1, y1})
+				(assign {iter_begin_polygon + ptr_size} {iter_begin_polygon})
+			(loop-until {iter_begin_polygon == iter_end_polygon})
+		(endif)
+		(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
+	(loop-end)
+
+	;edge pointers into tracker for sorting
+	(f-call 'array 'get_begin {this->canvas_edges} {_, iter_edge1})
+	(f-call 'array 'get_end {this->canvas_edges} {_, iter_edge2})
+	(f-call 'array 'set_capacity {this->canvas_edge_tracker, (iter_edge2 - iter_edge1) / edge_size})
+	(f-call 'array 'get_begin {this->canvas_edge_tracker} {_, iter_i})
+	(assign {iter_i, iter_i} {iter_j, iter_end})
+	(loop-while {iter_edge1 != iter_edge2})
+		(assign {iter_edge1} {*iter_end})
+		(assign {iter_edge1 + edge_size, iter_end + ptr_size} {iter_edge1, iter_end})
+	(loop-end)
+	(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_end, $sort_on_y, 0})
+
+	(loop-while {ys < ye})
+		(breakif {ys >= this->canvas_cy1})
+
+		;mark edges that end on this scan line
+		(assign {iter_i, iter_j, ys, min_int} '(r0 r1 r2 r3))
+		(loop-while '(r0 != r1))
+			(vp-cpy-ir r0 0 r5)
+			(vp-add-cr ptr_size r0)
+			(vp-cpy-ir-i r5 edge_ye r6)
+			(continueif '(r6 != r2))
+			(vp-cpy-ri-i r3 r5 edge_x)
+		(loop-end)
+
+		;include new edges that begin on this scan line
+		(assign {iter_end} '(r0))
+		(loop-while '(r1 != r0))
+			(vp-cpy-ir r1 0 r3)
+			(vp-cpy-ir-i r3 edge_ys r3)
+			(breakif '(r3 != r2))
+			(vp-add-cr ptr_size r1)
+		(loop-end)
+		(assign '(r1) {iter_j})
+
+		;sort on x, plus move all marked dead edges to front !
+		(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_j, $sort_on_x, 0})
+
+		;remove all dead edges
+		(assign {iter_i, iter_j, min_int} '(r0 r1 r2))
+		(loop-while '(r0 != r1))
+			(vp-cpy-ir r0 0 r3)
+			(vp-cpy-ir-i r3 edge_x r3)
+			(breakif '(r3 != r2))
+			(vp-add-cr ptr_size r0)
+		(loop-end)
+		(assign '(r0) {iter_i})
+		(assign '(r0) {iter_k})
+
+		(vpif {ys >= this->canvas_cy})
+			(vpif {mode})
+				;odd even
+				(loop-while {iter_k != iter_j})
+					(assign {this, color, span, iter_k[0]->edge_x >>> fp_shift,
+							ys, iter_k[ptr_size]->edge_x >>> fp_shift}
+							'(r0 r1 r2 r8 r9 r10))
+					(vp-call-r r2)
+					(assign {iter_k + ptr_size * 2} {iter_k})
+				(loop-end)
+			(else)
+				;non zero
+				(loop-while {iter_k != iter_j})
+					(assign {*iter_k} {iter_edge1})
+					(assign {iter_edge1->edge_w} {w})
+					(loop-while {w != 0})
+						(assign {iter_k + ptr_size} {iter_k})
+						(assign {*iter_k} {iter_edge2})
+						(assign {iter_edge2->edge_x, iter_edge2->edge_w + w} {x2, w})
+					(loop-end)
+					(assign {this, color, span, iter_edge1->edge_x >>> fp_shift,
+							ys, x2 >>> fp_shift}
+							'(r0 r1 r2 r8 r9 r10))
+					(vp-call-r r2)
+					(assign {iter_k + ptr_size} {iter_k})
+				(loop-end)
+			(endif)
+		(endif)
+
+		;step the edges
+		(assign {iter_i, iter_j} '(r0 r1))
+		(loop-start)
+			(vp-cpy-ir r0 0 r2)
+			(vp-add-cr ptr_size r0)
+			(vp-cpy-ir-i r2 edge_x r3)
+			(vp-cpy-ir-i r2 edge_dda r5)
+			(vp-add-rr r5 r3)
+			(vp-cpy-ri-i r3 r2 edge_x)
+		(loop-until '(r0 == r1))
+
+		(assign {ys + 1} {ys})
+	(loop-end)
+
+	(f-exit 'canvas 'fpoly {this})
+	(pop-scope)
+	(return)
+
+(vp-label 'sort_on_x)
+	(vp-cpy-ir r1 0 r1)
+	(vp-cpy-ir r2 0 r2)
+	(vp-cpy-ir-i r1 edge_x r0)
+	(vp-cpy-ir-i r2 edge_x r1)
+	(vp-sub-rr r1 r0)
+	(vp-ret)
+
+(vp-label 'sort_on_y)
+	(vp-cpy-ir r1 0 r1)
+	(vp-cpy-ir r2 0 r2)
+	(vp-cpy-ir-i r1 edge_ys r0)
+	(vp-cpy-ir-i r2 edge_ys r1)
+	(vp-sub-rr r1 r0)
+	(vp-ret)
+
+(def-func-end)
