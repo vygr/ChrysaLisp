@@ -59,7 +59,7 @@
 		(vec-sum 2)
 
 		(vec-load 1 {eps})
-		(vec-def (vec-pop 2) d e)
+		(vec-def-elem (vec-pop 2) d e)
 		(vpif `(,d <= ,e))
 			;output point
 			(f-call 'points 'push_back {this, p123})

@@ -29,7 +29,7 @@
 
 	(vec-set 0)
 	(vec-load 3 {iter_end, iter_begin, iter_this})
-	(vec-def (vec-top 3) e i j)
+	(vec-def-elem (vec-top 3) e i j)
 	(vec-load 6 {m1x, m1y, m2x, m2y, trx, try})
 	(defq vtr (vec-top 2))
 	(loop-while `(,i != ,e))

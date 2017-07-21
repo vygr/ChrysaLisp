@@ -31,7 +31,7 @@
 		(vec-load 1 {eps})
 		(vec-fsquare 1)
 		(vec-load 1 {iter_this})
-		(vec-def (vec-top 4) e i x j)
+		(vec-def-elem (vec-top 4) e i x j)
 		(loop-start 'outer_loop)
 			(vpif `(,i != ,j))
 				(vec-load-long 1 i)

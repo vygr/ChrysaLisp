@@ -62,7 +62,7 @@
 			(vec-load 2 {v1x, v1y} {v2x, v2y})
 			(vec-fdistance-squared 2)
 			(vec-load 1 {eps})
-			(vec-def (vec-pop 2) d e)
+			(vec-def-elem (vec-pop 2) d e)
 			(vpif `(,d <= ,e))
 				;output point
 				(vec-load 2 {bvx, bvy} {cx, cy})
@@ -76,7 +76,7 @@
 				(f-call 'array 'get_end {stack} {_, iter_end})
 				(f-call 'array 'set_length {stack, length + 4})
 				(vec-load 5 {bv, v2, v1, bv, iter_end})
-				(vec-def (vec-pop 1) p)
+				(vec-def-elem (vec-pop 1) p)
 				(vec-store-long 4 p)
 			(endif)
 
@@ -85,7 +85,7 @@
 			(f-call 'array 'set_length {stack, length - 2})
 			(f-call 'array 'get_end {stack} {_, iter_end})
 			(vec-load 1 {iter_end})
-			(vec-def (vec-top 1) p)
+			(vec-def-elem (vec-top 1) p)
 			(vec-load-long 2 p)
 			(vec-store 2 {v1, v2})
 			(vec-pop 1)
