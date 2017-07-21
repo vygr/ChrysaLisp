@@ -1,0 +1,64 @@
+(import 'sys/func.inc)
+(import 'class/points/points.inc)
+(import 'sys/math/math.inc)
+
+(def-func 'class/points/gen_arc)
+	;inputs
+	;r0 = points object
+	;r1 = stack array
+	;r2 = 16.16/16.16 c.xy
+	;r3 = 16.16 a1
+	;r5 = 16.16 a2
+	;r6 = 16.16 radius
+	;r7 = 16.16 tolerance
+	;outputs
+	;r0 = points object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'stack)
+	(union
+		'(ulong 'c 'v1 'v2)
+		'(int 'cx 'cy 'v1x 'v1y 'v2x 'v2y))
+	(union
+		'(int 'ca1 'ca2 'sa1 'sa2)
+		'(int 'a1 'a2 'ah))
+	(int 'radius 'eps)
+
+	(push-scope)
+	(f-entry 'points 'gen_arc {this, stack, c, a1, a2, radius, eps})
+
+	(vpif {radius >= 0.5})
+		(vec-set 0)
+		(vec-load 2 {a1, fp_2pi})
+		(vec-fmod 1)
+		(vec-store 1 {a1})
+		(vpif {a2 > fp_2pi})
+			(vec-load 2 {a2, fp_2pi})
+			(vec-fmod 1)
+			(vec-store 1 {a2})
+		(endif)
+
+		(vpif {a2 <= fp_hpi})
+			(assign {a1 + a2} {a2})
+			(f-call 'math 'fsin {a1} {sa1})
+			(f-call 'math 'fcos {a1} {ca1})
+			(f-call 'math 'fsin {a2} {sa2})
+			(f-call 'math 'fcos {a2} {ca2})
+			(vec-load 5 {sa1, ca1, sa2, ca2, radius})
+			(vec-fscale 4)
+			(vec-store 2 {v2x, v2y} {v1x, v1y})
+			(f-call 'points 'gen_clerp {this, stack, c, v1, v2, radius, eps})
+		(else)
+			(assign {a2 >>> 1} {ah})
+			(assign {a2 - ah} {a2})
+			(f-call 'points 'gen_arc {this, stack, c, a1, ah, radius, eps})
+			(f-call 'points 'gen_arc {this, stack, c, a1 + ah, a2, radius, eps})
+		(endif)
+	(endif)
+
+	(f-exit 'points 'gen_arc {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

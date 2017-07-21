@@ -1,0 +1,110 @@
+(import 'sys/func.inc)
+(import 'class/points/points.inc)
+(import 'sys/math/math.inc)
+
+(def-func 'class/points/gen_cubic)
+	;inputs
+	;r0 = points object
+	;r1 = stack array
+	;r2 = 16.16/16.16 p1.xy
+	;r3 = 16.16/16.16 p2.xy
+	;r5 = 16.16/16.16 p3.xy
+	;r6 = 16.16/16.16 p4.xy
+	;r7 = 16.16 tolerance
+	;outputs
+	;r0 = points object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'stack)
+	(pulong 'iter_end)
+	(union
+		'(ulong 'p1 'p2 'p3 'p4 'p12 'p23 'p34 'p123 'p234 'p1234)
+		'(int 'p1x 'p1y 'p2x 'p2y 'p3x 'p3y 'p4x 'p4y
+			'p12x 'p12y 'p23x 'p23y 'p34x 'p34y 'p123x 'p123y 'p234x 'p234y 'p1234x 'p1234y))
+	(uint 'start 'length)
+	(int 'eps)
+
+	(push-scope)
+	(f-entry 'points 'gen_cubic {this, stack, p1, p2, p3, p4, eps})
+
+	;output first point
+	(vec-set 0)
+	(f-call 'points 'push_back {this, p1})
+
+	(d-call 'array 'get_length {stack} {_, start})
+	(loop-start)
+		;calculate the mid-points
+		(vec-load 6 {p1x, p1y, p2x, p2y, p3x, p3y})
+		(vec-dup 4)
+		(vec-load 2 {p4x, p4y})
+		(vec-add 6)
+		(vec-asr 6 1)
+		(vec-store 2 {p34x, p34y})
+		(vec-tee 4 {p12x, p12y, p23x, p23y})
+		(vec-dup 2)
+		(vec-load 2 {p34x, p34y})
+		(vec-add 4)
+		(vec-asr 4 1)
+		(vec-tee 4 {p123x, p123y, p234x, p234y})
+		(vec-add 2)
+		(vec-asr 2 1)
+		(vec-store 2 {p1234x, p1234y})
+
+		;flatness test
+		(vec-load 1 {p1x} {p3x})
+		(vec-add 1)
+		(vec-load 1 {p2x})
+		(vec-dup 1)
+		(vec-dif 3)
+		(vec-load 1 {p1y} {p3y})
+		(vec-add 1)
+		(vec-load 1 {p2y})
+		(vec-dup 1)
+		(vec-dif 3)
+		(vec-load 1 {p2x} {p4x})
+		(vec-add 1)
+		(vec-load 1 {p3x})
+		(vec-dup 1)
+		(vec-dif 3)
+		(vec-load 1 {p2y} {p4y})
+		(vec-add 1)
+		(vec-load 1 {p3y})
+		(vec-dup 1)
+		(vec-dif 3)
+		(vec-abs 4)
+		(vec-sum 4)
+
+		(vec-load 1 {eps})
+		(vec-def (vec-pop 2) d e)
+		(vpif `(,d <= ,e))
+			;output point
+			(f-call 'points 'push_back {this, p1234})
+		(else)
+			;continue subdivision
+			(d-call 'array 'get_length {stack} {_, length})
+			(f-call 'array 'set_capacity {stack, length + 8})
+			(f-call 'array 'get_end {stack} {_, iter_end})
+			(f-call 'array 'set_length {stack, length + 8})
+			(vec-load 9 {p1234, p234, p34, p4, p1, p12, p123, p1234, iter_end})
+			(vec-store-long 8 (elem 0 (vec-pop 1)))
+		(endif)
+
+		(d-call 'array 'get_length {stack} {_, length})
+		(breakif {length == start})
+		(f-call 'array 'set_length {stack, length - 4})
+		(f-call 'array 'get_end {stack} {_, iter_end})
+		(vec-load 1 {iter_end})
+		(vec-load-long 4 (elem 0 (vec-top 1)))
+		(vec-store 4 {p1, p2, p3, p4})
+		(vec-pop 1)
+	(loop-end)
+
+	;output last point
+	(f-call 'points 'push_back {this, p4})
+
+	(f-exit 'points 'gen_cubic {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

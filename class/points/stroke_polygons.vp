@@ -1,0 +1,50 @@
+(import 'sys/func.inc)
+(import 'class/points/points.inc)
+(import 'class/vector/vector.inc)
+(import 'sys/math/math.inc)
+
+(def-func 'class/points/stroke_polygons)
+	;r0 = vector for output polygons
+	;r1 = stack array
+	;r2 = vector of input polygons
+	;r3 = join style
+	;r5 = 16.16 radius
+	;r6 = 16.16 tolerance
+	;outputs
+	;r0 = vector for output polygons
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'in_polygons 'stack 'polygon)
+	(pptr 'iter_begin_polygons 'iter_end_polygons)
+	(pulong 'iter_begin_polyline 'iter_end_polyline)
+	(int 'radius 'eps)
+	(byte 'join_style)
+
+	(push-scope)
+	(f-entry 'points 'stroke_polygons {this, stack, in_polygons, join_style, radius, eps})
+
+	(vpif {radius >= 0.5})
+		(f-call 'vector 'get_begin {in_polygons} {_, iter_begin_polygons})
+		(f-call 'vector 'get_end {in_polygons} {_, iter_end_polygons})
+		(loop-while {iter_begin_polygons != iter_end_polygons})
+			(f-call 'points 'rem_co_polygon {*iter_begin_polygons, *iter_begin_polygons, 0.5})
+			(f-call 'vector 'get_begin {*iter_begin_polygons} {_, iter_begin_polyline})
+			(f-call 'vector 'get_end {*iter_begin_polygons} {_, iter_end_polyline})
+			(f-call 'points 'create {} {polygon})
+			(f-call 'points 'stroke_joints {polygon, stack, iter_begin_polyline, iter_end_polyline,
+				iter_end_polyline[-long_size * 2], iter_end_polyline[-long_size], join_style, radius, eps})
+			(f-call 'vector 'push_back {this, polygon})
+			(f-call 'points 'create {} {polygon})
+			(f-call 'points 'stroke_joints {polygon, stack, iter_end_polyline - long_size, iter_begin_polyline - long_size,
+				iter_begin_polyline[long_size], *iter_begin_polyline, join_style, radius, eps})
+			(f-call 'vector 'push_back {this, polygon})
+			(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
+		(loop-end)
+	(endif)
+
+	(f-exit 'points 'stroke_polygons {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

@@ -1,0 +1,59 @@
+(import 'sys/func.inc)
+(import 'class/string/string.inc)
+(import 'class/stream_msg_out/stream_msg_out.inc)
+(import 'class/stream_msg_in/stream_msg_in.inc)
+(import 'class/slave/slave.inc)
+(import 'class/master/master.inc)
+
+(def-func 'class/master/stop)
+	;inputs
+	;r0 = master object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'msg 'stream)
+	(uint 'length)
+
+	(push-scope)
+	(f-entry 'master 'stop {this})
+
+	(vpif {this->master_state != stream_mail_state_stopped})
+		;flush remaining
+		(f-call 'master 'get_input {this} {_, stream})
+		(v-call 'stream_msg_out 'write_flush {stream})
+
+		;send stopping
+		(f-call 'stream_msg_out 'set_state {stream, stream_mail_state_stopping})
+		(v-call 'stream_msg_out 'write_next {stream})
+		(v-call 'stream_msg_out 'write_flush {stream})
+
+		;send stopped
+		(f-call 'stream_msg_out 'set_state {stream, stream_mail_state_stopped})
+		(v-call 'stream_msg_out 'write_next {stream})
+		(v-call 'stream_msg_out 'write_flush {stream})
+
+		;wait for all stopped, starting with the pipe output, then the error streams
+		(d-call 'vector 'get_length {this->master_streams} {_, length})
+		(loop-start)
+			(assign {length - 1} {length})
+			(breakifnot {length})
+			(assign {(this->master_streams->array_array)[length * ptr_size]} {stream})
+			(loop-start)
+				(v-call 'stream_msg_in 'read_next {stream})
+			(loop-until {stream->stream_msg_in_state == stream_mail_state_stopped})
+		(loop-end)
+
+		;free streams, select and mailbox array
+		(f-call 'vector 'deref {this->master_streams})
+		(f-call 'sys_mem 'free {this->master_select_array})
+		(f-call 'sys_mem 'free {this->master_mailbox_array})
+
+		;stop state
+		(assign {stream_mail_state_stopped} {this->master_state})
+	(endif)
+
+	(f-exit 'master 'stop {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

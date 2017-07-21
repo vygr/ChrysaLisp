@@ -1,0 +1,46 @@
+(import 'sys/func.inc)
+(import 'class/points/points.inc)
+(import 'sys/math/math.inc)
+
+(def-func 'class/points/rem_co_polygon)
+	;inputs
+	;r0 = points object
+	;r1 = source points object, can be same
+	;r2 = 16.16 tolerance
+	;outputs
+	;r0 = points object
+	;trashes
+	;all but r0, r4
+
+	(ptr 'this 'that)
+	(pptr 'iter_begin 'iter_end)
+	(int 'eps)
+
+	(push-scope)
+	(f-entry 'points 'rem_co_polygon {this, that, eps})
+
+	(f-call 'points 'rem_co_polyline {this, that, eps})
+	(f-call 'points 'get_begin {this} {_, iter_begin})
+	(f-call 'points 'get_end {this} {_, iter_end})
+
+	(vec-set 0)
+	(vec-load 2 {iter_end, iter_begin})
+	(vec-dup 2)
+	(vec-dif 2)
+	(vpif `(,(elem 0 (vec-pop 1)) > long_size))
+		(vec-load 1 {eps})
+		(vec-fsquare 1)
+		(vec-def (vec-top 3) e i x)
+		(vec-load-int 2 i)
+		(vec-load-int 2 e (neg long_size))
+		(vec-fdistance-squared 2)
+		(vpif `(,(elem 0 (vec-pop 1)) < ,x))
+			(d-call 'points 'pop_back {this})
+		(endif)
+	(endif)
+
+	(f-exit 'points 'rem_co_polygon {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
