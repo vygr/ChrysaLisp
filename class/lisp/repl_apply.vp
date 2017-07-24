@@ -6,22 +6,22 @@
 	;inputs
 	;r0 = lisp object
 	;r1 = function
-	;r2 = ast
+	;r2 = args
 	;outputs
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'ast)
+	(ptr 'this 'args)
 	(union
 		'(ptr 'func)
 		'(pptr 'iter_end))
 
 	(push-scope)
-	(f-entry 'lisp 'repl_apply {this, func, ast})
+	(f-entry 'lisp 'repl_apply {this, func, args})
 
 	(vpif (cat {func->obj_vtable == @} (f-path 'class 'boxed_ptr)))
 		;built in or compiled function
-		(assign {this, ast, func} '(r0 r1 r2))
+		(assign {this, args, func} '(r0 r1 r2))
 		(vp-cpy-ir r2 boxed_ptr_value r2)
 		(vp-and-cr (neg ptr_size) r2)
 		(vp-call-r r2)
@@ -41,10 +41,14 @@
 	(errorif {length < 2} 'error1)
 	(f-call 'vector 'get_begin {func} {_, iter_begin})
 	(f-call 'vector 'get_end {func} {_, iter_end})
-	(errorif {iter_begin[ptr_size * 0] != this->lisp_sym_lambda} 'error2)
+	(assign {iter_begin[ptr_size * 0]} {value})
+(errorcases
+	(vpif {value != this->lisp_sym_lambda})
+		(errorif {value != this->lisp_sym_macro} 'error2)
+	(endif))
 
 	(f-call 'lisp 'env_push {this})
-	(f-call 'lisp 'env_bind {this, iter_begin[ptr_size * 1], ast, 0} {_, value})
+	(f-call 'lisp 'env_bind {this, iter_begin[ptr_size * 1], args} {_, value})
 	(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit1)
 
 	(assign {&iter_begin[ptr_size * 2]} {iter_begin})
