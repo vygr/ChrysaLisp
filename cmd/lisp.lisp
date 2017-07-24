@@ -208,8 +208,10 @@
 
 (defun make-test (&optional i)
 	(defq b 1000000 n 0)
-	(times (opt i 10) (setq n (make-all) b (if (lt n b) n b)))
-	(print "Best time " (div b 100) "." (mod b 100) " seconds") nil)
+	(times (opt i 10)
+		(setq n (make-all) b (if (lt n b) n b))
+		(print "Best time " (div b 100) "." (mod b 100) " seconds"))
+	nil)
 
 (defun compile-test ()
 	(each compile (all-vp-files)))
