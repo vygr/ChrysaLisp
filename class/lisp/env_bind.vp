@@ -7,7 +7,6 @@
 	;r0 = lisp object
 	;r1 = vars list
 	;r2 = vals list
-	;r3 = vals start index
 	;outputs
 	;r0 = lisp object
 	;r1 = value
@@ -16,11 +15,11 @@
 	(uint 'index_vars 'index_vals 'len_vars 'len_vals 'state)
 
 	(push-scope)
-	(f-entry 'lisp 'env_bind {this, vars, vals, index_vals})
+	(f-entry 'lisp 'env_bind {this, vars, vals})
 
 	(errorif (cat {vars->obj_vtable != @} (f-path 'class 'vector)) 'error1)
 	(errorif (cat {vals->obj_vtable != @} (f-path 'class 'vector)) 'error2)
-	(assign {0, 0} {index_vars, state})
+	(assign {0, 0, 0} {index_vars, index_vals, state})
 	(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 	(d-call 'vector 'get_length {vars} {_, len_vars})
 	(d-call 'vector 'get_length {vals} {_, len_vals})

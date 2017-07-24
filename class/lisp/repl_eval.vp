@@ -61,8 +61,7 @@
 		(break)
 	(default)
 		;eval to self
-		(assign {form} {value})
-		(f-call 'ref 'ref {value})
+		(f-call 'ref 'ref {form} {value})
 	(endswitch)
 
 (vp-label 'exit)

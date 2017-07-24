@@ -10,7 +10,7 @@
 	;r2 = 0
 	;outputs
 	;r0 = lisp object
-	;r1 = expantion count
+	;r1 = expansion count
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -21,7 +21,7 @@
 	(ptr 'this 'form)
 	(ulong 'cnt)
 
-	(ptr 'macro 'args)
+	(ptr 'macro 'params 'args)
 	(pptr 'iter 'miter)
 	(uint 'length)
 
@@ -39,13 +39,15 @@
 			(gotoifnot {miter} 'decend)
 			(f-call 'pair 'get_second {*miter} {_, macro})
 			(gotoif (cat {macro->obj_vtable != @} (f-path 'class 'vector)) 'decend)
-			(f-call 'vector 'get_element {macro, 0} {_, args})
-			(gotoif {args != this->lisp_sym_macro} 'decend)
+			(f-call 'vector 'get_element {macro, 0} {_, params})
+			(gotoif {params != this->lisp_sym_macro} 'decend)
 			(f-call 'lisp 'env_push {this})
-			(f-call 'vector 'get_element {macro, 1} {_, args})
-			(f-call 'lisp 'env_bind {this, args, form, 1} {_, form})
+			(f-call 'vector 'get_element {macro, 1} {_, params})
+			(d-call 'vector 'slice {form, 1, length} {_, args})
+			(f-call 'lisp 'env_bind {this, params, args} {_, form})
 			(errorif (cat {form->obj_vtable == @} (f-path 'class 'error)) 'error)
-			(f-call 'vector 'for_each {macro, 2, macro->array_length, $callback1, &this})
+			(f-call 'lisp 'repl_apply {this, macro, args} {_, form})
+			(f-call 'ref 'deref {args})
 		(vp-label 'error)
 			(f-call 'lisp 'env_pop {this})
 			(f-call 'ref 'deref {*iter})
@@ -57,26 +59,6 @@
 	(endif)
 
 	(f-exit 'lisp 'repl_expand {this, cnt})
-	(pop-scope)
-	(return)
-
-(vp-label 'callback1)
-	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
-	;outputs
-	;r1 = 0 if break, else not
-
-	(pptr 'iter)
-	(ptr 'pdata)
-
-	(push-scope)
-	(f-entry 'array 'each_callback {pdata, iter})
-
-	(f-call 'ref 'deref {pdata->local_form})
-	(f-call 'lisp 'repl_eval {pdata->local_this, *iter} {_, pdata->local_form})
-
-	(errorassign (cat {pdata->local_form->obj_vtable != @} (f-path 'class 'error)) '(r1))
 	(pop-scope)
 	(return)
 
