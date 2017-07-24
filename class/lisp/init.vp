@@ -246,6 +246,7 @@
 	(built-in "floor" 0 'func_floor)
 	(built-in "fsin" 0 'func_fsin)
 	(built-in "fcos" 0 'func_fcos)
+	(built-in "bind" 0 'func_bind)
 	(vp-short 0)
 
 (def-func-end)

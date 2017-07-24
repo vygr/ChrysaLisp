@@ -12,6 +12,7 @@
 (import 'class/lisp/func_age.vp)
 (import 'class/lisp/func_apply.vp)
 (import 'class/lisp/func_array.vp)
+(import 'class/lisp/func_bind.vp)
 (import 'class/lisp/func_points.vp)
 (import 'class/lisp/func_band.vp)
 (import 'class/lisp/func_basr.vp)

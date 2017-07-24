@@ -128,6 +128,7 @@
 (def-method 'func_floor 'class/lisp/func_floor 'static '(r0 r1) '(r0 r1))
 (def-method 'func_fsin 'class/lisp/func_fsin 'static '(r0 r1) '(r0 r1))
 (def-method 'func_fcos 'class/lisp/func_fcos 'static '(r0 r1) '(r0 r1))
+(def-method 'func_bind 'class/lisp/func_bind 'static '(r0 r1) '(r0 r1))
 
 (def-enum 'func_type)
 	(enum 'args_eval_apply 'args_apply 'apply)

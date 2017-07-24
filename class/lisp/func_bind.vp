@@ -1,0 +1,35 @@
+(import 'sys/func.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_bind)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'params 'args)
+	(uint 'length)
+
+	(push-scope)
+	(f-entry 'lisp 'func_bind {this, args})
+
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorif {length != 2} 'error1)
+	(f-call 'vector 'get_element {args, 0} {_, params})
+	(f-call 'vector 'get_element {args, 1} {_, args})
+	(f-call 'lisp 'env_bind {this, params, args} {_, args})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'func_bind {this, args})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(bind params args)", error_msg_wrong_num_of_args, args} {_, args})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)
