@@ -562,7 +562,7 @@
 	(clear *rpn*)
 	(defq o (list))
 	(each (lambda (_)
-		(defq k (elem 0 _) c (elem 1 _))
+		(bind '(k c) _)
 		(cond
 			((ge c 5) ;operator
 				(cond
@@ -857,9 +857,9 @@
 
 (defcfun compile-rpn-list ()
 	(each (lambda (_)
-		(defq k (elem 0 _) c (inc (elem 1 _)))
-		(if (le 0 c 5)
-			(eval (elem c
+		(bind '(k c) _)
+		(if (le -1 c 4)
+			(eval (elem (inc c)
 				'((compile-operator k)
 				(compile-num k)
 				(compile-ref k)

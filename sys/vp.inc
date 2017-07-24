@@ -163,7 +163,8 @@
 (defcfun vp-long (&rest b) (emit `(emit-long ~b)))
 
 (defcfun vp-jmpif (b l)
-	(defq d (elem 0 b) o (elem 1 b) s (elem 2 b) c (type s))
+	(bind '(d o s) b)
+	(defq c (type s))
 	(cond
 		((eql c 'c) (vp-cmp-cr s d))
 		((eql c 'r) (vp-cmp-rr s d))
@@ -178,7 +179,8 @@
 		(t (throw "No such comparator" o))))
 
 (defcfun vp-jmpifnot (b l)
-	(defq d (elem 0 b) o (elem 1 b) s (elem 2 b) c (type s))
+	(bind '(d o s) b)
+	(defq c (type s))
 	(cond
 		((eql c 'c) (vp-cmp-cr s d))
 		((eql c 'r) (vp-cmp-rr s d))

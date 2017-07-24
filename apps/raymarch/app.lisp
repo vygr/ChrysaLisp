@@ -30,7 +30,7 @@
 	(sphere p (list 0.0 0.0 0.0) 0.35))
 
 (defun get-normal (p)
-	(defq x (elem 0 p) y (elem 1 p) z (elem 2 p))
+	(bind '(x y z) p)
 	(vec-norm-3d (list
 		(sub (scene (list (add x eps) y z)) (scene (list (sub x eps) y z)))
 		(sub (scene (list x (add y eps) z)) (scene (list x (sub y eps) z)))
