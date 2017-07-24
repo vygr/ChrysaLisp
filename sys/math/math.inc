@@ -55,9 +55,6 @@
 (defcfun vec-tmp (n)
 	(slice *vsp* (add *vsp* n) *vr*))
 
-(defcmacro vec-def-elem (v &rest _)
-	`(defq _v ,v ~(reduce cat (map (lambda (s) (list s `(elem ,_ _v))) _))))
-
 (defcfun vec-load (n &rest _)
 	(each (lambda (_)
 		(vec-assign _ (vec-push n))) _))
@@ -91,7 +88,7 @@
 		(vp-cpy-ri v r (add i (mul _ long_size)))) (vec-pop n)))
 
 (defcfun vec-frac (n)
-	(vec-def-elem (vec-tmp 1) r)
+	(bind '(r) (vec-tmp 1))
 	(each (lambda (v)
 		(vpif `(,v >= 0))
 			(vp-and-cr fp_frac_mask v)
@@ -103,7 +100,7 @@
 		(endif)) (vec-top n)))
 
 (defcfun vec-floor (n)
-	(vec-def-elem (vec-tmp 1) r)
+	(bind '(r) (vec-tmp 1))
 	(each (lambda (v)
 		(vpif `(,v >= 0))
 			(vp-and-cr fp_int_mask v)
@@ -266,7 +263,7 @@
 	(vec-asr n fp_shift))
 
 (defcfun vec-perp ()
-	(vec-def-elem (vec-top 2) x y)
+	(bind '(x y) (vec-top 2))
 	(vp-xchg-rr x y)
 	(vp-mul-cr -1 y))
 
@@ -299,8 +296,8 @@
 (defcfun vec-fnorm (n)
 	(vec-dup n)
 	(vec-flength n)
-	(vec-def-elem (vec-tmp 2) rl rh)
-	(vec-def-elem (vec-pop 1) l)
+	(bind '(rl rh) (vec-tmp 2))
+	(bind '(l) (vec-pop 1))
 	(vpif `(,l == 0))
 		(vec-clr n)
 	(else)

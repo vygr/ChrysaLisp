@@ -30,7 +30,7 @@
 	(vpif `(,(elem 0 (vec-pop 1)) > long_size))
 		(vec-load 1 {eps})
 		(vec-fsquare 1)
-		(vec-def-elem (vec-top 3) e i x)
+		(bind '(e i x) (vec-top 3))
 		(vec-load-int 2 i)
 		(vec-load-int 2 e (neg long_size))
 		(vec-fdistance-squared 2)
