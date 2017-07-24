@@ -9,7 +9,10 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'params 'args)
+	(ptr 'this)
+	(union
+		'(ptr 'args)
+		'(pptr 'iter_begin))
 	(uint 'length)
 
 	(push-scope)
@@ -17,9 +20,8 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, params})
-	(f-call 'vector 'get_element {args, 1} {_, args})
-	(f-call 'lisp 'env_bind {this, params, args} {_, args})
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(f-call 'lisp 'env_bind {this, iter_begin[0], iter_begin[ptr_size]} {_, args})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_bind {this, args})
