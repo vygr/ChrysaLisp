@@ -24,10 +24,9 @@
 
 ;the scene
 (defun scene (p)
-	(setq p (list (sub (frac (elem 0 p)) 0.5)
-				(sub (frac (elem 1 p)) 0.5)
-				(sub (frac (elem 2 p)) 0.5)))
-	(sphere p (list 0.0 0.0 0.0) 0.35))
+	(bind '(x y z) p)
+	(sphere (list (sub (frac x) 0.5) (sub (frac y) 0.5) (sub (frac z) 0.5))
+			(list 0.0 0.0 0.0) 0.35))
 
 (defun get-normal (p)
 	(bind '(x y z) p)
@@ -79,16 +78,14 @@
 			(defq
 				ray_origin (list 0 0 -3.0)
 				ray_dir (vec-norm-3d (vec-sub-3d
-				(list
-					(div (mul (sub x w2) 1.0) w2)
-					(div (mul (sub y h2) 1.0) h2)
-					0.0) ray_origin))
-				col (scene-ray ray_origin ray_dir)
-				r (bit-shr (elem 0 col) 8)
-				g (bit-shr (elem 1 col) 8)
-				b (bit-shr (elem 2 col) 8)
-				col (add r (bit-shl g 8) (bit-shl b 16) 0xff000000))
-			(call slot_set_fbox canvas col x y 1 1)
+					(list
+						(div (mul (sub x w2) 1.0) w2)
+						(div (mul (sub y h2) 1.0) h2)
+						0.0) ray_origin)))
+			(bind '(r g b) (scene-ray ray_origin ray_dir))
+			(call slot_set_fbox canvas
+				(add (bit-shr r 8) (bit-and g 0xff00) (bit-shl (bit-and b 0xff00) 8) 0xff000000)
+				x y 1 1)
 			(while nil) ;while does a yield call !
 			(setq x (inc x)))
 		(call slot_swap canvas)
