@@ -90,71 +90,52 @@
 
 ;specific vector stuff
 
-(defun vec-add-2d (p1 p2)
-	(list (add (elem 0 p1) (elem 0 p2))
-		(add (elem 1 p1) (elem 1 p2))))
+(defun vec-add-2d ((x1 y1) (x2 y2))
+	(list (add x1 x2) (add y1 y2)))
 
-(defun vec-add-3d (p1 p2)
-	(list (add (elem 0 p1) (elem 0 p2))
-		(add (elem 1 p1) (elem 1 p2))
-		(add (elem 2 p1) (elem 2 p2))))
+(defun vec-add-3d ((x1 y1 z1) (x2 y2 z2))
+	(list (add x1 x2) (add y1 y2) (add z1 z2)))
 
-(defun vec-sub-2d (p1 p2)
-	(list (sub (elem 0 p1) (elem 0 p2))
-		(sub (elem 1 p1) (elem 1 p2))))
+(defun vec-sub-2d ((x1 y1) (x2 y2))
+	(list (sub x1 x2) (sub y1 y2)))
 
-(defun vec-sub-3d (p1 p2)
-	(list (sub (elem 0 p1) (elem 0 p2))
-		(sub (elem 1 p1) (elem 1 p2))
-		(sub (elem 2 p1) (elem 2 p2))))
+(defun vec-sub-3d ((x1 y1 z1) (x2 y2 z2))
+	(list (sub x1 x2) (sub y1 y2) (sub z1 z2)))
 
-(defun vec-mul-2d (p1 p2)
-	(list (fmul (elem 0 p1) (elem 0 p2))
-		(fmul (elem 1 p1) (elem 1 p2))))
+(defun vec-mul-2d ((x1 y1) (x2 y2))
+	(list (fmul x1 x2) (fmul y1 y2)))
 
-(defun vec-mul-3d (p1 p2)
-	(list (fmul (elem 0 p1) (elem 0 p2))
-		(fmul (elem 1 p1) (elem 1 p2))
-		(fmul (elem 2 p1) (elem 2 p2))))
+(defun vec-mul-3d ((x1 y1 z1) (x2 y2 z2))
+	(list (fmul x1 x2) (fmul y1 y2) (fmul z1 z2)))
 
-(defun vec-mod-3d (p s)
-	(list (fmod (elem 0 p) s)
-		(fmod (elem 1 p) s)
-		(fmod (elem 2 p) s)))
+(defun vec-mod-3d ((x y z) s)
+	(list (fmod x s) (fmod y s) (fmod z s)))
 
-(defun vec-floor-3d (p)
-	(list (floor (elem 0 p)) (floor (elem 1 p)) (floor (elem 2 p))))
+(defun vec-floor-3d ((x y z))
+	(list (floor x) (floor y) (floor z)))
 
-(defun vec-scale-2d (p s)
-	(list (fmul (elem 0 p) s)
-		(fmul (elem 1 p) s)))
+(defun vec-scale-2d ((x y) s)
+	(list (fmul x s) (fmul y s)))
 
-(defun vec-scale-3d (p s)
-	(list (fmul (elem 0 p) s)
-		(fmul (elem 1 p) s)
-		(fmul (elem 2 p) s)))
+(defun vec-scale-3d ((x y z) s)
+	(list (fmul x s) (fmul y s) (fmul z s)))
 
-(defun vec-perp-2d (p)
-	(list (elem 1 p) (neg (elem 0 p))))
+(defun vec-perp-2d ((x y))
+	(list y (neg x)))
 
-(defun vec-det-2d (p1 p2)
-	(sub (fmul (elem 0 p1) (elem 1 p2)) (fmul (elem 1 p1) (elem 0 p2))))
+(defun vec-det-2d ((x1 y1) (x2 y2))
+	(sub (fmul x1 y2) (fmul y1 x2)))
 
-(defun vec-cross-3d (p1 p2)
-	(defq x1 (elem 0 p1) y1 (elem 1 p1) z1 (elem 2 p1)
-		x2 (elem 0 p2) y2 (elem 1 p2) z2 (elem 2 p2))
+(defun vec-cross-3d ((x1 y1 z1) (x2 y2 z2))
 	(list (sub (fmul y1 z2) (fmul z1 y2))
 		(sub (fmul z1 x2) (fmul x1 z2))
 		(sub (fmul x1 y2) (fmul y1 x2))))
 
-(defun vec-dot-2d (p1 p2)
-	(add (fmul (elem 0 p1) (elem 0 p2))
-		(fmul (elem 1 p1) (elem 1 p2))))
+(defun vec-dot-2d ((x1 y1) (x2 y2))
+	(add (fmul x1 x2) (fmul y1 y2)))
 
-(defun vec-dot-3d (p1 p2)
-	(add (fmul (elem 0 p1) (elem 0 p2))
-		(fmul (elem 1 p1) (elem 1 p2))
-		(fmul (elem 2 p1) (elem 2 p2))))
+(defun vec-dot-3d ((x1 y1 z1) (x2 y2 z2))
+	(add (fmul x1 x2) (fmul y1 y2) (fmul z1 z2)))
 
 (defun vec-reflect-3d (p n)
 	(vec-sub-3d p (vec-scale-3d n (fmul (vec-dot-3d p n) 2.0))))
@@ -305,9 +286,8 @@
 (defq join-miter 0 join-bevel 1 join-round 2
 	cap-butt 0 cap-square 1 cap-tri 2 cap-arrow 3 cap-round 4)
 
-(defun coincident-2d (p1 p2)
-	(and (lt (abs (sub (elem 0 p1) (elem 0 p2))) 0.25)
-		(lt (abs (sub (elem 1 p1) (elem 1 p2))) 0.25)))
+(defun coincident-2d ((x1 y1) (x2 y2))
+	(and (lt (abs (sub x1 x2)) 0.25) (lt (abs (sub y1 y2)) 0.25)))
 
 (defun remove-coincident-polyline-2d (_)
 	(reduce (lambda (l _)

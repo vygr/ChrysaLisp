@@ -23,8 +23,8 @@
 (defq canvas_scale (pop argv) canvas_height (pop argv) canvas_width (pop argv) canvas (pop argv)
 	stack (array) eps 1.0)
 
-(defun as-point (_)
-	(bit-or (bit-shl (elem 1 _) 32) (bit-and 0xffffffff (elem 0 _))))
+(defun as-point ((x y))
+	(bit-or (bit-and 0xffffffff x) (bit-shl y 32)))
 
 (defun as-points (_)
 	(apply points (map as-point _)))
