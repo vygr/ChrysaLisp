@@ -561,8 +561,7 @@
 (defcfun token-to-rpn ()
 	(clear *rpn*)
 	(defq o (list))
-	(each (lambda (_)
-		(bind '(k c) _)
+	(each (lambda ((k c))
 		(cond
 			((ge c 5) ;operator
 				(cond
@@ -856,8 +855,7 @@
 	(add-inst `(vp-lea-p ',_1 ,(vreg-sym *s*))))
 
 (defcfun compile-rpn-list ()
-	(each (lambda (_)
-		(bind '(k c) _)
+	(each (lambda ((k c))
 		(if (le -1 c 4)
 			(eval (elem (inc c)
 				'((compile-operator k)

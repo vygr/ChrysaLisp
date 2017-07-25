@@ -23,13 +23,11 @@
 	(sub (vec-length-3d (vec-sub-3d p c)) r))
 
 ;the scene
-(defun scene (p)
-	(bind '(x y z) p)
+(defun scene ((x y z))
 	(sphere (list (sub (frac x) 0.5) (sub (frac y) 0.5) (sub (frac z) 0.5))
 			(list 0.0 0.0 0.0) 0.35))
 
-(defun get-normal (p)
-	(bind '(x y z) p)
+(defun get-normal ((x y z))
 	(vec-norm-3d (list
 		(sub (scene (list (add x eps) y z)) (scene (list (sub x eps) y z)))
 		(sub (scene (list x (add y eps) z)) (scene (list x (sub y eps) z)))
