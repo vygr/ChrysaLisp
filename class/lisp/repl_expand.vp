@@ -14,14 +14,13 @@
 
 	(def-struct 'local)
 		(ptr 'this)
-		(ptr 'form)
 		(ulong 'cnt)
 	(def-struct-end)
 
-	(ptr 'this 'form)
+	(ptr 'this)
 	(ulong 'cnt)
 
-	(ptr 'macro 'params 'args)
+	(ptr 'macro 'form 'params 'args)
 	(pptr 'iter 'miter)
 	(uint 'length)
 
@@ -44,11 +43,12 @@
 			(f-call 'lisp 'env_push {this})
 			(f-call 'vector 'get_element {macro, 1} {_, params})
 			(d-call 'vector 'slice {form, 1, length} {_, args})
-			(f-call 'lisp 'env_bind {this, params, args} {_, form})
-			(errorif (cat {form->obj_vtable == @} (f-path 'class 'error)) 'error)
+			(f-call 'lisp 'env_bind {this, params, args} {_, params})
+			(errorif (cat {params->obj_vtable == @} (f-path 'class 'error)) 'error)
 			(f-call 'lisp 'repl_apply {this, macro, args} {_, form})
 			(f-call 'ref 'deref {args})
 		(vp-label 'error)
+			(f-call 'ref 'deref {params})
 			(f-call 'lisp 'env_pop {this})
 			(f-call 'ref 'deref {*iter})
 			(assign {form, cnt + 1} {*iter, cnt})
