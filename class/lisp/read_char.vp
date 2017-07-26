@@ -5,7 +5,7 @@
 (import 'class/pair/pair.inc)
 (import 'class/lisp/lisp.inc)
 
-(def-func 'class/lisp/repl_read_char)
+(def-func 'class/lisp/read_char)
 	;inputs
 	;r0 = lisp object
 	;r1 = stream
@@ -19,7 +19,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(f-entry 'lisp 'repl_read_char {this, stream, char})
+	(f-entry 'lisp 'read_char {this, stream, char})
 
 	(vpif {char == char_lf})
 		(f-call 'lisp 'env_find {this, this->lisp_sym_stream_line} {_, iter, _})
@@ -30,7 +30,7 @@
 
 	(f-call 'stream 'read_char {stream} {_, char})
 
-	(f-exit 'lisp 'repl_read_char {this, char})
+	(f-exit 'lisp 'read_char {this, char})
 	(pop-scope)
 	(return)
 

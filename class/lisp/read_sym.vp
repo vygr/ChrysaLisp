@@ -1,39 +1,39 @@
 (import 'sys/func.inc)
 (import 'sys/load.inc)
-(import 'class/string/string.inc)
+(import 'class/symbol/symbol.inc)
 (import 'class/stream_str/stream_str.inc)
 (import 'class/lisp/lisp.inc)
 
-(def-func 'class/lisp/repl_read_group)
+(def-func 'class/lisp/read_sym)
 	;inputs
 	;r0 = lisp object
 	;r1 = stream
 	;r2 = next char
 	;outputs
 	;r0 = lisp object
-	;r1 = string
+	;r1 = value
 	;r2 = next char
 
 	(ptr 'this 'stream 'str_stream 'value)
 	(int 'char)
 
 	(push-scope)
-	(f-entry 'lisp 'repl_read_group {this, stream, char})
+	(f-entry 'lisp 'read_sym {this, stream, char})
 
-	(f-call 'string 'create_raw {string_gap} {value})
+	(f-call 'symbol 'create_raw {string_gap} {value})
 	(f-call 'stream_str 'create {value} {str_stream})
 
-	(f-call 'stream 'read_char {stream} {_, char})
-	(loop-whilenot {char == -1 || char == char_rcb})
+	(loop-whilenot {char <= char_space || char == char_lrb || char == char_rrb || char == char_quote})
 		(f-call 'stream 'write_char {str_stream, char})
-		(f-call 'lisp 'repl_read_char {this, stream, char} {_, char})
+		(f-call 'stream 'read_char {stream} {_, char})
 	(loop-end)
-	(f-call 'stream 'read_char {stream} {_, char})
 
+	;intern the symbol
 	(f-call 'stream_str 'ref_string {str_stream} {_, value})
 	(f-call 'ref 'deref {str_stream})
+	(f-call 'lisp 'sym_intern {this, value} {_, value})
 
-	(f-exit 'lisp 'repl_read_group {this, value, char})
+	(f-exit 'lisp 'read_sym {this, value, char})
 	(pop-scope)
 	(return)
 

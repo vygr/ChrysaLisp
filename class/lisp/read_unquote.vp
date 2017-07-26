@@ -2,7 +2,7 @@
 (import 'class/stream/stream.inc)
 (import 'class/lisp/lisp.inc)
 
-(def-func 'class/lisp/repl_read_unquote)
+(def-func 'class/lisp/read_unquote)
 	;inputs
 	;r0 = lisp object
 	;r1 = stream
@@ -16,7 +16,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(f-entry 'lisp 'repl_read_unquote {this, stream, char})
+	(f-entry 'lisp 'read_unquote {this, stream, char})
 
 	;skip ","
 	(f-call 'stream 'read_char {stream} {_, char})
@@ -25,7 +25,7 @@
 	(assign {this->lisp_sym_unquote} {elem})
 	(f-call 'ref 'ref {elem})
 	(f-call 'vector 'push_back {list, elem})
-	(f-call 'lisp 'repl_read {this, stream, char} {_, elem, char})
+	(f-call 'lisp 'read {this, stream, char} {_, elem, char})
 	(vpif {elem})
 		(f-call 'vector 'push_back {list, elem})
 	(else)
@@ -33,7 +33,7 @@
 		(f-call 'lisp 'repl_error {this, "read unquote error", 0, this->lisp_sym_nil} {_, list})
 	(endif)
 
-	(f-exit 'lisp 'repl_read_unquote {this, list, char})
+	(f-exit 'lisp 'read_unquote {this, list, char})
 	(pop-scope)
 	(return)
 

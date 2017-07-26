@@ -50,7 +50,7 @@
 		(v-call 'stream 'write_flush {this->lisp_stdout})
 		(v-call 'stream 'write_flush {this->lisp_stderr})
 
-		(f-call 'lisp 'repl_read {this, stream, char} {_, ast, char})
+		(f-call 'lisp 'read {this, stream, char} {_, ast, char})
 		(breakif {char == -1})
 
 		(loop-start)

@@ -4,7 +4,7 @@
 (import 'class/pair/pair.inc)
 (import 'class/lisp/lisp.inc)
 
-(def-func 'class/lisp/repl_read_pair)
+(def-func 'class/lisp/read_pair)
 	;inputs
 	;r0 = lisp object
 	;r1 = stream
@@ -18,19 +18,19 @@
 	(int 'char)
 
 	(push-scope)
-	(f-entry 'lisp 'repl_read_pair {this, stream, char})
+	(f-entry 'lisp 'read_pair {this, stream, char})
 
 	;skip "["
 	(f-call 'stream 'read_char {stream} {_, char})
 
-	(f-call 'lisp 'repl_read {this, stream, char} {_, first, char})
+	(f-call 'lisp 'read {this, stream, char} {_, first, char})
 	(errorif (cat {first->obj_vtable == @} (f-path 'class 'error)) 'error1)
-	(f-call 'lisp 'repl_read {this, stream, char} {_, second, char})
+	(f-call 'lisp 'read {this, stream, char} {_, second, char})
 	(errorif (cat {second->obj_vtable == @} (f-path 'class 'error)) 'error2)
 
 	;skip white space
 	(loop-whilenot {char > char_space || char == -1})
-		(f-call 'lisp 'repl_read_char {this, stream, char} {_, char})
+		(f-call 'lisp 'read_char {this, stream, char} {_, char})
 	(loop-end)
 	(errorif {char != char_rsb} 'error3)
 
@@ -38,7 +38,7 @@
 	(f-call 'pair 'create {first, second} {pair})
 
 (vp-label 'exit)
-	(f-exit 'lisp 'repl_read_pair {this, pair, char})
+	(f-exit 'lisp 'read_pair {this, pair, char})
 	(return)
 
 (errorcases
