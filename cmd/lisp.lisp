@@ -151,9 +151,9 @@
 		(defq *imports* (list 'make.inc) *products* (list))
 		;lists of all file imports and products
 		(each-mergeable (lambda (_)
-			(defq i (make-info _))
-			(merge-sym *imports* (elem 0 i))
-			(merge-sym *products* (elem 1 i))) *imports*)
+			(bind '(d p) (make-info _))
+			(merge-sym *imports* d)
+			(merge-sym *products* p)) *imports*)
 		*products*))))
 
 (defun make (&optional *os* *cpu*)
@@ -169,10 +169,11 @@
 			(or (val? s) (def *env* s (age _))))
 		;list of all file imports while defining dependencies and products
 		(each-mergeable (lambda (_)
-			(defq d (make-info _))
-			(merge-sym *imports* (elem 0 d))
-			(elem-set 1 d (map func-obj (elem 1 d)))
-			(def *env* (make-sym _) d)) *imports*)
+			(defq i (make-info _))
+			(bind '(d p) i)
+			(merge-sym *imports* d)
+			(elem-set 1 i (map func-obj p))
+			(def *env* (make-sym _) i)) *imports*)
 		;filter to only the .vp files
 		(setq *imports* (filter (lambda (_)
 			(and (ge (length _) 3) (eql ".vp" (slice -4 -1 _)))) *imports*))
