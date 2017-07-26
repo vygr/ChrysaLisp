@@ -17,7 +17,7 @@
 	(vp-push r0 r1)
 
 	;allocate relloc/stat/name buffer
-	(sys-mmap '(0 ld_page_size (bit-or prot_read prot_write) (bit-or map_private map_anon) -1 0) '(r3))
+	(sys-mmap '(0 ld_reloc_buf_size (bit-or prot_read prot_write) (bit-or map_private map_anon) -1 0) '(r3))
 
 	;set prebound functions as read/write/executable
 	(vp-lea-p '_func_start r0)
@@ -123,7 +123,7 @@
 (def-func 'sys/load_deinit)
 	;free relloc buffer
 	(f-bind 'sys_load 'statics r0)
-	(sys-munmap '((r0 ld_statics_reloc_buffer) ld_page_size) '(_))
+	(sys-munmap '((r0 ld_statics_reloc_buffer) ld_reloc_buf_size) '(_))
 
 	;free all function blocks
 	(f-bind 'sys_load 'statics r0)
