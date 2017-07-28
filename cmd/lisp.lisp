@@ -14,12 +14,12 @@
 (defun platform ()
 	(defq o 'Darwin)
 	(when (defq f (file-stream 'platform))
-		(setq o (sym (read-line f)))) o)
+		(bind '(o _) (read f 32))) o)
 
 (defun cpu ()
 	(defq o 'x86_64)
 	(when (defq f (file-stream 'arch))
-		(setq o (sym (read-line f)))) o)
+		(bind '(o _) (read f 32))) o)
 
 (defun compile (*files* &optional *os* *cpu* *pipes*)
 	(setd *os* (platform) *cpu* (cpu) *pipes* 1)

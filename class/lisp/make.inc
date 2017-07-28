@@ -76,6 +76,7 @@
 (import 'class/lisp/func_call.vp)
 (import 'class/lisp/func_qquote.vp)
 (import 'class/lisp/func_quote.vp)
+(import 'class/lisp/func_read.vp)
 (import 'class/lisp/func_readchar.vp)
 (import 'class/lisp/func_readline.vp)
 (import 'class/lisp/func_repl.vp)

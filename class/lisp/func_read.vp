@@ -1,0 +1,47 @@
+(import 'sys/func.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_read)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value 'form)
+	(uint 'length)
+	(int 'next_char)
+
+	(push-scope)
+	(f-entry 'lisp 'func_read {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'vector 'get_element {args, 0} {_, value})
+	(f-call 'vector 'get_element {args, 1} {_, args})
+	(f-call 'boxed_long 'get_value {args} {_, next_char})
+	(f-call 'lisp 'read {this, value, next_char} {_, form, next_char})
+
+	(f-call 'boxed_long 'create {} {args})
+	(f-call 'boxed_long 'set_value {args, next_char})
+	(f-call 'vector 'create {} {value})
+	(f-call 'vector 'push_back {value, form})
+	(f-call 'vector 'push_back {value, args})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'func_read {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(read stream last_char)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'stream 'boxed_long))
+
+	(pop-scope-syms)
+
+(def-func-end)
