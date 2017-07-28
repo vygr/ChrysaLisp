@@ -110,7 +110,6 @@
 (import 'class/lisp/read_group.vp)
 (import 'class/lisp/read_list.vp)
 (import 'class/lisp/read_num.vp)
-(import 'class/lisp/read_pair.vp)
 (import 'class/lisp/read_qquote.vp)
 (import 'class/lisp/read_quote.vp)
 (import 'class/lisp/read_splicing.vp)
