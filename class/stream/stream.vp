@@ -70,7 +70,7 @@
 	(push-scope)
 	(assign '(r0 r1 r2) {this, buffer, buffer_end})
 
-	(vpif {buffer_end == 0})
+	(vpifnot {buffer_end})
 		(assign {this, 0} '(r0 r1))
 		(return)
 	(endif)
@@ -139,7 +139,7 @@
 	(push-scope)
 	(assign '(r0 r1 r2) {this, buffer, buffer_end})
 
-	(vpif {buffer_end == 0})
+	(vpifnot {buffer_end})
 		(assign {this, 0} '(r0 r1))
 		(return)
 	(endif)
@@ -277,7 +277,7 @@
 		(assign {this->stream_bufp} {start})
 		(f-call 'stream 'skip_not {this, char})
 		(assign {this->stream_bufp - start} {length})
-		(breakif {length == 0})
+		(breakifnot {length})
 		(f-call 'string 'create_from_buffer {start, length} {string})
 		(f-call 'vector 'push_back {splits, string})
 	(loop-end)

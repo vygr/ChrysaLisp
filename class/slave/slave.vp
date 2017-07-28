@@ -27,7 +27,7 @@
 
 	;init parent
 	(s-call 'slave 'init {this, vtable} {_, error})
-	(vpif {error != 0})
+	(vpif {error})
 		;init myself
 		(f-call 'sys_task 'mailbox {} {mymailbox, _})
 		(f-call 'sys_mail 'read {mymailbox} {msg})

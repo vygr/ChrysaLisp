@@ -224,14 +224,14 @@
 		(loop-untilnot {char})
 	(elseif {char == char_backspace})
 		;backspace
-		(vpif {this->vdu_cursor_x != 0})
+		(vpif {this->vdu_cursor_x})
 			(assign {this->vdu_cursor_x - 1} {this->vdu_cursor_x})
 			(assign {32} {(this->vdu_chars)[this->vdu_cursor_y * this->vdu_width + this->vdu_cursor_x]})
 			(f-call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 		(endif)
 	(elseif {char == 129})
 		;clear line
-		(vpif {this->vdu_cursor_x != 0})
+		(vpif {this->vdu_cursor_x})
 			(f-call 'sys_mem 'fill {this->vdu_chars + this->vdu_cursor_y * this->vdu_width, this->vdu_width, 32})
 			(f-call 'vdu 'add_dirty {this, 0, this->vdu_cursor_y * this->vdu_char_height, this->vdu_cursor_x * this->vdu_char_width, this->vdu_char_height})
 			(assign {0} {this->vdu_cursor_x})

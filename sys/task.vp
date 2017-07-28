@@ -171,7 +171,7 @@
 	(loop-end)
 
 	;wait for replys
-	(loop-while {index != 0})
+	(loop-while {index})
 		(assign {index - 1} {index})
 		(f-call 'sys_mail 'read {&mailbox} {msg})
 		(assign {msg->kn_msg_reply_id.id_mbox} {msg->kn_msg_user->id_mbox})
@@ -285,7 +285,7 @@
 	(loop-end)
 
 	;wait for replys
-	(loop-while {index != 0})
+	(loop-while {index})
 		(assign {index - 1} {index})
 		(f-call 'sys_mail 'read {&mailbox} {msg})
 		(assign {msg->kn_msg_reply_id.id_mbox} {msg->kn_msg_user->id_mbox})
@@ -340,7 +340,7 @@
 	(loop-end)
 
 	;wait for replys
-	(loop-while {index != 0})
+	(loop-while {index})
 		(assign {index - 1} {index})
 		(f-call 'sys_mail 'read {&mailbox} {msg})
 		(assign {msg->kn_msg_reply_id.id_mbox} {msg->kn_msg_user->id_mbox})

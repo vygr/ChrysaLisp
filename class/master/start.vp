@@ -29,7 +29,7 @@
 		(f-call 'stream 'split {stream, pipe_char} {_, args})
 		(f-call 'stream 'deref {stream})
 		(d-call 'vector 'get_length {args} {_, length})
-		(vpif {length != 0})
+		(vpif {length})
 			;create command pipeline
 			(f-call 'string 'create_from_cstr {"cmd/"} {prefix})
 			(f-call 'vector 'create {} {commands})
@@ -57,7 +57,7 @@
 			;count how many started
 			(assign {0, 0} {started, index})
 			(loop-while {index != length})
-				(vpif {ids[index * id_size] .id_mbox != 0})
+				(vpif {ids[index * id_size] .id_mbox})
 					(assign {started + 1} {started})
 				(endif)
 				(assign {index + 1} {index})
@@ -85,7 +85,7 @@
 				(assign {mbox} {nextid.id_mbox})
 				(f-call 'sys_cpu 'id {} {nextid.id_cpu})
 				(assign {index - 2} {index})
-				(loop-while {index != 0})
+				(loop-while {index})
 					(assign {index - 1} {index})
 					(assign {(args->array_array)[index * ptr_size]} {string})
 					(f-call 'sys_mail 'alloc_parcel {slave_mail_init_size + string->string_length} {msg})
@@ -117,9 +117,9 @@
 				(assign {stream_mail_state_started} {this->master_state})
 			(else)
 				;send abort to any started pipe elements
-				(loop-while {index != 0})
+				(loop-while {index})
 					(assign {index - 1} {index})
-					(continueif {ids[index * id_size].id_mbox == 0})
+					(continueifnot {ids[index * id_size].id_mbox})
 					(f-call 'sys_mail 'alloc {} {msg})
 					(assign {ids[index * id_size].id_mbox} {msg->msg_dest.id_mbox})
 					(assign {ids[index * id_size].id_cpu} {msg->msg_dest.id_cpu})

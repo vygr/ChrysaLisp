@@ -201,7 +201,7 @@
 	(loop-start)
 	(vp-label 'nextchar)
 		(sys-read-char {0} {char})
-		(vpif {char != 0})
+		(vpif {char})
 			(f-call 'sys_mail 'alloc {} {msg})
 			(assign {tui_id.id_mbox} {msg->msg_dest.id_mbox})
 			(assign {tui_id.id_cpu} {msg->msg_dest.id_cpu})

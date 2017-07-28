@@ -144,7 +144,7 @@
 				(loop-while {iter_k != iter_j})
 					(assign {*iter_k} {iter_edge1})
 					(assign {iter_edge1->edge_w} {w})
-					(loop-while {w != 0})
+					(loop-while {w})
 						(assign {iter_k + ptr_size} {iter_k})
 						(assign {*iter_k} {iter_edge2})
 						(assign {iter_edge2->edge_x, iter_edge2->edge_w + w} {x2, w})

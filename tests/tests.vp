@@ -34,7 +34,7 @@
 	(f-call 'sys_task 'open_array {tasks} {ids})
 
 	;send exit messages etc
-	(loop-while {cnt != 0})
+	(loop-while {cnt})
 		(assign {cnt - 1} {cnt})
 		(continueifnot {ids[cnt * id_size].id_mbox})
 		(f-call 'sys_mail 'alloc {} {msg})
@@ -90,7 +90,7 @@
 
 	;send exit messages etc
 	(assign {num_child} {cnt})
-	(loop-while {cnt != 0})
+	(loop-while {cnt})
 		(assign {cnt - 1} {cnt})
 		(continueifnot {ids[cnt * id_size].id_mbox})
 		(f-call 'sys_mail 'alloc {} {msg})
@@ -147,7 +147,7 @@
 
 	;send exit parcels etc
 	(assign {total} {cnt})
-	(loop-while {cnt != 0})
+	(loop-while {cnt})
 		(assign {cnt - 1} {cnt})
 		(continueifnot {ids[cnt * id_size].id_mbox})
 		(f-call 'sys_mail 'alloc_parcel {test_size} {msg})
@@ -211,7 +211,7 @@
 	(f-call 'sys_task 'open_pipe {tasks} {ids})
 
 	;send exit messages etc
-	(loop-while {cnt != 0})
+	(loop-while {cnt})
 		(assign {cnt - 1} {cnt})
 		(continueifnot {ids[cnt * id_size].id_mbox})
 		(f-call 'sys_mail 'alloc {} {msg})
