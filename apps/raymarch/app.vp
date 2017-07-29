@@ -6,7 +6,7 @@
 (import 'class/canvas/canvas.inc)
 (import 'class/stream/stream.inc)
 (import 'class/stream_str/stream_str.inc)
-(import 'class/unordered_map/unordered_map.inc)
+(import 'class/hash_map/hash_map.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 
@@ -135,7 +135,7 @@
 	(f-call 'vector 'push_back {args, value})
 	(f-call 'sys_mem 'free {msg})
 	(f-call 'lisp 'sym_intern_cstr {lisp, "argv"} {_, value})
-	(f-call 'unordered_map 'insert {lisp->lisp_environment, value, args})
+	(f-call 'hash_map 'insert {lisp->lisp_environment, value, args})
 	(f-call 'ref 'deref {value})
 	(f-call 'ref 'deref {args})
 

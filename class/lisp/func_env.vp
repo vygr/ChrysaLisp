@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/boxed_long/boxed_long.inc)
-(import 'class/unordered_map/unordered_map.inc)
+(import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_env)
@@ -23,7 +23,7 @@
 		(f-call 'vector 'get_element {args, 0} {_, value})
 		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 		(f-call 'boxed_long 'get_value {value} {_, value})
-		(f-call 'unordered_map 'copy {this->lisp_environment, value} {_, value})
+		(f-call 'hash_map 'copy {this->lisp_environment, value} {_, value})
 		(f-call 'ref 'deref {this->lisp_environment})
 		(assign {value} {this->lisp_environment})
 		(f-call 'ref 'ref {value})

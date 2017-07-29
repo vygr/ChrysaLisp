@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/unordered_map/unordered_map.inc)
+(import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_defmacro)
@@ -26,7 +26,7 @@
 	(assign {this->lisp_sym_macro} {vars})
 	(f-call 'ref 'ref {vars})
 	(d-call 'vector 'set_element {args, vars, 0})
-	(f-call 'unordered_map 'insert {this->lisp_environment, value, args})
+	(f-call 'hash_map 'insert {this->lisp_environment, value, args})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_defmacro {this, value})

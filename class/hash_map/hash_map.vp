@@ -1,15 +1,15 @@
 (import 'sys/func.inc)
 (import 'class/vector/vector.inc)
 (import 'class/pair/pair.inc)
-(import 'class/unordered_map/unordered_map.inc)
+(import 'class/hash_map/hash_map.inc)
 
-(gen-new 'unordered_map)
-(gen-create 'unordered_map 2)
-(gen-class 'unordered_map)
+(gen-new 'hash_map)
+(gen-create 'hash_map 2)
+(gen-class 'hash_map)
 
-(def-func 'class/unordered_map/init)
+(def-func 'class/hash_map/init)
 	;inputs
-	;r0 = unordered_map object
+	;r0 = hash_map object
 	;r1 = vtable pointer
 	;r2 = key compare callback
 	;r3 = num_buckets
@@ -19,36 +19,36 @@
 	;r2-r3, r5-r8
 
 	;init parent
-	(s-call 'unordered_map 'init '(r0 r1 r2 r3) '(r0 r1))
+	(s-call 'hash_map 'init '(r0 r1 r2 r3) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-xor-rr r2 r2)
-		(vp-cpy-ri r2 r0 unordered_map_parent)
+		(vp-cpy-ri r2 r0 hash_map_parent)
 	(endif)
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'class/unordered_map/deinit)
+(def-func 'class/hash_map/deinit)
 	;inputs
-	;r0 = unordered_map object
+	;r0 = hash_map object
 	;trashes
 	;all but r0, r4
 
 	(vp-push r0)
-	(f-call 'unordered_map 'deref_if '((r0 unordered_map_parent)))
+	(f-call 'hash_map 'deref_if '((r0 hash_map_parent)))
 	(vp-pop r0)
-	(s-jmp 'unordered_map 'deinit '(r0))
+	(s-jmp 'hash_map 'deinit '(r0))
 
 (def-func-end)
 
-(def-func 'class/unordered_map/copy)
+(def-func 'class/hash_map/copy)
 	;inputs
-	;r0 = unordered_map object
+	;r0 = hash_map object
 	;r1 = num buckets
 	;outputs
-	;r0 = unordered_map object
-	;r1 = unordered_map copy
+	;r0 = hash_map object
+	;r1 = hash_map copy
 	;trashes
 	;all but r0, r4
 
@@ -59,16 +59,16 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'unordered_map 'copy '((r4 local_this) r1))
+	(f-entry 'hash_map 'copy '((r4 local_this) r1))
 
-	(f-call 'unordered_map 'create '((r0 unordered_set_key_callback) r1) '((r4 local_obj)))
-	(f-call 'unordered_map 'get_parent '((r4 local_this)) '(_ r2))
+	(f-call 'hash_map 'create '((r0 hash_set_key_callback) r1) '((r4 local_obj)))
+	(f-call 'hash_map 'get_parent '((r4 local_this)) '(_ r2))
 	(f-call 'ref 'ref_if '(r2))
-	(f-call 'unordered_map 'set_parent '((r4 local_obj) r2))
-	(f-call 'unordered_map 'for_each '((r4 local_this) ($ callback) r4))
+	(f-call 'hash_map 'set_parent '((r4 local_obj) r2))
+	(f-call 'hash_map 'for_each '((r4 local_this) ($ callback) r4))
 	(vp-cpy-ir r4 local_obj r1)
-	(vp-cpy-ir-ui r0 unordered_set_length r2)
-	(vp-cpy-ri-i r2 r1 unordered_set_length)
+	(vp-cpy-ir-ui r0 hash_set_length r2)
+	(vp-cpy-ri-i r2 r1 hash_set_length)
 
 	(vp-add-cr local_size r4)
 	(vp-ret)
@@ -83,18 +83,18 @@
 	(vp-cpy-ir r0 0 r2)
 	(f-call 'ref 'ref '((r1 0)))
 	(vp-push r0)
-	(f-call 'unordered_map 'get_bucket '(r2 (r0 pair_first)) '(_ r0))
+	(f-call 'hash_map 'get_bucket '(r2 (r0 pair_first)) '(_ r0))
 	(vp-pop r1)
 	(f-jmp 'vector 'push_back '(r0 r1))
 
 (def-func-end)
 
-(def-func 'class/unordered_map/find)
+(def-func 'class/hash_map/find)
 	;inputs
-	;r0 = unordered_map object
+	;r0 = hash_map object
 	;r1 = key object
 	;outputs
-	;r0 = unordered_map object
+	;r0 = hash_map object
 	;r1 = 0, else found iterator
 	;r2 = bucket vector
 	;trashes
@@ -107,13 +107,13 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'unordered_map 'find '((r4 local_this) (r4 local_key)))
+	(f-entry 'hash_map 'find '((r4 local_this) (r4 local_key)))
 
 	;search hash bucket
-	(f-call 'unordered_map 'get_bucket '(r0 r1) '(_ r0))
+	(f-call 'hash_map 'get_bucket '(r0 r1) '(_ r0))
 	(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) r4) '(r2 r1))
 
-	(f-exit 'unordered_map 'find '((r4 local_this) r1 r2))
+	(f-exit 'hash_map 'find '((r4 local_this) r1 r2))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -128,17 +128,17 @@
 	(vp-cpy-ir r1 pair_first r1)
 	(vp-cpy-ir r0 local_this r2)
 	(vp-cpy-ir r0 local_key r0)
-	(vp-jmp-i r2 unordered_set_key_callback)
+	(vp-jmp-i r2 hash_set_key_callback)
 
 (def-func-end)
 
-(def-func 'class/unordered_map/insert)
+(def-func 'class/hash_map/insert)
 	;inputs
-	;r0 = unordered_map object
+	;r0 = hash_map object
 	;r1 = key object
 	;r2 = value object
 	;outputs
-	;r0 = unordered_map object
+	;r0 = hash_map object
 	;r1 = iterator
 	;r2 = bucket vector
 	;trashes
@@ -155,18 +155,18 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'unordered_map 'insert '((r4 local_this) (r4 local_key) (r4 local_value)))
+	(f-entry 'hash_map 'insert '((r4 local_this) (r4 local_key) (r4 local_value)))
 
 	;search hash bucket
-	(f-call 'unordered_map 'get_bucket '(r0 r1) '(_ r0))
+	(f-call 'hash_map 'get_bucket '(r0 r1) '(_ r0))
 	(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) r4) '(_ r1))
 	(vp-cpy-ri r0 r4 local_bucket)
 	(vpif '(r1 == 0))
 		;new key
 		(vp-cpy-ir r4 local_this r0)
-		(vp-cpy-ir-ui r0 unordered_set_length r1)
+		(vp-cpy-ir-ui r0 hash_set_length r1)
 		(vp-add-cr 1 r1)
-		(vp-cpy-ri-i r1 r0 unordered_set_length)
+		(vp-cpy-ri-i r1 r0 hash_set_length)
 		(f-call 'ref 'ref '((r4 local_value)))
 		(f-call 'ref 'ref '((r4 local_key)))
 		(f-call 'pair 'create '(r0 (r4 local_value)) '(r0))
@@ -191,7 +191,7 @@
 		(vp-cpy-ir r4 local_bucket r2)
 	(endif)
 
-	(f-exit 'unordered_map 'insert '((r4 local_this) r1 r2))
+	(f-exit 'hash_map 'insert '((r4 local_this) r1 r2))
 	(vp-add-cr local_size r4)
 	(vp-ret)
 
@@ -206,16 +206,16 @@
 	(vp-cpy-ir r1 pair_first r1)
 	(vp-cpy-ir r0 local_this r2)
 	(vp-cpy-ir r0 local_key r0)
-	(vp-jmp-i r2 unordered_set_key_callback)
+	(vp-jmp-i r2 hash_set_key_callback)
 
 (def-func-end)
 
-(def-func 'class/unordered_map/set_parent)
+(def-func 'class/hash_map/set_parent)
 	;inputs
-	;r0 = unordered_map object
-	;r1 = 0, else unordered_map parent
+	;r0 = hash_map object
+	;r1 = 0, else hash_map parent
 	;outputs
-	;r0 = unordered_map object
+	;r0 = hash_map object
 	;trashs
 	;all but r0, r4
 
@@ -226,11 +226,11 @@
 
 	;save inputs
 	(vp-sub-cr local_size r4)
-	(f-entry 'unordered_map 'set_parent '((r4 local_this) (r4 local_obj)))
+	(f-entry 'hash_map 'set_parent '((r4 local_this) (r4 local_obj)))
 
-	(f-call 'ref 'deref_if '((r0 unordered_map_parent)))
+	(f-call 'ref 'deref_if '((r0 hash_map_parent)))
 	(assign '((r4 local_this) (r4 local_obj)) '(r0 r1))
-	(vp-cpy-ri r1 r0 unordered_map_parent)
+	(vp-cpy-ri r1 r0 hash_map_parent)
 
 	(vp-add-cr local_size r4)
 	(vp-ret)

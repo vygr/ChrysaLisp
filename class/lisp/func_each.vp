@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/boxed_long/boxed_long.inc)
-(import 'class/unordered_map/unordered_map.inc)
+(import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_each)
@@ -86,7 +86,7 @@
 
 			(f-call 'boxed_long 'create {} {value})
 			(f-call 'boxed_long 'set_value {value, start})
-			(f-call 'unordered_map 'insert {this->lisp_environment, this->lisp_sym_underscore, value})
+			(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_underscore, value})
 			(f-call 'ref 'deref {value})
 
 			(f-call 'lisp 'repl_apply {this, func, params} {_, value})

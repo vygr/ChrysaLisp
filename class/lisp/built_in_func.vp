@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/boxed_ptr/boxed_ptr.inc)
-(import 'class/unordered_map/unordered_map.inc)
+(import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/built_in_func)
@@ -19,7 +19,7 @@
 
 	(f-call 'boxed_ptr 'create {} {func})
 	(f-call 'boxed_ptr 'set_value {func, func_ptr | func_flags})
-	(f-call 'unordered_map 'insert {this->lisp_environment, symbol, func})
+	(f-call 'hash_map 'insert {this->lisp_environment, symbol, func})
 	(f-call 'ref 'deref {func})
 
 	(f-exit 'lisp 'built_in_func {this})

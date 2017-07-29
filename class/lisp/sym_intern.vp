@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/unordered_set/unordered_set.inc)
+(import 'class/hash_set/hash_set.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/sym_intern)
@@ -16,7 +16,7 @@
 	(push-scope)
 	(f-entry 'lisp 'sym_intern {this, symbol})
 
-	(f-call 'unordered_set 'insert {this->lisp_symbols, symbol} {_, iter, _})
+	(f-call 'hash_set 'insert {this->lisp_symbols, symbol} {_, iter, _})
 	(f-call 'ref 'deref {symbol})
 	(assign {*iter} {symbol})
 	(f-call 'ref 'ref {symbol})

@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/unordered_map/unordered_map.inc)
+(import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/env_pop)
@@ -13,7 +13,7 @@
 	(push-scope)
 	(f-entry 'lisp 'env_pop {this})
 
-	(f-call 'unordered_map 'get_parent {this->lisp_environment} {_, env})
+	(f-call 'hash_map 'get_parent {this->lisp_environment} {_, env})
 	(vpif {env})
 		(f-call 'ref 'ref {env})
 		(f-call 'ref 'deref {this->lisp_environment})

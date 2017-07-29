@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/unordered_map/unordered_map.inc)
+(import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/env_bind)
@@ -53,7 +53,7 @@
 				(v-call 'sliceable 'ref_element {vals, index_vals} {_, value})
 				(assign {index_vars + 1, index_vals + 1} {index_vars, index_vals})
 			(endif)
-			(f-call 'unordered_map 'insert {this->lisp_environment, symbol, value})
+			(f-call 'hash_map 'insert {this->lisp_environment, symbol, value})
 		(else)
 			(errorif (cat {symbol->obj_vtable != @} (f-path 'class 'vector)) 'error3)
 			(errorif {index_vals == len_vals} 'error)

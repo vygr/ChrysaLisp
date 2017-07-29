@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/unordered_map/unordered_map.inc)
+(import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_def)
@@ -23,7 +23,7 @@
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(f-call 'vector 'get_end {args} {_, iter_end})
 	(assign {iter_begin[ptr_size * 0]} {env})
-	(errorif (cat {env->obj_vtable != @} (f-path 'class 'unordered_map)) 'error2)
+	(errorif (cat {env->obj_vtable != @} (f-path 'class 'hash_map)) 'error2)
 	(assign {&iter_begin[ptr_size * 1]} {iter_begin})
 	(assign {0} {val})
 	(loop-start)
@@ -31,7 +31,7 @@
 		(assign {iter_begin[ptr_size * 0]} {var})
 		(errorif (cat {var->obj_vtable != @} (f-path 'class 'symbol)) 'error3)
 		(f-call 'ref 'ref {iter_begin[ptr_size * 1]} {val})
-		(f-call 'unordered_map 'insert {env, var, val})
+		(f-call 'hash_map 'insert {env, var, val})
 		(assign {&iter_begin[ptr_size * 2]} {iter_begin})
 	(loop-until {iter_begin == iter_end})
 
