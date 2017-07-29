@@ -36,7 +36,7 @@
 			(as-point (list 0.0 canvas_scale))
 			(as-point (list 0.0 0.0)))) _))
 
-(defun transform_norm (_)
+(defun transform-norm (_)
 	(map (lambda (_)
 		(call slot_transform _ _
 			(as-point (list (fmul canvas_width canvas_scale) 0.0))
@@ -54,7 +54,7 @@
 	(div (fmul canvas_width canvas_scale 0.1) 1.0) (div (fmul canvas_height canvas_scale 0.05) 1.0)
 	(div (fmul canvas_width canvas_scale 0.5) 1.0) (div (fmul canvas_height canvas_scale 0.5) 1.0))
 
-(fpoly 0xff0000ff 1 (transform_norm (list (as-points (list
+(fpoly 0xff0000ff 1 (transform-norm (list (as-points (list
 	(list 0 0)
 	(list 0.25 1.0)
 	(list 0.5 0)
