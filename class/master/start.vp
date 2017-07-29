@@ -36,7 +36,7 @@
 			(f-call 'vector 'set_capacity {commands, length})
 			(assign {0} {index})
 			(loop-while {index != length})
-				(assign {(args->array_array)[index * ptr_size]} {string})
+				(f-call 'vector 'get_element {args, index} {_, string})
 				(f-call 'stream 'create {0, 0, &string->string_data, string->string_length} {stream})
 				(f-call 'stream 'skip {stream, char_space})
 				(assign {stream->stream_bufp} {start})
@@ -87,7 +87,7 @@
 				(assign {index - 2} {index})
 				(loop-while {index})
 					(assign {index - 1} {index})
-					(assign {(args->array_array)[index * ptr_size]} {string})
+					(f-call 'vector 'get_element {args, index} {_, string})
 					(f-call 'sys_mail 'alloc_parcel {slave_mail_init_size + string->string_length} {msg})
 					(f-call 'sys_mem 'copy {&string->string_data, &msg->slave_mail_init_args, string->string_length})
 					(assign {nextid.id_mbox} {msg->slave_mail_init_stdout_id.id_mbox})
@@ -108,10 +108,8 @@
 				(loop-end)
 
 				;create input stream, free the unused space keeper stream
-				(assign {*this->master_streams->array_array} {stream})
-				(f-call 'stream_msg_in 'deref {stream})
 				(f-call 'stream_msg_out 'create {nextid.id_mbox, nextid.id_cpu} {stream})
-				(assign {stream} {*this->master_streams->array_array})
+				(d-call 'vector 'set_element {this->master_streams, stream, 0})
 
 				;no error
 				(assign {stream_mail_state_started} {this->master_state})

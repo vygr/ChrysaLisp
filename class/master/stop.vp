@@ -37,7 +37,7 @@
 		(loop-start)
 			(assign {length - 1} {length})
 			(breakifnot {length})
-			(assign {(this->master_streams->array_array)[length * ptr_size]} {stream})
+			(f-call 'vector 'get_element {this->master_streams, length} {_, stream})
 			(loop-start)
 				(v-call 'stream_msg_in 'read_next {stream})
 			(loop-until {stream->stream_msg_in_state == stream_mail_state_stopped})
