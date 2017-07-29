@@ -32,7 +32,7 @@
 (def-method 'slice 'class/array/slice 'override)
 
 (def-struct 'array 'sliceable)
-	(pptr 'array)
+	(pulong 'array)
 	(uint 'length)
 	(uint 'capacity)
 	(ptr 'e0)
