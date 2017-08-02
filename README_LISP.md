@@ -46,7 +46,7 @@ Function and macro definitions are scoped and visible only within the scope of
 the declaring function. There is no global macro list. During macro expansion
 the environment chain is searched to see if a macro exists.
 
-# Built in symbols
+## Built in symbols
 
 ```
 &rest
@@ -55,7 +55,7 @@ nil
 t
 ```
 
-# Built in functions
+## Built in functions
 
 ```
 add
@@ -153,7 +153,7 @@ write-char
 write-line
 ```
 
-# boot.lisp symbols
+## boot.lisp symbols
 
 ```
 min_long
@@ -169,7 +169,7 @@ fp_int_mask
 fp_frac_mask
 ```
 
-# boot.lisp macros
+## boot.lisp macros
 
 ```
 and
@@ -193,7 +193,7 @@ until
 when
 ```
 
-# boot.lisp functions
+## boot.lisp functions
 
 ```
 abs
