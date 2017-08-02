@@ -37,7 +37,7 @@ searches the environment chain to find an existing entry and sets that entry or
 fails with an error. This means `setq` can be used to write to symbols outside
 the scope of the current function. Some people don't like this, but used wisely
 it can be very powerful. Coming from an assembler background I prefer to have
-all the guns and knives available, so try not to shoot you foot off.
+all the guns and knives available, so try not to shoot your foot off.
 
 There is no cons, cdr or car stuff. Lists are just vector objects and you use
 `push`, `cat`, `slice` etc to manipulate elements.
