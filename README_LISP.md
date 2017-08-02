@@ -24,17 +24,17 @@ I've not found the lack of tail recursion a problem.
 
 All symbols live in the same environment, functions, macros, everything. The
 environment is a chain of hash maps. Each lambda gets a new hash map pushed
-onto the environment chain on invocation, and dereferenced on exit. The env
+onto the environment chain on invocation, and dereferenced on exit. The `env`
 function can be used to return the current hash map and optionally resize the
 number of buckets from the default of 1. This proves very effective for storing
 large numbers of symbols and objects for the assembler as well as creating
-caches. Make sure to setq the symbol you bind to the result of env to nil
+caches. Make sure to `setq` the symbol you bind to the result of `env` to `nil`
 before returning from the function if you do this, else you will create a cycle
 that can't be freed.
 
 `defq` and `bind` always create entries in the top environment hash map. `setq`
 searches the environment chain to find an existing entry and sets that entry or
-fails with an error. This means setq can be used to write to symbols outside
+fails with an error. This means `setq` can be used to write to symbols outside
 the scope of the current function. Some people don't like this, but used wisely
 it can be very powerful. Coming from an assembler background I prefer to have
 all the guns and knives available, so try not to shoot you foot off.
