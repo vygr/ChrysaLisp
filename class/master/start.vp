@@ -26,7 +26,7 @@
 	(vpif {this->master_state != stream_mail_state_started})
 		;split pipe into separate commands and args
 		(f-call 'stream 'create {0, 0, buffer, length} {stream})
-		(f-call 'stream 'split {stream, pipe_char} {_, args})
+		(f-call 'stream 'split {stream, char_pipe} {_, args})
 		(f-call 'stream 'deref {stream})
 		(d-call 'vector 'get_length {args} {_, length})
 		(vpif {length})

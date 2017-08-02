@@ -38,7 +38,7 @@
 (defcvar 'char_esc 27)
 (defcvar 'char_space (ascii " "))
 (defcvar 'char_underscore (ascii "_"))
-(defcvar 'pipe_char (ascii "|"))
+(defcvar 'char_pipe (ascii "|"))
 (defcvar 'char_lrb (ascii "("))
 (defcvar 'char_rrb (ascii ")"))
 (defcvar 'char_lsb (ascii "["))
