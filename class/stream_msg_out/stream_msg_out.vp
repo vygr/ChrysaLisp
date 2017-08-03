@@ -50,9 +50,10 @@
 	(f-call 'sys_mail 'read {&this->stream_msg_out_ack_mailbox} {msg})
 	(f-call 'sys_mem 'free {msg})
 
-	(f-exit 'stream_msg_out 'deinit {this})
+	;parent deinit
+	(assign {this} '(r0))
 	(pop-scope)
-	(return)
+	(s-jmp 'stream_msg_out 'deinit '(r0))
 
 (def-func-end)
 

@@ -10,7 +10,7 @@
 	(ptr 'this)
 
 	(push-scope)
-	(assign '(r0) {this})
+	(f-entry 'lisp 'deinit {this})
 
 	;deinit myself
 	(f-call 'ref 'deref {this->lisp_stdin})
