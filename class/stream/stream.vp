@@ -68,7 +68,7 @@
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1 r2) {this, buffer, buffer_end})
+	(f-entry 'stream 'read {this, buffer, buffer_end})
 
 	(vpifnot {buffer_end})
 		(assign {this, 0} '(r0 r1))
@@ -137,10 +137,10 @@
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1 r2) {this, buffer, buffer_end})
+	(f-entry 'stream 'read_line {this, buffer, buffer_end})
 
 	(vpifnot {buffer_end})
-		(assign {this, 0} '(r0 r1))
+		(f-exit 'stream 'read_line {this, 0})
 		(return)
 	(endif)
 
@@ -266,7 +266,7 @@
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1) {this, char})
+	(f-entry 'stream 'split {this, char})
 
 	;create output vector
 	(f-call 'vector 'create {} {splits})
@@ -282,7 +282,7 @@
 		(f-call 'vector 'push_back {splits, string})
 	(loop-end)
 
-	(assign {this, splits} '(r0 r1))
+	(f-exit 'stream 'split {this, splits})
 	(pop-scope)
 	(return)
 
@@ -309,7 +309,7 @@
 
 	;save inputs
 	(push-scope)
-	(assign '(r0 r1 r2) {this, buffer, length})
+	(f-entry 'stream 'write {this, buffer, length})
 
 	(loop-while {length})
 		(assign {this->stream_bufe - this->stream_bufp} {gap})
@@ -324,7 +324,7 @@
 		(endif)
 	(loop-end)
 
-	(assign {this} '(r0))
+	(f-exit 'stream 'write {this})
 	(pop-scope)
 	(return)
 
