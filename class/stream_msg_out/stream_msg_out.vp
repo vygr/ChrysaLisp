@@ -44,13 +44,13 @@
 	(ptr 'this 'msg)
 
 	(push-scope)
-	(assign '(r0) {this})
+	(f-entry 'stream_msg_out 'deinit {this})
 
 	;wait for final ack
 	(f-call 'sys_mail 'read {&this->stream_msg_out_ack_mailbox} {msg})
 	(f-call 'sys_mem 'free {msg})
 
-	(assign {this} '(r0))
+	(f-exit 'stream_msg_out 'deinit {this})
 	(pop-scope)
 	(return)
 
@@ -97,7 +97,7 @@
 	(ptr 'this 'msg)
 
 	(push-scope)
-	(assign '(r0) {this})
+	(f-entry 'stream_msg_out 'write_flush {this})
 
 	(assign {this->stream_buffer} {msg})
 	(vpif {msg})
@@ -126,7 +126,7 @@
 		(s-call 'stream_msg_out 'write_flush {this})
 	(endif)
 
-	(assign {this} '(r0))
+	(f-exit 'stream_msg_out 'write_flush {this})
 	(pop-scope)
 	(return)
 

@@ -47,7 +47,7 @@
 	(ptr 'this 'msg 'ack_msg)
 
 	(push-scope)
-	(assign '(r0) {this})
+	(f-entry 'stream_msg_in 'read_next {this})
 
 	;while not stopped state
 	(loop-while {this->stream_msg_in_state != stream_mail_state_stopped})
@@ -82,7 +82,7 @@
 	(loop-until {this->stream_bufp != this->stream_bufe})
 
 	;return -1 if not in started state
-	(assign {this, (this->stream_msg_in_state == stream_mail_state_started) - 1} '(r0 r1))
+	(f-exit 'stream_msg_in 'read_next {this, (this->stream_msg_in_state == stream_mail_state_started) - 1})
 	(pop-scope)
 	(return)
 
