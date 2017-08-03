@@ -183,7 +183,7 @@
 ; Fixed point math
 ;;;;;;;;;;;;;;;;;;
 
-(defq fp_shift 16 fp_2pi 411774 fp_pi 205887 fp_hpi 102943 fp_qpi 51471
+(defq fp_shift 16 fp_2pi 411774 fp_pi 205887 fp_hpi 102943 fp_qpi 51471 fp_rpi 20861
 	fp_int_mask (bit-shl -1 fp_shift) fp_frac_mask (bit-not fp_int_mask))
 
 ;;;;;;;;;

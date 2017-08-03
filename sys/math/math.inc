@@ -12,9 +12,6 @@
 (def-method 'fcos 'sys/math/fcos 'static '(r0) '(r0))
 (def-method 'vec_intersect 'sys/math/vec_intersect 'static '(r0 r1 r2 r3) '(r0))
 
-(defcvar 'fp_shift 16 'fp_2pi 411774 'fp_pi 205887 'fp_hpi 102943 'fp_qpi 51471 'fp_rpi 20861
-	'fp_int_mask (bit-shl -1 fp_shift) 'fp_frac_mask (bit-not fp_int_mask))
-
 ;;;;;;;;;;;;;;;;
 ; inline methods
 ;;;;;;;;;;;;;;;;
