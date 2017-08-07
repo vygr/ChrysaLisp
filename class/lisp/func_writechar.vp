@@ -11,7 +11,10 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value 'stream)
+	(ptr 'this 'value)
+	(union
+		'(ptr 'args)
+		'(pptr 'iter_begin))
 	(ulong 'length)
 	(uint 'width)
 
@@ -20,20 +23,20 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorifnot {length == 2 || length == 3} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, stream})
-	(errorif (cat {stream->obj_vtable != @} (f-path 'class 'stream_str)) 'error2)
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(errorif (cat {iter_begin[0]->obj_vtable != @} (f-path 'class 'stream_str)) 'error2)
 	(assign {1} {width})
 	(vpif {length == 3})
-		(f-call 'vector 'get_element {args, 2} {_, value})
+		(assign {iter_begin[ptr_size * 2]} {value})
 		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
 		(f-call 'boxed_long 'get_value {value} {_, width})
 		(assign {((width - 1) & 7) + 1} {width})
 	(endif)
-	(f-call 'vector 'get_element {args, 1} {_, value})
+	(assign {iter_begin[ptr_size]} {value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
 	(f-call 'ref 'ref {value})
 	(f-call 'boxed_long 'get_value {value} {_, length})
-	(f-call 'stream_str 'write {stream, &length, width})
+	(f-call 'stream_str 'write {iter_begin[0], &length, width})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_writechar {this, value})

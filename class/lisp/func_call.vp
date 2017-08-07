@@ -21,10 +21,10 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorifnot {length} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, value})
+	(f-call 'vector 'get_first {args} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error1)
 	(f-call 'boxed_long 'get_value {value} {_, slot})
-	(f-call 'vector 'get_element {args, 1} {_, value})
+	(f-call 'vector 'get_second {args} {_, value})
 	(switch)
 	(case (cat {value->obj_vtable == @} (f-path 'class 'canvas)))
 		(switch)

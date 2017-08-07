@@ -21,8 +21,8 @@
 	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_element {args, 0} {_, value})
-	(f-call 'vector 'get_element {args, 1} {_, args})
+	(f-call 'vector 'get_first {args} {_, value})
+	(f-call 'vector 'get_second {args} {_, args})
 	(f-call 'boxed_long 'get_value {args} {_, next_char})
 	(f-call 'lisp 'read {this, value, next_char} {_, form, next_char})
 

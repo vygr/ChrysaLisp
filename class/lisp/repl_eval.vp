@@ -31,7 +31,7 @@
 			(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 		(else)
 			;apply function, eval args if needed
-			(f-call 'vector 'get_element {form, 0} {_, func})
+			(f-call 'vector 'get_first {form} {_, func})
 			(f-call 'lisp 'repl_eval {this, func} {_, value})
 			(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
 			(assign {value} {func})

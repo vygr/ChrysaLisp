@@ -20,7 +20,7 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorifnot {length == 0 || length == 1} 'error1)
 	(vpif {length})
-		(f-call 'vector 'get_element {args, 0} {_, value})
+		(f-call 'vector 'get_first {args} {_, value})
 		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 		(f-call 'boxed_long 'get_value {value} {_, value})
 		(f-call 'hash_map 'copy {this->lisp_environment, value} {_, value})

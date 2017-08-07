@@ -18,9 +18,9 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 3} 'error1)
-	(f-call 'vector 'get_element {args, 1} {_, vars})
+	(f-call 'vector 'get_second {args} {_, vars})
 	(errorif (cat {vars->obj_vtable != @} (f-path 'class 'vector)) 'error2)
-	(f-call 'vector 'get_element {args, 0} {_, value})
+	(f-call 'vector 'get_first {args} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'symbol)) 'error3)
 	(f-call 'ref 'ref {value})
 	(assign {this->lisp_sym_macro} {vars})

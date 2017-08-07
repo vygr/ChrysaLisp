@@ -25,7 +25,7 @@
 	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'string) {, -1}) {_, type})
 	(vpif {type})
 		(vpif {length == 2})
-			(f-call 'vector 'get_element {args, 1} {_, value})
+			(f-call 'vector 'get_second {args} {_, value})
 			(f-call 'string 'append {elem, value} {value})
 		(else)
 			(f-call 'string 'cat {args} {value})

@@ -22,13 +22,13 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, stream})
+	(f-call 'vector 'get_first {args} {_, stream})
 
 (errorcases
 	(f-call 'obj 'inst_of (cat {stream, @} (f-path 'class 'stream)) {_, value})
 	(errorifnot {value} 'error2))
 
-	(f-call 'vector 'get_element {args, 1} {_, value})
+	(f-call 'vector 'get_second {args} {_, value})
 
 (errorcases
 	(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'string)) {_, old_file})

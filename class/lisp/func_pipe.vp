@@ -24,7 +24,7 @@
 	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_element {args, 0} {_, pipe})
+	(f-call 'vector 'get_first {args} {_, pipe})
 	(f-call 'master 'create {} {value})
 	(f-call 'master 'start {value, &pipe->string_data, pipe->string_length})
 	(f-call 'master 'get_state {value} {_, state})

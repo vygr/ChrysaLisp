@@ -12,6 +12,9 @@
 (def-method 'sort 'class/array/sort 'static '(r0 r1 r2 r3 r5 r6) '(r0))
 (def-method 'partition 'class/array/partition 'static '(r0 r1 r2 r3 r5) '(r0 r1))
 (def-method 'get_back 'class/array/get_back 'static '(r0) '(r0 r1))
+(def-method 'get_first 'class/array/get_first 'static '(r0) '(r0 r1))
+(def-method 'get_second 'class/array/get_second 'static '(r0) '(r0 r1))
+(def-method 'get_third 'class/array/get_third 'static '(r0) '(r0 r1))
 (def-method 'get_element 'class/array/get_element 'static '(r0 r1) '(r0 r1))
 (def-method 'push_back 'class/array/push_back 'static '(r0 r1) '(r0))
 (def-method 'get_iter 'class/array/get_iter 'static '(r0 r1) '(r0 r1))
@@ -94,6 +97,33 @@
 	;outputs
 	;r0 = array object
 	(vp-cpy-ri-i r1 r0 array_length))
+
+(defcfun class/array/get_first ()
+	;inputs
+	;r0 = array object
+	;outputs
+	;r0 = array object
+	;r1 = object
+	(vp-cpy-ir r0 array_array r1)
+	(vp-cpy-ir r1 0 r1))
+
+(defcfun class/array/get_second ()
+	;inputs
+	;r0 = array object
+	;outputs
+	;r0 = array object
+	;r1 = object
+	(vp-cpy-ir r0 array_array r1)
+	(vp-cpy-ir r1 long_size r1))
+
+(defcfun class/array/get_third ()
+	;inputs
+	;r0 = array object
+	;outputs
+	;r0 = array object
+	;r1 = object
+	(vp-cpy-ir r0 array_array r1)
+	(vp-cpy-ir r1 (mul long_size 2) r1))
 
 (defcfun class/array/get_element ()
 	;inputs

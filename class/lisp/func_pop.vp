@@ -19,7 +19,7 @@
 	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_element {args, 0} {_, args})
+	(f-call 'vector 'get_first {args} {_, args})
 	(v-call 'array 'get_length {args} {_, length})
 	(vpif {length})
 		(v-call 'array 'ref_back {args} {_, value})

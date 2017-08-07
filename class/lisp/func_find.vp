@@ -19,8 +19,8 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, elem})
-	(f-call 'vector 'get_element {args, 1} {_, seq})
+	(f-call 'vector 'get_first {args} {_, elem})
+	(f-call 'vector 'get_second {args} {_, seq})
 	(vpif (cat {seq->obj_vtable == @} (f-path 'class 'string)))
 		(errorif (cat {elem->obj_vtable != @} (f-path 'class 'string)) 'error2)
 		(f-call 'string 'find {seq, ubyte (elem->string_data)} {_, length})

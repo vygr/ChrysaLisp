@@ -18,7 +18,7 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, value})
+	(f-call 'vector 'get_first {args} {_, value})
 	(vpif (cat {value->obj_vtable == @} (f-path 'class 'vector)))
 		(d-call 'vector 'append {value, args, 1, length})
 	(else)

@@ -19,7 +19,7 @@
 	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_element {args, 0} {_, value})
+	(f-call 'vector 'get_first {args} {_, value})
 	(f-call 'lisp 'env_find {this, value} {_, value, _})
 	(vpif {value})
 		(f-call 'pair 'get_second {ptr(*value)} {_, value})

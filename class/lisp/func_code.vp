@@ -23,7 +23,7 @@
 	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_element {args, 0} {_, value})
+	(f-call 'vector 'get_first {args} {_, value})
 	(assign {ubyte(value->string_data)} {char})
 	(f-call 'boxed_long 'create {} {value})
 	(f-call 'boxed_long 'set_value {value, char})

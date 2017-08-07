@@ -23,7 +23,7 @@
 	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_element {args, 0} {_, value})
+	(f-call 'vector 'get_first {args} {_, value})
 	(assign (cat "@" (f-path 'sys_load 'statics)) {reloc})
 	(assign {reloc->ld_statics_reloc_buffer} {reloc})
 	(f-call 'stream_str 'read_line {value, reloc, ld_reloc_size} {_, length})

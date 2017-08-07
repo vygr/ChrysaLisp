@@ -19,7 +19,7 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, args})
+	(f-call 'vector 'get_first {args} {_, args})
 	(vpif (cat {args->obj_vtable == @} (f-path 'class 'symbol)))
 		(assign {args} {value})
 		(f-call 'ref 'ref {value})

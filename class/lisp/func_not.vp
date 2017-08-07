@@ -17,7 +17,7 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error1)
-	(f-call 'vector 'get_element {args, 0} {_, args})
+	(f-call 'vector 'get_first {args} {_, args})
 	(vpif {args == this->lisp_sym_nil})
 		(assign {this->lisp_sym_t} {args})
 	(else)
