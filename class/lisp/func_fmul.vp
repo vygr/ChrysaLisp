@@ -27,8 +27,7 @@
 	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'boxed_long) {, -2}) {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_begin {args} {_, iter_begin})
-	(f-call 'vector 'get_end {args} {_, iter_end})
+	(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(assign {65536} {accum})
 	(loop-start)
 		(f-call 'boxed_long 'get_value {*iter_begin} {_, num})

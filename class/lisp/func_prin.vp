@@ -24,8 +24,7 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(vpif {length})
-		(f-call 'vector 'get_begin {args} {_, iter_begin})
-		(f-call 'vector 'get_end {args} {_, iter_end})
+		(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 		(loop-start)
 			(assign {*iter_begin} {value})
 			(vpif (cat {value->obj_vtable == @} (f-path 'class 'string)))

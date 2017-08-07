@@ -32,11 +32,9 @@
 	;fill edges, find min and max y, clip edges not visible or redundant
 	(d-call 'array 'clear {this->canvas_edges})
 	(assign {max_int, min_int} {ys, ye})
-	(f-call 'vector 'get_begin {polygons} {_, iter_begin_polygons})
-	(f-call 'vector 'get_end {polygons} {_, iter_end_polygons})
+	(f-call 'vector 'get_iters {polygons} {_, iter_begin_polygons, iter_end_polygons})
 	(loop-while {iter_begin_polygons != iter_end_polygons})
-		(f-call 'points 'get_begin {*iter_begin_polygons} {_, iter_begin_polygon})
-		(f-call 'points 'get_end {*iter_begin_polygons} {_, iter_end_polygon})
+		(f-call 'points 'get_iters {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
 		(vpif {iter_end_polygon - iter_begin_polygon >= ptr_size * 3})
 			(assign {iter_end_polygon[-ptr_size], iter_end_polygon[-int_size]} {x1, y1})
 			(loop-start)
@@ -81,8 +79,7 @@
 	(loop-end)
 
 	;edge pointers into tracker for sorting
-	(f-call 'array 'get_begin {this->canvas_edges} {_, iter_edge1})
-	(f-call 'array 'get_end {this->canvas_edges} {_, iter_edge2})
+	(f-call 'array 'get_iters {this->canvas_edges} {_, iter_edge1, iter_edge2})
 	(f-call 'array 'set_capacity {this->canvas_edge_tracker, (iter_edge2 - iter_edge1) / edge_size})
 	(f-call 'array 'get_begin {this->canvas_edge_tracker} {_, iter_i})
 	(assign {iter_i, iter_i} {iter_j, iter_end})

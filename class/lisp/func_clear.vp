@@ -19,8 +19,7 @@
 	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'array) {, -1}) {_, value})
 	(errorifnot {value} 'error))
 
-	(f-call 'vector 'get_begin {args} {_, iter_begin})
-	(f-call 'vector 'get_end {args} {_, iter_end})
+	(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(loop-start)
 		(assign {*iter_begin} {value})
 		(v-call 'array 'clear {value})

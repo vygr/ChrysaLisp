@@ -77,8 +77,7 @@
 
 	;draw text
 	(vpif {this->text_string && this->text_font})
-		(f-call 'vector 'get_begin {this->text_words} {_, words})
-		(f-call 'vector 'get_end {this->text_words} {_, words_end})
+		(f-call 'vector 'get_iters {this->text_words} {_, words, words_end})
 		(assign {0} {x})
 		(loop-start)
 			(f-call 'gui_font 'text {this->text_font, *words} {txt})

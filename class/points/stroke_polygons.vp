@@ -25,12 +25,10 @@
 	(f-entry 'points 'stroke_polygons {this, stack, in_polygons, join_style, radius, eps})
 
 	(vpif {radius >= 0.5})
-		(f-call 'vector 'get_begin {in_polygons} {_, iter_begin_polygons})
-		(f-call 'vector 'get_end {in_polygons} {_, iter_end_polygons})
+		(f-call 'vector 'get_iters {in_polygons} {_, iter_begin_polygons, iter_end_polygons})
 		(loop-while {iter_begin_polygons != iter_end_polygons})
 			(f-call 'points 'rem_co_polygon {*iter_begin_polygons, *iter_begin_polygons, 0.5})
-			(f-call 'vector 'get_begin {*iter_begin_polygons} {_, iter_begin_polyline})
-			(f-call 'vector 'get_end {*iter_begin_polygons} {_, iter_end_polyline})
+			(f-call 'vector 'get_iters {*iter_begin_polygons} {_, iter_begin_polyline, iter_end_polyline})
 			(f-call 'points 'create {} {polygon})
 			(f-call 'points 'stroke_joints {polygon, stack, iter_begin_polyline, iter_end_polyline,
 				iter_end_polyline[-long_size * 2], iter_end_polyline[-long_size], join_style, radius, eps})

@@ -39,8 +39,7 @@
 	(errorif (cat {func->obj_vtable != @} (f-path 'class 'vector)) 'error2)
 	(d-call 'vector 'get_length {func} {_, length})
 	(errorif {length < 2} 'error1)
-	(f-call 'vector 'get_begin {func} {_, iter_begin})
-	(f-call 'vector 'get_end {func} {_, iter_end})
+	(f-call 'vector 'get_iters {func} {_, iter_begin, iter_end})
 	(assign {iter_begin[ptr_size * 0]} {value})
 (errorcases
 	(vpif {value != this->lisp_sym_lambda})

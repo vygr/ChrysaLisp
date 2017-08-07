@@ -20,8 +20,7 @@
 	(f-entry 'points 'rem_co_polygon {this, that, eps})
 
 	(f-call 'points 'rem_co_polyline {this, that, eps})
-	(f-call 'points 'get_begin {this} {_, iter_begin})
-	(f-call 'points 'get_end {this} {_, iter_end})
+	(f-call 'points 'get_iters {this} {_, iter_begin, iter_end})
 
 	(vec-set 0)
 	(vec-load 2 {iter_end, iter_begin})

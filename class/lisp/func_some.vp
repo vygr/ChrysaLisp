@@ -34,8 +34,7 @@
 	(errorif (cat {lists->obj_vtable != @} (f-path 'class 'vector)) 'error2)
 
 	(assign {1000000} {length})
-	(f-call 'vector 'get_begin {lists} {_, iter_begin})
-	(f-call 'vector 'get_end {lists} {_, iter_end})
+	(f-call 'vector 'get_iters {lists} {_, iter_begin, iter_end})
 	(assign {iter_begin} {iter})
 	(loop-while {iter != iter_end})
 		(assign {*iter} {value})

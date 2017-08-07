@@ -15,6 +15,7 @@
 (def-method 'get_element 'class/array/get_element 'static '(r0 r1) '(r0 r1))
 (def-method 'push_back 'class/array/push_back 'static '(r0 r1) '(r0))
 (def-method 'get_iter 'class/array/get_iter 'static '(r0 r1) '(r0 r1))
+(def-method 'get_iters 'class/array/get_iters 'static '(r0) '(r0 r1 r2))
 (def-method 'get_begin 'class/array/get_begin 'static '(r0) '(r0 r1))
 (def-method 'get_end 'class/array/get_end 'static '(r0) '(r0 r1))
 (def-method 'each_callback 'class/obj/null 'static '(r0 r1) '(r1))
@@ -119,6 +120,18 @@
 	(vp-cpy-ir r0 array_array r2)
 	(vp-shl-cr (pow2 ptr_size) r1)
 	(vp-add-rr r2 r1))
+
+(defcfun class/array/get_iters ()
+	;inputs
+	;r0 = array object
+	;outputs
+	;r0 = array object
+	;r1 = begin iter pointer
+	;r2 = end iter pointer
+	(vp-cpy-ir-ui r0 array_length r2)
+	(vp-cpy-ir r0 array_array r1)
+	(vp-shl-cr (pow2 ptr_size) r2)
+	(vp-add-rr r1 r2))
 
 (defcfun class/array/get_begin ()
 	;inputs

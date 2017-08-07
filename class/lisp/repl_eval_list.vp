@@ -16,8 +16,7 @@
 	(push-scope)
 	(f-entry 'lisp 'repl_eval_list {this, value})
 
-	(f-call 'vector 'get_begin {value} {_, iter_begin})
-	(f-call 'vector 'get_end {value} {_, iter_end})
+	(f-call 'vector 'get_iters {value} {_, iter_begin, iter_end})
 	(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 	(loop-while {iter_begin != iter_end})
 		(f-call 'ref 'deref {value})
