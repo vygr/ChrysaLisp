@@ -66,7 +66,7 @@
 			(f-call 'hash_set 'create (cat {@} (f-path 'symbol 'same) {, 101}) {this->lisp_symbols})
 			(assign {this->lisp_symbols} {ptr($symbols)})
 		(endif)
-		(f-call 'hash_map 'create {$match_obj, 31} {this->lisp_environment})
+		(f-call 'hash_map 'create {0, 31} {this->lisp_environment})
 
 		;intern standard built in symbols
 		;fixup built in functions
@@ -83,7 +83,7 @@
 			(assign {table + built_in_hop} {table})
 		(loop-end)
 
-		;standard self evaulating symbols
+		;standard self evaluating symbols
 		(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_nil, this->lisp_sym_nil})
 		(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_t, this->lisp_sym_t})
 
@@ -118,16 +118,6 @@
 	(f-exit 'lisp 'init {this, ok})
 	(pop-scope)
 	(return)
-
-(vp-label 'match_obj)
-	;inputs
-	;r0 = object 1
-	;r1 = object 2
-	;outputs
-	;r1 = 0 if match
-
-	(vp-sub-rr r0 r1)
-	(vp-ret)
 
 ;;;;;;;;;;;;;;;;
 ; shared symbols
