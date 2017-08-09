@@ -78,8 +78,7 @@
 	(f-call 'ref 'deref {old_line})
 	(f-call 'ref 'deref {value})
 
-	(assign {this->lisp_sym_t} {value})
-	(f-call 'ref 'ref {value})
+	(f-call 'ref 'ref {this->lisp_sym_t} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_repl {this, value})

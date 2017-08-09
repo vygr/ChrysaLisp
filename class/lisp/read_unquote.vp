@@ -22,8 +22,7 @@
 	(f-call 'stream 'read_char {stream} {_, char})
 
 	(f-call 'vector 'create {} {list})
-	(assign {this->lisp_sym_unquote} {elem})
-	(f-call 'ref 'ref {elem})
+	(f-call 'ref 'ref {this->lisp_sym_unquote} {elem})
 	(f-call 'vector 'push_back {list, elem})
 	(f-call 'lisp 'read {this, stream, char} {_, elem, char})
 	(vpif {elem})

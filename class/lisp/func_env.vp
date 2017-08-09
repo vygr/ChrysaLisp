@@ -25,11 +25,9 @@
 		(f-call 'boxed_long 'get_value {value} {_, value})
 		(f-call 'hash_map 'copy {this->lisp_environment, value} {_, value})
 		(f-call 'ref 'deref {this->lisp_environment})
-		(assign {value} {this->lisp_environment})
-		(f-call 'ref 'ref {value})
+		(f-call 'ref 'ref {value} {this->lisp_environment})
 	(else)
-		(assign {this->lisp_environment} {value})
-		(f-call 'ref 'ref {value})
+		(f-call 'ref 'ref {this->lisp_environment} {value})
 	(endif)
 
 (vp-label 'exit)
