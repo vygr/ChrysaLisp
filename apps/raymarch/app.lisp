@@ -9,7 +9,7 @@
 ;math tools
 (run 'apps/canvas/math.lisp)
 
-(defq canvas_scale (pop argv) canvas_height (pop argv) canvas_width (pop argv) canvas (pop argv))
+(bind '(canvas canvas_width canvas_height canvas_scale) argv)
 
 (defq
 	eps 0.02

@@ -20,8 +20,8 @@
 ;math tools
 (run 'apps/canvas/math.lisp)
 
-(defq canvas_scale (pop argv) canvas_height (pop argv) canvas_width (pop argv) canvas (pop argv)
-	stack (array) eps 1.0)
+(bind '(canvas canvas_width canvas_height canvas_scale) argv)
+(defq stack (array) eps 1.0)
 
 (defun as-point ((x y))
 	(bit-or (bit-and 0xffffffff x) (bit-shl y 32)))
