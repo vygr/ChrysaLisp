@@ -3,7 +3,7 @@
 (import 'class/stream_str/stream_str.inc)
 
 (gen-new 'stream_str)
-(gen-create 'stream_str 1)
+(gen-create 'stream_str)
 (gen-class 'stream_str)
 
 (def-func 'class/stream_str/init)

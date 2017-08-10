@@ -7,7 +7,7 @@
 (import 'class/string/string.inc)
 
 (gen-new 'window)
-(gen-create 'window 1)
+(gen-create 'window)
 (gen-class 'window)
 
 (def-func 'class/window/init)

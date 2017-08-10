@@ -2,7 +2,7 @@
 (import 'class/stream_msg_out/stream_msg_out.inc)
 
 (gen-new 'stream_msg_out)
-(gen-create 'stream_msg_out 2)
+(gen-create 'stream_msg_out)
 (gen-class 'stream_msg_out)
 
 (def-func 'class/stream_msg_out/init)

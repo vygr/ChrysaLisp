@@ -3,7 +3,7 @@
 (import 'class/hash_set/hash_set.inc)
 
 (gen-new 'hash_set)
-(gen-create 'hash_set 2)
+(gen-create 'hash_set)
 (gen-class 'hash_set)
 
 (def-func 'class/hash_set/init)

@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/lisp/lisp.inc)
 
-(gen-create 'lisp 3)
+(gen-create 'lisp)
 (gen-class 'lisp)
 (gen-new 'lisp)

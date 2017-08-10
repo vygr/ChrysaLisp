@@ -345,22 +345,20 @@
 		(vtable-emit _1)
 	(def-func-end))
 
-(defcfun gen-create (_1 &optional _2)
+(defcfun gen-create (_1)
 	;_1 = class name
-	;_2 = number of args
-	(setd _2 0)
-	(defq _3 (slice 0 _2 '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11))
-		_4 (slice 0 _2 '(r14 r15 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
+	(method-info _1 'create)
+	(defq _2 (opt (elem 3 m) '()) _3 (slice 0 (length _2) '(r14 r15 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
 	(def-func (sym-cat "class/" _1 "/create"))
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
 		;all but r4
-		(assign _3 _4)
+		(assign _2 _3)
 		(f-call _1 'new '() '(r0))
 		(vpif '(r0 != 0))
 			;init the object
-			(f-call _1 'init `(r0 (@ ,(f-path 'class _1)) ~_4) '(r0 r1))
+			(f-call _1 'init `(r0 (@ ,(f-path 'class _1)) ~_3) '(r0 r1))
 			(vpif '(r1 == 0))
 				;error with init
 				(v-call _1 'delete '(r0) '() r1)

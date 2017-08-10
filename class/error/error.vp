@@ -4,7 +4,7 @@
 (import 'class/error/error.inc)
 
 (gen-new 'error)
-(gen-create 'error 5)
+(gen-create 'error)
 (gen-class 'error)
 
 (def-func 'class/error/init)

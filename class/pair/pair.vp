@@ -2,7 +2,7 @@
 (import 'class/pair/pair.inc)
 
 (gen-new 'pair)
-(gen-create 'pair 2)
+(gen-create 'pair)
 (gen-class 'pair)
 
 (def-func 'class/pair/deinit)

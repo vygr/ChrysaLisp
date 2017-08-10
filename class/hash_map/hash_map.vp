@@ -4,7 +4,7 @@
 (import 'class/hash_map/hash_map.inc)
 
 (gen-new 'hash_map)
-(gen-create 'hash_map 2)
+(gen-create 'hash_map)
 (gen-class 'hash_map)
 
 (def-func 'class/hash_map/init)

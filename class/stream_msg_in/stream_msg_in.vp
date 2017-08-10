@@ -3,7 +3,7 @@
 (import 'class/stream_msg_in/stream_msg_in.inc)
 
 (gen-new 'stream_msg_in)
-(gen-create 'stream_msg_in 1)
+(gen-create 'stream_msg_in)
 (gen-class 'stream_msg_in)
 
 (def-func 'class/stream_msg_in/init)

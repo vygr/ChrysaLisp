@@ -5,7 +5,7 @@
 (import 'class/stream/stream.inc)
 
 (gen-new 'stream)
-(gen-create 'stream 4)
+(gen-create 'stream)
 (gen-class 'stream)
 
 (def-func 'class/stream/init)
