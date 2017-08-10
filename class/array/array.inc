@@ -39,9 +39,9 @@
 	(pulong 'array)
 	(uint 'length)
 	(uint 'capacity)
-	(ptr 'e0)
-	(ptr 'e1)
-	(ptr 'e2)
+	(ulong 'e0)
+	(ulong 'e1)
+	(ulong 'e2)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;
