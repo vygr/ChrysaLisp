@@ -53,6 +53,7 @@
 	;r0 = array object
 	;r1 = vtable pointer
 	;outputs
+	;r0 = array object
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0, r4
@@ -62,7 +63,7 @@
 	(vp-cpy-ri-i r2 r0 array_capacity)
 	(vp-lea-i r0 array_e0 r2)
 	(vp-cpy-ri r2 r0 array_array)
-	(s-call 'array 'init '(r0 r1) '(_ r1)))
+	(s-call 'array 'init '(r0 r1) '(r0 r1)))
 
 (defcfun class/array/clear ()
 	;inputs

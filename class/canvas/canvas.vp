@@ -47,6 +47,7 @@
 	;r3 = height
 	;r5 = aa scale, 16.16
 	;outputs
+	;r0 = canvas object
 	;r1 = 0 if error, else ok
 
 	;save inputs

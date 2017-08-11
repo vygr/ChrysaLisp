@@ -14,6 +14,7 @@
 	;r0 = vdu object
 	;r1 = vtable pointer
 	;outputs
+	;r0 = vdu object
 	;r1 = 0 if error, else ok
 
 	;init parent
@@ -116,8 +117,8 @@
 	;inputs
 	;r0 = vdu object
 	;outputs
-	;r10 = prefered width
-	;r11 = prefered height
+	;r10 = preferred width
+	;r11 = preferred height
 	;trashes
 	;all but r0, r4
 

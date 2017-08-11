@@ -17,6 +17,7 @@
 	;r5 = buffer start
 	;r6 = buffer length
 	;outputs
+	;r0 = stream object
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0, r4
@@ -26,7 +27,7 @@
 	(assign '(r2 r3 r5 r6) '((r0 stream_object) (r0 stream_buffer) (r0 stream_bufp) (r0 stream_bufe)))
 
 	;init parent
-	(s-call 'stream 'init '(r0 r1) '(_ r1))
+	(s-call 'stream 'init '(r0 r1) '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -186,7 +187,7 @@
 	;trashes
 	;all but r0, r4
 
-	(f-call 'stream 'available '(r0) '(_ r1))
+	(f-call 'stream 'available '(r0) '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

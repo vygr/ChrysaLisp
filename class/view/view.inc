@@ -114,7 +114,7 @@
 (defcfun class/view/set_min_size ()
 	;inputs
 	;r0 = view object
-	;r10 = prefered width
-	;r11 = prefered height
+	;r10 = preferred width
+	;r11 = preferred height
 	(vp-cpy-ri-i r10 r0 view_min_w)
 	(vp-cpy-ri-i r11 r0 view_min_h))

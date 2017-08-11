@@ -17,6 +17,7 @@
 	;r6 = filename cstr pointer
 	;r7 = line number
 	;outputs
+	;r0 = error object
 	;r1 = 0 if error, else ok
 	;trashes
 	;r1-r3, r5-r7
@@ -31,7 +32,7 @@
 									(r0 error_object) (r0 error_file) (r0 error_line i)))
 
 	;init parent
-	(s-call 'error 'init '(r0 r1) '(_ r1))
+	(s-call 'error 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init self
 		(f-call 'string 'create_from_cstr '((r0 error_description)) '(r0))

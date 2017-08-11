@@ -31,10 +31,11 @@
 	;r2 = first object
 	;r3 = second object
 	;outputs
+	;r0 = pair object
 	;r1 = 0 if error, else ok
 	(vp-cpy-ri r2 r0 pair_first)
 	(vp-cpy-ri r3 r0 pair_second)
-	(s-call 'pair 'init '(r0 r1) '(_ r1)))
+	(s-call 'pair 'init '(r0 r1) '(r0 r1)))
 
 (defcfun class/pair/get_length ()
 	;inputs

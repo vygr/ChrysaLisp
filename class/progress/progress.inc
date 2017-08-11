@@ -27,10 +27,11 @@
 	;r0 = pair object
 	;r1 = vtable pointer
 	;outputs
+	;r0 = pair object
 	;r1 = 0 if error, else ok
 	(vp-xor-rr r2 r2)
 	(assign '(r2 r2) '((r0 progress_max) (r0 progress_val)))
-	(s-call 'progress 'init '(r0 r1) '(_ r1)))
+	(s-call 'progress 'init '(r0 r1) '(r0 r1)))
 
 (defcfun class/progress/set_max ()
 	;inputs

@@ -14,6 +14,7 @@
 	;r2 = key compare callback
 	;r3 = num_buckets
 	;outputs
+	;r0 = hash_map object
 	;r1 = 0 if error, else ok
 	;trashes
 	;r2-r3, r5-r8

@@ -20,6 +20,7 @@
 	;r0 = object
 	;r1 = vtable pointer
 	;outputs
+	;r0 = object
 	;r1 = 0 if error, else ok
 	(s-call 'ref 'init '(r0 r1))
 	(vp-cpy-cr 1 r1)

@@ -71,8 +71,8 @@
 	;inputs
 	;r0 = grid object
 	;outputs
-	;r10 = prefered width
-	;r11 = prefered height
+	;r10 = preferred width
+	;r11 = preferred height
 	;trashes
 	;all but r0, r4
 

@@ -9,6 +9,7 @@
 	;r0 = component object
 	;r1 = vtable pointer
 	;outputs
+	;r0 = component object
 	;r1 = 0 if error, else ok
 
 	;init parent

@@ -36,7 +36,7 @@
 	(f-call 'gui_ctx 'set_color '((r4 local_ctx) r1))
 
 	;draw middle
-	(f-call 'progress 'get_bounds '((r4 local_this)) '(_ _ _ r10 r11))
+	(f-call 'progress 'get_bounds '((r4 local_this)) '(r0 _ _ r10 r11))
 	(vp-sub-cr (mul progress_border_size 2) r10)
 	(vp-sub-cr (mul progress_border_size 2) r11)
 	(vp-cpy-ir r0 progress_val r2)
@@ -86,8 +86,8 @@
 	;inputs
 	;r0 = progress object
 	;outputs
-	;r10 = prefered width
-	;r11 = prefered height
+	;r10 = preferred width
+	;r11 = preferred height
 	;trashes
 	;all but r0, r4
 

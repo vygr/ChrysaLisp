@@ -29,10 +29,11 @@
 	;r0 = flow object
 	;r1 = vtable pointer
 	;outputs
+	;r0 = flow object
 	;r1 = 0 if error, else ok
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri r2 r0 flow_flags)
-	(s-call 'flow 'init '(r0 r1) '(_ r1)))
+	(s-call 'flow 'init '(r0 r1) '(r0 r1)))
 
 (defcfun class/flow/set_flow_flags ()
 	;inputs

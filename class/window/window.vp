@@ -16,9 +16,10 @@
 	;r1 = vtable pointer
 	;r2 = options flags
 	;outputs
+	;r0 = window object
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r4
+	;all but r0-r1, r4
 
 	(ptr 'this 'vtable 'title_flow 'string)
 	(ulong 'ok 'flags 'min_width)
@@ -241,12 +242,12 @@
 	(f-call 'window 'dirty '(r0))
 
 	;get smallest size
-	(v-call 'window 'pref_size '(r0) '(_ r10 r11))
+	(v-call 'window 'pref_size '(r0) '(r0 r10 r11))
 	(vp-cpy-rr r10 r12)
 	(vp-cpy-rr r11 r13)
 
 	;save old bounds
-	(f-call 'window 'get_bounds '(r0) '(_ (r4 local_old_x i) (r4 local_old_y i) r10 r11))
+	(f-call 'window 'get_bounds '(r0) '(r0 (r4 local_old_x i) (r4 local_old_y i) r10 r11))
 
 	;get abolute cords of corners
 	(vp-add-rr r8 r10)
@@ -336,8 +337,9 @@
 	;inputs
 	;r0 = window object
 	;outputs
-	;r10 = prefered width
-	;r11 = prefered height
+	;r0 = window object
+	;r10 = preferred width
+	;r11 = preferred height
 	;trashes
 	;all but r0, r4
 
@@ -425,7 +427,7 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0 r1 r2) '((r4 local_this) (r4 local_obj) (r4 local_callback)))
 
-	(f-call 'button 'sig_pressed '((r0 window_close)) '(_ r1))
+	(f-call 'button 'sig_pressed '((r0 window_close)) '(r0 r1))
 	(f-call 'button 'connect '(r0 r1 (r4 local_obj) (r4 local_callback)))
 
 	(vp-cpy-ir r4 local_this r0)
@@ -454,7 +456,7 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0 r1 r2) '((r4 local_this) (r4 local_obj) (r4 local_callback)))
 
-	(f-call 'button 'sig_pressed '((r0 window_max)) '(_ r1))
+	(f-call 'button 'sig_pressed '((r0 window_max)) '(r0 r1))
 	(f-call 'button 'connect '(r0 r1 (r4 local_obj) (r4 local_callback)))
 
 	(vp-cpy-ir r4 local_this r0)
@@ -483,7 +485,7 @@
 	(vp-sub-cr local_size r4)
 	(assign '(r0 r1 r2) '((r4 local_this) (r4 local_obj) (r4 local_callback)))
 
-	(f-call 'button 'sig_pressed '((r0 window_min)) '(_ r1))
+	(f-call 'button 'sig_pressed '((r0 window_min)) '(r0 r1))
 	(f-call 'button 'connect '(r0 r1 (r4 local_obj) (r4 local_callback)))
 
 	(vp-cpy-ir r4 local_this r0)
