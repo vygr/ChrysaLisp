@@ -379,11 +379,12 @@
 				(t (find d s))))
 		(t (eql s d))))
 
-(defcfun find-later-src (d)
-	(defq i -1 j (length (defq s *src*)) d (elem d *dst*))
-	(while (ne (setq j (dec j)) -1)
+(defcfun find-later-src (i)
+	(defq j (dec (length (defq s *src*))) d (elem i *dst*))
+	(while (ne j i)
 		(if (match-any d (elem j s))
-			(setq i j j 0))) i)
+			(setq i j)
+			(setq j (dec j)))) j)
 
 (defcfun map-rotate (i j)
 	(setq *src* (cat (slice 0 i (defq s *src*)) (slice j (inc j) s)
