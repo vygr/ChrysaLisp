@@ -14,23 +14,37 @@
 	;r1 = value
 	;r2 = next char
 
-	(ptr 'this 'stream 'str_stream 'value)
-	(int 'char)
+	(ptr 'this 'stream)
+	(union
+		'(ptr 'str_stream 'value)
+		'(pubyte 'bufp 'bufe))
+	(int 'fchar 'char)
 
 	(push-scope)
 	(f-entry 'lisp 'read_sym {this, stream, char})
 
-	(f-call 'symbol 'create_raw {string_gap} {value})
-	(f-call 'stream_str 'create {value} {str_stream})
-
-	(loop-whilenot {char <= char_space || char == char_lrb || char == char_rrb || char == char_quote})
-		(f-call 'stream 'write_char {str_stream, char})
-		(f-call 'stream 'read_char {stream} {_, char})
-	(loop-end)
-
-	;intern the symbol
-	(f-call 'stream_str 'ref_string {str_stream} {_, value})
-	(f-call 'ref 'deref {str_stream})
+	(switch)
+		(assign {stream->stream_bufp, stream->stream_bufe, char} {bufp, bufe, fchar})
+		(loop-whilenot {char <= char_space || char == char_lrb || char == char_rrb || char == char_quote})
+			(gotoif {bufp == bufe} 'slow_but_sure)
+			(assign {*bufp} {char})
+			(assign {bufp + byte_size} {bufp})
+		(loop-end)
+		(f-call 'symbol 'create_from_buffer {stream->stream_bufp - byte_size, bufp - stream->stream_bufp} {value})
+		(assign {bufp} {stream->stream_bufp})
+		(break)
+	(default)
+	(vp-label 'slow_but_sure)
+		(assign {fchar} {char})
+		(f-call 'symbol 'create_raw {string_gap} {value})
+		(f-call 'stream_str 'create {value} {str_stream})
+		(loop-whilenot {char <= char_space || char == char_lrb || char == char_rrb || char == char_quote})
+			(f-call 'stream 'write_char {str_stream, char})
+			(f-call 'stream 'read_char {stream} {_, char})
+		(loop-end)
+		(f-call 'stream_str 'ref_string {str_stream} {_, value})
+		(f-call 'ref 'deref {str_stream})
+	(endswitch)
 	(f-call 'lisp 'sym_intern {this, value} {_, value})
 
 	(f-exit 'lisp 'read_sym {this, value, char})

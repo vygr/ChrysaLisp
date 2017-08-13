@@ -372,11 +372,11 @@
 	(defq i (lst? d) j (lst? s))
 	(cond
 		(i (cond
-				(j (throw "Illegal src/dst !" (list s d)))
-				(t (find s d))))
+			(j (throw "Illegal src/dst !" (list s d)))
+			(t (find s d))))
 		(j (cond
-				(i (throw "Illegal src/dst !" (list s d)))
-				(t (find d s))))
+			(i (throw "Illegal src/dst !" (list s d)))
+			(t (find d s))))
 		(t (eql s d))))
 
 (defcfun find-later-src (i)

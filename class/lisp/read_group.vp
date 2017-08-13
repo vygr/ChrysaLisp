@@ -14,24 +14,38 @@
 	;r1 = string
 	;r2 = next char
 
-	(ptr 'this 'stream 'str_stream 'value)
+	(ptr 'this 'stream)
+	(union
+		'(ptr 'str_stream 'value)
+		'(pubyte 'bufp 'bufe))
 	(int 'char)
 
 	(push-scope)
 	(f-entry 'lisp 'read_group {this, stream, char})
 
-	(f-call 'string 'create_raw {string_gap} {value})
-	(f-call 'stream_str 'create {value} {str_stream})
-
+	(switch)
+		(assign {stream->stream_bufp, stream->stream_bufe} {bufp, bufe})
+		(loop-start)
+			(gotoif {bufp == bufe} 'slow_but_sure)
+			(assign {*bufp} {char})
+			(assign {bufp + byte_size} {bufp})
+		(loop-until {char == char_rcb})
+		(f-call 'string 'create_from_buffer {stream->stream_bufp, bufp - stream->stream_bufp - byte_size} {value})
+		(assign {bufp} {stream->stream_bufp})
+		(break)
+	(default)
+	(vp-label 'slow_but_sure)
+		(f-call 'string 'create_raw {string_gap} {value})
+		(f-call 'stream_str 'create {value} {str_stream})
+		(f-call 'stream 'read_char {stream} {_, char})
+		(loop-whilenot {char == -1 || char == char_rcb})
+			(f-call 'stream 'write_char {str_stream, char})
+			(f-call 'stream 'read_char {stream} {_, char})
+		(loop-end)
+		(f-call 'stream_str 'ref_string {str_stream} {_, value})
+		(f-call 'ref 'deref {str_stream})
+	(endswitch)
 	(f-call 'stream 'read_char {stream} {_, char})
-	(loop-whilenot {char == -1 || char == char_rcb})
-		(f-call 'stream 'write_char {str_stream, char})
-		(f-call 'lisp 'read_char {this, stream, char} {_, char})
-	(loop-end)
-	(f-call 'stream 'read_char {stream} {_, char})
-
-	(f-call 'stream_str 'ref_string {str_stream} {_, value})
-	(f-call 'ref 'deref {str_stream})
 
 	(f-exit 'lisp 'read_group {this, value, char})
 	(pop-scope)
