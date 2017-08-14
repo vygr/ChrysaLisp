@@ -29,8 +29,7 @@
 (def-method 'read_splicing 'class/lisp/read_splicing 'static '(r0 r1 r2) '(r0 r1 r2))
 (def-method 'read_list 'class/lisp/read_list 'static '(r0 r1 r2) '(r0 r1 r2))
 (def-method 'read_sym 'class/lisp/read_sym 'static '(r0 r1 r2) '(r0 r1 r2))
-(def-method 'read_str 'class/lisp/read_str 'static '(r0 r1 r2) '(r0 r1 r2))
-(def-method 'read_group 'class/lisp/read_group 'static '(r0 r1 r2) '(r0 r1 r2))
+(def-method 'read_str 'class/lisp/read_str 'static '(r0 r1 r2 r3) '(r0 r1 r2))
 (def-method 'read_num 'class/lisp/read_num 'static '(r0 r1 r2) '(r0 r1 r2))
 
 (def-method 'repl_eval 'class/lisp/repl_eval 'static '(r0 r1) '(r0 r1))

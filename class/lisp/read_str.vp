@@ -9,6 +9,7 @@
 	;r0 = lisp object
 	;r1 = stream
 	;r2 = next char
+	;r3 = closing char
 	;outputs
 	;r0 = lisp object
 	;r1 = string
@@ -18,10 +19,10 @@
 	(union
 		'(ptr 'str_stream 'value)
 		'(pubyte 'bufp 'bufe))
-	(int 'char)
+	(int 'char 'cchar)
 
 	(push-scope)
-	(f-entry 'lisp 'read_str {this, stream, char})
+	(f-entry 'lisp 'read_str {this, stream, char, cchar})
 
 	(switch)
 		(assign {stream->stream_bufp, stream->stream_bufe} {bufp, bufe})
@@ -29,7 +30,7 @@
 			(gotoif {bufp == bufe} 'slow_but_sure)
 			(assign {*bufp} {char})
 			(assign {bufp + byte_size} {bufp})
-		(loop-until {char == char_double_quote})
+		(loop-until {char == cchar})
 		(f-call 'string 'create_from_buffer {stream->stream_bufp, bufp - stream->stream_bufp - byte_size} {value})
 		(assign {bufp} {stream->stream_bufp})
 		(break)
@@ -38,7 +39,7 @@
 		(f-call 'string 'create_raw {string_gap} {value})
 		(f-call 'stream_str 'create {value} {str_stream})
 		(f-call 'stream 'read_char {stream} {_, char})
-		(loop-whilenot {char == -1 || char == char_double_quote})
+		(loop-whilenot {char == -1 || char == cchar})
 			(f-call 'stream 'write_char {str_stream, char})
 			(f-call 'stream 'read_char {stream} {_, char})
 		(loop-end)

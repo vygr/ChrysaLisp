@@ -107,7 +107,6 @@
 (import 'class/lisp/repl_expand.vp)
 (import 'class/lisp/repl_print.vp)
 (import 'class/lisp/read_char.vp)
-(import 'class/lisp/read_group.vp)
 (import 'class/lisp/read_list.vp)
 (import 'class/lisp/read_num.vp)
 (import 'class/lisp/read_qquote.vp)
