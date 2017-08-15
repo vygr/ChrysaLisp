@@ -41,7 +41,7 @@
 		(f-call 'stream 'read_char {stream} {_, char})
 		(loop-whilenot {char == -1 || char == cchar})
 			(f-call 'stream 'write_char {str_stream, char})
-			(f-call 'stream 'read_char {stream} {_, char})
+			(f-call 'lisp 'read_char {this, stream, char} {_, char})
 		(loop-end)
 		(f-call 'stream_str 'ref_string {str_stream} {_, value})
 		(f-call 'ref 'deref {str_stream})
