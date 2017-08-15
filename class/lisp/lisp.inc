@@ -23,10 +23,7 @@
 
 (def-method 'read 'class/lisp/read 'static '(r0 r1 r2) '(r0 r1 r2))
 (def-method 'read_char 'class/lisp/read_char 'static '(r0 r1 r2) '(r0 r1))
-(def-method 'read_quote 'class/lisp/read_quote 'static '(r0 r1 r2) '(r0 r1 r2))
-(def-method 'read_qquote 'class/lisp/read_qquote 'static '(r0 r1 r2) '(r0 r1 r2))
-(def-method 'read_unquote 'class/lisp/read_unquote 'static '(r0 r1 r2) '(r0 r1 r2))
-(def-method 'read_splicing 'class/lisp/read_splicing 'static '(r0 r1 r2) '(r0 r1 r2))
+(def-method 'read_rmacro 'class/lisp/read_rmacro 'static '(r0 r1 r2 r3) '(r0 r1 r2))
 (def-method 'read_list 'class/lisp/read_list 'static '(r0 r1 r2) '(r0 r1 r2))
 (def-method 'read_sym 'class/lisp/read_sym 'static '(r0 r1 r2) '(r0 r1 r2))
 (def-method 'read_str 'class/lisp/read_str 'static '(r0 r1 r2 r3) '(r0 r1 r2))

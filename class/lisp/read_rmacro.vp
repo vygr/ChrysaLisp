@@ -1,0 +1,36 @@
+(import 'sys/func.inc)
+(import 'class/stream/stream.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/read_rmacro)
+	;inputs
+	;r0 = lisp object
+	;r1 = stream
+	;r2 = next char
+	;r3 = symbol
+	;outputs
+	;r0 = lisp object
+	;r1 = list
+	;r2 = next char
+
+	(ptr 'this 'stream 'sym 'value 'list)
+	(ulong 'char)
+
+	(push-scope)
+	(f-entry 'lisp 'read_rmacro {this, stream, char, sym})
+
+	(f-call 'stream 'read_char {stream} {_, char})
+	(f-call 'lisp 'read {this, stream, char} {_, value, char})
+	(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
+	(f-call 'vector 'create {} {list})
+	(f-call 'ref 'ref {sym})
+	(f-call 'vector 'push_back {list, sym})
+	(f-call 'vector 'push_back {list, value})
+	(assign {list} {value})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'read_rmacro {this, value, char})
+	(pop-scope)
+	(return)
+
+(def-func-end)
