@@ -13,8 +13,11 @@
 	;r1 = list
 	;r2 = next char
 
-	(ptr 'this 'stream 'sym 'value 'list)
-	(ulong 'char)
+	(ptr 'this 'sym 'list)
+	(union
+		'(ptr 'stream)
+		'(ptr 'value))
+	(int 'char)
 
 	(push-scope)
 	(f-entry 'lisp 'read_rmacro {this, stream, char, sym})
