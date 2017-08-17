@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/lisp/lisp.inc)
+(import 'class/pair/pair.inc)
 
 (def-func 'class/lisp/func_defined)
 	;inputs
@@ -21,11 +22,10 @@
 	(f-call 'vector 'get_first {args} {_, value})
 	(f-call 'lisp 'env_find {this, value} {_, value, _})
 	(vpif {value})
-		(assign {this->lisp_sym_t} {value})
+		(f-call 'pair 'ref_second {ptr(*value)} {_, value})
 	(else)
-		(assign {this->lisp_sym_nil} {value})
+		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 	(endif)
-	(f-call 'ref 'ref {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_defined {this, value})

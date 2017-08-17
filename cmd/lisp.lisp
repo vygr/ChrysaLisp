@@ -75,7 +75,7 @@
 	(defun func-obj (_)
 		(cat "obj/" _))
 	(defun load-func (_)
-		(or (val? _)
+		(or (def? _)
 			(progn
 				(defq b (load (func-obj _))
 					h (slice fn_header_entry (defq l (read-int fn_header_links b)) b)
@@ -166,7 +166,7 @@
 		(defun make-time (_)
 			;modification time of a file, cached
 			(defq s (sym-cat "_age_" _))
-			(or (val? s) (def *env* s (age _))))
+			(or (def? s) (def *env* s (age _))))
 		;list of all file imports while defining dependencies and products
 		(each-mergeable (lambda (_)
 			(defq i (make-info _))

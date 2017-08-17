@@ -92,7 +92,6 @@
 (import 'class/lisp/func_some.vp)
 (import 'class/lisp/func_sym.vp)
 (import 'class/lisp/func_time.vp)
-(import 'class/lisp/func_valued.vp)
 (import 'class/lisp/func_while.vp)
 (import 'class/lisp/func_wpipe.vp)
 (import 'class/lisp/func_write.vp)

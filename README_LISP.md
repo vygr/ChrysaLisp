@@ -147,7 +147,6 @@ throw
 time
 unquote
 unquote-splicing
-val?
 while
 write
 write-char
