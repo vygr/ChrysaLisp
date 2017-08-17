@@ -41,7 +41,7 @@
 			(f-call 'vector 'get_first {macro} {_, args})
 			(gotoif {args != this->lisp_sym_macro} 'decend)
 			(d-call 'vector 'slice {form, 1, length} {_, args})
-			(f-call 'lisp 'repl_apply {this, macro, args} {_, form})
+			(f-call 'lisp 'repl_apply {this, args, macro} {_, form})
 			(f-call 'ref 'deref {args})
 			(f-call 'ref 'deref {*iter})
 			(assign {form, cnt + 1} {*iter, cnt})

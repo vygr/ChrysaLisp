@@ -92,7 +92,7 @@
 			(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_underscore, value})
 			(f-call 'ref 'deref {value})
 
-			(f-call 'lisp 'repl_apply {this, func, params} {_, value})
+			(f-call 'lisp 'repl_apply {this, params, func} {_, value})
 			(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'error5)
 			(breakif {mode != this->lisp_sym_nil && value != this->lisp_sym_nil})
 			(breakif {mode == this->lisp_sym_nil && value == this->lisp_sym_nil})

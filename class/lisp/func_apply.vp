@@ -20,7 +20,7 @@
 	(errorifnot {iter_begin} 'error1))
 
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
-	(f-call 'lisp 'repl_apply {this, iter_begin[0], iter_begin[ptr_size]} {_, args})
+	(f-call 'lisp 'repl_apply {this, iter_begin[ptr_size], iter_begin[0]} {_, args})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_apply {this, args})

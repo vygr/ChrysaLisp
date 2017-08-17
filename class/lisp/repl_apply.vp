@@ -5,37 +5,36 @@
 (def-func 'class/lisp/repl_apply)
 	;inputs
 	;r0 = lisp object
-	;r1 = function
-	;r2 = args
+	;r1 = args
+	;r2 = function
 	;outputs
 	;r0 = lisp object
 	;r1 = value
+	;trashes
+	;all but r0, r4
+
+	(f-entry 'lisp 'repl_apply '(r0 r1 r2))
+
+	(assign `((r2 obj_vtable) (@ ,(f-path 'class 'boxed_ptr))) '(r3 r5))
+	(vpif '(r3 == r5))
+		;built in or compiled function
+		(vp-cpy-ir r2 boxed_ptr_value r2)
+		(vp-and-cr (neg ptr_size) r2)
+		(vp-jmp-r r2)
+	(endif)
 
 	(ptr 'this 'args)
 	(union
 		'(ptr 'func)
 		'(pptr 'iter_end))
-
-	(push-scope)
-	(f-entry 'lisp 'repl_apply {this, func, args})
-
-	(vpif (cat {func->obj_vtable == @} (f-path 'class 'boxed_ptr)))
-		;built in or compiled function
-		(assign {this, args, func} '(r0 r1 r2))
-		(vp-cpy-ir r2 boxed_ptr_value r2)
-		(vp-and-cr (neg ptr_size) r2)
-		(vp-call-r r2)
-		(assign {this} '(r0))
-		(return)
-	(endif)
-
-	;lambda ?
 	(ptr 'value)
 	(pptr 'iter_begin)
 	(uint 'length)
 
 	(push-scope)
+	(assign '(r0 r1 r2) {this, args, func})
 
+	;lambda ?
 	(errorif (cat {func->obj_vtable != @} (f-path 'class 'vector)) 'error2)
 	(d-call 'vector 'get_length {func} {_, length})
 	(errorif {length < 2} 'error1)
@@ -72,7 +71,6 @@
 	(f-call 'lisp 'repl_error {this, "(lambda vars body)", error_msg_not_a_lambda, func} {_, value})
 	(goto 'exit))
 
-	(pop-scope-syms)
 	(pop-scope-syms)
 
 (def-func-end)
