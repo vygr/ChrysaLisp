@@ -14,8 +14,7 @@
 	(f-entry 'lisp 'env_push {this})
 
 	(f-call 'hash_map 'create {this->lisp_environment->hash_set_key_callback, 1} {env})
-	(f-call 'hash_map 'set_parent {env, this->lisp_environment})
-	(assign {env} {this->lisp_environment})
+	(f-call 'hash_map 'set_parent {env, this->lisp_environment} {this->lisp_environment})
 
 	(f-exit 'lisp 'env_push {this})
 	(pop-scope)
