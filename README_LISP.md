@@ -40,7 +40,8 @@ it can be very powerful. Coming from an assembler background I prefer to have
 all the guns and knives available, so try not to shoot your foot off.
 
 There is no cons, cdr or car stuff. Lists are just vector objects and you use
-`push`, `cat`, `slice` etc to manipulate elements.
+`push`, `cat`, `slice` etc to manipulate elements. Also an empty list does not
+evaluate to `nil`, it's just an error.
 
 Function and macro definitions are scoped and visible only within the scope of
 the declaring function. There is no global macro list. During macro expansion
