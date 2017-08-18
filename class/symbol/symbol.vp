@@ -3,23 +3,6 @@
 
 (gen-class 'symbol)
 
-(def-func 'class/symbol/create_raw)
-	;inputs
-	;r0 = length
-	;outputs
-	;r0 = 0 if error, else object
-	;trashes
-	;r1-r3, r5-r7
-
-	(f-call 'string 'create_raw '(r0) '(r0))
-	(vpif '(r0 != 0))
-		(f-bind 'class 'symbol r1)
-		(vp-cpy-ri r1 r0 obj_vtable)
-	(endif)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/symbol/create_from_buffer)
 	;inputs
 	;r0 = buffer pointer

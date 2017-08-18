@@ -8,32 +8,6 @@
 
 (gen-class 'string)
 
-(def-func 'class/string/create_raw)
-	;inputs
-	;r0 = string length
-	;outputs
-	;r0 = 0 if error, else object
-	;trashes
-	;r1-r3, r5-r7
-
-	;save size of data
-	(f-entry 'string 'create_raw '(r6))
-
-	;create new string object
-	(f-call 'string 'new '((& r0 (add string_size byte_size))) '(r0))
-	(vpif '(r0 != 0))
-		;init the object
-		(f-call 'string 'init `(r0 (@ ,(f-path 'class 'string)) 0 r6) '(r0 r1))
-		(vpif '(r1 == 0))
-			;error with init
-			(v-call 'string 'delete '(r0) '() 'r1)
-			(vp-xor-rr r0 r0)
-		(endif)
-	(endif)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/string/create_from_buffer)
 	;inputs
 	;r0 = buffer pointer

@@ -27,7 +27,7 @@
 	(elseif (cat {args->obj_vtable == @} (f-path 'class 'stream_str)))
 		(f-call 'stream_str 'ref_string {args} {_, value})
 	(else)
-		(f-call 'string 'create_raw {string_gap} {value})
+		(f-call 'string 'create_from_buffer {0, string_gap} {value})
 		(f-call 'stream_str 'create {value} {stream})
 		(f-call 'lisp 'repl_print {this, stream, args})
 		(f-call 'stream_str 'ref_string {stream} {_, value})

@@ -29,7 +29,7 @@
 	(vpif {state == stream_mail_state_started})
 		(f-call 'master 'select {pipe, 0} {_, value})
 		(f-call 'master 'get_stream {pipe, value} {_, stream})
-		(f-call 'string 'create_raw {string_gap} {value})
+		(f-call 'string 'create_from_buffer {0, string_gap} {value})
 		(f-call 'stream_str 'create {value} {str_stream})
 		(loop-start)
 			(f-call 'stream 'read_char {stream} {_, char})

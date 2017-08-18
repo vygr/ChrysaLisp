@@ -113,7 +113,7 @@
 	(push-scope)
 
 	;string output stream
-	(f-call 'string 'create_raw {string_gap} {value})
+	(f-call 'string 'create_from_buffer {0, string_gap} {value})
 	(f-call 'stream_str 'create {value} {stream})
 
 	;create lisp class

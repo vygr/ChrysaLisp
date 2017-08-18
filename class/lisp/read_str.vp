@@ -36,7 +36,7 @@
 		(break)
 	(default)
 	(vp-label 'slow_but_sure)
-		(f-call 'string 'create_raw {string_gap} {value})
+		(f-call 'string 'create_from_buffer {0, string_gap} {value})
 		(f-call 'stream_str 'create {value} {str_stream})
 		(f-call 'stream 'read_char {stream} {_, char})
 		(loop-whilenot {char == -1 || char == cchar})
