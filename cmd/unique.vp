@@ -8,10 +8,7 @@
 (def-func 'cmd/unique)
 
 	(ptr 'slave 'arg 'args 'stream 'set)
-	(uint 'argc)
-	(union
-		'(int 'length)
-		'(uint 'index))
+	(uint 'argc 'length)
 
 	;init app vars
 	(push-scope)
@@ -27,11 +24,11 @@
 		(d-call 'vector 'get_length {args} {_, argc})
 		(vpif {argc != 1})
 			;from command line
-			(assign {1} {index})
-			(loop-while {index != argc})
-				(f-call 'vector 'get_element {args, index} {_, arg})
+			(loop-start)
+				(assign {argc - 1} {argc})
+				(breakifnot {argc})
+				(f-call 'vector 'get_element {args, argc} {_, arg})
 				(f-call 'hash_set 'insert {set, arg})
-				(assign {index + 1} {index})
 			(loop-end)
 		(else)
 			;from stdin
