@@ -7,14 +7,11 @@
 
 (def-func 'cmd/cat)
 
-	(defcvar 'buffer_size 256)
-
 	(ptr 'slave 'arg 'args 'stream)
 	(uint 'argc)
 	(union
 		'(uint 'index)
 		'(int 'length))
-	(struct 'buffer 'buffer)
 
 	;init app vars
 	(push-scope)
@@ -36,9 +33,8 @@
 		(else)
 			;names from stdin
 			(loop-start)
-				(f-call 'stream 'read_line {slave->slave_stdin, &buffer, buffer_size} {_, length})
-				(breakif {length == -1})
-				(f-call 'string 'create_from_buffer {&buffer, length} {arg})
+				(f-call 'stream 'read_line {slave->slave_stdin} {_, arg})
+				(breakifnot {arg})
 				(l-call 'cat_string {slave, arg} '(r0 r1))
 			(loop-end)
 		(endif)

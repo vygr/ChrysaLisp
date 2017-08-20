@@ -7,14 +7,11 @@
 
 (def-func 'cmd/unique)
 
-	(defcvar 'buffer_size 256)
-
 	(ptr 'slave 'arg 'args 'stream 'set)
 	(uint 'argc)
 	(union
 		'(int 'length)
 		'(uint 'index))
-	(struct 'buffer 'buffer)
 
 	;init app vars
 	(push-scope)
@@ -39,9 +36,8 @@
 		(else)
 			;from stdin
 			(loop-start)
-				(f-call 'stream 'read_line {slave->slave_stdin, &buffer, buffer_size} {_, length})
-				(breakif {length == -1})
-				(f-call 'string 'create_from_buffer {&buffer, length} {arg})
+				(f-call 'stream 'read_line {slave->slave_stdin} {_, arg})
+				(breakifnot {arg})
 				(f-call 'hash_set 'insert {set, arg})
 				(f-call 'string 'deref {arg})
 			(loop-end)

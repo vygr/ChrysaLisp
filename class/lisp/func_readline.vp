@@ -13,7 +13,6 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value)
-	(pubyte 'reloc)
 	(int 'length)
 
 	(push-scope)
@@ -24,13 +23,9 @@
 	(errorifnot {value} 'error1))
 
 	(f-call 'vector 'get_first {args} {_, value})
-	(assign (cat "@" (f-path 'sys_load 'statics)) {reloc})
-	(assign {reloc->ld_statics_reloc_buffer} {reloc})
-	(f-call 'stream_str 'read_line {value, reloc, ld_reloc_size} {_, length})
-	(vpif {length == -1})
+	(f-call 'stream_str 'read_line {value} {_, value})
+	(vpifnot {value})
 		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
-	(else)
-		(f-call 'string 'create_from_buffer {reloc, length} {value})
 	(endif)
 
 (vp-label 'exit)
