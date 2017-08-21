@@ -288,12 +288,10 @@
 
 (defcfun get-sym (_1)
 	;_1 name
-	(defq _ (length *syms*))
-	(while (and (ge (setq _ (dec _)) 0)
-				(not (defq s (find (sym _1) (elem 1 (elem _ *syms*)))))))
-	(when (ge _ 0)
-		(setq _ (elem s (elem 2 (elem _ *syms*))))
-		(elem-set -2 _ t) _))
+	(defq _1 (sym _1) a (some! -2 0 t (lambda (s)
+		(if (defq _ (find _1 (elem 1 s)))
+			(elem _ (elem 2 s)))) (list *syms*)))
+	(when a (elem-set -2 a t)) a)
 
 (defcfun used-syms (&rest _)
 	(each get-sym _))
