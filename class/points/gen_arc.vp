@@ -18,15 +18,14 @@
 
 	(ptr 'this 'stack)
 	(union
-		'(ulong 'c 'v1 'v2)
-		'(int 'cx 'cy 'v1x 'v1y 'v2x 'v2y))
+		'(ulong 'v1 'v2 'c)
+		'(int 'v1x 'v1y 'v2x 'v2y))
 	(union
 		'(int 'ca1 'ca2 'sa1 'sa2)
 		'(int 'a1 'a2 'ah))
 	(int 'radius 'eps)
 
 	(push-scope)
-	(used-syms 'cx 'cy)
 	(f-entry 'points 'gen_arc {this, stack, c, a1, a2, radius, eps})
 
 	(vpif {radius >= 0.5})

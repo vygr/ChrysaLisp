@@ -19,10 +19,10 @@
 	;all but r0, r4
 
 	(union
-		'(ulong 'p1 'p2 'p3 'p4 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_pv 'l1_npv 'l1_rv)
+		'(ulong 'p1 'p2 'p3 'p4 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_npv 'l1_rv)
 		'(int 'p1x 'p1y 'p2x 'p2y 'p3x 'p3y 'p4x 'p4y
 			'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy
-			'l1_vx 'l1_vy 'l1_pvx 'l1_pvy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy))
+			'l1_vx 'l1_vy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy))
 	(pulong 'iter 'iter_begin 'iter_end)
 	(pptr 'iter_begin_polylines 'iter_end_polylines)
 	(ptr 'this 'stack 'out_points)
@@ -30,7 +30,7 @@
 	(byte 'join_style 'cap1_style 'cap2_style)
 
 	(push-scope)
-	(used-syms 'l2_pv 'l1_pv 'l1_vx 'l1_vy 'l1_pvx 'l1_pvy)
+	(used-syms 'l2_pv 'l1_vx 'l1_vy)
 	(f-entry 'points 'stroke_polylines {this, stack, iter_end_polylines, join_style, cap1_style, cap2_style, radius, eps})
 
 	(vpif {radius >= 0.5})
