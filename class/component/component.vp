@@ -122,7 +122,7 @@
 
 	;disconnect slots
 	(loop-list-forward r7 component_slot_list r2 r3)
-		(vp-jmpif '(r6 == 0) 'freeit)
+		(gotoif '(r6 == 0) 'freeit)
 		(vp-cpy-ir r2 gui_sigslot_addr r5)
 		(continueif '(r6 != r5))
 	(vp-label 'freeit)

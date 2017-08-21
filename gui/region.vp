@@ -94,10 +94,10 @@
 				(ln-add-fnode r5 0 r1 r2)
 
 				;jump to correct splitting code
-				(vp-jmpif '(r12 >= r8) 'copy_split1)
-				(vp-jmpif '(r13 >= r9) 'copy_split2)
-				(vp-jmpif '(r10 >= r14) 'copy_split4)
-				(vp-jmpif '(r11 >= r15) 'copy_xyx1)
+				(gotoif '(r12 >= r8) 'copy_split1)
+				(gotoif '(r13 >= r9) 'copy_split2)
+				(gotoif '(r10 >= r14) 'copy_split4)
+				(gotoif '(r11 >= r15) 'copy_xyx1)
 
 			(vp-label 'copy_xyx1y1)
 				;r8 + r9 + r10 + r11 inside
@@ -106,9 +106,9 @@
 
 			(vp-label 'copy_split1)
 				;jump to correct splitting code
-				(vp-jmpif '(r13 >= r9) 'copy_split3)
-				(vp-jmpif '(r10 >= r14) 'copy_split5)
-				(vp-jmpif '(r11 >= r15) 'copy_yx1)
+				(gotoif '(r13 >= r9) 'copy_split3)
+				(gotoif '(r10 >= r14) 'copy_split5)
+				(gotoif '(r11 >= r15) 'copy_yx1)
 
 			(vp-label 'copy_yx1y1)
 				;r9 + r10 + r11 inside
@@ -117,8 +117,8 @@
 
 			(vp-label 'copy_split2)
 				;jump to correct splitting code
-				(vp-jmpif '(r10 >= r14) 'copy_split6)
-				(vp-jmpif '(r11 >= r15) 'copy_xx1)
+				(gotoif '(r10 >= r14) 'copy_split6)
+				(gotoif '(r11 >= r15) 'copy_xx1)
 
 			(vp-label 'copy_xx1y1)
 				;r8 + r10 + r11 inside
@@ -127,8 +127,8 @@
 
 			(vp-label 'copy_split3)
 				;jump to correct splitting code
-				(vp-jmpif '(r10 >= r14) 'copy_split7)
-				(vp-jmpif '(r11 >= r15) 'copy_x1)
+				(gotoif '(r10 >= r14) 'copy_split7)
+				(gotoif '(r11 >= r15) 'copy_x1)
 
 			(vp-label 'copy_x1y1)
 				;r10 + r11 inside
@@ -137,7 +137,7 @@
 
 			(vp-label 'copy_split4)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'copy_xy)
+				(gotoif '(r11 >= r15) 'copy_xy)
 
 			(vp-label 'copy_xyy1)
 				;r8 + r9 + r11 inside
@@ -146,7 +146,7 @@
 
 			(vp-label 'copy_split5)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'copy_y)
+				(gotoif '(r11 >= r15) 'copy_y)
 
 			(vp-label 'copy_yy1)
 				;r9 + r11 inside
@@ -155,7 +155,7 @@
 
 			(vp-label 'copy_split6)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'copy_x)
+				(gotoif '(r11 >= r15) 'copy_x)
 
 			(vp-label 'copy_xy1)
 				;r8 + r11 inside
@@ -164,7 +164,7 @@
 
 			(vp-label 'copy_split7)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'copy_encl)
+				(gotoif '(r11 >= r15) 'copy_encl)
 
 			(vp-label 'copy_y1)
 				;r11 inside
@@ -293,10 +293,10 @@
 				(continueif '(r9 >= r15))
 
 				;jump to correct splitting code
-				(vp-jmpif '(r12 >= r8) 'cut_split1)
-				(vp-jmpif '(r13 >= r9) 'cut_split2)
-				(vp-jmpif '(r10 >= r14) 'cut_split4)
-				(vp-jmpif '(r11 >= r15) 'cut_xyx1)
+				(gotoif '(r12 >= r8) 'cut_split1)
+				(gotoif '(r13 >= r9) 'cut_split2)
+				(gotoif '(r10 >= r14) 'cut_split4)
+				(gotoif '(r11 >= r15) 'cut_xyx1)
 
 			(vp-label 'cut_xyx1y1)
 				;r8 + r9 + r10 + r11 inside
@@ -326,9 +326,9 @@
 
 			(vp-label 'cut_split1)
 				;jump to correct splitting code
-				(vp-jmpif '(r13 >= r9) 'cut_split3)
-				(vp-jmpif '(r10 >= r14) 'cut_split5)
-				(vp-jmpif '(r11 >= r15) 'cut_yx1)
+				(gotoif '(r13 >= r9) 'cut_split3)
+				(gotoif '(r10 >= r14) 'cut_split5)
+				(gotoif '(r11 >= r15) 'cut_yx1)
 
 			(vp-label 'cut_yx1y1)
 				;r9 + r10 + r11 inside
@@ -353,8 +353,8 @@
 
 			(vp-label 'cut_split2)
 				;jump to correct splitting code
-				(vp-jmpif '(r10 >= r14) 'cut_split6)
-				(vp-jmpif '(r11 >= r15) 'cut_xx1)
+				(gotoif '(r10 >= r14) 'cut_split6)
+				(gotoif '(r11 >= r15) 'cut_xx1)
 
 			(vp-label 'cut_xx1y1)
 				;r8 + r10 + r11 inside
@@ -379,8 +379,8 @@
 
 			(vp-label 'cut_split3)
 				;jump to correct splitting code
-				(vp-jmpif '(r10 >= r14) 'cut_split7)
-				(vp-jmpif '(r11 >= r15) 'cut_x1)
+				(gotoif '(r10 >= r14) 'cut_split7)
+				(gotoif '(r11 >= r15) 'cut_x1)
 
 			(vp-label 'cut_x1y1)
 				;r10 + r11 inside
@@ -400,7 +400,7 @@
 
 			(vp-label 'cut_split4)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'cut_xy)
+				(gotoif '(r11 >= r15) 'cut_xy)
 
 			(vp-label 'cut_xyy1)
 				;r8 + r9 + r11 inside
@@ -425,7 +425,7 @@
 
 			(vp-label 'cut_split5)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'cut_y)
+				(gotoif '(r11 >= r15) 'cut_y)
 
 			(vp-label 'cut_yy1)
 				;r9 + r11 inside
@@ -445,7 +445,7 @@
 
 			(vp-label 'cut_split6)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'cut_x)
+				(gotoif '(r11 >= r15) 'cut_x)
 
 			(vp-label 'cut_xy1)
 				;r8 + r11 inside
@@ -465,7 +465,7 @@
 
 			(vp-label 'cut_split7)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'cut_encl)
+				(gotoif '(r11 >= r15) 'cut_encl)
 
 			(vp-label 'cut_y1)
 				;r11 inside
@@ -643,10 +643,10 @@
 				(continueif '(r9 >= r15))
 
 				;jump to correct splitting code
-				(vp-jmpif '(r12 >= r8) 'paste_split1)
-				(vp-jmpif '(r13 >= r9) 'paste_split2)
-				(vp-jmpif '(r10 >= r14) 'paste_split4)
-				(vp-jmpif '(r11 >= r15) 'paste_xyx1)
+				(gotoif '(r12 >= r8) 'paste_split1)
+				(gotoif '(r13 >= r9) 'paste_split2)
+				(gotoif '(r10 >= r14) 'paste_split4)
+				(gotoif '(r11 >= r15) 'paste_xyx1)
 
 			(vp-label 'paste_xyx1y1)
 				;r8 + r9 + r10 + r11 inside
@@ -654,9 +654,9 @@
 
 			(vp-label 'paste_split1)
 				;jump to correct splitting code
-				(vp-jmpif '(r13 >= r9) 'paste_split3)
-				(vp-jmpif '(r10 >= r14) 'paste_split5)
-				(vp-jmpif '(r11 >= r15) 'paste_yx1)
+				(gotoif '(r13 >= r9) 'paste_split3)
+				(gotoif '(r10 >= r14) 'paste_split5)
+				(gotoif '(r11 >= r15) 'paste_yx1)
 
 			(vp-label 'paste_yx1y1)
 				;r9 + r10 + r11 inside
@@ -665,8 +665,8 @@
 
 			(vp-label 'paste_split2)
 				;jump to correct splitting code
-				(vp-jmpif '(r10 >= r14) 'paste_split6)
-				(vp-jmpif '(r11 >= r15) 'paste_xx1)
+				(gotoif '(r10 >= r14) 'paste_split6)
+				(gotoif '(r11 >= r15) 'paste_xx1)
 
 			(vp-label 'paste_xx1y1)
 				;r8 + r10 + r11 inside
@@ -675,8 +675,8 @@
 
 			(vp-label 'paste_split3)
 				;jump to correct splitting code
-				(vp-jmpif '(r10 >= r14) 'paste_split7)
-				(vp-jmpif '(r11 >= r15) 'paste_x1)
+				(gotoif '(r10 >= r14) 'paste_split7)
+				(gotoif '(r11 >= r15) 'paste_x1)
 
 			(vp-label 'paste_x1y1)
 				;r10 + r11 inside
@@ -691,7 +691,7 @@
 
 			(vp-label 'paste_split4)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'paste_xy)
+				(gotoif '(r11 >= r15) 'paste_xy)
 
 			(vp-label 'paste_xyy1)
 				;r8 + r9 + r11 inside
@@ -700,7 +700,7 @@
 
 			(vp-label 'paste_split5)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'paste_y)
+				(gotoif '(r11 >= r15) 'paste_y)
 
 			(vp-label 'paste_yy1)
 				;r9 + r11 inside
@@ -715,7 +715,7 @@
 
 			(vp-label 'paste_split6)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'paste_x)
+				(gotoif '(r11 >= r15) 'paste_x)
 
 			(vp-label 'paste_xy1)
 				;r8 + r11 inside
@@ -730,7 +730,7 @@
 
 			(vp-label 'paste_split7)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'paste_encl)
+				(gotoif '(r11 >= r15) 'paste_encl)
 
 			(vp-label 'paste_y1)
 				;r11 inside
@@ -889,10 +889,10 @@
 				(continueif '(r9 >= r15))
 
 				;jump to correct splitting code
-				(vp-jmpif '(r12 >= r8) 'rem_split1)
-				(vp-jmpif '(r13 >= r9) 'rem_split2)
-				(vp-jmpif '(r10 >= r14) 'rem_split4)
-				(vp-jmpif '(r11 >= r15) 'rem_xyx1)
+				(gotoif '(r12 >= r8) 'rem_split1)
+				(gotoif '(r13 >= r9) 'rem_split2)
+				(gotoif '(r10 >= r14) 'rem_split4)
+				(gotoif '(r11 >= r15) 'rem_xyx1)
 
 			(vp-label 'rem_xyx1y1)
 				;r8 + r9 + r10 + r11 inside
@@ -917,9 +917,9 @@
 
 			(vp-label 'rem_split1)
 				;jump to correct splitting code
-				(vp-jmpif '(r13 >= r9) 'rem_split3)
-				(vp-jmpif '(r10 >= r14) 'rem_split5)
-				(vp-jmpif '(r11 >= r15) 'rem_yx1)
+				(gotoif '(r13 >= r9) 'rem_split3)
+				(gotoif '(r10 >= r14) 'rem_split5)
+				(gotoif '(r11 >= r15) 'rem_yx1)
 
 			(vp-label 'rem_yx1y1)
 				;r9 + r10 + r11 inside
@@ -939,8 +939,8 @@
 
 			(vp-label 'rem_split2)
 				;jump to correct splitting code
-				(vp-jmpif '(r10 >= r14) 'rem_split6)
-				(vp-jmpif '(r11 >= r15) 'rem_xx1)
+				(gotoif '(r10 >= r14) 'rem_split6)
+				(gotoif '(r11 >= r15) 'rem_xx1)
 
 			(vp-label 'rem_xx1y1)
 				;r8 + r10 + r11 inside
@@ -960,8 +960,8 @@
 
 			(vp-label 'rem_split3)
 				;jump to correct splitting code
-				(vp-jmpif '(r10 >= r14) 'rem_split7)
-				(vp-jmpif '(r11 >= r15) 'rem_x1)
+				(gotoif '(r10 >= r14) 'rem_split7)
+				(gotoif '(r11 >= r15) 'rem_x1)
 
 			(vp-label 'rem_x1y1)
 				;r10 + r11 inside
@@ -976,7 +976,7 @@
 
 			(vp-label 'rem_split4)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'rem_xy)
+				(gotoif '(r11 >= r15) 'rem_xy)
 
 			(vp-label 'rem_xyy1)
 				;r8 + r9 + r11 inside
@@ -996,7 +996,7 @@
 
 			(vp-label 'rem_split5)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'rem_y)
+				(gotoif '(r11 >= r15) 'rem_y)
 
 			(vp-label 'rem_yy1)
 				;r9 + r11 inside
@@ -1011,7 +1011,7 @@
 
 			(vp-label 'rem_split6)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'rem_x)
+				(gotoif '(r11 >= r15) 'rem_x)
 
 			(vp-label 'rem_xy1)
 				;r8 + r11 inside
@@ -1026,7 +1026,7 @@
 
 			(vp-label 'rem_split7)
 				;jump to correct splitting code
-				(vp-jmpif '(r11 >= r15) 'rem_encl)
+				(gotoif '(r11 >= r15) 'rem_encl)
 
 			(vp-label 'rem_y1)
 				;r11 inside

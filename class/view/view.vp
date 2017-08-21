@@ -279,7 +279,7 @@
 		(vp-sub-cr view_node r1)
 
 		(ln-get-pred r1 view_node r2)
-		(vp-jmpif '(r2 != 0) 'down_loop_ctx)
+		(gotoif '(r2 != 0) 'down_loop_ctx)
 
 		;up to parent
 		(vp-cpy-ir r0 view_parent r0)
@@ -550,7 +550,7 @@
 		(vp-sub-cr view_node r1)
 
 		(ln-get-succ r1 view_node r2)
-		(vp-jmpif '(r2 != 0) 'down_loop_ctx)
+		(gotoif '(r2 != 0) 'down_loop_ctx)
 
 		;up to parent
 		(vp-cpy-ir r0 view_parent r0)

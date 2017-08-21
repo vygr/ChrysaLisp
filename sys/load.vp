@@ -194,7 +194,7 @@
 	(vp-cpy-ir r8 ld_statics_stat_buffer r0)
 	(vp-cpy-ir-us r0 stat_mode r0)
 	(vp-and-cr s_ifmt r0)
-	(vp-jmpif '(r0 != s_ifreg) 'exit)
+	(gotoif '(r0 != s_ifreg) 'exit)
 
 	;ensure space for new function
 	(vp-cpy-ir r8 ld_statics_block_start r1)

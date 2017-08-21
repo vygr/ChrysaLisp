@@ -114,7 +114,7 @@
 						(vp-cpy-ir r3 lk_node_task_count r1)
 					(endif)
 				(loop-end)
-				(vp-jmpif '(r0 == r5) 'run_here)
+				(gotoif '(r0 == r5) 'run_here)
 
 				;send to better kernel
 				(vp-cpy-ri r0 r15 (add msg_dest id_cpu))
