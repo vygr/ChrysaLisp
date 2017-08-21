@@ -7,8 +7,8 @@
 
 (def-func 'cmd/unique)
 
-	(ptr 'slave 'arg 'args 'stream 'set)
-	(uint 'argc 'length)
+	(ptr 'slave 'arg 'args 'set)
+	(uint 'argc)
 
 	;init app vars
 	(push-scope)

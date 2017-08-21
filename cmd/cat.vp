@@ -1,17 +1,13 @@
 (import 'sys/func.inc)
 (import 'class/string/string.inc)
-(import 'class/stream/stream.inc)
 (import 'class/stream_str/stream_str.inc)
 (import 'class/vector/vector.inc)
 (import 'class/slave/slave.inc)
 
 (def-func 'cmd/cat)
 
-	(ptr 'slave 'arg 'args 'stream)
-	(uint 'argc)
-	(union
-		'(uint 'index)
-		'(int 'length))
+	(ptr 'slave 'arg 'args)
+	(uint 'argc 'index)
 
 	;init app vars
 	(push-scope)

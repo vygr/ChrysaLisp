@@ -6,7 +6,7 @@
 
 (def-func 'cmd/echo)
 
-	(ptr 'slave 'arg 'args 'stream)
+	(ptr 'slave 'arg 'args)
 	(uint 'argc 'index)
 
 	;init app vars
