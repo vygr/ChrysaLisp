@@ -233,8 +233,7 @@
 
 (defcfun push-scope ()
 	(local-align)
-	(elem-set 0 (defq _ (pop *syms*)) *sym-sp*)
-	(push *syms* _ (list 0 (list) (list)))
+	(elem-set 0 (elem -3 (push *syms* (list 0 (list) (list)))) *sym-sp*)
 	(when (ne *sym-sp* 0)
 		(when debug_inst
 			(print "(vp-sub-cr " *sym-sp* " r4)"))
@@ -248,9 +247,9 @@
 		(unless (elem -2 a) (push u (elem _ (elem 1 s))))) (list (elem 2 (defq s (pop *syms*)))))
 	(if (ne 0 (length u))
 		(throw "Unused symbols !" u))
-	(defq _ (elem 0 s))
 	(push *syms* (list 0 (list) (list)))
-	(setq *sym-sp* 0) _)
+	(setq *sym-sp* 0)
+	(elem 0 s))
 
 (defcfun pop-scope ()
 	(defq _ (pop-scope-syms))
