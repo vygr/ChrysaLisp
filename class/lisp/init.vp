@@ -42,7 +42,7 @@
 	(ptr 'this)
 	(union
 		'(ptr 'vtable 'stdin 'stdout 'stderr 'symbol 'table)
-		'(ptr 'repl_args 'value 'string 'file 'stream))
+		'(ptr 'repl_args 'value 'file 'stream))
 	(ulong 'ok)
 
 	(push-scope)

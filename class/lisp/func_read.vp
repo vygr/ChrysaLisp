@@ -11,7 +11,6 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value 'form)
-	(uint 'length)
 	(int 'next_char)
 
 	(push-scope)

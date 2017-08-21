@@ -1,6 +1,6 @@
-;;;;;;;;;;;;;;;;;;;;
-; structured codeing
-;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;
+; structured coding
+;;;;;;;;;;;;;;;;;;;
 
 (defcvar '*switch* nil '*switch-nxt* nil '*switch-stk* (list))
 
@@ -243,7 +243,12 @@
 
 (defcfun pop-scope-syms ()
 	(pop *syms*)
-	(defq _ (elem 0 (pop *syms*)))
+	(defq u (list))
+	(each! nil nil nil (lambda (a)
+		(unless (elem -2 a) (push u (elem _ (elem 1 s))))) (list (elem 2 (defq s (pop *syms*)))))
+	(if (ne 0 (length u))
+		(throw "Unused symbols !" u))
+	(defq _ (elem 0 s))
 	(push *syms* (list 0 (list) (list)))
 	(setq *sym-sp* 0) _)
 
@@ -279,16 +284,20 @@
 	(if (find _1 (elem 1 (defq _ (pop *syms*))))
 		(throw "Symbol redefined !" _1))
 	(push (elem 1 _) _1)
-	(push (elem 2 _) (cat (list (length *syms*) _2) _3))
+	(push (elem 2 _) (cat (list (length *syms*) _2) _3 '(nil)))
 	(push *syms* _))
 
 (defcfun get-sym (_1)
 	;_1 name
-	(setq _1 (sym _1))
 	(defq _ (length *syms*))
 	(while (and (ge (setq _ (dec _)) 0)
-				(not (defq s (find _1 (elem 1 (elem _ *syms*)))))))
-	(if (ge _ 0) (elem s (elem 2 (elem _ *syms*))) nil))
+				(not (defq s (find (sym _1) (elem 1 (elem _ *syms*)))))))
+	(when (ge _ 0)
+		(setq _ (elem s (elem 2 (elem _ *syms*))))
+		(elem-set -2 _ t) _))
+
+(defcfun used-syms (&rest _)
+	(each get-sym _))
 
 (defcfun operator (_1 _2 &optional _3 _4)
  	;_1 name

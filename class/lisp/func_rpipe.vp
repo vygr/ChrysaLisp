@@ -14,7 +14,7 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value 'pipe 'stream 'str_stream)
-	(uint 'length 'state)
+	(uint 'state)
 	(int 'char 'ready)
 
 	(push-scope)

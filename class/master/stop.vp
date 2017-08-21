@@ -11,7 +11,7 @@
 	;trashes
 	;all but r0, r4
 
-	(ptr 'this 'msg 'stream)
+	(ptr 'this 'stream)
 	(uint 'length)
 
 	(push-scope)

@@ -14,7 +14,7 @@
 
 	(ptr 'this 'args 'value)
 	(uint 'length 'slot)
-	(long 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7 'arg8 'arg9 'arg10)
+	(long 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7)
 
 	(push-scope)
 	(f-entry 'lisp 'func_call {this, args})

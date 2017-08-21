@@ -30,6 +30,7 @@
 	(byte 'join_style)
 
 	(push-scope)
+	(used-syms 'l2_pv 'l1_pv 'l1_vx 'l1_vy 'l1_pvx 'l1_pvy)
 	(f-entry 'points 'stroke_joints {this, stack, iter_i, iter_j, p1, p2, join_style, radius, eps})
 
 	(vpif {radius >= 0.5 && iter_i != iter_j})

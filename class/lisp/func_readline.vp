@@ -13,7 +13,6 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value)
-	(int 'length)
 
 	(push-scope)
 	(f-entry 'lisp 'func_readline {this, args})

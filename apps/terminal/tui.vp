@@ -100,8 +100,8 @@
 	;r0 = local
 	;r1 = char input
 
-	(ptr 'local 'string 'last 'stream)
-	(ulong 'length 'notsame)
+	(ptr 'local 'stream)
+	(ulong 'length)
 	(int 'char 'state)
 
 	(push-scope)

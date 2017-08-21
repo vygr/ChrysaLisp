@@ -30,6 +30,7 @@
 	(byte 'join_style 'cap1_style 'cap2_style)
 
 	(push-scope)
+	(used-syms 'l2_pv 'l1_pv 'l1_vx 'l1_vy 'l1_pvx 'l1_pvy)
 	(f-entry 'points 'stroke_polylines {this, stack, iter_end_polylines, join_style, cap1_style, cap2_style, radius, eps})
 
 	(vpif {radius >= 0.5})

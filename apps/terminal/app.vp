@@ -22,8 +22,8 @@
 	(def-struct-end)
 
 	(struct 'myapp 'local)
-	(ptr 'msg 'stream 'label 'string 'mymailbox 'mailbox)
-	(ulong 'owner 'length)
+	(ptr 'msg 'stream 'string 'mymailbox 'mailbox)
+	(ulong 'owner)
 	(long 'state)
 	(int 'width 'height)
 
@@ -260,7 +260,7 @@
 	;r0 = local
 	;r1 = char output
 
-	(ptr 'local 'label 'string 'line_string 'new_line_string)
+	(ptr 'local)
 	(int 'char)
 
 	(push-scope)

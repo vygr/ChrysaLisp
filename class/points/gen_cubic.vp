@@ -26,6 +26,7 @@
 	(int 'eps)
 
 	(push-scope)
+	(used-syms 'p23)
 	(f-entry 'points 'gen_cubic {this, stack, p1, p2, p3, p4, eps})
 
 	;output first point
