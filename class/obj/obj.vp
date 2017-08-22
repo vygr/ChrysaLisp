@@ -40,11 +40,13 @@
 	;r2
 
 	(vp-cpy-rr r1 r2)
-	(loop-flist r0 obj_vtable r1 r1)
+	(vp-lea-i r0 obj_vtable r1)
+	(loop-start)
+		(vp-cpy-ir r1 ln_fnode_next r1)
+		(gotoif '(r1 == 0) 'exit)
 	(loop-until '(r1 == r2))
-	(vpif '(r1 == r2))
-		(vp-cpy-ir r0 obj_vtable r1)
-	(endif)
+	(vp-cpy-ir r0 obj_vtable r1)
+(vp-label 'exit)
 	(vp-ret)
 
 (def-func-end)
