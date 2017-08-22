@@ -196,22 +196,24 @@
 	(filter (lambda (_)
 		(and (ge (length _) 3) (eql ".vp" (slice -4 -1 _)))) *imports*))
 
+(defun time-in-seconds (_)
+	(defq f (str (mod _ 1000000)))
+	(cat (str (div _ 1000000)) "." (slice 0 (sub 6 (length f)) "00000") f))
+
 (defun make-all (&optional *os* *cpu*)
 	(defq _ (time))
 	(compile (all-vp-files) *os* *cpu*)
 	(make-boot-all)
-	(setq _ (div (sub (time) _) 10000))
-	(print "Time " (div _ 100) "." (mod _ 100) " seconds") _)
+	(print "Time " (time-in-seconds (setq _ (sub (time) _))) " seconds") _)
 
 (defun remake ()
 	(make)
 	(make-boot-all))
 
 (defun make-test (&optional i)
-	(defq b 1000000 n 0)
+	(defq b 1000000000)
 	(times (opt i 10)
-		(setq n (make-all) b (if (lt n b) n b))
-		(print "Best time " (div b 100) "." (mod b 100) " seconds"))
+		(print "Best time " (time-in-seconds (setq b (min b (make-all)))) " seconds"))
 	nil)
 
 (defun compile-test ()
