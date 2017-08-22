@@ -22,7 +22,7 @@
 		(bind '(o _) (read f 32))) o)
 
 (defun compile (*files* &optional *os* *cpu* *pipes*)
-	(setd *os* (platform) *cpu* (cpu) *pipes* 1)
+	(setd *os* (platform) *cpu* (cpu) *pipes* 16)
 	(defq q (list) e (list))
 	(unless (lst? *files*)
 		(setq *files* (list *files*)))
@@ -185,7 +185,7 @@
 			(some (lambda (_) (ge _ p)) (map make-time d))) *imports*))
 		;drop the make environment and return the list to compile
 		(setq *env* nil)
-		*imports*)) *os* *cpu* 8))
+		*imports*)) *os* *cpu*))
 
 (defun all-vp-files ()
 	(defq *imports* (list 'make.inc))
@@ -198,7 +198,7 @@
 
 (defun make-all (&optional *os* *cpu*)
 	(defq _ (time))
-	(compile (all-vp-files) *os* *cpu* 8)
+	(compile (all-vp-files) *os* *cpu*)
 	(make-boot-all)
 	(setq _ (div (sub (time) _) 10000))
 	(print "Time " (div _ 100) "." (mod _ 100) " seconds") _)

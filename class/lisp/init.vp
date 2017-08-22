@@ -63,7 +63,7 @@
 			(f-call 'hash_set 'create (cat {@} (f-path 'symbol 'same) {, 101}) {this->lisp_symbols})
 			(assign {this->lisp_symbols} {ptr($symbols)})
 		(endif)
-		(f-call 'hash_map 'create {0, 31} {this->lisp_environment})
+		(f-call 'hash_map 'create {0, 101} {this->lisp_environment})
 
 		;intern standard built in symbols
 		;fixup built in functions
