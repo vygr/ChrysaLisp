@@ -355,7 +355,7 @@
 		(ln-get-pred _4 0 _4)
 		(breakif `(,_4 == 0)))
 
-(defcfun loop-flist-forward (_1 _2 _3 _4)
+(defcfun loop-flist (_1 _2 _3 _4)
 	;inputs
 	;_1 = list head
 	;_2 = offset

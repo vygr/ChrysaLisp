@@ -127,7 +127,7 @@
 
 	;free all function blocks
 	(f-bind 'sys_load 'statics r0)
-	(loop-flist-forward r0 ld_statics_block_flist r1 r2)
+	(loop-flist r0 ld_statics_block_flist r1 r2)
 		(vp-cpy-rr r1 r0)
 		(ln-remove-fnode r1 r2)
 		(sys-push-trashed)
@@ -158,7 +158,7 @@
 	(vp-add-rr r0 r8)
 
 	;check if function already present !
-	(loop-flist-forward r8 ld_statics_function_flist r6 r6)
+	(loop-flist r8 ld_statics_function_flist r6 r6)
 		(vp-cpy-rr r7 r0)
 		(vp-lea-i r6 fn_header_pathname r1)
 		(vp-call 'string_compare)

@@ -47,7 +47,7 @@
 	(vp-lea-i r15 ft_statics_text_flists r10)
 	(vp-lea-i r10 ft_buckets_size r11)
 	(loop-start)
-		(loop-flist-forward r10 0 r14 r13)
+		(loop-flist r10 0 r14 r13)
 			(vp-cpy-rr r14 r12)
 			(ln-remove-fnode r14 r13)
 			(sdl-destroy-texture '((r12 ft_text_texture)))
@@ -57,7 +57,7 @@
 	(loop-until '(r10 == r11))
 
 	;free all fonts in the cache
-	(loop-flist-forward r15 ft_statics_font_flist r14 r13)
+	(loop-flist r15 ft_statics_font_flist r14 r13)
 		(vp-cpy-rr r14 r12)
 		(ln-remove-fnode r14 r13)
 		(ttf-close-font '((r12 ft_font_handle)))
@@ -115,7 +115,7 @@
 	(f-bind 'gui_font 'statics r5)
 
 	;search font list
-	(loop-flist-forward r5 ft_statics_font_flist r5 r5)
+	(loop-flist r5 ft_statics_font_flist r5 r5)
 		(vp-cpy-ir r4 local_points r0)
 		(vp-cpy-ir r5 ft_font_points r1)
 		(continueif '(r0 != r1))
@@ -149,7 +149,7 @@
 	(f-bind 'gui_font 'statics r5)
 
 	;search font list
-	(loop-flist-forward r5 ft_statics_font_flist r5 r5)
+	(loop-flist r5 ft_statics_font_flist r5 r5)
 		(vp-cpy-ir r14 local_points r0)
 		(vp-cpy-ir r5 ft_font_points r1)
 		(continueif '(r0 != r1))
@@ -227,7 +227,7 @@
 	(vp-cpy-ri r5 r4 local_bucket)
 
 	;search bucket
-	(loop-flist-forward r5 0 r5 r6)
+	(loop-flist r5 0 r5 r6)
 		(vp-cpy-ir r4 local_font r0)
 		(vp-cpy-ir r5 ft_text_font r1)
 		(continueif '(r0 != r1))
