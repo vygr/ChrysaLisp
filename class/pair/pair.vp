@@ -20,38 +20,6 @@
 
 (def-func-end)
 
-(def-func 'class/pair/get_length)
-	;inputs
-	;r0 = pair object
-	;outputs
-	;r0 = pair object
-	;r1 = pair length
-
-	(class/pair/get_length)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/pair/ref_element)
-	;inputs
-	;r0 = pair object
-	;r1 = pair element
-	;outputs
-	;r0 = pair object
-	;r1 = object
-	;trashes
-	;r2
-
-	(vp-cpy-rr r0 r2)
-	(vp-add-cr pair_first r0)
-	(vp-shl-cr (pow2 ptr_size) r1)
-	(f-call 'ref 'ref '((r0 r1)))
-	(vp-cpy-rr r0 r1)
-	(vp-cpy-rr r2 r0)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/pair/ref_first)
 	;inputs
 	;r0 = pair object
