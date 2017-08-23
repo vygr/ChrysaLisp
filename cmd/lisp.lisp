@@ -196,10 +196,6 @@
 	(filter (lambda (_)
 		(and (ge (length _) 3) (eql ".vp" (slice -4 -1 _)))) *imports*))
 
-(defun time-in-seconds (_)
-	(defq f (str (mod _ 1000000)))
-	(cat (str (div _ 1000000)) "." (slice 0 (sub 6 (length f)) "00000") f))
-
 (defun make-all (&optional *os* *cpu*)
 	(compile (all-vp-files) *os* *cpu*)
 	(make-boot-all))
@@ -209,6 +205,9 @@
 	(make-boot-all))
 
 (defun make-test (&optional i)
+	(defun time-in-seconds (_)
+		(defq f (str (mod _ 1000000)))
+		(cat (str (div _ 1000000)) "." (slice 0 (sub 6 (length f)) "00000") f))
 	(defq b 1000000000)
 	(times (opt i 10)
 		(defq _ (time))
