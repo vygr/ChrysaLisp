@@ -161,18 +161,17 @@
 			(vpif '(r0 == lk_chan_status_ready))
 				;copy message data
 				;round up to next 8 byte boundary for speed
-				(vp-lea-i r13 lk_msg_msg r1)
 				(vp-cpy-ir r9 msg_length r2)
 				(vp-add-cr (dec ptr_size) r2)
 				(vp-and-cr (neg ptr_size) r2)
-				(f-call 'sys_mem 'copy '(r9 r1 r2))
+				(f-call 'sys_mem 'copy '(r9 (& r13 lk_msg_msg) r2))
+
+				;busy status
+				(vp-cpy-cr lk_chan_status_busy r1)
+				(vp-cpy-ri r1 r13 lk_msg_status)
 
 				;free message
 				(f-call 'sys_mem 'free '(r9))
-
-				;busy status, check for more output
-				(vp-cpy-cr lk_chan_status_busy r1)
-				(vp-cpy-ri r1 r13 lk_msg_status)
 				(vp-xor-rr r9 r9)
 
 				;move on to next msg chan
@@ -190,21 +189,19 @@
 		(vpif '(r0 == lk_chan_status_busy))
 			;allocate msg, copy over data
 			;round up to next 8 byte boundary for speed
-			(f-call 'sys_mail 'alloc '() '(r0))
-			(vp-cpy-rr r0 r8)
-			(vp-cpy-rr r0 r1)
+			(f-call 'sys_mail 'alloc '() '(r8))
 			(vp-lea-i r14 lk_msg_msg r0)
 			(vp-cpy-ir r0 msg_length r2)
 			(vp-add-cr (dec ptr_size) r2)
 			(vp-and-cr (neg ptr_size) r2)
-			(f-call 'sys_mem 'copy '(r0 r1 r2))
-
-			;send onwards
-			(f-call 'sys_mail 'send '(r8))
+			(f-call 'sys_mem 'copy '(r0 r8 r2))
 
 			;clear status
 			(vp-cpy-cr lk_chan_status_ready r1)
 			(vp-cpy-ri r1 r14 lk_msg_status)
+
+			;send onwards
+			(f-call 'sys_mail 'send '(r8))
 
 			;move on to next msg chan
 			(vp-add-cr lk_msg_size r14)
@@ -217,10 +214,10 @@
 		;let other links run
 		(f-call 'sys_task 'yield)
 
-		;are we in a quite period
+		;are we in a quiet period
 		(vp-cpy-ir r14 lk_msg_status r0)
 		(continueif '(r0 == lk_chan_status_busy))
-		(vp-cpy-cr 0 r1)
+		(vp-xor-rr r1 r1)
 		(vp-cpy-ir r13 lk_msg_status r0)
 		(vpif '(r0 == lk_chan_status_ready))
 			(vpif '(r9 != 0))
