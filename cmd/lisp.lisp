@@ -201,10 +201,8 @@
 	(cat (str (div _ 1000000)) "." (slice 0 (sub 6 (length f)) "00000") f))
 
 (defun make-all (&optional *os* *cpu*)
-	(defq _ (time))
 	(compile (all-vp-files) *os* *cpu*)
-	(make-boot-all)
-	(print "Time " (time-in-seconds (setq _ (sub (time) _))) " seconds") _)
+	(make-boot-all))
 
 (defun remake ()
 	(make)
@@ -213,7 +211,11 @@
 (defun make-test (&optional i)
 	(defq b 1000000000)
 	(times (opt i 10)
-		(print "Best time " (time-in-seconds (setq b (min b (make-all)))) " seconds"))
+		(defq _ (time))
+		(make-all)
+		(setq _ (sub (time) _))
+		(print "Time " (time-in-seconds _) " seconds")
+		(print "Best time " (time-in-seconds (setq b (min b _))) " seconds"))
 	nil)
 
 (defun compile-test ()
