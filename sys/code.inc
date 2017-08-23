@@ -1017,7 +1017,7 @@
 							(setq i (dec i))))
 					(elem-set p *inst* (lambda))))
 			;strength reduction
-			((and (eql o 'vp-mul-cr) (defq s (pow2 (eval (elem 1 e)))))
+			((and (eql o 'vp-mul-cr) (defq s (log2 (eval (elem 1 e)))))
 				(elem-set 0 e 'vp-shl-cr)
 				(elem-set 1 e s)
 				(setq i (dec i)))

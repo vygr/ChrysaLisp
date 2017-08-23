@@ -47,7 +47,7 @@
 	(assign '((r4 local_source) (r4 local_start ui) (r4 local_end ui)) '(r8 r5 r6))
 	(vp-cpy-ir-ui r0 array_length r7)
 	(vp-cpy-ir r0 array_array r3)
-	(vp-shl-cr (pow2 ptr_size) r7)
+	(vp-shl-cr (log2 ptr_size) r7)
 	(loop-while '(r5 != r6))
 		(d-call 'vector 'ref_element '(r8 r5) '(_ r1))
 		(vp-cpy-rd r1 r3 r7)
@@ -56,7 +56,7 @@
 	(loop-end)
 
 	(vp-cpy-ir r4 local_this r0)
-	(vp-shr-cr (pow2 ptr_size) r7)
+	(vp-shr-cr (log2 ptr_size) r7)
 	(vp-cpy-ri-i r7 r0 array_length)
 
 	(vp-add-cr local_size r4)
@@ -103,7 +103,7 @@
 	(vp-sub-cr 1 r1)
 	(vp-cpy-ri-i r1 r0 array_length)
 	(vp-cpy-ir r0 array_array r0)
-	(vp-shl-cr (pow2 ptr_size) r1)
+	(vp-shl-cr (log2 ptr_size) r1)
 	(f-call 'ref 'deref '((r0 r1)))
 	(vp-pop r0)
 	(vp-ret)
@@ -123,7 +123,7 @@
 	(vp-cpy-rr r0 r2)
 	(vp-sub-cr 1 r1)
 	(vp-cpy-ir r0 array_array r0)
-	(vp-shl-cr (pow2 ptr_size) r1)
+	(vp-shl-cr (log2 ptr_size) r1)
 	(f-call 'ref 'ref '((r0 r1)))
 	(vp-cpy-rr r0 r1)
 	(vp-cpy-rr r2 r0)
@@ -143,7 +143,7 @@
 
 	(vp-cpy-rr r0 r2)
 	(vp-cpy-ir r0 array_array r0)
-	(vp-shl-cr (pow2 ptr_size) r1)
+	(vp-shl-cr (log2 ptr_size) r1)
 	(f-call 'ref 'ref '((r0 r1)))
 	(vp-cpy-rr r0 r1)
 	(vp-cpy-rr r2 r0)
@@ -162,7 +162,7 @@
 	;all but r0, r4
 
 	(vp-push r0)
-	(vp-shl-cr (pow2 ptr_size) r2)
+	(vp-shl-cr (log2 ptr_size) r2)
 	(vp-cpy-ir r0 array_array r3)
 	(vp-cpy-dr r2 r3 r0)
 	(vp-cpy-rd r1 r2 r3)
@@ -204,7 +204,7 @@
 	(loop-end)
 
 	(vp-cpy-rr r12 r1)
-	(vp-shr-cr (pow2 ptr_size) r7)
+	(vp-shr-cr (log2 ptr_size) r7)
 	(vp-cpy-ri-i r7 r1 array_length)
 	(vp-ret)
 

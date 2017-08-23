@@ -264,7 +264,7 @@
 			(defq d (from-base-char c) n (add (mul n b) d) f (mul f b))))
 	(if (eq f 0) n (fdiv n f)))
 
-(defun pow2 (_)
+(defun log2 (_)
 	(defq i -1 b nil)
 	(while (and (not b) (lt (setq i (inc i)) 64))
 		(if (eq _ (bit-shl 1 i)) (setq b i))) b)

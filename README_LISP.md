@@ -228,7 +228,7 @@ notevery
 num?
 obj?
 partition
-pow2
+log2
 prin-base
 range
 reduce

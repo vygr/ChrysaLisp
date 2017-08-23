@@ -59,7 +59,7 @@
 	;all but r0, r4
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri-i r2 r0 array_length)
-	(vp-cpy-cr (bit-shr (sub array_size array_e0) (pow2 long_size)) r2)
+	(vp-cpy-cr (bit-shr (sub array_size array_e0) (log2 long_size)) r2)
 	(vp-cpy-ri-i r2 r0 array_capacity)
 	(vp-lea-i r0 array_e0 r2)
 	(vp-cpy-ri r2 r0 array_array)
@@ -136,7 +136,7 @@
 	;trashes
 	;r2
 	(vp-cpy-ir r0 array_array r2)
-	(vp-shl-cr (pow2 long_size) r1)
+	(vp-shl-cr (log2 long_size) r1)
 	(vp-cpy-dr r2 r1 r1))
 
 (defcfun class/array/get_iter ()
@@ -149,7 +149,7 @@
 	;trashes
 	;r2
 	(vp-cpy-ir r0 array_array r2)
-	(vp-shl-cr (pow2 long_size) r1)
+	(vp-shl-cr (log2 long_size) r1)
 	(vp-add-rr r2 r1))
 
 (defcfun class/array/get_iters ()
@@ -161,7 +161,7 @@
 	;r2 = end iter pointer
 	(vp-cpy-ir-ui r0 array_length r2)
 	(vp-cpy-ir r0 array_array r1)
-	(vp-shl-cr (pow2 long_size) r2)
+	(vp-shl-cr (log2 long_size) r2)
 	(vp-add-rr r1 r2))
 
 (defcfun class/array/get_begin ()
@@ -203,5 +203,5 @@
 	;trashes
 	;r2-r3
 	(vp-cpy-ir r0 array_array r3)
-	(vp-shl-cr (pow2 long_size) r2)
+	(vp-shl-cr (log2 long_size) r2)
 	(vp-cpy-rd r1 r3 r2))
