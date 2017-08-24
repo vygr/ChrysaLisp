@@ -111,7 +111,7 @@
 	(f-entry 'hash_map 'find '(r0 (r4 local_key)))
 
 	(vp-cpy-ir r0 hash_set_key_callback r2)
-	(vpif '(r2 == 0))
+	(vpif '(r2 == 0) 'exit)
 		;search hash bucket
 		(f-call 'hash_map 'get_bucket '(r0 r1) '(r0 r2))
 		(vp-cpy-ir-ui r2 array_length r3)
@@ -122,12 +122,10 @@
 		(loop-while '(r1 != r3))
 			(vp-cpy-ir r1 0 r6)
 			(vp-cpy-ir r6 pair_first r6)
-			(breakif '(r5 == r6))
+			(breakif '(r5 == r6) exit)
 			(vp-add-cr long_size r1)
 		(loop-end)
-		(vpif '(r1 == r3))
-			(vp-xor-rr r1 r1)
-		(endif)
+		(vp-xor-rr r1 r1)
 	(else)
 		;search hash bucket
 		(vp-cpy-ri r0 r4 local_this)
