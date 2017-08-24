@@ -6,7 +6,7 @@
 	;inputs
 	;r0 = lisp object
 	;r1 = vars list
-	;r2 = vals sliceable
+	;r2 = vals sequence
 	;outputs
 	;r0 = lisp object
 	;r1 = value
@@ -19,13 +19,13 @@
 
 (errorcases
 	(errorif (cat {vars->obj_vtable != @} (f-path 'class 'vector)) 'error1)
-	(f-call 'obj 'inst_of (cat {vals, @} (f-path 'class 'sliceable)) {_, value})
+	(f-call 'obj 'inst_of (cat {vals, @} (f-path 'class 'sequence)) {_, value})
 	(errorifnot {value} 'error2))
 
 	(assign {0, 0, 0} {index_vars, index_vals, state})
 	(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 	(d-call 'vector 'get_length {vars} {_, len_vars})
-	(v-call 'sliceable 'get_length {vals} {_, len_vals})
+	(v-call 'sequence 'get_length {vals} {_, len_vals})
 	(loop-while {index_vars != len_vars})
 		(f-call 'vector 'get_element {vars, index_vars} {_, symbol})
 		(vpif {symbol == this->lisp_sym_rest})
@@ -39,7 +39,7 @@
 		(vpif (cat {symbol->obj_vtable == @} (f-path 'class 'symbol)))
 			(vpif {state == 1})
 				;rest
-				(v-call 'sliceable 'slice {vals, index_vals, len_vals} {_, value})
+				(v-call 'sequence 'slice {vals, index_vals, len_vals} {_, value})
 				(assign {index_vars + 1, len_vals} {index_vars, index_vals})
 			(elseif {state == 2})
 				;optional
@@ -50,14 +50,14 @@
 				;normal
 				(errorif {index_vals == len_vals} 'error)
 			(vp-label 'normal)
-				(v-call 'sliceable 'ref_element {vals, index_vals} {_, value})
+				(v-call 'sequence 'ref_element {vals, index_vals} {_, value})
 				(assign {index_vars + 1, index_vals + 1} {index_vars, index_vals})
 			(endif)
 			(f-call 'hash_map 'insert {this->lisp_environment, symbol, value})
 		(else)
 			(errorif (cat {symbol->obj_vtable != @} (f-path 'class 'vector)) 'error3)
 			(errorif {index_vals == len_vals} 'error)
-			(v-call 'sliceable 'ref_element {vals, index_vals} {_, args})
+			(v-call 'sequence 'ref_element {vals, index_vals} {_, args})
 			(assign {index_vars + 1, index_vals + 1} {index_vars, index_vals})
 			(f-call 'lisp 'env_bind {this, symbol, args} {_, value})
 			(f-call 'ref 'deref {args})
@@ -75,7 +75,7 @@
 	(f-call 'lisp 'repl_error {this, "(bind vars vals)", error_msg_not_a_list, vars} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(bind vars vals)", error_msg_not_a_sliceable, vals} {_, value})
+	(f-call 'lisp 'repl_error {this, "(bind vars vals)", error_msg_not_a_sequence, vals} {_, value})
 	(goto 'exit)
 (vp-label 'error3)
 	(f-call 'lisp 'repl_error {this, "(bind vars vals)", error_msg_not_a_symbol, vars} {_, value})

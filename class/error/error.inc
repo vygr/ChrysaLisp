@@ -72,7 +72,6 @@
 (deferror "not_a_number")
 (deferror "not_a_pipe")
 (deferror "not_a_sequence")
-(deferror "not_a_sliceable")
 (deferror "not_a_stream")
 (deferror "not_a_string")
 (deferror "not_a_symbol")

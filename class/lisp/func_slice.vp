@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/sliceable/sliceable.inc)
+(import 'class/sequence/sequence.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 
@@ -28,7 +28,7 @@
 
 	(f-call 'boxed_long 'get_value {value1} {_, start})
 	(f-call 'boxed_long 'get_value {value2} {_, end})
-	(v-call 'sliceable 'get_length {slc} {_, length})
+	(v-call 'sequence 'get_length {slc} {_, length})
 	(vpif {start < 0})
 		(assign {length + start + 1} {start})
 	(endif)
@@ -36,7 +36,7 @@
 		(assign {length + end + 1} {end})
 	(endif)
 	(errorif {start > end || start < 0 || end > length} 'error2)
-	(v-call 'sliceable 'slice {slc, start, end} {_, value1})
+	(v-call 'sequence 'slice {slc, start, end} {_, value1})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_slice {this, value1})
@@ -49,7 +49,7 @@
 (vp-label 'error2)
 	(f-call 'lisp 'repl_error {this, "(slice start end slc)", error_msg_not_valid_index, args} {_, value1})
 	(goto 'exit)
-	(signature 'sig 'boxed_long 'boxed_long 'sliceable))
+	(signature 'sig 'boxed_long 'boxed_long 'sequence))
 
 	(pop-scope-syms)
 

@@ -1,6 +1,6 @@
-(import 'class/sliceable/sliceable.inc)
+(import 'class/sequence/sequence.inc)
 
-(def-class 'array 'sliceable)
+(def-class 'array 'sequence)
 (def-method 'create 'class/array/create 'static nil '(r0))
 (def-method 'new 'class/array/new 'static nil '(r0))
 (def-method 'init 'class/array/init)
@@ -35,7 +35,7 @@
 (def-method 'ref_element 'class/array/ref_element 'override)
 (def-method 'slice 'class/array/slice 'override)
 
-(def-struct 'array 'sliceable)
+(def-struct 'array 'sequence)
 	(pulong 'array)
 	(uint 'length)
 	(uint 'capacity)

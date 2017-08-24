@@ -104,7 +104,6 @@
 	(vp-string "not a number !") (vp-byte 0)
 	(vp-string "not a pipe !") (vp-byte 0)
 	(vp-string "not a sequence !") (vp-byte 0)
-	(vp-string "not a sliceable !") (vp-byte 0)
 	(vp-string "not a stream !") (vp-byte 0)
 	(vp-string "not a string !") (vp-byte 0)
 	(vp-string "not a symbol !") (vp-byte 0)

@@ -14,7 +14,6 @@
 (import 'class/ref/make.inc)
 (import 'class/sequence/make.inc)
 (import 'class/slave/make.inc)
-(import 'class/sliceable/make.inc)
 (import 'class/stream_msg_in/make.inc)
 (import 'class/stream_msg_out/make.inc)
 (import 'class/stream_str/make.inc)
