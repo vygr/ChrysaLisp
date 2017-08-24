@@ -90,10 +90,11 @@
 	(if debug_mode
 		`(progn ~e)))
 
-(defcfun switch ()
+(defcfun switch (&optional _)
 	(push *switch-stk* *switch*)
 	(setq *switch* *switch-nxt* *switch-nxt* (inc *switch-nxt*))
-	(defcvar (cnt-sym) 0))
+	(defcvar (cnt-sym) 0)
+	(if _ (defcvar _ (end-sym))))
 
 (defcfun default ()
 	(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
@@ -131,17 +132,16 @@
 	(gotoifnot e (beg-sym)))
 
 (defcfun loop-start (&optional _)
-	(switch)
-	(vp-label (beg-sym))
-	(if _ (defcvar _ (end-sym))))
+	(switch _)
+	(vp-label (beg-sym)))
 
-(defcfun loop-while (e)
-	(switch)
+(defcfun loop-while (e &optional _)
+	(switch _)
 	(vp-label (beg-sym))
 	(breakifnot e))
 
-(defcfun loop-whilenot (e)
-	(switch)
+(defcfun loop-whilenot (e &optional _)
+	(switch _)
 	(vp-label (beg-sym))
 	(breakif e))
 
@@ -157,12 +157,12 @@
 	(continueif e)
 	(endswitch))
 
-(defcfun vpif (e)
-	(switch)
+(defcfun vpif (e &optional _)
+	(switch _)
 	(gotoifnot e (loc-sym (eval (cnt-sym)))))
 
-(defcfun vpifnot (e)
-	(switch)
+(defcfun vpifnot (e &optional _)
+	(switch _)
 	(gotoif e (loc-sym (eval (cnt-sym)))))
 
 (defcfun elseif (e)
