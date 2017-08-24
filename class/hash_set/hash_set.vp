@@ -30,8 +30,6 @@
 	(s-call 'hash_set 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
-		(vp-xor-rr r1 r1)
-		(vp-cpy-ri-i r1 r0 hash_set_length)
 		(f-call 'vector 'create '() '(r0))
 		(vp-cpy-ir r4 local_this r1)
 		(vp-cpy-ri r0 r1 hash_set_buckets)
@@ -95,7 +93,6 @@
 		(f-call 'vector 'for_each '(r0 0 r1 ($ callback) 0) '(_ r1))
 	(endif)
 	(vp-pop r0)
-	(vp-cpy-ri-i r1 r0 hash_set_length)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -126,8 +123,6 @@
 	(vp-push r0)
 	(f-call 'hash_set 'for_each '(r9 ($ callback) r4))
 	(vp-pop r1)
-	(vp-cpy-ir-ui r0 hash_set_length r2)
-	(vp-cpy-ri-i r2 r1 hash_set_length)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -165,10 +160,6 @@
 	;save inputs
 	(vp-sub-cr local_size r4)
 	(f-entry 'hash_set 'erase '((r4 local_this) (r4 local_iter) (r4 local_bucket)))
-
-	(vp-cpy-ir-ui r0 hash_set_length r2)
-	(vp-sub-cr 1 r2)
-	(vp-cpy-ri-i r2 r0 hash_set_length)
 
 	;swap last entry for erased entry
 	(f-call 'ref 'deref '((r1 0)))
@@ -389,9 +380,6 @@
 	(vpif '(r1 == 0))
 		;new key
 		(vp-cpy-ri r0 r4 local_this)
-		(vp-cpy-ir-ui r0 hash_set_length r1)
-		(vp-add-cr 1 r1)
-		(vp-cpy-ri-i r1 r0 hash_set_length)
 		(f-call 'ref 'ref '((r4 local_key)))
 		(f-call 'vector 'push_back '(r2 r0))
 		(vp-cpy-rr r0 r2)

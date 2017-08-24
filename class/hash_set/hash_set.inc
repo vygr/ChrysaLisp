@@ -18,5 +18,4 @@
 	(ptr 'buckets)
 	(ptr 'key_callback)
 	(uint 'num_buckets)
-	(uint 'length)
 (def-struct-end)
