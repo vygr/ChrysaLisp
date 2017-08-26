@@ -102,8 +102,7 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(d-call 'vector 'clear '((r1 0)))
-	(vp-cpy-cr 1 r1)
+	(d-call 'vector 'clear '((r1 0)) '(r1))
 	(vp-ret)
 
 (def-func-end)
