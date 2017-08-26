@@ -302,7 +302,7 @@
 	;trashes
 	;r1-r3, r5-r8
 
-	;do we allready have room ?
+	;do we already have room ?
 	(vp-cpy-ir-ui r0 array_capacity r2)
 	(vpif '(r1 > r2))
 		;realloc the dynamic array

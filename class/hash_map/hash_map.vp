@@ -217,7 +217,7 @@
 	;r1 = 0, else hash_map parent
 	;outputs
 	;r0 = hash_map object
-	;trashs
+	;trashes
 	;all but r0, r4
 
 	(def-struct 'local)

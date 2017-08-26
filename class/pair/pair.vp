@@ -58,7 +58,7 @@
 	;r1 = object pointer
 	;outputs
 	;r0 = pair object
-	;trashs
+	;trashes
 	;all but r0, r4
 
 	(vp-push r0)
@@ -76,7 +76,7 @@
 	;r1 = object pointer
 	;outputs
 	;r0 = pair object
-	;trashs
+	;trashes
 	;all but r0, r4
 
 	(vp-push r0)
