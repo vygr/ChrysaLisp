@@ -123,8 +123,7 @@
 	(vp-sub-cr 1 r1)
 	(vp-cpy-ir r0 array_array r0)
 	(vp-shl-cr (log2 ptr_size) r1)
-	(f-call 'ref 'ref '((r0 r1)))
-	(vp-cpy-rr r0 r1)
+	(f-call 'ref 'ref '((r0 r1)) '(r1))
 	(vp-cpy-rr r2 r0)
 	(vp-ret)
 
@@ -143,8 +142,7 @@
 	(vp-cpy-rr r0 r2)
 	(vp-cpy-ir r0 array_array r0)
 	(vp-shl-cr (log2 ptr_size) r1)
-	(f-call 'ref 'ref '((r0 r1)))
-	(vp-cpy-rr r0 r1)
+	(f-call 'ref 'ref '((r0 r1)) '(r1))
 	(vp-cpy-rr r2 r0)
 	(vp-ret)
 
