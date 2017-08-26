@@ -642,7 +642,7 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defcvar '*s* nil '*r* nil '*inst* (list)
+(defcvar '*s* nil '*inst* (list)
 	'*vreg* '(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14))
 (defmacro vreg-sym (_) `(elem ,_ *vreg*))
 (each (lambda (_) (defcvar (vreg-sym _) nil)) (range 0 15))
@@ -659,26 +659,15 @@
 (defmacro add-inst (&rest b)
 	`(push *inst* ~b))
 
-(defcfun reset-reg-stack (_)
-	;_ = reserved slots
-	(setq *s* _ *r* 0)
+(defcfun reset-reg-def (_)
+	(setq *s* _)
 	(each! nil nil nil (lambda (_)
 		(set _ nil)) (list *vreg*)))
 
-(defcfun res-reg-def (_)
-	;_ = 'rX'
-	(set (vreg-sym *r*) _)
-	(setq *r* (inc *r*)))
-
-(defcfun add-reg-def (_)
-	;_ = rX
-	(unless (find _ (map eval *vreg*))
-		(set (vreg-sym *r*) _)
-		(setq *r* (inc *r*))))
-
-(defcfun fill-reg-def (&optional _)
-	(each! nil nil nil add-reg-def
-		(list (opt _ '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15)))))
+(defcfun set-reg-def (_ &optional _1)
+	(merge-sym _ (opt _1 '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15)))
+	(each! nil nil nil (lambda (v r)
+		(set v r)) (list *vreg* _)))
 
 (defcfun pop-type (s)
 	(if (defq u (vreg-sym s) w (eval u))
@@ -1052,7 +1041,7 @@
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
-		(reset-reg-stack (length *src*))
+		(reset-reg-def (length *src*))
 		(push (clear *inst*) progn)
 		(each (lambda (_)
 			(set-token-list _)
@@ -1066,8 +1055,7 @@
 		(when debug_inst
 			(print "post opt:")
 			(each print-inst *inst*))
-		(each-rev res-reg-def *src*)
-		(fill-reg-def _3)
+		(set-reg-def (map (lambda (_1) (elem (sub (neg _) 2) *src*)) *src*) _3)
 		(eval *inst*)))
 
 (defcfun assign-script-to-asm (_1 _2 _3)
@@ -1076,7 +1064,7 @@
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
-		(reset-reg-stack 0)
+		(reset-reg-def 0)
 		(push (clear *inst*) progn)
 		(each (lambda (_)
 			(set-token-list _)
@@ -1091,8 +1079,7 @@
 		(when debug_inst
 			(print "post opt:")
 			(each print-inst *inst*))
-		(each res-reg-def *dst*)
-		(fill-reg-def _3)
+		(set-reg-def *dst* _3)
 		(eval *inst*)))
 
 (defcfun assign-script-to-script (_1 _2 _3)
@@ -1101,7 +1088,7 @@
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
-		(reset-reg-stack 0)
+		(reset-reg-def 0)
 		(push (clear *inst*) progn)
 		(each (lambda (_)
 			(set-token-list _)
@@ -1119,7 +1106,7 @@
 		(when debug_inst
 			(print "post opt:")
 			(each print-inst *inst*))
-		(fill-reg-def _3)
+		(set-reg-def (list) _3)
 		(eval *inst*)))
 
 (defcfun assign (&optional _1 _2 _3)
