@@ -120,7 +120,7 @@
 		(each-mergeable (lambda (_)
 			(merge-sym f (elem 2 (load-func _)))) f))
 	;sort into order
-	(sort (lambda (x y) (cmp x y)) f 6)
+	(sort cmp f 6)
 	;list of all function bodies and links in order, list of offsets of link sections, offset of new path section
 	(defq b (map eval f) o (list) p (add (length z) (reduce (lambda (x y)
 		(setq x (add x (length (elem 0 y))))
