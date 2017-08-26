@@ -643,11 +643,9 @@
 ;;;;;;;;;;;;;
 
 (defcvar '*s* nil '*r* nil '*inst* (list)
-	'*vreg* '(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14)
-	'*vregt* '(_t0 _t1 _t2 _t3 _t4 _t5 _t6 _t7 _t8 _t9 _t10 _t11 _t12 _t13 _t14))
+	'*vreg* '(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14))
 (defmacro vreg-sym (_) `(elem ,_ *vreg*))
-(defmacro vreg-type-sym (_) `(elem ,_ *vregt*))
-(each (lambda (_) (defcvar (vreg-sym _) nil (vreg-type-sym _) nil)) (range 0 15))
+(each (lambda (_) (defcvar (vreg-sym _) nil)) (range 0 15))
 
 (defmacro inc-stack ()
 	'(setq *s* (inc *s*)))
@@ -656,39 +654,34 @@
 	'(setq *s* (dec *s*)))
 
 (defmacro nil-type ()
-	'(set (vreg-type-sym *s*) nil))
+	'(set (vreg-sym *s*) nil))
 
 (defmacro add-inst (&rest b)
 	`(push *inst* ~b))
 
-(defcfun reset-reg-stack (&optional _1)
-	;_1 = reserved slots
-	(setd _1 0)
-	(setq *s* _1 *r* 0)
-	(each! nil _1 nil (lambda (_)
-		(set _ nil)) (list (slice 0 _1 *vregt*))))
+(defcfun reset-reg-stack (_)
+	;_ = reserved slots
+	(setq *s* _ *r* 0)
+	(each! nil nil nil (lambda (_)
+		(set _ nil)) (list *vreg*)))
 
-(defcfun res-reg-def (_1)
-	;_1 = 'rX'
-	(set (vreg-sym *r*) _1 (vreg-type-sym *r*) nil)
+(defcfun res-reg-def (_)
+	;_ = 'rX'
+	(set (vreg-sym *r*) _)
 	(setq *r* (inc *r*)))
 
-(defcfun add-reg-def (_1)
-	;_1 = rX
-	(unless (find _1 (map eval (slice 0 *r* *vreg*)))
-		(set (vreg-sym *r*) _1)
+(defcfun add-reg-def (_)
+	;_ = rX
+	(unless (find _ (map eval *vreg*))
+		(set (vreg-sym *r*) _)
 		(setq *r* (inc *r*))))
 
 (defcfun fill-reg-def (&optional _)
 	(each! nil nil nil add-reg-def
 		(list (opt _ '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15)))))
 
-(defcfun undef-reg-def ()
-	(each! nil nil nil (lambda (_1 _2)
-		(set _1 nil _2 nil)) (list (slice 0 *r* *vreg*) (slice 0 *r* *vregt*))))
-
 (defcfun pop-type (s)
-	(if (defq u (vreg-type-sym s) w (eval u))
+	(if (defq u (vreg-sym s) w (eval u))
 		(progn
 			(defq v (slice 1 -1 w) v (if (eql v "") nil v))
 			(set u v)
@@ -733,7 +726,7 @@
 					(nil-type))
 				((def? (type-sym _1))
 					;field/member
-					(set (vreg-type-sym *s*) (eval (type-sym _1)))
+					(set (vreg-sym *s*) (eval (type-sym _1)))
 					(add-inst `(vp-cpy-cr ,_1 ,(vreg-sym *s*))))
 				((def? _1)
 					;equate
@@ -741,33 +734,33 @@
 				(t (throw "Symbol not defined !" _1))))
 		((eql 'var (elem 1 s))
 			;variable
-			(set (vreg-type-sym *s*) (elem 3 s))
+			(set (vreg-sym *s*) (elem 3 s))
 			(setq s (add (get-scope (elem 0 s)) (elem 2 s)))
 			(add-inst `(vp-lea-i r4 ,s ,(vreg-sym *s*))))
 		(t (throw "Symbol not a variable !" _1))))
 
 (defcfun compile-deref? ()
-	(when (eval (vreg-type-sym *s*))
+	(when (eval (vreg-sym *s*))
 		(compile-deref)))
 
 (defcfun compile-cast (o)
 	(if (defq c (find (sym o) '(byte ubyte short ushort int uint long ulong ptr)))
-		(set (vreg-type-sym (dec-stack)) (elem c "bBsSiIlLp"))
+		(set (vreg-sym (dec-stack)) (elem c "bBsSiIlLp"))
 		(throw "Unknown type cast" o)))
 
 (defcfun compile-member (o)
 	(defq s (dec *s*) x (vreg-sym (setq *s* (sub *s* 2))) y (vreg-sym s))
 	(compile-deref)
 	(add-inst `(vp-add-rr ,y ,x))
-	(set (vreg-type-sym *s*) (eval (vreg-type-sym s))))
+	(set (vreg-sym *s*) (eval (vreg-sym s))))
 
 (defcfun compile-uaddrof (o)
-	(set (vreg-type-sym (dec-stack)) nil))
+	(set (vreg-sym (dec-stack)) nil))
 
 (defcfun compile-field (o)
 	(defq s (dec *s*) x (vreg-sym (setq *s* (sub *s* 2))) y (vreg-sym s))
 	(add-inst `(vp-add-rr ,y ,x))
-	(set (vreg-type-sym *s*) (eval (vreg-type-sym s))))
+	(set (vreg-sym *s*) (eval (vreg-sym s))))
 
 (defcfun compile-index (o)
 	(defq y (pop-value))
@@ -914,7 +907,7 @@
 				(compile-label k)
 				(compile-string (str k)))))
 			(throw "Unknown token type !" k))
-		(setq *s* (inc *s*))) *rpn*))
+		(inc-stack)) *rpn*))
 
 (operator "ptr" 0 1 compile-cast)
 (operator "byte" 0 1 compile-cast)
@@ -1075,8 +1068,7 @@
 			(each print-inst *inst*))
 		(each-rev res-reg-def *src*)
 		(fill-reg-def _3)
-		(eval *inst*)
-		(undef-reg-def)))
+		(eval *inst*)))
 
 (defcfun assign-script-to-asm (_1 _2 _3)
 	(setq *src* (map trim (split _1 ",")) *dst* _2)
@@ -1084,7 +1076,7 @@
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
-		(reset-reg-stack)
+		(reset-reg-stack 0)
 		(push (clear *inst*) progn)
 		(each (lambda (_)
 			(set-token-list _)
@@ -1101,8 +1093,7 @@
 			(each print-inst *inst*))
 		(each res-reg-def *dst*)
 		(fill-reg-def _3)
-		(eval *inst*)
-		(undef-reg-def)))
+		(eval *inst*)))
 
 (defcfun assign-script-to-script (_1 _2 _3)
 	(setq *src* (map trim (split _1 ",")) *dst* (map trim (split _2 ",")))
@@ -1110,7 +1101,7 @@
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
-		(reset-reg-stack)
+		(reset-reg-stack 0)
 		(push (clear *inst*) progn)
 		(each (lambda (_)
 			(set-token-list _)
@@ -1129,8 +1120,7 @@
 			(print "post opt:")
 			(each print-inst *inst*))
 		(fill-reg-def _3)
-		(eval *inst*)
-		(undef-reg-def)))
+		(eval *inst*)))
 
 (defcfun assign (&optional _1 _2 _3)
 	(setd _1 '() _2 '())
