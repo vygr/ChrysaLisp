@@ -665,9 +665,12 @@
 		(set _ nil)) (list *vreg*)))
 
 (defcfun set-reg-def (_ &optional _1)
-	(merge-sym _ (opt _1 '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15)))
-	(each! nil nil nil (lambda (v r)
-		(set v r)) (list *vreg* _)))
+	(setd _1 '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
+	(if (ne 0 (length _))
+		(merge-sym _ _1)
+		(setq _ _1))
+	(each! nil nil nil (lambda (_ r)
+		(set _ r)) (list *vreg* _)))
 
 (defcfun pop-type (s)
 	(if (defq u (vreg-sym s) w (eval u))
