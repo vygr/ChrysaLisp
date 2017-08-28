@@ -1108,7 +1108,7 @@
 		(when debug_inst
 			(print "post opt:")
 			(each print-inst *inst*))
-		(set-reg-def (list) _3)
+		(set-reg-def '() _3)
 		(eval *inst*)))
 
 (defcfun assign (&optional _1 _2 _3)
