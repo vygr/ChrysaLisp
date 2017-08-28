@@ -687,6 +687,12 @@
 	(pop *vregt*)
 	(vreg-sym (length *vregt*)))
 
+(defcfun top-value ()
+	(when (get-type)
+		(compile-deref)
+		(set-type nil))
+	(top-reg))
+
 (defcfun compile-null ()
 	(throw "Null operator !" nil))
 
@@ -760,88 +766,73 @@
 	(add-inst `(vp-add-rr ,y ,(top-reg))))
 
 (defcfun compile-uminus (o)
-	(add-inst `(vp-mul-cr -1 ,(pop-value)))
-	(push-reg nil))
+	(add-inst `(vp-mul-cr -1 ,(top-value))))
 
 (defcfun compile-uderef (o)
 	(compile-deref))
 
 (defcfun compile-unot (o)
-	(add-inst `(vp-xor-cr -1 ,(pop-value)))
-	(push-reg nil))
+	(add-inst `(vp-xor-cr -1 ,(top-value))))
 
 (defcfun compile-mul (o)
-	(add-inst `(vp-mul-rr ,(pop-value) ,(pop-value)))
-	(push-reg nil))
+	(add-inst `(vp-mul-rr ,(pop-value) ,(top-value))))
 
 (defcfun compile-fmul (o)
-	(defq x (pop-value) y (pop-value))
-	(push-reg nil)
+	(defq x (pop-value) y (top-value))
 	(add-inst
 		`(vp-mul-rr ,x ,y)
 		`(vp-asr-cr 16 ,y)))
 
 (defcfun compile-divu (o)
-	(defq y (tmp-reg) z (pop-value) x (pop-value))
-	(push-reg nil)
+	(defq y (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr-u ,z ,y ,x)))
 
 (defcfun compile-remu (o)
-	(defq y (tmp-reg) z (pop-value) x (pop-value))
-	(push-reg nil)
+	(defq y (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr-u ,z ,y ,x)
 		`(vp-cpy-rr ,y ,x)))
 
 (defcfun compile-div (o)
-	(defq y (tmp-reg) z (pop-value) x (pop-value))
-	(push-reg nil)
+	(defq y (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr ,z ,y ,x)))
 
 (defcfun compile-fdiv (o)
-	(defq y (tmp-reg) z (pop-value) x (pop-value))
-	(push-reg nil)
+	(defq y (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
 		`(vp-shl-cr 16 ,x)
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr ,z ,y ,x)))
 
 (defcfun compile-rem (o)
-	(defq y (tmp-reg) z (pop-value) x (pop-value))
-	(push-reg nil)
+	(defq y (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr ,z ,y ,x)
 		`(vp-cpy-rr ,y ,x)))
 
 (defcfun compile-plus (o)
-	(add-inst `(vp-add-rr ,(pop-value) ,(pop-value)))
-	(push-reg nil))
+	(add-inst `(vp-add-rr ,(pop-value) ,(top-value))))
 
 (defcfun compile-minus (o)
-	(add-inst `(vp-sub-rr ,(pop-value) ,(pop-value)))
-	(push-reg nil))
+	(add-inst `(vp-sub-rr ,(pop-value) ,(top-value))))
 
 (defcfun compile-lshift (o)
-	(add-inst `(vp-shl-rr ,(pop-value) ,(pop-value)))
-	(push-reg nil))
+	(add-inst `(vp-shl-rr ,(pop-value) ,(top-value))))
 
 (defcfun compile-rshift (o)
-	(add-inst `(vp-shr-rr ,(pop-value) ,(pop-value)))
-	(push-reg nil))
+	(add-inst `(vp-shr-rr ,(pop-value) ,(top-value))))
 
 (defcfun compile-arshift (o)
-	(add-inst `(vp-asr-rr ,(pop-value) ,(pop-value)))
-	(push-reg nil))
+	(add-inst `(vp-asr-rr ,(pop-value) ,(top-value))))
 
 (defcfun compile-cmp (o)
-	(defq y (pop-value) x (pop-value))
-	(push-reg nil)
+	(defq y (pop-value) x (top-value))
 	(add-inst
 		`(vpif (list ,x ',(sym o) ,y))
 			`(vp-or-cr -1 ,x)
@@ -850,20 +841,16 @@
 		'(endif)))
 
 (defcfun compile-and (o)
-	(add-inst `(vp-and-rr ,(pop-value) ,(pop-value)))
-	(push-reg nil))
+	(add-inst `(vp-and-rr ,(pop-value) ,(top-value))))
 
 (defcfun compile-xor (o)
-	(add-inst `(vp-xor-rr ,(pop-value) ,(pop-value)))
-	(push-reg nil))
+	(add-inst `(vp-xor-rr ,(pop-value) ,(top-value))))
 
 (defcfun compile-or (o)
-	(add-inst `(vp-or-rr ,(pop-value) ,(pop-value)))
-	(push-reg nil))
+	(add-inst `(vp-or-rr ,(pop-value) ,(top-value))))
 
 (defcfun compile-land (o)
-	(defq y (pop-value) x (pop-value))
-	(push-reg nil)
+	(defq y (pop-value) x (top-value))
 	(add-inst
 		`(vpif (list ,x '!= 0))
 			`(vp-xor-rr ,x ,x)
@@ -873,12 +860,10 @@
 		'(endif)))
 
 (defcfun compile-lor (o)
-	(add-inst `(vp-or-rr ,(pop-value) ,(pop-value)))
-	(push-reg nil))
+	(add-inst `(vp-or-rr ,(pop-value) ,(top-value))))
 
 (defcfun compile-ulnot (o)
-	(defq x (pop-value))
-	(push-reg nil)
+	(defq x (top-value))
 	(add-inst
 		`(vpif (list ,x '== 0))
 			`(vp-sub-cr 1 ,x)
