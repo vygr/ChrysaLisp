@@ -1121,6 +1121,5 @@
 		((and (not s) d)
 			;asm -> script
 			(assign-asm-to-script _1 _2 _3))
-		(t
-			;asm -> asm
+		(t	;asm -> asm
 			(map-src-to-dst _1 _2))))

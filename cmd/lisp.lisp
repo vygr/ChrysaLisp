@@ -211,7 +211,7 @@
 	(defq b 1000000000)
 	(times (opt i 10)
 		(defq _ (time))
-		(make-all)
+		(compile (all-vp-files))
 		(setq _ (sub (time) _))
 		(print "Time " (time-in-seconds _) " seconds")
 		(print "Best time " (time-in-seconds (setq b (min b _))) " seconds"))
