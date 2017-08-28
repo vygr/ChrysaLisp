@@ -388,7 +388,7 @@
 
 (defcfun union (&rest _)
 	(if (notevery lst? _)
-		(throw "Union needs lists as paramaters !" _))
+		(throw "Union needs lists as parameters !" _))
 	(cond
 		(*struct*
 			(defq o *struct-sp* m o)
@@ -408,8 +408,6 @@
 ;;;;;;;;;;;;;;;;;;;;
 ; parameter handling
 ;;;;;;;;;;;;;;;;;;;;
-
-(defcvar '*src* nil '*dst* nil)
 
 (defcfun map-remove-ignored ()
 	(defq s (list) d (list))
@@ -452,7 +450,7 @@
 	(when (ne i l)
 		(throw "Copy cycle detected !" (list *src* *dst*))))
 
-(defcfun map-src-to-dst ()
+(defcfun map-src-to-dst (*src* *dst*)
 	(when (ne (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
@@ -642,10 +640,11 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defcvar '*inst* (list) '*vregt* nil
-	'*vreg* '(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14))
-(defmacro vreg-sym (_) `(elem ,_ *vreg*))
-(each (lambda (_) (defcvar (vreg-sym _) nil)) (range 0 15))
+(defcvar '*inst* (list) '*vreg* '(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14))
+(each (lambda (_) (defcvar _ nil)) *vreg*)
+
+(defmacro vreg-sym (_)
+	`(elem ,_ *vreg*))
 
 (defmacro add-inst (&rest b)
 	`(push *inst* ~b))
@@ -662,18 +661,16 @@
 (defmacro tmp-reg ()
 	`(vreg-sym (length *vregt*)))
 
-(defcfun reset-reg-def (_)
-	(setq *vregt* (slice 0 _ '(nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)))
-	(each! nil nil nil (lambda (_)
-		(set _ nil)) (list *vreg*)))
+(defmacro set-types (_)
+	`(defq *vregt* (slice 0 ,_ '(nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil))))
 
-(defcfun set-reg-def (_ &optional _1)
-	(setd _1 '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
-	(if (ne 0 (length _))
-		(merge-sym _ _1)
-		(setq _ _1))
+(defcfun set-reg-map (l &optional _)
+	(setd _ '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
+	(if (ne 0 (length l))
+		(merge-sym l _)
+		(setq l _))
 	(each! nil nil nil (lambda (_ r)
-		(set _ r)) (list *vreg* _)))
+		(set _ r)) (list *vreg* l)))
 
 (defcfun push-reg (_)
 	(defq r (vreg-sym (length *vregt*)))
@@ -737,119 +734,119 @@
 				(t (throw "Symbol not defined !" _))))
 		((eql 'var (elem 1 s))
 			;variable
-			(defq o (add (get-scope (elem 0 s)) (elem 2 s)))
-			(add-inst `(vp-lea-i r4 ,o ,(push-reg (elem 3 s)))))
+			(add-inst `(vp-lea-i r4 ,(add (get-scope (elem 0 s)) (elem 2 s))
+									,(push-reg (elem 3 s)))))
 		(t (throw "Symbol not a variable !" _))))
 
-(defcfun compile-cast (o)
-	(if (defq c (find (sym o) '(byte ubyte short ushort int uint long ulong ptr)))
+(defcfun compile-cast (_)
+	(if (defq c (find (sym _) '(byte ubyte short ushort int uint long ulong ptr)))
 		(set-type (elem c "bBsSiIlLp"))
-		(throw "Unknown type cast" o)))
+		(throw "Unknown type cast" _)))
 
-(defcfun compile-member (o)
+(defcfun compile-member (_)
 	(bind '(y w) (pop-reg))
 	(compile-deref)
 	(set-type w)
 	(add-inst (list 'vp-add-rr y (top-reg))))
 
-(defcfun compile-uaddrof (o)
+(defcfun compile-uaddrof (_)
 	(set-type nil))
 
-(defcfun compile-field (o)
+(defcfun compile-field (_)
 	(bind '(y w) (pop-reg))
 	(set-type w)
 	(add-inst (list 'vp-add-rr y (top-reg))))
 
-(defcfun compile-index (o)
+(defcfun compile-index (_)
 	(defq y (pop-value))
 	(compile-deref)
 	(add-inst (list 'vp-add-rr y (top-reg))))
 
-(defcfun compile-uminus (o)
+(defcfun compile-uminus (_)
 	(add-inst (list 'vp-mul-cr -1 (top-value))))
 
-(defcfun compile-uderef (o)
+(defcfun compile-uderef (_)
 	(compile-deref))
 
-(defcfun compile-unot (o)
+(defcfun compile-unot (_)
 	(add-inst (list 'vp-xor-cr -1 (top-value))))
 
-(defcfun compile-mul (o)
+(defcfun compile-mul (_)
 	(add-inst (list 'vp-mul-rr (pop-value) (top-value))))
 
-(defcfun compile-fmul (o)
+(defcfun compile-fmul (_)
 	(defq x (pop-value) y (top-value))
 	(add-inst
 		(list 'vp-mul-rr x y)
 		(list 'vp-asr-cr 16 y)))
 
-(defcfun compile-divu (o)
+(defcfun compile-divu (_)
 	(defq y (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
 		(list 'vp-ext-rr x y)
 		(list 'vp-div-rrr-u z y x)))
 
-(defcfun compile-remu (o)
+(defcfun compile-remu (_)
 	(defq y (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
 		(list 'vp-ext-rr x y)
 		(list 'vp-div-rrr-u z y x)
 		(list 'vp-cpy-rr y x)))
 
-(defcfun compile-div (o)
+(defcfun compile-div (_)
 	(defq y (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
 		(list 'vp-ext-rr x y)
 		(list 'vp-div-rrr z y x)))
 
-(defcfun compile-fdiv (o)
+(defcfun compile-fdiv (_)
 	(defq y (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
 		(list 'vp-shl-cr 16 x)
 		(list 'vp-ext-rr x y)
 		(list 'vp-div-rrr z y x)))
 
-(defcfun compile-rem (o)
+(defcfun compile-rem (_)
 	(defq y (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
 		(list 'vp-ext-rr x y)
 		(list 'vp-div-rrr z y x)
 		(list 'vp-cpy-rr y x)))
 
-(defcfun compile-plus (o)
+(defcfun compile-plus (_)
 	(add-inst (list 'vp-add-rr (pop-value) (top-value))))
 
-(defcfun compile-minus (o)
+(defcfun compile-minus (_)
 	(add-inst (list 'vp-sub-rr (pop-value) (top-value))))
 
-(defcfun compile-lshift (o)
+(defcfun compile-lshift (_)
 	(add-inst (list 'vp-shl-rr (pop-value) (top-value))))
 
-(defcfun compile-rshift (o)
+(defcfun compile-rshift (_)
 	(add-inst (list 'vp-shr-rr (pop-value) (top-value))))
 
-(defcfun compile-arshift (o)
+(defcfun compile-arshift (_)
 	(add-inst (list 'vp-asr-rr (pop-value) (top-value))))
 
-(defcfun compile-cmp (o)
+(defcfun compile-cmp (_)
 	(defq y (pop-value) x (top-value))
 	(add-inst
-		`(vpif (list ,x ',(sym o) ,y))
+		`(vpif (list ,x ',(sym _) ,y))
 			(list 'vp-or-cr -1 x)
 		'(else)
 			(list 'vp-xor-rr x x)
 		'(endif)))
 
-(defcfun compile-and (o)
+(defcfun compile-and (_)
 	(add-inst (list 'vp-and-rr (pop-value) (top-value))))
 
-(defcfun compile-xor (o)
+(defcfun compile-xor (_)
 	(add-inst (list 'vp-xor-rr (pop-value) (top-value))))
 
-(defcfun compile-or (o)
+(defcfun compile-or (_)
 	(add-inst (list 'vp-or-rr (pop-value) (top-value))))
 
-(defcfun compile-land (o)
+(defcfun compile-land (_)
 	(defq y (pop-value) x (top-value))
 	(add-inst
 		`(vpif (list ,x '!= 0))
@@ -859,10 +856,10 @@
 			'(endif)
 		'(endif)))
 
-(defcfun compile-lor (o)
+(defcfun compile-lor (_)
 	(add-inst (list 'vp-or-rr (pop-value) (top-value))))
 
-(defcfun compile-ulnot (o)
+(defcfun compile-ulnot (_)
 	(defq x (top-value))
 	(add-inst
 		`(vpif (list ,x '== 0))
@@ -1038,13 +1035,13 @@
 (defcfun print-inst (_)
 	(and (lst? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
-(defcfun assign-asm-to-script (_1 _2 _3)
-	(setq *src* _1 *dst* (map trim (split _2 ",")))
+(defcfun assign-asm-to-script (*src* *dst* _)
+	(setq *dst* (map trim (split *dst* ",")))
 	(unless (eq (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
-		(reset-reg-def (length *src*))
+		(set-types (length *src*))
 		(push (clear *inst*) progn)
 		(each (lambda (_)
 			(set-token-list _)
@@ -1052,22 +1049,22 @@
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
 		(when debug_inst
-			(print "pre opt: " _1 " -> " _2)
+			(print "pre opt:")
 			(each print-inst *inst*))
 		(opt-inst-list)
 		(when debug_inst
 			(print "post opt:")
 			(each print-inst *inst*))
-		(set-reg-def (map (lambda (_1) (elem (sub (neg _) 2) *src*)) *src*) _3)
+		(set-reg-map (map (lambda (_1) (elem (sub (neg _) 2) *src*)) *src*) _)
 		(eval *inst*)))
 
-(defcfun assign-script-to-asm (_1 _2 _3)
-	(setq *src* (split _1 ",") *dst* _2)
+(defcfun assign-script-to-asm (*src* *dst* _)
+	(setq *src* (split *src* ","))
 	(unless (eq (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
-		(reset-reg-def 0)
+		(set-types 0)
 		(push (clear *inst*) progn)
 		(each (lambda (_)
 			(set-token-list _)
@@ -1075,22 +1072,22 @@
 			(compile-rpn-list)
 			(compile-deref?)) *src*)
 		(when debug_inst
-			(print "pre opt: " _1 " -> " _2)
+			(print "pre opt:")
 			(each print-inst *inst*))
 		(opt-inst-list)
 		(when debug_inst
 			(print "post opt:")
 			(each print-inst *inst*))
-		(set-reg-def *dst* _3)
+		(set-reg-map *dst* _)
 		(eval *inst*)))
 
-(defcfun assign-script-to-script (_1 _2 _3)
-	(setq *src* (split _1 ",") *dst* (map trim (split _2 ",")))
+(defcfun assign-script-to-script (*src* *dst* _)
+	(setq *src* (split *src* ",") *dst* (map trim (split *dst* ",")))
 	(unless (eq (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
 	(map-remove-ignored)
 	(when (ne 0 (length *dst*))
-		(reset-reg-def 0)
+		(set-types 0)
 		(push (clear *inst*) progn)
 		(each (lambda (_)
 			(set-token-list _)
@@ -1102,13 +1099,13 @@
 			(compile-rpn-list)
 			(compile-assign)) *dst*)
 		(when debug_inst
-			(print "pre opt: " _1 " -> " _2)
+			(print "pre opt:")
 			(each print-inst *inst*))
 		(opt-inst-list)
 		(when debug_inst
 			(print "post opt:")
 			(each print-inst *inst*))
-		(set-reg-def '() _3)
+		(set-reg-map '() _)
 		(eval *inst*)))
 
 (defcfun assign (&optional _1 _2 _3)
@@ -1126,5 +1123,4 @@
 			(assign-asm-to-script _1 _2 _3))
 		(t
 			;asm -> asm
-			(setq *src* _1 *dst* _2)
-			(map-src-to-dst))))
+			(map-src-to-dst _1 _2))))
