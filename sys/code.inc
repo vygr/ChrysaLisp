@@ -642,25 +642,28 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defcvar '*s* nil '*inst* (list)
+(defcvar '*inst* (list) '*vregt* nil
 	'*vreg* '(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14))
 (defmacro vreg-sym (_) `(elem ,_ *vreg*))
 (each (lambda (_) (defcvar (vreg-sym _) nil)) (range 0 15))
 
-(defmacro inc-stack ()
-	'(setq *s* (inc *s*)))
-
-(defmacro dec-stack ()
-	'(setq *s* (dec *s*)))
-
-(defmacro nil-type ()
-	'(set (vreg-sym *s*) nil))
-
 (defmacro add-inst (&rest b)
 	`(push *inst* ~b))
 
+(defmacro set-type (_)
+	`(elem-set -2 *vregt* ,_))
+
+(defmacro get-type ()
+	`(elem -2 *vregt*))
+
+(defmacro top-reg ()
+	`(vreg-sym (dec (length *vregt*))))
+
+(defmacro tmp-reg ()
+	`(vreg-sym (length *vregt*)))
+
 (defcfun reset-reg-def (_)
-	(setq *s* _)
+	(setq *vregt* (slice 0 _ '(nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil)))
 	(each! nil nil nil (lambda (_)
 		(set _ nil)) (list *vreg*)))
 
@@ -672,163 +675,173 @@
 	(each! nil nil nil (lambda (_ r)
 		(set _ r)) (list *vreg* _)))
 
-(defcfun pop-type (s)
-	(if (defq u (vreg-sym s) w (eval u))
-		(progn
-			(defq v (slice 1 -1 w) v (if (eql v "") nil v))
-			(set u v)
-			(elem 0 w))
-		(throw "No type info !" u)))
+(defcfun push-reg (_)
+	(defq r (vreg-sym (length *vregt*)))
+	(push *vregt* _) r)
+
+(defcfun pop-reg ()
+	(list (vreg-sym (dec (length *vregt*))) (pop *vregt*)))
 
 (defcfun pop-value ()
-	(dec-stack)
 	(compile-deref?)
-	(nil-type)
-	(vreg-sym *s*))
+	(pop *vregt*)
+	(vreg-sym (length *vregt*)))
 
 (defcfun compile-null ()
 	(throw "Null operator !" nil))
 
-(defcfun compile-const (_1)
-	(nil-type)
-	(add-inst `(vp-cpy-cr ,_1 ,(vreg-sym *s*))))
+(defcfun compile-const (_)
+	(add-inst `(vp-cpy-cr ,_ ,(push-reg nil))))
 
 (defcfun compile-assign ()
-	(defq y (vreg-sym (dec-stack)) w (pop-type *s*) x (pop-value))
+	(bind '(y w) (pop-reg))
+	(defq x (pop-value))
 	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
 										vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
 	(add-inst `(,w ,x ,y 0)))
 
 (defcfun compile-deref ()
-	(defq v (vreg-sym *s*) w (pop-type *s*))
+	(defq x (top-reg) w (get-type))
+	(if w
+		(defq z (slice 1 -1 w) z (if (eql z "") nil z) w (elem 0 w))
+		(throw "No type info !" x))
+	(set-type z)
 	(setq w (elem (find w "bBsSiIlLp") '(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
 										vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
-	(add-inst `(,w ,v 0 ,v)))
-
-(defcfun compile-num (_1)
-	(compile-const (to-num _1)))
-
-(defcfun compile-ref (_1)
-	(cond
-		((not (defq s (get-sym _1)))
-			;not in symbol table so figure out what it is
-			(cond
-				((eql _1 'RXX)
-					;reserved slot
-					(nil-type))
-				((def? (type-sym _1))
-					;field/member
-					(set (vreg-sym *s*) (eval (type-sym _1)))
-					(add-inst `(vp-cpy-cr ,_1 ,(vreg-sym *s*))))
-				((def? _1)
-					;equate
-					(compile-const _1))
-				(t (throw "Symbol not defined !" _1))))
-		((eql 'var (elem 1 s))
-			;variable
-			(set (vreg-sym *s*) (elem 3 s))
-			(setq s (add (get-scope (elem 0 s)) (elem 2 s)))
-			(add-inst `(vp-lea-i r4 ,s ,(vreg-sym *s*))))
-		(t (throw "Symbol not a variable !" _1))))
+	(add-inst `(,w ,x 0 ,x)))
 
 (defcfun compile-deref? ()
-	(when (eval (vreg-sym *s*))
+	(if (get-type)
 		(compile-deref)))
+
+(defcfun compile-ref (_)
+	(cond
+		((not (defq s (get-sym _)))
+			;not in symbol table so figure out what it is
+			(cond
+				((eql _ 'RXX)
+					;reserved slot
+					(push-reg nil))
+				((def? (type-sym _))
+					;field/member
+					(add-inst `(vp-cpy-cr ,_ ,(push-reg (eval (type-sym _))))))
+				((def? _)
+					;equate
+					(compile-const _))
+				(t (throw "Symbol not defined !" _))))
+		((eql 'var (elem 1 s))
+			;variable
+			(defq o (add (get-scope (elem 0 s)) (elem 2 s)))
+			(add-inst `(vp-lea-i r4 ,o ,(push-reg (elem 3 s)))))
+		(t (throw "Symbol not a variable !" _))))
 
 (defcfun compile-cast (o)
 	(if (defq c (find (sym o) '(byte ubyte short ushort int uint long ulong ptr)))
-		(set (vreg-sym (dec-stack)) (elem c "bBsSiIlLp"))
+		(set-type (elem c "bBsSiIlLp"))
 		(throw "Unknown type cast" o)))
 
 (defcfun compile-member (o)
-	(defq s (dec *s*) x (vreg-sym (setq *s* (sub *s* 2))) y (vreg-sym s))
+	(bind '(y w) (pop-reg))
 	(compile-deref)
-	(add-inst `(vp-add-rr ,y ,x))
-	(set (vreg-sym *s*) (eval (vreg-sym s))))
+	(set-type w)
+	(add-inst `(vp-add-rr ,y ,(top-reg))))
 
 (defcfun compile-uaddrof (o)
-	(set (vreg-sym (dec-stack)) nil))
+	(set-type nil))
 
 (defcfun compile-field (o)
-	(defq s (dec *s*) x (vreg-sym (setq *s* (sub *s* 2))) y (vreg-sym s))
-	(add-inst `(vp-add-rr ,y ,x))
-	(set (vreg-sym *s*) (eval (vreg-sym s))))
+	(bind '(y w) (pop-reg))
+	(set-type w)
+	(add-inst `(vp-add-rr ,y ,(top-reg))))
 
 (defcfun compile-index (o)
 	(defq y (pop-value))
-	(dec-stack)
 	(compile-deref)
-	(add-inst `(vp-add-rr ,y ,(vreg-sym *s*))))
+	(add-inst `(vp-add-rr ,y ,(top-reg))))
 
 (defcfun compile-uminus (o)
-	(add-inst `(vp-mul-cr -1 ,(pop-value))))
+	(add-inst `(vp-mul-cr -1 ,(pop-value)))
+	(push-reg nil))
 
 (defcfun compile-uderef (o)
-	(dec-stack)
 	(compile-deref))
 
 (defcfun compile-unot (o)
-	(add-inst `(vp-xor-cr -1 ,(pop-value))))
+	(add-inst `(vp-xor-cr -1 ,(pop-value)))
+	(push-reg nil))
 
 (defcfun compile-mul (o)
-	(add-inst `(vp-mul-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-mul-rr ,(pop-value) ,(pop-value)))
+	(push-reg nil))
 
 (defcfun compile-fmul (o)
 	(defq x (pop-value) y (pop-value))
+	(push-reg nil)
 	(add-inst
 		`(vp-mul-rr ,x ,y)
 		`(vp-asr-cr 16 ,y)))
 
 (defcfun compile-divu (o)
-	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
+	(defq y (tmp-reg) z (pop-value) x (pop-value))
+	(push-reg nil)
 	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr-u ,z ,y ,x)))
 
 (defcfun compile-remu (o)
-	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
+	(defq y (tmp-reg) z (pop-value) x (pop-value))
+	(push-reg nil)
 	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr-u ,z ,y ,x)
 		`(vp-cpy-rr ,y ,x)))
 
 (defcfun compile-div (o)
-	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
+	(defq y (tmp-reg) z (pop-value) x (pop-value))
+	(push-reg nil)
 	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr ,z ,y ,x)))
 
 (defcfun compile-fdiv (o)
-	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
+	(defq y (tmp-reg) z (pop-value) x (pop-value))
+	(push-reg nil)
 	(add-inst
 		`(vp-shl-cr 16 ,x)
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr ,z ,y ,x)))
 
 (defcfun compile-rem (o)
-	(defq y (vreg-sym *s*) z (pop-value) x (pop-value))
+	(defq y (tmp-reg) z (pop-value) x (pop-value))
+	(push-reg nil)
 	(add-inst
 		`(vp-ext-rr ,x ,y)
 		`(vp-div-rrr ,z ,y ,x)
 		`(vp-cpy-rr ,y ,x)))
 
 (defcfun compile-plus (o)
-	(add-inst `(vp-add-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-add-rr ,(pop-value) ,(pop-value)))
+	(push-reg nil))
 
 (defcfun compile-minus (o)
-	(add-inst `(vp-sub-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-sub-rr ,(pop-value) ,(pop-value)))
+	(push-reg nil))
 
 (defcfun compile-lshift (o)
-	(add-inst `(vp-shl-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-shl-rr ,(pop-value) ,(pop-value)))
+	(push-reg nil))
 
 (defcfun compile-rshift (o)
-	(add-inst `(vp-shr-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-shr-rr ,(pop-value) ,(pop-value)))
+	(push-reg nil))
 
 (defcfun compile-arshift (o)
-	(add-inst `(vp-asr-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-asr-rr ,(pop-value) ,(pop-value)))
+	(push-reg nil))
 
 (defcfun compile-cmp (o)
 	(defq y (pop-value) x (pop-value))
+	(push-reg nil)
 	(add-inst
 		`(vpif (list ,x ',(sym o) ,y))
 			`(vp-or-cr -1 ,x)
@@ -837,16 +850,20 @@
 		'(endif)))
 
 (defcfun compile-and (o)
-	(add-inst `(vp-and-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-and-rr ,(pop-value) ,(pop-value)))
+	(push-reg nil))
 
 (defcfun compile-xor (o)
-	(add-inst `(vp-xor-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-xor-rr ,(pop-value) ,(pop-value)))
+	(push-reg nil))
 
 (defcfun compile-or (o)
-	(add-inst `(vp-or-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-or-rr ,(pop-value) ,(pop-value)))
+	(push-reg nil))
 
 (defcfun compile-land (o)
 	(defq y (pop-value) x (pop-value))
+	(push-reg nil)
 	(add-inst
 		`(vpif (list ,x '!= 0))
 			`(vp-xor-rr ,x ,x)
@@ -856,10 +873,12 @@
 		'(endif)))
 
 (defcfun compile-lor (o)
-	(add-inst `(vp-or-rr ,(pop-value) ,(pop-value))))
+	(add-inst `(vp-or-rr ,(pop-value) ,(pop-value)))
+	(push-reg nil))
 
 (defcfun compile-ulnot (o)
 	(defq x (pop-value))
+	(push-reg nil)
 	(add-inst
 		`(vpif (list ,x '== 0))
 			`(vp-sub-cr 1 ,x)
@@ -867,39 +886,35 @@
 			`(vp-xor-rr ,x ,x)
 		'(endif)))
 
-(defcfun compile-operator (_1)
+(defcfun compile-operator (_)
 	(cond
-		((not (defq s (get-sym _1)))
-			(throw "Operator not defined !" _1))
+		((not (defq s (get-sym _)))
+			(throw "Operator not defined !" _))
 		((not (eql 'op (elem 1 s)))
-			(throw "Not an operator !" _1))
+			(throw "Not an operator !" _))
 		(t
-			((elem 4 s) _1))))
+			((elem 4 s) _))))
 
-(defcfun compile-string (_1)
-	(nil-type)
-	(add-inst `(fn-string ,_1 ,(vreg-sym *s*))))
+(defcfun compile-string (_)
+	(add-inst `(fn-string ,_ ,(push-reg nil))))
 
-(defcfun compile-bind (_1)
-	(nil-type)
-	(add-inst `(fn-bind ',_1 ,(vreg-sym *s*))))
+(defcfun compile-bind (_)
+	(add-inst `(fn-bind ',_ ,(push-reg nil))))
 
-(defcfun compile-label (_1)
-	(nil-type)
-	(add-inst `(vp-lea-p ',_1 ,(vreg-sym *s*))))
+(defcfun compile-label (_)
+	(add-inst `(vp-lea-p ',_ ,(push-reg nil))))
 
 (defcfun compile-rpn-list ()
 	(each (lambda ((k c))
 		(if (le -1 c 4)
 			(eval (elem (inc c)
 				'((compile-operator k)
-				(compile-num k)
+				(compile-const (to-num k))
 				(compile-ref k)
 				(compile-bind k)
 				(compile-label k)
 				(compile-string (str k)))))
-			(throw "Unknown token type !" k))
-		(inc-stack)) *rpn*))
+			(throw "Unknown token type !" k))) *rpn*))
 
 (operator "ptr" 0 1 compile-cast)
 (operator "byte" 0 1 compile-cast)
@@ -1073,8 +1088,7 @@
 			(set-token-list _)
 			(token-to-rpn)
 			(compile-rpn-list)
-			(pop-value)
-			(inc-stack)) *src*)
+			(compile-deref?)) *src*)
 		(when debug_inst
 			(print "pre opt: " _1 " -> " _2)
 			(each print-inst *inst*))
