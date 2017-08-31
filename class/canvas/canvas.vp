@@ -129,7 +129,7 @@
 
 	;align stack for SDL
 	(vp-cpy-rr rsp r14)
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
 	(vp-cpy-ri r14 rsp local_old_stack)
 
@@ -181,7 +181,7 @@
 
 	;align stack to 16 bytes for SDl
 	(vp-cpy-rr rsp r14)
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
 	(vp-cpy-ri r14 rsp local_old_stack)
 
@@ -256,7 +256,7 @@
 
 	;align stack to 16 bytes for SDl
 	(vp-cpy-rr rsp r14)
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
 	(vp-cpy-ri r14 rsp local_old_stack)
 

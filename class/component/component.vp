@@ -165,7 +165,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'component 'emit '((rsp local_this) r1))
 
 	;emit the signal
@@ -183,7 +183,7 @@
 
 	;restore this
 	(f-exit 'component 'emit '((rsp local_this)))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

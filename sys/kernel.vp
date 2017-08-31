@@ -53,7 +53,7 @@
 	(vp-cpy-ri r0 r1 tk_statics_cpu_total)
 
 	;allocate for kernel routing table
-	(vp-alloc-stack lk_table_size)
+	(vp-alloc lk_table_size)
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 rsp lk_table_array)
 	(vp-cpy-ri r1 rsp lk_table_array_size)
@@ -278,7 +278,7 @@
 
 	;free any kernel routing table
 	(f-call 'sys_mem 'free '((rsp lk_table_array)))
-	(vp-free-stack lk_table_size)
+	(vp-free lk_table_size)
 
 	;deinit font
 	(f-call 'gui_font 'deinit)
@@ -296,7 +296,7 @@
 	(f-call 'sys_load 'deinit)
 
 	;pop argv and exit !
-	(vp-free-stack ptr_size)
+	(vp-free ptr_size)
 	(sys-exit '(0))
 
 (def-func-end)

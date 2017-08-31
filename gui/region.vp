@@ -237,7 +237,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'gui_region 'copy_region '(r0 (rsp local_slist) (rsp local_dlist) r3 (rsp local_dx i) (rsp local_dy i)))
 
 	;run through copy region list
@@ -256,7 +256,7 @@
 	(loop-end)
 
 	(f-exit 'gui_region 'copy_region '(r0))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -278,7 +278,7 @@
 			;run through source region list
 			(vp-cpy-rr r2 r4)
 			(vp-cpy-rr r1 r5)
-			(vp-alloc-stack ptr_size)
+			(vp-alloc ptr_size)
 			(loop-flist r1 0 r6 r2)
 				(vp-cpy-ri r2 rsp 0)
 
@@ -587,7 +587,7 @@
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 			(loop-end)
-			(vp-free-stack 8)
+			(vp-free 8)
 		(endif)
 	(endif)
 	(f-exit 'gui_region 'cut_rect '(r0))
@@ -836,7 +836,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'gui_region 'paste_region '(r0 r1 (rsp local_dlist) (rsp local_dx i) (rsp local_dy i)))
 
 	;run through source region list
@@ -855,7 +855,7 @@
 	(loop-end)
 
 	(f-exit 'gui_region 'paste_region '(r0))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -1132,7 +1132,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'gui_region 'remove_region '(r0 r1 (rsp local_dlist) (rsp local_dx i) (rsp local_dy i)))
 
 	;run through source region list
@@ -1151,7 +1151,7 @@
 	(loop-end)
 
 	(f-exit 'gui_region 'remove_region '(r0))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

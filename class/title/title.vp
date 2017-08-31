@@ -32,7 +32,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0) '((rsp local_this)))
 
 	(vp-cpy-ir-i r0 view_w r9)
@@ -42,7 +42,7 @@
 	(f-call 'flow 'change '((r0 label_flow) title_border_size title_border_size r9 r10))
 
 	(f-call 'title 'opaque '((rsp local_this)))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -86,7 +86,7 @@
 	(def-struct-end)
 
 	;save old window bounds
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-cpy-ri r0 rsp local_this)
 	(vp-cpy-ri r1 rsp local_event)
 	(assign `((@ ,(f-path 'class 'window))) '(r1))
@@ -131,7 +131,7 @@
 	(f-call 'window 'dirty_all '((rsp local_window)))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

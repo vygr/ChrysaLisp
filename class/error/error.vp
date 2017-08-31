@@ -27,7 +27,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0 r2 r3 r4 r5 r6) '((rsp local_this) (r0 error_description) (r0 error_msg i)
 									(r0 error_object) (r0 error_file) (r0 error_line i)))
 
@@ -45,7 +45,7 @@
 		(vp-cpy-ir rsp local_this r0)
 	(endif)
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

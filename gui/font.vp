@@ -36,7 +36,7 @@
 
 	;align stack to 16 bytes for SDl
 	(vp-cpy-rr rsp r14)
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
 	(vp-cpy-ri r14 rsp local_old_stack)
 
@@ -108,7 +108,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0 r1) '((rsp local_font) (rsp local_points)))
 
 	;get font statics
@@ -129,7 +129,7 @@
 		(f-call 'sys_task 'callback '(($ kernel_callback) rsp))
 		(vp-cpy-ir rsp local_handle r0)
 	(endif)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'kernel_callback)
@@ -211,7 +211,7 @@
 
 	;save inputs
 	(vp-lea-i r1 string_data r2)
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0 r2) '((rsp local_font) (rsp local_text)))
 
 	;get font statics
@@ -247,7 +247,7 @@
 		(ln-add-fnode r4 0 r0 r1)
 	(endif)
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'kernel_callback)

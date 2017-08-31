@@ -47,7 +47,7 @@
 	(def-struct-end)
 
 	;init vars
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-xor-rr r0 r0)
 	(vp-cpy-ri-i r0 rsp local_last_x_pos)
 	(vp-cpy-ri-i r0 rsp local_last_y_pos)
@@ -262,7 +262,7 @@
 	;deinit
 	(f-call 'sys_task 'callback '(($ deinit_callback) rsp))
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'update_callback)
@@ -276,7 +276,7 @@
 
 	;align stack
 	(vp-cpy-rr rsp r1)
-	(vp-alloc-stack klocal_size)
+	(vp-alloc klocal_size)
 	(vp-and-cr -16 rsp)
 	(vp-cpy-ri r1 rsp klocal_old_stack)
 	(vp-cpy-ri r0 rsp klocal_user)
@@ -471,7 +471,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-cpy-ri r0 rsp local_root)
 
 	;iterate through views back to front
@@ -537,7 +537,7 @@
 		(vp-cpy-ir rsp local_ctx_next r0)
 	(loop-end)
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'null_func_down_callback)
@@ -567,7 +567,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack vis_size)
+	(vp-alloc vis_size)
 	(vp-cpy-ri r0 rsp vis_this)
 	(vp-cpy-ri r1 rsp vis_root)
 
@@ -662,7 +662,7 @@
 	(endif)
 
 	(vp-cpy-ir rsp vis_this r0)
-	(vp-free-stack vis_size)
+	(vp-free vis_size)
 	(vp-ret)
 
 (vp-label 'distribute_down_callback)
@@ -673,7 +673,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack dist_size)
+	(vp-alloc dist_size)
 	(vp-cpy-ri r0 rsp dist_this)
 	(vp-cpy-ri r1 rsp dist_data)
 
@@ -719,7 +719,7 @@
 
 	;r1 will be 0 or not depending on haveing any dirty region
 	(vp-cpy-ir rsp dist_this r0)
-	(vp-free-stack dist_size)
+	(vp-free dist_size)
 	(vp-ret)
 
 (vp-label 'distribute_up_callback)

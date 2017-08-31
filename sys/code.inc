@@ -231,8 +231,8 @@
 	(elem-set 0 (elem -3 (push *syms* (list 0 (list) (list)))) *sym-sp*)
 	(when (ne *sym-sp* 0)
 		(when debug_inst
-			(print "(vp-alloc-stack " *sym-sp* ")"))
-		(vp-alloc-stack *sym-sp*)
+			(print "(vp-alloc " *sym-sp* ")"))
+		(vp-alloc *sym-sp*)
 		(setq *sym-sp* 0)))
 
 (defcfun pop-scope-syms ()
@@ -250,8 +250,8 @@
 	(defq _ (pop-scope-syms))
 	(when (ne _ 0)
 		(when debug_inst
-			(print "(vp-free-stack " _ ")"))
-		(vp-free-stack _)))
+			(print "(vp-free " _ ")"))
+		(vp-free _)))
 
 (defcfun pop-scope-checked ()
 	(defq _ (pop-scope-syms))
@@ -261,8 +261,8 @@
 (defcfun unwind ()
 	(when (ne (defq _ (get-scope -1)) 0)
 		(when debug_inst
-			(print "(vp-free-stack " _ ")"))
-		(vp-free-stack _)))
+			(print "(vp-free " _ ")"))
+		(vp-free _)))
 
 (defcfun return ()
 	(unwind)

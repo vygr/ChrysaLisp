@@ -274,8 +274,8 @@
 (defcfun vp-div-rrr-u (d r q) (emit `(emit-div-rrr-u ,d ,r ,q)))
 (defcfun vp-syscall () (emit `(emit-syscall)))
 
-(defcfun vp-alloc-stack (c) (emit `(emit-sub-cr ,c rsp)))
-(defcfun vp-free-stack (c) (emit `(emit-add-cr ,c rsp)))
+(defcfun vp-alloc (c) (emit `(emit-sub-cr ,c rsp)))
+(defcfun vp-free (c) (emit `(emit-add-cr ,c rsp)))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; Arch Emit Functions

@@ -110,7 +110,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'text 'ref_text '((rsp local_this)))
 
 	;reference the string
@@ -118,7 +118,7 @@
 	(f-call 'string 'ref_if '(r0) '(r0))
 
 	(f-exit 'text 'ref_text '((rsp local_this) r0))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -172,7 +172,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'text 'set_font '((rsp local_this) r1 r2))
 
 	;open font
@@ -182,7 +182,7 @@
 	(vp-cpy-ri r1 r0 text_font)
 
 	(f-exit 'text 'set_font '(r0))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -200,7 +200,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'text 'set_text '((rsp local_this) (rsp local_string)))
 
 	;deref the old string and words
@@ -225,7 +225,7 @@
 	(endif)
 
 	(f-exit 'text 'set_text '(r0))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

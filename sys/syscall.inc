@@ -247,7 +247,7 @@
 	(vp-push r5)
 	(assign '(rsp 1) '(r5 r2))
 	(sys-call sys_write)
-	(vp-free-stack ptr_size)
+	(vp-free ptr_size)
 	(assign '(r0) _2))
 
 (defcfun sys-mmap (_1 _2)

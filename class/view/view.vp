@@ -102,7 +102,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0) '((rsp local_this)))
 
 	;paste dirty region
@@ -114,7 +114,7 @@
 	(f-call 'gui_region 'paste_rect '(r0 r1 r7 r8 r9 r10))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -155,7 +155,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0) '((rsp local_this)))
 
 	;paste opaque region
@@ -167,7 +167,7 @@
 	(f-call 'gui_region 'paste_rect '(r0 r1 r7 r8 r9 r10))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -194,7 +194,7 @@
 		(ptr 'callback)
 	(def-struct-end)
 
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-cpy-ri r0 rsp local_this)
 	(vp-cpy-ri r1 rsp local_data)
 	(vp-cpy-ri r2 rsp local_callback)
@@ -214,7 +214,7 @@
 	(loop-end)
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -244,7 +244,7 @@
 		(ptr 'up)
 	(def-struct-end)
 
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-cpy-ri r0 rsp local_this)
 	(vp-cpy-ri r1 rsp local_data)
 	(vp-cpy-ri r2 rsp local_down)
@@ -285,7 +285,7 @@
 		(vp-cpy-ir r0 view_parent r0)
 	(loop-end)
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -361,14 +361,14 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-cpy-ri r0 rsp local_this)
 
 	(f-call 'view 'get_bounds '(r0) '(r4 r7 r8 r9 r10))
 	(f-call 'gui_ctx 'panel '(r1 (r4 view_color ui) r2 r3 0 0 r9 r10) '())
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -464,7 +464,7 @@
 		(ptr 'callback)
 	(def-struct-end)
 
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-cpy-ri r0 rsp local_this)
 	(vp-cpy-ri r1 rsp local_data)
 	(vp-cpy-ri r2 rsp local_callback)
@@ -484,7 +484,7 @@
 	(loop-end)
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -514,7 +514,7 @@
 		(ptr 'up)
 	(def-struct-end)
 
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-cpy-ri r0 rsp local_this)
 	(vp-cpy-ri r1 rsp local_data)
 	(vp-cpy-ri r2 rsp local_down)
@@ -555,7 +555,7 @@
 		(vp-cpy-ir r0 view_parent r0)
 	(loop-end)
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -692,7 +692,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-cpy-ri r0 rsp local_this)
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 rsp local_hit)
@@ -705,7 +705,7 @@
 (vp-label 'early_ret)
 	(vp-cpy-ir rsp local_this r0)
 	(vp-cpy-ir rsp local_hit r1)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'hit_down_callback)
@@ -818,7 +818,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0) '((rsp local_this)))
 
 	;cut opaque region
@@ -830,7 +830,7 @@
 	(f-call 'gui_region 'remove_rect '(r0 r1 r7 r8 r9 r10))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

@@ -87,8 +87,8 @@
 	;trashes
 	;_1, _2
 
-	(vp-alloc-stack mailbox_size)
+	(vp-alloc mailbox_size)
 	(ml-init rsp _1 _2))
 
 (defcfun ml-temp-destroy ()
-	(vp-free-stack mailbox_size))
+	(vp-free mailbox_size))

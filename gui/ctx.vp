@@ -25,7 +25,7 @@
 
 	;align stack to 16 bytes for SDl
 	(vp-cpy-rr rsp r14)
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
 	(vp-cpy-ri r14 rsp local_old_stack)
 
@@ -120,7 +120,7 @@
 
 	;align stack to 16 bytes for SDl
 	(vp-cpy-rr rsp r14)
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
 	(vp-cpy-ri r14 rsp local_old_stack)
 
@@ -235,7 +235,7 @@
 
 	;align stack to 16 bytes for SDl
 	(vp-cpy-rr rsp r14)
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
 	(vp-cpy-ri r14 rsp local_old_stack)
 
@@ -318,7 +318,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0 r1 r2 r3) '((rsp local_ctx) (rsp local_color i) (rsp local_flags) (rsp local_depth i)))
 	(assign '(r7 r8 r9 r10) '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i)))
 
@@ -406,7 +406,7 @@
 		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 r8 r11 r10))
 	(endif)
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -424,7 +424,7 @@
 
 	;align stack to 16 bytes for SDl
 	(vp-cpy-rr rsp r14)
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
 	(vp-cpy-ri r14 rsp local_old_stack)
 

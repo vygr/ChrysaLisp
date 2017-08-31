@@ -137,7 +137,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'sys_io 'debug_long '((rsp local_info) (rsp local_string) (rsp local_long)))
 
 	(f-call 'sys_io 'string '((rsp local_info) 2))
@@ -147,7 +147,7 @@
 	(f-call 'sys_io 'number '((rsp local_long) 2 16))
 	(f-call 'sys_io 'char '(char_lf 2))
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -167,7 +167,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'sys_io 'debug_str '((rsp local_info) (rsp local_string) (rsp local_str)))
 
 	(f-call 'sys_io 'string '((rsp local_info) 2))
@@ -177,7 +177,7 @@
 	(f-call 'sys_io 'string '((rsp local_str) 2))
 	(f-call 'sys_io 'char '(char_lf 2))
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

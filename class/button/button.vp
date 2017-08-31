@@ -72,7 +72,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-cpy-ri r0 rsp local_this)
 
 	(vp-cpy-cr button_border_size r7)
@@ -88,7 +88,7 @@
 	(f-call 'flow 'change '((r0 label_flow) r7 r7 r9 r10))
 
 	(f-call 'button 'opaque '((rsp local_this)))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

@@ -59,7 +59,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'hash_map 'copy '((rsp local_this) r1))
 
 	(f-call 'hash_map 'create '((r0 hash_set_key_callback) r1) '((rsp local_obj)))
@@ -69,7 +69,7 @@
 	(f-call 'hash_map 'for_each '((rsp local_this) ($ callback) rsp))
 	(vp-cpy-ir rsp local_obj r1)
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -105,7 +105,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'hash_map 'find '(r0 (rsp local_key)))
 
 	(vp-cpy-ir r0 hash_set_key_callback r2)
@@ -133,7 +133,7 @@
 	(endif)
 
 	(f-exit 'hash_map 'find '(r0 r1 r2))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -173,7 +173,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'hash_map 'insert '((rsp local_this) (rsp local_key) (rsp local_value)))
 
 	;search hash bucket
@@ -206,7 +206,7 @@
 	(endif)
 
 	(f-exit 'hash_map 'insert '((rsp local_this) r1 r2))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -226,14 +226,14 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'hash_map 'set_parent '((rsp local_this) (rsp local_obj)))
 
 	(f-call 'ref 'deref_if '((r0 hash_map_parent)))
 	(assign '((rsp local_this) (rsp local_obj)) '(r0 r1))
 	(vp-cpy-ri r1 r0 hash_map_parent)
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

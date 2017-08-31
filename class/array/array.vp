@@ -43,7 +43,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'array 'append '((rsp local_this) (rsp local_source) (rsp local_start i) (rsp local_end i)))
 
 	;extend existing array
@@ -69,7 +69,7 @@
 	(f-call 'sys_mem 'copy '(r1 r4 r2))
 
 	(f-exit 'array 'append '((rsp local_this)))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -118,7 +118,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0 r3 r4) '((rsp local_this) (rsp local_predicate) (rsp local_predicate_data)))
 
 	;process elements
@@ -144,7 +144,7 @@
 	(vpif '(r1 == r2))
 		(vp-xor-rr r1 r1)
 	(endif)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -414,7 +414,7 @@
 		(ptr 'upper)
 	(def-struct-end)
 
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'array 'partition '((rsp local_this) (rsp local_lower) (rsp local_upper) (rsp local_func) (rsp local_ctx)))
 
 	(vp-cpy-ri r1 rsp local_iter)
@@ -448,7 +448,7 @@
 	(endif)
 
 	(f-exit 'array 'partition '((rsp local_this) r1))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

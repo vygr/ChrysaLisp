@@ -156,7 +156,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'window 'layout '((rsp local_this)))
 
 	(vp-cpy-ir-i r0 view_w r9)
@@ -171,7 +171,7 @@
 	(vpif '(r1 == 0xff))
 		(f-call 'window 'opaque '(r0))
 	(endif)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -235,7 +235,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'window 'mouse_move '((rsp local_this) (rsp local_event)))
 
 	;dirty old area
@@ -328,7 +328,7 @@
 	(f-call 'gui_region 'translate '(r1 r7 r8))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(f-jmp 'window 'dirty_all '(r0))
 
 (def-func-end)
@@ -348,7 +348,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'window 'pref_size '((rsp local_this)))
 
 	(v-call 'flow 'pref_size '((r0 window_flow)) '(_ r9 r10))
@@ -356,7 +356,7 @@
 	(vp-add-cr (mul window_border_size 2) r10)
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -371,7 +371,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0) '((rsp local_this)))
 
 	(vp-cpy-ir r0 window_status r0)
@@ -381,7 +381,7 @@
 	(endif)
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -396,13 +396,13 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0) '((rsp local_this)))
 
 	(f-call 'title 'set_text '((r0 window_title) r1))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -424,14 +424,14 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0 r1 r2) '((rsp local_this) (rsp local_obj) (rsp local_callback)))
 
 	(f-call 'button 'sig_pressed '((r0 window_close)) '(r0 r1))
 	(f-call 'button 'connect '(r0 r1 (rsp local_obj) (rsp local_callback)))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -453,14 +453,14 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0 r1 r2) '((rsp local_this) (rsp local_obj) (rsp local_callback)))
 
 	(f-call 'button 'sig_pressed '((r0 window_max)) '(r0 r1))
 	(f-call 'button 'connect '(r0 r1 (rsp local_obj) (rsp local_callback)))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -482,14 +482,14 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0 r1 r2) '((rsp local_this) (rsp local_obj) (rsp local_callback)))
 
 	(f-call 'button 'sig_pressed '((r0 window_min)) '(r0 r1))
 	(f-call 'button 'connect '(r0 r1 (rsp local_obj) (rsp local_callback)))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

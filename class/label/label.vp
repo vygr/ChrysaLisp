@@ -68,13 +68,13 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0) '((rsp local_this)))
 
 	(f-call 'text 'get_text '((r0 label_text)) '(_ r1))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -91,13 +91,13 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0) '((rsp local_this)))
 
 	(f-call 'text 'ref_text '((r0 label_text)) '(_ r1))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -113,7 +113,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0) '((rsp local_this)))
 
 	(vp-cpy-ir-i r0 view_w r9)
@@ -128,7 +128,7 @@
 	(vpif '(r1 == 0xff))
 		(f-call 'label 'opaque '(r0))
 	(endif)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -147,7 +147,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0) '((rsp local_this)))
 
 	(v-call 'flow 'pref_size '((r0 label_flow)) '(_ r9 r10))
@@ -164,7 +164,7 @@
 	(endif)
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -208,7 +208,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0) '((rsp local_this)))
 
 	(f-call 'text 'set_text '((r0 label_text) r1))
@@ -217,7 +217,7 @@
 	(v-call 'label 'layout '((r0 label_flow)))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -234,13 +234,13 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0) '((rsp local_this)))
 
 	(f-call 'text 'set_text_color '((r0 label_text) r1))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

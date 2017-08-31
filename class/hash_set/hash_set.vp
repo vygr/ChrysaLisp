@@ -23,7 +23,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'hash_set 'init '((rsp local_this) r1 (r0 hash_set_key_callback) (r0 hash_set_num_buckets i)))
 
 	;init parent
@@ -43,7 +43,7 @@
 		(vp-cpy-ir rsp local_this r0)
 	(endif)
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -157,7 +157,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'hash_set 'erase '((rsp local_this) (rsp local_iter) (rsp local_bucket)))
 
 	;swap last entry for erased entry
@@ -176,7 +176,7 @@
 	(endif)
 
 	(f-exit 'hash_set 'erase '((rsp local_this)))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -198,7 +198,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'hash_set 'find '(r0 (rsp local_key)))
 
 	(vp-cpy-ir r0 hash_set_key_callback r2)
@@ -225,7 +225,7 @@
 	(endif)
 
 	(f-exit 'hash_set 'find '(r0 r1 r2))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -270,7 +270,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'hash_set 'for_each '((rsp local_this) r1 r2))
 
 	;for all buckets
@@ -291,7 +291,7 @@
 	(endif)
 
 	(f-exit 'hash_set 'for_each '((rsp local_this) r1 r2))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -335,7 +335,7 @@
 	(vp-cpy-ir-ui r0 hash_set_num_buckets r2)
 	(vpif '(r2 != 1))
 		;save inputs
-		(vp-alloc-stack local_size)
+		(vp-alloc local_size)
 		(assign '(r0 r2) '((rsp local_this) (rsp local_length i)))
 
 		(v-call 'obj 'hash '(r1) '(_ r0))
@@ -346,7 +346,7 @@
 		(f-call 'vector 'get_element '((r0 hash_set_buckets) r2) '(_ r1))
 
 		(vp-cpy-ir rsp local_this r0)
-		(vp-free-stack local_size)
+		(vp-free local_size)
 	(else)
 		(vp-cpy-ir r0 hash_set_buckets r1)
 	(endif)
@@ -371,7 +371,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'hash_set 'insert '(r0 (rsp local_key)))
 
 	;search hash bucket
@@ -391,7 +391,7 @@
 	(endif)
 
 	(f-exit 'hash_set 'insert '(r0 r1 r2))
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

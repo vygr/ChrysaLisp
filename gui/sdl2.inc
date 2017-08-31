@@ -212,7 +212,7 @@
 	(vp-xor-rr r0 r0)
 	(vp-push r0 r11 r10 r9)
 	(sdl-call sdl_SDL_CreateRGBSurfaceFrom)
-	(vp-free-stack (mul ptr_size 4)))
+	(vp-free (mul ptr_size 4)))
 
 (defcfun sdl-destroy-texture (_)
 	;texture*

@@ -19,7 +19,7 @@
 		(int 'cell_h)
 	(def-struct-end)
 
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-xor-rr r9 r9)
 	(vp-cpy-ri-i r9 rsp local_count)
 
@@ -38,7 +38,7 @@
 
 	(f-call 'grid 'forward '(r0 rsp ($ callback)))
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -81,7 +81,7 @@
 		(int 'h)
 	(def-struct-end)
 
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 rsp local_w)
 	(vp-cpy-ri-i r1 rsp local_h)
@@ -91,7 +91,7 @@
 	(assign '((r0 grid_width ui) (r0 grid_height ui) (rsp local_w i) (rsp local_h i)) '(r7 r8 r9 r10))
 	(vp-mul-rr r7 r9)
 	(vp-mul-rr r8 r10)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)

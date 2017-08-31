@@ -16,7 +16,7 @@
 		(int 'y)
 	(def-struct-end)
 
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 rsp local_x)
 	(vp-cpy-ri-i r1 rsp local_y)
@@ -35,7 +35,7 @@
 
 	(f-call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -192,7 +192,7 @@
 		(int 'h)
 	(def-struct-end)
 
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 rsp local_w)
 	(vp-cpy-ri-i r1 rsp local_h)
@@ -201,7 +201,7 @@
 
 	(vp-cpy-ir-i rsp local_w r9)
 	(vp-cpy-ir-i rsp local_h r10)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)

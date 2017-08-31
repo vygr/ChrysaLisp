@@ -21,7 +21,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(assign '(r0 r1) '((rsp local_this) (rsp local_ctx)))
 
 	;draw outline
@@ -67,7 +67,7 @@
 	(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 progress_border_size (rsp local_fill_remain) r10))
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

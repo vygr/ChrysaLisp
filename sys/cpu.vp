@@ -18,13 +18,13 @@
 
 	;calculate wake time
 	(sys-push-trashed)
-	(vp-alloc-stack timeval_size)
+	(vp-alloc timeval_size)
 	(sys-gettimeofday '(rsp 0))
 	(vp-cpy-ir rsp timeval_sec r0)
 	(vp-mul-cr 1000000 r0)
 	(vp-cpy-ir rsp timeval_usec r1)
 	(vp-add-rr r1 r0)
-	(vp-free-stack timeval_size)
+	(vp-free timeval_size)
 	(sys-pop-trashed)
 	(f-exit 'sys_cpu 'time '(r0))
 	(vp-ret)

@@ -34,7 +34,7 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-alloc-stack local_size)
+	(vp-alloc local_size)
 	(f-entry 'vector 'append '((rsp local_this) (rsp local_source) (rsp local_start i) (rsp local_end i)))
 
 	;extend existing vector
@@ -58,7 +58,7 @@
 	(vp-shr-cr (log2 ptr_size) r6)
 	(vp-cpy-ri-i r6 r0 array_length)
 
-	(vp-free-stack local_size)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
