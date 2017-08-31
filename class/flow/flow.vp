@@ -9,33 +9,33 @@
 	;inputs
 	;r0 = flow object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(int 'x)
 		(int 'y)
 	(def-struct-end)
 
-	(vp-sub-cr local_size r4)
+	(vp-alloc-stack local_size)
 	(vp-xor-rr r1 r1)
-	(vp-cpy-ri-i r1 r4 local_x)
-	(vp-cpy-ri-i r1 r4 local_y)
+	(vp-cpy-ri-i r1 rsp local_x)
+	(vp-cpy-ri-i r1 rsp local_y)
 	(vp-cpy-ir r0 flow_flags r1)
 	(vp-and-cr flow_flag_left r1)
 	(vpif '(r1 != 0))
 		(vp-cpy-ir-i r0 view_w r1)
-		(vp-cpy-ri-i r1 r4 local_x)
+		(vp-cpy-ri-i r1 rsp local_x)
 	(endif)
 	(vp-cpy-ir r0 flow_flags r1)
 	(vp-and-cr flow_flag_up r1)
 	(vpif '(r1 != 0))
 		(vp-cpy-ir-i r0 view_h r1)
-		(vp-cpy-ri-i r1 r4 local_y)
+		(vp-cpy-ri-i r1 rsp local_y)
 	(endif)
 
-	(f-call 'flow 'forward '(r0 r4 ($ callback)) '(r0))
+	(f-call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
 
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -185,23 +185,23 @@
 	;r10 = preferred width
 	;r11 = preferred height
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(int 'w)
 		(int 'h)
 	(def-struct-end)
 
-	(vp-sub-cr local_size r4)
+	(vp-alloc-stack local_size)
 	(vp-xor-rr r1 r1)
-	(vp-cpy-ri-i r1 r4 local_w)
-	(vp-cpy-ri-i r1 r4 local_h)
+	(vp-cpy-ri-i r1 rsp local_w)
+	(vp-cpy-ri-i r1 rsp local_h)
 
-	(f-call 'flow 'forward '(r0 r4 ($ callback)) '(r0))
+	(f-call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
 
-	(vp-cpy-ir-i r4 local_w r10)
-	(vp-cpy-ir-i r4 local_h r11)
-	(vp-add-cr local_size r4)
+	(vp-cpy-ir-i rsp local_w r10)
+	(vp-cpy-ir-i rsp local_h r11)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (vp-label 'callback)

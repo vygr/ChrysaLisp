@@ -83,12 +83,12 @@
 	;_1 = temp
 	;_2 = temp
 	;outputs
-	;r4 = mailbox
+	;rsp = mailbox
 	;trashes
 	;_1, _2
 
-	(vp-sub-cr mailbox_size r4)
-	(ml-init r4 _1 _2))
+	(vp-alloc-stack mailbox_size)
+	(ml-init rsp _1 _2))
 
 (defcfun ml-temp-destroy ()
-	(vp-add-cr mailbox_size r4))
+	(vp-free-stack mailbox_size))

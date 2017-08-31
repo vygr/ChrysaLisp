@@ -47,13 +47,13 @@
 	;inputs
 	;r0 = vdu object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;save object
 	(vp-push r0)
 
 	(f-call 'sys_mem 'free '((r0 vdu_chars)))
-	(vp-cpy-ir r4 0 r0)
+	(vp-cpy-ir rsp 0 r0)
 	(f-call 'sys_mem 'free '((r0 vdu_textures)))
 
 	;deinit parent
@@ -67,7 +67,7 @@
 	;r0 = view object
 	;r1 = ctx object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'ctx 'txt)
 	(int 'x 'char 'bx 'by 'bx1 'by1)
@@ -120,7 +120,7 @@
 	;r10 = preferred width
 	;r11 = preferred height
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this)
 	(ulong 'width 'height)
@@ -144,7 +144,7 @@
 	;r1 = font name
 	;r2 = point size
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'name 'word 'txt)
 	(pulong 'wordp)

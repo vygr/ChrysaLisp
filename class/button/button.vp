@@ -33,7 +33,7 @@
 	;inputs
 	;r0 = button object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;disconnnect all signals
 	(f-call 'button 'disconnect_sig '(r0 (& r0 button_pressed_signal)))
@@ -48,7 +48,7 @@
 	;r0 = button object
 	;r1 = ctx object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;draw panel
 	(vp-cpy-cr button_border_size r3)
@@ -65,15 +65,15 @@
 	;inputs
 	;r0 = button object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_this)
+	(vp-alloc-stack local_size)
+	(vp-cpy-ri r0 rsp local_this)
 
 	(vp-cpy-cr button_border_size r8)
 	(vp-cpy-ir-i r0 view_w r10)
@@ -87,8 +87,8 @@
 	(endif)
 	(f-call 'flow 'change '((r0 label_flow) r8 r8 r10 r11))
 
-	(f-call 'button 'opaque '((r4 local_this)))
-	(vp-add-cr local_size r4)
+	(f-call 'button 'opaque '((rsp local_this)))
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -101,7 +101,7 @@
 	;r10 = preferred width
 	;r11 = preferred height
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(s-call 'button 'pref_size '(r0) '(r0 r10 r11))
 	(vp-add-cr (mul button_border_size 2) r10)
@@ -115,7 +115,7 @@
 	;r0 = button object
 	;r1 = mouse event message
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(vp-cpy-ir r0 button_state r1)
 	(vp-or-cr button_state_pressed r1)
@@ -130,7 +130,7 @@
 	;r0 = button object
 	;r1 = mouse event message
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(vp-cpy-ir r0 button_state r1)
 	(vp-push r1)
@@ -158,7 +158,7 @@
 	;r0 = button object
 	;r1 = mouse event message
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;hit ?
 	(v-call 'button 'hit '(r0 (r1 ev_msg_rx i) (r1 ev_msg_ry i)) '(r0 r1))

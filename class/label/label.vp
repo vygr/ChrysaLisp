@@ -25,16 +25,16 @@
 		(f-call 'flow 'create '() '(r0))
 		(f-call 'flow 'set_flags '(r0 0))
 		(f-call 'flow 'set_flow_flags '(r0 (bit-or flow_flag_right flow_flag_align_vcenter)))
-		(vp-cpy-ir r4 0 r2)
+		(vp-cpy-ir rsp 0 r2)
 		(vp-cpy-ri r0 r2 label_flow)
 		(v-call 'label 'add_child '(r2 r0))
 
 		;add my text
 		(f-call 'text 'create '() '(r0))
-		(vp-cpy-ir r4 0 r1)
+		(vp-cpy-ir rsp 0 r1)
 		(vp-cpy-ri r0 r1 label_text)
 		(f-call 'text 'set_color '(r0 0))
-		(vp-cpy-ir r4 0 r2)
+		(vp-cpy-ir rsp 0 r2)
 		(v-call 'flow 'add_child '((r2 label_flow) r0))
 
 		(vp-pop r0)
@@ -49,7 +49,7 @@
 	;r0 = view object
 	;r1 = ctx object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;draw panel
 	(f-jmp 'label 'draw_panel '(r0 r1 1 label_border_size))
@@ -68,13 +68,13 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_this)))
+	(vp-alloc-stack local_size)
+	(assign '(r0) '((rsp local_this)))
 
 	(f-call 'text 'get_text '((r0 label_text)) '(_ r1))
 
-	(vp-cpy-ir r4 local_this r0)
-	(vp-add-cr local_size r4)
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -91,13 +91,13 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_this)))
+	(vp-alloc-stack local_size)
+	(assign '(r0) '((rsp local_this)))
 
 	(f-call 'text 'ref_text '((r0 label_text)) '(_ r1))
 
-	(vp-cpy-ir r4 local_this r0)
-	(vp-add-cr local_size r4)
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -106,15 +106,15 @@
 	;inputs
 	;r0 = label object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_this)))
+	(vp-alloc-stack local_size)
+	(assign '(r0) '((rsp local_this)))
 
 	(vp-cpy-ir-i r0 view_w r10)
 	(vp-cpy-ir-i r0 view_h r11)
@@ -122,13 +122,13 @@
 	(vp-sub-cr (mul label_border_size 2) r11)
 	(f-call 'flow 'change '((r0 label_flow) label_border_size label_border_size r10 r11))
 
-	(vp-cpy-ir r4 local_this r0)
+	(vp-cpy-ir rsp local_this r0)
 	(vp-cpy-ir-ui r0 view_color r1)
 	(vp-shr-cr 24 r1)
 	(vpif '(r1 == 0xff))
 		(f-call 'label 'opaque '(r0))
 	(endif)
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -140,20 +140,20 @@
 	;r10 = preferred width
 	;r11 = preferred height
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_this)))
+	(vp-alloc-stack local_size)
+	(assign '(r0) '((rsp local_this)))
 
 	(v-call 'flow 'pref_size '((r0 label_flow)) '(_ r10 r11))
 	(vp-add-cr (mul label_border_size 2) r10)
 	(vp-add-cr (mul label_border_size 2) r11)
-	(vp-cpy-ir r4 local_this r0)
+	(vp-cpy-ir rsp local_this r0)
 	(vp-cpy-ir-i r0 view_min_w r8)
 	(vp-cpy-ir-i r0 view_min_h r9)
 	(vpif '(r8 > r10))
@@ -163,8 +163,8 @@
 		(vp-cpy-rr r9 r11)
 	(endif)
 
-	(vp-cpy-ir r4 local_this r0)
-	(vp-add-cr local_size r4)
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -187,7 +187,7 @@
 	;r1 = font name
 	;r2 = point size
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(vp-push r0)
 	(f-call 'text 'set_font '((r0 label_text) r1 r2))
@@ -201,23 +201,23 @@
 	;r0 = label object
 	;r1 = 0, else string pointer
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_this)))
+	(vp-alloc-stack local_size)
+	(assign '(r0) '((rsp local_this)))
 
 	(f-call 'text 'set_text '((r0 label_text) r1))
 
-	(vp-cpy-ir r4 local_this r0)
+	(vp-cpy-ir rsp local_this r0)
 	(v-call 'label 'layout '((r0 label_flow)))
 
-	(vp-cpy-ir r4 local_this r0)
-	(vp-add-cr local_size r4)
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -227,20 +227,20 @@
 	;r0 = label object
 	;r1 = color
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_this)))
+	(vp-alloc-stack local_size)
+	(assign '(r0) '((rsp local_this)))
 
 	(f-call 'text 'set_text_color '((r0 label_text) r1))
 
-	(vp-cpy-ir r4 local_this r0)
-	(vp-add-cr local_size r4)
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)

@@ -9,7 +9,7 @@
 	;inputs
 	;r0 = master object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'stream)
 	(uint 'length)

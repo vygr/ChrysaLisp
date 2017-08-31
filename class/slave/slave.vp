@@ -16,7 +16,7 @@
 	;outputs
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'vtable 'stream 'msg 'mymailbox)
 	(ulong 'error)
@@ -64,7 +64,7 @@
 	;inputs
 	;r0 = slave object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this)
 

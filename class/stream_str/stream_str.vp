@@ -14,7 +14,7 @@
 	;outputs
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;init parent
 	(s-jmp 'stream_str 'init '(r0 r1 r2 0 (& r2 string_data) (r2 string_length ui)))
@@ -51,7 +51,7 @@
 	;outputs
 	;r0 = stream_str object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'new_str)
 	(uint 'length 'new_length)
@@ -79,7 +79,7 @@
 	;outputs
 	;r0 = stream_str object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'data)
 

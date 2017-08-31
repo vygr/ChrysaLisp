@@ -237,26 +237,26 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(f-entry 'gui_region 'copy_region '(r0 (r4 local_slist) (r4 local_dlist) r3 (r4 local_dx i) (r4 local_dy i)))
+	(vp-alloc-stack local_size)
+	(f-entry 'gui_region 'copy_region '(r0 (rsp local_slist) (rsp local_dlist) r3 (rsp local_dx i) (rsp local_dy i)))
 
 	;run through copy region list
 	(loop-flist r3 0 r1 r1)
-		(vp-cpy-ri r1 r4 local_node)
+		(vp-cpy-ri r1 rsp local_node)
 
 		(assign '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)) '(r8 r9 r10 r11))
-		(assign '((r4 local_dx i) (r4 local_dy i)) '(r12 r13))
+		(assign '((rsp local_dx i) (rsp local_dy i)) '(r12 r13))
 		(vp-add-rr r12 r8)
 		(vp-add-rr r13 r9)
 		(vp-add-rr r12 r10)
 		(vp-add-rr r13 r11)
-		(f-call 'gui_region 'copy_rect '(r0 (r4 local_slist) (r4 local_dlist) r8 r9 r10 r11))
+		(f-call 'gui_region 'copy_rect '(r0 (rsp local_slist) (rsp local_dlist) r8 r9 r10 r11))
 
-		(vp-cpy-ir r4 local_node r1)
+		(vp-cpy-ir rsp local_node r1)
 	(loop-end)
 
 	(f-exit 'gui_region 'copy_region '(r0))
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -278,9 +278,9 @@
 			;run through source region list
 			(vp-cpy-rr r2 r5)
 			(vp-cpy-rr r1 r6)
-			(vp-sub-cr ptr_size r4)
+			(vp-alloc-stack ptr_size)
 			(loop-flist r1 0 r7 r2)
-				(vp-cpy-ri r2 r4 0)
+				(vp-cpy-ri r2 rsp 0)
 
 				;not in contact ?
 				(vp-cpy-ir-i r7 gui_rect_x r12)
@@ -502,7 +502,7 @@
 			(vp-label 'cut_encl)
 				;region is enclosed
 				(vp-cpy-rr r7 r1)
-				(vp-cpy-ir r4 0 r2)
+				(vp-cpy-ir rsp 0 r2)
 				(ln-remove-fnode r7 r2)
 				(ln-add-fnode r5 0 r1 r2)
 				(continue)
@@ -587,7 +587,7 @@
 				(ln-add-fnode r6 0 r1 r2)
 				(assign '(r12 r13 r14 r9) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 			(loop-end)
-			(vp-add-cr 8 r4)
+			(vp-free-stack 8)
 		(endif)
 	(endif)
 	(f-exit 'gui_region 'cut_rect '(r0))
@@ -836,26 +836,26 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(f-entry 'gui_region 'paste_region '(r0 r1 (r4 local_dlist) (r4 local_dx i) (r4 local_dy i)))
+	(vp-alloc-stack local_size)
+	(f-entry 'gui_region 'paste_region '(r0 r1 (rsp local_dlist) (rsp local_dx i) (rsp local_dy i)))
 
 	;run through source region list
 	(loop-flist r1 0 r1 r1)
-		(vp-cpy-ri r1 r4 local_node)
+		(vp-cpy-ri r1 rsp local_node)
 
 		(assign '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)) '(r8 r9 r10 r11))
-		(assign '((r4 local_dx i) (r4 local_dy i)) '(r12 r13))
+		(assign '((rsp local_dx i) (rsp local_dy i)) '(r12 r13))
 		(vp-add-rr r12 r8)
 		(vp-add-rr r13 r9)
 		(vp-add-rr r12 r10)
 		(vp-add-rr r13 r11)
-		(f-call 'gui_region 'paste_rect '(r0 (r4 local_dlist) r8 r9 r10 r11))
+		(f-call 'gui_region 'paste_rect '(r0 (rsp local_dlist) r8 r9 r10 r11))
 
-		(vp-cpy-ir r4 local_node r1)
+		(vp-cpy-ir rsp local_node r1)
 	(loop-end)
 
 	(f-exit 'gui_region 'paste_region '(r0))
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -1132,26 +1132,26 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(f-entry 'gui_region 'remove_region '(r0 r1 (r4 local_dlist) (r4 local_dx i) (r4 local_dy i)))
+	(vp-alloc-stack local_size)
+	(f-entry 'gui_region 'remove_region '(r0 r1 (rsp local_dlist) (rsp local_dx i) (rsp local_dy i)))
 
 	;run through source region list
 	(loop-flist r1 0 r1 r1)
-		(vp-cpy-ri r1 r4 local_node)
+		(vp-cpy-ri r1 rsp local_node)
 
 		(assign '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)) '(r8 r9 r10 r11))
-		(assign '((r4 local_dx i) (r4 local_dy i)) '(r12 r13))
+		(assign '((rsp local_dx i) (rsp local_dy i)) '(r12 r13))
 		(vp-add-rr r12 r8)
 		(vp-add-rr r13 r9)
 		(vp-add-rr r12 r10)
 		(vp-add-rr r13 r11)
-		(f-call 'gui_region 'remove_rect '(r0 (r4 local_dlist) r8 r9 r10 r11))
+		(f-call 'gui_region 'remove_rect '(r0 (rsp local_dlist) r8 r9 r10 r11))
 
-		(vp-cpy-ir r4 local_node r1)
+		(vp-cpy-ir rsp local_node r1)
 	(loop-end)
 
 	(f-exit 'gui_region 'remove_region '(r0))
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)

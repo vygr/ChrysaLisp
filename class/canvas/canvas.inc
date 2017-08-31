@@ -72,7 +72,7 @@
 	;outputs
 	;r0 = canvas object
 	;trashes
-	;all but r0, r4
+	;all but r0
 	(f-call 'canvas 'fbox `(r0 r1 (@ ,(f-path 'canvas 'set_span_noclip)) r8 r9 r10 r11)))
 
 (defcfun class/canvas/set_fpoly ()
@@ -84,7 +84,7 @@
 	;outputs
 	;r0 = canvas object
 	;trashes
-	;all but r0, r4
+	;all but r0
 	(f-call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'set_span)))))
 
 (defcfun class/canvas/blend_fbox ()
@@ -98,7 +98,7 @@
 	;outputs
 	;r0 = canvas object
 	;trashes
-	;all but r0, r4
+	;all but r0
 	(f-call 'canvas 'fbox `(r0 r1 (@ ,(f-path 'canvas 'blend_span_noclip)) r8 r9 r10 r11)))
 
 (defcfun class/canvas/blend_fpoly ()
@@ -110,5 +110,5 @@
 	;outputs
 	;r0 = canvas object
 	;trashes
-	;all but r0, r4
+	;all but r0
 	(f-call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'blend_span)))))

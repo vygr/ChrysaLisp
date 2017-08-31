@@ -231,8 +231,8 @@
 	(elem-set 0 (elem -3 (push *syms* (list 0 (list) (list)))) *sym-sp*)
 	(when (ne *sym-sp* 0)
 		(when debug_inst
-			(print "(vp-sub-cr " *sym-sp* " r4)"))
-		(vp-sub-cr *sym-sp* r4)
+			(print "(vp-alloc-stack " *sym-sp* ")"))
+		(vp-alloc-stack *sym-sp*)
 		(setq *sym-sp* 0)))
 
 (defcfun pop-scope-syms ()
@@ -250,8 +250,8 @@
 	(defq _ (pop-scope-syms))
 	(when (ne _ 0)
 		(when debug_inst
-			(print "(vp-add-cr " _ " r4)"))
-		(vp-add-cr _ r4)))
+			(print "(vp-free-stack " _ ")"))
+		(vp-free-stack _)))
 
 (defcfun pop-scope-checked ()
 	(defq _ (pop-scope-syms))
@@ -261,8 +261,8 @@
 (defcfun unwind ()
 	(when (ne (defq _ (get-scope -1)) 0)
 		(when debug_inst
-			(print "(vp-add-cr " _ " r4)"))
-		(vp-add-cr _ r4)))
+			(print "(vp-free-stack " _ ")"))
+		(vp-free-stack _)))
 
 (defcfun return ()
 	(unwind)
@@ -730,7 +730,7 @@
 				(t (throw "Symbol not defined !" _))))
 		((eql 'var (elem 1 s))
 			;variable
-			(add-inst `(vp-lea-i r4 ,(add (get-scope (elem 0 s)) (elem 2 s))
+			(add-inst `(vp-lea-i rsp ,(add (get-scope (elem 0 s)) (elem 2 s))
 									,(push-reg (elem 3 s)))))
 		(t (throw "Symbol not a variable !" _))))
 
@@ -974,10 +974,10 @@
 			;variable loading and offset folding
 			((find (defq e (elem i *inst*) o (elem 0 e))
 				'(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui))
-				(when (opt-find? i (defq r (elem 1 e)) `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
+				(when (opt-find? i (defq r (elem 1 e)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((eq m 0)
-							(elem-set 1 e r4)
+							(elem-set 1 e rsp)
 							(elem-set 2 e `(add ,(elem 2 (elem p *inst*)) ,(elem 2 e))))
 						((eq m 1)
 							(elem-set 2 e `(add ,(elem 1 (elem p *inst*)) ,(elem 2 e)))
@@ -985,10 +985,10 @@
 					(elem-set p *inst* (lambda))))
 			;variable writing and offset folding
 			((find o '(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i))
-				(when (opt-find? i (defq r (elem 2 e)) `(vp-lea-i r4 _ ,r) `(vp-add-cr _ ,r))
+				(when (opt-find? i (defq r (elem 2 e)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r))
 					(cond
 						((eq m 0)
-							(elem-set 2 e r4)
+							(elem-set 2 e rsp)
 							(elem-set 3 e `(add ,(elem 2 (elem p *inst*)) ,(elem 3 e))))
 						((eq m 1)
 							(elem-set 3 e `(add ,(elem 1 (elem p *inst*)) ,(elem 3 e)))

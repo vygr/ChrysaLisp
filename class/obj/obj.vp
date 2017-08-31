@@ -7,7 +7,7 @@
 	;inputs
 	;r0 = object
 	;trashes
-	;all but r4
+	;all but rsp
 
 	(v-call 'obj 'deinit '(r0))
 	(v-jmp 'obj 'delete '(r0))
@@ -21,7 +21,7 @@
 	;r0 = object
 	;r1 = hash code
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;save inputs
 	(vp-cpy-rr r0 r1)

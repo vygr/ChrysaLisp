@@ -23,15 +23,15 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(f-entry 'hash_set 'init '((r4 local_this) r1 (r0 hash_set_key_callback) (r0 hash_set_num_buckets i)))
+	(vp-alloc-stack local_size)
+	(f-entry 'hash_set 'init '((rsp local_this) r1 (r0 hash_set_key_callback) (r0 hash_set_num_buckets i)))
 
 	;init parent
 	(s-call 'hash_set 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
 		(f-call 'vector 'create '() '(r0))
-		(vp-cpy-ir r4 local_this r1)
+		(vp-cpy-ir rsp local_this r1)
 		(vp-cpy-ri r0 r1 hash_set_buckets)
 		(vp-cpy-ir-ui r1 hash_set_num_buckets r1)
 		(vpif '(r1 != 1))
@@ -40,10 +40,10 @@
 			(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) 0) '(_ r1))
 			(vp-add-cr 1 r1)
 		(endif)
-		(vp-cpy-ir r4 local_this r0)
+		(vp-cpy-ir rsp local_this r0)
 	(endif)
 
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -65,7 +65,7 @@
 	;inputs
 	;r0 = hash_set object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(vp-push r0)
 	(f-call 'vector 'deref '((r0 hash_set_buckets)))
@@ -80,7 +80,7 @@
 	;outputs
 	;r0 = hash_set object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;clear all buckets
 	(vp-push r0)
@@ -115,12 +115,12 @@
 	;r0 = hash_set object
 	;r1 = hash_set copy
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(vp-cpy-rr r0 r9)
 	(f-call 'hash_set 'create '((r0 hash_set_key_callback) r1) '(r0))
 	(vp-push r0)
-	(f-call 'hash_set 'for_each '(r9 ($ callback) r4))
+	(f-call 'hash_set 'for_each '(r9 ($ callback) rsp))
 	(vp-pop r1)
 	(vp-ret)
 
@@ -148,7 +148,7 @@
 	;outputs
 	;r0 = hash_set object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -157,26 +157,26 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(f-entry 'hash_set 'erase '((r4 local_this) (r4 local_iter) (r4 local_bucket)))
+	(vp-alloc-stack local_size)
+	(f-entry 'hash_set 'erase '((rsp local_this) (rsp local_iter) (rsp local_bucket)))
 
 	;swap last entry for erased entry
 	(f-call 'ref 'deref '((r1 0)))
-	(vp-cpy-ir r4 local_bucket r0)
+	(vp-cpy-ir rsp local_bucket r0)
 	(vp-cpy-ir-ui r0 array_length r1)
 	(vp-sub-cr 1 r1)
 	(vp-cpy-ri-i r1 r0 array_length)
 	(vp-shl-cr (log2 ptr_size) r1)
 	(vp-cpy-ir r0 array_array r0)
 	(vp-add-rr r0 r1)
-	(vp-cpy-ir r4 local_iter r0)
+	(vp-cpy-ir rsp local_iter r0)
 	(vpif '(r1 != r0))
 		(vp-cpy-ir r1 0 r1)
 		(vp-cpy-ri r1 r0 0)
 	(endif)
 
-	(f-exit 'hash_set 'erase '((r4 local_this)))
-	(vp-add-cr local_size r4)
+	(f-exit 'hash_set 'erase '((rsp local_this)))
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -190,7 +190,7 @@
 	;r1 = 0, else found iterator
 	;r2 = bucket vector
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -198,8 +198,8 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(f-entry 'hash_set 'find '(r0 (r4 local_key)))
+	(vp-alloc-stack local_size)
+	(f-entry 'hash_set 'find '(r0 (rsp local_key)))
 
 	(vp-cpy-ir r0 hash_set_key_callback r2)
 	(vpif '(r2 == 0) 'exit)
@@ -209,7 +209,7 @@
 		(vp-cpy-ir r2 array_array r1)
 		(vp-shl-cr (log2 long_size) r3)
 		(vp-add-rr r1 r3)
-		(vp-cpy-ir r4 local_key r5)
+		(vp-cpy-ir rsp local_key r5)
 		(loop-while '(r1 != r3))
 			(vp-cpy-ir r1 0 r6)
 			(breakif '(r5 == r6) exit)
@@ -218,14 +218,14 @@
 		(vp-xor-rr r1 r1)
 	(else)
 		;search hash bucket
-		(vp-cpy-ri r0 r4 local_this)
+		(vp-cpy-ri r0 rsp local_this)
 		(f-call 'hash_set 'get_bucket '(r0 r1) '(_ r0))
-		(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) r4) '(r2 r1))
-		(vp-cpy-ir r4 local_this r0)
+		(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) rsp) '(r2 r1))
+		(vp-cpy-ir rsp local_this r0)
 	(endif)
 
 	(f-exit 'hash_set 'find '(r0 r1 r2))
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -252,7 +252,7 @@
 	;r1 = 0, else break iterator
 	;r2 = 0, else bucket vector
 	;trashes
-	;all but r0, r4
+	;all but r0
 		;callback predicate
 		;inputs
 		;r0 = predicate data pointer
@@ -260,7 +260,7 @@
 		;outputs
 		;r1 = 0 if break, else not
 		;trashes
-		;all but r0, r4
+		;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -270,8 +270,8 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(f-entry 'hash_set 'for_each '((r4 local_this) r1 r2))
+	(vp-alloc-stack local_size)
+	(f-entry 'hash_set 'for_each '((rsp local_this) r1 r2))
 
 	;for all buckets
 	(vp-cpy-ir-ui r0 hash_set_num_buckets r3)
@@ -282,16 +282,16 @@
 			(vp-cpy-rr r0 r2)
 		(endif)
 	(else)
-		(assign '(r1 r2) '((r4 local_predicate) (r4 local_predicate_data)))
-		(f-call 'vector 'for_each '(r0 0 r3 ($ callback) r4) '(_ r2))
+		(assign '(r1 r2) '((rsp local_predicate) (rsp local_predicate_data)))
+		(f-call 'vector 'for_each '(r0 0 r3 ($ callback) rsp) '(_ r2))
 		(vpif '(r2 != 0))
 			(vp-cpy-ir r2 0 r2)
-			(vp-cpy-ir r4 local_iter r1)
+			(vp-cpy-ir rsp local_iter r1)
 		(endif)
 	(endif)
 
-	(f-exit 'hash_set 'for_each '((r4 local_this) r1 r2))
-	(vp-add-cr local_size r4)
+	(f-exit 'hash_set 'for_each '((rsp local_this) r1 r2))
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -324,7 +324,7 @@
 	;r0 = hash_set object
 	;r1 = bucket vector
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -335,18 +335,18 @@
 	(vp-cpy-ir-ui r0 hash_set_num_buckets r2)
 	(vpif '(r2 != 1))
 		;save inputs
-		(vp-sub-cr local_size r4)
-		(assign '(r0 r2) '((r4 local_this) (r4 local_length i)))
+		(vp-alloc-stack local_size)
+		(assign '(r0 r2) '((rsp local_this) (rsp local_length i)))
 
 		(v-call 'obj 'hash '(r1) '(_ r0))
-		(vp-cpy-ir-ui r4 local_length r1)
+		(vp-cpy-ir-ui rsp local_length r1)
 		(vp-xor-rr r2 r2)
 		(vp-div-rrr-u r1 r2 r0)
-		(vp-cpy-ir r4 local_this r0)
+		(vp-cpy-ir rsp local_this r0)
 		(f-call 'vector 'get_element '((r0 hash_set_buckets) r2) '(_ r1))
 
-		(vp-cpy-ir r4 local_this r0)
-		(vp-add-cr local_size r4)
+		(vp-cpy-ir rsp local_this r0)
+		(vp-free-stack local_size)
 	(else)
 		(vp-cpy-ir r0 hash_set_buckets r1)
 	(endif)
@@ -363,7 +363,7 @@
 	;r1 = iterator
 	;r2 = bucket vector
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -371,15 +371,15 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(f-entry 'hash_set 'insert '(r0 (r4 local_key)))
+	(vp-alloc-stack local_size)
+	(f-entry 'hash_set 'insert '(r0 (rsp local_key)))
 
 	;search hash bucket
 	(f-call 'hash_set 'find '(r0 r1) '(r0 r1 r2))
 	(vpif '(r1 == 0))
 		;new key
-		(vp-cpy-ri r0 r4 local_this)
-		(f-call 'ref 'ref '((r4 local_key)))
+		(vp-cpy-ri r0 rsp local_this)
+		(f-call 'ref 'ref '((rsp local_key)))
 		(f-call 'vector 'push_back '(r2 r0))
 		(vp-cpy-rr r0 r2)
 		(vp-cpy-ir-ui r0 array_length r1)
@@ -387,11 +387,11 @@
 		(vp-shl-cr (log2 ptr_size) r1)
 		(vp-add-rr r1 r0)
 		(vp-lea-i r0 (neg ptr_size) r1)
-		(vp-cpy-ir r4 local_this r0)
+		(vp-cpy-ir rsp local_this r0)
 	(endif)
 
 	(f-exit 'hash_set 'insert '(r0 r1 r2))
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)

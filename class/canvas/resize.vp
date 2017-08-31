@@ -8,7 +8,7 @@
 	;outputs
 	;r0 = canvas object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'source)
 	(puint 'data 'dsrc)

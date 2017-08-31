@@ -47,20 +47,20 @@
 	(def-struct-end)
 
 	;init vars
-	(vp-sub-cr local_size r4)
+	(vp-alloc-stack local_size)
 	(vp-xor-rr r0 r0)
-	(vp-cpy-ri-i r0 r4 local_last_x_pos)
-	(vp-cpy-ri-i r0 r4 local_last_y_pos)
-	(vp-cpy-ri r0 r4 local_last_buttons)
-	(vp-cpy-ri r0 r4 local_last_view)
-	(vp-cpy-ri r0 r4 local_key_view)
-	(vp-cpy-ri r0 r4 local_old_keymap)
+	(vp-cpy-ri-i r0 rsp local_last_x_pos)
+	(vp-cpy-ri-i r0 rsp local_last_y_pos)
+	(vp-cpy-ri r0 rsp local_last_buttons)
+	(vp-cpy-ri r0 rsp local_last_view)
+	(vp-cpy-ri r0 rsp local_key_view)
+	(vp-cpy-ri r0 rsp local_old_keymap)
 	(f-bind 'gui_gui 'statics r1)
 	(vp-cpy-ri r0 r1 gui_statics_screen)
 
 	;kernel callback for first update
 	;this will init SDL etc
-	(f-call 'sys_task 'callback '(($ update_callback) r4))
+	(f-call 'sys_task 'callback '(($ update_callback) rsp))
 
 	;allocate background view for screen
 	(f-call 'label 'create '() '(r0))
@@ -84,22 +84,22 @@
 	(loop-start)
 	(vp-label 'next_frame)
 		;kernel callback for update
-		(f-call 'sys_task 'callback '(($ update_callback) r4))
+		(f-call 'sys_task 'callback '(($ update_callback) rsp))
 
 		;frame rate of gui updates
 		(f-call 'sys_task 'sleep '((div 1000000 30)))
 
 		;get keyboard info, see if any changes
-		(vp-cpy-ir r4 local_old_keymap r1)
+		(vp-cpy-ir rsp local_old_keymap r1)
 		(vpif '(r1 == 0))
 			;create old keymap
-			(f-call 'sys_mem 'alloc '((r4 local_keymap_size)) '(r0 _))
-			(vp-cpy-ri r0 r4 local_old_keymap)
-			(f-call 'sys_mem 'clear '(r0 (r4 local_keymap_size)))
-			(vp-cpy-ir r4 local_old_keymap r1)
+			(f-call 'sys_mem 'alloc '((rsp local_keymap_size)) '(r0 _))
+			(vp-cpy-ri r0 rsp local_old_keymap)
+			(f-call 'sys_mem 'clear '(r0 (rsp local_keymap_size)))
+			(vp-cpy-ir rsp local_old_keymap r1)
 		(endif)
-		(vp-cpy-ir r4 local_keymap r0)
-		(vp-cpy-ir-ui r4 local_keymap_size r2)
+		(vp-cpy-ir rsp local_keymap r0)
+		(vp-cpy-ir-ui rsp local_keymap_size r2)
 
 		;dispatch any key events
 		(vp-cpy-ir-ub r0 0xe1 r8)
@@ -131,7 +131,7 @@
 				(loop-until '(r5 >= r6))
 
 				;dispatch to task and target view
-				(vp-cpy-ir r4 local_key_view r6)
+				(vp-cpy-ir rsp local_key_view r6)
 				(vpif '(r6 != 0))
 					(vp-push r0 r1 r2)
 					;lookup view owner
@@ -164,26 +164,26 @@
 		(loop-end)
 
 		;get mouse info, see if any changes
-		(vp-cpy-ir-i r4 local_x_pos r8)
-		(vp-cpy-ir-i r4 local_y_pos r9)
-		(vp-cpy-ir r4 local_buttons r10)
-		(vp-cpy-ir-i r4 local_last_x_pos r11)
+		(vp-cpy-ir-i rsp local_x_pos r8)
+		(vp-cpy-ir-i rsp local_y_pos r9)
+		(vp-cpy-ir rsp local_buttons r10)
+		(vp-cpy-ir-i rsp local_last_x_pos r11)
 		(vpif '(r8 == r11))
-			(vp-cpy-ir-i r4 local_last_y_pos r11)
+			(vp-cpy-ir-i rsp local_last_y_pos r11)
 			(vpif '(r9 == r11))
-				(vp-cpy-ir-i r4 local_last_buttons r11)
+				(vp-cpy-ir-i rsp local_last_buttons r11)
 				(vpif '(r10 == r11))
 					;same as last time
 					(vp-jmp 'next_frame)
 				(endif)
 			(endif)
 		(endif)
-		(vp-cpy-ri-i r8 r4 local_last_x_pos)
-		(vp-cpy-ri-i r9 r4 local_last_y_pos)
-		(vp-cpy-ri r10 r4 local_last_buttons)
+		(vp-cpy-ri-i r8 rsp local_last_x_pos)
+		(vp-cpy-ri-i r9 rsp local_last_y_pos)
+		(vp-cpy-ri r10 rsp local_last_buttons)
 
 		;dispatch to task and target view
-		(vp-cpy-ir r4 local_last_view r6)
+		(vp-cpy-ir rsp local_last_view r6)
 		(vpif '(r6 != 0))
 		(vp-label 'send_mouse)
 			;do we need to wait till button goes up ?
@@ -203,8 +203,8 @@
 					(vp-cpy-ri r1 r0 msg_length)
 					(vp-cpy-ri r14 r0 (add msg_dest id_mbox))
 					(vp-cpy-ri r15 r0 (add msg_dest id_cpu))
-					(vp-cpy-ir-i r4 local_x_pos r8)
-					(vp-cpy-ir-i r4 local_y_pos r9)
+					(vp-cpy-ir-i rsp local_x_pos r8)
+					(vp-cpy-ir-i rsp local_y_pos r9)
 					(vp-cpy-cr ev_type_mouse r1)
 					(vp-cpy-ri r1 r0 ev_msg_type)
 					(vp-cpy-ri r6 r0 ev_msg_view)
@@ -225,14 +225,14 @@
 
 			;if button went up then clear locked view
 			(vpif '(r10 == 0))
-				(vp-cpy-ri r10 r4 local_last_view)
+				(vp-cpy-ri r10 rsp local_last_view)
 			(endif)
 		(else)
 			;button down ?
 			(vpif '(r10 != 0))
 				;find view
 				(f-bind 'gui_gui 'statics r5)
-				(f-call 'view 'hit_tree '((r5 gui_statics_screen) (r4 local_x_pos i) (r4 local_y_pos i)) '(_ r1 r8 r9))
+				(f-call 'view 'hit_tree '((r5 gui_statics_screen) (rsp local_x_pos i) (rsp local_y_pos i)) '(_ r1 r8 r9))
 				(vp-cpy-ir-i r5 gui_statics_screen r6)
 				(vpif '(r1 == r6))
 					(vp-xor-rr r1 r1)
@@ -240,29 +240,29 @@
 				(vpif '(r1 == 0))
 					(vp-cpy-cr -1 r1)
 				(endif)
-				(vp-cpy-ri r1 r4 local_last_view)
+				(vp-cpy-ri r1 rsp local_last_view)
 				(vp-cpy-rr r1 r6)
 				(vp-jmp 'send_mouse)
 			(else)
 				;hover
 				;find view for keys
 				(f-bind 'gui_gui 'statics r5)
-				(f-call 'view 'hit_tree '((r5 gui_statics_screen) (r4 local_x_pos i) (r4 local_y_pos i)) '(_ r1 _ _))
-				(vp-cpy-ri r1 r4 local_key_view)
+				(f-call 'view 'hit_tree '((r5 gui_statics_screen) (rsp local_x_pos i) (rsp local_y_pos i)) '(_ r1 _ _))
+				(vp-cpy-ri r1 rsp local_key_view)
 			(endif)
 		(endif)
 	(loop-end)
 
 	;free old key map
-	(vp-cpy-ir r4 local_old_keymap r0)
+	(vp-cpy-ir rsp local_old_keymap r0)
 	(vpif '(r0 != 0))
 		(f-call 'sys_mem 'free '(r0))
 	(endif)
 
 	;deinit
-	(f-call 'sys_task 'callback '(($ deinit_callback) r4))
+	(f-call 'sys_task 'callback '(($ deinit_callback) rsp))
 
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (vp-label 'update_callback)
@@ -275,11 +275,11 @@
 	(def-struct-end)
 
 	;align stack
-	(vp-cpy-rr r4 r1)
-	(vp-sub-cr klocal_size r4)
-	(vp-and-cr -16 r4)
-	(vp-cpy-ri r1 r4 klocal_old_stack)
-	(vp-cpy-ri r0 r4 klocal_user)
+	(vp-cpy-rr rsp r1)
+	(vp-alloc-stack klocal_size)
+	(vp-and-cr -16 rsp)
+	(vp-cpy-ri r1 rsp klocal_old_stack)
+	(vp-cpy-ri r0 rsp klocal_user)
 
 	;create screen window ?
 	(f-bind 'gui_gui 'statics r0)
@@ -312,17 +312,17 @@
 		(sdl-pump-events)
 
 		;get mouse state
-		(vp-cpy-ir r4 klocal_user r0)
+		(vp-cpy-ir rsp klocal_user r0)
 		(vp-lea-i r0 local_x_pos r1)
 		(vp-lea-i r0 local_y_pos r2)
 		(sdl-get-mouse-state '(r1 r2))
-		(vp-cpy-ir r4 klocal_user r1)
+		(vp-cpy-ir rsp klocal_user r1)
 		(vp-cpy-ri r0 r1 local_buttons)
 
 		;get keyboard state
 		(vp-add-cr local_keymap_size r1)
 		(sdl-get-keyboard-state '(r1))
-		(vp-cpy-ir r4 klocal_user r1)
+		(vp-cpy-ir rsp klocal_user r1)
 		(vp-cpy-ri r0 r1 local_keymap)
 
 		;update the screen
@@ -334,7 +334,7 @@
 		(sdl-render-present '((r0 gui_statics_renderer)))
 	(endif)
 
-	(vp-cpy-ir r4 klocal_old_stack r4)
+	(vp-cpy-ir rsp klocal_old_stack rsp)
 	(vp-ret)
 
 (vp-label 'deinit_callback)
@@ -364,14 +364,14 @@
 	(vp-cpy-ir r5 gui_statics_window r14)
 	(vpif '(r14 != 0))
 		;align stack on 16 byte boundary
-		(vp-cpy-rr r4 r15)
-		(vp-and-cr -16 r4)
+		(vp-cpy-rr rsp r15)
+		(vp-and-cr -16 rsp)
 
 		(sdl-destroy-window '(r14))
 		(ttf-quit)
 		(sdl-quit)
 
-		(vp-cpy-rr r15 r4)
+		(vp-cpy-rr r15 rsp)
 	(endif)
 	(vp-ret)
 
@@ -447,7 +447,7 @@
 	;inputs
 	;r0 = view object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(vp-push r0)
 	(f-bind 'gui_gui 'statics r2)
@@ -461,7 +461,7 @@
 	;inputs
 	;r0 = root view object
 	;trashes
-	;all but r4
+	;all but rsp
 
 	(def-struct 'local)
 		(ptr 'root)
@@ -471,8 +471,8 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_root)
+	(vp-alloc-stack local_size)
+	(vp-cpy-ri r0 rsp local_root)
 
 	;iterate through views back to front
 	;setting abs cords
@@ -492,10 +492,10 @@
 	(assign '((r0 view_w i) (r0 view_h i)) '(r10 r11))
 	(f-bind 'gui_gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
-	(f-call 'gui_region 'copy_rect '(r0 r1 r4 0 0 r10 r11))
+	(f-call 'gui_region 'copy_rect '(r0 r1 rsp 0 0 r10 r11))
 
 	;paste old visable region into root
-	(vp-cpy-ir r4 8 r0)
+	(vp-cpy-ir rsp 8 r0)
 	(vp-lea-i r0 view_dirty_region r2)
 	(f-bind 'gui_gui 'statics r1)
 	(vp-lea-i r1 gui_statics_rect_heap r0)
@@ -513,31 +513,31 @@
 	;iterate through views front to back
 	;distribute visible region
 	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r1 r4 local_ctx_flist)
-	(f-call 'view 'forward_tree '(r0 r4 ($ distribute_down_callback) ($ distribute_up_callback)))
+	(vp-cpy-ri r1 rsp local_ctx_flist)
+	(f-call 'view 'forward_tree '(r0 rsp ($ distribute_down_callback) ($ distribute_up_callback)))
 
 	;draw all on draw list, and free dirty regions
 	(f-bind 'gui_gui 'statics r1)
 	(vp-cpy-ir r1 gui_statics_renderer r1)
-	(vp-cpy-ri r1 r4 (add local_ctx gui_ctx_sdl_ctx))
-	(loop-flist r4 local_ctx_flist r0 r0)
-		(vp-cpy-ri r0 r4 local_ctx_next)
+	(vp-cpy-ri r1 rsp (add local_ctx gui_ctx_sdl_ctx))
+	(loop-flist rsp local_ctx_flist r0 r0)
+		(vp-cpy-ri r0 rsp local_ctx_next)
 		(vp-sub-cr view_ctx_node r0)
 		(assign '((r0 view_ctx_x i) (r0 view_ctx_y i)) '(r8 r9))
-		(vp-lea-i r4 local_ctx r1)
+		(vp-lea-i rsp local_ctx r1)
 		(vp-lea-i r0 view_dirty_region r2)
 		(assign '(r8 r9) '((r1 gui_ctx_x i) (r1 gui_ctx_y i)))
 		(vp-cpy-ri r2 r1 gui_ctx_dirty_region)
 		(v-call 'view 'draw '(r0 r1))
-		(vp-cpy-ir r4 local_ctx_next r1)
+		(vp-cpy-ir rsp local_ctx_next r1)
 		(vp-sub-cr (sub view_ctx_node view_dirty_region) r1)
 		(f-bind 'gui_gui 'statics r0)
 		(vp-add-cr gui_statics_rect_heap r0)
 		(f-call 'gui_region 'free '(r0 r1))
-		(vp-cpy-ir r4 local_ctx_next r0)
+		(vp-cpy-ir rsp local_ctx_next r0)
 	(loop-end)
 
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (vp-label 'null_func_down_callback)
@@ -567,21 +567,21 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr vis_size r4)
-	(vp-cpy-ri r0 r4 vis_this)
-	(vp-cpy-ri r1 r4 vis_root)
+	(vp-alloc-stack vis_size)
+	(vp-cpy-ri r0 rsp vis_this)
+	(vp-cpy-ri r1 rsp vis_root)
 
 	;region heap
 	(f-bind 'gui_gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
 
 	;remove opaque region from ancestors if not root
-	(vp-cpy-ir r4 vis_this r1)
-	(vp-cpy-ir r4 vis_root r2)
+	(vp-cpy-ir rsp vis_this r1)
+	(vp-cpy-ir rsp vis_root r2)
 	(vpif '(r1 != r2))
 		;remove my opaque region from ancestors
 		(vp-xor-rr r2 r2)
-		(vp-cpy-ri r2 r4 vis_region)
+		(vp-cpy-ri r2 rsp vis_region)
 
 		;first copy any opaque region
 		(assign '((r1 view_x i) (r1 view_y i)) '(r8 r9))
@@ -592,48 +592,48 @@
 		(vp-add-rr r8 r10)
 		(vp-add-rr r9 r11)
 		(vp-add-cr view_opaque_region r1)
-		(vp-lea-i r4 vis_region r2)
+		(vp-lea-i rsp vis_region r2)
 		(f-call 'gui_region 'copy_rect '(r0 r1 r2 r8 r9 r10 r11) '(r0))
 
 		;remove from ancestors
-		(vp-cpy-ir r4 vis_this r1)
+		(vp-cpy-ir rsp vis_this r1)
 		(loop-start)
 			(vp-cpy-ir r1 view_parent r2)
-			(vp-cpy-ri r2 r4 vis_next)
+			(vp-cpy-ri r2 rsp vis_next)
 
 			;exit if clipped away
-			(vp-cpy-ir r4 vis_region r3)
+			(vp-cpy-ir rsp vis_region r3)
 			(breakif '(r3 == 0))
 
 			;translate temp opaque region
 			(assign '((r1 view_x i) (r1 view_y i)) '(r8 r9))
-			(vp-lea-i r4 vis_region r1)
+			(vp-lea-i rsp vis_region r1)
 			(f-call 'gui_region 'translate '(r1 r8 r9))
 
 			;clip temp opaque region
-			(vp-cpy-ir r4 vis_next r2)
-			(vp-lea-i r4 vis_region r1)
+			(vp-cpy-ir rsp vis_next r2)
+			(vp-lea-i rsp vis_region r1)
 			(f-call 'gui_region 'clip_rect '(r0 r1 0 0 (r2 view_w i) (r2 view_h i)) '(r0))
 
 			;remove temp opaque region
-			(vp-lea-i r4 vis_region r1)
-			(vp-cpy-ir r4 vis_next r2)
+			(vp-lea-i rsp vis_region r1)
+			(vp-cpy-ir rsp vis_next r2)
 			(vp-add-cr view_dirty_region r2)
 			(f-call 'gui_region 'remove_region '(r0 r1 r2 0 0) '(r0))
 
-			(vp-cpy-ir r4 vis_next r1)
-			(vp-cpy-ir r4 vis_root r2)
+			(vp-cpy-ir rsp vis_next r1)
+			(vp-cpy-ir rsp vis_root r2)
 		(loop-until '(r1 == r2))
 
 		;free any temp region
-		(vp-lea-i r4 vis_region r1)
+		(vp-lea-i rsp vis_region r1)
 		(f-call 'gui_region 'free '(r0 r1) '(r0))
 	(endif)
 
 	;clip local dirty region with parent bounds if not root
-	(vp-cpy-ir r4 vis_this r1)
+	(vp-cpy-ir rsp vis_this r1)
 	(vp-cpy-ir r1 view_parent r2)
-	(vp-cpy-ir r4 vis_root r3)
+	(vp-cpy-ir rsp vis_root r3)
 	(vpif '(r1 == r3))
 		(vp-cpy-rr r1 r2)
 	(endif)
@@ -646,8 +646,8 @@
 	(f-call 'gui_region 'clip_rect '(r0 r1 r8 r9 r10 r11) '(r0))
 
 	;paste local dirty region onto parent if not root
-	(vp-cpy-ir r4 vis_this r1)
-	(vp-cpy-ir r4 vis_root r3)
+	(vp-cpy-ir rsp vis_this r1)
+	(vp-cpy-ir rsp vis_root r3)
 	(vpif '(r1 != r3))
 		(assign '((r1 view_x i) (r1 view_y i)) '(r8 r9))
 		(vp-cpy-ir r1 view_parent r2)
@@ -656,13 +656,13 @@
 		(f-call 'gui_region 'paste_region '(r0 r1 r2 r8 r9) '(r0))
 
 		;free local dirty region
-		(vp-cpy-ir r4 vis_this r1)
+		(vp-cpy-ir rsp vis_this r1)
 		(vp-add-cr view_dirty_region r1)
 		(f-call 'gui_region 'free '(r0 r1))
 	(endif)
 
-	(vp-cpy-ir r4 vis_this r0)
-	(vp-add-cr vis_size r4)
+	(vp-cpy-ir rsp vis_this r0)
+	(vp-free-stack vis_size)
 	(vp-ret)
 
 (vp-label 'distribute_down_callback)
@@ -673,16 +673,16 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr dist_size r4)
-	(vp-cpy-ri r0 r4 dist_this)
-	(vp-cpy-ri r1 r4 dist_data)
+	(vp-alloc-stack dist_size)
+	(vp-cpy-ri r0 rsp dist_this)
+	(vp-cpy-ri r1 rsp dist_data)
 
 	;region heap
 	(f-bind 'gui_gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
 
 	;copy view from parent if not root
-	(vp-cpy-ir r4 dist_this r2)
+	(vp-cpy-ir rsp dist_this r2)
 	(vp-cpy-ir r1 local_root r3)
 	(vpif '(r2 != r3))
 		;copy my area from parent
@@ -695,31 +695,31 @@
 		(f-call 'gui_region 'copy_rect '(r0 r1 r2 r8 r9 r10 r11) '(r0))
 
 		;did we find any
-		(vp-cpy-ir r4 dist_this r1)
+		(vp-cpy-ir rsp dist_this r1)
 		(vp-cpy-ir r1 view_dirty_region r1)
 		(vpif '(r1 != 0))
 			;remove my opaque region from ancestors
-			(vp-cpy-ir r4 dist_this r2)
+			(vp-cpy-ir rsp dist_this r2)
 			(loop-start)
 				(vp-cpy-ir r2 view_parent r2)
-				(vp-cpy-ri r2 r4 dist_next)
+				(vp-cpy-ri r2 rsp dist_next)
 
-				(vp-cpy-ir r4 dist_this r1)
+				(vp-cpy-ir rsp dist_this r1)
 				(assign '((r1 view_ctx_x i) (r1 view_ctx_y i)) '(r8 r9))
 				(vp-add-cr view_opaque_region r1)
 				(vp-add-cr view_dirty_region r2)
 				(f-call 'gui_region 'remove_region '(r0 r1 r2 r8 r9) '(r0))
 
-				(vp-cpy-ir r4 dist_next r2)
-				(vp-cpy-ir r4 dist_data r1)
+				(vp-cpy-ir rsp dist_next r2)
+				(vp-cpy-ir rsp dist_data r1)
 				(vp-cpy-ir r1 local_root r3)
 			(loop-until '(r2 == r3))
 		(endif)
 	(endif)
 
 	;r1 will be 0 or not depending on haveing any dirty region
-	(vp-cpy-ir r4 dist_this r0)
-	(vp-add-cr dist_size r4)
+	(vp-cpy-ir rsp dist_this r0)
+	(vp-free-stack dist_size)
 	(vp-ret)
 
 (vp-label 'distribute_up_callback)

@@ -26,7 +26,7 @@
 	;inputs
 	;r0 = component object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;disconnnect all slots
 	(f-call 'component 'disconnect_slot '(r0 0) '(r0))
@@ -43,7 +43,7 @@
 	;r2 = target component object
 	;r3 = target address
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;save inputs
 	(f-entry 'component 'connect '(r5 r6 r7 r8))
@@ -77,7 +77,7 @@
 	;r0 = component object
 	;r1 = signal list
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;save inputs
 	(f-entry 'component 'disconnect_sig '(r7 r6))
@@ -111,7 +111,7 @@
 	;r0 = component object
 	;r1 = 0 for all, else target address
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;save inputs
 	(f-entry 'component 'disconnect_slot '(r7 r6))
@@ -150,7 +150,7 @@
 	;r0 = component object
 	;r1 = signal list
 	;trashes
-	;all but r0, r4
+	;all but r0
 		;callback api
 		;r0 = target this
 		;r1 = source this
@@ -165,25 +165,25 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(f-entry 'component 'emit '((r4 local_this) r1))
+	(vp-alloc-stack local_size)
+	(f-entry 'component 'emit '((rsp local_this) r1))
 
 	;emit the signal
 	(loop-list-forward r1 0 r0 r1)
-		(vp-cpy-ri r1 r4 local_next)
+		(vp-cpy-ri r1 rsp local_next)
 
 		;call method on target component object
 		(vp-cpy-ir r0 gui_sigslot_addr r15)
 		(vp-cpy-ir r0 gui_sigslot_inst r0)
-		(vp-cpy-ir r4 local_this r1)
+		(vp-cpy-ir rsp local_this r1)
 		(vp-call-r r15)
 
-		(vp-cpy-ir r4 local_next r1)
+		(vp-cpy-ir rsp local_next r1)
 	(loop-end)
 
 	;restore this
-	(f-exit 'component 'emit '((r4 local_this)))
-	(vp-add-cr local_size r4)
+	(f-exit 'component 'emit '((rsp local_this)))
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)

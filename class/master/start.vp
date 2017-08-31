@@ -11,7 +11,7 @@
 	;r1 = buffer
 	;r2 = length
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'buffer 'msg 'string 'commands 'args 'stream 'mbox 'ids 'prefix 'cmd)
 	(pubyte 'start)

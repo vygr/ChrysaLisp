@@ -17,7 +17,7 @@
 	;r0 = master object
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'vtable)
 	(ulong 'error)
@@ -44,7 +44,7 @@
 	;inputs
 	;r0 = master object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;call stop
 	(f-call 'master 'stop '(r0))
@@ -62,7 +62,7 @@
 	;r0 = master object
 	;r1 = stream object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'mailbox)
 	(ulong 'index)
@@ -89,7 +89,7 @@
 	;r0 = master object
 	;r1 = mailbox with mail
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'mailbox)
 	(uint 'length)

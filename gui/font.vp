@@ -35,10 +35,10 @@
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
-	(vp-cpy-rr r4 r15)
-	(vp-sub-cr local_size r4)
-	(vp-and-cr -16 r4)
-	(vp-cpy-ri r15 r4 local_old_stack)
+	(vp-cpy-rr rsp r15)
+	(vp-alloc-stack local_size)
+	(vp-and-cr -16 rsp)
+	(vp-cpy-ri r15 rsp local_old_stack)
 
 	;get font statics
 	(f-bind 'gui_font 'statics r15)
@@ -64,7 +64,7 @@
 		(f-call 'sys_mem 'free '(r12))
 	(loop-end)
 
-	(vp-cpy-ir r4 local_old_stack r4)
+	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)
@@ -99,7 +99,7 @@
 	;outputs
 	;r0 = 0 if error, else font cache entry
 	;trashes
-	;all but r4
+	;all but rsp
 
 	(def-struct 'local)
 		(long 'font)
@@ -108,39 +108,39 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r0 r1) '((r4 local_font) (r4 local_points)))
+	(vp-alloc-stack local_size)
+	(assign '(r0 r1) '((rsp local_font) (rsp local_points)))
 
 	;get font statics
 	(f-bind 'gui_font 'statics r5)
 
 	;search font list
 	(loop-flist r5 ft_statics_font_flist r5 r5)
-		(vp-cpy-ir r4 local_points r0)
+		(vp-cpy-ir rsp local_points r0)
 		(vp-cpy-ir r5 ft_font_points r1)
 		(continueif '(r0 != r1))
-		(f-call 'sys_string 'compare '((& r5 ft_font_name) (r4 local_font)) '(r0))
+		(f-call 'sys_string 'compare '((& r5 ft_font_name) (rsp local_font)) '(r0))
 	(loop-until '(r0 == 0))
 
 	;did we find it ?
 	(vp-cpy-rr r5 r0)
 	(vpif '(r5 == 0))
 		;no so try open it
-		(f-call 'sys_task 'callback '(($ kernel_callback) r4))
-		(vp-cpy-ir r4 local_handle r0)
+		(f-call 'sys_task 'callback '(($ kernel_callback) rsp))
+		(vp-cpy-ir rsp local_handle r0)
 	(endif)
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (vp-label 'kernel_callback)
 	;inputs
 	;r0 = user data
 	;trashes
-	;all but r4
+	;all but rsp
 
 	;align stack
-	(vp-cpy-rr r4 r15)
-	(vp-and-cr -16 r4)
+	(vp-cpy-rr rsp r15)
+	(vp-and-cr -16 rsp)
 
 	;save input
 	(vp-cpy-rr r0 r14)
@@ -185,7 +185,7 @@
 	(endif)
 	(vp-cpy-ri r0 r14 local_handle)
 
-	(vp-cpy-rr r15 r4)
+	(vp-cpy-rr r15 rsp)
 	(vp-ret)
 
 (def-func-end)
@@ -197,7 +197,7 @@
 	;outputs
 	;r0 = 0 if error, else text entry
 	;trashes
-	;all but r4
+	;all but rsp
 
 	(def-struct 'local)
 		(ptr 'font)
@@ -211,8 +211,8 @@
 
 	;save inputs
 	(vp-lea-i r1 string_data r2)
-	(vp-sub-cr local_size r4)
-	(assign '(r0 r2) '((r4 local_font) (r4 local_text)))
+	(vp-alloc-stack local_size)
+	(assign '(r0 r2) '((rsp local_font) (rsp local_text)))
 
 	;get font statics
 	(f-bind 'gui_font 'statics r5)
@@ -224,41 +224,41 @@
 	(vp-div-rrr r1 r2 r0)
 	(vp-shl-cr (log2 ptr_size) r2)
 	(vp-lea-d r5 r2 r5)
-	(vp-cpy-ri r5 r4 local_bucket)
+	(vp-cpy-ri r5 rsp local_bucket)
 
 	;search bucket
 	(loop-flist r5 0 r5 r6)
-		(vp-cpy-ir r4 local_font r0)
+		(vp-cpy-ir rsp local_font r0)
 		(vp-cpy-ir r5 ft_text_font r1)
 		(continueif '(r0 != r1))
-		(f-call 'sys_string 'compare '((& r5 ft_text_name) (r4 local_text)) '(r0))
+		(f-call 'sys_string 'compare '((& r5 ft_text_name) (rsp local_text)) '(r0))
 	(loop-until '(r0 == 0))
 
 	;did we find it ?
 	(vp-cpy-rr r5 r0)
 	(vpif '(r5 == 0))
 		;no so try create it
-		(f-call 'sys_task 'callback '(($ kernel_callback) r4))
-		(vp-cpy-ir r4 local_handle r0)
+		(f-call 'sys_task 'callback '(($ kernel_callback) rsp))
+		(vp-cpy-ir rsp local_handle r0)
 	(else)
 		;yes so LRU to front
 		(ln-remove-fnode r5 r6)
-		(vp-cpy-ir r4 local_bucket r5)
+		(vp-cpy-ir rsp local_bucket r5)
 		(ln-add-fnode r5 0 r0 r1)
 	(endif)
 
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (vp-label 'kernel_callback)
 	;inputs
 	;r0 = user data
 	;trashes
-	;all but r4
+	;all but rsp
 
 	;align stack
-	(vp-cpy-rr r4 r15)
-	(vp-and-cr -16 r4)
+	(vp-cpy-rr rsp r15)
+	(vp-and-cr -16 rsp)
 
 	;save input
 	(vp-cpy-rr r0 r14)
@@ -305,7 +305,7 @@
 	(endif)
 	(vp-cpy-ri r0 r14 local_handle)
 
-	(vp-cpy-rr r15 r4)
+	(vp-cpy-rr r15 rsp)
 	(vp-ret)
 
 (def-func-end)

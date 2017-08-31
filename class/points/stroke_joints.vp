@@ -17,7 +17,7 @@
 	;outputs
 	;r0 = points object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(union
 		'(ulong 'p1 'p2 'p3 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_npv 'l1_rv)

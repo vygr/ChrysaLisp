@@ -9,11 +9,11 @@
 	;inputs
 	;r0 = pair object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(vp-push r0)
 	(f-call 'ref 'deref '((r0 pair_first)))
-	(vp-cpy-ir r4 0 r0)
+	(vp-cpy-ir rsp 0 r0)
 	(f-call 'ref 'deref '((r0 pair_second)))
 	(vp-pop r0)
 	(s-jmp 'pair 'deinit '(r0))
@@ -59,7 +59,7 @@
 	;outputs
 	;r0 = pair object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(vp-push r0)
 	(vp-cpy-ir r0 pair_first r2)
@@ -77,7 +77,7 @@
 	;outputs
 	;r0 = pair object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(vp-push r0)
 	(vp-cpy-ir r0 pair_second r2)

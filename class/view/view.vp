@@ -32,7 +32,7 @@
 	;inputs
 	;r0 = view object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;save object
 	(vp-push r0)
@@ -41,7 +41,7 @@
 	(f-call 'view 'sub '(r0))
 
 	;deref any child views
-	(vp-cpy-ir r4 0 r0)
+	(vp-cpy-ir rsp 0 r0)
 	(loop-list-forward r0 view_list r0 r1)
 		(vp-sub-cr view_node r0)
 		(vp-push r1)
@@ -51,12 +51,12 @@
 	(loop-end)
 
 	;free view object data
-	(vp-cpy-ir r4 0 r0)
+	(vp-cpy-ir rsp 0 r0)
 	(vp-lea-i r0 view_dirty_region r1)
 	(f-bind 'gui_gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
 	(f-call 'gui_region 'free '(r0 r1))
-	(vp-cpy-ir r4 0 r1)
+	(vp-cpy-ir rsp 0 r1)
 	(vp-add-cr view_opaque_region r1)
 	(f-call 'gui_region 'free '(r0 r1))
 
@@ -95,15 +95,15 @@
 	;r10 = width
 	;r11 = height
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_this)))
+	(vp-alloc-stack local_size)
+	(assign '(r0) '((rsp local_this)))
 
 	;paste dirty region
 	(vp-add-rr r8 r10)
@@ -113,8 +113,8 @@
 	(vp-add-cr gui_statics_rect_heap r0)
 	(f-call 'gui_region 'paste_rect '(r0 r1 r8 r9 r10 r11))
 
-	(vp-cpy-ir r4 local_this r0)
-	(vp-add-cr local_size r4)
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -148,15 +148,15 @@
 	;r10 = width
 	;r11 = height
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_this)))
+	(vp-alloc-stack local_size)
+	(assign '(r0) '((rsp local_this)))
 
 	;paste opaque region
 	(vp-add-rr r8 r10)
@@ -166,8 +166,8 @@
 	(vp-add-cr gui_statics_rect_heap r0)
 	(f-call 'gui_region 'paste_rect '(r0 r1 r8 r9 r10 r11))
 
-	(vp-cpy-ir r4 local_this r0)
-	(vp-add-cr local_size r4)
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -194,10 +194,10 @@
 		(ptr 'callback)
 	(def-struct-end)
 
-	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_this)
-	(vp-cpy-ri r1 r4 local_data)
-	(vp-cpy-ri r2 r4 local_callback)
+	(vp-alloc-stack local_size)
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-cpy-ri r1 rsp local_data)
+	(vp-cpy-ri r2 rsp local_callback)
 
 	(lh-get-tail r0 view_list r0)
 	(loop-start)
@@ -206,15 +206,15 @@
 
 		;callback
 		(vp-sub-cr view_node r0)
-		(vp-cpy-ir r4 local_data r1)
-		(vp-call-i r4 local_callback)
+		(vp-cpy-ir rsp local_data r1)
+		(vp-call-i rsp local_callback)
 
 		;across to sibling
 		(ln-get-pred r0 view_node r0)
 	(loop-end)
 
-	(vp-cpy-ir r4 local_this r0)
-	(vp-add-cr local_size r4)
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -244,19 +244,19 @@
 		(ptr 'up)
 	(def-struct-end)
 
-	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_this)
-	(vp-cpy-ri r1 r4 local_data)
-	(vp-cpy-ri r2 r4 local_down)
-	(vp-cpy-ri r3 r4 local_up)
+	(vp-alloc-stack local_size)
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-cpy-ri r1 rsp local_data)
+	(vp-cpy-ri r2 rsp local_down)
+	(vp-cpy-ri r3 rsp local_up)
 	(vp-cpy-rr r0 r1)
 	(loop-start)
 	(vp-label 'down_loop_ctx)
 		(vp-cpy-rr r1 r0)
 
 		;down callback
-		(vp-cpy-ir r4 local_data r1)
-		(vp-call-i r4 local_down)
+		(vp-cpy-ir rsp local_data r1)
+		(vp-call-i rsp local_down)
 		(breakif '(r1 == 0))
 
 		;down to child
@@ -267,11 +267,11 @@
 	(loop-until '(r2 == 0))
 	(loop-start)
 		;up callback
-		(vp-cpy-ir r4 local_data r1)
-		(vp-call-i r4 local_up)
+		(vp-cpy-ir rsp local_data r1)
+		(vp-call-i rsp local_up)
 
 		;back at root ?
-		(vp-cpy-ir r4 local_this r2)
+		(vp-cpy-ir rsp local_this r2)
 		(breakif '(r0 == r2))
 
 		;across to sibling
@@ -285,7 +285,7 @@
 		(vp-cpy-ir r0 view_parent r0)
 	(loop-end)
 
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -298,7 +298,7 @@
 	;r10 = new w
 	;r11 = new h
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;save old info
 	(vp-cpy-ir-i r0 view_w r12)
@@ -321,7 +321,7 @@
 	;inputs
 	;r0 = view object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;paste dirty region
 	(vp-cpy-ir-i r0 view_w r10)
@@ -334,7 +334,7 @@
 	;inputs
 	;r0 = view object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;iterate through views
 	;dirty all
@@ -354,21 +354,21 @@
 	;r2 = flags
 	;r3 = depth
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_this)
+	(vp-alloc-stack local_size)
+	(vp-cpy-ri r0 rsp local_this)
 
 	(f-call 'view 'get_bounds '(r0) '(r5 r8 r9 r10 r11))
 	(f-call 'gui_ctx 'panel '(r1 (r5 view_color ui) r2 r3 0 0 r10 r11) '())
 
-	(vp-cpy-ir r4 local_this r0)
-	(vp-add-cr local_size r4)
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -378,7 +378,7 @@
 	;r0 = view object
 	;r1 = event message
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;what type of event ?
 	(vp-cpy-ir r1 ev_msg_type r2)
@@ -464,10 +464,10 @@
 		(ptr 'callback)
 	(def-struct-end)
 
-	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_this)
-	(vp-cpy-ri r1 r4 local_data)
-	(vp-cpy-ri r2 r4 local_callback)
+	(vp-alloc-stack local_size)
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-cpy-ri r1 rsp local_data)
+	(vp-cpy-ri r2 rsp local_callback)
 
 	(lh-get-head r0 view_list r0)
 	(loop-start)
@@ -476,15 +476,15 @@
 
 		;callback
 		(vp-sub-cr view_node r0)
-		(vp-cpy-ir r4 local_data r1)
-		(vp-call-i r4 local_callback)
+		(vp-cpy-ir rsp local_data r1)
+		(vp-call-i rsp local_callback)
 
 		;across to sibling
 		(ln-get-succ r0 view_node r0)
 	(loop-end)
 
-	(vp-cpy-ir r4 local_this r0)
-	(vp-add-cr local_size r4)
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -514,19 +514,19 @@
 		(ptr 'up)
 	(def-struct-end)
 
-	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_this)
-	(vp-cpy-ri r1 r4 local_data)
-	(vp-cpy-ri r2 r4 local_down)
-	(vp-cpy-ri r3 r4 local_up)
+	(vp-alloc-stack local_size)
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-cpy-ri r1 rsp local_data)
+	(vp-cpy-ri r2 rsp local_down)
+	(vp-cpy-ri r3 rsp local_up)
 	(vp-cpy-rr r0 r1)
 	(loop-start)
 	(vp-label 'down_loop_ctx)
 		(vp-cpy-rr r1 r0)
 
 		;down callback
-		(vp-cpy-ir r4 local_data r1)
-		(vp-call-i r4 local_down)
+		(vp-cpy-ir rsp local_data r1)
+		(vp-call-i rsp local_down)
 		(breakif '(r1 == 0))
 
 		;down to child
@@ -537,11 +537,11 @@
 	(loop-until '(r2 == 0))
 	(loop-start)
 		;up callback
-		(vp-cpy-ir r4 local_data r1)
-		(vp-call-i r4 local_up)
+		(vp-cpy-ir rsp local_data r1)
+		(vp-call-i rsp local_up)
 
 		;back at root ?
-		(vp-cpy-ir r4 local_this r2)
+		(vp-cpy-ir rsp local_this r2)
 		(breakif '(r0 == r2))
 
 		;across to sibling
@@ -555,7 +555,7 @@
 		(vp-cpy-ir r0 view_parent r0)
 	(loop-end)
 
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -692,20 +692,20 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(vp-cpy-ri r0 r4 local_this)
+	(vp-alloc-stack local_size)
+	(vp-cpy-ri r0 rsp local_this)
 	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r1 r4 local_hit)
+	(vp-cpy-ri r1 rsp local_hit)
 	(vp-lea-p 'early_ret r1)
-	(vp-cpy-ri r1 r4 local_jump)
+	(vp-cpy-ri r1 rsp local_jump)
 
 	;iterate through views front to back
-	(f-call 'view 'forward_tree '(r0 r4 ($ hit_down_callback) ($ hit_up_callback)))
+	(f-call 'view 'forward_tree '(r0 rsp ($ hit_down_callback) ($ hit_up_callback)))
 
 (vp-label 'early_ret)
-	(vp-cpy-ir r4 local_this r0)
-	(vp-cpy-ir r4 local_hit r1)
-	(vp-add-cr local_size r4)
+	(vp-cpy-ir rsp local_this r0)
+	(vp-cpy-ir rsp local_hit r1)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (vp-label 'hit_down_callback)
@@ -722,7 +722,7 @@
 	(v-call 'view 'hit '(r0 r8 r9) '(r0 r1))
 	(vpif '(r1 != 0))
 		;early exit back to caller !
-		(vp-cpy-rr r2 r4)
+		(vp-cpy-rr r2 rsp)
 		(vp-cpy-ri r0 r2 local_hit)
 		(vp-jmp-i r2 local_jump)
 	(endif)
@@ -739,7 +739,7 @@
 	;inputs
 	;r0 = view object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;remove any opaque region
 	(f-call 'view 'sub_opaque '(r0 -1000000 -1000000 2000000 2000000))
@@ -758,7 +758,7 @@
 	;r10 = preferred width
 	;r11 = preferred height
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(vp-cpy-ir-i r0 view_min_w r10)
 	(vp-cpy-ir-i r0 view_min_h r11)
@@ -811,15 +811,15 @@
 	;r10 = width
 	;r11 = height
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r0) '((r4 local_this)))
+	(vp-alloc-stack local_size)
+	(assign '(r0) '((rsp local_this)))
 
 	;cut opaque region
 	(vp-add-rr r8 r10)
@@ -829,8 +829,8 @@
 	(vp-add-cr gui_statics_rect_heap r0)
 	(f-call 'gui_region 'remove_rect '(r0 r1 r8 r9 r10 r11))
 
-	(vp-cpy-ir r4 local_this r0)
-	(vp-add-cr local_size r4)
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -841,7 +841,7 @@
 	;outputs
 	;r0 = view object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;are we allready front ?
 	(ln-is-first r0 view_node r1)

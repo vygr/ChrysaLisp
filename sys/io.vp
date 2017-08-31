@@ -102,7 +102,7 @@
 	;r0, r2-r3, r5
 
 	(f-entry 'sys_io 'number '(r0 r1 r3))
-	(vp-cpy-rr r4 r5)	;stack location
+	(vp-cpy-rr rsp r5)	;stack location
 	(loop-start)
 		(vp-xor-rr r2 r2)
 		(vp-div-rrr r3 r2 r0)
@@ -117,7 +117,7 @@
 		(sys-push-trashed)
 		(sys-write-char '(r1 r0) '(_))
 		(sys-pop-trashed)
-	(loop-until '(r5 == r4))
+	(loop-until '(r5 == rsp))
 	(vp-ret)
 
 (def-func-end)
@@ -137,17 +137,17 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(f-entry 'sys_io 'debug_long '((r4 local_info) (r4 local_string) (r4 local_long)))
+	(vp-alloc-stack local_size)
+	(f-entry 'sys_io 'debug_long '((rsp local_info) (rsp local_string) (rsp local_long)))
 
-	(f-call 'sys_io 'string '((r4 local_info) 2))
+	(f-call 'sys_io 'string '((rsp local_info) 2))
 	(f-call 'sys_io 'char '((code " ") 2))
-	(f-call 'sys_io 'string '((r4 local_string) 2))
+	(f-call 'sys_io 'string '((rsp local_string) 2))
 	(f-call 'sys_io 'string '(" :-> 0x" 2))
-	(f-call 'sys_io 'number '((r4 local_long) 2 16))
+	(f-call 'sys_io 'number '((rsp local_long) 2 16))
 	(f-call 'sys_io 'char '(char_lf 2))
 
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -167,17 +167,17 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(f-entry 'sys_io 'debug_str '((r4 local_info) (r4 local_string) (r4 local_str)))
+	(vp-alloc-stack local_size)
+	(f-entry 'sys_io 'debug_str '((rsp local_info) (rsp local_string) (rsp local_str)))
 
-	(f-call 'sys_io 'string '((r4 local_info) 2))
+	(f-call 'sys_io 'string '((rsp local_info) 2))
 	(f-call 'sys_io 'char '((code " ") 2))
-	(f-call 'sys_io 'string '((r4 local_string) 2))
+	(f-call 'sys_io 'string '((rsp local_string) 2))
 	(f-call 'sys_io 'string '(" :-> " 2))
-	(f-call 'sys_io 'string '((r4 local_str) 2))
+	(f-call 'sys_io 'string '((rsp local_str) 2))
 	(f-call 'sys_io 'char '(char_lf 2))
 
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)

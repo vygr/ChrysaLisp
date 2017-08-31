@@ -44,7 +44,7 @@
 	(f-call 'sys_mail 'init '(r1))
 
 	;process command options
-	(f-call 'sys_cpu 'opts '((r4 0)))
+	(f-call 'sys_cpu 'opts '((rsp 0)))
 
 	;fill in num cpu's with at least mine + 1
 	(f-call 'sys_cpu 'id '() '(r0))
@@ -53,10 +53,10 @@
 	(vp-cpy-ri r0 r1 tk_statics_cpu_total)
 
 	;allocate for kernel routing table
-	(vp-sub-cr lk_table_size r4)
+	(vp-alloc-stack lk_table_size)
 	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r1 r4 lk_table_array)
-	(vp-cpy-ri r1 r4 lk_table_array_size)
+	(vp-cpy-ri r1 rsp lk_table_array)
+	(vp-cpy-ri r1 rsp lk_table_array_size)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernel task loop
@@ -133,7 +133,7 @@
 				;new kernel routing table ?
 				(vp-cpy-ir r15 kn_msg_link_route_origin r11)
 				(vp-mul-cr lk_route_size r11)
-				(f-call 'sys_mem 'recalloc '((r4 lk_table_array) (r4 lk_table_array_size) (& r11 lk_route_size)) '((r4 lk_table_array) (r4 lk_table_array_size)))
+				(f-call 'sys_mem 'recalloc '((rsp lk_table_array) (rsp lk_table_array_size) (& r11 lk_route_size)) '((rsp lk_table_array) (rsp lk_table_array_size)))
 
 				;compare hop counts
 				(vp-add-cr lk_route_hops r0)
@@ -277,8 +277,8 @@
 	(loop-end)
 
 	;free any kernel routing table
-	(f-call 'sys_mem 'free '((r4 lk_table_array)))
-	(vp-add-cr lk_table_size r4)
+	(f-call 'sys_mem 'free '((rsp lk_table_array)))
+	(vp-free-stack lk_table_size)
 
 	;deinit font
 	(f-call 'gui_font 'deinit)
@@ -296,7 +296,7 @@
 	(f-call 'sys_load 'deinit)
 
 	;pop argv and exit !
-	(vp-add-cr ptr_size r4)
+	(vp-free-stack ptr_size)
 	(sys-exit '(0))
 
 (def-func-end)

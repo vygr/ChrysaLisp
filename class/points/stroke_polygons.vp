@@ -13,7 +13,7 @@
 	;outputs
 	;r0 = vector for output polygons
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'in_polygons 'stack 'polygon)
 	(pptr 'iter_begin_polygons 'iter_end_polygons)

@@ -15,7 +15,7 @@
 	;r0 = stream_msg_out object
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;save inputs
 	(assign '(r2 r3) '((r0 (add stream_msg_out_id id_mbox)) (r0 (add stream_msg_out_id id_cpu))))
@@ -40,7 +40,7 @@
 	;inputs
 	;r0 = stream_msg_out object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'msg)
 
@@ -94,7 +94,7 @@
 	;outputs
 	;r0 = stream_msg_out object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'msg)
 
@@ -140,7 +140,7 @@
 	;outputs
 	;r0 = stream_msg_out object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'msg)
 

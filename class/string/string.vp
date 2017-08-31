@@ -101,7 +101,7 @@
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes
-	;all but r4
+	;all but rsp
 
 	(ptr 'this)
 	(pubyte 'buffer 'reloc)
@@ -143,20 +143,20 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r2 r3) '((r4 local_data) (r4 local_length)))
+	(vp-alloc-stack local_size)
+	(assign '(r2 r3) '((rsp local_data) (rsp local_length)))
 
 	;init parent
 	(s-call 'string 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
-		(vp-cpy-ri r0 r4 local_this)
+		(vp-cpy-ri r0 rsp local_this)
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
 
 		;init myself
-		(vp-cpy-ir r4 local_length r2)
+		(vp-cpy-ir rsp local_length r2)
 		(vp-cpy-ri-i r2 r0 string_length)
-		(vp-cpy-ir r4 local_data r3)
+		(vp-cpy-ir rsp local_data r3)
 		(vpif '(r3 != 0))
 			(f-call 'sys_mem 'copy '(r3 (& r0 string_data) r2) '(_ r1))
 		(else)
@@ -166,10 +166,10 @@
 		(vp-xor-rr r0 r0)
 		(vp-cpy-ri-b r0 r1 0)
 
-		(vp-cpy-ir r4 local_this r0)
+		(vp-cpy-ir rsp local_this r0)
 	(endif)
 
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -190,19 +190,19 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r2 r3) '((r4 local_string1) (r4 local_string2)))
+	(vp-alloc-stack local_size)
+	(assign '(r2 r3) '((rsp local_string1) (rsp local_string2)))
 
 	;init parent
 	(s-call 'string 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
-		(vp-cpy-ri r0 r4 local_this)
+		(vp-cpy-ri r0 rsp local_this)
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
 
-		(vp-cpy-ir r4 local_string1 r6)
-		(vp-cpy-ir r4 local_string2 r7)
+		(vp-cpy-ir rsp local_string1 r6)
+		(vp-cpy-ir rsp local_string2 r7)
 		(vp-cpy-ir-ui r6 string_length r1)
 		(vp-cpy-ir-ui r7 string_length r2)
 		(vp-add-rr r2 r1)
@@ -212,10 +212,10 @@
 		(vp-add-cr byte_size r2)
 		(f-call 'sys_mem 'copy '((& r7 string_data) r1 r2))
 
-		(vp-cpy-ir r4 local_this r0)
+		(vp-cpy-ir rsp local_this r0)
 	(endif)
 
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -235,26 +235,26 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r2 r3) '((r4 local_filename) (r0 string_length i)))
+	(vp-alloc-stack local_size)
+	(assign '(r2 r3) '((rsp local_filename) (r0 string_length i)))
 
 	;init parent
 	(s-call 'string 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
-		(vp-cpy-ri r0 r4 local_this)
+		(vp-cpy-ri r0 rsp local_this)
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
 
 		;open file
-		(vp-cpy-ir r4 local_filename r0)
+		(vp-cpy-ir rsp local_filename r0)
 		(sys-push-trashed)
 		(sys-open '(r0 o_rdonly 0) '(r0))
 		(sys-pop-trashed)
 		(vp-cpy-rr r0 r7)
 
 		;read into buffer
-		(vp-cpy-ir r4 local_this r0)
+		(vp-cpy-ir rsp local_this r0)
 		(vp-cpy-ir-ui r0 string_length r1)
 		(vp-add-cr string_data r0)
 		(vp-xor-rr r2 r2)
@@ -268,10 +268,10 @@
 		(sys-close '(r7) '(_))
 		(sys-pop-trashed)
 
-		(vp-cpy-ir r4 local_this r0)
+		(vp-cpy-ir rsp local_this r0)
 		(vp-cpy-rr r0 r1)
 	(endif)
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -291,32 +291,32 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(assign '(r2) '((r4 local_vector)))
+	(vp-alloc-stack local_size)
+	(assign '(r2) '((rsp local_vector)))
 
 	;init parent
 	(s-call 'string 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
-		(vp-cpy-ri r0 r4 local_this)
+		(vp-cpy-ri r0 rsp local_this)
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
 
 		(vp-add-cr string_data r0)
-		(vp-cpy-ri r0 r4 local_next)
-		(vp-cpy-ir r4 local_vector r0)
-		(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) r4) '(_ r1))
+		(vp-cpy-ri r0 rsp local_next)
+		(vp-cpy-ir rsp local_vector r0)
+		(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) rsp) '(_ r1))
 
-		(vp-cpy-ir r4 local_next r2)
+		(vp-cpy-ir rsp local_next r2)
 		(vp-cpy-ri-b r1 r2 0)
-		(vp-cpy-ir r4 local_this r0)
+		(vp-cpy-ir rsp local_this r0)
 		(vp-lea-i r0 string_data r3)
 		(vp-sub-rr r3 r2)
 		(vp-cpy-ri-i r2 r0 string_length)
 		(vp-add-cr 1 r1)
 	(endif)
 
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -380,14 +380,14 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
+	(vp-alloc-stack local_size)
 	(vp-cpy-cr (add string_size byte_size) r1)
-	(assign '(r0 r1) '(r6 (r4 local_length)))
+	(assign '(r0 r1) '(r6 (rsp local_length)))
 
 	;get size of strings
-	(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) r4))
-	(vp-cpy-ir r4 local_length r0)
-	(vp-add-cr local_size r4)
+	(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) rsp))
+	(vp-cpy-ir rsp local_length r0)
+	(vp-free-stack local_size)
 
 	;create new string object
 	(f-call 'string 'new '(r0) '(r0))
@@ -511,7 +511,7 @@
 	;r0 = string object
 	;r1 = hash code
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;save inputs
 	(vp-cpy-ir-ui r0 string_hashcode r1)
@@ -570,7 +570,7 @@
 	;r0 = string object
 	;r1 = vector of split strings
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'splits 'stream)
 	(uint 'char)

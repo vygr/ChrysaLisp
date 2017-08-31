@@ -124,7 +124,8 @@
 ; VP Instructions
 ;;;;;;;;;;;;;;;;;
 
-(each (lambda (_) (defcvar (defq r (sym-cat "r" (str _))) r)) (range 0 16))
+(each (lambda (_)
+	(defcvar _ _)) '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 rsp))
 
 (defcfun type (o)
 	(defq i (obj? o))
@@ -272,6 +273,9 @@
 (defcfun vp-div-rrr (d r q) (emit `(emit-div-rrr ,d ,r ,q)))
 (defcfun vp-div-rrr-u (d r q) (emit `(emit-div-rrr-u ,d ,r ,q)))
 (defcfun vp-syscall () (emit `(emit-syscall)))
+
+(defcfun vp-alloc-stack (c) (emit `(emit-sub-cr ,c rsp)))
+(defcfun vp-free-stack (c) (emit `(emit-add-cr ,c rsp)))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; Arch Emit Functions

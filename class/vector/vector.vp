@@ -8,7 +8,7 @@
 	;inputs
 	;r0 = vector object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(d-call 'vector 'clear '(r0))
 	(s-jmp 'vector 'deinit '(r0))
@@ -34,8 +34,8 @@
 	(def-struct-end)
 
 	;save inputs
-	(vp-sub-cr local_size r4)
-	(f-entry 'vector 'append '((r4 local_this) (r4 local_source) (r4 local_start i) (r4 local_end i)))
+	(vp-alloc-stack local_size)
+	(f-entry 'vector 'append '((rsp local_this) (rsp local_source) (rsp local_start i) (rsp local_end i)))
 
 	;extend existing vector
 	(vp-cpy-ir-ui r0 array_length r1)
@@ -46,7 +46,7 @@
 	;copy elements
 	(vp-cpy-ir-ui r0 array_length r7)
 	(vp-cpy-ir r0 array_array r3)
-	(assign '((r4 local_source) (r4 local_start ui) (r4 local_end ui)) '(r0 r5 r6))
+	(assign '((rsp local_source) (rsp local_start ui) (rsp local_end ui)) '(r0 r5 r6))
 	(vp-shl-cr (log2 ptr_size) r7)
 	(loop-while '(r5 != r6))
 		(d-call 'vector 'ref_element '(r0 r5) '(r0 (r3 r7)))
@@ -54,11 +54,11 @@
 		(vp-add-cr ptr_size r7)
 	(loop-end)
 
-	(vp-cpy-ir r4 local_this r0)
+	(vp-cpy-ir rsp local_this r0)
 	(vp-shr-cr (log2 ptr_size) r7)
 	(vp-cpy-ri-i r7 r0 array_length)
 
-	(vp-add-cr local_size r4)
+	(vp-free-stack local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -69,7 +69,7 @@
 	;outputs
 	;r0 = vector object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;deref all elements
 	(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) 0))
@@ -94,7 +94,7 @@
 	;outputs
 	;r0 = vector object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(vp-push r0)
 	(vp-cpy-ir-ui r0 array_length r1)
@@ -155,7 +155,7 @@
 	;outputs
 	;r0 = vector object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(vp-push r0)
 	(vp-shl-cr (log2 ptr_size) r2)

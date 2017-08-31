@@ -86,18 +86,18 @@
 		(vp-cpy-ri r1 r0 canvas_stride)
 		(vp-mul-rr r2 r1)
 		(f-call 'sys_mem 'alloc '(r1) '(r0 _))
-		(vp-cpy-ir r4 0 r1)
+		(vp-cpy-ir rsp 0 r1)
 		(vp-cpy-ri r0 r1 canvas_data)
 
 		;edge arrays, sort interval stack
 		(f-call 'array 'create '() '(r0))
-		(vp-cpy-ir r4 0 r1)
+		(vp-cpy-ir rsp 0 r1)
 		(vp-cpy-ri r0 r1 canvas_edges)
 		(f-call 'array 'create '() '(r0))
-		(vp-cpy-ir r4 0 r1)
+		(vp-cpy-ir rsp 0 r1)
 		(vp-cpy-ri r0 r1 canvas_edge_tracker)
 		(f-call 'array 'create '() '(r0))
-		(vp-cpy-ir r4 0 r1)
+		(vp-cpy-ir rsp 0 r1)
 		(vp-cpy-ri r0 r1 canvas_stack)
 
 		(vp-pop r0)
@@ -128,38 +128,38 @@
 	(def-struct-end)
 
 	;align stack for SDL
-	(vp-cpy-rr r4 r15)
-	(vp-sub-cr local_size r4)
-	(vp-and-cr -16 r4)
-	(vp-cpy-ri r15 r4 local_old_stack)
+	(vp-cpy-rr rsp r15)
+	(vp-alloc-stack local_size)
+	(vp-and-cr -16 rsp)
+	(vp-cpy-ri r15 rsp local_old_stack)
 
 	;save inputs
-	(f-entry 'canvas 'deinit '((r4 local_this)))
+	(f-entry 'canvas 'deinit '((rsp local_this)))
 
 	;free edge trackers, sort intervals
-	(vp-cpy-ir r4 local_this r0)
+	(vp-cpy-ir rsp local_this r0)
 	(f-call 'array 'deref '((r0 canvas_edges)))
-	(vp-cpy-ir r4 local_this r0)
+	(vp-cpy-ir rsp local_this r0)
 	(f-call 'array 'deref '((r0 canvas_edge_tracker)))
-	(vp-cpy-ir r4 local_this r0)
+	(vp-cpy-ir rsp local_this r0)
 	(f-call 'array 'deref '((r0 canvas_stack)))
 
 	;free any pixel buffer
-	(vp-cpy-ir r4 local_this r0)
+	(vp-cpy-ir rsp local_this r0)
 	(f-call 'sys_mem 'free '((r0 canvas_data)))
 
 	;free any resize buffer
-	(vp-cpy-ir r4 local_this r0)
+	(vp-cpy-ir rsp local_this r0)
 	(f-call 'sys_mem 'free '((r0 canvas_resize_buf)))
 
 	;free any sdl texture
-	(vp-cpy-ir r4 local_this r0)
+	(vp-cpy-ir rsp local_this r0)
 	(vp-cpy-ir r0 canvas_texture r1)
 	(vpif '(r1 != 0))
 		(sdl-destroy-texture '(r1))
 	(endif)
 
-	(vp-cpy-ir r4 local_old_stack r4)
+	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)
@@ -169,7 +169,7 @@
 	;r0 = canvas object
 	;r1 = ctx object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -180,13 +180,13 @@
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
-	(vp-cpy-rr r4 r15)
-	(vp-sub-cr local_size r4)
-	(vp-and-cr -16 r4)
-	(vp-cpy-ri r15 r4 local_old_stack)
+	(vp-cpy-rr rsp r15)
+	(vp-alloc-stack local_size)
+	(vp-and-cr -16 rsp)
+	(vp-cpy-ri r15 rsp local_old_stack)
 
 	;save inputs
-	(f-entry 'canvas 'draw '((r4 local_this) (r4 local_ctx)))
+	(f-entry 'canvas 'draw '((rsp local_this) (rsp local_ctx)))
 
 	;if no texture then create from pixel buffer
 	(vp-cpy-ir r0 canvas_texture r1)
@@ -200,22 +200,22 @@
 		(vp-asr-cr fp_shift r10)
 		(vp-asr-cr fp_shift r11)
 		(f-call 'canvas 'create '(r10 r11 1.0) '(r0))
-		(vp-cpy-ri r0 r4 local_temp_canvas)
-		(f-call 'canvas 'resize '(r0 (r4 local_this)))
+		(vp-cpy-ri r0 rsp local_temp_canvas)
+		(f-call 'canvas 'resize '(r0 (rsp local_this)))
 		(f-call 'canvas 'as_argb '(r0))
 		(sdl-create-rgb-surface-from '((r0 canvas_data) (r0 canvas_width ui) (r0 canvas_height ui)
 										32 (r0 canvas_stride ui) 0xff 0xff00 0xff0000 0xff000000))
-		(vp-cpy-ri r0 r4 local_surface)
-		(vp-cpy-ir r4 local_ctx r1)
+		(vp-cpy-ri r0 rsp local_surface)
+		(vp-cpy-ir rsp local_ctx r1)
 		(sdl-create-texture-from-surface '((r1 gui_ctx_sdl_ctx) r0))
-		(vp-cpy-ir r4 local_this r1)
+		(vp-cpy-ir rsp local_this r1)
 		(vp-cpy-ri r0 r1 canvas_texture)
-		(f-call 'canvas 'deref '((r4 local_temp_canvas)))
+		(f-call 'canvas 'deref '((rsp local_temp_canvas)))
 	(endif)
-	(sdl-free-surface '((r4 local_surface)))
+	(sdl-free-surface '((rsp local_surface)))
 
 	;blit texture
-	(vp-cpy-ir r4 local_this r0)
+	(vp-cpy-ir rsp local_this r0)
 	(vp-cpy-ir r0 canvas_texture r1)
 	(vpif '(r1 != 0))
 		(vp-cpy-ir-i r0 canvas_aa_scale_r r8)
@@ -225,11 +225,11 @@
 		(vp-mul-rr r8 r11)
 		(vp-asr-cr fp_shift r10)
 		(vp-asr-cr fp_shift r11)
-		(f-call 'gui_ctx 'blit '((r4 local_ctx) r1 0xffffff 0 0 r10 r11))
+		(f-call 'gui_ctx 'blit '((rsp local_ctx) r1 0xffffff 0 0 r10 r11))
 	(endif)
 
-	(f-exit 'canvas 'draw '((r4 local_this)))
-	(vp-cpy-ir r4 local_old_stack r4)
+	(f-exit 'canvas 'draw '((rsp local_this)))
+	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)
@@ -238,7 +238,7 @@
 	;inputs
 	;r0 = canvas object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;kernel callback
 	(vp-push r0)
@@ -255,10 +255,10 @@
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
-	(vp-cpy-rr r4 r15)
-	(vp-sub-cr local_size r4)
-	(vp-and-cr -16 r4)
-	(vp-cpy-ri r15 r4 local_old_stack)
+	(vp-cpy-rr rsp r15)
+	(vp-alloc-stack local_size)
+	(vp-and-cr -16 rsp)
+	(vp-cpy-ri r15 rsp local_old_stack)
 
 	;free any sdl texture
 	(vp-cpy-ir r0 canvas_texture r1)
@@ -268,7 +268,7 @@
 		(sdl-destroy-texture '(r1))
 	(endif)
 
-	(vp-cpy-ir r4 local_old_stack r4)
+	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)
@@ -280,7 +280,7 @@
 	;r10 = preferred width
 	;r11 = preferred height
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(f-entry 'canvas 'pref_size '(r0))
 
@@ -673,7 +673,7 @@
 	;outputs
 	;r0 = canvas object
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'span)
 	(uint 'color)

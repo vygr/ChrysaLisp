@@ -15,7 +15,7 @@
 	;r0 = stream_msg_in object
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;save inputs
 	(assign '(r2) '((r0 stream_msg_in_mailbox)))
@@ -43,7 +43,7 @@
 	;r0 = stream_msg_in object
 	;r1 = -1 for EOF, else more data
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(ptr 'this 'msg 'ack_msg)
 
@@ -96,7 +96,7 @@
 	;r0 = stream_msg_in object
 	;r1 = 0 if data not available
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	;extend test to include mailbox
 	(s-call 'stream_msg_in 'read_ready '(r0) '(r0 r1))

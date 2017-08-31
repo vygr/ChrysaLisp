@@ -11,7 +11,7 @@
 	;r0 = lisp object
 	;r1 = value
 	;trashes
-	;all but r0, r4
+	;all but r0
 
 	(f-entry 'lisp 'repl_apply '(r0 r1 r2))
 

@@ -207,11 +207,11 @@
 (def-struct-end)
 
 (defcfun sys-push-trashed ()
-	;pushes onto r4
+	;pushes onto rsp
 	(vp-push r1 r2 r6 r7 r8 r9 r10 r11))
 
 (defcfun sys-pop-trashed ()
-	;pops from r4
+	;pops from rsp
 	(vp-pop r1 r2 r6 r7 r8 r9 r10 r11))
 
 (defcfun sys-exit (_1)
@@ -230,7 +230,7 @@
 	(assign _1 '(r7))
 	(vp-xor-rr r0 r0)
 	(vp-push r0)
-	(assign '(r4 1) '(r6 r2))
+	(assign '(rsp 1) '(r6 r2))
 	(sys-call sys_read)
 	(vp-pop r0)
 	(assign '(r0) _2))
@@ -245,9 +245,9 @@
 	;fd, char
 	(assign _1 '(r7 r6))
 	(vp-push r6)
-	(assign '(r4 1) '(r6 r2))
+	(assign '(rsp 1) '(r6 r2))
 	(sys-call sys_write)
-	(vp-add-cr ptr_size r4)
+	(vp-free-stack ptr_size)
 	(assign '(r0) _2))
 
 (defcfun sys-mmap (_1 _2)
