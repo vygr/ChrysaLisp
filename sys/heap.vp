@@ -116,7 +116,7 @@
 	;outputs
 	;r0 = heap
 	;trashes
-	;r1-r3, r4
+	;r1-r4
 
 	(f-entry 'sys_heap 'reset '(r0))
 	(vp-xor-rr r1 r1)

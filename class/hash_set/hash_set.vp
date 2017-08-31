@@ -16,7 +16,7 @@
 	;r0 = hash_set object
 	;r1 = 0 if error, else ok
 	;trashes
-	;r2-r3, r4-r7
+	;r2-r7
 
 	(def-struct 'local)
 		(ptr 'this)

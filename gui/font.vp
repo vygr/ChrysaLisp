@@ -78,7 +78,7 @@
 	;r9 = width
 	;r10 = height
 	;trashes
-	;r1-r3, r4-r5
+	;r1-r5
 
 	(f-call 'gui_font 'text '(r0 r1) '(r0))
 	(vpif '(r0 == 0))

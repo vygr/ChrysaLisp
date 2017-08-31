@@ -144,7 +144,7 @@
 	;output
 	;r0 = 0 else, function entry pointer
 	;trashes
-	;r1-r3, r4-r7
+	;r1-r7
 
 (vp-label 'ld_load_function)
 	;save pathname

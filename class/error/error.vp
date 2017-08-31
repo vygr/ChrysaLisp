@@ -20,7 +20,7 @@
 	;r0 = error object
 	;r1 = 0 if error, else ok
 	;trashes
-	;r1-r3, r4-r6
+	;r1-r6
 
 	(def-struct 'local)
 		(ptr 'this)

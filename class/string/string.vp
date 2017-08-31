@@ -15,7 +15,7 @@
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes
-	;r1-r3, r4-r6
+	;r1-r6
 
 	;save size of data
 	(f-entry 'string 'create_from_buffer '(r5 r6))
@@ -41,7 +41,7 @@
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes
-	;r1-r3, r4-r6
+	;r1-r6
 
 	;get size of string
 	(f-call 'sys_string 'length '(r0) '(r0 r1))
@@ -55,7 +55,7 @@
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes
-	;r1-r3, r4-r6
+	;r1-r6
 
 	;save c string pointer
 	(f-entry 'string 'create_from_file '(r5))
@@ -341,7 +341,7 @@
 	;outputs
 	;r0 = 0 if error, else new string object
 	;trashes
-	;r1-r3, r4-r6
+	;r1-r6
 
 	;save inputs
 	(f-entry 'string 'append '(r5 r6))
@@ -373,7 +373,7 @@
 	;outputs
 	;r0 = 0 if error, else new string object
 	;trashes
-	;r1-r3, r4-r6
+	;r1-r6
 
 	(def-struct 'local)
 		(ptr 'length)
@@ -426,7 +426,7 @@
 	;r0 = string object
 	;r1 = 0 if same, else -, +
 	;trashes
-	;r2-r3, r4-r7
+	;r2-r7
 
 	(vpif '(r0 != r1))
 		(vp-cpy-ir-ui r0 string_length r2)
@@ -463,7 +463,7 @@
 	;r0 = string object
 	;r1 = 0 if same
 	;trashes
-	;r2-r3, r4-r6
+	;r2-r6
 
 	(vpif '(r0 != r1))
 		(vp-cpy-ir-ui r0 string_length r2)
@@ -550,7 +550,7 @@
 	;r0 = string object
 	;r1 = string slice
 	;trashes
-	;r2-r3, r4-r6
+	;r2-r6
 
 	(vp-push r0)
 	(vp-add-cr string_data r0)
@@ -598,7 +598,7 @@
 	;r0 = string object
 	;r1 = -1, else position
 	;trashes
-	;r2-r3, r4
+	;r2-r4
 
 	(vp-lea-i r0 string_data r2)
 	(vp-cpy-ir-ui r0 string_length r3)

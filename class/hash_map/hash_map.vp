@@ -17,7 +17,7 @@
 	;r0 = hash_map object
 	;r1 = 0 if error, else ok
 	;trashes
-	;r2-r3, r4-r7
+	;r2-r7
 
 	;init parent
 	(s-call 'hash_map 'init '(r0 r1 r2 r3) '(r0 r1))

@@ -24,7 +24,7 @@
 	;outputs
 	;r0 = vector object
 	;trashes
-	;r1-r3, r4-r7
+	;r1-r7
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -177,7 +177,7 @@
 	;r0 = vector object
 	;r1 = slice vector object
 	;trashes
-	;r1-r3, r4-r11
+	;r1-r11
 
 	;save inputs
 	(f-entry 'vector 'slice '(r8 r9 r10))

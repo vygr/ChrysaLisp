@@ -33,7 +33,7 @@
 	;outputs
 	;r0 = array object
 	;trashes
-	;r1-r3, r4-r7
+	;r1-r7
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -157,7 +157,7 @@
 	;r0 = array object
 	;r1 = -1, else index
 	;trashes
-	;r1-r3, r4
+	;r1-r4
 
 	(vp-cpy-rr r1 r3)
 	(vp-cpy-ir-ui r0 array_length r1)
@@ -224,7 +224,7 @@
 	;r0 = array object
 	;r1 = element
 	;trashes
-	;r2-r3, r4-r7
+	;r2-r7
 
 	;increase capacity ?
 	(vp-cpy-ir-ui r0 array_length r2)
@@ -300,7 +300,7 @@
 	;outputs
 	;r0 = array object
 	;trashes
-	;r1-r3, r4-r7
+	;r1-r7
 
 	;do we already have room ?
 	(vp-cpy-ir-ui r0 array_capacity r2)
@@ -357,7 +357,7 @@
 	;r0 = array object
 	;r1 = slice array object
 	;trashes
-	;r1-r3, r4-r11
+	;r1-r11
 
 	;save inputs
 	(f-entry 'array 'slice '(r8 r9 r10))

@@ -226,7 +226,7 @@
 	;r7 = x translation
 	;r8 = y translation
 	;trashes
-	;r1-r3, r4-r14
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'node)
@@ -623,7 +623,7 @@
 	;r9 = x1 (pixels)
 	;r10 = y1 (pixels)
 	;trashes
-	;r1-r3, r4-r14
+	;r1-r14
 
 	;check for any obvious errors in inputs
 	(f-entry 'gui_region 'paste_rect '(r0 r1 r7 r8 r9 r10))
@@ -826,7 +826,7 @@
 	;r7 = x translation
 	;r8 = y translation
 	;trashes
-	;r1-r3, r4-r14
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'node)
@@ -1122,7 +1122,7 @@
 	;r7 = x translation
 	;r8 = y translation
 	;trashes
-	;r1-r3, r4-r14
+	;r1-r14
 
 	(def-struct 'local)
 		(ptr 'node)

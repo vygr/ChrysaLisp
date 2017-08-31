@@ -72,7 +72,7 @@
 	;outputs
 	;r0 = 16.16 sine
 	;trashes
-	;r1-r3, r4
+	;r1-r4
 
 	(f-entry 'math 'fsin '(r0))
 	(vec-set 1)
@@ -201,7 +201,7 @@
 	;outputs
 	;r0 = 16.16 cosine
 	;trashes
-	;r1-r3, r4
+	;r1-r4
 
 	(f-entry 'math 'fcos '(r0))
 	(vec-set 1)
