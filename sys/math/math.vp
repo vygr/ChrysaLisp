@@ -72,7 +72,7 @@
 	;outputs
 	;r0 = 16.16 sine
 	;trashes
-	;r1-r3, r5
+	;r1-r3, r4
 
 	(f-entry 'math 'fsin '(r0))
 	(vec-set 1)
@@ -88,8 +88,8 @@
 	(vp-mul-cr fp_rpi r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-cpy-cr 1.0 r1)
-	(vp-cpy-rr r0 r5)
-	(vp-shl-cr 1 r5)
+	(vp-cpy-rr r0 r4)
+	(vp-shl-cr 1 r4)
 
 	;(assign {-37305 *> tc} {res})
 	;(assign {u *> tc - tp} {tn})
@@ -101,7 +101,7 @@
 	(vp-asr-cr fp_shift r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
@@ -111,7 +111,7 @@
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
@@ -126,7 +126,7 @@
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
@@ -136,7 +136,7 @@
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
@@ -151,7 +151,7 @@
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
@@ -161,7 +161,7 @@
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
@@ -176,14 +176,14 @@
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {u *> tc - tp} {tc})
 	;(assign {-16 *> tc + res} '(r0))
 
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r1 r0)
 	(vp-mul-cr -16 r0)
@@ -201,7 +201,7 @@
 	;outputs
 	;r0 = 16.16 cosine
 	;trashes
-	;r1-r3, r5
+	;r1-r3, r4
 
 	(f-entry 'math 'fcos '(r0))
 	(vec-set 1)
@@ -217,8 +217,8 @@
 	(vp-mul-cr fp_rpi r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-cpy-cr 1.0 r1)
-	(vp-cpy-rr r0 r5)
-	(vp-shl-cr 1 r5)
+	(vp-cpy-rr r0 r4)
+	(vp-shl-cr 1 r4)
 	(vp-cpy-cr 19939 r3)
 
 	;(assign {u *> tc - tp} {tn})
@@ -227,7 +227,7 @@
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
@@ -242,7 +242,7 @@
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
@@ -252,7 +252,7 @@
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
@@ -267,7 +267,7 @@
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
@@ -277,7 +277,7 @@
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
@@ -292,7 +292,7 @@
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
@@ -302,7 +302,7 @@
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
@@ -317,14 +317,14 @@
 	(vp-add-rr r2 r3)
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r0 r1)
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r2 r0)
 
 	;(assign {u *> tc - tp} {tc})
 	;(assign {3 *> tc + res} '(r0))
 
-	(vp-mul-rr r5 r0)
+	(vp-mul-rr r4 r0)
 	(vp-asr-cr fp_shift r0)
 	(vp-sub-rr r1 r0)
 	(vp-mul-cr 3 r0)

@@ -15,8 +15,8 @@
 	;r1 = vtable pointer
 	;r2 = buffer object, 0 if none
 	;r3 = buffer pointer, 0 if none
-	;r5 = buffer start
-	;r6 = buffer length
+	;r4 = buffer start
+	;r5 = buffer length
 	;outputs
 	;r0 = stream object
 	;r1 = 0 if error, else ok
@@ -24,8 +24,8 @@
 	;all but r0
 
 	;save inputs
-	(vp-add-rr r5 r6)
-	(assign '(r2 r3 r5 r6) '((r0 stream_object) (r0 stream_buffer) (r0 stream_bufp) (r0 stream_bufe)))
+	(vp-add-rr r4 r5)
+	(assign '(r2 r3 r4 r5) '((r0 stream_object) (r0 stream_buffer) (r0 stream_bufp) (r0 stream_bufe)))
 
 	;init parent
 	(s-call 'stream 'init '(r0 r1) '(r0 r1))
@@ -212,14 +212,14 @@
 		(loop-while '(r2 == r3))
 			(vp-push r1)
 			(vp-cpy-ri r2 r0 stream_bufp)
-			(v-call 'stream 'read_next '(r0) '(r0 r5))
+			(v-call 'stream 'read_next '(r0) '(r0 r4))
 			(vp-pop r1)
-			(gotoif '(r5 == -1) 'exit)
+			(gotoif '(r4 == -1) 'exit)
 			(vp-cpy-ir r0 stream_bufp r2)
 			(vp-cpy-ir r0 stream_bufe r3)
 		(loop-end)
-		(vp-cpy-ir-ub r2 0 r5)
-		(breakif '(r5 != r1))
+		(vp-cpy-ir-ub r2 0 r4)
+		(breakif '(r4 != r1))
 		(vp-add-cr byte_size r2)
 	(loop-end)
 	(vp-cpy-ri r2 r0 stream_bufp)
@@ -241,14 +241,14 @@
 		(loop-while '(r2 == r3))
 			(vp-push r1)
 			(vp-cpy-ri r2 r0 stream_bufp)
-			(v-call 'stream 'read_next '(r0) '(r0 r5))
+			(v-call 'stream 'read_next '(r0) '(r0 r4))
 			(vp-pop r1)
-			(gotoif '(r5 == -1) 'exit)
+			(gotoif '(r4 == -1) 'exit)
 			(vp-cpy-ir r0 stream_bufp r2)
 			(vp-cpy-ir r0 stream_bufe r3)
 		(loop-end)
-		(vp-cpy-ir-ub r2 0 r5)
-		(breakif '(r5 == r1))
+		(vp-cpy-ir-ub r2 0 r4)
+		(breakif '(r4 == r1))
 		(vp-add-cr byte_size r2)
 	(loop-end)
 	(vp-cpy-ri r2 r0 stream_bufp)

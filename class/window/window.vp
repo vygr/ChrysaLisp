@@ -159,11 +159,11 @@
 	(vp-alloc-stack local_size)
 	(f-entry 'window 'layout '((rsp local_this)))
 
-	(vp-cpy-ir-i r0 view_w r10)
-	(vp-cpy-ir-i r0 view_h r11)
+	(vp-cpy-ir-i r0 view_w r9)
+	(vp-cpy-ir-i r0 view_h r10)
+	(vp-sub-cr (mul window_border_size 2) r9)
 	(vp-sub-cr (mul window_border_size 2) r10)
-	(vp-sub-cr (mul window_border_size 2) r11)
-	(f-call 'flow 'change '((r0 window_flow) window_border_size window_border_size r10 r11))
+	(f-call 'flow 'change '((r0 window_flow) window_border_size window_border_size r9 r10))
 
 	(vp-cpy-ir rsp local_this r0)
 	(vp-cpy-ir-ui r0 view_color r1)
@@ -184,38 +184,38 @@
 	;all but r0
 
 	;set drag code and offset
-	(vp-cpy-ir-i r1 ev_msg_rx r8)
-	(vp-cpy-ir-i r1 ev_msg_ry r9)
+	(vp-cpy-ir-i r1 ev_msg_rx r7)
+	(vp-cpy-ir-i r1 ev_msg_ry r8)
+	(vp-cpy-rr r7 r11)
 	(vp-cpy-rr r8 r12)
-	(vp-cpy-rr r9 r13)
-	(vp-cpy-ir-i r0 view_w r10)
-	(vp-cpy-ir-i r0 view_h r11)
+	(vp-cpy-ir-i r0 view_w r9)
+	(vp-cpy-ir-i r0 view_h r10)
+	(vp-sub-cr (mul window_border_size 2) r9)
 	(vp-sub-cr (mul window_border_size 2) r10)
-	(vp-sub-cr (mul window_border_size 2) r11)
-	(vp-xor-rr r15 r15)
-	(vpif '(r8 < (mul window_border_size 2)))
+	(vp-xor-rr r14 r14)
+	(vpif '(r7 < (mul window_border_size 2)))
 		;left edge
-		(vp-or-cr window_drag_left r15)
+		(vp-or-cr window_drag_left r14)
+	(endif)
+	(vpif '(r7 >= r9))
+		;right edge
+		(vp-or-cr window_drag_right r14)
+		(vp-cpy-ir-i r0 view_w r9)
+		(vp-sub-rr r9 r11)
+	(endif)
+	(vpif '(r8 < (mul window_border_size 2)))
+		;top edge
+		(vp-or-cr window_drag_top r14)
 	(endif)
 	(vpif '(r8 >= r10))
-		;right edge
-		(vp-or-cr window_drag_right r15)
-		(vp-cpy-ir-i r0 view_w r10)
+		;bottom edge
+		(vp-or-cr window_drag_bottom r14)
+		(vp-cpy-ir-i r0 view_h r10)
 		(vp-sub-rr r10 r12)
 	(endif)
-	(vpif '(r9 < (mul window_border_size 2)))
-		;top edge
-		(vp-or-cr window_drag_top r15)
-	(endif)
-	(vpif '(r9 >= r11))
-		;bottom edge
-		(vp-or-cr window_drag_bottom r15)
-		(vp-cpy-ir-i r0 view_h r11)
-		(vp-sub-rr r11 r13)
-	(endif)
-	(vp-cpy-ri r15 r0 window_drag_mode)
-	(vp-cpy-ri-i r12 r0 window_offset_x)
-	(vp-cpy-ri-i r13 r0 window_offset_y)
+	(vp-cpy-ri r14 r0 window_drag_mode)
+	(vp-cpy-ri-i r11 r0 window_offset_x)
+	(vp-cpy-ri-i r12 r0 window_offset_y)
 	(vp-ret)
 
 (def-func-end)
@@ -242,90 +242,90 @@
 	(f-call 'window 'dirty '(r0))
 
 	;get smallest size
-	(v-call 'window 'pref_size '(r0) '(r0 r10 r11))
+	(v-call 'window 'pref_size '(r0) '(r0 r9 r10))
+	(vp-cpy-rr r9 r11)
 	(vp-cpy-rr r10 r12)
-	(vp-cpy-rr r11 r13)
 
 	;save old bounds
-	(f-call 'window 'get_bounds '(r0) '(r0 (rsp local_old_x i) (rsp local_old_y i) r10 r11))
+	(f-call 'window 'get_bounds '(r0) '(r0 (rsp local_old_x i) (rsp local_old_y i) r9 r10))
 
 	;get abolute cords of corners
+	(vp-add-rr r7 r9)
 	(vp-add-rr r8 r10)
-	(vp-add-rr r9 r11)
 
 	;drag edges
 	(vp-cpy-ir rsp local_event r1)
-	(vp-cpy-ir r0 window_drag_mode r15)
-	(vp-and-cr window_drag_left r15)
-	(vpif '(r15 != 0))
+	(vp-cpy-ir r0 window_drag_mode r14)
+	(vp-and-cr window_drag_left r14)
+	(vpif '(r14 != 0))
 		;drag left edge
-		(vp-cpy-ir-i r1 ev_msg_x r8)
-		(vp-cpy-ir-i r0 window_offset_x r15)
-		(vp-sub-rr r15 r8)
-		(vp-cpy-rr r10 r15)
-		(vp-sub-rr r8 r15)
-		(vpif '(r15 < r12))
+		(vp-cpy-ir-i r1 ev_msg_x r7)
+		(vp-cpy-ir-i r0 window_offset_x r14)
+		(vp-sub-rr r14 r7)
+		(vp-cpy-rr r9 r14)
+		(vp-sub-rr r7 r14)
+		(vpif '(r14 < r11))
+			(vp-cpy-rr r9 r7)
+			(vp-sub-rr r11 r7)
+		(endif)
+	(endif)
+	(vp-cpy-ir r0 window_drag_mode r14)
+	(vp-and-cr window_drag_right r14)
+	(vpif '(r14 != 0))
+		;drag right edge
+		(vp-cpy-ir-i r1 ev_msg_x r9)
+		(vp-cpy-ir-i r0 window_offset_x r14)
+		(vp-sub-rr r14 r9)
+		(vp-cpy-rr r9 r14)
+		(vp-sub-rr r7 r14)
+		(vpif '(r14 < r11))
+			(vp-cpy-rr r7 r9)
+			(vp-add-rr r11 r9)
+		(endif)
+	(endif)
+	(vp-cpy-ir r0 window_drag_mode r14)
+	(vp-and-cr window_drag_top r14)
+	(vpif '(r14 != 0))
+		;drag top edge
+		(vp-cpy-ir-i r1 ev_msg_y r8)
+		(vp-cpy-ir-i r0 window_offset_y r14)
+		(vp-sub-rr r14 r8)
+		(vp-cpy-rr r10 r14)
+		(vp-sub-rr r8 r14)
+		(vpif '(r14 < r12))
 			(vp-cpy-rr r10 r8)
 			(vp-sub-rr r12 r8)
 		(endif)
 	(endif)
-	(vp-cpy-ir r0 window_drag_mode r15)
-	(vp-and-cr window_drag_right r15)
-	(vpif '(r15 != 0))
-		;drag right edge
-		(vp-cpy-ir-i r1 ev_msg_x r10)
-		(vp-cpy-ir-i r0 window_offset_x r15)
-		(vp-sub-rr r15 r10)
-		(vp-cpy-rr r10 r15)
-		(vp-sub-rr r8 r15)
-		(vpif '(r15 < r12))
+	(vp-cpy-ir r0 window_drag_mode r14)
+	(vp-and-cr window_drag_bottom r14)
+	(vpif '(r14 != 0))
+		;drag bottom edge
+		(vp-cpy-ir-i r1 ev_msg_y r10)
+		(vp-cpy-ir-i r0 window_offset_y r14)
+		(vp-sub-rr r14 r10)
+		(vp-cpy-rr r10 r14)
+		(vp-sub-rr r8 r14)
+		(vpif '(r14 < r12))
 			(vp-cpy-rr r8 r10)
 			(vp-add-rr r12 r10)
 		(endif)
 	(endif)
-	(vp-cpy-ir r0 window_drag_mode r15)
-	(vp-and-cr window_drag_top r15)
-	(vpif '(r15 != 0))
-		;drag top edge
-		(vp-cpy-ir-i r1 ev_msg_y r9)
-		(vp-cpy-ir-i r0 window_offset_y r15)
-		(vp-sub-rr r15 r9)
-		(vp-cpy-rr r11 r15)
-		(vp-sub-rr r9 r15)
-		(vpif '(r15 < r13))
-			(vp-cpy-rr r11 r9)
-			(vp-sub-rr r13 r9)
-		(endif)
-	(endif)
-	(vp-cpy-ir r0 window_drag_mode r15)
-	(vp-and-cr window_drag_bottom r15)
-	(vpif '(r15 != 0))
-		;drag bottom edge
-		(vp-cpy-ir-i r1 ev_msg_y r11)
-		(vp-cpy-ir-i r0 window_offset_y r15)
-		(vp-sub-rr r15 r11)
-		(vp-cpy-rr r11 r15)
-		(vp-sub-rr r9 r15)
-		(vpif '(r15 < r13))
-			(vp-cpy-rr r9 r11)
-			(vp-add-rr r13 r11)
-		(endif)
-	(endif)
+	(vp-sub-rr r7 r9)
 	(vp-sub-rr r8 r10)
-	(vp-sub-rr r9 r11)
 
 	;change window size
-	(f-call 'window 'change '(r0 r8 r9 r10 r11))
+	(f-call 'window 'change '(r0 r7 r8 r9 r10))
 
 	;translate old dirty area and dirty all
-	(vp-cpy-ir-i rsp local_old_x r8)
-	(vp-cpy-ir-i rsp local_old_y r9)
-	(vp-cpy-ir-i r0 view_x r10)
-	(vp-cpy-ir-i r0 view_y r11)
+	(vp-cpy-ir-i rsp local_old_x r7)
+	(vp-cpy-ir-i rsp local_old_y r8)
+	(vp-cpy-ir-i r0 view_x r9)
+	(vp-cpy-ir-i r0 view_y r10)
+	(vp-sub-rr r9 r7)
 	(vp-sub-rr r10 r8)
-	(vp-sub-rr r11 r9)
 	(vp-lea-i r0 view_dirty_region r1)
-	(f-call 'gui_region 'translate '(r1 r8 r9))
+	(f-call 'gui_region 'translate '(r1 r7 r8))
 
 	(vp-cpy-ir rsp local_this r0)
 	(vp-free-stack local_size)
@@ -338,8 +338,8 @@
 	;r0 = window object
 	;outputs
 	;r0 = window object
-	;r10 = preferred width
-	;r11 = preferred height
+	;r9 = preferred width
+	;r10 = preferred height
 	;trashes
 	;all but r0
 
@@ -351,9 +351,9 @@
 	(vp-alloc-stack local_size)
 	(f-entry 'window 'pref_size '((rsp local_this)))
 
-	(v-call 'flow 'pref_size '((r0 window_flow)) '(_ r10 r11))
+	(v-call 'flow 'pref_size '((r0 window_flow)) '(_ r9 r10))
+	(vp-add-cr (mul window_border_size 2) r9)
 	(vp-add-cr (mul window_border_size 2) r10)
-	(vp-add-cr (mul window_border_size 2) r11)
 
 	(vp-cpy-ir rsp local_this r0)
 	(vp-free-stack local_size)

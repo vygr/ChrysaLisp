@@ -13,8 +13,8 @@
 (def-func 'sys/task_init)
 	;set up current tcb
 	(f-bind 'sys_task 'statics r3)
-	(vp-lea-i r3 (add tk_statics_task_list lh_list_tail) r15)
-	(vp-cpy-ri r15 r3 tk_statics_current_tcb)
+	(vp-lea-i r3 (add tk_statics_task_list lh_list_tail) r14)
+	(vp-cpy-ri r14 r3 tk_statics_current_tcb)
 
 	;init task control block heap
 	(f-call 'sys_heap 'init '((& r3 tk_statics_task_heap) (add tk_node_size ptr_size) (mul (add tk_node_size ptr_size) 16)))
@@ -53,16 +53,16 @@
 	;test if we are the kernel task
 	(f-bind 'sys_task 'statics r3)
 	(vp-cpy-ir r3 tk_statics_current_tcb r2)
-	(vp-cpy-ir r3 tk_statics_kernel_tcb r5)
-	(vpif '(r2 == r5))
+	(vp-cpy-ir r3 tk_statics_kernel_tcb r4)
+	(vpif '(r2 == r4))
 		;yes we can just do local call
 		(vp-xchg-rr r0 r1)
 		(vp-jmp-r r1)
 	(endif)
 
 	;save task info
-	(vp-cpy-rr r0 r5)
-	(vp-cpy-rr r1 r6)
+	(vp-cpy-rr r0 r4)
+	(vp-cpy-rr r1 r5)
 
 	;create temp mailbox
 	(ml-temp-create r0 r1)
@@ -79,8 +79,8 @@
 	(vp-cpy-ri r0 r3 (add msg_dest id_cpu))
 	(vp-cpy-cr kn_call_callback r1)
 	(vp-cpy-ri r1 r3 kn_msg_function)
-	(vp-cpy-ri r5 r3 kn_msg_callback_addr)
-	(vp-cpy-ri r6 r3 kn_msg_user)
+	(vp-cpy-ri r4 r3 kn_msg_callback_addr)
+	(vp-cpy-ri r5 r3 kn_msg_user)
 	(vp-cpy-cr kn_msg_callback_size r1)
 	(vp-cpy-ri r1 r3 msg_length)
 
@@ -460,15 +460,15 @@
 
 (def-func 'sys/task_restore)
 	;restore next task
-	;r15 = control block to restore
+	;r14 = control block to restore
 
 	;round robin past any list head
-	(ln-get-forward r15 r0)
+	(ln-get-forward r14 r0)
 	(f-bind 'sys_task 'statics r0)
-	(vp-cpy-ri r15 r0 tk_statics_current_tcb)
+	(vp-cpy-ri r14 r0 tk_statics_current_tcb)
 
 	;restore old stack pointer
-	(vp-cpy-ir r15 tk_node_stack rsp)
+	(vp-cpy-ir r14 tk_node_stack rsp)
 
 	;pop task state
 	(tk-load-state)
@@ -503,8 +503,8 @@
 
 	;save stack pointer
 	(f-bind 'sys_task 'statics r3)
-	(vp-cpy-ir r3 tk_statics_current_tcb r15)
-	(vp-cpy-ri rsp r15 tk_node_stack)
+	(vp-cpy-ir r3 tk_statics_current_tcb r14)
+	(vp-cpy-ri rsp r14 tk_node_stack)
 
 	;save timeout
 	(vp-cpy-rr r0 r1)
@@ -512,18 +512,18 @@
 	;calculate wake time
 	(f-call 'sys_cpu 'time '() '(r0))
 	(vp-add-rr r1 r0)
-	(vp-cpy-ri r0 r15 tk_node_time)
+	(vp-cpy-ri r0 r14 tk_node_time)
 
 	;remove task control block
-	(vp-cpy-rr r15 r2)
-	(vp-cpy-rr r15 r1)
-	(ln-remove-node r2 r15)
+	(vp-cpy-rr r14 r2)
+	(vp-cpy-rr r14 r1)
+	(ln-remove-node r2 r14)
 
 	;add to timer list
-	(loop-list-forward r3 tk_statics_timer_list r5 r2)
-		(vp-cpy-ir r5 tk_node_time r3)
+	(loop-list-forward r3 tk_statics_timer_list r4 r2)
+		(vp-cpy-ir r4 tk_node_time r3)
 	(loop-until '(r0 < r3))
-	(ln-add-node-before r5 r1 r0)
+	(ln-add-node-before r4 r1 r0)
 
 	;restore next task
 	(f-jmp 'sys_task 'restore)
@@ -538,10 +538,10 @@
 	;r1 = new task mailbox id
 	;r2 = new task mailbox id
 	;trashes
-	;r3, r5-r6
+	;r3, r4-r5
 
 	;save prog counter
-	(vp-cpy-rr r0 r5)
+	(vp-cpy-rr r0 r4)
 
 	;increment task count
 	(f-bind 'sys_task 'statics r0)
@@ -550,7 +550,7 @@
 	(vp-cpy-ri r1 r0 tk_statics_task_count)
 
 	;create new task control block and task
-	(vp-cpy-rr r5 r2)
+	(vp-cpy-rr r4 r2)
 	(vp-cpy-ir-ub r2 -1 r1)
 	(vp-sub-rr r1 r2)
 	(vp-cpy-ir-ui r2 (neg int_size) r1)
@@ -573,8 +573,8 @@
 	;initialise task mailbox etc
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri r2 r0 0)
-	(vp-lea-i r0 tk_node_mailbox r6)
-	(ml-init r6 r2 r3)
+	(vp-lea-i r0 tk_node_mailbox r5)
+	(ml-init r5 r2 r3)
 
 	;set task control block stack and return address's
 	(vp-lea-d r0 r1 r1)
@@ -582,7 +582,7 @@
 	(vp-cpy-ri r1 r0 tk_node_stack)
 	(f-bind 'sys_task 'stop r2)
 	(vp-cpy-ri r2 r1 (add tk_state_size ptr_size))
-	(vp-cpy-ri r5 r1 tk_state_size)
+	(vp-cpy-ri r4 r1 tk_state_size)
 
 	;resume new task
 	(f-call 'sys_task 'resume '(r0))
@@ -599,19 +599,19 @@
 	(f-bind 'sys_task 'statics r0)
 	(vp-cpy-ir r0 tk_statics_current_tcb r1)
 	(vp-cpy-rr r1 r2)
-	(ln-remove-node r2 r15)
+	(ln-remove-node r2 r14)
 
 (errorcases
 	;test stack space canary
 	(vp-lea-i r1 tk_node_stackspace r2)
 	(vp-lea-i r1 (add tk_node_stackspace 1024) r3)
-	(vp-xor-rr r5 r5)
+	(vp-xor-rr r4 r4)
 	(loop-while '(r2 != r3))
-		(vp-cpy-ir r2 0 r6)
-		(vp-or-rr r6 r5)
+		(vp-cpy-ir r2 0 r5)
+		(vp-or-rr r5 r4)
 		(vp-add-cr ptr_size r2)
 	(loop-end)
-	(assert '(r5 == 0) "Stack overrun !"))
+	(assert '(r4 == 0) "Stack overrun !"))
 
 	;decrement task count
 	(vp-cpy-ir r0 tk_statics_task_count r2)
@@ -637,7 +637,7 @@
 
 	;remove task control block, and flag as suspended
 	(vp-cpy-rr r0 r1)
-	(ln-remove-node r1 r15)
+	(ln-remove-node r1 r14)
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 r0 0)
 
@@ -661,12 +661,12 @@
 	(tk-save-state)
 
 	;save old stack pointer
-	(f-bind 'sys_task 'statics r15)
-	(vp-cpy-ir r15 tk_statics_current_tcb r15)
-	(vp-cpy-ri rsp r15 tk_node_stack)
+	(f-bind 'sys_task 'statics r14)
+	(vp-cpy-ir r14 tk_statics_current_tcb r14)
+	(vp-cpy-ri rsp r14 tk_node_stack)
 
 	;get next task control block
-	(ln-get-succ r15 0 r15)
+	(ln-get-succ r14 0 r14)
 	(f-jmp 'sys_task 'restore)
 
 (def-func-end)

@@ -23,17 +23,17 @@
 		(vp-push r0)
 
 		;init myself
-		(vp-cpy-rr r0 r5)
+		(vp-cpy-rr r0 r4)
 		(vp-xor-rr r0 r0)
-		(assign '(r0 r0 r0) '((r5 vdu_text_color i) (r5 vdu_cursor_x i) (r5 vdu_cursor_y i)))
+		(assign '(r0 r0 r0) '((r4 vdu_text_color i) (r4 vdu_cursor_x i) (r4 vdu_cursor_y i)))
 		(vp-cpy-cr vdu_default_width r0)
-		(vp-cpy-ri-i r0 r5 vdu_width)
+		(vp-cpy-ri-i r0 r4 vdu_width)
 		(vp-cpy-cr vdu_default_height r0)
-		(vp-cpy-ri-i r0 r5 vdu_height)
+		(vp-cpy-ri-i r0 r4 vdu_height)
 		(f-call 'sys_mem 'alloc '((mul vdu_default_width vdu_default_height)) '(r0 r1))
-		(vp-cpy-ri r0 r5 vdu_chars)
+		(vp-cpy-ri r0 r4 vdu_chars)
 		(f-call 'sys_mem 'fill `(r0 r1 (ascii " ")))
-		(f-call 'sys_mem 'alloc '((mul 128 ptr_size)) '((r5 vdu_textures) _))
+		(f-call 'sys_mem 'alloc '((mul 128 ptr_size)) '((r4 vdu_textures) _))
 
 		(vp-pop r0)
 		(f-call 'vdu 'set_font '(r0 "fonts/Hack-Regular.ttf" 16))
@@ -117,8 +117,8 @@
 	;inputs
 	;r0 = vdu object
 	;outputs
-	;r10 = preferred width
-	;r11 = preferred height
+	;r9 = preferred width
+	;r10 = preferred height
 	;trashes
 	;all but r0
 

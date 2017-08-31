@@ -3,7 +3,7 @@
 (def-class 'stream 'ref)
 (def-method 'create 'class/stream/create 'static '(r0 r1 r2 r3) '(r0))
 (def-method 'new 'class/stream/new 'static nil '(r0))
-(def-method 'init 'class/stream/init 'static '(r0 r1 r2 r3 r5 r6))
+(def-method 'init 'class/stream/init 'static '(r0 r1 r2 r3 r4 r5))
 (def-method 'available 'class/stream/available 'static '(r0) '(r0 r1))
 (def-method 'read_char 'class/stream/read_char 'static '(r0) '(r0 r1))
 (def-method 'read_line 'class/stream/read_line 'static '(r0) '(r0 r1))

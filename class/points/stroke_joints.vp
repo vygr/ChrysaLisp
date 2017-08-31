@@ -9,11 +9,11 @@
 	;r1 = stack array
 	;r2 = in points iter_i
 	;r3 = in points iter_j
-	;r5 = 16.16/16.16 p1.xy
-	;r6 = 16.16/16.16 p2.xy
-	;r7 = join style
-	;r8 = 16.16 radius
-	;r9 = 16.16 tolerance
+	;r4 = 16.16/16.16 p1.xy
+	;r5 = 16.16/16.16 p2.xy
+	;r6 = join style
+	;r7 = 16.16 radius
+	;r8 = 16.16 tolerance
 	;outputs
 	;r0 = points object
 	;trashes

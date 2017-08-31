@@ -20,21 +20,21 @@
 	(def-struct-end)
 
 	(vp-alloc-stack local_size)
-	(vp-xor-rr r10 r10)
-	(vp-cpy-ri-i r10 rsp local_count)
+	(vp-xor-rr r9 r9)
+	(vp-cpy-ri-i r9 rsp local_count)
 
-	(vp-cpy-ir-i r0 view_w r9)
-	(vp-shl-cr fixed_point r9)
-	(vp-cpy-ir-ui r0 grid_width r8)
-	(vp-div-rrr r8 r10 r9)
-	(vp-cpy-ri-i r9 rsp local_cell_w)
+	(vp-cpy-ir-i r0 view_w r8)
+	(vp-shl-cr fixed_point r8)
+	(vp-cpy-ir-ui r0 grid_width r7)
+	(vp-div-rrr r7 r9 r8)
+	(vp-cpy-ri-i r8 rsp local_cell_w)
 
-	(vp-xor-rr r10 r10)
-	(vp-cpy-ir-i r0 view_h r9)
-	(vp-shl-cr fixed_point r9)
-	(vp-cpy-ir-ui r0 grid_height r8)
-	(vp-div-rrr r8 r10 r9)
-	(vp-cpy-ri-i r9 rsp local_cell_h)
+	(vp-xor-rr r9 r9)
+	(vp-cpy-ir-i r0 view_h r8)
+	(vp-shl-cr fixed_point r8)
+	(vp-cpy-ir-ui r0 grid_height r7)
+	(vp-div-rrr r7 r9 r8)
+	(vp-cpy-ri-i r8 rsp local_cell_h)
 
 	(f-call 'grid 'forward '(r0 rsp ($ callback)))
 
@@ -42,28 +42,28 @@
 	(vp-ret)
 
 (vp-label 'callback)
-	(vp-xor-rr r8 r8)
-	(vp-cpy-ir-i r1 local_count r9)
+	(vp-xor-rr r7 r7)
+	(vp-cpy-ir-i r1 local_count r8)
 	(vp-cpy-ir r0 view_parent r2)
-	(vp-cpy-ir-ui r2 grid_width r10)
-	(vp-div-rrr r10 r8 r9)
-	(vp-cpy-ir-i r1 local_cell_w r10)
-	(vp-cpy-ir-i r1 local_cell_h r11)
+	(vp-cpy-ir-ui r2 grid_width r9)
+	(vp-div-rrr r9 r7 r8)
+	(vp-cpy-ir-i r1 local_cell_w r9)
+	(vp-cpy-ir-i r1 local_cell_h r10)
+	(vp-mul-rr r9 r7)
 	(vp-mul-rr r10 r8)
-	(vp-mul-rr r11 r9)
+	(vp-add-rr r7 r9)
 	(vp-add-rr r8 r10)
-	(vp-add-rr r9 r11)
+	(vp-shr-cr fixed_point r7)
 	(vp-shr-cr fixed_point r8)
 	(vp-shr-cr fixed_point r9)
 	(vp-shr-cr fixed_point r10)
-	(vp-shr-cr fixed_point r11)
+	(vp-sub-rr r7 r9)
 	(vp-sub-rr r8 r10)
-	(vp-sub-rr r9 r11)
 
 	(vp-cpy-ir-i r1 local_count r2)
 	(vp-add-cr 1 r2)
 	(vp-cpy-ri-i r2 r1 local_count)
-	(f-jmp 'view 'change '(r0 r8 r9 r10 r11))
+	(f-jmp 'view 'change '(r0 r7 r8 r9 r10))
 
 (def-func-end)
 
@@ -71,8 +71,8 @@
 	;inputs
 	;r0 = grid object
 	;outputs
-	;r10 = preferred width
-	;r11 = preferred height
+	;r9 = preferred width
+	;r10 = preferred height
 	;trashes
 	;all but r0
 
@@ -88,23 +88,23 @@
 
 	(f-call 'grid 'forward '(r0 rsp ($ callback)))
 
-	(assign '((r0 grid_width ui) (r0 grid_height ui) (rsp local_w i) (rsp local_h i)) '(r8 r9 r10 r11))
+	(assign '((r0 grid_width ui) (r0 grid_height ui) (rsp local_w i) (rsp local_h i)) '(r7 r8 r9 r10))
+	(vp-mul-rr r7 r9)
 	(vp-mul-rr r8 r10)
-	(vp-mul-rr r9 r11)
 	(vp-free-stack local_size)
 	(vp-ret)
 
 (vp-label 'callback)
 	(vp-push r1)
-	(v-call 'view 'pref_size '(r0) '(_ r10 r11))
+	(v-call 'view 'pref_size '(r0) '(_ r9 r10))
 	(vp-pop r1)
 	(vp-cpy-ir-i r1 local_w r2)
-	(vpif '(r10 > r2))
-		(vp-cpy-ri-i r10 r1 local_w)
+	(vpif '(r9 > r2))
+		(vp-cpy-ri-i r9 r1 local_w)
 	(endif)
 	(vp-cpy-ir-i r1 local_h r2)
-	(vpif '(r11 > r2))
-		(vp-cpy-ri-i r11 r1 local_h)
+	(vpif '(r10 > r2))
+		(vp-cpy-ri-i r10 r1 local_h)
 	(endif)
 	(vp-ret)
 

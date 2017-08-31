@@ -34,33 +34,33 @@
 	(sys-pop-trashed)
 
 	;get loader statics and bind function !
-	(vp-lea-p '_func_start r6)
-	(vp-cpy-ir-ui r6 fn_header_length r0)
-	(vp-add-rr r0 r6)
-	(vp-cpy-rr r6 r5)
-	(vp-cpy-ir-ui r6 fn_header_length r0)
-	(vp-add-rr r0 r6)
-	(vp-cpy-ir-ui r6 fn_header_entry r0)
-	(vp-add-rr r0 r6)
+	(vp-lea-p '_func_start r5)
+	(vp-cpy-ir-ui r5 fn_header_length r0)
+	(vp-add-rr r0 r5)
+	(vp-cpy-rr r5 r4)
+	(vp-cpy-ir-ui r5 fn_header_length r0)
+	(vp-add-rr r0 r5)
 	(vp-cpy-ir-ui r5 fn_header_entry r0)
 	(vp-add-rr r0 r5)
+	(vp-cpy-ir-ui r4 fn_header_entry r0)
+	(vp-add-rr r0 r4)
 
 	;init reloc buffer address etc
-	(vp-cpy-ri r3 r6 ld_statics_reloc_stack)
-	(vp-cpy-ri r3 r6 ld_statics_reloc_buffer)
+	(vp-cpy-ri r3 r5 ld_statics_reloc_stack)
+	(vp-cpy-ri r3 r5 ld_statics_reloc_buffer)
 	(vp-add-cr ld_reloc_size r3)
-	(vp-cpy-ri r3 r6 ld_statics_stat_buffer)
+	(vp-cpy-ri r3 r5 ld_statics_stat_buffer)
 	(vp-add-cr stat_size r3)
-	(vp-cpy-ri r3 r6 ld_statics_name_buffer)
+	(vp-cpy-ri r3 r5 ld_statics_name_buffer)
 
 	;add all prebound functions to function list
 	(vp-lea-p '_func_start r1)
 	(loop-start)
 	 	(vp-cpy-ir-ui r1 fn_header_length r2)
 		(breakif '(r2 == 0))
-		(vp-cpy-ir r6 ld_statics_function_flist r0)
+		(vp-cpy-ir r5 ld_statics_function_flist r0)
 		(vp-cpy-ri r0 r1 0)
-		(vp-cpy-ri r1 r6 ld_statics_function_flist)
+		(vp-cpy-ri r1 r5 ld_statics_function_flist)
 		(vp-add-rr r2 r1)
 	(loop-end)
 
@@ -75,9 +75,9 @@
 		(loop-start)
 			(vp-cpy-ir r0 0 r1)
 			(breakif '(r1 == 0))
-			(vp-push r0 r2 r5)
+			(vp-push r0 r2 r4)
 			(vp-add-rr r1 r0)
-			(vp-call-r r5)		;sys/load_bind
+			(vp-call-r r4)		;sys/load_bind
 			(vpif '(r0 == 0))
 				;no such function
 				(vp-lea-p 'bind_error r0)
@@ -97,7 +97,7 @@
 				(sys-exit '(1))
 			(endif)
 			(vp-cpy-rr r0 r1)
-			(vp-pop r0 r2 r5)
+			(vp-pop r0 r2 r4)
 			(vp-cpy-ri r1 r0 0)
 			(vp-add-cr ptr_size r0)
 		(loop-end)
@@ -144,45 +144,45 @@
 	;output
 	;r0 = 0 else, function entry pointer
 	;trashes
-	;r1-r3, r5-r8
+	;r1-r3, r4-r7
 
 (vp-label 'ld_load_function)
 	;save pathname
-	(vp-cpy-rr r0 r7)
+	(vp-cpy-rr r0 r6)
 
 	;get loader statics !
-	(vp-lea-p '_func_start r8)
-	(vp-cpy-ir-ui r8 fn_header_length r0)
-	(vp-add-rr r0 r8)
-	(vp-cpy-ir-ui r8 fn_header_entry r0)
-	(vp-add-rr r0 r8)
+	(vp-lea-p '_func_start r7)
+	(vp-cpy-ir-ui r7 fn_header_length r0)
+	(vp-add-rr r0 r7)
+	(vp-cpy-ir-ui r7 fn_header_entry r0)
+	(vp-add-rr r0 r7)
 
 	;check if function already present !
-	(loop-flist r8 ld_statics_function_flist r6 r6)
-		(vp-cpy-rr r7 r0)
-		(vp-lea-i r6 fn_header_pathname r1)
+	(loop-flist r7 ld_statics_function_flist r5 r5)
+		(vp-cpy-rr r6 r0)
+		(vp-lea-i r5 fn_header_pathname r1)
 		(vp-call 'string_compare)
 	(loop-until '(r0 == 0))
-	(vpif '(r6 != 0))
+	(vpif '(r5 != 0))
 		;found function already loaded
-		(vp-cpy-ir-ui r6 fn_header_entry r0)
-		(vp-add-rr r6 r0)
+		(vp-cpy-ir-ui r5 fn_header_entry r0)
+		(vp-add-rr r5 r0)
 		(vp-ret)
 	(endif)
 
 	;create filename
 	(fn-string "obj/" r0)
-	(vp-cpy-ir r8 ld_statics_name_buffer r1)
+	(vp-cpy-ir r7 ld_statics_name_buffer r1)
 	(vp-call 'string_copy)
-	(vp-cpy-rr r7 r0)
+	(vp-cpy-rr r6 r0)
 	(vp-sub-cr 1 r1)
 	(vp-call 'string_copy)
-	(vp-cpy-ir r8 ld_statics_name_buffer r7)
+	(vp-cpy-ir r7 ld_statics_name_buffer r6)
 
 	;get length of function on disk
-	(vp-cpy-ir r8 ld_statics_stat_buffer r0)
+	(vp-cpy-ir r7 ld_statics_stat_buffer r0)
 	(sys-push-trashed)
-	(sys-stat '(r7 r0) '(r0))
+	(sys-stat '(r6 r0) '(r0))
 	(sys-pop-trashed)
 	(vpif '(r0 != 0))
 	(vp-label 'exit)
@@ -191,15 +191,15 @@
 	(endif)
 
 	;test for regular file only
-	(vp-cpy-ir r8 ld_statics_stat_buffer r0)
+	(vp-cpy-ir r7 ld_statics_stat_buffer r0)
 	(vp-cpy-ir-us r0 stat_mode r0)
 	(vp-and-cr s_ifmt r0)
 	(gotoif '(r0 != s_ifreg) 'exit)
 
 	;ensure space for new function
-	(vp-cpy-ir r8 ld_statics_block_start r1)
-	(vp-cpy-ir r8 ld_statics_block_end r2)
-	(vp-cpy-ir r8 ld_statics_stat_buffer r0)
+	(vp-cpy-ir r7 ld_statics_block_start r1)
+	(vp-cpy-ir r7 ld_statics_block_end r2)
+	(vp-cpy-ir r7 ld_statics_stat_buffer r0)
 	(vp-sub-rr r1 r2)
 	(vp-cpy-ir r0 stat_fsize r0)
 	(vpif '(r2 < r0))
@@ -210,42 +210,42 @@
 		(assert '(r0 != 0))
 
 		;add to block list for freeing
-		(ln-add-fnode r8 ld_statics_block_flist r0 r1)
+		(ln-add-fnode r7 ld_statics_block_flist r0 r1)
 
 		;set block pointers for loading
 		(vp-add-cr ptr_size r0)
-		(vp-cpy-ri r0 r8 ld_statics_block_start)
+		(vp-cpy-ri r0 r7 ld_statics_block_start)
 		(vp-add-cr (sub ld_block_size ptr_size) r0)
-		(vp-cpy-ri r0 r8 ld_statics_block_end)
+		(vp-cpy-ri r0 r7 ld_statics_block_end)
 	(endif)
 
 (when list_loaded
 	;print loaded function name
-	(vp-cpy-rr r7 r0)
+	(vp-cpy-rr r6 r0)
 	(vp-call 'string_skip)
 	(vp-lea-i r0 -1 r1)
-	(vp-sub-rr r7 r1)
+	(vp-sub-rr r6 r1)
 	(sys-push-trashed)
-	(sys-write-string '(2 r7 r1) '(_))
+	(sys-write-string '(2 r6 r1) '(_))
 	(sys-write-char '(2 char_lf) '(_))
 	(sys-pop-trashed))
 
 	;open function file
 	(sys-push-trashed)
-	(sys-open '(r7 o_rdonly 0) '(r0))
+	(sys-open '(r6 o_rdonly 0) '(r0))
 	(sys-pop-trashed)
-	(vp-cpy-rr r0 r7)
+	(vp-cpy-rr r0 r6)
 
 	;read into buffer
-	(vp-cpy-ir r8 ld_statics_block_start r3)
-	(vp-cpy-ir r8 ld_statics_stat_buffer r2)
+	(vp-cpy-ir r7 ld_statics_block_start r3)
+	(vp-cpy-ir r7 ld_statics_stat_buffer r2)
 	(sys-push-trashed)
-	(sys-read '(r7 r3 (r2 stat_fsize)) '(_))
+	(sys-read '(r6 r3 (r2 stat_fsize)) '(_))
 	(sys-pop-trashed)
 
 	;close function file
 	(sys-push-trashed)
-	(sys-close '(r7) '(_))
+	(sys-close '(r6) '(_))
 	(sys-pop-trashed)
 
 	;check loaded length equals file size
@@ -258,11 +258,11 @@
 	(endif)
 
 	;add to function list
-	(ln-add-fnode r8 ld_statics_function_flist r3 r0)
+	(ln-add-fnode r7 ld_statics_function_flist r3 r0)
 
 	;relocate vtable so we can discard paths
-	(vp-cpy-ir r8 ld_statics_reloc_stack r1)
-	(vp-cpy-rr r1 r6)
+	(vp-cpy-ir r7 ld_statics_reloc_stack r1)
+	(vp-cpy-rr r1 r5)
 
 	;copy paths to reloc buffer
 	(vp-cpy-ir-ui r3 fn_header_paths r0)
@@ -270,19 +270,19 @@
 	(vp-add-rr r3 r0)
 	(vp-add-rr r3 r2)
 	(loop-while '(r0 < r2))
-	 	(vp-cpy-ir r0 0 r5)
-		(vp-cpy-ri r5 r1 0)
+	 	(vp-cpy-ir r0 0 r4)
+		(vp-cpy-ri r4 r1 0)
 		(vp-add-cr ptr_size r0)
 		(vp-add-cr ptr_size r1)
 	(loop-end)
 
 	;push reloc buffer entry
 	(vp-add-cr ptr_size r1)
-	(vp-cpy-ri r6 r1 (neg ptr_size))
-	(vp-cpy-ri r1 r8 ld_statics_reloc_stack)
+	(vp-cpy-ri r5 r1 (neg ptr_size))
+	(vp-cpy-ri r1 r7 ld_statics_reloc_stack)
 
 	;overflow check
-	(vp-cpy-ir r8 ld_statics_reloc_buffer r2)
+	(vp-cpy-ir r7 ld_statics_reloc_buffer r2)
 	(vp-add-cr ld_reloc_size r2)
 	(vpif '(r1 > r2))
 		(vp-lea-p 'reloc_error r0)
@@ -295,19 +295,19 @@
 	(vp-cpy-ir-ui r3 fn_header_paths r2)
 	(vp-add-rr r3 r0)
 	(vp-add-rr r3 r2)
-	(vp-sub-rr r2 r6)
+	(vp-sub-rr r2 r5)
 	(loop-start)
 	 	(vp-cpy-ir r0 0 r2)
 		(breakif '(r2 == 0))
 		(vp-add-rr r0 r2)
-		(vp-add-rr r6 r2)
+		(vp-add-rr r5 r2)
 		(vp-cpy-ri r2 r0 0)
 		(vp-add-cr ptr_size r0)
 	(loop-end)
 
 	;adjust block start
 	(vp-add-cr ptr_size r0)
-	(vp-cpy-ri r0 r8 ld_statics_block_start)
+	(vp-cpy-ri r0 r7 ld_statics_block_start)
 
 	;load and link function references
 	;now actual addresses of strings in the reloc buffer
@@ -344,16 +344,16 @@
 	(vp-pop r3)
 
 	;get loader statics !
-	(vp-lea-p '_func_start r8)
-	(vp-cpy-ir-ui r8 fn_header_length r0)
-	(vp-add-rr r0 r8)
-	(vp-cpy-ir-ui r8 fn_header_entry r0)
-	(vp-add-rr r0 r8)
+	(vp-lea-p '_func_start r7)
+	(vp-cpy-ir-ui r7 fn_header_length r0)
+	(vp-add-rr r0 r7)
+	(vp-cpy-ir-ui r7 fn_header_entry r0)
+	(vp-add-rr r0 r7)
 
 	;pop reloc buffer
-	(vp-cpy-ir r8 ld_statics_reloc_stack r0)
+	(vp-cpy-ir r7 ld_statics_reloc_stack r0)
 	(vp-cpy-ir r0 (neg ptr_size) r0)
-	(vp-cpy-ri r0 r8 ld_statics_reloc_stack)
+	(vp-cpy-ri r0 r7 ld_statics_reloc_stack)
 
 	;return function address
 	(vp-cpy-ir-ui r3 fn_header_entry r0)

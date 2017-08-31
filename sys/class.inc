@@ -209,7 +209,7 @@
 	;_3 = in parameters
 	;_4 = out parameters
 	;_5 = dispatch reg
-	(setd _5 r15)
+	(setd _5 r14)
 	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
 		(throw "Method is static ! Use f-call ?" (list _1 _2)))
@@ -226,7 +226,7 @@
 	;_2 = member name
 	;_3 = in parameters
 	;_4 = dispatch reg
-	(setd _4 r15)
+	(setd _4 r14)
 	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
 		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
@@ -241,7 +241,7 @@
 	;_1 = class name
 	;_2 = member name
 	;_3 = dispatch reg
-	(setd _3 r15)
+	(setd _3 r14)
 	(method-info _1 _2)
 	(if (eql (elem 2 m) 'static)
 		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
@@ -347,7 +347,7 @@
 (defcfun gen-create (_1)
 	;_1 = class name
 	(method-info _1 'create)
-	(defq _2 (opt (elem 3 m) '()) _3 (slice 0 (length _2) '(r14 r15 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
+	(defq _2 (opt (elem 3 m) '()) _3 (slice 0 (length _2) '(r13 r14 r4 r5 r6 r7 r8 r9 r10 r11 r12)))
 	(def-func (sym-cat "class/" _1 "/create"))
 		;outputs
 		;r0 = 0 if error, else object

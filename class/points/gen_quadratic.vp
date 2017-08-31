@@ -8,8 +8,8 @@
 	;r1 = stack array
 	;r2 = 16.16/16.16 p1.xy
 	;r3 = 16.16/16.16 p2.xy
-	;r5 = 16.16/16.16 p3.xy
-	;r6 = 16.16 tolerance
+	;r4 = 16.16/16.16 p3.xy
+	;r5 = 16.16 tolerance
 	;outputs
 	;r0 = points object
 	;trashes

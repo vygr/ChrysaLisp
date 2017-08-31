@@ -35,33 +35,33 @@
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r15)
+	(vp-cpy-rr rsp r14)
 	(vp-alloc-stack local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r15 rsp local_old_stack)
+	(vp-cpy-ri r14 rsp local_old_stack)
 
 	;get font statics
-	(f-bind 'gui_font 'statics r15)
+	(f-bind 'gui_font 'statics r14)
 
 	;free all text in the cache
-	(vp-lea-i r15 ft_statics_text_flists r10)
-	(vp-lea-i r10 ft_buckets_size r11)
+	(vp-lea-i r14 ft_statics_text_flists r9)
+	(vp-lea-i r9 ft_buckets_size r10)
 	(loop-start)
-		(loop-flist r10 0 r14 r13)
-			(vp-cpy-rr r14 r12)
-			(ln-remove-fnode r14 r13)
-			(sdl-destroy-texture '((r12 ft_text_texture)))
-			(f-call 'sys_mem 'free '(r12))
+		(loop-flist r9 0 r13 r12)
+			(vp-cpy-rr r13 r11)
+			(ln-remove-fnode r13 r12)
+			(sdl-destroy-texture '((r11 ft_text_texture)))
+			(f-call 'sys_mem 'free '(r11))
 		(loop-end)
-		(vp-add-cr ptr_size r10)
-	(loop-until '(r10 == r11))
+		(vp-add-cr ptr_size r9)
+	(loop-until '(r9 == r10))
 
 	;free all fonts in the cache
-	(loop-flist r15 ft_statics_font_flist r14 r13)
-		(vp-cpy-rr r14 r12)
-		(ln-remove-fnode r14 r13)
-		(ttf-close-font '((r12 ft_font_handle)))
-		(f-call 'sys_mem 'free '(r12))
+	(loop-flist r14 ft_statics_font_flist r13 r12)
+		(vp-cpy-rr r13 r11)
+		(ln-remove-fnode r13 r12)
+		(ttf-close-font '((r11 ft_font_handle)))
+		(f-call 'sys_mem 'free '(r11))
 	(loop-end)
 
 	(vp-cpy-ir rsp local_old_stack rsp)
@@ -75,18 +75,18 @@
 	;r1 = string object
 	;outputs
 	;r0 = 0 if error, else text entry
-	;r10 = width
-	;r11 = height
+	;r9 = width
+	;r10 = height
 	;trashes
-	;r1-r3, r5-r6
+	;r1-r3, r4-r5
 
 	(f-call 'gui_font 'text '(r0 r1) '(r0))
 	(vpif '(r0 == 0))
+		(vp-xor-rr r9 r9)
 		(vp-xor-rr r10 r10)
-		(vp-xor-rr r11 r11)
 	(else)
-		(vp-cpy-ir r0 ft_text_width r10)
-		(vp-cpy-ir r0 ft_text_height r11)
+		(vp-cpy-ir r0 ft_text_width r9)
+		(vp-cpy-ir r0 ft_text_height r10)
 	(endif)
 	(vp-ret)
 
@@ -112,19 +112,19 @@
 	(assign '(r0 r1) '((rsp local_font) (rsp local_points)))
 
 	;get font statics
-	(f-bind 'gui_font 'statics r5)
+	(f-bind 'gui_font 'statics r4)
 
 	;search font list
-	(loop-flist r5 ft_statics_font_flist r5 r5)
+	(loop-flist r4 ft_statics_font_flist r4 r4)
 		(vp-cpy-ir rsp local_points r0)
-		(vp-cpy-ir r5 ft_font_points r1)
+		(vp-cpy-ir r4 ft_font_points r1)
 		(continueif '(r0 != r1))
-		(f-call 'sys_string 'compare '((& r5 ft_font_name) (rsp local_font)) '(r0))
+		(f-call 'sys_string 'compare '((& r4 ft_font_name) (rsp local_font)) '(r0))
 	(loop-until '(r0 == 0))
 
 	;did we find it ?
-	(vp-cpy-rr r5 r0)
-	(vpif '(r5 == 0))
+	(vp-cpy-rr r4 r0)
+	(vpif '(r4 == 0))
 		;no so try open it
 		(f-call 'sys_task 'callback '(($ kernel_callback) rsp))
 		(vp-cpy-ir rsp local_handle r0)
@@ -139,53 +139,53 @@
 	;all but rsp
 
 	;align stack
-	(vp-cpy-rr rsp r15)
+	(vp-cpy-rr rsp r14)
 	(vp-and-cr -16 rsp)
 
 	;save input
-	(vp-cpy-rr r0 r14)
+	(vp-cpy-rr r0 r13)
 
 	;get font statics
-	(f-bind 'gui_font 'statics r5)
+	(f-bind 'gui_font 'statics r4)
 
 	;search font list
-	(loop-flist r5 ft_statics_font_flist r5 r5)
-		(vp-cpy-ir r14 local_points r0)
-		(vp-cpy-ir r5 ft_font_points r1)
+	(loop-flist r4 ft_statics_font_flist r4 r4)
+		(vp-cpy-ir r13 local_points r0)
+		(vp-cpy-ir r4 ft_font_points r1)
 		(continueif '(r0 != r1))
-		(f-call 'sys_string 'compare '((& r5 ft_font_name) (r14 local_font)) '(r0))
+		(f-call 'sys_string 'compare '((& r4 ft_font_name) (r13 local_font)) '(r0))
 	(loop-until '(r0 == 0))
 
 	;did we find it ?
-	(vp-cpy-rr r5 r0)
-	(vpif '(r5 == 0))
-		(ttf-open-font '((r14 local_font) (r14 local_points)))
+	(vp-cpy-rr r4 r0)
+	(vpif '(r4 == 0))
+		(ttf-open-font '((r13 local_font) (r13 local_points)))
 		(vpif '(r0 != 0))
-			(vp-cpy-rr r0 r5)
-			(f-call 'sys_string 'length '((r14 local_font)) '(_ r1))
-			(f-call 'sys_mem 'alloc '((& r1 (add ft_font_size 1))) '(r13 _))
+			(vp-cpy-rr r0 r4)
+			(f-call 'sys_string 'length '((r13 local_font)) '(_ r1))
+			(f-call 'sys_mem 'alloc '((& r1 (add ft_font_size 1))) '(r12 _))
 
-			(vp-cpy-ir r14 local_points r0)
-			(vp-cpy-ri r0 r13 ft_font_points)
-			(vp-cpy-ri r5 r13 ft_font_handle)
-			(f-call 'sys_string 'copy '((r14 local_font) (& r13 ft_font_name)))
+			(vp-cpy-ir r13 local_points r0)
+			(vp-cpy-ri r0 r12 ft_font_points)
+			(vp-cpy-ri r4 r12 ft_font_handle)
+			(f-call 'sys_string 'copy '((r13 local_font) (& r12 ft_font_name)))
 
 			;fill in ascent, descent and height
-			(ttf-font-ascent '((r13 ft_font_handle)))
-			(vp-cpy-ri r0 r13 ft_font_ascent)
-			(ttf-font-descent '((r13 ft_font_handle)))
-			(vp-cpy-ri r0 r13 ft_font_descent)
-			(ttf-font-height '((r13 ft_font_handle)))
-			(vp-cpy-ri r0 r13 ft_font_height)
+			(ttf-font-ascent '((r12 ft_font_handle)))
+			(vp-cpy-ri r0 r12 ft_font_ascent)
+			(ttf-font-descent '((r12 ft_font_handle)))
+			(vp-cpy-ri r0 r12 ft_font_descent)
+			(ttf-font-height '((r12 ft_font_handle)))
+			(vp-cpy-ri r0 r12 ft_font_height)
 
-			(vp-cpy-rr r13 r0)
-			(f-bind 'gui_font 'statics r5)
-			(ln-add-fnode r5 ft_statics_font_flist r0 r1)
+			(vp-cpy-rr r12 r0)
+			(f-bind 'gui_font 'statics r4)
+			(ln-add-fnode r4 ft_statics_font_flist r0 r1)
 		(endif)
 	(endif)
-	(vp-cpy-ri r0 r14 local_handle)
+	(vp-cpy-ri r0 r13 local_handle)
 
-	(vp-cpy-rr r15 rsp)
+	(vp-cpy-rr r14 rsp)
 	(vp-ret)
 
 (def-func-end)
@@ -215,7 +215,7 @@
 	(assign '(r0 r2) '((rsp local_font) (rsp local_text)))
 
 	;get font statics
-	(f-bind 'gui_font 'statics r5)
+	(f-bind 'gui_font 'statics r4)
 
 	;string hash to bucket
 	(v-call 'string 'hash '(r1) '(_ r0))
@@ -223,28 +223,28 @@
 	(vp-xor-rr r2 r2)
 	(vp-div-rrr r1 r2 r0)
 	(vp-shl-cr (log2 ptr_size) r2)
-	(vp-lea-d r5 r2 r5)
-	(vp-cpy-ri r5 rsp local_bucket)
+	(vp-lea-d r4 r2 r4)
+	(vp-cpy-ri r4 rsp local_bucket)
 
 	;search bucket
-	(loop-flist r5 0 r5 r6)
+	(loop-flist r4 0 r4 r5)
 		(vp-cpy-ir rsp local_font r0)
-		(vp-cpy-ir r5 ft_text_font r1)
+		(vp-cpy-ir r4 ft_text_font r1)
 		(continueif '(r0 != r1))
-		(f-call 'sys_string 'compare '((& r5 ft_text_name) (rsp local_text)) '(r0))
+		(f-call 'sys_string 'compare '((& r4 ft_text_name) (rsp local_text)) '(r0))
 	(loop-until '(r0 == 0))
 
 	;did we find it ?
-	(vp-cpy-rr r5 r0)
-	(vpif '(r5 == 0))
+	(vp-cpy-rr r4 r0)
+	(vpif '(r4 == 0))
 		;no so try create it
 		(f-call 'sys_task 'callback '(($ kernel_callback) rsp))
 		(vp-cpy-ir rsp local_handle r0)
 	(else)
 		;yes so LRU to front
-		(ln-remove-fnode r5 r6)
-		(vp-cpy-ir rsp local_bucket r5)
-		(ln-add-fnode r5 0 r0 r1)
+		(ln-remove-fnode r4 r5)
+		(vp-cpy-ir rsp local_bucket r4)
+		(ln-add-fnode r4 0 r0 r1)
 	(endif)
 
 	(vp-free-stack local_size)
@@ -257,55 +257,55 @@
 	;all but rsp
 
 	;align stack
-	(vp-cpy-rr rsp r15)
+	(vp-cpy-rr rsp r14)
 	(vp-and-cr -16 rsp)
 
 	;save input
-	(vp-cpy-rr r0 r14)
+	(vp-cpy-rr r0 r13)
 
-	(vp-cpy-ir r14 local_font r0)
-	(ttf-render-utf8-blended '((r0 ft_font_handle) (r14 local_text) 0xffffff))
+	(vp-cpy-ir r13 local_font r0)
+	(ttf-render-utf8-blended '((r0 ft_font_handle) (r13 local_text) 0xffffff))
 	(vpif '(r0 != 0))
-		(vp-cpy-ri r0 r14 local_surface)
-		(vp-cpy-ir-ui r0 sdl_surface_w r10)
-		(vp-cpy-ir-ui r0 sdl_surface_h r11)
-		(vp-cpy-ri r10 r14 local_width)
-		(vp-cpy-ri r11 r14 local_height)
+		(vp-cpy-ri r0 r13 local_surface)
+		(vp-cpy-ir-ui r0 sdl_surface_w r9)
+		(vp-cpy-ir-ui r0 sdl_surface_h r10)
+		(vp-cpy-ri r9 r13 local_width)
+		(vp-cpy-ri r10 r13 local_height)
 
 		;create texture
 		(f-bind 'gui_gui 'statics r0)
-		(sdl-create-texture-from-surface '((r0 gui_statics_renderer) (r14 local_surface)))
+		(sdl-create-texture-from-surface '((r0 gui_statics_renderer) (r13 local_surface)))
 		(vpif '(r0 != 0))
-			(vp-cpy-rr r0 r5)
+			(vp-cpy-rr r0 r4)
 
-			(f-call 'sys_string 'length '((r14 local_text)) '(_ r1))
-			(f-call 'sys_mem 'alloc '((& r1 (add ft_text_size 1))) '(r13 _))
+			(f-call 'sys_string 'length '((r13 local_text)) '(_ r1))
+			(f-call 'sys_mem 'alloc '((& r1 (add ft_text_size 1))) '(r12 _))
 
-			(vp-cpy-ir r14 local_font r0)
-			(vp-cpy-ri r0 r13 ft_text_font)
-			(vp-cpy-ri r5 r13 ft_text_texture)
-			(f-call 'sys_string 'copy '((r14 local_text) (& r13 ft_text_name)))
+			(vp-cpy-ir r13 local_font r0)
+			(vp-cpy-ri r0 r12 ft_text_font)
+			(vp-cpy-ri r4 r12 ft_text_texture)
+			(f-call 'sys_string 'copy '((r13 local_text) (& r12 ft_text_name)))
 
 			;fill in width and height
-			(vp-cpy-ir r14 local_width r10)
-			(vp-cpy-ir r14 local_height r11)
-			(vp-cpy-ri r10 r13 ft_text_width)
-			(vp-cpy-ri r11 r13 ft_text_height)
+			(vp-cpy-ir r13 local_width r9)
+			(vp-cpy-ir r13 local_height r10)
+			(vp-cpy-ri r9 r12 ft_text_width)
+			(vp-cpy-ri r10 r12 ft_text_height)
 
 			;texture blend mode
-			(sdl-set-texture-blend-mode '((r13 ft_text_texture) SDL_BLENDMODE_BLEND))
+			(sdl-set-texture-blend-mode '((r12 ft_text_texture) SDL_BLENDMODE_BLEND))
 
-			(vp-cpy-rr r13 r0)
-			(vp-cpy-ir r14 local_bucket r5)
-			(ln-add-fnode r5 0 r0 r1)
+			(vp-cpy-rr r12 r0)
+			(vp-cpy-ir r13 local_bucket r4)
+			(ln-add-fnode r4 0 r0 r1)
 		(endif)
-		(vp-cpy-ri r0 r14 local_handle)
-		(sdl-free-surface '((r14 local_surface)))
-		(vp-cpy-ir r14 local_handle r0)
+		(vp-cpy-ri r0 r13 local_handle)
+		(sdl-free-surface '((r13 local_surface)))
+		(vp-cpy-ir r13 local_handle r0)
 	(endif)
-	(vp-cpy-ri r0 r14 local_handle)
+	(vp-cpy-ri r0 r13 local_handle)
 
-	(vp-cpy-rr r15 rsp)
+	(vp-cpy-rr r14 rsp)
 	(vp-ret)
 
 (def-func-end)

@@ -32,7 +32,7 @@
 	;r1 = vtable pointer
 	;r2 = stdin stream
 	;r3 = stdout stream
-	;r5 = stderr stream
+	;r4 = stderr stream
 	;outputs
 	;r0 = object
 	;r1 = 0 if error, else ok

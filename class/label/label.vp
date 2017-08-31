@@ -116,11 +116,11 @@
 	(vp-alloc-stack local_size)
 	(assign '(r0) '((rsp local_this)))
 
-	(vp-cpy-ir-i r0 view_w r10)
-	(vp-cpy-ir-i r0 view_h r11)
+	(vp-cpy-ir-i r0 view_w r9)
+	(vp-cpy-ir-i r0 view_h r10)
+	(vp-sub-cr (mul label_border_size 2) r9)
 	(vp-sub-cr (mul label_border_size 2) r10)
-	(vp-sub-cr (mul label_border_size 2) r11)
-	(f-call 'flow 'change '((r0 label_flow) label_border_size label_border_size r10 r11))
+	(f-call 'flow 'change '((r0 label_flow) label_border_size label_border_size r9 r10))
 
 	(vp-cpy-ir rsp local_this r0)
 	(vp-cpy-ir-ui r0 view_color r1)
@@ -137,8 +137,8 @@
 	;inputs
 	;r0 = label object
 	;outputs
-	;r10 = preferred width
-	;r11 = preferred height
+	;r9 = preferred width
+	;r10 = preferred height
 	;trashes
 	;all but r0
 
@@ -150,17 +150,17 @@
 	(vp-alloc-stack local_size)
 	(assign '(r0) '((rsp local_this)))
 
-	(v-call 'flow 'pref_size '((r0 label_flow)) '(_ r10 r11))
+	(v-call 'flow 'pref_size '((r0 label_flow)) '(_ r9 r10))
+	(vp-add-cr (mul label_border_size 2) r9)
 	(vp-add-cr (mul label_border_size 2) r10)
-	(vp-add-cr (mul label_border_size 2) r11)
 	(vp-cpy-ir rsp local_this r0)
-	(vp-cpy-ir-i r0 view_min_w r8)
-	(vp-cpy-ir-i r0 view_min_h r9)
+	(vp-cpy-ir-i r0 view_min_w r7)
+	(vp-cpy-ir-i r0 view_min_h r8)
+	(vpif '(r7 > r9))
+		(vp-cpy-rr r7 r9)
+	(endif)
 	(vpif '(r8 > r10))
 		(vp-cpy-rr r8 r10)
-	(endif)
-	(vpif '(r9 > r11))
-		(vp-cpy-rr r9 r11)
 	(endif)
 
 	(vp-cpy-ir rsp local_this r0)

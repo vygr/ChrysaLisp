@@ -46,7 +46,7 @@
 	;all but r0
 
 	;save inputs
-	(f-entry 'component 'connect '(r5 r6 r7 r8))
+	(f-entry 'component 'connect '(r4 r5 r6 r7))
 
 	;gui sigslot heap
 	(f-bind 'gui_gui 'statics r0)
@@ -56,18 +56,18 @@
 	(f-call 'sys_heap 'alloc '(r0) '(_ r1))
 
 	;fill in target and method
-	(vp-cpy-ri r7 r1 gui_sigslot_inst)
-	(vp-cpy-ri r8 r1 gui_sigslot_addr)
+	(vp-cpy-ri r6 r1 gui_sigslot_inst)
+	(vp-cpy-ri r7 r1 gui_sigslot_addr)
 
 	;add to sig and slot lists
 	(vp-lea-i r1 gui_sigslot_sig_node r2)
-	(lh-add-at-tail r6 r2 r3)
+	(lh-add-at-tail r5 r2 r3)
 	(vp-lea-i r1 gui_sigslot_slot_node r2)
-	(vp-lea-i r5 component_slot_list r6)
-	(lh-add-at-tail r6 r2 r3)
+	(vp-lea-i r4 component_slot_list r5)
+	(lh-add-at-tail r5 r2 r3)
 
 	;restore this
-	(f-exit 'component 'connect '(r5))
+	(f-exit 'component 'connect '(r4))
 	(vp-ret)
 
 (def-func-end)
@@ -80,7 +80,7 @@
 	;all but r0
 
 	;save inputs
-	(f-entry 'component 'disconnect_sig '(r7 r6))
+	(f-entry 'component 'disconnect_sig '(r6 r5))
 
 	;gui sigslot heap
 	(f-bind 'gui_gui 'statics r0)
@@ -91,17 +91,17 @@
 		;remove from slot list
 		(vp-sub-cr gui_sigslot_sig_node r2)
 		(vp-lea-i r2 gui_sigslot_slot_node r1)
-		(ln-remove-node r1 r5)
+		(ln-remove-node r1 r4)
 
 		;free sigslot record
 		(hp-freecell r0 r2 r1)
 	(loop-end)
 
 	;clear signal list
-	(lh-init r6 r1)
+	(lh-init r5 r1)
 
 	;restore this
-	(f-exit 'component 'disconnect_sig '(r7))
+	(f-exit 'component 'disconnect_sig '(r6))
 	(vp-ret)
 
 (def-func-end)
@@ -114,33 +114,33 @@
 	;all but r0
 
 	;save inputs
-	(f-entry 'component 'disconnect_slot '(r7 r6))
+	(f-entry 'component 'disconnect_slot '(r6 r5))
 
 	;gui sigslot heap
 	(f-bind 'gui_gui 'statics r0)
 	(vp-add-cr gui_statics_sigslot_heap r0)
 
 	;disconnect slots
-	(loop-list-forward r7 component_slot_list r2 r3)
-		(gotoif '(r6 == 0) 'freeit)
-		(vp-cpy-ir r2 gui_sigslot_addr r5)
-		(continueif '(r6 != r5))
+	(loop-list-forward r6 component_slot_list r2 r3)
+		(gotoif '(r5 == 0) 'freeit)
+		(vp-cpy-ir r2 gui_sigslot_addr r4)
+		(continueif '(r5 != r4))
 	(vp-label 'freeit)
 		;remove from slot list
 		(vp-cpy-rr r2 r1)
-		(ln-remove-node r1 r5)
+		(ln-remove-node r1 r4)
 
 		;remove from signal list
 		(vp-sub-cr gui_sigslot_slot_node r2)
 		(vp-lea-i r2 gui_sigslot_sig_node r1)
-		(ln-remove-node r1 r5)
+		(ln-remove-node r1 r4)
 
 		;free sigslot record
 		(hp-freecell r0 r2 r1)
 	(loop-end)
 
 	;restore this
-	(f-exit 'component 'disconnect_slot '(r7))
+	(f-exit 'component 'disconnect_slot '(r6))
 	(vp-ret)
 
 (def-func-end)
@@ -154,7 +154,7 @@
 		;callback api
 		;r0 = target this
 		;r1 = source this
-		;r15 = dispatch register
+		;r14 = dispatch register
 		;rest as passed by call to emit
 		;callback should normally save register the signal sends
 		;but it could filter or adjust them for fancy reasons !
@@ -173,10 +173,10 @@
 		(vp-cpy-ri r1 rsp local_next)
 
 		;call method on target component object
-		(vp-cpy-ir r0 gui_sigslot_addr r15)
+		(vp-cpy-ir r0 gui_sigslot_addr r14)
 		(vp-cpy-ir r0 gui_sigslot_inst r0)
 		(vp-cpy-ir rsp local_this r1)
-		(vp-call-r r15)
+		(vp-call-r r14)
 
 		(vp-cpy-ir rsp local_next r1)
 	(loop-end)

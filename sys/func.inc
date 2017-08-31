@@ -146,20 +146,20 @@
 	;s = debug string
 	;i = debug long
 	(when debug_mode
-		(vp-push r0 r1 r2 r3 r5)
+		(vp-push r0 r1 r2 r3 r4)
 		(vp-cpy-rr i r0)
 		(vp-push r0)
 		(fn-string (cat *stream-name* "<" (str *stream-line*) ">") r0)
 		(fn-string s r1)
 		(vp-pop r2)
 		(f-call 'sys_io 'debug_long '(r0 r1 r2))
-		(vp-pop r0 r1 r2 r3 r5)))
+		(vp-pop r0 r1 r2 r3 r4)))
 
 (defcfun debug-str (s &optional d)
 	;s = debug string
 	;d = debug string
 	(when debug_mode
-		(vp-push r0 r1 r2 r3 r5)
+		(vp-push r0 r1 r2 r3 r4)
 		(if d
 			(vp-cpy-rr d r0)
 			(fn-string "" r0))
@@ -168,7 +168,7 @@
 		(fn-string s r1)
 		(vp-pop r2)
 		(f-call 'sys_io 'debug_str '(r0 r1 r2))
-		(vp-pop r0 r1 r2 r3 r5)))
+		(vp-pop r0 r1 r2 r3 r4)))
 
 (defcfun abort (&optional s)
 	(f-call 'sys_io 'string `(,(opt s "Abort !") 2))

@@ -9,10 +9,10 @@
 	;r1 = stack array
 	;r2 = vector of input polylines
 	;r3 = join style
-	;r5 = cap style1
-	;r6 = cap style2
-	;r7 = 16.16 radius
-	;r8 = 16.16 tolerance
+	;r4 = cap style1
+	;r5 = cap style2
+	;r6 = 16.16 radius
+	;r7 = 16.16 tolerance
 	;outputs
 	;r0 = vector for output polygons
 	;trashes

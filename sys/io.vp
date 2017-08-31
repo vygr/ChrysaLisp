@@ -42,20 +42,20 @@
 	;outputs
 	;r0 = chars read
 	;trashes
-	;r0-r3, r5
+	;r0-r3, r4
 
 	(f-entry 'sys_io 'read '(r0 r1 r2))
 	(vp-cpy-rr r0 r3)
-	(vp-cpy-rr r0 r5)
+	(vp-cpy-rr r0 r4)
 	(vp-add-rr r0 r1)
-	(loop-while '(r5 != r1))
+	(loop-while '(r4 != r1))
 		(sys-push-trashed)
 		(sys-read-char '(r2) '(r0))
 		(sys-pop-trashed)
-		(vp-cpy-ri-b r0 r5 0)
-		(vp-add-cr byte_size r5)
+		(vp-cpy-ri-b r0 r4 0)
+		(vp-add-cr byte_size r4)
 	(loop-until '(r0 == char_lf))
-	(vp-cpy-rr r5 r0)
+	(vp-cpy-rr r4 r0)
 	(vp-sub-rr r3 r0)
 	(f-exit 'sys_io 'read '(r0))
 	(vp-ret)
@@ -99,10 +99,10 @@
 	;r1 = fd
 	;r2 = base
 	;trashes
-	;r0, r2-r3, r5
+	;r0, r2-r3, r4
 
 	(f-entry 'sys_io 'number '(r0 r1 r3))
-	(vp-cpy-rr rsp r5)	;stack location
+	(vp-cpy-rr rsp r4)	;stack location
 	(loop-start)
 		(vp-xor-rr r2 r2)
 		(vp-div-rrr r3 r2 r0)
@@ -117,7 +117,7 @@
 		(sys-push-trashed)
 		(sys-write-char '(r1 r0) '(_))
 		(sys-pop-trashed)
-	(loop-until '(r5 == rsp))
+	(loop-until '(r4 == rsp))
 	(vp-ret)
 
 (def-func-end)
@@ -128,7 +128,7 @@
 	;r1 = debug string
 	;r2 = debug int
 	;trashes
-	;r0-r3, r5
+	;r0-r3, r4
 
 	(def-struct 'local)
 		(ptr 'info)
@@ -158,7 +158,7 @@
 	;r1 = debug string
 	;r2 = debug string
 	;trashes
-	;r0-r3, r5
+	;r0-r3, r4
 
 	(def-struct 'local)
 		(ptr 'info)

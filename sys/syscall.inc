@@ -105,8 +105,8 @@
 
 (defcfun sys-gettimeofday (_1)
 	;time, timezone
-	(assign _1 '(r7 r6))
-	(vp-push r7)
+	(assign _1 '(r6 r5))
+	(vp-push r6)
 	(vp-xor-rr r2 r2)
 	(sys-call sys_gettimeofday)
 	(vp-pop r1)
@@ -187,7 +187,7 @@
 
 (defcfun sys-gettimeofday (_1)
 	;time, timezone
-	(assign _1 '(r7 r6))
+	(assign _1 '(r6 r5))
 	(sys-call sys_gettimeofday))
 
 )
@@ -208,98 +208,98 @@
 
 (defcfun sys-push-trashed ()
 	;pushes onto rsp
-	(vp-push r1 r2 r6 r7 r8 r9 r10 r11))
+	(vp-push r1 r2 r5 r6 r7 r8 r9 r10))
 
 (defcfun sys-pop-trashed ()
 	;pops from rsp
-	(vp-pop r1 r2 r6 r7 r8 r9 r10 r11))
+	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10))
 
 (defcfun sys-exit (_1)
 	;return code
-	(assign _1 '(r7))
+	(assign _1 '(r6))
 	(sys-call sys_exit))
 
 (defcfun sys-read (_1 _2)
 	;fd, buffer, length
-	(assign _1 '(r7 r6 r2))
+	(assign _1 '(r6 r5 r2))
 	(sys-call sys_read)
 	(assign '(r0) _2))
 
 (defcfun sys-read-char (_1 _2)
 	;fd
-	(assign _1 '(r7))
+	(assign _1 '(r6))
 	(vp-xor-rr r0 r0)
 	(vp-push r0)
-	(assign '(rsp 1) '(r6 r2))
+	(assign '(rsp 1) '(r5 r2))
 	(sys-call sys_read)
 	(vp-pop r0)
 	(assign '(r0) _2))
 
 (defcfun sys-write-string (_1 _2)
 	;fd, string, length
-	(assign _1 '(r7 r6 r2))
+	(assign _1 '(r6 r5 r2))
 	(sys-call sys_write)
 	(assign '(r0) _2))
 
 (defcfun sys-write-char (_1 _2)
 	;fd, char
-	(assign _1 '(r7 r6))
-	(vp-push r6)
-	(assign '(rsp 1) '(r6 r2))
+	(assign _1 '(r6 r5))
+	(vp-push r5)
+	(assign '(rsp 1) '(r5 r2))
 	(sys-call sys_write)
 	(vp-free-stack ptr_size)
 	(assign '(r0) _2))
 
 (defcfun sys-mmap (_1 _2)
 	;addr, len, prot, flags, fd, pos
-	(assign _1 '(r7 r6 r2 r10 r8 r9))
+	(assign _1 '(r6 r5 r2 r9 r7 r8))
 	(sys-call sys_mmap)
 	(assign '(r0) _2))
 
 (defcfun sys-mprotect (_1 _2)
 	;addr, len, prot
-	(assign _1 '(r7 r6 r2))
+	(assign _1 '(r6 r5 r2))
 	(sys-call sys_mprotect)
 	(assign '(r0) _2))
 
 (defcfun sys-munmap (_1 _2)
 	;addr, len
-	(assign _1 '(r7 r6))
+	(assign _1 '(r6 r5))
 	(sys-call sys_munmap)
 	(assign '(r0) _2))
 
 (defcfun sys-stat (_1 _2)
 	;path, buffer
-	(assign _1 '(r7 r6))
+	(assign _1 '(r6 r5))
 	(sys-call sys_stat)
 	(assign '(r0) _2))
 
 (defcfun sys-open (_1 _2)
 	;path, flags, mode
-	(assign _1 '(r7 r6 r2))
+	(assign _1 '(r6 r5 r2))
 	(sys-call sys_open)
 	(assign '(r0) _2))
 
 (defcfun sys-close (_1 _2)
 	;fd
-	(assign _1 '(r7))
+	(assign _1 '(r6))
 	(sys-call sys_close)
 	(assign '(r0) _2))
 
 (defcfun sys-ftruncate (_1 _2)
 	;fd, offset
-	(assign _1 '(r7 r6))
+	(assign _1 '(r6 r5))
 	(sys-call sys_ftruncate)
 	(assign '(r0) _2))
 
 (defcfun sys-unlink (_1 _2)
 	;name
-	(assign _1 '(r7))
+	(assign _1 '(r6))
 	(sys-call sys_unlink)
 	(assign '(r0) _2))
 
 (defcfun sys-fcntl (_1 _2)
 	;fd, cmd, arg
-	(assign _1 '(r7 r6 r2))
+	(assign _1 '(r6 r5 r2))
 	(sys-call sys_fcntl)
 	(assign '(r0) _2))

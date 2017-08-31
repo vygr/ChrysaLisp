@@ -9,7 +9,7 @@
 	;r1 = vector of points objects
 	;r2 = color
 	;r3 = mode
-	;r5 = span function
+	;r4 = span function
 	;outputs
 	;r0 = canvas object
 	;trashes
@@ -95,11 +95,11 @@
 		;mark edges that end on this scan line
 		(assign {iter_i, iter_j, ys, min_int} '(r0 r1 r2 r3))
 		(loop-while '(r0 != r1))
-			(vp-cpy-ir r0 0 r5)
+			(vp-cpy-ir r0 0 r4)
 			(vp-add-cr ptr_size r0)
-			(vp-cpy-ir-i r5 edge_ye r6)
-			(continueif '(r6 != r2))
-			(vp-cpy-ri-i r3 r5 edge_x)
+			(vp-cpy-ir-i r4 edge_ye r5)
+			(continueif '(r5 != r2))
+			(vp-cpy-ri-i r3 r4 edge_x)
 		(loop-end)
 
 		;include new edges that begin on this scan line
@@ -132,7 +132,7 @@
 				(loop-while {iter_k != iter_j})
 					(assign {this, color, span, iter_k[0]->edge_x >>> fp_shift,
 							ys, iter_k[ptr_size]->edge_x >>> fp_shift}
-							'(r0 r1 r2 r8 r9 r10))
+							'(r0 r1 r2 r7 r8 r9))
 					(vp-call-r r2)
 					(assign {iter_k + ptr_size * 2} {iter_k})
 				(loop-end)
@@ -148,7 +148,7 @@
 					(loop-end)
 					(assign {this, color, span, iter_edge1->edge_x >>> fp_shift,
 							ys, x2 >>> fp_shift}
-							'(r0 r1 r2 r8 r9 r10))
+							'(r0 r1 r2 r7 r8 r9))
 					(vp-call-r r2)
 					(assign {iter_k + ptr_size} {iter_k})
 				(loop-end)
@@ -161,8 +161,8 @@
 			(vp-cpy-ir r0 0 r2)
 			(vp-add-cr ptr_size r0)
 			(vp-cpy-ir-i r2 edge_x r3)
-			(vp-cpy-ir-i r2 edge_dda r5)
-			(vp-add-rr r5 r3)
+			(vp-cpy-ir-i r2 edge_dda r4)
+			(vp-add-rr r4 r3)
 			(vp-cpy-ri-i r3 r2 edge_x)
 		(loop-until '(r0 == r1))
 

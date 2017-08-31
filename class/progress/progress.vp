@@ -27,8 +27,8 @@
 	;draw outline
 	(f-call 'view 'get_color '(r0) '(_ r1))
 	(f-call 'gui_ctx 'set_color '((rsp local_ctx) r1))
-	(f-call 'progress 'get_bounds '((rsp local_this)) '(_ _ _ r10 r11))
-	(f-call 'gui_ctx 'box '((rsp local_ctx) 0 0 r10 r11))
+	(f-call 'progress 'get_bounds '((rsp local_this)) '(_ _ _ r9 r10))
+	(f-call 'gui_ctx 'box '((rsp local_ctx) 0 0 r9 r10))
 
 	;darker color
 	(f-call 'view 'get_color '((rsp local_this)) '(_ r1))
@@ -36,21 +36,21 @@
 	(f-call 'gui_ctx 'set_color '((rsp local_ctx) r1))
 
 	;draw middle
-	(f-call 'progress 'get_bounds '((rsp local_this)) '(r0 _ _ r10 r11))
+	(f-call 'progress 'get_bounds '((rsp local_this)) '(r0 _ _ r9 r10))
+	(vp-sub-cr (mul progress_border_size 2) r9)
 	(vp-sub-cr (mul progress_border_size 2) r10)
-	(vp-sub-cr (mul progress_border_size 2) r11)
 	(vp-cpy-ir r0 progress_val r2)
 	(vp-cpy-ir r0 progress_max r1)
-	(vp-cpy-rr r10 r12)
-	(vp-cpy-rr r10 r0)
+	(vp-cpy-rr r9 r11)
+	(vp-cpy-rr r9 r0)
 	(vp-mul-rr r2 r0)
 	(vp-xor-rr r2 r2)
 	(vp-div-rrr r1 r2 r0)
 	(vp-cpy-ri r0 rsp local_fill_complete)
-	(vp-cpy-rr r0 r10)
-	(vp-sub-rr r10 r12)
-	(vp-cpy-ri r12 rsp local_fill_remain)
-	(f-call 'gui_ctx 'filled_box '((rsp local_ctx) progress_border_size progress_border_size r10 r11))
+	(vp-cpy-rr r0 r9)
+	(vp-sub-rr r9 r11)
+	(vp-cpy-ri r11 rsp local_fill_remain)
+	(f-call 'gui_ctx 'filled_box '((rsp local_ctx) progress_border_size progress_border_size r9 r10))
 
 	;very darker color
 	(f-call 'view 'get_color '((rsp local_this)) '(_ r1))
@@ -59,12 +59,12 @@
 	(f-call 'gui_ctx 'set_color '((rsp local_ctx) r1))
 
 	;draw middle
-	(f-call 'progress 'get_bounds '((rsp local_this)) '(_ _ _ _ r11))
-	(vp-cpy-cr progress_border_size r8)
-	(vp-sub-cr (mul progress_border_size 2) r11)
-	(vp-cpy-ir rsp local_fill_complete r9)
-	(vp-add-rr r9 r8)
-	(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r8 progress_border_size (rsp local_fill_remain) r11))
+	(f-call 'progress 'get_bounds '((rsp local_this)) '(_ _ _ _ r10))
+	(vp-cpy-cr progress_border_size r7)
+	(vp-sub-cr (mul progress_border_size 2) r10)
+	(vp-cpy-ir rsp local_fill_complete r8)
+	(vp-add-rr r8 r7)
+	(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 progress_border_size (rsp local_fill_remain) r10))
 
 	(vp-cpy-ir rsp local_this r0)
 	(vp-free-stack local_size)
@@ -86,13 +86,13 @@
 	;inputs
 	;r0 = progress object
 	;outputs
-	;r10 = preferred width
-	;r11 = preferred height
+	;r9 = preferred width
+	;r10 = preferred height
 	;trashes
 	;all but r0
 
-	(vp-cpy-cr 256 r10)
-	(vp-cpy-cr 10 r11)
+	(vp-cpy-cr 256 r9)
+	(vp-cpy-cr 10 r10)
 	(vp-ret)
 
 (def-func-end)

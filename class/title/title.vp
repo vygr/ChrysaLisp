@@ -35,11 +35,11 @@
 	(vp-alloc-stack local_size)
 	(assign '(r0) '((rsp local_this)))
 
-	(vp-cpy-ir-i r0 view_w r10)
-	(vp-cpy-ir-i r0 view_h r11)
+	(vp-cpy-ir-i r0 view_w r9)
+	(vp-cpy-ir-i r0 view_h r10)
+	(vp-sub-cr (mul title_border_size 2) r9)
 	(vp-sub-cr (mul title_border_size 2) r10)
-	(vp-sub-cr (mul title_border_size 2) r11)
-	(f-call 'flow 'change '((r0 label_flow) title_border_size title_border_size r10 r11))
+	(f-call 'flow 'change '((r0 label_flow) title_border_size title_border_size r9 r10))
 
 	(f-call 'title 'opaque '((rsp local_this)))
 	(vp-free-stack local_size)
@@ -55,10 +55,10 @@
 	;all but r0
 
 	(vp-push r0)
-	(vp-cpy-ir-i r1 ev_msg_rx r8)
-	(vp-cpy-ir-i r1 ev_msg_ry r9)
-	(vp-cpy-ri-i r8 r0 title_last_x)
-	(vp-cpy-ri-i r9 r0 title_last_y)
+	(vp-cpy-ir-i r1 ev_msg_rx r7)
+	(vp-cpy-ir-i r1 ev_msg_ry r8)
+	(vp-cpy-ri-i r7 r0 title_last_x)
+	(vp-cpy-ri-i r8 r0 title_last_y)
 	(assign `((@ ,(f-path 'class 'window))) '(r1))
 	(loop-start)
 		(vp-cpy-ir r0 view_parent r0)
@@ -95,39 +95,39 @@
 		(vp-cpy-ir r0 obj_vtable r2)
 	(loop-until '(r2 == r1))
 	(vp-cpy-ri r0 rsp local_window)
-	(vp-cpy-ir-i r0 view_x r8)
-	(vp-cpy-ir-i r0 view_y r9)
-	(vp-cpy-ri-i r8 rsp local_old_x)
-	(vp-cpy-ri-i r9 rsp local_old_y)
+	(vp-cpy-ir-i r0 view_x r7)
+	(vp-cpy-ir-i r0 view_y r8)
+	(vp-cpy-ri-i r7 rsp local_old_x)
+	(vp-cpy-ri-i r8 rsp local_old_y)
 
 	;dirty old area
 	(f-call 'window 'dirty '(r0))
 
 	;get new window position
 	(vp-cpy-ir rsp local_this r0)
-	(f-call 'title 'get_relative '(r0 (rsp local_window) (r0 title_last_x i) (r0 title_last_y i)) '(_ r8 r9))
+	(f-call 'title 'get_relative '(r0 (rsp local_window) (r0 title_last_x i) (r0 title_last_y i)) '(_ r7 r8))
 	(vp-cpy-ir rsp local_event r1)
-	(vp-cpy-ir-i r1 ev_msg_x r10)
-	(vp-cpy-ir-i r1 ev_msg_y r11)
+	(vp-cpy-ir-i r1 ev_msg_x r9)
+	(vp-cpy-ir-i r1 ev_msg_y r10)
+	(vp-sub-rr r9 r7)
 	(vp-sub-rr r10 r8)
-	(vp-sub-rr r11 r9)
+	(vp-mul-cr -1 r7)
 	(vp-mul-cr -1 r8)
-	(vp-mul-cr -1 r9)
 
 	;change window position
 	(vp-cpy-ir rsp local_window r0)
-	(vp-cpy-ri-i r8 r0 view_x)
-	(vp-cpy-ri-i r9 r0 view_y)
+	(vp-cpy-ri-i r7 r0 view_x)
+	(vp-cpy-ri-i r8 r0 view_y)
 
 	;translate old dirty area and dirty all
-	(vp-cpy-ir-i rsp local_old_x r10)
-	(vp-cpy-ir-i rsp local_old_y r11)
+	(vp-cpy-ir-i rsp local_old_x r9)
+	(vp-cpy-ir-i rsp local_old_y r10)
+	(vp-sub-rr r9 r7)
 	(vp-sub-rr r10 r8)
-	(vp-sub-rr r11 r9)
+	(vp-mul-cr -1 r7)
 	(vp-mul-cr -1 r8)
-	(vp-mul-cr -1 r9)
 	(vp-lea-i r0 view_dirty_region r1)
-	(f-call 'gui_region 'translate '(r1 r8 r9))
+	(f-call 'gui_region 'translate '(r1 r7 r8))
 	(f-call 'window 'dirty_all '((rsp local_window)))
 
 	(vp-cpy-ir rsp local_this r0)
@@ -141,14 +141,14 @@
 	;r0 = flow object
 	;outputs
 	;r0 = flow object
-	;r10 = preferred width
-	;r11 = preferred height
+	;r9 = preferred width
+	;r10 = preferred height
 	;trashes
 	;all but r0
 
-	(s-call 'title 'pref_size '(r0) '(r0 r10 r11))
+	(s-call 'title 'pref_size '(r0) '(r0 r9 r10))
+	(vp-add-cr (mul title_border_size 2) r9)
 	(vp-add-cr (mul title_border_size 2) r10)
-	(vp-add-cr (mul title_border_size 2) r11)
 	(vp-ret)
 
 (def-func-end)

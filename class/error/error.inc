@@ -1,9 +1,9 @@
 (import 'class/ref/ref.inc)
 
 (def-class 'error 'ref)
-(def-method 'create 'class/error/create 'static '(r0 r1 r2 r3 r5) '(r0))
+(def-method 'create 'class/error/create 'static '(r0 r1 r2 r3 r4) '(r0))
 (def-method 'new 'class/error/new 'static nil '(r0))
-(def-method 'init 'class/error/init 'static '(r0 r1 r2 r3 r5 r6 r7))
+(def-method 'init 'class/error/init 'static '(r0 r1 r2 r3 r4 r5 r6))
 (def-method 'get_description 'class/error/get_description 'static '(r0) '(r0 r1))
 (def-method 'get_msg 'class/error/get_msg 'static '(r0) '(r0 r1))
 (def-method 'get_object 'class/error/get_object 'static '(r0) '(r0 r1))

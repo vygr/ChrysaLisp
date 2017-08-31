@@ -661,7 +661,7 @@
 		*vregt* (slice 0 ,_ '(nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil))))
 
 (defcfun set-reg-map (l &optional _)
-	(setd _ '(r0 r1 r2 r3 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15))
+	(setd _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 	(if (ne 0 (length l))
 		(merge-sym l _)
 		(setq l _))

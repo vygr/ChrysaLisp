@@ -16,9 +16,9 @@
 	(vp-lea-i r0 array_e0 r1)
 	(vp-cpy-ir r0 array_array r2)
 	(vpif '(r2 != r1))
-		(vp-cpy-rr r0 r5)
+		(vp-cpy-rr r0 r4)
 		(f-call 'sys_mem 'free '(r2))
-		(vp-cpy-rr r5 r0)
+		(vp-cpy-rr r4 r0)
 	(endif)
 	(s-jmp 'array 'deinit '(r0))
 
@@ -33,7 +33,7 @@
 	;outputs
 	;r0 = array object
 	;trashes
-	;r1-r3, r5-r8
+	;r1-r3, r4-r7
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -54,19 +54,19 @@
 
 	;copy elements
 	(assign '((rsp local_source) (rsp local_start ui) (rsp local_end ui)) '(r3 r1 r2))
-	(vp-cpy-ir-ui r0 array_length r5)
+	(vp-cpy-ir-ui r0 array_length r4)
 	(vp-sub-rr r1 r2)
-	(vp-cpy-rr r5 r6)
-	(vp-shl-cr (log2 long_size) r5)
-	(vp-add-rr r2 r6)
+	(vp-cpy-rr r4 r5)
+	(vp-shl-cr (log2 long_size) r4)
+	(vp-add-rr r2 r5)
 	(vp-cpy-ir r3 array_array r3)
-	(vp-cpy-ri-i r6 r0 array_length)
-	(vp-cpy-ir r0 array_array r6)
+	(vp-cpy-ri-i r5 r0 array_length)
+	(vp-cpy-ir r0 array_array r5)
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-shl-cr (log2 long_size) r2)
-	(vp-add-rr r6 r5)
+	(vp-add-rr r5 r4)
 	(vp-add-rr r3 r1)
-	(f-call 'sys_mem 'copy '(r1 r5 r2))
+	(f-call 'sys_mem 'copy '(r1 r4 r2))
 
 	(f-exit 'array 'append '((rsp local_this)))
 	(vp-free-stack local_size)
@@ -94,7 +94,7 @@
 	;r1 = start index
 	;r2 = end index
 	;r3 = predicate function pointer
-	;r5 = predicate data pointer
+	;r4 = predicate data pointer
 	;outputs
 	;r0 = array object
 	;r1 = 0, else break iterator
@@ -119,7 +119,7 @@
 
 	;save inputs
 	(vp-alloc-stack local_size)
-	(assign '(r0 r3 r5) '((rsp local_this) (rsp local_predicate) (rsp local_predicate_data)))
+	(assign '(r0 r3 r4) '((rsp local_this) (rsp local_predicate) (rsp local_predicate_data)))
 
 	;process elements
 	(vp-cpy-ir r0 array_array r0)
@@ -157,7 +157,7 @@
 	;r0 = array object
 	;r1 = -1, else index
 	;trashes
-	;r1-r3, r5
+	;r1-r3, r4
 
 	(vp-cpy-rr r1 r3)
 	(vp-cpy-ir-ui r0 array_length r1)
@@ -166,8 +166,8 @@
 	(loop-start)
 		(vp-sub-cr long_size r1)
 		(breakif '(r1 < 0))
-		(vp-cpy-dr r2 r1 r5)
-	(loop-until '(r3 == r5))
+		(vp-cpy-dr r2 r1 r4)
+	(loop-until '(r3 == r4))
 	(vp-asr-cr (log2 long_size) r1)
 	(vp-ret)
 
@@ -224,7 +224,7 @@
 	;r0 = array object
 	;r1 = element
 	;trashes
-	;r2-r3, r5-r8
+	;r2-r3, r4-r7
 
 	;increase capacity ?
 	(vp-cpy-ir-ui r0 array_length r2)
@@ -300,7 +300,7 @@
 	;outputs
 	;r0 = array object
 	;trashes
-	;r1-r3, r5-r8
+	;r1-r3, r4-r7
 
 	;do we already have room ?
 	(vp-cpy-ir-ui r0 array_capacity r2)
@@ -313,12 +313,12 @@
 		(vpif '(r0 == r3))
 			(f-call 'sys_mem 'alloc '(r1) '(r1 r2))
 			(vp-pop r0)
-			(vp-cpy-ir r0 array_e0 r5)
-			(vp-cpy-ir r0 array_e1 r6)
-			(vp-cpy-ir r0 array_e2 r7)
-			(vp-cpy-ri r5 r1 (sub array_e0 array_e0))
-			(vp-cpy-ri r6 r1 (sub array_e1 array_e0))
-			(vp-cpy-ri r7 r1 (sub array_e2 array_e0))
+			(vp-cpy-ir r0 array_e0 r4)
+			(vp-cpy-ir r0 array_e1 r5)
+			(vp-cpy-ir r0 array_e2 r6)
+			(vp-cpy-ri r4 r1 (sub array_e0 array_e0))
+			(vp-cpy-ri r5 r1 (sub array_e1 array_e0))
+			(vp-cpy-ri r6 r1 (sub array_e2 array_e0))
 		(else)
 			(vp-shl-cr (log2 long_size) r2)
 			(vp-xchg-rr r1 r2)
@@ -357,27 +357,27 @@
 	;r0 = array object
 	;r1 = slice array object
 	;trashes
-	;r1-r3, r5-r12
+	;r1-r3, r4-r11
 
 	;save inputs
-	(f-entry 'array 'slice '(r9 r10 r11))
+	(f-entry 'array 'slice '(r8 r9 r10))
 
 	;create new array
-	(f-call 'array 'create '() '(r12))
-	(vp-cpy-rr r11 r1)
-	(vp-sub-rr r10 r1)
+	(f-call 'array 'create '() '(r11))
+	(vp-cpy-rr r10 r1)
+	(vp-sub-rr r9 r1)
 	(vp-cpy-ri-i r1 r0 array_length)
 	(f-call 'array 'set_capacity '(r0 r1))
 
 	;copy elements
-	(vp-cpy-ir r12 array_array r1)
-	(vp-cpy-ir r9 array_array r0)
+	(vp-cpy-ir r11 array_array r1)
+	(vp-cpy-ir r8 array_array r0)
+	(vp-shl-cr (log2 long_size) r9)
 	(vp-shl-cr (log2 long_size) r10)
-	(vp-shl-cr (log2 long_size) r11)
-	(vp-sub-rr r10 r11)
-	(f-call 'sys_mem 'copy '((& r0 r10) r1 r11))
+	(vp-sub-rr r9 r10)
+	(f-call 'sys_mem 'copy '((& r0 r9) r1 r10))
 
-	(f-exit 'array 'slice '(r9 r12))
+	(f-exit 'array 'slice '(r8 r11))
 	(vp-ret)
 
 (def-func-end)
@@ -388,7 +388,7 @@
 	;r1 = lower partition iter
 	;r2 = upper partition iter
 	;r3 = sort callback
-	;r5 = sort context
+	;r4 = sort context
 	;outputs
 	;r0 = array object
 	;r1 = partition iter
@@ -434,9 +434,9 @@
 		(vp-cpy-ri r0 rsp local_pivot)
 		(continueif '(r0 == r1))
 		(vp-cpy-ir r0 0 r3)
-		(vp-cpy-ir r1 0 r5)
+		(vp-cpy-ir r1 0 r4)
 		(vp-cpy-ri r3 r1 0)
-		(vp-cpy-ri r5 r0 0)
+		(vp-cpy-ri r4 r0 0)
 	(loop-end)
 	(vp-cpy-ir rsp local_pivot r1)
 	(vp-cpy-ir rsp local_lower r0)
@@ -459,8 +459,8 @@
 	;r1 = stack array
 	;r2 = lower iter
 	;r3 = upper iter
-	;r5 = compare callback
-	;r6 = sort context
+	;r4 = compare callback
+	;r5 = sort context
 	;outputs
 	;r0 = array object
 	;trashes

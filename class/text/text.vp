@@ -127,8 +127,8 @@
 	;inputs
 	;r0 = text object
 	;outputs
-	;r10 = preferred width
-	;r11 = preferred height
+	;r9 = preferred width
+	;r10 = preferred height
 	;trashes
 	;all but r0
 

@@ -24,7 +24,7 @@
 	;outputs
 	;r0 = vector object
 	;trashes
-	;r1-r3, r5-r8
+	;r1-r3, r4-r7
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -44,19 +44,19 @@
 	(f-call 'vector 'set_capacity '(r0 r1))
 
 	;copy elements
-	(vp-cpy-ir-ui r0 array_length r7)
+	(vp-cpy-ir-ui r0 array_length r6)
 	(vp-cpy-ir r0 array_array r3)
-	(assign '((rsp local_source) (rsp local_start ui) (rsp local_end ui)) '(r0 r5 r6))
-	(vp-shl-cr (log2 ptr_size) r7)
-	(loop-while '(r5 != r6))
-		(d-call 'vector 'ref_element '(r0 r5) '(r0 (r3 r7)))
-		(vp-add-cr 1 r5)
-		(vp-add-cr ptr_size r7)
+	(assign '((rsp local_source) (rsp local_start ui) (rsp local_end ui)) '(r0 r4 r5))
+	(vp-shl-cr (log2 ptr_size) r6)
+	(loop-while '(r4 != r5))
+		(d-call 'vector 'ref_element '(r0 r4) '(r0 (r3 r6)))
+		(vp-add-cr 1 r4)
+		(vp-add-cr ptr_size r6)
 	(loop-end)
 
 	(vp-cpy-ir rsp local_this r0)
-	(vp-shr-cr (log2 ptr_size) r7)
-	(vp-cpy-ri-i r7 r0 array_length)
+	(vp-shr-cr (log2 ptr_size) r6)
+	(vp-cpy-ri-i r6 r0 array_length)
 
 	(vp-free-stack local_size)
 	(vp-ret)
@@ -177,31 +177,31 @@
 	;r0 = vector object
 	;r1 = slice vector object
 	;trashes
-	;r1-r3, r5-r12
+	;r1-r3, r4-r11
 
 	;save inputs
-	(f-entry 'vector 'slice '(r9 r10 r11))
+	(f-entry 'vector 'slice '(r8 r9 r10))
 
 	;create new vector
-	(f-call 'vector 'create '() '(r12))
-	(vp-cpy-rr r11 r1)
-	(vp-sub-rr r10 r1)
+	(f-call 'vector 'create '() '(r11))
+	(vp-cpy-rr r10 r1)
+	(vp-sub-rr r9 r1)
 	(f-call 'vector 'set_capacity '(r0 r1))
 
 	;copy elements
-	(vp-cpy-ir r12 array_array r3)
-	(vp-cpy-rr r9 r0)
-	(vp-xor-rr r7 r7)
-	(loop-while '(r10 != r11))
-		(d-call 'vector 'ref_element '(r0 r10) '(r0 r1))
-		(vp-cpy-rd r1 r3 r7)
-		(vp-add-cr 1 r10)
-		(vp-add-cr ptr_size r7)
+	(vp-cpy-ir r11 array_array r3)
+	(vp-cpy-rr r8 r0)
+	(vp-xor-rr r6 r6)
+	(loop-while '(r9 != r10))
+		(d-call 'vector 'ref_element '(r0 r9) '(r0 r1))
+		(vp-cpy-rd r1 r3 r6)
+		(vp-add-cr 1 r9)
+		(vp-add-cr ptr_size r6)
 	(loop-end)
 
-	(vp-cpy-rr r12 r1)
-	(vp-shr-cr (log2 ptr_size) r7)
-	(vp-cpy-ri-i r7 r1 array_length)
+	(vp-cpy-rr r11 r1)
+	(vp-shr-cr (log2 ptr_size) r6)
+	(vp-cpy-ri-i r6 r1 array_length)
 	(vp-ret)
 
 (def-func-end)

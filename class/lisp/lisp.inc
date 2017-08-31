@@ -5,7 +5,7 @@
 (def-class 'lisp 'ref)
 (def-method 'create 'class/lisp/create 'static '(r0 r1 r2) '(r0))
 (def-method 'new 'class/lisp/new 'static nil '(r0))
-(def-method 'init 'class/lisp/init 'static '(r0 r1 r2 r3 r5))
+(def-method 'init 'class/lisp/init 'static '(r0 r1 r2 r3 r4))
 (def-method 'deinit 'class/lisp/deinit 'final)
 
 (def-method 'sym_intern 'class/lisp/sym_intern 'static '(r0 r1) '(r0 r1))

@@ -15,16 +15,16 @@
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes
-	;r1-r3, r5-r7
+	;r1-r3, r4-r6
 
 	;save size of data
-	(f-entry 'string 'create_from_buffer '(r6 r7))
+	(f-entry 'string 'create_from_buffer '(r5 r6))
 
 	;create new string object
 	(f-call 'string 'new '((& r1 (add string_size byte_size))) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'string 'init `(r0 (@ ,(f-path 'class 'string)) r6 r7) '(r0 r1))
+		(f-call 'string 'init `(r0 (@ ,(f-path 'class 'string)) r5 r6) '(r0 r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
@@ -41,7 +41,7 @@
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes
-	;r1-r3, r5-r7
+	;r1-r3, r4-r6
 
 	;get size of string
 	(f-call 'sys_string 'length '(r0) '(r0 r1))
@@ -55,16 +55,16 @@
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes
-	;r1-r3, r5-r7
+	;r1-r3, r4-r6
 
 	;save c string pointer
-	(f-entry 'string 'create_from_file '(r6))
+	(f-entry 'string 'create_from_file '(r5))
 
 	;get size of string from file size
-	(f-bind 'sys_load 'statics r7)
-	(vp-cpy-ir r7 ld_statics_stat_buffer r7)
+	(f-bind 'sys_load 'statics r6)
+	(vp-cpy-ir r6 ld_statics_stat_buffer r6)
 	(sys-push-trashed)
-	(sys-stat '(r0 r7) '(r0))
+	(sys-stat '(r0 r6) '(r0))
 	(sys-pop-trashed)
 	(vpif '(r0 != 0))
 	(vp-label 'exit)
@@ -74,16 +74,16 @@
 	(endif)
 
 	;test for regular file only
-	(vp-cpy-ir-us r7 stat_mode r0)
+	(vp-cpy-ir-us r6 stat_mode r0)
 	(vp-and-cr s_ifmt r0)
 	(gotoif '(r0 != s_ifreg) 'exit)
 
 	;create new string object
-	(vp-cpy-ir r7 stat_fsize r1)
+	(vp-cpy-ir r6 stat_fsize r1)
 	(f-call 'string 'new '((& r1 (add string_size byte_size))) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'string 'init2 `(r0 (@ ,(f-path 'class 'string)) r6 (r7 stat_fsize)) '(r0 r1))
+		(f-call 'string 'init2 `(r0 (@ ,(f-path 'class 'string)) r5 (r6 stat_fsize)) '(r0 r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
@@ -201,16 +201,16 @@
 		(vp-xor-rr r1 r1)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
 
-		(vp-cpy-ir rsp local_string1 r6)
-		(vp-cpy-ir rsp local_string2 r7)
-		(vp-cpy-ir-ui r6 string_length r1)
-		(vp-cpy-ir-ui r7 string_length r2)
+		(vp-cpy-ir rsp local_string1 r5)
+		(vp-cpy-ir rsp local_string2 r6)
+		(vp-cpy-ir-ui r5 string_length r1)
+		(vp-cpy-ir-ui r6 string_length r2)
 		(vp-add-rr r2 r1)
 		(vp-cpy-ri-i r1 r0 string_length)
-		(f-call 'sys_mem 'copy '((& r6 string_data) (& r0 string_data) (r6 string_length ui)) '(_ r1))
-		(vp-cpy-ir-ui r7 string_length r2)
+		(f-call 'sys_mem 'copy '((& r5 string_data) (& r0 string_data) (r5 string_length ui)) '(_ r1))
+		(vp-cpy-ir-ui r6 string_length r2)
 		(vp-add-cr byte_size r2)
-		(f-call 'sys_mem 'copy '((& r7 string_data) r1 r2))
+		(f-call 'sys_mem 'copy '((& r6 string_data) r1 r2))
 
 		(vp-cpy-ir rsp local_this r0)
 	(endif)
@@ -251,7 +251,7 @@
 		(sys-push-trashed)
 		(sys-open '(r0 o_rdonly 0) '(r0))
 		(sys-pop-trashed)
-		(vp-cpy-rr r0 r7)
+		(vp-cpy-rr r0 r6)
 
 		;read into buffer
 		(vp-cpy-ir rsp local_this r0)
@@ -260,12 +260,12 @@
 		(vp-xor-rr r2 r2)
 		(vp-cpy-rd-b r2 r0 r1)
 		(sys-push-trashed)
-		(sys-read '(r7 r0 r1) '(_))
+		(sys-read '(r6 r0 r1) '(_))
 		(sys-pop-trashed)
 
 		;close file
 		(sys-push-trashed)
-		(sys-close '(r7) '(_))
+		(sys-close '(r6) '(_))
 		(sys-pop-trashed)
 
 		(vp-cpy-ir rsp local_this r0)
@@ -326,10 +326,10 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(vp-cpy-rr r0 r5)
+	(vp-cpy-rr r0 r4)
 	(vp-cpy-ir r1 0 r1)
-	(f-call 'sys_mem 'copy '((& r1 string_data) (r5 local_next) (r1 string_length ui)) '(_ r1))
-	(vp-cpy-ri r1 r5 local_next)
+	(f-call 'sys_mem 'copy '((& r1 string_data) (r4 local_next) (r1 string_length ui)) '(_ r1))
+	(vp-cpy-ri r1 r4 local_next)
 	(vp-ret)
 
 (def-func-end)
@@ -341,10 +341,10 @@
 	;outputs
 	;r0 = 0 if error, else new string object
 	;trashes
-	;r1-r3, r5-r7
+	;r1-r3, r4-r6
 
 	;save inputs
-	(f-entry 'string 'append '(r6 r7))
+	(f-entry 'string 'append '(r5 r6))
 
 	;get size of strings
 	(vp-cpy-ir-ui r0 string_length r0)
@@ -356,7 +356,7 @@
 	(f-call 'string 'new '(r0) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'string 'init1 `(r0 (@ ,(f-path 'class 'string)) r6 r7) '(r0 r1))
+		(f-call 'string 'init1 `(r0 (@ ,(f-path 'class 'string)) r5 r6) '(r0 r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
@@ -373,7 +373,7 @@
 	;outputs
 	;r0 = 0 if error, else new string object
 	;trashes
-	;r1-r3, r5-r7
+	;r1-r3, r4-r6
 
 	(def-struct 'local)
 		(ptr 'length)
@@ -382,7 +382,7 @@
 	;save inputs
 	(vp-alloc-stack local_size)
 	(vp-cpy-cr (add string_size byte_size) r1)
-	(assign '(r0 r1) '(r6 (rsp local_length)))
+	(assign '(r0 r1) '(r5 (rsp local_length)))
 
 	;get size of strings
 	(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) rsp))
@@ -393,7 +393,7 @@
 	(f-call 'string 'new '(r0) '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'string 'init3 `(r0 (@ ,(f-path 'class 'string)) r6) '(r0 r1))
+		(f-call 'string 'init3 `(r0 (@ ,(f-path 'class 'string)) r5) '(r0 r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'string 'delete '(r0) '() 'r1)
@@ -426,24 +426,24 @@
 	;r0 = string object
 	;r1 = 0 if same, else -, +
 	;trashes
-	;r2-r3, r5-r8
+	;r2-r3, r4-r7
 
 	(vpif '(r0 != r1))
 		(vp-cpy-ir-ui r0 string_length r2)
 		(vp-cpy-ir-ui r1 string_length r3)
 		(vpif '(r2 != 0))
 			(breakif '(r3 == 0))
-			(vp-lea-i r0 string_data r5)
-			(vp-lea-i r1 string_data r6)
-			(vp-xor-rr r7 r7)
+			(vp-lea-i r0 string_data r4)
+			(vp-lea-i r1 string_data r5)
+			(vp-xor-rr r6 r6)
 			(loop-start)
-				(vp-cpy-dr-ub r5 r7 r1)
-				(vp-cpy-dr-ub r6 r7 r8)
-				(vp-sub-rr r8 r1)
+				(vp-cpy-dr-ub r4 r6 r1)
+				(vp-cpy-dr-ub r5 r6 r7)
+				(vp-sub-rr r7 r1)
 				(gotoif '(r1 != 0) 'notsame)
-				(vp-add-cr byte_size r7)
-				(breakif '(r7 == r2))
-			(loop-until '(r7 == r3))
+				(vp-add-cr byte_size r6)
+				(breakif '(r6 == r2))
+			(loop-until '(r6 == r3))
 		(endif)
 		(vp-cpy-rr r2 r1)
 		(vp-sub-rr r3 r1)
@@ -463,7 +463,7 @@
 	;r0 = string object
 	;r1 = 0 if same
 	;trashes
-	;r2-r3, r5-r7
+	;r2-r3, r4-r6
 
 	(vpif '(r0 != r1))
 		(vp-cpy-ir-ui r0 string_length r2)
@@ -471,12 +471,12 @@
 		(vp-sub-rr r2 r3)
 		(vpif '(r3 == 0))
 			(gotoif '(r2 == 0) 'same)
-			(vp-lea-i r0 string_data r5)
-			(vp-lea-i r1 string_data r6)
+			(vp-lea-i r0 string_data r4)
+			(vp-lea-i r1 string_data r5)
 			(loop-start)
-				(vp-cpy-dr-ub r5 r3 r7)
-				(vp-cpy-dr-ub r6 r3 r1)
-				(vp-sub-rr r7 r1)
+				(vp-cpy-dr-ub r4 r3 r6)
+				(vp-cpy-dr-ub r5 r3 r1)
+				(vp-sub-rr r6 r1)
 				(breakif '(r1 != 0))
 				(vp-add-cr byte_size r3)
 			(loop-until '(r3 == r2))
@@ -550,7 +550,7 @@
 	;r0 = string object
 	;r1 = string slice
 	;trashes
-	;r2-r3, r5-r7
+	;r2-r3, r4-r6
 
 	(vp-push r0)
 	(vp-add-cr string_data r0)
@@ -598,15 +598,15 @@
 	;r0 = string object
 	;r1 = -1, else position
 	;trashes
-	;r2-r3, r5
+	;r2-r3, r4
 
 	(vp-lea-i r0 string_data r2)
 	(vp-cpy-ir-ui r0 string_length r3)
 	(loop-start)
 		(vp-sub-cr byte_size r3)
 		(breakif '(r3 < 0))
-		(vp-cpy-dr-ub r2 r3 r5)
-	(loop-until '(r1 == r5))
+		(vp-cpy-dr-ub r2 r3 r4)
+	(loop-until '(r1 == r4))
 	(vp-cpy-rr r3 r1)
 	(vp-ret)
 

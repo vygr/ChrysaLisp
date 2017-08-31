@@ -13,14 +13,14 @@
 	;r1 = vtable pointer
 	;r2 = description cstr pointer
 	;r3 = 0, else error msg index
-	;r5 = error payload object
-	;r6 = filename cstr pointer
-	;r7 = line number
+	;r4 = error payload object
+	;r5 = filename cstr pointer
+	;r6 = line number
 	;outputs
 	;r0 = error object
 	;r1 = 0 if error, else ok
 	;trashes
-	;r1-r3, r5-r7
+	;r1-r3, r4-r6
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -28,7 +28,7 @@
 
 	;save inputs
 	(vp-alloc-stack local_size)
-	(assign '(r0 r2 r3 r5 r6 r7) '((rsp local_this) (r0 error_description) (r0 error_msg i)
+	(assign '(r0 r2 r3 r4 r5 r6) '((rsp local_this) (r0 error_description) (r0 error_msg i)
 									(r0 error_object) (r0 error_file) (r0 error_line i)))
 
 	;init parent

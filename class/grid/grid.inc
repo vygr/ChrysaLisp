@@ -4,7 +4,7 @@
 (def-method 'create 'class/grid/create 'static nil '(r0))
 (def-method 'new 'class/grid/new 'static nil '(r0))
 (def-method 'init 'class/grid/init)
-(def-method 'set_grid 'class/grid/set_grid 'static '(r0 r10 r11) '(r0))
+(def-method 'set_grid 'class/grid/set_grid 'static '(r0 r9 r10) '(r0))
 
 (def-method 'pref_size 'class/grid/pref_size 'final)
 (def-method 'layout 'class/grid/layout 'final)
@@ -32,6 +32,6 @@
 (defcfun class/grid/set_grid ()
 	;inputs
 	;r0 = view object
-	;r10 = width
-	;r11 = height
-	(assign '(r10 r11) '((r0 grid_width i) (r0 grid_height i))))
+	;r9 = width
+	;r10 = height
+	(assign '(r9 r10) '((r0 grid_width i) (r0 grid_height i))))

@@ -8,8 +8,8 @@
 	;r1 = stack array
 	;r2 = vector of input polygons
 	;r3 = join style
-	;r5 = 16.16 radius
-	;r6 = 16.16 tolerance
+	;r4 = 16.16 radius
+	;r5 = 16.16 tolerance
 	;outputs
 	;r0 = vector for output polygons
 	;trashes

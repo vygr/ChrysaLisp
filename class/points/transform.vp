@@ -8,7 +8,7 @@
 	;r1 = source points object, can be same
 	;r2 = 16.16/16.16 m1xy
 	;r3 = 16.16/16.16 m2xy
-	;r5 = 16.16/16.16 trxy
+	;r4 = 16.16/16.16 trxy
 	;outputs
 	;r0 = points object
 	;trashes

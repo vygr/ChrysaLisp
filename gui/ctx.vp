@@ -6,10 +6,10 @@
 	;r0 = ctx
 	;r1 = texture
 	;r2 = color mod
-	;r8 = x
-	;r9 = y
-	;r10 = width
-	;r11 = height
+	;r7 = x
+	;r8 = y
+	;r9 = width
+	;r10 = height
 	;trashes
 	;all but rsp
 
@@ -24,27 +24,27 @@
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r15)
+	(vp-cpy-rr rsp r14)
 	(vp-alloc-stack local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r15 rsp local_old_stack)
+	(vp-cpy-ri r14 rsp local_old_stack)
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 rsp local_ctx)
 	(vp-cpy-ri r1 rsp local_texture)
-	(vp-cpy-ir-i r0 gui_ctx_x r12)
-	(vp-cpy-ir-i r0 gui_ctx_y r13)
+	(vp-cpy-ir-i r0 gui_ctx_x r11)
+	(vp-cpy-ir-i r0 gui_ctx_y r12)
+	(vp-add-rr r11 r7)
 	(vp-add-rr r12 r8)
-	(vp-add-rr r13 r9)
-	(vp-cpy-ri-i r8 rsp (add local_drect sdl_rect_x))
-	(vp-cpy-ri-i r9 rsp (add local_drect sdl_rect_y))
-	(vp-cpy-ri-i r10 rsp (add local_drect sdl_rect_w))
-	(vp-cpy-ri-i r11 rsp (add local_drect sdl_rect_h))
-	(vp-xor-rr r8 r8)
-	(vp-cpy-ri-i r8 rsp (add local_srect sdl_rect_x))
-	(vp-cpy-ri-i r8 rsp (add local_srect sdl_rect_y))
-	(vp-cpy-ri-i r10 rsp (add local_srect sdl_rect_w))
-	(vp-cpy-ri-i r11 rsp (add local_srect sdl_rect_h))
+	(vp-cpy-ri-i r7 rsp (add local_drect sdl_rect_x))
+	(vp-cpy-ri-i r8 rsp (add local_drect sdl_rect_y))
+	(vp-cpy-ri-i r9 rsp (add local_drect sdl_rect_w))
+	(vp-cpy-ri-i r10 rsp (add local_drect sdl_rect_h))
+	(vp-xor-rr r7 r7)
+	(vp-cpy-ri-i r7 rsp (add local_srect sdl_rect_x))
+	(vp-cpy-ri-i r7 rsp (add local_srect sdl_rect_y))
+	(vp-cpy-ri-i r9 rsp (add local_srect sdl_rect_w))
+	(vp-cpy-ri-i r10 rsp (add local_srect sdl_rect_h))
 
 	;set the color mod
 	(vp-cpy-rr r2 r3)
@@ -63,28 +63,28 @@
 		(vp-cpy-ri r0 rsp local_dirty_rect)
 
 		;continue if out of bounds
-		(vp-cpy-ir-i r0 gui_rect_x r8)
-		(vp-cpy-ir-i r0 gui_rect_y r9)
-		(vp-cpy-ir-i r0 gui_rect_x1 r10)
-		(vp-cpy-ir-i r0 gui_rect_y1 r11)
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_x) r12)
+		(vp-cpy-ir-i r0 gui_rect_x r7)
+		(vp-cpy-ir-i r0 gui_rect_y r8)
+		(vp-cpy-ir-i r0 gui_rect_x1 r9)
+		(vp-cpy-ir-i r0 gui_rect_y1 r10)
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_x) r11)
+		(continueif '(r9 <= r11))
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_y) r12)
 		(continueif '(r10 <= r12))
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_y) r13)
-		(continueif '(r11 <= r13))
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_w) r14)
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_w) r13)
+		(vp-add-rr r11 r13)
+		(continueif '(r7 >= r13))
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_h) r14)
 		(vp-add-rr r12 r14)
 		(continueif '(r8 >= r14))
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_h) r15)
-		(vp-add-rr r13 r15)
-		(continueif '(r9 >= r15))
 
 		;set clip region to this region
+		(vp-sub-rr r7 r9)
 		(vp-sub-rr r8 r10)
-		(vp-sub-rr r9 r11)
-		(vp-cpy-ri-i r8 rsp (add local_clip_rect sdl_rect_x))
-		(vp-cpy-ri-i r9 rsp (add local_clip_rect sdl_rect_y))
-		(vp-cpy-ri-i r10 rsp (add local_clip_rect sdl_rect_w))
-		(vp-cpy-ri-i r11 rsp (add local_clip_rect sdl_rect_h))
+		(vp-cpy-ri-i r7 rsp (add local_clip_rect sdl_rect_x))
+		(vp-cpy-ri-i r8 rsp (add local_clip_rect sdl_rect_y))
+		(vp-cpy-ri-i r9 rsp (add local_clip_rect sdl_rect_w))
+		(vp-cpy-ri-i r10 rsp (add local_clip_rect sdl_rect_h))
 		(vp-cpy-ir rsp local_ctx r0)
 		(sdl-render-set-clip-rect '((r0 gui_ctx_sdl_ctx) (& rsp local_clip_rect)))
 
@@ -103,10 +103,10 @@
 (def-func 'gui/ctx_box)
 	;inputs
 	;r0 = ctx
-	;r8 = x
-	;r9 = y
-	;r10 = width
-	;r11 = height
+	;r7 = x
+	;r8 = y
+	;r9 = width
+	;r10 = height
 	;trashes
 	;all but rsp
 
@@ -119,21 +119,21 @@
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r15)
+	(vp-cpy-rr rsp r14)
 	(vp-alloc-stack local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r15 rsp local_old_stack)
+	(vp-cpy-ri r14 rsp local_old_stack)
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 rsp local_ctx)
-	(vp-cpy-ir-i r0 gui_ctx_x r12)
-	(vp-cpy-ir-i r0 gui_ctx_y r13)
+	(vp-cpy-ir-i r0 gui_ctx_x r11)
+	(vp-cpy-ir-i r0 gui_ctx_y r12)
+	(vp-add-rr r11 r7)
 	(vp-add-rr r12 r8)
-	(vp-add-rr r13 r9)
-	(vp-cpy-ri-i r8 rsp (add local_rect sdl_rect_x))
-	(vp-cpy-ri-i r9 rsp (add local_rect sdl_rect_y))
-	(vp-cpy-ri-i r10 rsp (add local_rect sdl_rect_w))
-	(vp-cpy-ri-i r11 rsp (add local_rect sdl_rect_h))
+	(vp-cpy-ri-i r7 rsp (add local_rect sdl_rect_x))
+	(vp-cpy-ri-i r8 rsp (add local_rect sdl_rect_y))
+	(vp-cpy-ri-i r9 rsp (add local_rect sdl_rect_w))
+	(vp-cpy-ri-i r10 rsp (add local_rect sdl_rect_h))
 
 	;for each rect on the dirty region
 	(vp-cpy-ir r0 gui_ctx_dirty_region r0)
@@ -141,28 +141,28 @@
 		(vp-cpy-ri r0 rsp local_dirty_rect)
 
 		;continue if out of bounds
-		(vp-cpy-ir-i r0 gui_rect_x r8)
-		(vp-cpy-ir-i r0 gui_rect_y r9)
-		(vp-cpy-ir-i r0 gui_rect_x1 r10)
-		(vp-cpy-ir-i r0 gui_rect_y1 r11)
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_x) r12)
+		(vp-cpy-ir-i r0 gui_rect_x r7)
+		(vp-cpy-ir-i r0 gui_rect_y r8)
+		(vp-cpy-ir-i r0 gui_rect_x1 r9)
+		(vp-cpy-ir-i r0 gui_rect_y1 r10)
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_x) r11)
+		(continueif '(r9 <= r11))
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_y) r12)
 		(continueif '(r10 <= r12))
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_y) r13)
-		(continueif '(r11 <= r13))
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_w) r14)
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_w) r13)
+		(vp-add-rr r11 r13)
+		(continueif '(r7 >= r13))
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_h) r14)
 		(vp-add-rr r12 r14)
 		(continueif '(r8 >= r14))
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_h) r15)
-		(vp-add-rr r13 r15)
-		(continueif '(r9 >= r15))
 
 		;set clip region to this region
+		(vp-sub-rr r7 r9)
 		(vp-sub-rr r8 r10)
-		(vp-sub-rr r9 r11)
-		(vp-cpy-ri-i r8 rsp (add local_clip_rect sdl_rect_x))
-		(vp-cpy-ri-i r9 rsp (add local_clip_rect sdl_rect_y))
-		(vp-cpy-ri-i r10 rsp (add local_clip_rect sdl_rect_w))
-		(vp-cpy-ri-i r11 rsp (add local_clip_rect sdl_rect_h))
+		(vp-cpy-ri-i r7 rsp (add local_clip_rect sdl_rect_x))
+		(vp-cpy-ri-i r8 rsp (add local_clip_rect sdl_rect_y))
+		(vp-cpy-ri-i r9 rsp (add local_clip_rect sdl_rect_w))
+		(vp-cpy-ri-i r10 rsp (add local_clip_rect sdl_rect_h))
 		(vp-cpy-ir rsp local_ctx r0)
 		(sdl-render-set-clip-rect '((r0 gui_ctx_sdl_ctx) (& rsp local_clip_rect)))
 
@@ -218,10 +218,10 @@
 (def-func 'gui/ctx_filled_box)
 	;inputs
 	;r0 = ctx
-	;r8 = x
-	;r9 = y
-	;r10 = width
-	;r11 = height
+	;r7 = x
+	;r8 = y
+	;r9 = width
+	;r10 = height
 	;trashes
 	;all but rsp
 
@@ -234,21 +234,21 @@
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r15)
+	(vp-cpy-rr rsp r14)
 	(vp-alloc-stack local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r15 rsp local_old_stack)
+	(vp-cpy-ri r14 rsp local_old_stack)
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 rsp local_ctx)
-	(vp-cpy-ir-i r0 gui_ctx_x r12)
-	(vp-cpy-ir-i r0 gui_ctx_y r13)
+	(vp-cpy-ir-i r0 gui_ctx_x r11)
+	(vp-cpy-ir-i r0 gui_ctx_y r12)
+	(vp-add-rr r11 r7)
 	(vp-add-rr r12 r8)
-	(vp-add-rr r13 r9)
-	(vp-cpy-ri-i r8 rsp (add local_rect sdl_rect_x))
-	(vp-cpy-ri-i r9 rsp (add local_rect sdl_rect_y))
-	(vp-cpy-ri-i r10 rsp (add local_rect sdl_rect_w))
-	(vp-cpy-ri-i r11 rsp (add local_rect sdl_rect_h))
+	(vp-cpy-ri-i r7 rsp (add local_rect sdl_rect_x))
+	(vp-cpy-ri-i r8 rsp (add local_rect sdl_rect_y))
+	(vp-cpy-ri-i r9 rsp (add local_rect sdl_rect_w))
+	(vp-cpy-ri-i r10 rsp (add local_rect sdl_rect_h))
 
 	;for each rect on the dirty region
 	(vp-cpy-ir r0 gui_ctx_dirty_region r0)
@@ -256,28 +256,28 @@
 		(vp-cpy-ri r0 rsp local_dirty_rect)
 
 		;continue if out of bounds
-		(vp-cpy-ir-i r0 gui_rect_x r8)
-		(vp-cpy-ir-i r0 gui_rect_y r9)
-		(vp-cpy-ir-i r0 gui_rect_x1 r10)
-		(vp-cpy-ir-i r0 gui_rect_y1 r11)
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_x) r12)
+		(vp-cpy-ir-i r0 gui_rect_x r7)
+		(vp-cpy-ir-i r0 gui_rect_y r8)
+		(vp-cpy-ir-i r0 gui_rect_x1 r9)
+		(vp-cpy-ir-i r0 gui_rect_y1 r10)
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_x) r11)
+		(continueif '(r9 <= r11))
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_y) r12)
 		(continueif '(r10 <= r12))
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_y) r13)
-		(continueif '(r11 <= r13))
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_w) r14)
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_w) r13)
+		(vp-add-rr r11 r13)
+		(continueif '(r7 >= r13))
+		(vp-cpy-ir-i rsp (add local_drect sdl_rect_h) r14)
 		(vp-add-rr r12 r14)
 		(continueif '(r8 >= r14))
-		(vp-cpy-ir-i rsp (add local_drect sdl_rect_h) r15)
-		(vp-add-rr r13 r15)
-		(continueif '(r9 >= r15))
 
 		;set clip region to this region
+		(vp-sub-rr r7 r9)
 		(vp-sub-rr r8 r10)
-		(vp-sub-rr r9 r11)
-		(vp-cpy-ri-i r8 rsp (add local_clip_rect sdl_rect_x))
-		(vp-cpy-ri-i r9 rsp (add local_clip_rect sdl_rect_y))
-		(vp-cpy-ri-i r10 rsp (add local_clip_rect sdl_rect_w))
-		(vp-cpy-ri-i r11 rsp (add local_clip_rect sdl_rect_h))
+		(vp-cpy-ri-i r7 rsp (add local_clip_rect sdl_rect_x))
+		(vp-cpy-ri-i r8 rsp (add local_clip_rect sdl_rect_y))
+		(vp-cpy-ri-i r9 rsp (add local_clip_rect sdl_rect_w))
+		(vp-cpy-ri-i r10 rsp (add local_clip_rect sdl_rect_h))
 		(vp-cpy-ir rsp local_ctx r0)
 		(sdl-render-set-clip-rect '((r0 gui_ctx_sdl_ctx) (& rsp local_clip_rect)))
 
@@ -299,10 +299,10 @@
 	;r1 = color
 	;r2 = flags
 	;r3 = depth
-	;r8 = x
-	;r9 = y
-	;r10 = width
-	;r11 = height
+	;r7 = x
+	;r8 = y
+	;r9 = width
+	;r10 = height
 	;trashes
 	;all rsp
 
@@ -320,90 +320,90 @@
 	;save inputs
 	(vp-alloc-stack local_size)
 	(assign '(r0 r1 r2 r3) '((rsp local_ctx) (rsp local_color i) (rsp local_flags) (rsp local_depth i)))
-	(assign '(r8 r9 r10 r11) '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i)))
+	(assign '(r7 r8 r9 r10) '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i)))
 
 	(vpif '(r2 != 0))
 		;fill middle
 		(f-call 'gui_ctx 'set_color '(r0 r1))
 
-		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r8 r9 r10 r11 r12))
-		(vp-add-rr r12 r8)
-		(vp-add-rr r12 r9)
-		(vp-shl-cr 1 r12)
-		(vp-sub-rr r12 r10)
-		(vp-sub-rr r12 r11)
-		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r8 r9 r10 r11))
+		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r9 r10 r11))
+		(vp-add-rr r11 r7)
+		(vp-add-rr r11 r8)
+		(vp-shl-cr 1 r11)
+		(vp-sub-rr r11 r9)
+		(vp-sub-rr r11 r10)
+		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
 	(endif)
 
-	(vp-cpy-ir-i rsp local_depth r12)
-	(vpif '(r12 > 0))
+	(vp-cpy-ir-i rsp local_depth r11)
+	(vpif '(r11 > 0))
 		;brighter color
 		(f-call 'gui_ctx 'brighter '((rsp local_color ui)) '(r1))
 		(f-call 'gui_ctx 'set_color '((rsp local_ctx) r1))
 
 		;fill left edge and top
-		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_depth i)) '(r8 r9 r10 r11))
-		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r8 r9 r10 r11))
+		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_depth i)) '(r7 r8 r9 r10))
+		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
 
-		(assign '((rsp local_x i) (rsp local_y i) (rsp local_h i) (rsp local_depth i)) '(r8 r9 r11 r10))
-		(vp-add-rr r10 r9)
-		(vp-sub-rr r10 r11)
-		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r8 r9 r10 r11))
+		(assign '((rsp local_x i) (rsp local_y i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r10 r9))
+		(vp-add-rr r9 r8)
+		(vp-sub-rr r9 r10)
+		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
 
 		;darker color
 		(f-call 'gui_ctx 'darker '((rsp local_color ui)) '(r1))
 		(f-call 'gui_ctx 'set_color '((rsp local_ctx) r1))
 
 		;fill bottom edge and right
-		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r8 r9 r10 r11 r12))
-		(vp-add-rr r12 r8)
-		(vp-sub-rr r12 r10)
-		(vp-add-rr r11 r9)
-		(vp-sub-rr r12 r9)
-		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r8 r9 r10 r12))
-
-		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r8 r9 r10 r11 r12))
+		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r9 r10 r11))
+		(vp-add-rr r11 r7)
+		(vp-sub-rr r11 r9)
 		(vp-add-rr r10 r8)
-		(vp-sub-rr r12 r8)
-		(vp-add-rr r12 r9)
-		(vp-sub-rr r12 r11)
-		(vp-sub-rr r12 r11)
-		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r8 r9 r12 r11))
+		(vp-sub-rr r11 r8)
+		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r11))
+
+		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r9 r10 r11))
+		(vp-add-rr r9 r7)
+		(vp-sub-rr r11 r7)
+		(vp-add-rr r11 r8)
+		(vp-sub-rr r11 r10)
+		(vp-sub-rr r11 r10)
+		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 r8 r11 r10))
 	(else)
 		;sunken panel
-		(vp-mul-cr -1 r12)
-		(vp-cpy-ri-i r12 rsp local_depth)
+		(vp-mul-cr -1 r11)
+		(vp-cpy-ri-i r11 rsp local_depth)
 
 		;darker color
 		(f-call 'gui_ctx 'darker '((rsp local_color ui)) '(r1))
 		(f-call 'gui_ctx 'set_color '((rsp local_ctx) r1))
 
 		;fill left edge and top
-		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_depth i)) '(r8 r9 r10 r11))
-		(vp-sub-rr r11 r10)
-		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r8 r9 r10 r11))
+		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_depth i)) '(r7 r8 r9 r10))
+		(vp-sub-rr r10 r9)
+		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
 
-		(assign '((rsp local_x i) (rsp local_y i) (rsp local_h i) (rsp local_depth i)) '(r8 r9 r11 r10))
-		(vp-add-rr r10 r9)
-		(vp-sub-rr r10 r11)
-		(vp-sub-rr r10 r11)
-		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r8 r9 r10 r11))
+		(assign '((rsp local_x i) (rsp local_y i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r10 r9))
+		(vp-add-rr r9 r8)
+		(vp-sub-rr r9 r10)
+		(vp-sub-rr r9 r10)
+		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
 
 		;brighter color
 		(f-call 'gui_ctx 'brighter '((rsp local_color ui)) '(r1))
 		(f-call 'gui_ctx 'set_color '((rsp local_ctx) r1))
 
 		;fill bottom edge and right
-		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r8 r9 r10 r11 r12))
-		(vp-add-rr r11 r9)
-		(vp-sub-rr r12 r9)
-		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r8 r9 r10 r12))
-
-		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r8 r9 r10 r11 r12))
+		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r9 r10 r11))
 		(vp-add-rr r10 r8)
-		(vp-sub-rr r12 r8)
-		(vp-sub-rr r12 r11)
-		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r8 r9 r12 r11))
+		(vp-sub-rr r11 r8)
+		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r11))
+
+		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r9 r10 r11))
+		(vp-add-rr r9 r7)
+		(vp-sub-rr r11 r7)
+		(vp-sub-rr r11 r10)
+		(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 r8 r11 r10))
 	(endif)
 
 	(vp-free-stack local_size)
@@ -423,23 +423,23 @@
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r15)
+	(vp-cpy-rr rsp r14)
 	(vp-alloc-stack local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r15 rsp local_old_stack)
+	(vp-cpy-ri r14 rsp local_old_stack)
 
+	(vp-cpy-rr r1 r7)
 	(vp-cpy-rr r1 r8)
 	(vp-cpy-rr r1 r9)
 	(vp-cpy-rr r1 r10)
-	(vp-cpy-rr r1 r11)
-	(vp-shr-cr 24 r11)
-	(vp-shr-cr 16 r8)
-	(vp-shr-cr 8 r9)
+	(vp-shr-cr 24 r10)
+	(vp-shr-cr 16 r7)
+	(vp-shr-cr 8 r8)
+	(vp-and-cr 0xff r7)
 	(vp-and-cr 0xff r8)
 	(vp-and-cr 0xff r9)
 	(vp-and-cr 0xff r10)
-	(vp-and-cr 0xff r11)
-	(sdl-set-render-draw-color '((r0 gui_ctx_sdl_ctx) r8 r9 r10 r11))
+	(sdl-set-render-draw-color '((r0 gui_ctx_sdl_ctx) r7 r8 r9 r10))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)

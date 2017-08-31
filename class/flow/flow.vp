@@ -40,58 +40,58 @@
 
 (vp-label 'callback)
 	(vp-push r1)
-	(v-call 'view 'pref_size '(r0) '(r0 r10 r11))
+	(v-call 'view 'pref_size '(r0) '(r0 r9 r10))
 	(vp-pop r1)
-	(vp-cpy-ir-i r1 local_x r8)
-	(vp-cpy-ir-i r1 local_y r9)
+	(vp-cpy-ir-i r1 local_x r7)
+	(vp-cpy-ir-i r1 local_y r8)
+	(vp-cpy-rr r7 r11)
 	(vp-cpy-rr r8 r12)
-	(vp-cpy-rr r9 r13)
 
 	(vp-cpy-ir r0 view_parent r2)
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_down r3)
 	(vpif '(r3 != 0))
 		;flow down
-		(vp-lea-d r9 r11 r13)
+		(vp-lea-d r8 r10 r12)
 	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_up r3)
 	(vpif '(r3 != 0))
 		;flow up
-		(vp-sub-rr r11 r9)
-		(vp-cpy-rr r9 r13)
+		(vp-sub-rr r10 r8)
+		(vp-cpy-rr r8 r12)
 	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_right r3)
 	(vpif '(r3 != 0))
 		;flow right
-		(vp-lea-d r8 r10 r12)
+		(vp-lea-d r7 r9 r11)
 	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_left r3)
 	(vpif '(r3 != 0))
 		;flow left
-		(vp-sub-rr r10 r8)
-		(vp-cpy-rr r8 r12)
+		(vp-sub-rr r9 r7)
+		(vp-cpy-rr r7 r11)
 	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_fillw r3)
 	(vpif '(r3 != 0))
 		;fill width of parent
-		(vp-cpy-ir-i r2 view_w r10)
-		(vp-xor-rr r8 r8)
+		(vp-cpy-ir-i r2 view_w r9)
+		(vp-xor-rr r7 r7)
 	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_fillh r3)
 	(vpif '(r3 != 0))
 		;fill height of parent
-		(vp-cpy-ir-i r2 view_h r11)
-		(vp-xor-rr r9 r9)
+		(vp-cpy-ir-i r2 view_h r10)
+		(vp-xor-rr r8 r8)
 	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
@@ -104,17 +104,17 @@
 			(vp-and-cr flow_flag_right r3)
 			(vpif '(r3 != 0))
 				;flow right
-				(vp-lea-d r8 r10 r15)
+				(vp-lea-d r7 r9 r14)
 				(vp-cpy-ir-i r2 view_w r3)
-				(vp-sub-rr r3 r15)
-				(vp-sub-rr r15 r10)
+				(vp-sub-rr r3 r14)
+				(vp-sub-rr r14 r9)
 			(endif)
 			(vp-cpy-ir r2 flow_flags r3)
 			(vp-and-cr flow_flag_left r3)
 			(vpif '(r3 != 0))
 				;flow left
-				(vp-add-rr r8 r10)
-				(vp-xor-rr r8 r8)
+				(vp-add-rr r7 r9)
+				(vp-xor-rr r7 r7)
 			(endif)
 		(endif)
 	(endif)
@@ -129,17 +129,17 @@
 			(vp-and-cr flow_flag_down r3)
 			(vpif '(r3 != 0))
 				;flow down
-				(vp-lea-d r9 r11 r15)
+				(vp-lea-d r8 r10 r14)
 				(vp-cpy-ir-i r2 view_h r3)
-				(vp-sub-rr r3 r15)
-				(vp-sub-rr r15 r11)
+				(vp-sub-rr r3 r14)
+				(vp-sub-rr r14 r10)
 			(endif)
 			(vp-cpy-ir r2 flow_flags r3)
 			(vp-and-cr flow_flag_up r3)
 			(vpif '(r3 != 0))
 				;flow up
-				(vp-add-rr r9 r11)
-				(vp-xor-rr r9 r9)
+				(vp-add-rr r8 r10)
+				(vp-xor-rr r8 r8)
 			(endif)
 		(endif)
 	(endif)
@@ -147,34 +147,34 @@
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr (bit-or flow_flag_align_hcenter flow_flag_align_hleft flow_flag_align_hright) r3)
 	(vpif '(r3 != 0))
-		(vp-cpy-ir-i r2 view_w r8)
-		(vp-sub-rr r10 r8)
+		(vp-cpy-ir-i r2 view_w r7)
+		(vp-sub-rr r9 r7)
 		(switch)
 		(case '(r3 == flow_flag_align_hcenter))
-			(vp-shr-cr 1 r8)
+			(vp-shr-cr 1 r7)
 			(break)
 		(case '(r3 == flow_flag_align_hleft))
-			(vp-xor-rr r8 r8)
+			(vp-xor-rr r7 r7)
 		(endswitch)
 	(endif)
 
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr (bit-or flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom) r3)
 	(vpif '(r3 != 0))
-		(vp-cpy-ir-i r2 view_h r9)
-		(vp-sub-rr r11 r9)
+		(vp-cpy-ir-i r2 view_h r8)
+		(vp-sub-rr r10 r8)
 		(switch)
 		(case '(r3 == flow_flag_align_vcenter))
-			(vp-shr-cr 1 r9)
+			(vp-shr-cr 1 r8)
 			(break)
 		(case '(r3 == flow_flag_align_vtop))
-			(vp-xor-rr r9 r9)
+			(vp-xor-rr r8 r8)
 		(endswitch)
 	(endif)
 
-	(vp-cpy-ri-i r12 r1 local_x)
-	(vp-cpy-ri-i r13 r1 local_y)
-	(f-jmp 'view 'change '(r0 r8 r9 r10 r11))
+	(vp-cpy-ri-i r11 r1 local_x)
+	(vp-cpy-ri-i r12 r1 local_y)
+	(f-jmp 'view 'change '(r0 r7 r8 r9 r10))
 
 (def-func-end)
 
@@ -182,8 +182,8 @@
 	;inputs
 	;r0 = flow object
 	;outputs
-	;r10 = preferred width
-	;r11 = preferred height
+	;r9 = preferred width
+	;r10 = preferred height
 	;trashes
 	;all but r0
 
@@ -199,14 +199,14 @@
 
 	(f-call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
 
-	(vp-cpy-ir-i rsp local_w r10)
-	(vp-cpy-ir-i rsp local_h r11)
+	(vp-cpy-ir-i rsp local_w r9)
+	(vp-cpy-ir-i rsp local_h r10)
 	(vp-free-stack local_size)
 	(vp-ret)
 
 (vp-label 'callback)
 	(vp-push r1)
-	(v-call 'view 'pref_size '(r0) '(r0 r10 r11))
+	(v-call 'view 'pref_size '(r0) '(r0 r9 r10))
 	(vp-pop r1)
 	(vp-cpy-ir r0 view_parent r2)
 	(vp-cpy-ir r2 flow_flags r3)
@@ -214,7 +214,7 @@
 	(vpif '(r3 != 0))
 		;flow down or up
 		(vp-cpy-ir-i r1 local_h r3)
-		(vp-add-rr r11 r3)
+		(vp-add-rr r10 r3)
 		(vp-cpy-ri-i r3 r1 local_h)
 	(endif)
 	(vp-cpy-ir r2 flow_flags r3)
@@ -222,16 +222,16 @@
 	(vpif '(r3 != 0))
 		;flow left or right
 		(vp-cpy-ir-i r1 local_w r3)
-		(vp-add-rr r10 r3)
+		(vp-add-rr r9 r3)
 		(vp-cpy-ri-i r3 r1 local_w)
 	(endif)
 	(vp-cpy-ir-i r1 local_w r3)
-	(vpif '(r10 > r3))
-		(vp-cpy-ri-i r10 r1 local_w)
+	(vpif '(r9 > r3))
+		(vp-cpy-ri-i r9 r1 local_w)
 	(endif)
 	(vp-cpy-ir-i r1 local_h r3)
-	(vpif '(r11 > r3))
-		(vp-cpy-ri-i r11 r1 local_h)
+	(vpif '(r10 > r3))
+		(vp-cpy-ri-i r10 r1 local_h)
 	(endif)
 	(vp-ret)
 

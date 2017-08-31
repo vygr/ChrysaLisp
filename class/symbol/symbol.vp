@@ -10,7 +10,7 @@
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes
-	;r1-r3, r5-r7
+	;r1-r3, r4-r6
 
 	(f-call 'string 'create_from_buffer '(r0 r1) '(r0))
 	(vpif '(r0 != 0))
@@ -27,7 +27,7 @@
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes
-	;r1-r3, r5-r7
+	;r1-r3, r4-r6
 
 	(f-call 'string 'create_from_cstr '(r0) '(r0))
 	(vpif '(r0 != 0))
@@ -44,7 +44,7 @@
 	;outputs
 	;r0 = 0 if error, else object
 	;trashes
-	;r1-r3, r5-r7
+	;r1-r3, r4-r6
 
 	(f-call 'string 'create_from_file '(r0) '(r0))
 	(vpif '(r0 != 0))
@@ -80,7 +80,7 @@
 	;outputs
 	;r0 = 0 if error, else new symbol object
 	;trashes
-	;r1-r3, r5-r7
+	;r1-r3, r4-r6
 
 	(f-call 'string 'append '(r0 r1) '(r0))
 	(vpif '(r0 != 0))
