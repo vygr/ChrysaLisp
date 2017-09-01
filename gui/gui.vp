@@ -494,7 +494,7 @@
 	(vp-add-cr gui_statics_rect_heap r0)
 	(f-call 'gui_region 'copy_rect '(r0 r1 rsp 0 0 r9 r10))
 
-	;paste old visable region into root
+	;paste old visible region into root
 	(vp-cpy-ir rsp 8 r0)
 	(vp-lea-i r0 view_dirty_region r2)
 	(f-bind 'gui_gui 'statics r1)
@@ -505,9 +505,8 @@
 	;free old region and splice over new region
 	(f-bind 'gui_gui 'statics r4)
 	(f-call 'gui_region 'free '(r0 (& r4 gui_statics_old_region)))
-	(vp-pop r1)
+	(vp-pop r0 r1)
 	(vp-cpy-ri r1 r4 gui_statics_old_region)
-	(vp-pop r0)
 )
 
 	;iterate through views front to back

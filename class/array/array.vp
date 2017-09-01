@@ -265,9 +265,8 @@
 	(vp-cpy-dr r0 r1 r1)
 	(vp-push r0 r1)
 	(f-call 'boxed_long 'create '() '(r1))
-	(vp-pop r2)
+	(vp-pop r2 r0)
 	(vp-cpy-ri r2 r1 boxed_ptr_value)
-	(vp-pop r0)
 	(vp-ret)
 
 (def-func-end)
