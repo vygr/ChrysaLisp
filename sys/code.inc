@@ -1,3 +1,5 @@
+(import 'sys/vp.inc)
+
 ;;;;;;;;;;;;;;;;;;;
 ; structured coding
 ;;;;;;;;;;;;;;;;;;;
@@ -227,7 +229,7 @@
 			(setq o (add o (elem 0 _)))) (list *syms*)) o)
 
 (defcfun push-scope ()
-	(local-align)
+	(local-align stack_align)
 	(elem-set 0 (elem -3 (push *syms* (list 0 (list) (list)))) *sym-sp*)
 	(when (ne *sym-sp* 0)
 		(when debug_inst

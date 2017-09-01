@@ -5,6 +5,10 @@
 (defcfun reg (r)
 	(find r '(r0 r1 r2 r3 rsp r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)))
 
+(defcvar 'stack_align 8)
+(defcfun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
+(defcfun emit-free (c) (emit-add-cr (align c stack_align) rsp))
+
 (defcfun emit-rr (o s d)
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
 		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))

@@ -1,6 +1,5 @@
 (import 'sys/code.inc)
 (import 'sys/mail.inc)
-(import 'sys/vp.inc)
 (import 'sys/task.inc)
 (import 'sys/syscall.inc)
 
