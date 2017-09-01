@@ -281,6 +281,7 @@
 ; Arch Emit Functions
 ;;;;;;;;;;;;;;;;;;;;;
 
+(if (not (def? '*cpu*)) (defq *cpu* (cpu)))
 (cond
 ((eql *cpu* 'x86_64)
 (import 'sys/x64.inc))

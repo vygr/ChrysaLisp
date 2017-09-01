@@ -248,6 +248,8 @@ to-num
 trim
 trim-end
 trim-start
+cpu
+platform
 within-compile-env
 ```
 
@@ -263,8 +265,6 @@ debug_inst
 ### lisp.lisp functions
 
 ```
-platform
-cpu
 compile
 compile-pipe
 make-info

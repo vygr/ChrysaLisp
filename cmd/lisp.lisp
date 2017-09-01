@@ -11,16 +11,6 @@
 
 (defq debug_mode t debug_emit nil debug_inst nil)
 
-(defun platform ()
-	(defq o 'Darwin)
-	(when (defq f (file-stream 'platform))
-		(bind '(o _) (read f 32))) o)
-
-(defun cpu ()
-	(defq o 'x86_64)
-	(when (defq f (file-stream 'arch))
-		(bind '(o _) (read f 32))) o)
-
 (defun compile (*files* &optional *os* *cpu* *pipes*)
 	(setd *os* (platform) *cpu* (cpu) *pipes* 16)
 	(defq q (list) e (list))

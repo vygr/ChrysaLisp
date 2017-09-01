@@ -331,6 +331,16 @@
 ; Compilation environment
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun cpu ()
+	(defq o 'x86_64)
+	(when (defq f (file-stream 'arch))
+		(bind '(o _) (read f 32))) o)
+
+(defun platform ()
+	(defq o 'Darwin)
+	(when (defq f (file-stream 'platform))
+		(bind '(o _) (read f 32))) o)
+
 (defun within-compile-env (_)
 	(defq *compile-env* (env 401) *imports* (list))
 	(defmacro defcvar (&rest b) `(def *compile-env* ~b))
