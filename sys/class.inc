@@ -352,7 +352,7 @@
 		;outputs
 		;r0 = 0 if error, else object
 		;trashes
-		;all but rsp
+		;all
 		(assign _2 _3)
 		(f-call _1 'new '() '(r0))
 		(vpif '(r0 != 0))

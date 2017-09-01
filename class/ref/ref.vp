@@ -7,7 +7,7 @@
 	;inputs
 	;r0 = object
 	;trashes
-	;all but rsp
+	;all
 
 	;dec ref count
 	(vp-cpy-ir-ui r0 ref_count r1)
@@ -26,7 +26,7 @@
 	;inputs
 	;r0 = 0, else object
 	;trashes
-	;all but rsp
+	;all
 
 	(vpif '(r0 != 0))
 		(f-jmp 'ref 'deref '(r0))

@@ -48,7 +48,7 @@
 	;r0 = callback address
 	;r1 = user data address
 	;trashes
-	;all but rsp
+	;all
 
 	;test if we are the kernel task
 	(f-bind 'sys_task 'statics r3)
@@ -122,7 +122,7 @@
 	;outputs
 	;r0, r1 = mailbox id
 	;trashes
-	;all but rsp
+	;all
 
 	(f-bind 'sys_task 'statics r1)
 	(f-jmp 'sys_task 'open_device '(r0 (r1 tk_statics_cpu_id)))
@@ -135,7 +135,7 @@
 	;outputs
 	;r0 = array of mailbox id's
 	;trashes
-	;all but rsp
+	;all
 
 	(ptr 'tasks 'ids 'msg 'name)
 	(ulong 'cpu 'index 'length)
@@ -192,7 +192,7 @@
 	;outputs
 	;r0, r1 = new task mailbox ID
 	;trashes
-	;all but rsp
+	;all
 
 	(f-bind 'sys_task 'statics r1)
 	(f-jmp 'sys_task 'open_remote '(r0 (r1 tk_statics_cpu_id)))
@@ -206,7 +206,7 @@
 	;outputs
 	;r0, r1 = mailbox id
 	;trashes
-	;all but rsp
+	;all
 
 	(ptr 'name 'msg)
 	(ulong 'cpu)
@@ -251,7 +251,7 @@
 	;outputs
 	;r0 = array of mailbox id's
 	;trashes
-	;all but rsp
+	;all
 
 	(ptr 'name 'ids 'msg)
 	(ulong 'length 'cpu 'index)
@@ -307,7 +307,7 @@
 	;outputs
 	;r0 = array of mailbox id's
 	;trashes
-	;all but rsp
+	;all
 
 	(ptr 'name 'ids 'msg)
 	(ulong 'length 'index)
@@ -361,7 +361,7 @@
 	;outputs
 	;r0 = array of mailbox id's
 	;trashes
-	;all but rsp
+	;all
 
 	(ptr 'tasks 'ids 'msg 'name)
 	(ulong 'cpu 'index 'length)
@@ -420,7 +420,7 @@
 	;outputs
 	;r0, r1 = mailbox id
 	;trashes
-	;all but rsp
+	;all
 
 	(ptr 'name 'msg)
 	(ulong 'cpu)

@@ -11,7 +11,7 @@
 	;r9 = width
 	;r10 = height
 	;trashes
-	;all but rsp
+	;all
 
 	(def-struct 'local)
 		(struct 'drect 'sdl_rect)
@@ -108,7 +108,7 @@
 	;r9 = width
 	;r10 = height
 	;trashes
-	;all but rsp
+	;all
 
 	(def-struct 'local)
 		(struct 'rect 'sdl_rect)
@@ -223,7 +223,7 @@
 	;r9 = width
 	;r10 = height
 	;trashes
-	;all but rsp
+	;all
 
 	(def-struct 'local)
 		(struct 'rect 'sdl_rect)
@@ -416,7 +416,7 @@
 	;r0 = ctx
 	;r1 = color
 	;trashes
-	;all but rsp
+	;all
 
 	(def-struct 'local)
 		(ptr 'old_stack)

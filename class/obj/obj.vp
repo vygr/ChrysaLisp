@@ -7,7 +7,7 @@
 	;inputs
 	;r0 = object
 	;trashes
-	;all but rsp
+	;all
 
 	(v-call 'obj 'deinit '(r0))
 	(v-jmp 'obj 'delete '(r0))

@@ -461,7 +461,7 @@
 	;inputs
 	;r0 = root view object
 	;trashes
-	;all but rsp
+	;all
 
 	(def-struct 'local)
 		(ptr 'root)
