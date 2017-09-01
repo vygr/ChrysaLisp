@@ -207,11 +207,9 @@
 (def-struct-end)
 
 (defcfun sys-push-trashed ()
-	;pushes onto rsp
 	(vp-push r1 r2 r5 r6 r7 r8 r9 r10))
 
 (defcfun sys-pop-trashed ()
-	;pops from rsp
 	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10))
 
 (defcfun sys-exit (_1)

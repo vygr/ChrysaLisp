@@ -19,7 +19,7 @@
 	;r0 = window object
 	;r1 = 0 if error, else ok
 	;trashes
-	;all but r0-r1, rsp
+	;all but r0-r1
 
 	(ptr 'this 'vtable 'title_flow 'string)
 	(ulong 'ok 'flags 'min_width)
