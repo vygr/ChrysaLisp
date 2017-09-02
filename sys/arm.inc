@@ -4,12 +4,25 @@
 
 (defcfun reg (r)
 	(find r '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14
-			_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ rsp)))
+			_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ rlr rsp)))
 
-(defcvar 'stack_align 16)
+(defcvar 'rlr 'rlr 'stack_align 16 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rlr))
+(defcfun stack-init ()
+	(defq tk_state_size (mul ptr_size (length stack_state)))
+	(vp-sub-cr tk_state_size r1)
+	(f-bind 'sys_task 'stop r2)
+	(vp-cpy-ri r4 r1 (sub tk_state_size ptr_size))
+	(vp-cpy-ri r2 r1 (sub tk_state_size (mul ptr_size 2)))
+	(vp-lea-p 'start r4)
+	(vp-cpy-ri r4 r1 0)
+	(goto 'exit)
+(vp-label 'start)
+	(vp-cpy-rr r1 rlr)
+	(vp-jmp-r r0)
+(vp-label 'exit))
+
 (defcfun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
 (defcfun emit-free (c) (emit-add-cr (align c stack_align) rsp))
-
 (defcfun emit-ret ())
 
 (defcfun emit-push (&rest b)

@@ -5,9 +5,17 @@
 (defcfun reg (r)
 	(find r '(r0 r1 r2 r3 rsp r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)))
 
-(defcvar 'stack_align 8)
+(defcvar 'stack_align 8 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+(defcfun stack-init ()
+	(defq tk_state_size (mul ptr_size (length stack_state)))
+	(vp-sub-cr (add tk_state_size (mul ptr_size 2)) r1)
+	(f-bind 'sys_task 'stop r2)
+	(vp-cpy-ri r2 r1 (add tk_state_size ptr_size))
+	(vp-cpy-ri r4 r1 tk_state_size))
+
 (defcfun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
 (defcfun emit-free (c) (emit-add-cr (align c stack_align) rsp))
+(defcfun emit-ret () (emit-byte 0xc3))
 
 (defcfun emit-rr (o s d)
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
@@ -540,8 +548,6 @@
 	(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)
 		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
 	(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xaf (add 0xc0 (bit-shl dl 3) sl)))
-
-(defcfun emit-ret () (emit-byte 0xc3))
 
 (defcfun emit-xchg-rr (s d)
 	(unless (eql s d)
