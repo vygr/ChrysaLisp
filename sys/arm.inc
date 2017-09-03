@@ -4,9 +4,11 @@
 
 (defcfun reg (r)
 	(find r '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14
-			_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ rlr rsp)))
+			_ _ _ _ _ _ _ _ _ _ _ _ _ _ r29 r30 rsp)))
 
-(defcvar 'rlr 'rlr 'stack_align 16 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rlr))
+(defcvar 'r29 'r29 'r30 'r30 'stack_align 16
+	'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r30))
+
 (defcfun stack-init ()
 	(defq tk_state_size (mul ptr_size (length stack_state)))
 	(vp-sub-cr tk_state_size r1)
@@ -17,70 +19,116 @@
 	(vp-cpy-ri r4 r1 0)
 	(goto 'exit)
 (vp-label 'start)
-	(vp-cpy-rr r1 rlr)
+	(vp-cpy-rr r1 r30)
 	(vp-jmp-r r0)
 (vp-label 'exit))
 
 (defcfun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
 (defcfun emit-free (c) (emit-add-cr (align c stack_align) rsp))
-(defcfun emit-ret ())
+(defcfun emit-ret () (emit-int 0xd65f03c0))
 
 (defcfun emit-push (&rest b)
 	(emit-sub-cr (align (mul ptr_size (length b)) stack_align) rsp)
 	(each! nil nil nil (lambda (r)
-		(emit-cpy-ri r rsp (mul _ ptr_size))) (list b)))
+		(emit-cpy-ri r rsp (mul (sub (length b) _ 1) ptr_size))) (list b)))
 
 (defcfun emit-pop (&rest b)
-	(each! -1 0 nil (lambda (r)
-		(emit-cpy-ir rsp (mul _ ptr_size) r)) (list b))
+	(each! nil nil nil (lambda (r)
+		(emit-cpy-ir rsp (mul (sub (length b) _ 1) ptr_size) r)) (list b))
 	(emit-add-cr (align (mul ptr_size (length b)) stack_align) rsp))
+
+(defcfun emit-branch (o c d)
+	(defq c (sub l *pc*))
+	(cond
+		((le -0x200000 c 0x1ffffc)
+			(emit-int (add 0x54000000 (bit-shl (bit-and c 0x3fffff) 3) o)))
+		(t (throw "emit-branch constant out of range" c))))
+
+(defcfun emit-beq (l d) (emit-branch 0x0 (sub l *pc*) d))
+(defcfun emit-bne (l d) (emit-branch 0x1 (sub l *pc*) d))
+(defcfun emit-bge (l d) (emit-branch 0xa (sub l *pc*) d))
+(defcfun emit-blt (l d) (emit-branch 0xb (sub l *pc*) d))
+(defcfun emit-bgt (l d) (emit-branch 0xc (sub l *pc*) d))
+(defcfun emit-ble (l d) (emit-branch 0xd (sub l *pc*) d))
 
 (defcfun emit-syscall ())
 
-(defcfun emit-branch (o c d)
-	(defq m (elem d *distance*))
-	(if (ne *pass* 0) (if (gt (abs c) (abs m)) (elem-set d *distance* (setq m c))))
-	(cond
-		((le -0x80 (sub m 2) 0x7f)
-			(emit-byte o (sub c 2)))
-		((le -0x80000000 (sub m 6) 0x7fffffff)
-			(emit-int o (sub c 6)))
-		(t (print "emit-branch constant out of range: " c))))
-
-(defcfun emit-beq (l d) (emit-branch 0x1 (sub l *pc*) d))
-(defcfun emit-bne (l d) (emit-branch 0x2 (sub l *pc*) d))
-(defcfun emit-blt (l d) (emit-branch 0x3 (sub l *pc*) d))
-(defcfun emit-ble (l d) (emit-branch 0x4 (sub l *pc*) d))
-(defcfun emit-bgt (l d) (emit-branch 0x5 (sub l *pc*) d))
-(defcfun emit-bge (l d) (emit-branch 0x6 (sub l *pc*) d))
-
 (defcfun emit-call (l)
-	(defq c (sub l *pc* 5))
+	(emit-push r30)
+	(defq c (sub l *pc*))
 	(cond
-		((le -0x80000000 c 0x7fffffff)
-			(emit-int c))
-		(t (print "emit-call constant out of range: " c))))
+		((le -0x8000000 c 0x7fffffc)
+			(emit-int (add 0x94000000 (bit-shr (bit-and c 0xfffffff) 2))))
+		(t (throw "emit-call constant out of range" c)))
+	(emit-pop r30))
 
-(defcfun emit-call-r (r))
-(defcfun emit-call-i (d c))
-(defcfun emit-call-p (l))
+(defcfun emit-call-r (r)
+	(emit-push r30)
+	(emit-int (add 0xd63f0000 (bit-shl (reg r) 5)))
+	(emit-pop r30))
 
-(defcfun emit-jmp (l d))
-(defcfun emit-jmp-r (r))
-(defcfun emit-jmp-i (d c))
-(defcfun emit-jmp-p (l))
+(defcfun emit-call-i (d c)
+	(emit-cpy-ir d c r29)
+	(emit-call-r r29))
+
+(defcfun emit-call-p (l)
+	(defq c (sub l *pc*))
+	(cond
+		((le -0x100000 c 0xffffc)
+			(emit-int (add 0x58000000 (bit-shl (bit-and c 0x1fffff) 3) (reg r29)))
+			(emit-call-r r29))
+		(t (throw "emit-call-p constant out of range" c))))
+
+(defcfun emit-jmp (l d)
+	(defq c (sub l *pc*))
+	(cond
+		((le -0x8000000 c 0x7fffffc)
+			(emit-int (add 0x14000000 (bit-shr (bit-and c 0xfffffff) 2))))
+		(t (throw "emit-jmp constant out of range" c))))
+
+(defcfun emit-jmp-r (r)
+	(emit-int (add 0xd61f0000 (bit-shl (reg r) 5))))
+
+(defcfun emit-jmp-i (d c)
+	(emit-cpy-ir d c r29)
+	(emit-jmp-r r29))
+
+(defcfun emit-jmp-p (l)
+	(defq c (sub l *pc*))
+	(cond
+		((le -0x100000 c 0xffffc)
+			(emit-int (add 0x58000000 (bit-shl (bit-and c 0x1fffff) 3) (reg r29)))
+			(emit-jmp-r r29))
+		(t (throw "emit-jmp-p constant out of range" c))))
 
 (defcfun emit-lea-i (s c d))
 (defcfun emit-lea-d (s1 s2 d))
-(defcfun emit-lea-p (l d))
+
+(defcfun emit-lea-p (l d)
+	(defq c (sub l *pc*))
+	(cond
+		((le -0x100000 c 0xffffc)
+			(emit-int (add 0x10000000 (bit-shl (bit-and c 0x1fffff) 3) (reg d))))
+		(t (throw "emit-lea-p constant out of range" c))))
 
 (defcfun emit-cpy-cr (c r))
 (defcfun emit-cpy-rr (s d) (unless (eql s d)))
-(defcfun emit-cpy-ir (s c d))
+
+(defcfun emit-cpy-ir (s c d)
+	(cond
+		((le -0x100 c 0xff)
+			(emit-int (add 0xf8400000 (bit-shl (bit-and c 0x1ff) 12) (bit-shl (reg s) 5) (reg d))))
+		(t (throw "emit-cpy-ir constant out of range" c))))
+
 (defcfun emit-cpy-dr (s1 s2 d))
 (defcfun emit-cpy-pr (l d))
 
-(defcfun emit-cpy-ri (s d c))
+(defcfun emit-cpy-ri (s d c)
+	(cond
+		((le -0x100 c 0xff)
+			(emit-int (add 0xf8000000 (bit-shl (bit-and c 0x1ff) 12) (bit-shl (reg d) 5) (reg s))))
+		(t (throw "emit-cpy-ri constant out of range" c))))
+
 (defcfun emit-cpy-rd (d s1 s2))
 (defcfun emit-cpy-rp (d c))
 
