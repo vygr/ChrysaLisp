@@ -118,6 +118,8 @@
 	(cond
 		((le -0x100 c 0xff)
 			(emit-int (add 0xf8400000 (bit-shl (bit-and c 0x1ff) 12) (bit-shl (reg s) 5) (reg d))))
+		((and (le 0 c 0x7ff8) (eq (bit-and c 7) 0))
+			(emit-int (add 0xf9400000 (bit-shl c 7) (bit-shl (reg s) 5) (reg d))))
 		(t (throw "emit-cpy-ir constant out of range" c))))
 
 (defcfun emit-cpy-dr (s1 s2 d))
@@ -127,6 +129,8 @@
 	(cond
 		((le -0x100 c 0xff)
 			(emit-int (add 0xf8000000 (bit-shl (bit-and c 0x1ff) 12) (bit-shl (reg d) 5) (reg s))))
+		((and (le 0 c 0x7ff8) (eq (bit-and c 7) 0))
+			(emit-int (add 0xf9000000 (bit-shl c 7) (bit-shl (reg d) 5) (reg s))))
 		(t (throw "emit-cpy-ri constant out of range" c))))
 
 (defcfun emit-cpy-rd (d s1 s2))
@@ -154,9 +158,24 @@
 (defcfun emit-cpy-ri-i (s d c))
 (defcfun emit-cpy-rd-i (r s1 s2))
 
-(defcfun emit-add-cr (c r))
+(defcfun emit-add-cr (c r)
+	(cond
+		((le -0x1000 c 0xfff)
+			(if (ge c 0)
+				(emit-int (add 0x91000000 (bit-shl (bit-and c 0xfff) 10) (bit-shl (reg r) 5) (reg r)))
+				(emit-int (add 0xd1000000 (bit-shl (bit-and (neg c) 0xfff) 10) (bit-shl (reg r) 5) (reg r)))))
+		(t (throw "emit-add-cr constant out of range" c))))
+
 (defcfun emit-add-rr (s d))
-(defcfun emit-sub-cr (c r))
+
+(defcfun emit-sub-cr (c r)
+	(cond
+		((le -0x1000 c 0xfff)
+			(if (ge c 0)
+				(emit-int (add 0xd1000000 (bit-shl (bit-and c 0xfff) 10) (bit-shl (reg r) 5) (reg r)))
+				(emit-int (add 0x91000000 (bit-shl (bit-and (neg c) 0xfff) 10) (bit-shl (reg r) 5) (reg r)))))
+		(t (throw "emit-sub-cr constant out of range" c))))
+
 (defcfun emit-sub-rr (s d))
 (defcfun emit-cmp-cr (c r))
 (defcfun emit-cmp-rr (s d))
