@@ -1,5 +1,3 @@
-(import 'sys/vp.inc)
-
 ;;;;;;;;;;;;;;;;;;;
 ; structured coding
 ;;;;;;;;;;;;;;;;;;;
@@ -221,7 +219,10 @@
 ; symbol table
 ;;;;;;;;;;;;;;
 
-(defcvar '*sym-sp* 0 '*syms* (list (list 0 (list) (list))))
+(defcvar '*sym-sp* 0 '*syms* (list))
+
+(defmacro new-scope ()
+	`(push *syms* (list 0 (list) (list))))
 
 (defcfun get-scope (_)
 	(defq o 0)
@@ -230,7 +231,7 @@
 
 (defcfun push-scope ()
 	(local-align stack_align)
-	(elem-set 0 (elem -3 (push *syms* (list 0 (list) (list)))) *sym-sp*)
+	(elem-set 0 (elem -3 (new-scope)) *sym-sp*)
 	(when (ne *sym-sp* 0)
 		(when debug_inst
 			(print "(vp-alloc " *sym-sp* ")"))
@@ -244,7 +245,7 @@
 		(unless (elem -2 a) (push u (elem _ (elem 1 s))))) (list (elem 2 (defq s (pop *syms*)))))
 	(if (ne 0 (length u))
 		(throw "Unused symbols !" u))
-	(push *syms* (list 0 (list) (list)))
+	(new-scope)
 	(setq *sym-sp* 0)
 	(elem 0 s))
 
@@ -896,6 +897,7 @@
 				(compile-string (str k)))))
 			(throw "Unknown token type !" k))) *rpn*))
 
+(new-scope)
 (operator "ptr" 0 1 compile-cast)
 (operator "byte" 0 1 compile-cast)
 (operator "ubyte" 0 1 compile-cast)
@@ -940,7 +942,7 @@
 (operator ")" 14)
 (operator "[" 14)
 (operator "]" 14)
-(push-scope)
+(new-scope)
 
 ;;;;;;;;;;;
 ; optimizer
