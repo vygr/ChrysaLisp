@@ -120,7 +120,10 @@
 		(t (throw "emit-lea-p constant out of range" c))))
 
 (defcfun emit-cpy-cr (c r))
-(defcfun emit-cpy-rr (s d) (unless (eql s d)))
+
+(defcfun emit-cpy-rr (s d)
+	(unless (eql s d)
+		(emit-int (add 0x91000000 (bit-shl (reg s) 5) (reg d)))))
 
 (defcfun emit-cpy-ir (s c d)
 	(if (eql d rsp)
