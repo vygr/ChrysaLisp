@@ -109,7 +109,14 @@
 			(emit-jmp-r r29))
 		(t (throw "emit-jmp-p constant out of range" c))))
 
-(defcfun emit-lea-i (s c d))
+(defcfun emit-lea-i (s c d)
+	(cond
+		((le -0x1000 c 0xfff)
+			(if (ge c 0)
+				(emit-int (add 0x91000000 (bit-shl (bit-and c 0xfff) 10) (bit-shl (reg s) 5) (reg d)))
+				(emit-int (add 0xd1000000 (bit-shl (bit-and (neg c) 0xfff) 10) (bit-shl (reg s) 5) (reg d)))))
+		(t (throw "emit-lea-i constant out of range" c))))
+
 (defcfun emit-lea-d (s1 s2 d))
 
 (defcfun emit-lea-p (l d)
