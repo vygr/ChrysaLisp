@@ -92,6 +92,7 @@
 	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
 	(emit-byte (add 0x48 dh))
 	(cond
+		((eq 0 c))
 		((eq c 1)
 			(emit-byte 0xd1 (add o dl)))
 		((le c 0xff)
@@ -433,6 +434,7 @@
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
 	(emit-byte (add 0x48 rh))
 	(cond
+		((eq 0 c))
 		((eq 1 c)
 			(emit-byte 0xff (add 0xc0 rl)))
 		((le -0x80 c 0x7f)
@@ -450,6 +452,7 @@
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
 	(emit-byte (add 0x48 rh))
 	(cond
+		((eq 0 c))
 		((eq 1 c)
 			(emit-byte 0xff (add 0xc8 rl)))
 		((le -0x80 c 0x7f)
@@ -484,6 +487,8 @@
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
 	(emit-byte (add 0x48 rh))
 	(cond
+		((eq 0 c)
+			(emit-xor-rr r r))
 		((le -0x80 c 0x7f)
 			(emit-byte 0x83 (add 0xe0 rl) c))
 		((le -0x80000000 c 0x7fffffff)
@@ -499,6 +504,7 @@
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
 	(emit-byte (add 0x48 rh))
 	(cond
+		((eq 0 c))
 		((le -0x80 c 0x7f)
 			(emit-byte 0x83 (add 0xc8 rl) c))
 		((le -0x80000000 c 0x7fffffff)
@@ -514,6 +520,7 @@
 	(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
 	(emit-byte (add 0x48 rh))
 	(cond
+		((eq 0 c))
 		((le -0x80 c 0x7f)
 			(emit-byte 0x83 (add 0xf0 rl) c))
 		((le -0x80000000 c 0x7fffffff)
@@ -535,6 +542,9 @@
 (defcfun emit-mul-cr (c r)
 	(defq r (reg r) rl (bit-and r 7) rh (bit-shr r 3))
 	(cond
+		((eq 0 c)
+			(emit-xor-rr r r))
+		((eq 1 c))
 		((eq -1 c)
 			(emit-byte (add 0x48 rh) 0xf7 (add 0xd8 rl)))
 		((le -0x80 c 0x7f)
