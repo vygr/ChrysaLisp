@@ -258,8 +258,8 @@
 		(t
 			(emit-byte (add 0x44 (bit-shl dl 3)) (add (bit-shl s2l 3) s1l) 0))))
 
-(defcfun emit-cpy-rp (d c)
-	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub c *pc* 7))
+(defcfun emit-cpy-rp (d l)
+	(defq d (reg d) dl (bit-and 7 d) dh (bit-shr d 3) c (sub l *pc* 7))
 	(cond
 		((le -0x80000000 c 0x7fffffff)
 			(emit-byte (add 0x48 (bit-shl dh 2)) 0x89 (add 0x5 (bit-shl dl 3)))
