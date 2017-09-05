@@ -270,20 +270,28 @@
 
 (defcfun emit-add-cr (c r)
 	(cond
-		((le -0x1000 c 0xfff)
-			(if (ge c 0)
-				(emit-int (add 0x91000000 (bit-shl (bit-and c 0xfff) 10) (bit-shl (reg r) 5) (reg r)))
-				(emit-int (add 0xd1000000 (bit-shl (bit-and (neg c) 0xfff) 10) (bit-shl (reg r) 5) (reg r)))))
+		((lt c 0)
+			(emit-sub-cr (neg c) r))
+		((le c 0xffffff)
+			(defq f (bit-and c 0xfff) c (bit-and c 0xfff000))
+			(if (ne 0 f)
+				(emit-int (add 0x91000000 (bit-shl f 10) (bit-shl (reg r) 5) (reg r))))
+			(if (ne 0 c)
+				(emit-int (add 0x91400000 (bit-shr c 2) (bit-shl (reg r) 5) (reg r)))))
 		(t (throw "emit-add-cr constant out of range" c))))
 
 (defcfun emit-add-rr (s d))
 
 (defcfun emit-sub-cr (c r)
 	(cond
-		((le -0x1000 c 0xfff)
-			(if (ge c 0)
-				(emit-int (add 0xd1000000 (bit-shl (bit-and c 0xfff) 10) (bit-shl (reg r) 5) (reg r)))
-				(emit-int (add 0x91000000 (bit-shl (bit-and (neg c) 0xfff) 10) (bit-shl (reg r) 5) (reg r)))))
+		((lt c 0)
+			(emit-add-cr (neg c) r))
+		((le c 0xffffff)
+			(defq f (bit-and c 0xfff) c (bit-and c 0xfff000))
+			(if (ne 0 f)
+				(emit-int (add 0xd1000000 (bit-shl f 10) (bit-shl (reg r) 5) (reg r))))
+			(if (ne 0 c)
+				(emit-int (add 0xd1400000 (bit-shr c 2) (bit-shl (reg r) 5) (reg r)))))
 		(t (throw "emit-sub-cr constant out of range" c))))
 
 (defcfun emit-sub-rr (s d))
