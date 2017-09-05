@@ -46,7 +46,6 @@
 	(emit-add-cr (mul ptr_size (length b)) rsp))
 
 (defcfun emit-branch (o c d)
-	(defq c (sub l *pc*))
 	(cond
 		((le -0x200000 c 0x1ffffc)
 			(emit-int (add 0x54000000 (bit-shl (bit-and c 0x3fffff) 3) o)))
