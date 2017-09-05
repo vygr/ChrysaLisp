@@ -305,7 +305,8 @@
 				(emit-int (add 0x91400000 (bit-shr c 2) (bit-shl (reg r) 5) (reg r)))))
 		(t (throw "emit-add-cr constant out of range" c))))
 
-(defcfun emit-add-rr (s d))
+(defcfun emit-add-rr (s d)
+	(emit-int (add 0x8b000000 (bit-shl (reg s) 16) (bit-shl (reg d) 5) (reg d))))
 
 (defcfun emit-sub-cr (c r)
 	(cond
@@ -320,17 +321,30 @@
 				(emit-int (add 0xd1400000 (bit-shr c 2) (bit-shl (reg r) 5) (reg r)))))
 		(t (throw "emit-sub-cr constant out of range" c))))
 
-(defcfun emit-sub-rr (s d))
+(defcfun emit-sub-rr (s d)
+	(emit-int (add 0xcb000000 (bit-shl (reg s) 16) (bit-shl (reg d) 5) (reg d))))
+
 (defcfun emit-cmp-cr (c r))
-(defcfun emit-cmp-rr (s d))
+
+(defcfun emit-cmp-rr (s d)
+	(emit-int (add 0xeb000000 (bit-shl (reg s) 16) (bit-shl (reg d) 5) 31)))
+
 (defcfun emit-and-cr (c r))
-(defcfun emit-and-rr (s d) (unless (eql s d)))
+
+(defcfun emit-and-rr (s d)
+	(unless (eql s d)
+		(emit-int (add 0x8a000000 (bit-shl (reg s) 16) (bit-shl (reg d) 5) (reg d)))))
+
 (defcfun emit-or-cr (c r))
-(defcfun emit-or-rr (s d) (unless (eql s d)))
+
+(defcfun emit-or-rr (s d)
+	(unless (eql s d)
+		(emit-int (add 0xaa000000 (bit-shl (reg s) 16) (bit-shl (reg d) 5) (reg d)))))
+
 (defcfun emit-xor-cr (c r))
 
 (defcfun emit-xor-rr (s d)
-	(emit-int (add 0xca000000 (bit-shl (reg s) 16) (bit-shl (reg s) 5) (reg d))))
+	(emit-int (add 0xca000000 (bit-shl (reg s) 16) (bit-shl (reg d) 5) (reg d))))
 
 (defcfun emit-mul-cr (c r))
 (defcfun emit-mul-rr (s d))
