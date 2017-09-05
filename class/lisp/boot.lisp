@@ -265,9 +265,10 @@
 	(if (eq f 0) n (fdiv n f)))
 
 (defun log2 (_)
-	(defq i -1 b nil)
-	(while (and (not b) (lt (setq i (inc i)) 64))
-		(if (eq _ (bit-shl 1 i)) (setq b i))) b)
+	(when (and (not (eq 0 _)) (eq _ (bit-and _ (neg _))))
+		(defq i 0)
+		(while (ne 0 (setq _ (bit-shr _ 1)))
+			(setq i (inc i))) i))
 
 (defun insert (x y)
 	(when (notany (lambda (x) (eql x y)) x)
