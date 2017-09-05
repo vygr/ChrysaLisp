@@ -294,6 +294,7 @@
 
 (defcfun emit-add-cr (c r)
 	(cond
+		((eq c 0))
 		((lt c 0)
 			(emit-sub-cr (neg c) r))
 		((le c 0xffffff)
@@ -308,6 +309,7 @@
 
 (defcfun emit-sub-cr (c r)
 	(cond
+		((eq c 0))
 		((lt c 0)
 			(emit-add-cr (neg c) r))
 		((le c 0xffffff)
