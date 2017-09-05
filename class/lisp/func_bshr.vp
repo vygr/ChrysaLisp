@@ -34,7 +34,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(bit-bshr num cnt)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(bit-shr num cnt)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'boxed_long 'boxed_long))
 
