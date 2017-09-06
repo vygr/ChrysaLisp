@@ -346,18 +346,40 @@
 (defcfun emit-xor-rr (s d)
 	(emit-int (add 0xca000000 (bit-shl (reg s) 16) (bit-shl (reg d) 5) (reg d))))
 
-(defcfun emit-mul-cr (c r))
-(defcfun emit-mul-rr (s d))
+(defcfun emit-shl-cr (c r)
+	(unless (eq c 0)
+		(emit-int (add 0xd3400000 (bit-shl (bit-and (sub 64 c) 63) 16) (bit-shl (sub 63 c) 10)
+			(bit-shl (reg r) 5) (reg r)))))
 
-(defcfun emit-shl-cr (c r))
-(defcfun emit-shl-rr (s d))
-(defcfun emit-shr-cr (c r))
-(defcfun emit-shr-rr (s d))
-(defcfun emit-asr-cr (c r))
-(defcfun emit-asr-rr (s d))
+(defcfun emit-shl-rr (s d)
+	(emit-int (add 0x9ac02000 (bit-shl (reg s) 16) (bit-shl (reg d) 5) (reg d))))
+
+(defcfun emit-shr-cr (c r)
+	(unless (eq c 0)
+		(emit-int (add 0xd3400000 (bit-shl c 16) (bit-shl 63 10)
+			(bit-shl (reg r) 5) (reg r)))))
+
+(defcfun emit-shr-rr (s d)
+	(emit-int (add 0x9ac02400 (bit-shl (reg s) 16) (bit-shl (reg d) 5) (reg d))))
+
+(defcfun emit-asr-cr (c r)
+	(unless (eq c 0)
+		(emit-int (add 0x93400000 (bit-shl c 16) (bit-shl 63 10)
+			(bit-shl (reg r) 5) (reg r)))))
+
+(defcfun emit-asr-rr (s d)
+	(emit-int (add 0x9ac02800 (bit-shl (reg s) 16) (bit-shl (reg d) 5) (reg d))))
 
 (defcfun emit-xchg-rr (s d) (unless (eql s d)))
 (defcfun emit-ext-rr (b s d))
 
+(defcfun emit-mul-cr (c r)
+	(if (eq c 0)
+		(emit-xor-rr r r)
+		(progn
+			(emit-cpy-cr c r29)
+			(emit-mul-rr r29 r))))
+
+(defcfun emit-mul-rr (s d))
 (defcfun emit-div-rrr (s d1 d2))
 (defcfun emit-div-rrr-u (s d1 d2))
