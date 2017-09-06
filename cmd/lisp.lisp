@@ -210,3 +210,6 @@
 
 (defun compile-test ()
 	(each compile (all-vp-files)))
+
+(defun make-arm ()
+	(make-all 'Linux 'ARM))
