@@ -485,20 +485,21 @@
 (defcfun emit-cmp-rr (s d) (emit-rr 0x39 s d))
 
 (defcfun emit-and-cr (c r)
-	(if (eq c 0)
-		(emit-xor-rr r r)
-		(progn
-			(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
-			(emit-byte (add 0x48 rh))
-			(cond
-				((le -0x80 c 0x7f)
-					(emit-byte 0x83 (add 0xe0 rl) c))
-				((le -0x80000000 c 0x7fffffff)
-					(if (eq r 0)
-						(emit-byte 0x25)
-						(emit-byte 0x81 (add 0xe0 rl)))
-					(emit-int c))
-				(t (throw "emit-and-cr constant out of range" c))))))
+	(unless (eq c -1)
+		(if (eq c 0)
+			(emit-xor-rr r r)
+			(progn
+				(defq r (reg r) rl (bit-and 7 r) rh (bit-shr r 3))
+				(emit-byte (add 0x48 rh))
+				(cond
+					((le -0x80 c 0x7f)
+						(emit-byte 0x83 (add 0xe0 rl) c))
+					((le -0x80000000 c 0x7fffffff)
+						(if (eq r 0)
+							(emit-byte 0x25)
+							(emit-byte 0x81 (add 0xe0 rl)))
+						(emit-int c))
+					(t (throw "emit-and-cr constant out of range" c)))))))
 
 (defcfun emit-and-rr (s d) (unless (eql s d) (emit-rr 0x21 s d)))
 
