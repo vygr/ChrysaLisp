@@ -261,7 +261,7 @@
 
 (defcfun vec-perp ()
 	(bind '(x y) (vec-top 2))
-	(vp-xchg-rr x y)
+	(vp-swp-rr x y)
 	(vp-mul-cr -1 y))
 
 (defcfun vec-fdot (n &optional v2)

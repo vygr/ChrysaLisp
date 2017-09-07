@@ -61,7 +61,7 @@
 			(write-char s b))))
 
 (defmacro opt-emit-kill-list ()
-	''(emit-label emit-pop emit-xchg-rr emit-div-rrr emit-div-rrr-u
+	''(emit-label emit-pop emit-swp-rr emit-div-rrr emit-div-rrr-u
 		emit-syscall emit-call emit-call-i emit-call-r emit-call-p))
 
 (defmacro opt-emit-ok-list ()
@@ -268,7 +268,7 @@
 (defcfun vp-asr-rr (s d) (emit `(emit-asr-rr ,s ,d)))
 
 (defcfun vp-ret () (emit '(emit-ret)))
-(defcfun vp-xchg-rr (s d) (emit `(emit-xchg-rr ,s ,d)))
+(defcfun vp-swp-rr (s d) (emit `(emit-swp-rr ,s ,d)))
 (defcfun vp-ext-rr (s d) (emit `(emit-ext-rr ,(dec (length (push *distance* 0))) ,s ,d)))
 (defcfun vp-div-rrr (d r q) (emit `(emit-div-rrr ,d ,r ,q)))
 (defcfun vp-div-rrr-u (d r q) (emit `(emit-div-rrr-u ,d ,r ,q)))

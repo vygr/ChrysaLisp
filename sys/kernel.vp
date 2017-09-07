@@ -264,7 +264,7 @@
 		(breakif '(r1 == 0))
 
 		;sleep till next wake time
-		(vp-xchg-rr r0 r2)
+		(vp-swp-rr r0 r2)
 		(vp-cpy-ir r0 tk_node_time r0)
 		(vp-sub-rr r2 r0)
 		(vp-cpy-cr 1000 r3)

@@ -418,7 +418,12 @@
 (defcfun emit-asr-rr (s d)
 	(emit-int (add 0x9ac02800 (bit-shl (reg s) 16) (bit-shl (reg d) 5) (reg d))))
 
-(defcfun emit-xchg-rr (s d) (unless (eql s d)))
+(defcfun emit-swp-rr (s d)
+	(unless (eql s d)
+		(emit-cpy-rr s r29)
+		(emit-cpy-rr d s)
+		(emit-cpy-rr r29 d)))
+
 (defcfun emit-ext-rr (b s d))
 
 (defcfun emit-mul-cr (c r)

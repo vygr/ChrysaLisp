@@ -56,7 +56,7 @@
 	(vp-cpy-ir r3 tk_statics_kernel_tcb r4)
 	(vpif '(r2 == r4))
 		;yes we can just do local call
-		(vp-xchg-rr r0 r1)
+		(vp-swp-rr r0 r1)
 		(vp-jmp-r r1)
 	(endif)
 

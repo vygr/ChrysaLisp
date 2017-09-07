@@ -106,9 +106,9 @@
 			(emit-byte (add 0x48 dh) 0xd3 (add o dl)))
 		((eql d r1)
 			(defq sn (reg s) sl (bit-and 7 sn) sh (bit-shr sn 3))
-			(emit-xchg-rr s d)
+			(emit-swp-rr s d)
 			(emit-byte (add 0x48 sh) 0xd3 (add o sl))
-			(emit-xchg-rr s d))
+			(emit-swp-rr s d))
 		(t
 			(emit-push d s r0 r1)
 			(emit-cpy-ir rsp 24 r0)
@@ -563,7 +563,7 @@
 		d (reg d) dl (bit-and 7 d) dh (bit-shr d 3))
 	(emit-byte (add 0x48 (bit-shl dh 2) sh) 0x0f 0xaf (add 0xc0 (bit-shl dl 3) sl)))
 
-(defcfun emit-xchg-rr (s d)
+(defcfun emit-swp-rr (s d)
 	(unless (eql s d)
 		(if (eql s r0) (setq s d d r0))
 		(defq s (reg s) sl (bit-and 7 s) sh (bit-shr s 3)

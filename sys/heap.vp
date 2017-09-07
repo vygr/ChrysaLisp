@@ -129,7 +129,7 @@
 			(vp-cpy-ri r1 r3 ln_fnode_next)
 			(vp-cpy-ir r0 ln_fnode_size r1)
 			(vp-add-rr r3 r1)
-			(vp-xchg-rr r3 r1)
+			(vp-swp-rr r3 r1)
 		(loop-until '(r3 >= r4))
 		(vp-cpy-ir r2 ln_fnode_next r2)
 	(loop-end)
