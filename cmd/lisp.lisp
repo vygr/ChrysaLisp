@@ -213,3 +213,17 @@
 
 (defun make-arm ()
 	(make-all 'Linux 'ARM))
+
+(defun make-test-arm (&optional i)
+	(defun time-in-seconds (_)
+		(defq f (str (mod _ 1000000)))
+		(cat (str (div _ 1000000)) "." (slice 0 (sub 6 (length f)) "00000") f))
+	(defq b 1000000000 a 0 c 0)
+	(times (opt i 10)
+		(defq _ (time))
+		(compile (all-vp-files) 'Linux 'ARM)
+		(setq _ (sub (time) _) a (add a _) c (inc c))
+		(print "Time " (time-in-seconds _) " seconds")
+		(print "Mean time " (time-in-seconds (div a c)) " seconds")
+		(print "Best time " (time-in-seconds (setq b (min b _))) " seconds"))
+	nil)
