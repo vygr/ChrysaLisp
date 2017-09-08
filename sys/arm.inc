@@ -424,15 +424,19 @@
 		(emit-cpy-rr d s)
 		(emit-cpy-rr r29 d)))
 
-(defcfun emit-ext-rr (b s d))
-
 (defcfun emit-mul-cr (c r)
-	(if (eq c 0)
-		(emit-xor-rr r r)
-		(progn
+	(cond
+		((eq c 0)
+			(emit-xor-rr r r))
+		((eq c -1)
+			(emit-int (add 0xcb000000 (bit-shl (reg r) 16) (bit-shl 31 5) (reg r))))
+		(t
 			(emit-cpy-cr c r29)
 			(emit-mul-rr r29 r))))
 
-(defcfun emit-mul-rr (s d))
+(defcfun emit-mul-rr (s d)
+	(emit-int (add 0x9b000000 (bit-shl (reg d) 16) (bit-shl 31 10) (bit-shl (reg s) 5) (reg d))))
+
+(defcfun emit-ext-rr (b s d))
 (defcfun emit-div-rrr (s d1 d2))
 (defcfun emit-div-rrr-u (s d1 d2))
