@@ -27,9 +27,6 @@
 (defcfun emit-free (c) (emit-add-cr (align c stack_align) rsp))
 (defcfun emit-ret () (emit-int 0xd65f03c0))
 
-;1010 1001 10iiiiii immmmmbb bbbnnnnn stp Xn, Xm, [Xb, #imm7] signed, scaled, pp:{01=post-indexed,10=offset, 11=pre-indexed}
-;1010 1000 11iiiiii immmmmbb bbbnnnnn ldp Xn, Xm, [Xb, #imm7] signed, scaled, pp:{01=post-indexed,10=offset, 11=pre-indexed}
-
 (defcfun emit-push (&rest b)
 	(if (ne 0 (bit-and 1 (length b)))
 		(setq b (cat '(r29) b)))
