@@ -47,8 +47,8 @@
 
 (defcfun emit-branch (o c d)
 	(cond
-		((le -0x200000 c 0x1ffffc)
-			(emit-int (add 0x54000000 (bit-shl (bit-and c 0x3fffff) 3) o)))
+		((le -0x100000 c 0xffffc)
+			(emit-int (add 0x54000000 (bit-shl (bit-and c 0x1ffffc) 3) o)))
 		(t (throw "emit-branch constant out of range" c))))
 
 (defcfun emit-beq (l d) (emit-branch 0x0 (sub l *pc*) d))
