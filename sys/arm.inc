@@ -27,23 +27,34 @@
 (defcfun emit-free (c) (emit-add-cr (align c stack_align) rsp))
 (defcfun emit-ret () (emit-int 0xd65f03c0))
 
+;1010 1001 10iiiiii immmmmbb bbbnnnnn stp Xn, Xm, [Xb, #imm7] signed, scaled, pp:{01=post-indexed,10=offset, 11=pre-indexed}
+;1010 1000 11iiiiii immmmmbb bbbnnnnn ldp Xn, Xm, [Xb, #imm7] signed, scaled, pp:{01=post-indexed,10=offset, 11=pre-indexed}
+
 (defcfun emit-push (&rest b)
 	(if (ne 0 (bit-and 1 (length b)))
 		(setq b (cat '(r29) b)))
-	(emit-sub-cr (mul ptr_size (length b)) rsp)
-	(defq _ -2)
-	(while (ne (setq _ (add 2 _)) (length b))
-		(emit-int (add 0xa9000000 (bit-shl (sub (length b) _ 1) 15)
-			(bit-shl (reg (elem (inc _) b)) 10) (bit-shl (reg rsp) 5) (reg (elem _ b))))))
+	(if (eq 2 (defq l (length b)))
+		(emit-int (add 0xa9800000 (bit-shl 2 15)
+			(bit-shl (reg (elem 0 b)) 10) (bit-shl (reg rsp) 5) (reg (elem 1 b))))
+		(progn
+			(emit-sub-cr (mul ptr_size l) rsp)
+			(defq _ -2)
+			(while (ne (setq _ (add 2 _)) l)
+				(emit-int (add 0xa9000000 (bit-shl (sub l _ 1) 15)
+					(bit-shl (reg (elem (inc _) b)) 10) (bit-shl (reg rsp) 5) (reg (elem _ b))))))))
 
 (defcfun emit-pop (&rest b)
 	(if (ne 0 (bit-and 1 (length b)))
 		(setq b (cat '(r29) b)))
-	(defq _ -2)
-	(while (ne (setq _ (add 2 _)) (length b))
-		(emit-int (add 0xa9400000 (bit-shl (sub (length b) _ 1) 15)
-			(bit-shl (reg (elem (inc _) b)) 10) (bit-shl (reg rsp) 5) (reg (elem _ b)))))
-	(emit-add-cr (mul ptr_size (length b)) rsp))
+	(if (eq 2 (defq l (length b)))
+		(emit-int (add 0xa8c00000 (bit-shl 2 15)
+			(bit-shl (reg (elem 0 b)) 10) (bit-shl (reg rsp) 5) (reg (elem 1 b))))
+		(progn
+			(defq _ -2)
+			(while (ne (setq _ (add 2 _)) (length b))
+				(emit-int (add 0xa9400000 (bit-shl (sub (length b) _ 1) 15)
+					(bit-shl (reg (elem (inc _) b)) 10) (bit-shl (reg rsp) 5) (reg (elem _ b)))))
+			(emit-add-cr (mul ptr_size (length b)) rsp))))
 
 (defcfun emit-branch (o c d)
 	(cond
