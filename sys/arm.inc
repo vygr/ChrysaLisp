@@ -82,30 +82,34 @@
 (defcfun emit-ret () (emit-int 0xd65f03c0))
 
 (defcfun emit-push (&rest b)
-	(if (ne 0 (bit-and 1 (length b)))
-		(setq b (cat '(r29) b)))
-	(if (eq 2 (defq l (length b)))
-		(emit-int (add 0xa9800000 (bit-shl 2 15)
-			(bit-shl (reg (elem 0 b)) 10) (bit-shl (reg rsp) 5) (reg (elem 1 b))))
-		(progn
-			(emit-sub-cr (mul ptr_size l) rsp)
-			(defq _ -2)
+	(cond
+		((eq 1 (defq l (length b)))
+			(emit-int (add 0xf81f0c00 (bit-shl (reg rsp) 5) (reg (elem 0 b)))))
+		((eq 2 l)
+			(emit-int (add 0xa9bf0000
+				(bit-shl (reg (elem 0 b)) 10) (bit-shl (reg rsp) 5) (reg (elem 1 b)))))
+		(t
+			(emit-sub-cr (align (mul ptr_size l) stack_align) rsp)
+			(if (ne -2 (defq _ (sub (bit-and l 1) 2)))
+				(emit-cpy-ri (elem 0 b) rsp (sub (mul ptr_size l) ptr_size)))
 			(while (ne (setq _ (add 2 _)) l)
-				(emit-int (add 0xa9000000 (bit-shl (sub l _ 1) 15)
-					(bit-shl (reg (elem (inc _) b)) 10) (bit-shl (reg rsp) 5) (reg (elem _ b))))))))
+				(emit-int (add 0xa9000000 (bit-shl (sub l _ 2) 15)
+					(bit-shl (reg (elem _ b)) 10) (bit-shl (reg rsp) 5) (reg (elem (inc _) b))))))))
 
 (defcfun emit-pop (&rest b)
-	(if (ne 0 (bit-and 1 (length b)))
-		(setq b (cat '(r29) b)))
-	(if (eq 2 (defq l (length b)))
-		(emit-int (add 0xa8c00000 (bit-shl 2 15)
-			(bit-shl (reg (elem 0 b)) 10) (bit-shl (reg rsp) 5) (reg (elem 1 b))))
-		(progn
-			(defq _ -2)
-			(while (ne (setq _ (add 2 _)) (length b))
-				(emit-int (add 0xa9400000 (bit-shl (sub (length b) _ 1) 15)
-					(bit-shl (reg (elem (inc _) b)) 10) (bit-shl (reg rsp) 5) (reg (elem _ b)))))
-			(emit-add-cr (mul ptr_size (length b)) rsp))))
+	(cond
+		((eq 1 (defq l (length b)))
+			(emit-int (add 0xf8410400 (bit-shl (reg rsp) 5) (reg (elem 0 b)))))
+		((eq 2 l)
+			(emit-int (add 0xa8c10000
+				(bit-shl (reg (elem 0 b)) 10) (bit-shl (reg rsp) 5) (reg (elem 1 b)))))
+		(t
+			(if (ne -2 (defq _ (sub (bit-and l 1) 2)))
+				(emit-cpy-ir rsp (sub (mul ptr_size l) ptr_size) (elem 0 b)))
+			(while (ne (setq _ (add 2 _)) l)
+				(emit-int (add 0xa9400000 (bit-shl (sub l _ 2) 15)
+					(bit-shl (reg (elem _ b)) 10) (bit-shl (reg rsp) 5) (reg (elem (inc _) b)))))
+			(emit-add-cr (align (mul ptr_size l) stack_align) rsp))))
 
 (defcfun emit-beq (l d) (emit-branch 0x0 l))
 (defcfun emit-bne (l d) (emit-branch 0x1 l))
