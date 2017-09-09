@@ -47,7 +47,7 @@
 (defmacro emit-dru (o x s1 s2 d)
 	`(progn
 		(and (not (eql ,s1 ,d)) (not (eql ,s2 ,d)) (emit-xor-rr ,d ,d))
-		(emit-int (add ,o (bit-shl (reg ,s2) 16) (bit-shl (reg ,s1) 5) (reg ,d)))
+		(emit-dr ,o ,s1 ,s2 ,d)
 		(if (or (eql ,s1 ,d) (eql ,s2 ,d)) (emit-ux ,x ,d ,d))))
 
 (defmacro emit-branch (o l)
