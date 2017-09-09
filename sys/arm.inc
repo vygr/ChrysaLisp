@@ -17,25 +17,15 @@
 			(emit-int (add ,o (bit-shl (bit-and ,c 0x1ff) 12) (bit-shl (reg ,d) 5) (reg ,s))))
 		((le 0 ,c 0xfff)
 			(emit-int (add 0x1000000 ,o (bit-shl ,c 10) (bit-shl (reg ,d) 5) (reg ,s))))
-		(t (throw "emit-ri constant out of range" ,c))))
+		(t (throw "emit-ri/ir constant out of range" ,c))))
 
 (defmacro emit-ir (o s c d)
-	`(cond
-		((le -0x100 ,c 0xff)
-			(emit-int (add ,o (bit-shl (bit-and ,c 0x1ff) 12) (bit-shl (reg ,s) 5) (reg ,d))))
-		((le 0 ,c 0xfff)
-			(emit-int (add 0x1000000 ,o (bit-shl ,c 10) (bit-shl (reg ,s) 5) (reg ,d))))
-		(t (throw "emit-ir constant out of range" ,c))))
+	`(emit-ri ,o ,d ,s ,c))
 
 (defmacro emit-iru (o x s c d)
 	`(progn
 		(unless (eql ,s ,d) (emit-xor-rr ,d ,d))
-		(cond
-			((le -0x100 ,c 0xff)
-				(emit-int (add ,o (bit-shl (bit-and ,c 0x1ff) 12) (bit-shl (reg ,s) 5) (reg ,d))))
-			((le 0 ,c 0xfff)
-				(emit-int (add 0x1000000 ,o (bit-shl ,c 10) (bit-shl (reg ,s) 5) (reg ,d))))
-			(t (throw "emit-iru constant out of range" c)))
+		(emit-ir ,o ,s ,c ,d)
 		(if (eql ,s ,d) (emit-ux ,x ,d ,d))))
 
 (defmacro emit-rd (o s d1 d2)
