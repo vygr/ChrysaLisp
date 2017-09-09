@@ -47,9 +47,9 @@
 		(emit-int (add ,o (bit-shl (reg ,s2) 16) (bit-shl (reg ,s1) 5) (reg ,d)))
 		(if (or (eql ,s1 ,d) (eql ,s2 ,d)) (emit-ux ,x ,d ,d))))
 
-(defmacro emit-branch (o c)
+(defmacro emit-branch (o l)
 	`(cond
-		((le -0x100000 ,c 0xffffc)
+		((le -0x100000 (defq ,(defq c (gensym)) (sub ,l *pc*)) 0xffffc)
 			(emit-int (add 0x54000000 (bit-shl (bit-and ,c 0x1ffffc) 3) ,o)))
 		(t (throw "emit-branch constant out of range" ,c))))
 
@@ -104,12 +104,12 @@
 					(bit-shl (reg (elem (inc _) b)) 10) (bit-shl (reg rsp) 5) (reg (elem _ b)))))
 			(emit-add-cr (mul ptr_size (length b)) rsp))))
 
-(defcfun emit-beq (l d) (emit-branch 0x0 (sub l *pc*)))
-(defcfun emit-bne (l d) (emit-branch 0x1 (sub l *pc*)))
-(defcfun emit-bge (l d) (emit-branch 0xa (sub l *pc*)))
-(defcfun emit-blt (l d) (emit-branch 0xb (sub l *pc*)))
-(defcfun emit-bgt (l d) (emit-branch 0xc (sub l *pc*)))
-(defcfun emit-ble (l d) (emit-branch 0xd (sub l *pc*)))
+(defcfun emit-beq (l d) (emit-branch 0x0 l))
+(defcfun emit-bne (l d) (emit-branch 0x1 l))
+(defcfun emit-bge (l d) (emit-branch 0xa l))
+(defcfun emit-blt (l d) (emit-branch 0xb l))
+(defcfun emit-bgt (l d) (emit-branch 0xc l))
+(defcfun emit-ble (l d) (emit-branch 0xd l))
 
 (defcfun emit-syscall ())
 
