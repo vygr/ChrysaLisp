@@ -5,6 +5,9 @@
 (defmacro emit-ux (x s d)
 	`(emit-int (add 0xd3400000 (bit-shl ,x 10) (bit-shl (reg ,s) 5) (reg ,d))))
 
+(defmacro emit-bf (o x y s d)
+	`(emit-int (add ,o (bit-shl ,x 16) (bit-shl ,y 10) (bit-shl (reg ,s) 5) (reg ,d))))
+
 (defmacro emit-rrr (o m n d)
 	`(emit-int (add ,o (bit-shl (reg ,m) 16) (bit-shl (reg ,n) 5) (reg ,d))))
 
@@ -319,18 +322,9 @@
 (defcfun emit-or-rr (s d) (unless (eql s d) (emit-rrr 0xaa000000 s d d)))
 (defcfun emit-xor-rr (s d) (emit-rrr 0xca000000 s d d))
 
-(defcfun emit-shl-cr (c r)
-	(unless (eq c 0)
-		(emit-int (add 0xd3400000 (bit-shl (bit-and (sub 64 c) 63) 16) (bit-shl (sub 63 c) 10)
-			(bit-shl (reg r) 5) (reg r)))))
-
-(defcfun emit-shr-cr (c r)
-	(unless (eq c 0)
-		(emit-int (add 0xd3400000 (bit-shl c 16) (bit-shl 63 10) (bit-shl (reg r) 5) (reg r)))))
-
-(defcfun emit-asr-cr (c r)
-	(unless (eq c 0)
-		(emit-int (add 0x93400000 (bit-shl c 16) (bit-shl 63 10) (bit-shl (reg r) 5) (reg r)))))
+(defcfun emit-shl-cr (c r) (unless (eq c 0) (emit-bf 0xd3400000 (bit-and (sub 64 c) 63) (sub 63 c) r r)))
+(defcfun emit-shr-cr (c r) (unless (eq c 0) (emit-bf 0xd3400000 c 63 r r)))
+(defcfun emit-asr-cr (c r) (unless (eq c 0) (emit-bf 0x93400000 c 63 r r)))
 
 (defcfun emit-shl-rr (s d) (emit-rrr 0x9ac02000 s d d))
 (defcfun emit-shr-rr (s d) (emit-rrr 0x9ac02400 s d d))
