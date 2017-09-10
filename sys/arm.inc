@@ -47,11 +47,11 @@
 		(t (throw "emit-branch constant out of range" ,c))))
 
 (defcfun reg (r)
-	(find r '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14
-			_ _ _ _ _ _ _ _ _ _ _ _ _ _ r29 r30 rsp)))
+	(find r '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15
+		r16 r17 r18 r19 r20 r21 r22 r23 r24 r25 r26 r27 r28 r29 r30 rsp)))
 
-(defcvar 'r29 'r29 'r30 'r30 'stack_align 16
-	'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r30))
+(each (lambda (_) (defcvar _ _)) '(r15 r16 r17 r18 r19 r20 r21 r22 r23 r24 r25 r26 r27 r28 r29 r30))
+(defcvar 'stack_align 16 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r30))
 
 (defcfun stack-init ()
 	(defq tk_state_size (mul ptr_size (length stack_state)))
@@ -201,10 +201,6 @@
 				(if (ne y 0) (emit-int (add 0xf2a00000 (bit-shr y 11) r)))
 				(if (ne z 0) (emit-int (add 0xf2800000 (bit-shl z 5) r)))))))
 
-(defcfun emit-cpy-rr (s d)
-	(unless (eql s d)
-		(emit-int (add 0x91000000 (bit-shl (reg s) 5) (reg d)))))
-
 (defcfun emit-cpy-ir (s c d)
 	(if (eql d rsp)
 		(progn
@@ -309,23 +305,79 @@
 			(emit-cpy-cr c r29)
 			(emit-xor-rr r29 r))))
 
-(defcfun emit-add-rr (s d) (emit-rrr 0x8b000000 s d d))
-(defcfun emit-sub-rr (s d) (emit-rrr 0xcb000000 s d d))
+(defcfun emit-cpy-rr (s d) (unless (eql s d) (emit-rrr 0x8b20e000 rsp s d)))
+(defcfun emit-add-rr (s d) (if (eql s rsp) (emit-rrr 0x8b20e000 d s d) (emit-rrr 0x8b20e000 s d d)))
+
+(defcfun emit-sub-rr (s d)
+	(cond
+		((eql s rsp)
+			(throw "emit-sub-rr src can't be rsp !" (list s d)))
+		(t (emit-rrr 0xcb20e000 s d d))))
+
 (defcfun emit-cmp-rr (s d)
-	(if (eql s rsp)
-		(throw "rsp not allowed as source !" s))
-		(emit-rrr 0xeb000000 s d rsp))
-(defcfun emit-and-rr (s d) (unless (eql s d) (emit-rrr 0x8a000000 s d d)))
-(defcfun emit-or-rr (s d) (unless (eql s d) (emit-rrr 0xaa000000 s d d)))
-(defcfun emit-xor-rr (s d) (emit-rrr 0xca000000 s d d))
+	(cond
+		((eql s rsp)
+			(throw "emit-cmp-rr src can't be rsp !" (list s d)))
+		(t (emit-rrr 0xeb20e000 s d rsp))))
 
-(defcfun emit-shl-cr (c r) (unless (eq c 0) (emit-bf 0xd3400000 (bit-and (sub 64 c) 63) (sub 63 c) r r)))
-(defcfun emit-shr-cr (c r) (unless (eq c 0) (emit-bf 0xd3400000 c 63 r r)))
-(defcfun emit-asr-cr (c r) (unless (eq c 0) (emit-bf 0x93400000 c 63 r r)))
+(defcfun emit-and-rr (s d)
+	(cond
+		((eql s d))
+		((or (eql s rsp) (eql d rsp))
+			(throw "emit-and-rr src/dst can't be rsp !" (list s d)))
+		(t (emit-rrr 0x8a000000 s d d))))
 
-(defcfun emit-shl-rr (s d) (emit-rrr 0x9ac02000 s d d))
-(defcfun emit-shr-rr (s d) (emit-rrr 0x9ac02400 s d d))
-(defcfun emit-asr-rr (s d) (emit-rrr 0x9ac02800 s d d))
+(defcfun emit-or-rr (s d)
+	(cond
+		((eql s d))
+		((or (eql s rsp) (eql d rsp))
+			(throw "emit-or-rr src/dst can't be rsp !" (list s d)))
+		(t (emit-rrr 0xaa000000 s d d))))
+
+(defcfun emit-xor-rr (s d)
+	(cond
+		((or (eql s rsp) (eql d rsp))
+			(throw "emit-xor-rr src/dst can't be rsp !" (list s d)))
+		(t (emit-rrr 0xca000000 s d d))))
+
+(defcfun emit-shl-cr (c r)
+	(cond
+		((eq c 0))
+		((eql r rsp)
+			(throw "emit-shl-cr dst can't be rsp !" (list c r)))
+		(t (emit-bf 0xd3400000 (bit-and (sub 64 c) 63) (sub 63 c) r r))))
+
+(defcfun emit-shr-cr (c r)
+	(cond
+		((eq c 0))
+		((eql r rsp)
+			(throw "emit-shr-cr dst can't be rsp !" (list c r)))
+		(t (emit-bf 0xd3400000 c 63 r r))))
+
+(defcfun emit-asr-cr (c r)
+	(cond
+		((eq c 0))
+		((eql r rsp)
+			(throw "emit-shr-cr dst can't be rsp !" (list c r)))
+		(t (emit-bf 0x93400000 c 63 r r))))
+
+(defcfun emit-shl-rr (s d)
+	(cond
+		((or (eql s rsp) (eql d rsp))
+			(throw "emit-shl-rr src/dst can't be rsp !" (list s d)))
+		(t (emit-rrr 0x9ac02000 s d d))))
+
+(defcfun emit-shr-rr (s d)
+	(cond
+		((or (eql s rsp) (eql d rsp))
+			(throw "emit-shr-rr src/dst can't be rsp !" (list s d)))
+		(t (emit-rrr 0x9ac02400 s d d))))
+
+(defcfun emit-asr-rr (s d)
+	(cond
+		((or (eql s rsp) (eql d rsp))
+			(throw "emit-asr-rr src/dst can't be rsp !" (list s d)))
+		(t (emit-rrr 0x9ac02800 s d d))))
 
 (defcfun emit-swp-rr (s d)
 	(unless (eql s d)
@@ -344,6 +396,8 @@
 			(emit-mul-rr r29 r))))
 
 (defcfun emit-mul-rr (s d)
+	(if (or (eql s rsp) (eql d rsp))
+		(throw "emit-mul-rr src/dst can't be rsp !" (list s d)))
 	(emit-int (add 0x9b000000 (bit-shl (reg d) 16) (bit-shl 31 10) (bit-shl (reg s) 5) (reg d))))
 
 (defcfun emit-ext-rr (s d)
