@@ -323,8 +323,8 @@
 (defcfun emit-and-rr (s d)
 	(cond
 		((eql s d))
-		((or (eql s rsp) (eql d rsp))
-			(throw "emit-and-rr src/dst can't be rsp !" (list s d)))
+;		((or (eql s rsp) (eql d rsp))
+;			(throw "emit-and-rr src/dst can't be rsp !" (list s d)))
 		(t (emit-rrr 0x8a000000 s d d))))
 
 (defcfun emit-or-rr (s d)
@@ -340,44 +340,26 @@
 			(throw "emit-xor-rr src/dst can't be rsp !" (list s d)))
 		(t (emit-rrr 0xca000000 s d d))))
 
-(defcfun emit-shl-cr (c r)
-	(cond
-		((eq c 0))
-		((eql r rsp)
-			(throw "emit-shl-cr dst can't be rsp !" (list c r)))
-		(t (emit-bf 0xd3400000 (bit-and (sub 64 c) 63) (sub 63 c) r r))))
+(defmacro emit-shift-cr (e o c x y r)
+	`(cond
+		((eq ,c 0))
+		((eql ,r rsp)
+			(throw ,(cat "emit-" e "-cr dst can't be rsp !") (list ,c ,r)))
+		(t (emit-bf ,o ,x ,y ,r ,r))))
 
-(defcfun emit-shr-cr (c r)
-	(cond
-		((eq c 0))
-		((eql r rsp)
-			(throw "emit-shr-cr dst can't be rsp !" (list c r)))
-		(t (emit-bf 0xd3400000 c 63 r r))))
+(defcfun emit-shl-cr (c r) (emit-shift-cr "shl" 0xd3400000 c (bit-and (sub 64 c) 63) (sub 63 c) r))
+(defcfun emit-shr-cr (c r) (emit-shift-cr "shr" 0xd3400000 c c 63 r))
+(defcfun emit-asr-cr (c r) (emit-shift-cr "asr" 0x93400000 c c 63 r))
 
-(defcfun emit-asr-cr (c r)
-	(cond
-		((eq c 0))
-		((eql r rsp)
-			(throw "emit-shr-cr dst can't be rsp !" (list c r)))
-		(t (emit-bf 0x93400000 c 63 r r))))
+(defmacro emit-shift-rr (e o s d)
+	`(cond
+		((or (eql ,s rsp) (eql ,d rsp))
+			(throw ,(cat "emit-" e "-rr src/dst can't be rsp !") (list ,s ,d)))
+		(t (emit-rrr ,o ,s ,d ,d))))
 
-(defcfun emit-shl-rr (s d)
-	(cond
-		((or (eql s rsp) (eql d rsp))
-			(throw "emit-shl-rr src/dst can't be rsp !" (list s d)))
-		(t (emit-rrr 0x9ac02000 s d d))))
-
-(defcfun emit-shr-rr (s d)
-	(cond
-		((or (eql s rsp) (eql d rsp))
-			(throw "emit-shr-rr src/dst can't be rsp !" (list s d)))
-		(t (emit-rrr 0x9ac02400 s d d))))
-
-(defcfun emit-asr-rr (s d)
-	(cond
-		((or (eql s rsp) (eql d rsp))
-			(throw "emit-asr-rr src/dst can't be rsp !" (list s d)))
-		(t (emit-rrr 0x9ac02800 s d d))))
+(defcfun emit-shl-rr (s d) (emit-shift-rr "shl" 0x9ac02000 s d))
+(defcfun emit-shr-rr (s d) (emit-shift-rr "shr" 0x9ac02400 s d))
+(defcfun emit-asr-rr (s d) (emit-shift-rr "asr" 0x9ac02800 s d))
 
 (defcfun emit-swp-rr (s d)
 	(unless (eql s d)
