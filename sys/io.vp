@@ -117,7 +117,7 @@
 		(sys-push-trashed)
 		(sys-write-char '(r1 r0) '(_))
 		(sys-pop-trashed)
-	(loop-until '(r4 == rsp))
+	(loop-until '(rsp == r4))
 	(vp-ret)
 
 (def-func-end)

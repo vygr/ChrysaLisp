@@ -311,7 +311,10 @@
 
 (defcfun emit-add-rr (s d) (emit-rrr 0x8b000000 s d d))
 (defcfun emit-sub-rr (s d) (emit-rrr 0xcb000000 s d d))
-(defcfun emit-cmp-rr (s d) (emit-rrr 0xeb000000 s d rsp))
+(defcfun emit-cmp-rr (s d)
+	(if (eql s rsp)
+		(throw "rsp not allowed as source !" s))
+		(emit-rrr 0xeb000000 s d rsp))
 (defcfun emit-and-rr (s d) (unless (eql s d) (emit-rrr 0x8a000000 s d d)))
 (defcfun emit-or-rr (s d) (unless (eql s d) (emit-rrr 0xaa000000 s d d)))
 (defcfun emit-xor-rr (s d) (emit-rrr 0xca000000 s d d))
