@@ -343,6 +343,13 @@
 (defcfun emit-mul-rr (s d)
 	(emit-int (add 0x9b000000 (bit-shl (reg d) 16) (bit-shl 31 10) (bit-shl (reg s) 5) (reg d))))
 
-(defcfun emit-ext-rr (b s d))
+(defcfun emit-ext-rr (s d)
+	(cond
+		((eql s d)
+			(emit-asr-cr 63 d))
+		(t
+			(emit-cpy-rr s d)
+			(emit-asr-cr 63 d))))
+
 (defcfun emit-div-rrr (s d1 d2))
 (defcfun emit-div-rrr-u (s d1 d2))

@@ -572,14 +572,15 @@
 			(emit-byte (add 0x48 sh) (add 0x90 sl))
 			(emit-byte (add 0x48 (bit-shl sh 2) dh) 0x87 (add 0xc0 (bit-shl sl 3) dl)))))
 
-(defcfun emit-ext-rr (b s d)
-	(if (and (eql s r0) (eql d r2))
-		(emit-byte 0x48 0x99)
-		(progn
-			(emit-xor-rr d d)
-			(emit-cmp-cr 0 s)
-			(emit-branch 0x7d 5 b)
-			(emit-sub-cr 1 d))))
+(defcfun emit-ext-rr (s d)
+	(cond
+		((and (eql s r0) (eql d r2))
+			(emit-byte 0x48 0x99))
+		((eql s d)
+			(emit-asr-cr 63 d))
+		(t
+			(emit-cpy-rr s d)
+			(emit-asr-cr 63 d))))
 
 (defcfun emit-div-rrr (s d1 d2)
 	(cond

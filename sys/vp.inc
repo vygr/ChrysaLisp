@@ -269,7 +269,7 @@
 
 (defcfun vp-ret () (emit '(emit-ret)))
 (defcfun vp-swp-rr (s d) (emit `(emit-swp-rr ,s ,d)))
-(defcfun vp-ext-rr (s d) (emit `(emit-ext-rr ,(dec (length (push *distance* 0))) ,s ,d)))
+(defcfun vp-ext-rr (s d) (emit `(emit-ext-rr ,s ,d)))
 (defcfun vp-div-rrr (d r q) (emit `(emit-div-rrr ,d ,r ,q)))
 (defcfun vp-div-rrr-u (d r q) (emit `(emit-div-rrr-u ,d ,r ,q)))
 (defcfun vp-syscall () (emit `(emit-syscall)))
