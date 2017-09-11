@@ -313,19 +313,19 @@
 		(t
 			(emit-int (add 0xaa0003e0 (bit-shl (reg s) 16) (reg d))))))
 
-(defcfun emit-add-rr (s d) (if (eql s rsp) (emit-rrr 0x8b20e000 d s d) (emit-rrr 0x8b20e000 s d d)))
+(defcfun emit-add-rr (s d) (if (eql s rsp) (emit-rrr 0x8b206000 d s d) (emit-rrr 0x8b206000 s d d)))
 
 (defcfun emit-sub-rr (s d)
 	(cond
 		((eql s rsp)
 			(throw "emit-sub-rr src can't be rsp !" (list s d)))
-		(t (emit-rrr 0xcb20e000 s d d))))
+		(t (emit-rrr 0xcb206000 s d d))))
 
 (defcfun emit-cmp-rr (s d)
 	(cond
 		((eql s rsp)
 			(throw "emit-cmp-rr src can't be rsp !" (list s d)))
-		(t (emit-rrr 0xeb20e000 s d rsp))))
+		(t (emit-rrr 0xeb206000 s d rsp))))
 
 (defcfun emit-and-rr (s d)
 	(cond
