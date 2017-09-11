@@ -46,6 +46,64 @@
 			(emit-int (add 0x54000000 (bit-shl (bit-and ,c 0x1ffffc) 3) ,o)))
 		(t (throw "emit-branch constant out of range" ,c))))
 
+(defmacro emit-is-mask (_)
+	`(and (ne 0 ,_) (eq 0 (bit-and ,_ (inc ,_)))))
+
+(defmacro emit-is-shifted-mask (_)
+	`(and (ne 0 ,_) (emit-is-mask (bit-or ,_ (dec ,_)))))
+
+(defcfun count-trailing-zeros (_)
+	(if (eq _ 0) 64)
+		(progn
+			(defq c 0)
+			(while (eq 0 (bit-and _ 1))
+				(setq _ (bit-shr _ 1) c (inc c))) c))
+
+(defcfun count-trailing-ones (_)
+	(if (eq _ -1) 64)
+		(progn
+			(defq c 0)
+			(while (ne 0 (bit-and _ 1))
+				(setq _ (bit-shr _ 1) c (inc c))) c))
+
+(defcfun count-leading-ones (_)
+	(if (eq _ -1) 64)
+		(progn
+			(defq c 0)
+			(while (gt 0 _)
+				(setq _ (bit-shl _ 1) c (inc c))) c))
+
+(defcfun emit-limm (_)
+	(if (or (eq 0 _) (eq -1 _)) -1
+		(progn
+			(defq s 64 e t)
+			(while e
+				(defq s (bit-shr s 1) m (dec (bit-shl 1 s)))
+				(if (ne (bit-and _ m) (bit-and (bit-shr _ s) m))
+					(setq s (mul s 2) e nil)
+					(if (le s 2)
+						(setq e nil))))
+			(defq m (bit-shr -1 (sub 64 s)) _ (bit-and _ m))
+			(if (emit-is-shifted-mask _)
+				(progn
+					(defq i (count-trailing-zeros _))
+					(if (ge i 64)
+						(setq e t)
+						(defq cto (count-trailing-ones (bit-shr _ i)))))
+				(progn
+					(setq _ (bit-or _ (bit-not m)))
+					(if (not (emit-is-shifted-mask (bit-not _)))
+						(setq e t)
+						(defq clo (count-leading-ones _) i (sub 64 clo)
+							cto (sub (add clo (count-trailing-ones _)) (sub 64 s))))))
+			(if (or e (le s i)) -1
+				(progn
+					(defq _r (bit-and (sub s i) (dec s))
+						_s (bit-shl (bit-not (dec s)) 1)
+						_s (bit-or _s (dec cto))
+						n (bit-xor (bit-and (bit-shr _s 6) 1) 1))
+					(add (bit-shl n 12) (bit-shl _r 6) (bit-and _s 0x3f)))))))
+
 (defcfun reg (r)
 	(find r '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15
 		r16 r17 r18 r19 r20 r21 r22 r23 r24 r25 r26 r27 r28 r29 r30 rsp)))
@@ -217,6 +275,11 @@
 		(t (throw "emit-cpy-pr constant out of range" c))))
 
 (defcfun emit-cpy-cr (c r)
+	(if (ne -1 (defq i (emit-limm c)))
+		(emit-int (add 0xb2000000 (bit-shl i 10) (bit-shl (reg rsp) 5) (reg r)))
+		(emit-mov-cr c r)))
+
+(defcfun emit-mov-cr (c r)
 	(defq r (reg r) x (bit-and c 0xffff00000000) y (bit-and c 0xffff0000) z (bit-and c 0xffff))
 	(if (lt c 0)
 		(cond
@@ -277,41 +340,54 @@
 		(t (throw "emit-sub-cr constant out of range" c))))
 
 (defcfun emit-cmp-cr (c r)
-	(emit-cpy-cr c r29)
-	(emit-cmp-rr r29 r))
+	(cond
+		((le 0 c 0xfff)
+			(emit-int (add 0xf100001f (bit-shl c 10) (bit-shl (reg r) 5) (reg r))))
+		((le -0x1000 c 0)
+			(emit-int (add 0xb100001f (bit-shl (neg c) 10) (bit-shl (reg r) 5) (reg r))))
+		(t (emit-cpy-cr c r29)
+			(emit-cmp-rr r29 r))))
 
 (defcfun emit-and-cr (c r)
 	(cond
 		((eq c -1))
 		((eq c 0)
 			(emit-xor-rr r r))
-		(t
-			(emit-cpy-cr c r29)
-			(emit-and-rr r29 r))))
+		(t (defq i (emit-limm c))
+			(if (ne i -1)
+				(emit-int (add 0x92000000 (bit-shl i 10) (bit-shl (reg r) 5) (reg r)))
+				(progn
+					(emit-mov-cr c r29)
+					(emit-and-rr r29 r))))))
 
 (defcfun emit-or-cr (c r)
 	(cond
 		((eq c 0))
 		((eq c -1)
 			(emit-cpy-cr -1 r))
-		(t
-			(emit-cpy-cr c r29)
-			(emit-or-rr r29 r))))
+		(t (defq i (emit-limm c))
+			(if (ne i -1)
+				(emit-int (add 0xb2000000 (bit-shl i 10) (bit-shl (reg r) 5) (reg r)))
+				(progn
+					(emit-mov-cr c r29)
+					(emit-or-rr r29 r))))))
 
 (defcfun emit-xor-cr (c r)
 	(cond
 		((eq c 0))
-		(t
-			(emit-cpy-cr c r29)
-			(emit-xor-rr r29 r))))
+		(t (defq i (emit-limm c))
+			(if (ne i -1)
+				(emit-int (add 0xd2000000 (bit-shl i 10) (bit-shl (reg r) 5) (reg r)))
+				(progn
+					(emit-mov-cr c r29)
+					(emit-or-rr r29 r))))))
 
 (defcfun emit-cpy-rr (s d)
 	(cond
 		((eql s d))
 		((or (eql s rsp) (eql d rsp))
 			(emit-int (add 0x91000000 (bit-shl (reg s) 5) (reg d))))
-		(t
-			(emit-int (add 0xaa0003e0 (bit-shl (reg s) 16) (reg d))))))
+		(t (emit-int (add 0xaa0003e0 (bit-shl (reg s) 16) (reg d))))))
 
 (defcfun emit-add-rr (s d) (if (eql s rsp) (emit-rrr 0x8b206000 d s d) (emit-rrr 0x8b206000 s d d)))
 
@@ -330,8 +406,8 @@
 (defcfun emit-and-rr (s d)
 	(cond
 		((eql s d))
-;		((or (eql s rsp) (eql d rsp))
-;			(throw "emit-and-rr src/dst can't be rsp !" (list s d)))
+		((or (eql s rsp) (eql d rsp))
+			(throw "emit-and-rr src/dst can't be rsp !" (list s d)))
 		(t (emit-rrr 0x8a000000 s d d))))
 
 (defcfun emit-or-rr (s d)
