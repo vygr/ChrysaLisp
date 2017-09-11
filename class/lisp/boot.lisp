@@ -270,6 +270,27 @@
 		(while (ne 0 (setq _ (bit-shr _ 1)))
 			(setq i (inc i))) i))
 
+(defun count-trailing-zeros (_)
+	(if (eq _ 0) 64)
+		(progn
+			(defq c 0)
+			(while (eq 0 (bit-and _ 1))
+				(setq _ (bit-shr _ 1) c (inc c))) c))
+
+(defun count-trailing-ones (_)
+	(if (eq _ -1) 64)
+		(progn
+			(defq c 0)
+			(while (ne 0 (bit-and _ 1))
+				(setq _ (bit-shr _ 1) c (inc c))) c))
+
+(defun count-leading-ones (_)
+	(if (eq _ -1) 64)
+		(progn
+			(defq c 0)
+			(while (gt 0 _)
+				(setq _ (bit-shl _ 1) c (inc c))) c))
+
 (defun insert (x y)
 	(when (notany (lambda (x) (eql x y)) x)
 		(push x y)))

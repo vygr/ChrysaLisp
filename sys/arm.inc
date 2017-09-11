@@ -52,27 +52,6 @@
 (defmacro emit-is-shifted-mask (_)
 	`(and (ne 0 ,_) (emit-is-mask (bit-or ,_ (dec ,_)))))
 
-(defcfun count-trailing-zeros (_)
-	(if (eq _ 0) 64)
-		(progn
-			(defq c 0)
-			(while (eq 0 (bit-and _ 1))
-				(setq _ (bit-shr _ 1) c (inc c))) c))
-
-(defcfun count-trailing-ones (_)
-	(if (eq _ -1) 64)
-		(progn
-			(defq c 0)
-			(while (ne 0 (bit-and _ 1))
-				(setq _ (bit-shr _ 1) c (inc c))) c))
-
-(defcfun count-leading-ones (_)
-	(if (eq _ -1) 64)
-		(progn
-			(defq c 0)
-			(while (gt 0 _)
-				(setq _ (bit-shl _ 1) c (inc c))) c))
-
 (defcfun emit-limm (_)
 	(if (or (eq 0 _) (eq -1 _)) -1
 		(progn

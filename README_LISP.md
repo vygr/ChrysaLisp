@@ -201,6 +201,10 @@ when
 abs
 align
 bit-not
+count-leading-ones
+count-trailing-ones
+count-trailing-zeros
+cpu
 cubed
 defun
 divmod
@@ -216,6 +220,7 @@ filter
 from-base-char
 insert
 insert-sym
+log2
 lst?
 map
 map-rev
@@ -229,7 +234,7 @@ notevery
 num?
 obj?
 partition
-log2
+platform
 prin-base
 range
 reduce
@@ -248,8 +253,6 @@ to-num
 trim
 trim-end
 trim-start
-cpu
-platform
 within-compile-env
 ```
 
