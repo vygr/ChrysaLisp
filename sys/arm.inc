@@ -305,7 +305,14 @@
 			(emit-cpy-cr c r29)
 			(emit-xor-rr r29 r))))
 
-(defcfun emit-cpy-rr (s d) (unless (eql s d) (emit-rrr 0x8b20e000 rsp s d)))
+(defcfun emit-cpy-rr (s d)
+	(cond
+		((eql s d))
+		((or (eql s rsp) (eql d rsp))
+			(emit-int (add 0x91000000 (bit-shl (reg s) 5) (reg d))))
+		(t
+			(emit-int (add 0xaa0003e0 (bit-shl (reg s) 16) (reg d))))))
+
 (defcfun emit-add-rr (s d) (if (eql s rsp) (emit-rrr 0x8b20e000 d s d) (emit-rrr 0x8b20e000 s d d)))
 
 (defcfun emit-sub-rr (s d)
