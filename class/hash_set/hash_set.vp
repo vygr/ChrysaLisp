@@ -309,9 +309,9 @@
 	(vp-cpy-ri r1 r0 local_iter)
 	(vpif '(r1 == 0))
 		(vp-add-cr 1 r1)
-	(else)
-		(vp-xor-rr r1 r1)
+		(vp-ret)
 	(endif)
+	(vp-xor-rr r1 r1)
 	(vp-ret)
 
 (def-func-end)
@@ -347,9 +347,9 @@
 
 		(vp-cpy-ir rsp local_this r0)
 		(vp-free local_size)
-	(else)
-		(vp-cpy-ir r0 hash_set_buckets r1)
+		(vp-ret)
 	(endif)
+	(vp-cpy-ir r0 hash_set_buckets r1)
 	(vp-ret)
 
 (def-func-end)
