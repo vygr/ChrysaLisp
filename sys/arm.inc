@@ -445,12 +445,15 @@
 	(emit-int (add 0x9b000000 (bit-shl (reg d) 16) (bit-shl 31 10) (bit-shl (reg s) 5) (reg d))))
 
 (defcfun emit-ext-rr (s d)
-	(cond
-		((eql s d)
-			(emit-asr-cr 63 d))
-		(t
-			(emit-cpy-rr s d)
-			(emit-asr-cr 63 d))))
+	(unless (eql s d) (emit-cpy-rr s d))
+	(emit-asr-cr 63 d))
 
-(defcfun emit-div-rrr (s d1 d2))
-(defcfun emit-div-rrr-u (s d1 d2))
+(defcfun emit-div-rrr (s d1 d2)
+	(emit-int (add 0x9ac00c00 (bit-shl (reg s) 16) (bit-shl (reg d2) 5) (reg r29)))
+	(emit-int (add 0x9b008000 (bit-shl (reg r29) 16) (bit-shl (reg d2) 10) (bit-shl (reg s) 5) (reg d1)))
+	(emit-cpy-rr r29 d2))
+
+(defcfun emit-div-rrr-u (s d1 d2)
+	(emit-int (add 0x9ac00800 (bit-shl (reg s) 16) (bit-shl (reg d2) 5) (reg r29)))
+	(emit-int (add 0x9b008000 (bit-shl (reg r29) 16) (bit-shl (reg d2) 10) (bit-shl (reg s) 5) (reg d1)))
+	(emit-cpy-rr r29 d2))
