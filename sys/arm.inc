@@ -322,7 +322,7 @@
 	(cond
 		((le 0 c 0xfff)
 			(emit-int (add 0xf100001f (bit-shl c 10) (bit-shl (reg r) 5) (reg r))))
-		((le -0x1000 c 0)
+		((le -0xfff c 0)
 			(emit-int (add 0xb100001f (bit-shl (neg c) 10) (bit-shl (reg r) 5) (reg r))))
 		(t (emit-cpy-cr c r29)
 			(emit-cmp-rr r29 r))))
