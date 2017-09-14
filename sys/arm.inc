@@ -403,9 +403,6 @@
 		(t (emit-rrr 0xca000000 s d d))))
 
 (defcfun emit-lnot-rr (r d)
-	(emit-cmp-cr 0 r0)
-	(emit-cmp-cr 0 r1)
-	(emit-cmp-cr 0 r2)
 	(emit-cmp-cr 0 d)
 	(emit-int (add 0x9a9f17e0 (reg d))))
 
