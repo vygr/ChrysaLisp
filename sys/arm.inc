@@ -321,9 +321,9 @@
 (defcfun emit-cmp-cr (c r)
 	(cond
 		((le 0 c 0xfff)
-			(emit-int (add 0xf100001f (bit-shl c 10) (bit-shl (reg r) 5) (reg r))))
+			(emit-int (add 0xf100001f (bit-shl c 10) (bit-shl (reg r) 5))))
 		((le -0xfff c 0)
-			(emit-int (add 0xb100001f (bit-shl (neg c) 10) (bit-shl (reg r) 5) (reg r))))
+			(emit-int (add 0xb100001f (bit-shl (neg c) 10) (bit-shl (reg r) 5))))
 		(t (emit-cpy-cr c r29)
 			(emit-cmp-rr r29 r))))
 
@@ -402,8 +402,17 @@
 			(throw "emit-xor-rr src/dst can't be rsp !" (list s d)))
 		(t (emit-rrr 0xca000000 s d d))))
 
-(defcfun emit-lnot-rr (r d))
-(defcfun emit-land-rrr (r s d))
+(defcfun emit-lnot-rr (r d)
+	(emit-cmp-cr 0 r0)
+	(emit-cmp-cr 0 r1)
+	(emit-cmp-cr 0 r2)
+	(emit-cmp-cr 0 d)
+	(emit-int (add 0x9a9f17e0 (reg d))))
+
+(defcfun emit-land-rrr (r s d)
+	(emit-cmp-cr 0 d)
+	(emit-int (add 0xfa401804 (bit-shl (reg s) 5)))
+	(emit-int (add 0x9a9f07e0 (reg d))))
 
 (defmacro emit-shift-cr (e o c x y r)
 	`(cond
