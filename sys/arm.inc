@@ -149,9 +149,8 @@
 
 (defcfun emit-call (l)
 	(emit-push r30)
-	(defq c (sub l *pc*))
 	(cond
-		((le -0x8000000 c 0x7fffffc)
+		((le -0x8000000 (defq c (sub l *pc*)) 0x7fffffc)
 			(emit-int (add 0x94000000 (bit-shr (bit-and c 0xfffffff) 2))))
 		(t (throw "emit-call constant out of range !" c)))
 	(emit-pop r30))
@@ -170,9 +169,8 @@
 	(emit-call-r r29))
 
 (defcfun emit-jmp (l d)
-	(defq c (sub l *pc*))
 	(cond
-		((le -0x8000000 c 0x7fffffc)
+		((le -0x8000000 (defq c (sub l *pc*)) 0x7fffffc)
 			(emit-int (add 0x14000000 (bit-shr (bit-and c 0xfffffff) 2))))
 		(t (throw "emit-jmp constant out of range !" c))))
 
@@ -198,9 +196,8 @@
 (defcfun emit-lea-d (s1 s2 d) (emit-rrr 0x8b000000 s1 s2 d))
 
 (defcfun emit-lea-p (l d)
-	(defq c (sub l *pc*))
 	(cond
-		((le -0x100000 c 0xffffc)
+		((le -0x100000 (defq c (sub l *pc*)) 0xffffc)
 			(emit-int (add 0x10000000 (bit-shl (bit-and c 0x1fffff) 3) (reg d))))
 		(t (throw "emit-lea-p constant out of range !" c))))
 
@@ -247,9 +244,8 @@
 	(emit-cpy-ri d r29 0))
 
 (defcfun emit-cpy-pr (l d)
-	(defq c (sub l *pc*))
 	(cond
-		((le -0x100000 c 0xffffc)
+		((le -0x100000 (defq c (sub l *pc*)) 0xffffc)
 			(emit-int (add 0x58000000 (bit-shl (bit-and c 0x1fffff) 3) (reg d))))
 		(t (throw "emit-cpy-pr constant out of range !" c))))
 
