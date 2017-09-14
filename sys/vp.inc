@@ -260,6 +260,9 @@
 (defcfun vp-xor-cr (c d) (emit `(emit-xor-cr ,c ,d)))
 (defcfun vp-xor-rr (s d) (emit `(emit-xor-rr ,s ,d)))
 
+(defcfun vp-lnot-rr (r d) (emit `(emit-lnot-rr ,r ,d)))
+(defcfun vp-land-rrr (r s d) (emit `(emit-land-rrr ,r ,s ,d)))
+
 (defcfun vp-shl-cr (c d) (emit `(emit-shl-cr ,c ,d)))
 (defcfun vp-shl-rr (s d) (emit `(emit-shl-rr ,s ,d)))
 (defcfun vp-shr-cr (c d) (emit `(emit-shr-cr ,c ,d)))

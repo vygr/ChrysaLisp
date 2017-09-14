@@ -845,27 +845,15 @@
 (defcfun compile-or (_)
 	(add-inst (list 'vp-or-rr (pop-value) (top-value))))
 
+(defcfun compile-ulnot (_)
+	(add-inst (list 'vp-lnot-rr (tmp-reg) (top-value))))
+
 (defcfun compile-land (_)
-	(defq y (pop-value) x (top-value))
-	(add-inst
-		`(vpif (list ,x '!= 0))
-			(list 'vp-xor-rr x x)
-			`(vpif (list ,y '!= 0))
-				(list 'vp-sub-cr 1 x)
-			'(endif)
-		'(endif)))
+	(defq y (pop-value))
+	(add-inst (list 'vp-land-rrr y y (top-value))))
 
 (defcfun compile-lor (_)
 	(add-inst (list 'vp-or-rr (pop-value) (top-value))))
-
-(defcfun compile-ulnot (_)
-	(defq x (top-value))
-	(add-inst
-		`(vpif (list ,x '== 0))
-			(list 'vp-sub-cr 1 x)
-		'(else)
-			(list 'vp-xor-rr x x)
-		'(endif)))
 
 (defcfun compile-operator (_)
 	(cond

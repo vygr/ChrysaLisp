@@ -402,6 +402,9 @@
 			(throw "emit-xor-rr src/dst can't be rsp !" (list s d)))
 		(t (emit-rrr 0xca000000 s d d))))
 
+(defcfun emit-lnot-rr (r d))
+(defcfun emit-land-rrr (r s d))
+
 (defmacro emit-shift-cr (e o c x y r)
 	`(cond
 		((eq ,c 0))

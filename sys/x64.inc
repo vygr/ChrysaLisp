@@ -535,6 +535,27 @@
 
 (defcfun emit-xor-rr (s d) (emit-rr 0x31 s d))
 
+(defcfun emit-lnot-rr (r d)
+	(defq dlh (reg d))
+	(if (ge dlh 4)
+		(throw "emit-lnot-rr illegal register !" d))
+	(emit-cpy-rr d r)
+	(emit-xor-rr d d)
+	(emit-cmp-cr 0 r)
+	(emit-byte 0x0f 0x94 (add 0xc0 dlh)))
+
+(defcfun emit-land-rrr (r s d)
+	(defq rlh (reg r) dlh (reg d))
+	(defq slh (reg s))
+	(if (or (ge rlh 4) (ge dlh 4))
+		(throw "emit-land-rr illegal register !" (r s d)))
+	(emit-cpy-rr s r)
+	(emit-cmp-cr 0 d)
+	(emit-byte 0x0f 0x95 (add 0xc0 dlh))
+	(emit-cmp-cr 0 r)
+	(emit-byte 0x0f 0x95 (add 0xc0 rlh))
+	(emit-and-rr r d))
+
 (defcfun emit-shl-cr (c r) (emit-shift-cr 0xe0 c r))
 (defcfun emit-shl-rr (s d) (emit-shift-rr 0xe0 s d))
 (defcfun emit-shr-cr (c r) (emit-shift-cr 0xe8 c r))
