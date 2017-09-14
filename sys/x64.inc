@@ -546,7 +546,6 @@
 
 (defcfun emit-land-rrr (r s d)
 	(defq rlh (reg r) dlh (reg d))
-	(defq slh (reg s))
 	(if (or (ge rlh 4) (ge dlh 4))
 		(throw "emit-land-rr illegal register !" (r s d)))
 	(emit-cpy-rr s r)
