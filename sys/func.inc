@@ -170,7 +170,7 @@
 		(vp-pop r0 r1 r2 r3 r4)))
 
 (defcfun abort (&optional s)
-	(f-call 'pii 'string `(,(opt s "Abort !") 2))
+	(f-call 'pii 'string `(2 ,(opt s "Abort !")))
 	(sys-exit '(1)))
 
 (defcfun assert (b &optional d)

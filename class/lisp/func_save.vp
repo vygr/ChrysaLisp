@@ -29,7 +29,7 @@
 	(assign {iter_begin[0], iter_begin[ptr_size]} {value, name})
 	(f-call 'pii 'open {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth} {handle})
 	(errorif {handle < 3} 'error2)
-	(sys-write-string {handle, &value->string_data, value->string_length} '(_))
+	(f-call 'pii 'write {handle, &value->string_data, value->string_length})
 	(f-call 'pii 'close {handle})
 	(f-call 'ref 'ref {value})
 

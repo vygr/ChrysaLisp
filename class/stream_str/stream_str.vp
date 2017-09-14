@@ -82,15 +82,14 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'data)
+	(ptr 'this)
 
 	(push-scope)
 	(f-entry 'stream_str 'write_flush {this})
 
 	(assign {0} {*this->stream_bufp})
-	(assign {&this->stream_object->string_data} {data})
-	(f-call 'pii 'string {data, 1})
-	(assign {data} {this->stream_bufp})
+	(assign {&this->stream_object->string_data} {this->stream_bufp})
+	(f-call 'pii 'string {1, this->stream_bufp})
 
 	(f-exit 'stream_str 'write_flush {this})
 	(pop-scope)
