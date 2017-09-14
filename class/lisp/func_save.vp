@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'sys/syscall.inc)
+(import 'sys/pii/pii.inc)
 (import 'class/string/string.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
@@ -27,10 +27,10 @@
 
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {value, name})
-	(f-call 'sys_io 'open {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth} {handle})
+	(f-call 'pii 'open {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth} {handle})
 	(errorif {handle < 3} 'error2)
 	(sys-write-string {handle, &value->string_data, value->string_length} '(_))
-	(f-call 'sys_io 'close {handle})
+	(f-call 'pii 'close {handle})
 	(f-call 'ref 'ref {value})
 
 (vp-label 'exit)

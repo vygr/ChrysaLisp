@@ -7,6 +7,7 @@
 (import 'class/button/button.inc)
 (import 'class/progress/progress.inc)
 (import 'class/string/string.inc)
+(import 'sys/pii/pii.inc)
 
 (def-struct 'sample_msg 'msg_header)
 	(ulong 'index)

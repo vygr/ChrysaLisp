@@ -2,6 +2,7 @@
 (import 'class/master/master.inc)
 (import 'class/stream_msg_out/stream_msg_out.inc)
 (import 'class/string/string.inc)
+(import 'sys/pii/pii.inc)
 
 (def-struct 'tui_msg 'msg_header)
 	(struct 'reply_id 'id)
@@ -165,12 +166,12 @@
 
 	(vpif {char == char_tab})
 		;tab
-		(f-call 'sys_io 'char {char_space, 1})
-		(f-call 'sys_io 'char {char_space, 1})
-		(f-call 'sys_io 'char {char_space, 1})
-		(f-call 'sys_io 'char {char_space, 1})
+		(f-call 'pii 'char {char_space, 1})
+		(f-call 'pii 'char {char_space, 1})
+		(f-call 'pii 'char {char_space, 1})
+		(f-call 'pii 'char {char_space, 1})
 	(else)
-		(f-call 'sys_io 'char {char, 1})
+		(f-call 'pii 'char {char, 1})
 	(endif)
 
 	(pop-scope)

@@ -1,0 +1,13 @@
+(import 'sys/class.inc)
+(import 'sys/syscall.inc)
+
+(def-class 'pii)
+(def-method 'open 'sys/pii/open 'static '(r0 r1 r2) '(r0))
+(def-method 'close 'sys/pii/close 'static '(r0))
+(def-method 'age 'sys/pii/age 'static '(r0) '(r0))
+(def-method 'char 'sys/pii/write_char 'static '(r0 r1))
+(def-method 'string 'sys/pii/write_str 'static '(r0 r1))
+(def-method 'number 'sys/pii/write_num 'static '(r0 r1 r2))
+(def-method 'read 'sys/pii/read_line 'static '(r0 r1 r2) '(r0))
+(def-method 'debug_long 'sys/pii/debug_long 'static '(r0 r1 r2))
+(def-method 'debug_str 'sys/pii/debug_str 'static '(r0 r1 r2))

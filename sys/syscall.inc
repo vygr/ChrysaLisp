@@ -5,17 +5,6 @@
 ; syscall static class
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def-class 'sys_io)
-(def-method 'open 'sys/io_open 'static '(r0 r1 r2) '(r0))
-(def-method 'close 'sys/io_close 'static '(r0))
-(def-method 'age 'sys/io_age 'static '(r0) '(r0))
-(def-method 'char 'sys/io_write_char 'static '(r0 r1))
-(def-method 'string 'sys/io_write_str 'static '(r0 r1))
-(def-method 'number 'sys/io_write_num 'static '(r0 r1 r2))
-(def-method 'read 'sys/io_read_line 'static '(r0 r1 r2) '(r0))
-(def-method 'debug_long 'sys/io_debug_long 'static '(r0 r1 r2))
-(def-method 'debug_str 'sys/io_debug_str 'static '(r0 r1 r2))
-
 (def-class 'sys_cpu)
 (def-method 'id 'sys/cpu_get_id 'static nil '(r0))
 (def-method 'time 'sys/cpu_get_time 'static nil '(r0))

@@ -2,7 +2,6 @@
 (import 'sys/mail.inc)
 (import 'sys/task.inc)
 (import 'sys/vp.inc)
-(import 'sys/syscall.inc)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail functions
@@ -152,7 +151,7 @@
 		(fn-string (cat *stream-name* "<" (str *stream-line*) ">") r0)
 		(fn-string s r1)
 		(vp-pop r2)
-		(f-call 'sys_io 'debug_long '(r0 r1 r2))
+		(f-call 'pii 'debug_long '(r0 r1 r2))
 		(vp-pop r0 r1 r2 r3 r4)))
 
 (defcfun debug-str (s &optional d)
@@ -167,11 +166,11 @@
 		(fn-string (cat *stream-name* "<" (str *stream-line*) ">") r0)
 		(fn-string s r1)
 		(vp-pop r2)
-		(f-call 'sys_io 'debug_str '(r0 r1 r2))
+		(f-call 'pii 'debug_str '(r0 r1 r2))
 		(vp-pop r0 r1 r2 r3 r4)))
 
 (defcfun abort (&optional s)
-	(f-call 'sys_io 'string `(,(opt s "Abort !") 2))
+	(f-call 'pii 'string `(,(opt s "Abort !") 2))
 	(sys-exit '(1)))
 
 (defcfun assert (b &optional d)

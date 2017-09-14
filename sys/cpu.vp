@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'sys/task.inc)
-(import 'sys/syscall.inc)
+(import 'sys/pii/pii.inc)
 
 (def-func 'sys/cpu_get_id)
 	;outputs

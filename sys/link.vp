@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
 (import 'sys/task.inc)
 (import 'sys/link.inc)
-(import 'sys/syscall.inc)
+(import 'sys/pii/pii.inc)
 
 (def-func 'sys/link_statics)
 	(times lk_statics_size (vp-byte 0))
