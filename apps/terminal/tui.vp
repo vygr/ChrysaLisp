@@ -166,12 +166,12 @@
 
 	(vpif {char == char_tab})
 		;tab
-		(f-call 'pii 'char {char_space, 1})
-		(f-call 'pii 'char {char_space, 1})
-		(f-call 'pii 'char {char_space, 1})
-		(f-call 'pii 'char {char_space, 1})
+		(f-call 'pii 'char {1, char_space})
+		(f-call 'pii 'char {1, char_space})
+		(f-call 'pii 'char {1, char_space})
+		(f-call 'pii 'char {1, char_space})
 	(else)
-		(f-call 'pii 'char {char, 1})
+		(f-call 'pii 'char {1, char})
 	(endif)
 
 	(pop-scope)
