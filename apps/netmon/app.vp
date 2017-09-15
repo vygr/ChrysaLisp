@@ -1,5 +1,4 @@
 (import 'sys/func.inc)
-(import 'sys/mail.inc)
 (import 'gui/gui.inc)
 (import 'class/window/window.inc)
 (import 'class/flow/flow.inc)

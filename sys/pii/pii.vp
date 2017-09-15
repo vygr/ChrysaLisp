@@ -1,7 +1,6 @@
 (import 'sys/func.inc)
 (import 'sys/string.inc)
 (import 'sys/load.inc)
-(import 'sys/task.inc)
 (import 'class/string/string.inc)
 
 (def-func 'sys/pii/open)

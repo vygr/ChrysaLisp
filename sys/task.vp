@@ -1,7 +1,4 @@
 (import 'sys/func.inc)
-(import 'sys/task.inc)
-(import 'sys/mail.inc)
-(import 'sys/list.inc)
 (import 'class/vector/vector.inc)
 (import 'class/string/string.inc)
 (import 'sys/kernel.inc)
