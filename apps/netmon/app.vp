@@ -141,12 +141,12 @@
 
 	;app event loop
 	(assign {0} {sample})
-	(f-call 'sys_cpu 'time {} {start_time})
+	(f-call 'pii 'time {} {start_time})
 	(loop-start)
 		;new round of samples ?
 		(vpif {cpu_count == cpu_total})
 			;get trip time and save start time
-			(f-call 'sys_cpu 'time {} {time})
+			(f-call 'pii 'time {} {time})
 			(assign {time - start_time} {start_time})
 			(assign {(sample + 1) % num_samples} {sample})
 			(assign {start_time} {durations[sample * int_size]})

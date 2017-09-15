@@ -12,25 +12,6 @@
 
 (def-func-end)
 
-(def-func 'sys/cpu_get_time)
-	;outputs
-	;r0 = time in usec
-
-	;calculate wake time
-	(sys-push-trashed)
-	(vp-alloc timeval_size)
-	(sys-gettimeofday '(rsp 0))
-	(vp-cpy-ir rsp timeval_sec r0)
-	(vp-mul-cr 1000000 r0)
-	(vp-cpy-ir rsp timeval_usec r1)
-	(vp-add-rr r1 r0)
-	(vp-free timeval_size)
-	(sys-pop-trashed)
-	(f-exit 'sys_cpu 'time '(r0))
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'sys/cpu_get_total)
 	;outputs
 	;r0 = cpu total

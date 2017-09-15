@@ -19,7 +19,7 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1)
-	(f-call 'sys_cpu 'time {} {length})
+	(f-call 'pii 'time {} {length})
 	(f-call 'boxed_long 'create {} {args})
 	(f-call 'boxed_long 'set_value {args, length})
 

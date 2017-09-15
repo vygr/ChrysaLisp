@@ -7,7 +7,6 @@
 
 (def-class 'sys_cpu)
 (def-method 'id 'sys/cpu_get_id 'static nil '(r0))
-(def-method 'time 'sys/cpu_get_time 'static nil '(r0))
 (def-method 'total 'sys/cpu_get_total 'static nil '(r0))
 (def-method 'opts 'sys/opt_process 'static '(r0))
 
@@ -195,12 +194,6 @@
 	(int 'dsttime)
 (def-struct-end)
 
-(defcfun sys-push-trashed ()
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10))
-
-(defcfun sys-pop-trashed ()
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10))
-
 (defcfun sys-exit (_1)
 	;return code
 	(assign _1 '(r6))
@@ -222,7 +215,7 @@
 	(vp-pop r0)
 	(assign '(r0) _2))
 
-(defcfun sys-write-string (_1 _2)
+(defcfun sys-write (_1 _2)
 	;fd, string, length
 	(assign _1 '(r6 r5 r2))
 	(sys-call sys_write)

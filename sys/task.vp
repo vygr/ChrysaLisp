@@ -530,7 +530,7 @@
 	(vp-cpy-rr r0 r1)
 
 	;calculate wake time
-	(f-call 'sys_cpu 'time '() '(r0))
+	(f-call 'pii 'time '() '(r0))
 	(vp-add-rr r1 r0)
 	(vp-cpy-ri r0 r14 tk_node_time)
 

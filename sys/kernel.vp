@@ -234,7 +234,7 @@
 		(loop-end)
 
 		;get time
-		(f-call 'sys_cpu 'time '() '(r0))
+		(f-call 'pii 'time '() '(r0))
 
 		;start any tasks ready to restart
 		(f-bind 'sys_task 'statics r3)
