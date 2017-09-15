@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
 (import 'sys/task.inc)
 (import 'sys/link.inc)
-(import 'sys/pii/pii.inc)
+(import 'sys/kernel.inc)
 
 (def-func 'sys/link_statics)
 	(times lk_statics_size (vp-byte 0))
@@ -61,7 +61,7 @@
 	(vp-mul-cr 10 r2)
 	(vp-add-rr r0 r2)
 	(vp-add-rr r3 r2)
-	(f-call 'sys_cpu 'id '() '(r0))
+	(f-call 'kernel 'id '() '(r0))
 	(vpif '(r1 == r0))
 		(vp-cpy-rr r2 r1)
 		(vp-cpy-cr lk_buffer_chan_1 r9)

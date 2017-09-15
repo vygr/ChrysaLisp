@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'sys/pii/pii.inc)
+(import 'sys/kernel.inc)
 (import 'class/stream_msg_out/stream_msg_out.inc)
 
 (gen-new 'stream_msg_out)
@@ -111,7 +111,7 @@
 		(assign {this->stream_msg_out_seqnum} {msg->stream_mail_seqnum})
 		(assign {this->stream_msg_out_state} {msg->stream_mail_state})
 		(assign {&this->stream_msg_out_ack_mailbox} {msg->stream_mail_ack_id.id_mbox})
-		(f-call 'sys_cpu 'id {} {msg->stream_mail_ack_id.id_cpu})
+		(f-call 'kernel 'id {} {msg->stream_mail_ack_id.id_cpu})
 		(f-call 'sys_mail 'send {msg})
 		(assign {0} {this->stream_buffer})
 

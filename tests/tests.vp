@@ -4,7 +4,7 @@
 (import 'sys/mail.inc)
 (import 'class/vector/vector.inc)
 (import 'class/string/string.inc)
-(import 'sys/pii/pii.inc)
+(import 'sys/kernel.inc)
 
 ;;;;;;;;;;;
 ; test code
@@ -143,7 +143,7 @@
 	(f-call 'string 'create_from_cstr {"tests/global_child"} {name})
 
 	;open global farm
-	(f-call 'sys_cpu 'total {} {total})
+	(f-call 'kernel 'total {} {total})
 	(f-call 'sys_task 'open_global {name, total} {ids})
 
 	;send exit parcels etc

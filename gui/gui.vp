@@ -4,7 +4,7 @@
 (import 'gui/sdl2.inc)
 (import 'class/label/label.inc)
 (import 'class/string/string.inc)
-(import 'sys/pii/pii.inc)
+(import 'sys/kernel.inc)
 
 (defcvar 'dual_buffers t)
 
@@ -139,7 +139,7 @@
 					(f-call 'view 'find_owner '(r5) '(_ r1))
 					(vpif '(r1 != 0))
 						;save owner mailbox
-						(f-call 'sys_cpu 'id '() '(r14))
+						(f-call 'kernel 'id '() '(r14))
 						(vp-lea-i r1 tk_node_mailbox r13)
 
 						;allocate mail message
@@ -193,7 +193,7 @@
 				(f-call 'view 'find_owner '(r5) '(_ r1))
 				(vpif '(r1 != 0))
 					;save owner mailbox
-					(f-call 'sys_cpu 'id '() '(r14))
+					(f-call 'kernel 'id '() '(r14))
 					(vp-lea-i r1 tk_node_mailbox r13)
 
 					;allocate mail message

@@ -1,7 +1,6 @@
 (import 'sys/func.inc)
 (import 'gui/gui.inc)
 (import 'class/view/view.inc)
-(import 'sys/pii/pii.inc)
 
 (gen-class 'view)
 

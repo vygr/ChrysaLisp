@@ -2,7 +2,6 @@
 (import 'class/master/master.inc)
 (import 'class/stream_msg_out/stream_msg_out.inc)
 (import 'class/string/string.inc)
-(import 'sys/pii/pii.inc)
 
 (def-struct 'tui_msg 'msg_header)
 	(struct 'reply_id 'id)

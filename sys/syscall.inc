@@ -1,17 +1,4 @@
-(import 'sys/class.inc)
 (import 'sys/code.inc)
-
-;;;;;;;;;;;;;;;;;;;;;;
-; syscall static class
-;;;;;;;;;;;;;;;;;;;;;;
-
-(def-class 'sys_cpu)
-(def-method 'id 'sys/cpu_get_id 'static nil '(r0))
-(def-method 'total 'sys/cpu_get_total 'static nil '(r0))
-(def-method 'opts 'sys/opt_process 'static '(r0))
-
-(def-class 'sys_sys)
-(def-method 'kernel 'sys/kernel 'static '(r0 r1))
 
 (defcfun sys-call (_1)
 	(cond

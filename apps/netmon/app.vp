@@ -7,7 +7,7 @@
 (import 'class/button/button.inc)
 (import 'class/progress/progress.inc)
 (import 'class/string/string.inc)
-(import 'sys/pii/pii.inc)
+(import 'sys/kernel.inc)
 
 (def-struct 'sample_msg 'msg_header)
 	(ulong 'index)
@@ -91,7 +91,7 @@
 	(v-call 'flow 'add_child {right_panel, label})
 
 	;allocate array for progress bars and trip times
-	(f-call 'sys_cpu 'total {} {cpu_total})
+	(f-call 'kernel 'total {} {cpu_total})
 	(f-call 'sys_mem 'alloc {cpu_total * ptr_size * 2} {task_progress, _})
 	(f-call 'sys_mem 'alloc {num_samples * int_size} {durations, _})
 	(f-call 'sys_mem 'clear {durations, num_samples * int_size})
@@ -173,7 +173,7 @@
 				(assign {task_mailboxes[cpu_count * id_size].id_mbox} {msg->msg_dest.id_mbox})
 				(assign {task_mailboxes[cpu_count * id_size].id_cpu} {msg->msg_dest.id_cpu})
 				(assign {select.sel_select2} {msg->sample_msg_reply_id.id_mbox})
-				(f-call 'sys_cpu 'id {} {msg->sample_msg_reply_id.id_cpu})
+				(f-call 'kernel 'id {} {msg->sample_msg_reply_id.id_cpu})
 				(f-call 'sys_mail 'send {msg})
 			(loop-untilnot {cpu_count})
 		(endif)

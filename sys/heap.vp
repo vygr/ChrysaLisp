@@ -1,6 +1,5 @@
 (import 'sys/func.inc)
 (import 'sys/heap.inc)
-(import 'sys/pii/pii.inc)
 
 (def-func 'sys/heap_init)
 	;inputs

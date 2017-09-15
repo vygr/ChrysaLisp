@@ -5,6 +5,8 @@
 (import 'sys/load.inc)
 (import 'gui/font.inc)
 (import 'gui/sdl2.inc)
+(import 'sys/kernel.inc)
+(import 'sys/string.inc)
 
 ;;;;;;;;;;;;;
 ; kernel task
@@ -44,10 +46,10 @@
 	(f-call 'sys_mail 'init '(r1))
 
 	;process command options
-	(f-call 'sys_cpu 'opts '((rsp 0)))
+	(f-call 'kernel 'opts '((rsp 0)))
 
 	;fill in num cpu's with at least mine + 1
-	(f-call 'sys_cpu 'id '() '(r0))
+	(f-call 'kernel 'id '() '(r0))
 	(vp-add-cr 1 r0)
 	(f-bind 'sys_task 'statics r1)
 	(vp-cpy-ri r0 r1 tk_statics_cpu_total)
@@ -103,7 +105,7 @@
 				(break)
 			(case '(r1 == kn_call_task_child))
 				;find best cpu to run task
-				(f-call 'sys_cpu 'id '() '(r4))
+				(f-call 'kernel 'id '() '(r4))
 				(f-bind 'sys_task 'statics r1)
 				(vp-cpy-ir r1 tk_statics_task_count r1)
 				(f-bind 'sys_link 'statics r2)
@@ -196,7 +198,7 @@
 
 				;get current via, set via to my cpu id
 				(vp-cpy-ir r14 kn_msg_link_route_via r13)
-				(f-call 'sys_cpu 'id '() '((r14 kn_msg_link_route_via)))
+				(f-call 'kernel 'id '() '((r14 kn_msg_link_route_via)))
 
 				;copy and send to all neighbors apart from old via
 				(f-bind 'sys_link 'statics r12)
@@ -298,5 +300,142 @@
 	;pop argv and exit !
 	(vp-free ptr_size)
 	(sys-exit '(0))
+
+(def-func-end)
+
+(def-func 'sys/kernel_id)
+	;outputs
+	;r0 = cpu ID
+
+	(f-bind 'sys_task 'statics r0)
+	(f-exit 'kernel 'id '((r0 tk_statics_cpu_id)))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/kernel_total)
+	;outputs
+	;r0 = cpu total
+
+	(f-bind 'sys_task 'statics r0)
+	(f-exit 'kernel 'total '((r0 tk_statics_cpu_total)))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/kernel_opts)
+	;process command options
+	;inputs
+	;r0 = argv array
+	;trashes
+	;r0-r13
+
+	(vp-cpy-rr r0 r13)
+	(loop-start)
+		(vp-cpy-ir r13 0 r12)
+		(breakif '(r12 == 0))
+		(vp-lea-p 'options_table r11)
+		(loop-start)
+			(vp-cpy-ir r11 0 r10)
+			(breakif '(r10 == 0))
+			(vp-add-cr ptr_size r11)
+			(f-call 'sys_string 'compare '(r11 r12) '(r0))
+			(vpif '(r0 == 0))
+				(vp-lea-p 'options_table r0)
+				(vp-add-rr r10 r0)
+				(vp-call-r r0)
+				(vp-jmp 'next_arg)
+			(endif)
+			(f-call 'sys_string 'length '(r11) '(_ r1))
+			(vp-add-rr r1 r11)
+			(vp-add-cr ptr_size r11)
+			(vp-and-cr (neg ptr_size) r11)
+		(loop-end)
+	(vp-label 'next_arg)
+		(vp-cpy-ir r13 0 r0)
+		(vp-add-cr ptr_size r13)
+	(loop-until '(r0 == 0))
+	(vp-ret)
+
+(vp-label 'opt_cpu)
+	;inputs
+	;r13 = arg pointer
+	;outputs
+	;r13 = arg pointer updated
+
+	;set cpu ID
+	(vp-add-cr ptr_size r13)
+	(vp-cpy-ir r13 0 r0)
+	(vpif '(r0 != 0))
+		(f-call 'sys_string 'to_long '(r0 10) '(r0))
+		(f-bind 'sys_task 'statics r1)
+		(vp-cpy-ri r0 r1 tk_statics_cpu_id)
+	(endif)
+	(vp-ret)
+
+(vp-label 'opt_run)
+	;inputs
+	;r13 = arg pointer
+	;outputs
+	;r13 = arg pointer updated
+
+	;load and run task
+	(vp-add-cr ptr_size r13)
+	(vp-cpy-ir r13 0 r0)
+	(vpif '(r0 != 0))
+		(f-call 'sys_load 'bind '(r0) '(r0))
+		(vpif '(r0 != 0))
+			(f-call 'sys_task 'start '(r0))
+		(endif)
+	(endif)
+	(vp-ret)
+
+(vp-label 'opt_link)
+	;inputs
+	;r13 = arg pointer
+	;outputs
+	;r13 = arg pointer updated
+
+	;start link task
+	(vp-add-cr ptr_size r13)
+	(vp-cpy-ir r13 0 r0)
+	(vpif '(r0 != 0))
+		;start link
+		(f-call 'sys_task 'start `((@ ,(f-path 'sys_link 'link))) '(r0 r4 r5))
+
+		;allocate params message
+		(f-call 'sys_mail 'alloc '() '(r6))
+
+		;fill in destination
+		(vp-cpy-ri r4 r0 (add msg_dest id_mbox))
+		(vp-cpy-ri r5 r0 (add msg_dest id_cpu))
+
+		;fill in parameters and set length
+		(f-call 'sys_string 'copy '(($ link_path) (& r6 msg_data)) '(_ r1))
+		(vp-sub-cr 1 r1)
+		(f-call 'sys_string 'copy '((r13 0) r1) '(_ r1))
+		(vp-sub-rr r6 r1)
+		(vp-cpy-ri r1 r6 msg_length)
+
+		;send to link task
+		(f-call 'sys_mail 'send '(r6))
+	(endif)
+	(vp-ret)
+
+(vp-label 'link_path)
+	(vp-string "/tmp/") (vp-byte 0)
+
+	(vp-align ptr_size)
+(vp-label 'options_table)
+	(vp-long `(sub ,(label-sym 'opt_cpu) ,(label-sym 'options_table)))
+		(vp-string "-cpu") (vp-byte 0)
+		(vp-align ptr_size)
+	(vp-long `(sub ,(label-sym 'opt_run) ,(label-sym 'options_table)))
+		(vp-string "-run") (vp-byte 0)
+		(vp-align ptr_size)
+	(vp-long `(sub ,(label-sym 'opt_link) ,(label-sym 'options_table)))
+		(vp-string "-l") (vp-byte 0)
+		(vp-align ptr_size)
+	(vp-long 0)
 
 (def-func-end)

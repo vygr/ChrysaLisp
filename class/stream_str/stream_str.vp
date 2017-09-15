@@ -1,7 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/string/string.inc)
 (import 'class/stream_str/stream_str.inc)
-(import 'sys/pii/pii.inc)
 
 (gen-new 'stream_str)
 (gen-create 'stream_str)

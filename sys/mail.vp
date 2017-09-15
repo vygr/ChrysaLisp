@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
 (import 'sys/mail.inc)
 (import 'sys/task.inc)
-(import 'sys/pii/pii.inc)
+(import 'sys/kernel.inc)
 
 (def-func 'sys/mail_statics)
 	(times ml_statics_size (vp-byte 0))
@@ -160,7 +160,7 @@
 
 	;on or off chip ?
 	(f-entry 'sys_mail 'send '(r2))
-	(f-call 'sys_cpu 'id '() '(r0))
+	(f-call 'kernel 'id '() '(r0))
 	(vp-cpy-ir r2 (add msg_dest id_cpu) r1)
 	(vpif '(r0 == r1))
 		;on this chip
@@ -342,7 +342,7 @@
 		(f-call 'sys_mail 'mymail '() '(r14))
 
 		;create next parcel id
-		(f-call 'sys_cpu 'id '() '(r5))
+		(f-call 'kernel 'id '() '(r5))
 		(f-bind 'sys_mail 'statics r1)
 		(vp-cpy-ir r1 ml_statics_parcel_id r6)
 		(vp-add-cr 1 r6)

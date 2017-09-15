@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'sys/load.inc)
-(import 'sys/pii/pii.inc)
+(import 'sys/kernel.inc)
 (import 'class/string/string.inc)
 
 (defcvar 'list_loaded nil)
@@ -106,7 +106,7 @@
 
 	;kernel inputs
 	(vp-pop r0 r1)
-	(f-jmp 'sys_sys 'kernel '(r0 r1))
+	(f-jmp 'kernel 'kernel '(r0 r1))
 
 (vp-label 'string_skip)
 	(loop-start)

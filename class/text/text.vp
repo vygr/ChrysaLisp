@@ -4,7 +4,6 @@
 (import 'class/vector/vector.inc)
 (import 'class/text/text.inc)
 (import 'class/string/string.inc)
-(import 'sys/pii/pii.inc)
 
 (gen-new 'text)
 (gen-create 'text)

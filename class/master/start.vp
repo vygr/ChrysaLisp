@@ -4,7 +4,7 @@
 (import 'class/stream_msg_in/stream_msg_in.inc)
 (import 'class/slave/slave.inc)
 (import 'class/master/master.inc)
-(import 'sys/pii/pii.inc)
+(import 'sys/kernel.inc)
 
 (def-func 'class/master/start)
 	;inputs
@@ -84,7 +84,7 @@
 				;send args to pipe elements, wiring up id's as we go
 				(f-call 'sys_mail 'init_mailbox {&mailbox})
 				(assign {mbox} {nextid.id_mbox})
-				(f-call 'sys_cpu 'id {} {nextid.id_cpu})
+				(f-call 'kernel 'id {} {nextid.id_cpu})
 				(assign {index - 2} {index})
 				(loop-while {index})
 					(assign {index - 1} {index})
@@ -94,9 +94,9 @@
 					(assign {nextid.id_mbox} {msg->slave_mail_init_stdout_id.id_mbox})
 					(assign {nextid.id_cpu} {msg->slave_mail_init_stdout_id.id_cpu})
 					(assign {&(this->master_mailbox_array)[(index + 1) * mailbox_size]} {msg->slave_mail_init_stderr_id.id_mbox})
-					(f-call 'sys_cpu 'id {} {msg->slave_mail_init_stderr_id.id_cpu})
+					(f-call 'kernel 'id {} {msg->slave_mail_init_stderr_id.id_cpu})
 					(assign {&mailbox} {msg->slave_mail_init_ack_id.id_mbox})
-					(f-call 'sys_cpu 'id {} {msg->slave_mail_init_ack_id.id_cpu})
+					(f-call 'kernel 'id {} {msg->slave_mail_init_ack_id.id_cpu})
 					(assign {ids[index * id_size].id_mbox} {nextid.id_mbox})
 					(assign {ids[index * id_size].id_cpu} {nextid.id_cpu})
 					(assign {nextid.id_mbox} {msg->msg_dest.id_mbox})
