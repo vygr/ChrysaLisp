@@ -199,30 +199,32 @@
 
 (def-func-end)
 
+
 (def-func 'sys/pii/age)
 	;inputs
 	;r0 = function name
 	;outputs
 	;r0 = 0 if error, else modified date
 	;trashes
-	;r0-r2
+	;none
 
-	;save filename
-	(f-entry 'pii 'age '(r2))
+	(f-entry 'pii 'age '(r0))
+	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
 
 	;get file data
 	(f-bind 'sys_load 'statics r1)
 	(vp-cpy-ir r1 ld_statics_stat_buffer r1)
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
-	(sys-stat '(r2 r1) '(r0))
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-stat '(r0 r1) '(r0))
 	(vpif '(r0 != 0))
 		(vp-xor-rr r0 r0)
-		(vp-ret)
+	(else)
+		(f-bind 'sys_load 'statics r1)
+		(vp-cpy-ir r1 ld_statics_stat_buffer r1)
+		(vp-cpy-ir r1 stat_mtime r0)
 	(endif)
 
-	;get file modified date
-	(f-exit 'pii 'age '((r1 stat_mtime)))
+	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-exit 'pii 'age '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -230,6 +232,8 @@
 (def-func 'sys/pii/time)
 	;outputs
 	;r0 = time in usec
+	;trashes
+	;none
 
 	;calculate wake time
 	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
