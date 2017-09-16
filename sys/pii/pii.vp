@@ -14,11 +14,11 @@
 	;none
 
 	(f-entry 'pii 'open '(r0 r1 r2))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(sys-open '(r0 r1 r2) '(r0))
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'open '(r0))
 	(vp-ret)
 
@@ -33,11 +33,11 @@
 	;none
 
 	(f-entry 'pii 'close '(r0))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(sys-close '(r0) '(r0))
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'close '(r0))
 	(vp-ret)
 
@@ -48,11 +48,13 @@
 	;r0 = fd
 	;r1 = number
 	;r2 = base
+	;outputs
+	;r0 = error code
 	;trashes
 	;none
 
 	(f-entry 'pii 'write_num '(r0 r1 r2))
-	(vp-push r0 r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(vp-cpy-rr r2 r3)
 	(vp-swp-rr r0 r1)
@@ -73,7 +75,7 @@
 		(vp-pop r1)
 	(loop-until '(rsp == r4))
 
-	(vp-pop r0 r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(vp-ret)
 
 (def-func-end)
@@ -88,11 +90,11 @@
 	;none
 
 	(f-entry 'pii 'write_char '(r0 r1))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(sys-write-char '(r0 r1) '(r0))
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'write_char '(r0))
 	(vp-ret)
 
@@ -109,11 +111,11 @@
 	;none
 
 	(f-entry 'pii 'write '(r0 r1 r2))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(sys-write '(r0 r1 r2) '(r0))
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'write '(r0))
 	(vp-ret)
 
@@ -129,13 +131,13 @@
 	;none
 
 	(f-entry 'pii 'write_str '(r0 r1))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(vp-cpy-rr r0 r2)
 	(f-call 'sys_string 'length '(r1) '(r0 r1))
 	(sys-write '(r2 r0 r1) '(r0))
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'write_str '(r0))
 	(vp-ret)
 
@@ -157,7 +159,8 @@
 
 	;save inputs
 	(f-entry 'pii 'debug_long '(r0 r1 r2))
-	(vp-push r5 r6 r7 r8 r9 r10 r2 r1 r0)
+	(sys-push-trashed)
+	(vp-push r2 r1 r0)
 
 	(f-call 'pii 'write_str '(2 (rsp local_info)))
 	(f-call 'pii 'write_char '(2 (code " ")))
@@ -166,7 +169,8 @@
 	(f-call 'pii 'write_num '(2 (rsp local_long) 16))
 	(f-call 'pii 'write_char '(2 char_lf))
 
-	(vp-push r5 r6 r7 r8 r9 r10 r2 r1 r0)
+	(vp-free (mul ptr_size 3))
+	(sys-pop-trashed)
 	(vp-ret)
 
 (def-func-end)
@@ -186,7 +190,8 @@
 	(def-struct-end)
 
 	(f-entry 'pii 'debug_str '(r0 r1 r2))
-	(vp-push r5 r6 r7 r8 r9 r10 r2 r1 r0)
+	(sys-push-trashed)
+	(vp-push r2 r1 r0)
 
 	(f-call 'pii 'write_str '(2 (rsp local_info)))
 	(f-call 'pii 'write_char '(2 (code " ")))
@@ -195,7 +200,8 @@
 	(f-call 'pii 'write_str '(2 (rsp local_str)))
 	(f-call 'pii 'write_char '(2 char_lf))
 
-	(vp-push r5 r6 r7 r8 r9 r10 r2 r1 r0)
+	(vp-free (mul ptr_size 3))
+	(sys-pop-trashed)
 	(vp-ret)
 
 (def-func-end)
@@ -209,7 +215,7 @@
 	;none
 
 	(f-entry 'pii 'age '(r0))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	;get file data
 	(f-bind 'sys_load 'statics r1)
@@ -223,7 +229,7 @@
 		(vp-cpy-ir r1 stat_mtime r0)
 	(endif)
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'age '(r0))
 	(vp-ret)
 
@@ -236,7 +242,7 @@
 	;none
 
 	;calculate wake time
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(vp-alloc timeval_size)
 	(sys-gettimeofday '(rsp 0))
@@ -246,7 +252,7 @@
 	(vp-add-rr r1 r0)
 	(vp-free timeval_size)
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'time '(r0))
 	(vp-ret)
 
@@ -266,11 +272,11 @@
 	;none
 
 	(f-entry 'pii 'mmap '(r0 r1 r2 r3 r4 r5))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(sys-mmap '(r0 r1 r2 r3 r4 r5) '(r0))
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'mmap '(r0))
 	(vp-ret)
 
@@ -286,11 +292,11 @@
 	;none
 
 	(f-entry 'pii 'munmap '(r0 r1))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(sys-munmap '(r0 r1) '(r0))
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'munmap '(r0))
 	(vp-ret)
 
@@ -307,11 +313,11 @@
 	;none
 
 	(f-entry 'pii 'read '(r0 r1 r2))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(sys-read '(r0 r1 r2) '(r0))
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'read '(r0))
 	(vp-ret)
 
@@ -326,11 +332,11 @@
 	;none
 
 	(f-entry 'pii 'read_char '(r0))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(sys-read-char '(r0) '(r0))
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'read_char '(r0))
 	(vp-ret)
 
@@ -346,11 +352,11 @@
 	;none
 
 	(f-entry 'pii 'ftruncate '(r0 r1))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(sys-ftruncate '(r0 r1) '(r0))
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'ftruncate '(r0))
 	(vp-ret)
 
@@ -365,11 +371,11 @@
 	;none
 
 	(f-entry 'pii 'unlink '(r0))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(sys-unlink '(r0) '(r0))
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'unlink '(r0))
 	(vp-ret)
 
@@ -385,11 +391,11 @@
 	;none
 
 	(f-entry 'pii 'stat '(r0 r1))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(sys-stat '(r0 r1) '(r0))
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'stat '(r0))
 	(vp-ret)
 
@@ -406,11 +412,11 @@
 	;none
 
 	(f-entry 'pii 'fcntl '(r0 r1 r2))
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-push-trashed)
 
 	(sys-fcntl '(r0 r1 r2) '(r0))
 
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(sys-pop-trashed)
 	(f-exit 'pii 'fcntl '(r0))
 	(vp-ret)
 

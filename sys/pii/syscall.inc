@@ -1,19 +1,24 @@
 (import 'sys/code.inc)
 
-(defcfun sys-call (_1)
-	(cond
-		((eql *os* 'Darwin)
-			(vp-cpy-cr (add _1 0x2000000) r0))
-		((eql *os* 'Linux)
-			(vp-cpy-cr _1 r0))
-		(t (throw "Invalid platform setting" *os*)))
-	(vp-syscall))
+(when (eql *cpu* 'x86_64)
+	(defcmacro sys-push-trashed ()
+		'(vp-push r1 r2 r5 r6 r7 r8 r9 r10))
+	(defcmacro sys-pop-trashed ()
+		'(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)))
+
+(when (eql *cpu* 'ARM)
+	(defcmacro sys-push-trashed ())
+	(defcmacro sys-pop-trashed ()))
 
 (when (eql *os* 'Darwin)
 
 ;;;;;;;;;;;;;;;;;
 ; syscall for OSX
 ;;;;;;;;;;;;;;;;;
+
+(defcfun sys-call (_)
+	(vp-cpy-cr (add _ 0x2000000) r0)
+	(vp-syscall))
 
 (defcvar 'sys_exit 0x1)
 (defcvar 'sys_read 0x3)
@@ -96,6 +101,10 @@
 ;;;;;;;;;;;;;;;;;;;
 ; syscall for Linux
 ;;;;;;;;;;;;;;;;;;;
+
+(defcfun sys-call (_)
+	(vp-cpy-cr _ r0)
+	(vp-syscall))
 
 (defcvar 'sys_exit 0x3c)
 (defcvar 'sys_read 0x0)
