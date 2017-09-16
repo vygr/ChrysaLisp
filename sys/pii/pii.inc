@@ -1,5 +1,5 @@
 (import 'sys/class.inc)
-(import 'sys/syscall.inc)
+(import 'sys/pii/syscall.inc)
 
 (def-class 'pii)
 (def-method 'mmap 'sys/pii/mmap 'static '(r0 r1 r2 r3 r4 r5) '(r0))
