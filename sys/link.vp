@@ -94,22 +94,15 @@
 	(f-call 'sys_mail 'send '(r0))
 
 	;open shared memory file
-	(vp-lea-i r13 msg_data r0)
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
-	(sys-open '(r0 (bit-or o_creat o_rdwr) (bit-or s_irusr s_iwusr)) '(r0))
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-call 'pii 'open '((& r13 msg_data) (bit-or o_creat o_rdwr) (bit-or s_irusr s_iwusr)) '(r0))
 	(vp-cpy-rr r0 r12)
 	(vp-cpy-ri r0 rsp lk_node_handle)
 
 	;set size of region
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
-	(sys-ftruncate '(r0 lk_buffer_size) '(_))
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-call 'pii 'ftruncate '(r0 lk_buffer_size))
 
 	;map shared object
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
-	(sys-mmap '(0 lk_buffer_size (bit-or prot_read prot_write) map_shared r12 0) '(r0))
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-call 'pii 'mmap '(0 lk_buffer_size (bit-or prot_read prot_write) map_shared r12 0) '(r0))
 	(vp-cpy-rr r0 r11)
 	(assert '(r0 != 0))
 
@@ -233,21 +226,14 @@
 	(loop-until '(r0 == -1))
 
 	;unmap object
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
-	(sys-munmap '(r11 lk_buffer_size) '(_))
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-call 'pii 'munmap '(r11 lk_buffer_size))
 
 	;close it
-	(vp-cpy-ir rsp lk_node_handle r0)
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
-	(sys-close '(r0) '(_))
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-call 'pii 'close '((rsp lk_node_handle)))
 
 	;unlink shared object
 	(vp-cpy-ir rsp lk_node_params r0)
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
-	(sys-unlink '((& r0 msg_data)) '(_))
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-call 'pii 'unlink '((& r0 msg_data)))
 
 	;free params msg
 	(f-call 'sys_mem 'free '((rsp lk_node_params)))

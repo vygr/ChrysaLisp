@@ -48,7 +48,7 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'number '(r0 r1 r2))
+	(f-entry 'pii 'write_num '(r0 r1 r2))
 	(vp-push r0 r1 r2 r5 r6 r7 r8 r9 r10)
 
 	(vp-cpy-rr r2 r3)
@@ -82,7 +82,7 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'char '(r0 r1))
+	(f-entry 'pii 'write_char '(r0 r1))
 	(vp-push r0 r1 r2 r5 r6 r7 r8 r9 r10)
 
 	(sys-write-char '(r0 r1) '(_))
@@ -117,7 +117,7 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'string '(r0 r1))
+	(f-entry 'pii 'write_str '(r0 r1))
 	(vp-push r0 r1 r2 r5 r6 r7 r8 r9 r10)
 
 	(vp-cpy-rr r0 r2)
@@ -147,12 +147,12 @@
 	(f-entry 'pii 'debug_long '(r0 r1 r2))
 	(vp-push r5 r6 r7 r8 r9 r10 r2 r1 r0)
 
-	(f-call 'pii 'string '(2 (rsp local_info)))
-	(f-call 'pii 'char '(2 (code " ")))
-	(f-call 'pii 'string '(2 (rsp local_string)))
-	(f-call 'pii 'string '(2 " :-> 0x"))
-	(f-call 'pii 'number '(2 (rsp local_long) 16))
-	(f-call 'pii 'char '(2 char_lf))
+	(f-call 'pii 'write_str '(2 (rsp local_info)))
+	(f-call 'pii 'write_char '(2 (code " ")))
+	(f-call 'pii 'write_str '(2 (rsp local_string)))
+	(f-call 'pii 'write_str '(2 " :-> 0x"))
+	(f-call 'pii 'write_num '(2 (rsp local_long) 16))
+	(f-call 'pii 'write_char '(2 char_lf))
 
 	(vp-push r5 r6 r7 r8 r9 r10 r2 r1 r0)
 	(vp-ret)
@@ -176,12 +176,12 @@
 	(f-entry 'pii 'debug_str '(r0 r1 r2))
 	(vp-push r5 r6 r7 r8 r9 r10 r2 r1 r0)
 
-	(f-call 'pii 'string '(2 (rsp local_info)))
-	(f-call 'pii 'char '(2 (code " ")))
-	(f-call 'pii 'string '(2 (rsp local_string)))
-	(f-call 'pii 'string '(2 " :-> "))
-	(f-call 'pii 'string '(2 (rsp local_str)))
-	(f-call 'pii 'char '(2 char_lf))
+	(f-call 'pii 'write_str '(2 (rsp local_info)))
+	(f-call 'pii 'write_char '(2 (code " ")))
+	(f-call 'pii 'write_str '(2 (rsp local_string)))
+	(f-call 'pii 'write_str '(2 " :-> "))
+	(f-call 'pii 'write_str '(2 (rsp local_str)))
+	(f-call 'pii 'write_char '(2 char_lf))
 
 	(vp-push r5 r6 r7 r8 r9 r10 r2 r1 r0)
 	(vp-ret)
@@ -236,6 +236,170 @@
 
 	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
 	(f-exit 'pii 'time '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/pii/mmap)
+	;inputs
+	;r0 = address
+	;r1 = len
+	;r2 = prot
+	;r3 = flags
+	;r4 = fd
+	;r5 = pos
+	;outputs
+	;r0 = buffer
+	;trashes
+	;none
+
+	(f-entry 'pii 'mmap '(r0 r1 r2 r3 r4 r5))
+	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+
+	(sys-mmap '(r0 r1 r2 r3 r4 r5) '(r0))
+
+	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-exit 'pii 'mmap '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/pii/munmap)
+	;inputs
+	;r0 = buffer
+	;r1 = size
+	;outputs
+	;r0 = error code
+	;trashes
+	;none
+
+	(f-entry 'pii 'munmap '(r0 r1))
+	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+
+	(sys-munmap '(r0 r1) '(r0))
+
+	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-exit 'pii 'munmap '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/pii/read)
+	;inputs
+	;r0 = fd
+	;r1 = buffer
+	;r2 = size
+	;outputs
+	;r0 = error code
+	;trashes
+	;none
+
+	(f-entry 'pii 'read '(r0 r1 r2))
+	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+
+	(sys-read '(r0 r1 r2) '(r0))
+
+	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-exit 'pii 'read '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/pii/read_char)
+	;inputs
+	;r0 = fd
+	;outputs
+	;r0 = char
+	;trashes
+	;none
+
+	(f-entry 'pii 'read_char '(r0))
+	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+
+	(sys-read-char '(r0) '(r0))
+
+	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-exit 'pii 'read_char '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/pii/ftruncate)
+	;inputs
+	;r0 = fd
+	;r1 = size
+	;outputs
+	;r0 = error code
+	;trashes
+	;none
+
+	(f-entry 'pii 'ftruncate '(r0 r1))
+	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+
+	(sys-ftruncate '(r0 r1) '(r0))
+
+	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-exit 'pii 'ftruncate '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/pii/unlink)
+	;inputs
+	;r0 = filename
+	;outputs
+	;r0 = error code
+	;trashes
+	;none
+
+	(f-entry 'pii 'unlink '(r0))
+	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+
+	(sys-unlink '(r0) '(r0))
+
+	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-exit 'pii 'unlink '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/pii/stat)
+	;inputs
+	;r0 = filename
+	;r1 = stat buf
+	;outputs
+	;r0 = error code
+	;trashes
+	;none
+
+	(f-entry 'pii 'stat '(r0 r1))
+	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+
+	(sys-stat '(r0 r1) '(r0))
+
+	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-exit 'pii 'stat '(r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'sys/pii/fcntl)
+	;inputs
+	;r0 = fd
+	;r1 = command
+	;r2 = arg
+	;outputs
+	;r0 = error code
+	;trashes
+	;none
+
+	(f-entry 'pii 'fcntl '(r0 r1 r2))
+	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+
+	(sys-fcntl '(r0 r1 r2) '(r0))
+
+	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-exit 'pii 'fcntl '(r0))
 	(vp-ret)
 
 (def-func-end)

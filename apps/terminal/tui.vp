@@ -165,12 +165,12 @@
 
 	(vpif {char == char_tab})
 		;tab
-		(f-call 'pii 'char {1, char_space})
-		(f-call 'pii 'char {1, char_space})
-		(f-call 'pii 'char {1, char_space})
-		(f-call 'pii 'char {1, char_space})
+		(f-call 'pii 'write_char {1, char_space})
+		(f-call 'pii 'write_char {1, char_space})
+		(f-call 'pii 'write_char {1, char_space})
+		(f-call 'pii 'write_char {1, char_space})
 	(else)
-		(f-call 'pii 'char {1, char})
+		(f-call 'pii 'write_char {1, char})
 	(endif)
 
 	(pop-scope)
@@ -194,13 +194,13 @@
 	(f-call 'sys_mem 'free {msg})
 
 	;non block on stdin
-	(sys-fcntl {0, f_getfl, 0} {char})
-	(sys-fcntl {0, f_setfl, char | o_nonblock} '(_))
+	(f-call 'pii 'fcntl {0, f_getfl, 0} {char})
+	(f-call 'pii 'fcntl {0, f_setfl, char | o_nonblock})
 
 	;poll stdin and send char to tui
 	(loop-start)
 	(vp-label 'nextchar)
-		(sys-read-char {0} {char})
+		(f-call 'pii 'read_char {0} {char})
 		(vpif {char})
 			(f-call 'sys_mail 'alloc {} {msg})
 			(assign {tui_id.id_mbox} {msg->msg_dest.id_mbox})

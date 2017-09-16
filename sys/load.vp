@@ -30,9 +30,9 @@
 	(loop-end)
 	(vp-and-cr (neg ld_page_size) r0)
 	(vp-sub-rr r0 r1)
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(vp-push r3)
 	(sys-mprotect '(r0 r1 (bit-or prot_read prot_write prot_exec)) '(_))
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(vp-pop r3)
 
 	;get loader statics and bind function !
 	(vp-lea-p '_func_start r5)
@@ -57,7 +57,7 @@
 	;add all prebound functions to function list
 	(vp-lea-p '_func_start r1)
 	(loop-start)
-	 	(vp-cpy-ir-ui r1 fn_header_length r2)
+		(vp-cpy-ir-ui r1 fn_header_length r2)
 		(breakif '(r2 == 0))
 		(vp-cpy-ir r5 ld_statics_function_flist r0)
 		(vp-cpy-ri r0 r1 0)
@@ -124,16 +124,14 @@
 (def-func 'sys/load_deinit)
 	;free relloc buffer
 	(f-bind 'sys_load 'statics r0)
-	(sys-munmap '((r0 ld_statics_reloc_buffer) ld_reloc_buf_size) '(_))
+	(f-call 'pii 'munmap '((r0 ld_statics_reloc_buffer) ld_reloc_buf_size))
 
 	;free all function blocks
 	(f-bind 'sys_load 'statics r0)
 	(loop-flist r0 ld_statics_block_flist r1 r2)
 		(vp-cpy-rr r1 r0)
 		(ln-remove-fnode r1 r2)
-		(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
-		(sys-munmap '(r0 ld_block_size) '(_))
-		(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+		(f-call 'pii 'munmap '(r0 ld_block_size))
 	(loop-end)
 	(vp-ret)
 
@@ -181,10 +179,9 @@
 	(vp-cpy-ir r7 ld_statics_name_buffer r6)
 
 	;get length of function on disk
-	(vp-cpy-ir r7 ld_statics_stat_buffer r0)
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
-	(sys-stat '(r6 r0) '(r0))
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(vp-push r6 r7)
+	(sys-stat '(r6 (r7 ld_statics_stat_buffer)) '(r0))
+	(vp-pop r6 r7)
 	(vpif '(r0 != 0))
 	(vp-label 'exit)
 		(vp-xor-rr r0 r0)
@@ -205,9 +202,9 @@
 	(vp-cpy-ir r0 stat_fsize r0)
 	(vpif '(r2 < r0))
 		;not enough so allocate new function buffer
-		(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+		(vp-push r6 r7)
 		(sys-mmap '(0 ld_block_size (bit-or prot_read prot_write prot_exec) (bit-or map_private map_anon) -1 0) '(r0))
-		(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+		(vp-pop r6 r7)
 		(assert '(r0 != 0))
 
 		;add to block list for freeing
@@ -226,30 +223,28 @@
 	(vp-call 'string_skip)
 	(vp-lea-i r0 -1 r1)
 	(vp-sub-rr r6 r1)
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
+	(vp-push r6 r7)
 	(sys-write '(2 r6 r1) '(_))
 	(sys-write-char '(2 char_lf) '(_))
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10))
+	(vp-pop r6 r7))
 
 	;open function file
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
-	(sys-open '(r6 o_rdonly 0) '(r0))
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
-	(vp-cpy-rr r0 r6)
+	(vp-push r7)
+	(sys-open '(r6 o_rdonly 0) '(r6))
+	(vp-cpy-ir rsp 0 r7)
 
 	;read into buffer
-	(vp-cpy-ir r7 ld_statics_block_start r3)
 	(vp-cpy-ir r7 ld_statics_stat_buffer r2)
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
-	(sys-read '(r6 r3 (r2 stat_fsize)) '(_))
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
-
+	(vp-push r6)
+	(sys-read '(r6 (r7 ld_statics_block_start) (r2 stat_fsize)) '(_))
+	(vp-pop r6)
 	;close function file
-	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
 	(sys-close '(r6) '(_))
-	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
 
 	;check loaded length equals file size
+	(vp-pop r7)
+	(vp-cpy-ir r7 ld_statics_block_start r3)
+	(vp-cpy-ir r7 ld_statics_stat_buffer r2)
 	(vp-cpy-ir-ui r3 fn_header_length r0)
 	(vp-cpy-ir r2 stat_fsize r1)
 	(vpif '(r0 != r1))

@@ -88,7 +88,7 @@
 
 	(assign {0} {*this->stream_bufp})
 	(assign {&this->stream_object->string_data} {this->stream_bufp})
-	(f-call 'pii 'string {1, this->stream_bufp})
+	(f-call 'pii 'write_str {1, this->stream_bufp})
 
 	(f-exit 'stream_str 'write_flush {this})
 	(pop-scope)
