@@ -10,7 +10,7 @@
 		(defcfun sys-call (_) (vp-syscall (add _ 0x2000000)))
 		(cond
 			((eql *cpu* 'x86_64)
-				(defcmacro sys-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r6 r5 r2 r9 r7 r8)))
+				(defmacro sys-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r6 r5 r2 r9 r7 r8)))
 				(defcmacro sys-push-trashed () '(vp-push r1 r2 r5 r6 r7 r8 r9 r10))
 				(defcmacro sys-pop-trashed () '(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)))
 			(t (throw "Unknown CPU for Darwin !" *cpu*))))
@@ -18,11 +18,11 @@
 		(defcfun sys-call (_) (vp-syscall _))
 		(cond
 			((eql *cpu* 'x86_64)
-				(defcmacro sys-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r6 r5 r2 r9 r7 r8)))
+				(defmacro sys-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r6 r5 r2 r9 r7 r8)))
 				(defcmacro sys-push-trashed () '(vp-push r1 r2 r5 r6 r7 r8 r9 r10))
 				(defcmacro sys-pop-trashed () '(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)))
 			((eql *cpu* 'ARM)
-				(defcmacro sys-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r0 r1 r2 r3 r4 r5)))
+				(defmacro sys-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r0 r1 r2 r3 r4 r5)))
 				(defcmacro sys-push-trashed () '(vp-push r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 				(defcmacro sys-pop-trashed () '(vp-pop r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)))
 			(t (throw "Unknown CPU for Linux !" *cpu*)))))
