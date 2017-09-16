@@ -27,15 +27,18 @@
 (def-func 'sys/pii/close)
 	;inputs
 	;r0 = fd
+	;outputs
+	;r0 = error code
 	;trashes
 	;none
 
 	(f-entry 'pii 'close '(r0))
 	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
 
-	(sys-close '(r0) '(_))
+	(sys-close '(r0) '(r0))
 
 	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-exit 'pii 'close '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -79,15 +82,18 @@
 	;inputs
 	;r0 = fd
 	;r1 = char
+	;outputs
+	;r0 = error code
 	;trashes
 	;none
 
 	(f-entry 'pii 'write_char '(r0 r1))
-	(vp-push r0 r1 r2 r5 r6 r7 r8 r9 r10)
+	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
 
-	(sys-write-char '(r0 r1) '(_))
+	(sys-write-char '(r0 r1) '(r0))
 
-	(vp-pop r0 r1 r2 r5 r6 r7 r8 r9 r10)
+	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-exit 'pii 'write_char '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -97,15 +103,18 @@
 	;r0 = fd
 	;r1 = buffer
 	;r2 = length
+	;outputs
+	;r0 = error code
 	;trashes
 	;none
 
 	(f-entry 'pii 'write '(r0 r1 r2))
-	(vp-push r0 r1 r2 r5 r6 r7 r8 r9 r10)
+	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
 
-	(sys-write '(r0 r1 r2) '(_))
+	(sys-write '(r0 r1 r2) '(r0))
 
-	(vp-pop r0 r1 r2 r5 r6 r7 r8 r9 r10)
+	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-exit 'pii 'write '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -114,17 +123,20 @@
 	;inputs
 	;r0 = fd
 	;r1 = string
+	;outputs
+	;r0 = error code
 	;trashes
 	;none
 
 	(f-entry 'pii 'write_str '(r0 r1))
-	(vp-push r0 r1 r2 r5 r6 r7 r8 r9 r10)
+	(vp-push r1 r2 r5 r6 r7 r8 r9 r10)
 
 	(vp-cpy-rr r0 r2)
 	(f-call 'sys_string 'length '(r1) '(r0 r1))
-	(sys-write '(r2 r0 r1) '(_))
+	(sys-write '(r2 r0 r1) '(r0))
 
-	(vp-pop r0 r1 r2 r5 r6 r7 r8 r9 r10)
+	(vp-pop r1 r2 r5 r6 r7 r8 r9 r10)
+	(f-exit 'pii 'write_str '(r0))
 	(vp-ret)
 
 (def-func-end)
