@@ -32,22 +32,22 @@
 ;;;;;;;;;;;;;;;;
 
 (when (eql *os* 'Darwin)
-	(defcfun sys-gettimeofday (_1)
+	(defcfun sys-gettimeofday (_)
 		;time, timezone
-		(assign _1 (sys-args 2))
-		(vp-push (elem 0 (sys-args 1)))
-		(vp-xor-rr (defq _ (elem 0 (sys-args 1 2))) _)
+		(assign _ (sys-args 2))
+		(vp-push (defq _1 (elem 0 (sys-args 1))))
+		(vp-xor-rr (defq _2 (elem 0 (sys-args 1 2))) _2)
 		(sys-call sys_gettimeofday)
-		(vp-pop r1)
+		(vp-pop _1)
 		(vpif '(r0 != 0))
-			(vp-cpy-ri r0 r1 timeval_sec)
-			(vp-cpy-ri r2 r1 timeval_usec)
+			(vp-cpy-ri r0 _1 timeval_sec)
+			(vp-cpy-ri _2 _1 timeval_usec)
 		(endif)))
 
 (when (eql *os* 'Linux)
-	(defcfun sys-gettimeofday (_1)
+	(defcfun sys-gettimeofday (_)
 		;time, timezone
-		(assign _1 (sys-args 2))
+		(assign _ (sys-args 2))
 		(sys-call sys_gettimeofday)))
 
 (def-struct 'timeval)
