@@ -145,7 +145,9 @@
 (defcfun emit-bgt (l d) (emit-branch 0xc l))
 (defcfun emit-ble (l d) (emit-branch 0xd l))
 
-(defcfun emit-syscall ())
+(defcfun emit-syscall (n)
+	(emit-cpy-cr n r8)
+	(emit-int 0xd4000001))
 
 (defcfun emit-call (l)
 	(emit-push r30)

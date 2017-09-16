@@ -1,7 +1,7 @@
 (import 'sys/class.inc)
-(import 'sys/pii/syscall.inc)
 
 (def-class 'pii)
+(def-method 'exit 'sys/pii/exit 'static '(r0))
 (def-method 'mmap 'sys/pii/mmap 'static '(r0 r1 r2 r3 r4 r5) '(r0))
 (def-method 'munmap 'sys/pii/munmap 'static '(r0 r1) '(r0))
 (def-method 'open 'sys/pii/open 'static '(r0 r1 r2) '(r0))
@@ -10,16 +10,153 @@
 (def-method 'unlink 'sys/pii/unlink 'static '(r0) '(r0))
 (def-method 'stat 'sys/pii/stat 'static '(r0 r1) '(r0))
 (def-method 'fcntl 'sys/pii/fcntl 'static '(r0 r1 r2) '(r0))
-
 (def-method 'write 'sys/pii/write 'static '(r0 r1 r2) '(r0))
 (def-method 'write_char 'sys/pii/write_char 'static '(r0 r1) '(r0))
 (def-method 'write_str 'sys/pii/write_str 'static '(r0 r1) '(r0))
 (def-method 'write_num 'sys/pii/write_num 'static '(r0 r1 r2))
 (def-method 'read 'sys/pii/read 'static '(r0 r1 r2) '(r0))
 (def-method 'read_char 'sys/pii/read_char 'static '(r0) '(r0))
-
 (def-method 'age 'sys/pii/age 'static '(r0) '(r0))
 (def-method 'time 'sys/pii/time 'static nil '(r0))
-
 (def-method 'debug_long 'sys/pii/debug_long 'static '(r0 r1 r2) '(r0))
 (def-method 'debug_str 'sys/pii/debug_str 'static '(r0 r1 r2) '(r0))
+
+(when (eql *os* 'Darwin)
+
+;;;;;;;;;;;;;;;;;
+; syscall for OSX
+;;;;;;;;;;;;;;;;;
+
+(defcvar 'sys_exit 0x1)
+(defcvar 'sys_read 0x3)
+(defcvar 'sys_write 0x4)
+(defcvar 'sys_open 0x5)
+(defcvar 'sys_close 0x6)
+(defcvar 'sys_unlink 0xa)
+(defcvar 'sys_ftruncate 0xc9)
+(defcvar 'sys_stat 0xbc)
+(defcvar 'sys_mmap 0xc5)
+(defcvar 'sys_munmap 0x49)
+(defcvar 'sys_mprotect 0x4a)
+(defcvar 'sys_gettimeofday 0x74)
+(defcvar 'sys_fcntl 0x5C)
+
+(defcvar 'prot_none 0x0)
+(defcvar 'prot_read 0x1)
+(defcvar 'prot_write 0x2)
+(defcvar 'prot_exec 0x4)
+
+(defcvar 'map_shared 0x1)
+(defcvar 'map_private 0x2)
+(defcvar 'map_fixed 0x10)
+(defcvar 'map_anon 0x1000)
+
+(defcvar 'o_rdonly 0x0)
+(defcvar 'o_wronly 0x1)
+(defcvar 'o_rdwr 0x2)
+(defcvar 'o_trunc 0x400)
+(defcvar 'o_append 0x8)
+(defcvar 'o_nonblock 0x4)
+(defcvar 'o_creat 0x200)
+(defcvar 'o_excl 0x800)
+(defcvar 'o_nofollow 0x100)
+(defcvar 'o_cloexec 0x1000000)
+
+(defcvar 's_irwxu 0x1c0)
+(defcvar 's_irusr 0x100)
+(defcvar 's_iwusr 0x80)
+(defcvar 's_ixusr 0x40)
+(defcvar 's_irwxg 0x38)
+(defcvar 's_irgrp 0x20)
+(defcvar 's_iwgrp 0x10)
+(defcvar 's_ixgrp 0x8)
+(defcvar 's_irwxo 0x7)
+(defcvar 's_iroth 0x4)
+(defcvar 's_iwoth 0x2)
+(defcvar 's_ixoth 0x1)
+(defcvar 's_isuid 0x800)
+(defcvar 's_isgid 0x400)
+(defcvar 's_isvtx 0x200)
+
+(defcvar 's_ifmt 0xf000)
+(defcvar 's_ifdir 0x4000)
+(defcvar 's_ifreg 0x8000)
+
+(defcvar 'f_getfl 0x3)
+(defcvar 'f_setfl 0x4)
+
+(defcvar 'stat_mode 0x8)
+(defcvar 'stat_fsize 0x48)
+(defcvar 'stat_size 0x100)
+(defcvar 'stat_mtime 0x38)
+
+)(when (eql *os* 'Linux)
+
+;;;;;;;;;;;;;;;;;;;
+; syscall for Linux
+;;;;;;;;;;;;;;;;;;;
+
+(defcvar 'sys_exit 0x3c)
+(defcvar 'sys_read 0x0)
+(defcvar 'sys_write 0x1)
+(defcvar 'sys_open 0x2)
+(defcvar 'sys_close 0x3)
+(defcvar 'sys_unlink 0x57)
+(defcvar 'sys_ftruncate 0x4d)
+(defcvar 'sys_stat 0x4)
+(defcvar 'sys_mmap 0x9)
+(defcvar 'sys_munmap 0xb)
+(defcvar 'sys_mprotect 0xa)
+(defcvar 'sys_gettimeofday 0x60)
+(defcvar 'sys_fcntl 0x48)
+
+(defcvar 'prot_none 0x0)
+(defcvar 'prot_read 0x1)
+(defcvar 'prot_write 0x2)
+(defcvar 'prot_exec 0x4)
+
+(defcvar 'map_shared 0x1)
+(defcvar 'map_private 0x2)
+(defcvar 'map_fixed 0x10)
+(defcvar 'map_anon 0x20)
+
+(defcvar 'o_rdonly 0x0)
+(defcvar 'o_wronly 0x1)
+(defcvar 'o_rdwr 0x2)
+(defcvar 'o_trunc 0x200)
+(defcvar 'o_append 0x400)
+(defcvar 'o_nonblock 0x800)
+(defcvar 'o_creat 0x40)
+(defcvar 'o_excl 0x80)
+(defcvar 'o_nofollow 0x20000)
+(defcvar 'o_cloexec 0x80000)
+
+(defcvar 's_irwxu 0x1c0)
+(defcvar 's_irusr 0x100)
+(defcvar 's_iwusr 0x80)
+(defcvar 's_ixusr 0x40)
+(defcvar 's_irwxg 0x38)
+(defcvar 's_irgrp 0x20)
+(defcvar 's_iwgrp 0x10)
+(defcvar 's_ixgrp 0x8)
+(defcvar 's_irwxo 0x7)
+(defcvar 's_iroth 0x4)
+(defcvar 's_iwoth 0x2)
+(defcvar 's_ixoth 0x1)
+(defcvar 's_isuid 0x800)
+(defcvar 's_isgid 0x400)
+(defcvar 's_isvtx 0x200)
+
+(defcvar 's_ifmt 0xf000)
+(defcvar 's_ifdir 0x4000)
+(defcvar 's_ifreg 0x8000)
+
+(defcvar 'f_getfl 0x3)
+(defcvar 'f_setfl 0x4)
+
+(defcvar 'stat_mode 0x18)
+(defcvar 'stat_fsize 0x30)
+(defcvar 'stat_size 0x100)
+(defcvar 'stat_mtime 0x58)
+
+)

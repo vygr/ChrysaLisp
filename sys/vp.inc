@@ -275,7 +275,7 @@
 (defcfun vp-ext-rr (s d) (emit (list 'emit-ext-rr s d)))
 (defcfun vp-div-rrr (d r q) (emit (list 'emit-div-rrr d r q)))
 (defcfun vp-div-rrr-u (d r q) (emit (list 'emit-div-rrr-u d r q)))
-(defcfun vp-syscall () (emit (list 'emit-syscall)))
+(defcfun vp-syscall (n) (emit (list 'emit-syscall n)))
 
 (defcfun vp-alloc (c) (emit (list 'emit-alloc c)))
 (defcfun vp-free (c) (emit (list 'emit-free c)))

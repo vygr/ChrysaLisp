@@ -167,7 +167,8 @@
 			(emit-int (sub c 6)))
 		(t (throw "emit-branch constant out of range !" c))))
 
-(defcfun emit-syscall ()
+(defcfun emit-syscall (n)
+	(emit-cpy-cr n r0)
 	(emit-byte 0xf 0x5))
 
 (defcfun emit-beq (l d) (emit-branch 0x74 (sub l *pc*) d))

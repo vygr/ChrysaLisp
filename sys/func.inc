@@ -134,7 +134,7 @@
 
 (defcfun abort (&optional s)
 	(f-call 'pii 'write_str `(2 ,(opt s "Abort !")))
-	(sys-exit '(1)))
+	(f-jmp 'pii 'exit '(1)))
 
 (defcfun assert (b &optional d)
 	;a = val1

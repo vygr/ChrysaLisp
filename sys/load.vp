@@ -2,6 +2,7 @@
 (import 'sys/load.inc)
 (import 'sys/kernel.inc)
 (import 'class/string/string.inc)
+(import 'sys/pii/syscall.inc)
 
 (defcvar 'list_loaded nil)
 

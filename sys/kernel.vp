@@ -297,7 +297,7 @@
 
 	;pop argv and exit !
 	(vp-free ptr_size)
-	(sys-exit '(0))
+	(f-jmp 'pii 'exit '(0))
 
 (def-func-end)
 
