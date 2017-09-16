@@ -235,7 +235,7 @@
 		;r1 = user data pointer
 		;outputs
 		;r0 = view object
-		;r1 = 0 if should not decend after down callback
+		;r1 = 0 if should not descend after down callback
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -505,7 +505,7 @@
 		;r1 = user data pointer
 		;outputs
 		;r0 = view object
-		;r1 = 0 if should not decend after down callback
+		;r1 = 0 if should not descend after down callback
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -621,7 +621,7 @@
 (def-func 'class/view/get_relative)
 	;inputs
 	;r0 = view object
-	;r1 = ansestor view object
+	;r1 = ancestor view object
 	;r7 = view x
 	;r8 = view y
 	;outputs
@@ -843,7 +843,7 @@
 	;trashes
 	;all but r0
 
-	;are we allready front ?
+	;are we already front ?
 	(ln-is-first r0 view_node r1)
 	(vpif '(r1 != 0))
 		(vp-push r0)
