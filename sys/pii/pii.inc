@@ -21,5 +21,5 @@
 (def-method 'age 'sys/pii/age 'static '(r0) '(r0))
 (def-method 'time 'sys/pii/time 'static nil '(r0))
 
-(def-method 'debug_long 'sys/pii/debug_long 'static '(r0 r1 r2))
-(def-method 'debug_str 'sys/pii/debug_str 'static '(r0 r1 r2))
+(def-method 'debug_long 'sys/pii/debug_long 'static '(r0 r1 r2) '(r0))
+(def-method 'debug_str 'sys/pii/debug_str 'static '(r0 r1 r2) '(r0))

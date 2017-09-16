@@ -171,6 +171,7 @@
 
 	(vp-free (mul ptr_size 3))
 	(sys-pop-trashed)
+	(f-exit 'pii 'debug_long '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -202,6 +203,7 @@
 
 	(vp-free (mul ptr_size 3))
 	(sys-pop-trashed)
+	(f-exit 'pii 'debug_str '(r0))
 	(vp-ret)
 
 (def-func-end)
