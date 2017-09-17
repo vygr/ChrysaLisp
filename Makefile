@@ -3,7 +3,7 @@ CPU := $(shell uname -m)
 
 all:		obj/main
 
-undo:
+undo:		clean
 			unzip -oq $(OS)_$(CPU)_old.zip
 
 backup:
