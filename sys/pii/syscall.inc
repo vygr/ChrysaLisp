@@ -27,6 +27,8 @@
 				(defcmacro sys-pop-trashed () '(vp-pop r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)))
 			(t (throw "Unknown CPU for Linux !" *cpu*)))))
 
+(defmacro sys-arg (_) (elem _ (sys-args 6)))
+
 ;;;;;;;;;;;;;;;;
 ; syscall macros
 ;;;;;;;;;;;;;;;;
@@ -35,13 +37,13 @@
 	(defcfun sys-gettimeofday (_)
 		;time, timezone
 		(assign _ (sys-args 2))
-		(vp-push (defq _1 (elem 0 (sys-args 1))))
-		(vp-xor-rr (defq _2 (elem 0 (sys-args 1 2))) _2)
+		(vp-push (sys-arg 0))
+		(vp-xor-rr (sys-arg 2) (sys-arg 2))
 		(sys-call sys_gettimeofday)
-		(vp-pop _1)
+		(vp-pop (sys-arg 1))
 		(vpif '(r0 != 0))
-			(vp-cpy-ri r0 _1 timeval_sec)
-			(vp-cpy-ri _2 _1 timeval_usec)
+			(vp-cpy-ri r0 (sys-arg 1) timeval_sec)
+			(vp-cpy-ri (sys-arg 2) (sys-arg 1) timeval_usec)
 		(endif)))
 
 (when (eql *os* 'Linux)
@@ -74,8 +76,8 @@
 (defcfun sys-read-char (_1 _2)
 	;fd
 	(assign _1 (sys-args 1))
-	(vp-xor-rr (defq _ (elem 0 (sys-args 1 1))) _)
-	(vp-push _)
+	(vp-xor-rr (sys-arg 1) (sys-arg 1))
+	(vp-push (sys-arg 1))
 	(assign '(rsp 1) (sys-args 2 1))
 	(sys-call sys_read)
 	(vp-pop r0)
@@ -90,7 +92,7 @@
 (defcfun sys-write-char (_1 _2)
 	;fd, char
 	(assign _1 (sys-args 2))
-	(vp-push (elem 0 (sys-args 1 1)))
+	(vp-push (sys-arg 1))
 	(assign '(rsp 1) (sys-args 2 1))
 	(sys-call sys_write)
 	(vp-free ptr_size)
