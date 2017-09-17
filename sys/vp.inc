@@ -288,6 +288,6 @@
 (cond
 ((eql *cpu* 'x86_64)
 (import 'sys/x64.inc))
-((eql *cpu* 'ARM)
+((eql *cpu* 'armv8)
 (import 'sys/arm.inc))
 (t (throw "No such CPU !" *cpu*)))

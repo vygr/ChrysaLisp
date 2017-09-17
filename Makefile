@@ -21,6 +21,10 @@ snapshot_linux:
 			rm -f Linux_x86_64.zip
 			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Linux_x86_64.zip obj/*
 
+snapshot_linux_arm:
+			rm -f Linux_armv8.zip
+			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Linux_armv8.zip obj/*
+
 obj/main:	obj/main.o
 ifeq ($(OS),Darwin)
 			clang -o $@ $@.o -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf

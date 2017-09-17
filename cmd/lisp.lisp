@@ -212,7 +212,7 @@
 	(each compile (all-vp-files)))
 
 (defun make-arm ()
-	(make-all 'Linux 'ARM))
+	(make-all 'Linux 'armv8))
 
 (defun make-test-arm (&optional i)
 	(defun time-in-seconds (_)
@@ -221,7 +221,7 @@
 	(defq b 1000000000 a 0 c 0)
 	(times (opt i 10)
 		(defq _ (time))
-		(compile (all-vp-files) 'Linux 'ARM)
+		(compile (all-vp-files) 'Linux 'armv8)
 		(setq _ (sub (time) _) a (add a _) c (inc c))
 		(print "Time " (time-in-seconds _) " seconds")
 		(print "Mean time " (time-in-seconds (div a c)) " seconds")
