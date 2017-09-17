@@ -129,14 +129,13 @@ Make with:
 make -j
 ```
 
-Requires NASM, SDL2 and the SDL2_TTF library to be installed. NASM is required
-for building the platform bootstrap, SDL2 and SDL2_ttf are for the experimental
-GUI.
+Requires Clang, SDL2 and the SDL2_TTF library to be installed. SDL2 and
+SDL2_ttf are for the experimental GUI.
 
 Requirements:
 Linux: Tested on Ubuntu 16-10
 ```
-sudo apt-get install nasm clang libsdl2-ttf-dev
+sudo apt-get install clang libsdl2-ttf-dev
 ```
 
 Run with:

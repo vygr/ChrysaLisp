@@ -7,8 +7,6 @@ remake:		snapshot clean all
 
 undo:
 			unzip -oq $(OS)_old.zip
-			nasm -dOS=$(OS) -f macho64 -o obj/main.o main.nasm
-			clang -o obj/main -e main obj/main.o -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
 
 backup:
 			cp -f $(OS).zip $(OS)_old.zip
@@ -27,21 +25,21 @@ snapshot_linux:
 
 obj/main:	obj/main.o
 ifeq ($(OS),Darwin)
-			clang -o $@ -e main $@.o -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
+			clang -o $@ $@.o -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
 endif
 ifeq ($(OS),Linux)
 			clang -o $@ $@.o $(shell sdl2-config --libs) -lSDL2_ttf
 endif
 
-obj/main.o:	main.nasm Makefile
-			echo $(OS) > platform
-			echo $(CPU) > arch
-			unzip -nq $(OS).zip
+obj/main.o:	main.c Makefile
 ifeq ($(OS),Darwin)
-			nasm -dOS=$(OS) -f macho64 -o $@ $<
+			clang -c -nostdlib -fno-exceptions -fno-rtti \
+				-I/Library/Frameworks/SDL2.framework/Headers/ \
+				-I/Library/Frameworks/SDL2_ttf.framework/Headers/ \
+				-o $@ $<
 endif
 ifeq ($(OS),Linux)
-			nasm -dOS=$(OS) -f elf64 -o $@ $<
+			clang -c -nostdlib -fno-exceptions -fno-rtti -o $@ $<
 endif
 
 clean:

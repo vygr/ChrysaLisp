@@ -12,11 +12,11 @@
 
 (def-func 'sys/load_init)
 	;inputs
-	;r0 = system argv
-	;r1 = SDL function table
+	;system argv
+	;SDL function table
 
 	;save inputs
-	(vp-push r0 r1)
+	(vp-push (sys-arg 0) (sys-arg 1))
 
 	;allocate relloc/stat/name buffer
 	(sys-mmap '(0 ld_reloc_buf_size (bit-or prot_read prot_write) (bit-or map_private map_anon) -1 0) '(r3))
