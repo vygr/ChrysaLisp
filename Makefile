@@ -22,8 +22,8 @@ snapshot_linux_x64:
 			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Linux_x86_64.zip obj/*
 
 snapshot_linux_arm:
-			rm -f Linux_armv8.zip
-			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Linux_armv8.zip obj/*
+			rm -f Linux_aarch64.zip
+			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Linux_aarch64.zip obj/*
 
 obj/main:	obj/main.o
 ifeq ($(OS),Darwin)
