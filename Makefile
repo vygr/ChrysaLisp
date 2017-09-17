@@ -17,7 +17,7 @@ snapshot_darwin:
 			rm -f Darwin_x86_64.zip
 			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Darwin_x86_64.zip obj/*
 
-snapshot_linux:
+snapshot_linux_x64:
 			rm -f Linux_x86_64.zip
 			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Linux_x86_64.zip obj/*
 
