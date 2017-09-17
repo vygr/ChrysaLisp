@@ -39,7 +39,9 @@ ifeq ($(OS),Darwin)
 				-o $@ $<
 endif
 ifeq ($(OS),Linux)
-			clang -c -nostdlib -fno-exceptions -fno-rtti -o $@ $<
+			clang -c -nostdlib -fno-exceptions -fno-rtti \
+				-I/usr/include/SDL2/ \
+				-o $@ $<
 endif
 
 clean:
