@@ -3,25 +3,23 @@ CPU := $(shell uname -m)
 
 all:		obj/main
 
-remake:		snapshot clean all
-
 undo:
-			unzip -oq $(OS)_old.zip
+			unzip -oq $(OS)_$(CPU)_old.zip
 
 backup:
-			cp -f $(OS).zip $(OS)_old.zip
+			cp -f $(OS)_$(CPU).zip $(OS)_$(CPU)_old.zip
 
 snapshot:
-			rm $(OS).zip
-			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main $(OS).zip obj/*
+			rm -f $(OS)_$(CPU).zip
+			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main $(OS)_$(CPU).zip obj/*
 
 snapshot_darwin:
-			rm Darwin.zip
-			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Darwin.zip obj/*
+			rm -f Darwin_x86_64.zip
+			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Darwin_x86_64.zip obj/*
 
 snapshot_linux:
-			rm Linux.zip
-			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Linux.zip obj/*
+			rm -f Linux_x86_64.zip
+			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Linux_x86_64.zip obj/*
 
 obj/main:	obj/main.o
 ifeq ($(OS),Darwin)
@@ -32,6 +30,7 @@ ifeq ($(OS),Linux)
 endif
 
 obj/main.o:	main.c Makefile
+			unzip -nq $(OS)_$(CPU).zip
 ifeq ($(OS),Darwin)
 			clang -c -nostdlib -fno-exceptions -fno-rtti \
 				-I/Library/Frameworks/SDL2.framework/Headers/ \
