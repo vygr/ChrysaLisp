@@ -129,8 +129,8 @@ Make with:
 make -j
 ```
 
-Requires Clang, SDL2 and the SDL2_TTF library to be installed. SDL2 and
-SDL2_ttf are for the experimental GUI.
+Requires SDL2 and the SDL2_TTF library to be installed. SDL2 and SDL2_ttf are
+for the experimental GUI.
 
 Requirements:
 Linux: Tested on Ubuntu 16-10

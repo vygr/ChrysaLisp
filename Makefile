@@ -27,22 +27,22 @@ snapshot_linux_arm:
 
 obj/main:	obj/main.o
 ifeq ($(OS),Darwin)
-			clang -o $@ $@.o -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
+			cc -o $@ $@.o -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
 endif
 ifeq ($(OS),Linux)
-			clang -o $@ $@.o $(shell sdl2-config --libs) -lSDL2_ttf
+			cc -o $@ $@.o $(shell sdl2-config --libs) -lSDL2_ttf
 endif
 
 obj/main.o:	main.c Makefile
 			unzip -nq $(OS)_$(CPU).zip
 ifeq ($(OS),Darwin)
-			clang -c -nostdlib -fno-exceptions -fno-rtti \
+			cc -c -nostdlib -fno-exceptions \
 				-I/Library/Frameworks/SDL2.framework/Headers/ \
 				-I/Library/Frameworks/SDL2_ttf.framework/Headers/ \
 				-o $@ $<
 endif
 ifeq ($(OS),Linux)
-			clang -c -nostdlib -fno-exceptions -fno-rtti \
+			cc -c -nostdlib -fno-exceptions \
 				-I/usr/include/SDL2/ \
 				-o $@ $<
 endif
