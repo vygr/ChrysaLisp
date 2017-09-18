@@ -48,13 +48,13 @@
 
 	;set the color mod
 	(vp-cpy-rr r2 r3)
-	(vp-cpy-rr r2 r1)
+	(vp-cpy-rr r2 r4)
 	(vp-shr-cr 16 r3)
 	(vp-shr-cr 8 r2)
 	(vp-and-cr 0xff r3)
 	(vp-and-cr 0xff r2)
-	(vp-and-cr 0xff r1)
-	(sdl-set-texture-color-mod '((rsp local_texture) r3 r2 r1))
+	(vp-and-cr 0xff r4)
+	(sdl-set-texture-color-mod '((rsp local_texture) r3 r2 r4))
 
 	;for each rect on the dirty region
 	(vp-cpy-ir rsp local_ctx r0)
