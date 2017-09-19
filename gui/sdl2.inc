@@ -8,9 +8,9 @@
 
 (cond
 	((eql *cpu* 'x86_64)
-		(defmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r0 r3 r4))))
+		(defmacro abi-args (&optional _) (setd _ 6) `',(slice 0 _ '(r6 r5 r2 r1 r7 r8 r0 r3 r4))))
 	((eql *cpu* 'aarch64)
-		(defmacro abi-args (&optional _ o) (setd _ 8 o 0) `',(slice o (add o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8))))
+		(defmacro abi-args (&optional _) (setd _ 8) `',(slice 0 _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8))))
 	(t (throw "Unknown CPU for Linux !" *cpu*)))
 
 (def-class 'sdl)
