@@ -365,13 +365,15 @@
 	(vpif '(r13 != 0))
 		;align stack on 16 byte boundary
 		(vp-cpy-rr rsp r14)
+		(vp-alloc ptr_size)
 		(vp-and-cr -16 rsp)
+		(vp-cpy-ri r14 rsp 0)
 
 		(abi-call 'sdl 'sdl_destroy_window '(r13))
 		(abi-call 'sdl 'ttf_quit)
 		(abi-call 'sdl 'sdl_quit)
 
-		(vp-cpy-rr r14 rsp)
+		(vp-cpy-ir rsp 0 rsp)
 	(endif)
 	(vp-ret)
 

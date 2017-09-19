@@ -55,7 +55,7 @@
 	;_3 = in parameters
 	;_4 = out parameters
 	;_5 = dispatch reg
-	(setd _5 r0)
+	(setd _5 r14)
 	(defq s 0 v 0 m nil)
 	(method-lookup _1 _2)
 	(if (eql (elem 2 m) 'static)

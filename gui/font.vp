@@ -40,10 +40,8 @@
 	(vp-and-cr -16 rsp)
 	(vp-cpy-ri r14 rsp local_old_stack)
 
-	;get font statics
-	(f-bind 'gui_font 'statics r14)
-
 	;free all text in the cache
+	(f-bind 'gui_font 'statics r14)
 	(vp-lea-i r14 ft_statics_text_flists r9)
 	(vp-lea-i r9 ft_buckets_size r10)
 	(loop-start)
@@ -57,6 +55,7 @@
 	(loop-until '(r9 == r10))
 
 	;free all fonts in the cache
+	(f-bind 'gui_font 'statics r14)
 	(loop-flist r14 ft_statics_font_flist r13 r12)
 		(vp-cpy-rr r13 r11)
 		(ln-remove-fnode r13 r12)
@@ -140,7 +139,9 @@
 
 	;align stack
 	(vp-cpy-rr rsp r14)
+	(vp-alloc ptr_size)
 	(vp-and-cr -16 rsp)
+	(vp-cpy-ri r14 rsp 0)
 
 	;save input
 	(vp-cpy-rr r0 r13)
@@ -185,7 +186,7 @@
 	(endif)
 	(vp-cpy-ri r0 r13 local_handle)
 
-	(vp-cpy-rr r14 rsp)
+	(vp-cpy-ir rsp 0 rsp)
 	(vp-ret)
 
 (def-func-end)
@@ -258,7 +259,9 @@
 
 	;align stack
 	(vp-cpy-rr rsp r14)
+	(vp-alloc ptr_size)
 	(vp-and-cr -16 rsp)
+	(vp-cpy-ri r14 rsp 0)
 
 	;save input
 	(vp-cpy-rr r0 r13)
@@ -305,7 +308,7 @@
 	(endif)
 	(vp-cpy-ri r0 r13 local_handle)
 
-	(vp-cpy-rr r14 rsp)
+	(vp-cpy-ir rsp 0 rsp)
 	(vp-ret)
 
 (def-func-end)
