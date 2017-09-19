@@ -8,11 +8,6 @@
 
 (cond
 	((eql *os* 'Darwin)
-		(defmacro sdl-call (_)
-			`(progn
-				(f-bind 'gui_gui 'statics r0)
-				(vp-cpy-ir r0 gui_statics_sdl_funcs r0)
-				(vp-call-i r0 (mul ,_ ptr_size))))
 		(cond
 			((eql *cpu* 'x86_64)
 				(defmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r9 r10 r11))))
@@ -20,18 +15,8 @@
 	((eql *os* 'Linux)
 		(cond
 			((eql *cpu* 'x86_64)
-				(defmacro sdl-call (_)
-					`(progn
-						(f-bind 'gui_gui 'statics r0)
-						(vp-cpy-ir r0 gui_statics_sdl_funcs r0)
-						(vp-call-i r0 (mul ,_ ptr_size))))
 				(defmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r9 r10 r11))))
 			((eql *cpu* 'aarch64)
-				(defmacro sdl-call (_)
-					`(progn
-						(f-bind 'gui_gui 'statics r9)
-						(vp-cpy-ir r9 gui_statics_sdl_funcs r9)
-						(vp-call-i r9 (mul ,_ ptr_size))))
 				(defmacro abi-args (&optional _ o) (setd _ 8 o 0) `',(slice o (add o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8))))
 			(t (throw "Unknown CPU for Linux !" *cpu*)))))
 
