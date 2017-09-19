@@ -11,7 +11,7 @@
 		(defmacro abi-args (&optional _) (setd _ 6) `',(slice 0 _ '(r6 r5 r2 r1 r7 r8 r0 r3 r4))))
 	((eql *cpu* 'aarch64)
 		(defmacro abi-args (&optional _) (setd _ 8) `',(slice 0 _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8))))
-	(t (throw "Unknown CPU for Linux !" *cpu*)))
+	(t (throw "Unknown CPU !" *cpu*)))
 
 (def-class 'sdl)
 (def-method 'sdl_set_main_ready nil 'virtual (abi-args 0) '(r0))
