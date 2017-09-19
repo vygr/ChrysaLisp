@@ -204,7 +204,7 @@
 (defcfun emit-jmp-i (d c) (emit-call-jump-i 0x20 d c))
 (defcfun emit-jmp-p (l) (emit-call-jump-p 0x25 (sub l *pc*)))
 
-(defcfun emit-lea-i (s c d) (emit-ir 0x8d s c d))
+(defcfun emit-lea-i (s c d) (unless (and (eq c 0) (eql s d)) (emit-ir 0x8d s c d)))
 (defcfun emit-lea-d (s1 s2 d) (emit-dr 0x8d s1 s2 d))
 (defcfun emit-lea-p (l d) (emit-pr 0x8d (sub l *pc*) d))
 

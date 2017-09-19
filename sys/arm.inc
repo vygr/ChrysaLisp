@@ -189,6 +189,7 @@
 
 (defcfun emit-lea-i (s c d)
 	(cond
+		((and (eq c 0) (eql s d)))
 		((le -0x1000 c 0xfff)
 			(if (ge c 0)
 				(emit-int (add 0x91000000 (bit-shl (bit-and c 0xfff) 10) (bit-shl (reg s) 5) (reg d)))
