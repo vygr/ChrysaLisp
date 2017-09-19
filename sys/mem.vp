@@ -43,8 +43,8 @@
 
 (def-func 'sys/mem_deinit)
 	;get statics
-	(f-bind 'sys_mem 'statics r0)
-	(vp-cpy-rr r0 r4)
+	(f-bind 'sys_mem 'statics r4)
+	(vp-add-cr long_size r4)
 
 	;free memory heaps
 	(vp-cpy-cr mem_block_min_size r5)	;start object size
