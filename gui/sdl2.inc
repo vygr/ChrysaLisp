@@ -7,20 +7,11 @@
 ;;;;;;;;;;;;;
 
 (cond
-	((eql *os* 'Darwin)
-		(cond
-			((eql *cpu* 'x86_64)
-				(defmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r9 r10 r11))))
-			(t (throw "Unknown CPU for Darwin !" *cpu*))))
-	((eql *os* 'Linux)
-		(cond
-			((eql *cpu* 'x86_64)
-				(defmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r9 r10 r11))))
-			((eql *cpu* 'aarch64)
-				(defmacro abi-args (&optional _ o) (setd _ 8 o 0) `',(slice o (add o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8))))
-			(t (throw "Unknown CPU for Linux !" *cpu*)))))
-
-(defcmacro abi-arg (_) (elem _ (abi-args 9)))
+	((eql *cpu* 'x86_64)
+		(defmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r0 r3 r4))))
+	((eql *cpu* 'aarch64)
+		(defmacro abi-args (&optional _ o) (setd _ 8 o 0) `',(slice o (add o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8))))
+	(t (throw "Unknown CPU for Linux !" *cpu*)))
 
 (def-class 'sdl)
 (def-method 'sdl_set_main_ready nil 'virtual (abi-args 0) '(r0))
@@ -68,7 +59,7 @@
 	(defq s 0 v 0 m nil)
 	(method-lookup _1 _2)
 	(if (eql (elem 2 m) 'static)
-		(throw "Ai methods must be virtual !" (list _1 _2)))
+		(throw "Abi methods must be virtual !" (list _1 _2)))
 	(setq s (elem 3 m))
 	(and _3 (str? _3) (setq _3 (cat "RXX, " _3) s (cat (list _5) s)))
 	(assign _3 s)
