@@ -721,9 +721,6 @@
 		((not (defq s (get-sym _)))
 			;not in symbol table so figure out what it is
 			(cond
-				((eql _ 'RXX)
-					;reserved slot
-					(push-reg nil))
 				((def? (type-sym _))
 					;field/member
 					(add-inst `(vp-cpy-cr ,_ ,(push-reg (eval (type-sym _))))))
