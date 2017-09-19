@@ -286,22 +286,22 @@
 	(vp-cpy-ir r0 gui_statics_window r1)
 	(vpif '(r1 == 0))
 		;init sdl2
-		(sdl-set-main-ready)
-		(sdl-init '(SDL_INIT_VIDEO))
-		(ttf-init)
+		(abi-call 'sdl 'sdl_set_main_ready)
+		(abi-call 'sdl 'sdl_init '(SDL_INIT_VIDEO))
+		(abi-call 'sdl 'ttf_init)
 
 		;create window
-		(sdl-create-window '(($ title) SDL_WINDOWPOS_UNDEFINED SDL_WINDOWPOS_UNDEFINED SCREEN_WIDTH SCREEN_HEIGHT SDL_WINDOW_OPENGL))
+		(abi-call 'sdl 'sdl_create_window '(($ title) SDL_WINDOWPOS_UNDEFINED SDL_WINDOWPOS_UNDEFINED SCREEN_WIDTH SCREEN_HEIGHT SDL_WINDOW_OPENGL))
 		(f-bind 'gui_gui 'statics r1)
 		(vp-cpy-ri r0 r1 gui_statics_window)
 
 		;create renderer
-		(sdl-create-renderer '(r0 -1 (bit-or SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC)))
+		(abi-call 'sdl 'sdl_create_renderer '(r0 -1 (bit-or SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC)))
 		(f-bind 'gui_gui 'statics r1)
 		(vp-cpy-ri r0 r1 gui_statics_renderer)
 
 		;set blend mode
-		(sdl-set-render-draw-blend-mode '(r0 SDL_BLENDMODE_BLEND))
+		(abi-call 'sdl 'sdl_set_render_draw_blend_mode '(r0 SDL_BLENDMODE_BLEND))
 	(endif)
 
 	;update screen
@@ -309,19 +309,19 @@
 	(vp-cpy-ir r0 gui_statics_screen r0)
 	(vpif '(r0 != 0))
 		;pump sdl events
-		(sdl-pump-events)
+		(abi-call 'sdl 'sdl_pump_events)
 
 		;get mouse state
 		(vp-cpy-ir rsp klocal_user r0)
 		(vp-lea-i r0 local_x_pos r1)
 		(vp-lea-i r0 local_y_pos r2)
-		(sdl-get-mouse-state '(r1 r2))
+		(abi-call 'sdl 'sdl_get_mouse_state '(r1 r2))
 		(vp-cpy-ir rsp klocal_user r1)
 		(vp-cpy-ri r0 r1 local_buttons)
 
 		;get keyboard state
 		(vp-add-cr local_keymap_size r1)
-		(sdl-get-keyboard-state '(r1))
+		(abi-call 'sdl 'sdl_get_keyboard_state '(r1))
 		(vp-cpy-ir rsp klocal_user r1)
 		(vp-cpy-ri r0 r1 local_keymap)
 
@@ -331,7 +331,7 @@
 
 		;refresh the window
 		(f-bind 'gui_gui 'statics r0)
-		(sdl-render-present '((r0 gui_statics_renderer)))
+		(abi-call 'sdl 'sdl_render_present '((r0 gui_statics_renderer)))
 	(endif)
 
 	(vp-cpy-ir rsp klocal_old_stack rsp)
@@ -367,9 +367,9 @@
 		(vp-cpy-rr rsp r14)
 		(vp-and-cr -16 rsp)
 
-		(sdl-destroy-window '(r13))
-		(ttf-quit)
-		(sdl-quit)
+		(abi-call 'sdl 'sdl_destroy_window '(r13))
+		(abi-call 'sdl 'ttf_quit)
+		(abi-call 'sdl 'sdl_quit)
 
 		(vp-cpy-rr r14 rsp)
 	(endif)

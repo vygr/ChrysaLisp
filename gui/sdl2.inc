@@ -1,48 +1,106 @@
+(import 'sys/class.inc)
 (import 'sys/code.inc)
 (import 'gui/gui.inc)
+
+;;;;;;;;;;;;;
+; sdl2 macros
+;;;;;;;;;;;;;
+
+(cond
+	((eql *os* 'Darwin)
+		(defmacro sdl-call (_)
+			`(progn
+				(f-bind 'gui_gui 'statics r0)
+				(vp-cpy-ir r0 gui_statics_sdl_funcs r0)
+				(vp-call-i r0 (mul ,_ ptr_size))))
+		(cond
+			((eql *cpu* 'x86_64)
+				(defmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r9 r10 r11))))
+			(t (throw "Unknown CPU for Darwin !" *cpu*))))
+	((eql *os* 'Linux)
+		(cond
+			((eql *cpu* 'x86_64)
+				(defmacro sdl-call (_)
+					`(progn
+						(f-bind 'gui_gui 'statics r0)
+						(vp-cpy-ir r0 gui_statics_sdl_funcs r0)
+						(vp-call-i r0 (mul ,_ ptr_size))))
+				(defmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r9 r10 r11))))
+			((eql *cpu* 'aarch64)
+				(defmacro sdl-call (_)
+					`(progn
+						(f-bind 'gui_gui 'statics r9)
+						(vp-cpy-ir r9 gui_statics_sdl_funcs r9)
+						(vp-call-i r9 (mul ,_ ptr_size))))
+				(defmacro abi-args (&optional _ o) (setd _ 8 o 0) `',(slice o (add o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8))))
+			(t (throw "Unknown CPU for Linux !" *cpu*)))))
+
+(defcmacro abi-arg (_) (elem _ (abi-args 9)))
+
+(def-class 'sdl)
+(def-method 'sdl_set_main_ready nil 'virtual (abi-args 0) '(r0))
+(def-method 'sdl_init nil 'virtual (abi-args 1) '(r0))
+(def-method 'sdl_get_error nil 'virtual (abi-args 0) '(r0))
+(def-method 'sdl_quit nil 'virtual (abi-args 0) '(r0))
+(def-method 'sdl_create_window nil 'virtual (abi-args 6) '(r0))
+(def-method 'sdl_create_window_and_renderer nil 'virtual (abi-args 5) '(r0))
+(def-method 'sdl_destroy_window nil 'virtual (abi-args 1) '(r0))
+(def-method 'sdl_delay nil 'virtual (abi-args 1) '(r0))
+(def-method 'sdl_create_renderer nil 'virtual (abi-args 3) '(r0))
+(def-method 'sdl_set_render_draw_color nil 'virtual (abi-args 5) '(r0))
+(def-method 'sdl_render_fill_rect nil 'virtual (abi-args 2) '(r0))
+(def-method 'sdl_render_present nil 'virtual (abi-args 1) '(r0))
+(def-method 'sdl_render_set_clip_rect nil 'virtual (abi-args 2) '(r0))
+(def-method 'sdl_set_render_draw_blend_mode nil 'virtual (abi-args 2) '(r0))
+(def-method 'sdl_pump_events nil 'virtual (abi-args 0) '(r0))
+(def-method 'sdl_get_mouse_state nil 'virtual (abi-args 2) '(r0))
+(def-method 'sdl_get_keyboard_state nil 'virtual (abi-args 1) '(r0))
+(def-method 'sdl_render_draw_rect nil 'virtual (abi-args 2) '(r0))
+(def-method 'sdl_free_surface nil 'virtual (abi-args 1) '(r0))
+(def-method 'sdl_create_texture_from_surface nil 'virtual (abi-args 2) '(r0))
+(def-method 'sdl_destroy_texture nil 'virtual (abi-args 1) '(r0))
+(def-method 'sdl_render_copy nil 'virtual (abi-args 4) '(r0))
+(def-method 'sdl_set_texture_blend_mode nil 'virtual (abi-args 2) '(r0))
+(def-method 'sdl_set_texture_color_mod nil 'virtual (abi-args 4) '(r0))
+(def-method 'sdl_create_rgb_surface_from nil 'virtual (abi-args 9) '(r0))
+(def-method 'ttf_init nil 'virtual (abi-args 0) '(r0))
+(def-method 'ttf_quit nil 'virtual (abi-args 0) '(r0))
+(def-method 'ttf_open_font nil 'virtual (abi-args 2) '(r0))
+(def-method 'ttf_close_font nil 'virtual (abi-args 1) '(r0))
+(def-method 'ttf_size_utf8 nil 'virtual (abi-args 4) '(r0))
+(def-method 'ttf_font_ascent nil 'virtual (abi-args 1) '(r0))
+(def-method 'ttf_font_descent nil 'virtual (abi-args 1) '(r0))
+(def-method 'ttf_font_height nil 'virtual (abi-args 1) '(r0))
+(def-method 'ttf_render_utf8_blended nil 'virtual (abi-args 3) '(r0))
+
+(defcfun abi-call (_1 _2 &optional _3 _4 _5)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = out parameters
+	;_5 = dispatch reg
+	(setd _5 r0)
+	(defq s 0 v 0 m nil)
+	(method-lookup _1 _2)
+	(if (eql (elem 2 m) 'static)
+		(throw "Ai methods must be virtual !" (list _1 _2)))
+	(setq s (elem 3 m))
+	(and _3 (str? _3) (setq _3 (cat "RXX, " _3) s (cat (list _5) s)))
+	(assign _3 s)
+	(when (gt (defq ls (length s)) (defq la (length (abi-args))))
+		(defq x (slice la ls s))
+		(if (ne 0 (bit-and (length x) 1)) (push x _5))
+		(apply vp-push (map (lambda (__) (elem (sub (neg _) 2) x)) x)))
+	(f-bind 'gui_gui 'statics _5)
+	(vp-cpy-ir _5 gui_statics_sdl_funcs _5)
+	(vp-call-i _5 v)
+	(when (gt ls la)
+		(vp-free (mul (length x) ptr_size)))
+	(if _4 (assign (elem 4 m) _4)))
 
 ;;;;;;;;;;;;;;;;;
 ; sdl2 structures
 ;;;;;;;;;;;;;;;;;
-
-(def-enum 'sdl)
-	(enum
-		'SDL_SetMainReady
-		'SDL_Init
-		'SDL_GetError
-		'SDL_Quit
-		'SDL_CreateWindow
-		'SDL_CreateWindowAndRenderer
-		'SDL_DestroyWindow
-		'SDL_Delay
-		'SDL_CreateRenderer
-		'SDL_SetRenderDrawColor
-		'SDL_RenderFillRect
-		'SDL_RenderPresent
-		'SDL_RenderSetClipRect
-		'SDL_SetRenderDrawBlendMode
-		'SDL_PumpEvents
-		'SDL_GetMouseState
-		'SDL_GetKeyboardState
-		'SDL_RenderDrawRect
-		'SDL_FreeSurface
-		'SDL_CreateTextureFromSurface
-		'SDL_DestroyTexture
-		'SDL_RenderCopy
-		'SDL_SetTextureBlendMode
-		'SDL_SetTextureColorMod
-		'SDL_CreateRGBSurfaceFrom
-
-		'TTF_Init
-		'TTF_Quit
-		'TTF_OpenFont
-		'TTF_CloseFont
-		'TTF_SizeUTF8
-		'TTF_FontAscent
-		'TTF_FontDescent
-		'TTF_FontHeight
-		'TTF_RenderUTF8_Blended)
-(def-enum-end)
 
 (defcvar 'SDL_INIT_TIMER 0x00000001)
 (defcvar 'SDL_INIT_AUDIO 0x00000010)
@@ -105,197 +163,37 @@
 	(int 'ref)
 (def-struct-end)
 
-;;;;;;;;;;;;;
-; sdl2 macros
-;;;;;;;;;;;;;
-
-(cond
-	((eql *os* 'Darwin)
-		(defmacro sdl-call (_)
-			`(progn
-				(f-bind 'gui_gui 'statics r0)
-				(vp-cpy-ir r0 gui_statics_sdl_funcs r0)
-				(vp-call-i r0 (mul ,_ ptr_size))))
-		(cond
-			((eql *cpu* 'x86_64)
-				(defmacro abi-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r9 r10 r11))))
-			(t (throw "Unknown CPU for Darwin !" *cpu*))))
-	((eql *os* 'Linux)
-		(cond
-			((eql *cpu* 'x86_64)
-				(defmacro sdl-call (_)
-					`(progn
-						(f-bind 'gui_gui 'statics r0)
-						(vp-cpy-ir r0 gui_statics_sdl_funcs r0)
-						(vp-call-i r0 (mul ,_ ptr_size))))
-				(defmacro abi-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r9 r10 r11))))
-			((eql *cpu* 'aarch64)
-				(defmacro sdl-call (_)
-					`(progn
-						(f-bind 'gui_gui 'statics r9)
-						(vp-cpy-ir r9 gui_statics_sdl_funcs r9)
-						(vp-call-i r9 (mul ,_ ptr_size))))
-				(defmacro abi-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8))))
-			(t (throw "Unknown CPU for Linux !" *cpu*)))))
-
-(defcmacro abi-arg (_) (elem _ (abi-args 9)))
-
-(defcfun sdl-set-main-ready ()
-	(sdl-call sdl_SDL_SetMainReady))
-
-(defcfun sdl-init (_)
-	;flags
-	(assign _ (abi-args 1))
-	(sdl-call sdl_SDL_Init))
-
-(defcfun sdl-get-error ()
-	(sdl-call sdl_SDL_GetError))
-
-(defcfun sdl-delay (_)
-	;time
-	(assign _ (abi-args 1))
-	(sdl-call sdl_SDL_Delay))
-
-(defcfun sdl-quit ()
-	(sdl-call sdl_SDL_Quit))
-
-(defcfun sdl-create-window (_)
-	;title, x, y, w, h, flags
-	(assign _ (abi-args 6))
-	(sdl-call sdl_SDL_CreateWindow))
-
-(defcfun sdl-create-window-and-renderer (_)
-	;w, h, flags, window**, renderer**
-	(assign _ (abi-args 5))
-	(sdl-call sdl_SDL_CreateWindowAndRenderer))
-
-(defcfun sdl-destroy-window (_)
-	;window
-	(assign _ (abi-args 1))
-	(sdl-call sdl_SDL_DestroyWindow))
-
-(defcfun sdl-create-renderer (_)
-	;window*, index, flags
-	(assign _ (abi-args 3))
-	(sdl-call sdl_SDL_CreateRenderer))
-
-(defcfun sdl-set-render-draw-color (_)
-	;renderer**, r, g, b, a
-	(assign _ (abi-args 5))
-	(sdl-call sdl_SDL_SetRenderDrawColor))
-
-(defcfun sdl-render-fill-rect (_)
-	;renderer**, rect*
-	(assign _ (abi-args 2))
-	(sdl-call sdl_SDL_RenderFillRect))
-
-(defcfun sdl-render-draw-rect (_)
-	;renderer**, rect*
-	(assign _ (abi-args 2))
-	(sdl-call sdl_SDL_RenderDrawRect))
-
-(defcfun sdl-render-present (_)
-	;renderer**
-	(assign _ (abi-args 1))
-	(sdl-call sdl_SDL_RenderPresent))
-
-(defcfun sdl-render-set-clip-rect (_)
-	;renderer**, rect*
-	(assign _ (abi-args 2))
-	(sdl-call sdl_SDL_RenderSetClipRect))
-
-(defcfun sdl-set-render-draw-blend-mode (_)
-	;renderer**, mode
-	(assign _ (abi-args 2))
-	(sdl-call sdl_SDL_SetRenderDrawBlendMode))
-
-(defcfun sdl-pump-events ()
-	(sdl-call sdl_SDL_PumpEvents))
-
-(defcfun sdl-get-mouse-state (_)
-	;x*, y*
-	(assign _ (abi-args 2))
-	(sdl-call sdl_SDL_GetMouseState))
-
-(defcfun sdl-get-keyboard-state (_)
-	;*int
-	(assign _ (abi-args 1))
-	(sdl-call sdl_SDL_GetKeyboardState))
-
-(defcfun sdl-free-surface (_)
-	;surface*
-	(assign _ (abi-args 1))
-	(sdl-call sdl_SDL_FreeSurface))
-
-(defcfun sdl-create-texture-from-surface (_)
-	;renderer**, surface*
-	(assign _ (abi-args 2))
-	(sdl-call sdl_SDL_CreateTextureFromSurface))
-
-(defcfun sdl-create-rgb-surface-from (_)
-	;pixels*, w, h, d, stride, rmask, gmask, bmask, amask
-	(assign _ (abi-args 9))
-	(vp-push r0 (abi-arg 8) (abi-arg 7) (abi-arg 6))
-	(sdl-call sdl_SDL_CreateRGBSurfaceFrom)
-	(vp-free (mul ptr_size 4)))
-
-(defcfun sdl-destroy-texture (_)
-	;texture*
-	(assign _ (abi-args 1))
-	(sdl-call sdl_SDL_DestroyTexture))
-
-(defcfun sdl-render-copy (_)
-	;renderer**, texture*, srect*, drect*
-	(assign _ (abi-args 4))
-	(sdl-call sdl_SDL_RenderCopy))
-
-(defcfun sdl-set-texture-blend-mode (_)
-	;texture*, blendmode
-	(assign _ (abi-args 2))
-	(sdl-call sdl_SDL_SetTextureBlendMode))
-
-(defcfun sdl-set-texture-color-mod (_)
-	;texture*, byte r, byte g, byte b
-	(assign _ (abi-args 4))
-	(sdl-call sdl_SDL_SetTextureColorMod))
-
-(defcfun ttf-init ()
-	(sdl-call sdl_TTF_Init))
-
-(defcfun ttf-quit ()
-	(sdl-call sdl_TTF_Quit))
-
-(defcfun ttf-open-font (_)
-	;name*, pointsize
-	(assign _ (abi-args 2))
-	(sdl-call sdl_TTF_OpenFont))
-
-(defcfun ttf-close-font (_)
-	;font*
-	(assign _ (abi-args 1))
-	(sdl-call sdl_TTF_CloseFont))
-
-(defcfun ttf-size-utf8 (_)
-	;font*, text*, int *w, int *h
-	(assign _ (abi-args 4))
-	(sdl-call sdl_TTF_SizeUTF8))
-
-(defcfun ttf-font-ascent (_)
-	;font*
-	(assign _ (abi-args 1))
-	(sdl-call sdl_TTF_FontAscent))
-
-(defcfun ttf-font-descent (_)
-	;font*
-	(assign _ (abi-args 1))
-	(sdl-call sdl_TTF_FontDescent))
-
-(defcfun ttf-font-height (_)
-	;font*
-	(assign _ (abi-args 1))
-	(sdl-call sdl_TTF_FontHeight))
-
-(defcfun ttf-render-utf8-blended (_)
-	;font*, text*, color
-	(assign _ (abi-args 3))
-	(sdl-call sdl_TTF_RenderUTF8_Blended))
+;sdl-set-main-ready
+;sdl-init flags
+;sdl-get-error
+;sdl-delay time
+;sdl-quit
+;sdl-create-window title, x, y, w, h, flags
+;sdl-create-window-and-renderer w, h, flags, window**, renderer**
+;sdl-destroy-window window
+;sdl-create-renderer window*, index, flags
+;sdl-set-render-draw-color renderer**, r, g, b, a
+;sdl-render-fill-rect renderer**, rect*
+;sdl-render-draw-rect renderer**, rect*
+;sdl-render-present renderer**
+;sdl-render-set-clip-rect renderer**, rect*
+;sdl-set-render-draw-blend-mode renderer**, mode
+;sdl-pump-events
+;sdl-get-mouse-state x*, y*
+;sdl-get-keyboard-state int*
+;sdl-free-surface surface*
+;sdl-create-texture-from-surface renderer**, surface*
+;sdl-create-rgb-surface-from pixels*, w, h, d, stride, rmask, gmask, bmask, amask
+;sdl-destroy-texture texture*
+;sdl-render-copy renderer**, texture*, srect*, drect*
+;sdl-set-texture-blend-mode texture*, blendmode
+;sdl-set-texture-color-mod texture*, byte r, byte g, byte b
+;ttf-init
+;ttf-quit
+;ttf-open-font name*, pointsize
+;ttf-close-font font*
+;ttf-size-utf8 font*, text*, int *w, int *h
+;ttf-font-ascent font*
+;ttf-font-descent font*
+;ttf-font-height font*
+;ttf-render-utf8-blended font*, text*, color
