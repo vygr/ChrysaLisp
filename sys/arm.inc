@@ -2,6 +2,8 @@
 ; ARM Emit Functions
 ;;;;;;;;;;;;;;;;;;;;
 
+(defcmacro abi-args (&optional _) (setd _ 8) `',(slice 0 _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8)))
+
 (defmacro emit-ux (x s d)
 	`(emit-int (add 0xd3400000 (bit-shl ,x 10) (bit-shl (reg ,s) 5) (reg ,d))))
 
@@ -137,6 +139,32 @@
 					(bit-shl (reg (elem _ b)) 10) (bit-shl (reg rsp) 5) (reg (elem (inc _) b)))))
 			(if (ne -2 _) (emit-cpy-ir rsp (mul ptr_size (dec l)) (elem 0 b)))
 			(emit-add-cr (align (mul ptr_size l) stack_align) rsp))))
+
+(defcfun abi-call (_1 _2 &optional _3 _4 _5)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = out parameters
+	;_5 = dispatch reg
+	(setd _5 r14)
+	(defq s 0 v 0 m nil)
+	(method-lookup _1 _2)
+	(if (eql (elem 2 m) 'static)
+		(throw "Abi methods must be virtual !" (list _1 _2)))
+	(setq s (elem 3 m))
+	(if (find _5 s)
+		(throw "Dispatch register conflicts with arg !" (list _5 s)))
+	(assign _3 s)
+	(when (gt (defq ls (length s)) (defq la (length (abi-args))))
+		(defq x (slice la ls s))
+		(if (ne 0 (bit-and (length x) 1)) (push x _5))
+		(apply vp-push (map (lambda (__) (elem (sub (neg _) 2) x)) x)))
+	(f-bind 'gui_gui 'statics _5)
+	(vp-cpy-ir _5 gui_statics_sdl_funcs _5)
+	(vp-call-i _5 v)
+	(when (gt ls la)
+		(vp-free (mul (length x) ptr_size)))
+	(if _4 (assign (elem 4 m) _4)))
 
 (defcfun emit-beq (l d) (emit-branch 0x0 l))
 (defcfun emit-bne (l d) (emit-branch 0x1 l))
