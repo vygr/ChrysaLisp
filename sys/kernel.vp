@@ -273,7 +273,7 @@
 		(vpif '(r0 < 1))
 			(vp-cpy-cr 1 r0)
 		(endif)
-		(abi-call 'sdl 'sdl_delay '(r0))
+		(sdl-call 'sdl 'sdl_delay '(r0))
 	(loop-end)
 
 	;free any kernel routing table

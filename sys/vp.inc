@@ -62,7 +62,7 @@
 
 (defmacro opt-emit-kill-list ()
 	''(emit-label emit-pop emit-swp-rr emit-div-rrr emit-div-rrr-u
-		emit-syscall emit-call emit-call-i emit-call-r emit-call-p))
+		emit-syscall emit-call emit-call-abi emit-call-i emit-call-r emit-call-p))
 
 (defmacro opt-emit-ok-list ()
 	''(emit-cmp-cr emit-cmp-rr))
@@ -204,6 +204,7 @@
 (defcfun vp-push (&rest b) (emit (cat (list 'emit-push) b)))
 (defcfun vp-pop (&rest b) (emit (cat (list 'emit-pop) b)))
 
+(defcfun vp-call-abi (b i) (emit (list 'emit-call-abi b i)))
 (defcfun vp-call (l) (emit (list 'emit-call (label-sym l))))
 (defcfun vp-call-r (d) (emit (list 'emit-call-r d)))
 (defcfun vp-call-i (b i) (emit (list 'emit-call-i b i)))

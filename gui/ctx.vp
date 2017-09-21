@@ -54,7 +54,7 @@
 	(vp-and-cr 0xff r3)
 	(vp-and-cr 0xff r2)
 	(vp-and-cr 0xff r4)
-	(abi-call 'sdl 'sdl_set_texture_color_mod '((rsp local_texture) r3 r2 r4))
+	(sdl-call 'sdl 'sdl_set_texture_color_mod '((rsp local_texture) r3 r2 r4))
 
 	;for each rect on the dirty region
 	(vp-cpy-ir rsp local_ctx r0)
@@ -86,11 +86,11 @@
 		(vp-cpy-ri-i r9 rsp (add local_clip_rect sdl_rect_w))
 		(vp-cpy-ri-i r10 rsp (add local_clip_rect sdl_rect_h))
 		(vp-cpy-ir rsp local_ctx r0)
-		(abi-call 'sdl 'sdl_render_set_clip_rect '((r0 gui_ctx_sdl_ctx) (& rsp local_clip_rect)))
+		(sdl-call 'sdl 'sdl_render_set_clip_rect '((r0 gui_ctx_sdl_ctx) (& rsp local_clip_rect)))
 
 		;blit the texture
 		(vp-cpy-ir rsp local_ctx r0)
-		(abi-call 'sdl 'sdl_render_copy '((r0 gui_ctx_sdl_ctx) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))
+		(sdl-call 'sdl 'sdl_render_copy '((r0 gui_ctx_sdl_ctx) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))
 
 		(vp-cpy-ir rsp local_dirty_rect r0)
 	(loop-end)
@@ -164,11 +164,11 @@
 		(vp-cpy-ri-i r9 rsp (add local_clip_rect sdl_rect_w))
 		(vp-cpy-ri-i r10 rsp (add local_clip_rect sdl_rect_h))
 		(vp-cpy-ir rsp local_ctx r0)
-		(abi-call 'sdl 'sdl_render_set_clip_rect '((r0 gui_ctx_sdl_ctx) (& rsp local_clip_rect)))
+		(sdl-call 'sdl 'sdl_render_set_clip_rect '((r0 gui_ctx_sdl_ctx) (& rsp local_clip_rect)))
 
 		;draw the rectangle
 		(vp-cpy-ir rsp local_ctx r0)
-		(abi-call 'sdl 'sdl_render_draw_rect '((r0 gui_ctx_sdl_ctx) (& rsp local_rect)))
+		(sdl-call 'sdl 'sdl_render_draw_rect '((r0 gui_ctx_sdl_ctx) (& rsp local_rect)))
 
 		(vp-cpy-ir rsp local_dirty_rect r0)
 	(loop-end)
@@ -279,11 +279,11 @@
 		(vp-cpy-ri-i r9 rsp (add local_clip_rect sdl_rect_w))
 		(vp-cpy-ri-i r10 rsp (add local_clip_rect sdl_rect_h))
 		(vp-cpy-ir rsp local_ctx r0)
-		(abi-call 'sdl 'sdl_render_set_clip_rect '((r0 gui_ctx_sdl_ctx) (& rsp local_clip_rect)))
+		(sdl-call 'sdl 'sdl_render_set_clip_rect '((r0 gui_ctx_sdl_ctx) (& rsp local_clip_rect)))
 
 		;draw the rectangle
 		(vp-cpy-ir rsp local_ctx r0)
-		(abi-call 'sdl 'sdl_render_fill_rect '((r0 gui_ctx_sdl_ctx) (& rsp local_rect)))
+		(sdl-call 'sdl 'sdl_render_fill_rect '((r0 gui_ctx_sdl_ctx) (& rsp local_rect)))
 
 		(vp-cpy-ir rsp local_dirty_rect r0)
 	(loop-end)
@@ -439,7 +439,7 @@
 	(vp-and-cr 0xff r8)
 	(vp-and-cr 0xff r9)
 	(vp-and-cr 0xff r10)
-	(abi-call 'sdl 'sdl_set_render_draw_color '((r0 gui_ctx_sdl_ctx) r7 r8 r9 r10))
+	(sdl-call 'sdl 'sdl_set_render_draw_color '((r0 gui_ctx_sdl_ctx) r7 r8 r9 r10))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)

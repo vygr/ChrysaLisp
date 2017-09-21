@@ -140,35 +140,6 @@
 			(if (ne -2 _) (emit-cpy-ir rsp (mul ptr_size (dec l)) (elem 0 b)))
 			(emit-add-cr (align (mul ptr_size l) stack_align) rsp))))
 
-(defcfun abi-call (_1 _2 &optional _3 _4 _5)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = out parameters
-	;_5 = dispatch reg
-	(setd _5 r14)
-	(defq s 0 v 0 m nil)
-	(method-lookup _1 _2)
-	(if (eql (elem 2 m) 'static)
-		(throw "Abi methods must be virtual !" (list _1 _2)))
-	(setq s (elem 3 m))
-	(if (find _5 s)
-		(throw "Dispatch register conflicts with arg !" (list _5 s)))
-	(assign _3 s)
-	(vp-push r30)
-	(when (gt (defq ls (length s)) (defq la (length (abi-args))))
-		(defq x (slice la ls s))
-		(if (ne 0 (bit-and (length x) 1)) (push x _5))
-		(apply vp-push (map (lambda (__) (elem (sub (neg _) 2) x)) x)))
-	(f-bind 'gui_gui 'statics _5)
-	(vp-cpy-ir _5 gui_statics_sdl_funcs _5)
-	(vp-cpy-ir _5 v r29)
-	(vp-int (add 0xd63f0000 (bit-shl (reg r29) 5)))
-	(when (gt ls la)
-		(vp-free (mul (length x) ptr_size)))
-	(vp-pop r30)
-	(if _4 (assign (elem 4 m) _4)))
-
 (defcfun emit-beq (l d) (emit-branch 0x0 l))
 (defcfun emit-bne (l d) (emit-branch 0x1 l))
 (defcfun emit-bge (l d) (emit-branch 0xa l))
@@ -196,6 +167,10 @@
 (defcfun emit-call-i (d c)
 	(emit-cpy-ir d c r29)
 	(emit-call-r r29))
+
+(defcfun emit-call-abi (d c)
+	(emit-cpy-ir d c r29)
+	(emit-int (add 0xd63f0000 (bit-shl (reg r29) 5))))
 
 (defcfun emit-call-p (l)
 	(emit-cpy-pr l r29)
