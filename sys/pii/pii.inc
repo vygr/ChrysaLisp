@@ -1,10 +1,13 @@
 (import 'sys/class.inc)
 
 ; temp debug for pi3
-(defcfun debug_char (c)
-	(vp-push r0 r1)
+(defcfun debug_num (c n)
+	(vp-push r0 r1 r2)
 	(f-call 'pii 'write_char (list 0 c))
-	(vp-pop r0 r1))
+	(f-call 'pii 'write_char (list 0 32))
+	(f-call 'pii 'write_num (list 0 n 16))
+	(f-call 'pii 'write_char (list 0 10))
+	(vp-pop r0 r1 r2))
 
 (def-class 'pii)
 (def-method 'exit 'sys/pii/exit 'static '(r0))
