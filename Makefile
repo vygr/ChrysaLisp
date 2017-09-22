@@ -34,6 +34,8 @@ ifeq ($(OS),Linux)
 endif
 
 obj/main.o:	main.c Makefile
+			echo $(CPU) > arch
+			echo $(OS) > platform
 			unzip -nq $(OS)_$(CPU).zip
 ifeq ($(OS),Darwin)
 			cc -c -nostdlib -fno-exceptions \
