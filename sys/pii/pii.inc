@@ -190,6 +190,7 @@
 (defcvar 'sys_openat 0x38)
 (defcvar 'sys_unlinkat 0x23)
 (defcvar 'sys_fstat 0x50)
+(defcvar 'sys_stat 0x50)
 (defcvar 'sys_exit 0x5d)
 (defcvar 'sys_read 0x3f)
 (defcvar 'sys_write 0x40)
