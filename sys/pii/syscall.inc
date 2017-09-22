@@ -62,6 +62,24 @@
 	(int 'dsttime)
 (def-struct-end)
 
+(defcfun sys-open (_1 _2)
+	;path, flags, mode
+	(assign (cat '(at_fdcwd) _1) (sys-args 4))
+	(sys-call sys_openat)
+	(assign '(r0) _2))
+
+(defcfun sys-unlink (_1 _2)
+	;name
+	(assign (cat '(at_fdcwd) _1 '(0)) (sys-args 3))
+	(sys-call sys_unlinkat)
+	(assign '(r0) _2))
+
+(defcfun sys-stat (_1 _2)
+	;path, buffer
+	(assign _1 (sys-args 2))
+	(sys-call sys_stat)
+	(assign '(r0) _2))
+
 (defcfun sys-exit (_)
 	;return code
 	(assign _ (sys-args 1))
@@ -116,18 +134,6 @@
 	(sys-call sys_munmap)
 	(assign '(r0) _2))
 
-(defcfun sys-stat (_1 _2)
-	;path, buffer
-	(assign _1 (sys-args 2))
-	(sys-call sys_stat)
-	(assign '(r0) _2))
-
-(defcfun sys-open (_1 _2)
-	;path, flags, mode
-	(assign _1 (sys-args 3))
-	(sys-call sys_open)
-	(assign '(r0) _2))
-
 (defcfun sys-close (_1 _2)
 	;fd
 	(assign _1 (sys-args 1))
@@ -138,12 +144,6 @@
 	;fd, offset
 	(assign _1 (sys-args 2))
 	(sys-call sys_ftruncate)
-	(assign '(r0) _2))
-
-(defcfun sys-unlink (_1 _2)
-	;name
-	(assign _1 (sys-args 1))
-	(sys-call sys_unlink)
 	(assign '(r0) _2))
 
 (defcfun sys-fcntl (_1 _2)

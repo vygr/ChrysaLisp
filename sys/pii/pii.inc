@@ -38,19 +38,22 @@
 ; syscall for OSX
 ;;;;;;;;;;;;;;;;;
 
+(defcvar 'sys_openat 0x1cf)
+(defcvar 'sys_unlinkat 0x1d8)
+(defcvar 'sys_fstat 0xbd)
+(defcvar 'sys_stat 0xbc)
 (defcvar 'sys_exit 0x1)
 (defcvar 'sys_read 0x3)
 (defcvar 'sys_write 0x4)
-(defcvar 'sys_open 0x5)
 (defcvar 'sys_close 0x6)
-(defcvar 'sys_unlink 0xa)
 (defcvar 'sys_ftruncate 0xc9)
-(defcvar 'sys_stat 0xbc)
 (defcvar 'sys_mmap 0xc5)
 (defcvar 'sys_munmap 0x49)
 (defcvar 'sys_mprotect 0x4a)
 (defcvar 'sys_gettimeofday 0x74)
 (defcvar 'sys_fcntl 0x5C)
+
+(defcvar 'at_fdcwd 0xfffffffe)
 
 (defcvar 'prot_none 0x0)
 (defcvar 'prot_read 0x1)
@@ -108,6 +111,11 @@
 ; syscall for Linux x64
 ;;;;;;;;;;;;;;;;;;;;;;;
 
+(defcvar 'sys_openat 0x101)
+(defcvar 'sys_unlinkat 0x107)
+(defcvar 'sys_fstat 0x5)
+(defcvar 'sys_stat 0x4)
+
 (defcvar 'sys_exit 0x3c)
 (defcvar 'sys_read 0x0)
 (defcvar 'sys_write 0x1)
@@ -115,12 +123,13 @@
 (defcvar 'sys_close 0x3)
 (defcvar 'sys_unlink 0x57)
 (defcvar 'sys_ftruncate 0x4d)
-(defcvar 'sys_stat 0x4)
 (defcvar 'sys_mmap 0x9)
 (defcvar 'sys_munmap 0xb)
 (defcvar 'sys_mprotect 0xa)
 (defcvar 'sys_gettimeofday 0x60)
 (defcvar 'sys_fcntl 0x48)
+
+(defcvar 'at_fdcwd 0xffffff9c)
 
 (defcvar 'prot_none 0x0)
 (defcvar 'prot_read 0x1)
@@ -178,10 +187,9 @@
 ; syscall for Linux aarch64
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defcvar 'sys_open 0x5d)
-(defcvar 'sys_unlink 0x5d)
-(defcvar 'sys_stat 0x5d)
-
+(defcvar 'sys_openat 0x38)
+(defcvar 'sys_unlinkat 0x23)
+(defcvar 'sys_fstat 0x50)
 (defcvar 'sys_exit 0x5d)
 (defcvar 'sys_read 0x3f)
 (defcvar 'sys_write 0x40)
@@ -192,6 +200,8 @@
 (defcvar 'sys_mprotect 0xe2)
 (defcvar 'sys_gettimeofday 0xa9)
 (defcvar 'sys_fcntl 0x19)
+
+(defcvar 'at_fdcwd 0xffffff9c)
 
 (defcvar 'prot_none 0x0)
 (defcvar 'prot_read 0x1)
