@@ -40,8 +40,7 @@
 
 (defcvar 'sys_openat 0x1cf)
 (defcvar 'sys_unlinkat 0x1d8)
-(defcvar 'sys_fstat 0xbd)
-(defcvar 'sys_stat 0xbc)
+(defcvar 'sys_fstatat 0x1d5)
 (defcvar 'sys_exit 0x1)
 (defcvar 'sys_read 0x3)
 (defcvar 'sys_write 0x4)
@@ -113,9 +112,7 @@
 
 (defcvar 'sys_openat 0x101)
 (defcvar 'sys_unlinkat 0x107)
-(defcvar 'sys_fstat 0x5)
-(defcvar 'sys_stat 0x4)
-
+(defcvar 'sys_fstatat 0x106)
 (defcvar 'sys_exit 0x3c)
 (defcvar 'sys_read 0x0)
 (defcvar 'sys_write 0x1)
@@ -189,8 +186,7 @@
 
 (defcvar 'sys_openat 0x38)
 (defcvar 'sys_unlinkat 0x23)
-(defcvar 'sys_fstat 0x50)
-(defcvar 'sys_stat 0x50)
+(defcvar 'sys_fstatat 0x5d)
 (defcvar 'sys_exit 0x5d)
 (defcvar 'sys_read 0x3f)
 (defcvar 'sys_write 0x40)

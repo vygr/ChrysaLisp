@@ -76,8 +76,8 @@
 
 (defcfun sys-stat (_1 _2)
 	;path, buffer
-	(assign _1 (sys-args 2))
-	(sys-call sys_stat)
+	(assign (cat '(at_fdcwd) _1 '(0)) (sys-args 4))
+	(sys-call sys_fstatat)
 	(assign '(r0) _2))
 
 (defcfun sys-exit (_)
