@@ -1,5 +1,11 @@
 (import 'sys/class.inc)
 
+; temp debug for pi3
+(defcfun debug_char (c)
+	(vp-push r0 r1)
+	(f-call 'pii 'write_char (list 0 c))
+	(vp-pop r0 r1))
+
 (def-class 'pii)
 (def-method 'exit 'sys/pii/exit 'static '(r0))
 (def-method 'mmap 'sys/pii/mmap 'static '(r0 r1 r2 r3 r4 r5) '(r0))
@@ -180,6 +186,7 @@
 (defcvar 'sys_munmap 0xd7)
 (defcvar 'sys_mprotect 0xe2)
 (defcvar 'sys_gettimeofday 0xa9)
+(defcvar 'sys_fcntl 0x19)
 
 (defcvar 'prot_none 0x0)
 (defcvar 'prot_read 0x1)
