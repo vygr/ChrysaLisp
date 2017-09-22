@@ -94,6 +94,7 @@
 
 (defcfun stack-init ()
 	(defq tk_state_size (mul ptr_size (length stack_state)))
+	(vp-and-cr (neg stack_align) r1)
 	(vp-sub-cr tk_state_size r1)
 	(f-bind 'sys_task 'stop r2)
 	(vp-cpy-ri r4 r1 (sub tk_state_size ptr_size))
