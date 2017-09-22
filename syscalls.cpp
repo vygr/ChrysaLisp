@@ -21,7 +21,8 @@ int main() {
 	printf("(defcvar 'sys_munmap 0x%x)\n", SYS_munmap);
 	printf("(defcvar 'sys_mprotect 0x%x)\n", SYS_mprotect);
 	printf("(defcvar 'sys_gettimeofday 0x%x)\n\n", SYS_gettimeofday);
-
+	printf("(defcvar 'sys_fcntl 0x%x)\n\n", SYS_fcntl);
+	
 	printf("(defcvar 'prot_none 0x%x)\n", PROT_NONE);
 	printf("(defcvar 'prot_read 0x%x)\n", PROT_READ);
 	printf("(defcvar 'prot_write 0x%x)\n", PROT_WRITE);
