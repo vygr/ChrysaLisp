@@ -11,7 +11,7 @@
 int main() {
 	printf("(defcvar 'sys_openat 0x%x)\n", SYS_openat);
 	printf("(defcvar 'sys_unlinkat 0x%x)\n", SYS_unlinkat);
-	printf("(defcvar 'sys_fstat 0x%x)\n", SYS_fstat);
+	printf("(defcvar 'sys_fstatat 0x%x)\n", SYS_fstatat);
 //	printf("(defcvar 'sys_stat 0x%x)\n", SYS_stat);
 	printf("(defcvar 'sys_exit 0x%x)\n", SYS_exit);
 	printf("(defcvar 'sys_read 0x%x)\n", SYS_read);
