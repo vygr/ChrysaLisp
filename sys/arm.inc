@@ -207,8 +207,8 @@
 
 (defcfun emit-lea-p (l d)
 	(cond
-		((le -0x100000 (defq c (sub l *pc*)) 0xffffc)
-			(emit-int (add 0x10000000 (bit-shl (bit-and c 0x1fffff) 3) (reg d))))
+		((le -0x100000 (defq c (sub l *pc*)) 0xfffff)
+			(emit-int (add 0x10000000 (bit-shl (bit-and c 0x3) 29) (bit-shl (bit-and c 0x1ffffc) 3) (reg d))))
 		(t (throw "emit-lea-p constant out of range !" c))))
 
 (defcfun emit-cpy-ir (s c d)
