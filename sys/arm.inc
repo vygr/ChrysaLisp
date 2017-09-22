@@ -338,6 +338,14 @@
 		((eq c -1))
 		((eq c 0)
 			(emit-xor-rr r r))
+		((eql r rsp)
+			(if (ne -1 (defq i (emit-limm c)))
+				(progn
+					(emit-cpy-rr rsp r29)
+					(emit-int (add 0x92000000 (bit-shl i 10) (bit-shl (reg r29) 5) (reg r))))
+				(progn
+					(emit-mov-cr c r29)
+					(emit-and-rr r29 r))))
 		(t (defq i (emit-limm c))
 			(if (ne i -1)
 				(emit-int (add 0x92000000 (bit-shl i 10) (bit-shl (reg r) 5) (reg r)))
