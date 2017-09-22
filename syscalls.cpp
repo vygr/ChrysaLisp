@@ -9,19 +9,22 @@
 #include <sys/unistd.h>
 
 int main() {
+	printf("(defcvar 'sys_openat 0x%x)\n", SYS_openat);
+	printf("(defcvar 'sys_unlinkat 0x%x)\n", SYS_unlinkat);
+	printf("(defcvar 'sys_fstat 0x%x)\n", SYS_fstat);
+//	printf("(defcvar 'sys_stat 0x%x)\n", SYS_stat);
 	printf("(defcvar 'sys_exit 0x%x)\n", SYS_exit);
 	printf("(defcvar 'sys_read 0x%x)\n", SYS_read);
 	printf("(defcvar 'sys_write 0x%x)\n", SYS_write);
-	printf("(defcvar 'sys_open 0x%x)\n", SYS_open);
 	printf("(defcvar 'sys_close 0x%x)\n", SYS_close);
-	printf("(defcvar 'sys_unlink 0x%x)\n", SYS_unlink);
 	printf("(defcvar 'sys_ftruncate 0x%x)\n", SYS_ftruncate);
-	printf("(defcvar 'sys_stat 0x%x)\n", SYS_stat);
 	printf("(defcvar 'sys_mmap 0x%x)\n", SYS_mmap);
 	printf("(defcvar 'sys_munmap 0x%x)\n", SYS_munmap);
 	printf("(defcvar 'sys_mprotect 0x%x)\n", SYS_mprotect);
-	printf("(defcvar 'sys_gettimeofday 0x%x)\n\n", SYS_gettimeofday);
+	printf("(defcvar 'sys_gettimeofday 0x%x)\n", SYS_gettimeofday);
 	printf("(defcvar 'sys_fcntl 0x%x)\n\n", SYS_fcntl);
+
+	printf("(defcvar 'at_fdcwd 0x%x)\n\n", AT_FDCWD);
 	
 	printf("(defcvar 'prot_none 0x%x)\n", PROT_NONE);
 	printf("(defcvar 'prot_read 0x%x)\n", PROT_READ);
