@@ -32,16 +32,16 @@ int main() {
 	printf("(defcvar 'map_fixed 0x%x)\n", MAP_FIXED);
 	printf("(defcvar 'map_anon 0x%x)\n\n", MAP_ANON);
 
-	printf("(defcvar 'to_rdonly 0x%x)\n", O_RDONLY);
-	printf("(defcvar 'to_wronly 0x%x)\n", O_WRONLY);
-	printf("(defcvar 'to_rdwr 0x%x)\n", O_RDWR);
-	printf("(defcvar 'to_trunc 0x%x)\n", O_TRUNC);
-	printf("(defcvar 'to_append 0x%x)\n", O_APPEND);
-	printf("(defcvar 'to_nonblock 0x%x)\n", O_NONBLOCK);
-	printf("(defcvar 'to_creat 0x%x)\n", O_CREAT);
-	printf("(defcvar 'to_excl 0x%x)\n", O_EXCL);
-	printf("(defcvar 'to_nofollow 0x%x)\n", O_NOFOLLOW);
-	printf("(defcvar 'to_cloexec 0x%x)\n\n", O_CLOEXEC);
+	printf("(defcvar 'o_rdonly 0x%x)\n", O_RDONLY);
+	printf("(defcvar 'o_wronly 0x%x)\n", O_WRONLY);
+	printf("(defcvar 'o_rdwr 0x%x)\n", O_RDWR);
+	printf("(defcvar 'o_trunc 0x%x)\n", O_TRUNC);
+	printf("(defcvar 'o_append 0x%x)\n", O_APPEND);
+	printf("(defcvar 'o_nonblock 0x%x)\n", O_NONBLOCK);
+	printf("(defcvar 'o_creat 0x%x)\n", O_CREAT);
+	printf("(defcvar 'o_excl 0x%x)\n", O_EXCL);
+	printf("(defcvar 'o_nofollow 0x%x)\n", O_NOFOLLOW);
+	printf("(defcvar 'o_cloexec 0x%x)\n\n", O_CLOEXEC);
 
 	printf("(defcvar 's_irwxu 0x%x)\n", S_IRWXU);
 	printf("(defcvar 's_irusr 0x%x)\n", S_IRUSR);
