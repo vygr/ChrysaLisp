@@ -12,7 +12,7 @@
 (defq debug_mode t debug_emit nil debug_inst nil)
 
 (defun compile (*files* &optional *os* *cpu* *pipes*)
-	(setd *os* (platform) *cpu* (cpu) *pipes* 16)
+	(setd *os* (platform) *cpu* (cpu) *pipes* (if (eql *cpu* 'aarch64) 2 16))
 	(defq q (list) e (list))
 	(unless (lst? *files*)
 		(setq *files* (list *files*)))
