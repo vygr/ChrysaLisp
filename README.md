@@ -5,8 +5,8 @@
 Assembler/C-Script/Lisp 64 bit OS. MIMD, multi CPU, multi threaded, multi core,
 multi user.
 
-Runs on OSX or Linux. Could move to bare metal eventually but it's useful for
-now to run hosted while experimenting.
+Runs on OSX or Linux for x64, PI64 Linux for Aarch64. Could move to bare metal
+eventually but it's useful for now to run hosted while experimenting.
 
 Allows modelling of various network topologies with point to point links. Each
 CPU in the network is modelled as a separate host process, point to point links
@@ -14,10 +14,8 @@ use shared memory to simulate CPU to CPU, point to point, bi directional
 connections. There is no global bus based networking on purpose.
 
 Uses a virtual CPU instruction set to avoid use of x64/ARM native instructions.
-It will eventually run on ARM Linux for machines such as Raspberry PI and
-BeagleBone with no source modification. Currently it compiles to native code
-but there is no reason it can't also go via a byte code form and runtime
-translation.
+Currently it compiles to native code but there is no reason it can't also go
+via a byte code form and runtime translation.
 
 Register juggling for parameter passing is eliminated by having all functions
 define their register interface and parameter source and destinations are
@@ -133,9 +131,9 @@ Requires SDL2 and the SDL2_TTF library to be installed. SDL2 and SDL2_ttf are
 for the experimental GUI.
 
 Requirements:
-Linux: Tested on Ubuntu 16-10
+Linux: Tested on Ubuntu 16-10 and Debian PI64
 ```
-sudo apt-get install clang libsdl2-ttf-dev
+sudo apt-get install libsdl2-ttf-dev
 ```
 
 Run with:
@@ -204,33 +202,44 @@ make snapshot
 ```
 
 This will create a snapshot zip file of the *obj/* directory for the current
-platform. For example *Darwin.zip* or *Linux.zip*.
+platform. For example *Darwin_x86_64.zip*, *Linux_x86_64.zip* or
+*Linux_aarch64.zip*.
 
 ```
 make snapshot_darwin
 ```
 
-This will create a *Darwin.zip* snapshot zip file of the *obj/* directory.
+This will create a *Darwin_x86_64.zip* snapshot zip file of the *obj/*
+directory.
 
 ```
-make snapshot_linux
+make snapshot_linux_x86_64
 ```
 
-This will create a *Linux.zip* snapshot zip file of the *obj/* directory.
+This will create a *Linux_x86_64.zip* snapshot zip file of the *obj/*
+directory.
+
+```
+make snapshot_linux_arm
+```
+
+This will create a *Linux_aarch64.zip* snapshot zip file of the *obj/*
+directory.
 
 ```
 make backup
 ```
 
-This will copy the *Darwin.zip/Linux.zip* to *xxx_old.zip*
+This will copy the *Darwin_x86_64.zip*/*Linux_x86_64.zip*/*Linux_aarch64.zip*
+to *xxx_old.zip*
 
 ```
 make undo
 ```
 
-This will copy the *xxx_old.zip* to *Darwin.zip/Linux.zip* unzip it and
-remake. So stepping back to the system as was when the last `make backup` was
-done.
+This will copy the *xxx_old.zip* to
+*Darwin_x86_64.zip*/*Linux_x86_64.zip*/*Linux_aarch64.zip* unzip it and remake.
+So stepping back to the system as was when the last `make backup` was done.
 
 Clean with:
 
