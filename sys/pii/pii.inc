@@ -1,6 +1,6 @@
 (import 'sys/class.inc)
 
-; temp debug for pi3
+;temp debug helper
 (defcfun debug_num (c n)
 	(vp-push r0 r1)
 	(f-call 'pii 'write_char (list 0 c))
