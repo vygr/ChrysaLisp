@@ -71,7 +71,7 @@ processing of stdin.
 
 Don't get the idea that due to being coded in interpreted Lisp the assembler
 and compiler will be slow. A full cleaned system build from source, including
-creation of a full recursive pre-bound boot image file, takes on the order of 4
+creation of a full recursive pre-bound boot image file, takes on the order of 2
 seconds on a 2014 MacBook Pro ! Dev cycle `(make)` and `(remake)` under 1
 second. It ain't slow.
 

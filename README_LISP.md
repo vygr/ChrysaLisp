@@ -263,6 +263,7 @@ within-compile-env
 debug_mode
 debug_emit
 debug_inst
+debug_inout
 ```
 
 ### lisp.lisp functions
