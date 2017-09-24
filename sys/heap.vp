@@ -17,6 +17,9 @@
 	(vp-add-cr (dec ptr_size) r1)
 	(vp-and-cr (neg ptr_size) r1)
 	(vp-cpy-ri-i r1 r0 hp_heap_cellsize)
+	(vpif '(r2 < r1))
+		(vp-cpy-rr r1 r2)
+	(endif)
 	(vp-cpy-ri-i r2 r0 hp_heap_blocksize)
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri r2 r0 hp_heap_free_flist)
@@ -90,11 +93,13 @@
 		(vp-xor-rr r2 r2)
 		(vp-add-rr r4 r3)
 		(loop-start)
-			(vp-cpy-ri r2 r3 ln_fnode_next)
 			(vp-cpy-ir-ui r0 hp_heap_cellsize r4)
+			(vp-add-rr r1 r4)
+			(breakif '(r4 > r3))
+			(vp-cpy-ri r2 r1 ln_fnode_next)
 			(vp-cpy-rr r1 r2)
-			(vp-add-rr r4 r1)
-		(loop-until '(r1 >= r3))
+			(vp-cpy-rr r4 r1)
+		(loop-end)
 		(vp-cpy-ri r2 r0 hp_heap_free_flist)
 		(vp-pop r4 r5)
 	(loop-end)
@@ -102,34 +107,5 @@
 (errorcases
 (vp-label 'error)
 	(abort))
-
-(def-func-end)
-
-(def-func 'sys/heap_reset)
-	;inputs
-	;r0 = heap
-	;outputs
-	;r0 = heap
-	;trashes
-	;r1-r4
-
-	(f-entry 'sys_heap 'reset '(r0))
-	(vp-xor-rr r1 r1)
-	(vp-cpy-ir r0 hp_heap_block_flist r2)
-	(loop-while '(r2 != 0))
-		(vp-lea-i r2 ln_fnode_size r3)
-		(vp-cpy-ir-ui r0 hp_heap_blocksize r4)
-		(vp-add-rr r3 r4)
-		(loop-start)
-			(vp-cpy-ri r1 r3 ln_fnode_next)
-			(vp-cpy-ir r0 ln_fnode_size r1)
-			(vp-add-rr r3 r1)
-			(vp-swp-rr r3 r1)
-		(loop-until '(r3 >= r4))
-		(vp-cpy-ir r2 ln_fnode_next r2)
-	(loop-end)
-	(vp-cpy-ri r1 r0 hp_heap_free_flist)
-	(f-exit 'sys_heap 'reset '(r0))
-	(vp-ret)
 
 (def-func-end)

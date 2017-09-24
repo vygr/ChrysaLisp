@@ -340,9 +340,12 @@
 
 (defcfun gen-class (_1)
 	;_1 = class name
+	(defq debug_inout_old debug_inout)
+	(setq debug_inout nil)
 	(def-func (f-path 'class _1))
 		(vtable-emit _1)
-	(def-func-end))
+	(def-func-end)
+	(setq debug_inout debug_inout_old))
 
 (defcfun gen-create (_1)
 	;_1 = class name

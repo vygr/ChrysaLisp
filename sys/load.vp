@@ -6,9 +6,11 @@
 
 (defcvar 'list_loaded nil)
 
+(defq debug_inout_old debug_inout)
 (def-func 'sys/load_statics)
 	(times ld_statics_size (vp-byte 0))
 (def-func-end)
+(setq debug_inout debug_inout_old)
 
 (def-func 'sys/load_init)
 	;inputs

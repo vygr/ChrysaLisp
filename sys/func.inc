@@ -47,6 +47,14 @@
 	(vp-byte 0 `(sub ,(label-sym '_func_entry) ,(label-sym '_func_name_start)))
 	(vp-align ptr_size `(sub ,(label-sym '_func_entry) ,(label-sym '_func_name_start)))
 	(vp-label '_func_entry)
+	(when (and debug_inout
+			(not (eql (defq p "sys/") (slice 0 (min (length p) (length *name*)) *name*)))
+			(eql debug_inout (slice 0 (min (length debug_inout) (length *name*)) *name*)))
+		(debug-str (cat "in: " *name*))
+		(vp-call 'the_func)
+		(debug-str (cat "out: " *name*))
+		(vp-ret)
+	(vp-label 'the_func))
 	(push-scope))
 
 (defcfun def-func-end ()
@@ -103,34 +111,6 @@
 (defcfun fn-jmp (p)
 	(if (def? p) (throw "Can't jump to inline function !" p)
 		(vp-jmp-p (link-sym (fn-find-link p)))))
-
-(defcfun debug-long (s i)
-	;s = debug string
-	;i = debug long
-	(when debug_mode
-		(vp-push r0 r1 r2 r3 r4)
-		(vp-cpy-rr i r0)
-		(vp-push r0)
-		(fn-string (cat *stream-name* "<" (str *stream-line*) ">") r0)
-		(fn-string s r1)
-		(vp-pop r2)
-		(f-call 'pii 'debug_long '(r0 r1 r2))
-		(vp-pop r0 r1 r2 r3 r4)))
-
-(defcfun debug-str (s &optional d)
-	;s = debug string
-	;d = debug string
-	(when debug_mode
-		(vp-push r0 r1 r2 r3 r4)
-		(if d
-			(vp-cpy-rr d r0)
-			(fn-string "" r0))
-		(vp-push r0)
-		(fn-string (cat *stream-name* "<" (str *stream-line*) ">") r0)
-		(fn-string s r1)
-		(vp-pop r2)
-		(f-call 'pii 'debug_str '(r0 r1 r2))
-		(vp-pop r0 r1 r2 r3 r4)))
 
 (defcfun abort (&optional s)
 	(f-call 'pii 'write_str `(2 ,(opt s "Abort !")))

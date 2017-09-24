@@ -2,9 +2,11 @@
 (import 'sys/link.inc)
 (import 'sys/kernel.inc)
 
+(defq debug_inout_old debug_inout)
 (def-func 'sys/link_statics)
 	(times lk_statics_size (vp-byte 0))
 (def-func-end)
+(setq debug_inout debug_inout_old)
 
 (def-func 'sys/link_init)
 	;get statics

@@ -1,16 +1,5 @@
 (import 'sys/class.inc)
 
-;temp debug helper
-(defcfun debug_num (c n)
-	(vp-push r0 r1)
-	(f-call 'pii 'write_char (list 0 c))
-	(f-call 'pii 'write_char (list 0 32))
-	(vp-pop r0 r1)
-	(vp-push r0 r1 r2)
-	(f-call 'pii 'write_num (list 0 n 16))
-	(f-call 'pii 'write_char (list 0 10))
-	(vp-pop r0 r1 r2))
-
 (def-class 'pii)
 (def-method 'exit 'sys/pii/exit 'static '(r0))
 (def-method 'mmap 'sys/pii/mmap 'static '(r0 r1 r2 r3 r4 r5) '(r0))
@@ -29,8 +18,25 @@
 (def-method 'read_char 'sys/pii/read_char 'static '(r0) '(r0))
 (def-method 'age 'sys/pii/age 'static '(r0) '(r0))
 (def-method 'time 'sys/pii/time 'static nil '(r0))
-(def-method 'debug_long 'sys/pii/debug_long 'static '(r0 r1 r2) '(r0))
-(def-method 'debug_str 'sys/pii/debug_str 'static '(r0 r1 r2) '(r0))
+
+;debug helpers
+(defcfun debug-num (s n)
+	(vp-push r0 r1)
+	(fn-string (cat s ": ") r1)
+	(f-call 'pii 'write_str '(0 r1))
+	(vp-pop r0 r1)
+	(vp-push r0 r1 r2)
+	(f-call 'pii 'write_num (list 0 n 16))
+	(f-call 'pii 'write_char (list 0 10))
+	(vp-pop r0 r1 r2))
+
+(defcfun debug-str (s)
+	(vp-push r0 r1)
+	(if (reg s)
+		(vp-cpy-rr s r1)
+		(fn-string (cat s (char 10)) r1))
+	(f-call 'pii 'write_str '(0 r1))
+	(vp-pop r0 r1))
 
 (when (eql *os* 'Darwin)
 

@@ -9,11 +9,6 @@
 (def-method 'init 'sys/heap_init 'static '(r0 r1 r2) '(r0 r1 r2))
 (def-method 'deinit 'sys/heap_deinit 'static '(r0) '(r0))
 (def-method 'alloc 'sys/heap_alloc 'static '(r0) '(r0 r1))
-(def-method 'reset 'sys/heap_reset 'static '(r0) '(r0))
-
-(defcvar 'mem_block_min_size 0x000020)
-(defcvar 'mem_block_max_size 0x4000000)
-(defcvar 'mem_block_blk_size (mul 16 1024))
 
 (def-class 'sys_mem)
 (def-method 'statics 'sys/mem_statics)
