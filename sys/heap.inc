@@ -6,7 +6,7 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class 'sys_heap)
-(def-method 'init 'sys/heap_init 'static '(r0 r1 r2) '(r0 r1 r2))
+(def-method 'init 'sys/heap_init 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'deinit 'sys/heap_deinit 'static '(r0) '(r0))
 (def-method 'alloc 'sys/heap_alloc 'static '(r0) '(r0 r1))
 
