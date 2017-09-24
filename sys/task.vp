@@ -11,25 +11,25 @@
 
 (def-func 'sys/task_init)
 	;set up current tcb
-	(f-bind 'sys_task 'statics r3)
-	(vp-lea-i r3 (add tk_statics_task_list lh_list_tail) r14)
-	(vp-cpy-ri r14 r3 tk_statics_current_tcb)
+	(f-bind 'sys_task 'statics r4)
+	(vp-lea-i r4 (add tk_statics_task_list lh_list_tail) r14)
+	(vp-cpy-ri r14 r4 tk_statics_current_tcb)
 
 	;init task control block heap
-	(f-call 'sys_heap 'init '((& r3 tk_statics_task_heap) (add tk_node_size ptr_size) (mul (add tk_node_size ptr_size) 16)))
+	(f-call 'sys_heap 'init '((& r4 tk_statics_task_heap) (add tk_node_size ptr_size) (mul (add tk_node_size ptr_size) 16)))
 
 	;init task lists
-	(vp-lea-i r3 tk_statics_task_list r0)
+	(vp-lea-i r4 tk_statics_task_list r0)
 	(lh-init r0 r1)
-	(vp-lea-i r3 tk_statics_timer_list r0)
+	(vp-lea-i r4 tk_statics_timer_list r0)
 	(lh-init r0 r1)
 
 	;init cpu count, task count and id
 	(vp-cpy-cr 1 r1)
-	(vp-cpy-ri r1 r3 tk_statics_cpu_total)
+	(vp-cpy-ri r1 r4 tk_statics_cpu_total)
 	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r1 r3 tk_statics_cpu_id)
-	(vp-cpy-ri r1 r3 tk_statics_task_count)
+	(vp-cpy-ri r1 r4 tk_statics_cpu_id)
+	(vp-cpy-ri r1 r4 tk_statics_task_count)
 	(vp-ret)
 
 (def-func-end)

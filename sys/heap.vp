@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'sys/heap.inc)
+(import 'sys/load.inc)
 
 (def-func 'sys/heap_init)
 	;inputs
@@ -9,17 +10,35 @@
 	;outputs
 	;r0 = heap
 	;r1 = cell size
-	;r2 = block size
 	;trashes
-	;r2
+	;r2-r3
 
 	(f-entry 'sys_heap 'init '(r0 r1 r2))
+
+	;align cell to ptr_size
 	(vp-add-cr (dec ptr_size) r1)
 	(vp-and-cr (neg ptr_size) r1)
 	(vp-cpy-ri-i r1 r0 hp_heap_cellsize)
-	(vpif '(r2 < r1))
-		(vp-cpy-rr r1 r2)
+
+	;align block to cell size
+	(vp-xor-rr r3 r3)
+	(vp-div-rrr-u r1 r3 r2)
+	(vp-mul-rr r1 r2)
+	(vpif '(r3 != 0))
+		(vp-add-rr r1 r2)
 	(endif)
+
+	;align block to page size
+	(vp-cpy-rr r2 r3)
+	(vp-add-cr (dec ld_page_size) r2)
+	(vp-and-cr (neg ld_page_size) r2)
+
+	;we need a link on each block so check if we can adjust for that
+	(vp-sub-cr ptr_size r2)
+	(vpif '(r2 < r3))
+		(vp-cpy-rr r3 r2)
+	(endif)
+
 	(vp-cpy-ri-i r2 r0 hp_heap_blocksize)
 	(vp-xor-rr r2 r2)
 	(vp-cpy-ri r2 r0 hp_heap_free_flist)
