@@ -51,5 +51,6 @@ int main(int argc, char *argv[])
 	int fd = open("obj/sys/boot_image", O_RDONLY);
 	read(fd, data, filestat.st_size);
 	void(*boot)(char*[], void*[]) = (void(*)(char*[], void*[]))((char*)data + data[3]);
+//	printf("image start address: 0x%llx\n", (unsigned long long)data);
 	boot(argv, sdl_funcs);
 }
