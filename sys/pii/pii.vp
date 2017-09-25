@@ -228,6 +228,25 @@
 
 (def-func-end)
 
+(def-func 'sys/pii/mprotect)
+	;inputs
+	;r0 = buffer
+	;r1 = size
+	;r2 = prot
+	;outputs
+	;r0 = error code
+	;trashes
+	;none
+
+	(f-entry 'pii 'mprotect '(r0 r1 r2))
+	(sys-push-trashed r1 r2)
+	(sys-mprotect '(r0 r1 r2) '(r0))
+	(sys-pop-trashed r1 r2)
+	(f-exit 'pii 'mprotect '(r0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-func 'sys/pii/read)
 	;inputs
 	;r0 = fd

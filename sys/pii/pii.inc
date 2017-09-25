@@ -4,6 +4,7 @@
 (def-method 'exit 'sys/pii/exit 'static '(r0))
 (def-method 'mmap 'sys/pii/mmap 'static '(r0 r1 r2 r3 r4 r5) '(r0))
 (def-method 'munmap 'sys/pii/munmap 'static '(r0 r1) '(r0))
+(def-method 'mprotect 'sys/pii/mprotect 'static '(r0 r1 r2) '(r0))
 (def-method 'open 'sys/pii/open 'static '(r0 r1 r2) '(r0))
 (def-method 'close 'sys/pii/close 'static '(r0) '(r0))
 (def-method 'ftruncate 'sys/pii/ftruncate 'static '(r0 r1) '(r0))
