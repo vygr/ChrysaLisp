@@ -49,6 +49,7 @@
 	(vp-label '_func_entry)
 	(when (and debug_inout
 			(not (eql (defq p "sys/") (slice 0 (min (length p) (length *name*)) *name*)))
+			(not (eql (defq p "gui/") (slice 0 (min (length p) (length *name*)) *name*)))
 			(eql debug_inout (slice 0 (min (length debug_inout) (length *name*)) *name*)))
 		(debug-str (cat "in: " *name*))
 		(vp-call 'the_func)
