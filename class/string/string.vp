@@ -367,7 +367,7 @@
 	;r1-r6
 
 	(def-struct 'local)
-		(ptr 'length)
+		(long 'length)
 	(def-struct-end)
 
 	;save inputs
