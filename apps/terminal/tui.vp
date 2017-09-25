@@ -52,12 +52,12 @@
 		(vpif {mailbox == tui_id.id_mbox})
 			;dispatch event to terminal
 			(f-call 'sys_mail 'read {mailbox} {msg})
-			(l-call 'terminal_input {&local, msg->stdin_msg_char} '(r0 r1))
+			(l-call 'terminal_input {&local, msg->stdin_msg_char})
 			(f-call 'sys_mem 'free {msg})
 		(else)
 			;output from a pipe element
 			(f-call 'master 'get_stream {local.local_master, mailbox} {_, stream})
-			(l-call 'pipe_output {&local, stream} '(r0 r1) '(r0) {state})
+			(l-call 'pipe_output {&local, stream} {state})
 			(vpif {state == -1})
 				;EOF
 				(f-call 'master 'stop {local.local_master})
@@ -82,7 +82,7 @@
 	(int 'char 'ready)
 
 	(push-scope)
-	(assign '(r0 r1) {local, stream})
+	(l-entry {local, stream})
 
 	(loop-start)
 		(f-call 'stream 'read_char {stream} {_, char})
@@ -91,7 +91,7 @@
 		(v-call 'stream 'read_ready {stream} {_, ready})
 	(loop-untilnot {ready})
 
-	(assign {char} '(r0))
+	(l-exit {char})
 	(pop-scope)
 	(return)
 
@@ -105,10 +105,10 @@
 	(int 'char 'state)
 
 	(push-scope)
-	(assign '(r0 r1) {local, char})
+	(l-entry {local, char})
 
 	;echo char to terminal
-;	(l-call 'terminal_output {local, char} '(r0 r1))
+;	(l-call 'terminal_output {local, char})
 
 	;buffer char
 	(assign {char} {*local->local_bufp})
@@ -161,7 +161,7 @@
 	(int 'char)
 
 	(push-scope)
-	(assign '(r0 r1) {local, char})
+	(l-entry {local, char})
 
 	(vpif {char == char_tab})
 		;tab

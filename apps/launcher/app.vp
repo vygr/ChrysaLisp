@@ -82,7 +82,7 @@
 	(ptr 'this 'button 'string)
 
 	(push-scope)
-	(assign '(r0 r1) {this, button})
+	(l-entry {this, button})
 	(f-call 'button 'get_text {button} {_, string})
 	(f-call 'sys_task 'open {string})
 	(pop-scope)

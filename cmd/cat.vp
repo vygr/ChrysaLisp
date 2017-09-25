@@ -23,7 +23,7 @@
 			(assign {1} {index})
 			(loop-while {index != argc})
 				(d-call 'vector 'ref_element {args, index} {_, arg})
-				(l-call 'cat_string {slave, arg} '(r0 r1))
+				(l-call 'cat_string {slave, arg})
 				(assign {index + 1} {index})
 			(loop-end)
 		(else)
@@ -31,7 +31,7 @@
 			(loop-start)
 				(f-call 'stream 'read_line {slave->slave_stdin} {_, arg})
 				(breakifnot {arg})
-				(l-call 'cat_string {slave, arg} '(r0 r1))
+				(l-call 'cat_string {slave, arg})
 			(loop-end)
 		(endif)
 
@@ -49,7 +49,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(assign '(r0 r1) {slave, arg})
+	(l-entry {slave, arg})
 
 	(f-call 'string 'create_from_file {&arg->string_data} {file})
 	(f-call 'string 'deref {arg})

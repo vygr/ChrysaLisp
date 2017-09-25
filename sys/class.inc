@@ -135,6 +135,22 @@
 	(method-info _1 _2)
 	(assign _3 (elem 4 m)))
 
+(defcfun l-entry (_1)
+	;_1 = in parameters
+	(defq _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+	(cond
+		((not _1))
+		((str? _1) (assign (slice 0 (length (split _1 ",")) _) _1))
+		(t (assign (slice 0 (length _1) _) _1))))
+
+(defcfun l-exit (_1)
+	;_1 = out parameters
+	(defq _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+	(cond
+		((not _1))
+		((str? _1) (assign _1 (slice 0 (length (split _1 ",")) _)))
+		(t (assign _1 (slice 0 (length _1) _)))))
+
 ;;;;;;;;;;;;;;;;
 ; method calling
 ;;;;;;;;;;;;;;;;
@@ -279,15 +295,21 @@
 		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
 	(fn-bind (elem 1 m) _3))
 
-(defcfun l-call (_1 &optional _2 _3 _4 _5)
+(defcfun l-call (_1 &optional _2 _3)
 	;_1 = label
 	;_2 = in parameters
-	;_3 = in regs
-	;_4 = out parameters
-	;_5 = out regs
-	(assign _2 _3)
+	;_3 = out parameters
+	(defq _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+	(cond
+		((not _2))
+		((str? _2) (assign _2 (slice 0 (length (split _2 ",")) _)))
+		(t (assign _2 (slice 0 (length _2) _))))
 	(vp-call _1)
-	(if _5 (assign _4 _5)))
+	(cond
+		((not _3))
+		((str? _3) (assign (slice 0 (length (split _3 ",")) _) _3))
+		(t (assign (slice 0 (length _3) _) _3))))
+
 
 ;;;;;;;;;;;;;;;;;
 ; virtual classes

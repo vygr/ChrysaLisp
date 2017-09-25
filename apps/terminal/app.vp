@@ -78,13 +78,13 @@
 			(f-call 'sys_mail 'read {mailbox} {msg})
 			(v-call 'view 'event {msg->ev_msg_view, msg})
 			(vpif {msg->ev_msg_type == ev_type_key && msg->ev_msg_keycode > 0})
-				(l-call 'terminal_input {&myapp, msg->ev_msg_key} '(r0 r1))
+				(l-call 'terminal_input {&myapp, msg->ev_msg_key})
 			(endif)
 			(f-call 'sys_mem 'free {msg})
 		(else)
 			;output from a pipe element
 			(f-call 'master 'get_stream {myapp.local_master, mailbox} {_, stream})
-			(l-call 'pipe_output {&myapp, stream} '(r0 r1) '(r0) {state})
+			(l-call 'pipe_output {&myapp, stream} {state})
 			(vpif {state == -1})
 				;EOF
 				(f-call 'master 'stop {myapp.local_master})
@@ -108,10 +108,10 @@
 	;r0 = app local object
 	;r1 = close object
 
-	(ptr 'this)
+	(ptr 'this 'src)
 
 	(push-scope)
-	(assign '(r0) {this})
+	(l-entry {this, src})
 	(assign {1} {this->local_closed})
 	(pop-scope)
 	(return)
@@ -127,16 +127,16 @@
 	(int 'char 'ready)
 
 	(push-scope)
-	(assign '(r0 r1) {local, stream})
+	(l-entry {local, stream})
 
 	(loop-start)
 		(f-call 'stream 'read_char {stream} {_, char})
 		(breakif {char == -1})
-		(l-call 'terminal_output {local, char} '(r0 r1))
+		(l-call 'terminal_output {local, char})
 		(v-call 'stream 'read_ready {stream} {_, ready})
 	(loop-untilnot {ready})
 
-	(assign {char} '(r0))
+	(l-exit {char})
 	(pop-scope)
 	(return)
 
@@ -150,10 +150,10 @@
 	(int 'char 'state)
 
 	(push-scope)
-	(assign '(r0 r1) {local, char})
+	(l-entry {local, char})
 
 	;echo char to terminal
-	(l-call 'terminal_output {local, char} '(r0 r1))
+	(l-call 'terminal_output {local, char})
 
 	;buffer char
 	(assign {char} {*local->local_bufp})
@@ -211,7 +211,7 @@
 			(d-call 'vector 'ref_element {local->local_history, local->local_history_index} {_, string})
 			(f-call 'sys_mem 'copy {&string->string_data, &local->local_buffer, string->string_length} {_, local->local_bufp})
 			(f-call 'stream 'create {string, 0, &string->string_data, string->string_length} {stream})
-			(l-call 'pipe_output {local, stream} '(r0 r1))
+			(l-call 'pipe_output {local, stream})
 			(f-call 'stream 'deref {stream})
 		(endif)
 	(elseif {char == 130})
@@ -230,7 +230,7 @@
 			(endif)
 			(f-call 'sys_mem 'copy {&string->string_data, &local->local_buffer, string->string_length} {_, local->local_bufp})
 			(f-call 'stream 'create {string, 0, &string->string_data, string->string_length} {stream})
-			(l-call 'pipe_output {local, stream} '(r0 r1))
+			(l-call 'pipe_output {local, stream})
 			(f-call 'stream 'deref {stream})
 		(endif)
 	(elseif {char == char_esc})
@@ -264,7 +264,8 @@
 	(int 'char)
 
 	(push-scope)
-	(assign '(r0 r1) {local, char})
+	(l-entry {local, char})
+
 	(vpif {char == char_cr})
 		(assign {char_lf} {char})
 	(endif)
@@ -275,6 +276,7 @@
 		;print char
 		(f-call 'vdu 'print_char {local->local_vdu, char})
 	(endif)
+
 	(pop-scope)
 	(return)
 

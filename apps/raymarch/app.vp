@@ -95,10 +95,10 @@
 	;r0 = app local object
 	;r1 = close object
 
-	(ptr 'this)
+	(ptr 'this 'src)
 
 	(push-scope)
-	(assign '(r0) {this})
+	(l-entry {this, src})
 	(assign {1} {this->local_closed})
 	(pop-scope)
 	(return)
