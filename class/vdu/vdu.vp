@@ -147,7 +147,7 @@
 	;all but r0
 
 	(ptr 'this 'name 'word 'txt)
-	(pulong 'wordp)
+	(pushort 'wordp)
 	(ulong 'points 'code)
 
 	;save inputs
