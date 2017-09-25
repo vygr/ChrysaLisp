@@ -651,13 +651,13 @@
 	`(elem-set -2 *vregt* ,_))
 
 (defmacro get-type ()
-	`(elem -2 *vregt*))
+	'(elem -2 *vregt*))
 
 (defmacro top-reg ()
-	`(vreg-sym (dec (length *vregt*))))
+	'(vreg-sym (dec (length *vregt*))))
 
 (defmacro tmp-reg ()
-	`(vreg-sym (length *vregt*)))
+	'(vreg-sym (length *vregt*)))
 
 (defmacro reset-reg-stack (_)
 	`(defq *vreg* *vreg* *inst* (push (clear *inst*) progn)
