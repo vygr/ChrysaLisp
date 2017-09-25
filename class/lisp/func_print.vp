@@ -11,18 +11,18 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args)
+	(ptr 'this 'args 'value)
 
 	(push-scope)
 	(f-entry 'lisp 'func_print {this, args})
 
-	(f-call 'lisp 'func_prin {this, args} {_, args})
+	(f-call 'lisp 'func_prin {this, args} {_, value})
 	(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 	(vpifnot {args->array_length})
 		(v-call 'stream 'write_flush {this->lisp_stdout})
 	(endif)
 
-	(f-exit 'lisp 'func_print {this, args})
+	(f-exit 'lisp 'func_print {this, value})
 	(pop-scope)
 	(return)
 
