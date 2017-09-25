@@ -92,7 +92,7 @@
 			(f-exit 'sys_heap 'alloc '(r0 r1))
 			(vp-ret)
 		(endif)
-		(if t
+		(if (and debug_mode t)	;nil for guard page allocator
 			(progn
 				;normal allocator
 				(vp-push r4 r5)

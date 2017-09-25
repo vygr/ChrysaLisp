@@ -47,7 +47,7 @@
 	(vp-byte 0 `(sub ,(label-sym '_func_entry) ,(label-sym '_func_name_start)))
 	(vp-align ptr_size `(sub ,(label-sym '_func_entry) ,(label-sym '_func_name_start)))
 	(vp-label '_func_entry)
-	(when (and debug_inout
+	(when (and debug_mode debug_inout
 			(not (eql (defq p "sys/") (slice 0 (min (length p) (length *name*)) *name*)))
 			(not (eql (defq p "gui/") (slice 0 (min (length p) (length *name*)) *name*)))
 			(eql debug_inout (slice 0 (min (length debug_inout) (length *name*)) *name*)))
