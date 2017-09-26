@@ -15,9 +15,6 @@
 	(vp-lea-i r4 (add tk_statics_task_list lh_list_tail) r14)
 	(vp-cpy-ri r14 r4 tk_statics_current_tcb)
 
-	;init task control block heap
-	(f-call 'sys_heap 'init '((& r4 tk_statics_task_heap) (add tk_node_size ptr_size) (mul (add tk_node_size ptr_size) 16)))
-
 	;init task lists
 	(vp-lea-i r4 tk_statics_task_list r0)
 	(lh-init r0 r1)
@@ -31,14 +28,6 @@
 	(vp-cpy-ri r1 r4 tk_statics_cpu_id)
 	(vp-cpy-ri r1 r4 tk_statics_task_count)
 	(vp-ret)
-
-(def-func-end)
-
-(def-func 'sys/task_deinit)
-
-	;free the task heap
-	(f-bind 'sys_task 'statics r0)
-	(f-jmp 'sys_heap 'deinit '((& r0 tk_statics_task_heap)))
 
 (def-func-end)
 
@@ -573,16 +562,8 @@
 	(vp-cpy-ir-ub r2 -1 r1)
 	(vp-sub-rr r1 r2)
 	(vp-cpy-ir-ui r2 (neg int_size) r1)
-	(vpif '(r1 > tk_stack_size))
-		(vp-add-cr tk_node_stackspace r1)
-		(f-call 'sys_mem 'alloc '(r1) '(r0 r1))
-	(else)
-		(vp-add-cr tk_statics_task_heap r0)
-		(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-		(vp-cpy-ri r0 r1 0)
-		(vp-lea-i r1 ptr_size r0)
-		(vp-cpy-cr tk_node_size r1)
-	(endif)
+	(vp-add-cr tk_node_stackspace r1)
+	(f-call 'sys_mem 'alloc '(r1) '(r0 r1))
 
 (errorcases
 	(vp-push r0 r1)
@@ -635,9 +616,7 @@
 	(vp-cpy-ri r2 r0 tk_statics_task_count)
 
 	;free our task control block
-	(vp-sub-cr ptr_size r1)
-	(vp-cpy-ir r1 0 r0)
-	(hp-freecell r0 r1 r2)
+	(f-call 'sys_mem 'free '(r1))
 	(f-jmp 'sys_task 'restore)
 
 (def-func-end)

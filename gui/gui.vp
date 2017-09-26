@@ -26,10 +26,7 @@
 	(vp-cpy-ri r0 r4 gui_statics_old_region)
 
 	;init region heap
-	(f-call 'sys_heap 'init '((& r4 gui_statics_rect_heap) gui_rect_size (mul gui_rect_size 32)))
-
-	;init signal heap
-	(f-jmp 'sys_heap 'init '((& r4 gui_statics_sigslot_heap) gui_sigslot_size (mul gui_sigslot_size 32)))
+	(f-jmp 'sys_heap 'init '((& r4 gui_statics_rect_heap) gui_rect_size (mul gui_rect_size 32)))
 
 (def-func-end)
 
@@ -358,9 +355,6 @@
 
 	;deinit region heap
 	(f-call 'sys_heap 'deinit '(r0))
-
-	;deinit signal heap
-	(f-call 'sys_heap 'deinit '((& r4 gui_statics_sigslot_heap)))
 
 	;destroy any window
 	(vp-cpy-ir r4 gui_statics_window r13)

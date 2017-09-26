@@ -47,7 +47,6 @@
 (def-struct 'gui_statics)
 	(ptr 'sdl_funcs)
 	(struct 'rect_heap 'hp_heap)
-	(struct 'sigslot_heap 'hp_heap)
 	(ptr 'window)
 	(ptr 'screen)
 	(ulong 'renderer)
