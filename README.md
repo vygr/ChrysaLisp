@@ -76,12 +76,11 @@ seconds on a 2014 MacBook Pro ! Dev cycle `(make)` and `(remake)` under 1
 second. It ain't slow.
 
 You can enable a guard page memory allocator if chasing a buffer overrun bug.
-Look in the *obj/sys/heap.vp* file alloc function and enable the guard page
-version and rebuild with `(remake)`. Also enable the `printf` in the *main.c*
-file in order to be able to calculate the instruction offset from the crash
-dumps IP. Then you can load up *sys/boot_image* into any hex dump and find
-exactly which instruction is faulting. Sometimes it's the only way to find
-them!
+Look in the *sys/heap.vp* file alloc function and enable the guard page version
+and rebuild with `(remake)`. Also enable the `printf` in the *main.c* file in
+order to be able to calculate the instruction offset from the crash dumps IP.
+Then you can load up *obj/sys/boot_image* into any hex dump and find exactly
+which instruction is faulting. Sometimes it's the only way to find them!
 
 Network link routing tables are created on booting a link, and the process is
 distributed in nature, each link starts a flood fill that eventually reaches
