@@ -45,7 +45,7 @@
 		(f-call 'stream_str 'ref_string {str_stream} {_, value})
 		(f-call 'ref 'deref {str_stream})
 	(endswitch)
-	(f-call 'lisp 'sym_intern {this, value} {_, value})
+	(f-call 'symbol 'intern {value} {value})
 
 	(f-exit 'lisp 'read_sym {this, value, char})
 	(pop-scope)

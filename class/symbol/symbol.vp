@@ -1,92 +1,64 @@
 (import 'sys/func.inc)
 (import 'class/symbol/symbol.inc)
+(import 'class/hash_set/hash_set.inc)
 
 (gen-class 'symbol)
 
-(def-func 'class/symbol/create_from_buffer)
+(def-func 'class/symbol/intern)
 	;inputs
-	;r0 = buffer pointer
-	;r1 = buffer length
+	;r0 = symbol object
 	;outputs
-	;r0 = 0 if error, else object
-	;trashes
-	;r1-r6
-
-	(f-call 'string 'create_from_buffer '(r0 r1) '(r0))
-	(vpif '(r0 != 0))
-		(f-bind 'class 'symbol r1)
-		(vp-cpy-ri r1 r0 obj_vtable)
-	(endif)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/symbol/create_from_cstr)
-	;inputs
-	;r0 = c symbol pointer
-	;outputs
-	;r0 = 0 if error, else object
-	;trashes
-	;r1-r6
-
-	(f-call 'string 'create_from_cstr '(r0) '(r0))
-	(vpif '(r0 != 0))
-		(f-bind 'class 'symbol r1)
-		(vp-cpy-ri r1 r0 obj_vtable)
-	(endif)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/symbol/create_from_file)
-	;inputs
-	;r0 = c symbol pointer
-	;outputs
-	;r0 = 0 if error, else object
-	;trashes
-	;r1-r6
-
-	(f-call 'string 'create_from_file '(r0) '(r0))
-	(vpif '(r0 != 0))
-		(f-bind 'class 'symbol r1)
-		(vp-cpy-ri r1 r0 obj_vtable)
-	(endif)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/symbol/create_from_long)
-	;inputs
-	;r0 = number
-	;r1 = base
-	;outputs
-	;r0 = 0 if error, else object
+	;r0 = interned symbol
 	;trashes
 	;all
 
-	(f-call 'string 'create_from_long '(r0 r1) '(r0))
-	(vpif '(r0 != 0))
-		(f-bind 'class 'symbol r1)
-		(vp-cpy-ri r1 r0 obj_vtable)
+	(ptr 'this 'set)
+	(pptr 'iter)
+
+	(push-scope)
+	(f-entry 'symbol 'intern {this})
+
+	(assign {ptr ($symbols)} {set})
+	(vpifnot {set})
+		(f-call 'hash_set 'create (cat {@} (f-path 'symbol 'same) {, 101}) {set})
+		(assign {set} {ptr($symbols)})
 	(endif)
-	(vp-ret)
+
+	(f-call 'hash_set 'insert {set, this} {_, iter, _})
+	(f-call 'ref 'deref {this})
+	(f-call 'ref 'ref {*iter} {this})
+	(assign (cat {@} (f-path 'class 'symbol)) {this->obj_vtable})
+
+	(f-exit 'symbol 'intern {this})
+	(pop-scope)
+	(return)
+
+;;;;;;;;;;;;;;;;;;
+; interned symbols
+;;;;;;;;;;;;;;;;;;
+
+	(vp-align ptr_size)
+(vp-label 'symbols)
+	(vp-long 0)
 
 (def-func-end)
 
-(def-func 'class/symbol/append)
+(def-func 'class/symbol/intern_cstr)
 	;inputs
-	;r0 = symbol object
-	;r1 = symbol object
+	;r0 = c string pointer
 	;outputs
-	;r0 = 0 if error, else new symbol object
-	;trashes
-	;r1-r6
+	;r0 = interned symbol
 
-	(f-call 'string 'append '(r0 r1) '(r0))
-	(vpif '(r0 != 0))
-		(f-bind 'class 'symbol r1)
-		(vp-cpy-ri r1 r0 obj_vtable)
-	(endif)
-	(vp-ret)
+	(ptr 'str)
+
+	(push-scope)
+	(f-entry 'symbol 'intern_cstr {str})
+
+	(f-call 'symbol 'create_from_cstr {str} {str})
+	(f-call 'symbol 'intern {str} {str})
+
+	(f-exit 'symbol 'intern_cstr {str})
+	(pop-scope)
+	(return)
 
 (def-func-end)

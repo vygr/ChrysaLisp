@@ -30,7 +30,7 @@
 	(errorifnot {class} 'error2)
 	(f-call 'obj 'inst_of {value, class} {_, value})
 	(vpif {value})
-		(f-call 'lisp 'sym_intern_cstr {this, value - ubyte(value - 1)} {_, value})
+		(f-call 'symbol 'intern_cstr {value - ubyte(value - 1)} {value})
 	(else)
 		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 	(endif)

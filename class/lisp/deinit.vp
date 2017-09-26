@@ -17,7 +17,6 @@
 	(f-call 'ref 'deref {this->lisp_stdout})
 	(f-call 'ref 'deref {this->lisp_stderr})
 	(f-call 'ref 'deref {this->lisp_environment})
-;	(f-call 'ref 'deref {this->lisp_symbols})
 
 	;deinit parent
 	(assign {this} '(r0))

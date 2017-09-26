@@ -112,5 +112,3 @@
 (import 'class/lisp/read_sym.vp)
 (import 'class/lisp/read_rmacro.vp)
 (import 'class/lisp/read.vp)
-(import 'class/lisp/sym_intern_cstr.vp)
-(import 'class/lisp/sym_intern.vp)

@@ -25,7 +25,7 @@
 	(else)
 		(errorif (cat {args->obj_vtable != @} (f-path 'class 'string)) 'error2)
 		(f-call 'symbol 'create_from_buffer {args->string_data, args->string_length} {value})
-		(f-call 'lisp 'sym_intern {this, value} {_, value})
+		(f-call 'symbol 'intern {value} {value})
 	(endif)
 
 (vp-label 'exit)

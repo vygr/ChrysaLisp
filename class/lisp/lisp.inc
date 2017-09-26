@@ -7,9 +7,6 @@
 (def-method 'new 'class/lisp/new 'static nil '(r0))
 (def-method 'init 'class/lisp/init 'static '(r0 r1 r2 r3 r4))
 (def-method 'deinit 'class/lisp/deinit 'final)
-
-(def-method 'sym_intern 'class/lisp/sym_intern 'static '(r0 r1) '(r0 r1))
-(def-method 'sym_intern_cstr 'class/lisp/sym_intern_cstr 'static '(r0 r1) '(r0 r1))
 (def-method 'built_in_func 'class/lisp/built_in_func 'static '(r0 r1 r2 r3) '(r0))
 
 (def-method 'env_push 'class/lisp/env_push 'static '(r0) '(r0))
@@ -134,7 +131,6 @@
 	(ptr 'stdin)
 	(ptr 'stdout)
 	(ptr 'stderr)
-	(ptr 'symbols)
 	(ptr 'environment)
 	(ulong 'nextsym)
 	(ptr 'sym_optional)

@@ -56,20 +56,13 @@
 		(f-call 'ref 'ref {stdout} {this->lisp_stdout})
 		(f-call 'ref 'ref {stderr} {this->lisp_stderr})
 		(assign {0} {this->lisp_nextsym})
-
-		;interned symbols set and environments
-		(assign {ptr ($symbols)} {this->lisp_symbols})
-		(vpifnot {this->lisp_symbols})
-			(f-call 'hash_set 'create (cat {@} (f-path 'symbol 'same) {, 101}) {this->lisp_symbols})
-			(assign {this->lisp_symbols} {ptr($symbols)})
-		(endif)
 		(f-call 'hash_map 'create {0, 101} {this->lisp_environment})
 
 		;intern standard built in symbols
 		;fixup built in functions
 		(assign {$built_ins} {table})
 		(loop-while {table->built_in_symbol})
-			(f-call 'lisp 'sym_intern_cstr {this, &table->built_in_symbol + table->built_in_symbol} {_, symbol})
+			(f-call 'symbol 'intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
 			(vpif {table->built_in_field})
 				(assign {symbol} {ptr(this + table->built_in_field)})
 			(endif)
@@ -115,14 +108,6 @@
 	(f-exit 'lisp 'init {this, ok})
 	(pop-scope)
 	(return)
-
-;;;;;;;;;;;;;;;;
-; shared symbols
-;;;;;;;;;;;;;;;;
-
-	(vp-align ptr_size)
-(vp-label 'symbols)
-	(vp-long 0)
 
 ;;;;;;;;;;;
 ; built ins
