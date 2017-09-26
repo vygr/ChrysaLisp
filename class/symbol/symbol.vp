@@ -51,6 +51,7 @@
 	;trashes
 	;all
 
+	(f-entry 'symbol 'intern_cstr '(r0))
 	(f-call 'symbol 'create_from_cstr '(r0) '(r0))
 	(f-jmp 'symbol 'intern '(r0))
 
