@@ -20,23 +20,12 @@
 	(vp-lea-i r6 ml_statics_offchip_list r0)
 	(lh-init r0 r1)
 
-	;init mail message heap
-	(f-call 'sys_heap 'init '((& r6 ml_statics_heap) (add msg_size ptr_size) (mul (add msg_size ptr_size) 64)))
-
 	;init in and out postmen tasks
 	(f-call 'sys_task 'start `((@ ,(f-path 'sys_mail 'in))) '(r0 (r6 ml_statics_in_mailbox) _))
 	(f-call 'sys_task 'start `((@ ,(f-path 'sys_mail 'out))) '(r0 (r6 ml_statics_out_mailbox) _))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 r6 ml_statics_parcel_id)
 	(vp-ret)
-
-(def-func-end)
-
-(def-func 'sys/mail_deinit)
-
-	;deinit mail message heap
-	(f-bind 'sys_mail 'statics r0)
-	(f-jmp 'sys_heap 'deinit '((& r0 ml_statics_heap)))
 
 (def-func-end)
 
@@ -71,10 +60,7 @@
 	;r1-r3
 
 	(f-bind 'sys_mail 'statics r0)
-	(vp-add-cr ml_statics_heap r0)
-	(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-	(vp-cpy-ri r0 r1 0)
-	(vp-lea-i r1 ptr_size r0)
+	(f-call 'sys_mem 'alloc '(msg_size) '(r0 r1))
 	(vp-cpy-cr msg_header_size r1)
 	(vp-cpy-ri r1 r0 msg_length)
 	(vp-xor-rr r1 r1)
@@ -94,14 +80,10 @@
 
 	(f-entry 'sys_mail 'alloc_parcel '(r0))
 	(vp-cpy-rr r0 r4)
-	(vpif '(r0 <= msg_size))
-		(f-call 'sys_mail 'alloc '() '(r0))
-	(else)
-		(f-call 'sys_mem 'alloc '(r0) '(r0 _))
-		(vp-xor-rr r1 r1)
-		(vp-cpy-ri r1 r0 msg_parcel_size)
-	(endif)
+	(f-call 'sys_mem 'alloc '(r0) '(r0 r1))
+	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r4 r0 msg_length)
+	(vp-cpy-ri r1 r0 msg_parcel_size)
 	(f-exit 'sys_mail 'alloc_parcel '(r0))
 	(vp-ret)
 

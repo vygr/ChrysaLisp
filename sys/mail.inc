@@ -51,7 +51,6 @@
 
 (def-struct 'ml_statics)
 	(struct 'offchip_list 'lh_list)
-	(struct 'heap 'hp_heap)
 	(ptr 'kernel_mailbox)
 	(ptr 'in_mailbox)
 	(ptr 'out_mailbox)

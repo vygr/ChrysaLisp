@@ -283,9 +283,6 @@
 	;deinit font
 	(f-call 'gui_font 'deinit)
 
-	;deinit mailer
-	(f-call 'sys_mail 'deinit)
-
 	;deinit tasks
 	(f-call 'sys_task 'deinit)
 
