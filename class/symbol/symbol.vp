@@ -18,7 +18,7 @@
 	(push-scope)
 	(f-entry 'symbol 'intern {this})
 
-	(assign {ptr ($symbols)} {set})
+	(assign {ptr($symbols)} {set})
 	(vpifnot {set})
 		(f-call 'hash_set 'create (cat {@} (f-path 'symbol 'same) {, 101}) {set})
 		(assign {set} {ptr($symbols)})
@@ -48,17 +48,10 @@
 	;r0 = c string pointer
 	;outputs
 	;r0 = interned symbol
+	;trashes
+	;all
 
-	(ptr 'str)
-
-	(push-scope)
-	(f-entry 'symbol 'intern_cstr {str})
-
-	(f-call 'symbol 'create_from_cstr {str} {str})
-	(f-call 'symbol 'intern {str} {str})
-
-	(f-exit 'symbol 'intern_cstr {str})
-	(pop-scope)
-	(return)
+	(f-call 'symbol 'create_from_cstr '(r0) '(r0))
+	(f-jmp 'symbol 'intern '(r0))
 
 (def-func-end)
