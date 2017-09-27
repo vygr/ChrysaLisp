@@ -688,7 +688,6 @@
 	(def-struct 'local)
 		(ptr 'this)
 		(ptr 'hit)
-		(ptr 'jump)
 	(def-struct-end)
 
 	;save inputs
@@ -696,13 +695,10 @@
 	(vp-cpy-ri r0 rsp local_this)
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 rsp local_hit)
-	(vp-lea-p 'early_ret r1)
-	(vp-cpy-ri r1 rsp local_jump)
 
 	;iterate through views front to back
 	(f-call 'view 'forward_tree '(r0 rsp ($ hit_down_callback) ($ hit_up_callback)))
 
-(vp-label 'early_ret)
 	(vp-cpy-ir rsp local_this r0)
 	(vp-cpy-ir rsp local_hit r1)
 	(vp-free local_size)
@@ -719,18 +715,19 @@
 
 (vp-label 'hit_up_callback)
 	(vp-cpy-rr r1 r2)
-	(v-call 'view 'hit '(r0 r7 r8) '(r0 r1))
-	(vpif '(r1 != 0))
-		;early exit back to caller !
-		(vp-cpy-rr r2 rsp)
-		(vp-cpy-ri r0 r2 local_hit)
-		(vp-jmp-i r2 local_jump)
+	(vp-cpy-ir r1 local_hit r1)
+	(vpif '(r1 == 0))
+		(v-call 'view 'hit '(r0 r7 r8) '(r0 r1))
+		(vpif '(r1 != 0))
+			(vp-cpy-ri r0 r2 local_hit)
+			(vp-ret)
+		(endif)
+		(vp-cpy-ir-i r0 view_x r1)
+		(vp-add-rr r1 r7)
+		(vp-cpy-ir-i r0 view_y r1)
+		(vp-add-rr r1 r8)
+		(vp-xor-rr r1 r1)
 	(endif)
-	(vp-cpy-ir-i r0 view_x r1)
-	(vp-add-rr r1 r7)
-	(vp-cpy-ir-i r0 view_y r1)
-	(vp-add-rr r1 r8)
-	(vp-xor-rr r1 r1)
 	(vp-ret)
 
 (def-func-end)
