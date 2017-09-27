@@ -471,7 +471,7 @@
 
 	(lh-get-head r0 view_list r0)
 	(loop-start)
-	 	(ln-get-succ r0 0 r1)
+		(ln-get-succ r0 0 r1)
 		(breakif '(r1 == 0))
 
 		;callback

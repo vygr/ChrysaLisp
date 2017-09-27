@@ -398,8 +398,8 @@
 	out_points)
 
 (defun stroke-polyline-2d (out_polygons r join_style cap1_style cap2_style in_polylines)
- 	(when (ge r 0.5)
-	 	(each (lambda (_)
+	(when (ge r 0.5)
+		(each (lambda (_)
 			(setq _ (remove-coincident-polyline-2d _))
 			(defq index 0 step 1 sides 2 out_points (list))
 			(while (ge (setq sides (dec sides)) 0)

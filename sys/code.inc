@@ -295,7 +295,7 @@
 	(each get-sym _))
 
 (defcfun operator (_1 _2 &optional _3 _4)
- 	;_1 name
+	;_1 name
 	;_2 precedence
 	;_3 associativity
 	;_4 compile macro
