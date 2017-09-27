@@ -184,17 +184,14 @@
 			(sdl-call 'sdl 'ttf_font_ascent '((r12 ft_font_handle)))
 			(vp-cpy-ir rsp fopen_entry r12)
 			(vp-cpy-ri-i r0 r12 ft_font_ascent)
-(debug-num "acent=" r0)
 
 			(sdl-call 'sdl 'ttf_font_descent '((r12 ft_font_handle)))
 			(vp-cpy-ir rsp fopen_entry r12)
 			(vp-cpy-ri-i r0 r12 ft_font_descent)
-(debug-num "decent=" r0)
 
 			(sdl-call 'sdl 'ttf_font_height '((r12 ft_font_handle)))
 			(vp-cpy-ir rsp fopen_entry r12)
 			(vp-cpy-ri-i r0 r12 ft_font_height)
-(debug-num "height=" r0)
 
 			(vp-cpy-rr r12 r0)
 			(f-bind 'gui_font 'statics r4)
