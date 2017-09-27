@@ -86,8 +86,8 @@
 		(vp-xor-rr r9 r9)
 		(vp-xor-rr r10 r10)
 	(else)
-		(vp-cpy-ir r0 ft_text_width r9)
-		(vp-cpy-ir r0 ft_text_height r10)
+		(vp-cpy-ir-i r0 ft_text_width r9)
+		(vp-cpy-ir-i r0 ft_text_height r10)
 	(endif)
 	(vp-ret)
 
@@ -118,7 +118,7 @@
 	;search font list
 	(loop-flist r4 ft_statics_font_flist r4 r4)
 		(vp-cpy-ir rsp local_points r0)
-		(vp-cpy-ir r4 ft_font_points r1)
+		(vp-cpy-ir-ui r4 ft_font_points r1)
 		(continueif '(r0 != r1))
 		(f-call 'sys_string 'compare '((& r4 ft_font_name) (rsp local_font)) '(r0))
 	(loop-until '(r0 == 0))
@@ -159,7 +159,7 @@
 	(vp-cpy-ir rsp fopen_user r13)
 	(loop-flist r4 ft_statics_font_flist r4 r4)
 		(vp-cpy-ir r13 local_points r0)
-		(vp-cpy-ir r4 ft_font_points r1)
+		(vp-cpy-ir-ui r4 ft_font_points r1)
 		(continueif '(r0 != r1))
 		(f-call 'sys_string 'compare '((& r4 ft_font_name) (r13 local_font)) '(r0))
 	(loop-until '(r0 == 0))
@@ -176,22 +176,25 @@
 			(vp-cpy-ri r12 rsp fopen_entry)
 
 			(vp-cpy-ir r13 local_points r0)
-			(vp-cpy-ri r0 r12 ft_font_points)
+			(vp-cpy-ri-i r0 r12 ft_font_points)
 			(vp-cpy-ri r4 r12 ft_font_handle)
 			(f-call 'sys_string 'copy '((r13 local_font) (& r12 ft_font_name)))
 
 			;fill in ascent, descent and height
 			(sdl-call 'sdl 'ttf_font_ascent '((r12 ft_font_handle)))
 			(vp-cpy-ir rsp fopen_entry r12)
-			(vp-cpy-ri r0 r12 ft_font_ascent)
+			(vp-cpy-ri-i r0 r12 ft_font_ascent)
+(debug-num "acent=" r0)
 
 			(sdl-call 'sdl 'ttf_font_descent '((r12 ft_font_handle)))
 			(vp-cpy-ir rsp fopen_entry r12)
-			(vp-cpy-ri r0 r12 ft_font_descent)
+			(vp-cpy-ri-i r0 r12 ft_font_descent)
+(debug-num "decent=" r0)
 
 			(sdl-call 'sdl 'ttf_font_height '((r12 ft_font_handle)))
 			(vp-cpy-ir rsp fopen_entry r12)
-			(vp-cpy-ri r0 r12 ft_font_height)
+			(vp-cpy-ri-i r0 r12 ft_font_height)
+(debug-num "height=" r0)
 
 			(vp-cpy-rr r12 r0)
 			(f-bind 'gui_font 'statics r4)
@@ -316,8 +319,8 @@
 			;fill in width and height
 			(vp-cpy-ir r13 local_width r9)
 			(vp-cpy-ir r13 local_height r10)
-			(vp-cpy-ri r9 r12 ft_text_width)
-			(vp-cpy-ri r10 r12 ft_text_height)
+			(vp-cpy-ri-i r9 r12 ft_text_width)
+			(vp-cpy-ri-i r10 r12 ft_text_height)
 
 			;texture blend mode
 			(sdl-call 'sdl 'sdl_set_texture_blend_mode '((r12 ft_text_texture) SDL_BLENDMODE_BLEND))
