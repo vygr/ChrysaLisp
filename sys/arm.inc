@@ -13,21 +13,21 @@
 (defmacro emit-rrr (o m n d)
 	`(emit-int (add ,o (bit-shl (reg ,m) 16) (bit-shl (reg ,n) 5) (reg ,d))))
 
-(defmacro emit-ri (o s d c)
+(defmacro emit-ri (w o s d c)
 	`(cond
 		((le -0x100 ,c 0xff)
 			(emit-int (add ,o (bit-shl (bit-and ,c 0x1ff) 12) (bit-shl (reg ,d) 5) (reg ,s))))
-		((le 0 ,c 0xfff)
-			(emit-int (add 0x1000000 ,o (bit-shl ,c 10) (bit-shl (reg ,d) 5) (reg ,s))))
+		((le 0 ,c (bit-shl 0xfff ,w))
+			(emit-int (add 0x1000000 ,o (bit-shl ,c (sub 10 ,w)) (bit-shl (reg ,d) 5) (reg ,s))))
 		(t (throw "emit-ri/ir constant out of range !" ,c))))
 
-(defmacro emit-ir (o s c d)
-	`(emit-ri ,o ,d ,s ,c))
+(defmacro emit-ir (w o s c d)
+	`(emit-ri ,w ,o ,d ,s ,c))
 
-(defmacro emit-iru (o x s c d)
+(defmacro emit-iru (w o x s c d)
 	`(progn
 		(unless (eql ,s ,d) (emit-xor-rr ,d ,d))
-		(emit-ir ,o ,s ,c ,d)
+		(emit-ir ,w ,o ,s ,c ,d)
 		(if (eql ,s ,d) (emit-ux ,x ,d ,d))))
 
 (defmacro emit-rd (o s d1 d2)
@@ -214,27 +214,27 @@
 (defcfun emit-cpy-ir (s c d)
 	(if (eql d rsp)
 		(progn
-			(emit-ir 0xf8400000 s c r29)
+			(emit-ir 3 0xf8400000 s c r29)
 			(emit-cpy-rr r29 rsp))
-		(emit-ir 0xf8400000 s c d)))
+		(emit-ir 3 0xf8400000 s c d)))
 
-(defcfun emit-cpy-ir-b (s c d) (emit-ir 0x38800000 s c d))
-(defcfun emit-cpy-ir-s (s c d) (emit-ir 0x78800000 s c d))
-(defcfun emit-cpy-ir-i (s c d) (emit-ir 0xb8800000 s c d))
+(defcfun emit-cpy-ir-b (s c d) (emit-ir 0 0x38800000 s c d))
+(defcfun emit-cpy-ir-s (s c d) (emit-ir 1 0x78800000 s c d))
+(defcfun emit-cpy-ir-i (s c d) (emit-ir 2 0xb8800000 s c d))
 
 (defcfun emit-cpy-ri (s d c)
 	(when (eql s rsp)
 		(emit-cpy-rr rsp r29)
 		(setq s r29))
-	(emit-ri 0xf8000000 s d c))
+	(emit-ri 3 0xf8000000 s d c))
 
-(defcfun emit-cpy-ri-b (s d c) (emit-ri 0x38000000 s d c))
-(defcfun emit-cpy-ri-s (s d c) (emit-ri 0x78000000 s d c))
-(defcfun emit-cpy-ri-i (s d c) (emit-ri 0xb8000000 s d c))
+(defcfun emit-cpy-ri-b (s d c) (emit-ri 0 0x38000000 s d c))
+(defcfun emit-cpy-ri-s (s d c) (emit-ri 1 0x78000000 s d c))
+(defcfun emit-cpy-ri-i (s d c) (emit-ri 2 0xb8000000 s d c))
 
-(defcfun emit-cpy-ir-ub (s c d) (emit-iru 0x38400000 7 s c d))
-(defcfun emit-cpy-ir-us (s c d) (emit-iru 0x78400000 15 s c d))
-(defcfun emit-cpy-ir-ui (s c d) (emit-iru 0xb8400000 31 s c d))
+(defcfun emit-cpy-ir-ub (s c d) (emit-iru 0 0x38400000 7 s c d))
+(defcfun emit-cpy-ir-us (s c d) (emit-iru 1 0x78400000 15 s c d))
+(defcfun emit-cpy-ir-ui (s c d) (emit-iru 2 0xb8400000 31 s c d))
 
 (defcfun emit-cpy-rd (s d1 d2) (emit-rd 0xf8206800 s d2 d1))
 (defcfun emit-cpy-rd-b (s d2 d1) (emit-rd 0x38206800 s d2 d1))
