@@ -31,8 +31,8 @@
 	(ptr 'next)
 	(ulong 'font)
 	(ulong 'texture)
-	(int 'width)
-	(int 'height)
+	(uint 'width)
+	(uint 'height)
 	(offset 'name)
 (def-struct-end)
 
