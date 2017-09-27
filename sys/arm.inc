@@ -24,11 +24,11 @@
 (defmacro emit-ir (w o s c d)
 	`(emit-ri ,w ,o ,d ,s ,c))
 
-(defmacro emit-iru (w o x s c d)
+(defmacro emit-iru (w o s c d)
 	`(progn
 		(unless (eql ,s ,d) (emit-xor-rr ,d ,d))
 		(emit-ir ,w ,o ,s ,c ,d)
-		(if (eql ,s ,d) (emit-ux ,x ,d ,d))))
+		(if (eql ,s ,d) (emit-ux ,(elem w '(7 15 31)) ,d ,d))))
 
 (defmacro emit-rd (o s d1 d2)
 	`(emit-int (add ,o (bit-shl (reg ,d2) 16) (bit-shl (reg ,d1) 5) (reg ,s))))
@@ -232,9 +232,9 @@
 (defcfun emit-cpy-ri-s (s d c) (emit-ri 1 0x78000000 s d c))
 (defcfun emit-cpy-ri-i (s d c) (emit-ri 2 0xb8000000 s d c))
 
-(defcfun emit-cpy-ir-ub (s c d) (emit-iru 0 0x38400000 7 s c d))
-(defcfun emit-cpy-ir-us (s c d) (emit-iru 1 0x78400000 15 s c d))
-(defcfun emit-cpy-ir-ui (s c d) (emit-iru 2 0xb8400000 31 s c d))
+(defcfun emit-cpy-ir-ub (s c d) (emit-iru 0 0x38400000 s c d))
+(defcfun emit-cpy-ir-us (s c d) (emit-iru 1 0x78400000 s c d))
+(defcfun emit-cpy-ir-ui (s c d) (emit-iru 2 0xb8400000 s c d))
 
 (defcfun emit-cpy-rd (s d1 d2) (emit-rd 0xf8206800 s d2 d1))
 (defcfun emit-cpy-rd-b (s d2 d1) (emit-rd 0x38206800 s d2 d1))
