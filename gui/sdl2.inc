@@ -53,6 +53,7 @@
 	(if (find _5 s)
 		(throw "Dispatch register conflicts with arg !" (list _5 s)))
 	(assign _3 s)
+	(if (eql *cpu* 'aarch64) (vp-push r30))
 	(when (gt (defq ls (length s)) (defq la (length (abi-args))))
 		(defq x (slice la ls s))
 		(if (ne 0 (bit-and (length x) 1)) (push x _5))
@@ -62,6 +63,7 @@
 	(vp-call-abi _5 v)
 	(when (gt ls la)
 		(vp-free (mul (length x) ptr_size)))
+	(if (eql *cpu* 'aarch64) (vp-pop r30))
 	(if _4 (assign (elem 4 m) _4)))
 
 (defcvar 'SDL_INIT_TIMER 0x00000001)
