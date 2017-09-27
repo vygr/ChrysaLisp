@@ -268,17 +268,17 @@
 	;inputs
 	;r0 = user data
 
-	(def-struct 'klocal)
+	(def-struct 'update)
 		(ptr 'old_stack)
-		(long 'user)
+		(ptr 'user)
 	(def-struct-end)
 
 	;align stack
 	(vp-cpy-rr rsp r1)
-	(vp-alloc klocal_size)
+	(vp-alloc update_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r1 rsp klocal_old_stack)
-	(vp-cpy-ri r0 rsp klocal_user)
+	(vp-cpy-ri r1 rsp update_old_stack)
+	(vp-cpy-ri r0 rsp update_user)
 
 	;create screen window ?
 	(f-bind 'gui_gui 'statics r0)
@@ -311,17 +311,17 @@
 		(sdl-call 'sdl 'sdl_pump_events)
 
 		;get mouse state
-		(vp-cpy-ir rsp klocal_user r0)
+		(vp-cpy-ir rsp update_user r0)
 		(vp-lea-i r0 local_x_pos r1)
 		(vp-lea-i r0 local_y_pos r2)
 		(sdl-call 'sdl 'sdl_get_mouse_state '(r1 r2))
-		(vp-cpy-ir rsp klocal_user r1)
+		(vp-cpy-ir rsp update_user r1)
 		(vp-cpy-ri r0 r1 local_buttons)
 
 		;get keyboard state
 		(vp-add-cr local_keymap_size r1)
 		(sdl-call 'sdl 'sdl_get_keyboard_state '(r1))
-		(vp-cpy-ir rsp klocal_user r1)
+		(vp-cpy-ir rsp update_user r1)
 		(vp-cpy-ri r0 r1 local_keymap)
 
 		;update the screen
@@ -333,7 +333,7 @@
 		(sdl-call 'sdl 'sdl_render_present '((r0 gui_statics_renderer)))
 	(endif)
 
-	(vp-cpy-ir rsp klocal_old_stack rsp)
+	(vp-cpy-ir rsp update_old_stack rsp)
 	(vp-ret)
 
 (vp-label 'deinit_callback)

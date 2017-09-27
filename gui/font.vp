@@ -139,19 +139,24 @@
 	;trashes
 	;all
 
-	;align stack
-	(vp-cpy-rr rsp r14)
-	(vp-alloc ptr_size)
-	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r14 rsp 0)
+	(def-struct 'fopen)
+		(ptr 'user)
+		(ptr 'entry)
+		(ptr 'old_stack)
+	(def-struct-end)
 
-	;save input
-	(vp-cpy-rr r0 r13)
+	;align stack
+	(vp-cpy-rr rsp r1)
+	(vp-alloc fopen_size)
+	(vp-and-cr -16 rsp)
+	(vp-cpy-ri r0 rsp fopen_user)
+	(vp-cpy-ri r1 rsp fopen_old_stack)
 
 	;get font statics
 	(f-bind 'gui_font 'statics r4)
 
 	;search font list
+	(vp-cpy-ir rsp fopen_user r13)
 	(loop-flist r4 ft_statics_font_flist r4 r4)
 		(vp-cpy-ir r13 local_points r0)
 		(vp-cpy-ir r4 ft_font_points r1)
@@ -163,10 +168,12 @@
 	(vp-cpy-rr r4 r0)
 	(vpif '(r4 == 0))
 		(sdl-call 'sdl 'ttf_open_font '((r13 local_font) (r13 local_points)))
+		(vp-cpy-ir rsp fopen_user r13)
 		(vpif '(r0 != 0))
 			(vp-cpy-rr r0 r4)
 			(f-call 'sys_string 'length '((r13 local_font)) '(_ r1))
 			(f-call 'sys_mem 'alloc '((& r1 (add ft_font_size 1))) '(r12 _))
+			(vp-cpy-ri r12 rsp fopen_entry)
 
 			(vp-cpy-ir r13 local_points r0)
 			(vp-cpy-ri r0 r12 ft_font_points)
@@ -175,20 +182,27 @@
 
 			;fill in ascent, descent and height
 			(sdl-call 'sdl 'ttf_font_ascent '((r12 ft_font_handle)))
+			(vp-cpy-ir rsp fopen_entry r12)
 			(vp-cpy-ri r0 r12 ft_font_ascent)
+
 			(sdl-call 'sdl 'ttf_font_descent '((r12 ft_font_handle)))
+			(vp-cpy-ir rsp fopen_entry r12)
 			(vp-cpy-ri r0 r12 ft_font_descent)
+
 			(sdl-call 'sdl 'ttf_font_height '((r12 ft_font_handle)))
+			(vp-cpy-ir rsp fopen_entry r12)
 			(vp-cpy-ri r0 r12 ft_font_height)
 
 			(vp-cpy-rr r12 r0)
 			(f-bind 'gui_font 'statics r4)
 			(ln-add-fnode r4 ft_statics_font_flist r0 r1)
+
+			(vp-cpy-ir rsp fopen_user r13)
 		(endif)
 	(endif)
 	(vp-cpy-ri r0 r13 local_handle)
 
-	(vp-cpy-ir rsp 0 rsp)
+	(vp-cpy-ir rsp fopen_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)
@@ -259,17 +273,23 @@
 	;trashes
 	;all
 
+	(def-struct 'ftext)
+		(ptr 'user)
+		(ptr 'entry)
+		(ptr 'old_stack)
+	(def-struct-end)
+
 	;align stack
-	(vp-cpy-rr rsp r14)
-	(vp-alloc ptr_size)
+	(vp-cpy-rr rsp r1)
+	(vp-alloc ftext_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r14 rsp 0)
+	(vp-cpy-ri r0 rsp ftext_user)
+	(vp-cpy-ri r1 rsp ftext_old_stack)
 
-	;save input
 	(vp-cpy-rr r0 r13)
-
-	(vp-cpy-ir r13 local_font r0)
+	(vp-cpy-ir r0 local_font r0)
 	(sdl-call 'sdl 'ttf_render_utf8_blended '((r0 ft_font_handle) (r13 local_text) 0xffffff))
+	(vp-cpy-ir rsp ftext_user r13)
 	(vpif '(r0 != 0))
 		(vp-cpy-ri r0 r13 local_surface)
 		(vp-cpy-ir-ui r0 sdl_surface_w r9)
@@ -280,11 +300,13 @@
 		;create texture
 		(f-bind 'gui_gui 'statics r0)
 		(sdl-call 'sdl 'sdl_create_texture_from_surface '((r0 gui_statics_renderer) (r13 local_surface)))
+		(vp-cpy-ir rsp ftext_user r13)
 		(vpif '(r0 != 0))
 			(vp-cpy-rr r0 r4)
 
 			(f-call 'sys_string 'length '((r13 local_text)) '(_ r1))
 			(f-call 'sys_mem 'alloc '((& r1 (add ft_text_size 1))) '(r12 _))
+			(vp-cpy-ri r12 rsp ftext_entry)
 
 			(vp-cpy-ir r13 local_font r0)
 			(vp-cpy-ri r0 r12 ft_text_font)
@@ -299,8 +321,8 @@
 
 			;texture blend mode
 			(sdl-call 'sdl 'sdl_set_texture_blend_mode '((r12 ft_text_texture) SDL_BLENDMODE_BLEND))
+			(vp-cpy-ir rsp ftext_entry r0)
 
-			(vp-cpy-rr r12 r0)
 			(vp-cpy-ir r13 local_bucket r4)
 			(ln-add-fnode r4 0 r0 r1)
 		(endif)
@@ -310,7 +332,7 @@
 	(endif)
 	(vp-cpy-ri r0 r13 local_handle)
 
-	(vp-cpy-ir rsp 0 rsp)
+	(vp-cpy-ir rsp ftext_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)
