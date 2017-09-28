@@ -240,8 +240,9 @@
 	(vp-xor-rr r2 r2)
 	(vp-div-rrr r1 r2 r0)
 	(vp-shl-cr (log2 ptr_size) r2)
-	(vp-lea-d r4 r2 r4)
-	(vp-cpy-ri r4 rsp local_bucket)
+	(vp-add-cr ft_statics_text_flists r2)
+	(vp-add-rr r4 r2)
+	(vp-cpy-ri r2 rsp local_bucket)
 
 	;search bucket
 	(loop-flist r4 0 r4 r5)
@@ -321,6 +322,7 @@
 
 			;texture blend mode
 			(sdl-call 'sdl 'sdl_set_texture_blend_mode '((r12 ft_text_texture) SDL_BLENDMODE_BLEND))
+			(vp-cpy-ir rsp ftext_user r13)
 			(vp-cpy-ir rsp ftext_entry r0)
 
 			(vp-cpy-ir r13 local_bucket r4)
@@ -328,6 +330,7 @@
 		(endif)
 		(vp-cpy-ri r0 r13 local_handle)
 		(sdl-call 'sdl 'sdl_free_surface '((r13 local_surface)))
+		(vp-cpy-ir rsp ftext_user r13)
 		(vp-cpy-ir r13 local_handle r0)
 	(endif)
 	(vp-cpy-ri r0 r13 local_handle)
