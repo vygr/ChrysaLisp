@@ -113,7 +113,8 @@
 
 (defcfun emit-push (&rest b)
 	(cond
-		((eq 1 (defq l (length b)))
+		((eq 0 (defq l (length b))))
+		((eq 1 l)
 			(emit-int (add 0xf81f0c00 (bit-shl (reg rsp) 5) (reg (elem 0 b)))))
 		((eq 2 l)
 			(emit-int (add 0xa9bf0000
@@ -128,7 +129,8 @@
 
 (defcfun emit-pop (&rest b)
 	(cond
-		((eq 1 (defq l (length b)))
+		((eq 0 (defq l (length b))))
+		((eq 1 l)
 			(emit-int (add 0xf8410400 (bit-shl (reg rsp) 5) (reg (elem 0 b)))))
 		((eq 2 l)
 			(emit-int (add 0xa8c10000
@@ -169,9 +171,13 @@
 	(emit-cpy-ir d c r29)
 	(emit-call-r r29))
 
-(defcfun emit-call-abi (d c)
+(defcfun emit-call-abi (d c &rest x)
+	(setq x (cat '(r30) x))
+	(apply emit-push x)
 	(emit-cpy-ir d c r29)
-	(emit-int (add 0xd63f0000 (bit-shl (reg r29) 5))))
+	(emit-int (add 0xd63f0000 (bit-shl (reg r29) 5)))
+	(emit-cpy-ir rsp (mul ptr_size (dec (length x))) r30)
+	(emit-free (mul ptr_size (length x))))
 
 (defcfun emit-call-p (l)
 	(emit-cpy-pr l r29)

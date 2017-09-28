@@ -189,8 +189,12 @@
 
 (defcfun emit-call-r (r) (emit-call-jump-r 0xd0 r))
 (defcfun emit-call-i (d c) (emit-call-jump-i 0x10 d c))
-(defcfun emit-call-abi (d c) (emit-call-jump-i 0x10 d c))
 (defcfun emit-call-p (l) (emit-call-jump-p 0x15 (sub l *pc*)))
+
+(defcfun emit-call-abi (d c &rest x)
+	(apply emit-push x)
+	(emit-call-jump-i 0x10 d c)
+	(emit-free (mul ptr_size (length x))))
 
 (defcfun emit-jmp (l d)
 	(defq m (elem d *distance*) c (sub l *pc*))
