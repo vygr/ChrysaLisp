@@ -7,7 +7,6 @@
 
 (def-class 'gui_font)
 (def-method 'statics 'gui/font_statics)
-(def-method 'init 'gui/font_init)
 (def-method 'deinit 'gui/font_deinit)
 (def-method 'open 'gui/font_open 'static '(r0 r1) '(r0))
 (def-method 'text 'gui/font_text 'static '(r0 r1) '(r0))

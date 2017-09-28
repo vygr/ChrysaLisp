@@ -31,9 +31,6 @@
 	;init linker
 	(f-call 'sys_link 'init)
 
-	;init font
-	(f-call 'gui_font 'init)
-
 	;start kernel task
 	(f-call 'sys_task 'start '(($ _func_entry)) '(r0 r1 _))
 	(f-bind 'sys_task 'statics r2)

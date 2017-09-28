@@ -10,26 +10,6 @@
 (def-func-end)
 (setq debug_inout debug_inout_old)
 
-(def-func 'gui/font_init)
-
-	;get font statics
-	(f-bind 'gui_font 'statics r1)
-
-	;init font lists
-	(vp-xor-rr r0 r0)
-	(vp-cpy-ri r0 r1 ft_statics_font_flist)
-
-	;init text image hash slots
-	(vp-add-cr ft_statics_text_flists r1)
-	(vp-lea-i r1 ft_buckets_size r2)
-	(loop-start)
-		(vp-cpy-ri r0 r1 0)
-		(vp-add-cr ptr_size r1)
-	(loop-until '(r1 == r2))
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'gui/font_deinit)
 
 	(def-struct 'local)
