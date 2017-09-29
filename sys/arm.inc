@@ -182,8 +182,8 @@
 		((eq 2 l) 
 			(emit-pop r30 r29))
 		(t
-			(emit-cpy-ir rsp (mul ptr_size (dec (length x))) r30)
-			(emit-free (mul ptr_size (length x))))))
+			(emit-cpy-ir rsp (mul ptr_size (dec l)) r30)
+			(emit-free (mul ptr_size l)))))
 
 (defcfun emit-call-p (l)
 	(emit-cpy-pr l r29)
