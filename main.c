@@ -53,4 +53,5 @@ int main(int argc, char *argv[])
 	void(*boot)(char*[], void*[]) = (void(*)(char*[], void*[]))((char*)data + data[3]);
 //	printf("image start address: 0x%llx\n", (unsigned long long)data);
 	boot(argv, sdl_funcs);
+	return 0;
 }

@@ -95,13 +95,7 @@
 	;must be second function !
 	'sys/load_bind
 	;must be third function !
-	'sys/load_statics
-	;must be included ! Because it unmaps all function blocks
-	'sys/load_deinit
-	;must be included ! Because load_deinit accesses them
-	'sys/mem_statics
-	;must be included !
-	'sys/kernel))
+	'sys/load_statics))
 	(merge-sym f (map sym *funcs*))
 	;load up all functions requested
 	(each load-func f)

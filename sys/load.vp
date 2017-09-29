@@ -124,22 +124,6 @@
 
 (def-func-end)
 
-(def-func 'sys/load_deinit)
-	;free relloc buffer
-	(f-bind 'sys_load 'statics r0)
-	(f-call 'pii 'munmap '((r0 ld_statics_reloc_buffer) ld_reloc_buf_size))
-
-	;free all function blocks
-	(f-bind 'sys_load 'statics r0)
-	(loop-flist r0 ld_statics_block_flist r1 r2)
-		(vp-cpy-rr r1 r0)
-		(ln-remove-fnode r1 r2)
-		(f-call 'pii 'munmap '(r0 ld_block_size))
-	(loop-end)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'sys/load_bind)
 	;input
 	;r0 = function path name
