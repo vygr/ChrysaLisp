@@ -176,8 +176,14 @@
 	(apply emit-push x)
 	(emit-cpy-ir d c r29)
 	(emit-int (add 0xd63f0000 (bit-shl (reg r29) 5)))
-	(emit-cpy-ir rsp (mul ptr_size (dec (length x))) r30)
-	(emit-free (mul ptr_size (length x))))
+	(cond
+		((eq 1 (defq l (length x)))
+			(emit-pop r30))
+		((eq 2 l) 
+			(emit-pop r30 r29))
+		(t
+			(emit-cpy-ir rsp (mul ptr_size (dec (length x))) r30)
+			(emit-free (mul ptr_size (length x))))))
 
 (defcfun emit-call-p (l)
 	(emit-cpy-pr l r29)
