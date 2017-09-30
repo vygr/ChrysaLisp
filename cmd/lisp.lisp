@@ -89,8 +89,7 @@
 			(setq i (add i 8))) l)
 	(unless (lst? *funcs*)
 		(setq *funcs* (list *funcs*)))
-	(defq fn_header_length 8 fn_header_entry 12 fn_header_links 16
-		fn_header_atoms 20 fn_header_paths 24 f (list
+	(defq fn_header_length 8 fn_header_entry 12 fn_header_atoms 16 fn_header_links 20 fn_header_paths 24 f (list
 	;must be first function !
 	'sys/load_init
 	;must be second function !
@@ -130,7 +129,7 @@
 	(reduce (lambda (x y)
 		(push s x)
 		(add x (length y) 1)) f 0)
-	;create new link/atom sections with offsets to new paths/atoms
+	;create new link sections with offsets to new paths
 	(each (lambda (x)
 		(defq u (elem _ o))
 		(elem-set 1 x (apply cat (push (map (lambda (y)
