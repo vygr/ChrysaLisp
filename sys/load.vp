@@ -134,7 +134,6 @@
 	;trashes
 	;r1-r7
 
-(vp-label 'ld_load_function)
 	;save pathname
 	(vp-cpy-rr r0 r6)
 
@@ -284,7 +283,7 @@
 		(breakif '(r1 == 0))
 		(vp-push r0)
 		(vp-cpy-rr r1 r0)
-		(vp-call 'ld_load_function)
+		(vp-call '_func_entry)
 		(vpif '(r0 == 0))
 			;no such file
 			(f-call 'pii 'write_str '(2 "Bind error: "))
