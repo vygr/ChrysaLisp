@@ -11,6 +11,7 @@
 	(uint 'length)
 	(uint 'entry)
 	(uint 'links)
+	(uint 'atoms)
 	(uint 'paths)
 	(uint 'stack)
 	(offset 'pathname)
@@ -20,7 +21,7 @@
 ; functions
 ;;;;;;;;;;;
 
-(defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil)
+(defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil '*atoms* nil)
 
 (defcfun link-sym (p)
 	(cat "_ref_link_" (str p)))
@@ -28,25 +29,29 @@
 (defcfun path-sym (p)
 	(cat "_ref_path_" (str p)))
 
+(defcfun atom-sym (p)
+	(cat "_ref_atom_" (str p)))
+
 (defcfun string-sym (p)
 	(cat "_ref_string_" (str p)))
 
 (defcfun def-func (*name* &optional *func-stack*)
 	(print "-> " *name*)
 	(emit-reset)
-	(setq *func-name* *name* *switch-nxt* 0 *strings* (list) *paths* (list) *links* (list))
-	(vp-label '_func_start)
+	(setq *func-name* *name* *switch-nxt* 0 *strings* (list) *paths* (list) *links* (list) *atoms* (list))
+(vp-label '_func_start)
 	(vp-long -1)
 	(vp-int `(sub ,(label-sym '_func_end) ,(label-sym '_func_start))
 		`(sub ,(label-sym '_func_entry) ,(label-sym '_func_start))
 		`(sub ,(label-sym '_func_links) ,(label-sym '_func_start))
 		`(sub ,(label-sym '_func_paths) ,(label-sym '_func_start))
+		`(sub ,(label-sym '_func_atoms) ,(label-sym '_func_start))
 		(opt *func-stack* tk_stack_size))
-	(vp-label '_func_name_start)
+(vp-label '_func_name_start)
 	(vp-string (str *name*))
 	(vp-byte 0 `(sub ,(label-sym '_func_entry) ,(label-sym '_func_name_start)))
 	(vp-align ptr_size `(sub ,(label-sym '_func_entry) ,(label-sym '_func_name_start)))
-	(vp-label '_func_entry)
+(vp-label '_func_entry)
 	(when (and debug_mode debug_inout
 			(not (eql (defq p "sys/") (slice 0 (min (length p) (length *name*)) *name*)))
 			(not (eql (defq p "gui/") (slice 0 (min (length p) (length *name*)) *name*)))
@@ -64,17 +69,20 @@
 		(vp-label (string-sym _))
 		(vp-string s) (vp-byte 0)) *strings*)
 	(vp-align ptr_size)
-	(vp-label '_func_links)
+(vp-label '_func_links)
 	(each (lambda (s)
 		(vp-label (link-sym _))
 		(vp-long `(sub ,(label-sym (path-sym s)) *pc*))) *links*)
-	(vp-long 0)
-	(vp-label '_func_paths)
+(vp-label '_func_atoms)
+	(each (lambda (s)
+		(vp-label (link-sym _))
+		(vp-long `(sub ,(label-sym (atom-sym s)) *pc*))) *atoms*)
+(vp-label '_func_paths)
 	(each (lambda (s)
 		(vp-label (path-sym _))
 		(vp-string (str s)) (vp-byte 0)) *paths*)
 	(vp-align ptr_size)
-	(vp-label '_func_end)
+(vp-label '_func_end)
 	(opt-emit-buffer)
 	(when debug_emit
 		(each print-emit *emit-buffer*))
@@ -93,13 +101,24 @@
 (defcfun fn-add-link (p)
 	(push *links* (fn-add-path p)))
 
+(defcfun fn-add-atom (p)
+	(push *atoms* (fn-add-path p)))
+
 (defcfun fn-find-link (p)
 	(defq i -1)
 	(while (and (lt (setq i (inc i)) (length *links*)) (not (eql p (elem (elem i *links*) *paths*)))))
 	(if (eq i (length *links*)) (fn-add-link p)) i)
 
+(defcfun fn-find-atom (p)
+	(defq i -1)
+	(while (and (lt (setq i (inc i)) (length *atoms*)) (not (eql p (elem (elem i *atoms*) *paths*)))))
+	(if (eq i (length *atoms*)) (fn-add-atom p)) i)
+
 (defcfun fn-string (s r)
 	(vp-lea-p (string-sym (fn-add-string s)) r))
+
+(defcfun fn-atom (a r)
+	(vp-cpy-pr (link-sym (fn-find-atom a)) r))
 
 (defcfun fn-bind (p r)
 	(if (def? p) (throw "Can't bind to inline function !" p)

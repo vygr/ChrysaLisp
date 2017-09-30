@@ -80,16 +80,17 @@
 	(defun read-long (o f)
 		(add (read-int o f) (bit-shl (read-int (add o 4) f) 32)))
 	(defun read-paths (_)
-		(defq l (list) i (read-int fn_header_links _))
-		(while (ne 0 (defq p (read-long i _)))
-			(defq j (add p i) k j)
+		(defq l (list) i (read-int fn_header_links _) e (read-int fn_header_paths _))
+		(while (ne i e)
+			(defq p (read-long i _) j (add p i) k j)
 			(while (ne 0 (read-byte j _))
 				(setq j (inc j)))
 			(push l (sym (slice k j _)))
 			(setq i (add i 8))) l)
 	(unless (lst? *funcs*)
 		(setq *funcs* (list *funcs*)))
-	(defq fn_header_length 8 fn_header_entry 12 fn_header_links 16 fn_header_paths 20 f (list
+	(defq fn_header_length 8 fn_header_entry 12 fn_header_links 16
+		fn_header_atoms 20 fn_header_paths 24 f (list
 	;must be first function !
 	'sys/load_init
 	;must be second function !
@@ -129,11 +130,11 @@
 	(reduce (lambda (x y)
 		(push s x)
 		(add x (length y) 1)) f 0)
-	;create new link sections with offsets to new paths
+	;create new link/atom sections with offsets to new paths/atoms
 	(each (lambda (x)
 		(defq u (elem _ o))
 		(elem-set 1 x (apply cat (push (map (lambda (y)
-			(char (add (elem (find y f) s) (sub p u (mul _ 8))) 8)) (elem 2 x)) (char 0 8))))) b)
+			(char (add (elem (find y f) s) (sub p u (mul _ 8))) 8)) (elem 2 x)) "")))) b)
 	;build list of all sections of boot image
 	;concatenate all sections and save
 	(save (setq f (apply cat (reduce (lambda (x y)
