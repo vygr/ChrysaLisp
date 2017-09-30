@@ -95,7 +95,19 @@
 	;must be second function !
 	'sys/load_bind
 	;must be third function !
-	'sys/load_statics))
+	'sys/load_statics
+	;must be included, as bind uses them !
+	'sys/string_copy
+	'sys/string_length
+	'sys/pii/exit
+	'sys/pii/mmap
+	'sys/pii/stat
+	'sys/pii/open
+	'sys/pii/close
+	'sys/pii/read
+	'sys/pii/write
+	'sys/pii/write_str
+	'sys/pii/write_char))
 	(merge-sym f (map sym *funcs*))
 	;load up all functions requested
 	(each load-func f)
