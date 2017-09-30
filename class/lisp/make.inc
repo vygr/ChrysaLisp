@@ -1,7 +1,6 @@
 (import 'class/lisp/built_in_func.vp)
 (import 'class/lisp/deinit.vp)
 (import 'class/lisp/env_bind.vp)
-(import 'class/lisp/env_find.vp)
 (import 'class/lisp/env_get.vp)
 (import 'class/lisp/env_pop.vp)
 (import 'class/lisp/env_push.vp)

@@ -30,19 +30,6 @@
 
 (def-func-end)
 
-(def-func 'class/hash_map/deinit)
-	;inputs
-	;r0 = hash_map object
-	;trashes
-	;all but r0
-
-	(vp-push r0)
-	(f-call 'hash_map 'deref_if '((r0 hash_map_parent)))
-	(vp-pop r0)
-	(s-jmp 'hash_map 'deinit '(r0))
-
-(def-func-end)
-
 (def-func 'class/hash_map/copy)
 	;inputs
 	;r0 = hash_map object
@@ -211,28 +198,32 @@
 
 (def-func-end)
 
-(def-func 'class/hash_map/set_parent)
+(def-func 'class/hash_map/search)
 	;inputs
 	;r0 = hash_map object
-	;r1 = 0, else hash_map parent
+	;r1 = key object
 	;outputs
 	;r0 = hash_map object
-	;trashes
-	;all but r0
+	;r1 = 0, else iterator
+	;r2 = bucket vector
 
 	(def-struct 'local)
 		(ptr 'this)
-		(ptr 'obj)
+		(ptr 'key)
 	(def-struct-end)
 
-	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'hash_map 'set_parent '((rsp local_this) (rsp local_obj)))
+	(f-entry 'hash_map 'search '((rsp local_this) (rsp local_key)))
 
-	(f-call 'ref 'deref_if '((r0 hash_map_parent)))
-	(assign '((rsp local_this) (rsp local_obj)) '(r0 r1))
-	(vp-cpy-ri r1 r0 hash_map_parent)
+	(loop-start)
+		(f-call 'hash_map 'find '(r0 (rsp local_key)) '(r0 r1 r2))
+		(breakif '(r1 != 0))
+		(f-call 'hash_map 'get_parent '(r0) '(r0 r1))
+		(breakif '(r1 == 0))
+		(vp-cpy-rr r1 r0)
+	(loop-end)
 
+	(f-exit 'hash_map 'search '((rsp local_this) r1 r2))
 	(vp-free local_size)
 	(vp-ret)
 

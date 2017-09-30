@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/pair/pair.inc)
+(import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/env_get)
@@ -16,7 +17,7 @@
 	(push-scope)
 	(f-entry 'lisp 'env_get {this, symbol})
 
-	(f-call 'lisp 'env_find {this, symbol} {_, iter, _})
+	(f-call 'hash_map 'search {this->lisp_environment, symbol} {_, iter, _})
 	(errorifnot {iter} 'error)
 	(f-call 'pair 'ref_second {*iter} {_, symbol})
 

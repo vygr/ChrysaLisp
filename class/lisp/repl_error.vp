@@ -1,6 +1,7 @@
 (import 'sys/func.inc)
 (import 'class/symbol/symbol.inc)
 (import 'class/pair/pair.inc)
+(import 'class/hash_map/hash_map.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 
@@ -21,7 +22,7 @@
 	(push-scope)
 	(f-entry 'lisp 'repl_error {this, desc, msg, payload})
 
-	(f-call 'lisp 'env_find {this, this->lisp_sym_stream_name} {_, iter, _})
+	(f-call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_name} {_, iter, _})
 	(vpif {iter})
 		(f-call 'pair 'get_second {*iter} {_, file})
 		(f-call 'obj 'inst_of (cat {file, @} (f-path 'class 'string)) {_, value})
@@ -33,7 +34,7 @@
 	(endif)
 
 	(assign {0} {line})
-	(f-call 'lisp 'env_find {this, this->lisp_sym_stream_line} {_, iter, _})
+	(f-call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
 	(vpif {iter})
 		(f-call 'pair 'get_second {*iter} {_, value})
 		(breakif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)))

@@ -11,7 +11,6 @@
 
 (def-method 'env_push 'class/lisp/env_push 'static '(r0) '(r0))
 (def-method 'env_pop 'class/lisp/env_pop 'static '(r0) '(r0))
-(def-method 'env_find 'class/lisp/env_find 'static '(r0 r1) '(r0 r1 r2))
 (def-method 'env_set 'class/lisp/env_set 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'env_get 'class/lisp/env_get 'static '(r0 r1) '(r0 r1))
 (def-method 'env_bind 'class/lisp/env_bind 'static '(r0 r1 r2) '(r0 r1))

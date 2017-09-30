@@ -34,7 +34,7 @@
 		(f-call 'vector 'get_first {form} {_, macro})
 		(breakif {macro == this->lisp_sym_quote})
 		(vpif (cat {macro->obj_vtable == @} (f-path 'class 'symbol)))
-			(f-call 'lisp 'env_find {this, macro} {_, miter, _})
+			(f-call 'hash_map 'search {this->lisp_environment, macro} {_, miter, _})
 			(gotoifnot {miter} 'decend)
 			(f-call 'pair 'get_second {*miter} {_, macro})
 			(gotoif (cat {macro->obj_vtable != @} (f-path 'class 'vector)) 'decend)
