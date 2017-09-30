@@ -44,7 +44,7 @@
 (vp-label 'callback)
 	(vp-xor-rr r7 r7)
 	(vp-cpy-ir-i r1 local_count r8)
-	(vp-cpy-ir r0 view_parent r2)
+	(vp-cpy-ir r0 hash_map_parent r2)
 	(vp-cpy-ir-ui r2 grid_width r9)
 	(vp-div-rrr r9 r7 r8)
 	(vp-cpy-ir-i r1 local_cell_w r9)

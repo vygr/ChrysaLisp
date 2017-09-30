@@ -13,7 +13,7 @@
 	;r1 = 0 if error, else ok
 
 	;init parent
-	(s-call 'component 'init '(r0 r1) '(r0 _))
+	(s-call 'component 'init '(r0 r1 0 1) '(r0 _))
 
 	;init myself
 	(vp-lea-i r0 component_slot_list r1)

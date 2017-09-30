@@ -27,7 +27,6 @@
 (def-method 'get_bounds 'class/view/get_bounds 'static '(r0) '(r0 r7 r8 r9 r10))
 (def-method 'set_bounds 'class/view/set_bounds 'static '(r0 r7 r8 r9 r10) '(r0))
 (def-method 'set_flags 'class/view/set_flags 'static '(r0 r1) '(r0))
-(def-method 'get_parent 'class/view/get_parent 'static '(r0) '(r0 r1))
 (def-method 'get_first 'class/view/get_first 'static '(r0) '(r0 r1))
 (def-method 'get_last 'class/view/get_last 'static '(r0) '(r0 r1))
 (def-method 'set_min_size 'class/view/set_min_size 'static '(r0 r9 r10) '(r0))
@@ -55,7 +54,6 @@
 	(offset 'start)
 	(struct 'node 'ln_node)
 	(struct 'list 'lh_list)
-	(ptr 'parent)
 	(ptr 'tcb)
 	(ptr 'dirty_region)
 	(ptr 'opaque_region)
@@ -102,14 +100,6 @@
 	;r0 = view object
 	;r1 = task tcb
 	(vp-cpy-ri r1 r0 view_tcb))
-
-(defcfun class/view/get_parent ()
-	;inputs
-	;r0 = view object
-	;outputs
-	;r0 = view object
-	;r1 = parent
-	(vp-cpy-ir r0 view_parent r1))
 
 (defcfun class/view/set_min_size ()
 	;inputs

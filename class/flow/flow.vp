@@ -47,7 +47,7 @@
 	(vp-cpy-rr r7 r11)
 	(vp-cpy-rr r8 r12)
 
-	(vp-cpy-ir r0 view_parent r2)
+	(vp-cpy-ir r0 hash_map_parent r2)
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr flow_flag_down r3)
 	(vpif '(r3 != 0))
@@ -208,7 +208,7 @@
 	(vp-push r1)
 	(v-call 'view 'pref_size '(r0) '(r0 r9 r10))
 	(vp-pop r1)
-	(vp-cpy-ir r0 view_parent r2)
+	(vp-cpy-ir r0 hash_map_parent r2)
 	(vp-cpy-ir r2 flow_flags r3)
 	(vp-and-cr (bit-or flow_flag_up flow_flag_down) r3)
 	(vpif '(r3 != 0))
