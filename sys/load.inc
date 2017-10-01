@@ -9,7 +9,6 @@
 (def-class 'sys_load)
 (def-method 'statics 'sys/load_statics)
 (def-method 'init 'sys/load_init)
-(def-method 'deinit 'sys/load_deinit)
 (def-method 'bind 'sys/load_bind 'static '(r0) '(r0))
 
 ;;;;;;;;;;;;;;;;;
