@@ -231,15 +231,16 @@
 	(vp-cpy-ir-us r3 fn_header_length r2)
 	(vp-add-rr r3 r0)
 	(vp-add-rr r3 r2)
-	(loop-while '(r0 < r2))
-		(vp-cpy-ir r0 0 r4)
-		(vp-cpy-ri r4 r1 0)
-		(vp-add-cr ptr_size r0)
-		(vp-add-cr ptr_size r1)
+	(loop-while '(r0 != r2))
+		(vp-cpy-ir-b r0 0 r4)
+		(vp-cpy-ri-b r4 r1 0)
+		(vp-add-cr byte_size r0)
+		(vp-add-cr byte_size r1)
 	(loop-end)
 
 	;push reloc buffer entry
-	(vp-add-cr ptr_size r1)
+	(vp-add-cr (dec (mul ptr_size 2)) r1)
+	(vp-and-cr (neg ptr_size) r1)
 	(vp-cpy-ri r5 r1 (neg ptr_size))
 	(vp-cpy-ri r1 r7 ld_statics_reloc_stack)
 
@@ -251,12 +252,14 @@
 		(f-call 'pii 'exit '(1))
 	(endif)
 
-	;bind links and atoms to paths in reloc buffer
+	;bind links to paths in reloc buffer
 	(vp-cpy-ir-us r3 fn_header_links r0)
 	(vp-cpy-ir-us r3 fn_header_strs r1)
+	(vp-cpy-ir-us r3 fn_header_paths r2)
 	(vp-add-rr r3 r0)
 	(vp-add-rr r3 r1)
-	(vp-sub-rr r1 r5)
+	(vp-add-rr r3 r2)
+	(vp-sub-rr r2 r5)
 	(loop-while '(r0 != r1))
 		(vp-cpy-ir r0 0 r2)
 		(vp-add-rr r0 r2)
@@ -266,7 +269,10 @@
 	(loop-end)
 
 	;adjust block start
-	(vp-add-cr ptr_size r0)
+	(vp-cpy-ir-us r3 fn_header_paths r0)
+	(vp-add-rr r3 r0)
+	(vp-add-cr (dec ptr_size) r0)
+	(vp-and-cr (neg ptr_size) r0)
 	(vp-cpy-ri r0 r7 ld_statics_block_start)
 
 	;load and link function references

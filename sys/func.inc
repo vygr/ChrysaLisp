@@ -69,7 +69,7 @@
 (vp-label '_func_atoms)
 	(each (lambda (s)
 	(vp-label (atom-sym _))
-		(vp-long `(sub ,(label-sym (string-sym s)) *pc*))) *atoms*)
+		(vp-long `(sub ,(label-sym (str-sym s)) *pc*))) *atoms*)
 (vp-label '_func_links)
 	(each (lambda (s)
 	(vp-label (link-sym _))
