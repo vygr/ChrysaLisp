@@ -23,8 +23,7 @@
 	(f-entry 'lisp 'read_char {this, stream, char})
 
 	(vpif {char == char_lf})
-		(f-call 'symbol 'intern_atoms {$_func_start})
-		(f-call 'hash_map 'search {this->lisp_environment, ?*stream-line*} {_, iter, _})
+		(f-call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
 		(breakifnot {iter})
 		(f-call 'pair 'get_second {*iter} {_, line})
 		(assign {line->boxed_ptr_value + 1} {line->boxed_ptr_value})

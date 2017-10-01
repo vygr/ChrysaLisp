@@ -21,9 +21,8 @@
 
 	(push-scope)
 	(f-entry 'lisp 'repl_error {this, desc, msg, payload})
-	(f-call 'symbol 'intern_atoms {$_func_start})
 
-	(f-call 'hash_map 'search {this->lisp_environment, ?*stream-name*} {_, iter, _})
+	(f-call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_name} {_, iter, _})
 	(vpif {iter})
 		(f-call 'pair 'get_second {*iter} {_, file})
 		(f-call 'obj 'inst_of (cat {file, @} (f-path 'class 'string)) {_, value})
@@ -35,7 +34,7 @@
 	(endif)
 
 	(assign {0} {line})
-	(f-call 'hash_map 'search {this->lisp_environment, ?*stream-line*} {_, iter, _})
+	(f-call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
 	(vpif {iter})
 		(f-call 'pair 'get_second {*iter} {_, value})
 		(breakif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)))
