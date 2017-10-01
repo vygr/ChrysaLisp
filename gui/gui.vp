@@ -7,11 +7,9 @@
 
 (defcvar 'dual_buffers t)
 
-(defq debug_inout_old debug_inout)
 (def-func 'gui/gui_statics)
 	(times gui_statics_size (vp-byte 0))
 (def-func-end)
-(setq debug_inout debug_inout_old)
 
 (def-func 'gui/gui_init)
 	;inputs

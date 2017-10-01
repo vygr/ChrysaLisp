@@ -4,11 +4,9 @@
 (import 'gui/sdl2.inc)
 (import 'class/string/string.inc)
 
-(defq debug_inout_old debug_inout)
 (def-func 'gui/font_statics)
 	(times ft_statics_size (vp-byte 0))
 (def-func-end)
-(setq debug_inout debug_inout_old)
 
 (def-func 'gui/font_deinit)
 

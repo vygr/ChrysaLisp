@@ -9,7 +9,7 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
-(defq debug_mode t debug_emit nil debug_inst nil debug_inout nil)
+(defq debug_mode t debug_emit nil debug_inst nil)
 
 (defun compile (*files* &optional *os* *cpu* *pipes*)
 	(setd *os* (platform) *cpu* (cpu) *pipes* 16)

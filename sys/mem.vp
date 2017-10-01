@@ -5,7 +5,6 @@
 	mem_cell_max_size 0x4000000
 	mem_block_size (mul 32 1024))
 
-(defq debug_inout_old debug_inout)
 (def-func 'sys/mem_statics)
 
 	(vp-long 0) ;used memory count
@@ -15,7 +14,6 @@
 			(setq s (add s s))))
 
 (def-func-end)
-(setq debug_inout debug_inout_old)
 
 (def-func 'sys/mem_used)
 	;outputs

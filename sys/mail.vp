@@ -1,11 +1,9 @@
 (import 'sys/func.inc)
 (import 'sys/kernel.inc)
 
-(defq debug_inout_old debug_inout)
 (def-func 'sys/mail_statics)
 	(times ml_statics_size (vp-byte 0))
 (def-func-end)
-(setq debug_inout debug_inout_old)
 
 (def-func 'sys/mail_init)
 	;inputs
