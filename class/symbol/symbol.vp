@@ -56,3 +56,37 @@
 	(f-jmp 'symbol 'intern '(r0))
 
 (def-func-end)
+
+(def-func 'class/symbol/intern_atoms)
+	;inputs
+	;r14 = function address
+	;trashes
+	;none
+
+	(f-entry 'symbol 'intern_atoms '(r14))
+
+	(vp-push r0)
+	(vp-cpy-ir-ui r14 fn_header_atoms r0)
+	(vpif '(r0 != 0))
+		(vp-push r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13)
+		(vp-add-rr r14 r0)
+		(loop-start)
+			(vp-cpy-ir-ui r14 fn_header_links r1)
+			(vp-add-rr r14 r1)
+			(breakif '(r0 == r1))
+			(vp-push r0 r14)
+			(vp-cpy-ir r0 0 r1)
+			(vp-add-rr r1 r0)
+			(f-call 'symbol 'intern_cstr '(r0) '(r1))
+			(vp-pop r0 r14)
+			(vp-cpy-ri r1 r0 0)
+			(vp-add-cr ptr_size r0)
+		(loop-end)
+		(vp-xor-rr r0 r0)
+		(vp-cpy-ri-i r0 r14 fn_header_atoms)
+		(vp-pop r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13)
+	(endif)
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)

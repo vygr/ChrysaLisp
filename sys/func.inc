@@ -62,7 +62,7 @@
 	(vp-align ptr_size)
 (vp-label '_func_atoms)
 	(each (lambda (s)
-	(vp-label (link-sym _))
+	(vp-label (atom-sym _))
 		(vp-long `(sub ,(label-sym (string-sym s)) *pc*))) *atoms*)
 (vp-label '_func_links)
 	(each (lambda (s)
@@ -92,6 +92,9 @@
 (defcfun fn-add-link (p)
 	(push *links* (fn-add-path p)))
 
+(defcfun fn-add-atom (p)
+	(push *atoms* (fn-add-string p)))
+
 (defcfun fn-find-link (p)
 	(defq i -1)
 	(while (and (lt (setq i (inc i)) (length *links*)) (not (eql p (elem (elem i *links*) *paths*)))))
@@ -100,13 +103,13 @@
 (defcfun fn-find-atom (p)
 	(defq i -1)
 	(while (and (lt (setq i (inc i)) (length *atoms*)) (not (eql p (elem (elem i *atoms*) *strings*)))))
-	(if (eq i (length *atoms*)) (fn-add-string p)) i)
+	(if (eq i (length *atoms*)) (fn-add-atom p)) i)
 
 (defcfun fn-string (s r)
 	(vp-lea-p (string-sym (fn-add-string s)) r))
 
 (defcfun fn-atom (a r)
-	(vp-cpy-pr (link-sym (fn-find-atom a)) r))
+	(vp-cpy-pr (atom-sym (fn-find-atom a)) r))
 
 (defcfun fn-bind (p r)
 	(if (def? p) (throw "Can't bind to inline function !" p)
