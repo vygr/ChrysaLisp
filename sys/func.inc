@@ -8,12 +8,13 @@
 ;;;;;;;;;;;;;;;;;
 
 (def-struct 'fn_header 'ln_fnode)
-	(uint 'length)
-	(uint 'entry)
-	(uint 'atoms)
-	(uint 'links)
-	(uint 'paths)
-	(uint 'stack)
+	(ushort 'length)
+	(ushort 'entry)
+	(ushort 'atoms)
+	(ushort 'links)
+	(ushort 'strs)
+	(ushort 'paths)
+	(ushort 'stack)
 	(offset 'pathname)
 (def-struct-end)
 
@@ -21,7 +22,7 @@
 ; functions
 ;;;;;;;;;;;
 
-(defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil '*atoms* nil)
+(defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil '*atoms* nil '*strs* nil)
 
 (defcfun link-sym (p)
 	(cat "_ref_link_" (str p)))
@@ -35,16 +36,21 @@
 (defcfun string-sym (p)
 	(cat "_ref_string_" (str p)))
 
+(defcfun str-sym (p)
+	(cat "_ref_str_" (str p)))
+
 (defcfun def-func (*name* &optional *func-stack*)
 	(print "-> " *name*)
 	(emit-reset)
-	(setq *func-name* *name* *switch-nxt* 0 *strings* (list) *paths* (list) *links* (list) *atoms* (list))
+	(setq *func-name* *name* *switch-nxt* 0 *strings* (list) *paths* (list)
+		*links* (list) *atoms* (list) *strs* (list))
 (vp-label '_func_start)
 	(vp-long -1)
-	(vp-int `(sub ,(label-sym '_func_end) ,(label-sym '_func_start))
+	(vp-short `(sub ,(label-sym '_func_end) ,(label-sym '_func_start))
 		`(sub ,(label-sym '_func_entry) ,(label-sym '_func_start))
 		`(sub ,(label-sym '_func_atoms) ,(label-sym '_func_start))
 		`(sub ,(label-sym '_func_links) ,(label-sym '_func_start))
+		`(sub ,(label-sym '_func_strs) ,(label-sym '_func_start))
 		`(sub ,(label-sym '_func_paths) ,(label-sym '_func_start))
 		(opt *func-stack* tk_stack_size))
 (vp-label '_func_name_start)
@@ -68,6 +74,10 @@
 	(each (lambda (s)
 	(vp-label (link-sym _))
 		(vp-long `(sub ,(label-sym (path-sym s)) *pc*))) *links*)
+(vp-label '_func_strs)
+	(each (lambda (s)
+	(vp-label (str-sym _))
+		(vp-string s) (vp-byte 0)) *strs*)
 (vp-label '_func_paths)
 	(each (lambda (s)
 	(vp-label (path-sym _))
@@ -85,6 +95,11 @@
 	(while (and (lt (setq i (inc i)) (length *strings*)) (not (eql s (elem i *strings*)))))
 	(if (eq i (length *strings*)) (push *strings* s)) i)
 
+(defcfun fn-add-str (s)
+	(defq i -1)
+	(while (and (lt (setq i (inc i)) (length *strs*)) (not (eql s (elem i *strs*)))))
+	(if (eq i (length *strs*)) (push *strs* s)) i)
+
 (defcfun fn-add-path (p)
 	(if (defq i (find p *paths*)) i
 		(dec (length (push *paths* p)))))
@@ -93,7 +108,7 @@
 	(push *links* (fn-add-path p)))
 
 (defcfun fn-add-atom (p)
-	(push *atoms* (fn-add-string p)))
+	(push *atoms* (fn-add-str p)))
 
 (defcfun fn-find-link (p)
 	(defq i -1)
@@ -102,7 +117,7 @@
 
 (defcfun fn-find-atom (p)
 	(defq i -1)
-	(while (and (lt (setq i (inc i)) (length *atoms*)) (not (eql p (elem (elem i *atoms*) *strings*)))))
+	(while (and (lt (setq i (inc i)) (length *atoms*)) (not (eql p (elem (elem i *atoms*) *strs*)))))
 	(if (eq i (length *atoms*)) (fn-add-atom p)) i)
 
 (defcfun fn-string (s r)

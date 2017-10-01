@@ -559,7 +559,7 @@
 	(vp-cpy-rr r4 r2)
 	(vp-cpy-ir-ub r2 -1 r1)
 	(vp-sub-rr r1 r2)
-	(vp-cpy-ir-ui r2 (neg int_size) r1)
+	(vp-cpy-ir-us r2 (neg short_size) r1)
 	(vp-add-cr tk_node_stackspace r1)
 	(f-call 'sys_mem 'alloc '(r1) '(r0 r1))
 

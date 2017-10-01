@@ -47,10 +47,10 @@ int main(int argc, char *argv[])
 {
 	struct stat filestat;
 	stat("obj/sys/boot_image", &filestat);
-	uint32_t *data = mmap(NULL, filestat.st_size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0);
+	uint16_t *data = mmap(NULL, filestat.st_size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0);
 	int fd = open("obj/sys/boot_image", O_RDONLY);
 	read(fd, data, filestat.st_size);
-	void(*boot)(char*[], void*[]) = (void(*)(char*[], void*[]))((char*)data + data[3]);
+	void(*boot)(char*[], void*[]) = (void(*)(char*[], void*[]))((char*)data + data[5]);
 //	printf("image start address: 0x%llx\n", (unsigned long long)data);
 	boot(argv, sdl_funcs);
 	return 0;

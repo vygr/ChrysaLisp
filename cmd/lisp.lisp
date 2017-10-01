@@ -68,9 +68,9 @@
 		(or (def? _)
 			(progn
 				(defq b (load (func-obj _))
-					h (slice fn_header_entry (defq l (read-int fn_header_links b)) b)
-					l (slice l (defq p (read-int fn_header_paths b)) b))
-				(def *env* _ (list (cat (char -1 8) (char p 4) h) l (read-paths b))))))
+					h (slice fn_header_entry (defq l (read-short fn_header_atoms b)) b)
+					l (slice l (defq p (read-short fn_header_strs b)) b))
+				(def *env* _ (list (cat (char -1 8) (char p 2) h) l (read-paths b))))))
 	(defun read-byte (o f)
 		(code (elem o f)))
 	(defun read-short (o f)
@@ -80,7 +80,7 @@
 	(defun read-long (o f)
 		(add (read-int o f) (bit-shl (read-int (add o 4) f) 32)))
 	(defun read-paths (_)
-		(defq l (list) i (read-int fn_header_links _) e (read-int fn_header_paths _))
+		(defq l (list) i (read-short fn_header_atoms _) e (read-short fn_header_strs _))
 		(while (ne i e)
 			(defq p (read-long i _) j (add p i) k j)
 			(while (ne 0 (read-byte j _))
@@ -89,7 +89,8 @@
 			(setq i (add i 8))) l)
 	(unless (lst? *funcs*)
 		(setq *funcs* (list *funcs*)))
-	(defq fn_header_length 8 fn_header_entry 12 fn_header_atoms 16 fn_header_links 20 fn_header_paths 24 f (list
+	(defq fn_header_length 8 fn_header_entry 10 fn_header_atoms 12
+		fn_header_links 14 fn_header_strs 16 fn_header_paths 18 f (list
 	;must be first function !
 	'sys/load_init
 	;must be second function !
