@@ -144,7 +144,5 @@
 	(ptr 'sym_splicing)
 	(ptr 'sym_cat)
 	(ptr 'sym_list)
-	(ptr 'sym_stream_name)
-	(ptr 'sym_stream_line)
 	(ptr 'sym_underscore)
 (def-struct-end)

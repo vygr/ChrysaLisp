@@ -1,6 +1,7 @@
 (import 'sys/func.inc)
 (import 'class/stream/stream.inc)
 (import 'class/slave/slave.inc)
+(import 'class/symbol/symbol.inc)
 
 (def-func 'cmd/null)
 

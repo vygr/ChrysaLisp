@@ -144,6 +144,7 @@
 							(sym-cat "i" (elem 2 o)))))
 				((eql i '@) i)
 				((eql i '$) i)
+				((eql i '?) i)
 				((eql i '&)
 					(if (reg (elem 1 o))
 						(if (reg (elem 2 o)) '&d '&i) nil))

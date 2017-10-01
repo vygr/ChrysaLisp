@@ -109,7 +109,7 @@
 	(vp-lea-p (string-sym (fn-add-string s)) r))
 
 (defcfun fn-atom (a r)
-	(vp-cpy-pr (atom-sym (fn-find-atom a)) r))
+	(vp-cpy-pr (atom-sym (fn-find-atom (str a))) r))
 
 (defcfun fn-bind (p r)
 	(if (def? p) (throw "Can't bind to inline function !" p)

@@ -481,6 +481,7 @@
 				((eql i 's) (fn-string x y))
 				((eql i '@) (fn-bind (elem 1 x) y))
 				((eql i '$) (vp-lea-p (elem 1 x) y))
+				((eql i '?) (fn-atom (elem 1 x) y))
 				(t (throw "Invalid src parameter !" i)))) *src* *dst*)))
 
 ;;;;;;;;;;
@@ -501,6 +502,9 @@
 (defmacro is_label_char (_)
 	`(find ,_ "0123456789_abcdefghijklmnopqrstuvwxyz"))
 
+(defmacro is_atom_char (_)
+	`(find ,_ "0123456789_abcdefghijklmnopqrstuvwxyz*-"))
+
 (defmacro is_numeral_char (_)
 	`(find ,_ "0123456789"))
 
@@ -512,7 +516,7 @@
 	(defq m -1 u 1 i 0 p 0)
 	(while (lt i (length l))
 		(defq c (elem i l)
-			s (find c {@$"-*~!+.^)(][</%&|=>}) ;"
+			s (find c {@$?"-*~!+.^)(][</%&|=>}) ;"
 			s (if s (add s 2) 0))
 		(cond
 			((eq m -1)
@@ -523,21 +527,21 @@
 						((find c ")(][")
 							;)(][
 							(push-token c s)
-							(setq p (inc i) u (bit-and (sub s 12) 1)))
-						((ge s 5)
+							(setq p (inc i) u (bit-and (sub s 13) 1)))
+						((ge s 6)
 							;-*~!+.?^</%&|=>
 							(setq m s))
 						((eq s 0)
 							;not whitespace
 							(setq m (if (is_numeral_char c) 0 1)))
 						(t
-							;@$"
+							;@$?"
 							(setq p (inc i) m s))))
 				(setq c nil))
-			((ge m 5)
+			((ge m 6)
 				;op mode
 				(cond
-					((or (is_white_space_char c) (lt s 16))
+					((or (is_white_space_char c) (lt s 17))
 						;white space, )([]
 						(cond
 							((eq u 1)
@@ -566,7 +570,7 @@
 					(progn
 						(if (find (sym (defq s (slice p i l)))
 								'(byte ubyte short ushort int uint long ulong ptr))
-							(push-token s 5)
+							(push-token s 6)
 							(push-token s m))
 						(setq p i u 0 m -1))))
 			((eq m 2)
@@ -583,9 +587,16 @@
 					(progn
 						(push-token (slice p i l) m)
 						(setq p i u 0 m -1))))
+			((eq m 4)
+				;atom
+				(if (is_atom_char c)
+					(setq c nil)
+					(progn
+						(push-token (slice p i l) m)
+						(setq p i u 0 m -1))))
 			(t
 				;string mode
-				(if (ne s 4)
+				(if (ne s 5)
 					(setq c nil)
 					(progn
 						(push-token (slice p i l) m)
@@ -608,7 +619,7 @@
 	(defq o (list))
 	(each (lambda ((k c))
 		(cond
-			((ge c 5) ;operator
+			((ge c 6) ;operator
 				(cond
 					((find k "([")
 						(push o k))
@@ -629,7 +640,7 @@
 								(push-rpn (pop o) -1)
 								(setq x nil)))
 						(push o k))))
-			(t ;number, symbol, string, symbol, bind, label
+			(t ;number, symbol, string, symbol, bind, label, atom
 				(push-rpn k c)))) *token*)
 	(while (defq _ (pop o))
 		(push-rpn _ -1)))
@@ -867,18 +878,22 @@
 (defcfun compile-bind (_)
 	(add-inst `(fn-bind ',_ ,(push-reg nil))))
 
+(defcfun compile-atom (_)
+	(add-inst `(fn-atom ',_ ,(push-reg nil))))
+
 (defcfun compile-label (_)
 	(add-inst `(vp-lea-p ',_ ,(push-reg nil))))
 
 (defcfun compile-rpn-list ()
 	(each (lambda ((k c))
-		(if (le -1 c 4)
+		(if (le -1 c 5)
 			(eval (elem (inc c)
 				'((compile-operator k)
 				(compile-const (to-num k))
 				(compile-ref k)
 				(compile-bind k)
 				(compile-label k)
+				(compile-atom k)
 				(compile-string (str k)))))
 			(throw "Unknown token type !" k))) *rpn*))
 
