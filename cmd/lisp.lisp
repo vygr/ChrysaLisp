@@ -60,92 +60,94 @@
 	(list d p))
 
 (defun make-boot (&optional r *funcs*)
-	(setd *funcs* (list))
-	(defq *env* (env 101) z (cat (char 0 8) (char 0 4)))
-	(defun func-obj (_)
-		(cat "obj/" _))
-	(defun load-func (_)
-		(or (def? _)
-			(progn
-				(defq b (load (func-obj _))
-					h (slice fn_header_entry (defq l (read-short fn_header_atoms b)) b)
-					l (slice l (defq p (read-short fn_header_strs b)) b))
-				(def *env* _ (list (cat (char -1 8) (char p 2) h) l (read-strings b))))))
-	(defun read-byte (o f)
-		(code (elem o f)))
-	(defun read-short (o f)
-		(add (read-byte o f) (bit-shl (read-byte (inc o) f) 8)))
-	(defun read-int (o f)
-		(add (read-short o f) (bit-shl (read-short (add o 2) f) 16)))
-	(defun read-long (o f)
-		(add (read-int o f) (bit-shl (read-int (add o 4) f) 32)))
-	(defun read-strings (_)
-		(defq l (list) i (read-short fn_header_atoms _) e (read-short fn_header_strs _))
-		(while (ne i e)
-			(defq p (read-long i _) j (add p i) k j)
-			(while (ne 0 (read-byte j _))
-				(setq j (inc j)))
-			(push l (sym (slice k j _)))
-			(setq i (add i 8))) l)
-	(unless (lst? *funcs*)
-		(setq *funcs* (list *funcs*)))
-	(defq fn_header_length 8 fn_header_entry 10 fn_header_atoms 12 fn_header_links 14
-		fn_header_strs 16 fn_header_paths 18 fn_header_stack 20 fn_header_name 22 f (list
-	;must be first function !
-	'sys/load_init
-	;must be second function !
-	'sys/load_bind
-	;must be third function !
-	'sys/load_statics
-	;must be included, as bind uses them !
-	'sys/string_copy
-	'sys/string_length
-	'sys/pii/exit
-	'sys/pii/mmap
-	'sys/pii/stat
-	'sys/pii/open
-	'sys/pii/close
-	'sys/pii/read
-	'sys/pii/write
-	'sys/pii/write_str
-	'sys/pii/write_char))
-	(merge-sym f (map sym *funcs*))
-	;load up all functions requested
-	(each load-func f)
-	;if recursive then load up all dependents
-	(when r
-		(each-mergeable (lambda (_)
-			(merge-sym f (elem 2 (load-func _)))) f))
-	;sort into order
-	(sort cmp f 3)
-	;list of all function bodies and links in order, list of offsets of header and link sections
-	;and offset of new strings section
-	(defq b (map eval f) ho (list) lo (list) po (add (length z) (reduce (lambda (x y)
-		(push ho x)
-		(push lo (setq x (add x (length (elem 0 y)))))
-		(add x (length (elem 1 y)))) b 0)))
-	;list of all strings that will appear in new strings section, and list of all new string offsets
-	(defq ns (list) nso (list))
-	(each (lambda (_)
+	(within-compile-env (lambda ()
+		(defq *env* (env 101) z (cat (char 0 8) (char 0 4)) *os* (platform) *cpu* (cpu))
+		(setd *funcs* (list))
+		(import 'sys/func.inc)
+		(defun func-obj (_)
+			(cat "obj/" _))
+		(defun load-func (_)
+			(or (def? _)
+				(progn
+					(defq b (load (func-obj _))
+						h (slice fn_header_entry (defq l (read-short fn_header_atoms b)) b)
+						l (slice l (defq p (read-short fn_header_strs b)) b))
+					(def *env* _ (list (cat (char -1 8) (char p 2) h) l (read-strings b))))))
+		(defun read-byte (o f)
+			(code (elem o f)))
+		(defun read-short (o f)
+			(add (read-byte o f) (bit-shl (read-byte (inc o) f) 8)))
+		(defun read-int (o f)
+			(add (read-short o f) (bit-shl (read-short (add o 2) f) 16)))
+		(defun read-long (o f)
+			(add (read-int o f) (bit-shl (read-int (add o 4) f) 32)))
+		(defun read-cstr (o f)
+			(defq k o)
+			(while (ne 0 (read-byte o f))
+				(setq o (inc o)))
+			(sym (slice k o f)))
+		(defun read-strings (_)
+			(defq l (list) i (read-short fn_header_atoms _) e (read-short fn_header_strs _))
+			(while (ne i e)
+				(push l (read-cstr (add (read-long i _) i) _))
+				(setq i (add i 8))) l)
+		(unless (lst? *funcs*)
+			(setq *funcs* (list *funcs*)))
+		(defq f (list
+			;must be first function !
+			'sys/load_init
+			;must be second function !
+			'sys/load_bind
+			;must be third function !
+			'sys/load_statics
+			;must be included, as bind uses them !
+			'sys/string_copy
+			'sys/string_length
+			'sys/pii/exit
+			'sys/pii/mmap
+			'sys/pii/stat
+			'sys/pii/open
+			'sys/pii/close
+			'sys/pii/read
+			'sys/pii/write
+			'sys/pii/write_str
+			'sys/pii/write_char))
+		(merge-sym f (map sym *funcs*))
+		;load up all functions requested
+		(each load-func f)
+		;if recursive then load up all dependents
+		(when r
+			(each-mergeable (lambda (_)
+				(merge-sym f (elem 2 (load-func _)))) f))
+		;sort into order
+		(sort cmp f 3)
+		;list of all function bodies and links in order, list of offsets of header and link sections
+		;and offset of new strings section
+		(defq b (map eval f) ns (list) nso (list) ho (list) lo (list) so (add (length z) (reduce (lambda (x y)
+			(push ho x)
+			(push lo (setq x (add x (length (elem 0 y)))))
+			(add x (length (elem 1 y)))) b 0)))
+		;list of all strings that will appear in new strings section, and list of all new string offsets
 		(each (lambda (_)
-			(unless (find _ f) (insert-sym ns _))) (elem 2 (eval _)))) f)
-	(reduce (lambda (x y)
-		(push nso x)
-		(add x (length y) 1)) ns 0)
-	;create new link sections with offsets to header strings or new strings
-	(each (lambda (x)
-		(defq u (elem _ lo))
-		(elem-set 1 x (apply cat (push (map (lambda (y)
-			(char (sub (if (defq i (find y f))
-				(add (elem i ho) fn_header_name)
-				(add (elem (find y ns) nso) po)) (add u (mul _ 8))) 8)) (elem 2 x)) "")))) b)
-	;build list of all sections of boot image
-	;concatenate all sections and save
-	(save (setq f (apply cat (reduce (lambda (x y)
-		(push x (cat y (char 0)))) ns (push (reduce (lambda (x y)
-			(push x (elem 0 y) (elem 1 y))) b (list)) z)))) (func-obj 'sys/boot_image))
-	(setq *env* nil)
-	(print "image -> " (func-obj 'sys/boot_image) " (" (length f) ")") nil)
+			(each (lambda (_)
+				(unless (find _ f) (insert-sym ns _))) (elem 2 (eval _)))) f)
+		(reduce (lambda (x y)
+			(push nso x)
+			(add x (length y) 1)) ns 0)
+		;create new link sections with offsets to header strings or new strings
+		(each (lambda (x)
+			(defq u (elem _ lo))
+			(elem-set 1 x (apply cat (push (map (lambda (y)
+				(char (sub (if (defq i (find y f))
+					(add (elem i ho) fn_header_pathname)
+					(add (elem (find y ns) nso) so)) (add u (mul _ 8))) 8)) (elem 2 x)) "")))) b)
+		;build list of all sections of boot image
+		;concatenate all sections and save
+		(save (setq f (apply cat (reduce (lambda (x y)
+			(push x (cat y (char 0)))) ns (push (reduce (lambda (x y)
+				(push x (elem 0 y) (elem 1 y))) b (list)) z)))) (func-obj 'sys/boot_image))
+		(setq *env* nil)
+		(print "image -> " (func-obj 'sys/boot_image) " (" (length f) ")") nil)))
 
 (defun make-boot-all ()
 	(make-boot nil ((lambda ()
