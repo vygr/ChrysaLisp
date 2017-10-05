@@ -257,7 +257,6 @@
 		(assign '(r0) '((rsp local_this)))
 		(vp-cpy-rr r1 r2)
 		(f-call 'ref 'ref '((rsp local_value)) '(r0))
-		(f-call 'ref 'ref '(r0) '(r0))
 		(f-call 'pair 'set_second '((r2 0) r0))
 		(assign '((rsp local_this) (rsp local_value)) '(r0 r1))
 	(endif)

@@ -28,10 +28,12 @@
 		(errorif (cat {var->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
 		(f-call 'lisp 'repl_eval {this, iter_begin[ptr_size * 1]} {_, val})
 		(errorif (cat {val->obj_vtable == @} (f-path 'class 'error)) 'exit)
-		(assign {val} {eval})
-		(f-call 'hash_map 'set {this->lisp_environment, var, eval} {_, val})
-		(f-call 'ref 'deref {eval})
-		(errorifnot {val} 'error3)
+		(f-call 'hash_map 'set {this->lisp_environment, var, val} {_, eval})
+	(errorcases
+		(vpifnot {eval})
+			(f-call 'ref 'deref {val})
+			(goto 'error3)
+		(endif))
 		(assign {&iter_begin[ptr_size * 2]} {iter_begin})
 	(loop-until {iter_begin == iter_end})
 
