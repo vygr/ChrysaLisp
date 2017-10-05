@@ -93,7 +93,7 @@
 
 (defcfun default ()
 	(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
-	(set s (inc c)))
+	(set (env) s (inc c)))
 
 (defcfun endswitch ()
 	(vp-label (end-sym))
@@ -680,7 +680,7 @@
 		(merge-sym l _)
 		(setq l _))
 	(each! nil nil nil (lambda (_ r)
-		(set _ r)) (list *vreg* l)))
+		(set (env) _ r)) (list *vreg* l)))
 
 (defcfun push-reg (_)
 	(defq r (vreg-sym (length *vregt*)))

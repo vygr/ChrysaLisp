@@ -6,19 +6,20 @@
 (def-func 'class/lisp/env_set)
 	;inputs
 	;r0 = lisp object
-	;r1 = symbol
-	;r2 = value
+	;r1 = environment object
+	;r2 = symbol
+	;r3 = value
 	;outputs
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'symbol 'value)
+	(ptr 'this 'env 'symbol 'value)
 	(pptr 'iter)
 
 	(push-scope)
-	(f-entry 'lisp 'env_set {this, symbol, value})
+	(f-entry 'lisp 'env_set {this, env, symbol, value})
 
-	(f-call 'hash_map 'search {this->lisp_environment, symbol} {_, iter, _})
+	(f-call 'hash_map 'search {env, symbol} {_, iter, _})
 	(errorifnot {iter} 'error)
 	(f-call 'ref 'ref {value})
 	(f-call 'ref 'ref {value})

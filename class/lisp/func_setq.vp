@@ -28,7 +28,7 @@
 		(f-call 'lisp 'repl_eval {this, iter_begin[ptr_size * 1]} {_, val})
 		(errorif (cat {val->obj_vtable == @} (f-path 'class 'error)) 'exit)
 		(assign {val} {eval})
-		(f-call 'lisp 'env_set {this, var, eval} {_, val})
+		(f-call 'lisp 'env_set {this, this->lisp_environment, var, eval} {_, val})
 		(f-call 'ref 'deref {eval})
 		(errorif (cat {val->obj_vtable == @} (f-path 'class 'error)) 'exit)
 		(assign {&iter_begin[ptr_size * 2]} {iter_begin})
