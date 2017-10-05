@@ -1,6 +1,7 @@
 (import 'sys/func.inc)
 (import 'class/symbol/symbol.inc)
 (import 'class/boxed_ptr/boxed_ptr.inc)
+(import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/repl_eval)
@@ -21,7 +22,8 @@
 	(switch)
 	(case (cat {func == @} (f-path 'class 'symbol)))
 		;eval to symbol value
-		(f-call 'lisp 'env_get {this, form} {_, value})
+		(f-call 'hash_map 'get {this->lisp_environment, form} {_, value})
+		(errorifnot {value} 'error2)
 		(break)
 	(case (cat {func == @} (f-path 'class 'vector)))
 		;apply function, eval args if needed
@@ -65,6 +67,9 @@
 (errorcases
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(lambda vars body)", error_msg_not_a_lambda, form} {_, value})
+	(goto 'exit)
+(vp-label 'error2)
+	(f-call 'lisp 'repl_error {this, "(eval sym)", error_msg_symbol_not_bound, form} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

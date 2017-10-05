@@ -206,6 +206,8 @@
 	;r0 = hash_map object
 	;r1 = 0, else iterator
 	;r2 = bucket vector
+	;trashes
+	;all but r0
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -224,6 +226,74 @@
 	(loop-end)
 
 	(f-exit 'hash_map 'search '((rsp local_this) r1 r2))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/hash_map/set)
+	;inputs
+	;r0 = hash_map object
+	;r1 = key object
+	;r2 = value object
+	;outputs
+	;r0 = hash_map object
+	;r1 = 0 if not found, else value object
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'key)
+		(ptr 'value)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(f-entry 'hash_map 'set '(r0 r1 r2))
+
+	(assign '(r2) '((rsp local_value)))
+	(f-call 'hash_map 'search '(r0 r1) '(r0 r1 _))
+	(vpif '(r1 != 0))
+		(assign '(r0) '((rsp local_this)))
+		(vp-cpy-rr r1 r2)
+		(f-call 'ref 'ref '((rsp local_value)) '(r0))
+		(f-call 'ref 'ref '(r0) '(r0))
+		(f-call 'pair 'set_second '((r2 0) r0))
+		(assign '((rsp local_this) (rsp local_value)) '(r0 r1))
+	(endif)
+
+	(f-exit 'hash_map 'set '(r0 r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/hash_map/get)
+	;inputs
+	;r0 = hash_map object
+	;r1 = key object
+	;outputs
+	;r0 = hash_map object
+	;r1 = 0 if not found, else value object
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'key)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(f-entry 'hash_map 'get '(r0 r1))
+
+	(f-call 'hash_map 'search '(r0 r1) '(r0 r1 _))
+	(vpif '(r1 != 0))
+		(assign '(r0) '((rsp local_this)))
+		(f-call 'pair 'ref_second '((r1 0)) '(_ r1))
+		(assign '((rsp local_this)) '(r0))
+	(endif)
+
+	(f-exit 'hash_map 'get '(r0 r1))
 	(vp-free local_size)
 	(vp-ret)
 

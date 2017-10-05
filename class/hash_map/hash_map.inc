@@ -8,6 +8,8 @@
 (def-method 'copy 'class/hash_map/copy)
 (def-method 'insert 'class/hash_map/insert 'static '(r0 r1 r2) '(r0 r1 r2))
 (def-method 'search 'class/hash_map/search 'static '(r0 r1) '(r0 r1 r2))
+(def-method 'set 'class/hash_map/set 'static '(r0 r1 r2) '(r0 r1))
+(def-method 'get 'class/hash_map/get 'static '(r0 r1) '(r0 r1))
 (def-method 'get_parent 'class/hash_map/get_parent 'static '(r0) '(r0 r1))
 (def-method 'set_parent 'class/hash_map/set_parent 'static '(r0 r1) '(r0))
 
