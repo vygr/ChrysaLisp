@@ -244,14 +244,12 @@
 
 	(def-struct 'local)
 		(ptr 'this)
-		(ptr 'key)
 		(ptr 'value)
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(f-entry 'hash_map 'set '(r0 r1 r2))
+	(f-entry 'hash_map 'set '(r0 r1 (rsp local_value)))
 
-	(assign '(r2) '((rsp local_value)))
 	(f-call 'hash_map 'search '(r0 r1) '(r0 r1 _))
 	(vpif '(r1 != 0))
 		(assign '(r0) '((rsp local_this)))
@@ -277,23 +275,16 @@
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'key)
-	(def-struct-end)
-
-	(vp-alloc local_size)
 	(f-entry 'hash_map 'get '(r0 r1))
 
 	(f-call 'hash_map 'search '(r0 r1) '(r0 r1 _))
 	(vpif '(r1 != 0))
-		(assign '(r0) '((rsp local_this)))
+		(vp-push r0)
 		(f-call 'pair 'ref_second '((r1 0)) '(_ r1))
-		(assign '((rsp local_this)) '(r0))
+		(vp-pop r0)
 	(endif)
 
 	(f-exit 'hash_map 'get '(r0 r1))
-	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
