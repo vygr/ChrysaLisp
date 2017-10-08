@@ -51,7 +51,6 @@
 
 	(f-call 'hash_map 'create '((r0 hash_set_key_callback) r1) '((rsp local_obj)))
 	(f-call 'hash_map 'get_parent '((rsp local_this)) '(_ r2))
-	(f-call 'ref 'ref_if '(r2))
 	(f-call 'hash_map 'set_parent '((rsp local_obj) r2))
 	(f-call 'hash_map 'for_each '((rsp local_this) ($ callback) rsp))
 	(vp-cpy-ir rsp local_obj r1)
