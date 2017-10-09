@@ -1,31 +1,19 @@
 OS := $(shell uname)
 CPU := $(shell uname -m)
 
-all:		obj/main
+all:		obj/$(OS)/$(CPU)/main
 
 undo:		clean
-			unzip -oq $(OS)_$(CPU)_old.zip
+			unzip -oq snapshot_old.zip
 
 backup:
-			cp -f $(OS)_$(CPU).zip $(OS)_$(CPU)_old.zip
+			cp -f snapshot.zip snapshot_old.zip
 
 snapshot:
-			rm -f $(OS)_$(CPU).zip
-			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main $(OS)_$(CPU).zip obj/*
+			rm -f snapshot.zip
+			zip -r9ovq -x*.d -x*.o snapshot.zip obj/*
 
-snapshot_darwin:
-			rm -f Darwin_x86_64.zip
-			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Darwin_x86_64.zip obj/*
-
-snapshot_linux_x64:
-			rm -f Linux_x86_64.zip
-			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Linux_x86_64.zip obj/*
-
-snapshot_linux_arm:
-			rm -f Linux_aarch64.zip
-			zip -r9ovq -x*.d -x*.o -xobj/test -xobj/main Linux_aarch64.zip obj/*
-
-obj/main:	obj/main.o
+obj/$(OS)/$(CPU)/main:	obj/$(OS)/$(CPU)/main.o
 ifeq ($(OS),Darwin)
 			cc -o $@ $@.o -Wl,-framework,SDL2 -Wl,-framework,SDL2_ttf
 endif
@@ -33,10 +21,10 @@ ifeq ($(OS),Linux)
 			cc -o $@ $@.o $(shell sdl2-config --libs) -lSDL2_ttf
 endif
 
-obj/main.o:	main.c Makefile
+obj/$(OS)/$(CPU)/main.o:	main.c Makefile
 			echo $(CPU) > arch
 			echo $(OS) > platform
-			unzip -nq $(OS)_$(CPU).zip
+			unzip -nq snapshot.zip
 ifeq ($(OS),Darwin)
 			cc -c -nostdlib -fno-exceptions \
 				-I/Library/Frameworks/SDL2.framework/Headers/ \

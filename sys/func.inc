@@ -40,7 +40,7 @@
 	(cat "_ref_str_" (str p)))
 
 (defcfun def-func (*name* &optional *func-stack*)
-	(print "-> " *name*)
+	(print "-> " (cat "obj/" *os* "/" *cpu* "/" (str *name*)))
 	(emit-reset)
 	(setq *func-name* *name* *switch-nxt* 0 *strings* (list) *paths* (list)
 		*links* (list) *atoms* (list) *strs* (list))
@@ -88,7 +88,7 @@
 	(when debug_emit
 		(each print-emit *emit-buffer*))
 	(emit-passes)
-	(save *out-buffer* (cat "obj/" (str *func-name*))))
+	(save *out-buffer* (cat "obj/" *os* "/" *cpu* "/" (str *func-name*))))
 
 (defcfun fn-add-string (s)
 	(defq i -1)

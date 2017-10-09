@@ -159,7 +159,7 @@
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	;create filename
-	(f-call 'sys_string 'copy '("obj/" (r7 ld_statics_name_buffer)) '(_ r1))
+	(f-call 'sys_string 'copy `(,(cat "obj/" *os* "/" *cpu* "/") (r7 ld_statics_name_buffer)) '(_ r1))
 	(vp-sub-cr 1 r1)
 	(f-call 'sys_string 'copy '(r6 r1))
 	(vp-cpy-ir r7 ld_statics_name_buffer r6)

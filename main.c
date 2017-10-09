@@ -46,9 +46,9 @@ TTF_RenderUTF8_Blended
 int main(int argc, char *argv[])
 {
 	struct stat filestat;
-	stat("obj/sys/boot_image", &filestat);
+	stat(argv[1], &filestat);
 	uint16_t *data = mmap(NULL, filestat.st_size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0);
-	int fd = open("obj/sys/boot_image", O_RDONLY);
+	int fd = open(argv[1], O_RDONLY);
 	read(fd, data, filestat.st_size);
 	void(*boot)(char*[], void*[]) = (void(*)(char*[], void*[]))((char*)data + data[5]);
 //	printf("image start address: 0x%llx\n", (unsigned long long)data);

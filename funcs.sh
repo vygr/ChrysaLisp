@@ -1,5 +1,8 @@
 #useful functions
 
+OS=`cat platform`
+CPU=`cat arch`
+
 function zero_pad
 {
 	if [ $1 -lt 100 ]
@@ -45,9 +48,9 @@ function boot_cpu_gui
 #	if [ $1 -lt 2 ]
 	if [ $1 -lt 1 ]
 	then
-		./obj/main -cpu $1 $2 -run gui/gui &
+		./obj/$OS/$CPU/main obj/$OS/$CPU/sys/boot_image -cpu $1 $2 -run gui/gui &
 	else
-		./obj/main -cpu $1 $2 &
+		./obj/$OS/$CPU/main obj/$OS/$CPU/sys/boot_image -cpu $1 $2 &
 	fi
 	echo -cpu $1 $2
 }
@@ -56,9 +59,9 @@ function boot_cpu_tui
 {
 	if [ $1 -lt 1 ]
 	then
-		./obj/main -cpu $1 $2 -run apps/terminal/tui
+		./obj/$OS/$CPU/main obj/$OS/$CPU/sys/boot_image -cpu $1 $2 -run apps/terminal/tui
 	else
-		./obj/main -cpu $1 $2 &
+		./obj/$OS/$CPU/main obj/$OS/$CPU/sys/boot_image -cpu $1 $2 &
 	fi
 	echo -cpu $1 $2
 }

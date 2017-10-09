@@ -208,45 +208,20 @@ Snapshot with:
 make snapshot
 ```
 
-This will create a snapshot zip file of the *obj/* directory for the current
-platform. For example *Darwin_x86_64.zip*, *Linux_x86_64.zip* or
-*Linux_aarch64.zip*.
-
-```
-make snapshot_darwin
-```
-
-This will create a *Darwin_x86_64.zip* snapshot zip file of the *obj/*
-directory.
-
-```
-make snapshot_linux_x86_64
-```
-
-This will create a *Linux_x86_64.zip* snapshot zip file of the *obj/*
-directory.
-
-```
-make snapshot_linux_arm
-```
-
-This will create a *Linux_aarch64.zip* snapshot zip file of the *obj/*
-directory.
+This will create a *snapshot.zip* file of the *obj/* directory.
 
 ```
 make backup
 ```
 
-This will copy the *Darwin_x86_64.zip*/*Linux_x86_64.zip*/*Linux_aarch64.zip*
-to *xxx_old.zip*
+This will copy the *snapshot.zip* to *snapshot_old.zip*.
 
 ```
 make undo
 ```
 
-This will copy the *xxx_old.zip* to
-*Darwin_x86_64.zip*/*Linux_x86_64.zip*/*Linux_aarch64.zip* unzip it and remake.
-So stepping back to the system as was when the last `make backup` was done.
+This will copy the *snapshot_old.zip* to *snapshot.zip* unzip it and remake. So
+stepping back to the system as was when the last `make backup` was done.
 
 Clean with:
 
