@@ -268,15 +268,19 @@ debug_inst
 ### lisp.lisp functions
 
 ```
+all-vp-files
 compile
 compile-pipe
+compile-test
+make
 make-info
+make-all
 make-boot
 make-boot-all
-make
-all-vp-files
-make-all
-remake
+make-darwin
+make-linux-aarch64
+make-linux-x86_64
+make-platforms
 make-test
-compile-test
+remake
 ```

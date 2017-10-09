@@ -238,3 +238,8 @@
 
 (defun make-linux-aarch64 ()
 	(make-all 'Linux 'aarch64))
+
+(defun make-platforms ()
+	(make-darwin)
+	(make-linux-x86_64)
+	(make-linux-aarch64))
