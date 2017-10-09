@@ -59,15 +59,15 @@ capability to allow mixing of C-Script compiled expressions within assignment
 and function calling code. An elementary optimise pass exists for these
 expressions and more will be done shortly. Both the virtual assembler and
 C-Script compiler are written in Lisp, look in the *sys/code.inc*,
-*sys/func.inc*, *sys/x64.inc* and *sys/vp.inc* for how this is done. Some of
-the Lisp primitives are constructed via a boot script that each instance of a
-Lisp class runs on construction, see *class/lisp/boot.lisp* for details. The
-compilation and make environment, along with all the compile and make commands
-is created via the Lisp command line tool in *cmd/lisp.lisp*, again this auto
-runs for each instance of the `lisp` command ran from the terminal. You can
-extend this with any number of additional files, just place them after the lisp
-command and they will execute after the *cmd/lisp.lisp* file and before
-processing of stdin.
+*sys/func.inc*, *sys/x64.inc*, *sys/arm.inc* and *sys/vp.inc* for how this is
+done. Some of the Lisp primitives are constructed via a boot script that each
+instance of a Lisp class runs on construction, see *class/lisp/boot.lisp* for
+details. The compilation and make environment, along with all the compile and
+make commands is created via the Lisp command line tool in *cmd/lisp.lisp*,
+again this auto runs for each instance of the `lisp` command ran from the
+terminal. You can extend this with any number of additional files, just place
+them after the lisp command and they will execute after the *cmd/lisp.lisp*
+file and before processing of stdin.
 
 Don't get the idea that due to being coded in interpreted Lisp the assembler
 and compiler will be slow. A full cleaned system build from source, including
@@ -79,8 +79,9 @@ You can enable a guard page memory allocator if chasing a buffer overrun bug.
 Look in the *sys/heap.vp* file alloc function and enable the guard page version
 and rebuild with `(remake)`. Also enable the `printf` in the *main.c* file in
 order to be able to calculate the instruction offset from the crash dumps IP.
-Then you can load up *obj/sys/boot_image* into any hex dump and find exactly
-which instruction is faulting. Sometimes it's the only way to find them!
+Then you can load up *obj/os/cpu/sys/boot_image* into any hex dump and find
+exactly which instruction is faulting. Sometimes it's the only way to find
+them!
 
 Network link routing tables are created on booting a link, and the process is
 distributed in nature, each link starts a flood fill that eventually reaches
