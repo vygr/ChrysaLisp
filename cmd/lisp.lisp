@@ -40,6 +40,10 @@
 		(each import *files*)
 		(print "Done"))))
 
+;;;;;;;;;;;;;
+; make system
+;;;;;;;;;;;;;
+
 (defun make-info (_)
 	;create lists of immediate dependencies and products
 	(defq d (list 'cmd/lisp.lisp _) p (list))
@@ -58,6 +62,38 @@
 				((eql _ "(def-func")
 					(push p o))))))
 	(list d p))
+
+(defun make (&optional *os* *cpu*)
+	(setd *os* (platform) *cpu* (cpu))
+	(compile ((lambda ()
+		(defq *env* (env 101) *imports* (list 'make.inc))
+		(defun func-obj (_)
+			(cat "obj/" *os* "/" *cpu* "/" _))
+		(defun make-sym (_)
+			(sym-cat "_dep_" _))
+		(defun make-time (_)
+			;modification time of a file, cached
+			(defq s (sym-cat "_age_" _))
+			(or (def? s) (def *env* s (age _))))
+		;list of all file imports while defining dependencies and products
+		(each-mergeable (lambda (_)
+			(defq i (make-info _))
+			(bind '(d p) i)
+			(merge-sym *imports* d)
+			(elem-set 1 i (map func-obj p))
+			(def *env* (make-sym _) i)) *imports*)
+		;filter to only the .vp files
+		(setq *imports* (filter (lambda (_)
+			(and (ge (length _) 3) (eql ".vp" (slice -4 -1 _)))) *imports*))
+		;filter to only the files who's oldest product is older than any dependency
+		(setq *imports* (filter (lambda (_)
+			(defq d (eval (make-sym _)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d))
+			(each-mergeable (lambda (_)
+				(merge-sym d (elem 0 (eval (make-sym _))))) d)
+			(some (lambda (_) (ge _ p)) (map make-time d))) *imports*))
+		;drop the make environment and return the list to compile
+		(setq *env* nil)
+		*imports*)) *os* *cpu*))
 
 (defun make-boot (&optional r *funcs* *os* *cpu*)
 	(within-compile-env (lambda ()
@@ -160,37 +196,10 @@
 			(merge-sym *products* p)) *imports*)
 		*products*)) *os* *cpu*))
 
-(defun make (&optional *os* *cpu*)
+(defun remake (&optional *os* *cpu*)
 	(setd *os* (platform) *cpu* (cpu))
-	(compile ((lambda ()
-		(defq *env* (env 101) *imports* (list 'make.inc))
-		(defun func-obj (_)
-			(cat "obj/" *os* "/" *cpu* "/" _))
-		(defun make-sym (_)
-			(sym-cat "_dep_" _))
-		(defun make-time (_)
-			;modification time of a file, cached
-			(defq s (sym-cat "_age_" _))
-			(or (def? s) (def *env* s (age _))))
-		;list of all file imports while defining dependencies and products
-		(each-mergeable (lambda (_)
-			(defq i (make-info _))
-			(bind '(d p) i)
-			(merge-sym *imports* d)
-			(elem-set 1 i (map func-obj p))
-			(def *env* (make-sym _) i)) *imports*)
-		;filter to only the .vp files
-		(setq *imports* (filter (lambda (_)
-			(and (ge (length _) 3) (eql ".vp" (slice -4 -1 _)))) *imports*))
-		;filter to only the files who's oldest product is older than any dependency
-		(setq *imports* (filter (lambda (_)
-			(defq d (eval (make-sym _)) p (reduce min (map make-time (elem 1 d))) d (elem 0 d))
-			(each-mergeable (lambda (_)
-				(merge-sym d (elem 0 (eval (make-sym _))))) d)
-			(some (lambda (_) (ge _ p)) (map make-time d))) *imports*))
-		;drop the make environment and return the list to compile
-		(setq *env* nil)
-		*imports*)) *os* *cpu*))
+	(make *os* *cpu*)
+	(make-boot-all *os* *cpu*))
 
 (defun all-vp-files ()
 	(defq *imports* (list 'make.inc))
@@ -206,10 +215,28 @@
 	(compile (all-vp-files) *os* *cpu*)
 	(make-boot-all *os* *cpu*))
 
-(defun remake (&optional *os* *cpu*)
-	(setd *os* (platform) *cpu* (cpu))
-	(make *os* *cpu*)
-	(make-boot-all *os* *cpu*))
+;;;;;;;;;;;;;;;;;;;;;
+; cross platform make
+;;;;;;;;;;;;;;;;;;;;;
+
+(defun make-platforms ()
+	(make 'Darwin 'x86_64)
+	(make 'Linux 'x86_64)
+	(make 'Linux 'aarch64))
+
+(defun remake-platforms ()
+	(remake 'Darwin 'x86_64)
+	(remake 'Linux 'x86_64)
+	(remake 'Linux 'aarch64))
+
+(defun make-all-platforms ()
+	(make-all 'Darwin 'x86_64)
+	(make-all 'Linux 'x86_64)
+	(make-all 'Linux 'aarch64))
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+; compile and make tests
+;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun make-test (&optional i &optional *os* *cpu*)
 	(setd *os* (platform) *cpu* (cpu))
@@ -230,17 +257,3 @@
 	(setd *os* (platform) *cpu* (cpu))
 	(each (lambda (_)
 		(compile _ *os* *cpu*)) (all-vp-files)))
-
-(defun make-darwin ()
-	(make-all 'Darwin 'x86_64))
-
-(defun make-linux-x86_64 ()
-	(make-all 'Linux 'x86_64))
-
-(defun make-linux-aarch64 ()
-	(make-all 'Linux 'aarch64))
-
-(defun make-platforms ()
-	(make-darwin)
-	(make-linux-x86_64)
-	(make-linux-aarch64))
