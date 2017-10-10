@@ -279,7 +279,6 @@ make-boot
 make-boot-all
 make-info
 make-platforms
-make-platforms
 make-test
 remake
 remake-platforms
