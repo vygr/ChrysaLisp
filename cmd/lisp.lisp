@@ -228,7 +228,8 @@
 
 (defun compile-test (&optional *os* *cpu*)
 	(setd *os* (platform) *cpu* (cpu))
-	(each compile (all-vp-files) *os* *cpu*))
+	(each (lambda (_)
+		(compile _ *os* *cpu*)) (all-vp-files)))
 
 (defun make-darwin ()
 	(make-all 'Darwin 'x86_64))
