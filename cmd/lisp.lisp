@@ -48,7 +48,8 @@
 	;create lists of immediate dependencies and products
 	(defq d (list 'cmd/lisp.lisp _) p (list))
 	(each-line _ (lambda (_)
-		(when (le 2 (length (defq s (split _ " "))) 3)
+		(when (and (ge (length _) 10) (eql "(" (elem 0 _))
+				(le 2 (length (defq s (split _ " "))) 3))
 			(defq _ (elem 0 s) o (sym (trim-start (trim-end (elem 1 s) ")") "'")))
 			(cond
 				((eql _ "(import")
