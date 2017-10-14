@@ -238,6 +238,7 @@ platform
 prin-base
 range
 reduce
+reduce-rev
 shuffle
 shuffled
 sign

@@ -116,6 +116,12 @@
 	(while (lt (setq _ (inc _)) (length _l))
 		(setq _a (_f _a (elem _ _l)))) _a)
 
+(defun reduce-rev (_f _l &optional _a)
+	(if _a (defq _ (length _l))
+		(defq _ (dec (length _l)) _a (elem -1 _l)))
+	(while (ge (setq _ (dec _)) 0)
+		(setq _a (_f _a (elem _ _l)))) _a)
+
 ;;;;;;;;;;;;
 ; Predicates
 ;;;;;;;;;;;;

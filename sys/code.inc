@@ -1054,7 +1054,7 @@
 		(when debug_inst
 			(print "post opt:")
 			(each print-inst *inst*))
-		(set-reg-map (map (lambda (_1) (elem (sub (neg _) 2) *src*)) *src*) _)
+		(set-reg-map (reduce-rev (lambda (x y) (push x y)) *src* (list)))
 		(eval *inst*)))
 
 (defcfun assign-script-to-asm (*src* *dst* _)
