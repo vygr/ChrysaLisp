@@ -5,8 +5,10 @@
 Assembler/C-Script/Lisp 64 bit OS. MIMD, multi CPU, multi threaded, multi core,
 multi user.
 
-Runs on OSX or Linux for x64, PI64 Linux for Aarch64. Could move to bare metal
-eventually but it's useful for now to run hosted while experimenting.
+Runs on OSX or Linux for x64, PI64 Linux for Aarch64. Will move to bare metal
+eventually but it's useful for now to run hosted while experimenting. When time
+allows I will be doing a VM boot image for UniKernel type appliances and a
+WebAssembly target to play around within the browser.
 
 Allows modelling of various network topologies with point to point links. Each
 CPU in the network is modelled as a separate host process, point to point links
