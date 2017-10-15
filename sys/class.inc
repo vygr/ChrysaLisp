@@ -310,7 +310,6 @@
 		((str? _3) (assign (slice 0 (length (split _3 ",")) _) _3))
 		(t (assign (slice 0 (length _3) _) _3))))
 
-
 ;;;;;;;;;;;;;;;;;
 ; virtual classes
 ;;;;;;;;;;;;;;;;;
