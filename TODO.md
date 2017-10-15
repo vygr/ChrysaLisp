@@ -95,3 +95,10 @@ concerns itself with looking up function names and writing to Vtable entries.
 
 * Webassembly backend in order to experiment with using browsers and web socket
 links to create a distributed network across the Internet.
+
+* Create a more comprehensive command line suite of tools. I don't think this
+needs to be especially large or even go as far as Busybox. But some of the more
+useful text processing and helpful commands would go a long way.
+
+* RISC V and MIPS targets. Bare metal PI3 and other Aarch64 development board
+support along with GPIO/SPI/I2C and so forth for the maker community.
