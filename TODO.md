@@ -74,7 +74,7 @@ compilation technique. Heterogeneous applications should work currently, just
 using the separated name spaces in the obj/ directory. But I'd quite like to
 get to the point where there is a single virtual binary package for an
 application for distribution. At this point I would implement the ability for
-applications to have native coated versions of functions available and those
+applications to have native coded versions of functions available and those
 functions would be bound to in preference to the VP versions when a process
 finds itself on such an architecture.
 
@@ -100,5 +100,7 @@ links to create a distributed network across the Internet.
 needs to be especially large or even go as far as Busybox. But some of the more
 useful text processing and helpful commands would go a long way.
 
-* RISC V and MIPS targets. Bare metal PI3 and other Aarch64 development board
-support along with GPIO/SPI/I2C and so forth for the maker community.
+* Other targets and platform configs. RISC V and MIPS targets. Bare metal PI3
+and other Aarch64 development board support along with GPIO/SPI/I2C and so
+forth for the maker community. SDL over frame buffer version for PI3, maybe
+just needs testing, but needs doing.
