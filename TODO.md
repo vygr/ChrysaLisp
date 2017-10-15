@@ -17,7 +17,7 @@ don't override the colour property themselves, will have that colour.
 * Enhance the signals and slots system so that as well as providing the
 callback interface to multiple listeners there is a standard mechanism for
 signalling on property changes and affecting properties of listening objects.
-This may just end up being set of standard callbacks that are provided as a
+This may just end up being a set of standard callbacks that are provided as a
 toolbox for users. Along with this should come a way to represent a UI tree in
 standard Lisp syntax that can be read and inflated automatically, complete with
 all the signals and slots prewired, before the application begins to interact
@@ -28,7 +28,7 @@ the moment the Lisp lives a little on the side of the rest of the system in
 that it has no access to sending and receiving messages. The process launching
 functionality for tasks should extend to a standard Lisp task and there should
 be a standard way for such a Lisp process to read and send messages. This also
-means there needs to be sensible way for the Lisp to handle formatting and the
+means there needs to be sensible way for the Lisp to handle formatting and
 reading of mail message data. I've not yet decided how to approach this and
 initially I may just map the mail message data to a string and take a string
 when sending a message. Marshalling data in and out of mail messages is
@@ -46,11 +46,11 @@ library.
 
 * Create a Virtualbox boot image of the system. I've been looking at bare metal
 OS and talking to the author for a couple of months. He's got plans to
-implement a frame buffer device for bare metal. And at that point I think I
-would have everything I need to do a platform isolation interface targeting
-bare metal as the bootstrap and take over the UI work directly rather than
-going through SDL. At this point I would stop writing device drivers for the
-virtual device interfaces provided by the VM environment.
+implement a frame buffer device for bare metal. At that point I think I would
+have everything I need to do a platform isolation interface targeting bare
+metal as the bootstrap and take over the UI work directly rather than going
+through SDL. At this point I would start writing device drivers for the virtual
+device interfaces provided by the VM environment.
 
 * Create a standard services registration system. This is a mechanism to allow
 processes to register themselves as providing a particular service to the rest
@@ -92,8 +92,6 @@ advantages of the simple function format using a local Vtable for all calls and
 jumps is that there is no code patching needed. The loader does not need to
 concern itself with patching a variety of native binary formats, it only
 concerns itself with looking up function names and writing to Vtable entries.
-Allthough I don't have anything other than intuition I'm convinced that this
-helps the CPU branch predictors as well.
 
 * Webassembly backend in order to experiment with using browsers and web socket
 links to create a distributed network across the Internet.
