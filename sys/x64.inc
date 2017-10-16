@@ -555,7 +555,7 @@
 (defcfun emit-land-rrr (r s d)
 	(defq rlh (reg r) dlh (reg d))
 	(if (or (ge rlh 4) (ge dlh 4))
-		(throw "emit-land-rr illegal register !" (r s d)))
+		(throw "emit-land-rrr illegal register !" (list r d)))
 	(emit-cpy-rr s r)
 	(emit-cmp-cr 0 d)
 	(emit-byte 0x0f 0x95 (add 0xc0 dlh))
