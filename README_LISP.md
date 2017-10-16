@@ -16,11 +16,16 @@ other ways that a cycle can be created, by naming an environment within its own
 scope, but again this was too good an efficiency feature to miss out on. So you
 do have to be careful not to create cycles, so think about how your code works.
 
-No tail recursion ! There is a single looping function provided in native code,
-`while`, every other looping construct builds on this primitive. I try to stick
-to a functional approach in my Lisp code, and manipulate collections of things
-in a functional way with operations like `map`, `filter`, `reduce`, `each` etc.
-I've not found the lack of tail recursion a problem.
+No tail recursion optimization ! There is a single looping function provided in
+native code, `while`, every other looping construct builds on this primitive.
+There are also 2 native primitives `some!` and `each!` that provide generic
+access to iterating over a slice of a list/s, calling a function on the grouped
+elements and then calling a function on the result of that. Standard `some` and
+`each` are build on these but they also allow other constructs to be build and
+gain the advantage of machine coded iteration. I try to stick to a functional
+approach in my Lisp code, and manipulate collections of things in a functional
+way with operations like `map`, `filter`, `reduce`, `each` etc. I've not found
+the lack of tail recursion a problem.
 
 All symbols live in the same environment, functions, macros, everything. The
 environment is a chain of hash maps. Each lambda gets a new hash map pushed
