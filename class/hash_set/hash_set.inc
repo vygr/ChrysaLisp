@@ -11,6 +11,7 @@
 (def-method 'insert 'class/hash_set/insert 'static '(r0 r1) '(r0 r1 r2))
 (def-method 'erase 'class/hash_set/erase 'static '(r0 r1 r2) '(r0))
 (def-method 'copy 'class/hash_set/copy 'static '(r0 r1) '(r0 r1))
+(def-method 'get_iters 'class/hash_set/get_iters 'static '(r0) '(r0 r1 r2))
 
 (def-method 'deinit 'class/hash_set/deinit 'override)
 

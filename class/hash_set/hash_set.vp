@@ -395,3 +395,46 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-func 'class/hash_set/get_iters)
+	;inputs
+	;r0 = hash_set object
+	;outputs
+	;r0 = hash_set object
+	;r1 = begin iter pointer
+	;r2 = end iter pointer
+	;trashes
+	;r3-r4
+
+	(f-entry 'hash_set 'get_iters '(r0))
+
+	(vp-cpy-ir r0 hash_set_buckets r1)
+	(vp-cpy-ir r0 hash_set_num_buckets r3)
+	(vp-cpy-ir-ui r1 array_length r2)
+	(vp-cpy-ir r1 array_array r1)
+	(vp-shl-cr (log2 long_size) r2)
+	(vp-add-rr r1 r2)
+	(vpif '(r3 != 1) 'exit)
+		(loop-start)
+			(vp-cpy-ir r1 0 r3)
+			(vp-cpy-ir-ui r3 array_length r4)
+			(vpif '(r4 != 0))
+				(vp-cpy-ir r3 array_array r1)
+				(loop-start)
+					(vp-cpy-ir r2 (neg ptr_size) r3)
+					(vp-sub-cr ptr_size r2)
+					(vp-cpy-ir-ui r3 array_length r4)
+				(loop-until '(r4 != 0))
+				(vp-cpy-ir r3 array_array r2)
+				(vp-shl-cr (log2 long_size) r4)
+				(vp-add-rr r4 r2)
+				(break exit)
+			(endif)
+			(vp-add-cr ptr_size r1)
+		(loop-until '(r1 == r2))
+	(endif)
+
+	(f-exit 'hash_set 'get_iters '(r0 r1 r2))
+	(vp-ret)
+
+(def-func-end)
