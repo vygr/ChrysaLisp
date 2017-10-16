@@ -223,8 +223,8 @@ This will copy the *snapshot.zip* to *snapshot_old.zip*.
 make undo
 ```
 
-This will copy the *snapshot_old.zip* to *snapshot.zip* unzip it and remake. So
-stepping back to the system as was when the last `make backup` was done.
+This does a clean and unzips the *snapshot_old.zip*. So stepping back to the
+system as was when the last `make backup` was done.
 
 Clean with:
 
