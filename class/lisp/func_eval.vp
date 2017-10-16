@@ -9,16 +9,26 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args)
+	(ptr 'this 'args 'env 'old)
 	(uint 'length)
 
 	(push-scope)
 	(f-entry 'lisp 'func_eval {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error1)
-	(f-call 'vector 'get_first {args} {_, args})
-	(f-call 'lisp 'repl_eval {this, args} {_, args})
+	(vpif {length == 1})
+		(f-call 'vector 'get_first {args} {_, args})
+		(f-call 'lisp 'repl_eval {this, args} {_, args})
+	(else)
+		(errorif {length != 2} 'error1)
+		(f-call 'vector 'get_second {args} {_, env})
+		(errorif (cat {env->obj_vtable != @} (f-path 'class 'hash_map)) 'error2)
+		(assign {this->lisp_environment} {old})
+		(assign {env} {this->lisp_environment})
+		(f-call 'vector 'get_first {args} {_, args})
+		(f-call 'lisp 'repl_eval {this, args} {_, args})
+		(assign {old} {this->lisp_environment})
+	(endif)
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_eval {this, args})
@@ -26,7 +36,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(eval form)", error_msg_wrong_num_of_args, args} {_, args})
+	(f-call 'lisp 'repl_error {this, "(eval form [env])", error_msg_wrong_num_of_args, args} {_, args})
+	(goto 'exit)
+(vp-label 'error2)
+	(f-call 'lisp 'repl_error {this, "(eval form [env])", error_msg_not_an_environment, args} {_, args})
 	(goto 'exit))
 
 	(pop-scope-syms)
