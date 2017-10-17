@@ -103,6 +103,8 @@
 (def-func 'class/window/deinit)
 	;inputs
 	;r0 = window object
+	;trashes
+	;all but r0
 
 	(ptr 'this 'screen)
 

@@ -111,6 +111,8 @@
 (def-func 'class/canvas/deinit)
 	;inputs
 	;r0 = canvas object
+	;trashes
+	;all but r0
 
 	;kernel callback
 	(vp-push r0)

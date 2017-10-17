@@ -5,7 +5,7 @@
 	;inputs
 	;r0 = object
 	;trashes
-	;all
+	;all but r0
 
 	(ptr 'this)
 
