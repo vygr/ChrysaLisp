@@ -23,10 +23,13 @@
 		(f-call 'vector 'get_first {args} {_, value})
 		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 		(f-call 'boxed_long 'get_value {value} {_, value})
+		(f-call 'hash_map 'num_buckets {this->lisp_environment} {_, length})
+		(gotoif {value == length} 'justref)
 		(f-call 'hash_map 'copy {this->lisp_environment, value} {_, value})
 		(f-call 'ref 'deref {this->lisp_environment})
 		(f-call 'ref 'ref {value} {this->lisp_environment})
 	(else)
+	(vp-label 'justref)
 		(f-call 'ref 'ref {this->lisp_environment} {value})
 	(endif)
 
