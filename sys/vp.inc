@@ -61,7 +61,7 @@
 			(write-char s b))))
 
 (defmacro opt-emit-kill-list ()
-	''(emit-label emit-pop emit-swp-rr emit-div-rrr emit-div-rrr-u
+	''(emit-label emit-pop emit-land-rr emit-lnot-rr emit-swp-rr emit-div-rrr emit-div-rrr-u
 		emit-syscall emit-call emit-call-abi emit-call-i emit-call-r emit-call-p))
 
 (defmacro opt-emit-ok-list ()
@@ -263,7 +263,7 @@
 (defcfun vp-xor-rr (s d) (emit (list 'emit-xor-rr s d)))
 
 (defcfun vp-lnot-rr (r d) (emit (list 'emit-lnot-rr r d)))
-(defcfun vp-land-rrr (r s d) (emit (list 'emit-land-rrr r s d)))
+(defcfun vp-land-rr (s d) (emit (list 'emit-land-rr s d)))
 
 (defcfun vp-shl-cr (c d) (emit (list 'emit-shl-cr c d)))
 (defcfun vp-shl-rr (s d) (emit (list 'emit-shl-rr s d)))

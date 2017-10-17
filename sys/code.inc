@@ -857,8 +857,7 @@
 	(add-inst (list 'vp-lnot-rr (tmp-reg) (top-value))))
 
 (defcfun compile-land (_)
-	(defq y (pop-value))
-	(add-inst (list 'vp-land-rrr y y (top-value))))
+	(add-inst (list 'vp-land-rr (pop-value) (top-value))))
 
 (defcfun compile-lor (_)
 	(add-inst (list 'vp-or-rr (pop-value) (top-value))))

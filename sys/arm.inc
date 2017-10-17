@@ -432,7 +432,7 @@
 	(emit-cmp-cr 0 d)
 	(emit-int (add 0x9a9f17e0 (reg d))))
 
-(defcfun emit-land-rrr (r s d)
+(defcfun emit-land-rr (s d)
 	(emit-cmp-cr 0 d)
 	(emit-int (add 0xfa401804 (bit-shl (reg s) 5)))
 	(emit-int (add 0x9a9f07e0 (reg d))))
