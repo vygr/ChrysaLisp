@@ -220,7 +220,7 @@ each-mergeable-rev
 each-rev
 equalp
 every
-every-pipe-line
+each-pipe-line
 filter
 from-base-char
 insert

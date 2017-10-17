@@ -26,7 +26,7 @@
 	(when (ne 0 (length q))
 		(print "Compiling with " (length q) " instances")
 		(each (lambda (p)
-			(every-pipe-line (lambda (l)
+			(each-pipe-line (lambda (l)
 				(defq k (elem 0 (split l " ")))
 				(cond
 					((eql k "Done"))

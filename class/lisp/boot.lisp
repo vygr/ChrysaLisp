@@ -201,7 +201,7 @@
 	(while (defq _l (read-line _s))
 		(_f _l)))
 
-(defun every-pipe-line (_f _p)
+(defun each-pipe-line (_f _p)
 	(defq _d "" _v t)
 	(while (and _p _v)
 		(defq _d (cat _d (pipe-read _p)) _i (find (char 10) _d))
