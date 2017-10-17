@@ -23,6 +23,7 @@
 		(f-call 'vector 'get_first {args} {_, value})
 		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
 		(f-call 'boxed_long 'get_value {value} {_, value})
+		(errorifnot {value} 'error2)
 		(f-call 'hash_map 'num_buckets {this->lisp_environment} {_, length})
 		(gotoif {value == length} 'justref)
 		(f-call 'hash_map 'copy {this->lisp_environment, value} {_, value})
