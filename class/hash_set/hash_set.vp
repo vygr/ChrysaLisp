@@ -409,7 +409,7 @@
 	(f-entry 'hash_set 'get_iters '(r0))
 
 	(vp-cpy-ir r0 hash_set_buckets r1)
-	(vp-cpy-ir r0 hash_set_num_buckets r3)
+	(vp-cpy-ir-ui r0 hash_set_num_buckets r3)
 	(vp-cpy-ir-ui r1 array_length r2)
 	(vp-cpy-ir r1 array_array r1)
 	(vp-shl-cr (log2 ptr_size) r2)
