@@ -15,6 +15,7 @@
 
 	(f-call 'hash_map 'get_parent {this->lisp_environment} {_, env})
 	(vpif {env})
+		(f-call 'ref 'ref {env})
 		(f-call 'ref 'deref {this->lisp_environment})
 		(assign {env} {this->lisp_environment})
 	(endif)

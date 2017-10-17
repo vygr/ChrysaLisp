@@ -30,6 +30,39 @@
 
 (def-func-end)
 
+(def-func 'class/hash_map/deinit)
+	;inputs
+	;r0 = hash_map object
+	;trashes
+	;all but r0
+
+	(vp-push r0)
+	(f-call 'hash_map 'deref_if '((r0 hash_map_parent)))
+	(vp-pop r0)
+
+	;deinit parent
+	(s-jmp 'hash_map 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/hash_map/set_parent)
+	;inputs
+	;r0 = hash_map object
+	;r1 = 0, else hash_map parent
+	;outputs
+	;r0 = hash_map object
+	;trashes
+	;all but r0
+
+	(vp-push r0)
+	(vp-cpy-ir r0 hash_map_parent r2)
+	(vp-cpy-ri r1 r0 hash_map_parent)
+	(f-call 'hash_map 'deref_if '(r2))
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
+
 (def-func 'class/hash_map/copy)
 	;inputs
 	;r0 = hash_map object
@@ -50,11 +83,12 @@
 	(f-entry 'hash_map 'copy '((rsp local_this) r1))
 
 	(f-call 'hash_map 'create '((r0 hash_set_key_callback) r1) '((rsp local_obj)))
-	(f-call 'hash_map 'get_parent '((rsp local_this)) '(_ r2))
-	(f-call 'hash_map 'set_parent '((rsp local_obj) r2))
+	(f-call 'hash_map 'get_parent '((rsp local_this)) '(_ r0))
+	(f-call 'hash_map 'ref_if '(r0) '(r0))
+	(f-call 'hash_map 'set_parent '((rsp local_obj) r0))
 	(f-call 'hash_map 'for_each '((rsp local_this) ($ callback) rsp))
-	(vp-cpy-ir rsp local_obj r1)
 
+	(f-exit 'hash_map 'copy '(r0 (rsp local_obj)))
 	(vp-free local_size)
 	(vp-ret)
 
