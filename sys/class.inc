@@ -86,6 +86,11 @@
 ; class calling
 ;;;;;;;;;;;;;;;
 
+(defcmacro method-info (_1 _2)
+	`(progn
+		(defq s 0 v ptr_size m nil)
+		(method-lookup ,_1 ,_2)))
+
 (defmacro method-info (_1 _2)
 	`(progn
 		(defq s 0 v ptr_size m nil)
