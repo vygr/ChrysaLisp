@@ -127,14 +127,11 @@
 		(assign '(r0) {iter_k})
 
 		(vpif {ys >= this->canvas_cy})
-			(method-info 'canvas 'set_span)
 			(vpif {mode})
 				;odd even
 				(loop-while {iter_k != iter_j})
-					(assign {span, this, color, iter_k[0]->edge_x >>> fp_shift,
-							ys, iter_k[ptr_size]->edge_x >>> fp_shift}
-							(cat '(r14) (elem 3 m)))
-					(vp-call-r r14)
+					(r-call 'canvas 'set_span {this, color, iter_k[0]->edge_x >>> fp_shift,
+						ys, iter_k[ptr_size]->edge_x >>> fp_shift, span})
 					(assign {iter_k + ptr_size * 2} {iter_k})
 				(loop-end)
 			(else)
@@ -147,10 +144,8 @@
 						(assign {*iter_k} {iter_edge2})
 						(assign {iter_edge2->edge_x, iter_edge2->edge_w + w} {x2, w})
 					(loop-end)
-					(assign {span, this, color, iter_edge1->edge_x >>> fp_shift,
-							ys, x2 >>> fp_shift}
-							(cat '(r14) (elem 3 m)))
-					(vp-call-r r14)
+					(r-call 'canvas 'set_span {this, color, iter_edge1->edge_x >>> fp_shift,
+						ys, x2 >>> fp_shift, span})
 					(assign {iter_k + ptr_size} {iter_k})
 				(loop-end)
 			(endif)

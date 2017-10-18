@@ -86,11 +86,6 @@
 ; class calling
 ;;;;;;;;;;;;;;;
 
-(defcmacro method-info (_1 _2)
-	`(progn
-		(defq s 0 v ptr_size m nil)
-		(method-lookup ,_1 ,_2)))
-
 (defmacro method-info (_1 _2)
 	`(progn
 		(defq s 0 v ptr_size m nil)
@@ -299,6 +294,21 @@
 	(if (eql (elem 2 m) 'static)
 		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
 	(fn-bind (elem 1 m) _3))
+
+(defcfun r-call (_1 _2 &optional _3 _4 _5)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = out parameters
+	;_5 = dispatch reg
+	(setd _5 r14)
+	(method-info _1 _2)
+	(setq s (elem 3 m))
+	(if (find _5 s)
+		(throw "Dispatch register conflicts with arg !" (list _5 s)))
+	(assign _3 (cat s (list _5)))
+	(vp-call-r _5)
+	(if _4 (assign (elem 4 m) _4)))
 
 (defcfun l-call (_1 &optional _2 _3)
 	;_1 = label
