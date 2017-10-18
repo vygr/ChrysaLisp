@@ -21,7 +21,7 @@ via a byte code form and runtime translation.
 
 Register juggling for parameter passing is eliminated by having all functions
 define their register interface and parameter source and destinations are
-mapped automatically using a topological sort. None DAG mappings are detected
+mapped automatically using a topological sort. Non DAG mappings are detected
 so the user can break them with a temporary if required. Operators are provided
 to simplify binding of parameters to dynamic bound functions, relative
 addresses, auto defined string pools, references and local stack frame values.
@@ -65,8 +65,8 @@ C-Script compiler are written in Lisp, look in the *sys/code.inc*,
 done. Some of the Lisp primitives are constructed via a boot script that each
 instance of a Lisp class runs on construction, see *class/lisp/boot.lisp* for
 details. The compilation and make environment, along with all the compile and
-make commands is created via the Lisp command line tool in *cmd/lisp.lisp*,
-again this auto runs for each instance of the `lisp` command ran from the
+make commands are created via the Lisp command line tool in *cmd/lisp.lisp*,
+again this auto runs for each instance of the `lisp` command run from the
 terminal. You can extend this with any number of additional files, just place
 them after the lisp command and they will execute after the *cmd/lisp.lisp*
 file and before processing of stdin.
@@ -107,7 +107,7 @@ The shared memory link files are created in the tmp folder */tmp*, so for
 example */tmp/000-001* would be the link file for the link between CPU 000 and
 001.
 
-The `-cpu` command line option just labels the CPU with it's ID.
+The `-cpu` command line option just labels the CPU with its ID.
 
 An example network viewed with ps looks like this for a 4x4 mesh network:
 
