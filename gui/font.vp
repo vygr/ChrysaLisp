@@ -223,7 +223,7 @@
 	(vp-cpy-ri r2 rsp local_bucket)
 
 	;search bucket
-	(loop-flist r4 0 r4 r5)
+	(loop-flist r2 0 r4 r5)
 		(vp-cpy-ir rsp local_font r0)
 		(vp-cpy-ir r4 ft_text_font r1)
 		(continueif '(r0 != r1))
