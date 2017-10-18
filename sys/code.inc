@@ -1054,7 +1054,7 @@
 			(print "post opt:")
 			(each print-inst *inst*))
 		(set-reg-map (reduce-rev (lambda (x y) (push x y)) *src* (list)))
-		(eval *inst*)))
+		(eval *inst* *compile-env*)))
 
 (defcfun assign-script-to-asm (*src* *dst* _)
 	(setq *src* (split *src* ","))
@@ -1076,7 +1076,7 @@
 			(print "post opt:")
 			(each print-inst *inst*))
 		(set-reg-map *dst* _)
-		(eval *inst*)))
+		(eval *inst* *compile-env*)))
 
 (defcfun assign-script-to-script (*src* *dst* _)
 	(setq *src* (split *src* ",") *dst* (map trim (split *dst* ",")))
@@ -1102,7 +1102,7 @@
 			(print "post opt:")
 			(each print-inst *inst*))
 		(set-reg-map '() _)
-		(eval *inst*)))
+		(eval *inst* *compile-env*)))
 
 (defcfun assign (&optional _1 _2 _3)
 	(setd _1 '() _2 '())
