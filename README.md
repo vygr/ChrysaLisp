@@ -214,6 +214,15 @@ make snapshot
 This will create a *snapshot.zip* file of the *obj/* directory.
 
 ```
+make boot
+```
+
+This will create a *snapshot.zip* file of the *obj/* directory containing only
+the directory structure and *boot_image* files ! Used to create the more
+compact *snapshot.zip* that goes up on Github. This must come after creation of
+`(make-all-platforms)` *boot_image* set !
+
+```
 make backup
 ```
 
