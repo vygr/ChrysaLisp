@@ -141,7 +141,7 @@ Requires SDL2 and the SDL2_TTF library to be installed. SDL2 and SDL2_ttf are
 for the experimental GUI.
 
 Requirements:
-Linux: Tested on Ubuntu 16-10 and Debian PI64
+Linux: Tested on Ubuntu 16-10, 17-10 and Debian PI64
 ```
 sudo apt-get install libsdl2-ttf-dev
 ```
