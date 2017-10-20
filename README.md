@@ -222,19 +222,6 @@ the directory structure and *boot_image* files ! Used to create the more
 compact *snapshot.zip* that goes up on Github. This must come after creation of
 `(make-all-platforms)` *boot_image* set !
 
-```
-make backup
-```
-
-This will copy the *snapshot.zip* to *snapshot_old.zip*.
-
-```
-make undo
-```
-
-This does a clean and unzips the *snapshot_old.zip*. So stepping back to the
-system as was when the last `make backup` was done.
-
 Clean with:
 
 ```

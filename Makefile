@@ -3,19 +3,13 @@ CPU := $(shell uname -m)
 
 all:		obj/$(OS)/$(CPU)/main
 
-undo:		clean
-			unzip -oq snapshot_old.zip
-
-backup:
-			cp -f snapshot.zip snapshot_old.zip
-
 snapshot:
 			rm -f snapshot.zip
-			zip -r9oq -x*.d -x*.o snapshot.zip obj/*
+			zip -r9oq -x*.o snapshot.zip obj/*
 
 boot:
 			rm -f snapshot.zip
-			zip -9vq snapshot.zip `find obj -type d` `find obj -name "boot_image"`
+			zip -9q snapshot.zip `find obj -type d` `find obj -name "boot_image"`
 
 obj/$(OS)/$(CPU)/main:	obj/$(OS)/$(CPU)/main.o
 ifeq ($(OS),Darwin)
