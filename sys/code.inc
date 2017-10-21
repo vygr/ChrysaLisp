@@ -407,12 +407,12 @@
 ; parameter handling
 ;;;;;;;;;;;;;;;;;;;;
 
-(defcfun map-remove-ignored ()
+(defcfun assign-remove-ignored ()
 	(defq s (list) d (list))
 	(each (lambda (x y) (unless (or (eql x y) (eql y '_) (eql y "_")) (push s x) (push d y))) *src* *dst*)
 	(setq *src* s *dst* d))
 
-(defcfun match-any (d s)
+(defcfun assign-match-any (d s)
 	(defq i (lst? d) j (lst? s))
 	(cond
 		(i (cond
@@ -423,37 +423,37 @@
 			(t (find d s))))
 		(t (eql s d))))
 
-(defcfun find-later-src (i)
+(defcfun assign-find-later-src (i)
 	(defq j (dec (length (defq s *src*))) d (elem i *dst*))
 	(while (ne j i)
-		(if (match-any d (elem j s))
+		(if (assign-match-any d (elem j s))
 			(setq i j)
 			(setq j (dec j)))) j)
 
-(defcfun map-rotate (i j)
+(defcfun assign-rotate (i j)
 	(setq *src* (cat (slice 0 i (defq s *src*)) (slice j (inc j) s)
 				(slice i j s) (slice (inc j) (length s) s))
 		*dst* (cat (slice 0 i (defq s *dst*)) (slice j (inc j) s)
 				(slice i j s) (slice (inc j) (length s) s))))
 
-(defcfun map-topology-sort ()
+(defcfun assign-topology-sort ()
 	(defq i 0 c 1000 l (length *dst*))
 	(while (and (ne i l) (ne c 0))
-		(defq j (find-later-src i))
+		(defq j (assign-find-later-src i))
 		(if (gt j i)
 			(progn
-				(map-rotate i j)
+				(assign-rotate i j)
 				(setq c (dec c)))
 			(setq i (inc i))))
 	(when (ne i l)
 		(throw "Copy cycle detected !" (list *src* *dst*))))
 
-(defcfun map-src-to-dst (*src* *dst*)
+(defcfun assign-asm-to-asm (*src* *dst*)
 	(when (ne (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
-	(map-remove-ignored)
+	(assign-remove-ignored)
 	(when (ne 0 (length *dst*))
-		(map-topology-sort)
+		(assign-topology-sort)
 		(each (lambda (x y)
 			(defq i (type x))
 			(cond
@@ -488,11 +488,6 @@
 ; tokenize
 ;;;;;;;;;;
 
-(defcvar '*token* (list))
-
-(defmacro push-token (&rest b)
-	`(push *token* (list ~b)))
-
 (defmacro is_white_space_char (_)
 	`(not (lt (ascii " ") (code ,_) 127)))
 
@@ -511,7 +506,12 @@
 (defmacro is_allowed_number_char (_)
 	`(find ,_ "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789"))
 
-(defcfun set-token-list (l)
+(defmacro token-push (&rest b)
+	`(push *token* (list ~b)))
+
+(defcvar '*token* (list))
+
+(defcfun token-parse (l)
 	(clear *token*)
 	(defq m -1 u 1 i 0 p 0)
 	(while (lt i (length l))
@@ -526,7 +526,7 @@
 					(cond
 						((find c ")(][")
 							;)(][
-							(push-token c s)
+							(token-push c s)
 							(setq p (inc i) u (bit-and (sub s 13) 1)))
 						((ge s 6)
 							;-*~!+.?^</%&|=>
@@ -547,11 +547,11 @@
 							((eq u 1)
 								;unary operator
 								(if (setq s (find (slice p i l) "-*&~!"))
-									(push-token (elem s "_#:~!") m)
+									(token-push (elem s "_#:~!") m)
 									(throw "Unknown unary operator !" (slice p i l))))
 							(t
 								;binary operator
-								(push-token (slice p i l) m)
+								(token-push (slice p i l) m)
 								(setq u 1)))
 						(setq p i m -1))
 					(t
@@ -561,7 +561,7 @@
 				(if (is_allowed_number_char c)
 					(setq c nil)
 					(progn
-						(push-token (slice p i l) m)
+						(token-push (slice p i l) m)
 						(setq p i u 0 m -1))))
 			((eq m 1)
 				;symbol mode
@@ -570,51 +570,51 @@
 					(progn
 						(if (find (sym (defq s (slice p i l)))
 								'(byte ubyte short ushort int uint long ulong ptr))
-							(push-token s 6)
-							(push-token s m))
+							(token-push s 6)
+							(token-push s m))
 						(setq p i u 0 m -1))))
 			((eq m 2)
 				;bind
 				(if (is_symbol_char c)
 					(setq c nil)
 					(progn
-						(push-token (slice p i l) m)
+						(token-push (slice p i l) m)
 						(setq p i u 0 m -1))))
 			((eq m 3)
 				;label
 				(if (is_label_char c)
 					(setq c nil)
 					(progn
-						(push-token (slice p i l) m)
+						(token-push (slice p i l) m)
 						(setq p i u 0 m -1))))
 			((eq m 4)
 				;atom
 				(if (is_atom_char c)
 					(setq c nil)
 					(progn
-						(push-token (slice p i l) m)
+						(token-push (slice p i l) m)
 						(setq p i u 0 m -1))))
 			(t
 				;string mode
 				(if (ne s 5)
 					(setq c nil)
 					(progn
-						(push-token (slice p i l) m)
+						(token-push (slice p i l) m)
 						(setq p (inc i) u 0 m -1)))))
 		(unless c (setq i (inc i))))
 	(unless (eq p i)
-		(push-token (slice p i l) m)))
+		(token-push (slice p i l) m)))
 
 ;;;;;;;;;;;;;;;;
 ; reverse polish
 ;;;;;;;;;;;;;;;;
 
-(defcvar '*rpn* (list))
-
-(defmacro push-rpn (s v)
+(defmacro rpn-push (s v)
 	`(push *rpn* (list (sym ,s) ,v)))
 
-(defcfun token-to-rpn ()
+(defcvar '*rpn* (list))
+
+(defcfun rpn-parse ()
 	(clear *rpn*)
 	(defq o (list))
 	(each (lambda ((k c))
@@ -625,11 +625,11 @@
 						(push o k))
 					((eql k ")")
 						(while (and (not (eql "(" (setq k (pop o)))) k)
-							(push-rpn k -1)))
+							(rpn-push k -1)))
 					((eql k "]")
 						(while (and (not (eql "[" (setq k (pop o)))) k)
-							(push-rpn k -1))
-						(push-rpn "[]" -1))
+							(rpn-push k -1))
+						(rpn-push "[]" -1))
 					(t ;precedence
 						(unless (defq s (get-sym k))
 							(throw "Operator not defined !" k))
@@ -637,13 +637,13 @@
 						(while (and x (ne 0 (length o)))
 							(setq s (get-sym (elem -2 o)))
 							(if (ge v (elem 2 s))
-								(push-rpn (pop o) -1)
+								(rpn-push (pop o) -1)
 								(setq x nil)))
 						(push o k))))
 			(t ;number, symbol, string, symbol, bind, label, atom
-				(push-rpn k c)))) *token*)
+				(rpn-push k c)))) *token*)
 	(while (defq _ (pop o))
-		(push-rpn _ -1)))
+		(rpn-push _ -1)))
 
 ;;;;;;;;;;;;;
 ; compilation
@@ -1038,12 +1038,12 @@
 	(setq *dst* (map trim (split *dst* ",")))
 	(unless (eq (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
-	(map-remove-ignored)
+	(assign-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack (length *src*))
 		(each! nil nil nil (lambda (_)
-			(set-token-list _)
-			(token-to-rpn)
+			(token-parse _)
+			(rpn-parse)
 			(compile-rpn-list)
 			(compile-assign)) (list *dst*))
 		(when debug_inst
@@ -1060,12 +1060,12 @@
 	(setq *src* (split *src* ","))
 	(unless (eq (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
-	(map-remove-ignored)
+	(assign-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack 0)
 		(each! nil nil nil (lambda (_)
-			(set-token-list _)
-			(token-to-rpn)
+			(token-parse _)
+			(rpn-parse)
 			(compile-rpn-list)
 			(compile-deref?)) (list *src*))
 		(when debug_inst
@@ -1082,16 +1082,16 @@
 	(setq *src* (split *src* ",") *dst* (map trim (split *dst* ",")))
 	(unless (eq (length *src*) (length *dst*))
 		(throw "Mismatching number of src/dst parameters !" (list *src* *dst*)))
-	(map-remove-ignored)
+	(assign-remove-ignored)
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack 0)
 		(each! nil nil nil (lambda (_)
-			(set-token-list _)
-			(token-to-rpn)
+			(token-parse _)
+			(rpn-parse)
 			(compile-rpn-list)) (list *src*))
 		(each! -1 0 nil (lambda (_)
-			(set-token-list _)
-			(token-to-rpn)
+			(token-parse _)
+			(rpn-parse)
 			(compile-rpn-list)
 			(compile-assign)) (list *dst*))
 		(when debug_inst
@@ -1118,4 +1118,4 @@
 			;asm -> script
 			(assign-asm-to-script _1 _2 _3))
 		(t	;asm -> asm
-			(map-src-to-dst _1 _2))))
+			(assign-asm-to-asm _1 _2))))
