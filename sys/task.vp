@@ -314,6 +314,7 @@
 	;trashes
 	;all
 
+	(f-entry 'sys_task 'open '(r0))
 	(f-bind 'sys_task 'statics r1)
 	(f-jmp 'sys_task 'open_device '(r0 (r1 tk_statics_cpu_id)))
 
@@ -327,6 +328,7 @@
 	;trashes
 	;all
 
+	(f-entry 'sys_task 'open_child '(r0))
 	(f-bind 'sys_task 'statics r1)
 	(f-jmp 'sys_task 'open_remote '(r0 (r1 tk_statics_cpu_id)))
 
@@ -348,7 +350,7 @@
 
 	;save task info
 	(push-scope)
-	(assign '(r0 r1) {name, cpu})
+	(f-entry 'sys_task 'open_device {name, cpu})
 
 	;init temp mailbox
 	(f-call 'sys_mail 'init_mailbox {&mailbox})
@@ -371,7 +373,7 @@
 	(f-call 'sys_mem 'free {msg})
 
 	;return ids array
-	(assign {id.id_mbox, id.id_cpu} '(r0 r1))
+	(f-exit 'sys_task 'open_device {id.id_mbox, id.id_cpu})
 	(pop-scope)
 	(return)
 
@@ -393,7 +395,7 @@
 
 	;save task info
 	(push-scope)
-	(assign '(r0 r1) {name, cpu})
+	(f-entry 'sys_task 'open_remote {name, cpu})
 
 	;init temp mailbox
 	(f-call 'sys_mail 'init_mailbox {&mailbox})
@@ -416,7 +418,7 @@
 	(f-call 'sys_mem 'free {msg})
 
 	;return ids array
-	(assign {id.id_mbox, id.id_cpu} '(r0 r1))
+	(f-exit 'sys_task 'open_remote {id.id_mbox, id.id_cpu})
 	(pop-scope)
 	(return)
 
