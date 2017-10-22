@@ -7,7 +7,7 @@
 (import 'class/grid/make.inc)
 (import 'class/label/make.inc)
 (import 'class/lisp/make.inc)
-(import 'class/master/make.inc)
+(import 'class/pipe/make.inc)
 (import 'class/obj/make.inc)
 (import 'class/pair/make.inc)
 (import 'class/progress/make.inc)

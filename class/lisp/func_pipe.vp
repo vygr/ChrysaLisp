@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/string/string.inc)
-(import 'class/master/master.inc)
+(import 'class/pipe/pipe.inc)
 (import 'class/stream_msg_out/stream_msg_out.inc)
 (import 'class/lisp/lisp.inc)
 
@@ -25,9 +25,9 @@
 	(errorifnot {value} 'error1))
 
 	(f-call 'vector 'get_first {args} {_, pipe})
-	(f-call 'master 'create {} {value})
-	(f-call 'master 'start {value, &pipe->string_data, pipe->string_length})
-	(f-call 'master 'get_state {value} {_, state})
+	(f-call 'pipe 'create {} {value})
+	(f-call 'pipe 'start {value, &pipe->string_data, pipe->string_length})
+	(f-call 'pipe 'get_state {value} {_, state})
 	(errorif {state != stream_mail_state_started} 'error2)
 
 (vp-label 'exit)

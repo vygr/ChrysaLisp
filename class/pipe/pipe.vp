@@ -1,0 +1,114 @@
+(import 'sys/func.inc)
+(import 'class/string/string.inc)
+(import 'class/stream_msg_out/stream_msg_out.inc)
+(import 'class/stream_msg_in/stream_msg_in.inc)
+(import 'class/slave/slave.inc)
+(import 'class/pipe/pipe.inc)
+
+(gen-new 'pipe)
+(gen-create 'pipe)
+(gen-class 'pipe)
+
+(def-func 'class/pipe/init)
+	;inputs
+	;r0 = pipe object
+	;r1 = vtable pointer
+	;outputs
+	;r0 = pipe object
+	;r1 = 0 if error, else ok
+	;trashes
+	;all but r0
+
+	(ptr 'this 'vtable)
+	(ulong 'error)
+
+	;read init args
+	(push-scope)
+	(f-entry 'pipe 'init {this, vtable})
+
+	;init parent
+	(s-call 'pipe 'init {this, vtable} {_, error})
+	(vpif {error})
+		;init state
+		(f-call 'sys_mem 'clear {&this->pipe_start, pipe_size - pipe_start})
+		(assign {stream_mail_state_stopped} {this->pipe_state})
+	(endif)
+
+	(f-exit 'pipe 'init {this, error})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/pipe/deinit)
+	;inputs
+	;r0 = pipe object
+	;trashes
+	;all but r0
+
+	;call stop
+	(f-call 'pipe 'stop '(r0))
+
+	;deinit parent
+	(s-jmp 'pipe 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/pipe/get_stream)
+	;inputs
+	;r0 = pipe object
+	;r1 = mailbox
+	;outputs
+	;r0 = pipe object
+	;r1 = stream object
+	;trashes
+	;all but r0
+
+	(ptr 'this 'mailbox)
+	(ulong 'index)
+
+	(push-scope)
+	(f-entry 'pipe 'get_stream {this, mailbox})
+
+	(assign {0} {index})
+	(loop-while {mailbox != (this->pipe_select_array)[index]})
+		(assign {index + ptr_size} {index})
+	(loop-end)
+
+	(f-exit 'pipe 'get_stream {this, (this->pipe_streams->array_array)[index]})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/pipe/select)
+	;inputs
+	;r0 = pipe object
+	;r1 = user mailbox
+	;outputs
+	;r0 = pipe object
+	;r1 = mailbox with mail
+	;trashes
+	;all but r0
+
+	(ptr 'this 'mailbox)
+	(uint 'length)
+
+	(push-scope)
+	(f-entry 'pipe 'select {this, mailbox})
+
+	(vpif {this->pipe_state != stream_mail_state_started})
+		;not yet running, so just wait on user mailbox
+		(f-call 'sys_mail 'select {&mailbox, 1} {mailbox})
+	(else)
+		;wait on user and pipe mailboxes
+		(assign {mailbox} {*this->pipe_select_array})
+		(d-call 'vector 'get_length {this->pipe_streams} {_, length})
+		(f-call 'sys_mail 'select {this->pipe_select_array, length} {mailbox})
+	(endif)
+
+	(f-exit 'pipe 'select {this, mailbox})
+	(pop-scope)
+	(return)
+
+(def-func-end)

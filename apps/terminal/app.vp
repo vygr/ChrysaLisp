@@ -6,7 +6,7 @@
 (import 'class/string/string.inc)
 (import 'class/vector/vector.inc)
 (import 'class/stream_msg_out/stream_msg_out.inc)
-(import 'class/master/master.inc)
+(import 'class/pipe/pipe.inc)
 (import 'class/vdu/vdu.inc)
 
 (def-func 'apps/terminal/app)
@@ -14,7 +14,7 @@
 	(defcvar 'buf_size 256)
 
 	(def-struct 'local 'obj)
-		(ptr 'master 'vdu 'history 'window)
+		(ptr 'pipe 'vdu 'history 'window)
 		(ulong 'history_index)
 		(pubyte 'bufp)
 		(struct 'buffer buf_size)
@@ -31,7 +31,7 @@
 	(push-scope)
 	(f-call 'sys_mem 'clear {&myapp, local_size})
 	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)))
-	(f-call 'master 'create {} {myapp.local_master})
+	(f-call 'pipe 'create {} {myapp.local_pipe})
 	(f-call 'vector 'create {} {myapp.local_history})
 
 	;create my window
@@ -69,7 +69,7 @@
 	(f-call 'sys_task 'mailbox {} {mymailbox, _})
 	(loop-start)
 		;select on multiple mailboxes
-		(f-call 'master 'select {myapp.local_master, mymailbox} {_, mailbox})
+		(f-call 'pipe 'select {myapp.local_pipe, mymailbox} {_, mailbox})
 
 		;which mailbox has mail ?
 		(vpif {mailbox == mymailbox})
@@ -82,11 +82,11 @@
 			(f-call 'sys_mem 'free {msg})
 		(else)
 			;output from a pipe element
-			(f-call 'master 'get_stream {myapp.local_master, mailbox} {_, stream})
+			(f-call 'pipe 'get_stream {myapp.local_pipe, mailbox} {_, stream})
 			(l-call 'pipe_output {&myapp, stream} {state})
 			(vpif {state == -1})
 				;EOF
-				(f-call 'master 'stop {myapp.local_master})
+				(f-call 'pipe 'stop {myapp.local_pipe})
 				(f-call 'string 'create_from_cstr {"Ready"} {string})
 				(f-call 'window 'set_status {myapp.local_window, string})
 			(endif)
@@ -96,7 +96,7 @@
 
 	;clean up
 	(f-call 'vector 'deref {myapp.local_history})
-	(f-call 'master 'deref {myapp.local_master})
+	(f-call 'pipe 'deref {myapp.local_pipe})
 	(f-call 'window 'deref {myapp.local_window})
 	(v-call 'obj 'deinit {&myapp})
 	(pop-scope)
@@ -161,7 +161,7 @@
 	;send line ?
 	(vpif {char == char_lf || char == char_cr})
 		;what state ?
-		(f-call 'master 'get_state {local->local_master} {_, state})
+		(f-call 'pipe 'get_state {local->local_pipe} {_, state})
 		(vpif {state == stream_mail_state_stopped})
 			;push new history entry if not same as last entry
 			(breakifnot {length})
@@ -180,14 +180,14 @@
 			(endif)
 
 			;start new pipe
-			(f-call 'master 'start {local->local_master, &local->local_buffer, length})
-			(f-call 'master 'get_state {local->local_master} {_, state})
+			(f-call 'pipe 'start {local->local_pipe, &local->local_buffer, length})
+			(f-call 'pipe 'get_state {local->local_pipe} {_, state})
 			(breakif {state != stream_mail_state_started})
 			(f-call 'string 'create_from_cstr {"Busy"} {string})
 			(f-call 'window 'set_status {local->local_window, string})
 		(else)
 			;feed active pipe
-			(f-call 'master 'get_input {local->local_master} {_, stream})
+			(f-call 'pipe 'get_input {local->local_pipe} {_, stream})
 			(f-call 'stream 'write {stream, &local->local_buffer, length})
 			(f-call 'stream 'write_char {stream, char_lf})
 			(v-call 'stream 'write_flush {stream})
@@ -200,7 +200,7 @@
 		(endif)
 	(elseif {char == 129})
 		;cursor up
-		(f-call 'master 'get_state {local->local_master} {_, state})
+		(f-call 'pipe 'get_state {local->local_pipe} {_, state})
 		(vpif {state == stream_mail_state_stopped})
 			(d-call 'vector 'get_length {local->local_history} {_, length})
 			(breakifnot {length})
@@ -215,7 +215,7 @@
 		(endif)
 	(elseif {char == 130})
 		;cursor down
-		(f-call 'master 'get_state {local->local_master} {_, state})
+		(f-call 'pipe 'get_state {local->local_pipe} {_, state})
 		(vpif {state == stream_mail_state_stopped})
 			(d-call 'vector 'get_length {local->local_history} {_, length})
 			(assign {local->local_history_index + 1} {local->local_history_index})
@@ -234,10 +234,10 @@
 		(endif)
 	(elseif {char == char_esc})
 		;esc
-		(f-call 'master 'get_state {local->local_master} {_, state})
+		(f-call 'pipe 'get_state {local->local_pipe} {_, state})
 		(vpif {state == stream_mail_state_started})
 			;feed active pipe, then EOF
-			(f-call 'master 'get_input {local->local_master} {_, stream})
+			(f-call 'pipe 'get_input {local->local_pipe} {_, stream})
 			(f-call 'stream 'write {stream, &local->local_buffer, length})
 			(v-call 'stream 'write_flush {stream})
 			(assign {&local->local_buffer} {local->local_bufp})

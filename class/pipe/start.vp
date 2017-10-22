@@ -3,12 +3,12 @@
 (import 'class/stream_msg_out/stream_msg_out.inc)
 (import 'class/stream_msg_in/stream_msg_in.inc)
 (import 'class/slave/slave.inc)
-(import 'class/master/master.inc)
+(import 'class/pipe/pipe.inc)
 (import 'sys/kernel.inc)
 
-(def-func 'class/master/start)
+(def-func 'class/pipe/start)
 	;inputs
-	;r0 = master object
+	;r0 = pipe object
 	;r1 = buffer
 	;r2 = length
 	;trashes
@@ -23,9 +23,9 @@
 
 	;init vars
 	(push-scope)
-	(f-entry 'master 'start {this, buffer, length})
+	(f-entry 'pipe 'start {this, buffer, length})
 
-	(vpif {this->master_state != stream_mail_state_started})
+	(vpif {this->pipe_state != stream_mail_state_started})
 		;split pipe into separate commands and args
 		(f-call 'stream 'create {0, 0, buffer, length} {stream})
 		(f-call 'stream 'split {stream, char_pipe} {_, args})
@@ -69,17 +69,17 @@
 			;error if some didn't start
 			(vpif {started == length})
 				;create streams, mailboxes and select array
-				(f-call 'vector 'create {} {this->master_streams})
-				(f-call 'vector 'set_capacity {this->master_streams, length + 2})
-				(f-call 'sys_mem 'alloc {(length + 2) * ptr_size} {this->master_select_array, _})
-				(f-call 'sys_mem 'alloc {(length + 2) * mailbox_size} {this->master_mailbox_array, _})
+				(f-call 'vector 'create {} {this->pipe_streams})
+				(f-call 'vector 'set_capacity {this->pipe_streams, length + 2})
+				(f-call 'sys_mem 'alloc {(length + 2) * ptr_size} {this->pipe_select_array, _})
+				(f-call 'sys_mem 'alloc {(length + 2) * mailbox_size} {this->pipe_mailbox_array, _})
 				(assign {0} {index})
 				(loop-while {index != (length + 2)})
-					(assign {&(this->master_mailbox_array)[index * mailbox_size]} {mbox})
+					(assign {&(this->pipe_mailbox_array)[index * mailbox_size]} {mbox})
 					(f-call 'sys_mail 'init_mailbox {mbox})
-					(assign {mbox} {(this->master_select_array)[index * ptr_size]})
+					(assign {mbox} {(this->pipe_select_array)[index * ptr_size]})
 					(f-call 'stream_msg_in 'create {mbox} {stream})
-					(f-call 'vector 'push_back {this->master_streams, stream})
+					(f-call 'vector 'push_back {this->pipe_streams, stream})
 					(assign {index + 1} {index})
 				(loop-end)
 
@@ -95,7 +95,7 @@
 					(f-call 'sys_mem 'copy {&string->string_data, &msg->slave_mail_init_args, string->string_length})
 					(assign {nextid.id_mbox} {msg->slave_mail_init_stdout_id.id_mbox})
 					(assign {nextid.id_cpu} {msg->slave_mail_init_stdout_id.id_cpu})
-					(assign {&(this->master_mailbox_array)[(index + 1) * mailbox_size]} {msg->slave_mail_init_stderr_id.id_mbox})
+					(assign {&(this->pipe_mailbox_array)[(index + 1) * mailbox_size]} {msg->slave_mail_init_stderr_id.id_mbox})
 					(f-call 'kernel 'id {} {msg->slave_mail_init_stderr_id.id_cpu})
 					(assign {&mailbox} {msg->slave_mail_init_ack_id.id_mbox})
 					(f-call 'kernel 'id {} {msg->slave_mail_init_ack_id.id_cpu})
@@ -112,10 +112,10 @@
 
 				;create input stream, free the unused space keeper stream
 				(f-call 'stream_msg_out 'create {nextid.id_mbox, nextid.id_cpu} {stream})
-				(d-call 'vector 'set_element {this->master_streams, stream, 0})
+				(d-call 'vector 'set_element {this->pipe_streams, stream, 0})
 
 				;no error
-				(assign {stream_mail_state_started} {this->master_state})
+				(assign {stream_mail_state_started} {this->pipe_state})
 			(else)
 				;send abort to any started pipe elements
 				(loop-while {index})
@@ -138,7 +138,7 @@
 		(f-call 'vector 'deref {args})
 	(endif)
 
-	(f-exit 'master 'start {this})
+	(f-exit 'pipe 'start {this})
 	(pop-scope)
 	(return)
 

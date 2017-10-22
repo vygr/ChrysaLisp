@@ -3,11 +3,11 @@
 (import 'class/stream_msg_out/stream_msg_out.inc)
 (import 'class/stream_msg_in/stream_msg_in.inc)
 (import 'class/slave/slave.inc)
-(import 'class/master/master.inc)
+(import 'class/pipe/pipe.inc)
 
-(def-func 'class/master/stop)
+(def-func 'class/pipe/stop)
 	;inputs
-	;r0 = master object
+	;r0 = pipe object
 	;trashes
 	;all but r0
 
@@ -15,11 +15,11 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'master 'stop {this})
+	(f-entry 'pipe 'stop {this})
 
-	(vpif {this->master_state != stream_mail_state_stopped})
+	(vpif {this->pipe_state != stream_mail_state_stopped})
 		;flush remaining
-		(f-call 'master 'get_input {this} {_, stream})
+		(f-call 'pipe 'get_input {this} {_, stream})
 		(v-call 'stream_msg_out 'write_flush {stream})
 
 		;send stopping
@@ -33,26 +33,26 @@
 		(v-call 'stream_msg_out 'write_flush {stream})
 
 		;wait for all stopped, starting with the pipe output, then the error streams
-		(d-call 'vector 'get_length {this->master_streams} {_, length})
+		(d-call 'vector 'get_length {this->pipe_streams} {_, length})
 		(loop-start)
 			(assign {length - 1} {length})
 			(breakifnot {length})
-			(f-call 'vector 'get_element {this->master_streams, length} {_, stream})
+			(f-call 'vector 'get_element {this->pipe_streams, length} {_, stream})
 			(loop-start)
 				(v-call 'stream_msg_in 'read_next {stream})
 			(loop-until {stream->stream_msg_in_state == stream_mail_state_stopped})
 		(loop-end)
 
 		;free streams, select and mailbox array
-		(f-call 'vector 'deref {this->master_streams})
-		(f-call 'sys_mem 'free {this->master_select_array})
-		(f-call 'sys_mem 'free {this->master_mailbox_array})
+		(f-call 'vector 'deref {this->pipe_streams})
+		(f-call 'sys_mem 'free {this->pipe_select_array})
+		(f-call 'sys_mem 'free {this->pipe_mailbox_array})
 
 		;stop state
-		(assign {stream_mail_state_stopped} {this->master_state})
+		(assign {stream_mail_state_stopped} {this->pipe_state})
 	(endif)
 
-	(f-exit 'master 'stop {this})
+	(f-exit 'pipe 'stop {this})
 	(pop-scope)
 	(return)
 

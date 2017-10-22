@@ -353,7 +353,7 @@
 (def-method 'progress 'class/class_progress)
 (def-method 'title 'class/class_title)
 (def-method 'slave 'class/class_slave)
-(def-method 'master 'class/class_master)
+(def-method 'pipe 'class/class_pipe)
 (def-method 'boxed_ptr 'class/class_boxed_ptr)
 (def-method 'boxed_long 'class/class_boxed_long)
 (def-method 'lisp 'class/class_lisp)
