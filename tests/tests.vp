@@ -12,7 +12,8 @@
 
 	(defcvar 'num_child 128)
 
-	(ptr 'tasks 'ids)
+	(ptr 'tasks 'ids 'mbox)
+	(ulong 'cpu)
 	(union
 		'(ptr 'name)
 		'(ptr 'msg))
@@ -35,17 +36,19 @@
 	;send exit messages etc
 	(loop-while {cnt})
 		(assign {cnt - 1} {cnt})
-		(continueifnot {ids[cnt * id_size].id_mbox})
+		(f-call 'array 'get_element {ids, cnt * 2} {_, mbox})
+		(continueifnot {mbox})
+		(f-call 'array 'get_element {ids, cnt * 2 + 1} {_, cpu})
 		(f-call 'sys_mail 'alloc {} {msg})
-		(assign {ids[cnt * id_size].id_mbox} {msg->msg_dest.id_mbox})
-		(assign {ids[cnt * id_size].id_cpu} {msg->msg_dest.id_cpu})
+		(assign {mbox} {msg->msg_dest.id_mbox})
+		(assign {cpu} {msg->msg_dest.id_cpu})
 		(f-call 'sys_mail 'send {msg})
 		(f-call 'sys_task 'yield)
 	(loop-end)
 
 	;free vector and ID array
 	(f-call 'vector 'deref {tasks})
-	(f-call 'sys_mem 'free {ids})
+	(f-call 'array 'deref {ids})
 	(pop-scope)
 	(return)
 
@@ -76,7 +79,8 @@
 
 	(defcvar 'num_child 128)
 
-	(ptr 'name 'ids 'msg)
+	(ptr 'name 'ids 'msg 'mbox)
+	(ulong 'cpu)
 	(uint 'cnt)
 
 	(push-scope)
@@ -91,17 +95,19 @@
 	(assign {num_child} {cnt})
 	(loop-while {cnt})
 		(assign {cnt - 1} {cnt})
-		(continueifnot {ids[cnt * id_size].id_mbox})
+		(f-call 'array 'get_element {ids, cnt * 2} {_, mbox})
+		(continueifnot {mbox})
+		(f-call 'array 'get_element {ids, cnt * 2 + 1} {_, cpu})
 		(f-call 'sys_mail 'alloc {} {msg})
-		(assign {ids[cnt * id_size].id_mbox} {msg->msg_dest.id_mbox})
-		(assign {ids[cnt * id_size].id_cpu} {msg->msg_dest.id_cpu})
+		(assign {mbox} {msg->msg_dest.id_mbox})
+		(assign {cpu} {msg->msg_dest.id_cpu})
 		(f-call 'sys_mail 'send {msg})
 		(f-call 'sys_task 'yield)
 	(loop-end)
 
 	;free name and ID array
 	(f-call 'string 'deref {name})
-	(f-call 'sys_mem 'free {ids})
+	(f-call 'array 'deref {ids})
 	(pop-scope)
 	(return)
 
@@ -132,7 +138,8 @@
 
 	(defcvar 'test_size 10000)
 
-	(ptr 'name 'ids 'msg)
+	(ptr 'name 'ids 'msg 'mbox)
+	(ulong 'cpu)
 	(uint 'cnt 'total)
 
 	(push-scope)
@@ -148,17 +155,19 @@
 	(assign {total} {cnt})
 	(loop-while {cnt})
 		(assign {cnt - 1} {cnt})
-		(continueifnot {ids[cnt * id_size].id_mbox})
+		(f-call 'array 'get_element {ids, cnt * 2} {_, mbox})
+		(continueifnot {mbox})
+		(f-call 'array 'get_element {ids, cnt * 2 + 1} {_, cpu})
 		(f-call 'sys_mail 'alloc_parcel {test_size} {msg})
-		(assign {ids[cnt * id_size].id_mbox} {msg->msg_dest.id_mbox})
-		(assign {ids[cnt * id_size].id_cpu} {msg->msg_dest.id_cpu})
+		(assign {mbox} {msg->msg_dest.id_mbox})
+		(assign {cpu} {msg->msg_dest.id_cpu})
 		(f-call 'sys_mail 'send {msg})
 		(f-call 'sys_task 'yield)
 	(loop-end)
 
 	;free name and ID array
 	(f-call 'string 'deref {name})
-	(f-call 'sys_mem 'free {ids})
+	(f-call 'array 'deref {ids})
 	(pop-scope)
 	(return)
 
@@ -189,7 +198,8 @@
 
 	(defcvar 'num_child 128)
 
-	(ptr 'tasks 'ids)
+	(ptr 'tasks 'ids 'mbox)
+	(ulong 'cpu)
 	(union
 		'(ptr 'name)
 		'(ptr 'msg))
@@ -212,17 +222,19 @@
 	;send exit messages etc
 	(loop-while {cnt})
 		(assign {cnt - 1} {cnt})
-		(continueifnot {ids[cnt * id_size].id_mbox})
+		(f-call 'array 'get_element {ids, cnt * 2} {_, mbox})
+		(continueifnot {mbox})
+		(f-call 'array 'get_element {ids, cnt * 2 + 1} {_, cpu})
 		(f-call 'sys_mail 'alloc {} {msg})
-		(assign {ids[cnt * id_size].id_mbox} {msg->msg_dest.id_mbox})
-		(assign {ids[cnt * id_size].id_cpu} {msg->msg_dest.id_cpu})
+		(assign {mbox} {msg->msg_dest.id_mbox})
+		(assign {cpu} {msg->msg_dest.id_cpu})
 		(f-call 'sys_mail 'send {msg})
 		(f-call 'sys_task 'yield)
 	(loop-end)
 
 	;free vector and ID array
 	(f-call 'vector 'deref {tasks})
-	(f-call 'sys_mem 'free {ids})
+	(f-call 'array 'deref {ids})
 	(pop-scope)
 	(return)
 

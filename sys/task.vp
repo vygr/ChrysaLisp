@@ -102,348 +102,6 @@
 
 (def-func-end)
 
-(def-func 'sys/task_open)
-	;inputs
-	;r0 = name string object
-	;outputs
-	;r0, r1 = mailbox id
-	;trashes
-	;all
-
-	(f-bind 'sys_task 'statics r1)
-	(f-jmp 'sys_task 'open_device '(r0 (r1 tk_statics_cpu_id)))
-
-(def-func-end)
-
-(def-func 'sys/task_open_array)
-	;inputs
-	;r0 = vector of strings
-	;outputs
-	;r0 = array of mailbox id's
-	;trashes
-	;all
-
-	(ptr 'tasks 'ids 'msg 'name)
-	(ulong 'cpu 'index 'length)
-	(struct 'mailbox 'mailbox)
-
-	;save task info
-	(push-scope)
-	(assign '(r0) {tasks})
-
-	;create output array
-	(d-call 'vector 'get_length {tasks} {_, length})
-	(f-call 'sys_mem 'alloc {length * id_size} {ids, _})
-
-	;init temp mailbox
-	(f-call 'sys_mail 'init_mailbox {&mailbox})
-
-	;start all tasks in parallel
-	(f-call 'kernel 'id {} {cpu})
-	(assign {0} {index})
-	(loop-while {index != length})
-		(f-call 'sys_mail 'alloc {} {msg})
-		(f-call 'vector 'get_element {tasks, index} {_, name})
-		(assign {name->string_length + 1 + kn_msg_child_size} {msg->msg_length})
-		(assign {0} {msg->msg_dest.id_mbox})
-		(assign {cpu} {msg->msg_dest.id_cpu})
-		(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
-		(assign {cpu} {msg->kn_msg_reply_id.id_cpu})
-		(assign {kn_call_task_child} {msg->kn_msg_function})
-		(assign {&ids[index * id_size]} {msg->kn_msg_user})
-		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1})
-		(f-call 'sys_mail 'send {msg})
-		(assign {index + 1} {index})
-	(loop-end)
-
-	;wait for replys
-	(loop-while {index})
-		(assign {index - 1} {index})
-		(f-call 'sys_mail 'read {&mailbox} {msg})
-		(assign {msg->kn_msg_reply_id.id_mbox} {msg->kn_msg_user->id_mbox})
-		(assign {msg->kn_msg_reply_id.id_cpu} {msg->kn_msg_user->id_cpu})
-		(f-call 'sys_mem 'free {msg})
-	(loop-end)
-
-	;return ids array
-	(assign {ids} '(r0))
-	(pop-scope)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'sys/task_open_child)
-	;inputs
-	;r0 = name string object
-	;outputs
-	;r0, r1 = new task mailbox ID
-	;trashes
-	;all
-
-	(f-bind 'sys_task 'statics r1)
-	(f-jmp 'sys_task 'open_remote '(r0 (r1 tk_statics_cpu_id)))
-
-(def-func-end)
-
-(def-func 'sys/task_open_device)
-	;inputs
-	;r0 = name string object
-	;r1 = cpu target
-	;outputs
-	;r0, r1 = mailbox id
-	;trashes
-	;all
-
-	(ptr 'name 'msg)
-	(ulong 'cpu)
-	(struct 'id 'id)
-	(struct 'mailbox 'mailbox)
-
-	;save task info
-	(push-scope)
-	(assign '(r0 r1) {name, cpu})
-
-	;init temp mailbox
-	(f-call 'sys_mail 'init_mailbox {&mailbox})
-
-	;start task
-	(f-call 'sys_mail 'alloc {} {msg})
-	(assign {name->string_length + 1 + kn_msg_open_size} {msg->msg_length})
-	(assign {0} {msg->msg_dest.id_mbox})
-	(assign {cpu} {msg->msg_dest.id_cpu})
-	(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
-	(f-call 'kernel 'id {} {msg->kn_msg_reply_id.id_cpu})
-	(assign {kn_call_task_open} {msg->kn_msg_function})
-	(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_open_pathname, name->string_length + 1})
-	(f-call 'sys_mail 'send {msg})
-
-	;wait for reply
-	(f-call 'sys_mail 'read {&mailbox} {msg})
-	(assign {msg->kn_msg_reply_id.id_mbox} {id.id_mbox})
-	(assign {msg->kn_msg_reply_id.id_cpu} {id.id_cpu})
-	(f-call 'sys_mem 'free {msg})
-
-	;return ids array
-	(assign {id.id_mbox, id.id_cpu} '(r0 r1))
-	(pop-scope)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'sys/task_open_farm)
-	;inputs
-	;r0 = name string object
-	;r1 = number to spawn
-	;outputs
-	;r0 = array of mailbox id's
-	;trashes
-	;all
-
-	(ptr 'name 'ids 'msg)
-	(ulong 'length 'cpu 'index)
-	(struct 'mailbox 'mailbox)
-
-	;save task info
-	(push-scope)
-	(assign '(r0 r1) {name, length})
-
-	;create output array
-	(f-call 'sys_mem 'alloc {length * id_size} {ids, _})
-
-	;init temp mailbox
-	(f-call 'sys_mail 'init_mailbox {&mailbox})
-
-	;start all tasks in parallel
-	(f-call 'kernel 'id {} {cpu})
-	(assign {0} {index})
-	(loop-while {index != length})
-		(f-call 'sys_mail 'alloc {} {msg})
-		(assign {name->string_length + 1 + kn_msg_child_size} {msg->msg_length})
-		(assign {0} {msg->msg_dest.id_mbox})
-		(assign {cpu} {msg->msg_dest.id_cpu})
-		(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
-		(assign {cpu} {msg->kn_msg_reply_id.id_cpu})
-		(assign {kn_call_task_child} {msg->kn_msg_function})
-		(assign {&ids[index * id_size]} {msg->kn_msg_user})
-		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1})
-		(f-call 'sys_mail 'send {msg})
-		(assign {index + 1} {index})
-	(loop-end)
-
-	;wait for replys
-	(loop-while {index})
-		(assign {index - 1} {index})
-		(f-call 'sys_mail 'read {&mailbox} {msg})
-		(assign {msg->kn_msg_reply_id.id_mbox} {msg->kn_msg_user->id_mbox})
-		(assign {msg->kn_msg_reply_id.id_cpu} {msg->kn_msg_user->id_cpu})
-		(f-call 'sys_mem 'free {msg})
-	(loop-end)
-
-	;return ids array
-	(assign {ids} '(r0))
-	(pop-scope)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'sys/task_open_global)
-	;inputs
-	;r0 = name string object
-	;r1 = number to spawn
-	;outputs
-	;r0 = array of mailbox id's
-	;trashes
-	;all
-
-	(ptr 'name 'ids 'msg)
-	(ulong 'length 'index)
-	(struct 'mailbox 'mailbox)
-
-	;save task info
-	(push-scope)
-	(assign '(r0 r1) {name, length})
-
-	;create output array
-	(f-call 'sys_mem 'alloc {length * id_size} {ids, _})
-
-	;init temp mailbox
-	(f-call 'sys_mail 'init_mailbox {&mailbox})
-
-	;start all tasks in parallel
-	(assign {0} {index})
-	(loop-while {index != length})
-		(f-call 'sys_mail 'alloc {} {msg})
-		(assign {name->string_length + 1 + kn_msg_open_size} {msg->msg_length})
-		(assign {0} {msg->msg_dest.id_mbox})
-		(assign {index} {msg->msg_dest.id_cpu})
-		(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
-		(f-call 'kernel 'id {} {msg->kn_msg_reply_id.id_cpu})
-		(assign {kn_call_task_open} {msg->kn_msg_function})
-		(assign {&ids[index * id_size]} {msg->kn_msg_user})
-		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_open_pathname, name->string_length + 1})
-		(f-call 'sys_mail 'send {msg})
-		(assign {index + 1} {index})
-	(loop-end)
-
-	;wait for replys
-	(loop-while {index})
-		(assign {index - 1} {index})
-		(f-call 'sys_mail 'read {&mailbox} {msg})
-		(assign {msg->kn_msg_reply_id.id_mbox} {msg->kn_msg_user->id_mbox})
-		(assign {msg->kn_msg_reply_id.id_cpu} {msg->kn_msg_user->id_cpu})
-		(f-call 'sys_mem 'free {msg})
-	(loop-end)
-
-	;return ids array
-	(assign {ids} '(r0))
-	(pop-scope)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'sys/task_open_pipe)
-	;inputs
-	;r0 = vector of strings
-	;outputs
-	;r0 = array of mailbox id's
-	;trashes
-	;all
-
-	(ptr 'tasks 'ids 'msg 'name)
-	(ulong 'cpu 'index 'length)
-	(struct 'mailbox 'mailbox)
-
-	;save task info
-	(push-scope)
-	(assign '(r0) {tasks})
-
-	;create output array
-	(d-call 'vector 'get_length {tasks} {_, length})
-	(f-call 'sys_mem 'alloc {length * id_size} {ids, _})
-
-	;init temp mailbox
-	(f-call 'sys_mail 'init_mailbox {&mailbox})
-
-	;start all tasks, starting on kernel of this chip
-	(f-call 'kernel 'id {} {cpu})
-	(assign {0} {index})
-	(loop-while {index != length})
-		(f-call 'sys_mail 'alloc {} {msg})
-		(f-call 'vector 'get_element {tasks, index} {_, name})
-		(assign {name->string_length + 1 + kn_msg_child_size} {msg->msg_length})
-		(assign {0} {msg->msg_dest.id_mbox})
-		(assign {cpu} {msg->msg_dest.id_cpu})
-		(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
-		(f-call 'kernel 'id {} {msg->kn_msg_reply_id.id_cpu})
-		(assign {kn_call_task_child} {msg->kn_msg_function})
-		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1})
-
-		;send mail to kernel, wait for reply
-		(f-call 'sys_mail 'send {msg})
-		(f-call 'sys_mail 'read {&mailbox} {msg})
-
-		;save reply mailbox ID
-		(assign {msg->kn_msg_reply_id.id_cpu} {cpu})
-		(assign {msg->kn_msg_reply_id.id_mbox} {ids[index * id_size].id_mbox})
-		(assign {cpu} {ids[index * id_size].id_cpu})
-		(f-call 'sys_mem 'free {msg})
-
-		;next pipe worker
-		(assign {index + 1} {index})
-	(loop-end)
-
-	;return ids array
-	(assign {ids} '(r0))
-	(pop-scope)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'sys/task_open_remote)
-	;inputs
-	;r0 = name string object
-	;r1 = cpu target
-	;outputs
-	;r0, r1 = mailbox id
-	;trashes
-	;all
-
-	(ptr 'name 'msg)
-	(ulong 'cpu)
-	(struct 'id 'id)
-	(struct 'mailbox 'mailbox)
-
-	;save task info
-	(push-scope)
-	(assign '(r0 r1) {name, cpu})
-
-	;init temp mailbox
-	(f-call 'sys_mail 'init_mailbox {&mailbox})
-
-	;start task
-	(f-call 'sys_mail 'alloc {} {msg})
-	(assign {name->string_length + 1 + kn_msg_child_size} {msg->msg_length})
-	(assign {0} {msg->msg_dest.id_mbox})
-	(assign {cpu} {msg->msg_dest.id_cpu})
-	(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
-	(f-call 'kernel 'id {} {msg->kn_msg_reply_id.id_cpu})
-	(assign {kn_call_task_child} {msg->kn_msg_function})
-	(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1})
-	(f-call 'sys_mail 'send {msg})
-
-	;wait for reply
-	(f-call 'sys_mail 'read {&mailbox} {msg})
-	(assign {msg->kn_msg_reply_id.id_mbox} {id.id_mbox})
-	(assign {msg->kn_msg_reply_id.id_cpu} {id.id_cpu})
-	(f-call 'sys_mem 'free {msg})
-
-	;return ids array
-	(assign {id.id_mbox, id.id_cpu} '(r0 r1))
-	(pop-scope)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'sys/task_restore)
 	;restore next task
 	;r14 = control block to restore
@@ -641,5 +299,363 @@
 	;get next task control block
 	(ln-get-succ r14 0 r14)
 	(f-jmp 'sys_task 'restore)
+
+(def-func-end)
+
+;;;;;;;;;;;;;;;;;;;;;;
+; single child process
+;;;;;;;;;;;;;;;;;;;;;;
+
+(def-func 'sys/task_open)
+	;inputs
+	;r0 = name string object
+	;outputs
+	;r0, r1 = mailbox id
+	;trashes
+	;all
+
+	(f-bind 'sys_task 'statics r1)
+	(f-jmp 'sys_task 'open_device '(r0 (r1 tk_statics_cpu_id)))
+
+(def-func-end)
+
+(def-func 'sys/task_open_child)
+	;inputs
+	;r0 = name string object
+	;outputs
+	;r0, r1 = mailbox ID
+	;trashes
+	;all
+
+	(f-bind 'sys_task 'statics r1)
+	(f-jmp 'sys_task 'open_remote '(r0 (r1 tk_statics_cpu_id)))
+
+(def-func-end)
+
+(def-func 'sys/task_open_device)
+	;inputs
+	;r0 = name string object
+	;r1 = cpu target
+	;outputs
+	;r0, r1 = mailbox id
+	;trashes
+	;all
+
+	(ptr 'name 'msg)
+	(ulong 'cpu)
+	(struct 'id 'id)
+	(struct 'mailbox 'mailbox)
+
+	;save task info
+	(push-scope)
+	(assign '(r0 r1) {name, cpu})
+
+	;init temp mailbox
+	(f-call 'sys_mail 'init_mailbox {&mailbox})
+
+	;start task
+	(f-call 'sys_mail 'alloc {} {msg})
+	(assign {name->string_length + 1 + kn_msg_open_size} {msg->msg_length})
+	(assign {0} {msg->msg_dest.id_mbox})
+	(assign {cpu} {msg->msg_dest.id_cpu})
+	(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
+	(f-call 'kernel 'id {} {msg->kn_msg_reply_id.id_cpu})
+	(assign {kn_call_task_open} {msg->kn_msg_function})
+	(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_open_pathname, name->string_length + 1})
+	(f-call 'sys_mail 'send {msg})
+
+	;wait for reply
+	(f-call 'sys_mail 'read {&mailbox} {msg})
+	(assign {msg->kn_msg_reply_id.id_mbox} {id.id_mbox})
+	(assign {msg->kn_msg_reply_id.id_cpu} {id.id_cpu})
+	(f-call 'sys_mem 'free {msg})
+
+	;return ids array
+	(assign {id.id_mbox, id.id_cpu} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'sys/task_open_remote)
+	;inputs
+	;r0 = name string object
+	;r1 = cpu target
+	;outputs
+	;r0, r1 = mailbox id
+	;trashes
+	;all
+
+	(ptr 'name 'msg)
+	(ulong 'cpu)
+	(struct 'id 'id)
+	(struct 'mailbox 'mailbox)
+
+	;save task info
+	(push-scope)
+	(assign '(r0 r1) {name, cpu})
+
+	;init temp mailbox
+	(f-call 'sys_mail 'init_mailbox {&mailbox})
+
+	;start task
+	(f-call 'sys_mail 'alloc {} {msg})
+	(assign {name->string_length + 1 + kn_msg_child_size} {msg->msg_length})
+	(assign {0} {msg->msg_dest.id_mbox})
+	(assign {cpu} {msg->msg_dest.id_cpu})
+	(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
+	(f-call 'kernel 'id {} {msg->kn_msg_reply_id.id_cpu})
+	(assign {kn_call_task_child} {msg->kn_msg_function})
+	(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1})
+	(f-call 'sys_mail 'send {msg})
+
+	;wait for reply
+	(f-call 'sys_mail 'read {&mailbox} {msg})
+	(assign {msg->kn_msg_reply_id.id_mbox} {id.id_mbox})
+	(assign {msg->kn_msg_reply_id.id_cpu} {id.id_cpu})
+	(f-call 'sys_mem 'free {msg})
+
+	;return ids array
+	(assign {id.id_mbox, id.id_cpu} '(r0 r1))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+; multiple child process
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def-func 'sys/task_open_array)
+	;inputs
+	;r0 = vector of strings
+	;outputs
+	;r0 = array of mailbox id's
+	;trashes
+	;all
+
+	(ptr 'tasks 'ids 'msg 'name)
+	(ulong 'cpu 'index 'length)
+	(struct 'mailbox 'mailbox)
+
+	;save task info
+	(push-scope)
+	(f-entry 'sys_task 'open_array {tasks})
+
+	;create output array
+	(d-call 'vector 'get_length {tasks} {_, length})
+	(f-call 'array 'create {} {ids})
+	(f-call 'array 'set_capacity {ids, length * 2})
+	(f-call 'array 'set_length {ids, length * 2})
+
+	;init temp mailbox
+	(f-call 'sys_mail 'init_mailbox {&mailbox})
+
+	;start all tasks in parallel
+	(f-call 'kernel 'id {} {cpu})
+	(assign {0} {index})
+	(loop-while {index != length})
+		(f-call 'sys_mail 'alloc {} {msg})
+		(f-call 'vector 'get_element {tasks, index} {_, name})
+		(assign {name->string_length + 1 + kn_msg_child_size} {msg->msg_length})
+		(assign {0} {msg->msg_dest.id_mbox})
+		(assign {cpu} {msg->msg_dest.id_cpu})
+		(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
+		(assign {cpu} {msg->kn_msg_reply_id.id_cpu})
+		(assign {kn_call_task_child} {msg->kn_msg_function})
+		(assign {index * 2} {msg->kn_msg_user})
+		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1})
+		(f-call 'sys_mail 'send {msg})
+		(assign {index + 1} {index})
+	(loop-end)
+
+	;wait for reply's
+	(loop-while {index})
+		(assign {index - 1} {index})
+		(f-call 'sys_mail 'read {&mailbox} {msg})
+		(d-call 'array 'set_element {ids, msg->kn_msg_reply_id.id_mbox, msg->kn_msg_user})
+		(d-call 'array 'set_element {ids, msg->kn_msg_reply_id.id_cpu, msg->kn_msg_user + 1})
+		(f-call 'sys_mem 'free {msg})
+	(loop-end)
+
+	;return ids array
+	(f-exit 'sys_task 'open_array {ids})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'sys/task_open_farm)
+	;inputs
+	;r0 = name string object
+	;r1 = number to spawn
+	;outputs
+	;r0 = array of mailbox id's
+	;trashes
+	;all
+
+	(ptr 'name 'ids 'msg)
+	(ulong 'length 'cpu 'index)
+	(struct 'mailbox 'mailbox)
+
+	;save task info
+	(push-scope)
+	(f-entry 'sys_task 'open_farm {name, length})
+
+	;create output array
+	(f-call 'array 'create {} {ids})
+	(f-call 'array 'set_capacity {ids, length * 2})
+	(f-call 'array 'set_length {ids, length * 2})
+
+	;init temp mailbox
+	(f-call 'sys_mail 'init_mailbox {&mailbox})
+
+	;start all tasks in parallel
+	(f-call 'kernel 'id {} {cpu})
+	(assign {0} {index})
+	(loop-while {index != length})
+		(f-call 'sys_mail 'alloc {} {msg})
+		(assign {name->string_length + 1 + kn_msg_child_size} {msg->msg_length})
+		(assign {0} {msg->msg_dest.id_mbox})
+		(assign {cpu} {msg->msg_dest.id_cpu})
+		(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
+		(assign {cpu} {msg->kn_msg_reply_id.id_cpu})
+		(assign {kn_call_task_child} {msg->kn_msg_function})
+		(assign {index * 2} {msg->kn_msg_user})
+		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1})
+		(f-call 'sys_mail 'send {msg})
+		(assign {index + 1} {index})
+	(loop-end)
+
+	;wait for reply's
+	(loop-while {index})
+		(assign {index - 1} {index})
+		(f-call 'sys_mail 'read {&mailbox} {msg})
+		(d-call 'array 'set_element {ids, msg->kn_msg_reply_id.id_mbox, msg->kn_msg_user})
+		(d-call 'array 'set_element {ids, msg->kn_msg_reply_id.id_cpu, msg->kn_msg_user + 1})
+		(f-call 'sys_mem 'free {msg})
+	(loop-end)
+
+	;return ids array
+	(f-exit 'sys_task 'open_farm {ids})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'sys/task_open_global)
+	;inputs
+	;r0 = name string object
+	;r1 = number to spawn
+	;outputs
+	;r0 = array of mailbox id's
+	;trashes
+	;all
+
+	(ptr 'name 'ids 'msg)
+	(ulong 'length 'index)
+	(struct 'mailbox 'mailbox)
+
+	;save task info
+	(push-scope)
+	(f-entry 'sys_task 'open_global {name, length})
+
+	;create output array
+	(f-call 'array 'create {} {ids})
+	(f-call 'array 'set_capacity {ids, length * 2})
+	(f-call 'array 'set_length {ids, length * 2})
+
+	;init temp mailbox
+	(f-call 'sys_mail 'init_mailbox {&mailbox})
+
+	;start all tasks in parallel
+	(assign {0} {index})
+	(loop-while {index != length})
+		(f-call 'sys_mail 'alloc {} {msg})
+		(assign {name->string_length + 1 + kn_msg_open_size} {msg->msg_length})
+		(assign {0} {msg->msg_dest.id_mbox})
+		(assign {index} {msg->msg_dest.id_cpu})
+		(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
+		(f-call 'kernel 'id {} {msg->kn_msg_reply_id.id_cpu})
+		(assign {kn_call_task_open} {msg->kn_msg_function})
+		(assign {index * 2} {msg->kn_msg_user})
+		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_open_pathname, name->string_length + 1})
+		(f-call 'sys_mail 'send {msg})
+		(assign {index + 1} {index})
+	(loop-end)
+
+	;wait for reply's
+	(loop-while {index})
+		(assign {index - 1} {index})
+		(f-call 'sys_mail 'read {&mailbox} {msg})
+		(d-call 'array 'set_element {ids, msg->kn_msg_reply_id.id_mbox, msg->kn_msg_user})
+		(d-call 'array 'set_element {ids, msg->kn_msg_reply_id.id_cpu, msg->kn_msg_user + 1})
+		(f-call 'sys_mem 'free {msg})
+	(loop-end)
+
+	;return ids array
+	(f-exit 'sys_task 'open_global {ids})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'sys/task_open_pipe)
+	;inputs
+	;r0 = vector of strings
+	;outputs
+	;r0 = array of mailbox id's
+	;trashes
+	;all
+
+	(ptr 'tasks 'ids 'msg 'name)
+	(ulong 'cpu 'index 'length)
+	(struct 'mailbox 'mailbox)
+
+	;save task info
+	(push-scope)
+	(f-entry 'sys_task 'open_pipe {tasks})
+
+	;create output array
+	(d-call 'vector 'get_length {tasks} {_, length})
+	(f-call 'array 'create {} {ids})
+	(f-call 'array 'set_capacity {ids, length * 2})
+	(f-call 'array 'set_length {ids, length * 2})
+
+	;init temp mailbox
+	(f-call 'sys_mail 'init_mailbox {&mailbox})
+
+	;start all tasks, starting on kernel of this chip
+	(f-call 'kernel 'id {} {cpu})
+	(assign {0} {index})
+	(loop-while {index != length})
+		(f-call 'sys_mail 'alloc {} {msg})
+		(f-call 'vector 'get_element {tasks, index} {_, name})
+		(assign {name->string_length + 1 + kn_msg_child_size} {msg->msg_length})
+		(assign {0} {msg->msg_dest.id_mbox})
+		(assign {cpu} {msg->msg_dest.id_cpu})
+		(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
+		(f-call 'kernel 'id {} {msg->kn_msg_reply_id.id_cpu})
+		(assign {kn_call_task_child} {msg->kn_msg_function})
+		(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_child_pathname, name->string_length + 1})
+
+		;send mail to kernel, wait for reply
+		(f-call 'sys_mail 'send {msg})
+		(f-call 'sys_mail 'read {&mailbox} {msg})
+
+		;save reply mailbox ID
+		(assign {msg->kn_msg_reply_id.id_cpu} {cpu})
+		(d-call 'array 'set_element {ids, msg->kn_msg_reply_id.id_mbox, index * 2})
+		(d-call 'array 'set_element {ids, cpu, index * 2 + 1})
+		(f-call 'sys_mem 'free {msg})
+
+		;next pipe worker
+		(assign {index + 1} {index})
+	(loop-end)
+
+	;return ids array
+	(f-exit 'sys_task 'open_pipe {ids})
+	(pop-scope)
+	(return)
 
 (def-func-end)

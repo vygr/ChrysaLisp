@@ -16,6 +16,7 @@
 
 	(ptr 'this 'buffer 'msg 'string 'commands 'args 'stream 'mbox 'ids 'prefix 'cmd)
 	(pubyte 'start)
+	(ulong 'cpu)
 	(struct 'nextid 'id)
 	(struct 'mailbox 'mailbox)
 	(uint 'length 'index 'started)
@@ -58,7 +59,8 @@
 			;count how many started
 			(assign {0, 0} {started, index})
 			(loop-while {index != length})
-				(vpif {ids[index * id_size] .id_mbox})
+				(f-call 'array 'get_element {ids, index * 2} {_, mbox})
+				(vpif {mbox})
 					(assign {started + 1} {started})
 				(endif)
 				(assign {index + 1} {index})
@@ -97,8 +99,8 @@
 					(f-call 'kernel 'id {} {msg->slave_mail_init_stderr_id.id_cpu})
 					(assign {&mailbox} {msg->slave_mail_init_ack_id.id_mbox})
 					(f-call 'kernel 'id {} {msg->slave_mail_init_ack_id.id_cpu})
-					(assign {ids[index * id_size].id_mbox} {nextid.id_mbox})
-					(assign {ids[index * id_size].id_cpu} {nextid.id_cpu})
+					(f-call 'array 'get_element {ids, index * 2} {_, nextid.id_mbox})
+					(f-call 'array 'get_element {ids, index * 2 + 1} {_, nextid.id_cpu})
 					(assign {nextid.id_mbox} {msg->msg_dest.id_mbox})
 					(assign {nextid.id_cpu} {msg->msg_dest.id_cpu})
 					(f-call 'sys_mail 'send {msg})
@@ -118,16 +120,18 @@
 				;send abort to any started pipe elements
 				(loop-while {index})
 					(assign {index - 1} {index})
-					(continueifnot {ids[index * id_size].id_mbox})
+					(f-call 'array 'get_element {ids, index * 2} {_, mbox})
+					(continueifnot {mbox})
+					(f-call 'array 'get_element {ids, index * 2 + 1} {_, cpu})
 					(f-call 'sys_mail 'alloc {} {msg})
-					(assign {ids[index * id_size].id_mbox} {msg->msg_dest.id_mbox})
-					(assign {ids[index * id_size].id_cpu} {msg->msg_dest.id_cpu})
+					(assign {mbox} {msg->msg_dest.id_mbox})
+					(assign {cpu} {msg->msg_dest.id_cpu})
 					(f-call 'sys_mail 'send {msg})
 				(loop-end)
 			(endif)
 
 			;free ids
-			(f-call 'sys_mem 'free {ids})
+			(f-call 'array 'deref {ids})
 		(endif)
 
 		;free args
