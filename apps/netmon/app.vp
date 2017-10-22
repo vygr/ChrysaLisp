@@ -125,7 +125,6 @@
 
 	;add to screen and dirty
 	(f-call 'gui_gui 'add {window})
-	(f-call 'window 'dirty_all {window})
 
 	;open global farm
 	(f-call 'string 'create_from_cstr {"apps/netmon/child"} {string})

@@ -61,7 +61,6 @@
 
 	;add to screen and dirty
 	(f-call 'gui_gui 'add {myapp.local_window})
-	(f-call 'window 'dirty_all {myapp.local_window})
 
 	;set up term buffer
 	(assign {&myapp.local_buffer} {myapp.local_bufp})

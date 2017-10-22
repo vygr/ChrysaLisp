@@ -86,7 +86,6 @@
 
 	;add to screen and dirty
 	(f-call 'gui_gui 'add {window})
-	(f-call 'window 'dirty_all {window})
 
 	;app event loop
 	(loop-start)

@@ -448,6 +448,7 @@
 	(vp-push r0)
 	(f-bind 'gui_gui 'statics r2)
 	(f-call 'view 'add_front '((r2 gui_statics_screen) r0))
+	(f-call 'view 'dirty_all '((rsp 0)))
 	(vp-pop r0)
 	(vp-ret)
 
