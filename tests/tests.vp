@@ -17,28 +17,29 @@
 	(union
 		'(ptr 'name)
 		'(ptr 'msg))
-	(uint 'cnt)
+	(uint 'length)
 
 	(push-scope)
 
-	;vector of tasks
+	;open array
 	(f-call 'vector 'create {} {tasks})
-	(assign {0} {cnt})
-	(loop-while {cnt != num_child})
+	(assign {0} {length})
+	(loop-while {length != num_child})
 		(f-call 'string 'create_from_cstr {"tests/array_child"} {name})
 		(f-call 'vector 'push_back {tasks, name})
-		(assign {cnt + 1} {cnt})
+		(assign {length + 1} {length})
 	(loop-end)
-
-	;open array
 	(f-call 'sys_task 'open_array {tasks} {ids})
 
 	;send exit messages etc
-	(loop-while {cnt})
-		(assign {cnt - 1} {cnt})
-		(f-call 'array 'get_element {ids, cnt * 2} {_, mbox})
+	(loop-start)
+		(d-call 'array 'get_length {ids} {_, length})
+		(breakifnot {length})
+		(f-call 'array 'get_back {ids} {_, cpu})
+		(d-call 'array 'pop_back {ids})
+		(f-call 'array 'get_back {ids} {_, mbox})
+		(d-call 'array 'pop_back {ids})
 		(continueifnot {mbox})
-		(f-call 'array 'get_element {ids, cnt * 2 + 1} {_, cpu})
 		(f-call 'sys_mail 'alloc {} {msg})
 		(assign {mbox} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
@@ -81,23 +82,23 @@
 
 	(ptr 'name 'ids 'msg 'mbox)
 	(ulong 'cpu)
-	(uint 'cnt)
+	(uint 'length)
 
 	(push-scope)
 
-	;task
-	(f-call 'string 'create_from_cstr {"tests/farm_child"} {name})
-
 	;open farm
+	(f-call 'string 'create_from_cstr {"tests/farm_child"} {name})
 	(f-call 'sys_task 'open_farm {name, num_child} {ids})
 
 	;send exit messages etc
-	(assign {num_child} {cnt})
-	(loop-while {cnt})
-		(assign {cnt - 1} {cnt})
-		(f-call 'array 'get_element {ids, cnt * 2} {_, mbox})
+	(loop-start)
+		(d-call 'array 'get_length {ids} {_, length})
+		(breakifnot {length})
+		(f-call 'array 'get_back {ids} {_, cpu})
+		(d-call 'array 'pop_back {ids})
+		(f-call 'array 'get_back {ids} {_, mbox})
+		(d-call 'array 'pop_back {ids})
 		(continueifnot {mbox})
-		(f-call 'array 'get_element {ids, cnt * 2 + 1} {_, cpu})
 		(f-call 'sys_mail 'alloc {} {msg})
 		(assign {mbox} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
@@ -140,24 +141,24 @@
 
 	(ptr 'name 'ids 'msg 'mbox)
 	(ulong 'cpu)
-	(uint 'cnt 'total)
+	(uint 'length)
 
 	(push-scope)
 
-	;task
-	(f-call 'string 'create_from_cstr {"tests/global_child"} {name})
-
 	;open global farm
-	(f-call 'kernel 'total {} {total})
-	(f-call 'sys_task 'open_global {name, total} {ids})
+	(f-call 'string 'create_from_cstr {"tests/global_child"} {name})
+	(f-call 'kernel 'total {} {length})
+	(f-call 'sys_task 'open_global {name, length} {ids})
 
 	;send exit parcels etc
-	(assign {total} {cnt})
-	(loop-while {cnt})
-		(assign {cnt - 1} {cnt})
-		(f-call 'array 'get_element {ids, cnt * 2} {_, mbox})
+	(loop-start)
+		(d-call 'array 'get_length {ids} {_, length})
+		(breakifnot {length})
+		(f-call 'array 'get_back {ids} {_, cpu})
+		(d-call 'array 'pop_back {ids})
+		(f-call 'array 'get_back {ids} {_, mbox})
+		(d-call 'array 'pop_back {ids})
 		(continueifnot {mbox})
-		(f-call 'array 'get_element {ids, cnt * 2 + 1} {_, cpu})
 		(f-call 'sys_mail 'alloc_parcel {test_size} {msg})
 		(assign {mbox} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
@@ -203,28 +204,29 @@
 	(union
 		'(ptr 'name)
 		'(ptr 'msg))
-	(uint 'cnt)
+	(uint 'length)
 
 	(push-scope)
 
-	;vector of tasks
+	;open pipe
 	(f-call 'vector 'create {} {tasks})
-	(assign {0} {cnt})
-	(loop-while {cnt != num_child})
+	(assign {0} {length})
+	(loop-while {length != num_child})
 		(f-call 'string 'create_from_cstr {"tests/pipe_child"} {name})
 		(f-call 'vector 'push_back {tasks, name})
-		(assign {cnt + 1} {cnt})
+		(assign {length + 1} {length})
 	(loop-end)
-
-	;open pipe
 	(f-call 'sys_task 'open_pipe {tasks} {ids})
 
 	;send exit messages etc
-	(loop-while {cnt})
-		(assign {cnt - 1} {cnt})
-		(f-call 'array 'get_element {ids, cnt * 2} {_, mbox})
+	(loop-start)
+		(d-call 'array 'get_length {ids} {_, length})
+		(breakifnot {length})
+		(f-call 'array 'get_back {ids} {_, cpu})
+		(d-call 'array 'pop_back {ids})
+		(f-call 'array 'get_back {ids} {_, mbox})
+		(d-call 'array 'pop_back {ids})
 		(continueifnot {mbox})
-		(f-call 'array 'get_element {ids, cnt * 2 + 1} {_, cpu})
 		(f-call 'sys_mail 'alloc {} {msg})
 		(assign {mbox} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
