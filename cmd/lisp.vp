@@ -28,10 +28,15 @@
 		(f-call 'slave 'get_args {slave} {_, args})
 		(d-call 'vector 'get_length {args} {_, argc})
 		(vpif {argc <= 1})
-			;run any lisp.lisp
+			;run any lisp.lisp, and print sign on
 			(f-call 'string 'create_from_cstr {"cmd/lisp.lisp"} {script})
 			(l-call 'run_file {lisp, repl_args, script})
 			(f-call 'string 'deref {script})
+			(f-call 'stream 'write_cstr {lisp->lisp_stdout, "ChrysaLisp 1.2"})
+			(f-call 'stream 'write_char {lisp->lisp_stdout, char_lf})
+			(f-call 'stream 'write_cstr {lisp->lisp_stdout, "Press ESC/Enter to exit."})
+			(f-call 'stream 'write_char {lisp->lisp_stdout, char_lf})
+			(v-call 'stream 'write_flush {lisp->lisp_stdout})
 		(else)
 			;run any files given as args
 			(assign {1} {index})
