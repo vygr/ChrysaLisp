@@ -8,7 +8,6 @@
 (def-method 'start 'class/pipe/start 'static '(r0 r1 r2) '(r0))
 (def-method 'stop 'class/pipe/stop 'static '(r0) '(r0))
 (def-method 'get_state 'class/pipe/get_state 'static '(r0) '(r0 r1))
-(def-method 'get_stream 'class/pipe/get_stream 'static '(r0 r1) '(r0 r1))
 (def-method 'select 'class/pipe/select 'static '(r0 r1) '(r0 r1))
 (def-method 'get_input 'class/pipe/get_input 'static '(r0) '(r0 r1))
 
@@ -18,7 +17,6 @@
 	(local-align)
 	(offset 'start)
 	(ptr 'streams)
-	(ptr 'mailbox_array)
 	(pptr 'select_array)
 	(ulong 'state)
 (def-struct-end)

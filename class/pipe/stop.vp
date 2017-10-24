@@ -46,7 +46,6 @@
 		;free streams, select and mailbox array
 		(f-call 'vector 'deref {this->pipe_streams})
 		(f-call 'sys_mem 'free {this->pipe_select_array})
-		(f-call 'sys_mem 'free {this->pipe_mailbox_array})
 
 		;stop state
 		(assign {stream_mail_state_stopped} {this->pipe_state})

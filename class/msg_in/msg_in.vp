@@ -10,15 +10,11 @@
 	;inputs
 	;r0 = msg_in object
 	;r1 = vtable pointer
-	;r2 = target mailbox
 	;outputs
 	;r0 = msg_in object
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0
-
-	;save inputs
-	(assign '(r2) '((r0 msg_in_mailbox)))
 
 	;init parent
 	(s-call 'msg_in 'init '(r0 r1 0 0 0 0) '(r0 r1))
@@ -29,6 +25,8 @@
 		(vp-cpy-ri r1 r0 msg_in_ack_seqnum)
 		(vp-cpy-cr stream_mail_state_started r1)
 		(vp-cpy-ri r1 r0 msg_in_state)
+		(vp-lea-i r0 msg_in_mailbox r1)
+		(ml-init r1 r2 r3)
 		(vp-lea-i r0 msg_in_list r1)
 		(lh-init r1 r2)
 	(endif)
@@ -60,7 +58,7 @@
 		(loop-start)
 			(f-call 'msg_out 'next_seq {&this->msg_in_list, msg, this->msg_in_seqnum} {msg})
 			(breakif {msg})
-			(f-call 'sys_mail 'read {this->msg_in_mailbox} {msg})
+			(f-call 'sys_mail 'read {&this->msg_in_mailbox} {msg})
 		(loop-end)
 		(assign {this->msg_in_seqnum + 1} {this->msg_in_seqnum})
 

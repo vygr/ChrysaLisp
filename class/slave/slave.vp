@@ -33,7 +33,7 @@
 		(f-call 'sys_mail 'read {mymailbox} {msg})
 		(vpif {msg->msg_length != msg_header_size})
 			;create stdin, stdout, stderr
-			(f-call 'msg_in 'create {mymailbox} {this->slave_stdin})
+			(f-call 'msg_in 'create {} {this->slave_stdin})
 			(f-call 'msg_out 'create {msg->slave_mail_init_stdout_id.id_mbox, msg->slave_mail_init_stdout_id.id_cpu} {this->slave_stdout})
 			(f-call 'msg_out 'create {msg->slave_mail_init_stderr_id.id_mbox, msg->slave_mail_init_stderr_id.id_cpu} {this->slave_stderr})
 
@@ -42,10 +42,11 @@
 			(f-call 'stream 'split {stream, char_space} {_, this->slave_args})
 			(f-call 'stream 'deref {stream})
 
-			;send back ack
+			;send back ack with stdin mailbox
 			(assign {msg->slave_mail_init_ack_id.id_mbox} {msg->msg_dest.id_mbox})
 			(assign {msg->slave_mail_init_ack_id.id_cpu} {msg->msg_dest.id_cpu})
-			(assign {msg_header_size} {msg->msg_length})
+			(assign {&this->slave_stdin->msg_in_mailbox} {msg->slave_mail_init_stdin_mbox})
+			(assign {slave_mail_init_ack_size} {msg->msg_length})
 			(f-call 'sys_mail 'send {msg})
 		(else)
 			;abort

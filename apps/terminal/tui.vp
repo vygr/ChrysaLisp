@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/pipe/pipe.inc)
+(import 'class/msg_in/msg_in.inc)
 (import 'class/msg_out/msg_out.inc)
 (import 'class/string/string.inc)
 
@@ -24,7 +25,7 @@
 	(struct 'local 'local)
 	(struct 'stdin_id 'id)
 	(struct 'tui_id 'id)
-	(ptr 'msg 'mailbox 'stream)
+	(ptr 'msg 'mailbox)
 	(long 'state)
 
 	;init app vars
@@ -56,8 +57,7 @@
 			(f-call 'sys_mem 'free {msg})
 		(else)
 			;output from a pipe element
-			(f-call 'pipe 'get_stream {local.local_pipe, mailbox} {_, stream})
-			(l-call 'pipe_output {&local, stream} {state})
+			(l-call 'pipe_output {&local, mailbox - msg_in_mailbox} {state})
 			(vpif {state == -1})
 				;EOF
 				(f-call 'pipe 'stop {local.local_pipe})

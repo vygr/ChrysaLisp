@@ -6,6 +6,7 @@
 (import 'class/string/string.inc)
 (import 'class/vector/vector.inc)
 (import 'class/msg_out/msg_out.inc)
+(import 'class/msg_in/msg_in.inc)
 (import 'class/pipe/pipe.inc)
 (import 'class/vdu/vdu.inc)
 
@@ -22,7 +23,7 @@
 	(def-struct-end)
 
 	(struct 'myapp 'local)
-	(ptr 'msg 'stream 'string 'mymailbox 'mailbox)
+	(ptr 'msg 'string 'mymailbox 'mailbox)
 	(ulong 'owner)
 	(long 'state)
 	(int 'width 'height)
@@ -82,8 +83,7 @@
 			(f-call 'sys_mem 'free {msg})
 		(else)
 			;output from a pipe element
-			(f-call 'pipe 'get_stream {myapp.local_pipe, mailbox} {_, stream})
-			(l-call 'pipe_output {&myapp, stream} {state})
+			(l-call 'pipe_output {&myapp, mailbox - msg_in_mailbox} {state})
 			(vpif {state == -1})
 				;EOF
 				(f-call 'pipe 'stop {myapp.local_pipe})

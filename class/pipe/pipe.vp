@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
 (import 'class/string/string.inc)
-(import 'class/msg_out/msg_out.inc)
 (import 'class/msg_in/msg_in.inc)
+(import 'class/msg_out/msg_out.inc)
 (import 'class/slave/slave.inc)
 (import 'class/pipe/pipe.inc)
 
@@ -51,33 +51,6 @@
 
 	;deinit parent
 	(s-jmp 'pipe 'deinit '(r0))
-
-(def-func-end)
-
-(def-func 'class/pipe/get_stream)
-	;inputs
-	;r0 = pipe object
-	;r1 = mailbox
-	;outputs
-	;r0 = pipe object
-	;r1 = stream object
-	;trashes
-	;all but r0
-
-	(ptr 'this 'mailbox)
-	(ulong 'index)
-
-	(push-scope)
-	(f-entry 'pipe 'get_stream {this, mailbox})
-
-	(assign {0} {index})
-	(loop-while {mailbox != (this->pipe_select_array)[index]})
-		(assign {index + ptr_size} {index})
-	(loop-end)
-
-	(f-exit 'pipe 'get_stream {this, (this->pipe_streams->array_array)[index]})
-	(pop-scope)
-	(return)
 
 (def-func-end)
 
