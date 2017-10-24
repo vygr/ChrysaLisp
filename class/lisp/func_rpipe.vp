@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
 (import 'class/string/string.inc)
 (import 'class/pipe/pipe.inc)
-(import 'class/stream_msg_out/stream_msg_out.inc)
+(import 'class/msg_out/msg_out.inc)
 (import 'class/stream_str/stream_str.inc)
 (import 'class/lisp/lisp.inc)
 

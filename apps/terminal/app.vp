@@ -5,7 +5,7 @@
 (import 'class/button/button.inc)
 (import 'class/string/string.inc)
 (import 'class/vector/vector.inc)
-(import 'class/stream_msg_out/stream_msg_out.inc)
+(import 'class/msg_out/msg_out.inc)
 (import 'class/pipe/pipe.inc)
 (import 'class/vdu/vdu.inc)
 
@@ -243,7 +243,7 @@
 			(assign {&local->local_buffer} {local->local_bufp})
 
 			;send stopping
-			(f-call 'stream_msg_out 'set_state {stream, stream_mail_state_stopping})
+			(f-call 'msg_out 'set_state {stream, stream_mail_state_stopping})
 			(v-call 'stream 'write_next {stream})
 			(v-call 'stream 'write_flush {stream})
 		(endif)

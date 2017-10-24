@@ -1,0 +1,162 @@
+(import 'sys/func.inc)
+(import 'sys/kernel.inc)
+(import 'class/msg_out/msg_out.inc)
+
+(gen-new 'msg_out)
+(gen-create 'msg_out)
+(gen-class 'msg_out)
+
+(def-func 'class/msg_out/init)
+	;inputs
+	;r0 = msg_out object
+	;r1 = vtable pointer
+	;r2 = target mailbox id
+	;r3 = target mailbox id
+	;outputs
+	;r0 = msg_out object
+	;r1 = 0 if error, else ok
+	;trashes
+	;all but r0
+
+	;save inputs
+	(assign '(r2 r3) '((r0 (add msg_out_id id_mbox)) (r0 (add msg_out_id id_cpu))))
+
+	;init parent
+	(s-call 'msg_out 'init '(r0 r1 0 0 0 0) '(r0 r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-xor-rr r1 r1)
+		(vp-cpy-ri r1 r0 msg_out_seqnum)
+		(vp-cpy-ri r1 r0 msg_out_ack_seqnum)
+		(vp-cpy-cr stream_mail_state_started r1)
+		(vp-cpy-ri r1 r0 msg_out_state)
+		(vp-lea-i r0 msg_out_ack_mailbox r1)
+		(ml-init r1 r2 r3)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/msg_out/deinit)
+	;inputs
+	;r0 = msg_out object
+	;trashes
+	;all but r0
+
+	(ptr 'this 'msg)
+
+	(push-scope)
+	(f-entry 'msg_out 'deinit {this})
+
+	;wait for final ack
+	(f-call 'sys_mail 'read {&this->msg_out_ack_mailbox} {msg})
+	(f-call 'sys_mem 'free {msg})
+
+	;parent deinit
+	(assign {this} '(r0))
+	(pop-scope)
+	(s-jmp 'msg_out 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/msg_out/next_seq)
+	;inputs
+	;r0 = list head
+	;r1 = 0, else new stream msg
+	;r2 = -1 or seqnum
+	;outputs
+	;r0 = 0, else next stream msg
+
+	;save any new msg
+	(vpif '(r1 != 0))
+		(lh-add-at-tail r0 r1 r3)
+	(endif)
+
+	;scan for seqnum
+	(loop-list-forward r0 0 r0 r1)
+		(breakif '(r2 == -1))
+		(vp-cpy-ir r0 stream_mail_seqnum r3)
+	(loop-until '(r2 == r3))
+	(vpif '(r1 == 0))
+		;not found
+		(vp-cpy-rr r1 r0)
+		(vp-ret)
+	(endif)
+	;remove found from list
+	(vp-cpy-rr r0 r1)
+	(ln-remove-node r1 r2)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/msg_out/write_flush)
+	;inputs
+	;r0 = msg_out object
+	;outputs
+	;r0 = msg_out object
+	;trashes
+	;all but r0
+
+	(ptr 'this 'msg)
+
+	(push-scope)
+	(f-entry 'msg_out 'write_flush {this})
+
+	(assign {this->stream_buffer} {msg})
+	(vpif {msg})
+		;send current buffer
+		(assign {this->stream_bufp - msg} {msg->msg_length})
+		(assign {this->msg_out_id.id_mbox} {msg->msg_dest.id_mbox})
+		(assign {this->msg_out_id.id_cpu} {msg->msg_dest.id_cpu})
+		(assign {this->msg_out_seqnum} {msg->stream_mail_seqnum})
+		(assign {this->msg_out_state} {msg->stream_mail_state})
+		(assign {&this->msg_out_ack_mailbox} {msg->stream_mail_ack_id.id_mbox})
+		(f-call 'kernel 'id {} {msg->stream_mail_ack_id.id_cpu})
+		(f-call 'sys_mail 'send {msg})
+		(assign {0} {this->stream_buffer})
+
+		;wait for an ack ?
+		(vpif {this->msg_out_seqnum >> msg_out_ack_shift != this->msg_out_ack_seqnum})
+			(f-call 'sys_mail 'read {&this->msg_out_ack_mailbox} {msg})
+			(f-call 'sys_mem 'free {msg})
+			(assign {this->msg_out_ack_seqnum + 1} {this->msg_out_ack_seqnum})
+		(endif)
+
+		;next seq num
+		(assign {this->msg_out_seqnum + 1} {this->msg_out_seqnum})
+
+		;parent actions
+		(s-call 'msg_out 'write_flush {this})
+	(endif)
+
+	(f-exit 'msg_out 'write_flush {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/msg_out/write_next)
+	;inputs
+	;r0 = msg_out object
+	;outputs
+	;r0 = msg_out object
+	;trashes
+	;all but r0
+
+	(ptr 'this 'msg)
+
+	(push-scope)
+	(f-entry 'msg_out 'write_next {this})
+
+	(v-call 'stream 'write_flush {this})
+	(f-call 'sys_mail 'alloc {} {msg})
+	(assign {msg_size} {msg->msg_length})
+	(assign {&msg->stream_mail_data} {this->stream_bufp})
+	(assign {&msg->msg_size} {this->stream_bufe})
+	(assign {msg} {this->stream_buffer})
+
+	(f-exit 'msg_out 'write_next {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

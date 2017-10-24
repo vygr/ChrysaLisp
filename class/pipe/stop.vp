@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
 (import 'class/string/string.inc)
-(import 'class/stream_msg_out/stream_msg_out.inc)
-(import 'class/stream_msg_in/stream_msg_in.inc)
+(import 'class/msg_out/msg_out.inc)
+(import 'class/msg_in/msg_in.inc)
 (import 'class/slave/slave.inc)
 (import 'class/pipe/pipe.inc)
 
@@ -20,17 +20,17 @@
 	(vpif {this->pipe_state != stream_mail_state_stopped})
 		;flush remaining
 		(f-call 'pipe 'get_input {this} {_, stream})
-		(v-call 'stream_msg_out 'write_flush {stream})
+		(v-call 'msg_out 'write_flush {stream})
 
 		;send stopping
-		(f-call 'stream_msg_out 'set_state {stream, stream_mail_state_stopping})
-		(v-call 'stream_msg_out 'write_next {stream})
-		(v-call 'stream_msg_out 'write_flush {stream})
+		(f-call 'msg_out 'set_state {stream, stream_mail_state_stopping})
+		(v-call 'msg_out 'write_next {stream})
+		(v-call 'msg_out 'write_flush {stream})
 
 		;send stopped
-		(f-call 'stream_msg_out 'set_state {stream, stream_mail_state_stopped})
-		(v-call 'stream_msg_out 'write_next {stream})
-		(v-call 'stream_msg_out 'write_flush {stream})
+		(f-call 'msg_out 'set_state {stream, stream_mail_state_stopped})
+		(v-call 'msg_out 'write_next {stream})
+		(v-call 'msg_out 'write_flush {stream})
 
 		;wait for all stopped, starting with the pipe output, then the error streams
 		(d-call 'vector 'get_length {this->pipe_streams} {_, length})
@@ -39,8 +39,8 @@
 			(breakifnot {length})
 			(f-call 'vector 'get_element {this->pipe_streams, length} {_, stream})
 			(loop-start)
-				(v-call 'stream_msg_in 'read_next {stream})
-			(loop-until {stream->stream_msg_in_state == stream_mail_state_stopped})
+				(v-call 'msg_in 'read_next {stream})
+			(loop-until {stream->msg_in_state == stream_mail_state_stopped})
 		(loop-end)
 
 		;free streams, select and mailbox array

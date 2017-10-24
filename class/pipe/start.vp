@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
 (import 'class/string/string.inc)
-(import 'class/stream_msg_out/stream_msg_out.inc)
-(import 'class/stream_msg_in/stream_msg_in.inc)
+(import 'class/msg_out/msg_out.inc)
+(import 'class/msg_in/msg_in.inc)
 (import 'class/slave/slave.inc)
 (import 'class/pipe/pipe.inc)
 (import 'sys/kernel.inc)
@@ -78,7 +78,7 @@
 					(assign {&(this->pipe_mailbox_array)[index * mailbox_size]} {mbox})
 					(f-call 'sys_mail 'init_mailbox {mbox})
 					(assign {mbox} {(this->pipe_select_array)[index * ptr_size]})
-					(f-call 'stream_msg_in 'create {mbox} {stream})
+					(f-call 'msg_in 'create {mbox} {stream})
 					(f-call 'vector 'push_back {this->pipe_streams, stream})
 					(assign {index + 1} {index})
 				(loop-end)
@@ -111,7 +111,7 @@
 				(loop-end)
 
 				;create input stream, free the unused space keeper stream
-				(f-call 'stream_msg_out 'create {nextid.id_mbox, nextid.id_cpu} {stream})
+				(f-call 'msg_out 'create {nextid.id_mbox, nextid.id_cpu} {stream})
 				(d-call 'vector 'set_element {this->pipe_streams, stream, 0})
 
 				;no error

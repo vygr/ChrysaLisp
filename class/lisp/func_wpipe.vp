@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
 (import 'class/string/string.inc)
 (import 'class/pipe/pipe.inc)
-(import 'class/stream_msg_out/stream_msg_out.inc)
+(import 'class/msg_out/msg_out.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_wpipe)
@@ -41,7 +41,7 @@
 		(f-call 'pipe 'get_input {pipe} {_, stream})
 		(v-call 'stream 'write_flush {stream})
 		;send stopping
-		(f-call 'stream_msg_out 'set_state {stream, stream_mail_state_stopping})
+		(f-call 'msg_out 'set_state {stream, stream_mail_state_stopping})
 		(v-call 'stream 'write_next {stream})
 	(vp-label 'flush)
 		(v-call 'stream 'write_flush {stream})
