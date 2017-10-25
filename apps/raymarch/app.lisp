@@ -6,8 +6,6 @@
 		slot_fill (method-slot 'canvas 'fill)
 		slot_swap (method-slot 'canvas 'swap))))
 
-(bind '(canvas canvas_width canvas_height canvas_scale) argv)
-
 (defun read-farm (i s)
 	(while (lt (length (elem i data)) s)
 		(elem-set i data (cat (elem i data) (pipe-read (elem i farm)))))
@@ -21,7 +19,7 @@
 (defun read-int (o f)
 	(add (read-short o f) (bit-shl (read-short (add o 2) f) 16)))
 
-(defun screen (w h s)
+(defun screen ((canvas w h s))
 	(defq y 0
 		w (div (fmul w s) 1.0)
 		h (div (fmul h s) 1.0)
@@ -30,12 +28,11 @@
 	(each (lambda (_)
 		(push data "")
 		(push farm (pipe "lisp apps/raymarch/child.lisp"))
-		(pipe-write (elem -2 farm) (cat "(screen " (str w) " " (str h) ") "))) (range 0 8))
+		(pipe-write (elem -2 farm) (cat "(screen " (str w) " " (str h) ") "))
+		(read-farm _ 2)) (range 0 8))
 	(while (lt y h)
 		(pipe-write (elem (mod y (length farm)) farm) (cat "(line " (str y) ") "))
 		(setq y (inc y)))
-	(each (lambda (_)
-		(read-farm _ 2)) (range 0 8))
 	(setq y 0)
 	(while (lt y h)
 		(defq _ (read-farm (mod y (length farm)) line_length) x 0)
@@ -46,4 +43,4 @@
 		(call slot_swap canvas)
 		(setq y (inc y))))
 
-(screen canvas_width canvas_height canvas_scale)
+(screen argv)
