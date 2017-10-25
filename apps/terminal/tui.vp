@@ -30,9 +30,9 @@
 
 	;init app vars
 	(push-scope)
-	(f-call 'pipe 'create {} {local.local_pipe})
 	(assign {&local.local_buffer} {local.local_bufp})
 	(f-call 'sys_task 'mailbox {} {tui_id.id_mbox, tui_id.id_cpu})
+	(assign {0} {local.local_pipe})
 
 	;start stdin polling task and send it tui mailbox id
 	(f-call 'sys_task 'start {@apps/terminal/tui_child} {_, stdin_id.id_mbox, stdin_id.id_cpu})
@@ -46,22 +46,26 @@
 
 	;app event loop
 	(loop-start)
-		;select on multiple mailboxes
-		(f-call 'pipe 'select {local.local_pipe, tui_id.id_mbox} {_, mailbox})
+		(vpif {local.local_pipe})
+			;select on multiple mailboxes
+			(f-call 'pipe 'select {local.local_pipe, tui_id.id_mbox} {_, mailbox})
 
-		;which mailbox has mail ?
-		(vpif {mailbox == tui_id.id_mbox})
-			;dispatch event to terminal
-			(f-call 'sys_mail 'read {mailbox} {msg})
-			(l-call 'terminal_input {&local, msg->stdin_msg_char})
-			(f-call 'sys_mem 'free {msg})
-		(else)
+			;which mailbox has mail ?
+			(gotoif {mailbox == tui_id.id_mbox} 'from_mymailbox)
+
 			;output from a pipe element
 			(l-call 'pipe_output {&local, mailbox - msg_in_mailbox} {state})
 			(vpif {state == -1})
 				;EOF
-				(f-call 'pipe 'stop {local.local_pipe})
+				(f-call 'pipe 'deref {local.local_pipe})
+				(assign {0} {local.local_pipe})
 			(endif)
+		(else)
+		(vp-label 'from_mymailbox)
+			;dispatch event to terminal
+			(f-call 'sys_mail 'read {tui_id.id_mbox} {msg})
+			(l-call 'terminal_input {&local, msg->stdin_msg_char})
+			(f-call 'sys_mem 'free {msg})
 		(endif)
 		(f-call 'sys_task 'yield)
 	(loop-end)
@@ -102,7 +106,7 @@
 
 	(ptr 'local 'stream)
 	(ulong 'length)
-	(int 'char 'state)
+	(int 'char)
 
 	(push-scope)
 	(l-entry {local, char})
@@ -117,11 +121,10 @@
 	;send line ?
 	(vpif {char == char_lf || char == char_cr})
 		;what state ?
-		(f-call 'pipe 'get_state {local->local_pipe} {_, state})
-		(vpif {state == stream_mail_state_stopped})
+		(vpifnot {local->local_pipe})
 			;start new pipe
 			(breakifnot {length})
-			(f-call 'pipe 'start {local->local_pipe, &local->local_buffer, length})
+			(f-call 'pipe 'create {&local->local_buffer, length} {local->local_pipe})
 		(else)
 			;feed active pipe
 			(f-call 'pipe 'get_input {local->local_pipe} {_, stream})
@@ -132,8 +135,7 @@
 		(assign {&local->local_buffer} {local->local_bufp})
 	(elseif {char == char_esc})
 		;esc
-		(f-call 'pipe 'get_state {local->local_pipe} {_, state})
-		(vpif {state == stream_mail_state_started})
+		(vpif {local->local_pipe})
 			;feed active pipe, then EOF
 			(f-call 'pipe 'get_input {local->local_pipe} {_, stream})
 			(f-call 'stream 'write {stream, &local->local_buffer, length})
@@ -141,7 +143,8 @@
 			(assign {&local->local_buffer} {local->local_bufp})
 
 			;stop pipe
-			(f-call 'pipe 'stop {local->local_pipe})
+			(f-call 'pipe 'deref {local->local_pipe})
+			(assign {0} {local->local_pipe})
 		(endif)
 	(elseifnot {char < char_space || char >= 127 || length == buf_size})
 		;next char

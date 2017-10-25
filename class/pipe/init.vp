@@ -6,25 +6,40 @@
 (import 'class/pipe/pipe.inc)
 (import 'sys/kernel.inc)
 
-(def-func 'class/pipe/start)
+(def-func 'class/pipe/init)
 	;inputs
 	;r0 = pipe object
-	;r1 = buffer
-	;r2 = length
+	;r1 = vtable pointer
+	;r2 = buffer
+	;r3 = length
+	;outputs
+	;r0 = pipe object
+	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0
 
-	(ptr 'this 'buffer 'msg 'string 'commands 'args 'stream 'mbox 'ids 'prefix 'cmd)
-	(pubyte 'start)
-	(ulong 'cpu)
-	(struct 'mailbox 'mailbox)
-	(uint 'length 'index 'started)
+	(ptr 'this 'vtable 'buffer)
+	(uint 'error 'length)
 
-	;init vars
+	;read init args
 	(push-scope)
-	(f-entry 'pipe 'start {this, buffer, length})
+	(f-entry 'pipe 'init {this, vtable, buffer, length})
 
-	(vpif {this->pipe_state != stream_mail_state_started})
+	;init parent
+	(s-call 'pipe 'init {this, vtable} {_, error})
+	(vpif {error})
+		;init state
+		(f-call 'sys_mem 'clear {&this->pipe_start, pipe_size - pipe_start})
+		(assign {stream_mail_state_started} {this->pipe_state})
+
+		;init pipeline
+		(ptr 'msg 'string 'commands 'args 'stream 'mbox 'ids 'prefix 'cmd)
+		(pubyte 'start)
+		(ulong 'cpu)
+		(struct 'mailbox 'mailbox)
+		(uint 'index 'started)
+
+		(push-scope)
 		;split pipe into separate commands and args
 		(f-call 'stream 'create {0, 0, buffer, length} {stream})
 		(f-call 'stream 'split {stream, char_pipe} {_, args})
@@ -110,10 +125,8 @@
 				;create input stream, free the unused space keeper stream
 				(f-call 'msg_out 'create {mbox, cpu} {stream})
 				(d-call 'vector 'set_element {this->pipe_streams, stream, 0})
-
-				;no error
-				(assign {stream_mail_state_started} {this->pipe_state})
 			(else)
+				(assign {0} {error})
 				;send abort to any started pipe elements
 				(loop-start)
 					(d-call 'array 'get_length {ids} {_, length})
@@ -136,9 +149,10 @@
 
 		;free args
 		(f-call 'vector 'deref {args})
+		(pop-scope)
 	(endif)
 
-	(f-exit 'pipe 'start {this})
+	(f-exit 'pipe 'init {this, error})
 	(pop-scope)
 	(return)
 

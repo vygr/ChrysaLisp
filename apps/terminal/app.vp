@@ -32,8 +32,8 @@
 	(push-scope)
 	(f-call 'sys_mem 'clear {&myapp, local_size})
 	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)))
-	(f-call 'pipe 'create {} {myapp.local_pipe})
 	(f-call 'vector 'create {} {myapp.local_history})
+	(assign {0} {myapp.local_pipe})
 
 	;create my window
 	(f-call 'window 'create {window_flag_status | window_flag_close} {myapp.local_window})
@@ -69,34 +69,39 @@
 	;app event loop
 	(f-call 'sys_task 'mailbox {} {mymailbox, _})
 	(loop-start)
-		;select on multiple mailboxes
-		(f-call 'pipe 'select {myapp.local_pipe, mymailbox} {_, mailbox})
+		(vpif {myapp.local_pipe})
+			;select on multiple mailboxes
+			(f-call 'pipe 'select {myapp.local_pipe, mymailbox} {_, mailbox})
 
-		;which mailbox has mail ?
-		(vpif {mailbox == mymailbox})
-			;dispatch event to view and terminal
-			(f-call 'sys_mail 'read {mailbox} {msg})
+			;which mailbox has mail ?
+			(gotoif {mailbox == mymailbox} 'from_mymailbox)
+
+			;output from a pipe element
+			(l-call 'pipe_output {&myapp, mailbox - msg_in_mailbox} {state})
+			(vpif {state == -1})
+				;EOF
+				(f-call 'pipe 'deref {myapp.local_pipe})
+				(assign {0} {myapp.local_pipe})
+
+				;update status
+				(f-call 'string 'create_from_cstr {"Ready"} {string})
+				(f-call 'window 'set_status {myapp.local_window, string})
+			(endif)
+		(else)
+		(vp-label 'from_mymailbox)
+			(f-call 'sys_mail 'read {mymailbox} {msg})
 			(v-call 'view 'event {msg->ev_msg_view, msg})
 			(vpif {msg->ev_msg_type == ev_type_key && msg->ev_msg_keycode > 0})
 				(l-call 'terminal_input {&myapp, msg->ev_msg_key})
 			(endif)
 			(f-call 'sys_mem 'free {msg})
-		(else)
-			;output from a pipe element
-			(l-call 'pipe_output {&myapp, mailbox - msg_in_mailbox} {state})
-			(vpif {state == -1})
-				;EOF
-				(f-call 'pipe 'stop {myapp.local_pipe})
-				(f-call 'string 'create_from_cstr {"Ready"} {string})
-				(f-call 'window 'set_status {myapp.local_window, string})
-			(endif)
 		(endif)
 		(f-call 'sys_task 'yield)
 	(loop-until {myapp.local_closed})
 
 	;clean up
+	(f-call 'pipe 'deref_if {myapp.local_pipe})
 	(f-call 'vector 'deref {myapp.local_history})
-	(f-call 'pipe 'deref {myapp.local_pipe})
 	(f-call 'window 'deref {myapp.local_window})
 	(v-call 'obj 'deinit {&myapp})
 	(pop-scope)
@@ -146,7 +151,7 @@
 
 	(ptr 'local 'string 'last 'stream)
 	(ulong 'length 'notsame)
-	(int 'char 'state)
+	(int 'char)
 
 	(push-scope)
 	(l-entry {local, char})
@@ -161,8 +166,7 @@
 	;send line ?
 	(vpif {char == char_lf || char == char_cr})
 		;what state ?
-		(f-call 'pipe 'get_state {local->local_pipe} {_, state})
-		(vpif {state == stream_mail_state_stopped})
+		(vpifnot {local->local_pipe})
 			;push new history entry if not same as last entry
 			(breakifnot {length})
 			(f-call 'string 'create_from_buffer {&local->local_buffer, length} {string})
@@ -180,9 +184,8 @@
 			(endif)
 
 			;start new pipe
-			(f-call 'pipe 'start {local->local_pipe, &local->local_buffer, length})
-			(f-call 'pipe 'get_state {local->local_pipe} {_, state})
-			(breakif {state != stream_mail_state_started})
+			(f-call 'pipe 'create {&local->local_buffer, length} {local->local_pipe})
+			(breakifnot {local->local_pipe})
 			(f-call 'string 'create_from_cstr {"Busy"} {string})
 			(f-call 'window 'set_status {local->local_window, string})
 		(else)
@@ -200,8 +203,7 @@
 		(endif)
 	(elseif {char == 129})
 		;cursor up
-		(f-call 'pipe 'get_state {local->local_pipe} {_, state})
-		(vpif {state == stream_mail_state_stopped})
+		(vpifnot {local->local_pipe})
 			(d-call 'vector 'get_length {local->local_history} {_, length})
 			(breakifnot {length})
 			(vpif {local->local_history_index})
@@ -215,8 +217,7 @@
 		(endif)
 	(elseif {char == 130})
 		;cursor down
-		(f-call 'pipe 'get_state {local->local_pipe} {_, state})
-		(vpif {state == stream_mail_state_stopped})
+		(vpifnot {local->local_pipe})
 			(d-call 'vector 'get_length {local->local_history} {_, length})
 			(assign {local->local_history_index + 1} {local->local_history_index})
 			(vpif {local->local_history_index > length})
@@ -234,8 +235,7 @@
 		(endif)
 	(elseif {char == char_esc})
 		;esc
-		(f-call 'pipe 'get_state {local->local_pipe} {_, state})
-		(vpif {state == stream_mail_state_started})
+		(vpif {local->local_pipe})
 			;feed active pipe, then EOF
 			(f-call 'pipe 'get_input {local->local_pipe} {_, stream})
 			(f-call 'stream 'write {stream, &local->local_buffer, length})
@@ -243,7 +243,12 @@
 			(assign {&local->local_buffer} {local->local_bufp})
 
 			;stop pipe
-			(f-call 'pipe 'stop {local->local_pipe})
+			(f-call 'pipe 'deref {local->local_pipe})
+			(assign {0} {local->local_pipe})
+
+			;update status
+			(f-call 'string 'create_from_cstr {"Ready"} {string})
+			(f-call 'window 'set_status {local->local_window, string})
 		(endif)
 	(elseifnot {char < char_space || char >= 127 || length == buf_size})
 		;next char

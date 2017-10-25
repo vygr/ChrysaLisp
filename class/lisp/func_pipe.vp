@@ -13,9 +13,6 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value)
-	(union
-		'(ptr 'pipe)
-		'(uint 'state))
 
 	(push-scope)
 	(f-entry 'lisp 'func_pipe {this, args})
@@ -24,11 +21,9 @@
 	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_first {args} {_, pipe})
-	(f-call 'pipe 'create {} {value})
-	(f-call 'pipe 'start {value, &pipe->string_data, pipe->string_length})
-	(f-call 'pipe 'get_state {value} {_, state})
-	(errorif {state != stream_mail_state_started} 'error2)
+	(f-call 'vector 'get_first {args} {_, value})
+	(f-call 'pipe 'create {&value->string_data, value->string_length} {value})
+	(errorifnot {value} 'error2)
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_pipe {this, value})

@@ -28,23 +28,10 @@
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {pipe, value})
 	(f-call 'pipe 'get_state {pipe} {_, state})
-	(errorifnot {state != stream_mail_state_stopped} 'error2)
-	(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'string)) {_, stream})
-	(switch)
-	(case {stream})
-		(f-call 'pipe 'get_input {pipe} {_, stream})
-		(f-call 'stream 'write {stream, &value->string_data, value->string_length})
-		(goto 'flush)
-	(default)
-		(errorif {value != this->lisp_sym_nil} 'error1)
-		;flush input
-		(f-call 'pipe 'get_input {pipe} {_, stream})
-		(v-call 'stream 'write_flush {stream})
-		;stop pipe
-		(f-call 'pipe 'stop {pipe})
-	(vp-label 'flush)
-		(v-call 'stream 'write_flush {stream})
-	(endif)
+	(errorif {state != stream_mail_state_started} 'error2)
+	(f-call 'pipe 'get_input {pipe} {_, stream})
+	(f-call 'stream 'write {stream, &value->string_data, value->string_length})
+	(v-call 'stream 'write_flush {stream})
 	(f-call 'ref 'ref {value})
 
 (vp-label 'exit)
@@ -58,7 +45,7 @@
 (vp-label 'error2)
 	(f-call 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_open_error, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'pipe 'obj))
+	(signature 'sig 'pipe 'string))
 
 	(pop-scope-syms)
 

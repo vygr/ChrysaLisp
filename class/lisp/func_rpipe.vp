@@ -40,7 +40,7 @@
 		(loop-untilnot {ready})
 		(vpif {char == -1})
 			;EOF
-			(f-call 'pipe 'stop {pipe})
+			(f-call 'pipe 'set_state {pipe, stream_mail_state_stopping})
 		(endif)
 		(f-call 'stream_str 'ref_string {str_stream} {_, value})
 		(f-call 'ref 'deref {str_stream})
