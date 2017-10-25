@@ -40,9 +40,8 @@
 		;flush input
 		(f-call 'pipe 'get_input {pipe} {_, stream})
 		(v-call 'stream 'write_flush {stream})
-		;send stopping
-		(f-call 'msg_out 'set_state {stream, stream_mail_state_stopping})
-		(v-call 'stream 'write_next {stream})
+		;stop pipe
+		(f-call 'pipe 'stop {pipe})
 	(vp-label 'flush)
 		(v-call 'stream 'write_flush {stream})
 	(endif)

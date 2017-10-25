@@ -82,9 +82,9 @@
 	(v-call 'msg_out 'write_flush {this->slave_stdout})
 
 	;wait for stopped
-	(loop-start)
+	(loop-while {this->slave_stdin->msg_in_state != stream_mail_state_stopped})
 		(v-call 'msg_in 'read_next {this->slave_stdin})
-	(loop-until {this->slave_stdin->msg_in_state == stream_mail_state_stopped})
+	(loop-end)
 
 	;send stopped on stdout and stderr
 	(f-call 'msg_out 'set_state {this->slave_stdout, stream_mail_state_stopped})
@@ -103,7 +103,7 @@
 	(f-call 'vector 'deref {this->slave_args})
 
 	;deinit parent
-	(assign {this} '(r0))
+	(f-exit 'slave 'deinit {this})
 	(pop-scope)
 	(s-jmp 'slave 'deinit '(r0))
 

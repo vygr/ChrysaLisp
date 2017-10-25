@@ -65,7 +65,7 @@
 				(assign {index + 1} {index})
 			(loop-end)
 
-			;error if some didn't start
+			;all started ?
 			(vpif {started == length})
 				;create streams, mailboxes and select array
 				(f-call 'vector 'create {} {this->pipe_streams})

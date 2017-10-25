@@ -54,7 +54,7 @@
 	;outputs
 	;r0 = heap
 	;trashes
-	;r0-r3
+	;r1-r3
 
 	(f-entry 'sys_heap 'deinit '(r0))
 	(vp-cpy-ir-ui r0 hp_heap_blocksize r3)

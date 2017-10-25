@@ -242,10 +242,8 @@
 			(v-call 'stream 'write_flush {stream})
 			(assign {&local->local_buffer} {local->local_bufp})
 
-			;send stopping
-			(f-call 'msg_out 'set_state {stream, stream_mail_state_stopping})
-			(v-call 'stream 'write_next {stream})
-			(v-call 'stream 'write_flush {stream})
+			;stop pipe
+			(f-call 'pipe 'stop {local->local_pipe})
 		(endif)
 	(elseifnot {char < char_space || char >= 127 || length == buf_size})
 		;next char

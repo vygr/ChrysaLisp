@@ -38,9 +38,9 @@
 			(assign {length - 1} {length})
 			(breakifnot {length})
 			(f-call 'vector 'get_element {this->pipe_streams, length} {_, stream})
-			(loop-start)
+			(loop-while {stream->msg_in_state != stream_mail_state_stopped})
 				(v-call 'msg_in 'read_next {stream})
-			(loop-until {stream->msg_in_state == stream_mail_state_stopped})
+			(loop-end)
 		(loop-end)
 
 		;free streams, select and mailbox array

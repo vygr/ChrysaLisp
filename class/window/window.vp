@@ -116,7 +116,7 @@
 	(f-call 'view 'dirty_all {screen})
 
 	;deinit parent
-	(assign {this} '(r0))
+	(f-exit 'window 'deinit {this})
 	(pop-scope)
 	(s-jmp 'window 'deinit '(r0))
 
