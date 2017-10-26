@@ -20,11 +20,8 @@
 	(add (read-short o f) (bit-shl (read-short (add o 2) f) 16)))
 
 (defun screen ((canvas w h s))
-	(defq y 0
-		w (div (fmul w s) 1.0)
-		h (div (fmul h s) 1.0)
-		data (list) farm (list) com (list)
-		line_length (mul w 4))
+	(defq y 0 w (div (fmul w s) 1.0) h (div (fmul h s) 1.0)
+		data (list) farm (list) com (list) line_length (mul w 4))
 	(each (lambda (_)
 		(push farm (pipe "lisp apps/raymarch/child.lisp"))
 		(push data "")
