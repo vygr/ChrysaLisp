@@ -33,10 +33,9 @@
 		(pipe-write e (char 10))) farm com)
 	(setq y -1)
 	(while (lt (setq y (inc y)) h)
-		(defq _ (read-farm (mod y (length farm)) line_length) x 0)
-		(while (lt x w)
-			(call slot_set_fbox canvas (read-int (mul x 4) _) x y 1 1)
-			(setq x (inc x)))
+		(defq _ (read-farm (mod y (length farm)) line_length) x -1)
+		(while (lt (setq x (inc x)) w)
+			(call slot_set_fbox canvas (read-int (mul x 4) _) x y 1 1))
 		(call slot_swap canvas)))
 
 (screen argv)
