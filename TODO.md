@@ -111,3 +111,9 @@ and other Aarch64 development board support along with GPIO/SPI/I2C and so
 forth for the maker community. SDL over frame buffer version for PI3, maybe
 just needs testing, but needs doing. L4 micro kernel hosted version could prove
 interesting.
+
+* Switch to using the event methods on SDL for the Keyboard and Mouse.
+Currently using the key and mouse status calls it's easy to miss up/down if
+there is a lot of compositing activity ! This really should go along with a
+re-write of the gui/gui.vp process into C-Script to make it clearer and easier
+to expand later.
