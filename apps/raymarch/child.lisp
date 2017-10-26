@@ -61,8 +61,8 @@
 (defun line (w h &rest y)
 	(defq w2 (div w 2) h2 (div h 2))
 	(each (lambda (y)
-		(defq x 0)
-		(while (lt x w)
+		(defq x -1)
+		(while (lt (setq x (inc x)) w)
 			(defq
 				ray_origin (list 0 0 -3.0)
 				ray_dir (vec-norm-3d (vec-sub-3d
@@ -72,5 +72,5 @@
 						0.0) ray_origin)))
 			(bind '(r g b) (scene-ray ray_origin ray_dir))
 			(prin (char (add (bit-shr r 8) (bit-and g 0xff00) (bit-shl (bit-and b 0xff00) 8) 0xff000000) 4))
-			(while nil) ;while does a yield call !
-			(setq x (inc x)))) y))
+			;while does a yield call !
+			(while nil))) y))
