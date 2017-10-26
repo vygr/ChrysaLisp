@@ -74,7 +74,6 @@
 					(div (mul (sub y h2) 1.0) h2)
 					0.0) ray_origin)))
 		(bind '(r g b) (scene-ray ray_origin ray_dir))
-		(setq d (cat d (char (add (bit-shr r 8) (bit-and g 0xff00) (bit-shl (bit-and b 0xff00) 8) 0xff000000) 4)))
+		(prin (char (add (bit-shr r 8) (bit-and g 0xff00) (bit-shl (bit-and b 0xff00) 8) 0xff000000) 4))
 		(while nil) ;while does a yield call !
-		(setq x (inc x)))
-	(print d) t)
+		(setq x (inc x))) t)
