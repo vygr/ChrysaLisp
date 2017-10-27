@@ -277,7 +277,8 @@
 (vp-label 'title)
 	(vp-string "ChrysaLisp GUI Window") (vp-byte 0)
 (vp-label 'shifted)
-	(vp-string "1!2@3#4$5%6^7&8*9(0)qQwWeErRtTyYuUiIoOpPaAsSdDfFgGhHjJkKlLzZxXcCvVbBnNmM§±-_=+[{]};:\|,<.>/?'")
+	(vp-string "qQwWeErRtTyYuUiIoOpPaAsSdDfFgGhHjJkKlLzZxXcCvVbBnNmM")
+	(vp-string "1!2@3#4$5%6^7&8*9(0)§±-_=+[{]};:\|,<.>/?`~'")
 	(vp-byte char_double_quote 0)
 
 (def-func-end)
