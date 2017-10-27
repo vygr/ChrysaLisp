@@ -120,8 +120,9 @@
 	(endif)
 
 	;any sdl events ?
-	(sdl-call 'sdl 'sdl_poll_event {0} {flag})
-	(vpif {flag})
+	(loop-start)
+		(sdl-call 'sdl 'sdl_poll_event {0} {flag})
+		(breakifnot {flag})
 		(sdl-call 'sdl 'sdl_poll_event {&event})
 		(switch)
 		(case {event.sdl_common_event_type == SDL_MOUSEMOTION})
@@ -206,7 +207,7 @@
 			(assign {key)} {msg->ev_msg_key})
 			(f-call 'sys_mail 'send {msg})
 		(endswitch)
-	(endif)
+	(loop-end)
 
 	(assign {old_stack} '(rsp))
 	(pop-scope-syms)
