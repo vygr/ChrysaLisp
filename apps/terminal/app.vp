@@ -201,7 +201,7 @@
 		(vpif {length})
 			(assign {local->local_bufp - 1} {local->local_bufp})
 		(endif)
-	(elseif {char == 129})
+	(elseif {char == 0x40000052})
 		;cursor up
 		(vpifnot {local->local_pipe})
 			(d-call 'vector 'get_length {local->local_history} {_, length})
@@ -215,7 +215,7 @@
 			(l-call 'pipe_output {local, stream})
 			(f-call 'stream 'deref {stream})
 		(endif)
-	(elseif {char == 130})
+	(elseif {char == 0x40000051})
 		;cursor down
 		(vpifnot {local->local_pipe})
 			(d-call 'vector 'get_length {local->local_history} {_, length})
@@ -271,7 +271,7 @@
 	(vpif {char == char_cr})
 		(assign {char_lf} {char})
 	(endif)
-	(vpif {char == 129 || char == 130})
+	(vpif {char == 0x40000052 || char == 0x40000051})
 		;cursor up/down
 		(f-call 'vdu 'print_char {local->local_vdu, 129})
 	(else)

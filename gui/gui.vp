@@ -19,423 +19,265 @@
 	(f-bind 'gui_gui 'statics r4)
 	(vp-cpy-ri r0 r4 gui_statics_sdl_funcs)
 
-	;init old region
-	(vp-xor-rr r0 r0)
-	(vp-cpy-ri r0 r4 gui_statics_old_region)
-
 	;init region heap
 	(f-jmp 'sys_heap 'init '((& r4 gui_statics_rect_heap) gui_rect_size (mul gui_rect_size 32)))
 
 (def-func-end)
 
-(def-func 'gui/gui)
+(def-func 'gui/gui 8192)
+	;gui process
+
 	(def-struct 'local)
-		(int 'x_pos)
-		(int 'y_pos)
-		(long 'buttons)
-		(int 'last_x_pos)
-		(int 'last_y_pos)
-		(long 'last_buttons)
-		(ptr 'last_view)
+		(ptr 'statics)
 		(ptr 'key_view)
-		(ptr 'keymap)
-		(uint 'keymap_size)
-		(ptr 'old_keymap)
+		(ptr 'mouse_view)
+		(struct 'mouse_owner 'id)
+		(struct 'key_owner 'id)
+		(int 'mouse_x)
+		(int 'mouse_y)
+		(uint 'buttons)
 	(def-struct-end)
 
+	(struct 'locals 'local)
+
 	;init vars
-	(vp-alloc local_size)
-	(vp-xor-rr r0 r0)
-	(vp-cpy-ri-i r0 rsp local_last_x_pos)
-	(vp-cpy-ri-i r0 rsp local_last_y_pos)
-	(vp-cpy-ri r0 rsp local_last_buttons)
-	(vp-cpy-ri r0 rsp local_last_view)
-	(vp-cpy-ri r0 rsp local_key_view)
-	(vp-cpy-ri r0 rsp local_old_keymap)
-	(f-bind 'gui_gui 'statics r1)
-	(vp-cpy-ri r0 r1 gui_statics_screen)
+	(push-scope)
+	(assign (cat {@} (f-path 'gui_gui 'statics)) {locals.local_statics})
+	(assign {0, 0, 0, 0, 0} {locals.local_key_view, locals.local_mouse_view,
+		locals.local_buttons, locals.local_mouse_x, locals.local_mouse_y})
 
 	;kernel callback for first update
 	;this will init SDL etc
-	(f-call 'sys_task 'callback '(($ update_callback) rsp))
+	(f-call 'sys_task 'callback {$update_callback, &locals})
 
 	;allocate background view for screen
-	(f-call 'label 'create '() '(r0))
-	(f-bind 'gui_gui 'statics r1)
-	(vp-cpy-ri r0 r1 gui_statics_screen)
+	(f-call 'label 'create {} {locals.local_statics->gui_statics_screen})
 
-	;size and color and opaque
-	(f-call 'label 'change '(r0 0 0 SCREEN_WIDTH SCREEN_HEIGHT))
-	(f-call 'label 'set_color '(r0 0xff000000))
-	(f-call 'label 'opaque '(r0))
-	(f-call 'label 'dirty_all '(r0))
-
-	;sleep just a moment to let all routeing finish
-	;(f-call 'sys_task 'sleep '(1000000))
+	;size, color and opaque
+	(f-call 'label 'change {locals.local_statics->gui_statics_screen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT})
+	(f-call 'label 'set_color {locals.local_statics->gui_statics_screen, 0xff000000})
+	(f-call 'label 'opaque {locals.local_statics->gui_statics_screen})
+	(f-call 'label 'dirty_all {locals.local_statics->gui_statics_screen})
 
 	;for now fire up the test apps
 	;this might be an gui auto run list eventually
-	(f-call 'sys_task 'start '((@ apps/launcher/app)))
+	(f-call 'sys_task 'start {@apps/launcher/app})
 
 	;gui event loop
 	(loop-start)
-	(vp-label 'next_frame)
 		;kernel callback for update
-		(f-call 'sys_task 'callback '(($ update_callback) rsp))
+		(f-call 'sys_task 'callback {$update_callback, &locals})
 
 		;frame rate of gui updates
-		(f-call 'sys_task 'sleep '((div 1000000 30)))
-
-		;get keyboard info, see if any changes
-		(vp-cpy-ir rsp local_old_keymap r1)
-		(vpif '(r1 == 0))
-			;create old keymap
-			(f-call 'sys_mem 'alloc '((rsp local_keymap_size)) '(r0 _))
-			(vp-cpy-ri r0 rsp local_old_keymap)
-			(f-call 'sys_mem 'clear '(r0 (rsp local_keymap_size)))
-			(vp-cpy-ir rsp local_old_keymap r1)
-		(endif)
-		(vp-cpy-ir rsp local_keymap r0)
-		(vp-cpy-ir-ui rsp local_keymap_size r2)
-
-		;dispatch any key events
-		(vp-cpy-ir-ub r0 0xe1 r7)
-		(vp-cpy-ir-ub r0 0xe5 r9)
-		(vp-or-rr r7 r9)
-		(loop-while '(r2 != 0))
-			(vp-sub-cr 1 r2)
-			(vp-cpy-dr-ub r0 r2 r7)
-			(vp-cpy-dr-ub r1 r2 r8)
-			(vpif '(r7 != r8))
-				;set scan code, - for up
-				(vp-cpy-rd-b r7 r1 r2)
-				(vp-cpy-rr r2 r10)
-				(vpif '(r7 == 0))
-					(vp-mul-cr -1 r10)
-				(endif)
-
-				;cook keycode
-				(vp-lea-p 'scan_codes r4)
-				(vp-lea-p 'scan_codes_end r5)
-				(vp-xor-rr r11 r11)
-				(loop-start)
-					(vp-cpy-ir-ub r4 0 r7)
-					(vpif '(r7 == r2))
-						(vp-lea-i r9 1 r11)
-						(vp-cpy-dr-ub r4 r11 r11)
-					(endif)
-					(vp-add-cr 3 r4)
-				(loop-until '(r4 >= r5))
-
-				;dispatch to task and target view
-				(vp-cpy-ir rsp local_key_view r5)
-				(vpif '(r5 != 0))
-					(vp-push r0 r1 r2)
-					;lookup view owner
-					(f-call 'view 'find_owner '(r5) '(_ r1))
-					(vpif '(r1 != 0))
-						;save owner mailbox
-						(f-call 'kernel 'id '() '(r14))
-						(vp-lea-i r1 tk_node_mailbox r13)
-
-						;allocate mail message
-						(f-call 'sys_mail 'alloc '() '(r0))
-
-						;fill in data
-						(vp-cpy-cr ev_msg_size r1)
-						(vp-cpy-ri r1 r0 msg_length)
-						(vp-cpy-ri r13 r0 (add msg_dest id_mbox))
-						(vp-cpy-ri r14 r0 (add msg_dest id_cpu))
-						(vp-cpy-cr ev_type_key r1)
-						(vp-cpy-ri r1 r0 ev_msg_type)
-						(vp-cpy-ri r5 r0 ev_msg_view)
-						(vp-cpy-ri r10 r0 ev_msg_keycode)
-						(vp-cpy-ri r11 r0 ev_msg_key)
-
-						;send mail to owner
-						(f-call 'sys_mail 'send '(r0))
-					(endif)
-					(vp-pop r0 r1 r2)
-				(endif)
-			(endif)
-		(loop-end)
-
-		;get mouse info, see if any changes
-		(vp-cpy-ir-i rsp local_x_pos r7)
-		(vp-cpy-ir-i rsp local_y_pos r8)
-		(vp-cpy-ir rsp local_buttons r9)
-		(vp-cpy-ir-i rsp local_last_x_pos r10)
-		(vpif '(r7 == r10))
-			(vp-cpy-ir-i rsp local_last_y_pos r10)
-			(vpif '(r8 == r10))
-				(vp-cpy-ir-i rsp local_last_buttons r10)
-				(vpif '(r9 == r10))
-					;same as last time
-					(vp-jmp 'next_frame)
-				(endif)
-			(endif)
-		(endif)
-		(vp-cpy-ri-i r7 rsp local_last_x_pos)
-		(vp-cpy-ri-i r8 rsp local_last_y_pos)
-		(vp-cpy-ri r9 rsp local_last_buttons)
-
-		;dispatch to task and target view
-		(vp-cpy-ir rsp local_last_view r5)
-		(vpif '(r5 != 0))
-		(vp-label 'send_mouse)
-			;do we need to wait till button goes up ?
-			(vpif '(r5 != -1))
-				;lookup view owner
-				(f-call 'view 'find_owner '(r5) '(_ r1))
-				(vpif '(r1 != 0))
-					;save owner mailbox
-					(f-call 'kernel 'id '() '(r14))
-					(vp-lea-i r1 tk_node_mailbox r13)
-
-					;allocate mail message
-					(f-call 'sys_mail 'alloc '() '(r0))
-
-					;fill in data
-					(vp-cpy-cr ev_msg_size r1)
-					(vp-cpy-ri r1 r0 msg_length)
-					(vp-cpy-ri r13 r0 (add msg_dest id_mbox))
-					(vp-cpy-ri r14 r0 (add msg_dest id_cpu))
-					(vp-cpy-ir-i rsp local_x_pos r7)
-					(vp-cpy-ir-i rsp local_y_pos r8)
-					(vp-cpy-cr ev_type_mouse r1)
-					(vp-cpy-ri r1 r0 ev_msg_type)
-					(vp-cpy-ri r5 r0 ev_msg_view)
-					(vp-cpy-ri-i r7 r0 ev_msg_x)
-					(vp-cpy-ri-i r8 r0 ev_msg_y)
-					(vp-cpy-ri r9 r0 ev_msg_buttons)
-					(vp-cpy-ir-i r5 view_ctx_x r13)
-					(vp-cpy-ir-i r5 view_ctx_y r14)
-					(vp-sub-rr r13 r7)
-					(vp-sub-rr r14 r8)
-					(vp-cpy-ri-i r7 r0 ev_msg_rx)
-					(vp-cpy-ri-i r8 r0 ev_msg_ry)
-
-					;send mail to owner
-					(f-call 'sys_mail 'send '(r0))
-				(endif)
-			(endif)
-
-			;if button went up then clear locked view
-			(vpif '(r9 == 0))
-				(vp-cpy-ri r9 rsp local_last_view)
-			(endif)
-		(else)
-			;button down ?
-			(vpif '(r9 != 0))
-				;find view
-				(f-bind 'gui_gui 'statics r4)
-				(f-call 'view 'hit_tree '((r4 gui_statics_screen) (rsp local_x_pos i) (rsp local_y_pos i)) '(_ r1 r7 r8))
-				(vp-cpy-ir-i r4 gui_statics_screen r5)
-				(vpif '(r1 == r5))
-					(vp-xor-rr r1 r1)
-				(endif)
-				(vpif '(r1 == 0))
-					(vp-cpy-cr -1 r1)
-				(endif)
-				(vp-cpy-ri r1 rsp local_last_view)
-				(vp-cpy-rr r1 r5)
-				(vp-jmp 'send_mouse)
-			(else)
-				;hover
-				;find view for keys
-				(f-bind 'gui_gui 'statics r4)
-				(f-call 'view 'hit_tree '((r4 gui_statics_screen) (rsp local_x_pos i) (rsp local_y_pos i)) '(_ r1 _ _))
-				(vp-cpy-ri r1 rsp local_key_view)
-			(endif)
-		(endif)
+		(f-call 'sys_task 'sleep {1000000/30})
 	(loop-end)
 
-	;free old key map
-	(vp-cpy-ir rsp local_old_keymap r0)
-	(vpif '(r0 != 0))
-		(f-call 'sys_mem 'free '(r0))
-	(endif)
-
 	;deinit
-	(f-call 'sys_task 'callback '(($ deinit_callback) rsp))
-
-	(vp-free local_size)
-	(vp-ret)
+	(f-call 'sys_task 'callback {$deinit_callback, &locals})
+	(pop-scope)
+	(return)
 
 (vp-label 'update_callback)
 	;inputs
 	;r0 = user data
 
-	(def-struct 'update)
-		(ptr 'old_stack)
-		(ptr 'user)
-	(def-struct-end)
+	(ptr 'user 'old_stack 'owner 'msg 'view)
+	(struct 'event 256)
+	(int 'flag 'key)
 
 	;align stack
 	(vp-cpy-rr rsp r1)
-	(vp-alloc update_size)
+	(push-scope)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r1 rsp update_old_stack)
-	(vp-cpy-ri r0 rsp update_user)
+	(l-entry {user, old_stack})
 
 	;create screen window ?
-	(f-bind 'gui_gui 'statics r0)
-	(vp-cpy-ir r0 gui_statics_window r1)
-	(vpif '(r1 == 0))
+	(vpif {user->local_statics->gui_statics_window == 0})
 		;init sdl2
 		(sdl-call 'sdl 'sdl_set_main_ready)
-		(sdl-call 'sdl 'sdl_init '(SDL_INIT_VIDEO))
+		(sdl-call 'sdl 'sdl_init {SDL_INIT_VIDEO})
 		(sdl-call 'sdl 'ttf_init)
 
 		;create window
-		(sdl-call 'sdl 'sdl_create_window '(($ title) SDL_WINDOWPOS_UNDEFINED SDL_WINDOWPOS_UNDEFINED SCREEN_WIDTH SCREEN_HEIGHT SDL_WINDOW_OPENGL))
-		(f-bind 'gui_gui 'statics r1)
-		(vp-cpy-ri r0 r1 gui_statics_window)
+		(sdl-call 'sdl 'sdl_create_window
+			{$title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL}
+			{user->local_statics->gui_statics_window})
 
 		;create renderer
-		(sdl-call 'sdl 'sdl_create_renderer '(r0 -1 (bit-or SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC)))
-		(f-bind 'gui_gui 'statics r1)
-		(vp-cpy-ri r0 r1 gui_statics_renderer)
+		(sdl-call 'sdl 'sdl_create_renderer
+			{user->local_statics->gui_statics_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC}
+			{user->local_statics->gui_statics_renderer})
 
 		;set blend mode
-		(sdl-call 'sdl 'sdl_set_render_draw_blend_mode '(r0 SDL_BLENDMODE_BLEND))
+		(sdl-call 'sdl 'sdl_set_render_draw_blend_mode {user->local_statics->gui_statics_renderer, SDL_BLENDMODE_BLEND})
 	(endif)
 
 	;update screen
-	(f-bind 'gui_gui 'statics r0)
-	(vp-cpy-ir r0 gui_statics_screen r0)
-	(vpif '(r0 != 0))
-		;pump sdl events
-		(sdl-call 'sdl 'sdl_pump_events)
-
-		;get mouse state
-		(vp-cpy-ir rsp update_user r0)
-		(vp-lea-i r0 local_x_pos r1)
-		(vp-lea-i r0 local_y_pos r2)
-		(sdl-call 'sdl 'sdl_get_mouse_state '(r1 r2))
-		(vp-cpy-ir rsp update_user r1)
-		(vp-cpy-ri r0 r1 local_buttons)
-
-		;get keyboard state
-		(vp-add-cr local_keymap_size r1)
-		(sdl-call 'sdl 'sdl_get_keyboard_state '(r1))
-		(vp-cpy-ir rsp update_user r1)
-		(vp-cpy-ri r0 r1 local_keymap)
-
-		;update the screen
-		(f-bind 'gui_gui 'statics r0)
-		(f-call 'gui_gui 'update '((r0 gui_statics_screen)))
-
-		;refresh the window
-		(f-bind 'gui_gui 'statics r0)
-		(sdl-call 'sdl 'sdl_render_present '((r0 gui_statics_renderer)))
+	(vpif {user->local_statics->gui_statics_screen != 0})
+		;update the screen and refresh
+		(f-call 'gui_gui 'update {user->local_statics->gui_statics_screen})
+		(sdl-call 'sdl 'sdl_render_present {user->local_statics->gui_statics_renderer})
 	(endif)
 
-	(vp-cpy-ir rsp update_old_stack rsp)
-	(vp-ret)
+	;any sdl events ?
+	(sdl-call 'sdl 'sdl_poll_event {0} {flag})
+	(vpif {flag})
+		(sdl-call 'sdl 'sdl_poll_event {&event})
+		(switch)
+		(case {event.sdl_common_event_type == SDL_MOUSEMOTION})
+			;update mouse state
+			(assign {event.sdl_mouse_motion_event_x} {user->local_mouse_x})
+			(assign {event.sdl_mouse_motion_event_y} {user->local_mouse_y})
+			(assign {event.sdl_mouse_motion_event_state} {user->local_buttons})
+			(breakifnot {user->local_mouse_view})
+
+			;send event message
+		(vp-label 'send_event)
+			(assign {user->local_mouse_view} {view})
+		(vp-label 'send_event1)
+			(f-call 'sys_mail 'alloc {} {msg})
+			(assign {ev_msg_size} {msg->msg_length})
+			(assign {ev_type_mouse} {msg->ev_msg_type})
+			(assign {user->local_mouse_owner.id_mbox} {msg->msg_dest.id_mbox})
+			(assign {user->local_mouse_owner.id_cpu} {msg->msg_dest.id_cpu})
+			(assign {view} {msg->ev_msg_view})
+			(assign {user->local_buttons} {msg->ev_msg_buttons})
+			(assign {user->local_mouse_x} {msg->ev_msg_x})
+			(assign {user->local_mouse_y} {msg->ev_msg_y})
+			(assign {user->local_mouse_x - view->view_ctx_x} {msg->ev_msg_rx})
+			(assign {user->local_mouse_y - view->view_ctx_y} {msg->ev_msg_ry})
+			(f-call 'sys_mail 'send {msg})
+			(break)
+		(case {event.sdl_common_event_type == SDL_MOUSEBUTTONDOWN})
+			;update mouse state
+			(assign {event.sdl_mouse_button_event_x} {user->local_mouse_x})
+			(assign {event.sdl_mouse_button_event_y} {user->local_mouse_y})
+			(assign {event.sdl_mouse_button_event_button | user->local_buttons} {user->local_buttons})
+
+			;find view affinity
+			(f-call 'view 'hit_tree {user->local_statics->gui_statics_screen,
+				user->local_mouse_x, user->local_mouse_y} {_, user->local_mouse_view, _, _})
+			(vpif {user->local_mouse_view == user->local_statics->gui_statics_screen})
+				(assign {0} {user->local_mouse_view})
+			(endif)
+			(breakifnot {user->local_mouse_view})
+
+			;lookup view owner mailbox
+			(f-call 'view 'find_owner {user->local_mouse_view} {_, owner})
+			(breakifnot {owner})
+			(assign {&owner->tk_node_mailbox} {user->local_mouse_owner.id_mbox})
+			(f-call 'kernel 'id {} {user->local_mouse_owner.id_cpu})
+			(goto 'send_event)
+		(case {event.sdl_common_event_type == SDL_MOUSEBUTTONUP})
+			;update mouse state
+			(assign {event.sdl_mouse_button_event_x} {user->local_mouse_x})
+			(assign {event.sdl_mouse_button_event_y} {user->local_mouse_y})
+			(assign {event.sdl_mouse_button_event_button ^ user->local_buttons} {user->local_buttons})
+			(breakifnot {user->local_mouse_view})
+			(assign {user->local_mouse_view} {view})
+			(assign {0} {user->local_mouse_view})
+			(goto 'send_event1)
+		(case {event.sdl_common_event_type == SDL_KEYDOWN})
+			;find view for keys
+			(f-call 'view 'hit_tree {user->local_statics->gui_statics_screen,
+				user->local_mouse_x, user->local_mouse_y} {_, user->local_key_view, _, _})
+			(breakifnot {user->local_key_view})
+
+			;lookup view owner mailbox
+			(f-call 'view 'find_owner {user->local_key_view} {_, owner})
+			(breakifnot {owner})
+
+			;save owner mailbox
+			(assign {&owner->tk_node_mailbox} {user->local_key_owner.id_mbox})
+			(f-call 'kernel 'id {} {user->local_key_owner.id_cpu})
+
+			;cook key based on mods (very crude for now)
+			(l-call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,
+				event.sdl_keyboard_event_keysym.sdl_keysym_mod} {key})
+			
+			;send event message
+			(f-call 'sys_mail 'alloc {} {msg})
+			(assign {ev_msg_size} {msg->msg_length})
+			(assign {ev_type_key} {msg->ev_msg_type})
+			(assign {user->local_key_owner.id_mbox} {msg->msg_dest.id_mbox})
+			(assign {user->local_key_owner.id_cpu} {msg->msg_dest.id_cpu})
+			(assign {user->local_key_view} {msg->ev_msg_view})
+			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {msg->ev_msg_keycode})
+			(assign {key)} {msg->ev_msg_key})
+			(f-call 'sys_mail 'send {msg})
+		(endswitch)
+	(endif)
+
+	(assign {old_stack} '(rsp))
+	(pop-scope-syms)
+	(return)
+
+(vp-label 'cook_key)
+	;inputs
+	;r0 = key
+	;r1 = mod
+	;inputs
+	;r0 = cooked key
+
+	(uint 'key 'mod)
+	(pubyte 'codes)
+
+	(push-scope)
+	(l-entry {key, mod})
+
+	(vpif {mod})
+		(assign {$shifted} {codes})
+		(loop-while {*codes != 0})
+			(vpif {*codes == key})
+				(assign {codes[1]} {key})
+				(break)
+			(endif)
+			(assign {codes + 2} {codes})
+		(loop-end)
+	(endif)
+
+	(l-exit {key})
+	(pop-scope)
+	(return)
 
 (vp-label 'deinit_callback)
 	;inputs
 	;r0 = user data
 
+	(ptr 'user 'old_stack)
+
+	;align stack
+	(vp-cpy-rr rsp r1)
+	(push-scope)
+	(vp-and-cr -16 rsp)
+	(l-entry {user, old_stack})
+
 	;free any screen
-	(f-bind 'gui_gui 'statics r4)
-	(vp-cpy-ir r4 gui_statics_screen r0)
-	(vpif '(r0 != 0))
-		(vp-xor-rr r1 r1)
-		(vp-cpy-ri r1 r4 gui_statics_screen)
-		(f-call 'view 'deref '(r0))
+	(vpif {user->local_statics->gui_statics_screen != 0})
+		(f-call 'view 'deref {user->local_statics->gui_statics_screen})
+		(assign {0} {user->local_statics->gui_statics_screen})
 	(endif)
 
-	;free old region
-	(f-bind 'gui_gui 'statics r4)
-	(f-call 'gui_region 'free '((& r4 gui_statics_rect_heap) (& r4 gui_statics_old_region)) '(r0))
-
-	;deinit region heap
-	(f-call 'sys_heap 'deinit '(r0))
+	;free old region and deinit region heap
+	(f-call 'gui_region 'free {user->local_statics->gui_statics_rect_heap, user->local_statics->gui_statics_old_region})
+	(f-call 'sys_heap 'deinit {user->local_statics->gui_statics_rect_heap})
 
 	;destroy any window
-	(vp-cpy-ir r4 gui_statics_window r13)
-	(vpif '(r13 != 0))
-		;align stack on 16 byte boundary
-		(vp-cpy-rr rsp r14)
-		(vp-alloc ptr_size)
-		(vp-and-cr -16 rsp)
-		(vp-cpy-ri r14 rsp 0)
-
-		(sdl-call 'sdl 'sdl_destroy_window '(r13))
+	(vpif {user->local_statics->gui_statics_window})
+		(sdl-call 'sdl 'sdl_destroy_window {user->local_statics->gui_statics_window})
 		(sdl-call 'sdl 'ttf_quit)
 		(sdl-call 'sdl 'sdl_quit)
-
-		(vp-cpy-ir rsp 0 rsp)
 	(endif)
-	(vp-ret)
+
+	(assign {old_stack} '(rsp))
+	(pop-scope-syms)
+	(return)
 
 (vp-label 'title)
 	(vp-string "ChrysaLisp GUI Window") (vp-byte 0)
-
-(vp-label 'scan_codes)
-	(vp-byte 4) (vp-string "aA")
-	(vp-byte 5) (vp-string "bB")
-	(vp-byte 6) (vp-string "cC")
-	(vp-byte 7) (vp-string "dD")
-	(vp-byte 8) (vp-string "eE")
-	(vp-byte 9) (vp-string "fF")
-	(vp-byte 10) (vp-string "gG")
-	(vp-byte 11) (vp-string "hH")
-	(vp-byte 12) (vp-string "iI")
-	(vp-byte 13) (vp-string "jJ")
-	(vp-byte 14) (vp-string "kK")
-	(vp-byte 15) (vp-string "lL")
-	(vp-byte 16) (vp-string "mM")
-	(vp-byte 17) (vp-string "nN")
-	(vp-byte 18) (vp-string "oO")
-	(vp-byte 19) (vp-string "pP")
-	(vp-byte 20) (vp-string "qQ")
-	(vp-byte 21) (vp-string "rR")
-	(vp-byte 22) (vp-string "sS")
-	(vp-byte 23) (vp-string "tT")
-	(vp-byte 24) (vp-string "uU")
-	(vp-byte 25) (vp-string "vV")
-	(vp-byte 26) (vp-string "wW")
-	(vp-byte 27) (vp-string "xX")
-	(vp-byte 28) (vp-string "yY")
-	(vp-byte 29) (vp-string "zZ")
-	(vp-byte 30) (vp-string "1!")
-	(vp-byte 31) (vp-string "2@")
-	(vp-byte 32) (vp-string "3#")
-	(vp-byte 33) (vp-string "4$")
-	(vp-byte 34) (vp-string "5%")
-	(vp-byte 35) (vp-string "6^")
-	(vp-byte 36) (vp-string "7&")
-	(vp-byte 37) (vp-string "8*")
-	(vp-byte 38) (vp-string "9(")
-	(vp-byte 39) (vp-string "0)")
-	(vp-byte 45) (vp-string "-_")
-	(vp-byte 46) (vp-string "=+")
-	(vp-byte 47) (vp-string "[{")
-	(vp-byte 48) (vp-string "]}")
-	(vp-byte 49) (vp-string "\|")
-	(vp-byte 50) (vp-string "  ")
-	(vp-byte 51) (vp-string ";:")
-	(vp-byte 52 39 34)	;'"
-	(vp-byte 53) (vp-string "  ")
-	(vp-byte 54) (vp-string ",<")
-	(vp-byte 55) (vp-string ".>")
-	(vp-byte 56) (vp-string "/?")
-	(vp-byte 0x64) (vp-string "`~")
-	(vp-byte 40 char_cr char_cr)		;return
-	(vp-byte 41 char_esc char_esc)		;escape
-	(vp-byte 42 char_backspace char_backspace)	;backspace
-	(vp-byte 43 char_tab char_tab)		;tab
-	(vp-byte 44 char_space char_space)		;space
-	(vp-byte 0xe1 0 0)		;left shift
-	(vp-byte 0xe5 0 0)		;right shift
-	(vp-byte 0x50 0 0)		;left
-	(vp-byte 0x4f 0 0)		;right
-	(vp-byte 0x52 129 129)	;up
-	(vp-byte 0x51 130 130)	;down
-(vp-label 'scan_codes_end)
+(vp-label 'shifted)
+	(vp-string "1!2@3#4$5%6^7&8*9(0)qQwWeErRtTyYuUiIoOpPaAsSdDfFgGhHjJkKlLzZxXcCvVbBnNmM§±-_=+[{]};:\|,<.>/?'")
+	(vp-byte char_double_quote 0)
 
 (def-func-end)
 

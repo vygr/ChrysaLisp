@@ -17,9 +17,7 @@
 (def-method 'sdl_render_present nil 'virtual (abi-args 1) '(r0))
 (def-method 'sdl_render_set_clip_rect nil 'virtual (abi-args 2) '(r0))
 (def-method 'sdl_set_render_draw_blend_mode nil 'virtual (abi-args 2) '(r0))
-(def-method 'sdl_pump_events nil 'virtual (abi-args 0) '(r0))
-(def-method 'sdl_get_mouse_state nil 'virtual (abi-args 2) '(r0))
-(def-method 'sdl_get_keyboard_state nil 'virtual (abi-args 1) '(r0))
+(def-method 'sdl_poll_event nil 'virtual (abi-args 1) '(r0))
 (def-method 'sdl_render_draw_rect nil 'virtual (abi-args 2) '(r0))
 (def-method 'sdl_free_surface nil 'virtual (abi-args 1) '(r0))
 (def-method 'sdl_create_texture_from_surface nil 'virtual (abi-args 2) '(r0))
@@ -121,37 +119,76 @@
 	(int 'ref)
 (def-struct-end)
 
-;sdl-set-main-ready
-;sdl-init flags
-;sdl-get-error
-;sdl-delay time
-;sdl-quit
-;sdl-create-window title, x, y, w, h, flags
-;sdl-create-window-and-renderer w, h, flags, window**, renderer**
-;sdl-destroy-window window
-;sdl-create-renderer window*, index, flags
-;sdl-set-render-draw-color renderer**, r, g, b, a
-;sdl-render-fill-rect renderer**, rect*
-;sdl-render-draw-rect renderer**, rect*
-;sdl-render-present renderer**
-;sdl-render-set-clip-rect renderer**, rect*
-;sdl-set-render-draw-blend-mode renderer**, mode
-;sdl-pump-events
-;sdl-get-mouse-state x*, y*
-;sdl-get-keyboard-state int*
-;sdl-free-surface surface*
-;sdl-create-texture-from-surface renderer**, surface*
-;sdl-create-rgb-surface-from pixels*, w, h, d, stride, rmask, gmask, bmask, amask
-;sdl-destroy-texture texture*
-;sdl-render-copy renderer**, texture*, srect*, drect*
-;sdl-set-texture-blend-mode texture*, blendmode
-;sdl-set-texture-color-mod texture*, byte r, byte g, byte b
-;ttf-init
-;ttf-quit
-;ttf-open-font name*, pointsize
-;ttf-close-font font*
-;ttf-size-utf8 font*, text*, int *w, int *h
-;ttf-font-ascent font*
-;ttf-font-descent font*
-;ttf-font-height font*
-;ttf-render-utf8-blended font*, text*, color
+(defcvar 'SDL_RELEASED 0)
+(defcvar 'SDL_PRESSED 1)
+
+(defcvar 'SDL_KEYDOWN 0x300)
+(defcvar 'SDL_KEYUP 0x301)
+
+(defcvar 'SDL_MOUSEMOTION 0x400)
+(defcvar 'SDL_MOUSEBUTTONDOWN 0x401)
+(defcvar 'SDL_MOUSEBUTTONUP 0x402)
+(defcvar 'SDL_MOUSEWHEEL 0x403)
+
+(def-struct 'sdl_common_event)
+	(uint 'type)			;SDL_KEYDOWN, SDL_KEYUP etc
+	(uint 'timestamp)
+(def-struct-end)
+
+(def-struct 'sdl_keysym)
+	(int 'scancode)
+	(int 'sym)
+	(ushort 'mod)
+	(uint 'unused)
+(def-struct-end)
+
+(def-struct 'sdl_keyboard_event)
+	(uint 'type)
+	(uint 'timestamp)
+	(uint 'windowid)
+	(ubyte 'state)		;SDL_PRESSED, SDL_RELEASED
+	(ubyte 'repeat)		;1 if repeat
+	(ubyte 'padding2)
+	(ubyte 'padding3)
+	(struct 'keysym 'sdl_keysym)
+(def-struct-end)
+
+(def-struct 'sdl_mouse_motion_event)
+	(uint 'type)
+	(uint 'timestamp)
+	(uint 'windowid)
+	(uint 'which)
+	(uint 'state)
+	(int 'x)
+	(int 'y)
+	(int 'xrel)
+	(int 'yrel)
+(def-struct-end)
+
+(def-struct 'sdl_mouse_button_event)
+	(uint 'type)
+	(uint 'timestamp)
+	(uint 'windowid)
+	(uint 'which)
+	(ubyte 'button)
+	(ubyte 'state)		;SDL_PRESSED, SDL_RELEASED
+	(ubyte 'clicks)
+	(ubyte 'padding1)
+	(int 'x)
+	(int 'y)
+(def-struct-end)
+
+(def-struct 'sdl_mouse_wheel_event)
+	(uint 'type)
+	(uint 'timestamp)
+	(uint 'windowid)
+	(uint 'which)
+	(int 'x)
+	(int 'y)
+	(uint 'direction)
+(def-struct-end)
+
+(def-struct 'sdl_quit_event)
+	(uint 'type)
+	(uint 'timestamp)
+(def-struct-end)
