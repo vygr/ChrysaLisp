@@ -122,9 +122,9 @@
 (defcvar 'SDL_RELEASED 0)
 (defcvar 'SDL_PRESSED 1)
 
+(defcvar 'SDL_QUIT 0x100)
 (defcvar 'SDL_KEYDOWN 0x300)
 (defcvar 'SDL_KEYUP 0x301)
-
 (defcvar 'SDL_MOUSEMOTION 0x400)
 (defcvar 'SDL_MOUSEBUTTONDOWN 0x401)
 (defcvar 'SDL_MOUSEBUTTONUP 0x402)

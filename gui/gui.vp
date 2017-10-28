@@ -36,6 +36,7 @@
 		(int 'mouse_x)
 		(int 'mouse_y)
 		(uint 'mouse_buttons)
+		(ubyte 'quit)
 	(def-struct-end)
 
 	(struct 'locals 'local)
@@ -43,8 +44,8 @@
 	;init vars
 	(push-scope)
 	(assign (cat {@} (f-path 'gui_gui 'statics)) {locals.local_statics})
-	(assign {0, 0, 0, 0, 0} {locals.local_key_view, locals.local_mouse_view,
-		locals.local_mouse_buttons, locals.local_mouse_x, locals.local_mouse_y})
+	(assign {0, 0, 0, 0, 0, 0} {locals.local_key_view, locals.local_mouse_view,
+		locals.local_mouse_buttons, locals.local_mouse_x, locals.local_mouse_y, locals.local_quit})
 
 	;kernel callback for first update
 	;this will init SDL etc
@@ -70,7 +71,7 @@
 
 		;frame rate of gui updates
 		(f-call 'sys_task 'sleep {1000000/30})
-	(loop-end)
+	(loop-until {locals.local_quit})
 
 	;deinit
 	(f-call 'sys_task 'callback {$deinit_callback, &locals})
@@ -92,7 +93,7 @@
 	(l-entry {user, old_stack})
 
 	;create screen window ?
-	(vpif {user->local_statics->gui_statics_window == 0})
+	(vpifnot {user->local_statics->gui_statics_window})
 		;init sdl2
 		(sdl-call 'sdl 'sdl_set_main_ready)
 		(sdl-call 'sdl 'sdl_init {SDL_INIT_VIDEO})
@@ -113,7 +114,7 @@
 	(endif)
 
 	;update screen
-	(vpif {user->local_statics->gui_statics_screen != 0})
+	(vpif {user->local_statics->gui_statics_screen})
 		;update the screen and refresh
 		(f-call 'gui_gui 'update {user->local_statics->gui_statics_screen})
 		(sdl-call 'sdl 'sdl_render_present {user->local_statics->gui_statics_renderer})
@@ -204,6 +205,9 @@
 			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {msg->ev_msg_keycode})
 			(assign {key} {msg->ev_msg_key})
 			(f-call 'sys_mail 'send {msg})
+;			(break)
+;		(case {event.sdl_common_event_type == SDL_QUIT})
+;			(assign {-1} {user->local_quit})
 		(endswitch)
 	(loop-end)
 
@@ -226,7 +230,7 @@
 
 	(vpif {mod})
 		(assign {$shifted} {codes})
-		(loop-while {*codes != 0})
+		(loop-while {*codes})
 			(vpif {*codes == key})
 				(assign {codes[1]} {key})
 				(break)
@@ -252,14 +256,10 @@
 	(l-entry {user, old_stack})
 
 	;free any screen
-	(vpif {user->local_statics->gui_statics_screen != 0})
+	(vpif {user->local_statics->gui_statics_screen})
 		(f-call 'view 'deref {user->local_statics->gui_statics_screen})
 		(assign {0} {user->local_statics->gui_statics_screen})
 	(endif)
-
-	;free old region and deinit region heap
-	(f-call 'gui_region 'free {user->local_statics->gui_statics_rect_heap, user->local_statics->gui_statics_old_region})
-	(f-call 'sys_heap 'deinit {user->local_statics->gui_statics_rect_heap})
 
 	;destroy any window
 	(vpif {user->local_statics->gui_statics_window})
@@ -267,6 +267,10 @@
 		(sdl-call 'sdl 'ttf_quit)
 		(sdl-call 'sdl 'sdl_quit)
 	(endif)
+
+	;free old region and deinit region heap
+	(f-call 'gui_region 'free {user->local_statics->gui_statics_rect_heap, user->local_statics->gui_statics_old_region})
+	(f-call 'sys_heap 'deinit {user->local_statics->gui_statics_rect_heap})
 
 	(assign {old_stack} '(rsp))
 	(pop-scope-syms)

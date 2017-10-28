@@ -152,7 +152,7 @@
 			(elseif {this->local_last_op == char_multiply})
 				;*
 				(assign {this->local_accum * this->local_value} {this->local_accum})
-			(elseif {this->local_last_op == char_divide && this->local_value != 0})
+			(elseif {this->local_last_op == char_divide && this->local_value})
 				;/
 				(assign {this->local_accum // this->local_value} {this->local_accum})
 			(else)
