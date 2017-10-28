@@ -113,3 +113,6 @@ just needs testing, but needs doing. L4 micro kernel hosted version could prove
 interesting.
 
 * Better cooking of key modifiers !
+
+* Network wide DHT based object store. Provided as a service.
+
