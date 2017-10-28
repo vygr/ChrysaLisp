@@ -204,7 +204,7 @@
 			(assign {user->local_key_owner.id_cpu} {msg->msg_dest.id_cpu})
 			(assign {user->local_key_view} {msg->ev_msg_view})
 			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {msg->ev_msg_keycode})
-			(assign {key)} {msg->ev_msg_key})
+			(assign {key} {msg->ev_msg_key})
 			(f-call 'sys_mail 'send {msg})
 		(endswitch)
 	(loop-end)
