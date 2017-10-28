@@ -60,8 +60,10 @@
 	;set close action
 	(f-call 'window 'connect_close {myapp.local_window, &myapp, $on_window_close})
 
-	;add to screen and dirty
+	;add to screen and print sign on
 	(f-call 'gui_gui 'add {myapp.local_window})
+	(f-call 'vdu 'print_cstr {myapp.local_vdu, "ChrysaLisp Terminal 1.2"})
+	(f-call 'vdu 'print_char {myapp.local_vdu, char_lf})
 
 	;set up term buffer
 	(assign {&myapp.local_buffer} {myapp.local_bufp})

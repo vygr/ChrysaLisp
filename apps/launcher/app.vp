@@ -53,7 +53,7 @@
 	(f-call 'sys_task 'tcb {} {owner})
 	(f-call 'window 'set_owner {window, owner})
 
-	;add to screen and dirty
+	;add to screen
 	(f-call 'gui_gui 'add {window})
 
 	;app event loop

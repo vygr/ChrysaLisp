@@ -84,7 +84,7 @@
 	;set close action
 	(f-call 'window 'connect_close {window, &myapp, $on_window_close})
 
-	;add to screen and dirty
+	;add to screen
 	(f-call 'gui_gui 'add {window})
 
 	;app event loop

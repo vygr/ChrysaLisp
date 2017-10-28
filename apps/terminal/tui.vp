@@ -44,6 +44,10 @@
 	(assign {tui_msg_size} {msg->msg_length})
 	(f-call 'sys_mail 'send {msg})
 
+	;sign on
+	(l-call 'terminal_output_cstr {"ChrysaLisp Terminal 1.2"})
+	(l-call 'terminal_output_char {char_lf})
+
 	;app event loop
 	(loop-start)
 		(vpif {local.local_pipe})
@@ -91,7 +95,7 @@
 	(loop-start)
 		(f-call 'stream 'read_char {stream} {_, char})
 		(breakif {char == -1})
-		(l-call 'terminal_output {local, char} '(r0 r1))
+		(l-call 'terminal_output_char {char})
 		(v-call 'stream 'read_ready {stream} {_, ready})
 	(loop-untilnot {ready})
 
@@ -153,16 +157,14 @@
 	(pop-scope)
 	(return)
 
-(vp-label 'terminal_output)
+(vp-label 'terminal_output_char)
 	;inputs
-	;r0 = local
-	;r1 = char output
+	;r0 = char output
 
-	(ptr 'local)
 	(int 'char)
 
 	(push-scope)
-	(l-entry {local, char})
+	(l-entry {char})
 
 	(vpif {char == char_tab})
 		;tab
@@ -173,6 +175,25 @@
 	(else)
 		(f-call 'pii 'write_char {1, char})
 	(endif)
+
+	(pop-scope)
+	(return)
+
+(vp-label 'terminal_output_cstr)
+	;inputs
+	;r0 = c string pointer
+
+	(pubyte 'charp)
+
+	;save inputs
+	(push-scope)
+	(l-entry {charp})
+
+	;print chars
+	(loop-while {*charp})
+		(l-call 'terminal_output_char {*charp})
+		(assign {charp + 1} {charp})
+	(loop-end)
 
 	(pop-scope)
 	(return)
