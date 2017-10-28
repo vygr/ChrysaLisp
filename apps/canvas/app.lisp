@@ -1,21 +1,20 @@
 ;import canvas and points method slots
-(defq slot_set_fbox nil slot_set_fpoly nil slot_blend_fpoly nil slot_fill nil slot_swap nil
-	slot_transform nil slot_gen_quadratic nil slot_gen_cubic nil slot_gen_arc nil
-	slot_stroke_polylines nil slot_stroke_polygons nil)
-(within-compile-env (lambda ()
-	(import 'class/canvas/canvas.inc)
-	(import 'class/points/points.inc)
-	(setq slot_set_fbox (method-slot 'canvas 'set_fbox)
-		slot_set_fpoly (method-slot 'canvas 'set_fpoly)
-		slot_blend_fpoly (method-slot 'canvas 'blend_fpoly)
-		slot_fill (method-slot 'canvas 'fill)
-		slot_swap (method-slot 'canvas 'swap)
-		slot_transform (method-slot 'points 'transform)
-		slot_stroke_polylines (method-slot 'points 'stroke_polylines)
-		slot_stroke_polygons (method-slot 'points 'stroke_polygons)
-		slot_gen_quadratic (method-slot 'points 'gen_quadratic)
-		slot_gen_cubic (method-slot 'points 'gen_cubic)
-		slot_gen_arc (method-slot 'points 'gen_arc))))
+(bind '(slot_set_fbox slot_set_fpoly slot_blend_fpoly slot_fill slot_swap slot_transform
+	slot_gen_quadratic slot_gen_cubic slot_gen_arc slot_stroke_polylines slot_stroke_polygons)
+	(within-compile-env (lambda ()
+		(import 'class/canvas/canvas.inc)
+		(import 'class/points/points.inc)
+		(list (method-slot 'canvas 'set_fbox)
+			(method-slot 'canvas 'set_fpoly)
+			(method-slot 'canvas 'blend_fpoly)
+			(method-slot 'canvas 'fill)
+			(method-slot 'canvas 'swap)
+			(method-slot 'points 'transform)
+			(method-slot 'points 'gen_quadratic)
+			(method-slot 'points 'gen_cubic)
+			(method-slot 'points 'gen_arc)
+			(method-slot 'points 'stroke_polylines)
+			(method-slot 'points 'stroke_polygons)))))
 
 ;math tools
 (run 'apps/canvas/math.lisp)

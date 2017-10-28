@@ -1,10 +1,10 @@
 ;import canvas class method slots
-(defq slot_set_fbox nil slot_fill nil slot_swap nil)
-(within-compile-env (lambda ()
-	(import 'class/canvas/canvas.inc)
-	(setq slot_set_fbox (method-slot 'canvas 'set_fbox)
-		slot_fill (method-slot 'canvas 'fill)
-		slot_swap (method-slot 'canvas 'swap))))
+(bind '(slot_set_fbox slot_fill slot_swap)
+	(within-compile-env (lambda ()
+		(import 'class/canvas/canvas.inc)
+		(list (method-slot 'canvas 'set_fbox)
+			(method-slot 'canvas 'fill)
+			(method-slot 'canvas 'swap)))))
 
 (defun read-farm (i s)
 	(while (lt (length (elem i data)) s)
