@@ -31,11 +31,11 @@
 		(ptr 'statics)
 		(ptr 'key_view)
 		(ptr 'mouse_view)
-		(struct 'mouse_owner 'id)
-		(struct 'key_owner 'id)
+		(ptr 'mouse_mbox)
+		(ptr 'key_mbox)
 		(int 'mouse_x)
 		(int 'mouse_y)
-		(uint 'buttons)
+		(uint 'mouse_buttons)
 	(def-struct-end)
 
 	(struct 'locals 'local)
@@ -44,7 +44,7 @@
 	(push-scope)
 	(assign (cat {@} (f-path 'gui_gui 'statics)) {locals.local_statics})
 	(assign {0, 0, 0, 0, 0} {locals.local_key_view, locals.local_mouse_view,
-		locals.local_buttons, locals.local_mouse_x, locals.local_mouse_y})
+		locals.local_mouse_buttons, locals.local_mouse_x, locals.local_mouse_y})
 
 	;kernel callback for first update
 	;this will init SDL etc
@@ -82,8 +82,8 @@
 	;r0 = user data
 
 	(ptr 'user 'old_stack 'owner 'msg 'view)
-	(struct 'event 256)
 	(int 'flag 'key)
+	(struct 'event 256)
 
 	;align stack
 	(vp-cpy-rr rsp r1)
@@ -129,7 +129,7 @@
 			;update mouse state
 			(assign {event.sdl_mouse_motion_event_x} {user->local_mouse_x})
 			(assign {event.sdl_mouse_motion_event_y} {user->local_mouse_y})
-			(assign {event.sdl_mouse_motion_event_state} {user->local_buttons})
+			(assign {event.sdl_mouse_motion_event_state} {user->local_mouse_buttons})
 			(breakifnot {user->local_mouse_view})
 
 			;send event message
@@ -139,10 +139,10 @@
 			(f-call 'sys_mail 'alloc {} {msg})
 			(assign {ev_msg_size} {msg->msg_length})
 			(assign {ev_type_mouse} {msg->ev_msg_type})
-			(assign {user->local_mouse_owner.id_mbox} {msg->msg_dest.id_mbox})
-			(assign {user->local_mouse_owner.id_cpu} {msg->msg_dest.id_cpu})
+			(assign {user->local_mouse_mbox} {msg->msg_dest.id_mbox})
+			(f-call 'kernel 'id {} {msg->msg_dest.id_cpu})
 			(assign {view} {msg->ev_msg_view})
-			(assign {user->local_buttons} {msg->ev_msg_buttons})
+			(assign {user->local_mouse_buttons} {msg->ev_msg_buttons})
 			(assign {user->local_mouse_x} {msg->ev_msg_x})
 			(assign {user->local_mouse_y} {msg->ev_msg_y})
 			(assign {user->local_mouse_x - view->view_ctx_x} {msg->ev_msg_rx})
@@ -153,7 +153,7 @@
 			;update mouse state
 			(assign {event.sdl_mouse_button_event_x} {user->local_mouse_x})
 			(assign {event.sdl_mouse_button_event_y} {user->local_mouse_y})
-			(assign {event.sdl_mouse_button_event_button | user->local_buttons} {user->local_buttons})
+			(assign {event.sdl_mouse_button_event_button | user->local_mouse_buttons} {user->local_mouse_buttons})
 
 			;find view affinity
 			(f-call 'view 'hit_tree {user->local_statics->gui_statics_screen,
@@ -166,14 +166,13 @@
 			;lookup view owner mailbox
 			(f-call 'view 'find_owner {user->local_mouse_view} {_, owner})
 			(breakifnot {owner})
-			(assign {&owner->tk_node_mailbox} {user->local_mouse_owner.id_mbox})
-			(f-call 'kernel 'id {} {user->local_mouse_owner.id_cpu})
+			(assign {&owner->tk_node_mailbox} {user->local_mouse_mbox})
 			(goto 'send_event)
 		(case {event.sdl_common_event_type == SDL_MOUSEBUTTONUP})
 			;update mouse state
 			(assign {event.sdl_mouse_button_event_x} {user->local_mouse_x})
 			(assign {event.sdl_mouse_button_event_y} {user->local_mouse_y})
-			(assign {event.sdl_mouse_button_event_button ^ user->local_buttons} {user->local_buttons})
+			(assign {event.sdl_mouse_button_event_button ^ user->local_mouse_buttons} {user->local_mouse_buttons})
 			(breakifnot {user->local_mouse_view})
 			(assign {user->local_mouse_view} {view})
 			(assign {0} {user->local_mouse_view})
@@ -189,8 +188,7 @@
 			(breakifnot {owner})
 
 			;save owner mailbox
-			(assign {&owner->tk_node_mailbox} {user->local_key_owner.id_mbox})
-			(f-call 'kernel 'id {} {user->local_key_owner.id_cpu})
+			(assign {&owner->tk_node_mailbox} {user->local_key_mbox})
 
 			;cook key based on mods (very crude for now)
 			(l-call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,
@@ -200,8 +198,8 @@
 			(f-call 'sys_mail 'alloc {} {msg})
 			(assign {ev_msg_size} {msg->msg_length})
 			(assign {ev_type_key} {msg->ev_msg_type})
-			(assign {user->local_key_owner.id_mbox} {msg->msg_dest.id_mbox})
-			(assign {user->local_key_owner.id_cpu} {msg->msg_dest.id_cpu})
+			(assign {user->local_key_mbox} {msg->msg_dest.id_mbox})
+			(f-call 'kernel 'id {} {msg->msg_dest.id_cpu})
 			(assign {user->local_key_view} {msg->ev_msg_view})
 			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {msg->ev_msg_keycode})
 			(assign {key} {msg->ev_msg_key})
