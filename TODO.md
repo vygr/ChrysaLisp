@@ -84,7 +84,7 @@ function or via a class Vtable. Therefore all that needs to happen is a new sys
 load function that doesn't check the existing function list but just loads the
 new function and walks the existing function list patching all the Vtable
 addresses. Re-claiming any existing space used by the old function is probably
-not worth at the moment. Although eventually the function list and function
+not worth it at the moment. Although eventually the function list and function
 blocks could be garbage collected, or functions could be compacted or moved
 around using exactly the same hot patching mechanism.
 

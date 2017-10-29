@@ -4,6 +4,29 @@
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 
+(def-struct 'class_entry)
+	(ushort 'class)
+	(ushort 'slot_table)
+(def-struct-end)
+
+(def-struct 'slot_entry)
+	(ushort 'slot)
+	(short 'handler)
+(def-struct-end)
+
+(defun class-entry (c)
+	;c = class symbol
+	(vp-short
+		`(sub ,(label-sym (link-sym (fn-find-link (f-path 'class c)))) *pc* 0)
+		`(sub ,(label-sym (cat c "_slot_table")) *pc* 2)))
+
+(defun slot-entry (c s)
+	;c = class symbol
+	;s = slot symbol
+	(vp-short
+		(method-slot c s)
+		`(sub ,(label-sym (cat c "_" s "_handler")) *pc* 2)))
+
 (def-func 'class/lisp/func_call)
 	;inputs
 	;r0 = lisp object
@@ -12,7 +35,7 @@
 	;r0 = lisp object
 	;r1 = else value
 
-	(ptr 'this 'args 'value)
+	(ptr 'this 'args 'value 'table)
 	(uint 'length 'slot)
 	(long 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7)
 
@@ -25,116 +48,119 @@
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error1)
 	(f-call 'boxed_long 'get_value {value} {_, slot})
 	(f-call 'vector 'get_second {args} {_, value})
+	(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'obj)) {_, table})
+	(errorifnot {table} 'error1)
+	(assign {value->obj_vtable} {value})
+
+	;lookup handler in dispatch tables
+	(assign {$class_table} {table})
+	(loop-while {table->class_entry_class} 'error)
+		(vpif {ptr(&table->class_entry_class + table->class_entry_class) == value})
+			(assign {&table->class_entry_slot_table + table->class_entry_slot_table} {table})
+			(loop-while {table->slot_entry_slot} error)
+				(vpif {table->slot_entry_slot == slot})
+					(assign {&table->slot_entry_handler + table->slot_entry_handler} '(r0))
+					(vp-jmp-r r0)
+				(endif)
+				(assign {table + slot_entry_size} {table})
+			(loop-end)
+		(endif)
+		(assign {table + class_entry_size} {table})
+	(loop-end)
+(errorcases
+	(goto 'error1))
+
 	(switch)
-	(case (cat {value->obj_vtable == @} (f-path 'class 'canvas)))
-		(switch)
-		(case (cat {slot == } (str (method-slot 'canvas 'fill))))
-		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $canvas_fill, 3} {_, slot})
-			(errorifnot {slot} 'error1))
-			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'canvas 'fill {arg0, arg1})
-			(break)
-		(case (cat {slot == } (str (method-slot 'canvas 'swap))))
-		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $canvas_swap, 2} {_, slot})
-			(errorifnot {slot} 'error1))
-			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'canvas 'swap {arg0})
-			(f-call 'canvas 'dirty {arg0})
-			(break)
-		(case (cat {slot == } (str (method-slot 'canvas 'set_fbox))))
-		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $canvas_set_fbox, 7} {_, slot})
-			(errorifnot {slot} 'error1))
-			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'canvas 'set_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
-			(break)
-		(case (cat {slot == } (str (method-slot 'canvas 'set_fpoly))))
-		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $canvas_set_fpoly, 5} {_, slot})
-			(errorifnot {slot} 'error1))
-			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'canvas 'set_fpoly {arg0, arg1, arg2, arg3})
-			(break)
-		(case (cat {slot == } (str (method-slot 'canvas 'blend_fbox))))
-		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $canvas_blend_fbox, 7} {_, slot})
-			(errorifnot {slot} 'error1))
-			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'canvas 'blend_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
-			(break)
-		(case (cat {slot == } (str (method-slot 'canvas 'blend_fpoly))))
-		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $canvas_blend_fpoly, 5} {_, slot})
-			(errorifnot {slot} 'error1))
-			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'canvas 'blend_fpoly {arg0, arg1, arg2, arg3})
-			(break)
-		(default)
-		(errorcases
-			(goto 'error1))
-		(endswitch)
+;canvas class handlers
+(vp-label 'canvas_fill_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_canvas_fill, 3} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'canvas 'fill {arg0, arg1})
 		(break)
-	(case (cat {value->obj_vtable == @} (f-path 'class 'points)))
-		(switch)
-		(case (cat {slot == } (str (method-slot 'points 'gen_quadratic))))
-		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $points_gen_quadratic, 7} {_, slot})
-			(errorifnot {slot} 'error1))
-			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'points 'gen_quadratic {arg0, arg1, arg2, arg3, arg4, arg5})
-			(break)
-		(case (cat {slot == } (str (method-slot 'points 'gen_cubic))))
-		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $points_gen_cubic, 8} {_, slot})
-			(errorifnot {slot} 'error1))
-			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'points 'gen_cubic {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
-			(break)
-		(case (cat {slot == } (str (method-slot 'points 'gen_arc))))
-		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $points_gen_arc, 8} {_, slot})
-			(errorifnot {slot} 'error1))
-			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'points 'gen_arc {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
-			(break)
-		(case (cat {slot == } (str (method-slot 'points 'transform))))
-		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $points_transform, 6} {_, slot})
-			(errorifnot {slot} 'error1))
-			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'points 'transform {arg0, arg1, arg2, arg3, arg4})
-			(break)
-		(default)
-		(errorcases
-			(goto 'error1))
-		(endswitch)
+(vp-label 'canvas_swap_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_canvas_swap, 2} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'canvas 'swap {arg0})
+		(f-call 'canvas 'dirty {arg0})
 		(break)
-	(case (cat {value->obj_vtable == @} (f-path 'class 'vector)))
-		(switch)
-		(case (cat {slot == } (str (method-slot 'points 'stroke_polylines))))
-		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $points_stroke_polylines, 9} {_, slot})
-			(errorifnot {slot} 'error1))
-			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'points 'stroke_polylines {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7})
-			(break)
-		(case (cat {slot == } (str (method-slot 'points 'stroke_polygons))))
-		(errorcases
-			(f-call 'lisp 'env_args_type {this, args, $points_stroke_polygons, 7} {_, slot})
-			(errorifnot {slot} 'error1))
-			(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
-			(f-call 'points 'stroke_polygons {arg0, arg1, arg2, arg3, arg4, arg5})
-			(break)
-		(default)
-		(errorcases
-			(goto 'error1))
-		(endswitch)
+(vp-label 'canvas_set_fbox_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_canvas_set_fbox, 7} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'canvas 'set_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
 		(break)
-	(default)
-		(errorcases
-			(goto 'error1))
+(vp-label 'canvas_set_fpoly_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_canvas_set_fpoly, 5} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'canvas 'set_fpoly {arg0, arg1, arg2, arg3})
+		(break)
+(vp-label 'canvas_blend_fbox_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_canvas_blend_fbox, 7} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'canvas 'blend_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
+		(break)
+(vp-label 'canvas_blend_fpoly_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_canvas_blend_fpoly, 5} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'canvas 'blend_fpoly {arg0, arg1, arg2, arg3})
+		(break)
+
+;points class handlers
+(vp-label 'points_gen_quadratic_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_points_gen_quadratic, 7} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'points 'gen_quadratic {arg0, arg1, arg2, arg3, arg4, arg5})
+		(break)
+(vp-label 'points_gen_cubic_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_points_gen_cubic, 8} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'points 'gen_cubic {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
+		(break)
+(vp-label 'points_gen_arc_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_points_gen_arc, 8} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'points 'gen_arc {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
+		(break)
+(vp-label 'points_transform_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_points_transform, 6} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'points 'transform {arg0, arg1, arg2, arg3, arg4})
+		(break)
+
+;vector class handlers
+(vp-label 'points_stroke_polylines_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_points_stroke_polylines, 9} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'points 'stroke_polylines {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7})
+		(break)
+(vp-label 'points_stroke_polygons_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_points_stroke_polygons, 7} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'points 'stroke_polygons {arg0, arg1, arg2, arg3, arg4, arg5})
+		(break)
 	(endswitch)
 	(f-call 'ref 'ref {arg0} {value})
 
@@ -146,20 +172,55 @@
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(call slot obj ...)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'canvas_swap 'boxed_long 'canvas)
-	(signature 'canvas_fill 'boxed_long 'canvas 'boxed_long)
-	(signature 'canvas_set_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
-	(signature 'canvas_set_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long)
-	(signature 'canvas_blend_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
-	(signature 'canvas_blend_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long)
-	(signature 'points_transform 'boxed_long 'points 'points 'boxed_long 'boxed_long 'boxed_long)
-	(signature 'points_gen_arc 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
-	(signature 'points_gen_quadratic 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
-	(signature 'points_gen_cubic 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
-	(signature 'points_stroke_polygons 'boxed_long 'vector 'array 'vector 'boxed_long 'boxed_long 'boxed_long)
-	(signature 'points_stroke_polylines 'boxed_long 'vector 'array 'vector 'boxed_long
-									'boxed_long 'boxed_long 'boxed_long 'boxed_long))
+	(signature 'sig_canvas_swap 'boxed_long 'canvas)
+	(signature 'sig_canvas_fill 'boxed_long 'canvas 'boxed_long)
+	(signature 'sig_canvas_set_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'sig_canvas_set_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long)
+	(signature 'sig_canvas_blend_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'sig_canvas_blend_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long)
+	(signature 'sig_points_transform 'boxed_long 'points 'points 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'sig_points_gen_arc 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'sig_points_gen_quadratic 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'sig_points_gen_cubic 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'sig_points_stroke_polygons 'boxed_long 'vector 'array 'vector 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'sig_points_stroke_polylines 'boxed_long 'vector 'array 'vector 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long))
 
 	(pop-scope-syms)
+
+;;;;;;;;;;;;;
+; class table
+;;;;;;;;;;;;;
+
+	(vp-align short_size)
+(vp-label 'class_table)
+	(class-entry 'canvas)
+	(class-entry 'points)
+	(class-entry 'vector)
+	(vp-short 0)
+
+;;;;;;;;;;;;;
+; slot tables
+;;;;;;;;;;;;;
+
+(vp-label 'canvas_slot_table)
+	(slot-entry 'canvas 'fill)
+	(slot-entry 'canvas 'swap)
+	(slot-entry 'canvas 'set_fbox)
+	(slot-entry 'canvas 'set_fpoly)
+	(slot-entry 'canvas 'blend_fbox)
+	(slot-entry 'canvas 'blend_fpoly)
+	(vp-short 0)
+
+(vp-label 'points_slot_table)
+	(slot-entry 'points 'gen_quadratic)
+	(slot-entry 'points 'gen_cubic)
+	(slot-entry 'points 'gen_arc)
+	(slot-entry 'points 'transform)
+	(vp-short 0)
+
+(vp-label 'vector_slot_table)
+	(slot-entry 'points 'stroke_polylines)
+	(slot-entry 'points 'stroke_polygons)
+	(vp-short 0)
 
 (def-func-end)
