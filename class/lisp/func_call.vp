@@ -11,7 +11,7 @@
 
 (def-struct 'slot_entry)
 	(ushort 'slot)
-	(short 'handler)
+	(ushort 'handler)
 (def-struct-end)
 
 (defun class-entry (c)
@@ -25,7 +25,7 @@
 	;s = slot symbol
 	(vp-short
 		(method-slot c s)
-		`(sub ,(label-sym (cat c "_" s "_handler")) *pc* 2)))
+		`(sub *pc* ,(label-sym (cat c "_" s "_handler")) 2)))
 
 (def-func 'class/lisp/func_call)
 	;inputs
@@ -59,7 +59,7 @@
 			(assign {&table->class_entry_slot_table + table->class_entry_slot_table} {table})
 			(loop-while {table->slot_entry_slot} error)
 				(vpif {table->slot_entry_slot == slot})
-					(assign {&table->slot_entry_handler + table->slot_entry_handler} '(r0))
+					(assign {&table->slot_entry_handler - table->slot_entry_handler} '(r0))
 					(vp-jmp-r r0)
 				(endif)
 				(assign {table + slot_entry_size} {table})
