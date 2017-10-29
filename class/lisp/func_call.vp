@@ -36,8 +36,10 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value 'table)
-	(uint 'length 'slot)
 	(long 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7)
+	(union
+		'(uint 'length)
+		'(uint 'slot))
 
 	(push-scope)
 	(f-entry 'lisp 'func_call {this, args})
@@ -48,8 +50,6 @@
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error1)
 	(f-call 'boxed_long 'get_value {value} {_, slot})
 	(f-call 'vector 'get_second {args} {_, value})
-	(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'obj)) {_, table})
-	(errorifnot {table} 'error1)
 	(assign {value->obj_vtable} {value})
 
 	;lookup handler in dispatch tables
