@@ -18,7 +18,6 @@
 (def-method 'free 'sys/mem_free 'static '(r0))
 (def-method 'clear 'sys/mem_clear 'static '(r0 r1) '(r0))
 (def-method 'fill 'sys/mem_fill 'static '(r0 r1 r2) '(r0))
-(def-method 'xor 'sys/mem_xor 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'copy 'sys/mem_copy 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'realloc 'sys/mem_realloc 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'recalloc 'sys/mem_recalloc 'static '(r0 r1 r2) '(r0 r1))
