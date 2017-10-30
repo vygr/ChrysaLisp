@@ -15,6 +15,7 @@
 (def-method 'init 'sys/mem_init)
 (def-method 'deinit 'sys/mem_deinit)
 (def-method 'alloc 'sys/mem_alloc 'static '(r0) '(r0 r1))
+(def-method 'calloc 'sys/mem_calloc 'static '(r0) '(r0 r1))
 (def-method 'free 'sys/mem_free 'static '(r0))
 (def-method 'clear 'sys/mem_clear 'static '(r0 r1) '(r0))
 (def-method 'fill 'sys/mem_fill 'static '(r0 r1 r2) '(r0))

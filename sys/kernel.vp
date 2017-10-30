@@ -139,7 +139,11 @@
 				;new kernel routing table ?
 				(vp-cpy-ir r14 kn_msg_link_route_origin r10)
 				(vp-mul-cr lk_route_size r10)
-				(f-call 'sys_mem 'recalloc '((rsp lk_table_array) (rsp lk_table_array_size) (& r10 lk_route_size)) '((rsp lk_table_array) (rsp lk_table_array_size)))
+				(assign '((rsp lk_table_array) (rsp lk_table_array_size) (& r10 lk_route_size)) '(r0 r1 r2))
+				(vpif '(r2 > r1))
+					(f-call 'sys_mem 'recalloc '(r0 r1 r2) '(r0 r1))
+					(assign '(r0 r1) '((rsp lk_table_array) (rsp lk_table_array_size)))
+				(endif)
 
 				;compare hop counts
 				(vp-add-cr lk_route_hops r0)
@@ -159,7 +163,11 @@
 					(f-bind 'sys_link 'statics r13)
 					(loop-list-forward r13 lk_statics_links_list r11 r13)
 						;new link route table ?
-						(f-call 'sys_mem 'recalloc '((r11 (add lk_node_table lk_table_array)) (r11 (add lk_node_table lk_table_array_size)) (& r10 lk_route_size)) '((r11 (add lk_node_table lk_table_array)) (r11 (add lk_node_table lk_table_array_size))))
+						(assign '((r11 (add lk_node_table lk_table_array)) (r11 (add lk_node_table lk_table_array_size)) (& r10 lk_route_size)) '(r0 r1 r2))
+						(vpif '(r2 > r1))
+							(f-call 'sys_mem 'recalloc '(r0 r1 r2) '(r0 r1))
+							(assign '(r0 r1) '((r11 (add lk_node_table lk_table_array)) (r11 (add lk_node_table lk_table_array_size))))
+						(endif)
 
 						(vp-add-cr lk_route_hops r0)
 						(vp-cpy-ir r11 lk_node_cpu_id r9)
@@ -180,7 +188,12 @@
 					(f-bind 'sys_link 'statics r13)
 					(loop-list-forward r13 lk_statics_links_list r11 r13)
 						;new link route table ?
-						(f-call 'sys_mem 'recalloc '((r11 (add lk_node_table lk_table_array)) (r11 (add lk_node_table lk_table_array_size)) (& r10 lk_route_size)) '((r11 (add lk_node_table lk_table_array)) (r11 (add lk_node_table lk_table_array_size))))
+						(assign '((r11 (add lk_node_table lk_table_array)) (r11 (add lk_node_table lk_table_array_size)) (& r10 lk_route_size)) '(r0 r1 r2))
+						(vpif '(r2 > r1))
+							(f-call 'sys_mem 'recalloc '(r0 r1 r2) '(r0 r1))
+							(assign '(r0 r1) '((r11 (add lk_node_table lk_table_array)) (r11 (add lk_node_table lk_table_array_size))))
+						(endif)
+
 						(vp-cpy-ir r11 lk_node_cpu_id r9)
 						(vpif '(r12 == r9))
 							;via route

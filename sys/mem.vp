@@ -86,9 +86,6 @@
 	(vp-cpy-ir-ui r1 hp_heap_cellsize r1)
 	(vp-add-cr ptr_size r0)
 	(vp-sub-cr ptr_size r1)
-;	(vp-push r0 r1 r2)
-;	(f-call 'sys_mem 'clear '(r0 r1))
-;	(vp-pop r0 r1 r2)
 	(f-exit 'sys_mem 'alloc '(r0 r1))
 	(vp-ret)
 
@@ -97,6 +94,27 @@
 	(f-call 'pii 'write_str '(2 "Malloc fail !!!"))
 	(f-exit 'sys_mem 'alloc '(0 0))
 	(vp-ret))
+
+(def-func-end)
+
+(def-func 'sys/mem_calloc)
+	;inputs
+	;r0 = minimum amount in bytes
+	;outputs
+	;r0 = 0 if failed, else address
+	;r1 = 0 if failed, else size given
+	;trashes
+	;r2-r3
+
+	(f-entry 'sys_mem 'calloc '(r0))
+	(f-call 'sys_mem 'alloc '(r0) '(r0 r1))
+	(vpif '(r0 != 0))
+		(vp-push r0 r1)
+		(f-call 'sys_mem 'clear '(r0 r1))
+		(vp-pop r0 r1)
+	(endif)
+	(f-exit 'sys_mem 'calloc '(r0 r1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -118,76 +136,88 @@
 
 (def-func 'sys/mem_realloc)
 	;inputs
-	;r0 = array
-	;r1 = array size
-	;r2 = new array size
+	;r0 = block address
+	;r1 = block size
+	;r2 = new block min size
 	;outputs
-	;r0 = new array
-	;r1 = new array size
+	;r0 = new block address
+	;r1 = new block size
 	;trashes
 	;r2-r7
 
-	(f-entry 'sys_mem 'realloc '(r0 r1 r2))
-	(vp-cpy-rr r0 r4)
-	(vp-cpy-rr r1 r5)
-	(vpif '(r2 > r1))
-		;alloc new table
-		(f-call 'sys_mem 'alloc '(r2) '(r0 _))
-		(vp-cpy-rr r0 r6)
-		(vp-cpy-rr r1 r7)
-		(vpif '(r5 != 0))
-			;copy over old data
-			(f-call 'sys_mem 'copy '(r4 r6 r5))
+	(f-entry 'sys_mem 'realloc '(r4 r5 r2))
 
-			;free existing
-			(f-call 'sys_mem 'free '(r4))
+	;alloc new block
+	(vpif '(r2 != 0))
+		(f-call 'sys_mem 'alloc '(r2) '(r0 r1))
+	(else)
+		(vp-cpy-rr r2 r0)
+		(vp-cpy-rr r2 r1)
+	(endif)
+	(vp-cpy-rr r0 r6)
+	(vp-cpy-rr r1 r7)
+
+	(vpif '(r5 != 0))
+		(vpif '(r7 != 0))
+			;copy over old data
+			(vpif '(r7 < r5))
+				(vp-cpy-rr r7 r5)
+			(endif)
+			(f-call 'sys_mem 'copy '(r4 r6 r5))
 		(endif)
 
-		;save new table
-		(vp-cpy-rr r6 r0)
-		(vp-cpy-rr r7 r1)
+		;free existing
+		(f-call 'sys_mem 'free '(r4))
 	(endif)
-	(f-exit 'sys_mem 'realloc '(r0 r1))
+
+	(f-exit 'sys_mem 'realloc '(r6 r7))
 	(vp-ret)
 
 (def-func-end)
 
 (def-func 'sys/mem_recalloc)
 	;inputs
-	;r0 = array
-	;r1 = array size
-	;r2 = new array size
+	;r0 = block address
+	;r1 = block size
+	;r2 = new block min size
 	;outputs
-	;r0 = new array
-	;r1 = new array size
+	;r0 = new block address
+	;r1 = new block size
 	;trashes
 	;r2-r7
 
-	(f-entry 'sys_mem 'recalloc '(r0 r1 r2))
-	(vp-cpy-rr r0 r4)
-	(vp-cpy-rr r1 r5)
-	(vpif '(r2 > r1))
-		;alloc new table
-		(f-call 'sys_mem 'alloc '(r2) '(r0 _))
-		(vp-cpy-rr r0 r6)
-		(vp-cpy-rr r1 r7)
+	(f-entry 'sys_mem 'recalloc '(r4 r5 r2))
 
-		;clear it to empty
-		(f-call 'sys_mem 'clear '(r0 r1))
+	;alloc new block
+	(vpif '(r2 != 0))
+		(f-call 'sys_mem 'alloc '(r2) '(r0 r1))
+	(else)
+		(vp-cpy-rr r2 r0)
+		(vp-cpy-rr r2 r1)
+	(endif)
+	(vp-cpy-rr r0 r6)
+	(vp-cpy-rr r1 r7)
 
-		(vpif '(r5 != 0))
+	;clear new area
+	(vp-sub-rr r5 r1)
+	(vpif '(r1 > 0))
+		(f-call 'sys_mem 'clear '((& r0 r5) r1))
+	(endif)
+
+	(vpif '(r5 != 0))
+		(vpif '(r7 != 0))
 			;copy over old data
+			(vpif '(r7 < r5))
+				(vp-cpy-rr r7 r5)
+			(endif)
 			(f-call 'sys_mem 'copy '(r4 r6 r5))
-
-			;free existing
-			(f-call 'sys_mem 'free '(r4))
 		(endif)
 
-		;save new table
-		(vp-cpy-rr r6 r0)
-		(vp-cpy-rr r7 r1)
+		;free existing
+		(f-call 'sys_mem 'free '(r4))
 	(endif)
-	(f-exit 'sys_mem 'recalloc '(r0 r1))
+
+	(f-exit 'sys_mem 'recalloc '(r6 r7))
 	(vp-ret)
 
 (def-func-end)
