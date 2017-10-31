@@ -368,7 +368,7 @@
 	(vp-align short_size)
 (vp-label l)
 	(each (lambda (_)
-		(vp-short `(sub ,(label-sym (link-sym (fn-find-link (f-path 'class _)))) *pc*))) _))
+		(vp-short (list 'sub (label-sym (link-sym (fn-find-link (f-path 'class _)))) '*pc*))) _))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction

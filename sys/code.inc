@@ -75,15 +75,15 @@
 
 (defcmacro errorif (e l)
 	(if debug_mode
-		`(gotoif ,e ,l)))
+		(list 'gotoif e l)))
 
 (defcmacro errorifnot (e l)
 	(if debug_mode
-		`(gotoifnot ,e ,l)))
+		(list 'gotoifnot e l)))
 
 (defcmacro errorcases (&rest e)
 	(if debug_mode
-		`(progn ~e)))
+		(cat '(progn) e)))
 
 (defcfun switch (&optional _)
 	(push *switch-stk* *switch*)
@@ -222,7 +222,7 @@
 (defcvar '*sym-sp* 0 '*syms* (list))
 
 (defmacro new-scope ()
-	`(push *syms* (list 0 (list) (list))))
+	'(push *syms* (list 0 (list) (list))))
 
 (defcfun get-scope (_)
 	(defq o 0)
@@ -492,22 +492,22 @@
 	`(not (lt (ascii " ") (code ,_) 127)))
 
 (defmacro is_symbol_char (_)
-	`(find ,_ "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"))
+	(list 'find _ "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"))
 
 (defmacro is_label_char (_)
-	`(find ,_ "0123456789_abcdefghijklmnopqrstuvwxyz"))
+	(list 'find _ "0123456789_abcdefghijklmnopqrstuvwxyz"))
 
 (defmacro is_atom_char (_)
-	`(find ,_ "0123456789_abcdefghijklmnopqrstuvwxyz*-"))
+	(list 'find _ "0123456789_abcdefghijklmnopqrstuvwxyz*-"))
 
 (defmacro is_numeral_char (_)
-	`(find ,_ "0123456789"))
+	(list 'find _ "0123456789"))
 
 (defmacro is_allowed_number_char (_)
-	`(find ,_ "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789"))
+	(list 'find _ "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789"))
 
 (defmacro token-push (&rest b)
-	`(push *token* (list ~b)))
+	(list 'push '*token* (cat '(list) b)))
 
 (defcvar '*token* (list))
 
@@ -653,16 +653,16 @@
 (each (lambda (_) (defcvar _ nil)) *vreg*)
 
 (defmacro vreg-sym (_)
-	`(elem ,_ *vreg*))
+	(list 'elem _ '*vreg*))
 
 (defmacro add-inst (&rest b)
-	`(push *inst* ~b))
+	(cat '(push *inst*) b))
 
 (defmacro set-type (_)
-	`(elem-set -2 *vregt* ,_))
+	(list 'elem-set -2 '*vregt* _))
 
 (defmacro get-type ()
-	'(elem -2 *vregt*))
+	(list 'elem -2 '*vregt*))
 
 (defmacro top-reg ()
 	'(vreg-sym (dec (length *vregt*))))
@@ -704,7 +704,7 @@
 	(throw "Null operator !" nil))
 
 (defcfun compile-const (_)
-	(add-inst `(vp-cpy-cr ,_ ,(push-reg nil))))
+	(add-inst (list 'vp-cpy-cr _ (push-reg nil))))
 
 (defcfun compile-assign ()
 	(bind '(y w) (pop-reg))
@@ -734,15 +734,15 @@
 			(cond
 				((def? (type-sym _))
 					;field/member
-					(add-inst `(vp-cpy-cr ,_ ,(push-reg (eval (type-sym _))))))
+					(add-inst (list 'vp-cpy-cr _ (push-reg (eval (type-sym _))))))
 				((def? _)
 					;equate
 					(compile-const _))
 				(t (throw "Symbol not defined !" _))))
 		((eql 'var (elem 1 s))
 			;variable
-			(add-inst `(vp-lea-i rsp ,(add (get-scope (elem 0 s)) (elem 2 s))
-									,(push-reg (elem 3 s)))))
+			(add-inst (list 'vp-lea-i rsp (add (get-scope (elem 0 s)) (elem 2 s))
+									(push-reg (elem 3 s)))))
 		(t (throw "Symbol not a variable !" _))))
 
 (defcfun compile-cast (_)
@@ -951,9 +951,9 @@
 	;results in p and m of parent env !
 	(cond
 		((eq 1 (length b))
-			`(opt-find-1 ,i ,r ~b))
+			(cat (list 'opt-find-1 i r) b))
 		((eq 2 (length b))
-			`(opt-find-2 ,i ,r ~b))
+			(cat (list 'opt-find-2 i r) b))
 		(t (throw "Wrong number of args in opt-find?" b))))
 
 (defcfun opt-find-1 (i r x)
@@ -977,24 +977,24 @@
 			;variable loading and offset folding
 			((find (defq e (elem i *inst*) o (elem 0 e))
 				'(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui))
-				(when (opt-find? i (defq r (elem 1 e)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r))
+				(when (opt-find? i (defq r (elem 1 e)) (list 'vp-lea-i rsp '_ r) (list 'vp-add-cr '_ r))
 					(cond
 						((eq m 0)
 							(elem-set 1 e rsp)
-							(elem-set 2 e `(add ,(elem 2 (elem p *inst*)) ,(elem 2 e))))
+							(elem-set 2 e (list 'add (elem 2 (elem p *inst*)) (elem 2 e))))
 						((eq m 1)
-							(elem-set 2 e `(add ,(elem 1 (elem p *inst*)) ,(elem 2 e)))
+							(elem-set 2 e (list 'add (elem 1 (elem p *inst*)) (elem 2 e)))
 							(setq i (dec i))))
 					(elem-set p *inst* (lambda))))
 			;variable writing and offset folding
 			((find o '(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i))
-				(when (opt-find? i (defq r (elem 2 e)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r))
+				(when (opt-find? i (defq r (elem 2 e)) (list 'vp-lea-i rsp '_ r) (list 'vp-add-cr '_ r))
 					(cond
 						((eq m 0)
 							(elem-set 2 e rsp)
-							(elem-set 3 e `(add ,(elem 2 (elem p *inst*)) ,(elem 3 e))))
+							(elem-set 3 e (list 'add (elem 2 (elem p *inst*)) (elem 3 e))))
 						((eq m 1)
-							(elem-set 3 e `(add ,(elem 1 (elem p *inst*)) ,(elem 3 e)))
+							(elem-set 3 e (list 'add (elem 1 (elem p *inst*)) (elem 3 e)))
 							(setq i (dec i))))
 					(elem-set p *inst* (lambda))))
 			;strength reduction
@@ -1006,20 +1006,20 @@
 			((defq l '(vp-add-cr vp-sub-cr vp-mul-cr
 						vp-and-cr vp-or-cr vp-xor-cr
 						vp-shl-cr vp-shr-cr vp-asr-cr) c (find o l))
-				(when (opt-find? i (defq r (elem 2 e)) `(vp-cpy-cr _ ,r) `(,(elem c l) _ ,r))
+				(when (opt-find? i (defq r (elem 2 e)) (list 'vp-cpy-cr '_ r) (list (elem c l) '_ r))
 					(cond
 						((eq m 0)
 							(setq c (elem c '(add sub mul bit-and bit-or bit-xor bit-shl bit-shr bit-asr)))
 							(elem-set 0 e 'vp-cpy-cr))
 						((eq m 1)
 							(setq c (elem c '(add add mul bit-and bit-or bit-xor add add add)))))
-					(elem-set 1 e `(,c ,(elem 1 (elem p *inst*)) ,(elem 1 e)))
+					(elem-set 1 e (list c (elem 1 (elem p *inst*)) (elem 1 e)))
 					(elem-set p *inst* (lambda))))
 			;constant propagation
 			((defq c (find o '(vp-add-rr vp-sub-rr vp-mul-rr
 								vp-and-rr vp-or-rr vp-xor-rr
 								vp-shl-rr vp-shr-rr vp-asr-rr)))
-				(when (opt-find? i (defq r (elem 1 e)) `(vp-cpy-cr _ ,r))
+				(when (opt-find? i (defq r (elem 1 e)) (list 'vp-cpy-cr '_ r))
 					(elem-set 0 e (elem c '(vp-add-cr vp-sub-cr vp-mul-cr
 											vp-and-cr vp-or-cr vp-xor-cr
 											vp-shl-cr vp-shr-cr vp-asr-cr)))

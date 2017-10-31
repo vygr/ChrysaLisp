@@ -17,15 +17,15 @@
 (defun class-entry (c)
 	;c = class symbol
 	(vp-short
-		`(sub ,(label-sym (link-sym (fn-find-link (f-path 'class c)))) *pc* 0)
-		`(sub ,(label-sym (cat c "_slot_table")) *pc* 2)))
+		(list 'sub (label-sym (link-sym (fn-find-link (f-path 'class c)))) '*pc* 0)
+		(list 'sub (label-sym (cat c "_slot_table")) '*pc* 2)))
 
 (defun slot-entry (c s)
 	;c = class symbol
 	;s = slot symbol
 	(vp-short
 		(method-slot c s)
-		`(sub *pc* ,(label-sym (cat c "_" s "_handler")) 2)))
+		(list 'sub '*pc* (label-sym (cat c "_" s "_handler")) 2)))
 
 (def-func 'class/lisp/func_call)
 	;inputs

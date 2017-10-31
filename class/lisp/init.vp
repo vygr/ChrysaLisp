@@ -21,9 +21,9 @@
 	;u = function
 	;g = flags
 	(vp-short
-		`(sub ,(label-sym (string-sym (fn-add-string s))) *pc*)
+		(list 'sub (label-sym (string-sym (fn-add-string s))) '*pc*)
 		f
-		(if u `(sub ,(label-sym (link-sym (fn-find-link (f-path 'lisp u)))) *pc* 4) 0)
+		(if u (list 'sub (label-sym (link-sym (fn-find-link (f-path 'lisp u)))) '*pc* 4) 0)
 		(if g g func_type_args_eval_apply)))
 
 (def-func 'class/lisp/init)

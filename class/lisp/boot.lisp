@@ -10,8 +10,8 @@
 (defun sym? (_) (inst-of 'class/class_symbol _))
 (defun num? (_) (inst-of 'class/class_boxed_long _))
 
-(defmacro inc (_) `(add ,_ 1))
-(defmacro dec (_) `(sub ,_ 1))
+(defmacro inc (_) (list 'add _ 1))
+(defmacro dec (_) (list 'sub _ 1))
 
 (defmacro opt (x y &optional z) (cond (z `(if ,x ,z ,y)) (t `(if ,x ,x ,y))))
 (defmacro setd (&rest _)
