@@ -662,7 +662,7 @@
 	(list 'elem-set -2 '*vregt* _))
 
 (defmacro get-type ()
-	(list 'elem -2 '*vregt*))
+	'(elem -2 *vregt*))
 
 (defmacro top-reg ()
 	'(vreg-sym (dec (length *vregt*))))
