@@ -27,7 +27,7 @@ duplication where that is essential to create a class Vtable correctly.
 Add a string to the string pool, if not already present, and return its unique
 index value.
 
-### fn-add-str
+### fn-add-sym
 
 Add an atom string to the atom pool, if not already present, and return its
 unique index value.
@@ -44,7 +44,7 @@ Push an entry onto the Vtable, referring to a path added using fn-add-path.
 ### fn-add-atom
 
 Push an entry onto the atom table, referring to an atom string added using
-fn-add-str.
+fn-add-sym.
 
 ### fn-find-link
 

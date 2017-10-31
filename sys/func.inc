@@ -95,7 +95,7 @@
 	(while (and (lt (setq i (inc i)) (length *strings*)) (not (eql s (elem i *strings*)))))
 	(if (eq i (length *strings*)) (push *strings* s)) i)
 
-(defcfun fn-add-str (s)
+(defcfun fn-add-sym (s)
 	(defq i -1)
 	(while (and (lt (setq i (inc i)) (length *strs*)) (not (eql s (elem i *strs*)))))
 	(if (eq i (length *strs*)) (push *strs* s)) i)
@@ -108,7 +108,7 @@
 	(push *links* (fn-add-path p)))
 
 (defcfun fn-add-atom (p)
-	(push *atoms* (fn-add-str p)))
+	(push *atoms* (fn-add-sym p)))
 
 (defcfun fn-find-link (p)
 	(defq i -1)
