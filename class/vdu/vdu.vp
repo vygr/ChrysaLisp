@@ -32,7 +32,7 @@
 		(vp-cpy-ri-i r0 r4 vdu_height)
 		(f-call 'sys_mem 'alloc '((mul vdu_default_width vdu_default_height)) '(r0 r1))
 		(vp-cpy-ri r0 r4 vdu_chars)
-		(f-call 'sys_mem 'fill '(r0 r1 (ascii " ")))
+		(f-call 'sys_mem 'fill '(r0 r1 char_space))
 		(f-call 'sys_mem 'alloc '((mul 128 ptr_size)) '((r4 vdu_textures) _))
 
 		(vp-pop r0)
@@ -208,7 +208,7 @@
 		(assign {0} {this->vdu_cursor_x})
 		(assign {this->vdu_height - 1} {this->vdu_cursor_y})
 		(f-call 'sys_mem 'copy {this->vdu_chars + this->vdu_width, this->vdu_chars, (this->vdu_height - 1) * this->vdu_width})
-		(f-call 'sys_mem 'fill {this->vdu_chars + (this->vdu_height - 1) * this->vdu_width, this->vdu_width, 32})
+		(f-call 'sys_mem 'fill {this->vdu_chars + (this->vdu_height - 1) * this->vdu_width, this->vdu_width, char_space})
 		(f-call 'vdu 'dirty {this})
 	(endif)
 
@@ -233,7 +233,7 @@
 	(elseif {char == 129})
 		;clear line
 		(vpif {this->vdu_cursor_x})
-			(f-call 'sys_mem 'fill {this->vdu_chars + this->vdu_cursor_y * this->vdu_width, this->vdu_width, 32})
+			(f-call 'sys_mem 'fill {this->vdu_chars + this->vdu_cursor_y * this->vdu_width, this->vdu_width, char_space})
 			(f-call 'vdu 'add_dirty {this, 0, this->vdu_cursor_y * this->vdu_char_height, this->vdu_cursor_x * this->vdu_char_width, this->vdu_char_height})
 			(assign {0} {this->vdu_cursor_x})
 		(endif)
