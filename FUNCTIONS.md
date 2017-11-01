@@ -116,7 +116,7 @@ Load register with string address via the local string pool.
 
 ### fn-atom
 
-Load register with interned atom string objject via the local atom table.
+Load register with interned atom string object via the local atom table.
 
 ### fn-bind
 
