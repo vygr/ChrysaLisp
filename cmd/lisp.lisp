@@ -101,7 +101,7 @@
 				(progn
 					(defq b (load (func-obj _))
 						h (slice fn_header_entry (defq l (read-short fn_header_atoms b)) b)
-						l (slice l (defq p (read-short fn_header_strs b)) b))
+						l (slice l (defq p (read-short fn_header_syms b)) b))
 					(def *env* _ (list (cat (char -1 8) (char p 2) h) l (read-strings b))))))
 		(defun read-byte (o f)
 			(code (elem o f)))
@@ -117,7 +117,7 @@
 				(setq o (inc o)))
 			(sym (slice k o f)))
 		(defun read-strings (_)
-			(defq l (list) i (read-short fn_header_atoms _) e (read-short fn_header_strs _))
+			(defq l (list) i (read-short fn_header_atoms _) e (read-short fn_header_syms _))
 			(while (ne i e)
 				(push l (read-cstr (add (read-long i _) i) _))
 				(setq i (add i 8))) l)
