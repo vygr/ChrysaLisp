@@ -48,7 +48,11 @@ entries in the path pool. In bound format they are pointers to the code section
 of the external functions.
 
 * ushort fn_header_syms: Offset in bytes to the atom string pool. 0 terminated
-C style strings.
+C style strings. After interning of the atom symbols this offset is set to 0.
+Resolution of the atom symbols takes place via calling 'symbol 'intern_atoms.
+Any function that uses atoms must call this method at least once, subsequent
+calls will detect, via this offset now being 0, that resolution has already
+happened.
 
 * ushort fn_header_paths: Offset in bytes to the path string pool. 0 terminated
 C style strings.
