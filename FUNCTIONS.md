@@ -5,7 +5,7 @@ thing to say about any computer program but they are organised in a slightly
 different way than other systems.
 
 They are not bound into larger groupings such as libraries. More often than not
-ChrysaLisp functions are collected into classes. Classes implamwnt a general
+ChrysaLisp functions are collected into classes. Classes implement a general
 concept and the methods of that class are individual related but unbound
 functions.
 
