@@ -205,7 +205,7 @@
 (def-func 'class/font/get_word)
 	;inputs
 	;r0 = font object
-	;r2 = string object
+	;r1 = string object
 	;outputs
 	;r0 = font object
 	;r1 = 0 if error, word texture handle
