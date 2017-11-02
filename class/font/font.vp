@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
 (import 'class/font/font.inc)
 (import 'class/symbol/symbol.inc)
-(import 'class/array/array.inc)
+(import 'class/vector/vector.inc)
 (import 'class/hash_map/hash_map.inc)
 (import 'class/pair/pair.inc)
 (import 'gui/sdl2.inc)
@@ -221,21 +221,24 @@
 	(ptr 'this 'word 'array)
 
 	(union
-		'(pptr 'iter)
+		'(pptr 'iter 'bucket)
 		'(uint 'width 'height))
 
 	(push-scope)
 	(f-entry 'font 'get_word {this, word})
 
 	;look up string in word map
-	(f-call 'hash_map 'find {this->font_word_map, word} {_, iter, _})
+	(f-call 'hash_map 'find {this->font_word_map, word} {_, iter, bucket})
 	(vpifnot {iter})
+		;add new entry, not using insert as that does another find
 		(f-call 'array 'create {} {array})
 		(f-call 'array 'set_capacity {array, 3})
 		(d-call 'array 'set_element {array, 0, 0})
 		(d-call 'array 'set_element {array, 0, 1})
 		(d-call 'array 'set_element {array, 0, 2})
-		(f-call 'hash_map 'insert {this->font_word_map, word, array})
+		(f-call 'symbol 'ref {word})
+		(f-call 'pair 'create {word, array} {iter})
+		(f-call 'vector 'push_back {bucket, iter})
 
 		;kernel callback for word texture creation
 		(f-call 'sys_task 'callback {$word_callback, &this})
