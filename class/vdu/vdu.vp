@@ -125,7 +125,7 @@
 	;all but r0
 
 	(ptr 'this)
-	(ulong 'width 'height)
+	(uint 'width 'height)
 
 	;save inputs
 	(push-scope)
@@ -149,7 +149,7 @@
 	;all but r0
 
 	(ptr 'this 'name 'word 'txt)
-	(ulong 'points 'code)
+	(uint 'points 'code)
 
 	;save inputs
 	(push-scope)

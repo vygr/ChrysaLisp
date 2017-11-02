@@ -30,7 +30,7 @@
 (def-struct-end)
 
 (def-struct 'vdu_txt)
-	(ptr 'handle)
+	(ulong 'handle)
 	(uint 'width)
 	(uint 'height)
 (def-struct-end)

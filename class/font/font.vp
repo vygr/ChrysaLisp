@@ -19,8 +19,9 @@
 	;all
 
 	(ptr 'this 'name 'set)
-	(pptr 'iter)
-	(uint 'points)
+	(union
+		'(pptr 'iter)
+		'(uint 'points))
 
 	(push-scope)
 	(f-entry 'font 'open {name, points})
@@ -220,8 +221,9 @@
 
 	(ptr 'this 'word 'array)
 
-	(uint 'width 'height)
-	(pptr 'iter)
+	(union
+		'(pptr 'iter)
+		'(uint 'width 'height))
 
 	(push-scope)
 	(f-entry 'font 'get_word {this, word})
@@ -254,8 +256,10 @@
 	;inputs
 	;r0 = user data
 
-	(ptr 'user 'surface 'statics 'old_stack)
-	(ulong 'texture)
+	(ptr 'user 'surface 'old_stack)
+	(union
+		'(ptr 'statics)
+		'(ulong 'texture))
 
 	;align stack
 	(vp-cpy-rr rsp r1)
