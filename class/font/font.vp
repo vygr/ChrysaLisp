@@ -239,8 +239,7 @@
 		;kernel callback for word texture creation
 		(f-call 'sys_task 'callback {$word_callback, &this})
 	(else)
-		(assign {*iter} {array})
-		(f-call 'pair 'get_second {array} {_, array})
+		(f-call 'pair 'get_second {*iter} {_, array})
 	(endif)
 
 	(f-call 'array 'get_first {array} {_, word})
