@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'gui/gui.inc)
-(import 'gui/font.inc)
+(import 'class/font/font.inc)
 (import 'class/vector/vector.inc)
 (import 'class/text/text.inc)
 (import 'class/string/string.inc)
@@ -23,7 +23,7 @@
 		(vp-push r0)
 
 		;init myself
-		(f-call 'gui_font 'open '("fonts/OpenSans-Regular.ttf" 18) '(r0))
+		(f-call 'font 'open '("fonts/OpenSans-Regular.ttf" 18) '(r0))
 		(assert '(r0 != 0))
 		(vp-cpy-ir rsp 0 r1)
 		(vp-cpy-ri r0 r1 text_font)
@@ -55,6 +55,9 @@
 		(f-call 'vector 'deref '((r0 text_words)))
 	(endif)
 
+	(vp-cpy-ir rsp 0 r0)
+	(f-call 'font 'deref_if '((r0 text_font)))
+
 	;deinit parent
 	(vp-pop r0)
 	(s-jmp 'text 'deinit '(r0))
@@ -70,7 +73,7 @@
 
 	(ptr 'this 'ctx 'txt)
 	(pptr 'words 'words_end)
-	(int 'x)
+	(int 'x 'w 'h)
 
 	;save inputs
 	(push-scope)
@@ -81,10 +84,10 @@
 		(f-call 'vector 'get_iters {this->text_words} {_, words, words_end})
 		(assign {0} {x})
 		(loop-start)
-			(f-call 'gui_font 'text {this->text_font, *words} {txt})
+			(f-call 'font 'get_word {this->text_font, *words} {_, txt, w, h})
 			(vpif {txt})
-				(f-call 'gui_ctx 'blit {ctx, txt->ft_text_texture, this->text_text_color, x, 0, txt->ft_text_width, txt->ft_text_height})
-				(assign {x + txt->ft_text_width + (txt->ft_text_height >> 2)} {x})
+				(f-call 'gui_ctx 'blit {ctx, txt, this->text_text_color, x, 0, w, h})
+				(assign {x + w + (h >> 2)} {x})
 			(endif)
 			(assign {words + ptr_size} {words})
 		(loop-until {words == words_end})
@@ -145,7 +148,7 @@
 	(vpif {this->text_string && this->text_font})
 		(f-call 'vector 'get_iters {this->text_words} {_, words, words_end})
 		(loop-start)
-			(f-call 'gui_font 'bounds {this->text_font, *words} {word_w, height})
+			(f-call 'font 'get_word {this->text_font, *words} {_, _, word_w, height})
 			(assign {words + ptr_size} {words})
 			(assign {width + word_w} {width})
 		(loop-until {words == words_end})
@@ -167,23 +170,20 @@
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(ptr 'this 'name)
+	(uint 'points)
 
 	;save inputs
-	(vp-alloc local_size)
-	(f-entry 'text 'set_font '((rsp local_this) r1 r2))
+	(push-scope)
+	(f-entry 'text 'set_font {this, name, points})
 
-	;open font
-	(f-call 'gui_font 'open '(r1 r2) '(r1))
+	(f-call 'font 'open {name, points} {name})
+	(f-call 'font 'deref_if {this->text_font})
+	(assign {name} {this->text_font})
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-cpy-ri r1 r0 text_font)
-
-	(f-exit 'text 'set_font '(r0))
-	(vp-free local_size)
-	(vp-ret)
+	(f-exit 'text 'set_font {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

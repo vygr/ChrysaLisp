@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
 (import 'gui/gui.inc)
-(import 'gui/font.inc)
-(import 'class/string/string.inc)
+(import 'class/font/font.inc)
+(import 'class/symbol/symbol.inc)
 (import 'class/vdu/vdu.inc)
 (import 'class/text/text.inc)
 
@@ -25,7 +25,7 @@
 		;init myself
 		(vp-cpy-rr r0 r4)
 		(vp-xor-rr r0 r0)
-		(assign '(r0 r0 r0) '((r4 vdu_text_color i) (r4 vdu_cursor_x i) (r4 vdu_cursor_y i)))
+		(assign '(r0 r0 r0 r0) '((r4 vdu_font) (r4 vdu_text_color i) (r4 vdu_cursor_x i) (r4 vdu_cursor_y i)))
 		(vp-cpy-cr vdu_default_width r0)
 		(vp-cpy-ri-i r0 r4 vdu_width)
 		(vp-cpy-cr vdu_default_height r0)
@@ -33,7 +33,7 @@
 		(f-call 'sys_mem 'alloc '((mul vdu_default_width vdu_default_height)) '(r0 r1))
 		(vp-cpy-ri r0 r4 vdu_chars)
 		(f-call 'sys_mem 'fill '(r0 r1 char_space))
-		(f-call 'sys_mem 'alloc '((mul 128 ptr_size)) '((r4 vdu_textures) _))
+		(f-call 'sys_mem 'alloc '((mul 128 vdu_txt_size)) '((r4 vdu_textures) _))
 
 		(vp-pop r0)
 		(f-call 'vdu 'set_font '(r0 "fonts/Hack-Regular.ttf" 16))
@@ -55,6 +55,8 @@
 	(f-call 'sys_mem 'free '((r0 vdu_chars)))
 	(vp-cpy-ir rsp 0 r0)
 	(f-call 'sys_mem 'free '((r0 vdu_textures)))
+	(vp-cpy-ir rsp 0 r0)
+	(f-call 'font 'deref_if '((r0 vdu_font)))
 
 	;deinit parent
 	(vp-pop r0)
@@ -94,9 +96,9 @@
 			(loop-while {x <= bx1})
 				(assign {(this->vdu_chars)[by * this->vdu_width + x]} {char})
 				(vpif {char > 32 && char < 127})
-					(assign {(this->vdu_textures)[ptr_size * (char - 33)]} {txt})
+					(assign {&(this->vdu_textures)[vdu_txt_size * (char - 33)]} {txt})
 					(vpif {txt})
-						(f-call 'gui_ctx 'blit {ctx, txt->ft_text_texture, this->vdu_text_color, x * this->vdu_char_width, by * this->vdu_char_height, txt->ft_text_width, txt->ft_text_height})
+						(f-call 'gui_ctx 'blit {ctx, txt->vdu_txt_handle, this->vdu_text_color, x * this->vdu_char_width, by * this->vdu_char_height, txt->vdu_txt_width, txt->vdu_txt_height})
 					(endif)
 				(endif)
 				(assign {x + 1} {x})
@@ -147,7 +149,6 @@
 	;all but r0
 
 	(ptr 'this 'name 'word 'txt)
-	(pushort 'wordp)
 	(ulong 'points 'code)
 
 	;save inputs
@@ -158,22 +159,20 @@
 	(assign {points + (points >> 2)} {this->vdu_char_height})
 	(assign {points * 10 >> 4} {this->vdu_char_width})
 
-	;open font
-	(f-call 'gui_font 'open {name, points} {this->vdu_font})
+	;open new font
+	(f-call 'font 'deref_if {this->vdu_font})
+	(f-call 'font 'open {name, points} {this->vdu_font})
 
 	;cache char textures
 	(vpif {this->vdu_font})
-		(f-call 'string 'create_from_cstr {" "} {word})
-		(assign {&word->string_data} {wordp})
 		(assign {33} {code})
 		(loop-start)
-			(assign {code} {*wordp})
-			(assign {0} {word->string_hashcode})
-			(f-call 'gui_font 'text {this->vdu_font, word} {txt})
-			(assign {txt} {(this->vdu_textures)[ptr_size * (code - 33)]})
+			(f-call 'symbol 'intern_cstr {&code} {word})
+			(assign {&(this->vdu_textures)[vdu_txt_size * (code - 33)]} {txt})
+			(f-call 'font 'get_word {this->vdu_font, word} {_, txt->vdu_txt_handle, txt->vdu_txt_width, txt->vdu_txt_height})
+			(f-call 'symbol 'deref {word})
 			(assign {code + 1} {code})
 		(loop-until {code == 127})
-		(f-call 'string 'deref {word})
 	(endif)
 
 	(f-exit 'vdu 'set_font {this})

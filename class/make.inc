@@ -31,3 +31,4 @@
 (import 'class/window/make.inc)
 (import 'class/canvas/make.inc)
 (import 'class/points/make.inc)
+(import 'class/font/make.inc)

@@ -1,6 +1,5 @@
 (import 'sys/func.inc)
 (import 'gui/gui.inc)
-(import 'gui/font.inc)
 (import 'class/window/window.inc)
 (import 'class/title/title.inc)
 (import 'class/flow/flow.inc)

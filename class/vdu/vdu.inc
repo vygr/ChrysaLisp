@@ -19,7 +19,7 @@
 (def-struct 'vdu 'view)
 	(ptr 'font)
 	(pubyte 'chars)
-	(pptr 'textures)
+	(ptr 'textures)
 	(int 'cursor_x)
 	(int 'cursor_y)
 	(uint 'width)
@@ -27,6 +27,12 @@
 	(ushort 'char_width)
 	(ushort 'char_height)
 	(uint 'text_color)
+(def-struct-end)
+
+(def-struct 'vdu_txt)
+	(ptr 'handle)
+	(uint 'width)
+	(uint 'height)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;

@@ -1,7 +1,6 @@
 (import 'sys/func.inc)
 (import 'sys/link.inc)
 (import 'sys/load.inc)
-(import 'gui/font.inc)
 (import 'gui/sdl2.inc)
 (import 'sys/kernel.inc)
 (import 'sys/string.inc)
@@ -298,9 +297,6 @@
 	;free any kernel routing table
 	(f-call 'sys_mem 'free '((rsp lk_table_array)))
 	(vp-free lk_table_size)
-
-	;deinit font
-	(f-call 'gui_font 'deinit)
 
 	;deinit allocator
 	(f-call 'sys_mem 'deinit)
