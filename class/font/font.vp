@@ -37,9 +37,8 @@
 	(f-call 'font 'create {name, points} {this})
 	(vpif {this})
 		(f-call 'hash_set 'insert {set, this} {_, iter, _})
-		(f-call 'font 'ref {*iter})
 		(f-call 'font 'deref {this})
-		(assign {*iter} {this})
+		(f-call 'font 'ref {*iter} {this})
 	(endif)
 
 	(f-exit 'font 'open {this})
