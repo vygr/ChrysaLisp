@@ -96,6 +96,7 @@
 	(vp-string "tests/farm") (vp-byte 0)
 	(vp-string "tests/pipe") (vp-byte 0)
 	(vp-string "tests/global") (vp-byte 0)
+	(vp-string "tests/migrate") (vp-byte 0)
 	(vp-byte 0)
 
 (def-func-end)

@@ -139,6 +139,7 @@
 		'(uint 'num))
 
 	(push-scope)
+
 	;read exit command etc
 	(f-call 'sys_mail 'mymail {} {msg})
 	(f-call 'sys_mem 'free {msg})
@@ -146,6 +147,79 @@
 	;wait a bit
 	(f-call 'math 'random {1000000} {num})
 	(f-call 'sys_task 'sleep {num + 1000000})
+
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'tests/migrate)
+
+	(defcvar 'num_child 32)
+
+	(ptr 'name 'ids 'msg 'mbox)
+	(ulong 'cpu)
+	(uint 'length)
+
+	(push-scope)
+
+	;open farm
+	(f-call 'string 'create_from_cstr {"tests/migrate_child"} {name})
+	(f-call 'sys_task 'open_farm {name, num_child} {ids})
+
+	;send start value messages etc
+	(loop-start)
+		(d-call 'array 'get_length {ids} {_, length})
+		(breakifnot {length})
+		(f-call 'array 'get_back {ids} {_, cpu})
+		(d-call 'array 'pop_back {ids})
+		(f-call 'array 'get_back {ids} {_, mbox})
+		(d-call 'array 'pop_back {ids})
+		(continueifnot {mbox})
+		(f-call 'sys_mail 'alloc {msg_header_size + long_size} {msg})
+		(assign {mbox} {msg->msg_dest.id_mbox})
+		(assign {cpu} {msg->msg_dest.id_cpu})
+		(assign {10} {ulong(&msg->msg_header_size)})
+		(f-call 'sys_mail 'send {msg})
+		(f-call 'sys_task 'yield)
+	(loop-end)
+
+	;free name and ID array
+	(f-call 'string 'deref {name})
+	(f-call 'array 'deref {ids})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'tests/migrate_child)
+
+	(ptr 'msg 'name)
+	(ulong 'num)
+
+	(push-scope)
+
+	;read work value etc
+	(f-call 'sys_mail 'mymail {} {msg})
+
+	;wait a bit (gee that's hard work etc)
+	(f-call 'math 'random {100000} {num})
+	(f-call 'sys_task 'sleep {num + 100000})
+
+	;do we have more work to do ?
+	(assign {ulong(&msg->msg_header_size)} {num})
+	(assign {num - 1} {num})
+	(vpif {num})
+		;more work to do, so lets migrate the task
+		(assign {num} {ulong(&msg->msg_header_size)})
+		(f-call 'string 'create_from_cstr {"tests/migrate_child"} {name})
+		(f-call 'sys_task 'open {name} {msg->msg_dest.id_mbox, msg->msg_dest.id_cpu})
+		(f-call 'string 'deref {name})
+		(f-call 'sys_mail 'send {msg})
+	(else)
+		;no, we're done
+		(f-call 'sys_mem 'free {msg})
+	(endif)
 
 	(pop-scope)
 	(return)
