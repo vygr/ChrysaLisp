@@ -63,12 +63,11 @@
 	(f-call 'canvas 'swap {canvas})
 
 	;start lisp task and send it args
-	(f-call 'sys_mail 'alloc {} {msg})
+	(f-call 'sys_mail 'alloc {canvas_msg_size} {msg})
 	(f-call 'sys_task 'start {@apps/canvas/lisp} {_, msg->msg_dest.id_mbox, msg->msg_dest.id_cpu})
 	(assign {canvas, app_width * 1.0, app_height * 1.0, app_scale}
 			{msg->canvas_msg_arg0, msg->canvas_msg_arg1, msg->canvas_msg_arg2, msg->canvas_msg_arg3})
 	(f-call 'canvas 'ref {canvas})
-	(assign {canvas_msg_size} {msg->msg_length})
 	(f-call 'sys_mail 'send {msg})
 
 	;app event loop

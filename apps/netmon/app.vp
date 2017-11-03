@@ -165,9 +165,8 @@
 			;send out sample commands
 			(loop-start)
 				(assign {cpu_count - 1} {cpu_count})
-				(f-call 'sys_mail 'alloc {} {msg})
+				(f-call 'sys_mail 'alloc {sample_msg_size} {msg})
 				(assign {1} {msg->sample_msg_command})
-				(assign {sample_msg_size} {msg->msg_length})
 				(assign {cpu_count * ptr_size * 2} {msg->sample_msg_index})
 				(f-call 'array 'get_element {ids, cpu_count * 2} {_, msg->msg_dest.id_mbox})
 				(f-call 'array 'get_element {ids, cpu_count * 2 + 1} {_, msg->msg_dest.id_cpu})
@@ -224,9 +223,8 @@
 	;send out exit commands
 	(loop-start)
 		(assign {cpu_count - 1} {cpu_count})
-		(f-call 'sys_mail 'alloc {} {msg})
+		(f-call 'sys_mail 'alloc {sample_msg_size} {msg})
 		(assign {0} {msg->sample_msg_command})
-		(assign {sample_msg_size} {msg->msg_length})
 		(f-call 'array 'get_element {ids, cpu_count * 2} {_, msg->msg_dest.id_mbox})
 		(f-call 'array 'get_element {ids, cpu_count * 2 + 1} {_, msg->msg_dest.id_cpu})
 		(f-call 'sys_mail 'send {msg})

@@ -36,12 +36,11 @@
 
 	;start stdin polling task and send it tui mailbox id
 	(f-call 'sys_task 'start {@apps/terminal/tui_child} {_, stdin_id.id_mbox, stdin_id.id_cpu})
-	(f-call 'sys_mail 'alloc {} {msg})
+	(f-call 'sys_mail 'alloc {tui_msg_size} {msg})
 	(assign {stdin_id.id_mbox} {msg->msg_dest.id_mbox})
 	(assign {stdin_id.id_cpu} {msg->msg_dest.id_cpu})
 	(assign {tui_id.id_mbox} {msg->tui_msg_reply_id.id_mbox})
 	(assign {tui_id.id_cpu} {msg->tui_msg_reply_id.id_cpu})
-	(assign {tui_msg_size} {msg->msg_length})
 	(f-call 'sys_mail 'send {msg})
 
 	;sign on
@@ -224,11 +223,10 @@
 	(vp-label 'nextchar)
 		(f-call 'pii 'read_char {0} {char})
 		(vpif {char})
-			(f-call 'sys_mail 'alloc {} {msg})
+			(f-call 'sys_mail 'alloc {stdin_msg_size} {msg})
 			(assign {tui_id.id_mbox} {msg->msg_dest.id_mbox})
 			(assign {tui_id.id_cpu} {msg->msg_dest.id_cpu})
 			(assign {char} {msg->stdin_msg_char})
-			(assign {stdin_msg_size} {msg->msg_length})
 			(f-call 'sys_mail 'send {msg})
 			(goto 'nextchar)
 		(endif)

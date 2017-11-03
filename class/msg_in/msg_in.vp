@@ -70,7 +70,7 @@
 
 		;send ack if needed
 		(vpif {msg->stream_mail_seqnum >> msg_out_ack_shift == this->msg_in_ack_seqnum})
-			(f-call 'sys_mail 'alloc {} {ack_msg})
+			(f-call 'sys_mail 'alloc {msg_header_size} {ack_msg})
 			(assign {msg->stream_mail_ack_id.id_mbox} {ack_msg->msg_dest.id_mbox})
 			(assign {msg->stream_mail_ack_id.id_cpu} {ack_msg->msg_dest.id_cpu})
 			(f-call 'sys_mail 'send {ack_msg})

@@ -149,8 +149,7 @@
 	(f-entry 'msg_out 'write_next {this})
 
 	(v-call 'stream 'write_flush {this})
-	(f-call 'sys_mail 'alloc {} {msg})
-	(assign {msg_size} {msg->msg_length})
+	(f-call 'sys_mail 'alloc {msg_size} {msg})
 	(assign {&msg->stream_mail_data} {this->stream_bufp})
 	(assign {&msg->msg_size} {this->stream_bufe})
 	(assign {msg} {this->stream_buffer})

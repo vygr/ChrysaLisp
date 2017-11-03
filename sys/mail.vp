@@ -52,37 +52,20 @@
 (def-func-end)
 
 (def-func 'sys/mail_alloc)
-	;outputs
-	;r0 = mail message
-	;trashes
-	;r1-r3
-
-	(f-bind 'sys_mail 'statics r0)
-	(f-call 'sys_mem 'alloc '(msg_size) '(r0 r1))
-	(vp-cpy-cr msg_header_size r1)
-	(vp-cpy-ri r1 r0 msg_length)
-	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r1 r0 msg_parcel_size)
-	(f-exit 'sys_mail 'alloc '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'sys/mail_alloc_parcel)
 	;inputs
-	;r0 = parcel size
+	;r0 = mail size
 	;outputs
 	;r0 = mail message
 	;trashes
 	;r1-r4
 
-	(f-entry 'sys_mail 'alloc_parcel '(r0))
+	(f-entry 'sys_mail 'alloc '(r0))
 	(vp-cpy-rr r0 r4)
 	(f-call 'sys_mem 'alloc '(r0) '(r0 r1))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r4 r0 msg_length)
 	(vp-cpy-ri r1 r0 msg_parcel_size)
-	(f-exit 'sys_mail 'alloc_parcel '(r0))
+	(f-exit 'sys_mail 'alloc '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -335,7 +318,7 @@
 		(vp-cpy-ir r14 (add msg_dest id_cpu) r12)
 		(loop-start)
 			;create fragment
-			(f-call 'sys_mail 'alloc '() '(r13))
+			(f-call 'sys_mail 'alloc '(msg_size) '(r13))
 
 			;fill in fragment header
 			(vp-cpy-ri r11 r13 (add msg_dest id_mbox))
