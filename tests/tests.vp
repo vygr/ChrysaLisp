@@ -155,7 +155,7 @@
 
 (def-func 'tests/migrate)
 
-	(defcvar 'num_child 32)
+	(defcvar 'num_child 128)
 
 	(ptr 'name 'ids 'msg 'mbox)
 	(ulong 'cpu)
@@ -213,11 +213,12 @@
 		;more work to do, so lets migrate the task
 		(assign {num} {ulong(&msg->msg_header_size)})
 		(f-call 'string 'create_from_cstr {"tests/migrate_child"} {name})
-		(f-call 'sys_task 'open_child {name} {msg->msg_dest.id_mbox, msg->msg_dest.id_cpu})
-;but we could really throw them around.....
-;		(f-call 'kernel 'total {} {num})
-;		(f-call 'math 'random {num} {num})
-;		(f-call 'sys_task 'open_remote {name, num} {msg->msg_dest.id_mbox, msg->msg_dest.id_cpu})
+
+;		(f-call 'sys_task 'open_child {name} {msg->msg_dest.id_mbox, msg->msg_dest.id_cpu})
+		(f-call 'kernel 'total {} {num})
+		(f-call 'math 'random {num} {num})
+		(f-call 'sys_task 'open_remote {name, num} {msg->msg_dest.id_mbox, msg->msg_dest.id_cpu})
+
 		(f-call 'string 'deref {name})
 		(f-call 'sys_mail 'send {msg})
 	(else)
