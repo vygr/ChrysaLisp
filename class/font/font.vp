@@ -84,7 +84,8 @@
 	;all but r0
 
 	(ptr 'this 'vtable 'name)
-	(uint 'ok 'points)
+	(ulong 'ok)
+	(uint 'points)
 
 	(push-scope)
 	(f-entry 'font 'init {this, vtable, name, points})

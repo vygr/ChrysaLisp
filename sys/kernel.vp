@@ -36,7 +36,7 @@
 	;init tasks
 	(f-call 'sys_task 'init)
 
-	;init linker
+	;init links
 	(f-call 'sys_link 'init)
 
 	;start kernel task

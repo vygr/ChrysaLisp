@@ -19,15 +19,16 @@
 	;all but r0
 
 	(ptr 'this 'vtable 'buffer)
-	(uint 'error 'length)
+	(ulong 'ok)
+	(uint 'length)
 
 	;read init args
 	(push-scope)
 	(f-entry 'pipe 'init {this, vtable, buffer, length})
 
 	;init parent
-	(s-call 'pipe 'init {this, vtable} {_, error})
-	(vpif {error})
+	(s-call 'pipe 'init {this, vtable} {_, ok})
+	(vpif {ok})
 		;init state
 		(f-call 'sys_mem 'clear {&this->pipe_start, pipe_size - pipe_start})
 		(assign {stream_mail_state_started} {this->pipe_state})
@@ -126,7 +127,7 @@
 				(f-call 'msg_out 'create {mbox, cpu} {stream})
 				(d-call 'vector 'set_element {this->pipe_streams, stream, 0})
 			(else)
-				(assign {0} {error})
+				(assign {0} {ok})
 				;send abort to any started pipe elements
 				(loop-start)
 					(d-call 'array 'get_length {ids} {_, length})
@@ -152,7 +153,7 @@
 		(pop-scope)
 	(endif)
 
-	(f-exit 'pipe 'init {this, error})
+	(f-exit 'pipe 'init {this, ok})
 	(pop-scope)
 	(return)
 

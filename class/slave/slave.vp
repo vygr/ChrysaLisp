@@ -19,15 +19,15 @@
 	;all but r0
 
 	(ptr 'this 'vtable 'stream 'msg 'mymailbox)
-	(ulong 'error)
+	(ulong 'ok)
 
 	;read init args
 	(push-scope)
 	(f-entry 'slave 'init {this, vtable})
 
 	;init parent
-	(s-call 'slave 'init {this, vtable} {_, error})
-	(vpif {error})
+	(s-call 'slave 'init {this, vtable} {_, ok})
+	(vpif {ok})
 		;init myself
 		(f-call 'sys_task 'mailbox {} {mymailbox, _})
 		(f-call 'sys_mail 'read {mymailbox} {msg})
@@ -51,11 +51,11 @@
 		(else)
 			;abort
 			(f-call 'sys_mem 'free {msg})
-			(assign {0} {error})
+			(assign {0} {ok})
 		(endif)
 	(endif)
 
-	(f-exit 'slave 'init {this, error})
+	(f-exit 'slave 'init {this, ok})
 	(pop-scope)
 	(return)
 
