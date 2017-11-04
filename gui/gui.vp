@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
 (import 'sys/heap.inc)
+(import 'sys/kernel.inc)
 (import 'gui/sdl2.inc)
 (import 'class/label/label.inc)
 (import 'class/string/string.inc)
-(import 'sys/kernel.inc)
 
 (defcvar 'dual_buffers t)
 

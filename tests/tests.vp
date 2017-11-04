@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
+(import 'sys/kernel.inc)
 (import 'sys/math/math.inc)
 (import 'class/vector/vector.inc)
 (import 'class/string/string.inc)
-(import 'sys/kernel.inc)
 
 ;;;;;;;;;;;
 ; test code
@@ -213,7 +213,7 @@
 		;more work to do, so lets migrate the task
 		(assign {num} {ulong(&msg->msg_header_size)})
 		(f-call 'string 'create_from_cstr {"tests/migrate_child"} {name})
-		(f-call 'sys_task 'open_child {name} {msg->msg_dest.id_mbox, msg->msg_dest.id_cpu})
+		(f-call 'sys_task 'open_child {name, kn_call_child} {msg->msg_dest.id_mbox, msg->msg_dest.id_cpu})
 		(f-call 'string 'deref {name})
 		(f-call 'sys_mail 'send {msg})
 	(else)

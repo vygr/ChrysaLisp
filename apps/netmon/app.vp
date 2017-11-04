@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'gui/gui.inc)
+(import 'sys/kernel.inc)
 (import 'class/window/window.inc)
 (import 'class/flow/flow.inc)
 (import 'class/grid/grid.inc)
@@ -7,7 +8,6 @@
 (import 'class/progress/progress.inc)
 (import 'class/string/string.inc)
 (import 'class/array/array.inc)
-(import 'sys/kernel.inc)
 
 (def-struct 'sample_msg 'msg_header)
 	(ulong 'cpu)

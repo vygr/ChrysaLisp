@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'sys/mail.inc)
+(import 'sys/kernel.inc)
 (import 'gui/gui.inc)
 (import 'sys/string.inc)
 (import 'class/window/window.inc)
@@ -83,7 +83,7 @@
 	(push-scope)
 	(l-entry {this, button})
 	(f-call 'button 'get_text {button} {_, string})
-	(f-call 'sys_task 'open {string})
+	(f-call 'sys_task 'open_child {string, kn_call_open})
 	(pop-scope)
 	(return)
 

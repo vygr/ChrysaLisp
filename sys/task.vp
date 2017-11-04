@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
+(import 'sys/kernel.inc)
 (import 'class/vector/vector.inc)
 (import 'class/string/string.inc)
-(import 'sys/kernel.inc)
 
 (def-func 'sys/task_statics)
 	(times tk_statics_size (vp-byte 0))
@@ -304,31 +304,18 @@
 ; single child process
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def-func 'sys/task_open)
-	;inputs
-	;r0 = name string object
-	;outputs
-	;r0, r1 = mailbox id
-	;trashes
-	;all
-
-	(f-entry 'sys_task 'open '(r0))
-	(f-bind 'sys_task 'statics r1)
-	(f-jmp 'sys_task 'open_remote '(r0 (r1 tk_statics_cpu_id) kn_call_open))
-
-(def-func-end)
-
 (def-func 'sys/task_open_child)
 	;inputs
 	;r0 = name string object
+	;r1 = spawn type
 	;outputs
 	;r0, r1 = mailbox ID
 	;trashes
 	;all
 
-	(f-entry 'sys_task 'open_child '(r0))
-	(f-bind 'sys_task 'statics r1)
-	(f-jmp 'sys_task 'open_remote '(r0 (r1 tk_statics_cpu_id) kn_call_child))
+	(f-entry 'sys_task 'open_child '(r0 r1))
+	(f-bind 'sys_task 'statics r3)
+	(f-jmp 'sys_task 'open_remote '(r0 (r3 tk_statics_cpu_id) r1))
 
 (def-func-end)
 
