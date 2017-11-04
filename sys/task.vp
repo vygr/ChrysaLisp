@@ -314,7 +314,7 @@
 
 	(f-entry 'sys_task 'open '(r0))
 	(f-bind 'sys_task 'statics r1)
-	(f-jmp 'sys_task 'open_device '(r0 (r1 tk_statics_cpu_id)))
+	(f-jmp 'sys_task 'open_remote '(r0 (r1 tk_statics_cpu_id) kn_call_open))
 
 (def-func-end)
 
@@ -328,51 +328,7 @@
 
 	(f-entry 'sys_task 'open_child '(r0))
 	(f-bind 'sys_task 'statics r1)
-	(f-jmp 'sys_task 'open_remote '(r0 (r1 tk_statics_cpu_id)))
-
-(def-func-end)
-
-(def-func 'sys/task_open_device)
-	;inputs
-	;r0 = name string object
-	;r1 = cpu target
-	;outputs
-	;r0, r1 = mailbox id
-	;trashes
-	;all
-
-	(ptr 'name 'msg)
-	(uint 'cpu)
-	(struct 'id 'id)
-	(struct 'mailbox 'mailbox)
-
-	;save task info
-	(push-scope)
-	(f-entry 'sys_task 'open_device {name, cpu})
-
-	;init temp mailbox
-	(f-call 'sys_mail 'init_mailbox {&mailbox})
-
-	;start task
-	(f-call 'sys_mail 'alloc {name->string_length + 1 + kn_msg_open_size} {msg})
-	(assign {0} {msg->msg_dest.id_mbox})
-	(assign {cpu} {msg->msg_dest.id_cpu})
-	(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
-	(f-call 'kernel 'id {} {msg->kn_msg_reply_id.id_cpu})
-	(assign {kn_call_open} {msg->kn_msg_function})
-	(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_open_pathname, name->string_length + 1})
-	(f-call 'sys_mail 'send {msg})
-
-	;wait for reply
-	(f-call 'sys_mail 'read {&mailbox} {msg})
-	(assign {msg->kn_msg_reply_id.id_mbox} {id.id_mbox})
-	(assign {msg->kn_msg_reply_id.id_cpu} {id.id_cpu})
-	(f-call 'sys_mem 'free {msg})
-
-	;return ids array
-	(f-exit 'sys_task 'open_device {id.id_mbox, id.id_cpu})
-	(pop-scope)
-	(return)
+	(f-jmp 'sys_task 'open_remote '(r0 (r1 tk_statics_cpu_id) kn_call_child))
 
 (def-func-end)
 
@@ -380,19 +336,20 @@
 	;inputs
 	;r0 = name string object
 	;r1 = cpu target
+	;r2 = spawn type
 	;outputs
 	;r0, r1 = mailbox id
 	;trashes
 	;all
 
 	(ptr 'name 'msg)
-	(uint 'cpu)
+	(uint 'cpu 'type)
 	(struct 'id 'id)
 	(struct 'mailbox 'mailbox)
 
 	;save task info
 	(push-scope)
-	(f-entry 'sys_task 'open_remote {name, cpu})
+	(f-entry 'sys_task 'open_remote {name, cpu, type})
 
 	;init temp mailbox
 	(f-call 'sys_mail 'init_mailbox {&mailbox})
@@ -403,7 +360,7 @@
 	(assign {cpu} {msg->msg_dest.id_cpu})
 	(assign {&mailbox} {msg->kn_msg_reply_id.id_mbox})
 	(f-call 'kernel 'id {} {msg->kn_msg_reply_id.id_cpu})
-	(assign {kn_call_child} {msg->kn_msg_function})
+	(assign {type} {msg->kn_msg_function})
 	(f-call 'sys_mem 'copy {&name->string_data, &msg->kn_msg_open_pathname, name->string_length + 1})
 	(f-call 'sys_mail 'send {msg})
 

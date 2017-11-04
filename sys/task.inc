@@ -24,8 +24,7 @@
 (def-method 'resume 'sys/task_resume 'static '(r0))
 (def-method 'open 'sys/task_open 'static '(r0) '(r0 r1))
 (def-method 'open_child 'sys/task_open_child 'static '(r0) '(r0 r1))
-(def-method 'open_device 'sys/task_open_device 'static '(r0 r1) '(r0 r1))
-(def-method 'open_remote 'sys/task_open_remote 'static '(r0 r1) '(r0 r1))
+(def-method 'open_remote 'sys/task_open_remote 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'open_farm 'sys/task_open_farm 'static '(r0 r1 r2) '(r0))
 (def-method 'open_pipe 'sys/task_open_pipe 'static '(r0) '(r0))
 
