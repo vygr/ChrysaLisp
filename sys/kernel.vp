@@ -83,7 +83,7 @@
 			;(switch) on kernel call number
 			(vp-cpy-ir r14 kn_msg_function r1)
 			(switch)
-			(case '(r1 == kn_call_task_open))
+			(case '(r1 == kn_call_open))
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
 				(vp-cpy-ir r14 (add kn_msg_reply_id id_mbox) r1)
@@ -106,7 +106,7 @@
 				(vp-cpy-ri r0 r14 msg_length)
 				(f-call 'sys_mail 'send '(r14))
 				(break)
-			(case '(r1 == kn_call_task_child))
+			(case '(r1 == kn_call_child))
 				;find best cpu to run task
 				(f-call 'kernel 'id '() '(r4))
 				(f-bind 'sys_task 'statics r1)
@@ -125,7 +125,7 @@
 				(vp-cpy-ri r0 r14 (add msg_dest id_cpu))
 				(f-call 'sys_mail 'send '(r14))
 				(break)
-			(case '(r1 == kn_call_task_route))
+			(case '(r1 == kn_call_route))
 				;increase size of network ?
 				(f-bind 'sys_task 'statics r0)
 				(vp-cpy-ir r14 kn_msg_link_route_origin r1)

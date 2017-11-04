@@ -6,7 +6,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (def-enum 'kn_call)
-	(enum 'callback 'task_open 'task_child 'task_route)
+	(enum 'callback 'open 'child 'route)
 (def-enum-end)
 
 ;;;;;;;;;;;;;;;;;;
@@ -25,10 +25,6 @@
 (def-struct-end)
 
 (def-struct 'kn_msg_open 'kn_msg)
-	(offset 'pathname)
-(def-struct-end)
-
-(def-struct 'kn_msg_child 'kn_msg)
 	(offset 'pathname)
 (def-struct-end)
 

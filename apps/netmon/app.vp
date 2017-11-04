@@ -10,7 +10,7 @@
 (import 'sys/kernel.inc)
 
 (def-struct 'sample_msg 'msg_header)
-	(ulong 'index)
+	(ulong 'cpu)
 	(ulong 'task_count)
 	(ulong 'mem_used)
 	(offset 'reply_size)
@@ -128,7 +128,7 @@
 
 	;open global farm
 	(f-call 'string 'create_from_cstr {"apps/netmon/child"} {string})
-	(f-call 'sys_task 'open_global {string, cpu_total} {ids})
+	(f-call 'sys_task 'open_farm {string, cpu_total, kn_call_open} {ids})
 	(f-call 'string 'deref {string})
 
 	;init task mailbox
@@ -167,7 +167,6 @@
 				(assign {cpu_count - 1} {cpu_count})
 				(f-call 'sys_mail 'alloc {sample_msg_size} {msg})
 				(assign {1} {msg->sample_msg_command})
-				(assign {cpu_count * ptr_size * 2} {msg->sample_msg_index})
 				(f-call 'array 'get_element {ids, cpu_count * 2} {_, msg->msg_dest.id_mbox})
 				(f-call 'array 'get_element {ids, cpu_count * 2 + 1} {_, msg->msg_dest.id_cpu})
 				(assign {select.sel_select2} {msg->sample_msg_reply_id.id_mbox})
@@ -190,14 +189,14 @@
 			(vpif {value > max_tasks})
 				(assign {value} {max_tasks})
 			(endif)
-			(assign {task_progress[msg->sample_msg_index]} {progress})
+			(assign {task_progress[msg->sample_msg_cpu * ptr_size * 2]} {progress})
 			(f-call 'progress 'set_max {progress, max_tasks})
 			(f-call 'progress 'set_val {progress, value})
 			(f-call 'progress 'dirty {progress})
 
 			(assign {msg->sample_msg_mem_used} {value})
 			(assign {total_memory + value} {total_memory})
-			(assign {task_progress[msg->sample_msg_index + ptr_size]} {progress})
+			(assign {task_progress[msg->sample_msg_cpu * ptr_size * 2 + ptr_size]} {progress})
 			(f-call 'progress 'set_max {progress, max_memory})
 			(f-call 'progress 'set_val {progress, value})
 			(f-call 'progress 'dirty {progress})
@@ -269,6 +268,7 @@
 		(breakifnot {msg->sample_msg_command})
 
 		;sample command
+		(f-call 'kernel 'id {} {msg->sample_msg_cpu})
 		(f-call 'sys_task 'count {} {msg->sample_msg_task_count})
 		(f-call 'sys_mem 'used {} {msg->sample_msg_mem_used})
 		(assign {msg->sample_msg_reply_id.id_mbox} {msg->msg_dest.id_mbox})

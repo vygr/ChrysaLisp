@@ -20,7 +20,7 @@
 
 	;open farm
 	(f-call 'string 'create_from_cstr {"tests/child"} {name})
-	(f-call 'sys_task 'open_farm {name, num_child} {ids})
+	(f-call 'sys_task 'open_farm {name, num_child, kn_call_child} {ids})
 
 	;send exit messages etc
 	(loop-start)
@@ -59,7 +59,7 @@
 	;open global farm
 	(f-call 'string 'create_from_cstr {"tests/child"} {name})
 	(f-call 'kernel 'total {} {length})
-	(f-call 'sys_task 'open_global {name, length} {ids})
+	(f-call 'sys_task 'open_farm {name, length, kn_call_open} {ids})
 
 	;send exit parcels etc
 	(loop-start)
@@ -165,7 +165,7 @@
 
 	;open farm
 	(f-call 'string 'create_from_cstr {"tests/migrate_child"} {name})
-	(f-call 'sys_task 'open_farm {name, num_child} {ids})
+	(f-call 'sys_task 'open_farm {name, num_child, kn_call_child} {ids})
 
 	;send start value messages etc
 	(loop-start)

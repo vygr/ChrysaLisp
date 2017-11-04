@@ -83,7 +83,7 @@
 	(vp-cpy-ri r1 r0 kn_msg_user)
 	(vp-cpy-ri r1 r0 (add kn_msg_reply_id id_mbox))
 	(vp-cpy-ri r1 r0 (add kn_msg_reply_id id_cpu))
-	(vp-cpy-cr kn_call_task_route r1)
+	(vp-cpy-cr kn_call_route r1)
 	(vp-cpy-ri r1 r0 kn_msg_function)
 	(vp-cpy-ri r7 r0 kn_msg_link_route_origin)
 	(vp-cpy-ri r7 r0 kn_msg_link_route_via)
