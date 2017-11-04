@@ -65,7 +65,9 @@ technique to store objects throughout the network with redundancy.
 * Create or port an existing TCP/IP stack. Provide this as a standard service
 on the network. Implement another link driver type that uses TCP/IP in order to
 experiment with bridging multiple computers together into a single addressable
-network.
+network. I'm very tempted to create a link driver based on the Nanomsg library,
+this could prove interesting but would only work on hosted systems, still worth
+doing.
 
 * Create a byte coded version of the VP instructions and implement a runtime
 translator. The runtime translator could be as simple as expanding the byte
