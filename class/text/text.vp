@@ -1,6 +1,7 @@
 (import 'sys/func.inc)
 (import 'gui/gui.inc)
 (import 'class/font/font.inc)
+(import 'class/texture/texture.inc)
 (import 'class/vector/vector.inc)
 (import 'class/text/text.inc)
 (import 'class/string/string.inc)
@@ -73,6 +74,7 @@
 
 	(ptr 'this 'ctx 'txt)
 	(pptr 'words 'words_end)
+	(ulong 'handle)
 	(int 'x 'w 'h)
 
 	;save inputs
@@ -84,11 +86,13 @@
 		(f-call 'vector 'get_iters {this->text_words} {_, words, words_end})
 		(assign {0} {x})
 		(loop-start)
-			(f-call 'font 'get_word {this->text_font, *words} {_, txt, w, h})
-			(vpif {txt})
-				(f-call 'gui_ctx 'blit {ctx, txt, this->text_text_color, x, 0, w, h})
+			(f-call 'font 'ref_word {this->text_font, *words} {_, txt})
+			(f-call 'texture 'get_metrics {txt} {_, handle, w, h})
+			(vpif {handle})
+				(f-call 'gui_ctx 'blit {ctx, handle, this->text_text_color, x, 0, w, h})
 				(assign {x + w + (h >> 2)} {x})
 			(endif)
+			(f-call 'texture 'deref {txt})
 			(assign {words + ptr_size} {words})
 		(loop-until {words == words_end})
 	(endif)
@@ -135,7 +139,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
+	(ptr 'this 'txt)
 	(pptr 'words 'words_end)
 	(uint 'width 'height 'length 'word_w)
 
@@ -148,7 +152,9 @@
 	(vpif {this->text_string && this->text_font})
 		(f-call 'vector 'get_iters {this->text_words} {_, words, words_end})
 		(loop-start)
-			(f-call 'font 'get_word {this->text_font, *words} {_, _, word_w, height})
+			(f-call 'font 'ref_word {this->text_font, *words} {_, txt})
+			(f-call 'texture 'get_metrics {txt} {_, _, word_w, height})
+			(f-call 'texture 'deref {txt})
 			(assign {words + ptr_size} {words})
 			(assign {width + word_w} {width})
 		(loop-until {words == words_end})

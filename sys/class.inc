@@ -364,6 +364,7 @@
 (def-method 'canvas 'class/class_canvas)
 (def-method 'points 'class/class_points)
 (def-method 'font 'class/class_font)
+(def-method 'texture 'class/class_texture)
 
 (defcfun signature (l &rest _)
 	(vp-align short_size)

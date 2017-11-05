@@ -5,7 +5,7 @@
 (def-method 'create 'class/font/create 'static '(r0 r1) '(r0))
 (def-method 'new 'class/font/new 'static nil '(r0))
 (def-method 'init 'class/font/init 'static '(r0 r1 r2 r3))
-(def-method 'get_word 'class/font/get_word 'static '(r0 r1) '(r0 r1 r2 r3))
+(def-method 'ref_word 'class/font/ref_word 'static '(r0 r1) '(r0 r1))
 (def-method 'get_metrics 'class/font/get_metrics 'static '(r0) '(r0 r1 r2 r3))
 
 (def-method 'deinit 'class/font/deinit 'final)

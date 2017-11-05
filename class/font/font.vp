@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/font/font.inc)
+(import 'class/texture/texture.inc)
 (import 'class/symbol/symbol.inc)
 (import 'class/vector/vector.inc)
 (import 'class/hash_map/hash_map.inc)
@@ -148,9 +149,9 @@
 	(push-scope)
 	(f-entry 'font 'deinit {this})
 
-	(f-call 'sys_task 'callback {$close_callback, this})
-	(f-call 'string 'deref {this->font_name})
 	(f-call 'hash_map 'deref {this->font_word_map})
+	(f-call 'string 'deref {this->font_name})
+	(f-call 'sys_task 'callback {$close_callback, this})
 
 	(f-exit 'font 'deinit {this})
 	(pop-scope)
@@ -168,90 +169,51 @@
 	(vp-and-cr -16 rsp)
 	(l-entry {user, old_stack})
 
-	(f-call 'hash_map 'for_each {user->font_word_map, $callback, user})
-	(f-call 'hash_map 'clear {user->font_word_map})
 	(sdl-call 'sdl 'ttf_close_font {user->font_handle})
 
 	(assign {old_stack} '(rsp))
 	(pop-scope-syms)
 	(return)
 
-(vp-label 'callback)
-	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
-	;outputs
-	;r1 = 0 if break, else not
-
-	(def-struct 'local)
-		(ptr 'old_stack)
-	(def-struct-end)
-
-	(vp-cpy-rr rsp r2)
-	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r2 rsp local_old_stack)
-
-	(f-entry 'array 'each_callback '(r0 r1))
-
-	(f-call 'array 'get_first '((r1 0)) '(_ r0))
-	(sdl-call 'sdl 'sdl_destroy_texture '(r0))
-
-	(f-exit 'array 'each_callback '(1))
-	(vp-cpy-ir rsp local_old_stack rsp)
-	(vp-ret)
-
 (def-func-end)
 
-(def-func 'class/font/get_word)
+(def-func 'class/font/ref_word)
 	;inputs
 	;r0 = font object
 	;r1 = string object
 	;outputs
 	;r0 = font object
-	;r1 = 0 if error, word texture handle
-	;r2 = 0 if error, else width
-	;r3 = 0 if error, else height
+	;r1 = texture object
 	;trashes
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'this 'word 'array)
+		(ptr 'this 'word 'txt)
 	(def-struct-end)
 
-	(ptr 'this 'word 'array)
-
-	(union
-		'(pptr 'iter 'bucket)
-		'(uint 'width 'height))
+	(ptr 'this 'word 'txt)
+	(pptr 'iter 'bucket)
 
 	(push-scope)
-	(f-entry 'font 'get_word {this, word})
+	(f-entry 'font 'ref_word {this, word})
 
 	;look up string in word map
 	(f-call 'hash_map 'find {this->font_word_map, word} {_, iter, bucket})
 	(vpifnot {iter})
 		;add new entry, not using insert as that does another find
-		(f-call 'array 'create {} {array})
-		(f-call 'array 'set_capacity {array, 3})
-		(d-call 'array 'set_element {array, 0, 0})
-		(d-call 'array 'set_element {array, 0, 1})
-		(d-call 'array 'set_element {array, 0, 2})
+		(f-call 'texture 'create {0, 0, 0} {txt})
 		(f-call 'symbol 'ref {word})
-		(f-call 'pair 'create {word, array} {iter})
+		(f-call 'pair 'create {word, txt} {iter})
 		(f-call 'vector 'push_back {bucket, iter})
 
 		;kernel callback for word texture creation
 		(f-call 'sys_task 'callback {$word_callback, &this})
 	(else)
-		(f-call 'pair 'get_second {*iter} {_, array})
+		(f-call 'pair 'get_second {*iter} {_, txt})
 	(endif)
+	(f-call 'texture 'ref {txt})
 
-	(f-call 'array 'get_first {array} {_, word})
-	(f-call 'array 'get_second {array} {_, width})
-	(f-call 'array 'get_third {array} {_, height})
-
-	(f-exit 'font 'get_word {this, word, width, height})
+	(f-exit 'font 'ref_word {this, txt})
 	(pop-scope)
 	(return)
 
@@ -262,7 +224,7 @@
 	(ptr 'user 'surface 'old_stack)
 	(union
 		'(ptr 'statics)
-		'(ulong 'texture))
+		'(ulong 'handle))
 
 	;align stack
 	(vp-cpy-rr rsp r1)
@@ -274,13 +236,12 @@
 	(vpif {surface})
 		;create word texture
 		(assign (cat {@} (f-path 'gui_gui 'statics)) {statics})
-		(sdl-call 'sdl 'sdl_create_texture_from_surface {statics->gui_statics_renderer, surface} {texture})
-		(vpif {texture})
+		(sdl-call 'sdl 'sdl_create_texture_from_surface {statics->gui_statics_renderer, surface} {handle})
+		(vpif {handle})
 			;texture blend mode and save details
-			(sdl-call 'sdl 'sdl_set_texture_blend_mode {texture, SDL_BLENDMODE_BLEND})
-			(d-call 'array 'set_element {user->local_array, texture, 0})
-			(d-call 'array 'set_element {user->local_array, surface->sdl_surface_w, 1})
-			(d-call 'array 'set_element {user->local_array, surface->sdl_surface_h, 2})
+			(sdl-call 'sdl 'sdl_set_texture_blend_mode {handle, SDL_BLENDMODE_BLEND})
+			(assign {handle, surface->sdl_surface_w, surface->sdl_surface_h}
+				{user->local_txt->texture_handle, user->local_txt->texture_width, user->local_txt->texture_height})
 		(endif)
 		(sdl-call 'sdl 'sdl_free_surface {surface})
 	(endif)
