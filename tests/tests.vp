@@ -48,7 +48,7 @@
 
 (def-func 'tests/global)
 
-	(defcvar 'test_size 10000)
+	(defcvar 'test_size (mul msg_size 10))
 
 	(ptr 'name 'ids 'msg 'mbox)
 	(ulong 'cpu)
@@ -61,7 +61,7 @@
 	(f-call 'kernel 'total {} {length})
 	(f-call 'sys_task 'open_farm {name, length, kn_call_open} {ids})
 
-	;send exit parcels etc
+	;send exit mgs etc
 	(loop-start)
 		(d-call 'array 'get_length {ids} {_, length})
 		(breakifnot {length})
