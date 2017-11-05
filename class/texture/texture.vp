@@ -19,7 +19,7 @@
 	;trashes
 	;all but r0
 
-	(f-entry 'texture 'init '(r0 r1 (r0 texture_handle) (r0 texture_width) (r0 texture_height)))
+	(f-entry 'texture 'init '(r0 r1 (r0 texture_handle) (r0 texture_width i) (r0 texture_height i)))
 	(s-call 'texture 'init '(r0 r1) '(r0 r1))
 	(f-exit 'texture 'init '(r0 r1))
 	(vp-ret)
