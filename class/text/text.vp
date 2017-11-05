@@ -110,22 +110,15 @@
 	;r0 = text object
 	;r1 = 0 else, string object
 	;trashes
-	;all but r0
+	;none
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(f-entry 'text 'ref_text '(r0))
 
-	;save inputs
-	(vp-alloc local_size)
-	(f-entry 'text 'ref_text '((rsp local_this)))
+	(vp-push r0)
+	(f-call 'string 'ref_if '((r0 text_string)) '(r1))
+	(vp-pop r0)
 
-	;reference the string
-	(vp-cpy-ir r0 text_string r0)
-	(f-call 'string 'ref_if '(r0) '(r0))
-
-	(f-exit 'text 'ref_text '((rsp local_this) r0))
-	(vp-free local_size)
+	(f-exit 'text 'ref_text '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

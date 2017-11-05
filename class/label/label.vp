@@ -62,19 +62,16 @@
 	;outputs
 	;r0 = label object
 	;r1 = 0, else string object
+	;trashes
+	;none
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(f-entry 'label 'get_text '(r0))
 
-	;save inputs
-	(vp-alloc local_size)
-	(assign '(r0) '((rsp local_this)))
-
+	(vp-push r0)
 	(f-call 'text 'get_text '((r0 label_text)) '(_ r1))
+	(vp-pop r0)
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-free local_size)
+	(f-exit 'label 'get_text '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -85,19 +82,16 @@
 	;outputs
 	;r0 = label object
 	;r1 = 0, else string object
+	;trashes
+	;none
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(f-entry 'label 'ref_text '(r0))
 
-	;save inputs
-	(vp-alloc local_size)
-	(assign '(r0) '((rsp local_this)))
-
+	(vp-push r0)
 	(f-call 'text 'ref_text '((r0 label_text)) '(_ r1))
+	(vp-pop r0)
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-free local_size)
+	(f-exit 'label 'ref_text '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -173,6 +167,8 @@
 	;inputs
 	;r0 = label object
 	;r1 = flags
+	;trashes
+	;none
 
 	(vp-push r0)
 	(f-call 'flow 'set_flow_flags '((r0 label_flow) r1))
@@ -227,20 +223,15 @@
 	;r0 = label object
 	;r1 = color
 	;trashes
-	;all but r0
+	;none
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(f-entry 'label 'set_text_color '(r0 r1))
 
-	;save inputs
-	(vp-alloc local_size)
-	(assign '(r0) '((rsp local_this)))
-
+	(vp-push r0)
 	(f-call 'text 'set_text_color '((r0 label_text) r1))
+	(vp-pop r0)
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-free local_size)
+	(f-exit 'label 'set_text_color '(r0))
 	(vp-ret)
 
 (def-func-end)
