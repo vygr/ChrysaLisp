@@ -43,7 +43,7 @@
 	(uint 'parcel_offset)
 	(local-align)
 	(struct 'dest 'id)
-	(struct 'parcel_id 'id)
+	(ulong 'parcel_mbox)
 	(offset 'header_size)
 	(struct 'data 'mail_data)
 (def-struct-end)
