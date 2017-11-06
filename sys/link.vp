@@ -151,7 +151,7 @@
 			(vpif '(r0 == lk_chan_status_ready))
 				;copy message data
 				;round up to next 8 byte boundary for speed
-				(vp-cpy-ir r8 msg_length r2)
+				(vp-cpy-ir-ui r8 msg_length r2)
 				(vp-add-cr (dec ptr_size) r2)
 				(vp-and-cr (neg ptr_size) r2)
 				(f-call 'sys_mem 'copy '(r8 (& r12 lk_msg_msg) r2))
@@ -180,9 +180,9 @@
 			;allocate msg, copy over data
 			;round up to next 8 byte boundary for speed
 			(vp-lea-i r13 lk_msg_msg r0)
-			(f-call 'sys_mail 'alloc '((r0 msg_length)) '(r7))
+			(f-call 'sys_mail 'alloc '((r0 msg_length ui)) '(r7))
 			(vp-lea-i r13 lk_msg_msg r0)
-			(vp-cpy-ir r0 msg_length r2)
+			(vp-cpy-ir-ui r0 msg_length r2)
 			(vp-add-cr (dec ptr_size) r2)
 			(vp-and-cr (neg ptr_size) r2)
 			(f-call 'sys_mem 'copy '(r0 r7 r2))
