@@ -18,6 +18,21 @@
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
+(defcfun class/texture/init ()
+	;inputs
+	;r0 = texture object
+	;r1 = vtable pointer
+	;r2 = texture handle
+	;r3 = texture width
+	;r4 = texture height
+	;outputs
+	;r0 = texture object
+	;r1 = 0 if error, else ok
+	(f-entry 'texture 'init '(r0 r1 (r0 texture_handle) (r0 texture_width i) (r0 texture_height i)))
+	(s-call 'texture 'init '(r0 r1) '(r0 r1))
+	(f-exit 'texture 'init '(r0 r1))
+	(vp-ret))
+
 (defcfun class/texture/get_metrics ()
 	;inputs
 	;r0 = texture object

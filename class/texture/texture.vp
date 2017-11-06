@@ -6,26 +6,6 @@
 (gen-create 'texture)
 (gen-class 'texture)
 
-(def-func 'class/texture/init)
-	;inputs
-	;r0 = texture object
-	;r1 = vtable pointer
-	;r2 = texture handle
-	;r3 = texture width
-	;r4 = texture height
-	;outputs
-	;r0 = texture object
-	;r1 = 0 if error, else ok
-	;trashes
-	;all but r0
-
-	(f-entry 'texture 'init '(r0 r1 (r0 texture_handle) (r0 texture_width i) (r0 texture_height i)))
-	(s-call 'texture 'init '(r0 r1) '(r0 r1))
-	(f-exit 'texture 'init '(r0 r1))
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/texture/deinit)
 	;inputs
 	;r0 = texture object
