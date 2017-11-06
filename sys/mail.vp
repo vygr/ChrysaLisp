@@ -231,12 +231,12 @@
 
 		;look up parcel in mailbox
 		(vp-cpy-ir r14 msg_parcel_src r5)
-		(vp-cpy-ir r14 msg_parcel_id r6)
+		(vp-cpy-ir-ui r14 msg_parcel_id r6)
 		(vp-cpy-ir r14 (add msg_dest id_mbox) r12)
 		(loop-list-forward r12 mailbox_parcel_list r0 r1)
 			(vp-cpy-ir r0 msg_parcel_src r2)
 			(continueif '(r5 != r2))
-			(vp-cpy-ir r0 msg_parcel_id r2)
+			(vp-cpy-ir-ui r0 msg_parcel_id r2)
 		(loop-until '(r6 == r2))
 		(vpif '(r1 == 0))
 			;new parcel
@@ -249,7 +249,7 @@
 			(vp-cpy-ri r12 r0 (add msg_dest id_mbox))
 			(vp-cpy-ri r13 r0 (add msg_dest id_cpu))
 			(vp-cpy-ri r5 r0 msg_parcel_src)
-			(vp-cpy-ri r6 r0 msg_parcel_id)
+			(vp-cpy-ri-i r6 r0 msg_parcel_id)
 			(vp-add-cr mailbox_parcel_list r12)
 			(lh-add-at-tail r12 r0 r1)
 		(endif)
@@ -301,9 +301,9 @@
 		;create next parcel id
 		(f-call 'kernel 'id '() '(r5))
 		(f-bind 'sys_mail 'statics r1)
-		(vp-cpy-ir r1 ml_statics_parcel_id r6)
+		(vp-cpy-ir-ui r1 ml_statics_parcel_id r6)
 		(vp-add-cr 1 r6)
-		(vp-cpy-ri r6 r1 ml_statics_parcel_id)
+		(vp-cpy-ri-i r6 r1 ml_statics_parcel_id)
 
 		;header info for each fragment
 		(vp-cpy-cr msg_data r9)
@@ -320,7 +320,7 @@
 			(vp-cpy-ri-i r9 r13 msg_parcel_offset)
 			(vp-cpy-ri-i r10 r13 msg_parcel_length)
 			(vp-cpy-ri r5 r13 msg_parcel_src)
-			(vp-cpy-ri r6 r13 msg_parcel_id)
+			(vp-cpy-ri-i r6 r13 msg_parcel_id)
 
 			;data source and destination
 			(vp-lea-d r14 r9 r0)

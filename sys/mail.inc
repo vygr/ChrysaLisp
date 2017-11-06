@@ -41,8 +41,8 @@
 	(uint 'length)
 	(uint 'parcel_length)
 	(uint 'parcel_offset)
+	(uint 'parcel_id)
 	(ulong 'parcel_src)
-	(ulong 'parcel_id)
 	(struct 'dest 'id)
 	(offset 'header_size)
 	(struct 'data 'mail_data)
@@ -53,7 +53,7 @@
 	(ptr 'kernel_mailbox)
 	(ptr 'in_mailbox)
 	(ptr 'out_mailbox)
-	(ulong 'parcel_id)
+	(uint 'parcel_id)
 (def-struct-end)
 
 ;;;;;;;;;;;;;
