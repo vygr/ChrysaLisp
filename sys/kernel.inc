@@ -29,9 +29,9 @@
 (def-struct-end)
 
 (def-struct 'kn_msg_link_route 'kn_msg)
-	(ulong 'origin)
-	(ulong 'via)
-	(ulong 'hops)
+	(uint 'origin)
+	(uint 'via)
+	(uint 'hops)
 (def-struct-end)
 
 (def-class 'kernel)

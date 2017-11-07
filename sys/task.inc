@@ -45,9 +45,9 @@
 	(ptr 'kernel_tcb)
 	(struct 'task_list 'lh_list)
 	(struct 'timer_list 'lh_list)
-	(ulong 'task_count)
-	(ulong 'cpu_total)
-	(ulong 'cpu_id)
+	(uint 'task_count)
+	(uint 'cpu_total)
+	(uint 'cpu_id)
 (def-struct-end)
 
 ;;;;;;;;;;;;;

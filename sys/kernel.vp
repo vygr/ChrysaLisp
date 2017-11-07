@@ -55,7 +55,7 @@
 	(f-call 'kernel 'id '() '(r0))
 	(vp-add-cr 1 r0)
 	(f-bind 'sys_task 'statics r1)
-	(vp-cpy-ri r0 r1 tk_statics_cpu_total)
+	(vp-cpy-ri-i r0 r1 tk_statics_cpu_total)
 
 	;allocate for kernel routing table
 	(vp-alloc lk_table_size)
@@ -110,13 +110,13 @@
 				;find best cpu to run task
 				(f-call 'kernel 'id '() '(r4))
 				(f-bind 'sys_task 'statics r1)
-				(vp-cpy-ir r1 tk_statics_task_count r1)
+				(vp-cpy-ir-ui r1 tk_statics_task_count r1)
 				(f-bind 'sys_link 'statics r2)
 				(loop-list-forward r2 lk_statics_links_list r3 r2)
-					(vp-cpy-ir r3 lk_node_task_count r13)
+					(vp-cpy-ir-ui r3 lk_node_task_count r13)
 					(vpif '(r1 > r13))
-						(vp-cpy-ir r3 lk_node_cpu_id r0)
-						(vp-cpy-ir r3 lk_node_task_count r1)
+						(vp-cpy-ir-ui r3 lk_node_cpu_id r0)
+						(vp-cpy-ir-i r3 lk_node_task_count r1)
 					(endif)
 				(loop-end)
 				(gotoif '(r0 == r4) 'run_here)
@@ -128,15 +128,15 @@
 			(case '(r1 == kn_call_route))
 				;increase size of network ?
 				(f-bind 'sys_task 'statics r0)
-				(vp-cpy-ir r14 kn_msg_link_route_origin r1)
+				(vp-cpy-ir-ui r14 kn_msg_link_route_origin r1)
 				(vp-add-cr 1 r1)
-				(vp-cpy-ir r0 tk_statics_cpu_total r13)
+				(vp-cpy-ir-ui r0 tk_statics_cpu_total r13)
 				(vpif '(r1 > r13))
-					(vp-cpy-ri r1 r0 tk_statics_cpu_total)
+					(vp-cpy-ri-i r1 r0 tk_statics_cpu_total)
 				(endif)
 
 				;new kernel routing table ?
-				(vp-cpy-ir r14 kn_msg_link_route_origin r10)
+				(vp-cpy-ir-ui r14 kn_msg_link_route_origin r10)
 				(vp-mul-cr lk_route_size r10)
 				(assign '((rsp lk_table_array) (rsp lk_table_array_size) (& r10 lk_route_size)) '(r0 r1 r2))
 				(vpif '(r2 > r1))
@@ -146,8 +146,8 @@
 
 				;compare hop counts
 				(vp-add-cr lk_route_hops r0)
-				(vp-cpy-ir r14 kn_msg_link_route_hops r2)
-				(vp-cpy-dr r0 r10 r3)
+				(vp-cpy-ir-ui r14 kn_msg_link_route_hops r2)
+				(vp-cpy-dr-ui r0 r10 r3)
 				(switch)
 				(case '(r3 == 0))
 					;never seen, so better route
@@ -155,10 +155,10 @@
 				(case '(r2 < r3))
 				(vp-label 'better_route)
 					;new hops is less, so better route
-					(vp-cpy-rd r2 r0 r10)
+					(vp-cpy-rd-i r2 r0 r10)
 
 					;fill in via route and remove other routes
-					(vp-cpy-ir r14 kn_msg_link_route_via r12)
+					(vp-cpy-ir-ui r14 kn_msg_link_route_via r12)
 					(f-bind 'sys_link 'statics r13)
 					(loop-list-forward r13 lk_statics_links_list r11 r13)
 						;new link route table ?
@@ -169,21 +169,21 @@
 						(endif)
 
 						(vp-add-cr lk_route_hops r0)
-						(vp-cpy-ir r11 lk_node_cpu_id r9)
+						(vp-cpy-ir-ui r11 lk_node_cpu_id r9)
 						(vpif '(r12 == r9))
 							;via route
-							(vp-cpy-ir r14 kn_msg_link_route_hops r2)
-							(vp-cpy-rd r2 r0 r10)
+							(vp-cpy-ir-ui r14 kn_msg_link_route_hops r2)
+							(vp-cpy-rd-i r2 r0 r10)
 						(else)
 							;none via route
 							(vp-xor-rr r1 r1)
-							(vp-cpy-rd r1 r0 r10)
+							(vp-cpy-rd-i r1 r0 r10)
 						(endif)
 					(loop-end)
 					(break)
 				(case '(r2 == r3))
 					;new hops is equal, so additional route
-					(vp-cpy-ir r14 kn_msg_link_route_via r12)
+					(vp-cpy-ir-ui r14 kn_msg_link_route_via r12)
 					(f-bind 'sys_link 'statics r13)
 					(loop-list-forward r13 lk_statics_links_list r11 r13)
 						;new link route table ?
@@ -193,12 +193,12 @@
 							(assign '(r0 r1) '((r11 (add lk_node_table lk_table_array)) (r11 (add lk_node_table lk_table_array_size))))
 						(endif)
 
-						(vp-cpy-ir r11 lk_node_cpu_id r9)
+						(vp-cpy-ir-ui r11 lk_node_cpu_id r9)
 						(vpif '(r12 == r9))
 							;via route
-							(vp-cpy-ir r14 kn_msg_link_route_hops r2)
+							(vp-cpy-ir-ui r14 kn_msg_link_route_hops r2)
 							(vp-add-cr lk_route_hops r0)
-							(vp-cpy-rd r2 r0 r10)
+							(vp-cpy-rd-i r2 r0 r10)
 						(endif)
 					(loop-end)
 					;drop through to discard message !
@@ -208,18 +208,18 @@
 				(endswitch)
 
 				;increment hop count
-				(vp-cpy-ir r14 kn_msg_link_route_hops r1)
+				(vp-cpy-ir-ui r14 kn_msg_link_route_hops r1)
 				(vp-add-cr 1 r1)
-				(vp-cpy-ri r1 r14 kn_msg_link_route_hops)
+				(vp-cpy-ri-i r1 r14 kn_msg_link_route_hops)
 
 				;get current via, set via to my cpu id
-				(vp-cpy-ir r14 kn_msg_link_route_via r13)
-				(f-call 'kernel 'id '() '((r14 kn_msg_link_route_via)))
+				(vp-cpy-ir-ui r14 kn_msg_link_route_via r13)
+				(f-call 'kernel 'id '() '((r14 kn_msg_link_route_via i)))
 
 				;copy and send to all neighbors apart from old via
 				(f-bind 'sys_link 'statics r12)
 				(loop-list-forward r12 lk_statics_links_list r11 r12)
-					(vp-cpy-ir r11 lk_node_cpu_id r10)
+					(vp-cpy-ir-ui r11 lk_node_cpu_id r10)
 					(continueif '(r10 == r13))
 					(f-call 'sys_mail 'alloc '((r14 msg_length ui)) '(r0))
 					(vp-cpy-rr r0 r4)
@@ -312,7 +312,7 @@
 	;r0 = cpu ID
 
 	(f-bind 'sys_task 'statics r0)
-	(f-exit 'kernel 'id '((r0 tk_statics_cpu_id)))
+	(f-exit 'kernel 'id '((r0 tk_statics_cpu_id ui)))
 	(vp-ret)
 
 (def-func-end)
@@ -322,7 +322,7 @@
 	;r0 = cpu total
 
 	(f-bind 'sys_task 'statics r0)
-	(f-exit 'kernel 'total '((r0 tk_statics_cpu_total)))
+	(f-exit 'kernel 'total '((r0 tk_statics_cpu_total ui)))
 	(vp-ret)
 
 (def-func-end)
@@ -373,7 +373,7 @@
 	(vpif '(r0 != 0))
 		(f-call 'sys_string 'to_long '(r0 10) '(r0))
 		(f-bind 'sys_task 'statics r1)
-		(vp-cpy-ri r0 r1 tk_statics_cpu_id)
+		(vp-cpy-ri-i r0 r1 tk_statics_cpu_id)
 	(endif)
 	(vp-ret)
 
