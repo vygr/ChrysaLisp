@@ -152,9 +152,9 @@
 				;copy message data
 				;round up to next 8 byte boundary for speed
 				(vp-cpy-ir-ui r8 msg_length r2)
-				(vp-add-cr (dec ptr_size) r2)
+				(vp-add-cr (sub (dec ptr_size) ln_node_size) r2)
 				(vp-and-cr (neg ptr_size) r2)
-				(f-call 'sys_mem 'copy '(r8 (& r12 lk_msg_msg) r2))
+				(f-call 'sys_mem 'copy '((& r8 ln_node_size) (& r12 lk_msg_buf) r2))
 
 				;busy status
 				(vp-cpy-cr lk_chan_status_busy r1)
@@ -179,13 +179,11 @@
 		(vpif '(r0 == lk_chan_status_busy))
 			;allocate msg, copy over data
 			;round up to next 8 byte boundary for speed
-			(vp-lea-i r13 lk_msg_msg r0)
-			(f-call 'sys_mail 'alloc '((r0 msg_length ui)) '(r7))
-			(vp-lea-i r13 lk_msg_msg r0)
-			(vp-cpy-ir-ui r0 msg_length r2)
-			(vp-add-cr (dec ptr_size) r2)
-			(vp-and-cr (neg ptr_size) r2)
-			(f-call 'sys_mem 'copy '(r0 r7 r2))
+			(vp-cpy-ir-ui r13 (add lk_msg_buf (sub msg_length ln_node_size)) r5)
+			(f-call 'sys_mail 'alloc '(r5) '(r7))
+			(vp-add-cr (sub (dec ptr_size) ln_node_size) r5)
+			(vp-and-cr (neg ptr_size) r5)
+			(f-call 'sys_mem 'copy '((& r13 lk_msg_buf) (& r7 ln_node_size) r5))
 
 			;clear status
 			(vp-cpy-cr lk_chan_status_ready r1)

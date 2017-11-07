@@ -35,7 +35,7 @@
 
 (def-struct 'lk_msg)
 	(ulong 'status)
-	(struct 'msg 'msg)
+	(struct 'buf (sub msg_size ln_node_size))
 (def-struct-end)
 
 (def-struct 'lk_chan)
