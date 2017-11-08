@@ -116,7 +116,7 @@
 					(vp-cpy-ir-ui r3 lk_node_task_count r13)
 					(vpif '(r1 > r13))
 						(vp-cpy-ir-ui r3 lk_node_cpu_id r0)
-						(vp-cpy-ir-i r3 lk_node_task_count r1)
+						(vp-cpy-ir-ui r3 lk_node_task_count r1)
 					(endif)
 				(loop-end)
 				(gotoif '(r0 == r4) 'run_here)
