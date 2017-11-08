@@ -114,10 +114,9 @@
 				(f-bind 'sys_link 'statics r2)
 				(loop-list-forward r2 lk_statics_links_list r3 r2)
 					(vp-cpy-ir-ui r3 lk_node_task_count r13)
-					(vpif '(r1 > r13))
-						(vp-cpy-ir-ui r3 lk_node_cpu_id r0)
-						(vp-cpy-ir-ui r3 lk_node_task_count r1)
-					(endif)
+					(continueif '(r1 <= r13))
+					(vp-cpy-ir-ui r3 lk_node_cpu_id r0)
+					(vp-cpy-rr r13 r1)
 				(loop-end)
 				(gotoif '(r0 == r4) 'run_here)
 
