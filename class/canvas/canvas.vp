@@ -116,7 +116,7 @@
 
 	;kernel callback
 	(vp-push r0)
-	(f-call 'sys_task 'callback '(($ callback) r0))
+	(f-call 'sys_task 'callback '(r0 ($ callback)))
 	(vp-pop r0)
 	(s-jmp 'canvas 'deinit '(r0))
 
@@ -241,7 +241,7 @@
 
 	;kernel callback
 	(vp-push r0)
-	(f-call 'sys_task 'callback '(($ callback) r0))
+	(f-call 'sys_task 'callback '(r0 ($ callback)))
 	(vp-pop r0)
 	(vp-ret)
 

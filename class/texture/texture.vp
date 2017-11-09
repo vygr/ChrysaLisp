@@ -17,7 +17,7 @@
 	(vp-cpy-ir r0 texture_handle r1)
 	(vpif '(r1 != 0))
 		(vp-push r0)
-		(f-call 'sys_task 'callback '(($ close_callback) r1))
+		(f-call 'sys_task 'callback '(r1 ($ close_callback)))
 		(vp-pop r0)
 	(endif)
 	(s-jmp 'texture 'deinit '(r0))

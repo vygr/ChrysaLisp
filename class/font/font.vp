@@ -100,7 +100,7 @@
 		(f-call 'hash_map 'create (cat {@} (f-path 'symbol 'same) {, 61}) {this->font_word_map})
 
 		;kernel callback for open
-		(f-call 'sys_task 'callback {$open_callback, this})
+		(f-call 'sys_task 'callback {this, $open_callback})
 		(vpifnot {this->font_handle})
 			(f-call 'string 'deref {this->font_name})
 			(f-call 'hash_map 'deref {this->font_word_map})
@@ -151,7 +151,7 @@
 
 	(f-call 'hash_map 'deref {this->font_word_map})
 	(f-call 'string 'deref {this->font_name})
-	(f-call 'sys_task 'callback {$close_callback, this})
+	(f-call 'sys_task 'callback {this, $close_callback})
 
 	(f-exit 'font 'deinit {this})
 	(pop-scope)
@@ -207,7 +207,7 @@
 		(f-call 'vector 'push_back {bucket, iter})
 
 		;kernel callback for word texture creation
-		(f-call 'sys_task 'callback {$word_callback, &this})
+		(f-call 'sys_task 'callback {&this, $word_callback})
 	(else)
 		(f-call 'pair 'get_second {*iter} {_, txt})
 	(endif)

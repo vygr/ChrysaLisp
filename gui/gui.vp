@@ -49,7 +49,7 @@
 
 	;kernel callback for first update
 	;this will init SDL etc
-	(f-call 'sys_task 'callback {$update_callback, &locals})
+	(f-call 'sys_task 'callback {&locals, $update_callback})
 
 	;allocate background view for screen
 	(f-call 'label 'create {} {locals.local_statics->gui_statics_screen})
@@ -67,14 +67,14 @@
 	;gui event loop
 	(loop-start)
 		;kernel callback for update
-		(f-call 'sys_task 'callback {$update_callback, &locals})
+		(f-call 'sys_task 'callback {&locals, $update_callback})
 
 		;frame rate of gui updates
 		(f-call 'sys_task 'sleep {1000000/30})
 	(loop-until {locals.local_quit})
 
 	;deinit
-	(f-call 'sys_task 'callback {$deinit_callback, &locals})
+	(f-call 'sys_task 'callback {&locals, $deinit_callback})
 	(pop-scope)
 	(return)
 
