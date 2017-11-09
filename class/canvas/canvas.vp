@@ -130,13 +130,10 @@
 	(def-struct-end)
 
 	;align stack for SDL
-	(vp-cpy-rr rsp r14)
+	(vp-cpy-rr rsp r1)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r14 rsp local_old_stack)
-
-	;save inputs
-	(f-entry 'canvas 'deinit '((rsp local_this)))
+	(l-entry '((rsp local_this) (rsp local_old_stack)))
 
 	;free edge trackers, sort intervals
 	(vp-cpy-ir rsp local_this r0)
@@ -182,10 +179,10 @@
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r14)
+	(vp-cpy-rr rsp r2)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r14 rsp local_old_stack)
+	(vp-cpy-ri r2 rsp local_old_stack)
 
 	;save inputs
 	(f-entry 'canvas 'draw '((rsp local_this) (rsp local_ctx)))
@@ -257,10 +254,10 @@
 	(def-struct-end)
 
 	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r14)
+	(vp-cpy-rr rsp r1)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r14 rsp local_old_stack)
+	(l-entry '(r0 (rsp local_old_stack)))
 
 	;free any sdl texture
 	(vp-cpy-ir r0 canvas_texture r1)

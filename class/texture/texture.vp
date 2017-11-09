@@ -34,7 +34,7 @@
 	(vp-cpy-rr rsp r1)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r1 rsp local_old_stack)
+	(l-entry '(r0 (rsp local_old_stack)))
 
 	(sdl-call 'sdl 'sdl_destroy_texture '(r0))
 
