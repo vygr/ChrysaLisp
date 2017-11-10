@@ -161,19 +161,20 @@
 	;inputs
 	;r0 = user data
 
-	(ptr 'user 'old_stack)
+	(def-struct 'local)
+		(ptr 'old_stack)
+	(def-struct-end)
 
 	;align stack
 	(vp-cpy-rr rsp r1)
-	(push-scope)
+	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(l-entry {user, old_stack})
+	(l-entry '(r0 (rsp local_old_stack)))
 
-	(sdl-call 'sdl 'ttf_close_font {user->font_handle})
+	(sdl-call 'sdl 'sdl_destroy_texture '((r0 font_handle)))
 
-	(assign {old_stack} '(rsp))
-	(pop-scope-syms)
-	(return)
+	(vp-cpy-ir rsp local_old_stack rsp)
+	(vp-ret)
 
 (def-func-end)
 
@@ -232,7 +233,7 @@
 	(vp-and-cr -16 rsp)
 	(l-entry {user, old_stack})
 
-	(sdl-call 'sdl 'ttf_render_utf8_blended {user->local_this->font_handle, user->local_word->string_data, 0xffffff} {surface})
+	(sdl-call 'sdl 'ttf_render_utf8_blended {user->local_this->font_handle, &user->local_word->string_data, 0xffffff} {surface})
 	(vpif {surface})
 		;create word texture
 		(assign (cat {@} (f-path 'gui_gui 'statics)) {statics})
