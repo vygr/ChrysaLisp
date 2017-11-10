@@ -18,9 +18,9 @@
 (def-method 'deinit 'class/hash_set/deinit 'override)
 
 (def-struct 'hash_set 'ref)
+	(uint 'num_buckets)
 	(ptr 'buckets)
 	(ptr 'key_callback)
-	(uint 'num_buckets)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;
