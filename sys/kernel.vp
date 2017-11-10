@@ -40,7 +40,7 @@
 	(f-call 'sys_link 'init)
 
 	;start kernel task
-	(f-call 'sys_task 'start '(($ _func_entry)) '(r0 r1 _))
+	(f-call 'sys_task 'start '(($ func_entry)) '(r0 r1 _))
 	(f-bind 'sys_task 'statics r2)
 	(vp-cpy-ri r0 r2 tk_statics_current_tcb)
 	(vp-cpy-ri r0 r2 tk_statics_kernel_tcb)
