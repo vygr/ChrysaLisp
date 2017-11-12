@@ -82,10 +82,10 @@
 	(or (find (defq o (elem 0 _)) (opt-emit-kill-list))
 		(eql r (elem -2 _))
 		(cond
-			((find o '(emit-pop emit-land-rr emit-lnot-rr emit-swp-rr))
+			((eql o 'emit-pop)
 				(find r _))
-			((find o '(emit-div-rrr emit-div-rrr-u))
-				(or (eql r (elem 2 _)) (eql r (elem 3 _)))))))
+			((find o '(emit-land-rr emit-lnot-rr emit-swp-rr emit-div-rrr emit-div-rrr-u))
+				(eql r (elem -3 _))))))
 
 (defcfun opt-emit-uses? (r _)
 	(or (find r _)
