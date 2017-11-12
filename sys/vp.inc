@@ -67,8 +67,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (defmacro opt-emit-kill-list ()
-	''(emit-label emit-pop emit-land-rr emit-lnot-rr emit-swp-rr emit-div-rrr emit-div-rrr-u
-		emit-syscall emit-call emit-call-abi emit-call-i emit-call-r emit-call-p))
+	''(emit-label emit-syscall emit-call emit-call-abi emit-call-i emit-call-r emit-call-p))
 
 (defmacro opt-emit-ok-list ()
 	''(emit-cmp-cr emit-cmp-rr))
@@ -79,11 +78,18 @@
 (defmacro opt-write-ops ()
 	''(emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri))
 
-(defmacro opt-trashes? (r _)
-	`(or (eql ,r (elem -2 ,_)) (find (elem 0 ,_) (opt-emit-kill-list))))
+(defcfun opt-trashes? (r _)
+	(or (find (defq o (elem 0 _)) (opt-emit-kill-list))
+		(eql r (elem -2 _))
+		(cond
+			((find o '(emit-pop emit-land-rr emit-lnot-rr emit-swp-rr))
+				(find r _))
+			((find o '(emit-div-rrr emit-div-rrr-u))
+				(or (eql r (elem 2 _)) (eql r (elem 3 _)))))))
 
-(defmacro opt-uses? (r _)
-	`(or (find ,r ,_) (find (elem 0 ,_) (opt-emit-kill-list))))
+(defcfun opt-uses? (r _)
+	(or (find r _)
+		(find (elem 0 _) (opt-emit-kill-list))))
 
 (defcfun opt-emit-find-rw (_ r w b i)
 	(while (and (gt (setq _ (dec _)) 0)
