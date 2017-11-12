@@ -72,13 +72,13 @@
 (defmacro opt-emit-ok-list ()
 	''(emit-cmp-cr emit-cmp-rr))
 
-(defmacro opt-read-ops ()
+(defmacro opt-emit-read-ops ()
 	''(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir))
 
-(defmacro opt-write-ops ()
+(defmacro opt-emit-write-ops ()
 	''(emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri))
 
-(defcfun opt-trashes? (r _)
+(defcfun opt-emit-trashes? (r _)
 	(or (find (defq o (elem 0 _)) (opt-emit-kill-list))
 		(eql r (elem -2 _))
 		(cond
@@ -87,7 +87,7 @@
 			((find o '(emit-div-rrr emit-div-rrr-u))
 				(or (eql r (elem 2 _)) (eql r (elem 3 _)))))))
 
-(defcfun opt-uses? (r _)
+(defcfun opt-emit-uses? (r _)
 	(or (find r _)
 		(find (elem 0 _) (opt-emit-kill-list))))
 
@@ -102,7 +102,7 @@
 							(not (eql b (elem 3 e)))
 							(eq i (eval (elem 2 e)))
 							(setq c 3)))))
-		(if (opt-trashes? b e) (setq _ 0)))
+		(if (opt-emit-trashes? b e) (setq _ 0)))
 	(if (gt _ 0) _))
 
 (defcfun opt-emit-find-use (_ o b)
@@ -110,21 +110,21 @@
 	(while (and (lt (setq _ (inc _)) l)
 				(not (and (eql o (elem 0 (defq e (elem _ *emit-buffer*))))
 						(eql b (elem 1 e)))))
-		(if (opt-uses? b e) (setq _ l)))
+		(if (opt-emit-uses? b e) (setq _ l)))
 	(if (lt _ l) _))
 
 (defcfun opt-emit-buffer ()
 	(each! 2 nil nil (lambda (e)
 		(cond
 			;read after read/write
-			((defq c (find (defq o (elem 0 e)) (opt-read-ops)))
+			((defq c (find (defq o (elem 0 e)) (opt-emit-read-ops)))
 				(when (defq w (opt-emit-find-rw _
-								(elem c (opt-read-ops))
-								(elem c (opt-write-ops))
+								(elem c (opt-emit-read-ops))
+								(elem c (opt-emit-write-ops))
 								(elem 1 e) (eval (elem 2 e))))
 						(defq r (elem c (elem w *emit-buffer*)))
 						(when (not (some! (inc w) _ t (lambda (_)
-								(opt-trashes? r _)) (list *emit-buffer*)))
+								(opt-emit-trashes? r _)) (list *emit-buffer*)))
 							(elem-set _ *emit-buffer*
 								(if (eql r (elem 3 e))
 									(lambda)
