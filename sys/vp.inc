@@ -62,12 +62,28 @@
 		(while (le (setq p (inc p)) *pc*)
 			(write-char s b))))
 
+;;;;;;;;;;;;;;;;;;;;
+; VP level optimizer
+;;;;;;;;;;;;;;;;;;;;
+
 (defmacro opt-emit-kill-list ()
 	''(emit-label emit-pop emit-land-rr emit-lnot-rr emit-swp-rr emit-div-rrr emit-div-rrr-u
 		emit-syscall emit-call emit-call-abi emit-call-i emit-call-r emit-call-p))
 
 (defmacro opt-emit-ok-list ()
 	''(emit-cmp-cr emit-cmp-rr))
+
+(defmacro opt-read-ops ()
+	''(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir))
+
+(defmacro opt-write-ops ()
+	''(emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri))
+
+(defmacro opt-trashes? (r _)
+	`(or (eql ,r (elem -2 ,_)) (find (elem 0 ,_) (opt-emit-kill-list))))
+
+(defmacro opt-uses? (r _)
+	`(or (find ,r ,_) (find (elem 0 ,_) (opt-emit-kill-list))))
 
 (defcfun opt-emit-find-rw (_ r w b i)
 	(while (and (gt (setq _ (dec _)) 0)
@@ -80,9 +96,7 @@
 							(not (eql b (elem 3 e)))
 							(eq i (eval (elem 2 e)))
 							(setq c 3)))))
-		(and (or (eql b (elem -2 e))
-				(find o (opt-emit-kill-list)))
-			(setq _ 0)))
+		(if (opt-trashes? b e) (setq _ 0)))
 	(if (gt _ 0) _))
 
 (defcfun opt-emit-find-use (_ o b)
@@ -90,27 +104,21 @@
 	(while (and (lt (setq _ (inc _)) l)
 				(not (and (eql o (elem 0 (defq e (elem _ *emit-buffer*))))
 						(eql b (elem 1 e)))))
-		(and (or (find b e)
-				(find (elem 0 e) (opt-emit-kill-list)))
-			(setq _ l)))
+		(if (opt-uses? b e) (setq _ l)))
 	(if (lt _ l) _))
 
 (defcfun opt-emit-buffer ()
 	(each! 2 nil nil (lambda (e)
 		(cond
 			;read after read/write
-			((defq c (find (defq o (elem 0 e)) '(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub
-										emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir)))
+			((defq c (find (defq o (elem 0 e)) (opt-read-ops)))
 				(when (defq w (opt-emit-find-rw _
-								(elem c '(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub
-										emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir))
-								(elem c '(emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b
-										emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri))
+								(elem c (opt-read-ops))
+								(elem c (opt-write-ops))
 								(elem 1 e) (eval (elem 2 e))))
 						(defq r (elem c (elem w *emit-buffer*)))
 						(when (not (some! (inc w) _ t (lambda (_)
-								(and (not (find (elem 0 _) (opt-emit-ok-list)))
-									(eql r (elem -2 _)))) (list *emit-buffer*)))
+								(opt-trashes? r _)) (list *emit-buffer*)))
 							(elem-set _ *emit-buffer*
 								(if (eql r (elem 3 e))
 									(lambda)
