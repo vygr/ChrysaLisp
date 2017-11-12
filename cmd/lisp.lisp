@@ -125,14 +125,14 @@
 			(setq *funcs* (list *funcs*)))
 		(defq f (list
 			;must be first function !
-			'sys/load_init
+			'sys/load/init
 			;must be second function !
-			'sys/load_bind
+			'sys/load/bind
 			;must be third function !
-			'sys/load_statics
+			'sys/load/statics
 			;must be included, as bind uses them !
-			'sys/string_copy
-			'sys/string_length
+			'sys/string/copy
+			'sys/string/length
 			'sys/pii/exit
 			'sys/pii/mmap
 			'sys/pii/stat

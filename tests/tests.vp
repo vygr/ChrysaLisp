@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'sys/kernel.inc)
+(import 'sys/kernel/kernel.inc)
 (import 'sys/math/math.inc)
 (import 'class/vector/vector.inc)
 (import 'class/string/string.inc)

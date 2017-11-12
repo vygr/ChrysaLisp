@@ -5,6 +5,7 @@
 (import 'class/flow/flow.inc)
 (import 'class/vector/vector.inc)
 (import 'class/points/points.inc)
+(import 'gui/ctx/ctx.inc)
 
 (gen-new 'canvas)
 (gen-class 'canvas)

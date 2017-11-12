@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'sys/kernel.inc)
+(import 'sys/kernel/kernel.inc)
 (import 'class/string/string.inc)
 (import 'class/msg_out/msg_out.inc)
 (import 'class/msg_in/msg_in.inc)

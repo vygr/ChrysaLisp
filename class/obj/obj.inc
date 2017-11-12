@@ -5,7 +5,7 @@
 (def-method 'init 'class/obj/init 'static '(r0 r1) '(r0 r1))
 (def-method 'inst_of 'class/obj/inst_of 'static '(r0 r1) '(r0 r1))
 
-(def-method 'delete 'sys/mem_free 'final '(r0))
+(def-method 'delete 'sys/mem/free 'final '(r0))
 (def-method 'deinit 'class/obj/null 'virtual '(r0) '(r0))
 (def-method 'hash 'class/obj/hash 'virtual '(r0) '(r0 r1))
 

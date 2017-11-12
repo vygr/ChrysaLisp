@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
-(import 'gui/gui.inc)
+(import 'gui/region/region.inc)
 
-(def-func 'gui/region_clip_rect)
+(def-func 'gui/region/clip_rect)
 	;inputs
 	;r0 = region heap pointer
 	;r1 = source region listhead pointer
@@ -60,7 +60,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region_copy_rect)
+(def-func 'gui/region/copy_rect)
 	;inputs
 	;r0 = region heap pointer
 	;r1 = source region listhead pointer
@@ -217,7 +217,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region_copy_region)
+(def-func 'gui/region/copy_region)
 	;inputs
 	;r0 = region heap pointer
 	;r1 = source region listhead pointer
@@ -261,7 +261,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region_cut_rect)
+(def-func 'gui/region/cut_rect)
 	;inputs
 	;r0 = region heap pointer
 	;r1 = source region listhead pointer
@@ -595,7 +595,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region_free)
+(def-func 'gui/region/free)
 	;inputs
 	;r0 = region heap pointer
 	;r1 = source region listhead pointer
@@ -614,7 +614,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region_paste_rect)
+(def-func 'gui/region/paste_rect)
 	;inputs
 	;r0 = region heap pointer
 	;r1 = dest region listhead pointer
@@ -818,7 +818,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region_paste_region)
+(def-func 'gui/region/paste_region)
 	;inputs
 	;r0 = region heap pointer
 	;r1 = source region listhead pointer
@@ -860,7 +860,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region_remove_rect)
+(def-func 'gui/region/remove_rect)
 	;inputs
 	;r0 = region heap pointer
 	;r1 = source region listhead pointer
@@ -1114,7 +1114,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region_remove_region)
+(def-func 'gui/region/remove_region)
 	;inputs
 	;r0 = region heap pointer
 	;r1 = source region listhead pointer
@@ -1156,7 +1156,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region_translate)
+(def-func 'gui/region/translate)
 	;inputs
 	;r1 = region listhead pointer
 	;r7 = x translation
@@ -1178,7 +1178,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region_bounds)
+(def-func 'gui/region/bounds)
 	;inputs
 	;r1 = region listhead pointer
 	;outputs

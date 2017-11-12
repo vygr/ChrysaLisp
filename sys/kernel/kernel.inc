@@ -1,5 +1,5 @@
 (import 'sys/class.inc)
-(import 'sys/mail.inc)
+(import 'sys/mail/mail.inc)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail functions
@@ -35,7 +35,7 @@
 (def-struct-end)
 
 (def-class 'kernel)
-(def-method 'id 'sys/kernel_id 'static nil '(r0))
-(def-method 'total 'sys/kernel_total 'static nil '(r0))
-(def-method 'opts 'sys/kernel_opts 'static '(r0))
-(def-method 'kernel 'sys/kernel 'static '(r0 r1))
+(def-method 'id 'sys/kernel/id 'static nil '(r0))
+(def-method 'total 'sys/kernel/total 'static nil '(r0))
+(def-method 'opts 'sys/kernel/opts 'static '(r0))
+(def-method 'kernel 'sys/kernel/kernel 'static '(r0 r1))

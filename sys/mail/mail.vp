@@ -1,11 +1,11 @@
 (import 'sys/func.inc)
-(import 'sys/kernel.inc)
+(import 'sys/kernel/kernel.inc)
 
-(def-func 'sys/mail_statics)
+(def-func 'sys/mail/statics)
 	(times ml_statics_size (vp-byte 0))
 (def-func-end)
 
-(def-func 'sys/mail_init)
+(def-func 'sys/mail/init)
 	;inputs
 	;r1 = kernel mailbox
 
@@ -27,7 +27,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail_init_mailbox)
+(def-func 'sys/mail/init_mailbox)
 	;outputs
 	;r0 = mailbox address
 	;trashes
@@ -40,7 +40,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail_mymail)
+(def-func 'sys/mail/mymail)
 	;outputs
 	;r0 = mail address
 	;trashes
@@ -51,7 +51,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail_alloc)
+(def-func 'sys/mail/alloc)
 	;inputs
 	;r0 = mail size
 	;outputs
@@ -70,7 +70,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail_read)
+(def-func 'sys/mail/read)
 	;inputs
 	;r0 = mailbox address
 	;outputs
@@ -94,7 +94,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail_try_read)
+(def-func 'sys/mail/try_read)
 	;inputs
 	;r0 = mailbox address
 	;outputs
@@ -115,7 +115,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail_send)
+(def-func 'sys/mail/send)
 	;inputs
 	;r0 = mail message
 	;trashes
@@ -166,7 +166,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail_select)
+(def-func 'sys/mail/select)
 	;inputs
 	;r0 = mailbox address array
 	;r1 = mailbox count
@@ -223,7 +223,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail_in)
+(def-func 'sys/mail/in)
 	;parcel fragments arriving on chip task
 	(loop-start)
 		;read parcel fragment
@@ -291,7 +291,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail_out)
+(def-func 'sys/mail/out)
 	;parcels going off chip task
 
 	(loop-start)

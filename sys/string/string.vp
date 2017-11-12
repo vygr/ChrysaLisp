@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
-(import 'sys/string.inc)
+(import 'sys/string/string.inc)
 
-(def-func 'sys/string_compare)
+(def-func 'sys/string/compare)
 	;inputs
 	;r0 = string1
 	;r1 = string2
@@ -25,7 +25,7 @@
 
 (def-func-end)
 
-(def-func 'sys/string_copy)
+(def-func 'sys/string/copy)
 	;inputs
 	;r0 = string
 	;r1 = string copy
@@ -47,7 +47,7 @@
 
 (def-func-end)
 
-(def-func 'sys/string_from_long)
+(def-func 'sys/string/from_long)
 	;inputs
 	;r0 = number
 	;r1 = string buffer
@@ -82,7 +82,7 @@
 
 (def-func-end)
 
-(def-func 'sys/string_hash)
+(def-func 'sys/string/hash)
 	;inputs
 	;r0 = string
 	;outputs
@@ -104,7 +104,7 @@
 
 (def-func-end)
 
-(def-func 'sys/string_length)
+(def-func 'sys/string/length)
 	;inputs
 	;r0 = string
 	;outputs
@@ -126,7 +126,7 @@
 
 (def-func-end)
 
-(def-func 'sys/string_to_long)
+(def-func 'sys/string/to_long)
 	;inputs
 	;r0 = string
 	;r1 = base

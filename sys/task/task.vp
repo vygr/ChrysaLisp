@@ -1,13 +1,13 @@
 (import 'sys/func.inc)
-(import 'sys/kernel.inc)
+(import 'sys/kernel/kernel.inc)
 (import 'class/vector/vector.inc)
 (import 'class/string/string.inc)
 
-(def-func 'sys/task_statics)
+(def-func 'sys/task/statics)
 	(times tk_statics_size (vp-byte 0))
 (def-func-end)
 
-(def-func 'sys/task_init)
+(def-func 'sys/task/init)
 	;set up current tcb
 	(f-bind 'sys_task 'statics r4)
 	(vp-lea-i r4 (add tk_statics_task_list lh_list_tail) r14)
@@ -29,7 +29,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task_callback)
+(def-func 'sys/task/callback)
 	;inputs
 	;r0 = user data address
 	;r1 = callback address
@@ -77,7 +77,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task_count)
+(def-func 'sys/task/count)
 	;outputs
 	;r0 = task count
 
@@ -87,7 +87,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task_mailbox)
+(def-func 'sys/task/mailbox)
 	;outputs
 	;r0, r1 = current task mailbox id
 
@@ -99,7 +99,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task_restore)
+(def-func 'sys/task/restore)
 	;restore next task
 	;r14 = control block to restore
 
@@ -117,7 +117,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task_suspend)
+(def-func 'sys/task/suspend)
 	;push task state
 	(tk-save-state)
 
@@ -137,7 +137,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task_resume)
+(def-func 'sys/task/resume)
 	;inputs
 	;r0 = task control node (to resume)
 	;trashes
@@ -155,7 +155,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task_sleep)
+(def-func 'sys/task/sleep)
 	;inputs
 	;r0 = time delay in usec
 
@@ -191,7 +191,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task_start)
+(def-func 'sys/task/start)
 	;inputs
 	;r0 = new task func pointer
 	;outputs
@@ -244,7 +244,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task_stop)
+(def-func 'sys/task/stop)
 	;remove task control block
 	(f-bind 'sys_task 'statics r0)
 	(vp-cpy-ir r0 tk_statics_current_tcb r1)
@@ -274,7 +274,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task_tcb)
+(def-func 'sys/task/tcb)
 	;outputs
 	;r0 = current task tcb
 
@@ -284,7 +284,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task_yield)
+(def-func 'sys/task/yield)
 	;push task state
 	(tk-save-state)
 
@@ -303,7 +303,7 @@
 ; single child process
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def-func 'sys/task_open_child)
+(def-func 'sys/task/open_child)
 	;inputs
 	;r0 = name string object
 	;r1 = spawn type
@@ -318,7 +318,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task_open_remote)
+(def-func 'sys/task/open_remote)
 	;inputs
 	;r0 = name string object
 	;r1 = cpu target
@@ -367,7 +367,7 @@
 ; multiple child process
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(def-func 'sys/task_open_farm)
+(def-func 'sys/task/open_farm)
 	;inputs
 	;r0 = name string object
 	;r1 = number to spawn
@@ -432,7 +432,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task_open_pipe)
+(def-func 'sys/task/open_pipe)
 	;inputs
 	;r0 = vector of strings
 	;outputs

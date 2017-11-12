@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'gui/gui.inc)
-(import 'sys/kernel.inc)
+(import 'sys/kernel/kernel.inc)
 (import 'class/window/window.inc)
 (import 'class/flow/flow.inc)
 (import 'class/grid/grid.inc)

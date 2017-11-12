@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'sys/heap.inc)
+(import 'sys/heap/heap.inc)
 
 (defcvar 'mem_cell_min_size 0x000020 'mem_cell_max_size 0x4000000 'mem_block_size (mul 32 1024))
 
-(def-func 'sys/mem_statics)
+(def-func 'sys/mem/statics)
 
 	(vp-long 0) ;used memory count
 	(let ((s mem_cell_min_size))
@@ -13,7 +13,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_used)
+(def-func 'sys/mem/used)
 	;outputs
 	;r0 = amount in bytes
 
@@ -23,7 +23,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_init)
+(def-func 'sys/mem/init)
 	;get statics
 	(f-bind 'sys_mem 'statics r0)
 	(vp-add-cr long_size r0)
@@ -39,7 +39,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_deinit)
+(def-func 'sys/mem/deinit)
 	;get statics
 	(f-bind 'sys_mem 'statics r4)
 	(vp-add-cr long_size r4)
@@ -55,7 +55,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_alloc)
+(def-func 'sys/mem/alloc)
 	;inputs
 	;r0 = minimum amount in bytes
 	;outputs
@@ -97,7 +97,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_calloc)
+(def-func 'sys/mem/calloc)
 	;inputs
 	;r0 = minimum amount in bytes
 	;outputs
@@ -118,7 +118,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_free)
+(def-func 'sys/mem/free)
 	;inputs
 	;r0 = address
 	;trashes
@@ -134,7 +134,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_realloc)
+(def-func 'sys/mem/realloc)
 	;inputs
 	;r0 = block address
 	;r1 = block size
@@ -175,7 +175,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_recalloc)
+(def-func 'sys/mem/recalloc)
 	;inputs
 	;r0 = block address
 	;r1 = block size
@@ -222,7 +222,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_clear)
+(def-func 'sys/mem/clear)
 	;inputs
 	;r0 = address
 	;r1 = length in bytes
@@ -262,7 +262,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_copy)
+(def-func 'sys/mem/copy)
 	;inputs
 	;r0 = source address
 	;r1 = destination address
@@ -311,7 +311,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem_fill)
+(def-func 'sys/mem/fill)
 	;inputs
 	;r0 = address
 	;r1 = length in bytes

@@ -161,7 +161,7 @@
 						(vec-load 4 {l1_rvx, l1_rvy, l2_rvx, l2_rvy})
 						(vec-add 4)
 						(vec-store 4 {p3x, p3y, p1x, p1y})
-						(f-call 'math 'vec_intersect {p3, l1_v, p1, l2_v} {p1})
+						(f-call 'math 'intersect {p3, l1_v, p1, l2_v} {p1})
 						(goto 'out_p1)
 					(case {join_style == join_bevel})
 						;bevel join

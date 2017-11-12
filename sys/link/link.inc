@@ -1,12 +1,12 @@
 (import 'sys/class.inc)
 (import 'sys/code.inc)
-(import 'sys/list.inc)
-(import 'sys/mail.inc)
+(import 'sys/list/list.inc)
+(import 'sys/mail/mail.inc)
 
 (def-class 'sys_link)
-(def-method 'statics 'sys/link_statics)
-(def-method 'init 'sys/link_init)
-(def-method 'link 'sys/link)
+(def-method 'statics 'sys/link/statics)
+(def-method 'init 'sys/link/init)
+(def-method 'link 'sys/link/link)
 
 ;;;;;;;;;;;;;;;;;
 ; link structures

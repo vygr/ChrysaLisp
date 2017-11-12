@@ -1,15 +1,15 @@
 (import 'sys/func.inc)
-(import 'sys/link.inc)
-(import 'sys/load.inc)
+(import 'sys/link/link.inc)
+(import 'sys/load/load.inc)
 (import 'gui/sdl2.inc)
-(import 'sys/kernel.inc)
-(import 'sys/string.inc)
+(import 'sys/kernel/kernel.inc)
+(import 'sys/string/string.inc)
 
 ;;;;;;;;;;;;;
 ; kernel task
 ;;;;;;;;;;;;;
 
-(def-func 'sys/kernel)
+(def-func 'sys/kernel/kernel)
 	;loader is already initialized when we get here !
 	;inputs
 	;r0 = argv pointer
@@ -306,7 +306,7 @@
 
 (def-func-end)
 
-(def-func 'sys/kernel_id)
+(def-func 'sys/kernel/id)
 	;outputs
 	;r0 = cpu ID
 
@@ -316,7 +316,7 @@
 
 (def-func-end)
 
-(def-func 'sys/kernel_total)
+(def-func 'sys/kernel/total)
 	;outputs
 	;r0 = cpu total
 
@@ -326,7 +326,7 @@
 
 (def-func-end)
 
-(def-func 'sys/kernel_opts)
+(def-func 'sys/kernel/opts)
 	;process command options
 	;inputs
 	;r0 = argv array

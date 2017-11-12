@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'gui/gui.inc)
+(import 'gui/ctx/ctx.inc)
 (import 'class/progress/progress.inc)
 
 (gen-new 'progress)

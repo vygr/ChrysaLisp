@@ -336,7 +336,7 @@
 
 (def-func-end)
 
-(def-func 'sys/math/vec_intersect)
+(def-func 'sys/math/intersect)
 	;inputs
 	;r0 = 16.16/16.16 p1.xy
 	;r1 = 16.16/16.16 v1.xy
@@ -353,7 +353,7 @@
 	(long 'axb 'da 'db)
 
 	(push-scope)
-	(f-entry 'math 'vec_intersect {p1, v1, p2, v2})
+	(f-entry 'math 'intersect {p1, v1, p2, v2})
 
 	(vec-set 0)
 	(vec-load 2 {p2x, p2y} {v2x, v2y})
@@ -389,7 +389,7 @@
 		(vec-store 2 {p1x, p1y})
 	(endif)
 
-	(f-exit 'math 'vec_intersect {p1})
+	(f-exit 'math 'intersect {p1})
 	(pop-scope)
 	(return)
 

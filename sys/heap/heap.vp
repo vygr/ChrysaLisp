@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'sys/heap.inc)
-(import 'sys/load.inc)
+(import 'sys/heap/heap.inc)
+(import 'sys/load/load.inc)
 
-(def-func 'sys/heap_init)
+(def-func 'sys/heap/init)
 	;inputs
 	;r0 = heap
 	;r1 = cell size
@@ -48,7 +48,7 @@
 
 (def-func-end)
 
-(def-func 'sys/heap_deinit)
+(def-func 'sys/heap/deinit)
 	;inputs
 	;r0 = heap
 	;outputs
@@ -74,7 +74,7 @@
 
 (def-func-end)
 
-(def-func 'sys/heap_alloc)
+(def-func 'sys/heap/alloc)
 	;inputs
 	;r0 = heap
 	;outputs

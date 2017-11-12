@@ -6,9 +6,9 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class 'sys_list)
-(def-method 'init 'sys/list_init 'static '(r0))
-(def-method 'index_of 'sys/list_index_of 'static '(r0 r1) '(r1))
-(def-method 'node_at 'sys/list_node_at 'static '(r0 r1) '(r0))
+(def-method 'init 'sys/list/init 'static '(r0))
+(def-method 'index_of 'sys/list/index_of 'static '(r0 r1) '(r1))
+(def-method 'node_at 'sys/list/node_at 'static '(r0 r1) '(r0))
 
 ;;;;;;;;;;;;;;;;;
 ; list structures

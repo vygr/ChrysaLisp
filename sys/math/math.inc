@@ -10,7 +10,7 @@
 (def-method 'fsqrt 'sys/math/fsqrt 'static '(r0) '(r0))
 (def-method 'fsin 'sys/math/fsin 'static '(r0) '(r0))
 (def-method 'fcos 'sys/math/fcos 'static '(r0) '(r0))
-(def-method 'vec_intersect 'sys/math/vec_intersect 'static '(r0 r1 r2 r3) '(r0))
+(def-method 'intersect 'sys/math/intersect 'static '(r0 r1 r2 r3) '(r0))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

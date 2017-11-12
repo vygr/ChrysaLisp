@@ -1,12 +1,12 @@
 (import 'sys/func.inc)
-(import 'sys/link.inc)
-(import 'sys/kernel.inc)
+(import 'sys/link/link.inc)
+(import 'sys/kernel/kernel.inc)
 
-(def-func 'sys/link_statics)
+(def-func 'sys/link/statics)
 	(times lk_statics_size (vp-byte 0))
 (def-func-end)
 
-(def-func 'sys/link_init)
+(def-func 'sys/link/init)
 	;get statics
 	(f-bind 'sys_link 'statics r0)
 
@@ -16,7 +16,7 @@
 
 (def-func-end)
 
-(def-func 'sys/link)
+(def-func 'sys/link/link)
 	;started by kernel for each link
 
 	;decrement task count

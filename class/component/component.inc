@@ -1,4 +1,4 @@
-(import 'sys/list.inc)
+(import 'sys/list/list.inc)
 (import 'class/hash_map/hash_map.inc)
 
 (def-class 'component 'hash_map)

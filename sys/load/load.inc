@@ -7,9 +7,9 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class 'sys_load)
-(def-method 'statics 'sys/load_statics)
-(def-method 'init 'sys/load_init)
-(def-method 'bind 'sys/load_bind 'static '(r0) '(r0))
+(def-method 'statics 'sys/load/statics)
+(def-method 'init 'sys/load/init)
+(def-method 'bind 'sys/load/bind 'static '(r0) '(r0))
 
 ;;;;;;;;;;;;;;;;;
 ; load structures

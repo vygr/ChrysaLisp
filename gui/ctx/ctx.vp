@@ -1,7 +1,9 @@
 (import 'sys/func.inc)
 (import 'gui/sdl2.inc)
+(import 'gui/ctx/ctx.inc)
+(import 'gui/region/region.inc)
 
-(def-func 'gui/ctx_blit)
+(def-func 'gui/ctx/blit)
 	;inputs
 	;r0 = ctx
 	;r1 = texture
@@ -100,7 +102,7 @@
 
 (def-func-end)
 
-(def-func 'gui/ctx_box)
+(def-func 'gui/ctx/box)
 	;inputs
 	;r0 = ctx
 	;r7 = x
@@ -178,7 +180,7 @@
 
 (def-func-end)
 
-(def-func 'gui/ctx_brighter)
+(def-func 'gui/ctx/brighter)
 	;inputs
 	;r1 = color
 	;inputs
@@ -197,7 +199,7 @@
 
 (def-func-end)
 
-(def-func 'gui/ctx_darker)
+(def-func 'gui/ctx/darker)
 	;inputs
 	;r1 = color
 	;inputs
@@ -215,7 +217,7 @@
 
 (def-func-end)
 
-(def-func 'gui/ctx_filled_box)
+(def-func 'gui/ctx/filled_box)
 	;inputs
 	;r0 = ctx
 	;r7 = x
@@ -293,7 +295,7 @@
 
 (def-func-end)
 
-(def-func 'gui/ctx_panel)
+(def-func 'gui/ctx/panel)
 	;inputs
 	;r0 = ctx object
 	;r1 = color
@@ -411,7 +413,7 @@
 
 (def-func-end)
 
-(def-func 'gui/ctx_set_color)
+(def-func 'gui/ctx/set_color)
 	;inputs
 	;r0 = ctx
 	;r1 = color

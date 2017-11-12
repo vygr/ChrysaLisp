@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'gui/gui.inc)
-(import 'sys/string.inc)
+(import 'sys/string/string.inc)
 (import 'class/window/window.inc)
 (import 'class/button/button.inc)
 (import 'class/string/string.inc)

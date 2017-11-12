@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
-(import 'sys/list.inc)
+(import 'sys/list/list.inc)
 
-(def-func 'sys/list_init)
+(def-func 'sys/list/init)
 	;inputs
 	;r0 = list head
 	;trashes
@@ -12,7 +12,7 @@
 
 (def-func-end)
 
-(def-func 'sys/list_index_of)
+(def-func 'sys/list/index_of)
 	;inputs
 	;r0 = list head
 	;r1 = list node
@@ -38,7 +38,7 @@
 
 (def-func-end)
 
-(def-func 'sys/list_node_at)
+(def-func 'sys/list/node_at)
 	;inputs
 	;r0 = list head
 	;r1 = index
