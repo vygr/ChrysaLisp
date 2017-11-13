@@ -66,9 +66,6 @@
 ; VP level optimizer
 ;;;;;;;;;;;;;;;;;;;;
 
-(defmacro opt-emit-kill-list ()
-	''(emit-label emit-syscall emit-call emit-call-abi emit-call-i emit-call-r emit-call-p))
-
 (defmacro opt-emit-ok-list ()
 	''(emit-cmp-cr emit-cmp-rr))
 
@@ -78,9 +75,20 @@
 (defmacro opt-emit-write-ops ()
 	''(emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri))
 
-(defcfun opt-emit-trashes? (r _)
-	(or (find (defq o (elem 0 _)) (opt-emit-kill-list))
+(defmacro opt-emit-call-ops ()
+	''(emit-label emit-syscall emit-call emit-call-abi emit-call-i emit-call-r emit-call-p))
+
+(defcfun opt-emit-trashes-with-calls? (r _)
+	(or (find (defq o (elem 0 _)) (opt-emit-call-ops))
 		(eql r (elem -2 _))
+		(cond
+			((eql o 'emit-pop)
+				(find r _))
+			((find o '(emit-land-rr emit-lnot-rr emit-swp-rr emit-div-rrr emit-div-rrr-u))
+				(eql r (elem -3 _))))))
+
+(defcfun opt-emit-trashes-without-calls? (r _)
+	(or (eql r (elem -2 _))
 		(cond
 			((eql o 'emit-pop)
 				(find r _))
@@ -89,7 +97,7 @@
 
 (defcfun opt-emit-uses? (r _)
 	(or (find r _)
-		(find (elem 0 _) (opt-emit-kill-list))))
+		(find (elem 0 _) (opt-emit-call-ops))))
 
 (defcfun opt-emit-find-rw (_ r w b i)
 	(while (and (gt (setq _ (dec _)) 0)
@@ -102,7 +110,7 @@
 							(not (eql b (elem 3 e)))
 							(eq i (eval (elem 2 e)))
 							(setq c 3)))))
-		(if (opt-emit-trashes? b e) (setq _ 0)))
+		(if (opt-emit-trashes-with-calls? b e) (setq _ 0)))
 	(if (gt _ 0) _))
 
 (defcfun opt-emit-find-use (_ o b)
@@ -124,7 +132,7 @@
 								(elem 1 e) (eval (elem 2 e))))
 						(defq r (elem c (elem w *emit-buffer*)))
 						(when (not (some! (inc w) _ t (lambda (_)
-								(opt-emit-trashes? r _)) (list *emit-buffer*)))
+								(opt-emit-trashes-without-calls? r _)) (list *emit-buffer*)))
 							(elem-set _ *emit-buffer*
 								(if (eql r (elem 3 e))
 									(lambda)
