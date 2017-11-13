@@ -947,6 +947,31 @@
 ; optimizer
 ;;;;;;;;;;;
 
+(defmacro opt-read-ops ()
+	''(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui))
+
+(defmacro opt-write-ops ()
+	''(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i))
+
+(defmacro opt-const-prop-ops (i)
+	(cond
+		((eq i 0)
+			''(vp-add-rr vp-sub-rr vp-mul-rr vp-and-rr vp-or-rr vp-xor-rr vp-shl-rr vp-shr-rr vp-asr-rr))
+		((eq i 1)
+			''(vp-add-cr vp-sub-cr vp-mul-cr vp-and-cr vp-or-cr vp-xor-cr vp-shl-cr vp-shr-cr vp-asr-cr))))
+
+(defmacro opt-const-fold-ops (i)
+	(cond
+		((eq i 0)
+			''(vp-add-cr vp-sub-cr vp-mul-cr vp-and-cr vp-or-cr vp-xor-cr vp-shl-cr vp-shr-cr vp-asr-cr))
+		((eq i 1)
+			''(add sub mul bit-and bit-or bit-xor bit-shl bit-shr bit-asr))
+		((eq i 2)
+			''(add add mul bit-and bit-or bit-xor add add add))))
+
+(defmacro opt-uses (r _)
+	`(or (find ,r ,_) (find (elem 0 ,_) '(vpif else endif))))
+
 (defmacro opt-find? (i r &rest b)
 	;results in p and m of parent env !
 	(cond
@@ -959,7 +984,7 @@
 (defcfun opt-find-1 (i r x)
 	(while (and (gt (setq i (dec i)) 0)
 				(not (match? (defq e (elem i *inst*)) x)))
-		(if (or (find r e) (find (elem 0 e) '(vpif else endif))) (setq i 0)))
+		(if (opt-uses r e) (setq i 0)))
 	(setq p (if (gt i 0) i)))
 
 (defcfun opt-find-2 (i r x y)
@@ -967,7 +992,7 @@
 	(while (and (gt (setq i (dec i)) 0)
 				(not (match? (setq m 0 e (elem i *inst*)) x))
 				(not (match? (setq m 1 e e) y)))
-		(if (or (find r e) (find (elem 0 e) '(vpif else endif))) (setq i 0)))
+		(if (opt-uses r e) (setq i 0)))
 	(setq p (if (gt i 0) i)))
 
 (defcfun opt-inst-list ()
@@ -975,8 +1000,7 @@
 	(while (lt (setq i (inc i)) (length *inst*))
 		(cond
 			;variable loading and offset folding
-			((find (defq e (elem i *inst*) o (elem 0 e))
-				'(vp-cpy-ir vp-cpy-ir-b vp-cpy-ir-s vp-cpy-ir-i vp-cpy-ir-ub vp-cpy-ir-us vp-cpy-ir-ui))
+			((find (defq e (elem i *inst*) o (elem 0 e)) (opt-read-ops))
 				(when (opt-find? i (defq r (elem 1 e)) (list 'vp-lea-i rsp '_ r) (list 'vp-add-cr '_ r))
 					(cond
 						((eq m 0)
@@ -987,7 +1011,7 @@
 							(setq i (dec i))))
 					(elem-set p *inst* (lambda))))
 			;variable writing and offset folding
-			((find o '(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i))
+			((find o (opt-write-ops))
 				(when (opt-find? i (defq r (elem 2 e)) (list 'vp-lea-i rsp '_ r) (list 'vp-add-cr '_ r))
 					(cond
 						((eq m 0)
@@ -1003,26 +1027,20 @@
 				(elem-set 1 e s)
 				(setq i (dec i)))
 			;arithmetic reassignment and constant folding
-			((defq l '(vp-add-cr vp-sub-cr vp-mul-cr
-						vp-and-cr vp-or-cr vp-xor-cr
-						vp-shl-cr vp-shr-cr vp-asr-cr) c (find o l))
+			((defq l (opt-const-fold-ops 0) c (find o l))
 				(when (opt-find? i (defq r (elem 2 e)) (list 'vp-cpy-cr '_ r) (list (elem c l) '_ r))
 					(cond
 						((eq m 0)
-							(setq c (elem c '(add sub mul bit-and bit-or bit-xor bit-shl bit-shr bit-asr)))
+							(setq c (elem c (opt-const-fold-ops 1)))
 							(elem-set 0 e 'vp-cpy-cr))
 						((eq m 1)
-							(setq c (elem c '(add add mul bit-and bit-or bit-xor add add add)))))
+							(setq c (elem c (opt-const-fold-ops 2)))))
 					(elem-set 1 e (list c (elem 1 (elem p *inst*)) (elem 1 e)))
 					(elem-set p *inst* (lambda))))
 			;constant propagation
-			((defq c (find o '(vp-add-rr vp-sub-rr vp-mul-rr
-								vp-and-rr vp-or-rr vp-xor-rr
-								vp-shl-rr vp-shr-rr vp-asr-rr)))
+			((defq c (find o (opt-const-prop-ops 0)))
 				(when (opt-find? i (defq r (elem 1 e)) (list 'vp-cpy-cr '_ r))
-					(elem-set 0 e (elem c '(vp-add-cr vp-sub-cr vp-mul-cr
-											vp-and-cr vp-or-cr vp-xor-cr
-											vp-shl-cr vp-shr-cr vp-asr-cr)))
+					(elem-set 0 e (elem c (opt-const-prop-ops 1)))
 					(elem-set 1 e (elem 1 (elem p *inst*)))
 					(elem-set p *inst* (lambda))
 					(setq i (dec i)))))))
