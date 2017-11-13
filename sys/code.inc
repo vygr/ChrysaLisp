@@ -953,21 +953,17 @@
 (defmacro opt-write-ops ()
 	''(vp-cpy-ri vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-i))
 
-(defmacro opt-const-prop-ops (i)
-	(cond
-		((eq i 0)
-			''(vp-add-rr vp-sub-rr vp-mul-rr vp-and-rr vp-or-rr vp-xor-rr vp-shl-rr vp-shr-rr vp-asr-rr))
-		((eq i 1)
-			''(vp-add-cr vp-sub-cr vp-mul-cr vp-and-cr vp-or-cr vp-xor-cr vp-shl-cr vp-shr-cr vp-asr-cr))))
+(defmacro opt-rr-ops ()
+	''(vp-add-rr vp-sub-rr vp-mul-rr vp-and-rr vp-or-rr vp-xor-rr vp-shl-rr vp-shr-rr vp-asr-rr))
 
-(defmacro opt-const-fold-ops (i)
-	(cond
-		((eq i 0)
-			''(vp-add-cr vp-sub-cr vp-mul-cr vp-and-cr vp-or-cr vp-xor-cr vp-shl-cr vp-shr-cr vp-asr-cr))
-		((eq i 1)
-			''(add sub mul bit-and bit-or bit-xor bit-shl bit-shr bit-asr))
-		((eq i 2)
-			''(add add mul bit-and bit-or bit-xor add add add))))
+(defmacro opt-cr-ops ()
+	''(vp-add-cr vp-sub-cr vp-mul-cr vp-and-cr vp-or-cr vp-xor-cr vp-shl-cr vp-shr-cr vp-asr-cr))
+
+(defmacro opt-fold-cpy-ops ()
+	''(add sub mul bit-and bit-or bit-xor bit-shl bit-shr bit-asr))
+
+(defmacro opt-fold-cr-ops ()
+	''(add add mul bit-and bit-or bit-xor add add add))
 
 (defmacro opt-uses (r _)
 	`(or (find ,r ,_) (find (elem 0 ,_) '(vpif else endif))))
@@ -1027,20 +1023,20 @@
 				(elem-set 1 e s)
 				(setq i (dec i)))
 			;arithmetic reassignment and constant folding
-			((defq l (opt-const-fold-ops 0) c (find o l))
+			((defq l (opt-cr-ops) c (find o l))
 				(when (opt-find? i (defq r (elem 2 e)) (list 'vp-cpy-cr '_ r) (list (elem c l) '_ r))
 					(cond
 						((eq m 0)
-							(setq c (elem c (opt-const-fold-ops 1)))
+							(setq c (elem c (opt-fold-cpy-ops)))
 							(elem-set 0 e 'vp-cpy-cr))
 						((eq m 1)
-							(setq c (elem c (opt-const-fold-ops 2)))))
+							(setq c (elem c (opt-fold-cr-ops)))))
 					(elem-set 1 e (list c (elem 1 (elem p *inst*)) (elem 1 e)))
 					(elem-set p *inst* (lambda))))
 			;constant propagation
-			((defq c (find o (opt-const-prop-ops 0)))
+			((defq c (find o (opt-rr-ops)))
 				(when (opt-find? i (defq r (elem 1 e)) (list 'vp-cpy-cr '_ r))
-					(elem-set 0 e (elem c (opt-const-prop-ops 1)))
+					(elem-set 0 e (elem c (opt-cr-ops)))
 					(elem-set 1 e (elem 1 (elem p *inst*)))
 					(elem-set p *inst* (lambda))
 					(setq i (dec i)))))))
