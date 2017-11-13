@@ -78,22 +78,28 @@
 (defmacro opt-emit-call-ops ()
 	''(emit-label emit-syscall emit-call emit-call-abi emit-call-i emit-call-r emit-call-p))
 
+(defmacro opt-emit-two-out-ops ()
+	''(emit-land-rr emit-lnot-rr emit-swp-rr emit-div-rrr emit-div-rrr-u))
+
+(defmacro opt-emit-multi-out-ops ()
+	''(emit-pop))
+
 (defcfun opt-emit-trashes-with-calls? (r _)
 	(or (find (defq o (elem 0 _)) (opt-emit-call-ops))
 		(eql r (elem -2 _))
 		(cond
-			((eql o 'emit-pop)
-				(find r _))
-			((find o '(emit-land-rr emit-lnot-rr emit-swp-rr emit-div-rrr emit-div-rrr-u))
-				(eql r (elem -3 _))))))
+			((find o (opt-emit-two-out-ops))
+				(eql r (elem -3 _)))
+			((eql o (opt-emit-multi-out-ops))
+				(find r _)))))
 
 (defcfun opt-emit-trashes-without-calls? (r _)
 	(or (eql r (elem -2 _))
 		(cond
-			((eql o 'emit-pop)
-				(find r _))
-			((find o '(emit-land-rr emit-lnot-rr emit-swp-rr emit-div-rrr emit-div-rrr-u))
-				(eql r (elem -3 _))))))
+			((find o (opt-emit-two-out-ops))
+				(eql r (elem -3 _)))
+			((eql o (opt-emit-multi-out-ops))
+				(find r _)))))
 
 (defcfun opt-emit-uses? (r _)
 	(or (find r _)
