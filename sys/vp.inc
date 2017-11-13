@@ -90,7 +90,7 @@
 		(cond
 			((find o (opt-emit-two-out-ops))
 				(eql r (elem -3 _)))
-			((eql o (opt-emit-multi-out-ops))
+			((find o (opt-emit-multi-out-ops))
 				(find r _)))))
 
 (defcfun opt-emit-trashes-without-calls? (r _)
@@ -98,7 +98,7 @@
 		(cond
 			((find o (opt-emit-two-out-ops))
 				(eql r (elem -3 _)))
-			((eql o (opt-emit-multi-out-ops))
+			((find o (opt-emit-multi-out-ops))
 				(find r _)))))
 
 (defcfun opt-emit-uses? (r _)
