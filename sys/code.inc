@@ -1023,8 +1023,8 @@
 				(elem-set 1 e s)
 				(setq i (dec i)))
 			;arithmetic reassignment and constant folding
-			((defq l (opt-cr-ops) c (find o l))
-				(when (opt-find? i (defq r (elem 2 e)) (list 'vp-cpy-cr '_ r) (list (elem c l) '_ r))
+			((defq c (find o (opt-cr-ops)))
+				(when (opt-find? i (defq r (elem 2 e)) (list 'vp-cpy-cr '_ r) (list o '_ r))
 					(cond
 						((eq m 0)
 							(setq c (elem c (opt-fold-cpy-ops)))
