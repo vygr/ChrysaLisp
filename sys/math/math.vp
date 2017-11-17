@@ -394,3 +394,58 @@
 	(return)
 
 (def-func-end)
+
+(def-func 'sys/math/distance_sqd)
+	;inputs
+	;r0 = 16.16/16.16 p.xy
+	;r1 = 16.16/16.16 p1.xy
+	;r2 = 16.16/16.16 p2.xy
+	;outputs
+	;r0 = 16.16 distance squared
+	;trashes
+	;all
+
+	(union
+		'(ulong 'p 'p1 'p2 'lv)
+		'(int 'px 'py 'p1x 'p1y 'p2x 'p2y 'lvx 'lvy))
+	(int 'c1 'c2)
+
+	(push-scope)
+	(used-syms 'lv)
+	(f-entry 'math 'distance_sqd {p, p1, p2})
+
+	(vec-set 0)
+	(vec-load 2 {p2x, p2y} {p1x, p1y})
+	(vec-sub 2)
+	(vec-tee 2 {lvx, lvy})
+	(vec-load 2 {px, py} {p1x, p1y})
+	(vec-sub 2)
+	(vec-fdot 2)
+	(vec-store 1 {c1})
+	(vpif {c1 <= 0})
+		(vec-load 2 {px, py} {p1x, p1y})
+	(else)
+		(vec-set 0)
+		(vec-load 2 {lvx, lvy})
+		(vec-fdot 2 (vec-top 2))
+		(vec-store 1 {c2})
+		(vpif {c2 <= c1})
+			(vec-load 2 {px, py} {p2x, p2y})
+		(else)
+			(vec-set 0)
+			(vec-load 2 {lvx, lvy})
+			(vec-load 1 {c1} {c2})
+			(vec-fdiv 1)
+			(vec-fscale 2)
+			(vec-load 2 {p1x, p1y})
+			(vec-add 2)
+			(vec-load 2 {px, py})
+		(endif)
+	(endif)
+	(vec-fdistance-squared 2)
+
+	(f-exit 'math 'distance_sqd (vec-pop 1))
+	(pop-scope)
+	(return)
+
+(def-func-end)
