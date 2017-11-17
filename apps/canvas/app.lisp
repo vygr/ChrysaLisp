@@ -1,5 +1,5 @@
 ;import canvas and points method slots
-(bind '(slot_set_fbox slot_set_fpoly slot_blend_fpoly slot_fill slot_swap slot_transform
+(bind '(slot_set_fbox slot_set_fpoly slot_blend_fpoly slot_fill slot_swap slot_transform slot_simplify
 	slot_gen_quadratic slot_gen_cubic slot_gen_arc slot_stroke_polylines slot_stroke_polygons)
 	(within-compile-env (lambda ()
 		(import 'class/canvas/canvas.inc)
@@ -10,6 +10,7 @@
 			(method-slot 'canvas 'fill)
 			(method-slot 'canvas 'swap)
 			(method-slot 'points 'transform)
+			(method-slot 'points 'simplify)
 			(method-slot 'points 'gen_quadratic)
 			(method-slot 'points 'gen_cubic)
 			(method-slot 'points 'gen_arc)
@@ -49,6 +50,7 @@
 	(call slot_blend_fpoly canvas _ col mode))
 
 (call slot_fill canvas 0x00000000)
+
 (call slot_set_fbox canvas 0xffffffff
 	(div (fmul canvas_width canvas_scale 0.1) 1.0) (div (fmul canvas_height canvas_scale 0.05) 1.0)
 	(div (fmul canvas_width canvas_scale 0.5) 1.0) (div (fmul canvas_height canvas_scale 0.5) 1.0))
@@ -61,7 +63,7 @@
 	(list 1.0 0)
 	(list 0x0.1 1.0))))))
 
-(fpoly 0xfffff00f 0 (defq p (transform
+(fpoly 0xfffff00f 0 (transform
 	(call slot_stroke_polylines (list) stack
 		(list
 			(call slot_gen_quadratic (points) stack
@@ -73,7 +75,7 @@
 		cap-square
 		cap-square
 		(fmul canvas_width 0.05)
-		eps))))
+		eps)))
 
 (bpoly 0xc000ff00 1 (transform
 	(call slot_stroke_polylines (list) stack

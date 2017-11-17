@@ -25,47 +25,45 @@
 	(f-entry 'points 'simplify {this, that, stack, eps})
 
 	;any point doing anything ?
-	(d-call 'array 'get_length {that} {_, length})
+	(d-call 'points 'get_length {that} {_, length})
 	(vpif '{length <= 2})
 		;just append to output
-		(d-call 'array 'append {this, that, 0, length})
+		(d-call 'points 'append {this, that, 0, length})
 	(else)
 		;first span
 		(assign {0, length - 1} {first, last})
 
 		;output first point
-		(f-call 'array 'get_first {that} {_, p1})
+		(f-call 'points 'get_first {that} {_, p1})
 		(f-call 'points 'push_back {this, p1})
 
 		(d-call 'array 'get_length {stack} {_, start})
 		(loop-start)
-			;find max distance point
-			(assign {eps, first + 1} {max, length})
-			(f-call 'array 'get_element {that, first} {_, p2})
-			(f-call 'array 'get_element {that, last} {_, p3})
-			(loop-while {length < last})
-				(f-call 'array 'get_element {that, length} {_, p1})
-				(f-call 'math 'distance_sqd {p1, p2, p3} {dist})
-				(vpif {dist > max})
-					(assign {dist, length} {max, index})
-				(endif)
-				(assign {length + 1} {length})
-			(loop-end)
+			(vpif {last - first > 1})
+				;find max distance point
+				(assign {eps, first + 1} {max, length})
+				(f-call 'points 'get_element {that, first} {_, p2})
+				(f-call 'points 'get_element {that, last} {_, p3})
+				(loop-while {length < last})
+					(f-call 'points 'get_element {that, length} {_, p1})
+					(f-call 'math 'distance_sqd {p1, p2, p3} {dist})
+					(vpif {dist > max})
+						(assign {dist, length} {max, index})
+					(endif)
+					(assign {length + 1} {length})
+				(loop-end)
 
-			;continue subdivision ?
-			(vpif {max > eps})
-				(vpif {last - index > 1})
+				;continue subdivision ?
+				(vpif {max > eps})
 					(assign {last} {rlast})
 					(f-call 'array 'push_back {stack, rspan})
-				(endif)
-				(vpif {index - first > 1})
-					(assign {index} {first})
+					(assign {index} {last})
 					(f-call 'array 'push_back {stack, span})
 				(endif)
 			(else)
 				;output point
-				(f-call 'array 'get_element {that, last} {_, p1})
-				(f-call 'array 'push_back {this, p1})
+				(f-call 'points 'get_element {that, last} {_, p1})
+				(f-call 'points 'push_back {this, p1})
 			(endif)
 
 			;next span
