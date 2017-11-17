@@ -33,7 +33,7 @@
 	(used-syms 'l2_pv 'l1_vx 'l1_vy)
 	(f-entry 'points 'stroke_joints {this, stack, iter_i, iter_j, p1, p2, join_style, radius, eps})
 
-	(vpif {radius >= 0.5 && iter_i != iter_j})
+	(vpif {iter_i != iter_j})
 		(vpif {iter_j > iter_i})
 			(assign {long_size} {step})
 		(else)

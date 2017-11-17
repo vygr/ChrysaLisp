@@ -2,7 +2,7 @@
 (import 'class/points/points.inc)
 (import 'sys/math/math.inc)
 
-(def-func 'class/points/rem_co_polygon)
+(def-func 'class/points/filter_polygon)
 	;inputs
 	;r0 = points object
 	;r1 = source points object, can be same
@@ -17,9 +17,9 @@
 	(int 'eps)
 
 	(push-scope)
-	(f-entry 'points 'rem_co_polygon {this, that, eps})
+	(f-entry 'points 'filter_polygon {this, that, eps})
 
-	(f-call 'points 'rem_co_polyline {this, that, eps})
+	(f-call 'points 'filter_polyline {this, that, eps})
 	(f-call 'points 'get_iters {this} {_, iter_begin, iter_end})
 
 	(vec-set 0)
@@ -38,7 +38,7 @@
 		(endif)
 	(endif)
 
-	(f-exit 'points 'rem_co_polygon {this})
+	(f-exit 'points 'filter_polygon {this})
 	(pop-scope)
 	(return)
 

@@ -3,9 +3,10 @@
 (def-class 'points 'array)
 (def-method 'create 'class/points/create 'static nil '(r0))
 (def-method 'new 'class/points/new 'static nil '(r0))
-(def-method 'rem_co_polyline 'class/points/rem_co_polyline 'static '(r0 r1 r2) '(r0))
-(def-method 'rem_co_polygon 'class/points/rem_co_polygon 'static '(r0 r1 r2) '(r0))
+(def-method 'filter_polyline 'class/points/filter_polyline 'static '(r0 r1 r2) '(r0))
+(def-method 'filter_polygon 'class/points/filter_polygon 'static '(r0 r1 r2) '(r0))
 (def-method 'transform 'class/points/transform 'static '(r0 r1 r2 r3 r4) '(r0))
+(def-method 'simplify 'class/points/simplify 'static '(r0 r1 r2 r3) '(r0))
 
 (def-method 'gen_clerp 'class/points/gen_clerp 'static '(r0 r1 r2 r3 r4 r5 r6) '(r0))
 (def-method 'gen_arc 'class/points/gen_arc 'static '(r0 r1 r2 r3 r4 r5 r6) '(r0))
