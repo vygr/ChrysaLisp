@@ -146,6 +146,13 @@
 		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(f-call 'points 'transform {arg0, arg1, arg2, arg3, arg4})
 		(break)
+(vp-label 'points_simplify_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_points_simplify, 5} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'points 'simplify {arg0, arg1, arg2, arg3})
+		(break)
 
 ;vector class handlers
 (vp-label 'points_stroke_polylines_handler)
@@ -180,6 +187,7 @@
 	(signature 'sig_canvas_blend_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'sig_canvas_blend_fpoly 'boxed_long 'canvas 'vector 'boxed_long 'boxed_long)
 	(signature 'sig_points_transform 'boxed_long 'points 'points 'boxed_long 'boxed_long 'boxed_long)
+	(signature 'sig_points_simplify 'boxed_long 'points 'points 'array 'boxed_long)
 	(signature 'sig_points_gen_arc 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'sig_points_gen_quadratic 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'sig_points_gen_cubic 'boxed_long 'points 'array 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
@@ -217,6 +225,7 @@
 	(slot-entry 'points 'gen_cubic)
 	(slot-entry 'points 'gen_arc)
 	(slot-entry 'points 'transform)
+	(slot-entry 'points 'simplify)
 	(vp-short 0)
 
 (vp-label 'vector_slot_table)
