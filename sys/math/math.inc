@@ -276,8 +276,8 @@
 	(vec-fmul n v2)
 	(vec-sum n))
 
-(defcfun vec-fdet (n)
-	(defq v2 (vec-pop n))
+(defcfun vec-fdet (n &optional v2)
+	(setd v2 (vec-pop n))
 	(each (lambda (v)
 		(vp-mul-rr (elem (sub n _ 1) v2) v)) (vec-top n))
 	(vec-asr n fp_shift)
