@@ -430,17 +430,21 @@
 	(defq p1 (vec-top 2))
 	(vec-load 2 {p2x, p2y})
 	(defq p2 (vec-top 2))
+
 	(vec-dup 2)
 	(vec-sub 2 p1)
 	(defq lv (vec-top 2))
+
 	(vec-dup 2 p)
 	(vec-sub 2 p1)
 	(vec-fdot 2 lv)
 	(bind '(c1) (vec-top 1))
+
 	(vpif `(,c1 > 0))
 		(vec-dup 2 lv)
 		(vec-fdot 2 lv)
 		(bind '(c2) (vec-top 1))
+
 		(vpif `(,c2 <= ,c1))
 			(vec-cpy 2 p2 p1)
 		(else)
