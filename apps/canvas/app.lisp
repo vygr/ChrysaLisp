@@ -29,7 +29,7 @@
 (defun as-points (_)
 	(apply points (map as-point _)))
 
-(defun transform (_)
+(defun transform (_ angle)
 	(defq sa (fsin angle) ca (fcos angle))
 	(map (lambda (_)
 		(call slot_transform _ _
@@ -37,7 +37,7 @@
 			(as-point (list (fmul canvas_scale sa) (fmul canvas_scale ca)))
 			(as-point (list (fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5))))) _))
 
-(defun transform-norm (_)
+(defun transform-norm (_ angle)
 	(defq sa (fsin angle) ca (fcos angle))
 	(map (lambda (_)
 		(call slot_transform _ _
@@ -60,7 +60,7 @@
 		(list 0 -0.5)
 		(list 0.25 0.5)
 		(list 0.5 -0.5)
-		(list -0.05 0.5))))))
+		(list -0.05 0.5)))) angle))
 
 	(fpoly 0xfffff00f 0 (transform
 		(call slot_stroke_polylines (list) stack
@@ -74,7 +74,7 @@
 			cap-square
 			cap-square
 			(fmul canvas_width 0.05)
-			eps)))
+			eps) (neg angle)))
 
 	(bpoly 0xc000ff00 1 (transform
 		(call slot_stroke_polylines (list) stack
@@ -87,7 +87,7 @@
 			cap-round
 			cap-round
 			(fmul canvas_width 0x0.1)
-			eps)))
+			eps) angle))
 
 	(fpoly 0xff00ffff 0 (defq p (transform
 		(call slot_stroke_polygons (list) stack
@@ -106,7 +106,7 @@
 				eps)
 			join-miter
 			(fmul canvas_width 0.011)
-			eps))))
+			eps) (neg angle))))
 	(bpoly 0x80000000 0 (slice 1 2 p))
 
 	(bpoly 0xd0ff00ff 0 (defq p (transform
@@ -120,7 +120,7 @@
 					eps))
 			join-miter
 			(fmul canvas_width 0.02)
-			eps))))
+			eps) angle)))
 	(bpoly 0x60000000 0 (slice 0 1 p))
 
 	(bpoly 0xc0ff0000 0 (defq polygons (transform
@@ -146,7 +146,7 @@
 				eps)
 			join-miter
 			(fmul canvas_width 0.025)
-			eps))))
+			eps) (neg angle))))
 	(bpoly 0xa0ffffff 0
 		(list (elem 1 polygons) (elem 3 polygons)))
 
