@@ -60,7 +60,7 @@
 		(list 0 -0.5)
 		(list 0.25 0.5)
 		(list 0.5 -0.5)
-		(list -0.05 0.5)))) angle))
+		(list -0.05 0.5)))) (mul angle 2)))
 
 	(fpoly 0xfffff00f 0 (transform
 		(call slot_stroke_polylines (list) stack
@@ -106,7 +106,7 @@
 				eps)
 			join-miter
 			(fmul canvas_width 0.011)
-			eps) (neg angle))))
+			eps) (mul angle -2))))
 	(bpoly 0x80000000 0 (slice 1 2 p))
 
 	(bpoly 0xd0ff00ff 0 (defq p (transform
@@ -146,7 +146,7 @@
 				eps)
 			join-miter
 			(fmul canvas_width 0.025)
-			eps) (neg angle))))
+			eps) angle)))
 	(bpoly 0xa0ffffff 0
 		(list (elem 1 polygons) (elem 3 polygons)))
 
@@ -154,4 +154,4 @@
 
 (while (lt angle fp_2pi)
 	(redraw)
-	(setq angle (add angle 0.025)))
+	(setq angle (add angle 0.02)))
