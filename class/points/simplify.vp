@@ -39,7 +39,8 @@
 
 		(d-call 'array 'get_length {stack} {_, start})
 		(loop-start)
-			(vpif {last - first > 1})
+			(switch 'out)
+			(case {last - first > 1})
 				;find max distance point
 				(assign {eps, first + 1} {max, length})
 				(f-call 'points 'get_element {that, first} {_, p2})
@@ -59,12 +60,13 @@
 					(assign {index} {last})
 					(f-call 'array 'push_back {stack, rspan})
 					(f-call 'array 'push_back {stack, span})
+					(break out)
 				(endif)
-			(else)
+			(default)
 				;output point
 				(f-call 'points 'get_element {that, last} {_, p1})
 				(f-call 'points 'push_back {this, p1})
-			(endif)
+			(endswitch)
 
 			;next span
 			(d-call 'array 'get_length {stack} {_, length})
