@@ -153,14 +153,14 @@
 
 		;step the edges
 		(assign {iter_i, iter_j} '(r0 r1))
-		(loop-start)
+		(loop-while '(r0 != r1))
 			(vp-cpy-ir r0 0 r2)
 			(vp-add-cr ptr_size r0)
 			(vp-cpy-ir-i r2 edge_x r3)
 			(vp-cpy-ir-i r2 edge_dda r4)
 			(vp-add-rr r4 r3)
 			(vp-cpy-ri-i r3 r2 edge_x)
-		(loop-until '(r0 == r1))
+		(loop-end)
 
 		(assign {ys + 1} {ys})
 	(loop-end)

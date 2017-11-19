@@ -19,7 +19,7 @@
 
 (def-func 'apps/canvas/app)
 
-	(defcvar 'app_width 640 'app_height 640 'app_scale 3.0)
+	(defcvar 'app_width 640 'app_height 640 'app_scale 2.0)
 
 	(def-struct 'local 'obj)
 		(uint 'closed)
