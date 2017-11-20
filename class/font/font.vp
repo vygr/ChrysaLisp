@@ -171,7 +171,7 @@
 	(vp-and-cr -16 rsp)
 	(l-entry '(r0 (rsp local_old_stack)))
 
-	(sdl-call 'sdl 'sdl_destroy_texture '((r0 font_handle)))
+	(sdl-call 'sdl 'ttf_close_font '((r0 font_handle)))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
