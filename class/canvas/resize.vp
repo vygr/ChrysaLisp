@@ -79,7 +79,9 @@
 					(endif)
 
 					;multiply pixel channels by the pixel weight and accumulate
-					(assign {*dsrc, weight_x * weight_y, r, g, b, a, q} '(r0 r4 r7 r8 r9 r10 r11))
+					(assign {dsrc, weight_x * weight_y, r, g, b, a, q} '(r6 r4 r7 r8 r9 r10 r11))
+					(vp-cpy-ir-ui r6 0 r0)
+					(vp-add-cr int_size r6)
 					(vp-cpy-rr r0 r1)
 					(vp-cpy-rr r0 r2)
 					(vp-cpy-rr r0 r3)
@@ -98,9 +100,8 @@
 					(vp-add-rr r9 r2)
 					(vp-add-rr r10 r3)
 					(vp-add-rr r4 r11)
-					(assign '(r0 r1 r2 r3 r11) {r, g, b, a, q})
+					(assign '(r6 r0 r1 r2 r3 r11) {dsrc, r, g, b, a, q})
 
-					(assign {dsrc + int_size} {dsrc})
 					(assign {x + 1} {x})
 				(loop-end)
 				(assign {y + 1} {y})
