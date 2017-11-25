@@ -5,10 +5,11 @@
 	eps 0.02
 	min_distance 0.01
 	clipfar 8.0
-	arg_march 1.0
-	arg_ref 0.2
-	arg_depth 1
-	light_pos (list 0.0 0.0 -4.0))
+	march_factor 1.0
+	shadow_softness 64.0
+	ref_coef 0.3
+	ref_depth 1
+	light_pos (list -0.05 -0.05 -4.0))
 
 ;field equation for a sphere
 (defun sphere (p c r)
@@ -31,8 +32,18 @@
 				(gt d min_distance)
 				(lt l max_l))
 		(defq d (scene (vec-add-3d ray_origin (vec-scale-3d ray_dir l)))
-			l (add l (fmul d arg_march))))
+			l (add l (fmul d march_factor))))
 	(if (gt d min_distance) max_l l))
+
+(defun shadow (ray_origin ray_dir l max_l k)
+	(defq s 1.0 i 1000)
+	(while (gt (setq i (dec i)) 0)
+		(defq h (scene (vec-add-3d ray_origin (vec-scale-3d ray_dir l)))
+			s (min s (fdiv (fmul k h) l)))
+		(if (or (le s 0.1) (ge l max_l))
+			(setq i 0)
+			(setq l (add l h))))
+	(max s 0.1))
 
 (defun lighting (surface_pos surface_norm cam_pos)
 	(defq obj_color (vec-floor-3d (vec-mod-3d surface_pos 2.0))
@@ -41,13 +52,14 @@
 		light_norm (vec-scale-3d light_vec (fdiv 1.0 light_dis))
 		light_atten (min (fdiv 1.0 (fmul light_dis light_dis 0.01)) 1.0)
 		ref (vec-reflect-3d (vec-scale-3d light_norm -1.0) surface_norm)
+		ss (shadow surface_pos light_norm min_distance light_dis shadow_softness)
 		ambient 0.05
 		diffuse (max 0.0 (vec-dot-3d surface_norm light_norm))
 		specular (max 0.0 (vec-dot-3d ref (vec-norm-3d (vec-sub-3d cam_pos surface_pos))))
 		specular (fmul specular specular specular specular 0.8)
 		obj_color (vec-scale-3d obj_color (add (fmul diffuse 0.8) ambient))
 		obj_color (vec-add-3d obj_color (list specular specular specular))
-		light_col (vec-scale-3d '(1.0 1.0 1.0) light_atten))
+		light_col (vec-scale-3d '(1.0 1.0 1.0) (fmul light_atten ss)))
 	(vec-mul-3d obj_color light_col))
 
 (defun scene-ray (ray_origin ray_dir)
@@ -58,15 +70,15 @@
 			(defq surface_pos (vec-add-3d ray_origin (vec-scale-3d ray_dir l))
 				surface_norm (get-normal surface_pos)
 				color (lighting surface_pos surface_norm ray_origin))
-			(defq i arg_depth r arg_ref)
+			(defq i ref_depth r ref_coef)
 			(while (and (ge (setq i (dec i)) 0)
 						(lt (defq ray_origin surface_pos
 								ray_dir (vec-reflect-3d ray_dir surface_norm)
-								l (ray-march ray_origin ray_dir eps clipfar)) clipfar))
+								l (ray-march ray_origin ray_dir (fmul min_distance 2.0) clipfar)) clipfar))
 					(defq surface_pos (vec-add-3d ray_origin (vec-scale-3d ray_dir l))
 						surface_norm (get-normal surface_pos)
 						color (vec-add-3d color (vec-scale-3d (lighting surface_pos surface_norm ray_origin) r))
-						r (fmul r arg_ref)))
+						r (fmul r ref_coef)))
 			(vec-clamp color 0.0 0.999))))
 
 (defun line (w h &rest y)

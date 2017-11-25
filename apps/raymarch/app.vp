@@ -19,7 +19,7 @@
 
 (def-func 'apps/raymarch/app)
 
-	(defcvar 'app_width 400 'app_height 400 'app_scale 1.0)
+	(defcvar 'app_width 500 'app_height 500 'app_scale 1.0)
 
 	(def-struct 'local 'obj)
 		(uint 'closed)
