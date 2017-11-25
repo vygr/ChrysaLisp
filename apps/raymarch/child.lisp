@@ -6,6 +6,8 @@
 	min_distance 0.01
 	clipfar 8.0
 	arg_march 1.0
+	arg_ref 0.2
+	arg_depth 1
 	light_pos (list 0.0 0.0 -4.0))
 
 ;field equation for a sphere
@@ -56,6 +58,15 @@
 			(defq surface_pos (vec-add-3d ray_origin (vec-scale-3d ray_dir l))
 				surface_norm (get-normal surface_pos)
 				color (lighting surface_pos surface_norm ray_origin))
+			(defq i arg_depth r arg_ref)
+			(while (and (ge (setq i (dec i)) 0)
+						(lt (defq ray_origin surface_pos
+								ray_dir (vec-reflect-3d ray_dir surface_norm)
+								l (ray-march ray_origin ray_dir eps clipfar)) clipfar))
+					(defq surface_pos (vec-add-3d ray_origin (vec-scale-3d ray_dir l))
+						surface_norm (get-normal surface_pos)
+						color (vec-add-3d color (vec-scale-3d (lighting surface_pos surface_norm ray_origin) r))
+						r (fmul r arg_ref)))
 			(vec-clamp color 0.0 0.999))))
 
 (defun line (w h &rest y)

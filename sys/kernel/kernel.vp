@@ -24,8 +24,8 @@
 	(vp-cpy-rr rsp r2)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
+	(f-entry 'kernel 'kernel '((rsp local_argv) r1))
 	(vp-cpy-ri r2 rsp local_old_stack)
-	(vp-cpy-ri r0 rsp local_argv)
 
 	;init gui
 	(f-call 'gui_gui 'init '(r1))
