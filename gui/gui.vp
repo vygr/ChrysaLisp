@@ -117,9 +117,12 @@
 
 	;update screen
 	(vpif {user->local_statics->gui_statics_screen})
-		;update the screen and refresh
-		(f-call 'gui_gui 'update {user->local_statics->gui_statics_screen})
-		(sdl-call 'sdl 'sdl_render_present {user->local_statics->gui_statics_renderer})
+		(vpif {user->local_statics->gui_statics_dirty_flag})
+			;update the screen and refresh
+			(f-call 'gui_gui 'update {user->local_statics->gui_statics_screen})
+			(sdl-call 'sdl 'sdl_render_present {user->local_statics->gui_statics_renderer})
+			(assign {0} {user->local_statics->gui_statics_dirty_flag})
+		(endif)
 	(endif)
 
 	;any sdl events ?

@@ -29,6 +29,7 @@
 	(ptr 'screen)
 	(ulong 'renderer)
 	(ptr 'old_region)
+	(ubyte 'dirty_flag)
 (def-struct-end)
 
 (def-struct 'gui_sigslot)
