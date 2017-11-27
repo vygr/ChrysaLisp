@@ -7,9 +7,11 @@
 	clipfar 8.0
 	march_factor 1.0
 	shadow_softness 64.0
-	ref_coef 0.3
+	attenuation 0.05
+	ambient 0.05
+	ref_coef 0.25
 	ref_depth 1
-	light_pos (list -0.05 -0.05 -4.0))
+	light_pos (list -0.1 -0.1 -3.0))
 
 ;field equation for a sphere
 (defun sphere (p c r)
@@ -50,16 +52,15 @@
 		light_vec (vec-sub-3d light_pos surface_pos)
 		light_dis (vec-length-3d light_vec)
 		light_norm (vec-scale-3d light_vec (fdiv 1.0 light_dis))
-		light_atten (min (fdiv 1.0 (fmul light_dis light_dis 0.01)) 1.0)
+		light_atten (min (fdiv 1.0 (fmul light_dis light_dis attenuation)) 1.0)
 		ref (vec-reflect-3d (vec-scale-3d light_norm -1.0) surface_norm)
 		ss (shadow surface_pos light_norm min_distance light_dis shadow_softness)
-		ambient 0.05
+		light_col (vec-scale-3d '(1.0 1.0 1.0) (fmul light_atten ss))
 		diffuse (max 0.0 (vec-dot-3d surface_norm light_norm))
 		specular (max 0.0 (vec-dot-3d ref (vec-norm-3d (vec-sub-3d cam_pos surface_pos))))
-		specular (fmul specular specular specular specular 0.8)
-		obj_color (vec-scale-3d obj_color (add (fmul diffuse 0.8) ambient))
-		obj_color (vec-add-3d obj_color (list specular specular specular))
-		light_col (vec-scale-3d '(1.0 1.0 1.0) (fmul light_atten ss)))
+		specular (fmul specular specular specular specular)
+		obj_color (vec-scale-3d obj_color (add (fmul diffuse (sub 1.0 ambient)) ambient))
+		obj_color (vec-add-3d obj_color (list specular specular specular)))
 	(vec-mul-3d obj_color light_col))
 
 (defun scene-ray (ray_origin ray_dir)
@@ -77,7 +78,8 @@
 								l (ray-march ray_origin ray_dir (fmul min_distance 2.0) clipfar)) clipfar))
 					(defq surface_pos (vec-add-3d ray_origin (vec-scale-3d ray_dir l))
 						surface_norm (get-normal surface_pos)
-						color (vec-add-3d color (vec-scale-3d (lighting surface_pos surface_norm ray_origin) r))
+						color (vec-add-3d (vec-scale-3d color (sub 1.0 r))
+								(vec-scale-3d (lighting surface_pos surface_norm ray_origin) r))
 						r (fmul r ref_coef)))
 			(vec-clamp color 0.0 0.999))))
 
