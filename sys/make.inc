@@ -5,7 +5,6 @@
 (import 'sys/string/make.inc)
 (import 'sys/kernel/make.inc)
 (import 'sys/link/make.inc)
-(import 'sys/list/make.inc)
 (import 'sys/task/make.inc)
 (import 'sys/math/make.inc)
 (import 'sys/pii/make.inc)

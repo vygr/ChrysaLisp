@@ -1,15 +1,6 @@
 (import 'sys/class.inc)
 (import 'sys/code.inc)
 
-;;;;;;;;;;;;;;;;;;;
-; list static class
-;;;;;;;;;;;;;;;;;;;
-
-(def-class 'sys_list)
-(def-method 'init 'sys/list/init 'static '(r0))
-(def-method 'index_of 'sys/list/index_of 'static '(r0 r1) '(r1))
-(def-method 'node_at 'sys/list/node_at 'static '(r0 r1) '(r0))
-
 ;;;;;;;;;;;;;;;;;
 ; list structures
 ;;;;;;;;;;;;;;;;;
