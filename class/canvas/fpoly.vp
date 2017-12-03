@@ -22,16 +22,16 @@
 		'(pptr 'iter_i 'iter_j 'iter_k 'iter_end))
 	(pint 'iter_edge1 'iter_edge2)
 	(pint 'iter_begin_polygon 'iter_end_polygon)
-	(int 'ys 'ye 'x1 'y1 'x2 'y2 'w)
+	(int 'ys 'ye 'xs 'xe 'x1 'y1 'x2 'y2 'w)
 	(uint 'mode 'color 'length)
 
 	(push-scope)
 	(f-entry 'canvas 'fpoly {this, polygons, color, mode, span})
 	(f-call 'canvas 'to_premul {this, color} {_, color})
 
-	;fill edges, find min and max y, clip edges not visible or redundant
+	;fill edges, find min and max xy, clip edges not visible or redundant
 	(d-call 'array 'clear {this->canvas_edges})
-	(assign {max_int, min_int} {ys, ye})
+	(assign {max_int, min_int, max_int, min_int} {xs, xe, ys, ye})
 	(f-call 'vector 'get_iters {polygons} {_, iter_begin_polygons, iter_end_polygons})
 	(loop-while {iter_begin_polygons != iter_end_polygons})
 		(f-call 'points 'get_iters {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
@@ -40,6 +40,13 @@
 			(loop-start)
 				(assign {iter_begin_polygon[0], iter_begin_polygon[int_size]} {x2, y2})
 				(assign {x1 + 0.5, (y1 + 0.5) >>> fp_shift, x2 + 0.5, (y2 + 0.5) >>> fp_shift} {x1, y1, x2, y2})
+				(assign {x1 >>> fp_shift} {w})
+				(vpif {w < xs})
+					(assign {w} {xs})
+				(endif)
+				(vpif {w > xe})
+					(assign {w} {xe})
+				(endif)
 				(vpif {y1 < y2})
 					(breakif {y2 <= this->canvas_cy})
 					(vpif {y1 < ys})
@@ -78,92 +85,95 @@
 		(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
 	(loop-end)
 
-	;edge pointers into tracker for sorting
-	(f-call 'array 'get_iters {this->canvas_edges} {_, iter_edge1, iter_edge2})
-	(f-call 'array 'set_capacity {this->canvas_edge_tracker, (iter_edge2 - iter_edge1) / edge_size})
-	(f-call 'array 'get_begin {this->canvas_edge_tracker} {_, iter_i})
-	(assign {iter_i, iter_i} {iter_j, iter_end})
-	(loop-while {iter_edge1 != iter_edge2})
-		(assign {iter_edge1} {*iter_end})
-		(assign {iter_edge1 + edge_size, iter_end + ptr_size} {iter_edge1, iter_end})
-	(loop-end)
-	(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_end, $sort_on_y, 0})
-
-	(loop-while {ys < ye})
-		(breakif {ys >= this->canvas_cy1})
-
-		;mark edges that end on this scan line
-		(assign {iter_i, iter_j, ys, min_int} '(r0 r1 r2 r3))
-		(loop-while '(r0 != r1))
-			(vp-cpy-ir r0 0 r4)
-			(vp-add-cr ptr_size r0)
-			(vp-cpy-ir-i r4 edge_ye r5)
-			(continueif '(r5 != r2))
-			(vp-cpy-ri-i r3 r4 edge_x)
+	;clip check
+	(vpif {xs < this->canvas_cx1 && xe > this->canvas_cx && ys < this->canvas_cy1 && ye > this->canvas_cy})
+		;edge pointers into tracker for sorting
+		(f-call 'array 'get_iters {this->canvas_edges} {_, iter_edge1, iter_edge2})
+		(f-call 'array 'set_capacity {this->canvas_edge_tracker, (iter_edge2 - iter_edge1) / edge_size})
+		(f-call 'array 'get_begin {this->canvas_edge_tracker} {_, iter_i})
+		(assign {iter_i, iter_i} {iter_j, iter_end})
+		(loop-while {iter_edge1 != iter_edge2})
+			(assign {iter_edge1} {*iter_end})
+			(assign {iter_edge1 + edge_size, iter_end + ptr_size} {iter_edge1, iter_end})
 		(loop-end)
+		(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_end, $sort_on_y, 0})
 
-		;include new edges that begin on this scan line
-		(assign {iter_end} '(r0))
-		(loop-while '(r1 != r0))
-			(vp-cpy-ir r1 0 r3)
-			(vp-cpy-ir-i r3 edge_ys r3)
-			(breakif '(r3 != r2))
-			(vp-add-cr ptr_size r1)
-		(loop-end)
-		(assign '(r1) {iter_j})
+		(loop-while {ys < ye})
+			(breakif {ys >= this->canvas_cy1})
 
-		;sort on x, plus move all marked dead edges to front !
-		(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_j, $sort_on_x, 0})
+			;mark edges that end on this scan line
+			(assign {iter_i, iter_j, ys, min_int} '(r0 r1 r2 r3))
+			(loop-while '(r0 != r1))
+				(vp-cpy-ir r0 0 r4)
+				(vp-add-cr ptr_size r0)
+				(vp-cpy-ir-i r4 edge_ye r5)
+				(continueif '(r5 != r2))
+				(vp-cpy-ri-i r3 r4 edge_x)
+			(loop-end)
 
-		;remove all dead edges
-		(assign {iter_i, iter_j, min_int} '(r0 r1 r2))
-		(loop-while '(r0 != r1))
-			(vp-cpy-ir r0 0 r3)
-			(vp-cpy-ir-i r3 edge_x r3)
-			(breakif '(r3 != r2))
-			(vp-add-cr ptr_size r0)
-		(loop-end)
-		(assign '(r0) {iter_i})
-		(assign '(r0) {iter_k})
+			;include new edges that begin on this scan line
+			(assign {iter_end} '(r0))
+			(loop-while '(r1 != r0))
+				(vp-cpy-ir r1 0 r3)
+				(vp-cpy-ir-i r3 edge_ys r3)
+				(breakif '(r3 != r2))
+				(vp-add-cr ptr_size r1)
+			(loop-end)
+			(assign '(r1) {iter_j})
 
-		(vpif {ys >= this->canvas_cy})
-			(vpif {mode})
-				;odd even
-				(loop-while {iter_k != iter_j})
-					(r-call 'canvas 'set_span {this, color, iter_k[0]->edge_x >>> fp_shift,
-						ys, iter_k[ptr_size]->edge_x >>> fp_shift, span})
-					(assign {iter_k + ptr_size * 2} {iter_k})
-				(loop-end)
-			(else)
-				;non zero
-				(loop-while {iter_k != iter_j})
-					(assign {*iter_k} {iter_edge1})
-					(assign {iter_edge1->edge_w} {w})
-					(loop-while {w})
-						(assign {iter_k + ptr_size} {iter_k})
-						(assign {*iter_k} {iter_edge2})
-						(assign {iter_edge2->edge_x, iter_edge2->edge_w + w} {x2, w})
+			;sort on x, plus move all marked dead edges to front !
+			(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_j, $sort_on_x, 0})
+
+			;remove all dead edges
+			(assign {iter_i, iter_j, min_int} '(r0 r1 r2))
+			(loop-while '(r0 != r1))
+				(vp-cpy-ir r0 0 r3)
+				(vp-cpy-ir-i r3 edge_x r3)
+				(breakif '(r3 != r2))
+				(vp-add-cr ptr_size r0)
+			(loop-end)
+			(assign '(r0) {iter_i})
+			(assign '(r0) {iter_k})
+
+			(vpif {ys >= this->canvas_cy})
+				(vpif {mode})
+					;odd even
+					(loop-while {iter_k != iter_j})
+						(r-call 'canvas 'set_span {this, color, iter_k[0]->edge_x >>> fp_shift,
+							ys, iter_k[ptr_size]->edge_x >>> fp_shift, span})
+						(assign {iter_k + ptr_size * 2} {iter_k})
 					(loop-end)
-					(r-call 'canvas 'set_span {this, color, iter_edge1->edge_x >>> fp_shift,
-						ys, x2 >>> fp_shift, span})
-					(assign {iter_k + ptr_size} {iter_k})
-				(loop-end)
+				(else)
+					;non zero
+					(loop-while {iter_k != iter_j})
+						(assign {*iter_k} {iter_edge1})
+						(assign {iter_edge1->edge_w} {w})
+						(loop-while {w})
+							(assign {iter_k + ptr_size} {iter_k})
+							(assign {*iter_k} {iter_edge2})
+							(assign {iter_edge2->edge_x, iter_edge2->edge_w + w} {x2, w})
+						(loop-end)
+						(r-call 'canvas 'set_span {this, color, iter_edge1->edge_x >>> fp_shift,
+							ys, x2 >>> fp_shift, span})
+						(assign {iter_k + ptr_size} {iter_k})
+					(loop-end)
+				(endif)
 			(endif)
-		(endif)
 
-		;step the edges
-		(assign {iter_i, iter_j} '(r0 r1))
-		(loop-while '(r0 != r1))
-			(vp-cpy-ir r0 0 r2)
-			(vp-add-cr ptr_size r0)
-			(vp-cpy-ir-i r2 edge_x r3)
-			(vp-cpy-ir-i r2 edge_dda r4)
-			(vp-add-rr r4 r3)
-			(vp-cpy-ri-i r3 r2 edge_x)
+			;step the edges
+			(assign {iter_i, iter_j} '(r0 r1))
+			(loop-while '(r0 != r1))
+				(vp-cpy-ir r0 0 r2)
+				(vp-add-cr ptr_size r0)
+				(vp-cpy-ir-i r2 edge_x r3)
+				(vp-cpy-ir-i r2 edge_dda r4)
+				(vp-add-rr r4 r3)
+				(vp-cpy-ri-i r3 r2 edge_x)
+			(loop-end)
+
+			(assign {ys + 1} {ys})
 		(loop-end)
-
-		(assign {ys + 1} {ys})
-	(loop-end)
+	(endif)
 
 	(f-exit 'canvas 'fpoly {this})
 	(pop-scope)
