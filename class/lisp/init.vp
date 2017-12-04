@@ -41,7 +41,7 @@
 
 	(ptr 'this)
 	(union
-		'(ptr 'vtable 'stdin 'stdout 'stderr 'symbol 'table)
+		'(ptr 'vtable 'stdin 'stdout 'stderr 'symbol 'table 'func)
 		'(ptr 'repl_args 'value 'file 'stream))
 	(ulong 'ok)
 
@@ -67,7 +67,11 @@
 				(assign {symbol} {ptr(this + table->built_in_field)})
 			(endif)
 			(vpif {table->built_in_function})
-				(f-call 'lisp 'built_in_func {this, symbol, ptr(&table->built_in_function + table->built_in_function), table->built_in_flags})
+				(f-call 'boxed_ptr 'create {} {func})
+				(f-call 'boxed_ptr 'set_value {func, ptr(&table->built_in_function + table->built_in_function)
+													| table->built_in_flags})
+				(f-call 'hash_map 'insert {this->lisp_environment, symbol, func})
+				(f-call 'ref 'deref {func})
 			(endif)
 			(f-call 'ref 'deref {symbol})
 			(assign {table + built_in_hop} {table})
