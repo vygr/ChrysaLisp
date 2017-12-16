@@ -270,9 +270,8 @@
 		(endif)
 
 		;next task if other ready tasks
-		(vp-cpy-ir r3 (add tk_statics_task_list lh_list_head) r2)
-		(vp-cpy-ir r3 (add tk_statics_task_list lh_list_tailpred) r1)
-		(continueif '(r2 != r1))
+		(ln-get-succ r14 0 r1)
+		(continueif '(r14 != r1))
 
 		;exit if no task waiting for timer
 		(vp-cpy-ir r3 (add tk_statics_timer_list lh_list_head) r2)

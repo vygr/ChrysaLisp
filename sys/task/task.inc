@@ -43,7 +43,6 @@
 (def-struct 'tk_statics)
 	(ptr 'current_tcb)
 	(ptr 'kernel_tcb)
-	(struct 'task_list 'lh_list)
 	(struct 'timer_list 'lh_list)
 	(uint 'task_count)
 	(uint 'cpu_total)
