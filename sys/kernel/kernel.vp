@@ -253,19 +253,15 @@
 		(f-call 'pii 'time '() '(r0))
 		(f-bind 'sys_task 'statics r3)
 		(vp-cpy-ir r3 tk_statics_current_tcb r14)
-		(vp-cpy-ir r3 (add tk_statics_timer_list lh_list_head) r2)
-		(ln-get-succ r2 0 r2)
-		(vpif '(r2 != 0))
-			(loop-list-forward r3 tk_statics_timer_list r1 r2)
-				(vp-cpy-ir r1 tk_node_time r4)
-				(breakif '(r4 > r0))
+		(loop-list-forward r3 tk_statics_timer_list r1 r2)
+			(vp-cpy-ir r1 tk_node_time r4)
+			(breakif '(r4 > r0))
 
-				;task ready, remove from timer list and place on ready list
-				(vp-cpy-rr r1 r4)
-				(ln-remove-node r4 r5)
-				(ln-add-node-before r14 r1 r5)
-			(loop-end)
-		(endif)
+			;task ready, remove from timer list and place on ready list
+			(vp-cpy-rr r1 r4)
+			(ln-remove-node r4 r5)
+			(ln-add-node-before r14 r1 r5)
+		(loop-end)
 
 		;next task if other ready tasks
 		(ln-get-succ r14 0 r1)
