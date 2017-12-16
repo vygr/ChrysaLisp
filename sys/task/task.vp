@@ -12,10 +12,6 @@
 	(f-bind 'sys_task 'statics r4)
 	(vp-lea-i r4 tk_statics_timer_list r0)
 	(lh-init r0 r1)
-
-	;init cpu count, task count and id
-	(vp-cpy-cr 1 r1)
-	(vp-cpy-ri-i r1 r4 tk_statics_cpu_total)
 	(vp-ret)
 
 (def-func-end)
