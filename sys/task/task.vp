@@ -8,12 +8,8 @@
 (def-func-end)
 
 (def-func 'sys/task/init)
-	;set up current tcb
-	(f-bind 'sys_task 'statics r4)
-	(vp-lea-i r4 (add tk_statics_task_list lh_list_tail) r14)
-	(vp-cpy-ri r14 r4 tk_statics_current_tcb)
-
 	;init task lists
+	(f-bind 'sys_task 'statics r4)
 	(vp-lea-i r4 tk_statics_task_list r0)
 	(lh-init r0 r1)
 	(vp-lea-i r4 tk_statics_timer_list r0)
@@ -22,9 +18,6 @@
 	;init cpu count, task count and id
 	(vp-cpy-cr 1 r1)
 	(vp-cpy-ri-i r1 r4 tk_statics_cpu_total)
-	(vp-xor-rr r1 r1)
-	(vp-cpy-ri-i r1 r4 tk_statics_cpu_id)
-	(vp-cpy-ri-i r1 r4 tk_statics_task_count)
 	(vp-ret)
 
 (def-func-end)
@@ -130,7 +123,7 @@
 	(vp-cpy-rr r0 r1)
 	(ln-remove-node r1 r14)
 	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r1 r0 0)
+	(ln-set-succ r0 r1)
 
 	;restore next task
 	(f-jmp 'sys_task 'restore)
@@ -144,7 +137,7 @@
 	;r1-r2
 
 	;are we in suspend state ?
-	(vp-cpy-ir r0 0 r1)
+	(ln-get-succ r0 0 r1)
 	(vpif '(r1 == 0))
 		;add to task list
 		(f-bind 'sys_task 'statics r1)
@@ -234,12 +227,19 @@
 	(stack-init)
 	(vp-cpy-ri r1 r0 tk_node_stack)
 
-	;resume new task
-	(f-call 'sys_task 'resume '(r0))
+	;resume new task, check for first
+	(f-bind 'sys_task 'statics r3)
+	(vp-cpy-ir r3 tk_statics_current_tcb r1)
+	(vpif '(r1 == 0))
+		(vp-lea-i r3 tk_statics_task_list r1)
+		(vp-cpy-ri r0 r3 tk_statics_current_tcb)
+		(lh-add-at-head r1 r0 r2)
+	(else)
+		(f-call 'sys_task 'resume '(r0))
+	(endif)
 
 	;return mailbox
-	(f-bind 'sys_task 'statics r2)
-	(f-exit 'sys_task 'start '(r0 (& r0 tk_node_mailbox) (r2 tk_statics_cpu_id ui)))
+	(f-exit 'sys_task 'start '(r0 (& r0 tk_node_mailbox) (r3 tk_statics_cpu_id ui)))
 	(vp-ret)
 
 (def-func-end)
