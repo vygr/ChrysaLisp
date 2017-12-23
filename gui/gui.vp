@@ -3,7 +3,8 @@
 (import 'sys/kernel/kernel.inc)
 (import 'gui/sdl2.inc)
 (import 'class/label/label.inc)
-(import 'class/string/string.inc)
+(import 'class/symbol/symbol.inc)
+(import 'class/boxed_long/boxed_long.inc)
 (import 'gui/region/region.inc)
 (import 'gui/ctx/ctx.inc)
 
@@ -42,6 +43,10 @@
 	(def-struct-end)
 
 	(struct 'locals 'local)
+;	(ptr 'prop)
+
+	;init any atoms
+	(f-call 'symbol 'intern_atoms {$func_start})
 
 	;init vars
 	(push-scope)
@@ -55,6 +60,10 @@
 
 	;allocate background view for screen
 	(f-call 'label 'create {} {locals.local_statics->gui_statics_screen})
+
+	;fill in default properties
+;	(f-call 'boxed_long 'create {} {prop})
+;	(f-call 'boxed_long 'deref {prop})
 
 	;size, color and opaque
 	(f-call 'label 'change {locals.local_statics->gui_statics_screen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT})
@@ -208,9 +217,9 @@
 			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {msg->ev_msg_keycode})
 			(assign {key} {msg->ev_msg_key})
 			(f-call 'sys_mail 'send {msg})
-;			(break)
-;		(case {event.sdl_common_event_type == SDL_QUIT})
-;			(assign {-1} {user->local_quit})
+			(break)
+		(case {event.sdl_common_event_type == SDL_QUIT})
+			(assign {-1} {user->local_quit})
 		(endswitch)
 	(loop-end)
 

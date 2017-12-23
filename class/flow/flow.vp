@@ -1,5 +1,7 @@
 (import 'sys/func.inc)
 (import 'class/flow/flow.inc)
+(import 'class/symbol/symbol.inc)
+(import 'class/boxed_long/boxed_long.inc)
 
 (gen-new 'flow)
 (gen-create 'flow)
@@ -12,21 +14,34 @@
 	;all but r0
 
 	(def-struct 'local)
+		(ptr 'this)
+		(ulong 'flags)
 		(int 'x)
 		(int 'y)
 	(def-struct-end)
 
 	(vp-alloc local_size)
+	(f-entry 'flow 'layout '((rsp local_this)))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 rsp local_x)
 	(vp-cpy-ri-i r1 rsp local_y)
-	(vp-cpy-ir r0 flow_flags r1)
+
+	(f-call 'symbol 'intern_atoms '(($ func_start)))
+	(f-call 'flow 'get '(r0 (? flow_flags)) '(r0 r1))
+	(vp-cpy-ri r1 rsp local_flags)
+	(vpif '(r1 != 0))
+		(f-call 'boxed_long 'get_value '(r1) '(r0 (rsp local_flags)))
+		(f-call 'boxed_long 'deref '(r0))
+	(endif)
+
+	(vp-cpy-ir rsp local_this r0)
+	(vp-cpy-ir rsp local_flags r1)
 	(vp-and-cr flow_flag_left r1)
 	(vpif '(r1 != 0))
 		(vp-cpy-ir-i r0 view_w r1)
 		(vp-cpy-ri-i r1 rsp local_x)
 	(endif)
-	(vp-cpy-ir r0 flow_flags r1)
+	(vp-cpy-ir rsp local_flags r1)
 	(vp-and-cr flow_flag_up r1)
 	(vpif '(r1 != 0))
 		(vp-cpy-ir-i r0 view_h r1)
@@ -34,7 +49,6 @@
 	(endif)
 
 	(f-call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
-
 	(vp-free local_size)
 	(vp-ret)
 
@@ -48,14 +62,14 @@
 	(vp-cpy-rr r8 r12)
 
 	(vp-cpy-ir r0 hash_map_parent r2)
-	(vp-cpy-ir r2 flow_flags r3)
+	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_down r3)
 	(vpif '(r3 != 0))
 		;flow down
 		(vp-lea-d r8 r10 r12)
 	(endif)
 
-	(vp-cpy-ir r2 flow_flags r3)
+	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_up r3)
 	(vpif '(r3 != 0))
 		;flow up
@@ -63,14 +77,14 @@
 		(vp-cpy-rr r8 r12)
 	(endif)
 
-	(vp-cpy-ir r2 flow_flags r3)
+	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_right r3)
 	(vpif '(r3 != 0))
 		;flow right
 		(vp-lea-d r7 r9 r11)
 	(endif)
 
-	(vp-cpy-ir r2 flow_flags r3)
+	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_left r3)
 	(vpif '(r3 != 0))
 		;flow left
@@ -78,7 +92,7 @@
 		(vp-cpy-rr r7 r11)
 	(endif)
 
-	(vp-cpy-ir r2 flow_flags r3)
+	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_fillw r3)
 	(vpif '(r3 != 0))
 		;fill width of parent
@@ -86,7 +100,7 @@
 		(vp-xor-rr r7 r7)
 	(endif)
 
-	(vp-cpy-ir r2 flow_flags r3)
+	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_fillh r3)
 	(vpif '(r3 != 0))
 		;fill height of parent
@@ -94,13 +108,13 @@
 		(vp-xor-rr r8 r8)
 	(endif)
 
-	(vp-cpy-ir r2 flow_flags r3)
+	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_lastw r3)
 	(vpif '(r3 != 0))
 		;last one fills width gap of parent
 		(ln-is-last r0 view_node r3)
 		(vpif '(r3 == 0))
-			(vp-cpy-ir r2 flow_flags r3)
+			(vp-cpy-ir r1 local_flags r3)
 			(vp-and-cr flow_flag_right r3)
 			(vpif '(r3 != 0))
 				;flow right
@@ -109,7 +123,7 @@
 				(vp-sub-rr r3 r14)
 				(vp-sub-rr r14 r9)
 			(endif)
-			(vp-cpy-ir r2 flow_flags r3)
+			(vp-cpy-ir r1 local_flags r3)
 			(vp-and-cr flow_flag_left r3)
 			(vpif '(r3 != 0))
 				;flow left
@@ -119,13 +133,13 @@
 		(endif)
 	(endif)
 
-	(vp-cpy-ir r2 flow_flags r3)
+	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr flow_flag_lasth r3)
 	(vpif '(r3 != 0))
 		;last one fills height gap of parent
 		(ln-is-last r0 view_node r3)
 		(vpif '(r3 == 0))
-			(vp-cpy-ir r2 flow_flags r3)
+			(vp-cpy-ir r1 local_flags r3)
 			(vp-and-cr flow_flag_down r3)
 			(vpif '(r3 != 0))
 				;flow down
@@ -134,7 +148,7 @@
 				(vp-sub-rr r3 r14)
 				(vp-sub-rr r14 r10)
 			(endif)
-			(vp-cpy-ir r2 flow_flags r3)
+			(vp-cpy-ir r1 local_flags r3)
 			(vp-and-cr flow_flag_up r3)
 			(vpif '(r3 != 0))
 				;flow up
@@ -144,7 +158,7 @@
 		(endif)
 	(endif)
 
-	(vp-cpy-ir r2 flow_flags r3)
+	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr (bit-or flow_flag_align_hcenter flow_flag_align_hleft flow_flag_align_hright) r3)
 	(vpif '(r3 != 0))
 		(vp-cpy-ir-i r2 view_w r7)
@@ -158,7 +172,7 @@
 		(endswitch)
 	(endif)
 
-	(vp-cpy-ir r2 flow_flags r3)
+	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr (bit-or flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom) r3)
 	(vpif '(r3 != 0))
 		(vp-cpy-ir-i r2 view_h r8)
@@ -188,16 +202,27 @@
 	;all but r0
 
 	(def-struct 'local)
+		(ptr 'this)
+		(ulong 'flags)
 		(int 'w)
 		(int 'h)
 	(def-struct-end)
 
 	(vp-alloc local_size)
+	(f-entry 'flow 'pref_size '((rsp local_this)))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 rsp local_w)
 	(vp-cpy-ri-i r1 rsp local_h)
 
-	(f-call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
+	(f-call 'symbol 'intern_atoms '(($ func_start)))
+	(f-call 'flow 'get '(r0 (? flow_flags)) '(r0 r1))
+	(vp-cpy-ri r1 rsp local_flags)
+	(vpif '(r1 != 0))
+		(f-call 'boxed_long 'get_value '(r1) '(r0 (rsp local_flags)))
+		(f-call 'boxed_long 'deref '(r0))
+	(endif)
+
+	(f-call 'flow 'forward '((rsp local_this) rsp ($ callback)) '(r0))
 
 	(vp-cpy-ir-i rsp local_w r9)
 	(vp-cpy-ir-i rsp local_h r10)
@@ -209,7 +234,7 @@
 	(v-call 'view 'pref_size '(r0) '(r0 r9 r10))
 	(vp-pop r1)
 	(vp-cpy-ir r0 hash_map_parent r2)
-	(vp-cpy-ir r2 flow_flags r3)
+	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr (bit-or flow_flag_up flow_flag_down) r3)
 	(vpif '(r3 != 0))
 		;flow down or up
@@ -217,7 +242,7 @@
 		(vp-add-rr r10 r3)
 		(vp-cpy-ri-i r3 r1 local_h)
 	(endif)
-	(vp-cpy-ir r2 flow_flags r3)
+	(vp-cpy-ir r1 local_flags r3)
 	(vp-and-cr (bit-or flow_flag_left flow_flag_right) r3)
 	(vpif '(r3 != 0))
 		;flow left or right

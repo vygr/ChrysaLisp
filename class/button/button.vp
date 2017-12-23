@@ -2,6 +2,8 @@
 (import 'gui/gui.inc)
 (import 'class/button/button.inc)
 (import 'class/flow/flow.inc)
+(import 'class/symbol/symbol.inc)
+(import 'class/boxed_long/boxed_long.inc)
 
 (gen-new 'button)
 (gen-create 'button)
@@ -15,17 +17,34 @@
 	;r0 = button object
 	;r1 = 0 if error, else ok
 
+	(ptr 'this 'prop)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
+
+	(push-scope)
+	(f-entry 'button 'init {this, vtable})
+
 	;init parent
-	(s-call 'button 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
+	(s-call 'button 'init {this, vtable} {_, ok})
+	(vpif {ok})
+		;init any atoms
+		(f-call 'symbol 'intern_atoms {$func_start})
+
 		;init myself
-		(vp-xor-rr r1 r1)
-		(vp-cpy-ri r1 r0 button_state)
-		(vp-lea-i r0 button_pressed_signal r1)
-		(lh-init r1 r2)
-		(f-call 'button 'set_flow_flags '(r0 (bit-or flow_flag_down flow_flag_align_hcenter)))
+		(assign {0} {this->button_state})
+		(f-call 'sys_list 'init {&this->button_pressed_signal})
+
+		;set my flow
+		(f-call 'boxed_long 'create {} {prop})
+		(f-call 'boxed_long 'set_value {prop, flow_flag_down | flow_flag_align_hcenter})
+		(f-call 'button 'insert {this, ?flow_flags, prop})
+		(f-call 'boxed_long 'deref {prop})
 	(endif)
-	(vp-ret)
+
+	(f-exit 'button 'init {this, ok})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -36,7 +55,7 @@
 	;all but r0
 
 	;disconnnect all signals
-	(f-call 'button 'disconnect_sig '(r0 (& r0 button_pressed_signal)))
+	(f-call 'button 'disconnect_sig '(r0 (& r0 button_pressed_signal)) '(r0))
 
 	;parent deinit
 	(s-jmp 'button 'deinit '(r0))

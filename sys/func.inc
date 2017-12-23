@@ -59,6 +59,8 @@
 	(vp-align ptr_size (list 'sub (label-sym 'func_entry) (label-sym 'func_name_start)))
 (vp-label 'func_entry)
 	(push-scope))
+;	(and (ge (length *name*) (length (defq p "class"))) (eql (slice 0 (length p) *name*) p)
+;		(debug-str (cat "enter " *name*))))
 
 (defcfun def-func-end ()
 	(pop-scope-checked)

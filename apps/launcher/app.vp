@@ -5,16 +5,20 @@
 (import 'class/window/window.inc)
 (import 'class/flow/flow.inc)
 (import 'class/button/button.inc)
-(import 'class/string/string.inc)
+(import 'class/symbol/symbol.inc)
+(import 'class/boxed_long/boxed_long.inc)
 
 (def-func 'apps/launcher/app)
 
 	(struct 'myapp 'obj)
-	(ptr 'msg 'window 'panel 'button 'string 'pressed)
+	(ptr 'msg 'window 'panel 'button 'string 'pressed 'prop)
 	(pubyte 'next)
 	(ulong 'owner)
 	(int 'width 'height)
 	(uint 'length)
+
+	;init any atoms
+	(f-call 'symbol 'intern_atoms {$func_start})
 
 	;init app vars
 	(push-scope)
@@ -27,8 +31,11 @@
 
 	;add my app panel
 	(f-call 'flow 'create {} {panel})
-	(f-call 'flow 'set_flow_flags {panel, flow_flag_down | flow_flag_fillw})
 	(v-call 'window 'add_child {window, panel})
+	(f-call 'boxed_long 'create {} {prop})
+	(f-call 'boxed_long 'set_value {prop, flow_flag_down | flow_flag_fillw})
+	(f-call 'flow 'insert {panel, ?flow_flags, prop})
+	(f-call 'boxed_long 'deref {prop})
 
 	;add launch buttons to my app panel
 	(assign {$launch_list} {next})
@@ -40,7 +47,6 @@
 		(v-call 'flow 'add_child {panel, button})
 		(f-call 'button 'sig_pressed {button} {_, pressed})
 		(f-call 'button 'connect {button, pressed, &myapp, $on_press})
-
 		(f-call 'sys_string 'length {next} {_, length})
 		(assign {next + length + byte_size} {next})
 	(loop-end)

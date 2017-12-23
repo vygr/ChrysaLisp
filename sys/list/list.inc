@@ -1,6 +1,14 @@
 (import 'sys/class.inc)
 (import 'sys/code.inc)
 
+(def-class 'sys_list)
+(def-method 'init 'sys/list/init 'static '(r0))
+
+(defcfun sys/list/init ()
+	;inputs
+	;r0 = list header pointer
+	(lh-init r0 r1))
+
 ;;;;;;;;;;;;;;;;;
 ; list structures
 ;;;;;;;;;;;;;;;;;

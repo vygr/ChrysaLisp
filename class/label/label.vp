@@ -2,6 +2,8 @@
 (import 'class/text/text.inc)
 (import 'class/label/label.inc)
 (import 'class/flow/flow.inc)
+(import 'class/symbol/symbol.inc)
+(import 'class/boxed_long/boxed_long.inc)
 
 (gen-new 'label)
 (gen-create 'label)
@@ -14,33 +16,42 @@
 	;outputs
 	;r0 = label object
 	;r1 = 0 if error, else ok
+	;trashes
+	;all but r0
+
+	(ptr 'this 'prop)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
+
+	(push-scope)
+	(f-entry 'label 'init {this, vtable})
 
 	;init parent
-	(s-call 'label 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
-		(vp-push r0)
+	(s-call 'label 'init {this, vtable} {_, ok})
+	(vpif {ok})
+		;init any atoms
+		(f-call 'symbol 'intern_atoms {$func_start})
 
-		;init myself
 		;add my flow
-		(f-call 'flow 'create '() '(r0))
-		(f-call 'flow 'set_flags '(r0 0))
-		(f-call 'flow 'set_flow_flags '(r0 (bit-or flow_flag_right flow_flag_align_vcenter)))
-		(vp-cpy-ir rsp 0 r2)
-		(vp-cpy-ri r0 r2 label_flow)
-		(v-call 'label 'add_child '(r2 r0))
+		(f-call 'flow 'create {} {this->label_flow})
+		(f-call 'flow 'set_flags {this->label_flow, 0})
+		(v-call 'label 'add_child {this, this->label_flow})
+
+		(f-call 'boxed_long 'create {} {prop})
+		(f-call 'boxed_long 'set_value {prop, flow_flag_right | flow_flag_align_vcenter})
+		(f-call 'label 'insert {this, ?flow_flags, prop})
+		(f-call 'boxed_long 'deref {prop})
 
 		;add my text
-		(f-call 'text 'create '() '(r0))
-		(vp-cpy-ir rsp 0 r1)
-		(vp-cpy-ri r0 r1 label_text)
-		(f-call 'text 'set_color '(r0 0))
-		(vp-cpy-ir rsp 0 r2)
-		(v-call 'flow 'add_child '((r2 label_flow) r0))
-
-		(vp-pop r0)
-		(vp-cpy-cr 1 r1)
+		(f-call 'text 'create {} {this->label_text})
+		(f-call 'text 'set_color {this->label_text, 0})
+		(v-call 'flow 'add_child {this->label_flow, this->label_text})
 	(endif)
-	(vp-ret)
+
+	(f-exit 'label 'init {this, ok})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -159,20 +170,6 @@
 
 	(vp-cpy-ir rsp local_this r0)
 	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/label/set_flow_flags)
-	;inputs
-	;r0 = label object
-	;r1 = flags
-	;trashes
-	;none
-
-	(vp-push r0)
-	(f-call 'flow 'set_flow_flags '((r0 label_flow) r1))
-	(vp-pop r0)
 	(vp-ret)
 
 (def-func-end)

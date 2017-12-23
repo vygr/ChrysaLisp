@@ -11,7 +11,6 @@
 (def-method 'get_text 'class/label/get_text 'static '(r0) '(r0 r1))
 (def-method 'ref_text 'class/label/ref_text 'static '(r0) '(r0 r1))
 (def-method 'set_text_color 'class/label/set_text_color 'static '(r0 r1) '(r0))
-(def-method 'set_flow_flags 'class/label/set_flow_flags 'static '(r0 r1) '(r0))
 
 (def-method 'pref_size 'class/label/pref_size 'override)
 (def-method 'draw 'class/label/draw 'override)
