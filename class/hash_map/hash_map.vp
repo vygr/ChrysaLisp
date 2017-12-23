@@ -164,9 +164,9 @@
 	;r1 = 0 if break, else not
 
 	(vp-cpy-ir r1 0 r1)
-	(vp-cpy-ir r1 pair_first r1)
 	(vp-cpy-ir r0 local_this r2)
 	(vp-cpy-ir r0 local_key r0)
+	(vp-cpy-ir r1 pair_first r1)
 	(vp-jmp-i r2 hash_set_key_callback)
 
 (def-func-end)
