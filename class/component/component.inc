@@ -2,7 +2,6 @@
 (import 'class/hash_map/hash_map.inc)
 
 (def-class 'component 'hash_map)
-(def-method 'create 'class/component/create 'static '())
 (def-method 'init 'class/component/init 'static '(r0 r1))
 (def-method 'connect 'class/component/connect 'static '(r0 r1 r2 r3) '(r0))
 (def-method 'emit 'class/component/emit 'static '(r0 r1) '(r0))

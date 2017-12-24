@@ -1,7 +1,7 @@
 (import 'class/view/view.inc)
 
 (def-class 'vdu 'view)
-(def-method 'create 'class/vdu/create 'static nil '(r0))
+(def-method 'create 'class/vdu/create 'static '() '(r0))
 (def-method 'new 'class/vdu/new 'static nil '(r0))
 (def-method 'init 'class/vdu/init)
 (def-method 'set_font 'class/vdu/set_font 'static '(r0 r1 r2) '(r0))

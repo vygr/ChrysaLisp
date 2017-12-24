@@ -1,7 +1,7 @@
 (import 'class/view/view.inc)
 
 (def-class 'flow 'view)
-(def-method 'create 'class/flow/create 'static nil '(r0))
+(def-method 'create 'class/flow/create 'static '() '(r0))
 (def-method 'new 'class/flow/new 'static nil '(r0))
 (def-method 'init 'class/flow/init)
 
