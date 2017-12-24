@@ -60,9 +60,10 @@
 ; error msgs
 ;;;;;;;;;;;;
 
-(defq *ecnt* 0)
-(defmacro deferror (_)
-	`(defcvar (sym-cat "error_msg_" ,_) (setq *ecnt* (inc *ecnt*))))
+(defcvar '*error_msgs* (list))
+(defun deferror (_)
+	(defcvar (sym-cat "error_msg_" _) (inc (length *error_msgs*)))
+	(push *error_msgs* (cat _ " !")))
 
 (deferror "not_a_canvas")
 (deferror "not_a_class")
