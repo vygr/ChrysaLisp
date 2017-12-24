@@ -2,8 +2,6 @@
 (import 'class/text/text.inc)
 (import 'class/label/label.inc)
 (import 'class/flow/flow.inc)
-(import 'class/symbol/symbol.inc)
-(import 'class/boxed_long/boxed_long.inc)
 
 (gen-new 'label)
 (gen-create 'label)
@@ -19,7 +17,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'prop)
+	(ptr 'this)
 	(union
 		'(ptr 'vtable)
 		'(ulong 'ok))
@@ -30,18 +28,11 @@
 	;init parent
 	(s-call 'label 'init {this, vtable} {_, ok})
 	(vpif {ok})
-		;init any atoms
-		(f-call 'symbol 'intern_atoms {$func_start})
-
 		;add my flow
 		(f-call 'flow 'create {} {this->label_flow})
 		(f-call 'flow 'set_flags {this->label_flow, 0})
 		(v-call 'label 'add_child {this, this->label_flow})
-
-		(f-call 'boxed_long 'create {} {prop})
-		(f-call 'boxed_long 'set_value {prop, flow_flag_right | flow_flag_align_vcenter})
-		(f-call 'label 'insert {this, ?flow_flags, prop})
-		(f-call 'boxed_long 'deref {prop})
+		(f-call 'label 'set_long_prop {this, prop_flow_flags, flow_flag_right | flow_flag_align_vcenter})
 
 		;add my text
 		(f-call 'text 'create {} {this->label_text})

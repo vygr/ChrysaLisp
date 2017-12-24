@@ -2,8 +2,6 @@
 (import 'gui/gui.inc)
 (import 'class/button/button.inc)
 (import 'class/flow/flow.inc)
-(import 'class/symbol/symbol.inc)
-(import 'class/boxed_long/boxed_long.inc)
 
 (gen-new 'button)
 (gen-create 'button)
@@ -17,7 +15,7 @@
 	;r0 = button object
 	;r1 = 0 if error, else ok
 
-	(ptr 'this 'prop)
+	(ptr 'this)
 	(union
 		'(ptr 'vtable)
 		'(ulong 'ok))
@@ -28,18 +26,12 @@
 	;init parent
 	(s-call 'button 'init {this, vtable} {_, ok})
 	(vpif {ok})
-		;init any atoms
-		(f-call 'symbol 'intern_atoms {$func_start})
-
 		;init myself
 		(assign {0} {this->button_state})
 		(f-call 'sys_list 'init {&this->button_pressed_signal})
 
 		;set my flow
-		(f-call 'boxed_long 'create {} {prop})
-		(f-call 'boxed_long 'set_value {prop, flow_flag_down | flow_flag_align_hcenter})
-		(f-call 'button 'insert {this, ?flow_flags, prop})
-		(f-call 'boxed_long 'deref {prop})
+		(f-call 'button 'set_long_prop {this, prop_flow_flags, flow_flag_down | flow_flag_align_hcenter})
 	(endif)
 
 	(f-exit 'button 'init {this, ok})

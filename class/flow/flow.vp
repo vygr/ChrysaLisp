@@ -1,7 +1,5 @@
 (import 'sys/func.inc)
 (import 'class/flow/flow.inc)
-(import 'class/symbol/symbol.inc)
-(import 'class/boxed_long/boxed_long.inc)
 
 (gen-new 'flow)
 (gen-create 'flow)
@@ -14,28 +12,20 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'this)
 		(ulong 'flags)
 		(int 'x)
 		(int 'y)
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(f-entry 'flow 'layout '((rsp local_this)))
+	(f-entry 'flow 'layout '(r0))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 rsp local_x)
 	(vp-cpy-ri-i r1 rsp local_y)
 
-	(f-call 'symbol 'intern_atoms '(($ func_start)))
-	(f-call 'flow 'get '(r0 (? flow_flags)) '(r0 r1))
+	(f-call 'flow 'get_long_prop '(r0 prop_flow_flags) '(r0 r1))
 	(vp-cpy-ri r1 rsp local_flags)
-	(vpif '(r1 != 0))
-		(f-call 'boxed_long 'get_value '(r1) '(r0 (rsp local_flags)))
-		(f-call 'boxed_long 'deref '(r0))
-	(endif)
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-cpy-ir rsp local_flags r1)
 	(vp-and-cr flow_flag_left r1)
 	(vpif '(r1 != 0))
 		(vp-cpy-ir-i r0 view_w r1)
@@ -202,27 +192,19 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'this)
 		(ulong 'flags)
 		(int 'w)
 		(int 'h)
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(f-entry 'flow 'pref_size '((rsp local_this)))
+	(f-entry 'flow 'pref_size '(r0))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 rsp local_w)
 	(vp-cpy-ri-i r1 rsp local_h)
 
-	(f-call 'symbol 'intern_atoms '(($ func_start)))
-	(f-call 'flow 'get '(r0 (? flow_flags)) '(r0 r1))
-	(vp-cpy-ri r1 rsp local_flags)
-	(vpif '(r1 != 0))
-		(f-call 'boxed_long 'get_value '(r1) '(r0 (rsp local_flags)))
-		(f-call 'boxed_long 'deref '(r0))
-	(endif)
-
-	(f-call 'flow 'forward '((rsp local_this) rsp ($ callback)) '(r0))
+	(f-call 'flow 'get_long_prop '(r0 prop_flow_flags) '(r0 (rsp local_flags)))
+	(f-call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
 
 	(vp-cpy-ir-i rsp local_w r9)
 	(vp-cpy-ir-i rsp local_h r10)

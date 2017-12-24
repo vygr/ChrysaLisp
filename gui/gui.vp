@@ -3,8 +3,7 @@
 (import 'sys/kernel/kernel.inc)
 (import 'gui/sdl2.inc)
 (import 'class/label/label.inc)
-(import 'class/symbol/symbol.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/string/string.inc)
 (import 'gui/region/region.inc)
 (import 'gui/ctx/ctx.inc)
 
@@ -43,10 +42,6 @@
 	(def-struct-end)
 
 	(struct 'locals 'local)
-;	(ptr 'prop)
-
-	;init any atoms
-	(f-call 'symbol 'intern_atoms {$func_start})
 
 	;init vars
 	(push-scope)
@@ -60,10 +55,6 @@
 
 	;allocate background view for screen
 	(f-call 'label 'create {} {locals.local_statics->gui_statics_screen})
-
-	;fill in default properties
-;	(f-call 'boxed_long 'create {} {prop})
-;	(f-call 'boxed_long 'deref {prop})
 
 	;size, color and opaque
 	(f-call 'label 'change {locals.local_statics->gui_statics_screen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT})

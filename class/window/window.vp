@@ -5,8 +5,7 @@
 (import 'class/title/title.inc)
 (import 'class/button/button.inc)
 (import 'class/flow/flow.inc)
-(import 'class/symbol/symbol.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/string/string.inc)
 
 (gen-new 'window)
 (gen-create 'window)
@@ -23,7 +22,7 @@
 	;trashes
 	;all but r0-r1
 
-	(ptr 'this 'title_flow 'string 'prop)
+	(ptr 'this 'title_flow 'string)
 	(ulong 'flags)
 	(uint 'min_width)
 	(union
@@ -36,27 +35,18 @@
 	;init parent
 	(s-call 'window 'init {this, vtable} {_, ok})
 	(vpif {ok})
-		;init any atoms
-		(f-call 'symbol 'intern_atoms {$func_start})
-
 		;init myself
 		(f-call 'sys_mem 'clear {&this->window_start, window_size - window_start})
 		(f-call 'window 'set_color {this, 0xffc0c0c0})
 
 		;add flow panel
 		(f-call 'flow 'create {} {this->window_flow})
-		(f-call 'boxed_long 'create {} {prop})
-		(f-call 'boxed_long 'set_value {prop, flow_flag_down | flow_flag_fillw | flow_flag_lasth})
-		(f-call 'flow 'insert {this->window_flow, ?flow_flags, prop})
-		(f-call 'boxed_long 'deref {prop})
+		(f-call 'flow 'set_long_prop {this->window_flow, prop_flow_flags, flow_flag_down | flow_flag_fillw | flow_flag_lasth})
 		(f-call 'window 'add_back {this, this->window_flow})
 
 		;add title flow panel
 		(f-call 'flow 'create {} {title_flow})
-		(f-call 'boxed_long 'create {} {prop})
-		(f-call 'boxed_long 'set_value {prop, flow_flag_left | flow_flag_fillh | flow_flag_lastw})
-		(f-call 'flow 'insert {title_flow, ?flow_flags, prop})
-		(f-call 'boxed_long 'deref {prop})
+		(f-call 'flow 'set_long_prop {title_flow, prop_flow_flags, flow_flag_left | flow_flag_fillh | flow_flag_lastw})
 		(v-call 'flow 'add_child {this->window_flow, title_flow})
 
 		;add close button ?
@@ -98,10 +88,7 @@
 
 		;add status panel
 		(f-call 'flow 'create {} {this->window_panel})
-		(f-call 'boxed_long 'create {} {prop})
-		(f-call 'boxed_long 'set_value {prop, flow_flag_up | flow_flag_fillw | flow_flag_lasth})
-		(f-call 'flow 'insert {this->window_panel, ?flow_flags, prop})
-		(f-call 'boxed_long 'deref {prop})
+		(f-call 'flow 'set_long_prop {this->window_panel, prop_flow_flags, flow_flag_up | flow_flag_fillw | flow_flag_lasth})
 		(v-call 'flow 'add_child {this->window_flow, this->window_panel})
 
 		;add status label ?

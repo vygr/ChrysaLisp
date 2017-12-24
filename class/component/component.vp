@@ -1,6 +1,8 @@
 (import 'sys/func.inc)
 (import 'gui/gui.inc)
 (import 'class/component/component.inc)
+(import 'class/symbol/symbol.inc)
+(import 'class/boxed_long/boxed_long.inc)
 
 (gen-class 'component)
 
@@ -172,6 +174,80 @@
 	;restore this
 	(f-exit 'component 'emit '((rsp local_this)))
 	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/component/get_prop)
+	;inputs
+	;r0 = component object
+	;r1 = property num
+	;outputs
+	;r0 = component object
+	;r1 = property symbol object
+	;trashes
+	;r1-r2, r14
+
+	(f-call 'symbol 'intern_atoms '(($ func_start)))
+	(assign '(($ func_atoms)) '(r2))
+	(vp-cpy-dr r2 r1 r1)
+	(vp-ret)
+
+	(each fn-add-atom *props*)
+
+(def-func-end)
+
+(def-func 'class/component/set_long_prop)
+	;inputs
+	;r0 = component object
+	;r1 = property num
+	;r2 = property value (long)
+	;outputs
+	;r0 = component object
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'sym)
+		(ptr 'prop)
+		(long 'value)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(f-entry 'component 'set_long_prop '((rsp local_this) r1 (rsp local_value)))
+
+	(f-call 'component 'get_prop '(r0 r1) '(_ (rsp local_sym)))
+	(f-call 'boxed_long 'create '() '((rsp local_prop)))
+	(f-call 'boxed_long 'set_value '((rsp local_prop) (rsp local_value)))
+	(f-call 'component 'insert '((rsp local_this) (rsp local_sym) (rsp local_prop)))
+	(f-call 'boxed_long 'deref '((rsp local_prop)))
+
+	(f-exit 'component 'set_long_prop '((rsp local_this)))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/component/get_long_prop)
+	;inputs
+	;r0 = component object
+	;r1 = property num
+	;outputs
+	;r0 = component object
+	;r1 = property value (long)
+	;trashes
+	;all but r0
+
+	(f-entry 'component 'get_long_prop '(r0 r1))
+
+	(f-call 'component 'get_prop '(r0 r1) '(r0 r1))
+	(f-call 'component 'get '(r0 r1) '(r0 r1))
+	(vpif '(r1 != 0))
+		(vp-cpy-ir r1 boxed_ptr_value r1)
+	(endif)
+
+	(f-exit 'component 'get_long_prop '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
