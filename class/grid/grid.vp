@@ -14,38 +14,41 @@
 	(defcvar 'fixed_point 8)
 
 	(def-struct 'local)
+		(uint 'width)
+		(uint 'height)
 		(int 'count)
 		(int 'cell_w)
 		(int 'cell_h)
 	(def-struct-end)
 
 	(vp-alloc local_size)
+
+	(f-call 'grid 'get_long_prop '(r0 prop_grid_width) '(r0 (rsp local_width i)))
+	(f-call 'grid 'get_long_prop '(r0 prop_grid_height) '(r0 (rsp local_height i)))
+
 	(vp-xor-rr r9 r9)
 	(vp-cpy-ri-i r9 rsp local_count)
-
 	(vp-cpy-ir-i r0 view_w r8)
 	(vp-shl-cr fixed_point r8)
-	(vp-cpy-ir-ui r0 grid_width r7)
+	(vp-cpy-ir-ui rsp local_width r7)
 	(vp-div-rrr r7 r9 r8)
 	(vp-cpy-ri-i r8 rsp local_cell_w)
 
 	(vp-xor-rr r9 r9)
 	(vp-cpy-ir-i r0 view_h r8)
 	(vp-shl-cr fixed_point r8)
-	(vp-cpy-ir-ui r0 grid_height r7)
+	(vp-cpy-ir-ui rsp local_height r7)
 	(vp-div-rrr r7 r9 r8)
 	(vp-cpy-ri-i r8 rsp local_cell_h)
 
 	(f-call 'grid 'forward '(r0 rsp ($ callback)))
-
 	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)
 	(vp-xor-rr r7 r7)
 	(vp-cpy-ir-i r1 local_count r8)
-	(vp-cpy-ir r0 hash_map_parent r2)
-	(vp-cpy-ir-ui r2 grid_width r9)
+	(vp-cpy-ir-ui r1 local_width r9)
 	(vp-div-rrr r9 r7 r8)
 	(vp-cpy-ir-i r1 local_cell_w r9)
 	(vp-cpy-ir-i r1 local_cell_h r10)
@@ -77,6 +80,8 @@
 	;all but r0
 
 	(def-struct 'local)
+		(uint 'width)
+		(uint 'height)
 		(int 'w)
 		(int 'h)
 	(def-struct-end)
@@ -88,7 +93,10 @@
 
 	(f-call 'grid 'forward '(r0 rsp ($ callback)))
 
-	(assign '((r0 grid_width ui) (r0 grid_height ui) (rsp local_w i) (rsp local_h i)) '(r7 r8 r9 r10))
+	(f-call 'grid 'get_long_prop '(r0 prop_grid_width) '(r0 (rsp local_width i)))
+	(f-call 'grid 'get_long_prop '(r0 prop_grid_height) '(r0 (rsp local_height i)))
+
+	(assign '((rsp local_width ui) (rsp local_height ui) (rsp local_w i) (rsp local_h i)) '(r7 r8 r9 r10))
 	(vp-mul-rr r7 r9)
 	(vp-mul-rr r8 r10)
 	(vp-free local_size)

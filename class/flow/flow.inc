@@ -2,8 +2,7 @@
 
 (def-class 'flow 'view)
 (def-method 'create 'class/flow/create 'static '() '(r0))
-(def-method 'new 'class/flow/new 'static nil '(r0))
-(def-method 'init 'class/flow/init)
+(def-method 'new 'class/flow/new)
 
 (def-method 'pref_size 'class/flow/pref_size 'final)
 (def-method 'layout 'class/flow/layout 'final)
@@ -17,16 +16,3 @@
 
 (def-struct 'flow 'view)
 (def-struct-end)
-
-;;;;;;;;;;;;;;;;
-; inline methods
-;;;;;;;;;;;;;;;;
-
-(defcfun class/flow/init ()
-	;inputs
-	;r0 = flow object
-	;r1 = vtable pointer
-	;outputs
-	;r0 = flow object
-	;r1 = 0 if error, else ok
-	(s-call 'flow 'init '(r0 r1) '(r0 r1)))

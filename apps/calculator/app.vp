@@ -53,7 +53,8 @@
 
 	;add my app grid panel
 	(f-call 'grid 'create {} {grid_panel})
-	(f-call 'grid 'set_grid {grid_panel, 4, 4})
+	(f-call 'grid 'set_long_prop {grid_panel, prop_grid_width, 4})
+	(f-call 'grid 'set_long_prop {grid_panel, prop_grid_height, 4})
 	(v-call 'flow 'add_child {flow_panel, grid_panel})
 
 	;add buttons to my grid panel
