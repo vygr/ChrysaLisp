@@ -1,6 +1,5 @@
 (import 'sys/func.inc)
 (import 'class/points/points.inc)
 
-(gen-new 'points)
 (gen-create 'points)
 (gen-class 'points)

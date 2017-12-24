@@ -1,7 +1,7 @@
 (import 'class/array/array.inc)
 
 (def-class 'vector 'array)
-(def-method 'create 'class/vector/create 'static nil '(r0))
+(def-method 'create 'class/vector/create)
 
 (def-method 'deinit 'class/vector/deinit 'final)
 (def-method 'ref_element 'class/vector/ref_element 'final)
