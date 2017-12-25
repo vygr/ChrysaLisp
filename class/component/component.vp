@@ -292,3 +292,31 @@
 	(return)
 
 (def-func-end)
+
+(def-func 'class/component/get_obj_prop)
+	;inputs
+	;r0 = component object
+	;r1 = property num
+	;outputs
+	;r0 = component object
+	;r1 = property value (long)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(union
+		'(ptr 'sym)
+		'(ptr 'obj))
+	(ulong 'num)
+
+	(push-scope)
+	(f-entry 'component 'get_obj_prop {this, num})
+
+	(f-call 'component 'get_prop {this, num} {_, sym})
+	(f-call 'component 'get {this, sym} {_, obj})
+
+	(f-exit 'component 'get_obj_prop {this, obj})
+	(pop-scope)
+	(return)
+
+(def-func-end)

@@ -4,7 +4,6 @@
 (def-method 'create 'class/text/create 'static '() '(r0))
 (def-method 'new 'class/text/new 'static nil '(r0))
 (def-method 'init 'class/text/init)
-(def-method 'set_font 'class/text/set_font 'static '(r0 r1 r2) '(r0))
 (def-method 'set_text 'class/text/set_text 'static '(r0 r1) '(r0))
 (def-method 'get_text 'class/text/get_text 'static '(r0) '(r0 r1))
 (def-method 'ref_text 'class/text/ref_text 'static '(r0) '(r0 r1))
@@ -15,7 +14,6 @@
 (def-method 'draw 'class/text/draw 'final)
 
 (def-struct 'text 'view)
-	(ptr 'font)
 	(ptr 'string)
 	(ptr 'words)
 	(uint 'text_color)

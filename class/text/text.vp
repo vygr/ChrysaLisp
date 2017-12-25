@@ -25,10 +25,7 @@
 		(vp-push r0)
 
 		;init myself
-		(f-call 'font 'open '("fonts/OpenSans-Regular.ttf" 18) '(r0))
-		(assert '(r0 != 0))
 		(vp-cpy-ir rsp 0 r1)
-		(vp-cpy-ri r0 r1 text_font)
 		(vp-xor-rr r0 r0)
 		(vp-cpy-ri r0 r1 text_string)
 		(vp-cpy-ri-i r0 r1 text_text_color)
@@ -57,9 +54,6 @@
 		(f-call 'vector 'deref '((r0 text_words)))
 	(endif)
 
-	(vp-cpy-ir rsp 0 r0)
-	(f-call 'font 'deref_if '((r0 text_font)))
-
 	;deinit parent
 	(vp-pop r0)
 	(s-jmp 'text 'deinit '(r0))
@@ -73,7 +67,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'ctx 'txt)
+	(ptr 'this 'ctx 'txt 'font)
 	(pptr 'words 'words_end)
 	(ulong 'handle)
 	(int 'x 'w 'h)
@@ -82,12 +76,15 @@
 	(push-scope)
 	(f-entry 'text 'draw {this, ctx})
 
+	;get properties
+	(f-call 'text 'get_obj_prop {this, prop_font} {_, font})
+
 	;draw text
-	(vpif {this->text_string && this->text_font})
+	(vpif {this->text_string && font})
 		(f-call 'vector 'get_iters {this->text_words} {_, words, words_end})
 		(assign {0} {x})
 		(loop-start)
-			(f-call 'font 'ref_word {this->text_font, *words} {_, txt})
+			(f-call 'font 'ref_word {font, *words} {_, txt})
 			(f-call 'texture 'get_metrics {txt} {_, handle, w, h})
 			(vpif {handle})
 				(f-call 'gui_ctx 'blit {ctx, handle, this->text_text_color, x, 0, w, h})
@@ -133,7 +130,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'txt)
+	(ptr 'this 'txt 'font)
 	(pptr 'words 'words_end)
 	(uint 'width 'height 'length 'word_w)
 
@@ -141,12 +138,15 @@
 	(push-scope)
 	(f-entry 'text 'pref_size {this})
 
+	;get properties
+	(f-call 'text 'get_obj_prop {this, prop_font} {_, font})
+
 	;bounds of text
 	(assign {0, 0} {width, height})
-	(vpif {this->text_string && this->text_font})
+	(vpif {this->text_string && font})
 		(f-call 'vector 'get_iters {this->text_words} {_, words, words_end})
 		(loop-start)
-			(f-call 'font 'ref_word {this->text_font, *words} {_, txt})
+			(f-call 'font 'ref_word {font, *words} {_, txt})
 			(f-call 'texture 'get_metrics {txt} {_, _, word_w, height})
 			(f-call 'texture 'deref {txt})
 			(assign {words + ptr_size} {words})
@@ -157,31 +157,6 @@
 	(endif)
 
 	(f-exit 'text 'pref_size {this, width, height})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
-(def-func 'class/text/set_font)
-	;inputs
-	;r0 = text object
-	;r1 = font name
-	;r2 = point size
-	;trashes
-	;all but r0
-
-	(ptr 'this 'name)
-	(uint 'points)
-
-	;save inputs
-	(push-scope)
-	(f-entry 'text 'set_font {this, name, points})
-
-	(f-call 'font 'open {name, points} {name})
-	(f-call 'font 'deref_if {this->text_font})
-	(assign {name} {this->text_font})
-
-	(f-exit 'text 'set_font {this})
 	(pop-scope)
 	(return)
 

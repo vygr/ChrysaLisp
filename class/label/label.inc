@@ -6,7 +6,6 @@
 (def-method 'create 'class/label/create 'static '() '(r0))
 (def-method 'new 'class/label/new 'static nil '(r0))
 (def-method 'init 'class/label/init)
-(def-method 'set_font 'class/label/set_font 'static '(r0 r1 r2) '(r0))
 (def-method 'set_text 'class/label/set_text 'static '(r0 r1) '(r0))
 (def-method 'get_text 'class/label/get_text 'static '(r0) '(r0 r1))
 (def-method 'ref_text 'class/label/ref_text 'static '(r0) '(r0 r1))

@@ -165,21 +165,6 @@
 
 (def-func-end)
 
-(def-func 'class/label/set_font)
-	;inputs
-	;r0 = label object
-	;r1 = font name
-	;r2 = point size
-	;trashes
-	;all but r0
-
-	(vp-push r0)
-	(f-call 'text 'set_font '((r0 label_text) r1 r2))
-	(vp-pop r0)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/label/set_text)
 	;inputs
 	;r0 = label object
