@@ -28,7 +28,7 @@
 		;init myself
 		(vp-cpy-rr r0 r4)
 		(vp-xor-rr r0 r0)
-		(assign '(r0 r0 r0 r0) '((r4 vdu_font) (r4 vdu_text_color i) (r4 vdu_cursor_x i) (r4 vdu_cursor_y i)))
+		(assign '(r0 r0 r0) '((r4 vdu_font) (r4 vdu_cursor_x i) (r4 vdu_cursor_y i)))
 		(vp-cpy-cr vdu_default_width r0)
 		(vp-cpy-ri-i r0 r4 vdu_width)
 		(vp-cpy-cr vdu_default_height r0)
@@ -78,11 +78,14 @@
 	(ptr 'this 'ctx 'txt)
 	(ulong 'handle)
 	(int 'x 'char 'bx 'by 'bx1 'by1)
-	(uint 'w 'h)
+	(uint 'w 'h 'col)
 
 	;save inputs
 	(push-scope)
 	(f-entry 'vdu 'draw {this, ctx})
+
+	;get properties
+	(f-call 'vdu 'get_long_prop {this, prop_text_color} {_, col})
 
 	;draw vdu chars
 	(vpif {this->vdu_font})
@@ -105,14 +108,14 @@
 					(f-call 'vector 'get_element {this->vdu_textures, char - 33} {_, txt})
 					(f-call 'texture 'get_metrics {txt} {_, handle, w ,h})
 					(vpif {handle})
-						(f-call 'gui_ctx 'blit {ctx, handle, this->vdu_text_color, x * this->vdu_char_width, by * this->vdu_char_height, w, h})
+						(f-call 'gui_ctx 'blit {ctx, handle, col, x * this->vdu_char_width, by * this->vdu_char_height, w, h})
 					(endif)
 				(endif)
 				(assign {x + 1} {x})
 			(loop-end)
 			(assign {by + 1} {by})
 		(loop-end)
-		(f-call 'gui_ctx 'set_color {ctx, this->vdu_text_color})
+		(f-call 'gui_ctx 'set_color {ctx, col})
 		(f-call 'gui_ctx 'filled_box {ctx, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 	(endif)
 

@@ -179,7 +179,7 @@
 
 (def-func-end)
 
-(def-func 'class/component/get_prop)
+(def-func 'class/component/get_prop_sym)
 	;inputs
 	;r0 = component object
 	;r1 = property num
@@ -214,7 +214,7 @@
 	(push-scope)
 	(f-entry 'component 'set_long_prop {this, num, value})
 
-	(f-call 'component 'get_prop {this, num} {_, sym})
+	(f-call 'component 'get_prop_sym {this, num} {_, sym})
 	(f-call 'boxed_long 'create {} {prop})
 	(f-call 'boxed_long 'set_value {prop, value})
 	(f-call 'component 'insert {this, sym, prop})
@@ -247,7 +247,7 @@
 	(push-scope)
 	(f-entry 'component 'get_long_prop {this, num})
 
-	(f-call 'component 'get_prop {this, num} {_, sym})
+	(f-call 'component 'get_prop_sym {this, num} {_, sym})
 	(f-call 'component 'get {this, sym} {_, prop})
 	(assign {0} {value})
 	(vpif {prop})
@@ -280,7 +280,7 @@
 	(push-scope)
 	(f-entry 'component 'set_font_prop {this, num, name, points})
 
-	(f-call 'component 'get_prop {this, num} {_, sym})
+	(f-call 'component 'get_prop_sym {this, num} {_, sym})
 	(f-call 'font 'open {name, points} {font})
 	(vpif {font})
 		(f-call 'component 'insert {this, sym, font})
@@ -312,7 +312,7 @@
 	(push-scope)
 	(f-entry 'component 'get_obj_prop {this, num})
 
-	(f-call 'component 'get_prop {this, num} {_, sym})
+	(f-call 'component 'get_prop_sym {this, num} {_, sym})
 	(f-call 'component 'get {this, sym} {_, obj})
 
 	(f-exit 'component 'get_obj_prop {this, obj})
