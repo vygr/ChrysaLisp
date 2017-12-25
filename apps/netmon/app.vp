@@ -75,7 +75,7 @@
 
 	;add my panel1 round trip bar
 	(f-call 'progress 'create {} {trip})
-	(f-call 'progress 'set_max {trip, 100})
+	(f-call 'progress 'set_long_prop {trip, prop_progress_max, 100})
 	(f-call 'progress 'set_color {trip, 0xff00ffff})
 	(v-call 'flow 'add_child {panel1, trip})
 
@@ -98,15 +98,14 @@
 	(f-call 'sys_mem 'clear {durations, num_samples * int_size})
 
 	;add num cpus progress bars to my app panel2
+	(f-call 'flow 'set_long_prop {panel2, prop_progress_max, 1})
 	(assign {0} {cpu_count})
 	(loop-start)
 		(f-call 'progress 'create {} {progress})
-		(f-call 'progress 'set_max {progress, 1})
 		(f-call 'progress 'set_color {progress, 0xff00ff00})
 		(v-call 'flow 'add_child {left_panel, progress})
 		(assign {progress} {task_progress[cpu_count * ptr_size * 2]})
 		(f-call 'progress 'create {} {progress})
-		(f-call 'progress 'set_max {progress, 1})
 		(f-call 'progress 'set_color {progress, 0xffff0000})
 		(v-call 'flow 'add_child {right_panel, progress})
 		(assign {progress} {task_progress[cpu_count * ptr_size * 2 + ptr_size]})
@@ -155,7 +154,7 @@
 				(assign {durations[index * int_size] + total} {total})
 				(assign {index + 1} {index})
 			(loop-until {index == num_samples})
-			(f-call 'progress 'set_val {trip, total / (num_samples * 100)})
+			(f-call 'progress 'set_long_prop {trip, prop_progress_val, total / (num_samples * 100)})
 			(f-call 'progress 'dirty {trip})
 			(assign {time} {start_time})
 
@@ -191,15 +190,15 @@
 				(assign {value} {max_tasks})
 			(endif)
 			(assign {task_progress[msg->sample_msg_cpu * ptr_size * 2]} {progress})
-			(f-call 'progress 'set_max {progress, max_tasks})
-			(f-call 'progress 'set_val {progress, value})
+			(f-call 'progress 'set_long_prop {progress, prop_progress_max, max_tasks})
+			(f-call 'progress 'set_long_prop {progress, prop_progress_val, value})
 			(f-call 'progress 'dirty {progress})
 
 			(assign {msg->sample_msg_mem_used} {value})
 			(assign {total_memory + value} {total_memory})
 			(assign {task_progress[msg->sample_msg_cpu * ptr_size * 2 + ptr_size]} {progress})
-			(f-call 'progress 'set_max {progress, max_memory})
-			(f-call 'progress 'set_val {progress, value})
+			(f-call 'progress 'set_long_prop {progress, prop_progress_max, max_memory})
+			(f-call 'progress 'set_long_prop {progress, prop_progress_val, value})
 			(f-call 'progress 'dirty {progress})
 
 			;count up replies

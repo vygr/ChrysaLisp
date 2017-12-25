@@ -29,3 +29,5 @@
 (defprop "flow_flags")
 (defprop "grid_width")
 (defprop "grid_height")
+(defprop "progress_val")
+(defprop "progress_max")

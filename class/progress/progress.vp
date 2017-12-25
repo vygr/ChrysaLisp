@@ -19,11 +19,17 @@
 		(ptr 'ctx)
 		(long 'fill_remain)
 		(long 'fill_complete)
+		(long 'max)
+		(long 'val)
 	(def-struct-end)
 
 	;save inputs
 	(vp-alloc local_size)
 	(assign '(r0 r1) '((rsp local_this) (rsp local_ctx)))
+
+	;get properties
+	(f-call 'progress 'get_long_prop '(r0 prop_progress_max) '(r0 (rsp local_max)))
+	(f-call 'progress 'get_long_prop '(r0 prop_progress_val) '(r0 (rsp local_val)))
 
 	;draw outline
 	(f-call 'view 'get_color '(r0) '(_ r1))
@@ -38,10 +44,10 @@
 
 	;draw middle
 	(f-call 'progress 'get_bounds '((rsp local_this)) '(r0 _ _ r9 r10))
-	(vp-sub-cr (mul progress_border_size 2) r9)
-	(vp-sub-cr (mul progress_border_size 2) r10)
-	(vp-cpy-ir r0 progress_val r2)
-	(vp-cpy-ir r0 progress_max r1)
+	(vp-sub-cr 2 r9)
+	(vp-sub-cr 2 r10)
+	(vp-cpy-ir rsp local_val r2)
+	(vp-cpy-ir rsp local_max r1)
 	(vp-cpy-rr r9 r11)
 	(vp-cpy-rr r9 r0)
 	(vp-mul-rr r2 r0)
@@ -51,7 +57,7 @@
 	(vp-cpy-rr r0 r9)
 	(vp-sub-rr r9 r11)
 	(vp-cpy-ri r11 rsp local_fill_remain)
-	(f-call 'gui_ctx 'filled_box '((rsp local_ctx) progress_border_size progress_border_size r9 r10))
+	(f-call 'gui_ctx 'filled_box '((rsp local_ctx) 1 1 r9 r10))
 
 	;very darker color
 	(f-call 'view 'get_color '((rsp local_this)) '(_ r1))
@@ -61,11 +67,11 @@
 
 	;draw middle
 	(f-call 'progress 'get_bounds '((rsp local_this)) '(_ _ _ _ r10))
-	(vp-cpy-cr progress_border_size r7)
-	(vp-sub-cr (mul progress_border_size 2) r10)
+	(vp-cpy-cr 1 r7)
+	(vp-sub-cr 2 r10)
 	(vp-cpy-ir rsp local_fill_complete r8)
 	(vp-add-rr r8 r7)
-	(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 progress_border_size (rsp local_fill_remain) r10))
+	(f-call 'gui_ctx 'filled_box '((rsp local_ctx) r7 1 (rsp local_fill_remain) r10))
 
 	(vp-cpy-ir rsp local_this r0)
 	(vp-free local_size)
