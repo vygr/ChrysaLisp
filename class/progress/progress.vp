@@ -27,7 +27,7 @@
 	(f-call 'progress 'get_long_prop {this, prop_progress_val} {_, val})
 
 	;draw outline
-	(f-call 'view 'get_color {this} {_, col})
+	(f-call 'progress 'get_color {this} {_, col})
 	(f-call 'gui_ctx 'set_color {ctx, col})
 	(f-call 'progress 'get_bounds {this} {_, _, _, width, height})
 	(f-call 'gui_ctx 'box {ctx, 0, 0, width, height})

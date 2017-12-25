@@ -3,6 +3,7 @@
 (import 'class/component/component.inc)
 (import 'class/symbol/symbol.inc)
 (import 'class/boxed_long/boxed_long.inc)
+(import 'class/font/font.inc)
 
 (gen-class 'component)
 
@@ -207,25 +208,21 @@
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'sym)
-		(ptr 'prop)
-		(long 'value)
-	(def-struct-end)
+	(ptr 'this 'sym 'prop)
+	(ulong 'num 'value)
 
-	(vp-alloc local_size)
-	(f-entry 'component 'set_long_prop '((rsp local_this) r1 (rsp local_value)))
+	(push-scope)
+	(f-entry 'component 'set_long_prop {this, num, value})
 
-	(f-call 'component 'get_prop '(r0 r1) '(_ (rsp local_sym)))
-	(f-call 'boxed_long 'create '() '((rsp local_prop)))
-	(f-call 'boxed_long 'set_value '((rsp local_prop) (rsp local_value)))
-	(f-call 'component 'insert '((rsp local_this) (rsp local_sym) (rsp local_prop)))
-	(f-call 'boxed_long 'deref '((rsp local_prop)))
+	(f-call 'component 'get_prop {this, num} {_, sym})
+	(f-call 'boxed_long 'create {} {prop})
+	(f-call 'boxed_long 'set_value {prop, value})
+	(f-call 'component 'insert {this, sym, prop})
+	(f-call 'boxed_long 'deref {prop})
 
-	(f-exit 'component 'set_long_prop '((rsp local_this)))
-	(vp-free local_size)
-	(vp-ret)
+	(f-exit 'component 'set_long_prop {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -239,15 +236,59 @@
 	;trashes
 	;all but r0
 
-	(f-entry 'component 'get_long_prop '(r0 r1))
+	(ptr 'this)
+	(union
+		'(ptr 'sym)
+		'(ptr 'prop))
+	(union
+		'(ulong 'num)
+		'(ulong 'value))
 
-	(f-call 'component 'get_prop '(r0 r1) '(r0 r1))
-	(f-call 'component 'get '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
-		(vp-cpy-ir r1 boxed_ptr_value r1)
+	(push-scope)
+	(f-entry 'component 'get_long_prop {this, num})
+
+	(f-call 'component 'get_prop {this, num} {_, sym})
+	(f-call 'component 'get {this, sym} {_, prop})
+	(assign {0} {value})
+	(vpif {prop})
+		(f-call 'boxed_long 'get_value {prop} {_, value})
 	(endif)
 
-	(f-exit 'component 'get_long_prop '(r0 r1))
-	(vp-ret)
+	(f-exit 'component 'get_long_prop {this, value})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/component/set_font_prop)
+	;inputs
+	;r0 = component object
+	;r1 = property num
+	;r2 = font name pointer (ctsr)
+	;r3 = font size
+	;outputs
+	;r0 = component object
+	;trashes
+	;all but r0
+
+	(ptr 'this 'sym)
+	(union
+		'(ptr 'name)
+		'(ptr 'font))
+	(ulong 'num 'points)
+
+	(push-scope)
+	(f-entry 'component 'set_font_prop {this, num, name, points})
+
+	(f-call 'component 'get_prop {this, num} {_, sym})
+	(f-call 'font 'open {name, points} {font})
+	(vpif {font})
+		(f-call 'component 'insert {this, sym, font})
+		(f-call 'font 'deref {font})
+	(endif)
+
+	(f-exit 'component 'set_font_prop {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)

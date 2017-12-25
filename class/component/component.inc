@@ -10,6 +10,7 @@
 (def-method 'get_prop 'class/component/get_prop 'static '(r0 r1) '(r0 r1))
 (def-method 'set_long_prop 'class/component/set_long_prop 'static '(r0 r1 r2) '(r0))
 (def-method 'get_long_prop 'class/component/get_long_prop 'static '(r0 r1) '(r0 r1))
+(def-method 'set_font_prop 'class/component/set_font_prop 'static '(r0 r1 r2 r3) '(r0))
 
 (def-method 'deinit 'class/component/deinit 'override)
 
