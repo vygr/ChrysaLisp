@@ -22,16 +22,11 @@
 	;init parent
 	(s-call 'text 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
-		(vp-push r0)
-
 		;init myself
-		(vp-cpy-ir rsp 0 r1)
-		(vp-xor-rr r0 r0)
-		(vp-cpy-ri r0 r1 text_string)
-		(vp-cpy-ri-i r0 r1 text_text_color)
-		(vp-cpy-ri r0 r1 text_words)
-
-		(vp-pop r0)
+		(vp-xor-rr r1 r1)
+		(vp-cpy-ri r1 r0 text_string)
+		(vp-cpy-ri r1 r0 text_words)
+		(vp-cpy-rr r0 r1)
 	(endif)
 	(vp-ret)
 
@@ -71,6 +66,7 @@
 	(pptr 'words 'words_end)
 	(ulong 'handle)
 	(int 'x 'w 'h)
+	(uint 'col)
 
 	;save inputs
 	(push-scope)
@@ -78,6 +74,7 @@
 
 	;get properties
 	(f-call 'text 'get_obj_prop {this, prop_font} {_, font})
+	(f-call 'text 'get_long_prop {this, prop_text_color} {_, col})
 
 	;draw text
 	(vpif {this->text_string && font})
@@ -87,7 +84,7 @@
 			(f-call 'font 'ref_word {font, *words} {_, txt})
 			(f-call 'texture 'get_metrics {txt} {_, handle, w, h})
 			(vpif {handle})
-				(f-call 'gui_ctx 'blit {ctx, handle, this->text_text_color, x, 0, w, h})
+				(f-call 'gui_ctx 'blit {ctx, handle, col, x, 0, w, h})
 				(assign {x + w + (h >> 2)} {x})
 			(endif)
 			(f-call 'texture 'deref {txt})

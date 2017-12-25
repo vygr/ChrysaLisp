@@ -15,8 +15,8 @@
 	;all but r0
 
 	(ptr 'this 'ctx)
-	(long 'fill_remain 'fill_complete 'max 'val 'width 'height)
-	(ulong 'col)
+	(long 'max 'val)
+	(uint 'fill_remain 'fill_complete 'width 'height 'col)
 
 	;save inputs
 	(push-scope)

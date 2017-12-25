@@ -39,6 +39,7 @@
 		(f-call 'sys_mem 'clear {&this->window_start, window_size - window_start})
 		(f-call 'window 'set_color {this, 0xffc0c0c0})
 		(f-call 'window 'set_font_prop {this, prop_font, "fonts/OpenSans-Regular.ttf", 18})
+		(f-call 'window 'set_long_prop {this, prop_text_color, 0})
 
 		;add flow panel
 		(f-call 'flow 'create {} {this->window_flow})

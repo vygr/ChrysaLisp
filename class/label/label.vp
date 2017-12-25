@@ -190,21 +190,3 @@
 	(vp-ret)
 
 (def-func-end)
-
-(def-func 'class/label/set_text_color)
-	;inputs
-	;r0 = label object
-	;r1 = color
-	;trashes
-	;none
-
-	(f-entry 'label 'set_text_color '(r0 r1))
-
-	(vp-push r0)
-	(f-call 'text 'set_text_color '((r0 label_text) r1))
-	(vp-pop r0)
-
-	(f-exit 'label 'set_text_color '(r0))
-	(vp-ret)
-
-(def-func-end)
