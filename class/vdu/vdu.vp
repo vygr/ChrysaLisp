@@ -28,7 +28,7 @@
 		;init myself
 		(vp-cpy-rr r0 r4)
 		(vp-xor-rr r0 r0)
-		(assign '(r0 r0 r0) '((r4 vdu_font) (r4 vdu_cursor_x i) (r4 vdu_cursor_y i)))
+		(assign '(r0 r0 r0) '((r4 vdu_current_font) (r4 vdu_cursor_x i) (r4 vdu_cursor_y i)))
 		(vp-cpy-cr vdu_default_width r0)
 		(vp-cpy-ri-i r0 r4 vdu_width)
 		(vp-cpy-cr vdu_default_height r0)
@@ -40,7 +40,6 @@
 		(f-call 'vector 'set_capacity '((r4 vdu_textures) 128))
 
 		(vp-pop r0)
-		(f-call 'vdu 'set_font '(r0 "fonts/Hack-Regular.ttf" 16))
 		(vp-cpy-cr 1 r1)
 	(endif)
 	(vp-ret)
@@ -59,8 +58,6 @@
 	(f-call 'sys_mem 'free '((r0 vdu_chars)))
 	(vp-cpy-ir rsp 0 r0)
 	(f-call 'vector 'deref '((r0 vdu_textures)))
-	(vp-cpy-ir rsp 0 r0)
-	(f-call 'font 'deref_if '((r0 vdu_font)))
 
 	;deinit parent
 	(vp-pop r0)
@@ -75,7 +72,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'ctx 'txt)
+	(ptr 'this 'ctx 'txt 'font)
 	(ulong 'handle)
 	(int 'x 'char 'bx 'by 'bx1 'by1)
 	(uint 'w 'h 'col)
@@ -85,10 +82,15 @@
 	(f-entry 'vdu 'draw {this, ctx})
 
 	;get properties
+	(f-call 'vdu 'get_obj_prop {this, prop_font} {_, font})
 	(f-call 'vdu 'get_long_prop {this, prop_text_color} {_, col})
+	(vpif {font && font != this->vdu_current_font})
+		(assign {font} {this->vdu_current_font})
+		(f-call 'vdu 'switch_font {this})
+	(endif)
 
 	;draw vdu chars
-	(vpif {this->vdu_font})
+	(vpif {this->vdu_current_font})
 		(f-call 'gui_region 'bounds {ctx->gui_ctx_dirty_region} {bx, by, bx1, by1})
 		(assign {(bx - ctx->gui_ctx_x) / this->vdu_char_width} {bx})
 		(assign {(bx1 - ctx->gui_ctx_x - 1) / this->vdu_char_width} {bx1})
@@ -134,12 +136,19 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
+	(ptr 'this 'font)
 	(uint 'width 'height)
 
 	;save inputs
 	(push-scope)
 	(f-entry 'vdu 'pref_size {this})
+
+	;check if font property changed
+	(f-call 'vdu 'get_obj_prop {this, prop_font} {_, font})
+	(vpif {font && font != this->vdu_current_font})
+		(assign {font} {this->vdu_current_font})
+		(f-call 'vdu 'switch_font {this})
+	(endif)
 
 	;bounds of vdu
 	(assign {this->vdu_width * this->vdu_char_width, this->vdu_height * this->vdu_char_height} {width, height})
@@ -150,43 +159,37 @@
 
 (def-func-end)
 
-(def-func 'class/vdu/set_font)
+(def-func 'class/vdu/switch_font)
 	;inputs
 	;r0 = vdu object
-	;r1 = font name
-	;r2 = point size
 	;trashes
 	;all but r0
 
-	(ptr 'this 'name 'word 'txt)
-	(uint 'points 'code)
+	(ptr 'this 'word 'txt)
+	(uint 'code)
 
 	;save inputs
 	(push-scope)
-	(f-entry 'vdu 'set_font {this, name, points})
+	(f-entry 'vdu 'switch_font {this})
 
 	;set char size
-	(assign {points + (points >> 2)} {this->vdu_char_height})
-	(assign {points * 10 >> 4} {this->vdu_char_width})
-
-	;open new font
-	(f-call 'font 'deref_if {this->vdu_font})
-	(f-call 'font 'open {name, points} {this->vdu_font})
+	(f-call 'font 'get_metrics {this->vdu_current_font} {_, _, _, this->vdu_char_height})
+	(assign {this->vdu_char_height * 9 >> 4} {this->vdu_char_width})
 
 	;cache char textures
 	(d-call 'vector 'clear {this->vdu_textures})
-	(vpif {this->vdu_font})
+	(vpif {this->vdu_current_font})
 		(assign {33} {code})
 		(loop-start)
 			(f-call 'symbol 'intern_cstr {&code} {word})
-			(f-call 'font 'ref_word {this->vdu_font, word} {_, txt})
+			(f-call 'font 'ref_word {this->vdu_current_font, word} {_, txt})
 			(f-call 'vector 'push_back {this->vdu_textures, txt})
 			(f-call 'symbol 'deref {word})
 			(assign {code + 1} {code})
 		(loop-until {code == 127})
 	(endif)
 
-	(f-exit 'vdu 'set_font {this})
+	(f-exit 'vdu 'switch_font {this})
 	(pop-scope)
 	(return)
 

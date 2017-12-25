@@ -4,7 +4,7 @@
 (def-method 'create 'class/vdu/create 'static '() '(r0))
 (def-method 'new 'class/vdu/new 'static nil '(r0))
 (def-method 'init 'class/vdu/init)
-(def-method 'set_font 'class/vdu/set_font 'static '(r0 r1 r2) '(r0))
+(def-method 'switch_font 'class/vdu/switch_font 'static '(r0) '(r0))
 (def-method 'print_char 'class/vdu/print_char 'static '(r0 r1) '(r0))
 (def-method 'print_cstr 'class/vdu/print_cstr 'static '(r0 r1) '(r0))
 
@@ -16,7 +16,7 @@
 (defcvar 'vdu_default_height 40)
 
 (def-struct 'vdu 'view)
-	(ptr 'font)
+	(ptr 'current_font)
 	(pubyte 'chars)
 	(ptr 'textures)
 	(int 'cursor_x)

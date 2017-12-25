@@ -46,7 +46,7 @@
 	;add my vdu
 	(f-call 'vdu 'create {} {myapp.local_vdu})
 	(f-call 'vdu 'set_long_prop {myapp.local_vdu, prop_text_color, 0xff00ff00})
-	(f-call 'vdu 'set_font {myapp.local_vdu, "fonts/Hack-Regular.ttf", 16})
+	(f-call 'vdu 'set_font_prop {myapp.local_vdu, prop_font, "fonts/Hack-Regular.ttf", 16})
 	(v-call 'window 'add_child {myapp.local_window, myapp.local_vdu})
 
 	;set to pref size
