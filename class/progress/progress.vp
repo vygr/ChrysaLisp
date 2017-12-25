@@ -16,7 +16,7 @@
 
 	(ptr 'this 'ctx)
 	(long 'max 'val)
-	(uint 'fill_remain 'fill_complete 'width 'height 'col)
+	(uint 'infill 'width 'height 'col)
 
 	;save inputs
 	(push-scope)
@@ -32,21 +32,16 @@
 	(f-call 'progress 'get_bounds {this} {_, _, _, width, height})
 	(f-call 'gui_ctx 'box {ctx, 0, 0, width, height})
 
-	;darker color
+	;draw middle left
 	(f-call 'gui_ctx 'darker {col} {col})
 	(f-call 'gui_ctx 'set_color {ctx, col})
+	(assign {(val * (width - 2)) // max} {infill})
+	(f-call 'gui_ctx 'filled_box {ctx, 1, 1, infill, height - 2})
 
-	;draw middle
-	(assign {(val * (width - 2)) // max} {fill_complete})
-	(assign {width - 2 - fill_complete} {fill_remain})
-	(f-call 'gui_ctx 'filled_box {ctx, 1, 1, fill_complete, height - 2})
-
-	;very darker color
+	;draw middle right
 	(f-call 'gui_ctx 'darker {col} {col})
 	(f-call 'gui_ctx 'set_color {ctx, col})
-
-	;draw middle
-	(f-call 'gui_ctx 'filled_box {ctx, fill_complete + 1, 1, fill_remain, height - 2})
+	(f-call 'gui_ctx 'filled_box {ctx, infill + 1, 1, width - 2 - infill, height - 2})
 
 	(f-exit 'progress 'draw {this})
 	(pop-scope)
