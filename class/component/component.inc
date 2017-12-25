@@ -36,3 +36,5 @@
 (defprop "grid_height")
 (defprop "progress_val")
 (defprop "progress_max")
+(defprop "vdu_width")
+(defprop "vdu_height")

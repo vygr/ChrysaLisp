@@ -5,6 +5,7 @@
 (def-method 'new 'class/vdu/new 'static nil '(r0))
 (def-method 'init 'class/vdu/init)
 (def-method 'switch_font 'class/vdu/switch_font 'static '(r0) '(r0))
+(def-method 'switch_size 'class/vdu/switch_size 'static '(r0) '(r0))
 (def-method 'print_char 'class/vdu/print_char 'static '(r0 r1) '(r0))
 (def-method 'print_cstr 'class/vdu/print_cstr 'static '(r0 r1) '(r0))
 
@@ -12,11 +13,8 @@
 (def-method 'pref_size 'class/vdu/pref_size 'final)
 (def-method 'draw 'class/vdu/draw 'final)
 
-(defcvar 'vdu_default_width 60)
-(defcvar 'vdu_default_height 40)
-
 (def-struct 'vdu 'view)
-	(ptr 'current_font)
+	(ptr 'font)
 	(pubyte 'chars)
 	(ptr 'textures)
 	(int 'cursor_x)
