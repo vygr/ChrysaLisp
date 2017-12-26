@@ -36,7 +36,6 @@
 
 		;add my text
 		(f-call 'text 'create {} {this->label_text})
-		(f-call 'text 'set_color {this->label_text, 0})
 		(v-call 'flow 'add_child {this->label_flow, this->label_text})
 	(endif)
 
@@ -104,28 +103,23 @@
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(ptr 'this)
+	(uint 'col)
 
-	;save inputs
-	(vp-alloc local_size)
-	(assign '(r0) '((rsp local_this)))
+	(push-scope)
+	(f-entry 'label 'layout {this})
 
-	(vp-cpy-ir-i r0 view_w r9)
-	(vp-cpy-ir-i r0 view_h r10)
-	(vp-sub-cr (mul label_border_size 2) r9)
-	(vp-sub-cr (mul label_border_size 2) r10)
-	(f-call 'flow 'change '((r0 label_flow) label_border_size label_border_size r9 r10))
+	(f-call 'flow 'change {this->label_flow, label_border_size, label_border_size,
+		this->view_w - (label_border_size * 2), this->view_h - (label_border_size * 2)})
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-cpy-ir-ui r0 view_color r1)
-	(vp-shr-cr 24 r1)
-	(vpif '(r1 == 0xff))
-		(f-call 'label 'opaque '(r0))
+	(f-call 'label 'get_long_prop {this, prop_color} {_, col})
+	(vpif {col >> 24 == 0xff})
+		(f-call 'label 'opaque {this})
 	(endif)
-	(vp-free local_size)
-	(vp-ret)
+
+	(f-exit 'label 'layout {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

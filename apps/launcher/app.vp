@@ -34,7 +34,7 @@
 	(assign {$launch_list} {next})
 	(loop-while {*next})
 		(f-call 'button 'create {} {button})
-		(f-call 'button 'set_color {button, 0xffffff00})
+		(f-call 'button 'set_long_prop {button, prop_color, 0xffffff00})
 		(f-call 'string 'create_from_cstr {next} {string})
 		(f-call 'button 'set_text {button, string})
 		(v-call 'flow 'add_child {panel, button})

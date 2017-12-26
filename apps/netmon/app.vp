@@ -76,17 +76,17 @@
 	;add my panel1 round trip bar
 	(f-call 'progress 'create {} {trip})
 	(f-call 'progress 'set_long_prop {trip, prop_progress_max, 100})
-	(f-call 'progress 'set_color {trip, 0xff00ffff})
+	(f-call 'progress 'set_long_prop {trip, prop_color, 0xff00ffff})
 	(v-call 'flow 'add_child {panel1, trip})
 
 	;add my panel2 headings
 	(f-call 'label 'create {} {label})
-	(f-call 'label 'set_color {label, 0xffffffff})
+	(f-call 'label 'set_long_prop {label, prop_color, 0xffffffff})
 	(f-call 'string 'create_from_cstr {"Tasks"} {string})
 	(f-call 'label 'set_text {label, string})
 	(v-call 'flow 'add_child {left_panel, label})
 	(f-call 'label 'create {} {label})
-	(f-call 'label 'set_color {label, 0xffffffff})
+	(f-call 'label 'set_long_prop {label, prop_color, 0xffffffff})
 	(f-call 'string 'create_from_cstr {"Memory"} {string})
 	(f-call 'label 'set_text {label, string})
 	(v-call 'flow 'add_child {right_panel, label})
@@ -99,14 +99,14 @@
 
 	;add num cpus progress bars to my app panel2
 	(f-call 'flow 'set_long_prop {panel2, prop_progress_max, 1})
+	(f-call 'flow 'set_long_prop {left_panel, prop_color, 0xff00ff00})
+	(f-call 'flow 'set_long_prop {right_panel, prop_color, 0xffff0000})
 	(assign {0} {cpu_count})
 	(loop-start)
 		(f-call 'progress 'create {} {progress})
-		(f-call 'progress 'set_color {progress, 0xff00ff00})
 		(v-call 'flow 'add_child {left_panel, progress})
 		(assign {progress} {task_progress[cpu_count * ptr_size * 2]})
 		(f-call 'progress 'create {} {progress})
-		(f-call 'progress 'set_color {progress, 0xffff0000})
 		(v-call 'flow 'add_child {right_panel, progress})
 		(assign {progress} {task_progress[cpu_count * ptr_size * 2 + ptr_size]})
 		(assign {cpu_count + 1} {cpu_count})

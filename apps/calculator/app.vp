@@ -44,7 +44,7 @@
 
 	;add my display label
 	(f-call 'label 'create {} {myapp.local_display})
-	(f-call 'label 'set_color {myapp.local_display, 0xffffffff})
+	(f-call 'label 'set_long_prop {myapp.local_display, prop_color, 0xffffffff})
 	(f-call 'label 'set_long_prop {myapp.local_display, prop_flow_flags, flow_flag_align_hright | flow_flag_align_vcenter})
 	(f-call 'label 'set_font_prop {myapp.local_display, prop_font, "fonts/OpenSans-Regular.ttf", 24})
 	(f-call 'string 'create_from_cstr {"0"} {string})
@@ -61,7 +61,7 @@
 	(assign {$button_list} {next})
 	(loop-while {*next})
 		(f-call 'button 'create {} {button})
-		(f-call 'button 'set_color {button, 0xffffff00})
+		(f-call 'button 'set_long_prop {button, prop_color, 0xffffff00})
 		(f-call 'string 'create_from_cstr {next} {string})
 		(f-call 'button 'set_font_prop {button, prop_font, "fonts/OpenSans-Regular.ttf", 42})
 		(f-call 'button 'set_text {button, string})

@@ -41,7 +41,7 @@
 	(f-call 'window 'set_title {myapp.local_window, string})
 	(f-call 'string 'create_from_cstr {"Ready"} {string})
 	(f-call 'window 'set_status {myapp.local_window, string})
-	(f-call 'window 'set_color {myapp.local_window, 0xc0000000})
+	(f-call 'window 'set_long_prop {myapp.local_window, prop_color, 0xc0000000})
 
 	;add my vdu
 	(f-call 'vdu 'create {} {myapp.local_vdu})

@@ -37,9 +37,9 @@
 	(vpif {ok})
 		;init myself
 		(f-call 'sys_mem 'clear {&this->window_start, window_size - window_start})
-		(f-call 'window 'set_color {this, 0xffc0c0c0})
 		(f-call 'window 'set_font_prop {this, prop_font, "fonts/OpenSans-Regular.ttf", 18})
 		(f-call 'window 'set_long_prop {this, prop_text_color, 0})
+		(f-call 'window 'set_long_prop {this, prop_color, 0xffc0c0c0})
 
 		;add flow panel
 		(f-call 'flow 'create {} {this->window_flow})
@@ -49,11 +49,11 @@
 		;add title flow panel
 		(f-call 'flow 'create {} {title_flow})
 		(f-call 'flow 'set_long_prop {title_flow, prop_flow_flags, flow_flag_left | flow_flag_fillh | flow_flag_lastw})
+		(f-call 'flow 'set_long_prop {title_flow, prop_color, 0xffd0d0d0})
 		(v-call 'flow 'add_child {this->window_flow, title_flow})
 
 		;add close button ?
 		(f-call 'button 'create {} {this->window_close})
-		(f-call 'button 'set_color {this->window_close, 0xffd0d0d0})
 		(v-call 'flow 'add_child {title_flow, this->window_close})
 		(f-call 'string 'create_from_cstr {"X"} {string})
 		(f-call 'button 'set_text {this->window_close, string})
@@ -66,7 +66,6 @@
 		;add max button
 		(vpif {flags & window_flag_max})
 			(f-call 'button 'create {} {this->window_max})
-			(f-call 'button 'set_color {this->window_max, 0xffd0d0d0})
 			(v-call 'flow 'add_child {title_flow, this->window_max})
 			(f-call 'string 'create_from_cstr {"+"} {string})
 			(f-call 'button 'set_text {this->window_max, string})
@@ -76,7 +75,6 @@
 		;add min button
 		(vpif {flags & window_flag_min})
 			(f-call 'button 'create {} {this->window_min})
-			(f-call 'button 'set_color {this->window_min, 0xffd0d0d0})
 			(v-call 'flow 'add_child {title_flow, this->window_min})
 			(f-call 'string 'create_from_cstr {"-"} {string})
 			(f-call 'button 'set_text {this->window_min, string})
@@ -85,7 +83,7 @@
 
 		;add title
 		(f-call 'title 'create {} {this->window_title})
-		(f-call 'title 'set_color {this->window_title, 0xffc0c0c0})
+		(f-call 'title 'set_long_prop {this->window_title, prop_color, 0xffc0c0c0})
 		(v-call 'flow 'add_child {title_flow, this->window_title})
 
 		;add status panel
@@ -96,7 +94,7 @@
 		;add status label ?
 		(vpif {flags & window_flag_status})
 			(f-call 'label 'create {} {this->window_status})
-			(f-call 'label 'set_color {this->window_status, 0xff808080})
+			(f-call 'label 'set_long_prop {this->window_status, prop_color, 0xff808080})
 			(v-call 'flow 'add_child {this->window_panel, this->window_status})
 		(endif)
 	(endif)
@@ -160,28 +158,23 @@
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(ptr 'this)
+	(uint 'col)
 
-	;save inputs
-	(vp-alloc local_size)
-	(f-entry 'window 'layout '((rsp local_this)))
+	(push-scope)
+	(f-entry 'window 'layout {this})
 
-	(vp-cpy-ir-i r0 view_w r9)
-	(vp-cpy-ir-i r0 view_h r10)
-	(vp-sub-cr (mul window_border_size 2) r9)
-	(vp-sub-cr (mul window_border_size 2) r10)
-	(f-call 'flow 'change '((r0 window_flow) window_border_size window_border_size r9 r10))
+	(f-call 'flow 'change {this->window_flow, window_border_size, window_border_size,
+		this->view_w - (window_border_size * 2), this->view_h - (window_border_size * 2)})
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-cpy-ir-ui r0 view_color r1)
-	(vp-shr-cr 24 r1)
-	(vpif '(r1 == 0xff))
-		(f-call 'window 'opaque '(r0))
+	(f-call 'window 'get_long_prop {this, prop_color} {_, col})
+	(vpif {col >> 24 == 0xff})
+		(f-call 'window 'opaque {this})
 	(endif)
-	(vp-free local_size)
-	(vp-ret)
+
+	(f-exit 'window 'layout {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

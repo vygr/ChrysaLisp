@@ -22,8 +22,6 @@
 (def-method 'set_owner 'class/view/set_owner 'static '(r0 r1) '(r0))
 (def-method 'find_owner 'class/view/find_owner 'static '(r0) '(r0 r1))
 (def-method 'draw_panel 'class/view/draw_panel 'static '(r0 r1 r2 r3) '(r0))
-(def-method 'set_color 'class/view/set_color 'static '(r0 r1) '(r0))
-(def-method 'get_color 'class/view/get_color 'static '(r0) '(r0 r1))
 (def-method 'get_bounds 'class/view/get_bounds 'static '(r0) '(r0 r7 r8 r9 r10))
 (def-method 'set_bounds 'class/view/set_bounds 'static '(r0 r7 r8 r9 r10) '(r0))
 (def-method 'set_flags 'class/view/set_flags 'static '(r0 r1) '(r0))
@@ -66,7 +64,6 @@
 	(int 'y)
 	(int 'w)
 	(int 'h)
-	(uint 'color)
 	(int 'min_w)
 	(int 'min_h)
 (def-struct-end)
@@ -74,20 +71,6 @@
 ;;;;;;;;;;;;;;;;
 ; inline methods
 ;;;;;;;;;;;;;;;;
-
-(defcfun class/view/set_color ()
-	;inputs
-	;r0 = view object
-	;r1 = color
-	(vp-cpy-ri-i r1 r0 view_color))
-
-(defcfun class/view/get_color ()
-	;inputs
-	;r0 = view object
-	;outputs
-	;r0 = view object
-	;r1 = color
-	(vp-cpy-ir-ui r0 view_color r1))
 
 (defcfun class/view/set_flags ()
 	;inputs

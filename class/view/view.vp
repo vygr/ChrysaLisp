@@ -360,20 +360,19 @@
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(ptr 'this 'ctx)
+	(uint 'flags 'depth 'col)
 
 	;save inputs
-	(vp-alloc local_size)
-	(vp-cpy-ri r0 rsp local_this)
+	(push-scope)
+	(f-entry 'view 'draw_panel {this, ctx, flags, depth})
 
-	(f-call 'view 'get_bounds '(r0) '(r4 r7 r8 r9 r10))
-	(f-call 'gui_ctx 'panel '(r1 (r4 view_color ui) r2 r3 0 0 r9 r10) '())
+	(f-call 'view 'get_long_prop {this, prop_color} {_, col})
+	(f-call 'gui_ctx 'panel {ctx, col, flags, depth, 0, 0, this->view_w, this->view_h})
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-free local_size)
-	(vp-ret)
+	(f-exit 'view 'draw_panel {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
