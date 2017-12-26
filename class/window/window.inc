@@ -1,7 +1,5 @@
 (import 'class/view/view.inc)
 
-(defcvar 'window_border_size 4)
-
 (def-bit 'window_drag)
 	(bit 'left 'right 'top 'bottom)
 (def-bit-end)
@@ -40,5 +38,5 @@
 	(ptr 'min)
 	(int 'offset_x)
 	(int 'offset_y)
-	(ulong 'drag_mode)
+	(uint 'drag_mode)
 (def-struct-end)

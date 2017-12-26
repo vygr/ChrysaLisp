@@ -30,6 +30,7 @@
 
 (defprop "font")
 (defprop "color")
+(defprop "border")
 (defprop "text_color")
 (defprop "flow_flags")
 (defprop "grid_width")

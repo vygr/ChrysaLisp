@@ -1,7 +1,5 @@
 (import 'class/view/view.inc)
 
-(defcvar 'label_border_size 0)
-
 (def-class 'label 'view)
 (def-method 'create 'class/label/create 'static '() '(r0))
 (def-method 'new 'class/label/new 'static nil '(r0))

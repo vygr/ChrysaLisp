@@ -29,6 +29,7 @@
 		;init myself
 		(assign {0} {this->button_state})
 		(f-call 'sys_list 'init {&this->button_pressed_signal})
+		(f-call 'button 'set_long_prop {this, prop_border, 2})
 
 		;set my flow
 		(f-call 'button 'set_long_prop {this, prop_flow_flags, flow_flag_down | flow_flag_align_hcenter})
@@ -61,14 +62,22 @@
 	;trashes
 	;all but r0
 
+	(ptr 'this 'ctx)
+	(uint 'depth)
+
+	(push-scope)
+	(f-entry 'button 'draw {this, ctx})
+
 	;draw panel
-	(vp-cpy-cr button_border_size r3)
-	(vp-cpy-ir r0 button_state r2)
-	(vp-and-cr button_state_pressed r2)
-	(vpif '(r2 != 0))
-		(vp-mul-cr -1 r3)
+	(f-call 'button 'get_long_prop {this, prop_border} {_, depth})
+	(vpif {this->button_state & button_state_pressed})
+		(assign {-depth} {depth})
 	(endif)
-	(f-jmp 'button 'draw_panel '(r0 r1 1 r3))
+	(f-call 'button 'draw_panel {this, ctx, 1, depth})
+
+	(f-exit 'button 'draw {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -78,46 +87,24 @@
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(ptr 'this)
+	(uint 'depth 'offset)
 
-	;save inputs
-	(vp-alloc local_size)
-	(vp-cpy-ri r0 rsp local_this)
+	(push-scope)
+	(f-entry 'button 'layout {this})
 
-	(vp-cpy-cr button_border_size r7)
-	(vp-cpy-ir-i r0 view_w r9)
-	(vp-cpy-ir-i r0 view_h r10)
-	(vp-sub-cr (mul button_border_size 2) r9)
-	(vp-sub-cr (mul button_border_size 2) r10)
-	(vp-cpy-ir r0 button_state r1)
-	(vp-and-cr button_state_pressed r1)
-	(vpif '(r1 != 0))
-		(vp-add-cr button_border_size r7)
+	;draw panel
+	(f-call 'button 'get_long_prop {this, prop_border} {_, depth})
+	(assign {depth} {offset})
+	(vpif {this->button_state & button_state_pressed})
+		(assign {depth + offset} {offset})
 	(endif)
-	(f-call 'flow 'change '((r0 label_flow) r7 r7 r9 r10))
+	(f-call 'button 'change {this->label_flow, offset, offset, this->view_w - (depth * 2), this->view_h - (depth * 2)})
+	(f-call 'button 'opaque {this})
 
-	(f-call 'button 'opaque '((rsp local_this)))
-	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/button/pref_size)
-	;inputs
-	;r0 = button object
-	;outputs
-	;r0 = button object
-	;r9 = preferred width
-	;r10 = preferred height
-	;trashes
-	;all but r0
-
-	(s-call 'button 'pref_size '(r0) '(r0 r9 r10))
-	(vp-add-cr (mul button_border_size 2) r9)
-	(vp-add-cr (mul button_border_size 2) r10)
-	(vp-ret)
+	(f-exit 'button 'layout {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

@@ -40,6 +40,7 @@
 		(f-call 'window 'set_font_prop {this, prop_font, "fonts/OpenSans-Regular.ttf", 18})
 		(f-call 'window 'set_long_prop {this, prop_text_color, 0})
 		(f-call 'window 'set_long_prop {this, prop_color, 0xffc0c0c0})
+		(f-call 'window 'set_long_prop {this, prop_border, 5})
 
 		;add flow panel
 		(f-call 'flow 'create {} {this->window_flow})
@@ -148,7 +149,19 @@
 	;trashes
 	;all but r0
 
-	(f-jmp 'window 'draw_panel '(r0 r1 1 window_border_size))
+	(ptr 'this 'ctx)
+	(uint 'depth)
+
+	(push-scope)
+	(f-entry 'window 'draw {this, ctx})
+
+	;draw panel
+	(f-call 'window 'get_long_prop {this, prop_border} {_, depth})
+	(f-call 'window 'draw_panel {this, ctx, 1, depth})
+
+	(f-exit 'window 'draw {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -159,13 +172,14 @@
 	;all but r0
 
 	(ptr 'this)
-	(uint 'col)
+	(uint 'col 'depth)
 
 	(push-scope)
 	(f-entry 'window 'layout {this})
 
-	(f-call 'flow 'change {this->window_flow, window_border_size, window_border_size,
-		this->view_w - (window_border_size * 2), this->view_h - (window_border_size * 2)})
+	(f-call 'window 'get_long_prop {this, prop_border} {_, depth})
+	(f-call 'flow 'change {this->window_flow, depth, depth,
+		this->view_w - (depth * 2), this->view_h - (depth * 2)})
 
 	(f-call 'window 'get_long_prop {this, prop_color} {_, col})
 	(vpif {col >> 24 == 0xff})
@@ -185,40 +199,40 @@
 	;trashes
 	;all but r0
 
-	;set drag code and offset
-	(vp-cpy-ir-i r1 ev_msg_rx r7)
-	(vp-cpy-ir-i r1 ev_msg_ry r8)
-	(vp-cpy-rr r7 r11)
-	(vp-cpy-rr r8 r12)
-	(vp-cpy-ir-i r0 view_w r9)
-	(vp-cpy-ir-i r0 view_h r10)
-	(vp-sub-cr (mul window_border_size 2) r9)
-	(vp-sub-cr (mul window_border_size 2) r10)
-	(vp-xor-rr r14 r14)
-	(vpif '(r7 < (mul window_border_size 2)))
+	(ptr 'this 'evt)
+	(uint 'depth 'mode)
+	(int 'rx 'ry)
+
+	(push-scope)
+	(f-entry 'window 'mouse_down {this, evt})
+
+	(f-call 'window 'get_long_prop {this, prop_border} {_, depth})
+	(assign {0, evt->ev_msg_rx, evt->ev_msg_ry} {mode, rx, ry})
+	(vpif {rx < depth})
 		;left edge
-		(vp-or-cr window_drag_left r14)
+		(assign {mode | window_drag_left} {mode})
 	(endif)
-	(vpif '(r7 >= r9))
+	(vpif {rx >= (this->view_w - depth)})
 		;right edge
-		(vp-or-cr window_drag_right r14)
-		(vp-cpy-ir-i r0 view_w r9)
-		(vp-sub-rr r9 r11)
+		(assign {mode | window_drag_right} {mode})
+		(assign {rx - this->view_w} {rx})
 	(endif)
-	(vpif '(r8 < (mul window_border_size 2)))
+	(vpif {ry < depth})
 		;top edge
-		(vp-or-cr window_drag_top r14)
+		(assign {mode | window_drag_top} {mode})
 	(endif)
-	(vpif '(r8 >= r10))
+	(vpif {ry >= (this->view_h - depth)})
 		;bottom edge
-		(vp-or-cr window_drag_bottom r14)
-		(vp-cpy-ir-i r0 view_h r10)
-		(vp-sub-rr r10 r12)
+		(assign {mode | window_drag_bottom} {mode})
+		(assign {ry - this->view_h} {ry})
 	(endif)
-	(vp-cpy-ri r14 r0 window_drag_mode)
-	(vp-cpy-ri-i r11 r0 window_offset_x)
-	(vp-cpy-ri-i r12 r0 window_offset_y)
-	(vp-ret)
+	(assign {mode} {this->window_drag_mode})
+	(assign {rx} {this->window_offset_x})
+	(assign {ry} {this->window_offset_y})
+
+	(f-exit 'window 'mouse_down {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -257,7 +271,7 @@
 
 	;drag edges
 	(vp-cpy-ir rsp local_event r1)
-	(vp-cpy-ir r0 window_drag_mode r14)
+	(vp-cpy-ir-ui r0 window_drag_mode r14)
 	(vp-and-cr window_drag_left r14)
 	(vpif '(r14 != 0))
 		;drag left edge
@@ -271,7 +285,7 @@
 			(vp-sub-rr r11 r7)
 		(endif)
 	(endif)
-	(vp-cpy-ir r0 window_drag_mode r14)
+	(vp-cpy-ir-ui r0 window_drag_mode r14)
 	(vp-and-cr window_drag_right r14)
 	(vpif '(r14 != 0))
 		;drag right edge
@@ -285,7 +299,7 @@
 			(vp-add-rr r11 r9)
 		(endif)
 	(endif)
-	(vp-cpy-ir r0 window_drag_mode r14)
+	(vp-cpy-ir-ui r0 window_drag_mode r14)
 	(vp-and-cr window_drag_top r14)
 	(vpif '(r14 != 0))
 		;drag top edge
@@ -299,7 +313,7 @@
 			(vp-sub-rr r12 r8)
 		(endif)
 	(endif)
-	(vp-cpy-ir r0 window_drag_mode r14)
+	(vp-cpy-ir-ui r0 window_drag_mode r14)
 	(vp-and-cr window_drag_bottom r14)
 	(vpif '(r14 != 0))
 		;drag bottom edge
@@ -345,21 +359,18 @@
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(ptr 'this)
+	(uint 'depth 'w 'h)
 
-	;save inputs
-	(vp-alloc local_size)
-	(f-entry 'window 'pref_size '((rsp local_this)))
+	(push-scope)
+	(f-entry 'window 'pref_size {this})
 
-	(v-call 'flow 'pref_size '((r0 window_flow)) '(_ r9 r10))
-	(vp-add-cr (mul window_border_size 2) r9)
-	(vp-add-cr (mul window_border_size 2) r10)
+	(f-call 'window 'get_long_prop {this, prop_border} {_, depth})
+	(v-call 'flow 'pref_size {this->window_flow} {_, w, h})
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-free local_size)
-	(vp-ret)
+	(f-exit 'window 'pref_size {this, w + (depth * 2), h + (depth * 2)})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

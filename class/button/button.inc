@@ -1,7 +1,5 @@
 (import 'class/label/label.inc)
 
-(defcvar 'button_border_size 2)
-
 (def-bit 'button_state)
 	(bit 'pressed)
 (def-bit-end)
@@ -13,7 +11,6 @@
 (def-method 'sig_pressed 'class/button/sig_pressed 'static '(r0) '(r0 r1))
 
 (def-method 'deinit 'class/button/deinit 'final)
-(def-method 'pref_size 'class/button/pref_size 'final)
 (def-method 'draw 'class/button/draw 'final)
 (def-method 'layout 'class/button/layout 'final)
 (def-method 'mouse_down 'class/button/mouse_down 'final)
