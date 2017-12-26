@@ -9,41 +9,32 @@
 (gen-create 'title)
 (gen-class 'title)
 
-(def-func 'class/title/draw)
-	;inputs
-	;r0 = view object
-	;r1 = ctx object
-	;trashes
-	;all but r0
-
-	;draw panel
-	(f-jmp 'title 'draw_panel '(r0 r1 1 title_border_size))
-
-(def-func-end)
-
-(def-func 'class/title/layout)
+(def-func 'class/title/init)
 	;inputs
 	;r0 = title object
-	;trashes
-	;all but r0
+	;r1 = vtable pointer
+	;outputs
+	;r0 = title object
+	;r1 = 0 if error, else ok
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(ptr 'this)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
 
-	;save inputs
-	(vp-alloc local_size)
-	(assign '(r0) '((rsp local_this)))
+	(push-scope)
+	(f-entry 'title 'init {this, vtable})
 
-	(vp-cpy-ir-i r0 view_w r9)
-	(vp-cpy-ir-i r0 view_h r10)
-	(vp-sub-cr (mul title_border_size 2) r9)
-	(vp-sub-cr (mul title_border_size 2) r10)
-	(f-call 'flow 'change '((r0 label_flow) title_border_size title_border_size r9 r10))
+	;init parent
+	(s-call 'title 'init {this, vtable} {_, ok})
+	(vpif {ok})
+		;init myself
+		(f-call 'title 'set_long_prop {this, prop_border, 1})
+	(endif)
 
-	(f-call 'title 'opaque '((rsp local_this)))
-	(vp-free local_size)
-	(vp-ret)
+	(f-exit 'title 'init {this, ok})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -132,23 +123,6 @@
 
 	(vp-cpy-ir rsp local_this r0)
 	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/title/pref_size)
-	;inputs
-	;r0 = flow object
-	;outputs
-	;r0 = flow object
-	;r9 = preferred width
-	;r10 = preferred height
-	;trashes
-	;all but r0
-
-	(s-call 'title 'pref_size '(r0) '(r0 r9 r10))
-	(vp-add-cr (mul title_border_size 2) r9)
-	(vp-add-cr (mul title_border_size 2) r10)
 	(vp-ret)
 
 (def-func-end)

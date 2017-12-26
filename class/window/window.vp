@@ -172,7 +172,9 @@
 	;all but r0
 
 	(ptr 'this)
-	(uint 'col 'depth)
+	(union
+		'(uint 'col)
+		'(uint 'depth))
 
 	(push-scope)
 	(f-entry 'window 'layout {this})
