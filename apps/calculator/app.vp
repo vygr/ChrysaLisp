@@ -21,7 +21,7 @@
 	(def-struct-end)
 
 	(struct 'myapp 'local)
-	(ptr 'msg 'window 'flow_panel 'grid_panel 'button 'pressed 'string)
+	(ptr 'msg 'window 'flow_panel 'grid_panel 'button 'pressed)
 	(pubyte 'next)
 	(ulong 'owner)
 	(int 'width 'height)
@@ -34,8 +34,7 @@
 
 	;create my window
 	(f-call 'window 'create {window_flag_close} {window})
-	(f-call 'string 'create_from_cstr {"Calculator"} {string})
-	(f-call 'window 'set_title {window, string})
+	(f-call 'window 'set_title {window, "Calculator"})
 
 	;add my app flow panel
 	(f-call 'flow 'create {} {flow_panel})
@@ -47,8 +46,7 @@
 	(f-call 'label 'set_long_prop {myapp.local_display, prop_color, 0xffffffff})
 	(f-call 'label 'set_long_prop {myapp.local_display, prop_flow_flags, flow_flag_align_hright | flow_flag_align_vcenter})
 	(f-call 'label 'set_font_prop {myapp.local_display, prop_font, "fonts/OpenSans-Regular.ttf", 24})
-	(f-call 'string 'create_from_cstr {"0"} {string})
-	(f-call 'label 'set_text {myapp.local_display, string})
+	(f-call 'label 'set_string_prop {myapp.local_display, prop_text, "0"})
 	(v-call 'flow 'add_child {flow_panel, myapp.local_display})
 
 	;add my app grid panel
@@ -62,9 +60,8 @@
 	(loop-while {*next})
 		(f-call 'button 'create {} {button})
 		(f-call 'button 'set_long_prop {button, prop_color, 0xffffff00})
-		(f-call 'string 'create_from_cstr {next} {string})
+		(f-call 'button 'set_string_prop {button, prop_text, next})
 		(f-call 'button 'set_font_prop {button, prop_font, "fonts/OpenSans-Regular.ttf", 42})
-		(f-call 'button 'set_text {button, string})
 		(f-call 'button 'set_long_prop {button, prop_flow_flags, flow_flag_align_hcenter | flow_flag_align_vcenter})
 		(v-call 'grid 'add_child {grid_panel, button})
 		(f-call 'button 'sig_pressed {button} {_, pressed})
@@ -117,17 +114,16 @@
 	(push-scope)
 	(l-entry {this, button})
 
-	(f-call 'button 'ref_text {button} {_, button_string})
+	(f-call 'button 'get_obj_prop {button, prop_text} {_, button_string})
 	(vpif {button_string->string_length == 2})
 		;AC
-		(f-call 'string 'create_from_cstr {"0"} {string})
-		(f-call 'label 'set_text {this->local_display, string})
+		(f-call 'label 'set_string_prop {this->local_display, prop_text, "0"})
 		(assign {0} {this->local_accum})
 		(assign {0} {this->local_value})
 		(assign {0} {this->local_last_op})
 		(assign {0} {this->local_last_flag})
 	(else)
-		(f-call 'label 'get_text {this->local_display} {_, display_string})
+		(f-call 'label 'get_obj_prop {this->local_display, prop_text} {_, display_string})
 		(assign {ubyte (button_string->string_data)} {char})
 		(vpif {char >= char_0 && char <= char_9})
 			;numeral
@@ -141,8 +137,10 @@
 			;append numeral
 			(f-call 'string 'append {display_string, button_string} {string})
 			(f-call 'sys_string 'to_long {&string->string_data, 10} {this->local_value})
+			(f-call 'string 'deref {display_string})
 		(else)
 			;operator
+			(f-call 'string 'deref {display_string})
 			(vpif {this->local_last_op == char_plus})
 				;+
 				(assign {this->local_accum + this->local_value} {this->local_accum})
@@ -177,7 +175,8 @@
 				(f-call 'string 'create_from_cstr {&this->local_buffer} {string})
 			(endif)
 		(endif)
-		(f-call 'label 'set_text {this->local_display, string})
+		(f-call 'label 'set_string_prop {this->local_display, prop_text, &string->string_data})
+		(f-call 'string 'deref {string})
 	(endif)
 	(f-call 'string 'deref {button_string})
 	(f-call 'label 'dirty {this->local_display})

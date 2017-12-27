@@ -41,13 +41,8 @@
 	;save object
 	(vp-push r0)
 
-	;deref any string and words objects
-	(vp-cpy-ir r0 text_string r0)
-	(vpif '(r0 != 0))
-		(f-call 'string 'deref '(r0))
-		(vp-cpy-ir rsp 0 r0)
-		(f-call 'vector 'deref '((r0 text_words)))
-	(endif)
+	;deref any words
+	(f-call 'vector 'deref_if '((r0 text_words)))
 
 	;deinit parent
 	(vp-pop r0)
@@ -62,7 +57,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'ctx 'txt 'font)
+	(ptr 'this 'ctx 'txt 'font 'str)
 	(pptr 'words 'words_end)
 	(ulong 'handle)
 	(int 'x 'w 'h)
@@ -72,9 +67,14 @@
 	(push-scope)
 	(f-entry 'text 'draw {this, ctx})
 
-	;get properties
+	;get properties, do checks for any changes
 	(f-call 'text 'get_obj_prop {this, prop_font} {_, font})
 	(f-call 'text 'get_long_prop {this, prop_text_color} {_, col})
+	(f-call 'text 'get_obj_prop {this, prop_text} {_, str})
+	(vpif {str && str != this->text_string})
+		(assign {str} {this->text_string})
+		(f-call 'text 'switch_text {this})
+	(endif)
 
 	;draw text
 	(vpif {this->text_string && font})
@@ -98,26 +98,6 @@
 
 (def-func-end)
 
-(def-func 'class/text/ref_text)
-	;inputs
-	;r0 = text object
-	;outputs
-	;r0 = text object
-	;r1 = 0 else, string object
-	;trashes
-	;none
-
-	(f-entry 'text 'ref_text '(r0))
-
-	(vp-push r0)
-	(f-call 'string 'ref_if '((r0 text_string)) '(r1))
-	(vp-pop r0)
-
-	(f-exit 'text 'ref_text '(r0 r1))
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/text/pref_size)
 	;inputs
 	;r0 = text object
@@ -127,7 +107,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'txt 'font)
+	(ptr 'this 'txt 'font 'str)
 	(pptr 'words 'words_end)
 	(uint 'width 'height 'length 'word_w)
 
@@ -135,8 +115,13 @@
 	(push-scope)
 	(f-entry 'text 'pref_size {this})
 
-	;get properties
+	;get properties, do checks for any changes
 	(f-call 'text 'get_obj_prop {this, prop_font} {_, font})
+	(f-call 'text 'get_obj_prop {this, prop_text} {_, str})
+	(vpif {str && str != this->text_string})
+		(assign {str} {this->text_string})
+		(f-call 'text 'switch_text {this})
+	(endif)
 
 	;bounds of text
 	(assign {0, 0} {width, height})
@@ -159,45 +144,23 @@
 
 (def-func-end)
 
-(def-func 'class/text/set_text)
+(def-func 'class/text/switch_text)
 	;inputs
 	;r0 = text object
-	;r1 = 0, else string object
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this)
-		(long 'string)
-	(def-struct-end)
+	(ptr 'this)
 
-	;save inputs
-	(vp-alloc local_size)
-	(f-entry 'text 'set_text '((rsp local_this) (rsp local_string)))
+	(push-scope)
+	(f-entry 'text 'switch_text {this})
 
-	;deref the old string and words
-	(vp-cpy-ir r0 text_string r0)
-	(vpif '(r0 != 0))
-		(f-call 'string 'deref '(r0))
-		(vp-cpy-ir rsp local_this r0)
-		(vp-cpy-ir r0 text_words r1)
-		(vp-xor-rr r2 r2)
-		(vp-cpy-ri r2 r0 text_words)
-		(f-call 'string 'deref '(r1))
-	(endif)
+	;create new split words
+	(f-call 'vector 'deref_if {this->text_words})
+	(f-call 'string 'split {this->text_string, char_space} {_, this->text_words})
 
-	;transfer reference to new string
-	(vp-cpy-ir rsp local_this r0)
-	(vp-cpy-ir rsp local_string r1)
-	(vp-cpy-ri r1 r0 text_string)
-	(vpif '(r1 != 0))
-		(f-call 'string 'split '(r1 char_space) '(_ r1))
-		(vp-cpy-ir rsp local_this r0)
-		(vp-cpy-ri r1 r0 text_words)
-	(endif)
-
-	(f-exit 'text 'set_text '(r0))
-	(vp-free local_size)
-	(vp-ret)
+	(f-entry 'text 'switch_text {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)

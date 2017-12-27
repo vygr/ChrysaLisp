@@ -22,7 +22,7 @@
 	;trashes
 	;all but r0-r1
 
-	(ptr 'this 'title_flow 'string)
+	(ptr 'this 'title_flow)
 	(ulong 'flags)
 	(uint 'min_width)
 	(union
@@ -58,8 +58,7 @@
 		;add close button ?
 		(f-call 'button 'create {} {this->window_close})
 		(v-call 'flow 'add_child {title_flow, this->window_close})
-		(f-call 'string 'create_from_cstr {"X"} {string})
-		(f-call 'button 'set_text {this->window_close, string})
+		(f-call 'button 'set_string_prop {this->window_close, prop_text, "X"})
 		(v-call 'button 'pref_size {this->window_close} {_, min_width, _})
 		(f-call 'flow 'set_long_prop {title_flow, prop_min_width, min_width})
 		(vpifnot {flags & window_flag_close})
@@ -71,16 +70,14 @@
 		(vpif {flags & window_flag_max})
 			(f-call 'button 'create {} {this->window_max})
 			(v-call 'flow 'add_child {title_flow, this->window_max})
-			(f-call 'string 'create_from_cstr {"+"} {string})
-			(f-call 'button 'set_text {this->window_max, string})
+			(f-call 'button 'set_string_prop {this->window_max, prop_text, "+"})
 		(endif)
 
 		;add min button
 		(vpif {flags & window_flag_min})
 			(f-call 'button 'create {} {this->window_min})
 			(v-call 'flow 'add_child {title_flow, this->window_min})
-			(f-call 'string 'create_from_cstr {"-"} {string})
-			(f-call 'button 'set_text {this->window_min, string})
+			(f-call 'button 'set_string_prop {this->window_min, prop_text, "-"})
 		(endif)
 
 		;add title
@@ -380,46 +377,38 @@
 (def-func 'class/window/set_status)
 	;inputs
 	;r0 = window object
-	;r1 = 0, else status string object
+	;r1 = status cstr pointer
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(ptr 'this 'str)
 
-	;save inputs
-	(vp-alloc local_size)
-	(assign '(r0) '((rsp local_this)))
+	(push-scope)
+	(f-entry 'window 'set_status {this, str})
 
-	(vp-cpy-ir r0 window_status r0)
-	(vpif '(r0 != 0))
-		(f-call 'label 'set_text '(r0 r1))
-		(f-call 'label 'dirty '(r0))
-	(endif)
+	(f-call 'label 'set_string_prop {this->window_status, prop_text, str})
+	(f-call 'label 'dirty {this->window_status})
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-free local_size)
-	(vp-ret)
+	(f-exit 'window 'set_status {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
 (def-func 'class/window/set_title)
 	;inputs
 	;r0 = window object
-	;r1 = 0, else title string object
+	;r1 = title cstr pointer
 
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
+	(ptr 'this 'str)
 
-	;save inputs
-	(vp-alloc local_size)
-	(assign '(r0) '((rsp local_this)))
+	(push-scope)
+	(f-entry 'window 'set_status {this, str})
 
-	(f-call 'title 'set_text '((r0 window_title) r1))
+	(f-call 'title 'set_string_prop {this->window_title, prop_text, str})
+	(f-call 'title 'dirty {this->window_title})
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-free local_size)
-	(vp-ret)
+	(f-exit 'window 'set_status {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

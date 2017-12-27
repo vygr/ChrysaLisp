@@ -10,7 +10,7 @@
 (def-func 'apps/launcher/app)
 
 	(struct 'myapp 'obj)
-	(ptr 'msg 'window 'panel 'button 'string 'pressed)
+	(ptr 'msg 'window 'panel 'button 'pressed)
 	(pubyte 'next)
 	(ulong 'owner)
 	(int 'width 'height)
@@ -22,8 +22,7 @@
 
 	;create my window
 	(f-call 'window 'create {0} {window})
-	(f-call 'string 'create_from_cstr {"Launcher"} {string})
-	(f-call 'window 'set_title {window, string})
+	(f-call 'window 'set_title {window, "Launcher"})
 
 	;add my app panel
 	(f-call 'flow 'create {} {panel})
@@ -35,8 +34,7 @@
 	(loop-while {*next})
 		(f-call 'button 'create {} {button})
 		(f-call 'button 'set_long_prop {button, prop_color, 0xffffff00})
-		(f-call 'string 'create_from_cstr {next} {string})
-		(f-call 'button 'set_text {button, string})
+		(f-call 'button 'set_string_prop {button, prop_text, next})
 		(v-call 'flow 'add_child {panel, button})
 		(f-call 'button 'sig_pressed {button} {_, pressed})
 		(f-call 'button 'connect {button, pressed, &myapp, $on_press})
@@ -81,8 +79,9 @@
 
 	(push-scope)
 	(l-entry {this, button})
-	(f-call 'button 'get_text {button} {_, string})
+	(f-call 'button 'get_obj_prop {button, prop_text} {_, string})
 	(f-call 'sys_task 'open_child {string, kn_call_open})
+	(f-call 'string 'deref {string})
 	(pop-scope)
 	(return)
 

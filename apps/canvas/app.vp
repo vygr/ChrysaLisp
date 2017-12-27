@@ -26,7 +26,7 @@
 	(def-struct-end)
 
 	(struct 'myapp 'local)
-	(ptr 'msg 'window 'canvas 'string)
+	(ptr 'msg 'window 'canvas)
 	(ulong 'owner)
 	(int 'width 'height)
 
@@ -37,8 +37,7 @@
 
 	;create my window
 	(f-call 'window 'create {window_flag_close} {window})
-	(f-call 'string 'create_from_cstr {"Canvas"} {string})
-	(f-call 'window 'set_title {window, string})
+	(f-call 'window 'set_title {window, "Canvas"})
 
 	;add my app canvas
 	(f-call 'canvas 'create {app_width, app_height, app_scale} {canvas})

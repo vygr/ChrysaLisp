@@ -35,7 +35,7 @@
 		(f-call 'label 'set_long_prop {this, prop_flow_flags, flow_flag_right | flow_flag_align_vcenter})
 		(f-call 'label 'set_long_prop {this, prop_border, 0})
 
-		;add my text
+		;add my text object
 		(f-call 'text 'create {} {this->label_text})
 		(v-call 'flow 'add_child {this->label_flow, this->label_text})
 	(endif)
@@ -66,46 +66,6 @@
 	(f-exit 'label 'draw {this})
 	(pop-scope)
 	(return)
-
-(def-func-end)
-
-(def-func 'class/label/get_text)
-	;inputs
-	;r0 = label object
-	;outputs
-	;r0 = label object
-	;r1 = 0, else string object
-	;trashes
-	;none
-
-	(f-entry 'label 'get_text '(r0))
-
-	(vp-push r0)
-	(f-call 'text 'get_text '((r0 label_text)) '(_ r1))
-	(vp-pop r0)
-
-	(f-exit 'label 'get_text '(r0 r1))
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/label/ref_text)
-	;inputs
-	;r0 = label object
-	;outputs
-	;r0 = label object
-	;r1 = 0, else string object
-	;trashes
-	;none
-
-	(f-entry 'label 'ref_text '(r0))
-
-	(vp-push r0)
-	(f-call 'text 'ref_text '((r0 label_text)) '(_ r1))
-	(vp-pop r0)
-
-	(f-exit 'label 'ref_text '(r0 r1))
-	(vp-ret)
 
 (def-func-end)
 
@@ -168,31 +128,5 @@
 	(f-exit 'label 'pref_size {this, w + (depth * 2), h + (depth * 2)})
 	(pop-scope)
 	(return)
-
-(def-func-end)
-
-(def-func 'class/label/set_text)
-	;inputs
-	;r0 = label object
-	;r1 = 0, else string pointer
-	;trashes
-	;all but r0
-
-	(def-struct 'local)
-		(ptr 'this)
-	(def-struct-end)
-
-	;save inputs
-	(vp-alloc local_size)
-	(assign '(r0) '((rsp local_this)))
-
-	(f-call 'text 'set_text '((r0 label_text) r1))
-
-	(vp-cpy-ir rsp local_this r0)
-	(v-call 'label 'layout '((r0 label_flow)))
-
-	(vp-cpy-ir rsp local_this r0)
-	(vp-free local_size)
-	(vp-ret)
 
 (def-func-end)

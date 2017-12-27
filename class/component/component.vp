@@ -320,3 +320,30 @@
 	(return)
 
 (def-func-end)
+
+(def-func 'class/component/set_string_prop)
+	;inputs
+	;r0 = component object
+	;r1 = property num
+	;r2 = string pointer (ctsr)
+	;outputs
+	;r0 = component object
+	;trashes
+	;all but r0
+
+	(ptr 'this 'sym 'str)
+	(ulong 'num)
+
+	(push-scope)
+	(f-entry 'component 'set_string_prop {this, num, str})
+
+	(f-call 'component 'get_prop_sym {this, num} {_, sym})
+	(f-call 'string 'create_from_cstr {str} {str})
+	(f-call 'component 'insert {this, sym, str})
+	(f-call 'font 'deref {str})
+
+	(f-exit 'component 'set_string_prop {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

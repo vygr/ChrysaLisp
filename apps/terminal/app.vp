@@ -23,7 +23,7 @@
 	(def-struct-end)
 
 	(struct 'myapp 'local)
-	(ptr 'msg 'string 'mymailbox 'mailbox)
+	(ptr 'msg 'mymailbox 'mailbox)
 	(ulong 'owner)
 	(long 'state)
 	(int 'width 'height)
@@ -37,10 +37,8 @@
 
 	;create my window
 	(f-call 'window 'create {window_flag_status | window_flag_close} {myapp.local_window})
-	(f-call 'string 'create_from_cstr {"Terminal"} {string})
-	(f-call 'window 'set_title {myapp.local_window, string})
-	(f-call 'string 'create_from_cstr {"Ready"} {string})
-	(f-call 'window 'set_status {myapp.local_window, string})
+	(f-call 'window 'set_title {myapp.local_window, "Terminal"})
+	(f-call 'window 'set_status {myapp.local_window, "Ready"})
 	(f-call 'window 'set_long_prop {myapp.local_window, prop_color, 0xc0000000})
 
 	;add my vdu
@@ -88,8 +86,7 @@
 				(assign {0} {myapp.local_pipe})
 
 				;update status
-				(f-call 'string 'create_from_cstr {"Ready"} {string})
-				(f-call 'window 'set_status {myapp.local_window, string})
+				(f-call 'window 'set_status {myapp.local_window, "Ready"})
 			(endif)
 		(else)
 		(vp-label 'from_mymailbox)
@@ -190,8 +187,7 @@
 			;start new pipe
 			(f-call 'pipe 'create {&local->local_buffer, length} {local->local_pipe})
 			(breakifnot {local->local_pipe})
-			(f-call 'string 'create_from_cstr {"Busy"} {string})
-			(f-call 'window 'set_status {local->local_window, string})
+			(f-call 'window 'set_status {local->local_window, "Busy"})
 		(else)
 			;feed active pipe
 			(f-call 'pipe 'get_input {local->local_pipe} {_, stream})
@@ -251,8 +247,7 @@
 			(assign {0} {local->local_pipe})
 
 			;update status
-			(f-call 'string 'create_from_cstr {"Ready"} {string})
-			(f-call 'window 'set_status {local->local_window, string})
+			(f-call 'window 'set_status {local->local_window, "Ready"})
 		(endif)
 	(elseifnot {char < char_space || char >= 127 || length == buf_size})
 		;next char
