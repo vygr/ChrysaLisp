@@ -84,8 +84,9 @@
 	(f-entry 'label 'layout {this})
 
 	(f-call 'label 'get_long_prop {this, prop_border} {_, depth})
-	(f-call 'flow 'change {this->label_flow, depth, depth,
+	(f-call 'flow 'set_bounds {this->label_flow, depth, depth,
 		this->view_w - (depth * 2), this->view_h - (depth * 2)})
+	(v-call 'flow 'layout {this->label_flow})
 
 	(f-call 'label 'get_long_prop {this, prop_color} {_, col})
 	(vpif {col >> 24 == 0xff})

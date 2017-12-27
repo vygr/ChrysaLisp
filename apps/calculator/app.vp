@@ -123,10 +123,10 @@
 		(assign {0} {this->local_last_op})
 		(assign {0} {this->local_last_flag})
 	(else)
-		(f-call 'label 'get_obj_prop {this->local_display, prop_text} {_, display_string})
 		(assign {ubyte (button_string->string_data)} {char})
 		(vpif {char >= char_0 && char <= char_9})
 			;numeral
+			(f-call 'label 'get_obj_prop {this->local_display, prop_text} {_, display_string})
 			(assign {ubyte (display_string->string_data)} {char})
 			(vpif {char == char_0 || this->local_last_flag == 0})
 				;clear it
@@ -140,7 +140,6 @@
 			(f-call 'string 'deref {display_string})
 		(else)
 			;operator
-			(f-call 'string 'deref {display_string})
 			(vpif {this->local_last_op == char_plus})
 				;+
 				(assign {this->local_accum + this->local_value} {this->local_accum})
@@ -179,6 +178,7 @@
 		(f-call 'string 'deref {string})
 	(endif)
 	(f-call 'string 'deref {button_string})
+	(v-call 'label 'layout {this->local_display})
 	(f-call 'label 'dirty {this->local_display})
 	(pop-scope)
 	(return)
