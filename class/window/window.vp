@@ -41,6 +41,8 @@
 		(f-call 'window 'set_long_prop {this, prop_text_color, 0xff000000})
 		(f-call 'window 'set_long_prop {this, prop_color, 0xffc0c0c0})
 		(f-call 'window 'set_long_prop {this, prop_border, 5})
+		(f-call 'window 'set_long_prop {this, prop_min_width, 0})
+		(f-call 'window 'set_long_prop {this, prop_min_height, 0})
 
 		;add flow panel
 		(f-call 'flow 'create {} {this->window_flow})
@@ -59,6 +61,7 @@
 		(f-call 'string 'create_from_cstr {"X"} {string})
 		(f-call 'button 'set_text {this->window_close, string})
 		(v-call 'button 'pref_size {this->window_close} {_, min_width, _})
+		(f-call 'flow 'set_long_prop {title_flow, prop_min_width, min_width})
 		(vpifnot {flags & window_flag_close})
 			(f-call 'button 'deref {this->window_close})
 			(assign {0} {this->window_close})
@@ -70,7 +73,6 @@
 			(v-call 'flow 'add_child {title_flow, this->window_max})
 			(f-call 'string 'create_from_cstr {"+"} {string})
 			(f-call 'button 'set_text {this->window_max, string})
-			(f-call 'button 'set_min_size {this->window_max, min_width, 0})
 		(endif)
 
 		;add min button
@@ -79,7 +81,6 @@
 			(v-call 'flow 'add_child {title_flow, this->window_min})
 			(f-call 'string 'create_from_cstr {"-"} {string})
 			(f-call 'button 'set_text {this->window_min, string})
-			(f-call 'button 'set_min_size {this->window_min, min_width, 0})
 		(endif)
 
 		;add title

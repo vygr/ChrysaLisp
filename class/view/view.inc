@@ -24,10 +24,8 @@
 (def-method 'draw_panel 'class/view/draw_panel 'static '(r0 r1 r2 r3) '(r0))
 (def-method 'get_bounds 'class/view/get_bounds 'static '(r0) '(r0 r7 r8 r9 r10))
 (def-method 'set_bounds 'class/view/set_bounds 'static '(r0 r7 r8 r9 r10) '(r0))
-(def-method 'set_flags 'class/view/set_flags 'static '(r0 r1) '(r0))
 (def-method 'get_first 'class/view/get_first 'static '(r0) '(r0 r1))
 (def-method 'get_last 'class/view/get_last 'static '(r0) '(r0 r1))
-(def-method 'set_min_size 'class/view/set_min_size 'static '(r0 r9 r10) '(r0))
 
 (def-method 'deinit 'class/view/deinit 'override)
 
@@ -64,30 +62,14 @@
 	(int 'y)
 	(int 'w)
 	(int 'h)
-	(int 'min_w)
-	(int 'min_h)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
-(defcfun class/view/set_flags ()
-	;inputs
-	;r0 = view object
-	;r1 = flags
-	(vp-cpy-ri-i r1 r0 view_flags))
-
 (defcfun class/view/set_owner ()
 	;inputs
 	;r0 = view object
 	;r1 = task tcb
 	(vp-cpy-ri r1 r0 view_tcb))
-
-(defcfun class/view/set_min_size ()
-	;inputs
-	;r0 = view object
-	;r9 = preferred width
-	;r10 = preferred height
-	(vp-cpy-ri-i r9 r0 view_min_w)
-	(vp-cpy-ri-i r10 r0 view_min_h))

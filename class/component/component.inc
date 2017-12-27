@@ -31,6 +31,8 @@
 (defprop "font")
 (defprop "color")
 (defprop "border")
+(defprop "min_width")
+(defprop "min_height")
 (defprop "text_color")
 (defprop "flow_flags")
 (defprop "grid_width")

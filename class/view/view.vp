@@ -758,9 +758,18 @@
 	;trashes
 	;all but r0
 
-	(vp-cpy-ir-i r0 view_min_w r9)
-	(vp-cpy-ir-i r0 view_min_h r10)
-	(vp-ret)
+	(ptr 'this)
+	(uint 'mw 'mh)
+
+	(push-scope)
+	(f-entry 'view 'pref_size {this})
+
+	(f-call 'view 'get_long_prop {this, prop_min_width} {_, mw})
+	(f-call 'view 'get_long_prop {this, prop_min_height} {_, mh})
+
+	(f-exit 'view 'pref_size {this, mw, mh})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

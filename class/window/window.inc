@@ -28,7 +28,6 @@
 
 (def-struct 'window 'view)
 	(offset 'start)
-	(ptr 'border)
 	(ptr 'title)
 	(ptr 'status)
 	(ptr 'flow)
