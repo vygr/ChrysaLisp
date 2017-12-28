@@ -30,8 +30,6 @@
 		(assign {0} {this->button_state})
 		(f-call 'sys_list 'init {&this->button_pressed_signal})
 		(f-call 'button 'set_long_prop {this, prop_border, 2})
-
-		;set my flow
 		(f-call 'button 'set_long_prop {this, prop_flow_flags, flow_flag_down | flow_flag_align_hcenter})
 	(endif)
 
@@ -68,7 +66,7 @@
 	(push-scope)
 	(f-entry 'button 'draw {this, ctx})
 
-	;draw panel
+	;draw panel, in or out
 	(f-call 'button 'get_long_prop {this, prop_border} {_, depth})
 	(vpif {this->button_state & button_state_pressed})
 		(assign {-depth} {depth})
@@ -93,7 +91,7 @@
 	(push-scope)
 	(f-entry 'button 'layout {this})
 
-	;draw panel
+	;contents offset or not
 	(f-call 'button 'get_long_prop {this, prop_border} {_, depth})
 	(assign {depth} {offset})
 	(vpif {this->button_state & button_state_pressed})
