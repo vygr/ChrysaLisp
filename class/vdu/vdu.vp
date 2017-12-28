@@ -76,10 +76,10 @@
 	(f-entry 'vdu 'draw {this, ctx})
 
 	;get properties, do checks for any changes
-	(f-call 'vdu 'get_obj_prop {this, prop_font} {_, font})
 	(f-call 'vdu 'get_long_prop {this, prop_text_color} {_, col})
 	(f-call 'vdu 'get_long_prop {this, prop_vdu_width} {_, w})
 	(f-call 'vdu 'get_long_prop {this, prop_vdu_height} {_, h})
+	(f-call 'vdu 'ref_obj_prop {this, prop_font} {_, font})
 	(vpif {font && font != this->vdu_font})
 		(assign {font} {this->vdu_font})
 		(f-call 'vdu 'switch_font {this})
@@ -121,6 +121,8 @@
 		(f-call 'gui_ctx 'filled_box {ctx, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 	(endif)
 
+	(f-call 'font 'deref_if {font})
+
 	(f-exit 'vdu 'draw {this})
 	(pop-scope)
 	(return)
@@ -144,9 +146,9 @@
 	(f-entry 'vdu 'pref_size {this})
 
 	;get properties, do checks for any changes
-	(f-call 'vdu 'get_obj_prop {this, prop_font} {_, font})
 	(f-call 'vdu 'get_long_prop {this, prop_vdu_width} {_, w})
 	(f-call 'vdu 'get_long_prop {this, prop_vdu_height} {_, h})
+	(f-call 'vdu 'ref_obj_prop {this, prop_font} {_, font})
 	(vpif {font && font != this->vdu_font})
 		(assign {font} {this->vdu_font})
 		(f-call 'vdu 'switch_font {this})
@@ -155,6 +157,7 @@
 		(assign {w, h} {this->vdu_width, this->vdu_height})
 		(f-call 'vdu 'switch_size {this})
 	(endif)
+	(f-call 'font 'deref_if {font})
 
 	(f-exit 'vdu 'pref_size {this, this->vdu_width * this->vdu_char_width,
 		this->vdu_height * this->vdu_char_height})

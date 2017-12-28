@@ -68,9 +68,9 @@
 	(f-entry 'text 'draw {this, ctx})
 
 	;get properties, do checks for any changes
-	(f-call 'text 'get_obj_prop {this, prop_font} {_, font})
 	(f-call 'text 'get_long_prop {this, prop_text_color} {_, col})
-	(f-call 'text 'get_obj_prop {this, prop_text} {_, str})
+	(f-call 'text 'ref_obj_prop {this, prop_font} {_, font})
+	(f-call 'text 'ref_obj_prop {this, prop_text} {_, str})
 	(vpif {str && str != this->text_string})
 		(assign {str} {this->text_string})
 		(f-call 'text 'switch_text {this})
@@ -91,6 +91,9 @@
 			(assign {words + ptr_size} {words})
 		(loop-until {words == words_end})
 	(endif)
+
+	(f-call 'font 'deref_if {font})
+	(f-call 'string 'deref_if {str})
 
 	(f-exit 'text 'draw {this})
 	(pop-scope)
@@ -116,8 +119,8 @@
 	(f-entry 'text 'pref_size {this})
 
 	;get properties, do checks for any changes
-	(f-call 'text 'get_obj_prop {this, prop_font} {_, font})
-	(f-call 'text 'get_obj_prop {this, prop_text} {_, str})
+	(f-call 'text 'ref_obj_prop {this, prop_font} {_, font})
+	(f-call 'text 'ref_obj_prop {this, prop_text} {_, str})
 	(vpif {str && str != this->text_string})
 		(assign {str} {this->text_string})
 		(f-call 'text 'switch_text {this})
@@ -137,6 +140,9 @@
 		(d-call 'vector 'get_length {this->text_words} {_, length})
 		(assign {width + (length - 1) * (height >> 2)} {width})
 	(endif)
+
+	(f-call 'font 'deref_if {font})
+	(f-call 'string 'deref_if {str})
 
 	(f-exit 'text 'pref_size {this, width, height})
 	(pop-scope)
