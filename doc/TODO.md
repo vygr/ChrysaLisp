@@ -4,16 +4,6 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Tidy up the GUI structure. I want to restructure the GUI objects so that
-there is a minimal amount of methods and all of the properties of the View
-objects are presented through their hash_map inheritance. To the Lisp I want a
-GUI application to look like an environment tree where leaves of that tree
-represent the UI elements, branching points likely layout containers. Lisp apps
-should be able to interact with properties using the set and def functions. UI
-elements inherit properties of parents such that a property like colour can be
-set on the root of the UI tree and all of the elements in that tree, if they
-don't override the colour property themselves, will have that colour.
-
 * Enhance the signals and slots system so that as well as providing the
 callback interface to multiple listeners there is a standard mechanism for
 signalling on property changes and affecting properties of listening objects.
