@@ -185,16 +185,14 @@
 
 	;cache char textures
 	(d-call 'vector 'clear {this->vdu_textures})
-	(vpif {this->vdu_font})
-		(assign {33} {code})
-		(loop-start)
-			(f-call 'symbol 'intern_cstr {&code} {word})
-			(f-call 'font 'ref_word {this->vdu_font, word} {_, txt})
-			(f-call 'vector 'push_back {this->vdu_textures, txt})
-			(f-call 'symbol 'deref {word})
-			(assign {code + 1} {code})
-		(loop-until {code == 127})
-	(endif)
+	(assign {33} {code})
+	(loop-start)
+		(f-call 'symbol 'intern_cstr {&code} {word})
+		(f-call 'font 'ref_word {this->vdu_font, word} {_, txt})
+		(f-call 'vector 'push_back {this->vdu_textures, txt})
+		(f-call 'symbol 'deref {word})
+		(assign {code + 1} {code})
+	(loop-until {code == 127})
 
 	(f-exit 'vdu 'switch_font {this})
 	(pop-scope)
@@ -208,19 +206,16 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'chars)
+	(ptr 'this)
 	(ulong 'size)
 
 	;save inputs
 	(push-scope)
 	(f-entry 'vdu 'switch_size {this})
 
-	(f-call 'sys_mem 'alloc {this->vdu_width * this->vdu_height} {chars, size})
-	(vpif {chars})
-		(f-call 'sys_mem 'free {this->vdu_chars})
-		(assign {chars} {this->vdu_chars})
-		(f-call 'sys_mem 'fill {chars, size, char_space})
-	(endif)
+	(f-call 'sys_mem 'free {this->vdu_chars})
+	(f-call 'sys_mem 'alloc {this->vdu_width * this->vdu_height} {this->vdu_chars, size})
+	(f-call 'sys_mem 'fill {this->vdu_chars, size, char_space})
 
 	(f-exit 'vdu 'switch_size {this})
 	(pop-scope)
