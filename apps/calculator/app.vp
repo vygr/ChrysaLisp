@@ -114,7 +114,7 @@
 	(push-scope)
 	(l-entry {this, button})
 
-	(f-call 'button 'ref_obj_prop {button, prop_text} {_, button_string})
+	(f-call 'button 'get_obj_prop {button, prop_text} {_, button_string})
 	(vpif {button_string->string_length == 2})
 		;AC
 		(f-call 'label 'set_string_prop {this->local_display, prop_text, "0"})
@@ -177,7 +177,6 @@
 		(f-call 'label 'set_string_prop {this->local_display, prop_text, &string->string_data})
 		(f-call 'string 'deref {string})
 	(endif)
-	(f-call 'string 'deref {button_string})
 	(v-call 'label 'layout {this->local_display})
 	(f-call 'label 'dirty {this->local_display})
 	(pop-scope)

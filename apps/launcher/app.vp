@@ -79,9 +79,8 @@
 
 	(push-scope)
 	(l-entry {this, button})
-	(f-call 'button 'ref_obj_prop {button, prop_text} {_, string})
+	(f-call 'button 'get_obj_prop {button, prop_text} {_, string})
 	(f-call 'sys_task 'open_child {string, kn_call_open})
-	(f-call 'string 'deref {string})
 	(pop-scope)
 	(return)
 

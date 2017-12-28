@@ -300,7 +300,7 @@
 	;r1 = property num
 	;outputs
 	;r0 = component object
-	;r1 = property value (long)
+	;r1 = 0 else, property object ref
 	;trashes
 	;all but r0
 
@@ -317,6 +317,35 @@
 	(f-call 'component 'get {this, sym} {_, obj})
 
 	(f-exit 'component 'ref_obj_prop {this, obj})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/component/get_obj_prop)
+	;inputs
+	;r0 = component object
+	;r1 = property num
+	;outputs
+	;r0 = component object
+	;r1 = 0 else, property object
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(union
+		'(ptr 'sym)
+		'(ptr 'obj))
+	(ulong 'num)
+
+	(push-scope)
+	(f-entry 'component 'get_obj_prop {this, num})
+
+	(f-call 'component 'get_prop_sym {this, num} {_, sym})
+	(f-call 'component 'get {this, sym} {_, obj})
+	(f-call 'ref 'deref_if {obj})
+
+	(f-exit 'component 'get_obj_prop {this, obj})
 	(pop-scope)
 	(return)
 
