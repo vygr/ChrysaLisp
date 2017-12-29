@@ -40,8 +40,7 @@
 		(vec-fmod 1)
 		(vec-store 1 {accum})
 	(loop-end)
-	(f-call 'boxed_long 'create {} {value})
-	(f-call 'boxed_long 'set_value {value, accum})
+	(f-call 'boxed_long 'create {accum} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_fmod {this, value})

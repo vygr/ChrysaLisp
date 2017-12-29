@@ -38,8 +38,7 @@
 	(f-call 'hash_map 'get {this->lisp_environment, this->lisp_sym_stream_name} {_, old_file})
 	(f-call 'hash_map 'get {this->lisp_environment, this->lisp_sym_stream_line} {_, old_line})
 	(f-call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_name, value})
-	(f-call 'boxed_long 'create {} {value})
-	(f-call 'boxed_long 'set_value {value, 1})
+	(f-call 'boxed_long 'create {1} {value})
 	(f-call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_line, value})
 	(f-call 'ref 'deref {value})
 

@@ -25,8 +25,7 @@
 	(f-call 'boxed_long 'get_value {args} {_, next_char})
 	(f-call 'lisp 'read {this, value, next_char} {_, form, next_char})
 
-	(f-call 'boxed_long 'create {} {args})
-	(f-call 'boxed_long 'set_value {args, next_char})
+	(f-call 'boxed_long 'create {next_char} {args})
 	(f-call 'vector 'create {} {value})
 	(f-call 'vector 'push_back {value, form})
 	(f-call 'vector 'push_back {value, args})

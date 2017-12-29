@@ -19,8 +19,7 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1)
 	(f-call 'pii 'time {} {length})
-	(f-call 'boxed_long 'create {} {args})
-	(f-call 'boxed_long 'set_value {args, length})
+	(f-call 'boxed_long 'create {length} {args})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_time {this, args})

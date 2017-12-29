@@ -33,8 +33,7 @@
 		(f-call 'boxed_long 'get_value {*iter_begin} {_, num})
 		(assign {accum + num, iter_begin + ptr_size} {accum, iter_begin})
 	(loop-until {iter_begin == iter_end})
-	(f-call 'boxed_long 'create {} {value})
-	(f-call 'boxed_long 'set_value {value, accum})
+	(f-call 'boxed_long 'create {accum} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_add {this, value})

@@ -29,8 +29,7 @@
 	(vec-load 1 {num})
 	(vec-floor 1)
 	(vec-store 1 {num})
-	(f-call 'boxed_long 'create {} {value})
-	(f-call 'boxed_long 'set_value {value, num})
+	(f-call 'boxed_long 'create {num} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_floor {this, value})

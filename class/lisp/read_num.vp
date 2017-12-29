@@ -55,12 +55,11 @@
 	(endif)
 
 	;create the number
-	(f-call 'boxed_long 'create {} {num})
 	(f-call 'sys_string 'to_long {buffer, val} {val})
 	(vpif {sign == char_minus})
 		(assign {-val} {val})
 	(endif)
-	(f-call 'boxed_long 'set_value {num, val})
+	(f-call 'boxed_long 'create {val} {num})
 	(f-call 'ref 'deref {string})
 
 	(f-exit 'lisp 'read_num {this, num, char})

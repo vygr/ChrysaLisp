@@ -25,8 +25,7 @@
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(f-call 'boxed_long 'get_value {iter_begin[0]} {_, num})
 	(f-call 'boxed_long 'get_value {iter_begin[ptr_size]} {_, shift})
-	(f-call 'boxed_long 'create {} {value})
-	(f-call 'boxed_long 'set_value {value, num >> shift})
+	(f-call 'boxed_long 'create {num >> shift} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_bshr {this, value})

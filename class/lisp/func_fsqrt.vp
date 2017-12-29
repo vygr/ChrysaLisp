@@ -27,8 +27,7 @@
 	(f-call 'boxed_long 'get_value {value} '(_ r0))
 	(errorif '(r0 < 0) 'error1)
 	(f-call 'math 'fsqrt '(r0) {num})
-	(f-call 'boxed_long 'create {} {value})
-	(f-call 'boxed_long 'set_value {value, num})
+	(f-call 'boxed_long 'create {num} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_fsqrt {this, value})

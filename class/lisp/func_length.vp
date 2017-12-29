@@ -24,8 +24,7 @@
 
 	(f-call 'vector 'get_first {args} {_, args})
 	(v-call 'sequence 'get_length {args} {_, length})
-	(f-call 'boxed_long 'create {} {value})
-	(f-call 'boxed_long 'set_value {value, length})
+	(f-call 'boxed_long 'create {length} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_length {this, value})

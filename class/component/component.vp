@@ -305,8 +305,7 @@
 	(f-entry 'component 'set_long_prop {this, num, value})
 
 	(f-call 'component 'get_prop_sym {this, num} {_, sym})
-	(f-call 'boxed_long 'create {} {prop})
-	(f-call 'boxed_long 'set_value {prop, value})
+	(f-call 'boxed_long 'create {value} {prop})
 	(f-call 'component 'insert {this, sym, prop})
 	(f-call 'boxed_long 'deref {prop})
 

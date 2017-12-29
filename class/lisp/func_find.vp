@@ -32,8 +32,7 @@
 		(vpif {length == -1})
 			(f-call 'ref 'ref {this->lisp_sym_nil} {value})
 		(else)
-			(f-call 'boxed_long 'create {} {value})
-			(f-call 'boxed_long 'set_value {value, length})
+			(f-call 'boxed_long 'create {length} {value})
 		(endif)
 	(endif)
 

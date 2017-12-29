@@ -27,10 +27,11 @@
 
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {arg1, arg2})
-	(f-call 'boxed_long 'create {} {value})
 	(vpif {arg1 != arg2})
 		(f-call 'string 'compare {arg1, arg2} {_, result})
-		(f-call 'boxed_long 'set_value {value, result})
+		(f-call 'boxed_long 'create {result} {value})
+	(else)
+		(f-call 'boxed_long 'create {0} {value})
 	(endif)
 
 (vp-label 'exit)

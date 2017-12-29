@@ -25,8 +25,7 @@
 
 	(f-call 'vector 'get_first {args} {_, value})
 	(assign {ubyte(value->string_data)} {char})
-	(f-call 'boxed_long 'create {} {value})
-	(f-call 'boxed_long 'set_value {value, char})
+	(f-call 'boxed_long 'create {char} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_code {this, value})
