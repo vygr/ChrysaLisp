@@ -79,7 +79,7 @@
 	(f-call 'vdu 'get_long_prop {this, prop_text_color} {_, col})
 	(f-call 'vdu 'get_long_prop {this, prop_vdu_width} {_, w})
 	(f-call 'vdu 'get_long_prop {this, prop_vdu_height} {_, h})
-	(f-call 'vdu 'get_obj_prop {this, prop_font} {_, font})
+	(f-call 'vdu 'get_prop {this, prop_font} {_, font})
 	(vpif {font && font != this->vdu_font})
 		(assign {font} {this->vdu_font})
 		(f-call 'vdu 'switch_font {this})
@@ -146,7 +146,7 @@
 	;get properties, do checks for any changes
 	(f-call 'vdu 'get_long_prop {this, prop_vdu_width} {_, w})
 	(f-call 'vdu 'get_long_prop {this, prop_vdu_height} {_, h})
-	(f-call 'vdu 'ref_obj_prop {this, prop_font} {_, font})
+	(f-call 'vdu 'ref_prop {this, prop_font} {_, font})
 	(vpif {font && font != this->vdu_font})
 		(assign {font} {this->vdu_font})
 		(f-call 'vdu 'switch_font {this})

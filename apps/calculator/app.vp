@@ -114,7 +114,7 @@
 	(push-scope)
 	(l-entry {this, button})
 
-	(f-call 'button 'get_obj_prop {button, prop_text} {_, button_string})
+	(f-call 'button 'get_prop {button, prop_text} {_, button_string})
 	(vpif {button_string->string_length == 2})
 		;AC
 		(f-call 'label 'set_string_prop {this->local_display, prop_text, "0"})
@@ -126,7 +126,7 @@
 		(assign {ubyte (button_string->string_data)} {char})
 		(vpif {char >= char_0 && char <= char_9})
 			;numeral
-			(f-call 'label 'ref_obj_prop {this->local_display, prop_text} {_, display_string})
+			(f-call 'label 'ref_prop {this->local_display, prop_text} {_, display_string})
 			(assign {ubyte (display_string->string_data)} {char})
 			(vpif {char == char_0 || this->local_last_flag == 0})
 				;clear it

@@ -69,8 +69,8 @@
 
 	;get properties, do checks for any changes
 	(f-call 'text 'get_long_prop {this, prop_text_color} {_, col})
-	(f-call 'text 'get_obj_prop {this, prop_font} {_, font})
-	(f-call 'text 'get_obj_prop {this, prop_text} {_, str})
+	(f-call 'text 'get_prop {this, prop_font} {_, font})
+	(f-call 'text 'get_prop {this, prop_text} {_, str})
 	(vpif {str && str != this->text_string})
 		(assign {str} {this->text_string})
 		(f-call 'text 'switch_text {this})
@@ -116,8 +116,8 @@
 	(f-entry 'text 'pref_size {this})
 
 	;get properties, do checks for any changes
-	(f-call 'text 'get_obj_prop {this, prop_font} {_, font})
-	(f-call 'text 'get_obj_prop {this, prop_text} {_, str})
+	(f-call 'text 'get_prop {this, prop_font} {_, font})
+	(f-call 'text 'get_prop {this, prop_text} {_, str})
 	(vpif {str && str != this->text_string})
 		(assign {str} {this->text_string})
 		(f-call 'text 'switch_text {this})
