@@ -27,7 +27,7 @@
 
 (defcvar '*props* (list))
 (defun defprop (_)
-	(defcvar (sym-cat "prop_" _) (mul (length *props*) long_size))
+	(defcvar (sym-cat "prop_" _) (length *props*))
 	(push *props* _))
 
 (defprop "font")

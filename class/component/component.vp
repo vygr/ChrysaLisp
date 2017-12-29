@@ -1,9 +1,11 @@
 (import 'sys/func.inc)
+(import 'sys/string/string.inc)
 (import 'gui/gui.inc)
 (import 'class/component/component.inc)
 (import 'class/symbol/symbol.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/font/font.inc)
+(import 'class/array/array.inc)
 
 (gen-class 'component)
 
@@ -189,12 +191,43 @@
 	;trashes
 	;r1-r2, r14
 
-	(f-call 'symbol 'intern_atoms '(($ func_start)))
-	(assign '(($ func_atoms)) '(r2))
-	(vp-cpy-dr r2 r1 r1)
-	(vp-ret)
+	(ptr 'this 'sym 'array)
+	(pubyte 'next)
+	(uint 'num 'length)
 
-	(each fn-add-atom *props*)
+	(push-scope)
+	(f-entry 'component 'get_prop_sym {this, num})
+
+	(assign {ptr($symbols)} {array})
+	(vpifnot {array})
+		(f-call 'array 'create {} {array})
+		(f-call 'array 'set_capacity (cat {array, } (str (length *props*))))
+		(assign {$props} {next})
+		(loop-start)
+			(f-call 'symbol 'intern_cstr {next} {sym})
+			(f-call 'array 'push_back {array, sym})
+			(f-call 'sys_string 'length {next} {_, length})
+			(assign {next + length + byte_size} {next})
+		(loop-until {next == $props_end})
+		(assign {array} {ptr($symbols)})
+	(endif)
+	(f-call 'array 'get_element {array, num} {_, sym})
+
+	(f-exit 'component 'get_prop_sym {this, sym})
+	(pop-scope)
+	(return)
+
+;;;;;;;;;;;;;;;;;;
+; interned symbols
+;;;;;;;;;;;;;;;;;;
+
+	(vp-align ptr_size)
+(vp-label 'symbols)
+	(vp-long 0)
+
+(vp-label 'props)
+	(each (lambda (_) (vp-string _) (vp-byte 0)) *props*)
+(vp-label 'props_end)
 
 (def-func-end)
 

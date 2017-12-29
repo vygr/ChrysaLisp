@@ -17,16 +17,16 @@ local Vtable !
 
 ## Function format
 
-Functions consist of 7 sections, header, code, string pool, atom table,
-external function Vtable, atom string pool and external function path string
-pool. In some circumstances these sections may not be present, for example in
-the case of a class Vtable the code section is empty, plus a string pool or
-table section may be empty if there are no entries required. When a function is
-in bound format sections such as the path and or atom string pool may have been
-stripped after binding in order to save memory space.
+Functions consist of 5 sections, header, code, string pool, external function
+Vtable and external function path string pool. In some circumstances these
+sections may not be present, for example in the case of a class Vtable the code
+section is empty, plus a string pool or table section may be empty if there are
+no entries required. When a function is in bound format sections such as the
+path string pool may have been stripped after binding in order to save memory
+space.
 
-The total size of a function and the start of the code, atom table and path
-Vtable sections are aligned to a ptr_size.
+The total size of a function and the start of the code and path Vtable sections
+are aligned to a ptr_size.
 
 ### Header fields
 
@@ -37,22 +37,10 @@ the function list. When unbound -1.
 
 * ushort fn_header_entry: Offset in bytes to the code entry point.
 
-* ushort fn_header_atoms: Offset in bytes to the atom table. Atom table entries
-are ptr_size. In unbound format they are relative offsets to entries in the
-atom string pool. When bound and resolved by the atom intern functions they are
-pointers to symbol objects.
-
 * ushort fn_header_links: Offset in bytes to the external function Vtable.
 Vtable entries are ptr_size. In unbound format they are relative offsets to
 entries in the path pool. In bound format they are pointers to the code section
 of the external functions.
-
-* ushort fn_header_syms: Offset in bytes to the atom string pool. 0 terminated
-C style strings. After interning of the atom symbols this offset is set to 0.
-Resolution of the atom symbols takes place via calling 'symbol 'intern_atoms.
-Any function that uses atoms must call this method at least once, subsequent
-calls will detect, via this offset now being 0, that resolution has already
-happened.
 
 * ushort fn_header_paths: Offset in bytes to the path string pool. 0 terminated
 C style strings.
@@ -67,24 +55,18 @@ entry point that there is enough stack remaining for the function invocation.
 C style string, followed by padding bytes, of at least a single byte, of the
 offset from the code section to the string start.
 
-## Low level Vtable, string, and atom creation, and calling/jumping
+## Low level Vtable, string, and calling/jumping
 
 You do not normally need to use these low level features, but higher level
 calling and binding operations do. These are the Lisp functions that create
-entries in the local Vtable, add strings to the local string pool, add atom
-references to the local atom pool etc. They de-duplicate and in special
-situations allow duplication where that is essential to create a class Vtable
-correctly.
+entries in the local Vtable, add strings to the local string pool etc. They
+de-duplicate and in special situations allow duplication where that is
+essential to create a class Vtable correctly.
 
 ### fn-add-string
 
 Add a string to the string pool, if not already present, and return its unique
 index value.
-
-### fn-add-sym
-
-Add an atom string to the atom pool, if not already present, and return its
-unique index value.
 
 ### fn-add-path
 
@@ -95,28 +77,14 @@ return its unique index.
 
 Push an entry onto the Vtable, referring to a path added using fn-add-path.
 
-### fn-add-atom
-
-Push an entry onto the atom table, referring to an atom string added using
-fn-add-sym.
-
 ### fn-find-link
 
 Search the current Vtable for a path and add a new entry if needed using
 fn-add-link. Return the unique index.
 
-### fn-find-atom
-
-Search the current atom table for a atom string and add a new entry if needed
-using fn-add-atom. Return the unique index.
-
 ### fn-string
 
 Load register with string address via the local string pool.
-
-### fn-atom
-
-Load register with interned atom string object via the local atom table.
 
 ### fn-bind
 
