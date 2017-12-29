@@ -189,7 +189,7 @@
 	;r0 = component object
 	;r1 = property symbol object
 	;trashes
-	;r1-r2, r14
+	;all but r0
 
 	(ptr 'this 'sym 'array)
 	(pubyte 'next)
