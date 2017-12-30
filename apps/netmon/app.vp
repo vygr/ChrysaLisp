@@ -46,7 +46,6 @@
 
 	(ptr 'string 'progress 'label)
 	(int 'width 'height)
-	(ulong 'owner)
 
 	;init app vars
 	(push-scope)
@@ -110,10 +109,6 @@
 	;set to pref size
 	(v-call 'window 'pref_size {window} {_, width, height})
 	(f-call 'window 'change {window, 32, 32, width, height})
-
-	;set owner
-	(f-call 'sys_task 'tcb {} {owner})
-	(f-call 'window 'set_owner {window, owner})
 
 	;set close action
 	(f-call 'window 'connect_close {window, &myapp, $on_window_close})

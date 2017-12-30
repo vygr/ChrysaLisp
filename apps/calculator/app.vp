@@ -23,7 +23,6 @@
 	(struct 'myapp 'local)
 	(ptr 'msg 'window 'flow_panel 'grid_panel 'button 'pressed)
 	(pubyte 'next)
-	(ulong 'owner)
 	(int 'width 'height)
 	(uint 'length)
 
@@ -73,10 +72,6 @@
 	;set to pref size
 	(v-call 'window 'pref_size {window} {_, width, height})
 	(f-call 'window 'change {window, 920, 48, width, height})
-
-	;set window owner
-	(f-call 'sys_task 'tcb {} {owner})
-	(f-call 'window 'set_owner {window, owner})
 
 	;set close action
 	(f-call 'window 'connect_close {window, &myapp, $on_window_close})

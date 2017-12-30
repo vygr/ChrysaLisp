@@ -19,7 +19,6 @@
 (def-method 'backward_tree 'class/view/backward_tree 'static '(r0 r1 r2 r3) '(r0))
 (def-method 'change 'class/view/change 'static '(r0 r7 r8 r9 r10) '(r0))
 (def-method 'hit_tree 'class/view/hit_tree 'static '(r0 r7 r8) '(r0 r1 r7 r8))
-(def-method 'set_owner 'class/view/set_owner 'static '(r0 r1) '(r0))
 (def-method 'find_owner 'class/view/find_owner 'static '(r0) '(r0 r1))
 (def-method 'draw_panel 'class/view/draw_panel 'static '(r0 r1 r2 r3) '(r0))
 (def-method 'get_bounds 'class/view/get_bounds 'static '(r0) '(r0 r7 r8 r9 r10))
@@ -63,13 +62,3 @@
 	(int 'w)
 	(int 'h)
 (def-struct-end)
-
-;;;;;;;;;;;;;;;;
-; inline methods
-;;;;;;;;;;;;;;;;
-
-(defcfun class/view/set_owner ()
-	;inputs
-	;r0 = view object
-	;r1 = task tcb
-	(vp-cpy-ri r1 r0 view_tcb))

@@ -27,7 +27,6 @@
 
 	(struct 'myapp 'local)
 	(ptr 'msg 'window 'canvas)
-	(ulong 'owner)
 	(int 'width 'height)
 
 	;init app vars
@@ -46,10 +45,6 @@
 	;set to pref size
 	(v-call 'window 'pref_size {window} {_, width, height})
 	(f-call 'window 'change {window, 512, 256, width, height})
-
-	;set window owner
-	(f-call 'sys_task 'tcb {} {owner})
-	(f-call 'window 'set_owner {window, owner})
 
 	;set close action
 	(f-call 'window 'connect_close {window, &myapp, $on_window_close})

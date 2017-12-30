@@ -24,7 +24,6 @@
 
 	(struct 'myapp 'local)
 	(ptr 'msg 'mymailbox 'mailbox)
-	(ulong 'owner)
 	(long 'state)
 	(int 'width 'height)
 
@@ -52,10 +51,6 @@
 	;set to pref size
 	(v-call 'window 'pref_size {myapp.local_window} {_, width, height})
 	(f-call 'window 'change {myapp.local_window, 0, 0, width, height})
-
-	;set window owner
-	(f-call 'sys_task 'tcb {} {owner})
-	(f-call 'window 'set_owner {myapp.local_window, owner})
 
 	;set close action
 	(f-call 'window 'connect_close {myapp.local_window, &myapp, $on_window_close})

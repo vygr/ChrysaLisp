@@ -296,8 +296,10 @@
 	(vp-push r0)
 	(f-bind 'gui_gui 'statics r2)
 	(f-call 'view 'add_front '((r2 gui_statics_screen) r0))
-	(f-call 'view 'dirty_all '((rsp 0)))
+	(f-call 'sys_task 'tcb '() '(r1))
 	(vp-pop r0)
+	(vp-cpy-ri r1 r0 view_tcb)
+	(f-call 'view 'dirty_all '(r0))
 	(vp-ret)
 
 (def-func-end)
