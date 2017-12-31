@@ -76,19 +76,19 @@
 	;send link routing message to neighbor kernel
 	(vp-cpy-rr r0 r7)
 	(vp-cpy-rr r1 r8)
-	(f-call 'sys_mail 'alloc '(kn_msg_link_route_size) '(r0))
+	(f-call 'sys_mail 'alloc '(oldkn_msg_link_route_size) '(r0))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 r0 (add msg_dest id_mbox))
 	(vp-cpy-ri r8 r0 (add msg_dest id_cpu))
-	(vp-cpy-ri r1 r0 kn_msg_user)
-	(vp-cpy-ri r1 r0 (add kn_msg_reply_id id_mbox))
-	(vp-cpy-ri r1 r0 (add kn_msg_reply_id id_cpu))
+	(vp-cpy-ri r1 r0 oldkn_msg_user)
+	(vp-cpy-ri r1 r0 (add oldkn_msg_reply_id id_mbox))
+	(vp-cpy-ri r1 r0 (add oldkn_msg_reply_id id_cpu))
 	(vp-cpy-cr kn_call_route r1)
-	(vp-cpy-ri r1 r0 kn_msg_function)
-	(vp-cpy-ri-i r7 r0 kn_msg_link_route_origin)
-	(vp-cpy-ri-i r7 r0 kn_msg_link_route_via)
+	(vp-cpy-ri r1 r0 oldkn_msg_function)
+	(vp-cpy-ri-i r7 r0 oldkn_msg_link_route_origin)
+	(vp-cpy-ri-i r7 r0 oldkn_msg_link_route_via)
 	(vp-cpy-cr 1 r1)
-	(vp-cpy-ri-i r1 r0 kn_msg_link_route_hops)
+	(vp-cpy-ri-i r1 r0 oldkn_msg_link_route_hops)
 	(f-call 'sys_mail 'send '(r0))
 
 	;open shared memory file
@@ -184,6 +184,8 @@
 			(vp-add-cr (sub (dec ptr_size) ln_node_size) r5)
 			(vp-and-cr (neg ptr_size) r5)
 			(f-call 'sys_mem 'copy '((& r13 lk_msg_buf) (& r7 ln_node_size) r5))
+			(vp-lea-i r7 msg_data r0)
+			(vp-cpy-ri r0 r7 msg_parcel_data)
 
 			;clear status
 			(vp-cpy-cr lk_chan_status_ready r1)

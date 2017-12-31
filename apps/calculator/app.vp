@@ -21,7 +21,7 @@
 	(def-struct-end)
 
 	(struct 'myapp 'local)
-	(ptr 'msg 'window 'flow_panel 'grid_panel 'button 'pressed)
+	(ptr 'msg 'data 'window 'flow_panel 'grid_panel 'button 'pressed)
 	(pubyte 'next)
 	(int 'width 'height)
 	(uint 'length)
@@ -81,13 +81,13 @@
 
 	;app event loop
 	(loop-start)
-		(f-call 'sys_mail 'mymail {} {msg})
+		(f-call 'sys_mail 'mymail1 {} {msg, data})
 
 		;dispatch event to view
-		(v-call 'view 'event {msg->ev_msg_view, msg})
+		(v-call 'view 'event {data->ev_msg_view, data})
 
 		;free event message
-		(f-call 'sys_mem 'free {msg})
+		(f-call 'sys_mail 'free {msg})
 	(loop-until {myapp.local_closed})
 
 	;deref window

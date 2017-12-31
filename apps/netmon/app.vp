@@ -9,13 +9,12 @@
 (import 'class/string/string.inc)
 (import 'class/array/array.inc)
 
-(def-struct 'sample_msg 'msg_header)
+(def-struct 'sample_msg)
+	(ulong 'command)
+	(struct 'reply_id 'id)
 	(ulong 'cpu)
 	(ulong 'task_count)
 	(ulong 'mem_used)
-	(offset 'reply_size)
-	(ulong 'command)
-	(struct 'reply_id 'id)
 (def-struct-end)
 
 (def-func 'apps/netmon/app)
@@ -39,7 +38,7 @@
 	(ulong 'value 'max_tasks 'max_memory 'total_memory 'start_time 'time 'total)
 	(uint 'cpu_total 'cpu_count 'index 'sample)
 
-	(ptr 'msg)
+	(ptr 'msg 'data)
 	(ulong 'mailbox)
 	(ptr 'ids)
 	(struct 'task_mailbox 'mailbox)
@@ -155,38 +154,38 @@
 			;send out sample commands
 			(loop-start)
 				(assign {cpu_count - 1} {cpu_count})
-				(f-call 'sys_mail 'alloc {sample_msg_size} {msg})
-				(assign {1} {msg->sample_msg_command})
+				(f-call 'sys_mail 'alloc1 {sample_msg_size} {msg, data})
+				(assign {1} {data->sample_msg_command})
 				(f-call 'array 'get_element {ids, cpu_count * 2} {_, msg->msg_dest.id_mbox})
 				(f-call 'array 'get_element {ids, cpu_count * 2 + 1} {_, msg->msg_dest.id_cpu})
-				(assign {select.sel_select2} {msg->sample_msg_reply_id.id_mbox})
-				(f-call 'kernel 'id {} {msg->sample_msg_reply_id.id_cpu})
+				(assign {select.sel_select2} {data->sample_msg_reply_id.id_mbox})
+				(f-call 'kernel 'id {} {data->sample_msg_reply_id.id_cpu})
 				(f-call 'sys_mail 'send {msg})
 			(loop-untilnot {cpu_count})
 		(endif)
 
 		;select on multiple mailboxes
 		(f-call 'sys_mail 'select {&select, sel_size >> 3} {mailbox})
-		(f-call 'sys_mail 'read {mailbox} {msg})
+		(f-call 'sys_mail 'read1 {mailbox} {msg, data})
 
 		;which mailbox had mail ?
 		(vpif {mailbox == select.sel_select1})
 			;dispatch event to view
-			(v-call 'view 'event {msg->ev_msg_view, msg})
+			(v-call 'view 'event {data->ev_msg_view, data})
 		(else)
 			;update progress bars
-			(assign {msg->sample_msg_task_count} {value})
+			(assign {data->sample_msg_task_count} {value})
 			(vpif {value > max_tasks})
 				(assign {value} {max_tasks})
 			(endif)
-			(assign {task_progress[msg->sample_msg_cpu * ptr_size * 2]} {progress})
+			(assign {task_progress[data->sample_msg_cpu * ptr_size * 2]} {progress})
 			(f-call 'progress 'set_long_prop {progress, prop_progress_max, max_tasks})
 			(f-call 'progress 'set_long_prop {progress, prop_progress_val, value})
 			(f-call 'progress 'dirty {progress})
 
-			(assign {msg->sample_msg_mem_used} {value})
+			(assign {data->sample_msg_mem_used} {value})
 			(assign {total_memory + value} {total_memory})
-			(assign {task_progress[msg->sample_msg_cpu * ptr_size * 2 + ptr_size]} {progress})
+			(assign {task_progress[data->sample_msg_cpu * ptr_size * 2 + ptr_size]} {progress})
 			(f-call 'progress 'set_long_prop {progress, prop_progress_max, max_memory})
 			(f-call 'progress 'set_long_prop {progress, prop_progress_val, value})
 			(f-call 'progress 'dirty {progress})
@@ -196,7 +195,7 @@
 		(endif)
 
 		;free event message
-		(f-call 'sys_mem 'free {msg})
+		(f-call 'sys_mail 'free {msg})
 
 		;be friendly
 		(f-call 'sys_task 'yield)
@@ -205,15 +204,15 @@
 	;wait for outstanding replies
 	(loop-while {cpu_count != cpu_total})
 		(f-call 'sys_mail 'read {select.sel_select2} {msg})
-		(f-call 'sys_mem 'free {msg})
+		(f-call 'sys_mail 'free {msg})
 		(assign {cpu_count + 1} {cpu_count})
 	(loop-end)
 
 	;send out exit commands
 	(loop-start)
 		(assign {cpu_count - 1} {cpu_count})
-		(f-call 'sys_mail 'alloc {sample_msg_size} {msg})
-		(assign {0} {msg->sample_msg_command})
+		(f-call 'sys_mail 'alloc1 {sample_msg_size} {msg, data})
+		(assign {0} {data->sample_msg_command})
 		(f-call 'array 'get_element {ids, cpu_count * 2} {_, msg->msg_dest.id_mbox})
 		(f-call 'array 'get_element {ids, cpu_count * 2 + 1} {_, msg->msg_dest.id_cpu})
 		(f-call 'sys_mail 'send {msg})
@@ -249,27 +248,27 @@
 (def-func 'apps/netmon/child)
 	;monitor task
 
-	(ptr 'msg)
+	(ptr 'msg 'data)
 
 	(push-scope)
 	(loop-start)
 		;read mail command
-		(f-call 'sys_mail 'mymail {} {msg})
-		(breakifnot {msg->sample_msg_command})
+		(f-call 'sys_mail 'mymail1 {} {msg, data})
+		(breakifnot {data->sample_msg_command})
 
 		;sample command
-		(f-call 'kernel 'id {} {msg->sample_msg_cpu})
-		(f-call 'sys_task 'count {} {msg->sample_msg_task_count})
-		(f-call 'sys_mem 'used {} {msg->sample_msg_mem_used})
-		(assign {msg->sample_msg_reply_id.id_mbox} {msg->msg_dest.id_mbox})
-		(assign {msg->sample_msg_reply_id.id_cpu} {msg->msg_dest.id_cpu})
-		(assign {sample_msg_reply_size} {msg->msg_length})
+		(f-call 'kernel 'id {} {data->sample_msg_cpu})
+		(f-call 'sys_task 'count {} {data->sample_msg_task_count})
+		(f-call 'sys_mem 'used {} {data->sample_msg_mem_used})
+		(assign {data->sample_msg_reply_id.id_mbox} {msg->msg_dest.id_mbox})
+		(assign {data->sample_msg_reply_id.id_cpu} {msg->msg_dest.id_cpu})
 		(f-call 'sys_mail 'send {msg})
 
 		;be friendly
 		(f-call 'sys_task 'yield)
 	(loop-end)
-	(f-call 'sys_mem 'free {msg})
+
+	(f-call 'sys_mail 'free {msg})
 	(pop-scope)
 	(return)
 

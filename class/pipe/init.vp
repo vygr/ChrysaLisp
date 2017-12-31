@@ -34,7 +34,7 @@
 		(assign {stream_mail_state_started} {this->pipe_state})
 
 		;init pipeline
-		(ptr 'msg 'string 'commands 'args 'stream 'mbox 'ids 'prefix 'cmd)
+		(ptr 'msg 'data 'string 'commands 'args 'stream 'mbox 'ids 'prefix 'cmd)
 		(pubyte 'start)
 		(ulong 'cpu)
 		(struct 'mailbox 'mailbox)
@@ -103,14 +103,14 @@
 				(loop-while {index})
 					(assign {index - 1} {index})
 					(f-call 'vector 'get_element {args, index} {_, string})
-					(f-call 'sys_mail 'alloc {slave_mail_init_size + string->string_length} {msg})
-					(f-call 'sys_mem 'copy {&string->string_data, &msg->slave_mail_init_args, string->string_length})
-					(assign {mbox} {msg->slave_mail_init_stdout_id.id_mbox})
-					(assign {cpu} {msg->slave_mail_init_stdout_id.id_cpu})
-					(assign {(this->pipe_select_array)[(index + 1) * ptr_size]} {msg->slave_mail_init_stderr_id.id_mbox})
-					(f-call 'kernel 'id {} {msg->slave_mail_init_stderr_id.id_cpu})
-					(assign {&mailbox} {msg->slave_mail_init_ack_id.id_mbox})
-					(f-call 'kernel 'id {} {msg->slave_mail_init_ack_id.id_cpu})
+					(f-call 'sys_mail 'alloc1 {slave_msg_init_size + string->string_length} {msg, data})
+					(f-call 'sys_mem 'copy {&string->string_data, &data->slave_msg_init_args, string->string_length})
+					(assign {mbox} {data->slave_msg_init_stdout_id.id_mbox})
+					(assign {cpu} {data->slave_msg_init_stdout_id.id_cpu})
+					(assign {(this->pipe_select_array)[(index + 1) * ptr_size]} {data->slave_msg_init_stderr_id.id_mbox})
+					(f-call 'kernel 'id {} {data->slave_msg_init_stderr_id.id_cpu})
+					(assign {&mailbox} {data->slave_msg_init_ack_id.id_mbox})
+					(f-call 'kernel 'id {} {data->slave_msg_init_ack_id.id_cpu})
 					(f-call 'array 'get_element {ids, index * 2} {_, mbox})
 					(f-call 'array 'get_element {ids, index * 2 + 1} {_, cpu})
 					(assign {mbox} {msg->msg_dest.id_mbox})
@@ -118,9 +118,9 @@
 					(f-call 'sys_mail 'send {msg})
 
 					;wait for ack with stdin mailbox
-					(f-call 'sys_mail 'read {&mailbox} {msg})
-					(assign {msg->slave_mail_init_stdin_mbox} {mbox})
-					(f-call 'sys_mem 'free {msg})
+					(f-call 'sys_mail 'read1 {&mailbox} {msg, data})
+					(assign {data->slave_msg_init_stdin_mbox} {mbox})
+					(f-call 'sys_mail 'free {msg})
 				(loop-end)
 
 				;create input stream, free the unused space keeper stream
@@ -137,7 +137,7 @@
 					(f-call 'array 'get_back {ids} {_, mbox})
 					(d-call 'array 'pop_back {ids})
 					(continueifnot {mbox})
-					(f-call 'sys_mail 'alloc {msg_header_size} {msg})
+					(f-call 'sys_mail 'alloc1 {0} {msg, _})
 					(assign {mbox} {msg->msg_dest.id_mbox})
 					(assign {cpu} {msg->msg_dest.id_cpu})
 					(f-call 'sys_mail 'send {msg})

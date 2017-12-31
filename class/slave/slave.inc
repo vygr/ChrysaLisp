@@ -15,9 +15,8 @@
 	(ptr 'args)
 (def-struct-end)
 
-(def-struct 'slave_mail_init 'msg_header)
+(def-struct 'slave_msg_init)
 	(ptr 'stdin_mbox)
-	(offset 'ack_size)
 	(struct 'stdout_id 'id)
 	(struct 'stderr_id 'id)
 	(struct 'ack_id 'id)

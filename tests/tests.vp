@@ -31,7 +31,7 @@
 		(f-call 'array 'get_back {ids} {_, mbox})
 		(d-call 'array 'pop_back {ids})
 		(continueifnot {mbox})
-		(f-call 'sys_mail 'alloc {msg_header_size} {msg})
+		(f-call 'sys_mail 'alloc1 {0} {msg, _})
 		(assign {mbox} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
 		(f-call 'sys_mail 'send {msg})
@@ -68,7 +68,7 @@
 		(f-call 'array 'get_back {ids} {_, mbox})
 		(d-call 'array 'pop_back {ids})
 		(continueifnot {mbox})
-		(f-call 'sys_mail 'alloc {msg_size * 10} {msg})
+		(f-call 'sys_mail 'alloc1 {mail_data_size * 10} {msg, _})
 		(assign {mbox} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
 		(f-call 'sys_mail 'send {msg})
@@ -115,7 +115,7 @@
 		(f-call 'array 'get_back {ids} {_, mbox})
 		(d-call 'array 'pop_back {ids})
 		(continueifnot {mbox})
-		(f-call 'sys_mail 'alloc {msg_header_size} {msg})
+		(f-call 'sys_mail 'alloc1 {0} {msg, _})
 		(assign {mbox} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
 		(f-call 'sys_mail 'send {msg})
@@ -139,8 +139,8 @@
 	(push-scope)
 
 	;read exit command etc
-	(f-call 'sys_mail 'mymail {} {msg})
-	(f-call 'sys_mem 'free {msg})
+	(f-call 'sys_mail 'mymail1 {} {msg, _})
+	(f-call 'sys_mail 'free {msg})
 
 	;wait a bit
 	(f-call 'math 'random {1000000} {num})
@@ -156,6 +156,7 @@
 	(defcvar 'num_child 128)
 
 	(ptr 'name 'ids 'msg 'mbox)
+	(pulong 'data)
 	(ulong 'cpu)
 	(uint 'length)
 
@@ -174,10 +175,10 @@
 		(f-call 'array 'get_back {ids} {_, mbox})
 		(d-call 'array 'pop_back {ids})
 		(continueifnot {mbox})
-		(f-call 'sys_mail 'alloc {msg_data + long_size} {msg})
+		(f-call 'sys_mail 'alloc1 {long_size} {msg, data})
 		(assign {mbox} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
-		(assign {10} {ulong(&msg->msg_data)})
+		(assign {10} {*data})
 		(f-call 'sys_mail 'send {msg})
 		(f-call 'sys_task 'yield)
 	(loop-end)
@@ -193,30 +194,31 @@
 (def-func 'tests/migrate_child)
 
 	(ptr 'msg 'name)
+	(pulong 'data)
 	(ulong 'num)
 
 	(push-scope)
 
 	;read work value etc
-	(f-call 'sys_mail 'mymail {} {msg})
+	(f-call 'sys_mail 'mymail1 {} {msg, data})
 
 	;wait a bit (gee that's hard work etc)
 	(f-call 'math 'random {100000} {num})
 	(f-call 'sys_task 'sleep {num + 100000})
 
 	;do we have more work to do ?
-	(assign {ulong(&msg->msg_data)} {num})
+	(assign {*data} {num})
 	(assign {num - 1} {num})
 	(vpif {num})
 		;more work to do, so lets migrate the task
-		(assign {num} {ulong(&msg->msg_data)})
+		(assign {num} {*data})
 		(f-call 'string 'create_from_cstr {"tests/migrate_child"} {name})
 		(f-call 'sys_task 'open_child {name, kn_call_child} {msg->msg_dest.id_mbox, msg->msg_dest.id_cpu})
 		(f-call 'string 'deref {name})
 		(f-call 'sys_mail 'send {msg})
 	(else)
 		;no, we're done
-		(f-call 'sys_mem 'free {msg})
+		(f-call 'sys_mail 'free {msg})
 	(endif)
 
 	(pop-scope)

@@ -49,8 +49,8 @@
 	(f-entry 'msg_out 'deinit {this})
 
 	;wait for final ack
-	(f-call 'sys_mail 'read {&this->msg_out_ack_mailbox} {msg})
-	(f-call 'sys_mem 'free {msg})
+	(f-call 'sys_mail 'read1 {&this->msg_out_ack_mailbox} {msg, _})
+	(f-call 'sys_mail 'free {msg})
 
 	;parent deinit
 	(f-exit 'msg_out 'deinit {this})
@@ -66,6 +66,7 @@
 	;r2 = -1 or seqnum
 	;outputs
 	;r0 = 0, else next stream msg
+	;r1 = 0, else string data
 
 	;save any new msg
 	(vpif '(r1 != 0))
@@ -75,7 +76,8 @@
 	;scan for seqnum
 	(loop-list-forward r0 0 r0 r1)
 		(breakif '(r2 == -1))
-		(vp-cpy-ir r0 stream_mail_seqnum r3)
+		(vp-cpy-ir r0 msg_parcel_data r3)
+		(vp-cpy-ir r3 stream_msg_seqnum r3)
 	(loop-until '(r2 == r3))
 	(vpif '(r1 == 0))
 		;not found
@@ -85,6 +87,7 @@
 	;remove found from list
 	(vp-cpy-rr r0 r1)
 	(ln-remove-node r1 r2)
+	(vp-cpy-ir r0 msg_parcel_data r1)
 	(vp-ret)
 
 (def-func-end)
@@ -97,7 +100,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'msg)
+	(ptr 'this 'msg 'data)
 
 	(push-scope)
 	(f-entry 'msg_out 'write_flush {this})
@@ -105,20 +108,21 @@
 	(assign {this->stream_buffer} {msg})
 	(vpif {msg})
 		;send current buffer
+		(assign {msg->msg_parcel_data} {data})
 		(assign {this->stream_bufp - msg} {msg->msg_length})
 		(assign {this->msg_out_id.id_mbox} {msg->msg_dest.id_mbox})
 		(assign {this->msg_out_id.id_cpu} {msg->msg_dest.id_cpu})
-		(assign {this->msg_out_seqnum} {msg->stream_mail_seqnum})
-		(assign {this->msg_out_state} {msg->stream_mail_state})
-		(assign {&this->msg_out_ack_mailbox} {msg->stream_mail_ack_id.id_mbox})
-		(f-call 'kernel 'id {} {msg->stream_mail_ack_id.id_cpu})
+		(assign {this->msg_out_seqnum} {data->stream_msg_seqnum})
+		(assign {this->msg_out_state} {data->stream_msg_state})
+		(assign {&this->msg_out_ack_mailbox} {data->stream_msg_ack_id.id_mbox})
+		(f-call 'kernel 'id {} {data->stream_msg_ack_id.id_cpu})
 		(f-call 'sys_mail 'send {msg})
 		(assign {0} {this->stream_buffer})
 
 		;wait for an ack ?
 		(vpif {this->msg_out_seqnum >> msg_out_ack_shift != this->msg_out_ack_seqnum})
-			(f-call 'sys_mail 'read {&this->msg_out_ack_mailbox} {msg})
-			(f-call 'sys_mem 'free {msg})
+			(f-call 'sys_mail 'read1 {&this->msg_out_ack_mailbox} {msg, _})
+			(f-call 'sys_mail 'free {msg})
 			(assign {this->msg_out_ack_seqnum + 1} {this->msg_out_ack_seqnum})
 		(endif)
 
@@ -143,15 +147,15 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'msg)
+	(ptr 'this 'msg 'data)
 
 	(push-scope)
 	(f-entry 'msg_out 'write_next {this})
 
 	(v-call 'stream 'write_flush {this})
-	(f-call 'sys_mail 'alloc {msg_size} {msg})
-	(assign {&msg->stream_mail_data} {this->stream_bufp})
-	(assign {&msg->msg_size} {this->stream_bufe})
+	(f-call 'sys_mail 'alloc1 {mail_data_size} {msg, data})
+	(assign {&data->stream_msg_data} {this->stream_bufp})
+	(assign {&data->stream_msg_data + mail_data_size - stream_msg_data} {this->stream_bufe})
 	(assign {msg} {this->stream_buffer})
 
 	(f-exit 'msg_out 'write_next {this})

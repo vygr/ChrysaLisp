@@ -18,7 +18,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'vtable 'stream 'msg 'mymailbox)
+	(ptr 'this 'vtable 'stream 'msg 'data 'mymailbox)
 	(ulong 'ok)
 
 	;read init args
@@ -30,27 +30,26 @@
 	(vpif {ok})
 		;init myself
 		(f-call 'sys_task 'mailbox {} {mymailbox, _})
-		(f-call 'sys_mail 'read {mymailbox} {msg})
+		(f-call 'sys_mail 'read1 {mymailbox} {msg, data})
 		(vpif {msg->msg_length != msg_header_size})
 			;create stdin, stdout, stderr
 			(f-call 'msg_in 'create {} {this->slave_stdin})
-			(f-call 'msg_out 'create {msg->slave_mail_init_stdout_id.id_mbox, msg->slave_mail_init_stdout_id.id_cpu} {this->slave_stdout})
-			(f-call 'msg_out 'create {msg->slave_mail_init_stderr_id.id_mbox, msg->slave_mail_init_stderr_id.id_cpu} {this->slave_stderr})
+			(f-call 'msg_out 'create {data->slave_msg_init_stdout_id.id_mbox, data->slave_msg_init_stdout_id.id_cpu} {this->slave_stdout})
+			(f-call 'msg_out 'create {data->slave_msg_init_stderr_id.id_mbox, data->slave_msg_init_stderr_id.id_cpu} {this->slave_stderr})
 
 			;create args
-			(f-call 'stream 'create {0, 0, &msg->slave_mail_init_args, msg->msg_length - slave_mail_init_size} {stream})
+			(f-call 'stream 'create {0, 0, &data->slave_msg_init_args, msg->msg_length - msg_header_size - slave_msg_init_size} {stream})
 			(f-call 'stream 'split {stream, char_space} {_, this->slave_args})
 			(f-call 'stream 'deref {stream})
 
 			;send back ack with stdin mailbox
-			(assign {msg->slave_mail_init_ack_id.id_mbox} {msg->msg_dest.id_mbox})
-			(assign {msg->slave_mail_init_ack_id.id_cpu} {msg->msg_dest.id_cpu})
-			(assign {&this->slave_stdin->msg_in_mailbox} {msg->slave_mail_init_stdin_mbox})
-			(assign {slave_mail_init_ack_size} {msg->msg_length})
+			(assign {data->slave_msg_init_ack_id.id_mbox} {msg->msg_dest.id_mbox})
+			(assign {data->slave_msg_init_ack_id.id_cpu} {msg->msg_dest.id_cpu})
+			(assign {&this->slave_stdin->msg_in_mailbox} {data->slave_msg_init_stdin_mbox})
 			(f-call 'sys_mail 'send {msg})
 		(else)
 			;abort
-			(f-call 'sys_mem 'free {msg})
+			(f-call 'sys_mail 'free {msg})
 			(assign {0} {ok})
 		(endif)
 	(endif)

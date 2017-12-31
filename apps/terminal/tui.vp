@@ -4,11 +4,11 @@
 (import 'class/msg_out/msg_out.inc)
 (import 'class/string/string.inc)
 
-(def-struct 'tui_msg 'msg_header)
+(def-struct 'tui_msg)
 	(struct 'reply_id 'id)
 (def-struct-end)
 
-(def-struct 'stdin_msg 'msg_header)
+(def-struct 'stdin_msg)
 	(ulong 'char)
 (def-struct-end)
 
@@ -25,7 +25,7 @@
 	(struct 'local 'local)
 	(struct 'stdin_id 'id)
 	(struct 'tui_id 'id)
-	(ptr 'msg 'mailbox)
+	(ptr 'msg 'data 'mailbox)
 	(long 'state)
 
 	;init app vars
@@ -36,11 +36,11 @@
 
 	;start stdin polling task and send it tui mailbox id
 	(f-call 'sys_task 'start {@apps/terminal/tui_child} {_, stdin_id.id_mbox, stdin_id.id_cpu})
-	(f-call 'sys_mail 'alloc {tui_msg_size} {msg})
+	(f-call 'sys_mail 'alloc1 {tui_msg_size} {msg, data})
 	(assign {stdin_id.id_mbox} {msg->msg_dest.id_mbox})
 	(assign {stdin_id.id_cpu} {msg->msg_dest.id_cpu})
-	(assign {tui_id.id_mbox} {msg->tui_msg_reply_id.id_mbox})
-	(assign {tui_id.id_cpu} {msg->tui_msg_reply_id.id_cpu})
+	(assign {tui_id.id_mbox} {data->tui_msg_reply_id.id_mbox})
+	(assign {tui_id.id_cpu} {data->tui_msg_reply_id.id_cpu})
 	(f-call 'sys_mail 'send {msg})
 
 	;sign on
@@ -66,9 +66,9 @@
 		(else)
 		(vp-label 'from_mymailbox)
 			;dispatch event to terminal
-			(f-call 'sys_mail 'read {tui_id.id_mbox} {msg})
-			(l-call 'terminal_input {&local, msg->stdin_msg_char})
-			(f-call 'sys_mem 'free {msg})
+			(f-call 'sys_mail 'read1 {tui_id.id_mbox} {msg, data})
+			(l-call 'terminal_input {&local, data->stdin_msg_char})
+			(f-call 'sys_mail 'free {msg})
 		(endif)
 		(f-call 'sys_task 'yield)
 	(loop-end)
@@ -202,17 +202,17 @@
 (def-func 'apps/terminal/tui_child)
 	;stdin polling task
 
-	(ptr 'msg)
+	(ptr 'msg 'data)
 	(struct 'tui_id 'id)
 	(int 'char)
 
 	(push-scope)
 
 	;read tui mailbox id
-	(f-call 'sys_mail 'mymail {} {msg})
-	(assign {msg->tui_msg_reply_id.id_mbox} {tui_id.id_mbox})
-	(assign {msg->tui_msg_reply_id.id_cpu} {tui_id.id_cpu})
-	(f-call 'sys_mem 'free {msg})
+	(f-call 'sys_mail 'mymail1 {} {msg, data})
+	(assign {data->tui_msg_reply_id.id_mbox} {tui_id.id_mbox})
+	(assign {data->tui_msg_reply_id.id_cpu} {tui_id.id_cpu})
+	(f-call 'sys_mail 'free {msg})
 
 	;non block on stdin
 	(f-call 'pii 'fcntl {0, f_getfl, 0} {char})
@@ -223,10 +223,10 @@
 	(vp-label 'nextchar)
 		(f-call 'pii 'read_char {0} {char})
 		(vpif {char})
-			(f-call 'sys_mail 'alloc {stdin_msg_size} {msg})
+			(f-call 'sys_mail 'alloc1 {stdin_msg_size} {msg, data})
 			(assign {tui_id.id_mbox} {msg->msg_dest.id_mbox})
 			(assign {tui_id.id_cpu} {msg->msg_dest.id_cpu})
-			(assign {char} {msg->stdin_msg_char})
+			(assign {char} {data->stdin_msg_char})
 			(f-call 'sys_mail 'send {msg})
 			(goto 'nextchar)
 		(endif)

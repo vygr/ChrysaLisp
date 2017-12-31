@@ -47,7 +47,7 @@
 	(enum 'mouse 'key)
 (def-enum-end)
 
-(def-struct 'ev_msg 'msg_header)
+(def-struct 'ev_msg)
 	(ulong 'type)
 	(ptr 'view)
 	(int 'x)

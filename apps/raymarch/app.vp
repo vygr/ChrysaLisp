@@ -10,7 +10,7 @@
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 
-(def-struct 'raymarch_msg 'msg_header)
+(def-struct 'raymarch_msg)
 	(ptr 'arg0)
 	(long 'arg1)
 	(long 'arg2)
@@ -26,7 +26,7 @@
 	(def-struct-end)
 
 	(struct 'myapp 'local)
-	(ptr 'msg 'window 'canvas)
+	(ptr 'msg 'data 'window 'canvas)
 	(int 'width 'height)
 
 	;init app vars
@@ -57,22 +57,22 @@
 	(f-call 'canvas 'swap {canvas})
 
 	;start lisp task and send it args
-	(f-call 'sys_mail 'alloc {raymarch_msg_size} {msg})
+	(f-call 'sys_mail 'alloc1 {raymarch_msg_size} {msg, data})
 	(f-call 'sys_task 'start {@apps/raymarch/lisp} {_, msg->msg_dest.id_mbox, msg->msg_dest.id_cpu})
 	(assign {canvas, app_width * 1.0, app_height * 1.0, app_scale}
-			{msg->raymarch_msg_arg0, msg->raymarch_msg_arg1, msg->raymarch_msg_arg2, msg->raymarch_msg_arg3})
+			{data->raymarch_msg_arg0, data->raymarch_msg_arg1, data->raymarch_msg_arg2, data->raymarch_msg_arg3})
 	(f-call 'canvas 'ref {canvas})
 	(f-call 'sys_mail 'send {msg})
 
 	;app event loop
 	(loop-start)
-		(f-call 'sys_mail 'mymail {} {msg})
+		(f-call 'sys_mail 'mymail1 {} {msg, data})
 
 		;dispatch event to view
-		(v-call 'view 'event {msg->ev_msg_view, msg})
+		(v-call 'view 'event {data->ev_msg_view, data})
 
 		;free event message
-		(f-call 'sys_mem 'free {msg})
+		(f-call 'sys_mail 'free {msg})
 	(loop-until {myapp.local_closed})
 
 	;deref window
@@ -99,7 +99,7 @@
 
 (def-func 'apps/raymarch/lisp 8192)
 
-	(ptr 'lisp 'stream 'file 'args 'value 'msg 'script)
+	(ptr 'lisp 'stream 'file 'args 'value 'msg 'data 'script)
 
 	;init app vars
 	(push-scope)
@@ -113,16 +113,16 @@
 	(f-call 'ref 'deref {stream})
 
 	;read canvas msg create argv
-	(f-call 'sys_mail 'mymail {} {msg})
+	(f-call 'sys_mail 'mymail1 {} {msg, data})
 	(f-call 'vector 'create {} {args})
-	(f-call 'vector 'push_back {args, msg->raymarch_msg_arg0})
-	(f-call 'boxed_long 'create {msg->raymarch_msg_arg1} {value})
+	(f-call 'vector 'push_back {args, data->raymarch_msg_arg0})
+	(f-call 'boxed_long 'create {data->raymarch_msg_arg1} {value})
 	(f-call 'vector 'push_back {args, value})
-	(f-call 'boxed_long 'create {msg->raymarch_msg_arg2} {value})
+	(f-call 'boxed_long 'create {data->raymarch_msg_arg2} {value})
 	(f-call 'vector 'push_back {args, value})
-	(f-call 'boxed_long 'create {msg->raymarch_msg_arg3} {value})
+	(f-call 'boxed_long 'create {data->raymarch_msg_arg3} {value})
 	(f-call 'vector 'push_back {args, value})
-	(f-call 'sys_mem 'free {msg})
+	(f-call 'sys_mail 'free {msg})
 	(f-call 'symbol 'intern_cstr {"argv"} {value})
 	(f-call 'hash_map 'insert {lisp->lisp_environment, value, args})
 	(f-call 'ref 'deref {value})
