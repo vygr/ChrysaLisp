@@ -30,7 +30,7 @@
 	(vpif {ok})
 		;init myself
 		(f-call 'sys_task 'mailbox {} {mymailbox, _})
-		(f-call 'sys_mail 'read1 {mymailbox} {msg, data})
+		(f-call 'sys_mail 'read {mymailbox} {msg, data})
 		(vpif {msg->msg_length != msg_header_size})
 			;create stdin, stdout, stderr
 			(f-call 'msg_in 'create {} {this->slave_stdin})

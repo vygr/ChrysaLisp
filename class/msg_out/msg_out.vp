@@ -49,7 +49,7 @@
 	(f-entry 'msg_out 'deinit {this})
 
 	;wait for final ack
-	(f-call 'sys_mail 'read1 {&this->msg_out_ack_mailbox} {msg, _})
+	(f-call 'sys_mail 'read {&this->msg_out_ack_mailbox} {msg, _})
 	(f-call 'sys_mail 'free {msg})
 
 	;parent deinit
@@ -121,7 +121,7 @@
 
 		;wait for an ack ?
 		(vpif {this->msg_out_seqnum >> msg_out_ack_shift != this->msg_out_ack_seqnum})
-			(f-call 'sys_mail 'read1 {&this->msg_out_ack_mailbox} {msg, _})
+			(f-call 'sys_mail 'read {&this->msg_out_ack_mailbox} {msg, _})
 			(f-call 'sys_mail 'free {msg})
 			(assign {this->msg_out_ack_seqnum + 1} {this->msg_out_ack_seqnum})
 		(endif)
@@ -153,7 +153,7 @@
 	(f-entry 'msg_out 'write_next {this})
 
 	(v-call 'stream 'write_flush {this})
-	(f-call 'sys_mail 'alloc1 {mail_data_size} {msg, data})
+	(f-call 'sys_mail 'alloc {mail_data_size} {msg, data})
 	(assign {&data->stream_msg_data} {this->stream_bufp})
 	(assign {&data->stream_msg_data + mail_data_size - stream_msg_data} {this->stream_bufe})
 	(assign {msg} {this->stream_buffer})

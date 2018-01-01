@@ -85,7 +85,7 @@
 			(endif)
 		(else)
 		(vp-label 'from_mymailbox)
-			(f-call 'sys_mail 'read1 {mymailbox} {msg, data})
+			(f-call 'sys_mail 'read {mymailbox} {msg, data})
 			(v-call 'view 'event {data->ev_msg_view, data})
 			(vpif {data->ev_msg_type == ev_type_key && data->ev_msg_keycode > 0})
 				(l-call 'terminal_input {&myapp, data->ev_msg_key})

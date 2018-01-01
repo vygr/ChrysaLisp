@@ -40,7 +40,7 @@
 	(ml-temp-create r0 r1)
 
 	;allocate mail message
-	(f-call 'sys_mail 'alloc1 '(kn_msg_callback_size) '(r3 r4))
+	(f-call 'sys_mail 'alloc '(kn_msg_callback_size) '(r3 r4))
 
 	;fill in destination, reply and function
 	(f-call 'kernel 'id '() '(r0))
@@ -56,7 +56,7 @@
 
 	;send mail to kernel then wait for reply
 	(f-call 'sys_mail 'send '(r3))
-	(f-call 'sys_mail 'read1 '(rsp) '(r0 _))
+	(f-call 'sys_mail 'read '(rsp) '(r0 _))
 
 	;free reply mail and temp mailbox
 	(ml-temp-destroy)
@@ -332,7 +332,7 @@
 	(f-call 'sys_mail 'init_mailbox {&mailbox})
 
 	;start task
-	(f-call 'sys_mail 'alloc1 {name->string_length + 1 + kn_msg_open_size} {msg, data})
+	(f-call 'sys_mail 'alloc {name->string_length + 1 + kn_msg_open_size} {msg, data})
 	(assign {0} {msg->msg_dest.id_mbox})
 	(assign {cpu} {msg->msg_dest.id_cpu})
 	(assign {&mailbox} {data->kn_msg_reply_id.id_mbox})
@@ -342,7 +342,7 @@
 	(f-call 'sys_mail 'send {msg})
 
 	;wait for reply
-	(f-call 'sys_mail 'read1 {&mailbox} {msg, data})
+	(f-call 'sys_mail 'read {&mailbox} {msg, data})
 	(assign {data->kn_msg_reply_id.id_mbox} {id.id_mbox})
 	(assign {data->kn_msg_reply_id.id_cpu} {id.id_cpu})
 	(f-call 'sys_mail 'free {msg})
@@ -395,7 +395,7 @@
 	(endif)
 	(assign {0} {index})
 	(loop-while {index != length})
-		(f-call 'sys_mail 'alloc1 {name->string_length + 1 + kn_msg_open_size} {msg, data})
+		(f-call 'sys_mail 'alloc {name->string_length + 1 + kn_msg_open_size} {msg, data})
 		(assign {0} {msg->msg_dest.id_mbox})
 		(assign {(index + offset) % total} {msg->msg_dest.id_cpu})
 		(assign {&mailbox} {data->kn_msg_reply_id.id_mbox})
@@ -410,7 +410,7 @@
 	;wait for reply's
 	(loop-while {index})
 		(assign {index - 1} {index})
-		(f-call 'sys_mail 'read1 {&mailbox} {msg, data})
+		(f-call 'sys_mail 'read {&mailbox} {msg, data})
 		(d-call 'array 'set_element {ids, data->kn_msg_reply_id.id_mbox, data->kn_msg_user})
 		(d-call 'array 'set_element {ids, data->kn_msg_reply_id.id_cpu, data->kn_msg_user + 1})
 		(f-call 'sys_mail 'free {msg})
@@ -453,7 +453,7 @@
 	(assign {0} {index})
 	(loop-while {index != length})
 		(f-call 'vector 'get_element {tasks, index} {_, name})
-		(f-call 'sys_mail 'alloc1 {name->string_length + 1 + kn_msg_open_size} {msg, data})
+		(f-call 'sys_mail 'alloc {name->string_length + 1 + kn_msg_open_size} {msg, data})
 		(assign {0} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
 		(assign {&mailbox} {data->kn_msg_reply_id.id_mbox})
@@ -463,7 +463,7 @@
 
 		;send mail to kernel, wait for reply
 		(f-call 'sys_mail 'send {msg})
-		(f-call 'sys_mail 'read1 {&mailbox} {msg, data})
+		(f-call 'sys_mail 'read {&mailbox} {msg, data})
 
 		;save reply mailbox ID
 		(assign {data->kn_msg_reply_id.id_cpu} {cpu})

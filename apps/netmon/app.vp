@@ -154,7 +154,7 @@
 			;send out sample commands
 			(loop-start)
 				(assign {cpu_count - 1} {cpu_count})
-				(f-call 'sys_mail 'alloc1 {sample_msg_size} {msg, data})
+				(f-call 'sys_mail 'alloc {sample_msg_size} {msg, data})
 				(assign {1} {data->sample_msg_command})
 				(f-call 'array 'get_element {ids, cpu_count * 2} {_, msg->msg_dest.id_mbox})
 				(f-call 'array 'get_element {ids, cpu_count * 2 + 1} {_, msg->msg_dest.id_cpu})
@@ -166,7 +166,7 @@
 
 		;select on multiple mailboxes
 		(f-call 'sys_mail 'select {&select, sel_size >> 3} {mailbox})
-		(f-call 'sys_mail 'read1 {mailbox} {msg, data})
+		(f-call 'sys_mail 'read {mailbox} {msg, data})
 
 		;which mailbox had mail ?
 		(vpif {mailbox == select.sel_select1})
@@ -203,7 +203,7 @@
 
 	;wait for outstanding replies
 	(loop-while {cpu_count != cpu_total})
-		(f-call 'sys_mail 'read {select.sel_select2} {msg})
+		(f-call 'sys_mail 'read {select.sel_select2} {msg, _})
 		(f-call 'sys_mail 'free {msg})
 		(assign {cpu_count + 1} {cpu_count})
 	(loop-end)
@@ -211,7 +211,7 @@
 	;send out exit commands
 	(loop-start)
 		(assign {cpu_count - 1} {cpu_count})
-		(f-call 'sys_mail 'alloc1 {sample_msg_size} {msg, data})
+		(f-call 'sys_mail 'alloc {sample_msg_size} {msg, data})
 		(assign {0} {data->sample_msg_command})
 		(f-call 'array 'get_element {ids, cpu_count * 2} {_, msg->msg_dest.id_mbox})
 		(f-call 'array 'get_element {ids, cpu_count * 2 + 1} {_, msg->msg_dest.id_cpu})
@@ -253,7 +253,7 @@
 	(push-scope)
 	(loop-start)
 		;read mail command
-		(f-call 'sys_mail 'mymail1 {} {msg, data})
+		(f-call 'sys_mail 'mymail {} {msg, data})
 		(breakifnot {data->sample_msg_command})
 
 		;sample command

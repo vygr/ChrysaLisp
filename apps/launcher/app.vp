@@ -50,7 +50,7 @@
 
 	;app event loop
 	(loop-start)
-		(f-call 'sys_mail 'mymail1 {} {msg, data})
+		(f-call 'sys_mail 'mymail {} {msg, data})
 
 		;dispatch event to view
 		(v-call 'view 'event {data->ev_msg_view, data})

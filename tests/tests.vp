@@ -31,7 +31,7 @@
 		(f-call 'array 'get_back {ids} {_, mbox})
 		(d-call 'array 'pop_back {ids})
 		(continueifnot {mbox})
-		(f-call 'sys_mail 'alloc1 {0} {msg, _})
+		(f-call 'sys_mail 'alloc {0} {msg, _})
 		(assign {mbox} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
 		(f-call 'sys_mail 'send {msg})
@@ -68,7 +68,7 @@
 		(f-call 'array 'get_back {ids} {_, mbox})
 		(d-call 'array 'pop_back {ids})
 		(continueifnot {mbox})
-		(f-call 'sys_mail 'alloc1 {mail_data_size * 10} {msg, _})
+		(f-call 'sys_mail 'alloc {mail_data_size * 10} {msg, _})
 		(assign {mbox} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
 		(f-call 'sys_mail 'send {msg})
@@ -115,7 +115,7 @@
 		(f-call 'array 'get_back {ids} {_, mbox})
 		(d-call 'array 'pop_back {ids})
 		(continueifnot {mbox})
-		(f-call 'sys_mail 'alloc1 {0} {msg, _})
+		(f-call 'sys_mail 'alloc {0} {msg, _})
 		(assign {mbox} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
 		(f-call 'sys_mail 'send {msg})
@@ -139,7 +139,7 @@
 	(push-scope)
 
 	;read exit command etc
-	(f-call 'sys_mail 'mymail1 {} {msg, _})
+	(f-call 'sys_mail 'mymail {} {msg, _})
 	(f-call 'sys_mail 'free {msg})
 
 	;wait a bit
@@ -175,7 +175,7 @@
 		(f-call 'array 'get_back {ids} {_, mbox})
 		(d-call 'array 'pop_back {ids})
 		(continueifnot {mbox})
-		(f-call 'sys_mail 'alloc1 {long_size} {msg, data})
+		(f-call 'sys_mail 'alloc {long_size} {msg, data})
 		(assign {mbox} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
 		(assign {10} {*data})
@@ -200,7 +200,7 @@
 	(push-scope)
 
 	;read work value etc
-	(f-call 'sys_mail 'mymail1 {} {msg, data})
+	(f-call 'sys_mail 'mymail {} {msg, data})
 
 	;wait a bit (gee that's hard work etc)
 	(f-call 'math 'random {100000} {num})

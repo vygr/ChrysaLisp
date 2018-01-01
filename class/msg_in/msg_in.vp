@@ -58,7 +58,7 @@
 		(loop-start)
 			(f-call 'msg_out 'next_seq {&this->msg_in_list, msg, this->msg_in_seqnum} {msg, data})
 			(breakif {msg})
-			(f-call 'sys_mail 'read1 {&this->msg_in_mailbox} {msg, _})
+			(f-call 'sys_mail 'read {&this->msg_in_mailbox} {msg, _})
 		(loop-end)
 		(assign {this->msg_in_seqnum + 1} {this->msg_in_seqnum})
 
@@ -70,7 +70,7 @@
 
 		;send ack if needed
 		(vpif {data->stream_msg_seqnum >> msg_out_ack_shift == this->msg_in_ack_seqnum})
-			(f-call 'sys_mail 'alloc1 {0} {ack_msg, _})
+			(f-call 'sys_mail 'alloc {0} {ack_msg, _})
 			(assign {data->stream_msg_ack_id.id_mbox} {ack_msg->msg_dest.id_mbox})
 			(assign {data->stream_msg_ack_id.id_cpu} {ack_msg->msg_dest.id_cpu})
 			(f-call 'sys_mail 'send {ack_msg})

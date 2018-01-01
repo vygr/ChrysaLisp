@@ -139,7 +139,7 @@
 		(vp-label 'send_event)
 			(assign {user->local_mouse_view} {view})
 		(vp-label 'send_event1)
-			(f-call 'sys_mail 'alloc1 {ev_msg_size} {msg, data})
+			(f-call 'sys_mail 'alloc {ev_msg_size} {msg, data})
 			(assign {ev_type_mouse} {data->ev_msg_type})
 			(assign {user->local_mouse_mbox} {msg->msg_dest.id_mbox})
 			(f-call 'kernel 'id {} {msg->msg_dest.id_cpu})
@@ -197,7 +197,7 @@
 				event.sdl_keyboard_event_keysym.sdl_keysym_mod} {key})
 			
 			;send event message
-			(f-call 'sys_mail 'alloc1 {ev_msg_size} {msg, data})
+			(f-call 'sys_mail 'alloc {ev_msg_size} {msg, data})
 			(assign {ev_type_key} {data->ev_msg_type})
 			(assign {user->local_key_mbox} {msg->msg_dest.id_mbox})
 			(f-call 'kernel 'id {} {msg->msg_dest.id_cpu})

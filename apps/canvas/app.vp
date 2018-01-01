@@ -57,7 +57,7 @@
 	(f-call 'canvas 'swap {canvas})
 
 	;start lisp task and send it args
-	(f-call 'sys_mail 'alloc1 {canvas_msg_size} {msg, data})
+	(f-call 'sys_mail 'alloc {canvas_msg_size} {msg, data})
 	(f-call 'sys_task 'start {@apps/canvas/lisp} {_, msg->msg_dest.id_mbox, msg->msg_dest.id_cpu})
 	(assign {canvas, app_width * 1.0, app_height * 1.0, app_scale}
 			{data->canvas_msg_arg0, data->canvas_msg_arg1, data->canvas_msg_arg2, data->canvas_msg_arg3})
@@ -66,7 +66,7 @@
 
 	;app event loop
 	(loop-start)
-		(f-call 'sys_mail 'mymail1 {} {msg, data})
+		(f-call 'sys_mail 'mymail {} {msg, data})
 
 		;dispatch event to view
 		(v-call 'view 'event {data->ev_msg_view, data})
@@ -113,7 +113,7 @@
 	(f-call 'ref 'deref {stream})
 
 	;read canvas msg create argv
-	(f-call 'sys_mail 'mymail1 {} {msg, data})
+	(f-call 'sys_mail 'mymail {} {msg, data})
 	(f-call 'vector 'create {} {args})
 	(f-call 'vector 'push_back {args, data->canvas_msg_arg0})
 	(f-call 'boxed_long 'create {data->canvas_msg_arg1} {value})

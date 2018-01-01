@@ -103,7 +103,7 @@
 				(loop-while {index})
 					(assign {index - 1} {index})
 					(f-call 'vector 'get_element {args, index} {_, string})
-					(f-call 'sys_mail 'alloc1 {slave_msg_init_size + string->string_length} {msg, data})
+					(f-call 'sys_mail 'alloc {slave_msg_init_size + string->string_length} {msg, data})
 					(f-call 'sys_mem 'copy {&string->string_data, &data->slave_msg_init_args, string->string_length})
 					(assign {mbox} {data->slave_msg_init_stdout_id.id_mbox})
 					(assign {cpu} {data->slave_msg_init_stdout_id.id_cpu})
@@ -118,7 +118,7 @@
 					(f-call 'sys_mail 'send {msg})
 
 					;wait for ack with stdin mailbox
-					(f-call 'sys_mail 'read1 {&mailbox} {msg, data})
+					(f-call 'sys_mail 'read {&mailbox} {msg, data})
 					(assign {data->slave_msg_init_stdin_mbox} {mbox})
 					(f-call 'sys_mail 'free {msg})
 				(loop-end)
@@ -137,7 +137,7 @@
 					(f-call 'array 'get_back {ids} {_, mbox})
 					(d-call 'array 'pop_back {ids})
 					(continueifnot {mbox})
-					(f-call 'sys_mail 'alloc1 {0} {msg, _})
+					(f-call 'sys_mail 'alloc {0} {msg, _})
 					(assign {mbox} {msg->msg_dest.id_mbox})
 					(assign {cpu} {msg->msg_dest.id_cpu})
 					(f-call 'sys_mail 'send {msg})
