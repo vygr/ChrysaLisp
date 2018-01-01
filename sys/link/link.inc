@@ -23,8 +23,6 @@
 
 (def-struct 'lk_node)
 	(struct 'table 'lk_table)
-	(ptr 'params)
-	(ulong 'handle)
 	(uint 'cpu_id)
 	(uint 'task_count)
 (def-struct-end)
@@ -36,7 +34,7 @@
 (def-struct 'lk_msg)
 	(uint 'status)
 	(local-align)
-	(struct 'buf (sub msg_size ln_node_size))
+	(struct 'buf 'msg)
 (def-struct-end)
 
 (def-struct 'lk_chan)

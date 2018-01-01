@@ -13,27 +13,6 @@
 ; kernel mail data
 ;;;;;;;;;;;;;;;;;;
 
-(def-struct 'oldkn_msg 'msg_header)
-	(ulong 'user)
-	(struct 'reply_id 'id)
-	(offset 'reply_size)
-	(ulong 'function)
-(def-struct-end)
-
-(def-struct 'oldkn_msg_callback 'oldkn_msg)
-	(ptr 'addr)
-(def-struct-end)
-
-(def-struct 'oldkn_msg_open 'oldkn_msg)
-	(offset 'pathname)
-(def-struct-end)
-
-(def-struct 'oldkn_msg_link_route 'oldkn_msg)
-	(uint 'origin)
-	(uint 'via)
-	(uint 'hops)
-(def-struct-end)
-
 (def-struct 'kn_msg)
 	(ulong 'user)
 	(struct 'reply_id 'id)
