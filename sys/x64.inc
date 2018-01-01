@@ -8,6 +8,7 @@
 	(find r '(r0 r1 r2 r3 rsp r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)))
 
 (defcvar 'stack_align 8 'stack_state '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+
 (defcfun stack-init ()
 	(defq tk_state_size (mul ptr_size (length stack_state)))
 	(vp-sub-cr (add tk_state_size (mul ptr_size 2)) r1)

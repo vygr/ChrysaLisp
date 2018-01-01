@@ -286,14 +286,13 @@
 			(assign {frag->msg_dest.id_cpu} {msg->msg_dest.id_cpu})
 			(assign {frag->msg_parcel_src} {msg->msg_parcel_src})
 			(assign {frag->msg_parcel_id} {msg->msg_parcel_id})
-			(assign {0} {msg->msg_parcel_offset})
 			(assign {&frag->msg_dest.id_mbox->mailbox_parcel_list, msg} '(r0 r1))
 			(lh-add-at-tail r0 r1 r2)
 		(endif)
 
 		;copy fragment data
 		(assign {frag->msg_length} {len})
-		(f-call 'sys_mem 'copy {fdata, msg->msg_data + msg->msg_parcel_offset, len})
+		(f-call 'sys_mem 'copy {fdata, msg->msg_parcel_data + frag->msg_parcel_offset, len})
 		(assign {msg->msg_parcel_offset + len} {msg->msg_parcel_offset})
 		(assign {msg->msg_parcel_length - len} {msg->msg_parcel_length})
 
