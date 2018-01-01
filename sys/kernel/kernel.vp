@@ -73,9 +73,8 @@
 		;service all kernel mail
 		(loop-start)
 			;check if any mail
-			(f-call 'sys_mail 'try_read {mbox} {msg})
+			(f-call 'sys_mail 'try_read {mbox} {msg, data})
 			(breakifnot {msg})
-			(assign {msg->msg_parcel_data} {data})
 
 			;(switch) on kernel call number
 			(assign {data->kn_msg_function} {num})

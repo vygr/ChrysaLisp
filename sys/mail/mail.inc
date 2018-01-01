@@ -15,7 +15,7 @@
 (def-method 'free 'sys/mail/free 'static '(r0))
 (def-method 'send 'sys/mail/send 'static '(r0))
 (def-method 'read 'sys/mail/read 'static '(r0) '(r0 r1))
-(def-method 'try_read 'sys/mail/try_read 'static '(r0) '(r0))
+(def-method 'try_read 'sys/mail/try_read 'static '(r0) '(r0 r1))
 (def-method 'select 'sys/mail/select 'static '(r0 r1) '(r0))
 (def-method 'mymail 'sys/mail/mymail 'static nil '(r0 r1))
 (def-method 'init_mailbox 'sys/mail/init_mailbox 'static '(r0) '(r0))

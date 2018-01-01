@@ -127,8 +127,9 @@
 	;r0 = mailbox address
 	;outputs
 	;r0 = 0, else mail address
+	;r1 = string data
 	;trashes
-	;r1-r2
+	;r2
 
 	(f-entry 'sys_mail 'try_read '(r0))
 	(lh-get-head r0 0 r0)
@@ -137,8 +138,9 @@
 	(vpif '(r0 != 0))
 		(vp-cpy-rr r1 r0)
 		(ln-remove-node r1 r2)
+		(vp-cpy-ir r0 msg_parcel_data r1)
 	(endif)
-	(f-exit 'sys_mail 'try_read '(r0))
+	(f-exit 'sys_mail 'try_read '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
