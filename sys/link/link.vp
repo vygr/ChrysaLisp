@@ -120,7 +120,8 @@
 		(vpif {out_msg})
 			(vpif {tx_msg->lk_msg_status == lk_chan_status_ready})
 				;copy message data
-				(f-call 'sys_mem 'copy {out_msg, &tx_msg->lk_msg_buf, out_msg->msg_length + msg_header_size})
+				(f-call 'sys_mem 'copy {out_msg + ln_node_size, &tx_msg->lk_msg_buf,
+					(out_msg->msg_length + msg_header_size + long_size - ln_node_size - 1) & - long_size)})
 
 				;busy status
 				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
@@ -141,8 +142,9 @@
 		;check for received message
 		(vpif {rx_msg->lk_msg_status == lk_chan_status_busy})
 			;allocate msg, copy over data
-			(f-call 'sys_mail 'alloc {rx_msg->lk_msg_buf.msg_length} {msg, _})
-			(f-call 'sys_mem 'copy {&rx_msg->lk_msg_buf, msg, rx_msg->lk_msg_buf.msg_length + msg_header_size})
+			(f-call 'sys_mail 'alloc {uint(rx_msg->lk_msg_buf)} {msg, _})
+			(f-call 'sys_mem 'copy {&rx_msg->lk_msg_buf, msg + ln_node_size,
+				(uint(rx_msg->lk_msg_buf) + msg_header_size + long_size - ln_node_size - 1) & - long_size})
 			(assign {&msg->msg_data} {msg->msg_parcel_data})
 
 			;clear status
@@ -163,7 +165,7 @@
 
 		;are we in a quiet period
 		(continueif {rx_msg->lk_msg_status == lk_chan_status_busy})
-		(continueif {out_msg && tx_msg->lk_msg_status == lk_chan_status_ready})
+		(continueif {out_msg && (tx_msg->lk_msg_status == lk_chan_status_ready)})
 
 		;small sleep if so
 		(f-call 'sys_task 'sleep {1000})

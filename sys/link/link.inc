@@ -34,7 +34,7 @@
 (def-struct 'lk_msg)
 	(uint 'status)
 	(local-align)
-	(struct 'buf 'msg)
+	(struct 'buf (sub (add msg_header_size mail_data_size) ln_node_size))
 (def-struct-end)
 
 (def-struct 'lk_chan)
