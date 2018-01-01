@@ -16,7 +16,10 @@
 	;r0 = argv pointer
 	;r1 = SDL func table
 
-	(ptr 'argv 'sdl 'tcb 'mbox 'task_statics 'link_statics 'func 'old_stack)
+	(union
+		'(ptr 'argv 'sdl)
+		'(ptr 'link 'mbox))
+	(ptr 'task_statics 'link_statics 'func 'old_stack)
 	(ptr 'msg 'data 'new_msg)
 	(pptr 'iter_begin 'iter_end)
 	(struct 'routes 'lk_table)
@@ -41,10 +44,9 @@
 	(f-call 'sys_link 'init)
 
 	;start kernel task
-	(f-call 'sys_task 'start {$func_entry} {tcb, mbox, _})
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
 	(assign (cat {@} (f-path 'sys_link 'statics)) {link_statics})
-	(assign {tcb} {task_statics->tk_statics_kernel_tcb})
+	(f-call 'sys_task 'start {$func_entry} {task_statics->tk_statics_kernel_tcb, mbox, _})
 
 	;init mailer
 	(f-call 'sys_mail 'init {mbox})
@@ -100,9 +102,10 @@
 				(assign {task_statics->tk_statics_task_count, id} {best_cnt, best_id})
 				(f-call 'array 'get_iters {link_statics->lk_statics_links_array} {_, iter_begin, iter_end})
 				(loop-while {iter_begin != iter_end})
-					(vpif {(*iter_begin)->lk_node_task_count < best_cnt})
-						(assign {(*iter_begin)->lk_node_task_count} {best_cnt})
-						(assign {(*iter_begin)->lk_node_cpu_id} {best_id})
+					(assign {*iter_begin} {link})
+					(vpif {link->lk_node_task_count < best_cnt})
+						(assign {link->lk_node_task_count} {best_cnt})
+						(assign {link->lk_node_cpu_id} {best_id})
 					(endif)
 					(assign {iter_begin + ptr_size} {iter_begin})
 				(loop-end)
@@ -140,17 +143,18 @@
 					;fill in via route and remove other routes
 					(f-call 'array 'get_iters {link_statics->lk_statics_links_array} {_, iter_begin, iter_end})
 					(loop-while {iter_begin != iter_end})
+						(assign {*iter_begin} {link})
 						;new link route table ?
-						(vpif {route_index + lk_route_size > (*iter_begin)->lk_node_table.lk_table_array_size})
-							(f-call 'sys_mem 'recalloc {(*iter_begin)->lk_node_table.lk_table_array, (*iter_begin)->lk_node_table.lk_table_array_size, route_index + lk_route_size}
-								{(*iter_begin)->lk_node_table.lk_table_array, (*iter_begin)->lk_node_table.lk_table_array_size})
+						(vpif {route_index + lk_route_size > link->lk_node_table.lk_table_array_size})
+							(f-call 'sys_mem 'recalloc {link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size, route_index + lk_route_size}
+								{link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size})
 						(endif)
-						(vpif {(*iter_begin)->lk_node_cpu_id == data->kn_msg_link_route_via})
+						(vpif {link->lk_node_cpu_id == data->kn_msg_link_route_via})
 							;via route
-							(assign {new_hops} {((*iter_begin)->lk_node_table.lk_table_array)[route_index].lk_route_hops})
+							(assign {new_hops} {(link->lk_node_table.lk_table_array)[route_index].lk_route_hops})
 						(else)
 							;none via route
-							(assign {0} {((*iter_begin)->lk_node_table.lk_table_array)[route_index].lk_route_hops})
+							(assign {0} {(link->lk_node_table.lk_table_array)[route_index].lk_route_hops})
 						(endif)
 						(assign {iter_begin + ptr_size} {iter_begin})
 					(loop-end)
@@ -159,14 +163,15 @@
 					;new hops is equal, so additional route
 					(f-call 'array 'get_iters {link_statics->lk_statics_links_array} {_, iter_begin, iter_end})
 					(loop-while {iter_begin != iter_end})
+						(assign {*iter_begin} {link})
 						;new link route table ?
-						(vpif {route_index + lk_route_size > (*iter_begin)->lk_node_table.lk_table_array_size})
-							(f-call 'sys_mem 'recalloc {(*iter_begin)->lk_node_table.lk_table_array, (*iter_begin)->lk_node_table.lk_table_array_size, route_index + lk_route_size}
-								{(*iter_begin)->lk_node_table.lk_table_array, (*iter_begin)->lk_node_table.lk_table_array_size})
+						(vpif {route_index + lk_route_size > link->lk_node_table.lk_table_array_size})
+							(f-call 'sys_mem 'recalloc {link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size, route_index + lk_route_size}
+								{link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size})
 						(endif)
-						(vpif {(*iter_begin)->lk_node_cpu_id == data->kn_msg_link_route_via})
+						(vpif {link->lk_node_cpu_id == data->kn_msg_link_route_via})
 							;via route
-							(assign {new_hops} {((*iter_begin)->lk_node_table.lk_table_array)[route_index].lk_route_hops})
+							(assign {new_hops} {(link->lk_node_table.lk_table_array)[route_index].lk_route_hops})
 						(endif)
 						(assign {iter_begin + ptr_size} {iter_begin})
 					(loop-end)
@@ -186,10 +191,11 @@
 				;copy and send to all neighbors apart from old via
 				(f-call 'array 'get_iters {link_statics->lk_statics_links_array} {_, iter_begin, iter_end})
 				(loop-while {iter_begin != iter_end})
-					(vpif {(*iter_begin)->lk_node_cpu_id != via})
+					(assign {*iter_begin} {link})
+					(vpif {link->lk_node_cpu_id != via})
 						(f-call 'sys_mail 'alloc {msg->msg_length} {new_msg})
 						(f-call 'sys_mem 'copy {msg, new_msg, msg->msg_length})
-						(assign {(*iter_begin)->lk_node_cpu_id} {new_msg->msg_dest.id_cpu})
+						(assign {link->lk_node_cpu_id} {new_msg->msg_dest.id_cpu})
 						(f-call 'sys_mail 'send {new_msg})
 					(endif)
 					(assign {iter_begin + ptr_size} {iter_begin})
