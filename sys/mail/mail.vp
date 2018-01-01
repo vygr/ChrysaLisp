@@ -306,7 +306,7 @@
 		(endif)
 
 		;free fragment
-		(f-call 'sys_mem 'free {frag})
+		(f-call 'sys_mail 'free {frag})
 	(loop-end)
 
 	(f-exit 'sys_mail 'in {})
@@ -367,7 +367,7 @@
 		(loop-untilnot {ammount})
 
 		;free parcel
-		(f-call 'sys_mem 'free {msg})
+		(f-call 'sys_mail 'free {msg})
 	(loop-end)
 
 	(f-exit 'sys_mail 'out {})
