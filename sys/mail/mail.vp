@@ -48,7 +48,7 @@
 	;trashes
 	;r2
 
-	(f-call 'sys_task 'mailbox '() '(r0 r1))
+	(f-call 'sys_task 'mailbox '() '(r0 _))
 	(f-jmp 'sys_mail 'read '(r0))
 
 (def-func-end)
@@ -256,7 +256,7 @@
 (def-func 'sys/mail/in)
 	;parcel fragments arriving on chip task
 
-	(ptr 'msg 'data 'frag 'fdata 'mail_statics)
+	(ptr 'msg 'frag 'fdata 'mail_statics)
 	(uint 'len)
 
 	(push-scope)
@@ -280,22 +280,22 @@
 		(assign (list node) {msg})
 		(vpif `(,next == 0))
 			;new parcel
-			(f-call 'sys_mail 'alloc {frag->msg_parcel_length - msg_data} {msg, data})
-			(assign {frag->msg_parcel_length - msg_data} {msg->msg_parcel_length})
+			(f-call 'sys_mail 'alloc {frag->msg_parcel_length} {msg, _})
+			(assign {frag->msg_parcel_length} {msg->msg_parcel_length})
 			(assign {frag->msg_dest.id_mbox} {msg->msg_dest.id_mbox})
 			(assign {frag->msg_dest.id_cpu} {msg->msg_dest.id_cpu})
 			(assign {frag->msg_parcel_src} {msg->msg_parcel_src})
 			(assign {frag->msg_parcel_id} {msg->msg_parcel_id})
-			(assign {msg_data} {msg->msg_parcel_offset})
+			(assign {0} {msg->msg_parcel_offset})
 			(assign {&frag->msg_dest.id_mbox->mailbox_parcel_list, msg} '(r0 r1))
 			(lh-add-at-tail r0 r1 r2)
 		(endif)
 
 		;copy fragment data
 		(assign {frag->msg_length - msg_data} {len})
-		(assign {msg->msg_parcel_length - len} {msg->msg_parcel_length})
-		(f-call 'sys_mem 'copy {fdata, msg + msg->msg_parcel_offset, len})
+		(f-call 'sys_mem 'copy {fdata, msg->msg_data + msg->msg_parcel_offset, len})
 		(assign {msg->msg_parcel_offset + len} {msg->msg_parcel_offset})
+		(assign {msg->msg_parcel_length - len} {msg->msg_parcel_length})
 
 		;got all needed ?
 		(vpifnot {msg->msg_parcel_length})
@@ -335,26 +335,27 @@
 		(assign {mail_statics->ml_statics_parcel_id + 1} {mail_statics->ml_statics_parcel_id})
 
 		;for each fragment
-		(assign {msg_data} {offset})
+		(assign {0} {offset})
 		(assign {msg->msg_length - msg_data} {ammount})
 		(loop-start)
 			;create fragment
-			(f-call 'sys_mail 'alloc {mail_data_size} {frag, fdata})
-
-			;fill in fragment header
-			(assign {msg->msg_dest.id_mbox} {frag->msg_dest.id_mbox})
-			(assign {msg->msg_dest.id_cpu} {frag->msg_dest.id_cpu})
-			(assign {offset} {frag->msg_parcel_offset})
-			(assign {msg->msg_length} {frag->msg_parcel_length})
-			(assign {id} {frag->msg_parcel_src})
-			(assign {mail_statics->ml_statics_parcel_id} {frag->msg_parcel_id})
-
-			;copy fragment data
 			(assign {ammount} {len})
 			(vpif {len > mail_data_size})
 				(assign {mail_data_size} {len})
 			(endif)
-			(f-call 'sys_mem 'copy {msg + offset, frag + offset, len})
+			(f-call 'sys_mail 'alloc {len} {frag, fdata})
+
+			;fill in fragment
+			(assign {msg->msg_dest.id_mbox} {frag->msg_dest.id_mbox})
+			(assign {msg->msg_dest.id_cpu} {frag->msg_dest.id_cpu})
+			(assign {offset} {frag->msg_parcel_offset})
+			(assign {msg->msg_length - msg_data} {frag->msg_parcel_length})
+			(assign {id} {frag->msg_parcel_src})
+			(assign {mail_statics->ml_statics_parcel_id} {frag->msg_parcel_id})
+			(f-call 'sys_mem 'copy {data + offset, fdata, len})
+
+			;move on
+			(assign {offset + len} {offset})
 			(assign {ammount - len} {ammount})
 
 			;queue it on the outgoing packet list
