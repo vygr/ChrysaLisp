@@ -192,8 +192,9 @@
 				(loop-while {iter_begin != iter_end})
 					(assign {*iter_begin} {link})
 					(vpif {link->lk_node_cpu_id != via})
-						(f-call 'sys_mail 'alloc {msg->msg_length - msg_data} {new_msg, _})
-						(f-call 'sys_mem 'copy {msg, new_msg, msg->msg_length})
+						(f-call 'sys_mail 'alloc {msg->msg_length} {new_msg, _})
+						(f-call 'sys_mem 'copy {msg, new_msg, msg->msg_length + msg_header_size})
+						(assign {&new_msg->msg_data} {new_msg->msg_parcel_data})
 						(assign {link->lk_node_cpu_id} {new_msg->msg_dest.id_cpu})
 						(f-call 'sys_mail 'send {new_msg})
 					(endif)
@@ -393,12 +394,11 @@
 		(f-call 'sys_task 'start (cat {@} (f-path 'sys_link 'link)) {_, mbox.id_mbox, mbox.id_cpu})
 
 		;params message
-		(f-call 'sys_mail 'alloc {mail_data_size} {msg, data})
+		(f-call 'sys_mail 'alloc {5 + 7 + 1} {msg, data})
 		(assign {mbox.id_mbox} {msg->msg_dest.id_mbox})
 		(assign {mbox.id_cpu} {msg->msg_dest.id_cpu})
 		(f-call 'sys_string 'copy {$link_path, data} {_, data})
 		(f-call 'sys_string 'copy {*argv, data - 1} {_, data})
-		(assign {data - msg} {msg->msg_length})
 
 		;send to link task
 		(f-call 'sys_mail 'send {msg})

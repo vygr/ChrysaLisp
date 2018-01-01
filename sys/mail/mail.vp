@@ -70,7 +70,7 @@
 
 	(f-call 'sys_mem 'alloc {msg_header_size + total} {msg, _})
 	(assign {0} {msg->msg_parcel_length})
-	(assign {msg_header_size + total} {msg->msg_length})
+	(assign {total} {msg->msg_length})
 	(assign {&msg->msg_data} {msg->msg_parcel_data})
 
 	(f-exit 'sys_mail 'alloc {msg, msg->msg_parcel_data})
@@ -182,7 +182,7 @@
 		;going off chip
 		(f-bind 'sys_mail 'statics r1)
 		(vp-cpy-ir-ui r2 msg_length r0)
-		(vpif '(r0 > msg_size))
+		(vpif '(r0 > mail_data_size))
 			;must use postman task
 			(vp-cpy-ir r1 ml_statics_out_mailbox r1)
 			(vp-jmp 'post_it)
@@ -292,7 +292,7 @@
 		(endif)
 
 		;copy fragment data
-		(assign {frag->msg_length - msg_data} {len})
+		(assign {frag->msg_length} {len})
 		(f-call 'sys_mem 'copy {fdata, msg->msg_data + msg->msg_parcel_offset, len})
 		(assign {msg->msg_parcel_offset + len} {msg->msg_parcel_offset})
 		(assign {msg->msg_parcel_length - len} {msg->msg_parcel_length})
@@ -336,7 +336,7 @@
 
 		;for each fragment
 		(assign {0} {offset})
-		(assign {msg->msg_length - msg_data} {ammount})
+		(assign {msg->msg_length} {ammount})
 		(loop-start)
 			;create fragment
 			(assign {ammount} {len})
@@ -349,7 +349,7 @@
 			(assign {msg->msg_dest.id_mbox} {frag->msg_dest.id_mbox})
 			(assign {msg->msg_dest.id_cpu} {frag->msg_dest.id_cpu})
 			(assign {offset} {frag->msg_parcel_offset})
-			(assign {msg->msg_length - msg_data} {frag->msg_parcel_length})
+			(assign {msg->msg_length} {frag->msg_parcel_length})
 			(assign {id} {frag->msg_parcel_src})
 			(assign {mail_statics->ml_statics_parcel_id} {frag->msg_parcel_id})
 			(f-call 'sys_mem 'copy {data + offset, fdata, len})

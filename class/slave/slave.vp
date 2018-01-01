@@ -31,14 +31,14 @@
 		;init myself
 		(f-call 'sys_task 'mailbox {} {mymailbox, _})
 		(f-call 'sys_mail 'read {mymailbox} {msg, data})
-		(vpif {msg->msg_length != msg_header_size})
+		(vpif {msg->msg_length})
 			;create stdin, stdout, stderr
 			(f-call 'msg_in 'create {} {this->slave_stdin})
 			(f-call 'msg_out 'create {data->slave_msg_init_stdout_id.id_mbox, data->slave_msg_init_stdout_id.id_cpu} {this->slave_stdout})
 			(f-call 'msg_out 'create {data->slave_msg_init_stderr_id.id_mbox, data->slave_msg_init_stderr_id.id_cpu} {this->slave_stderr})
 
 			;create args
-			(f-call 'stream 'create {0, 0, &data->slave_msg_init_args, msg->msg_length - msg_header_size - slave_msg_init_size} {stream})
+			(f-call 'stream 'create {0, 0, &data->slave_msg_init_args, msg->msg_length - slave_msg_init_size} {stream})
 			(f-call 'stream 'split {stream, char_space} {_, this->slave_args})
 			(f-call 'stream 'deref {stream})
 

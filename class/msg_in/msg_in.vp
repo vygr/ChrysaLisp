@@ -65,7 +65,7 @@
 		;save msg buffer details
 		(assign {msg} {this->stream_buffer})
 		(assign {&data->stream_msg_data} {this->stream_bufp})
-		(assign {msg + msg->msg_length} {this->stream_bufe})
+		(assign {data + msg->msg_length} {this->stream_bufe})
 		(assign {data->stream_msg_state} {this->msg_in_state})
 
 		;send ack if needed

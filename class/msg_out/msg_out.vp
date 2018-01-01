@@ -109,7 +109,7 @@
 	(vpif {msg})
 		;send current buffer
 		(assign {msg->msg_parcel_data} {data})
-		(assign {this->stream_bufp - msg} {msg->msg_length})
+		(assign {this->stream_bufp - data} {msg->msg_length})
 		(assign {this->msg_out_id.id_mbox} {msg->msg_dest.id_mbox})
 		(assign {this->msg_out_id.id_cpu} {msg->msg_dest.id_cpu})
 		(assign {this->msg_out_seqnum} {data->stream_msg_seqnum})
