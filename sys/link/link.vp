@@ -1,17 +1,17 @@
 (import 'sys/func.inc)
 (import 'sys/link/link.inc)
 (import 'sys/kernel/kernel.inc)
+(import 'class/array/array.inc)
 
 (def-func 'sys/link/statics)
 	(times lk_statics_size (vp-byte 0))
 (def-func-end)
 
 (def-func 'sys/link/init)
-	;get statics
-	(f-bind 'sys_link 'statics r0)
-
-	(vp-lea-i r0 lk_statics_links_list r0)
-	(lh-init r0 r1)
+	;create link array
+	(f-call 'array 'create '() '(r0))
+	(f-bind 'sys_link 'statics r1)
+	(vp-cpy-ri r0 r1 lk_statics_links_array)
 	(vp-ret)
 
 (def-func-end)
@@ -26,14 +26,13 @@
 	(vp-sub-cr 1 r1)
 	(vp-cpy-ri-i r1 r0 tk_statics_task_count)
 
-	;allocate link node on stack and link to links list
+	;allocate link node on stack and add to link array
 	(vp-alloc lk_node_size)
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 rsp (add lk_node_table lk_table_array))
 	(vp-cpy-ri r1 rsp (add lk_node_table lk_table_array_size))
 	(f-bind 'sys_link 'statics r1)
-	(vp-lea-i r1 lk_statics_links_list r1)
-	(lh-add-at-head r1 rsp r2)
+	(f-call 'array 'push_back '((r1 lk_statics_links_array) rsp))
 
 	;read params msg from kernel
 	(f-call 'sys_mail 'mymail '() '(r13))
@@ -237,10 +236,8 @@
 	;free params msg
 	(f-call 'sys_mem 'free '((rsp lk_node_params)))
 
-	;remove from links list and deallocate link node on stack
+	;remove from links array and deallocate link node on stack
 	(f-call 'sys_mem 'free '((rsp lk_node_table)))
-	(vp-cpy-rr rsp r0)
-	(ln-remove-node r0 r1)
 	(vp-free lk_node_size)
 
 	;restore task count

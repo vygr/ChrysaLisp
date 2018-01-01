@@ -4,6 +4,7 @@
 (import 'gui/sdl2.inc)
 (import 'sys/kernel/kernel.inc)
 (import 'sys/string/string.inc)
+(import 'class/array/array.inc)
 
 ;;;;;;;;;;;;;
 ; kernel task
@@ -15,20 +16,20 @@
 	;r0 = argv pointer
 	;r1 = SDL func table
 
-	(def-struct 'local)
-		(ptr 'argv)
-		(ptr 'old_stack)
-	(def-struct-end)
+	(ptr 'argv 'sdl 'tcb 'mbox 'task_statics 'link_statics 'func 'old_stack)
+	(ptr 'msg 'data 'new_msg)
+	(pptr 'iter_begin 'iter_end)
+	(struct 'routes 'lk_table)
+	(uint 'id 'num 'best_cnt 'best_id 'route_index 'hops 'new_hops 'via)
 
-	;save argv on stack, aligned for sdl
+	;align stack
 	(vp-cpy-rr rsp r2)
-	(vp-alloc local_size)
+	(push-scope)
 	(vp-and-cr -16 rsp)
-	(f-entry 'kernel 'kernel '((rsp local_argv) r1))
-	(vp-cpy-ri r2 rsp local_old_stack)
+	(l-entry {argv, sdl, old_stack})
 
 	;init gui
-	(f-call 'gui_gui 'init '(r1))
+	(f-call 'gui_gui 'init {sdl})
 
 	;init allocator
 	(f-call 'sys_mem 'init)
@@ -40,27 +41,23 @@
 	(f-call 'sys_link 'init)
 
 	;start kernel task
-	(f-call 'sys_task 'start '(($ func_entry)) '(r0 r1 _))
-	(f-bind 'sys_task 'statics r2)
-	(vp-cpy-ri r0 r2 tk_statics_kernel_tcb)
+	(f-call 'sys_task 'start {$func_entry} {tcb, mbox, _})
+	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
+	(assign (cat {@} (f-path 'sys_link 'statics)) {link_statics})
+	(assign {tcb} {task_statics->tk_statics_kernel_tcb})
 
-	;init mailer, r1 = kernel mailbox !
-	(f-call 'sys_mail 'init '(r1))
+	;init mailer
+	(f-call 'sys_mail 'init {mbox})
 
 	;process command options
-	(f-call 'kernel 'opts '((rsp local_argv)))
+	(f-call 'kernel 'opts {argv})
 
 	;fill in num cpu's with at least mine + 1
-	(f-call 'kernel 'id '() '(r0))
-	(vp-add-cr 1 r0)
-	(f-bind 'sys_task 'statics r1)
-	(vp-cpy-ri-i r0 r1 tk_statics_cpu_total)
+	(f-call 'kernel 'id {} {id})
+	(assign {id + 1} {task_statics->tk_statics_cpu_total})
 
 	;allocate for kernel routing table
-	(vp-alloc lk_table_size)
-	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r1 rsp lk_table_array)
-	(vp-cpy-ri r1 rsp lk_table_array_size)
+	(assign {0, 0} {routes.lk_table_array, routes.lk_table_array_size})
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernel task loop
@@ -74,130 +71,104 @@
 		;service all kernel mail
 		(loop-start)
 			;check if any mail
-			(f-call 'sys_task 'mailbox '() '(r0 r1))
-			(f-call 'sys_mail 'try_read '(r0) '(r0))
-			(breakif '(r0 == 0))
-			(vp-cpy-rr r0 r14)
+			(f-call 'sys_mail 'try_read {mbox} {msg})
+			(breakifnot {msg})
+			(assign {msg->msg_parcel_data} {data})
 
 			;(switch) on kernel call number
-			(vp-cpy-ir r14 oldkn_msg_function r1)
+			(assign {data->kn_msg_function} {num})
 			(switch)
-			(case '(r1 == kn_call_open))
+			(case {num == kn_call_open})
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
-				(vp-cpy-ir r14 (add oldkn_msg_reply_id id_mbox) r1)
-				(vp-cpy-ir r14 (add oldkn_msg_reply_id id_cpu) r2)
-				(vp-cpy-ri r1 r14 (add msg_dest id_mbox))
-				(vp-cpy-ri r2 r14 (add msg_dest id_cpu))
+				(assign {data->kn_msg_reply_id.id_mbox} {msg->msg_dest.id_mbox})
+				(assign {data->kn_msg_reply_id.id_cpu} {msg->msg_dest.id_cpu})
 
 				;open single task and return mailbox ID
-				(f-call 'sys_load 'bind '((& r14 oldkn_msg_open_pathname)) '(r0))
-				(vpif '(r0 == 0))
-					;error
-					(vp-cpy-rr r0 r1)
-				(else)
+				(f-call 'sys_load 'bind {&data->kn_msg_open_pathname} {func})
+				(vpif {func})
 					;start this function as task
-					(f-call 'sys_task 'start '(r0) '(_ r1 r0))
+					(f-call 'sys_task 'start {func} {_, data->kn_msg_reply_id.id_mbox, data->kn_msg_reply_id.id_cpu})
+				(else)
+					;error
+					(assign {0, 0} {data->kn_msg_reply_id.id_mbox, data->kn_msg_reply_id.id_cpu})
 				(endif)
-				(vp-cpy-ri r1 r14 (add oldkn_msg_reply_id id_mbox))
-				(vp-cpy-ri r0 r14 (add oldkn_msg_reply_id id_cpu))
-				(vp-cpy-cr oldkn_msg_reply_size r0)
-				(vp-cpy-ri-i r0 r14 msg_length)
-				(f-call 'sys_mail 'send '(r14))
+				(f-call 'sys_mail 'send {msg})
 				(break)
-			(case '(r1 == kn_call_child))
+			(case {num == kn_call_child})
 				;find best cpu to run task
-				(f-call 'kernel 'id '() '(r4))
-				(f-bind 'sys_task 'statics r1)
-				(vp-cpy-ir-ui r1 tk_statics_task_count r1)
-				(f-bind 'sys_link 'statics r2)
-				(loop-list-forward r2 lk_statics_links_list r3 r2)
-					(vp-cpy-ir-ui r3 lk_node_task_count r13)
-					(continueif '(r1 <= r13))
-					(vp-cpy-ir-ui r3 lk_node_cpu_id r0)
-					(vp-cpy-rr r13 r1)
+				(assign {task_statics->tk_statics_task_count, id} {best_cnt, best_id})
+				(f-call 'array 'get_iters {link_statics->lk_statics_links_array} {_, iter_begin, iter_end})
+				(loop-while {iter_begin != iter_end})
+					(vpif {(*iter_begin)->lk_node_task_count < best_cnt})
+						(assign {(*iter_begin)->lk_node_task_count} {best_cnt})
+						(assign {(*iter_begin)->lk_node_cpu_id} {best_id})
+					(endif)
+					(assign {iter_begin + ptr_size} {iter_begin})
 				(loop-end)
-				(gotoif '(r0 == r4) 'run_here)
+				(gotoif {best_id == id} 'run_here)
 
 				;send to better kernel
-				(vp-cpy-ri r0 r14 (add msg_dest id_cpu))
-				(f-call 'sys_mail 'send '(r14))
+				(assign {best_id} {msg->msg_dest.id_cpu})
+				(f-call 'sys_mail 'send {msg})
 				(break)
-			(case '(r1 == kn_call_route))
+			(case {num == kn_call_route})
 				;increase size of network ?
-				(f-bind 'sys_task 'statics r0)
-				(vp-cpy-ir-ui r14 oldkn_msg_link_route_origin r1)
-				(vp-add-cr 1 r1)
-				(vp-cpy-ir-ui r0 tk_statics_cpu_total r13)
-				(vpif '(r1 > r13))
-					(vp-cpy-ri-i r1 r0 tk_statics_cpu_total)
+				(vpif {data->kn_msg_link_route_origin >= task_statics->tk_statics_cpu_total})
+					(assign {data->kn_msg_link_route_origin + 1} {task_statics->tk_statics_cpu_total})
 				(endif)
 
 				;new kernel routing table ?
-				(vp-cpy-ir-ui r14 oldkn_msg_link_route_origin r10)
-				(vp-mul-cr lk_route_size r10)
-				(assign '((rsp lk_table_array) (rsp lk_table_array_size) (& r10 lk_route_size)) '(r0 r1 r2))
-				(vpif '(r2 > r1))
-					(f-call 'sys_mem 'recalloc '(r0 r1 r2) '(r0 r1))
-					(assign '(r0 r1) '((rsp lk_table_array) (rsp lk_table_array_size)))
+				(assign {data->kn_msg_link_route_origin * lk_route_size} {route_index})
+				(vpif {route_index + lk_route_size > routes.lk_table_array_size})
+					(f-call 'sys_mem 'recalloc {routes.lk_table_array, routes.lk_table_array_size, route_index + lk_route_size}
+						{routes.lk_table_array, routes.lk_table_array_size})
 				(endif)
 
 				;compare hop counts
-				(vp-add-cr lk_route_hops r0)
-				(vp-cpy-ir-ui r14 oldkn_msg_link_route_hops r2)
-				(vp-cpy-dr-ui r0 r10 r3)
+				(assign {(routes.lk_table_array)[route_index].lk_route_hops} {hops})
+				(assign {data->kn_msg_link_route_hops} {new_hops})
 				(switch)
-				(case '(r3 == 0))
+				(casenot {hops})
 					;never seen, so better route
 					(vp-jmp 'better_route)
-				(case '(r2 < r3))
+				(case {new_hops < hops})
 				(vp-label 'better_route)
 					;new hops is less, so better route
-					(vp-cpy-rd-i r2 r0 r10)
+					(assign {new_hops} {(routes.lk_table_array)[route_index].lk_route_hops})
 
 					;fill in via route and remove other routes
-					(vp-cpy-ir-ui r14 oldkn_msg_link_route_via r12)
-					(f-bind 'sys_link 'statics r13)
-					(loop-list-forward r13 lk_statics_links_list r11 r13)
+					(f-call 'array 'get_iters {link_statics->lk_statics_links_array} {_, iter_begin, iter_end})
+					(loop-while {iter_begin != iter_end})
 						;new link route table ?
-						(assign '((r11 (add lk_node_table lk_table_array)) (r11 (add lk_node_table lk_table_array_size)) (& r10 lk_route_size)) '(r0 r1 r2))
-						(vpif '(r2 > r1))
-							(f-call 'sys_mem 'recalloc '(r0 r1 r2) '(r0 r1))
-							(assign '(r0 r1) '((r11 (add lk_node_table lk_table_array)) (r11 (add lk_node_table lk_table_array_size))))
+						(vpif {route_index + lk_route_size > (*iter_begin)->lk_node_table.lk_table_array_size})
+							(f-call 'sys_mem 'recalloc {(*iter_begin)->lk_node_table.lk_table_array, (*iter_begin)->lk_node_table.lk_table_array_size, route_index + lk_route_size}
+								{(*iter_begin)->lk_node_table.lk_table_array, (*iter_begin)->lk_node_table.lk_table_array_size})
 						(endif)
-
-						(vp-add-cr lk_route_hops r0)
-						(vp-cpy-ir-ui r11 lk_node_cpu_id r9)
-						(vpif '(r12 == r9))
+						(vpif {(*iter_begin)->lk_node_cpu_id == data->kn_msg_link_route_via})
 							;via route
-							(vp-cpy-ir-ui r14 oldkn_msg_link_route_hops r2)
-							(vp-cpy-rd-i r2 r0 r10)
+							(assign {new_hops} {((*iter_begin)->lk_node_table.lk_table_array)[route_index].lk_route_hops})
 						(else)
 							;none via route
-							(vp-xor-rr r1 r1)
-							(vp-cpy-rd-i r1 r0 r10)
+							(assign {0} {((*iter_begin)->lk_node_table.lk_table_array)[route_index].lk_route_hops})
 						(endif)
+						(assign {iter_begin + ptr_size} {iter_begin})
 					(loop-end)
 					(break)
-				(case '(r2 == r3))
+				(case {new_hops == hops})
 					;new hops is equal, so additional route
-					(vp-cpy-ir-ui r14 oldkn_msg_link_route_via r12)
-					(f-bind 'sys_link 'statics r13)
-					(loop-list-forward r13 lk_statics_links_list r11 r13)
+					(f-call 'array 'get_iters {link_statics->lk_statics_links_array} {_, iter_begin, iter_end})
+					(loop-while {iter_begin != iter_end})
 						;new link route table ?
-						(assign '((r11 (add lk_node_table lk_table_array)) (r11 (add lk_node_table lk_table_array_size)) (& r10 lk_route_size)) '(r0 r1 r2))
-						(vpif '(r2 > r1))
-							(f-call 'sys_mem 'recalloc '(r0 r1 r2) '(r0 r1))
-							(assign '(r0 r1) '((r11 (add lk_node_table lk_table_array)) (r11 (add lk_node_table lk_table_array_size))))
+						(vpif {route_index + lk_route_size > (*iter_begin)->lk_node_table.lk_table_array_size})
+							(f-call 'sys_mem 'recalloc {(*iter_begin)->lk_node_table.lk_table_array, (*iter_begin)->lk_node_table.lk_table_array_size, route_index + lk_route_size}
+								{(*iter_begin)->lk_node_table.lk_table_array, (*iter_begin)->lk_node_table.lk_table_array_size})
 						(endif)
-
-						(vp-cpy-ir-ui r11 lk_node_cpu_id r9)
-						(vpif '(r12 == r9))
+						(vpif {(*iter_begin)->lk_node_cpu_id == data->kn_msg_link_route_via})
 							;via route
-							(vp-cpy-ir-ui r14 oldkn_msg_link_route_hops r2)
-							(vp-add-cr lk_route_hops r0)
-							(vp-cpy-rd-i r2 r0 r10)
+							(assign {new_hops} {((*iter_begin)->lk_node_table.lk_table_array)[route_index].lk_route_hops})
 						(endif)
+						(assign {iter_begin + ptr_size} {iter_begin})
 					(loop-end)
 					;drop through to discard message !
 				(default)
@@ -206,46 +177,35 @@
 				(endswitch)
 
 				;increment hop count
-				(vp-cpy-ir-ui r14 oldkn_msg_link_route_hops r1)
-				(vp-add-cr 1 r1)
-				(vp-cpy-ri-i r1 r14 oldkn_msg_link_route_hops)
+				(assign {data->kn_msg_link_route_hops + 1} {data->kn_msg_link_route_hops})
 
 				;get current via, set via to my cpu id
-				(vp-cpy-ir-ui r14 oldkn_msg_link_route_via r13)
-				(f-call 'kernel 'id '() '((r14 oldkn_msg_link_route_via i)))
+				(assign {data->kn_msg_link_route_via} {via})
+				(assign {id} {data->kn_msg_link_route_via})
 
 				;copy and send to all neighbors apart from old via
-				(f-bind 'sys_link 'statics r12)
-				(loop-list-forward r12 lk_statics_links_list r11 r12)
-					(vp-cpy-ir-ui r11 lk_node_cpu_id r10)
-					(continueif '(r10 == r13))
-					(f-call 'sys_mail 'alloc '((r14 msg_length ui)) '(r0))
-					(vp-cpy-rr r0 r4)
-					(vp-cpy-rr r0 r1)
-					(vp-cpy-rr r14 r0)
-					(vp-cpy-ir-ui r14 msg_length r2)
-					(vp-add-cr (dec ptr_size) r2)
-					(vp-and-cr (neg ptr_size) r2)
-					(f-call 'sys_mem 'copy '(r0 r1 r2))
-					(vp-cpy-ri r10 r4 (add msg_dest id_cpu))
-					(f-call 'sys_mail 'send '(r4))
+				(f-call 'array 'get_iters {link_statics->lk_statics_links_array} {_, iter_begin, iter_end})
+				(loop-while {iter_begin != iter_end})
+					(vpif {(*iter_begin)->lk_node_cpu_id != via})
+						(f-call 'sys_mail 'alloc {msg->msg_length} {new_msg})
+						(f-call 'sys_mem 'copy {msg, new_msg, msg->msg_length})
+						(assign {(*iter_begin)->lk_node_cpu_id} {new_msg->msg_dest.id_cpu})
+						(f-call 'sys_mail 'send {new_msg})
+					(endif)
+					(assign {iter_begin + ptr_size} {iter_begin})
 				(loop-end)
 			(vp-label 'drop_msg)
-				(f-call 'sys_mem 'free '(r14))
+				(f-call 'sys_mem 'free {msg})
 				(break)
-			(case '(r1 == kn_call_callback))
+			(case {num == kn_call_callback})
 				;call callback with this thread/stack
-				(vp-push r14)
-				(vp-cpy-ir r14 oldkn_msg_user r0)
-				(vp-call-i r14 oldkn_msg_callback_addr)
+				(assign {data->kn_msg_user, data->kn_msg_callback_addr} '(r0 r1))
+				(vp-call-r r1)
 
 				;reply to originator
-				(vp-pop r0)
-				(vp-cpy-ir r0 (add oldkn_msg_reply_id id_mbox) r1)
-				(vp-cpy-ir r0 (add oldkn_msg_reply_id id_cpu) r2)
-				(vp-cpy-ri r1 r0 (add msg_dest id_mbox))
-				(vp-cpy-ri r2 r0 (add msg_dest id_cpu))
-				(f-call 'sys_mail 'send '(r0))
+				(assign {data->kn_msg_reply_id.id_mbox} {msg->msg_dest.id_mbox})
+				(assign {data->kn_msg_reply_id.id_cpu} {msg->msg_dest.id_cpu})
+				(f-call 'sys_mail 'send {msg})
 			(endswitch)
 		(loop-end)
 
@@ -286,15 +246,15 @@
 	(loop-end)
 
 	;free any kernel routing table
-	(f-call 'sys_mem 'free '((rsp lk_table_array)))
-	(vp-free lk_table_size)
+	(f-call 'sys_mem 'free {routes.lk_table_array})
 
 	;deinit allocator
 	(f-call 'sys_mem 'deinit)
 
 	;restore stack, exit back to main.c
-	(vp-cpy-ir rsp local_old_stack rsp)
-	(vp-ret)
+	(assign {old_stack} '(rsp))
+	(pop-scope-syms)
+	(return)
 
 (def-func-end)
 

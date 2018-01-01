@@ -17,11 +17,11 @@
 (def-enum-end)
 
 (def-struct 'lk_table)
-	(ptr 'array)
+	(pptr 'array)
 	(ulong 'array_size)
 (def-struct-end)
 
-(def-struct 'lk_node 'ln_node)
+(def-struct 'lk_node)
 	(struct 'table 'lk_table)
 	(ptr 'params)
 	(ulong 'handle)
@@ -30,7 +30,7 @@
 (def-struct-end)
 
 (def-struct 'lk_statics)
-	(struct 'links_list 'lh_list)
+	(ptr 'links_array)
 (def-struct-end)
 
 (def-struct 'lk_msg)
