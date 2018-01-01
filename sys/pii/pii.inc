@@ -24,11 +24,11 @@
 (defcfun debug-num (s n)
 	(vp-push r0 r1)
 	(fn-string (cat s ": ") r1)
-	(f-call 'pii 'write_str '(0 r1))
+	(f-call 'pii 'write_str '(2 r1))
 	(vp-pop r0 r1)
 	(vp-push r0 r1 r2)
-	(f-call 'pii 'write_num (list 0 n 16))
-	(f-call 'pii 'write_char (list 0 10))
+	(f-call 'pii 'write_num (list 2 n 16))
+	(f-call 'pii 'write_char (list 2 10))
 	(vp-pop r0 r1 r2))
 
 (defcfun debug-str (s)
@@ -36,7 +36,7 @@
 	(if (reg s)
 		(vp-cpy-rr s r1)
 		(fn-string (cat s (char 10)) r1))
-	(f-call 'pii 'write_str '(0 r1))
+	(f-call 'pii 'write_str '(2 r1))
 	(vp-pop r0 r1))
 
 (when (eql *os* 'Darwin)
