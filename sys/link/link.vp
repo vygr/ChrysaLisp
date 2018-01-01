@@ -120,8 +120,12 @@
 		(vpif {out_msg})
 			(vpif {tx_msg->lk_msg_status == lk_chan_status_ready})
 				;copy message data
-				(f-call 'sys_mem 'copy {out_msg + ln_node_size, &tx_msg->lk_msg_buf,
-					(out_msg->msg_length + msg_header_size + long_size - ln_node_size - 1) & - long_size)})
+				(f-call 'sys_mem 'copy {out_msg + ln_node_size,
+					&tx_msg->lk_msg_buf,
+					msg_stamp_size - ln_node_size})
+				(f-call 'sys_mem 'copy {out_msg->msg_parcel_data,
+					&tx_msg->lk_msg_buf + msg_stamp_size - ln_node_size,
+					(out_msg->msg_length + long_size - 1) & - long_size})
 
 				;busy status
 				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
@@ -142,10 +146,13 @@
 		;check for received message
 		(vpif {rx_msg->lk_msg_status == lk_chan_status_busy})
 			;allocate msg, copy over data
-			(f-call 'sys_mail 'alloc {uint(rx_msg->lk_msg_buf)} {msg, _})
-			(f-call 'sys_mem 'copy {&rx_msg->lk_msg_buf, msg + ln_node_size,
-				(uint(rx_msg->lk_msg_buf) + msg_header_size + long_size - ln_node_size - 1) & - long_size})
-			(assign {&msg->msg_data} {msg->msg_parcel_data})
+			(f-call 'sys_mail 'alloc {uint(rx_msg->lk_msg_buf)} {msg, data})
+			(f-call 'sys_mem 'copy {&rx_msg->lk_msg_buf,
+				msg + ln_node_size,
+				msg_stamp_size - ln_node_size})
+			(f-call 'sys_mem 'copy {&rx_msg->lk_msg_buf + msg_stamp_size - ln_node_size,
+				data,
+				(uint(rx_msg->lk_msg_buf) + long_size - 1) & - long_size})
 
 			;clear status
 			(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
