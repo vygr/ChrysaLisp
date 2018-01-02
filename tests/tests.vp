@@ -50,7 +50,7 @@
 
 	(defcvar 'global_msg_size (mul mail_data_size 10))
 
-	(ptr 'name 'ids 'msg 'mbox)
+	(ptr 'name 'ids 'buf 'msg 'mbox)
 	(pulong 'data)
 	(ulong 'cpu)
 	(uint 'length)
@@ -62,7 +62,15 @@
 	(f-call 'kernel 'total {} {length})
 	(f-call 'sys_task 'open_farm {name, length, kn_call_open} {ids})
 
-	;send exit mgs etc
+	;send data multicast msg
+	(f-call 'string 'create_from_buffer {0, global_msg_size} {buf})
+	(assign {&buf->string_data} {data})
+	(assign {0} {length})
+	(loop-start)
+		(assign {length} {data[length]})
+		(assign {length + long_size} {length})
+	(loop-until {length == global_msg_size})
+
 	(loop-start)
 		(d-call 'array 'get_length {ids} {_, length})
 		(breakifnot {length})
@@ -71,17 +79,13 @@
 		(f-call 'array 'get_back {ids} {_, mbox})
 		(d-call 'array 'pop_back {ids})
 		(continueifnot {mbox})
-		(f-call 'sys_mail 'alloc {global_msg_size} {msg, data})
+		(f-call 'sys_mail 'alloc_str {buf} {msg, _})
 		(assign {mbox} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
-		(assign {0} {length})
-		(loop-start)
-			(assign {length} {data[length]})
-			(assign {length + long_size} {length})
-		(loop-until {length == global_msg_size})
 		(f-call 'sys_mail 'send {msg})
 		(f-call 'sys_task 'yield)
 	(loop-end)
+	(f-call 'string 'deref {buf})
 
 	;free name and ID array
 	(f-call 'string 'deref {name})

@@ -24,7 +24,9 @@
 	(f-call 'sys_task 'start `((@ ,(f-path 'sys_mail 'out))) '(r0 (r6 ml_statics_out_mailbox) _))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 r6 ml_statics_parcel_id)
-	(vp-ret)
+
+	;init header heap
+	(f-jmp 'sys_heap 'init '((& r6 ml_statics_msg_heap) msg_size (mul msg_size 64)))
 
 (def-func-end)
 
@@ -62,18 +64,47 @@
 	;trashes
 	;all
 
-	(ptr 'msg)
+	(ptr 'msg 'mail_statics)
 	(uint 'total)
 
 	(push-scope)
 	(f-entry 'sys_mail 'alloc {total})
 
-	(f-call 'sys_mem 'alloc {msg_header_size + total} {msg, _})
+	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
+	(f-call 'sys_heap 'alloc {&mail_statics->ml_statics_msg_heap} {_, msg})
+	(f-call 'string 'create_from_buffer {0, total} {msg->msg_parcel_obj})
 	(assign {0} {msg->msg_parcel_length})
 	(assign {total} {msg->msg_length})
-	(assign {&msg->msg_data} {msg->msg_parcel_data})
+	(assign {&msg->msg_parcel_obj->string_data} {msg->msg_parcel_data})
 
 	(f-exit 'sys_mail 'alloc {msg, msg->msg_parcel_data})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'sys/mail/alloc_str)
+	;inputs
+	;r0 = string object
+	;outputs
+	;r0 = mail message
+	;r1 = string data
+	;trashes
+	;all
+
+	(ptr 'str 'msg 'mail_statics)
+
+	(push-scope)
+	(f-entry 'sys_mail 'alloc_str {str})
+
+	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
+	(f-call 'sys_heap 'alloc {&mail_statics->ml_statics_msg_heap} {_, msg})
+	(f-call 'ref 'ref {str} {msg->msg_parcel_obj})
+	(assign {0} {msg->msg_parcel_length})
+	(assign {str->string_length} {msg->msg_length})
+	(assign {&str->string_data} {msg->msg_parcel_data})
+
+	(f-exit 'sys_mail 'alloc_str {msg, msg->msg_parcel_data})
 	(pop-scope)
 	(return)
 
@@ -85,13 +116,44 @@
 	;trashes
 	;all
 
-	(ptr 'msg)
+	(ptr 'msg 'mail_statics)
 
 	(push-scope)
 	(f-entry 'sys_mail 'free {msg})
 
-	(f-call 'sys_mem 'free {msg})
+	(vpif {msg})
+		(f-call 'string 'deref {msg->msg_parcel_obj})
+		(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
+		(f-call 'sys_heap 'free {&mail_statics->ml_statics_msg_heap, msg})
+	(endif)
 
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'sys/mail/free_str)
+	;inputs
+	;r0 = mail message
+	;outputs
+	;r0 = 0, else string object
+	;trashes
+	;all
+
+	(ptr 'msg 'str 'mail_statics)
+
+	(push-scope)
+	(f-entry 'sys_mail 'free_str {msg})
+
+	(vpif {msg})
+		(assign {msg->msg_parcel_obj} {str})
+		(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
+		(f-call 'sys_heap 'free {&mail_statics->ml_statics_msg_heap, msg})
+	(else)
+		(assign {0} {str})
+	(endif)
+
+	(f-exit 'sys_mail 'free_str {str})
 	(pop-scope)
 	(return)
 

@@ -34,6 +34,57 @@
 
 (def-func-end)
 
+(def-func 'class/msg_in/deinit)
+	;inputs
+	;r0 = msg_in object
+	;trashes
+	;all but r0
+
+	;free any mail message buffer
+	(vp-push r0)
+	(f-call 'sys_mail 'free '((r0 stream_buffer)))
+	(vp-cpy-ir rsp 0 r0)
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r0 stream_buffer)
+	(vp-pop r0)
+
+	;parent deinit
+	(s-jmp 'msg_in 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/msg_in/next_seq)
+	;inputs
+	;r0 = list head
+	;r1 = 0, else new stream msg
+	;r2 = seqnum
+	;outputs
+	;r0 = 0, else next stream msg
+	;r1 = 0, else string data
+
+	;save any new msg
+	(vpif '(r1 != 0))
+		(lh-add-at-tail r0 r1 r3)
+	(endif)
+
+	;scan for seqnum
+	(loop-list-forward r0 0 r0 r1)
+		(vp-cpy-ir r0 msg_parcel_data r3)
+		(vp-cpy-ir r3 stream_msg_seqnum r3)
+	(loop-until '(r2 == r3))
+	(vpif '(r1 == 0))
+		;not found
+		(vp-cpy-rr r1 r0)
+		(vp-ret)
+	(endif)
+	;remove found from list
+	(vp-cpy-rr r0 r1)
+	(ln-remove-node r1 r2)
+	(vp-cpy-ir r0 msg_parcel_data r1)
+	(vp-ret)
+
+(def-func-end)
+
 (def-func 'class/msg_in/read_next)
 	;inputs
 	;r0 = msg_in object
@@ -56,7 +107,7 @@
 		;read next in sequence
 		(assign {0} {msg})
 		(loop-start)
-			(f-call 'msg_out 'next_seq {&this->msg_in_list, msg, this->msg_in_seqnum} {msg, data})
+			(f-call 'msg_in 'next_seq {&this->msg_in_list, msg, this->msg_in_seqnum} {msg, data})
 			(breakif {msg})
 			(f-call 'sys_mail 'read {&this->msg_in_mailbox} {msg, _})
 		(loop-end)

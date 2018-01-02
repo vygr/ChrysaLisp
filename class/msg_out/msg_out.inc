@@ -4,7 +4,6 @@
 (def-method 'create 'class/msg_out/create 'static '(r0 r1) '(r0))
 (def-method 'new 'class/msg_out/new 'static nil '(r0))
 (def-method 'init 'class/msg_out/init 'static '(r0 r1 r2 r3))
-(def-method 'next_seq 'class/msg_out/next_seq 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'set_state 'class/msg_out/set_state 'static '(r0 r1) '(r0))
 
 (def-method 'deinit 'class/msg_out/deinit 'final)

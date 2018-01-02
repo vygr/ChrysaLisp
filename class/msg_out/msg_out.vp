@@ -52,43 +52,14 @@
 	(f-call 'sys_mail 'read {&this->msg_out_ack_mailbox} {msg, _})
 	(f-call 'sys_mail 'free {msg})
 
+	;free any stream mail buffer
+	(f-call 'sys_mail 'free {this->stream_buffer})
+	(assign {0} {this->stream_buffer})
+
 	;parent deinit
 	(f-exit 'msg_out 'deinit {this})
 	(pop-scope)
 	(s-jmp 'msg_out 'deinit '(r0))
-
-(def-func-end)
-
-(def-func 'class/msg_out/next_seq)
-	;inputs
-	;r0 = list head
-	;r1 = 0, else new stream msg
-	;r2 = -1 or seqnum
-	;outputs
-	;r0 = 0, else next stream msg
-	;r1 = 0, else string data
-
-	;save any new msg
-	(vpif '(r1 != 0))
-		(lh-add-at-tail r0 r1 r3)
-	(endif)
-
-	;scan for seqnum
-	(loop-list-forward r0 0 r0 r1)
-		(breakif '(r2 == -1))
-		(vp-cpy-ir r0 msg_parcel_data r3)
-		(vp-cpy-ir r3 stream_msg_seqnum r3)
-	(loop-until '(r2 == r3))
-	(vpif '(r1 == 0))
-		;not found
-		(vp-cpy-rr r1 r0)
-		(vp-ret)
-	(endif)
-	;remove found from list
-	(vp-cpy-rr r0 r1)
-	(ln-remove-node r1 r2)
-	(vp-cpy-ir r0 msg_parcel_data r1)
-	(vp-ret)
 
 (def-func-end)
 

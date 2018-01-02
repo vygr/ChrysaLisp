@@ -25,6 +25,7 @@
 (def-struct 'string 'sequence)
 	(uint 'length)
 	(uint 'hashcode)
+	(local-align)
 	(offset 'data)
 (def-struct-end)
 

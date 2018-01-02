@@ -10,6 +10,7 @@
 (def-method 'init 'sys/heap/init 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'deinit 'sys/heap/deinit 'static '(r0) '(r0))
 (def-method 'alloc 'sys/heap/alloc 'static '(r0) '(r0 r1))
+(def-method 'free 'sys/heap/free 'static '(r0 r1))
 
 ;;;;;;;;;;;;;;;;;
 ; heap structures
@@ -21,6 +22,18 @@
 	(uint 'cellsize)
 	(uint 'blocksize)
 (def-struct-end)
+
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
+
+(defcfun sys/heap/free ()
+	;inputs
+	;r0 = heap
+	;r1 = cell
+	;trashes
+	;r2
+	(hp-freecell r0 r1 r2))
 
 ;;;;;;;;;;;;;
 ; heap macros
