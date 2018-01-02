@@ -379,7 +379,7 @@
 (def-func 'sys/mail/out)
 	;parcels going off chip task
 
-	(ptr 'msg 'data 'frag 'fdata 'mail_statics)
+	(ptr 'msg 'data 'frag 'mail_statics)
 	(uint 'id 'offset 'ammount 'len)
 
 	(push-scope)
@@ -404,16 +404,18 @@
 			(vpif {len > mail_data_size})
 				(assign {mail_data_size} {len})
 			(endif)
-			(f-call 'sys_mail 'alloc {len} {frag, fdata})
+			(f-call 'sys_heap 'alloc {&mail_statics->ml_statics_msg_heap} {_, frag})
+			(f-call 'ref 'ref {msg->msg_parcel_obj} {frag->msg_parcel_obj})
 
 			;fill in fragment
+			(assign {len} {frag->msg_length})
 			(assign {msg->msg_dest.id_mbox} {frag->msg_dest.id_mbox})
 			(assign {msg->msg_dest.id_cpu} {frag->msg_dest.id_cpu})
+			(assign {data + offset} {frag->msg_parcel_data})
 			(assign {offset} {frag->msg_parcel_offset})
 			(assign {msg->msg_length} {frag->msg_parcel_length})
 			(assign {id} {frag->msg_parcel_src})
 			(assign {mail_statics->ml_statics_parcel_id} {frag->msg_parcel_id})
-			(f-call 'sys_mem 'copy {data + offset, fdata, len})
 
 			;move on
 			(assign {offset + len} {offset})

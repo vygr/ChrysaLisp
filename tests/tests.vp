@@ -60,7 +60,7 @@
 	;open global farm
 	(f-call 'string 'create_from_cstr {"tests/global_child"} {name})
 	(f-call 'kernel 'total {} {length})
-	(f-call 'sys_task 'open_farm {name, length, kn_call_open} {ids})
+	(f-call 'sys_task 'open_farm {name, length * 3, kn_call_open} {ids})
 
 	;send data multicast msg
 	(f-call 'string 'create_from_buffer {0, global_msg_size} {buf})
