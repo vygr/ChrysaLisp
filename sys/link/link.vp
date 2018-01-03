@@ -117,40 +117,47 @@
 		(endif)
 
 		;if we have a message to send then see if we can send it
-		(vpif {out_msg})
-			(vpif {tx_msg->lk_msg_status == lk_chan_status_ready})
-				;copy message data
-				(f-call 'sys_mem 'copy {out_msg + ln_node_size, &tx_msg->lk_msg_stamp, msg_stamp_size - ln_node_size})
-				(f-call 'sys_mem 'copy {out_msg->msg_parcel_data, &tx_msg->lk_msg_data, (out_msg->msg_length + long_size - 1) & - long_size})
+		(vpif {out_msg && tx_msg->lk_msg_status == lk_chan_status_ready})
+			;copy message data
+			(f-call 'sys_mem 'copy {out_msg + ln_node_size, &tx_msg->lk_msg_stamp + ln_node_size, msg_stamp_size - ln_node_size})
+			(f-call 'sys_mem 'copy {out_msg->msg_parcel_data, &tx_msg->lk_msg_data, (out_msg->msg_length + long_size - 1) & - long_size})
 
-				;busy status
-				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
+			;busy status
+			(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
 
-				;free message
-				(f-call 'sys_mail 'free {out_msg})
-				(assign {0} {out_msg})
+			;free message
+			(f-call 'sys_mail 'free {out_msg})
+			(assign {0} {out_msg})
 
-				;move on to next msg chan
-				(assign {&tx_msg->lk_msg_size} {tx_msg})
-				(vpif {tx_msg == &tx->lk_chan_size})
-					(assign {&tx->lk_chan_msg0} {tx_msg})
-				(endif)
-				(vp-jmp 'more_output)
+			;move on to next msg chan
+			(assign {&tx_msg->lk_msg_size} {tx_msg})
+			(vpif {tx_msg == &tx->lk_chan_size})
+				(assign {&tx->lk_chan_msg0} {tx_msg})
 			(endif)
+			(vp-jmp 'more_output)
 		(endif)
 
 		;check for received message
 		(vpif {rx_msg->lk_msg_status == lk_chan_status_busy})
-			;allocate msg, copy over data
-			(f-call 'sys_mail 'alloc {uint(rx_msg->lk_msg_stamp)} {msg, data})
-			(f-call 'sys_mem 'copy {&rx_msg->lk_msg_stamp, msg + ln_node_size, msg_stamp_size - ln_node_size})
-			(f-call 'sys_mem 'copy {&rx_msg->lk_msg_data, data, (uint(rx_msg->lk_msg_stamp) + long_size - 1) & - long_size})
+			;is this msg part of a parcel for this cpu
+			(vpif {rx_msg->lk_msg_stamp.msg_parcel_length && rx_msg->lk_msg_stamp.msg_dest.id_cpu == id})
+				;copy direct from link buffer to parcel !
+				(f-call 'sys_mail 'in {rx_msg})
 
-			;clear status
-			(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
+				;clear status
+				(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
+			(else)
+				;allocate msg, copy over data
+				(f-call 'sys_mail 'alloc {rx_msg->lk_msg_stamp.msg_length} {msg, data})
+				(f-call 'sys_mem 'copy {&rx_msg->lk_msg_stamp + ln_node_size, msg + ln_node_size, msg_stamp_size - ln_node_size})
+				(f-call 'sys_mem 'copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.msg_length + long_size - 1) & - long_size})
 
-			;send onwards
-			(f-call 'sys_mail 'send {msg})
+				;clear status
+				(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
+
+				;send onwards
+				(f-call 'sys_mail 'send {msg})
+			(endif)
 
 			;move on to next msg chan
 			(assign {&rx_msg->lk_msg_size} {rx_msg})

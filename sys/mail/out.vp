@@ -1,0 +1,66 @@
+(import 'sys/func.inc)
+(import 'class/ref/ref.inc)
+(import 'sys/kernel/kernel.inc)
+
+(def-func 'sys/mail/out)
+	;parcels going off chip task
+
+	(ptr 'msg 'data 'frag 'mail_statics)
+	(uint 'id 'offset 'ammount 'len)
+
+	(push-scope)
+	(f-entry 'sys_mail 'out {})
+
+	(f-call 'kernel 'id {} {id})
+	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
+
+	(loop-start)
+		;read parcel
+		(f-call 'sys_mail 'mymail {} {msg, data})
+
+		;create next parcel id
+		(assign {mail_statics->ml_statics_parcel_id + 1} {mail_statics->ml_statics_parcel_id})
+
+		;for each fragment
+		(assign {0} {offset})
+		(assign {msg->msg_length} {ammount})
+		(loop-start)
+			;create fragment
+			(assign {ammount} {len})
+			(vpif {len > mail_data_size})
+				(assign {mail_data_size} {len})
+			(endif)
+			(f-call 'sys_heap 'alloc {&mail_statics->ml_statics_msg_heap} {_, frag})
+			(f-call 'ref 'ref {msg->msg_parcel_obj} {frag->msg_parcel_obj})
+
+			;fill in fragment
+			(assign {len} {frag->msg_length})
+			(assign {msg->msg_dest.id_mbox} {frag->msg_dest.id_mbox})
+			(assign {msg->msg_dest.id_cpu} {frag->msg_dest.id_cpu})
+			(assign {data + offset} {frag->msg_parcel_data})
+			(assign {offset} {frag->msg_parcel_offset})
+			(assign {msg->msg_length} {frag->msg_parcel_length})
+			(assign {id} {frag->msg_parcel_src})
+			(assign {mail_statics->ml_statics_parcel_id} {frag->msg_parcel_id})
+
+			;move on
+			(assign {offset + len} {offset})
+			(assign {ammount - len} {ammount})
+
+			;queue it on the outgoing packet list
+			(assign {&mail_statics->ml_statics_offchip_list, frag} '(r0 r1))
+			(lh-add-at-tail r0 r1 r2)
+
+			;let links get at some packets
+			(f-call 'sys_task 'yield)
+		(loop-untilnot {ammount})
+
+		;free parcel
+		(f-call 'sys_mail 'free {msg})
+	(loop-end)
+
+	(f-exit 'sys_mail 'out {})
+	(pop-scope)
+	(return)
+
+(def-func-end)

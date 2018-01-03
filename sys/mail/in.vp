@@ -1,0 +1,60 @@
+(import 'sys/func.inc)
+(import 'sys/mail/mail.inc)
+(import 'sys/link/link.inc)
+
+(def-func 'sys/mail/in)
+	;inputs
+	;r0 = link input msg buffer
+	;trashes
+	;all
+
+	(ptr 'rx_msg 'msg 'mail_statics)
+	(uint 'len)
+
+	(push-scope)
+	(f-entry 'sys_mail 'in {rx_msg})
+
+	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
+
+	;look up parcel in mailbox
+	(vp-def next node src id psrc pid)
+	(assign {rx_msg->lk_msg_stamp.msg_dest.id_mbox, rx_msg->lk_msg_stamp.msg_parcel_src,
+		rx_msg->lk_msg_stamp.msg_parcel_id} (list next src id))
+	(loop-list-forward next mailbox_parcel_list node next)
+		(vp-cpy-ir node msg_parcel_src psrc)
+		(continueif `(,src != ,psrc))
+		(vp-cpy-ir-ui node msg_parcel_id pid)
+	(loop-until `(,id == ,pid))
+	(assign (list node) {msg})
+	(vpif `(,next == 0))
+		;new parcel
+		(f-call 'sys_mail 'alloc {rx_msg->lk_msg_stamp.msg_parcel_length} {msg, _})
+		(assign {rx_msg->lk_msg_stamp.msg_parcel_length} {msg->msg_parcel_length})
+		(assign {rx_msg->lk_msg_stamp.msg_dest.id_mbox} {msg->msg_dest.id_mbox})
+		(assign {rx_msg->lk_msg_stamp.msg_dest.id_cpu} {msg->msg_dest.id_cpu})
+		(assign {rx_msg->lk_msg_stamp.msg_parcel_src} {msg->msg_parcel_src})
+		(assign {rx_msg->lk_msg_stamp.msg_parcel_id} {msg->msg_parcel_id})
+		(assign {&rx_msg->lk_msg_stamp.msg_dest.id_mbox->mailbox_parcel_list, msg} '(r0 r1))
+		(lh-add-at-tail r0 r1 r2)
+	(endif)
+
+	;copy fragment data
+	(assign {rx_msg->lk_msg_stamp.msg_length} {len})
+	(f-call 'sys_mem 'copy {&rx_msg->lk_msg_data,
+		msg->msg_parcel_data + rx_msg->lk_msg_stamp.msg_parcel_offset, len})
+	(assign {msg->msg_parcel_offset + len} {msg->msg_parcel_offset})
+	(assign {msg->msg_parcel_length - len} {msg->msg_parcel_length})
+
+	;got all needed ?
+	(vpifnot {msg->msg_parcel_length})
+		;yes, remove parcel and post it
+		(assign {msg} '(r0))
+		(ln-remove-node r0 r1)
+		(f-call 'sys_mail 'send {msg})
+	(endif)
+
+	(f-exit 'sys_mail 'in {})
+	(pop-scope)
+	(return)
+
+(def-func-end)

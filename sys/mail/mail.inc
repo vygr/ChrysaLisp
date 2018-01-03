@@ -20,14 +20,14 @@
 (def-method 'select 'sys/mail/select 'static '(r0 r1) '(r0))
 (def-method 'mymail 'sys/mail/mymail 'static nil '(r0 r1))
 (def-method 'init_mailbox 'sys/mail/init_mailbox 'static '(r0) '(r0))
-(def-method 'in 'sys/mail/in)
+(def-method 'in 'sys/mail/in 'static '(r0))
 (def-method 'out 'sys/mail/out)
 
 ;;;;;;;;;;;;;;;;;
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-(defcvar 'mail_data_size 512)
+(defcvar 'mail_data_size 472)
 
 (def-struct 'mailbox 'lh_list)
 	(struct 'parcel_list 'lh_list)
@@ -55,7 +55,6 @@
 	(struct 'offchip_list 'lh_list)
 	(struct 'msg_heap 'hp_heap)
 	(ptr 'kernel_mailbox)
-	(ptr 'in_mailbox)
 	(ptr 'out_mailbox)
 	(uint 'parcel_id)
 (def-struct-end)

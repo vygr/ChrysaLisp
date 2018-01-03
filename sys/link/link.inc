@@ -34,7 +34,7 @@
 (def-struct 'lk_msg)
 	(uint 'status)
 	(local-align)
-	(struct 'stamp (sub msg_stamp_size ln_node_size))
+	(struct 'stamp msg_stamp_size)
 	(struct 'data mail_data_size)
 (def-struct-end)
 
