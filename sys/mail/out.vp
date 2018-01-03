@@ -48,8 +48,9 @@
 			(assign {ammount - len} {ammount})
 
 			;queue it on the outgoing packet list
-			(assign {&mail_statics->ml_statics_offchip_list, frag} '(r0 r1))
-			(lh-add-at-tail r0 r1 r2)
+			(vp-def head node tmp)
+			(assign {&mail_statics->ml_statics_offchip_list, frag} (list head node))
+			(lh-add-at-tail head node tmp)
 
 			;let links get at some packets
 			(f-call 'sys_task 'yield)

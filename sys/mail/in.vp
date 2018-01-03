@@ -8,13 +8,11 @@
 	;trashes
 	;all
 
-	(ptr 'rx_msg 'msg 'mail_statics)
+	(ptr 'rx_msg 'msg)
 	(uint 'len)
 
 	(push-scope)
 	(f-entry 'sys_mail 'in {rx_msg})
-
-	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 
 	;look up parcel in mailbox
 	(vp-def next node src id psrc pid)
@@ -34,8 +32,8 @@
 		(assign {rx_msg->lk_msg_stamp.msg_dest.id_cpu} {msg->msg_dest.id_cpu})
 		(assign {rx_msg->lk_msg_stamp.msg_parcel_src} {msg->msg_parcel_src})
 		(assign {rx_msg->lk_msg_stamp.msg_parcel_id} {msg->msg_parcel_id})
-		(assign {&rx_msg->lk_msg_stamp.msg_dest.id_mbox->mailbox_parcel_list, msg} '(r0 r1))
-		(lh-add-at-tail r0 r1 r2)
+		(assign {&rx_msg->lk_msg_stamp.msg_dest.id_mbox->mailbox_parcel_list, msg} (list next node))
+		(lh-add-at-tail next node src)
 	(endif)
 
 	;copy fragment data
@@ -51,8 +49,8 @@
 	;got all needed ?
 	(vpifnot {msg->msg_parcel_length})
 		;yes, remove parcel and post it
-		(assign {msg} '(r0))
-		(ln-remove-node r0 r1)
+		(assign {msg} (list node))
+		(ln-remove-node node next)
 		(f-call 'sys_mail 'send {msg})
 	(endif)
 
