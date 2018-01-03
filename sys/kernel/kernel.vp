@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'sys/link/link.inc)
+(import 'sys/mail/mail.inc)
 (import 'sys/load/load.inc)
 (import 'gui/sdl2.inc)
 (import 'sys/kernel/kernel.inc)
@@ -19,7 +20,7 @@
 	(union
 		'(ptr 'argv 'sdl)
 		'(ptr 'link 'mbox))
-	(ptr 'task_statics 'link_statics 'func 'old_stack)
+	(ptr 'task_statics 'mail_statics 'func 'old_stack)
 	(ptr 'msg 'data 'new_msg 'new_data)
 	(pptr 'iter_begin 'iter_end)
 	(struct 'routes 'lk_table)
@@ -40,12 +41,9 @@
 	;init tasks
 	(f-call 'sys_task 'init)
 
-	;init links
-	(f-call 'sys_link 'init)
-
 	;start kernel task
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
-	(assign (cat {@} (f-path 'sys_link 'statics)) {link_statics})
+	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(f-call 'sys_task 'start {$func_entry} {task_statics->tk_statics_kernel_tcb, mbox, _})
 
 	;init mailer
@@ -99,7 +97,7 @@
 			(case {num == kn_call_child})
 				;find best cpu to run task
 				(assign {task_statics->tk_statics_task_count, id} {best_cnt, best_id})
-				(f-call 'array 'get_iters {link_statics->lk_statics_links_array} {_, iter_begin, iter_end})
+				(f-call 'array 'get_iters {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
 				(loop-while {iter_begin != iter_end})
 					(assign {*iter_begin} {link})
 					(vpif {link->lk_node_task_count < best_cnt})
@@ -140,7 +138,7 @@
 					(assign {new_hops} {(routes.lk_table_array)[route_index].lk_route_hops})
 
 					;fill in via route and remove other routes
-					(f-call 'array 'get_iters {link_statics->lk_statics_links_array} {_, iter_begin, iter_end})
+					(f-call 'array 'get_iters {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
 					(loop-while {iter_begin != iter_end})
 						(assign {*iter_begin} {link})
 						;new link route table ?
@@ -160,7 +158,7 @@
 					(break)
 				(case {new_hops == hops})
 					;new hops is equal, so additional route
-					(f-call 'array 'get_iters {link_statics->lk_statics_links_array} {_, iter_begin, iter_end})
+					(f-call 'array 'get_iters {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
 					(loop-while {iter_begin != iter_end})
 						(assign {*iter_begin} {link})
 						;new link route table ?
@@ -188,7 +186,7 @@
 				(assign {id} {data->kn_msg_link_route_via})
 
 				;copy and send to all neighbors apart from old via
-				(f-call 'array 'get_iters {link_statics->lk_statics_links_array} {_, iter_begin, iter_end})
+				(f-call 'array 'get_iters {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
 				(loop-while {iter_begin != iter_end})
 					(assign {*iter_begin} {link})
 					(vpif {link->lk_node_cpu_id != via})

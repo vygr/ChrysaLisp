@@ -1,6 +1,7 @@
 (import 'sys/func.inc)
-(import 'class/string/string.inc)
 (import 'sys/kernel/kernel.inc)
+(import 'class/string/string.inc)
+(import 'class/array/array.inc)
 
 (def-func 'sys/mail/statics)
 	(times ml_statics_size (vp-byte 0))
@@ -23,6 +24,10 @@
 	(f-call 'sys_task 'start `((@ ,(f-path 'sys_mail 'out))) '(r0 (r6 ml_statics_out_mailbox) _))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 r6 ml_statics_parcel_id)
+
+	;create link array
+	(f-call 'array 'create '() '(r0))
+	(vp-cpy-ri r0 r6 ml_statics_links_array)
 
 	;init header heap
 	(f-jmp 'sys_heap 'init '((& r6 ml_statics_msg_heap) msg_size (mul msg_size 64)))

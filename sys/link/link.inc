@@ -4,7 +4,6 @@
 (import 'sys/mail/mail.inc)
 
 (def-class 'sys_link)
-(def-method 'statics 'sys/link/statics)
 (def-method 'init 'sys/link/init)
 (def-method 'link 'sys/link/link)
 
@@ -25,10 +24,6 @@
 	(struct 'table 'lk_table)
 	(uint 'cpu_id)
 	(uint 'task_count)
-(def-struct-end)
-
-(def-struct 'lk_statics)
-	(ptr 'links_array)
 (def-struct-end)
 
 (def-struct 'lk_msg)

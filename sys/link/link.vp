@@ -1,26 +1,14 @@
 (import 'sys/func.inc)
 (import 'sys/link/link.inc)
+(import 'sys/mail/mail.inc)
 (import 'sys/kernel/kernel.inc)
 (import 'class/array/array.inc)
-
-(def-func 'sys/link/statics)
-	(times lk_statics_size (vp-byte 0))
-(def-func-end)
-
-(def-func 'sys/link/init)
-	;create link array
-	(f-call 'array 'create '() '(r0))
-	(f-bind 'sys_link 'statics r1)
-	(vp-cpy-ri r0 r1 lk_statics_links_array)
-	(vp-ret)
-
-(def-func-end)
 
 (def-func 'sys/link/link)
 	;started by kernel for each link
 
 	(struct 'lk_node 'lk_node)
-	(ptr 'link_statics 'task_statics 'mail_statics 'params)
+	(ptr 'task_statics 'mail_statics 'params)
 	(ptr 'msg 'data 'rx 'tx 'mem 'rx_msg 'tx_msg 'out_msg)
 	(pubyte 'pdata)
 	(ulong 'handle)
@@ -33,12 +21,11 @@
 	;don't count links in load balancing
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
-	(assign (cat {@} (f-path 'sys_link 'statics)) {link_statics})
-	(assign {link_statics->tk_statics_task_count - 1} {link_statics->tk_statics_task_count})
+	(assign {task_statics->tk_statics_task_count - 1} {task_statics->tk_statics_task_count})
 
 	;allocate link node on stack and add to link array
 	(assign {0, 0} {lk_node.lk_table_array, lk_node.lk_table_array_size})
-	(f-call 'array 'push_back {link_statics->lk_statics_links_array, &lk_node})
+	(f-call 'array 'push_back {mail_statics->ml_statics_links_array, &lk_node})
 
 	;read params msg from kernel
 	(f-call 'sys_mail 'mymail {} {params, pdata})
@@ -192,7 +179,7 @@
 	(f-call 'sys_mem 'free {lk_node.lk_node_table})
 
 	;restore task count
-	(assign {link_statics->tk_statics_task_count + 1} {link_statics->tk_statics_task_count})
+	(assign {task_statics->tk_statics_task_count + 1} {task_statics->tk_statics_task_count})
 
 	(f-exit 'sys_link 'link {})
 	(pop-scope)

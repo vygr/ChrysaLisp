@@ -56,6 +56,7 @@
 	(struct 'msg_heap 'hp_heap)
 	(ptr 'kernel_mailbox)
 	(ptr 'out_mailbox)
+	(ptr 'links_array)
 	(uint 'parcel_id)
 (def-struct-end)
 
