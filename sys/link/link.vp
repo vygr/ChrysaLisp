@@ -143,9 +143,6 @@
 			(vpif {rx_msg->lk_msg_stamp.msg_parcel_length && rx_msg->lk_msg_stamp.msg_dest.id_cpu == id})
 				;copy direct from link buffer to parcel !
 				(f-call 'sys_mail 'in {rx_msg})
-
-				;clear status
-				(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
 			(else)
 				;allocate msg, copy over data
 				(f-call 'sys_mail 'alloc {rx_msg->lk_msg_stamp.msg_length} {msg, data})

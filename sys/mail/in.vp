@@ -45,6 +45,9 @@
 	(assign {msg->msg_parcel_offset + len} {msg->msg_parcel_offset})
 	(assign {msg->msg_parcel_length - len} {msg->msg_parcel_length})
 
+	;clear link status
+	(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
+
 	;got all needed ?
 	(vpifnot {msg->msg_parcel_length})
 		;yes, remove parcel and post it
