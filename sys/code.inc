@@ -950,6 +950,9 @@
 (defmacro opt-fold-cr-ops ()
 	''(add add mul bit-and bit-or bit-xor add add add))
 
+(defmacro opt-cr-fuse-ops ()
+	''(vp-add-cr vp-sub-cr))
+
 (defmacro opt-uses (r _)
 	`(or (find ,r ,_) (find (elem 0 ,_) '(vpif else endif))))
 
@@ -1007,9 +1010,16 @@
 				(elem-set 0 e 'vp-shl-cr)
 				(elem-set 1 e s)
 				(setq i (dec i)))
+			;constant propagation
+			((defq c (find o (opt-rr-ops)))
+				(when (opt-find? i (defq r (elem 1 e)) (list 'vp-cpy-cr '_ r))
+					(elem-set 0 e (elem c (opt-cr-ops)))
+					(elem-set 1 e (elem 1 (elem p *inst*)))
+					(elem-set p *inst* (lambda))
+					(setq i (dec i))))
 			;arithmetic reassignment and constant folding
-			((defq c (find o (opt-cr-ops)))
-				(when (opt-find? i (defq r (elem 2 e)) (list 'vp-cpy-cr '_ r) (list o '_ r))
+			((and (defq c (find o (opt-cr-ops)))
+				(opt-find? i (defq r (elem 2 e)) (list 'vp-cpy-cr '_ r) (list o '_ r)))
 					(cond
 						((eq m 0)
 							(setq c (elem c (opt-fold-cpy-ops)))
@@ -1017,14 +1027,18 @@
 						((eq m 1)
 							(setq c (elem c (opt-fold-cr-ops)))))
 					(elem-set 1 e (list c (elem 1 (elem p *inst*)) (elem 1 e)))
-					(elem-set p *inst* (lambda))))
-			;constant propagation
-			((defq c (find o (opt-rr-ops)))
-				(when (opt-find? i (defq r (elem 1 e)) (list 'vp-cpy-cr '_ r))
-					(elem-set 0 e (elem c (opt-cr-ops)))
-					(elem-set 1 e (elem 1 (elem p *inst*)))
-					(elem-set p *inst* (lambda))
-					(setq i (dec i)))))))
+					(elem-set p *inst* (lambda)))
+			;constant fusion
+			((and (defq c (find o (opt-cr-fuse-ops)))
+				(opt-find? i (defq r (elem 2 e)) (list 'vp-add-cr '_ r) (list 'vp-sub-cr '_ r)))
+					(cond
+						((eq m 0)
+							(setq c (elem c '(add sub))))
+						((eq m 1)
+							(setq c (elem c '(sub add)))))
+					(elem-set 1 e (list c (elem 1 e) (elem 1 (elem p *inst*))))
+					(elem-set p *inst* (lambda)))
+			)))
 
 ;;;;;;;;;;;;
 ; assignment
