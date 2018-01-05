@@ -32,14 +32,14 @@
 	(vp-and-cr -16 rsp)
 	(l-entry {argv, sdl, old_stack})
 
-	;init gui
-	(f-call 'gui_gui 'init {sdl})
-
 	;init allocator
 	(f-call 'sys_mem 'init)
 
 	;init tasks
 	(f-call 'sys_task 'init)
+
+	;init gui
+	(f-call 'gui_gui 'init {sdl})
 
 	;start kernel task
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
@@ -129,12 +129,9 @@
 				(assign {(routes.lk_table_array)[route_index].lk_route_hops} {hops})
 				(assign {data->kn_msg_link_route_hops} {new_hops})
 				(switch)
-				(casenot {hops})
-					;never seen, so better route
-					(vp-jmp 'better_route)
-				(case {new_hops < hops})
+				(case {!hops || new_hops < hops})
 				(vp-label 'better_route)
-					;new hops is less, so better route
+					;better or first time route
 					(assign {new_hops} {(routes.lk_table_array)[route_index].lk_route_hops})
 
 					;fill in via route and remove other routes
@@ -309,9 +306,10 @@
 			(assign {table + ptr_size} {table})
 			(f-call 'sys_string 'compare {table, arg} {len})
 			(vpifnot {len})
-				(assign {argv, $options_table + offset} '(r0 r1))
+				(assign {*argv} {arg})
+				(breakifnot {arg} next_arg)
+				(assign {arg, $options_table + offset} '(r0 r1))
 				(vp-call-r r1)
-				(assign '(r0) {argv})
 				(break next_arg)
 			(endif)
 			(f-call 'sys_string 'length {table} {_, len})
@@ -325,84 +323,62 @@
 (vp-label 'opt_cpu)
 	;inputs
 	;r0 = argv pointer
-	;outputs
-	;r0 = argv pointer updated
 
-	(pptr 'argv)
 	(ptr 'arg 'statics)
 	(uint 'id)
 
 	(push-scope)
-	(l-entry {argv})
+	(l-entry {arg})
 
 	;set cpu ID
-	(assign {*argv} {arg})
-	(vpif {arg})
-		(f-call 'sys_string 'to_long {arg, 10} {id})
-		(assign (cat {@} (f-path 'sys_task 'statics)) {statics})
-		(assign {id} {statics->tk_statics_cpu_id})
-	(endif)
+	(f-call 'sys_string 'to_long {arg, 10} {id})
+	(assign (cat {@} (f-path 'sys_task 'statics)) {statics})
+	(assign {id} {statics->tk_statics_cpu_id})
 
-	(l-exit {argv})
 	(pop-scope)
 	(return)
 
 (vp-label 'opt_run)
 	;inputs
 	;r0 = argv pointer
-	;outputs
-	;r0 = argv pointer updated
 
-	(pptr 'argv)
 	(ptr 'arg)
 
 	(push-scope)
-	(l-entry {argv})
+	(l-entry {arg})
 
 	;load and run task
-	(assign {*argv} {arg})
+	(f-call 'sys_load 'bind {arg} {arg})
 	(vpif {arg})
-		(f-call 'sys_load 'bind {arg} {arg})
-		(vpif {arg})
-			(f-call 'sys_task 'start {arg})
-		(endif)
+		(f-call 'sys_task 'start {arg})
 	(endif)
 
-	(l-exit {argv})
 	(pop-scope)
 	(return)
 
 (vp-label 'opt_link)
 	;inputs
 	;r0 = argv pointer
-	;outputs
-	;r0 = argv pointer updated
 
-	(pptr 'argv)
 	(ptr 'arg 'msg 'data)
 	(struct 'mbox 'id)
 
 	(push-scope)
-	(l-entry {argv})
+	(l-entry {arg})
 
-	;start link task
-	(assign {*argv} {arg})
-	(vpif {arg})
-		;start link
-		(f-call 'sys_task 'start (cat {@} (f-path 'sys_link 'link)) {_, mbox.id_mbox, mbox.id_cpu})
+	;start link
+	(f-call 'sys_task 'start (cat {@} (f-path 'sys_link 'link)) {_, mbox.id_mbox, mbox.id_cpu})
 
-		;params message
-		(f-call 'sys_mail 'alloc {5 + 7 + 1} {msg, data})
-		(assign {mbox.id_mbox} {msg->msg_dest.id_mbox})
-		(assign {mbox.id_cpu} {msg->msg_dest.id_cpu})
-		(f-call 'sys_string 'copy {$link_path, data} {_, data})
-		(f-call 'sys_string 'copy {*argv, data - 1} {_, data})
+	;params message
+	(f-call 'sys_mail 'alloc {5 + 7 + 1} {msg, data})
+	(assign {mbox.id_mbox} {msg->msg_dest.id_mbox})
+	(assign {mbox.id_cpu} {msg->msg_dest.id_cpu})
+	(f-call 'sys_string 'copy {$link_path, data} {_, data})
+	(f-call 'sys_string 'copy {arg, data - 1} {_, data})
 
-		;send to link task
-		(f-call 'sys_mail 'send {msg})
-	(endif)
+	;send to link task
+	(f-call 'sys_mail 'send {msg})
 
-	(l-exit {argv})
 	(pop-scope)
 	(return)
 
