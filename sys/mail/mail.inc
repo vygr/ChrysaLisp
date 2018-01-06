@@ -2,7 +2,6 @@
 (import 'sys/code.inc)
 (import 'sys/list/list.inc)
 (import 'sys/heap/heap.inc)
-(import 'class/string/string.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; mail static class
@@ -27,8 +26,6 @@
 ;;;;;;;;;;;;;;;;;
 ; mail structures
 ;;;;;;;;;;;;;;;;;
-
-(defcvar 'mail_data_size (sub 512 string_size ptr_size long_size))
 
 (def-struct 'mailbox 'lh_list)
 	(struct 'parcel_list 'lh_list)

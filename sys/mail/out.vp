@@ -1,4 +1,5 @@
 (import 'sys/func.inc)
+(import 'sys/link/link.inc)
 (import 'class/ref/ref.inc)
 (import 'sys/kernel/kernel.inc)
 
@@ -27,8 +28,8 @@
 		(loop-start)
 			;create fragment
 			(assign {ammount} {len})
-			(vpif {len > mail_data_size})
-				(assign {mail_data_size} {len})
+			(vpif {len > lk_data_size})
+				(assign {lk_data_size} {len})
 			(endif)
 			(f-call 'sys_heap 'alloc {&mail_statics->ml_statics_msg_heap} {_, frag})
 			(f-call 'ref 'ref {msg->msg_parcel_obj} {frag->msg_parcel_obj})

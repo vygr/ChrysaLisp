@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
 (import 'sys/kernel/kernel.inc)
 (import 'sys/math/math.inc)
+(import 'sys/link/link.inc)
 (import 'class/vector/vector.inc)
-(import 'class/string/string.inc)
 
 ;;;;;;;;;;;
 ; test code
@@ -48,7 +48,7 @@
 
 (def-func 'tests/global)
 
-	(defcvar 'global_msg_size (mul mail_data_size 10))
+	(defcvar 'global_msg_size (mul lk_data_size 10))
 
 	(ptr 'name 'ids 'buf 'msg 'mbox)
 	(pulong 'data)

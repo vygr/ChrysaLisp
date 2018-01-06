@@ -1,6 +1,7 @@
 (import 'sys/func.inc)
 (import 'sys/kernel/kernel.inc)
 (import 'class/msg_out/msg_out.inc)
+(import 'sys/link/link.inc)
 
 (gen-new 'msg_out)
 (gen-create 'msg_out)
@@ -124,9 +125,9 @@
 	(f-entry 'msg_out 'write_next {this})
 
 	(v-call 'stream 'write_flush {this})
-	(f-call 'sys_mail 'alloc {mail_data_size} {msg, data})
+	(f-call 'sys_mail 'alloc {lk_data_size} {msg, data})
 	(assign {&data->stream_msg_data} {this->stream_bufp})
-	(assign {&data->stream_msg_data + mail_data_size - stream_msg_data} {this->stream_bufe})
+	(assign {&data->stream_msg_data + lk_data_size - stream_msg_data} {this->stream_bufe})
 	(assign {msg} {this->stream_buffer})
 
 	(f-exit 'msg_out 'write_next {this})

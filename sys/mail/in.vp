@@ -1,5 +1,4 @@
 (import 'sys/func.inc)
-(import 'sys/mail/mail.inc)
 (import 'sys/link/link.inc)
 
 (def-func 'sys/mail/in)

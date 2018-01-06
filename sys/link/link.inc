@@ -2,6 +2,7 @@
 (import 'sys/code.inc)
 (import 'sys/list/list.inc)
 (import 'sys/mail/mail.inc)
+(import 'class/string/string.inc)
 
 (def-class 'sys_link)
 (def-method 'init 'sys/link/init)
@@ -10,6 +11,8 @@
 ;;;;;;;;;;;;;;;;;
 ; link structures
 ;;;;;;;;;;;;;;;;;
+
+(defcvar 'lk_data_size (sub 512 string_size ptr_size long_size))
 
 (def-enum 'lk_chan_status)
 	(enum 'ready 'busy)
@@ -30,7 +33,7 @@
 	(uint 'status)
 	(local-align)
 	(struct 'stamp msg_stamp_size)
-	(struct 'data mail_data_size)
+	(struct 'data lk_data_size)
 (def-struct-end)
 
 (def-struct 'lk_chan)

@@ -1,6 +1,5 @@
 (import 'sys/func.inc)
 (import 'sys/link/link.inc)
-(import 'sys/mail/mail.inc)
 (import 'sys/kernel/kernel.inc)
 (import 'class/array/array.inc)
 
