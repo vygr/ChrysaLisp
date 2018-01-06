@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
+(import 'sys/mail/mail.inc)
 (import 'sys/kernel/kernel.inc)
-(import 'class/string/string.inc)
 (import 'class/array/array.inc)
 
 (def-func 'sys/mail/statics)
