@@ -33,7 +33,7 @@
 		(f-call 'button 'set_long_prop {button, prop_color, 0xffffff00})
 		(f-call 'button 'set_string_prop {button, prop_text, next})
 		(v-call 'flow 'add_child {panel, button})
-		(f-call 'button 'connect_clicked {button, 0})
+		(f-call 'button 'connect_click {button, 0})
 		(f-call 'sys_string 'length {next} {_, length})
 		(assign {next + length + byte_size} {next})
 	(loop-end)

@@ -52,7 +52,7 @@
 		(f-call 'button 'set_font_prop {button, prop_font, "fonts/OpenSans-Regular.ttf", 42})
 		(f-call 'button 'set_long_prop {button, prop_flow_flags, flow_flag_align_hcenter | flow_flag_align_vcenter})
 		(v-call 'grid 'add_child {grid_panel, button})
-		(f-call 'button 'connect_clicked {button, 1})
+		(f-call 'button 'connect_click {button, 1})
 		(f-call 'sys_string 'length {next} {_, length})
 		(assign {next + length + byte_size} {next})
 	(loop-end)

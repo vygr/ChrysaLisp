@@ -187,7 +187,7 @@
 
 (def-func-end)
 
-(def-func 'class/button/connect_clicked)
+(def-func 'class/button/connect_click)
 	;inputs
 	;r0 = button object
 	;r1 = target id
@@ -200,11 +200,11 @@
 	(long 'id)
 
 	(push-scope)
-	(f-entry 'button 'connect_clicked {this, id})
+	(f-entry 'button 'connect_click {this, id})
 
 	(f-call 'array 'push_back {this->button_clicked_targets, id})
 
-	(f-exit 'button 'connect_clicked {this})
+	(f-exit 'button 'connect_click {this})
 	(pop-scope)
 	(return)
 
