@@ -14,9 +14,9 @@
 (def-method 'init 'class/window/init 'static '(r0 r1 r2))
 (def-method 'set_title 'class/window/set_title 'static '(r0 r1) '(r0))
 (def-method 'set_status 'class/window/set_status 'static '(r0 r1) '(r0))
-(def-method 'connect_close 'class/window/connect_close 'static '(r0 r1 r2) '(r0))
-(def-method 'connect_max 'class/window/connect_max 'static '(r0 r1 r2) '(r0))
-(def-method 'connect_min 'class/window/connect_min 'static '(r0 r1 r2) '(r0))
+(def-method 'connect_close 'class/window/connect_close 'static '(r0 r1) '(r0))
+(def-method 'connect_max 'class/window/connect_max 'static '(r0 r1) '(r0))
+(def-method 'connect_min 'class/window/connect_min 'static '(r0 r1) '(r0))
 
 (def-method 'deinit 'class/window/deinit 'final)
 (def-method 'add_child 'class/window/add_child 'final)

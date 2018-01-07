@@ -9,15 +9,13 @@
 
 (def-func 'apps/launcher/app)
 
-	(struct 'myapp 'obj)
-	(ptr 'msg 'data 'window 'panel 'button 'pressed)
+	(ptr 'msg 'data 'window 'panel 'button 'string)
 	(pubyte 'next)
 	(int 'width 'height)
 	(uint 'length)
 
 	;init app vars
 	(push-scope)
-	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)))
 
 	;create my window
 	(f-call 'window 'create {0} {window})
@@ -35,8 +33,7 @@
 		(f-call 'button 'set_long_prop {button, prop_color, 0xffffff00})
 		(f-call 'button 'set_string_prop {button, prop_text, next})
 		(v-call 'flow 'add_child {panel, button})
-		(f-call 'button 'sig_pressed {button} {_, pressed})
-		(f-call 'button 'connect {button, pressed, &myapp, $on_press})
+		(f-call 'button 'add_clicked {button, 0})
 		(f-call 'sys_string 'length {next} {_, length})
 		(assign {next + length + byte_size} {next})
 	(loop-end)
@@ -53,7 +50,13 @@
 		(f-call 'sys_mail 'mymail {} {msg, data})
 
 		;dispatch event to target
-		(v-call 'view 'event {window, data})
+		(vpif {data->ev_msg_target_id >= 0})
+			(f-call 'window 'find_id {window, data->ev_msg_action_source_id} {_, button})
+			(f-call 'button 'get_prop {button, prop_text} {_, string})
+			(f-call 'sys_task 'open_child {string, kn_call_open})
+		(else)
+			(v-call 'view 'event {window, data})
+		(endif)
 
 		;free event message
 		(f-call 'sys_mail 'free {msg})
@@ -61,21 +64,6 @@
 
 	;deref window
 	(f-call 'window 'deref {window})
-	(v-call 'obj 'deinit {&myapp})
-	(pop-scope)
-	(return)
-
-(vp-label 'on_press)
-	;inputs
-	;r0 = app local object
-	;r1 = button object
-
-	(ptr 'this 'button 'string)
-
-	(push-scope)
-	(l-entry {this, button})
-	(f-call 'button 'get_prop {button, prop_text} {_, string})
-	(f-call 'sys_task 'open_child {string, kn_call_open})
 	(pop-scope)
 	(return)
 

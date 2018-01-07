@@ -415,86 +415,71 @@
 (def-func 'class/window/connect_close)
 	;inputs
 	;r0 = window object
-	;r1 = reciever object
-	;r2 = reciever callback
+	;r1 = reciever id
 	;outputs
 	;r0 = window object
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'obj)
-		(ptr 'callback)
-	(def-struct-end)
+	(ptr 'this)
+	(long 'id)
 
 	;save inputs
-	(vp-alloc local_size)
-	(assign '(r0 r1 r2) '((rsp local_this) (rsp local_obj) (rsp local_callback)))
+	(push-scope)
+	(f-entry 'window 'connect_close {this, id})
 
-	(f-call 'button 'sig_pressed '((r0 window_close)) '(r0 r1))
-	(f-call 'button 'connect '(r0 r1 (rsp local_obj) (rsp local_callback)))
+	(f-call 'button 'add_clicked {this->window_close, id})
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-free local_size)
-	(vp-ret)
+	(f-exit 'window 'connect_close {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
 (def-func 'class/window/connect_max)
 	;inputs
 	;r0 = window object
-	;r1 = reciever object
-	;r2 = reciever callback
+	;r1 = reciever id
 	;outputs
 	;r0 = window object
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'obj)
-		(ptr 'callback)
-	(def-struct-end)
+	(ptr 'this)
+	(long 'id)
 
 	;save inputs
-	(vp-alloc local_size)
-	(assign '(r0 r1 r2) '((rsp local_this) (rsp local_obj) (rsp local_callback)))
+	(push-scope)
+	(f-entry 'window 'connect_max {this, id})
 
-	(f-call 'button 'sig_pressed '((r0 window_max)) '(r0 r1))
-	(f-call 'button 'connect '(r0 r1 (rsp local_obj) (rsp local_callback)))
+	(f-call 'button 'add_clicked {this->window_max, id})
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-free local_size)
-	(vp-ret)
+	(f-exit 'window 'connect_max {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
 (def-func 'class/window/connect_min)
 	;inputs
 	;r0 = window object
-	;r1 = reciever object
-	;r2 = reciever callback
+	;r1 = reciever id
 	;outputs
 	;r0 = window object
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'obj)
-		(ptr 'callback)
-	(def-struct-end)
+	(ptr 'this)
+	(long 'id)
 
 	;save inputs
-	(vp-alloc local_size)
-	(assign '(r0 r1 r2) '((rsp local_this) (rsp local_obj) (rsp local_callback)))
+	(push-scope)
+	(f-entry 'window 'connect_min {this, id})
 
-	(f-call 'button 'sig_pressed '((r0 window_min)) '(r0 r1))
-	(f-call 'button 'connect '(r0 r1 (rsp local_obj) (rsp local_callback)))
+	(f-call 'button 'add_clicked {this->window_min, id})
 
-	(vp-cpy-ir rsp local_this r0)
-	(vp-free local_size)
-	(vp-ret)
+	(f-exit 'window 'connect_min {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)

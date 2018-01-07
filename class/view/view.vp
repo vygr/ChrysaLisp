@@ -25,11 +25,6 @@
 		(vp-cpy-ri-i r1 r0 view_flags)
 		(vp-lea-i r0 view_list r1)
 		(lh-init r1 r2)
-		(f-bind 'gui_gui 'statics r1)
-		(vp-cpy-ir r1 gui_statics_next_id r2)
-		(vp-sub-cr 1 r2)
-		(vp-cpy-ri r2 r1 gui_statics_next_id)
-		(vp-cpy-ri r2 r0 view_id)
 	(endif)
 	(vp-ret)
 
@@ -478,7 +473,7 @@
 (vp-label 'down_callback)
 	(vp-cpy-ir r1 local_view r2)
 	(vpif '(r2 == 0))
-		(vp-cpy-ir r0 view_id r2)
+		(vp-cpy-ir r0 component_id r2)
 		(vp-cpy-ir r1 local_id r3)
 		(vpif '(r2 == r3))
 			(vp-cpy-ri r0 r1 local_view)
@@ -488,25 +483,6 @@
 		(vp-xor-rr r1 r1)
 	(endif)
 (vp-label 'up_callback)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'class/view/find_owner)
-	;inputs
-	;r0 = view object
-	;outputs
-	;r1 = 0, else tcb of owner
-	;trashes
-	;r2
-
-	;walk up tree to parent
-	(vp-cpy-rr r0 r2)
-	(loop-start)
-		(vp-cpy-ir r2 view_tcb r1)
-		(vp-cpy-ir r2 hash_map_parent r2)
-		(breakif '(r1 != 0))
-	(loop-until '(r2 == 0))
 	(vp-ret)
 
 (def-func-end)

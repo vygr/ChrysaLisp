@@ -30,8 +30,7 @@ Unused output parameters can be ignored with an _.
 There is a powerful object and class system, not just for an assembler, but
 quite as capable as a high level language. Static classes or virtual classes
 with inline, virtual, final, static and override methods can be defined. The
-GUI and Lisp are constructed using this class system. A signals and slots
-system is provided for object composition.
+GUI and Lisp are constructed using this class system.
 
 Has function level dynamic binding and loading. Individual functions are loaded
 and bound on demand as tasks are created and distributed. Currently functions

@@ -21,18 +21,11 @@
 
 	(defcvar 'app_width 640 'app_height 640 'app_scale 3.0)
 
-	(def-struct 'local 'obj)
-		(uint 'closed)
-	(def-struct-end)
-
-	(struct 'myapp 'local)
 	(ptr 'msg 'data 'window 'canvas)
 	(int 'width 'height)
 
 	;init app vars
 	(push-scope)
-	(f-call 'sys_mem 'clear {&myapp, local_size})
-	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)))
 
 	;create my window
 	(f-call 'window 'create {window_flag_close} {window})
@@ -47,7 +40,7 @@
 	(f-call 'window 'change {window, 512, 256, width, height})
 
 	;set close action
-	(f-call 'window 'connect_close {window, &myapp, $on_window_close})
+	(f-call 'window 'connect_close {window, 0})
 
 	;add to screen
 	(f-call 'gui_gui 'add {window})
@@ -69,29 +62,17 @@
 		(f-call 'sys_mail 'mymail {} {msg, data})
 
 		;dispatch event to target
+		(breakifnot {data->ev_msg_target_id})
 		(v-call 'view 'event {window, data})
 
 		;free event message
 		(f-call 'sys_mail 'free {msg})
-	(loop-until {myapp.local_closed})
+	(loop-end)
+	(f-call 'sys_mail 'free {msg})
 
 	;deref window
 	(f-call 'window 'deref {window})
-	(v-call 'obj 'deinit {&myapp})
 
-	(pop-scope)
-	(return)
-
-(vp-label 'on_window_close)
-	;inputs
-	;r0 = app local object
-	;r1 = close object
-
-	(ptr 'this 'src)
-
-	(push-scope)
-	(l-entry {this, src})
-	(assign {1} {this->local_closed})
 	(pop-scope)
 	(return)
 

@@ -2,6 +2,7 @@
 (import 'gui/gui.inc)
 (import 'class/button/button.inc)
 (import 'class/flow/flow.inc)
+(import 'class/array/array.inc)
 
 (gen-new 'button)
 (gen-create 'button)
@@ -28,7 +29,7 @@
 	(vpif {ok})
 		;init myself
 		(assign {0} {this->button_state})
-		(f-call 'sys_list 'init {&this->button_pressed_signal})
+		(f-call 'array 'create {} {this->button_clicked_targets})
 		(f-call 'button 'set_long_prop {this, prop_border, 2})
 		(f-call 'button 'set_long_prop {this, prop_flow_flags, flow_flag_down | flow_flag_align_hcenter})
 	(endif)
@@ -45,10 +46,16 @@
 	;trashes
 	;all but r0
 
-	;disconnnect all signals
-	(f-call 'button 'disconnect_sig '(r0 (& r0 button_pressed_signal)) '(r0))
+	(ptr 'this)
 
-	;parent deinit
+	(push-scope)
+	(f-entry 'button 'deinit {this})
+
+	(f-call 'array 'deref {this->button_clicked_targets})
+
+	;parent deint
+	(f-exit 'button 'deinit {this})
+	(pop-scope)
 	(s-jmp 'button 'deinit '(r0))
 
 (def-func-end)
@@ -143,7 +150,7 @@
 	(vp-pop r1)
 	(vp-and-cr button_state_pressed r1)
 	(vpif '(r1 != 0))
-		(f-jmp 'button 'emit '(r0 (& r0 button_pressed_signal)))
+		(f-jmp 'button 'emit '(r0 (r0 button_clicked_targets)))
 	(endif)
 	(vp-ret)
 
@@ -180,13 +187,25 @@
 
 (def-func-end)
 
-(def-func 'class/button/sig_pressed)
+(def-func 'class/button/add_clicked)
 	;inputs
 	;r0 = button object
+	;r1 = target id
 	;outputs
-	;r1 = pressed signal list
+	;r0 = button object
+	;trashes
+	;all but r0
 
-	(vp-lea-i r0 button_pressed_signal r1)
-	(vp-ret)
+	(ptr 'this)
+	(long 'id)
+
+	(push-scope)
+	(f-entry 'button 'add_clicked {this, id})
+
+	(f-call 'array 'push_back {this->button_clicked_targets, id})
+
+	(f-exit 'button 'add_clicked {this})
+	(pop-scope)
+	(return)
 
 (def-func-end)

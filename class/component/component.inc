@@ -3,10 +3,8 @@
 
 (def-class 'component 'hash_map)
 (def-method 'init 'class/component/init 'static '(r0 r1))
-(def-method 'connect 'class/component/connect 'static '(r0 r1 r2 r3) '(r0))
+(def-method 'find_owner 'class/component/find_owner 'static '(r0) '(r0 r1))
 (def-method 'emit 'class/component/emit 'static '(r0 r1) '(r0))
-(def-method 'disconnect_slot 'class/component/disconnect_slot 'static '(r0 r1) '(r0))
-(def-method 'disconnect_sig 'class/component/disconnect_sig 'static '(r0 r1) '(r0))
 (def-method 'get_prop_sym 'class/component/get_prop_sym 'static '(r0 r1) '(r0 r1))
 (def-method 'get_prop 'class/component/get_prop 'static '(r0 r1) '(r0 r1))
 (def-method 'ref_prop 'class/component/ref_prop 'static '(r0 r1) '(r0 r1))
@@ -15,10 +13,9 @@
 (def-method 'set_font_prop 'class/component/set_font_prop 'static '(r0 r1 r2 r3) '(r0))
 (def-method 'set_string_prop 'class/component/set_string_prop 'static '(r0 r1 r2) '(r0))
 
-(def-method 'deinit 'class/component/deinit 'override)
-
 (def-struct 'component 'hash_map)
-	(struct 'slot_list 'lh_list)
+	(ptr 'tcb)
+	(long 'id)
 (def-struct-end)
 
 ;;;;;;;;;;;;
@@ -44,3 +41,5 @@
 (defprop "progress_max")
 (defprop "vdu_width")
 (defprop "vdu_height")
+
+(defprop "clicked")

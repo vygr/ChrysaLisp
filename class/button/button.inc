@@ -8,7 +8,7 @@
 (def-method 'create 'class/button/create)
 (def-method 'new 'class/button/new)
 (def-method 'init 'class/button/init)
-(def-method 'sig_pressed 'class/button/sig_pressed 'static '(r0) '(r0 r1))
+(def-method 'add_clicked 'class/button/add_clicked 'static '(r0 r1) '(r0))
 
 (def-method 'deinit 'class/button/deinit 'final)
 (def-method 'draw 'class/button/draw 'final)
@@ -19,5 +19,5 @@
 
 (def-struct 'button 'label)
 	(ulong 'state)
-	(struct 'pressed_signal 'lh_list)
+	(ptr 'clicked_targets)
 (def-struct-end)

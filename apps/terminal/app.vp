@@ -14,7 +14,7 @@
 
 	(defcvar 'buf_size 256)
 
-	(def-struct 'local 'obj)
+	(def-struct 'local)
 		(ptr 'pipe 'vdu 'history 'window)
 		(ulong 'history_index)
 		(pubyte 'bufp)
@@ -29,8 +29,6 @@
 
 	;init app vars
 	(push-scope)
-	(f-call 'sys_mem 'clear {&myapp, local_size})
-	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)))
 	(f-call 'vector 'create {} {myapp.local_history})
 	(assign {0} {myapp.local_pipe})
 
@@ -53,7 +51,7 @@
 	(f-call 'window 'change {myapp.local_window, 0, 0, width, height})
 
 	;set close action
-	(f-call 'window 'connect_close {myapp.local_window, &myapp, $on_window_close})
+	(f-call 'window 'connect_close {myapp.local_window, 0})
 
 	;add to screen and print sign on
 	(f-call 'gui_gui 'add {myapp.local_window})
@@ -65,7 +63,7 @@
 
 	;app event loop
 	(f-call 'sys_task 'mailbox {} {mymailbox, _})
-	(loop-start)
+	(loop-start 'exit)
 		(vpif {myapp.local_pipe})
 			;select on multiple mailboxes
 			(f-call 'pipe 'select {myapp.local_pipe, mymailbox} {_, mailbox})
@@ -86,6 +84,7 @@
 		(else)
 		(vp-label 'from_mymailbox)
 			(f-call 'sys_mail 'read {mymailbox} {msg, data})
+			(breakifnot {data->ev_msg_target_id} exit)
 			(v-call 'view 'event {myapp.local_window, data})
 			(vpif {data->ev_msg_type == ev_type_key && data->ev_msg_key_keycode > 0})
 				(l-call 'terminal_input {&myapp, data->ev_msg_key_key})
@@ -94,25 +93,12 @@
 		(endif)
 		(f-call 'sys_task 'yield)
 	(loop-until {myapp.local_closed})
+	(f-call 'sys_mail 'free {msg})
 
 	;clean up
 	(f-call 'pipe 'deref_if {myapp.local_pipe})
 	(f-call 'vector 'deref {myapp.local_history})
 	(f-call 'window 'deref {myapp.local_window})
-	(v-call 'obj 'deinit {&myapp})
-	(pop-scope)
-	(return)
-
-(vp-label 'on_window_close)
-	;inputs
-	;r0 = app local object
-	;r1 = close object
-
-	(ptr 'this 'src)
-
-	(push-scope)
-	(l-entry {this, src})
-	(assign {1} {this->local_closed})
 	(pop-scope)
 	(return)
 

@@ -33,19 +33,12 @@
 	(ubyte 'dirty_flag)
 (def-struct-end)
 
-(def-struct 'gui_sigslot)
-	(struct 'sig_node 'ln_node)
-	(struct 'slot_node 'ln_node)
-	(ptr 'inst)
-	(ptr 'addr)
-(def-struct-end)
-
 ;;;;;;;;;;;;;;;;;;;;
 ; gui event msg data
 ;;;;;;;;;;;;;;;;;;;;
 
 (def-enum 'ev_type)
-	(enum 'mouse 'key 'user)
+	(enum 'mouse 'key 'action)
 (def-enum-end)
 
 (def-struct 'ev_msg)
@@ -68,7 +61,7 @@
 	(uint 'key)
 (def-struct-end)
 
-(def-struct 'ev_msg_user)
+(def-struct 'ev_msg_action)
 	(struct 'base 'ev_msg)
-	(uint 'code)
+	(ulong 'source_id)
 (def-struct-end)

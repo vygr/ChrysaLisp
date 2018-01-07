@@ -21,16 +21,11 @@
 
 	(defcvar 'num_samples 256)
 
-	(def-struct 'app 'obj)
-		(uint 'closed)
-	(def-struct-end)
-
 	(def-struct 'sel)
 		(ptr 'select1)
 		(ptr 'select2)
 	(def-struct-end)
 
-	(struct 'myapp 'app)
 	(struct 'select 'sel)
 	(ptr 'window 'panel1 'panel2 'left_panel 'right_panel 'trip)
 	(pptr 'task_progress)
@@ -48,8 +43,7 @@
 
 	;init app vars
 	(push-scope)
-	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)))
-	(assign {0, 0} {max_tasks, myapp.app_closed})
+	(assign {0} {max_tasks})
 
 	;create my window
 	(f-call 'window 'create {window_flag_close} {window})
@@ -110,7 +104,7 @@
 	(f-call 'window 'change {window, 32, 32, width, height})
 
 	;set close action
-	(f-call 'window 'connect_close {window, &myapp, $on_window_close})
+	(f-call 'window 'connect_close {window, 0})
 
 	;add to screen
 	(f-call 'gui_gui 'add {window})
@@ -130,7 +124,7 @@
 	;app event loop
 	(assign {0} {sample})
 	(f-call 'pii 'time {} {start_time})
-	(loop-start)
+	(loop-start 'exit)
 		;new round of samples ?
 		(vpif {cpu_count == cpu_total})
 			;get trip time and save start time
@@ -171,6 +165,7 @@
 		;which mailbox had mail ?
 		(vpif {mailbox == select.sel_select1})
 			;dispatch event to target
+			(breakifnot {data->ev_msg_target_id} exit)
 			(v-call 'view 'event {window, data})
 		(else)
 			;update progress bars
@@ -199,7 +194,8 @@
 
 		;be friendly
 		(f-call 'sys_task 'yield)
-	(loop-until {myapp.app_closed})
+	(loop-end)
+	(f-call 'sys_mail 'free {msg})
 
 	;wait for outstanding replies
 	(loop-while {cpu_count != cpu_total})
@@ -225,21 +221,7 @@
 
 	;deref window
 	(f-call 'window 'deref {window})
-	(v-call 'obj 'deinit {&myapp})
 
-	(pop-scope)
-	(return)
-
-(vp-label 'on_window_close)
-	;inputs
-	;r0 = app local object
-	;r1 = close object
-
-	(ptr 'this 'src)
-
-	(push-scope)
-	(l-entry {this, src})
-	(assign {1} {this->app_closed})
 	(pop-scope)
 	(return)
 

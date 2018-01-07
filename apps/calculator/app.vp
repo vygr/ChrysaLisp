@@ -10,26 +10,15 @@
 
 (def-func 'apps/calculator/app)
 
-	(def-struct 'local 'obj)
-		(ptr 'display)
-		(long 'accum)
-		(long 'value)
-		(struct 'buffer 32)
-		(uint 'last_op)
-		(uint 'last_flag)
-		(uint 'closed)
-	(def-struct-end)
-
-	(struct 'myapp 'local)
-	(ptr 'msg 'data 'window 'flow_panel 'grid_panel 'button 'pressed)
+	(ptr 'msg 'data 'window 'flow_panel 'grid_panel 'button 'display)
+	(long 'accum 'value)
 	(pubyte 'next)
-	(int 'width 'height)
+	(int 'width 'height 'last_op 'last_flag)
 	(uint 'length)
+	(struct 'buffer 32)
 
 	;init app vars
 	(push-scope)
-	(f-call 'sys_mem 'clear {&myapp, local_size})
-	(f-call 'obj 'init (cat {&myapp, @} (f-path 'class 'obj)))
 
 	;create my window
 	(f-call 'window 'create {window_flag_close} {window})
@@ -41,12 +30,12 @@
 	(v-call 'window 'add_child {window, flow_panel})
 
 	;add my display label
-	(f-call 'label 'create {} {myapp.local_display})
-	(f-call 'label 'set_long_prop {myapp.local_display, prop_color, 0xffffffff})
-	(f-call 'label 'set_long_prop {myapp.local_display, prop_flow_flags, flow_flag_align_hright | flow_flag_align_vcenter})
-	(f-call 'label 'set_font_prop {myapp.local_display, prop_font, "fonts/OpenSans-Regular.ttf", 24})
-	(f-call 'label 'set_string_prop {myapp.local_display, prop_text, "0"})
-	(v-call 'flow 'add_child {flow_panel, myapp.local_display})
+	(f-call 'label 'create {} {display})
+	(f-call 'label 'set_long_prop {display, prop_color, 0xffffffff})
+	(f-call 'label 'set_long_prop {display, prop_flow_flags, flow_flag_align_hright | flow_flag_align_vcenter})
+	(f-call 'label 'set_font_prop {display, prop_font, "fonts/OpenSans-Regular.ttf", 24})
+	(f-call 'label 'set_string_prop {display, prop_text, "0"})
+	(v-call 'flow 'add_child {flow_panel, display})
 
 	;add my app grid panel
 	(f-call 'grid 'create {} {grid_panel})
@@ -63,8 +52,7 @@
 		(f-call 'button 'set_font_prop {button, prop_font, "fonts/OpenSans-Regular.ttf", 42})
 		(f-call 'button 'set_long_prop {button, prop_flow_flags, flow_flag_align_hcenter | flow_flag_align_vcenter})
 		(v-call 'grid 'add_child {grid_panel, button})
-		(f-call 'button 'sig_pressed {button} {_, pressed})
-		(f-call 'button 'connect {button, pressed, &myapp, $on_press})
+		(f-call 'button 'add_clicked {button, 1})
 		(f-call 'sys_string 'length {next} {_, length})
 		(assign {next + length + byte_size} {next})
 	(loop-end)
@@ -74,119 +62,102 @@
 	(f-call 'window 'change {window, 920, 48, width, height})
 
 	;set close action
-	(f-call 'window 'connect_close {window, &myapp, $on_window_close})
+	(f-call 'window 'connect_close {window, 0})
 
 	;add to screen
 	(f-call 'gui_gui 'add {window})
 
 	;app event loop
-	(loop-start)
+	(loop-start 'exit)
 		(f-call 'sys_mail 'mymail {} {msg, data})
 
 		;dispatch event to target
-		(v-call 'view 'event {window, data})
+		(vpif {data->ev_msg_target_id >= 0})
+			(breakifnot {data->ev_msg_target_id} exit)
+
+			(ptr 'button_string 'display_string 'string 'string1 'string2)
+			(uint 'char)
+			(push-scope)
+
+			(f-call 'window 'find_id {window, data->ev_msg_action_source_id} {_, button})
+			(f-call 'button 'get_prop {button, prop_text} {_, button_string})
+			(vpif {button_string->string_length == 2})
+				;AC
+				(f-call 'label 'set_string_prop {display, prop_text, "0"})
+				(assign {0} {accum})
+				(assign {0} {value})
+				(assign {0} {last_op})
+				(assign {0} {last_flag})
+			(else)
+				(assign {ubyte (button_string->string_data)} {char})
+				(vpif {char >= char_0 && char <= char_9})
+					;numeral
+					(f-call 'label 'ref_prop {display, prop_text} {_, display_string})
+					(assign {ubyte (display_string->string_data)} {char})
+					(vpif {char == char_0 || last_flag == 0})
+						;clear it
+						(f-call 'string 'deref {display_string})
+						(f-call 'string 'create_from_cstr {""} {display_string})
+						(assign {1} {last_flag})
+					(endif)
+					;append numeral
+					(f-call 'string 'append {display_string, button_string} {string})
+					(f-call 'sys_string 'to_long {&string->string_data, 10} {value})
+					(f-call 'string 'deref {display_string})
+				(else)
+					;operator
+					(vpif {last_op == char_plus})
+						;+
+						(assign {accum + value} {accum})
+					(elseif {last_op == char_minus})
+						;-
+						(assign {accum - value} {accum})
+					(elseif {last_op == char_multiply})
+						;*
+						(assign {accum * value} {accum})
+					(elseif {last_op == char_divide && value})
+						;/
+						(assign {accum // value} {accum})
+					(else)
+						;equals
+						(assign {value} {accum})
+					(endif)
+					(vpif {char != char_equal})
+						(assign {char} {last_op})
+					(endif)
+					(assign {0} {last_flag})
+					(vpif {accum < 0})
+						;negative accum
+						(f-call 'sys_string 'from_long {- accum, &buffer, 10})
+						(f-call 'string 'create_from_cstr {"-"} {string1})
+						(f-call 'string 'create_from_cstr {&buffer} {string2})
+						(f-call 'string 'append {string1, string2} {string})
+						(f-call 'string 'deref {string1})
+						(f-call 'string 'deref {string2})
+					(else)
+						;positive accum
+						(f-call 'sys_string 'from_long {accum, &buffer, 10})
+						(f-call 'string 'create_from_cstr {&buffer} {string})
+					(endif)
+				(endif)
+				(f-call 'label 'set_string_prop {display, prop_text, &string->string_data})
+				(f-call 'string 'deref {string})
+			(endif)
+			(v-call 'label 'layout {display})
+			(f-call 'label 'dirty {display})
+			(pop-scope)
+		(else)
+			(v-call 'view 'event {window, data})
+		(endif)
 
 		;free event message
 		(f-call 'sys_mail 'free {msg})
-	(loop-until {myapp.local_closed})
+	(loop-end)
+	(f-call 'sys_mail 'free {msg})
 
 	;deref window
 	(f-call 'window 'deref {window})
-	(v-call 'obj 'deinit {&myapp})
 
-	(pop-scope)
-	(return)
-
-(vp-label 'on_press)
-	;inputs
-	;r0 = app local object
-	;r1 = button object
-
-	(ptr 'this 'button 'button_string 'display_string 'string 'string1 'string2)
-	(uint 'char)
-
-	;save inputs
-	(push-scope)
-	(l-entry {this, button})
-
-	(f-call 'button 'get_prop {button, prop_text} {_, button_string})
-	(vpif {button_string->string_length == 2})
-		;AC
-		(f-call 'label 'set_string_prop {this->local_display, prop_text, "0"})
-		(assign {0} {this->local_accum})
-		(assign {0} {this->local_value})
-		(assign {0} {this->local_last_op})
-		(assign {0} {this->local_last_flag})
-	(else)
-		(assign {ubyte (button_string->string_data)} {char})
-		(vpif {char >= char_0 && char <= char_9})
-			;numeral
-			(f-call 'label 'ref_prop {this->local_display, prop_text} {_, display_string})
-			(assign {ubyte (display_string->string_data)} {char})
-			(vpif {char == char_0 || this->local_last_flag == 0})
-				;clear it
-				(f-call 'string 'deref {display_string})
-				(f-call 'string 'create_from_cstr {""} {display_string})
-				(assign {1} {this->local_last_flag})
-			(endif)
-			;append numeral
-			(f-call 'string 'append {display_string, button_string} {string})
-			(f-call 'sys_string 'to_long {&string->string_data, 10} {this->local_value})
-			(f-call 'string 'deref {display_string})
-		(else)
-			;operator
-			(vpif {this->local_last_op == char_plus})
-				;+
-				(assign {this->local_accum + this->local_value} {this->local_accum})
-			(elseif {this->local_last_op == char_minus})
-				;-
-				(assign {this->local_accum - this->local_value} {this->local_accum})
-			(elseif {this->local_last_op == char_multiply})
-				;*
-				(assign {this->local_accum * this->local_value} {this->local_accum})
-			(elseif {this->local_last_op == char_divide && this->local_value})
-				;/
-				(assign {this->local_accum // this->local_value} {this->local_accum})
-			(else)
-				;equals
-				(assign {this->local_value} {this->local_accum})
-			(endif)
-			(vpif {char != char_equal})
-				(assign {char} {this->local_last_op})
-			(endif)
-			(assign {0} {this->local_last_flag})
-			(vpif {this->local_accum < 0})
-				;negative accum
-				(f-call 'sys_string 'from_long {- this->local_accum, &this->local_buffer, 10})
-				(f-call 'string 'create_from_cstr {"-"} {string1})
-				(f-call 'string 'create_from_cstr {&this->local_buffer} {string2})
-				(f-call 'string 'append {string1, string2} {string})
-				(f-call 'string 'deref {string1})
-				(f-call 'string 'deref {string2})
-			(else)
-				;positive accum
-				(f-call 'sys_string 'from_long {this->local_accum, &this->local_buffer, 10})
-				(f-call 'string 'create_from_cstr {&this->local_buffer} {string})
-			(endif)
-		(endif)
-		(f-call 'label 'set_string_prop {this->local_display, prop_text, &string->string_data})
-		(f-call 'string 'deref {string})
-	(endif)
-	(v-call 'label 'layout {this->local_display})
-	(f-call 'label 'dirty {this->local_display})
-	(pop-scope)
-	(return)
-
-(vp-label 'on_window_close)
-	;inputs
-	;r0 = app local object
-	;r1 = close object
-
-	(ptr 'this 'src)
-
-	(push-scope)
-	(l-entry {this, src})
-	(assign {1} {this->local_closed})
 	(pop-scope)
 	(return)
 
