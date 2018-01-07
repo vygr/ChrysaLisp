@@ -170,7 +170,7 @@
 
 		;which mailbox had mail ?
 		(vpif {mailbox == select.sel_select1})
-			;dispatch event to view
+			;dispatch event to target
 			(v-call 'view 'event {window, data})
 		(else)
 			;update progress bars

@@ -68,7 +68,7 @@
 	(loop-start)
 		(f-call 'sys_mail 'mymail {} {msg, data})
 
-		;dispatch event to view
+		;dispatch event to target
 		(v-call 'view 'event {window, data})
 
 		;free event message

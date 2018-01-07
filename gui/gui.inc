@@ -7,9 +7,9 @@
 (defcvar 'SCREEN_WIDTH 1280)
 (defcvar 'SCREEN_HEIGHT 960)
 
-;;;;;;;;;;;;;;;;;;;;;
-; gui statics classes
-;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;
+; gui static class
+;;;;;;;;;;;;;;;;;;
 
 (def-class 'gui_gui)
 (def-method 'statics 'gui/gui_statics)
