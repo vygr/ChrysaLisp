@@ -25,6 +25,11 @@
 		(vp-cpy-ri-i r1 r0 view_flags)
 		(vp-lea-i r0 view_list r1)
 		(lh-init r1 r2)
+		(f-bind 'gui_gui 'statics r1)
+		(vp-cpy-ir r1 gui_statics_next_id r2)
+		(vp-add-cr 1 r2)
+		(vp-cpy-ri r2 r1 gui_statics_next_id)
+		(vp-cpy-ri r2 r0 view_id)
 	(endif)
 	(vp-ret)
 
@@ -379,47 +384,110 @@
 (def-func 'class/view/event)
 	;inputs
 	;r0 = view object
-	;r1 = event message
+	;r1 = event data
 	;trashes
 	;all but r0
 
-	;what type of event ?
-	(vp-cpy-ir r1 ev_msg_type r2)
-	(switch)
-	(case '(r2 == ev_type_mouse))
-		;so what state are we in ?
-		(vp-cpy-ir-ui r1 ev_msg_mouse_buttons r2)
-		(vp-cpy-ir-ui r0 view_last_buttons r3)
-		(vpif '(r3 != 0))
-			;was down previously
-			(vpif '(r2 != 0))
-				;is down now, so move
-				(v-jmp 'view 'mouse_move '(r0 r1))
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'data)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(f-entry 'view 'event '((rsp local_this) (rsp local_data)))
+
+	;find target view
+	(f-call 'view 'find_id '(r0 (r1 ev_msg_target_id)) '(_ r0))
+	(vpif '(r0 != 0))
+		;what type of event ?
+		(vp-cpy-ir rsp local_data r1)
+		(vp-cpy-ir r1 ev_msg_type r2)
+		(switch)
+		(case '(r2 == ev_type_mouse))
+			;so what state are we in ?
+			(vp-cpy-ir-ui r1 ev_msg_mouse_buttons r2)
+			(vp-cpy-ir-ui r0 view_last_buttons r3)
+			(vpif '(r3 != 0))
+				;was down previously
+				(vpif '(r2 != 0))
+					;is down now, so move
+					(v-call 'view 'mouse_move '(r0 r1))
+				(else)
+					;is not down now, so release
+					(vp-cpy-ri-i r2 r0 view_last_buttons)
+					(v-call 'view 'mouse_up '(r0 r1))
+				(endif)
 			(else)
-				;is not down now, so release
-				(vp-cpy-ri-i r2 r0 view_last_buttons)
-				(v-jmp 'view 'mouse_up '(r0 r1))
+				;was not down previously
+				(vpif '(r2 != 0))
+					;is down now, so first down
+					(vp-cpy-ri-i r2 r0 view_last_buttons)
+					(v-call 'view 'mouse_down '(r0 r1))
+				(else)
+					;is not down now, so hover
+					(v-call 'view 'mouse_hover '(r0 r1))
+				(endif)
 			(endif)
-		(else)
-			;was not down previously
-			(vpif '(r2 != 0))
-				;is down now, so first down
-				(vp-cpy-ri-i r2 r0 view_last_buttons)
-				(v-jmp 'view 'mouse_down '(r0 r1))
+			(break)
+		(case '(r2 == ev_type_key))
+			(vp-cpy-ir-ui r1 ev_msg_key_keycode r2)
+			(vpif '(r2 >= 0))
+				(v-call 'view 'key_down '(r0 r1))
 			(else)
-				;is not down now, so hover
-				(v-jmp 'view 'mouse_hover '(r0 r1))
+				(v-call 'view 'key_up '(r0 r1))
 			(endif)
+		(endswitch)
+	(endif)
+
+	(f-exit 'view 'event '((rsp local_this)))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/view/find_id)
+	;inputs
+	;r0 = view object
+	;r1 = target id
+	;outputs
+	;r0 = view object
+	;r1 = 0 if not found, else view
+	;trashes
+	;r1-r3
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'view)
+		(ulong 'id)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(f-entry 'view 'find_id '((rsp local_this) (rsp local_id)))
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 rsp local_view)
+
+	;iterate through views front to back
+	(f-call 'view 'forward_tree '(r0 rsp ($ down_callback) ($ up_callback)))
+
+	(f-exit 'view 'find_id '((rsp local_this) (rsp local_view)))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'down_callback)
+	(vp-cpy-ir r1 local_view r2)
+	(vpif '(r2 == 0))
+		(vp-cpy-ir r0 view_id r2)
+		(vp-cpy-ir r1 local_id r3)
+		(vpif '(r2 == r3))
+			(vp-cpy-ri r0 r1 local_view)
+			(vp-xor-rr r1 r1)
 		(endif)
-		(break)
-	(case '(r2 == ev_type_key))
-		(vp-cpy-ir-ui r1 ev_msg_key_keycode r2)
-		(vpif '(r2 >= 0))
-			(v-jmp 'view 'key_down '(r0 r1))
-		(else)
-			(v-jmp 'view 'key_up '(r0 r1))
-		(endif)
-	(endswitch)
+	(else)
+		(vp-xor-rr r1 r1)
+	(endif)
+(vp-label 'up_callback)
 	(vp-ret)
 
 (def-func-end)

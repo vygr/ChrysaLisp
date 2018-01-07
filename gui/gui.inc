@@ -29,6 +29,7 @@
 	(ptr 'screen)
 	(ulong 'renderer)
 	(ptr 'old_region)
+	(ulong 'next_id)
 	(ubyte 'dirty_flag)
 (def-struct-end)
 
@@ -49,7 +50,7 @@
 
 (def-struct 'ev_msg)
 	(ulong 'type)
-	(ptr 'target)
+	(ulong 'target_id)
 (def-struct-end)
 
 (def-struct 'ev_msg_mouse)
