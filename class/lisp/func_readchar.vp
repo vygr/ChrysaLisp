@@ -12,22 +12,39 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value)
+	(pptr 'iter_begin)
+	(pubyte 'chars)
 	(int 'length)
+	(uint 'width)
 
 	(push-scope)
 	(f-entry 'lisp 'func_readchar {this, args})
 
-(errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
-	(errorifnot {value} 'error1))
-
-	(f-call 'vector 'get_first {args} {_, value})
-	(f-call 'stream_str 'read_char {value} {_, length})
-	(vpif {length == -1})
-		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
-	(else)
-		(f-call 'boxed_long 'create {length} {value})
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorifnot {length == 1 || length == 2} 'error1)
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(errorif (cat {iter_begin[0]->obj_vtable != @} (f-path 'class 'stream_str)) 'error2)
+	(assign {1} {width})
+	(vpif {length == 2})
+		(assign {iter_begin[ptr_size]} {value})
+		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
+		(f-call 'boxed_long 'get_value {value} {_, width})
+		(assign {((width - 1) & 7) + 1} {width})
 	(endif)
+
+	(f-call 'boxed_long 'create {0} {value})
+	(assign {&value->boxed_ptr_value} {chars})
+	(loop-start)
+		(f-call 'stream_str 'read_char {iter_begin[0]} {_, length})
+		(vpif {length == -1})
+			(f-call 'ref 'deref {value})
+			(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+			(break)
+		(endif)
+		(assign {length} {*chars})
+		(assign {chars + 1} {chars})
+		(assign {width - 1} {width})
+	(loop-untilnot {width})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_readchar {this, value})
@@ -35,9 +52,14 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(read-char stream)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(read-char stream [width])", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'stream_str))
+(vp-label 'error2)
+	(f-call 'lisp 'repl_error {this, "(read-char stream [width])", error_msg_not_a_stream, args} {_, value})
+	(goto 'exit)
+(vp-label 'error3)
+	(f-call 'lisp 'repl_error {this, "(read-char stream [width])", error_msg_not_a_number, args} {_, value})
+	(goto 'exit))
 
 	(pop-scope-syms)
 

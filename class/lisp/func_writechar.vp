@@ -11,10 +11,8 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'value)
-	(union
-		'(ptr 'args)
-		'(pptr 'iter_begin))
+	(ptr 'this 'args 'value)
+	(pptr 'iter_begin)
 	(ulong 'length)
 	(uint 'width)
 
