@@ -8,7 +8,7 @@
 (def-method 'create 'class/button/create)
 (def-method 'new 'class/button/new)
 (def-method 'init 'class/button/init)
-(def-method 'add_clicked 'class/button/add_clicked 'static '(r0 r1) '(r0))
+(def-method 'connect_clicked 'class/button/connect_clicked 'static '(r0 r1) '(r0))
 
 (def-method 'deinit 'class/button/deinit 'final)
 (def-method 'draw 'class/button/draw 'final)

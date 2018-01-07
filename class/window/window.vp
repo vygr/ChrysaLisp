@@ -428,7 +428,7 @@
 	(push-scope)
 	(f-entry 'window 'connect_close {this, id})
 
-	(f-call 'button 'add_clicked {this->window_close, id})
+	(f-call 'button 'connect_clicked {this->window_close, id})
 
 	(f-exit 'window 'connect_close {this})
 	(pop-scope)
@@ -452,7 +452,7 @@
 	(push-scope)
 	(f-entry 'window 'connect_max {this, id})
 
-	(f-call 'button 'add_clicked {this->window_max, id})
+	(f-call 'button 'connect_clicked {this->window_max, id})
 
 	(f-exit 'window 'connect_max {this})
 	(pop-scope)
@@ -476,7 +476,7 @@
 	(push-scope)
 	(f-entry 'window 'connect_min {this, id})
 
-	(f-call 'button 'add_clicked {this->window_min, id})
+	(f-call 'button 'connect_clicked {this->window_min, id})
 
 	(f-exit 'window 'connect_min {this})
 	(pop-scope)
