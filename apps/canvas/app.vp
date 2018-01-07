@@ -69,7 +69,7 @@
 		(f-call 'sys_mail 'mymail {} {msg, data})
 
 		;dispatch event to view
-		(v-call 'view 'event {data->ev_msg_view, data})
+		(v-call 'view 'event {data->ev_msg_target, data})
 
 		;free event message
 		(f-call 'sys_mail 'free {msg})

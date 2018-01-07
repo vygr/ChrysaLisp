@@ -388,7 +388,7 @@
 	(switch)
 	(case '(r2 == ev_type_mouse))
 		;so what state are we in ?
-		(vp-cpy-ir r1 ev_msg_buttons r2)
+		(vp-cpy-ir-ui r1 ev_msg_mouse_buttons r2)
 		(vp-cpy-ir-ui r0 view_last_buttons r3)
 		(vpif '(r3 != 0))
 			;was down previously
@@ -413,7 +413,7 @@
 		(endif)
 		(break)
 	(case '(r2 == ev_type_key))
-		(vp-cpy-ir r1 ev_msg_keycode r2)
+		(vp-cpy-ir-ui r1 ev_msg_key_keycode r2)
 		(vpif '(r2 >= 0))
 			(v-jmp 'view 'key_down '(r0 r1))
 		(else)

@@ -171,7 +171,7 @@
 		;which mailbox had mail ?
 		(vpif {mailbox == select.sel_select1})
 			;dispatch event to view
-			(v-call 'view 'event {data->ev_msg_view, data})
+			(v-call 'view 'event {data->ev_msg_target, data})
 		(else)
 			;update progress bars
 			(assign {data->sample_msg_task_count} {value})

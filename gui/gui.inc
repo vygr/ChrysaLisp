@@ -39,22 +39,35 @@
 	(ptr 'addr)
 (def-struct-end)
 
-;;;;;;;;;;;;;;;
-; gui mail data
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
+; gui event msg data
+;;;;;;;;;;;;;;;;;;;;
 
 (def-enum 'ev_type)
-	(enum 'mouse 'key)
+	(enum 'mouse 'key 'user)
 (def-enum-end)
 
 (def-struct 'ev_msg)
 	(ulong 'type)
-	(ptr 'view)
+	(ptr 'target)
+(def-struct-end)
+
+(def-struct 'ev_msg_mouse)
+	(struct 'base 'ev_msg)
+	(uint 'buttons)
 	(int 'x)
 	(int 'y)
 	(int 'rx)
 	(int 'ry)
-	(ulong 'buttons)
-	(ulong 'keycode)
-	(ulong 'key)
+(def-struct-end)
+
+(def-struct 'ev_msg_key)
+	(struct 'base 'ev_msg)
+	(uint 'keycode)
+	(uint 'key)
+(def-struct-end)
+
+(def-struct 'ev_msg_user)
+	(struct 'base 'ev_msg)
+	(uint 'code)
 (def-struct-end)

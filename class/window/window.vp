@@ -207,7 +207,7 @@
 	(f-entry 'window 'mouse_down {this, evt})
 
 	(f-call 'window 'get_long_prop {this, prop_border} {_, depth})
-	(assign {0, evt->ev_msg_rx, evt->ev_msg_ry} {mode, rx, ry})
+	(assign {0, evt->ev_msg_mouse_rx, evt->ev_msg_mouse_ry} {mode, rx, ry})
 	(vpif {rx < depth})
 		;left edge
 		(assign {mode | window_drag_left} {mode})
@@ -275,7 +275,7 @@
 	(vp-and-cr window_drag_left r14)
 	(vpif '(r14 != 0))
 		;drag left edge
-		(vp-cpy-ir-i r1 ev_msg_x r7)
+		(vp-cpy-ir-i r1 ev_msg_mouse_x r7)
 		(vp-cpy-ir-i r0 window_offset_x r14)
 		(vp-sub-rr r14 r7)
 		(vp-cpy-rr r9 r14)
@@ -289,7 +289,7 @@
 	(vp-and-cr window_drag_right r14)
 	(vpif '(r14 != 0))
 		;drag right edge
-		(vp-cpy-ir-i r1 ev_msg_x r9)
+		(vp-cpy-ir-i r1 ev_msg_mouse_x r9)
 		(vp-cpy-ir-i r0 window_offset_x r14)
 		(vp-sub-rr r14 r9)
 		(vp-cpy-rr r9 r14)
@@ -303,7 +303,7 @@
 	(vp-and-cr window_drag_top r14)
 	(vpif '(r14 != 0))
 		;drag top edge
-		(vp-cpy-ir-i r1 ev_msg_y r8)
+		(vp-cpy-ir-i r1 ev_msg_mouse_y r8)
 		(vp-cpy-ir-i r0 window_offset_y r14)
 		(vp-sub-rr r14 r8)
 		(vp-cpy-rr r10 r14)
@@ -317,7 +317,7 @@
 	(vp-and-cr window_drag_bottom r14)
 	(vpif '(r14 != 0))
 		;drag bottom edge
-		(vp-cpy-ir-i r1 ev_msg_y r10)
+		(vp-cpy-ir-i r1 ev_msg_mouse_y r10)
 		(vp-cpy-ir-i r0 window_offset_y r14)
 		(vp-sub-rr r14 r10)
 		(vp-cpy-rr r10 r14)
