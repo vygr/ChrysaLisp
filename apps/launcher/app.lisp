@@ -17,15 +17,6 @@
 			ev_msg_target_id ev_msg_action_source_id
 			kn_call_open))))
 
-(defun read-byte (o s)
-	(code (elem o s)))
-(defun read-short (o s)
-	(add (read-byte o s) (bit-shl (read-byte (inc o) s) 8)))
-(defun read-int (o s)
-	(add (read-short o s) (bit-shl (read-short (add o 2) s) 16)))
-(defun read-long (o s)
-	(add (read-int o s) (bit-shl (read-int (add o 4) s) 32)))
-
 (defq app_list '(
 	"apps/netmon/app"
 	"apps/terminal/app"
@@ -40,13 +31,13 @@
 	flow (ui-flow))
 
 (ui-set-title window "Launcher")
-(ui-add-child window flow)
 (eval `(,defq flow_flags ,(bit-or flow_flag_down flow_flag_fillw) color 0xffffff00) flow)
 (each (lambda (_)
 	(defq button (ui-button))
 	(eval `(,defq text ,_) button)
 	(ui-connect-click button 0)
 	(ui-add-child flow button)) app_list)
+(ui-add-child window flow)
 (bind '(w h) (ui-pref-size window))
 (ui-change window 32 32 (add w 32) h)
 (ui-add-to-screen window)

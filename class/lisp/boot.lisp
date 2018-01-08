@@ -355,6 +355,20 @@
 			(swap _a (setq _i (inc _i)) _j)))
 	(swap _a _i _l) _i)
 
+(defun read-byte (o s)
+	(code (elem o s)))
+(defun read-short (o s)
+	(add (read-byte o s) (bit-shl (read-byte (inc o) s) 8)))
+(defun read-int (o s)
+	(add (read-short o s) (bit-shl (read-short (add o 2) s) 16)))
+(defun read-long (o s)
+	(add (read-int o s) (bit-shl (read-int (add o 4) s) 32)))
+(defun read-cstr (o s)
+	(defq k o)
+	(while (ne 0 (read-byte o s))
+		(setq o (inc o)))
+	(sym (slice k o s)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment
 ;;;;;;;;;;;;;;;;;;;;;;;;;
