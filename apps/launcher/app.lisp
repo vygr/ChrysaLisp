@@ -52,10 +52,7 @@
 (ui-add-to-screen window)
 
 (while t
-	(defq msg (mail-mymail) id (read-long ev_msg_target_id msg))
 	(cond
-		((ge id 0)
-			(if (defq button (ui-find-id window (read-long ev_msg_action_source_id msg)))
-				(if (defq app (eval 'text button))
-					(open-child app kn_call_open))))
+		((ge (read-long ev_msg_target_id (defq msg (mail-mymail))) 0)
+			(open-child (eval 'text (ui-find-id window (read-long ev_msg_action_source_id msg))) kn_call_open))
 		(t (ui-event window msg))))
