@@ -1,0 +1,46 @@
+(import 'sys/func.inc)
+(import 'sys/task/task.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/open_child)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(ulong 'mbox 'cpu)
+
+	(push-scope)
+	(f-entry 'lisp 'open_child {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'vector 'get_first {args} {_, value})
+	(f-call 'vector 'get_second {args} {_, args})
+	(f-call 'boxed_long 'get_value {args} {_, args})
+	(f-call 'sys_task 'open_child {value, args} {mbox, cpu})
+	(f-call 'vector 'create {} {value})
+	(f-call 'boxed_long 'create {mbox} {args})
+	(f-call 'vector 'push_back {value, args})
+	(f-call 'boxed_long 'create {cpu} {args})
+	(f-call 'vector 'push_back {value, args})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'open_child {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(open-child name mode)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'string 'boxed_long))
+
+	(pop-scope-syms)
+
+(def-func-end)

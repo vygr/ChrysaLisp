@@ -22,7 +22,9 @@
 	(else)
 		(errorif {length != 2} 'error1)
 		(f-call 'vector 'get_second {args} {_, env})
-		(errorif (cat {env->obj_vtable != @} (f-path 'class 'hash_map)) 'error2)
+	(errorcases
+		(f-call 'obj 'inst_of (cat {env, @} (f-path 'class 'hash_map)) {_, old})
+		(errorifnot {old} 'error2))
 		(assign {this->lisp_environment} {old})
 		(assign {env} {this->lisp_environment})
 		(f-call 'vector 'get_first {args} {_, args})

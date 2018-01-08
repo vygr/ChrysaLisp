@@ -1,0 +1,36 @@
+(import 'sys/func.inc)
+(import 'class/button/button.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/ui_button)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(uint 'length)
+
+	(push-scope)
+	(f-entry 'lisp 'ui_button {this, args})
+
+(errorcases
+	(v-call 'vector 'get_length {args} {_, length})
+	(errorif {length} 'error1))
+
+	(f-call 'button 'create {} {value})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'ui_button {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(ui-button)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)

@@ -1,0 +1,44 @@
+(import 'sys/func.inc)
+(import 'class/view/view.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/ui_prefsize)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(uint 'w 'h)
+
+	(push-scope)
+	(f-entry 'lisp 'ui_prefsize {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'vector 'get_first {args} {_, value})
+	(v-call 'view 'pref_size {value} {_, w, h})
+	(f-call 'vector 'create {} {value})
+	(f-call 'boxed_long 'create {w} {args})
+	(f-call 'vector 'push_back {value, args})
+	(f-call 'boxed_long 'create {h} {args})
+	(f-call 'vector 'push_back {value, args})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'ui_prefsize {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(ui-pref-size view)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'view))
+
+	(pop-scope-syms)
+
+(def-func-end)

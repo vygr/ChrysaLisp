@@ -1,0 +1,40 @@
+(import 'sys/func.inc)
+(import 'class/view/view.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/ui_addchild)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+
+	(push-scope)
+	(f-entry 'lisp 'ui_addchild {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'vector 'get_first {args} {_, value})
+	(f-call 'vector 'get_second {args} {_, args})
+	(f-call 'ref 'ref {args})
+	(f-call 'ref 'ref {value})
+	(v-call 'view 'add_child {value, args})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'ui_addchild {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(ui-add-child parent child)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'view 'view))
+
+	(pop-scope-syms)
+
+(def-func-end)

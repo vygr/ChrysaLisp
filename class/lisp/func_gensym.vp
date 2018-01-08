@@ -16,8 +16,10 @@
 	(push-scope)
 	(f-entry 'lisp 'func_gensym {this, args})
 
+(errorcases
 	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length} 'error1)
+	(errorif {length} 'error1))
+
 	(f-call 'symbol 'create_from_long {this->lisp_nextsym, 10} {args})
 	(f-call 'symbol 'create_from_cstr {"G"} {prefix})
 	(f-call 'symbol 'append {prefix, args} {value})

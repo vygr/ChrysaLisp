@@ -1,82 +1,48 @@
 (import 'sys/func.inc)
-(import 'sys/kernel/kernel.inc)
-(import 'gui/gui.inc)
-(import 'sys/string/string.inc)
-(import 'class/window/window.inc)
-(import 'class/flow/flow.inc)
-(import 'class/button/button.inc)
 (import 'class/string/string.inc)
+(import 'class/stream_str/stream_str.inc)
+(import 'class/lisp/lisp.inc)
 
-(def-func 'apps/launcher/app)
+(def-func 'apps/launcher/app 8192)
 
-	(ptr 'msg 'data 'window 'panel 'button 'string)
-	(pubyte 'next)
-	(int 'width 'height)
-	(uint 'length)
+	(ptr 'lisp 'stream 'file 'script 'value 'args)
 
 	;init app vars
 	(push-scope)
 
-	;create my window
-	(f-call 'window 'create {0} {window})
-	(f-call 'window 'set_title {window, "Launcher"})
+	;string output stream
+	(f-call 'string 'create_from_buffer {0, string_gap} {value})
+	(f-call 'stream_str 'create {value} {stream})
 
-	;add my app panel
-	(f-call 'flow 'create {} {panel})
-	(f-call 'flow 'set_long_prop {panel, prop_flow_flags, flow_flag_down | flow_flag_fillw})
-	(v-call 'window 'add_child {window, panel})
+	;create lisp class
+	(f-call 'lisp 'create {stream, stream, stream} {lisp})
+	(f-call 'ref 'deref {stream})
 
-	;add launch buttons to my app panel
-	(assign {$launch_list} {next})
-	(loop-while {*next})
-		(f-call 'button 'create {} {button})
-		(f-call 'button 'set_long_prop {button, prop_color, 0xffffff00})
-		(f-call 'button 'set_string_prop {button, prop_text, next})
-		(f-call 'button 'connect_click {button, 0})
-		(v-call 'flow 'add_child {panel, button})
-		(f-call 'sys_string 'length {next} {_, length})
-		(assign {next + length + byte_size} {next})
-	(loop-end)
-
-	;set to pref size
-	(v-call 'window 'pref_size {window} {_, width, height})
-	(f-call 'window 'change {window, 32, 32, width + 40, height})
-
-	;add to screen
-	(f-call 'gui_gui 'add {window})
-
-	;app event loop
-	(loop-start)
-		(f-call 'sys_mail 'mymail {} {msg, data})
-
-		;dispatch event to target
-		(vpif {data->ev_msg_target_id >= 0})
-			(f-call 'window 'find_id {window, data->ev_msg_action_source_id} {_, button})
-			(f-call 'button 'get_prop {button, prop_text} {_, string})
-			(f-call 'sys_task 'open_child {string, kn_call_open})
-		(else)
-			(v-call 'view 'event {window, data})
+	;run any app.lisp
+	(f-call 'string 'create_from_cstr {"apps/launcher/app.lisp"} {script})
+	(f-call 'string 'create_from_file {&script->string_data} {file})
+	(vpif {file})
+		;REPL from file stream
+		(f-call 'vector 'create {} {args})
+		(f-call 'stream_str 'create {file} {stream})
+		(f-call 'string 'ref {script})
+		(f-call 'vector 'push_back {args, stream})
+		(f-call 'vector 'push_back {args, script})
+		(f-call 'lisp 'func_repl {lisp, args} {_, value})
+		(vpif (cat {value->obj_vtable == @} (f-path 'class 'error)))
+			(f-call 'lisp 'repl_print {lisp, lisp->lisp_stderr, value})
+			(f-call 'stream 'write_char {lisp->lisp_stderr, char_lf})
 		(endif)
+		(v-call 'stream 'write_flush {lisp->lisp_stderr})
+		(f-call 'ref 'deref {value})
+		(f-call 'vector 'deref {args})
+	(endif)
+	(f-call 'string 'deref {script})
 
-		;free event message
-		(f-call 'sys_mail 'free {msg})
-	(loop-end)
+	;clean up
+	(f-call 'lisp 'deref {lisp})
 
-	;deref window
-	(f-call 'window 'deref {window})
 	(pop-scope)
 	(return)
-
-(vp-label 'launch_list)
-	(vp-string "apps/netmon/app") (vp-byte 0)
-	(vp-string "apps/terminal/app") (vp-byte 0)
-	(vp-string "apps/canvas/app") (vp-byte 0)
-	(vp-string "apps/raymarch/app") (vp-byte 0)
-	(vp-string "apps/calculator/app") (vp-byte 0)
-	(vp-string "tests/farm") (vp-byte 0)
-	(vp-string "tests/pipe") (vp-byte 0)
-	(vp-string "tests/global") (vp-byte 0)
-	(vp-string "tests/migrate") (vp-byte 0)
-	(vp-byte 0)
 
 (def-func-end)

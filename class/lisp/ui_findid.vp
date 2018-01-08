@@ -1,0 +1,45 @@
+(import 'sys/func.inc)
+(import 'class/view/view.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/ui_findid)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(long 'id)
+
+	(push-scope)
+	(f-entry 'lisp 'ui_findid {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'vector 'get_first {args} {_, value})
+	(f-call 'vector 'get_second {args} {_, args})
+	(f-call 'boxed_long 'get_value {args} {_, id})
+	(f-call 'view 'find_id {value, id} {_, value})
+	(vpifnot {value})
+		(assign {this->lisp_sym_nil} {value})
+	(endif)
+	(f-call 'ref 'ref {value})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'ui_findid {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(ui-find-id view id)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'view 'boxed_long))
+
+	(pop-scope-syms)
+
+(def-func-end)

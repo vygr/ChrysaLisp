@@ -1,0 +1,45 @@
+(import 'sys/func.inc)
+(import 'class/view/view.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/ui_change)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(pptr 'iter_begin)
+	(uint 'x 'y 'w 'h)
+
+	(push-scope)
+	(f-entry 'lisp 'ui_change {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 5} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(f-call 'ref 'ref {iter_begin[0]} {value})
+	(f-call 'boxed_long 'get_value {iter_begin[ptr_size * 1]} {_, x})
+	(f-call 'boxed_long 'get_value {iter_begin[ptr_size * 2]} {_, y})
+	(f-call 'boxed_long 'get_value {iter_begin[ptr_size * 3]} {_, w})
+	(f-call 'boxed_long 'get_value {iter_begin[ptr_size * 4]} {_, h})
+	(f-call 'view 'change {value, x, y, w, h})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'ui_change {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(ui-change view x y w h)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'view 'boxed_long 'boxed_long 'boxed_long 'boxed_long))
+
+	(pop-scope-syms)
+
+(def-func-end)
