@@ -41,6 +41,7 @@
 	(f-call 'grid 'create {} {grid_panel})
 	(f-call 'grid 'set_long_prop {grid_panel, prop_grid_width, 4})
 	(f-call 'grid 'set_long_prop {grid_panel, prop_grid_height, 4})
+	(f-call 'grid 'set_font_prop {grid_panel, prop_font, "fonts/OpenSans-Regular.ttf", 42})
 	(v-call 'flow 'add_child {flow_panel, grid_panel})
 
 	;add buttons to my grid panel
@@ -49,10 +50,9 @@
 		(f-call 'button 'create {} {button})
 		(f-call 'button 'set_long_prop {button, prop_color, 0xffffff00})
 		(f-call 'button 'set_string_prop {button, prop_text, next})
-		(f-call 'button 'set_font_prop {button, prop_font, "fonts/OpenSans-Regular.ttf", 42})
 		(f-call 'button 'set_long_prop {button, prop_flow_flags, flow_flag_align_hcenter | flow_flag_align_vcenter})
-		(v-call 'grid 'add_child {grid_panel, button})
 		(f-call 'button 'connect_click {button, 1})
+		(v-call 'grid 'add_child {grid_panel, button})
 		(f-call 'sys_string 'length {next} {_, length})
 		(assign {next + length + byte_size} {next})
 	(loop-end)
