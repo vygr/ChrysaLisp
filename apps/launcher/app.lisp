@@ -15,10 +15,10 @@
 	flow (ui-flow))
 
 (ui-set-title window "Launcher")
-(eval `(,defq flow_flags ,(bit-or flow_flag_down flow_flag_fillw) color 0xffffff00) flow)
+(eval (list defq 'flow_flags (bit-or flow_flag_down flow_flag_fillw) 'color 0xffffff00) flow)
 (each (lambda (_)
 	(defq button (ui-button))
-	(eval `(,defq text ,_) button)
+	(eval (list defq 'text _) button)
 	(ui-connect-click button 0)
 	(ui-add-child flow button)) app_list)
 (ui-add-child window flow)
