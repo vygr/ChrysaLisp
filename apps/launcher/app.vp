@@ -1,48 +1,9 @@
 (import 'sys/func.inc)
-(import 'class/string/string.inc)
-(import 'class/stream_str/stream_str.inc)
-(import 'class/lisp/lisp.inc)
 
 (def-func 'apps/launcher/app 8192)
 
-	(ptr 'lisp 'stream 'file 'script 'value 'args)
-
-	;init app vars
-	(push-scope)
-
-	;string output stream
-	(f-call 'string 'create_from_buffer {0, string_gap} {value})
-	(f-call 'stream_str 'create {value} {stream})
-
-	;create lisp class
-	(f-call 'lisp 'create {stream, stream, stream} {lisp})
-	(f-call 'ref 'deref {stream})
-
-	;run any app.lisp
-	(f-call 'string 'create_from_cstr {"apps/launcher/app.lisp"} {script})
-	(f-call 'string 'create_from_file {&script->string_data} {file})
-	(vpif {file})
-		;REPL from file stream
-		(f-call 'vector 'create {} {args})
-		(f-call 'stream_str 'create {file} {stream})
-		(f-call 'string 'ref {script})
-		(f-call 'vector 'push_back {args, stream})
-		(f-call 'vector 'push_back {args, script})
-		(f-call 'lisp 'func_repl {lisp, args} {_, value})
-		(vpif (cat {value->obj_vtable == @} (f-path 'class 'error)))
-			(f-call 'lisp 'repl_print {lisp, lisp->lisp_stderr, value})
-			(f-call 'stream 'write_char {lisp->lisp_stderr, char_lf})
-		(endif)
-		(v-call 'stream 'write_flush {lisp->lisp_stderr})
-		(f-call 'ref 'deref {value})
-		(f-call 'vector 'deref {args})
-	(endif)
-	(f-call 'string 'deref {script})
-
-	;clean up
-	(f-call 'lisp 'deref {lisp})
-
-	(pop-scope)
-	(return)
+	(vp-def path)
+	(fn-string "apps/launcher/app.lisp" path}
+	(fn-jmp apps/run)
 
 (def-func-end)
