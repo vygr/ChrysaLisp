@@ -4,26 +4,9 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Enhance the signals and slots system so that as well as providing the
-callback interface to multiple listeners there is a standard mechanism for
-signalling on property changes and affecting properties of listening objects.
-This may just end up being a set of standard callbacks that are provided as a
-toolbox for users. Along with this should come a way to represent a UI tree in
-standard Lisp syntax that can be read and inflated automatically, complete with
-all the signals and slots prewired, before the application begins to interact
-with it.
-
-* Make the Lisp a first class citizen in terms of message passing ability. At
-the moment the Lisp lives a little on the side of the rest of the system in
-that it has no access to sending and receiving messages. The process launching
-functionality for tasks should extend to a standard Lisp task and there should
-be a standard way for such a Lisp process to read and send messages. This also
-means there needs to be sensible way for the Lisp to handle formatting and
-reading of mail message data. I've not yet decided how to approach this and
-initially I may just map the mail message data to a string and take a string
-when sending a message. Marshalling data in and out of mail messages is
-something that I don't want to get too complicated but I can see eventually
-that some higher-level data marshalling protocol would be handy.
+* A way to represent a UI tree in standard Lisp syntax that can be read and
+inflated automatically, complete with all the signals and slots prewired,
+before the application begins to interact with it.
 
 * Implement a much better native call interface for the Lisp. At the moment
 there is a call function that allows a restricted set of objects and methods to
