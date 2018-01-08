@@ -13,7 +13,8 @@
 
 	(ptr 'this 'args 'value)
 	(pptr 'iter_begin)
-	(uint 'x 'y 'w 'h)
+	(int 'x 'y)
+	(uint 'w 'h)
 
 	(push-scope)
 	(f-entry 'lisp 'ui_change {this, args})

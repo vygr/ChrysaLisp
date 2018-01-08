@@ -11,7 +11,8 @@
 	;r0 = lisp object
 	;r1 = value
 
-	(ptr 'this 'args 'value 'id)
+	(ptr 'this 'args 'value)
+	(long 'id)
 
 	(push-scope)
 	(f-entry 'lisp 'ui_connectclick {this, args})
@@ -21,8 +22,8 @@
 	(errorifnot {value} 'error1))
 
 	(f-call 'vector 'get_first {args} {_, value})
-	(f-call 'vector 'get_second {args} {_, id})
-	(f-call 'boxed_long 'get_value {id} {_, id})
+	(f-call 'vector 'get_second {args} {_, args})
+	(f-call 'boxed_long 'get_value {args} {_, id})
 	(f-call 'button 'connect_click {value, id})
 	(f-call 'ref 'ref {value})
 
