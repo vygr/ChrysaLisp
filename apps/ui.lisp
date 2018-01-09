@@ -6,6 +6,7 @@
 	flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom
 	ev_msg_target_id ev_msg_action_source_id
 	kn_call_open
+	slot_gui_add slot_event
 	slot_add_child slot_change
 	slot_pref_size slot_connect_click
 	slot_set_title slot_set_status)
@@ -21,6 +22,7 @@
 			flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom
 			ev_msg_target_id ev_msg_action_source_id
 			kn_call_open
+			(method-slot 'gui_gui 'add) (method-slot 'view 'event)
 			(method-slot 'view 'add_child) (method-slot 'view 'change)
 			(method-slot 'view 'pref_size) (method-slot 'button 'connect_click)
 			(method-slot 'window 'set_title) (method-slot 'window 'set_status)))))

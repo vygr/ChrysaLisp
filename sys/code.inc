@@ -494,7 +494,7 @@
 	(list 'find _ "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"))
 
 (defmacro is_label_char (_)
-	(list 'find _ "0123456789_abcdefghijklmnopqrstuvwxyz"))
+	(list 'find _ "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_abcdefghijklmnopqrstuvwxyz"))
 
 (defmacro is_numeral_char (_)
 	(list 'find _ "0123456789"))

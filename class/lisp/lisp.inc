@@ -120,12 +120,9 @@
 (def-method 'func_read 'class/lisp/func_read 'static '(r0 r1) '(r0 r1))
 
 (def-method 'ui_window 'class/lisp/ui_window 'static '(r0 r1) '(r0 r1))
-(def-method 'ui_toscreen 'class/lisp/ui_toscreen 'static '(r0 r1) '(r0 r1))
 (def-method 'ui_flow 'class/lisp/ui_flow 'static '(r0 r1) '(r0 r1))
 (def-method 'ui_grid 'class/lisp/ui_grid 'static '(r0 r1) '(r0 r1))
 (def-method 'ui_button 'class/lisp/ui_button 'static '(r0 r1) '(r0 r1))
-(def-method 'ui_connectclick 'class/lisp/ui_connectclick 'static '(r0 r1) '(r0 r1))
-(def-method 'ui_event 'class/lisp/ui_event 'static '(r0 r1) '(r0 r1))
 (def-method 'ui_findid 'class/lisp/ui_findid 'static '(r0 r1) '(r0 r1))
 (def-method 'mail_mymail 'class/lisp/mail_mymail 'static '(r0 r1) '(r0 r1))
 (def-method 'open_child 'class/lisp/open_child 'static '(r0 r1) '(r0 r1))
