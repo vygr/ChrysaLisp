@@ -121,8 +121,6 @@
 
 (def-method 'ui_window 'class/lisp/ui_window 'static '(r0 r1) '(r0 r1))
 (def-method 'ui_toscreen 'class/lisp/ui_toscreen 'static '(r0 r1) '(r0 r1))
-(def-method 'ui_prefsize 'class/lisp/ui_prefsize 'static '(r0 r1) '(r0 r1))
-(def-method 'ui_change 'class/lisp/ui_change 'static '(r0 r1) '(r0 r1))
 (def-method 'ui_flow 'class/lisp/ui_flow 'static '(r0 r1) '(r0 r1))
 (def-method 'ui_grid 'class/lisp/ui_grid 'static '(r0 r1) '(r0 r1))
 (def-method 'ui_button 'class/lisp/ui_button 'static '(r0 r1) '(r0 r1))

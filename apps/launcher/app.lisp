@@ -22,8 +22,8 @@
 	(ui-connect-click button 0)
 	(call slot_add_child flow button)) app_list)
 (call slot_add_child window flow)
-(bind '(w h) (ui-pref-size window))
-(ui-change window 32 32 (add w 32) h)
+(bind '(w h) (call slot_pref_size window))
+(call slot_change window 32 32 (add w 32) h)
 (ui-add-to-screen window)
 
 (while t
