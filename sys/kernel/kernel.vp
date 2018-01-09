@@ -20,10 +20,10 @@
 		'(ptr 'argv 'sdl)
 		'(ptr 'link 'mbox))
 	(ptr 'task_statics 'mail_statics 'func 'old_stack)
-	(ptr 'msg 'data 'new_msg 'new_data)
+	(ptr 'msg 'data 'new_msg 'new_data 'pathname)
 	(pptr 'iter_begin 'iter_end)
 	(struct 'routes 'lk_table)
-	(uint 'id 'num 'best_cnt 'best_id 'route_index 'hops 'new_hops 'via)
+	(uint 'id 'num 'best_cnt 'best_id 'route_index 'hops 'new_hops 'via 'length)
 
 	;align stack
 	(vp-cpy-rr rsp r2)
@@ -81,15 +81,34 @@
 				;fill in reply ID, user field is left alone !
 				(assign {data->kn_msg_reply_id.id_mbox} {msg->msg_dest.id_mbox})
 				(assign {data->kn_msg_reply_id.id_cpu} {msg->msg_dest.id_cpu})
+				(assign {0} {data->kn_msg_reply_id.id_mbox})
+				(assign {0} {data->kn_msg_reply_id.id_cpu})
 
-				;open single task and return mailbox ID
-				(f-call 'sys_load 'bind {&data->kn_msg_open_pathname} {func})
-				(vpif {func})
-					;start this function as task
-					(f-call 'sys_task 'start {func} {_, data->kn_msg_reply_id.id_mbox, data->kn_msg_reply_id.id_cpu})
+				;is this a lisp file
+				(f-call 'sys_string 'length {&data->kn_msg_open_pathname} {_, length})
+				(vpif {length >= 5})
+					(f-call 'sys_string 'compare {&data->kn_msg_open_pathname + length - 5, ".lisp"} {length})
+				(endif)
+				(vpifnot {length})
+					;yup it's a .lisp file
+					(f-call 'sys_load 'bind {"class/lisp/run"} {func})
+					(vpif {func})
+						;start lisp run task and send args
+						(f-call 'sys_task 'start {func} {_, data->kn_msg_reply_id.id_mbox, data->kn_msg_reply_id.id_cpu})
+						(f-call 'string 'create_from_cstr {&data->kn_msg_open_pathname} {pathname})
+						(f-call 'sys_mail 'alloc_str {pathname} {new_msg, _})
+						(assign {data->kn_msg_reply_id.id_mbox} {new_msg->msg_dest.id_mbox})
+						(assign {data->kn_msg_reply_id.id_cpu} {new_msg->msg_dest.id_cpu})
+						(f-call 'sys_mail 'send {new_msg})
+						(f-call 'string 'deref {pathname})
+					(endif)
 				(else)
-					;error
-					(assign {0, 0} {data->kn_msg_reply_id.id_mbox, data->kn_msg_reply_id.id_cpu})
+					;open as raw task and return mailbox ID
+					(f-call 'sys_load 'bind {&data->kn_msg_open_pathname} {func})
+					(vpif {func})
+						;start this function as task
+						(f-call 'sys_task 'start {func} {_, data->kn_msg_reply_id.id_mbox, data->kn_msg_reply_id.id_cpu})
+					(endif)
 				(endif)
 				(f-call 'sys_mail 'send {msg})
 				(break)

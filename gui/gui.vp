@@ -42,6 +42,7 @@
 	(def-struct-end)
 
 	(struct 'locals 'local)
+	(ptr 'name)
 
 	;init vars
 	(push-scope)
@@ -63,7 +64,9 @@
 
 	;for now fire up the test apps
 	;this might be an gui auto run list eventually
-	(f-call 'sys_task 'start {@apps/launcher/app})
+	(f-call 'string 'create_from_cstr {"apps/launcher/app.lisp"} {name})
+	(f-call 'sys_task 'open_child {name, kn_call_open})
+	(f-call 'string 'deref {name})
 
 	;gui event loop
 	(loop-start)

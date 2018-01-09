@@ -1,7 +1,5 @@
 (import 'apps/calculator/make.inc)
-(import 'apps/launcher/make.inc)
 (import 'apps/netmon/make.inc)
 (import 'apps/terminal/make.inc)
 (import 'apps/canvas/make.inc)
 (import 'apps/raymarch/make.inc)
-(import 'apps/run.vp)

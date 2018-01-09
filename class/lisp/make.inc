@@ -114,3 +114,4 @@
 (import 'class/lisp/ui_button.vp)
 (import 'class/lisp/mail_mymail.vp)
 (import 'class/lisp/open_child.vp)
+(import 'class/lisp/run.vp)

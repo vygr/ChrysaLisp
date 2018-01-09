@@ -1,9 +1,0 @@
-(import 'sys/func.inc)
-
-(def-func 'apps/launcher/app 8192)
-
-	(vp-def path)
-	(fn-string "apps/launcher/app.lisp" path)
-	(fn-jmp 'apps/run)
-
-(def-func-end)
