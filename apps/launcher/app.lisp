@@ -14,7 +14,7 @@
 	window (ui-window 0)
 	flow (ui-flow))
 
-(ui-set-title window "Launcher")
+(call slot_set_title window "Launcher")
 (eval (list defq 'flow_flags (bit-or flow_flag_down flow_flag_fillw) 'color 0xffffff00) flow)
 (each (lambda (_)
 	(defq button (ui-button))

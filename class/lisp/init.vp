@@ -231,7 +231,6 @@
 	(built-in "ui-add-child" 0 'ui_addchild)
 	(built-in "ui-pref-size" 0 'ui_prefsize)
 	(built-in "ui-change" 0 'ui_change)
-	(built-in "ui-set-title" 0 'ui_settitle)
 	(built-in "ui-connect-click" 0 'ui_connectclick)
 	(built-in "ui-event" 0 'ui_event)
 	(built-in "ui-find-id" 0 'ui_findid)

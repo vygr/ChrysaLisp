@@ -1,6 +1,8 @@
 (import 'sys/func.inc)
 (import 'class/canvas/canvas.inc)
 (import 'class/points/points.inc)
+(import 'class/window/window.inc)
+(import 'class/symbol/symbol.inc)
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 
@@ -169,6 +171,22 @@
 		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(f-call 'points 'stroke_polygons {arg0, arg1, arg2, arg3, arg4, arg5})
 		(break)
+
+;window class handlers
+(vp-label 'window_set_title_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_window_set, 3} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'window 'set_title {arg0, &arg1->string_data})
+		(break)
+(vp-label 'window_set_status_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_window_set, 3} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'window 'set_status {arg0, &arg1->string_data})
+		(break)
 	(endswitch)
 	(f-call 'ref 'ref {arg0} {value})
 
@@ -180,6 +198,7 @@
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(call slot obj ...)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
+	(signature 'sig_window_set 'boxed_long 'window 'string)
 	(signature 'sig_canvas_swap 'boxed_long 'canvas)
 	(signature 'sig_canvas_fill 'boxed_long 'canvas 'boxed_long)
 	(signature 'sig_canvas_set_fbox 'boxed_long 'canvas 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
@@ -205,6 +224,7 @@
 	(class-entry 'canvas)
 	(class-entry 'points)
 	(class-entry 'vector)
+	(class-entry 'window)
 	(vp-short 0)
 
 ;;;;;;;;;;;;;
@@ -231,6 +251,11 @@
 (vp-label 'vector_slot_table)
 	(slot-entry 'points 'stroke_polylines)
 	(slot-entry 'points 'stroke_polygons)
+	(vp-short 0)
+
+(vp-label 'window_slot_table)
+	(slot-entry 'window 'set_title)
+	(slot-entry 'window 'set_status)
 	(vp-short 0)
 
 (def-func-end)
