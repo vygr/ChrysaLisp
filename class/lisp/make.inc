@@ -112,7 +112,6 @@
 (import 'class/lisp/ui_toscreen.vp)
 (import 'class/lisp/ui_prefsize.vp)
 (import 'class/lisp/ui_change.vp)
-(import 'class/lisp/ui_addchild.vp)
 (import 'class/lisp/ui_flow.vp)
 (import 'class/lisp/ui_grid.vp)
 (import 'class/lisp/ui_button.vp)

@@ -228,7 +228,6 @@
 	(built-in "ui-grid" 0 'ui_grid)
 	(built-in "ui-button" 0 'ui_button)
 	(built-in "ui-add-to-screen" 0 'ui_toscreen)
-	(built-in "ui-add-child" 0 'ui_addchild)
 	(built-in "ui-pref-size" 0 'ui_prefsize)
 	(built-in "ui-change" 0 'ui_change)
 	(built-in "ui-connect-click" 0 'ui_connectclick)

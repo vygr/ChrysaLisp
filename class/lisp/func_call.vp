@@ -187,6 +187,16 @@
 		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(f-call 'window 'set_status {arg0, &arg1->string_data})
 		(break)
+
+;view class handlers
+(vp-label 'view_add_child_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_view_add_child, 3} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(v-call 'view 'add_child {arg0, arg1})
+		(f-call 'ref 'ref {arg1})
+		(break)
 	(endswitch)
 	(f-call 'ref 'ref {arg0} {value})
 
@@ -198,6 +208,7 @@
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(call slot obj ...)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
+	(signature 'sig_view_add_child 'boxed_long 'view 'view)
 	(signature 'sig_window_set 'boxed_long 'window 'string)
 	(signature 'sig_canvas_swap 'boxed_long 'canvas)
 	(signature 'sig_canvas_fill 'boxed_long 'canvas 'boxed_long)
@@ -225,11 +236,23 @@
 	(class-entry 'points)
 	(class-entry 'vector)
 	(class-entry 'window)
+	(class-entry 'view)
+	(class-entry 'flow)
+	(class-entry 'grid)
 	(vp-short 0)
 
 ;;;;;;;;;;;;;
 ; slot tables
 ;;;;;;;;;;;;;
+
+(vp-label 'window_slot_table)
+	(slot-entry 'window 'set_title)
+	(slot-entry 'window 'set_status)
+(vp-label 'flow_slot_table)
+(vp-label 'grid_slot_table)
+(vp-label 'view_slot_table)
+	(slot-entry 'view 'add_child)
+	(vp-short 0)
 
 (vp-label 'canvas_slot_table)
 	(slot-entry 'canvas 'fill)
@@ -251,11 +274,6 @@
 (vp-label 'vector_slot_table)
 	(slot-entry 'points 'stroke_polylines)
 	(slot-entry 'points 'stroke_polygons)
-	(vp-short 0)
-
-(vp-label 'window_slot_table)
-	(slot-entry 'window 'set_title)
-	(slot-entry 'window 'set_status)
 	(vp-short 0)
 
 (def-func-end)

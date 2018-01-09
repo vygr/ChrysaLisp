@@ -6,6 +6,7 @@
 	flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom
 	ev_msg_target_id ev_msg_action_source_id
 	kn_call_open
+	slot_add_child slot_change
 	slot_set_title slot_set_status)
 	(within-compile-env (lambda ()
 		(import 'gui/gui.inc)
@@ -18,4 +19,5 @@
 			flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom
 			ev_msg_target_id ev_msg_action_source_id
 			kn_call_open
+			(method-slot 'view 'add_child) (method-slot 'view 'change)
 			(method-slot 'window 'set_title) (method-slot 'window 'set_status)))))
