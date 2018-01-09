@@ -225,6 +225,16 @@
 		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(v-call 'view 'event {arg0, &arg1->string_data})
 		(break)
+(vp-label 'view_find_id_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_LVL, 3} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'view 'find_id {arg0, arg1} {_, arg0})
+		(vpifnot {arg0})
+			(assign {this->lisp_sym_nil} {arg0})
+		(endif)
+		(break)
 
 ;gui class handlers
 (vp-label 'gui_gui_add_handler)
@@ -264,6 +274,7 @@
 	(signature 'sig_LPPAL 'boxed_long 'points 'points 'array 'boxed_long)
 	(signature 'sig_LPPLLL 'boxed_long 'points 'points 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'sig_LV 'boxed_long 'view)
+	(signature 'sig_LVL 'boxed_long 'view 'boxed_long)
 	(signature 'sig_LVS 'boxed_long 'view 'string)
 	(signature 'sig_LVAVLLL 'boxed_long 'vector 'array 'vector 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'sig_LVAVLLLLL 'boxed_long 'vector 'array 'vector 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
@@ -303,6 +314,7 @@
 	(slot-entry 'view 'pref_size)
 	(slot-entry 'view 'change)
 	(slot-entry 'view 'event)
+	(slot-entry 'view 'find_id)
 	(slot-entry 'gui_gui 'add)
 	(vp-short 0)
 

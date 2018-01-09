@@ -112,6 +112,5 @@
 (import 'class/lisp/ui_flow.vp)
 (import 'class/lisp/ui_grid.vp)
 (import 'class/lisp/ui_button.vp)
-(import 'class/lisp/ui_findid.vp)
 (import 'class/lisp/mail_mymail.vp)
 (import 'class/lisp/open_child.vp)

@@ -29,5 +29,5 @@
 (while t
 	(cond
 		((ge (read-long ev_msg_target_id (defq msg (mail-mymail))) 0)
-			(open-child (eval 'text (ui-find-id window (read-long ev_msg_action_source_id msg))) kn_call_open))
+			(open-child (eval 'text (call slot_find_id window (read-long ev_msg_action_source_id msg))) kn_call_open))
 		(t (call slot_event window msg))))

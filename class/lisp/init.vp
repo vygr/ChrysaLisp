@@ -227,7 +227,6 @@
 	(built-in "ui-flow" 0 'ui_flow)
 	(built-in "ui-grid" 0 'ui_grid)
 	(built-in "ui-button" 0 'ui_button)
-	(built-in "ui-find-id" 0 'ui_findid)
 	(built-in "mail-mymail" 0 'mail_mymail)
 	(built-in "open-child" 0 'open_child)
 	(vp-short 0)
