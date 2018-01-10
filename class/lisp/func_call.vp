@@ -194,6 +194,27 @@
 		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(f-call 'window 'set_status {arg0, &arg1->string_data})
 		(break)
+(vp-label 'window_connect_close_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_LWL, 3} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'window 'connect_close {arg0, arg1})
+		(break)
+(vp-label 'window_connect_min_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_LWL, 3} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'window 'connect_min {arg0, arg1})
+		(break)
+(vp-label 'window_connect_max_handler)
+	(errorcases
+		(f-call 'lisp 'env_args_type {this, args, $sig_LWL, 3} {_, slot})
+		(errorifnot {slot} 'error1))
+		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+		(f-call 'window 'connect_max {arg0, arg1})
+		(break)
 
 ;view class handlers
 (vp-label 'view_add_child_handler)
@@ -350,6 +371,7 @@
 	(signature 'sig_LVAVLLLLL 'boxed_long 'vector 'array 'vector 'boxed_long 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'sig_LVLLLL 'boxed_long 'view 'boxed_long 'boxed_long 'boxed_long 'boxed_long)
 	(signature 'sig_LVV 'boxed_long 'view 'view)
+	(signature 'sig_LWL 'boxed_long 'window 'boxed_long)
 	(signature 'sig_LWS 'boxed_long 'window 'string))
 
 	(pop-scope-syms)
@@ -378,6 +400,9 @@
 (vp-label 'window_slot_table)
 	(slot-entry 'window 'set_title)
 	(slot-entry 'window 'set_status)
+	(slot-entry 'window 'connect_close)
+	(slot-entry 'window 'connect_min)
+	(slot-entry 'window 'connect_max)
 (vp-label 'flow_slot_table)
 (vp-label 'grid_slot_table)
 (vp-label 'view_slot_table)

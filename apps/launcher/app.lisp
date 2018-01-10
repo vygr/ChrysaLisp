@@ -7,6 +7,7 @@
 	"apps/canvas/app"
 	"apps/raymarch/app"
 	"apps/calculator/app"
+	"apps/calculator/app.lisp"
 	"tests/farm"
 	"tests/pipe"
 	"tests/global"
