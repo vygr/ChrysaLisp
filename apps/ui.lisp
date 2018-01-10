@@ -41,3 +41,8 @@
 			(method-slot 'component 'create_text) (method-slot 'window 'connect_close)
 			(method-slot 'window 'connect_min) (method-slot 'window 'connect_max)
 			))))
+
+;some helpful ui properties macros
+(defmacro def-props (_ &rest b) `(eval (list defq ~b) ,_))
+(defmacro set-props (_ &rest b) `(eval (list setq ~b) ,_))
+(defmacro get-prop (_ b) `(eval ,b ,_))

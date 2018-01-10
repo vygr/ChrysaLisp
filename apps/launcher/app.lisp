@@ -15,10 +15,10 @@
 	flow (call slot_create_flow nil))
 
 (call slot_set_title window "Launcher")
-(eval (list defq 'flow_flags (bit-or flow_flag_down flow_flag_fillw) 'color 0xffffff00) flow)
+(def-props flow 'flow_flags (bit-or flow_flag_down flow_flag_fillw) 'color 0xffffff00)
 (each (lambda (_)
 	(defq button (call slot_create_button nil))
-	(eval (list defq 'text _) button)
+	(def-props button 'text _)
 	(call slot_connect_click button 0)
 	(call slot_add_child flow button)) app_list)
 (call slot_add_child window flow)
@@ -29,6 +29,6 @@
 (while t
 	(cond
 		((ge (read-long ev_msg_target_id (defq msg (mail-mymail))) 0)
-			(open-child (eval 'text (call slot_find_id window (read-long ev_msg_action_source_id msg)))
+			(open-child (get-prop (call slot_find_id window (read-long ev_msg_action_source_id msg)) 'text)
 				kn_call_open))
 		(t (call slot_event window msg))))
