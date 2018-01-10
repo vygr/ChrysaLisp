@@ -13,6 +13,16 @@
 (def-method 'set_font_prop 'class/component/set_font_prop 'static '(r0 r1 r2 r3) '(r0))
 (def-method 'set_string_prop 'class/component/set_string_prop 'static '(r0 r1 r2) '(r0))
 
+(def-method 'create_label 'class/label/create 'static '() '(r0))
+(def-method 'create_button 'class/button/create 'static '() '(r0))
+(def-method 'create_flow 'class/flow/create 'static '() '(r0))
+(def-method 'create_grid 'class/grid/create 'static '() '(r0))
+(def-method 'create_progress 'class/progress/create 'static '() '(r0))
+(def-method 'create_canvas 'class/canvas/create 'static '(r0 r1 r2) '(r0))
+(def-method 'create_text 'class/text/create 'static '() '(r0))
+(def-method 'create_window 'class/window/create 'static '(r0) '(r0))
+(def-method 'create_font 'class/font/open 'static '(r0 r1) '(r0))
+
 (def-struct 'component 'hash_map)
 	(ptr 'tcb)
 	(long 'id)

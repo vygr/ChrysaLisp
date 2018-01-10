@@ -223,10 +223,6 @@
 	(built-in "bind" 0 'func_bind)
 	(built-in "read" 0 'func_read)
 
-	(built-in "ui-window" 0 'ui_window)
-	(built-in "ui-flow" 0 'ui_flow)
-	(built-in "ui-grid" 0 'ui_grid)
-	(built-in "ui-button" 0 'ui_button)
 	(built-in "mail-mymail" 0 'mail_mymail)
 	(built-in "open-child" 0 'open_child)
 	(vp-short 0)
