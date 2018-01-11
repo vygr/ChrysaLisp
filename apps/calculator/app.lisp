@@ -26,11 +26,41 @@
 (slot change window 920 48 w h)
 (slot gui_add window)
 
-(defq id t)
+(defun do_lastop ()
+	(cond
+		((eql lastop "+")
+			(setq accum (add accum num)))
+		((eql lastop "-")
+			(setq accum (sub accum num)))
+		((eql lastop "*")
+			(setq accum (mul accum num)))
+		((eql lastop "/")
+			(if (ne num 0) (setq accum (div accum num)))))
+	accum)
+
+(defq id t accum 0 value 0 num 0 lastop nil)
 (while id
 	(cond
 		((ge (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) 1)
-			nil)
+			(defq op (get-prop (slot find_id window (read-long ev_msg_action_source_id msg)) 'text))
+			(cond
+				((eql op "AC")
+					(setq accum 0 value 0 num 0 lastop nil))
+				((find op "=+-/*")
+					(if lastop
+						(setq value (do_lastop))
+						(setq value num accum num))
+					(setq lastop op num 0))
+				(t
+					(cond
+						((eq num 0)
+							(unless (eql op "0"))
+								(setq num (to-num op)))
+						(t (setq num (to-num (cat (str num) op)))))
+					(setq value num)))
+			(set-props display 'text (str value))
+			(slot layout display)
+			(slot dirty display))
 		((eq id 0)
 			(setq id nil))
 		(t (slot event window msg))))
