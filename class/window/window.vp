@@ -117,7 +117,9 @@
 
 	;dirty my area on parent
 	(f-call 'window 'get_parent {this} {_, screen})
-	(f-call 'view 'dirty_all {screen})
+	(vpif {screen})
+		(f-call 'view 'dirty_all {screen})
+	(endif)
 
 	;deinit parent
 	(f-exit 'window 'deinit {this})
@@ -384,8 +386,10 @@
 	(push-scope)
 	(f-entry 'window 'set_status {this, str})
 
-	(f-call 'label 'set_string_prop {this->window_status, prop_text, str})
-	(f-call 'label 'dirty {this->window_status})
+	(vpif {this->window_status})
+		(f-call 'label 'set_string_prop {this->window_status, prop_text, str})
+		(f-call 'label 'dirty {this->window_status})
+	(endif)
 
 	(f-exit 'window 'set_status {this})
 	(pop-scope)
@@ -428,7 +432,9 @@
 	(push-scope)
 	(f-entry 'window 'connect_close {this, id})
 
-	(f-call 'button 'connect_click {this->window_close, id})
+	(vpif {this->window_close})
+		(f-call 'button 'connect_click {this->window_close, id})
+	(endif)
 
 	(f-exit 'window 'connect_close {this})
 	(pop-scope)
@@ -452,7 +458,9 @@
 	(push-scope)
 	(f-entry 'window 'connect_max {this, id})
 
-	(f-call 'button 'connect_click {this->window_max, id})
+	(vpif {this->window_max})
+		(f-call 'button 'connect_click {this->window_max, id})
+	(endif)
 
 	(f-exit 'window 'connect_max {this})
 	(pop-scope)
@@ -476,7 +484,9 @@
 	(push-scope)
 	(f-entry 'window 'connect_min {this, id})
 
-	(f-call 'button 'connect_click {this->window_min, id})
+	(vpif {this->window_min})
+		(f-call 'button 'connect_click {this->window_min, id})
+	(endif)
 
 	(f-exit 'window 'connect_min {this})
 	(pop-scope)
