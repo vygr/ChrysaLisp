@@ -12,7 +12,7 @@
 	slot_connect_close slot_connect_min slot_connect_max slot_set_fbox
 	slot_set_fpoly slot_blend_fpoly slot_fill slot_swap slot_transform
 	slot_simplify slot_gen_quadratic slot_gen_cubic slot_gen_arc
-	slot_stroke_polylines slot_stroke_polygons)
+	slot_stroke_polylines slot_stroke_polygons slot_layout slot_dirty)
 	(within-compile-env (lambda ()
 		(import 'gui/gui.inc)
 		(import 'sys/kernel/kernel.inc)
@@ -43,7 +43,8 @@
 			(method-slot 'points 'transform) (method-slot 'points 'simplify)
 			(method-slot 'points 'gen_quadratic) (method-slot 'points 'gen_cubic)
 			(method-slot 'points 'gen_arc) (method-slot 'points 'stroke_polylines) 
-			(method-slot 'points 'stroke_polygons)
+			(method-slot 'points 'stroke_polygons) (method-slot 'view 'layout)
+			(method-slot 'view 'dirty)
 			))))
 
 ;some helpful ui macros
