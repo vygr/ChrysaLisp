@@ -1,5 +1,5 @@
 ;math tools
-(run 'apps/canvas/math.lisp)
+(run 'apps/math.lisp)
 
 (defq
 	eps 0.02

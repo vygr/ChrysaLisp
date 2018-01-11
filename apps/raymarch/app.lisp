@@ -1,10 +1,5 @@
-;import canvas class method slots
-(bind '(slot_set_fbox slot_fill slot_swap)
-	(within-compile-env (lambda ()
-		(import 'class/canvas/canvas.inc)
-		(list (method-slot 'canvas 'set_fbox)
-			(method-slot 'canvas 'fill)
-			(method-slot 'canvas 'swap)))))
+;import ui settings
+(run 'apps/ui.lisp)
 
 (defun read-farm (i s)
 	(while (lt (length (elem i data)) s)
@@ -35,7 +30,7 @@
 	(while (lt (setq y (inc y)) h)
 		(defq _ (read-farm (mod y (length farm)) line_length) x -1)
 		(while (lt (setq x (inc x)) w)
-			(call slot_set_fbox canvas (read-int (mul x 4) _) x y 1 1))
-		(call slot_swap canvas)))
+			(slot set_fbox canvas (read-int (mul x 4) _) x y 1 1))
+		(slot swap canvas)))
 
 (screen argv)
