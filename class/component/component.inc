@@ -26,6 +26,10 @@
 (def-method 'mail_mymail 'class/obj/null)
 (def-method 'mail_send 'class/obj/null)
 (def-method 'open_child 'class/obj/null)
+(def-method 'open_remote 'class/obj/null)
+(def-method 'open_farm 'class/obj/null)
+(def-method 'open_pipe 'class/obj/null)
+(def-method 'cpu_total 'class/obj/null)
 
 (def-struct 'component 'hash_map)
 	(ptr 'tcb)

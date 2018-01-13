@@ -7,10 +7,10 @@
 	"apps/canvas/app.lisp"
 	"apps/raymarch/app.lisp"
 	"apps/calculator/app.lisp"
-	"tests/farm"
-	"tests/pipe"
-	"tests/global"
-	"tests/migrate")
+	"tests/farm.lisp"
+	"tests/pipe.lisp"
+	"tests/global.lisp"
+	"tests/migrate.lisp")
 	window (slot create_window nil 0)
 	flow (slot create_flow nil))
 

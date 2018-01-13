@@ -1,99 +1,11 @@
 (import 'sys/func.inc)
 (import 'sys/kernel/kernel.inc)
-(import 'sys/math/math.inc)
 (import 'sys/link/link.inc)
-(import 'class/vector/vector.inc)
+(import 'sys/math/math.inc)
 
 ;;;;;;;;;;;
 ; test code
 ;;;;;;;;;;;
-
-(def-func 'tests/farm)
-
-	(defcvar 'num_child 128)
-
-	(ptr 'name 'ids 'msg 'mbox)
-	(ulong 'cpu)
-	(uint 'length)
-
-	(push-scope)
-
-	;open farm
-	(f-call 'string 'create_from_cstr {"tests/child"} {name})
-	(f-call 'sys_task 'open_farm {name, num_child, kn_call_child} {ids})
-
-	;send exit messages etc
-	(loop-start)
-		(d-call 'array 'get_length {ids} {_, length})
-		(breakifnot {length})
-		(f-call 'array 'get_back {ids} {_, cpu})
-		(d-call 'array 'pop_back {ids})
-		(f-call 'array 'get_back {ids} {_, mbox})
-		(d-call 'array 'pop_back {ids})
-		(continueifnot {mbox})
-		(f-call 'sys_mail 'alloc {0} {msg, _})
-		(assign {mbox} {msg->msg_dest.id_mbox})
-		(assign {cpu} {msg->msg_dest.id_cpu})
-		(f-call 'sys_mail 'send {msg})
-		(f-call 'sys_task 'yield)
-	(loop-end)
-
-	;free name and ID array
-	(f-call 'string 'deref {name})
-	(f-call 'array 'deref {ids})
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
-(def-func 'tests/global)
-
-	(defcvar 'global_msg_size (mul lk_data_size 10))
-
-	(ptr 'name 'ids 'buf 'msg 'mbox)
-	(pulong 'data)
-	(ulong 'cpu)
-	(uint 'length)
-
-	(push-scope)
-
-	;open global farm
-	(f-call 'string 'create_from_cstr {"tests/global_child"} {name})
-	(f-call 'kernel 'total {} {length})
-	(f-call 'sys_task 'open_farm {name, length * 3, kn_call_open} {ids})
-
-	;send data multicast msg
-	(f-call 'string 'create_from_buffer {0, global_msg_size} {buf})
-	(assign {&buf->string_data} {data})
-	(assign {0} {length})
-	(loop-start)
-		(assign {length} {data[length]})
-		(assign {length + long_size} {length})
-	(loop-until {length == global_msg_size})
-
-	(loop-start)
-		(d-call 'array 'get_length {ids} {_, length})
-		(breakifnot {length})
-		(f-call 'array 'get_back {ids} {_, cpu})
-		(d-call 'array 'pop_back {ids})
-		(f-call 'array 'get_back {ids} {_, mbox})
-		(d-call 'array 'pop_back {ids})
-		(continueifnot {mbox})
-		(f-call 'sys_mail 'alloc_str {buf} {msg, _})
-		(assign {mbox} {msg->msg_dest.id_mbox})
-		(assign {cpu} {msg->msg_dest.id_cpu})
-		(f-call 'sys_mail 'send {msg})
-		(f-call 'sys_task 'yield)
-	(loop-end)
-	(f-call 'string 'deref {buf})
-
-	;free name and ID array
-	(f-call 'string 'deref {name})
-	(f-call 'array 'deref {ids})
-	(pop-scope)
-	(return)
-
-(def-func-end)
 
 (def-func 'tests/global_child)
 
@@ -111,60 +23,13 @@
 	(loop-start)
 		(assert {length == data[length]})
 		(assign {length + long_size} {length})
-	(loop-until {length == global_msg_size})
+	(loop-until {length == lk_data_size * 10})
 	(f-call 'sys_mail 'free {msg})
 
 	;wait a bit
 	(f-call 'math 'random {1000000} {num})
 	(f-call 'sys_task 'sleep {num + 1000000})
 
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
-(def-func 'tests/pipe)
-
-	(defcvar 'num_child 128)
-
-	(ptr 'tasks 'ids 'mbox)
-	(ulong 'cpu)
-	(union
-		'(ptr 'name)
-		'(ptr 'msg))
-	(uint 'length)
-
-	(push-scope)
-
-	;open pipe
-	(f-call 'vector 'create {} {tasks})
-	(assign {0} {length})
-	(loop-while {length != num_child})
-		(f-call 'string 'create_from_cstr {"tests/child"} {name})
-		(f-call 'vector 'push_back {tasks, name})
-		(assign {length + 1} {length})
-	(loop-end)
-	(f-call 'sys_task 'open_pipe {tasks} {ids})
-
-	;send exit messages etc
-	(loop-start)
-		(d-call 'array 'get_length {ids} {_, length})
-		(breakifnot {length})
-		(f-call 'array 'get_back {ids} {_, cpu})
-		(d-call 'array 'pop_back {ids})
-		(f-call 'array 'get_back {ids} {_, mbox})
-		(d-call 'array 'pop_back {ids})
-		(continueifnot {mbox})
-		(f-call 'sys_mail 'alloc {0} {msg, _})
-		(assign {mbox} {msg->msg_dest.id_mbox})
-		(assign {cpu} {msg->msg_dest.id_cpu})
-		(f-call 'sys_mail 'send {msg})
-		(f-call 'sys_task 'yield)
-	(loop-end)
-
-	;free vector and ID array
-	(f-call 'vector 'deref {tasks})
-	(f-call 'array 'deref {ids})
 	(pop-scope)
 	(return)
 
@@ -186,46 +51,6 @@
 	(f-call 'math 'random {1000000} {num})
 	(f-call 'sys_task 'sleep {num + 1000000})
 
-	(pop-scope)
-	(return)
-
-(def-func-end)
-
-(def-func 'tests/migrate)
-
-	(defcvar 'num_child 128)
-
-	(ptr 'name 'ids 'msg 'mbox)
-	(pulong 'data)
-	(ulong 'cpu)
-	(uint 'length)
-
-	(push-scope)
-
-	;open farm
-	(f-call 'string 'create_from_cstr {"tests/migrate_child"} {name})
-	(f-call 'sys_task 'open_farm {name, num_child, kn_call_child} {ids})
-
-	;send start value messages etc
-	(loop-start)
-		(d-call 'array 'get_length {ids} {_, length})
-		(breakifnot {length})
-		(f-call 'array 'get_back {ids} {_, cpu})
-		(d-call 'array 'pop_back {ids})
-		(f-call 'array 'get_back {ids} {_, mbox})
-		(d-call 'array 'pop_back {ids})
-		(continueifnot {mbox})
-		(f-call 'sys_mail 'alloc {long_size} {msg, data})
-		(assign {mbox} {msg->msg_dest.id_mbox})
-		(assign {cpu} {msg->msg_dest.id_cpu})
-		(assign {10} {*data})
-		(f-call 'sys_mail 'send {msg})
-		(f-call 'sys_task 'yield)
-	(loop-end)
-
-	;free name and ID array
-	(f-call 'string 'deref {name})
-	(f-call 'array 'deref {ids})
 	(pop-scope)
 	(return)
 
