@@ -6,4 +6,4 @@
 
 ;send msgs etc
 (while (defq cpu (pop ids) mbox (pop ids))
-	(if mbox (slot mail_send nil "" mbox cpu)))
+	(if (ne mbox 0) (slot mail_send nil "" mbox cpu)))

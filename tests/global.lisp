@@ -7,4 +7,4 @@
 		(char (mul _ long_size) long_size)) (range 0 (div (mul lk_data_size 10) long_size)))))
 
 (while (defq cpu (pop ids) mbox (pop ids))
-	(if mbox (slot mail_send nil msg mbox cpu)))
+	(if (ne mbox 0) (slot mail_send nil msg mbox cpu)))
