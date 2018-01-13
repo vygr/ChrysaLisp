@@ -1,5 +1,5 @@
-;import ui settings
-(run 'apps/ui.lisp)
+;import system settings
+(run 'apps/sys.lisp)
 
 ;open farm of children, create multicast msg
 (defq ids (slot open_farm nil "tests/global_child" (mul (slot cpu_total nil) 3) kn_call_open)

@@ -1,4 +1,5 @@
-;import ui settings
+;import settings
+(run 'apps/sys.lisp)
 (run 'apps/ui.lisp)
 
 (defq window (slot create_window nil window_flag_close)

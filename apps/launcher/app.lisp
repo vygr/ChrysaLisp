@@ -1,4 +1,5 @@
-;import ui settings
+;import settings
+(run 'apps/sys.lisp)
 (run 'apps/ui.lisp)
 
 (defq app_list '(

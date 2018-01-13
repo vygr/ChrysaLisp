@@ -1,5 +1,5 @@
-;import ui settings
-(run 'apps/ui.lisp)
+;import system settings
+(run 'apps/sys.lisp)
 
 ;open pipe of children
 (defq pipe (map (lambda (_) "tests/child") (range 0 128))

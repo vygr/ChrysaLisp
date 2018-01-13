@@ -1,5 +1,5 @@
-;import ui settings
-(run 'apps/ui.lisp)
+;import system settings
+(run 'apps/sys.lisp)
 
 ;open farm of children
 (defq ids (slot open_farm nil "tests/child" 128 kn_call_child))
