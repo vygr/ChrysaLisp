@@ -1,0 +1,37 @@
+;import ui settings
+(run 'apps/ui.lisp)
+
+(defun read-farm (i s)
+	(while (lt (length (elem i data)) s)
+		(elem-set i data (cat (elem i data) (pipe-read (elem i farm)))))
+	(defq _ (slice 0 s (elem i data)))
+	(elem-set i data (slice s -1 (elem i data))) _)
+
+(defun read-byte (o f)
+	(code (elem o f)))
+(defun read-short (o f)
+	(add (read-byte o f) (bit-shl (read-byte (inc o) f) 8)))
+(defun read-int (o f)
+	(add (read-short o f) (bit-shl (read-short (add o 2) f) 16)))
+
+(defun screen ((canvas w h s))
+	(defq y -1 w (div (fmul w s) 1.0) h (div (fmul h s) 1.0)
+		data (list) farm (list) com (list) line_length (mul w 4))
+	(each (lambda (_)
+		(push farm (pipe "lisp apps/raymarch/child.lisp"))
+		(push data "")
+		(push com (list 'line w h))) (range 0 8))
+	(while (lt (setq y (inc y)) h)
+		(push (elem (mod y (length farm)) com) y))
+	(each (lambda (e c)
+		(pipe-write e (str c))
+		(pipe-write e (char 10))) farm com)
+	(setq y -1)
+	(while (lt (setq y (inc y)) h)
+		(defq _ (read-farm (mod y (length farm)) line_length) x -1)
+		(while (lt (setq x (inc x)) w)
+			(slot set_fbox canvas (read-int (mul x 4) _) x y 1 1))
+		(slot swap canvas)))
+
+;read args from parent
+(screen (slot mail_mymail nil))

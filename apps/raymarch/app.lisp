@@ -1,36 +1,26 @@
 ;import ui settings
 (run 'apps/ui.lisp)
 
-(defun read-farm (i s)
-	(while (lt (length (elem i data)) s)
-		(elem-set i data (cat (elem i data) (pipe-read (elem i farm)))))
-	(defq _ (slice 0 s (elem i data)))
-	(elem-set i data (slice s -1 (elem i data))) _)
+(defq
+	canvas_width 500 canvas_height 500 canvas_scale 1.0
+	window (slot create_window nil window_flag_close)
+	canvas (slot create_canvas nil canvas_width canvas_height canvas_scale))
 
-(defun read-byte (o f)
-	(code (elem o f)))
-(defun read-short (o f)
-	(add (read-byte o f) (bit-shl (read-byte (inc o) f) 8)))
-(defun read-int (o f)
-	(add (read-short o f) (bit-shl (read-short (add o 2) f) 16)))
+(slot set_title window "Raymarch")
+(slot add_child window canvas)
+(slot connect_close window 0)
+(bind '(w h) (slot pref_size window))
+(slot change window 512 256 w h)
+(slot fill canvas 0xff000000)
+(slot gui_add window)
 
-(defun screen ((canvas w h s))
-	(defq y -1 w (div (fmul w s) 1.0) h (div (fmul h s) 1.0)
-		data (list) farm (list) com (list) line_length (mul w 4))
-	(each (lambda (_)
-		(push farm (pipe "lisp apps/raymarch/child.lisp"))
-		(push data "")
-		(push com (list 'line w h))) (range 0 8))
-	(while (lt (setq y (inc y)) h)
-		(push (elem (mod y (length farm)) com) y))
-	(each (lambda (e c)
-		(pipe-write e (str c))
-		(pipe-write e (char 10))) farm com)
-	(setq y -1)
-	(while (lt (setq y (inc y)) h)
-		(defq _ (read-farm (mod y (length farm)) line_length) x -1)
-		(while (lt (setq x (inc x)) w)
-			(slot set_fbox canvas (read-int (mul x 4) _) x y 1 1))
-		(slot swap canvas)))
+;create parent and send args
+(bind '(mbox cpu) (slot open_child nil "apps/raymarch/parent.lisp" kn_call_open))
+(slot mail_send nil (list canvas (mul canvas_width 1.0) (mul canvas_height 1.0) canvas_scale) mbox cpu)
 
-(screen argv)
+(defq id t)
+(while id
+	(cond
+		((eq (setq id (read-long ev_msg_target_id (defq msg (slot mail_mymail nil)))) 0)
+			(setq id nil))
+		(t (slot event window msg))))

@@ -4,8 +4,8 @@
 (defq app_list '(
 	"apps/netmon/app"
 	"apps/terminal/app"
-	"apps/canvas/app"
-	"apps/raymarch/app"
+	"apps/canvas/app.lisp"
+	"apps/raymarch/app.lisp"
 	"apps/calculator/app.lisp"
 	"tests/farm"
 	"tests/pipe"
@@ -28,7 +28,8 @@
 
 (while t
 	(cond
-		((ge (read-long ev_msg_target_id (defq msg (mail-mymail))) 0)
-			(open-child (get-prop (slot find_id window (read-long ev_msg_action_source_id msg)) 'text)
+		((ge (read-long ev_msg_target_id (defq msg (slot mail_mymail nil))) 0)
+			(slot open_child nil
+				(get-prop (slot find_id window (read-long ev_msg_action_source_id msg)) 'text)
 				kn_call_open))
 		(t (slot event window msg))))

@@ -41,7 +41,7 @@
 (defq id t accum 0 value 0 num 0 lastop nil)
 (while id
 	(cond
-		((ge (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) 1)
+		((ge (setq id (read-long ev_msg_target_id (defq msg (slot mail_mymail nil)))) 1)
 			(defq op (get-prop (slot find_id window (read-long ev_msg_action_source_id msg)) 'text))
 			(cond
 				((eql op "AC")

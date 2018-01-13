@@ -1,4 +1,2 @@
 (import 'apps/netmon/make.inc)
 (import 'apps/terminal/make.inc)
-(import 'apps/canvas/make.inc)
-(import 'apps/raymarch/make.inc)

@@ -108,6 +108,4 @@
 (import 'class/lisp/read_sym.vp)
 (import 'class/lisp/read_rmacro.vp)
 (import 'class/lisp/read.vp)
-(import 'class/lisp/mail_mymail.vp)
-(import 'class/lisp/open_child.vp)
 (import 'class/lisp/run.vp)

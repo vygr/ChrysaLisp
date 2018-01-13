@@ -119,9 +119,6 @@
 (def-method 'func_bind 'class/lisp/func_bind 'static '(r0 r1) '(r0 r1))
 (def-method 'func_read 'class/lisp/func_read 'static '(r0 r1) '(r0 r1))
 
-(def-method 'mail_mymail 'class/lisp/mail_mymail 'static '(r0 r1) '(r0 r1))
-(def-method 'open_child 'class/lisp/open_child 'static '(r0 r1) '(r0 r1))
-
 (def-enum 'func_type)
 	(enum 'args_eval_apply 'args_apply 'apply)
 (def-enum-end)
