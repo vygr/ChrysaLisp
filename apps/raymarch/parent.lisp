@@ -7,13 +7,6 @@
 	(defq _ (slice 0 s (elem i data)))
 	(elem-set i data (slice s -1 (elem i data))) _)
 
-(defun read-byte (o f)
-	(code (elem o f)))
-(defun read-short (o f)
-	(add (read-byte o f) (bit-shl (read-byte (inc o) f) 8)))
-(defun read-int (o f)
-	(add (read-short o f) (bit-shl (read-short (add o 2) f) 16)))
-
 (defun screen ((canvas w h s))
 	(defq y -1 w (div (fmul w s) 1.0) h (div (fmul h s) 1.0)
 		data (list) farm (list) com (list) line_length (mul w 4))
