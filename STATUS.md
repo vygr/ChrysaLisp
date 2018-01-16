@@ -2,12 +2,9 @@
 
 ![](./screen_shot.png)
 
-Currently I'm in a big rush at work to get a new product out for January. So
-will not be tackling any of the big ticket TODO items till new year.
-
-I will be doing some refactoring and optimizations as I get a few breaks.
-
-Rest assured the project isn't dead, or abandoned !
+The mad panic for thr BETT show for work is over for now. So going to start on
+tidying up how the Lisp calls the rest of the system with some better form of
+FFI bindings.
 
 Regards all
 
