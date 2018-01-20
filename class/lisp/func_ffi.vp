@@ -1,0 +1,49 @@
+(import 'sys/func.inc)
+(import 'sys/load/load.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/symbol/symbol.inc)
+(import 'class/hash_map/hash_map.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_ffi)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = else value
+
+	(ptr 'this 'value 'name)
+	(union
+		'(ptr 'args)
+		'(uint 'flags))
+
+	(push-scope)
+	(f-entry 'lisp 'func_ffi {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'vector 'get_second {args} {_, value})
+	(f-call 'sys_load 'bind {&value->string_data} {value})
+	(errorifnot {value} 'error1)
+	(f-call 'vector 'get_first {args} {_, name})
+	(f-call 'vector 'get_third {args} {_, args})
+	(f-call 'boxed_long 'get_value {args} {_, flags})
+	(f-call 'boxed_ptr 'create {value | flags} {value})
+	(f-call 'hash_map 'insert {this->lisp_environment, name, value})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'func_ffi {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(func_ffi sym path flags)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'symbol 'string 'boxed_long))
+
+	(pop-scope-syms)
+
+(def-func-end)

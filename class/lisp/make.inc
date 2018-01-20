@@ -18,6 +18,7 @@
 (import 'class/lisp/func_bxor.vp)
 (import 'class/lisp/func_cat.vp)
 (import 'class/lisp/func_cmp.vp)
+(import 'class/lisp/func_ffi.vp)
 (import 'class/lisp/func_char.vp)
 (import 'class/lisp/func_clear.vp)
 (import 'class/lisp/func_code.vp)
