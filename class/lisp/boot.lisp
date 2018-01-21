@@ -33,9 +33,12 @@
 (ffi 'not "class/lisp/func_not" 0)
 
 (ffi 'list "class/lisp/func_list" 0)
+(ffi 'array "class/lisp/func_array" 0)
+(ffi 'points "class/lisp/func_points" 0)
 (ffi 'copy "class/lisp/func_copy" 0)
 (ffi 'clear "class/lisp/func_clear" 0)
 (ffi 'slice "class/lisp/func_slice" 0)
+(ffi 'cat "class/lisp/func_cat" 0)
 (ffi 'elem "class/lisp/func_elem" 0)
 (ffi 'elem-set "class/lisp/func_elemset" 0)
 (ffi 'length "class/lisp/func_length" 0)
@@ -43,8 +46,6 @@
 (ffi 'pop "class/lisp/func_pop" 0)
 (ffi 'each! "class/lisp/func_each" 0)
 (ffi 'some! "class/lisp/func_some" 0)
-(ffi 'array "class/lisp/func_array" 0)
-(ffi 'points "class/lisp/func_points" 0)
 
 (ffi 'str "class/lisp/func_str" 0)
 (ffi 'sym "class/lisp/func_sym" 0)
@@ -84,7 +85,10 @@
 (ffi 'time "class/lisp/func_time" 0)
 
 (ffi 'read "class/lisp/func_read" 0)
+(ffi 'quasi-quote "class/lisp/func_qquote" 1)
 (ffi 'eval "class/lisp/func_eval" 0)
+(ffi 'lambda "class/lisp/func_lambda" 2)
+(ffi 'macro "class/lisp/func_lambda" 2)
 (ffi 'call "class/lisp/func_call" 0)
 (ffi 'progn "class/lisp/func_progn" 0)
 (ffi 'apply "class/lisp/func_apply" 0)
@@ -95,6 +99,8 @@
 (ffi 'while "class/lisp/func_while" 1)
 (ffi 'prin "class/lisp/func_prin" 0)
 (ffi 'print "class/lisp/func_print" 0)
+
+(defq t 't nil 'nil)
 
 (defmacro defun (n a &rest _) `(defq ,n (lambda ,a ~_)))
 

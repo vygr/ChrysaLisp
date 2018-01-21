@@ -76,10 +76,6 @@
 			(assign {table + built_in_hop} {table})
 		(loop-end)
 
-		;standard self evaluating symbols
-		(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_nil, this->lisp_sym_nil})
-		(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_t, this->lisp_sym_t})
-
 		;define *stream-name* and *stream-line*
 		(f-call 'string 'create_from_cstr {"ChrysaLisp"} {symbol})
 		(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
@@ -124,15 +120,15 @@
 	(built-in "nil" lisp_sym_nil)
 	(built-in "t" lisp_sym_t)
 	(built-in "list" lisp_sym_list)
-	(built-in "*stream-name*" lisp_sym_stream_name)
-	(built-in "*stream-line*" lisp_sym_stream_line)
-	(built-in "lambda" lisp_sym_lambda 'func_lambda func_type_apply)
-	(built-in "macro" lisp_sym_macro 'func_lambda func_type_apply)
-	(built-in "quote" lisp_sym_quote 'func_quote func_type_args_apply)
-	(built-in "quasi-quote" lisp_sym_qquote 'func_qquote func_type_args_apply)
+	(built-in "lambda" lisp_sym_lambda)
+	(built-in "macro" lisp_sym_macro)
 	(built-in "unquote" lisp_sym_unquote)
 	(built-in "unquote-splicing" lisp_sym_splicing)
-	(built-in "cat" lisp_sym_cat 'func_cat)
+	(built-in "quote" lisp_sym_quote 'func_quote func_type_args_apply)
+	(built-in "quasi-quote" lisp_sym_qquote)
+	(built-in "cat" lisp_sym_cat)
+	(built-in "*stream-name*" lisp_sym_stream_name)
+	(built-in "*stream-line*" lisp_sym_stream_line)
 	(built-in "ffi" 0 'func_ffi)
 	(vp-short 0)
 
