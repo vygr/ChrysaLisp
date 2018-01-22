@@ -96,7 +96,7 @@
 					;start lisp run task and send args
 					(f-call 'sys_task 'start {func} {_, data->kn_msg_reply_id.id_mbox, data->kn_msg_reply_id.id_cpu})
 					(f-call 'string 'create_from_cstr {&data->kn_msg_open_pathname} {pathname})
-					(f-call 'sys_mail 'alloc_str {pathname} {new_msg, _})
+					(f-call 'sys_mail 'alloc_obj {pathname, &pathname->string_data, pathname->string_length} {new_msg})
 					(assign {data->kn_msg_reply_id.id_mbox} {new_msg->msg_dest.id_mbox})
 					(assign {data->kn_msg_reply_id.id_cpu} {new_msg->msg_dest.id_cpu})
 					(f-call 'sys_mail 'send {new_msg})

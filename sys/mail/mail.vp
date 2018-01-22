@@ -87,28 +87,30 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/alloc_str)
+(def-func 'sys/mail/alloc_obj)
 	;inputs
-	;r0 = string object
+	;r0 = object pointer
+	;r1 = data pointer
+	;r2 = data length
 	;outputs
 	;r0 = mail message
-	;r1 = string data
 	;trashes
 	;all
 
-	(ptr 'str 'msg 'mail_statics)
+	(ptr 'msg 'ob 'data 'mail_statics)
+	(uint 'length)
 
 	(push-scope)
-	(f-entry 'sys_mail 'alloc_str {str})
+	(f-entry 'sys_mail 'alloc_obj {ob, data, length})
 
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(f-call 'sys_heap 'alloc {&mail_statics->ml_statics_msg_heap} {_, msg})
-	(f-call 'ref 'ref {str} {msg->msg_parcel_obj})
+	(f-call 'ref 'ref {ob} {msg->msg_parcel_obj})
 	(assign {0} {msg->msg_parcel_length})
-	(assign {str->string_length} {msg->msg_length})
-	(assign {&str->string_data} {msg->msg_parcel_data})
+	(assign {length} {msg->msg_length})
+	(assign {data} {msg->msg_parcel_data})
 
-	(f-exit 'sys_mail 'alloc_str {msg, msg->msg_parcel_data})
+	(f-exit 'sys_mail 'alloc_obj {msg})
 	(pop-scope)
 	(return)
 
@@ -136,28 +138,33 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/free_str)
+(def-func 'sys/mail/free_obj)
 	;inputs
 	;r0 = mail message
 	;outputs
-	;r0 = 0, else string object
+	;r0 = 0 if msg was 0 , else object pointer
+	;r1 = data pointer
+	;r2 = data length
 	;trashes
 	;all
 
-	(ptr 'msg 'str 'mail_statics)
+	(ptr 'msg 'ob 'data 'mail_statics)
+	(uint 'length)
 
 	(push-scope)
-	(f-entry 'sys_mail 'free_str {msg})
+	(f-entry 'sys_mail 'free_obj {msg})
 
 	(vpif {msg})
-		(assign {msg->msg_parcel_obj} {str})
+		(assign {msg->msg_parcel_obj} {ob})
+		(assign {msg->msg_parcel_data} {data})
+		(assign {msg->msg_length} {length})
 		(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 		(f-call 'sys_heap 'free {&mail_statics->ml_statics_msg_heap, msg})
 	(else)
-		(assign {0} {str})
+		(assign {0} {ob})
 	(endif)
 
-	(f-exit 'sys_mail 'free_str {str})
+	(f-exit 'sys_mail 'free_obj {ob, data, length})
 	(pop-scope)
 	(return)
 

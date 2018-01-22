@@ -16,7 +16,7 @@
 
 	;get param string
 	(f-call 'sys_mail 'mymail {} {script, _})
-	(f-call 'sys_mail 'free_str {script} {script})
+	(f-call 'sys_mail 'free_obj {script} {script, _, _})
 
 	;string output stream
 	(f-call 'string 'create_from_buffer {0, string_gap} {value})
