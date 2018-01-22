@@ -1,0 +1,154 @@
+(import 'sys/func.inc)
+(import 'sys/task/task.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'sys/task/lisp_open_child)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1)
+
+	(push-scope)
+	(f-entry 'sys_task 'lisp_open_child {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'sys_task 'open_child {arg0, arg1} {arg0, arg1})
+	(f-call 'vector 'create {} {value})
+	(f-call 'boxed_long 'create {arg0} {arg0})
+	(f-call 'boxed_long 'create {arg1} {arg1})
+	(f-call 'vector 'push_back {value, arg0})
+	(f-call 'vector 'push_back {value, arg1})
+
+(vp-label 'exit)
+	(f-exit 'sys_task 'lisp_open_child {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(open_child path mode)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'string 'boxed_long))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func 'sys/task/lisp_open_remote)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1 'arg2)
+
+	(push-scope)
+	(f-entry 'sys_task 'lisp_open_remote {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'sys_task 'open_remote {arg0, arg1, arg2} {arg0, arg1})
+	(f-call 'vector 'create {} {value})
+	(f-call 'boxed_long 'create {arg0} {arg0})
+	(f-call 'boxed_long 'create {arg1} {arg1})
+	(f-call 'vector 'push_back {value, arg0})
+	(f-call 'vector 'push_back {value, arg1})
+
+(vp-label 'exit)
+	(f-exit 'sys_task 'lisp_open_remote {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(open_remote path cpu mode)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'string 'boxed_long 'boxed_long))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func 'sys/task/lisp_open_farm)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1 'arg2)
+
+	(push-scope)
+	(f-entry 'sys_task 'lisp_open_farm {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'sys_task 'open_farm {arg0, arg1, arg2} {value})
+
+(vp-label 'exit)
+	(f-exit 'sys_task 'lisp_open_farm {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(open_farm path num mode)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'string 'boxed_long 'boxed_long))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func 'sys/task/lisp_open_pipe)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0)
+
+	(push-scope)
+	(f-entry 'sys_task 'lisp_open_pipe {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'sys_task 'open_pipe {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'sys_task 'lisp_open_pipe {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(open_pipe paths)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'vector))
+
+	(pop-scope-syms)
+
+(def-func-end)

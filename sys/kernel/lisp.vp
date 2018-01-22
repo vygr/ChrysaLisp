@@ -1,0 +1,38 @@
+(import 'sys/func.inc)
+(import 'sys/kernel/kernel.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'sys/kernel/lisp_total)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(uint 'length)
+
+	(push-scope)
+	(f-entry 'kernel 'lisp_total {this, args})
+
+(errorcases
+	(v-call 'vector 'get_length {args} {_, length})
+	(errorif {length} 'error1))
+
+	(f-call 'kernel 'total {} {length})
+	(f-call 'boxed_long 'create {length} {value})
+
+(vp-label 'exit)
+	(f-exit 'kernel 'lisp_total {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(cpu_total)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)

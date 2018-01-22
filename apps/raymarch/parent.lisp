@@ -28,4 +28,4 @@
 		(slot swap canvas)))
 
 ;read args from parent
-(screen (slot mail_mymail nil))
+(screen (mail-mymail))

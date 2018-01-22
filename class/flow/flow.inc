@@ -7,6 +7,8 @@
 (def-method 'pref_size 'class/flow/pref_size 'final)
 (def-method 'layout 'class/flow/layout 'final)
 
+(def-method 'lisp_create 'class/flow/lisp_create 'static '(r0 r1) '(r0 r1))
+
 (def-bit 'flow_flag)
 	(bit 'left 'right 'up 'down
 		'fillw 'fillh 'lastw 'lasth

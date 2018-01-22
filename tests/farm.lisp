@@ -2,8 +2,8 @@
 (run 'apps/sys.lisp)
 
 ;open farm of children
-(defq ids (slot open_farm nil "tests/child" 128 kn_call_child))
+(defq ids (open-farm "tests/child" 128 kn_call_child))
 
 ;send msgs etc
 (while (defq cpu (pop ids) mbox (pop ids))
-	(if (ne mbox 0) (slot mail_send nil "" mbox cpu)))
+	(if (ne mbox 0) (mail-send "" mbox cpu)))

@@ -1,0 +1,38 @@
+(import 'sys/func.inc)
+(import 'class/canvas/canvas.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/canvas/lisp_create)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1 'arg2)
+
+	(push-scope)
+	(f-entry 'canvas 'lisp_create {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'canvas 'create {arg0, arg1, arg2} {value})
+
+(vp-label 'exit)
+	(f-exit 'canvas 'lisp_create {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(create_canvas width height aa_scale)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'boxed_long 'boxed_long 'boxed_long))
+
+	(pop-scope-syms)
+
+(def-func-end)

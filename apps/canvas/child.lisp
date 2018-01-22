@@ -6,7 +6,7 @@
 (run 'apps/math.lisp)
 
 ;read args from parent
-(bind '(canvas canvas_width canvas_height canvas_scale) (slot mail_mymail nil))
+(bind '(canvas canvas_width canvas_height canvas_scale) (mail-mymail))
 
 (defq stack (array) eps 1.0 angle 0.0)
 

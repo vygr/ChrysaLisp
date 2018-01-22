@@ -1,0 +1,36 @@
+(import 'sys/func.inc)
+(import 'class/label/label.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/label/lisp_create)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(uint 'length)
+
+	(push-scope)
+	(f-entry 'label 'lisp_create {this, args})
+
+(errorcases
+	(v-call 'vector 'get_length {args} {_, length})
+	(errorif {length} 'error1))
+
+	(f-call 'label 'create {} {value})
+
+(vp-label 'exit)
+	(f-exit 'label 'lisp_create {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(create_label)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)

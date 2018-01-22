@@ -1,0 +1,36 @@
+(import 'sys/func.inc)
+(import 'class/flow/flow.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/flow/lisp_create)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(uint 'length)
+
+	(push-scope)
+	(f-entry 'flow 'lisp_create {this, args})
+
+(errorcases
+	(v-call 'vector 'get_length {args} {_, length})
+	(errorif {length} 'error1))
+
+	(f-call 'flow 'create {} {value})
+
+(vp-label 'exit)
+	(f-exit 'flow 'lisp_create {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(create_flow)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)

@@ -10,6 +10,8 @@
 
 (def-method 'deinit 'class/font/deinit 'final)
 
+(def-method 'lisp_create 'class/font/lisp_create 'static '(r0 r1) '(r0 r1))
+
 (def-struct 'font 'ref)
 	(ulong 'handle)
 	(ptr 'word_map)

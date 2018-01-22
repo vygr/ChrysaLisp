@@ -37,3 +37,5 @@
 (def-method 'total 'sys/kernel/total 'static nil '(r0))
 (def-method 'opts 'sys/kernel/opts 'static '(r0))
 (def-method 'kernel 'sys/kernel/kernel 'static '(r0 r1))
+
+(def-method 'lisp_total 'sys/kernel/lisp_total 'static '(r0 r1) '(r0 r1))

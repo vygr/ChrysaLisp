@@ -26,6 +26,8 @@
 (def-method 'mouse_down 'class/window/mouse_down 'final)
 (def-method 'mouse_move 'class/window/mouse_move 'final)
 
+(def-method 'lisp_create 'class/window/lisp_create 'static '(r0 r1) '(r0 r1))
+
 (def-struct 'window 'view)
 	(offset 'start)
 	(ptr 'title)

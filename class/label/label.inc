@@ -9,6 +9,8 @@
 (def-method 'draw 'class/label/draw 'override)
 (def-method 'layout 'class/label/layout 'override)
 
+(def-method 'lisp_create 'class/label/lisp_create 'static '(r0 r1) '(r0 r1))
+
 (def-struct 'label 'view)
 	(ptr 'flow)
 	(ptr 'text)

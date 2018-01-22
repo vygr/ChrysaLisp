@@ -1,0 +1,76 @@
+(import 'sys/func.inc)
+(import 'sys/mail/mail.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'sys/mail/lisp_mymail)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(uint 'length)
+
+	(push-scope)
+	(f-entry 'sys_mail 'lisp_mymail {this, args})
+
+(errorcases
+	(v-call 'vector 'get_length {args} {_, length})
+	(errorif {length} 'error1))
+
+	(f-call 'sys_mail 'mymail {} {value, _})
+	(f-call 'sys_mail 'free_str {value} {value})
+
+(vp-label 'exit)
+	(f-exit 'sys_mail 'lisp_mymail {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(mymail)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func 'sys/mail/lisp_send)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1 'arg2 'arg3)
+
+	(push-scope)
+	(f-entry 'sys_mail 'lisp_send {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'sys_mail 'alloc_str {arg0} {arg3, _})
+	(assign {arg1} {arg3->msg_dest.id_mbox})
+	(assign {arg2} {arg3->msg_dest.id_cpu})
+	(f-call 'sys_mail 'send {arg3})
+	(f-call 'ref 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'sys_mail 'lisp_send {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(send obj mbox cpu)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'obj 'boxed_long 'boxed_long))
+
+	(pop-scope-syms)
+
+(def-func-end)

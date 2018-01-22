@@ -29,6 +29,8 @@
 (def-method 'pref_size 'class/canvas/pref_size 'override)
 (def-method 'draw 'class/canvas/draw 'override)
 
+(def-method 'lisp_create 'class/canvas/lisp_create 'static '(r0 r1) '(r0 r1))
+
 (def-struct 'canvas 'view)
 	(ulong 'texture)
 	(ptr 'data)

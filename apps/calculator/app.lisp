@@ -2,19 +2,19 @@
 (run 'apps/sys.lisp)
 (run 'apps/ui.lisp)
 
-(defq window (slot create_window nil window_flag_close)
-	display (slot create_label nil)
-	flow (slot create_flow nil)
-	grid (slot create_grid nil))
+(defq window (create-window window_flag_close)
+	display (create-label)
+	flow (create-flow)
+	grid (create-grid))
 
 (slot set_title window "Calculator")
 (def-props flow 'flow_flags (bit-or flow_flag_down flow_flag_fillw flow_flag_lasth))
 (def-props grid 'grid_width 4 'grid_height 4 'color 0xffffff00
-	'font (slot create_font nil "fonts/OpenSans-Regular.ttf" 42))
+	'font (create-font "fonts/OpenSans-Regular.ttf" 42))
 (def-props display 'text "0" 'color 0xffffffff 'flow_flags flow_flag_align_hright
-	'font (slot create_font nil "fonts/OpenSans-Regular.ttf" 24))
+	'font (create-font "fonts/OpenSans-Regular.ttf" 24))
 (each (lambda (_)
-	(defq button (slot create_button nil))
+	(defq button (create-button))
 	(def-props button 'text (if (eql _ "C") "AC" _)
 		'flow_flags (bit-or flow_flag_align_hcenter flow_flag_align_vcenter))
 	(slot connect_click button 1)
@@ -42,7 +42,7 @@
 (defq id t accum 0 value 0 num 0 lastop nil)
 (while id
 	(cond
-		((ge (setq id (read-long ev_msg_target_id (defq msg (slot mail_mymail nil)))) 1)
+		((ge (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) 1)
 			(defq op (get-prop (slot find_id window (read-long ev_msg_action_source_id msg)) 'text))
 			(cond
 				((eql op "AC")
