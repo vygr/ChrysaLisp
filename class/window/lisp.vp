@@ -29,7 +29,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(create_window flags)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(create-window flags)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'boxed_long))
 

@@ -32,7 +32,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(create_font name points)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(create-font name points)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string 'boxed_long))
 
