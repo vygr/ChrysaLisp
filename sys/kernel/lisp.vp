@@ -30,7 +30,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(cpu_total)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(cpu-total)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

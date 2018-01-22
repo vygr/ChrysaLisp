@@ -29,7 +29,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(mymail)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(mail-mymail)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
@@ -67,7 +67,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(send obj mbox cpu)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(mail-send obj mbox cpu)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'obj 'boxed_long 'boxed_long))
 
