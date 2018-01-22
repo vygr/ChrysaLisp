@@ -11,7 +11,8 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value)
-	(uint 'length)
+(errorcases
+	(uint 'length))
 
 	(push-scope)
 	(f-entry 'sys_mail 'lisp_mymail {this, args})

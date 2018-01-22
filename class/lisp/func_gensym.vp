@@ -11,7 +11,8 @@
 	;r1 = value
 
 	(ptr 'this 'args 'prefix 'value)
-	(uint 'length)
+(errorcases
+	(uint 'length))
 
 	(push-scope)
 	(f-entry 'lisp 'func_gensym {this, args})
