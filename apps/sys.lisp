@@ -1,6 +1,5 @@
 ;import sys settings
-(bind '(
-	byte_size short_size int_size long_size ptr_size
+(bind '(byte_size short_size int_size long_size ptr_size
 	kn_call_open kn_call_child lk_data_size)
 	(within-compile-env (lambda ()
 		(import 'sys/code.inc)

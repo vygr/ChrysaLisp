@@ -1,6 +1,5 @@
 ;import ui settings
-(bind '(
-	flow_flag_left flow_flag_right flow_flag_up flow_flag_down flow_flag_fillw
+(bind '(flow_flag_left flow_flag_right flow_flag_up flow_flag_down flow_flag_fillw
 	flow_flag_fillh flow_flag_lastw flow_flag_lasth flow_flag_align_hcenter
 	flow_flag_align_hleft flow_flag_align_hright flow_flag_align_vcenter
 	flow_flag_align_vtop flow_flag_align_vbottom window_flag_close window_flag_min
@@ -18,8 +17,7 @@
 		(import 'class/window/window.inc)
 		(import 'class/canvas/canvas.inc)
 		(import 'class/points/points.inc)
-		(list
-			flow_flag_left flow_flag_right flow_flag_up flow_flag_down flow_flag_fillw
+		(list flow_flag_left flow_flag_right flow_flag_up flow_flag_down flow_flag_fillw
 			flow_flag_fillh flow_flag_lastw flow_flag_lasth flow_flag_align_hcenter
 			flow_flag_align_hleft flow_flag_align_hright flow_flag_align_vcenter
 			flow_flag_align_vtop flow_flag_align_vbottom window_flag_close
@@ -37,8 +35,7 @@
 			(method-slot 'points 'gen_quadratic) (method-slot 'points 'gen_cubic)
 			(method-slot 'points 'gen_arc) (method-slot 'points 'stroke_polylines) 
 			(method-slot 'points 'stroke_polygons) (method-slot 'view 'layout)
-			(method-slot 'view 'dirty)
-			))))
+			(method-slot 'view 'dirty)))))
 
 ;some helpful macros
 (defmacro get (_ b) `(eval ,b ,_))

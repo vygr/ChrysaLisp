@@ -2,10 +2,8 @@
 (run 'apps/sys.lisp)
 (run 'apps/ui.lisp)
 
-(defq window (create-window window_flag_close)
-	display (create-label)
-	flow (create-flow)
-	grid (create-grid))
+(defq window (create-window window_flag_close) display (create-label)
+	flow (create-flow) grid (create-grid))
 
 (slot set_title window "Calculator")
 (def flow 'flow_flags (bit-or flow_flag_down flow_flag_fillw flow_flag_lasth))
