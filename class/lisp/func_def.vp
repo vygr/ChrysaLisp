@@ -22,7 +22,11 @@
 	(errorif {length < 3 || !(length & 1)} 'error1)
 	(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(assign {iter_begin[ptr_size * 0]} {env})
-	(errorif (cat {env->obj_vtable != @} (f-path 'class 'hash_map)) 'error2)
+
+(errorcases
+	(f-call 'obj 'inst_of (cat {env, @} (f-path 'class 'hash_map)) {_, val})
+	(errorifnot {val} 'error2))
+
 	(assign {&iter_begin[ptr_size * 1]} {iter_begin})
 	(assign {0} {val})
 	(loop-start)

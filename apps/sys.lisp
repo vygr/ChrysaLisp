@@ -10,9 +10,6 @@
 		(list byte_size short_size int_size long_size ptr_size
 			kn_call_open kn_call_child lk_data_size))))
 
-;some helpful macros
-(defmacro slot (_ &rest b) `(call ,(sym-cat 'slot_ _) ~b))
-
 ;system lisp bindings
 (ffi mail-mymail "sys/mail/lisp_mymail" 0)
 (ffi mail-send "sys/mail/lisp_send" 0)

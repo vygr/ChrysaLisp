@@ -142,7 +142,7 @@
 	;inputs
 	;r0 = mail message
 	;outputs
-	;r0 = 0 if msg was 0 , else object pointer
+	;r0 = 0 if msg was 0, else object pointer
 	;r1 = data pointer
 	;r2 = data length
 	;trashes

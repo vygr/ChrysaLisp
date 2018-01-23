@@ -41,9 +41,8 @@
 			))))
 
 ;some helpful macros
-(defmacro def-props (_ &rest b) `(eval (list defq ~b) ,_))
-(defmacro set-props (_ &rest b) `(eval (list setq ~b) ,_))
-(defmacro get-prop (_ b) `(eval ,b ,_))
+(defmacro get (_ b) `(eval ,b ,_))
+(defmacro slot (_ &rest b) `(call ,(sym-cat 'slot_ _) ~b))
 
 ;system ui bindings
 (ffi create-label "class/label/lisp_create" 0)
