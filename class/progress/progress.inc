@@ -8,5 +8,7 @@
 (def-method 'draw 'class/progress/draw 'final)
 (def-method 'layout 'class/progress/layout 'final)
 
+(def-method 'lisp_create 'class/progress/lisp_create 'static '(r0 r1) '(r0 r1))
+
 (def-struct 'progress 'view)
 (def-struct-end)

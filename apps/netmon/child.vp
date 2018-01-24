@@ -1,0 +1,39 @@
+(import 'sys/func.inc)
+(import 'sys/kernel/kernel.inc)
+
+(def-struct 'sample_msg)
+	(ulong 'command)
+	(struct 'reply_id 'id)
+	(ulong 'cpu)
+	(ulong 'task_count)
+	(ulong 'mem_used)
+(def-struct-end)
+
+(def-func 'apps/netmon/child)
+	;monitor task
+
+	(ptr 'msg 'data)
+
+	(push-scope)
+	(loop-start)
+		;read mail command
+		(f-call 'sys_mail 'mymail {} {msg, data})
+		(breakif {data->sample_msg_command == 2})
+
+		;sample command
+		(f-call 'kernel 'id {} {data->sample_msg_cpu})
+		(f-call 'sys_task 'count {} {data->sample_msg_task_count})
+		(f-call 'sys_mem 'used {} {data->sample_msg_mem_used})
+		(assign {data->sample_msg_reply_id.id_mbox} {msg->msg_dest.id_mbox})
+		(assign {data->sample_msg_reply_id.id_cpu} {msg->msg_dest.id_cpu})
+		(f-call 'sys_mail 'send {msg})
+
+		;be friendly
+		(f-call 'sys_task 'yield)
+	(loop-end)
+
+	(f-call 'sys_mail 'free {msg})
+	(pop-scope)
+	(return)
+
+(def-func-end)

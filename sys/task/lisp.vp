@@ -3,6 +3,46 @@
 (import 'class/boxed_long/boxed_long.inc)
 (import 'class/lisp/lisp.inc)
 
+(def-func 'sys/task/lisp_mailbox)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1)
+(errorcases
+	(uint 'length))
+
+	(push-scope)
+	(f-entry 'sys_task 'lisp_mailbox {this, args})
+
+(errorcases
+	(v-call 'vector 'get_length {args} {_, length})
+	(errorif {length} 'error1))
+
+	(f-call 'sys_task 'mailbox {} {arg0, arg1})
+	(f-call 'vector 'create {} {value})
+	(f-call 'boxed_long 'create {arg0} {arg0})
+	(f-call 'boxed_long 'create {arg1} {arg1})
+	(f-call 'vector 'push_back {value, arg0})
+	(f-call 'vector 'push_back {value, arg1})
+
+(vp-label 'exit)
+	(f-exit 'sys_task 'lisp_mailbox {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(mailbox)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
 (def-func 'sys/task/lisp_open_child)
 	;inputs
 	;r0 = lisp object

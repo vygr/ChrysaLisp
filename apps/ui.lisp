@@ -47,5 +47,6 @@
 (ffi create-flow "class/flow/lisp_create" 0)
 (ffi create-grid "class/grid/lisp_create" 0)
 (ffi create-canvas "class/canvas/lisp_create" 0)
+(ffi create-progress "class/progress/lisp_create" 0)
 (ffi create-font "class/font/lisp_create" 0)
 (ffi create-window "class/window/lisp_create" 0)

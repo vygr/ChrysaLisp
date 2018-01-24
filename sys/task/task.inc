@@ -27,6 +27,7 @@
 (def-method 'open_farm 'sys/task/open_farm 'static '(r0 r1 r2) '(r0))
 (def-method 'open_pipe 'sys/task/open_pipe 'static '(r0) '(r0))
 
+(def-method 'lisp_mailbox 'sys/task/lisp_mailbox 'static '(r0 r1) '(r0 r1))
 (def-method 'lisp_open_child 'sys/task/lisp_open_child 'static '(r0 r1) '(r0 r1))
 (def-method 'lisp_open_remote 'sys/task/lisp_open_remote 'static '(r0 r1) '(r0 r1))
 (def-method 'lisp_open_farm 'sys/task/lisp_open_farm 'static '(r0 r1) '(r0 r1))

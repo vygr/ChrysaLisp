@@ -3,8 +3,8 @@
 (run 'apps/ui.lisp)
 
 (defq app_list '(
-	"apps/netmon/app"
 	"apps/terminal/app"
+	"apps/netmon/app.lisp"
 	"apps/canvas/app.lisp"
 	"apps/raymarch/app.lisp"
 	"apps/calculator/app.lisp"

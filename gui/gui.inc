@@ -42,8 +42,8 @@
 (def-enum-end)
 
 (def-struct 'ev_msg)
-	(ulong 'type)
 	(ulong 'target_id)
+	(ulong 'type)
 (def-struct-end)
 
 (def-struct 'ev_msg_mouse)
