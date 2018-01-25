@@ -54,13 +54,11 @@
 (defmacro ui-element (n c &optional p &rest x)
 	(if p
 		`(progn
-			(push _ui (defq ,n ,c))
+			(slot add_child (elem -3 (push _ui (defq ,n ,c))) ,n)
 			(def ,n ~p)
-			(slot add_child (elem -3 _ui) ,n)
 			~x (pop _ui))
 		`(progn
-			(push _ui (defq ,n ,c))
-			(slot add_child (elem -3 _ui) ,n)
+			(slot add_child (elem -3 (push _ui (defq ,n ,c))) ,n)
 			~x (pop _ui))))
 
 ;system ui bindings
