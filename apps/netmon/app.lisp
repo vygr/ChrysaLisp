@@ -8,7 +8,8 @@
 	sample_msg_cpu (add sample_msg_reply_id id_size)
 	sample_msg_task_count (add sample_msg_cpu long_size)
 	sample_msg_mem_used (add sample_msg_task_count long_size)
-	task_bars (list) memory_bars (list) cpu_total (cpu-total) cpu_count cpu_total)
+	task_bars (list) memory_bars (list) cpu_total (cpu-total) cpu_count cpu_total
+	id t max_tasks 0 max_memory 0)
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (bit-or flow_flag_down flow_flag_fillw) 'progress_max 100 'progress_val 0)
@@ -30,8 +31,7 @@
 (slot gui_add window)
 
 ;open global farm
-(defq ids (open-farm "apps/netmon/child" cpu_total kn_call_open)
-	id t max_tasks 0 max_memory 0)
+(defq ids (open-farm "apps/netmon/child" cpu_total kn_call_open))
 (bind '(my_mbox my_cpu) (task-mailbox))
 
 (while id
