@@ -2,12 +2,12 @@
 (run 'apps/sys.lisp)
 (run 'apps/ui.lisp)
 
-(defq canvas_width 600 canvas_height 600 canvas_scale 3.0
-	window (create-window window_flag_close) id t
-	canvas (create-canvas canvas_width canvas_height canvas_scale))
+(defq canvas_width 600 canvas_height 600 canvas_scale 3.0 id t)
+
+(ui-tree window (create-window window_flag_close) nil
+	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
 
 (slot set_title window "Canvas")
-(slot add_child window canvas)
 (slot connect_close window 0)
 (bind '(w h) (slot pref_size window))
 (slot change window 512 256 w h)

@@ -41,6 +41,23 @@
 (defmacro get (_ b) `(eval ,b ,_))
 (defmacro slot (_ &rest b) `(call ,(sym-cat 'slot_ _) ~b))
 
+(defmacro ui-tree (n c &optional p &rest x)
+	`(progn
+		(defq _ui (list) ,n ,c)
+		(push _ui ,n)
+		,(if p `(def ,n ~p))
+		~x
+		(setq _ui nil)))
+
+(defmacro ui-element (n c &optional p &rest x)
+	`(progn
+		(defq ,n ,c)
+		(push _ui ,n)
+		,(if p `(def ,n ~p))
+		(slot add_child (elem -3 _ui) ,n)
+		~x
+		(pop _ui)))
+
 ;system ui bindings
 (ffi create-label "class/label/lisp_create" 0)
 (ffi create-button "class/button/lisp_create" 0)

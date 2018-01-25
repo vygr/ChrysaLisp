@@ -11,18 +11,17 @@
 	"tests/farm.lisp"
 	"tests/pipe.lisp"
 	"tests/global.lisp"
-	"tests/migrate.lisp")
-	window (create-window 0)
-	flow (create-flow))
+	"tests/migrate.lisp"))
+
+(ui-tree window (create-window 0) nil
+	(ui-element flow (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw) 'color 0xffffff00)
+		(each (lambda (_)
+			(defq button (create-button))
+			(def button 'text _)
+			(slot connect_click button 0)
+			(slot add_child flow button)) app_list)))
 
 (slot set_title window "Launcher")
-(def flow 'flow_flags (bit-or flow_flag_down flow_flag_fillw) 'color 0xffffff00)
-(each (lambda (_)
-	(defq button (create-button))
-	(def button 'text _)
-	(slot connect_click button 0)
-	(slot add_child flow button)) app_list)
-(slot add_child window flow)
 (bind '(w h) (slot pref_size window))
 (slot change window 32 32 (add w 32) h)
 (slot gui_add window)
