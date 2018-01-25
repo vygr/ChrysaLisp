@@ -44,11 +44,11 @@
 (defmacro ui-tree (n c &optional p &rest x)
 	(if p
 		`(progn
-			(push (defq ,n ,c _ui (list)) ,n)
+			(defq _ui (list (defq ,n ,c)))
 			(def ,n ~p)
 			~x (setq _ui nil))
 		`(progn
-			(push (defq ,n ,c _ui (list)) ,n)
+			(defq _ui (list (defq ,n ,c)))
 			~x (setq _ui nil))))
 
 (defmacro ui-element (n c &optional p &rest x)
