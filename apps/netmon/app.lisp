@@ -70,6 +70,7 @@
 	(if (eq (read-long ev_msg_target_id (mail-mymail)) 1)
 		(setq cpu_count (inc cpu_count))))
 
-;send out exit commands
+;send out multi-cast exit command
+(defq exit (char 2 long_size))
 (while (defq cpu (pop ids) mbox (pop ids))
-	(mail-send (char 2 long_size) mbox cpu))
+	(mail-send exit mbox cpu))
