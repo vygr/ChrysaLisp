@@ -110,6 +110,7 @@
 (defun str? (_) (inst-of 'class/class_string _))
 (defun sym? (_) (inst-of 'class/class_symbol _))
 (defun num? (_) (inst-of 'class/class_boxed_long _))
+(defun ary? (_) (inst-of 'class/class_array _))
 
 (defmacro inc (_) (list 'add _ 1))
 (defmacro dec (_) (list 'sub _ 1))

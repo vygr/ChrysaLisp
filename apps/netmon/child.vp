@@ -4,6 +4,10 @@
 (def-struct 'sample_msg)
 	(ulong 'command)
 	(struct 'reply_id 'id)
+(def-struct-end)
+
+(def-struct 'sample_reply_msg)
+	(ulong 'command)
 	(ulong 'cpu)
 	(ulong 'task_count)
 	(ulong 'mem_used)
@@ -12,7 +16,7 @@
 (def-func 'apps/netmon/child)
 	;monitor task
 
-	(ptr 'msg 'data)
+	(ptr 'msg 'data 'reply 'rdata)
 
 	(push-scope)
 	(loop-start)
@@ -20,13 +24,16 @@
 		(f-call 'sys_mail 'mymail {} {msg, data})
 		(breakif {data->sample_msg_command == 2})
 
-		;sample command
-		(f-call 'kernel 'id {} {data->sample_msg_cpu})
-		(f-call 'sys_task 'count {} {data->sample_msg_task_count})
-		(f-call 'sys_mem 'used {} {data->sample_msg_mem_used})
-		(assign {data->sample_msg_reply_id.id_mbox} {msg->msg_dest.id_mbox})
-		(assign {data->sample_msg_reply_id.id_cpu} {msg->msg_dest.id_cpu})
-		(f-call 'sys_mail 'send {msg})
+		;sample reply
+		(f-call 'sys_mail 'alloc {sample_reply_msg_size} {reply, rdata})
+		(assign {data->sample_msg_reply_id.id_mbox} {reply->msg_dest.id_mbox})
+		(assign {data->sample_msg_reply_id.id_cpu} {reply->msg_dest.id_cpu})
+		(assign {data->sample_msg_command} {rdata->sample_reply_msg_command})
+		(f-call 'kernel 'id {} {rdata->sample_reply_msg_cpu})
+		(f-call 'sys_task 'count {} {rdata->sample_reply_msg_task_count})
+		(f-call 'sys_mem 'used {} {rdata->sample_reply_msg_mem_used})
+		(f-call 'sys_mail 'send {reply})
+		(f-call 'sys_mail 'free {msg})
 
 		;be friendly
 		(f-call 'sys_task 'yield)

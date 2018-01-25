@@ -4,8 +4,7 @@
 
 (defq
 	sample_msg_command 0
-	sample_msg_reply_id (add sample_msg_command long_size)
-	sample_msg_cpu (add sample_msg_reply_id id_size)
+	sample_msg_cpu (add sample_msg_command long_size)
 	sample_msg_task_count (add sample_msg_cpu long_size)
 	sample_msg_mem_used (add sample_msg_task_count long_size)
 	task_bars (list) memory_bars (list) cpu_total (cpu-total) cpu_count cpu_total
@@ -40,13 +39,7 @@
 		;send out sample commands
 		(while (ne cpu_count 0)
 			(setq cpu_count (dec cpu_count))
-			(mail-send (cat
-				(char 1 long_size)
-				(char my_mbox long_size)
-				(char my_cpu long_size)
-				(char 0 long_size)
-				(char 0 long_size)
-				(char 0 long_size)) (elem (mul cpu_count 2) ids) (elem (inc (mul cpu_count 2)) ids))))
+			(mail-send (array 1 my_mbox my_cpu) (elem (mul cpu_count 2) ids) (elem (inc (mul cpu_count 2)) ids))))
 	(cond
 		((ge (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) 1)
 			;reply from cpu
