@@ -66,7 +66,9 @@
 		(t (slot event window msg))))
 
 ;wait for outstanding replies
-(times (sub cpu_total cpu_count) (mail-mymail))
+(while (ne cpu_count cpu_total)
+	(if (eq (read-long ev_msg_target_id (mail-mymail)) 1)
+		(setq cpu_count (inc cpu_count))))
 
 ;send out exit commands
 (while (defq cpu (pop ids) mbox (pop ids))
