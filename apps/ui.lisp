@@ -42,21 +42,26 @@
 (defmacro slot (_ &rest b) `(call ,(sym-cat 'slot_ _) ~b))
 
 (defmacro ui-tree (n c &optional p &rest x)
-	`(progn
-		(defq _ui (list) ,n ,c)
-		(push _ui ,n)
-		,(if p `(def ,n ~p))
-		~x
-		(setq _ui nil)))
+	(if p
+		`(progn
+			(push (defq ,n ,c _ui (list)) ,n)
+			(def ,n ~p)
+			~x (setq _ui nil))
+		`(progn
+			(push (defq ,n ,c _ui (list)) ,n)
+			~x (setq _ui nil))))
 
 (defmacro ui-element (n c &optional p &rest x)
-	`(progn
-		(defq ,n ,c)
-		(push _ui ,n)
-		,(if p `(def ,n ~p))
-		(slot add_child (elem -3 _ui) ,n)
-		~x
-		(pop _ui)))
+	(if p
+		`(progn
+			(push _ui (defq ,n ,c))
+			(def ,n ~p)
+			(slot add_child (elem -3 _ui) ,n)
+			~x (pop _ui))
+		`(progn
+			(push _ui (defq ,n ,c))
+			(slot add_child (elem -3 _ui) ,n)
+			~x (pop _ui))))
 
 ;system ui bindings
 (ffi create-label "class/label/lisp_create" 0)
