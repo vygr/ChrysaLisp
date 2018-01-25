@@ -36,14 +36,15 @@
 
 (while id
 	;new batch of samples ?
-	(when (eq cpu_count cpu_total)
+	(if (eq cpu_count cpu_total)
 		;send out sample commands
 		(while (ne cpu_count 0)
+			(setq cpu_count (dec cpu_count))
 			(mail-send (cat
 				(char 1 long_size)
 				(char my_mbox long_size)
 				(char my_cpu long_size)
-				(char (setq cpu_count (dec cpu_count)) long_size)
+				(char 0 long_size)
 				(char 0 long_size)
 				(char 0 long_size)) (elem (mul cpu_count 2) ids) (elem (inc (mul cpu_count 2)) ids))))
 	(cond
