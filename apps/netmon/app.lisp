@@ -29,17 +29,17 @@
 (slot change window 320 32 w h)
 (slot gui_add window)
 
-;open global farm
-(defq ids (open-farm "apps/netmon/child" cpu_total kn_call_open))
-(bind '(my_mbox my_cpu) (task-mailbox))
+;open global farm, create multi-cast sample command
+(defq ids (open-farm "apps/netmon/child" cpu_total kn_call_open)
+	sample_msg (apply array (cat '(1) (task-mailbox))))
 
 (while id
 	;new batch of samples ?
 	(if (eq cpu_count cpu_total)
-		;send out sample commands
+		;send out multi-cast sample command
 		(while (ne cpu_count 0)
 			(setq cpu_count (dec cpu_count))
-			(mail-send (array 1 my_mbox my_cpu) (elem (mul cpu_count 2) ids) (elem (inc (mul cpu_count 2)) ids))))
+			(mail-send sample_msg (elem (mul cpu_count 2) ids) (elem (inc (mul cpu_count 2)) ids))))
 	(cond
 		((ge (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) 1)
 			;reply from cpu
