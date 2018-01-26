@@ -2,12 +2,14 @@
 (run 'apps/sys.lisp)
 (run 'apps/ui.lisp)
 
-(defq
-	sample_msg_command 0
-	sample_msg_cpu (add sample_msg_command long_size)
-	sample_msg_task_count (add sample_msg_cpu long_size)
-	sample_msg_mem_used (add sample_msg_task_count long_size)
-	task_bars (list) memory_bars (list) cpu_total (cpu-total) cpu_count cpu_total
+(structure 'sample_reply_msg 0
+	(long 'command)
+	(long 'cpu)
+	(long 'task_count)
+	(long 'mem_used))
+
+(defq task_bars (list) memory_bars (list)
+	cpu_total (cpu-total) cpu_count cpu_total
 	id t max_tasks 0 max_memory 0)
 
 (ui-tree window (create-window window_flag_close) nil
@@ -43,9 +45,9 @@
 	(cond
 		((ge (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) 1)
 			;reply from cpu
-			(defq cpu (read-long sample_msg_cpu msg)
-				task_val (read-long sample_msg_task_count msg)
-				memory_val (read-long sample_msg_mem_used msg)
+			(defq cpu (read-long sample_reply_msg_cpu msg)
+				task_val (read-long sample_reply_msg_task_count msg)
+				memory_val (read-long sample_reply_msg_mem_used msg)
 				task_bar (elem cpu task_bars) memory_bar (elem cpu memory_bars))
 			(setq max_tasks (max max_tasks task_val) max_memory (max max_memory memory_val))
 			(def task_bar 'progress_max max_tasks 'progress_val task_val)
