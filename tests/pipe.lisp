@@ -2,8 +2,9 @@
 (run 'apps/sys.lisp)
 
 ;open pipe of children
-(defq pipe (map (lambda (_) "tests/child") (range 0 128))
-	ids (open-pipe pipe))
+(defq pipe (list "tests/child"))
+(while (lt (length pipe) 128) (setq pipe (cat pipe pipe)))
+(defq ids (open-pipe pipe))
 
 ;send msgs etc
 (while (defq cpu (pop ids) mbox (pop ids))
