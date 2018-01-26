@@ -56,7 +56,6 @@
 (def-method 'func_ge 'class/lisp/func_ge 'static '(r0 r1) '(r0 r1))
 (def-method 'func_cond 'class/lisp/func_cond 'static '(r0 r1) '(r0 r1))
 (def-method 'func_progn 'class/lisp/func_progn 'static '(r0 r1) '(r0 r1))
-(def-method 'func_not 'class/lisp/func_not 'static '(r0 r1) '(r0 r1))
 (def-method 'func_length 'class/lisp/func_length 'static '(r0 r1) '(r0 r1))
 (def-method 'func_while 'class/lisp/func_while 'static '(r0 r1) '(r0 r1))
 (def-method 'func_print 'class/lisp/func_print 'static '(r0 r1) '(r0 r1))

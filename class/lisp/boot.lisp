@@ -30,7 +30,6 @@
 (ffi bit-and "class/lisp/func_band" 0)
 (ffi bit-or "class/lisp/func_bor" 0)
 (ffi bit-xor "class/lisp/func_bxor" 0)
-(ffi not "class/lisp/func_not" 0)
 
 (ffi list "class/lisp/func_list" 0)
 (ffi array "class/lisp/func_array" 0)
@@ -138,11 +137,14 @@
 	(cond ((eq 0 (length _)) `(cond (,x ,y)))
 		(t `(cond (,x ,y) (t ~_)))))
 
+(defmacro not (x)
+	`(cond (,x nil) (t t)))
+
 (defmacro when (x &rest _)
 	`(cond (,x ~_)))
 
 (defmacro unless (x &rest _)
-	`(cond ((not ,x) ~_)))
+	`(cond (,x nil) (t ~_)))
 
 (defmacro until (x &rest _)
 	`(while (not ,x) ~_))

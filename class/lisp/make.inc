@@ -63,7 +63,6 @@
 (import 'class/lisp/func_mul.vp)
 (import 'class/lisp/func_fmul.vp)
 (import 'class/lisp/func_ne.vp)
-(import 'class/lisp/func_not.vp)
 (import 'class/lisp/func_pipe.vp)
 (import 'class/lisp/func_pop.vp)
 (import 'class/lisp/func_prin.vp)
