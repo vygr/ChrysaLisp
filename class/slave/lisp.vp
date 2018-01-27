@@ -1,0 +1,51 @@
+(import 'sys/func.inc)
+(import 'class/slave/slave.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/slave/lisp_create)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value 'stdin 'stdout 'stderr)
+(errorcases
+	(uint 'length))
+
+	(push-scope)
+	(f-entry 'slave 'lisp_create {this, args})
+
+(errorcases
+	(v-call 'vector 'get_length {args} {_, length})
+	(errorif {length} 'error1))
+
+	(f-call 'slave 'create {} {value})
+	(vpifnot {value})
+		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+	(else)
+		;redirect lisp io
+		(assign {this->lisp_stdin} {stdin})
+		(assign {this->lisp_stdout} {stdout})
+		(assign {this->lisp_stderr} {stderr})
+		(f-call 'ref 'ref {value->slave_stdin} {this->lisp_stdin})
+		(f-call 'ref 'ref {value->slave_stdout} {this->lisp_stdout})
+		(f-call 'ref 'ref {value->slave_stderr} {this->lisp_stderr})
+		(f-call 'ref 'deref {stdin})
+		(f-call 'ref 'deref {stdout})
+		(f-call 'ref 'deref {stderr})
+	(endif)
+
+(vp-label 'exit)
+	(f-exit 'slave 'lisp_create {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(create-slave)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)

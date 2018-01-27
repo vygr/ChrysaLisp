@@ -63,17 +63,16 @@
 			(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 		(endif)
 
-		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
+		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit1)
 		(f-call 'ref 'deref {value})
 	(loop-end)
-
+	(f-call 'ref 'ref {this->lisp_sym_t} {value})
+(vp-label 'exit1)
 	;pop old file and line info
 	(f-call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_name, old_file})
 	(f-call 'ref 'deref {old_file})
 	(f-call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_line, old_line})
 	(f-call 'ref 'deref {old_line})
-
-	(f-call 'ref 'ref {this->lisp_sym_t} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_repl {this, value})

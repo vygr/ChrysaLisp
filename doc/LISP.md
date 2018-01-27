@@ -76,6 +76,7 @@ bit-or
 bit-shl
 bit-shr
 bit-xor
+catch
 call
 cat
 char
@@ -106,6 +107,7 @@ fmul
 frac
 fsin
 fsqrt
+ffi
 ge
 gensym
 gt
@@ -267,8 +269,8 @@ trim-start
 within-compile-env
 ```
 
-## Within any cmd/lisp instance
-### lisp.lisp symbols
+## Within any cmd/lisp.lisp instance
+### asm.lisp symbols
 
 ```
 debug_mode
@@ -276,7 +278,7 @@ debug_emit
 debug_inst
 ```
 
-### lisp.lisp functions
+### asm.lisp functions
 
 ```
 all-vp-files
