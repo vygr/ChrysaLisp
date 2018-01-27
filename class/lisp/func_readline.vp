@@ -35,7 +35,7 @@
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(read-line stream)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'stream_str))
+	(signature 'sig 'stream))
 
 	(pop-scope-syms)
 

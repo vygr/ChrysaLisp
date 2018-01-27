@@ -8,6 +8,8 @@
 
 (def-method 'deinit 'class/slave/deinit 'final)
 
+(def-method 'lisp_create 'class/slave/lisp_create 'static '(r0 r1) '(r0 r1))
+
 (def-struct 'slave 'ref)
 	(ptr 'stdin)
 	(ptr 'stdout)

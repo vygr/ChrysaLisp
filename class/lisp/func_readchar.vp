@@ -23,7 +23,11 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorifnot {length == 1 || length == 2} 'error1)
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
-	(errorif (cat {iter_begin[0]->obj_vtable != @} (f-path 'class 'stream_str)) 'error2)
+
+(errorcases
+	(f-call 'obj 'inst_of (cat {iter_begin[0], @} (f-path 'class 'stream)) {_, value})
+	(errorifnot {value} 'error2))
+
 	(assign {1} {width})
 	(vpif {length == 2})
 		(assign {iter_begin[ptr_size]} {value})
