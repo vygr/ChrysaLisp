@@ -270,7 +270,7 @@ within-compile-env
 ```
 
 ## Within any cmd/lisp.lisp instance
-### asm.lisp symbols
+### asm.inc symbols
 
 ```
 debug_mode
@@ -278,7 +278,7 @@ debug_emit
 debug_inst
 ```
 
-### asm.lisp functions
+### asm.inc functions
 
 ```
 all-vp-files

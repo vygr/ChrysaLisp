@@ -64,10 +64,10 @@ C-Script compiler are written in Lisp, look in the *sys/code.inc*,
 done. Some of the Lisp primitives are constructed via a boot script that each
 instance of a Lisp class runs on construction, see *class/lisp/boot.lisp* for
 details. The compilation and make environment, along with all the compile and
-make commands are created via the Lisp command line tool in *cmd/asm.lisp*,
+make commands are created via the Lisp command line tool in *cmd/asm.inc*,
 again this auto runs for each instance of the `lisp.lisp` command run from the
 terminal. You can extend this with any number of additional files, just place
-them after the lisp command and they will execute after the *cmd/asm.lisp* file
+them after the lisp command and they will execute after the *cmd/asm.inc* file
 and before processing of stdin.
 
 Don't get the idea that due to being coded in interpreted Lisp the assembler

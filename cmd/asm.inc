@@ -13,7 +13,7 @@
 	(while (gt *pipes* 0)
 		(defq i (div (length *files*) *pipes*) s (slice 0 i *files*) *files* (slice i -1 *files*))
 		(when (ne i 0)
-			(push q (defq p (pipe "lisp.lisp cmd/asm.lisp")))
+			(push q (defq p (pipe "lisp.lisp cmd/asm.inc")))
 			(pipe-write p (cat "(compile-pipe '" (str s) " '" *os* " '" *cpu* ") ")))
 		(setq *pipes* (dec *pipes*)))
 	(when (ne 0 (length q))
@@ -39,7 +39,7 @@
 
 (defun make-info (_)
 	;create lists of immediate dependencies and products
-	(defq d (list 'cmd/asm.lisp 'class/lisp/boot.lisp _) p (list))
+	(defq d (list 'cmd/asm.inc 'class/lisp/boot.lisp _) p (list))
 	(each-line _ (lambda (_)
 		(when (and (ge (length _) 10) (eql "(" (elem 0 _))
 				(le 2 (length (defq s (split _ " "))) 3))
