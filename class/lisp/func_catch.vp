@@ -1,0 +1,31 @@
+(import 'sys/func.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_catch)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = value
+
+	(ptr 'this 'args 'value)
+
+	(push-scope)
+	(f-entry 'lisp 'func_catch {this, args})
+
+	(f-call 'lisp 'func_eval {this, args} {_, value})
+	(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'error)) {_, args})
+	(f-call 'ref 'deref {value})
+	(vpif {args})
+		(f-call 'ref 'ref {this->lisp_sym_t} {value})
+	(else)
+		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+	(endif)
+
+	(f-exit 'lisp 'func_catch {this, value})
+	(return)
+
+	(pop-scope-syms)
+
+(def-func-end)

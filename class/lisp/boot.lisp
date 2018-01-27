@@ -94,6 +94,7 @@
 (ffi apply "class/lisp/func_apply" 0)
 (ffi repl "class/lisp/func_repl" 0)
 (ffi inst-of "class/lisp/func_inst_of" 0)
+(ffi catch "class/lisp/func_catch" 1)
 (ffi throw "class/lisp/func_error" 0)
 (ffi cond "class/lisp/func_cond" 1)
 (ffi while "class/lisp/func_while" 1)

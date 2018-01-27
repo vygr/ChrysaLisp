@@ -44,6 +44,7 @@
 (import 'class/lisp/func_eql.vp)
 (import 'class/lisp/func_error.vp)
 (import 'class/lisp/func_eval.vp)
+(import 'class/lisp/func_catch.vp)
 (import 'class/lisp/func_filestream.vp)
 (import 'class/lisp/func_find.vp)
 (import 'class/lisp/func_ge.vp)
