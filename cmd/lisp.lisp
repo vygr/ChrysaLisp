@@ -7,14 +7,13 @@
 	(if (le (length (defq args (slot get_args slave))) 1)
 		;run asm.inc, and print sign on
 		(progn
-			(run 'cmd/asm.inc)
-			(print "ChrysaLisp 1.2")
+			(print "ChrysaLisp 1.3")
 			(print "Press ESC/Enter to exit.")
+			(run 'cmd/asm.inc)
 			(slot write_flush stdout)
 			(slot write_flush stderr))
 		;else, run any files given as args (in this enviroment, hence the while loop !)
 		(progn
-			(run 'cmd/asm.inc)
 			(defq i 0)
 			(while (lt (setq i (inc i)) (length args))
 				(run (elem i args))
