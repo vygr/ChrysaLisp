@@ -16,5 +16,5 @@
 			(push lines (elem 1 args))
 			(each (lambda (l)
 				(unless (eql (elem -2 lines) l)
-					(push lines l))))))
+					(push lines l))) (slice 2 -1 args))))
 	(each print lines))
