@@ -52,8 +52,6 @@
 
 		(loop-start)
 			(f-call 'lisp 'repl_expand {this, &ast, 0} {_, cnt})
-;			(f-call 'lisp 'repl_print {this, this->lisp_stdout, ast})
-;			(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 		(loop-untilnot {cnt})
 
 		(f-call 'lisp 'repl_eval {this, ast} {_, value})
@@ -66,7 +64,8 @@
 		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit1)
 		(f-call 'ref 'deref {value})
 	(loop-end)
-	(f-call 'ref 'ref {this->lisp_sym_t} {value})
+	(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+
 (vp-label 'exit1)
 	;pop old file and line info
 	(f-call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_name, old_file})
