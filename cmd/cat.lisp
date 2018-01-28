@@ -14,7 +14,6 @@
 	(if (le (length (defq args (slot get_args slave))) 1)
 		;cat from stdin
 		(while (defq l (read-line stdin))
-			(cat-file l)
-			(slot write_flush stdout))
+			(cat-file l))
 		;cat from args
 		(each cat-file (slice 1 -1 args))))
