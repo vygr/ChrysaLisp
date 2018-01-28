@@ -20,7 +20,7 @@
 				(slot write_flush stdout)
 				(slot write_flush stderr))))
 	;repl from stdin
-	(while (catch (repl stdin 'stdin))
+	(while (catch (repl stdin 'stdin) t)
 		(slot write_flush stdout)
 		(slot write_flush stderr)
 		(while (ne (slot available stdin) 0)

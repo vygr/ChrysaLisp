@@ -10,21 +10,38 @@
 	;r1 = value
 
 	(ptr 'this 'args 'value)
+	(pptr 'iter_begin)
+	(uint 'length)
 
 	(push-scope)
 	(f-entry 'lisp 'func_catch {this, args})
 
-	(f-call 'lisp 'func_eval {this, args} {_, value})
-	(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'error)) {_, args})
-	(f-call 'ref 'deref {value})
-	(vpif {args})
-		(f-call 'ref 'ref {this->lisp_sym_t} {value})
-	(else)
-		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+	(v-call 'vector 'get_length {args} {_, length})
+	(errorif {length != 2} 'error1)
+
+	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(f-call 'lisp 'repl_eval {this, iter_begin[0]} {_, value})
+	(vpif (cat {value->obj_vtable == @} (f-path 'class 'error)))
+		(f-call 'lisp 'repl_eval {this, iter_begin[ptr_size]} {_, args})
+		(vpif (cat {args->obj_vtable == @} (f-path 'class 'error)))
+			(f-call 'ref 'deref {value})
+			(assign {args} {value})
+		(elseif {args != this->lisp_sym_nil})
+			(f-call 'ref 'deref {value})
+			(assign {args} {value})
+		(else)
+			(f-call 'ref 'deref {args})
+		(endif)
 	(endif)
 
+(vp-label 'exit)
 	(f-exit 'lisp 'func_catch {this, value})
 	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(catch form eform)", error_msg_wrong_num_of_args, args} {_, value})
+	(goto 'exit))
 
 	(pop-scope-syms)
 
