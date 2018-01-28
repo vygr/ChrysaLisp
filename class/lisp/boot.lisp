@@ -489,9 +489,8 @@
 		(bind '(o _) (read f 32))) o)
 
 (defun within-compile-env (_)
-	(defq *compile-env* (env 401))
+	(defq *compile-env* (env 401) *imports* (list))
 	(catch (progn
-		(defq *imports* (list))
 		(defmacro defcvar (&rest b) `(def *compile-env* ~b))
 		(defmacro defcfun (n a &rest b) `(def *compile-env* ',n (lambda ,a ~b)))
 		(defmacro defcmacro (n a &rest b) `(def *compile-env* ',n (macro ,a ~b)))

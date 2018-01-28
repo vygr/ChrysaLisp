@@ -11,13 +11,15 @@
 
 	(ptr 'this 'args 'value)
 	(pptr 'iter_begin)
-	(uint 'length)
+(errorcases
+	(uint 'length))
 
 	(push-scope)
 	(f-entry 'lisp 'func_catch {this, args})
 
+(errorcases
 	(v-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 2} 'error1)
+	(errorif {length != 2} 'error1))
 
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(f-call 'lisp 'repl_eval {this, iter_begin[0]} {_, value})

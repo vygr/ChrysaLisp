@@ -60,9 +60,8 @@
 (defun make (&optional *os* *cpu*)
 	(setd *os* (platform) *cpu* (cpu))
 	(compile ((lambda ()
-		(defq *env* (env 101))
+		(defq *env* (env 101) *imports* (list 'make.inc))
 		(catch (progn
-			(defq *imports* (list 'make.inc))
 			(defun func-obj (_)
 				(cat "obj/" *os* "/" *cpu* "/" _))
 			(defun make-sym (_)
@@ -92,10 +91,9 @@
 
 (defun make-boot (&optional r *funcs* *os* *cpu*)
 	(within-compile-env (lambda ()
-		(defq *env* (env 101))
+		(setd *funcs* (list) *os* (platform) *cpu* (cpu))
+		(defq *env* (env 101) z (cat (char 0 8) (char 0 4)))
 		(catch (progn
-			(setd *funcs* (list) *os* (platform) *cpu* (cpu))
-			(defq z (cat (char 0 8) (char 0 4)))
 			(import 'sys/func.inc)
 			(defun func-sym (_)
 				(sym-cat 'f_ _))
