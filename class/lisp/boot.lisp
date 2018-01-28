@@ -490,9 +490,8 @@
 
 (defun within-compile-env (_)
 	(defq *compile-env* (env 401) *imports* (list))
-	(catch (progn
-		(defmacro defcvar (&rest b) `(def *compile-env* ~b))
-		(defmacro defcfun (n a &rest b) `(def *compile-env* ',n (lambda ,a ~b)))
-		(defmacro defcmacro (n a &rest b) `(def *compile-env* ',n (macro ,a ~b)))
-		(defun import (_) (unless (find _ *imports*) (push *imports* _) (run _)))
-		(setq _ (_) *compile-env* nil) _) (setq *compile-env* nil)))
+	(defmacro defcvar (&rest b) `(def *compile-env* ~b))
+	(defmacro defcfun (n a &rest b) `(def *compile-env* ',n (lambda ,a ~b)))
+	(defmacro defcmacro (n a &rest b) `(def *compile-env* ',n (macro ,a ~b)))
+	(defun import (_) (unless (find _ *imports*) (push *imports* _) (run _)))
+	(catch (progn (setq _ (_) *compile-env* nil) _) (setq *compile-env* nil)))
