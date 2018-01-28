@@ -6,17 +6,15 @@
 	(defq stdin (file-stream '#0) lines (list))
 	(if (le (length (defq args (slot get_args slave))) 1)
 		;from stdin
-		(while (defq l (read-line stdin))
-			(cond
-				((eq (length lines) 0)
-					(push lines l))
-				((not (eql (elem -2 lines) l))
+		(when (defq l (read-line stdin))
+			(push lines l)
+			(while (setq l (read-line stdin))
+				(unless (eql (elem -2 lines) l)
 					(push lines l))))
 		;from args
-		(each (lambda (l)
-			(cond
-				((eq (length lines) 0)
-					(push lines l))
-				((not (eql (elem -2 lines) l))
-					(push lines l)))) (slice 1 -1 args)))
+		(progn
+			(push lines (elem 1 args))
+			(each (lambda (l)
+				(unless (eql (elem -2 lines) l)
+					(push lines l))))))
 	(each print lines))
