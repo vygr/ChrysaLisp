@@ -95,7 +95,7 @@
 		(f-call 'vector 'push_back {repl_args, stream})
 		(f-call 'vector 'push_back {repl_args, file})
 		(f-call 'lisp 'func_repl {this, repl_args} {_, value})
-		(vpif (cat {value->obj_vtable == @} (f-path 'class 'error)))
+		(vpif {value != this->lisp_sym_nil})
 			(f-call 'lisp 'repl_print {this, this->lisp_stderr, value})
 			(f-call 'stream 'write_char {this->lisp_stderr, char_lf})
 			(v-call 'stream 'write_flush {this->lisp_stderr})
