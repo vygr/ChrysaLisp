@@ -1,1 +1,0 @@
-(import 'cmd/lisp.vp)

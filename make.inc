@@ -1,6 +1,5 @@
 (import 'sys/make.inc)
 (import 'class/make.inc)
-(import 'cmd/make.inc)
 (import 'gui/make.inc)
 (import 'apps/make.inc)
 (import 'tests/make.inc)
