@@ -3,18 +3,17 @@
 
 ;initialize pipe details and command args, abort on error
 (when (defq slave (create-slave))
-	(defq stdin (file-stream '#0) lines (list))
+	(defq stdin (file-stream '#0))
 	(if (le (length (defq args (slot get_args slave))) 1)
 		;from stdin
-		(when (defq l (read-line stdin))
-			(push lines l)
-			(while (setq l (read-line stdin))
-				(unless (eql (elem -2 lines) l)
-					(push lines l))))
+		(when (defq ll (read-line stdin))
+			(print ll)
+			(while (defq nl (read-line stdin))
+				(unless (eql ll nl)
+					(print (setq ll nl)))))
 		;from args
 		(progn
-			(push lines (elem 1 args))
-			(each (lambda (l)
-				(unless (eql (elem -2 lines) l)
-					(push lines l))) (slice 2 -1 args))))
-	(each print lines))
+			(print (defq ll (elem 1 args)))
+			(each (lambda (nl)
+				(unless (eql ll nl)
+					(print (setq ll nl)))) (slice 2 -1 args)))))
