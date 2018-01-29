@@ -1,4 +1,5 @@
 (import 'sys/class.inc)
+(import 'sys/mail/mail.inc)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail functions

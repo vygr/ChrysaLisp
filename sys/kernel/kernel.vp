@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
 (import 'sys/link/link.inc)
 (import 'sys/load/load.inc)
+(import 'sys/kernel/kernel.inc)
 (import 'sys/string/string.inc)
 (import 'gui/sdl2.inc)
-(import 'sys/kernel/kernel.inc)
 (import 'class/array/array.inc)
 
 ;;;;;;;;;;;;;
