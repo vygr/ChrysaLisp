@@ -3,7 +3,7 @@
 
 ;initialize pipe details and command args, abort on error
 (when (defq slave (create-slave))
-	(defq stdin (file-stream '#0) stdout (file-stream '#1) stderr (file-stream '#2))
+	(defq stdin (file-stream 'stdin) stdout (file-stream 'stdout) stderr (file-stream 'stderr))
 	(if (le (length (defq args (slot get_args slave))) 1)
 		;run asm.inc, and print sign on
 		(progn
