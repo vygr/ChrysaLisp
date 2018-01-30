@@ -8,7 +8,7 @@
 ;read args from parent
 (bind '(canvas canvas_width canvas_height canvas_scale) (mail-mymail))
 
-(defq stack (array) eps 1.0 angle 0.0)
+(defq stack (array) eps 0.25 angle 0.0)
 
 (defun as-point ((x y))
 	(bit-or (bit-and 0xffffffff x) (bit-shl y 32)))
