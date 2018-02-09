@@ -4,19 +4,6 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* A way to represent a UI tree in standard Lisp syntax that can be read and
-inflated automatically, complete with all the signals and slots prewired,
-before the application begins to interact with it.
-
-* Implement a much better native call interface for the Lisp. At the moment
-there is a call function that allows a restricted set of objects and methods to
-be accessed. What's needed is a much more encompassing system that allows the
-Lisp access to all objects and methods without needing to create bindings for
-every single instance. If this is done in an efficient manner large sections of
-the current Lisp functions could be replaced by such bindings to the existing
-class library, as well as easing access to future additions to the class
-library.
-
 * Create a Virtualbox boot image of the system. I've been looking at bare metal
 OS and talking to the author for a couple of months. He's got plans to
 implement a frame buffer device for bare metal. At that point I think I would

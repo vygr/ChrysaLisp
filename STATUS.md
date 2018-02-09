@@ -2,9 +2,8 @@
 
 ![](./screen_shot.png)
 
-The mad panic for the BETT show for work is over for now. So going to start on
-tidying up how the Lisp calls the rest of the system with some better form of
-FFI bindings.
+New panic at work for the MVP ! :) So I'll try get to some of the other TODO
+items soon as I can.
 
 Regards all
 
