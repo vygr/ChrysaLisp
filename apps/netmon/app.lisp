@@ -17,13 +17,13 @@
 		(ui-element left_panel (create-flow) ('color 0xff00ff00)
 			(ui-element _ (create-label) ('text "Tasks" 'color 0xffffffff))
 			(times cpu_total
-				(ui-element progress (create-progress))
-				(push task_bars progress)))
+				(ui-element _ (create-progress))
+				(push task_bars _)))
 		(ui-element right_panel (create-flow) ('color 0xffff0000)
 			(ui-element _ (create-label) ('text "Memory" 'color 0xffffffff))
 			(times cpu_total
-				(ui-element progress (create-progress))
-				(push memory_bars progress)))))
+				(ui-element _ (create-progress))
+				(push memory_bars _)))))
 
 (slot set_title window "Network Monitor")
 (slot connect_close window 0)
