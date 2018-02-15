@@ -7,10 +7,8 @@
 		(ui-element display (create-label) ('text "0" 'color 0xffffffff 'flow_flags flow_flag_align_hright 'font (create-font "fonts/OpenSans-Regular.ttf" 24)))
 		(ui-element grid (create-grid) ('grid_width 4 'grid_height 4 'color 0xffffff00 'font (create-font "fonts/OpenSans-Regular.ttf" 42))
 			(each (lambda (_)
-				(defq button (create-button))
-				(def button 'text (if (eql _ "C") "AC" _) 'flow_flags (bit-or flow_flag_align_hcenter flow_flag_align_vcenter))
-				(slot connect_click button 1)
-				(slot add_child grid button)) "789/456*123-0=C+"))))
+				(ui-element button (create-button) ('text (if (eql _ "C") "AC" _) 'flow_flags (bit-or flow_flag_align_hcenter flow_flag_align_vcenter)))
+				(slot connect_click button 1)) "789/456*123-0=C+"))))
 
 (slot set_title window "Calculator")
 (slot connect_close window 0)
