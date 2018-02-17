@@ -82,42 +82,6 @@
 
 (def-func-end)
 
-(def-func 'sys/string/hash)
-	;inputs
-	;r0 = string
-	;outputs
-	;r1 = string hash
-	;trashes
-	;r0, r2
-
-	(f-entry 'sys_string 'hash '(r0))
-	(vp-xor-rr r1 r1)
-	(loop-start)
-		(vp-cpy-ir-ub r0 0 r2)
-		(breakif '(r2 == 0))
-		(vp-add-cr byte_size r0)
-		(vp-add-rr r2 r1)
-		(vp-cpy-rr r1 r2)
-		(vp-shl-cr 10 r1)
-		(vp-add-rr r1 r2)
-		(vp-cpy-rr r2 r1)
-		(vp-shr-cr 6 r2)
-		(vp-xor-rr r2 r1)
-	(loop-end)
-	(vp-cpy-rr r1 r2)
-	(vp-shl-cr 3 r1)
-	(vp-add-rr r1 r2)
-	(vp-cpy-rr r2 r1)
-	(vp-shr-cr 11 r2)
-	(vp-xor-rr r1 r2)
-	(vp-cpy-rr r2 r1)
-	(vp-shl-cr 15 r2)
-	(vp-add-rr r2 r1)
-	(f-exit 'sys_string 'hash '(r1))
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'sys/string/length)
 	;inputs
 	;r0 = string

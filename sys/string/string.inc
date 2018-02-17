@@ -10,4 +10,3 @@
 (def-method 'compare 'sys/string/compare 'static '(r0 r1) '(r0))
 (def-method 'to_long 'sys/string/to_long 'static '(r0 r1) '(r0))
 (def-method 'from_long 'sys/string/from_long 'static '(r0 r1 r2))
-(def-method 'hash 'sys/string/hash 'static '(r0) '(r1))
