@@ -14,7 +14,7 @@
 	"tests/migrate.lisp"))
 
 (ui-tree window (create-window 0) nil
-	(ui-element flow (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw) 'color 0xffffff00)
+	(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw) 'color 0xffffff00)
 		(each (lambda (_)
 			(ui-element button (create-button) ('text _))
 			(slot connect_click button 0)) app_list)))
@@ -27,6 +27,5 @@
 (while t
 	(cond
 		((ge (read-long ev_msg_target_id (defq msg (mail-mymail))) 0)
-			(open-child (get (slot find_id window (read-long ev_msg_action_source_id msg)) 'text)
-				kn_call_open))
+			(open-child (get (slot find_id window (read-long ev_msg_action_source_id msg)) 'text) kn_call_open))
 		(t (slot event window msg))))
