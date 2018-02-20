@@ -14,12 +14,12 @@
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (bit-or flow_flag_down flow_flag_fillw) 'progress_max 100 'progress_val 0)
-		(ui-element left_panel (create-flow) ('color 0xff00ff00)
+		(ui-element _ (create-flow) ('color 0xff00ff00)
 			(ui-element _ (create-label) ('text "Tasks" 'color 0xffffffff))
 			(times cpu_total
 				(ui-element _ (create-progress))
 				(push task_bars _)))
-		(ui-element right_panel (create-flow) ('color 0xffff0000)
+		(ui-element _ (create-flow) ('color 0xffff0000)
 			(ui-element _ (create-label) ('text "Memory" 'color 0xffffffff))
 			(times cpu_total
 				(ui-element _ (create-progress))
