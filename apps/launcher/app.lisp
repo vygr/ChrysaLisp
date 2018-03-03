@@ -15,9 +15,8 @@
 
 (ui-tree window (create-window 0) nil
 	(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw) 'color 0xffffff00)
-		(each (lambda (_)
-			(ui-element button (create-button) ('text _))
-			(slot connect_click button 0)) app_list)))
+		(each (lambda (path)
+			(slot connect_click (ui-element _ (create-button) ('text path)) 0)) app_list)))
 
 (slot set_title window "Launcher")
 (bind '(w h) (slot pref_size window))
