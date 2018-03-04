@@ -55,7 +55,7 @@
 
 	;add to screen and print sign on
 	(f-call 'gui_gui 'add {myapp.local_window})
-	(f-call 'vdu 'print_cstr {myapp.local_vdu, "ChrysaLisp Terminal 1.2"})
+	(f-call 'vdu 'print_cstr {myapp.local_vdu, "ChrysaLisp Terminal 1.3"})
 	(f-call 'vdu 'print_char {myapp.local_vdu, char_lf})
 
 	;set up term buffer

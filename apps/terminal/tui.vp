@@ -44,7 +44,7 @@
 	(f-call 'sys_mail 'send {msg})
 
 	;sign on
-	(l-call 'terminal_output_cstr {"ChrysaLisp Terminal 1.2"})
+	(l-call 'terminal_output_cstr {"ChrysaLisp Terminal 1.3"})
 	(l-call 'terminal_output_char {char_lf})
 
 	;app event loop
