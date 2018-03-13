@@ -53,9 +53,10 @@ the declaring function. There is no global macro list. During macro expansion
 the environment chain is searched to see if a macro exists.
 
 ## Within any Lisp instance
+
 ### Built in symbols
 
-```
+```ChrysaLisp
 &rest
 &optional
 nil
@@ -64,7 +65,7 @@ t
 
 ### Built in functions
 
-```
+```ChrysaLisp
 add
 age
 apply
@@ -163,7 +164,7 @@ write-line
 
 ### boot.lisp symbols
 
-```
+```ChrysaLisp
 min_long
 max_long
 min_int
@@ -180,7 +181,7 @@ fp_frac_mask
 
 ### boot.lisp macros
 
-```
+```ChrysaLisp
 and
 ascii
 compose
@@ -204,7 +205,7 @@ when
 
 ### boot.lisp functions
 
-```
+```ChrysaLisp
 abs
 align
 bit-not
@@ -270,9 +271,10 @@ within-compile-env
 ```
 
 ## Within any cmd/lisp.lisp instance
+
 ### asm.inc symbols
 
-```
+```ChrysaLisp
 debug_mode
 debug_emit
 debug_inst
@@ -280,7 +282,7 @@ debug_inst
 
 ### asm.inc functions
 
-```
+```ChrysaLisp
 all-vp-files
 compile
 compile-pipe

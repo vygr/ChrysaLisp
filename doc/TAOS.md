@@ -11,7 +11,7 @@ could do this and so much more.
 
 Chris
 
-# Audience
+## Audience
 
 This document has been designed to address a wide audience. It gives a brief
 introduction to the ideas behind Taos and its benefits. We have attempted to
@@ -19,9 +19,9 @@ keep the technological language to a minimum, however, some of the sections get
 progressively more technical, so if you find that you don't understand
 something, then move on to the next section.
 
-# Overview
+## Overview
 
-## An Introduction To Taos
+### An Introduction To Taos
 
 Computing has been getting steadily more restrictive. The move to so called
 'open' systems has not helped improve portability, has not produced credible
@@ -39,7 +39,7 @@ system. Tao Systems developed Taos taking into account the commercial and
 technological realities of the time whilst also removing the limitations
 enforced upon the user market.
 
-## Key Features
+### Key Features
 
 Taos, a compact, general purpose kernel for parallel systems embodies a number
 of vital ideas.
@@ -68,7 +68,7 @@ programs which need it.
 * Minimal Kernel: Taos has a very compact implementation, optimising
 performance and minimising memory requirements.
 
-## The Challenge of Parallel Systems
+### The Challenge of Parallel Systems
 
 So, why has parallel processing remained on the periphery, given the obvious
 potential this technique has to increase the power of computers way beyond that
@@ -84,7 +84,7 @@ possibly to a single configuration;
 
 * Uncertainty as to the which computation and communications model to use.
 
-## Features & Benefits
+### Features & Benefits
 
 Taos is a software response to the challenge of harnessing parallel hardware.
 Parallel systems are complex, comprising thousands of processors with differing
@@ -125,7 +125,7 @@ write their programs so that the objects can execute in parallel. Parallelism
 is not automatically created, nor should it be. There are instances where a
 program must be sequential to behave correctly.
 
-## Portable
+### Portable
 
 Portability is normally taken to mean that programs written in a language (such
 as C) to run on a particular processor, can be re-compiled to run on a
@@ -148,7 +148,7 @@ compiles to VP, will become instantly executable on the new processor type. So,
 to reiterate; programs written on any supported platform will run on all other
 supported platforms without any changes; you don't even have to recompile.
 
-## Virtual Processor
+### Virtual Processor
 
 The first Taos virtual processor was an imaginary 32bit microprocessor. It has
 already been extended to create a 64bit version and can be taken further with
@@ -173,7 +173,7 @@ instructions supported in hardware by a particular processor.
 A VP version of the code will run on any processor for which a translator is
 available. There is no need for re-compilation. see Portability, above.
 
-## Dynamic Binding
+### Dynamic Binding
 
 Some readers may be familiar with dynamic linking. Taos dynamic binding is more
 than dynamic linking. Code units are brought into memory only when needed. This
