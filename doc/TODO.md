@@ -4,6 +4,9 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Add support for FPU to the VM. Scalar float/double support first of all maybe
+eventually create a FPU accelerated version of the vector math SDL.
+
 * Create a Virtualbox boot image of the system. I've been looking at bare metal
 OS and talking to the author for a couple of months. He's got plans to
 implement a frame buffer device for bare metal. At that point I think I would
@@ -18,9 +21,7 @@ of the network. All this amounts to is a standard mechanism for attaching a
 name globally throughout the system to a mailbox ID. Initially there will
 probably be a message to kernel zero to register a mailbox ID. Although I may
 cache these locally on retrieval in order to distribute the global names
-throughout the network. I've also been planning a network wide object store
-that presents itself as a standard service and uses a distributed hash table
-technique to store objects throughout the network with redundancy.
+throughout the network.
 
 * Create or port an existing TCP/IP stack. Provide this as a standard service
 on the network. Implement another link driver type that uses TCP/IP in order to
@@ -76,5 +77,7 @@ interesting.
 
 * Better cooking of key modifiers !
 
-* Network wide DHT based object store. Provided as a service.
-
+* Network wide DHT based object store, provided as a service. I've been
+planning a network wide object store that presents itself as a standard service
+and uses a distributed hash table technique to store objects throughout the
+network with redundancy.
