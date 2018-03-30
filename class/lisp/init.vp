@@ -83,25 +83,31 @@
 		(f-call 'boxed_long 'create {0} {symbol})
 		(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
 		(f-call 'ref 'deref {symbol})
-	(endif)
 
-	;run any boot.lisp
-	(f-call 'string 'create_from_file {"class/lisp/boot.lisp"} {file})
-	(vpif {file})
-		;REPL from file stream
-		(f-call 'vector 'create {} {repl_args})
-		(f-call 'stream_str 'create {file} {stream})
-		(f-call 'string 'create_from_cstr {"class/lisp/boot.lisp"} {file})
-		(f-call 'vector 'push_back {repl_args, stream})
-		(f-call 'vector 'push_back {repl_args, file})
-		(f-call 'lisp 'func_repl {this, repl_args} {_, value})
-		(vpif {value != this->lisp_sym_nil})
-			(f-call 'lisp 'repl_print {this, this->lisp_stderr, value})
-			(f-call 'stream 'write_char {this->lisp_stderr, char_lf})
-			(v-call 'stream 'write_flush {this->lisp_stderr})
+		;run any boot.lisp
+		(f-call 'string 'create_from_file {"class/lisp/boot.lisp"} {file})
+		(vpif {file})
+			;REPL from file stream
+			(f-call 'vector 'create {} {repl_args})
+			(f-call 'stream_str 'create {file} {stream})
+			(f-call 'string 'create_from_cstr {"class/lisp/boot.lisp"} {file})
+			(f-call 'vector 'push_back {repl_args, stream})
+			(f-call 'vector 'push_back {repl_args, file})
+			(f-call 'lisp 'func_repl {this, repl_args} {_, value})
+			(vpif {value != this->lisp_sym_nil})
+				(f-call 'lisp 'repl_print {this, this->lisp_stderr, value})
+				(f-call 'stream 'write_char {this->lisp_stderr, char_lf})
+				(v-call 'stream 'write_flush {this->lisp_stderr})
+				(assign {0} {ok})
+			(endif)
+			(f-call 'ref 'deref {value})
+			(f-call 'ref 'deref {repl_args})
 		(endif)
-		(f-call 'ref 'deref {value})
-		(f-call 'ref 'deref {repl_args})
+
+		(vpifnot {ok})
+			;deinit myself and parent
+			(v-call 'lisp 'deinit {this})
+		(endif)
 	(endif)
 
 	(f-exit 'lisp 'init {this, ok})

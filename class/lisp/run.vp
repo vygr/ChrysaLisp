@@ -25,29 +25,28 @@
 	;create lisp class
 	(f-call 'lisp 'create {stream, stream, stream} {lisp})
 	(f-call 'ref 'deref {stream})
-
-	;run lisp file
-	(f-call 'string 'create_from_file {&script->string_data} {file})
-	(vpif {file})
-		;REPL from file stream
-		(f-call 'vector 'create {} {args})
-		(f-call 'stream_str 'create {file} {stream})
-		(f-call 'string 'ref {script})
-		(f-call 'vector 'push_back {args, stream})
-		(f-call 'vector 'push_back {args, script})
-		(f-call 'lisp 'func_repl {lisp, args} {_, value})
-		(vpif {value != lisp->lisp_sym_nil})
-			(f-call 'lisp 'repl_print {lisp, lisp->lisp_stderr, value})
-			(f-call 'stream 'write_char {lisp->lisp_stderr, char_lf})
-			(v-call 'stream 'write_flush {lisp->lisp_stderr})
+	(vpif {lisp})
+		;run lisp file
+		(f-call 'string 'create_from_file {&script->string_data} {file})
+		(vpif {file})
+			;REPL from file stream
+			(f-call 'vector 'create {} {args})
+			(f-call 'stream_str 'create {file} {stream})
+			(f-call 'string 'ref {script})
+			(f-call 'vector 'push_back {args, stream})
+			(f-call 'vector 'push_back {args, script})
+			(f-call 'lisp 'func_repl {lisp, args} {_, value})
+			(vpif {value != lisp->lisp_sym_nil})
+				(f-call 'lisp 'repl_print {lisp, lisp->lisp_stderr, value})
+				(f-call 'stream 'write_char {lisp->lisp_stderr, char_lf})
+				(v-call 'stream 'write_flush {lisp->lisp_stderr})
+			(endif)
+			(f-call 'ref 'deref {value})
+			(f-call 'vector 'deref {args})
 		(endif)
-		(f-call 'ref 'deref {value})
-		(f-call 'vector 'deref {args})
+		(f-call 'lisp 'deref {lisp})
 	(endif)
 	(f-call 'string 'deref {script})
-
-	;clean up
-	(f-call 'lisp 'deref {lisp})
 
 	(pop-scope)
 	(return)
