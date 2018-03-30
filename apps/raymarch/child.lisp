@@ -64,6 +64,7 @@
 	(vec-mul-3d obj_color light_col))
 
 (defun scene-ray (ray_origin ray_dir)
+	(defq add add sub sub mul mul div div fmul fmul fdiv fdiv)
 	(defq l (ray-march ray_origin ray_dir 0.0 clipfar))
 	(if (ge l clipfar)
 		(list 0.0 0.0 0.0)
