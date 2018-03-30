@@ -92,7 +92,7 @@
 (defun make-boot (&optional r *funcs* *os* *cpu*)
 	(within-compile-env (lambda ()
 		(setd *funcs* (list) *os* (platform) *cpu* (cpu))
-		(defq *env* (env 101) z (cat (char 0 8) (char 0 4)))
+		(defq *env* (env 31) z (cat (char 0 8) (char 0 4)))
 		(catch (progn
 			(import 'sys/func.inc)
 			(defun func-sym (_)

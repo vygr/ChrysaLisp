@@ -1,4 +1,5 @@
 (import 'sys/func.inc)
+(import 'sys/task/task.inc)
 (import 'class/hash_set/hash_set.inc)
 (import 'class/hash_map/hash_map.inc)
 (import 'class/stream_str/stream_str.inc)
@@ -56,63 +57,113 @@
 		(f-call 'ref 'ref {stdout} {this->lisp_stdout})
 		(f-call 'ref 'ref {stderr} {this->lisp_stderr})
 		(assign {0} {this->lisp_nextsym})
-		(f-call 'hash_map 'create {0, 101} {this->lisp_environment})
 
-		;intern standard built in symbols
-		;fixup built in functions
-		(assign {$built_ins} {table})
-		(loop-while {table->built_in_symbol})
-			(f-call 'symbol 'intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
-			(vpif {table->built_in_field})
-				(assign {symbol} {ptr(this + table->built_in_field)})
-			(endif)
-			(vpif {table->built_in_function})
-				(f-call 'boxed_ptr 'create {ptr(&table->built_in_function + table->built_in_function)
-					| table->built_in_flags} {func})
-				(f-call 'hash_map 'insert {this->lisp_environment, symbol, func})
-				(f-call 'ref 'deref {func})
-			(endif)
-			(f-call 'ref 'deref {symbol})
-			(assign {table + built_in_hop} {table})
+		;spin lock if boot env busy
+		(loop-while {ptr($boot_env) == -1})
+			(f-call 'sys_task 'sleep {100})
 		(loop-end)
 
-		;define *stream-name* and *stream-line*
-		(f-call 'string 'create_from_cstr {"ChrysaLisp"} {symbol})
-		(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
-		(f-call 'ref 'deref {symbol})
-		(f-call 'boxed_long 'create {0} {symbol})
-		(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
-		(f-call 'ref 'deref {symbol})
+		;do we have a shared boot env yet ?
+		(vpifnot {ptr($boot_env)})
+			;mark as busy
+			(assign {-1} {ptr($boot_env)})
 
-		;run any boot.lisp
-		(f-call 'string 'create_from_file {"class/lisp/boot.lisp"} {file})
-		(vpif {file})
-			;REPL from file stream
-			(f-call 'vector 'create {} {repl_args})
-			(f-call 'stream_str 'create {file} {stream})
-			(f-call 'string 'create_from_cstr {"class/lisp/boot.lisp"} {file})
-			(f-call 'vector 'push_back {repl_args, stream})
-			(f-call 'vector 'push_back {repl_args, file})
-			(f-call 'lisp 'func_repl {this, repl_args} {_, value})
-			(vpif {value != this->lisp_sym_nil})
-				(f-call 'lisp 'repl_print {this, this->lisp_stderr, value})
-				(f-call 'stream 'write_char {this->lisp_stderr, char_lf})
-				(v-call 'stream 'write_flush {this->lisp_stderr})
-				(assign {0} {ok})
+			;intern standard built in symbols
+			;fixup built in functions
+			(f-call 'hash_map 'create {0, 101} {this->lisp_environment})
+			(assign {$built_ins} {table})
+			(loop-while {table->built_in_symbol})
+				(f-call 'symbol 'intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
+				(vpif {table->built_in_field})
+					(assign {symbol} {ptr(this + table->built_in_field)})
+				(endif)
+				(vpif {table->built_in_function})
+					(f-call 'boxed_ptr 'create {ptr(&table->built_in_function + table->built_in_function)
+						| table->built_in_flags} {func})
+					(f-call 'hash_map 'insert {this->lisp_environment, symbol, func})
+					(f-call 'ref 'deref {func})
+				(endif)
+				(f-call 'ref 'deref {symbol})
+				(assign {table + built_in_hop} {table})
+			(loop-end)
+
+			;define *stream-name* and *stream-line*
+			(f-call 'string 'create_from_cstr {"ChrysaLisp"} {symbol})
+			(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
+			(f-call 'ref 'deref {symbol})
+			(f-call 'boxed_long 'create {0} {symbol})
+			(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
+			(f-call 'ref 'deref {symbol})
+
+			;run any boot.lisp
+			(f-call 'string 'create_from_file {"class/lisp/boot.lisp"} {file})
+			(vpif {file})
+				;REPL from file stream
+				(f-call 'vector 'create {} {repl_args})
+				(f-call 'stream_str 'create {file} {stream})
+				(f-call 'string 'create_from_cstr {"class/lisp/boot.lisp"} {file})
+				(f-call 'vector 'push_back {repl_args, stream})
+				(f-call 'vector 'push_back {repl_args, file})
+				(f-call 'lisp 'func_repl {this, repl_args} {_, value})
+				(vpif {value != this->lisp_sym_nil})
+					(f-call 'lisp 'repl_print {this, this->lisp_stderr, value})
+					(f-call 'stream 'write_char {this->lisp_stderr, char_lf})
+					(v-call 'stream 'write_flush {this->lisp_stderr})
+					(assign {0} {ok})
+				(endif)
+				(f-call 'ref 'deref {value})
+				(f-call 'ref 'deref {repl_args})
 			(endif)
-			(f-call 'ref 'deref {value})
-			(f-call 'ref 'deref {repl_args})
-		(endif)
 
-		(vpifnot {ok})
-			;deinit myself and parent
-			(v-call 'lisp 'deinit {this})
+			(vpifnot {ok})
+				;deinit myself and parent
+				(v-call 'lisp 'deinit {this})
+				;mark as free
+				(assign {0} {ptr($boot_env)})
+			(else)
+				;save shared boot env
+				(f-call 'ref 'ref {this->lisp_environment} {ptr($boot_env)})
+				(f-call 'hash_map 'create {this->lisp_environment->hash_set_key_callback, 101} {func})
+				(f-call 'hash_map 'set_parent {func, this->lisp_environment} {this->lisp_environment})
+			(endif)
+		(else)
+			;boot env is my parent env
+			(f-call 'ref 'ref {ptr($boot_env)} {this->lisp_environment})
+			(f-call 'hash_map 'create {this->lisp_environment->hash_set_key_callback, 101} {func})
+			(f-call 'hash_map 'set_parent {func, this->lisp_environment} {this->lisp_environment})
+
+			;look up standard built in symbols
+			(assign {$built_ins} {table})
+			(loop-while {table->built_in_symbol})
+				(f-call 'symbol 'intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
+				(vpif {table->built_in_field})
+					(assign {symbol} {ptr(this + table->built_in_field)})
+				(endif)
+				(f-call 'ref 'deref {symbol})
+				(assign {table + built_in_hop} {table})
+			(loop-end)
+
+			;local define *stream-name* and *stream-line*
+			(f-call 'string 'create_from_cstr {"ChrysaLisp"} {symbol})
+			(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
+			(f-call 'ref 'deref {symbol})
+			(f-call 'boxed_long 'create {0} {symbol})
+			(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
+			(f-call 'ref 'deref {symbol})
 		(endif)
 	(endif)
 
 	(f-exit 'lisp 'init {this, ok})
 	(pop-scope)
 	(return)
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; shared boot eviroment
+;;;;;;;;;;;;;;;;;;;;;;;
+
+	(vp-align ptr_size)
+(vp-label 'boot_env)
+	(vp-long 0)
 
 ;;;;;;;;;;;
 ; built ins
