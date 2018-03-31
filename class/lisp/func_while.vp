@@ -26,7 +26,7 @@
 		(breakif {value == this->lisp_sym_nil})
 		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
 		(loop-start)
-			(f-call 'ref 'deref {value})
+			(f-call 'obj 'deref {value})
 			(assign {iter_begin + ptr_size} {iter_begin})
 			(breakif {iter_begin == iter_end})
 			(f-call 'lisp 'repl_eval {this, *iter_begin} {_, value})

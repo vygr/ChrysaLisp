@@ -32,7 +32,7 @@
 	(vpif {value})
 		(f-call 'symbol 'intern_cstr {value - ubyte(value - 1)} {value})
 	(else)
-		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
 (vp-label 'exit)

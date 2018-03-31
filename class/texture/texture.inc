@@ -1,6 +1,6 @@
-(import 'class/ref/ref.inc)
+(import 'class/obj/obj.inc)
 
-(def-class 'texture 'ref)
+(def-class 'texture 'obj)
 (def-method 'create 'class/texture/create 'static '(r0 r1 r2) '(r0))
 (def-method 'new 'class/texture/new 'static nil '(r0))
 (def-method 'init 'class/texture/init 'static '(r0 r1 r2 r3 r4))
@@ -8,7 +8,7 @@
 
 (def-method 'deinit 'class/texture/deinit 'final)
 
-(def-struct 'texture 'ref)
+(def-struct 'texture 'obj)
 	(ulong 'handle)
 	(uint 'width)
 	(uint 'height)

@@ -116,7 +116,7 @@
 	(long 'lockdata)
 	(struct 'clip 'sdl_rect)
 	(long 'map)
-	(int 'ref)
+	(int 'obj)
 (def-struct-end)
 
 (defcvar 'SDL_RELEASED 0)

@@ -331,7 +331,6 @@
 
 (def-class 'class)
 (def-method 'obj 'class/class_obj)
-(def-method 'ref 'class/class_ref)
 (def-method 'component 'class/class_component)
 (def-method 'string 'class/class_string)
 (def-method 'array 'class/class_array)

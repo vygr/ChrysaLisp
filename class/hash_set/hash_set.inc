@@ -1,6 +1,6 @@
-(import 'class/ref/ref.inc)
+(import 'class/obj/obj.inc)
 
-(def-class 'hash_set 'ref)
+(def-class 'hash_set 'obj)
 (def-method 'create 'class/hash_set/create 'static '(r0 r1) '(r0))
 (def-method 'new 'class/hash_set/new 'static nil '(r0))
 (def-method 'init 'class/hash_set/init 'static '(r0 r1 r2 r3))
@@ -17,7 +17,7 @@
 
 (def-method 'deinit 'class/hash_set/deinit 'override)
 
-(def-struct 'hash_set 'ref)
+(def-struct 'hash_set 'obj)
 	(uint 'num_buckets)
 	(ptr 'buckets)
 	(ptr 'key_callback)

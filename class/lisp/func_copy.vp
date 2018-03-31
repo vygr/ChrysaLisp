@@ -23,7 +23,7 @@
 		(d-call 'vector 'slice {args, 0, length} {_, args})
 		(f-call 'vector 'for_each {args, 0, length, $callback, 0})
 	(else)
-		(f-call 'ref 'ref {args})
+		(f-call 'obj 'ref {args})
 	(endif)
 
 (vp-label 'exit)
@@ -56,7 +56,7 @@
 		(d-call 'vector 'get_length {pdata} {_, length})
 		(d-call 'vector 'slice {pdata, 0, length} {_, pdata})
 		(f-call 'vector 'for_each {pdata, 0, length, $callback, 0})
-		(f-call 'ref 'deref {*iter})
+		(f-call 'obj 'deref {*iter})
 		(assign {pdata} {*iter})
 	(endif)
 

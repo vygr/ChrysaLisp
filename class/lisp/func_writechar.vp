@@ -36,7 +36,7 @@
 	(endif)
 	(assign {iter_begin[ptr_size]} {value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error3)
-	(f-call 'ref 'ref {value})
+	(f-call 'obj 'ref {value})
 	(f-call 'boxed_long 'get_value {value} {_, length})
 	(f-call 'stream_str 'write {iter_begin[0], &length, width})
 

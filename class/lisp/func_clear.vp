@@ -25,7 +25,7 @@
 		(v-call 'array 'clear {value})
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-until {iter_begin == iter_end})
-	(f-call 'ref 'ref {value})
+	(f-call 'obj 'ref {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_clear {this, value})

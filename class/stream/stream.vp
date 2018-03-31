@@ -41,7 +41,7 @@
 
 	;deref any buffer object
 	(vp-push r0)
-	(f-call 'ref 'deref_if '((r0 stream_object)))
+	(f-call 'obj 'deref_if '((r0 stream_object)))
 
 	;free any buffer
 	(vp-cpy-ir rsp 0 r0)
@@ -162,7 +162,7 @@
 			(f-call 'stream 'read_char {this} {_, char})
 		(loop-end)
 		(f-call 'stream_str 'ref_string {str_stream} {_, value})
-		(f-call 'ref 'deref {str_stream})
+		(f-call 'obj 'deref {str_stream})
 	(endswitch)
 
 	(f-exit 'stream 'read_line {this, value})

@@ -1,6 +1,6 @@
-(import 'class/ref/ref.inc)
+(import 'class/obj/obj.inc)
 
-(def-class 'font 'ref)
+(def-class 'font 'obj)
 (def-method 'open 'class/font/open 'static '(r0 r1) '(r0))
 (def-method 'create 'class/font/create 'static '(r0 r1) '(r0))
 (def-method 'new 'class/font/new 'static nil '(r0))
@@ -12,7 +12,7 @@
 
 (def-method 'lisp_create 'class/font/lisp_create 'static '(r0 r1) '(r0 r1))
 
-(def-struct 'font 'ref)
+(def-struct 'font 'obj)
 	(ulong 'handle)
 	(ptr 'word_map)
 	(ptr 'name)

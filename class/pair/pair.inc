@@ -1,6 +1,6 @@
-(import 'class/ref/ref.inc)
+(import 'class/obj/obj.inc)
 
-(def-class 'pair 'ref)
+(def-class 'pair 'obj)
 (def-method 'create 'class/pair/create 'static '(r0 r1) '(r0))
 (def-method 'new 'class/pair/new 'static nil '(r0))
 (def-method 'init 'class/pair/init 'static '(r0 r1 r2 r3))
@@ -13,7 +13,7 @@
 
 (def-method 'deinit 'class/pair/deinit 'final)
 
-(def-struct 'pair 'ref)
+(def-struct 'pair 'obj)
 	(ptr 'first)
 	(ptr 'second)
 (def-struct-end)

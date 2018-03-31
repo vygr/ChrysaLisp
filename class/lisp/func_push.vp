@@ -32,7 +32,7 @@
 		(f-call 'array 'set_length {value, alength})
 		(f-call 'lisp 'env_args_set {this, args, iter_end, 1})
 	(endif)
-	(f-call 'ref 'ref {value})
+	(f-call 'obj 'ref {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_push {this, value})

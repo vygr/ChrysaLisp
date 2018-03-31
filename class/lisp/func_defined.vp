@@ -25,7 +25,7 @@
 	(vpif {value})
 		(f-call 'pair 'ref_second {ptr(*value)} {_, value})
 	(else)
-		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
 (vp-label 'exit)

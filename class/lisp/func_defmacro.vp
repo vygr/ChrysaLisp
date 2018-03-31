@@ -22,8 +22,8 @@
 	(errorif (cat {vars->obj_vtable != @} (f-path 'class 'vector)) 'error2)
 	(f-call 'vector 'get_first {args} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'symbol)) 'error3)
-	(f-call 'ref 'ref {value})
-	(f-call 'ref 'ref {this->lisp_sym_macro} {vars})
+	(f-call 'obj 'ref {value})
+	(f-call 'obj 'ref {this->lisp_sym_macro} {vars})
 	(d-call 'vector 'set_element {args, vars, 0})
 	(f-call 'hash_map 'insert {this->lisp_environment, value, args})
 

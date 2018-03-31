@@ -187,7 +187,7 @@
 
 	(f-call 'component 'get_prop_sym {this, num} {_, sym})
 	(f-call 'component 'get {this, sym} {_, obj})
-	(f-call 'ref 'deref_if {obj})
+	(f-call 'obj 'deref_if {obj})
 
 	(f-exit 'component 'get_prop {this, obj})
 	(pop-scope)

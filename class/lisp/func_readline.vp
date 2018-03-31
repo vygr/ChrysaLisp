@@ -24,7 +24,7 @@
 	(f-call 'vector 'get_first {args} {_, value})
 	(f-call 'stream_str 'read_line {value} {_, value})
 	(vpifnot {value})
-		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
 (vp-label 'exit)

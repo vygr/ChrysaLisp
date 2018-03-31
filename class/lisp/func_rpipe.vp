@@ -43,10 +43,10 @@
 			(f-call 'pipe 'set_state {pipe, stream_mail_state_stopping})
 		(endif)
 		(f-call 'stream_str 'ref_string {str_stream} {_, value})
-		(f-call 'ref 'deref {str_stream})
+		(f-call 'obj 'deref {str_stream})
 	(else)
 		;closed
-		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
 (vp-label 'exit)

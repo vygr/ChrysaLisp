@@ -35,7 +35,7 @@
 	(loop-end)
 	(assign {this->lisp_sym_t} {value})
 (vp-label 'exit1)
-	(f-call 'ref 'ref {value})
+	(f-call 'obj 'ref {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_eq {this, value})

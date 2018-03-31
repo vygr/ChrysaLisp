@@ -50,7 +50,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'ref 'deref {list})
+	(f-call 'obj 'deref {list})
 	(assign {ast} {list})
 	(goto 'exit))
 

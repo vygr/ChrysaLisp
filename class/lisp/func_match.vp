@@ -43,7 +43,7 @@
 	(vp-label 'nomatch)
 		(assign {this->lisp_sym_nil} {value1})
 	(endif)
-	(f-call 'ref 'ref {value1})
+	(f-call 'obj 'ref {value1})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_match {this, value1})

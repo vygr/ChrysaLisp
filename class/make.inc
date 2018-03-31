@@ -11,7 +11,6 @@
 (import 'class/obj/make.inc)
 (import 'class/pair/make.inc)
 (import 'class/progress/make.inc)
-(import 'class/ref/make.inc)
 (import 'class/sequence/make.inc)
 (import 'class/slave/make.inc)
 (import 'class/msg_in/make.inc)

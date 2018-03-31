@@ -47,7 +47,7 @@
 		(assign {iter + ptr_size} {iter})
 	(loop-end)
 
-	(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+	(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 
 	(vpif {length != 1000000})
 		(assign {0} {start})
@@ -78,7 +78,7 @@
 		(assign {params[ptr_size * 3]} {func})
 		(f-call 'vector 'create {} {params})
 		(loop-while {start != end})
-			(f-call 'ref 'deref {value})
+			(f-call 'obj 'deref {value})
 
 			(assign {iter_begin} {iter})
 			(loop-start)
@@ -89,7 +89,7 @@
 
 			(f-call 'boxed_long 'create {start} {value})
 			(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_underscore, value})
-			(f-call 'ref 'deref {value})
+			(f-call 'obj 'deref {value})
 
 			(f-call 'lisp 'repl_apply {this, params, func} {_, value})
 			(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'error5)

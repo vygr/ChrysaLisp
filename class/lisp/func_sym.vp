@@ -21,7 +21,7 @@
 	(errorif {length != 1} 'error1)
 	(f-call 'vector 'get_first {args} {_, args})
 	(vpif (cat {args->obj_vtable == @} (f-path 'class 'symbol)))
-		(f-call 'ref 'ref {args} {value})
+		(f-call 'obj 'ref {args} {value})
 	(else)
 		(errorif (cat {args->obj_vtable != @} (f-path 'class 'string)) 'error2)
 		(f-call 'symbol 'create_from_buffer {args->string_data, args->string_length} {value})

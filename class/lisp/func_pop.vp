@@ -25,7 +25,7 @@
 		(v-call 'array 'ref_back {args} {_, value})
 		(v-call 'array 'pop_back {args})
 	(else)
-		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
 (vp-label 'exit)

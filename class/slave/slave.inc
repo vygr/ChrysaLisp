@@ -1,6 +1,6 @@
-(import 'class/ref/ref.inc)
+(import 'class/obj/obj.inc)
 
-(def-class 'slave 'ref)
+(def-class 'slave 'obj)
 (def-method 'create 'class/slave/create 'static nil '(r0))
 (def-method 'new 'class/slave/new 'static nil '(r0))
 (def-method 'init 'class/slave/init 'static '(r0 r1))
@@ -10,7 +10,7 @@
 
 (def-method 'lisp_create 'class/slave/lisp_create 'static '(r0 r1) '(r0 r1))
 
-(def-struct 'slave 'ref)
+(def-struct 'slave 'obj)
 	(ptr 'stdin)
 	(ptr 'stdout)
 	(ptr 'stderr)

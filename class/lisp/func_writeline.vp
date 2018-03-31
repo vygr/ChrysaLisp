@@ -25,7 +25,7 @@
 
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {stream, value})
-	(f-call 'ref 'ref {value})
+	(f-call 'obj 'ref {value})
 	(f-call 'stream_str 'write {stream, &value->string_data, value->string_length})
 	(f-call 'stream_str 'write_char {stream, char_lf})
 

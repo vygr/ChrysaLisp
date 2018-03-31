@@ -226,7 +226,7 @@
 		(errorifnot {slot} 'error1))
 		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(v-call 'view 'add_child {arg0, arg1})
-		(f-call 'ref 'ref {arg1})
+		(f-call 'obj 'ref {arg1})
 		(break)
 (vp-label 'view_pref_size_handler)
 	(errorcases
@@ -326,7 +326,7 @@
 		(v-call 'stream 'write_flush {arg0})
 		(break)
 	(endswitch)
-	(f-call 'ref 'ref {arg0} {value})
+	(f-call 'obj 'ref {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_call {this, value})

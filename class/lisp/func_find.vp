@@ -30,7 +30,7 @@
 		(f-call 'vector 'find {seq, elem} {_, length})
 	(vp-label 'ok)
 		(vpif {length == -1})
-			(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+			(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 		(else)
 			(f-call 'boxed_long 'create {length} {value})
 		(endif)

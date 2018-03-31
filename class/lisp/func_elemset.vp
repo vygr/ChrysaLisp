@@ -29,8 +29,8 @@
 		(assign {length + index + 1} {index})
 	(endif)
 	(errorif {index < 0 || index >= length} 'error2)
-	(f-call 'ref 'ref {iter_begin[ptr_size * 2]} {value})
-	(f-call 'ref 'ref {value})
+	(f-call 'obj 'ref {iter_begin[ptr_size * 2]} {value})
+	(f-call 'obj 'ref {value})
 	(d-call 'vector 'set_element {seq, value, index})
 
 (vp-label 'exit)

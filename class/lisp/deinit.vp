@@ -13,10 +13,10 @@
 	(f-entry 'lisp 'deinit {this})
 
 	;deinit myself
-	(f-call 'ref 'deref {this->lisp_stdin})
-	(f-call 'ref 'deref {this->lisp_stdout})
-	(f-call 'ref 'deref {this->lisp_stderr})
-	(f-call 'ref 'deref {this->lisp_environment})
+	(f-call 'obj 'deref {this->lisp_stdin})
+	(f-call 'obj 'deref {this->lisp_stdout})
+	(f-call 'obj 'deref {this->lisp_stderr})
+	(f-call 'obj 'deref {this->lisp_environment})
 
 	;deinit parent
 	(f-exit 'lisp 'deinit {this})

@@ -53,9 +53,9 @@
 	(s-call 'lisp 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init myself
-		(f-call 'ref 'ref {stdin} {this->lisp_stdin})
-		(f-call 'ref 'ref {stdout} {this->lisp_stdout})
-		(f-call 'ref 'ref {stderr} {this->lisp_stderr})
+		(f-call 'obj 'ref {stdin} {this->lisp_stdin})
+		(f-call 'obj 'ref {stdout} {this->lisp_stdout})
+		(f-call 'obj 'ref {stderr} {this->lisp_stderr})
 		(assign {0} {this->lisp_nextsym})
 
 		;spin lock if boot env busy
@@ -81,19 +81,19 @@
 					(f-call 'boxed_ptr 'create {ptr(&table->built_in_function + table->built_in_function)
 						| table->built_in_flags} {func})
 					(f-call 'hash_map 'insert {this->lisp_environment, symbol, func})
-					(f-call 'ref 'deref {func})
+					(f-call 'obj 'deref {func})
 				(endif)
-				(f-call 'ref 'deref {symbol})
+				(f-call 'obj 'deref {symbol})
 				(assign {table + built_in_hop} {table})
 			(loop-end)
 
 			;define *stream-name* and *stream-line*
 			(f-call 'string 'create_from_cstr {"ChrysaLisp"} {symbol})
 			(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
-			(f-call 'ref 'deref {symbol})
+			(f-call 'obj 'deref {symbol})
 			(f-call 'boxed_long 'create {0} {symbol})
 			(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
-			(f-call 'ref 'deref {symbol})
+			(f-call 'obj 'deref {symbol})
 
 			;run any boot.lisp
 			(f-call 'string 'create_from_file {"class/lisp/boot.lisp"} {file})
@@ -111,8 +111,8 @@
 					(v-call 'stream 'write_flush {this->lisp_stderr})
 					(assign {0} {ok})
 				(endif)
-				(f-call 'ref 'deref {value})
-				(f-call 'ref 'deref {repl_args})
+				(f-call 'obj 'deref {value})
+				(f-call 'obj 'deref {repl_args})
 			(endif)
 
 			(vpifnot {ok})
@@ -122,13 +122,13 @@
 				(assign {0} {ptr($boot_env)})
 			(else)
 				;save shared boot env
-				(f-call 'ref 'ref {this->lisp_environment} {ptr($boot_env)})
+				(f-call 'obj 'ref {this->lisp_environment} {ptr($boot_env)})
 				(f-call 'hash_map 'create {this->lisp_environment->hash_set_key_callback, 101} {func})
 				(f-call 'hash_map 'set_parent {func, this->lisp_environment} {this->lisp_environment})
 			(endif)
 		(else)
 			;boot env is my parent env
-			(f-call 'ref 'ref {ptr($boot_env)} {this->lisp_environment})
+			(f-call 'obj 'ref {ptr($boot_env)} {this->lisp_environment})
 			(f-call 'hash_map 'create {this->lisp_environment->hash_set_key_callback, 101} {func})
 			(f-call 'hash_map 'set_parent {func, this->lisp_environment} {this->lisp_environment})
 
@@ -139,17 +139,17 @@
 				(vpif {table->built_in_field})
 					(assign {symbol} {ptr(this + table->built_in_field)})
 				(endif)
-				(f-call 'ref 'deref {symbol})
+				(f-call 'obj 'deref {symbol})
 				(assign {table + built_in_hop} {table})
 			(loop-end)
 
 			;local define *stream-name* and *stream-line*
 			(f-call 'string 'create_from_cstr {"ChrysaLisp"} {symbol})
 			(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
-			(f-call 'ref 'deref {symbol})
+			(f-call 'obj 'deref {symbol})
 			(f-call 'boxed_long 'create {0} {symbol})
 			(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
-			(f-call 'ref 'deref {symbol})
+			(f-call 'obj 'deref {symbol})
 		(endif)
 	(endif)
 

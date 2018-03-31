@@ -1,8 +1,8 @@
-(import 'class/ref/ref.inc)
+(import 'class/obj/obj.inc)
 (import 'class/error/error.inc)
 (import 'class/vector/vector.inc)
 
-(def-class 'lisp 'ref)
+(def-class 'lisp 'obj)
 (def-method 'create 'class/lisp/create 'static '(r0 r1 r2) '(r0))
 (def-method 'new 'class/lisp/new 'static nil '(r0))
 (def-method 'init 'class/lisp/init 'static '(r0 r1 r2 r3 r4))
@@ -124,7 +124,7 @@
 	(enum 'args_eval_apply 'args_apply 'apply)
 (def-enum-end)
 
-(def-struct 'lisp 'ref)
+(def-struct 'lisp 'obj)
 	(ptr 'stdin)
 	(ptr 'stdout)
 	(ptr 'stderr)

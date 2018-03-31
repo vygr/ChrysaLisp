@@ -83,7 +83,7 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(f-call 'ref 'deref '((r1 0)) '(r1))
+	(f-call 'obj 'deref '((r1 0)) '(r1))
 	(vp-ret)
 
 (def-func-end)
@@ -102,7 +102,7 @@
 	(vp-cpy-ri-i r1 r0 array_length)
 	(vp-cpy-ir r0 array_array r0)
 	(vp-shl-cr (log2 ptr_size) r1)
-	(f-call 'ref 'deref '((r0 r1)))
+	(f-call 'obj 'deref '((r0 r1)))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -122,7 +122,7 @@
 	(vp-cpy-ir r0 array_array r0)
 	(vp-sub-cr 1 r1)
 	(vp-shl-cr (log2 ptr_size) r1)
-	(f-call 'ref 'ref '((r0 r1)) '(r1))
+	(f-call 'obj 'ref '((r0 r1)) '(r1))
 	(vp-cpy-rr r2 r0)
 	(vp-ret)
 
@@ -141,7 +141,7 @@
 	(vp-cpy-rr r0 r2)
 	(vp-cpy-ir r0 array_array r0)
 	(vp-shl-cr (log2 ptr_size) r1)
-	(f-call 'ref 'ref '((r0 r1)) '(r1))
+	(f-call 'obj 'ref '((r0 r1)) '(r1))
 	(vp-cpy-rr r2 r0)
 	(vp-ret)
 
@@ -162,7 +162,7 @@
 	(vp-push r0)
 	(vp-cpy-dr r2 r3 r0)
 	(vp-cpy-rd r1 r2 r3)
-	(f-call 'ref 'deref '(r0))
+	(f-call 'obj 'deref '(r0))
 	(vp-pop r0)
 	(vp-ret)
 

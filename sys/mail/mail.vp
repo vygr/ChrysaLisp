@@ -105,7 +105,7 @@
 
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(f-call 'sys_heap 'alloc {&mail_statics->ml_statics_msg_heap} {_, msg})
-	(f-call 'ref 'ref {ob} {msg->msg_parcel_obj})
+	(f-call 'obj 'ref {ob} {msg->msg_parcel_obj})
 	(assign {0} {msg->msg_parcel_length})
 	(assign {length} {msg->msg_length})
 	(assign {data} {msg->msg_parcel_data})

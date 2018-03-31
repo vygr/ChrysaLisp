@@ -56,3 +56,49 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-func 'class/obj/deref)
+	;inputs
+	;r0 = object
+	;trashes
+	;all
+
+	;dec ref count
+	(vp-cpy-ir-ui r0 obj_count r1)
+	(vp-sub-cr 1 r1)
+	(vp-cpy-ri-i r1 r0 obj_count)
+
+	;destroy if 0
+	(vpif '(r1 == 0))
+		(f-jmp 'obj 'destroy '(r0))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/obj/deref_if)
+	;inputs
+	;r0 = 0, else object
+	;trashes
+	;all
+
+	(vpif '(r0 != 0))
+		(f-jmp 'obj 'deref '(r0))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/obj/ref_if)
+	;inputs
+	;r0 = 0, else object
+	;trashes
+	;r1
+
+	;inc ref count
+	(vpif '(r0 != 0))
+		(f-call 'obj 'ref '(r0))
+	(endif)
+	(vp-ret)
+
+(def-func-end)

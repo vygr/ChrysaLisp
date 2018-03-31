@@ -10,7 +10,7 @@
 	;r1 = value
 
 	(f-entry 'lisp 'func_lambda '(r2 r0))
-	(f-call 'ref 'ref '(r0) '(r0))
+	(f-call 'obj 'ref '(r0) '(r0))
 	(f-exit 'lisp 'func_lambda '(r2 r0))
 	(return)
 

@@ -30,7 +30,7 @@
 	(errorif {handle < 3} 'error2)
 	(f-call 'pii 'write {handle, &value->string_data, value->string_length})
 	(f-call 'pii 'close {handle})
-	(f-call 'ref 'ref {value})
+	(f-call 'obj 'ref {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_save {this, value})

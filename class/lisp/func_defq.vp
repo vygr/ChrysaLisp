@@ -23,7 +23,7 @@
 	(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(assign {0} {val})
 	(loop-start)
-		(f-call 'ref 'deref_if {val})
+		(f-call 'obj 'deref_if {val})
 		(assign {iter_begin[ptr_size * 0]} {var})
 		(errorif (cat {var->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
 		(f-call 'lisp 'repl_eval {this, iter_begin[ptr_size * 1]} {_, val})

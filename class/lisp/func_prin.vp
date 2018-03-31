@@ -37,7 +37,7 @@
 	(else)
 		(assign {this->lisp_sym_nil} {value})
 	(endif)
-	(f-call 'ref 'ref {value})
+	(f-call 'obj 'ref {value})
 
 	(f-exit 'lisp 'func_prin {this, value})
 	(pop-scope)

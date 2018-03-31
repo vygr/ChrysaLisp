@@ -85,7 +85,7 @@
 
 			(f-call 'boxed_long 'create {start} {value})
 			(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_underscore, value})
-			(f-call 'ref 'deref {value})
+			(f-call 'obj 'deref {value})
 
 			(f-call 'lisp 'repl_apply {this, params, func} {_, value})
 			(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'error5)
@@ -96,12 +96,12 @@
 				(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'error5)
 			(endif)
 			(d-call 'vector 'clear {params})
-			(f-call 'ref 'deref {value})
+			(f-call 'obj 'deref {value})
 			(assign {start + dir} {start})
 		(loop-end)
 		(f-call 'vector 'deref {params})
 	(endif)
-	(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+	(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 
 (vp-label 'exit)
 	(f-call 'lisp 'env_pop {this})

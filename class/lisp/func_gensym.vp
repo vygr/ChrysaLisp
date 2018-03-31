@@ -24,8 +24,8 @@
 	(f-call 'symbol 'create_from_long {this->lisp_nextsym, 10} {args})
 	(f-call 'symbol 'create_from_cstr {"G"} {prefix})
 	(f-call 'symbol 'append {prefix, args} {value})
-	(f-call 'ref 'deref {prefix})
-	(f-call 'ref 'deref {args})
+	(f-call 'obj 'deref {prefix})
+	(f-call 'obj 'deref {args})
 	(f-call 'symbol 'intern {value} {value})
 	(assign {this->lisp_nextsym + 1} {this->lisp_nextsym})
 

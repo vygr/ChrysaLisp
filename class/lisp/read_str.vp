@@ -44,7 +44,7 @@
 			(f-call 'lisp 'read_char {this, stream, char} {_, char})
 		(loop-end)
 		(f-call 'stream_str 'ref_string {str_stream} {_, value})
-		(f-call 'ref 'deref {str_stream})
+		(f-call 'obj 'deref {str_stream})
 	(endswitch)
 	(f-call 'stream 'read_char {stream} {_, char})
 

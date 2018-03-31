@@ -22,7 +22,7 @@
 	(f-call 'vector 'get_first {args} {_, value})
 	(f-call 'string 'create_from_file {&value->string_data} {value})
 	(vpifnot {value})
-		(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
 (vp-label 'exit)

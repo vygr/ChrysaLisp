@@ -1,6 +1,6 @@
-(import 'class/ref/ref.inc)
+(import 'class/obj/obj.inc)
 
-(def-class 'stream 'ref)
+(def-class 'stream 'obj)
 (def-method 'create 'class/stream/create 'static '(r0 r1 r2 r3) '(r0))
 (def-method 'new 'class/stream/new 'static nil '(r0))
 (def-method 'init 'class/stream/init 'static '(r0 r1 r2 r3 r4 r5))
@@ -22,7 +22,7 @@
 (def-method 'write_next 'class/stream/write_next 'virtual '(r0) '(r0))
 (def-method 'write_flush 'class/stream/write_flush 'virtual '(r0) '(r0))
 
-(def-struct 'stream 'ref)
+(def-struct 'stream 'obj)
 	(ptr 'object)
 	(ptr 'buffer)
 	(pubyte 'bufp)

@@ -40,7 +40,7 @@
 	(f-call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_name, value})
 	(f-call 'boxed_long 'create {1} {value})
 	(f-call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_line, value})
-	(f-call 'ref 'deref {value})
+	(f-call 'obj 'deref {value})
 
 	(f-call 'stream 'read_char {stream} {_, char})
 	(loop-start)
@@ -55,23 +55,23 @@
 		(loop-untilnot {cnt})
 
 		(f-call 'lisp 'repl_eval {this, ast} {_, value})
-		(f-call 'ref 'deref {ast})
+		(f-call 'obj 'deref {ast})
 		(vpif {stream == this->lisp_stdin})
 			(f-call 'lisp 'repl_print {this, this->lisp_stdout, value})
 			(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 		(endif)
 
 		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit1)
-		(f-call 'ref 'deref {value})
+		(f-call 'obj 'deref {value})
 	(loop-end)
-	(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+	(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 
 (vp-label 'exit1)
 	;pop old file and line info
 	(f-call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_name, old_file})
-	(f-call 'ref 'deref {old_file})
+	(f-call 'obj 'deref {old_file})
 	(f-call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_line, old_line})
-	(f-call 'ref 'deref {old_line})
+	(f-call 'obj 'deref {old_line})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_repl {this, value})

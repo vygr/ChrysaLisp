@@ -63,7 +63,7 @@
 	(f-call 'sys_mem 'alloc {length * 2} {new_str, new_length})
 	(f-call 'sys_mem 'copy {this->stream_object, new_str, length} {_, this->stream_bufp})
 	(assign {new_str + new_length - 1} {this->stream_bufe})
-	(assign {1} {new_str->ref_count})
+	(assign {1} {new_str->obj_count})
 	(f-call 'string 'deref {this->stream_object})
 	(assign {new_str} {this->stream_object})
 

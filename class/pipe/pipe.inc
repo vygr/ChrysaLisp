@@ -1,7 +1,7 @@
-(import 'class/ref/ref.inc)
+(import 'class/obj/obj.inc)
 (import 'class/vector/vector.inc)
 
-(def-class 'pipe 'ref)
+(def-class 'pipe 'obj)
 (def-method 'create 'class/pipe/create 'static '(r0 r1) '(r0))
 (def-method 'new 'class/pipe/new 'static nil '(r0))
 (def-method 'init 'class/pipe/init 'static '(r0 r1 r2 r3))
@@ -12,7 +12,7 @@
 
 (def-method 'deinit 'class/pipe/deinit 'final)
 
-(def-struct 'pipe 'ref)
+(def-struct 'pipe 'obj)
 	(local-align)
 	(offset 'start)
 	(ptr 'streams)

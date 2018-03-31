@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'sys/link/link.inc)
-(import 'class/ref/ref.inc)
+(import 'class/obj/obj.inc)
 (import 'sys/kernel/kernel.inc)
 
 (def-func 'sys/mail/out)
@@ -32,7 +32,7 @@
 				(assign {lk_data_size} {len})
 			(endif)
 			(f-call 'sys_heap 'alloc {&mail_statics->ml_statics_msg_heap} {_, frag})
-			(f-call 'ref 'ref {msg->msg_parcel_obj} {frag->msg_parcel_obj})
+			(f-call 'obj 'ref {msg->msg_parcel_obj} {frag->msg_parcel_obj})
 
 			;fill in fragment
 			(assign {len} {frag->msg_length})

@@ -24,7 +24,7 @@
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
 	(f-call 'font 'open {&arg0->string_data, arg1} {value})
 	(gotoif {value} 'exit)
-	(f-call 'ref 'ref {this->lisp_sym_nil} {value})
+	(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 
 (vp-label 'exit)
 	(f-exit 'font 'lisp_create {this, value})

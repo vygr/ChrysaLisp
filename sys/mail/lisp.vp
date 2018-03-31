@@ -70,7 +70,7 @@
 	(assign {arg1} {arg3->msg_dest.id_mbox})
 	(assign {arg2} {arg3->msg_dest.id_cpu})
 	(f-call 'sys_mail 'send {arg3})
-	(f-call 'ref 'ref {arg0} {value})
+	(f-call 'obj 'ref {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'sys_mail 'lisp_send {this, value})
