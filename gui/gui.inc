@@ -46,8 +46,7 @@
 	(ulong 'type)
 (def-struct-end)
 
-(def-struct 'ev_msg_mouse)
-	(struct 'base 'ev_msg)
+(def-struct 'ev_msg_mouse 'ev_msg)
 	(uint 'buttons)
 	(int 'x)
 	(int 'y)
@@ -55,13 +54,11 @@
 	(int 'ry)
 (def-struct-end)
 
-(def-struct 'ev_msg_key)
-	(struct 'base 'ev_msg)
+(def-struct 'ev_msg_key 'ev_msg)
 	(uint 'keycode)
 	(uint 'key)
 (def-struct-end)
 
-(def-struct 'ev_msg_action)
-	(struct 'base 'ev_msg)
+(def-struct 'ev_msg_action 'ev_msg)
 	(ulong 'source_id)
 (def-struct-end)
