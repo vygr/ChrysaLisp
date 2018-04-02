@@ -223,9 +223,7 @@
 	;r0 = user data
 
 	(ptr 'user 'surface 'old_stack)
-	(union
-		'(ptr 'statics)
-		'(ulong 'handle))
+	(ulong 'handle)
 
 	;align stack
 	(vp-cpy-rr rsp r1)
@@ -236,8 +234,7 @@
 	(sdl-call 'sdl 'ttf_render_utf8_blended {user->local_this->font_handle, &user->local_word->string_data, 0xffffff} {surface})
 	(vpif {surface})
 		;create word texture
-		(assign (cat {@} (f-path 'gui_gui 'statics)) {statics})
-		(sdl-call 'sdl 'sdl_create_texture_from_surface {statics->gui_statics_renderer, surface} {handle})
+		(sdl-call 'sdl 'sdl_create_texture_from_surface (cat {@} (f-path 'gui_gui 'statics) {.gui_statics_renderer, surface}) {handle})
 		(vpif {handle})
 			;texture blend mode and save details
 			(sdl-call 'sdl 'sdl_set_texture_blend_mode {handle, SDL_BLENDMODE_BLEND})

@@ -340,16 +340,13 @@
 	;inputs
 	;r0 = argv pointer
 
-	(ptr 'arg 'statics)
-	(uint 'id)
+	(ptr 'arg)
 
 	(push-scope)
 	(l-entry {arg})
 
 	;set cpu ID
-	(f-call 'sys_string 'to_long {arg, 10} {id})
-	(assign (cat {@} (f-path 'sys_task 'statics)) {statics})
-	(assign {id} {statics->tk_statics_cpu_id})
+	(f-call 'sys_string 'to_long {arg, 10} (cat {@} (f-path 'sys_task 'statics) {.tk_statics_cpu_id}))
 
 	(pop-scope)
 	(return)
