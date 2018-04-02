@@ -21,7 +21,7 @@ native code, `while`, every other looping construct builds on this primitive.
 There are also 2 native primitives `some!` and `each!` that provide generic
 access to iterating over a slice of a list/s, calling a function on the grouped
 elements and then calling a function on the result of that. Standard `some` and
-`each` are built on these but they also allow other constructs to be build and
+`each` are built on these but they also allow other constructs to be built and
 gain the advantage of machine coded iteration. I try to stick to a functional
 approach in my Lisp code, and manipulate collections of things in a functional
 way with operations like `map`, `filter`, `reduce`, `each` etc. I've not found
