@@ -1,0 +1,529 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ChrysaLisp &mdash; ChrysaLisp  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="ChrysaLisp  documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ChrysaLisp
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">ChrysaLisp</a><ul>
+<li><a class="reference internal" href="#within-any-lisp-instance">Within any Lisp instance</a><ul>
+<li><a class="reference internal" href="#built-in-symbols">Built in symbols</a></li>
+<li><a class="reference internal" href="#built-in-functions">Built in functions</a></li>
+<li><a class="reference internal" href="#boot-lisp-symbols">boot.lisp symbols</a></li>
+<li><a class="reference internal" href="#boot-lisp-macros">boot.lisp macros</a></li>
+<li><a class="reference internal" href="#boot-lisp-functions">boot.lisp functions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#within-any-cmd-lisp-lisp-instance">Within any cmd/lisp.lisp instance</a><ul>
+<li><a class="reference internal" href="#asm-inc-symbols">asm.inc symbols</a></li>
+<li><a class="reference internal" href="#asm-inc-functions">asm.inc functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ChrysaLisp</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>ChrysaLisp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/LISP.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="chrysalisp">
+<span id="chrysalisp"></span><h1>ChrysaLisp<a class="headerlink" href="#chrysalisp" title="Permalink to this headline">¶</a></h1>
+<p>It’s probably worth a few words specifically about the included Lisp and how it
+works, and how many rules it breaks ! The reason for doing the Lisp was to
+allow me to create an assembler to replace NASM, I was not concerned with
+sticking to ‘the lisp way’, or whatever your local Lisp guru says. No doubt I
+will have many demons in hell awaiting me…</p>
+<p>First of all there is no garbage collector by choice. All objects used by the
+Lisp are reference counted objects from the class library. Early on the Lisp
+was never going to have a problem with cycles because it had no way to create
+them, but as I developed the assembler I decided to introduce two functions,
+<code class="docutils literal notranslate"><span class="pre">push</span></code> and <code class="docutils literal notranslate"><span class="pre">elem-set</span></code>, that could create cycles. However the efficiency
+advantage in coding the assembler made me look the other way. There are now
+other ways that a cycle can be created, by naming an environment within its own
+scope, but again this was too good an efficiency feature to miss out on. So you
+do have to be careful not to create cycles, so think about how your code works.</p>
+<p>No tail recursion optimization ! There is a single looping function provided in
+native code, <code class="docutils literal notranslate"><span class="pre">while</span></code>, every other looping construct builds on this primitive.
+There are also 2 native primitives <code class="docutils literal notranslate"><span class="pre">some!</span></code> and <code class="docutils literal notranslate"><span class="pre">each!</span></code> that provide generic
+access to iterating over a slice of a list/s, calling a function on the grouped
+elements and then calling a function on the result of that. Standard <code class="docutils literal notranslate"><span class="pre">some</span></code> and
+<code class="docutils literal notranslate"><span class="pre">each</span></code> are built on these but they also allow other constructs to be built and
+gain the advantage of machine coded iteration. I try to stick to a functional
+approach in my Lisp code, and manipulate collections of things in a functional
+way with operations like <code class="docutils literal notranslate"><span class="pre">map</span></code>, <code class="docutils literal notranslate"><span class="pre">filter</span></code>, <code class="docutils literal notranslate"><span class="pre">reduce</span></code>, <code class="docutils literal notranslate"><span class="pre">each</span></code> etc. I’ve not found
+the lack of tail recursion a problem.</p>
+<p>All symbols live in the same environment, functions, macros, everything. The
+environment is a chain of hash maps. Each lambda gets a new hash map pushed
+onto the environment chain on invocation, and dereferenced on exit. The <code class="docutils literal notranslate"><span class="pre">env</span></code>
+function can be used to return the current hash map and optionally resize the
+number of buckets from the default of 1. This proves very effective for storing
+large numbers of symbols and objects for the assembler as well as creating
+caches. Make sure to <code class="docutils literal notranslate"><span class="pre">setq</span></code> the symbol you bind to the result of <code class="docutils literal notranslate"><span class="pre">env</span></code> to <code class="docutils literal notranslate"><span class="pre">nil</span></code>
+before returning from the function if you do this, else you will create a cycle
+that can’t be freed.</p>
+<p><code class="docutils literal notranslate"><span class="pre">defq</span></code> and <code class="docutils literal notranslate"><span class="pre">bind</span></code> always create entries in the top environment hash map. <code class="docutils literal notranslate"><span class="pre">setq</span></code>
+searches the environment chain to find an existing entry and sets that entry or
+fails with an error. This means <code class="docutils literal notranslate"><span class="pre">setq</span></code> can be used to write to symbols outside
+the scope of the current function. Some people don’t like this, but used wisely
+it can be very powerful. Coming from an assembler background I prefer to have
+all the guns and knives available, so try not to shoot your foot off.</p>
+<p>There is no cons, cdr or car stuff. Lists are just vector objects and you use
+<code class="docutils literal notranslate"><span class="pre">push</span></code>, <code class="docutils literal notranslate"><span class="pre">cat</span></code>, <code class="docutils literal notranslate"><span class="pre">slice</span></code> etc to manipulate elements. Also an empty list does not
+evaluate to <code class="docutils literal notranslate"><span class="pre">nil</span></code>, it’s just an error.</p>
+<p>Function and macro definitions are scoped and visible only within the scope of
+the declaring function. There is no global macro list. During macro expansion
+the environment chain is searched to see if a macro exists.</p>
+<div class="section" id="within-any-lisp-instance">
+<span id="within-any-lisp-instance"></span><h2>Within any Lisp instance<a class="headerlink" href="#within-any-lisp-instance" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="built-in-symbols">
+<span id="built-in-symbols"></span><h3>Built in symbols<a class="headerlink" href="#built-in-symbols" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-ChrysaLisp notranslate"><div class="highlight"><pre><span></span>&amp;rest
+&amp;optional
+nil
+t
+</pre></div>
+</div>
+</div>
+<div class="section" id="built-in-functions">
+<span id="built-in-functions"></span><h3>Built in functions<a class="headerlink" href="#built-in-functions" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-ChrysaLisp notranslate"><div class="highlight"><pre><span></span>add
+age
+apply
+array
+bind
+bit-and
+bit-asr
+bit-or
+bit-shl
+bit-shr
+bit-xor
+catch
+call
+cat
+char
+clear
+cmp
+code
+cond
+copy
+def
+def?
+defmacro
+defq
+div
+each!
+elem
+elem-set
+env
+eq
+eql
+eval
+fcos
+fdiv
+file-stream
+find
+floor
+fmod
+fmul
+frac
+fsin
+fsqrt
+ffi
+ge
+gensym
+gt
+inst-of
+lambda
+le
+length
+list
+load
+lt
+macro
+macroexpand
+macroexpand-1
+match?
+mod
+mul
+ne
+not
+pipe
+pipe-read
+pipe-write
+points
+pop
+prin
+print
+progn
+push
+quasi-quote
+quote
+read
+read-char
+read-line
+repl
+save
+set
+setq
+slice
+some!
+split
+str
+string-stream
+sub
+sym
+throw
+time
+unquote
+unquote-splicing
+while
+write
+write-char
+write-line
+</pre></div>
+</div>
+</div>
+<div class="section" id="boot-lisp-symbols">
+<span id="boot-lisp-symbols"></span><h3>boot.lisp symbols<a class="headerlink" href="#boot-lisp-symbols" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-ChrysaLisp notranslate"><div class="highlight"><pre><span></span>min_long
+max_long
+min_int
+max_int
+fp_shift
+fp_2pi
+fp_pi
+fp_hpi
+fp_qpi
+fp_rpi
+fp_int_mask
+fp_frac_mask
+</pre></div>
+</div>
+</div>
+<div class="section" id="boot-lisp-macros">
+<span id="boot-lisp-macros"></span><h3>boot.lisp macros<a class="headerlink" href="#boot-lisp-macros" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-ChrysaLisp notranslate"><div class="highlight"><pre><span></span>and
+ascii
+compose
+curry
+dec
+if
+inc
+let
+minus
+opt
+or
+rcurry
+run
+setd
+sym-cat
+times
+unless
+until
+when
+</pre></div>
+</div>
+</div>
+<div class="section" id="boot-lisp-functions">
+<span id="boot-lisp-functions"></span><h3>boot.lisp functions<a class="headerlink" href="#boot-lisp-functions" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-ChrysaLisp notranslate"><div class="highlight"><pre><span></span>abs
+align
+bit-not
+count-leading-ones
+count-trailing-ones
+count-trailing-zeros
+cpu
+cubed
+defun
+divmod
+each
+each-line
+each-mergeable
+each-mergeable-rev
+each-rev
+equalp
+every
+each-pipe-line
+filter
+from-base-char
+insert
+insert-sym
+log2
+lst?
+map
+map-rev
+max
+merge
+merge-sym
+min
+neg
+notany
+notevery
+num?
+obj?
+partition
+platform
+prin-base
+range
+reduce
+reduce-rev
+read-byte
+read-short
+read-int
+read-long
+read-cstr
+shuffle
+shuffled
+sign
+some
+sort
+sorted
+squared
+str?
+swap
+sym?
+to-base-char
+to-num
+trim
+trim-end
+trim-start
+within-compile-env
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="within-any-cmd-lisp-lisp-instance">
+<span id="within-any-cmd-lisp-lisp-instance"></span><h2>Within any cmd/lisp.lisp instance<a class="headerlink" href="#within-any-cmd-lisp-lisp-instance" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="asm-inc-symbols">
+<span id="asm-inc-symbols"></span><h3>asm.inc symbols<a class="headerlink" href="#asm-inc-symbols" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-ChrysaLisp notranslate"><div class="highlight"><pre><span></span>debug_mode
+debug_emit
+debug_inst
+</pre></div>
+</div>
+</div>
+<div class="section" id="asm-inc-functions">
+<span id="asm-inc-functions"></span><h3>asm.inc functions<a class="headerlink" href="#asm-inc-functions" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-ChrysaLisp notranslate"><div class="highlight"><pre><span></span>all-vp-files
+compile
+compile-pipe
+compile-test
+make
+make-all
+make-all-platforms
+make-boot
+make-boot-all
+make-info
+make-platforms
+make-test
+remake
+remake-platforms
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Chris Hinsley.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
