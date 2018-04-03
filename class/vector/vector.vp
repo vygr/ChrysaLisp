@@ -15,54 +15,6 @@
 
 (def-func-end)
 
-(def-func 'class/vector/append)
-	;inputs
-	;r0 = vector object
-	;r1 = source vector object
-	;r2 = vector element start
-	;r3 = vector element end
-	;outputs
-	;r0 = vector object
-	;trashes
-	;r1-r7
-
-	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'source)
-		(uint 'start)
-		(uint 'end)
-	(def-struct-end)
-
-	;save inputs
-	(vp-alloc local_size)
-	(f-entry 'vector 'append '((rsp local_this) (rsp local_source) (rsp local_start i) (rsp local_end i)))
-
-	;extend existing vector
-	(vp-cpy-ir-ui r0 array_length r1)
-	(vp-sub-rr r2 r3)
-	(vp-add-rr r3 r1)
-	(f-call 'vector 'set_capacity '(r0 r1) '(r0))
-
-	;copy elements
-	(vp-cpy-ir-ui r0 array_length r6)
-	(vp-cpy-ir r0 array_array r3)
-	(assign '((rsp local_source) (rsp local_start ui) (rsp local_end ui)) '(r0 r4 r5))
-	(vp-shl-cr (log2 ptr_size) r6)
-	(loop-while '(r4 != r5))
-		(d-call 'vector 'ref_element '(r0 r4) '(r0 (r3 r6)))
-		(vp-add-cr 1 r4)
-		(vp-add-cr ptr_size r6)
-	(loop-end)
-
-	(vp-cpy-ir rsp local_this r0)
-	(vp-shr-cr (log2 ptr_size) r6)
-	(vp-cpy-ri-i r6 r0 array_length)
-
-	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
 (def-func 'class/vector/clear)
 	;inputs
 	;r0 = vector object
@@ -177,31 +129,87 @@
 	;r0 = vector object
 	;r1 = slice vector object
 	;trashes
-	;r1-r11
+	;r1-r10
 
 	;save inputs
 	(f-entry 'vector 'slice '(r8 r9 r10))
 
 	;create new vector
-	(f-call 'vector 'create '() '(r11))
+	(f-call 'vector 'create '() '(r0))
 	(vp-cpy-rr r10 r1)
 	(vp-sub-rr r9 r1)
+	(vp-cpy-ri-i r1 r0 array_length)
+	(f-call 'vector 'set_capacity '(r0 r1) '(r1))
+	(vp-cpy-rr r8 r0)
+
+	;copy and ref elements
+	(vpif '(r9 != r10))
+		(vp-cpy-ir r0 array_array r2)
+		(vp-cpy-ir r1 array_array r3)
+		(vp-shl-cr (log2 ptr_size) r9)
+		(vp-shl-cr (log2 ptr_size) r10)
+		(vp-add-rr r2 r10)
+		(vp-add-rr r9 r2)
+		(loop-start)
+			(vp-cpy-ir r2 0 r4)
+			(vp-add-cr ptr_size r2)
+			(vp-cpy-ir-ui r4 obj_count r5)
+			(vp-cpy-ri r4 r3 0)
+			(vp-add-cr ptr_size r3)
+			(vp-add-cr 1 r5)
+			(vp-cpy-ri-i r5 r4 obj_count)
+		(loop-until '(r2 == r10))
+	(endif)
+
+	(f-exit 'vector 'slice '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/vector/append)
+	;inputs
+	;r0 = vector object
+	;r1 = source vector object
+	;r2 = vector element start
+	;r3 = vector element end
+	;outputs
+	;r0 = vector object
+	;trashes
+	;r1-r11
+
+	;save inputs
+	(f-entry 'vector 'append '(r0 r8 r9 r10))
+
+	;extend vector
+	(vp-cpy-ir-ui r0 array_length r11)
+	(vp-cpy-rr r10 r2)
+	(vp-sub-rr r9 r2)
+	(vp-lea-d r2 r11 r1)
+	(vp-cpy-ri-i r1 r0 array_length)
 	(f-call 'vector 'set_capacity '(r0 r1))
 
-	;copy elements
-	(vp-cpy-ir r11 array_array r3)
-	(vp-cpy-rr r8 r0)
-	(vp-xor-rr r6 r6)
-	(loop-while '(r9 != r10))
-		(d-call 'vector 'ref_element '(r0 r9) '(r0 r1))
-		(vp-cpy-rd r1 r3 r6)
-		(vp-add-cr 1 r9)
-		(vp-add-cr ptr_size r6)
-	(loop-end)
+	;append and ref elements
+	(vpif '(r9 != r10))
+		(vp-cpy-ir r0 array_array r3)
+		(vp-cpy-ir r8 array_array r2)
+		(vp-shl-cr (log2 ptr_size) r9)
+		(vp-shl-cr (log2 ptr_size) r10)
+		(vp-shl-cr (log2 ptr_size) r11)
+		(vp-add-rr r2 r10)
+		(vp-add-rr r9 r2)
+		(vp-add-rr r11 r3)
+		(loop-start)
+			(vp-cpy-ir r2 0 r4)
+			(vp-add-cr ptr_size r2)
+			(vp-cpy-ir-ui r4 obj_count r5)
+			(vp-cpy-ri r4 r3 0)
+			(vp-add-cr ptr_size r3)
+			(vp-add-cr 1 r5)
+			(vp-cpy-ri-i r5 r4 obj_count)
+		(loop-until '(r2 == r10))
+	(endif)
 
-	(vp-cpy-rr r11 r1)
-	(vp-shr-cr (log2 ptr_size) r6)
-	(vp-cpy-ri-i r6 r1 array_length)
+	(f-exit 'vector 'append '(r0))
 	(vp-ret)
 
 (def-func-end)
