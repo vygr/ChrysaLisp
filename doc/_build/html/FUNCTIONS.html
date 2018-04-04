@@ -1,0 +1,444 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ChrysaLisp &mdash; ChrysaLisp  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="ChrysaLisp  documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ChrysaLisp
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">ChrysaLisp</a><ul>
+<li><a class="reference internal" href="#function-format">Function format</a><ul>
+<li><a class="reference internal" href="#header-fields">Header fields</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#low-level-vtable-string-and-calling-jumping">Low level Vtable, string, and calling/jumping</a><ul>
+<li><a class="reference internal" href="#fn-add-string">fn-add-string</a></li>
+<li><a class="reference internal" href="#fn-add-path">fn-add-path</a></li>
+<li><a class="reference internal" href="#fn-add-link">fn-add-link</a></li>
+<li><a class="reference internal" href="#fn-find-link">fn-find-link</a></li>
+<li><a class="reference internal" href="#fn-string">fn-string</a></li>
+<li><a class="reference internal" href="#fn-bind">fn-bind</a></li>
+<li><a class="reference internal" href="#fn-call">fn-call</a></li>
+<li><a class="reference internal" href="#fn-jmp">fn-jmp</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#higher-level-function-calling">Higher level function calling</a><ul>
+<li><a class="reference internal" href="#f-call">f-call</a></li>
+<li><a class="reference internal" href="#f-jmp">f-jmp</a></li>
+<li><a class="reference internal" href="#f-bind">f-bind</a></li>
+<li><a class="reference internal" href="#s-call">s-call</a></li>
+<li><a class="reference internal" href="#s-jmp">s-jmp</a></li>
+<li><a class="reference internal" href="#s-bind">s-bind</a></li>
+<li><a class="reference internal" href="#v-call">v-call</a></li>
+<li><a class="reference internal" href="#v-jmp">v-jmp</a></li>
+<li><a class="reference internal" href="#v-bind">v-bind</a></li>
+<li><a class="reference internal" href="#d-call">d-call</a></li>
+<li><a class="reference internal" href="#d-jmp">d-jmp</a></li>
+<li><a class="reference internal" href="#d-bind">d-bind</a></li>
+<li><a class="reference internal" href="#r-call">r-call</a></li>
+<li><a class="reference internal" href="#l-call">l-call</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#function-info-helpers">Function info helpers</a><ul>
+<li><a class="reference internal" href="#f-path">f-path</a></li>
+<li><a class="reference internal" href="#s-path">s-path</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#function-entry-and-exit-helpers">Function entry and exit helpers</a><ul>
+<li><a class="reference internal" href="#f-entry">f-entry</a></li>
+<li><a class="reference internal" href="#f-exit">f-exit</a></li>
+<li><a class="reference internal" href="#l-entry">l-entry</a></li>
+<li><a class="reference internal" href="#l-exit">l-exit</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ChrysaLisp</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>ChrysaLisp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/FUNCTIONS.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="chrysalisp">
+<span id="chrysalisp"></span><h1>ChrysaLisp<a class="headerlink" href="#chrysalisp" title="Permalink to this headline">¶</a></h1>
+<p>ChrysaLisp is built from functions. Ok, so that’s just about the most obvious
+thing to say about any computer program but they are organised in a slightly
+different way than other systems.</p>
+<p>They are not bound into larger groupings such as libraries. More often than not
+ChrysaLisp functions are collected into classes. Classes implement a general
+concept and the methods of that class are individual related but unbound
+functions.</p>
+<p>All external function calling goes via indirect calls through the local
+function Vtable. Local subroutines use standard relative call instructions.</p>
+<p>Even a class Vtable is implemented as a function that has no code but just a
+local Vtable !</p>
+<div class="section" id="function-format">
+<span id="function-format"></span><h2>Function format<a class="headerlink" href="#function-format" title="Permalink to this headline">¶</a></h2>
+<p>Functions consist of 5 sections, header, code, string pool, external function
+Vtable and external function path string pool. In some circumstances these
+sections may not be present, for example in the case of a class Vtable the code
+section is empty, plus a string pool or table section may be empty if there are
+no entries required. When a function is in bound format sections such as the
+path string pool may have been stripped after binding in order to save memory
+space.</p>
+<p>The total size of a function and the start of the code and path Vtable sections
+are aligned to a ptr_size.</p>
+<div class="section" id="header-fields">
+<span id="header-fields"></span><h3>Header fields<a class="headerlink" href="#header-fields" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>ulong/ptr ln_fnode: In a bound function the address of the next function in
+the function list. When unbound -1.</li>
+<li>ushort fn_header_length: Total length of the function in bytes.</li>
+<li>ushort fn_header_entry: Offset in bytes to the code entry point.</li>
+<li>ushort fn_header_links: Offset in bytes to the external function Vtable.
+Vtable entries are ptr_size. In unbound format they are relative offsets to
+entries in the path pool. In bound format they are pointers to the code section
+of the external functions.</li>
+<li>ushort fn_header_paths: Offset in bytes to the path string pool. 0 terminated
+C style strings.</li>
+<li>ushort fn_header_stack: Stack amount in bytes required by function. Currently
+this is a default value for all unless specified as an optional argument via
+def-func. A process main function uses this value to allocate the initial stack
+requirement but in future a debug mode stack check will check at each function
+entry point that there is enough stack remaining for the function invocation.</li>
+<li>offset fn_header_pathname: The actual pathname of the function. 0 terminated
+C style string, followed by padding bytes, of at least a single byte, of the
+offset from the code section to the string start.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="low-level-vtable-string-and-calling-jumping">
+<span id="low-level-vtable-string-and-calling-jumping"></span><h2>Low level Vtable, string, and calling/jumping<a class="headerlink" href="#low-level-vtable-string-and-calling-jumping" title="Permalink to this headline">¶</a></h2>
+<p>You do not normally need to use these low level features, but higher level
+calling and binding operations do. These are the Lisp functions that create
+entries in the local Vtable, add strings to the local string pool etc. They
+de-duplicate and in special situations allow duplication where that is
+essential to create a class Vtable correctly.</p>
+<div class="section" id="fn-add-string">
+<span id="fn-add-string"></span><h3>fn-add-string<a class="headerlink" href="#fn-add-string" title="Permalink to this headline">¶</a></h3>
+<p>Add a string to the string pool, if not already present, and return its unique
+index value.</p>
+</div>
+<div class="section" id="fn-add-path">
+<span id="fn-add-path"></span><h3>fn-add-path<a class="headerlink" href="#fn-add-path" title="Permalink to this headline">¶</a></h3>
+<p>Add an external function path to the path pool, if not already present, and
+return its unique index.</p>
+</div>
+<div class="section" id="fn-add-link">
+<span id="fn-add-link"></span><h3>fn-add-link<a class="headerlink" href="#fn-add-link" title="Permalink to this headline">¶</a></h3>
+<p>Push an entry onto the Vtable, referring to a path added using fn-add-path.</p>
+</div>
+<div class="section" id="fn-find-link">
+<span id="fn-find-link"></span><h3>fn-find-link<a class="headerlink" href="#fn-find-link" title="Permalink to this headline">¶</a></h3>
+<p>Search the current Vtable for a path and add a new entry if needed using
+fn-add-link. Return the unique index.</p>
+</div>
+<div class="section" id="fn-string">
+<span id="fn-string"></span><h3>fn-string<a class="headerlink" href="#fn-string" title="Permalink to this headline">¶</a></h3>
+<p>Load register with string address via the local string pool.</p>
+</div>
+<div class="section" id="fn-bind">
+<span id="fn-bind"></span><h3>fn-bind<a class="headerlink" href="#fn-bind" title="Permalink to this headline">¶</a></h3>
+<p>Load register with external function address via the local Vtable.</p>
+</div>
+<div class="section" id="fn-call">
+<span id="fn-call"></span><h3>fn-call<a class="headerlink" href="#fn-call" title="Permalink to this headline">¶</a></h3>
+<p>Call external function address indirectly via the local Vtable.</p>
+</div>
+<div class="section" id="fn-jmp">
+<span id="fn-jmp"></span><h3>fn-jmp<a class="headerlink" href="#fn-jmp" title="Permalink to this headline">¶</a></h3>
+<p>Jump to external function address indirectly via the local Vtable.</p>
+</div>
+</div>
+<div class="section" id="higher-level-function-calling">
+<span id="higher-level-function-calling"></span><h2>Higher level function calling<a class="headerlink" href="#higher-level-function-calling" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="f-call">
+<span id="f-call"></span><h3>f-call<a class="headerlink" href="#f-call" title="Permalink to this headline">¶</a></h3>
+<p>Call method statically.</p>
+</div>
+<div class="section" id="f-jmp">
+<span id="f-jmp"></span><h3>f-jmp<a class="headerlink" href="#f-jmp" title="Permalink to this headline">¶</a></h3>
+<p>Jump to method statically.</p>
+</div>
+<div class="section" id="f-bind">
+<span id="f-bind"></span><h3>f-bind<a class="headerlink" href="#f-bind" title="Permalink to this headline">¶</a></h3>
+<p>Bind to method statically.</p>
+</div>
+<div class="section" id="s-call">
+<span id="s-call"></span><h3>s-call<a class="headerlink" href="#s-call" title="Permalink to this headline">¶</a></h3>
+<p>Super call method statically.</p>
+</div>
+<div class="section" id="s-jmp">
+<span id="s-jmp"></span><h3>s-jmp<a class="headerlink" href="#s-jmp" title="Permalink to this headline">¶</a></h3>
+<p>Super jump to method statically.</p>
+</div>
+<div class="section" id="s-bind">
+<span id="s-bind"></span><h3>s-bind<a class="headerlink" href="#s-bind" title="Permalink to this headline">¶</a></h3>
+<p>Super bind to method statically.</p>
+</div>
+<div class="section" id="v-call">
+<span id="v-call"></span><h3>v-call<a class="headerlink" href="#v-call" title="Permalink to this headline">¶</a></h3>
+<p>Virtual call method.</p>
+</div>
+<div class="section" id="v-jmp">
+<span id="v-jmp"></span><h3>v-jmp<a class="headerlink" href="#v-jmp" title="Permalink to this headline">¶</a></h3>
+<p>Virtual jump to method.</p>
+</div>
+<div class="section" id="v-bind">
+<span id="v-bind"></span><h3>v-bind<a class="headerlink" href="#v-bind" title="Permalink to this headline">¶</a></h3>
+<p>Virtual bind to method.</p>
+</div>
+<div class="section" id="d-call">
+<span id="d-call"></span><h3>d-call<a class="headerlink" href="#d-call" title="Permalink to this headline">¶</a></h3>
+<p>De-Virtualise call method.</p>
+</div>
+<div class="section" id="d-jmp">
+<span id="d-jmp"></span><h3>d-jmp<a class="headerlink" href="#d-jmp" title="Permalink to this headline">¶</a></h3>
+<p>De-Virtualise jump to method.</p>
+</div>
+<div class="section" id="d-bind">
+<span id="d-bind"></span><h3>d-bind<a class="headerlink" href="#d-bind" title="Permalink to this headline">¶</a></h3>
+<p>De-Virtualise bind to method.</p>
+</div>
+<div class="section" id="r-call">
+<span id="r-call"></span><h3>r-call<a class="headerlink" href="#r-call" title="Permalink to this headline">¶</a></h3>
+<p>Register dispatched call method.</p>
+</div>
+<div class="section" id="l-call">
+<span id="l-call"></span><h3>l-call<a class="headerlink" href="#l-call" title="Permalink to this headline">¶</a></h3>
+<p>Local subroutine call.</p>
+</div>
+</div>
+<div class="section" id="function-info-helpers">
+<span id="function-info-helpers"></span><h2>Function info helpers<a class="headerlink" href="#function-info-helpers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="f-path">
+<span id="f-path"></span><h3>f-path<a class="headerlink" href="#f-path" title="Permalink to this headline">¶</a></h3>
+<p>Return method function path.</p>
+</div>
+<div class="section" id="s-path">
+<span id="s-path"></span><h3>s-path<a class="headerlink" href="#s-path" title="Permalink to this headline">¶</a></h3>
+<p>Return super method function path.</p>
+</div>
+</div>
+<div class="section" id="function-entry-and-exit-helpers">
+<span id="function-entry-and-exit-helpers"></span><h2>Function entry and exit helpers<a class="headerlink" href="#function-entry-and-exit-helpers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="f-entry">
+<span id="f-entry"></span><h3>f-entry<a class="headerlink" href="#f-entry" title="Permalink to this headline">¶</a></h3>
+<p>Method entry args.</p>
+</div>
+<div class="section" id="f-exit">
+<span id="f-exit"></span><h3>f-exit<a class="headerlink" href="#f-exit" title="Permalink to this headline">¶</a></h3>
+<p>Method exit args.</p>
+</div>
+<div class="section" id="l-entry">
+<span id="l-entry"></span><h3>l-entry<a class="headerlink" href="#l-entry" title="Permalink to this headline">¶</a></h3>
+<p>Local subroutine entry args.</p>
+</div>
+<div class="section" id="l-exit">
+<span id="l-exit"></span><h3>l-exit<a class="headerlink" href="#l-exit" title="Permalink to this headline">¶</a></h3>
+<p>Local subroutine exit args.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Chris Hinsley.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

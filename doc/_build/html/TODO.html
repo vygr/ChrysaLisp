@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ChrysaLisp &mdash; ChrysaLisp  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="ChrysaLisp  documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> ChrysaLisp
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">ChrysaLisp</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ChrysaLisp</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>ChrysaLisp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/TODO.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="chrysalisp">
+<span id="chrysalisp"></span><h1>ChrysaLisp<a class="headerlink" href="#chrysalisp" title="Permalink to this headline">¶</a></h1>
+<p>In no particular order but to just to ensure I get thoughts down. I’ll keep
+adding to this as I go along. If anybody would like to try helping out, then
+just get in touch.</p>
+<ul class="simple">
+<li>Add support for FPU to the VM. Scalar float/double support first of all maybe
+eventually create a FPU accelerated version of the vector math SDL.</li>
+<li>Create a Virtualbox boot image of the system. I’ve been looking at bare metal
+OS and talking to the author for a couple of months. He’s got plans to
+implement a frame buffer device for bare metal. At that point I think I would
+have everything I need to do a platform isolation interface targeting bare
+metal as the bootstrap and take over the UI work directly rather than going
+through SDL. At this point I would start writing device drivers for the virtual
+device interfaces provided by the VM environment.</li>
+<li>Create a standard services registration system. This is a mechanism to allow
+processes to register themselves as providing a particular service to the rest
+of the network. All this amounts to is a standard mechanism for attaching a
+name globally throughout the system to a mailbox ID. Initially there will
+probably be a message to kernel zero to register a mailbox ID. Although I may
+cache these locally on retrieval in order to distribute the global names
+throughout the network.</li>
+<li>Create or port an existing TCP/IP stack. Provide this as a standard service
+on the network. Implement another link driver type that uses TCP/IP in order to
+experiment with bridging multiple computers together into a single addressable
+network. I’m very tempted to create a link driver based on the Nanomsg library,
+this could prove interesting but would only work on hosted systems, still worth
+doing.</li>
+<li>Create a byte coded version of the VP instructions and implement a runtime
+translator. The runtime translator could be as simple as expanding the byte
+code into the existing emit buffer format and using the existing emit buffer
+compilation technique. Heterogeneous applications should work currently, just
+using the separated name spaces in the obj/ directory. But I’d quite like to
+get to the point where there is a single virtual binary package for an
+application for distribution. At this point I would implement the ability for
+applications to have native coded versions of functions available and those
+functions would be bound to in preference to the VP versions when a process
+finds itself on such an architecture.</li>
+<li>Live hot patching of functions. This should be relatively easy because all
+calls and jumps between functions go via a local Vtable at the end of the
+function or via a class Vtable. Therefore all that needs to happen is a new sys
+load function that doesn’t check the existing function list but just loads the
+new function and walks the existing function list patching all the Vtable
+addresses. Re-claiming any existing space used by the old function is probably
+not worth it at the moment. Although eventually the function list and function
+blocks could be garbage collected, or functions could be compacted or moved
+around using exactly the same hot patching mechanism.</li>
+<li>Live tracing and runtime statistics gathering. Like the live hot patching of
+functions it should be possible to walk the function list and patch all the
+Vtables to call via a debugging tracer or statistics gathering app.</li>
+<li>Investigate getting LLVM/GCC to produce functions in ChrysaLisp format. One
+of the advantages of the simple function format using a local Vtable for all
+calls and jumps is that there is no code patching needed. The loader does not
+need to concern itself with patching a variety of native binary formats, it
+only concerns itself with looking up function names and writing to Vtable
+entries.</li>
+<li>Webassembly backend in order to experiment with using browsers and web socket
+links to create a distributed network across the Internet.</li>
+<li>Create a more comprehensive command line suite of tools. I don’t think this
+needs to be especially large or even go as far as Busybox. But some of the more
+useful text processing and helpful commands would go a long way.</li>
+<li>Other targets and platform configs. RISC V and MIPS targets. Bare metal PI3
+and other Aarch64 development board support along with GPIO/SPI/I2C and so
+forth for the maker community. SDL over frame buffer version for PI3, maybe
+just needs testing, but needs doing. L4 micro kernel hosted version could prove
+interesting.</li>
+<li>Better cooking of key modifiers !</li>
+<li>Network wide DHT based object store, provided as a service. I’ve been
+planning a network wide object store that presents itself as a standard service
+and uses a distributed hash table technique to store objects throughout the
+network with redundancy.</li>
+</ul>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Chris Hinsley.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
