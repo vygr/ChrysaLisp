@@ -1,5 +1,4 @@
 (import 'sys/func.inc)
-(import 'class/string/string.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_merge)
