@@ -45,6 +45,7 @@
 (ffi pop "class/lisp/func_pop" 0)
 (ffi each! "class/lisp/func_each" 0)
 (ffi some! "class/lisp/func_some" 0)
+(ffi merge-sym "class/lisp/func_merge" 0)
 
 (ffi str "class/lisp/func_str" 0)
 (ffi sym "class/lisp/func_sym" 0)
@@ -411,12 +412,8 @@
 		(when (notany (lambda (x) (eql x y)) x)
 			(push x y))) y))
 
-(defun insert-sym (x y)
-	(unless (find y x) (push x y)))
-
-(defun merge-sym (x y)
-	(each (lambda (y)
-		(unless (find y x) (push x y))) y))
+(defun insert-sym (x &rest y)
+	(merge-sym x y))
 
 (defmacro sym-cat (&rest _)
 	`(sym (cat ~_)))
@@ -489,7 +486,7 @@
 		(bind '(o _) (read f 32))) o)
 
 (defun within-compile-env (_)
-	(defq *compile-env* (env 199) *imports* (list))
+	(defq *compile-env* (env 307) *imports* (list))
 	(defmacro defcvar (&rest b) `(def *compile-env* ~b))
 	(defmacro defcfun (n a &rest b) `(def *compile-env* ',n (lambda ,a ~b)))
 	(defmacro defcmacro (n a &rest b) `(def *compile-env* ',n (macro ,a ~b)))

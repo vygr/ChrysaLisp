@@ -665,11 +665,8 @@
 
 (defcfun set-reg-map (l &optional _)
 	(setd _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
-	(if (ne 0 (length l))
-		(merge-sym l _)
-		(setq l _))
 	(each! nil nil nil (lambda (_ r)
-		(set (env) _ r)) (list *vreg* l)))
+		(set (env) _ r)) (list *vreg* (if (ne 0 (length l)) (merge-sym l _) _))))
 
 (defcfun push-reg (_)
 	(defq r (vreg-sym (length *vregt*)))

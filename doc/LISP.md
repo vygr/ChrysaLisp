@@ -123,6 +123,7 @@ macro
 macroexpand
 macroexpand-1
 match?
+merge-sym
 mod
 mul
 ne
@@ -234,7 +235,6 @@ map
 map-rev
 max
 merge
-merge-sym
 min
 neg
 notany

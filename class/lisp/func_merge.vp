@@ -1,0 +1,50 @@
+(import 'sys/func.inc)
+(import 'class/string/string.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_merge)
+	;inputs
+	;r0 = lisp object
+	;r1 = args
+	;outputs
+	;r0 = lisp object
+	;r1 = else value
+
+	(ptr 'this 'args 'list1 'list2)
+	(pptr 'iter_begin 'iter_end)
+
+	(push-scope)
+	(f-entry 'lisp 'func_merge {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, list1})
+	(errorifnot {list1} 'error1))
+
+	(f-call 'vector 'get_first {args} {_, list1})
+	(f-call 'vector 'get_second {args} {_, list2})
+	(f-call 'vector 'get_iters {list2} {_, iter_begin, iter_end})
+	(loop-while {iter_begin != iter_end})
+		(assign {*iter_begin} {args})
+		(errorif (cat {args->obj_vtable != @} (f-path 'class 'symbol)) 'error1)
+		(f-call 'vector 'find {list1, args} {_, list2})
+		(vpif {list2 == -1})
+			(f-call 'obj 'ref {args})
+			(f-call 'vector 'push_back {list1, args})
+		(endif)
+		(assign {iter_begin + ptr_size} {iter_begin})
+	(loop-end)
+	(f-call 'obj 'ref {list1})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'func_merge {this, list1})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(merge-sym list list)", error_msg_wrong_types, args} {_, list1})
+	(goto 'exit)
+	(signature 'sig 'vector 'vector))
+
+	(pop-scope-syms)
+
+(def-func-end)
