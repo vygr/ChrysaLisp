@@ -1,4 +1,4 @@
-# ChrysaLisp
+# Lisp
 
 It's probably worth a few words specifically about the included Lisp and how it
 works, and how many rules it breaks ! The reason for doing the Lisp was to
@@ -56,7 +56,7 @@ the environment chain is searched to see if a macro exists.
 
 ### Built in symbols
 
-```ChrysaLisp
+```lisp
 &rest
 &optional
 nil
@@ -65,7 +65,7 @@ t
 
 ### Built in functions
 
-```ChrysaLisp
+```lisp
 add
 age
 apply
@@ -165,7 +165,7 @@ write-line
 
 ### boot.lisp symbols
 
-```ChrysaLisp
+```lisp
 min_long
 max_long
 min_int
@@ -182,7 +182,7 @@ fp_frac_mask
 
 ### boot.lisp macros
 
-```ChrysaLisp
+```lisp
 and
 ascii
 compose
@@ -206,7 +206,7 @@ when
 
 ### boot.lisp functions
 
-```ChrysaLisp
+```lisp
 abs
 align
 bit-not
@@ -274,7 +274,7 @@ within-compile-env
 
 ### asm.inc symbols
 
-```ChrysaLisp
+```lisp
 debug_mode
 debug_emit
 debug_inst
@@ -282,7 +282,7 @@ debug_inst
 
 ### asm.inc functions
 
-```ChrysaLisp
+```lisp
 all-vp-files
 compile
 compile-pipe

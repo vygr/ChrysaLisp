@@ -1,4 +1,4 @@
-# ChrysaLisp
+# Functions
 
 ChrysaLisp is built from functions. Ok, so that's just about the most obvious
 thing to say about any computer program but they are organised in a slightly
