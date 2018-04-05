@@ -15,6 +15,9 @@ Welcome to ChrysaLisp's documentation!
    TAOS
    TODO
 
+.. mdinclude:: ../README.md
+
+
 Indices and tables
 ==================
 
