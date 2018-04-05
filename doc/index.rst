@@ -10,7 +10,10 @@ Welcome to ChrysaLisp's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   LISP
+   FUNCTIONS
+   TAOS
+   TODO
 
 Indices and tables
 ==================
