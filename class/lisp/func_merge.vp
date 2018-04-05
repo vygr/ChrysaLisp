@@ -14,7 +14,7 @@
 	(union
 		'(ptr 'list2)
 		'(uint 'length)
-		'(uint 'index))
+		'(int 'index))
 
 	(push-scope)
 	(f-entry 'lisp 'func_merge {this, args})
