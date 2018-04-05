@@ -3,6 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. Building these docs
+   ===
+
+.. pip install --user sphinx recommonmark sphinx_rtd_theme m2r
+   make html
+
 Welcome to ChrysaLisp's documentation!
 ======================================
 
