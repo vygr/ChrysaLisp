@@ -244,7 +244,7 @@
 		(compile _ *os* *cpu*)) (all-vp-files)))
 
 ;;;;;;;;;;;;;;
-; ref doc make
+; make ref doc
 ;;;;;;;;;;;;;;
 
 (defun make-doc ()
@@ -264,7 +264,8 @@
 					((eql _ "(import")
 						(insert-sym *imports* (trimmed (elem 1 s))))
 					((eql _ "(def-class")
-						(push classes (list (trimmed (elem 1 s)))))
+						(push classes (list (trimmed (elem 1 s))
+							(if (eq 3 (length s)) (trimmed (elem 2 s)) 'null))))
 					((eql _ "(def-method")
 						(push (elem -2 classes) (list (trimmed (elem 1 s)) (trimmed (elem 2 s)))))
 					((eql _ "(def-func")
@@ -277,10 +278,11 @@
 						(push functions (trimmed (elem 1 s))))))))) *imports*)
 	(sort (lambda (x y)
 		(cmp (elem 0 x) (elem 0 y))) classes)
-	(defq doc (cat "") stream (string-stream doc))
+	(defq stream (string-stream (cat "")))
 	(write-line stream "# Classes")
 	(each (lambda (_)
 		(write stream "## ")(write-line stream (defq m (elem 0 _)))
+		(write stream "Super Class: ")(write-line stream (elem 1 _))
 		(each (lambda (_)
 			(write stream "### ")(write stream m)(write stream "::")(write stream (elem 0 _))
 			(write stream " -> ")(write-line stream (elem 1 _))
@@ -288,8 +290,6 @@
 					(ne 0 (length (elem i docs))))
 				(write-line stream "```")
 				(each (lambda (_) (write-line stream _)) (elem i docs))
-				(write-line stream "```"))) (slice 1 -1 _))) classes)
-	(setq doc (str stream))
-	(save doc 'doc/CLASSES.md)
-	(print doc)
+				(write-line stream "```"))) (slice 2 -1 _))) classes)
+	(save (str stream) 'doc/CLASSES.md)
 	nil)

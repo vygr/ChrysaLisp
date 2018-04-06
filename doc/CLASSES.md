@@ -1,5 +1,6 @@
 # Classes
 ## array
+Super Class: sequence
 ### array::create -> class/array/create
 ### array::new -> class/array/new
 ### array::init -> class/array/init
@@ -304,8 +305,10 @@
 ;r1-r11
 ```
 ## boxed_long
+Super Class: boxed_ptr
 ### boxed_long::create -> class/boxed_long/create
 ## boxed_ptr
+Super Class: obj
 ### boxed_ptr::create -> class/boxed_ptr/create
 ### boxed_ptr::new -> class/boxed_ptr/new
 ### boxed_ptr::init -> class/boxed_ptr/init
@@ -327,6 +330,7 @@
 ;r1 = value
 ```
 ## button
+Super Class: label
 ### button::create -> class/button/create
 ### button::new -> class/button/new
 ### button::init -> class/button/init
@@ -404,6 +408,7 @@
 ;r1 = value
 ```
 ## canvas
+Super Class: view
 ### canvas::create -> class/canvas/create
 ```
 ;inputs
@@ -675,6 +680,7 @@
 ;r1 = value
 ```
 ## class
+Super Class: null
 ### class::obj -> class/class_obj
 ### class::component -> class/class_component
 ### class::string -> class/class_string
@@ -710,6 +716,7 @@
 ### class::font -> class/class_font
 ### class::texture -> class/class_texture
 ## component
+Super Class: hash_map
 ### component::init -> class/component/init
 ```
 ;inputs
@@ -817,6 +824,7 @@
 ;all but r0
 ```
 ## error
+Super Class: obj
 ### error::create -> class/error/create
 ### error::new -> class/error/new
 ### error::init -> class/error/init
@@ -885,6 +893,7 @@
 ;all but r0
 ```
 ## flow
+Super Class: view
 ### flow::create -> class/flow/create
 ### flow::new -> class/flow/new
 ### flow::pref_size -> class/flow/pref_size
@@ -914,6 +923,7 @@
 ;r1 = value
 ```
 ## font
+Super Class: obj
 ### font::open -> class/font/open
 ```
 ;r0 = name string pointer
@@ -976,6 +986,7 @@
 ;r1 = value
 ```
 ## grid
+Super Class: view
 ### grid::create -> class/grid/create
 ### grid::new -> class/grid/new
 ### grid::pref_size -> class/grid/pref_size
@@ -1005,6 +1016,7 @@
 ;r1 = value
 ```
 ## gui_ctx
+Super Class: null
 ### gui_ctx::box -> gui/ctx/box
 ```
 ;inputs
@@ -1081,6 +1093,7 @@
 ;r2, r3
 ```
 ## gui_gui
+Super Class: null
 ### gui_gui::statics -> gui/gui_statics
 ### gui_gui::init -> gui/gui_init
 ```
@@ -1106,6 +1119,7 @@
 ;gui process
 ```
 ## gui_region
+Super Class: null
 ### gui_region::translate -> gui/region/translate
 ```
 ;inputs
@@ -1230,6 +1244,7 @@
 ;r1-r14
 ```
 ## hash_map
+Super Class: hash_set
 ### hash_map::create -> class/hash_map/create
 ### hash_map::new -> class/hash_map/new
 ### hash_map::init -> class/hash_map/init
@@ -1342,6 +1357,7 @@
 ;all but r0
 ```
 ## hash_set
+Super Class: obj
 ### hash_set::create -> class/hash_set/create
 ### hash_set::new -> class/hash_set/new
 ### hash_set::init -> class/hash_set/init
@@ -1472,6 +1488,7 @@
 ;all but r0
 ```
 ## kernel
+Super Class: null
 ### kernel::id -> sys/kernel/id
 ```
 ;outputs
@@ -1507,6 +1524,7 @@
 ;r1 = value
 ```
 ## label
+Super Class: view
 ### label::create -> class/label/create
 ### label::new -> class/label/new
 ### label::init -> class/label/init
@@ -1555,6 +1573,7 @@
 ;r1 = value
 ```
 ## lisp
+Super Class: obj
 ### lisp::create -> class/lisp/create
 ### lisp::new -> class/lisp/new
 ### lisp::init -> class/lisp/init
@@ -2582,6 +2601,7 @@
 ;r1 = else value
 ```
 ## math
+Super Class: null
 ### math::random -> sys/math/random
 ```
 ;inputs
@@ -2651,6 +2671,7 @@
 ;all
 ```
 ## msg_in
+Super Class: stream
 ### msg_in::create -> class/msg_in/create
 ### msg_in::new -> class/msg_in/new
 ### msg_in::init -> class/msg_in/init
@@ -2702,6 +2723,7 @@
 ;all but r0
 ```
 ## msg_out
+Super Class: stream
 ### msg_out::create -> class/msg_out/create
 ### msg_out::new -> class/msg_out/new
 ### msg_out::init -> class/msg_out/init
@@ -2749,6 +2771,7 @@
 ;all but r0
 ```
 ## obj
+Super Class: null
 ### obj::destroy -> class/obj/destroy
 ```
 ;inputs
@@ -2822,6 +2845,7 @@
 ;all but r0
 ```
 ## pair
+Super Class: obj
 ### pair::create -> class/pair/create
 ### pair::new -> class/pair/new
 ### pair::init -> class/pair/init
@@ -2899,6 +2923,7 @@
 ;all but r0
 ```
 ## pii
+Super Class: null
 ### pii::exit -> sys/pii/exit
 ```
 ;inputs
@@ -3078,6 +3103,7 @@
 ;none
 ```
 ## pipe
+Super Class: obj
 ### pipe::create -> class/pipe/create
 ### pipe::new -> class/pipe/new
 ### pipe::init -> class/pipe/init
@@ -3136,6 +3162,7 @@
 ;all but r0
 ```
 ## points
+Super Class: array
 ### points::create -> class/points/create
 ### points::filter_polyline -> class/points/filter_polyline
 ```
@@ -3290,6 +3317,7 @@
 ;all but r0
 ```
 ## progress
+Super Class: view
 ### progress::create -> class/progress/create
 ### progress::new -> class/progress/new
 ### progress::pref_size -> class/progress/pref_size
@@ -3327,6 +3355,7 @@
 ;r1 = value
 ```
 ## sdl
+Super Class: null
 ### sdl::sdl_set_main_ready -> nil
 ### sdl::sdl_init -> nil
 ### sdl::sdl_get_error -> nil
@@ -3360,10 +3389,12 @@
 ### sdl::ttf_font_height -> nil
 ### sdl::ttf_render_utf8_blended -> nil
 ## sequence
+Super Class: obj
 ### sequence::get_length -> class/obj/null
 ### sequence::ref_element -> class/obj/null
 ### sequence::slice -> class/obj/null
 ## slave
+Super Class: obj
 ### slave::create -> class/slave/create
 ### slave::new -> class/slave/new
 ### slave::init -> class/slave/init
@@ -3401,6 +3432,7 @@
 ;r1 = value
 ```
 ## stream
+Super Class: obj
 ### stream::create -> class/stream/create
 ### stream::new -> class/stream/new
 ### stream::init -> class/stream/init
@@ -3564,6 +3596,7 @@
 ;r1
 ```
 ## stream_str
+Super Class: stream
 ### stream_str::create -> class/stream_str/create
 ### stream_str::new -> class/stream_str/new
 ### stream_str::init -> class/stream_str/init
@@ -3606,6 +3639,7 @@
 ;all but r0
 ```
 ## string
+Super Class: sequence
 ### string::create_from_buffer -> class/string/create_from_buffer
 ```
 ;inputs
@@ -3795,6 +3829,7 @@
 ;r2-r6
 ```
 ## symbol
+Super Class: string
 ### symbol::intern -> class/symbol/intern
 ```
 ;inputs
@@ -3814,6 +3849,7 @@
 ;all
 ```
 ## sys_heap
+Super Class: null
 ### sys_heap::init -> sys/heap/init
 ```
 ;inputs
@@ -3854,24 +3890,30 @@
 ;r2
 ```
 ## sys_link
+Super Class: null
 ### sys_link::init -> sys/link/init
 ### sys_link::link -> sys/link/link
 ```
 ;started by kernel for each link
 ```
 ## sys_list
+Super Class: null
 ### sys_list::init -> sys/list/init
 ```
 ;inputs
 ;r0 = list header pointer
 ```
 ## sys_load
+Super Class: null
 ### sys_load::statics -> sys/load/statics
 ### sys_load::init -> sys/load/init
 ```
 ;inputs
 ;system argv
 ;SDL function table
+;info
+;register inputs are dependant on the platform ABI
+;they are extracted via (sys-arg 0) and (sys-arg 1)
 ```
 ### sys_load::bind -> sys/load/bind
 ```
@@ -3883,6 +3925,7 @@
 ;r1-r7
 ```
 ## sys_mail
+Super Class: null
 ### sys_mail::statics -> sys/mail/statics
 ### sys_mail::init -> sys/mail/init
 ```
@@ -4010,14 +4053,21 @@
 ;r1 = value
 ```
 ## sys_mem
+Super Class: null
 ### sys_mem::statics -> sys/mem/statics
+```
+;info
+;mem statics data
+```
 ### sys_mem::init -> sys/mem/init
 ```
-;get statics
+;info
+;init mem statics
 ```
 ### sys_mem::deinit -> sys/mem/deinit
 ```
-;get statics
+;info
+;deinit mem statics
 ```
 ### sys_mem::alloc -> sys/mem/alloc
 ```
@@ -4109,6 +4159,7 @@
 ;r0 = amount in bytes
 ```
 ## sys_string
+Super Class: null
 ### sys_string::length -> sys/string/length
 ```
 ;inputs
@@ -4160,10 +4211,16 @@
 ;r0-r4
 ```
 ## sys_task
+Super Class: null
 ### sys_task::statics -> sys/task/statics
+```
+;info
+;task statics data
+```
 ### sys_task::init -> sys/task/init
 ```
-;init task lists
+;info
+;init task statics
 ```
 ### sys_task::tcb -> sys/task/tcb
 ```
@@ -4196,16 +4253,20 @@
 ```
 ### sys_task::stop -> sys/task/stop
 ```
-;remove task control block
+;info
+;stop current task, switch to next task
 ```
 ### sys_task::restore -> sys/task/restore
 ```
-;restore next task
+;inputs
 ;r14 = control block to restore
+;info
+;restore next task
 ```
 ### sys_task::yield -> sys/task/yield
 ```
-;push task state
+;info
+;switch to next task
 ```
 ### sys_task::count -> sys/task/count
 ```
@@ -4219,7 +4280,8 @@
 ```
 ### sys_task::suspend -> sys/task/suspend
 ```
-;push task state
+;info
+;suspend current task, switch to next task
 ```
 ### sys_task::resume -> sys/task/resume
 ```
@@ -4315,6 +4377,7 @@
 ;r1 = value
 ```
 ## text
+Super Class: view
 ### text::create -> class/text/create
 ### text::new -> class/text/new
 ### text::init -> class/text/init
@@ -4359,6 +4422,7 @@
 ;all but r0
 ```
 ## texture
+Super Class: obj
 ### texture::create -> class/texture/create
 ### texture::new -> class/texture/new
 ### texture::init -> class/texture/init
@@ -4391,6 +4455,7 @@
 ;all but r0
 ```
 ## title
+Super Class: label
 ### title::create -> class/title/create
 ### title::new -> class/title/new
 ### title::init -> class/title/init
@@ -4419,6 +4484,7 @@
 ;all but r0
 ```
 ## vdu
+Super Class: view
 ### vdu::create -> class/vdu/create
 ### vdu::new -> class/vdu/new
 ### vdu::init -> class/vdu/init
@@ -4486,6 +4552,7 @@
 ;all but r0
 ```
 ## vector
+Super Class: array
 ### vector::create -> class/vector/create
 ### vector::deinit -> class/vector/deinit
 ```
@@ -4569,6 +4636,7 @@
 ;r1-r11
 ```
 ## view
+Super Class: component
 ### view::init -> class/view/init
 ```
 ;inputs
@@ -4887,6 +4955,7 @@
 ### view::key_down -> class/obj/null
 ### view::key_up -> class/obj/null
 ## window
+Super Class: view
 ### window::new -> class/window/new
 ### window::create -> class/window/create
 ### window::init -> class/window/init

@@ -4,10 +4,16 @@
 (import 'class/string/string.inc)
 
 (def-func 'sys/task/statics)
+	;info
+	;task statics data
+
 	(times tk_statics_size (vp-byte 0))
 (def-func-end)
 
 (def-func 'sys/task/init)
+	;info
+	;init task statics
+
 	;init task lists
 	(f-bind 'sys_task 'statics r0)
 	(vp-add-cr tk_statics_timer_list r0)
@@ -87,8 +93,10 @@
 (def-func-end)
 
 (def-func 'sys/task/restore)
-	;restore next task
+	;inputs
 	;r14 = control block to restore
+	;info
+	;restore next task
 
 	;restore old task
 	(f-bind 'sys_task 'statics r0)
@@ -102,6 +110,9 @@
 (def-func-end)
 
 (def-func 'sys/task/suspend)
+	;info
+	;suspend current task, switch to next task
+
 	;push task state
 	(tk-save-state)
 
@@ -236,6 +247,9 @@
 (def-func-end)
 
 (def-func 'sys/task/stop)
+	;info
+	;stop current task, switch to next task
+
 	;remove task control block
 	(f-bind 'sys_task 'statics r0)
 	(vp-cpy-ir r0 tk_statics_current_tcb r1)
@@ -276,6 +290,9 @@
 (def-func-end)
 
 (def-func 'sys/task/yield)
+	;info
+	;switch to next task
+
 	;push task state
 	(tk-save-state)
 

@@ -4,6 +4,8 @@
 (defcvar 'mem_cell_min_size 0x000020 'mem_cell_max_size 0x4000000 'mem_block_size (mul 32 1024))
 
 (def-func 'sys/mem/statics)
+	;info
+	;mem statics data
 
 	(vp-long 0) ;used memory count
 	(let ((s mem_cell_min_size))
@@ -24,6 +26,9 @@
 (def-func-end)
 
 (def-func 'sys/mem/init)
+	;info
+	;init mem statics
+
 	;get statics
 	(f-bind 'sys_mem 'statics r0)
 	(vp-add-cr long_size r0)
@@ -40,6 +45,9 @@
 (def-func-end)
 
 (def-func 'sys/mem/deinit)
+	;info
+	;deinit mem statics
+
 	;get statics
 	(f-bind 'sys_mem 'statics r4)
 	(vp-add-cr long_size r4)

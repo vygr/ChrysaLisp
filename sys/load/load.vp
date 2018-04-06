@@ -13,6 +13,9 @@
 	;inputs
 	;system argv
 	;SDL function table
+	;info
+	;register inputs are dependant on the platform ABI
+	;they are extracted via (sys-arg 0) and (sys-arg 1)
 
 	;save inputs
 	(vp-push (sys-arg 0) (sys-arg 1))
