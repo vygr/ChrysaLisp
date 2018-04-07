@@ -11,7 +11,7 @@
 	;inputs
 	;r0 = hash_map object (ptr)
 	;r1 = vtable (pptr)
-	;r2 = key compare callback (ptr)
+	;r2 = 0, else key compare callback (ptr)
 	;r3 = num buckets (uint)
 	;outputs
 	;r0 = hash_map object (ptr)

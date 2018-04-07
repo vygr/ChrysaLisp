@@ -444,7 +444,7 @@ all but r0
 ```
 inputs
 r0 = canvas object (ptr)
-r1 = source canvas object
+r1 = source canvas object (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
@@ -836,7 +836,7 @@ r2 = description c string (pubyte)
 r3 = 0, else error msg index (uint)
 r4 = error payload object (ptr)
 r5 = filename c string (pubyte)
-r6 = line number
+r6 = line number (uint)
 outputs
 r0 = error object (ptr)
 r1 = 0 if error, else ok
@@ -1078,7 +1078,7 @@ all
 ```
 inputs
 r1 = color (argb)
-inputs
+outputs
 r1 = brighter color (argb)
 trashes
 r2, r3
@@ -1087,7 +1087,7 @@ r2, r3
 ```
 inputs
 r1 = color (argb)
-inputs
+outputs
 r1 = darker color (argb)
 trashes
 r2, r3
@@ -1252,7 +1252,7 @@ Super Class: hash_set
 inputs
 r0 = hash_map object (ptr)
 r1 = vtable (pptr)
-r2 = key compare callback (ptr)
+r2 = 0, else key compare callback (ptr)
 r3 = num buckets (uint)
 outputs
 r0 = hash_map object (ptr)
@@ -1365,7 +1365,7 @@ Super Class: obj
 inputs
 r0 = hash_set object (ptr)
 r1 = vtable (pptr)
-r2 = key compare callback (ptr)
+r2 = 0, else key compare callback (ptr)
 r3 = num buckets (uint)
 outputs
 r0 = hash_set object (ptr)
@@ -1501,11 +1501,12 @@ r0 = cpu total (uint)
 ```
 ### kernel::opts -> sys/kernel/opts
 ```
-process command options
 inputs
 r0 = argv array (pptr)
 trashes
 all
+info
+process command options
 ```
 ### kernel::kernel -> sys/kernel/kernel
 ```

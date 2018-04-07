@@ -297,11 +297,12 @@
 (def-func-end)
 
 (def-func 'sys/kernel/opts)
-	;process command options
 	;inputs
 	;r0 = argv array (pptr)
 	;trashes
 	;all
+	;info
+	;process command options
 
 	(pptr 'argv)
 	(ptr 'arg)

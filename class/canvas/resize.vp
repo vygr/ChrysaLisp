@@ -4,7 +4,7 @@
 (def-func 'class/canvas/resize)
 	;inputs
 	;r0 = canvas object (ptr)
-	;r1 = source canvas object
+	;r1 = source canvas object (ptr)
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes

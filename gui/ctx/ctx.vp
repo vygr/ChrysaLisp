@@ -41,7 +41,7 @@
 (def-func 'gui/ctx/brighter)
 	;inputs
 	;r1 = color (argb)
-	;inputs
+	;outputs
 	;r1 = brighter color (argb)
 	;trashes
 	;r2, r3
@@ -60,7 +60,7 @@
 (def-func 'gui/ctx/darker)
 	;inputs
 	;r1 = color (argb)
-	;inputs
+	;outputs
 	;r1 = darker color (argb)
 	;trashes
 	;r2, r3

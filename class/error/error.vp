@@ -15,7 +15,7 @@
 	;r3 = 0, else error msg index (uint)
 	;r4 = error payload object (ptr)
 	;r5 = filename c string (pubyte)
-	;r6 = line number
+	;r6 = line number (uint)
 	;outputs
 	;r0 = error object (ptr)
 	;r1 = 0 if error, else ok
