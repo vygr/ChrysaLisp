@@ -9,12 +9,12 @@
 
 (def-func 'class/hash_map/init)
 	;inputs
-	;r0 = hash_map object
-	;r1 = vtable pointer
-	;r2 = key compare callback
-	;r3 = num_buckets
+	;r0 = hash_map object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = key compare callback (ptr)
+	;r3 = num buckets (uint)
 	;outputs
-	;r0 = hash_map object
+	;r0 = hash_map object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;r2-r7
@@ -32,7 +32,7 @@
 
 (def-func 'class/hash_map/deinit)
 	;inputs
-	;r0 = hash_map object
+	;r0 = hash_map object (ptr)
 	;trashes
 	;all but r0
 
@@ -47,10 +47,10 @@
 
 (def-func 'class/hash_map/set_parent)
 	;inputs
-	;r0 = hash_map object
-	;r1 = 0, else hash_map parent
+	;r0 = hash_map object (ptr)
+	;r1 = 0, else hash_map parent object (ptr)
 	;outputs
-	;r0 = hash_map object
+	;r0 = hash_map object (ptr)
 	;trashes
 	;all but r0
 
@@ -65,11 +65,11 @@
 
 (def-func 'class/hash_map/copy)
 	;inputs
-	;r0 = hash_map object
-	;r1 = num buckets
+	;r0 = hash_map object (ptr)
+	;r1 = num buckets (uint)
 	;outputs
-	;r0 = hash_map object
-	;r1 = hash_map copy
+	;r0 = hash_map object (ptr)
+	;r1 = hash_map copy object (ptr)
 	;trashes
 	;all but r0
 
@@ -94,8 +94,8 @@
 
 (vp-label 'callback)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
 	;outputs
 	;r1 = 0 if break, else not
 
@@ -110,12 +110,12 @@
 
 (def-func 'class/hash_map/find)
 	;inputs
-	;r0 = hash_map object
-	;r1 = key object
+	;r0 = hash_map object (ptr)
+	;r1 = key object (ptr)
 	;outputs
-	;r0 = hash_map object
-	;r1 = 0, else found iterator
-	;r2 = bucket vector
+	;r0 = hash_map object (ptr)
+	;r1 = 0, else found iterator (pptr)
+	;r2 = bucket vector (ptr)
 	;trashes
 	;all but r0
 
@@ -158,8 +158,8 @@
 
 (vp-label 'callback)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
 	;outputs
 	;r1 = 0 if break, else not
 
@@ -173,13 +173,13 @@
 
 (def-func 'class/hash_map/insert)
 	;inputs
-	;r0 = hash_map object
-	;r1 = key object
-	;r2 = value object
+	;r0 = hash_map object (ptr)
+	;r1 = key object (ptr)
+	;r2 = value object (ptr)
 	;outputs
-	;r0 = hash_map object
-	;r1 = iterator
-	;r2 = bucket vector
+	;r0 = hash_map object (ptr)
+	;r1 = iterator (pptr)
+	;r2 = bucket vector (ptr)
 	;trashes
 	;all but r0
 
@@ -233,12 +233,12 @@
 
 (def-func 'class/hash_map/search)
 	;inputs
-	;r0 = hash_map object
-	;r1 = key object
+	;r0 = hash_map object (ptr)
+	;r1 = key object (ptr)
 	;outputs
-	;r0 = hash_map object
-	;r1 = 0, else iterator
-	;r2 = bucket vector
+	;r0 = hash_map object (ptr)
+	;r1 = 0, else iterator (pptr)
+	;r2 = bucket vector (ptr)
 	;trashes
 	;all but r0
 
@@ -266,12 +266,12 @@
 
 (def-func 'class/hash_map/set)
 	;inputs
-	;r0 = hash_map object
-	;r1 = key object
-	;r2 = value object
+	;r0 = hash_map object (ptr)
+	;r1 = key object (ptr)
+	;r2 = value object (ptr)
 	;outputs
-	;r0 = hash_map object
-	;r1 = 0 if not found, else value object
+	;r0 = hash_map object (ptr)
+	;r1 = 0 if not found, else value object (ptr)
 	;trashes
 	;all but r0
 
@@ -300,11 +300,11 @@
 
 (def-func 'class/hash_map/get)
 	;inputs
-	;r0 = hash_map object
-	;r1 = key object
+	;r0 = hash_map object (ptr)
+	;r1 = key object (ptr)
 	;outputs
-	;r0 = hash_map object
-	;r1 = 0 if not found, else value object
+	;r0 = hash_map object (ptr)
+	;r1 = 0 if not found, else value object (ptr)
 	;trashes
 	;all but r0
 

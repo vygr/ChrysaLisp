@@ -11,10 +11,10 @@
 
 (def-func 'class/pipe/select)
 	;inputs
-	;r0 = pipe object
+	;r0 = pipe object (ptr)
 	;r1 = user mailbox
 	;outputs
-	;r0 = pipe object
+	;r0 = pipe object (ptr)
 	;r1 = mailbox with mail
 	;trashes
 	;all but r0

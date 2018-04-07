@@ -313,7 +313,7 @@
 
 (def-func 'sys/task/open_child)
 	;inputs
-	;r0 = name string object
+	;r0 = name string object (ptr)
 	;r1 = spawn type
 	;outputs
 	;r0, r1 = mailbox ID
@@ -328,7 +328,7 @@
 
 (def-func 'sys/task/open_remote)
 	;inputs
-	;r0 = name string object
+	;r0 = name string object (ptr)
 	;r1 = cpu target
 	;r2 = spawn type
 	;outputs
@@ -377,7 +377,7 @@
 
 (def-func 'sys/task/open_farm)
 	;inputs
-	;r0 = name string object
+	;r0 = name string object (ptr)
 	;r1 = number to spawn
 	;r2 = spawn type
 	;outputs

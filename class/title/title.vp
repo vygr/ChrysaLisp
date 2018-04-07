@@ -11,10 +11,10 @@
 
 (def-func 'class/title/init)
 	;inputs
-	;r0 = title object
-	;r1 = vtable pointer
+	;r0 = title object (ptr)
+	;r1 = vtable (pptr)
 	;outputs
-	;r0 = title object
+	;r0 = title object (ptr)
 	;r1 = 0 if error, else ok
 
 	(ptr 'this)
@@ -40,8 +40,8 @@
 
 (def-func 'class/title/mouse_down)
 	;inputs
-	;r0 = title object
-	;r1 = mouse event message
+	;r0 = title object (ptr)
+	;r1 = mouse event message (ptr)
 	;trashes
 	;all but r0
 
@@ -63,8 +63,8 @@
 
 (def-func 'class/title/mouse_move)
 	;inputs
-	;r0 = title object
-	;r1 = mouse event message
+	;r0 = title object (ptr)
+	;r1 = mouse event message (ptr)
 	;trashes
 	;all but r0
 

@@ -9,10 +9,10 @@
 
 (def-func 'class/label/init)
 	;inputs
-	;r0 = label object
-	;r1 = vtable pointer
+	;r0 = label object (ptr)
+	;r1 = vtable (pptr)
 	;outputs
-	;r0 = label object
+	;r0 = label object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0
@@ -48,8 +48,8 @@
 
 (def-func 'class/label/draw)
 	;inputs
-	;r0 = view object
-	;r1 = ctx object
+	;r0 = view object (ptr)
+	;r1 = draw ctx (ptr)
 	;trashes
 	;all but r0
 
@@ -71,7 +71,7 @@
 
 (def-func 'class/label/layout)
 	;inputs
-	;r0 = label object
+	;r0 = label object (ptr)
 	;trashes
 	;all but r0
 
@@ -101,10 +101,10 @@
 
 (def-func 'class/label/pref_size)
 	;inputs
-	;r0 = label object
+	;r0 = label object (ptr)
 	;outputs
-	;r9 = preferred width
-	;r10 = preferred height
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
 	;trashes
 	;all but r0
 

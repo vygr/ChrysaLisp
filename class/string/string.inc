@@ -76,15 +76,15 @@
 	;inputs
 	;r0 = object size
 	;outputs
-	;r0 = 0 if error, else object
+	;r0 = 0 if error, else object (ptr)
 	;trashes
 	;r1-r3
 	(f-call 'sys_mem 'alloc '(r0) '(r0 _)))
 
 (defcfun class/string/get_length ()
 	;inputs
-	;r0 = string object
+	;r0 = string object (ptr)
 	;outputs
-	;r0 = string object
+	;r0 = string object (ptr)
 	;r1 = string length
 	(vp-cpy-ir-ui r0 string_length r1))

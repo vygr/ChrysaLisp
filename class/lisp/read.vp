@@ -5,13 +5,13 @@
 
 (def-func 'class/lisp/read)
 	;inputs
-	;r0 = lisp object
-	;r1 = stream
-	;r2 = next char
+	;r0 = lisp object (ptr)
+	;r1 = stream object (ptr)
+	;r2 = next char (uint) (uint)
 	;outputs
-	;r0 = lisp object
-	;r1 = ast
-	;r2 = next char
+	;r0 = lisp object (ptr)
+	;r1 = ast vector (ptr)
+	;r2 = next char (uint) (uint)
 
 	(ptr 'this 'stream 'ast)
 	(int 'char)

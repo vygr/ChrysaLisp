@@ -3,12 +3,11 @@
 
 (def-func 'class/lisp/repl_eval_list)
 	;inputs
-	;r0 = lisp object
-	;r1 = list
-	;r2 = start index
+	;r0 = lisp object (ptr)
+	;r1 = list vector object (ptr)
 	;outputs
-	;r0 = lisp object
-	;r1 = value
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
 
 	(ptr 'this 'value)
 	(pptr 'iter_begin 'iter_end)

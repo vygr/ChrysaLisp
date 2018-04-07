@@ -6,7 +6,7 @@
 
 (def-func 'sys/pii/exit)
 	;inputs
-	;r0 = code
+	;r0 = code (long)
 
 	(f-entry 'pii 'exit '(r0))
 	(sys-exit '(r0))
@@ -15,11 +15,11 @@
 
 (def-func 'sys/pii/open)
 	;inputs
-	;r0 = filename
-	;r1 = mode
-	;r2 = flags
+	;r0 = c string filename (pubyte)
+	;r1 = mode (ulong)
+	;r2 = flags (ulong)
 	;outputs
-	;r0 = fd
+	;r0 = fd (ulong)
 	;trashes
 	;none
 
@@ -34,9 +34,9 @@
 
 (def-func 'sys/pii/close)
 	;inputs
-	;r0 = fd
+	;r0 = fd (ulong)
 	;outputs
-	;r0 = error code
+	;r0 = error code (ulong)
 	;trashes
 	;none
 
@@ -51,11 +51,11 @@
 
 (def-func 'sys/pii/write_num)
 	;inputs
-	;r0 = fd
-	;r1 = number
-	;r2 = base
+	;r0 = fd (ulong)
+	;r1 = number (ulong)
+	;r2 = base (ulong)
 	;outputs
-	;r0 = error code
+	;r0 = error code (ulong)
 	;trashes
 	;none
 
@@ -87,10 +87,10 @@
 
 (def-func 'sys/pii/write_char)
 	;inputs
-	;r0 = fd
-	;r1 = char
+	;r0 = fd (ulong)
+	;r1 = char (ulong)
 	;outputs
-	;r0 = error code
+	;r0 = error code (ulong)
 	;trashes
 	;none
 
@@ -105,11 +105,11 @@
 
 (def-func 'sys/pii/write)
 	;inputs
-	;r0 = fd
-	;r1 = buffer
-	;r2 = length
+	;r0 = fd (ulong)
+	;r1 = buffer (pubyte)
+	;r2 = length (ulong)
 	;outputs
-	;r0 = error code
+	;r0 = error code (ulong)
 	;trashes
 	;none
 
@@ -124,10 +124,10 @@
 
 (def-func 'sys/pii/write_str)
 	;inputs
-	;r0 = fd
-	;r1 = string
+	;r0 = fd (ulong)
+	;r1 = c string (pubyte)
 	;outputs
-	;r0 = error code
+	;r0 = error code (ulong)
 	;trashes
 	;none
 
@@ -144,9 +144,9 @@
 
 (def-func 'sys/pii/age)
 	;inputs
-	;r0 = function name
+	;r0 = c string file name (pubyte)
 	;outputs
-	;r0 = 0 if error, else modified date
+	;r0 = 0 if error, else modified date (ulong)
 	;trashes
 	;none
 
@@ -170,7 +170,7 @@
 
 (def-func 'sys/pii/time)
 	;outputs
-	;r0 = time in usec
+	;r0 = time in usec (ulong)
 	;trashes
 	;none
 
@@ -190,14 +190,14 @@
 
 (def-func 'sys/pii/mmap)
 	;inputs
-	;r0 = address
-	;r1 = len
-	;r2 = prot
-	;r3 = flags
-	;r4 = fd
-	;r5 = pos
+	;r0 = address (ptr)
+	;r1 = len (ulong)
+	;r2 = prot (ulong)
+	;r3 = flags (ulong)
+	;r4 = fd (ulong)
+	;r5 = pos (ulong)
 	;outputs
-	;r0 = buffer
+	;r0 = buffer (ptr)
 	;trashes
 	;none
 
@@ -212,10 +212,10 @@
 
 (def-func 'sys/pii/munmap)
 	;inputs
-	;r0 = buffer
-	;r1 = size
+	;r0 = buffer (ptr)
+	;r1 = size (ulong)
 	;outputs
-	;r0 = error code
+	;r0 = error code (ulong)
 	;trashes
 	;none
 
@@ -230,11 +230,11 @@
 
 (def-func 'sys/pii/mprotect)
 	;inputs
-	;r0 = buffer
-	;r1 = size
-	;r2 = prot
+	;r0 = buffer (ptr)
+	;r1 = size (ulong)
+	;r2 = prot (ulong)
 	;outputs
-	;r0 = error code
+	;r0 = error code (ulong)
 	;trashes
 	;none
 
@@ -249,11 +249,11 @@
 
 (def-func 'sys/pii/read)
 	;inputs
-	;r0 = fd
-	;r1 = buffer
-	;r2 = size
+	;r0 = fd (ulong)
+	;r1 = buffer (ptr)
+	;r2 = size (ulong)
 	;outputs
-	;r0 = error code
+	;r0 = error code (ulong)
 	;trashes
 	;none
 
@@ -268,9 +268,9 @@
 
 (def-func 'sys/pii/read_char)
 	;inputs
-	;r0 = fd
+	;r0 = fd (ulong)
 	;outputs
-	;r0 = char
+	;r0 = char (ulong)
 	;trashes
 	;none
 
@@ -285,10 +285,10 @@
 
 (def-func 'sys/pii/ftruncate)
 	;inputs
-	;r0 = fd
-	;r1 = size
+	;r0 = fd (ulong)
+	;r1 = size (ulong)
 	;outputs
-	;r0 = error code
+	;r0 = error code (ulong)
 	;trashes
 	;none
 
@@ -303,9 +303,9 @@
 
 (def-func 'sys/pii/unlink)
 	;inputs
-	;r0 = filename
+	;r0 = c string filename (pubyte)
 	;outputs
-	;r0 = error code
+	;r0 = error code (ulong)
 	;trashes
 	;none
 
@@ -320,10 +320,10 @@
 
 (def-func 'sys/pii/stat)
 	;inputs
-	;r0 = filename
-	;r1 = stat buf
+	;r0 = c string filename (pubyte)
+	;r1 = stat buf (ptr)
 	;outputs
-	;r0 = error code
+	;r0 = error code (ulong)
 	;trashes
 	;none
 
@@ -338,11 +338,11 @@
 
 (def-func 'sys/pii/fcntl)
 	;inputs
-	;r0 = fd
-	;r1 = command
-	;r2 = arg
+	;r0 = fd (ulong)
+	;r1 = command (ulong)
+	;r2 = arg (ulong)
 	;outputs
-	;r0 = error code
+	;r0 = error code (ulong)
 	;trashes
 	;none
 

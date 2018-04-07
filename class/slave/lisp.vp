@@ -4,11 +4,11 @@
 
 (def-func 'class/slave/lisp_create)
 	;inputs
-	;r0 = lisp object
-	;r1 = args
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
 	;outputs
-	;r0 = lisp object
-	;r1 = value
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value 'stdin 'stdout 'stderr)
 (errorcases

@@ -387,7 +387,7 @@
 	(defq _2 (opt (elem 3 m) '()) _3 (slice 0 (length _2) '(r13 r14 r4 r5 r6 r7 r8 r9 r10 r11 r12)))
 	(def-func (sym-cat "class/" _1 "/create"))
 		;outputs
-		;r0 = 0 if error, else object
+		;r0 = 0 if error, else object (ptr)
 		;trashes
 		;all
 		(assign _2 _3)
@@ -408,7 +408,7 @@
 	;_1 = class name
 	(def-func (sym-cat "class/" _1 "/new"))
 		;outputs
-		;r0 = 0 if error, else object
+		;r0 = 0 if error, else object (ptr)
 		;trashes
 		;r1-r3
 		(f-jmp 'sys_mem 'alloc `(,(sym-cat _1 "_size")))

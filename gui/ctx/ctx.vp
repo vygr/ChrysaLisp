@@ -5,8 +5,8 @@
 
 (def-func 'gui/ctx/set_color)
 	;inputs
-	;r0 = ctx
-	;r1 = color
+	;r0 = draw ctx (ptr)
+	;r1 = color (argb)
 	;trashes
 	;all
 
@@ -40,9 +40,9 @@
 
 (def-func 'gui/ctx/brighter)
 	;inputs
-	;r1 = color
+	;r1 = color (argb)
 	;inputs
-	;r1 = brighter color
+	;r1 = brighter color (argb)
 	;trashes
 	;r2, r3
 
@@ -59,9 +59,9 @@
 
 (def-func 'gui/ctx/darker)
 	;inputs
-	;r1 = color
+	;r1 = color (argb)
 	;inputs
-	;r1 = darker color
+	;r1 = darker color (argb)
 	;trashes
 	;r2, r3
 
@@ -117,13 +117,13 @@
 
 (def-func 'gui/ctx/blit)
 	;inputs
-	;r0 = ctx
-	;r1 = texture
-	;r2 = color mod
-	;r7 = x
-	;r8 = y
-	;r9 = width
-	;r10 = height
+	;r0 = draw ctx (ptr)
+	;r1 = texture id (ulong)
+	;r2 = color mod (argb)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
 	;trashes
 	;all
 
@@ -183,11 +183,11 @@
 
 (def-func 'gui/ctx/box)
 	;inputs
-	;r0 = ctx
-	;r7 = x
-	;r8 = y
-	;r9 = width
-	;r10 = height
+	;r0 = draw ctx (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
 	;trashes
 	;all
 
@@ -229,11 +229,11 @@
 
 (def-func 'gui/ctx/filled_box)
 	;inputs
-	;r0 = ctx
-	;r7 = x
-	;r8 = y
-	;r9 = width
-	;r10 = height
+	;r0 = draw ctx (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
 	;trashes
 	;all
 
@@ -275,14 +275,14 @@
 
 (def-func 'gui/ctx/panel)
 	;inputs
-	;r0 = ctx object
-	;r1 = color
-	;r2 = flags
-	;r3 = depth
-	;r7 = x
-	;r8 = y
-	;r9 = width
-	;r10 = height
+	;r0 = draw ctx (ptr)
+	;r1 = color (argb)
+	;r2 = flags (ulong)
+	;r3 = depth (int)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
 	;trashes
 	;all
 

@@ -8,13 +8,13 @@
 
 (def-func 'class/lisp/read_num)
 	;inputs
-	;r0 = lisp object
-	;r1 = stream
-	;r2 = next char
+	;r0 = lisp object (ptr)
+	;r1 = stream object (ptr)
+	;r2 = next char (uint)
 	;outputs
-	;r0 = lisp object
-	;r1 = number
-	;r2 = next char
+	;r0 = lisp object (ptr)
+	;r1 = boxed_long object (ptr)
+	;r2 = next char (uint)
 
 	(ptr 'this 'stream 'str_stream 'string 'num)
 	(pubyte 'buffer)

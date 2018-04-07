@@ -11,14 +11,14 @@
 
 (def-func 'class/stream/init)
 	;inputs
-	;r0 = stream object
-	;r1 = vtable pointer
-	;r2 = buffer object, 0 if none
-	;r3 = buffer pointer, 0 if none
-	;r4 = buffer start
-	;r5 = buffer length
+	;r0 = stream object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = buffer object, 0 if none (ptr)
+	;r3 = buffer data, 0 if none (ptr)
+	;r4 = buffer start (pubyte)
+	;r5 = buffer length (uint)
 	;outputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0
@@ -35,7 +35,7 @@
 
 (def-func 'class/stream/deinit)
 	;inputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;trashes
 	;all but r0
 
@@ -55,12 +55,12 @@
 
 (def-func 'class/stream/read)
 	;inputs
-	;r0 = stream object
-	;r1 = buffer
-	;r2 = buffer length
+	;r0 = stream object (ptr)
+	;r1 = buffer (pubyte)
+	;r2 = buffer length (uint)
 	;outputs
-	;r0 = stream object
-	;r1 = -1 for EOF, else bytes read
+	;r0 = stream object (ptr)
+	;r1 = -1 for EOF, else bytes read (int)
 	;trashes
 	;all but r0
 
@@ -97,10 +97,10 @@
 
 (def-func 'class/stream/read_char)
 	;inputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;outputs
-	;r0 = stream object
-	;r1 = -1 for EOF, else char read
+	;r0 = stream object (ptr)
+	;r1 = -1 for EOF, else char read (int)
 	;trashes
 	;all but r0
 
@@ -124,10 +124,10 @@
 
 (def-func 'class/stream/read_line)
 	;inputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;outputs
-	;r0 = stream object
-	;r1 = 0 for EOF, else string
+	;r0 = stream object (ptr)
+	;r1 = 0 for EOF, else string object (ptr)
 	;trashes
 	;all but r0
 
@@ -173,9 +173,9 @@
 
 (def-func 'class/stream/read_next)
 	;inputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;outputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;r1 = -1 for EOF, else more data
 	;trashes
 	;all but r0
@@ -187,9 +187,9 @@
 
 (def-func 'class/stream/read_ready)
 	;inputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;outputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;r1 = 0 if data not available
 	;trashes
 	;all but r0
@@ -201,8 +201,8 @@
 
 (def-func 'class/stream/skip)
 	;inputs
-	;r0 = stream object
-	;r1 = char to skip
+	;r0 = stream object (ptr)
+	;r1 = char to skip (uint)
 	;trashes
 	;all but r0
 
@@ -230,8 +230,8 @@
 
 (def-func 'class/stream/skip_not)
 	;inputs
-	;r0 = stream object
-	;r1 = char to not skip
+	;r0 = stream object (ptr)
+	;r1 = char to not skip (uint)
 	;trashes
 	;all but r0
 
@@ -259,11 +259,11 @@
 
 (def-func 'class/stream/split)
 	;inputs
-	;r0 = stream object
-	;r1 = split char
+	;r0 = stream object (ptr)
+	;r1 = split char (uint)
 	;outputs
-	;r0 = stream object
-	;r1 = vector of split streams
+	;r0 = stream object (ptr)
+	;r1 = split strings vector object (ptr)
 	;trashes
 	;all but r0
 
@@ -298,11 +298,11 @@
 
 (def-func 'class/stream/write)
 	;inputs
-	;r0 = stream object
-	;r1 = buffer
-	;r2 = buffer length
+	;r0 = stream object (ptr)
+	;r1 = buffer (pubyte)
+	;r2 = buffer length (uint)
 	;outputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;trashes
 	;all but r0
 
@@ -340,10 +340,10 @@
 
 (def-func 'class/stream/write_char)
 	;inputs
-	;r0 = stream object
-	;r1 = char
+	;r0 = stream object (ptr)
+	;r1 = char (uint)
 	;outputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;trashes
 	;all but r0
 
@@ -367,10 +367,10 @@
 
 (def-func 'class/stream/write_cstr)
 	;inputs
-	;r0 = stream object
-	;r1 = buffer
+	;r0 = stream object (ptr)
+	;r1 = buffer (pubyte)
 	;outputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;trashes
 	;all but r0
 
@@ -382,9 +382,9 @@
 
 (def-func 'class/stream/write_flush)
 	;inputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;outputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;trashes
 	;all but r0
 
@@ -395,9 +395,9 @@
 
 (def-func 'class/stream/write_next)
 	;inputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;outputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;trashes
 	;all but r0
 

@@ -28,12 +28,12 @@
 
 (defcfun class/font/get_metrics ()
 	;inputs
-	;r0 = font object
+	;r0 = font object (ptr)
 	;outputs
-	;r0 = font object
-	;r1 = ascent
-	;r2 = descent
-	;r3 = height
+	;r0 = font object (ptr)
+	;r1 = ascent (pixels)
+	;r2 = descent (pixels)
+	;r3 = height (pixels)
 	(vp-cpy-ir-i r0 font_ascent r1)
 	(vp-cpy-ir-i r0 font_descent r2)
 	(vp-cpy-ir-i r0 font_height r3))

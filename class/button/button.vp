@@ -10,10 +10,10 @@
 
 (def-func 'class/button/init)
 	;inputs
-	;r0 = button object
-	;r1 = vtable pointer
+	;r0 = button object (ptr)
+	;r1 = vtable (pptr)
 	;outputs
-	;r0 = button object
+	;r0 = button object (ptr)
 	;r1 = 0 if error, else ok
 
 	(ptr 'this)
@@ -42,7 +42,7 @@
 
 (def-func 'class/button/deinit)
 	;inputs
-	;r0 = button object
+	;r0 = button object (ptr)
 	;trashes
 	;all but r0
 
@@ -62,8 +62,8 @@
 
 (def-func 'class/button/draw)
 	;inputs
-	;r0 = button object
-	;r1 = ctx object
+	;r0 = button object (ptr)
+	;r1 = draw ctx (ptr)
 	;trashes
 	;all but r0
 
@@ -88,7 +88,7 @@
 
 (def-func 'class/button/layout)
 	;inputs
-	;r0 = button object
+	;r0 = button object (ptr)
 	;trashes
 	;all but r0
 
@@ -115,8 +115,8 @@
 
 (def-func 'class/button/mouse_down)
 	;inputs
-	;r0 = button object
-	;r1 = mouse event message
+	;r0 = button object (ptr)
+	;r1 = mouse event message (ptr)
 	;trashes
 	;all but r0
 
@@ -130,8 +130,8 @@
 
 (def-func 'class/button/mouse_up)
 	;inputs
-	;r0 = button object
-	;r1 = mouse event message
+	;r0 = button object (ptr)
+	;r1 = mouse event message (ptr)
 	;trashes
 	;all but r0
 
@@ -158,8 +158,8 @@
 
 (def-func 'class/button/mouse_move)
 	;inputs
-	;r0 = button object
-	;r1 = mouse event message
+	;r0 = button object (ptr)
+	;r1 = mouse event message (ptr)
 	;trashes
 	;all but r0
 
@@ -189,10 +189,10 @@
 
 (def-func 'class/button/connect_click)
 	;inputs
-	;r0 = button object
-	;r1 = target id
+	;r0 = button object (ptr)
+	;r1 = target id (long)
 	;outputs
-	;r0 = button object
+	;r0 = button object (ptr)
 	;trashes
 	;all but r0
 

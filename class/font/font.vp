@@ -12,10 +12,10 @@
 (gen-class 'font)
 
 (def-func 'class/font/open)
-	;r0 = name string pointer
-	;r1 = font size
+	;r0 = name c string (pubyte)
+	;r1 = font size (points)
 	;outputs
-	;r0 = 0 if error, else font object
+	;r0 = 0 if error, else font object (ptr)
 	;trashes
 	;all
 
@@ -74,12 +74,12 @@
 
 (def-func 'class/font/init)
 	;inputs
-	;r0 = font object
-	;r1 = vtable pointer
-	;r2 = name string pointer
-	;r3 = font size
+	;r0 = font object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = name c string (pubyte)
+	;r3 = font size (points)
 	;outputs
-	;r0 = font object
+	;r0 = font object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0
@@ -140,7 +140,7 @@
 
 (def-func 'class/font/deinit)
 	;inputs
-	;r0 = font object
+	;r0 = font object (ptr)
 	;trashes
 	;all but r0
 
@@ -180,11 +180,11 @@
 
 (def-func 'class/font/ref_word)
 	;inputs
-	;r0 = font object
-	;r1 = string object
+	;r0 = font object (ptr)
+	;r1 = string object (ptr)
 	;outputs
-	;r0 = font object
-	;r1 = texture object
+	;r0 = font object (ptr)
+	;r1 = texture object (ptr)
 	;trashes
 	;all but r0
 

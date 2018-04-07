@@ -12,10 +12,10 @@
 
 (def-func 'class/component/init)
 	;inputs
-	;r0 = component object
-	;r1 = vtable pointer
+	;r0 = component object (ptr)
+	;r1 = vtable (pptr)
 	;outputs
-	;r0 = component object
+	;r0 = component object (ptr)
 	;r1 = 0 if error, else ok
 
 	;init parent
@@ -35,9 +35,9 @@
 
 (def-func 'class/component/find_owner)
 	;inputs
-	;r0 = component object
+	;r0 = component object (ptr)
 	;outputs
-	;r1 = 0, else tcb of owner
+	;r1 = 0, else tcb of owner (ptr)
 	;trashes
 	;r2
 
@@ -54,10 +54,10 @@
 
 (def-func 'class/component/emit)
 	;inputs
-	;r0 = component object
-	;r1 = target id array
+	;r0 = component object (ptr)
+	;r1 = target id array object (ptr)
 	;outputs
-	;r0 = component object
+	;r0 = component object (ptr)
 	;trashes
 	;all but r0
 
@@ -90,11 +90,11 @@
 
 (def-func 'class/component/get_prop_sym)
 	;inputs
-	;r0 = component object
-	;r1 = property num
+	;r0 = component object (ptr)
+	;r1 = property num (uint)
 	;outputs
-	;r0 = component object
-	;r1 = property symbol object
+	;r0 = component object (ptr)
+	;r1 = property symbol object (ptr)
 	;trashes
 	;all but r0
 
@@ -140,11 +140,11 @@
 
 (def-func 'class/component/ref_prop)
 	;inputs
-	;r0 = component object
-	;r1 = property num
+	;r0 = component object (ptr)
+	;r1 = property num (uint)
 	;outputs
-	;r0 = component object
-	;r1 = 0 else, property object ref
+	;r0 = component object (ptr)
+	;r1 = 0 else, property object (ptr)
 	;trashes
 	;all but r0
 
@@ -168,11 +168,11 @@
 
 (def-func 'class/component/get_prop)
 	;inputs
-	;r0 = component object
-	;r1 = property num
+	;r0 = component object (ptr)
+	;r1 = property num (uint)
 	;outputs
-	;r0 = component object
-	;r1 = 0 else, property object
+	;r0 = component object (ptr)
+	;r1 = 0 else, property object (ptr)
 	;trashes
 	;all but r0
 
@@ -197,11 +197,11 @@
 
 (def-func 'class/component/set_long_prop)
 	;inputs
-	;r0 = component object
-	;r1 = property num
+	;r0 = component object (ptr)
+	;r1 = property num (uint)
 	;r2 = property value (long)
 	;outputs
-	;r0 = component object
+	;r0 = component object (ptr)
 	;trashes
 	;all but r0
 
@@ -224,10 +224,10 @@
 
 (def-func 'class/component/get_long_prop)
 	;inputs
-	;r0 = component object
-	;r1 = property num
+	;r0 = component object (ptr)
+	;r1 = property num (uint)
 	;outputs
-	;r0 = component object
+	;r0 = component object (ptr)
 	;r1 = property value (long)
 	;trashes
 	;all but r0
@@ -259,12 +259,12 @@
 
 (def-func 'class/component/set_font_prop)
 	;inputs
-	;r0 = component object
-	;r1 = property num
-	;r2 = font name pointer (ctsr)
-	;r3 = font size
+	;r0 = component object (ptr)
+	;r1 = property num (uint)
+	;r2 = font c string name (pubyte)
+	;r3 = font size (points)
 	;outputs
-	;r0 = component object
+	;r0 = component object (ptr)
 	;trashes
 	;all but r0
 
@@ -292,11 +292,11 @@
 
 (def-func 'class/component/set_string_prop)
 	;inputs
-	;r0 = component object
-	;r1 = property num
+	;r0 = component object (ptr)
+	;r1 = property num (uint)
 	;r2 = string pointer (ctsr)
 	;outputs
-	;r0 = component object
+	;r0 = component object (ptr)
 	;trashes
 	;all but r0
 

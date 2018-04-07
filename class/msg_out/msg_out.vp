@@ -9,12 +9,11 @@
 
 (def-func 'class/msg_out/init)
 	;inputs
-	;r0 = msg_out object
-	;r1 = vtable pointer
-	;r2 = target mailbox id
-	;r3 = target mailbox id
+	;r0 = msg_out object (ptr)
+	;r1 = vtable (pptr)
+	;r2, r3 = target mailbox id (id)
 	;outputs
-	;r0 = msg_out object
+	;r0 = msg_out object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0
@@ -40,7 +39,7 @@
 
 (def-func 'class/msg_out/deinit)
 	;inputs
-	;r0 = msg_out object
+	;r0 = msg_out object (ptr)
 	;trashes
 	;all but r0
 
@@ -66,9 +65,9 @@
 
 (def-func 'class/msg_out/write_flush)
 	;inputs
-	;r0 = msg_out object
+	;r0 = msg_out object (ptr)
 	;outputs
-	;r0 = msg_out object
+	;r0 = msg_out object (ptr)
 	;trashes
 	;all but r0
 
@@ -113,9 +112,9 @@
 
 (def-func 'class/msg_out/write_next)
 	;inputs
-	;r0 = msg_out object
+	;r0 = msg_out object (ptr)
 	;outputs
-	;r0 = msg_out object
+	;r0 = msg_out object (ptr)
 	;trashes
 	;all but r0
 

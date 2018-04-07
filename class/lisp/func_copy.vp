@@ -3,11 +3,11 @@
 
 (def-func 'class/lisp/func_copy)
 	;inputs
-	;r0 = lisp object
-	;r1 = args
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
 	;outputs
-	;r0 = lisp object
-	;r1 = value
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
 
 	(ptr 'this 'args)
 	(uint 'length)
@@ -39,8 +39,8 @@
 
 (vp-label 'callback)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
 	;outputs
 	;r1 = 0 if break, else not
 

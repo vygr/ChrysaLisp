@@ -5,11 +5,11 @@
 
 (def-func 'sys/task/lisp_mailbox)
 	;inputs
-	;r0 = lisp object
-	;r1 = args
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
 	;outputs
-	;r0 = lisp object
-	;r1 = value
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
 	(ulong 'arg0 'arg1)
@@ -45,11 +45,11 @@
 
 (def-func 'sys/task/lisp_open_child)
 	;inputs
-	;r0 = lisp object
-	;r1 = args
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
 	;outputs
-	;r0 = lisp object
-	;r1 = value
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
 	(ulong 'arg0 'arg1)
@@ -85,11 +85,11 @@
 
 (def-func 'sys/task/lisp_open_remote)
 	;inputs
-	;r0 = lisp object
-	;r1 = args
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
 	;outputs
-	;r0 = lisp object
-	;r1 = value
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
 	(ulong 'arg0 'arg1 'arg2)
@@ -125,11 +125,11 @@
 
 (def-func 'sys/task/lisp_open_farm)
 	;inputs
-	;r0 = lisp object
-	;r1 = args
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
 	;outputs
-	;r0 = lisp object
-	;r1 = value
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
 	(ulong 'arg0 'arg1 'arg2)
@@ -160,11 +160,11 @@
 
 (def-func 'sys/task/lisp_open_pipe)
 	;inputs
-	;r0 = lisp object
-	;r1 = args
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
 	;outputs
-	;r0 = lisp object
-	;r1 = value
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
 	(ulong 'arg0)

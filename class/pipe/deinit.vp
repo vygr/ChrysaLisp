@@ -7,7 +7,7 @@
 
 (def-func 'class/pipe/deinit)
 	;inputs
-	;r0 = pipe object
+	;r0 = pipe object (ptr)
 	;trashes
 	;all but r0
 

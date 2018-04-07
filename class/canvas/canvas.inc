@@ -65,52 +65,52 @@
 
 (defcfun class/canvas/set_fbox ()
 	;inputs
-	;r0 = canvas object
-	;r1 = color
-	;r7 = x
-	;r8 = y
-	;r9 = w
-	;r10 = h
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = w (pixels)
+	;r10 = h (pixels)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
 	(f-call 'canvas 'fbox `(r0 r1 (@ ,(f-path 'canvas 'set_span_noclip)) r7 r8 r9 r10)))
 
 (defcfun class/canvas/set_fpoly ()
 	;inputs
-	;r0 = canvas object
-	;r1 = vector of polygon arrays
-	;r2 = color
+	;r0 = canvas object (ptr)
+	;r1 = point objects vector object (ptr)
+	;r2 = color (argb)
 	;r3 = winding mode (0/1)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
 	(f-call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'set_span)))))
 
 (defcfun class/canvas/blend_fbox ()
 	;inputs
-	;r0 = canvas object
-	;r1 = color
-	;r7 = x
-	;r8 = y
-	;r9 = w
-	;r10 = h
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = w (pixels)
+	;r10 = h (pixels)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
 	(f-call 'canvas 'fbox `(r0 r1 (@ ,(f-path 'canvas 'blend_span_noclip)) r7 r8 r9 r10)))
 
 (defcfun class/canvas/blend_fpoly ()
 	;inputs
-	;r0 = canvas object
-	;r1 = vector of polygon arrays
-	;r2 = color
+	;r0 = canvas object (ptr)
+	;r1 = point objects vector object (ptr)
+	;r2 = color (argb)
 	;r3 = winding mode (0/1)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
 	(f-call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'blend_span)))))

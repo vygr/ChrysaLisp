@@ -4,12 +4,12 @@
 
 (def-func 'class/points/simplify)
 	;inputs
-	;r0 = points object
+	;r0 = points object (ptr)
 	;r1 = source points object
-	;r2 = stack array
-	;r3 = 16.16 tolerance
+	;r2 = stack array object (ptr)
+	;r3 = tolerance (16.16)
 	;outputs
-	;r0 = points object
+	;r0 = points object (ptr)
 	;trashes
 	;all but r0
 

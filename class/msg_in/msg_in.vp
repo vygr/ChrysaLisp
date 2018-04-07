@@ -8,10 +8,10 @@
 
 (def-func 'class/msg_in/init)
 	;inputs
-	;r0 = msg_in object
-	;r1 = vtable pointer
+	;r0 = msg_in object (ptr)
+	;r1 = vtable (pptr)
 	;outputs
-	;r0 = msg_in object
+	;r0 = msg_in object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0
@@ -36,7 +36,7 @@
 
 (def-func 'class/msg_in/deinit)
 	;inputs
-	;r0 = msg_in object
+	;r0 = msg_in object (ptr)
 	;trashes
 	;all but r0
 
@@ -54,12 +54,12 @@
 
 (def-func 'class/msg_in/next_seq)
 	;inputs
-	;r0 = list head
-	;r1 = 0, else new stream msg
-	;r2 = seqnum
+	;r0 = list head (ptr)
+	;r1 = 0, else new stream msg (ptr)
+	;r2 = seqnum (ulong)
 	;outputs
-	;r0 = 0, else next stream msg
-	;r1 = 0, else string data
+	;r0 = 0, else next stream msg (ptr)
+	;r1 = 0, else string data (pubyte)
 
 	;save any new msg
 	(vpif '(r1 != 0))
@@ -86,9 +86,9 @@
 
 (def-func 'class/msg_in/read_next)
 	;inputs
-	;r0 = msg_in object
+	;r0 = msg_in object (ptr)
 	;outputs
-	;r0 = msg_in object
+	;r0 = msg_in object (ptr)
 	;r1 = -1 for EOF, else more data
 	;trashes
 	;all but r0
@@ -139,9 +139,9 @@
 
 (def-func 'class/msg_in/read_ready)
 	;inputs
-	;r0 = msg_in object
+	;r0 = msg_in object (ptr)
 	;outputs
-	;r0 = msg_in object
+	;r0 = msg_in object (ptr)
 	;r1 = 0 if data not available
 	;trashes
 	;all but r0

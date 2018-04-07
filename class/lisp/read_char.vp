@@ -8,12 +8,12 @@
 
 (def-func 'class/lisp/read_char)
 	;inputs
-	;r0 = lisp object
-	;r1 = stream
-	;r2 = last char
+	;r0 = lisp object (ptr)
+	;r1 = stream object (ptr)
+	;r2 = last char (uint)
 	;outputs
-	;r0 = lisp object
-	;r1 = next char
+	;r0 = lisp object (ptr)
+	;r1 = next char (uint) (uint)
 
 	(ptr 'this 'stream 'line)
 	(pptr 'iter)

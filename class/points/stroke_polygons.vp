@@ -4,14 +4,14 @@
 (import 'sys/math/math.inc)
 
 (def-func 'class/points/stroke_polygons)
-	;r0 = vector for output polygons
-	;r1 = stack array
-	;r2 = vector of input polygons
-	;r3 = join style
-	;r4 = 16.16 radius
-	;r5 = 16.16 tolerance
+	;r0 = output polygons vector object (ptr)
+	;r1 = stack array object (ptr)
+	;r2 = input polygons vector object (ptr)
+	;r3 = join style (byte)
+	;r4 = radius (16.16)
+	;r5 = tolerance (16.16)
 	;outputs
-	;r0 = vector for output polygons
+	;r0 = output polygons vector object (ptr)
 	;trashes
 	;all but r0
 

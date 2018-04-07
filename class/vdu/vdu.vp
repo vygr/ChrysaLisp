@@ -14,10 +14,10 @@
 
 (def-func 'class/vdu/init)
 	;inputs
-	;r0 = vdu object
-	;r1 = vtable pointer
+	;r0 = vdu object (ptr)
+	;r1 = vtable (pptr)
 	;outputs
-	;r0 = vdu object
+	;r0 = vdu object (ptr)
 	;r1 = 0 if error, else ok
 
 	;init parent
@@ -42,7 +42,7 @@
 
 (def-func 'class/vdu/deinit)
 	;inputs
-	;r0 = vdu object
+	;r0 = vdu object (ptr)
 	;trashes
 	;all but r0
 
@@ -61,8 +61,8 @@
 
 (def-func 'class/vdu/draw)
 	;inputs
-	;r0 = view object
-	;r1 = ctx object
+	;r0 = view object (ptr)
+	;r1 = draw ctx (ptr)
 	;trashes
 	;all but r0
 
@@ -129,10 +129,10 @@
 
 (def-func 'class/vdu/pref_size)
 	;inputs
-	;r0 = vdu object
+	;r0 = vdu object (ptr)
 	;outputs
-	;r9 = preferred width
-	;r10 = preferred height
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
 	;trashes
 	;all but r0
 
@@ -166,7 +166,7 @@
 
 (def-func 'class/vdu/switch_font)
 	;inputs
-	;r0 = vdu object
+	;r0 = vdu object (ptr)
 	;trashes
 	;all but r0
 
@@ -200,7 +200,7 @@
 
 (def-func 'class/vdu/switch_size)
 	;inputs
-	;r0 = vdu object
+	;r0 = vdu object (ptr)
 	;trashes
 	;all but r0
 
@@ -223,10 +223,10 @@
 
 (def-func 'class/vdu/print_char)
 	;inputs
-	;r0 = vdu object
-	;r1 = char
+	;r0 = vdu object (ptr)
+	;r1 = char (uint)
 	;outputs
-	;r0 = vdu object
+	;r0 = vdu object (ptr)
 
 	(ptr 'this)
 	(uint 'char)
@@ -302,10 +302,10 @@
 
 (def-func 'class/vdu/print_cstr)
 	;inputs
-	;r0 = vdu object
-	;r1 = c string pointer
+	;r0 = vdu object (ptr)
+	;r1 = c string pointer (pubyte)
 	;outputs
-	;r0 = vdu object
+	;r0 = vdu object (ptr)
 
 	(ptr 'this)
 	(pubyte 'charp)

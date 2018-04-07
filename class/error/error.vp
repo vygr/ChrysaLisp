@@ -9,15 +9,15 @@
 
 (def-func 'class/error/init)
 	;inputs
-	;r0 = error object
-	;r1 = vtable pointer
-	;r2 = description cstr pointer
-	;r3 = 0, else error msg index
-	;r4 = error payload object
-	;r5 = filename cstr pointer
+	;r0 = error object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = description c string (pubyte)
+	;r3 = 0, else error msg index (uint)
+	;r4 = error payload object (ptr)
+	;r5 = filename c string (pubyte)
 	;r6 = line number
 	;outputs
-	;r0 = error object
+	;r0 = error object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;r1-r6
@@ -52,7 +52,7 @@
 
 (def-func 'class/error/deinit)
 	;inputs
-	;r0 = error object
+	;r0 = error object (ptr)
 	;trashes
 	;all but r0
 
@@ -69,10 +69,10 @@
 
 (def-func 'class/error/get_msg)
 	;inputs
-	;r0 = error object
+	;r0 = error object (ptr)
 	;outputs
-	;r0 = error object
-	;r1 = error string
+	;r0 = error object (ptr)
+	;r1 = error string object (ptr)
 	;trashes
 	;all but r0
 

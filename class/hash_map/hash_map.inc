@@ -25,8 +25,8 @@
 
 (defcfun class/hash_map/get_parent ()
 	;inputs
-	;r0 = hash_map object
+	;r0 = hash_map object (ptr)
 	;outputs
-	;r0 = hash_map object
-	;r1 = 0, else hash_map parent
+	;r0 = hash_map object (ptr)
+	;r1 = 0, else hash_map parent object (ptr)
 	(vp-cpy-ir r0 hash_map_parent r1))

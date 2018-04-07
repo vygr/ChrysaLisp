@@ -4,9 +4,9 @@
 
 (def-func 'class/lisp/env_pop)
 	;inputs
-	;r0 = lisp object
+	;r0 = lisp object (ptr)
 	;outputs
-	;r0 = lisp object
+	;r0 = lisp object (ptr)
 
 	(ptr 'this 'env)
 

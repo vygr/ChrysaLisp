@@ -8,7 +8,7 @@
 
 (def-func 'class/array/deinit)
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;trashes
 	;all but r0
 
@@ -26,12 +26,12 @@
 
 (def-func 'class/array/append)
 	;inputs
-	;r0 = array object
-	;r1 = source array object
-	;r2 = array element start
-	;r3 = array element end
+	;r0 = array object (ptr)
+	;r1 = source array object (ptr)
+	;r2 = element start index (uint)
+	;r3 = element end index (uint)
 	;outputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;trashes
 	;r1-r7
 
@@ -76,9 +76,9 @@
 
 (def-func 'class/array/clear)
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;trashes
 	;r1
 
@@ -90,20 +90,20 @@
 
 (def-func 'class/array/for_each)
 	;inputs
-	;r0 = array object
-	;r1 = start index
-	;r2 = end index
-	;r3 = predicate function pointer
-	;r4 = predicate data pointer
+	;r0 = array object (ptr)
+	;r1 = element start index (uint)
+	;r2 = element end index (uint)
+	;r3 = predicate function (ptr)
+	;r4 = predicate data (ptr)
 	;outputs
-	;r0 = array object
-	;r1 = 0, else break iterator
+	;r0 = array object (ptr)
+	;r1 = 0, else break iterator (ptr)
 	;trashes
 	;all but r0
 		;callback predicate
 		;inputs
-		;r0 = predicate data pointer
-		;r1 = element iterator
+		;r0 = predicate data (ptr)
+		;r1 = element iterator (ptr)
 		;outputs
 		;r1 = 0 if break, else not
 		;trashes
@@ -151,11 +151,11 @@
 
 (def-func 'class/array/find)
 	;inputs
-	;r0 = array object
-	;r1 = element
+	;r0 = array object (ptr)
+	;r1 = element (long)
 	;outputs
-	;r0 = array object
-	;r1 = -1, else index
+	;r0 = array object (ptr)
+	;r1 = -1, else index (int)
 	;trashes
 	;r1-r4
 
@@ -177,10 +177,10 @@
 
 (def-func 'class/array/get_back)
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
-	;r1 = element
+	;r0 = array object (ptr)
+	;r1 = element (long)
 	;trashes
 	;r2
 
@@ -195,10 +195,10 @@
 
 (def-func 'class/array/get_length)
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
-	;r1 = array length
+	;r0 = array object (ptr)
+	;r1 = array length (uint)
 
 	(class/array/get_length)
 	(vp-ret)
@@ -207,9 +207,9 @@
 
 (def-func 'class/array/pop_back)
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;trashes
 	;r1
 
@@ -220,11 +220,11 @@
 
 (def-func 'class/array/push_back)
 	;inputs
-	;r0 = array object
-	;r1 = element
+	;r0 = array object (ptr)
+	;r1 = element (long)
 	;outputs
-	;r0 = array object
-	;r1 = element
+	;r0 = array object (ptr)
+	;r1 = element (long)
 	;trashes
 	;r2-r7
 
@@ -253,10 +253,10 @@
 
 (def-func 'class/array/ref_back)
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
-	;r1 = boxed_long object pointer
+	;r0 = array object (ptr)
+	;r1 = boxed_long object (ptr)
 	;trashes
 	;all but r0
 
@@ -273,11 +273,11 @@
 
 (def-func 'class/array/ref_element)
 	;inputs
-	;r0 = array object
-	;r1 = array element
+	;r0 = array object (ptr)
+	;r1 = element index (uint)
 	;outputs
-	;r0 = array object
-	;r1 = boxed_long object pointer
+	;r0 = array object (ptr)
+	;r1 = boxed_long object (ptr)
 	;trashes
 	;all but r0
 
@@ -292,10 +292,10 @@
 
 (def-func 'class/array/set_capacity)
 	;inputs
-	;r0 = array object
-	;r1 = array capacity
+	;r0 = array object (ptr)
+	;r1 = capacity (uint)
 	;outputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;trashes
 	;r1-r7
 
@@ -332,11 +332,11 @@
 
 (def-func 'class/array/set_element)
 	;inputs
-	;r0 = array object
-	;r1 = object
-	;r2 = array element
+	;r0 = array object (ptr)
+	;r1 = element object (ptr)
+	;r2 = element index (uint)
 	;outputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;trashes
 	;r2-r3
 
@@ -347,12 +347,12 @@
 
 (def-func 'class/array/slice)
 	;inputs
-	;r0 = array object
-	;r1 = array element start
-	;r2 = array element end
+	;r0 = array object (ptr)
+	;r1 = element start index (uint)
+	;r2 = element end index (uint)
 	;outputs
-	;r0 = array object
-	;r1 = slice array object
+	;r0 = array object (ptr)
+	;r1 = slice array object (ptr)
 	;trashes
 	;r1-r11
 
@@ -381,21 +381,21 @@
 
 (def-func 'class/array/partition)
 	;inputs
-	;r0 = array object
-	;r1 = lower partition iter
-	;r2 = upper partition iter
-	;r3 = sort callback
-	;r4 = sort context
+	;r0 = array object (ptr)
+	;r1 = lower partition iter (ptr)
+	;r2 = upper partition iter (ptr)
+	;r3 = sort callback (ptr)
+	;r4 = sort context (ptr)
 	;outputs
-	;r0 = array object
-	;r1 = partition iter
+	;r0 = array object (ptr)
+	;r1 = partition iter (ptr)
 	;trashes
 	;all but r0
 		;sort callback
 		;inputs
-		;r0 = context
-		;r1 = iter1
-		;r2 = iter2
+		;r0 = sort context (ptr)
+		;r1 = iter1 (ptr)
+		;r2 = iter2 (ptr)
 		;outputs
 		;r0 = +, 0, -
 		;trashes
@@ -452,21 +452,21 @@
 
 (def-func 'class/array/sort)
 	;inputs
-	;r0 = array object
-	;r1 = stack array
-	;r2 = lower iter
-	;r3 = upper iter
-	;r4 = compare callback
-	;r5 = sort context
+	;r0 = array object (ptr)
+	;r1 = stack array object (ptr)
+	;r2 = lower iter (ptr)
+	;r3 = upper iter (ptr)
+	;r4 = compare callback (ptr)
+	;r5 = sort context (ptr)
 	;outputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;trashes
 	;all but r0
 		;sort callback
 		;inputs
-		;r0 = context
-		;r1 = iter1
-		;r2 = iter2
+		;r0 = context (ptr)
+		;r1 = iter1 (ptr)
+		;r2 = iter2 (ptr)
 		;outputs
 		;r0 = +, 0, -
 		;trashes

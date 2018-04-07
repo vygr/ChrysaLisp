@@ -13,11 +13,11 @@
 
 (def-func 'class/window/init)
 	;inputs
-	;r0 = window object
-	;r1 = vtable pointer
+	;r0 = window object (ptr)
+	;r1 = vtable (pptr)
 	;r2 = options flags
 	;outputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0-r1
@@ -106,7 +106,7 @@
 
 (def-func 'class/window/deinit)
 	;inputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;trashes
 	;all but r0
 
@@ -130,7 +130,7 @@
 
 (def-func 'class/window/add_child)
 	;inputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;r1 = child view object
 	;trashes
 	;all but r0
@@ -144,8 +144,8 @@
 
 (def-func 'class/window/draw)
 	;inputs
-	;r0 = window object
-	;r1 = ctx object
+	;r0 = window object (ptr)
+	;r1 = draw ctx (ptr)
 	;trashes
 	;all but r0
 
@@ -167,7 +167,7 @@
 
 (def-func 'class/window/layout)
 	;inputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;trashes
 	;all but r0
 
@@ -196,7 +196,7 @@
 
 (def-func 'class/window/mouse_down)
 	;inputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;r1 = mouse event data pointer
 	;trashes
 	;all but r0
@@ -240,8 +240,8 @@
 
 (def-func 'class/window/mouse_move)
 	;inputs
-	;r0 = window object
-	;r1 = mouse event message
+	;r0 = window object (ptr)
+	;r1 = mouse event message (ptr)
 	;trashes
 	;all but r0
 
@@ -353,11 +353,11 @@
 
 (def-func 'class/window/pref_size)
 	;inputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;outputs
-	;r0 = window object
-	;r9 = preferred width
-	;r10 = preferred height
+	;r0 = window object (ptr)
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
 	;trashes
 	;all but r0
 
@@ -378,7 +378,7 @@
 
 (def-func 'class/window/set_status)
 	;inputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;r1 = status cstr pointer
 
 	(ptr 'this 'str)
@@ -399,7 +399,7 @@
 
 (def-func 'class/window/set_title)
 	;inputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;r1 = title cstr pointer
 
 	(ptr 'this 'str)
@@ -418,10 +418,10 @@
 
 (def-func 'class/window/connect_close)
 	;inputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;r1 = reciever id
 	;outputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;trashes
 	;all but r0
 
@@ -444,10 +444,10 @@
 
 (def-func 'class/window/connect_max)
 	;inputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;r1 = reciever id
 	;outputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;trashes
 	;all but r0
 
@@ -470,10 +470,10 @@
 
 (def-func 'class/window/connect_min)
 	;inputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;r1 = reciever id
 	;outputs
-	;r0 = window object
+	;r0 = window object (ptr)
 	;trashes
 	;all but r0
 

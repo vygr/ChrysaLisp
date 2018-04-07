@@ -19,9 +19,9 @@
 
 (defcfun sys/math/fsqrt ()
 	;inputs
-	;r0 = 16.16 number
+	;r0 = number (16.16)
 	;outputs
-	;r0 = 16.16 sqrt
+	;r0 = sqrt (16.16)
 	;trashes
 	;r1-r3
 	(vp-shl-cr fp_shift r0)

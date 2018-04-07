@@ -9,10 +9,10 @@
 
 (def-func 'class/string/create_from_buffer)
 	;inputs
-	;r0 = buffer pointer
-	;r1 = buffer length
+	;r0 = buffer (pubyte)
+	;r1 = buffer length (uint)
 	;outputs
-	;r0 = 0 if error, else object
+	;r0 = 0 if error, else object (ptr)
 	;trashes
 	;r1-r6
 
@@ -36,9 +36,9 @@
 
 (def-func 'class/string/create_from_cstr)
 	;inputs
-	;r0 = c string pointer
+	;r0 = c string (pubyte)
 	;outputs
-	;r0 = 0 if error, else object
+	;r0 = 0 if error, else object (ptr)
 	;trashes
 	;r1-r6
 
@@ -50,9 +50,9 @@
 
 (def-func 'class/string/create_from_file)
 	;inputs
-	;r0 = c string pointer
+	;r0 = c string (pubyte)
 	;outputs
-	;r0 = 0 if error, else object
+	;r0 = 0 if error, else object (ptr)
 	;trashes
 	;r1-r6
 
@@ -93,10 +93,10 @@
 
 (def-func 'class/string/create_from_long)
 	;inputs
-	;r0 = number
-	;r1 = base
+	;r0 = number (long)
+	;r1 = base (long)
 	;outputs
-	;r0 = 0 if error, else object
+	;r0 = 0 if error, else object (ptr)
 	;trashes
 	;all
 
@@ -126,10 +126,10 @@
 
 (def-func 'class/string/init)
 	;inputs
-	;r0 = string object
-	;r1 = vtable pointer
-	;r2 = 0 else, buffer pointer
-	;r3 = buffer length
+	;r0 = string object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = 0 else, buffer (pubyte)
+	;r3 = buffer length (uint)
 	;outputs
 	;r1 = 0 if error, else ok
 
@@ -173,10 +173,10 @@
 
 (def-func 'class/string/init1)
 	;inputs
-	;r0 = string object
-	;r1 = vtable pointer
-	;r2 = string object
-	;r3 = string object
+	;r0 = string object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = string object (ptr)
+	;r3 = string object (ptr)
 	;outputs
 	;r1 = 0 if error, else ok
 
@@ -219,16 +219,16 @@
 
 (def-func 'class/string/init2)
 	;inputs
-	;r0 = string object
-	;r1 = vtable pointer
-	;r2 = filename
-	;r3 = file length
+	;r0 = string object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = c string filename (pubyte)
+	;r3 = file length (uint)
 	;outputs
 	;r1 = 0 if error, else ok
 
 	(def-struct 'local)
 		(ptr 'this)
-		(long 'filename)
+		(ptr 'filename)
 	(def-struct-end)
 
 	;save inputs
@@ -269,9 +269,9 @@
 
 (def-func 'class/string/init3)
 	;inputs
-	;r0 = string object
-	;r1 = vtable pointer
-	;r2 = vector of string objects
+	;r0 = string object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = string objects vector object (ptr)
 	;outputs
 	;r1 = 0 if error, else ok
 
@@ -312,8 +312,8 @@
 
 (vp-label 'callback)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
 	;outputs
 	;r1 = 0 if break, else not
 
@@ -327,10 +327,10 @@
 
 (def-func 'class/string/append)
 	;inputs
-	;r0 = string object
-	;r1 = string object
+	;r0 = string object (ptr)
+	;r1 = string object (ptr)
 	;outputs
-	;r0 = 0 if error, else new string object
+	;r0 = 0 if error, else new string object (ptr)
 	;trashes
 	;r1-r6
 
@@ -360,9 +360,9 @@
 
 (def-func 'class/string/cat)
 	;inputs
-	;r0 = vector of strings objects
+	;r0 = string objects vector object (ptr)
 	;outputs
-	;r0 = 0 if error, else new string object
+	;r0 = 0 if error, else new string object (ptr)
 	;trashes
 	;r1-r6
 
@@ -395,8 +395,8 @@
 
 (vp-label 'callback)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
 	;outputs
 	;r1 = 0 if break, else not
 
@@ -411,10 +411,10 @@
 
 (def-func 'class/string/compare)
 	;inputs
-	;r0 = string object
-	;r1 = string object
+	;r0 = string object (ptr)
+	;r1 = string object (ptr)
 	;outputs
-	;r0 = string object
+	;r0 = string object (ptr)
 	;r1 = 0 if same, else -, +
 	;trashes
 	;r2-r7
@@ -449,10 +449,10 @@
 
 (def-func 'class/string/same)
 	;inputs
-	;r0 = string object
-	;r1 = string object
+	;r0 = string object (ptr)
+	;r1 = string object (ptr)
 	;outputs
-	;r0 = string object
+	;r0 = string object (ptr)
 	;r1 = 0 if same
 	;trashes
 	;r2-r6
@@ -516,10 +516,10 @@
 
 (def-func 'class/string/get_length)
 	;inputs
-	;r0 = string object
+	;r0 = string object (ptr)
 	;outputs
-	;r0 = string object
-	;r1 = string length
+	;r0 = string object (ptr)
+	;r1 = string length (uint)
 
 	(class/string/get_length)
 	(vp-ret)
@@ -528,10 +528,10 @@
 
 (def-func 'class/string/hash)
 	;inputs
-	;r0 = string object
+	;r0 = string object (ptr)
 	;outputs
-	;r0 = string object
-	;r1 = hash code
+	;r0 = string object (ptr)
+	;r1 = hash code (ulong)
 	;trashes
 	;all but r0
 
@@ -572,11 +572,11 @@
 
 (def-func 'class/string/ref_element)
 	;inputs
-	;r0 = string object
-	;r1 = char index
+	;r0 = string object (ptr)
+	;r1 = char index (uint)
 	;outputs
-	;r0 = string object
-	;r1 = char string
+	;r0 = string object (ptr)
+	;r1 = char string object (ptr)
 
 	(vp-push r0)
 	(vp-add-cr string_data r1)
@@ -588,12 +588,12 @@
 
 (def-func 'class/string/slice)
 	;inputs
-	;r0 = string object
-	;r1 = start index
-	;r2 = end index
+	;r0 = string object (ptr)
+	;r1 = element start index (uint)
+	;r2 = element end index (uint)
 	;outputs
-	;r0 = string object
-	;r1 = string slice
+	;r0 = string object (ptr)
+	;r1 = string slice object (ptr)
 	;trashes
 	;r2-r6
 
@@ -609,11 +609,11 @@
 
 (def-func 'class/string/split)
 	;inputs
-	;r0 = string object
-	;r1 = split char
+	;r0 = string object (ptr)
+	;r1 = split char (uint)
 	;outputs
-	;r0 = string object
-	;r1 = vector of split strings
+	;r0 = string object (ptr)
+	;r1 = split string objects vector object (ptr)
 	;trashes
 	;all but r0
 
@@ -637,11 +637,11 @@
 
 (def-func 'class/string/find)
 	;inputs
-	;r0 = string object
-	;r1 = search char
+	;r0 = string object (ptr)
+	;r1 = search char (uint)
 	;outputs
-	;r0 = string object
-	;r1 = -1, else position
+	;r0 = string object (ptr)
+	;r1 = -1, else position (int)
 	;trashes
 	;r2-r4
 

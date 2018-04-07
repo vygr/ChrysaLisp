@@ -6,7 +6,7 @@
 
 (def-func 'class/vector/deinit)
 	;inputs
-	;r0 = vector object
+	;r0 = vector object (ptr)
 	;trashes
 	;all but r0
 
@@ -17,9 +17,9 @@
 
 (def-func 'class/vector/clear)
 	;inputs
-	;r0 = vector object
+	;r0 = vector object (ptr)
 	;outputs
-	;r0 = vector object
+	;r0 = vector object (ptr)
 	;trashes
 	;all but r0
 
@@ -30,8 +30,8 @@
 
 (vp-label 'callback)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
 	;outputs
 	;r1 = 0 if break, else not
 
@@ -42,9 +42,9 @@
 
 (def-func 'class/vector/pop_back)
 	;inputs
-	;r0 = vector object
+	;r0 = vector object (ptr)
 	;outputs
-	;r0 = vector object
+	;r0 = vector object (ptr)
 	;trashes
 	;all but r0
 
@@ -62,10 +62,10 @@
 
 (def-func 'class/vector/ref_back)
 	;inputs
-	;r0 = vector object
+	;r0 = vector object (ptr)
 	;outputs
-	;r0 = vector object
-	;r1 = object pointer
+	;r0 = vector object (ptr)
+	;r1 = element object (ptr)
 	;trashes
 	;r2
 
@@ -82,11 +82,11 @@
 
 (def-func 'class/vector/ref_element)
 	;inputs
-	;r0 = vector object
-	;r1 = vector element
+	;r0 = vector object (ptr)
+	;r1 = element index (uint)
 	;outputs
-	;r0 = vector object
-	;r1 = object
+	;r0 = vector object (ptr)
+	;r1 = element object (ptr)
 	;trashes
 	;r2
 
@@ -101,11 +101,11 @@
 
 (def-func 'class/vector/set_element)
 	;inputs
-	;r0 = vector object
-	;r1 = object
-	;r2 = vector element
+	;r0 = vector object (ptr)
+	;r1 = element object (ptr)
+	;r2 = element index (uint)
 	;outputs
-	;r0 = vector object
+	;r0 = vector object (ptr)
 	;trashes
 	;all but r0
 
@@ -122,12 +122,12 @@
 
 (def-func 'class/vector/slice)
 	;inputs
-	;r0 = vector object
-	;r1 = vector element start
-	;r2 = vector element end
+	;r0 = vector object (ptr)
+	;r1 = element start index (uint)
+	;r2 = element end index (uint)
 	;outputs
-	;r0 = vector object
-	;r1 = slice vector object
+	;r0 = vector object (ptr)
+	;r1 = slice vector object (ptr)
 	;trashes
 	;r1-r10
 
@@ -168,12 +168,12 @@
 
 (def-func 'class/vector/append)
 	;inputs
-	;r0 = vector object
-	;r1 = source vector object
-	;r2 = vector element start
-	;r3 = vector element end
+	;r0 = vector object (ptr)
+	;r1 = source vector object (ptr)
+	;r2 = element start index (uint)
+	;r3 = element end index (uint)
 	;outputs
-	;r0 = vector object
+	;r0 = vector object (ptr)
 	;trashes
 	;r1-r11
 

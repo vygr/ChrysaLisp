@@ -6,11 +6,11 @@
 
 (def-func 'class/lisp/repl_eval)
 	;inputs
-	;r0 = lisp object
-	;r1 = form
+	;r0 = lisp object (ptr)
+	;r1 = form object (ptr)
 	;outputs
-	;r0 = lisp object
-	;r1 = value
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
 
 	(ptr 'this 'form 'value 'func 'args)
 

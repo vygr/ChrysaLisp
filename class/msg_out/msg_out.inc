@@ -37,6 +37,6 @@
 
 (defcfun class/msg_out/set_state ()
 	;inputs
-	;r0 = msg_out object
-	;r1 = stream state
+	;r0 = msg_out object (ptr)
+	;r1 = stream state (ulong)
 	(vp-cpy-ri r1 r0 msg_out_state))

@@ -26,9 +26,9 @@
 
 (defcfun class/pipe/get_input ()
 	;inputs
-	;r0 = pipe object
+	;r0 = pipe object (ptr)
 	;outputs
-	;r0 = pipe object
+	;r0 = pipe object (ptr)
 	;r1 = input stream object
 	(vp-cpy-ir r0 pipe_streams r1)
 	(vp-cpy-ir r1 array_array r1)
@@ -36,16 +36,16 @@
 
 (defcfun class/pipe/get_state ()
 	;inputs
-	;r0 = pipe object
+	;r0 = pipe object (ptr)
 	;outputs
-	;r0 = pipe object
+	;r0 = pipe object (ptr)
 	;r1 = current state
 	(vp-cpy-ir r0 pipe_state r1))
 
 (defcfun class/pipe/set_state ()
 	;inputs
-	;r0 = pipe object
+	;r0 = pipe object (ptr)
 	;r1 = current state
 	;outputs
-	;r0 = pipe object
+	;r0 = pipe object (ptr)
 	(vp-cpy-ri r1 r0 pipe_state))

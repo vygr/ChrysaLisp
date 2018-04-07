@@ -15,7 +15,7 @@
 
 (def-func 'gui/gui_init)
 	;inputs
-	;r0 = sdl function table
+	;r0 = sdl function table (pptr)
 
 	;init sdl function table
 	(f-bind 'gui_gui 'statics r4)
@@ -290,7 +290,7 @@
 
 (def-func 'gui/gui_add)
 	;inputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;trashes
 	;all but r0
 
@@ -307,7 +307,7 @@
 
 (def-func 'gui/gui_update)
 	;inputs
-	;r0 = root view object
+	;r0 = root view object (ptr)
 	;trashes
 	;all
 

@@ -12,11 +12,11 @@
 
 (def-func 'class/canvas/create)
 	;inputs
-	;r0 = width
-	;r1 = height
-	;r2 = aa scale, 16.16
+	;r0 = width (pixels)
+	;r1 = height (pixels)
+	;r2 = aa scale (16.16)
 	;outputs
-	;r0 = 0 if error, else object
+	;r0 = 0 if error, else object (ptr)
 	;trashes
 	;r1-r6
 
@@ -42,13 +42,13 @@
 
 (def-func 'class/canvas/init)
 	;inputs
-	;r0 = canvas object
-	;r1 = vtable pointer
-	;r2 = width
-	;r3 = height
-	;r4 = aa scale, 16.16
+	;r0 = canvas object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = width (pixels)
+	;r3 = height (pixels)
+	;r4 = aa scale (16.16)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;r1 = 0 if error, else ok
 
 	;save inputs
@@ -111,7 +111,7 @@
 
 (def-func 'class/canvas/deinit)
 	;inputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
 
@@ -166,8 +166,8 @@
 
 (def-func 'class/canvas/draw)
 	;inputs
-	;r0 = canvas object
-	;r1 = ctx object
+	;r0 = canvas object (ptr)
+	;r1 = draw ctx (ptr)
 	;trashes
 	;all but r0
 
@@ -236,7 +236,7 @@
 
 (def-func 'class/canvas/swap)
 	;inputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
 
@@ -275,10 +275,10 @@
 
 (def-func 'class/canvas/pref_size)
 	;inputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;outputs
-	;r9 = preferred width
-	;r10 = preferred height
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
 	;trashes
 	;all but r0
 
@@ -299,11 +299,11 @@
 
 (def-func 'class/canvas/to_premul)
 	;inputs
-	;r0 = canvas object
-	;r1 = color argb
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
 	;outputs
-	;r0 = canvas object
-	;r1 = color premul
+	;r0 = canvas object (ptr)
+	;r1 = color premul (argb)
 	;trashes
 	;r2-r3
 
@@ -331,11 +331,11 @@
 
 (def-func 'class/canvas/to_argb)
 	;inputs
-	;r0 = canvas object
-	;r1 = color premul
+	;r0 = canvas object (ptr)
+	;r1 = color premul (argb)
 	;outputs
-	;r0 = canvas object
-	;r1 = color argb
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
 	;trashes
 	;r2-r4
 
@@ -374,10 +374,10 @@
 
 (def-func 'class/canvas/fill)
 	;inputs
-	;r0 = canvas object
-	;r1 = color
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;r2-r4
 
@@ -401,9 +401,9 @@
 
 (def-func 'class/canvas/as_argb)
 	;inputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;r1-r6
 
@@ -428,9 +428,9 @@
 
 (def-func 'class/canvas/as_premul)
 	;inputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;r1-r5
 
@@ -455,13 +455,13 @@
 
 (def-func 'class/canvas/set_clip)
 	;inputs
-	;r0 = canvas object
-	;r7 = x
-	;r8 = y
-	;r9 = x1
-	;r10 = y1
+	;r0 = canvas object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = x1 (pixels)
+	;r10 = y1 (pixels)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;r1-r2
 
@@ -502,13 +502,13 @@
 
 (def-func 'class/canvas/set_span_noclip)
 	;inputs
-	;r0 = canvas object
-	;r1 = color
-	;r7 = x
-	;r8 = y
-	;r9 = x1
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = x1 (pixels)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;r2-r3, r7-r9
 
@@ -532,13 +532,13 @@
 
 (def-func 'class/canvas/set_span)
 	;inputs
-	;r0 = canvas object
-	;r1 = color
-	;r7 = x
-	;r8 = y
-	;r9 = x1
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = x1 (pixels)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;r2-r3, r7-r9
 
@@ -571,13 +571,13 @@
 
 (def-func 'class/canvas/blend_span_noclip)
 	;inputs
-	;r0 = canvas object
-	;r1 = color
-	;r7 = x
-	;r8 = y
-	;r9 = x1
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = x1 (pixels)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;r2-r3 r4-r9
 
@@ -624,13 +624,13 @@
 
 (def-func 'class/canvas/blend_span)
 	;inputs
-	;r0 = canvas object
-	;r1 = color
-	;r7 = x
-	;r8 = y
-	;r9 = x1
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = x1 (pixels)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;r2-r3 r4-r9
 
@@ -663,15 +663,15 @@
 
 (def-func 'class/canvas/fbox)
 	;inputs
-	;r0 = canvas object
-	;r1 = color
-	;r2 = span function
-	;r7 = x
-	;r8 = y
-	;r9 = w
-	;r10 = h
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
+	;r2 = span function (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = w (pixels)
+	;r10 = h (pixels)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
 

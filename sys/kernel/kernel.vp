@@ -11,10 +11,11 @@
 ;;;;;;;;;;;;;
 
 (def-func 'sys/kernel/kernel)
-	;loader is already initialized when we get here !
 	;inputs
-	;r0 = argv pointer
-	;r1 = SDL func table
+	;r0 = argv pointer (pptr)
+	;r1 = SDL func table (pptr)
+	;info
+	;loader is already initialized when we get here !
 
 	(union
 		'(ptr 'argv 'sdl)
@@ -277,7 +278,7 @@
 
 (def-func 'sys/kernel/id)
 	;outputs
-	;r0 = cpu ID
+	;r0 = cpu ID (uint)
 
 	(f-bind 'sys_task 'statics r0)
 	(f-exit 'kernel 'id '((r0 tk_statics_cpu_id ui)))
@@ -287,7 +288,7 @@
 
 (def-func 'sys/kernel/total)
 	;outputs
-	;r0 = cpu total
+	;r0 = cpu total (uint)
 
 	(f-bind 'sys_task 'statics r0)
 	(f-exit 'kernel 'total '((r0 tk_statics_cpu_total ui)))
@@ -298,7 +299,7 @@
 (def-func 'sys/kernel/opts)
 	;process command options
 	;inputs
-	;r0 = argv array
+	;r0 = argv array (pptr)
 	;trashes
 	;all
 
@@ -338,7 +339,7 @@
 
 (vp-label 'opt_cpu)
 	;inputs
-	;r0 = argv pointer
+	;r0 = argv pointer (pubyte)
 
 	(ptr 'arg)
 
@@ -353,7 +354,7 @@
 
 (vp-label 'opt_run)
 	;inputs
-	;r0 = argv pointer
+	;r0 = argv pointer (pubyte)
 
 	(ptr 'arg)
 
@@ -371,7 +372,7 @@
 
 (vp-label 'opt_link)
 	;inputs
-	;r0 = argv pointer
+	;r0 = argv pointer (pubyte)
 
 	(ptr 'arg 'msg 'data)
 	(struct 'mbox 'id)

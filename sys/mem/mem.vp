@@ -17,7 +17,7 @@
 
 (def-func 'sys/mem/used)
 	;outputs
-	;r0 = amount in bytes
+	;r0 = amount (bytes)
 
 	(f-bind 'sys_mem 'statics r0)
 	(f-exit 'sys_mem 'used '((r0 0)))
@@ -65,10 +65,10 @@
 
 (def-func 'sys/mem/alloc)
 	;inputs
-	;r0 = minimum amount in bytes
+	;r0 = minimum amount (bytes)
 	;outputs
-	;r0 = 0 if failed, else address
-	;r1 = 0 if failed, else size given
+	;r0 = 0 if failed, else address (ptr)
+	;r1 = 0 if failed, else size given (bytes)
 	;trashes
 	;r2-r3
 
@@ -107,10 +107,10 @@
 
 (def-func 'sys/mem/calloc)
 	;inputs
-	;r0 = minimum amount in bytes
+	;r0 = minimum amount (bytes)
 	;outputs
-	;r0 = 0 if failed, else address
-	;r1 = 0 if failed, else size given
+	;r0 = 0 if failed, else address (ptr)
+	;r1 = 0 if failed, else size given (bytes)
 	;trashes
 	;r2-r3
 
@@ -128,7 +128,7 @@
 
 (def-func 'sys/mem/free)
 	;inputs
-	;r0 = address
+	;r0 = address (ptr)
 	;trashes
 	;r0-r2
 
@@ -144,12 +144,12 @@
 
 (def-func 'sys/mem/realloc)
 	;inputs
-	;r0 = block address
-	;r1 = block size
-	;r2 = new block min size
+	;r0 = block address (ptr)
+	;r1 = block size (bytes)
+	;r2 = new block min size (bytes)
 	;outputs
-	;r0 = new block address
-	;r1 = new block size
+	;r0 = new block address (ptr)
+	;r1 = new block size (bytes)
 	;trashes
 	;r2-r7
 
@@ -185,12 +185,12 @@
 
 (def-func 'sys/mem/recalloc)
 	;inputs
-	;r0 = block address
-	;r1 = block size
-	;r2 = new block min size
+	;r0 = block address (ptr)
+	;r1 = block size (bytes)
+	;r2 = new block min size (bytes)
 	;outputs
-	;r0 = new block address
-	;r1 = new block size
+	;r0 = new block address (ptr)
+	;r1 = new block size (bytes)
 	;trashes
 	;r2-r7
 
@@ -232,10 +232,10 @@
 
 (def-func 'sys/mem/clear)
 	;inputs
-	;r0 = address
-	;r1 = length in bytes
+	;r0 = address (ptr)
+	;r1 = length (bytes)
 	;outputs
-	;r0 = address end
+	;r0 = address end (ptr)
 	;trashes
 	;r1-r2
 
@@ -272,12 +272,12 @@
 
 (def-func 'sys/mem/copy)
 	;inputs
-	;r0 = source address
-	;r1 = destination address
-	;r2 = length in bytes
+	;r0 = source address (ptr)
+	;r1 = destination address (ptr)
+	;r2 = length (bytes)
 	;outputs
-	;r0 = source address end
-	;r1 = destination address end
+	;r0 = source address end (ptr)
+	;r1 = destination address end (ptr)
 	;trashes
 	;r2-r3
 
@@ -321,11 +321,11 @@
 
 (def-func 'sys/mem/fill)
 	;inputs
-	;r0 = address
-	;r1 = length in bytes
-	;r2 = fill byte
+	;r0 = address (ptr)
+	;r1 = length (bytes)
+	;r2 = fill byte (byte)
 	;outputs
-	;r0 = address end
+	;r0 = address end (ptr)
 	;trashes
 	;r1-r3
 

@@ -13,10 +13,10 @@
 
 (def-func 'class/text/init)
 	;inputs
-	;r0 = text object
-	;r1 = vtable pointer
+	;r0 = text object (ptr)
+	;r1 = vtable (pptr)
 	;outputs
-	;r0 = text object
+	;r0 = text object (ptr)
 	;r1 = 0 if error, else ok
 
 	;init parent
@@ -34,7 +34,7 @@
 
 (def-func 'class/text/deinit)
 	;inputs
-	;r0 = text object
+	;r0 = text object (ptr)
 	;trashes
 	;all but r0
 
@@ -52,8 +52,8 @@
 
 (def-func 'class/text/draw)
 	;inputs
-	;r0 = view object
-	;r1 = ctx object
+	;r0 = view object (ptr)
+	;r1 = draw ctx (ptr)
 	;trashes
 	;all but r0
 
@@ -100,10 +100,10 @@
 
 (def-func 'class/text/pref_size)
 	;inputs
-	;r0 = text object
+	;r0 = text object (ptr)
 	;outputs
-	;r9 = preferred width
-	;r10 = preferred height
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
 	;trashes
 	;all but r0
 
@@ -146,7 +146,7 @@
 
 (def-func 'class/text/switch_text)
 	;inputs
-	;r0 = text object
+	;r0 = text object (ptr)
 	;trashes
 	;all but r0
 

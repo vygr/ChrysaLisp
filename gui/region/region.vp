@@ -3,8 +3,8 @@
 
 (def-func 'gui/region/clip_rect)
 	;inputs
-	;r0 = region heap pointer
-	;r1 = source region listhead pointer
+	;r0 = region heap (ptr)
+	;r1 = source region listhead (ptr)
 	;r7 = x (pixels)
 	;r8 = y (pixels)
 	;r9 = x1 (pixels)
@@ -62,9 +62,9 @@
 
 (def-func 'gui/region/copy_rect)
 	;inputs
-	;r0 = region heap pointer
-	;r1 = source region listhead pointer
-	;r2 = dest region listhead pointer
+	;r0 = region heap (ptr)
+	;r1 = source region listhead (ptr)
+	;r2 = dest region listhead (ptr)
 	;r7 = x (pixels)
 	;r8 = y (pixels)
 	;r9 = x1 (pixels)
@@ -219,12 +219,12 @@
 
 (def-func 'gui/region/copy_region)
 	;inputs
-	;r0 = region heap pointer
-	;r1 = source region listhead pointer
-	;r2 = dest region listhead pointer
-	;r3 = copy region listhead pointer
-	;r7 = x translation
-	;r8 = y translation
+	;r0 = region heap (ptr)
+	;r1 = source region listhead (ptr)
+	;r2 = dest region listhead (ptr)
+	;r3 = copy region listhead (ptr)
+	;r7 = x translation (pixels)
+	;r8 = y translation (pixels)
 	;trashes
 	;r1-r14
 
@@ -263,9 +263,9 @@
 
 (def-func 'gui/region/cut_rect)
 	;inputs
-	;r0 = region heap pointer
-	;r1 = source region listhead pointer
-	;r2 = dest region listhead pointer
+	;r0 = region heap (ptr)
+	;r1 = source region listhead (ptr)
+	;r2 = dest region listhead (ptr)
 	;r7 = x (pixels)
 	;r8 = y (pixels)
 	;r9 = x1 (pixels)
@@ -597,8 +597,8 @@
 
 (def-func 'gui/region/free)
 	;inputs
-	;r0 = region heap pointer
-	;r1 = source region listhead pointer
+	;r0 = region heap (ptr)
+	;r1 = source region listhead (ptr)
 	;trashes
 	;r1-r3
 
@@ -616,8 +616,8 @@
 
 (def-func 'gui/region/paste_rect)
 	;inputs
-	;r0 = region heap pointer
-	;r1 = dest region listhead pointer
+	;r0 = region heap (ptr)
+	;r1 = dest region listhead (ptr)
 	;r7 = x (pixels)
 	;r8 = y (pixels)
 	;r9 = x1 (pixels)
@@ -820,11 +820,11 @@
 
 (def-func 'gui/region/paste_region)
 	;inputs
-	;r0 = region heap pointer
-	;r1 = source region listhead pointer
-	;r2 = dest region listhead pointer
-	;r7 = x translation
-	;r8 = y translation
+	;r0 = region heap (ptr)
+	;r1 = source region listhead (ptr)
+	;r2 = dest region listhead (ptr)
+	;r7 = x translation (pixels)
+	;r8 = y translation (pixels)
 	;trashes
 	;r1-r14
 
@@ -862,8 +862,8 @@
 
 (def-func 'gui/region/remove_rect)
 	;inputs
-	;r0 = region heap pointer
-	;r1 = source region listhead pointer
+	;r0 = region heap (ptr)
+	;r1 = source region listhead (ptr)
 	;r7 = x (pixels)
 	;r8 = y (pixels)
 	;r9 = x1 (pixels)
@@ -1116,11 +1116,11 @@
 
 (def-func 'gui/region/remove_region)
 	;inputs
-	;r0 = region heap pointer
-	;r1 = source region listhead pointer
-	;r2 = dest region listhead pointer
-	;r7 = x translation
-	;r8 = y translation
+	;r0 = region heap (ptr)
+	;r1 = source region listhead (ptr)
+	;r2 = dest region listhead (ptr)
+	;r7 = x translation (pixels)
+	;r8 = y translation (pixels)
 	;trashes
 	;r1-r14
 
@@ -1158,9 +1158,9 @@
 
 (def-func 'gui/region/translate)
 	;inputs
-	;r1 = region listhead pointer
-	;r7 = x translation
-	;r8 = y translation
+	;r1 = region listhead (ptr)
+	;r7 = x translation (pixels)
+	;r8 = y translation (pixels)
 	;trashes
 	;r1, r11-r14
 
@@ -1180,12 +1180,12 @@
 
 (def-func 'gui/region/bounds)
 	;inputs
-	;r1 = region listhead pointer
+	;r1 = region listhead (ptr)
 	;outputs
-	;r7 = x
-	;r8 = y
-	;r9 = x1
-	;r10 = y1
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = x1 (pixels)
+	;r10 = y1 (pixels)
 	;trashes
 	;r1, r11-r14
 

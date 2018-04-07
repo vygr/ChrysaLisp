@@ -4,15 +4,15 @@
 
 (def-func 'class/points/gen_cubic)
 	;inputs
-	;r0 = points object
-	;r1 = stack array
-	;r2 = 16.16/16.16 p1.xy
-	;r3 = 16.16/16.16 p2.xy
-	;r4 = 16.16/16.16 p3.xy
-	;r5 = 16.16/16.16 p4.xy
-	;r6 = 16.16 tolerance
+	;r0 = points object (ptr)
+	;r1 = stack array object (ptr)
+	;r2 = p1 xy (16.16/16.16)
+	;r3 = p2 xy (16.16/16.16)
+	;r4 = p3 xy (16.16/16.16)
+	;r5 = p4 xy (16.16/16.16)
+	;r6 = tolerance (16.16)
 	;outputs
-	;r0 = points object
+	;r0 = points object (ptr)
 	;trashes
 	;all but r0
 

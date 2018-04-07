@@ -8,10 +8,10 @@
 
 (def-func 'class/view/init)
 	;inputs
-	;r0 = object
-	;r1 = vtable pointer
+	;r0 = view object (ptr)
+	;r1 = vtable (pptr)
 	;outputs
-	;r0 = object
+	;r0 = view object (ptr)
 	;r1 = 0 if error, else ok
 
 	;init parent
@@ -32,7 +32,7 @@
 
 (def-func 'class/view/deinit)
 	;inputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;trashes
 	;all but r0
 
@@ -70,8 +70,8 @@
 
 (def-func 'class/view/add_back)
 	;inputs
-	;r0 = view object
-	;r1 = child view object
+	;r0 = view object (ptr)
+	;r1 = child view object (ptr)
 	;trashes
 	;r1-r3
 
@@ -91,11 +91,11 @@
 
 (def-func 'class/view/add_dirty)
 	;inputs
-	;r0 = view object
-	;r7 = x
-	;r8 = y
-	;r9 = width
-	;r10 = height
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
 	;trashes
 	;all but r0
 
@@ -125,8 +125,8 @@
 
 (def-func 'class/view/add_front)
 	;inputs
-	;r0 = view object
-	;r1 = parent view object
+	;r0 = view object (ptr)
+	;r1 = parent view object (ptr)
 	;trashes
 	;r1-r3
 
@@ -146,11 +146,11 @@
 
 (def-func 'class/view/add_opaque)
 	;inputs
-	;r0 = view object
-	;r7 = x
-	;r8 = y
-	;r9 = width
-	;r10 = height
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
 	;trashes
 	;all but r0
 
@@ -178,19 +178,19 @@
 
 (def-func 'class/view/backward)
 	;inputs
-	;r0 = view object
-	;r1 = user data pointer
-	;r2 = callback
+	;r0 = view object (ptr)
+	;r1 = user data (ptr)
+	;r2 = callback (ptr)
 	;outputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;trashes
 	;dependant on callback
 		;callback api
 		;inputs
-		;r0 = child view object
-		;r1 = user data pointer
+		;r0 = child view object (ptr)
+		;r1 = user data pointer (ptr)
 		;outputs
-		;r0 = child view object
+		;r0 = child view object (ptr)
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -225,20 +225,20 @@
 
 (def-func 'class/view/backward_tree)
 	;inputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;r1 = user data pointer
-	;r2 = down callback
-	;r3 = up callback
+	;r2 = down callback (ptr)
+	;r3 = up callback (ptr)
 	;outputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;trashes
 	;dependant on callbacks
 		;callback api
 		;inputs
-		;r0 = view object
-		;r1 = user data pointer
+		;r0 = view object (ptr)
+		;r1 = user data pointer (ptr)
 		;outputs
-		;r0 = view object
+		;r0 = view object (ptr)
 		;r1 = 0 if should not descend after down callback
 
 	(def-struct 'local)
@@ -296,11 +296,11 @@
 
 (def-func 'class/view/change)
 	;inputs
-	;r0 = view object
-	;r7 = new x
-	;r8 = new y
-	;r9 = new w
-	;r10 = new h
+	;r0 = view object (ptr)
+	;r7 = new x (pixels)
+	;r8 = new y (pixels)
+	;r9 = new w (pixels)
+	;r10 = new h (pixels)
 	;trashes
 	;all but r0
 
@@ -323,7 +323,7 @@
 
 (def-func 'class/view/dirty)
 	;inputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;trashes
 	;all but r0
 
@@ -336,7 +336,7 @@
 
 (def-func 'class/view/dirty_all)
 	;inputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;trashes
 	;all but r0
 
@@ -353,10 +353,10 @@
 
 (def-func 'class/view/draw_panel)
 	;inputs
-	;r0 = view object
-	;r1 = ctx object
-	;r2 = flags
-	;r3 = depth
+	;r0 = view object (ptr)
+	;r1 = draw ctx (ptr)
+	;r2 = flags (ulong)
+	;r3 = depth (uint)
 	;trashes
 	;all but r0
 
@@ -378,8 +378,8 @@
 
 (def-func 'class/view/event)
 	;inputs
-	;r0 = view object
-	;r1 = event data
+	;r0 = view object (ptr)
+	;r1 = event data (ptr)
 	;trashes
 	;all but r0
 
@@ -443,11 +443,11 @@
 
 (def-func 'class/view/find_id)
 	;inputs
-	;r0 = view object
-	;r1 = target id
+	;r0 = view object (ptr)
+	;r1 = target id (long)
 	;outputs
-	;r0 = view object
-	;r1 = 0 if not found, else view
+	;r0 = view object (ptr)
+	;r1 = 0 if not found, else view object (ptr)
 	;trashes
 	;r1-r3
 
@@ -489,19 +489,19 @@
 
 (def-func 'class/view/forward)
 	;inputs
-	;r0 = view object
-	;r1 = user data pointer
-	;r2 = callback
+	;r0 = view object (ptr)
+	;r1 = user data pointer (ptr)
+	;r2 = callback (ptr)
 	;outputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;trashes
 	;dependant on callback
 		;callback api
 		;inputs
-		;r0 = child view object
-		;r1 = user data pointer
+		;r0 = child view object (ptr)
+		;r1 = user data pointer (ptr)
 		;outputs
-		;r0 = child view object
+		;r0 = child view object (ptr)
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -536,20 +536,20 @@
 
 (def-func 'class/view/forward_tree)
 	;inputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;r1 = user data pointer
-	;r2 = down callback
-	;r3 = up callback
+	;r2 = down callback (ptr)
+	;r3 = up callback (ptr)
 	;outputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;trashes
 	;dependant on callbacks
 		;callback api
 		;inputs
-		;r0 = view object
-		;r1 = user data pointer
+		;r0 = view object (ptr)
+		;r1 = user data pointer (ptr)
 		;outputs
-		;r0 = view object
+		;r0 = view object (ptr)
 		;r1 = 0 if should not descend after down callback
 
 	(def-struct 'local)
@@ -607,13 +607,13 @@
 
 (def-func 'class/view/get_bounds)
 	;inputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;outputs
-	;r0 = view object
-	;r7 = x
-	;r8 = y
-	;r9 = width
-	;r10 = height
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
 
 	(vp-cpy-ir-i r0 view_x r7)
 	(vp-cpy-ir-i r0 view_y r8)
@@ -625,10 +625,10 @@
 
 (def-func 'class/view/get_first)
 	;inputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;outputs
-	;r0 = view object
-	;r1 = 0 if empty, else first child
+	;r0 = view object (ptr)
+	;r1 = 0 if empty, else first child view object (ptr)
 	;trashes
 	;r2
 
@@ -645,10 +645,10 @@
 
 (def-func 'class/view/get_last)
 	;inputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;outputs
-	;r0 = view object
-	;r1 = 0 if empty, else last child
+	;r0 = view object (ptr)
+	;r1 = 0 if empty, else last child view object (ptr)
 	;trashes
 	;r2
 
@@ -665,13 +665,13 @@
 
 (def-func 'class/view/get_relative)
 	;inputs
-	;r0 = view object
-	;r1 = ancestor view object
-	;r7 = view x
-	;r8 = view y
+	;r0 = view object (ptr)
+	;r1 = ancestor view object (ptr)
+	;r7 = view x (pixels)
+	;r8 = view y (pixels)
 	;outputs
-	;r7 = relative x
-	;r8 = relative y
+	;r7 = relative x (pixels)
+	;r8 = relative y (pixels)
 	;trashes
 	;r2, r9-r10
 
@@ -691,11 +691,11 @@
 
 (def-func 'class/view/hit)
 	;inputs
-	;r0 = view object
-	;r7 = x
-	;r8 = y
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
 	;outputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;r1 = 0 if not, else hit
 
 	(vpif '(r7 >= 0))
@@ -719,14 +719,14 @@
 
 (def-func 'class/view/hit_tree)
 	;inputs
-	;r0 = view object
-	;r7 = x
-	;r8 = y
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
 	;outputs
-	;r0 = view object
-	;r1 = 0 if not hit, else hit view
-	;r7 = x relative to hit
-	;r8 = y relative to hit
+	;r0 = view object (ptr)
+	;r1 = 0 if not hit, else hit view object (ptr)
+	;r7 = x relative to hit (pixels)
+	;r8 = y relative to hit (pixels)
 	;trashes
 	;r1-r3
 
@@ -779,7 +779,7 @@
 
 (def-func 'class/view/opaque)
 	;inputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;trashes
 	;all but r0
 
@@ -795,10 +795,10 @@
 
 (def-func 'class/view/pref_size)
 	;inputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;outputs
-	;r9 = preferred width
-	;r10 = preferred height
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
 	;trashes
 	;all but r0
 
@@ -819,11 +819,11 @@
 
 (def-func 'class/view/set_bounds)
 	;inputs
-	;r0 = view object
-	;r7 = x
-	;r8 = y
-	;r9 = width
-	;r10 = height
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
 
 	(vp-cpy-ri-i r7 r0 view_x)
 	(vp-cpy-ri-i r8 r0 view_y)
@@ -835,7 +835,7 @@
 
 (def-func 'class/view/sub)
 	;inputs
-	;r0 = object
+	;r0 = view object (ptr)
 	;trashes
 	;r1-r2
 
@@ -856,11 +856,11 @@
 
 (def-func 'class/view/sub_opaque)
 	;inputs
-	;r0 = view object
-	;r7 = x
-	;r8 = y
-	;r9 = width
-	;r10 = height
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
 	;trashes
 	;all but r0
 
@@ -888,9 +888,9 @@
 
 (def-func 'class/view/to_front)
 	;inputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;outputs
-	;r0 = view object
+	;r0 = view object (ptr)
 	;trashes
 	;all but r0
 

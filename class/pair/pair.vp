@@ -7,7 +7,7 @@
 
 (def-func 'class/pair/deinit)
 	;inputs
-	;r0 = pair object
+	;r0 = pair object (ptr)
 	;trashes
 	;all but r0
 
@@ -22,10 +22,10 @@
 
 (def-func 'class/pair/ref_first)
 	;inputs
-	;r0 = pair object
+	;r0 = pair object (ptr)
 	;outputs
-	;r0 = pair object
-	;r1 = object pointer
+	;r0 = pair object (ptr)
+	;r1 = object (ptr)
 	;trashes
 	;r2
 
@@ -38,10 +38,10 @@
 
 (def-func 'class/pair/ref_second)
 	;inputs
-	;r0 = pair object
+	;r0 = pair object (ptr)
 	;outputs
-	;r0 = pair object
-	;r1 = object pointer
+	;r0 = pair object (ptr)
+	;r1 = object (ptr)
 	;trashes
 	;r2
 
@@ -54,10 +54,10 @@
 
 (def-func 'class/pair/set_first)
 	;inputs
-	;r0 = pair object
-	;r1 = object pointer
+	;r0 = pair object (ptr)
+	;r1 = object (ptr)
 	;outputs
-	;r0 = pair object
+	;r0 = pair object (ptr)
 	;trashes
 	;all but r0
 
@@ -72,10 +72,10 @@
 
 (def-func 'class/pair/set_second)
 	;inputs
-	;r0 = pair object
-	;r1 = object pointer
+	;r0 = pair object (ptr)
+	;r1 = object (ptr)
 	;outputs
-	;r0 = pair object
+	;r0 = pair object (ptr)
 	;trashes
 	;all but r0
 

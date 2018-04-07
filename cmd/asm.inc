@@ -256,7 +256,7 @@
 			(when (eql state 'y)
 				(defq s (trim-start (trim-start _ " ") (char 9)))
 				(if (and (ge (length s) 1) (eql (elem 0 s) ";"))
-					(push (elem -2 docs) s)
+					(push (elem -2 docs) (slice 1 -1 s))
 					(setq state 'x)))
 			(when (and (eql state 'x) (ge (length _) 10) (eql "(" (elem 0 _)))
 				(defq s (split _ " ") _ (elem 0 s))

@@ -8,7 +8,7 @@
 
 (def-func 'class/texture/deinit)
 	;inputs
-	;r0 = texture object
+	;r0 = texture object (ptr)
 	;trashes
 	;all but r0
 
@@ -24,7 +24,7 @@
 
 (vp-label 'close_callback)
 	;inputs
-	;r0 = user data
+	;r0 = user data (ptr)
 
 	(def-struct 'local)
 		(ptr 'old_stack)

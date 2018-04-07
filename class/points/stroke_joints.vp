@@ -5,17 +5,17 @@
 
 (def-func 'class/points/stroke_joints)
 	;inputs
-	;r0 = points object
-	;r1 = stack array
-	;r2 = in points iter_i
-	;r3 = in points iter_j
-	;r4 = 16.16/16.16 p1.xy
-	;r5 = 16.16/16.16 p2.xy
-	;r6 = join style
-	;r7 = 16.16 radius
-	;r8 = 16.16 tolerance
+	;r0 = points object (ptr)
+	;r1 = stack array object (ptr)
+	;r2 = in points start iter (ptr)
+	;r3 = in points end iter (ptr)
+	;r4 = p1 xy (16.16/16.16)
+	;r5 = p2 xy (16.16/16.16)
+	;r6 = join style (byte)
+	;r7 = radius (16.16)
+	;r8 = tolerance (16.16)
 	;outputs
-	;r0 = points object
+	;r0 = points object (ptr)
 	;trashes
 	;all but r0
 

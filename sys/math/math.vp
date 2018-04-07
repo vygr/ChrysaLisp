@@ -3,9 +3,9 @@
 
 (def-func 'sys/math/random)
 	;inputs
-	;r0 = random range
+	;r0 = random range (ulong)
 	;outputs
-	;r0 = random number in range
+	;r0 = random number in range (ulong)
 	;trashes
 	;r1-r2
 
@@ -32,9 +32,9 @@
 
 (def-func 'sys/math/isqrt)
 	;inputs
-	;r0 = number
+	;r0 = number (ulong)
 	;outputs
-	;r0 = sqrt
+	;r0 = sqrt (ulong)
 	;trashes
 	;r1-r3
 
@@ -68,9 +68,9 @@
 
 (def-func 'sys/math/fsin)
 	;inputs
-	;r0 = 16.16 angle in radians
+	;r0 = angle in radians (16.16)
 	;outputs
-	;r0 = 16.16 sine
+	;r0 = sine (16.16)
 	;trashes
 	;r1-r4
 
@@ -197,9 +197,9 @@
 
 (def-func 'sys/math/fcos)
 	;inputs
-	;r0 = 16.16 angle in radians
+	;r0 = angle in radians (16.16)
 	;outputs
-	;r0 = 16.16 cosine
+	;r0 = cosine (16.16)
 	;trashes
 	;r1-r4
 
@@ -338,12 +338,12 @@
 
 (def-func 'sys/math/intersect)
 	;inputs
-	;r0 = 16.16/16.16 p1.xy
-	;r1 = 16.16/16.16 v1.xy
-	;r2 = 16.16/16.16 p2.xy
-	;r3 = 16.16/16.16 v2.xy
+	;r0 = p1 xy (16.16/16.16)
+	;r1 = v1 xy (16.16/16.16)
+	;r2 = p2 xy (16.16/16.16)
+	;r3 = v2 xy (16.16/16.16)
 	;outputs
-	;r0 = 16.16/16.16 i.xy
+	;r0 = i xy (16.16/16.16)
 	;trashes
 	;all
 
@@ -408,11 +408,11 @@
 
 (def-func 'sys/math/distance_sqd)
 	;inputs
-	;r0 = 16.16/16.16 p.xy
-	;r1 = 16.16/16.16 p1.xy
-	;r2 = 16.16/16.16 p2.xy
+	;r0 = p xy (16.16/16.16)
+	;r1 = p1 xy (16.16/16.16)
+	;r2 = p2 xy (16.16/16.16)
 	;outputs
-	;r0 = 16.16 distance squared
+	;r0 = distance squared (16.16)
 	;trashes
 	;all
 

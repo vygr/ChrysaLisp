@@ -4,12 +4,12 @@
 
 (def-func 'class/lisp/repl_apply)
 	;inputs
-	;r0 = lisp object
-	;r1 = args
-	;r2 = function
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;r2 = boxed_ptr function object (ptr)
 	;outputs
-	;r0 = lisp object
-	;r1 = value
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
 	;trashes
 	;all but r0
 

@@ -5,7 +5,7 @@
 
 (def-func 'class/obj/destroy)
 	;inputs
-	;r0 = object
+	;r0 = object (ptr)
 	;trashes
 	;all
 
@@ -16,10 +16,10 @@
 
 (def-func 'class/obj/hash)
 	;inputs
-	;r0 = object
+	;r0 = object (ptr)
 	;outputs
-	;r0 = object
-	;r1 = hash code
+	;r0 = object (ptr)
+	;r1 = hash code (ulong)
 	;trashes
 	;all but r0
 
@@ -31,11 +31,11 @@
 
 (def-func 'class/obj/inst_of)
 	;inputs
-	;r0 = object
-	;r1 = vtable pointer of tested type
+	;r0 = object (ptr)
+	;r1 = vtable of tested type (ptr)
 	;outputs
-	;r0 = object
-	;r1 = 0 if not, else vtable of object
+	;r0 = object (ptr)
+	;r1 = 0 if not, else vtable of object (ptr)
 	;trashes
 	;r2
 
@@ -59,7 +59,7 @@
 
 (def-func 'class/obj/deref)
 	;inputs
-	;r0 = object
+	;r0 = object (ptr)
 	;trashes
 	;all
 
@@ -78,7 +78,7 @@
 
 (def-func 'class/obj/deref_if)
 	;inputs
-	;r0 = 0, else object
+	;r0 = 0, else object (ptr)
 	;trashes
 	;all
 
@@ -91,7 +91,7 @@
 
 (def-func 'class/obj/ref_if)
 	;inputs
-	;r0 = 0, else object
+	;r0 = 0, else object (ptr)
 	;trashes
 	;r1
 

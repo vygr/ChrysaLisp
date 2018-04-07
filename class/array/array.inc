@@ -50,10 +50,10 @@
 
 (defcfun class/array/init ()
 	;inputs
-	;r0 = array object
-	;r1 = vtable pointer
+	;r0 = array object (ptr)
+	;r1 = vtable (pptr)
 	;outputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0
@@ -67,9 +67,9 @@
 
 (defcfun class/array/clear ()
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;trashes
 	;r1
 	(vp-xor-rr r1 r1)
@@ -77,62 +77,62 @@
 
 (defcfun class/array/get_capacity ()
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
-	;r1 = array capacity
+	;r0 = array object (ptr)
+	;r1 = capacity (uint)
 	(vp-cpy-ir-ui r0 array_capacity r1))
 
 (defcfun class/array/get_length ()
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
-	;r1 = array length
+	;r0 = array object (ptr)
+	;r1 = length (uint)
 	(vp-cpy-ir-ui r0 array_length r1))
 
 (defcfun class/array/set_length ()
 	;inputs
-	;r0 = array object
-	;r1 = array length
+	;r0 = array object (ptr)
+	;r1 = length (uint)
 	;outputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	(vp-cpy-ri-i r1 r0 array_length))
 
 (defcfun class/array/get_first ()
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
-	;r1 = object
+	;r0 = array object (ptr)
+	;r1 = element (long)
 	(vp-cpy-ir r0 array_array r1)
 	(vp-cpy-ir r1 0 r1))
 
 (defcfun class/array/get_second ()
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
-	;r1 = object
+	;r0 = array object (ptr)
+	;r1 = element (long)
 	(vp-cpy-ir r0 array_array r1)
 	(vp-cpy-ir r1 long_size r1))
 
 (defcfun class/array/get_third ()
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
-	;r1 = object
+	;r0 = array object (ptr)
+	;r1 = element (long)
 	(vp-cpy-ir r0 array_array r1)
 	(vp-cpy-ir r1 (mul long_size 2) r1))
 
 (defcfun class/array/get_element ()
 	;inputs
-	;r0 = array object
-	;r1 = array element
+	;r0 = array object (ptr)
+	;r1 = element index (uint)
 	;outputs
-	;r0 = array object
-	;r1 = object
+	;r0 = array object (ptr)
+	;r1 = element (long)
 	;trashes
 	;r2
 	(vp-cpy-ir r0 array_array r2)
@@ -141,11 +141,11 @@
 
 (defcfun class/array/get_iter ()
 	;inputs
-	;r0 = array object
-	;r1 = array element
+	;r0 = array object (ptr)
+	;r1 = element index (uint)
 	;outputs
-	;r0 = array object
-	;r1 = iter pointer
+	;r0 = array object (ptr)
+	;r1 = element iter (plong)
 	;trashes
 	;r2
 	(vp-cpy-ir r0 array_array r2)
@@ -154,11 +154,11 @@
 
 (defcfun class/array/get_iters ()
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
-	;r1 = begin iter pointer
-	;r2 = end iter pointer
+	;r0 = array object (ptr)
+	;r1 = begin element iter (plong)
+	;r2 = end element iter (plong)
 	(vp-cpy-ir-ui r0 array_length r2)
 	(vp-cpy-ir r0 array_array r1)
 	(vp-shl-cr (log2 long_size) r2)
@@ -166,27 +166,27 @@
 
 (defcfun class/array/get_begin ()
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
-	;r1 = iter pointer
+	;r0 = array object (ptr)
+	;r1 = iter element iter (plong)
 	(vp-cpy-ir r0 array_array r1))
 
 (defcfun class/array/get_end ()
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
-	;r1 = iter pointer
+	;r0 = array object (ptr)
+	;r1 = iter element iter (plong)
 	;trashes
 	;r2
 	(f-call 'array 'get_iter '(r0 (r0 array_length ui))))
 
 (defcfun class/array/pop_back ()
 	;inputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;outputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;trashes
 	;r1
 	(vp-cpy-ir-ui r0 array_length r1)
@@ -195,11 +195,11 @@
 
 (defcfun class/array/set_element ()
 	;inputs
-	;r0 = array object
-	;r1 = object
-	;r2 = array element
+	;r0 = array object (ptr)
+	;r1 = element (long)
+	;r2 = element index (uint)
 	;outputs
-	;r0 = array object
+	;r0 = array object (ptr)
 	;trashes
 	;r2-r3
 	(vp-cpy-ir r0 array_array r3)

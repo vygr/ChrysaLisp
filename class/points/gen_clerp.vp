@@ -4,15 +4,15 @@
 
 (def-func 'class/points/gen_clerp)
 	;inputs
-	;r0 = points object
-	;r1 = stack array
-	;r2 = 16.16/16.16 c.xy
-	;r3 = 16.16/16.16 v1.xy
-	;r4 = 16.16/16.16 v2.xy
-	;r5 = 16.16 radius
-	;r6 = 16.16 tolerance
+	;r0 = points object (ptr)
+	;r1 = stack array object (ptr)
+	;r2 = center xy (16.16/16.16)
+	;r3 = v1 (16.16/16.16)
+	;r4 = v2 (16.16/16.16)
+	;r5 = radius (16.16)
+	;r6 = tolerance (16.16)
 	;outputs
-	;r0 = points object
+	;r0 = points object (ptr)
 	;trashes
 	;all but r0
 

@@ -5,13 +5,13 @@
 
 (def-func 'class/canvas/fpoly)
 	;inputs
-	;r0 = canvas object
-	;r1 = vector of points objects
-	;r2 = color
-	;r3 = mode
-	;r4 = span function
+	;r0 = canvas object (ptr)
+	;r1 = point objects vector object (ptr)
+	;r2 = color (argb)
+	;r3 = winding mode (0/1)
+	;r4 = span function (ptr)
 	;outputs
-	;r0 = canvas object
+	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
 

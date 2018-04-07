@@ -4,14 +4,14 @@
 
 (def-func 'class/lisp/read_rmacro)
 	;inputs
-	;r0 = lisp object
-	;r1 = stream
-	;r2 = next char
-	;r3 = symbol
+	;r0 = lisp object (ptr)
+	;r1 = stream object (ptr)
+	;r2 = next char (uint)
+	;r3 = symbol object (ptr) 
 	;outputs
-	;r0 = lisp object
-	;r1 = list
-	;r2 = next char
+	;r0 = lisp object (ptr)
+	;r1 = list vector object (ptr)
+	;r2 = next char (uint)
 
 	(ptr 'this 'sym 'list)
 	(union

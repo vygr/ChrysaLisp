@@ -8,9 +8,9 @@
 
 (def-func 'class/stream_str/init)
 	;inputs
-	;r0 = stream_str object
-	;r1 = vtable pointer
-	;r2 = string object
+	;r0 = stream_str object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = string object (ptr)
 	;outputs
 	;r1 = 0 if error, else ok
 	;trashes
@@ -23,9 +23,9 @@
 
 (def-func 'class/stream_str/ref_string)
 	;inputs
-	;r0 = stream_str object
+	;r0 = stream_str object (ptr)
 	;outputs
-	;r0 = stream_str object
+	;r0 = stream_str object (ptr)
 	;r1 = string object
 	;trashes
 	;r2
@@ -47,9 +47,9 @@
 
 (def-func 'class/stream_str/write_next)
 	;inputs
-	;r0 = stream_str object
+	;r0 = stream_str object (ptr)
 	;outputs
-	;r0 = stream_str object
+	;r0 = stream_str object (ptr)
 	;trashes
 	;all but r0
 
@@ -75,9 +75,9 @@
 
 (def-func 'class/stream_str/write_flush)
 	;inputs
-	;r0 = stream_str object
+	;r0 = stream_str object (ptr)
 	;outputs
-	;r0 = stream_str object
+	;r0 = stream_str object (ptr)
 	;trashes
 	;all but r0
 

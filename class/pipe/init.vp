@@ -8,12 +8,12 @@
 
 (def-func 'class/pipe/init)
 	;inputs
-	;r0 = pipe object
-	;r1 = vtable pointer
+	;r0 = pipe object (ptr)
+	;r1 = vtable (pptr)
 	;r2 = buffer
 	;r3 = length
 	;outputs
-	;r0 = pipe object
+	;r0 = pipe object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;all but r0

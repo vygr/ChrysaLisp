@@ -9,11 +9,11 @@
 
 (def-func 'class/lisp/repl_print)
 	;inputs
-	;r0 = lisp object
-	;r1 = stream
+	;r0 = lisp object (ptr)
+	;r1 = stream object (ptr)
 	;r2 = value
 	;outputs
-	;r0 = lisp object
+	;r0 = lisp object (ptr)
 
 	(def-struct 'local)
 		(ptr 'this 'stream)
@@ -157,8 +157,8 @@
 
 (vp-label 'callback)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
 	;outputs
 	;r1 = 0 if break, else not
 
@@ -179,8 +179,8 @@
 
 (vp-label 'callback1)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
 	;outputs
 	;r1 = 0 if break, else not
 

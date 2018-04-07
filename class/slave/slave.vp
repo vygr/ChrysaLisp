@@ -11,8 +11,8 @@
 
 (def-func 'class/slave/init)
 	;inputs
-	;r0 = slave object
-	;r1 = vtable pointer
+	;r0 = slave object (ptr)
+	;r1 = vtable (pptr)
 	;outputs
 	;r1 = 0 if error, else ok
 	;trashes
@@ -62,7 +62,7 @@
 
 (def-func 'class/slave/deinit)
 	;inputs
-	;r0 = slave object
+	;r0 = slave object (ptr)
 	;trashes
 	;all but r0
 

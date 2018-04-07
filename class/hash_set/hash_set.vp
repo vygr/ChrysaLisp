@@ -8,12 +8,12 @@
 
 (def-func 'class/hash_set/init)
 	;inputs
-	;r0 = hash_set object
-	;r1 = vtable pointer
-	;r2 = key compare callback
-	;r3 = num_buckets
+	;r0 = hash_set object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = key compare callback (ptr)
+	;r3 = num buckets (uint)
 	;outputs
-	;r0 = hash_set object
+	;r0 = hash_set object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;r2-r7
@@ -48,8 +48,8 @@
 
 (vp-label 'callback)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
 	;outputs
 	;r1 = 0 if break, else not
 
@@ -63,7 +63,7 @@
 
 (def-func 'class/hash_set/deinit)
 	;inputs
-	;r0 = hash_set object
+	;r0 = hash_set object (ptr)
 	;trashes
 	;all but r0
 
@@ -76,9 +76,9 @@
 
 (def-func 'class/hash_set/clear)
 	;inputs
-	;r0 = hash_set object
+	;r0 = hash_set object (ptr)
 	;outputs
-	;r0 = hash_set object
+	;r0 = hash_set object (ptr)
 	;trashes
 	;all but r0
 
@@ -96,8 +96,8 @@
 
 (vp-label 'callback)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
 	;outputs
 	;r1 = 0 if break, else not
 
@@ -108,11 +108,11 @@
 
 (def-func 'class/hash_set/copy)
 	;inputs
-	;r0 = hash_set object
-	;r1 = num buckets
+	;r0 = hash_set object (ptr)
+	;r1 = num buckets (uint)
 	;outputs
-	;r0 = hash_set object
-	;r1 = hash_set copy
+	;r0 = hash_set object (ptr)
+	;r1 = hash_set copy object (ptr)
 	;trashes
 	;all but r0
 
@@ -125,8 +125,8 @@
 
 (vp-label 'callback)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
 	;outputs
 	;r1 = 0 if break, else not
 
@@ -141,11 +141,11 @@
 
 (def-func 'class/hash_set/erase)
 	;inputs
-	;r0 = hash_set object
-	;r1 = iterator
-	;r2 = bucket vector
+	;r0 = hash_set object (ptr)
+	;r1 = element iterator (pptr)
+	;r2 = bucket vector object (ptr)
 	;outputs
-	;r0 = hash_set object
+	;r0 = hash_set object (ptr)
 	;trashes
 	;all but r0
 
@@ -182,12 +182,12 @@
 
 (def-func 'class/hash_set/find)
 	;inputs
-	;r0 = hash_set object
-	;r1 = key object
+	;r0 = hash_set object (ptr)
+	;r1 = key object (ptr)
 	;outputs
-	;r0 = hash_set object
-	;r1 = 0, else found iterator
-	;r2 = bucket vector
+	;r0 = hash_set object (ptr)
+	;r1 = 0, else found iterator (pptr)
+	;r2 = bucket vector object (ptr)
 	;trashes
 	;all but r0
 
@@ -229,8 +229,8 @@
 
 (vp-label 'callback)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
 	;outputs
 	;r1 = 0 if break, else not
 
@@ -243,19 +243,19 @@
 
 (def-func 'class/hash_set/for_each)
 	;inputs
-	;r0 = hash_set object
-	;r1 = predicate function pointer
-	;r2 = predicate data pointer
+	;r0 = hash_set object (ptr)
+	;r1 = predicate function (ptr)
+	;r2 = predicate data (ptr)
 	;outputs
-	;r0 = hash_set object
-	;r1 = 0, else break iterator
-	;r2 = 0, else bucket vector
+	;r0 = hash_set object (ptr)
+	;r1 = 0, else break iterator (pptr)
+	;r2 = 0, else bucket vector object (ptr)
 	;trashes
 	;all but r0
 		;callback predicate
 		;inputs
-		;r0 = predicate data pointer
-		;r1 = element iterator
+		;r0 = predicate data (ptr)
+		;r1 = element iterator (pptr)
 		;outputs
 		;r1 = 0 if break, else not
 		;trashes
@@ -295,8 +295,8 @@
 
 (vp-label 'callback)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
 	;outputs
 	;r1 = 0 if break, else not
 
@@ -317,11 +317,11 @@
 
 (def-func 'class/hash_set/get_bucket)
 	;inputs
-	;r0 = hash_set object
-	;r1 = key object
+	;r0 = hash_set object (ptr)
+	;r1 = key object (ptr)
 	;outputs
-	;r0 = hash_set object
-	;r1 = bucket vector
+	;r0 = hash_set object (ptr)
+	;r1 = bucket vector object (ptr)
 	;trashes
 	;all but r0
 
@@ -355,12 +355,12 @@
 
 (def-func 'class/hash_set/insert)
 	;inputs
-	;r0 = hash_set object
-	;r1 = key object
+	;r0 = hash_set object (ptr)
+	;r1 = key object (ptr)
 	;outputs
-	;r0 = hash_set object
-	;r1 = iterator
-	;r2 = bucket vector
+	;r0 = hash_set object (ptr)
+	;r1 = element iterator (pptr)
+	;r2 = bucket vector object (ptr)
 	;trashes
 	;all but r0
 
@@ -397,11 +397,11 @@
 
 (def-func 'class/hash_set/get_iters)
 	;inputs
-	;r0 = hash_set object
+	;r0 = hash_set object (ptr)
 	;outputs
-	;r0 = hash_set object
-	;r1 = begin iter pointer
-	;r2 = end iter pointer
+	;r0 = hash_set object (ptr)
+	;r1 = begin iter pointer (pptr)
+	;r2 = end iter pointer (pptr)
 	;trashes
 	;r3-r4
 

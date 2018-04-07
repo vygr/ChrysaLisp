@@ -3,11 +3,11 @@
 
 (def-func 'class/lisp/func_merge)
 	;inputs
-	;r0 = lisp object
-	;r1 = args
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
 	;outputs
-	;r0 = lisp object
-	;r1 = else value
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'list1)
 	(pptr 'iter_begin 'iter_end)

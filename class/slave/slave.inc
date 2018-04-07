@@ -31,8 +31,8 @@
 
 (defcfun class/slave/get_args ()
 	;inputs
-	;r0 = slave object
+	;r0 = slave object (ptr)
 	;outputs
-	;r0 = slave object
+	;r0 = slave object (ptr)
 	;r1 = command args
 	(vp-cpy-ir r0 slave_args r1))

@@ -4,13 +4,13 @@
 
 (def-func 'class/points/transform)
 	;inputs
-	;r0 = points object
-	;r1 = source points object, can be same
-	;r2 = 16.16/16.16 m1xy
-	;r3 = 16.16/16.16 m2xy
-	;r4 = 16.16/16.16 trxy
+	;r0 = points object (ptr)
+	;r1 = source points object, can be same (ptr)
+	;r2 = m1 xy (16.16/16.16)
+	;r3 = m2 xy (16.16/16.16)
+	;r4 = tr xy (16.16/16.16)
 	;outputs
-	;r0 = points object
+	;r0 = points object (ptr)
 	;trashes
 	;all but r0
 

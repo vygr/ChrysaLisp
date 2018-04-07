@@ -24,12 +24,12 @@
 
 (defcfun class/pair/init ()
 	;inputs
-	;r0 = pair object
-	;r1 = vtable pointer
-	;r2 = first object
-	;r3 = second object
+	;r0 = pair object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = first object (ptr)
+	;r3 = second object (ptr)
 	;outputs
-	;r0 = pair object
+	;r0 = pair object (ptr)
 	;r1 = 0 if error, else ok
 	(vp-cpy-ri r2 r0 pair_first)
 	(vp-cpy-ri r3 r0 pair_second)
@@ -37,16 +37,16 @@
 
 (defcfun class/pair/get_first ()
 	;inputs
-	;r0 = pair object
+	;r0 = pair object (ptr)
 	;outputs
-	;r0 = pair object
-	;r1 = object pointer
+	;r0 = pair object (ptr)
+	;r1 = object (ptr)
 	(vp-cpy-ir r0 pair_first r1))
 
 (defcfun class/pair/get_second ()
 	;inputs
-	;r0 = pair object
+	;r0 = pair object (ptr)
 	;outputs
-	;r0 = pair object
-	;r1 = object pointer
+	;r0 = pair object (ptr)
+	;r1 = object (ptr)
 	(vp-cpy-ir r0 pair_second r1))

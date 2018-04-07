@@ -6,14 +6,14 @@
 
 (def-func 'class/lisp/read_str)
 	;inputs
-	;r0 = lisp object
-	;r1 = stream
-	;r2 = next char
-	;r3 = closing char
+	;r0 = lisp object (ptr)
+	;r1 = stream object (ptr)
+	;r2 = next char (uint)
+	;r3 = closing char (uint)
 	;outputs
-	;r0 = lisp object
-	;r1 = string
-	;r2 = next char
+	;r0 = lisp object (ptr)
+	;r1 = string object (ptr)
+	;r2 = next char (uint)
 
 	(ptr 'this 'stream)
 	(union

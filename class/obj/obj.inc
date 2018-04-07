@@ -24,8 +24,8 @@
 
 (defcfun class/obj/init ()
 	;inputs
-	;r0 = object
-	;r1 = vtable pointer
+	;r0 = object (ptr)
+	;r1 = vtable (pptr)
 	;outputs
 	;r1 = 0 if error, else ok
 	(vp-cpy-ri r1 r0 obj_vtable)
@@ -34,7 +34,7 @@
 
 (defcfun class/obj/ref ()
 	;inputs
-	;r0 = object
+	;r0 = object (ptr)
 	;trashes
 	;r1
 	(vp-cpy-ir-ui r0 obj_count r1)

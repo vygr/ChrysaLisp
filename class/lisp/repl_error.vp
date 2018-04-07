@@ -7,13 +7,13 @@
 
 (def-func 'class/lisp/repl_error)
 	;inputs
-	;r0 = lisp object
-	;r1 = description cstr pointer
-	;r2 = 0, else error msg number
-	;r3 = error payload object
+	;r0 = lisp object (ptr)
+	;r1 = description c string (pubyte)
+	;r2 = 0, else error msg number (uint)
+	;r3 = error payload object (ptr)
 	;outputs
-	;r0 = lisp object
-	;r1 = error object
+	;r0 = lisp object (ptr)
+	;r1 = error object (ptr)
 
 	(ptr 'this 'desc 'payload 'file 'value)
 	(pptr 'iter)

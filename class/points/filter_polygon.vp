@@ -4,11 +4,11 @@
 
 (def-func 'class/points/filter_polygon)
 	;inputs
-	;r0 = points object
-	;r1 = source points object, can be same
-	;r2 = 16.16 tolerance
+	;r0 = points object (ptr)
+	;r1 = source points object, can be same (ptr)
+	;r2 = tolerance (16.16)
 	;outputs
-	;r0 = points object
+	;r0 = points object (ptr)
 	;trashes
 	;all but r0
 

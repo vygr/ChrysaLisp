@@ -35,9 +35,9 @@
 
 (defcfun class/stream/available ()
 	;inputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;outputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;r1 = available space
 	;trashes
 	;r2
@@ -47,9 +47,9 @@
 
 (defcfun class/stream/write_flush ()
 	;inputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;outputs
-	;r0 = stream object
+	;r0 = stream object (ptr)
 	;trashes
 	;r1
 	(vp-xor-rr r1 r1)

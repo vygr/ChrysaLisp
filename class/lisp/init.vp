@@ -29,13 +29,13 @@
 
 (def-func 'class/lisp/init)
 	;inputs
-	;r0 = object
-	;r1 = vtable pointer
-	;r2 = stdin stream
-	;r3 = stdout stream
-	;r4 = stderr stream
+	;r0 = lisp object object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = stdin stream object (ptr)
+	;r3 = stdout stream object (ptr)
+	;r4 = stderr stream object (ptr)
 	;outputs
-	;r0 = object
+	;r0 = lisp object object (ptr)
 	;r1 = 0 if error, else ok
 	;trashes
 	;all

@@ -4,12 +4,12 @@
 
 (def-func 'class/lisp/env_args_set)
 	;inputs
-	;r0 = lisp object
-	;r1 = args vector
-	;r2 = args dest pointer
-	;r3 = args offset
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;r2 = args dest (ptr)
+	;r3 = args offset (uint)
 	;outputs
-	;r0 = lisp object
+	;r0 = lisp object (ptr)
 
 	(ptr 'this 'args 'value)
 	(pptr 'iter_begin 'iter_end 'dest)

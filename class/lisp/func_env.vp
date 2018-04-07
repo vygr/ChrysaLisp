@@ -5,11 +5,11 @@
 
 (def-func 'class/lisp/func_env)
 	;inputs
-	;r0 = lisp object
-	;r1 = args
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
 	;outputs
-	;r0 = lisp object
-	;r1 = environment
+	;r0 = lisp object (ptr)
+	;r1 = environment hasp_map object (ptr)
 
 	(ptr 'this 'args 'value)
 	(uint 'length)

@@ -5,12 +5,12 @@
 
 (def-func 'class/lisp/repl_expand)
 	;inputs
-	;r0 = lisp object
-	;r1 = iter to form
+	;r0 = lisp object (ptr)
+	;r1 = form object iter (pptr)
 	;r2 = 0
 	;outputs
-	;r0 = lisp object
-	;r1 = expansion count
+	;r0 = lisp object (ptr)
+	;r1 = expansion count (ulong)
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -57,8 +57,8 @@
 
 (vp-label 'callback2)
 	;inputs
-	;r0 = predicate data pointer
-	;r1 = element iterator
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (ptr)
 	;outputs
 	;r1 = 0 if break, else not
 

@@ -105,7 +105,7 @@
 (vp-label 'pipe_output)
 	;inputs
 	;r0 = local
-	;r1 = stream
+	;r1 = stream object (ptr)
 	;outputs
 	;r0 = -1 if EOF
 

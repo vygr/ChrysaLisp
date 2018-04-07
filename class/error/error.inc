@@ -26,34 +26,34 @@
 
 (defcfun class/error/get_description ()
 	;inputs
-	;r0 = error object
+	;r0 = error object (ptr)
 	;outputs
-	;r0 = error object
-	;r1 = string object
+	;r0 = error object (ptr)
+	;r1 = string object (ptr)
 	(vp-cpy-ir r0 error_description r1))
 
 (defcfun class/error/get_file ()
 	;inputs
-	;r0 = error object
+	;r0 = error object (ptr)
 	;outputs
-	;r0 = error object
-	;r1 = string object
+	;r0 = error object (ptr)
+	;r1 = string object (ptr)
 	(vp-cpy-ir r0 error_file r1))
 
 (defcfun class/error/get_object ()
 	;inputs
-	;r0 = error object
+	;r0 = error object (ptr)
 	;outputs
-	;r0 = error object
-	;r1 = error payload object
+	;r0 = error object (ptr)
+	;r1 = error payload object (ptr)
 	(vp-cpy-ir r0 error_object r1))
 
 (defcfun class/error/get_line ()
 	;inputs
-	;r0 = error object
+	;r0 = error object (ptr)
 	;outputs
-	;r0 = error object
-	;r1 = line number
+	;r0 = error object (ptr)
+	;r1 = line number (uint)
 	(vp-cpy-ir-ui r0 error_line r1))
 
 ;;;;;;;;;;;;
