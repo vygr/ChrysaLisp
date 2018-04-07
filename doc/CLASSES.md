@@ -378,7 +378,7 @@ all but r0
 ```
 inputs
 r0 = button object (ptr)
-r1 = mouse event message (ptr)
+r1 = mouse event data (ptr)
 trashes
 all but r0
 ```
@@ -386,7 +386,7 @@ all but r0
 ```
 inputs
 r0 = button object (ptr)
-r1 = mouse event message (ptr)
+r1 = mouse event data (ptr)
 trashes
 all but r0
 ```
@@ -394,7 +394,7 @@ all but r0
 ```
 inputs
 r0 = button object (ptr)
-r1 = mouse event message (ptr)
+r1 = mouse event data (ptr)
 trashes
 all but r0
 ```
@@ -4476,7 +4476,7 @@ r1 = 0 if error, else ok
 ```
 inputs
 r0 = title object (ptr)
-r1 = mouse event message (ptr)
+r1 = mouse event data (ptr)
 trashes
 all but r0
 ```
@@ -4484,7 +4484,7 @@ all but r0
 ```
 inputs
 r0 = title object (ptr)
-r1 = mouse event message (ptr)
+r1 = mouse event data (ptr)
 trashes
 all but r0
 ```

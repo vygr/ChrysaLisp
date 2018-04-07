@@ -41,7 +41,7 @@
 (def-func 'class/title/mouse_down)
 	;inputs
 	;r0 = title object (ptr)
-	;r1 = mouse event message (ptr)
+	;r1 = mouse event data (ptr)
 	;trashes
 	;all but r0
 
@@ -64,7 +64,7 @@
 (def-func 'class/title/mouse_move)
 	;inputs
 	;r0 = title object (ptr)
-	;r1 = mouse event message (ptr)
+	;r1 = mouse event data (ptr)
 	;trashes
 	;all but r0
 

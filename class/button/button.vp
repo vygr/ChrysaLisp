@@ -116,7 +116,7 @@
 (def-func 'class/button/mouse_down)
 	;inputs
 	;r0 = button object (ptr)
-	;r1 = mouse event message (ptr)
+	;r1 = mouse event data (ptr)
 	;trashes
 	;all but r0
 
@@ -131,7 +131,7 @@
 (def-func 'class/button/mouse_up)
 	;inputs
 	;r0 = button object (ptr)
-	;r1 = mouse event message (ptr)
+	;r1 = mouse event data (ptr)
 	;trashes
 	;all but r0
 
@@ -159,7 +159,7 @@
 (def-func 'class/button/mouse_move)
 	;inputs
 	;r0 = button object (ptr)
-	;r1 = mouse event message (ptr)
+	;r1 = mouse event data (ptr)
 	;trashes
 	;all but r0
 
