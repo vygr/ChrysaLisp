@@ -29,8 +29,8 @@
 
 (defcfun sys/heap/free ()
 	;inputs
-	;r0 = heap
-	;r1 = cell
+	;r0 = heap (ptr)
+	;r1 = cell (ptr)
 	;trashes
 	;r2
 	(hp-freecell r0 r1 r2))
@@ -41,12 +41,12 @@
 
 (defcfun hp-freecell (_1 _2 _3)
 	;inputs
-	;_1 = heap
-	;_2 = cell
-	;_3 = temp
+	;_1 = heap (ptr)
+	;_2 = cell (ptr)
+	;_3 = temp (ptr)
 	;outputs
-	;_1 = heap
-	;_2 = cell
-	;_3 = old first cell
+	;_1 = heap (ptr)
+	;_2 = cell (ptr)
+	;_3 = old first cell (ptr)
 
 	(ln-add-fnode _1 hp_heap_free_flist _2 _3))

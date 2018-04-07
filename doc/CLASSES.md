@@ -3110,8 +3110,8 @@ Super Class: obj
 inputs
 r0 = pipe object (ptr)
 r1 = vtable (pptr)
-r2 = buffer
-r3 = length
+r2 = command buffer (pubyte)
+r3 = length (bytes)
 outputs
 r0 = pipe object (ptr)
 r1 = 0 if error, else ok
@@ -3122,10 +3122,10 @@ all but r0
 ```
 inputs
 r0 = pipe object (ptr)
-r1 = user mailbox
+r1 = user mailbox (ptr)
 outputs
 r0 = pipe object (ptr)
-r1 = mailbox with mail
+r1 = mailbox with mail (ptr)
 trashes
 all but r0
 ```
@@ -3141,7 +3141,7 @@ r1 = current state
 ```
 inputs
 r0 = pipe object (ptr)
-r1 = current state
+r1 = current state (ulong)
 outputs
 r0 = pipe object (ptr)
 ```
@@ -3151,7 +3151,7 @@ inputs
 r0 = pipe object (ptr)
 outputs
 r0 = pipe object (ptr)
-r1 = input stream object
+r1 = input stream object (ptr)
 ```
 ### pipe::deinit -> class/pipe/deinit
 ```
@@ -3304,6 +3304,7 @@ all but r0
 ```
 ### points::stroke_polygons -> class/points/stroke_polygons
 ```
+inputs
 r0 = output polygons vector object (ptr)
 r1 = stack array object (ptr)
 r2 = input polygons vector object (ptr)
@@ -3699,7 +3700,7 @@ r1-r6
 ### string::new -> class/string/new
 ```
 inputs
-r0 = object size
+r0 = object size (bytes)
 outputs
 r0 = 0 if error, else object (ptr)
 trashes
@@ -3804,7 +3805,7 @@ inputs
 r0 = string object (ptr)
 outputs
 r0 = string object (ptr)
-r1 = string length
+r1 = string length (bytes)
 ```
 ### string::ref_element -> class/string/ref_element
 ```
@@ -3852,39 +3853,39 @@ Super Class: null
 ### sys_heap::init -> sys/heap/init
 ```
 inputs
-r0 = heap
-r1 = cell size
-r2 = block size
+r0 = heap (ptr)
+r1 = cell size (bytes)
+r2 = block size (bytes)
 outputs
-r0 = heap
-r1 = cell size
+r0 = heap (ptr)
+r1 = cell size (bytes)
 trashes
 r2-r3
 ```
 ### sys_heap::deinit -> sys/heap/deinit
 ```
 inputs
-r0 = heap
+r0 = heap (ptr)
 outputs
-r0 = heap
+r0 = heap (ptr)
 trashes
 r1-r3
 ```
 ### sys_heap::alloc -> sys/heap/alloc
 ```
 inputs
-r0 = heap
+r0 = heap (ptr)
 outputs
-r0 = heap
-r1 = cell
+r0 = heap (ptr)
+r1 = cell (ptr)
 trashes
 r2-r3
 ```
 ### sys_heap::free -> sys/heap/free
 ```
 inputs
-r0 = heap
-r1 = cell
+r0 = heap (ptr)
+r1 = cell (ptr)
 trashes
 r2
 ```
@@ -3900,7 +3901,7 @@ Super Class: null
 ### sys_list::init -> sys/list/init
 ```
 inputs
-r0 = list header pointer
+r0 = list header (ptr)
 ```
 ## sys_load
 Super Class: null
@@ -3917,120 +3918,125 @@ they are extracted via (sys-arg 0) and (sys-arg 1)
 ### sys_load::bind -> sys/load/bind
 ```
 input
-r0 = function path name
+r0 = c string function path name (pubyte)
 output
-r0 = 0 else, function entry pointer
+r0 = 0 else, function entry pointer (ptr)
 trashes
 r1-r7
 ```
 ## sys_mail
 Super Class: null
 ### sys_mail::statics -> sys/mail/statics
+```
+info
+mail static data
+```
 ### sys_mail::init -> sys/mail/init
 ```
 inputs
-r1 = kernel mailbox
+r1 = kernel mailbox (ptr)
 ```
 ### sys_mail::alloc -> sys/mail/alloc
 ```
 inputs
-r0 = mail size
+r0 = mail size (bytes)
 outputs
-r0 = mail message
-r1 = string data
+r0 = mail message (ptr)
+r1 = string data (pubyte)
 trashes
 all
 ```
 ### sys_mail::free -> sys/mail/free
 ```
 inputs
-r0 = mail message
+r0 = mail message (ptr)
 trashes
 all
 ```
 ### sys_mail::alloc_obj -> sys/mail/alloc_obj
 ```
 inputs
-r0 = object pointer
-r1 = data pointer
-r2 = data length
+r0 = object (ptr)
+r1 = data (pubyte)
+r2 = data length (bytes)
 outputs
-r0 = mail message
+r0 = mail message (ptr)
 trashes
 all
 ```
 ### sys_mail::free_obj -> sys/mail/free_obj
 ```
 inputs
-r0 = mail message
+r0 = mail message (ptr)
 outputs
-r0 = 0 if msg was 0, else object (ptr) pointer
-r1 = data pointer
-r2 = data length
+r0 = 0 if msg was 0, else object (ptr)
+r1 = data (pubyte)
+r2 = data length (bytes)
 trashes
 all
 ```
 ### sys_mail::send -> sys/mail/send
 ```
 inputs
-r0 = mail message
+r0 = mail message (ptr)
 trashes
 r0-r2
 ```
 ### sys_mail::read -> sys/mail/read
 ```
 inputs
-r0 = mailbox address
+r0 = mailbox address (ptr)
 outputs
-r0 = mail address
-r1 = string data
+r0 = mail address (ptr)
+r1 = string data (pubyte)
 trashes
 r2
 ```
 ### sys_mail::try_read -> sys/mail/try_read
 ```
 inputs
-r0 = mailbox address
+r0 = mailbox address (ptr)
 outputs
-r0 = 0, else mail address
-r1 = string data
+r0 = 0, else mail address (ptr)
+r1 = string data (pubyte)
 trashes
 r2
 ```
 ### sys_mail::select -> sys/mail/select
 ```
 inputs
-r0 = mailbox address array
-r1 = mailbox count
+r0 = mailbox address array (pptr)
+r1 = mailbox count (unit)
 outputs
-r0 = mailbox address
+r0 = mailbox address (ptr)
 trashes
 r1-r4
 ```
 ### sys_mail::mymail -> sys/mail/mymail
 ```
 outputs
-r0 = mail address
-r1 = string data
+r0 = mail address (ptr)
+r1 = string data (pubyte)
 trashes
 r2
 ```
 ### sys_mail::init_mailbox -> sys/mail/init_mailbox
 ```
 outputs
-r0 = mailbox address
+r0 = mailbox address (ptr)
 trashes
 r1-r2
 ```
 ### sys_mail::in -> sys/mail/in
 ```
 inputs
-r0 = link input msg buffer
+r0 = link input msg buffer (ptr)
 trashes
 all
 ```
 ### sys_mail::out -> sys/mail/out
 ```
+info
 parcels going off chip task
 ```
 ### sys_mail::lisp_mymail -> sys/mail/lisp_mymail
@@ -4162,29 +4168,29 @@ Super Class: null
 ### sys_string::length -> sys/string/length
 ```
 inputs
-r0 = string
+r0 = c string (pubyte)
 outputs
-r0 = string
-r1 = string len
+r0 = c string (pubyte)
+r1 = c string len (bytes)
 trashes
 r2
 ```
 ### sys_string::copy -> sys/string/copy
 ```
 inputs
-r0 = string
-r1 = string copy
+r0 = c string (pubyte)
+r1 = c string copy (pubyte)
 outputs
-r0 = string end
-r1 = string copy end
+r0 = c string end (pubyte)
+r1 = c string copy end (pubyte)
 trashes
 r2
 ```
 ### sys_string::compare -> sys/string/compare
 ```
 inputs
-r0 = string1
-r1 = string2
+r0 = c string1 (pubyte)
+r1 = c string2 (pubyte)
 outputs
 r0 = 0 if same, else -, +
 trashes
@@ -4193,19 +4199,19 @@ r0-r3
 ### sys_string::to_long -> sys/string/to_long
 ```
 inputs
-r0 = string
-r1 = base
+r0 = c string (pubyte)
+r1 = base (ulong)
 outputs
-r0 = number
+r0 = number (ulong)
 trashes
 r2-r4
 ```
 ### sys_string::from_long -> sys/string/from_long
 ```
 inputs
-r0 = number
-r1 = string buffer
-r2 = base
+r0 = number (ulong)
+r1 = c string buffer (pubyte)
+r2 = base (ulong)
 trashes
 r0-r4
 ```
@@ -4224,29 +4230,28 @@ init task statics
 ### sys_task::tcb -> sys/task/tcb
 ```
 outputs
-r0 = current task tcb
+r0 = current task tcb (ptr)
 ```
 ### sys_task::mailbox -> sys/task/mailbox
 ```
 outputs
-r0, r1 = current task mailbox id
+r0, r1 = current task mailbox id (id)
 ```
 ### sys_task::callback -> sys/task/callback
 ```
 inputs
-r0 = user data address
-r1 = callback address
+r0 = user data address (ptr)
+r1 = callback address (ptr)
 trashes
 all
 ```
 ### sys_task::start -> sys/task/start
 ```
 inputs
-r0 = new task func pointer
+r0 = new task func pointer (ptr)
 outputs
-r0 = new task control block
-r1 = new task mailbox id
-r2 = new task mailbox id
+r0 = new task control block (ptr)
+r1, r2 = new task mailbox id (id)
 trashes
 r3-r5
 ```
@@ -4258,7 +4263,7 @@ stop current task, switch to next task
 ### sys_task::restore -> sys/task/restore
 ```
 inputs
-r14 = control block to restore
+r14 = control block to restore (ptr)
 info
 restore next task
 ```
@@ -4270,12 +4275,12 @@ switch to next task
 ### sys_task::count -> sys/task/count
 ```
 outputs
-r0 = task count
+r0 = task count (uint)
 ```
 ### sys_task::sleep -> sys/task/sleep
 ```
 inputs
-r0 = time delay in usec
+r0 = time delay in usec (ulong)
 ```
 ### sys_task::suspend -> sys/task/suspend
 ```
@@ -4285,7 +4290,7 @@ suspend current task, switch to next task
 ### sys_task::resume -> sys/task/resume
 ```
 inputs
-r0 = task control node (to resume)
+r0 = task control node to resume (ptr)
 trashes
 r1-r2
 ```
@@ -4293,9 +4298,9 @@ r1-r2
 ```
 inputs
 r0 = name string object (ptr)
-r1 = spawn type
+r1 = spawn type (uint)
 outputs
-r0, r1 = mailbox ID
+r0, r1 = mailbox ID (id)
 trashes
 all
 ```
@@ -4303,10 +4308,10 @@ all
 ```
 inputs
 r0 = name string object (ptr)
-r1 = cpu target
-r2 = spawn type
+r1 = cpu target (uint)
+r2 = spawn type (uint)
 outputs
-r0, r1 = mailbox id
+r0, r1 = mailbox id (id)
 trashes
 all
 ```
@@ -4314,19 +4319,19 @@ all
 ```
 inputs
 r0 = name string object (ptr)
-r1 = number to spawn
-r2 = spawn type
+r1 = number to spawn (uint)
+r2 = spawn type (uint)
 outputs
-r0 = array of mailbox id's
+r0 = mailbox id's array object (ptr)
 trashes
 all
 ```
 ### sys_task::open_pipe -> sys/task/open_pipe
 ```
 inputs
-r0 = vector of strings
+r0 = string objects vector object (ptr)
 outputs
-r0 = array of mailbox id's
+r0 = mailbox id's array object (ptr)
 trashes
 all
 ```
@@ -4429,9 +4434,9 @@ Super Class: obj
 inputs
 r0 = texture object (ptr)
 r1 = vtable (pptr)
-r2 = texture handle
-r3 = texture width
-r4 = texture height
+r2 = texture handle (ulong)
+r3 = texture width (pixels)
+r4 = texture height (pixels)
 outputs
 r0 = texture object (ptr)
 r1 = 0 if error, else ok
@@ -4442,7 +4447,7 @@ inputs
 r0 = texture object (ptr)
 outputs
 r0 = texture object (ptr)
-r1 = handle
+r1 = texture handle (ulong)
 r2 = width (pixels)
 r3 = height (pixels)
 ```
@@ -4962,7 +4967,7 @@ Super Class: view
 inputs
 r0 = window object (ptr)
 r1 = vtable (pptr)
-r2 = options flags
+r2 = options flags (ulong)
 outputs
 r0 = window object (ptr)
 r1 = 0 if error, else ok
@@ -4973,19 +4978,19 @@ all but r0-r1
 ```
 inputs
 r0 = window object (ptr)
-r1 = title cstr pointer
+r1 = title c string (pubyte)
 ```
 ### window::set_status -> class/window/set_status
 ```
 inputs
 r0 = window object (ptr)
-r1 = status cstr pointer
+r1 = status c string (pubyte)
 ```
 ### window::connect_close -> class/window/connect_close
 ```
 inputs
 r0 = window object (ptr)
-r1 = reciever id
+r1 = reciever id (long)
 outputs
 r0 = window object (ptr)
 trashes
@@ -4995,7 +5000,7 @@ all but r0
 ```
 inputs
 r0 = window object (ptr)
-r1 = reciever id
+r1 = reciever id (long)
 outputs
 r0 = window object (ptr)
 trashes
@@ -5005,7 +5010,7 @@ all but r0
 ```
 inputs
 r0 = window object (ptr)
-r1 = reciever id
+r1 = reciever id (long)
 outputs
 r0 = window object (ptr)
 trashes
@@ -5022,7 +5027,7 @@ all but r0
 ```
 inputs
 r0 = window object (ptr)
-r1 = child view object
+r1 = child view object (ptr)
 trashes
 all but r0
 ```
@@ -5056,7 +5061,7 @@ all but r0
 ```
 inputs
 r0 = window object (ptr)
-r1 = mouse event data pointer
+r1 = mouse event data (ptr)
 trashes
 all but r0
 ```
@@ -5064,7 +5069,7 @@ all but r0
 ```
 inputs
 r0 = window object (ptr)
-r1 = mouse event message (ptr)
+r1 = mouse event data (ptr)
 trashes
 all but r0
 ```

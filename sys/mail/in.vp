@@ -3,7 +3,7 @@
 
 (def-func 'sys/mail/in)
 	;inputs
-	;r0 = link input msg buffer
+	;r0 = link input msg buffer (ptr)
 	;trashes
 	;all
 

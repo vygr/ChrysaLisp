@@ -519,7 +519,7 @@
 	;r0 = string object (ptr)
 	;outputs
 	;r0 = string object (ptr)
-	;r1 = string length (uint)
+	;r1 = string length (bytes)
 
 	(class/string/get_length)
 	(vp-ret)

@@ -4,12 +4,14 @@
 (import 'class/array/array.inc)
 
 (def-func 'sys/mail/statics)
+	;info
+	;mail static data
 	(times ml_statics_size (vp-byte 0))
 (def-func-end)
 
 (def-func 'sys/mail/init)
 	;inputs
-	;r1 = kernel mailbox
+	;r1 = kernel mailbox (ptr)
 
 	;save kernel mailbox
 	(f-entry 'sys_mail 'init '(r1))
@@ -36,7 +38,7 @@
 
 (def-func 'sys/mail/init_mailbox)
 	;outputs
-	;r0 = mailbox address
+	;r0 = mailbox address (ptr)
 	;trashes
 	;r1-r2
 
@@ -49,8 +51,8 @@
 
 (def-func 'sys/mail/mymail)
 	;outputs
-	;r0 = mail address
-	;r1 = string data
+	;r0 = mail address (ptr)
+	;r1 = string data (pubyte)
 	;trashes
 	;r2
 
@@ -61,10 +63,10 @@
 
 (def-func 'sys/mail/alloc)
 	;inputs
-	;r0 = mail size
+	;r0 = mail size (bytes)
 	;outputs
-	;r0 = mail message
-	;r1 = string data
+	;r0 = mail message (ptr)
+	;r1 = string data (pubyte)
 	;trashes
 	;all
 
@@ -88,11 +90,11 @@
 
 (def-func 'sys/mail/alloc_obj)
 	;inputs
-	;r0 = object pointer
-	;r1 = data pointer
-	;r2 = data length
+	;r0 = object (ptr)
+	;r1 = data (pubyte)
+	;r2 = data length (bytes)
 	;outputs
-	;r0 = mail message
+	;r0 = mail message (ptr)
 	;trashes
 	;all
 
@@ -116,7 +118,7 @@
 
 (def-func 'sys/mail/free)
 	;inputs
-	;r0 = mail message
+	;r0 = mail message (ptr)
 	;trashes
 	;all
 
@@ -137,11 +139,11 @@
 
 (def-func 'sys/mail/free_obj)
 	;inputs
-	;r0 = mail message
+	;r0 = mail message (ptr)
 	;outputs
-	;r0 = 0 if msg was 0, else object (ptr) pointer
-	;r1 = data pointer
-	;r2 = data length
+	;r0 = 0 if msg was 0, else object (ptr)
+	;r1 = data (pubyte)
+	;r2 = data length (bytes)
 	;trashes
 	;all
 
@@ -168,10 +170,10 @@
 
 (def-func 'sys/mail/read)
 	;inputs
-	;r0 = mailbox address
+	;r0 = mailbox address (ptr)
 	;outputs
-	;r0 = mail address
-	;r1 = string data
+	;r0 = mail address (ptr)
+	;r1 = string data (pubyte)
 	;trashes
 	;r2
 
@@ -193,10 +195,10 @@
 
 (def-func 'sys/mail/try_read)
 	;inputs
-	;r0 = mailbox address
+	;r0 = mailbox address (ptr)
 	;outputs
-	;r0 = 0, else mail address
-	;r1 = string data
+	;r0 = 0, else mail address (ptr)
+	;r1 = string data (pubyte)
 	;trashes
 	;r2
 
@@ -216,7 +218,7 @@
 
 (def-func 'sys/mail/send)
 	;inputs
-	;r0 = mail message
+	;r0 = mail message (ptr)
 	;trashes
 	;r0-r2
 
@@ -261,10 +263,10 @@
 
 (def-func 'sys/mail/select)
 	;inputs
-	;r0 = mailbox address array
-	;r1 = mailbox count
+	;r0 = mailbox address array (pptr)
+	;r1 = mailbox count (unit)
 	;outputs
-	;r0 = mailbox address
+	;r0 = mailbox address (ptr)
 	;trashes
 	;r1-r4
 

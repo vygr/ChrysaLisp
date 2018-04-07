@@ -10,8 +10,8 @@
 	;inputs
 	;r0 = pipe object (ptr)
 	;r1 = vtable (pptr)
-	;r2 = buffer
-	;r3 = length
+	;r2 = command buffer (pubyte)
+	;r3 = length (bytes)
 	;outputs
 	;r0 = pipe object (ptr)
 	;r1 = 0 if error, else ok

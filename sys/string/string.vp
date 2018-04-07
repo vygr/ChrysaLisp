@@ -3,8 +3,8 @@
 
 (def-func 'sys/string/compare)
 	;inputs
-	;r0 = string1
-	;r1 = string2
+	;r0 = c string1 (pubyte)
+	;r1 = c string2 (pubyte)
 	;outputs
 	;r0 = 0 if same, else -, +
 	;trashes
@@ -27,11 +27,11 @@
 
 (def-func 'sys/string/copy)
 	;inputs
-	;r0 = string
-	;r1 = string copy
+	;r0 = c string (pubyte)
+	;r1 = c string copy (pubyte)
 	;outputs
-	;r0 = string end
-	;r1 = string copy end
+	;r0 = c string end (pubyte)
+	;r1 = c string copy end (pubyte)
 	;trashes
 	;r2
 
@@ -49,9 +49,9 @@
 
 (def-func 'sys/string/from_long)
 	;inputs
-	;r0 = number
-	;r1 = string buffer
-	;r2 = base
+	;r0 = number (ulong)
+	;r1 = c string buffer (pubyte)
+	;r2 = base (ulong)
 	;trashes
 	;r0-r4
 
@@ -84,10 +84,10 @@
 
 (def-func 'sys/string/length)
 	;inputs
-	;r0 = string
+	;r0 = c string (pubyte)
 	;outputs
-	;r0 = string
-	;r1 = string len
+	;r0 = c string (pubyte)
+	;r1 = c string len (bytes)
 	;trashes
 	;r2
 
@@ -106,10 +106,10 @@
 
 (def-func 'sys/string/to_long)
 	;inputs
-	;r0 = string
-	;r1 = base
+	;r0 = c string (pubyte)
+	;r1 = base (ulong)
 	;outputs
-	;r0 = number
+	;r0 = number (ulong)
 	;trashes
 	;r2-r4
 

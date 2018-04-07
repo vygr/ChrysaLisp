@@ -4,12 +4,12 @@
 
 (def-func 'sys/heap/init)
 	;inputs
-	;r0 = heap
-	;r1 = cell size
-	;r2 = block size
+	;r0 = heap (ptr)
+	;r1 = cell size (bytes)
+	;r2 = block size (bytes)
 	;outputs
-	;r0 = heap
-	;r1 = cell size
+	;r0 = heap (ptr)
+	;r1 = cell size (bytes)
 	;trashes
 	;r2-r3
 
@@ -50,9 +50,9 @@
 
 (def-func 'sys/heap/deinit)
 	;inputs
-	;r0 = heap
+	;r0 = heap (ptr)
 	;outputs
-	;r0 = heap
+	;r0 = heap (ptr)
 	;trashes
 	;r1-r3
 
@@ -76,10 +76,10 @@
 
 (def-func 'sys/heap/alloc)
 	;inputs
-	;r0 = heap
+	;r0 = heap (ptr)
 	;outputs
-	;r0 = heap
-	;r1 = cell
+	;r0 = heap (ptr)
+	;r1 = cell (ptr)
 	;trashes
 	;r2-r3
 

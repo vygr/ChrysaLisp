@@ -4,6 +4,7 @@
 (import 'sys/kernel/kernel.inc)
 
 (def-func 'sys/mail/out)
+	;info
 	;parcels going off chip task
 
 	(ptr 'msg 'data 'frag 'mail_statics)

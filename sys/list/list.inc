@@ -6,7 +6,7 @@
 
 (defcfun sys/list/init ()
 	;inputs
-	;r0 = list header pointer
+	;r0 = list header (ptr)
 	(lh-init r0 r1))
 
 ;;;;;;;;;;;;;;;;;

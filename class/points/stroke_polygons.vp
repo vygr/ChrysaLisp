@@ -4,6 +4,7 @@
 (import 'sys/math/math.inc)
 
 (def-func 'class/points/stroke_polygons)
+	;inputs
 	;r0 = output polygons vector object (ptr)
 	;r1 = stack array object (ptr)
 	;r2 = input polygons vector object (ptr)

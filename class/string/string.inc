@@ -74,7 +74,7 @@
 
 (defcfun class/string/new ()
 	;inputs
-	;r0 = object size
+	;r0 = object size (bytes)
 	;outputs
 	;r0 = 0 if error, else object (ptr)
 	;trashes
@@ -86,5 +86,5 @@
 	;r0 = string object (ptr)
 	;outputs
 	;r0 = string object (ptr)
-	;r1 = string length
+	;r1 = string length (bytes)
 	(vp-cpy-ir-ui r0 string_length r1))

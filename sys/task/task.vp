@@ -24,8 +24,8 @@
 
 (def-func 'sys/task/callback)
 	;inputs
-	;r0 = user data address
-	;r1 = callback address
+	;r0 = user data address (ptr)
+	;r1 = callback address (ptr)
 	;trashes
 	;all
 
@@ -72,7 +72,7 @@
 
 (def-func 'sys/task/count)
 	;outputs
-	;r0 = task count
+	;r0 = task count (uint)
 
 	(f-bind 'sys_task 'statics r0)
 	(vp-cpy-ir-ui r0 tk_statics_task_count r0)
@@ -82,7 +82,7 @@
 
 (def-func 'sys/task/mailbox)
 	;outputs
-	;r0, r1 = current task mailbox id
+	;r0, r1 = current task mailbox id (id)
 
 	(f-bind 'sys_task 'statics r0)
 	(vp-cpy-ir-ui r0 tk_statics_cpu_id r1)
@@ -94,7 +94,7 @@
 
 (def-func 'sys/task/restore)
 	;inputs
-	;r14 = control block to restore
+	;r14 = control block to restore (ptr)
 	;info
 	;restore next task
 
@@ -134,7 +134,7 @@
 
 (def-func 'sys/task/resume)
 	;inputs
-	;r0 = task control node (to resume)
+	;r0 = task control node to resume (ptr)
 	;trashes
 	;r1-r2
 
@@ -152,7 +152,7 @@
 
 (def-func 'sys/task/sleep)
 	;inputs
-	;r0 = time delay in usec
+	;r0 = time delay in usec (ulong)
 
 	;push task state
 	(tk-save-state)
@@ -188,11 +188,10 @@
 
 (def-func 'sys/task/start)
 	;inputs
-	;r0 = new task func pointer
+	;r0 = new task func pointer (ptr)
 	;outputs
-	;r0 = new task control block
-	;r1 = new task mailbox id
-	;r2 = new task mailbox id
+	;r0 = new task control block (ptr)
+	;r1, r2 = new task mailbox id (id)
 	;trashes
 	;r3-r5
 
@@ -281,7 +280,7 @@
 
 (def-func 'sys/task/tcb)
 	;outputs
-	;r0 = current task tcb
+	;r0 = current task tcb (ptr)
 
 	(f-bind 'sys_task 'statics r0)
 	(vp-cpy-ir r0 tk_statics_current_tcb r0)
@@ -314,9 +313,9 @@
 (def-func 'sys/task/open_child)
 	;inputs
 	;r0 = name string object (ptr)
-	;r1 = spawn type
+	;r1 = spawn type (uint)
 	;outputs
-	;r0, r1 = mailbox ID
+	;r0, r1 = mailbox ID (id)
 	;trashes
 	;all
 
@@ -329,10 +328,10 @@
 (def-func 'sys/task/open_remote)
 	;inputs
 	;r0 = name string object (ptr)
-	;r1 = cpu target
-	;r2 = spawn type
+	;r1 = cpu target (uint)
+	;r2 = spawn type (uint)
 	;outputs
-	;r0, r1 = mailbox id
+	;r0, r1 = mailbox id (id)
 	;trashes
 	;all
 
@@ -378,10 +377,10 @@
 (def-func 'sys/task/open_farm)
 	;inputs
 	;r0 = name string object (ptr)
-	;r1 = number to spawn
-	;r2 = spawn type
+	;r1 = number to spawn (uint)
+	;r2 = spawn type (uint)
 	;outputs
-	;r0 = array of mailbox id's
+	;r0 = mailbox id's array object (ptr)
 	;trashes
 	;all
 
@@ -442,9 +441,9 @@
 
 (def-func 'sys/task/open_pipe)
 	;inputs
-	;r0 = vector of strings
+	;r0 = string objects vector object (ptr)
 	;outputs
-	;r0 = array of mailbox id's
+	;r0 = mailbox id's array object (ptr)
 	;trashes
 	;all
 

@@ -128,9 +128,9 @@
 
 (def-func 'sys/load/bind)
 	;input
-	;r0 = function path name
+	;r0 = c string function path name (pubyte)
 	;output
-	;r0 = 0 else, function entry pointer
+	;r0 = 0 else, function entry pointer (ptr)
 	;trashes
 	;r1-r7
 

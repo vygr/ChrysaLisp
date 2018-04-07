@@ -22,9 +22,9 @@
 	;inputs
 	;r0 = texture object (ptr)
 	;r1 = vtable (pptr)
-	;r2 = texture handle
-	;r3 = texture width
-	;r4 = texture height
+	;r2 = texture handle (ulong)
+	;r3 = texture width (pixels)
+	;r4 = texture height (pixels)
 	;outputs
 	;r0 = texture object (ptr)
 	;r1 = 0 if error, else ok
@@ -38,7 +38,7 @@
 	;r0 = texture object (ptr)
 	;outputs
 	;r0 = texture object (ptr)
-	;r1 = handle
+	;r1 = texture handle (ulong)
 	;r2 = width (pixels)
 	;r3 = height (pixels)
 	(vp-cpy-ir r0 texture_handle r1)

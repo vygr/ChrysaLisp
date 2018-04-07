@@ -15,7 +15,7 @@
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = vtable (pptr)
-	;r2 = options flags
+	;r2 = options flags (ulong)
 	;outputs
 	;r0 = window object (ptr)
 	;r1 = 0 if error, else ok
@@ -131,7 +131,7 @@
 (def-func 'class/window/add_child)
 	;inputs
 	;r0 = window object (ptr)
-	;r1 = child view object
+	;r1 = child view object (ptr)
 	;trashes
 	;all but r0
 
@@ -197,7 +197,7 @@
 (def-func 'class/window/mouse_down)
 	;inputs
 	;r0 = window object (ptr)
-	;r1 = mouse event data pointer
+	;r1 = mouse event data (ptr)
 	;trashes
 	;all but r0
 
@@ -241,7 +241,7 @@
 (def-func 'class/window/mouse_move)
 	;inputs
 	;r0 = window object (ptr)
-	;r1 = mouse event message (ptr)
+	;r1 = mouse event data (ptr)
 	;trashes
 	;all but r0
 
@@ -379,7 +379,7 @@
 (def-func 'class/window/set_status)
 	;inputs
 	;r0 = window object (ptr)
-	;r1 = status cstr pointer
+	;r1 = status c string (pubyte)
 
 	(ptr 'this 'str)
 
@@ -400,7 +400,7 @@
 (def-func 'class/window/set_title)
 	;inputs
 	;r0 = window object (ptr)
-	;r1 = title cstr pointer
+	;r1 = title c string (pubyte)
 
 	(ptr 'this 'str)
 
@@ -419,7 +419,7 @@
 (def-func 'class/window/connect_close)
 	;inputs
 	;r0 = window object (ptr)
-	;r1 = reciever id
+	;r1 = reciever id (long)
 	;outputs
 	;r0 = window object (ptr)
 	;trashes
@@ -445,7 +445,7 @@
 (def-func 'class/window/connect_max)
 	;inputs
 	;r0 = window object (ptr)
-	;r1 = reciever id
+	;r1 = reciever id (long)
 	;outputs
 	;r0 = window object (ptr)
 	;trashes
@@ -471,7 +471,7 @@
 (def-func 'class/window/connect_min)
 	;inputs
 	;r0 = window object (ptr)
-	;r1 = reciever id
+	;r1 = reciever id (long)
 	;outputs
 	;r0 = window object (ptr)
 	;trashes
