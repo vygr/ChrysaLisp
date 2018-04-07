@@ -50,7 +50,7 @@
 
 (def-func 'class/string/create_from_file)
 	;inputs
-	;r0 = c string (pubyte)
+	;r0 = file name c string (pubyte)
 	;outputs
 	;r0 = 0 if error, else object (ptr)
 	;trashes
@@ -221,7 +221,7 @@
 	;inputs
 	;r0 = string object (ptr)
 	;r1 = vtable (pptr)
-	;r2 = c string filename (pubyte)
+	;r2 = file name c string (pubyte)
 	;r3 = file length (uint)
 	;outputs
 	;r1 = 0 if error, else ok
@@ -271,7 +271,7 @@
 	;inputs
 	;r0 = string object (ptr)
 	;r1 = vtable (pptr)
-	;r2 = string objects vector object (ptr)
+	;r2 = vector of string objects (ptr)
 	;outputs
 	;r1 = 0 if error, else ok
 
@@ -360,7 +360,7 @@
 
 (def-func 'class/string/cat)
 	;inputs
-	;r0 = string objects vector object (ptr)
+	;r0 = vector of string objects (ptr)
 	;outputs
 	;r0 = 0 if error, else new string object (ptr)
 	;trashes
@@ -613,7 +613,7 @@
 	;r1 = split char (uint)
 	;outputs
 	;r0 = string object (ptr)
-	;r1 = split string objects vector object (ptr)
+	;r1 = vector of string objects (ptr)
 	;trashes
 	;all but r0
 

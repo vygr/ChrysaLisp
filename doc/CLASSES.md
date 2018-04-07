@@ -519,7 +519,7 @@ all but r0
 ```
 inputs
 r0 = canvas object (ptr)
-r1 = point objects vector object (ptr)
+r1 = vector of points objects (ptr)
 r2 = color (argb)
 r3 = winding mode (0/1)
 r4 = span function (ptr)
@@ -585,7 +585,7 @@ all but r0
 ```
 inputs
 r0 = canvas object (ptr)
-r1 = point objects vector object (ptr)
+r1 = vector of points objects (ptr)
 r2 = color (argb)
 r3 = winding mode (0/1)
 outputs
@@ -637,7 +637,7 @@ all but r0
 ```
 inputs
 r0 = canvas object (ptr)
-r1 = point objects vector object (ptr)
+r1 = vector of points objects (ptr)
 r2 = color (argb)
 r3 = winding mode (0/1)
 outputs
@@ -817,7 +817,7 @@ all but r0
 inputs
 r0 = component object (ptr)
 r1 = property num (uint)
-r2 = string pointer (ctsr)
+r2 = c string (pubyte)
 outputs
 r0 = component object (ptr)
 trashes
@@ -3112,7 +3112,7 @@ inputs
 r0 = pipe object (ptr)
 r1 = vtable (pptr)
 r2 = command buffer (pubyte)
-r3 = length (bytes)
+r3 = command buffer length (bytes)
 outputs
 r0 = pipe object (ptr)
 r1 = 0 if error, else ok
@@ -3136,7 +3136,7 @@ inputs
 r0 = pipe object (ptr)
 outputs
 r0 = pipe object (ptr)
-r1 = current state
+r1 = current state (ulong)
 ```
 ### pipe::set_state -> class/pipe/set_state
 ```
@@ -3203,7 +3203,7 @@ all but r0
 ```
 inputs
 r0 = points object (ptr)
-r1 = source points object
+r1 = source points object (ptr)
 r2 = stack array object (ptr)
 r3 = tolerance (16.16)
 outputs
@@ -3275,8 +3275,8 @@ all but r0
 inputs
 r0 = points object (ptr)
 r1 = stack array object (ptr)
-r2 = in points start iter (ptr)
-r3 = in points end iter (ptr)
+r2 = in points start iter (plong)
+r3 = in points end iter (plong)
 r4 = p1 xy (16.16/16.16)
 r5 = p2 xy (16.16/16.16)
 r6 = join style (byte)
@@ -3290,30 +3290,30 @@ all but r0
 ### points::stroke_polylines -> class/points/stroke_polylines
 ```
 inputs
-r0 = output polygons vector object (ptr)
+r0 = output vector of points objects (ptr)
 r1 = stack array object (ptr)
-r2 = input polylines vector object (ptr)
+r2 = input vector of points objects (ptr)
 r3 = join style (byte)
 r4 = cap style1 (byte)
 r5 = cap style2 (byte)
 r6 = radius (16.16)
 r7 = tolerance (16.16)
 outputs
-r0 = output polygons vector object (ptr)
+r0 = output vector of points objects (ptr)
 trashes
 all but r0
 ```
 ### points::stroke_polygons -> class/points/stroke_polygons
 ```
 inputs
-r0 = output polygons vector object (ptr)
+r0 = output vector of points objects (ptr)
 r1 = stack array object (ptr)
-r2 = input polygons vector object (ptr)
+r2 = input vector of points objects (ptr)
 r3 = join style (byte)
 r4 = radius (16.16)
 r5 = tolerance (16.16)
 outputs
-r0 = output polygons vector object (ptr)
+r0 = output vector of points objects (ptr)
 trashes
 all but r0
 ```
@@ -3457,7 +3457,7 @@ inputs
 r0 = stream object (ptr)
 outputs
 r0 = stream object (ptr)
-r1 = available space
+r1 = available space (bytes)
 trashes
 r2
 ```
@@ -3617,7 +3617,7 @@ inputs
 r0 = stream_str object (ptr)
 outputs
 r0 = stream_str object (ptr)
-r1 = string object
+r1 = string object (ptr)
 trashes
 r2
 ```
@@ -3663,7 +3663,7 @@ r1-r6
 ### string::create_from_file -> class/string/create_from_file
 ```
 inputs
-r0 = c string (pubyte)
+r0 = file name c string (pubyte)
 outputs
 r0 = 0 if error, else object (ptr)
 trashes
@@ -3692,7 +3692,7 @@ r1-r6
 ### string::cat -> class/string/cat
 ```
 inputs
-r0 = string objects vector object (ptr)
+r0 = vector of string objects (ptr)
 outputs
 r0 = 0 if error, else new string object (ptr)
 trashes
@@ -3732,7 +3732,7 @@ r1 = 0 if error, else ok
 inputs
 r0 = string object (ptr)
 r1 = vtable (pptr)
-r2 = c string filename (pubyte)
+r2 = file name c string (pubyte)
 r3 = file length (uint)
 outputs
 r1 = 0 if error, else ok
@@ -3742,7 +3742,7 @@ r1 = 0 if error, else ok
 inputs
 r0 = string object (ptr)
 r1 = vtable (pptr)
-r2 = string objects vector object (ptr)
+r2 = vector of string objects (ptr)
 outputs
 r1 = 0 if error, else ok
 ```
@@ -3753,7 +3753,7 @@ r0 = string object (ptr)
 r1 = split char (uint)
 outputs
 r0 = string object (ptr)
-r1 = split string objects vector object (ptr)
+r1 = vector of string objects (ptr)
 trashes
 all but r0
 ```
@@ -4330,7 +4330,7 @@ all
 ### sys_task::open_pipe -> sys/task/open_pipe
 ```
 inputs
-r0 = string objects vector object (ptr)
+r0 = vector of string objects (ptr)
 outputs
 r0 = mailbox id's array object (ptr)
 trashes

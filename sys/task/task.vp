@@ -441,7 +441,7 @@
 
 (def-func 'sys/task/open_pipe)
 	;inputs
-	;r0 = string objects vector object (ptr)
+	;r0 = vector of string objects (ptr)
 	;outputs
 	;r0 = mailbox id's array object (ptr)
 	;trashes

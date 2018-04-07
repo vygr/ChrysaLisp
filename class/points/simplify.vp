@@ -5,7 +5,7 @@
 (def-func 'class/points/simplify)
 	;inputs
 	;r0 = points object (ptr)
-	;r1 = source points object
+	;r1 = source points object (ptr)
 	;r2 = stack array object (ptr)
 	;r3 = tolerance (16.16)
 	;outputs

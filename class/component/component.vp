@@ -294,7 +294,7 @@
 	;inputs
 	;r0 = component object (ptr)
 	;r1 = property num (uint)
-	;r2 = string pointer (ctsr)
+	;r2 = c string (pubyte)
 	;outputs
 	;r0 = component object (ptr)
 	;trashes

@@ -38,7 +38,7 @@
 	;r0 = stream object (ptr)
 	;outputs
 	;r0 = stream object (ptr)
-	;r1 = available space
+	;r1 = available space (bytes)
 	;trashes
 	;r2
 	(vp-cpy-ir r0 stream_bufe r1)

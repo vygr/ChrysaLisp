@@ -80,7 +80,7 @@
 (defcfun class/canvas/set_fpoly ()
 	;inputs
 	;r0 = canvas object (ptr)
-	;r1 = point objects vector object (ptr)
+	;r1 = vector of points objects (ptr)
 	;r2 = color (argb)
 	;r3 = winding mode (0/1)
 	;outputs
@@ -106,7 +106,7 @@
 (defcfun class/canvas/blend_fpoly ()
 	;inputs
 	;r0 = canvas object (ptr)
-	;r1 = point objects vector object (ptr)
+	;r1 = vector of points objects (ptr)
 	;r2 = color (argb)
 	;r3 = winding mode (0/1)
 	;outputs

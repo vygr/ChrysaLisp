@@ -7,8 +7,8 @@
 	;inputs
 	;r0 = points object (ptr)
 	;r1 = stack array object (ptr)
-	;r2 = in points start iter (ptr)
-	;r3 = in points end iter (ptr)
+	;r2 = in points start iter (plong)
+	;r3 = in points end iter (plong)
 	;r4 = p1 xy (16.16/16.16)
 	;r5 = p2 xy (16.16/16.16)
 	;r6 = join style (byte)

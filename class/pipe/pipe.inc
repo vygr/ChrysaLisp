@@ -39,7 +39,7 @@
 	;r0 = pipe object (ptr)
 	;outputs
 	;r0 = pipe object (ptr)
-	;r1 = current state
+	;r1 = current state (ulong)
 	(vp-cpy-ir r0 pipe_state r1))
 
 (defcfun class/pipe/set_state ()
