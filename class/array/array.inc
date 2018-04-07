@@ -169,7 +169,7 @@
 	;r0 = array object (ptr)
 	;outputs
 	;r0 = array object (ptr)
-	;r1 = iter element iter (plong)
+	;r1 = begin element iter (plong)
 	(vp-cpy-ir r0 array_array r1))
 
 (defcfun class/array/get_end ()
@@ -177,7 +177,7 @@
 	;r0 = array object (ptr)
 	;outputs
 	;r0 = array object (ptr)
-	;r1 = iter element iter (plong)
+	;r1 = end element iter (plong)
 	;trashes
 	;r2
 	(f-call 'array 'get_iter '(r0 (r0 array_length ui))))

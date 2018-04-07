@@ -61,13 +61,13 @@ r3 = predicate function (ptr)
 r4 = predicate data (ptr)
 outputs
 r0 = array object (ptr)
-r1 = 0, else break iterator (ptr)
+r1 = 0, else break iterator (plong)
 trashes
 all but r0
 callback predicate
 inputs
 r0 = predicate data (ptr)
-r1 = element iterator (ptr)
+r1 = element iterator (plong)
 outputs
 r1 = 0 if break, else not
 trashes
@@ -78,8 +78,8 @@ all but r0
 inputs
 r0 = array object (ptr)
 r1 = stack array object (ptr)
-r2 = lower iter (ptr)
-r3 = upper iter (ptr)
+r2 = lower iter (plong)
+r3 = upper iter (plong)
 r4 = compare callback (ptr)
 r5 = sort context (ptr)
 outputs
@@ -89,8 +89,8 @@ all but r0
 sort callback
 inputs
 r0 = context (ptr)
-r1 = iter1 (ptr)
-r2 = iter2 (ptr)
+r1 = iter1 (plong)
+r2 = iter2 (plong)
 outputs
 r0 = +, 0, -
 trashes
@@ -100,20 +100,20 @@ all but r0
 ```
 inputs
 r0 = array object (ptr)
-r1 = lower partition iter (ptr)
-r2 = upper partition iter (ptr)
+r1 = lower partition iter (plong)
+r2 = upper partition iter (plong)
 r3 = sort callback (ptr)
 r4 = sort context (ptr)
 outputs
 r0 = array object (ptr)
-r1 = partition iter (ptr)
+r1 = partition iter (plong)
 trashes
 all but r0
 sort callback
 inputs
 r0 = sort context (ptr)
-r1 = iter1 (ptr)
-r2 = iter2 (ptr)
+r1 = iter1 (plong)
+r2 = iter2 (plong)
 outputs
 r0 = +, 0, -
 trashes
@@ -201,7 +201,7 @@ inputs
 r0 = array object (ptr)
 outputs
 r0 = array object (ptr)
-r1 = iter element iter (plong)
+r1 = begin element iter (plong)
 ```
 ### array::get_end -> class/array/get_end
 ```
@@ -209,7 +209,7 @@ inputs
 r0 = array object (ptr)
 outputs
 r0 = array object (ptr)
-r1 = iter element iter (plong)
+r1 = end element iter (plong)
 trashes
 r2
 ```

@@ -31,7 +31,7 @@
 (vp-label 'callback)
 	;inputs
 	;r0 = predicate data (ptr)
-	;r1 = element iterator (ptr)
+	;r1 = element iterator (pptr)
 	;outputs
 	;r1 = 0 if break, else not
 
