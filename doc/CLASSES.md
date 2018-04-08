@@ -4007,7 +4007,7 @@ r2
 ```
 inputs
 r0 = mailbox address array (pptr)
-r1 = mailbox count (unit)
+r1 = mailbox count (uint)
 outputs
 r0 = mailbox address (ptr)
 trashes
