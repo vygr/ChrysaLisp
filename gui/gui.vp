@@ -231,7 +231,7 @@
 	(push-scope)
 	(l-entry {key, mod})
 
-	(vpif {mod})
+	(vpif {mod & 0x2003})
 		(assign {$shifted} {codes})
 		(loop-while {*codes})
 			(vpif {*codes == key})
