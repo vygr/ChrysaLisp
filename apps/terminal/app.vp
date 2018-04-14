@@ -57,6 +57,7 @@
 	(f-call 'gui_gui 'add {myapp.local_window})
 	(f-call 'vdu 'print_cstr {myapp.local_vdu, "ChrysaLisp Terminal 1.3"})
 	(f-call 'vdu 'print_char {myapp.local_vdu, char_lf})
+	(f-call 'vdu 'print_char {myapp.local_vdu, char_gt})
 
 	;set up term buffer
 	(assign {&myapp.local_buffer} {myapp.local_bufp})
@@ -77,6 +78,8 @@
 				;EOF
 				(f-call 'pipe 'deref {myapp.local_pipe})
 				(assign {0} {myapp.local_pipe})
+				(f-call 'vdu 'print_char {myapp.local_vdu, char_lf})
+				(f-call 'vdu 'print_char {myapp.local_vdu, char_gt})
 
 				;update status
 				(f-call 'window 'set_status {myapp.local_window, "Ready"})
@@ -150,25 +153,28 @@
 		;what state ?
 		(vpifnot {local->local_pipe})
 			;push new history entry if not same as last entry
-			(breakifnot {length})
-			(f-call 'string 'create_from_buffer {&local->local_buffer, length} {string})
-			(d-call 'vector 'get_length {local->local_history} {_, local->local_history_index})
-			(vpifnot {local->local_history_index})
-			(vp-label 'new_entry)
-				(f-call 'vector 'push_back {local->local_history, string})
-				(assign {local->local_history_index + 1} {local->local_history_index})
+			(vpifnot {length})
+				(f-call 'vdu 'print_char {local->local_vdu, char_gt})
 			(else)
-				(d-call 'vector 'ref_back {local->local_history} {_, last})
-				(f-call 'string 'same {string, last} {_, notsame})
-				(f-call 'string 'deref {last})
-				(gotoif {notsame} 'new_entry)
-				(f-call 'string 'deref {string})
-			(endif)
+				(f-call 'string 'create_from_buffer {&local->local_buffer, length} {string})
+				(d-call 'vector 'get_length {local->local_history} {_, local->local_history_index})
+				(vpifnot {local->local_history_index})
+				(vp-label 'new_entry)
+					(f-call 'vector 'push_back {local->local_history, string})
+					(assign {local->local_history_index + 1} {local->local_history_index})
+				(else)
+					(d-call 'vector 'ref_back {local->local_history} {_, last})
+					(f-call 'string 'same {string, last} {_, notsame})
+					(f-call 'string 'deref {last})
+					(gotoif {notsame} 'new_entry)
+					(f-call 'string 'deref {string})
+				(endif)
 
-			;start new pipe
-			(f-call 'pipe 'create {&local->local_buffer, length} {local->local_pipe})
-			(breakifnot {local->local_pipe})
-			(f-call 'window 'set_status {local->local_window, "Busy"})
+				;start new pipe
+				(f-call 'pipe 'create {&local->local_buffer, length} {local->local_pipe})
+				(breakifnot {local->local_pipe})
+				(f-call 'window 'set_status {local->local_window, "Busy"})
+			(endif)
 		(else)
 			;feed active pipe
 			(f-call 'pipe 'get_input {local->local_pipe} {_, stream})
@@ -193,6 +199,7 @@
 			(d-call 'vector 'ref_element {local->local_history, local->local_history_index} {_, string})
 			(f-call 'sys_mem 'copy {&string->string_data, &local->local_buffer, string->string_length} {_, local->local_bufp})
 			(f-call 'stream 'create {string, 0, &string->string_data, string->string_length} {stream})
+			(f-call 'vdu 'print_char {local->local_vdu, char_gt})
 			(l-call 'pipe_output {local, stream})
 			(f-call 'stream 'deref {stream})
 		(endif)
@@ -211,6 +218,7 @@
 			(endif)
 			(f-call 'sys_mem 'copy {&string->string_data, &local->local_buffer, string->string_length} {_, local->local_bufp})
 			(f-call 'stream 'create {string, 0, &string->string_data, string->string_length} {stream})
+			(f-call 'vdu 'print_char {local->local_vdu, char_gt})
 			(l-call 'pipe_output {local, stream})
 			(f-call 'stream 'deref {stream})
 		(endif)
@@ -226,6 +234,8 @@
 			;stop pipe
 			(f-call 'pipe 'deref {local->local_pipe})
 			(assign {0} {local->local_pipe})
+			(f-call 'vdu 'print_char {local->local_vdu, char_lf})
+			(f-call 'vdu 'print_char {local->local_vdu, char_gt})
 
 			;update status
 			(f-call 'window 'set_status {local->local_window, "Ready"})

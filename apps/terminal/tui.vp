@@ -46,6 +46,7 @@
 	;sign on
 	(l-call 'terminal_output_cstr {"ChrysaLisp Terminal 1.3"})
 	(l-call 'terminal_output_char {char_lf})
+	(l-call 'terminal_output_char {char_gt})
 
 	;app event loop
 	(loop-start)
@@ -62,6 +63,8 @@
 				;EOF
 				(f-call 'pipe 'deref {local.local_pipe})
 				(assign {0} {local.local_pipe})
+				(l-call 'terminal_output_char {char_lf})
+				(l-call 'terminal_output_char {char_gt})
 			(endif)
 		(else)
 		(vp-label 'from_mymailbox)
@@ -126,8 +129,11 @@
 		;what state ?
 		(vpifnot {local->local_pipe})
 			;start new pipe
-			(breakifnot {length})
-			(f-call 'pipe 'create {&local->local_buffer, length} {local->local_pipe})
+			(vpifnot {length})
+				(l-call 'terminal_output_char {char_gt})
+			(else)
+				(f-call 'pipe 'create {&local->local_buffer, length} {local->local_pipe})
+			(endif)
 		(else)
 			;feed active pipe
 			(f-call 'pipe 'get_input {local->local_pipe} {_, stream})
