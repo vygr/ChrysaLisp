@@ -1,11 +1,10 @@
 ;import settings
 (run 'apps/cmd.lisp)
+(run 'cmd/asm.inc)
 
-(defun trimmed (_)
-	(sym (trim-start (trim-end _ ")") "'")))
-
-;initialize pipe details and command args, abort on error
-(when (defq slave (create-slave))
+(defun make-doc ()
+	(defun trimmed (_)
+		(sym (trim-start (trim-end _ ")") "'")))
 	(print "Scanning source files...")
 	(defq *imports* (list 'make.inc) classes (list) functions (list) docs (list) state 'x)
 	(each-mergeable (lambda (_)
@@ -50,3 +49,18 @@
 				(write-line stream "```"))) methods)) classes)
 	(save (str stream) 'doc/CLASSES.md)
 	(print "-> doc/CLASSES.md"))
+
+;initialize pipe details and command args, abort on error
+(when (defq slave (create-slave))
+	(defq args (map sym (slot get_args slave)) all (find 'all args)
+		boot (find 'boot args) platforms (find 'platforms args) doc (find 'doc args))
+	(cond
+		((and boot all platforms) (remake-all-platforms))
+		((and boot all) (remake-all))
+		((and boot platforms) (remake-platforms))
+		((and all platforms) (make-all-platforms))
+		(all (make-all))
+		(platforms (make-platforms))
+		(boot (remake))
+		(doc (make-doc))
+		(t (make))))
