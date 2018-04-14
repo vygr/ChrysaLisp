@@ -181,11 +181,6 @@
 			(merge-sym *products* p)) *imports*)
 		*products*)) *os* *cpu*))
 
-(defun remake (&optional *os* *cpu*)
-	(setd *os* (platform) *cpu* (cpu))
-	(make *os* *cpu*)
-	(make-boot-all *os* *cpu*))
-
 (defun all-vp-files ()
 	(defq *imports* (list 'make.inc))
 	;list of all file imports
@@ -197,7 +192,16 @@
 
 (defun make-all (&optional *os* *cpu*)
 	(setd *os* (platform) *cpu* (cpu))
-	(compile (all-vp-files) *os* *cpu*)
+	(compile (all-vp-files) *os* *cpu*))
+
+(defun remake (&optional *os* *cpu*)
+	(setd *os* (platform) *cpu* (cpu))
+	(make *os* *cpu*)
+	(make-boot-all *os* *cpu*))
+
+(defun remake-all (&optional *os* *cpu*)
+	(setd *os* (platform) *cpu* (cpu))
+	(make-all *os* *cpu*)
 	(make-boot-all *os* *cpu*))
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -209,15 +213,20 @@
 	(make 'Linux 'x86_64)
 	(make 'Linux 'aarch64))
 
+(defun make-all-platforms ()
+	(make-all 'Darwin 'x86_64)
+	(make-all 'Linux 'x86_64)
+	(make-all 'Linux 'aarch64))
+
 (defun remake-platforms ()
 	(remake 'Darwin 'x86_64)
 	(remake 'Linux 'x86_64)
 	(remake 'Linux 'aarch64))
 
-(defun make-all-platforms ()
-	(make-all 'Darwin 'x86_64)
-	(make-all 'Linux 'x86_64)
-	(make-all 'Linux 'aarch64))
+(defun remake-all-platforms ()
+	(remake-all 'Darwin 'x86_64)
+	(remake-all 'Linux 'x86_64)
+	(remake-all 'Linux 'aarch64))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; compile and make tests
