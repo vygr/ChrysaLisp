@@ -12,7 +12,7 @@
 	(defq y -1 w (div (fmul w s) 1.0) h (div (fmul h s) 1.0)
 		data (list) farm (list) com (list) line_length (mul w 4))
 	(each (lambda (_)
-		(push farm (pipe "lisp.lisp apps/raymarch/child.lisp"))
+		(push farm (pipe "lisp apps/raymarch/child.lisp"))
 		(push data "")
 		(push com (list 'line w h))) (range 0 8))
 	(while (lt (setq y (inc y)) h)

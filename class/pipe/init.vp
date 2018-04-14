@@ -34,7 +34,7 @@
 		(assign {stream_mail_state_started} {this->pipe_state})
 
 		;init pipeline
-		(ptr 'msg 'data 'string 'commands 'args 'stream 'mbox 'ids 'prefix 'cmd)
+		(ptr 'msg 'data 'string 'commands 'command 'args 'stream 'mbox 'ids 'cmd)
 		(pubyte 'start)
 		(ulong 'cpu)
 		(struct 'mailbox 'mailbox)
@@ -47,8 +47,16 @@
 		(f-call 'stream 'deref {stream})
 		(d-call 'vector 'get_length {args} {_, length})
 		(vpif {length})
+			;create command prefix/suffix
+			(f-call 'vector 'create {} {command})
+			(f-call 'string 'create_from_cstr {"cmd/"} {cmd})
+			(f-call 'vector 'push_back {command, cmd})
+			(f-call 'string 'create_from_cstr {".lisp"} {cmd})
+			(f-call 'string 'ref {cmd})
+			(f-call 'vector 'push_back {command, cmd})
+			(f-call 'vector 'push_back {command, cmd})
+
 			;create command pipeline
-			(f-call 'string 'create_from_cstr {"cmd/"} {prefix})
 			(f-call 'vector 'create {} {commands})
 			(f-call 'vector 'set_capacity {commands, length})
 			(assign {0} {index})
@@ -59,13 +67,13 @@
 				(assign {stream->stream_bufp} {start})
 				(f-call 'stream 'skip_not {stream, char_space})
 				(f-call 'string 'create_from_buffer {start, stream->stream_bufp - start} {string})
-				(f-call 'string 'append {prefix, string} {cmd})
+				(d-call 'vector 'set_element {command, string, 1})
+				(f-call 'string 'cat {command} {cmd})
 				(f-call 'vector 'push_back {commands, cmd})
-				(f-call 'string 'deref {string})
 				(f-call 'stream 'deref {stream})
 				(assign {index + 1} {index})
 			(loop-end)
-			(f-call 'string 'deref {prefix})
+			(f-call 'vector 'deref {command})
 
 			;open command pipeline
 			(f-call 'sys_task 'open_pipe {commands} {ids})

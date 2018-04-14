@@ -53,7 +53,7 @@ applications it is very useful for the composition of tools and hides all the
 message passing behind a familiar streams based API.
 
 A Common Lisp like interpreter is provided. This is available from the command
-line, via the command `lisp.lisp`. To build the entire system type `(make)`,
+line, via the command `lisp`. To build the entire system type `(make)`,
 calculates minimum compile workload, or `(make-all)` to do everything
 regardless, at the Lisp command prompt. This Lisp has a C-Script 'snippets'
 capability to allow mixing of C-Script compiled expressions within assignment
@@ -65,7 +65,7 @@ done. Some of the Lisp primitives are constructed via a boot script that each
 instance of a Lisp class runs on construction, see *class/lisp/boot.lisp* for
 details. The compilation and make environment, along with all the compile and
 make commands are created via the Lisp command line tool in *cmd/asm.inc*,
-again this auto runs for each instance of the `lisp.lisp` command run from the
+again this auto runs for each instance of the `lisp` command run from the
 terminal. You can extend this with any number of additional files, just place
 them after the lisp command and they will execute after the *cmd/asm.inc* file
 and before processing of stdin.

@@ -13,7 +13,7 @@
 	(while (gt *pipes* 0)
 		(defq i (div (length *files*) *pipes*) s (slice 0 i *files*) *files* (slice i -1 *files*))
 		(when (ne i 0)
-			(push q (defq p (pipe "lisp.lisp cmd/asm.inc")))
+			(push q (defq p (pipe "lisp cmd/asm.inc")))
 			(pipe-write p (cat "(compile-pipe '" (str s) " '" *os* " '" *cpu* ") ")))
 		(setq *pipes* (dec *pipes*)))
 	(when (ne 0 (length q))
