@@ -1,5 +1,5 @@
 ;import settings
-(run 'apps/cmd.lisp)
+(run 'apps/cmd.inc)
 
 ;cat a file to stdout
 (defun cat-file (_)

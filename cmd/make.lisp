@@ -1,5 +1,5 @@
 ;import settings
-(run 'apps/cmd.lisp)
+(run 'apps/cmd.inc)
 (run 'cmd/asm.inc)
 
 (defun make-doc ()

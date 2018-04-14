@@ -1,5 +1,5 @@
 ;import settings
-(run 'apps/cmd.lisp)
+(run 'apps/cmd.inc)
 
 ;initialize pipe details and command args, abort on error
 (if (defq slave (create-slave))
