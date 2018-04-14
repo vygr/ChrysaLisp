@@ -1,6 +1,6 @@
 ;import settings
-(run 'apps/sys.lisp)
-(run 'apps/ui.lisp)
+(run 'apps/sys.inc)
+(run 'apps/ui.inc)
 
 (defq canvas_width 600 canvas_height 600 canvas_scale 3.0 id t)
 

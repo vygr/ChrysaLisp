@@ -62,7 +62,7 @@ expressions and more will be done shortly. Both the virtual assembler and
 C-Script compiler are written in Lisp, look in the *sys/code.inc*,
 *sys/func.inc*, *sys/x64.inc*, *sys/arm.inc* and *sys/vp.inc* for how this is
 done. Some of the Lisp primitives are constructed via a boot script that each
-instance of a Lisp class runs on construction, see *class/lisp/boot.lisp* for
+instance of a Lisp class runs on construction, see *class/lisp/boot.inc* for
 details. The compilation and make environment, along with all the compile and
 make commands are created via the Lisp command line tool in *cmd/asm.inc*,
 again this auto runs for each instance of the `lisp` command run from the
@@ -100,11 +100,11 @@ try launching the GUI on more than CPU 0, look in *funcs.sh* at the
 `boot_cpu_gui` function ! :)
 
 The `-l` command line option creates a link, currently up to 1000 CPU's are
-allowed but that is easy to adjust in the *sys/link.vp* file and is due to the
-very simple link parameter parsing. The lower numbered CPU always comes first !
-The shared memory link files are created in the tmp folder */tmp*, so for
-example */tmp/000-001* would be the link file for the link between CPU 000 and
-001.
+allowed but that is easy to adjust in the *sys/link/link.vp* file and is due to
+the very simple link parameter parsing. The lower numbered CPU always comes
+first ! The shared memory link files are created in the tmp folder */tmp*, so
+for example */tmp/000-001* would be the link file for the link between CPU 000
+and 001.
 
 The `-cpu` command line option just labels the CPU with its ID.
 

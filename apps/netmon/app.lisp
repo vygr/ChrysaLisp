@@ -1,6 +1,6 @@
 ;import settings
-(run 'apps/sys.lisp)
-(run 'apps/ui.lisp)
+(run 'apps/sys.inc)
+(run 'apps/ui.inc)
 
 (structure 'sample_reply_msg 0
 	(long 'command)

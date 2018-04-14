@@ -1,5 +1,5 @@
 ;import system settings
-(run 'apps/sys.lisp)
+(run 'apps/sys.inc)
 
 ;open pipe of children
 (defq pipe (list "tests/child"))

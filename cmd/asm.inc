@@ -39,7 +39,7 @@
 
 (defun make-info (_)
 	;create lists of immediate dependencies and products
-	(defq d (list 'cmd/asm.inc 'class/lisp/boot.lisp _) p (list))
+	(defq d (list 'cmd/asm.inc 'class/lisp/boot.inc _) p (list))
 	(each-line _ (lambda (_)
 		(when (and (ge (length _) 10) (eql "(" (elem 0 _))
 				(le 2 (length (defq s (split _ " "))) 3))

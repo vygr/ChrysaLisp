@@ -1,6 +1,6 @@
 ;import settings
-(run 'apps/sys.lisp)
-(run 'apps/ui.lisp)
+(run 'apps/sys.inc)
+(run 'apps/ui.inc)
 
 (defun read-farm (i s)
 	(while (lt (length (elem i data)) s)

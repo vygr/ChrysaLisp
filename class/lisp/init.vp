@@ -95,13 +95,13 @@
 			(f-call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
 			(f-call 'obj 'deref {symbol})
 
-			;run any boot.lisp
-			(f-call 'string 'create_from_file {"class/lisp/boot.lisp"} {file})
+			;run any boot.inc
+			(f-call 'string 'create_from_file {"class/lisp/boot.inc"} {file})
 			(vpif {file})
 				;REPL from file stream
 				(f-call 'vector 'create {} {repl_args})
 				(f-call 'stream_str 'create {file} {stream})
-				(f-call 'string 'create_from_cstr {"class/lisp/boot.lisp"} {file})
+				(f-call 'string 'create_from_cstr {"class/lisp/boot.inc"} {file})
 				(f-call 'vector 'push_back {repl_args, stream})
 				(f-call 'vector 'push_back {repl_args, file})
 				(f-call 'lisp 'func_repl {this, repl_args} {_, value})

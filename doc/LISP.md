@@ -163,7 +163,7 @@ write-char
 write-line
 ```
 
-### boot.lisp symbols
+### boot.inc symbols
 
 ```lisp
 min_long
@@ -180,7 +180,7 @@ fp_int_mask
 fp_frac_mask
 ```
 
-### boot.lisp macros
+### boot.inc macros
 
 ```lisp
 and
@@ -204,7 +204,7 @@ until
 when
 ```
 
-### boot.lisp functions
+### boot.inc functions
 
 ```lisp
 abs
