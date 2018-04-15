@@ -51,7 +51,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(file-stream filename)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(file-stream path)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string))
 

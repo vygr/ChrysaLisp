@@ -79,13 +79,13 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(repl stream filename)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(repl stream path)", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(repl stream filename)", error_msg_not_a_stream, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_stream, args} {_, value})
 	(goto 'exit)
 (vp-label 'error3)
-	(f-call 'lisp 'repl_error {this, "(repl stream filename)", error_msg_not_a_string, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_string, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

@@ -38,9 +38,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(save str filename)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(save str path)", error_msg_wrong_types, args} {_, value})
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(save str filename)", error_msg_open_error, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(save str path)", error_msg_open_error, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string 'string))
 

@@ -2,7 +2,7 @@
 ## add
 ### (add num num ...)
 ## age
-### (age filename)
+### (age path)
 ## apply
 ### (apply func args)
 ## bind
@@ -70,13 +70,13 @@
 ## div
 ### (div num num ...)
 ## each!
-### (each! start end accum func list)
+### (each! start end accum func seq)
 ## elem
 ### (elem index seq)
 ## elem-set
 ### (elem-set index list val)
 ## env
-### (env num)
+### (env [num])
 ## eq
 ### (eq num num ...)
 ## eql
@@ -90,7 +90,7 @@
 ## ffi
 ### (ffi sym path flags)
 ## file-stream
-### (file-stream filename)
+### (file-stream path)
 ## find
 ### (find elem seq)
 ## floor
@@ -120,7 +120,7 @@
 ## length
 ### (length seq)
 ## load
-### (load filename)
+### (load path)
 ## lt
 ### (lt num num ...)
 ## macroexpand
@@ -170,9 +170,9 @@
 ## read-line
 ### (read-line stream)
 ## repl
-### (repl stream filename)
+### (repl stream path)
 ## save
-### (save str filename)
+### (save str path)
 ## set
 ### (set env var val ...)
 ## setq
