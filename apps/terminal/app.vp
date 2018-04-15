@@ -152,10 +152,10 @@
 	(vpif {char == char_lf || char == char_cr})
 		;what state ?
 		(vpifnot {local->local_pipe})
-			;push new history entry if not same as last entry
-			(vpifnot {length})
-				(f-call 'vdu 'print_char {local->local_vdu, char_gt})
-			(else)
+			;start new pipe
+			(switch 'newpipe)
+			(case {length})
+				;push new history entry if not same as last entry
 				(f-call 'string 'create_from_buffer {&local->local_buffer, length} {string})
 				(d-call 'vector 'get_length {local->local_history} {_, local->local_history_index})
 				(vpifnot {local->local_history_index})
@@ -172,9 +172,13 @@
 
 				;start new pipe
 				(f-call 'pipe 'create {&local->local_buffer, length} {local->local_pipe})
-				(breakifnot {local->local_pipe})
-				(f-call 'window 'set_status {local->local_window, "Busy"})
-			(endif)
+				(vpif {local->local_pipe})
+					(f-call 'window 'set_status {local->local_window, "Busy"})
+					(break newpipe)
+				(endif)
+			(default)
+				(f-call 'vdu 'print_char {local->local_vdu, char_gt})
+			(endswitch)
 		(else)
 			;feed active pipe
 			(f-call 'pipe 'get_input {local->local_pipe} {_, stream})

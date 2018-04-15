@@ -129,11 +129,13 @@
 		;what state ?
 		(vpifnot {local->local_pipe})
 			;start new pipe
-			(vpifnot {length})
-				(l-call 'terminal_output_char {char_gt})
-			(else)
+			(switch)
+			(case {length})
 				(f-call 'pipe 'create {&local->local_buffer, length} {local->local_pipe})
-			(endif)
+				(breakif {local->local_pipe})
+			(default)
+				(l-call 'terminal_output_char {char_gt})
+			(endswitch)
 		(else)
 			;feed active pipe
 			(f-call 'pipe 'get_input {local->local_pipe} {_, stream})
