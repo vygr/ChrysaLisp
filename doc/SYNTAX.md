@@ -22,7 +22,7 @@
 ## bit-xor
 ### (bit-xor num num ...)
 ## call
-### (call slot obj ...)
+### (call slot obj [param ...])
 ## cat
 ### (cat seq ...)
 ## catch
@@ -34,7 +34,7 @@
 ## cmp
 ### (cmp str str)
 ## code
-### (code char)
+### (code str)
 ## cond
 ### (cond (tst form ...) ...)
 ## copy
@@ -60,13 +60,13 @@
 ## create-window
 ### (create-window flags)
 ## def
-### (def env var val ...)
+### (def env var val [var val] ...)
 ## def?
 ### (def? var)
 ## defmacro
 ### (defmacro name vars body)
 ## defq
-### (defq var val ...)
+### (defq var val [var val] ...)
 ## div
 ### (div num num ...)
 ## each!
@@ -114,7 +114,7 @@
 ## inst-of
 ### (inst-of class obj)
 ## lambda
-### (lambda vars body)
+### (lambda ([param] ...) body)
 ## le
 ### (le num num ...)
 ## length
@@ -174,13 +174,13 @@
 ## save
 ### (save str path)
 ## set
-### (set env var val ...)
+### (set env var val [var val] ...)
 ## setq
-### (setq var val ...)
+### (setq var val [var val] ...)
 ## slice
-### (slice start end slc)
+### (slice start end seq)
 ## some!
-### (some! start end mode func list)
+### (some! start end mode func seq)
 ## split
 ### (split str char)
 ## str

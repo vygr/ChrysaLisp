@@ -38,10 +38,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(defq var val ...)", error_msg_wrong_num_of_args, args} {_, val})
+	(f-call 'lisp 'repl_error {this, "(defq var val [var val] ...)", error_msg_wrong_num_of_args, args} {_, val})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(defq var val ...)", error_msg_not_a_symbol, args} {_, val})
+	(f-call 'lisp 'repl_error {this, "(defq var val [var val] ...)", error_msg_not_a_symbol, args} {_, val})
 	(goto 'exit))
 
 	(pop-scope-syms)

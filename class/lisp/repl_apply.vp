@@ -65,10 +65,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(lambda vars body)", error_msg_wrong_num_of_args, func} {_, value})
+	(f-call 'lisp 'repl_error {this, "(lambda ([param] ...) body)", error_msg_wrong_num_of_args, func} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(lambda vars body)", error_msg_not_a_lambda, func} {_, value})
+	(f-call 'lisp 'repl_error {this, "(lambda ([param] ...) body)", error_msg_not_a_lambda, func} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

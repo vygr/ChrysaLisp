@@ -334,7 +334,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(call slot obj ...)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(call slot obj [param ...])", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig_LI 'boxed_long 'slave)
 	(signature 'sig_LM 'boxed_long 'stream)
