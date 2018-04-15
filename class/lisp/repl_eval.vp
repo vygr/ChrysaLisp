@@ -69,7 +69,7 @@
 	(f-call 'lisp 'repl_error {this, "(lambda vars body)", error_msg_not_a_lambda, form} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(eval sym)", error_msg_symbol_not_bound, form} {_, value})
+	(f-call 'lisp 'repl_error {this, "(eval form [env])", error_msg_symbol_not_bound, form} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

@@ -83,8 +83,6 @@
 ### (eql form form)
 ## eval
 ### (eval form [env])
-## eval
-### (eval sym)
 ## fcos
 ### (fcos angle)
 ## fdiv
