@@ -40,7 +40,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(func_ffi sym path flags)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(ffi sym path flags)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'symbol 'string 'boxed_long))
 

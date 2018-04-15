@@ -19,6 +19,7 @@ Welcome to ChrysaLisp's documentation!
    LISP
    FUNCTIONS
    TAOS
+   SYNTAX
    CLASSES
    TODO
 
