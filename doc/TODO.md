@@ -4,6 +4,13 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Now that apps are in Lisp it means that if you launch a command that dosn't
+exist the command pipe will freeze. This is because the kernel starts a helper
+process to run the Lisp commands and that mailbox is returned from the call to
+openpipe ! So this means a better pipe start up protocol needs to be created
+and things changed to use it. The least that should happen is the .lisp file
+existance must be tested before the kernel tries to run the helper !
+
 * Add support for FPU to the VM. Scalar float/double support first of all maybe
 eventually create a FPU accelerated version of the vector math SDL.
 
