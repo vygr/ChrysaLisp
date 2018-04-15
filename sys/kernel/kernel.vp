@@ -91,7 +91,9 @@
 					(f-call 'sys_string 'compare {&data->kn_msg_open_pathname + length - 5, ".lisp"} {length})
 				(endif)
 				(vpifnot {length})
-					;yup it's a .lisp file
+					;yup it's a .lisp file, check it exists
+					(f-call 'pii 'age {&data->kn_msg_open_pathname} {func})
+					(breakifnot {func})
 					(f-call 'sys_load 'bind {"class/lisp/run"} {func})
 					(breakifnot {func})
 					;start lisp run task and send args
