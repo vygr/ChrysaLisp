@@ -104,25 +104,48 @@
 
 (defq t 't nil 'nil)
 
-(defmacro defun (n a &rest _) `(defq ,n (lambda ,a ~_)))
+(defmacro defun
+	;(defmacro name ([arg ...]) body)
+	(n a &rest _) `(defq ,n (lambda ,a ~_)))
 
-(defun obj? (_) (inst-of 'class/class_obj _))
-(defun lst? (_) (inst-of 'class/class_vector _))
-(defun str? (_) (inst-of 'class/class_string _))
-(defun sym? (_) (inst-of 'class/class_symbol _))
-(defun num? (_) (inst-of 'class/class_boxed_long _))
-(defun ary? (_) (inst-of 'class/class_array _))
+(defun obj? (_)
+	;(obj? form)
+	(inst-of 'class/class_obj _))
+(defun lst? (_)
+	;(lst? form)
+	(inst-of 'class/class_vector _))
+(defun str? (_)
+	;(str? form)
+	(inst-of 'class/class_string _))
+(defun sym? (_)
+	;(sym? form)
+	(inst-of 'class/class_symbol _))
+(defun num? (_)
+	;(num? form)
+	(inst-of 'class/class_boxed_long _))
+(defun ary? (_)
+	;(ary? form)
+	(inst-of 'class/class_array _))
 
-(defmacro inc (_) (list 'add _ 1))
-(defmacro dec (_) (list 'sub _ 1))
+(defmacro inc (_)
+	;(inc num)
+	(list 'add _ 1))
+(defmacro dec (_)
+	;(dec num)
+	(list 'sub _ 1))
 
-(defmacro opt (x y &optional z) (cond (z `(if ,x ,z ,y)) (t `(if ,x ,x ,y))))
+(defmacro opt (x y &optional z)
+	;(opt var val [cond])
+	(x y &optional z) (cond (z `(if ,x ,z ,y)) (t `(if ,x ,x ,y))))
 (defmacro setd (&rest _)
+	;(setd var val [var val] ...)
 	(defq i -2 l (list 'setq))
 	(while (lt (setq i (add i 2)) (length _))
 		(push l (elem i _) `(opt ,(elem i _) ,(elem (inc i) _)))) l)
 
-(defmacro run (_) `(repl (file-stream ,_) ,_))
+(defmacro run (_)
+	;(run path)
+	`(repl (file-stream ,_) ,_))
 
 ;;;;;;;;
 ; Scopes
@@ -476,16 +499,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun cpu ()
+	;(cpu)
 	(defq o 'x86_64)
 	(when (defq f (file-stream 'arch))
 		(bind '(o _) (read f 32))) o)
 
 (defun platform ()
+	;(platform)
 	(defq o 'Darwin)
 	(when (defq f (file-stream 'platform))
 		(bind '(o _) (read f 32))) o)
 
 (defun within-compile-env (_)
+	;(within-compile-env lambda)
 	(defq *compile-env* (env 307) *imports* (list))
 	(defmacro defcvar (&rest b) `(def *compile-env* ~b))
 	(defmacro defcfun (n a &rest b) `(def *compile-env* ',n (lambda ,a ~b)))

@@ -5,6 +5,8 @@
 ### (age path)
 ## apply
 ### (apply func args)
+## ary?
+### (ary? form)
 ## bind
 ### (bind params args)
 ## bind
@@ -22,7 +24,7 @@
 ## bit-xor
 ### (bit-xor num num ...)
 ## call
-### (call slot obj [param ...])
+### (call slot obj [arg ...])
 ## cat
 ### (cat seq ...)
 ## catch
@@ -39,6 +41,8 @@
 ### (cond (tst form ...) ...)
 ## copy
 ### (copy form)
+## cpu
+### (cpu)
 ## cpu-total
 ### (cpu-total)
 ## create-button
@@ -59,10 +63,14 @@
 ### (create-slave)
 ## create-window
 ### (create-window flags)
+## dec
+### (dec num)
 ## def
 ### (def env var val [var val] ...)
 ## def?
 ### (def? var)
+## defmacro
+### (defmacro name ([arg ...]) body)
 ## defmacro
 ### (defmacro name vars body)
 ## defq
@@ -111,16 +119,20 @@
 ### (gensym)
 ## gt
 ### (gt num num ...)
+## inc
+### (inc num)
 ## inst-of
 ### (inst-of class obj)
 ## lambda
-### (lambda ([param] ...) body)
+### (lambda ([arg ...]) body)
 ## le
 ### (le num num ...)
 ## length
 ### (length seq)
 ## load
 ### (load path)
+## lst?
+### (lst? form)
 ## lt
 ### (lt num num ...)
 ## macroexpand
@@ -141,6 +153,10 @@
 ### (mul num num ...)
 ## ne
 ### (ne num num ...)
+## num?
+### (num? form)
+## obj?
+### (obj? form)
 ## open-child
 ### (open-child path mode)
 ## open-farm
@@ -149,12 +165,16 @@
 ### (open-pipe paths)
 ## open-remote
 ### (open-remote path cpu mode)
+## opt
+### (opt var val [cond])
 ## pipe
 ### (pipe cmd)
 ## pipe-read
 ### (pipe-read pipe)
 ## pipe-write
 ### (pipe-write pipe str)
+## platform
+### (platform)
 ## pop
 ### (pop array)
 ## push
@@ -171,10 +191,14 @@
 ### (read-line stream)
 ## repl
 ### (repl stream path)
+## run
+### (run path)
 ## save
 ### (save str path)
 ## set
 ### (set env var val [var val] ...)
+## setd
+### (setd var val [var val] ...)
 ## setq
 ### (setq var val [var val] ...)
 ## slice
@@ -185,12 +209,16 @@
 ### (split str char)
 ## str
 ### (str arg)
+## str?
+### (str? form)
 ## string-stream
 ### (string-stream str)
 ## sub
 ### (sub num num ...)
 ## sym
 ### (sym arg)
+## sym?
+### (sym? form)
 ## task-mailbox
 ### (task-mailbox)
 ## throw
@@ -199,6 +227,8 @@
 ### (time)
 ## while
 ### (while tst form ...)
+## within-compile-env
+### (within-compile-env lambda)
 ## write
 ### (write stream str)
 ## write-char

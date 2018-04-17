@@ -58,6 +58,17 @@
 	(print "-> doc/CLASSES.md")
 
 	;create lisp syntax docs
+	(each-line 'class/lisp/boot.inc (lambda (_)
+		(defq l (trim-whitespace _))
+		(when (eql state 'y)
+			(if (and (ge (length l) 1) (eql (elem 0 l) ";"))
+				(insert-sym syntax (sym (slice 1 -1 l)))
+				(setq state 'x)))
+		(when (and (eql state 'x) (ge (length l) 10) (eql "(" (elem 0 l)))
+			(defq s (split l " ") _ (elem 0 s))
+			(cond
+				((or (eql _ "(defun") (eql _ "(defmacro"))
+					(setq state 'y))))))
 	(sort cmp syntax)
 	(defq stream (string-stream (cat "")))
 	(write-line stream "# Syntax")
