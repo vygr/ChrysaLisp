@@ -48,7 +48,7 @@
 ## code
 ### (code str)
 ## cond
-### (cond (tst form ...) ...)
+### (cond (tst body) ...)
 ## copy
 ### (copy form)
 ## count-leading-ones
@@ -360,7 +360,7 @@
 ## when
 ### (when tst body)
 ## while
-### (while tst form ...)
+### (while tst body)
 ## within-compile-env
 ### (within-compile-env lambda)
 ## write

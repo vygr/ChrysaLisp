@@ -40,7 +40,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(while tst form ...)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(while tst body)", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
