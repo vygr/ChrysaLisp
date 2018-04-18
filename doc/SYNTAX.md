@@ -10,15 +10,15 @@
 ## and
 ### (and tst ...)
 ## apply
-### (apply func args)
+### (apply lambda list)
+## array
+### (array [form ...])
 ## ary?
 ### (ary? form)
 ## ascii
 ### (ascii str)
 ## bind
-### (bind params args)
-## bind
-### (bind vars vals)
+### (bind (param ...) seq)
 ## bit-and
 ### (bit-and num num ...)
 ## bit-asr
@@ -172,7 +172,7 @@
 ## insert-sym
 ### (insert-sym list sym)
 ## inst-of
-### (inst-of class obj)
+### (inst-of str form)
 ## lambda
 ### (lambda ([arg ...]) body)
 ## le
@@ -181,6 +181,8 @@
 ### (length seq)
 ## let
 ### (let [(var val) ...])
+## list
+### (list [form ...])
 ## load
 ### (load path)
 ## log2
@@ -246,23 +248,31 @@
 ## partition
 ### (partition lambda list start end)
 ## pipe
-### (pipe cmd)
+### (pipe str)
 ## pipe-read
 ### (pipe-read pipe)
 ## pipe-write
 ### (pipe-write pipe str)
 ## platform
 ### (platform)
+## points
+### (points [form ...])
 ## pop
 ### (pop array)
+## prin
+### (prin [form ...])
 ## prin-base
 ### (prin-base num base digits)
+## print
+### (print [form ...])
+## progn
+### (progn [form ...])
 ## push
 ### (push array form ...)
 ## quasi-quote
-### (quasi-quote arg)
+### (quasi-quote form)
 ## quote
-### (quote arg)
+### (quote form)
 ## range
 ### (range start end [step])
 ## rcurry
@@ -320,7 +330,7 @@
 ## squared
 ### (squared num)
 ## str
-### (str arg)
+### (str form)
 ## str?
 ### (str? form)
 ## string-stream
@@ -330,7 +340,7 @@
 ## swap
 ### (swap list index index)
 ## sym
-### (sym arg)
+### (sym form)
 ## sym-cat
 ### (sym-cat str ...)
 ## sym?
@@ -338,7 +348,7 @@
 ## task-mailbox
 ### (task-mailbox)
 ## throw
-### (throw desc obj)
+### (throw str form)
 ## time
 ### (time)
 ## times

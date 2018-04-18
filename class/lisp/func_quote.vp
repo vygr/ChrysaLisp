@@ -25,7 +25,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(quote arg)", error_msg_wrong_num_of_args, args} {_, args})
+	(f-call 'lisp 'repl_error {this, "(quote form)", error_msg_wrong_num_of_args, args} {_, args})
 	(goto 'exit))
 
 	(pop-scope-syms)

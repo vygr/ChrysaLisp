@@ -72,18 +72,18 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(bind vars vals)", error_msg_not_a_list, vars} {_, value})
+	(f-call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_not_a_list, vars} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(bind vars vals)", error_msg_not_a_sequence, vals} {_, value})
+	(f-call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_not_a_sequence, vals} {_, value})
 	(goto 'exit)
 (vp-label 'error3)
-	(f-call 'lisp 'repl_error {this, "(bind vars vals)", error_msg_not_a_symbol, vars} {_, value})
+	(f-call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_not_a_symbol, vars} {_, value})
 	(goto 'exit)
 (vp-label 'error4)
 	(f-call 'obj 'deref {value})
 (vp-label 'error)
-	(f-call 'lisp 'repl_error {this, "(bind vars vals)", error_msg_wrong_num_of_args, vals} {_, value})
+	(f-call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_wrong_num_of_args, vals} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

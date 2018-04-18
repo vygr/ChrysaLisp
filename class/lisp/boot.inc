@@ -106,6 +106,12 @@
 
 (defmacro defun (n a &rest _)
 	;(defun name ([arg ...]) body)
+	;(list [form ...])
+	;(progn [form ...])
+	;(array [form ...])
+	;(points [form ...])
+	;(prin [form ...])
+	;(print [form ...])
 	`(defq ,n (lambda ,a ~_)))
 
 (defun obj? (_)

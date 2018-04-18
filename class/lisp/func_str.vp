@@ -40,7 +40,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(str arg)", error_msg_wrong_num_of_args, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(str form)", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

@@ -41,10 +41,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(inst-of class obj)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(inst-of str form)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(inst-of class obj)", error_msg_not_a_class, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(inst-of str form)", error_msg_not_a_class, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string 'obj))
 

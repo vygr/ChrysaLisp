@@ -34,7 +34,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(throw desc obj)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(throw str form)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string 'obj))
 

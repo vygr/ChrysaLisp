@@ -31,10 +31,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(pipe cmd)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(pipe str)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(pipe cmd)", error_msg_open_error, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(pipe str)", error_msg_open_error, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string))
 
