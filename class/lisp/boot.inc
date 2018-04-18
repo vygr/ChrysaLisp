@@ -214,7 +214,7 @@
 	`(lambda (&rest _) (apply ,f (cat _ (list ~_)))))
 
 (defmacro compose (&rest _)
-	;(curry lambda lambda)
+	;(compose lambda lambda)
 	`(lambda (_) ,(reduce (lambda (x y)
 		(list y x)) _ '_)))
 

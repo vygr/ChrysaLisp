@@ -47,6 +47,8 @@
 ### (cmp str str)
 ## code
 ### (code str)
+## compose
+### (compose lambda lambda)
 ## cond
 ### (cond (tst body) ...)
 ## copy
@@ -81,8 +83,6 @@
 ### (create-window flags)
 ## cubed
 ### (cubed num)
-## curry
-### (curry lambda lambda)
 ## curry
 ### (curry lambda var ...)
 ## dec
