@@ -261,8 +261,6 @@
 ### (pop array)
 ## prin
 ### (prin [form ...])
-## prin-base
-### (prin-base num base digits)
 ## print
 ### (print [form ...])
 ## progn

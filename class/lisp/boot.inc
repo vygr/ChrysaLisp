@@ -409,30 +409,6 @@
 			(sub _ (ascii "A") -10))
 		(t (sub _ (ascii "0")))))
 
-(defun prin-base (x b j)
-	;(prin-base num base digits)
-	(defun prin-b (x j)
-		(if (or (ne j 1) (ne 0 (div x b)))
-			(prin-b (div x b) (sub j 1)))
-		(prin (to-base-char (mod x b))))
-	(prin-b x j))
-
-(defun trim-start (s &optional c)
-	;(trim-start str [str])
-	(setd c " ")
-	(while (and (ne 0 (length s)) (eql (elem 0 s) c))
-		(setq s (slice 1 -1 s))) s)
-
-(defun trim-end (s &optional c)
-	;(trim-end str [str])
-	(setd c " ")
-	(while (and (ne 0 (length s)) (eql (elem -2 s) c))
-		(setq s (slice 0 -2 s))) s)
-
-(defun trim (s &optional c)
-	;(trim str [str])
-	(trim-start (trim-end s c) c))
-
 (defun to-num (_)
 	;(to-num str)
 	(defq n 0 b 10)
@@ -452,6 +428,22 @@
 			(setq f 1)
 			(defq d (from-base-char c) n (add (mul n b) d) f (mul f b))))
 	(if (eq f 0) n (fdiv n f)))
+
+(defun trim-start (s &optional c)
+	;(trim-start str [str])
+	(setd c " ")
+	(while (and (ne 0 (length s)) (eql (elem 0 s) c))
+		(setq s (slice 1 -1 s))) s)
+
+(defun trim-end (s &optional c)
+	;(trim-end str [str])
+	(setd c " ")
+	(while (and (ne 0 (length s)) (eql (elem -2 s) c))
+		(setq s (slice 0 -2 s))) s)
+
+(defun trim (s &optional c)
+	;(trim str [str])
+	(trim-start (trim-end s c) c))
 
 (defun log2 (_)
 	;(log2 num)
