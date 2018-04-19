@@ -5,8 +5,8 @@
 (defun read-chunk (_)
 	(defq chunk (list))
 	(while (and (ne chunk_size (length chunk))
-				(defq c (read-char _)))
-		(push chunk c))
+			(defq c (read-char _))
+			(push chunk c)))
 	(if (ne 0 (length chunk)) chunk))
 
 ;hex strings of number
@@ -22,8 +22,8 @@
 ;dump chunk to stdout
 (defun dump-chunk (_)
 	(prin (as-hex-int adr) " ")
-	(each (lambda (_)
-		(prin _ " ")) (map as-hex-byte _))
+	(prin (apply cat (map (lambda (_)
+		(cat (as-hex-byte _) " ")) _)))
 	(times (sub chunk_size (length _))
 		(prin "   "))
 	(print (apply cat (map (lambda (_)
