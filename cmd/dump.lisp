@@ -19,22 +19,17 @@
 (defun as-hex-long (_)
 	(cat (as-hex-int (bit-shr _ 32)) (as-hex-int (bit-and _ 0xffffffff))))
 
-;dump chunk to stdout
-(defun dump-chunk (_)
-	(prin (as-hex-int adr) " ")
-	(prin (apply cat (map (lambda (_)
-		(cat (as-hex-byte _) " ")) _)))
-	(times (sub chunk_size (length _))
-		(prin "   "))
-	(print (apply cat (map (lambda (_)
-		(if (le 32 _ 126) (char _) ".")) _)))
-	(setq adr (add adr chunk_size)))
-
 ;dump stream to stdout
 (defun dump-stream (_)
 	(defq adr 0 input t)
 	(while (and input (defq c (read-chunk _)))
-		(dump-chunk c)
+		(prin (as-hex-int adr) " ")
+		(prin (apply cat (map (lambda (_)
+			(cat (as-hex-byte _) " ")) c)))
+		(times (sub chunk_size (length c)) (prin "   "))
+		(print (apply cat (map (lambda (_)
+			(if (le 32 _ 126) (char _) ".")) c)))
+		(setq adr (add adr chunk_size))
 		(setq input (eq chunk_size (length c)))))
 
 ;dump a file to stdout
