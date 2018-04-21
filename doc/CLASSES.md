@@ -2696,6 +2696,15 @@ outputs
 r0 = 0, else next stream msg (ptr)
 r1 = 0, else string data (pubyte)
 ```
+### msg_in::next_msg -> class/msg_in/next_msg
+```
+inputs
+r0 = msg_in object (ptr)
+outputs
+r0 = msg_in object (ptr)
+trashes
+all but r0
+```
 ### msg_in::deinit -> class/msg_in/deinit
 ```
 inputs

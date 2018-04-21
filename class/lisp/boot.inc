@@ -368,8 +368,8 @@
 ; Streams
 ;;;;;;;;;
 
-(defun each-line (_ _f)
-	;(each-line path lambda)
+(defun each-line (_f _)
+	;(each-line lambda path)
 	(defq _s (file-stream _))
 	(while (defq _l (read-line _s))
 		(_f _l)))

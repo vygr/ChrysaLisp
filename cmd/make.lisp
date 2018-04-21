@@ -16,7 +16,7 @@
 	(defq *imports* (list 'make.inc) classes (list) functions (list)
 		docs (list) syntax (list) state 'x)
 	(each-mergeable (lambda (_)
-		(each-line _ (lambda (_)
+		(each-line (lambda (_)
 			(defq l (trim-whitespace _))
 			(when (eql state 'y)
 				(if (and (ge (length l) 1) (eql (elem 0 l) ";"))
@@ -37,7 +37,7 @@
 						(push docs (list))
 						(push functions (trim-cruft (elem 1 s))))
 					((and (eql _ "(f-call") (eql (elem 2 s) "'repl_error") (eql (char 0x22) (elem 0 (elem 4 s))))
-						(insert-sym syntax (chop l)))))))) *imports*)
+						(insert-sym syntax (chop l)))))) _)) *imports*)
 	;create classes docs
 	(sort (lambda (x y)
 		(cmp (elem 0 x) (elem 0 y))) classes)
@@ -58,7 +58,7 @@
 	(print "-> doc/CLASSES.md")
 
 	;create lisp syntax docs
-	(each-line 'class/lisp/boot.inc (lambda (_)
+	(each-line (lambda (_)
 		(defq l (trim-whitespace _))
 		(when (eql state 'y)
 			(if (and (ge (length l) 1) (eql (elem 0 l) ";"))
@@ -68,7 +68,7 @@
 			(defq s (split l " ") _ (elem 0 s))
 			(cond
 				((or (eql _ "(defun") (eql _ "(defmacro"))
-					(setq state 'y))))))
+					(setq state 'y))))) 'class/lisp/boot.inc)
 	(sort cmp syntax)
 	(defq stream (string-stream (cat "")))
 	(write-line stream "# Syntax")

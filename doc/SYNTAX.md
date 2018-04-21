@@ -106,7 +106,7 @@
 ## each!
 ### (each! start|nil end|nil lambda|nil lambda (seq ...))
 ## each-line
-### (each-line path lambda)
+### (each-line lambda path)
 ## each-mergeable
 ### (each-mergeable lambda seq)
 ## each-mergeable-rev

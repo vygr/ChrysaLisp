@@ -40,7 +40,7 @@
 (defun make-info (_)
 	;create lists of immediate dependencies and products
 	(defq d (list 'cmd/asm.inc 'class/lisp/boot.inc _) p (list))
-	(each-line _ (lambda (_)
+	(each-line (lambda (_)
 		(when (and (ge (length _) 10) (eql "(" (elem 0 _))
 				(le 2 (length (defq s (split _ " "))) 3))
 			(defq _ (elem 0 s) o (trim-start (trim-end (elem 1 s) ")") "'"))
@@ -54,7 +54,7 @@
 				((eql _ "(gen-new")
 					(push p (sym-cat "class/" o "/new")))
 				((eql _ "(gen-create")
-					(push p (sym-cat "class/" o "/create")))))))
+					(push p (sym-cat "class/" o "/create")))))) _)
 	(list d p))
 
 (defun make (&optional *os* *cpu*)
