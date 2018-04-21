@@ -82,7 +82,7 @@
 
 	;wait for stopped
 	(loop-while {this->slave_stdin->msg_in_state != stream_mail_state_stopped})
-		(v-call 'msg_in 'read_next {this->slave_stdin})
+		(f-call 'msg_in 'next_msg {this->slave_stdin})
 	(loop-end)
 
 	;send stopped on stdout and stderr

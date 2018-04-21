@@ -84,6 +84,52 @@
 
 (def-func-end)
 
+(def-func 'class/msg_in/next_msg)
+	;inputs
+	;r0 = msg_in object (ptr)
+	;outputs
+	;r0 = msg_in object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'msg 'data 'ack_msg)
+
+	(push-scope)
+	(f-entry 'msg_in 'next_msg {this})
+
+	;free any current msg
+	(f-call 'sys_mail 'free {this->stream_buffer})
+
+	;read next in sequence
+	(assign {0} {msg})
+	(loop-start)
+		(f-call 'msg_in 'next_seq {&this->msg_in_list, msg, this->msg_in_seqnum} {msg, data})
+		(breakif {msg})
+		(f-call 'sys_mail 'read {&this->msg_in_mailbox} {msg, _})
+	(loop-end)
+	(assign {this->msg_in_seqnum + 1} {this->msg_in_seqnum})
+
+	;save msg buffer details
+	(assign {msg} {this->stream_buffer})
+	(assign {&data->stream_msg_data} {this->stream_bufp})
+	(assign {data + msg->msg_length} {this->stream_bufe})
+	(assign {data->stream_msg_state} {this->msg_in_state})
+
+	;send ack if needed
+	(vpif {data->stream_msg_seqnum >> msg_out_ack_shift == this->msg_in_ack_seqnum})
+		(f-call 'sys_mail 'alloc {0} {ack_msg, _})
+		(assign {data->stream_msg_ack_id.id_mbox} {ack_msg->msg_dest.id_mbox})
+		(assign {data->stream_msg_ack_id.id_cpu} {ack_msg->msg_dest.id_cpu})
+		(f-call 'sys_mail 'send {ack_msg})
+		(assign {this->msg_in_ack_seqnum + 1} {this->msg_in_ack_seqnum})
+	(endif)
+
+	(f-exit 'msg_in 'next_msg {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
 (def-func 'class/msg_in/read_next)
 	;inputs
 	;r0 = msg_in object (ptr)
@@ -93,41 +139,14 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'msg 'data 'ack_msg)
+	(ptr 'this)
 
 	(push-scope)
 	(f-entry 'msg_in 'read_next {this})
 
-	;while not stopped state
-	(loop-while {this->msg_in_state != stream_mail_state_stopped})
-		;free any current msg
-		(f-call 'sys_mail 'free {this->stream_buffer})
-
-		;read next in sequence
-		(assign {0} {msg})
-		(loop-start)
-			(f-call 'msg_in 'next_seq {&this->msg_in_list, msg, this->msg_in_seqnum} {msg, data})
-			(breakif {msg})
-			(f-call 'sys_mail 'read {&this->msg_in_mailbox} {msg, _})
-		(loop-end)
-		(assign {this->msg_in_seqnum + 1} {this->msg_in_seqnum})
-
-		;save msg buffer details
-		(assign {msg} {this->stream_buffer})
-		(assign {&data->stream_msg_data} {this->stream_bufp})
-		(assign {data + msg->msg_length} {this->stream_bufe})
-		(assign {data->stream_msg_state} {this->msg_in_state})
-
-		;send ack if needed
-		(vpif {data->stream_msg_seqnum >> msg_out_ack_shift == this->msg_in_ack_seqnum})
-			(f-call 'sys_mail 'alloc {0} {ack_msg, _})
-			(assign {data->stream_msg_ack_id.id_mbox} {ack_msg->msg_dest.id_mbox})
-			(assign {data->stream_msg_ack_id.id_cpu} {ack_msg->msg_dest.id_cpu})
-			(f-call 'sys_mail 'send {ack_msg})
-			(assign {this->msg_in_ack_seqnum + 1} {this->msg_in_ack_seqnum})
-		(endif)
-
-		(breakif {this->msg_in_state != stream_mail_state_started})
+	;if started state
+	(loop-while {this->msg_in_state == stream_mail_state_started})
+		(f-call 'msg_in 'next_msg {this})
 	(loop-until {this->stream_bufp != this->stream_bufe})
 
 	;return -1 if not in started state

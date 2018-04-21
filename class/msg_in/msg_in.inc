@@ -5,6 +5,7 @@
 (def-method 'new 'class/msg_in/new 'static nil '(r0))
 (def-method 'init 'class/msg_in/init 'static '(r0 r1))
 (def-method 'next_seq 'class/msg_in/next_seq 'static '(r0 r1 r2) '(r0 r1))
+(def-method 'next_msg 'class/msg_in/next_msg 'static '(r0) '(r0))
 
 (def-method 'deinit 'class/msg_in/deinit 'final)
 (def-method 'read_ready 'class/msg_in/read_ready 'final)
