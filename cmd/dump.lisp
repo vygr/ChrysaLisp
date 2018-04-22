@@ -19,26 +19,22 @@
 (defun as-hex-long (_)
 	(cat (as-hex-int (bit-shr _ 32)) (as-hex-int (bit-and _ 0xffffffff))))
 
-;dump stream to stdout
-(defun dump-stream (_)
-	(defq adr 0)
-	(while (defq c (read-chunk _))
-		(prin (as-hex-int adr) " " (apply cat (map (lambda (_)
-			(cat (as-hex-byte _) " ")) c)))
-		(times (sub chunk_size (length c)) (prin "   "))
-		(print (apply cat (map (lambda (_)
-			(if (le 32 _ 126) (char _) ".")) c)))
-		(setq adr (add adr chunk_size))))
-
 ;dump a file to stdout
 (defun dump-file (_)
 	(when (setq _ (file-stream _))
-		(dump-stream _)))
+		(defq adr 0)
+		(while (defq c (read-chunk _))
+			(prin (as-hex-int adr) " " (apply cat (map (lambda (_)
+				(cat (as-hex-byte _) " ")) c)))
+			(times (sub chunk_size (length c)) (prin "   "))
+			(print (apply cat (map (lambda (_)
+				(if (le 32 _ 126) (char _) ".")) c)))
+			(setq adr (add adr chunk_size)))))
 
 ;initialize pipe details and command args, abort on error
 (when (defq chunk_size 8 slave (create-slave))
 	(if (le (length (defq args (slot get_args slave))) 1)
 		;dump from stdin
-		(dump-stream (file-stream 'stdin))
+		(dump-file 'stdin)
 		;dump from args as files
 		(each dump-file (slice 1 -1 args))))
