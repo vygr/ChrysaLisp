@@ -23,7 +23,9 @@
 
 	(ptr 'value 'list)
 	(pptr 'iter_begin 'liter 'hiter)
-	(int 'start 'end 'length)
+	(int 'start 'end)
+(errorcases
+	(int 'length))
 
 	(push-scope)
 	(f-entry 'lisp 'func_part {this, args})
@@ -35,10 +37,11 @@
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0]} {func})
 	(assign {iter_begin[ptr_size]} {list})
-	(d-call 'vector 'get_length {list} {_, length})
 	(f-call 'boxed_long 'get_value {iter_begin[ptr_size * 2]} {_, start})
 	(f-call 'boxed_long 'get_value {iter_begin[ptr_size * 3]} {_, end})
-	(errorif {start > end || start > length || end > length || start < 0 || end < 0} 'error2)
+(errorcases
+	(d-call 'vector 'get_length {list} {_, length})
+	(errorif {start > end || start > length || end > length || start < 0 || end < 0} 'error2))
 
 	(f-call 'vector 'create {} {params})
 	(f-call 'vector 'get_iter {list, start} {_, liter})
