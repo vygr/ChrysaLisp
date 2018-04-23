@@ -5,9 +5,9 @@
 (when (defq slave (create-slave))
 	(defq stdin (file-stream 'stdin) lines (list))
 	(if (le (length (defq args (slot get_args slave))) 1)
-		;sort stdin
+		;shuffle stdin
 		(while (defq l (read-line stdin))
 			(push lines l))
-		;sort args
+		;shuffle args
 		(setq lines (slice 1 -1 args)))
 	(each print (shuffle lines)))
