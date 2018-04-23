@@ -95,6 +95,7 @@
 (import 'class/lisp/func_writechar.vp)
 (import 'class/lisp/func_writeline.vp)
 (import 'class/lisp/func_merge.vp)
+(import 'class/lisp/func_part.vp)
 (import 'class/lisp/init.vp)
 (import 'class/lisp/lisp.vp)
 (import 'class/lisp/repl_apply.vp)

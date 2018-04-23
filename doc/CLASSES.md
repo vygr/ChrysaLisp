@@ -2601,6 +2601,15 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
+### lisp::func_part -> class/lisp/func_part
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
 ## math
 Super Class: null
 ### math::random -> sys/math/random

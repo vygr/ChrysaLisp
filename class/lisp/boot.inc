@@ -46,6 +46,7 @@
 (ffi each! "class/lisp/func_each" 0)
 (ffi some! "class/lisp/func_some" 0)
 (ffi merge-sym "class/lisp/func_merge" 0)
+(ffi partition "class/lisp/func_part" 0)
 
 (ffi str "class/lisp/func_str" 0)
 (ffi sym "class/lisp/func_sym" 0)
@@ -531,14 +532,6 @@
 		(defq _t (elem _1 _))
 		(elem-set _1 _ (elem _2 _))
 		(elem-set _2 _ _t)))
-
-(defun partition (_f _a _l _h)
-	;(partition lambda list start end)
-	(defq _i _l _p (elem _i _a) _j _l)
-	(while (lt (setq _j (inc _j)) _h)
-		(when (lt (_f (elem _j _a) _p) 0)
-			(swap _a (setq _i (inc _i)) _j)))
-	(swap _a _i _l) _i)
 
 (defun read-byte (o s)
 	;(read-byte index seq)
