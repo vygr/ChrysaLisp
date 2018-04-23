@@ -46,7 +46,7 @@
 	(f-call 'vector 'create {} {params})
 	(f-call 'vector 'get_iter {list, start} {_, liter})
 	(f-call 'vector 'get_iter {list, end} {_, hiter})
-	(f-call 'array 'partition {list, liter, hiter, $callback, &this} {_, liter})
+	(f-call 'vector 'partition {list, liter, hiter, $callback, &this} {_, liter})
 	(f-call 'vector 'get_begin {list} {_, iter_begin})
 	(f-call 'boxed_long 'create {(liter - iter_begin) >> 3} {value})
 	(f-call 'vector 'deref {params})
