@@ -23,7 +23,7 @@
 	(int 'start 'end 'length)
 
 	(push-scope)
-	(f-entry 'lisp 'func_elem {this, args})
+	(f-entry 'lisp 'func_part {this, args})
 
 (errorcases
 	(f-call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
