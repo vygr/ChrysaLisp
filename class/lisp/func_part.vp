@@ -16,9 +16,12 @@
 		(ptr 'params)
 	(def-struct-end)
 
-	(ptr 'this 'func 'params)
+	(ptr 'this 'func)
+	(union
+		'(ptr 'args)
+		'(ptr 'params))
 
-	(ptr 'args 'value 'list)
+	(ptr 'value 'list)
 	(pptr 'iter_begin 'liter 'hiter)
 	(int 'start 'end 'length)
 
