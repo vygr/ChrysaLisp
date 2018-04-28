@@ -16,6 +16,7 @@ Welcome to ChrysaLisp's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   INTRO
    LISP
    FUNCTIONS
    TAOS
