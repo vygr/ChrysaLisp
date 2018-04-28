@@ -87,7 +87,7 @@ Scan source files and create the reference documents.
 make
 ```
 
-Compile all files required based on the age of edited source and binares.
+Compile all files required based on the age of edited source and binaries.
 
 ```
 make all
