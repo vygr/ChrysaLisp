@@ -74,8 +74,8 @@ provided in the README.md file.
 
 From the TUI or from the GUI Terminal app, the `make` command allows you to
 compile the system, create a new boot image, cross compile for the various
-supported platforms and create their boot images and scan the source and build
-the reference documentation.
+supported platforms, create their boot images and scan the source files to
+build the reference documentation.
 
 ```
 make doc
@@ -87,7 +87,8 @@ Scan source files and create the reference documents.
 make
 ```
 
-Compile all files required based on the age of edited source and binaries.
+Compile any files required based on the age of edited source files and produced
+binaries.
 
 ```
 make all
@@ -125,5 +126,5 @@ At a ChrysaLisp terminal prompt type:
 lisp
 ```
 
-You will see the sign on message form the Lisp interpreter and then you can use
+You will see the sign on message for the Lisp interpreter and then you can use
 the REPL directly to experiment.
