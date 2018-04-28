@@ -19,10 +19,10 @@ Welcome to ChrysaLisp's documentation!
    INTRO
    LISP
    FUNCTIONS
-   TAOS
    SYNTAX
    CLASSES
    TODO
+   TAOS
 
 .. mdinclude:: ../README.md
 

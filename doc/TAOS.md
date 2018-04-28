@@ -403,6 +403,8 @@ component then it will not be loaded and thus occupy no space. So, the amount
 of memory consumed is kept to an absolute minimum and is driven by the
 execution of the program.
 
+## Summary
+
 Taos is the ground breaking revolution for which the electronics, computing and
 communications worlds have been waiting. For years the information world has
 been outgrowing its boots, becoming cumbersome and sluggish. The push of new

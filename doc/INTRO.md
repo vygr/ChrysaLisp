@@ -18,8 +18,8 @@ Download and install the SDL frameworks from:
 https://www.libsdl.org/download-2.0.php and
 https://www.libsdl.org/projects/SDL_ttf/
 
-Get the development .dmg files for both frameworks and copy SDL2.framework and
-SDL2_ttf.framework over into your /Library/Frameworks folder.
+Get the development *.dmg* files for both frameworks and copy *SDL2.framework*
+and *SDL2_ttf.framework* over into your */Library/Frameworks* folder.
 
 ### Linux/PI64
 
@@ -74,21 +74,20 @@ provided in the README.md file.
 
 From the TUI or from the GUI Terminal app, the `make` command allows you to
 compile the system, create a new boot image, cross compile for the various
-supported platforms and create their boot images and scan the source and create
-build the reference documentation.
+supported platforms and create their boot images and scan the source and build
+the reference documentation.
 
 ```
 make doc
 ```
 
-Scan and create the reference documents.
+Scan source files and create the reference documents.
 
 ```
 make
 ```
 
-Compile all files that are required based on the age of edited source and
-binares.
+Compile all files required based on the age of edited source and binares.
 
 ```
 make all
@@ -107,7 +106,7 @@ directory.
 make platforms
 ```
 
-Compile all platforms not just the current platform.
+Compile and build all platforms not just the current platform.
 
 You can use combinations if you like. Such as:
 
