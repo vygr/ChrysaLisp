@@ -5,7 +5,7 @@ adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
 * Add support for FPU to the VM. Scalar float/double support first of all maybe
-eventually create a FPU accelerated version of the vector math SDL.
+eventually create a FPU accelerated version of the vector math DSL.
 
 * Create a Virtualbox boot image of the system. I've been looking at bare metal
 OS and talking to the author for a couple of months. He's got plans to
