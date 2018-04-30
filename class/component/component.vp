@@ -37,6 +37,7 @@
 	;inputs
 	;r0 = component object (ptr)
 	;outputs
+	;r0 = component object (ptr)
 	;r1 = 0, else tcb of owner (ptr)
 	;trashes
 	;r2

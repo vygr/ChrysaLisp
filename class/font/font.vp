@@ -141,6 +141,8 @@
 (def-func 'class/font/deinit)
 	;inputs
 	;r0 = font object (ptr)
+	;outputs
+	;r0 = font object (ptr)
 	;trashes
 	;all but r0
 

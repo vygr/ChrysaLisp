@@ -8,6 +8,8 @@
 (def-func 'class/grid/layout)
 	;inputs
 	;r0 = grid object (ptr)
+	;outputs
+	;r0 = grid object (ptr)
 	;trashes
 	;all but r0
 
@@ -74,6 +76,7 @@
 	;inputs
 	;r0 = grid object (ptr)
 	;outputs
+	;r0 = grid object (ptr)
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes

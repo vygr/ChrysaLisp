@@ -8,6 +8,8 @@
 (def-func 'class/flow/layout)
 	;inputs
 	;r0 = flow object (ptr)
+	;outputs
+	;r0 = flow object (ptr)
 	;trashes
 	;all but r0
 
@@ -186,6 +188,7 @@
 	;inputs
 	;r0 = flow object (ptr)
 	;outputs
+	;r0 = flow object (ptr)
 	;r9 = preferred width (pixels)
 	;r10 = preferred height (pixels)
 	;trashes

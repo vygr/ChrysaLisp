@@ -53,6 +53,8 @@
 (def-func 'class/error/deinit)
 	;inputs
 	;r0 = error object (ptr)
+	;outputs
+	;r0 = error object (ptr)
 	;trashes
 	;all but r0
 

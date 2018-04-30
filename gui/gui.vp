@@ -291,6 +291,8 @@
 (def-func 'gui/gui_add)
 	;inputs
 	;r0 = view object (ptr)
+	;outputs
+	;r0 = view object (ptr)
 	;trashes
 	;all but r0
 

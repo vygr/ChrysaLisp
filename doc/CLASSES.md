@@ -437,6 +437,8 @@ r1 = 0 if error, else ok
 ```
 inputs
 r0 = canvas object (ptr)
+outputs
+r0 = canvas object (ptr)
 trashes
 all but r0
 ```
@@ -649,6 +651,8 @@ all but r0
 ```
 inputs
 r0 = canvas object (ptr)
+outputs
+r0 = canvas object (ptr)
 trashes
 all but r0
 ```
@@ -657,6 +661,7 @@ all but r0
 inputs
 r0 = canvas object (ptr)
 outputs
+r0 = canvas object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
@@ -667,6 +672,8 @@ all but r0
 inputs
 r0 = canvas object (ptr)
 r1 = draw ctx (ptr)
+outputs
+r0 = canvas object (ptr)
 trashes
 all but r0
 ```
@@ -731,6 +738,7 @@ r1 = 0 if error, else ok
 inputs
 r0 = component object (ptr)
 outputs
+r0 = component object (ptr)
 r1 = 0, else tcb of owner (ptr)
 trashes
 r2
@@ -889,6 +897,8 @@ r1 = line number (uint)
 ```
 inputs
 r0 = error object (ptr)
+outputs
+r0 = error object (ptr)
 trashes
 all but r0
 ```
@@ -901,6 +911,7 @@ Super Class: view
 inputs
 r0 = flow object (ptr)
 outputs
+r0 = flow object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
@@ -909,6 +920,8 @@ all but r0
 ### flow::layout -> class/flow/layout
 ```
 inputs
+r0 = flow object (ptr)
+outputs
 r0 = flow object (ptr)
 trashes
 all but r0
@@ -973,6 +986,8 @@ r3 = height (pixels)
 ```
 inputs
 r0 = font object (ptr)
+outputs
+r0 = font object (ptr)
 trashes
 all but r0
 ```
@@ -994,6 +1009,7 @@ Super Class: view
 inputs
 r0 = grid object (ptr)
 outputs
+r0 = grid object (ptr)
 r9 = preferred width (pixels)
 r10 = preferred height (pixels)
 trashes
@@ -1002,6 +1018,8 @@ all but r0
 ### grid::layout -> class/grid/layout
 ```
 inputs
+r0 = grid object (ptr)
+outputs
 r0 = grid object (ptr)
 trashes
 all but r0
@@ -1110,6 +1128,8 @@ all
 ### gui_gui::add -> gui/gui_add
 ```
 inputs
+r0 = view object (ptr)
+outputs
 r0 = view object (ptr)
 trashes
 all but r0
