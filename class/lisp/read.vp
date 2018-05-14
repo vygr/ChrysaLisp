@@ -7,11 +7,11 @@
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = stream object (ptr)
-	;r2 = next char (uint) (uint)
+	;r2 = next char (uint)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = ast vector (ptr)
-	;r2 = next char (uint) (uint)
+	;r2 = next char (uint)
 
 	(ptr 'this 'stream 'ast)
 	(int 'char)

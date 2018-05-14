@@ -13,7 +13,7 @@
 	;r2 = last char (uint)
 	;outputs
 	;r0 = lisp object (ptr)
-	;r1 = next char (uint) (uint)
+	;r1 = next char (uint)
 
 	(ptr 'this 'stream 'line)
 	(pptr 'iter)

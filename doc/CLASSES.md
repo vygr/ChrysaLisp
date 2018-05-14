@@ -1669,11 +1669,11 @@ r1 = 0 if error, else ok
 inputs
 r0 = lisp object (ptr)
 r1 = stream object (ptr)
-r2 = next char (uint) (uint)
+r2 = next char (uint)
 outputs
 r0 = lisp object (ptr)
 r1 = ast vector (ptr)
-r2 = next char (uint) (uint)
+r2 = next char (uint)
 ```
 ### lisp::read_char -> class/lisp/read_char
 ```
@@ -1683,7 +1683,7 @@ r1 = stream object (ptr)
 r2 = last char (uint)
 outputs
 r0 = lisp object (ptr)
-r1 = next char (uint) (uint)
+r1 = next char (uint)
 ```
 ### lisp::read_rmacro -> class/lisp/read_rmacro
 ```
