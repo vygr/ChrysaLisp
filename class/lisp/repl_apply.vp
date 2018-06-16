@@ -6,7 +6,7 @@
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
-	;r2 = boxed_ptr function object (ptr)
+	;r2 = function object (ptr)
 	;outputs
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
@@ -29,18 +29,22 @@
 		'(pptr 'iter_end))
 	(ptr 'value)
 	(pptr 'iter_begin)
-	(uint 'length)
+(errorcases
+	(uint 'length))
 
 	(push-scope)
 	(assign '(r0 r1 r2) {this, args, func})
 
 	;lambda ?
+(errorcases
 	(errorif (cat {func->obj_vtable != @} (f-path 'class 'vector)) 'error2)
 	(d-call 'vector 'get_length {func} {_, length})
-	(errorif {length < 2} 'error1)
+	(errorif {length < 2} 'error1))
+
 	(f-call 'vector 'get_iters {func} {_, iter_begin, iter_end})
-	(assign {iter_begin[ptr_size * 0]} {value})
+
 (errorcases
+	(assign {iter_begin[ptr_size * 0]} {value})
 	(vpif {value != this->lisp_sym_lambda})
 		(errorif {value != this->lisp_sym_macro} 'error2)
 	(endif))
