@@ -77,9 +77,9 @@ bit-or
 bit-shl
 bit-shr
 bit-xor
-catch
 call
 cat
+catch
 char
 clear
 cmp
@@ -100,6 +100,7 @@ eql
 eval
 fcos
 fdiv
+ffi
 file-stream
 find
 floor
@@ -108,7 +109,6 @@ fmul
 frac
 fsin
 fsqrt
-ffi
 ge
 gensym
 gt
@@ -123,7 +123,9 @@ macro
 macroexpand
 macroexpand-1
 match?
+max
 merge-sym
+min
 mod
 mul
 ne
@@ -233,9 +235,7 @@ log2
 lst?
 map
 map-rev
-max
 merge
-min
 neg
 notany
 notevery
