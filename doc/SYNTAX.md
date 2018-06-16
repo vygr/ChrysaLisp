@@ -206,13 +206,13 @@
 ## match?
 ### (match? list list)
 ## max
-### (max num num)
+### (max num num ...)
 ## merge
 ### (merge list str)
 ## merge-sym
 ### (merge-sym list list)
 ## min
-### (min num num)
+### (min num num ...)
 ## minus
 ### (minus num)
 ## mod

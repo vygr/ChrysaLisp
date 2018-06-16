@@ -7,6 +7,8 @@
 (ffi mul "class/lisp/func_mul" 0)
 (ffi div "class/lisp/func_div" 0)
 (ffi mod "class/lisp/func_mod" 0)
+(ffi min "class/lisp/func_min" 0)
+(ffi max "class/lisp/func_max" 0)
 
 (ffi fmul "class/lisp/func_fmul" 0)
 (ffi fdiv "class/lisp/func_fdiv" 0)
@@ -333,14 +335,6 @@
 (defun abs (_)
 	;(abs num)
 	(if (lt _ 0) (neg _) _))
-
-(defun min (x y)
-	;(min num num)
-	(if (lt x y) x y))
-
-(defun max (x y)
-	;(max num num)
-	(if (lt x y) y x))
 
 (defun squared (_)
 	;(squared num)

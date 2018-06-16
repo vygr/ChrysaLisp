@@ -1964,6 +1964,24 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
+### lisp::func_min -> class/lisp/func_min
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### lisp::func_max -> class/lisp/func_max
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
 ### lisp::func_eql -> class/lisp/func_eql
 ```
 inputs

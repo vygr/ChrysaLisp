@@ -1,0 +1,53 @@
+(import 'sys/func.inc)
+(import 'class/boxed_long/boxed_long.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/lisp/func_min)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this)
+	(pptr 'iter_begin)
+	(union
+		'(ptr 'args)
+		'(pptr 'iter_end))
+	(union
+		'(ptr 'value)
+		'(long 'num))
+	(long 'accum)
+
+	(push-scope)
+	(f-entry 'lisp 'func_min {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'boxed_long) {, -2}) {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
+	(f-call 'boxed_long 'get_value {*iter_begin} {_, accum})
+	(loop-start)
+		(assign {iter_begin + ptr_size} {iter_begin})
+		(breakif {iter_begin == iter_end})
+		(f-call 'boxed_long 'get_value {*iter_begin} {_, num})
+		(vpif {num < accum})
+			(assign {num} {accum})
+		(endif)
+	(loop-end)
+	(f-call 'boxed_long 'create {accum} {value})
+
+(vp-label 'exit)
+	(f-exit 'lisp 'func_min {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(min num num ...)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)

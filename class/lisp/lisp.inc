@@ -47,6 +47,8 @@
 (def-method 'func_div 'class/lisp/func_div 'static '(r0 r1) '(r0 r1))
 (def-method 'func_fdiv 'class/lisp/func_fdiv 'static '(r0 r1) '(r0 r1))
 (def-method 'func_mod 'class/lisp/func_mod 'static '(r0 r1) '(r0 r1))
+(def-method 'func_min 'class/lisp/func_min 'static '(r0 r1) '(r0 r1))
+(def-method 'func_max 'class/lisp/func_max 'static '(r0 r1) '(r0 r1))
 (def-method 'func_eql 'class/lisp/func_eql 'static '(r0 r1) '(r0 r1))
 (def-method 'func_eq 'class/lisp/func_eq 'static '(r0 r1) '(r0 r1))
 (def-method 'func_ne 'class/lisp/func_ne 'static '(r0 r1) '(r0 r1))
