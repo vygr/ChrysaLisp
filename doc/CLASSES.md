@@ -488,19 +488,21 @@ r2-r4
 ```
 inputs
 r0 = canvas object (ptr)
+r1 = source canvas object (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
-r1-r6
+r1-r7
 ```
 ### canvas::as_premul -> class/canvas/as_premul
 ```
 inputs
 r0 = canvas object (ptr)
+r1 = source canvas object (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
-r1-r5
+r1-r6
 ```
 ### canvas::fbox -> class/canvas/fbox
 ```
@@ -1765,7 +1767,7 @@ r1 = return value object (ptr)
 inputs
 r0 = lisp object (ptr)
 r1 = args vector object (ptr)
-r2 = boxed_ptr function object (ptr)
+r2 = function object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
