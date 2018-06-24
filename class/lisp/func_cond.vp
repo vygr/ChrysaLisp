@@ -16,6 +16,7 @@
 	(f-entry 'lisp 'func_cond {this, args})
 
 	(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
+	(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-while {iter_begin != iter_end})
 		(assign {*iter_begin} {value})
 		(errorif (cat {value->obj_vtable != @} (f-path 'class 'vector)) 'error2)

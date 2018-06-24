@@ -19,9 +19,9 @@
 	(f-entry 'lisp 'func_defq {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length < 2 || (length & 1)} 'error1)
+	(errorif {length < 3 || !(length & 1)} 'error1)
 	(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
-	(assign {0} {val})
+	(assign {0, iter_begin + ptr_size} {val, iter_begin})
 	(loop-start)
 		(f-call 'obj 'deref_if {val})
 		(assign {iter_begin[ptr_size * 0]} {var})

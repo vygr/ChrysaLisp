@@ -19,12 +19,12 @@
 
 (errorcases
 	(v-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 2} 'error1))
+	(errorif {length != 3} 'error1))
 
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
-	(f-call 'lisp 'repl_eval {this, iter_begin[0]} {_, value})
+	(f-call 'lisp 'repl_eval {this, iter_begin[ptr_size * 1]} {_, value})
 	(vpif (cat {value->obj_vtable == @} (f-path 'class 'error)))
-		(f-call 'lisp 'repl_eval {this, iter_begin[ptr_size]} {_, args})
+		(f-call 'lisp 'repl_eval {this, iter_begin[ptr_size * 2]} {_, args})
 		(vpif (cat {args->obj_vtable == @} (f-path 'class 'error)))
 			(f-call 'obj 'deref {value})
 			(assign {args} {value})

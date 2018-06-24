@@ -21,8 +21,8 @@
 	(f-entry 'lisp 'func_qquote {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error1)
-	(f-call 'vector 'get_first {args} {_, args})
+	(errorif {length != 2} 'error1)
+	(f-call 'vector 'get_second {args} {_, args})
 	(vpif (cat {args->obj_vtable == @} (f-path 'class 'vector)))
 		(f-call 'vector 'create {} {cat_list})
 		(f-call 'obj 'ref {this->lisp_sym_cat} {value})

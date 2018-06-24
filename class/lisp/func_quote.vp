@@ -16,8 +16,8 @@
 	(f-entry 'lisp 'func_quote {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length != 1} 'error1)
-	(d-call 'vector 'ref_element {args, 0} {_, args})
+	(errorif {length != 2} 'error1)
+	(d-call 'vector 'ref_element {args, 1} {_, args})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_quote {this, args})
