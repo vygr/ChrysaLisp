@@ -10,20 +10,21 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'vars 'value)
+	(ptr 'this 'args 'value 'vars)
 	(uint 'length)
 
 	(push-scope)
 	(f-entry 'lisp 'func_defmacro {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length < 3} 'error1)
-	(f-call 'vector 'get_second {args} {_, vars})
+	(errorif {length < 4} 'error1)
+	(f-call 'vector 'get_third {args} {_, vars})
 	(errorif (cat {vars->obj_vtable != @} (f-path 'class 'vector)) 'error2)
-	(f-call 'vector 'get_first {args} {_, value})
+	(f-call 'vector 'get_second {args} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'class 'symbol)) 'error3)
 	(f-call 'obj 'ref {value})
 	(f-call 'obj 'ref {this->lisp_sym_macro} {vars})
+	(d-call 'vector 'slice {args, 1, length} {_, args})
 	(d-call 'vector 'set_element {args, vars, 0})
 	(f-call 'hash_map 'insert {this->lisp_environment, value, args})
 

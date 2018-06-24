@@ -22,14 +22,14 @@
 	(f-entry 'lisp 'func_ffi {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
+	(f-call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_second {args} {_, value})
+	(f-call 'vector 'get_third {args} {_, value})
 	(f-call 'sys_load 'bind {&value->string_data} {value})
 	(errorifnot {value} 'error1)
-	(f-call 'vector 'get_first {args} {_, name})
-	(f-call 'vector 'get_third {args} {_, args})
+	(f-call 'vector 'get_second {args} {_, name})
+	(f-call 'vector 'get_forth {args} {_, args})
 	(f-call 'boxed_long 'get_value {args} {_, flags})
 	(f-call 'boxed_ptr 'create {value | flags} {value})
 	(f-call 'hash_map 'insert {this->lisp_environment, name, value})
@@ -42,7 +42,7 @@
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(ffi sym path flags)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'symbol 'string 'boxed_long))
+	(signature 'sig 'obj 'symbol 'string 'boxed_long))
 
 	(pop-scope-syms)
 

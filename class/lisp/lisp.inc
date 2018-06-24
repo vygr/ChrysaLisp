@@ -125,7 +125,7 @@
 (def-method 'func_part 'class/lisp/func_part 'static '(r0 r1) '(r0 r1))
 
 (def-enum 'func_type)
-	(enum 'args_eval_apply 'args_apply 'apply)
+	(enum 'args_eval 'args_raw)
 (def-enum-end)
 
 (def-struct 'lisp 'obj)

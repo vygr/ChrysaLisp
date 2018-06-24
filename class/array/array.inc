@@ -15,6 +15,7 @@
 (def-method 'get_first 'class/array/get_first 'static '(r0) '(r0 r1))
 (def-method 'get_second 'class/array/get_second 'static '(r0) '(r0 r1))
 (def-method 'get_third 'class/array/get_third 'static '(r0) '(r0 r1))
+(def-method 'get_forth 'class/array/get_forth 'static '(r0) '(r0 r1))
 (def-method 'get_element 'class/array/get_element 'static '(r0 r1) '(r0 r1))
 (def-method 'push_back 'class/array/push_back 'static '(r0 r1) '(r0))
 (def-method 'get_iter 'class/array/get_iter 'static '(r0 r1) '(r0 r1))
@@ -125,6 +126,15 @@
 	;r1 = element (long)
 	(vp-cpy-ir r0 array_array r1)
 	(vp-cpy-ir r1 (mul long_size 2) r1))
+
+(defcfun class/array/get_forth ()
+	;inputs
+	;r0 = array object (ptr)
+	;outputs
+	;r0 = array object (ptr)
+	;r1 = element (long)
+	(vp-cpy-ir r0 array_array r1)
+	(vp-cpy-ir r1 (mul long_size 3) r1))
 
 (defcfun class/array/get_element ()
 	;inputs
