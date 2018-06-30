@@ -2,8 +2,12 @@
 
 ![](./screen_shot.png)
 
-MVP for work now done, however we are now rushing to get V1.0 out the door ! So
-yet again I'll try get to some of the other TODO items soon as I can.
+Taken a detour to start a C++ version of ChrysaLisp to directly compare with my
+hand rolled compiler and format.
+
+Also this should be easier to intergrate with third party libs and host OS's.
+
+https://github.com/vygr/ChrysaLisp-
 
 Regards all
 

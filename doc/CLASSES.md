@@ -153,6 +153,14 @@ outputs
 r0 = array object (ptr)
 r1 = element (long)
 ```
+### array::get_forth -> class/array/get_forth
+```
+inputs
+r0 = array object (ptr)
+outputs
+r0 = array object (ptr)
+r1 = element (long)
+```
 ### array::get_element -> class/array/get_element
 ```
 inputs
