@@ -41,7 +41,7 @@
 	(f-call 'boxed_long 'get_value {iter_begin[ptr_size * 3]} {_, end})
 (errorcases
 	(d-call 'vector 'get_length {list} {_, length})
-	(errorif {start > end || start > length || end > length || start < 0 || end < 0} 'error2))
+	(errorif {start < 0 || start >= end || end > length} 'error2))
 
 	(f-call 'vector 'create {} {params})
 	(f-call 'vector 'get_iter {list, start} {_, liter})
