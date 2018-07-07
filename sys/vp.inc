@@ -163,7 +163,6 @@
 (defcfun type (o)
 	(defq i (type? o))
 	(cond
-		((not i) i)
 		((eq i lisp_type_symbol)
 			(cond
 				((reg o) 'r)
