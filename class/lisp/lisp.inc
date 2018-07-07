@@ -123,6 +123,7 @@
 (def-method 'func_read 'class/lisp/func_read 'static '(r0 r1) '(r0 r1))
 (def-method 'func_merge 'class/lisp/func_merge 'static '(r0 r1) '(r0 r1))
 (def-method 'func_part 'class/lisp/func_part 'static '(r0 r1) '(r0 r1))
+(def-method 'func_type 'class/lisp/func_type 'static '(r0 r1) '(r0 r1))
 
 (def-enum 'func_type)
 	(enum 'args_eval 'args_raw)

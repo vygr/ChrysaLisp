@@ -169,8 +169,6 @@
 ### (insert list str)
 ## insert-sym
 ### (insert-sym list sym)
-## inst-of
-### (inst-of str form)
 ## lambda
 ### (lambda ([arg ...]) body)
 ## le
@@ -227,8 +225,8 @@
 ### (notany lambda seq ...)
 ## notevery
 ### (notevery lambda seq ...)
-## obj?
-### (obj? form)
+## num?
+### (num? form)
 ## open-child
 ### (open-child path mode)
 ## open-farm
@@ -357,6 +355,8 @@
 ### (trim-end str [str])
 ## trim-start
 ### (trim-start str [str])
+## type?
+### (type? obj)
 ## unless
 ### (unless tst body)
 ## until

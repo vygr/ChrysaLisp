@@ -73,6 +73,7 @@
 (ffi def? "class/lisp/func_defined" 0)
 (ffi bind "class/lisp/func_bind" 0)
 (ffi env "class/lisp/func_env" 0)
+(ffi type? "class/lisp/func_type" 0)
 
 (ffi file-stream "class/lisp/func_filestream" 0)
 (ffi string-stream "class/lisp/func_strstream" 0)
@@ -97,7 +98,6 @@
 (ffi progn "class/lisp/func_progn" 0)
 (ffi apply "class/lisp/func_apply" 0)
 (ffi repl "class/lisp/func_repl" 0)
-(ffi inst-of "class/lisp/func_inst_of" 0)
 (ffi catch "class/lisp/func_catch" 1)
 (ffi throw "class/lisp/func_error" 0)
 (ffi cond "class/lisp/func_cond" 1)
@@ -105,7 +105,11 @@
 (ffi prin "class/lisp/func_prin" 0)
 (ffi print "class/lisp/func_print" 0)
 
-(defq t 't nil 'nil)
+(defq t 't nil 'nil
+	lisp_type_list 0
+	lisp_type_integer 1
+	lisp_type_string 2
+	lisp_type_symbol 3)
 
 (defmacro defun (n a &rest _)
 	;(defun name ([arg ...]) body)
@@ -117,18 +121,18 @@
 	;(print [form ...])
 	`(defq ,n (lambda ,a ~_)))
 
-(defun obj? (_)
-	;(obj? form)
-	(inst-of 'class/class_obj _))
-(defun lst? (_)
+(defmacro lst? (_)
 	;(lst? form)
-	(inst-of 'class/class_vector _))
-(defun str? (_)
+	`(eq (type? ,_) ,lisp_type_list))
+(defmacro num? (_)
+	;(num? form)
+	`(eq (type? ,_) ,lisp_type_integer))
+(defmacro str? (_)
 	;(str? form)
-	(inst-of 'class/class_string _))
-(defun sym? (_)
+	`(eq (type? ,_) ,lisp_type_string))
+(defmacro sym? (_)
 	;(sym? form)
-	(inst-of 'class/class_symbol _))
+	`(eq (type? ,_) ,lisp_type_symbol))
 
 (defmacro inc (_)
 	;(inc num)

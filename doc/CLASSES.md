@@ -2398,14 +2398,6 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### lisp::func_inst_of -> class/lisp/func_inst_of
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
 ### lisp::func_split -> class/lisp/func_split
 ```
 inputs
@@ -2650,6 +2642,15 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### lisp::func_part -> class/lisp/func_part
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### lisp::func_type -> class/lisp/func_type
 ```
 inputs
 r0 = lisp object (ptr)

@@ -161,14 +161,14 @@
 	`(bind ',b ',(slice 0 (length b) '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))))
 
 (defcfun type (o)
-	(defq i (obj? o))
+	(defq i (type? o))
 	(cond
 		((not i) i)
-		((eql i 'class/class_symbol)
+		((eq i lisp_type_symbol)
 			(cond
 				((reg o) 'r)
 				(t 'c)))
-		((eql i 'class/class_vector)
+		((eq i lisp_type_list)
 			(setq i (elem 0 o))
 			(cond
 				((reg i)
@@ -182,8 +182,8 @@
 					(if (reg (elem 1 o))
 						(if (reg (elem 2 o)) '&d '&i) nil))
 				(t 'c)))
-		((eql i 'class/class_string) 's)
-		((eql i 'class/class_integer) 'c)
+		((eq i lisp_type_string) 's)
+		((eq i lisp_type_integer) 'c)
 		(t nil)))
 
 (defcfun label-sym (s)
