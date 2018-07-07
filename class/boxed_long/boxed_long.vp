@@ -1,5 +1,0 @@
-(import 'sys/func.inc)
-(import 'class/boxed_long/boxed_long.inc)
-
-(gen-create 'boxed_long)
-(gen-class 'boxed_long)

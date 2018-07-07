@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_read)
@@ -22,10 +22,10 @@
 
 	(f-call 'vector 'get_first {args} {_, value})
 	(f-call 'vector 'get_second {args} {_, args})
-	(f-call 'boxed_long 'get_value {args} {_, next_char})
+	(f-call 'integer 'get_value {args} {_, next_char})
 	(f-call 'lisp 'read {this, value, next_char} {_, form, next_char})
 
-	(f-call 'boxed_long 'create {next_char} {args})
+	(f-call 'integer 'create {next_char} {args})
 	(f-call 'vector 'create {} {value})
 	(f-call 'vector 'push_back {value, form})
 	(f-call 'vector 'push_back {value, args})
@@ -38,7 +38,7 @@
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(read stream last_char)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'stream 'boxed_long))
+	(signature 'sig 'stream 'integer))
 
 	(pop-scope-syms)
 

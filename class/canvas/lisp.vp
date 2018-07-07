@@ -31,7 +31,7 @@
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(create-canvas width height aa_scale)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'boxed_long 'boxed_long 'boxed_long))
+	(signature 'sig 'integer 'integer 'integer))
 
 	(pop-scope-syms)
 

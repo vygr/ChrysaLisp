@@ -4,7 +4,7 @@
 (import 'gui/gui.inc)
 (import 'class/component/component.inc)
 (import 'class/symbol/symbol.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/font/font.inc)
 (import 'class/array/array.inc)
 
@@ -213,9 +213,9 @@
 	(f-entry 'component 'set_long_prop {this, num, value})
 
 	(f-call 'component 'get_prop_sym {this, num} {_, sym})
-	(f-call 'boxed_long 'create {value} {prop})
+	(f-call 'integer 'create {value} {prop})
 	(f-call 'component 'insert {this, sym, prop})
-	(f-call 'boxed_long 'deref {prop})
+	(f-call 'integer 'deref {prop})
 
 	(f-exit 'component 'set_long_prop {this})
 	(pop-scope)
@@ -248,8 +248,8 @@
 	(f-call 'component 'get {this, sym} {_, prop})
 	(assign {0} {value})
 	(vpif {prop})
-		(f-call 'boxed_long 'get_value {prop} {_, value})
-		(f-call 'boxed_long 'deref {prop})
+		(f-call 'integer 'get_value {prop} {_, value})
+		(f-call 'integer 'deref {prop})
 	(endif)
 
 	(f-exit 'component 'get_long_prop {this, value})

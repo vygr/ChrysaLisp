@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'sys/kernel/kernel.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'sys/kernel/lisp_total)
@@ -22,7 +22,7 @@
 	(errorif {length} 'error1))
 
 	(f-call 'kernel 'total {} {length})
-	(f-call 'boxed_long 'create {length} {value})
+	(f-call 'integer 'create {length} {value})
 
 (vp-label 'exit)
 	(f-exit 'kernel 'lisp_total {this, value})

@@ -1,5 +1,5 @@
-(import 'class/boxed_long/make.inc)
-(import 'class/boxed_ptr/make.inc)
+(import 'class/integer/make.inc)
+(import 'class/function/make.inc)
 (import 'class/button/make.inc)
 (import 'class/component/make.inc)
 (import 'class/error/make.inc)

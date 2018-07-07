@@ -13,8 +13,6 @@
 ### (apply lambda list)
 ## array
 ### (array [form ...])
-## ary?
-### (ary? form)
 ## ascii
 ### (ascii str)
 ## bind
@@ -229,8 +227,6 @@
 ### (notany lambda seq ...)
 ## notevery
 ### (notevery lambda seq ...)
-## num?
-### (num? form)
 ## obj?
 ### (obj? form)
 ## open-child

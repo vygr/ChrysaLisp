@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/boxed_ptr/boxed_ptr.inc)
+(import 'class/function/function.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/repl_apply)
@@ -15,10 +15,10 @@
 
 	(f-entry 'lisp 'repl_apply '(r0 r1 r2))
 
-	(assign `((r2 obj_vtable) (@ ,(f-path 'class 'boxed_ptr))) '(r3 r4))
+	(assign `((r2 obj_vtable) (@ ,(f-path 'class 'function))) '(r3 r4))
 	(vpif '(r3 == r4))
 		;built in or compiled function
-		(vp-cpy-ir r2 boxed_ptr_value r2)
+		(vp-cpy-ir r2 function_value r2)
 		(vp-and-cr (neg ptr_size) r2)
 		(vp-jmp-r r2)
 	(endif)

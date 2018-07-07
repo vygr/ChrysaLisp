@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
 (import 'class/stream/stream.inc)
 (import 'class/symbol/symbol.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/pair/pair.inc)
 (import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
@@ -26,7 +26,7 @@
 		(f-call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
 		(breakifnot {iter})
 		(f-call 'pair 'get_second {*iter} {_, line})
-		(assign {line->boxed_ptr_value + 1} {line->boxed_ptr_value})
+		(assign {line->function_value + 1} {line->function_value})
 	(endif)
 
 	(f-call 'stream 'read_char {stream} {_, char})

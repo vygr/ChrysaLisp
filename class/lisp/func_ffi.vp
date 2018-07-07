@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'sys/load/load.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/symbol/symbol.inc)
 (import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
@@ -30,8 +30,8 @@
 	(errorifnot {value} 'error1)
 	(f-call 'vector 'get_second {args} {_, name})
 	(f-call 'vector 'get_forth {args} {_, args})
-	(f-call 'boxed_long 'get_value {args} {_, flags})
-	(f-call 'boxed_ptr 'create {value | flags} {value})
+	(f-call 'integer 'get_value {args} {_, flags})
+	(f-call 'function 'create {value | flags} {value})
 	(f-call 'hash_map 'insert {this->lisp_environment, name, value})
 
 (vp-label 'exit)
@@ -42,7 +42,7 @@
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(ffi sym path flags)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'obj 'symbol 'string 'boxed_long))
+	(signature 'sig 'obj 'symbol 'string 'integer))
 
 	(pop-scope-syms)
 

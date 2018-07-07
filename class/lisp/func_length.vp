@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_length)
@@ -24,7 +24,7 @@
 
 	(f-call 'vector 'get_first {args} {_, args})
 	(v-call 'sequence 'get_length {args} {_, length})
-	(f-call 'boxed_long 'create {length} {value})
+	(f-call 'integer 'create {length} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_length {this, value})

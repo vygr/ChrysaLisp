@@ -3,7 +3,7 @@
 (import 'sys/string/string.inc)
 (import 'class/string/string.inc)
 (import 'class/stream_str/stream_str.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/read_num)
@@ -13,7 +13,7 @@
 	;r2 = next char (uint)
 	;outputs
 	;r0 = lisp object (ptr)
-	;r1 = boxed_long object (ptr)
+	;r1 = integer object (ptr)
 	;r2 = next char (uint)
 
 	(ptr 'this 'stream 'str_stream 'string 'num)
@@ -59,7 +59,7 @@
 	(vpif {sign == char_minus})
 		(assign {-val} {val})
 	(endif)
-	(f-call 'boxed_long 'create {val} {num})
+	(f-call 'integer 'create {val} {num})
 	(f-call 'obj 'deref {string})
 
 	(f-exit 'lisp 'read_num {this, num, char})

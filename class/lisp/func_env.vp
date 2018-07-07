@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
 
@@ -21,8 +21,8 @@
 	(errorifnot {length == 0 || length == 1} 'error1)
 	(vpif {length})
 		(f-call 'vector 'get_first {args} {_, value})
-		(errorif (cat {value->obj_vtable != @} (f-path 'class 'boxed_long)) 'error2)
-		(f-call 'boxed_long 'get_value {value} {_, value})
+		(errorif (cat {value->obj_vtable != @} (f-path 'class 'integer)) 'error2)
+		(f-call 'integer 'get_value {value} {_, value})
 		(errorifnot {value} 'error2)
 		(f-call 'hash_map 'num_buckets {this->lisp_environment} {_, length})
 		(gotoif {value == length} 'justref)

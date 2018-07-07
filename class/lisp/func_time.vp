@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_time)
@@ -19,7 +19,7 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1)
 	(f-call 'pii 'time {} {length})
-	(f-call 'boxed_long 'create {length} {args})
+	(f-call 'integer 'create {length} {args})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_time {this, args})

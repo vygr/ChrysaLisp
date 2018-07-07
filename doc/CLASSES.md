@@ -238,7 +238,7 @@ inputs
 r0 = array object (ptr)
 outputs
 r0 = array object (ptr)
-r1 = boxed_long object (ptr)
+r1 = integer object (ptr)
 trashes
 all but r0
 ```
@@ -296,7 +296,7 @@ r0 = array object (ptr)
 r1 = element index (uint)
 outputs
 r0 = array object (ptr)
-r1 = boxed_long object (ptr)
+r1 = integer object (ptr)
 trashes
 all but r0
 ```
@@ -311,31 +311,6 @@ r0 = array object (ptr)
 r1 = slice array object (ptr)
 trashes
 r1-r11
-```
-## boxed_long
-Super Class: boxed_ptr
-### boxed_long::create -> class/boxed_long/create
-## boxed_ptr
-Super Class: obj
-### boxed_ptr::create -> class/boxed_ptr/create
-### boxed_ptr::new -> class/boxed_ptr/new
-### boxed_ptr::init -> class/boxed_ptr/init
-```
-inputs
-r0 = boxed_ptr object (ptr)
-r1 = vtable (pptr)
-r2 = initial value (ptr)
-outputs
-r0 = boxed_ptr object (ptr)
-r1 = 0 if error, else ok
-```
-### boxed_ptr::get_value -> class/boxed_ptr/get_value
-```
-inputs
-r0 = boxed_ptr object (ptr)
-outputs
-r0 = boxed_ptr object (ptr)
-r1 = value (ptr)
 ```
 ## button
 Super Class: label
@@ -721,8 +696,8 @@ Super Class: null
 ### class::title -> class/class_title
 ### class::slave -> class/class_slave
 ### class::pipe -> class/class_pipe
-### class::boxed_ptr -> class/class_boxed_ptr
-### class::boxed_long -> class/class_boxed_long
+### class::function -> class/class_function
+### class::integer -> class/class_integer
 ### class::lisp -> class/class_lisp
 ### class::symbol -> class/class_symbol
 ### class::sequence -> class/class_sequence
@@ -1009,6 +984,28 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+```
+## function
+Super Class: obj
+### function::create -> class/function/create
+### function::new -> class/function/new
+### function::init -> class/function/init
+```
+inputs
+r0 = function object (ptr)
+r1 = vtable (pptr)
+r2 = initial value (ptr)
+outputs
+r0 = function object (ptr)
+r1 = 0 if error, else ok
+```
+### function::get_value -> class/function/get_value
+```
+inputs
+r0 = function object (ptr)
+outputs
+r0 = function object (ptr)
+r1 = value (ptr)
 ```
 ## grid
 Super Class: view
@@ -1517,6 +1514,9 @@ r0 = hash_set object (ptr)
 trashes
 all but r0
 ```
+## integer
+Super Class: function
+### integer::create -> class/integer/create
 ## kernel
 Super Class: null
 ### kernel::id -> sys/kernel/id
@@ -1749,7 +1749,7 @@ r1 = stream object (ptr)
 r2 = next char (uint)
 outputs
 r0 = lisp object (ptr)
-r1 = boxed_long object (ptr)
+r1 = integer object (ptr)
 r2 = next char (uint)
 ```
 ### lisp::repl_eval -> class/lisp/repl_eval

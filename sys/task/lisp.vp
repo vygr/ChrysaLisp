@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'sys/task/task.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'sys/task/lisp_mailbox)
@@ -25,8 +25,8 @@
 
 	(f-call 'sys_task 'mailbox {} {arg0, arg1})
 	(f-call 'vector 'create {} {value})
-	(f-call 'boxed_long 'create {arg0} {arg0})
-	(f-call 'boxed_long 'create {arg1} {arg1})
+	(f-call 'integer 'create {arg0} {arg0})
+	(f-call 'integer 'create {arg1} {arg1})
 	(f-call 'vector 'push_back {value, arg0})
 	(f-call 'vector 'push_back {value, arg1})
 
@@ -64,8 +64,8 @@
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
 	(f-call 'sys_task 'open_child {arg0, arg1} {arg0, arg1})
 	(f-call 'vector 'create {} {value})
-	(f-call 'boxed_long 'create {arg0} {arg0})
-	(f-call 'boxed_long 'create {arg1} {arg1})
+	(f-call 'integer 'create {arg0} {arg0})
+	(f-call 'integer 'create {arg1} {arg1})
 	(f-call 'vector 'push_back {value, arg0})
 	(f-call 'vector 'push_back {value, arg1})
 
@@ -77,7 +77,7 @@
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(open-child path mode)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'string 'boxed_long))
+	(signature 'sig 'string 'integer))
 
 	(pop-scope-syms)
 
@@ -104,8 +104,8 @@
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
 	(f-call 'sys_task 'open_remote {arg0, arg1, arg2} {arg0, arg1})
 	(f-call 'vector 'create {} {value})
-	(f-call 'boxed_long 'create {arg0} {arg0})
-	(f-call 'boxed_long 'create {arg1} {arg1})
+	(f-call 'integer 'create {arg0} {arg0})
+	(f-call 'integer 'create {arg1} {arg1})
 	(f-call 'vector 'push_back {value, arg0})
 	(f-call 'vector 'push_back {value, arg1})
 
@@ -117,7 +117,7 @@
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(open-remote path cpu mode)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'string 'boxed_long 'boxed_long))
+	(signature 'sig 'string 'integer 'integer))
 
 	(pop-scope-syms)
 
@@ -152,7 +152,7 @@
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(open-farm path num mode)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'string 'boxed_long 'boxed_long))
+	(signature 'sig 'string 'integer 'integer))
 
 	(pop-scope-syms)
 

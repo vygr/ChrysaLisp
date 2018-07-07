@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/sequence/sequence.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_slice)
@@ -26,8 +26,8 @@
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size], iter_begin[ptr_size * 2]} {value1, value2, slc})
 
-	(f-call 'boxed_long 'get_value {value1} {_, start})
-	(f-call 'boxed_long 'get_value {value2} {_, end})
+	(f-call 'integer 'get_value {value1} {_, start})
+	(f-call 'integer 'get_value {value2} {_, end})
 	(v-call 'sequence 'get_length {slc} {_, length})
 	(vpif {start < 0})
 		(assign {length + start + 1} {start})
@@ -49,7 +49,7 @@
 (vp-label 'error2)
 	(f-call 'lisp 'repl_error {this, "(slice start end seq)", error_msg_not_valid_index, args} {_, value1})
 	(goto 'exit)
-	(signature 'sig 'boxed_long 'boxed_long 'sequence))
+	(signature 'sig 'integer 'integer 'sequence))
 
 	(pop-scope-syms)
 

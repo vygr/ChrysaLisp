@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/string/string.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_age)
@@ -23,7 +23,7 @@
 
 	(f-call 'vector 'get_first {value} {_, value})
 	(f-call 'pii 'age {&value->string_data} {age})
-	(f-call 'boxed_long 'create {age} {value})
+	(f-call 'integer 'create {age} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_age {this, value})

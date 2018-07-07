@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'sys/math/math.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_fsin)
@@ -24,9 +24,9 @@
 	(errorifnot {value} 'error1))
 
 	(f-call 'vector 'get_first {args} {_, value})
-	(f-call 'boxed_long 'get_value {value} {_, num})
+	(f-call 'integer 'get_value {value} {_, num})
 	(f-call 'math 'fsin {num} {num})
-	(f-call 'boxed_long 'create {num} {value})
+	(f-call 'integer 'create {num} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_fsin {this, value})
@@ -36,7 +36,7 @@
 (vp-label 'error1)
 	(f-call 'lisp 'repl_error {this, "(fsin angle)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'boxed_long))
+	(signature 'sig 'integer))
 
 	(pop-scope-syms)
 

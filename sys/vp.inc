@@ -183,7 +183,7 @@
 						(if (reg (elem 2 o)) '&d '&i) nil))
 				(t 'c)))
 		((eql i 'class/class_string) 's)
-		((eql i 'class/class_boxed_long) 'c)
+		((eql i 'class/class_integer) 'c)
 		(t nil)))
 
 (defcfun label-sym (s)

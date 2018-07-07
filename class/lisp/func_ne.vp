@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 ;ne all different
@@ -22,17 +22,17 @@
 	(f-entry 'lisp 'func_ne {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'boxed_long) {, -2}) {_, value})
+	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'integer) {, -2}) {_, value})
 	(errorifnot {value} 'error1))
 
 	(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(assign {iter_begin} {iter_start})
 	(loop-start)
-		(f-call 'boxed_long 'get_value {*iter_begin} {_, accum})
+		(f-call 'integer 'get_value {*iter_begin} {_, accum})
 		(assign {iter_begin} {iter})
 		(loop-while {iter != iter_start})
 			(assign {iter - ptr_size} {iter})
-			(f-call 'boxed_long 'get_value {*iter} {_, num})
+			(f-call 'integer 'get_value {*iter} {_, num})
 			(gotoif {num == accum} 'fail)
 		(loop-end)
 		(assign {iter_begin + ptr_size} {iter_begin})

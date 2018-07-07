@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/string/string.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_cmp)
@@ -29,9 +29,9 @@
 	(assign {iter_begin[0], iter_begin[ptr_size]} {arg1, arg2})
 	(vpif {arg1 != arg2})
 		(f-call 'string 'compare {arg1, arg2} {_, result})
-		(f-call 'boxed_long 'create {result} {value})
+		(f-call 'integer 'create {result} {value})
 	(else)
-		(f-call 'boxed_long 'create {0} {value})
+		(f-call 'integer 'create {0} {value})
 	(endif)
 
 (vp-label 'exit)

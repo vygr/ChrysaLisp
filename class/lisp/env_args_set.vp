@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/env_args_set)
@@ -22,8 +22,8 @@
 	(f-call 'vector 'get_end {args} {_, iter_end})
 	(loop-while {iter_begin != iter_end})
 		(assign {*iter_begin} {value})
-		(vpif (cat {value->obj_vtable == @} (f-path 'class 'boxed_long)))
-			(f-call 'boxed_long 'get_value {value} {_, value})
+		(vpif (cat {value->obj_vtable == @} (f-path 'class 'integer)))
+			(f-call 'integer 'get_value {value} {_, value})
 		(endif)
 		(assign {value} {*dest})
 		(assign {iter_begin + ptr_size, dest + ptr_size} {iter_begin, dest})

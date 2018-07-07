@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_mul)
@@ -24,17 +24,17 @@
 	(f-entry 'lisp 'func_mul {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'boxed_long) {, -2}) {_, value})
+	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'integer) {, -2}) {_, value})
 	(errorifnot {value} 'error1))
 
 	(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(assign {1} {accum})
 	(loop-start)
-		(f-call 'boxed_long 'get_value {*iter_begin} {_, num})
+		(f-call 'integer 'get_value {*iter_begin} {_, num})
 		(assign {accum * num} {accum})
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-until {iter_begin == iter_end})
-	(f-call 'boxed_long 'create {accum} {value})
+	(f-call 'integer 'create {accum} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_mul {this, value})

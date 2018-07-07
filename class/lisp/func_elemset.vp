@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_elemset)
@@ -23,7 +23,7 @@
 
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {value, seq})
-	(f-call 'boxed_long 'get_value {value} {_, index})
+	(f-call 'integer 'get_value {value} {_, index})
 	(d-call 'vector 'get_length {seq} {_, length})
 	(vpif {index < 0})
 		(assign {length + index + 1} {index})
@@ -43,7 +43,7 @@
 (vp-label 'error2)
 	(f-call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_not_valid_index, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'boxed_long 'vector 'obj))
+	(signature 'sig 'integer 'vector 'obj))
 
 	(pop-scope-syms)
 

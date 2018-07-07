@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/symbol/symbol.inc)
-(import 'class/boxed_ptr/boxed_ptr.inc)
+(import 'class/function/function.inc)
 (import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
 
@@ -33,8 +33,8 @@
 		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit)
 		(assign {value} {func})
 		(switch)
-		(case (cat {func->obj_vtable == @} (f-path 'class 'boxed_ptr)))
-			(gotoifnot {func->boxed_ptr_value & 7} 'args_eval)
+		(case (cat {func->obj_vtable == @} (f-path 'class 'function)))
+			(gotoifnot {func->function_value & 7} 'args_eval)
 			(f-call 'lisp 'repl_apply {this, form, func} {_, value})
 			(break)
 		(default)

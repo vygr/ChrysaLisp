@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/array/array.inc)
-(import 'class/boxed_long/boxed_long.inc)
+(import 'class/integer/integer.inc)
 
 (gen-new 'array)
 (gen-create 'array)
@@ -256,7 +256,7 @@
 	;r0 = array object (ptr)
 	;outputs
 	;r0 = array object (ptr)
-	;r1 = boxed_long object (ptr)
+	;r1 = integer object (ptr)
 	;trashes
 	;all but r0
 
@@ -265,7 +265,7 @@
 	(vp-sub-cr 1 r1)
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-push r0)
-	(f-call 'boxed_long 'create '((r2 r1)) '(r1))
+	(f-call 'integer 'create '((r2 r1)) '(r1))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -277,14 +277,14 @@
 	;r1 = element index (uint)
 	;outputs
 	;r0 = array object (ptr)
-	;r1 = boxed_long object (ptr)
+	;r1 = integer object (ptr)
 	;trashes
 	;all but r0
 
 	(vp-cpy-ir r0 array_array r2)
 	(vp-shl-cr (log2 long_size) r1)
 	(vp-push r0)
-	(f-call 'boxed_long 'create '((r2 r1)) '(r1))
+	(f-call 'integer 'create '((r2 r1)) '(r1))
 	(vp-pop r0)
 	(vp-ret)
 

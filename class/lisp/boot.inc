@@ -129,12 +129,6 @@
 (defun sym? (_)
 	;(sym? form)
 	(inst-of 'class/class_symbol _))
-(defun num? (_)
-	;(num? form)
-	(inst-of 'class/class_boxed_long _))
-(defun ary? (_)
-	;(ary? form)
-	(inst-of 'class/class_array _))
 
 (defmacro inc (_)
 	;(inc num)
