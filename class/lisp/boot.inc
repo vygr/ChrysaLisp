@@ -106,10 +106,10 @@
 (ffi print "class/lisp/func_print" 0)
 
 (defq t 't nil 'nil
-	lisp_type_list 0
-	lisp_type_integer 1
-	lisp_type_string 2
-	lisp_type_symbol 3)
+	lisp_type_list (bit-shl 1 0)
+	lisp_type_integer (bit-shl 1 1)
+	lisp_type_string (bit-shl 1 2)
+	lisp_type_symbol (bit-shl 1 3))
 
 (defmacro defun (n a &rest _)
 	;(defun name ([arg ...]) body)
