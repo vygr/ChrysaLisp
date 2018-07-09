@@ -112,7 +112,6 @@ fsqrt
 ge
 gensym
 gt
-inst-of
 lambda
 le
 length
@@ -157,6 +156,7 @@ sub
 sym
 throw
 time
+type?
 unquote
 unquote-splicing
 while
@@ -240,7 +240,6 @@ neg
 notany
 notevery
 num?
-obj?
 partition
 platform
 prin-base
