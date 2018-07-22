@@ -18,9 +18,8 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'vtable 'stream 'msg 'data 'my_mbox_addr)
+	(ptr 'this 'vtable 'stream 'msg 'data)
 	(ulong 'ok)
-	(uint 'my_mbox_id)
 
 	;read init args
 	(push-scope)
@@ -30,9 +29,7 @@
 	(s-call 'slave 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init myself
-		(f-call 'sys_task 'mailbox {} {my_mbox_id})
-		(f-call 'sys_mail 'mbox_addr {my_mbox_id} {my_mbox_addr})
-		(f-call 'sys_mail 'read {my_mbox_addr} {msg, data})
+		(f-call 'sys_mail 'mymail {} {msg, data})
 		(vpif {msg->msg_length})
 			;create stdin, stdout, stderr
 			(f-call 'msg_in 'create {} {this->slave_stdin})
