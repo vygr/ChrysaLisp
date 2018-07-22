@@ -14,7 +14,7 @@
 	(uint 'lo_id 'hi_id 'id)
 
 	(push-scope)
-	(f-entry 'sys_link 'link {})
+	(f-entry 'sys_link 'link '())
 
 	;decrement task count
 	;don't count links in load balancing
@@ -27,12 +27,12 @@
 	(f-call 'array 'push_back {mail_statics->ml_statics_links_array, &lk_node})
 
 	;read params msg from kernel
-	(f-call 'sys_mail 'mymail {} {params, pdata})
+	(f-call 'sys_mail 'mymail '() {params, pdata})
 
 	;init link node cpu id and task count
 	(assign {((pdata[5] - 0x30) * 100) + ((pdata[6] - 0x30) * 10) + (pdata[7] - 0x30)} {lo_id})
 	(assign {((pdata[9] - 0x30) * 100) + ((pdata[10] - 0x30) * 10) + (pdata[11] - 0x30)} {hi_id})
-	(f-call 'kernel 'id {} {id})
+	(f-call 'kernel 'id '() {id})
 	(vpif {id == lo_id})
 		(assign {hi_id} {lk_node.lk_node_cpu_id})
 		(assign {lk_buffer_chan_1} {tx})
@@ -179,7 +179,7 @@
 	;restore task count
 	(assign {task_statics->tk_statics_task_count + 1} {task_statics->tk_statics_task_count})
 
-	(f-exit 'sys_link 'link {})
+	(f-exit 'sys_link 'link '())
 	(pop-scope)
 	(return)
 

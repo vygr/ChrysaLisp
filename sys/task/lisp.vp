@@ -23,8 +23,8 @@
 	(v-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'sys_task 'mailbox {} {arg0})
-	(f-call 'vector 'create {} {value})
+	(f-call 'sys_task 'mailbox '() {arg0})
+	(f-call 'vector 'create '() {value})
 	(f-call 'integer 'create {arg0} {arg0})
 	(f-call 'vector 'push_back {value, arg0})
 
@@ -61,7 +61,7 @@
 
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
 	(f-call 'sys_task 'open_child {arg0, arg1} {arg0})
-	(f-call 'vector 'create {} {value})
+	(f-call 'vector 'create '() {value})
 	(f-call 'integer 'create {arg0} {arg0})
 	(f-call 'vector 'push_back {value, arg0})
 
@@ -99,7 +99,7 @@
 
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
 	(f-call 'sys_task 'open_remote {arg0, arg1, arg2} {arg0})
-	(f-call 'vector 'create {} {value})
+	(f-call 'vector 'create '() {value})
 	(f-call 'integer 'create {arg0} {arg0})
 	(f-call 'vector 'push_back {value, arg0})
 

@@ -234,7 +234,7 @@
 		(errorifnot {slot} 'error1))
 		(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
 		(v-call 'view 'pref_size {arg0} {_, arg1, arg2})
-		(f-call 'vector 'create {} {value})
+		(f-call 'vector 'create '() {value})
 		(f-call 'integer 'create {arg1} {arg1})
 		(f-call 'integer 'create {arg2} {arg2})
 		(f-call 'vector 'push_back {value, arg1})

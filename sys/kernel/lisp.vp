@@ -21,7 +21,7 @@
 	(v-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'kernel 'total {} {length})
+	(f-call 'kernel 'total '() {length})
 	(f-call 'integer 'create {length} {value})
 
 (vp-label 'exit)

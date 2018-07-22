@@ -24,7 +24,7 @@
 		(f-call 'lisp 'read_char {this, stream, char} {_, char})
 	(loop-until {char > char_space || char == -1})
 
-	(f-call 'vector 'create {} {list})
+	(f-call 'vector 'create '() {list})
 	(loop-whilenot {char == -1 || char == char_rrb})
 		(f-call 'lisp 'read {this, stream, char} {_, ast, char})
 		(errorif (cat {ast->obj_vtable == @} (f-path 'class 'error)) 'error)

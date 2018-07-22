@@ -32,7 +32,7 @@
 		(assign {0} {this->msg_out_seqnum})
 		(assign {0} {this->msg_out_ack_seqnum})
 		(assign {stream_mail_state_started} {this->msg_out_state})
-		(f-call 'sys_mail 'alloc_mbox {} {this->msg_out_ack_mbox_id})
+		(f-call 'sys_mail 'alloc_mbox '() {this->msg_out_ack_mbox_id})
 		(f-call 'sys_mail 'mbox_addr {this->msg_out_ack_mbox_id} {this->msg_out_ack_mbox_addr})
 	(endif)
 
@@ -93,7 +93,7 @@
 		(assign {this->msg_out_seqnum} {data->stream_msg_seqnum})
 		(assign {this->msg_out_state} {data->stream_msg_state})
 		(assign {this->msg_out_ack_mbox_id} {data->stream_msg_ack_id.id_mbox})
-		(f-call 'kernel 'id {} {data->stream_msg_ack_id.id_cpu})
+		(f-call 'kernel 'id '() {data->stream_msg_ack_id.id_cpu})
 		(f-call 'sys_mail 'send {msg})
 		(assign {0} {this->stream_buffer})
 

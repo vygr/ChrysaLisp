@@ -29,7 +29,7 @@
 
 	;init app vars
 	(push-scope)
-	(f-call 'vector 'create {} {myapp.local_history})
+	(f-call 'vector 'create '() {myapp.local_history})
 	(assign {0} {myapp.local_pipe})
 
 	;create my window
@@ -39,7 +39,7 @@
 	(f-call 'window 'set_long_prop {myapp.local_window, prop_color, 0xc0000000})
 
 	;add my vdu
-	(f-call 'vdu 'create {} {myapp.local_vdu})
+	(f-call 'vdu 'create '() {myapp.local_vdu})
 	(f-call 'vdu 'set_long_prop {myapp.local_vdu, prop_text_color, 0xff00ff00})
 	(f-call 'vdu 'set_long_prop {myapp.local_vdu, prop_vdu_width, 60})
 	(f-call 'vdu 'set_long_prop {myapp.local_vdu, prop_vdu_height, 40})
@@ -63,7 +63,7 @@
 	(assign {&myapp.local_buffer} {myapp.local_bufp})
 
 	;app event loop
-	(f-call 'sys_task 'mailbox {} {my_mbox_id})
+	(f-call 'sys_task 'mailbox '() {my_mbox_id})
 	(f-call 'sys_mail 'mbox_addr {my_mbox_id} {my_mbox_addr})
 	(loop-start 'exit)
 		(vpif {myapp.local_pipe})

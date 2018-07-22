@@ -23,7 +23,7 @@
 	(v-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'sys_mail 'mymail {} {value, _})
+	(f-call 'sys_mail 'mymail '() {value, _})
 	(f-call 'sys_mail 'free_obj {value} {value, _, _})
 
 (vp-label 'exit)

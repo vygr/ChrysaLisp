@@ -47,7 +47,7 @@
 		(d-call 'vector 'get_length {args} {_, length})
 		(vpif {length})
 			;create command prefix/suffix
-			(f-call 'vector 'create {} {command})
+			(f-call 'vector 'create '() {command})
 			(f-call 'string 'create_from_cstr {"cmd/"} {cmd})
 			(f-call 'vector 'push_back {command, cmd})
 			(f-call 'string 'create_from_cstr {".lisp"} {cmd})
@@ -56,7 +56,7 @@
 			(f-call 'vector 'push_back {command, cmd})
 
 			;create command pipeline
-			(f-call 'vector 'create {} {commands})
+			(f-call 'vector 'create '() {commands})
 			(f-call 'vector 'set_capacity {commands, length})
 			(assign {0} {index})
 			(loop-while {index != length})
@@ -91,22 +91,22 @@
 			;all started ?
 			(vpif {started == length})
 				;create streams, mailboxes and select array
-				(f-call 'vector 'create {} {this->pipe_streams})
+				(f-call 'vector 'create '() {this->pipe_streams})
 				(f-call 'vector 'set_capacity {this->pipe_streams, length + 2})
 				(f-call 'sys_mem 'alloc {(length + 2) * ptr_size} {this->pipe_select_array, _})
 				(assign {0} {index})
 				(loop-while {index != (length + 2)})
-					(f-call 'msg_in 'create {} {stream})
+					(f-call 'msg_in 'create '() {stream})
 					(assign {stream->msg_in_mbox_addr} {(this->pipe_select_array)[index * ptr_size]})
 					(f-call 'vector 'push_back {this->pipe_streams, stream})
 					(assign {index + 1} {index})
 				(loop-end)
 
 				;send args to pipe elements, wiring up id's as we go
-				(f-call 'sys_mail 'alloc_mbox {} {ack_mbox_id})
+				(f-call 'sys_mail 'alloc_mbox '() {ack_mbox_id})
 				(f-call 'sys_mail 'mbox_addr {ack_mbox_id} {ack_mbox_addr})
 				(assign {stream->msg_in_mbox_id} {mbox_id})
-				(f-call 'kernel 'id {} {cpu})
+				(f-call 'kernel 'id '() {cpu})
 				(assign {index - 2} {index})
 				(loop-while {index})
 					(assign {index - 1} {index})
@@ -117,9 +117,9 @@
 					(assign {cpu} {data->slave_msg_init_stdout_id.id_cpu})
 					(f-call 'vector 'get_element {this->pipe_streams, (index + 1)} {_, stream})
 					(assign {stream->msg_in_mbox_id} {data->slave_msg_init_stderr_id.id_mbox})
-					(f-call 'kernel 'id {} {data->slave_msg_init_stderr_id.id_cpu})
+					(f-call 'kernel 'id '() {data->slave_msg_init_stderr_id.id_cpu})
 					(assign {ack_mbox_id} {data->slave_msg_init_ack_id.id_mbox})
-					(f-call 'kernel 'id {} {data->slave_msg_init_ack_id.id_cpu})
+					(f-call 'kernel 'id '() {data->slave_msg_init_ack_id.id_cpu})
 					(f-call 'array 'get_element {ids, index} {_, mbox.id_id})
 					(assign {mbox.id_mbox} {mbox_id})
 					(assign {mbox.id_cpu} {cpu})

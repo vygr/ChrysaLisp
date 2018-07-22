@@ -29,7 +29,7 @@
 	(vpif {ok})
 		;init myself
 		(assign {0} {this->button_state})
-		(f-call 'array 'create {} {this->button_clicked_targets})
+		(f-call 'array 'create '() {this->button_clicked_targets})
 		(f-call 'button 'set_long_prop {this, prop_border, 2})
 		(f-call 'button 'set_long_prop {this, prop_flow_flags, flow_flag_down | flow_flag_align_hcenter})
 	(endif)

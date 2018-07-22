@@ -43,7 +43,7 @@
 	(d-call 'vector 'get_length {list} {_, length})
 	(errorif {start < 0 || start >= end || end > length} 'error2))
 
-	(f-call 'vector 'create {} {params})
+	(f-call 'vector 'create '() {params})
 	(f-call 'vector 'get_iter {list, start} {_, liter})
 	(f-call 'vector 'get_iter {list, end} {_, hiter})
 	(f-call 'vector 'partition {list, liter, hiter, $callback, &this} {_, liter})

@@ -26,7 +26,7 @@
 	(f-call 'lisp 'read {this, value, next_char} {_, form, next_char})
 
 	(f-call 'integer 'create {next_char} {args})
-	(f-call 'vector 'create {} {value})
+	(f-call 'vector 'create '() {value})
 	(f-call 'vector 'push_back {value, form})
 	(f-call 'vector 'push_back {value, args})
 

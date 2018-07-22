@@ -18,7 +18,7 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1)
-	(f-call 'pii 'time {} {length})
+	(f-call 'pii 'time '() {length})
 	(f-call 'integer 'create {length} {args})
 
 (vp-label 'exit)

@@ -29,10 +29,10 @@
 	(s-call 'slave 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init myself
-		(f-call 'sys_mail 'mymail {} {msg, data})
+		(f-call 'sys_mail 'mymail '() {msg, data})
 		(vpif {msg->msg_length})
 			;create stdin, stdout, stderr
-			(f-call 'msg_in 'create {} {this->slave_stdin})
+			(f-call 'msg_in 'create '() {this->slave_stdin})
 			(f-call 'msg_out 'create {data->slave_msg_init_stdout_id.id_id} {this->slave_stdout})
 			(f-call 'msg_out 'create {data->slave_msg_init_stderr_id.id_id} {this->slave_stderr})
 

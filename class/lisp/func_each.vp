@@ -74,7 +74,7 @@
 
 		(assign {params[ptr_size * 2]} {accum})
 		(assign {params[ptr_size * 3]} {func})
-		(f-call 'vector 'create {} {params})
+		(f-call 'vector 'create '() {params})
 		(loop-while {start != end})
 			(assign {iter_begin} {iter})
 			(loop-start)

@@ -21,7 +21,7 @@
 	(v-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'slave 'create {} {value})
+	(f-call 'slave 'create '() {value})
 	(vpifnot {value})
 		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 	(else)

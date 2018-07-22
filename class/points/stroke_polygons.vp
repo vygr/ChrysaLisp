@@ -30,11 +30,11 @@
 		(loop-while {iter_begin_polygons != iter_end_polygons})
 			(f-call 'points 'filter_polygon {*iter_begin_polygons, *iter_begin_polygons, 0.5})
 			(f-call 'vector 'get_iters {*iter_begin_polygons} {_, iter_begin_polyline, iter_end_polyline})
-			(f-call 'points 'create {} {polygon})
+			(f-call 'points 'create '() {polygon})
 			(f-call 'points 'stroke_joints {polygon, stack, iter_begin_polyline, iter_end_polyline,
 				iter_end_polyline[-long_size * 2], iter_end_polyline[-long_size], join_style, radius, eps})
 			(f-call 'vector 'push_back {this, polygon})
-			(f-call 'points 'create {} {polygon})
+			(f-call 'points 'create '() {polygon})
 			(f-call 'points 'stroke_joints {polygon, stack, iter_end_polyline - long_size, iter_begin_polyline - long_size,
 				iter_begin_polyline[long_size], *iter_begin_polyline, join_style, radius, eps})
 			(f-call 'vector 'push_back {this, polygon})

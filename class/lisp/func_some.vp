@@ -76,7 +76,7 @@
 
 		(assign {params[ptr_size * 2]} {mode})
 		(assign {params[ptr_size * 3]} {func})
-		(f-call 'vector 'create {} {params})
+		(f-call 'vector 'create '() {params})
 		(loop-while {start != end})
 			(f-call 'obj 'deref {value})
 
