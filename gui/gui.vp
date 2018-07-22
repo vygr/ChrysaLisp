@@ -33,8 +33,8 @@
 		(ptr 'statics)
 		(ptr 'key_view)
 		(ptr 'mouse_view)
-		(ptr 'mouse_mbox)
-		(ptr 'key_mbox)
+		(ulong 'mouse_mbox_id)
+		(ulong 'key_mbox_id)
 		(int 'mouse_x)
 		(int 'mouse_y)
 		(uint 'mouse_buttons)
@@ -144,7 +144,7 @@
 		(vp-label 'send_event1)
 			(f-call 'sys_mail 'alloc {ev_msg_mouse_size} {msg, data})
 			(assign {ev_type_mouse} {data->ev_msg_type})
-			(assign {user->local_mouse_mbox} {msg->msg_dest.id_mbox})
+			(assign {user->local_mouse_mbox_id} {msg->msg_dest.id_mbox})
 			(f-call 'kernel 'id {} {msg->msg_dest.id_cpu})
 			(assign {view->component_id} {data->ev_msg_target_id})
 			(assign {user->local_mouse_buttons} {data->ev_msg_mouse_buttons})
@@ -171,7 +171,7 @@
 			;lookup view owner mailbox
 			(f-call 'view 'find_owner {user->local_mouse_view} {_, owner})
 			(breakifnot {owner})
-			(assign {owner->tk_node_mbox_addr} {user->local_mouse_mbox})
+			(assign {owner->tk_node_mbox_id} {user->local_mouse_mbox_id})
 			(goto 'send_event)
 		(case {event.sdl_common_event_type == SDL_MOUSEBUTTONUP})
 			;update mouse state
@@ -193,7 +193,7 @@
 			(breakifnot {owner})
 
 			;save owner mailbox
-			(assign {owner->tk_node_mbox_addr} {user->local_key_mbox})
+			(assign {owner->tk_node_mbox_id} {user->local_key_mbox_id})
 
 			;cook key based on mods (very crude for now)
 			(l-call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,
@@ -202,7 +202,7 @@
 			;send event message
 			(f-call 'sys_mail 'alloc {ev_msg_key_size} {msg, data})
 			(assign {ev_type_key} {data->ev_msg_type})
-			(assign {user->local_key_mbox} {msg->msg_dest.id_mbox})
+			(assign {user->local_key_mbox_id} {msg->msg_dest.id_mbox})
 			(f-call 'kernel 'id {} {msg->msg_dest.id_cpu})
 			(assign {user->local_key_view->component_id} {data->ev_msg_target_id})
 			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {data->ev_msg_key_keycode})

@@ -12,7 +12,7 @@
 	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1)
+	(ulong 'arg0)
 (errorcases
 	(uint 'length))
 
@@ -23,12 +23,10 @@
 	(v-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'sys_task 'mailbox {} {arg0, arg1})
+	(f-call 'sys_task 'mailbox {} {arg0})
 	(f-call 'vector 'create {} {value})
 	(f-call 'integer 'create {arg0} {arg0})
-	(f-call 'integer 'create {arg1} {arg1})
 	(f-call 'vector 'push_back {value, arg0})
-	(f-call 'vector 'push_back {value, arg1})
 
 (vp-label 'exit)
 	(f-exit 'sys_task 'lisp_mailbox {this, value})
@@ -62,12 +60,10 @@
 	(errorifnot {value} 'error1))
 
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'sys_task 'open_child {arg0, arg1} {arg0, arg1})
+	(f-call 'sys_task 'open_child {arg0, arg1} {arg0})
 	(f-call 'vector 'create {} {value})
 	(f-call 'integer 'create {arg0} {arg0})
-	(f-call 'integer 'create {arg1} {arg1})
 	(f-call 'vector 'push_back {value, arg0})
-	(f-call 'vector 'push_back {value, arg1})
 
 (vp-label 'exit)
 	(f-exit 'sys_task 'lisp_open_child {this, value})
@@ -102,12 +98,10 @@
 	(errorifnot {value} 'error1))
 
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'sys_task 'open_remote {arg0, arg1, arg2} {arg0, arg1})
+	(f-call 'sys_task 'open_remote {arg0, arg1, arg2} {arg0})
 	(f-call 'vector 'create {} {value})
 	(f-call 'integer 'create {arg0} {arg0})
-	(f-call 'integer 'create {arg1} {arg1})
 	(f-call 'vector 'push_back {value, arg0})
-	(f-call 'vector 'push_back {value, arg1})
 
 (vp-label 'exit)
 	(f-exit 'sys_task 'lisp_open_remote {this, value})

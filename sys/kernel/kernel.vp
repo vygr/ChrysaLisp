@@ -19,12 +19,12 @@
 
 	(union
 		'(ptr 'argv 'sdl)
-		'(ptr 'link 'mbox))
+		'(ptr 'link 'mbox_addr))
 	(ptr 'task_statics 'mail_statics 'func 'old_stack)
 	(ptr 'msg 'data 'new_msg 'new_data 'pathname)
 	(pptr 'iter_begin 'iter_end)
 	(struct 'routes 'lk_table)
-	(uint 'id 'num 'best_cnt 'best_id 'route_index 'hops 'new_hops 'via 'length)
+	(uint 'id 'num 'best_cnt 'best_id 'route_index 'hops 'new_hops 'via 'length 'mbox_id)
 
 	;align stack
 	(vp-cpy-rr rsp r2)
@@ -47,10 +47,11 @@
 	;start kernel task
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(f-call 'sys_task 'start {$func_entry} {task_statics->tk_statics_kernel_tcb, mbox, _})
+	(f-call 'sys_task 'start {$func_entry} {task_statics->tk_statics_kernel_tcb, mbox_id})
+	(f-call 'sys_mail 'mbox_addr {mbox_id} {mbox_addr})
 
 	;init mailer
-	(f-call 'sys_mail 'init1 {mbox})
+	(f-call 'sys_mail 'init1)
 
 	;process command options
 	(f-call 'kernel 'opts {argv})
@@ -74,7 +75,7 @@
 		;service all kernel mail
 		(loop-start)
 			;check if any mail
-			(f-call 'sys_mail 'try_read {mbox} {msg, data})
+			(f-call 'sys_mail 'try_read {mbox_addr} {msg, data})
 			(breakifnot {msg})
 
 			;(switch) on kernel call number
@@ -83,10 +84,8 @@
 			(case {num == kn_call_open})
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
-				(assign {data->kn_msg_reply_id.id_mbox} {msg->msg_dest.id_mbox})
-				(assign {data->kn_msg_reply_id.id_cpu} {msg->msg_dest.id_cpu})
-				(assign {0} {data->kn_msg_reply_id.id_mbox})
-				(assign {0} {data->kn_msg_reply_id.id_cpu})
+				(assign {data->kn_msg_reply_id.id_id} {msg->msg_dest.id_id})
+				(assign {0} {data->kn_msg_reply_id.id_id})
 
 				;is this a lisp file
 				(f-call 'sys_string 'length {&data->kn_msg_open_pathname} {_, length})
@@ -98,11 +97,10 @@
 					(f-call 'pii 'age {&data->kn_msg_open_pathname} {func})
 					(breakifnot {func})
 					;start lisp run task and send args
-					(f-call 'sys_task 'start {@class/lisp/run} {_, data->kn_msg_reply_id.id_mbox, data->kn_msg_reply_id.id_cpu})
+					(f-call 'sys_task 'start {@class/lisp/run} {_, data->kn_msg_reply_id.id_id})
 					(f-call 'string 'create_from_cstr {&data->kn_msg_open_pathname} {pathname})
 					(f-call 'sys_mail 'alloc_obj {pathname, &pathname->string_data, pathname->string_length} {new_msg})
-					(assign {data->kn_msg_reply_id.id_mbox} {new_msg->msg_dest.id_mbox})
-					(assign {data->kn_msg_reply_id.id_cpu} {new_msg->msg_dest.id_cpu})
+					(assign {data->kn_msg_reply_id.id_id} {new_msg->msg_dest.id_id})
 					(f-call 'sys_mail 'send {new_msg})
 					(f-call 'string 'deref {pathname})
 				(else)
@@ -110,7 +108,7 @@
 					(f-call 'sys_load 'bind {&data->kn_msg_open_pathname} {func})
 					(breakifnot {func})
 					;start this function as task
-					(f-call 'sys_task 'start {func} {_, data->kn_msg_reply_id.id_mbox, data->kn_msg_reply_id.id_cpu})
+					(f-call 'sys_task 'start {func} {_, data->kn_msg_reply_id.id_id})
 				(endif)
 				(f-call 'sys_mail 'send {msg})
 				(break)
@@ -224,8 +222,7 @@
 				(vp-call-r r1)
 
 				;reply to originator
-				(assign {data->kn_msg_reply_id.id_mbox} {msg->msg_dest.id_mbox})
-				(assign {data->kn_msg_reply_id.id_cpu} {msg->msg_dest.id_cpu})
+				(assign {data->kn_msg_reply_id.id_id} {msg->msg_dest.id_id})
 				(f-call 'sys_mail 'send {msg})
 			(endswitch)
 		(loop-end)
@@ -385,12 +382,11 @@
 	(l-entry {arg})
 
 	;start link
-	(f-call 'sys_task 'start (cat {@} (f-path 'sys_link 'link)) {_, mbox.id_mbox, mbox.id_cpu})
+	(f-call 'sys_task 'start (cat {@} (f-path 'sys_link 'link)) {_, mbox.id_id})
 
 	;params message
 	(f-call 'sys_mail 'alloc {5 + 7 + 1} {msg, data})
-	(assign {mbox.id_mbox} {msg->msg_dest.id_mbox})
-	(assign {mbox.id_cpu} {msg->msg_dest.id_cpu})
+	(assign {mbox.id_id} {msg->msg_dest.id_id})
 	(f-call 'sys_string 'copy {$link_path, data} {_, data})
 	(f-call 'sys_string 'copy {arg, data - 1} {_, data})
 

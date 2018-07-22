@@ -18,10 +18,10 @@
 (def-struct-end)
 
 (def-struct 'slave_msg_init)
-	(ptr 'stdin_mbox)
 	(struct 'stdout_id 'id)
 	(struct 'stderr_id 'id)
 	(struct 'ack_id 'id)
+	(uint 'stdin_mbox_id)
 	(offset 'args)
 (def-struct-end)
 

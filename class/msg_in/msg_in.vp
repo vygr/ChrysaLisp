@@ -133,8 +133,7 @@
 	;send ack if needed
 	(vpif {data->stream_msg_seqnum >> msg_out_ack_shift == this->msg_in_ack_seqnum})
 		(f-call 'sys_mail 'alloc {0} {ack_msg, _})
-		(assign {data->stream_msg_ack_id.id_mbox} {ack_msg->msg_dest.id_mbox})
-		(assign {data->stream_msg_ack_id.id_cpu} {ack_msg->msg_dest.id_cpu})
+		(assign {data->stream_msg_ack_id.id_id} {ack_msg->msg_dest.id_id})
 		(f-call 'sys_mail 'send {ack_msg})
 		(assign {this->msg_in_ack_seqnum + 1} {this->msg_in_ack_seqnum})
 	(endif)

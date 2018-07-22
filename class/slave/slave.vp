@@ -18,8 +18,9 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'vtable 'stream 'msg 'data 'mymailbox)
+	(ptr 'this 'vtable 'stream 'msg 'data 'my_mbox_addr)
 	(ulong 'ok)
+	(uint 'my_mbox_id)
 
 	;read init args
 	(push-scope)
@@ -29,13 +30,14 @@
 	(s-call 'slave 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init myself
-		(f-call 'sys_task 'mailbox {} {mymailbox, _})
-		(f-call 'sys_mail 'read {mymailbox} {msg, data})
+		(f-call 'sys_task 'mailbox {} {my_mbox_id})
+		(f-call 'sys_mail 'mbox_addr {my_mbox_id} {my_mbox_addr})
+		(f-call 'sys_mail 'read {my_mbox_addr} {msg, data})
 		(vpif {msg->msg_length})
 			;create stdin, stdout, stderr
 			(f-call 'msg_in 'create {} {this->slave_stdin})
-			(f-call 'msg_out 'create {data->slave_msg_init_stdout_id.id_mbox, data->slave_msg_init_stdout_id.id_cpu} {this->slave_stdout})
-			(f-call 'msg_out 'create {data->slave_msg_init_stderr_id.id_mbox, data->slave_msg_init_stderr_id.id_cpu} {this->slave_stderr})
+			(f-call 'msg_out 'create {data->slave_msg_init_stdout_id.id_id} {this->slave_stdout})
+			(f-call 'msg_out 'create {data->slave_msg_init_stderr_id.id_id} {this->slave_stderr})
 
 			;create args
 			(f-call 'stream 'create {0, 0, &data->slave_msg_init_args, msg->msg_length - slave_msg_init_size} {stream})
@@ -43,9 +45,8 @@
 			(f-call 'stream 'deref {stream})
 
 			;send back ack with stdin mailbox
-			(assign {data->slave_msg_init_ack_id.id_mbox} {msg->msg_dest.id_mbox})
-			(assign {data->slave_msg_init_ack_id.id_cpu} {msg->msg_dest.id_cpu})
-			(assign {this->slave_stdin->msg_in_mbox_addr} {data->slave_msg_init_stdin_mbox})
+			(assign {data->slave_msg_init_ack_id.id_id} {msg->msg_dest.id_id})
+			(assign {this->slave_stdin->msg_in_mbox_id} {data->slave_msg_init_stdin_mbox_id})
 			(f-call 'sys_mail 'send {msg})
 		(else)
 			;abort

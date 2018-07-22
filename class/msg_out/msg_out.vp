@@ -11,7 +11,7 @@
 	;inputs
 	;r0 = msg_out object (ptr)
 	;r1 = vtable (pptr)
-	;r2, r3 = target mailbox id (id)
+	;r2 = target mailbox id (id)
 	;outputs
 	;r0 = msg_out object (ptr)
 	;r1 = 0 if error, else ok
@@ -23,7 +23,7 @@
 
 	;save inputs
 	(push-scope)
-	(f-entry 'msg_out 'init {this, vtable, this->msg_out_id.id_mbox, this->msg_out_id.id_cpu})
+	(f-entry 'msg_out 'init {this, vtable, this->msg_out_id.id_id})
 
 	;init parent
 	(s-call 'msg_out 'init {this, vtable, 0, 0, 0, 0} {_, ok})
@@ -89,11 +89,10 @@
 		;send current buffer
 		(assign {msg->msg_parcel_data} {data})
 		(assign {this->stream_bufp - data} {msg->msg_length})
-		(assign {this->msg_out_id.id_mbox} {msg->msg_dest.id_mbox})
-		(assign {this->msg_out_id.id_cpu} {msg->msg_dest.id_cpu})
+		(assign {this->msg_out_id.id_id} {msg->msg_dest.id_id})
 		(assign {this->msg_out_seqnum} {data->stream_msg_seqnum})
 		(assign {this->msg_out_state} {data->stream_msg_state})
-		(assign {this->msg_out_ack_mbox_addr} {data->stream_msg_ack_id.id_mbox})
+		(assign {this->msg_out_ack_mbox_id} {data->stream_msg_ack_id.id_mbox})
 		(f-call 'kernel 'id {} {data->stream_msg_ack_id.id_cpu})
 		(f-call 'sys_mail 'send {msg})
 		(assign {0} {this->stream_buffer})

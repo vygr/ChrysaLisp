@@ -7,16 +7,17 @@
 	;trashes
 	;all
 
-	(ptr 'rx_msg 'msg)
+	(ptr 'rx_msg 'msg 'mbox_addr)
 	(uint 'len)
 
 	(push-scope)
 	(f-entry 'sys_mail 'in {rx_msg})
 
 	;look up parcel in mailbox
+	(f-call 'sys_mail 'mbox_addr {rx_msg->lk_msg_stamp.msg_dest.id_mbox} {mbox_addr})
 	(vp-def next node src id psrc pid)
-	(assign {rx_msg->lk_msg_stamp.msg_dest.id_mbox, rx_msg->lk_msg_stamp.msg_parcel_src,
-		rx_msg->lk_msg_stamp.msg_parcel_id} (list next src id))
+	(assign {mbox_addr, rx_msg->lk_msg_stamp.msg_parcel_src, rx_msg->lk_msg_stamp.msg_parcel_id}
+		(list next src id))
 	(loop-list-forward next mbox_parcel_list node next)
 		(vp-cpy-ir node msg_parcel_src psrc)
 		(continueif `(,src != ,psrc))
@@ -27,11 +28,10 @@
 		;new parcel
 		(f-call 'sys_mail 'alloc {rx_msg->lk_msg_stamp.msg_parcel_length} {msg, _})
 		(assign {rx_msg->lk_msg_stamp.msg_parcel_length} {msg->msg_parcel_length})
-		(assign {rx_msg->lk_msg_stamp.msg_dest.id_mbox} {msg->msg_dest.id_mbox})
-		(assign {rx_msg->lk_msg_stamp.msg_dest.id_cpu} {msg->msg_dest.id_cpu})
+		(assign {rx_msg->lk_msg_stamp.msg_dest.id_id} {msg->msg_dest.id_id})
 		(assign {rx_msg->lk_msg_stamp.msg_parcel_src} {msg->msg_parcel_src})
 		(assign {rx_msg->lk_msg_stamp.msg_parcel_id} {msg->msg_parcel_id})
-		(assign {&rx_msg->lk_msg_stamp.msg_dest.id_mbox->mbox_parcel_list, msg} (list next node))
+		(assign {mbox_addr->mbox_parcel_list, msg} (list next node))
 		(lh-add-at-tail next node src)
 	(endif)
 

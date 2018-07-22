@@ -50,8 +50,7 @@
 	(assign {lk_node.lk_node_cpu_id} {msg->msg_dest.id_cpu})
 	(assign {kn_call_route} {data->kn_msg_function})
 	(assign {0} {data->kn_msg_user})
-	(assign {0} {data->kn_msg_reply_id.id_mbox})
-	(assign {0} {data->kn_msg_reply_id.id_cpu})
+	(assign {0} {data->kn_msg_reply_id.id_id})
 	(assign {id} {data->kn_msg_link_route_origin})
 	(assign {id} {data->kn_msg_link_route_via})
 	(assign {1} {data->kn_msg_link_route_hops})
@@ -89,7 +88,7 @@
 			(assign {mail_statics, lk_node.lk_node_cpu_id, lk_node.lk_node_table.lk_table_array}
 				(list next id table))
 			(loop-list-forward next ml_statics_offchip_list node next)
-				(vp-cpy-ir node (add msg_dest id_cpu) mid)
+				(vp-cpy-ir-ui node (add msg_dest id_cpu) mid)
 				(breakif `(,id == ,mid))
 				(continueif `(,table == 0))
 				(vp-mul-cr lk_route_size mid)

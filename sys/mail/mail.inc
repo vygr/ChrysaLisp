@@ -9,8 +9,8 @@
 
 (def-class 'sys_mail)
 (def-method 'statics 'sys/mail/statics)
-(def-method 'init 'sys/mail/init 'static nil)
-(def-method 'init1 'sys/mail/init1 'static '(r0))
+(def-method 'init 'sys/mail/init 'static)
+(def-method 'init1 'sys/mail/init1 'static)
 (def-method 'alloc_mbox 'sys/mail/alloc_mbox 'static '() '(r0))
 (def-method 'free_mbox 'sys/mail/free_mbox 'static '(r0))
 (def-method 'mbox_addr 'sys/mail/mbox_addr 'static '(r0) '(r0))
@@ -23,7 +23,6 @@
 (def-method 'try_read 'sys/mail/try_read 'static '(r0) '(r0 r1))
 (def-method 'select 'sys/mail/select 'static '(r0 r1) '(r0))
 (def-method 'mymail 'sys/mail/mymail 'static nil '(r0 r1))
-(def-method 'init_mailbox 'sys/mail/init_mailbox 'static '(r0) '(r0))
 (def-method 'in 'sys/mail/in 'static '(r0))
 (def-method 'out 'sys/mail/out)
 
@@ -40,8 +39,9 @@
 (def-struct-end)
 
 (def-struct 'id)
-	(ulong 'mbox)
-	(ulong 'cpu)
+	(union
+		'(ulong 'id)
+		'(uint 'mbox 'cpu))
 (def-struct-end)
 
 (def-struct 'msg 'ln_node)
@@ -61,9 +61,8 @@
 	(struct 'msg_heap 'hp_heap)
 	(ptr 'mailbox_vector)
 	(ptr 'mailbox_array)
-	(ptr 'kernel_mailbox)
-	(ptr 'out_mailbox)
 	(ptr 'links_array)
+	(ptr 'out_mbox_addr)
 	(uint 'parcel_id)
 (def-struct-end)
 
@@ -86,18 +85,3 @@
 	(lh-init _1 _2)
 	(vp-lea-i _1 mbox_parcel_list _2)
 	(lh-init _2 _3))
-
-(defcfun ml-temp-create (_1 _2)
-	;inputs
-	;_1 = temp
-	;_2 = temp
-	;outputs
-	;rsp = mailbox
-	;trashes
-	;_1, _2
-
-	(vp-alloc mbox_size)
-	(ml-init rsp _1 _2))
-
-(defcfun ml-temp-destroy ()
-	(vp-free mbox_size))

@@ -2829,7 +2829,7 @@ Super Class: stream
 inputs
 r0 = msg_out object (ptr)
 r1 = vtable (pptr)
-r2, r3 = target mailbox id (id)
+r2 = target mailbox id (id)
 outputs
 r0 = msg_out object (ptr)
 r1 = 0 if error, else ok
@@ -4036,8 +4036,8 @@ init the mailbox vector and free array
 ```
 ### sys_mail::init1 -> sys/mail/init1
 ```
-inputs
-r0 = kernel mailbox (ptr)
+info
+init the mail system
 ```
 ### sys_mail::alloc_mbox -> sys/mail/alloc_mbox
 ```
@@ -4145,13 +4145,6 @@ r0 = mail address (ptr)
 r1 = string data (pubyte)
 trashes
 r2
-```
-### sys_mail::init_mailbox -> sys/mail/init_mailbox
-```
-outputs
-r0 = mailbox address (ptr)
-trashes
-r1-r2
 ```
 ### sys_mail::in -> sys/mail/in
 ```
@@ -4361,7 +4354,7 @@ r0 = current task tcb (ptr)
 ### sys_task::mailbox -> sys/task/mailbox
 ```
 outputs
-r0, r1 = current task mailbox id (id)
+r0 = current task mailbox id (id)
 ```
 ### sys_task::callback -> sys/task/callback
 ```
@@ -4377,7 +4370,7 @@ inputs
 r0 = new task func pointer (ptr)
 outputs
 r0 = new task control block (ptr)
-r1, r2 = new task mailbox id (id)
+r1 = new task mailbox id (id)
 trashes
 all
 ```
@@ -4426,7 +4419,7 @@ inputs
 r0 = name string object (ptr)
 r1 = spawn type (uint)
 outputs
-r0, r1 = mailbox ID (id)
+r0 = mailbox ID (id)
 trashes
 all
 ```
@@ -4437,7 +4430,7 @@ r0 = name string object (ptr)
 r1 = cpu target (uint)
 r2 = spawn type (uint)
 outputs
-r0, r1 = mailbox id (id)
+r0 = mailbox id (id)
 trashes
 all
 ```

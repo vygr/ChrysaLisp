@@ -194,7 +194,7 @@
 ## mail-mymail
 ### (mail-mymail)
 ## mail-send
-### (mail-send obj mbox cpu)
+### (mail-send obj mbox)
 ## map
 ### (map lambda seq ...)
 ## map-rev

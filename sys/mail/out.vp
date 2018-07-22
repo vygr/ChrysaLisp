@@ -37,8 +37,7 @@
 
 			;fill in fragment
 			(assign {len} {frag->msg_length})
-			(assign {msg->msg_dest.id_mbox} {frag->msg_dest.id_mbox})
-			(assign {msg->msg_dest.id_cpu} {frag->msg_dest.id_cpu})
+			(assign {msg->msg_dest.id_id} {frag->msg_dest.id_id})
 			(assign {data + offset} {frag->msg_parcel_data})
 			(assign {offset} {frag->msg_parcel_offset})
 			(assign {msg->msg_length} {frag->msg_parcel_length})

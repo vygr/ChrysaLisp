@@ -78,7 +78,7 @@
 		;more work to do, so lets migrate the task
 		(assign {num} {*data})
 		(f-call 'string 'create_from_cstr {"tests/migrate_child"} {name})
-		(f-call 'sys_task 'open_child {name, kn_call_child} {msg->msg_dest.id_mbox, msg->msg_dest.id_cpu})
+		(f-call 'sys_task 'open_child {name, kn_call_child} {msg->msg_dest.id_id})
 		(f-call 'string 'deref {name})
 		(f-call 'sys_mail 'send {msg})
 	(else)

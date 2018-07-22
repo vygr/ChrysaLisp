@@ -37,7 +37,7 @@
 		;send out multi-cast sample command
 		(while (ne cpu_count 0)
 			(setq cpu_count (dec cpu_count))
-			(mail-send sample_msg (elem (mul cpu_count 2) ids) (elem (inc (mul cpu_count 2)) ids))))
+			(mail-send sample_msg (elem cpu_count ids))))
 	(cond
 		((ge (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) 1)
 			;reply from cpu
@@ -64,5 +64,5 @@
 
 ;send out multi-cast exit command
 (defq exit (char 2 long_size))
-(while (defq cpu (pop ids) mbox (pop ids))
-	(mail-send exit mbox cpu))
+(while (defq mbox (pop ids))
+	(mail-send exit mbox))

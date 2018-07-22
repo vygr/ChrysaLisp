@@ -29,26 +29,25 @@
 (def-func-end)
 
 (def-func 'sys/mail/init1)
-	;inputs
-	;r0 = kernel mailbox (ptr)
+	;info
+	;init the mail system
 
-	(ptr 'mbox_addr 'mail_statics)
+	(ptr 'mail_statics)
+	(uint 'mbox_id)
 
 	(push-scope)
-	(f-entry 'sys_mail 'init1 {mbox_addr})
-
-	;save kernel mailbox
-	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(assign {mbox_addr} {mail_statics->ml_statics_kernel_mailbox})
+	(f-entry 'sys_mail 'init1 {})
 
 	;init off chip list
+	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(vp-def lst tmp)
 	(assign {&mail_statics->ml_statics_offchip_list} (list lst))
 	(lh-init lst tmp)
 
 	;init out postmen task
 	(assign {0} {mail_statics->ml_statics_parcel_id})
-	(f-call 'sys_task 'start (cat {@} (f-path 'sys_mail 'out)) {_, mail_statics->ml_statics_out_mailbox, _})
+	(f-call 'sys_task 'start (cat {@} (f-path 'sys_mail 'out)) {_, mbox_id})
+	(f-call 'sys_mail 'mbox_addr {mbox_id} {mail_statics->ml_statics_out_mbox_addr})
 
 	;create link array
 	(f-call 'array 'create {} {mail_statics->ml_statics_links_array})
@@ -58,19 +57,6 @@
 
 	(pop-scope)
 	(return)
-
-(def-func-end)
-
-(def-func 'sys/mail/init_mailbox)
-	;outputs
-	;r0 = mailbox address (ptr)
-	;trashes
-	;r1-r2
-
-	(f-entry 'sys_mail 'init_mailbox '(r0))
-	(ml-init r0 r1 r2)
-	(f-exit 'sys_mail 'init_mailbox '(r0))
-	(vp-ret)
 
 (def-func-end)
 
@@ -137,6 +123,8 @@
 
 	(f-entry 'sys_mail 'mbox_addr '(r1))
 
+	(vp-cpy-cr 0xffffffff r0)
+	(vp-and-rr r0 r1)
 	(f-bind 'sys_mail 'statics r0)
 	(vp-cpy-ir r0 ml_statics_mailbox_vector r0)
 	(f-call 'vector 'get_element '(r0 r1) '(_ r1))
@@ -154,8 +142,9 @@
 	;trashes
 	;r2
 
-	(f-call 'sys_task 'mailbox '() '(r0 _))
-	(f-jmp 'sys_mail 'read '(r0))
+	(f-bind 'sys_task 'statics r0)
+	(vp-cpy-ir r0 tk_statics_current_tcb r0)
+	(f-jmp 'sys_mail 'read '((r0 tk_node_mbox_addr)))
 
 (def-func-end)
 
@@ -324,15 +313,16 @@
 	(f-entry 'sys_mail 'send '(r2))
 
 	(f-call 'kernel 'id '() '(r0))
-	(vp-cpy-ir r2 (add msg_dest id_cpu) r1)
+	(vp-cpy-ir-ui r2 (add msg_dest id_cpu) r1)
 	(vpif '(r0 == r1))
 		;on this chip
-		(vp-cpy-ir r2 (add msg_dest id_mbox) r1)
-		(vpif '(r1 == 0))
-			;mail for kernel !
-			(f-bind 'sys_mail 'statics r1)
-			(vp-cpy-ir r1 ml_statics_kernel_mailbox r1)
-		(endif)
+		(f-bind 'sys_mail 'statics r0)
+		(vp-cpy-ir-ui r2 (add msg_dest id_mbox) r1)
+		(vp-cpy-ir r0 ml_statics_mailbox_vector r0)
+		(vp-shl-cr (log2 ptr_size) r1)
+		(vp-cpy-ir r0 array_array r0)
+		(vp-cpy-dr r0 r1 r1)
+		(vp-add-cr mailbox_mbox r1)
 	(vp-label 'post_it)
 		(lh-add-at-tail r1 r2 r0)
 		(vp-cpy-ir r1 mbox_tcb r0)
@@ -347,7 +337,7 @@
 		(vp-cpy-ir-ui r2 msg_length r0)
 		(vpif '(r0 > lk_data_size))
 			;must use postman task
-			(vp-cpy-ir r1 ml_statics_out_mailbox r1)
+			(vp-cpy-ir r1 ml_statics_out_mbox_addr r1)
 			(vp-jmp 'post_it)
 		(else)
 			;queue it on the outgoing packet list

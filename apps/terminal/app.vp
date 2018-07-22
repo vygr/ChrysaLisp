@@ -23,9 +23,9 @@
 	(def-struct-end)
 
 	(struct 'myapp 'local)
-	(ptr 'msg 'data 'mymailbox 'stream)
+	(ptr 'msg 'data 'my_mbox_addr 'stream)
 	(long 'state)
-	(int 'width 'height 'index)
+	(int 'width 'height 'index 'my_mbox_id)
 
 	;init app vars
 	(push-scope)
@@ -63,11 +63,12 @@
 	(assign {&myapp.local_buffer} {myapp.local_bufp})
 
 	;app event loop
-	(f-call 'sys_task 'mailbox {} {mymailbox, _})
+	(f-call 'sys_task 'mailbox {} {my_mbox_id})
+	(f-call 'sys_mail 'mbox_addr {my_mbox_id} {my_mbox_addr})
 	(loop-start 'exit)
 		(vpif {myapp.local_pipe})
 			;select on multiple mailboxes
-			(f-call 'pipe 'select {myapp.local_pipe, mymailbox} {_, index})
+			(f-call 'pipe 'select {myapp.local_pipe, my_mbox_addr} {_, index})
 
 			;which mailbox has mail ?
 			(gotoif {index == 0} 'from_mymailbox)
@@ -87,7 +88,7 @@
 			(endif)
 		(else)
 		(vp-label 'from_mymailbox)
-			(f-call 'sys_mail 'read {mymailbox} {msg, data})
+			(f-call 'sys_mail 'read {my_mbox_addr} {msg, data})
 			(breakifnot {data->ev_msg_target_id} exit)
 			(v-call 'view 'event {myapp.local_window, data})
 			(vpif {data->ev_msg_type == ev_type_key && data->ev_msg_key_keycode > 0})

@@ -48,28 +48,27 @@
 	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3)
+	(ulong 'arg0 'arg1 'arg2)
 
 	(push-scope)
 	(f-entry 'sys_mail 'lisp_send {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
 	(errorifnot {value} 'error1))
 
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
 	(f-call 'obj 'inst_of (cat {arg0, @} (f-path 'class 'string)) {_, value})
 	(vpif {value})
-		(f-call 'sys_mail 'alloc_obj {arg0, &arg0->string_data, arg0->string_length} {arg3})
+		(f-call 'sys_mail 'alloc_obj {arg0, &arg0->string_data, arg0->string_length} {arg2})
 		(goto 'sendit)
 	(endif)
 	(f-call 'obj 'inst_of (cat {arg0, @} (f-path 'class 'array)) {_, value})
 	(errorifnot {value} 'error1)
-	(f-call 'sys_mail 'alloc_obj {arg0, arg0->array_array, arg0->array_length * long_size} {arg3})
+	(f-call 'sys_mail 'alloc_obj {arg0, arg0->array_array, arg0->array_length * long_size} {arg2})
 (vp-label 'sendit)
-	(assign {arg1} {arg3->msg_dest.id_mbox})
-	(assign {arg2} {arg3->msg_dest.id_cpu})
-	(f-call 'sys_mail 'send {arg3})
+	(assign {arg1} {arg2->msg_dest.id_id})
+	(f-call 'sys_mail 'send {arg2})
 	(f-call 'obj 'ref {arg0} {value})
 
 (vp-label 'exit)
@@ -78,9 +77,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(mail-send obj mbox cpu)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(mail-send obj mbox)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'obj 'integer 'integer))
+	(signature 'sig 'obj 'integer))
 
 	(pop-scope-syms)
 

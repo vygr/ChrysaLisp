@@ -1,9 +1,9 @@
 (import 'class/stream/stream.inc)
 
 (def-class 'msg_out 'stream)
-(def-method 'create 'class/msg_out/create 'static '(r0 r1) '(r0))
+(def-method 'create 'class/msg_out/create 'static '(r0) '(r0))
 (def-method 'new 'class/msg_out/new 'static nil '(r0))
-(def-method 'init 'class/msg_out/init 'static '(r0 r1 r2 r3))
+(def-method 'init 'class/msg_out/init 'static '(r0 r1 r2))
 (def-method 'set_state 'class/msg_out/set_state 'static '(r0 r1) '(r0))
 
 (def-method 'deinit 'class/msg_out/deinit 'final)
