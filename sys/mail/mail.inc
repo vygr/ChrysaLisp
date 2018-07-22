@@ -9,7 +9,11 @@
 
 (def-class 'sys_mail)
 (def-method 'statics 'sys/mail/statics)
-(def-method 'init 'sys/mail/init 'static '(r1))
+(def-method 'init 'sys/mail/init 'static nil)
+(def-method 'init1 'sys/mail/init1 'static '(r0))
+(def-method 'alloc_mbox 'sys/mail/alloc_mbox 'static '() '(r0))
+(def-method 'free_mbox 'sys/mail/free_mbox 'static '(r0))
+(def-method 'mbox_addr 'sys/mail/mbox_addr 'static '(r0) '(r0))
 (def-method 'alloc 'sys/mail/alloc 'static '(r0) '(r0 r1))
 (def-method 'free 'sys/mail/free 'static '(r0))
 (def-method 'alloc_obj 'sys/mail/alloc_obj 'static '(r0 r1 r2) '(r0))
@@ -30,7 +34,7 @@
 ; mail structures
 ;;;;;;;;;;;;;;;;;
 
-(def-struct 'mailbox 'lh_list)
+(def-struct 'mbox 'lh_list)
 	(struct 'parcel_list 'lh_list)
 	(ptr 'tcb)
 (def-struct-end)
@@ -55,6 +59,8 @@
 (def-struct 'ml_statics)
 	(struct 'offchip_list 'lh_list)
 	(struct 'msg_heap 'hp_heap)
+	(ptr 'mailbox_vector)
+	(ptr 'mailbox_array)
 	(ptr 'kernel_mailbox)
 	(ptr 'out_mailbox)
 	(ptr 'links_array)
@@ -76,9 +82,9 @@
 	;_2, _3
 
 	(vp-xor-rr _2 _2)
-	(vp-cpy-ri _2 _1 mailbox_tcb)
+	(vp-cpy-ri _2 _1 mbox_tcb)
 	(lh-init _1 _2)
-	(vp-lea-i _1 mailbox_parcel_list _2)
+	(vp-lea-i _1 mbox_parcel_list _2)
 	(lh-init _2 _3))
 
 (defcfun ml-temp-create (_1 _2)
@@ -90,8 +96,8 @@
 	;trashes
 	;_1, _2
 
-	(vp-alloc mailbox_size)
+	(vp-alloc mbox_size)
 	(ml-init rsp _1 _2))
 
 (defcfun ml-temp-destroy ()
-	(vp-free mailbox_size))
+	(vp-free mbox_size))

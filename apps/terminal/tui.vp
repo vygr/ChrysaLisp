@@ -25,8 +25,9 @@
 	(struct 'local 'local)
 	(struct 'stdin_id 'id)
 	(struct 'tui_id 'id)
-	(ptr 'msg 'data 'mailbox)
+	(ptr 'msg 'data 'stream)
 	(long 'state)
+	(uint 'index)
 
 	;init app vars
 	(push-scope)
@@ -52,13 +53,14 @@
 	(loop-start)
 		(vpif {local.local_pipe})
 			;select on multiple mailboxes
-			(f-call 'pipe 'select {local.local_pipe, tui_id.id_mbox} {_, mailbox})
+			(f-call 'pipe 'select {local.local_pipe, tui_id.id_mbox} {_, index})
 
 			;which mailbox has mail ?
-			(gotoif {mailbox == tui_id.id_mbox} 'from_mymailbox)
+			(gotoif {index == 0} 'from_mymailbox)
 
 			;output from a pipe element
-			(l-call 'pipe_output {&local, mailbox - msg_in_mailbox} {state})
+			(f-call 'vector 'get_element {local.local_pipe->pipe_streams, index} {_, stream})
+			(l-call 'pipe_output {&local, stream} {state})
 			(vpif {state == -1})
 				;EOF
 				(f-call 'pipe 'deref {local.local_pipe})

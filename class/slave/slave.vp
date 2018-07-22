@@ -45,7 +45,7 @@
 			;send back ack with stdin mailbox
 			(assign {data->slave_msg_init_ack_id.id_mbox} {msg->msg_dest.id_mbox})
 			(assign {data->slave_msg_init_ack_id.id_cpu} {msg->msg_dest.id_cpu})
-			(assign {&this->slave_stdin->msg_in_mailbox} {data->slave_msg_init_stdin_mbox})
+			(assign {this->slave_stdin->msg_in_mbox_addr} {data->slave_msg_init_stdin_mbox})
 			(f-call 'sys_mail 'send {msg})
 		(else)
 			;abort

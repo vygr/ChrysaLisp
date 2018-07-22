@@ -16,21 +16,29 @@
 	;trashes
 	;all but r0
 
+	(ptr 'this 'vtable)
+	(ulong 'ok)
+
+	(push-scope)
+	(f-entry 'msg_in 'init {this, vtable})
+
 	;init parent
-	(s-call 'msg_in 'init '(r0 r1 0 0 0 0) '(r0 r1))
-	(vpif '(r1 != 0))
+	(s-call 'msg_in 'init {this, vtable, 0, 0, 0, 0} {_, ok})
+	(vpif {ok})
 		;init myself
-		(vp-xor-rr r1 r1)
-		(vp-cpy-ri r1 r0 msg_in_seqnum)
-		(vp-cpy-ri r1 r0 msg_in_ack_seqnum)
-		(vp-cpy-cr stream_mail_state_started r1)
-		(vp-cpy-ri r1 r0 msg_in_state)
-		(vp-lea-i r0 msg_in_mailbox r1)
-		(ml-init r1 r2 r3)
-		(vp-lea-i r0 msg_in_list r1)
-		(lh-init r1 r2)
+		(assign {0} {this->msg_in_seqnum})
+		(assign {0} {this->msg_in_ack_seqnum})
+		(assign {stream_mail_state_started} {this->msg_in_state})
+		(f-call 'sys_mail 'alloc_mbox {} {this->msg_in_mbox_id})
+		(f-call 'sys_mail 'mbox_addr {this->msg_in_mbox_id} {this->msg_in_mbox_addr})
+		(vp-def lst tmp)
+		(assign {&this->msg_in_list} (list lst))
+		(lh-init lst tmp)
 	(endif)
-	(vp-ret)
+
+	(f-exit 'msg_in 'init {this, ok})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -40,14 +48,21 @@
 	;trashes
 	;all but r0
 
+	(ptr 'this)
+
+	(push-scope)
+	(f-entry 'msg_in 'deinit {this})
+
 	;free any mail message buffer
-	(vp-push r0)
-	(f-call 'sys_mail 'free '((r0 stream_buffer)))
-	(vp-pop r0)
-	(vp-xor-rr r1 r1)
-	(vp-cpy-ri r1 r0 stream_buffer)
+	(f-call 'sys_mail 'free {this->stream_buffer})
+	(assign {0} {this->stream_buffer})
+
+	;free mailbox
+	(f-call 'sys_mail 'free_mbox {this->msg_in_mbox_id})
 
 	;parent deinit
+	(f-exit 'msg_in 'deinit {this})
+	(pop-scope)
 	(s-jmp 'msg_in 'deinit '(r0))
 
 (def-func-end)
@@ -105,7 +120,7 @@
 	(loop-start)
 		(f-call 'msg_in 'next_seq {&this->msg_in_list, msg, this->msg_in_seqnum} {msg, data})
 		(breakif {msg})
-		(f-call 'sys_mail 'read {&this->msg_in_mailbox} {msg, _})
+		(f-call 'sys_mail 'read {this->msg_in_mbox_addr} {msg, _})
 	(loop-end)
 	(assign {this->msg_in_seqnum + 1} {this->msg_in_seqnum})
 

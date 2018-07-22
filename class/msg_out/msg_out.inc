@@ -15,7 +15,8 @@
 	(ulong 'state)
 	(struct 'id 'id)
 	(ulong 'ack_seqnum)
-	(struct 'ack_mailbox 'mailbox)
+	(ptr 'ack_mbox_addr)
+	(uint 'ack_mbox_id)
 (def-struct-end)
 
 (def-struct 'stream_msg)

@@ -42,7 +42,9 @@
 (def-struct 'tk_node 'ln_node)
 	(ptr 'stack)
 	(ulong 'time)
-	(struct 'mailbox 'mailbox)
+	(ptr 'mbox_addr)
+	(uint 'mbox_id)
+	(local-align)
 	(struct 'stackspace 'tk_stack)
 (def-struct-end)
 

@@ -707,6 +707,7 @@ Super Class: null
 ### class::points -> class/class_points
 ### class::font -> class/class_font
 ### class::texture -> class/class_texture
+### class::mailbox -> class/class_mailbox
 ## component
 Super Class: hash_map
 ### component::init -> class/component/init
@@ -2659,6 +2660,35 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
+## mailbox
+Super Class: obj
+### mailbox::create -> class/mailbox/create
+### mailbox::new -> class/mailbox/new
+### mailbox::init -> class/mailbox/init
+```
+inputs
+r0 = mailbox object (ptr)
+r1 = vtable (pptr)
+outputs
+r0 = mailbox object (ptr)
+r1 = 0 if error, else ok
+```
+### mailbox::read -> class/mailbox/read
+```
+inputs
+r0 = mailbox object (ptr)
+outputs
+r0 = mailbox object (ptr)
+r1 = mail address (ptr)
+r2 = string data (pubyte)
+```
+### mailbox::deinit -> class/mailbox/deinit
+```
+inputs
+r0 = mailbox object (ptr)
+outputs
+r0 = mailbox object (ptr)
+```
 ## math
 Super Class: null
 ### math::random -> sys/math/random
@@ -3193,7 +3223,7 @@ r0 = pipe object (ptr)
 r1 = user mailbox (ptr)
 outputs
 r0 = pipe object (ptr)
-r1 = mailbox with mail (ptr)
+r1 = mailbox index (uint)
 trashes
 all but r0
 ```
@@ -4001,8 +4031,36 @@ mail static data
 ```
 ### sys_mail::init -> sys/mail/init
 ```
+info
+init the mailbox vector and free array
+```
+### sys_mail::init1 -> sys/mail/init1
+```
 inputs
-r1 = kernel mailbox (ptr)
+r0 = kernel mailbox (ptr)
+```
+### sys_mail::alloc_mbox -> sys/mail/alloc_mbox
+```
+outputs
+r0 = mailbox id (uint)
+trashes
+all
+```
+### sys_mail::free_mbox -> sys/mail/free_mbox
+```
+inputs
+r0 = mailbox id (uint)
+trashes
+all
+```
+### sys_mail::mbox_addr -> sys/mail/mbox_addr
+```
+inputs
+r0 = mailbox id (uint)
+trashes
+r0 = mail address (ptr)
+trashes
+r0-r2
 ```
 ### sys_mail::alloc -> sys/mail/alloc
 ```
@@ -4076,7 +4134,7 @@ inputs
 r0 = mailbox address array (pptr)
 r1 = mailbox count (uint)
 outputs
-r0 = mailbox address (ptr)
+r0 = mailbox index (uint)
 trashes
 r1-r4
 ```
@@ -4321,7 +4379,7 @@ outputs
 r0 = new task control block (ptr)
 r1, r2 = new task mailbox id (id)
 trashes
-r3-r5
+all
 ```
 ### sys_task::stop -> sys/task/stop
 ```

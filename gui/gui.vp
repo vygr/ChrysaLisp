@@ -171,7 +171,7 @@
 			;lookup view owner mailbox
 			(f-call 'view 'find_owner {user->local_mouse_view} {_, owner})
 			(breakifnot {owner})
-			(assign {&owner->tk_node_mailbox} {user->local_mouse_mbox})
+			(assign {owner->tk_node_mbox_addr} {user->local_mouse_mbox})
 			(goto 'send_event)
 		(case {event.sdl_common_event_type == SDL_MOUSEBUTTONUP})
 			;update mouse state
@@ -193,7 +193,7 @@
 			(breakifnot {owner})
 
 			;save owner mailbox
-			(assign {&owner->tk_node_mailbox} {user->local_key_mbox})
+			(assign {owner->tk_node_mbox_addr} {user->local_key_mbox})
 
 			;cook key based on mods (very crude for now)
 			(l-call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,

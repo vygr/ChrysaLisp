@@ -37,7 +37,7 @@
 		(ptr 'msg 'data 'string 'commands 'command 'args 'stream 'mbox 'ids 'cmd)
 		(pubyte 'start)
 		(ulong 'cpu)
-		(struct 'mailbox 'mailbox)
+		(struct 'mailbox 'mbox)
 		(uint 'index 'started)
 
 		(push-scope)
@@ -98,7 +98,7 @@
 				(assign {0} {index})
 				(loop-while {index != (length + 2)})
 					(f-call 'msg_in 'create {} {stream})
-					(assign {&stream->msg_in_mailbox} {mbox})
+					(assign {stream->msg_in_mbox_addr} {mbox})
 					(assign {mbox} {(this->pipe_select_array)[index * ptr_size]})
 					(f-call 'vector 'push_back {this->pipe_streams, stream})
 					(assign {index + 1} {index})

@@ -18,22 +18,27 @@
 	;trashes
 	;all but r0
 
+	(ptr 'this 'vtable)
+	(ulong 'ok)
+
 	;save inputs
-	(assign '(r2 r3) '((r0 (add msg_out_id id_mbox)) (r0 (add msg_out_id id_cpu))))
+	(push-scope)
+	(f-entry 'msg_out 'init {this, vtable, this->msg_out_id.id_mbox, this->msg_out_id.id_cpu})
 
 	;init parent
-	(s-call 'msg_out 'init '(r0 r1 0 0 0 0) '(r0 r1))
-	(vpif '(r1 != 0))
+	(s-call 'msg_out 'init {this, vtable, 0, 0, 0, 0} {_, ok})
+	(vpif {ok})
 		;init myself
-		(vp-xor-rr r1 r1)
-		(vp-cpy-ri r1 r0 msg_out_seqnum)
-		(vp-cpy-ri r1 r0 msg_out_ack_seqnum)
-		(vp-cpy-cr stream_mail_state_started r1)
-		(vp-cpy-ri r1 r0 msg_out_state)
-		(vp-lea-i r0 msg_out_ack_mailbox r1)
-		(ml-init r1 r2 r3)
+		(assign {0} {this->msg_out_seqnum})
+		(assign {0} {this->msg_out_ack_seqnum})
+		(assign {stream_mail_state_started} {this->msg_out_state})
+		(f-call 'sys_mail 'alloc_mbox {} {this->msg_out_ack_mbox_id})
+		(f-call 'sys_mail 'mbox_addr {this->msg_out_ack_mbox_id} {this->msg_out_ack_mbox_addr})
 	(endif)
-	(vp-ret)
+
+	(f-exit 'msg_out 'init {this, ok})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -49,12 +54,15 @@
 	(f-entry 'msg_out 'deinit {this})
 
 	;wait for final ack
-	(f-call 'sys_mail 'read {&this->msg_out_ack_mailbox} {msg, _})
+	(f-call 'sys_mail 'read {this->msg_out_ack_mbox_addr} {msg, _})
 	(f-call 'sys_mail 'free {msg})
 
 	;free any stream mail buffer
 	(f-call 'sys_mail 'free {this->stream_buffer})
 	(assign {0} {this->stream_buffer})
+
+	;free ack mailbox
+	(f-call 'sys_mail 'free_mbox {this->msg_out_ack_mbox_id})
 
 	;parent deinit
 	(f-exit 'msg_out 'deinit {this})
@@ -85,14 +93,14 @@
 		(assign {this->msg_out_id.id_cpu} {msg->msg_dest.id_cpu})
 		(assign {this->msg_out_seqnum} {data->stream_msg_seqnum})
 		(assign {this->msg_out_state} {data->stream_msg_state})
-		(assign {&this->msg_out_ack_mailbox} {data->stream_msg_ack_id.id_mbox})
+		(assign {this->msg_out_ack_mbox_addr} {data->stream_msg_ack_id.id_mbox})
 		(f-call 'kernel 'id {} {data->stream_msg_ack_id.id_cpu})
 		(f-call 'sys_mail 'send {msg})
 		(assign {0} {this->stream_buffer})
 
 		;wait for an ack ?
 		(vpif {this->msg_out_seqnum >> msg_out_ack_shift != this->msg_out_ack_seqnum})
-			(f-call 'sys_mail 'read {&this->msg_out_ack_mailbox} {msg, _})
+			(f-call 'sys_mail 'read {this->msg_out_ack_mbox_addr} {msg, _})
 			(f-call 'sys_mail 'free {msg})
 			(assign {this->msg_out_ack_seqnum + 1} {this->msg_out_ack_seqnum})
 		(endif)

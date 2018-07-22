@@ -15,7 +15,7 @@
 	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value 'pipe 'stream 'str_stream)
-	(uint 'state)
+	(uint 'state 'index)
 	(int 'char 'ready)
 
 	(push-scope)
@@ -28,8 +28,8 @@
 	(f-call 'vector 'get_first {args} {_, pipe})
 	(f-call 'pipe 'get_state {pipe} {_, state})
 	(vpif {state == stream_mail_state_started})
-		(f-call 'pipe 'select {pipe, 0} {_, value})
-		(assign {value - msg_in_mailbox} {stream})
+		(f-call 'pipe 'select {pipe, 0} {_, index})
+		(f-call 'vector 'get_element {pipe->pipe_streams, index} {_, stream})
 		(f-call 'string 'create_from_buffer {0, string_gap} {value})
 		(f-call 'stream_str 'create {value} {str_stream})
 		(loop-start)

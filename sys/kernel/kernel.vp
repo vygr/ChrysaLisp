@@ -41,13 +41,16 @@
 	;init gui
 	(f-call 'gui_gui 'init {sdl})
 
+	;init mailer mailbox vector
+	(f-call 'sys_mail 'init)
+
 	;start kernel task
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(f-call 'sys_task 'start {$func_entry} {task_statics->tk_statics_kernel_tcb, mbox, _})
 
 	;init mailer
-	(f-call 'sys_mail 'init {mbox})
+	(f-call 'sys_mail 'init1 {mbox})
 
 	;process command options
 	(f-call 'kernel 'opts {argv})

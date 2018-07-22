@@ -23,9 +23,9 @@
 	(def-struct-end)
 
 	(struct 'myapp 'local)
-	(ptr 'msg 'data 'mymailbox 'mailbox)
+	(ptr 'msg 'data 'mymailbox 'stream)
 	(long 'state)
-	(int 'width 'height)
+	(int 'width 'height 'index)
 
 	;init app vars
 	(push-scope)
@@ -67,13 +67,14 @@
 	(loop-start 'exit)
 		(vpif {myapp.local_pipe})
 			;select on multiple mailboxes
-			(f-call 'pipe 'select {myapp.local_pipe, mymailbox} {_, mailbox})
+			(f-call 'pipe 'select {myapp.local_pipe, mymailbox} {_, index})
 
 			;which mailbox has mail ?
-			(gotoif {mailbox == mymailbox} 'from_mymailbox)
+			(gotoif {index == 0} 'from_mymailbox)
 
 			;output from a pipe element
-			(l-call 'pipe_output {&myapp, mailbox - msg_in_mailbox} {state})
+			(f-call 'vector 'get_element {myapp.local_pipe->pipe_streams, index} {_, stream})
+			(l-call 'pipe_output {&myapp, stream} {state})
 			(vpif {state == -1})
 				;EOF
 				(f-call 'pipe 'deref {myapp.local_pipe})

@@ -15,7 +15,7 @@
 	;r1 = user mailbox (ptr)
 	;outputs
 	;r0 = pipe object (ptr)
-	;r1 = mailbox with mail (ptr)
+	;r1 = mailbox index (uint)
 	;trashes
 	;all but r0
 
@@ -28,9 +28,9 @@
 	;wait on user and pipe mailboxes
 	(assign {mailbox} {*this->pipe_select_array})
 	(d-call 'vector 'get_length {this->pipe_streams} {_, length})
-	(f-call 'sys_mail 'select {this->pipe_select_array, length} {mailbox})
+	(f-call 'sys_mail 'select {this->pipe_select_array, length} {length})
 
-	(f-exit 'pipe 'select {this, mailbox})
+	(f-exit 'pipe 'select {this, length})
 	(pop-scope)
 	(return)
 

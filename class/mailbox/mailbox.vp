@@ -1,0 +1,32 @@
+(import 'sys/func.inc)
+(import 'class/mailbox/mailbox.inc)
+
+(gen-create 'mailbox)
+(gen-new 'mailbox)
+(gen-class 'mailbox)
+
+(def-func 'class/mailbox/deinit)
+	;inputs
+	;r0 = mailbox object (ptr)
+	;outputs
+	;r0 = mailbox object (ptr)
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 r0 (add mailbox_mbox mbox_tcb))
+	(s-jmp 'mailbox 'deinit '(r0))
+
+(def-func-end)
+
+(def-func 'class/mailbox/read)
+	;inputs
+	;r0 = mailbox object (ptr)
+	;outputs
+	;r0 = mailbox object (ptr)
+	;r1 = mail address (ptr)
+	;r2 = string data (pubyte)
+
+	(vp-push r0)
+	(f-call 'sys_mail 'read '((& r0 mailbox_mbox)) '(r1 r2))
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
