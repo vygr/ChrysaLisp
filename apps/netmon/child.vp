@@ -21,16 +21,16 @@
 	(push-scope)
 	(loop-start)
 		;read mail command
-		(f-call 'sys_mail 'mymail '() {msg, data})
+		(f-call 'sys_mail 'mymail nil {msg, data})
 		(breakif {data->sample_msg_command == 2})
 
 		;sample reply
 		(f-call 'sys_mail 'alloc {sample_reply_msg_size} {reply, rdata})
 		(assign {data->sample_msg_reply_id.id_id} {reply->msg_dest.id_id})
 		(assign {data->sample_msg_command} {rdata->sample_reply_msg_command})
-		(f-call 'kernel 'id '() {rdata->sample_reply_msg_cpu})
-		(f-call 'sys_task 'count '() {rdata->sample_reply_msg_task_count})
-		(f-call 'sys_mem 'used '() {rdata->sample_reply_msg_mem_used})
+		(f-call 'kernel 'id nil {rdata->sample_reply_msg_cpu})
+		(f-call 'sys_task 'count nil {rdata->sample_reply_msg_task_count})
+		(f-call 'sys_mem 'used nil {rdata->sample_reply_msg_mem_used})
 		(f-call 'sys_mail 'send {reply})
 		(f-call 'sys_mail 'free {msg})
 

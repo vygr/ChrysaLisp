@@ -29,7 +29,7 @@
 		(assign {0} {this->msg_in_seqnum})
 		(assign {0} {this->msg_in_ack_seqnum})
 		(assign {stream_mail_state_started} {this->msg_in_state})
-		(f-call 'sys_mail 'alloc_mbox '() {this->msg_in_mbox_id})
+		(f-call 'sys_mail 'alloc_mbox nil {this->msg_in_mbox_id})
 		(f-call 'sys_mail 'mbox_addr {this->msg_in_mbox_id} {this->msg_in_mbox_addr})
 		(vp-def lst tmp)
 		(assign {&this->msg_in_list} (list lst))

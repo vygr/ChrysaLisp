@@ -13,12 +13,12 @@
 	(push-scope)
 	(f-entry 'sys_mail 'out '())
 
-	(f-call 'kernel 'id '() {id})
+	(f-call 'kernel 'id nil {id})
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 
 	(loop-start)
 		;read parcel
-		(f-call 'sys_mail 'mymail '() {msg, data})
+		(f-call 'sys_mail 'mymail nil {msg, data})
 
 		;create next parcel id
 		(assign {mail_statics->ml_statics_parcel_id + 1} {mail_statics->ml_statics_parcel_id})

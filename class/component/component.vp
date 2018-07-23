@@ -74,7 +74,7 @@
 		(loop-while {iter_begin != iter_end})
 			(f-call 'sys_mail 'alloc {ev_msg_action_size} {msg, data})
 			(assign {tcb->tk_node_mbox_id} {msg->msg_dest.id_mbox})
-			(f-call 'kernel 'id '() {msg->msg_dest.id_cpu})
+			(f-call 'kernel 'id nil {msg->msg_dest.id_cpu})
 			(assign {ev_type_action} {data->ev_msg_type})
 			(assign {*iter_begin} {data->ev_msg_target_id})
 			(assign {this->component_id} {data->ev_msg_action_source_id})
@@ -108,7 +108,7 @@
 
 	(assign {ptr($symbols)} {array})
 	(vpifnot {array})
-		(f-call 'array 'create '() {array})
+		(f-call 'array 'create nil {array})
 		(f-call 'array 'set_capacity (cat {array, } (str (length *props*))))
 		(assign {$props} {next})
 		(loop-start)

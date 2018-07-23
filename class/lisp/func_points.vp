@@ -18,7 +18,7 @@
 	(push-scope)
 	(f-entry 'lisp 'func_points {this, args})
 
-	(f-call 'points 'create '() {value})
+	(f-call 'points 'create nil {value})
 	(d-call 'vector 'get_length {args} {_, length})
 	(f-call 'points 'set_capacity {value, length})
 	(f-call 'points 'set_length {value, length})

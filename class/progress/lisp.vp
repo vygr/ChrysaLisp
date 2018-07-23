@@ -21,7 +21,7 @@
 	(v-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'progress 'create '() {value})
+	(f-call 'progress 'create nil {value})
 
 (vp-label 'exit)
 	(f-exit 'progress 'lisp_create {this, value})

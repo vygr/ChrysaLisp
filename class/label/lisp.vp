@@ -21,7 +21,7 @@
 	(v-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'label 'create '() {value})
+	(f-call 'label 'create nil {value})
 
 (vp-label 'exit)
 	(f-exit 'label 'lisp_create {this, value})

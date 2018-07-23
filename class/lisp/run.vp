@@ -15,7 +15,7 @@
 	(push-scope)
 
 	;get param string
-	(f-call 'sys_mail 'mymail '() {script, _})
+	(f-call 'sys_mail 'mymail nil {script, _})
 	(f-call 'sys_mail 'free_obj {script} {script, _, _})
 
 	;string output stream
@@ -30,7 +30,7 @@
 		(f-call 'string 'create_from_file {&script->string_data} {file})
 		(vpif {file})
 			;REPL from file stream
-			(f-call 'vector 'create '() {args})
+			(f-call 'vector 'create nil {args})
 			(f-call 'stream_str 'create {file} {stream})
 			(f-call 'string 'ref {script})
 			(f-call 'vector 'push_back {args, stream})

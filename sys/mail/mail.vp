@@ -20,8 +20,8 @@
 
 	;create mailbox vector and array
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(f-call 'vector 'create '() {mail_statics->ml_statics_mailbox_vector})
-	(f-call 'array 'create '() {mail_statics->ml_statics_mailbox_array})
+	(f-call 'vector 'create nil {mail_statics->ml_statics_mailbox_vector})
+	(f-call 'array 'create nil {mail_statics->ml_statics_mailbox_array})
 
 	(pop-scope)
 	(return)
@@ -50,7 +50,7 @@
 	(f-call 'sys_mail 'mbox_addr {mbox_id} {mail_statics->ml_statics_out_mbox_addr})
 
 	;create link array
-	(f-call 'array 'create '() {mail_statics->ml_statics_links_array})
+	(f-call 'array 'create nil {mail_statics->ml_statics_links_array})
 
 	;init header heap
 	(f-call 'sys_heap 'init {&mail_statics->ml_statics_msg_heap, msg_size, msg_size * 64})
@@ -78,7 +78,7 @@
 		(f-call 'array 'get_back {mail_statics->ml_statics_mailbox_array} {_, id})
 		(d-call 'array 'pop_back {mail_statics->ml_statics_mailbox_array})
 	(else)
-		(f-call 'mailbox 'create '() {mbox})
+		(f-call 'mailbox 'create nil {mbox})
 		(f-call 'vector 'push_back {mail_statics->ml_statics_mailbox_vector, mbox})
 		(d-call 'vector 'get_length {mail_statics->ml_statics_mailbox_vector} {_, id})
 		(assign {id - 1} {id})

@@ -277,7 +277,7 @@
 	(f-entry 'stream 'split {this, char})
 
 	;create output vector
-	(f-call 'vector 'create '() {splits})
+	(f-call 'vector 'create nil {splits})
 
 	;fill vector with splits
 	(loop-start)

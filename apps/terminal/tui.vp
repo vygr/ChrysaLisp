@@ -32,7 +32,7 @@
 	;init app vars
 	(push-scope)
 	(assign {&local.local_buffer} {local.local_bufp})
-	(f-call 'sys_task 'mailbox '() {tui_id.id_id})
+	(f-call 'sys_task 'mailbox nil {tui_id.id_id})
 	(f-call 'sys_mail 'mbox_addr {tui_id.id_mbox} {mbox_addr})
 	(assign {0} {local.local_pipe})
 
@@ -218,7 +218,7 @@
 	(push-scope)
 
 	;read tui mailbox id
-	(f-call 'sys_mail 'mymail '() {msg, data})
+	(f-call 'sys_mail 'mymail nil {msg, data})
 	(assign {data->tui_msg_reply_id.id_id} {tui_id.id_id})
 	(f-call 'sys_mail 'free {msg})
 

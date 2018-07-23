@@ -57,7 +57,7 @@
 	(f-call 'kernel 'opts {argv})
 
 	;fill in num cpu's with at least mine + 1
-	(f-call 'kernel 'id '() {id})
+	(f-call 'kernel 'id nil {id})
 	(assign {id + 1} {task_statics->tk_statics_cpu_total})
 
 	;allocate for kernel routing table

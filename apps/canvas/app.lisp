@@ -14,7 +14,7 @@
 (slot gui_add window)
 
 ;create child and send args
-(bind '(mbox) (open-child "apps/canvas/child.lisp" kn_call_open))
+(defq mbox (open-child "apps/canvas/child.lisp" kn_call_open))
 (mail-send (list canvas (mul canvas_width 1.0) (mul canvas_height 1.0) canvas_scale) mbox)
 
 (while id

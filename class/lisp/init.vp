@@ -99,7 +99,7 @@
 			(f-call 'string 'create_from_file {"class/lisp/boot.inc"} {file})
 			(vpif {file})
 				;REPL from file stream
-				(f-call 'vector 'create '() {repl_args})
+				(f-call 'vector 'create nil {repl_args})
 				(f-call 'stream_str 'create {file} {stream})
 				(f-call 'string 'create_from_cstr {"class/lisp/boot.inc"} {file})
 				(f-call 'vector 'push_back {repl_args, stream})

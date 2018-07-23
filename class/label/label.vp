@@ -29,14 +29,14 @@
 	(s-call 'label 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;add my flow
-		(f-call 'flow 'create '() {this->label_flow})
+		(f-call 'flow 'create nil {this->label_flow})
 		(assign {0} {this->label_flow->view_flags})
 		(v-call 'label 'add_child {this, this->label_flow})
 		(f-call 'label 'set_long_prop {this, prop_flow_flags, flow_flag_right | flow_flag_align_vcenter})
 		(f-call 'label 'set_long_prop {this, prop_border, 0})
 
 		;add my text object
-		(f-call 'text 'create '() {this->label_text})
+		(f-call 'text 'create nil {this->label_text})
 		(v-call 'flow 'add_child {this->label_flow, this->label_text})
 	(endif)
 

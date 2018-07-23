@@ -27,12 +27,12 @@
 	(f-call 'array 'push_back {mail_statics->ml_statics_links_array, &lk_node})
 
 	;read params msg from kernel
-	(f-call 'sys_mail 'mymail '() {params, pdata})
+	(f-call 'sys_mail 'mymail nil {params, pdata})
 
 	;init link node cpu id and task count
 	(assign {((pdata[5] - 0x30) * 100) + ((pdata[6] - 0x30) * 10) + (pdata[7] - 0x30)} {lo_id})
 	(assign {((pdata[9] - 0x30) * 100) + ((pdata[10] - 0x30) * 10) + (pdata[11] - 0x30)} {hi_id})
-	(f-call 'kernel 'id '() {id})
+	(f-call 'kernel 'id nil {id})
 	(vpif {id == lo_id})
 		(assign {hi_id} {lk_node.lk_node_cpu_id})
 		(assign {lk_buffer_chan_1} {tx})

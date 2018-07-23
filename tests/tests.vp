@@ -18,7 +18,7 @@
 	(push-scope)
 
 	;read exit command etc
-	(f-call 'sys_mail 'mymail '() {msg, data})
+	(f-call 'sys_mail 'mymail nil {msg, data})
 	(assign {0} {length})
 	(loop-start)
 		(assert {length == data[length]})
@@ -44,7 +44,7 @@
 	(push-scope)
 
 	;read exit command etc
-	(f-call 'sys_mail 'mymail '() {msg, _})
+	(f-call 'sys_mail 'mymail nil {msg, _})
 	(f-call 'sys_mail 'free {msg})
 
 	;wait a bit
@@ -65,7 +65,7 @@
 	(push-scope)
 
 	;read work value etc
-	(f-call 'sys_mail 'mymail '() {msg, data})
+	(f-call 'sys_mail 'mymail nil {msg, data})
 
 	;wait a bit (gee that's hard work etc)
 	(f-call 'math 'random {100000} {num})

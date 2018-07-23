@@ -29,7 +29,7 @@
 
 ;open global farm, create multi-cast sample command
 (defq ids (open-farm "apps/netmon/child" cpu_total kn_call_open)
-	sample_msg (apply array (cat '(1) (task-mailbox))))
+	sample_msg (array 1 (task-mailbox)))
 
 (while id
 	;new batch of samples ?
