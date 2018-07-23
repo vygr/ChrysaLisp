@@ -15,8 +15,8 @@
 (slot gui_add window)
 
 ;create parent and send args
-(defq mbox (open-child "apps/raymarch/parent.lisp" kn_call_open))
-(mail-send (list canvas (mul canvas_width 1.0) (mul canvas_height 1.0) canvas_scale) mbox)
+(mail-send (list canvas (mul canvas_width 1.0) (mul canvas_height 1.0) canvas_scale)
+	(open-child "apps/raymarch/parent.lisp" kn_call_open))
 
 (while id
 	(cond

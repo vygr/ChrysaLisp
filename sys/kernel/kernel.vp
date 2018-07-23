@@ -44,7 +44,7 @@
 	;init mailer mailbox vector
 	(f-call 'sys_mail 'init)
 
-	;start kernel task
+	;start kernel task (get's mailbox id of 0 !)
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(f-call 'sys_task 'start {$func_entry} {task_statics->tk_statics_kernel_tcb, mbox_id})
