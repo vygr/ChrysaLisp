@@ -707,7 +707,6 @@ Super Class: null
 ### class::points -> class/class_points
 ### class::font -> class/class_font
 ### class::texture -> class/class_texture
-### class::mailbox -> class/class_mailbox
 ## component
 Super Class: hash_map
 ### component::init -> class/component/init
@@ -2660,35 +2659,6 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-## mailbox
-Super Class: obj
-### mailbox::create -> class/mailbox/create
-### mailbox::new -> class/mailbox/new
-### mailbox::init -> class/mailbox/init
-```
-inputs
-r0 = mailbox object (ptr)
-r1 = vtable (pptr)
-outputs
-r0 = mailbox object (ptr)
-r1 = 0 if error, else ok
-```
-### mailbox::read -> class/mailbox/read
-```
-inputs
-r0 = mailbox object (ptr)
-outputs
-r0 = mailbox object (ptr)
-r1 = mail address (ptr)
-r2 = string data (pubyte)
-```
-### mailbox::deinit -> class/mailbox/deinit
-```
-inputs
-r0 = mailbox object (ptr)
-outputs
-r0 = mailbox object (ptr)
-```
 ## math
 Super Class: null
 ### math::random -> sys/math/random
@@ -4032,7 +4002,7 @@ mail static data
 ### sys_mail::init -> sys/mail/init
 ```
 info
-init the mailbox vector and free array
+init the mbox array and mbox free array
 ```
 ### sys_mail::init1 -> sys/mail/init1
 ```
@@ -4057,7 +4027,7 @@ all
 ```
 inputs
 r0 = mailbox id (uint)
-trashes
+outputs
 r0 = mail address (ptr)
 trashes
 r0-r2
