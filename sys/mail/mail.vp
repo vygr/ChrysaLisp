@@ -1,8 +1,7 @@
 (import 'sys/func.inc)
 (import 'sys/link/link.inc)
 (import 'sys/kernel/kernel.inc)
-(import 'class/vector/vector.inc)
-(import 'class/mailbox/mailbox.inc)
+(import 'class/array/array.inc)
 
 (def-func 'sys/mail/statics)
 	;info
@@ -12,16 +11,17 @@
 
 (def-func 'sys/mail/init)
 	;info
-	;init the mailbox vector and free array
+	;init the mbox array and mbox free array
 
 	(ptr 'mail_statics)
 
 	(push-scope)
 
-	;create mailbox vector and array
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(f-call 'vector 'create nil {mail_statics->ml_statics_mailbox_vector})
-	(f-call 'array 'create nil {mail_statics->ml_statics_mailbox_array})
+	(f-call 'array 'create nil {mail_statics->ml_statics_mbox_array})
+	(f-call 'array 'set_capacity {mail_statics->ml_statics_mbox_array, 32})
+	(f-call 'array 'create nil {mail_statics->ml_statics_mbox_free_array})
+	(f-call 'sys_heap 'init {&mail_statics->ml_statics_mbox_heap, mbox_size, mbox_size * 32})
 
 	(pop-scope)
 	(return)
@@ -70,17 +70,20 @@
 	(uint 'id 'length)
 
 	(push-scope)
-	(f-entry 'sys_mail 'alloc_mbox '())
+	(f-entry 'sys_mail 'alloc_mbox nil)
 
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(d-call 'array 'get_length {mail_statics->ml_statics_mailbox_array} {_, length})
+	(d-call 'array 'get_length {mail_statics->ml_statics_mbox_free_array} {_, length})
 	(vpif {length})
-		(f-call 'array 'get_back {mail_statics->ml_statics_mailbox_array} {_, id})
-		(d-call 'array 'pop_back {mail_statics->ml_statics_mailbox_array})
+		(f-call 'array 'get_back {mail_statics->ml_statics_mbox_free_array} {_, id})
+		(d-call 'array 'pop_back {mail_statics->ml_statics_mbox_free_array})
 	(else)
-		(f-call 'mailbox 'create nil {mbox})
-		(f-call 'vector 'push_back {mail_statics->ml_statics_mailbox_vector, mbox})
-		(d-call 'vector 'get_length {mail_statics->ml_statics_mailbox_vector} {_, id})
+		(f-call 'sys_heap 'alloc {mail_statics->ml_statics_mbox_heap} {_, mbox})
+		(vp-def mbox tmp1 tmp2)
+		(assign {mbox} (list mbox))
+		(ml-init mbox tmp1 tmp2)
+		(f-call 'array 'push_back {mail_statics->ml_statics_mbox_array, mbox})
+		(d-call 'array 'get_length {mail_statics->ml_statics_mbox_array} {_, id})
 		(assign {id - 1} {id})
 	(endif)
 
@@ -96,17 +99,15 @@
 	;trashes
 	;all
 
-	(ptr 'mail_statics 'mbox)
+	(ptr 'mail_statics)
 	(uint 'id)
 
 	(push-scope)
 	(f-entry 'sys_mail 'free_mbox {id})
 
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(f-call 'vector 'get_element {mail_statics->ml_statics_mailbox_vector, id} {_, mbox})
-	(d-call 'mailbox 'deinit {mbox})
-	(f-call 'array 'push_back {mail_statics->ml_statics_mailbox_array, id})
-	
+	(f-call 'array 'push_back {mail_statics->ml_statics_mbox_free_array, id})
+
 	(f-exit 'sys_mail 'free_mbox '())
 	(pop-scope)
 	(return)
@@ -116,7 +117,7 @@
 (def-func 'sys/mail/mbox_addr)
 	;inputs
 	;r0 = mailbox id (uint)
-	;trashes
+	;outputs
 	;r0 = mail address (ptr)
 	;trashes
 	;r0-r2
@@ -126,9 +127,7 @@
 	(vp-cpy-cr 0xffffffff r0)
 	(vp-and-rr r0 r1)
 	(f-bind 'sys_mail 'statics r0)
-	(vp-cpy-ir r0 ml_statics_mailbox_vector r0)
-	(f-call 'vector 'get_element '(r0 r1) '(_ r1))
-	(vp-lea-i r1 mailbox_mbox r0)
+	(f-call 'array 'get_element '((r0 ml_statics_mbox_array) r1) '(_ r0))
 
 	(f-exit 'sys_mail 'mbox_addr '(r0))
 	(vp-ret)
@@ -318,11 +317,10 @@
 		;on this chip
 		(f-bind 'sys_mail 'statics r0)
 		(vp-cpy-ir-ui r2 (add msg_dest id_mbox) r1)
-		(vp-cpy-ir r0 ml_statics_mailbox_vector r0)
+		(vp-cpy-ir r0 ml_statics_mbox_array r0)
 		(vp-shl-cr (log2 ptr_size) r1)
 		(vp-cpy-ir r0 array_array r0)
 		(vp-cpy-dr r0 r1 r1)
-		(vp-add-cr mailbox_mbox r1)
 	(vp-label 'post_it)
 		(lh-add-at-tail r1 r2 r0)
 		(vp-cpy-ir r1 mbox_tcb r0)

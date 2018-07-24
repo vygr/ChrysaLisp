@@ -364,7 +364,6 @@
 (def-method 'points 'class/class_points)
 (def-method 'font 'class/class_font)
 (def-method 'texture 'class/class_texture)
-(def-method 'mailbox 'class/class_mailbox)
 
 (defcfun signature (l &rest _)
 	(vp-align short_size)

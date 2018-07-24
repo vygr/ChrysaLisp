@@ -12,7 +12,6 @@
 (import 'class/integer/make.inc)
 (import 'class/label/make.inc)
 (import 'class/lisp/make.inc)
-(import 'class/mailbox/make.inc)
 (import 'class/msg_in/make.inc)
 (import 'class/msg_out/make.inc)
 (import 'class/obj/make.inc)
