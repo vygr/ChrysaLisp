@@ -36,7 +36,6 @@
 	(uint 'mbox_id)
 
 	(push-scope)
-	(f-entry 'sys_mail 'init1 '())
 
 	;init off chip list
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
@@ -70,7 +69,6 @@
 	(uint 'id 'length)
 
 	(push-scope)
-	(f-entry 'sys_mail 'alloc_mbox nil)
 
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(d-call 'array 'get_length {mail_statics->ml_statics_mbox_free_array} {_, length})
@@ -108,7 +106,6 @@
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(f-call 'array 'push_back {mail_statics->ml_statics_mbox_free_array, id})
 
-	(f-exit 'sys_mail 'free_mbox '())
 	(pop-scope)
 	(return)
 

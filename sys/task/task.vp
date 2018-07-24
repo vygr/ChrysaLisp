@@ -250,7 +250,6 @@
 	(pptr 'stack 'stack_end)
 
 	(push-scope)
-	(f-entry 'sys_task 'stop '())
 
 	;decrement task count
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})

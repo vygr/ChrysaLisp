@@ -53,7 +53,6 @@
 		(f-call 'sys_mail 'send {msg})
 	(endif)
 
-	(f-exit 'sys_mail 'in '())
 	(pop-scope)
 	(return)
 
