@@ -5,11 +5,11 @@
 	flow_flag_align_vtop flow_flag_align_vbottom window_flag_close window_flag_min
 	window_flag_max ev_msg_target_id ev_msg_action_source_id slot_find_id
 	slot_gui_add slot_event slot_add_child slot_change slot_pref_size
-	slot_connect_click slot_set_title slot_set_status
+	slot_get_bounds slot_connect_click slot_set_title slot_set_status
 	slot_connect_close slot_connect_min slot_connect_max slot_set_fbox
 	slot_set_fpoly slot_blend_fpoly slot_fill slot_swap slot_transform
 	slot_simplify slot_gen_quadratic slot_gen_cubic slot_gen_arc
-	slot_stroke_polylines slot_stroke_polygons slot_layout slot_dirty)
+	slot_stroke_polylines slot_stroke_polygons slot_layout slot_dirty slot_dirty_all)
 	(within-compile-env (lambda ()
 		(import 'gui/gui.inc)
 		(import 'class/flow/flow.inc)
@@ -24,7 +24,7 @@
 			window_flag_min window_flag_max ev_msg_target_id ev_msg_action_source_id
 			(method-slot 'view 'find_id) (method-slot 'gui_gui 'add)
 			(method-slot 'view 'event) (method-slot 'view 'add_child)
-			(method-slot 'view 'change) (method-slot 'view 'pref_size)
+			(method-slot 'view 'change) (method-slot 'view 'pref_size) (method-slot 'view 'get_bounds)
 			(method-slot 'button 'connect_click) (method-slot 'window 'set_title)
 			(method-slot 'window 'set_status)
 			(method-slot 'window 'connect_close) (method-slot 'window 'connect_min)
@@ -35,7 +35,7 @@
 			(method-slot 'points 'gen_quadratic) (method-slot 'points 'gen_cubic)
 			(method-slot 'points 'gen_arc) (method-slot 'points 'stroke_polylines) 
 			(method-slot 'points 'stroke_polygons) (method-slot 'view 'layout)
-			(method-slot 'view 'dirty)))))
+			(method-slot 'view 'dirty) (method-slot 'view 'dirty_all)))))
 
 ;some helpful macros
 (defmacro get (_ b) `(eval ,b ,_))

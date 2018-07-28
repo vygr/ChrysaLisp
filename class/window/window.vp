@@ -57,8 +57,9 @@
 
 		;add close button ?
 		(f-call 'button 'create nil {this->window_close})
+		(f-call 'button 'set_font_prop {this->window_close, prop_font, "fonts/Entypo.otf", 22})
 		(v-call 'flow 'add_child {title_flow, this->window_close})
-		(f-call 'button 'set_string_prop {this->window_close, prop_text, "X"})
+		(f-call 'button 'set_string_prop {this->window_close, prop_text, ""})
 		(v-call 'button 'pref_size {this->window_close} {_, min_width, _})
 		(f-call 'flow 'set_long_prop {title_flow, prop_min_width, min_width})
 		(vpifnot {flags & window_flag_close})
@@ -69,15 +70,17 @@
 		;add max button
 		(vpif {flags & window_flag_max})
 			(f-call 'button 'create nil {this->window_max})
+			(f-call 'button 'set_font_prop {this->window_max, prop_font, "fonts/Entypo.otf", 22})
 			(v-call 'flow 'add_child {title_flow, this->window_max})
-			(f-call 'button 'set_string_prop {this->window_max, prop_text, "+"})
+			(f-call 'button 'set_string_prop {this->window_max, prop_text, ""})
 		(endif)
 
 		;add min button
 		(vpif {flags & window_flag_min})
 			(f-call 'button 'create nil {this->window_min})
+			(f-call 'button 'set_font_prop {this->window_min, prop_font, "fonts/Entypo.otf", 22})
 			(v-call 'flow 'add_child {title_flow, this->window_min})
-			(f-call 'button 'set_string_prop {this->window_min, prop_text, "-"})
+			(f-call 'button 'set_string_prop {this->window_min, prop_text, ""})
 		(endif)
 
 		;add title
