@@ -18,8 +18,10 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'vtable)
-	(ulong 'ok)
+	(ptr 'this)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
 
 	;save inputs
 	(push-scope)

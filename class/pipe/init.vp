@@ -18,8 +18,10 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'vtable 'buffer)
-	(ulong 'ok)
+	(ptr 'this 'buffer)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
 	(uint 'length)
 
 	;read init args

@@ -16,8 +16,10 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'vtable)
-	(ulong 'ok)
+	(ptr 'this)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
 
 	(push-scope)
 	(f-entry 'msg_in 'init {this, vtable})

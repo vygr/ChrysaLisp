@@ -18,8 +18,10 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'vtable 'stream 'msg 'data)
-	(ulong 'ok)
+	(ptr 'this 'stream 'msg 'data)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
 
 	;read init args
 	(push-scope)

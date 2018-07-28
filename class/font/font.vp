@@ -84,8 +84,10 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'vtable 'name)
-	(ulong 'ok)
+	(ptr 'this 'name)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
 	(uint 'points)
 
 	(push-scope)
