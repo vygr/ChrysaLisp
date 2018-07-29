@@ -90,7 +90,7 @@
 				(continueif '(r8 >= r14))
 
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 
 				;jump to correct splitting code
@@ -304,22 +304,22 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r7 r8 r9 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r9 r8 r13 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r11 r8 r7 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -336,17 +336,17 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r8 r9 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r9 r8 r13 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -362,17 +362,17 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r7 r12 r9 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r9 r12 r13 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r11 r12 r7 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -388,12 +388,12 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r9 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r9 r12 r13 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -408,17 +408,17 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r7 r8 r13 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r11 r8 r7 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -433,12 +433,12 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r8 r13 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -453,12 +453,12 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r7 r12 r13 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r11 r12 r7 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -473,7 +473,7 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r13 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -484,17 +484,17 @@
 				(assign '(r8 r7) '((r6 gui_rect_y i) (r6 gui_rect_x1 i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r7 r8 r9 r14) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r9 r8 r13 r14) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -513,7 +513,7 @@
 				(assign '(r7) '((r6 gui_rect_x1 i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r7 r12 r13 r14) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -524,7 +524,7 @@
 				(assign '(r8) '((r6 gui_rect_y1 i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r8 r13 r14) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -535,12 +535,12 @@
 				(assign '(r8 r7) '((r6 gui_rect_y i) (r6 gui_rect_x1 i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r7 r8 r13 r14) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -551,7 +551,7 @@
 				(assign '(r9) '((r6 gui_rect_x i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r9 r14) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -562,12 +562,12 @@
 				(assign '(r9) '((r6 gui_rect_x i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r7 r12 r9 r14) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r11 r12 r7 r14) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -578,12 +578,12 @@
 				(assign '(r9 r8) '((r6 gui_rect_x i) (r6 gui_rect_y i)))
 				;cut part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r8 r9 r14) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r5 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 			(loop-end)
@@ -684,7 +684,7 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r9 r12 r13 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -708,7 +708,7 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -723,7 +723,7 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r7 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -768,7 +768,7 @@
 				(assign '(r8 r7) '((r6 gui_rect_y i) (r6 gui_rect_x1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -785,7 +785,7 @@
 				(assign '(r9) '((r6 gui_rect_x i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r7 r14) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -796,7 +796,7 @@
 				(assign '(r9 r8) '((r6 gui_rect_x i) (r6 gui_rect_y i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 			(loop-end)
@@ -806,7 +806,7 @@
 				(breakif '(r7 == r9))
 				(breakif '(r8 == r10))
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(breakif '(r1 == 0))
+				;(breakif '(r1 == 0))
 
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r7 r8 r9 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
@@ -900,17 +900,17 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r9 r8 r13 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r8 r7 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -927,12 +927,12 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r9 r8 r13 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -948,12 +948,12 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r9 r12 r13 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r7 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -969,7 +969,7 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r9 r12 r13 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -984,12 +984,12 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r8 r7 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -1004,7 +1004,7 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -1019,7 +1019,7 @@
 				(assign '(r10) '((r6 gui_rect_y i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r7 r10) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -1040,12 +1040,12 @@
 				(assign '(r8 r7) '((r6 gui_rect_y i) (r6 gui_rect_x1 i)))
 				;right part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r9 r8 r13 r14) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -1075,7 +1075,7 @@
 				(assign '(r8 r7) '((r6 gui_rect_y i) (r6 gui_rect_x1 i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -1092,7 +1092,7 @@
 				(assign '(r9) '((r6 gui_rect_x i)))
 				;left part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r7 r14) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 				(continue)
@@ -1103,7 +1103,7 @@
 				(assign '(r9 r8) '((r6 gui_rect_x i) (r6 gui_rect_y i)))
 				;top part
 				(f-call 'sys_heap 'alloc '(r0) '(r0 r1))
-				(continueif '(r1 == 0))
+				;(continueif '(r1 == 0))
 				(ln-add-fnode r4 0 r1 r2)
 				(assign '(r11 r12 r13 r8) '((r1 gui_rect_x i) (r1 gui_rect_y i) (r1 gui_rect_x1 i) (r1 gui_rect_y1 i)))
 			(loop-end)
