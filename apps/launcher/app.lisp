@@ -2,6 +2,9 @@
 (run 'apps/sys.inc)
 (run 'apps/ui.inc)
 
+(structure 'event 0
+	(byte 'win_button))
+
 (defq app_list '(
 	"apps/terminal/app"
 	"apps/netmon/app.lisp"
@@ -16,7 +19,7 @@
 (ui-tree window (create-window 0) nil
 	(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw) 'color 0xffffff00)
 		(each (lambda (path)
-			(slot connect_click (ui-element _ (create-button) ('text path)) 0)) app_list)))
+			(slot connect_click (ui-element _ (create-button) ('text path)) event_win_button)) app_list)))
 
 (slot set_title window "Launcher")
 (bind '(w h) (slot pref_size window))
@@ -25,6 +28,6 @@
 
 (while t
 	(cond
-		((ge (read-long ev_msg_target_id (defq msg (mail-mymail))) 0)
+		((ge (read-long ev_msg_target_id (defq msg (mail-mymail))) event_win_button)
 			(open-child (get (slot find_id window (read-long ev_msg_action_source_id msg)) 'text) kn_call_open))
 		(t (slot event window msg))))

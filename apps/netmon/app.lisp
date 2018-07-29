@@ -8,6 +8,11 @@
 	(long 'task_count)
 	(long 'mem_used))
 
+(structure 'event 0
+	(byte 'win_close)
+	(byte 'win_sample)
+	(byte 'win_exit))
+
 (defq task_bars (list) memory_bars (list)
 	cpu_total (cpu-total) cpu_count cpu_total
 	id t max_tasks 0 max_memory 0)
@@ -22,14 +27,14 @@
 			(times cpu_total (push memory_bars (ui-element _ (create-progress)))))))
 
 (slot set_title window "Network Monitor")
-(slot connect_close window 0)
+(slot connect_close window event_win_close)
 (bind '(w h) (slot pref_size window))
 (slot change window 320 32 w h)
 (slot gui_add window)
 
 ;open global farm, create multi-cast sample command
 (defq ids (open-farm "apps/netmon/child" cpu_total kn_call_open)
-	sample_msg (array 1 (task-mailbox)))
+	sample_msg (array event_win_sample (task-mailbox)))
 
 (while id
 	;new batch of samples ?
@@ -39,7 +44,7 @@
 			(setq cpu_count (dec cpu_count))
 			(mail-send sample_msg (elem cpu_count ids))))
 	(cond
-		((ge (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) 1)
+		((ge (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) event_win_sample)
 			;reply from cpu
 			(defq cpu (read-long sample_reply_msg_cpu msg)
 				task_val (read-long sample_reply_msg_task_count msg)
@@ -53,16 +58,16 @@
 
 			;count up replies
 			(setq cpu_count (inc cpu_count)))
-		((eq id 0)
+		((eq id event_win_close)
 			(setq id nil))
 		(t (slot event window msg))))
 
 ;wait for outstanding replies
 (while (ne cpu_count cpu_total)
-	(if (eq (read-long ev_msg_target_id (mail-mymail)) 1)
+	(if (eq (read-long ev_msg_target_id (mail-mymail)) event_win_sample)
 		(setq cpu_count (inc cpu_count))))
 
 ;send out multi-cast exit command
-(defq exit (char 2 long_size))
+(defq exit (char event_win_exit long_size))
 (while (defq mbox (pop ids))
 	(mail-send exit mbox))
