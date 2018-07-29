@@ -28,6 +28,6 @@
 
 (while t
 	(cond
-		((ge (read-long ev_msg_target_id (defq msg (mail-mymail))) event_win_button)
+		((eq (read-long ev_msg_target_id (defq msg (mail-mymail))) event_win_button)
 			(open-child (get (slot find_id window (read-long ev_msg_action_source_id msg)) 'text) kn_call_open))
 		(t (slot event window msg))))

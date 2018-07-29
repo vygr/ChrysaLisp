@@ -9,15 +9,17 @@
 	(long 'mem_used))
 
 (structure 'event 0
-	(byte 'win_close)
+	(byte 'win_exit)
 	(byte 'win_sample)
-	(byte 'win_exit))
+	(byte 'win_close)
+	(byte 'win_min)
+	(byte 'win_max))
 
 (defq task_bars (list) memory_bars (list)
 	cpu_total (cpu-total) cpu_count cpu_total
 	id t max_tasks 0 max_memory 0)
 
-(ui-tree window (create-window window_flag_close) nil
+(ui-tree window (create-window (add window_flag_close window_flag_min window_flag_max)) nil
 	(ui-element _ (create-grid) ('grid_width 2 'grid_height 1 'flow_flags (bit-or flow_flag_down flow_flag_fillw) 'progress_max 100 'progress_val 0)
 		(ui-element _ (create-flow) ('color 0xff00ff00)
 			(ui-element _ (create-label) ('text "Tasks" 'color 0xffffffff))
@@ -28,6 +30,8 @@
 
 (slot set_title window "Network Monitor")
 (slot connect_close window event_win_close)
+(slot connect_min window event_win_min)
+(slot connect_max window event_win_max)
 (bind '(w h) (slot pref_size window))
 (slot change window 320 32 w h)
 (slot gui_add window)
@@ -44,7 +48,7 @@
 			(setq cpu_count (dec cpu_count))
 			(mail-send sample_msg (elem cpu_count ids))))
 	(cond
-		((ge (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) event_win_sample)
+		((eq (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) event_win_sample)
 			;reply from cpu
 			(defq cpu (read-long sample_reply_msg_cpu msg)
 				task_val (read-long sample_reply_msg_task_count msg)
@@ -59,7 +63,22 @@
 			;count up replies
 			(setq cpu_count (inc cpu_count)))
 		((eq id event_win_close)
+			;close button
 			(setq id nil))
+		((eq id event_win_min)
+			;min button
+			(slot dirty window)
+			(bind '(x y _ _) (slot get_bounds window))
+			(bind '(w h) (slot pref_size window))
+			(slot change window x y w h)
+			(slot dirty_all window))
+		((eq id event_win_max)
+			;max button
+			(slot dirty window)
+			(bind '(x y _ _) (slot get_bounds window))
+			(bind '(w h) (slot pref_size window))
+			(slot change window x y (fmul w 1.75) h)
+			(slot dirty_all window))
 		(t (slot event window msg))))
 
 ;wait for outstanding replies

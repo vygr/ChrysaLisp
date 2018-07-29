@@ -22,7 +22,7 @@
 	(loop-start)
 		;read mail command
 		(f-call 'sys_mail 'mymail nil {msg, data})
-		(breakif {data->sample_msg_command == 2})
+		(breakifnot {data->sample_msg_command})
 
 		;sample reply
 		(f-call 'sys_mail 'alloc {sample_reply_msg_size} {reply, rdata})
