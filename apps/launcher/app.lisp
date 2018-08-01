@@ -8,6 +8,7 @@
 (defq app_list '(
 	"apps/terminal/app"
 	"apps/netmon/app.lisp"
+	"apps/boing/app.lisp"
 	"apps/canvas/app.lisp"
 	"apps/raymarch/app.lisp"
 	"apps/calculator/app.lisp"
