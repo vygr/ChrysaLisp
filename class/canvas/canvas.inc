@@ -25,11 +25,14 @@
 (def-method 'blend_fbox 'class/canvas/blend_fbox 'static '(r0 r1 r7 r8 r9 r10) '(r0))
 (def-method 'blend_fpoly 'class/canvas/blend_fpoly 'static '(r0 r1 r2 r3) '(r0))
 
+(def-method 'load_cpm 'class/canvas/load_cpm 'static '(r0) '(r0))
+
 (def-method 'deinit 'class/canvas/deinit 'override)
 (def-method 'pref_size 'class/canvas/pref_size 'override)
 (def-method 'draw 'class/canvas/draw 'override)
 
 (def-method 'lisp_create 'class/canvas/lisp_create 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_load_cpm 'class/canvas/lisp_load_cpm 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'canvas 'view)
 	(ulong 'texture)

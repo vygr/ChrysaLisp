@@ -206,7 +206,7 @@
 			(f-call 'canvas 'as_argb '(r0 r0))
 		(endif)
 		(sdl-call 'sdl 'sdl_create_rgb_surface_from '((r0 canvas_data) (r0 canvas_width ui) (r0 canvas_height ui)
-							32 (r0 canvas_stride ui) 0xff 0xff00 0xff0000 0xff000000))
+							32 (r0 canvas_stride ui) 0xff0000 0xff00 0xff 0xff000000))
 		(vp-cpy-ri r0 rsp local_surface)
 		(vp-cpy-ir rsp local_ctx r2)
 		(sdl-call 'sdl 'sdl_create_texture_from_surface '((r2 gui_ctx_sdl_ctx) r0))

@@ -1,0 +1,175 @@
+(import 'sys/func.inc)
+(import 'class/canvas/canvas.inc)
+(import 'class/stream/stream.inc)
+
+(def-struct 'cpm)
+	(uint 'ident)		;ident '.CPM' or '.FLM'
+	(uint 'bytes)		;total size
+	(uint 'version)		;version number
+	(uint 'type)		;image type
+	(uint 'width)		;image w
+	(uint 'height)		;image h
+	(uint 'trans)		;image transparent colour
+(def-struct-end)
+
+(def-func 'class/canvas/load_cpm)
+	;inputs
+	;r0 = stream object (ptr)
+	;outputs
+	;r0 = 0 if error, else canvas object (ptr)
+	;trashes
+	;all
+
+	(ptr 'this 'stream)
+	(struct 'header 'cpm)
+	(long 'col)
+	(int 'length 'run 'x 'y)
+
+	;save inputs
+	(push-scope)
+	(f-entry 'canvas 'load_cpm {stream})
+
+	;read header
+	(assign {0} {this})
+	(f-call 'stream 'read {stream, &header, cpm_size} {_, length})
+	(vpif {length == cpm_size})
+		;check ident '.CPM' or '.FLM'
+		(vpif {header.cpm_ident == 0x2e43504d || header.cpm_ident == 0x2e464c4d})
+			;create canvas
+			(f-call 'canvas 'create {header.cpm_width, header.cpm_height, 1.0} {this})
+			(vpif {this})
+				;decode acording to version
+				(assign {0, 0} {x, y})
+				(loop-start)
+					;get token
+					(f-call 'stream 'read_char {stream} {_, run})
+					(gotoif {run == -1} 'error)
+					(vpif {run >= 128})
+						;run of a pixel
+						(l-call 'read_pixel {stream, header.cpm_type} {col})
+						(gotoif {col == -1} 'error)
+						(vpif {col == header.cpm_trans})
+							(assign {0} {col})
+						(endif)
+
+						;plot repeatedly
+						(assign {run - 127} {run})
+						(loop-start)
+							(f-call 'canvas 'set_fbox {this, col, x, y, 1, 1})
+							(assign {x + 1} {x})
+							(vpif {x == header.cpm_width})
+								(assign {0, y + 1} {x, y})
+							(endif)
+							(assign {run - 1} {run})
+						(loop-untilnot {run})
+					(else)
+						;block of pixels
+						(assign {run + 1} {run})
+						(loop-start)
+							(l-call 'read_pixel {stream, header.cpm_type} {col})
+							(gotoif {col == -1} 'error)
+							(vpif {col == header.cpm_trans})
+								(assign {0} {col})
+							(endif)
+
+							(f-call 'canvas 'set_fbox {this, col, x, y, 1, 1})
+							(assign {x + 1} {x})
+							(vpif {x == header.cpm_width})
+								(assign {0, y + 1} {x, y})
+							(endif)
+							(assign {run - 1} {run})
+						(loop-untilnot {run})
+					(endif)
+				(loop-until {y == header.cpm_height})
+			(endif)
+		(endif)
+	(endif)
+
+(vp-label 'exit)
+	(f-exit 'canvas 'load_cpm {this})
+	(return)
+
+(vp-label 'error)
+	(f-call 'canvas 'deref {this})
+	(assign {0} {this})
+	(goto 'exit)
+
+	(pop-scope-syms)
+
+(vp-label 'read_pixel)
+	;inputs
+	;r0 = stream object (ptr)
+	;r1 = pixel type (uint)
+	;outputs
+	;r0 = -1 if error, else col (uint)
+
+	(ptr 'stream)
+	(long 'col)
+	(int 'type)
+
+	(push-scope)
+	(l-entry {stream, type})
+
+	(switch)
+	(case {type == 32})
+		(f-call 'stream 'read {stream, &col, int_size} {_, type})
+		(l-call 'to_argb {col, 32} {col})
+		(break)
+	(case {type == 24})
+		(f-call 'stream 'read {stream, &col, 3} {_, type})
+		(l-call 'to_argb {col, 24} {col})
+		(break)
+	(case {type == 16})
+		(f-call 'stream 'read {stream, &col, short_size} {_, type})
+		(l-call 'to_argb {col, 16} {col})
+		(break)
+	(default)
+		(assign {-1} {type})
+	(endswitch)
+	(vpif {type == -1})
+		(assign {-1} {col})
+	(endif)
+
+	(l-exit {col})
+	(pop-scope)
+	(return)
+
+(vp-label 'to_argb)
+	;inputs
+	;r0 = col (uint)
+	;r1 = pixel type (uint)
+	;outputs
+	;r0 = col (uint)
+
+	(uint 'col 'type)
+
+	(push-scope)
+	(l-entry {col, type})
+
+	(switch)
+	(case {type == 32})
+		(break)
+	(case {type == 24})
+		(assign {0xff000000
+				+ ((col & 0xff0000) >> 16)
+				+ (col & 0xff00)
+				+ ((col & 0xff) << 16)} {col})
+		(break)
+	(case {type == 16})
+		(assign {0xff000000
+				+ ((col & 0b1111100000000000) >> 8)
+				+ ((col & 0b1110000000000000) >> 13)
+				+ ((col & 0b11111100000) << 5)
+				+ ((col & 0b11000000000) >> 1)
+				+ ((col & 0b11111) << 19)
+				+ ((col & 0b11100) << 14)} {col})
+		(break)
+	(default)
+		(assign {-1} {col})
+	(endswitch)
+
+	(l-exit {col})
+	(pop-scope)
+	(return)
+
+(def-func-end)

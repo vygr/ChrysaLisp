@@ -39,9 +39,9 @@
 	(slot blend_fpoly canvas _ col mode))
 
 (defun redraw ()
-	(slot fill canvas 0x000000ff)
+	(slot fill canvas 0)
 
-	(fpoly 0xff0000ff 1 (transform-norm (list (as-points (list
+	(fpoly 0xffff0000 1 (transform-norm (list (as-points (list
 		(list -0.5 -0.5)
 		(list -0.25 0.5)
 		(list 0 -0.5)
@@ -49,7 +49,7 @@
 		(list 0.5 -0.5)
 		(list -0.05 0.5)))) (mul angle 2)))
 
-	(fpoly 0xfffff00f 0 (transform
+	(fpoly 0xff0ff0ff 0 (transform
 		(slot stroke_polylines (list) stack
 			(list
 				(slot gen_quadratic (points) stack
@@ -76,7 +76,7 @@
 			(fmul canvas_width 0x0.1)
 			eps) angle))
 
-	(fpoly 0xff00ffff 0 (defq p (transform
+	(fpoly 0xffffff00 0 (defq p (transform
 		(slot stroke_polygons (list) stack
 			(slot stroke_polylines (list) stack
 				(list
@@ -110,7 +110,7 @@
 			eps) angle)))
 	(bpoly 0x60000000 0 (slice 0 1 p))
 
-	(bpoly 0xc0ff0000 0 (defq polygons (transform
+	(bpoly 0xc00000ff 0 (defq polygons (transform
 		(slot stroke_polygons (list) stack
 			(slot stroke_polylines (list) stack
 				(list

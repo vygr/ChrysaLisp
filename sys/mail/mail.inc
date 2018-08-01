@@ -11,7 +11,7 @@
 (def-method 'statics 'sys/mail/statics)
 (def-method 'init 'sys/mail/init 'static)
 (def-method 'init1 'sys/mail/init1 'static)
-(def-method 'alloc_mbox 'sys/mail/alloc_mbox 'static '() '(r0))
+(def-method 'alloc_mbox 'sys/mail/alloc_mbox 'static nil '(r0))
 (def-method 'free_mbox 'sys/mail/free_mbox 'static '(r0))
 (def-method 'mbox_addr 'sys/mail/mbox_addr 'static '(r0) '(r0))
 (def-method 'alloc 'sys/mail/alloc 'static '(r0) '(r0 r1))

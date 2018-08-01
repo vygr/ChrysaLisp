@@ -36,3 +36,41 @@
 	(pop-scope-syms)
 
 (def-func-end)
+
+(def-func 'class/canvas/lisp_load_cpm)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0)
+
+	(push-scope)
+	(f-entry 'canvas 'lisp_load_cpm {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'canvas 'load_cpm {arg0} {value})
+	(vpifnot {value})
+		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
+	(endif)
+
+(vp-label 'exit)
+	(f-exit 'canvas 'lisp_load_cpm {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(load-cpm stream)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'stream))
+
+	(pop-scope-syms)
+
+(def-func-end)
