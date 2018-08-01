@@ -9,9 +9,10 @@
 	(load-cpm (file-stream (cat "apps/boing/taoball_" (str _) ".cpm")))) (range 1 12)))
 
 (ui-tree window (create-window window_flag_close) nil
-	(ui-element canvas (create-canvas canvas_width canvas_height 1.0)))
+;	(ui-element canvas (create-canvas canvas_width canvas_height 1.0))
+	(ui-element _ (load-cpm (file-stream "apps/boing/taoball_1.cpm"))))
 
-(slot fill canvas 0xff000000)
+;(slot fill canvas 0xff000000)
 
 (slot set_title window "Boing")
 (slot connect_close window event_win_close)
