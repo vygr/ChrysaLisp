@@ -6,11 +6,11 @@
 	(byte 'win_close))
 
 (defq id t canvas_width 640 canvas_height 480 frames (map (lambda (_)
-	(load-cpm (file-stream (cat "apps/boing/taoball_" (str _) ".cpm")))) (range 1 12)))
+	(canvas-load (cat "apps/boing/taoball_" (str _) ".cpm"))) (range 1 12)))
 
 (ui-tree window (create-window window_flag_close) nil
 ;	(ui-element canvas (create-canvas canvas_width canvas_height 1.0))
-	(ui-element _ (load-cpm (file-stream "apps/boing/taoball_1.cpm"))))
+	(ui-element _ (canvas-load "apps/boing/taoball_1.cpm")))
 
 ;(slot fill canvas 0xff000000)
 

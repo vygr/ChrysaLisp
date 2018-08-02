@@ -2,8 +2,10 @@
 
 (def-class 'canvas 'view)
 (def-method 'create 'class/canvas/create 'static '(r0 r1 r2) '(r0))
+(def-method 'create_shared 'class/canvas/create_shared 'static '(r0) '(r0))
 (def-method 'new 'class/canvas/new 'static nil '(r0))
 (def-method 'init 'class/canvas/init 'static '(r0 r1 r2 r3 r4) '(r0 r1))
+(def-method 'init1 'class/canvas/init1 'static '(r0 r1 r2) '(r0 r1))
 (def-method 'swap 'class/canvas/swap 'static '(r0) '(r0))
 (def-method 'resize 'class/canvas/resize 'static '(r0 r1) '(r0))
 (def-method 'fill 'class/canvas/fill 'static '(r0 r1) '(r0))
@@ -25,6 +27,7 @@
 (def-method 'blend_fbox 'class/canvas/blend_fbox 'static '(r0 r1 r7 r8 r9 r10) '(r0))
 (def-method 'blend_fpoly 'class/canvas/blend_fpoly 'static '(r0 r1 r2 r3) '(r0))
 
+(def-method 'load 'class/canvas/load 'static '(r0) '(r0))
 (def-method 'load_cpm 'class/canvas/load_cpm 'static '(r0) '(r0))
 
 (def-method 'deinit 'class/canvas/deinit 'override)
@@ -32,11 +35,11 @@
 (def-method 'draw 'class/canvas/draw 'override)
 
 (def-method 'lisp_create 'class/canvas/lisp_create 'static '(r0 r1) '(r0 r1))
-(def-method 'lisp_load_cpm 'class/canvas/lisp_load_cpm 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_load 'class/canvas/lisp_load 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'canvas 'view)
 	(ulong 'texture)
-	(ptr 'data)
+	(ptr 'array)
 	(ptr 'edges)
 	(ptr 'edge_tracker)
 	(ptr 'stack)

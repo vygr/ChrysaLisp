@@ -5,6 +5,9 @@
 (import 'class/flow/flow.inc)
 (import 'class/vector/vector.inc)
 (import 'class/points/points.inc)
+(import 'class/symbol/symbol.inc)
+(import 'class/stream_str/stream_str.inc)
+(import 'class/pair/pair.inc)
 (import 'gui/ctx/ctx.inc)
 
 (gen-new 'canvas)
@@ -16,9 +19,9 @@
 	;r1 = height (pixels)
 	;r2 = aa scale (16.16)
 	;outputs
-	;r0 = 0 if error, else object (ptr)
+	;r0 = 0 if error, else canvas object (ptr)
 	;trashes
-	;r1-r6
+	;all
 
 	;save inputs
 	(f-entry 'canvas 'create '(r4 r5 r6))
@@ -40,6 +43,34 @@
 
 (def-func-end)
 
+(def-func 'class/canvas/create_shared)
+	;inputs
+	;r0 = source canvas object (ptr)
+	;outputs
+	;r0 = 0 if error, else canvas object (ptr)
+	;trashes
+	;all
+
+	;save inputs
+	(f-entry 'canvas 'create_shared '(r4))
+
+	;create new object
+	(f-call 'canvas 'new nil '(r0))
+	(vpif '(r0 != 0))
+		;init the object
+		(f-call 'canvas 'init1 `(r0 (@ ,(f-path 'class 'canvas)) r4) '(r0 r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(v-call 'canvas 'delete '(r0) '() 'r1)
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+
+	(f-exit 'canvas 'create_shared '(r0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-func 'class/canvas/init)
 	;inputs
 	;r0 = canvas object (ptr)
@@ -50,62 +81,99 @@
 	;outputs
 	;r0 = canvas object (ptr)
 	;r1 = 0 if error, else ok
+	;trashes
+	;all
+
+	(ptr 'this)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
 
 	;save inputs
-	(f-entry 'canvas 'init '(r0 r1 (r0 canvas_width i) (r0 canvas_height i) (r0 canvas_aa_scale i)))
+	(push-scope)
+	(f-entry 'canvas 'init {this, vtable, this->canvas_width, this->canvas_height, this->canvas_aa_scale})
 
 	;init parent
-	(s-call 'canvas 'init '(r0 r1) '(r0 r1))
-	(vpif '(r1 != 0))
-		(vp-push r0)
-		(vp-xor-rr r2 r2)
-		(vp-cpy-ri r2 r0 canvas_texture)
-		(vp-cpy-ri r2 r0 canvas_resize_buf)
-		(vp-cpy-ri-i r2 r0 canvas_resize_buf_size)
-		(vp-cpy-ri-i r2 r0 canvas_cx)
-		(vp-cpy-ri-i r2 r0 canvas_cy)
+	(s-call 'canvas 'init {this, vtable} {_, ok})
+	(vpif {ok})
+		(assign {0} {this->canvas_texture})
+		(assign {0} {this->canvas_resize_buf})
+		(assign {0} {this->canvas_resize_buf_size})
+		(assign {0} {this->canvas_cx})
+		(assign {0} {this->canvas_cy})
 
-		(vp-cpy-ir-i r0 canvas_aa_scale r3)
-		(vp-cpy-cr (bit-shl 1.0 fp_shift) r2)
-		(vp-xor-rr r1 r1)
-		(vp-div-rrr r3 r1 r2)
-		(vp-cpy-ri-i r2 r0 canvas_aa_scale_r)
-		(vp-cpy-ir-i r0 canvas_aa_scale r3)
-		(vp-cpy-ir-ui r0 canvas_width r1)
-		(vp-cpy-ir-ui r0 canvas_height r2)
-		(vp-mul-rr r3 r1)
-		(vp-mul-rr r3 r2)
-		(vp-asr-cr fp_shift r1)
-		(vp-asr-cr fp_shift r2)
-		(vp-cpy-ri-i r1 r0 canvas_width)
-		(vp-cpy-ri-i r2 r0 canvas_height)
-		(vp-cpy-ri-i r1 r0 canvas_cx1)
-		(vp-cpy-ri-i r2 r0 canvas_cy1)
+		(assign {1.0 </ this->canvas_aa_scale} {this->canvas_aa_scale_r})
+		(assign {this->canvas_aa_scale *> this->canvas_width} {this->canvas_width})
+		(assign {this->canvas_aa_scale *> this->canvas_height} {this->canvas_height})
+		(assign {this->canvas_width} {this->canvas_cx1})
+		(assign {this->canvas_height} {this->canvas_cy1})
+		(assign {this->canvas_width * int_size} {this->canvas_stride})
 
-		;pixel buffer
-		(vp-shl-cr (log2 int_size) r1)
-		(vp-cpy-ri r1 r0 canvas_stride)
-		(vp-mul-rr r2 r1)
-		(f-call 'sys_mem 'alloc '(r1) '(r0 _))
-		(vp-cpy-ir rsp 0 r1)
-		(vp-cpy-ri r0 r1 canvas_data)
+		;alloc pixel array
+		(f-call 'array 'create nil {this->canvas_array})
+		(f-call 'array 'set_capacity {this->canvas_array, (this->canvas_stride * this->canvas_height) >> 3})
 
 		;edge arrays, sort interval stack
-		(f-call 'array 'create '() '(r0))
-		(vp-cpy-ir rsp 0 r1)
-		(vp-cpy-ri r0 r1 canvas_edges)
-		(f-call 'array 'create '() '(r0))
-		(vp-cpy-ir rsp 0 r1)
-		(vp-cpy-ri r0 r1 canvas_edge_tracker)
-		(f-call 'array 'create '() '(r0))
-		(vp-cpy-ir rsp 0 r1)
-		(vp-cpy-ri r0 r1 canvas_stack)
-
-		(vp-pop r0)
+		(f-call 'array 'create nil {this->canvas_edges})
+		(f-call 'array 'create nil {this->canvas_edge_tracker})
+		(f-call 'array 'create nil {this->canvas_stack})
 	(endif)
 
-	(f-exit 'canvas 'init '(r0 r1))
-	(vp-ret)
+	(f-exit 'canvas 'init {this, ok})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'class/canvas/init1)
+	;inputs
+	;r0 = canvas object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = source canvas object (ptr)
+	;outputs
+	;r0 = canvas object (ptr)
+	;r1 = 0 if error, else ok
+	;trashes
+	;all
+
+	(ptr 'this 'src)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
+
+	;save inputs
+	(push-scope)
+	(f-entry 'canvas 'init1 {this, vtable, src})
+
+	;init parent
+	(s-call 'canvas 'init {this, vtable} {_, ok})
+	(vpif {ok})
+		(assign {0} {this->canvas_texture})
+		(assign {0} {this->canvas_resize_buf})
+		(assign {0} {this->canvas_resize_buf_size})
+		(assign {0} {this->canvas_cx})
+		(assign {0} {this->canvas_cy})
+
+		(assign {src->canvas_aa_scale} {this->canvas_aa_scale})
+		(assign {src->canvas_aa_scale_r} {this->canvas_aa_scale_r})
+		(assign {src->canvas_width} {this->canvas_width})
+		(assign {src->canvas_height} {this->canvas_height})
+		(assign {src->canvas_width} {this->canvas_cx1})
+		(assign {src->canvas_height} {this->canvas_cy1})
+		(assign {src->canvas_stride} {this->canvas_stride})
+
+		;ref src pixel array
+		(f-call 'obj 'ref {src->canvas_array} {this->canvas_array})
+
+		;edge arrays, sort interval stack
+		(f-call 'array 'create nil {this->canvas_edges})
+		(f-call 'array 'create nil {this->canvas_edge_tracker})
+		(f-call 'array 'create nil {this->canvas_stack})
+	(endif)
+
+	(f-exit 'canvas 'init1 {this, ok})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
@@ -148,7 +216,7 @@
 
 	;free any pixel buffer
 	(vp-cpy-ir rsp local_this r0)
-	(f-call 'sys_mem 'free '((r0 canvas_data)))
+	(f-call 'array 'deref '((r0 canvas_array)))
 
 	;free any resize buffer
 	(vp-cpy-ir rsp local_this r0)
@@ -163,6 +231,62 @@
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
+
+(def-func-end)
+
+(def-func 'class/canvas/load)
+	;inputs
+	;r0 = c string (pubyte)
+	;outputs
+	;r0 = 0 if error, else shared canvas object (ptr)
+	;trashes
+	;all
+
+	(ptr 'this 'name 'hash 'sym)
+	(union
+		'(ptr 'stream)
+		'(pptr 'iter))
+
+	(push-scope)
+	(f-entry 'canvas 'load {name})
+
+	;create hash map ?
+	(assign {ptr($canvass)} {hash})
+	(vpifnot {hash})
+		(f-call 'hash_map 'create {0, 1} {hash})
+		(assign {hash} {ptr($canvass)})
+	(endif)
+
+	;create interned name, lookup in map
+	(f-call 'symbol 'intern_cstr {name} {sym})
+	(f-call 'hash_map 'find {hash, sym} {_, iter, _})
+	(vpifnot {iter})
+		;open file stream
+		(f-call 'string 'create_from_file {name} {this})
+		(breakifnot {this})
+		(f-call 'stream_str 'create {this} {stream})
+		(f-call 'canvas 'load_cpm {stream} {this})
+		(f-call 'stream_str 'deref {stream})
+		(breakifnot {this})
+		(f-call 'hash_map 'insert {hash, sym, this})
+		(f-call 'canvas 'create_shared {this} {this})
+	(else)
+		(f-call 'pair 'get_second {*iter} {_, this})
+		(f-call 'canvas 'create_shared {this} {this})
+	(endif)
+	(f-call 'symbol 'deref {sym})
+
+	(f-exit 'canvas 'load {this})
+	(pop-scope)
+	(return)
+
+;;;;;;;;;;;;;;;;;
+; interned canvas
+;;;;;;;;;;;;;;;;;
+
+	(vp-align ptr_size)
+(vp-label 'canvass)
+	(vp-long 0)
 
 (def-func-end)
 
@@ -205,15 +329,16 @@
 			(f-call 'canvas 'resize '(r0 (rsp local_this)))
 			(f-call 'canvas 'as_argb '(r0 r0))
 		(endif)
-		(sdl-call 'sdl 'sdl_create_rgb_surface_from '((r0 canvas_data) (r0 canvas_width ui) (r0 canvas_height ui)
+		(vp-cpy-ir r0 canvas_array r9)
+		(sdl-call 'sdl 'sdl_create_rgb_surface_from '((r9 array_array) (r0 canvas_width ui) (r0 canvas_height ui)
 							32 (r0 canvas_stride ui) 0xff0000 0xff00 0xff 0xff000000))
 		(vp-cpy-ri r0 rsp local_surface)
 		(vp-cpy-ir rsp local_ctx r2)
 		(sdl-call 'sdl 'sdl_create_texture_from_surface '((r2 gui_ctx_sdl_ctx) r0))
 		(vp-cpy-ir rsp local_this r1)
 		(vp-cpy-ri r0 r1 canvas_texture)
-		(f-call 'canvas 'deref '((rsp local_temp_canvas)))
 		(sdl-call 'sdl 'sdl_free_surface '((rsp local_surface)))
+		(f-call 'canvas 'deref '((rsp local_temp_canvas)))
 	(endif)
 
 	;blit texture
@@ -389,7 +514,8 @@
 	(f-entry 'canvas 'fill '(r0 r1))
 
 	(f-call 'canvas 'to_premul '(r0 r1) '(r0 r1))
-	(vp-cpy-ir r0 canvas_data r2)
+	(vp-cpy-ir r0 canvas_array r2)
+	(vp-cpy-ir r2 array_array r2)
 	(vp-cpy-ir-ui r0 canvas_stride r3)
 	(vp-cpy-ir-ui r0 canvas_height r4)
 	(vp-mul-rr r4 r3)
@@ -415,8 +541,10 @@
 
 	(f-entry 'canvas 'as_argb '(r0 r1))
 
-	(vp-cpy-ir r0 canvas_data r5)
-	(vp-cpy-ir r1 canvas_data r7)
+	(vp-cpy-ir r0 canvas_array r5)
+	(vp-cpy-ir r1 canvas_array r7)
+	(vp-cpy-ir r5 array_array r5)
+	(vp-cpy-ir r7 array_array r7)
 	(vp-cpy-ir-ui r0 canvas_stride r6)
 	(vp-cpy-ir-ui r0 canvas_height r1)
 	(vp-mul-rr r1 r6)
@@ -445,8 +573,10 @@
 
 	(f-entry 'canvas 'as_premul '(r0 r1))
 
-	(vp-cpy-ir r0 canvas_data r5)
-	(vp-cpy-ir r1 canvas_data r6)
+	(vp-cpy-ir r0 canvas_array r5)
+	(vp-cpy-ir r1 canvas_array r6)
+	(vp-cpy-ir r5 array_array r5)
+	(vp-cpy-ir r6 array_array r6)
 	(vp-cpy-ir-ui r0 canvas_stride r4)
 	(vp-cpy-ir-ui r0 canvas_height r1)
 	(vp-mul-rr r1 r4)
@@ -526,7 +656,8 @@
 	(f-entry 'canvas 'set_span_noclip '(r0 r1 r7 r8 r9))
 
 	(vp-cpy-ir-ui r0 canvas_stride r2)
-	(vp-cpy-ir r0 canvas_data r3)
+	(vp-cpy-ir r0 canvas_array r3)
+	(vp-cpy-ir r3 array_array r3)
 	(vp-mul-rr r2 r8)
 	(vp-shl-cr (log2 int_size) r7)
 	(vp-shl-cr (log2 int_size) r9)
@@ -602,7 +733,8 @@
 	(vp-sub-rr r2 r6)
 
 	(vp-cpy-ir-ui r0 canvas_stride r2)
-	(vp-cpy-ir r0 canvas_data r3)
+	(vp-cpy-ir r0 canvas_array r3)
+	(vp-cpy-ir r3 array_array r3)
 	(vp-mul-rr r2 r8)
 	(vp-shl-cr (log2 int_size) r7)
 	(vp-shl-cr (log2 int_size) r9)

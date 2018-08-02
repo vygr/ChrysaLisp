@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/canvas/canvas.inc)
+(import 'class/array/array.inc)
 
 (def-func 'class/canvas/resize)
 	;inputs
@@ -38,7 +39,7 @@
 	(loop-end)
 	(assign {source->canvas_width * 256} {(this->canvas_resize_buf)[x2 * int_size]})
 
-	(assign {this->canvas_data} {data})
+	(assign {this->canvas_array->array_array} {data})
 	(assign {0} {y2})
 	(loop-while {y2 < this->canvas_height})
 		(assign {y2 *> fh} {y1a})
@@ -72,7 +73,7 @@
 				(endif)
 				(assign (list weight_y) {weight_y})
 
-				(assign {&(source->canvas_data)[(y * source->canvas_width + x1c) * int_size]} {dsrc})
+				(assign {&(source->canvas_array->array_array)[(y * source->canvas_width + x1c) * int_size]} {dsrc})
 				(assign {x1c} {x})
 				(loop-while {x <= x1d})
 					(vp-def weight_x x1c x1d x x1a x1b)

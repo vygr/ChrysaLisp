@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/canvas/canvas.inc)
+(import 'class/string/string.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/canvas/lisp_create)
@@ -37,7 +38,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/lisp_load_cpm)
+(def-func 'class/canvas/lisp_load)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -49,27 +50,27 @@
 	(ulong 'arg0)
 
 	(push-scope)
-	(f-entry 'canvas 'lisp_load_cpm {this, args})
+	(f-entry 'canvas 'lisp_load {this, args})
 
 (errorcases
 	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'canvas 'load_cpm {arg0} {value})
+	(f-call 'canvas 'load {&arg0->string_data} {value})
 	(vpifnot {value})
 		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
 (vp-label 'exit)
-	(f-exit 'canvas 'lisp_load_cpm {this, value})
+	(f-exit 'canvas 'lisp_load {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(load-cpm stream)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(canvas-load str)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'stream))
+	(signature 'sig 'string))
 
 	(pop-scope-syms)
 
