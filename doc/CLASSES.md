@@ -399,9 +399,18 @@ r0 = width (pixels)
 r1 = height (pixels)
 r2 = aa scale (16.16)
 outputs
-r0 = 0 if error, else object (ptr)
+r0 = 0 if error, else canvas object (ptr)
 trashes
-r1-r6
+all
+```
+### canvas::create_shared -> class/canvas/create_shared
+```
+inputs
+r0 = source canvas object (ptr)
+outputs
+r0 = 0 if error, else canvas object (ptr)
+trashes
+all
 ```
 ### canvas::new -> class/canvas/new
 ### canvas::init -> class/canvas/init
@@ -415,6 +424,20 @@ r4 = aa scale (16.16)
 outputs
 r0 = canvas object (ptr)
 r1 = 0 if error, else ok
+trashes
+all
+```
+### canvas::init1 -> class/canvas/init1
+```
+inputs
+r0 = canvas object (ptr)
+r1 = vtable (pptr)
+r2 = source canvas object (ptr)
+outputs
+r0 = canvas object (ptr)
+r1 = 0 if error, else ok
+trashes
+all
 ```
 ### canvas::swap -> class/canvas/swap
 ```
@@ -487,6 +510,19 @@ r0 = canvas object (ptr)
 trashes
 r1-r6
 ```
+### canvas::plot -> class/canvas/plot
+```
+inputs
+r0 = canvas object (ptr)
+r1 = color (argb)
+r2 = span function (ptr)
+r7 = x (pixels)
+r8 = y (pixels)
+outputs
+r0 = canvas object (ptr)
+trashes
+all but r0
+```
 ### canvas::fbox -> class/canvas/fbox
 ```
 inputs
@@ -528,6 +564,18 @@ r0 = canvas object (ptr)
 trashes
 r1-r2
 ```
+### canvas::set_pix_noclip -> class/canvas/set_pix_noclip
+```
+inputs
+r0 = canvas object (ptr)
+r1 = color (argb)
+r7 = x (pixels)
+r8 = y (pixels)
+outputs
+r0 = canvas object (ptr)
+trashes
+r2-r3, r7-r8
+```
 ### canvas::set_span_noclip -> class/canvas/set_span_noclip
 ```
 inputs
@@ -553,6 +601,18 @@ outputs
 r0 = canvas object (ptr)
 trashes
 r2-r3, r7-r9
+```
+### canvas::set_plot -> class/canvas/set_plot
+```
+inputs
+r0 = canvas object (ptr)
+r1 = color (argb)
+r7 = x (pixels)
+r8 = y (pixels)
+outputs
+r0 = canvas object (ptr)
+trashes
+all but r0
 ```
 ### canvas::set_fbox -> class/canvas/set_fbox
 ```
@@ -580,6 +640,18 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
+### canvas::blend_pix_noclip -> class/canvas/blend_pix_noclip
+```
+inputs
+r0 = canvas object (ptr)
+r1 = color (argb)
+r7 = x (pixels)
+r8 = y (pixels)
+outputs
+r0 = canvas object (ptr)
+trashes
+r2-r3 r4-r8
+```
 ### canvas::blend_span_noclip -> class/canvas/blend_span_noclip
 ```
 inputs
@@ -606,6 +678,18 @@ r0 = canvas object (ptr)
 trashes
 r2-r3 r4-r9
 ```
+### canvas::blend_plot -> class/canvas/blend_plot
+```
+inputs
+r0 = canvas object (ptr)
+r1 = color (argb)
+r7 = x (pixels)
+r8 = y (pixels)
+outputs
+r0 = canvas object (ptr)
+trashes
+all but r0
+```
 ### canvas::blend_fbox -> class/canvas/blend_fbox
 ```
 inputs
@@ -631,6 +715,24 @@ outputs
 r0 = canvas object (ptr)
 trashes
 all but r0
+```
+### canvas::load -> class/canvas/load
+```
+inputs
+r0 = c string (pubyte)
+outputs
+r0 = 0 if error, else shared canvas object (ptr)
+trashes
+all
+```
+### canvas::load_cpm -> class/canvas/load_cpm
+```
+inputs
+r0 = stream object (ptr)
+outputs
+r0 = 0 if error, else canvas object (ptr)
+trashes
+all
 ```
 ### canvas::deinit -> class/canvas/deinit
 ```
@@ -663,6 +765,15 @@ trashes
 all but r0
 ```
 ### canvas::lisp_create -> class/canvas/lisp_create
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### canvas::lisp_load -> class/canvas/lisp_load
 ```
 inputs
 r0 = lisp object (ptr)

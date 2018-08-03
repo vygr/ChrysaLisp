@@ -33,6 +33,8 @@
 ### (bit-xor num num ...)
 ## call
 ### (call slot obj [arg ...])
+## canvas-load
+### (canvas-load str)
 ## cat
 ### (cat seq ...)
 ## catch

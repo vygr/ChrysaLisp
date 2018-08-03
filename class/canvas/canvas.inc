@@ -13,17 +13,22 @@
 (def-method 'to_argb 'class/canvas/to_argb 'static '(r0 r1) '(r0 r1))
 (def-method 'as_argb 'class/canvas/as_argb 'static '(r0 r1) '(r0))
 (def-method 'as_premul 'class/canvas/as_premul 'static '(r0 r1) '(r0))
+(def-method 'plot 'class/canvas/plot 'static '(r0 r1 r2 r7 r8) '(r0))
 (def-method 'fbox 'class/canvas/fbox 'static '(r0 r1 r2 r7 r8 r9 r10) '(r0))
 (def-method 'fpoly 'class/canvas/fpoly 'static '(r0 r1 r2 r3 r4) '(r0))
 (def-method 'set_clip 'class/canvas/set_clip 'static '(r0 r7 r8 r9 r10) '(r0))
 
+(def-method 'set_pix_noclip 'class/canvas/set_pix_noclip 'static '(r0 r1 r7 r8) '(r0))
 (def-method 'set_span_noclip 'class/canvas/set_span_noclip 'static '(r0 r1 r7 r8 r9) '(r0))
 (def-method 'set_span 'class/canvas/set_span 'static '(r0 r1 r7 r8 r9) '(r0))
+(def-method 'set_plot 'class/canvas/set_plot 'static '(r0 r1 r7 r8) '(r0))
 (def-method 'set_fbox 'class/canvas/set_fbox 'static '(r0 r1 r7 r8 r9 r10) '(r0))
 (def-method 'set_fpoly 'class/canvas/set_fpoly 'static '(r0 r1 r2 r3) '(r0))
 
+(def-method 'blend_pix_noclip 'class/canvas/blend_pix_noclip 'static '(r0 r1 r7 r8) '(r0))
 (def-method 'blend_span_noclip 'class/canvas/blend_span_noclip 'static '(r0 r1 r7 r8 r9) '(r0))
 (def-method 'blend_span 'class/canvas/blend_span 'static '(r0 r1 r7 r8 r9) '(r0))
+(def-method 'blend_plot 'class/canvas/blend_plot 'static '(r0 r1 r7 r8) '(r0))
 (def-method 'blend_fbox 'class/canvas/blend_fbox 'static '(r0 r1 r7 r8 r9 r10) '(r0))
 (def-method 'blend_fpoly 'class/canvas/blend_fpoly 'static '(r0 r1 r2 r3) '(r0))
 
@@ -69,6 +74,18 @@
 ; inline methods
 ;;;;;;;;;;;;;;;;
 
+(defcfun class/canvas/set_plot ()
+	;inputs
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;outputs
+	;r0 = canvas object (ptr)
+	;trashes
+	;all but r0
+	(f-call 'canvas 'plot `(r0 r1 (@ ,(f-path 'canvas 'set_pix_noclip)) r7 r8)))
+
 (defcfun class/canvas/set_fbox ()
 	;inputs
 	;r0 = canvas object (ptr)
@@ -94,6 +111,18 @@
 	;trashes
 	;all but r0
 	(f-call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'set_span)))))
+
+(defcfun class/canvas/blend_plot ()
+	;inputs
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;outputs
+	;r0 = canvas object (ptr)
+	;trashes
+	;all but r0
+	(f-call 'canvas 'plot `(r0 r1 (@ ,(f-path 'canvas 'blend_pix_noclip)) r7 r8)))
 
 (defcfun class/canvas/blend_fbox ()
 	;inputs

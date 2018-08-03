@@ -7,9 +7,10 @@
 	slot_gui_add slot_event slot_add_child slot_change slot_pref_size
 	slot_get_bounds slot_connect_click slot_set_title slot_set_status
 	slot_connect_close slot_connect_min slot_connect_max slot_set_fbox
-	slot_set_fpoly slot_blend_fpoly slot_fill slot_swap slot_transform
-	slot_simplify slot_gen_quadratic slot_gen_cubic slot_gen_arc
-	slot_stroke_polylines slot_stroke_polygons slot_layout slot_dirty slot_dirty_all)
+	slot_set_fpoly slot_blend_fpoly slot_set_plot slot_blend_plot slot_fill
+	slot_swap slot_transform slot_simplify slot_gen_quadratic slot_gen_cubic
+	slot_gen_arc slot_stroke_polylines slot_stroke_polygons slot_layout slot_dirty
+	slot_dirty_all)
 	(within-compile-env (lambda ()
 		(import 'gui/gui.inc)
 		(import 'class/flow/flow.inc)
@@ -30,6 +31,7 @@
 			(method-slot 'window 'connect_close) (method-slot 'window 'connect_min)
 			(method-slot 'window 'connect_max) (method-slot 'canvas 'set_fbox)
 			(method-slot 'canvas 'set_fpoly) (method-slot 'canvas 'blend_fpoly)
+			(method-slot 'canvas 'set_plot) (method-slot 'canvas 'blend_plot)
 			(method-slot 'canvas 'fill) (method-slot 'canvas 'swap)
 			(method-slot 'points 'transform) (method-slot 'points 'simplify)
 			(method-slot 'points 'gen_quadratic) (method-slot 'points 'gen_cubic)
