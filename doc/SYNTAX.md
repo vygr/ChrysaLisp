@@ -197,6 +197,8 @@
 ### (mail-mymail)
 ## mail-send
 ### (mail-send obj mbox)
+## mail-trymail
+### (mail-trymail)
 ## map
 ### (map lambda seq ...)
 ## map-rev
@@ -341,6 +343,8 @@
 ### (sym? form)
 ## task-mailbox
 ### (task-mailbox)
+## task-sleep
+### (task-sleep usec)
 ## throw
 ### (throw str form)
 ## time

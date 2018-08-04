@@ -39,6 +39,45 @@
 
 (def-func-end)
 
+(def-func 'sys/mail/lisp_trymail)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+(errorcases
+	(uint 'length))
+
+	(push-scope)
+	(f-entry 'sys_mail 'lisp_trymail {this, args})
+
+(errorcases
+	(v-call 'vector 'get_length {args} {_, length})
+	(errorif {length} 'error1))
+
+	(f-call 'sys_mail 'trymail nil {value, _})
+	(vpif {value})
+		(f-call 'sys_mail 'free_obj {value} {value, _, _})
+	(else)
+		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
+	(endif)
+
+(vp-label 'exit)
+	(f-exit 'sys_mail 'lisp_trymail {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(mail-trymail)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
 (def-func 'sys/mail/lisp_send)
 	;inputs
 	;r0 = lisp object (ptr)

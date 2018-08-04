@@ -889,26 +889,24 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'span)
-	(uint 'color)
-	(int 'x 'y)
-
-	(push-scope)
-	(f-entry 'canvas 'plot {this, color, span, x, y})
+	(f-entry 'canvas 'plot '(r0 r1 r9 r7 r8))
 
 	;clip check
 	(switch)
-	(breakif {x < this->canvas_cx})
-	(breakif {y < this->canvas_cy})
-	(breakif {x >= this->canvas_cx1})
-	(breakif {y >= this->canvas_cy1})
-		(f-call 'canvas 'to_premul {this, color} {_, color})
-		(r-call 'canvas 'set_plot {this, color, x, y, span})
+	(vp-cpy-ir-ui r0 canvas_cx r3)
+	(vp-cpy-ir-ui r0 canvas_cy r4)
+	(vp-cpy-ir-ui r0 canvas_cx1 r5)
+	(vp-cpy-ir-ui r0 canvas_cy1 r6)
+	(breakif '(r7 < r3))
+	(breakif '(r8 < r4))
+	(breakif '(r7 >= r5))
+	(breakif '(r8 >= r6))
+		(f-call 'canvas 'to_premul '(r0 r1) '(_ r1))
+		(r-jmp 'canvas 'set_plot '(r0 r1 r7 r8 r9))
 	(endswitch)
 
-	(f-exit 'canvas 'plot {this})
-	(pop-scope)
-	(return)
+	(f-exit 'canvas 'plot '(r0))
+	(vp-ret)
 
 (def-func-end)
 

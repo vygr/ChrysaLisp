@@ -3,6 +3,42 @@
 (import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
+(def-func 'sys/task/lisp_sleep)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0)
+
+	(push-scope)
+	(f-entry 'sys_task 'lisp_sleep {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'sys_task 'sleep {arg0})
+	(f-call 'obj 'ref {this->lisp_sym_t} {value})
+
+(vp-label 'exit)
+	(f-exit 'sys_task 'lisp_sleep {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(task-sleep usec)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'integer))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
 (def-func 'sys/task/lisp_mailbox)
 	;inputs
 	;r0 = lisp object (ptr)

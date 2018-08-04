@@ -10,7 +10,8 @@
 	slot_set_fpoly slot_blend_fpoly slot_set_plot slot_blend_plot slot_fill
 	slot_swap slot_transform slot_simplify slot_gen_quadratic slot_gen_cubic
 	slot_gen_arc slot_stroke_polylines slot_stroke_polygons slot_layout slot_dirty
-	slot_dirty_all)
+	slot_dirty_all slot_add_back slot_add_front slot_sub slot_set_bounds
+	slot_add_dirty slot_add_opaque slot_sub_opaque slot_opaque)
 	(within-compile-env (lambda ()
 		(import 'gui/gui.inc)
 		(import 'class/flow/flow.inc)
@@ -37,7 +38,11 @@
 			(method-slot 'points 'gen_quadratic) (method-slot 'points 'gen_cubic)
 			(method-slot 'points 'gen_arc) (method-slot 'points 'stroke_polylines)
 			(method-slot 'points 'stroke_polygons) (method-slot 'view 'layout)
-			(method-slot 'view 'dirty) (method-slot 'view 'dirty_all)))))
+			(method-slot 'view 'dirty) (method-slot 'view 'dirty_all)
+			(method-slot 'view 'add_back) (method-slot 'view 'add_front)
+			(method-slot 'view 'sub) (method-slot 'view 'set_bounds)
+			(method-slot 'view 'add_dirty) (method-slot 'view 'add_opaque)
+			(method-slot 'view 'sub_opaque) (method-slot 'view 'opaque)))))
 
 ;some helpful macros
 (defmacro get (_ b) `(eval ,b ,_))

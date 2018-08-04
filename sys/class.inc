@@ -310,6 +310,19 @@
 	(vp-call-r _5)
 	(if _4 (assign (elem 4 m) _4)))
 
+(defcfun r-jmp (_1 _2 &optional _3 _4)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = dispatch reg
+	(setd _4 r14)
+	(method-info _1 _2)
+	(setq s (elem 3 m))
+	(if (find _4 s)
+		(throw "Dispatch register conflicts with arg !" (list _4 s)))
+	(assign _3 (cat s (list _4)))
+	(vp-jmp-r _4))
+
 (defcfun l-call (_1 &optional _2 _3)
 	;_1 = label
 	;_2 = in parameters

@@ -15,6 +15,7 @@
 (bind '(w h) (slot pref_size window))
 (slot change window 512 256 w h)
 (slot fill canvas 0xff000000)
+(slot opaque canvas)
 (slot gui_add window)
 
 ;create parent and send args

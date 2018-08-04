@@ -24,6 +24,7 @@
 	(setq _o (align _o byte_size)) (apply struct (cat (list byte_size) b)))
 
 ;system lisp bindings
+(ffi mail-trymail "sys/mail/lisp_trymail" 0)
 (ffi mail-mymail "sys/mail/lisp_mymail" 0)
 (ffi mail-send "sys/mail/lisp_send" 0)
 (ffi open-child "sys/task/lisp_open_child" 0)
@@ -32,3 +33,4 @@
 (ffi open-pipe "sys/task/lisp_open_pipe" 0)
 (ffi cpu-total "sys/kernel/lisp_total" 0)
 (ffi task-mailbox "sys/task/lisp_mailbox" 0)
+(ffi task-sleep "sys/task/lisp_sleep" 0)

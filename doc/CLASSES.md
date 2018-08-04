@@ -4227,6 +4227,14 @@ r1 = string data (pubyte)
 trashes
 r2
 ```
+### sys_mail::trymail -> sys/mail/trymail
+```
+outputs
+r0 = 0, else mail address (ptr)
+r1 = string data (pubyte)
+trashes
+r2
+```
 ### sys_mail::in -> sys/mail/in
 ```
 inputs
@@ -4240,6 +4248,15 @@ info
 parcels going off chip task
 ```
 ### sys_mail::lisp_mymail -> sys/mail/lisp_mymail
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sys_mail::lisp_trymail -> sys/mail/lisp_trymail
 ```
 inputs
 r0 = lisp object (ptr)
@@ -4534,6 +4551,15 @@ outputs
 r0 = mailbox id's array object (ptr)
 trashes
 all
+```
+### sys_task::lisp_sleep -> sys/task/lisp_sleep
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 ```
 ### sys_task::lisp_mailbox -> sys/task/lisp_mailbox
 ```

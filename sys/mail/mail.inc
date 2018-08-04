@@ -23,10 +23,12 @@
 (def-method 'try_read 'sys/mail/try_read 'static '(r0) '(r0 r1))
 (def-method 'select 'sys/mail/select 'static '(r0 r1) '(r0))
 (def-method 'mymail 'sys/mail/mymail 'static nil '(r0 r1))
+(def-method 'trymail 'sys/mail/trymail 'static nil '(r0 r1))
 (def-method 'in 'sys/mail/in 'static '(r0))
 (def-method 'out 'sys/mail/out)
 
 (def-method 'lisp_mymail 'sys/mail/lisp_mymail 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_trymail 'sys/mail/lisp_trymail 'static '(r0 r1) '(r0 r1))
 (def-method 'lisp_send 'sys/mail/lisp_send 'static '(r0 r1) '(r0 r1))
 
 ;;;;;;;;;;;;;;;;;
