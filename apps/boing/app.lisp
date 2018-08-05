@@ -12,7 +12,6 @@
 	(ui-element canvas (create-canvas canvas_width canvas_height 1.0) nil
 		(ui-element frame (elem 0 frames))))
 
-(view-opaque canvas)
 (canvas-fill canvas 0xff000000)
 (defq x 0 y 0 w 32)
 (while (lt x canvas_width)
@@ -26,6 +25,7 @@
 (window-connect-close window event_win_close)
 (bind '(w h) (view-pref-size window))
 (view-change window 512 256 w h)
+(view-opaque canvas)
 (gui-add window)
 
 (bind '(w h) (view-pref-size frame))
