@@ -18,6 +18,7 @@
 (def-method 'mouse_move 'class/button/mouse_move 'final)
 
 (def-method 'lisp_create 'class/button/lisp_create 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_connect_click 'class/button/lisp_connect_click 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'button 'label)
 	(ulong 'state)

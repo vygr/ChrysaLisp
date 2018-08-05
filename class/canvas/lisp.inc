@@ -1,0 +1,11 @@
+;lisp bindings
+(ffi create-canvas "class/canvas/lisp_create" 0)
+(ffi canvas-load "class/canvas/lisp_load" 0)
+(ffi canvas-swap "class/canvas/lisp_swap" 0)
+(ffi canvas-fill "class/canvas/lisp_fill" 0)
+(ffi canvas-set-plot "class/canvas/lisp_set_plot" 0)
+(ffi canvas-set-fbox "class/canvas/lisp_set_fbox" 0)
+(ffi canvas-set-fpoly "class/canvas/lisp_set_fpoly" 0)
+(ffi canvas-blend-plot "class/canvas/lisp_blend_plot" 0)
+(ffi canvas-blend-fbox "class/canvas/lisp_blend_fbox" 0)
+(ffi canvas-blend-fpoly "class/canvas/lisp_blend_fpoly" 0)

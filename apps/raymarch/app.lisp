@@ -1,6 +1,9 @@
 ;import settings
-(run 'apps/sys.inc)
-(run 'apps/ui.inc)
+(run 'sys/lisp.inc)
+(run 'gui/lisp.inc)
+(run 'class/window/lisp.inc)
+(run 'class/canvas/lisp.inc)
+(run 'class/view/lisp.inc)
 
 (structure 'event 0
 	(byte 'win_close))
@@ -10,13 +13,13 @@
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
 
-(slot set_title window "Raymarch")
-(slot connect_close window event_win_close)
-(bind '(w h) (slot pref_size window))
-(slot change window 512 256 w h)
-(slot fill canvas 0xff000000)
-(slot opaque canvas)
-(slot gui_add window)
+(window-set-title window "Raymarch")
+(window-connect-close window event_win_close)
+(bind '(w h) (view-pref-size window))
+(view-change window 512 256 w h)
+(canvas-fill canvas 0xff000000)
+(view-opaque canvas)
+(gui-add window)
 
 ;create parent and send args
 (mail-send (list canvas (mul canvas_width 1.0) (mul canvas_height 1.0) canvas_scale)
@@ -26,4 +29,4 @@
 	(cond
 		((eq (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) event_win_close)
 			(setq id nil))
-		(t (slot event window msg))))
+		(t (view-event window msg))))

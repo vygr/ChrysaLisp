@@ -1,6 +1,13 @@
 ;import settings
-(run 'apps/sys.inc)
-(run 'apps/ui.inc)
+(run 'sys/lisp.inc)
+(run 'gui/lisp.inc)
+(run 'class/window/lisp.inc)
+(run 'class/button/lisp.inc)
+(run 'class/label/lisp.inc)
+(run 'class/flow/lisp.inc)
+(run 'class/grid/lisp.inc)
+(run 'class/font/lisp.inc)
+(run 'class/view/lisp.inc)
 
 (structure 'event 0
 	(byte 'win_close)
@@ -13,17 +20,17 @@
 		(ui-element display (create-label) ('text "0" 'color 0xffffffff 'flow_flags flow_flag_align_hright 'font (create-font "fonts/OpenSans-Regular.ttf" 24)))
 		(ui-element _ (create-grid) ('grid_width 4 'grid_height 4 'color 0xffffff00 'font (create-font "fonts/OpenSans-Regular.ttf" 42))
 			(each (lambda (text)
-				(slot connect_click
+				(button-connect-click
 					(ui-element _ (create-button) ('text (if (eql text "C") "AC" text)))
 					event_win_button)) "789/456*123-0=C+"))))
 
-(slot set_title window "Calculator")
-(slot connect_close window event_win_close)
-(slot connect_min window event_win_min)
-(slot connect_max window event_win_max)
-(bind '(w h) (slot pref_size window))
-(slot change window 920 48 w h)
-(slot gui_add window)
+(window-set-title window "Calculator")
+(window-connect-close window event_win_close)
+(window-connect-min window event_win_min)
+(window-connect-max window event_win_max)
+(bind '(w h) (view-pref-size window))
+(view-change window 920 48 w h)
+(gui-add window)
 
 (defun do_lastop ()
 	(cond
@@ -41,7 +48,7 @@
 (while id
 	(cond
 		((ge (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) event_win_button)
-			(defq op (get (slot find_id window (read-long ev_msg_action_source_id msg)) 'text))
+			(defq op (get (view-find-id window (read-long ev_msg_action_source_id msg)) 'text))
 			(cond
 				((eql op "AC")
 					(setq accum 0 value 0 num 0 lastop nil))
@@ -58,22 +65,22 @@
 						(t (setq num (to-num (cat (str num) op)))))
 					(setq value num)))
 			(set display 'text (str value))
-			(slot layout display)
-			(slot dirty display))
+			(view-layout display)
+			(view-dirty display))
 		((eq id event_win_close)
 			;close button
 			(setq id nil))
 		((eq id event_win_min)
 			;min button
-			(slot dirty window)
-			(bind '(x y _ _) (slot get_bounds window))
-			(bind '(w h) (slot pref_size window))
-			(slot change window x y w h)
-			(slot dirty_all window))
+			(view-dirty window)
+			(bind '(x y _ _) (view-get-bounds window))
+			(bind '(w h) (view-pref-size window))
+			(view-change window x y w h)
+			(view-dirty-all window))
 		((eq id event_win_max)
 			;max button
-			(slot dirty window)
-			(bind '(x y _ _) (slot get_bounds window))
-			(slot change window x y 512 512)
-			(slot dirty_all window))
-		(t (slot event window msg))))
+			(view-dirty window)
+			(bind '(x y _ _) (view-get-bounds window))
+			(view-change window x y 512 512)
+			(view-dirty-all window))
+		(t (view-event window msg))))

@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/window/window.inc)
+(import 'class/string/string.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/window/lisp_create)
@@ -32,6 +33,186 @@
 	(f-call 'lisp 'repl_error {this, "(create-window flags)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'integer))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func 'class/window/lisp_connect_close)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1)
+
+	(push-scope)
+	(f-entry 'window 'lisp_connect_close {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'window 'connect_close {arg0, arg1})
+	(f-call 'window 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'window 'lisp_connect_close {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(window-connect-close window id)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'window 'integer))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func 'class/window/lisp_connect_min)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1)
+
+	(push-scope)
+	(f-entry 'window 'lisp_connect_min {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'window 'connect_min {arg0, arg1})
+	(f-call 'window 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'window 'lisp_connect_min {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(window-connect-min window id)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'window 'integer))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func 'class/window/lisp_connect_max)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1)
+
+	(push-scope)
+	(f-entry 'window 'lisp_connect_max {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'window 'connect_max {arg0, arg1})
+	(f-call 'window 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'window 'lisp_connect_max {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(window-connect-max window id)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'window 'integer))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func 'class/window/lisp_set_status)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1)
+
+	(push-scope)
+	(f-entry 'window 'lisp_set_status {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'window 'set_status {arg0, &arg1->string_data})
+	(f-call 'window 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'window 'lisp_set_status {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(window-set-status window str)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'window 'string))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func 'class/window/lisp_set_title)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1)
+
+	(push-scope)
+	(f-entry 'window 'lisp_set_title {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'window 'set_title {arg0, &arg1->string_data})
+	(f-call 'window 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'window 'lisp_set_title {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(window-set-title window str)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'window 'string))
 
 	(pop-scope-syms)
 

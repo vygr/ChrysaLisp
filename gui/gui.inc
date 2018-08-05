@@ -18,6 +18,8 @@
 (def-method 'add 'gui/gui_add 'static '(r0))
 (def-method 'gui 'gui/gui)
 
+(def-method 'lisp_add 'gui/lisp_add 'static '(r0 r1) '(r0 r1))
+
 ;;;;;;;;;;;;;;;;
 ; gui structures
 ;;;;;;;;;;;;;;;;

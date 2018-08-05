@@ -10,3 +10,4 @@
 (import 'class/points/stroke_polygons.vp)
 (import 'class/points/stroke_polylines.vp)
 (import 'class/points/stroke_joints.vp)
+(import 'class/points/lisp.vp)

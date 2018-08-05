@@ -390,6 +390,15 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
+### button::lisp_connect_click -> class/button/lisp_connect_click
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
 ## canvas
 Super Class: view
 ### canvas::create -> class/canvas/create
@@ -774,6 +783,78 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### canvas::lisp_load -> class/canvas/lisp_load
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### canvas::lisp_swap -> class/canvas/lisp_swap
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### canvas::lisp_fill -> class/canvas/lisp_fill
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### canvas::lisp_set_plot -> class/canvas/lisp_set_plot
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### canvas::lisp_set_fbox -> class/canvas/lisp_set_fbox
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### canvas::lisp_set_fpoly -> class/canvas/lisp_set_fpoly
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### canvas::lisp_blend_plot -> class/canvas/lisp_blend_plot
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### canvas::lisp_blend_fbox -> class/canvas/lisp_blend_fbox
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### canvas::lisp_blend_fpoly -> class/canvas/lisp_blend_fpoly
 ```
 inputs
 r0 = lisp object (ptr)
@@ -1255,6 +1336,15 @@ all but r0
 ### gui_gui::gui -> gui/gui
 ```
 gui process
+```
+### gui_gui::lisp_add -> gui/lisp_add
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 ```
 ## gui_region
 Super Class: null
@@ -2644,15 +2734,6 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### lisp::func_call -> class/lisp/func_call
-```
-inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-```
 ### lisp::func_array -> class/lisp/func_array
 ```
 inputs
@@ -3495,6 +3576,69 @@ r0 = output vector of points objects (ptr)
 trashes
 all but r0
 ```
+### points::lisp_transform -> class/points/lisp_transform
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_simplify -> class/points/lisp_simplify
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_gen_quadratic -> class/points/lisp_gen_quadratic
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_gen_cubic -> class/points/lisp_gen_cubic
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_gen_arc -> class/points/lisp_gen_arc
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_stroke_polylines -> class/points/lisp_stroke_polylines
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_stroke_polygons -> class/points/lisp_stroke_polygons
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
 ## progress
 Super Class: view
 ### progress::create -> class/progress/create
@@ -3602,6 +3746,15 @@ trashes
 all but r0
 ```
 ### slave::lisp_create -> class/slave/lisp_create
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### slave::lisp_get_args -> class/slave/lisp_get_args
 ```
 inputs
 r0 = lisp object (ptr)
@@ -3728,6 +3881,24 @@ r0 = stream object (ptr)
 r1 = split strings vector object (ptr)
 trashes
 all but r0
+```
+### stream::lisp_available -> class/stream/lisp_available
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### stream::lisp_write_flush -> class/stream/lisp_write_flush
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 ```
 ### stream::deinit -> class/stream/deinit
 ```
@@ -5133,6 +5304,159 @@ r1 = 0 if empty, else last child view object (ptr)
 trashes
 r2
 ```
+### view::lisp_sub -> class/view/lisp_sub
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_add_child -> class/view/lisp_add_child
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_add_front -> class/view/lisp_add_front
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_add_back -> class/view/lisp_add_back
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_pref_size -> class/view/lisp_pref_size
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_change -> class/view/lisp_change
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_set_bounds -> class/view/lisp_set_bounds
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_get_bounds -> class/view/lisp_get_bounds
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_add_opaque -> class/view/lisp_add_opaque
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_sub_opaque -> class/view/lisp_sub_opaque
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_opaque -> class/view/lisp_opaque
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_add_dirty -> class/view/lisp_add_dirty
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_dirty -> class/view/lisp_dirty
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_dirty_all -> class/view/lisp_dirty_all
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_layout -> class/view/lisp_layout
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_event -> class/view/lisp_event
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### view::lisp_find_id -> class/view/lisp_find_id
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
 ### view::deinit -> class/view/deinit
 ```
 inputs
@@ -5300,6 +5624,51 @@ trashes
 all but r0
 ```
 ### window::lisp_create -> class/window/lisp_create
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### window::lisp_connect_close -> class/window/lisp_connect_close
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### window::lisp_connect_min -> class/window/lisp_connect_min
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### window::lisp_connect_max -> class/window/lisp_connect_max
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### window::lisp_set_status -> class/window/lisp_set_status
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### window::lisp_set_title -> class/window/lisp_set_title
 ```
 inputs
 r0 = lisp object (ptr)

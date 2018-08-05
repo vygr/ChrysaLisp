@@ -1,0 +1,77 @@
+(import 'sys/func.inc)
+(import 'class/stream/stream.inc)
+(import 'class/slave/slave.inc)
+(import 'class/integer/integer.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'class/stream/lisp_available)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0)
+
+	(push-scope)
+	(f-entry 'stream 'lisp_available {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+	(f-call 'stream 'available {arg0} {_, arg0})
+	(f-call 'integer 'create {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'stream 'lisp_available {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(stream-available stream)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'stream))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func 'class/stream/lisp_write_flush)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0)
+
+	(push-scope)
+	(f-entry 'stream 'lisp_write_flush {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(v-call 'stream 'write_flush {arg0})
+	(f-call 'obj 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'stream 'lisp_write_flush {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(stream-write-flush stream)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'stream))
+
+	(pop-scope-syms)
+
+(def-func-end)

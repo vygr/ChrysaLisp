@@ -31,10 +31,26 @@
 ### (bit-shr num cnt)
 ## bit-xor
 ### (bit-xor num num ...)
-## call
-### (call slot obj [arg ...])
+## button-connect-click
+### (button-connect-click button id)
+## canvas-blend-fbox
+### (canvas-blend-fbox canvas argb x y w h)
+## canvas-blend-fpoly
+### (canvas-blend-fpoly canvas list argb mode)
+## canvas-blend-plot
+### (canvas-blend-plot canvas argb x y)
+## canvas-fill
+### (canvas-fill canvas argb)
 ## canvas-load
 ### (canvas-load str)
+## canvas-set-fbox
+### (canvas-set-fbox canvas argb x y w h)
+## canvas-set-fpoly
+### (canvas-set-fpoly canvas list argb mode)
+## canvas-set-plot
+### (canvas-set-plot canvas argb x y)
+## canvas-swap
+### (canvas-swap canvas)
 ## cat
 ### (cat seq ...)
 ## catch
@@ -163,6 +179,8 @@
 ### (gensym)
 ## gt
 ### (gt num num ...)
+## gui-add
+### (gui-add view)
 ## if
 ### (if tst form [form])
 ## inc
@@ -255,6 +273,20 @@
 ### (platform)
 ## points
 ### (points [form ...])
+## points-gen-arc
+### (points-gen-arc dst stack center start end radius tol)
+## points-gen-cubic
+### (points-gen-cubic dst stack p1 p2 p3 p4 tol)
+## points-gen-quadratic
+### (points-gen-quadratic dst stack p1 p2 p3 tol)
+## points-simplify
+### (points-simplify dst src stack tol)
+## points-stroke-polygons
+### (points-stroke-polygons dst stack src join radius tol)
+## points-stroke-polylines
+### (points-stroke-polylines dst stack src join cap1 cap2 radius tol)
+## points-transform
+### (points-transform dst src m1 m2 tr)
 ## pop
 ### (pop array)
 ## prin
@@ -311,6 +343,8 @@
 ### (shuffled list [start end])
 ## sign
 ### (sign num)
+## slave-get-args
+### (slave-get-args slave)
 ## slice
 ### (slice start end seq)
 ## some
@@ -329,6 +363,10 @@
 ### (str form)
 ## str?
 ### (str? form)
+## stream-available
+### (stream-available stream)
+## stream-write-flush
+### (stream-write-flush stream)
 ## string-stream
 ### (string-stream str)
 ## sub
@@ -367,10 +405,54 @@
 ### (unless tst body)
 ## until
 ### (until tst body)
+## view-add-back
+### (view-add-back view view)
+## view-add-child
+### (view-add-child view view)
+## view-add-dirty
+### (view-add-dirty view x y w h)
+## view-add-front
+### (view-add-front view view)
+## view-add-opaque
+### (view-add-opaque view x y w h)
+## view-change
+### (view-change view x y w h)
+## view-dirty
+### (view-dirty view)
+## view-dirty-all
+### (view-dirty-all view)
+## view-event
+### (view-event view str)
+## view-find-id
+### (view-find-id view id)
+## view-get-bounds
+### (view-get-bounds view)
+## view-layout
+### (view-layout view)
+## view-opaque
+### (view-opaque view)
+## view-pref-size
+### (view-pref-size view)
+## view-set-bounds
+### (view-set-bounds view x y w h)
+## view-sub
+### (view-sub view)
+## view-sub-opaque
+### (view-sub-opaque view x y w h)
 ## when
 ### (when tst body)
 ## while
 ### (while tst body)
+## window-connect-close
+### (window-connect-close window id)
+## window-connect-max
+### (window-connect-max window id)
+## window-connect-min
+### (window-connect-min window id)
+## window-set-status
+### (window-set-status window str)
+## window-set-title
+### (window-set-title window str)
 ## within-compile-env
 ### (within-compile-env lambda)
 ## write

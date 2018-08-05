@@ -49,3 +49,42 @@
 	(pop-scope-syms)
 
 (def-func-end)
+
+(def-func 'class/slave/lisp_get_args)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0)
+
+	(push-scope)
+	(f-entry 'slave 'lisp_get_args {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'slave 'get_args {arg0} {_, arg0})
+	(vpifnot {arg0})
+		(assign {this->lisp_sym_nil} {arg0})
+	(endif)
+	(f-call 'obj 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'slave 'lisp_get_args {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(slave-get-args slave)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'slave))
+
+	(pop-scope-syms)
+
+(def-func-end)

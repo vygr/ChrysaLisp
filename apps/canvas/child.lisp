@@ -1,6 +1,8 @@
 ;import settings
-(run 'apps/sys.inc)
-(run 'apps/ui.inc)
+(run 'sys/lisp.inc)
+(run 'gui/lisp.inc)
+(run 'class/canvas/lisp.inc)
+(run 'class/points/lisp.inc)
 
 ;math tools
 (run 'apps/math.inc)
@@ -19,7 +21,7 @@
 (defun transform (_ angle)
 	(defq sa (fsin angle) ca (fcos angle))
 	(map (lambda (_)
-		(slot transform _ _
+		(points-transform _ _
 			(as-point (list (fmul canvas_scale ca) (fmul canvas_scale (neg sa))))
 			(as-point (list (fmul canvas_scale sa) (fmul canvas_scale ca)))
 			(as-point (list (fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5))))) _))
@@ -27,19 +29,19 @@
 (defun transform-norm (_ angle)
 	(defq sa (fsin angle) ca (fcos angle))
 	(map (lambda (_)
-		(slot transform _ _
+		(points-transform _ _
 			(as-point (list (fmul canvas_width canvas_scale ca) (fmul canvas_height canvas_scale (neg sa))))
 			(as-point (list (fmul canvas_width canvas_scale sa) (fmul canvas_height canvas_scale ca)))
 			(as-point (list (fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5))))) _))
 
 (defun fpoly (col mode _)
-	(slot set_fpoly canvas _ col mode))
+	(canvas-set-fpoly canvas _ col mode))
 
 (defun bpoly (col mode _)
-	(slot blend_fpoly canvas _ col mode))
+	(canvas-blend-fpoly canvas _ col mode))
 
 (defun redraw ()
-	(slot fill canvas 0)
+	(canvas-fill canvas 0)
 
 	(fpoly 0xffff0000 1 (transform-norm (list (as-points (list
 		(list -0.5 -0.5)
@@ -50,9 +52,9 @@
 		(list -0.05 0.5)))) (mul angle 2)))
 
 	(fpoly 0xff0ff0ff 0 (transform
-		(slot stroke_polylines (list) stack
+		(points-stroke-polylines (list) stack
 			(list
-				(slot gen_quadratic (points) stack
+				(points-gen-quadratic (points) stack
 					(as-point (list (fmul canvas_width -0.4) (fmul canvas_height 0.4)))
 					(as-point (list (fmul canvas_width -0.2) (fmul canvas_height -1.1)))
 					(as-point (list (fmul canvas_width 0.4) (fmul canvas_height 0.2)))
@@ -64,7 +66,7 @@
 			eps) (neg angle)))
 
 	(bpoly 0xc000ff00 1 (transform
-		(slot stroke_polylines (list) stack
+		(points-stroke-polylines (list) stack
 			(list
 				(as-points (list
 					(list (fmul canvas_width -0.4) (fmul canvas_height -0.4))
@@ -77,10 +79,10 @@
 			eps) angle))
 
 	(fpoly 0xffffff00 0 (defq p (transform
-		(slot stroke_polygons (list) stack
-			(slot stroke_polylines (list) stack
+		(points-stroke-polygons (list) stack
+			(points-stroke-polylines (list) stack
 				(list
-					(slot gen_cubic (points) stack
+					(points-gen-cubic (points) stack
 						(as-point (list (fmul canvas_width -0.45) (fmul canvas_height 0.3)))
 						(as-point (list (fmul canvas_width -0.3) (fmul canvas_height -0.3)))
 						(as-point (list (fmul canvas_width 0.45) (fmul canvas_height 0.6)))
@@ -97,9 +99,9 @@
 	(bpoly 0x80000000 0 (slice 1 2 p))
 
 	(bpoly 0xd0ff00ff 0 (defq p (transform
-		(slot stroke_polygons (list) stack
+		(points-stroke-polygons (list) stack
 			(list
-				(slot gen_arc (points) stack
+				(points-gen-arc (points) stack
 					(as-point (list (fmul canvas_width 0.2) (fmul canvas_height 0.3)))
 					0.0
 					fp_2pi
@@ -111,16 +113,16 @@
 	(bpoly 0x60000000 0 (slice 0 1 p))
 
 	(bpoly 0xc00000ff 0 (defq polygons (transform
-		(slot stroke_polygons (list) stack
-			(slot stroke_polylines (list) stack
+		(points-stroke-polygons (list) stack
+			(points-stroke-polylines (list) stack
 				(list
-					(slot gen_arc (points) stack
+					(points-gen-arc (points) stack
 						(as-point (list (fmul canvas_width -0.1) (fmul canvas_height -0.2)))
 						0.9
 						1.5
 						(fmul canvas_width 0.2)
 						eps)
-					(slot gen_arc (points) stack
+					(points-gen-arc (points) stack
 						(as-point (list (fmul canvas_width -0.2) (fmul canvas_height -0.2)))
 						4.0
 						2.0
@@ -137,7 +139,7 @@
 	(bpoly 0xa0ffffff 0
 		(list (elem 1 polygons) (elem 3 polygons)))
 
-	(slot swap canvas))
+	(canvas-swap canvas))
 
 (while (lt angle fp_2pi)
 	(redraw)

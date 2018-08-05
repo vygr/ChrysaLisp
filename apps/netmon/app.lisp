@@ -1,6 +1,12 @@
 ;import settings
-(run 'apps/sys.inc)
-(run 'apps/ui.inc)
+(run 'sys/lisp.inc)
+(run 'gui/lisp.inc)
+(run 'class/window/lisp.inc)
+(run 'class/grid/lisp.inc)
+(run 'class/flow/lisp.inc)
+(run 'class/label/lisp.inc)
+(run 'class/progress/lisp.inc)
+(run 'class/view/lisp.inc)
 
 (structure 'sample_reply_msg 0
 	(long 'command)
@@ -28,13 +34,13 @@
 			(ui-element _ (create-label) ('text "Memory" 'color 0xffffffff))
 			(times cpu_total (push memory_bars (ui-element _ (create-progress)))))))
 
-(slot set_title window "Network Monitor")
-(slot connect_close window event_win_close)
-(slot connect_min window event_win_min)
-(slot connect_max window event_win_max)
-(bind '(w h) (slot pref_size window))
-(slot change window 320 32 w h)
-(slot gui_add window)
+(window-set-title window "Network Monitor")
+(window-connect-close window event_win_close)
+(window-connect-min window event_win_min)
+(window-connect-max window event_win_max)
+(bind '(w h) (view-pref-size window))
+(view-change window 320 32 w h)
+(gui-add window)
 
 ;open global farm, create multi-cast sample command
 (defq ids (open-farm "apps/netmon/child" cpu_total kn_call_open)
@@ -57,8 +63,8 @@
 			(setq max_tasks (max max_tasks task_val) max_memory (max max_memory memory_val))
 			(def task_bar 'progress_max max_tasks 'progress_val task_val)
 			(def memory_bar 'progress_max max_memory 'progress_val memory_val)
-			(slot dirty task_bar)
-			(slot dirty memory_bar)
+			(view-dirty task_bar)
+			(view-dirty memory_bar)
 
 			;count up replies
 			(setq cpu_count (inc cpu_count)))
@@ -67,19 +73,19 @@
 			(setq id nil))
 		((eq id event_win_min)
 			;min button
-			(slot dirty window)
-			(bind '(x y _ _) (slot get_bounds window))
-			(bind '(w h) (slot pref_size window))
-			(slot change window x y w h)
-			(slot dirty_all window))
+			(view-dirty window)
+			(bind '(x y _ _) (view-get-bounds window))
+			(bind '(w h) (view-pref-size window))
+			(view-change window x y w h)
+			(view-dirty-all window))
 		((eq id event_win_max)
 			;max button
-			(slot dirty window)
-			(bind '(x y _ _) (slot get_bounds window))
-			(bind '(w h) (slot pref_size window))
-			(slot change window x y (fmul w 1.75) h)
-			(slot dirty_all window))
-		(t (slot event window msg))))
+			(view-dirty window)
+			(bind '(x y _ _) (view-get-bounds window))
+			(bind '(w h) (view-pref-size window))
+			(view-change window x y (fmul w 1.75) h)
+			(view-dirty-all window))
+		(t (view-event window msg))))
 
 ;wait for outstanding replies
 (while (ne cpu_count cpu_total)

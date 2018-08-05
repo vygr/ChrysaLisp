@@ -1,5 +1,5 @@
 ;import settings
-(run 'apps/cmd.inc)
+(run 'cmd/lisp.inc)
 
 ;read up to chunk_size chars from stream
 (defun read-chunk (_)
@@ -33,7 +33,7 @@
 
 ;initialize pipe details and command args, abort on error
 (when (defq chunk_size 8 slave (create-slave))
-	(if (le (length (defq args (slot get_args slave))) 1)
+	(if (le (length (defq args (slave-get-args slave))) 1)
 		;dump from stdin
 		(dump-file 'stdin)
 		;dump from args as files

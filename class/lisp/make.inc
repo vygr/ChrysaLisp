@@ -15,7 +15,6 @@
 (import 'class/lisp/func_bshl.vp)
 (import 'class/lisp/func_bshr.vp)
 (import 'class/lisp/func_bxor.vp)
-(import 'class/lisp/func_call.vp)
 (import 'class/lisp/func_cat.vp)
 (import 'class/lisp/func_catch.vp)
 (import 'class/lisp/func_char.vp)

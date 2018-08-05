@@ -1,6 +1,7 @@
 ;import settings
-(run 'apps/sys.inc)
-(run 'apps/ui.inc)
+(run 'sys/lisp.inc)
+(run 'gui/lisp.inc)
+(run 'class/canvas/lisp.inc)
 
 (defun read-farm (i s)
 	(while (lt (length (elem i data)) s)
@@ -24,8 +25,8 @@
 	(while (lt (setq y (inc y)) h)
 		(defq _ (read-farm (mod y (length farm)) line_length) x -1)
 		(while (lt (setq x (inc x)) w)
-			(slot set_plot canvas (read-int (mul x 4) _) x y))
-		(slot swap canvas)))
+			(canvas-set-plot canvas (read-int (mul x 4) _) x y))
+		(canvas-swap canvas)))
 
 ;read args from parent
 (screen (mail-mymail))

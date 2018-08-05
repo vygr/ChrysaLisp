@@ -1,5 +1,5 @@
 ;import settings
-(run 'apps/cmd.inc)
+(run 'cmd/lisp.inc)
 (run 'cmd/asm.inc)
 
 (defun make-doc ()
@@ -82,7 +82,7 @@
 
 ;initialize pipe details and command args, abort on error
 (when (defq slave (create-slave))
-	(defq args (map sym (slot get_args slave)) all (find 'all args)
+	(defq args (map sym (slave-get-args slave)) all (find 'all args)
 		boot (find 'boot args) platforms (find 'platforms args) doc (find 'doc args))
 	(cond
 		((and boot all platforms) (remake-all-platforms))

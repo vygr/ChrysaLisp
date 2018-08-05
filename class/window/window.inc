@@ -27,6 +27,11 @@
 (def-method 'mouse_move 'class/window/mouse_move 'final)
 
 (def-method 'lisp_create 'class/window/lisp_create 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_connect_close 'class/window/lisp_connect_close 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_connect_min 'class/window/lisp_connect_min 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_connect_max 'class/window/lisp_connect_max 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_set_status 'class/window/lisp_set_status 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_set_title 'class/window/lisp_set_title 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'window 'view)
 	(offset 'start)

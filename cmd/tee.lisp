@@ -1,5 +1,5 @@
 ;import settings
-(run 'apps/cmd.inc)
+(run 'cmd/lisp.inc)
 
 ;initialize pipe details and command args, abort on error
 (when (defq slave (create-slave))
@@ -8,4 +8,4 @@
 		(write buffer (prin (char c))))
 	(setq buffer (str buffer))
 	(each (lambda (_)
-		(save buffer _)) (slice 1 -1 (slot get_args slave))))
+		(save buffer _)) (slice 1 -1 (slave-get-args slave))))

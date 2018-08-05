@@ -41,6 +41,14 @@
 
 (def-method 'lisp_create 'class/canvas/lisp_create 'static '(r0 r1) '(r0 r1))
 (def-method 'lisp_load 'class/canvas/lisp_load 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_swap 'class/canvas/lisp_swap 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_fill 'class/canvas/lisp_fill 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_set_plot 'class/canvas/lisp_set_plot 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_set_fbox 'class/canvas/lisp_set_fbox 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_set_fpoly 'class/canvas/lisp_set_fpoly 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_blend_plot 'class/canvas/lisp_blend_plot 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_blend_fbox 'class/canvas/lisp_blend_fbox 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_blend_fpoly 'class/canvas/lisp_blend_fpoly 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'canvas 'view)
 	(ulong 'texture)

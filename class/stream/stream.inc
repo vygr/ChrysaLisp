@@ -15,6 +15,9 @@
 (def-method 'skip_not 'class/stream/skip_not 'static '(r0 r1) '(r0))
 (def-method 'split 'class/stream/split 'static '(r0 r1) '(r0 r1))
 
+(def-method 'lisp_available 'class/stream/lisp_available 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_write_flush 'class/stream/lisp_write_flush 'static '(r0 r1) '(r0 r1))
+
 (def-method 'deinit 'class/stream/deinit 'override)
 
 (def-method 'read_ready 'class/stream/read_ready 'virtual '(r0) '(r0 r1))

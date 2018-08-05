@@ -17,6 +17,14 @@
 (def-method 'stroke_polylines 'class/points/stroke_polylines 'static '(r0 r1 r2 r3 r4 r5 r6 r7) '(r0))
 (def-method 'stroke_polygons 'class/points/stroke_polygons 'static '(r0 r1 r2 r3 r4 r5) '(r0))
 
+(def-method 'lisp_transform 'class/points/lisp_transform 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_simplify 'class/points/lisp_simplify 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_gen_quadratic 'class/points/lisp_gen_quadratic 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_gen_cubic 'class/points/lisp_gen_cubic 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_gen_arc 'class/points/lisp_gen_arc 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_stroke_polylines 'class/points/lisp_stroke_polylines 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_stroke_polygons 'class/points/lisp_stroke_polygons 'static '(r0 r1) '(r0 r1))
+
 (def-struct 'points 'array)
 (def-struct-end)
 

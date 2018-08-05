@@ -9,6 +9,7 @@
 (def-method 'deinit 'class/slave/deinit 'final)
 
 (def-method 'lisp_create 'class/slave/lisp_create 'static '(r0 r1) '(r0 r1))
+(def-method 'lisp_get_args 'class/slave/lisp_get_args 'static '(r0 r1) '(r0 r1))
 
 (def-struct 'slave 'obj)
 	(ptr 'stdin)

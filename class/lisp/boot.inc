@@ -94,7 +94,6 @@
 (ffi eval "class/lisp/func_eval" 0)
 (ffi lambda "class/lisp/func_lambda" 1)
 (ffi macro "class/lisp/func_lambda" 1)
-(ffi call "class/lisp/func_call" 0)
 (ffi progn "class/lisp/func_progn" 0)
 (ffi apply "class/lisp/func_apply" 0)
 (ffi repl "class/lisp/func_repl" 0)
