@@ -1,8 +1,6 @@
 ;import settings
 (run 'sys/lisp.inc)
 (run 'gui/lisp.inc)
-(run 'class/canvas/lisp.inc)
-(run 'class/points/lisp.inc)
 
 ;math tools
 (run 'apps/math.inc)

@@ -1,12 +1,6 @@
 ;import settings
 (run 'sys/lisp.inc)
 (run 'gui/lisp.inc)
-(run 'class/window/lisp.inc)
-(run 'class/grid/lisp.inc)
-(run 'class/flow/lisp.inc)
-(run 'class/label/lisp.inc)
-(run 'class/progress/lisp.inc)
-(run 'class/view/lisp.inc)
 
 (structure 'sample_reply_msg 0
 	(long 'command)

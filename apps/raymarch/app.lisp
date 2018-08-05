@@ -1,9 +1,6 @@
 ;import settings
 (run 'sys/lisp.inc)
 (run 'gui/lisp.inc)
-(run 'class/window/lisp.inc)
-(run 'class/canvas/lisp.inc)
-(run 'class/view/lisp.inc)
 
 (structure 'event 0
 	(byte 'win_close))

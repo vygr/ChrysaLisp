@@ -1,10 +1,6 @@
 ;import settings
 (run 'sys/lisp.inc)
 (run 'gui/lisp.inc)
-(run 'class/flow/lisp.inc)
-(run 'class/window/lisp.inc)
-(run 'class/button/lisp.inc)
-(run 'class/view/lisp.inc)
 
 (structure 'event 0
 	(byte 'win_button))

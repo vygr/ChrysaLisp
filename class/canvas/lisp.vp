@@ -68,7 +68,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(canvas-load str)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(canvas-load path)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string))
 

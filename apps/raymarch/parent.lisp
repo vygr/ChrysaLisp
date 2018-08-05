@@ -1,7 +1,6 @@
 ;import settings
 (run 'sys/lisp.inc)
 (run 'gui/lisp.inc)
-(run 'class/canvas/lisp.inc)
 
 (defun read-farm (i s)
 	(while (lt (length (elem i data)) s)
