@@ -22,7 +22,7 @@
 	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 1})
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
 	(f-call 'stream 'available {arg0} {_, arg0})
 	(f-call 'integer 'create {arg0} {value})
 
