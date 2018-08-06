@@ -1,6 +1,6 @@
 # ChrysaLisp
 
-![](./screen_shot.png)
+![](./screen_shot_1.png)
 
 Took a detour to create a C++ version of ChrysaLisp to directly compare with my
 hand rolled compiler and format. The Lisp side of that project is now done and
