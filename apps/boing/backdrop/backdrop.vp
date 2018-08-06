@@ -1,0 +1,111 @@
+(import 'sys/func.inc)
+(import 'gui/ctx/ctx.inc)
+(import 'apps/boing/backdrop/backdrop.inc)
+
+(def-func 'apps/boing/class_backdrop)
+	(vtable-emit 'backdrop)
+(def-func-end)
+
+(def-func 'apps/boing/backdrop/create)
+	;outputs
+	;r0 = 0 if error, else object (ptr)
+	;trashes
+	;all
+
+	(f-call 'backdrop 'new '() '(r0))
+	(vpif '(r0 != 0))
+		;init the object
+		(f-call 'backdrop 'init '(r0 (@ apps/boing/class_backdrop)) '(r0 r1))
+		(vpif '(r1 == 0))
+			;error with init
+			(v-call 'backdrop 'delete '(r0) '() r1)
+			(vp-xor-rr r0 r0)
+		(endif)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'apps/boing/backdrop/new)
+	;outputs
+	;r0 = 0 if error, else object (ptr)
+	;trashes
+	;r1-r3
+
+	(f-jmp 'sys_mem 'alloc '(backdrop_size))
+
+(def-func-end)
+
+(def-func 'apps/boing/backdrop/draw)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = draw ctx (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'ctx)
+	(int 'x 'y 'w 'h)
+	(uint 'col)
+
+	(push-scope)
+	(f-entry 'backdrop 'draw {this, ctx})
+
+	(f-call 'backdrop 'get_long_prop {this, prop_color} {_, col})
+	(f-call 'backdrop 'get_bounds {this} {_, _, _, w, h})
+
+	(f-call 'gui_ctx 'set_color {ctx, col})
+	(f-call 'gui_ctx 'filled_box {ctx, 0, 0, w, h})
+	(assign {0, 0} {x, y})
+	(f-call 'gui_ctx 'set_color {ctx, 0xffffffff})
+	(loop-while {x < w})
+		(f-call 'gui_ctx 'filled_box {ctx, x, 0, 1, h})
+		(assign {x + 32} {x})
+	(loop-end)
+	(loop-while {y < h})
+		(f-call 'gui_ctx 'filled_box {ctx, 0, y, w, 1})
+		(assign {y + 32} {y})
+	(loop-end)
+
+	(f-exit 'backdrop 'draw {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-func 'apps/boing/backdrop/pref_size)
+	;inputs
+	;r0 = backdrop object (ptr)
+	;outputs
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
+	;trashes
+	;all but r0
+
+	(f-entry 'backdrop 'pref_size '(r0))
+	(f-exit 'backdrop 'pref_size '(r0 640 480))
+	(vp-ret)
+
+(def-func-end)
+
+(def-func 'apps/boing/backdrop/layout)
+	;inputs
+	;r0 = backdrop object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(uint 'col)
+
+	(push-scope)
+	(f-entry 'backdrop 'layout {this})
+
+	(f-call 'backdrop 'get_long_prop {this, prop_color} {_, col})
+	(vpif {col >> 24 == 0xff})
+		(f-call 'backdrop 'opaque {this})
+	(endif)
+
+	(f-exit 'backdrop 'layout {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

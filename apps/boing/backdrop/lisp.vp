@@ -1,0 +1,37 @@
+(import 'sys/func.inc)
+(import 'apps/boing/backdrop/backdrop.inc)
+(import 'class/lisp/lisp.inc)
+
+(def-func 'apps/boing/backdrop/lisp_create)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+(errorcases
+	(uint 'length))
+
+	(push-scope)
+	(f-entry 'backdrop 'lisp_create {this, args})
+
+(errorcases
+	(v-call 'vector 'get_length {args} {_, length})
+	(errorif {length} 'error1))
+
+	(f-call 'backdrop 'create nil {value})
+
+(vp-label 'exit)
+	(f-exit 'backdrop 'lisp_create {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(create-backdrop)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)
