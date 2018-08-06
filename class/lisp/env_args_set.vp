@@ -22,7 +22,7 @@
 	(f-call 'vector 'get_end {args} {_, iter_end})
 	(loop-while {iter_begin != iter_end})
 		(assign {*iter_begin} {value})
-		(vpif (cat {value->obj_vtable == @} (f-path 'class 'integer)))
+		(vpif (cat {value->obj_vtable == @} (f-path 'integer 'vtable)))
 			(f-call 'integer 'get_value {value} {_, value})
 		(endif)
 		(assign {value} {*dest})

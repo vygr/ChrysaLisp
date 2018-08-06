@@ -25,13 +25,13 @@
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 
 (errorcases
-	(f-call 'obj 'inst_of (cat {iter_begin[0], @} (f-path 'class 'stream)) {_, value})
+	(f-call 'obj 'inst_of (cat {iter_begin[0], @} (f-path 'stream 'vtable)) {_, value})
 	(errorifnot {value} 'error2))
 
 	(assign {1} {width})
 	(vpif {length == 2})
 		(assign {iter_begin[ptr_size]} {value})
-		(errorif (cat {value->obj_vtable != @} (f-path 'class 'integer)) 'error3)
+		(errorif (cat {value->obj_vtable != @} (f-path 'integer 'vtable)) 'error3)
 		(f-call 'integer 'get_value {value} {_, width})
 		(assign {((width - 1) & 7) + 1} {width})
 	(endif)

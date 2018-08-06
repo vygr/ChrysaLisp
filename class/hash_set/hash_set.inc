@@ -1,6 +1,7 @@
 (import 'class/obj/obj.inc)
 
 (def-class 'hash_set 'obj)
+(def-method 'vtable 'class/class_hash_set)
 (def-method 'create 'class/hash_set/create 'static '(r0 r1) '(r0))
 (def-method 'new 'class/hash_set/new 'static nil '(r0))
 (def-method 'init 'class/hash_set/init 'static '(r0 r1 r2 r3))

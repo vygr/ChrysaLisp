@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'gui/gui.inc)
+(import 'class/view/view.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'gui/lisp_add)

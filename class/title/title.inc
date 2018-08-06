@@ -1,6 +1,7 @@
 (import 'class/label/label.inc)
 
 (def-class 'title 'label)
+(def-method 'vtable 'class/class_title)
 (def-method 'create 'class/title/create)
 (def-method 'new 'class/title/new)
 (def-method 'init 'class/title/init)

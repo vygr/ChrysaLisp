@@ -1,6 +1,7 @@
 (import 'class/array/array.inc)
 
 (def-class 'vector 'array)
+(def-method 'vtable 'class/class_vector)
 (def-method 'create 'class/vector/create)
 
 (def-method 'deinit 'class/vector/deinit 'final)

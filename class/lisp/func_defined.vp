@@ -2,6 +2,7 @@
 (import 'class/lisp/lisp.inc)
 (import 'class/pair/pair.inc)
 (import 'class/hash_map/hash_map.inc)
+(import 'class/symbol/symbol.inc)
 
 (def-func 'class/lisp/func_defined)
 	;inputs

@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/hash_map/hash_map.inc)
+(import 'class/symbol/symbol.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_setq)
@@ -25,9 +26,9 @@
 	(loop-start)
 		(f-call 'obj 'deref_if {val})
 		(assign {iter_begin[ptr_size * 0]} {var})
-		(errorif (cat {var->obj_vtable != @} (f-path 'class 'symbol)) 'error2)
+		(errorif (cat {var->obj_vtable != @} (f-path 'symbol 'vtable)) 'error2)
 		(f-call 'lisp 'repl_eval {this, iter_begin[ptr_size * 1]} {_, val})
-		(errorif (cat {val->obj_vtable == @} (f-path 'class 'error)) 'exit)
+		(errorif (cat {val->obj_vtable == @} (f-path 'error 'vtable)) 'exit)
 		(f-call 'hash_map 'set {this->lisp_environment, var, val} {_, eval})
 	(errorcases
 		(vpifnot {eval})

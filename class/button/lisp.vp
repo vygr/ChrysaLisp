@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/button/button.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/button/lisp_create)

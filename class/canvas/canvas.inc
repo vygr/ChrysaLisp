@@ -1,6 +1,7 @@
 (import 'class/view/view.inc)
 
 (def-class 'canvas 'view)
+(def-method 'vtable 'class/class_canvas)
 (def-method 'create 'class/canvas/create 'static '(r0 r1 r2) '(r0))
 (def-method 'create_shared 'class/canvas/create_shared 'static '(r0) '(r0))
 (def-method 'new 'class/canvas/new 'static nil '(r0))

@@ -1,6 +1,7 @@
 (import 'class/obj/obj.inc)
 
 (def-class 'error 'obj)
+(def-method 'vtable 'class/class_error)
 (def-method 'create 'class/error/create 'static '(r0 r1 r2 r3 r4) '(r0))
 (def-method 'new 'class/error/new 'static nil '(r0))
 (def-method 'init 'class/error/init 'static '(r0 r1 r2 r3 r4 r5 r6))

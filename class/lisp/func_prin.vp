@@ -27,7 +27,7 @@
 		(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 		(loop-start)
 			(assign {*iter_begin} {value})
-			(vpif (cat {value->obj_vtable == @} (f-path 'class 'string)))
+			(vpif (cat {value->obj_vtable == @} (f-path 'string 'vtable)))
 				(f-call 'stream 'write {this->lisp_stdout, &value->string_data, value->string_length})
 			(else)
 				(f-call 'lisp 'repl_print {this, this->lisp_stdout, value})

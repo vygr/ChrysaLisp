@@ -2,6 +2,7 @@
 (import 'sys/mail/mail.inc)
 (import 'class/string/string.inc)
 (import 'class/array/array.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'sys/mail/lisp_mymail)
@@ -97,12 +98,12 @@
 	(errorifnot {value} 'error1))
 
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'obj 'inst_of (cat {arg0, @} (f-path 'class 'string)) {_, value})
+	(f-call 'obj 'inst_of (cat {arg0, @} (f-path 'string 'vtable)) {_, value})
 	(vpif {value})
 		(f-call 'sys_mail 'alloc_obj {arg0, &arg0->string_data, arg0->string_length} {arg2})
 		(goto 'sendit)
 	(endif)
-	(f-call 'obj 'inst_of (cat {arg0, @} (f-path 'class 'array)) {_, value})
+	(f-call 'obj 'inst_of (cat {arg0, @} (f-path 'array 'vtable)) {_, value})
 	(errorifnot {value} 'error1)
 	(f-call 'sys_mail 'alloc_obj {arg0, arg0->array_array, arg0->array_length * long_size} {arg2})
 (vp-label 'sendit)

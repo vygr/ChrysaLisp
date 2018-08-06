@@ -1,6 +1,7 @@
 (import 'sys/func.inc)
 (import 'class/font/font.inc)
 (import 'class/string/string.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/font/lisp_create)

@@ -21,7 +21,7 @@
 	(errorifnot {length == 0 || length == 1} 'error1)
 	(vpif {length})
 		(f-call 'vector 'get_first {args} {_, value})
-		(errorif (cat {value->obj_vtable != @} (f-path 'class 'integer)) 'error2)
+		(errorif (cat {value->obj_vtable != @} (f-path 'integer 'vtable)) 'error2)
 		(f-call 'integer 'get_value {value} {_, value})
 		(errorifnot {value} 'error2)
 		(f-call 'hash_map 'num_buckets {this->lisp_environment} {_, length})

@@ -27,7 +27,7 @@
 	(f-call 'vector 'create nil {list})
 	(loop-whilenot {char == -1 || char == char_rrb})
 		(f-call 'lisp 'read {this, stream, char} {_, ast, char})
-		(errorif (cat {ast->obj_vtable == @} (f-path 'class 'error)) 'error)
+		(errorif (cat {ast->obj_vtable == @} (f-path 'error 'vtable)) 'error)
 		(f-call 'vector 'push_back {list, ast})
 
 		;skip white space/comments

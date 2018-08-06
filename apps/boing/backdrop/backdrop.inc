@@ -1,6 +1,7 @@
 (import 'class/view/view.inc)
 
 (def-class 'backdrop 'view)
+(def-method 'vtable 'apps/boing/class_backdrop)
 (def-method 'create 'apps/boing/backdrop/create 'static '() '(r0))
 (def-method 'new 'apps/boing/backdrop/new 'static nil '(r0))
 

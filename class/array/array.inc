@@ -1,6 +1,7 @@
 (import 'class/sequence/sequence.inc)
 
 (def-class 'array 'sequence)
+(def-method 'vtable 'class/class_array)
 (def-method 'create 'class/array/create 'static nil '(r0))
 (def-method 'new 'class/array/new 'static nil '(r0))
 (def-method 'init 'class/array/init)

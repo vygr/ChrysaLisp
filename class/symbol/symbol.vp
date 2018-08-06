@@ -27,7 +27,7 @@
 	(f-call 'hash_set 'insert {set, this} {_, iter, _})
 	(f-call 'obj 'deref {this})
 	(f-call 'obj 'ref {*iter} {this})
-	(assign (cat {@} (f-path 'class 'symbol)) {this->obj_vtable})
+	(assign (cat {@} (f-path 'symbol 'vtable)) {this->obj_vtable})
 
 	(f-exit 'symbol 'intern {this})
 	(pop-scope)

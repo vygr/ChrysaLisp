@@ -1,6 +1,7 @@
 (import 'class/stream/stream.inc)
 
 (def-class 'msg_out 'stream)
+(def-method 'vtable 'class/class_msg_out)
 (def-method 'create 'class/msg_out/create 'static '(r0) '(r0))
 (def-method 'new 'class/msg_out/new 'static nil '(r0))
 (def-method 'init 'class/msg_out/init 'static '(r0 r1 r2))

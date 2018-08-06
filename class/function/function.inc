@@ -1,6 +1,7 @@
 (import 'class/obj/obj.inc)
 
 (def-class 'function 'obj)
+(def-method 'vtable 'class/class_function)
 (def-method 'create 'class/function/create 'static '(r0) '(r0))
 (def-method 'new 'class/function/new 'static nil '(r0))
 (def-method 'init 'class/function/init 'static '(r0 r1 r2))

@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/points/points.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/points/lisp_transform)

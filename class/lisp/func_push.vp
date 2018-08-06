@@ -19,11 +19,11 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
 	(f-call 'vector 'get_first {args} {_, value})
-	(vpif (cat {value->obj_vtable == @} (f-path 'class 'vector)))
+	(vpif (cat {value->obj_vtable == @} (f-path 'vector 'vtable)))
 		(d-call 'vector 'append {value, args, 1, length})
 	(else)
 	(errorcases
-		(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'array)) {_, iter_end})
+		(f-call 'obj 'inst_of (cat {value, @} (f-path 'array 'vtable)) {_, iter_end})
 		(errorifnot {iter_end} 'error1))
 		(d-call 'array 'get_length {value} {_, alength})
 		(assign {alength + length - 1} {alength})

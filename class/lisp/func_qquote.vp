@@ -23,7 +23,7 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
 	(f-call 'vector 'get_second {args} {_, args})
-	(vpif (cat {args->obj_vtable == @} (f-path 'class 'vector)))
+	(vpif (cat {args->obj_vtable == @} (f-path 'vector 'vtable)))
 		(f-call 'vector 'create nil {cat_list})
 		(f-call 'obj 'ref {this->lisp_sym_cat} {value})
 		(f-call 'vector 'push_back {cat_list, value})
@@ -61,7 +61,7 @@
 	(f-entry 'array 'each_callback {pdata, iter})
 
 	(assign {*iter} {elem})
-	(vpif (cat {elem->obj_vtable == @} (f-path 'class 'vector)))
+	(vpif (cat {elem->obj_vtable == @} (f-path 'vector 'vtable)))
 		(d-call 'vector 'get_length {elem} {_, length})
 		(gotoifnot {length} 'list_quote)
 		(f-call 'vector 'get_first {elem} {_, sym})

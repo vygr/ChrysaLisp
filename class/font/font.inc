@@ -1,6 +1,7 @@
 (import 'class/obj/obj.inc)
 
 (def-class 'font 'obj)
+(def-method 'vtable 'class/class_font)
 (def-method 'open 'class/font/open 'static '(r0 r1) '(r0))
 (def-method 'create 'class/font/create 'static '(r0 r1) '(r0))
 (def-method 'new 'class/font/new 'static nil '(r0))

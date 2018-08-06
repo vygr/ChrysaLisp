@@ -25,13 +25,13 @@
 	(f-call 'vector 'get_first {args} {_, stream})
 
 (errorcases
-	(f-call 'obj 'inst_of (cat {stream, @} (f-path 'class 'stream)) {_, value})
+	(f-call 'obj 'inst_of (cat {stream, @} (f-path 'stream 'vtable)) {_, value})
 	(errorifnot {value} 'error2))
 
 	(f-call 'vector 'get_second {args} {_, value})
 
 (errorcases
-	(f-call 'obj 'inst_of (cat {value, @} (f-path 'class 'string)) {_, old_file})
+	(f-call 'obj 'inst_of (cat {value, @} (f-path 'string 'vtable)) {_, old_file})
 	(errorifnot {old_file} 'error3))
 
 	;push old file and line, set to this stream info
@@ -61,7 +61,7 @@
 			(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
 		(endif)
 
-		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit1)
+		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit1)
 		(f-call 'obj 'deref {value})
 	(loop-end)
 	(f-call 'obj 'ref {this->lisp_sym_nil} {value})

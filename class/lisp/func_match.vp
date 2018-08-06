@@ -34,7 +34,7 @@
 			(assign {*iter_begin, *iter} {value1, value2})
 			(assign {iter_begin + ptr_size, iter + ptr_size} {iter_begin, iter})
 			(continueif {value1 == value2})
-			(f-call 'obj 'inst_of (cat {value2, @} (f-path 'class 'string)) {_, args})
+			(f-call 'obj 'inst_of (cat {value2, @} (f-path 'string 'vtable)) {_, args})
 			(gotoifnot {args} 'nomatch)
 			(gotoif {ushort(value2->string_data) != char_underscore} 'nomatch)
 		(loop-end)

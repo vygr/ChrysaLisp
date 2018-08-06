@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/hash_map/hash_map.inc)
+(import 'class/symbol/symbol.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_defmacro)
@@ -19,9 +20,9 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 4} 'error1)
 	(f-call 'vector 'get_third {args} {_, vars})
-	(errorif (cat {vars->obj_vtable != @} (f-path 'class 'vector)) 'error2)
+	(errorif (cat {vars->obj_vtable != @} (f-path 'vector 'vtable)) 'error2)
 	(f-call 'vector 'get_second {args} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'class 'symbol)) 'error3)
+	(errorif (cat {value->obj_vtable != @} (f-path 'symbol 'vtable)) 'error3)
 	(f-call 'obj 'ref {value})
 	(f-call 'obj 'ref {this->lisp_sym_macro} {vars})
 	(d-call 'vector 'slice {args, 1, length} {_, args})

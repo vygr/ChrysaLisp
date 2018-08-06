@@ -1,6 +1,7 @@
 (import 'class/view/view.inc)
 
 (def-class 'flow 'view)
+(def-method 'vtable 'class/class_flow)
 (def-method 'create 'class/flow/create 'static '() '(r0))
 (def-method 'new 'class/flow/new)
 

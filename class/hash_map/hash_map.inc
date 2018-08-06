@@ -1,6 +1,7 @@
 (import 'class/hash_set/hash_set.inc)
 
 (def-class 'hash_map 'hash_set)
+(def-method 'vtable 'class/class_hash_map)
 (def-method 'create 'class/hash_map/create)
 (def-method 'new 'class/hash_map/new)
 (def-method 'init 'class/hash_map/init)

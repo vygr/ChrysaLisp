@@ -5,6 +5,7 @@
 (def-bit-end)
 
 (def-class 'button 'label)
+(def-method 'vtable 'class/class_button)
 (def-method 'create 'class/button/create)
 (def-method 'new 'class/button/new)
 (def-method 'init 'class/button/init)

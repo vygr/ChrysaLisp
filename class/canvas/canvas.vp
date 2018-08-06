@@ -30,7 +30,7 @@
 	(f-call 'canvas 'new nil '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'canvas 'init `(r0 (@ ,(f-path 'class 'canvas)) r4 r5 r6) '(r0 r1))
+		(f-call 'canvas 'init `(r0 (@ ,(f-path 'canvas 'vtable)) r4 r5 r6) '(r0 r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'canvas 'delete '(r0) '() 'r1)
@@ -58,7 +58,7 @@
 	(f-call 'canvas 'new nil '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'canvas 'init1 `(r0 (@ ,(f-path 'class 'canvas)) r4) '(r0 r1))
+		(f-call 'canvas 'init1 `(r0 (@ ,(f-path 'canvas 'vtable)) r4) '(r0 r1))
 		(vpif '(r1 == 0))
 			;error with init
 			(v-call 'canvas 'delete '(r0) '() 'r1)

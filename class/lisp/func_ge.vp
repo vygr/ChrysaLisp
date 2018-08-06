@@ -22,7 +22,7 @@
 	(f-entry 'lisp 'func_ge {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'class 'integer) {, -2}) {_, value})
+	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'integer 'vtable) {, -2}) {_, value})
 	(errorifnot {value} 'error1))
 
 	(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})

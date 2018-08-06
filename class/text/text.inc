@@ -1,6 +1,7 @@
 (import 'class/view/view.inc)
 
 (def-class 'text 'view)
+(def-method 'vtable 'class/class_text)
 (def-method 'create 'class/text/create 'static '() '(r0))
 (def-method 'new 'class/text/new 'static nil '(r0))
 (def-method 'init 'class/text/init)

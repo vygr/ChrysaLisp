@@ -2,6 +2,7 @@
 (import 'class/hash_map/hash_map.inc)
 
 (def-class 'component 'hash_map)
+(def-method 'vtable 'class/class_component)
 (def-method 'init 'class/component/init 'static '(r0 r1))
 (def-method 'find_owner 'class/component/find_owner 'static '(r0) '(r0 r1))
 (def-method 'emit 'class/component/emit 'static '(r0 r1) '(r0))

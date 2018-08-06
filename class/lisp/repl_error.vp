@@ -25,7 +25,7 @@
 	(f-call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_name} {_, iter, _})
 	(vpif {iter})
 		(f-call 'pair 'get_second {*iter} {_, file})
-		(f-call 'obj 'inst_of (cat {file, @} (f-path 'class 'string)) {_, value})
+		(f-call 'obj 'inst_of (cat {file, @} (f-path 'string 'vtable)) {_, value})
 		(gotoifnot {value} 'nofile)
 		(assign {&file->string_data} {file})
 	(else)
@@ -37,7 +37,7 @@
 	(f-call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
 	(vpif {iter})
 		(f-call 'pair 'get_second {*iter} {_, value})
-		(breakif (cat {value->obj_vtable != @} (f-path 'class 'integer)))
+		(breakif (cat {value->obj_vtable != @} (f-path 'integer 'vtable)))
 		(f-call 'integer 'get_value {value} {_, line})
 	(endif)
 

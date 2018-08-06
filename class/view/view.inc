@@ -1,6 +1,7 @@
 (import 'class/component/component.inc)
 
 (def-class 'view 'component)
+(def-method 'vtable 'class/class_view)
 (def-method 'init 'class/view/init)
 (def-method 'add_front 'class/view/add_front 'static '(r0 r1) '(r0))
 (def-method 'add_back 'class/view/add_back 'static '(r0 r1) '(r0))

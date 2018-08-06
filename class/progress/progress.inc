@@ -1,6 +1,7 @@
 (import 'class/view/view.inc)
 
 (def-class 'progress 'view)
+(def-method 'vtable 'class/class_progress)
 (def-method 'create 'class/progress/create 'static '() '(r0))
 (def-method 'new 'class/progress/new 'static nil '(r0))
 

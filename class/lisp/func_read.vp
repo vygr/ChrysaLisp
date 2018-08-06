@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/integer/integer.inc)
+(import 'class/stream/stream.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_read)

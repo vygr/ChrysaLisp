@@ -1,6 +1,7 @@
 (import 'class/view/view.inc)
 
 (def-class 'vdu 'view)
+(def-method 'vtable 'class/class_vdu)
 (def-method 'create 'class/vdu/create 'static '() '(r0))
 (def-method 'new 'class/vdu/new 'static nil '(r0))
 (def-method 'init 'class/vdu/init)

@@ -9,6 +9,7 @@
 (def-bit-end)
 
 (def-class 'window 'view)
+(def-method 'vtable 'class/class_window)
 (def-method 'new 'class/window/new 'static nil '(r0))
 (def-method 'create 'class/window/create 'static '(r0) '(r0))
 (def-method 'init 'class/window/init 'static '(r0 r1 r2))

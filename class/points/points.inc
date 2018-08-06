@@ -1,6 +1,7 @@
 (import 'class/array/array.inc)
 
 (def-class 'points 'array)
+(def-method 'vtable 'class/class_points)
 (def-method 'create 'class/points/create)
 
 (def-method 'filter_polyline 'class/points/filter_polyline 'static '(r0 r1 r2) '(r0))

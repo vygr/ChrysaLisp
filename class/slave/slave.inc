@@ -1,6 +1,7 @@
 (import 'class/obj/obj.inc)
 
 (def-class 'slave 'obj)
+(def-method 'vtable 'class/class_slave)
 (def-method 'create 'class/slave/create 'static nil '(r0))
 (def-method 'new 'class/slave/new 'static nil '(r0))
 (def-method 'init 'class/slave/init 'static '(r0 r1))

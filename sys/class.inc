@@ -21,7 +21,7 @@
 	;_1 = class name
 	(if (eql (defq s (eval (super-sym _1))) 'null)
 		(vp-long 0)
-		(fn-add-link (f-path 'class s)))
+		(fn-add-link (f-path s 'vtable)))
 	(each (lambda (m)
 		(if (or (eql (elem 2 m) 'virtual) (eql (elem 2 m) 'final))
 			(fn-add-link (elem 1 m)))) (eval (class-sym _1))))
@@ -338,59 +338,19 @@
 		((str? _3) (assign (slice 0 (length (split _3 ",")) _) _3))
 		(t (assign (slice 0 (length _3) _) _3))))
 
-;;;;;;;;;;;;;;;;;
-; virtual classes
-;;;;;;;;;;;;;;;;;
-
-(def-class 'class)
-(def-method 'obj 'class/class_obj)
-(def-method 'component 'class/class_component)
-(def-method 'string 'class/class_string)
-(def-method 'array 'class/class_array)
-(def-method 'vector 'class/class_vector)
-(def-method 'pair 'class/class_pair)
-(def-method 'hash_set 'class/class_hash_set)
-(def-method 'hash_map 'class/class_hash_map)
-(def-method 'stream 'class/class_stream)
-(def-method 'stream_str 'class/class_stream_str)
-(def-method 'msg_out 'class/class_msg_out)
-(def-method 'msg_in 'class/class_msg_in)
-(def-method 'text 'class/class_text)
-(def-method 'view 'class/class_view)
-(def-method 'label 'class/class_label)
-(def-method 'button 'class/class_button)
-(def-method 'flow 'class/class_flow)
-(def-method 'grid 'class/class_grid)
-(def-method 'window 'class/class_window)
-(def-method 'progress 'class/class_progress)
-(def-method 'title 'class/class_title)
-(def-method 'slave 'class/class_slave)
-(def-method 'pipe 'class/class_pipe)
-(def-method 'function 'class/class_function)
-(def-method 'integer 'class/class_integer)
-(def-method 'lisp 'class/class_lisp)
-(def-method 'symbol 'class/class_symbol)
-(def-method 'sequence 'class/class_sequence)
-(def-method 'error 'class/class_error)
-(def-method 'vdu 'class/class_vdu)
-(def-method 'canvas 'class/class_canvas)
-(def-method 'points 'class/class_points)
-(def-method 'font 'class/class_font)
-(def-method 'texture 'class/class_texture)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; generic class construction
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defcfun signature (l &rest _)
 	(vp-align short_size)
 (vp-label l)
 	(each (lambda (_)
-		(vp-short (list 'sub (label-sym (link-sym (fn-find-link (f-path 'class _)))) '*pc*))) _))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; generic class construction
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+		(vp-short (list 'sub (label-sym (link-sym (fn-find-link (f-path _ 'vtable)))) '*pc*))) _))
 
 (defcfun gen-class (_1)
 	;_1 = class name
-	(def-func (f-path 'class _1))
+	(def-func (f-path _1 'vtable))
 		(vtable-emit _1)
 	(def-func-end))
 
@@ -398,19 +358,19 @@
 	;_1 = class name
 	(method-info _1 'create)
 	(defq _2 (opt (elem 3 m) '()) _3 (slice 0 (length _2) '(r13 r14 r4 r5 r6 r7 r8 r9 r10 r11 r12)))
-	(def-func (sym-cat "class/" _1 "/create"))
+	(def-func (f-path _1 'create))
 		;outputs
 		;r0 = 0 if error, else object (ptr)
 		;trashes
 		;all
 		(assign _2 _3)
-		(f-call _1 'new '() '(r0))
+		(f-call _1 'new nil '(r0))
 		(vpif '(r0 != 0))
 			;init the object
-			(f-call _1 'init `(r0 (@ ,(f-path 'class _1)) ~_3) '(r0 r1))
+			(f-call _1 'init `(r0 (@ ,(f-path _1 'vtable)) ~_3) '(r0 r1))
 			(vpif '(r1 == 0))
 				;error with init
-				(v-call _1 'delete '(r0) '() r1)
+				(v-call _1 'delete '(r0) nil r1)
 				(vp-xor-rr r0 r0)
 			(endif)
 		(endif)
@@ -419,7 +379,7 @@
 
 (defcfun gen-new (_1)
 	;_1 = class name
-	(def-func (sym-cat "class/" _1 "/new"))
+	(def-func (f-path _1 'new))
 		;outputs
 		;r0 = 0 if error, else object (ptr)
 		;trashes

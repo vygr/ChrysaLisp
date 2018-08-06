@@ -3,6 +3,7 @@
 (import 'class/vector/vector.inc)
 
 (def-class 'lisp 'obj)
+(def-method 'vtable 'class/class_lisp)
 (def-method 'create 'class/lisp/create 'static '(r0 r1 r2) '(r0))
 (def-method 'new 'class/lisp/new 'static nil '(r0))
 (def-method 'init 'class/lisp/init 'static '(r0 r1 r2 r3 r4))

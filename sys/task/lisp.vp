@@ -1,6 +1,7 @@
 (import 'sys/func.inc)
 (import 'sys/task/task.inc)
 (import 'class/integer/integer.inc)
+(import 'class/string/string.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'sys/task/lisp_sleep)

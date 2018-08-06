@@ -86,7 +86,7 @@
 	(f-call 'vector 'push_back {pdata->pdata_params, hiter})
 	(f-call 'lisp 'repl_apply {pdata->pdata_this, pdata->pdata_params, pdata->pdata_func} {_, value})
 	(assign {0} {result})
-	(vpif (cat {value->obj_vtable == @} (f-path 'class 'integer)))
+	(vpif (cat {value->obj_vtable == @} (f-path 'integer 'vtable)))
 		(f-call 'integer 'get_value {value} {_, result})
 	(endif)
 	(f-call 'obj 'deref {value})

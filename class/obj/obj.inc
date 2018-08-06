@@ -1,6 +1,7 @@
 (import 'sys/class.inc)
 
 (def-class 'obj)
+(def-method 'vtable 'class/class_obj)
 (def-method 'destroy 'class/obj/destroy 'static '(r0))
 (def-method 'init 'class/obj/init 'static '(r0 r1) '(r0 r1))
 (def-method 'inst_of 'class/obj/inst_of 'static '(r0 r1) '(r0 r1))

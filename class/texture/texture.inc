@@ -1,6 +1,7 @@
 (import 'class/obj/obj.inc)
 
 (def-class 'texture 'obj)
+(def-method 'vtable 'class/class_texture)
 (def-method 'create 'class/texture/create 'static '(r0 r1 r2) '(r0))
 (def-method 'new 'class/texture/new 'static nil '(r0))
 (def-method 'init 'class/texture/init 'static '(r0 r1 r2 r3 r4))

@@ -1,6 +1,7 @@
 (import 'class/sequence/sequence.inc)
 
 (def-class 'string 'sequence)
+(def-method 'vtable 'class/class_string)
 (def-method 'create_from_buffer 'class/string/create_from_buffer 'static '(r0 r1) '(r0))
 (def-method 'create_from_cstr 'class/string/create_from_cstr 'static '(r0) '(r0))
 (def-method 'create_from_file 'class/string/create_from_file 'static '(r0) '(r0))

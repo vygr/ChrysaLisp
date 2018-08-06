@@ -1,6 +1,7 @@
 (import 'class/obj/obj.inc)
 
 (def-class 'stream 'obj)
+(def-method 'vtable 'class/class_stream)
 (def-method 'create 'class/stream/create 'static '(r0 r1 r2 r3) '(r0))
 (def-method 'new 'class/stream/new 'static nil '(r0))
 (def-method 'init 'class/stream/init 'static '(r0 r1 r2 r3 r4 r5))

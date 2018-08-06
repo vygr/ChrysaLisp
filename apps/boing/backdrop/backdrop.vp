@@ -2,7 +2,7 @@
 (import 'gui/ctx/ctx.inc)
 (import 'apps/boing/backdrop/backdrop.inc)
 
-(def-func 'apps/boing/class_backdrop)
+(def-func (f-path 'backdrop 'vtable))
 	(vtable-emit 'backdrop)
 (def-func-end)
 
@@ -12,13 +12,13 @@
 	;trashes
 	;all
 
-	(f-call 'backdrop 'new '() '(r0))
+	(f-call 'backdrop 'new nil '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'backdrop 'init '(r0 (@ apps/boing/class_backdrop)) '(r0 r1))
+		(f-call 'backdrop 'init `(r0 (@ ,(f-path 'backdrop 'vtable))) '(r0 r1))
 		(vpif '(r1 == 0))
 			;error with init
-			(v-call 'backdrop 'delete '(r0) '() r1)
+			(v-call 'backdrop 'delete '(r0) nil r1)
 			(vp-xor-rr r0 r0)
 		(endif)
 	(endif)

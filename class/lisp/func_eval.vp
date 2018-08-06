@@ -1,4 +1,5 @@
 (import 'sys/func.inc)
+(import 'class/hash_map/hash_map.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/lisp/func_eval)
@@ -23,7 +24,7 @@
 		(errorif {length != 2} 'error1)
 		(f-call 'vector 'get_second {args} {_, env})
 	(errorcases
-		(f-call 'obj 'inst_of (cat {env, @} (f-path 'class 'hash_map)) {_, old})
+		(f-call 'obj 'inst_of (cat {env, @} (f-path 'hash_map 'vtable)) {_, old})
 		(errorifnot {old} 'error2))
 		(assign {this->lisp_environment} {old})
 		(assign {env} {this->lisp_environment})

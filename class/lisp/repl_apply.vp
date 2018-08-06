@@ -15,7 +15,7 @@
 
 	(f-entry 'lisp 'repl_apply '(r0 r1 r2))
 
-	(assign `((r2 obj_vtable) (@ ,(f-path 'class 'function))) '(r3 r4))
+	(assign `((r2 obj_vtable) (@ ,(f-path 'function 'vtable))) '(r3 r4))
 	(vpif '(r3 == r4))
 		;built in or compiled function
 		(vp-cpy-ir r2 function_value r2)
@@ -37,7 +37,7 @@
 
 	;lambda ?
 (errorcases
-	(errorif (cat {func->obj_vtable != @} (f-path 'class 'vector)) 'error2)
+	(errorif (cat {func->obj_vtable != @} (f-path 'vector 'vtable)) 'error2)
 	(d-call 'vector 'get_length {func} {_, length})
 	(errorif {length < 2} 'error1))
 
@@ -51,13 +51,13 @@
 
 	(f-call 'lisp 'env_push {this})
 	(f-call 'lisp 'env_bind {this, iter_begin[ptr_size * 1], args} {_, value})
-	(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit1)
+	(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit1)
 
 	(assign {&iter_begin[ptr_size * 2]} {iter_begin})
 	(loop-while {iter_begin != iter_end})
 		(f-call 'obj 'deref {value})
 		(f-call 'lisp 'repl_eval {this, *iter_begin} {_, value})
-		(errorif (cat {value->obj_vtable == @} (f-path 'class 'error)) 'exit1)
+		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit1)
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-end)
 

@@ -1,6 +1,7 @@
 (import 'sys/func.inc)
 (import 'class/window/window.inc)
 (import 'class/string/string.inc)
+(import 'class/integer/integer.inc)
 (import 'class/lisp/lisp.inc)
 
 (def-func 'class/window/lisp_create)
