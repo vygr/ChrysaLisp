@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'class/hash_map/hash_map.inc)
-(import 'class/symbol/symbol.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/hash_map/class.inc)
+(import 'class/symbol/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/lisp/func_defmacro)
+(def-method 'lisp 'func_defmacro)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

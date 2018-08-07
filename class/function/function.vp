@@ -1,5 +1,5 @@
 (import 'sys/func.inc)
-(import 'class/function/function.inc)
+(import 'class/function/class.inc)
 
 (gen-new 'function)
 (gen-create 'function)

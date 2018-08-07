@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'class/string/string.inc)
-(import 'class/stream/stream.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/string/class.inc)
+(import 'class/stream/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/lisp/func_prin)
+(def-method 'lisp 'func_prin)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

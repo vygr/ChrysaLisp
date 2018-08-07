@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'class/canvas/canvas.inc)
-(import 'class/vector/vector.inc)
-(import 'class/points/points.inc)
+(import 'class/canvas/class.inc)
+(import 'class/vector/class.inc)
+(import 'class/points/class.inc)
 
-(def-func 'class/canvas/fpoly)
+(def-method 'canvas 'fpoly)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = vector of points objects (ptr)

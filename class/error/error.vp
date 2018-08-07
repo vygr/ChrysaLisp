@@ -1,13 +1,13 @@
 (import 'sys/func.inc)
-(import 'sys/string/string.inc)
-(import 'class/string/string.inc)
-(import 'class/error/error.inc)
+(import 'sys/string/class.inc)
+(import 'class/string/class.inc)
+(import 'class/error/class.inc)
 
 (gen-new 'error)
 (gen-create 'error)
 (gen-class 'error)
 
-(def-func 'class/error/init)
+(def-method 'error 'init)
 	;inputs
 	;r0 = error object (ptr)
 	;r1 = vtable (pptr)
@@ -50,7 +50,7 @@
 
 (def-func-end)
 
-(def-func 'class/error/deinit)
+(def-method 'error 'deinit)
 	;inputs
 	;r0 = error object (ptr)
 	;outputs
@@ -69,7 +69,7 @@
 
 (def-func-end)
 
-(def-func 'class/error/get_msg)
+(def-method 'error 'get_msg)
 	;inputs
 	;r0 = error object (ptr)
 	;outputs

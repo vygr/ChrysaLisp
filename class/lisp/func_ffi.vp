@@ -1,11 +1,11 @@
 (import 'sys/func.inc)
-(import 'sys/load/load.inc)
-(import 'class/integer/integer.inc)
-(import 'class/symbol/symbol.inc)
-(import 'class/hash_map/hash_map.inc)
-(import 'class/lisp/lisp.inc)
+(import 'sys/load/class.inc)
+(import 'class/integer/class.inc)
+(import 'class/symbol/class.inc)
+(import 'class/hash_map/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/lisp/func_ffi)
+(def-method 'lisp 'func_ffi)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

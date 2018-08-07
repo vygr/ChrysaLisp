@@ -1,15 +1,15 @@
 (import 'sys/func.inc)
-(import 'class/string/string.inc)
-(import 'class/msg_in/msg_in.inc)
-(import 'class/msg_out/msg_out.inc)
-(import 'class/slave/slave.inc)
-(import 'class/pipe/pipe.inc)
+(import 'class/string/class.inc)
+(import 'class/msg_in/class.inc)
+(import 'class/msg_out/class.inc)
+(import 'class/slave/class.inc)
+(import 'class/pipe/class.inc)
 
 (gen-new 'pipe)
 (gen-create 'pipe)
 (gen-class 'pipe)
 
-(def-func 'class/pipe/select)
+(def-method 'pipe 'select)
 	;inputs
 	;r0 = pipe object (ptr)
 	;r1 = user mailbox (ptr)

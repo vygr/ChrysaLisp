@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/points/points.inc)
-(import 'sys/math/math.inc)
+(import 'class/points/class.inc)
+(import 'sys/math/class.inc)
 
-(def-func 'class/points/transform)
+(def-method 'points 'transform)
 	;inputs
 	;r0 = points object (ptr)
 	;r1 = source points object, can be same (ptr)

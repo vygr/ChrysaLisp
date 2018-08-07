@@ -1,4 +1,4 @@
 (import 'sys/func.inc)
-(import 'class/sequence/sequence.inc)
+(import 'class/sequence/class.inc)
 
 (gen-class 'sequence)

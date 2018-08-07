@@ -1,13 +1,13 @@
 (import 'sys/func.inc)
-(import 'sys/kernel/kernel.inc)
-(import 'class/msg_out/msg_out.inc)
-(import 'sys/link/link.inc)
+(import 'sys/kernel/class.inc)
+(import 'class/msg_out/class.inc)
+(import 'sys/link/class.inc)
 
 (gen-new 'msg_out)
 (gen-create 'msg_out)
 (gen-class 'msg_out)
 
-(def-func 'class/msg_out/init)
+(def-method 'msg_out 'init)
 	;inputs
 	;r0 = msg_out object (ptr)
 	;r1 = vtable (pptr)
@@ -44,7 +44,7 @@
 
 (def-func-end)
 
-(def-func 'class/msg_out/deinit)
+(def-method 'msg_out 'deinit)
 	;inputs
 	;r0 = msg_out object (ptr)
 	;trashes
@@ -73,7 +73,7 @@
 
 (def-func-end)
 
-(def-func 'class/msg_out/write_flush)
+(def-method 'msg_out 'write_flush)
 	;inputs
 	;r0 = msg_out object (ptr)
 	;outputs
@@ -95,7 +95,7 @@
 		(assign {this->msg_out_seqnum} {data->stream_msg_seqnum})
 		(assign {this->msg_out_state} {data->stream_msg_state})
 		(assign {this->msg_out_ack_mbox_id} {data->stream_msg_ack_id.id_mbox})
-		(f-call 'kernel 'id nil {data->stream_msg_ack_id.id_cpu})
+		(f-call 'sys_kernel 'id nil {data->stream_msg_ack_id.id_cpu})
 		(f-call 'sys_mail 'send {msg})
 		(assign {0} {this->stream_buffer})
 
@@ -119,7 +119,7 @@
 
 (def-func-end)
 
-(def-func 'class/msg_out/write_next)
+(def-method 'msg_out 'write_next)
 	;inputs
 	;r0 = msg_out object (ptr)
 	;outputs

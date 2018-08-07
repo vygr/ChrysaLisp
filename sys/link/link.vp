@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'sys/link/link.inc)
-(import 'sys/kernel/kernel.inc)
-(import 'class/array/array.inc)
+(import 'sys/link/class.inc)
+(import 'sys/kernel/class.inc)
+(import 'class/array/class.inc)
 
-(def-func 'sys/link/link)
+(def-method 'sys_link 'link)
 	;started by kernel for each link
 
 	(struct 'lk_node 'lk_node)
@@ -31,7 +31,7 @@
 	;init link node cpu id and task count
 	(assign {((pdata[5] - 0x30) * 100) + ((pdata[6] - 0x30) * 10) + (pdata[7] - 0x30)} {lo_id})
 	(assign {((pdata[9] - 0x30) * 100) + ((pdata[10] - 0x30) * 10) + (pdata[11] - 0x30)} {hi_id})
-	(f-call 'kernel 'id nil {id})
+	(f-call 'sys_kernel 'id nil {id})
 	(vpif {id == lo_id})
 		(assign {hi_id} {lk_node.lk_node_cpu_id})
 		(assign {lk_buffer_chan_1} {tx})
@@ -56,13 +56,13 @@
 	(f-call 'sys_mail 'send {msg})
 
 	;open shared memory file
-	(f-call 'pii 'open {pdata, o_creat | o_rdwr, s_irusr | s_iwusr} {handle})
+	(f-call 'sys_pii 'open {pdata, o_creat | o_rdwr, s_irusr | s_iwusr} {handle})
 
 	;set size of region
-	(f-call 'pii 'ftruncate {handle, lk_buffer_size})
+	(f-call 'sys_pii 'ftruncate {handle, lk_buffer_size})
 
 	;map shared object
-	(f-call 'pii 'mmap {0, lk_buffer_size, prot_read | prot_write, map_shared, handle, 0} {mem})
+	(f-call 'sys_pii 'mmap {0, lk_buffer_size, prot_read | prot_write, map_shared, handle, 0} {mem})
 
 	;tx channel, rx channel
 	;tx msg, rx msg
@@ -161,13 +161,13 @@
 	(loop-until {lk_node.lk_node_cpu_id == 0xffffffff})
 
 	;unmap object
-	(f-call 'pii 'munmap {mem, lk_buffer_size})
+	(f-call 'sys_pii 'munmap {mem, lk_buffer_size})
 
 	;close it
-	(f-call 'pii 'close {handle})
+	(f-call 'sys_pii 'close {handle})
 
 	;unlink shared object
-	(f-call 'pii 'unlink {pdata})
+	(f-call 'sys_pii 'unlink {pdata})
 
 	;free params msg
 	(f-call 'sys_mail 'free {params})

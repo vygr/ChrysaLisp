@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
-(import 'class/canvas/canvas.inc)
-(import 'class/stream/stream.inc)
+(import 'class/canvas/class.inc)
+(import 'class/stream/class.inc)
 
 (def-struct 'cpm)
 	(uint 'ident)		;ident '.CPM' or '.FLM'
@@ -12,7 +12,7 @@
 	(uint 'trans)		;image transparent colour
 (def-struct-end)
 
-(def-func 'class/canvas/load_cpm)
+(def-method 'canvas 'load_cpm)
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs

@@ -1,17 +1,17 @@
 (import 'sys/func.inc)
-(import 'gui/gui.inc)
-(import 'gui/region/region.inc)
-(import 'class/window/window.inc)
-(import 'class/title/title.inc)
-(import 'class/button/button.inc)
-(import 'class/flow/flow.inc)
-(import 'class/string/string.inc)
+(import 'gui/class.inc)
+(import 'gui/region/class.inc)
+(import 'class/window/class.inc)
+(import 'class/title/class.inc)
+(import 'class/button/class.inc)
+(import 'class/flow/class.inc)
+(import 'class/string/class.inc)
 
 (gen-new 'window)
 (gen-create 'window)
 (gen-class 'window)
 
-(def-func 'class/window/init)
+(def-method 'window 'init)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = vtable (pptr)
@@ -107,7 +107,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/deinit)
+(def-method 'window 'deinit)
 	;inputs
 	;r0 = window object (ptr)
 	;trashes
@@ -131,7 +131,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/add_child)
+(def-method 'window 'add_child)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = child view object (ptr)
@@ -145,7 +145,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/draw)
+(def-method 'window 'draw)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = draw ctx (ptr)
@@ -168,7 +168,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/layout)
+(def-method 'window 'layout)
 	;inputs
 	;r0 = window object (ptr)
 	;trashes
@@ -197,7 +197,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/mouse_down)
+(def-method 'window 'mouse_down)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = mouse event data (ptr)
@@ -241,7 +241,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/mouse_move)
+(def-method 'window 'mouse_move)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = mouse event data (ptr)
@@ -354,7 +354,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/pref_size)
+(def-method 'window 'pref_size)
 	;inputs
 	;r0 = window object (ptr)
 	;outputs
@@ -379,7 +379,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/set_status)
+(def-method 'window 'set_status)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = status c string (pubyte)
@@ -400,7 +400,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/set_title)
+(def-method 'window 'set_title)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = title c string (pubyte)
@@ -419,7 +419,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/connect_close)
+(def-method 'window 'connect_close)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = reciever id (long)
@@ -445,7 +445,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/connect_max)
+(def-method 'window 'connect_max)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = reciever id (long)
@@ -471,7 +471,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/connect_min)
+(def-method 'window 'connect_min)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = reciever id (long)

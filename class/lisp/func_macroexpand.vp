@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/stream/stream.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/stream/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/lisp/func_macroexpand)
+(def-method 'lisp 'func_macroexpand)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

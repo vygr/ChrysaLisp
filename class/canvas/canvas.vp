@@ -1,19 +1,19 @@
 (import 'sys/func.inc)
 (import 'gui/sdl2.inc)
-(import 'class/text/text.inc)
-(import 'class/canvas/canvas.inc)
-(import 'class/flow/flow.inc)
-(import 'class/vector/vector.inc)
-(import 'class/points/points.inc)
-(import 'class/symbol/symbol.inc)
-(import 'class/stream_str/stream_str.inc)
-(import 'class/pair/pair.inc)
-(import 'gui/ctx/ctx.inc)
+(import 'class/text/class.inc)
+(import 'class/canvas/class.inc)
+(import 'class/flow/class.inc)
+(import 'class/vector/class.inc)
+(import 'class/points/class.inc)
+(import 'class/symbol/class.inc)
+(import 'class/stream_str/class.inc)
+(import 'class/pair/class.inc)
+(import 'gui/ctx/class.inc)
 
 (gen-new 'canvas)
 (gen-class 'canvas)
 
-(def-func 'class/canvas/create)
+(def-method 'canvas 'create)
 	;inputs
 	;r0 = width (pixels)
 	;r1 = height (pixels)
@@ -43,7 +43,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/create_shared)
+(def-method 'canvas 'create_shared)
 	;inputs
 	;r0 = source canvas object (ptr)
 	;outputs
@@ -71,7 +71,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/init)
+(def-method 'canvas 'init)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = vtable (pptr)
@@ -125,7 +125,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/init1)
+(def-method 'canvas 'init1)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = vtable (pptr)
@@ -177,7 +177,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/deinit)
+(def-method 'canvas 'deinit)
 	;inputs
 	;r0 = canvas object (ptr)
 	;outputs
@@ -234,7 +234,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/load)
+(def-method 'canvas 'load)
 	;inputs
 	;r0 = c string (pubyte)
 	;outputs
@@ -290,7 +290,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/draw)
+(def-method 'canvas 'draw)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = draw ctx (ptr)
@@ -361,7 +361,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/swap)
+(def-method 'canvas 'swap)
 	;inputs
 	;r0 = canvas object (ptr)
 	;outputs
@@ -402,7 +402,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/pref_size)
+(def-method 'canvas 'pref_size)
 	;inputs
 	;r0 = canvas object (ptr)
 	;outputs
@@ -427,7 +427,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/to_premul)
+(def-method 'canvas 'to_premul)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)
@@ -459,7 +459,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/to_argb)
+(def-method 'canvas 'to_argb)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color premul (argb)
@@ -502,7 +502,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/fill)
+(def-method 'canvas 'fill)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)
@@ -530,7 +530,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/as_argb)
+(def-method 'canvas 'as_argb)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = source canvas object (ptr)
@@ -562,7 +562,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/as_premul)
+(def-method 'canvas 'as_premul)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = source canvas object (ptr)
@@ -594,7 +594,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/set_clip)
+(def-method 'canvas 'set_clip)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r7 = x (pixels)
@@ -641,7 +641,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/set_pix_noclip)
+(def-method 'canvas 'set_pix_noclip)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)
@@ -667,7 +667,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/set_span_noclip)
+(def-method 'canvas 'set_span_noclip)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)
@@ -698,7 +698,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/set_span)
+(def-method 'canvas 'set_span)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)
@@ -737,7 +737,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/blend_pix_noclip)
+(def-method 'canvas 'blend_pix_noclip)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)
@@ -784,7 +784,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/blend_span_noclip)
+(def-method 'canvas 'blend_span_noclip)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)
@@ -838,7 +838,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/blend_span)
+(def-method 'canvas 'blend_span)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)
@@ -877,7 +877,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/plot)
+(def-method 'canvas 'plot)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)
@@ -910,7 +910,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/fbox)
+(def-method 'canvas 'fbox)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)

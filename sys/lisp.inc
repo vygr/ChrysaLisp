@@ -2,8 +2,8 @@
 (bind '(byte_size short_size int_size long_size ptr_size
 	kn_call_open kn_call_child lk_data_size id_size)
 	(within-compile-env (lambda ()
-		(import 'sys/link/link.inc)
-		(import 'sys/kernel/kernel.inc)
+		(import 'sys/link/class.inc)
+		(import 'sys/kernel/class.inc)
 		(list byte_size short_size int_size long_size ptr_size
 			kn_call_open kn_call_child lk_data_size id_size))))
 

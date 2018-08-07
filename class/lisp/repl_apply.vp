@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/function/function.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/function/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/lisp/repl_apply)
+(def-method 'lisp 'repl_apply)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

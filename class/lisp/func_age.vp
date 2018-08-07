@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'class/string/string.inc)
-(import 'class/integer/integer.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/string/class.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/lisp/func_age)
+(def-method 'lisp 'func_age)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -22,7 +22,7 @@
 	(errorifnot {age} 'error1))
 
 	(f-call 'vector 'get_first {value} {_, value})
-	(f-call 'pii 'age {&value->string_data} {age})
+	(f-call 'sys_pii 'age {&value->string_data} {age})
 	(f-call 'integer 'create {age} {value})
 
 (vp-label 'exit)

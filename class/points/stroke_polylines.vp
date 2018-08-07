@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'class/points/points.inc)
-(import 'class/vector/vector.inc)
-(import 'sys/math/math.inc)
+(import 'class/points/class.inc)
+(import 'class/vector/class.inc)
+(import 'sys/math/class.inc)
 
-(def-func 'class/points/stroke_polylines)
+(def-method 'points 'stroke_polylines)
 	;inputs
 	;r0 = output vector of points objects (ptr)
 	;r1 = stack array object (ptr)
@@ -161,7 +161,7 @@
 						(vec-load 4 {l1_rvx, l1_rvy, l2_rvx, l2_rvy})
 						(vec-add 4)
 						(vec-store 4 {p3x, p3y, p1x, p1y})
-						(f-call 'math 'intersect {p3, l1_v, p1, l2_v} {p1})
+						(f-call 'sys_math 'intersect {p3, l1_v, p1, l2_v} {p1})
 						(goto 'out_p1)
 					(case {join_style == join_bevel})
 						;bevel join

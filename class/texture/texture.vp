@@ -1,12 +1,12 @@
 (import 'sys/func.inc)
-(import 'class/texture/texture.inc)
+(import 'class/texture/class.inc)
 (import 'gui/sdl2.inc)
 
 (gen-new 'texture)
 (gen-create 'texture)
 (gen-class 'texture)
 
-(def-func 'class/texture/deinit)
+(def-method 'texture 'deinit)
 	;inputs
 	;r0 = texture object (ptr)
 	;trashes

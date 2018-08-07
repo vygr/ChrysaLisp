@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/points/points.inc)
-(import 'sys/math/math.inc)
+(import 'class/points/class.inc)
+(import 'sys/math/class.inc)
 
-(def-func 'class/points/gen_arc)
+(def-method 'points 'gen_arc)
 	;inputs
 	;r0 = points object (ptr)
 	;r1 = stack array object (ptr)
@@ -40,10 +40,10 @@
 
 	(vpif {a2 <= fp_hpi})
 		(assign {a1 + a2} {a2})
-		(f-call 'math 'fsin {a1} {sa1})
-		(f-call 'math 'fcos {a1} {ca1})
-		(f-call 'math 'fsin {a2} {sa2})
-		(f-call 'math 'fcos {a2} {ca2})
+		(f-call 'sys_math 'fsin {a1} {sa1})
+		(f-call 'sys_math 'fcos {a1} {ca1})
+		(f-call 'sys_math 'fsin {a2} {sa2})
+		(f-call 'sys_math 'fcos {a2} {ca2})
 		(vec-load 5 {sa1, ca1, sa2, ca2, radius})
 		(vec-fscale 4)
 		(vec-store 2 {v2x, v2y} {v1x, v1y})

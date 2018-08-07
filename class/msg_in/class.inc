@@ -1,0 +1,22 @@
+(import 'class/stream/class.inc)
+
+(def-class 'msg_in 'stream)
+(dec-method 'vtable 'class/class_msg_in)
+(dec-method 'create 'class/msg_in/create 'static '() '(r0))
+(dec-method 'new 'class/msg_in/new 'static nil '(r0))
+(dec-method 'init 'class/msg_in/init 'static '(r0 r1))
+(dec-method 'next_seq 'class/msg_in/next_seq 'static '(r0 r1 r2) '(r0 r1))
+(dec-method 'next_msg 'class/msg_in/next_msg 'static '(r0) '(r0))
+
+(dec-method 'deinit 'class/msg_in/deinit 'final)
+(dec-method 'read_ready 'class/msg_in/read_ready 'final)
+(dec-method 'read_next 'class/msg_in/read_next 'final)
+
+(def-struct 'msg_in 'stream)
+	(ulong 'seqnum)
+	(ulong 'state)
+	(struct 'list 'lh_list)
+	(ulong 'ack_seqnum)
+	(ptr 'mbox_addr)
+	(uint 'mbox_id)
+(def-struct-end)

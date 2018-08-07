@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/label/label.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/label/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/label/lisp_create)
+(def-method 'label 'lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

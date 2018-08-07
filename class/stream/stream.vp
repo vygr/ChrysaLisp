@@ -1,15 +1,15 @@
 (import 'sys/func.inc)
-(import 'sys/string/string.inc)
-(import 'class/vector/vector.inc)
-(import 'class/string/string.inc)
-(import 'class/stream/stream.inc)
-(import 'class/stream_str/stream_str.inc)
+(import 'sys/string/class.inc)
+(import 'class/vector/class.inc)
+(import 'class/string/class.inc)
+(import 'class/stream/class.inc)
+(import 'class/stream_str/class.inc)
 
 (gen-new 'stream)
 (gen-create 'stream)
 (gen-class 'stream)
 
-(def-func 'class/stream/init)
+(def-method 'stream 'init)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = vtable (pptr)
@@ -33,7 +33,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/deinit)
+(def-method 'stream 'deinit)
 	;inputs
 	;r0 = stream object (ptr)
 	;trashes
@@ -53,7 +53,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/read)
+(def-method 'stream 'read)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = buffer (pubyte)
@@ -95,7 +95,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/read_char)
+(def-method 'stream 'read_char)
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs
@@ -122,7 +122,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/read_line)
+(def-method 'stream 'read_line)
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs
@@ -171,7 +171,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/read_next)
+(def-method 'stream 'read_next)
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs
@@ -185,7 +185,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/read_ready)
+(def-method 'stream 'read_ready)
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs
@@ -199,7 +199,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/skip)
+(def-method 'stream 'skip)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = char to skip (uint)
@@ -228,7 +228,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/skip_not)
+(def-method 'stream 'skip_not)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = char to not skip (uint)
@@ -257,7 +257,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/split)
+(def-method 'stream 'split)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = split char (uint)
@@ -296,7 +296,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/write)
+(def-method 'stream 'write)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = buffer (pubyte)
@@ -338,7 +338,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/write_char)
+(def-method 'stream 'write_char)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = char (uint)
@@ -365,7 +365,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/write_cstr)
+(def-method 'stream 'write_cstr)
 	;inputs
 	;r0 = stream object (ptr)
 	;r1 = buffer (pubyte)
@@ -380,7 +380,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/write_flush)
+(def-method 'stream 'write_flush)
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs
@@ -393,7 +393,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/write_next)
+(def-method 'stream 'write_next)
 	;inputs
 	;r0 = stream object (ptr)
 	;outputs

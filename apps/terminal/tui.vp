@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/pipe/pipe.inc)
-(import 'class/msg_in/msg_in.inc)
-(import 'class/msg_out/msg_out.inc)
-(import 'class/string/string.inc)
+(import 'class/pipe/class.inc)
+(import 'class/msg_in/class.inc)
+(import 'class/msg_out/class.inc)
+(import 'class/string/class.inc)
 
 (def-struct 'tui_msg)
 	(struct 'reply_id 'id)
@@ -176,12 +176,12 @@
 
 	(vpif {char == char_tab})
 		;tab
-		(f-call 'pii 'write_char {1, char_space})
-		(f-call 'pii 'write_char {1, char_space})
-		(f-call 'pii 'write_char {1, char_space})
-		(f-call 'pii 'write_char {1, char_space})
+		(f-call 'sys_pii 'write_char {1, char_space})
+		(f-call 'sys_pii 'write_char {1, char_space})
+		(f-call 'sys_pii 'write_char {1, char_space})
+		(f-call 'sys_pii 'write_char {1, char_space})
 	(else)
-		(f-call 'pii 'write_char {1, char})
+		(f-call 'sys_pii 'write_char {1, char})
 	(endif)
 
 	(pop-scope)
@@ -223,13 +223,13 @@
 	(f-call 'sys_mail 'free {msg})
 
 	;non block on stdin
-	(f-call 'pii 'fcntl {0, f_getfl, 0} {char})
-	(f-call 'pii 'fcntl {0, f_setfl, char | o_nonblock})
+	(f-call 'sys_pii 'fcntl {0, f_getfl, 0} {char})
+	(f-call 'sys_pii 'fcntl {0, f_setfl, char | o_nonblock})
 
 	;poll stdin and send char to tui
 	(loop-start)
 	(vp-label 'nextchar)
-		(f-call 'pii 'read_char {0} {char})
+		(f-call 'sys_pii 'read_char {0} {char})
 		(vpif {char})
 			(f-call 'sys_mail 'alloc {stdin_msg_size} {msg, data})
 			(assign {tui_id.id_id} {msg->msg_dest.id_id})

@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/lisp/func_cond)
+(def-method 'lisp 'func_cond)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

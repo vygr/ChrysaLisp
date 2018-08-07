@@ -1,12 +1,12 @@
 (import 'sys/func.inc)
-(import 'class/vector/vector.inc)
-(import 'class/hash_set/hash_set.inc)
+(import 'class/vector/class.inc)
+(import 'class/hash_set/class.inc)
 
 (gen-new 'hash_set)
 (gen-create 'hash_set)
 (gen-class 'hash_set)
 
-(def-func 'class/hash_set/init)
+(def-method 'hash_set 'init)
 	;inputs
 	;r0 = hash_set object (ptr)
 	;r1 = vtable (pptr)
@@ -61,7 +61,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_set/deinit)
+(def-method 'hash_set 'deinit)
 	;inputs
 	;r0 = hash_set object (ptr)
 	;trashes
@@ -74,7 +74,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_set/clear)
+(def-method 'hash_set 'clear)
 	;inputs
 	;r0 = hash_set object (ptr)
 	;outputs
@@ -106,7 +106,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_set/copy)
+(def-method 'hash_set 'copy)
 	;inputs
 	;r0 = hash_set object (ptr)
 	;r1 = num buckets (uint)
@@ -139,7 +139,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_set/erase)
+(def-method 'hash_set 'erase)
 	;inputs
 	;r0 = hash_set object (ptr)
 	;r1 = element iterator (pptr)
@@ -180,7 +180,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_set/find)
+(def-method 'hash_set 'find)
 	;inputs
 	;r0 = hash_set object (ptr)
 	;r1 = key object (ptr)
@@ -241,7 +241,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_set/for_each)
+(def-method 'hash_set 'for_each)
 	;inputs
 	;r0 = hash_set object (ptr)
 	;r1 = predicate function (ptr)
@@ -315,7 +315,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_set/get_bucket)
+(def-method 'hash_set 'get_bucket)
 	;inputs
 	;r0 = hash_set object (ptr)
 	;r1 = key object (ptr)
@@ -353,7 +353,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_set/insert)
+(def-method 'hash_set 'insert)
 	;inputs
 	;r0 = hash_set object (ptr)
 	;r1 = key object (ptr)
@@ -395,7 +395,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_set/get_iters)
+(def-method 'hash_set 'get_iters)
 	;inputs
 	;r0 = hash_set object (ptr)
 	;outputs

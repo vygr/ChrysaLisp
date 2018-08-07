@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/integer/integer.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/lisp/func_time)
+(def-method 'lisp 'func_time)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -18,7 +18,7 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1)
-	(f-call 'pii 'time nil {length})
+	(f-call 'sys_pii 'time nil {length})
 	(f-call 'integer 'create {length} {args})
 
 (vp-label 'exit)

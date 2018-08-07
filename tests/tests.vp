@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
-(import 'sys/kernel/kernel.inc)
-(import 'sys/link/link.inc)
-(import 'sys/math/math.inc)
+(import 'sys/kernel/class.inc)
+(import 'sys/link/class.inc)
+(import 'sys/math/class.inc)
 
 ;;;;;;;;;;;
 ; test code
@@ -27,7 +27,7 @@
 	(f-call 'sys_mail 'free {msg})
 
 	;wait a bit
-	(f-call 'math 'random {1000000} {num})
+	(f-call 'sys_math 'random {1000000} {num})
 	(f-call 'sys_task 'sleep {num + 1000000})
 
 	(pop-scope)
@@ -48,7 +48,7 @@
 	(f-call 'sys_mail 'free {msg})
 
 	;wait a bit
-	(f-call 'math 'random {1000000} {num})
+	(f-call 'sys_math 'random {1000000} {num})
 	(f-call 'sys_task 'sleep {num + 1000000})
 
 	(pop-scope)
@@ -68,7 +68,7 @@
 	(f-call 'sys_mail 'mymail nil {msg, data})
 
 	;wait a bit (gee that's hard work etc)
-	(f-call 'math 'random {100000} {num})
+	(f-call 'sys_math 'random {100000} {num})
 	(f-call 'sys_task 'sleep {num + 100000})
 
 	;do we have more work to do ?

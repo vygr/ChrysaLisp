@@ -1,10 +1,10 @@
 (import 'sys/func.inc)
-(import 'class/integer/integer.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
 
 ;ne all different
 
-(def-func 'class/lisp/func_ne)
+(def-method 'lisp 'func_ne)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

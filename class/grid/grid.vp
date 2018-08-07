@@ -1,11 +1,11 @@
 (import 'sys/func.inc)
-(import 'class/grid/grid.inc)
+(import 'class/grid/class.inc)
 
 (gen-new 'grid)
 (gen-create 'grid)
 (gen-class 'grid)
 
-(def-func 'class/grid/layout)
+(def-method 'grid 'layout)
 	;inputs
 	;r0 = grid object (ptr)
 	;outputs
@@ -72,7 +72,7 @@
 
 (def-func-end)
 
-(def-func 'class/grid/pref_size)
+(def-method 'grid 'pref_size)
 	;inputs
 	;r0 = grid object (ptr)
 	;outputs

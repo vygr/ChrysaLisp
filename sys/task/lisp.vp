@@ -1,10 +1,10 @@
 (import 'sys/func.inc)
-(import 'sys/task/task.inc)
-(import 'class/integer/integer.inc)
-(import 'class/string/string.inc)
-(import 'class/lisp/lisp.inc)
+(import 'sys/task/class.inc)
+(import 'class/integer/class.inc)
+(import 'class/string/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'sys/task/lisp_sleep)
+(def-method 'sys_task 'lisp_sleep)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -40,7 +40,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/lisp_mailbox)
+(def-method 'sys_task 'lisp_mailbox)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -76,7 +76,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/lisp_open_child)
+(def-method 'sys_task 'lisp_open_child)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -112,7 +112,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/lisp_open_remote)
+(def-method 'sys_task 'lisp_open_remote)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -148,7 +148,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/lisp_open_farm)
+(def-method 'sys_task 'lisp_open_farm)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -183,7 +183,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/lisp_open_pipe)
+(def-method 'sys_task 'lisp_open_pipe)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

@@ -1,17 +1,17 @@
 (import 'sys/func.inc)
-(import 'gui/gui.inc)
-(import 'gui/ctx/ctx.inc)
-(import 'class/font/font.inc)
-(import 'class/texture/texture.inc)
-(import 'class/vector/vector.inc)
-(import 'class/text/text.inc)
-(import 'class/string/string.inc)
+(import 'gui/class.inc)
+(import 'gui/ctx/class.inc)
+(import 'class/font/class.inc)
+(import 'class/texture/class.inc)
+(import 'class/vector/class.inc)
+(import 'class/text/class.inc)
+(import 'class/string/class.inc)
 
 (gen-new 'text)
 (gen-create 'text)
 (gen-class 'text)
 
-(def-func 'class/text/init)
+(def-method 'text 'init)
 	;inputs
 	;r0 = text object (ptr)
 	;r1 = vtable (pptr)
@@ -32,7 +32,7 @@
 
 (def-func-end)
 
-(def-func 'class/text/deinit)
+(def-method 'text 'deinit)
 	;inputs
 	;r0 = text object (ptr)
 	;trashes
@@ -50,7 +50,7 @@
 
 (def-func-end)
 
-(def-func 'class/text/draw)
+(def-method 'text 'draw)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = draw ctx (ptr)
@@ -98,7 +98,7 @@
 
 (def-func-end)
 
-(def-func 'class/text/pref_size)
+(def-method 'text 'pref_size)
 	;inputs
 	;r0 = text object (ptr)
 	;outputs
@@ -144,7 +144,7 @@
 
 (def-func-end)
 
-(def-func 'class/text/switch_text)
+(def-method 'text 'switch_text)
 	;inputs
 	;r0 = text object (ptr)
 	;trashes

@@ -1,10 +1,10 @@
 (import 'sys/func.inc)
-(import 'class/canvas/canvas.inc)
-(import 'class/string/string.inc)
-(import 'class/integer/integer.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/canvas/class.inc)
+(import 'class/string/class.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/canvas/lisp_create)
+(def-method 'canvas 'lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -39,7 +39,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/lisp_load)
+(def-method 'canvas 'lisp_load)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -77,7 +77,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/lisp_fill)
+(def-method 'canvas 'lisp_fill)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -113,7 +113,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/lisp_swap)
+(def-method 'canvas 'lisp_swap)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -150,7 +150,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/lisp_set_plot)
+(def-method 'canvas 'lisp_set_plot)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -186,7 +186,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/lisp_set_fbox)
+(def-method 'canvas 'lisp_set_fbox)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -222,7 +222,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/lisp_set_fpoly)
+(def-method 'canvas 'lisp_set_fpoly)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -258,7 +258,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/lisp_blend_plot)
+(def-method 'canvas 'lisp_blend_plot)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -294,7 +294,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/lisp_blend_fbox)
+(def-method 'canvas 'lisp_blend_fbox)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -330,7 +330,7 @@
 
 (def-func-end)
 
-(def-func 'class/canvas/lisp_blend_fpoly)
+(def-method 'canvas 'lisp_blend_fpoly)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

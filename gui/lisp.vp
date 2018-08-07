@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'gui/gui.inc)
-(import 'class/view/view.inc)
-(import 'class/lisp/lisp.inc)
+(import 'gui/class.inc)
+(import 'class/view/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'gui/lisp_add)
+(def-method 'gui_gui 'lisp_add)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

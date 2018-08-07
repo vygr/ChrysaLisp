@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/stream/stream.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/stream/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/lisp/read_rmacro)
+(def-method 'lisp 'read_rmacro)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = stream object (ptr)

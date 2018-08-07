@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'class/string/string.inc)
-(import 'class/integer/integer.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/string/class.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/lisp/func_save)
+(def-method 'lisp 'func_save)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -26,10 +26,10 @@
 
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {value, name})
-	(f-call 'pii 'open {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth} {handle})
+	(f-call 'sys_pii 'open {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth} {handle})
 	(errorif {handle < 3} 'error2)
-	(f-call 'pii 'write {handle, &value->string_data, value->string_length})
-	(f-call 'pii 'close {handle})
+	(f-call 'sys_pii 'write {handle, &value->string_data, value->string_length})
+	(f-call 'sys_pii 'close {handle})
 	(f-call 'obj 'ref {value})
 
 (vp-label 'exit)

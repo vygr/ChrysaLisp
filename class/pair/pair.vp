@@ -1,11 +1,11 @@
 (import 'sys/func.inc)
-(import 'class/pair/pair.inc)
+(import 'class/pair/class.inc)
 
 (gen-new 'pair)
 (gen-create 'pair)
 (gen-class 'pair)
 
-(def-func 'class/pair/deinit)
+(def-method 'pair 'deinit)
 	;inputs
 	;r0 = pair object (ptr)
 	;trashes
@@ -20,7 +20,7 @@
 
 (def-func-end)
 
-(def-func 'class/pair/ref_first)
+(def-method 'pair 'ref_first)
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -36,7 +36,7 @@
 
 (def-func-end)
 
-(def-func 'class/pair/ref_second)
+(def-method 'pair 'ref_second)
 	;inputs
 	;r0 = pair object (ptr)
 	;outputs
@@ -52,7 +52,7 @@
 
 (def-func-end)
 
-(def-func 'class/pair/set_first)
+(def-method 'pair 'set_first)
 	;inputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)
@@ -70,7 +70,7 @@
 
 (def-func-end)
 
-(def-func 'class/pair/set_second)
+(def-method 'pair 'set_second)
 	;inputs
 	;r0 = pair object (ptr)
 	;r1 = object (ptr)

@@ -1,11 +1,11 @@
 (import 'sys/func.inc)
-(import 'sys/mail/mail.inc)
-(import 'class/string/string.inc)
-(import 'class/array/array.inc)
-(import 'class/integer/integer.inc)
-(import 'class/lisp/lisp.inc)
+(import 'sys/mail/class.inc)
+(import 'class/string/class.inc)
+(import 'class/array/class.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'sys/mail/lisp_mymail)
+(def-method 'sys_mail 'lisp_mymail)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -40,7 +40,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/lisp_trymail)
+(def-method 'sys_mail 'lisp_trymail)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -79,7 +79,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/lisp_send)
+(def-method 'sys_mail 'lisp_send)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

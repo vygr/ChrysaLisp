@@ -1,10 +1,10 @@
 (import 'sys/func.inc)
-(import 'class/hash_map/hash_map.inc)
-(import 'class/pair/pair.inc)
-(import 'class/symbol/symbol.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/hash_map/class.inc)
+(import 'class/pair/class.inc)
+(import 'class/symbol/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/lisp/repl_expand)
+(def-method 'lisp 'repl_expand)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = form object iter (pptr)

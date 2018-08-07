@@ -1,10 +1,10 @@
 (import 'sys/func.inc)
-(import 'class/vector/vector.inc)
+(import 'class/vector/class.inc)
 
 (gen-create 'vector)
 (gen-class 'vector)
 
-(def-func 'class/vector/deinit)
+(def-method 'vector 'deinit)
 	;inputs
 	;r0 = vector object (ptr)
 	;trashes
@@ -15,7 +15,7 @@
 
 (def-func-end)
 
-(def-func 'class/vector/clear)
+(def-method 'vector 'clear)
 	;inputs
 	;r0 = vector object (ptr)
 	;outputs
@@ -40,7 +40,7 @@
 
 (def-func-end)
 
-(def-func 'class/vector/pop_back)
+(def-method 'vector 'pop_back)
 	;inputs
 	;r0 = vector object (ptr)
 	;outputs
@@ -60,7 +60,7 @@
 
 (def-func-end)
 
-(def-func 'class/vector/ref_back)
+(def-method 'vector 'ref_back)
 	;inputs
 	;r0 = vector object (ptr)
 	;outputs
@@ -80,7 +80,7 @@
 
 (def-func-end)
 
-(def-func 'class/vector/ref_element)
+(def-method 'vector 'ref_element)
 	;inputs
 	;r0 = vector object (ptr)
 	;r1 = element index (uint)
@@ -99,7 +99,7 @@
 
 (def-func-end)
 
-(def-func 'class/vector/set_element)
+(def-method 'vector 'set_element)
 	;inputs
 	;r0 = vector object (ptr)
 	;r1 = element object (ptr)
@@ -120,7 +120,7 @@
 
 (def-func-end)
 
-(def-func 'class/vector/slice)
+(def-method 'vector 'slice)
 	;inputs
 	;r0 = vector object (ptr)
 	;r1 = element start index (uint)
@@ -166,7 +166,7 @@
 
 (def-func-end)
 
-(def-func 'class/vector/append)
+(def-method 'vector 'append)
 	;inputs
 	;r0 = vector object (ptr)
 	;r1 = source vector object (ptr)

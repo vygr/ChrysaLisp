@@ -1,12 +1,12 @@
 (import 'sys/func.inc)
-(import 'class/msg_out/msg_out.inc)
-(import 'class/msg_in/msg_in.inc)
+(import 'class/msg_out/class.inc)
+(import 'class/msg_in/class.inc)
 
 (gen-new 'msg_in)
 (gen-create 'msg_in)
 (gen-class 'msg_in)
 
-(def-func 'class/msg_in/init)
+(def-method 'msg_in 'init)
 	;inputs
 	;r0 = msg_in object (ptr)
 	;r1 = vtable (pptr)
@@ -44,7 +44,7 @@
 
 (def-func-end)
 
-(def-func 'class/msg_in/deinit)
+(def-method 'msg_in 'deinit)
 	;inputs
 	;r0 = msg_in object (ptr)
 	;trashes
@@ -69,7 +69,7 @@
 
 (def-func-end)
 
-(def-func 'class/msg_in/next_seq)
+(def-method 'msg_in 'next_seq)
 	;inputs
 	;r0 = list head (ptr)
 	;r1 = 0, else new stream msg (ptr)
@@ -101,7 +101,7 @@
 
 (def-func-end)
 
-(def-func 'class/msg_in/next_msg)
+(def-method 'msg_in 'next_msg)
 	;inputs
 	;r0 = msg_in object (ptr)
 	;outputs
@@ -146,7 +146,7 @@
 
 (def-func-end)
 
-(def-func 'class/msg_in/read_next)
+(def-method 'msg_in 'read_next)
 	;inputs
 	;r0 = msg_in object (ptr)
 	;outputs
@@ -172,7 +172,7 @@
 
 (def-func-end)
 
-(def-func 'class/msg_in/read_ready)
+(def-method 'msg_in 'read_ready)
 	;inputs
 	;r0 = msg_in object (ptr)
 	;outputs

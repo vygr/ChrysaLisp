@@ -1,12 +1,12 @@
 (import 'sys/func.inc)
-(import 'class/array/array.inc)
-(import 'class/integer/integer.inc)
+(import 'class/array/class.inc)
+(import 'class/integer/class.inc)
 
 (gen-new 'array)
 (gen-create 'array)
 (gen-class 'array)
 
-(def-func 'class/array/deinit)
+(def-method 'array 'deinit)
 	;inputs
 	;r0 = array object (ptr)
 	;trashes
@@ -24,7 +24,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/append)
+(def-method 'array 'append)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = source array object (ptr)
@@ -74,7 +74,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/clear)
+(def-method 'array 'clear)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -88,7 +88,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/for_each)
+(def-method 'array 'for_each)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element start index (uint)
@@ -149,7 +149,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/find)
+(def-method 'array 'find)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element (long)
@@ -175,7 +175,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/get_back)
+(def-method 'array 'get_back)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -193,7 +193,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/get_length)
+(def-method 'array 'get_length)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -205,7 +205,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/pop_back)
+(def-method 'array 'pop_back)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -218,7 +218,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/push_back)
+(def-method 'array 'push_back)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element (long)
@@ -251,7 +251,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/ref_back)
+(def-method 'array 'ref_back)
 	;inputs
 	;r0 = array object (ptr)
 	;outputs
@@ -271,7 +271,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/ref_element)
+(def-method 'array 'ref_element)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element index (uint)
@@ -290,7 +290,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/set_capacity)
+(def-method 'array 'set_capacity)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = capacity (uint)
@@ -330,7 +330,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/set_element)
+(def-method 'array 'set_element)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element object (ptr)
@@ -345,7 +345,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/slice)
+(def-method 'array 'slice)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = element start index (uint)
@@ -379,7 +379,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/partition)
+(def-method 'array 'partition)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = lower partition iter (plong)
@@ -450,7 +450,7 @@
 
 (def-func-end)
 
-(def-func 'class/array/sort)
+(def-method 'array 'sort)
 	;inputs
 	;r0 = array object (ptr)
 	;r1 = stack array object (ptr)

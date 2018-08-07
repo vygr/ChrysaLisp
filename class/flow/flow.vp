@@ -1,11 +1,11 @@
 (import 'sys/func.inc)
-(import 'class/flow/flow.inc)
+(import 'class/flow/class.inc)
 
 (gen-new 'flow)
 (gen-create 'flow)
 (gen-class 'flow)
 
-(def-func 'class/flow/layout)
+(def-method 'flow 'layout)
 	;inputs
 	;r0 = flow object (ptr)
 	;outputs
@@ -184,7 +184,7 @@
 
 (def-func-end)
 
-(def-func 'class/flow/pref_size)
+(def-method 'flow 'pref_size)
 	;inputs
 	;r0 = flow object (ptr)
 	;outputs

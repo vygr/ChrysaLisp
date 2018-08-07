@@ -1,16 +1,16 @@
 (import 'sys/func.inc)
-(import 'sys/kernel/kernel.inc)
-(import 'class/vector/vector.inc)
-(import 'class/string/string.inc)
+(import 'sys/kernel/class.inc)
+(import 'class/vector/class.inc)
+(import 'class/string/class.inc)
 
-(def-func 'sys/task/statics)
+(def-method 'sys_task 'statics)
 	;info
 	;task statics data
 
 	(times tk_statics_size (vp-byte 0))
 (def-func-end)
 
-(def-func 'sys/task/init)
+(def-method 'sys_task 'init)
 	;info
 	;init task statics
 
@@ -22,7 +22,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/callback)
+(def-method 'sys_task 'callback)
 	;inputs
 	;r0 = user data address (ptr)
 	;r1 = callback address (ptr)
@@ -52,7 +52,7 @@
 	(f-call 'sys_mail 'alloc {kn_msg_callback_size} {msg, data})
 
 	;fill in destination, reply and function
-	(f-call 'kernel 'id nil {id})
+	(f-call 'sys_kernel 'id nil {id})
 	(assign {0} {msg->msg_dest.id_mbox})
 	(assign {id} {msg->msg_dest.id_cpu})
 	(assign {mbox_id} {data->kn_msg_reply_id.id_mbox})
@@ -73,7 +73,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/count)
+(def-method 'sys_task 'count)
 	;outputs
 	;r0 = task count (uint)
 
@@ -83,7 +83,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/mailbox)
+(def-method 'sys_task 'mailbox)
 	;outputs
 	;r0 = current task mailbox id (id)
 
@@ -97,7 +97,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/restore)
+(def-method 'sys_task 'restore)
 	;inputs
 	;r14 = control block to restore (ptr)
 	;info
@@ -114,7 +114,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/suspend)
+(def-method 'sys_task 'suspend)
 	;info
 	;suspend current task, switch to next task
 
@@ -137,7 +137,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/resume)
+(def-method 'sys_task 'resume)
 	;inputs
 	;r0 = task control node to resume (ptr)
 	;trashes
@@ -155,7 +155,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/sleep)
+(def-method 'sys_task 'sleep)
 	;inputs
 	;r0 = time delay in usec (ulong)
 
@@ -171,7 +171,7 @@
 	(vp-cpy-rr r0 r1)
 
 	;calculate wake time
-	(f-call 'pii 'time '() '(r0))
+	(f-call 'sys_pii 'time '() '(r0))
 	(vp-add-rr r1 r0)
 	(vp-cpy-ri r0 r14 tk_node_time)
 
@@ -191,7 +191,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/start)
+(def-method 'sys_task 'start)
 	;inputs
 	;r0 = new task func pointer (ptr)
 	;outputs
@@ -242,7 +242,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/stop)
+(def-method 'sys_task 'stop)
 	;info
 	;stop current task, switch to next task
 
@@ -284,7 +284,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/tcb)
+(def-method 'sys_task 'tcb)
 	;outputs
 	;r0 = current task tcb (ptr)
 
@@ -294,7 +294,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/yield)
+(def-method 'sys_task 'yield)
 	;info
 	;switch to next task
 
@@ -316,7 +316,7 @@
 ; single child process
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def-func 'sys/task/open_child)
+(def-method 'sys_task 'open_child)
 	;inputs
 	;r0 = name string object (ptr)
 	;r1 = spawn type (uint)
@@ -331,7 +331,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/open_remote)
+(def-method 'sys_task 'open_remote)
 	;inputs
 	;r0 = name string object (ptr)
 	;r1 = cpu target (uint)
@@ -358,7 +358,7 @@
 	(assign {0} {msg->msg_dest.id_mbox})
 	(assign {cpu} {msg->msg_dest.id_cpu})
 	(assign {mbox_id} {data->kn_msg_reply_id.id_mbox})
-	(f-call 'kernel 'id nil {data->kn_msg_reply_id.id_cpu})
+	(f-call 'sys_kernel 'id nil {data->kn_msg_reply_id.id_cpu})
 	(assign {type} {data->kn_msg_function})
 	(f-call 'sys_mem 'copy {&name->string_data, &data->kn_msg_open_pathname, name->string_length + 1})
 	(f-call 'sys_mail 'send {msg})
@@ -382,7 +382,7 @@
 ; multiple child process
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(def-func 'sys/task/open_farm)
+(def-method 'sys_task 'open_farm)
 	;inputs
 	;r0 = name string object (ptr)
 	;r1 = number to spawn (uint)
@@ -400,8 +400,8 @@
 	(f-entry 'sys_task 'open_farm {name, length, type})
 
 	;gather network info
-	(f-call 'kernel 'id nil {cpu})
-	(f-call 'kernel 'total nil {total})
+	(f-call 'sys_kernel 'id nil {cpu})
+	(f-call 'sys_kernel 'total nil {total})
 
 	;create output array
 	(f-call 'array 'create nil {ids})
@@ -449,7 +449,7 @@
 
 (def-func-end)
 
-(def-func 'sys/task/open_pipe)
+(def-method 'sys_task 'open_pipe)
 	;inputs
 	;r0 = vector of string objects (ptr)
 	;outputs
@@ -475,7 +475,7 @@
 	(f-call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
 
 	;start all tasks, starting on kernel of this chip
-	(f-call 'kernel 'id nil {cpu})
+	(f-call 'sys_kernel 'id nil {cpu})
 	(assign {0} {index})
 	(loop-while {index != length})
 		(f-call 'vector 'get_element {tasks, index} {_, name})
@@ -483,7 +483,7 @@
 		(assign {0} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
 		(assign {mbox_id} {data->kn_msg_reply_id.id_mbox})
-		(f-call 'kernel 'id nil {data->kn_msg_reply_id.id_cpu})
+		(f-call 'sys_kernel 'id nil {data->kn_msg_reply_id.id_cpu})
 		(assign {kn_call_child} {data->kn_msg_function})
 		(f-call 'sys_mem 'copy {&name->string_data, &data->kn_msg_open_pathname, name->string_length + 1})
 

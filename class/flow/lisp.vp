@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/flow/flow.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/flow/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/flow/lisp_create)
+(def-method 'flow 'lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

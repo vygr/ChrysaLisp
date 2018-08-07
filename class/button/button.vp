@@ -1,14 +1,14 @@
 (import 'sys/func.inc)
-(import 'gui/gui.inc)
-(import 'class/button/button.inc)
-(import 'class/flow/flow.inc)
-(import 'class/array/array.inc)
+(import 'gui/class.inc)
+(import 'class/button/class.inc)
+(import 'class/flow/class.inc)
+(import 'class/array/class.inc)
 
 (gen-new 'button)
 (gen-create 'button)
 (gen-class 'button)
 
-(def-func 'class/button/init)
+(def-method 'button 'init)
 	;inputs
 	;r0 = button object (ptr)
 	;r1 = vtable (pptr)
@@ -40,7 +40,7 @@
 
 (def-func-end)
 
-(def-func 'class/button/deinit)
+(def-method 'button 'deinit)
 	;inputs
 	;r0 = button object (ptr)
 	;trashes
@@ -60,7 +60,7 @@
 
 (def-func-end)
 
-(def-func 'class/button/draw)
+(def-method 'button 'draw)
 	;inputs
 	;r0 = button object (ptr)
 	;r1 = draw ctx (ptr)
@@ -86,7 +86,7 @@
 
 (def-func-end)
 
-(def-func 'class/button/layout)
+(def-method 'button 'layout)
 	;inputs
 	;r0 = button object (ptr)
 	;trashes
@@ -113,7 +113,7 @@
 
 (def-func-end)
 
-(def-func 'class/button/mouse_down)
+(def-method 'button 'mouse_down)
 	;inputs
 	;r0 = button object (ptr)
 	;r1 = mouse event data (ptr)
@@ -128,7 +128,7 @@
 
 (def-func-end)
 
-(def-func 'class/button/mouse_up)
+(def-method 'button 'mouse_up)
 	;inputs
 	;r0 = button object (ptr)
 	;r1 = mouse event data (ptr)
@@ -156,7 +156,7 @@
 
 (def-func-end)
 
-(def-func 'class/button/mouse_move)
+(def-method 'button 'mouse_move)
 	;inputs
 	;r0 = button object (ptr)
 	;r1 = mouse event data (ptr)
@@ -187,7 +187,7 @@
 
 (def-func-end)
 
-(def-func 'class/button/connect_click)
+(def-method 'button 'connect_click)
 	;inputs
 	;r0 = button object (ptr)
 	;r1 = target id (long)

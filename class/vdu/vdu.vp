@@ -1,18 +1,18 @@
 (import 'sys/func.inc)
-(import 'gui/gui.inc)
-(import 'gui/ctx/ctx.inc)
-(import 'gui/region/region.inc)
-(import 'class/font/font.inc)
-(import 'class/texture/texture.inc)
-(import 'class/symbol/symbol.inc)
-(import 'class/vdu/vdu.inc)
-(import 'class/vector/vector.inc)
+(import 'gui/class.inc)
+(import 'gui/ctx/class.inc)
+(import 'gui/region/class.inc)
+(import 'class/font/class.inc)
+(import 'class/texture/class.inc)
+(import 'class/symbol/class.inc)
+(import 'class/vdu/class.inc)
+(import 'class/vector/class.inc)
 
 (gen-new 'vdu)
 (gen-create 'vdu)
 (gen-class 'vdu)
 
-(def-func 'class/vdu/init)
+(def-method 'vdu 'init)
 	;inputs
 	;r0 = vdu object (ptr)
 	;r1 = vtable (pptr)
@@ -40,7 +40,7 @@
 
 (def-func-end)
 
-(def-func 'class/vdu/deinit)
+(def-method 'vdu 'deinit)
 	;inputs
 	;r0 = vdu object (ptr)
 	;trashes
@@ -59,7 +59,7 @@
 
 (def-func-end)
 
-(def-func 'class/vdu/draw)
+(def-method 'vdu 'draw)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = draw ctx (ptr)
@@ -127,7 +127,7 @@
 
 (def-func-end)
 
-(def-func 'class/vdu/pref_size)
+(def-method 'vdu 'pref_size)
 	;inputs
 	;r0 = vdu object (ptr)
 	;outputs
@@ -164,7 +164,7 @@
 
 (def-func-end)
 
-(def-func 'class/vdu/switch_font)
+(def-method 'vdu 'switch_font)
 	;inputs
 	;r0 = vdu object (ptr)
 	;trashes
@@ -198,7 +198,7 @@
 
 (def-func-end)
 
-(def-func 'class/vdu/switch_size)
+(def-method 'vdu 'switch_size)
 	;inputs
 	;r0 = vdu object (ptr)
 	;trashes
@@ -221,7 +221,7 @@
 
 (def-func-end)
 
-(def-func 'class/vdu/print_char)
+(def-method 'vdu 'print_char)
 	;inputs
 	;r0 = vdu object (ptr)
 	;r1 = char (uint)
@@ -300,7 +300,7 @@
 
 (def-func-end)
 
-(def-func 'class/vdu/print_cstr)
+(def-method 'vdu 'print_cstr)
 	;inputs
 	;r0 = vdu object (ptr)
 	;r1 = c string pointer (pubyte)

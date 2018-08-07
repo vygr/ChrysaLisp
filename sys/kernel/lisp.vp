@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'sys/kernel/kernel.inc)
-(import 'class/integer/integer.inc)
-(import 'class/lisp/lisp.inc)
+(import 'sys/kernel/class.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'sys/kernel/lisp_total)
+(def-method 'sys_kernel 'lisp_total)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -15,17 +15,17 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'kernel 'lisp_total {this, args})
+	(f-entry 'sys_kernel 'lisp_total {this, args})
 
 (errorcases
 	(v-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'kernel 'total nil {length})
+	(f-call 'sys_kernel 'total nil {length})
 	(f-call 'integer 'create {length} {value})
 
 (vp-label 'exit)
-	(f-exit 'kernel 'lisp_total {this, value})
+	(f-exit 'sys_kernel 'lisp_total {this, value})
 	(return)
 
 (errorcases

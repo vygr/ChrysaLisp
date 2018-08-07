@@ -1,10 +1,10 @@
 (import 'sys/func.inc)
-(import 'class/stream/stream.inc)
-(import 'class/slave/slave.inc)
-(import 'class/integer/integer.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/stream/class.inc)
+(import 'class/slave/class.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/stream/lisp_available)
+(def-method 'stream 'lisp_available)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -40,7 +40,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream/lisp_write_flush)
+(def-method 'stream 'lisp_write_flush)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

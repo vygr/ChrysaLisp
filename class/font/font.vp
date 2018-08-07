@@ -1,17 +1,17 @@
 (import 'sys/func.inc)
-(import 'class/font/font.inc)
-(import 'class/texture/texture.inc)
-(import 'class/symbol/symbol.inc)
-(import 'class/vector/vector.inc)
-(import 'class/hash_map/hash_map.inc)
-(import 'class/pair/pair.inc)
+(import 'class/font/class.inc)
+(import 'class/texture/class.inc)
+(import 'class/symbol/class.inc)
+(import 'class/vector/class.inc)
+(import 'class/hash_map/class.inc)
+(import 'class/pair/class.inc)
 (import 'gui/sdl2.inc)
 
 (gen-new 'font)
 (gen-create 'font)
 (gen-class 'font)
 
-(def-func 'class/font/open)
+(def-method 'font 'open)
 	;r0 = name c string (pubyte)
 	;r1 = font size (points)
 	;outputs
@@ -72,7 +72,7 @@
 
 (def-func-end)
 
-(def-func 'class/font/init)
+(def-method 'font 'init)
 	;inputs
 	;r0 = font object (ptr)
 	;r1 = vtable (pptr)
@@ -140,7 +140,7 @@
 
 (def-func-end)
 
-(def-func 'class/font/deinit)
+(def-method 'font 'deinit)
 	;inputs
 	;r0 = font object (ptr)
 	;outputs
@@ -182,7 +182,7 @@
 
 (def-func-end)
 
-(def-func 'class/font/ref_word)
+(def-method 'font 'ref_word)
 	;inputs
 	;r0 = font object (ptr)
 	;r1 = string object (ptr)

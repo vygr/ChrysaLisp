@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'class/points/points.inc)
-(import 'class/vector/vector.inc)
-(import 'sys/math/math.inc)
+(import 'class/points/class.inc)
+(import 'class/vector/class.inc)
+(import 'sys/math/class.inc)
 
-(def-func 'class/points/stroke_polygons)
+(def-method 'points 'stroke_polygons)
 	;inputs
 	;r0 = output vector of points objects (ptr)
 	;r1 = stack array object (ptr)

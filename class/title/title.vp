@@ -1,15 +1,15 @@
 (import 'sys/func.inc)
-(import 'gui/gui.inc)
-(import 'gui/region/region.inc)
-(import 'class/window/window.inc)
-(import 'class/title/title.inc)
-(import 'class/flow/flow.inc)
+(import 'gui/class.inc)
+(import 'gui/region/class.inc)
+(import 'class/window/class.inc)
+(import 'class/title/class.inc)
+(import 'class/flow/class.inc)
 
 (gen-new 'title)
 (gen-create 'title)
 (gen-class 'title)
 
-(def-func 'class/title/init)
+(def-method 'title 'init)
 	;inputs
 	;r0 = title object (ptr)
 	;r1 = vtable (pptr)
@@ -38,7 +38,7 @@
 
 (def-func-end)
 
-(def-func 'class/title/mouse_down)
+(def-method 'title 'mouse_down)
 	;inputs
 	;r0 = title object (ptr)
 	;r1 = mouse event data (ptr)
@@ -61,7 +61,7 @@
 
 (def-func-end)
 
-(def-func 'class/title/mouse_move)
+(def-method 'title 'mouse_move)
 	;inputs
 	;r0 = title object (ptr)
 	;r1 = mouse event data (ptr)

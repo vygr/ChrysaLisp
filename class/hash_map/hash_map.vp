@@ -1,13 +1,13 @@
 (import 'sys/func.inc)
-(import 'class/vector/vector.inc)
-(import 'class/pair/pair.inc)
-(import 'class/hash_map/hash_map.inc)
+(import 'class/vector/class.inc)
+(import 'class/pair/class.inc)
+(import 'class/hash_map/class.inc)
 
 (gen-new 'hash_map)
 (gen-create 'hash_map)
 (gen-class 'hash_map)
 
-(def-func 'class/hash_map/init)
+(def-method 'hash_map 'init)
 	;inputs
 	;r0 = hash_map object (ptr)
 	;r1 = vtable (pptr)
@@ -30,7 +30,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_map/deinit)
+(def-method 'hash_map 'deinit)
 	;inputs
 	;r0 = hash_map object (ptr)
 	;trashes
@@ -45,7 +45,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_map/set_parent)
+(def-method 'hash_map 'set_parent)
 	;inputs
 	;r0 = hash_map object (ptr)
 	;r1 = 0, else hash_map parent object (ptr)
@@ -63,7 +63,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_map/copy)
+(def-method 'hash_map 'copy)
 	;inputs
 	;r0 = hash_map object (ptr)
 	;r1 = num buckets (uint)
@@ -108,7 +108,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_map/find)
+(def-method 'hash_map 'find)
 	;inputs
 	;r0 = hash_map object (ptr)
 	;r1 = key object (ptr)
@@ -171,7 +171,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_map/insert)
+(def-method 'hash_map 'insert)
 	;inputs
 	;r0 = hash_map object (ptr)
 	;r1 = key object (ptr)
@@ -231,7 +231,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_map/search)
+(def-method 'hash_map 'search)
 	;inputs
 	;r0 = hash_map object (ptr)
 	;r1 = key object (ptr)
@@ -264,7 +264,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_map/set)
+(def-method 'hash_map 'set)
 	;inputs
 	;r0 = hash_map object (ptr)
 	;r1 = key object (ptr)
@@ -298,7 +298,7 @@
 
 (def-func-end)
 
-(def-func 'class/hash_map/get)
+(def-method 'hash_map 'get)
 	;inputs
 	;r0 = hash_map object (ptr)
 	;r1 = key object (ptr)

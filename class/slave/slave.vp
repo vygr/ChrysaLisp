@@ -1,15 +1,15 @@
 (import 'sys/func.inc)
-(import 'class/vector/vector.inc)
-(import 'class/msg_out/msg_out.inc)
-(import 'class/msg_in/msg_in.inc)
-(import 'class/string/string.inc)
-(import 'class/slave/slave.inc)
+(import 'class/vector/class.inc)
+(import 'class/msg_out/class.inc)
+(import 'class/msg_in/class.inc)
+(import 'class/string/class.inc)
+(import 'class/slave/class.inc)
 
 (gen-new 'slave)
 (gen-create 'slave)
 (gen-class 'slave)
 
-(def-func 'class/slave/init)
+(def-method 'slave 'init)
 	;inputs
 	;r0 = slave object (ptr)
 	;r1 = vtable (pptr)
@@ -60,7 +60,7 @@
 
 (def-func-end)
 
-(def-func 'class/slave/deinit)
+(def-method 'slave 'deinit)
 	;inputs
 	;r0 = slave object (ptr)
 	;trashes

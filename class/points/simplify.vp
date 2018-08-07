@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/points/points.inc)
-(import 'sys/math/math.inc)
+(import 'class/points/class.inc)
+(import 'sys/math/class.inc)
 
-(def-func 'class/points/simplify)
+(def-method 'points 'simplify)
 	;inputs
 	;r0 = points object (ptr)
 	;r1 = source points object (ptr)
@@ -47,7 +47,7 @@
 				(f-call 'points 'get_element {that, last} {_, p3})
 				(loop-start)
 					(f-call 'points 'get_element {that, length} {_, p1})
-					(f-call 'math 'distance_sqd {p1, p2, p3} {dist})
+					(f-call 'sys_math 'distance_sqd {p1, p2, p3} {dist})
 					(vpif {dist > max})
 						(assign {dist, length} {max, index})
 					(endif)

@@ -1,11 +1,11 @@
 (import 'sys/func.inc)
-(import 'class/string/string.inc)
-(import 'class/msg_out/msg_out.inc)
-(import 'class/msg_in/msg_in.inc)
-(import 'class/slave/slave.inc)
-(import 'class/pipe/pipe.inc)
+(import 'class/string/class.inc)
+(import 'class/msg_out/class.inc)
+(import 'class/msg_in/class.inc)
+(import 'class/slave/class.inc)
+(import 'class/pipe/class.inc)
 
-(def-func 'class/pipe/deinit)
+(def-method 'pipe 'deinit)
 	;inputs
 	;r0 = pipe object (ptr)
 	;trashes

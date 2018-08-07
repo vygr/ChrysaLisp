@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/progress/progress.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/progress/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/progress/lisp_create)
+(def-method 'progress 'lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

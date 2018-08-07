@@ -1,11 +1,11 @@
 (import 'sys/func.inc)
-(import 'sys/task/task.inc)
-(import 'class/hash_set/hash_set.inc)
-(import 'class/hash_map/hash_map.inc)
-(import 'class/stream_str/stream_str.inc)
-(import 'class/integer/integer.inc)
-(import 'class/symbol/symbol.inc)
-(import 'class/lisp/lisp.inc)
+(import 'sys/task/class.inc)
+(import 'class/hash_set/class.inc)
+(import 'class/hash_map/class.inc)
+(import 'class/stream_str/class.inc)
+(import 'class/integer/class.inc)
+(import 'class/symbol/class.inc)
+(import 'class/lisp/class.inc)
 
 (def-struct 'built_in)
 	(ushort 'symbol)
@@ -27,7 +27,7 @@
 		(if u (list 'sub (label-sym (link-sym (fn-find-link (f-path 'lisp u)))) '*pc* 4) 0)
 		(if g g func_type_args_eval)))
 
-(def-func 'class/lisp/init)
+(def-method 'lisp 'init)
 	;inputs
 	;r0 = lisp object object (ptr)
 	;r1 = vtable (pptr)

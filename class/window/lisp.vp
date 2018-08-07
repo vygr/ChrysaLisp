@@ -1,10 +1,10 @@
 (import 'sys/func.inc)
-(import 'class/window/window.inc)
-(import 'class/string/string.inc)
-(import 'class/integer/integer.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/window/class.inc)
+(import 'class/string/class.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/window/lisp_create)
+(def-method 'window 'lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -39,7 +39,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/lisp_connect_close)
+(def-method 'window 'lisp_connect_close)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -75,7 +75,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/lisp_connect_min)
+(def-method 'window 'lisp_connect_min)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -111,7 +111,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/lisp_connect_max)
+(def-method 'window 'lisp_connect_max)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -147,7 +147,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/lisp_set_status)
+(def-method 'window 'lisp_set_status)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -183,7 +183,7 @@
 
 (def-func-end)
 
-(def-func 'class/window/lisp_set_title)
+(def-method 'window 'lisp_set_title)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

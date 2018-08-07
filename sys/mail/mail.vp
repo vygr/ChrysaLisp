@@ -1,15 +1,15 @@
 (import 'sys/func.inc)
-(import 'sys/link/link.inc)
-(import 'sys/kernel/kernel.inc)
-(import 'class/array/array.inc)
+(import 'sys/link/class.inc)
+(import 'sys/kernel/class.inc)
+(import 'class/array/class.inc)
 
-(def-func 'sys/mail/statics)
+(def-method 'sys_mail 'statics)
 	;info
 	;mail static data
 	(times ml_statics_size (vp-byte 0))
 (def-func-end)
 
-(def-func 'sys/mail/init)
+(def-method 'sys_mail 'init)
 	;info
 	;init the mbox array and mbox free array
 
@@ -28,7 +28,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/init1)
+(def-method 'sys_mail 'init1)
 	;info
 	;init the mail system
 
@@ -59,7 +59,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/alloc_mbox)
+(def-method 'sys_mail 'alloc_mbox)
 	;outputs
 	;r0 = mailbox id (uint)
 	;trashes
@@ -91,7 +91,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/free_mbox)
+(def-method 'sys_mail 'free_mbox)
 	;inputs
 	;r0 = mailbox id (uint)
 	;trashes
@@ -111,7 +111,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/mbox_addr)
+(def-method 'sys_mail 'mbox_addr)
 	;inputs
 	;r0 = mailbox id (uint)
 	;outputs
@@ -131,7 +131,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/mymail)
+(def-method 'sys_mail 'mymail)
 	;outputs
 	;r0 = mail address (ptr)
 	;r1 = string data (pubyte)
@@ -144,7 +144,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/trymail)
+(def-method 'sys_mail 'trymail)
 	;outputs
 	;r0 = 0, else mail address (ptr)
 	;r1 = string data (pubyte)
@@ -157,7 +157,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/alloc)
+(def-method 'sys_mail 'alloc)
 	;inputs
 	;r0 = mail size (bytes)
 	;outputs
@@ -184,7 +184,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/alloc_obj)
+(def-method 'sys_mail 'alloc_obj)
 	;inputs
 	;r0 = object (ptr)
 	;r1 = data (pubyte)
@@ -212,7 +212,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/free)
+(def-method 'sys_mail 'free)
 	;inputs
 	;r0 = mail message (ptr)
 	;trashes
@@ -233,7 +233,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/free_obj)
+(def-method 'sys_mail 'free_obj)
 	;inputs
 	;r0 = mail message (ptr)
 	;outputs
@@ -264,7 +264,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/read)
+(def-method 'sys_mail 'read)
 	;inputs
 	;r0 = mailbox address (ptr)
 	;outputs
@@ -289,7 +289,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/try_read)
+(def-method 'sys_mail 'try_read)
 	;inputs
 	;r0 = mailbox address (ptr)
 	;outputs
@@ -312,7 +312,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/send)
+(def-method 'sys_mail 'send)
 	;inputs
 	;r0 = mail message (ptr)
 	;trashes
@@ -321,7 +321,7 @@
 	;on or off chip ?
 	(f-entry 'sys_mail 'send '(r2))
 
-	(f-call 'kernel 'id '() '(r0))
+	(f-call 'sys_kernel 'id '() '(r0))
 	(vp-cpy-ir-ui r2 (add msg_dest id_cpu) r1)
 	(vpif '(r0 == r1))
 		;on this chip
@@ -357,7 +357,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mail/select)
+(def-method 'sys_mail 'select)
 	;inputs
 	;r0 = mailbox address array (pptr)
 	;r1 = mailbox count (uint)

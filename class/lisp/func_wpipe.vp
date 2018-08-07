@@ -1,10 +1,10 @@
 (import 'sys/func.inc)
-(import 'class/string/string.inc)
-(import 'class/pipe/pipe.inc)
-(import 'class/msg_out/msg_out.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/string/class.inc)
+(import 'class/pipe/class.inc)
+(import 'class/msg_out/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/lisp/func_wpipe)
+(def-method 'lisp 'func_wpipe)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

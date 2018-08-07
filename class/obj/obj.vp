@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'class/obj/obj.inc)
+(import 'class/obj/class.inc)
 
 (gen-class 'obj)
 
-(def-func 'class/obj/destroy)
+(def-method 'obj 'destroy)
 	;inputs
 	;r0 = object (ptr)
 	;trashes
@@ -14,7 +14,7 @@
 
 (def-func-end)
 
-(def-func 'class/obj/hash)
+(def-method 'obj 'hash)
 	;inputs
 	;r0 = object (ptr)
 	;outputs
@@ -29,7 +29,7 @@
 
 (def-func-end)
 
-(def-func 'class/obj/inst_of)
+(def-method 'obj 'inst_of)
 	;inputs
 	;r0 = object (ptr)
 	;r1 = vtable of tested type (ptr)
@@ -51,13 +51,13 @@
 
 (def-func-end)
 
-(def-func 'class/obj/null)
+(def-method 'obj 'null)
 
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'class/obj/deref)
+(def-method 'obj 'deref)
 	;inputs
 	;r0 = object (ptr)
 	;trashes
@@ -76,7 +76,7 @@
 
 (def-func-end)
 
-(def-func 'class/obj/deref_if)
+(def-method 'obj 'deref_if)
 	;inputs
 	;r0 = 0, else object (ptr)
 	;trashes
@@ -89,7 +89,7 @@
 
 (def-func-end)
 
-(def-func 'class/obj/ref_if)
+(def-method 'obj 'ref_if)
 	;inputs
 	;r0 = 0, else object (ptr)
 	;trashes

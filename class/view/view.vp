@@ -1,12 +1,12 @@
 (import 'sys/func.inc)
-(import 'gui/gui.inc)
-(import 'gui/ctx/ctx.inc)
-(import 'gui/region/region.inc)
-(import 'class/view/view.inc)
+(import 'gui/class.inc)
+(import 'gui/ctx/class.inc)
+(import 'gui/region/class.inc)
+(import 'class/view/class.inc)
 
 (gen-class 'view)
 
-(def-func 'class/view/init)
+(def-method 'view 'init)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = vtable (pptr)
@@ -30,7 +30,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/deinit)
+(def-method 'view 'deinit)
 	;inputs
 	;r0 = view object (ptr)
 	;trashes
@@ -68,7 +68,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/add_back)
+(def-method 'view 'add_back)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = child view object (ptr)
@@ -89,7 +89,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/add_dirty)
+(def-method 'view 'add_dirty)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -123,7 +123,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/add_front)
+(def-method 'view 'add_front)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = parent view object (ptr)
@@ -144,7 +144,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/add_opaque)
+(def-method 'view 'add_opaque)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -176,7 +176,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/backward)
+(def-method 'view 'backward)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = user data (ptr)
@@ -223,7 +223,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/backward_tree)
+(def-method 'view 'backward_tree)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = user data pointer
@@ -294,7 +294,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/change)
+(def-method 'view 'change)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = new x (pixels)
@@ -321,7 +321,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/dirty)
+(def-method 'view 'dirty)
 	;inputs
 	;r0 = view object (ptr)
 	;trashes
@@ -334,7 +334,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/dirty_all)
+(def-method 'view 'dirty_all)
 	;inputs
 	;r0 = view object (ptr)
 	;trashes
@@ -351,7 +351,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/draw_panel)
+(def-method 'view 'draw_panel)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = draw ctx (ptr)
@@ -376,7 +376,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/event)
+(def-method 'view 'event)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = event data (ptr)
@@ -441,7 +441,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/find_id)
+(def-method 'view 'find_id)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = target id (long)
@@ -487,7 +487,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/forward)
+(def-method 'view 'forward)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = user data pointer (ptr)
@@ -534,7 +534,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/forward_tree)
+(def-method 'view 'forward_tree)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = user data pointer
@@ -605,7 +605,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/get_bounds)
+(def-method 'view 'get_bounds)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -623,7 +623,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/get_first)
+(def-method 'view 'get_first)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -643,7 +643,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/get_last)
+(def-method 'view 'get_last)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -663,7 +663,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/get_relative)
+(def-method 'view 'get_relative)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = ancestor view object (ptr)
@@ -689,7 +689,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/hit)
+(def-method 'view 'hit)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -717,7 +717,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/hit_tree)
+(def-method 'view 'hit_tree)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -777,7 +777,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/opaque)
+(def-method 'view 'opaque)
 	;inputs
 	;r0 = view object (ptr)
 	;trashes
@@ -793,7 +793,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/pref_size)
+(def-method 'view 'pref_size)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -817,7 +817,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/set_bounds)
+(def-method 'view 'set_bounds)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -833,7 +833,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/sub)
+(def-method 'view 'sub)
 	;inputs
 	;r0 = view object (ptr)
 	;trashes
@@ -854,7 +854,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/sub_opaque)
+(def-method 'view 'sub_opaque)
 	;inputs
 	;r0 = view object (ptr)
 	;r7 = x (pixels)
@@ -886,7 +886,7 @@
 
 (def-func-end)
 
-(def-func 'class/view/to_front)
+(def-method 'view 'to_front)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs

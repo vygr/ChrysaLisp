@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/hash_map/hash_map.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/hash_map/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/lisp/env_pop)
+(def-method 'lisp 'env_pop)
 	;inputs
 	;r0 = lisp object (ptr)
 	;outputs

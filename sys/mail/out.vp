@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'sys/link/link.inc)
-(import 'class/obj/obj.inc)
-(import 'sys/kernel/kernel.inc)
+(import 'sys/link/class.inc)
+(import 'class/obj/class.inc)
+(import 'sys/kernel/class.inc)
 
-(def-func 'sys/mail/out)
+(def-method 'sys_mail 'out)
 	;info
 	;parcels going off chip task
 
@@ -12,7 +12,7 @@
 
 	(push-scope)
 
-	(f-call 'kernel 'id nil {id})
+	(f-call 'sys_kernel 'id nil {id})
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 
 	(loop-start)

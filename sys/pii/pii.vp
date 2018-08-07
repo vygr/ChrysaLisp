@@ -1,19 +1,19 @@
 (import 'sys/func.inc)
-(import 'sys/string/string.inc)
-(import 'sys/load/load.inc)
-(import 'class/string/string.inc)
+(import 'sys/string/class.inc)
+(import 'sys/load/class.inc)
+(import 'class/string/class.inc)
 (import 'sys/pii/syscall.inc)
 
-(def-func 'sys/pii/exit)
+(def-method 'sys_pii 'exit)
 	;inputs
 	;r0 = code (long)
 
-	(f-entry 'pii 'exit '(r0))
+	(f-entry 'sys_pii 'exit '(r0))
 	(sys-exit '(r0))
 
 (def-func-end)
 
-(def-func 'sys/pii/open)
+(def-method 'sys_pii 'open)
 	;inputs
 	;r0 = c string filename (pubyte)
 	;r1 = mode (ulong)
@@ -23,16 +23,16 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'open '(r0 r1 r2))
+	(f-entry 'sys_pii 'open '(r0 r1 r2))
 	(sys-push-trashed r1 r2)
 	(sys-open '(r0 r1 r2) '(r0))
 	(sys-pop-trashed r1 r2)
-	(f-exit 'pii 'open '(r0))
+	(f-exit 'sys_pii 'open '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/close)
+(def-method 'sys_pii 'close)
 	;inputs
 	;r0 = fd (ulong)
 	;outputs
@@ -40,16 +40,16 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'close '(r0))
+	(f-entry 'sys_pii 'close '(r0))
 	(sys-push-trashed)
 	(sys-close '(r0) '(r0))
 	(sys-pop-trashed)
-	(f-exit 'pii 'close '(r0))
+	(f-exit 'sys_pii 'close '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/write_num)
+(def-method 'sys_pii 'write_num)
 	;inputs
 	;r0 = fd (ulong)
 	;r1 = number (ulong)
@@ -59,7 +59,7 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'write_num '(r0 r1 r2))
+	(f-entry 'sys_pii 'write_num '(r0 r1 r2))
 	(sys-push-trashed r1 r2 r3 r4)
 	(vp-cpy-rr r2 r3)
 	(vp-swp-rr r0 r1)
@@ -85,7 +85,7 @@
 
 (def-func-end)
 
-(def-func 'sys/pii/write_char)
+(def-method 'sys_pii 'write_char)
 	;inputs
 	;r0 = fd (ulong)
 	;r1 = char (ulong)
@@ -94,16 +94,16 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'write_char '(r0 r1))
+	(f-entry 'sys_pii 'write_char '(r0 r1))
 	(sys-push-trashed r1)
 	(sys-write-char '(r0 r1) '(r0))
 	(sys-pop-trashed r1)
-	(f-exit 'pii 'write_char '(r0))
+	(f-exit 'sys_pii 'write_char '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/write)
+(def-method 'sys_pii 'write)
 	;inputs
 	;r0 = fd (ulong)
 	;r1 = buffer (pubyte)
@@ -113,16 +113,16 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'write '(r0 r1 r2))
+	(f-entry 'sys_pii 'write '(r0 r1 r2))
 	(sys-push-trashed r1 r2)
 	(sys-write '(r0 r1 r2) '(r0))
 	(sys-pop-trashed r1 r2)
-	(f-exit 'pii 'write '(r0))
+	(f-exit 'sys_pii 'write '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/write_str)
+(def-method 'sys_pii 'write_str)
 	;inputs
 	;r0 = fd (ulong)
 	;r1 = c string (pubyte)
@@ -131,18 +131,18 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'write_str '(r0 r1))
+	(f-entry 'sys_pii 'write_str '(r0 r1))
 	(sys-push-trashed r1 r3)
 	(vp-cpy-rr r0 r3)
 	(f-call 'sys_string 'length '(r1) '(r0 r1))
 	(sys-write '(r3 r0 r1) '(r0))
 	(sys-pop-trashed r1 r3)
-	(f-exit 'pii 'write_str '(r0))
+	(f-exit 'sys_pii 'write_str '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/age)
+(def-method 'sys_pii 'age)
 	;inputs
 	;r0 = c string file name (pubyte)
 	;outputs
@@ -150,7 +150,7 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'age '(r0))
+	(f-entry 'sys_pii 'age '(r0))
 	(sys-push-trashed r1)
 	(f-bind 'sys_load 'statics r1)
 	(vp-cpy-ir r1 ld_statics_stat_buffer r1)
@@ -163,12 +163,12 @@
 		(vp-cpy-ir r1 stat_mtime r0)
 	(endif)
 	(sys-pop-trashed r1)
-	(f-exit 'pii 'age '(r0))
+	(f-exit 'sys_pii 'age '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/time)
+(def-method 'sys_pii 'time)
 	;outputs
 	;r0 = time in usec (ulong)
 	;trashes
@@ -183,12 +183,12 @@
 	(vp-add-rr r1 r0)
 	(vp-free timeval_size)
 	(sys-pop-trashed r1)
-	(f-exit 'pii 'time '(r0))
+	(f-exit 'sys_pii 'time '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/mmap)
+(def-method 'sys_pii 'mmap)
 	;inputs
 	;r0 = address (ptr)
 	;r1 = len (ulong)
@@ -201,16 +201,16 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'mmap '(r0 r1 r2 r3 r4 r5))
+	(f-entry 'sys_pii 'mmap '(r0 r1 r2 r3 r4 r5))
 	(sys-push-trashed r1 r2 r3 r4 r5)
 	(sys-mmap '(r0 r1 r2 r3 r4 r5) '(r0))
 	(sys-pop-trashed r1 r2 r3 r4 r5)
-	(f-exit 'pii 'mmap '(r0))
+	(f-exit 'sys_pii 'mmap '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/munmap)
+(def-method 'sys_pii 'munmap)
 	;inputs
 	;r0 = buffer (ptr)
 	;r1 = size (ulong)
@@ -219,16 +219,16 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'munmap '(r0 r1))
+	(f-entry 'sys_pii 'munmap '(r0 r1))
 	(sys-push-trashed r1)
 	(sys-munmap '(r0 r1) '(r0))
 	(sys-pop-trashed r1)
-	(f-exit 'pii 'munmap '(r0))
+	(f-exit 'sys_pii 'munmap '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/mprotect)
+(def-method 'sys_pii 'mprotect)
 	;inputs
 	;r0 = buffer (ptr)
 	;r1 = size (ulong)
@@ -238,16 +238,16 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'mprotect '(r0 r1 r2))
+	(f-entry 'sys_pii 'mprotect '(r0 r1 r2))
 	(sys-push-trashed r1 r2)
 	(sys-mprotect '(r0 r1 r2) '(r0))
 	(sys-pop-trashed r1 r2)
-	(f-exit 'pii 'mprotect '(r0))
+	(f-exit 'sys_pii 'mprotect '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/read)
+(def-method 'sys_pii 'read)
 	;inputs
 	;r0 = fd (ulong)
 	;r1 = buffer (ptr)
@@ -257,16 +257,16 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'read '(r0 r1 r2))
+	(f-entry 'sys_pii 'read '(r0 r1 r2))
 	(sys-push-trashed r1 r2)
 	(sys-read '(r0 r1 r2) '(r0))
 	(sys-pop-trashed r1 r2)
-	(f-exit 'pii 'read '(r0))
+	(f-exit 'sys_pii 'read '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/read_char)
+(def-method 'sys_pii 'read_char)
 	;inputs
 	;r0 = fd (ulong)
 	;outputs
@@ -274,16 +274,16 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'read_char '(r0))
+	(f-entry 'sys_pii 'read_char '(r0))
 	(sys-push-trashed)
 	(sys-read-char '(r0) '(r0))
 	(sys-pop-trashed)
-	(f-exit 'pii 'read_char '(r0))
+	(f-exit 'sys_pii 'read_char '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/ftruncate)
+(def-method 'sys_pii 'ftruncate)
 	;inputs
 	;r0 = fd (ulong)
 	;r1 = size (ulong)
@@ -292,16 +292,16 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'ftruncate '(r0 r1))
+	(f-entry 'sys_pii 'ftruncate '(r0 r1))
 	(sys-push-trashed r1)
 	(sys-ftruncate '(r0 r1) '(r0))
 	(sys-pop-trashed r1)
-	(f-exit 'pii 'ftruncate '(r0))
+	(f-exit 'sys_pii 'ftruncate '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/unlink)
+(def-method 'sys_pii 'unlink)
 	;inputs
 	;r0 = c string filename (pubyte)
 	;outputs
@@ -309,16 +309,16 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'unlink '(r0))
+	(f-entry 'sys_pii 'unlink '(r0))
 	(sys-push-trashed)
 	(sys-unlink '(r0) '(r0))
 	(sys-pop-trashed)
-	(f-exit 'pii 'unlink '(r0))
+	(f-exit 'sys_pii 'unlink '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/stat)
+(def-method 'sys_pii 'stat)
 	;inputs
 	;r0 = c string filename (pubyte)
 	;r1 = stat buf (ptr)
@@ -327,16 +327,16 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'stat '(r0 r1))
+	(f-entry 'sys_pii 'stat '(r0 r1))
 	(sys-push-trashed r1)
 	(sys-stat '(r0 r1) '(r0))
 	(sys-pop-trashed r1)
-	(f-exit 'pii 'stat '(r0))
+	(f-exit 'sys_pii 'stat '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/pii/fcntl)
+(def-method 'sys_pii 'fcntl)
 	;inputs
 	;r0 = fd (ulong)
 	;r1 = command (ulong)
@@ -346,11 +346,11 @@
 	;trashes
 	;none
 
-	(f-entry 'pii 'fcntl '(r0 r1 r2))
+	(f-entry 'sys_pii 'fcntl '(r0 r1 r2))
 	(sys-push-trashed r1 r2)
 	(sys-fcntl '(r0 r1 r2) '(r0))
 	(sys-pop-trashed r1 r2)
-	(f-exit 'pii 'fcntl '(r0))
+	(f-exit 'sys_pii 'fcntl '(r0))
 	(vp-ret)
 
 (def-func-end)

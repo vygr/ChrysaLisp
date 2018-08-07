@@ -1,42 +1,12 @@
 (import 'sys/func.inc)
-(import 'gui/ctx/ctx.inc)
-(import 'apps/boing/backdrop/backdrop.inc)
+(import 'gui/ctx/class.inc)
+(import 'apps/boing/backdrop/class.inc)
 
-(def-func (f-path 'backdrop 'vtable))
-	(vtable-emit 'backdrop)
-(def-func-end)
+(gen-class 'backdrop)
+(gen-create 'backdrop)
+(gen-new 'backdrop)
 
-(def-func 'apps/boing/backdrop/create)
-	;outputs
-	;r0 = 0 if error, else object (ptr)
-	;trashes
-	;all
-
-	(f-call 'backdrop 'new nil '(r0))
-	(vpif '(r0 != 0))
-		;init the object
-		(f-call 'backdrop 'init `(r0 (@ ,(f-path 'backdrop 'vtable))) '(r0 r1))
-		(vpif '(r1 == 0))
-			;error with init
-			(v-call 'backdrop 'delete '(r0) nil r1)
-			(vp-xor-rr r0 r0)
-		(endif)
-	(endif)
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'apps/boing/backdrop/new)
-	;outputs
-	;r0 = 0 if error, else object (ptr)
-	;trashes
-	;r1-r3
-
-	(f-jmp 'sys_mem 'alloc '(backdrop_size))
-
-(def-func-end)
-
-(def-func 'apps/boing/backdrop/draw)
+(def-method 'backdrop 'draw)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = draw ctx (ptr)
@@ -72,22 +42,7 @@
 
 (def-func-end)
 
-(def-func 'apps/boing/backdrop/pref_size)
-	;inputs
-	;r0 = backdrop object (ptr)
-	;outputs
-	;r9 = preferred width (pixels)
-	;r10 = preferred height (pixels)
-	;trashes
-	;all but r0
-
-	(f-entry 'backdrop 'pref_size '(r0))
-	(f-exit 'backdrop 'pref_size '(r0 640 480))
-	(vp-ret)
-
-(def-func-end)
-
-(def-func 'apps/boing/backdrop/layout)
+(def-method 'backdrop 'layout)
 	;inputs
 	;r0 = backdrop object (ptr)
 	;trashes
@@ -107,5 +62,20 @@
 	(f-exit 'backdrop 'layout {this})
 	(pop-scope)
 	(return)
+
+(def-func-end)
+
+(def-method 'backdrop 'pref_size)
+	;inputs
+	;r0 = backdrop object (ptr)
+	;outputs
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
+	;trashes
+	;all but r0
+
+	(f-entry 'backdrop 'pref_size '(r0))
+	(f-exit 'backdrop 'pref_size '(r0 640 480))
+	(vp-ret)
 
 (def-func-end)

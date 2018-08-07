@@ -1,10 +1,10 @@
 (import 'sys/func.inc)
-(import 'class/integer/integer.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
 
 ;le monotonically nondecreasing
 
-(def-func 'class/lisp/func_le)
+(def-method 'lisp 'func_le)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

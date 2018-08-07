@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/canvas/canvas.inc)
-(import 'class/array/array.inc)
+(import 'class/canvas/class.inc)
+(import 'class/array/class.inc)
 
-(def-func 'class/canvas/resize)
+(def-method 'canvas 'resize)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = source canvas object (ptr)

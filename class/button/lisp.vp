@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'class/button/button.inc)
-(import 'class/integer/integer.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/button/class.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/button/lisp_create)
+(def-method 'button 'lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -37,7 +37,7 @@
 
 (def-func-end)
 
-(def-func 'class/button/lisp_connect_click)
+(def-method 'button 'lisp_connect_click)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

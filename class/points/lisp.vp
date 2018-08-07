@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'class/points/points.inc)
-(import 'class/integer/integer.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/points/class.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/points/lisp_transform)
+(def-method 'points 'lisp_transform)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -39,7 +39,7 @@
 
 (def-func-end)
 
-(def-func 'class/points/lisp_simplify)
+(def-method 'points 'lisp_simplify)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -75,7 +75,7 @@
 
 (def-func-end)
 
-(def-func 'class/points/lisp_gen_quadratic)
+(def-method 'points 'lisp_gen_quadratic)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -111,7 +111,7 @@
 
 (def-func-end)
 
-(def-func 'class/points/lisp_gen_cubic)
+(def-method 'points 'lisp_gen_cubic)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -147,7 +147,7 @@
 
 (def-func-end)
 
-(def-func 'class/points/lisp_gen_arc)
+(def-method 'points 'lisp_gen_arc)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -183,7 +183,7 @@
 
 (def-func-end)
 
-(def-func 'class/points/lisp_stroke_polylines)
+(def-method 'points 'lisp_stroke_polylines)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -219,7 +219,7 @@
 
 (def-func-end)
 
-(def-func 'class/points/lisp_stroke_polygons)
+(def-method 'points 'lisp_stroke_polygons)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
-(import 'sys/math/math.inc)
+(import 'sys/math/class.inc)
 
-(def-func 'sys/math/random)
+(def-method 'sys_math 'random)
 	;inputs
 	;r0 = random range (ulong)
 	;outputs
@@ -9,7 +9,7 @@
 	;trashes
 	;r1-r2
 
-	(f-entry 'math 'random '(r0))
+	(f-entry 'sys_math 'random '(r0))
 
 	(vp-cpy-rr r0 r1)
 	(vp-cpy-pr 'seed r0)
@@ -21,7 +21,7 @@
 	(vp-div-rrr r1 r2 r0)
 	(vp-cpy-rr r2 r0)
 
-	(f-exit 'math 'random '(r0))
+	(f-exit 'sys_math 'random '(r0))
 	(vp-ret)
 
 	(vp-align ptr_size)
@@ -30,7 +30,7 @@
 
 (def-func-end)
 
-(def-func 'sys/math/isqrt)
+(def-method 'sys_math 'isqrt)
 	;inputs
 	;r0 = number (ulong)
 	;outputs
@@ -38,7 +38,7 @@
 	;trashes
 	;r1-r3
 
-	(f-entry 'math 'isqrt '(r1))
+	(f-entry 'sys_math 'isqrt '(r1))
 
 	(vp-xor-rr r0 r0)
 	(vp-cpy-cr 0x4000000000000000 r2)
@@ -61,12 +61,12 @@
 		(vp-add-cr 1 r0)
 	(endif)
 
-	(f-exit 'math 'isqrt '(r0))
+	(f-exit 'sys_math 'isqrt '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/math/fsin)
+(def-method 'sys_math 'fsin)
 	;inputs
 	;r0 = angle in radians (16.16)
 	;outputs
@@ -74,7 +74,7 @@
 	;trashes
 	;r1-r4
 
-	(f-entry 'math 'fsin '(r0))
+	(f-entry 'sys_math 'fsin '(r0))
 	(vec-set 1)
 	(vec-load 1 '(fp_2pi))
 	(vec-fmod 1)
@@ -190,12 +190,12 @@
 	(vp-asr-cr fp_shift r0)
 	(vp-add-rr r3 r0)
 
-	(f-exit 'math 'fsin '(r0))
+	(f-exit 'sys_math 'fsin '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/math/fcos)
+(def-method 'sys_math 'fcos)
 	;inputs
 	;r0 = angle in radians (16.16)
 	;outputs
@@ -203,7 +203,7 @@
 	;trashes
 	;r1-r4
 
-	(f-entry 'math 'fcos '(r0))
+	(f-entry 'sys_math 'fcos '(r0))
 	(vec-set 1)
 	(vec-load 1 '(fp_2pi))
 	(vec-fmod 1)
@@ -331,12 +331,12 @@
 	(vp-asr-cr fp_shift r0)
 	(vp-add-rr r3 r0)
 
-	(f-exit 'math 'fcos '(r0))
+	(f-exit 'sys_math 'fcos '(r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-func 'sys/math/intersect)
+(def-method 'sys_math 'intersect)
 	;inputs
 	;r0 = p1 xy (16.16/16.16)
 	;r1 = v1 xy (16.16/16.16)
@@ -352,7 +352,7 @@
 		'(int 'p1x 'p1y 'v1x 'v1y 'p2x 'p2y 'v2x 'v2y))
 
 	(push-scope)
-	(f-entry 'math 'intersect {p1, v1, p2, v2})
+	(f-entry 'sys_math 'intersect {p1, v1, p2, v2})
 
 	(vec-set 0)
 	(vec-load 2 {p1x, p1y})
@@ -400,13 +400,13 @@
 		(vec-store 2 {p1x, p1y})
 	(endif)
 
-	(f-exit 'math 'intersect {p1})
+	(f-exit 'sys_math 'intersect {p1})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-func 'sys/math/distance_sqd)
+(def-method 'sys_math 'distance_sqd)
 	;inputs
 	;r0 = p xy (16.16/16.16)
 	;r1 = p1 xy (16.16/16.16)
@@ -421,7 +421,7 @@
 		'(int 'px 'py 'p1x 'p1y 'p2x 'p2y))
 
 	(push-scope)
-	(f-entry 'math 'distance_sqd {p, p1, p2})
+	(f-entry 'sys_math 'distance_sqd {p, p1, p2})
 
 	(vec-set 0)
 	(vec-load 2 {px, py})
@@ -456,7 +456,7 @@
 	(vec-set 4)
 	(vec-fdistance-squared 2)
 
-	(f-exit 'math 'distance_sqd (vec-pop 1))
+	(f-exit 'sys_math 'distance_sqd (vec-pop 1))
 	(pop-scope)
 	(return)
 

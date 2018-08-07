@@ -1,10 +1,10 @@
 (import 'sys/func.inc)
-(import 'class/symbol/symbol.inc)
-(import 'class/hash_set/hash_set.inc)
+(import 'class/symbol/class.inc)
+(import 'class/hash_set/class.inc)
 
 (gen-class 'symbol)
 
-(def-func 'class/symbol/intern)
+(def-method 'symbol 'intern)
 	;inputs
 	;r0 = symbol object (ptr)
 	;outputs
@@ -43,7 +43,7 @@
 
 (def-func-end)
 
-(def-func 'class/symbol/intern_cstr)
+(def-method 'symbol 'intern_cstr)
 	;inputs
 	;r0 = c string (ptr)
 	;outputs

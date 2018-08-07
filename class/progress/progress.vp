@@ -1,13 +1,13 @@
 (import 'sys/func.inc)
-(import 'gui/gui.inc)
-(import 'gui/ctx/ctx.inc)
-(import 'class/progress/progress.inc)
+(import 'gui/class.inc)
+(import 'gui/ctx/class.inc)
+(import 'class/progress/class.inc)
 
 (gen-new 'progress)
 (gen-create 'progress)
 (gen-class 'progress)
 
-(def-func 'class/progress/draw)
+(def-method 'progress 'draw)
 	;inputs
 	;r0 = window object (ptr)
 	;r1 = draw ctx (ptr)
@@ -49,7 +49,7 @@
 
 (def-func-end)
 
-(def-func 'class/progress/layout)
+(def-method 'progress 'layout)
 	;inputs
 	;r0 = progress object (ptr)
 	;trashes
@@ -59,7 +59,7 @@
 
 (def-func-end)
 
-(def-func 'class/progress/pref_size)
+(def-method 'progress 'pref_size)
 	;inputs
 	;r0 = progress object (ptr)
 	;outputs

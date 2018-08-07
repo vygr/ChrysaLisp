@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'class/stream/stream.inc)
-(import 'class/lisp/lisp.inc)
-(import 'class/string/string.inc)
+(import 'class/stream/class.inc)
+(import 'class/lisp/class.inc)
+(import 'class/string/class.inc)
 
-(def-func 'class/lisp/read_list)
+(def-method 'lisp 'read_list)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = stream object (ptr)

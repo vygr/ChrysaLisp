@@ -1,19 +1,19 @@
 (import 'sys/func.inc)
-(import 'sys/heap/heap.inc)
-(import 'sys/kernel/kernel.inc)
+(import 'sys/heap/class.inc)
+(import 'sys/kernel/class.inc)
 (import 'gui/sdl2.inc)
-(import 'class/label/label.inc)
-(import 'class/string/string.inc)
-(import 'gui/region/region.inc)
-(import 'gui/ctx/ctx.inc)
+(import 'class/label/class.inc)
+(import 'class/string/class.inc)
+(import 'gui/region/class.inc)
+(import 'gui/ctx/class.inc)
 
 (defcvar 'dual_buffers t)
 
-(def-func 'gui/gui_statics)
+(def-method 'gui_gui 'statics)
 	(times gui_statics_size (vp-byte 0))
 (def-func-end)
 
-(def-func 'gui/gui_init)
+(def-method 'gui_gui 'init)
 	;inputs
 	;r0 = sdl function table (pptr)
 
@@ -145,7 +145,7 @@
 			(f-call 'sys_mail 'alloc {ev_msg_mouse_size} {msg, data})
 			(assign {ev_type_mouse} {data->ev_msg_type})
 			(assign {user->local_mouse_mbox_id} {msg->msg_dest.id_mbox})
-			(f-call 'kernel 'id nil {msg->msg_dest.id_cpu})
+			(f-call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
 			(assign {view->component_id} {data->ev_msg_target_id})
 			(assign {user->local_mouse_buttons} {data->ev_msg_mouse_buttons})
 			(assign {user->local_mouse_x} {data->ev_msg_mouse_x})
@@ -203,7 +203,7 @@
 			(f-call 'sys_mail 'alloc {ev_msg_key_size} {msg, data})
 			(assign {ev_type_key} {data->ev_msg_type})
 			(assign {user->local_key_mbox_id} {msg->msg_dest.id_mbox})
-			(f-call 'kernel 'id nil {msg->msg_dest.id_cpu})
+			(f-call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
 			(assign {user->local_key_view->component_id} {data->ev_msg_target_id})
 			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {data->ev_msg_key_keycode})
 			(assign {key} {data->ev_msg_key_key})
@@ -288,7 +288,7 @@
 
 (def-func-end)
 
-(def-func 'gui/gui_add)
+(def-method 'gui_gui 'add)
 	;inputs
 	;r0 = view object (ptr)
 	;outputs
@@ -307,7 +307,7 @@
 
 (def-func-end)
 
-(def-func 'gui/gui_update)
+(def-method 'gui_gui 'update)
 	;inputs
 	;r0 = root view object (ptr)
 	;trashes

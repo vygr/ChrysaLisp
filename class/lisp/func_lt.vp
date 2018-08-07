@@ -1,10 +1,10 @@
 (import 'sys/func.inc)
-(import 'class/integer/integer.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
 
 ;lt monotonically increasing
 
-(def-func 'class/lisp/func_lt)
+(def-method 'lisp 'func_lt)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

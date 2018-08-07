@@ -1,15 +1,15 @@
 (import 'sys/func.inc)
-(import 'sys/load/load.inc)
-(import 'sys/string/string.inc)
-(import 'sys/kernel/kernel.inc)
-(import 'class/string/string.inc)
+(import 'sys/load/class.inc)
+(import 'sys/string/class.inc)
+(import 'sys/kernel/class.inc)
+(import 'class/string/class.inc)
 (import 'sys/pii/syscall.inc)
 
-(def-func 'sys/load/statics)
+(def-method 'sys_load 'statics)
 	(times ld_statics_size (vp-byte 0))
 (def-func-end)
 
-(def-func 'sys/load/init)
+(def-method 'sys_load 'init)
 	;inputs
 	;system argv
 	;SDL function table
@@ -107,7 +107,7 @@
 	(loop-end)
 
 	;kernel inputs
-	(assign `(,(str (f-path 'kernel 'kernel))) '(r0))
+	(assign `(,(str (f-path 'sys_kernel 'kernel))) '(r0))
 	(vp-call-r r4)
 	(vp-cpy-rr r0 r2)
 	(vp-pop r0 r1)
@@ -126,7 +126,7 @@
 
 (def-func-end)
 
-(def-func 'sys/load/bind)
+(def-method 'sys_load 'bind)
 	;input
 	;r0 = c string function path name (pubyte)
 	;output
@@ -168,7 +168,7 @@
 	(vp-cpy-ir r7 ld_statics_name_buffer r6)
 
 	;get length of function on disk
-	(f-call 'pii 'stat '(r6 (r7 ld_statics_stat_buffer)) '(r0))
+	(f-call 'sys_pii 'stat '(r6 (r7 ld_statics_stat_buffer)) '(r0))
 	(vpif '(r0 != 0))
 	(vp-label 'exit)
 		(vp-xor-rr r0 r0)
@@ -189,7 +189,7 @@
 	(vp-cpy-ir r0 stat_fsize r0)
 	(vpif '(r2 < r0))
 		;not enough so allocate new function buffer
-		(f-call 'pii 'mmap '(0 ld_block_size (bit-or prot_read prot_write prot_exec) (bit-or map_private map_anon) -1 0) '(r0))
+		(f-call 'sys_pii 'mmap '(0 ld_block_size (bit-or prot_read prot_write prot_exec) (bit-or map_private map_anon) -1 0) '(r0))
 		(assert '(r0 != 0))
 
 		;add to block list for freeing
@@ -203,14 +203,14 @@
 	(endif)
 
 	;open function file
-	(f-call 'pii 'open '(r6 o_rdonly 0) '(r6))
+	(f-call 'sys_pii 'open '(r6 o_rdonly 0) '(r6))
 
 	;read into buffer
 	(vp-cpy-ir r7 ld_statics_stat_buffer r2)
-	(f-call 'pii 'read '(r6 (r7 ld_statics_block_start) (r2 stat_fsize)))
+	(f-call 'sys_pii 'read '(r6 (r7 ld_statics_block_start) (r2 stat_fsize)))
 
 	;close function file
-	(f-call 'pii 'close '(r6))
+	(f-call 'sys_pii 'close '(r6))
 
 	;check loaded length equals file size
 	(vp-cpy-ir r7 ld_statics_block_start r3)
@@ -218,8 +218,8 @@
 	(vp-cpy-ir-us r3 fn_header_length r0)
 	(vp-cpy-ir r2 stat_fsize r1)
 	(vpif '(r0 != r1))
-		(f-call 'pii 'write_str '(2 "Length field error !"))
-		(f-call 'pii 'exit '(1))
+		(f-call 'sys_pii 'write_str '(2 "Length field error !"))
+		(f-call 'sys_pii 'exit '(1))
 	(endif)
 
 	;add to function list
@@ -251,8 +251,8 @@
 	(vp-cpy-ir r7 ld_statics_reloc_buffer r2)
 	(vp-add-cr ld_reloc_size r2)
 	(vpif '(r1 > r2))
-		(f-call 'pii 'write_str '(2 "Reloc buffer overflow !"))
-		(f-call 'pii 'exit '(1))
+		(f-call 'sys_pii 'write_str '(2 "Reloc buffer overflow !"))
+		(f-call 'sys_pii 'exit '(1))
 	(endif)
 
 	;bind links to paths in reloc buffer
@@ -288,11 +288,11 @@
 		(l-call 'func_entry '((r0 0)))
 		(vpif '(r0 == 0))
 			;no such file
-			(f-call 'pii 'write_str '(2 "Bind error: "))
+			(f-call 'sys_pii 'write_str '(2 "Bind error: "))
 			(vp-cpy-ir rsp 0 r0)
-			(f-call 'pii 'write_str '(2 (r0 0)))
-			(f-call 'pii 'write_char '(2 char_lf))
-			(f-call 'pii 'exit '(1))
+			(f-call 'sys_pii 'write_str '(2 (r0 0)))
+			(f-call 'sys_pii 'write_char '(2 char_lf))
+			(f-call 'sys_pii 'exit '(1))
 		(endif)
 		(vp-cpy-rr r0 r1)
 		(vp-pop r3 r0)

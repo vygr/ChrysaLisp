@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/slave/slave.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/slave/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/slave/lisp_create)
+(def-method 'slave 'lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)
@@ -50,7 +50,7 @@
 
 (def-func-end)
 
-(def-func 'class/slave/lisp_get_args)
+(def-method 'slave 'lisp_get_args)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

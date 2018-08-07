@@ -1,7 +1,7 @@
 (import 'sys/code.inc)
 (import 'sys/vp.inc)
-(import 'sys/pii/pii.inc)
-(import 'sys/task/task.inc)
+(import 'sys/pii/class.inc)
+(import 'sys/task/class.inc)
 
 ;;;;;;;;;;;;;;;;;
 ; func structures
@@ -104,8 +104,8 @@
 		(vp-jmp-p (link-sym (fn-find-link p)))))
 
 (defcfun abort (&optional s)
-	(f-call 'pii 'write_str (list 2 (opt s "Abort !")))
-	(f-jmp 'pii 'exit '(1)))
+	(f-call 'sys_pii 'write_str (list 2 (opt s "Abort !")))
+	(f-jmp 'sys_pii 'exit '(1)))
 
 (defcfun assert (b &optional d)
 	(when debug_mode

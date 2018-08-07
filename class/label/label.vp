@@ -1,13 +1,13 @@
 (import 'sys/func.inc)
-(import 'class/text/text.inc)
-(import 'class/label/label.inc)
-(import 'class/flow/flow.inc)
+(import 'class/text/class.inc)
+(import 'class/label/class.inc)
+(import 'class/flow/class.inc)
 
 (gen-new 'label)
 (gen-create 'label)
 (gen-class 'label)
 
-(def-func 'class/label/init)
+(def-method 'label 'init)
 	;inputs
 	;r0 = label object (ptr)
 	;r1 = vtable (pptr)
@@ -46,7 +46,7 @@
 
 (def-func-end)
 
-(def-func 'class/label/draw)
+(def-method 'label 'draw)
 	;inputs
 	;r0 = view object (ptr)
 	;r1 = draw ctx (ptr)
@@ -69,7 +69,7 @@
 
 (def-func-end)
 
-(def-func 'class/label/layout)
+(def-method 'label 'layout)
 	;inputs
 	;r0 = label object (ptr)
 	;trashes
@@ -99,7 +99,7 @@
 
 (def-func-end)
 
-(def-func 'class/label/pref_size)
+(def-method 'label 'pref_size)
 	;inputs
 	;r0 = label object (ptr)
 	;outputs

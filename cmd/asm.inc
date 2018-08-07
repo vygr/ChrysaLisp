@@ -41,24 +41,39 @@
 ; make system
 ;;;;;;;;;;;;;
 
+(defun make-imports (_)
+	;create list of immediate dependencies
+	(defq d (list 'cmd/asm.inc 'class/lisp/boot.inc _))
+	(each-line (lambda (_)
+		(when (and (ge (length _) 10) (eql "(" (elem 0 _))
+				(eq 2 (length (defq s (split _ " ")))))
+			(defq _ (elem 0 s))
+			(cond
+				((eql _ "(import")
+					(push d (sym (trim-start (trim-end (elem 1 s) ")") "'"))))))) _) d)
+
 (defun make-info (_)
 	;create lists of immediate dependencies and products
 	(defq d (list 'cmd/asm.inc 'class/lisp/boot.inc _) p (list))
 	(each-line (lambda (_)
 		(when (and (ge (length _) 10) (eql "(" (elem 0 _))
 				(le 2 (length (defq s (split _ " "))) 3))
-			(defq _ (elem 0 s) o (trim-start (trim-end (elem 1 s) ")") "'"))
+			(defq _ (elem 0 s))
 			(cond
+				((eql _ "(def-method")
+					(defq c (sym (trim-start (elem 1 s) "'"))
+						m (sym (trim-start (trim-end (elem 2 s) ")") "'")))
+					(push p (f-path c m)))
 				((eql _ "(import")
-					(push d (sym o)))
-				((eql _ "(def-func")
-					(push p (sym o)))
+					(push d (sym (trim-start (trim-end (elem 1 s) ")") "'"))))
 				((eql _ "(gen-class")
-					(push p (sym-cat "class/class_" o)))
+					(push p (f-path (sym (trim-start (trim-end (elem 1 s) ")") "'")) 'vtable)))
 				((eql _ "(gen-new")
-					(push p (sym-cat "class/" o "/new")))
+					(push p (f-path (sym (trim-start (trim-end (elem 1 s) ")") "'")) 'new)))
 				((eql _ "(gen-create")
-					(push p (sym-cat "class/" o "/create")))))) _)
+					(push p (f-path (sym (trim-start (trim-end (elem 1 s) ")") "'")) 'create)))
+				((eql _ "(def-func")
+					(push p (sym (trim-start (trim-end (elem 1 s) ")") "'"))))))) _)
 	(list d p))
 
 (defun make (&optional *os* *cpu*)
@@ -75,12 +90,15 @@
 				(defq s (sym-cat "_age_" _))
 				(or (def? s) (def *env* s (age _))))
 			;list of all file imports while defining dependencies and products
-			(each-mergeable (lambda (_)
-				(defq i (make-info _))
-				(bind '(d p) i)
-				(merge-sym *imports* d)
-				(elem-set 1 i (map func-obj p))
-				(def *env* (make-sym _) i)) *imports*)
+			(within-compile-env (lambda ()
+				(import 'sys/func.inc)
+				(each import (all-class-files))
+				(each-mergeable (lambda (_)
+					(defq i (make-info _))
+					(bind '(d p) i)
+					(merge-sym *imports* d)
+					(elem-set 1 i (map func-obj p))
+					(def *env* (make-sym _) i)) *imports*)))
 			;filter to only the .vp files
 			(setq *imports* (filter (lambda (_)
 				(and (ge (length _) 3) (eql ".vp" (slice -4 -1 _)))) *imports*))
@@ -176,23 +194,34 @@
 
 (defun make-boot-all (&optional *os* *cpu*)
 	(setd *os* (platform) *cpu* (cpu))
-	(make-boot nil ((lambda ()
-		(defq *imports* (list 'make.inc) *products* (list))
-		;lists of all file imports and products
-		(each-mergeable (lambda (_)
-			(bind '(d p) (make-info _))
-			(merge-sym *imports* d)
-			(merge-sym *products* p)) *imports*)
-		*products*)) *os* *cpu*))
+	(make-boot nil
+		(within-compile-env (lambda ()
+			(import 'sys/func.inc)
+			(each import (all-class-files))
+			(defq *imports* (list 'make.inc) *prods* (list))
+			;lists of all file imports and products
+			(each-mergeable (lambda (_)
+				(bind '(d p) (make-info _))
+				(merge-sym *imports* d)
+				(merge-sym *prods* p)) *imports*) *prods*)) *os* *cpu*))
 
 (defun all-vp-files ()
 	(defq *imports* (list 'make.inc))
 	;list of all file imports
 	(each-mergeable (lambda (_)
-		(merge-sym *imports* (elem 0 (make-info _)))) *imports*)
+		(merge-sym *imports* (make-imports _))) *imports*)
 	;filter to only the .vp files
 	(filter (lambda (_)
 		(and (ge (length _) 3) (eql ".vp" (slice -4 -1 _)))) *imports*))
+
+(defun all-class-files ()
+	(defq *imports* (list 'make.inc))
+	;list of all file imports
+	(each-mergeable (lambda (_)
+		(merge-sym *imports* (make-imports _))) *imports*)
+	;filter to only the class.inc files
+	(filter (lambda (_)
+		(and (ge (length _) 9) (eql "class.inc" (slice -10 -1 _)))) *imports*))
 
 (defun make-all (&optional *os* *cpu*)
 	(setd *os* (platform) *cpu* (cpu))

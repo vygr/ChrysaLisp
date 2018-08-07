@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
-(import 'gui/region/region.inc)
+(import 'gui/region/class.inc)
 
-(def-func 'gui/region/clip_rect)
+(def-method 'gui_region 'clip_rect)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -60,7 +60,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region/copy_rect)
+(def-method 'gui_region 'copy_rect)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -217,7 +217,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region/copy_region)
+(def-method 'gui_region 'copy_region)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -261,7 +261,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region/cut_rect)
+(def-method 'gui_region 'cut_rect)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -595,7 +595,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region/free)
+(def-method 'gui_region 'free)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -614,7 +614,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region/paste_rect)
+(def-method 'gui_region 'paste_rect)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = dest region listhead (ptr)
@@ -818,7 +818,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region/paste_region)
+(def-method 'gui_region 'paste_region)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -860,7 +860,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region/remove_rect)
+(def-method 'gui_region 'remove_rect)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -1114,7 +1114,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region/remove_region)
+(def-method 'gui_region 'remove_region)
 	;inputs
 	;r0 = region heap (ptr)
 	;r1 = source region listhead (ptr)
@@ -1156,7 +1156,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region/translate)
+(def-method 'gui_region 'translate)
 	;inputs
 	;r1 = region listhead (ptr)
 	;r7 = x translation (pixels)
@@ -1178,7 +1178,7 @@
 
 (def-func-end)
 
-(def-func 'gui/region/bounds)
+(def-method 'gui_region 'bounds)
 	;inputs
 	;r1 = region listhead (ptr)
 	;outputs

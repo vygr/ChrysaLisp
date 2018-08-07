@@ -1,9 +1,9 @@
 (import 'sys/func.inc)
-(import 'sys/heap/heap.inc)
+(import 'sys/heap/class.inc)
 
 (defcvar 'mem_cell_min_size 0x000020 'mem_cell_max_size 0x4000000 'mem_block_size (mul 32 1024))
 
-(def-func 'sys/mem/statics)
+(def-method 'sys_mem 'statics)
 	;info
 	;mem statics data
 
@@ -15,7 +15,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem/used)
+(def-method 'sys_mem 'used)
 	;outputs
 	;r0 = amount (bytes)
 
@@ -25,7 +25,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem/init)
+(def-method 'sys_mem 'init)
 	;info
 	;init mem statics
 
@@ -44,7 +44,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem/deinit)
+(def-method 'sys_mem 'deinit)
 	;info
 	;deinit mem statics
 
@@ -63,7 +63,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem/alloc)
+(def-method 'sys_mem 'alloc)
 	;inputs
 	;r0 = minimum amount (bytes)
 	;outputs
@@ -99,13 +99,13 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'pii 'write_str '(2 "Malloc fail !!!"))
+	(f-call 'sys_pii 'write_str '(2 "Malloc fail !!!"))
 	(f-exit 'sys_mem 'alloc '(0 0))
 	(vp-ret))
 
 (def-func-end)
 
-(def-func 'sys/mem/calloc)
+(def-method 'sys_mem 'calloc)
 	;inputs
 	;r0 = minimum amount (bytes)
 	;outputs
@@ -126,7 +126,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem/free)
+(def-method 'sys_mem 'free)
 	;inputs
 	;r0 = address (ptr)
 	;trashes
@@ -142,7 +142,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem/realloc)
+(def-method 'sys_mem 'realloc)
 	;inputs
 	;r0 = block address (ptr)
 	;r1 = block size (bytes)
@@ -183,7 +183,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem/recalloc)
+(def-method 'sys_mem 'recalloc)
 	;inputs
 	;r0 = block address (ptr)
 	;r1 = block size (bytes)
@@ -230,7 +230,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem/clear)
+(def-method 'sys_mem 'clear)
 	;inputs
 	;r0 = address (ptr)
 	;r1 = length (bytes)
@@ -270,7 +270,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem/copy)
+(def-method 'sys_mem 'copy)
 	;inputs
 	;r0 = source address (ptr)
 	;r1 = destination address (ptr)
@@ -319,7 +319,7 @@
 
 (def-func-end)
 
-(def-func 'sys/mem/fill)
+(def-method 'sys_mem 'fill)
 	;inputs
 	;r0 = address (ptr)
 	;r1 = length (bytes)

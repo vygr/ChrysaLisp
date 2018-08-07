@@ -1,8 +1,8 @@
 (import 'sys/func.inc)
-(import 'class/grid/grid.inc)
-(import 'class/lisp/lisp.inc)
+(import 'class/grid/class.inc)
+(import 'class/lisp/class.inc)
 
-(def-func 'class/grid/lisp_create)
+(def-method 'grid 'lisp_create)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args vector object (ptr)

@@ -32,7 +32,7 @@
 	(setq _2 (opt _2 'null) *class* _1)
 	(defcvar (super-sym _1) _2 (class-sym _1) (cat (eval (class-sym _2)))))
 
-(defcfun def-method (_1 _2 &optional _3 _4 _5)
+(defcfun dec-method (_1 _2 &optional _3 _4 _5)
 	;_1 = member name
 	;_2 = member function
 	;_3 = mode (static/virtual/final/override)
@@ -81,6 +81,11 @@
 			((eql _3 'override)
 				(throw "Method does not exist !" _1))
 			(t (throw "Must use static, virtual, final or override ! " _3)))))
+
+(defcfun def-method (_1 _2)
+	;_1 = class name
+	;_2 = member name
+	(def-func (f-path _1 _2)))
 
 ;;;;;;;;;;;;;;;
 ; class calling

@@ -1,12 +1,12 @@
 (import 'sys/func.inc)
-(import 'class/string/string.inc)
-(import 'class/stream_str/stream_str.inc)
+(import 'class/string/class.inc)
+(import 'class/stream_str/class.inc)
 
 (gen-new 'stream_str)
 (gen-create 'stream_str)
 (gen-class 'stream_str)
 
-(def-func 'class/stream_str/init)
+(def-method 'stream_str 'init)
 	;inputs
 	;r0 = stream_str object (ptr)
 	;r1 = vtable (pptr)
@@ -21,7 +21,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream_str/ref_string)
+(def-method 'stream_str 'ref_string)
 	;inputs
 	;r0 = stream_str object (ptr)
 	;outputs
@@ -45,7 +45,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream_str/write_next)
+(def-method 'stream_str 'write_next)
 	;inputs
 	;r0 = stream_str object (ptr)
 	;outputs
@@ -73,7 +73,7 @@
 
 (def-func-end)
 
-(def-func 'class/stream_str/write_flush)
+(def-method 'stream_str 'write_flush)
 	;inputs
 	;r0 = stream_str object (ptr)
 	;outputs
@@ -88,7 +88,7 @@
 
 	(assign {0} {*this->stream_bufp})
 	(assign {&this->stream_object->string_data} {this->stream_bufp})
-	(f-call 'pii 'write_str {1, this->stream_bufp})
+	(f-call 'sys_pii 'write_str {1, this->stream_bufp})
 
 	(f-exit 'stream_str 'write_flush {this})
 	(pop-scope)

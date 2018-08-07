@@ -1,7 +1,7 @@
 (import 'sys/func.inc)
-(import 'sys/link/link.inc)
+(import 'sys/link/class.inc)
 
-(def-func 'sys/mail/in)
+(def-method 'sys_mail 'in)
 	;inputs
 	;r0 = link input msg buffer (ptr)
 	;trashes
