@@ -1,1 +1,1 @@
-(import 'class/texture/texture.vp)
+(import 'class/texture/class.vp)

@@ -1,1 +1,1 @@
-(import 'class/integer/integer.vp)
+(import 'class/integer/class.vp)

@@ -1,2 +1,2 @@
-(import 'class/grid/grid.vp)
+(import 'class/grid/class.vp)
 (import 'class/grid/lisp.vp)

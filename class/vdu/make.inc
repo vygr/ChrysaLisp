@@ -1,1 +1,1 @@
-(import 'class/vdu/vdu.vp)
+(import 'class/vdu/class.vp)

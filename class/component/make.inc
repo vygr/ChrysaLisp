@@ -1,1 +1,1 @@
-(import 'class/component/component.vp)
+(import 'class/component/class.vp)

@@ -1,1 +1,1 @@
-(import 'sys/load/load.vp)
+(import 'sys/load/class.vp)

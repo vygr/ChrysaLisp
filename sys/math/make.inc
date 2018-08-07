@@ -1,1 +1,1 @@
-(import 'sys/math/math.vp)
+(import 'sys/math/class.vp)

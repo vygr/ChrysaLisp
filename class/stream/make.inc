@@ -1,2 +1,2 @@
-(import 'class/stream/stream.vp)
+(import 'class/stream/class.vp)
 (import 'class/stream/lisp.vp)

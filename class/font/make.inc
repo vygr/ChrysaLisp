@@ -1,2 +1,2 @@
-(import 'class/font/font.vp)
+(import 'class/font/class.vp)
 (import 'class/font/lisp.vp)

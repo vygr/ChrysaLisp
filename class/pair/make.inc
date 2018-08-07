@@ -1,1 +1,1 @@
-(import 'class/pair/pair.vp)
+(import 'class/pair/class.vp)

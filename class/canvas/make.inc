@@ -1,4 +1,4 @@
-(import 'class/canvas/canvas.vp)
+(import 'class/canvas/class.vp)
 (import 'class/canvas/fpoly.vp)
 (import 'class/canvas/resize.vp)
 (import 'class/canvas/cpm.vp)

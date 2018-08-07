@@ -1,2 +1,2 @@
-(import 'class/msg_in/msg_in.vp)
+(import 'class/msg_in/class.vp)
 

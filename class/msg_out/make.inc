@@ -1,1 +1,1 @@
-(import 'class/msg_out/msg_out.vp)
+(import 'class/msg_out/class.vp)

@@ -1,2 +1,2 @@
-(import 'sys/task/task.vp)
+(import 'sys/task/class.vp)
 (import 'sys/task/lisp.vp)

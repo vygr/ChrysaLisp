@@ -1,1 +1,1 @@
-(import 'class/hash_map/hash_map.vp)
+(import 'class/hash_map/class.vp)

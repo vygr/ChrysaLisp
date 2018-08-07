@@ -1,1 +1,1 @@
-(import 'gui/region/region.vp)
+(import 'gui/region/class.vp)

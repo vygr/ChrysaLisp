@@ -1,1 +1,1 @@
-(import 'class/sequence/sequence.vp)
+(import 'class/sequence/class.vp)

@@ -1,1 +1,1 @@
-(import 'class/text/text.vp)
+(import 'class/text/class.vp)

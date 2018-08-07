@@ -1,1 +1,1 @@
-(import 'class/vector/vector.vp)
+(import 'class/vector/class.vp)

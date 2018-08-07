@@ -1,1 +1,1 @@
-(import 'sys/mem/mem.vp)
+(import 'sys/mem/class.vp)

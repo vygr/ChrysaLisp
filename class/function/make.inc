@@ -1,1 +1,1 @@
-(import 'class/function/function.vp)
+(import 'class/function/class.vp)

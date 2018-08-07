@@ -1,4 +1,4 @@
-(import 'class/points/points.vp)
+(import 'class/points/class.vp)
 (import 'class/points/filter_polyline.vp)
 (import 'class/points/filter_polygon.vp)
 (import 'class/points/transform.vp)

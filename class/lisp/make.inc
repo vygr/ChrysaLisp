@@ -98,7 +98,7 @@
 (import 'class/lisp/func_writechar.vp)
 (import 'class/lisp/func_writeline.vp)
 (import 'class/lisp/init.vp)
-(import 'class/lisp/lisp.vp)
+(import 'class/lisp/class.vp)
 (import 'class/lisp/read_char.vp)
 (import 'class/lisp/read_list.vp)
 (import 'class/lisp/read_num.vp)

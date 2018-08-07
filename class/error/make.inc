@@ -1,1 +1,1 @@
-(import 'class/error/error.vp)
+(import 'class/error/class.vp)

@@ -1,1 +1,1 @@
-(import 'sys/heap/heap.vp)
+(import 'sys/heap/class.vp)

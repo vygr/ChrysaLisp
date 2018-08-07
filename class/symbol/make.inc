@@ -1,1 +1,1 @@
-(import 'class/symbol/symbol.vp)
+(import 'class/symbol/class.vp)
