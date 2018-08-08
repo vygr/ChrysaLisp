@@ -43,11 +43,11 @@
 	;_4 = out parameters
 	;_5 = dispatch reg
 	(setd _5 r14)
-	(defq s 0 v 0 m nil x (list))
+	(defq s nil v 0 m nil x (list))
 	(method-lookup _1 _2)
-	(if (eql (elem 2 m) 'static)
+	(if (eql (elem 1 m) 'static)
 		(throw "Abi methods must be virtual !" (list _1 _2)))
-	(setq s (elem 3 m))
+	(setq s (elem 2 m))
 	(if (find _5 s)
 		(throw "Dispatch register conflicts with arg !" (list _5 s)))
 	(assign _3 s)
@@ -56,7 +56,7 @@
 	(f-bind 'gui_gui 'statics _5)
 	(vp-cpy-ir _5 gui_statics_sdl_funcs _5)
 	(vp-call-abi _5 v x)
-	(if _4 (assign (elem 4 m) _4)))
+	(if _4 (assign (elem 3 m) _4)))
 
 (defcvar 'SDL_INIT_TIMER 0x00000001)
 (defcvar 'SDL_INIT_AUDIO 0x00000010)
