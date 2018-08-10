@@ -43,11 +43,10 @@
 	;_4 = out parameters
 	;_5 = dispatch reg
 	(setd _5 r14)
-	(defq s nil v 0 m nil x (list))
-	(method-lookup _1 _2)
+	(bind '(v m) (virtual-method-lookup _1 _2 0))
+	(defq x (list) s (elem 2 m))
 	(if (eql (elem 1 m) 'static)
 		(throw "Abi methods must be virtual !" (list _1 _2)))
-	(setq s (elem 2 m))
 	(if (find _5 s)
 		(throw "Dispatch register conflicts with arg !" (list _5 s)))
 	(assign _3 s)

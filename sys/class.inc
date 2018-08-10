@@ -19,9 +19,9 @@
 
 (defcfun vtable-emit (_1)
 	;_1 = class name
-	(if (eql (defq s (eval (super-sym _1))) 'null)
+	(if (eql (defq _ (eval (super-sym _1))) 'null)
 		(vp-long 0)
-		(fn-add-link (f-path s 'vtable)))
+		(fn-add-link (f-path _ 'vtable)))
 	(each (lambda (_)
 		(if (or (eql (elem 1 _) 'virtual) (eql (elem 1 _) 'final))
 			(fn-add-link (elem 0 _)))) (elem 1 (eval (class-sym _1)))))
@@ -91,48 +91,45 @@
 ; class calling
 ;;;;;;;;;;;;;;;
 
-(defmacro method-info (_1 _2)
-	`(progn
-		(defq s nil v ptr_size m nil)
-		(method-lookup ,_1 ,_2)))
-
 (defcfun method-lookup (_1 _2)
 	;_1 = class name
 	;_2 = member name
-	;writes to s, v, m in parent environment !
-	(defq c (eval (class-sym _1)))
-	(setq s (find _2 (elem 0 c)))
-	(unless s (throw "No such method !" (list _1 _2)))
-	(setq m (elem s (elem 1 c)))
-	(each! nil s nil (lambda (_)
+	(defq c (eval (class-sym _1)) _ (find _2 (elem 0 c)))
+	(unless _ (throw "No such method !" (list _1 _2)))
+	(elem _ (elem 1 c)))
+
+(defcfun virtual-method-lookup (_1 _2 _3)
+	;_1 = class name
+	;_2 = member name
+	;_3 = vtable offset
+	(defq c (eval (class-sym _1)) _ (find _2 (elem 0 c)))
+	(unless _ (throw "No such method !" (list _1 _2)))
+	(each! nil _ nil (lambda (_)
 		(if (or (eql (elem 1 _) 'virtual) (eql (elem 1 _) 'final))
-			(setq v (add v ptr_size)))) (list (elem 1 c))))
+			(setq _3 (add _3 ptr_size)))) (list (elem 1 c)))
+	(list _3 (elem _ (elem 1 c))))
 
 (defcfun f-path (_1 _2)
 	;_1 = class name
 	;_2 = slot method name
-	(method-info _1 _2)
-	(elem 0 m))
+	(elem 0 (method-lookup _1 _2)))
 
 (defcfun s-path (_1 _2)
 	;_1 = class name
 	;_2 = slot method name
-	(method-info (eval (super-sym _1)) _2)
-	(elem 0 m))
+	(elem 0 (method-lookup (eval (super-sym _1)) _2)))
 
 (defcfun f-entry (_1 _2 _3)
 	;_1 = class name
 	;_2 = slot method name
 	;_3 = in parameters
-	(method-info _1 _2)
-	(assign (elem 2 m) _3))
+	(assign (elem 2 (method-lookup _1 _2)) _3))
 
 (defcfun f-exit (_1 _2 _3)
 	;_1 = class name
 	;_2 = slot method name
 	;_3 = out parameters
-	(method-info _1 _2)
-	(assign _3 (elem 3 m)))
+	(assign _3 (elem 3 (method-lookup _1 _2))))
 
 (defcfun l-entry (_1)
 	;_1 = in parameters
@@ -159,7 +156,7 @@
 	;_2 = member name
 	;_3 = in parameters
 	;_4 = out parameters
-	(method-info _1 _2)
+	(defq m (method-lookup _1 _2))
 	(unless (eql (elem 1 m) 'static)
 		(throw "Method is not static ! Use v-call ?" (list _1 _2)))
 	(assign _3 (elem 2 m))
@@ -170,7 +167,7 @@
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
-	(method-info _1 _2)
+	(defq m (method-lookup _1 _2))
 	(unless (eql (elem 1 m) 'static)
 		(throw "Method is not static ! Use v-jmp ?" (list _1 _2)))
 	(assign _3 (elem 2 m))
@@ -180,7 +177,7 @@
 	;_1 = class name
 	;_2 = member name
 	;_3 = reg
-	(method-info _1 _2)
+	(defq m (method-lookup _1 _2))
 	(unless (eql (elem 1 m) 'static)
 		(throw "Method is not static ! Use v-bind ?" (list _1 _2)))
 	(fn-bind (elem 0 m) _3))
@@ -190,7 +187,7 @@
 	;_2 = member name
 	;_3 = in parameters
 	;_4 = out parameters
-	(method-info (eval (super-sym _1)) _2)
+	(defq m (method-lookup (eval (super-sym _1)) _2))
 	(if (eql (elem 1 m) 'static)
 		(unless (eql _2 'init)
 			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
@@ -202,7 +199,7 @@
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
-	(method-info (eval (super-sym _1)) _2)
+	(defq m (method-lookup (eval (super-sym _1)) _2))
 	(if (eql (elem 1 m) 'static)
 		(unless (eql _2 'init)
 			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
@@ -213,7 +210,7 @@
 	;_1 = class name
 	;_2 = member name
 	;_3 = reg
-	(method-info (eval (super-sym _1)) _2)
+	(defq m (method-lookup (eval (super-sym _1)) _2))
 	(if (eql (elem 1 m) 'static)
 		(throw "Method is static !" (list (eval (super-sym _1)) _2)))
 	(fn-bind (elem 0 m) _3))
@@ -225,13 +222,13 @@
 	;_4 = out parameters
 	;_5 = dispatch reg
 	(setd _5 r14)
-	(method-info _1 _2)
+	(bind '(v m) (virtual-method-lookup _1 _2 ptr_size))
 	(if (eql (elem 1 m) 'static)
 		(throw "Method is static ! Use f-call ?" (list _1 _2)))
-	(setq s (elem 2 m))
-	(if (find _5 s)
-		(throw "Dispatch register conflicts with arg !" (list _5 s)))
-	(assign _3 s)
+	(defq _ (elem 2 m))
+	(if (find _5 _)
+		(throw "Dispatch register conflicts with arg !" (list _5 _)))
+	(assign _3 _)
 	(vp-cpy-ir r0 obj_vtable _5)
 	(vp-call-i _5 v)
 	(if _4 (assign (elem 3 m) _4)))
@@ -242,13 +239,13 @@
 	;_3 = in parameters
 	;_4 = dispatch reg
 	(setd _4 r14)
-	(method-info _1 _2)
+	(bind '(v m) (virtual-method-lookup _1 _2 ptr_size))
 	(if (eql (elem 1 m) 'static)
 		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
-	(setq s (elem 2 m))
-	(if (find _4 s)
-		(throw "Dispatch register conflicts with arg !" (list _4 s)))
-	(assign _3 s)
+	(defq _ (elem 2 m))
+	(if (find _4 _)
+		(throw "Dispatch register conflicts with arg !" (list _4 _)))
+	(assign _3 _)
 	(vp-cpy-ir r0 obj_vtable _4)
 	(vp-jmp-i _4 v))
 
@@ -257,7 +254,7 @@
 	;_2 = member name
 	;_3 = dispatch reg
 	(setd _3 r14)
-	(method-info _1 _2)
+	(bind '(v m) (virtual-method-lookup _1 _2 ptr_size))
 	(if (eql (elem 1 m) 'static)
 		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
 	(vp-cpy-ir r0 obj_vtable _3)
@@ -268,7 +265,7 @@
 	;_2 = member name
 	;_3 = in parameters
 	;_4 = out parameters
-	(method-info _1 _2)
+	(defq m (method-lookup _1 _2))
 	(if (eql (elem 1 m) 'static)
 		(throw "Method is static ! Use f-call ?" (list _1 _2)))
 	(assign _3 (elem 2 m))
@@ -279,7 +276,7 @@
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
-	(method-info _1 _2)
+	(defq m (method-lookup _1 _2))
 	(if (eql (elem 1 m) 'static)
 		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
 	(assign _3 (elem 2 m))
@@ -289,7 +286,7 @@
 	;_1 = class name
 	;_2 = member name
 	;_3 = reg
-	(method-info _1 _2)
+	(defq m (method-lookup _1 _2))
 	(if (eql (elem 1 m) 'static)
 		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
 	(fn-bind (elem 0 m) _3))
@@ -301,11 +298,10 @@
 	;_4 = out parameters
 	;_5 = dispatch reg
 	(setd _5 r14)
-	(method-info _1 _2)
-	(setq s (elem 2 m))
-	(if (find _5 s)
-		(throw "Dispatch register conflicts with arg !" (list _5 s)))
-	(assign _3 (cat s (list _5)))
+	(defq m (method-lookup _1 _2) _ (elem 2 m))
+	(if (find _5 _)
+		(throw "Dispatch register conflicts with arg !" (list _5 _)))
+	(assign _3 (cat _ (list _5)))
 	(vp-call-r _5)
 	(if _4 (assign (elem 3 m) _4)))
 
@@ -315,11 +311,10 @@
 	;_3 = in parameters
 	;_4 = dispatch reg
 	(setd _4 r14)
-	(method-info _1 _2)
-	(setq s (elem 2 m))
-	(if (find _4 s)
-		(throw "Dispatch register conflicts with arg !" (list _4 s)))
-	(assign _3 (cat s (list _4)))
+	(defq m (method-lookup _1 _2) _ (elem 2 m))
+	(if (find _4 _)
+		(throw "Dispatch register conflicts with arg !" (list _4 _)))
+	(assign _3 (cat _ (list _4)))
 	(vp-jmp-r _4))
 
 (defcfun l-call (_1 &optional _2 _3)
@@ -355,8 +350,8 @@
 
 (defcfun gen-create (_1)
 	;_1 = class name
-	(method-info _1 'create)
-	(defq _2 (opt (elem 2 m) '()) _3 (slice 0 (length _2) '(r13 r14 r4 r5 r6 r7 r8 r9 r10 r11 r12)))
+	(defq m (method-lookup _1 'create) _2 (opt (elem 2 m) '())
+		_3 (slice 0 (length _2) '(r13 r14 r4 r5 r6 r7 r8 r9 r10 r11 r12)))
 	(def-func (f-path _1 'create))
 		;outputs
 		;r0 = 0 if error, else object (ptr)
