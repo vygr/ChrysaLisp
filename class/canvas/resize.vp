@@ -12,7 +12,7 @@
 	;all but r0
 
 	(ptr 'this 'source)
-	(puint 'data 'dsrc)
+	(puint 'data 'sdata)
 	(uint 'x 'y 'x2 'y2)
 	(uint 'x1a 'x1b 'x1c 'x1d 'y1a 'y1b 'y1c 'y1d)
 	(uint 'a 'r 'g 'b 'q 'weight_x 'weight_y)
@@ -92,7 +92,7 @@
 				(endif)
 				(assign (list weight_y) {weight_y})
 
-				(assign {&(source->canvas_array->array_array)[(y * source->canvas_width + x1c) * int_size]} {dsrc})
+				(assign {&(source->canvas_array->array_array)[(y * source->canvas_width + x1c) * int_size]} {sdata})
 				(assign {x1c} {x})
 				(loop-while {x <= x1d})
 					(vp-def weight_x x1c x1d x x1a x1b)
@@ -111,10 +111,10 @@
 					(assign (list weight_x) {weight_x})
 
 					;multiply pixel channels by the pixel weight and accumulate
-					(vp-def r g b a q sr sg sb sa dsrc weight)
-					(assign {r, g, b, a, q, dsrc, weight_x * weight_y} (list r g b a q dsrc weight))
-					(vp-cpy-ir-ui dsrc 0 sa)
-					(vp-add-cr int_size dsrc)
+					(vp-def r g b a q sr sg sb sa sdata weight)
+					(assign {r, g, b, a, q, sdata, weight_x * weight_y} (list r g b a q sdata weight))
+					(vp-cpy-ir-ui sdata 0 sa)
+					(vp-add-cr int_size sdata)
 					(vp-cpy-rr sa sr)
 					(vp-cpy-rr sa sg)
 					(vp-cpy-rr sa sb)
@@ -133,7 +133,7 @@
 					(vp-add-rr sb b)
 					(vp-add-rr sa a)
 					(vp-add-rr weight q)
-					(assign (list dsrc r g b a q) {dsrc, r, g, b, a, q})
+					(assign (list sdata r g b a q) {sdata, r, g, b, a, q})
 
 					(assign {x + 1} {x})
 				(loop-end)
@@ -182,43 +182,42 @@
 	;all but r0
 
 	(ptr 'this 'source)
-	(puint 'data)
-	(uint 'x 'y)
 
 	(push-scope)
 	(f-entry 'canvas 'resize_2 {this, source})
 
-	(assign {this->canvas_array->array_array} {data})
-	(assign {0} {y})
-	(loop-while {y < this->canvas_height})
-		(assign {0} {x})
-		(loop-while {x < this->canvas_width})
-			;accumulate pixel channels
-			(vp-def dsrc data rb ga srb sga sw mga mrb)
-			(assign {&(source->canvas_array->array_array)[y * 2 * source->canvas_stride + x * 2 * int_size],
-				data, source->canvas_stride, 0xff00ff00, 0xff00ff} (list dsrc data sw mga mrb))
+	(vp-def sdata xdata ydata data rb ga srb sga sw mga mrb)
+	(assign {this->canvas_array->array_array, source->canvas_array->array_array, source->canvas_stride,
+		source->canvas_height, 0xff00ff00, 0xff00ff} (list data sdata sw ydata mga mrb))
 
-			(vp-cpy-ir-ui dsrc 0 ga)
+	(vp-mul-rr sw ydata)
+	(vp-add-rr sdata ydata)
+	(loop-while `(,sdata != ,ydata))
+		(vp-lea-d sdata sw xdata)
+		(loop-while `(,sdata != ,xdata))
+			;accumulate pixel channels
+			(vp-cpy-ir-ui sdata 0 ga)
 			(vp-cpy-rr ga rb)
 			(vp-and-rr mga ga)
 			(vp-and-rr mrb rb)
 
-			(vp-cpy-ir-ui dsrc (mul 2 int_size) sga)
-			(vp-add-rr sw dsrc)
+			(vp-cpy-ir-ui sdata int_size sga)
+			(vp-add-rr sw sdata)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui dsrc 0 sga)
+			(vp-cpy-ir-ui sdata 0 sga)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui dsrc (mul 2 int_size) sga)
+			(vp-cpy-ir-ui sdata int_size sga)
+			(vp-sub-rr sw sdata)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
@@ -232,12 +231,11 @@
 			(vp-and-rr mrb rb)
 			(vp-add-rr ga rb)
 			(vp-cpy-ri-i rb data 0)
-			(vp-add-cr int_size data)
-			(assign (list data) {data})
 
-			(assign {x + 1} {x})
+			(vp-add-cr int_size data)
+			(vp-add-cr (mul 2 int_size) sdata)
 		(loop-end)
-		(assign {y + 1} {y})
+		(vp-add-rr sw sdata)
 	(loop-end)
 
 	(f-exit 'canvas 'resize_2 {this})
@@ -256,81 +254,80 @@
 	;all but r0
 
 	(ptr 'this 'source)
-	(puint 'data)
-	(uint 'x 'y 'q)
 
 	(push-scope)
 	(f-entry 'canvas 'resize_3 {this, source})
 
-	(assign {this->canvas_array->array_array} {data})
-	(assign {(1 << 32) / 9, 0} {q, y})
-	(loop-while {y < this->canvas_height})
-		(assign {0} {x})
-		(loop-while {x < this->canvas_width})
-			;accumulate pixel channels
-			(vp-def dsrc data q rb ga srb sga sw mga mrb)
-			(assign {&(source->canvas_array->array_array)[y * 3 * source->canvas_stride + x * 3 * int_size],
-				q, data, source->canvas_stride, 0xff00ff00, 0xff00ff} (list dsrc q data sw mga mrb))
+	(vp-def sdata xdata ydata data q rb ga srb sga sw mga mrb)
+	(assign {(1 << 32) / 9, this->canvas_array->array_array, source->canvas_array->array_array,
+		source->canvas_stride, source->canvas_height, 0xff00ff00, 0xff00ff} (list q data sdata sw ydata mga mrb))
 
-			(vp-cpy-ir-ui dsrc 0 ga)
+	(vp-mul-rr sw ydata)
+	(vp-add-rr sdata ydata)
+	(loop-while `(,sdata != ,ydata))
+		(vp-lea-d sdata sw xdata)
+		(loop-while `(,sdata != ,xdata))
+			;accumulate pixel channels
+			(vp-cpy-ir-ui sdata 0 ga)
 			(vp-cpy-rr ga rb)
 			(vp-and-rr mga ga)
 			(vp-and-rr mrb rb)
 
-			(vp-cpy-ir-ui dsrc int_size sga)
+			(vp-cpy-ir-ui sdata int_size sga)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui dsrc (mul 2 int_size) sga)
-			(vp-add-rr sw dsrc)
+			(vp-cpy-ir-ui sdata (mul 2 int_size) sga)
+			(vp-add-rr sw sdata)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui dsrc 0 sga)
+			(vp-cpy-ir-ui sdata 0 sga)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui dsrc int_size sga)
+			(vp-cpy-ir-ui sdata int_size sga)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui dsrc (mul 2 int_size) sga)
-			(vp-add-rr sw dsrc)
+			(vp-cpy-ir-ui sdata (mul 2 int_size) sga)
+			(vp-add-rr sw sdata)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui dsrc 0 sga)
+			(vp-cpy-ir-ui sdata 0 sga)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui dsrc int_size sga)
+			(vp-cpy-ir-ui sdata int_size sga)
 			(vp-cpy-rr sga srb)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
 			(vp-add-rr sga ga)
 			(vp-add-rr srb rb)
 
-			(vp-cpy-ir-ui dsrc (mul 2 int_size) sga)
-			(vp-add-rr sw dsrc)
+			(vp-cpy-ir-ui sdata (mul 2 int_size) sga)
+			(vp-sub-rr sw sdata)
 			(vp-cpy-rr sga srb)
+			(vp-sub-rr sw sdata)
 			(vp-and-rr mga sga)
 			(vp-and-rr mrb srb)
 			(vp-add-rr sga ga)
@@ -360,12 +357,12 @@
 			(vp-add-rr srb rb)
 			(vp-add-rr sga rb)
 			(vp-cpy-ri-i rb data 0)
-			(vp-add-cr int_size data)
-			(assign (list data) {data})
 
-			(assign {x + 1} {x})
+			(vp-add-cr int_size data)
+			(vp-add-cr (mul 3 int_size) sdata)
 		(loop-end)
-		(assign {y + 1} {y})
+		(vp-add-rr sw sdata)
+		(vp-add-rr sw sdata)
 	(loop-end)
 
 	(f-exit 'canvas 'resize_3 {this})
