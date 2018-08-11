@@ -182,23 +182,21 @@
 	;all but r0
 
 	(ptr 'this 'source)
-	(puint 'data 'dsrc)
-	(uint 'x 'y 'sw)
+	(puint 'data)
+	(uint 'x 'y)
 
 	(push-scope)
-	(f-entry 'canvas 'resize {this, source})
+	(f-entry 'canvas 'resize_2 {this, source})
 
 	(assign {this->canvas_array->array_array} {data})
 	(assign {0} {y})
 	(loop-while {y < this->canvas_height})
 		(assign {0} {x})
 		(loop-while {x < this->canvas_width})
-			(assign {source->canvas_stride, data, &(source->canvas_array->array_array)[y * 2 * source->canvas_stride + x * 2 * int_size]}
-				{sw, data, dsrc})
-
 			;accumulate pixel channels
-			(vp-def rb ga srb sga data dsrc sw mga mrb)
-			(assign {data, dsrc, sw, 0xff00ff00, 0xff00ff} (list data dsrc sw mga mrb))
+			(vp-def dsrc data rb ga srb sga sw mga mrb)
+			(assign {&(source->canvas_array->array_array)[y * 2 * source->canvas_stride + x * 2 * int_size],
+				data, source->canvas_stride, 0xff00ff00, 0xff00ff} (list dsrc data sw mga mrb))
 
 			(vp-cpy-ir-ui dsrc 0 ga)
 			(vp-cpy-rr ga rb)
@@ -242,7 +240,7 @@
 		(assign {y + 1} {y})
 	(loop-end)
 
-	(f-exit 'canvas 'resize {this})
+	(f-exit 'canvas 'resize_2 {this})
 	(pop-scope)
 	(return)
 
@@ -258,24 +256,21 @@
 	;all but r0
 
 	(ptr 'this 'source)
-	(puint 'data 'dsrc)
-	(uint 'x 'y 'sw 'q)
+	(puint 'data)
+	(uint 'x 'y 'q)
 
 	(push-scope)
-	(f-entry 'canvas 'resize {this, source})
+	(f-entry 'canvas 'resize_3 {this, source})
 
 	(assign {this->canvas_array->array_array} {data})
-	(assign {0} {y})
+	(assign {0, (1 << 32) / 9} {y, q})
 	(loop-while {y < this->canvas_height})
 		(assign {0} {x})
 		(loop-while {x < this->canvas_width})
-			(assign {(1 << 32) / 9, source->canvas_stride, data,
-				&(source->canvas_array->array_array)[y * 3 * source->canvas_stride + x * 3 * int_size]}
-				{q, sw, data, dsrc})
-
 			;accumulate pixel channels
-			(vp-def q rb ga srb sga data dsrc sw mga mrb)
-			(assign {q, data, dsrc, sw, 0xff00ff00, 0xff00ff} (list q data dsrc sw mga mrb))
+			(vp-def dsrc data q rb ga srb sga sw mga mrb)
+			(assign {&(source->canvas_array->array_array)[y * 3 * source->canvas_stride + x * 3 * int_size],
+				q, data, source->canvas_stride, 0xff00ff00, 0xff00ff} (list dsrc q data sw mga mrb))
 
 			(vp-cpy-ir-ui dsrc 0 ga)
 			(vp-cpy-rr ga rb)
@@ -373,7 +368,7 @@
 		(assign {y + 1} {y})
 	(loop-end)
 
-	(f-exit 'canvas 'resize {this})
+	(f-exit 'canvas 'resize_3 {this})
 	(pop-scope)
 	(return)
 
