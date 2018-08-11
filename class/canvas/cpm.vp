@@ -36,7 +36,7 @@
 		;check ident '.CPM' or '.FLM'
 		(vpif {header.cpm_ident == 0x2e43504d || header.cpm_ident == 0x2e464c4d})
 			;create canvas
-			(f-call 'canvas 'create {header.cpm_width, header.cpm_height, 1.0} {this})
+			(f-call 'canvas 'create {header.cpm_width, header.cpm_height, 1} {this})
 			(vpif {this})
 				;decode acording to version
 				(assign {0, 0} {x, y})

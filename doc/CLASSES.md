@@ -448,7 +448,7 @@ Super Class: view
 inputs
 r0 = width (pixels)
 r1 = height (pixels)
-r2 = aa scale (16.16)
+r2 = aa scale (uint)
 outputs
 r0 = 0 if error, else canvas object (ptr)
 trashes
@@ -471,7 +471,7 @@ r0 = canvas object (ptr)
 r1 = vtable (pptr)
 r2 = width (pixels)
 r3 = height (pixels)
-r4 = aa scale (16.16)
+r4 = aa scale (uint)
 outputs
 r0 = canvas object (ptr)
 r1 = 0 if error, else ok
@@ -500,6 +500,26 @@ trashes
 all but r0
 ```
 ### canvas::resize -> class/canvas/resize
+```
+inputs
+r0 = canvas object (ptr)
+r1 = source canvas object (ptr)
+outputs
+r0 = canvas object (ptr)
+trashes
+all but r0
+```
+### canvas::resize_2 -> class/canvas/resize_2
+```
+inputs
+r0 = canvas object (ptr)
+r1 = source canvas object (ptr)
+outputs
+r0 = canvas object (ptr)
+trashes
+all but r0
+```
+### canvas::resize_3 -> class/canvas/resize_3
 ```
 inputs
 r0 = canvas object (ptr)

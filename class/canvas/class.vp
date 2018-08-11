@@ -17,7 +17,7 @@
 	;inputs
 	;r0 = width (pixels)
 	;r1 = height (pixels)
-	;r2 = aa scale (16.16)
+	;r2 = aa scale (uint)
 	;outputs
 	;r0 = 0 if error, else canvas object (ptr)
 	;trashes
@@ -77,7 +77,7 @@
 	;r1 = vtable (pptr)
 	;r2 = width (pixels)
 	;r3 = height (pixels)
-	;r4 = aa scale (16.16)
+	;r4 = aa scale (uint)
 	;outputs
 	;r0 = canvas object (ptr)
 	;r1 = 0 if error, else ok
@@ -102,9 +102,8 @@
 		(assign {0} {this->canvas_cx})
 		(assign {0} {this->canvas_cy})
 
-		(assign {1.0 </ this->canvas_aa_scale} {this->canvas_aa_scale_r})
-		(assign {this->canvas_aa_scale *> this->canvas_width} {this->canvas_width})
-		(assign {this->canvas_aa_scale *> this->canvas_height} {this->canvas_height})
+		(assign {this->canvas_aa_scale * this->canvas_width} {this->canvas_width})
+		(assign {this->canvas_aa_scale * this->canvas_height} {this->canvas_height})
 		(assign {this->canvas_width} {this->canvas_cx1})
 		(assign {this->canvas_height} {this->canvas_cy1})
 		(assign {this->canvas_width * int_size} {this->canvas_stride})
@@ -155,7 +154,6 @@
 		(assign {0} {this->canvas_cy})
 
 		(assign {src->canvas_aa_scale} {this->canvas_aa_scale})
-		(assign {src->canvas_aa_scale_r} {this->canvas_aa_scale_r})
 		(assign {src->canvas_width} {this->canvas_width})
 		(assign {src->canvas_height} {this->canvas_height})
 		(assign {src->canvas_width} {this->canvas_cx1})
@@ -299,65 +297,41 @@
 	;trashes
 	;all but r0
 
-	(def-struct 'local)
-		(ptr 'this)
-		(ptr 'ctx)
-		(ptr 'surface)
-		(ptr 'temp_canvas)
-		(ptr 'old_stack)
-	(def-struct-end)
+	(ptr 'this 'ctx 'surface 'temp_canvas 'old_stack)
 
 	;align stack to 16 bytes for SDl
 	(vp-cpy-rr rsp r2)
-	(vp-alloc local_size)
+	(push-scope)
 	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r2 rsp local_old_stack)
-
-	;save inputs
-	(f-entry 'canvas 'draw '((rsp local_this) (rsp local_ctx)))
+	(l-entry {this, ctx, old_stack})
 
 	;if no texture then create from pixel buffer
-	(vp-cpy-ir r0 canvas_texture r1)
-	(vpif '(r1 == 0))
+	(vpifnot {this->canvas_texture})
 		;create SDL surface from pixel buffer, convert to texture
-		(f-call 'canvas 'create '((r0 canvas_width ui) (r0 canvas_height ui) (r0 canvas_aa_scale_r i)) '(r0))
-		(vp-cpy-ir-i r0 canvas_aa_scale_r r1)
-		(vp-cpy-ri r0 rsp local_temp_canvas)
-		(vpif '(r1 == 1.0))
-			(f-call 'canvas 'as_argb '(r0 (rsp local_this)))
+		(f-call 'canvas 'create {this->canvas_width / this->canvas_aa_scale, this->canvas_height / this->canvas_aa_scale, 1} {temp_canvas})
+		(vpif {this->canvas_aa_scale == 1})
+			(f-call 'canvas 'as_argb {temp_canvas, this})
 		(else)
-			(f-call 'canvas 'resize '(r0 (rsp local_this)))
-			(f-call 'canvas 'as_argb '(r0 r0))
+			(f-call 'canvas 'resize {temp_canvas, this})
+			(f-call 'canvas 'as_argb {temp_canvas, temp_canvas})
 		(endif)
-		(vp-cpy-ir r0 canvas_array r9)
-		(sdl-call 'sdl 'sdl_create_rgb_surface_from '((r9 array_array) (r0 canvas_width ui) (r0 canvas_height ui)
-							32 (r0 canvas_stride ui) 0xff0000 0xff00 0xff 0xff000000))
-		(vp-cpy-ri r0 rsp local_surface)
-		(vp-cpy-ir rsp local_ctx r2)
-		(sdl-call 'sdl 'sdl_create_texture_from_surface '((r2 gui_ctx_sdl_ctx) r0))
-		(vp-cpy-ir rsp local_this r1)
-		(vp-cpy-ri r0 r1 canvas_texture)
-		(sdl-call 'sdl 'sdl_free_surface '((rsp local_surface)))
-		(f-call 'canvas 'deref '((rsp local_temp_canvas)))
+		(sdl-call 'sdl 'sdl_create_rgb_surface_from {temp_canvas->canvas_array->array_array,
+			temp_canvas->canvas_width, temp_canvas->canvas_height, 32,
+			temp_canvas->canvas_stride, 0xff0000, 0xff00, 0xff, 0xff000000} {surface})
+		(sdl-call 'sdl 'sdl_create_texture_from_surface {ctx->gui_ctx_sdl_ctx, surface} {this->canvas_texture})
+		(sdl-call 'sdl 'sdl_free_surface {surface})
+		(f-call 'canvas 'deref {temp_canvas})
 	(endif)
 
 	;blit texture
-	(vp-cpy-ir rsp local_this r0)
-	(vp-cpy-ir r0 canvas_texture r1)
-	(vpif '(r1 != 0))
-		(vp-cpy-ir-i r0 canvas_aa_scale_r r7)
-		(vp-cpy-ir-ui r0 canvas_width r9)
-		(vp-cpy-ir-ui r0 canvas_height r10)
-		(vp-mul-rr r7 r9)
-		(vp-mul-rr r7 r10)
-		(vp-asr-cr fp_shift r9)
-		(vp-asr-cr fp_shift r10)
-		(f-call 'gui_ctx 'blit '((rsp local_ctx) r1 0xffffff 0 0 r9 r10))
+	(vpif {this->canvas_texture})
+		(f-call 'gui_ctx 'blit {ctx, this->canvas_texture, 0xffffff, 0, 0,
+			this->canvas_width / this->canvas_aa_scale, this->canvas_height / this->canvas_aa_scale})
 	(endif)
 
-	(f-exit 'canvas 'draw '((rsp local_this)))
-	(vp-cpy-ir rsp local_old_stack rsp)
-	(vp-ret)
+	(assign {this, old_stack} '(r0 rsp))
+	(pop-scope-syms)
+	(return)
 
 (def-func-end)
 
@@ -412,18 +386,14 @@
 	;trashes
 	;all but r0
 
-	(f-entry 'canvas 'pref_size '(r0))
+	(ptr 'this)
 
-	(vp-cpy-ir-i r0 canvas_aa_scale_r r7)
-	(vp-cpy-ir-ui r0 canvas_width r9)
-	(vp-cpy-ir-ui r0 canvas_height r10)
-	(vp-mul-rr r7 r9)
-	(vp-mul-rr r7 r10)
-	(vp-asr-cr fp_shift r9)
-	(vp-asr-cr fp_shift r10)
-
-	(f-exit 'canvas 'pref_size '(r0 r9 r10))
-	(vp-ret)
+	(push-scope)
+	(f-entry 'canvas 'pref_size {this})
+	(f-exit 'canvas 'pref_size {this, this->canvas_width / this->canvas_aa_scale,
+									this->canvas_height / this->canvas_aa_scale})
+	(pop-scope)
+	(return)
 
 (def-func-end)
 
