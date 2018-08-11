@@ -8,16 +8,17 @@
 	;outputs
 	;r0 = lisp object (ptr)
 
-	(ptr 'this 'env)
+	(f-entry 'lisp 'env_push '(r0))
 
-	(push-scope)
-	(f-entry 'lisp 'env_push {this})
+	(vp-push r0)
+	(assign '((r0 lisp_environment)) '(r0))
+	(f-call 'hash_map 'create '((r0 hash_set_key_callback) 1) '(r0))
+	(assign '((rsp 0)) '(r1))
+	(f-call 'hash_map 'set_parent '(r0 (r1 lisp_environment)) '(r1))
+	(vp-pop r0)
+	(assign '(r1) '((r0 lisp_environment)))
 
-	(f-call 'hash_map 'create {this->lisp_environment->hash_set_key_callback, 1} {env})
-	(f-call 'hash_map 'set_parent {env, this->lisp_environment} {this->lisp_environment})
-
-	(f-exit 'lisp 'env_push {this})
-	(pop-scope)
-	(return)
+	(f-exit 'lisp 'env_push '(r0))
+	(vp-ret)
 
 (def-func-end)

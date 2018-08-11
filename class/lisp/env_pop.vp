@@ -8,20 +8,24 @@
 	;outputs
 	;r0 = lisp object (ptr)
 
-	(ptr 'this 'env)
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'env)
+		(ptr 'new_env)
+	(def-struct-end)
 
-	(push-scope)
-	(f-entry 'lisp 'env_pop {this})
+	(vp-alloc local_size)
+	(f-entry 'lisp 'env_pop '((rsp local_this)))
 
-	(f-call 'hash_map 'get_parent {this->lisp_environment} {_, env})
-	(vpif {env})
-		(f-call 'obj 'ref {env})
-		(f-call 'obj 'deref {this->lisp_environment})
-		(assign {env} {this->lisp_environment})
-	(endif)
+	(f-call 'hash_map 'get_parent '((r0 lisp_environment)) '((rsp local_env) r1))
+	(assign '(r1) '((rsp local_new_env)))
+	(f-call 'obj 'ref '(r1))
+	(f-call 'obj 'deref '((rsp local_env)))
+	(assign '((rsp local_this) (rsp local_new_env)) '(r0 r1))
+	(assign '(r1) '((r0 lisp_environment)))
 
-	(f-exit 'lisp 'env_pop {this})
-	(pop-scope)
-	(return)
+	(f-exit 'lisp 'env_pop '(r0))
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)
