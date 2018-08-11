@@ -263,7 +263,7 @@
 	(f-entry 'canvas 'resize_3 {this, source})
 
 	(assign {this->canvas_array->array_array} {data})
-	(assign {0, (1 << 32) / 9} {y, q})
+	(assign {(1 << 32) / 9, 0} {q, y})
 	(loop-while {y < this->canvas_height})
 		(assign {0} {x})
 		(loop-while {x < this->canvas_width})
