@@ -181,14 +181,13 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'source)
+	(vp-def this source sdata xdata ydata data rb ga srb sga sw mga mrb)
 
-	(push-scope)
-	(f-entry 'canvas 'resize_2 {this, source})
+	(f-entry 'canvas 'resize_3 (list this source))
 
-	(vp-def sdata xdata ydata data rb ga srb sga sw mga mrb)
-	(assign {this->canvas_array->array_array, source->canvas_array->array_array, source->canvas_stride,
-		source->canvas_height, 0xff00ff00, 0xff00ff} (list data sdata sw ydata mga mrb))
+	(assign `((,this canvas_array) (,source canvas_array)) `(,data , sdata))
+	(assign `((,data array_array) (,sdata array_array) (,source canvas_stride ui)
+		(,source canvas_height ui) 0xff00ff00 0xff00ff) (list data sdata sw ydata mga mrb))
 
 	(vp-mul-rr sw ydata)
 	(vp-add-rr sdata ydata)
@@ -238,9 +237,8 @@
 		(vp-add-rr sw sdata)
 	(loop-end)
 
-	(f-exit 'canvas 'resize_2 {this})
-	(pop-scope)
-	(return)
+	(f-exit 'canvas 'resize_2 (list this))
+	(vp-ret)
 
 (def-func-end)
 
@@ -253,14 +251,13 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'source)
+	(vp-def this source sdata xdata ydata data q rb ga srb sga sw mga mrb)
 
-	(push-scope)
-	(f-entry 'canvas 'resize_3 {this, source})
+	(f-entry 'canvas 'resize_3 (list this source))
 
-	(vp-def sdata xdata ydata data q rb ga srb sga sw mga mrb)
-	(assign {(1 << 32) / 9, this->canvas_array->array_array, source->canvas_array->array_array,
-		source->canvas_stride, source->canvas_height, 0xff00ff00, 0xff00ff} (list q data sdata sw ydata mga mrb))
+	(assign `((,this canvas_array) (,source canvas_array)) `(,data , sdata))
+	(assign `(,(div (bit-shl 1 32) 9) (,data array_array) (,sdata array_array) (,source canvas_stride ui)
+		(,source canvas_height ui) 0xff00ff00 0xff00ff) (list q data sdata sw ydata mga mrb))
 
 	(vp-mul-rr sw ydata)
 	(vp-add-rr sdata ydata)
@@ -365,8 +362,7 @@
 		(vp-add-rr sw sdata)
 	(loop-end)
 
-	(f-exit 'canvas 'resize_3 {this})
-	(pop-scope)
-	(return)
+	(f-exit 'canvas 'resize_3 (list this))
+	(vp-ret)
 
 (def-func-end)
