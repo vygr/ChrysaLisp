@@ -183,7 +183,7 @@
 
 	(vp-def this source sdata xdata ydata data rb ga srb sga sw mga mrb)
 
-	(f-entry 'canvas 'resize_3 (list this source))
+	(f-entry 'canvas 'resize_2 (list this source))
 
 	(assign `((,this canvas_array) (,source canvas_array)) `(,data , sdata))
 	(assign `((,data array_array) (,sdata array_array) (,source canvas_stride ui)
@@ -336,9 +336,8 @@
 			(vp-shr-cr 24 sga)
 			(vp-shr-cr 16 srb)
 			(vp-shr-cr 8 ga)
-			(vp-and-cr 0xfff srb)
-			(vp-and-cr 0xfff ga)
 			(vp-and-cr 0xfff rb)
+			(vp-and-cr 0xfff ga)
 			(vp-mul-rr q sga)
 			(vp-mul-rr q srb)
 			(vp-mul-rr q ga)
