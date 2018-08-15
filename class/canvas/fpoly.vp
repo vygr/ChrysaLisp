@@ -58,9 +58,9 @@
 					(f-call 'array 'set_capacity {this->canvas_edges, length + (edge_size >> 3)})
 					(f-call 'array 'set_length {this->canvas_edges, length + (edge_size >> 3)})
 					(f-call 'array 'get_iter {this->canvas_edges, length} {_, iter_edge1})
-					(assign {x1, y1, y2, (x2 - x1) // (y2 - y1), 1}
-						{iter_edge1->edge_x, iter_edge1->edge_ys, iter_edge1->edge_ye,
-						iter_edge1->edge_dda, iter_edge1->edge_w})
+					(assign {(x2 - x1) // (y2 - y1), x1, y1, y2, 1}
+						{iter_edge1->edge_dda, iter_edge1->edge_x, iter_edge1->edge_ys,
+							iter_edge1->edge_ye, iter_edge1->edge_w})
 				(elseif {y1 > y2})
 					(breakif {y2 >= this->canvas_cy1})
 					(vpif {y2 < ys})
@@ -73,9 +73,9 @@
 					(f-call 'array 'set_capacity {this->canvas_edges, length + (edge_size >> 3)})
 					(f-call 'array 'set_length {this->canvas_edges, length + (edge_size >> 3)})
 					(f-call 'array 'get_iter {this->canvas_edges, length} {_, iter_edge1})
-					(assign {x2, y2, y1, (x1 - x2) // (y1 - y2), -1}
-						{iter_edge1->edge_x, iter_edge1->edge_ys, iter_edge1->edge_ye,
-						iter_edge1->edge_dda, iter_edge1->edge_w})
+					(assign {(x1 - x2) // (y1 - y2), x2, y2, y1, -1}
+						{iter_edge1->edge_dda, iter_edge1->edge_x, iter_edge1->edge_ys,
+							iter_edge1->edge_ye, iter_edge1->edge_w})
 				(endif)
 				(assign {iter_begin_polygon[0] + 0.5, (iter_begin_polygon[int_size] + 0.5) >>> fp_shift} {x1, y1})
 				(assign {iter_begin_polygon + ptr_size} {iter_begin_polygon})
