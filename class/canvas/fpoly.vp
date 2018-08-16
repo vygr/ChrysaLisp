@@ -34,8 +34,7 @@
 	(f-call 'vector 'get_iters {polygons} {_, iter_begin_polygons, iter_end_polygons})
 	(loop-while {iter_begin_polygons != iter_end_polygons})
 		(f-call 'points 'get_iters {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
-		(f-call 'array 'set_capacity (cat {this->canvas_edges, length + ((iter_end_polygon - iter_begin_polygon) >> 3) *}
-											(str (bit-shr edge_size (log2 long_size)))))
+		(f-call 'array 'set_capacity {this->canvas_edges, length + ((iter_end_polygon - iter_begin_polygon) * edge_size >> 6)})
 		(f-call 'array 'get_begin {this->canvas_edges} {_, iter_edge1})
 		(assign {iter_edge1 + length * long_size} {iter_edge2})
 		(vpif {iter_end_polygon - iter_begin_polygon >= ptr_size * 3})
