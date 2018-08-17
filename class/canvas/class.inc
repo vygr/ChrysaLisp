@@ -75,8 +75,8 @@
 	(int 'x)
 	(int 'ys)
 	(int 'ye)
-	(int 'dda)
 	(int 'w)
+	(int 'dda)
 	(local-align)
 (def-struct-end)
 
