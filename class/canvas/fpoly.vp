@@ -138,14 +138,21 @@
 			(breakif {ys >= this->canvas_cy1})
 
 			;mark edges that end on this scan line
-			(vp-def iter_i iter_j iter_end ys min_int edge ye x dda)
-			(assign {iter_i, iter_j, iter_end, ys, min_int} (list iter_i iter_j iter_end ys min_int))
+			(vp-def iter_i iter_j iter_end ys min_int edge ye x dda lastx)
+			(assign {iter_i, iter_j, iter_end, ys, min_int, min_int} (list iter_i iter_j iter_end ys min_int lastx))
 			(loop-while `(,iter_i != ,iter_j))
 				(vp-cpy-ir iter_i 0 edge)
 				(vp-add-cr ptr_size iter_i)
+				(vp-cpy-ir-i edge edge_x x)
 				(vp-cpy-ir-i edge edge_ye ye)
+				(vpif `(,lastx <= ,x))
+					(vp-cpy-rr x lastx)
+				(else)
+					(vp-cpy-cr max_int lastx)
+				(endif)
 				(continueif `(,ye != ,ys))
 				(vp-cpy-ri-i min_int edge edge_x)
+				(vp-cpy-cr max_int lastx)
 			(loop-end)
 
 			;include new edges that begin on this scan line
@@ -154,11 +161,14 @@
 				(vp-cpy-ir-i edge edge_ys ye)
 				(breakif `(,ye != ,ys))
 				(vp-add-cr ptr_size iter_j)
+				(vp-cpy-cr max_int lastx)
 			(loop-end)
 			(assign (list iter_j) {iter_j})
 
-			;sort on x, plus move all marked dead edges to front !
-			(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_j, $sort_on_x, 0})
+			;sort on x ?, plus move all marked dead edges to front !
+			(vpif `(,lastx == max_int))
+				(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_j, $sort_on_x, 0})
+			(endif)
 
 			;remove all dead edges
 			(assign {iter_i, iter_j, min_int} (list iter_i iter_j min_int))
