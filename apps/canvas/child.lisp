@@ -141,4 +141,4 @@
 
 (while (lt angle fp_2pi)
 	(redraw)
-	(setq angle (add angle 0.02)))
+	(setq angle (add angle 0.0025)))
