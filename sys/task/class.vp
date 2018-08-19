@@ -225,7 +225,7 @@
 	(assign '(r1) {tcb->tk_node_stack})
 
 	;resume new task, check for first
-	(vp-def tcb current_tcb tmp task_statics)
+	(vp-def (tcb current_tcb tmp task_statics))
 	(assign {tcb, task_statics->tk_statics_current_tcb, task_statics} (list tcb current_tcb task_statics))
 	(vpif `(,current_tcb == 0))
 		(vp-cpy-ri tcb task_statics tk_statics_current_tcb)
@@ -260,7 +260,7 @@
 	(f-call 'sys_mail 'free_mbox {tcb->tk_node_mbox_id})
 
 	;remove task control block
-	(vp-def tcb next_tcb)
+	(vp-def (tcb next_tcb))
 	(assign {tcb} (list tcb))
 	(ln-remove-node tcb next_tcb)
 	(assign (list next_tcb) {next_tcb})

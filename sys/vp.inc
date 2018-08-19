@@ -157,8 +157,10 @@
 (each (lambda (_)
 	(defcvar _ _)) '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp))
 
-(defcmacro vp-def (&rest b)
-	`(bind ',b ',(slice 0 (length b) '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))))
+(defcmacro vp-def (_ &optional l)
+	(setq l (if l (merge-sym (cat (eval l)) '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+		'(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)))
+	`(bind ',_ ',(slice 0 (length _) l)))
 
 (defcfun type (o)
 	(defq i (type? o))

@@ -15,7 +15,7 @@
 
 	;look up parcel in mailbox
 	(f-call 'sys_mail 'mbox_addr {rx_msg->lk_msg_stamp.msg_dest.id_mbox} {mbox_addr})
-	(vp-def next node src id psrc pid)
+	(vp-def (next node src id psrc pid))
 	(assign {mbox_addr, rx_msg->lk_msg_stamp.msg_parcel_src, rx_msg->lk_msg_stamp.msg_parcel_id}
 		(list next src id))
 	(loop-list-forward next mbox_parcel_list node next)

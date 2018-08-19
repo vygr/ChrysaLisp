@@ -83,7 +83,7 @@
 		(vpifnot {out_msg})
 		(vp-label 'more_output)
 			;no outgoing message so see if any off chip mail for me
-			(vp-def next node id mid table)
+			(vp-def (next node id mid table))
 			(assign {mail_statics, lk_node.lk_node_cpu_id, lk_node.lk_node_table.lk_table_array}
 				(list next id table))
 			(loop-list-forward next ml_statics_offchip_list node next)

@@ -77,7 +77,7 @@
 
 			(assign {y1c} {y})
 			(loop-while {y <= y1d})
-				(vp-def weight_y y1c y1d y y1a y1b)
+				(vp-def (weight_y y1c y1d y y1a y1b))
 				(assign {256, y1c, y1d} (list weight_y y1c y1d))
 				(vpif `(,y1c != ,y1d))
 					(assign {y, y1a, y1b} (list y y1a y1b))
@@ -95,7 +95,7 @@
 				(assign {&(source->canvas_array->array_array)[(y * source->canvas_width + x1c) * int_size]} {sdata})
 				(assign {x1c} {x})
 				(loop-while {x <= x1d})
-					(vp-def weight_x x1c x1d x x1a x1b)
+					(vp-def (weight_x x1c x1d x x1a x1b))
  					(assign {256, x1c, x1d} (list weight_x x1c x1d))
 					(vpif `(,x1c != ,x1d))
 						(assign {x, x1a, x1b} (list x x1a x1b))
@@ -111,7 +111,7 @@
 					(assign (list weight_x) {weight_x})
 
 					;multiply pixel channels by the pixel weight and accumulate
-					(vp-def r g b a q sr sg sb sa sdata weight)
+					(vp-def (r g b a q sr sg sb sa sdata weight))
 					(assign {r, g, b, a, q, sdata, weight_x * weight_y} (list r g b a q sdata weight))
 					(vp-cpy-ir-ui sdata 0 sa)
 					(vp-add-cr int_size sdata)
@@ -141,7 +141,7 @@
 			(loop-end)
 
 			;divide by the pixel weight and store
-			(vp-def q r g b a data)
+			(vp-def (q r g b a data))
 			(assign {(1 << 32) / q, r, g, b, a, data} (list q r g b a data))
 			(vp-mul-rr q r)
 			(vp-mul-rr q g)
@@ -181,7 +181,7 @@
 	;trashes
 	;all but r0
 
-	(vp-def this source sdata xdata ydata data rb ga srb sga sw mga mrb)
+	(vp-def (this source sdata xdata ydata data rb ga srb sga sw mga mrb))
 
 	(f-entry 'canvas 'resize_2 (list this source))
 
@@ -251,7 +251,7 @@
 	;trashes
 	;all but r0
 
-	(vp-def this source sdata xdata ydata data q rb ga srb sga sw mga mrb)
+	(vp-def (this source sdata xdata ydata data q rb ga srb sga sw mga mrb))
 
 	(f-entry 'canvas 'resize_3 (list this source))
 

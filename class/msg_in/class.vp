@@ -33,7 +33,7 @@
 		(assign {stream_mail_state_started} {this->msg_in_state})
 		(f-call 'sys_mail 'alloc_mbox nil {this->msg_in_mbox_id})
 		(f-call 'sys_mail 'mbox_addr {this->msg_in_mbox_id} {this->msg_in_mbox_addr})
-		(vp-def lst tmp)
+		(vp-def (lst tmp))
 		(assign {&this->msg_in_list} (list lst))
 		(lh-init lst tmp)
 	(endif)

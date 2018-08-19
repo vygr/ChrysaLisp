@@ -39,7 +39,7 @@
 
 	;init off chip list
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(vp-def lst tmp)
+	(vp-def (lst tmp))
 	(assign {&mail_statics->ml_statics_offchip_list} (list lst))
 	(lh-init lst tmp)
 
@@ -77,7 +77,7 @@
 		(d-call 'array 'pop_back {mail_statics->ml_statics_mbox_free_array})
 	(else)
 		(f-call 'sys_heap 'alloc {mail_statics->ml_statics_mbox_heap} {_, mbox})
-		(vp-def mbox tmp1 tmp2)
+		(vp-def (mbox tmp1 tmp2))
 		(assign {mbox} (list mbox))
 		(ml-init mbox tmp1 tmp2)
 		(f-call 'array 'push_back {mail_statics->ml_statics_mbox_array, mbox})

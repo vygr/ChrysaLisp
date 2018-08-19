@@ -48,7 +48,7 @@
 			(assign {ammount - len} {ammount})
 
 			;queue it on the outgoing packet list
-			(vp-def head node tmp)
+			(vp-def (head node tmp))
 			(assign {&mail_statics->ml_statics_offchip_list, frag} (list head node))
 			(lh-add-at-tail head node tmp)
 
