@@ -502,14 +502,11 @@
 (defmacro is_allowed_number_char (_)
 	(list 'find _ "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789"))
 
-(defmacro token-push (&rest b)
-	(list 'push '*token* (cat '(list) b)))
-
-(defcvar '*token* (list))
+(defmacro token-push (k c)
+	`(push tokens (list ,k ,c)))
 
 (defcfun token-parse (l)
-	(clear *token*)
-	(defq m -1 u 1 i 0 p 0)
+	(defq m -1 u 1 i 0 p 0 tokens (list))
 	(while (lt i (length l))
 		(defq c (elem i l)
 			s (find c {@$"-*~!+.^)(][</%&|=>}) ;"
@@ -592,20 +589,18 @@
 						(setq p (inc i) u 0 m -1)))))
 		(unless c (setq i (inc i))))
 	(unless (eq p i)
-		(token-push (slice p i l) m)))
+		(token-push (slice p i l) m))
+	tokens)
 
 ;;;;;;;;;;;;;;;;
 ; reverse polish
 ;;;;;;;;;;;;;;;;
 
 (defmacro rpn-push (s v)
-	`(push *rpn* (list (sym ,s) ,v)))
+	`(push rpn (list (sym ,s) ,v)))
 
-(defcvar '*rpn* (list))
-
-(defcfun rpn-parse ()
-	(clear *rpn*)
-	(defq o (list))
+(defcfun rpn-parse (tokens)
+	(defq o (list) rpn (list))
 	(each (lambda ((k c))
 		(cond
 			((ge c 5) ;operator
@@ -630,9 +625,10 @@
 								(setq x nil)))
 						(push o k))))
 			(t ;number, symbol, string, symbol, bind, label
-				(rpn-push k c)))) *token*)
+				(rpn-push k c)))) tokens)
 	(while (defq _ (pop o))
-		(rpn-push _ -1)))
+		(rpn-push _ -1))
+	rpn)
 
 ;;;;;;;;;;;;;
 ; compilation
@@ -866,7 +862,7 @@
 (defcfun compile-label (_)
 	(add-inst `(vp-lea-p ',_ ,(push-reg nil))))
 
-(defcfun compile-rpn-list ()
+(defcfun compile-rpn-list (rpn)
 	(each (lambda ((k c))
 		(if (le -1 c 4)
 			(eval (elem (inc c)
@@ -876,7 +872,7 @@
 				(compile-bind k)
 				(compile-label k)
 				(compile-string (str k)))))
-			(throw "Unknown token type !" k))) *rpn*))
+			(throw "Unknown token type !" k))) rpn))
 
 (new-scope)
 (operator "ptr" 0 1 compile-cast)
@@ -1052,9 +1048,7 @@
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack (length *src*))
 		(each! nil nil nil (lambda (_)
-			(token-parse _)
-			(rpn-parse)
-			(compile-rpn-list)
+			(compile-rpn-list (rpn-parse (token-parse _)))
 			(compile-assign)) (list *dst*))
 		(when debug_inst
 			(print "pre opt:")
@@ -1074,9 +1068,7 @@
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack 0)
 		(each! nil nil nil (lambda (_)
-			(token-parse _)
-			(rpn-parse)
-			(compile-rpn-list)
+			(compile-rpn-list (rpn-parse (token-parse _)))
 			(compile-deref?)) (list *src*))
 		(when debug_inst
 			(print "pre opt:")
@@ -1096,13 +1088,9 @@
 	(when (ne 0 (length *dst*))
 		(reset-reg-stack 0)
 		(each! nil nil nil (lambda (_)
-			(token-parse _)
-			(rpn-parse)
-			(compile-rpn-list)) (list *src*))
+			(compile-rpn-list (rpn-parse (token-parse _)))) (list *src*))
 		(each! -1 0 nil (lambda (_)
-			(token-parse _)
-			(rpn-parse)
-			(compile-rpn-list)
+			(compile-rpn-list (rpn-parse (token-parse _)))
 			(compile-assign)) (list *dst*))
 		(when debug_inst
 			(print "pre opt:")
