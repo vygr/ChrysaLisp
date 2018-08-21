@@ -148,6 +148,7 @@
 
 	(switch)
 	(case {type == 32})
+		(assign {0xff000000 ^ col} {col})
 		(break)
 	(case {type == 24})
 		(assign {0xff000000 + col} {col})
