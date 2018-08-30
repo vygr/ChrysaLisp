@@ -72,7 +72,7 @@ r1 = element iterator (plong)
 outputs
 r1 = 0 if break, else not
 trashes
-all but r0
+all
 ```
 ### array::sort -> class/array/sort
 ```
@@ -95,7 +95,7 @@ r2 = iter2 (plong)
 outputs
 r0 = +, 0, -
 trashes
-all but r0
+all
 ```
 ### array::partition -> class/array/partition
 ```
@@ -118,7 +118,7 @@ r2 = iter2 (plong)
 outputs
 r0 = +, 0, -
 trashes
-all but r0
+all
 ```
 ### array::get_back -> class/array/get_back
 ```

@@ -107,7 +107,7 @@
 		;outputs
 		;r1 = 0 if break, else not
 		;trashes
-		;all but r0
+		;all
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -399,7 +399,7 @@
 		;outputs
 		;r0 = +, 0, -
 		;trashes
-		;all but r0
+		;all
 
 	(def-struct 'local)
 		(ptr 'this)
@@ -470,7 +470,7 @@
 		;outputs
 		;r0 = +, 0, -
 		;trashes
-		;all but r0
+		;all
 
 	(ptr 'this 'func 'ctx 'stack)
 	(pptr 'pivot 'iter_begin)
