@@ -110,6 +110,7 @@
 	(push-scope)
 	(l-entry {stream, type})
 
+	(assign {0} {col})
 	(switch)
 	(case {type == 32})
 		(f-call 'stream 'read {stream, &col, int_size} {_, type})
