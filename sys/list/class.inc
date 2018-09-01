@@ -1,5 +1,4 @@
 (import 'sys/class.inc)
-(import 'sys/code.inc)
 
 (def-class 'sys_list)
 (dec-method 'init 'sys/list/init 'static '(r0))

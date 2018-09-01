@@ -1,5 +1,3 @@
-(import 'sys/class.inc)
-(import 'sys/code.inc)
 (import 'sys/mem/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;

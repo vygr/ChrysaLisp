@@ -1,5 +1,4 @@
 (import 'sys/class.inc)
-(import 'sys/code.inc)
 
 (def-class 'gui_ctx)
 (dec-method 'box 'gui/ctx/box 'static '(r0 r7 r8 r9 r10))

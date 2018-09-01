@@ -1,5 +1,3 @@
-(import 'sys/class.inc)
-(import 'sys/code.inc)
 (import 'gui/class.inc)
 
 (def-class 'sdl)

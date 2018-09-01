@@ -1,5 +1,3 @@
-(import 'sys/class.inc)
-(import 'sys/code.inc)
 (import 'sys/list/class.inc)
 (import 'sys/heap/class.inc)
 

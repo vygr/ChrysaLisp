@@ -1,5 +1,3 @@
-(import 'sys/class.inc)
-(import 'sys/code.inc)
 (import 'sys/list/class.inc)
 (import 'sys/mail/class.inc)
 (import 'class/string/class.inc)

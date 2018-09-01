@@ -1,4 +1,3 @@
-(import 'sys/class.inc)
 (import 'sys/mail/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;;;;;

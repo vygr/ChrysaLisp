@@ -1,5 +1,4 @@
 (import 'sys/class.inc)
-(import 'sys/code.inc)
 
 (def-class 'gui_region)
 (dec-method 'translate 'gui/region/translate 'static '(r1 r7 r8))
