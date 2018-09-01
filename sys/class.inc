@@ -2,6 +2,8 @@
 ; class definition
 ;;;;;;;;;;;;;;;;;;
 
+(import 'sys/code.inc)
+
 (defmacro class-sym (_)
 	`(sym-cat "_class_" ,_))
 

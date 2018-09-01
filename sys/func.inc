@@ -1,7 +1,6 @@
-(import 'sys/code.inc)
-(import 'sys/vp.inc)
 (import 'sys/pii/class.inc)
 (import 'sys/task/class.inc)
+(import 'sys/vp.inc)
 
 ;;;;;;;;;;;;;;;;;
 ; func structures
