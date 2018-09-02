@@ -13,8 +13,7 @@
 (window-set-title window "Canvas")
 (window-connect-close window event_win_close)
 (bind '(w h) (view-pref-size window))
-(view-change window 512 256 w h)
-(gui-add window)
+(gui-add (view-change window 512 256 w h))
 
 ;create child and send args
 (mail-send (list canvas (mul canvas_width 1.0) (mul canvas_height 1.0) (mul canvas_scale 1.0))

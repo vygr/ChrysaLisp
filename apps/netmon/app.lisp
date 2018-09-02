@@ -33,8 +33,7 @@
 (window-connect-min window event_win_min)
 (window-connect-max window event_win_max)
 (bind '(w h) (view-pref-size window))
-(view-change window 320 32 w h)
-(gui-add window)
+(gui-add (view-change window 320 32 w h))
 
 ;open global farm, create multi-cast sample command
 (defq ids (open-farm "apps/netmon/child" cpu_total kn_call_open)
@@ -67,18 +66,14 @@
 			(setq id nil))
 		((eq id event_win_min)
 			;min button
-			(view-dirty window)
-			(bind '(x y _ _) (view-get-bounds window))
+			(bind '(x y _ _) (view-get-bounds (view-dirty window)))
 			(bind '(w h) (view-pref-size window))
-			(view-change window x y w h)
-			(view-dirty-all window))
+			(view-dirty-all (view-change window x y w h)))
 		((eq id event_win_max)
 			;max button
-			(view-dirty window)
-			(bind '(x y _ _) (view-get-bounds window))
+			(bind '(x y _ _) (view-get-bounds (view-dirty window)))
 			(bind '(w h) (view-pref-size window))
-			(view-change window x y (fmul w 1.75) h)
-			(view-dirty-all window))
+			(view-dirty-all (view-change window x y (fmul w 1.75) h)))
 		(t (view-event window msg))))
 
 ;wait for outstanding replies

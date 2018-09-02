@@ -22,8 +22,7 @@
 (window-connect-min window event_win_min)
 (window-connect-max window event_win_max)
 (bind '(w h) (view-pref-size window))
-(view-change window 920 48 w h)
-(gui-add window)
+(gui-add (view-change window 920 48 w h))
 
 (defun do_lastop ()
 	(cond
@@ -65,15 +64,11 @@
 			(setq id nil))
 		((eq id event_win_min)
 			;min button
-			(view-dirty window)
-			(bind '(x y _ _) (view-get-bounds window))
+			(bind '(x y _ _) (view-get-bounds (view-dirty window)))
 			(bind '(w h) (view-pref-size window))
-			(view-change window x y w h)
-			(view-dirty-all window))
+			(view-dirty-all (view-change window x y w h)))
 		((eq id event_win_max)
 			;max button
-			(view-dirty window)
-			(bind '(x y _ _) (view-get-bounds window))
-			(view-change window x y 512 512)
-			(view-dirty-all window))
+			(bind '(x y _ _) (view-get-bounds (view-dirty window)))
+			(view-dirty-all (view-change window x y 512 512)))
 		(t (view-event window msg))))

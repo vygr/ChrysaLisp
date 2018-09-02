@@ -26,8 +26,7 @@
 
 (window-set-title window "Launcher")
 (bind '(w h) (view-pref-size window))
-(view-change window 32 32 (add w 32) h)
-(gui-add window)
+(gui-add (view-change window 32 32 (add w 32) h))
 
 (while t
 	(cond
