@@ -134,8 +134,7 @@
 	(errorifnot {value} 'error1))
 
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'view 'sub {arg0})
-	(f-call 'obj 'ref {arg0} {value})
+	(f-call 'view 'sub {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'view 'lisp_sub {this, value})
