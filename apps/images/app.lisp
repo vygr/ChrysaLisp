@@ -21,7 +21,7 @@
 				'color 0xff00ff00 'font (create-font "fonts/Entypo.otf" 32))
 			(button-connect-click (ui-element _ (create-button) ('text "")) event_win_prev)
 			(button-connect-click (ui-element _ (create-button) ('text "")) event_win_next))
-		(ui-element frame (canvas-load (elem index images)))))
+		(ui-element frame (canvas-load (elem index images) 0))))
 
 (window-set-title window (elem index images))
 (window-connect-close window event_win_close)
@@ -30,7 +30,7 @@
 
 (defun win-refresh (_)
 	(view-sub frame)
-	(setq index _ frame (canvas-load (elem index images)))
+	(setq index _ frame (canvas-load (elem index images) 0))
 	(view-layout (view-add-back image_flow frame))
 	(view-dirty (window-set-title window (elem index images)))
 	(bind '(x y _ _) (view-get-bounds window))

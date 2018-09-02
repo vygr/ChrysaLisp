@@ -791,6 +791,7 @@ all but r0
 ```
 inputs
 r0 = c string (pubyte)
+r1 = flags (uint)
 outputs
 r0 = 0 if error, else shared canvas object (ptr)
 trashes

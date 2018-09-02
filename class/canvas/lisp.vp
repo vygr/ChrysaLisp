@@ -48,17 +48,17 @@
 	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
-	(ulong 'arg0)
+	(ulong 'arg0 'arg1)
 
 	(push-scope)
 	(f-entry 'canvas 'lisp_load {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
 	(errorifnot {value} 'error1))
 
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'canvas 'load {&arg0->string_data} {value})
+	(f-call 'canvas 'load {&arg0->string_data, arg1} {value})
 	(vpifnot {value})
 		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
@@ -69,9 +69,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(canvas-load path)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(canvas-load path flags)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
-	(signature 'sig 'string))
+	(signature 'sig 'string 'integer))
 
 	(pop-scope-syms)
 

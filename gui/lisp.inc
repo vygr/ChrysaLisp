@@ -1,18 +1,21 @@
 ;import ui settings
-(bind '(flow_flag_left flow_flag_right flow_flag_up flow_flag_down flow_flag_fillw
-	flow_flag_fillh flow_flag_lastw flow_flag_lasth flow_flag_align_hcenter
-	flow_flag_align_hleft flow_flag_align_hright flow_flag_align_vcenter
-	flow_flag_align_vtop flow_flag_align_vbottom window_flag_close window_flag_min
-	window_flag_max ev_msg_target_id ev_msg_action_source_id)
+(bind '(load_flag_shared flow_flag_left flow_flag_right flow_flag_up flow_flag_down
+	flow_flag_fillw flow_flag_fillh flow_flag_lastw flow_flag_lasth
+	flow_flag_align_hcenter flow_flag_align_hleft flow_flag_align_hright
+	flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom
+	window_flag_close window_flag_min window_flag_max ev_msg_target_id
+	ev_msg_action_source_id)
 	(within-compile-env (lambda ()
 		(import 'gui/class.inc)
 		(import 'class/flow/class.inc)
 		(import 'class/window/class.inc)
-		(list flow_flag_left flow_flag_right flow_flag_up flow_flag_down flow_flag_fillw
-			flow_flag_fillh flow_flag_lastw flow_flag_lasth flow_flag_align_hcenter
-			flow_flag_align_hleft flow_flag_align_hright flow_flag_align_vcenter
-			flow_flag_align_vtop flow_flag_align_vbottom window_flag_close
-			window_flag_min window_flag_max ev_msg_target_id ev_msg_action_source_id))))
+		(import 'class/canvas/class.inc)
+		(list load_flag_shared flow_flag_left flow_flag_right flow_flag_up flow_flag_down
+			flow_flag_fillw flow_flag_fillh flow_flag_lastw flow_flag_lasth
+			flow_flag_align_hcenter flow_flag_align_hleft flow_flag_align_hright
+			flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom
+			window_flag_close window_flag_min window_flag_max ev_msg_target_id
+			ev_msg_action_source_id))))
 
 ;some helpful macros
 (defmacro get (_ b) `(eval ,b ,_))

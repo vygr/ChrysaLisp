@@ -235,44 +235,56 @@
 (def-method 'canvas 'load)
 	;inputs
 	;r0 = c string (pubyte)
+	;r1 = flags (uint)
 	;outputs
 	;r0 = 0 if error, else shared canvas object (ptr)
 	;trashes
 	;all
 
 	(ptr 'this 'name 'hash 'sym)
+	(uint 'flags)
 	(union
 		'(ptr 'stream)
 		'(pptr 'iter))
 
 	(push-scope)
-	(f-entry 'canvas 'load {name})
+	(f-entry 'canvas 'load {name, flags})
 
-	;create hash map ?
-	(assign {ptr($canvass)} {hash})
-	(vpifnot {hash})
-		(f-call 'hash_map 'create {0, 1} {hash})
-		(assign {hash} {ptr($canvass)})
-	(endif)
+	;shared or not
+	(vpif {flags & load_flag_shared})
+		;create hash map ?
+		(assign {ptr($canvass)} {hash})
+		(vpifnot {hash})
+			(f-call 'hash_map 'create {0, 1} {hash})
+			(assign {hash} {ptr($canvass)})
+		(endif)
 
-	;create interned name, lookup in map
-	(f-call 'symbol 'intern_cstr {name} {sym})
-	(f-call 'hash_map 'find {hash, sym} {_, iter, _})
-	(vpifnot {iter})
+		;create interned name, lookup in map
+		(f-call 'symbol 'intern_cstr {name} {sym})
+		(f-call 'hash_map 'find {hash, sym} {_, iter, _})
+		(vpifnot {iter})
+			;open file stream
+			(f-call 'string 'create_from_file {name} {this})
+			(breakifnot {this})
+			(f-call 'stream_str 'create {this} {stream})
+			(f-call 'canvas 'load_cpm {stream} {this})
+			(f-call 'stream_str 'deref {stream})
+			(breakifnot {this})
+			(f-call 'hash_map 'insert {hash, sym, this})
+			(f-call 'canvas 'create_shared {this} {this})
+		(else)
+			(f-call 'pair 'get_second {*iter} {_, this})
+			(f-call 'canvas 'create_shared {this} {this})
+		(endif)
+		(f-call 'symbol 'deref {sym})
+	(else)
 		;open file stream
 		(f-call 'string 'create_from_file {name} {this})
 		(breakifnot {this})
 		(f-call 'stream_str 'create {this} {stream})
 		(f-call 'canvas 'load_cpm {stream} {this})
 		(f-call 'stream_str 'deref {stream})
-		(breakifnot {this})
-		(f-call 'hash_map 'insert {hash, sym, this})
-		(f-call 'canvas 'create_shared {this} {this})
-	(else)
-		(f-call 'pair 'get_second {*iter} {_, this})
-		(f-call 'canvas 'create_shared {this} {this})
 	(endif)
-	(f-call 'symbol 'deref {sym})
 
 	(f-exit 'canvas 'load {this})
 	(pop-scope)

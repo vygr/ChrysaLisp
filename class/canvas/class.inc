@@ -35,7 +35,7 @@
 (dec-method 'blend_fbox 'class/canvas/blend_fbox 'static '(r0 r1 r7 r8 r9 r10) '(r0))
 (dec-method 'blend_fpoly 'class/canvas/blend_fpoly 'static '(r0 r1 r2 r3) '(r0))
 
-(dec-method 'load 'class/canvas/load 'static '(r0) '(r0))
+(dec-method 'load 'class/canvas/load 'static '(r0 r1) '(r0))
 (dec-method 'load_cpm 'class/canvas/load_cpm 'static '(r0) '(r0))
 
 (dec-method 'deinit 'class/canvas/deinit 'override)
@@ -79,6 +79,10 @@
 	(int 'dda)
 	(local-align)
 (def-struct-end)
+
+(def-bit 'load_flag)
+	(bit 'shared)
+(def-bit-end)
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

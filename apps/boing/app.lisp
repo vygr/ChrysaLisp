@@ -10,7 +10,7 @@
 	(byte 'win_max))
 
 (defq id t index 0 frames (map (lambda (_)
-	(canvas-load (cat "apps/boing/taoball_" (str _) ".cpm"))) (range 1 12)))
+	(canvas-load (cat "apps/boing/taoball_" (str _) ".cpm") load_flag_shared)) (range 1 12)))
 
 (ui-tree window (create-window (add window_flag_close window_flag_min window_flag_max)) nil
 	(ui-element backdrop (create-backdrop) ('color 0xff000000)

@@ -42,7 +42,7 @@
 ## canvas-fill
 ### (canvas-fill canvas argb)
 ## canvas-load
-### (canvas-load path)
+### (canvas-load path flags)
 ## canvas-set-fbox
 ### (canvas-set-fbox canvas argb x y w h)
 ## canvas-set-fpoly
