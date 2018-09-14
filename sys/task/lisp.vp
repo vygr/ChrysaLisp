@@ -57,7 +57,7 @@
 	(f-entry 'sys_task 'lisp_mailbox {this, args})
 
 (errorcases
-	(v-call 'vector 'get_length {args} {_, length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
 	(f-call 'sys_task 'mailbox nil {arg0})

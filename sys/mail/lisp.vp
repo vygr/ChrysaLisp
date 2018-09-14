@@ -21,7 +21,7 @@
 	(f-entry 'sys_mail 'lisp_mymail {this, args})
 
 (errorcases
-	(v-call 'vector 'get_length {args} {_, length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
 	(f-call 'sys_mail 'mymail nil {value, _})
@@ -56,7 +56,7 @@
 	(f-entry 'sys_mail 'lisp_trymail {this, args})
 
 (errorcases
-	(v-call 'vector 'get_length {args} {_, length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
 	(f-call 'sys_mail 'trymail nil {value, _})

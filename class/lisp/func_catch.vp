@@ -18,7 +18,7 @@
 	(f-entry 'lisp 'func_catch {this, args})
 
 (errorcases
-	(v-call 'vector 'get_length {args} {_, length})
+	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 3} 'error1))
 
 	(f-call 'vector 'get_begin {args} {_, iter_begin})
