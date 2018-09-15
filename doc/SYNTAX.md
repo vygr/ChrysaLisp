@@ -97,6 +97,10 @@
 ### (create-progress)
 ## create-slave
 ### (create-slave)
+## create-slider
+### (create-slider)
+## create-view
+### (create-view)
 ## create-window
 ### (create-window flags)
 ## cubed
@@ -349,6 +353,8 @@
 ### (slave-get-args slave)
 ## slice
 ### (slice start end seq)
+## slider-connect-value
+### (slider-connect-value slider id)
 ## some
 ### (some lambda seq ...)
 ## some!
@@ -447,6 +453,8 @@
 ### (while tst body)
 ## window-connect-close
 ### (window-connect-close window id)
+## window-connect-layout
+### (window-connect-layout window id)
 ## window-connect-max
 ### (window-connect-max window id)
 ## window-connect-min

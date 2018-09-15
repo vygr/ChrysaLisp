@@ -3419,10 +3419,10 @@ r1 = draw ctx (ptr)
 trashes
 all but r0
 ```
-### progress::layout -> class/progress/layout
+### progress::layout -> class/view/opaque
 ```
 inputs
-r0 = progress object (ptr)
+r0 = view object (ptr)
 trashes
 all but r0
 ```
@@ -3515,6 +3515,104 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### slave::lisp_get_args -> class/slave/lisp_get_args
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+## slider
+Super Class: view
+### slider::vtable -> class/class_slider
+### slider::create -> class/slider/create
+### slider::new -> class/slider/new
+### slider::init -> class/slider/init
+```
+inputs
+r0 = slider object (ptr)
+r1 = vtable (pptr)
+outputs
+r0 = slider object (ptr)
+r1 = 0 if error, else ok
+```
+### slider::connect_value -> class/slider/connect_value
+```
+inputs
+r0 = slider object (ptr)
+r1 = target id (long)
+outputs
+r0 = slider object (ptr)
+trashes
+all but r0
+```
+### slider::deinit -> class/slider/deinit
+```
+inputs
+r0 = slider object (ptr)
+trashes
+all but r0
+```
+### slider::pref_size -> class/slider/pref_size
+```
+inputs
+r0 = slider object (ptr)
+outputs
+r9 = preferred width (pixels)
+r10 = preferred height (pixels)
+trashes
+all but r0
+```
+### slider::draw -> class/slider/draw
+```
+inputs
+r0 = window object (ptr)
+r1 = draw ctx (ptr)
+trashes
+all but r0
+```
+### slider::layout -> class/view/opaque
+```
+inputs
+r0 = view object (ptr)
+trashes
+all but r0
+```
+### slider::mouse_down -> class/slider/mouse_move
+```
+inputs
+r0 = slider object (ptr)
+r1 = mouse event data (ptr)
+trashes
+all but r0
+```
+### slider::mouse_up -> class/slider/mouse_up
+```
+inputs
+r0 = slider object (ptr)
+r1 = mouse event data (ptr)
+trashes
+all but r0
+```
+### slider::mouse_move -> class/slider/mouse_move
+```
+inputs
+r0 = slider object (ptr)
+r1 = mouse event data (ptr)
+trashes
+all but r0
+```
+### slider::lisp_create -> class/slider/lisp_create
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### slider::lisp_connect_value -> class/slider/lisp_connect_value
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5096,6 +5194,8 @@ r1-r11
 ## view
 Super Class: component
 ### view::vtable -> class/class_view
+### view::create -> class/view/create
+### view::new -> class/view/new
 ### view::init -> class/view/init
 ```
 inputs
@@ -5362,6 +5462,15 @@ r1 = 0 if empty, else last child view object (ptr)
 trashes
 r2
 ```
+### view::lisp_create -> class/view/lisp_create
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
 ### view::lisp_sub -> class/view/lisp_sub
 ```
 inputs
@@ -5595,6 +5704,16 @@ inputs
 r0 = window object (ptr)
 r1 = status c string (pubyte)
 ```
+### window::connect_layout -> class/window/connect_layout
+```
+inputs
+r0 = window object (ptr)
+r1 = reciever id (long)
+outputs
+r0 = window object (ptr)
+trashes
+all but r0
+```
 ### window::connect_close -> class/window/connect_close
 ```
 inputs
@@ -5683,6 +5802,15 @@ trashes
 all but r0
 ```
 ### window::lisp_create -> class/window/lisp_create
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### window::lisp_connect_layout -> class/window/lisp_connect_layout
 ```
 inputs
 r0 = lisp object (ptr)
