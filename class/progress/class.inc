@@ -7,7 +7,7 @@
 
 (dec-method 'pref_size 'class/progress/pref_size 'final)
 (dec-method 'draw 'class/progress/draw 'final)
-(dec-method 'layout 'class/progress/layout 'final)
+(dec-method 'layout 'class/view/opaque 'final)
 
 (dec-method 'lisp_create 'class/progress/lisp_create 'static '(r0 r1) '(r0 r1))
 

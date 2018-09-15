@@ -23,8 +23,8 @@
 	(f-entry 'progress 'draw {this, ctx})
 
 	;get properties
-	(f-call 'progress 'get_long_prop {this, prop_progress_max} {_, max})
-	(f-call 'progress 'get_long_prop {this, prop_progress_val} {_, val})
+	(f-call 'progress 'get_long_prop {this, prop_maximum} {_, max})
+	(f-call 'progress 'get_long_prop {this, prop_value} {_, val})
 	(f-call 'progress 'get_long_prop {this, prop_color} {_, col})
 
 	;draw outline
@@ -49,16 +49,6 @@
 
 (def-func-end)
 
-(def-method 'progress 'layout)
-	;inputs
-	;r0 = progress object (ptr)
-	;trashes
-	;all but r0
-
-	(f-jmp 'progress 'opaque '(r0))
-
-(def-func-end)
-
 (def-method 'progress 'pref_size)
 	;inputs
 	;r0 = progress object (ptr)
@@ -68,8 +58,8 @@
 	;trashes
 	;all but r0
 
-	(vp-cpy-cr 256 r9)
-	(vp-cpy-cr 10 r10)
+	(f-entry 'progress 'pref_size '(r0))
+	(f-exit 'progress 'pref_size '(r0 256 10))
 	(vp-ret)
 
 (def-func-end)

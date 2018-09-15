@@ -4,6 +4,8 @@
 (import 'gui/region/class.inc)
 (import 'class/view/class.inc)
 
+(gen-create 'view)
+(gen-new 'view)
 (gen-class 'view)
 
 (def-method 'view 'init)
@@ -754,9 +756,7 @@
 	(vp-sub-rr r1 r7)
 	(vp-cpy-ir-i r0 view_y r1)
 	(vp-sub-rr r1 r8)
-	(vp-cpy-ir-ui r0 view_flags r1)
-	(vp-and-cr view_flag_solid r1)
-	(vp-ret)
+	(d-jmp 'view 'hit '(r0 r7 r8))
 
 (vp-label 'hit_up_callback)
 	(vp-cpy-rr r1 r2)

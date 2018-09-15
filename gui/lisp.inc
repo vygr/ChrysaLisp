@@ -42,6 +42,7 @@
 
 ;lisp bindings
 (ffi button-connect-click "class/button/lisp_connect_click" 0)
+(ffi slider-connect-value "class/slider/lisp_connect_value" 0)
 (ffi canvas-blend-fbox "class/canvas/lisp_blend_fbox" 0)
 (ffi canvas-blend-fpoly "class/canvas/lisp_blend_fpoly" 0)
 (ffi canvas-blend-plot "class/canvas/lisp_blend_plot" 0)
@@ -51,7 +52,9 @@
 (ffi canvas-set-fpoly "class/canvas/lisp_set_fpoly" 0)
 (ffi canvas-set-plot "class/canvas/lisp_set_plot" 0)
 (ffi canvas-swap "class/canvas/lisp_swap" 0)
+(ffi create-view "class/view/lisp_create" 0)
 (ffi create-button "class/button/lisp_create" 0)
+(ffi create-slider "class/slider/lisp_create" 0)
 (ffi create-canvas "class/canvas/lisp_create" 0)
 (ffi create-flow "class/flow/lisp_create" 0)
 (ffi create-font "class/font/lisp_create" 0)
@@ -84,6 +87,7 @@
 (ffi view-set-bounds "class/view/lisp_set_bounds" 0)
 (ffi view-sub "class/view/lisp_sub" 0)
 (ffi view-sub-opaque "class/view/lisp_sub_opaque" 0)
+(ffi window-connect-layout "class/window/lisp_connect_layout" 0)
 (ffi window-connect-close "class/window/lisp_connect_close" 0)
 (ffi window-connect-max "class/window/lisp_connect_max" 0)
 (ffi window-connect-min "class/window/lisp_connect_min" 0)

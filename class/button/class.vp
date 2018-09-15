@@ -29,7 +29,7 @@
 	(vpif {ok})
 		;init myself
 		(assign {0} {this->button_state})
-		(f-call 'array 'create nil {this->button_clicked_targets})
+		(f-call 'array 'create nil {this->button_click_targets})
 		(f-call 'button 'set_long_prop {this, prop_border, 2})
 		(f-call 'button 'set_long_prop {this, prop_flow_flags, flow_flag_down | flow_flag_align_hcenter | flow_flag_align_vcenter})
 	(endif)
@@ -51,7 +51,7 @@
 	(push-scope)
 	(f-entry 'button 'deinit {this})
 
-	(f-call 'array 'deref {this->button_clicked_targets})
+	(f-call 'array 'deref {this->button_click_targets})
 
 	;parent deint
 	(f-exit 'button 'deinit {this})
@@ -150,7 +150,7 @@
 	(vp-pop r1)
 	(vp-and-cr button_state_pressed r1)
 	(vpif '(r1 != 0))
-		(f-jmp 'button 'emit '(r0 (r0 button_clicked_targets)))
+		(f-jmp 'button 'emit '(r0 (r0 button_click_targets)))
 	(endif)
 	(vp-ret)
 
@@ -202,7 +202,7 @@
 	(push-scope)
 	(f-entry 'button 'connect_click {this, id})
 
-	(f-call 'array 'push_back {this->button_clicked_targets, id})
+	(f-call 'array 'push_back {this->button_click_targets, id})
 
 	(f-exit 'button 'connect_click {this})
 	(pop-scope)

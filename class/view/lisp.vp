@@ -4,6 +4,40 @@
 (import 'class/string/class.inc)
 (import 'class/lisp/class.inc)
 
+(def-method 'view 'lisp_create)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+(errorcases
+	(uint 'length))
+
+	(push-scope)
+	(f-entry 'view 'lisp_create {this, args})
+
+(errorcases
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorif {length} 'error1))
+
+	(f-call 'view 'create nil {value})
+
+(vp-label 'exit)
+	(f-exit 'view 'lisp_create {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(create-view)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
 (def-method 'view 'lisp_event)
 	;inputs
 	;r0 = lisp object (ptr)

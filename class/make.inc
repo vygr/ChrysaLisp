@@ -25,6 +25,7 @@
 (import 'class/stream/make.inc)
 (import 'class/string/make.inc)
 (import 'class/symbol/make.inc)
+(import 'class/slider/make.inc)
 (import 'class/text/make.inc)
 (import 'class/texture/make.inc)
 (import 'class/title/make.inc)

@@ -15,6 +15,7 @@
 (dec-method 'init 'class/window/init 'static '(r0 r1 r2))
 (dec-method 'set_title 'class/window/set_title 'static '(r0 r1) '(r0))
 (dec-method 'set_status 'class/window/set_status 'static '(r0 r1) '(r0))
+(dec-method 'connect_layout 'class/window/connect_layout 'static '(r0 r1) '(r0))
 (dec-method 'connect_close 'class/window/connect_close 'static '(r0 r1) '(r0))
 (dec-method 'connect_max 'class/window/connect_max 'static '(r0 r1) '(r0))
 (dec-method 'connect_min 'class/window/connect_min 'static '(r0 r1) '(r0))
@@ -28,6 +29,7 @@
 (dec-method 'mouse_move 'class/window/mouse_move 'final)
 
 (dec-method 'lisp_create 'class/window/lisp_create 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_connect_layout 'class/window/lisp_connect_layout 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_connect_close 'class/window/lisp_connect_close 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_connect_min 'class/window/lisp_connect_min 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_connect_max 'class/window/lisp_connect_max 'static '(r0 r1) '(r0 r1))
@@ -36,6 +38,7 @@
 
 (def-struct 'window 'view)
 	(offset 'start)
+	(ptr 'layout_targets)
 	(ptr 'title)
 	(ptr 'status)
 	(ptr 'flow)

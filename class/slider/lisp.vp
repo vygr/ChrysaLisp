@@ -1,0 +1,74 @@
+(import 'sys/func.inc)
+(import 'class/slider/class.inc)
+(import 'class/integer/class.inc)
+(import 'class/lisp/class.inc)
+
+(def-method 'slider 'lisp_create)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+(errorcases
+	(uint 'length))
+
+	(push-scope)
+	(f-entry 'slider 'lisp_create {this, args})
+
+(errorcases
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorif {length} 'error1))
+
+	(f-call 'slider 'create nil {value})
+
+(vp-label 'exit)
+	(f-exit 'slider 'lisp_create {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(create-slider)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'slider 'lisp_connect_value)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1)
+
+	(push-scope)
+	(f-entry 'slider 'lisp_connect_value {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'slider 'connect_value {arg0, arg1})
+	(f-call 'slider 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'slider 'lisp_connect_value {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(slider-connect-value slider id)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'slider 'integer))
+
+	(pop-scope-syms)
+
+(def-func-end)

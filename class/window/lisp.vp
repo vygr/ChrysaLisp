@@ -39,6 +39,42 @@
 
 (def-func-end)
 
+(def-method 'window 'lisp_connect_layout)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1)
+
+	(push-scope)
+	(f-entry 'window 'lisp_connect_layout {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'window 'connect_layout {arg0, arg1})
+	(f-call 'window 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'window 'lisp_connect_layout {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(window-connect-layout window id)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'window 'integer))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
 (def-method 'window 'lisp_connect_close)
 	;inputs
 	;r0 = lisp object (ptr)

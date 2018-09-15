@@ -2,6 +2,8 @@
 
 (def-class 'view 'component)
 (dec-method 'vtable 'class/class_view)
+(dec-method 'create 'class/view/create 'static '() '(r0))
+(dec-method 'new 'class/view/new 'static nil '(r0))
 (dec-method 'init 'class/view/init)
 (dec-method 'add_front 'class/view/add_front 'static '(r0 r1) '(r0))
 (dec-method 'add_back 'class/view/add_back 'static '(r0 r1) '(r0))
@@ -27,6 +29,7 @@
 (dec-method 'get_first 'class/view/get_first 'static '(r0) '(r0 r1))
 (dec-method 'get_last 'class/view/get_last 'static '(r0) '(r0 r1))
 
+(dec-method 'lisp_create 'class/view/lisp_create 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_sub 'class/view/lisp_sub 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_add_child 'class/view/lisp_add_child 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_add_front 'class/view/lisp_add_front 'static '(r0 r1) '(r0 r1))

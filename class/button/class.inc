@@ -23,5 +23,5 @@
 
 (def-struct 'button 'label)
 	(ulong 'state)
-	(ptr 'clicked_targets)
+	(ptr 'click_targets)
 (def-struct-end)

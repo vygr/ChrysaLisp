@@ -6,6 +6,7 @@
 (import 'class/button/class.inc)
 (import 'class/flow/class.inc)
 (import 'class/string/class.inc)
+(import 'class/array/class.inc)
 
 (gen-new 'window)
 (gen-create 'window)
@@ -43,6 +44,7 @@
 		(f-call 'window 'set_long_prop {this, prop_border, 5})
 		(f-call 'window 'set_long_prop {this, prop_min_width, 0})
 		(f-call 'window 'set_long_prop {this, prop_min_height, 0})
+		(f-call 'array 'create nil {this->window_layout_targets})
 
 		;add flow panel
 		(f-call 'flow 'create nil {this->window_flow})
@@ -124,6 +126,8 @@
 		(f-call 'view 'dirty_all {screen})
 	(endif)
 
+	(f-call 'array 'deref {this->window_layout_targets})
+
 	;deinit parent
 	(f-exit 'window 'deinit {this})
 	(pop-scope)
@@ -190,6 +194,8 @@
 	(vpif {col >> 24 == 0xff})
 		(f-call 'window 'opaque {this})
 	(endif)
+
+	(f-call 'window 'emit {this, this->window_layout_targets})
 
 	(f-exit 'window 'layout {this})
 	(pop-scope)
@@ -391,7 +397,7 @@
 
 	(vpif {this->window_status})
 		(f-call 'label 'set_string_prop {this->window_status, prop_text, str})
-		(f-call 'label 'dirty {this->window_status})
+		(v-call 'label 'layout {this->window_status})
 	(endif)
 
 	(f-exit 'window 'set_status {this})
@@ -411,9 +417,33 @@
 	(f-entry 'window 'set_status {this, str})
 
 	(f-call 'title 'set_string_prop {this->window_title, prop_text, str})
-	(f-call 'title 'dirty {this->window_title})
+	(v-call 'title 'layout {this->window_title})
 
 	(f-exit 'window 'set_status {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'window 'connect_layout)
+	;inputs
+	;r0 = window object (ptr)
+	;r1 = reciever id (long)
+	;outputs
+	;r0 = window object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(long 'id)
+
+	;save inputs
+	(push-scope)
+	(f-entry 'window 'connect_layout {this, id})
+
+	(f-call 'array 'push_back {this->window_layout_targets, id})
+
+	(f-exit 'window 'connect_layout {this})
 	(pop-scope)
 	(return)
 
