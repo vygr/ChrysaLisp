@@ -1,4 +1,4 @@
-(import 'gui/label/class.inc)
+(import 'gui/view/class.inc)
 
 (def-bit 'slider_state)
 	(bit 'pressed)
@@ -22,7 +22,7 @@
 (dec-method 'lisp_create 'gui/slider/lisp_create 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_connect_value 'gui/slider/lisp_connect_value 'static '(r0 r1) '(r0 r1))
 
-(def-struct 'slider 'label)
+(def-struct 'slider 'view)
 	(ulong 'state)
 	(ptr 'value_targets)
 (def-struct-end)
