@@ -1,6 +1,6 @@
 (import 'sys/class.inc)
 
-(def-class 'gui_region)
+(def-class 'region)
 (dec-method 'translate 'gui/region/translate 'static '(r1 r7 r8))
 (dec-method 'bounds 'gui/region/bounds 'static '(r1) '(r7 r8 r9 r10))
 (dec-method 'clip_rect 'gui/region/clip_rect 'static '(r0 r1 r7 r8 r9 r10) '(r0))
@@ -13,7 +13,7 @@
 (dec-method 'paste_region 'gui/region/paste_region 'static '(r0 r1 r2 r7 r8) '(r0))
 (dec-method 'remove_region 'gui/region/remove_region 'static '(r0 r1 r2 r7 r8) '(r0))
 
-(def-struct 'gui_rect 'ln_fnode)
+(def-struct 'rect 'ln_fnode)
 	(int 'x)
 	(int 'y)
 	(int 'x1)

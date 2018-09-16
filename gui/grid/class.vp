@@ -1,0 +1,122 @@
+(import 'sys/func.inc)
+(import 'gui/grid/class.inc)
+
+(gen-new 'grid)
+(gen-create 'grid)
+(gen-class 'grid)
+
+(def-method 'grid 'layout)
+	;inputs
+	;r0 = grid object (ptr)
+	;outputs
+	;r0 = grid object (ptr)
+	;trashes
+	;all but r0
+
+	(defcvar 'fixed_point 8)
+
+	(def-struct 'local)
+		(uint 'width)
+		(uint 'height)
+		(int 'count)
+		(int 'cell_w)
+		(int 'cell_h)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+
+	(f-call 'grid 'get_long_prop '(r0 prop_grid_width) '(r0 (rsp local_width i)))
+	(f-call 'grid 'get_long_prop '(r0 prop_grid_height) '(r0 (rsp local_height i)))
+
+	(vp-xor-rr r9 r9)
+	(vp-cpy-ri-i r9 rsp local_count)
+	(vp-cpy-ir-i r0 view_w r8)
+	(vp-shl-cr fixed_point r8)
+	(vp-cpy-ir-ui rsp local_width r7)
+	(vp-div-rrr r7 r9 r8)
+	(vp-cpy-ri-i r8 rsp local_cell_w)
+
+	(vp-xor-rr r9 r9)
+	(vp-cpy-ir-i r0 view_h r8)
+	(vp-shl-cr fixed_point r8)
+	(vp-cpy-ir-ui rsp local_height r7)
+	(vp-div-rrr r7 r9 r8)
+	(vp-cpy-ri-i r8 rsp local_cell_h)
+
+	(f-call 'grid 'forward '(r0 rsp ($ callback)))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	(vp-xor-rr r7 r7)
+	(vp-cpy-ir-i r1 local_count r8)
+	(vp-cpy-ir-ui r1 local_width r9)
+	(vp-div-rrr r9 r7 r8)
+	(vp-cpy-ir-i r1 local_cell_w r9)
+	(vp-cpy-ir-i r1 local_cell_h r10)
+	(vp-mul-rr r9 r7)
+	(vp-mul-rr r10 r8)
+	(vp-add-rr r7 r9)
+	(vp-add-rr r8 r10)
+	(vp-shr-cr fixed_point r7)
+	(vp-shr-cr fixed_point r8)
+	(vp-shr-cr fixed_point r9)
+	(vp-shr-cr fixed_point r10)
+	(vp-sub-rr r7 r9)
+	(vp-sub-rr r8 r10)
+
+	(vp-cpy-ir-i r1 local_count r2)
+	(vp-add-cr 1 r2)
+	(vp-cpy-ri-i r2 r1 local_count)
+	(f-jmp 'view 'change '(r0 r7 r8 r9 r10))
+
+(def-func-end)
+
+(def-method 'grid 'pref_size)
+	;inputs
+	;r0 = grid object (ptr)
+	;outputs
+	;r0 = grid object (ptr)
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(uint 'width)
+		(uint 'height)
+		(int 'w)
+		(int 'h)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri-i r1 rsp local_w)
+	(vp-cpy-ri-i r1 rsp local_h)
+
+	(f-call 'grid 'forward '(r0 rsp ($ callback)))
+
+	(f-call 'grid 'get_long_prop '(r0 prop_grid_width) '(r0 (rsp local_width i)))
+	(f-call 'grid 'get_long_prop '(r0 prop_grid_height) '(r0 (rsp local_height i)))
+
+	(assign '((rsp local_width ui) (rsp local_height ui) (rsp local_w i) (rsp local_h i)) '(r7 r8 r9 r10))
+	(vp-mul-rr r7 r9)
+	(vp-mul-rr r8 r10)
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	(vp-push r1)
+	(v-call 'view 'pref_size '(r0) '(_ r9 r10))
+	(vp-pop r1)
+	(vp-cpy-ir-i r1 local_w r2)
+	(vpif '(r9 > r2))
+		(vp-cpy-ri-i r9 r1 local_w)
+	(endif)
+	(vp-cpy-ir-i r1 local_h r2)
+	(vpif '(r10 > r2))
+		(vp-cpy-ri-i r10 r1 local_h)
+	(endif)
+	(vp-ret)
+
+(def-func-end)

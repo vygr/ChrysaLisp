@@ -48,7 +48,7 @@ function boot_cpu_gui
 #	if [ $1 -lt 2 ]
 	if [ $1 -lt 1 ]
 	then
-		./obj/$OS/$CPU/main obj/$OS/$CPU/sys/boot_image -cpu $1 $2 -run gui/gui &
+		./obj/$OS/$CPU/main obj/$OS/$CPU/sys/boot_image -cpu $1 $2 -run gui/gui/gui &
 	else
 		./obj/$OS/$CPU/main obj/$OS/$CPU/sys/boot_image -cpu $1 $2 &
 	fi

@@ -39,7 +39,7 @@
 	(f-call 'sys_task 'init)
 
 	;init gui
-	(f-call 'gui_gui 'init {sdl})
+	(f-call 'gui 'init {sdl})
 
 	;init mailer mailbox vector
 	(f-call 'sys_mail 'init)

@@ -354,10 +354,10 @@ r1 = return value object (ptr)
 ```
 ## button
 Super Class: label
-### button::vtable -> class/class_button
-### button::create -> class/button/create
-### button::new -> class/button/new
-### button::init -> class/button/init
+### button::vtable -> gui/class_button
+### button::create -> gui/button/create
+### button::new -> gui/button/new
+### button::init -> gui/button/init
 ```
 inputs
 r0 = button object (ptr)
@@ -366,7 +366,7 @@ outputs
 r0 = button object (ptr)
 r1 = 0 if error, else ok
 ```
-### button::connect_click -> class/button/connect_click
+### button::connect_click -> gui/button/connect_click
 ```
 inputs
 r0 = button object (ptr)
@@ -376,14 +376,14 @@ r0 = button object (ptr)
 trashes
 all but r0
 ```
-### button::deinit -> class/button/deinit
+### button::deinit -> gui/button/deinit
 ```
 inputs
 r0 = button object (ptr)
 trashes
 all but r0
 ```
-### button::draw -> class/button/draw
+### button::draw -> gui/button/draw
 ```
 inputs
 r0 = button object (ptr)
@@ -391,22 +391,14 @@ r1 = draw ctx (ptr)
 trashes
 all but r0
 ```
-### button::layout -> class/button/layout
+### button::layout -> gui/button/layout
 ```
 inputs
 r0 = button object (ptr)
 trashes
 all but r0
 ```
-### button::mouse_down -> class/button/mouse_down
-```
-inputs
-r0 = button object (ptr)
-r1 = mouse event data (ptr)
-trashes
-all but r0
-```
-### button::mouse_up -> class/button/mouse_up
+### button::mouse_down -> gui/button/mouse_down
 ```
 inputs
 r0 = button object (ptr)
@@ -414,7 +406,7 @@ r1 = mouse event data (ptr)
 trashes
 all but r0
 ```
-### button::mouse_move -> class/button/mouse_move
+### button::mouse_up -> gui/button/mouse_up
 ```
 inputs
 r0 = button object (ptr)
@@ -422,7 +414,15 @@ r1 = mouse event data (ptr)
 trashes
 all but r0
 ```
-### button::lisp_create -> class/button/lisp_create
+### button::mouse_move -> gui/button/mouse_move
+```
+inputs
+r0 = button object (ptr)
+r1 = mouse event data (ptr)
+trashes
+all but r0
+```
+### button::lisp_create -> gui/button/lisp_create
 ```
 inputs
 r0 = lisp object (ptr)
@@ -431,7 +431,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### button::lisp_connect_click -> class/button/lisp_connect_click
+### button::lisp_connect_click -> gui/button/lisp_connect_click
 ```
 inputs
 r0 = lisp object (ptr)
@@ -442,8 +442,8 @@ r1 = return value object (ptr)
 ```
 ## canvas
 Super Class: view
-### canvas::vtable -> class/class_canvas
-### canvas::create -> class/canvas/create
+### canvas::vtable -> gui/class_canvas
+### canvas::create -> gui/canvas/create
 ```
 inputs
 r0 = width (pixels)
@@ -454,7 +454,7 @@ r0 = 0 if error, else canvas object (ptr)
 trashes
 all
 ```
-### canvas::create_shared -> class/canvas/create_shared
+### canvas::create_shared -> gui/canvas/create_shared
 ```
 inputs
 r0 = source canvas object (ptr)
@@ -463,8 +463,8 @@ r0 = 0 if error, else canvas object (ptr)
 trashes
 all
 ```
-### canvas::new -> class/canvas/new
-### canvas::init -> class/canvas/init
+### canvas::new -> gui/canvas/new
+### canvas::init -> gui/canvas/init
 ```
 inputs
 r0 = canvas object (ptr)
@@ -478,7 +478,7 @@ r1 = 0 if error, else ok
 trashes
 all
 ```
-### canvas::init1 -> class/canvas/init1
+### canvas::init1 -> gui/canvas/init1
 ```
 inputs
 r0 = canvas object (ptr)
@@ -490,7 +490,7 @@ r1 = 0 if error, else ok
 trashes
 all
 ```
-### canvas::swap -> class/canvas/swap
+### canvas::swap -> gui/canvas/swap
 ```
 inputs
 r0 = canvas object (ptr)
@@ -499,17 +499,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::resize -> class/canvas/resize
-```
-inputs
-r0 = canvas object (ptr)
-r1 = source canvas object (ptr)
-outputs
-r0 = canvas object (ptr)
-trashes
-all but r0
-```
-### canvas::resize_2 -> class/canvas/resize_2
+### canvas::resize -> gui/canvas/resize
 ```
 inputs
 r0 = canvas object (ptr)
@@ -519,7 +509,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::resize_3 -> class/canvas/resize_3
+### canvas::resize_2 -> gui/canvas/resize_2
 ```
 inputs
 r0 = canvas object (ptr)
@@ -529,7 +519,17 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::fill -> class/canvas/fill
+### canvas::resize_3 -> gui/canvas/resize_3
+```
+inputs
+r0 = canvas object (ptr)
+r1 = source canvas object (ptr)
+outputs
+r0 = canvas object (ptr)
+trashes
+all but r0
+```
+### canvas::fill -> gui/canvas/fill
 ```
 inputs
 r0 = canvas object (ptr)
@@ -539,7 +539,7 @@ r0 = canvas object (ptr)
 trashes
 r2-r4
 ```
-### canvas::to_premul -> class/canvas/to_premul
+### canvas::to_premul -> gui/canvas/to_premul
 ```
 inputs
 r0 = canvas object (ptr)
@@ -550,7 +550,7 @@ r1 = color premul (argb)
 trashes
 r2-r3
 ```
-### canvas::to_argb -> class/canvas/to_argb
+### canvas::to_argb -> gui/canvas/to_argb
 ```
 inputs
 r0 = canvas object (ptr)
@@ -561,7 +561,7 @@ r1 = color (argb)
 trashes
 r2-r4
 ```
-### canvas::as_argb -> class/canvas/as_argb
+### canvas::as_argb -> gui/canvas/as_argb
 ```
 inputs
 r0 = canvas object (ptr)
@@ -571,7 +571,7 @@ r0 = canvas object (ptr)
 trashes
 r1-r7
 ```
-### canvas::as_premul -> class/canvas/as_premul
+### canvas::as_premul -> gui/canvas/as_premul
 ```
 inputs
 r0 = canvas object (ptr)
@@ -581,7 +581,7 @@ r0 = canvas object (ptr)
 trashes
 r1-r6
 ```
-### canvas::plot -> class/canvas/plot
+### canvas::plot -> gui/canvas/plot
 ```
 inputs
 r0 = canvas object (ptr)
@@ -594,7 +594,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::fbox -> class/canvas/fbox
+### canvas::fbox -> gui/canvas/fbox
 ```
 inputs
 r0 = canvas object (ptr)
@@ -609,7 +609,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::fpoly -> class/canvas/fpoly
+### canvas::fpoly -> gui/canvas/fpoly
 ```
 inputs
 r0 = canvas object (ptr)
@@ -622,7 +622,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::set_clip -> class/canvas/set_clip
+### canvas::set_clip -> gui/canvas/set_clip
 ```
 inputs
 r0 = canvas object (ptr)
@@ -635,7 +635,7 @@ r0 = canvas object (ptr)
 trashes
 r1-r2
 ```
-### canvas::set_pix_noclip -> class/canvas/set_pix_noclip
+### canvas::set_pix_noclip -> gui/canvas/set_pix_noclip
 ```
 inputs
 r0 = canvas object (ptr)
@@ -647,7 +647,7 @@ r0 = canvas object (ptr)
 trashes
 r2-r3, r7-r8
 ```
-### canvas::set_span_noclip -> class/canvas/set_span_noclip
+### canvas::set_span_noclip -> gui/canvas/set_span_noclip
 ```
 inputs
 r0 = canvas object (ptr)
@@ -660,7 +660,7 @@ r0 = canvas object (ptr)
 trashes
 r2-r3, r7-r9
 ```
-### canvas::set_span -> class/canvas/set_span
+### canvas::set_span -> gui/canvas/set_span
 ```
 inputs
 r0 = canvas object (ptr)
@@ -673,7 +673,7 @@ r0 = canvas object (ptr)
 trashes
 r2-r3, r7-r9
 ```
-### canvas::set_plot -> class/canvas/set_plot
+### canvas::set_plot -> gui/canvas/set_plot
 ```
 inputs
 r0 = canvas object (ptr)
@@ -685,7 +685,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::set_fbox -> class/canvas/set_fbox
+### canvas::set_fbox -> gui/canvas/set_fbox
 ```
 inputs
 r0 = canvas object (ptr)
@@ -699,7 +699,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::set_fpoly -> class/canvas/set_fpoly
+### canvas::set_fpoly -> gui/canvas/set_fpoly
 ```
 inputs
 r0 = canvas object (ptr)
@@ -711,7 +711,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::blend_pix_noclip -> class/canvas/blend_pix_noclip
+### canvas::blend_pix_noclip -> gui/canvas/blend_pix_noclip
 ```
 inputs
 r0 = canvas object (ptr)
@@ -723,7 +723,7 @@ r0 = canvas object (ptr)
 trashes
 r2-r3 r4-r8
 ```
-### canvas::blend_span_noclip -> class/canvas/blend_span_noclip
+### canvas::blend_span_noclip -> gui/canvas/blend_span_noclip
 ```
 inputs
 r0 = canvas object (ptr)
@@ -736,7 +736,7 @@ r0 = canvas object (ptr)
 trashes
 r2-r3 r4-r9
 ```
-### canvas::blend_span -> class/canvas/blend_span
+### canvas::blend_span -> gui/canvas/blend_span
 ```
 inputs
 r0 = canvas object (ptr)
@@ -749,7 +749,7 @@ r0 = canvas object (ptr)
 trashes
 r2-r3 r4-r9
 ```
-### canvas::blend_plot -> class/canvas/blend_plot
+### canvas::blend_plot -> gui/canvas/blend_plot
 ```
 inputs
 r0 = canvas object (ptr)
@@ -761,7 +761,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::blend_fbox -> class/canvas/blend_fbox
+### canvas::blend_fbox -> gui/canvas/blend_fbox
 ```
 inputs
 r0 = canvas object (ptr)
@@ -775,7 +775,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::blend_fpoly -> class/canvas/blend_fpoly
+### canvas::blend_fpoly -> gui/canvas/blend_fpoly
 ```
 inputs
 r0 = canvas object (ptr)
@@ -787,7 +787,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::load -> class/canvas/load
+### canvas::load -> gui/canvas/load
 ```
 inputs
 r0 = c string (pubyte)
@@ -797,7 +797,7 @@ r0 = 0 if error, else shared canvas object (ptr)
 trashes
 all
 ```
-### canvas::load_cpm -> class/canvas/load_cpm
+### canvas::load_cpm -> gui/canvas/load_cpm
 ```
 inputs
 r0 = stream object (ptr)
@@ -806,7 +806,7 @@ r0 = 0 if error, else canvas object (ptr)
 trashes
 all
 ```
-### canvas::deinit -> class/canvas/deinit
+### canvas::deinit -> gui/canvas/deinit
 ```
 inputs
 r0 = canvas object (ptr)
@@ -815,7 +815,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::pref_size -> class/canvas/pref_size
+### canvas::pref_size -> gui/canvas/pref_size
 ```
 inputs
 r0 = canvas object (ptr)
@@ -826,7 +826,7 @@ r10 = preferred height (pixels)
 trashes
 all but r0
 ```
-### canvas::draw -> class/canvas/draw
+### canvas::draw -> gui/canvas/draw
 ```
 inputs
 r0 = canvas object (ptr)
@@ -836,7 +836,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::lisp_create -> class/canvas/lisp_create
+### canvas::lisp_create -> gui/canvas/lisp_create
 ```
 inputs
 r0 = lisp object (ptr)
@@ -845,7 +845,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### canvas::lisp_load -> class/canvas/lisp_load
+### canvas::lisp_load -> gui/canvas/lisp_load
 ```
 inputs
 r0 = lisp object (ptr)
@@ -854,7 +854,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### canvas::lisp_swap -> class/canvas/lisp_swap
+### canvas::lisp_swap -> gui/canvas/lisp_swap
 ```
 inputs
 r0 = lisp object (ptr)
@@ -863,7 +863,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### canvas::lisp_fill -> class/canvas/lisp_fill
+### canvas::lisp_fill -> gui/canvas/lisp_fill
 ```
 inputs
 r0 = lisp object (ptr)
@@ -872,7 +872,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### canvas::lisp_set_plot -> class/canvas/lisp_set_plot
+### canvas::lisp_set_plot -> gui/canvas/lisp_set_plot
 ```
 inputs
 r0 = lisp object (ptr)
@@ -881,7 +881,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### canvas::lisp_set_fbox -> class/canvas/lisp_set_fbox
+### canvas::lisp_set_fbox -> gui/canvas/lisp_set_fbox
 ```
 inputs
 r0 = lisp object (ptr)
@@ -890,7 +890,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### canvas::lisp_set_fpoly -> class/canvas/lisp_set_fpoly
+### canvas::lisp_set_fpoly -> gui/canvas/lisp_set_fpoly
 ```
 inputs
 r0 = lisp object (ptr)
@@ -899,7 +899,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### canvas::lisp_blend_plot -> class/canvas/lisp_blend_plot
+### canvas::lisp_blend_plot -> gui/canvas/lisp_blend_plot
 ```
 inputs
 r0 = lisp object (ptr)
@@ -908,7 +908,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### canvas::lisp_blend_fbox -> class/canvas/lisp_blend_fbox
+### canvas::lisp_blend_fbox -> gui/canvas/lisp_blend_fbox
 ```
 inputs
 r0 = lisp object (ptr)
@@ -917,7 +917,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### canvas::lisp_blend_fpoly -> class/canvas/lisp_blend_fpoly
+### canvas::lisp_blend_fpoly -> gui/canvas/lisp_blend_fpoly
 ```
 inputs
 r0 = lisp object (ptr)
@@ -928,8 +928,8 @@ r1 = return value object (ptr)
 ```
 ## component
 Super Class: hash_map
-### component::vtable -> class/class_component
-### component::init -> class/component/init
+### component::vtable -> gui/class_component
+### component::init -> gui/component/init
 ```
 inputs
 r0 = component object (ptr)
@@ -938,7 +938,7 @@ outputs
 r0 = component object (ptr)
 r1 = 0 if error, else ok
 ```
-### component::find_owner -> class/component/find_owner
+### component::find_owner -> gui/component/find_owner
 ```
 inputs
 r0 = component object (ptr)
@@ -948,7 +948,7 @@ r1 = 0, else tcb of owner (ptr)
 trashes
 r2
 ```
-### component::emit -> class/component/emit
+### component::emit -> gui/component/emit
 ```
 inputs
 r0 = component object (ptr)
@@ -958,7 +958,7 @@ r0 = component object (ptr)
 trashes
 all but r0
 ```
-### component::get_prop_sym -> class/component/get_prop_sym
+### component::get_prop_sym -> gui/component/get_prop_sym
 ```
 inputs
 r0 = component object (ptr)
@@ -969,7 +969,7 @@ r1 = property symbol object (ptr)
 trashes
 all but r0
 ```
-### component::get_prop -> class/component/get_prop
+### component::get_prop -> gui/component/get_prop
 ```
 inputs
 r0 = component object (ptr)
@@ -980,7 +980,7 @@ r1 = 0 else, property object (ptr)
 trashes
 all but r0
 ```
-### component::ref_prop -> class/component/ref_prop
+### component::ref_prop -> gui/component/ref_prop
 ```
 inputs
 r0 = component object (ptr)
@@ -991,7 +991,7 @@ r1 = 0 else, property object (ptr)
 trashes
 all but r0
 ```
-### component::set_long_prop -> class/component/set_long_prop
+### component::set_long_prop -> gui/component/set_long_prop
 ```
 inputs
 r0 = component object (ptr)
@@ -1002,7 +1002,7 @@ r0 = component object (ptr)
 trashes
 all but r0
 ```
-### component::get_long_prop -> class/component/get_long_prop
+### component::get_long_prop -> gui/component/get_long_prop
 ```
 inputs
 r0 = component object (ptr)
@@ -1013,7 +1013,7 @@ r1 = property value (long)
 trashes
 all but r0
 ```
-### component::set_font_prop -> class/component/set_font_prop
+### component::set_font_prop -> gui/component/set_font_prop
 ```
 inputs
 r0 = component object (ptr)
@@ -1025,7 +1025,7 @@ r0 = component object (ptr)
 trashes
 all but r0
 ```
-### component::set_string_prop -> class/component/set_string_prop
+### component::set_string_prop -> gui/component/set_string_prop
 ```
 inputs
 r0 = component object (ptr)
@@ -1035,6 +1035,83 @@ outputs
 r0 = component object (ptr)
 trashes
 all but r0
+```
+## ctx
+Super Class: null
+### ctx::box -> gui/ctx/box
+```
+inputs
+r0 = draw ctx (ptr)
+r7 = x (pixels)
+r8 = y (pixels)
+r9 = width (pixels)
+r10 = height (pixels)
+trashes
+all
+```
+### ctx::filled_box -> gui/ctx/filled_box
+```
+inputs
+r0 = draw ctx (ptr)
+r7 = x (pixels)
+r8 = y (pixels)
+r9 = width (pixels)
+r10 = height (pixels)
+trashes
+all
+```
+### ctx::blit -> gui/ctx/blit
+```
+inputs
+r0 = draw ctx (ptr)
+r1 = texture id (ulong)
+r2 = color mod (argb)
+r7 = x (pixels)
+r8 = y (pixels)
+r9 = width (pixels)
+r10 = height (pixels)
+trashes
+all
+```
+### ctx::set_color -> gui/ctx/set_color
+```
+inputs
+r0 = draw ctx (ptr)
+r1 = color (argb)
+trashes
+all
+```
+### ctx::panel -> gui/ctx/panel
+```
+inputs
+r0 = draw ctx (ptr)
+r1 = color (argb)
+r2 = flags (ulong)
+r3 = depth (int)
+r7 = x (pixels)
+r8 = y (pixels)
+r9 = width (pixels)
+r10 = height (pixels)
+trashes
+all
+```
+### ctx::brighter -> gui/ctx/brighter
+```
+inputs
+r1 = color (argb)
+outputs
+r1 = brighter color (argb)
+trashes
+r2, r3
+```
+### ctx::darker -> gui/ctx/darker
+```
+inputs
+r1 = color (argb)
+outputs
+r1 = darker color (argb)
+trashes
+r2, r3
 ```
 ## error
 Super Class: obj
@@ -1110,10 +1187,10 @@ all but r0
 ```
 ## flow
 Super Class: view
-### flow::vtable -> class/class_flow
-### flow::create -> class/flow/create
-### flow::new -> class/flow/new
-### flow::pref_size -> class/flow/pref_size
+### flow::vtable -> gui/class_flow
+### flow::create -> gui/flow/create
+### flow::new -> gui/flow/new
+### flow::pref_size -> gui/flow/pref_size
 ```
 inputs
 r0 = flow object (ptr)
@@ -1124,7 +1201,7 @@ r10 = preferred height (pixels)
 trashes
 all but r0
 ```
-### flow::layout -> class/flow/layout
+### flow::layout -> gui/flow/layout
 ```
 inputs
 r0 = flow object (ptr)
@@ -1133,7 +1210,7 @@ r0 = flow object (ptr)
 trashes
 all but r0
 ```
-### flow::lisp_create -> class/flow/lisp_create
+### flow::lisp_create -> gui/flow/lisp_create
 ```
 inputs
 r0 = lisp object (ptr)
@@ -1144,8 +1221,8 @@ r1 = return value object (ptr)
 ```
 ## font
 Super Class: obj
-### font::vtable -> class/class_font
-### font::open -> class/font/open
+### font::vtable -> gui/class_font
+### font::open -> gui/font/open
 ```
 r0 = name c string (pubyte)
 r1 = font size (points)
@@ -1154,9 +1231,9 @@ r0 = 0 if error, else font object (ptr)
 trashes
 all
 ```
-### font::create -> class/font/create
-### font::new -> class/font/new
-### font::init -> class/font/init
+### font::create -> gui/font/create
+### font::new -> gui/font/new
+### font::init -> gui/font/init
 ```
 inputs
 r0 = font object (ptr)
@@ -1169,7 +1246,7 @@ r1 = 0 if error, else ok
 trashes
 all but r0
 ```
-### font::ref_word -> class/font/ref_word
+### font::ref_word -> gui/font/ref_word
 ```
 inputs
 r0 = font object (ptr)
@@ -1180,7 +1257,7 @@ r1 = texture object (ptr)
 trashes
 all but r0
 ```
-### font::get_metrics -> class/font/get_metrics
+### font::get_metrics -> gui/font/get_metrics
 ```
 inputs
 r0 = font object (ptr)
@@ -1190,7 +1267,7 @@ r1 = ascent (pixels)
 r2 = descent (pixels)
 r3 = height (pixels)
 ```
-### font::deinit -> class/font/deinit
+### font::deinit -> gui/font/deinit
 ```
 inputs
 r0 = font object (ptr)
@@ -1199,7 +1276,7 @@ r0 = font object (ptr)
 trashes
 all but r0
 ```
-### font::lisp_create -> class/font/lisp_create
+### font::lisp_create -> gui/font/lisp_create
 ```
 inputs
 r0 = lisp object (ptr)
@@ -1233,10 +1310,10 @@ r1 = value (ptr)
 ```
 ## grid
 Super Class: view
-### grid::vtable -> class/class_grid
-### grid::create -> class/grid/create
-### grid::new -> class/grid/new
-### grid::pref_size -> class/grid/pref_size
+### grid::vtable -> gui/class_grid
+### grid::create -> gui/grid/create
+### grid::new -> gui/grid/new
+### grid::pref_size -> gui/grid/pref_size
 ```
 inputs
 r0 = grid object (ptr)
@@ -1247,7 +1324,7 @@ r10 = preferred height (pixels)
 trashes
 all but r0
 ```
-### grid::layout -> class/grid/layout
+### grid::layout -> gui/grid/layout
 ```
 inputs
 r0 = grid object (ptr)
@@ -1256,7 +1333,7 @@ r0 = grid object (ptr)
 trashes
 all but r0
 ```
-### grid::lisp_create -> class/grid/lisp_create
+### grid::lisp_create -> gui/grid/lisp_create
 ```
 inputs
 r0 = lisp object (ptr)
@@ -1265,99 +1342,22 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-## gui_ctx
+## gui
 Super Class: null
-### gui_ctx::box -> gui/ctx/box
-```
-inputs
-r0 = draw ctx (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = width (pixels)
-r10 = height (pixels)
-trashes
-all
-```
-### gui_ctx::filled_box -> gui/ctx/filled_box
-```
-inputs
-r0 = draw ctx (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = width (pixels)
-r10 = height (pixels)
-trashes
-all
-```
-### gui_ctx::blit -> gui/ctx/blit
-```
-inputs
-r0 = draw ctx (ptr)
-r1 = texture id (ulong)
-r2 = color mod (argb)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = width (pixels)
-r10 = height (pixels)
-trashes
-all
-```
-### gui_ctx::set_color -> gui/ctx/set_color
-```
-inputs
-r0 = draw ctx (ptr)
-r1 = color (argb)
-trashes
-all
-```
-### gui_ctx::panel -> gui/ctx/panel
-```
-inputs
-r0 = draw ctx (ptr)
-r1 = color (argb)
-r2 = flags (ulong)
-r3 = depth (int)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = width (pixels)
-r10 = height (pixels)
-trashes
-all
-```
-### gui_ctx::brighter -> gui/ctx/brighter
-```
-inputs
-r1 = color (argb)
-outputs
-r1 = brighter color (argb)
-trashes
-r2, r3
-```
-### gui_ctx::darker -> gui/ctx/darker
-```
-inputs
-r1 = color (argb)
-outputs
-r1 = darker color (argb)
-trashes
-r2, r3
-```
-## gui_gui
-Super Class: null
-### gui_gui::statics -> gui/gui_statics
-### gui_gui::init -> gui/gui_init
+### gui::statics -> gui/gui/statics
+### gui::init -> gui/gui/init
 ```
 inputs
 r0 = sdl function table (pptr)
 ```
-### gui_gui::update -> gui/gui_update
+### gui::update -> gui/gui/update
 ```
 inputs
 r0 = root view object (ptr)
 trashes
 all
 ```
-### gui_gui::add -> gui/gui_add
+### gui::add -> gui/gui/add
 ```
 inputs
 r0 = view object (ptr)
@@ -1366,11 +1366,11 @@ r0 = view object (ptr)
 trashes
 all but r0
 ```
-### gui_gui::gui -> gui/gui
+### gui::gui -> gui/gui/gui
 ```
 gui process
 ```
-### gui_gui::lisp_add -> gui/lisp_add
+### gui::lisp_add -> gui/gui/lisp_add
 ```
 inputs
 r0 = lisp object (ptr)
@@ -1378,131 +1378,6 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
-```
-## gui_region
-Super Class: null
-### gui_region::translate -> gui/region/translate
-```
-inputs
-r1 = region listhead (ptr)
-r7 = x translation (pixels)
-r8 = y translation (pixels)
-trashes
-r1, r11-r14
-```
-### gui_region::bounds -> gui/region/bounds
-```
-inputs
-r1 = region listhead (ptr)
-outputs
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = x1 (pixels)
-r10 = y1 (pixels)
-trashes
-r1, r11-r14
-```
-### gui_region::clip_rect -> gui/region/clip_rect
-```
-inputs
-r0 = region heap (ptr)
-r1 = source region listhead (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = x1 (pixels)
-r10 = y1 (pixels)
-trashes
-r4-r14
-```
-### gui_region::remove_rect -> gui/region/remove_rect
-```
-inputs
-r0 = region heap (ptr)
-r1 = source region listhead (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = x1 (pixels)
-r10 = y1 (pixels)
-trashes
-r1-r2, r4-r14
-```
-### gui_region::cut_rect -> gui/region/cut_rect
-```
-inputs
-r0 = region heap (ptr)
-r1 = source region listhead (ptr)
-r2 = dest region listhead (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = x1 (pixels)
-r10 = y1 (pixels)
-```
-### gui_region::copy_rect -> gui/region/copy_rect
-```
-inputs
-r0 = region heap (ptr)
-r1 = source region listhead (ptr)
-r2 = dest region listhead (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = x1 (pixels)
-r10 = y1 (pixels)
-trashes
-r1-r2, r4-r14
-```
-### gui_region::paste_rect -> gui/region/paste_rect
-```
-inputs
-r0 = region heap (ptr)
-r1 = dest region listhead (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = x1 (pixels)
-r10 = y1 (pixels)
-trashes
-r1-r14
-```
-### gui_region::free -> gui/region/free
-```
-inputs
-r0 = region heap (ptr)
-r1 = source region listhead (ptr)
-trashes
-r1-r3
-```
-### gui_region::copy_region -> gui/region/copy_region
-```
-inputs
-r0 = region heap (ptr)
-r1 = source region listhead (ptr)
-r2 = dest region listhead (ptr)
-r3 = copy region listhead (ptr)
-r7 = x translation (pixels)
-r8 = y translation (pixels)
-trashes
-r1-r14
-```
-### gui_region::paste_region -> gui/region/paste_region
-```
-inputs
-r0 = region heap (ptr)
-r1 = source region listhead (ptr)
-r2 = dest region listhead (ptr)
-r7 = x translation (pixels)
-r8 = y translation (pixels)
-trashes
-r1-r14
-```
-### gui_region::remove_region -> gui/region/remove_region
-```
-inputs
-r0 = region heap (ptr)
-r1 = source region listhead (ptr)
-r2 = dest region listhead (ptr)
-r7 = x translation (pixels)
-r8 = y translation (pixels)
-trashes
-r1-r14
 ```
 ## hash_map
 Super Class: hash_set
@@ -1756,10 +1631,10 @@ Super Class: function
 ### integer::create -> class/integer/create
 ## label
 Super Class: view
-### label::vtable -> class/class_label
-### label::create -> class/label/create
-### label::new -> class/label/new
-### label::init -> class/label/init
+### label::vtable -> gui/class_label
+### label::create -> gui/label/create
+### label::new -> gui/label/new
+### label::init -> gui/label/init
 ```
 inputs
 r0 = label object (ptr)
@@ -1770,7 +1645,7 @@ r1 = 0 if error, else ok
 trashes
 all but r0
 ```
-### label::pref_size -> class/label/pref_size
+### label::pref_size -> gui/label/pref_size
 ```
 inputs
 r0 = label object (ptr)
@@ -1780,7 +1655,7 @@ r10 = preferred height (pixels)
 trashes
 all but r0
 ```
-### label::draw -> class/label/draw
+### label::draw -> gui/label/draw
 ```
 inputs
 r0 = view object (ptr)
@@ -1788,14 +1663,14 @@ r1 = draw ctx (ptr)
 trashes
 all but r0
 ```
-### label::layout -> class/label/layout
+### label::layout -> gui/label/layout
 ```
 inputs
 r0 = label object (ptr)
 trashes
 all but r0
 ```
-### label::lisp_create -> class/label/lisp_create
+### label::lisp_create -> gui/label/lisp_create
 ```
 inputs
 r0 = lisp object (ptr)
@@ -3178,9 +3053,9 @@ all but r0
 ```
 ## points
 Super Class: array
-### points::vtable -> class/class_points
-### points::create -> class/points/create
-### points::filter_polyline -> class/points/filter_polyline
+### points::vtable -> gui/class_points
+### points::create -> gui/points/create
+### points::filter_polyline -> gui/points/filter_polyline
 ```
 inputs
 r0 = points object (ptr)
@@ -3191,7 +3066,7 @@ r0 = points object (ptr)
 trashes
 all but r0
 ```
-### points::filter_polygon -> class/points/filter_polygon
+### points::filter_polygon -> gui/points/filter_polygon
 ```
 inputs
 r0 = points object (ptr)
@@ -3202,7 +3077,7 @@ r0 = points object (ptr)
 trashes
 all but r0
 ```
-### points::transform -> class/points/transform
+### points::transform -> gui/points/transform
 ```
 inputs
 r0 = points object (ptr)
@@ -3215,7 +3090,7 @@ r0 = points object (ptr)
 trashes
 all but r0
 ```
-### points::simplify -> class/points/simplify
+### points::simplify -> gui/points/simplify
 ```
 inputs
 r0 = points object (ptr)
@@ -3227,7 +3102,7 @@ r0 = points object (ptr)
 trashes
 all but r0
 ```
-### points::gen_clerp -> class/points/gen_clerp
+### points::gen_clerp -> gui/points/gen_clerp
 ```
 inputs
 r0 = points object (ptr)
@@ -3242,7 +3117,7 @@ r0 = points object (ptr)
 trashes
 all but r0
 ```
-### points::gen_arc -> class/points/gen_arc
+### points::gen_arc -> gui/points/gen_arc
 ```
 inputs
 r0 = points object (ptr)
@@ -3257,7 +3132,7 @@ r0 = points object (ptr)
 trashes
 all but r0
 ```
-### points::gen_quadratic -> class/points/gen_quadratic
+### points::gen_quadratic -> gui/points/gen_quadratic
 ```
 inputs
 r0 = points object (ptr)
@@ -3271,7 +3146,7 @@ r0 = points object (ptr)
 trashes
 all but r0
 ```
-### points::gen_cubic -> class/points/gen_cubic
+### points::gen_cubic -> gui/points/gen_cubic
 ```
 inputs
 r0 = points object (ptr)
@@ -3286,7 +3161,7 @@ r0 = points object (ptr)
 trashes
 all but r0
 ```
-### points::stroke_joints -> class/points/stroke_joints
+### points::stroke_joints -> gui/points/stroke_joints
 ```
 inputs
 r0 = points object (ptr)
@@ -3303,7 +3178,7 @@ r0 = points object (ptr)
 trashes
 all but r0
 ```
-### points::stroke_polylines -> class/points/stroke_polylines
+### points::stroke_polylines -> gui/points/stroke_polylines
 ```
 inputs
 r0 = output vector of points objects (ptr)
@@ -3319,7 +3194,7 @@ r0 = output vector of points objects (ptr)
 trashes
 all but r0
 ```
-### points::stroke_polygons -> class/points/stroke_polygons
+### points::stroke_polygons -> gui/points/stroke_polygons
 ```
 inputs
 r0 = output vector of points objects (ptr)
@@ -3333,7 +3208,7 @@ r0 = output vector of points objects (ptr)
 trashes
 all but r0
 ```
-### points::lisp_transform -> class/points/lisp_transform
+### points::lisp_transform -> gui/points/lisp_transform
 ```
 inputs
 r0 = lisp object (ptr)
@@ -3342,7 +3217,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### points::lisp_simplify -> class/points/lisp_simplify
+### points::lisp_simplify -> gui/points/lisp_simplify
 ```
 inputs
 r0 = lisp object (ptr)
@@ -3351,7 +3226,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### points::lisp_gen_quadratic -> class/points/lisp_gen_quadratic
+### points::lisp_gen_quadratic -> gui/points/lisp_gen_quadratic
 ```
 inputs
 r0 = lisp object (ptr)
@@ -3360,7 +3235,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### points::lisp_gen_cubic -> class/points/lisp_gen_cubic
+### points::lisp_gen_cubic -> gui/points/lisp_gen_cubic
 ```
 inputs
 r0 = lisp object (ptr)
@@ -3369,7 +3244,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### points::lisp_gen_arc -> class/points/lisp_gen_arc
+### points::lisp_gen_arc -> gui/points/lisp_gen_arc
 ```
 inputs
 r0 = lisp object (ptr)
@@ -3378,7 +3253,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### points::lisp_stroke_polylines -> class/points/lisp_stroke_polylines
+### points::lisp_stroke_polylines -> gui/points/lisp_stroke_polylines
 ```
 inputs
 r0 = lisp object (ptr)
@@ -3387,7 +3262,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### points::lisp_stroke_polygons -> class/points/lisp_stroke_polygons
+### points::lisp_stroke_polygons -> gui/points/lisp_stroke_polygons
 ```
 inputs
 r0 = lisp object (ptr)
@@ -3398,10 +3273,10 @@ r1 = return value object (ptr)
 ```
 ## progress
 Super Class: view
-### progress::vtable -> class/class_progress
-### progress::create -> class/progress/create
-### progress::new -> class/progress/new
-### progress::pref_size -> class/progress/pref_size
+### progress::vtable -> gui/class_progress
+### progress::create -> gui/progress/create
+### progress::new -> gui/progress/new
+### progress::pref_size -> gui/progress/pref_size
 ```
 inputs
 r0 = progress object (ptr)
@@ -3411,7 +3286,7 @@ r10 = preferred height (pixels)
 trashes
 all but r0
 ```
-### progress::draw -> class/progress/draw
+### progress::draw -> gui/progress/draw
 ```
 inputs
 r0 = window object (ptr)
@@ -3419,14 +3294,14 @@ r1 = draw ctx (ptr)
 trashes
 all but r0
 ```
-### progress::layout -> class/view/opaque
+### progress::layout -> gui/view/opaque
 ```
 inputs
 r0 = view object (ptr)
 trashes
 all but r0
 ```
-### progress::lisp_create -> class/progress/lisp_create
+### progress::lisp_create -> gui/progress/lisp_create
 ```
 inputs
 r0 = lisp object (ptr)
@@ -3434,6 +3309,131 @@ r1 = args vector object (ptr)
 outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
+```
+## region
+Super Class: null
+### region::translate -> gui/region/translate
+```
+inputs
+r1 = region listhead (ptr)
+r7 = x translation (pixels)
+r8 = y translation (pixels)
+trashes
+r1, r11-r14
+```
+### region::bounds -> gui/region/bounds
+```
+inputs
+r1 = region listhead (ptr)
+outputs
+r7 = x (pixels)
+r8 = y (pixels)
+r9 = x1 (pixels)
+r10 = y1 (pixels)
+trashes
+r1, r11-r14
+```
+### region::clip_rect -> gui/region/clip_rect
+```
+inputs
+r0 = region heap (ptr)
+r1 = source region listhead (ptr)
+r7 = x (pixels)
+r8 = y (pixels)
+r9 = x1 (pixels)
+r10 = y1 (pixels)
+trashes
+r4-r14
+```
+### region::remove_rect -> gui/region/remove_rect
+```
+inputs
+r0 = region heap (ptr)
+r1 = source region listhead (ptr)
+r7 = x (pixels)
+r8 = y (pixels)
+r9 = x1 (pixels)
+r10 = y1 (pixels)
+trashes
+r1-r2, r4-r14
+```
+### region::cut_rect -> gui/region/cut_rect
+```
+inputs
+r0 = region heap (ptr)
+r1 = source region listhead (ptr)
+r2 = dest region listhead (ptr)
+r7 = x (pixels)
+r8 = y (pixels)
+r9 = x1 (pixels)
+r10 = y1 (pixels)
+```
+### region::copy_rect -> gui/region/copy_rect
+```
+inputs
+r0 = region heap (ptr)
+r1 = source region listhead (ptr)
+r2 = dest region listhead (ptr)
+r7 = x (pixels)
+r8 = y (pixels)
+r9 = x1 (pixels)
+r10 = y1 (pixels)
+trashes
+r1-r2, r4-r14
+```
+### region::paste_rect -> gui/region/paste_rect
+```
+inputs
+r0 = region heap (ptr)
+r1 = dest region listhead (ptr)
+r7 = x (pixels)
+r8 = y (pixels)
+r9 = x1 (pixels)
+r10 = y1 (pixels)
+trashes
+r1-r14
+```
+### region::free -> gui/region/free
+```
+inputs
+r0 = region heap (ptr)
+r1 = source region listhead (ptr)
+trashes
+r1-r3
+```
+### region::copy_region -> gui/region/copy_region
+```
+inputs
+r0 = region heap (ptr)
+r1 = source region listhead (ptr)
+r2 = dest region listhead (ptr)
+r3 = copy region listhead (ptr)
+r7 = x translation (pixels)
+r8 = y translation (pixels)
+trashes
+r1-r14
+```
+### region::paste_region -> gui/region/paste_region
+```
+inputs
+r0 = region heap (ptr)
+r1 = source region listhead (ptr)
+r2 = dest region listhead (ptr)
+r7 = x translation (pixels)
+r8 = y translation (pixels)
+trashes
+r1-r14
+```
+### region::remove_region -> gui/region/remove_region
+```
+inputs
+r0 = region heap (ptr)
+r1 = source region listhead (ptr)
+r2 = dest region listhead (ptr)
+r7 = x translation (pixels)
+r8 = y translation (pixels)
+trashes
+r1-r14
 ```
 ## sdl
 Super Class: null
@@ -3525,10 +3525,10 @@ r1 = return value object (ptr)
 ```
 ## slider
 Super Class: view
-### slider::vtable -> class/class_slider
-### slider::create -> class/slider/create
-### slider::new -> class/slider/new
-### slider::init -> class/slider/init
+### slider::vtable -> gui/class_slider
+### slider::create -> gui/slider/create
+### slider::new -> gui/slider/new
+### slider::init -> gui/slider/init
 ```
 inputs
 r0 = slider object (ptr)
@@ -3537,7 +3537,7 @@ outputs
 r0 = slider object (ptr)
 r1 = 0 if error, else ok
 ```
-### slider::connect_value -> class/slider/connect_value
+### slider::connect_value -> gui/slider/connect_value
 ```
 inputs
 r0 = slider object (ptr)
@@ -3547,14 +3547,14 @@ r0 = slider object (ptr)
 trashes
 all but r0
 ```
-### slider::deinit -> class/slider/deinit
+### slider::deinit -> gui/slider/deinit
 ```
 inputs
 r0 = slider object (ptr)
 trashes
 all but r0
 ```
-### slider::pref_size -> class/slider/pref_size
+### slider::pref_size -> gui/slider/pref_size
 ```
 inputs
 r0 = slider object (ptr)
@@ -3564,7 +3564,7 @@ r10 = preferred height (pixels)
 trashes
 all but r0
 ```
-### slider::draw -> class/slider/draw
+### slider::draw -> gui/slider/draw
 ```
 inputs
 r0 = window object (ptr)
@@ -3572,14 +3572,14 @@ r1 = draw ctx (ptr)
 trashes
 all but r0
 ```
-### slider::layout -> class/view/opaque
+### slider::layout -> gui/view/opaque
 ```
 inputs
 r0 = view object (ptr)
 trashes
 all but r0
 ```
-### slider::mouse_down -> class/slider/mouse_move
+### slider::mouse_down -> gui/slider/mouse_move
 ```
 inputs
 r0 = slider object (ptr)
@@ -3587,7 +3587,7 @@ r1 = mouse event data (ptr)
 trashes
 all but r0
 ```
-### slider::mouse_up -> class/slider/mouse_up
+### slider::mouse_up -> gui/slider/mouse_up
 ```
 inputs
 r0 = slider object (ptr)
@@ -3595,7 +3595,7 @@ r1 = mouse event data (ptr)
 trashes
 all but r0
 ```
-### slider::mouse_move -> class/slider/mouse_move
+### slider::mouse_move -> gui/slider/mouse_move
 ```
 inputs
 r0 = slider object (ptr)
@@ -3603,7 +3603,7 @@ r1 = mouse event data (ptr)
 trashes
 all but r0
 ```
-### slider::lisp_create -> class/slider/lisp_create
+### slider::lisp_create -> gui/slider/lisp_create
 ```
 inputs
 r0 = lisp object (ptr)
@@ -3612,7 +3612,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### slider::lisp_connect_value -> class/slider/lisp_connect_value
+### slider::lisp_connect_value -> gui/slider/lisp_connect_value
 ```
 inputs
 r0 = lisp object (ptr)
@@ -4929,10 +4929,10 @@ r1 = return value object (ptr)
 ```
 ## text
 Super Class: view
-### text::vtable -> class/class_text
-### text::create -> class/text/create
-### text::new -> class/text/new
-### text::init -> class/text/init
+### text::vtable -> gui/class_text
+### text::create -> gui/text/create
+### text::new -> gui/text/new
+### text::init -> gui/text/init
 ```
 inputs
 r0 = text object (ptr)
@@ -4941,21 +4941,21 @@ outputs
 r0 = text object (ptr)
 r1 = 0 if error, else ok
 ```
-### text::switch_text -> class/text/switch_text
+### text::switch_text -> gui/text/switch_text
 ```
 inputs
 r0 = text object (ptr)
 trashes
 all but r0
 ```
-### text::deinit -> class/text/deinit
+### text::deinit -> gui/text/deinit
 ```
 inputs
 r0 = text object (ptr)
 trashes
 all but r0
 ```
-### text::pref_size -> class/text/pref_size
+### text::pref_size -> gui/text/pref_size
 ```
 inputs
 r0 = text object (ptr)
@@ -4965,7 +4965,7 @@ r10 = preferred height (pixels)
 trashes
 all but r0
 ```
-### text::draw -> class/text/draw
+### text::draw -> gui/text/draw
 ```
 inputs
 r0 = view object (ptr)
@@ -4975,10 +4975,10 @@ all but r0
 ```
 ## texture
 Super Class: obj
-### texture::vtable -> class/class_texture
-### texture::create -> class/texture/create
-### texture::new -> class/texture/new
-### texture::init -> class/texture/init
+### texture::vtable -> gui/class_texture
+### texture::create -> gui/texture/create
+### texture::new -> gui/texture/new
+### texture::init -> gui/texture/init
 ```
 inputs
 r0 = texture object (ptr)
@@ -4990,7 +4990,7 @@ outputs
 r0 = texture object (ptr)
 r1 = 0 if error, else ok
 ```
-### texture::get_metrics -> class/texture/get_metrics
+### texture::get_metrics -> gui/texture/get_metrics
 ```
 inputs
 r0 = texture object (ptr)
@@ -5000,7 +5000,7 @@ r1 = texture handle (ulong)
 r2 = width (pixels)
 r3 = height (pixels)
 ```
-### texture::deinit -> class/texture/deinit
+### texture::deinit -> gui/texture/deinit
 ```
 inputs
 r0 = texture object (ptr)
@@ -5009,10 +5009,10 @@ all but r0
 ```
 ## title
 Super Class: label
-### title::vtable -> class/class_title
-### title::create -> class/title/create
-### title::new -> class/title/new
-### title::init -> class/title/init
+### title::vtable -> gui/class_title
+### title::create -> gui/title/create
+### title::new -> gui/title/new
+### title::init -> gui/title/init
 ```
 inputs
 r0 = title object (ptr)
@@ -5021,7 +5021,7 @@ outputs
 r0 = title object (ptr)
 r1 = 0 if error, else ok
 ```
-### title::mouse_down -> class/title/mouse_down
+### title::mouse_down -> gui/title/mouse_down
 ```
 inputs
 r0 = title object (ptr)
@@ -5029,7 +5029,7 @@ r1 = mouse event data (ptr)
 trashes
 all but r0
 ```
-### title::mouse_move -> class/title/mouse_move
+### title::mouse_move -> gui/title/mouse_move
 ```
 inputs
 r0 = title object (ptr)
@@ -5039,10 +5039,10 @@ all but r0
 ```
 ## vdu
 Super Class: view
-### vdu::vtable -> class/class_vdu
-### vdu::create -> class/vdu/create
-### vdu::new -> class/vdu/new
-### vdu::init -> class/vdu/init
+### vdu::vtable -> gui/class_vdu
+### vdu::create -> gui/vdu/create
+### vdu::new -> gui/vdu/new
+### vdu::init -> gui/vdu/init
 ```
 inputs
 r0 = vdu object (ptr)
@@ -5051,21 +5051,21 @@ outputs
 r0 = vdu object (ptr)
 r1 = 0 if error, else ok
 ```
-### vdu::switch_font -> class/vdu/switch_font
+### vdu::switch_font -> gui/vdu/switch_font
 ```
 inputs
 r0 = vdu object (ptr)
 trashes
 all but r0
 ```
-### vdu::switch_size -> class/vdu/switch_size
+### vdu::switch_size -> gui/vdu/switch_size
 ```
 inputs
 r0 = vdu object (ptr)
 trashes
 all but r0
 ```
-### vdu::print_char -> class/vdu/print_char
+### vdu::print_char -> gui/vdu/print_char
 ```
 inputs
 r0 = vdu object (ptr)
@@ -5073,7 +5073,7 @@ r1 = char (uint)
 outputs
 r0 = vdu object (ptr)
 ```
-### vdu::print_cstr -> class/vdu/print_cstr
+### vdu::print_cstr -> gui/vdu/print_cstr
 ```
 inputs
 r0 = vdu object (ptr)
@@ -5081,14 +5081,14 @@ r1 = c string pointer (pubyte)
 outputs
 r0 = vdu object (ptr)
 ```
-### vdu::deinit -> class/vdu/deinit
+### vdu::deinit -> gui/vdu/deinit
 ```
 inputs
 r0 = vdu object (ptr)
 trashes
 all but r0
 ```
-### vdu::pref_size -> class/vdu/pref_size
+### vdu::pref_size -> gui/vdu/pref_size
 ```
 inputs
 r0 = vdu object (ptr)
@@ -5098,7 +5098,7 @@ r10 = preferred height (pixels)
 trashes
 all but r0
 ```
-### vdu::draw -> class/vdu/draw
+### vdu::draw -> gui/vdu/draw
 ```
 inputs
 r0 = view object (ptr)
@@ -5193,10 +5193,10 @@ r1-r11
 ```
 ## view
 Super Class: component
-### view::vtable -> class/class_view
-### view::create -> class/view/create
-### view::new -> class/view/new
-### view::init -> class/view/init
+### view::vtable -> gui/class_view
+### view::create -> gui/view/create
+### view::new -> gui/view/new
+### view::init -> gui/view/init
 ```
 inputs
 r0 = view object (ptr)
@@ -5205,7 +5205,7 @@ outputs
 r0 = view object (ptr)
 r1 = 0 if error, else ok
 ```
-### view::add_front -> class/view/add_front
+### view::add_front -> gui/view/add_front
 ```
 inputs
 r0 = view object (ptr)
@@ -5213,7 +5213,7 @@ r1 = parent view object (ptr)
 trashes
 r1-r3
 ```
-### view::add_back -> class/view/add_back
+### view::add_back -> gui/view/add_back
 ```
 inputs
 r0 = view object (ptr)
@@ -5221,14 +5221,14 @@ r1 = child view object (ptr)
 trashes
 r1-r3
 ```
-### view::sub -> class/view/sub
+### view::sub -> gui/view/sub
 ```
 inputs
 r0 = view object (ptr)
 trashes
 r1-r2
 ```
-### view::to_front -> class/view/to_front
+### view::to_front -> gui/view/to_front
 ```
 inputs
 r0 = view object (ptr)
@@ -5237,7 +5237,7 @@ r0 = view object (ptr)
 trashes
 all but r0
 ```
-### view::add_dirty -> class/view/add_dirty
+### view::add_dirty -> gui/view/add_dirty
 ```
 inputs
 r0 = view object (ptr)
@@ -5248,7 +5248,7 @@ r10 = height (pixels)
 trashes
 all but r0
 ```
-### view::add_opaque -> class/view/add_opaque
+### view::add_opaque -> gui/view/add_opaque
 ```
 inputs
 r0 = view object (ptr)
@@ -5259,7 +5259,7 @@ r10 = height (pixels)
 trashes
 all but r0
 ```
-### view::sub_opaque -> class/view/sub_opaque
+### view::sub_opaque -> gui/view/sub_opaque
 ```
 inputs
 r0 = view object (ptr)
@@ -5270,7 +5270,7 @@ r10 = height (pixels)
 trashes
 all but r0
 ```
-### view::get_relative -> class/view/get_relative
+### view::get_relative -> gui/view/get_relative
 ```
 inputs
 r0 = view object (ptr)
@@ -5283,28 +5283,28 @@ r8 = relative y (pixels)
 trashes
 r2, r9-r10
 ```
-### view::dirty -> class/view/dirty
+### view::dirty -> gui/view/dirty
 ```
 inputs
 r0 = view object (ptr)
 trashes
 all but r0
 ```
-### view::dirty_all -> class/view/dirty_all
+### view::dirty_all -> gui/view/dirty_all
 ```
 inputs
 r0 = view object (ptr)
 trashes
 all but r0
 ```
-### view::opaque -> class/view/opaque
+### view::opaque -> gui/view/opaque
 ```
 inputs
 r0 = view object (ptr)
 trashes
 all but r0
 ```
-### view::forward -> class/view/forward
+### view::forward -> gui/view/forward
 ```
 inputs
 r0 = view object (ptr)
@@ -5321,7 +5321,7 @@ r1 = user data pointer (ptr)
 outputs
 r0 = child view object (ptr)
 ```
-### view::backward -> class/view/backward
+### view::backward -> gui/view/backward
 ```
 inputs
 r0 = view object (ptr)
@@ -5338,7 +5338,7 @@ r1 = user data pointer (ptr)
 outputs
 r0 = child view object (ptr)
 ```
-### view::forward_tree -> class/view/forward_tree
+### view::forward_tree -> gui/view/forward_tree
 ```
 inputs
 r0 = view object (ptr)
@@ -5357,7 +5357,7 @@ outputs
 r0 = view object (ptr)
 r1 = 0 if should not descend after down callback
 ```
-### view::backward_tree -> class/view/backward_tree
+### view::backward_tree -> gui/view/backward_tree
 ```
 inputs
 r0 = view object (ptr)
@@ -5376,7 +5376,7 @@ outputs
 r0 = view object (ptr)
 r1 = 0 if should not descend after down callback
 ```
-### view::change -> class/view/change
+### view::change -> gui/view/change
 ```
 inputs
 r0 = view object (ptr)
@@ -5387,7 +5387,7 @@ r10 = new h (pixels)
 trashes
 all but r0
 ```
-### view::hit_tree -> class/view/hit_tree
+### view::hit_tree -> gui/view/hit_tree
 ```
 inputs
 r0 = view object (ptr)
@@ -5401,7 +5401,7 @@ r8 = y relative to hit (pixels)
 trashes
 r1-r3
 ```
-### view::find_id -> class/view/find_id
+### view::find_id -> gui/view/find_id
 ```
 inputs
 r0 = view object (ptr)
@@ -5412,7 +5412,7 @@ r1 = 0 if not found, else view object (ptr)
 trashes
 r1-r3
 ```
-### view::draw_panel -> class/view/draw_panel
+### view::draw_panel -> gui/view/draw_panel
 ```
 inputs
 r0 = view object (ptr)
@@ -5422,7 +5422,7 @@ r3 = depth (uint)
 trashes
 all but r0
 ```
-### view::get_bounds -> class/view/get_bounds
+### view::get_bounds -> gui/view/get_bounds
 ```
 inputs
 r0 = view object (ptr)
@@ -5433,7 +5433,7 @@ r8 = y (pixels)
 r9 = width (pixels)
 r10 = height (pixels)
 ```
-### view::set_bounds -> class/view/set_bounds
+### view::set_bounds -> gui/view/set_bounds
 ```
 inputs
 r0 = view object (ptr)
@@ -5442,7 +5442,7 @@ r8 = y (pixels)
 r9 = width (pixels)
 r10 = height (pixels)
 ```
-### view::get_first -> class/view/get_first
+### view::get_first -> gui/view/get_first
 ```
 inputs
 r0 = view object (ptr)
@@ -5452,7 +5452,7 @@ r1 = 0 if empty, else first child view object (ptr)
 trashes
 r2
 ```
-### view::get_last -> class/view/get_last
+### view::get_last -> gui/view/get_last
 ```
 inputs
 r0 = view object (ptr)
@@ -5462,7 +5462,7 @@ r1 = 0 if empty, else last child view object (ptr)
 trashes
 r2
 ```
-### view::lisp_create -> class/view/lisp_create
+### view::lisp_create -> gui/view/lisp_create
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5471,7 +5471,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_sub -> class/view/lisp_sub
+### view::lisp_sub -> gui/view/lisp_sub
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5480,7 +5480,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_add_child -> class/view/lisp_add_child
+### view::lisp_add_child -> gui/view/lisp_add_child
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5489,7 +5489,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_add_front -> class/view/lisp_add_front
+### view::lisp_add_front -> gui/view/lisp_add_front
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5498,7 +5498,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_add_back -> class/view/lisp_add_back
+### view::lisp_add_back -> gui/view/lisp_add_back
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5507,7 +5507,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_pref_size -> class/view/lisp_pref_size
+### view::lisp_pref_size -> gui/view/lisp_pref_size
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5516,7 +5516,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_change -> class/view/lisp_change
+### view::lisp_change -> gui/view/lisp_change
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5525,7 +5525,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_set_bounds -> class/view/lisp_set_bounds
+### view::lisp_set_bounds -> gui/view/lisp_set_bounds
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5534,7 +5534,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_get_bounds -> class/view/lisp_get_bounds
+### view::lisp_get_bounds -> gui/view/lisp_get_bounds
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5543,7 +5543,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_add_opaque -> class/view/lisp_add_opaque
+### view::lisp_add_opaque -> gui/view/lisp_add_opaque
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5552,7 +5552,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_sub_opaque -> class/view/lisp_sub_opaque
+### view::lisp_sub_opaque -> gui/view/lisp_sub_opaque
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5561,7 +5561,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_opaque -> class/view/lisp_opaque
+### view::lisp_opaque -> gui/view/lisp_opaque
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5570,7 +5570,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_add_dirty -> class/view/lisp_add_dirty
+### view::lisp_add_dirty -> gui/view/lisp_add_dirty
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5579,7 +5579,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_dirty -> class/view/lisp_dirty
+### view::lisp_dirty -> gui/view/lisp_dirty
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5588,7 +5588,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_dirty_all -> class/view/lisp_dirty_all
+### view::lisp_dirty_all -> gui/view/lisp_dirty_all
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5597,7 +5597,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_layout -> class/view/lisp_layout
+### view::lisp_layout -> gui/view/lisp_layout
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5606,7 +5606,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_event -> class/view/lisp_event
+### view::lisp_event -> gui/view/lisp_event
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5615,7 +5615,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::lisp_find_id -> class/view/lisp_find_id
+### view::lisp_find_id -> gui/view/lisp_find_id
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5624,14 +5624,14 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### view::deinit -> class/view/deinit
+### view::deinit -> gui/view/deinit
 ```
 inputs
 r0 = view object (ptr)
 trashes
 all but r0
 ```
-### view::add_child -> class/view/add_back
+### view::add_child -> gui/view/add_back
 ```
 inputs
 r0 = view object (ptr)
@@ -5640,7 +5640,7 @@ trashes
 r1-r3
 ```
 ### view::draw -> class/obj/null
-### view::hit -> class/view/hit
+### view::hit -> gui/view/hit
 ```
 inputs
 r0 = view object (ptr)
@@ -5650,7 +5650,7 @@ outputs
 r0 = view object (ptr)
 r1 = 0 if not, else hit
 ```
-### view::pref_size -> class/view/pref_size
+### view::pref_size -> gui/view/pref_size
 ```
 inputs
 r0 = view object (ptr)
@@ -5661,7 +5661,7 @@ trashes
 all but r0
 ```
 ### view::layout -> class/obj/null
-### view::event -> class/view/event
+### view::event -> gui/view/event
 ```
 inputs
 r0 = view object (ptr)
@@ -5677,10 +5677,10 @@ all but r0
 ### view::key_up -> class/obj/null
 ## window
 Super Class: view
-### window::vtable -> class/class_window
-### window::new -> class/window/new
-### window::create -> class/window/create
-### window::init -> class/window/init
+### window::vtable -> gui/class_window
+### window::new -> gui/window/new
+### window::create -> gui/window/create
+### window::init -> gui/window/init
 ```
 inputs
 r0 = window object (ptr)
@@ -5692,19 +5692,19 @@ r1 = 0 if error, else ok
 trashes
 all but r0-r1
 ```
-### window::set_title -> class/window/set_title
+### window::set_title -> gui/window/set_title
 ```
 inputs
 r0 = window object (ptr)
 r1 = title c string (pubyte)
 ```
-### window::set_status -> class/window/set_status
+### window::set_status -> gui/window/set_status
 ```
 inputs
 r0 = window object (ptr)
 r1 = status c string (pubyte)
 ```
-### window::connect_layout -> class/window/connect_layout
+### window::connect_layout -> gui/window/connect_layout
 ```
 inputs
 r0 = window object (ptr)
@@ -5714,7 +5714,7 @@ r0 = window object (ptr)
 trashes
 all but r0
 ```
-### window::connect_close -> class/window/connect_close
+### window::connect_close -> gui/window/connect_close
 ```
 inputs
 r0 = window object (ptr)
@@ -5724,7 +5724,7 @@ r0 = window object (ptr)
 trashes
 all but r0
 ```
-### window::connect_max -> class/window/connect_max
+### window::connect_max -> gui/window/connect_max
 ```
 inputs
 r0 = window object (ptr)
@@ -5734,7 +5734,7 @@ r0 = window object (ptr)
 trashes
 all but r0
 ```
-### window::connect_min -> class/window/connect_min
+### window::connect_min -> gui/window/connect_min
 ```
 inputs
 r0 = window object (ptr)
@@ -5744,14 +5744,14 @@ r0 = window object (ptr)
 trashes
 all but r0
 ```
-### window::deinit -> class/window/deinit
+### window::deinit -> gui/window/deinit
 ```
 inputs
 r0 = window object (ptr)
 trashes
 all but r0
 ```
-### window::add_child -> class/window/add_child
+### window::add_child -> gui/window/add_child
 ```
 inputs
 r0 = window object (ptr)
@@ -5759,7 +5759,7 @@ r1 = child view object (ptr)
 trashes
 all but r0
 ```
-### window::pref_size -> class/window/pref_size
+### window::pref_size -> gui/window/pref_size
 ```
 inputs
 r0 = window object (ptr)
@@ -5770,14 +5770,14 @@ r10 = preferred height (pixels)
 trashes
 all but r0
 ```
-### window::layout -> class/window/layout
+### window::layout -> gui/window/layout
 ```
 inputs
 r0 = window object (ptr)
 trashes
 all but r0
 ```
-### window::draw -> class/window/draw
+### window::draw -> gui/window/draw
 ```
 inputs
 r0 = window object (ptr)
@@ -5785,7 +5785,7 @@ r1 = draw ctx (ptr)
 trashes
 all but r0
 ```
-### window::mouse_down -> class/window/mouse_down
+### window::mouse_down -> gui/window/mouse_down
 ```
 inputs
 r0 = window object (ptr)
@@ -5793,7 +5793,7 @@ r1 = mouse event data (ptr)
 trashes
 all but r0
 ```
-### window::mouse_move -> class/window/mouse_move
+### window::mouse_move -> gui/window/mouse_move
 ```
 inputs
 r0 = window object (ptr)
@@ -5801,7 +5801,7 @@ r1 = mouse event data (ptr)
 trashes
 all but r0
 ```
-### window::lisp_create -> class/window/lisp_create
+### window::lisp_create -> gui/window/lisp_create
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5810,7 +5810,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### window::lisp_connect_layout -> class/window/lisp_connect_layout
+### window::lisp_connect_layout -> gui/window/lisp_connect_layout
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5819,7 +5819,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### window::lisp_connect_close -> class/window/lisp_connect_close
+### window::lisp_connect_close -> gui/window/lisp_connect_close
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5828,7 +5828,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### window::lisp_connect_min -> class/window/lisp_connect_min
+### window::lisp_connect_min -> gui/window/lisp_connect_min
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5837,7 +5837,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### window::lisp_connect_max -> class/window/lisp_connect_max
+### window::lisp_connect_max -> gui/window/lisp_connect_max
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5846,7 +5846,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### window::lisp_set_status -> class/window/lisp_set_status
+### window::lisp_set_status -> gui/window/lisp_set_status
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5855,7 +5855,7 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-### window::lisp_set_title -> class/window/lisp_set_title
+### window::lisp_set_title -> gui/window/lisp_set_title
 ```
 inputs
 r0 = lisp object (ptr)

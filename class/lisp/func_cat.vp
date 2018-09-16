@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/string/class.inc)
-(import 'class/points/class.inc)
+(import 'gui/points/class.inc)
 (import 'class/lisp/class.inc)
 
 (def-method 'lisp 'func_cat)

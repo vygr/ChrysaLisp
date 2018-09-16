@@ -1,4 +1,4 @@
-(import 'class/view/class.inc)
+(import 'gui/view/class.inc)
 
 (def-class 'backdrop 'view)
 (dec-method 'vtable 'apps/boing/class_backdrop)

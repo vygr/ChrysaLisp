@@ -1,0 +1,108 @@
+(import 'sys/func.inc)
+(import 'gui/points/class.inc)
+(import 'class/vector/class.inc)
+(import 'sys/math/class.inc)
+
+(def-method 'points 'stroke_joints)
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = stack array object (ptr)
+	;r2 = in points start iter (plong)
+	;r3 = in points end iter (plong)
+	;r4 = p1 xy (16.16/16.16)
+	;r5 = p2 xy (16.16/16.16)
+	;r6 = join style (byte)
+	;r7 = radius (16.16)
+	;r8 = tolerance (16.16)
+	;outputs
+	;r0 = points object (ptr)
+	;trashes
+	;all but r0
+
+	(union
+		'(ulong 'p1 'p2 'p3 'l2_v 'l2_pv 'l2_npv 'l2_rv 'l1_v 'l1_npv 'l1_rv)
+		'(int 'p1x 'p1y 'p2x 'p2y 'p3x 'p3y
+			'l2_vx 'l2_vy 'l2_pvx 'l2_pvy 'l2_npvx 'l2_npvy 'l2_rvx 'l2_rvy
+			'l1_vx 'l1_vy 'l1_npvx 'l1_npvy 'l1_rvx 'l1_rvy))
+	(pulong 'iter_i 'iter_j)
+	(ptr 'this 'stack)
+	(int 'radius 'eps 'step 'c)
+	(byte 'join_style)
+
+	(push-scope)
+	(used-syms 'l2_pv 'l1_vx 'l1_vy)
+	(f-entry 'points 'stroke_joints {this, stack, iter_i, iter_j, p1, p2, join_style, radius, eps})
+
+	(vpif {iter_i != iter_j})
+		(vpif {iter_j > iter_i})
+			(assign {long_size} {step})
+		(else)
+			(assign {-long_size} {step})
+		(endif)
+
+		(vec-set 0)
+		(vec-load 2 {p2x, p2y} {p1x, p1y})
+		(vec-sub 2)
+		(vec-tee 2 {l2_vx, l2_vy})
+		(vec-perp)
+		(vec-tee 2 {l2_pvx, l2_pvy})
+		(vec-fnorm 2)
+		(vec-tee 2 {l2_npvx, l2_npvy})
+		(vec-load 1 {radius})
+		(vec-fscale 2)
+		(vec-store 2 {l2_rvx, l2_rvy})
+
+		(loop-start)
+			(vec-load 4 {p2, l2_v, l2_npv, l2_rv})
+			(vec-store 4 {p1, l1_v, l1_npv, l1_rv})
+			(assign {*iter_i, iter_i + step} {p2, iter_i})
+			(vec-load 2 {p2x, p2y} {p1x, p1y})
+			(vec-sub 2)
+			(vec-tee 2 {l2_vx, l2_vy})
+			(vec-perp)
+			(vec-tee 2 {l2_pvx, l2_pvy})
+			(vec-fnorm 2)
+			(vec-tee 2 {l2_npvx, l2_npvy})
+			(vec-load 1 {radius})
+			(vec-fscale 2)
+			(vec-store 2 {l2_rvx, l2_rvy})
+
+			;what kind of join
+			(vec-load 2 {l1_npvx, l1_npvy} {l2_npvx, l2_npvy})
+			(vec-perp)
+			(vec-fdot 2)
+			(vec-store 1 {c})
+
+			(switch)
+			(case {c <= 0 || join_style == join_miter})
+				;mitre join
+				(vec-load 2 {p1x, p1y})
+				(vec-dup 2)
+				(vec-load 4 {l1_rvx, l1_rvy, l2_rvx, l2_rvy})
+				(vec-add 4)
+				(vec-store 4 {p3x, p3y, p1x, p1y})
+				(f-call 'sys_math 'intersect {p3, l1_v, p1, l2_v} {p1})
+				(goto 'out_p1)
+			(case {join_style == join_bevel})
+				;bevel join
+				(vec-load 2 {p1x, p1y})
+				(vec-dup 2)
+				(vec-load 4 {l1_rvx, l1_rvy, l2_rvx, l2_rvy})
+				(vec-add 4)
+				(vec-store 4 {p3x, p3y, p1x, p1y})
+				(f-call 'points 'push_back {this, p3})
+			(vp-label 'out_p1)
+				(f-call 'points 'push_back {this, p1})
+				(break)
+			(default)
+				;rounded join
+				(f-call 'points 'gen_clerp {this, stack, p1, l1_rv, l2_rv, radius, eps})
+			(endswitch)
+		(loop-until {iter_i == iter_j})
+	(endif)
+
+	(f-exit 'points 'stroke_joints {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

@@ -5,7 +5,7 @@
 (import 'class/pair/class.inc)
 (import 'class/hash_set/class.inc)
 (import 'class/hash_map/class.inc)
-(import 'class/points/class.inc)
+(import 'gui/points/class.inc)
 (import 'class/lisp/class.inc)
 
 (def-method 'lisp 'repl_print)

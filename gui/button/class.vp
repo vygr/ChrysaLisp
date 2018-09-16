@@ -1,0 +1,211 @@
+(import 'sys/func.inc)
+(import 'gui/gui/class.inc)
+(import 'gui/button/class.inc)
+(import 'gui/flow/class.inc)
+(import 'class/array/class.inc)
+
+(gen-new 'button)
+(gen-create 'button)
+(gen-class 'button)
+
+(def-method 'button 'init)
+	;inputs
+	;r0 = button object (ptr)
+	;r1 = vtable (pptr)
+	;outputs
+	;r0 = button object (ptr)
+	;r1 = 0 if error, else ok
+
+	(ptr 'this)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
+
+	(push-scope)
+	(f-entry 'button 'init {this, vtable})
+
+	;init parent
+	(s-call 'button 'init {this, vtable} {_, ok})
+	(vpif {ok})
+		;init myself
+		(assign {0} {this->button_state})
+		(f-call 'array 'create nil {this->button_click_targets})
+		(f-call 'button 'set_long_prop {this, prop_border, 2})
+		(f-call 'button 'set_long_prop {this, prop_flow_flags, flow_flag_down | flow_flag_align_hcenter | flow_flag_align_vcenter})
+	(endif)
+
+	(f-exit 'button 'init {this, ok})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'button 'deinit)
+	;inputs
+	;r0 = button object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+
+	(push-scope)
+	(f-entry 'button 'deinit {this})
+
+	(f-call 'array 'deref {this->button_click_targets})
+
+	;parent deint
+	(f-exit 'button 'deinit {this})
+	(pop-scope)
+	(s-jmp 'button 'deinit '(r0))
+
+(def-func-end)
+
+(def-method 'button 'draw)
+	;inputs
+	;r0 = button object (ptr)
+	;r1 = draw ctx (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'ctx)
+	(uint 'depth)
+
+	(push-scope)
+	(f-entry 'button 'draw {this, ctx})
+
+	;draw panel, in or out
+	(f-call 'button 'get_long_prop {this, prop_border} {_, depth})
+	(vpif {this->button_state & button_state_pressed})
+		(assign {-depth} {depth})
+	(endif)
+	(f-call 'button 'draw_panel {this, ctx, 1, depth})
+
+	(f-exit 'button 'draw {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'button 'layout)
+	;inputs
+	;r0 = button object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(uint 'depth 'offset)
+
+	(push-scope)
+	(f-entry 'button 'layout {this})
+
+	;contents offset or not
+	(f-call 'button 'get_long_prop {this, prop_border} {_, depth})
+	(assign {depth} {offset})
+	(vpif {this->button_state & button_state_pressed})
+		(assign {depth + offset} {offset})
+	(endif)
+	(f-call 'button 'change {this->label_flow, offset, offset, this->view_w - (depth * 2), this->view_h - (depth * 2)})
+	(f-call 'button 'opaque {this})
+
+	(f-exit 'button 'layout {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'button 'mouse_down)
+	;inputs
+	;r0 = button object (ptr)
+	;r1 = mouse event data (ptr)
+	;trashes
+	;all but r0
+
+	(vp-cpy-ir r0 button_state r1)
+	(vp-or-cr button_state_pressed r1)
+	(vp-cpy-ri r1 r0 button_state)
+	(v-call 'button 'layout '(r0))
+	(f-jmp 'button 'dirty '(r0))
+
+(def-func-end)
+
+(def-method 'button 'mouse_up)
+	;inputs
+	;r0 = button object (ptr)
+	;r1 = mouse event data (ptr)
+	;trashes
+	;all but r0
+
+	(vp-cpy-ir r0 button_state r1)
+	(vp-push r1)
+
+	(vp-cpy-rr r1 r2)
+	(vp-and-cr (bit-not button_state_pressed) r1)
+	(vp-cpy-ri r1 r0 button_state)
+	(vpif '(r1 != r2))
+		(v-call 'button 'layout '(r0))
+		(f-call 'button 'dirty '(r0))
+	(endif)
+
+	;emit pressed signal ?
+	(vp-pop r1)
+	(vp-and-cr button_state_pressed r1)
+	(vpif '(r1 != 0))
+		(f-jmp 'button 'emit '(r0 (r0 button_click_targets)))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'button 'mouse_move)
+	;inputs
+	;r0 = button object (ptr)
+	;r1 = mouse event data (ptr)
+	;trashes
+	;all but r0
+
+	;hit ?
+	(v-call 'button 'hit '(r0 (r1 ev_msg_mouse_rx i) (r1 ev_msg_mouse_ry i)) '(r0 r1))
+
+	;is mouse over button ?
+	(vp-cpy-ir r0 button_state r2)
+	(vp-cpy-rr r2 r3)
+	(vpif '(r1 != 0))
+		;state pressed
+		(vp-or-cr button_state_pressed r2)
+	(else)
+		;state not pressed
+		(vp-and-cr (bit-not button_state_pressed) r2)
+	(endif)
+	(vp-cpy-ri r2 r0 button_state)
+
+	;if state changed then dirty
+	(vpif '(r2 != r3))
+		(v-call 'button 'layout '(r0))
+		(f-jmp 'button 'dirty '(r0))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'button 'connect_click)
+	;inputs
+	;r0 = button object (ptr)
+	;r1 = target id (long)
+	;outputs
+	;r0 = button object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(long 'id)
+
+	(push-scope)
+	(f-entry 'button 'connect_click {this, id})
+
+	(f-call 'array 'push_back {this->button_click_targets, id})
+
+	(f-exit 'button 'connect_click {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

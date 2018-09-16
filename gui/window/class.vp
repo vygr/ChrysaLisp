@@ -1,0 +1,528 @@
+(import 'sys/func.inc)
+(import 'gui/gui/class.inc)
+(import 'gui/region/class.inc)
+(import 'gui/window/class.inc)
+(import 'gui/title/class.inc)
+(import 'gui/button/class.inc)
+(import 'gui/flow/class.inc)
+(import 'class/string/class.inc)
+(import 'class/array/class.inc)
+
+(gen-new 'window)
+(gen-create 'window)
+(gen-class 'window)
+
+(def-method 'window 'init)
+	;inputs
+	;r0 = window object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = options flags (ulong)
+	;outputs
+	;r0 = window object (ptr)
+	;r1 = 0 if error, else ok
+	;trashes
+	;all but r0-r1
+
+	(ptr 'this 'title_flow)
+	(ulong 'flags)
+	(uint 'min_width)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
+
+	(push-scope)
+	(f-entry 'window 'init {this, vtable, flags})
+
+	;init parent
+	(s-call 'window 'init {this, vtable} {_, ok})
+	(vpif {ok})
+		;init myself
+		(f-call 'sys_mem 'clear {&this->window_start, window_size - window_start})
+		(f-call 'window 'set_font_prop {this, prop_font, "fonts/OpenSans-Regular.ttf", 18})
+		(f-call 'window 'set_long_prop {this, prop_text_color, 0xff000000})
+		(f-call 'window 'set_long_prop {this, prop_color, 0xffc0c0c0})
+		(f-call 'window 'set_long_prop {this, prop_border, 5})
+		(f-call 'window 'set_long_prop {this, prop_min_width, 0})
+		(f-call 'window 'set_long_prop {this, prop_min_height, 0})
+		(f-call 'array 'create nil {this->window_layout_targets})
+
+		;add flow panel
+		(f-call 'flow 'create nil {this->window_flow})
+		(f-call 'flow 'set_long_prop {this->window_flow, prop_flow_flags, flow_flag_down | flow_flag_fillw | flow_flag_lasth})
+		(f-call 'window 'add_back {this, this->window_flow})
+
+		;add title flow panel
+		(f-call 'flow 'create nil {title_flow})
+		(f-call 'flow 'set_long_prop {title_flow, prop_flow_flags, flow_flag_left | flow_flag_fillh | flow_flag_lastw})
+		(f-call 'flow 'set_long_prop {title_flow, prop_color, 0xffd0d0d0})
+		(v-call 'flow 'add_child {this->window_flow, title_flow})
+
+		;add close button ?
+		(f-call 'button 'create nil {this->window_close})
+		(f-call 'button 'set_font_prop {this->window_close, prop_font, "fonts/Entypo.otf", 22})
+		(v-call 'flow 'add_child {title_flow, this->window_close})
+		(f-call 'button 'set_string_prop {this->window_close, prop_text, ""})
+		(v-call 'button 'pref_size {this->window_close} {_, min_width, _})
+		(f-call 'flow 'set_long_prop {title_flow, prop_min_width, min_width})
+		(vpifnot {flags & window_flag_close})
+			(f-call 'button 'deref {this->window_close})
+			(assign {0} {this->window_close})
+		(endif)
+
+		;add max button
+		(vpif {flags & window_flag_max})
+			(f-call 'button 'create nil {this->window_max})
+			(f-call 'button 'set_font_prop {this->window_max, prop_font, "fonts/Entypo.otf", 22})
+			(v-call 'flow 'add_child {title_flow, this->window_max})
+			(f-call 'button 'set_string_prop {this->window_max, prop_text, ""})
+		(endif)
+
+		;add min button
+		(vpif {flags & window_flag_min})
+			(f-call 'button 'create nil {this->window_min})
+			(f-call 'button 'set_font_prop {this->window_min, prop_font, "fonts/Entypo.otf", 22})
+			(v-call 'flow 'add_child {title_flow, this->window_min})
+			(f-call 'button 'set_string_prop {this->window_min, prop_text, ""})
+		(endif)
+
+		;add title
+		(f-call 'title 'create nil {this->window_title})
+		(f-call 'title 'set_long_prop {this->window_title, prop_color, 0xffc0c0c0})
+		(v-call 'flow 'add_child {title_flow, this->window_title})
+
+		;add status panel
+		(f-call 'flow 'create nil {this->window_panel})
+		(f-call 'flow 'set_long_prop {this->window_panel, prop_flow_flags, flow_flag_up | flow_flag_fillw | flow_flag_lasth})
+		(v-call 'flow 'add_child {this->window_flow, this->window_panel})
+
+		;add status label ?
+		(vpif {flags & window_flag_status})
+			(f-call 'label 'create nil {this->window_status})
+			(f-call 'label 'set_long_prop {this->window_status, prop_color, 0xff808080})
+			(v-call 'flow 'add_child {this->window_panel, this->window_status})
+		(endif)
+	(endif)
+
+	(f-exit 'window 'init {this, ok})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'window 'deinit)
+	;inputs
+	;r0 = window object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'screen)
+
+	(push-scope)
+	(f-entry 'window 'deinit {this})
+
+	;dirty my area on parent
+	(f-call 'window 'get_parent {this} {_, screen})
+	(vpif {screen})
+		(f-call 'view 'dirty_all {screen})
+	(endif)
+
+	(f-call 'array 'deref {this->window_layout_targets})
+
+	;deinit parent
+	(f-exit 'window 'deinit {this})
+	(pop-scope)
+	(s-jmp 'window 'deinit '(r0))
+
+(def-func-end)
+
+(def-method 'window 'add_child)
+	;inputs
+	;r0 = window object (ptr)
+	;r1 = child view object (ptr)
+	;trashes
+	;all but r0
+
+	(vp-push r0)
+	(v-call 'flow 'add_child '((r0 window_panel) r1))
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'window 'draw)
+	;inputs
+	;r0 = window object (ptr)
+	;r1 = draw ctx (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'ctx)
+	(uint 'depth)
+
+	(push-scope)
+	(f-entry 'window 'draw {this, ctx})
+
+	;draw panel
+	(f-call 'window 'get_long_prop {this, prop_border} {_, depth})
+	(f-call 'window 'draw_panel {this, ctx, 1, depth})
+
+	(f-exit 'window 'draw {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'window 'layout)
+	;inputs
+	;r0 = window object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(union
+		'(uint 'col)
+		'(uint 'depth))
+
+	(push-scope)
+	(f-entry 'window 'layout {this})
+
+	(f-call 'window 'get_long_prop {this, prop_border} {_, depth})
+	(f-call 'flow 'change {this->window_flow, depth, depth,
+		this->view_w - (depth * 2), this->view_h - (depth * 2)})
+
+	(f-call 'window 'get_long_prop {this, prop_color} {_, col})
+	(vpif {col >> 24 == 0xff})
+		(f-call 'window 'opaque {this})
+	(endif)
+
+	(f-call 'window 'emit {this, this->window_layout_targets})
+
+	(f-exit 'window 'layout {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'window 'mouse_down)
+	;inputs
+	;r0 = window object (ptr)
+	;r1 = mouse event data (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'evt)
+	(uint 'depth 'mode)
+	(int 'rx 'ry)
+
+	(push-scope)
+	(f-entry 'window 'mouse_down {this, evt})
+
+	(f-call 'window 'get_long_prop {this, prop_border} {_, depth})
+	(assign {0, evt->ev_msg_mouse_rx, evt->ev_msg_mouse_ry} {mode, rx, ry})
+	(vpif {rx < depth})
+		;left edge
+		(assign {mode | window_drag_left} {mode})
+	(endif)
+	(vpif {rx >= (this->view_w - depth)})
+		;right edge
+		(assign {mode | window_drag_right} {mode})
+		(assign {rx - this->view_w} {rx})
+	(endif)
+	(vpif {ry < depth})
+		;top edge
+		(assign {mode | window_drag_top} {mode})
+	(endif)
+	(vpif {ry >= (this->view_h - depth)})
+		;bottom edge
+		(assign {mode | window_drag_bottom} {mode})
+		(assign {ry - this->view_h} {ry})
+	(endif)
+	(assign {mode} {this->window_drag_mode})
+	(assign {rx} {this->window_offset_x})
+	(assign {ry} {this->window_offset_y})
+
+	(f-exit 'window 'mouse_down {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'window 'mouse_move)
+	;inputs
+	;r0 = window object (ptr)
+	;r1 = mouse event data (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'event)
+		(int 'old_x)
+		(int 'old_y)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(f-entry 'window 'mouse_move '((rsp local_this) (rsp local_event)))
+
+	;dirty old area
+	(f-call 'window 'dirty '(r0))
+
+	;get smallest size
+	(v-call 'window 'pref_size '(r0) '(r0 r9 r10))
+	(vp-cpy-rr r9 r11)
+	(vp-cpy-rr r10 r12)
+
+	;save old bounds
+	(f-call 'window 'get_bounds '(r0) '(r0 (rsp local_old_x i) (rsp local_old_y i) r9 r10))
+
+	;get abolute cords of corners
+	(vp-add-rr r7 r9)
+	(vp-add-rr r8 r10)
+
+	;drag edges
+	(vp-cpy-ir rsp local_event r1)
+	(vp-cpy-ir-ui r0 window_drag_mode r14)
+	(vp-and-cr window_drag_left r14)
+	(vpif '(r14 != 0))
+		;drag left edge
+		(vp-cpy-ir-i r1 ev_msg_mouse_x r7)
+		(vp-cpy-ir-i r0 window_offset_x r14)
+		(vp-sub-rr r14 r7)
+		(vp-cpy-rr r9 r14)
+		(vp-sub-rr r7 r14)
+		(vpif '(r14 < r11))
+			(vp-cpy-rr r9 r7)
+			(vp-sub-rr r11 r7)
+		(endif)
+	(endif)
+	(vp-cpy-ir-ui r0 window_drag_mode r14)
+	(vp-and-cr window_drag_right r14)
+	(vpif '(r14 != 0))
+		;drag right edge
+		(vp-cpy-ir-i r1 ev_msg_mouse_x r9)
+		(vp-cpy-ir-i r0 window_offset_x r14)
+		(vp-sub-rr r14 r9)
+		(vp-cpy-rr r9 r14)
+		(vp-sub-rr r7 r14)
+		(vpif '(r14 < r11))
+			(vp-cpy-rr r7 r9)
+			(vp-add-rr r11 r9)
+		(endif)
+	(endif)
+	(vp-cpy-ir-ui r0 window_drag_mode r14)
+	(vp-and-cr window_drag_top r14)
+	(vpif '(r14 != 0))
+		;drag top edge
+		(vp-cpy-ir-i r1 ev_msg_mouse_y r8)
+		(vp-cpy-ir-i r0 window_offset_y r14)
+		(vp-sub-rr r14 r8)
+		(vp-cpy-rr r10 r14)
+		(vp-sub-rr r8 r14)
+		(vpif '(r14 < r12))
+			(vp-cpy-rr r10 r8)
+			(vp-sub-rr r12 r8)
+		(endif)
+	(endif)
+	(vp-cpy-ir-ui r0 window_drag_mode r14)
+	(vp-and-cr window_drag_bottom r14)
+	(vpif '(r14 != 0))
+		;drag bottom edge
+		(vp-cpy-ir-i r1 ev_msg_mouse_y r10)
+		(vp-cpy-ir-i r0 window_offset_y r14)
+		(vp-sub-rr r14 r10)
+		(vp-cpy-rr r10 r14)
+		(vp-sub-rr r8 r14)
+		(vpif '(r14 < r12))
+			(vp-cpy-rr r8 r10)
+			(vp-add-rr r12 r10)
+		(endif)
+	(endif)
+	(vp-sub-rr r7 r9)
+	(vp-sub-rr r8 r10)
+
+	;change window size
+	(f-call 'window 'change '(r0 r7 r8 r9 r10))
+
+	;translate old dirty area and dirty all
+	(vp-cpy-ir-i rsp local_old_x r7)
+	(vp-cpy-ir-i rsp local_old_y r8)
+	(vp-cpy-ir-i r0 view_x r9)
+	(vp-cpy-ir-i r0 view_y r10)
+	(vp-sub-rr r9 r7)
+	(vp-sub-rr r10 r8)
+	(vp-lea-i r0 view_dirty_region r1)
+	(f-call 'region 'translate '(r1 r7 r8))
+
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free local_size)
+	(f-jmp 'window 'dirty_all '(r0))
+
+(def-func-end)
+
+(def-method 'window 'pref_size)
+	;inputs
+	;r0 = window object (ptr)
+	;outputs
+	;r0 = window object (ptr)
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(uint 'depth 'w 'h)
+
+	(push-scope)
+	(f-entry 'window 'pref_size {this})
+
+	(f-call 'window 'get_long_prop {this, prop_border} {_, depth})
+	(v-call 'flow 'pref_size {this->window_flow} {_, w, h})
+
+	(f-exit 'window 'pref_size {this, w + (depth * 2), h + (depth * 2)})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'window 'set_status)
+	;inputs
+	;r0 = window object (ptr)
+	;r1 = status c string (pubyte)
+
+	(ptr 'this 'str)
+
+	(push-scope)
+	(f-entry 'window 'set_status {this, str})
+
+	(vpif {this->window_status})
+		(f-call 'label 'set_string_prop {this->window_status, prop_text, str})
+		(v-call 'label 'layout {this->window_status})
+	(endif)
+
+	(f-exit 'window 'set_status {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'window 'set_title)
+	;inputs
+	;r0 = window object (ptr)
+	;r1 = title c string (pubyte)
+
+	(ptr 'this 'str)
+
+	(push-scope)
+	(f-entry 'window 'set_status {this, str})
+
+	(f-call 'title 'set_string_prop {this->window_title, prop_text, str})
+	(v-call 'title 'layout {this->window_title})
+
+	(f-exit 'window 'set_status {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'window 'connect_layout)
+	;inputs
+	;r0 = window object (ptr)
+	;r1 = reciever id (long)
+	;outputs
+	;r0 = window object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(long 'id)
+
+	;save inputs
+	(push-scope)
+	(f-entry 'window 'connect_layout {this, id})
+
+	(f-call 'array 'push_back {this->window_layout_targets, id})
+
+	(f-exit 'window 'connect_layout {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'window 'connect_close)
+	;inputs
+	;r0 = window object (ptr)
+	;r1 = reciever id (long)
+	;outputs
+	;r0 = window object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(long 'id)
+
+	;save inputs
+	(push-scope)
+	(f-entry 'window 'connect_close {this, id})
+
+	(vpif {this->window_close})
+		(f-call 'button 'connect_click {this->window_close, id})
+	(endif)
+
+	(f-exit 'window 'connect_close {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'window 'connect_max)
+	;inputs
+	;r0 = window object (ptr)
+	;r1 = reciever id (long)
+	;outputs
+	;r0 = window object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(long 'id)
+
+	;save inputs
+	(push-scope)
+	(f-entry 'window 'connect_max {this, id})
+
+	(vpif {this->window_max})
+		(f-call 'button 'connect_click {this->window_max, id})
+	(endif)
+
+	(f-exit 'window 'connect_max {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'window 'connect_min)
+	;inputs
+	;r0 = window object (ptr)
+	;r1 = reciever id (long)
+	;outputs
+	;r0 = window object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(long 'id)
+
+	;save inputs
+	(push-scope)
+	(f-entry 'window 'connect_min {this, id})
+
+	(vpif {this->window_min})
+		(f-call 'button 'connect_click {this->window_min, id})
+	(endif)
+
+	(f-exit 'window 'connect_min {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

@@ -1,0 +1,128 @@
+(import 'sys/func.inc)
+(import 'gui/gui/class.inc)
+(import 'gui/region/class.inc)
+(import 'gui/window/class.inc)
+(import 'gui/title/class.inc)
+(import 'gui/flow/class.inc)
+
+(gen-new 'title)
+(gen-create 'title)
+(gen-class 'title)
+
+(def-method 'title 'init)
+	;inputs
+	;r0 = title object (ptr)
+	;r1 = vtable (pptr)
+	;outputs
+	;r0 = title object (ptr)
+	;r1 = 0 if error, else ok
+
+	(ptr 'this)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
+
+	(push-scope)
+	(f-entry 'title 'init {this, vtable})
+
+	;init parent
+	(s-call 'title 'init {this, vtable} {_, ok})
+	(vpif {ok})
+		;init myself
+		(f-call 'title 'set_long_prop {this, prop_border, 1})
+	(endif)
+
+	(f-exit 'title 'init {this, ok})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'title 'mouse_down)
+	;inputs
+	;r0 = title object (ptr)
+	;r1 = mouse event data (ptr)
+	;trashes
+	;all but r0
+
+	(vp-push r0)
+	(vp-cpy-ir-i r1 ev_msg_mouse_rx r7)
+	(vp-cpy-ir-i r1 ev_msg_mouse_ry r8)
+	(vp-cpy-ri-i r7 r0 title_last_x)
+	(vp-cpy-ri-i r8 r0 title_last_y)
+	(assign `((@ ,(f-path 'window 'vtable))) '(r1))
+	(loop-start)
+		(vp-cpy-ir r0 hash_map_parent r0)
+		(vp-cpy-ir r0 obj_vtable r2)
+	(loop-until '(r2 == r1))
+	(f-call 'window 'to_front '(r0))
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'title 'mouse_move)
+	;inputs
+	;r0 = title object (ptr)
+	;r1 = mouse event data (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(long 'window)
+		(long 'event)
+		(int 'old_x)
+		(int 'old_y)
+	(def-struct-end)
+
+	;save old window bounds
+	(vp-alloc local_size)
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-cpy-ri r1 rsp local_event)
+	(assign `((@ ,(f-path 'window 'vtable))) '(r1))
+	(loop-start)
+		(vp-cpy-ir r0 hash_map_parent r0)
+		(vp-cpy-ir r0 obj_vtable r2)
+	(loop-until '(r2 == r1))
+	(vp-cpy-ri r0 rsp local_window)
+	(vp-cpy-ir-i r0 view_x r7)
+	(vp-cpy-ir-i r0 view_y r8)
+	(vp-cpy-ri-i r7 rsp local_old_x)
+	(vp-cpy-ri-i r8 rsp local_old_y)
+
+	;dirty old area
+	(f-call 'window 'dirty '(r0))
+
+	;get new window position
+	(vp-cpy-ir rsp local_this r0)
+	(f-call 'title 'get_relative '(r0 (rsp local_window) (r0 title_last_x i) (r0 title_last_y i)) '(_ r7 r8))
+	(vp-cpy-ir rsp local_event r1)
+	(vp-cpy-ir-i r1 ev_msg_mouse_x r9)
+	(vp-cpy-ir-i r1 ev_msg_mouse_y r10)
+	(vp-sub-rr r9 r7)
+	(vp-sub-rr r10 r8)
+	(vp-mul-cr -1 r7)
+	(vp-mul-cr -1 r8)
+
+	;change window position
+	(vp-cpy-ir rsp local_window r0)
+	(vp-cpy-ri-i r7 r0 view_x)
+	(vp-cpy-ri-i r8 r0 view_y)
+
+	;translate old dirty area and dirty all
+	(vp-cpy-ir-i rsp local_old_x r9)
+	(vp-cpy-ir-i rsp local_old_y r10)
+	(vp-sub-rr r9 r7)
+	(vp-sub-rr r10 r8)
+	(vp-mul-cr -1 r7)
+	(vp-mul-cr -1 r8)
+	(vp-lea-i r0 view_dirty_region r1)
+	(f-call 'region 'translate '(r1 r7 r8))
+	(f-call 'window 'dirty_all '((rsp local_window)))
+
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)

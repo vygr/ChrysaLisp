@@ -1,0 +1,5 @@
+(import 'sys/func.inc)
+(import 'gui/points/class.inc)
+
+(gen-create 'points)
+(gen-class 'points)

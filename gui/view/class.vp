@@ -1,0 +1,880 @@
+(import 'sys/func.inc)
+(import 'gui/gui/class.inc)
+(import 'gui/ctx/class.inc)
+(import 'gui/region/class.inc)
+(import 'gui/view/class.inc)
+
+(gen-create 'view)
+(gen-new 'view)
+(gen-class 'view)
+
+(def-method 'view 'init)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = vtable (pptr)
+	;outputs
+	;r0 = view object (ptr)
+	;r1 = 0 if error, else ok
+
+	;init parent
+	(s-call 'view 'init '(r0 r1) '(r0 r1))
+	(vpif '(r1 != 0))
+		;init myself
+		(vp-push r0)
+		(f-call 'sys_mem 'clear '((& r0 view_start) (sub view_size view_start)))
+		(vp-pop r0)
+		(vp-cpy-cr view_flag_solid r1)
+		(vp-cpy-ri-i r1 r0 view_flags)
+		(vp-lea-i r0 view_list r1)
+		(lh-init r1 r2)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'deinit)
+	;inputs
+	;r0 = view object (ptr)
+	;trashes
+	;all but r0
+
+	;save object
+	(vp-push r0)
+
+	;sub view from any parent
+	(f-call 'view 'sub '(r0))
+
+	;deref any child views
+	(vp-cpy-ir rsp 0 r0)
+	(loop-list-forward r0 view_list r0 r1)
+		(vp-sub-cr view_node r0)
+		(vp-push r1)
+		(f-call 'view 'sub '(r0))
+		(f-call 'view 'deref '(r0))
+		(vp-pop r1)
+	(loop-end)
+
+	;free view object data
+	(vp-cpy-ir rsp 0 r0)
+	(vp-lea-i r0 view_dirty_region r1)
+	(f-bind 'gui 'statics r0)
+	(vp-add-cr gui_statics_rect_heap r0)
+	(f-call 'region 'free '(r0 r1))
+	(vp-cpy-ir rsp 0 r1)
+	(vp-add-cr view_opaque_region r1)
+	(f-call 'region 'free '(r0 r1))
+
+	;deinit parent
+	(vp-pop r0)
+	(s-jmp 'view 'deinit '(r0))
+
+(def-func-end)
+
+(def-method 'view 'add_back)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = child view object (ptr)
+	;trashes
+	;r1-r3
+
+	;remove from any existing parent
+	(vp-cpy-rr r0 r3)
+	(f-call 'view 'sub '(r1))
+
+	;add to parent
+	(vp-cpy-ri r3 r0 hash_map_parent)
+	(vp-lea-i r0 view_node r2)
+	(vp-cpy-rr r3 r0)
+	(vp-add-cr view_list r3)
+	(lh-add-at-tail r3 r2 r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'add_dirty)
+	;inputs
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
+	;trashes
+	;all but r0
+
+	;paste dirty region
+	(vp-push r0)
+	(vp-add-rr r7 r9)
+	(vp-add-rr r8 r10)
+	(vp-lea-i r0 view_dirty_region r1)
+	(f-bind 'gui 'statics r0)
+	(vp-cpy-cr 1 r2)
+	(vp-cpy-ri-b r2 r0 gui_statics_dirty_flag)
+	(vp-add-cr gui_statics_rect_heap r0)
+	(f-call 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'add_front)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = parent view object (ptr)
+	;trashes
+	;r1-r3
+
+	;remove from any existing parent
+	(vp-cpy-rr r0 r3)
+	(f-call 'view 'sub '(r1))
+
+	;add to parent
+	(vp-cpy-ri r3 r0 hash_map_parent)
+	(vp-lea-i r0 view_node r2)
+	(vp-cpy-rr r3 r0)
+	(vp-add-cr view_list r3)
+	(lh-add-at-head r3 r2 r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'add_opaque)
+	;inputs
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
+	;trashes
+	;all but r0
+
+	;paste opaque region
+	(vp-push r0)
+	(vp-add-rr r7 r9)
+	(vp-add-rr r8 r10)
+	(vp-lea-i r0 view_opaque_region r1)
+	(f-bind 'gui 'statics r0)
+	(vp-add-cr gui_statics_rect_heap r0)
+	(f-call 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'backward)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = user data (ptr)
+	;r2 = callback (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;trashes
+	;dependant on callback
+		;callback api
+		;inputs
+		;r0 = child view object (ptr)
+		;r1 = user data pointer (ptr)
+		;outputs
+		;r0 = child view object (ptr)
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'data)
+		(ptr 'callback)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-cpy-ri r1 rsp local_data)
+	(vp-cpy-ri r2 rsp local_callback)
+
+	(lh-get-tail r0 view_list r0)
+	(loop-start)
+		(ln-get-pred r0 0 r1)
+		(breakif '(r1 == 0))
+
+		;callback
+		(vp-sub-cr view_node r0)
+		(vp-cpy-ir rsp local_data r1)
+		(vp-call-i rsp local_callback)
+
+		;across to sibling
+		(ln-get-pred r0 view_node r0)
+	(loop-end)
+
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'backward_tree)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = user data pointer
+	;r2 = down callback (ptr)
+	;r3 = up callback (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;trashes
+	;dependant on callbacks
+		;callback api
+		;inputs
+		;r0 = view object (ptr)
+		;r1 = user data pointer (ptr)
+		;outputs
+		;r0 = view object (ptr)
+		;r1 = 0 if should not descend after down callback
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'data)
+		(ptr 'down)
+		(ptr 'up)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-cpy-ri r1 rsp local_data)
+	(vp-cpy-ri r2 rsp local_down)
+	(vp-cpy-ri r3 rsp local_up)
+	(vp-cpy-rr r0 r1)
+	(loop-start)
+	(vp-label 'down_loop_ctx)
+		(vp-cpy-rr r1 r0)
+
+		;down callback
+		(vp-cpy-ir rsp local_data r1)
+		(vp-call-i rsp local_down)
+		(breakif '(r1 == 0))
+
+		;down to child
+		(lh-get-tail r0 view_list r1)
+		(vp-sub-cr view_node r1)
+
+		(ln-get-pred r1 view_node r2)
+	(loop-until '(r2 == 0))
+	(loop-start)
+		;up callback
+		(vp-cpy-ir rsp local_data r1)
+		(vp-call-i rsp local_up)
+
+		;back at root ?
+		(vp-cpy-ir rsp local_this r2)
+		(breakif '(r0 == r2))
+
+		;across to sibling
+		(ln-get-pred r0 view_node r1)
+		(vp-sub-cr view_node r1)
+
+		(ln-get-pred r1 view_node r2)
+		(gotoif '(r2 != 0) 'down_loop_ctx)
+
+		;up to parent
+		(vp-cpy-ir r0 hash_map_parent r0)
+	(loop-end)
+
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'change)
+	;inputs
+	;r0 = view object (ptr)
+	;r7 = new x (pixels)
+	;r8 = new y (pixels)
+	;r9 = new w (pixels)
+	;r10 = new h (pixels)
+	;trashes
+	;all but r0
+
+	;save old info
+	(vp-cpy-ir-i r0 view_w r11)
+	(vp-cpy-ir-i r0 view_h r12)
+
+	;set new info
+	(f-call 'view 'set_bounds '(r0 r7 r8 r9 r10))
+
+	;layout if changed size
+	(vpif '(r9 == r11))
+		(vpif '(r10 == r12))
+			(vp-ret)
+		(endif)
+	(endif)
+	(v-jmp 'view 'layout '(r0))
+
+(def-func-end)
+
+(def-method 'view 'dirty)
+	;inputs
+	;r0 = view object (ptr)
+	;trashes
+	;all but r0
+
+	;paste dirty region
+	(vp-cpy-ir-i r0 view_w r9)
+	(vp-cpy-ir-i r0 view_h r10)
+	(f-jmp 'view 'add_dirty '(r0 0 0 r9 r10))
+
+(def-func-end)
+
+(def-method 'view 'dirty_all)
+	;inputs
+	;r0 = view object (ptr)
+	;trashes
+	;all but r0
+
+	;iterate through views
+	;dirty all
+	(f-jmp 'view 'forward_tree '(r0 r0 ($ dirty_down_callback) ($ null_up_callback)))
+
+(vp-label 'dirty_down_callback)
+	(f-call 'view 'dirty '(r0) '(r1))
+(vp-label 'null_up_callback)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'draw_panel)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = draw ctx (ptr)
+	;r2 = flags (ulong)
+	;r3 = depth (uint)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'ctx)
+	(uint 'flags 'depth 'col)
+
+	;save inputs
+	(push-scope)
+	(f-entry 'view 'draw_panel {this, ctx, flags, depth})
+
+	(f-call 'view 'get_long_prop {this, prop_color} {_, col})
+	(f-call 'ctx 'panel {ctx, col, flags, depth, 0, 0, this->view_w, this->view_h})
+
+	(f-exit 'view 'draw_panel {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'view 'event)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = event data (ptr)
+	;trashes
+	;all but r0
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'data)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(f-entry 'view 'event '((rsp local_this) (rsp local_data)))
+
+	;find target view
+	(f-call 'view 'find_id '(r0 (r1 ev_msg_target_id)) '(_ r0))
+	(vpif '(r0 != 0))
+		;what type of event ?
+		(vp-cpy-ir rsp local_data r1)
+		(vp-cpy-ir r1 ev_msg_type r2)
+		(switch)
+		(case '(r2 == ev_type_mouse))
+			;so what state are we in ?
+			(vp-cpy-ir-ui r1 ev_msg_mouse_buttons r2)
+			(vp-cpy-ir-ui r0 view_last_buttons r3)
+			(vpif '(r3 != 0))
+				;was down previously
+				(vpif '(r2 != 0))
+					;is down now, so move
+					(v-call 'view 'mouse_move '(r0 r1))
+				(else)
+					;is not down now, so release
+					(vp-cpy-ri-i r2 r0 view_last_buttons)
+					(v-call 'view 'mouse_up '(r0 r1))
+				(endif)
+			(else)
+				;was not down previously
+				(vpif '(r2 != 0))
+					;is down now, so first down
+					(vp-cpy-ri-i r2 r0 view_last_buttons)
+					(v-call 'view 'mouse_down '(r0 r1))
+				(else)
+					;is not down now, so hover
+					(v-call 'view 'mouse_hover '(r0 r1))
+				(endif)
+			(endif)
+			(break)
+		(case '(r2 == ev_type_key))
+			(vp-cpy-ir-ui r1 ev_msg_key_keycode r2)
+			(vpif '(r2 >= 0))
+				(v-call 'view 'key_down '(r0 r1))
+			(else)
+				(v-call 'view 'key_up '(r0 r1))
+			(endif)
+		(endswitch)
+	(endif)
+
+	(f-exit 'view 'event '((rsp local_this)))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'find_id)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = target id (long)
+	;outputs
+	;r0 = view object (ptr)
+	;r1 = 0 if not found, else view object (ptr)
+	;trashes
+	;r1-r3
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'view)
+		(ulong 'id)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(f-entry 'view 'find_id '((rsp local_this) (rsp local_id)))
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 rsp local_view)
+
+	;iterate through views front to back
+	(f-call 'view 'forward_tree '(r0 rsp ($ down_callback) ($ up_callback)))
+
+	(f-exit 'view 'find_id '((rsp local_this) (rsp local_view)))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'down_callback)
+	(vp-cpy-ir r1 local_view r2)
+	(vpif '(r2 == 0))
+		(vp-cpy-ir r0 component_id r2)
+		(vp-cpy-ir r1 local_id r3)
+		(vpif '(r2 == r3))
+			(vp-cpy-ri r0 r1 local_view)
+			(vp-xor-rr r1 r1)
+		(endif)
+	(else)
+		(vp-xor-rr r1 r1)
+	(endif)
+(vp-label 'up_callback)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'forward)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = user data pointer (ptr)
+	;r2 = callback (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;trashes
+	;dependant on callback
+		;callback api
+		;inputs
+		;r0 = child view object (ptr)
+		;r1 = user data pointer (ptr)
+		;outputs
+		;r0 = child view object (ptr)
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'data)
+		(ptr 'callback)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-cpy-ri r1 rsp local_data)
+	(vp-cpy-ri r2 rsp local_callback)
+
+	(lh-get-head r0 view_list r0)
+	(loop-start)
+		(ln-get-succ r0 0 r1)
+		(breakif '(r1 == 0))
+
+		;callback
+		(vp-sub-cr view_node r0)
+		(vp-cpy-ir rsp local_data r1)
+		(vp-call-i rsp local_callback)
+
+		;across to sibling
+		(ln-get-succ r0 view_node r0)
+	(loop-end)
+
+	(vp-cpy-ir rsp local_this r0)
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'forward_tree)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = user data pointer
+	;r2 = down callback (ptr)
+	;r3 = up callback (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;trashes
+	;dependant on callbacks
+		;callback api
+		;inputs
+		;r0 = view object (ptr)
+		;r1 = user data pointer (ptr)
+		;outputs
+		;r0 = view object (ptr)
+		;r1 = 0 if should not descend after down callback
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'data)
+		(ptr 'down)
+		(ptr 'up)
+	(def-struct-end)
+
+	(vp-alloc local_size)
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-cpy-ri r1 rsp local_data)
+	(vp-cpy-ri r2 rsp local_down)
+	(vp-cpy-ri r3 rsp local_up)
+	(vp-cpy-rr r0 r1)
+	(loop-start)
+	(vp-label 'down_loop_ctx)
+		(vp-cpy-rr r1 r0)
+
+		;down callback
+		(vp-cpy-ir rsp local_data r1)
+		(vp-call-i rsp local_down)
+		(breakif '(r1 == 0))
+
+		;down to child
+		(lh-get-head r0 view_list r1)
+		(vp-sub-cr view_node r1)
+
+		(ln-get-succ r1 view_node r2)
+	(loop-until '(r2 == 0))
+	(loop-start)
+		;up callback
+		(vp-cpy-ir rsp local_data r1)
+		(vp-call-i rsp local_up)
+
+		;back at root ?
+		(vp-cpy-ir rsp local_this r2)
+		(breakif '(r0 == r2))
+
+		;across to sibling
+		(ln-get-succ r0 view_node r1)
+		(vp-sub-cr view_node r1)
+
+		(ln-get-succ r1 view_node r2)
+		(gotoif '(r2 != 0) 'down_loop_ctx)
+
+		;up to parent
+		(vp-cpy-ir r0 hash_map_parent r0)
+	(loop-end)
+
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'get_bounds)
+	;inputs
+	;r0 = view object (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
+
+	(vp-cpy-ir-i r0 view_x r7)
+	(vp-cpy-ir-i r0 view_y r8)
+	(vp-cpy-ir-i r0 view_w r9)
+	(vp-cpy-ir-i r0 view_h r10)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'get_first)
+	;inputs
+	;r0 = view object (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;r1 = 0 if empty, else first child view object (ptr)
+	;trashes
+	;r2
+
+	(lh-get-head r0 view_list r1)
+	(ln-get-succ r1 0 r2)
+	(vpif '(r2 == 0))
+		(vp-cpy-rr r2 r1)
+	(else)
+		(vp-sub-cr view_node r1)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'get_last)
+	;inputs
+	;r0 = view object (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;r1 = 0 if empty, else last child view object (ptr)
+	;trashes
+	;r2
+
+	(lh-get-tail r0 view_list r1)
+	(ln-get-pred r1 0 r2)
+	(vpif '(r2 == 0))
+		(vp-cpy-rr r2 r1)
+	(else)
+		(vp-sub-cr view_node r1)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'get_relative)
+	;inputs
+	;r0 = view object (ptr)
+	;r1 = ancestor view object (ptr)
+	;r7 = view x (pixels)
+	;r8 = view y (pixels)
+	;outputs
+	;r7 = relative x (pixels)
+	;r8 = relative y (pixels)
+	;trashes
+	;r2, r9-r10
+
+	;walk up tree to parent
+	(vp-cpy-rr r0 r2)
+	(loop-while '(r2 != r1))
+		(vp-cpy-ir-i r2 view_x r9)
+		(vp-cpy-ir-i r2 view_y r10)
+		(vp-add-rr r9 r7)
+		(vp-add-rr r10 r8)
+		(vp-cpy-ir r2 hash_map_parent r2)
+		(assert '(r2 != 0))
+	(loop-end)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'hit)
+	;inputs
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;outputs
+	;r0 = view object (ptr)
+	;r1 = 0 if not, else hit
+
+	(vpif '(r7 >= 0))
+		(vpif '(r8 >= 0))
+			(vp-cpy-ir-i r0 view_w r1)
+			(vpif '(r7 < r1))
+				(vp-cpy-ir-i r0 view_h r1)
+				(vpif '(r8 < r1))
+					;hit ?
+					(vp-cpy-ir-ui r0 view_flags r1)
+					(vp-and-cr view_flag_solid r1)
+					(vp-ret)
+				(endif)
+			(endif)
+		(endif)
+	(endif)
+	(vp-xor-rr r1 r1)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'hit_tree)
+	;inputs
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;outputs
+	;r0 = view object (ptr)
+	;r1 = 0 if not hit, else hit view object (ptr)
+	;r7 = x relative to hit (pixels)
+	;r8 = y relative to hit (pixels)
+	;trashes
+	;r1-r3
+
+	(def-struct 'local)
+		(ptr 'this)
+		(ptr 'hit)
+	(def-struct-end)
+
+	;save inputs
+	(vp-alloc local_size)
+	(vp-cpy-ri r0 rsp local_this)
+	(vp-xor-rr r1 r1)
+	(vp-cpy-ri r1 rsp local_hit)
+
+	;iterate through views front to back
+	(f-call 'view 'forward_tree '(r0 rsp ($ hit_down_callback) ($ hit_up_callback)))
+
+	(vp-cpy-ir rsp local_this r0)
+	(vp-cpy-ir rsp local_hit r1)
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'hit_down_callback)
+	(vp-cpy-ir-i r0 view_x r1)
+	(vp-sub-rr r1 r7)
+	(vp-cpy-ir-i r0 view_y r1)
+	(vp-sub-rr r1 r8)
+	(d-jmp 'view 'hit '(r0 r7 r8))
+
+(vp-label 'hit_up_callback)
+	(vp-cpy-rr r1 r2)
+	(vp-cpy-ir r1 local_hit r1)
+	(vpif '(r1 == 0))
+		(v-call 'view 'hit '(r0 r7 r8) '(r0 r1))
+		(vpif '(r1 != 0))
+			(vp-cpy-ri r0 r2 local_hit)
+			(vp-ret)
+		(endif)
+		(vp-cpy-ir-i r0 view_x r1)
+		(vp-add-rr r1 r7)
+		(vp-cpy-ir-i r0 view_y r1)
+		(vp-add-rr r1 r8)
+		(vp-xor-rr r1 r1)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'opaque)
+	;inputs
+	;r0 = view object (ptr)
+	;trashes
+	;all but r0
+
+	;remove any opaque region
+	(f-call 'view 'sub_opaque '(r0 -1000000 -1000000 2000000 2000000))
+
+	;paste opaque region
+	(vp-cpy-ir-i r0 view_w r9)
+	(vp-cpy-ir-i r0 view_h r10)
+	(f-jmp 'view 'add_opaque '(r0 0 0 r9 r10))
+
+(def-func-end)
+
+(def-method 'view 'pref_size)
+	;inputs
+	;r0 = view object (ptr)
+	;outputs
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(uint 'mw 'mh)
+
+	(push-scope)
+	(f-entry 'view 'pref_size {this})
+
+	(f-call 'view 'get_long_prop {this, prop_min_width} {_, mw})
+	(f-call 'view 'get_long_prop {this, prop_min_height} {_, mh})
+
+	(f-exit 'view 'pref_size {this, mw, mh})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'view 'set_bounds)
+	;inputs
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
+
+	(vp-cpy-ri-i r7 r0 view_x)
+	(vp-cpy-ri-i r8 r0 view_y)
+	(vp-cpy-ri-i r9 r0 view_w)
+	(vp-cpy-ri-i r10 r0 view_h)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'sub)
+	;inputs
+	;r0 = view object (ptr)
+	;trashes
+	;r1-r2
+
+	;test parent
+	(vp-cpy-ir r0 hash_map_parent r1)
+	(vpif '(r1 != 0))
+		;clear parent field
+		(vp-xor-rr r2 r2)
+		(vp-cpy-ri r2 r0 hash_map_parent)
+
+		;remove from parent list
+		(vp-lea-i r0 view_node r2)
+		(ln-remove-node r2 r1)
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'sub_opaque)
+	;inputs
+	;r0 = view object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;r9 = width (pixels)
+	;r10 = height (pixels)
+	;trashes
+	;all but r0
+
+	;cut opaque region
+	(vp-push r0)
+	(vp-add-rr r7 r9)
+	(vp-add-rr r8 r10)
+	(vp-lea-i r0 view_opaque_region r1)
+	(f-bind 'gui 'statics r0)
+	(vp-add-cr gui_statics_rect_heap r0)
+	(f-call 'region 'remove_rect '(r0 r1 r7 r8 r9 r10))
+	(vp-pop r0)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'view 'to_front)
+	;inputs
+	;r0 = view object (ptr)
+	;outputs
+	;r0 = view object (ptr)
+	;trashes
+	;all but r0
+
+	;are we already front ?
+	(ln-is-first r0 view_node r1)
+	(vpif '(r1 != 0))
+		(vp-push r0)
+		(f-call 'view 'add_front '((r0 hash_map_parent) r0))
+		(vp-pop r0)
+		(f-jmp 'view 'dirty_all '(r0))
+	(endif)
+	(vp-ret)
+
+(def-func-end)

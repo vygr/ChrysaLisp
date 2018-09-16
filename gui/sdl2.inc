@@ -1,4 +1,4 @@
-(import 'gui/class.inc)
+(import 'gui/gui/class.inc)
 
 (def-class 'sdl)
 (dec-method 'sdl_set_main_ready nil 'virtual (abi-args 0) '(r0))
@@ -50,7 +50,7 @@
 	(assign _3 s)
 	(when (gt (defq ls (length s)) (defq la (length (abi-args))))
 		(setq x (reduce-rev (lambda (x y) (push x y)) (slice la ls s) (list))))
-	(f-bind 'gui_gui 'statics _5)
+	(f-bind 'gui 'statics _5)
 	(vp-cpy-ir _5 gui_statics_sdl_funcs _5)
 	(vp-call-abi _5 v x)
 	(if _4 (assign (elem 3 m) _4)))

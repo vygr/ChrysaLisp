@@ -1,0 +1,247 @@
+(import 'sys/func.inc)
+(import 'gui/gui/class.inc)
+(import 'gui/slider/class.inc)
+(import 'gui/flow/class.inc)
+(import 'class/array/class.inc)
+(import 'gui/ctx/class.inc)
+
+(gen-new 'slider)
+(gen-create 'slider)
+(gen-class 'slider)
+
+(def-method 'slider 'init)
+	;inputs
+	;r0 = slider object (ptr)
+	;r1 = vtable (pptr)
+	;outputs
+	;r0 = slider object (ptr)
+	;r1 = 0 if error, else ok
+
+	(ptr 'this)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
+
+	(push-scope)
+	(f-entry 'slider 'init {this, vtable})
+
+	;init parent
+	(s-call 'slider 'init {this, vtable} {_, ok})
+	(vpif {ok})
+		;init myself
+		(assign {0} {this->slider_state})
+		(f-call 'array 'create nil {this->slider_value_targets})
+	(endif)
+
+	(f-exit 'slider 'init {this, ok})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'slider 'deinit)
+	;inputs
+	;r0 = slider object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+
+	(push-scope)
+	(f-entry 'slider 'deinit {this})
+
+	(f-call 'array 'deref {this->slider_value_targets})
+
+	;parent deint
+	(f-exit 'slider 'deinit {this})
+	(pop-scope)
+	(s-jmp 'slider 'deinit '(r0))
+
+(def-func-end)
+
+(def-method 'slider 'draw)
+	;inputs
+	;r0 = window object (ptr)
+	;r1 = draw ctx (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'ctx)
+	(long 'max 'val 'portion)
+	(uint 'eo 'width 'height 'col 'dcol)
+
+	;save inputs
+	(push-scope)
+	(f-entry 'slider 'draw {this, ctx})
+
+	;get properties
+	(f-call 'slider 'get_long_prop {this, prop_maximum} {_, max})
+	(f-call 'slider 'get_long_prop {this, prop_portion} {_, portion})
+	(f-call 'slider 'get_long_prop {this, prop_value} {_, val})
+	(f-call 'slider 'get_long_prop {this, prop_color} {_, col})
+
+	;draw outline
+	(f-call 'ctx 'set_color {ctx, 0xff000000})
+	(f-call 'slider 'get_bounds {this} {_, _, _, width, height})
+	(f-call 'ctx 'box {ctx, 0, 0, width, height})
+
+	;draw background
+	(f-call 'ctx 'darker {col} {dcol})
+	(f-call 'ctx 'set_color {ctx, dcol})
+	(f-call 'ctx 'filled_box {ctx, 1, 1, width - 2, height - 2})
+
+	;draw elevator
+	(vpif {this->slider_state & slider_state_pressed})
+		(f-call 'ctx 'brighter {col} {col})
+	(endif)
+	(f-call 'ctx 'set_color {ctx, col})
+	(vpif {width > height})
+		(assign {width - 2} {width})
+		(vpif {max > 0})
+			(assign {(width * portion) // (max + portion)} {portion})
+			(assign {(val * (width - portion)) // max} {eo})
+		(else)
+			(assign {width, 0} {portion, eo})
+		(endif)
+		(f-call 'ctx 'filled_box {ctx, eo + 1, 1, portion, height - 2})
+	(else)
+		(assign {height - 2} {height})
+		(vpif {max > 0})
+			(assign {(height * portion) // (max + portion)} {portion})
+			(assign {(val * (height - portion)) // max} {eo})
+		(else)
+			(assign {height, 0} {portion, eo})
+		(endif)
+		(f-call 'ctx 'filled_box {ctx, 1, eo + 1, width - 2, portion})
+	(endif)
+
+	(f-exit 'slider 'draw {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'slider 'pref_size)
+	;inputs
+	;r0 = slider object (ptr)
+	;outputs
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
+	;trashes
+	;all but r0
+
+	(f-entry 'slider 'pref_size '(r0))
+	(f-exit 'slider 'pref_size '(r0 10 10))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'slider 'mouse_up)
+	;inputs
+	;r0 = slider object (ptr)
+	;r1 = mouse event data (ptr)
+	;trashes
+	;all but r0
+
+	(vp-cpy-ir r0 slider_state r1)
+	(vp-cpy-rr r1 r2)
+	(vp-and-cr (bit-not slider_state_pressed) r1)
+	(vp-cpy-ri r1 r0 slider_state)
+	(vpif '(r1 != r2))
+		(f-jmp 'slider 'dirty '(r0))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'slider 'mouse_move)
+	;inputs
+	;r0 = slider object (ptr)
+	;r1 = mouse event data (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'evt)
+	(ulong 'old_state)
+	(long 'val 'max)
+	(uint 'hit 'width 'height)
+	(int 'rx 'ry)
+
+	(push-scope)
+	(f-entry 'slider 'mouse_move {this, evt})
+
+	;hit ?
+	(assign {evt->ev_msg_mouse_rx, evt->ev_msg_mouse_ry} {rx, ry})
+	(v-call 'slider 'hit {this, rx, ry} {_, hit})
+
+	;is mouse over slider ?
+	(assign {this->slider_state} {old_state})
+	(vpif {hit})
+		;state pressed
+		(assign {old_state | slider_state_pressed} {this->slider_state})
+	(else)
+		;state not pressed
+		(assign {old_state & (-1 ^ slider_state_pressed)} {this->slider_state})
+	(endif)
+
+	;emit new value signal ?
+	(f-call 'slider 'get_bounds {this} {_, _, _, width, height})
+	(f-call 'slider 'get_long_prop {this, prop_maximum} {_, max})
+	(f-call 'slider 'get_long_prop {this, prop_value} {_, val})
+	(vpif {rx < 0})
+		(assign {0} {rx})
+	(endif)
+	(vpif {ry < 0})
+		(assign {0} {ry})
+	(endif)
+	(vpif {width > height})
+		(vpif {rx > width})
+			(assign {width} {rx})
+		(endif)
+		(assign {rx * max // width} {max})
+	(else)
+		(vpif {ry > height})
+			(assign {height} {ry})
+		(endif)
+		(assign {ry * max // height} {max})
+	(endif)
+
+	;dirty ?
+	(switch)
+	(case {max != val})
+		(f-call 'slider 'set_long_prop {this, prop_value, max})
+		(f-call 'slider 'emit {this, this->slider_value_targets})
+		(f-call 'slider 'dirty {this})
+		(break)
+	(case {old_state != this->slider_state})
+		(f-call 'slider 'dirty {this})
+	(endif)
+
+	(f-exit 'slider 'mouse_move {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'slider 'connect_value)
+	;inputs
+	;r0 = slider object (ptr)
+	;r1 = target id (long)
+	;outputs
+	;r0 = slider object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(long 'id)
+
+	(push-scope)
+	(f-entry 'slider 'connect_value {this, id})
+
+	(f-call 'array 'push_back {this->slider_value_targets, id})
+
+	(f-exit 'slider 'connect_value {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

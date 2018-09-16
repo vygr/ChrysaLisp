@@ -1,14 +1,14 @@
 (import 'sys/func.inc)
-(import 'gui/class.inc)
+(import 'gui/gui/class.inc)
 (import 'sys/string/class.inc)
-(import 'class/window/class.inc)
-(import 'class/button/class.inc)
+(import 'gui/window/class.inc)
+(import 'gui/button/class.inc)
 (import 'class/string/class.inc)
 (import 'class/vector/class.inc)
 (import 'class/msg_out/class.inc)
 (import 'class/msg_in/class.inc)
 (import 'class/pipe/class.inc)
-(import 'class/vdu/class.inc)
+(import 'gui/vdu/class.inc)
 
 (def-func 'apps/terminal/app)
 
@@ -54,7 +54,7 @@
 	(f-call 'window 'connect_close {myapp.local_window, 0})
 
 	;add to screen and print sign on
-	(f-call 'gui_gui 'add {myapp.local_window})
+	(f-call 'gui 'add {myapp.local_window})
 	(f-call 'vdu 'print_cstr {myapp.local_vdu, "ChrysaLisp Terminal 1.3"})
 	(f-call 'vdu 'print_char {myapp.local_vdu, char_lf})
 	(f-call 'vdu 'print_char {myapp.local_vdu, char_gt})

@@ -1,0 +1,5 @@
+(import 'gui/canvas/class.vp)
+(import 'gui/canvas/fpoly.vp)
+(import 'gui/canvas/resize.vp)
+(import 'gui/canvas/cpm.vp)
+(import 'gui/canvas/lisp.vp)
