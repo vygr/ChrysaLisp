@@ -1,9 +1,5 @@
 (import 'gui/view/class.inc)
 
-(def-bit 'slider_state)
-	(bit 'pressed)
-(def-bit-end)
-
 (def-class 'slider 'view)
 (dec-method 'vtable 'gui/class_slider)
 (dec-method 'create 'gui/slider/create 'static '() '(r0))
@@ -21,6 +17,10 @@
 
 (dec-method 'lisp_create 'gui/slider/lisp_create 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_connect_value 'gui/slider/lisp_connect_value 'static '(r0 r1) '(r0 r1))
+
+(def-bit 'slider_state)
+	(bit 'pressed)
+(def-bit-end)
 
 (def-struct 'slider 'view)
 	(ulong 'state)

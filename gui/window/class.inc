@@ -1,13 +1,5 @@
 (import 'gui/view/class.inc)
 
-(def-bit 'window_drag)
-	(bit 'left 'right 'top 'bottom)
-(def-bit-end)
-
-(def-bit 'window_flag)
-	(bit 'status 'close 'max 'min)
-(def-bit-end)
-
 (def-class 'window 'view)
 (dec-method 'vtable 'gui/class_window)
 (dec-method 'new 'gui/window/new 'static nil '(r0))
@@ -35,6 +27,14 @@
 (dec-method 'lisp_connect_max 'gui/window/lisp_connect_max 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_set_status 'gui/window/lisp_set_status 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_set_title 'gui/window/lisp_set_title 'static '(r0 r1) '(r0 r1))
+
+(def-bit 'window_drag)
+	(bit 'left 'right 'top 'bottom)
+(def-bit-end)
+
+(def-bit 'window_flag)
+	(bit 'status 'close 'max 'min)
+(def-bit-end)
 
 (def-struct 'window 'view)
 	(offset 'start)

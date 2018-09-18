@@ -5,8 +5,8 @@
 (import 'class/array/class.inc)
 (import 'gui/ctx/class.inc)
 
-(gen-new 'slider)
 (gen-create 'slider)
+(gen-new 'slider)
 (gen-class 'slider)
 
 (def-method 'slider 'init)
