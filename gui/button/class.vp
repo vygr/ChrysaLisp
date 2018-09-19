@@ -175,7 +175,7 @@
 	;all but r0
 
 	(vp-push r0)
-	(f-call 'array 'push_back '((r0 button_click_targets) r1)
+	(f-call 'array 'push_back '((r0 button_click_targets) r1))
 	(vp-pop r0)
 	(vp-ret)
 
