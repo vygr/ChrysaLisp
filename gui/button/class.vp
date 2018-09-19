@@ -46,16 +46,9 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-
-	(push-scope)
-	(f-entry 'button 'deinit {this})
-
-	(f-call 'array 'deref {this->button_click_targets})
-
-	;parent deint
-	(f-exit 'button 'deinit {this})
-	(pop-scope)
+	(vp-push r0)
+	(f-call 'array 'deref '((r0 button_click_targets)))
+	(vp-pop r0)
 	(s-jmp 'button 'deinit '(r0))
 
 (def-func-end)
@@ -181,16 +174,9 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(long 'id)
-
-	(push-scope)
-	(f-entry 'button 'connect_click {this, id})
-
-	(f-call 'array 'push_back {this->button_click_targets, id})
-
-	(f-exit 'button 'connect_click {this})
-	(pop-scope)
-	(return)
+	(vp-push r0)
+	(f-call 'array 'push_back '((r0 button_click_targets) r1)
+	(vp-pop r0)
+	(vp-ret)
 
 (def-func-end)

@@ -434,18 +434,10 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(long 'id)
-
-	;save inputs
-	(push-scope)
-	(f-entry 'window 'connect_layout {this, id})
-
-	(f-call 'array 'push_back {this->window_layout_targets, id})
-
-	(f-exit 'window 'connect_layout {this})
-	(pop-scope)
-	(return)
+	(vp-push r0)
+	(f-call 'array 'push_back '((r0 window_layout_targets) r1))
+	(vp-pop r0)
+	(vp-ret)
 
 (def-func-end)
 
@@ -458,20 +450,13 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(long 'id)
-
-	;save inputs
-	(push-scope)
-	(f-entry 'window 'connect_close {this, id})
-
-	(vpif {this->window_close})
-		(f-call 'button 'connect_click {this->window_close, id})
+	(vp-push r0)
+	(vp-cpy-ir r0 window_close r0)
+	(vpif '(r0 != 0))
+		(f-call 'button 'connect_click '(r0 r1))
 	(endif)
-
-	(f-exit 'window 'connect_close {this})
-	(pop-scope)
-	(return)
+	(vp-pop r0)
+	(vp-ret)
 
 (def-func-end)
 
@@ -484,20 +469,13 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(long 'id)
-
-	;save inputs
-	(push-scope)
-	(f-entry 'window 'connect_max {this, id})
-
-	(vpif {this->window_max})
-		(f-call 'button 'connect_click {this->window_max, id})
+	(vp-push r0)
+	(vp-cpy-ir r0 window_max r0)
+	(vpif '(r0 != 0))
+		(f-call 'button 'connect_click '(r0 r1))
 	(endif)
-
-	(f-exit 'window 'connect_max {this})
-	(pop-scope)
-	(return)
+	(vp-pop r0)
+	(vp-ret)
 
 (def-func-end)
 
@@ -510,19 +488,12 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(long 'id)
-
-	;save inputs
-	(push-scope)
-	(f-entry 'window 'connect_min {this, id})
-
-	(vpif {this->window_min})
-		(f-call 'button 'connect_click {this->window_min, id})
+	(vp-push r0)
+	(vp-cpy-ir r0 window_min r0)
+	(vpif '(r0 != 0))
+		(f-call 'button 'connect_click '(r0 r1))
 	(endif)
-
-	(f-exit 'window 'connect_min {this})
-	(pop-scope)
-	(return)
+	(vp-pop r0)
+	(vp-ret)
 
 (def-func-end)

@@ -45,16 +45,9 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-
-	(push-scope)
-	(f-entry 'slider 'deinit {this})
-
-	(f-call 'array 'deref {this->slider_value_targets})
-
-	;parent deint
-	(f-exit 'slider 'deinit {this})
-	(pop-scope)
+	(vp-push r0)
+	(f-call 'array 'deref '((r0 slider_value_targets)))
+	(vp-pop r0)
 	(s-jmp 'slider 'deinit '(r0))
 
 (def-func-end)
@@ -211,9 +204,9 @@
 	(case {max != val})
 		(f-call 'slider 'set_long_prop {this, prop_value, max})
 		(f-call 'slider 'emit {this, this->slider_value_targets})
-		(f-call 'slider 'dirty {this})
-		(break)
+		(goto 'isdirty)
 	(case {old_state != this->slider_state})
+	(vp-label 'isdirty)
 		(f-call 'slider 'dirty {this})
 	(endif)
 
@@ -232,16 +225,9 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this)
-	(long 'id)
-
-	(push-scope)
-	(f-entry 'slider 'connect_value {this, id})
-
-	(f-call 'array 'push_back {this->slider_value_targets, id})
-
-	(f-exit 'slider 'connect_value {this})
-	(pop-scope)
-	(return)
+	(vp-push r0)
+	(f-call 'array 'push_back '((r0 slider_value_targets) r1))
+	(vp-pop r0)
+	(vp-ret)
 
 (def-func-end)

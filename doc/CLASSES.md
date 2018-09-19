@@ -398,7 +398,7 @@ r0 = button object (ptr)
 trashes
 all but r0
 ```
-### button::mouse_down -> gui/button/mouse_down
+### button::mouse_down -> gui/button/mouse_move
 ```
 inputs
 r0 = button object (ptr)
