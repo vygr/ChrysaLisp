@@ -282,5 +282,7 @@
 
 (defun compile-test (&optional *os* *cpu*)
 	(setd *os* (platform) *cpu* (cpu))
+	(defq f (all-vp-files))
 	(each (lambda (_)
-		(compile _ *os* *cpu*)) (all-vp-files)))
+		(compile _ *os* *cpu*)) f)
+	(compile f *os* *cpu* 1))
