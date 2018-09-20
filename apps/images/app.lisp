@@ -27,7 +27,7 @@
 			(button-connect-click (ui-element _ (create-button) ('text "")) event_win_next))
 		(ui-element image_flow (create-flow) ('flow_flags (bit-or flow_flag_left flow_flag_fillh flow_flag_lastw))
 			(slider-connect-value (ui-element vslider (create-slider) nil) event_win_vvalue)
-			(ui-element image_view (create-flow) ('flow_flags (bit-or flow_flag_up flow_flag_fillw flow_flag_lasth))
+			(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_up flow_flag_fillw flow_flag_lasth))
 				(slider-connect-value (ui-element hslider (create-slider) nil) event_win_hvalue)
 				(ui-element image_view (create-view) ('min_width 256 'min_height 256)
 					(ui-element image (create-view)))))))
