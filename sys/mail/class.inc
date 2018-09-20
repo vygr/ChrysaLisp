@@ -22,6 +22,9 @@
 (dec-method 'select 'sys/mail/select 'static '(r0 r1) '(r0))
 (dec-method 'mymail 'sys/mail/mymail 'static nil '(r0 r1))
 (dec-method 'trymail 'sys/mail/trymail 'static nil '(r0 r1))
+(dec-method 'declare 'sys/mail/declare 'static '(r0 r1))
+(dec-method 'enquire 'sys/mail/enquire 'static '(r0) '(r0))
+(dec-method 'forget 'sys/mail/forget 'static '(r0))
 (dec-method 'in 'sys/mail/in 'static '(r0))
 (dec-method 'out 'sys/mail/out)
 
@@ -63,6 +66,7 @@
 	(ptr 'mbox_array)
 	(ptr 'mbox_free_array)
 	(ptr 'links_array)
+	(ptr 'declare_map)
 	(ptr 'out_mbox_addr)
 	(uint 'parcel_id)
 (def-struct-end)

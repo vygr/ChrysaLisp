@@ -2,6 +2,9 @@
 (import 'sys/link/class.inc)
 (import 'sys/kernel/class.inc)
 (import 'class/array/class.inc)
+(import 'class/symbol/class.inc)
+(import 'class/hash_map/class.inc)
+(import 'class/integer/class.inc)
 
 (def-method 'sys_mail 'statics)
 	;info
@@ -53,6 +56,9 @@
 
 	;init header heap
 	(f-call 'sys_heap 'init {&mail_statics->ml_statics_msg_heap, msg_size, msg_size * 64})
+
+	;create declare map
+	(f-call 'hash_map 'create {0, 1} {mail_statics->ml_statics_declare_map})
 
 	(pop-scope)
 	(return)
@@ -413,5 +419,85 @@
 			(vp-add-cr ptr_size r0)
 		(loop-until '(r0 == r1))
 	(loop-end)
+
+(def-func-end)
+
+(def-method 'sys_mail 'declare)
+	;inputs
+	;r0 = mailbox name c string (pubyte)
+	;r1 = mailbox id (ulong)
+	;trashes
+	;all
+
+	(ptr 'mail_statics 'name)
+	(ulong 'id)
+
+	(push-scope)
+	(f-entry 'sys_mail 'declare {name, id})
+
+	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
+	(f-call 'symbol 'intern_cstr {name} {name})
+	(f-call 'integer 'create {id} {id})
+	(f-call 'hash_map 'insert {mail_statics->ml_statics_declare_map, name, id})
+	(f-call 'symbol 'deref {name})
+	(f-call 'integer 'deref {id})
+
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'sys_mail 'enquire)
+	;inputs
+	;r0 = mailbox name c string (pubyte)
+	;outputs
+	;r0 = 0 if error, else mailbox id (ulong)
+	;trashes
+	;all
+
+	(ptr 'mail_statics 'name)
+	(union
+		'(pptr 'iter)
+		'(ulong 'id))
+
+	(push-scope)
+	(f-entry 'sys_mail 'enquire {name})
+
+	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
+	(f-call 'symbol 'intern_cstr {name} {name})
+	(f-call 'hash_map 'find {mail_statics->ml_statics_declare_map, name} {_, iter, _})
+	(vpif {iter})
+		(f-call 'integer 'get_value {*iter} {_, id})
+	(endif)
+	(f-call 'symbol 'deref {name})
+
+	(f-exit 'sys_mail 'enquire {id})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'sys_mail 'forget)
+	;inputs
+	;r0 = mailbox name c string (pubyte)
+	;trashes
+	;all
+
+	(ptr 'mail_statics 'name 'bucket)
+	(pptr 'iter)
+
+	(push-scope)
+	(f-entry 'sys_mail 'forget {name})
+
+	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
+	(f-call 'symbol 'intern_cstr {name} {name})
+	(f-call 'hash_map 'find {mail_statics->ml_statics_declare_map, name} {_, iter, bucket})
+	(vpif {iter})
+		(f-call 'hash_map 'erase {mail_statics->ml_statics_declare_map,  iter, bucket})
+	(endif)
+	(f-call 'symbol 'deref {name})
+
+	(pop-scope)
+	(return)
 
 (def-func-end)
