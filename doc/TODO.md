@@ -15,14 +15,6 @@ metal as the bootstrap and take over the UI work directly rather than going
 through SDL. At this point I would start writing device drivers for the virtual
 device interfaces provided by the VM environment.
 
-* Create a standard services registration system. This is a mechanism to allow
-processes to register themselves as providing a particular service to the rest
-of the network. All this amounts to is a standard mechanism for attaching a
-name globally throughout the system to a mailbox ID. Initially there will
-probably be a message to kernel zero to register a mailbox ID. Although I may
-cache these locally on retrieval in order to distribute the global names
-throughout the network.
-
 * Create or port an existing TCP/IP stack. Provide this as a standard service
 on the network. Implement another link driver type that uses TCP/IP in order to
 experiment with bridging multiple computers together into a single addressable
