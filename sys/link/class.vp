@@ -44,15 +44,15 @@
 	(assign {0} {lk_node.lk_node_task_count})
 
 	;send link routing message to neighbor kernel
-	(f-call 'sys_mail 'alloc {kn_msg_link_route_size} {msg, data})
+	(f-call 'sys_mail 'alloc {kn_msg_route_size} {msg, data})
 	(assign {0} {msg->msg_dest.id_mbox})
 	(assign {lk_node.lk_node_cpu_id} {msg->msg_dest.id_cpu})
 	(assign {kn_call_route} {data->kn_msg_function})
 	(assign {0} {data->kn_msg_user})
 	(assign {0} {data->kn_msg_reply_id.id_id})
-	(assign {id} {data->kn_msg_link_route_origin})
-	(assign {id} {data->kn_msg_link_route_via})
-	(assign {1} {data->kn_msg_link_route_hops})
+	(assign {id} {data->kn_msg_route_origin})
+	(assign {id} {data->kn_msg_flood_via})
+	(assign {1} {data->kn_msg_route_hops})
 	(f-call 'sys_mail 'send {msg})
 
 	;open shared memory file

@@ -21,10 +21,11 @@
 		'(ptr 'argv 'sdl)
 		'(ptr 'link 'mbox_addr))
 	(ptr 'task_statics 'mail_statics 'func 'old_stack)
-	(ptr 'msg 'data 'new_msg 'new_data 'pathname)
+	(ptr 'msg 'data 'new_msg 'pathname)
 	(pptr 'iter_begin 'iter_end)
+	(ulong 'service)
 	(struct 'routes 'lk_table)
-	(uint 'id 'num 'best_cnt 'best_id 'route_index 'hops 'new_hops 'via 'length 'mbox_id)
+	(uint 'id 'num 'best_cnt 'best_id 'route_index 'hops 'new_hops 'length 'mbox_id)
 
 	;align stack
 	(vp-cpy-rr rsp r2)
@@ -130,14 +131,23 @@
 				(assign {best_id} {msg->msg_dest.id_cpu})
 				(f-call 'sys_mail 'send {msg})
 				(break)
+			(case {num == kn_call_declare})
+				;declare service if not found
+				(f-call 'sys_mail 'enquire {&data->kn_msg_declare_name} {service})
+				(vpifnot {service})
+					(f-call 'sys_mail 'declare {&data->kn_msg_declare_name, data->kn_msg_reply_id.id})
+					;copy and send to all neighbors apart from old via
+					(l-call 'flood {mail_statics, msg, data, id})
+				(endif)
+				(vp-jmp 'drop_msg)
 			(case {num == kn_call_route})
 				;increase size of network ?
-				(vpif {data->kn_msg_link_route_origin >= task_statics->tk_statics_cpu_total})
-					(assign {data->kn_msg_link_route_origin + 1} {task_statics->tk_statics_cpu_total})
+				(vpif {data->kn_msg_route_origin >= task_statics->tk_statics_cpu_total})
+					(assign {data->kn_msg_route_origin + 1} {task_statics->tk_statics_cpu_total})
 				(endif)
 
 				;new kernel routing table ?
-				(assign {data->kn_msg_link_route_origin * lk_route_size} {route_index})
+				(assign {data->kn_msg_route_origin * lk_route_size} {route_index})
 				(vpif {route_index + lk_route_size > routes.lk_table_array_size})
 					(f-call 'sys_mem 'recalloc {routes.lk_table_array, routes.lk_table_array_size, route_index + lk_route_size}
 						{routes.lk_table_array, routes.lk_table_array_size})
@@ -145,7 +155,7 @@
 
 				;compare hop counts
 				(assign {(routes.lk_table_array)[route_index].lk_route_hops} {hops})
-				(assign {data->kn_msg_link_route_hops} {new_hops})
+				(assign {data->kn_msg_route_hops} {new_hops})
 				(switch)
 				(case {!hops || new_hops < hops})
 				(vp-label 'better_route)
@@ -161,7 +171,7 @@
 							(f-call 'sys_mem 'recalloc {link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size, route_index + lk_route_size}
 								{link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size})
 						(endif)
-						(vpif {link->lk_node_cpu_id == data->kn_msg_link_route_via})
+						(vpif {link->lk_node_cpu_id == data->kn_msg_flood_via})
 							;via route
 							(assign {new_hops} {(link->lk_node_table.lk_table_array)[route_index].lk_route_hops})
 						(else)
@@ -181,7 +191,7 @@
 							(f-call 'sys_mem 'recalloc {link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size, route_index + lk_route_size}
 								{link->lk_node_table.lk_table_array, link->lk_node_table.lk_table_array_size})
 						(endif)
-						(vpif {link->lk_node_cpu_id == data->kn_msg_link_route_via})
+						(vpif {link->lk_node_cpu_id == data->kn_msg_flood_via})
 							;via route
 							(assign {new_hops} {(link->lk_node_table.lk_table_array)[route_index].lk_route_hops})
 						(endif)
@@ -194,25 +204,10 @@
 				(endswitch)
 
 				;increment hop count
-				(assign {data->kn_msg_link_route_hops + 1} {data->kn_msg_link_route_hops})
-
-				;get current via, set via to my cpu id
-				(assign {data->kn_msg_link_route_via} {via})
-				(assign {id} {data->kn_msg_link_route_via})
+				(assign {data->kn_msg_route_hops + 1} {data->kn_msg_route_hops})
 
 				;copy and send to all neighbors apart from old via
-				(f-call 'array 'get_iters {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
-				(loop-while {iter_begin != iter_end})
-					(assign {*iter_begin} {link})
-					(vpif {link->lk_node_cpu_id != via})
-						(f-call 'sys_mail 'alloc {msg->msg_length} {new_msg, new_data})
-						(f-call 'sys_mem 'copy {msg + ln_node_size, new_msg + ln_node_size, msg_stamp_size - ln_node_size})
-						(f-call 'sys_mem 'copy {data, new_data, (msg->msg_length + long_size - 1) & - long_size})
-						(assign {link->lk_node_cpu_id} {new_msg->msg_dest.id_cpu})
-						(f-call 'sys_mail 'send {new_msg})
-					(endif)
-					(assign {iter_begin + ptr_size} {iter_begin})
-				(loop-end)
+				(l-call 'flood {mail_statics, msg, data, id})
 			(vp-label 'drop_msg)
 				(f-call 'sys_mail 'free {msg})
 				(break)
@@ -272,6 +267,38 @@
 	;restore stack, exit back to main.c
 	(assign {old_stack} '(rsp))
 	(pop-scope-syms)
+	(return)
+
+(vp-label 'flood)
+	;inputs
+	;r0 = link array
+	;r1 = flood msg
+	;r2 = flood data
+	;r3 = kernel id
+
+	(ptr 'mail_statics 'msg 'data 'link 'new_msg 'new_data)
+	(pptr 'iter_begin 'iter_end)
+	(uint 'id 'via)
+
+	(push-scope)
+	(l-entry {mail_statics, msg, data, id})
+
+	(assign {data->kn_msg_flood_via} {via})
+	(assign {id} {data->kn_msg_flood_via})
+	(f-call 'array 'get_iters {mail_statics->ml_statics_links_array} {_, iter_begin, iter_end})
+	(loop-while {iter_begin != iter_end})
+		(assign {*iter_begin} {link})
+		(vpif {link->lk_node_cpu_id != via})
+			(f-call 'sys_mail 'alloc {msg->msg_length} {new_msg, new_data})
+			(f-call 'sys_mem 'copy {msg + ln_node_size, new_msg + ln_node_size, msg_stamp_size - ln_node_size})
+			(f-call 'sys_mem 'copy {data, new_data, (msg->msg_length + long_size - 1) & - long_size})
+			(assign {link->lk_node_cpu_id} {new_msg->msg_dest.id_cpu})
+			(f-call 'sys_mail 'send {new_msg})
+		(endif)
+		(assign {iter_begin + ptr_size} {iter_begin})
+	(loop-end)
+
+	(pop-scope)
 	(return)
 
 (def-func-end)
@@ -411,5 +438,35 @@
 		(vp-string "-l") (vp-byte 0)
 		(vp-align ptr_size)
 	(vp-long 0)
+
+(def-func-end)
+
+(def-method 'sys_kernel 'declare)
+	;inputs
+	;r0 = mailbox name c string (pubyte)
+	;r1 = mailbox id (ulong)
+	;trashes
+	;all
+
+	(ptr 'name 'msg 'data)
+	(ulong 'id)
+	(uint 'length)
+
+	;save task info
+	(push-scope)
+	(f-entry 'sys_kernel 'declare {name, id})
+
+	(f-call 'sys_string 'length {name} {_, length})
+	(f-call 'sys_mail 'alloc {length + 1 + kn_msg_declare_size} {msg, data})
+	(assign {0} {msg->msg_dest.id_mbox})
+	(f-call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
+	(assign {kn_call_declare} {data->kn_msg_function})
+	(assign {id} {data->kn_msg_reply_id.id})
+	(assign {-1} {data->kn_msg_flood_via})
+	(f-call 'sys_mem 'copy {name, &data->kn_msg_declare_name, length + 1})
+	(f-call 'sys_mail 'send {msg})
+
+	(pop-scope)
+	(return)
 
 (def-func-end)
