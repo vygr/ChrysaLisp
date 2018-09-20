@@ -77,8 +77,6 @@
 ### (count-trailing-zeros num)
 ## cpu
 ### (cpu)
-## cpu-total
-### (cpu-total)
 ## create-backdrop
 ### (create-backdrop)
 ## create-button
@@ -99,6 +97,8 @@
 ### (create-slave)
 ## create-slider
 ### (create-slider)
+## create-vdu
+### (create-vdu)
 ## create-view
 ### (create-view)
 ## create-window
@@ -107,6 +107,8 @@
 ### (cubed num)
 ## curry
 ### (curry lambda var ...)
+## debug
+### (debug str)
 ## dec
 ### (dec num)
 ## def
@@ -195,6 +197,10 @@
 ### (insert list str)
 ## insert-sym
 ### (insert-sym list sym)
+## kernel-declare
+### (kernel-declare name mbox)
+## kernel-total
+### (kernel-total)
 ## lambda
 ### (lambda ([arg ...]) body)
 ## le
@@ -217,6 +223,10 @@
 ### (macroexpand form)
 ## macroexpand-1
 ### (macroexpand-1 form)
+## mail-declare
+### (mail-declare name mbox)
+## mail-enquire
+### (mail-enquire name)
 ## mail-mymail
 ### (mail-mymail)
 ## mail-send
@@ -413,6 +423,8 @@
 ### (unless tst body)
 ## until
 ### (until tst body)
+## vdu-print
+### (vdu-print vdu str)
 ## view-add-back
 ### (view-add-back view view)
 ## view-add-child

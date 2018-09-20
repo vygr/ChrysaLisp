@@ -16,7 +16,7 @@
 	(byte 'win_max))
 
 (defq task_bars (list) memory_bars (list)
-	cpu_total (cpu-total) cpu_count cpu_total
+	cpu_total (kernel-total) cpu_count cpu_total
 	id t max_tasks 0 max_memory 0)
 
 (ui-tree window (create-window (add window_flag_close window_flag_min window_flag_max)) nil

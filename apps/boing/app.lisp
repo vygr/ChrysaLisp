@@ -41,17 +41,20 @@
 	(view-sub old_frame)
 	(view-add-back backdrop frame)
 	(view-dirty frame)
+	(debug (cat "Pos = " (str x) "," (str y) (char 10)))
 	(while (defq msg (mail-trymail))
 		(cond
 			((eq (setq id (read-long ev_msg_target_id msg)) event_win_close)
 				(setq id nil))
 			((eq id event_win_min)
 				;min button
+				(debug (cat "Min button pressed" (char 10)))
 				(bind '(x y _ _) (view-get-bounds (view-dirty window)))
 				(bind '(w h) (view-pref-size window))
 				(view-dirty-all (view-change window x y w h)))
 			((eq id event_win_max)
 				;max button
+				(debug (cat "Max button pressed" (char 10)))
 				(bind '(x y _ _) (view-get-bounds (view-dirty window)))
 				(bind '(w h) (view-pref-size window))
 				(view-dirty-all (view-change window x y (fmul w 1.5) (fmul h 1.5))))

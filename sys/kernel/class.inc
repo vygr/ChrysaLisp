@@ -1,5 +1,17 @@
 (import 'sys/mail/class.inc)
 
+(def-class 'sys_kernel)
+(dec-method 'id 'sys/kernel/id 'static nil '(r0))
+(dec-method 'total 'sys/kernel/total 'static nil '(r0))
+(dec-method 'opts 'sys/kernel/opts 'static '(r0))
+(dec-method 'declare 'sys/kernel/declare 'static '(r0 r1))
+(dec-method 'kernel 'sys/kernel/kernel 'static '(r0 r1))
+(dec-method 'debug 'sys/kernel/debug 'static '(r0))
+
+(dec-method 'lisp_total 'sys/kernel/lisp_total 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_declare 'sys/kernel/lisp_declare 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_debug 'sys/kernel/lisp_debug 'static '(r0 r1) '(r0 r1))
+
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; kernel mail functions
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -39,11 +51,13 @@
 	(offset 'name)
 (def-struct-end)
 
-(def-class 'sys_kernel)
-(dec-method 'id 'sys/kernel/id 'static nil '(r0))
-(dec-method 'total 'sys/kernel/total 'static nil '(r0))
-(dec-method 'opts 'sys/kernel/opts 'static '(r0))
-(dec-method 'declare 'sys/kernel/declare 'static '(r0 r1))
-(dec-method 'kernel 'sys/kernel/kernel 'static '(r0 r1))
+;;;;;;;;;;;;;;;;;;;
+; kernel debug data
+;;;;;;;;;;;;;;;;;;;
 
-(dec-method 'lisp_total 'sys/kernel/lisp_total 'static '(r0 r1) '(r0 r1))
+(def-struct 'kn_debug)
+	(ulong 'command)
+	(struct 'reply_id 'id)
+	(ptr 'tcb)
+	(offset 'data)
+(def-struct-end)

@@ -1,0 +1,74 @@
+(import 'sys/func.inc)
+(import 'gui/vdu/class.inc)
+(import 'class/string/class.inc)
+(import 'class/lisp/class.inc)
+
+(def-method 'vdu 'lisp_create)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+(errorcases
+	(uint 'length))
+
+	(push-scope)
+	(f-entry 'vdu 'lisp_create {this, args})
+
+(errorcases
+	(d-call 'vector 'get_length {args} {_, length})
+	(errorif {length} 'error1))
+
+	(f-call 'vdu 'create nil {value})
+
+(vp-label 'exit)
+	(f-exit 'vdu 'lisp_create {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(create-vdu)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'vdu 'lisp_print)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1)
+
+	(push-scope)
+	(f-entry 'vdu 'lisp_print {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'vdu 'print_cstr {arg0, &arg1->string_data})
+	(f-call 'obj 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'vdu 'lisp_print {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(vdu-print vdu str)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'vdu 'string))
+
+	(pop-scope-syms)
+
+(def-func-end)

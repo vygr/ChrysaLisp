@@ -1,6 +1,7 @@
 (import 'sys/func.inc)
 (import 'sys/kernel/class.inc)
 (import 'class/integer/class.inc)
+(import 'class/string/class.inc)
 (import 'class/lisp/class.inc)
 
 (def-method 'sys_kernel 'lisp_total)
@@ -30,8 +31,80 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(cpu-total)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(kernel-total)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'sys_kernel 'lisp_declare)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1)
+
+	(push-scope)
+	(f-entry 'sys_kernel 'lisp_declare {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'sys_kernel 'declare {&arg0->string_data, arg1})
+	(f-call 'obj 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'sys_kernel 'lisp_declare {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(kernel-declare name mbox)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'string 'integer))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'sys_kernel 'lisp_debug)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0)
+
+	(push-scope)
+	(f-entry 'sys_kernel 'lisp_debug {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'sys_kernel 'debug {&arg0->string_data})
+	(f-call 'obj 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'sys_kernel 'lisp_debug {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(debug str)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'string))
 
 	(pop-scope-syms)
 

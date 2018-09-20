@@ -4,6 +4,7 @@
 (import 'class/array/class.inc)
 (import 'class/symbol/class.inc)
 (import 'class/hash_map/class.inc)
+(import 'class/pair/class.inc)
 (import 'class/integer/class.inc)
 
 (def-method 'sys_mail 'statics)
@@ -467,7 +468,8 @@
 	(f-call 'symbol 'intern_cstr {name} {name})
 	(f-call 'hash_map 'find {mail_statics->ml_statics_declare_map, name} {_, iter, _})
 	(vpif {iter})
-		(f-call 'integer 'get_value {*iter} {_, id})
+		(f-call 'pair 'get_second {*iter} {_, id})
+		(f-call 'integer 'get_value {id} {_, id})
 	(endif)
 	(f-call 'symbol 'deref {name})
 
@@ -493,7 +495,7 @@
 	(f-call 'symbol 'intern_cstr {name} {name})
 	(f-call 'hash_map 'find {mail_statics->ml_statics_declare_map, name} {_, iter, bucket})
 	(vpif {iter})
-		(f-call 'hash_map 'erase {mail_statics->ml_statics_declare_map,  iter, bucket})
+		(f-call 'hash_map 'erase {mail_statics->ml_statics_declare_map, iter, bucket})
 	(endif)
 	(f-call 'symbol 'deref {name})
 

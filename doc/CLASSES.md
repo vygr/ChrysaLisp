@@ -4138,7 +4138,32 @@ r1 = SDL func table (pptr)
 info
 loader is already initialized when we get here !
 ```
+### sys_kernel::debug -> sys/kernel/debug
+```
+inputs
+r0 = debug c string (pubyte)
+trashes
+all
+```
 ### sys_kernel::lisp_total -> sys/kernel/lisp_total
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sys_kernel::lisp_declare -> sys/kernel/lisp_declare
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sys_kernel::lisp_debug -> sys/kernel/lisp_debug
 ```
 inputs
 r0 = lisp object (ptr)
@@ -4369,6 +4394,24 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### sys_mail::lisp_send -> sys/mail/lisp_send
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sys_mail::lisp_declare -> sys/mail/lisp_declare
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### sys_mail::lisp_enquire -> sys/mail/lisp_enquire
 ```
 inputs
 r0 = lisp object (ptr)
@@ -5112,6 +5155,24 @@ r0 = vdu object (ptr)
 r1 = c string pointer (pubyte)
 outputs
 r0 = vdu object (ptr)
+```
+### vdu::lisp_create -> gui/vdu/lisp_create
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### vdu::lisp_print -> gui/vdu/lisp_print
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 ```
 ### vdu::deinit -> gui/vdu/deinit
 ```

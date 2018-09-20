@@ -10,6 +10,9 @@
 (dec-method 'print_char 'gui/vdu/print_char 'static '(r0 r1) '(r0))
 (dec-method 'print_cstr 'gui/vdu/print_cstr 'static '(r0 r1) '(r0))
 
+(dec-method 'lisp_create 'gui/vdu/lisp_create 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_print 'gui/vdu/lisp_print 'static '(r0 r1) '(r0 r1))
+
 (dec-method 'deinit 'gui/vdu/deinit 'final)
 (dec-method 'pref_size 'gui/vdu/pref_size 'final)
 (dec-method 'draw 'gui/vdu/draw 'final)

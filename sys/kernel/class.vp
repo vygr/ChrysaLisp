@@ -468,3 +468,47 @@
 	(return)
 
 (def-func-end)
+
+(def-method 'sys_kernel 'debug)
+	;inputs
+	;r0 = debug c string (pubyte)
+	;trashes
+	;all
+
+	(ptr 'debug_data 'msg 'data 'mailbox)
+	(struct 'service 'id)
+	(uint 'mbox_id 'length)
+
+	;save task info
+	(push-scope)
+	(f-entry 'sys_kernel 'debug {debug_data})
+
+	;enquire of DEBUG_SERVICE
+	(f-call 'sys_mail 'enquire {"DEBUG_SERVICE"} {service.id_id})
+	(vpif {service.id_id})
+		;alloc temp mailbox
+		(f-call 'sys_mail 'alloc_mbox nil {mbox_id})
+		(f-call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
+
+		;send debug data
+		(f-call 'sys_string 'length {debug_data} {_, length})
+		(f-call 'sys_mail 'alloc {length + 1 + kn_debug_size} {msg, data})
+		(assign {service.id_id} {msg->msg_dest.id_id})
+		(assign {0} {data->kn_debug_command})
+		(assign {mbox_id} {data->kn_debug_reply_id.id_mbox})
+		(f-call 'sys_kernel 'id nil {data->kn_debug_reply_id.id_cpu})
+		(f-call 'sys_task 'tcb nil {data->kn_debug_tcb})
+		(f-call 'sys_mem 'copy {debug_data, &data->kn_debug_data, length + 1})
+		(f-call 'sys_mail 'send {msg})
+
+		;wait for reply
+		(f-call 'sys_mail 'read {mailbox} {msg, _})
+		(f-call 'sys_mail 'free {msg})
+
+		;free temp mailbox
+		(f-call 'sys_mail 'free_mbox {mbox_id})
+	(endif)
+	(pop-scope)
+	(return)
+
+(def-func-end)

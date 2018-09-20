@@ -124,3 +124,79 @@
 	(pop-scope-syms)
 
 (def-func-end)
+
+(def-method 'sys_mail 'lisp_declare)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args 'value)
+	(ulong 'arg0 'arg1)
+
+	(push-scope)
+	(f-entry 'sys_mail 'lisp_declare {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'sys_mail 'declare {&arg0->string_data, arg1})
+	(f-call 'obj 'ref {arg0} {value})
+
+(vp-label 'exit)
+	(f-exit 'sys_mail 'lisp_declare {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(mail-declare name mbox)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'string 'integer))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'sys_mail 'lisp_enquire)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args)
+	(ulong 'value 'arg0)
+
+	(push-scope)
+	(f-entry 'sys_mail 'lisp_enquire {this, args})
+
+(errorcases
+	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(errorifnot {value} 'error1))
+
+	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(f-call 'sys_mail 'enquire {&arg0->string_data} {value})
+	(vpif {value})
+		(f-call 'integer 'create {value} {value})
+	(else)
+		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
+	(endif)
+
+(vp-label 'exit)
+	(f-exit 'sys_mail 'lisp_enquire {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(f-call 'lisp 'repl_error {this, "(mail-enquire name)", error_msg_wrong_types, args} {_, value})
+	(goto 'exit)
+	(signature 'sig 'string))
+
+	(pop-scope-syms)
+
+(def-func-end)

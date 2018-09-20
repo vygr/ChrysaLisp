@@ -7,6 +7,7 @@
 
 (defq app_list '(
 	"apps/terminal/app"
+	"apps/debug/app.lisp"
 	"apps/netmon/app.lisp"
 	"apps/boing/app.lisp"
 	"apps/images/app.lisp"
