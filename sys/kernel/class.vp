@@ -135,7 +135,7 @@
 				;declare service if not found
 				(f-call 'sys_mail 'enquire {&data->kn_msg_declare_name} {service})
 				(vpifnot {service})
-					(f-call 'sys_mail 'declare {&data->kn_msg_declare_name, data->kn_msg_reply_id.id})
+					(f-call 'sys_mail 'declare {&data->kn_msg_declare_name, data->kn_msg_reply_id.id_id})
 					;copy and send to all neighbors apart from old via
 					(l-call 'flood {mail_statics, msg, data, id})
 				(endif)
@@ -459,7 +459,7 @@
 	(assign {0} {msg->msg_dest.id_mbox})
 	(f-call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
 	(assign {kn_call_declare} {data->kn_msg_function})
-	(assign {id} {data->kn_msg_reply_id.id})
+	(assign {id} {data->kn_msg_reply_id.id_id})
 	(assign {-1} {data->kn_msg_flood_via})
 	(f-call 'sys_mem 'copy {name, &data->kn_msg_declare_name, length + 1})
 	(f-call 'sys_mail 'send {msg})
