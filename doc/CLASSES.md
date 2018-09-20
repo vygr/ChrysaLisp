@@ -4122,6 +4122,14 @@ all
 info
 process command options
 ```
+### sys_kernel::declare -> sys/kernel/declare
+```
+inputs
+r0 = mailbox name c string (pubyte)
+r1 = mailbox id (ulong)
+trashes
+all
+```
 ### sys_kernel::kernel -> sys/kernel/kernel
 ```
 inputs
@@ -4305,6 +4313,30 @@ r0 = 0, else mail address (ptr)
 r1 = string data (pubyte)
 trashes
 r2
+```
+### sys_mail::declare -> sys/mail/declare
+```
+inputs
+r0 = mailbox name c string (pubyte)
+r1 = mailbox id (ulong)
+trashes
+all
+```
+### sys_mail::enquire -> sys/mail/enquire
+```
+inputs
+r0 = mailbox name c string (pubyte)
+outputs
+r0 = 0 if error, else mailbox id (ulong)
+trashes
+all
+```
+### sys_mail::forget -> sys/mail/forget
+```
+inputs
+r0 = mailbox name c string (pubyte)
+trashes
+all
 ```
 ### sys_mail::in -> sys/mail/in
 ```

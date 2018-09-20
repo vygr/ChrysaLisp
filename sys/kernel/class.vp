@@ -271,12 +271,12 @@
 
 (vp-label 'flood)
 	;inputs
-	;r0 = link array
+	;r0 = mail statics
 	;r1 = flood msg
 	;r2 = flood data
 	;r3 = kernel id
 
-	(ptr 'mail_statics 'msg 'data 'link 'new_msg 'new_data)
+	(ptr 'mail_statics 'msg 'data 'link 'new_msg)
 	(pptr 'iter_begin 'iter_end)
 	(uint 'id 'via)
 
@@ -289,10 +289,8 @@
 	(loop-while {iter_begin != iter_end})
 		(assign {*iter_begin} {link})
 		(vpif {link->lk_node_cpu_id != via})
-			(f-call 'sys_mail 'alloc {msg->msg_length} {new_msg, new_data})
-			(f-call 'sys_mem 'copy {msg + ln_node_size, new_msg + ln_node_size, msg_stamp_size - ln_node_size})
-			(f-call 'sys_mem 'copy {data, new_data, (msg->msg_length + long_size - 1) & - long_size})
-			(assign {link->lk_node_cpu_id} {new_msg->msg_dest.id_cpu})
+			(f-call 'sys_mail 'alloc_obj {msg->msg_parcel_obj, data, msg->msg_length} {new_msg})
+			(assign {link->lk_node_cpu_id << 32} {new_msg->msg_dest.id_id})
 			(f-call 'sys_mail 'send {new_msg})
 		(endif)
 		(assign {iter_begin + ptr_size} {iter_begin})
