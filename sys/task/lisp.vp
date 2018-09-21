@@ -202,6 +202,11 @@
 	(errorifnot {value} 'error1))
 
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+
+(errorcases
+	(f-call 'lisp 'env_args_type (cat {this, arg0, @} (f-path 'string 'vtable) {, -1}) {_, value})
+	(errorifnot {value} 'error1))
+
 	(f-call 'sys_task 'open_pipe {arg0} {value})
 
 (vp-label 'exit)
