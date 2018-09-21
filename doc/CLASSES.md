@@ -4910,7 +4910,7 @@ r1-r2
 ### sys_task::open_child -> sys/task/open_child
 ```
 inputs
-r0 = name string object (ptr)
+r0 = name c string (pubyte)
 r1 = spawn type (uint)
 outputs
 r0 = mailbox ID (id)
@@ -4920,7 +4920,7 @@ all
 ### sys_task::open_remote -> sys/task/open_remote
 ```
 inputs
-r0 = name string object (ptr)
+r0 = name c string (pubyte)
 r1 = cpu target (uint)
 r2 = spawn type (uint)
 outputs
@@ -4931,7 +4931,7 @@ all
 ### sys_task::open_farm -> sys/task/open_farm
 ```
 inputs
-r0 = name string object (ptr)
+r0 = name c string (pubyte)
 r1 = number to spawn (uint)
 r2 = spawn type (uint)
 outputs

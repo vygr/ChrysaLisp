@@ -45,7 +45,7 @@
 			(defq reply_id (read-long debug_msg_reply_id msg)
 				tcb (read-long debug_msg_tcb msg)
 				data (read-cstr debug_msg_data msg))
-			(view-dirty (vdu-print help data))
+			(vdu-print help data)
 			(mail-send "" reply_id))
 		((eq id event_win_play))
 		((eq id event_win_stop))

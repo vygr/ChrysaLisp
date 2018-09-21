@@ -108,7 +108,7 @@
 ## curry
 ### (curry lambda var ...)
 ## debug
-### (debug str)
+### (debug [form] ...)
 ## dec
 ### (dec num)
 ## def
@@ -197,6 +197,8 @@
 ### (insert list str)
 ## insert-sym
 ### (insert-sym list sym)
+## kernel-debug
+### (kernel-debug str)
 ## kernel-declare
 ### (kernel-declare name mbox)
 ## kernel-total

@@ -95,7 +95,7 @@
 	(errorifnot {value} 'error1))
 
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'sys_task 'open_child {arg0, arg1} {arg0})
+	(f-call 'sys_task 'open_child {&arg0->string_data, arg1} {arg0})
 	(f-call 'integer 'create {arg0} {value})
 
 (vp-label 'exit)
@@ -131,7 +131,7 @@
 	(errorifnot {value} 'error1))
 
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'sys_task 'open_remote {arg0, arg1, arg2} {arg0})
+	(f-call 'sys_task 'open_remote {&arg0->string_data, arg1, arg2} {arg0})
 	(f-call 'integer 'create {arg0} {value})
 
 (vp-label 'exit)
@@ -167,7 +167,7 @@
 	(errorifnot {value} 'error1))
 
 	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'sys_task 'open_farm {arg0, arg1, arg2} {value})
+	(f-call 'sys_task 'open_farm {&arg0->string_data, arg1, arg2} {value})
 
 (vp-label 'exit)
 	(f-exit 'sys_task 'lisp_open_farm {this, value})

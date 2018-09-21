@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'sys/kernel/class.inc)
+(import 'sys/string/class.inc)
 (import 'class/vector/class.inc)
 (import 'class/string/class.inc)
 
@@ -318,7 +319,7 @@
 
 (def-method 'sys_task 'open_child)
 	;inputs
-	;r0 = name string object (ptr)
+	;r0 = name c string (pubyte)
 	;r1 = spawn type (uint)
 	;outputs
 	;r0 = mailbox ID (id)
@@ -333,7 +334,7 @@
 
 (def-method 'sys_task 'open_remote)
 	;inputs
-	;r0 = name string object (ptr)
+	;r0 = name c string (pubyte)
 	;r1 = cpu target (uint)
 	;r2 = spawn type (uint)
 	;outputs
@@ -342,7 +343,7 @@
 	;all
 
 	(ptr 'name 'msg 'data 'mailbox)
-	(uint 'cpu 'type 'mbox_id)
+	(uint 'cpu 'type 'mbox_id 'length)
 	(struct 'id 'id)
 
 	;save task info
@@ -354,13 +355,14 @@
 	(f-call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
 
 	;start task
-	(f-call 'sys_mail 'alloc {name->string_length + 1 + kn_msg_open_size} {msg, data})
+	(f-call 'sys_string 'length {name} {_, length})
+	(f-call 'sys_mail 'alloc {length + 1 + kn_msg_open_size} {msg, data})
 	(assign {0} {msg->msg_dest.id_mbox})
 	(assign {cpu} {msg->msg_dest.id_cpu})
 	(assign {mbox_id} {data->kn_msg_reply_id.id_mbox})
 	(f-call 'sys_kernel 'id nil {data->kn_msg_reply_id.id_cpu})
 	(assign {type} {data->kn_msg_function})
-	(f-call 'sys_mem 'copy {&name->string_data, &data->kn_msg_open_pathname, name->string_length + 1})
+	(f-call 'sys_mem 'copy {name, &data->kn_msg_open_pathname, length + 1})
 	(f-call 'sys_mail 'send {msg})
 
 	;wait for reply
@@ -384,7 +386,7 @@
 
 (def-method 'sys_task 'open_farm)
 	;inputs
-	;r0 = name string object (ptr)
+	;r0 = name c string (pubyte)
 	;r1 = number to spawn (uint)
 	;r2 = spawn type (uint)
 	;outputs
@@ -393,11 +395,11 @@
 	;all
 
 	(ptr 'name 'ids 'msg 'data 'mailbox)
-	(uint 'length 'type 'index 'cpu 'total 'offset 'mbox_id)
+	(uint 'length 'type 'index 'index_end 'cpu 'total 'offset 'mbox_id)
 
 	;save task info
 	(push-scope)
-	(f-entry 'sys_task 'open_farm {name, length, type})
+	(f-entry 'sys_task 'open_farm {name, index_end, type})
 
 	;gather network info
 	(f-call 'sys_kernel 'id nil {cpu})
@@ -405,28 +407,29 @@
 
 	;create output array
 	(f-call 'array 'create nil {ids})
-	(f-call 'array 'set_capacity {ids, length})
-	(f-call 'array 'set_length {ids, length})
+	(f-call 'array 'set_capacity {ids, index_end})
+	(f-call 'array 'set_length {ids, index_end})
 
 	;alloc temp mailbox
 	(f-call 'sys_mail 'alloc_mbox nil {mbox_id})
 	(f-call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
 
 	;start all tasks in parallel, centered around our cpu
-	(assign {cpu - (length >> 1)} {offset})
+	(assign {cpu - (index_end >> 1)} {offset})
 	(vpif {offset < 0})
 		(assign {total + (offset %% total)} {offset})
 	(endif)
 	(assign {0} {index})
-	(loop-while {index != length})
-		(f-call 'sys_mail 'alloc {name->string_length + 1 + kn_msg_open_size} {msg, data})
+	(f-call 'sys_string 'length {name} {_, length})
+	(loop-while {index != index_end})
+		(f-call 'sys_mail 'alloc {length + 1 + kn_msg_open_size} {msg, data})
 		(assign {0} {msg->msg_dest.id_mbox})
 		(assign {(index + offset) % total} {msg->msg_dest.id_cpu})
 		(assign {mbox_id} {data->kn_msg_reply_id.id_mbox})
 		(assign {cpu} {data->kn_msg_reply_id.id_cpu})
 		(assign {type} {data->kn_msg_function})
 		(assign {index} {data->kn_msg_user})
-		(f-call 'sys_mem 'copy {&name->string_data, &data->kn_msg_open_pathname, name->string_length + 1})
+		(f-call 'sys_mem 'copy {name, &data->kn_msg_open_pathname, length + 1})
 		(f-call 'sys_mail 'send {msg})
 		(assign {index + 1} {index})
 	(loop-end)
