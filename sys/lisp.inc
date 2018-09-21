@@ -39,4 +39,3 @@
 (ffi task-sleep "sys/task/lisp_sleep" 0)
 (ffi kernel-declare "sys/kernel/lisp_declare" 0)
 (ffi kernel-total "sys/kernel/lisp_total" 0)
-(ffi debug "sys/kernel/lisp_debug" 0)

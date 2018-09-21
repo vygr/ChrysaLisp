@@ -104,6 +104,8 @@
 (ffi prin "class/lisp/func_prin" 0)
 (ffi print "class/lisp/func_print" 0)
 
+(ffi kernel-debug "sys/kernel/lisp_debug" 0)
+
 (defq t 't nil 'nil
 	lisp_type_list (bit-shl 1 0)
 	lisp_type_integer (bit-shl 1 1)
@@ -152,6 +154,10 @@
 (defmacro run (_)
 	;(run path)
 	`(repl (file-stream ,_) ,_))
+
+(defmacro debug (&rest _)
+	;(debug [form] ...)
+	`(kernel-debug (apply cat (map str (list ~_ (char 10))))))
 
 ;;;;;;;;
 ; Scopes

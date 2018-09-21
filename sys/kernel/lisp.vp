@@ -102,7 +102,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(debug str)", error_msg_wrong_types, args} {_, value})
+	(f-call 'lisp 'repl_error {this, "(kernel-debug str)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string))
 
