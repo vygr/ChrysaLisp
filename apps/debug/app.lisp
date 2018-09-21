@@ -100,7 +100,7 @@
 			(defq reply_id (read-long debug_msg_reply_id msg)
 				tcb (read-long debug_msg_tcb msg)
 				data (read-cstr debug_msg_data msg)
-				key (sym-cat (str (bit-shr reply_id 32)) (str tcb))
+				key (sym-cat (str (bit-shr reply_id 32)) ":" (str tcb))
 				index (find key vdu_keys))
 			(unless index
 				(def (defq new_vdu (create-vdu)) 'vdu_width vdu_width 'vdu_height vdu_height
