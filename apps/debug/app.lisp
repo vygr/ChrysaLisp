@@ -27,7 +27,7 @@
 (defq vdu_width 60 vdu_height 30 vdu_index nil vdu_keys (list) vdu_list (list))
 
 (ui-tree window (create-window window_flag_status) ('color 0xc0000000)
-	(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw))
+	(ui-element vdu_flow (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw))
 		(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_right flow_flag_fillh)
 				'color 0xff00ff00 'font (create-font "fonts/Entypo.otf" 32))
 			(button-connect-click (ui-element _ (create-button) ('text "")) event_win_play)
@@ -39,15 +39,7 @@
 			(button-connect-click (ui-element _ (create-button) ('color 0xff00ffff 'text "")) event_win_step_all)
 			(button-connect-click (ui-element _ (create-button) ('color 0xff00ffff 'text "")) event_win_clear_all))
 		(slider-connect-value (ui-element hslider (create-slider) ('value 0 'color 0xffff0000)) event_win_hvalue)
-		(ui-element vdu_flow (create-flow) ('flow_flags (bit-or flow_flag_fillw flow_flag_fillh)
-				'text_color 0xffffff00 'font (create-font "fonts/Hack-Regular.ttf" 16)
-				'vdu_width vdu_width 'vdu_height vdu_height)
-			(ui-element vdu (create-vdu)))))
-
-(window-set-title window "Debug")
-(window-set-status window "Ready")
-(bind '(w h) (view-pref-size window))
-(gui-add (view-change window 0 0 w h))
+		(ui-element vdu (create-view))))
 
 (defun set-slider-values ()
 	(defq val (get hslider 'value) mho (max 0 (dec (length vdu_list))))
@@ -82,9 +74,12 @@
 			(clear vdu_keys)
 			(setq vdu_index nil)
 			(view-sub vdu)
-			(view-dirty (view-layout (view-add-back vdu_flow (setq vdu (create-vdu)))))
+			(setq vdu (create-vdu))
+			(def vdu 'text_color 0xffffff00 'font (create-font "fonts/Hack-Regular.ttf" 16)
+				'vdu_width vdu_width 'vdu_height vdu_height)
+			(view-dirty (view-layout (view-add-back vdu_flow vdu)))
 			(vdu-print vdu (cat
-				"ChrysaLisp Debug 0.2" (char 10)
+				"ChrysaLisp Debug 0.3" (char 10)
 				"Green buttons act on a single task." (char 10)
 				"Cyan buttons act on all tasks." (char 10)
 				"Red slider to switch between tasks." (char 10)
@@ -93,6 +88,11 @@
 	(set-slider-values))
 
 (reset)
+(window-set-title window "Debug")
+(window-set-status window "Ready")
+(bind '(w h) (view-pref-size window))
+(gui-add (view-change window 0 0 w h))
+
 (while t
 	(cond
 		;new debug msg
@@ -104,15 +104,11 @@
 				index (find key vdu_keys))
 			(unless index
 				(def (defq new_vdu (create-vdu)) 'vdu_width vdu_width 'vdu_height vdu_height
-					'font (create-font "fonts/Hack-Regular.ttf" 16))
+					'text_color 0xffffff00 'font (create-font "fonts/Hack-Regular.ttf" 16))
 				(push vdu_keys key)
-				(push vdu_list (list (view-layout new_vdu) nil nil))
+				(push vdu_list (list new_vdu nil nil))
 				(setq index (dec (length vdu_list)))
-				(unless vdu_index
-					(view-sub vdu)
-					(view-dirty (view-layout (view-add-back vdu_flow (setq vdu new_vdu))))
-					(setq vdu_index index))
-				(set-slider-values))
+				(reset index))
 			(defq vdu_rec (elem index vdu_list))
 			(vdu-print (elem 0 vdu_rec) data)
 			(if (elem 1 vdu_rec)
