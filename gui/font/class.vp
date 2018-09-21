@@ -1,4 +1,5 @@
 (import 'sys/func.inc)
+(import 'sys/string/class.inc)
 (import 'gui/font/class.inc)
 (import 'gui/texture/class.inc)
 (import 'class/symbol/class.inc)
@@ -19,46 +20,38 @@
 	;trashes
 	;all
 
-	(ptr 'this 'name 'set)
-	(union
-		'(pptr 'iter)
-		'(uint 'points))
+	(ptr 'this 'name 'flat_set)
+	(pptr 'iter_begin 'iter_end)
+	(uint 'points)
+	(int 'same)
 
 	(push-scope)
 	(f-entry 'font 'open {name, points})
 
-	(assign {ptr($fonts)} {set})
-	(vpifnot {set})
-		;note only 1 bucket, so no hash method is needed !
-		(f-call 'hash_set 'create {$key_callback, 1} {set})
-		(assign {set} {ptr($fonts)})
+	(assign {ptr($fonts)} {flat_set})
+	(vpifnot {flat_set})
+		(f-call 'vector 'create {} {flat_set})
+		(assign {flat_set} {ptr($fonts)})
 	(endif)
 
 	;intern font
+	(f-call 'vector 'get_iters {flat_set} {_, iter_begin, iter_end})
+	(loop-while {iter_begin != iter_end})
+		(assign {*iter_begin} {this})
+		(vpif {this->font_points == points})
+			(f-call 'sys_string 'compare {this->font_name->string_data, name} {same})
+			(gotoifnot {same} 'found)
+		(endif)
+		(assign {iter_begin + ptr_size} {iter_begin})
+	(loop-end)
 	(f-call 'font 'create {name, points} {this})
-	(vpif {this})
-		(f-call 'hash_set 'insert {set, this} {_, iter, _})
-		(f-call 'font 'deref {this})
-		(f-call 'font 'ref {*iter} {this})
+	(vpifnot {this})
+		(f-call 'vector 'push_back {flat_set, this})
+	(vp-label 'found)
+		(f-call 'font 'ref {this})
 	(endif)
 
 	(f-exit 'font 'open {this})
-	(pop-scope)
-	(return)
-
-(vp-label 'key_callback)
-	;inputs
-	;r0 = element 1
-	;r1 = element 2
-	;outputs
-	;r1 = 0 if same, else +/-
-
-	(ptr 'elem1 'elem2)
-
-	(push-scope)
-	(f-entry 'hash_set 'key_callback {elem1, elem2})
-	(f-exit 'hash_set 'key_callback {0,
-		!((elem1->font_name == elem2->font_name) && (elem1->font_points == elem2->font_points))})
 	(pop-scope)
 	(return)
 
