@@ -4145,6 +4145,13 @@ r0 = debug c string (pubyte)
 trashes
 all
 ```
+### sys_kernel::debug_reg -> sys/kernel/debug_reg
+```
+inputs
+r14 = debug c string (pubyte)
+trashes
+none
+```
 ### sys_kernel::lisp_total -> sys/kernel/lisp_total
 ```
 inputs
