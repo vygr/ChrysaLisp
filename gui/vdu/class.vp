@@ -23,18 +23,12 @@
 	;init parent
 	(s-call 'vdu 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
-		(vp-push r0)
-
 		;init myself
-		(vp-cpy-rr r0 r4)
-		(vp-xor-rr r0 r0)
-		(assign '(r0 r0 r0 r0) '((r4 vdu_font) (r4 vdu_chars) (r4 vdu_cursor_x i) (r4 vdu_cursor_y i)))
-		(assign '(r0 r0) '((r4 vdu_width i) (r4 vdu_height i)))
-		(f-call 'vector 'create '() '((r4 vdu_textures)))
-		(f-call 'vector 'set_capacity '((r4 vdu_textures) 128))
-
-		(vp-pop r0)
-		(vp-cpy-cr 1 r1)
+		(vp-xor-rr r1 r1)
+		(assign '(r1 r1 r1 r1 r1 r1 r1)
+			'((r0 vdu_font) (r0 vdu_chars) (r0 vdu_cursor_x i) (r0 vdu_cursor_y i)
+			(r0 vdu_width i) (r0 vdu_height i) (r0 vdu_textures)))
+		(vp-cpy-rr r0 r1)
 	(endif)
 	(vp-ret)
 
@@ -51,7 +45,7 @@
 
 	(f-call 'sys_mem 'free '((r0 vdu_chars)))
 	(vp-cpy-ir rsp 0 r0)
-	(f-call 'vector 'deref '((r0 vdu_textures)))
+	(f-call 'vector 'deref_if '((r0 vdu_textures)))
 
 	;deinit parent
 	(vp-pop r0)
@@ -170,8 +164,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'word 'txt)
-	(uint 'code)
+	(ptr 'this)
 
 	;save inputs
 	(push-scope)
@@ -181,16 +174,8 @@
 	(f-call 'font 'get_metrics {this->vdu_font} {_, _, _, this->vdu_char_height})
 	(assign {this->vdu_char_height * 9 >> 4} {this->vdu_char_width})
 
-	;cache char textures
-	(d-call 'vector 'clear {this->vdu_textures})
-	(assign {33} {code})
-	(loop-start)
-		(f-call 'symbol 'intern_cstr {&code} {word})
-		(f-call 'font 'ref_word {this->vdu_font, word} {_, txt})
-		(f-call 'vector 'push_back {this->vdu_textures, txt})
-		(f-call 'symbol 'deref {word})
-		(assign {code + 1} {code})
-	(loop-until {code == 127})
+	;ref char textures
+	(f-call 'font 'ref_chars {this->vdu_font} {_, this->vdu_textures})
 
 	(f-exit 'vdu 'switch_font {this})
 	(pop-scope)

@@ -90,7 +90,7 @@
 	(s-call 'font 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init state
-		(assign {points} {this->font_points})
+		(assign {0, points} {this->font_chars, this->font_points})
 		(f-call 'symbol 'intern_cstr {name} {this->font_name})
 		(f-call 'hash_map 'create (cat {@} (f-path 'symbol 'same) {, 61}) {this->font_word_map})
 
@@ -146,6 +146,7 @@
 	(push-scope)
 	(f-entry 'font 'deinit {this})
 
+	(f-call 'vector 'deref_if {this->font_chars})
 	(f-call 'hash_map 'deref {this->font_word_map})
 	(f-call 'string 'deref {this->font_name})
 	(f-call 'sys_task 'callback {this, $close_callback})
@@ -243,6 +244,43 @@
 
 	(assign {old_stack} '(rsp))
 	(pop-scope-syms)
+	(return)
+
+(def-func-end)
+
+(def-method 'font 'ref_chars)
+	;inputs
+	;r0 = font object (ptr)
+	;outputs
+	;r0 = font object (ptr)
+	;r1 = char texture vector object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'word 'txt)
+	(uint 'code)
+
+	;save inputs
+	(push-scope)
+	(f-entry 'font 'ref_chars {this})
+
+	;lazy create char textures
+	(vpifnot {this->font_chars})
+		(f-call 'vector 'create nil {this->font_chars})
+		(f-call 'vector 'set_capacity {this->font_chars, 128})
+		(assign {33} {code})
+		(loop-start)
+			(f-call 'symbol 'intern_cstr {&code} {word})
+			(f-call 'font 'ref_word {this, word} {_, txt})
+			(f-call 'vector 'push_back {this->font_chars, txt})
+			(f-call 'symbol 'deref {word})
+			(assign {code + 1} {code})
+		(loop-until {code == 127})
+	(endif)
+	(f-call 'vector 'ref {this->font_chars})
+
+	(f-exit 'font 'ref_chars {this, this->font_chars})
+	(pop-scope)
 	(return)
 
 (def-func-end)
