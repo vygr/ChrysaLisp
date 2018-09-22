@@ -45,7 +45,7 @@
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-end)
 	(f-call 'font 'create {name, points} {this})
-	(vpifnot {this})
+	(vpif {this})
 		(f-call 'vector 'push_back {flat_set, this})
 	(vp-label 'found)
 		(f-call 'font 'ref {this})
