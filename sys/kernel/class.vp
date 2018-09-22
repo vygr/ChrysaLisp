@@ -536,6 +536,7 @@
 	(vpif {service.id_id})
 		;build debug data for reg dump
 		(f-call 'vector 'create nil {lines})
+		(f-call 'vector 'set_capacity {lines, 5 * 16 + 2})
 		(f-call 'string 'create_from_cstr {reg14} {line})
 		(f-call 'vector 'push_back {lines, line})
 		(f-call 'string 'create_from_cstr (list (char 10)) {line})
