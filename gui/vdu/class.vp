@@ -24,11 +24,10 @@
 	(s-call 'vdu 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
-		(vp-xor-rr r1 r1)
-		(assign '(r1 r1 r1 r1 r1 r1 r1)
+		(vp-xor-rr r2 r2)
+		(assign '(r2 r2 r2 r2 r2 r2 r2)
 			'((r0 vdu_font) (r0 vdu_chars) (r0 vdu_cursor_x i) (r0 vdu_cursor_y i)
 			(r0 vdu_width i) (r0 vdu_height i) (r0 vdu_textures)))
-		(vp-cpy-rr r0 r1)
 	(endif)
 	(vp-ret)
 
@@ -175,6 +174,7 @@
 	(assign {this->vdu_char_height * 9 >> 4} {this->vdu_char_width})
 
 	;ref char textures
+	(f-call 'vector 'deref_if {this->vdu_textures})
 	(f-call 'font 'ref_chars {this->vdu_font} {_, this->vdu_textures})
 
 	(f-exit 'vdu 'switch_font {this})
