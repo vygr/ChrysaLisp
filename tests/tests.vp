@@ -31,8 +31,9 @@
 	(f-call 'sys_task 'sleep {num + 1000000})
 
 	;debugger test calls
-	(f-call 'sys_kernel 'debug (list (cat "Hello from proc" (char 10))))
-	(f-call 'sys_kernel 'debug_reg {"Reg Dump is:"})
+	(debug-reg)
+	(debug-reg)
+	(debug-reg)
 
 	(pop-scope)
 	(return)

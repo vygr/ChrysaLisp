@@ -22,22 +22,30 @@
 
 ;debug helpers
 (defcfun debug-num (s n)
-	(vp-push r0 r1)
-	(fn-string (cat s ": ") r1)
-	(f-call 'sys_pii 'write_str '(2 r1))
-	(vp-pop r0 r1)
-	(vp-push r0 r1 r2)
-	(f-call 'sys_pii 'write_num (list 2 n 16))
-	(f-call 'sys_pii 'write_char (list 2 10))
-	(vp-pop r0 r1 r2))
+	(when debug_mode
+		(vp-push r0 r1)
+		(fn-string (cat s ": ") r1)
+		(f-call 'sys_pii 'write_str '(2 r1))
+		(vp-pop r0 r1)
+		(vp-push r0 r1 r2)
+		(f-call 'sys_pii 'write_num (list 2 n 16))
+		(f-call 'sys_pii 'write_char (list 2 10))
+		(vp-pop r0 r1 r2)))
 
 (defcfun debug-str (s)
-	(vp-push r0 r1)
-	(if (reg s)
-		(vp-cpy-rr s r1)
-		(fn-string (cat s (char 10)) r1))
-	(f-call 'sys_pii 'write_str '(2 r1))
-	(vp-pop r0 r1))
+	(when debug_mode
+		(vp-push r0 r1)
+		(if (reg s)
+			(vp-cpy-rr s r1)
+			(fn-string (cat s (char 10)) r1))
+		(f-call 'sys_pii 'write_str '(2 r1))
+		(vp-pop r0 r1)))
+
+(defcfun debug-reg ()
+	(when debug_mode
+		(vp-push r14)
+		(f-call 'sys_kernel 'debug_reg (list (cat *stream-name* ":" (str *stream-line*))))
+		(vp-pop r14)))
 
 (when (eql *os* 'Darwin)
 
