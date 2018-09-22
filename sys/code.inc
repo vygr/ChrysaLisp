@@ -634,7 +634,7 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defcvar '*inst* (list) '*vreg* '(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14))
+(defcvar '*inst* (list) '*vreg* '(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14 _v15))
 (each (lambda (_) (defcvar _ nil)) *vreg*)
 
 (defmacro vreg-sym (_)

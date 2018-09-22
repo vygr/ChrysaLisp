@@ -44,8 +44,7 @@
 
 (defun play (_)
 	(unless (elem 1 _)
-		(mail-send "" (elem 2 _))
-		(elem-set 2 _ nil))
+		(step _))
 	(elem-set 1 _ t))
 
 (defun pause (_)
@@ -78,8 +77,9 @@
 				"Green buttons act on a single task." (char 10)
 				"Cyan buttons act on all tasks." (char 10)
 				"Red slider to switch between tasks." (char 10)
-				"Add (debug [form] ...) statements in your source." (char 10)
-				"Try (debug (env)) in functions etc." (char 10))))))
+				"Add (debug [form] ...) statements to your Lisp code." (char 10)
+				"Try (debug (env)) in Lisp functions." (char 10)
+				"Add (f-call 'sys_kernel 'debug_reg {<string>}) in VP code." (char 10))))))
 	(set-slider-values))
 
 (reset)

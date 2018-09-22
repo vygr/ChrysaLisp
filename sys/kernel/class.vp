@@ -3,8 +3,8 @@
 (import 'sys/load/class.inc)
 (import 'sys/kernel/class.inc)
 (import 'sys/string/class.inc)
+(import 'class/vector/class.inc)
 (import 'gui/sdl2.inc)
-(import 'class/array/class.inc)
 
 ;;;;;;;;;;;;;
 ; kernel task
@@ -479,7 +479,6 @@
 	(struct 'service 'id)
 	(uint 'mbox_id 'length)
 
-	;save task info
 	(push-scope)
 	(f-entry 'sys_kernel 'debug {debug_data})
 
@@ -508,6 +507,66 @@
 		;free temp mailbox
 		(f-call 'sys_mail 'free_mbox {mbox_id})
 	(endif)
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'sys_kernel 'debug_reg)
+	;inputs
+	;r14 = debug c string (pubyte)
+	;trashes
+	;none
+
+	(ulong 'reg0 'reg1 'reg2 'reg3 'reg4 'reg5 'reg6 'reg7
+		'reg8 'reg9 'reg10 'reg11 'reg12 'reg13 'reg14 'reg15)
+	(union
+		'(struct 'service 'id)
+		'(ptr 'num))
+	(ptr 'lines 'line)
+	(pulong 'iter)
+
+	(push-scope)
+	(assign '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)
+		{reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7, reg8, reg9, reg10, reg11, reg12, reg13, reg14})
+	(assign '(rsp) {reg15})
+
+	;enquire of DEBUG_SERVICE
+	(f-call 'sys_mail 'enquire {"DEBUG_SERVICE"} {service.id_id})
+	(vpif {service.id_id})
+		;build debug data for reg dump
+		(f-call 'vector 'create nil {lines})
+		(f-call 'string 'create_from_cstr {reg14} {line})
+		(f-call 'vector 'push_back {lines, line})
+		(f-call 'string 'create_from_cstr (list (char 10)) {line})
+		(f-call 'vector 'push_back {lines, line})
+		(assign {&reg0} {iter})
+		(loop-start)
+			(f-call 'string 'create_from_long {(iter - &reg0) >> 3, 10} {num})
+			(f-call 'string 'create_from_buffer {"R00", 3 - num->string_length} {line})
+			(f-call 'vector 'push_back {lines, line})
+			(f-call 'vector 'push_back {lines, num})
+			(f-call 'string 'create_from_long {*iter, 16} {num})
+			(f-call 'string 'create_from_buffer {": 0x0000000000000000", 20 - num->string_length} {line})
+			(f-call 'vector 'push_back {lines, line})
+			(f-call 'vector 'push_back {lines, num})
+			(vpif {(iter - &reg0) & 8})
+				(f-call 'string 'create_from_cstr (list (char 10)) {line})
+			(else)
+				(f-call 'string 'create_from_cstr {" "} {line})
+			(endif)
+			(f-call 'vector 'push_back {lines, line})
+			(assign {iter + ptr_size} {iter})
+		(loop-until {iter > &reg15})
+		(f-call 'string 'cat {lines} {line})
+		(f-call 'sys_kernel 'debug {&line->string_data})
+		(f-call 'vector 'deref {lines})
+		(f-call 'string 'deref {line})
+	(endif)
+
+	(assign {reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7,
+		reg8, reg9, reg10, reg11, reg12, reg13, reg14}
+		'(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 	(pop-scope)
 	(return)
 
