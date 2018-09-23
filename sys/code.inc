@@ -949,15 +949,6 @@
 (defmacro opt-uses (r _)
 	`(or (find ,r ,_) (find (elem 0 ,_) '(vpif else endif))))
 
-(defmacro opt-find? (i r &rest b)
-	;results in p and m of parent env !
-	(cond
-		((eq 1 (length b))
-			(cat (list 'opt-find-1 i r) b))
-		((eq 2 (length b))
-			(cat (list 'opt-find-2 i r) b))
-		(t (throw "Wrong number of args in opt-find?" b))))
-
 (defcfun opt-find-1 (_ r x)
 	(setq _ (some! _ 0 t (lambda (e)
 				(cond
@@ -979,7 +970,7 @@
 		(cond
 			;variable loading and offset folding
 			((find (defq e (elem i *inst*) o (elem 0 e)) (opt-read-ops))
-				(when (opt-find? i (defq r (elem 1 e)) (list 'vp-lea-i rsp '_ r) (list 'vp-add-cr '_ r))
+				(when (opt-find-2 i (defq r (elem 1 e)) (list 'vp-lea-i rsp '_ r) (list 'vp-add-cr '_ r))
 					(cond
 						((eq m 0)
 							(elem-set 1 e rsp)
@@ -990,7 +981,7 @@
 					(elem-set p *inst* (lambda))))
 			;variable writing and offset folding
 			((find o (opt-write-ops))
-				(when (opt-find? i (defq r (elem 2 e)) (list 'vp-lea-i rsp '_ r) (list 'vp-add-cr '_ r))
+				(when (opt-find-2 i (defq r (elem 2 e)) (list 'vp-lea-i rsp '_ r) (list 'vp-add-cr '_ r))
 					(cond
 						((eq m 0)
 							(elem-set 2 e rsp)
@@ -1006,14 +997,14 @@
 				(setq i (dec i)))
 			;constant propagation
 			((defq c (find o (opt-rr-ops)))
-				(when (opt-find? i (defq r (elem 1 e)) (list 'vp-cpy-cr '_ r))
+				(when (opt-find-1 i (defq r (elem 1 e)) (list 'vp-cpy-cr '_ r))
 					(elem-set 0 e (elem c (opt-cr-ops)))
 					(elem-set 1 e (elem 1 (elem p *inst*)))
 					(elem-set p *inst* (lambda))
 					(setq i (dec i))))
 			;arithmetic reassignment and constant folding
 			((and (defq c (find o (opt-cr-ops)))
-				(opt-find? i (defq r (elem 2 e)) (list 'vp-cpy-cr '_ r) (list o '_ r)))
+				(opt-find-2 i (defq r (elem 2 e)) (list 'vp-cpy-cr '_ r) (list o '_ r)))
 					(cond
 						((eq m 0)
 							(setq c (elem c (opt-fold-cpy-ops)))
@@ -1024,7 +1015,7 @@
 					(elem-set p *inst* (lambda)))
 			;constant fusion
 			((and (defq c (find o (opt-cr-fuse-ops)))
-				(opt-find? i (defq r (elem 2 e)) (list 'vp-add-cr '_ r) (list 'vp-sub-cr '_ r)))
+				(opt-find-2 i (defq r (elem 2 e)) (list 'vp-add-cr '_ r) (list 'vp-sub-cr '_ r)))
 					(cond
 						((eq m 0)
 							(setq c (elem c '(add sub))))
