@@ -958,19 +958,20 @@
 			(cat (list 'opt-find-2 i r) b))
 		(t (throw "Wrong number of args in opt-find?" b))))
 
-(defcfun opt-find-1 (i r x)
-	(while (and (gt (setq i (dec i)) 0)
-				(not (match? (defq e (elem i *inst*)) x)))
-		(if (opt-uses r e) (setq i 0)))
-	(setq p (if (gt i 0) i)))
+(defcfun opt-find-1 (_ r x)
+	(defq _ (some! _ 0 t (lambda (e)
+		(cond
+			((match? e x) _)
+			((opt-uses r e) -1))) (list *inst*)))
+	(setq p (and _ (ne _ -1) _)))
 
-(defcfun opt-find-2 (i r x y)
-	(defq e nil)
-	(while (and (gt (setq i (dec i)) 0)
-				(not (match? (setq m 0 e (elem i *inst*)) x))
-				(not (match? (setq m 1 e e) y)))
-		(if (opt-uses r e) (setq i 0)))
-	(setq p (if (gt i 0) i)))
+(defcfun opt-find-2 (_ r x y)
+	(defq _ (some! _ 0 t (lambda (e)
+		(cond
+			((match? e x) (setq m 0) _)
+			((match? e y) (setq m 1) _)
+			((opt-uses r e) -1))) (list *inst*)))
+	(setq p (and _ (ne _ -1) _)))
 
 (defcfun opt-inst-list ()
 	(defq i 0 p nil m nil)
