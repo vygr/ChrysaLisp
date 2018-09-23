@@ -78,34 +78,42 @@
 (defmacro opt-emit-call-ops ()
 	''(emit-label emit-syscall emit-call emit-call-abi emit-call-i emit-call-r emit-call-p))
 
+(defmacro opt-emit-kills-ops ()
+	''(emit-beq emit-bne emit-blt emit-ble emit-bgt emit-bge emit-jmp emit-jmp-i emit-jmp-r emit-jmp-p
+		emit-alloc emit-free))
+
 (defmacro opt-emit-two-out-ops ()
 	''(emit-land-rr emit-lnot-rr emit-swp-rr emit-div-rrr emit-div-rrr-u))
 
 (defmacro opt-emit-multi-out-ops ()
 	''(emit-pop))
 
-(defcfun opt-emit-trashes-with-calls? (r _)
-	(or (find (defq o (elem 0 _)) (opt-emit-call-ops))
-		(eql r (elem -2 _))
-		(cond
-			((find o (opt-emit-two-out-ops))
-				(eql r (elem -3 _)))
-			((find o (opt-emit-multi-out-ops))
-				(find r _)))))
+(defmacro opt-trashes? (r o e)
+	`(cond
+		((eql ,r (elem -2 ,e)) t)
+		((find ,o (opt-emit-two-out-ops))
+			(eql ,r (elem -3 ,e)))
+		((find ,o (opt-emit-multi-out-ops))
+			(find ,r ,e))))
 
-(defcfun opt-emit-trashes-without-calls? (r _)
-	(or (eql r (elem -2 _))
-		(cond
-			((find o (opt-emit-two-out-ops))
-				(eql r (elem -3 _)))
-			((find o (opt-emit-multi-out-ops))
-				(find r _)))))
+(defcfun opt-emit-trashes-with-calls? (r e)
+	(or (find (defq o (elem 0 e)) (opt-emit-call-ops))
+		(opt-trashes? r o e)))
 
-(defcfun opt-emit-uses? (r _)
-	(or (find r _)
-		(find (elem 0 _) (opt-emit-call-ops))))
+(defcfun opt-emit-trashes-without-calls? (r e)
+	(defq o (elem 0 e))
+	(opt-trashes? r o e))
 
-(defcfun opt-emit-find-rw (_ r w b i)
+(defcfun opt-emit-trashes-with-kills? (r e)
+	(or (find (defq o (elem 0 e)) (opt-emit-kills-ops))
+		(find o (opt-emit-call-ops))
+		(opt-trashes? r o e)))
+
+(defcfun opt-emit-uses? (r e)
+	(or (find r e)
+		(find (elem 0 e) (opt-emit-call-ops))))
+
+(defcfun opt-emit-find-rw (f _ r w b i)
 	(while (and (gt (setq _ (dec _)) 0)
 				(not (or (and (eql w (defq o (elem 0 (defq e (elem _ *emit-buffer*)))))
 							(eql b (elem 2 e))
@@ -116,7 +124,7 @@
 							(not (eql b (elem 3 e)))
 							(eq i (eval (elem 2 e)))
 							(setq c 3)))))
-		(if (opt-emit-trashes-with-calls? b e) (setq _ 0)))
+		(if (f b e) (setq _ 0)))
 	(if (gt _ 0) _))
 
 (defcfun opt-emit-find-use (_ o b)
@@ -132,17 +140,25 @@
 		(cond
 			;read after read/write
 			((defq c (find (defq o (elem 0 e)) (opt-emit-read-ops)))
-				(when (defq w (opt-emit-find-rw _
+				(when (defq w (opt-emit-find-rw opt-emit-trashes-with-calls? _
 								(elem c (opt-emit-read-ops))
 								(elem c (opt-emit-write-ops))
 								(elem 1 e) (eval (elem 2 e))))
-						(defq r (elem c (elem w *emit-buffer*)))
-						(when (not (some! (inc w) _ t (lambda (_)
-								(opt-emit-trashes-without-calls? r _)) (list *emit-buffer*)))
-							(elem-set _ *emit-buffer*
-								(if (eql r (elem 3 e))
-									(lambda)
-									(list 'emit-cpy-rr r (elem 3 e)))))))
+					(defq r (elem c (elem w *emit-buffer*)))
+					(when (not (some! (inc w) _ t (lambda (_)
+							(opt-emit-trashes-without-calls? r _)) (list *emit-buffer*)))
+						(elem-set _ *emit-buffer*
+							(if (eql r (elem 3 e))
+								(lambda)
+								(list 'emit-cpy-rr r (elem 3 e)))))))
+			;write after write
+			((defq c (find o (opt-emit-write-ops)))
+				(when (defq w (opt-emit-find-rw opt-emit-trashes-with-kills? _
+								(elem c (opt-emit-read-ops))
+								(elem c (opt-emit-write-ops))
+								(elem 2 e) (eval (elem 3 e))))
+					(when (eq c 1)
+						(elem-set w *emit-buffer* (lambda)))))
 			;compare constant forwarding
 			((and (eql o 'emit-cpy-cr) (le -0x80000000 (eval (elem 1 e)) 0x7fffffff))
 				(when (defq u (opt-emit-find-use _ 'emit-cmp-rr (elem 2 e)))
