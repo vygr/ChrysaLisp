@@ -18,12 +18,12 @@
 	(f-entry 'gui 'lisp_add {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'gui 'add {arg0})
-	(f-call 'obj 'ref {arg0} {value})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'gui 'add {arg0})
+	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'gui 'lisp_add {this, value})
@@ -31,7 +31,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(gui-add view)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(gui-add view)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'view))
 

@@ -31,25 +31,25 @@
 	(s-call 'slave 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init myself
-		(f-call 'sys_mail 'mymail nil {msg, data})
+		(call 'sys_mail 'mymail nil {msg, data})
 		(vpif {msg->msg_length})
 			;create stdin, stdout, stderr
-			(f-call 'msg_in 'create nil {this->slave_stdin})
-			(f-call 'msg_out 'create {data->slave_msg_init_stdout_id.id_id} {this->slave_stdout})
-			(f-call 'msg_out 'create {data->slave_msg_init_stderr_id.id_id} {this->slave_stderr})
+			(call 'msg_in 'create nil {this->slave_stdin})
+			(call 'msg_out 'create {data->slave_msg_init_stdout_id.id_id} {this->slave_stdout})
+			(call 'msg_out 'create {data->slave_msg_init_stderr_id.id_id} {this->slave_stderr})
 
 			;create args
-			(f-call 'stream 'create {0, 0, &data->slave_msg_init_args, msg->msg_length - slave_msg_init_size} {stream})
-			(f-call 'stream 'split {stream, char_space} {_, this->slave_args})
-			(f-call 'stream 'deref {stream})
+			(call 'stream 'create {0, 0, &data->slave_msg_init_args, msg->msg_length - slave_msg_init_size} {stream})
+			(call 'stream 'split {stream, char_space} {_, this->slave_args})
+			(call 'stream 'deref {stream})
 
 			;send back ack with stdin mailbox
 			(assign {data->slave_msg_init_ack_id.id_id} {msg->msg_dest.id_id})
 			(assign {this->slave_stdin->msg_in_mbox_id} {data->slave_msg_init_stdin_mbox_id})
-			(f-call 'sys_mail 'send {msg})
+			(call 'sys_mail 'send {msg})
 		(else)
 			;abort
-			(f-call 'sys_mail 'free {msg})
+			(call 'sys_mail 'free {msg})
 			(assign {0} {ok})
 		(endif)
 	(endif)
@@ -72,34 +72,34 @@
 	(f-entry 'slave 'deinit {this})
 
 	;flush remaining
-	(v-call 'msg_out 'write_flush {this->slave_stderr})
-	(v-call 'msg_out 'write_flush {this->slave_stdout})
+	(call 'msg_out 'write_flush {this->slave_stderr})
+	(call 'msg_out 'write_flush {this->slave_stdout})
 
 	;send stopping on stdout
-	(f-call 'msg_out 'set_state {this->slave_stdout, stream_mail_state_stopping})
-	(v-call 'msg_out 'write_next {this->slave_stdout})
-	(v-call 'msg_out 'write_flush {this->slave_stdout})
+	(call 'msg_out 'set_state {this->slave_stdout, stream_mail_state_stopping})
+	(call 'msg_out 'write_next {this->slave_stdout})
+	(call 'msg_out 'write_flush {this->slave_stdout})
 
 	;wait for stopped
 	(loop-while {this->slave_stdin->msg_in_state != stream_mail_state_stopped})
-		(f-call 'msg_in 'next_msg {this->slave_stdin})
+		(call 'msg_in 'next_msg {this->slave_stdin})
 	(loop-end)
 
 	;send stopped on stdout and stderr
-	(f-call 'msg_out 'set_state {this->slave_stdout, stream_mail_state_stopped})
-	(f-call 'msg_out 'set_state {this->slave_stderr, stream_mail_state_stopped})
-	(v-call 'msg_out 'write_next {this->slave_stdout})
-	(v-call 'msg_out 'write_flush {this->slave_stdout})
-	(v-call 'msg_out 'write_next {this->slave_stderr})
-	(v-call 'msg_out 'write_flush {this->slave_stderr})
+	(call 'msg_out 'set_state {this->slave_stdout, stream_mail_state_stopped})
+	(call 'msg_out 'set_state {this->slave_stderr, stream_mail_state_stopped})
+	(call 'msg_out 'write_next {this->slave_stdout})
+	(call 'msg_out 'write_flush {this->slave_stdout})
+	(call 'msg_out 'write_next {this->slave_stderr})
+	(call 'msg_out 'write_flush {this->slave_stderr})
 
 	;free stdin, stdout and stderr
-	(f-call 'msg_in 'deref {this->slave_stdin})
-	(f-call 'msg_out 'deref {this->slave_stdout})
-	(f-call 'msg_out 'deref {this->slave_stderr})
+	(call 'msg_in 'deref {this->slave_stdin})
+	(call 'msg_out 'deref {this->slave_stdout})
+	(call 'msg_out 'deref {this->slave_stderr})
 
 	;free args
-	(f-call 'vector 'deref {this->slave_args})
+	(call 'vector 'deref {this->slave_args})
 
 	;deinit parent
 	(f-exit 'slave 'deinit {this})

@@ -31,18 +31,18 @@
 
 	;read header
 	(assign {0} {this})
-	(f-call 'stream 'read {stream, &header, cpm_size} {_, length})
+	(call 'stream 'read {stream, &header, cpm_size} {_, length})
 	(vpif {length == cpm_size})
 		;check ident '.CPM' or '.FLM'
 		(vpif {header.cpm_ident == 0x2e43504d || header.cpm_ident == 0x2e464c4d})
 			;create canvas
-			(f-call 'canvas 'create {header.cpm_width, header.cpm_height, 1} {this})
+			(call 'canvas 'create {header.cpm_width, header.cpm_height, 1} {this})
 			(vpif {this})
 				;decode acording to version
 				(assign {0, 0} {x, y})
 				(loop-start)
 					;get token
-					(f-call 'stream 'read_char {stream} {_, run})
+					(call 'stream 'read_char {stream} {_, run})
 					(gotoif {run == -1} 'error)
 					(vpif {run >= 128})
 						;run of a pixel
@@ -55,7 +55,7 @@
 						;plot repeatedly
 						(assign {run - 127} {run})
 						(loop-start)
-							(f-call 'canvas 'set_plot {this, col, x, y})
+							(call 'canvas 'set_plot {this, col, x, y})
 							(assign {x + 1} {x})
 							(vpif {x == header.cpm_width})
 								(assign {0, y + 1} {x, y})
@@ -72,7 +72,7 @@
 								(assign {0} {col})
 							(endif)
 
-							(f-call 'canvas 'set_plot {this, col, x, y})
+							(call 'canvas 'set_plot {this, col, x, y})
 							(assign {x + 1} {x})
 							(vpif {x == header.cpm_width})
 								(assign {0, y + 1} {x, y})
@@ -90,7 +90,7 @@
 	(return)
 
 (vp-label 'error)
-	(f-call 'canvas 'deref {this})
+	(call 'canvas 'deref {this})
 	(assign {0} {this})
 	(goto 'exit)
 
@@ -113,15 +113,15 @@
 	(assign {0} {col})
 	(switch)
 	(case {type == 32})
-		(f-call 'stream 'read {stream, &col, int_size} {_, type})
+		(call 'stream 'read {stream, &col, int_size} {_, type})
 		(l-call 'to_argb {col, 32} {col})
 		(break)
 	(case {type == 24})
-		(f-call 'stream 'read {stream, &col, 3} {_, type})
+		(call 'stream 'read {stream, &col, 3} {_, type})
 		(l-call 'to_argb {col, 24} {col})
 		(break)
 	(case {type == 16})
-		(f-call 'stream 'read {stream, &col, short_size} {_, type})
+		(call 'stream 'read {stream, &col, short_size} {_, type})
 		(l-call 'to_argb {col, 16} {col})
 		(break)
 	(default)

@@ -21,23 +21,23 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 3 || !(length & 1)} 'error1)
-	(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
+	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(assign {iter_begin[ptr_size * 0]} {env})
 
 (errorcases
-	(f-call 'obj 'inst_of (cat {env, @} (f-path 'hash_map 'vtable)) {_, val})
+	(call 'obj 'inst_of (cat {env, @} (f-path 'hash_map 'vtable)) {_, val})
 	(errorifnot {val} 'error2))
 
 	(assign {&iter_begin[ptr_size * 1]} {iter_begin})
 	(assign {0} {val})
 	(loop-start)
-		(f-call 'obj 'deref_if {val})
+		(call 'obj 'deref_if {val})
 		(assign {iter_begin[ptr_size * 0]} {var})
 		(errorif (cat {var->obj_vtable != @} (f-path 'symbol 'vtable)) 'error3)
 		(assign {iter_begin[ptr_size * 1]} {val})
-		(f-call 'hash_map 'set {env, var, val} {_, eval})
+		(call 'hash_map 'set {env, var, val} {_, eval})
 		(errorifnot {eval} 'error4)
-		(f-call 'obj 'ref {val})
+		(call 'obj 'ref {val})
 		(assign {&iter_begin[ptr_size * 2]} {iter_begin})
 	(loop-until {iter_begin == iter_end})
 
@@ -47,16 +47,16 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_wrong_num_of_args, args} {_, val})
+	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_wrong_num_of_args, args} {_, val})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_not_an_environment, args} {_, val})
+	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_not_an_environment, args} {_, val})
 	(goto 'exit)
 (vp-label 'error3)
-	(f-call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_not_a_symbol, args} {_, val})
+	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_not_a_symbol, args} {_, val})
 	(goto 'exit)
 (vp-label 'error4)
-	(f-call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_symbol_not_bound, args} {_, val})
+	(call 'lisp 'repl_error {this, "(set env var val [var val] ...)", error_msg_symbol_not_bound, args} {_, val})
 	(goto 'exit))
 
 	(pop-scope-syms)

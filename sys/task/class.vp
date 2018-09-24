@@ -46,14 +46,14 @@
 	(f-entry 'sys_task 'callback {usr, addr})
 
 	;alloc temp mailbox
-	(f-call 'sys_mail 'alloc_mbox nil {mbox_id})
-	(f-call 'sys_mail 'mbox_addr {mbox_id} {mbox_addr})
+	(call 'sys_mail 'alloc_mbox nil {mbox_id})
+	(call 'sys_mail 'mbox_addr {mbox_id} {mbox_addr})
 
 	;allocate mail message
-	(f-call 'sys_mail 'alloc {kn_msg_callback_size} {msg, data})
+	(call 'sys_mail 'alloc {kn_msg_callback_size} {msg, data})
 
 	;fill in destination, reply and function
-	(f-call 'sys_kernel 'id nil {id})
+	(call 'sys_kernel 'id nil {id})
 	(assign {0} {msg->msg_dest.id_mbox})
 	(assign {id} {msg->msg_dest.id_cpu})
 	(assign {mbox_id} {data->kn_msg_reply_id.id_mbox})
@@ -63,14 +63,14 @@
 	(assign {addr} {data->kn_msg_callback_addr})
 
 	;send mail to kernel then wait for reply
-	(f-call 'sys_mail 'send {msg})
-	(f-call 'sys_mail 'read {mbox_addr} {msg, _})
+	(call 'sys_mail 'send {msg})
+	(call 'sys_mail 'read {mbox_addr} {msg, _})
 
 	;free reply mail and temp mailbox
-	(f-call 'sys_mail 'free_mbox {mbox_id})
+	(call 'sys_mail 'free_mbox {mbox_id})
 	(assign {msg} '(r0))
 	(pop-scope)
-	(f-jmp 'sys_mail 'free '(r0))
+	(jump 'sys_mail 'free '(r0))
 
 (def-func-end)
 
@@ -134,7 +134,7 @@
 	(ln-set-succ r0 r1)
 
 	;restore next task
-	(f-jmp 'sys_task 'restore)
+	(jump 'sys_task 'restore)
 
 (def-func-end)
 
@@ -172,7 +172,7 @@
 	(vp-cpy-rr r0 r1)
 
 	;calculate wake time
-	(f-call 'sys_pii 'time '() '(r0))
+	(call 'sys_pii 'time '() '(r0))
 	(vp-add-rr r1 r0)
 	(vp-cpy-ri r0 r14 tk_node_time)
 
@@ -188,7 +188,7 @@
 	(ln-add-node-before r4 r1 r0)
 
 	;restore next task
-	(f-jmp 'sys_task 'restore)
+	(jump 'sys_task 'restore)
 
 (def-func-end)
 
@@ -212,13 +212,13 @@
 	(assign {task_statics->tk_statics_task_count + 1} {task_statics->tk_statics_task_count})
 
 	;create new task control block and task
-	(f-call 'sys_mem 'alloc {ushort(func - ubyte(func - byte_size) - short_size) + tk_node_stackspace} {tcb, tcb_size})
+	(call 'sys_mem 'alloc {ushort(func - ubyte(func - byte_size) - short_size) + tk_node_stackspace} {tcb, tcb_size})
 (errorcases
-	(f-call 'sys_mem 'clear {tcb, tcb_size}))
+	(call 'sys_mem 'clear {tcb, tcb_size}))
 
 	;alloc task mailbox
-	(f-call 'sys_mail 'alloc_mbox nil {tcb->tk_node_mbox_id})
-	(f-call 'sys_mail 'mbox_addr {tcb->tk_node_mbox_id} {tcb->tk_node_mbox_addr})
+	(call 'sys_mail 'alloc_mbox nil {tcb->tk_node_mbox_id})
+	(call 'sys_mail 'mbox_addr {tcb->tk_node_mbox_id} {tcb->tk_node_mbox_addr})
 
 	;init task control block stack, pc and stop address's
 	(assign {tcb, tcb + tcb_size, func} '(r0 r1 r4))
@@ -258,7 +258,7 @@
 
 	;free task mailbox
 	(assign {task_statics->tk_statics_current_tcb} {tcb})
-	(f-call 'sys_mail 'free_mbox {tcb->tk_node_mbox_id})
+	(call 'sys_mail 'free_mbox {tcb->tk_node_mbox_id})
 
 	;remove task control block
 	(vp-def (tcb next_tcb))
@@ -278,10 +278,10 @@
 	(loop-end))
 
 	;free our task control block
-	(f-call 'sys_mem 'free {tcb})
+	(call 'sys_mem 'free {tcb})
 	(assign {next_tcb} '(r14))
 	(pop-scope)
-	(f-jmp 'sys_task 'restore)
+	(jump 'sys_task 'restore)
 
 (def-func-end)
 
@@ -309,7 +309,7 @@
 
 	;get next task control block
 	(ln-get-succ r14 0 r14)
-	(f-jmp 'sys_task 'restore)
+	(jump 'sys_task 'restore)
 
 (def-func-end)
 
@@ -328,7 +328,7 @@
 
 	(f-entry 'sys_task 'open_child '(r0 r1))
 	(f-bind 'sys_task 'statics r3)
-	(f-jmp 'sys_task 'open_remote '(r0 (r3 tk_statics_cpu_id ui) r1))
+	(jump 'sys_task 'open_remote '(r0 (r3 tk_statics_cpu_id ui) r1))
 
 (def-func-end)
 
@@ -351,27 +351,27 @@
 	(f-entry 'sys_task 'open_remote {name, cpu, type})
 
 	;alloc temp mailbox
-	(f-call 'sys_mail 'alloc_mbox nil {mbox_id})
-	(f-call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
+	(call 'sys_mail 'alloc_mbox nil {mbox_id})
+	(call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
 
 	;start task
-	(f-call 'sys_string 'length {name} {_, length})
-	(f-call 'sys_mail 'alloc {length + 1 + kn_msg_open_size} {msg, data})
+	(call 'sys_string 'length {name} {_, length})
+	(call 'sys_mail 'alloc {length + 1 + kn_msg_open_size} {msg, data})
 	(assign {0} {msg->msg_dest.id_mbox})
 	(assign {cpu} {msg->msg_dest.id_cpu})
 	(assign {mbox_id} {data->kn_msg_reply_id.id_mbox})
-	(f-call 'sys_kernel 'id nil {data->kn_msg_reply_id.id_cpu})
+	(call 'sys_kernel 'id nil {data->kn_msg_reply_id.id_cpu})
 	(assign {type} {data->kn_msg_function})
-	(f-call 'sys_mem 'copy {name, &data->kn_msg_open_pathname, length + 1})
-	(f-call 'sys_mail 'send {msg})
+	(call 'sys_mem 'copy {name, &data->kn_msg_open_pathname, length + 1})
+	(call 'sys_mail 'send {msg})
 
 	;wait for reply
-	(f-call 'sys_mail 'read {mailbox} {msg, data})
+	(call 'sys_mail 'read {mailbox} {msg, data})
 	(assign {data->kn_msg_reply_id.id_id} {id.id_id})
-	(f-call 'sys_mail 'free {msg})
+	(call 'sys_mail 'free {msg})
 
 	;free temp mailbox
-	(f-call 'sys_mail 'free_mbox {mbox_id})
+	(call 'sys_mail 'free_mbox {mbox_id})
 
 	;return ids array
 	(f-exit 'sys_task 'open_remote {id.id_id})
@@ -402,17 +402,17 @@
 	(f-entry 'sys_task 'open_farm {name, index_end, type})
 
 	;gather network info
-	(f-call 'sys_kernel 'id nil {cpu})
-	(f-call 'sys_kernel 'total nil {total})
+	(call 'sys_kernel 'id nil {cpu})
+	(call 'sys_kernel 'total nil {total})
 
 	;create output array
-	(f-call 'array 'create nil {ids})
-	(f-call 'array 'set_capacity {ids, index_end})
-	(f-call 'array 'set_length {ids, index_end})
+	(call 'array 'create nil {ids})
+	(call 'array 'set_capacity {ids, index_end})
+	(call 'array 'set_length {ids, index_end})
 
 	;alloc temp mailbox
-	(f-call 'sys_mail 'alloc_mbox nil {mbox_id})
-	(f-call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
+	(call 'sys_mail 'alloc_mbox nil {mbox_id})
+	(call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
 
 	;start all tasks in parallel, centered around our cpu
 	(assign {cpu - (index_end >> 1)} {offset})
@@ -420,30 +420,30 @@
 		(assign {total + (offset %% total)} {offset})
 	(endif)
 	(assign {0} {index})
-	(f-call 'sys_string 'length {name} {_, length})
+	(call 'sys_string 'length {name} {_, length})
 	(loop-while {index != index_end})
-		(f-call 'sys_mail 'alloc {length + 1 + kn_msg_open_size} {msg, data})
+		(call 'sys_mail 'alloc {length + 1 + kn_msg_open_size} {msg, data})
 		(assign {0} {msg->msg_dest.id_mbox})
 		(assign {(index + offset) % total} {msg->msg_dest.id_cpu})
 		(assign {mbox_id} {data->kn_msg_reply_id.id_mbox})
 		(assign {cpu} {data->kn_msg_reply_id.id_cpu})
 		(assign {type} {data->kn_msg_function})
 		(assign {index} {data->kn_msg_user})
-		(f-call 'sys_mem 'copy {name, &data->kn_msg_open_pathname, length + 1})
-		(f-call 'sys_mail 'send {msg})
+		(call 'sys_mem 'copy {name, &data->kn_msg_open_pathname, length + 1})
+		(call 'sys_mail 'send {msg})
 		(assign {index + 1} {index})
 	(loop-end)
 
 	;wait for reply's
 	(loop-while {index})
 		(assign {index - 1} {index})
-		(f-call 'sys_mail 'read {mailbox} {msg, data})
+		(call 'sys_mail 'read {mailbox} {msg, data})
 		(d-call 'array 'set_element {ids, data->kn_msg_reply_id.id_id, data->kn_msg_user})
-		(f-call 'sys_mail 'free {msg})
+		(call 'sys_mail 'free {msg})
 	(loop-end)
 
 	;free temp mailbox
-	(f-call 'sys_mail 'free_mbox {mbox_id})
+	(call 'sys_mail 'free_mbox {mbox_id})
 
 	;return ids array
 	(f-exit 'sys_task 'open_farm {ids})
@@ -469,42 +469,42 @@
 
 	;create output array
 	(d-call 'vector 'get_length {tasks} {_, length})
-	(f-call 'array 'create nil {ids})
-	(f-call 'array 'set_capacity {ids, length})
-	(f-call 'array 'set_length {ids, length})
+	(call 'array 'create nil {ids})
+	(call 'array 'set_capacity {ids, length})
+	(call 'array 'set_length {ids, length})
 
 	;alloc temp mailbox
-	(f-call 'sys_mail 'alloc_mbox nil {mbox_id})
-	(f-call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
+	(call 'sys_mail 'alloc_mbox nil {mbox_id})
+	(call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
 
 	;start all tasks, starting on kernel of this chip
-	(f-call 'sys_kernel 'id nil {cpu})
+	(call 'sys_kernel 'id nil {cpu})
 	(assign {0} {index})
 	(loop-while {index != length})
-		(f-call 'vector 'get_element {tasks, index} {_, name})
-		(f-call 'sys_mail 'alloc {name->string_length + 1 + kn_msg_open_size} {msg, data})
+		(call 'vector 'get_element {tasks, index} {_, name})
+		(call 'sys_mail 'alloc {name->string_length + 1 + kn_msg_open_size} {msg, data})
 		(assign {0} {msg->msg_dest.id_mbox})
 		(assign {cpu} {msg->msg_dest.id_cpu})
 		(assign {mbox_id} {data->kn_msg_reply_id.id_mbox})
-		(f-call 'sys_kernel 'id nil {data->kn_msg_reply_id.id_cpu})
+		(call 'sys_kernel 'id nil {data->kn_msg_reply_id.id_cpu})
 		(assign {kn_call_child} {data->kn_msg_function})
-		(f-call 'sys_mem 'copy {&name->string_data, &data->kn_msg_open_pathname, name->string_length + 1})
+		(call 'sys_mem 'copy {&name->string_data, &data->kn_msg_open_pathname, name->string_length + 1})
 
 		;send mail to kernel, wait for reply
-		(f-call 'sys_mail 'send {msg})
-		(f-call 'sys_mail 'read {mailbox} {msg, data})
+		(call 'sys_mail 'send {msg})
+		(call 'sys_mail 'read {mailbox} {msg, data})
 
 		;save reply mailbox ID
 		(assign {data->kn_msg_reply_id.id_cpu} {cpu})
 		(d-call 'array 'set_element {ids, data->kn_msg_reply_id.id_id, index})
-		(f-call 'sys_mail 'free {msg})
+		(call 'sys_mail 'free {msg})
 
 		;next pipe worker
 		(assign {index + 1} {index})
 	(loop-end)
 
 	;free temp mailbox
-	(f-call 'sys_mail 'free_mbox {mbox_id})
+	(call 'sys_mail 'free_mbox {mbox_id})
 
 	;return ids array
 	(f-exit 'sys_task 'open_pipe {ids})

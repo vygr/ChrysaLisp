@@ -27,15 +27,15 @@
 
 	(push-scope)
 	(f-entry 'canvas 'fpoly {this, polygons, color, mode, span})
-	(f-call 'canvas 'to_premul {this, color} {_, color})
+	(call 'canvas 'to_premul {this, color} {_, color})
 
 	;fill edges, find min and max xy, clip edges not visible or redundant
 	(assign {max_int, min_int, max_int, min_int, 0} {xs, xe, ys, ye, length})
-	(f-call 'vector 'get_iters {polygons} {_, iter_begin_polygons, iter_end_polygons})
+	(call 'vector 'get_iters {polygons} {_, iter_begin_polygons, iter_end_polygons})
 	(loop-while {iter_begin_polygons != iter_end_polygons})
-		(f-call 'points 'get_iters {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
-		(f-call 'array 'set_capacity {this->canvas_edges, length + ((iter_end_polygon - iter_begin_polygon) * edge_size >> 6)})
-		(f-call 'array 'get_begin {this->canvas_edges} {_, iter_edge1})
+		(call 'points 'get_iters {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
+		(call 'array 'set_capacity {this->canvas_edges, length + ((iter_end_polygon - iter_begin_polygon) * edge_size >> 6)})
+		(call 'array 'get_begin {this->canvas_edges} {_, iter_edge1})
 		(assign {iter_edge1 + length * long_size} {iter_edge2})
 		(vpif {iter_end_polygon - iter_begin_polygon >= ptr_size * 3})
 			(vp-def (xdifl ydif xdifh iter_begin_polygon iter_end_polygon x1 y1 x2 y2 this iter_edge2 xs xe ys ye))
@@ -121,8 +121,8 @@
 	;clip check
 	(vpif {xs < this->canvas_cx1 && xe > this->canvas_cx && ys < this->canvas_cy1 && ye > this->canvas_cy})
 		;edge pointers into tracker for sorting
-		(f-call 'array 'set_capacity {this->canvas_edge_tracker, (iter_edge2 - iter_edge1) / edge_size})
-		(f-call 'array 'get_begin {this->canvas_edge_tracker} {_, iter_i})
+		(call 'array 'set_capacity {this->canvas_edge_tracker, (iter_edge2 - iter_edge1) / edge_size})
+		(call 'array 'get_begin {this->canvas_edge_tracker} {_, iter_i})
 		(assign {iter_i, iter_i} {iter_j, iter_end})
 		(vp-def (iter_end iter_edge1 iter_edge2))
 		(assign {iter_end, iter_edge1, iter_edge2} (list iter_end iter_edge1 iter_edge2))
@@ -132,7 +132,7 @@
 			(vp-add-cr ptr_size iter_end)
 		(loop-end)
 		(assign (list iter_end) {iter_end})
-		(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_end, $sort_on_y, 0})
+		(call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_end, $sort_on_y, 0})
 
 		(loop-while {ys < ye})
 			(breakif {ys >= this->canvas_cy1})
@@ -167,7 +167,7 @@
 
 			;sort on x ?, plus move all marked dead edges to front !
 			(vpif `(,lastx == max_int))
-				(f-call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_j, $sort_on_x, 0})
+				(call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_j, $sort_on_x, 0})
 			(endif)
 
 			;remove all dead edges

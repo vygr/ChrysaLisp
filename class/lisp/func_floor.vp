@@ -20,16 +20,16 @@
 	(f-entry 'lisp 'func_floor {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_first {args} {_, value})
-	(f-call 'integer 'get_value {value} {_, num})
+	(call 'vector 'get_first {args} {_, value})
+	(call 'integer 'get_value {value} {_, num})
 	(vec-set 0)
 	(vec-load 1 {num})
 	(vec-floor 1)
 	(vec-store 1 {num})
-	(f-call 'integer 'create {num} {value})
+	(call 'integer 'create {num} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_floor {this, value})
@@ -37,7 +37,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(floor num)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(floor num)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'integer))
 

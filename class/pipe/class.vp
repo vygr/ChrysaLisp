@@ -28,7 +28,7 @@
 	;wait on user and pipe mailboxes
 	(assign {mailbox} {*this->pipe_select_array})
 	(d-call 'vector 'get_length {this->pipe_streams} {_, length})
-	(f-call 'sys_mail 'select {this->pipe_select_array, length} {length})
+	(call 'sys_mail 'select {this->pipe_select_array, length} {length})
 
 	(f-exit 'pipe 'select {this, length})
 	(pop-scope)

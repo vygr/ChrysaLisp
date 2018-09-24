@@ -19,13 +19,13 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error1)
-	(f-call 'vector 'get_first {args} {_, args})
+	(call 'vector 'get_first {args} {_, args})
 	(vpif (cat {args->obj_vtable == @} (f-path 'symbol 'vtable)))
-		(f-call 'obj 'ref {args} {value})
+		(call 'obj 'ref {args} {value})
 	(else)
 		(errorif (cat {args->obj_vtable != @} (f-path 'string 'vtable)) 'error2)
-		(f-call 'symbol 'create_from_buffer {args->string_data, args->string_length} {value})
-		(f-call 'symbol 'intern {value} {value})
+		(call 'symbol 'create_from_buffer {args->string_data, args->string_length} {value})
+		(call 'symbol 'intern {value} {value})
 	(endif)
 
 (vp-label 'exit)
@@ -34,10 +34,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(sym form)", error_msg_wrong_num_of_args, args} {_, value})
+	(call 'lisp 'repl_error {this, "(sym form)", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(sym form)", error_msg_not_a_string, args} {_, value})
+	(call 'lisp 'repl_error {this, "(sym form)", error_msg_not_a_string, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

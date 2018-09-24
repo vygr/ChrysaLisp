@@ -26,20 +26,20 @@
 
 	(assign {char} {sign})
 	(vpif {char == char_minus})
-		(f-call 'stream 'read_char {stream} {_, char})
+		(call 'stream 'read_char {stream} {_, char})
 	(endif)
 
-	(f-call 'string 'create_from_buffer {0, string_gap} {string})
-	(f-call 'stream_str 'create {string} {str_stream})
+	(call 'string 'create_from_buffer {0, string_gap} {string})
+	(call 'stream_str 'create {string} {str_stream})
 	(loop-while {char == char_dot
 				|| char >= char_0 && char <= char_9
 				|| char >= char_a && char <= char_z
 				|| char >= char_A && char <= char_Z})
-		(f-call 'stream 'write_char {str_stream, char})
-		(f-call 'stream 'read_char {stream} {_, char})
+		(call 'stream 'write_char {str_stream, char})
+		(call 'stream 'read_char {stream} {_, char})
 	(loop-end)
-	(f-call 'stream_str 'ref_string {str_stream} {_, string})
-	(f-call 'obj 'deref {str_stream})
+	(call 'stream_str 'ref_string {str_stream} {_, string})
+	(call 'obj 'deref {str_stream})
 
 	;pick base
 	(assign {&string->string_data} {buffer})
@@ -55,12 +55,12 @@
 	(endif)
 
 	;create the number
-	(f-call 'sys_string 'to_long {buffer, val} {val})
+	(call 'sys_string 'to_long {buffer, val} {val})
 	(vpif {sign == char_minus})
 		(assign {-val} {val})
 	(endif)
-	(f-call 'integer 'create {val} {num})
-	(f-call 'obj 'deref {string})
+	(call 'integer 'create {val} {num})
+	(call 'obj 'deref {string})
 
 	(f-exit 'lisp 'read_num {this, num, char})
 	(pop-scope)

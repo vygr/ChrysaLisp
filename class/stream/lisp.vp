@@ -19,12 +19,12 @@
 	(f-entry 'stream 'lisp_available {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'stream 'available {arg0} {_, arg0})
-	(f-call 'integer 'create {arg0} {value})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'stream 'available {arg0} {_, arg0})
+	(call 'integer 'create {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'stream 'lisp_available {this, value})
@@ -32,7 +32,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(stream-available stream)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(stream-available stream)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'stream))
 
@@ -55,12 +55,12 @@
 	(f-entry 'stream 'lisp_write_flush {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(v-call 'stream 'write_flush {arg0})
-	(f-call 'obj 'ref {arg0} {value})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'stream 'write_flush {arg0})
+	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'stream 'lisp_write_flush {this, value})
@@ -68,7 +68,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(stream-write-flush stream)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(stream-write-flush stream)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'stream))
 

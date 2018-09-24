@@ -17,12 +17,12 @@
 	(push-scope)
 	(f-entry 'lisp 'func_array {this, args})
 
-	(f-call 'array 'create nil {value})
+	(call 'array 'create nil {value})
 	(d-call 'vector 'get_length {args} {_, length})
-	(f-call 'array 'set_capacity {value, length})
-	(f-call 'array 'set_length {value, length})
-	(f-call 'array 'get_begin {value} {_, iter_begin})
-	(f-call 'lisp 'env_args_set {this, args, iter_begin, 0})
+	(call 'array 'set_capacity {value, length})
+	(call 'array 'set_length {value, length})
+	(call 'array 'get_begin {value} {_, iter_begin})
+	(call 'lisp 'env_args_set {this, args, iter_begin, 0})
 
 	(f-exit 'lisp 'func_array {this, value})
 	(pop-scope)

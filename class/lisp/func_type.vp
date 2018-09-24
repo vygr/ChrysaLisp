@@ -21,7 +21,7 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error1))
 
-	(f-call 'vector 'get_first {args} {_, args})
+	(call 'vector 'get_first {args} {_, args})
 	(switch)
 	(case (cat {args->obj_vtable == @} (f-path 'vector 'vtable)))
 		(assign {lisp_type_list} {length})
@@ -38,7 +38,7 @@
 	(default)
 		(assign {-1} {length})
 	(endswitch)
-	(f-call 'integer 'create {length} {args})
+	(call 'integer 'create {length} {args})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_type {this, args})
@@ -46,7 +46,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(type? obj)", error_msg_wrong_num_of_args, args} {_, args})
+	(call 'lisp 'repl_error {this, "(type? obj)", error_msg_wrong_num_of_args, args} {_, args})
 	(goto 'exit))
 
 	(pop-scope-syms)

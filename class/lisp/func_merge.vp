@@ -21,24 +21,24 @@
 	(f-entry 'lisp 'func_merge {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, list1})
+	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, list1})
 	(errorifnot {list1} 'error1))
 
-	(f-call 'vector 'get_first {args} {_, list1})
-	(f-call 'vector 'get_second {args} {_, list2})
-	(f-call 'vector 'get_iters {list2} {_, iter_begin, iter_end})
+	(call 'vector 'get_first {args} {_, list1})
+	(call 'vector 'get_second {args} {_, list2})
+	(call 'vector 'get_iters {list2} {_, iter_begin, iter_end})
 	(d-call 'vector 'get_length {list2} {_, length})
-	(f-call 'vector 'set_capacity {list1, length})
+	(call 'vector 'set_capacity {list1, length})
 	(loop-while {iter_begin != iter_end})
 		(assign {*iter_begin} {args})
 		(assign {iter_begin + ptr_size} {iter_begin})
 		(errorif (cat {args->obj_vtable != @} (f-path 'symbol 'vtable)) 'error1)
-		(f-call 'vector 'find {list1, args} {_, index})
+		(call 'vector 'find {list1, args} {_, index})
 		(continueif {index != -1})
-		(f-call 'obj 'ref {args})
-		(f-call 'vector 'push_back {list1, args})
+		(call 'obj 'ref {args})
+		(call 'vector 'push_back {list1, args})
 	(loop-end)
-	(f-call 'obj 'ref {list1})
+	(call 'obj 'ref {list1})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_merge {this, list1})
@@ -46,7 +46,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(merge-sym list list)", error_msg_wrong_types, args} {_, list1})
+	(call 'lisp 'repl_error {this, "(merge-sym list list)", error_msg_wrong_types, args} {_, list1})
 	(goto 'exit)
 	(signature 'sig 'vector 'vector))
 

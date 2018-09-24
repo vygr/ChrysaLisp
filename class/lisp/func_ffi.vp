@@ -22,17 +22,17 @@
 	(f-entry 'lisp 'func_ffi {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_third {args} {_, value})
-	(f-call 'sys_load 'bind {&value->string_data} {value})
+	(call 'vector 'get_third {args} {_, value})
+	(call 'sys_load 'bind {&value->string_data} {value})
 	(errorifnot {value} 'error1)
-	(f-call 'vector 'get_second {args} {_, name})
-	(f-call 'vector 'get_forth {args} {_, args})
-	(f-call 'integer 'get_value {args} {_, flags})
-	(f-call 'function 'create {value | flags} {value})
-	(f-call 'hash_map 'insert {this->lisp_environment, name, value})
+	(call 'vector 'get_second {args} {_, name})
+	(call 'vector 'get_forth {args} {_, args})
+	(call 'integer 'get_value {args} {_, flags})
+	(call 'function 'create {value | flags} {value})
+	(call 'hash_map 'insert {this->lisp_environment, name, value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_ffi {this, value})
@@ -40,7 +40,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(ffi sym path flags)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(ffi sym path flags)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'obj 'symbol 'string 'integer))
 

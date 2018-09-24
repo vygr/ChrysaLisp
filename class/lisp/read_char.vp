@@ -23,13 +23,13 @@
 	(f-entry 'lisp 'read_char {this, stream, char})
 
 	(vpif {char == char_lf})
-		(f-call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
+		(call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
 		(breakifnot {iter})
-		(f-call 'pair 'get_second {*iter} {_, line})
+		(call 'pair 'get_second {*iter} {_, line})
 		(assign {line->function_value + 1} {line->function_value})
 	(endif)
 
-	(f-call 'stream 'read_char {stream} {_, char})
+	(call 'stream 'read_char {stream} {_, char})
 
 	(f-exit 'lisp 'read_char {this, char})
 	(pop-scope)

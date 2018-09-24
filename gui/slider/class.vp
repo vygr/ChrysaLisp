@@ -30,7 +30,7 @@
 	(vpif {ok})
 		;init myself
 		(assign {0} {this->slider_state})
-		(f-call 'array 'create nil {this->slider_value_targets})
+		(call 'array 'create nil {this->slider_value_targets})
 	(endif)
 
 	(f-exit 'slider 'init {this, ok})
@@ -46,7 +46,7 @@
 	;all but r0
 
 	(vp-push r0)
-	(f-call 'array 'deref '((r0 slider_value_targets)))
+	(call 'array 'deref '((r0 slider_value_targets)))
 	(vp-pop r0)
 	(s-jmp 'slider 'deinit '(r0))
 
@@ -68,26 +68,26 @@
 	(f-entry 'slider 'draw {this, ctx})
 
 	;get properties
-	(f-call 'slider 'get_long_prop {this, prop_maximum} {_, max})
-	(f-call 'slider 'get_long_prop {this, prop_portion} {_, portion})
-	(f-call 'slider 'get_long_prop {this, prop_value} {_, val})
-	(f-call 'slider 'get_long_prop {this, prop_color} {_, col})
+	(call 'slider 'get_long_prop {this, prop_maximum} {_, max})
+	(call 'slider 'get_long_prop {this, prop_portion} {_, portion})
+	(call 'slider 'get_long_prop {this, prop_value} {_, val})
+	(call 'slider 'get_long_prop {this, prop_color} {_, col})
 
 	;draw outline
-	(f-call 'ctx 'set_color {ctx, 0xff000000})
-	(f-call 'slider 'get_bounds {this} {_, _, _, width, height})
-	(f-call 'ctx 'box {ctx, 0, 0, width, height})
+	(call 'ctx 'set_color {ctx, 0xff000000})
+	(call 'slider 'get_bounds {this} {_, _, _, width, height})
+	(call 'ctx 'box {ctx, 0, 0, width, height})
 
 	;draw background
-	(f-call 'ctx 'darker {col} {dcol})
-	(f-call 'ctx 'set_color {ctx, dcol})
-	(f-call 'ctx 'filled_box {ctx, 1, 1, width - 2, height - 2})
+	(call 'ctx 'darker {col} {dcol})
+	(call 'ctx 'set_color {ctx, dcol})
+	(call 'ctx 'filled_box {ctx, 1, 1, width - 2, height - 2})
 
 	;draw elevator
 	(vpif {this->slider_state & slider_state_pressed})
-		(f-call 'ctx 'brighter {col} {col})
+		(call 'ctx 'brighter {col} {col})
 	(endif)
-	(f-call 'ctx 'set_color {ctx, col})
+	(call 'ctx 'set_color {ctx, col})
 	(vpif {width > height})
 		(assign {width - 2} {width})
 		(vpif {max > 0})
@@ -96,7 +96,7 @@
 		(else)
 			(assign {width, 0} {portion, eo})
 		(endif)
-		(f-call 'ctx 'filled_box {ctx, eo + 1, 1, portion, height - 2})
+		(call 'ctx 'filled_box {ctx, eo + 1, 1, portion, height - 2})
 	(else)
 		(assign {height - 2} {height})
 		(vpif {max > 0})
@@ -105,7 +105,7 @@
 		(else)
 			(assign {height, 0} {portion, eo})
 		(endif)
-		(f-call 'ctx 'filled_box {ctx, 1, eo + 1, width - 2, portion})
+		(call 'ctx 'filled_box {ctx, 1, eo + 1, width - 2, portion})
 	(endif)
 
 	(f-exit 'slider 'draw {this})
@@ -141,7 +141,7 @@
 	(vp-and-cr (bit-not slider_state_pressed) r1)
 	(vp-cpy-ri r1 r0 slider_state)
 	(vpif '(r1 != r2))
-		(f-jmp 'slider 'dirty '(r0))
+		(jump 'slider 'dirty '(r0))
 	(endif)
 	(vp-ret)
 
@@ -165,7 +165,7 @@
 
 	;hit ?
 	(assign {evt->ev_msg_mouse_rx, evt->ev_msg_mouse_ry} {rx, ry})
-	(v-call 'slider 'hit {this, rx, ry} {_, hit})
+	(call 'slider 'hit {this, rx, ry} {_, hit})
 
 	;is mouse over slider ?
 	(assign {this->slider_state} {old_state})
@@ -178,9 +178,9 @@
 	(endif)
 
 	;emit new value signal ?
-	(f-call 'slider 'get_bounds {this} {_, _, _, width, height})
-	(f-call 'slider 'get_long_prop {this, prop_maximum} {_, max})
-	(f-call 'slider 'get_long_prop {this, prop_value} {_, val})
+	(call 'slider 'get_bounds {this} {_, _, _, width, height})
+	(call 'slider 'get_long_prop {this, prop_maximum} {_, max})
+	(call 'slider 'get_long_prop {this, prop_value} {_, val})
 	(vpif {rx < 0})
 		(assign {0} {rx})
 	(endif)
@@ -205,12 +205,12 @@
 	;dirty ?
 	(switch)
 	(case {new_val != val})
-		(f-call 'slider 'set_long_prop {this, prop_value, new_val})
-		(f-call 'slider 'emit {this, this->slider_value_targets})
+		(call 'slider 'set_long_prop {this, prop_value, new_val})
+		(call 'slider 'emit {this, this->slider_value_targets})
 		(goto 'isdirty)
 	(case {old_state != this->slider_state})
 	(vp-label 'isdirty)
-		(f-call 'slider 'dirty {this})
+		(call 'slider 'dirty {this})
 	(endif)
 
 	(f-exit 'slider 'mouse_move {this})
@@ -229,7 +229,7 @@
 	;all but r0
 
 	(vp-push r0)
-	(f-call 'array 'push_back '((r0 slider_value_targets) r1))
+	(call 'array 'push_back '((r0 slider_value_targets) r1))
 	(vp-pop r0)
 	(vp-ret)
 

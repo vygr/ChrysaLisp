@@ -150,6 +150,47 @@
 ; method calling
 ;;;;;;;;;;;;;;;;
 
+(defcfun call (_1 _2 &optional _3 _4 _5)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = out parameters
+	;_5 = dispatch reg
+	(defq m (method-lookup _1 _2))
+	(cond
+		((eql (elem 1 m) 'static)
+			(assign _3 (elem 2 m))
+			(fn-call (elem 0 m))
+			(if _4 (assign (elem 3 m) _4)))
+		(t
+			(setd _5 r14)
+			(defq _ (elem 2 m))
+			(if (find _5 _)
+				(throw "Dispatch register conflicts with arg !" (list _5 _)))
+			(assign _3 _)
+			(vp-cpy-ir r0 obj_vtable _5)
+			(vp-call-i _5 (elem 4 m))
+			(if _4 (assign (elem 3 m) _4)))))
+
+(defcfun jump (_1 _2 &optional _3 _4)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = dispatch reg
+	(defq m (method-lookup _1 _2))
+	(cond
+		((eql (elem 1 m) 'static)
+			(assign _3 (elem 2 m))
+			(fn-jmp (elem 0 m)))
+		(t
+			(setd _4 r14)
+			(defq _ (elem 2 m))
+			(if (find _4 _)
+				(throw "Dispatch register conflicts with arg !" (list _4 _)))
+			(assign _3 _)
+			(vp-cpy-ir r0 obj_vtable _4)
+			(vp-jmp-i _4 (elem 4 m)))))
+
 (defcfun f-call (_1 _2 &optional _3 _4)
 	;_1 = class name
 	;_2 = member name
@@ -357,13 +398,13 @@
 		;trashes
 		;all
 		(assign _2 _3)
-		(f-call _1 'new nil '(r0))
+		(call _1 'new nil '(r0))
 		(vpif '(r0 != 0))
 			;init the object
-			(f-call _1 'init `(r0 (@ ,(f-path _1 'vtable)) ~_3) '(r0 r1))
+			(call _1 'init `(r0 (@ ,(f-path _1 'vtable)) ~_3) '(r0 r1))
 			(vpif '(r1 == 0))
 				;error with init
-				(v-call _1 'delete '(r0) nil r1)
+				(call _1 'delete '(r0) nil r1)
 				(vp-xor-rr r0 r0)
 			(endif)
 		(endif)
@@ -377,5 +418,5 @@
 		;r0 = 0 if error, else object (ptr)
 		;trashes
 		;r1-r3
-		(f-jmp 'sys_mem 'alloc `(,(sym-cat _1 "_size")))
+		(jump 'sys_mem 'alloc `(,(sym-cat _1 "_size")))
 	(def-func-end))

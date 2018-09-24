@@ -42,9 +42,9 @@
 	;save object
 	(vp-push r0)
 
-	(f-call 'sys_mem 'free '((r0 vdu_chars)))
+	(call 'sys_mem 'free '((r0 vdu_chars)))
 	(vp-cpy-ir rsp 0 r0)
-	(f-call 'vector 'deref_if '((r0 vdu_textures)))
+	(call 'vector 'deref_if '((r0 vdu_textures)))
 
 	;deinit parent
 	(vp-pop r0)
@@ -69,22 +69,22 @@
 	(f-entry 'vdu 'draw {this, ctx})
 
 	;get properties, do checks for any changes
-	(f-call 'vdu 'get_long_prop {this, prop_text_color} {_, col})
-	(f-call 'vdu 'get_long_prop {this, prop_vdu_width} {_, w})
-	(f-call 'vdu 'get_long_prop {this, prop_vdu_height} {_, h})
-	(f-call 'vdu 'get_prop {this, prop_font} {_, font})
+	(call 'vdu 'get_long_prop {this, prop_text_color} {_, col})
+	(call 'vdu 'get_long_prop {this, prop_vdu_width} {_, w})
+	(call 'vdu 'get_long_prop {this, prop_vdu_height} {_, h})
+	(call 'vdu 'get_prop {this, prop_font} {_, font})
 	(vpif {font && font != this->vdu_font})
 		(assign {font} {this->vdu_font})
-		(f-call 'vdu 'switch_font {this})
+		(call 'vdu 'switch_font {this})
 	(endif)
 	(vpif {w != this->vdu_width || h != this->vdu_height})
 		(assign {w, h} {this->vdu_width, this->vdu_height})
-		(f-call 'vdu 'switch_size {this})
+		(call 'vdu 'switch_size {this})
 	(endif)
 
 	;draw vdu chars
 	(vpif {this->vdu_font && this->vdu_chars})
-		(f-call 'region 'bounds {ctx->ctx_dirty_region} {bx, by, bx1, by1})
+		(call 'region 'bounds {ctx->ctx_dirty_region} {bx, by, bx1, by1})
 		(assign {(bx - ctx->ctx_x) / this->vdu_char_width} {bx})
 		(assign {(bx1 - ctx->ctx_x - 1) / this->vdu_char_width} {bx1})
 		(assign {(by - ctx->ctx_y) / this->vdu_char_height} {by})
@@ -100,18 +100,18 @@
 			(loop-while {x <= bx1})
 				(assign {(this->vdu_chars)[by * this->vdu_width + x]} {char})
 				(vpif {char > 32 && char < 127})
-					(f-call 'vector 'get_element {this->vdu_textures, char - 33} {_, txt})
-					(f-call 'texture 'get_metrics {txt} {_, handle, w ,h})
+					(call 'vector 'get_element {this->vdu_textures, char - 33} {_, txt})
+					(call 'texture 'get_metrics {txt} {_, handle, w ,h})
 					(vpif {handle})
-						(f-call 'ctx 'blit {ctx, handle, col, x * this->vdu_char_width, by * this->vdu_char_height, w, h})
+						(call 'ctx 'blit {ctx, handle, col, x * this->vdu_char_width, by * this->vdu_char_height, w, h})
 					(endif)
 				(endif)
 				(assign {x + 1} {x})
 			(loop-end)
 			(assign {by + 1} {by})
 		(loop-end)
-		(f-call 'ctx 'set_color {ctx, col})
-		(f-call 'ctx 'filled_box {ctx, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
+		(call 'ctx 'set_color {ctx, col})
+		(call 'ctx 'filled_box {ctx, this->vdu_cursor_x * this->vdu_char_width, this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 	(endif)
 
 	(f-exit 'vdu 'draw {this})
@@ -137,18 +137,18 @@
 	(f-entry 'vdu 'pref_size {this})
 
 	;get properties, do checks for any changes
-	(f-call 'vdu 'get_long_prop {this, prop_vdu_width} {_, w})
-	(f-call 'vdu 'get_long_prop {this, prop_vdu_height} {_, h})
-	(f-call 'vdu 'ref_prop {this, prop_font} {_, font})
+	(call 'vdu 'get_long_prop {this, prop_vdu_width} {_, w})
+	(call 'vdu 'get_long_prop {this, prop_vdu_height} {_, h})
+	(call 'vdu 'ref_prop {this, prop_font} {_, font})
 	(vpif {font && font != this->vdu_font})
 		(assign {font} {this->vdu_font})
-		(f-call 'vdu 'switch_font {this})
+		(call 'vdu 'switch_font {this})
 	(endif)
 	(vpif {w != this->vdu_width || h != this->vdu_height})
 		(assign {w, h} {this->vdu_width, this->vdu_height})
-		(f-call 'vdu 'switch_size {this})
+		(call 'vdu 'switch_size {this})
 	(endif)
-	(f-call 'font 'deref_if {font})
+	(call 'font 'deref_if {font})
 
 	(f-exit 'vdu 'pref_size {this, this->vdu_width * this->vdu_char_width,
 		this->vdu_height * this->vdu_char_height})
@@ -170,12 +170,12 @@
 	(f-entry 'vdu 'switch_font {this})
 
 	;set char size
-	(f-call 'font 'get_metrics {this->vdu_font} {_, _, _, this->vdu_char_height})
+	(call 'font 'get_metrics {this->vdu_font} {_, _, _, this->vdu_char_height})
 	(assign {this->vdu_char_height * 9 >> 4} {this->vdu_char_width})
 
 	;ref char textures
-	(f-call 'vector 'deref_if {this->vdu_textures})
-	(f-call 'font 'ref_chars {this->vdu_font} {_, this->vdu_textures})
+	(call 'vector 'deref_if {this->vdu_textures})
+	(call 'font 'ref_chars {this->vdu_font} {_, this->vdu_textures})
 
 	(f-exit 'vdu 'switch_font {this})
 	(pop-scope)
@@ -196,9 +196,9 @@
 	(push-scope)
 	(f-entry 'vdu 'switch_size {this})
 
-	(f-call 'sys_mem 'free {this->vdu_chars})
-	(f-call 'sys_mem 'alloc {this->vdu_width * this->vdu_height} {this->vdu_chars, size})
-	(f-call 'sys_mem 'fill {this->vdu_chars, size, char_space})
+	(call 'sys_mem 'free {this->vdu_chars})
+	(call 'sys_mem 'alloc {this->vdu_width * this->vdu_height} {this->vdu_chars, size})
+	(call 'sys_mem 'fill {this->vdu_chars, size, char_space})
 
 	(f-exit 'vdu 'switch_size {this})
 	(pop-scope)
@@ -222,7 +222,7 @@
 
 	(vpif {this->vdu_chars})
 		;dirty old cursor area
-		(f-call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
+		(call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
 			this->vdu_cursor_y * this->vdu_char_height,
 			this->vdu_char_width, this->vdu_char_height})
 
@@ -234,9 +234,9 @@
 		(vpif {this->vdu_cursor_y >= this->vdu_height})
 			(assign {0} {this->vdu_cursor_x})
 			(assign {this->vdu_height - 1} {this->vdu_cursor_y})
-			(f-call 'sys_mem 'copy {this->vdu_chars + this->vdu_width, this->vdu_chars, (this->vdu_height - 1) * this->vdu_width})
-			(f-call 'sys_mem 'fill {this->vdu_chars + (this->vdu_height - 1) * this->vdu_width, this->vdu_width, char_space})
-			(f-call 'vdu 'dirty {this})
+			(call 'sys_mem 'copy {this->vdu_chars + this->vdu_width, this->vdu_chars, (this->vdu_height - 1) * this->vdu_width})
+			(call 'sys_mem 'fill {this->vdu_chars + (this->vdu_height - 1) * this->vdu_width, this->vdu_width, char_space})
+			(call 'vdu 'dirty {this})
 		(endif)
 
 		(vpif {char == char_lf})
@@ -247,7 +247,7 @@
 			;tab
 			(assign {4 - (this->vdu_cursor_x & 3)} {char})
 			(loop-start)
-				(f-call 'vdu 'print_char {this, 32})
+				(call 'vdu 'print_char {this, 32})
 				(assign {char - 1} {char})
 			(loop-untilnot {char})
 		(elseif {char == char_backspace})
@@ -255,27 +255,27 @@
 			(vpif {this->vdu_cursor_x})
 				(assign {this->vdu_cursor_x - 1} {this->vdu_cursor_x})
 				(assign {32} {(this->vdu_chars)[this->vdu_cursor_y * this->vdu_width + this->vdu_cursor_x]})
-				(f-call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
+				(call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
 					this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 			(endif)
 		(elseif {char == 129})
 			;clear line
 			(vpif {this->vdu_cursor_x})
-				(f-call 'sys_mem 'fill {this->vdu_chars + this->vdu_cursor_y * this->vdu_width, this->vdu_width, char_space})
-				(f-call 'vdu 'add_dirty {this, 0, this->vdu_cursor_y * this->vdu_char_height,
+				(call 'sys_mem 'fill {this->vdu_chars + this->vdu_cursor_y * this->vdu_width, this->vdu_width, char_space})
+				(call 'vdu 'add_dirty {this, 0, this->vdu_cursor_y * this->vdu_char_height,
 					this->vdu_cursor_x * this->vdu_char_width, this->vdu_char_height})
 				(assign {0} {this->vdu_cursor_x})
 			(endif)
 		(elseif {char >= char_space && char < 127})
 			;printable char
 			(assign {char} {(this->vdu_chars)[this->vdu_cursor_y * this->vdu_width + this->vdu_cursor_x]})
-			(f-call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
+			(call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
 				this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 			(assign {this->vdu_cursor_x + 1} {this->vdu_cursor_x})
 		(endif)
 
 		;dirty new cursor area
-		(f-call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
+		(call 'vdu 'add_dirty {this, this->vdu_cursor_x * this->vdu_char_width,
 			this->vdu_cursor_y * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 	(endif)
 
@@ -301,7 +301,7 @@
 
 	;print chars
 	(loop-while {*charp})
-		(f-call 'vdu 'print_char {this, *charp})
+		(call 'vdu 'print_char {this, *charp})
 		(assign {charp + 1} {charp})
 	(loop-end)
 

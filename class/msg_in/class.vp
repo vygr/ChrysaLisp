@@ -31,8 +31,8 @@
 		(assign {0} {this->msg_in_seqnum})
 		(assign {0} {this->msg_in_ack_seqnum})
 		(assign {stream_mail_state_started} {this->msg_in_state})
-		(f-call 'sys_mail 'alloc_mbox nil {this->msg_in_mbox_id})
-		(f-call 'sys_mail 'mbox_addr {this->msg_in_mbox_id} {this->msg_in_mbox_addr})
+		(call 'sys_mail 'alloc_mbox nil {this->msg_in_mbox_id})
+		(call 'sys_mail 'mbox_addr {this->msg_in_mbox_id} {this->msg_in_mbox_addr})
 		(vp-def (lst tmp))
 		(assign {&this->msg_in_list} (list lst))
 		(lh-init lst tmp)
@@ -56,11 +56,11 @@
 	(f-entry 'msg_in 'deinit {this})
 
 	;free any mail message buffer
-	(f-call 'sys_mail 'free {this->stream_buffer})
+	(call 'sys_mail 'free {this->stream_buffer})
 	(assign {0} {this->stream_buffer})
 
 	;free mailbox
-	(f-call 'sys_mail 'free_mbox {this->msg_in_mbox_id})
+	(call 'sys_mail 'free_mbox {this->msg_in_mbox_id})
 
 	;parent deinit
 	(f-exit 'msg_in 'deinit {this})
@@ -115,14 +115,14 @@
 	(f-entry 'msg_in 'next_msg {this})
 
 	;free any current msg
-	(f-call 'sys_mail 'free {this->stream_buffer})
+	(call 'sys_mail 'free {this->stream_buffer})
 
 	;read next in sequence
 	(assign {0} {msg})
 	(loop-start)
-		(f-call 'msg_in 'next_seq {&this->msg_in_list, msg, this->msg_in_seqnum} {msg, data})
+		(call 'msg_in 'next_seq {&this->msg_in_list, msg, this->msg_in_seqnum} {msg, data})
 		(breakif {msg})
-		(f-call 'sys_mail 'read {this->msg_in_mbox_addr} {msg, _})
+		(call 'sys_mail 'read {this->msg_in_mbox_addr} {msg, _})
 	(loop-end)
 	(assign {this->msg_in_seqnum + 1} {this->msg_in_seqnum})
 
@@ -134,9 +134,9 @@
 
 	;send ack if needed
 	(vpif {data->stream_msg_seqnum >> msg_out_ack_shift == this->msg_in_ack_seqnum})
-		(f-call 'sys_mail 'alloc {0} {ack_msg, _})
+		(call 'sys_mail 'alloc {0} {ack_msg, _})
 		(assign {data->stream_msg_ack_id.id_id} {ack_msg->msg_dest.id_id})
-		(f-call 'sys_mail 'send {ack_msg})
+		(call 'sys_mail 'send {ack_msg})
 		(assign {this->msg_in_ack_seqnum + 1} {this->msg_in_ack_seqnum})
 	(endif)
 
@@ -162,7 +162,7 @@
 
 	;if started state
 	(loop-while {this->msg_in_state == stream_mail_state_started})
-		(f-call 'msg_in 'next_msg {this})
+		(call 'msg_in 'next_msg {this})
 	(loop-until {this->stream_bufp != this->stream_bufe})
 
 	;return -1 if not in started state

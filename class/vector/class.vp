@@ -24,7 +24,7 @@
 	;all but r0
 
 	;deref all elements
-	(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) 0) '(r0 _))
+	(call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) 0) '(r0 _))
 	(s-call 'vector 'clear '(r0) '(r0))
 	(vp-ret)
 
@@ -35,7 +35,7 @@
 	;outputs
 	;r1 = 0 if break, else not
 
-	(f-call 'obj 'deref '((r1 0)) '(r1))
+	(call 'obj 'deref '((r1 0)) '(r1))
 	(vp-ret)
 
 (def-func-end)
@@ -54,7 +54,7 @@
 	(vp-cpy-ri-i r1 r0 array_length)
 	(vp-cpy-ir r0 array_array r0)
 	(vp-shl-cr (log2 ptr_size) r1)
-	(f-call 'obj 'deref '((r0 r1)))
+	(call 'obj 'deref '((r0 r1)))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -74,7 +74,7 @@
 	(vp-cpy-ir r0 array_array r0)
 	(vp-sub-cr 1 r1)
 	(vp-shl-cr (log2 ptr_size) r1)
-	(f-call 'obj 'ref '((r0 r1)) '(r1))
+	(call 'obj 'ref '((r0 r1)) '(r1))
 	(vp-cpy-rr r2 r0)
 	(vp-ret)
 
@@ -93,7 +93,7 @@
 	(vp-cpy-rr r0 r2)
 	(vp-cpy-ir r0 array_array r0)
 	(vp-shl-cr (log2 ptr_size) r1)
-	(f-call 'obj 'ref '((r0 r1)) '(r1))
+	(call 'obj 'ref '((r0 r1)) '(r1))
 	(vp-cpy-rr r2 r0)
 	(vp-ret)
 
@@ -114,7 +114,7 @@
 	(vp-push r0)
 	(vp-cpy-dr r2 r3 r0)
 	(vp-cpy-rd r1 r2 r3)
-	(f-call 'obj 'deref '(r0))
+	(call 'obj 'deref '(r0))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -135,11 +135,11 @@
 	(f-entry 'vector 'slice '(r8 r9 r10))
 
 	;create new vector
-	(f-call 'vector 'create '() '(r0))
+	(call 'vector 'create '() '(r0))
 	(vp-cpy-rr r10 r1)
 	(vp-sub-rr r9 r1)
 	(vp-cpy-ri-i r1 r0 array_length)
-	(f-call 'vector 'set_capacity '(r0 r1) '(r1))
+	(call 'vector 'set_capacity '(r0 r1) '(r1))
 	(vp-cpy-rr r8 r0)
 
 	;copy and ref elements
@@ -186,7 +186,7 @@
 	(vp-sub-rr r9 r2)
 	(vp-lea-d r2 r11 r1)
 	(vp-cpy-ri-i r1 r0 array_length)
-	(f-call 'vector 'set_capacity '(r0 r1))
+	(call 'vector 'set_capacity '(r0 r1))
 
 	;append and ref elements
 	(vpif '(r9 != r10))

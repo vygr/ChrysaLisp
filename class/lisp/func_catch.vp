@@ -21,18 +21,18 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 3} 'error1))
 
-	(f-call 'vector 'get_begin {args} {_, iter_begin})
-	(f-call 'lisp 'repl_eval {this, iter_begin[ptr_size * 1]} {_, value})
+	(call 'vector 'get_begin {args} {_, iter_begin})
+	(call 'lisp 'repl_eval {this, iter_begin[ptr_size * 1]} {_, value})
 	(vpif (cat {value->obj_vtable == @} (f-path 'error 'vtable)))
-		(f-call 'lisp 'repl_eval {this, iter_begin[ptr_size * 2]} {_, args})
+		(call 'lisp 'repl_eval {this, iter_begin[ptr_size * 2]} {_, args})
 		(vpif (cat {args->obj_vtable == @} (f-path 'error 'vtable)))
-			(f-call 'obj 'deref {value})
+			(call 'obj 'deref {value})
 			(assign {args} {value})
 		(elseif {args != this->lisp_sym_nil})
-			(f-call 'obj 'deref {value})
+			(call 'obj 'deref {value})
 			(assign {args} {value})
 		(else)
-			(f-call 'obj 'deref {args})
+			(call 'obj 'deref {args})
 		(endif)
 	(endif)
 
@@ -42,7 +42,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(catch form eform)", error_msg_wrong_num_of_args, args} {_, value})
+	(call 'lisp 'repl_error {this, "(catch form eform)", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

@@ -29,7 +29,7 @@
 	(s-call 'title 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init myself
-		(f-call 'title 'set_long_prop {this, prop_border, 1})
+		(call 'title 'set_long_prop {this, prop_border, 1})
 	(endif)
 
 	(f-exit 'title 'init {this, ok})
@@ -55,7 +55,7 @@
 		(vp-cpy-ir r0 hash_map_parent r0)
 		(vp-cpy-ir r0 obj_vtable r2)
 	(loop-until '(r2 == r1))
-	(f-call 'window 'to_front '(r0))
+	(call 'window 'to_front '(r0))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -92,11 +92,11 @@
 	(vp-cpy-ri-i r8 rsp local_old_y)
 
 	;dirty old area
-	(f-call 'window 'dirty '(r0))
+	(call 'window 'dirty '(r0))
 
 	;get new window position
 	(vp-cpy-ir rsp local_this r0)
-	(f-call 'title 'get_relative '(r0 (rsp local_window) (r0 title_last_x i) (r0 title_last_y i)) '(_ r7 r8))
+	(call 'title 'get_relative '(r0 (rsp local_window) (r0 title_last_x i) (r0 title_last_y i)) '(_ r7 r8))
 	(vp-cpy-ir rsp local_event r1)
 	(vp-cpy-ir-i r1 ev_msg_mouse_x r9)
 	(vp-cpy-ir-i r1 ev_msg_mouse_y r10)
@@ -118,8 +118,8 @@
 	(vp-mul-cr -1 r7)
 	(vp-mul-cr -1 r8)
 	(vp-lea-i r0 view_dirty_region r1)
-	(f-call 'region 'translate '(r1 r7 r8))
-	(f-call 'window 'dirty_all '((rsp local_window)))
+	(call 'region 'translate '(r1 r7 r8))
+	(call 'window 'dirty_all '((rsp local_window)))
 
 	(vp-cpy-ir rsp local_this r0)
 	(vp-free local_size)

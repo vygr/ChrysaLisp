@@ -32,16 +32,16 @@
 	;init app vars
 	(push-scope)
 	(assign {&local.local_buffer} {local.local_bufp})
-	(f-call 'sys_task 'mailbox nil {tui_id.id_id})
-	(f-call 'sys_mail 'mbox_addr {tui_id.id_mbox} {mbox_addr})
+	(call 'sys_task 'mailbox nil {tui_id.id_id})
+	(call 'sys_mail 'mbox_addr {tui_id.id_mbox} {mbox_addr})
 	(assign {0} {local.local_pipe})
 
 	;start stdin polling task and send it tui mailbox id
-	(f-call 'sys_task 'start {@apps/terminal/tui_child} {_, stdin_id.id_id})
-	(f-call 'sys_mail 'alloc {tui_msg_size} {msg, data})
+	(call 'sys_task 'start {@apps/terminal/tui_child} {_, stdin_id.id_id})
+	(call 'sys_mail 'alloc {tui_msg_size} {msg, data})
 	(assign {stdin_id.id_id} {msg->msg_dest.id_id})
 	(assign {tui_id.id_id} {data->tui_msg_reply_id.id_id})
-	(f-call 'sys_mail 'send {msg})
+	(call 'sys_mail 'send {msg})
 
 	;sign on
 	(l-call 'terminal_output_cstr {"ChrysaLisp Terminal 1.3"})
@@ -52,17 +52,17 @@
 	(loop-start)
 		(vpif {local.local_pipe})
 			;select on multiple mailboxes
-			(f-call 'pipe 'select {local.local_pipe, mbox_addr} {_, index})
+			(call 'pipe 'select {local.local_pipe, mbox_addr} {_, index})
 
 			;which mailbox has mail ?
 			(gotoif {index == 0} 'from_mymailbox)
 
 			;output from a pipe element
-			(f-call 'vector 'get_element {local.local_pipe->pipe_streams, index} {_, stream})
+			(call 'vector 'get_element {local.local_pipe->pipe_streams, index} {_, stream})
 			(l-call 'pipe_output {&local, stream} {state})
 			(vpif {state == -1})
 				;EOF
-				(f-call 'pipe 'deref {local.local_pipe})
+				(call 'pipe 'deref {local.local_pipe})
 				(assign {0} {local.local_pipe})
 				(l-call 'terminal_output_char {char_lf})
 				(l-call 'terminal_output_char {char_gt})
@@ -70,15 +70,15 @@
 		(else)
 		(vp-label 'from_mymailbox)
 			;dispatch event to terminal
-			(f-call 'sys_mail 'read {mbox_addr} {msg, data})
+			(call 'sys_mail 'read {mbox_addr} {msg, data})
 			(l-call 'terminal_input {&local, data->stdin_msg_char})
-			(f-call 'sys_mail 'free {msg})
+			(call 'sys_mail 'free {msg})
 		(endif)
-		(f-call 'sys_task 'yield)
+		(call 'sys_task 'yield)
 	(loop-end)
 
 	;clean up
-	(f-call 'pipe 'deref {local.local_pipe})
+	(call 'pipe 'deref {local.local_pipe})
 	(pop-scope)
 	(return)
 
@@ -96,10 +96,10 @@
 	(l-entry {local, stream})
 
 	(loop-start)
-		(f-call 'stream 'read_char {stream} {_, char})
+		(call 'stream 'read_char {stream} {_, char})
 		(breakif {char == -1})
 		(l-call 'terminal_output_char {char})
-		(v-call 'stream 'read_ready {stream} {_, ready})
+		(call 'stream 'read_ready {stream} {_, ready})
 	(loop-untilnot {ready})
 
 	(l-exit {char})
@@ -132,30 +132,30 @@
 			;start new pipe
 			(switch)
 			(case {length})
-				(f-call 'pipe 'create {&local->local_buffer, length} {local->local_pipe})
+				(call 'pipe 'create {&local->local_buffer, length} {local->local_pipe})
 				(breakif {local->local_pipe})
 			(default)
 				(l-call 'terminal_output_char {char_gt})
 			(endswitch)
 		(else)
 			;feed active pipe
-			(f-call 'pipe 'get_input {local->local_pipe} {_, stream})
-			(f-call 'stream 'write {stream, &local->local_buffer, length})
-			(f-call 'stream 'write_char {stream, char_lf})
-			(v-call 'stream 'write_flush {stream})
+			(call 'pipe 'get_input {local->local_pipe} {_, stream})
+			(call 'stream 'write {stream, &local->local_buffer, length})
+			(call 'stream 'write_char {stream, char_lf})
+			(call 'stream 'write_flush {stream})
 		(endif)
 		(assign {&local->local_buffer} {local->local_bufp})
 	(elseif {char == char_esc})
 		;esc
 		(vpif {local->local_pipe})
 			;feed active pipe, then EOF
-			(f-call 'pipe 'get_input {local->local_pipe} {_, stream})
-			(f-call 'stream 'write {stream, &local->local_buffer, length})
-			(v-call 'stream 'write_flush {stream})
+			(call 'pipe 'get_input {local->local_pipe} {_, stream})
+			(call 'stream 'write {stream, &local->local_buffer, length})
+			(call 'stream 'write_flush {stream})
 			(assign {&local->local_buffer} {local->local_bufp})
 
 			;stop pipe
-			(f-call 'pipe 'deref {local->local_pipe})
+			(call 'pipe 'deref {local->local_pipe})
 			(assign {0} {local->local_pipe})
 		(endif)
 	(elseifnot {char < char_space || char >= 127 || length == buf_size})
@@ -176,12 +176,12 @@
 
 	(vpif {char == char_tab})
 		;tab
-		(f-call 'sys_pii 'write_char {1, char_space})
-		(f-call 'sys_pii 'write_char {1, char_space})
-		(f-call 'sys_pii 'write_char {1, char_space})
-		(f-call 'sys_pii 'write_char {1, char_space})
+		(call 'sys_pii 'write_char {1, char_space})
+		(call 'sys_pii 'write_char {1, char_space})
+		(call 'sys_pii 'write_char {1, char_space})
+		(call 'sys_pii 'write_char {1, char_space})
 	(else)
-		(f-call 'sys_pii 'write_char {1, char})
+		(call 'sys_pii 'write_char {1, char})
 	(endif)
 
 	(pop-scope)
@@ -218,26 +218,26 @@
 	(push-scope)
 
 	;read tui mailbox id
-	(f-call 'sys_mail 'mymail nil {msg, data})
+	(call 'sys_mail 'mymail nil {msg, data})
 	(assign {data->tui_msg_reply_id.id_id} {tui_id.id_id})
-	(f-call 'sys_mail 'free {msg})
+	(call 'sys_mail 'free {msg})
 
 	;non block on stdin
-	(f-call 'sys_pii 'fcntl {0, f_getfl, 0} {char})
-	(f-call 'sys_pii 'fcntl {0, f_setfl, char | o_nonblock})
+	(call 'sys_pii 'fcntl {0, f_getfl, 0} {char})
+	(call 'sys_pii 'fcntl {0, f_setfl, char | o_nonblock})
 
 	;poll stdin and send char to tui
 	(loop-start)
 	(vp-label 'nextchar)
-		(f-call 'sys_pii 'read_char {0} {char})
+		(call 'sys_pii 'read_char {0} {char})
 		(vpif {char})
-			(f-call 'sys_mail 'alloc {stdin_msg_size} {msg, data})
+			(call 'sys_mail 'alloc {stdin_msg_size} {msg, data})
 			(assign {tui_id.id_id} {msg->msg_dest.id_id})
 			(assign {char} {data->stdin_msg_char})
-			(f-call 'sys_mail 'send {msg})
+			(call 'sys_mail 'send {msg})
 			(goto 'nextchar)
 		(endif)
-		(f-call 'sys_task 'sleep {10000})
+		(call 'sys_task 'sleep {10000})
 	(loop-end)
 
 	(pop-scope)

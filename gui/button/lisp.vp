@@ -22,7 +22,7 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'button 'create nil {value})
+	(call 'button 'create nil {value})
 
 (vp-label 'exit)
 	(f-exit 'button 'lisp_create {this, value})
@@ -30,7 +30,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(create-button)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(create-button)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
@@ -52,12 +52,12 @@
 	(f-entry 'button 'lisp_connect_click {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'button 'connect_click {arg0, arg1})
-	(f-call 'button 'ref {arg0} {value})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'button 'connect_click {arg0, arg1})
+	(call 'button 'ref {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'button 'lisp_connect_click {this, value})
@@ -65,7 +65,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(button-connect-click button id)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(button-connect-click button id)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'button 'integer))
 

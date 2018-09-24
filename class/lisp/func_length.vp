@@ -19,12 +19,12 @@
 	(f-entry 'lisp 'func_length {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_first {args} {_, args})
-	(v-call 'sequence 'get_length {args} {_, length})
-	(f-call 'integer 'create {length} {value})
+	(call 'vector 'get_first {args} {_, args})
+	(call 'sequence 'get_length {args} {_, length})
+	(call 'integer 'create {length} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_length {this, value})
@@ -32,7 +32,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(length seq)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(length seq)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'sequence))
 

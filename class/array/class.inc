@@ -191,7 +191,7 @@
 	;r1 = end element iter (plong)
 	;trashes
 	;r2
-	(f-call 'array 'get_iter '(r0 (r0 array_length ui))))
+	(call 'array 'get_iter '(r0 (r0 array_length ui))))
 
 (defcfun class/array/pop_back ()
 	;inputs

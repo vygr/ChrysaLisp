@@ -44,7 +44,7 @@
 							(setq state 'y)
 							(push docs (list))
 							(push functions (trim-cruft (elem 1 s))))
-						((and (eql _ "(f-call") (eql (elem 2 s) "'repl_error") (eql (char 0x22) (elem 0 (elem 4 s))))
+						((and (eql _ "(call") (eql (elem 2 s) "'repl_error") (eql (char 0x22) (elem 0 (elem 4 s))))
 							(insert-sym syntax (chop l)))))) _)) *imports*)))
 	;create classes docs
 	(sort (lambda (x y)

@@ -103,8 +103,8 @@
 		(vp-jmp-p (link-sym (fn-find-link p)))))
 
 (defcfun abort (&optional s)
-	(f-call 'sys_pii 'write_str (list 2 (opt s "Abort !")))
-	(f-jmp 'sys_pii 'exit '(1)))
+	(call 'sys_pii 'write_str (list 2 (opt s "Abort !")))
+	(jump 'sys_pii 'exit '(1)))
 
 (defcfun assert (b &optional d)
 	(when debug_mode

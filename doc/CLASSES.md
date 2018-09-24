@@ -1257,6 +1257,16 @@ r1 = texture object (ptr)
 trashes
 all but r0
 ```
+### font::ref_chars -> gui/font/ref_chars
+```
+inputs
+r0 = font object (ptr)
+outputs
+r0 = font object (ptr)
+r1 = char texture vector object (ptr)
+trashes
+all but r0
+```
 ### font::get_metrics -> gui/font/get_metrics
 ```
 inputs

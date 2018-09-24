@@ -20,21 +20,21 @@
 	(f-entry 'lisp 'func_match {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value1})
+	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value1})
 	(errorifnot {value1} 'error1))
 
-	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {value1, value2})
 	(d-call 'vector 'get_length {value1} {_, length1})
 	(d-call 'vector 'get_length {value2} {_, length2})
 	(vpif {length1 == length2})
-		(f-call 'vector 'get_iters {value1} {_, iter_begin, iter_end})
-		(f-call 'vector 'get_begin {value2} {_, iter})
+		(call 'vector 'get_iters {value1} {_, iter_begin, iter_end})
+		(call 'vector 'get_begin {value2} {_, iter})
 		(loop-while {iter_begin != iter_end})
 			(assign {*iter_begin, *iter} {value1, value2})
 			(assign {iter_begin + ptr_size, iter + ptr_size} {iter_begin, iter})
 			(continueif {value1 == value2})
-			(f-call 'obj 'inst_of (cat {value2, @} (f-path 'string 'vtable)) {_, args})
+			(call 'obj 'inst_of (cat {value2, @} (f-path 'string 'vtable)) {_, args})
 			(gotoifnot {args} 'nomatch)
 			(gotoif {ushort(value2->string_data) != char_underscore} 'nomatch)
 		(loop-end)
@@ -43,7 +43,7 @@
 	(vp-label 'nomatch)
 		(assign {this->lisp_sym_nil} {value1})
 	(endif)
-	(f-call 'obj 'ref {value1})
+	(call 'obj 'ref {value1})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_match {this, value1})
@@ -51,7 +51,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(match? list list)", error_msg_wrong_types, args} {_, value1})
+	(call 'lisp 'repl_error {this, "(match? list list)", error_msg_wrong_types, args} {_, value1})
 	(goto 'exit)
 	(signature 'sig 'vector 'vector))
 

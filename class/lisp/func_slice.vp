@@ -20,15 +20,15 @@
 	(f-entry 'lisp 'func_slice {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 3} {_, value1})
+	(call 'lisp 'env_args_type {this, args, $sig, 3} {_, value1})
 	(errorifnot {value1} 'error1))
 
-	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size], iter_begin[ptr_size * 2]} {value1, value2, slc})
 
-	(f-call 'integer 'get_value {value1} {_, start})
-	(f-call 'integer 'get_value {value2} {_, end})
-	(v-call 'sequence 'get_length {slc} {_, length})
+	(call 'integer 'get_value {value1} {_, start})
+	(call 'integer 'get_value {value2} {_, end})
+	(call 'sequence 'get_length {slc} {_, length})
 	(vpif {start < 0})
 		(assign {length + start + 1} {start})
 	(endif)
@@ -36,7 +36,7 @@
 		(assign {length + end + 1} {end})
 	(endif)
 	(errorif {start > end || start < 0 || end > length} 'error2)
-	(v-call 'sequence 'slice {slc, start, end} {_, value1})
+	(call 'sequence 'slice {slc, start, end} {_, value1})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_slice {this, value1})
@@ -44,10 +44,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(slice start end seq)", error_msg_wrong_types, args} {_, value1})
+	(call 'lisp 'repl_error {this, "(slice start end seq)", error_msg_wrong_types, args} {_, value1})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(slice start end seq)", error_msg_not_valid_index, args} {_, value1})
+	(call 'lisp 'repl_error {this, "(slice start end seq)", error_msg_not_valid_index, args} {_, value1})
 	(goto 'exit)
 	(signature 'sig 'integer 'integer 'sequence))
 

@@ -19,12 +19,12 @@
 	(f-entry 'sys_task 'lisp_sleep {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'sys_task 'sleep {arg0})
-	(f-call 'obj 'ref {this->lisp_sym_t} {value})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'sys_task 'sleep {arg0})
+	(call 'obj 'ref {this->lisp_sym_t} {value})
 
 (vp-label 'exit)
 	(f-exit 'sys_task 'lisp_sleep {this, value})
@@ -32,7 +32,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(task-sleep usec)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(task-sleep usec)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'integer))
 
@@ -60,8 +60,8 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'sys_task 'mailbox nil {arg0})
-	(f-call 'integer 'create {arg0} {value})
+	(call 'sys_task 'mailbox nil {arg0})
+	(call 'integer 'create {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'sys_task 'lisp_mailbox {this, value})
@@ -69,7 +69,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(task-mailbox)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(task-mailbox)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
@@ -91,12 +91,12 @@
 	(f-entry 'sys_task 'lisp_open_child {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'sys_task 'open_child {&arg0->string_data, arg1} {arg0})
-	(f-call 'integer 'create {arg0} {value})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'sys_task 'open_child {&arg0->string_data, arg1} {arg0})
+	(call 'integer 'create {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'sys_task 'lisp_open_child {this, value})
@@ -104,7 +104,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(open-child path mode)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(open-child path mode)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string 'integer))
 
@@ -127,12 +127,12 @@
 	(f-entry 'sys_task 'lisp_open_remote {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'sys_task 'open_remote {&arg0->string_data, arg1, arg2} {arg0})
-	(f-call 'integer 'create {arg0} {value})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'sys_task 'open_remote {&arg0->string_data, arg1, arg2} {arg0})
+	(call 'integer 'create {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'sys_task 'lisp_open_remote {this, value})
@@ -140,7 +140,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(open-remote path cpu mode)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(open-remote path cpu mode)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string 'integer 'integer))
 
@@ -163,11 +163,11 @@
 	(f-entry 'sys_task 'lisp_open_farm {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'sys_task 'open_farm {&arg0->string_data, arg1, arg2} {value})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'sys_task 'open_farm {&arg0->string_data, arg1, arg2} {value})
 
 (vp-label 'exit)
 	(f-exit 'sys_task 'lisp_open_farm {this, value})
@@ -175,7 +175,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(open-farm path num mode)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(open-farm path num mode)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string 'integer 'integer))
 
@@ -198,16 +198,16 @@
 	(f-entry 'sys_task 'lisp_open_pipe {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
 
 (errorcases
-	(f-call 'lisp 'env_args_type (cat {this, arg0, @} (f-path 'string 'vtable) {, -1}) {_, value})
+	(call 'lisp 'env_args_type (cat {this, arg0, @} (f-path 'string 'vtable) {, -1}) {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'sys_task 'open_pipe {arg0} {value})
+	(call 'sys_task 'open_pipe {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'sys_task 'lisp_open_pipe {this, value})
@@ -215,7 +215,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(open-pipe paths)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(open-pipe paths)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'vector))
 

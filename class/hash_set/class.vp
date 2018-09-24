@@ -30,14 +30,14 @@
 	(s-call 'hash_set 'init '(r0 r1) '(r0 r1))
 	(vpif '(r1 != 0))
 		;init myself
-		(f-call 'vector 'create '() '(r0))
+		(call 'vector 'create '() '(r0))
 		(vp-cpy-ir rsp local_this r1)
 		(vp-cpy-ri r0 r1 hash_set_buckets)
 		(vp-cpy-ir-ui r1 hash_set_num_buckets r1)
 		(vpif '(r1 != 1))
 			(vp-cpy-ri-i r1 r0 array_length)
-			(f-call 'vector 'set_capacity '(r0 r1))
-			(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) 0) '(_ r1))
+			(call 'vector 'set_capacity '(r0 r1))
+			(call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) 0) '(_ r1))
 			(vp-add-cr 1 r1)
 		(endif)
 		(vp-cpy-ir rsp local_this r0)
@@ -54,7 +54,7 @@
 	;r1 = 0 if break, else not
 
 	(vp-push r1)
-	(f-call 'vector 'create '() '(r1))
+	(call 'vector 'create '() '(r1))
 	(vp-pop r0)
 	(vp-cpy-ri r1 r0 0)
 	(vp-ret)
@@ -68,7 +68,7 @@
 	;all but r0
 
 	(vp-push r0)
-	(f-call 'vector 'deref '((r0 hash_set_buckets)))
+	(call 'vector 'deref '((r0 hash_set_buckets)))
 	(vp-pop r0)
 	(s-jmp 'hash_set 'deinit '(r0))
 
@@ -89,7 +89,7 @@
 	(vpif '(r1 == 1))
 		(d-call 'vector 'clear '(r0))
 	(else)
-		(f-call 'vector 'for_each '(r0 0 r1 ($ callback) 0))
+		(call 'vector 'for_each '(r0 0 r1 ($ callback) 0))
 	(endif)
 	(vp-pop r0)
 	(vp-ret)
@@ -117,9 +117,9 @@
 	;all but r0
 
 	(vp-cpy-rr r0 r8)
-	(f-call 'hash_set 'create '((r0 hash_set_key_callback) r1) '(r0))
+	(call 'hash_set 'create '((r0 hash_set_key_callback) r1) '(r0))
 	(vp-push r0)
-	(f-call 'hash_set 'for_each '(r8 ($ callback) rsp))
+	(call 'hash_set 'for_each '(r8 ($ callback) rsp))
 	(vp-pop r1)
 	(vp-ret)
 
@@ -131,11 +131,11 @@
 	;r1 = 0 if break, else not
 
 	(vp-cpy-ir r0 0 r2)
-	(f-call 'obj 'ref '((r1 0)))
+	(call 'obj 'ref '((r1 0)))
 	(vp-push r0)
-	(f-call 'hash_set 'get_bucket '(r2 r0) '(_ r0))
+	(call 'hash_set 'get_bucket '(r2 r0) '(_ r0))
 	(vp-pop r1)
-	(f-jmp 'vector 'push_back '(r0 r1))
+	(jump 'vector 'push_back '(r0 r1))
 
 (def-func-end)
 
@@ -160,7 +160,7 @@
 	(f-entry 'hash_set 'erase '((rsp local_this) (rsp local_iter) (rsp local_bucket)))
 
 	;swap last entry for erased entry
-	(f-call 'obj 'deref '((r1 0)))
+	(call 'obj 'deref '((r1 0)))
 	(vp-cpy-ir rsp local_bucket r0)
 	(vp-cpy-ir-ui r0 array_length r1)
 	(vp-sub-cr 1 r1)
@@ -203,7 +203,7 @@
 	(vp-cpy-ir r0 hash_set_key_callback r2)
 	(vpif '(r2 == 0) 'exit)
 		;search hash bucket
-		(f-call 'hash_set 'get_bucket '(r0 r1) '(r0 r2))
+		(call 'hash_set 'get_bucket '(r0 r1) '(r0 r2))
 		(vp-cpy-ir-ui r2 array_length r3)
 		(vp-cpy-ir r2 array_array r1)
 		(vp-shl-cr (log2 long_size) r3)
@@ -218,8 +218,8 @@
 	(else)
 		;search hash bucket
 		(vp-cpy-ri r0 rsp local_this)
-		(f-call 'hash_set 'get_bucket '(r0 r1) '(_ r0))
-		(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) rsp) '(r2 r1))
+		(call 'hash_set 'get_bucket '(r0 r1) '(_ r0))
+		(call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) rsp) '(r2 r1))
 		(vp-cpy-ir rsp local_this r0)
 	(endif)
 
@@ -276,13 +276,13 @@
 	(vp-cpy-ir-ui r0 hash_set_num_buckets r3)
 	(vp-cpy-ir r0 hash_set_buckets r0)
 	(vpif '(r3 == 1))
-		(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) r1 r2) '(r0 r2))
+		(call 'vector 'for_each '(r0 0 (r0 array_length ui) r1 r2) '(r0 r2))
 		(vpif '(r2 != 0))
 			(vp-cpy-rr r0 r2)
 		(endif)
 	(else)
 		(assign '(r1 r2) '((rsp local_predicate) (rsp local_predicate_data)))
-		(f-call 'vector 'for_each '(r0 0 r3 ($ callback) rsp) '(_ r2))
+		(call 'vector 'for_each '(r0 0 r3 ($ callback) rsp) '(_ r2))
 		(vpif '(r2 != 0))
 			(vp-cpy-ir r2 0 r2)
 			(vp-cpy-ir rsp local_iter r1)
@@ -303,7 +303,7 @@
 	(vp-push r0)
 	(vp-cpy-rr r0 r2)
 	(vp-cpy-ir r1 0 r0)
-	(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) (r2 local_predicate) (r2 local_predicate_data)) '(_ r1))
+	(call 'vector 'for_each '(r0 0 (r0 array_length ui) (r2 local_predicate) (r2 local_predicate_data)) '(_ r1))
 	(vp-pop r0)
 	(vp-cpy-ri r1 r0 local_iter)
 	(vpif '(r1 == 0))
@@ -337,12 +337,12 @@
 		(vp-alloc local_size)
 		(assign '(r0 r2) '((rsp local_this) (rsp local_length i)))
 
-		(v-call 'obj 'hash '(r1) '(_ r0))
+		(call 'obj 'hash '(r1) '(_ r0))
 		(vp-cpy-ir-ui rsp local_length r1)
 		(vp-xor-rr r2 r2)
 		(vp-div-rrr-u r1 r2 r0)
 		(vp-cpy-ir rsp local_this r0)
-		(f-call 'vector 'get_element '((r0 hash_set_buckets) r2) '(_ r1))
+		(call 'vector 'get_element '((r0 hash_set_buckets) r2) '(_ r1))
 
 		(vp-cpy-ir rsp local_this r0)
 		(vp-free local_size)
@@ -374,12 +374,12 @@
 	(f-entry 'hash_set 'insert '(r0 (rsp local_key)))
 
 	;search hash bucket
-	(f-call 'hash_set 'find '(r0 r1) '(r0 r1 r2))
+	(call 'hash_set 'find '(r0 r1) '(r0 r1 r2))
 	(vpif '(r1 == 0))
 		;new key
 		(vp-cpy-ri r0 rsp local_this)
-		(f-call 'obj 'ref '((rsp local_key)))
-		(f-call 'vector 'push_back '(r2 r0))
+		(call 'obj 'ref '((rsp local_key)))
+		(call 'vector 'push_back '(r2 r0))
 		(vp-cpy-rr r0 r2)
 		(vp-cpy-ir-ui r0 array_length r1)
 		(vp-cpy-ir r0 array_array r0)

@@ -23,25 +23,25 @@
 	(f-entry 'progress 'draw {this, ctx})
 
 	;get properties
-	(f-call 'progress 'get_long_prop {this, prop_maximum} {_, max})
-	(f-call 'progress 'get_long_prop {this, prop_value} {_, val})
-	(f-call 'progress 'get_long_prop {this, prop_color} {_, col})
+	(call 'progress 'get_long_prop {this, prop_maximum} {_, max})
+	(call 'progress 'get_long_prop {this, prop_value} {_, val})
+	(call 'progress 'get_long_prop {this, prop_color} {_, col})
 
 	;draw outline
-	(f-call 'ctx 'set_color {ctx, col})
-	(f-call 'progress 'get_bounds {this} {_, _, _, width, height})
-	(f-call 'ctx 'box {ctx, 0, 0, width, height})
+	(call 'ctx 'set_color {ctx, col})
+	(call 'progress 'get_bounds {this} {_, _, _, width, height})
+	(call 'ctx 'box {ctx, 0, 0, width, height})
 
 	;draw middle left
-	(f-call 'ctx 'darker {col} {col})
-	(f-call 'ctx 'set_color {ctx, col})
+	(call 'ctx 'darker {col} {col})
+	(call 'ctx 'set_color {ctx, col})
 	(assign {(val * (width - 2)) // max} {infill})
-	(f-call 'ctx 'filled_box {ctx, 1, 1, infill, height - 2})
+	(call 'ctx 'filled_box {ctx, 1, 1, infill, height - 2})
 
 	;draw middle right
-	(f-call 'ctx 'darker {col} {col})
-	(f-call 'ctx 'set_color {ctx, col})
-	(f-call 'ctx 'filled_box {ctx, infill + 1, 1, width - 2 - infill, height - 2})
+	(call 'ctx 'darker {col} {col})
+	(call 'ctx 'set_color {ctx, col})
+	(call 'ctx 'filled_box {ctx, infill + 1, 1, width - 2 - infill, height - 2})
 
 	(f-exit 'progress 'draw {this})
 	(pop-scope)

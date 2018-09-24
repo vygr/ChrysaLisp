@@ -12,9 +12,9 @@
 
 	(vp-push r0)
 	(assign '((r0 lisp_environment)) '(r0))
-	(f-call 'hash_map 'create '((r0 hash_set_key_callback) 1) '(r0))
+	(call 'hash_map 'create '((r0 hash_set_key_callback) 1) '(r0))
 	(assign '((rsp 0)) '(r1))
-	(f-call 'hash_map 'set_parent '(r0 (r1 lisp_environment)) '(r1))
+	(call 'hash_map 'set_parent '(r0 (r1 lisp_environment)) '(r1))
 	(vp-pop r0)
 	(assign '(r1) '((r0 lisp_environment)))
 

@@ -9,8 +9,8 @@
 	;trashes
 	;all
 
-	(v-call 'obj 'deinit '(r0))
-	(v-jmp 'obj 'delete '(r0))
+	(call 'obj 'deinit '(r0))
+	(jump 'obj 'delete '(r0))
 
 (def-func-end)
 
@@ -70,7 +70,7 @@
 
 	;destroy if 0
 	(vpif '(r1 == 0))
-		(f-jmp 'obj 'destroy '(r0))
+		(jump 'obj 'destroy '(r0))
 	(endif)
 	(vp-ret)
 
@@ -83,7 +83,7 @@
 	;all
 
 	(vpif '(r0 != 0))
-		(f-jmp 'obj 'deref '(r0))
+		(jump 'obj 'deref '(r0))
 	(endif)
 	(vp-ret)
 
@@ -97,7 +97,7 @@
 
 	;inc ref count
 	(vpif '(r0 != 0))
-		(f-call 'obj 'ref '(r0))
+		(call 'obj 'ref '(r0))
 	(endif)
 	(vp-ret)
 

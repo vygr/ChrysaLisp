@@ -24,8 +24,8 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'sys_mail 'mymail nil {value, _})
-	(f-call 'sys_mail 'free_obj {value} {value, _, _})
+	(call 'sys_mail 'mymail nil {value, _})
+	(call 'sys_mail 'free_obj {value} {value, _, _})
 
 (vp-label 'exit)
 	(f-exit 'sys_mail 'lisp_mymail {this, value})
@@ -33,7 +33,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(mail-mymail)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(mail-mymail)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
@@ -59,11 +59,11 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'sys_mail 'trymail nil {value, _})
+	(call 'sys_mail 'trymail nil {value, _})
 	(vpif {value})
-		(f-call 'sys_mail 'free_obj {value} {value, _, _})
+		(call 'sys_mail 'free_obj {value} {value, _, _})
 	(else)
-		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
+		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
 (vp-label 'exit)
@@ -72,7 +72,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(mail-trymail)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(mail-trymail)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
@@ -94,22 +94,22 @@
 	(f-entry 'sys_mail 'lisp_send {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'obj 'inst_of (cat {arg0, @} (f-path 'string 'vtable)) {_, value})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'obj 'inst_of (cat {arg0, @} (f-path 'string 'vtable)) {_, value})
 	(vpif {value})
-		(f-call 'sys_mail 'alloc_obj {arg0, &arg0->string_data, arg0->string_length} {arg2})
+		(call 'sys_mail 'alloc_obj {arg0, &arg0->string_data, arg0->string_length} {arg2})
 		(goto 'sendit)
 	(endif)
-	(f-call 'obj 'inst_of (cat {arg0, @} (f-path 'array 'vtable)) {_, value})
+	(call 'obj 'inst_of (cat {arg0, @} (f-path 'array 'vtable)) {_, value})
 	(errorifnot {value} 'error1)
-	(f-call 'sys_mail 'alloc_obj {arg0, arg0->array_array, arg0->array_length * long_size} {arg2})
+	(call 'sys_mail 'alloc_obj {arg0, arg0->array_array, arg0->array_length * long_size} {arg2})
 (vp-label 'sendit)
 	(assign {arg1} {arg2->msg_dest.id_id})
-	(f-call 'sys_mail 'send {arg2})
-	(f-call 'obj 'ref {arg0} {value})
+	(call 'sys_mail 'send {arg2})
+	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'sys_mail 'lisp_send {this, value})
@@ -117,7 +117,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(mail-send obj mbox)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(mail-send obj mbox)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'obj 'integer))
 
@@ -140,12 +140,12 @@
 	(f-entry 'sys_mail 'lisp_declare {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'sys_mail 'declare {&arg0->string_data, arg1})
-	(f-call 'obj 'ref {arg0} {value})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'sys_mail 'declare {&arg0->string_data, arg1})
+	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'sys_mail 'lisp_declare {this, value})
@@ -153,7 +153,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(mail-declare name mbox)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(mail-declare name mbox)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string 'integer))
 
@@ -176,15 +176,15 @@
 	(f-entry 'sys_mail 'lisp_enquire {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'sys_mail 'enquire {&arg0->string_data} {value})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'sys_mail 'enquire {&arg0->string_data} {value})
 	(vpif {value})
-		(f-call 'integer 'create {value} {value})
+		(call 'integer 'create {value} {value})
 	(else)
-		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
+		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
 (vp-label 'exit)
@@ -193,7 +193,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(mail-enquire name)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(mail-enquire name)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string))
 

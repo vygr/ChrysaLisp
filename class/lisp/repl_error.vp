@@ -22,10 +22,10 @@
 	(push-scope)
 	(f-entry 'lisp 'repl_error {this, desc, msg, payload})
 
-	(f-call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_name} {_, iter, _})
+	(call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_name} {_, iter, _})
 	(vpif {iter})
-		(f-call 'pair 'get_second {*iter} {_, file})
-		(f-call 'obj 'inst_of (cat {file, @} (f-path 'string 'vtable)) {_, value})
+		(call 'pair 'get_second {*iter} {_, file})
+		(call 'obj 'inst_of (cat {file, @} (f-path 'string 'vtable)) {_, value})
 		(gotoifnot {value} 'nofile)
 		(assign {&file->string_data} {file})
 	(else)
@@ -34,14 +34,14 @@
 	(endif)
 
 	(assign {0} {line})
-	(f-call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
+	(call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
 	(vpif {iter})
-		(f-call 'pair 'get_second {*iter} {_, value})
+		(call 'pair 'get_second {*iter} {_, value})
 		(breakif (cat {value->obj_vtable != @} (f-path 'integer 'vtable)))
-		(f-call 'integer 'get_value {value} {_, line})
+		(call 'integer 'get_value {value} {_, line})
 	(endif)
 
-	(f-call 'error 'create {desc, msg, payload, file, line} {value})
+	(call 'error 'create {desc, msg, payload, file, line} {value})
 
 	(f-exit 'lisp 'repl_error {this, value})
 	(pop-scope)

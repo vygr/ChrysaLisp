@@ -24,17 +24,17 @@
 	(f-entry 'lisp 'func_mul {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'integer 'vtable) {, -2}) {_, value})
+	(call 'lisp 'env_args_type (cat {this, args, @} (f-path 'integer 'vtable) {, -2}) {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
+	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(assign {1} {accum})
 	(loop-start)
-		(f-call 'integer 'get_value {*iter_begin} {_, num})
+		(call 'integer 'get_value {*iter_begin} {_, num})
 		(assign {accum * num} {accum})
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-until {iter_begin == iter_end})
-	(f-call 'integer 'create {accum} {value})
+	(call 'integer 'create {accum} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_mul {this, value})
@@ -42,7 +42,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(mul num num ...)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(mul num num ...)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

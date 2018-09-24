@@ -25,7 +25,7 @@
 	(vp-cpy-ri-i r1 rsp local_x)
 	(vp-cpy-ri-i r1 rsp local_y)
 
-	(f-call 'flow 'get_long_prop '(r0 prop_flow_flags) '(r0 r1))
+	(call 'flow 'get_long_prop '(r0 prop_flow_flags) '(r0 r1))
 	(vp-cpy-ri r1 rsp local_flags)
 
 	(vp-and-cr flow_flag_left r1)
@@ -40,13 +40,13 @@
 		(vp-cpy-ri-i r1 rsp local_y)
 	(endif)
 
-	(f-call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
+	(call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
 	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'callback)
 	(vp-push r1)
-	(v-call 'view 'pref_size '(r0) '(r0 r9 r10))
+	(call 'view 'pref_size '(r0) '(r0 r9 r10))
 	(vp-pop r1)
 	(vp-cpy-ir-i r1 local_x r7)
 	(vp-cpy-ir-i r1 local_y r8)
@@ -180,7 +180,7 @@
 
 	(vp-cpy-ri-i r11 r1 local_x)
 	(vp-cpy-ri-i r12 r1 local_y)
-	(f-jmp 'view 'change '(r0 r7 r8 r9 r10))
+	(jump 'view 'change '(r0 r7 r8 r9 r10))
 
 (def-func-end)
 
@@ -206,8 +206,8 @@
 	(vp-cpy-ri-i r1 rsp local_w)
 	(vp-cpy-ri-i r1 rsp local_h)
 
-	(f-call 'flow 'get_long_prop '(r0 prop_flow_flags) '(r0 (rsp local_flags)))
-	(f-call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
+	(call 'flow 'get_long_prop '(r0 prop_flow_flags) '(r0 (rsp local_flags)))
+	(call 'flow 'forward '(r0 rsp ($ callback)) '(r0))
 
 	(vp-cpy-ir-i rsp local_w r9)
 	(vp-cpy-ir-i rsp local_h r10)
@@ -216,7 +216,7 @@
 
 (vp-label 'callback)
 	(vp-push r1)
-	(v-call 'view 'pref_size '(r0) '(r0 r9 r10))
+	(call 'view 'pref_size '(r0) '(r0 r9 r10))
 	(vp-pop r1)
 	(vp-cpy-ir r0 hash_map_parent r2)
 	(vp-cpy-ir r1 local_flags r3)

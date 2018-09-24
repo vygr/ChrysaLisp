@@ -21,28 +21,28 @@
 
 	;skip "(" and white space
 	(loop-start)
-		(f-call 'lisp 'read_char {this, stream, char} {_, char})
+		(call 'lisp 'read_char {this, stream, char} {_, char})
 	(loop-until {char > char_space || char == -1})
 
-	(f-call 'vector 'create nil {list})
+	(call 'vector 'create nil {list})
 	(loop-whilenot {char == -1 || char == char_rrb})
-		(f-call 'lisp 'read {this, stream, char} {_, ast, char})
+		(call 'lisp 'read {this, stream, char} {_, ast, char})
 		(errorif (cat {ast->obj_vtable == @} (f-path 'error 'vtable)) 'error)
-		(f-call 'vector 'push_back {list, ast})
+		(call 'vector 'push_back {list, ast})
 
 		;skip white space/comments
 		(loop-start)
 			(loop-whilenot {char > char_space || char == -1})
-				(f-call 'lisp 'read_char {this, stream, char} {_, char})
+				(call 'lisp 'read_char {this, stream, char} {_, char})
 			(loop-end)
 			(breakif {char != char_semi})
-			(f-call 'stream 'skip_not {stream, char_lf})
-			(f-call 'stream 'read_char {stream} {_, char})
+			(call 'stream 'skip_not {stream, char_lf})
+			(call 'stream 'read_char {stream} {_, char})
 		(loop-end)
 	(loop-end)
 
 	;skip ")"
-	(f-call 'stream 'read_char {stream} {_, char})
+	(call 'stream 'read_char {stream} {_, char})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'read_list {this, list, char})
@@ -50,7 +50,7 @@
 
 (errorcases
 (vp-label 'error)
-	(f-call 'obj 'deref {list})
+	(call 'obj 'deref {list})
 	(assign {ast} {list})
 	(goto 'exit))
 

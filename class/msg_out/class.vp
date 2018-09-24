@@ -34,8 +34,8 @@
 		(assign {0} {this->msg_out_seqnum})
 		(assign {0} {this->msg_out_ack_seqnum})
 		(assign {stream_mail_state_started} {this->msg_out_state})
-		(f-call 'sys_mail 'alloc_mbox nil {this->msg_out_ack_mbox_id})
-		(f-call 'sys_mail 'mbox_addr {this->msg_out_ack_mbox_id} {this->msg_out_ack_mbox_addr})
+		(call 'sys_mail 'alloc_mbox nil {this->msg_out_ack_mbox_id})
+		(call 'sys_mail 'mbox_addr {this->msg_out_ack_mbox_id} {this->msg_out_ack_mbox_addr})
 	(endif)
 
 	(f-exit 'msg_out 'init {this, ok})
@@ -56,15 +56,15 @@
 	(f-entry 'msg_out 'deinit {this})
 
 	;wait for final ack
-	(f-call 'sys_mail 'read {this->msg_out_ack_mbox_addr} {msg, _})
-	(f-call 'sys_mail 'free {msg})
+	(call 'sys_mail 'read {this->msg_out_ack_mbox_addr} {msg, _})
+	(call 'sys_mail 'free {msg})
 
 	;free any stream mail buffer
-	(f-call 'sys_mail 'free {this->stream_buffer})
+	(call 'sys_mail 'free {this->stream_buffer})
 	(assign {0} {this->stream_buffer})
 
 	;free ack mailbox
-	(f-call 'sys_mail 'free_mbox {this->msg_out_ack_mbox_id})
+	(call 'sys_mail 'free_mbox {this->msg_out_ack_mbox_id})
 
 	;parent deinit
 	(f-exit 'msg_out 'deinit {this})
@@ -95,14 +95,14 @@
 		(assign {this->msg_out_seqnum} {data->stream_msg_seqnum})
 		(assign {this->msg_out_state} {data->stream_msg_state})
 		(assign {this->msg_out_ack_mbox_id} {data->stream_msg_ack_id.id_mbox})
-		(f-call 'sys_kernel 'id nil {data->stream_msg_ack_id.id_cpu})
-		(f-call 'sys_mail 'send {msg})
+		(call 'sys_kernel 'id nil {data->stream_msg_ack_id.id_cpu})
+		(call 'sys_mail 'send {msg})
 		(assign {0} {this->stream_buffer})
 
 		;wait for an ack ?
 		(vpif {this->msg_out_seqnum >> msg_out_ack_shift != this->msg_out_ack_seqnum})
-			(f-call 'sys_mail 'read {this->msg_out_ack_mbox_addr} {msg, _})
-			(f-call 'sys_mail 'free {msg})
+			(call 'sys_mail 'read {this->msg_out_ack_mbox_addr} {msg, _})
+			(call 'sys_mail 'free {msg})
 			(assign {this->msg_out_ack_seqnum + 1} {this->msg_out_ack_seqnum})
 		(endif)
 
@@ -132,8 +132,8 @@
 	(push-scope)
 	(f-entry 'msg_out 'write_next {this})
 
-	(v-call 'stream 'write_flush {this})
-	(f-call 'sys_mail 'alloc {lk_data_size} {msg, data})
+	(call 'stream 'write_flush {this})
+	(call 'sys_mail 'alloc {lk_data_size} {msg, data})
 	(assign {&data->stream_msg_data} {this->stream_bufp})
 	(assign {&data->stream_msg_data + lk_data_size - stream_msg_data} {this->stream_bufe})
 	(assign {msg} {this->stream_buffer})

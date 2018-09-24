@@ -22,7 +22,7 @@
 	(vp-cpy-ri r0 r4 gui_statics_sdl_funcs)
 
 	;init region heap
-	(f-jmp 'sys_heap 'init '((& r4 gui_statics_rect_heap) rect_size (mul rect_size 32)))
+	(jump 'sys_heap 'init '((& r4 gui_statics_rect_heap) rect_size (mul rect_size 32)))
 
 (def-func-end)
 
@@ -51,31 +51,31 @@
 
 	;kernel callback for first update
 	;this will init SDL etc
-	(f-call 'sys_task 'callback {&locals, $update_callback})
+	(call 'sys_task 'callback {&locals, $update_callback})
 
 	;allocate background view for screen
-	(f-call 'label 'create nil {locals.local_statics->gui_statics_screen})
+	(call 'label 'create nil {locals.local_statics->gui_statics_screen})
 
 	;size, color and opaque
-	(f-call 'label 'change {locals.local_statics->gui_statics_screen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT})
-	(f-call 'label 'set_long_prop {locals.local_statics->gui_statics_screen, prop_color, 0xff000000})
-	(f-call 'label 'dirty_all {locals.local_statics->gui_statics_screen})
+	(call 'label 'change {locals.local_statics->gui_statics_screen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT})
+	(call 'label 'set_long_prop {locals.local_statics->gui_statics_screen, prop_color, 0xff000000})
+	(call 'label 'dirty_all {locals.local_statics->gui_statics_screen})
 
 	;for now fire up the test apps
 	;this might be an gui auto run list eventually
-	(f-call 'sys_task 'open_child {"apps/launcher/app.lisp", kn_call_open})
+	(call 'sys_task 'open_child {"apps/launcher/app.lisp", kn_call_open})
 
 	;gui event loop
 	(loop-start)
 		;kernel callback for update
-		(f-call 'sys_task 'callback {&locals, $update_callback})
+		(call 'sys_task 'callback {&locals, $update_callback})
 
 		;frame rate of gui updates
-		(f-call 'sys_task 'sleep {1000000/30})
+		(call 'sys_task 'sleep {1000000/30})
 	(loop-until {locals.local_quit})
 
 	;deinit
-	(f-call 'sys_task 'callback {&locals, $deinit_callback})
+	(call 'sys_task 'callback {&locals, $deinit_callback})
 	(pop-scope)
 	(return)
 
@@ -117,7 +117,7 @@
 	;update screen
 	(vpif {user->local_statics->gui_statics_screen && user->local_statics->gui_statics_dirty_flag})
 		;update the screen and refresh
-		(f-call 'gui 'update {user->local_statics->gui_statics_screen})
+		(call 'gui 'update {user->local_statics->gui_statics_screen})
 		(sdl-call 'sdl 'sdl_render_present {user->local_statics->gui_statics_renderer})
 		(assign {0} {user->local_statics->gui_statics_dirty_flag})
 	(endif)
@@ -139,17 +139,17 @@
 		(vp-label 'send_event)
 			(assign {user->local_mouse_view} {view})
 		(vp-label 'send_event1)
-			(f-call 'sys_mail 'alloc {ev_msg_mouse_size} {msg, data})
+			(call 'sys_mail 'alloc {ev_msg_mouse_size} {msg, data})
 			(assign {ev_type_mouse} {data->ev_msg_type})
 			(assign {user->local_mouse_mbox_id} {msg->msg_dest.id_mbox})
-			(f-call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
+			(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
 			(assign {view->component_id} {data->ev_msg_target_id})
 			(assign {user->local_mouse_buttons} {data->ev_msg_mouse_buttons})
 			(assign {user->local_mouse_x} {data->ev_msg_mouse_x})
 			(assign {user->local_mouse_y} {data->ev_msg_mouse_y})
 			(assign {user->local_mouse_x - view->view_ctx_x} {data->ev_msg_mouse_rx})
 			(assign {user->local_mouse_y - view->view_ctx_y} {data->ev_msg_mouse_ry})
-			(f-call 'sys_mail 'send {msg})
+			(call 'sys_mail 'send {msg})
 			(break)
 		(case {event.sdl_common_event_type == SDL_MOUSEBUTTONDOWN})
 			;update mouse state
@@ -158,7 +158,7 @@
 			(assign {event.sdl_mouse_button_event_button | user->local_mouse_buttons} {user->local_mouse_buttons})
 
 			;find view affinity
-			(f-call 'view 'hit_tree {user->local_statics->gui_statics_screen,
+			(call 'view 'hit_tree {user->local_statics->gui_statics_screen,
 				user->local_mouse_x, user->local_mouse_y} {_, user->local_mouse_view, _, _})
 			(vpif {user->local_mouse_view == user->local_statics->gui_statics_screen})
 				(assign {0} {user->local_mouse_view})
@@ -166,7 +166,7 @@
 			(breakifnot {user->local_mouse_view})
 
 			;lookup view owner mailbox
-			(f-call 'view 'find_owner {user->local_mouse_view} {_, owner})
+			(call 'view 'find_owner {user->local_mouse_view} {_, owner})
 			(breakifnot {owner})
 			(assign {owner->tk_node_mbox_id} {user->local_mouse_mbox_id})
 			(goto 'send_event)
@@ -181,12 +181,12 @@
 			(goto 'send_event1)
 		(case {event.sdl_common_event_type == SDL_KEYDOWN})
 			;find view for keys
-			(f-call 'view 'hit_tree {user->local_statics->gui_statics_screen,
+			(call 'view 'hit_tree {user->local_statics->gui_statics_screen,
 				user->local_mouse_x, user->local_mouse_y} {_, user->local_key_view, _, _})
 			(breakifnot {user->local_key_view})
 
 			;lookup view owner mailbox
-			(f-call 'view 'find_owner {user->local_key_view} {_, owner})
+			(call 'view 'find_owner {user->local_key_view} {_, owner})
 			(breakifnot {owner})
 
 			;save owner mailbox
@@ -197,14 +197,14 @@
 				event.sdl_keyboard_event_keysym.sdl_keysym_mod} {key})
 			
 			;send event message
-			(f-call 'sys_mail 'alloc {ev_msg_key_size} {msg, data})
+			(call 'sys_mail 'alloc {ev_msg_key_size} {msg, data})
 			(assign {ev_type_key} {data->ev_msg_type})
 			(assign {user->local_key_mbox_id} {msg->msg_dest.id_mbox})
-			(f-call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
+			(call 'sys_kernel 'id nil {msg->msg_dest.id_cpu})
 			(assign {user->local_key_view->component_id} {data->ev_msg_target_id})
 			(assign {event.sdl_keyboard_event_keysym.sdl_keysym_scancode} {data->ev_msg_key_keycode})
 			(assign {key} {data->ev_msg_key_key})
-			(f-call 'sys_mail 'send {msg})
+			(call 'sys_mail 'send {msg})
 			(break)
 		(case {event.sdl_common_event_type == SDL_QUIT})
 			(assign {-1} {user->local_quit})
@@ -257,7 +257,7 @@
 
 	;free any screen
 	(vpif {user->local_statics->gui_statics_screen})
-		(f-call 'view 'deref {user->local_statics->gui_statics_screen})
+		(call 'view 'deref {user->local_statics->gui_statics_screen})
 		(assign {0} {user->local_statics->gui_statics_screen})
 	(endif)
 
@@ -269,8 +269,8 @@
 	(endif)
 
 	;free old region and deinit region heap
-	(f-call 'region 'free {user->local_statics->gui_statics_rect_heap, user->local_statics->gui_statics_old_region})
-	(f-call 'sys_heap 'deinit {user->local_statics->gui_statics_rect_heap})
+	(call 'region 'free {user->local_statics->gui_statics_rect_heap, user->local_statics->gui_statics_old_region})
+	(call 'sys_heap 'deinit {user->local_statics->gui_statics_rect_heap})
 
 	(assign {old_stack} '(rsp))
 	(pop-scope-syms)
@@ -295,11 +295,11 @@
 
 	(vp-push r0)
 	(f-bind 'gui 'statics r2)
-	(f-call 'view 'add_front '((r2 gui_statics_screen) r0))
-	(f-call 'sys_task 'tcb '() '(r1))
+	(call 'view 'add_front '((r2 gui_statics_screen) r0))
+	(call 'sys_task 'tcb '() '(r1))
 	(vp-pop r0)
 	(vp-cpy-ri r1 r0 component_tcb)
-	(f-call 'view 'dirty_all '(r0))
+	(call 'view 'dirty_all '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -325,11 +325,11 @@
 	;setting abs cords
 	(vp-xor-rr r7 r7)
 	(vp-xor-rr r8 r8)
-	(f-call 'view 'backward_tree '(r0 r0 ($ abs_down_callback) ($ abs_up_callback)))
+	(call 'view 'backward_tree '(r0 r0 ($ abs_down_callback) ($ abs_up_callback)))
 
 	;iterate through views back to front
 	;create visible region at root
-	(f-call 'view 'backward_tree '(r0 r0 ($ null_func_down_callback) ($ visible_up_callback)))
+	(call 'view 'backward_tree '(r0 r0 ($ null_func_down_callback) ($ visible_up_callback)))
 
 (when dual_buffers
 	;copy visable region to new region
@@ -339,7 +339,7 @@
 	(assign '((r0 view_w i) (r0 view_h i)) '(r9 r10))
 	(f-bind 'gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
-	(f-call 'region 'copy_rect '(r0 r1 rsp 0 0 r9 r10))
+	(call 'region 'copy_rect '(r0 r1 rsp 0 0 r9 r10))
 
 	;paste old visible region into root
 	(vp-cpy-ir rsp 8 r0)
@@ -347,11 +347,11 @@
 	(f-bind 'gui 'statics r1)
 	(vp-lea-i r1 gui_statics_rect_heap r0)
 	(vp-add-cr gui_statics_old_region r1)
-	(f-call 'region 'paste_region '(r0 r1 r2 0 0) '(r0))
+	(call 'region 'paste_region '(r0 r1 r2 0 0) '(r0))
 
 	;free old region and splice over new region
 	(f-bind 'gui 'statics r4)
-	(f-call 'region 'free '(r0 (& r4 gui_statics_old_region)))
+	(call 'region 'free '(r0 (& r4 gui_statics_old_region)))
 	(vp-pop r0 r1)
 	(vp-cpy-ri r1 r4 gui_statics_old_region)
 )
@@ -360,7 +360,7 @@
 	;distribute visible region
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 rsp local_ctx_flist)
-	(f-call 'view 'forward_tree '(r0 rsp ($ distribute_down_callback) ($ distribute_up_callback)))
+	(call 'view 'forward_tree '(r0 rsp ($ distribute_down_callback) ($ distribute_up_callback)))
 
 	;draw all on draw list, and free dirty regions
 	(f-bind 'gui 'statics r1)
@@ -374,12 +374,12 @@
 		(vp-lea-i r0 view_dirty_region r2)
 		(assign '(r7 r8) '((r1 ctx_x i) (r1 ctx_y i)))
 		(vp-cpy-ri r2 r1 ctx_dirty_region)
-		(v-call 'view 'draw '(r0 r1))
+		(call 'view 'draw '(r0 r1))
 		(vp-cpy-ir rsp local_ctx_next r1)
 		(vp-sub-cr (sub view_ctx_node view_dirty_region) r1)
 		(f-bind 'gui 'statics r0)
 		(vp-add-cr gui_statics_rect_heap r0)
-		(f-call 'region 'free '(r0 r1))
+		(call 'region 'free '(r0 r1))
 		(vp-cpy-ir rsp local_ctx_next r0)
 	(loop-end)
 
@@ -439,7 +439,7 @@
 		(vp-add-rr r8 r10)
 		(vp-add-cr view_opaque_region r1)
 		(vp-lea-i rsp vis_region r2)
-		(f-call 'region 'copy_rect '(r0 r1 r2 r7 r8 r9 r10) '(r0))
+		(call 'region 'copy_rect '(r0 r1 r2 r7 r8 r9 r10) '(r0))
 
 		;remove from ancestors
 		(vp-cpy-ir rsp vis_this r1)
@@ -454,18 +454,18 @@
 			;translate temp opaque region
 			(assign '((r1 view_x i) (r1 view_y i)) '(r7 r8))
 			(vp-lea-i rsp vis_region r1)
-			(f-call 'region 'translate '(r1 r7 r8))
+			(call 'region 'translate '(r1 r7 r8))
 
 			;clip temp opaque region
 			(vp-cpy-ir rsp vis_next r2)
 			(vp-lea-i rsp vis_region r1)
-			(f-call 'region 'clip_rect '(r0 r1 0 0 (r2 view_w i) (r2 view_h i)) '(r0))
+			(call 'region 'clip_rect '(r0 r1 0 0 (r2 view_w i) (r2 view_h i)) '(r0))
 
 			;remove temp opaque region
 			(vp-lea-i rsp vis_region r1)
 			(vp-cpy-ir rsp vis_next r2)
 			(vp-add-cr view_dirty_region r2)
-			(f-call 'region 'remove_region '(r0 r1 r2 0 0) '(r0))
+			(call 'region 'remove_region '(r0 r1 r2 0 0) '(r0))
 
 			(vp-cpy-ir rsp vis_next r1)
 			(vp-cpy-ir rsp vis_root r2)
@@ -473,7 +473,7 @@
 
 		;free any temp region
 		(vp-lea-i rsp vis_region r1)
-		(f-call 'region 'free '(r0 r1) '(r0))
+		(call 'region 'free '(r0 r1) '(r0))
 	(endif)
 
 	;clip local dirty region with parent bounds if not root
@@ -489,7 +489,7 @@
 	(vp-add-rr r7 r9)
 	(vp-add-rr r8 r10)
 	(vp-add-cr view_dirty_region r1)
-	(f-call 'region 'clip_rect '(r0 r1 r7 r8 r9 r10) '(r0))
+	(call 'region 'clip_rect '(r0 r1 r7 r8 r9 r10) '(r0))
 
 	;paste local dirty region onto parent if not root
 	(vp-cpy-ir rsp vis_this r1)
@@ -499,12 +499,12 @@
 		(vp-cpy-ir r1 hash_map_parent r2)
 		(vp-add-cr view_dirty_region r1)
 		(vp-add-cr view_dirty_region r2)
-		(f-call 'region 'paste_region '(r0 r1 r2 r7 r8) '(r0))
+		(call 'region 'paste_region '(r0 r1 r2 r7 r8) '(r0))
 
 		;free local dirty region
 		(vp-cpy-ir rsp vis_this r1)
 		(vp-add-cr view_dirty_region r1)
-		(f-call 'region 'free '(r0 r1))
+		(call 'region 'free '(r0 r1))
 	(endif)
 
 	(vp-cpy-ir rsp vis_this r0)
@@ -538,7 +538,7 @@
 		(vp-add-rr r8 r10)
 		(vp-add-cr view_dirty_region r1)
 		(vp-add-cr view_dirty_region r2)
-		(f-call 'region 'copy_rect '(r0 r1 r2 r7 r8 r9 r10) '(r0))
+		(call 'region 'copy_rect '(r0 r1 r2 r7 r8 r9 r10) '(r0))
 
 		;did we find any
 		(vp-cpy-ir rsp dist_this r1)
@@ -554,7 +554,7 @@
 				(assign '((r1 view_ctx_x i) (r1 view_ctx_y i)) '(r7 r8))
 				(vp-add-cr view_opaque_region r1)
 				(vp-add-cr view_dirty_region r2)
-				(f-call 'region 'remove_region '(r0 r1 r2 r7 r8) '(r0))
+				(call 'region 'remove_region '(r0 r1 r2 r7 r8) '(r0))
 
 				(vp-cpy-ir rsp dist_next r2)
 				(vp-cpy-ir rsp dist_data r1)

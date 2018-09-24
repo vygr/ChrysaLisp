@@ -42,7 +42,7 @@
 	(vp-push r0)
 
 	;deref any words
-	(f-call 'vector 'deref_if '((r0 text_words)))
+	(call 'vector 'deref_if '((r0 text_words)))
 
 	;deinit parent
 	(vp-pop r0)
@@ -68,26 +68,26 @@
 	(f-entry 'text 'draw {this, ctx})
 
 	;get properties, do checks for any changes
-	(f-call 'text 'get_long_prop {this, prop_text_color} {_, col})
-	(f-call 'text 'get_prop {this, prop_font} {_, font})
-	(f-call 'text 'get_prop {this, prop_text} {_, str})
+	(call 'text 'get_long_prop {this, prop_text_color} {_, col})
+	(call 'text 'get_prop {this, prop_font} {_, font})
+	(call 'text 'get_prop {this, prop_text} {_, str})
 	(vpif {str && str != this->text_string})
 		(assign {str} {this->text_string})
-		(f-call 'text 'switch_text {this})
+		(call 'text 'switch_text {this})
 	(endif)
 
 	;draw text
 	(vpif {this->text_string && font})
-		(f-call 'vector 'get_iters {this->text_words} {_, words, words_end})
+		(call 'vector 'get_iters {this->text_words} {_, words, words_end})
 		(assign {0} {x})
 		(loop-start)
-			(f-call 'font 'ref_word {font, *words} {_, txt})
-			(f-call 'texture 'get_metrics {txt} {_, handle, w, h})
+			(call 'font 'ref_word {font, *words} {_, txt})
+			(call 'texture 'get_metrics {txt} {_, handle, w, h})
 			(vpif {handle})
-				(f-call 'ctx 'blit {ctx, handle, col, x, 0, w, h})
+				(call 'ctx 'blit {ctx, handle, col, x, 0, w, h})
 				(assign {x + w + (h >> 2)} {x})
 			(endif)
-			(f-call 'texture 'deref {txt})
+			(call 'texture 'deref {txt})
 			(assign {words + ptr_size} {words})
 		(loop-until {words == words_end})
 	(endif)
@@ -116,21 +116,21 @@
 	(f-entry 'text 'pref_size {this})
 
 	;get properties, do checks for any changes
-	(f-call 'text 'get_prop {this, prop_font} {_, font})
-	(f-call 'text 'get_prop {this, prop_text} {_, str})
+	(call 'text 'get_prop {this, prop_font} {_, font})
+	(call 'text 'get_prop {this, prop_text} {_, str})
 	(vpif {str && str != this->text_string})
 		(assign {str} {this->text_string})
-		(f-call 'text 'switch_text {this})
+		(call 'text 'switch_text {this})
 	(endif)
 
 	;bounds of text
 	(assign {0, 0} {width, height})
 	(vpif {this->text_string && font})
-		(f-call 'vector 'get_iters {this->text_words} {_, words, words_end})
+		(call 'vector 'get_iters {this->text_words} {_, words, words_end})
 		(loop-start)
-			(f-call 'font 'ref_word {font, *words} {_, txt})
-			(f-call 'texture 'get_metrics {txt} {_, _, word_w, height})
-			(f-call 'texture 'deref {txt})
+			(call 'font 'ref_word {font, *words} {_, txt})
+			(call 'texture 'get_metrics {txt} {_, _, word_w, height})
+			(call 'texture 'deref {txt})
 			(assign {words + ptr_size} {words})
 			(assign {width + word_w} {width})
 		(loop-until {words == words_end})
@@ -156,8 +156,8 @@
 	(f-entry 'text 'switch_text {this})
 
 	;create new split words
-	(f-call 'vector 'deref_if {this->text_words})
-	(f-call 'string 'split {this->text_string, char_space} {_, this->text_words})
+	(call 'vector 'deref_if {this->text_words})
+	(call 'string 'split {this->text_string, char_space} {_, this->text_words})
 
 	(f-entry 'text 'switch_text {this})
 	(pop-scope)

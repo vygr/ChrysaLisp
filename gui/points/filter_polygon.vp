@@ -19,8 +19,8 @@
 	(push-scope)
 	(f-entry 'points 'filter_polygon {this, that, eps})
 
-	(f-call 'points 'filter_polyline {this, that, eps})
-	(f-call 'points 'get_iters {this} {_, iter_begin, iter_end})
+	(call 'points 'filter_polyline {this, that, eps})
+	(call 'points 'get_iters {this} {_, iter_begin, iter_end})
 
 	(vec-set 0)
 	(vec-load 2 {iter_end, iter_begin})

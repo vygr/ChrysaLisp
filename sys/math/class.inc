@@ -25,7 +25,7 @@
 	;trashes
 	;r1-r3
 	(vp-shl-cr fp_shift r0)
-	(f-call 'sys_math 'isqrt '(r0) '(r0)))
+	(call 'sys_math 'isqrt '(r0) '(r0)))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; vector math codegen
@@ -292,7 +292,7 @@
 	(vec-flength-squared n)
 	(defq r (slice 0 (dec (if (ge *vsp* 4) 4 *vsp*)) *vr*))
 	(if (ne (length r) 0) (apply vp-push r))
-	(f-call 'sys_math 'fsqrt (vec-top 1) (vec-top 1))
+	(call 'sys_math 'fsqrt (vec-top 1) (vec-top 1))
 	(if (ne (length r) 0) (apply vp-pop r)))
 
 (defcfun vec-fdistance-squared (n)

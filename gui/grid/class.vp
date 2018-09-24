@@ -25,8 +25,8 @@
 
 	(vp-alloc local_size)
 
-	(f-call 'grid 'get_long_prop '(r0 prop_grid_width) '(r0 (rsp local_width i)))
-	(f-call 'grid 'get_long_prop '(r0 prop_grid_height) '(r0 (rsp local_height i)))
+	(call 'grid 'get_long_prop '(r0 prop_grid_width) '(r0 (rsp local_width i)))
+	(call 'grid 'get_long_prop '(r0 prop_grid_height) '(r0 (rsp local_height i)))
 
 	(vp-xor-rr r9 r9)
 	(vp-cpy-ri-i r9 rsp local_count)
@@ -43,7 +43,7 @@
 	(vp-div-rrr r7 r9 r8)
 	(vp-cpy-ri-i r8 rsp local_cell_h)
 
-	(f-call 'grid 'forward '(r0 rsp ($ callback)))
+	(call 'grid 'forward '(r0 rsp ($ callback)))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -68,7 +68,7 @@
 	(vp-cpy-ir-i r1 local_count r2)
 	(vp-add-cr 1 r2)
 	(vp-cpy-ri-i r2 r1 local_count)
-	(f-jmp 'view 'change '(r0 r7 r8 r9 r10))
+	(jump 'view 'change '(r0 r7 r8 r9 r10))
 
 (def-func-end)
 
@@ -94,10 +94,10 @@
 	(vp-cpy-ri-i r1 rsp local_w)
 	(vp-cpy-ri-i r1 rsp local_h)
 
-	(f-call 'grid 'forward '(r0 rsp ($ callback)))
+	(call 'grid 'forward '(r0 rsp ($ callback)))
 
-	(f-call 'grid 'get_long_prop '(r0 prop_grid_width) '(r0 (rsp local_width i)))
-	(f-call 'grid 'get_long_prop '(r0 prop_grid_height) '(r0 (rsp local_height i)))
+	(call 'grid 'get_long_prop '(r0 prop_grid_width) '(r0 (rsp local_width i)))
+	(call 'grid 'get_long_prop '(r0 prop_grid_height) '(r0 (rsp local_height i)))
 
 	(assign '((rsp local_width ui) (rsp local_height ui) (rsp local_w i) (rsp local_h i)) '(r7 r8 r9 r10))
 	(vp-mul-rr r7 r9)
@@ -107,7 +107,7 @@
 
 (vp-label 'callback)
 	(vp-push r1)
-	(v-call 'view 'pref_size '(r0) '(_ r9 r10))
+	(call 'view 'pref_size '(r0) '(_ r9 r10))
 	(vp-pop r1)
 	(vp-cpy-ir-i r1 local_w r2)
 	(vpif '(r9 > r2))

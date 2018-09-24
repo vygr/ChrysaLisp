@@ -19,18 +19,18 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
-	(f-call 'sys_task 'yield)
+	(call 'sys_task 'yield)
 	(loop-start)
-		(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
+		(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 		(assign {iter_begin + ptr_size} {iter_begin})
-		(f-call 'lisp 'repl_eval {this, *iter_begin} {_, value})
+		(call 'lisp 'repl_eval {this, *iter_begin} {_, value})
 		(breakif {value == this->lisp_sym_nil})
 		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit)
 		(loop-start)
-			(f-call 'obj 'deref {value})
+			(call 'obj 'deref {value})
 			(assign {iter_begin + ptr_size} {iter_begin})
 			(breakif {iter_begin == iter_end})
-			(f-call 'lisp 'repl_eval {this, *iter_begin} {_, value})
+			(call 'lisp 'repl_eval {this, *iter_begin} {_, value})
 			(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit)
 		(loop-end)
 	(loop-end)
@@ -41,7 +41,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(while tst body)", error_msg_wrong_num_of_args, args} {_, value})
+	(call 'lisp 'repl_error {this, "(while tst body)", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

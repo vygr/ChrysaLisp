@@ -20,13 +20,13 @@
 	(f-entry 'lisp 'func_fcos {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_first {args} {_, value})
-	(f-call 'integer 'get_value {value} {_, num})
-	(f-call 'sys_math 'fcos {num} {num})
-	(f-call 'integer 'create {num} {value})
+	(call 'vector 'get_first {args} {_, value})
+	(call 'integer 'get_value {value} {_, num})
+	(call 'sys_math 'fcos {num} {num})
+	(call 'integer 'create {num} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_fcos {this, value})
@@ -34,7 +34,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(fcos angle)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(fcos angle)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'integer))
 

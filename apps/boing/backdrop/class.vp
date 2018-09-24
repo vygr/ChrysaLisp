@@ -20,19 +20,19 @@
 	(push-scope)
 	(f-entry 'backdrop 'draw {this, ctx})
 
-	(f-call 'backdrop 'get_long_prop {this, prop_color} {_, col})
-	(f-call 'backdrop 'get_bounds {this} {_, _, _, w, h})
+	(call 'backdrop 'get_long_prop {this, prop_color} {_, col})
+	(call 'backdrop 'get_bounds {this} {_, _, _, w, h})
 
-	(f-call 'ctx 'set_color {ctx, col})
-	(f-call 'ctx 'filled_box {ctx, 0, 0, w, h})
+	(call 'ctx 'set_color {ctx, col})
+	(call 'ctx 'filled_box {ctx, 0, 0, w, h})
 	(assign {0, 0} {x, y})
-	(f-call 'ctx 'set_color {ctx, 0xffffffff})
+	(call 'ctx 'set_color {ctx, 0xffffffff})
 	(loop-while {x < w})
-		(f-call 'ctx 'filled_box {ctx, x, 0, 1, h})
+		(call 'ctx 'filled_box {ctx, x, 0, 1, h})
 		(assign {x + 32} {x})
 	(loop-end)
 	(loop-while {y < h})
-		(f-call 'ctx 'filled_box {ctx, 0, y, w, 1})
+		(call 'ctx 'filled_box {ctx, 0, y, w, 1})
 		(assign {y + 32} {y})
 	(loop-end)
 
@@ -54,9 +54,9 @@
 	(push-scope)
 	(f-entry 'backdrop 'layout {this})
 
-	(f-call 'backdrop 'get_long_prop {this, prop_color} {_, col})
+	(call 'backdrop 'get_long_prop {this, prop_color} {_, col})
 	(vpif {col >> 24 == 0xff})
-		(f-call 'backdrop 'opaque {this})
+		(call 'backdrop 'opaque {this})
 	(endif)
 
 	(f-exit 'backdrop 'layout {this})

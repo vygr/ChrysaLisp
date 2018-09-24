@@ -37,7 +37,7 @@
 	;all but r0
 
 	(vp-push r0)
-	(f-call 'hash_map 'deref_if '((r0 hash_map_parent)))
+	(call 'hash_map 'deref_if '((r0 hash_map_parent)))
 	(vp-pop r0)
 
 	;deinit parent
@@ -57,7 +57,7 @@
 	(vp-push r0)
 	(vp-cpy-ir r0 hash_map_parent r2)
 	(vp-cpy-ri r1 r0 hash_map_parent)
-	(f-call 'hash_map 'deref_if '(r2))
+	(call 'hash_map 'deref_if '(r2))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -82,11 +82,11 @@
 	(vp-alloc local_size)
 	(f-entry 'hash_map 'copy '((rsp local_this) r1))
 
-	(f-call 'hash_map 'create '((r0 hash_set_key_callback) r1) '((rsp local_obj)))
-	(f-call 'hash_map 'get_parent '((rsp local_this)) '(_ r0))
-	(f-call 'hash_map 'ref_if '(r0) '(r0))
-	(f-call 'hash_map 'set_parent '((rsp local_obj) r0))
-	(f-call 'hash_map 'for_each '((rsp local_this) ($ callback) rsp))
+	(call 'hash_map 'create '((r0 hash_set_key_callback) r1) '((rsp local_obj)))
+	(call 'hash_map 'get_parent '((rsp local_this)) '(_ r0))
+	(call 'hash_map 'ref_if '(r0) '(r0))
+	(call 'hash_map 'set_parent '((rsp local_obj) r0))
+	(call 'hash_map 'for_each '((rsp local_this) ($ callback) rsp))
 
 	(f-exit 'hash_map 'copy '(r0 (rsp local_obj)))
 	(vp-free local_size)
@@ -100,11 +100,11 @@
 	;r1 = 0 if break, else not
 
 	(vp-cpy-ir r0 0 r2)
-	(f-call 'obj 'ref '((r1 0)))
+	(call 'obj 'ref '((r1 0)))
 	(vp-push r0)
-	(f-call 'hash_map 'get_bucket '(r2 (r0 pair_first)) '(_ r0))
+	(call 'hash_map 'get_bucket '(r2 (r0 pair_first)) '(_ r0))
 	(vp-pop r1)
-	(f-jmp 'vector 'push_back '(r0 r1))
+	(jump 'vector 'push_back '(r0 r1))
 
 (def-func-end)
 
@@ -131,7 +131,7 @@
 	(vp-cpy-ir r0 hash_set_key_callback r2)
 	(vpif '(r2 == 0) 'exit)
 		;search hash bucket
-		(f-call 'hash_map 'get_bucket '(r0 r1) '(r0 r2))
+		(call 'hash_map 'get_bucket '(r0 r1) '(r0 r2))
 		(vp-cpy-ir-ui r2 array_length r3)
 		(vp-cpy-ir r2 array_array r1)
 		(vp-shl-cr (log2 long_size) r3)
@@ -147,8 +147,8 @@
 	(else)
 		;search hash bucket
 		(vp-cpy-ri r0 rsp local_this)
-		(f-call 'hash_map 'get_bucket '(r0 r1) '(_ r0))
-		(f-call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) rsp) '(r2 r1))
+		(call 'hash_map 'get_bucket '(r0 r1) '(_ r0))
+		(call 'vector 'for_each '(r0 0 (r0 array_length ui) ($ callback) rsp) '(r2 r1))
 		(vp-cpy-ir rsp local_this r0)
 	(endif)
 
@@ -197,14 +197,14 @@
 	(f-entry 'hash_map 'insert '((rsp local_this) (rsp local_key) (rsp local_value)))
 
 	;search hash bucket
-	(f-call 'hash_map 'find '(r0 r1) '(r0 r1 r2))
+	(call 'hash_map 'find '(r0 r1) '(r0 r1 r2))
 	(vp-cpy-ri r2 rsp local_bucket)
 	(vpif '(r1 == 0))
 		;new key
-		(f-call 'obj 'ref '((rsp local_value)))
-		(f-call 'obj 'ref '((rsp local_key)))
-		(f-call 'pair 'create '(r0 (rsp local_value)) '(r0))
-		(f-call 'vector 'push_back '((rsp local_bucket) r0))
+		(call 'obj 'ref '((rsp local_value)))
+		(call 'obj 'ref '((rsp local_key)))
+		(call 'pair 'create '(r0 (rsp local_value)) '(r0))
+		(call 'vector 'push_back '((rsp local_bucket) r0))
 		(vp-cpy-rr r0 r2)
 		(vp-cpy-ir-ui r0 array_length r1)
 		(vp-cpy-ir r0 array_array r0)
@@ -216,8 +216,8 @@
 		(vp-cpy-ri r1 rsp local_iter)
 		(vp-cpy-ir r1 0 r2)
 		(vp-cpy-ri r2 rsp local_pair)
-		(f-call 'obj 'ref '((rsp local_value)))
-		(f-call 'obj 'deref '((r2 pair_second)))
+		(call 'obj 'ref '((rsp local_value)))
+		(call 'obj 'deref '((r2 pair_second)))
 		(vp-cpy-ir rsp local_value r0)
 		(vp-cpy-ir rsp local_pair r2)
 		(vp-cpy-ri r0 r2 pair_second)
@@ -251,9 +251,9 @@
 	(f-entry 'hash_map 'search '((rsp local_this) (rsp local_key)))
 
 	(loop-start)
-		(f-call 'hash_map 'find '(r0 (rsp local_key)) '(r0 r1 r2))
+		(call 'hash_map 'find '(r0 (rsp local_key)) '(r0 r1 r2))
 		(breakif '(r1 != 0))
-		(f-call 'hash_map 'get_parent '(r0) '(r0 r1))
+		(call 'hash_map 'get_parent '(r0) '(r0 r1))
 		(breakif '(r1 == 0))
 		(vp-cpy-rr r1 r0)
 	(loop-end)
@@ -283,12 +283,12 @@
 	(vp-alloc local_size)
 	(f-entry 'hash_map 'set '(r0 r1 (rsp local_value)))
 
-	(f-call 'hash_map 'search '(r0 r1) '(r0 r1 _))
+	(call 'hash_map 'search '(r0 r1) '(r0 r1 _))
 	(vpif '(r1 != 0))
 		(assign '(r0) '((rsp local_this)))
 		(vp-cpy-rr r1 r2)
-		(f-call 'obj 'ref '((rsp local_value)) '(r0))
-		(f-call 'pair 'set_second '((r2 0) r0))
+		(call 'obj 'ref '((rsp local_value)) '(r0))
+		(call 'pair 'set_second '((r2 0) r0))
 		(assign '((rsp local_this) (rsp local_value)) '(r0 r1))
 	(endif)
 
@@ -310,10 +310,10 @@
 
 	(f-entry 'hash_map 'get '(r0 r1))
 
-	(f-call 'hash_map 'search '(r0 r1) '(r0 r1 _))
+	(call 'hash_map 'search '(r0 r1) '(r0 r1 _))
 	(vpif '(r1 != 0))
 		(vp-push r0)
-		(f-call 'pair 'ref_second '((r1 0)) '(_ r1))
+		(call 'pair 'ref_second '((r1 0)) '(_ r1))
 		(vp-pop r0)
 	(endif)
 

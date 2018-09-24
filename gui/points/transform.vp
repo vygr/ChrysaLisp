@@ -23,8 +23,8 @@
 	(push-scope)
 	(f-entry 'points 'transform {this, that, m1, m2, tr})
 
-	(f-call 'points 'get_iters {that} {_, iter_begin, iter_end})
-	(f-call 'points 'get_begin {this} {_, iter_this})
+	(call 'points 'get_iters {that} {_, iter_begin, iter_end})
+	(call 'points 'get_begin {this} {_, iter_this})
 
 	(vec-set 0)
 	(vec-load 3 {iter_end, iter_begin, iter_this})

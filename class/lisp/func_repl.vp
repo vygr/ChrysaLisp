@@ -22,56 +22,56 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
-	(f-call 'vector 'get_first {args} {_, stream})
+	(call 'vector 'get_first {args} {_, stream})
 
 (errorcases
-	(f-call 'obj 'inst_of (cat {stream, @} (f-path 'stream 'vtable)) {_, value})
+	(call 'obj 'inst_of (cat {stream, @} (f-path 'stream 'vtable)) {_, value})
 	(errorifnot {value} 'error2))
 
-	(f-call 'vector 'get_second {args} {_, value})
+	(call 'vector 'get_second {args} {_, value})
 
 (errorcases
-	(f-call 'obj 'inst_of (cat {value, @} (f-path 'string 'vtable)) {_, old_file})
+	(call 'obj 'inst_of (cat {value, @} (f-path 'string 'vtable)) {_, old_file})
 	(errorifnot {old_file} 'error3))
 
 	;push old file and line, set to this stream info
-	(f-call 'hash_map 'get {this->lisp_environment, this->lisp_sym_stream_name} {_, old_file})
-	(f-call 'hash_map 'get {this->lisp_environment, this->lisp_sym_stream_line} {_, old_line})
-	(f-call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_name, value})
-	(f-call 'integer 'create {1} {value})
-	(f-call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_line, value})
-	(f-call 'obj 'deref {value})
+	(call 'hash_map 'get {this->lisp_environment, this->lisp_sym_stream_name} {_, old_file})
+	(call 'hash_map 'get {this->lisp_environment, this->lisp_sym_stream_line} {_, old_line})
+	(call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_name, value})
+	(call 'integer 'create {1} {value})
+	(call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_line, value})
+	(call 'obj 'deref {value})
 
-	(f-call 'stream 'read_char {stream} {_, char})
+	(call 'stream 'read_char {stream} {_, char})
 	(loop-start)
-		(v-call 'stream 'write_flush {this->lisp_stdout})
-		(v-call 'stream 'write_flush {this->lisp_stderr})
+		(call 'stream 'write_flush {this->lisp_stdout})
+		(call 'stream 'write_flush {this->lisp_stderr})
 
-		(f-call 'lisp 'read {this, stream, char} {_, ast, char})
+		(call 'lisp 'read {this, stream, char} {_, ast, char})
 		(breakif {char == -1})
 
 		(loop-start)
-			(f-call 'lisp 'repl_expand {this, &ast, 0} {_, cnt})
+			(call 'lisp 'repl_expand {this, &ast, 0} {_, cnt})
 		(loop-untilnot {cnt})
 
-		(f-call 'lisp 'repl_eval {this, ast} {_, value})
-		(f-call 'obj 'deref {ast})
+		(call 'lisp 'repl_eval {this, ast} {_, value})
+		(call 'obj 'deref {ast})
 		(vpif {stream == this->lisp_stdin})
-			(f-call 'lisp 'repl_print {this, this->lisp_stdout, value})
-			(f-call 'stream 'write_char {this->lisp_stdout, char_lf})
+			(call 'lisp 'repl_print {this, this->lisp_stdout, value})
+			(call 'stream 'write_char {this->lisp_stdout, char_lf})
 		(endif)
 
 		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit1)
-		(f-call 'obj 'deref {value})
+		(call 'obj 'deref {value})
 	(loop-end)
-	(f-call 'obj 'ref {this->lisp_sym_nil} {value})
+	(call 'obj 'ref {this->lisp_sym_nil} {value})
 
 (vp-label 'exit1)
 	;pop old file and line info
-	(f-call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_name, old_file})
-	(f-call 'obj 'deref {old_file})
-	(f-call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_line, old_line})
-	(f-call 'obj 'deref {old_line})
+	(call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_name, old_file})
+	(call 'obj 'deref {old_file})
+	(call 'hash_map 'set {this->lisp_environment, this->lisp_sym_stream_line, old_line})
+	(call 'obj 'deref {old_line})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_repl {this, value})
@@ -79,13 +79,13 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(repl stream path)", error_msg_wrong_num_of_args, args} {_, value})
+	(call 'lisp 'repl_error {this, "(repl stream path)", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_stream, args} {_, value})
+	(call 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_stream, args} {_, value})
 	(goto 'exit)
 (vp-label 'error3)
-	(f-call 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_string, args} {_, value})
+	(call 'lisp 'repl_error {this, "(repl stream path)", error_msg_not_a_string, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

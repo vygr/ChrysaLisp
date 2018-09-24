@@ -22,27 +22,27 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorifnot {length == 1 || length == 2} 'error1)
-	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(call 'vector 'get_begin {args} {_, iter_begin})
 
 (errorcases
-	(f-call 'obj 'inst_of (cat {iter_begin[0], @} (f-path 'stream 'vtable)) {_, value})
+	(call 'obj 'inst_of (cat {iter_begin[0], @} (f-path 'stream 'vtable)) {_, value})
 	(errorifnot {value} 'error2))
 
 	(assign {1} {width})
 	(vpif {length == 2})
 		(assign {iter_begin[ptr_size]} {value})
 		(errorif (cat {value->obj_vtable != @} (f-path 'integer 'vtable)) 'error3)
-		(f-call 'integer 'get_value {value} {_, width})
+		(call 'integer 'get_value {value} {_, width})
 		(assign {((width - 1) & 7) + 1} {width})
 	(endif)
 
-	(f-call 'integer 'create {0} {value})
+	(call 'integer 'create {0} {value})
 	(assign {&value->function_value} {chars})
 	(loop-start)
-		(f-call 'stream_str 'read_char {iter_begin[0]} {_, length})
+		(call 'stream_str 'read_char {iter_begin[0]} {_, length})
 		(vpif {length == -1})
-			(f-call 'obj 'deref {value})
-			(f-call 'obj 'ref {this->lisp_sym_nil} {value})
+			(call 'obj 'deref {value})
+			(call 'obj 'ref {this->lisp_sym_nil} {value})
 			(break)
 		(endif)
 		(assign {length} {*chars})
@@ -56,13 +56,13 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(read-char stream [width])", error_msg_wrong_num_of_args, args} {_, value})
+	(call 'lisp 'repl_error {this, "(read-char stream [width])", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(read-char stream [width])", error_msg_not_a_stream, args} {_, value})
+	(call 'lisp 'repl_error {this, "(read-char stream [width])", error_msg_not_a_stream, args} {_, value})
 	(goto 'exit)
 (vp-label 'error3)
-	(f-call 'lisp 'repl_error {this, "(read-char stream [width])", error_msg_not_a_number, args} {_, value})
+	(call 'lisp 'repl_error {this, "(read-char stream [width])", error_msg_not_a_number, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

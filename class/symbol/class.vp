@@ -20,13 +20,13 @@
 
 	(assign {ptr($symbols)} {set})
 	(vpifnot {set})
-		(f-call 'hash_set 'create (cat {@} (f-path 'symbol 'same) {, 101}) {set})
+		(call 'hash_set 'create (cat {@} (f-path 'symbol 'same) {, 101}) {set})
 		(assign {set} {ptr($symbols)})
 	(endif)
 
-	(f-call 'hash_set 'insert {set, this} {_, iter, _})
-	(f-call 'obj 'deref {this})
-	(f-call 'obj 'ref {*iter} {this})
+	(call 'hash_set 'insert {set, this} {_, iter, _})
+	(call 'obj 'deref {this})
+	(call 'obj 'ref {*iter} {this})
 	(assign (cat {@} (f-path 'symbol 'vtable)) {this->obj_vtable})
 
 	(f-exit 'symbol 'intern {this})
@@ -52,7 +52,7 @@
 	;all
 
 	(f-entry 'symbol 'intern_cstr '(r0))
-	(f-call 'symbol 'create_from_cstr '(r0) '(r0))
-	(f-jmp 'symbol 'intern '(r0))
+	(call 'symbol 'create_from_cstr '(r0) '(r0))
+	(jump 'symbol 'intern '(r0))
 
 (def-func-end)

@@ -17,10 +17,10 @@
 	(vp-alloc local_size)
 	(f-entry 'lisp 'env_pop '((rsp local_this)))
 
-	(f-call 'hash_map 'get_parent '((r0 lisp_environment)) '((rsp local_env) r1))
+	(call 'hash_map 'get_parent '((r0 lisp_environment)) '((rsp local_env) r1))
 	(assign '(r1) '((rsp local_new_env)))
-	(f-call 'obj 'ref '(r1))
-	(f-call 'obj 'deref '((rsp local_env)))
+	(call 'obj 'ref '(r1))
+	(call 'obj 'deref '((rsp local_env)))
 	(assign '((rsp local_this) (rsp local_new_env)) '(r0 r1))
 	(assign '(r1) '((r0 lisp_environment)))
 

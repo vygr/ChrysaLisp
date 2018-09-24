@@ -18,12 +18,12 @@
 	(f-entry 'lisp 'func_age {this, value})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, value, $sig, 1} {_, age})
+	(call 'lisp 'env_args_type {this, value, $sig, 1} {_, age})
 	(errorifnot {age} 'error1))
 
-	(f-call 'vector 'get_first {value} {_, value})
-	(f-call 'sys_pii 'age {&value->string_data} {age})
-	(f-call 'integer 'create {age} {value})
+	(call 'vector 'get_first {value} {_, value})
+	(call 'sys_pii 'age {&value->string_data} {age})
+	(call 'integer 'create {age} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_age {this, value})
@@ -31,7 +31,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(age path)", error_msg_wrong_types, value} {_, value})
+	(call 'lisp 'repl_error {this, "(age path)", error_msg_wrong_types, value} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string))
 

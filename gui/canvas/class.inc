@@ -98,7 +98,7 @@
 	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
-	(f-call 'canvas 'plot `(r0 r1 (@ ,(f-path 'canvas 'set_pix_noclip)) r7 r8)))
+	(call 'canvas 'plot `(r0 r1 (@ ,(f-path 'canvas 'set_pix_noclip)) r7 r8)))
 
 (defcfun gui/canvas/set_fbox ()
 	;inputs
@@ -112,7 +112,7 @@
 	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
-	(f-call 'canvas 'fbox `(r0 r1 (@ ,(f-path 'canvas 'set_span_noclip)) r7 r8 r9 r10)))
+	(call 'canvas 'fbox `(r0 r1 (@ ,(f-path 'canvas 'set_span_noclip)) r7 r8 r9 r10)))
 
 (defcfun gui/canvas/set_fpoly ()
 	;inputs
@@ -124,7 +124,7 @@
 	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
-	(f-call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'set_span)))))
+	(call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'set_span)))))
 
 (defcfun gui/canvas/blend_plot ()
 	;inputs
@@ -136,7 +136,7 @@
 	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
-	(f-call 'canvas 'plot `(r0 r1 (@ ,(f-path 'canvas 'blend_pix_noclip)) r7 r8)))
+	(call 'canvas 'plot `(r0 r1 (@ ,(f-path 'canvas 'blend_pix_noclip)) r7 r8)))
 
 (defcfun gui/canvas/blend_fbox ()
 	;inputs
@@ -150,7 +150,7 @@
 	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
-	(f-call 'canvas 'fbox `(r0 r1 (@ ,(f-path 'canvas 'blend_span_noclip)) r7 r8 r9 r10)))
+	(call 'canvas 'fbox `(r0 r1 (@ ,(f-path 'canvas 'blend_span_noclip)) r7 r8 r9 r10)))
 
 (defcfun gui/canvas/blend_fpoly ()
 	;inputs
@@ -162,4 +162,4 @@
 	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
-	(f-call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'blend_span)))))
+	(call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'blend_span)))))

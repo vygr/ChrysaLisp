@@ -17,11 +17,11 @@
 	(f-entry 'lisp 'func_strstream {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
 	(d-call 'vector 'ref_element {args, 0} {_, value})
-	(f-call 'stream_str 'create {value} {value})
+	(call 'stream_str 'create {value} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_strstream {this, value})
@@ -29,7 +29,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(string-stream str)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(string-stream str)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string))
 

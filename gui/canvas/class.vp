@@ -27,13 +27,13 @@
 	(f-entry 'canvas 'create '(r4 r5 r6))
 
 	;create new object
-	(f-call 'canvas 'new nil '(r0))
+	(call 'canvas 'new nil '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'canvas 'init `(r0 (@ ,(f-path 'canvas 'vtable)) r4 r5 r6) '(r0 r1))
+		(call 'canvas 'init `(r0 (@ ,(f-path 'canvas 'vtable)) r4 r5 r6) '(r0 r1))
 		(vpif '(r1 == 0))
 			;error with init
-			(v-call 'canvas 'delete '(r0) '() 'r1)
+			(call 'canvas 'delete '(r0) '() 'r1)
 			(vp-xor-rr r0 r0)
 		(endif)
 	(endif)
@@ -55,13 +55,13 @@
 	(f-entry 'canvas 'create_shared '(r4))
 
 	;create new object
-	(f-call 'canvas 'new nil '(r0))
+	(call 'canvas 'new nil '(r0))
 	(vpif '(r0 != 0))
 		;init the object
-		(f-call 'canvas 'init1 `(r0 (@ ,(f-path 'canvas 'vtable)) r4) '(r0 r1))
+		(call 'canvas 'init1 `(r0 (@ ,(f-path 'canvas 'vtable)) r4) '(r0 r1))
 		(vpif '(r1 == 0))
 			;error with init
-			(v-call 'canvas 'delete '(r0) '() 'r1)
+			(call 'canvas 'delete '(r0) '() 'r1)
 			(vp-xor-rr r0 r0)
 		(endif)
 	(endif)
@@ -109,13 +109,13 @@
 		(assign {this->canvas_width * int_size} {this->canvas_stride})
 
 		;alloc pixel array
-		(f-call 'array 'create nil {this->canvas_array})
-		(f-call 'array 'set_capacity {this->canvas_array, (this->canvas_stride * this->canvas_height) >> 3})
+		(call 'array 'create nil {this->canvas_array})
+		(call 'array 'set_capacity {this->canvas_array, (this->canvas_stride * this->canvas_height) >> 3})
 
 		;edge arrays, sort interval stack
-		(f-call 'array 'create nil {this->canvas_edges})
-		(f-call 'array 'create nil {this->canvas_edge_tracker})
-		(f-call 'array 'create nil {this->canvas_stack})
+		(call 'array 'create nil {this->canvas_edges})
+		(call 'array 'create nil {this->canvas_edge_tracker})
+		(call 'array 'create nil {this->canvas_stack})
 	(endif)
 
 	(f-exit 'canvas 'init {this, ok})
@@ -161,12 +161,12 @@
 		(assign {src->canvas_stride} {this->canvas_stride})
 
 		;ref src pixel array
-		(f-call 'obj 'ref {src->canvas_array} {this->canvas_array})
+		(call 'obj 'ref {src->canvas_array} {this->canvas_array})
 
 		;edge arrays, sort interval stack
-		(f-call 'array 'create nil {this->canvas_edges})
-		(f-call 'array 'create nil {this->canvas_edge_tracker})
-		(f-call 'array 'create nil {this->canvas_stack})
+		(call 'array 'create nil {this->canvas_edges})
+		(call 'array 'create nil {this->canvas_edge_tracker})
+		(call 'array 'create nil {this->canvas_stack})
 	(endif)
 
 	(f-exit 'canvas 'init1 {this, ok})
@@ -185,7 +185,7 @@
 
 	;kernel callback
 	(vp-push r0)
-	(f-call 'sys_task 'callback '(r0 ($ callback)))
+	(call 'sys_task 'callback '(r0 ($ callback)))
 	(vp-pop r0)
 	(s-jmp 'canvas 'deinit '(r0))
 
@@ -206,19 +206,19 @@
 
 	;free edge trackers, sort intervals
 	(vp-cpy-ir rsp local_this r0)
-	(f-call 'array 'deref '((r0 canvas_edges)))
+	(call 'array 'deref '((r0 canvas_edges)))
 	(vp-cpy-ir rsp local_this r0)
-	(f-call 'array 'deref '((r0 canvas_edge_tracker)))
+	(call 'array 'deref '((r0 canvas_edge_tracker)))
 	(vp-cpy-ir rsp local_this r0)
-	(f-call 'array 'deref '((r0 canvas_stack)))
+	(call 'array 'deref '((r0 canvas_stack)))
 
 	;free any pixel buffer
 	(vp-cpy-ir rsp local_this r0)
-	(f-call 'array 'deref '((r0 canvas_array)))
+	(call 'array 'deref '((r0 canvas_array)))
 
 	;free any resize buffer
 	(vp-cpy-ir rsp local_this r0)
-	(f-call 'sys_mem 'free '((r0 canvas_resize_buf)))
+	(call 'sys_mem 'free '((r0 canvas_resize_buf)))
 
 	;free any sdl texture
 	(vp-cpy-ir rsp local_this r0)
@@ -255,35 +255,35 @@
 		;create hash map ?
 		(assign {ptr($canvass)} {hash})
 		(vpifnot {hash})
-			(f-call 'hash_map 'create {0, 1} {hash})
+			(call 'hash_map 'create {0, 1} {hash})
 			(assign {hash} {ptr($canvass)})
 		(endif)
 
 		;create interned name, lookup in map
-		(f-call 'symbol 'intern_cstr {name} {sym})
-		(f-call 'hash_map 'find {hash, sym} {_, iter, _})
+		(call 'symbol 'intern_cstr {name} {sym})
+		(call 'hash_map 'find {hash, sym} {_, iter, _})
 		(vpifnot {iter})
 			;open file stream
-			(f-call 'string 'create_from_file {name} {this})
+			(call 'string 'create_from_file {name} {this})
 			(breakifnot {this})
-			(f-call 'stream_str 'create {this} {stream})
-			(f-call 'canvas 'load_cpm {stream} {this})
-			(f-call 'stream_str 'deref {stream})
+			(call 'stream_str 'create {this} {stream})
+			(call 'canvas 'load_cpm {stream} {this})
+			(call 'stream_str 'deref {stream})
 			(breakifnot {this})
-			(f-call 'hash_map 'insert {hash, sym, this})
-			(f-call 'canvas 'create_shared {this} {this})
+			(call 'hash_map 'insert {hash, sym, this})
+			(call 'canvas 'create_shared {this} {this})
 		(else)
-			(f-call 'pair 'get_second {*iter} {_, this})
-			(f-call 'canvas 'create_shared {this} {this})
+			(call 'pair 'get_second {*iter} {_, this})
+			(call 'canvas 'create_shared {this} {this})
 		(endif)
-		(f-call 'symbol 'deref {sym})
+		(call 'symbol 'deref {sym})
 	(else)
 		;open file stream
-		(f-call 'string 'create_from_file {name} {this})
+		(call 'string 'create_from_file {name} {this})
 		(breakifnot {this})
-		(f-call 'stream_str 'create {this} {stream})
-		(f-call 'canvas 'load_cpm {stream} {this})
-		(f-call 'stream_str 'deref {stream})
+		(call 'stream_str 'create {this} {stream})
+		(call 'canvas 'load_cpm {stream} {this})
+		(call 'stream_str 'deref {stream})
 	(endif)
 
 	(f-exit 'canvas 'load {this})
@@ -320,24 +320,24 @@
 	;if no texture then create from pixel buffer
 	(vpifnot {this->canvas_texture})
 		;create SDL surface from pixel buffer, convert to texture
-		(f-call 'canvas 'create {this->canvas_width / this->canvas_aa_scale, this->canvas_height / this->canvas_aa_scale, 1} {temp_canvas})
+		(call 'canvas 'create {this->canvas_width / this->canvas_aa_scale, this->canvas_height / this->canvas_aa_scale, 1} {temp_canvas})
 		(vpif {this->canvas_aa_scale == 1})
-			(f-call 'canvas 'as_argb {temp_canvas, this})
+			(call 'canvas 'as_argb {temp_canvas, this})
 		(else)
-			(f-call 'canvas 'resize {temp_canvas, this})
-			(f-call 'canvas 'as_argb {temp_canvas, temp_canvas})
+			(call 'canvas 'resize {temp_canvas, this})
+			(call 'canvas 'as_argb {temp_canvas, temp_canvas})
 		(endif)
 		(sdl-call 'sdl 'sdl_create_rgb_surface_from {temp_canvas->canvas_array->array_array,
 			temp_canvas->canvas_width, temp_canvas->canvas_height, 32,
 			temp_canvas->canvas_stride, 0xff0000, 0xff00, 0xff, 0xff000000} {surface})
 		(sdl-call 'sdl 'sdl_create_texture_from_surface {ctx->ctx_sdl_ctx, surface} {this->canvas_texture})
 		(sdl-call 'sdl 'sdl_free_surface {surface})
-		(f-call 'canvas 'deref {temp_canvas})
+		(call 'canvas 'deref {temp_canvas})
 	(endif)
 
 	;blit texture
 	(vpif {this->canvas_texture})
-		(f-call 'ctx 'blit {ctx, this->canvas_texture, 0xffffff, 0, 0,
+		(call 'ctx 'blit {ctx, this->canvas_texture, 0xffffff, 0, 0,
 			this->canvas_width / this->canvas_aa_scale, this->canvas_height / this->canvas_aa_scale})
 	(endif)
 
@@ -357,7 +357,7 @@
 
 	;kernel callback
 	(vp-push r0)
-	(f-call 'sys_task 'callback '(r0 ($ callback)))
+	(call 'sys_task 'callback '(r0 ($ callback)))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -495,7 +495,7 @@
 
 	(f-entry 'canvas 'fill '(r0 r1))
 
-	(f-call 'canvas 'to_premul '(r0 r1) '(r0 r1))
+	(call 'canvas 'to_premul '(r0 r1) '(r0 r1))
 	(vp-cpy-ir r0 canvas_array r2)
 	(vp-cpy-ir r2 array_array r2)
 	(vp-cpy-ir-ui r0 canvas_stride r3)
@@ -533,7 +533,7 @@
 	(vp-add-rr r5 r6)
 	(loop-start)
 		(vp-cpy-ir-ui r7 0 r1)
-		(f-call 'canvas 'to_argb '(r0 r1) '(r0 r1))
+		(call 'canvas 'to_argb '(r0 r1) '(r0 r1))
 		(vp-cpy-ri-i r1 r5 0)
 		(vp-add-cr int_size r5)
 		(vp-add-cr int_size r7)
@@ -565,7 +565,7 @@
 	(vp-add-rr r5 r4)
 	(loop-start)
 		(vp-cpy-ir-ui r6 0 r1)
-		(f-call 'canvas 'to_premul '(r0 r1) '(r0 r1))
+		(call 'canvas 'to_premul '(r0 r1) '(r0 r1))
 		(vp-cpy-ri-i r1 r5 0)
 		(vp-add-cr int_size r5)
 		(vp-add-cr int_size r6)
@@ -711,7 +711,7 @@
 		(vpif '(r9 > r3))
 			(vp-cpy-rr r3 r9)
 		(endif)
-		(f-jmp 'canvas 'set_span_noclip '(r0 r1 r7 r8 r9))
+		(jump 'canvas 'set_span_noclip '(r0 r1 r7 r8 r9))
 	(endswitch)
 
 	(f-exit 'canvas 'set_span '(r0))
@@ -851,7 +851,7 @@
 		(vpif '(r9 > r3))
 			(vp-cpy-rr r3 r9)
 		(endif)
-		(f-jmp 'canvas 'blend_span_noclip '(r0 r1 r7 r8 r9))
+		(jump 'canvas 'blend_span_noclip '(r0 r1 r7 r8 r9))
 	(endswitch)
 
 	(f-exit 'canvas 'blend_span '(r0))
@@ -883,7 +883,7 @@
 	(breakif '(r8 < r4))
 	(breakif '(r7 >= r5))
 	(breakif '(r8 >= r6))
-		(f-call 'canvas 'to_premul '(r0 r1) '(_ r1))
+		(call 'canvas 'to_premul '(r0 r1) '(_ r1))
 		(r-jmp 'canvas 'set_plot '(r0 r1 r7 r8 r9))
 	(endswitch)
 
@@ -934,7 +934,7 @@
 		(vpif {h > this->canvas_cy1})
 			(assign {this->canvas_cy1} {h})
 		(endif)
-		(f-call 'canvas 'to_premul {this, color} {_, color})
+		(call 'canvas 'to_premul {this, color} {_, color})
 		(loop-start)
 			(r-call 'canvas 'set_span {this, color, x, y, w, span})
 			(assign {y + 1} {y})

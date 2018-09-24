@@ -12,9 +12,9 @@
 	;all but r0
 
 	(vp-push r0)
-	(f-call 'obj 'deref '((r0 pair_first)))
+	(call 'obj 'deref '((r0 pair_first)))
 	(vp-cpy-ir rsp 0 r0)
-	(f-call 'obj 'deref '((r0 pair_second)))
+	(call 'obj 'deref '((r0 pair_second)))
 	(vp-pop r0)
 	(s-jmp 'pair 'deinit '(r0))
 
@@ -30,7 +30,7 @@
 	;r2
 
 	(vp-cpy-rr r0 r2)
-	(f-call 'obj 'ref '((r0 pair_first)) '(r1))
+	(call 'obj 'ref '((r0 pair_first)) '(r1))
 	(vp-cpy-rr r2 r0)
 	(vp-ret)
 
@@ -46,7 +46,7 @@
 	;r2
 
 	(vp-cpy-rr r0 r2)
-	(f-call 'obj 'ref '((r0 pair_second)) '(r1))
+	(call 'obj 'ref '((r0 pair_second)) '(r1))
 	(vp-cpy-rr r2 r0)
 	(vp-ret)
 
@@ -64,7 +64,7 @@
 	(vp-push r0)
 	(vp-cpy-ir r0 pair_first r2)
 	(vp-cpy-ri r1 r0 pair_first)
-	(f-call 'obj 'deref '(r2))
+	(call 'obj 'deref '(r2))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -82,7 +82,7 @@
 	(vp-push r0)
 	(vp-cpy-ir r0 pair_second r2)
 	(vp-cpy-ri r1 r0 pair_second)
-	(f-call 'obj 'deref '(r2))
+	(call 'obj 'deref '(r2))
 	(vp-pop r0)
 	(vp-ret)
 

@@ -22,24 +22,24 @@
 	(f-entry 'lisp 'func_ne {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type (cat {this, args, @} (f-path 'integer 'vtable) {, -2}) {_, value})
+	(call 'lisp 'env_args_type (cat {this, args, @} (f-path 'integer 'vtable) {, -2}) {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_iters {args} {_, iter_begin, iter_end})
+	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(assign {iter_begin} {iter_start})
 	(loop-start)
-		(f-call 'integer 'get_value {*iter_begin} {_, accum})
+		(call 'integer 'get_value {*iter_begin} {_, accum})
 		(assign {iter_begin} {iter})
 		(loop-while {iter != iter_start})
 			(assign {iter - ptr_size} {iter})
-			(f-call 'integer 'get_value {*iter} {_, num})
+			(call 'integer 'get_value {*iter} {_, num})
 			(gotoif {num == accum} 'fail)
 		(loop-end)
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-until {iter_begin == iter_end})
 	(assign {this->lisp_sym_t} {value})
 (vp-label 'exit1)
-	(f-call 'obj 'ref {value})
+	(call 'obj 'ref {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_ne {this, value})
@@ -51,7 +51,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(ne num num ...)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(ne num num ...)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

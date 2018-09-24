@@ -304,7 +304,7 @@
 
 	(vpif '(r2 != 0))
 		;fill middle
-		(f-call 'ctx 'set_color '(r0 r1))
+		(call 'ctx 'set_color '(r0 r1))
 
 		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r9 r10 r11))
 		(vp-add-rr r11 r7)
@@ -312,27 +312,27 @@
 		(vp-shl-cr 1 r11)
 		(vp-sub-rr r11 r9)
 		(vp-sub-rr r11 r10)
-		(f-call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
+		(call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
 	(endif)
 
 	(vp-cpy-ir-i rsp local_depth r11)
 	(vpif '(r11 > 0))
 		;brighter color
-		(f-call 'ctx 'brighter '((rsp local_color ui)) '(r1))
-		(f-call 'ctx 'set_color '((rsp local_ctx) r1))
+		(call 'ctx 'brighter '((rsp local_color ui)) '(r1))
+		(call 'ctx 'set_color '((rsp local_ctx) r1))
 
 		;fill left edge and top
 		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_depth i)) '(r7 r8 r9 r10))
-		(f-call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
+		(call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
 
 		(assign '((rsp local_x i) (rsp local_y i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r10 r9))
 		(vp-add-rr r9 r8)
 		(vp-sub-rr r9 r10)
-		(f-call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
+		(call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
 
 		;darker color
-		(f-call 'ctx 'darker '((rsp local_color ui)) '(r1))
-		(f-call 'ctx 'set_color '((rsp local_ctx) r1))
+		(call 'ctx 'darker '((rsp local_color ui)) '(r1))
+		(call 'ctx 'set_color '((rsp local_ctx) r1))
 
 		;fill bottom edge and right
 		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r9 r10 r11))
@@ -340,7 +340,7 @@
 		(vp-sub-rr r11 r9)
 		(vp-add-rr r10 r8)
 		(vp-sub-rr r11 r8)
-		(f-call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r11))
+		(call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r11))
 
 		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r9 r10 r11))
 		(vp-add-rr r9 r7)
@@ -348,42 +348,42 @@
 		(vp-add-rr r11 r8)
 		(vp-sub-rr r11 r10)
 		(vp-sub-rr r11 r10)
-		(f-call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r11 r10))
+		(call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r11 r10))
 	(else)
 		;sunken panel
 		(vp-mul-cr -1 r11)
 		(vp-cpy-ri-i r11 rsp local_depth)
 
 		;darker color
-		(f-call 'ctx 'darker '((rsp local_color ui)) '(r1))
-		(f-call 'ctx 'set_color '((rsp local_ctx) r1))
+		(call 'ctx 'darker '((rsp local_color ui)) '(r1))
+		(call 'ctx 'set_color '((rsp local_ctx) r1))
 
 		;fill left edge and top
 		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_depth i)) '(r7 r8 r9 r10))
 		(vp-sub-rr r10 r9)
-		(f-call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
+		(call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
 
 		(assign '((rsp local_x i) (rsp local_y i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r10 r9))
 		(vp-add-rr r9 r8)
 		(vp-sub-rr r9 r10)
 		(vp-sub-rr r9 r10)
-		(f-call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
+		(call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r10))
 
 		;brighter color
-		(f-call 'ctx 'brighter '((rsp local_color ui)) '(r1))
-		(f-call 'ctx 'set_color '((rsp local_ctx) r1))
+		(call 'ctx 'brighter '((rsp local_color ui)) '(r1))
+		(call 'ctx 'set_color '((rsp local_ctx) r1))
 
 		;fill bottom edge and right
 		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r9 r10 r11))
 		(vp-add-rr r10 r8)
 		(vp-sub-rr r11 r8)
-		(f-call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r11))
+		(call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r9 r11))
 
 		(assign '((rsp local_x i) (rsp local_y i) (rsp local_w i) (rsp local_h i) (rsp local_depth i)) '(r7 r8 r9 r10 r11))
 		(vp-add-rr r9 r7)
 		(vp-sub-rr r11 r7)
 		(vp-sub-rr r11 r10)
-		(f-call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r11 r10))
+		(call 'ctx 'filled_box '((rsp local_ctx) r7 r8 r11 r10))
 	(endif)
 
 	(vp-free local_size)

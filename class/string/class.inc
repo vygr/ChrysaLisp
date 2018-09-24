@@ -82,7 +82,7 @@
 	;r0 = 0 if error, else object (ptr)
 	;trashes
 	;r1-r3
-	(f-call 'sys_mem 'alloc '(r0) '(r0 _)))
+	(call 'sys_mem 'alloc '(r0) '(r0 _)))
 
 (defcfun class/string/get_length ()
 	;inputs

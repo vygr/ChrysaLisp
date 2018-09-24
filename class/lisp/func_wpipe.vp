@@ -22,17 +22,17 @@
 	(f-entry 'lisp 'func_wpipe {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {pipe, value})
-	(f-call 'pipe 'get_state {pipe} {_, state})
+	(call 'pipe 'get_state {pipe} {_, state})
 	(errorif {state != stream_mail_state_started} 'error2)
-	(f-call 'pipe 'get_input {pipe} {_, stream})
-	(f-call 'stream 'write {stream, &value->string_data, value->string_length})
-	(v-call 'stream 'write_flush {stream})
-	(f-call 'obj 'ref {value})
+	(call 'pipe 'get_input {pipe} {_, stream})
+	(call 'stream 'write {stream, &value->string_data, value->string_length})
+	(call 'stream 'write_flush {stream})
+	(call 'obj 'ref {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_wpipe {this, value})
@@ -40,10 +40,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_open_error, args} {_, value})
+	(call 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_open_error, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'pipe 'string))
 

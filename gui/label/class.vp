@@ -29,15 +29,15 @@
 	(s-call 'label 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;add my flow
-		(f-call 'flow 'create nil {this->label_flow})
+		(call 'flow 'create nil {this->label_flow})
 		(assign {0} {this->label_flow->view_flags})
-		(v-call 'label 'add_child {this, this->label_flow})
-		(f-call 'label 'set_long_prop {this, prop_flow_flags, flow_flag_right | flow_flag_align_vcenter})
-		(f-call 'label 'set_long_prop {this, prop_border, 0})
+		(call 'label 'add_child {this, this->label_flow})
+		(call 'label 'set_long_prop {this, prop_flow_flags, flow_flag_right | flow_flag_align_vcenter})
+		(call 'label 'set_long_prop {this, prop_border, 0})
 
 		;add my text object
-		(f-call 'text 'create nil {this->label_text})
-		(v-call 'flow 'add_child {this->label_flow, this->label_text})
+		(call 'text 'create nil {this->label_text})
+		(call 'flow 'add_child {this->label_flow, this->label_text})
 	(endif)
 
 	(f-exit 'label 'init {this, ok})
@@ -60,8 +60,8 @@
 	(f-entry 'label 'draw {this, ctx})
 
 	;draw panel
-	(f-call 'label 'get_long_prop {this, prop_border} {_, depth})
-	(f-call 'label 'draw_panel {this, ctx, 1, depth})
+	(call 'label 'get_long_prop {this, prop_border} {_, depth})
+	(call 'label 'draw_panel {this, ctx, 1, depth})
 
 	(f-exit 'label 'draw {this})
 	(pop-scope)
@@ -83,14 +83,14 @@
 	(push-scope)
 	(f-entry 'label 'layout {this})
 
-	(f-call 'label 'get_long_prop {this, prop_border} {_, depth})
-	(f-call 'flow 'set_bounds {this->label_flow, depth, depth,
+	(call 'label 'get_long_prop {this, prop_border} {_, depth})
+	(call 'flow 'set_bounds {this->label_flow, depth, depth,
 		this->view_w - (depth * 2), this->view_h - (depth * 2)})
-	(v-call 'flow 'layout {this->label_flow})
+	(call 'flow 'layout {this->label_flow})
 
-	(f-call 'label 'get_long_prop {this, prop_color} {_, col})
+	(call 'label 'get_long_prop {this, prop_color} {_, col})
 	(vpif {col >> 24 == 0xff})
-		(f-call 'label 'opaque {this})
+		(call 'label 'opaque {this})
 	(endif)
 
 	(f-exit 'label 'layout {this})
@@ -114,11 +114,11 @@
 	(push-scope)
 	(f-entry 'label 'pref_size {this})
 
-	(f-call 'label 'get_long_prop {this, prop_border} {_, depth})
-	(f-call 'label 'get_long_prop {this, prop_min_width} {_, mw})
-	(f-call 'label 'get_long_prop {this, prop_min_height} {_, mh})
+	(call 'label 'get_long_prop {this, prop_border} {_, depth})
+	(call 'label 'get_long_prop {this, prop_min_width} {_, mw})
+	(call 'label 'get_long_prop {this, prop_min_height} {_, mh})
 
-	(v-call 'flow 'pref_size {this->label_flow} {_, w, h})
+	(call 'flow 'pref_size {this->label_flow} {_, w, h})
 	(vpif {mw > w})
 		(assign {mw} {w})
 	(endif)

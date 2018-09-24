@@ -22,8 +22,8 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'sys_kernel 'total nil {length})
-	(f-call 'integer 'create {length} {value})
+	(call 'sys_kernel 'total nil {length})
+	(call 'integer 'create {length} {value})
 
 (vp-label 'exit)
 	(f-exit 'sys_kernel 'lisp_total {this, value})
@@ -31,7 +31,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(kernel-total)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(kernel-total)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)
@@ -53,12 +53,12 @@
 	(f-entry 'sys_kernel 'lisp_declare {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'sys_kernel 'declare {&arg0->string_data, arg1})
-	(f-call 'obj 'ref {arg0} {value})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'sys_kernel 'declare {&arg0->string_data, arg1})
+	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'sys_kernel 'lisp_declare {this, value})
@@ -66,7 +66,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(kernel-declare name mbox)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(kernel-declare name mbox)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string 'integer))
 
@@ -89,12 +89,12 @@
 	(f-entry 'sys_kernel 'lisp_debug {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'lisp 'env_args_set {this, args, &arg0, 0})
-	(f-call 'sys_kernel 'debug {&arg0->string_data})
-	(f-call 'obj 'ref {arg0} {value})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'sys_kernel 'debug {&arg0->string_data})
+	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'exit)
 	(f-exit 'sys_kernel 'lisp_debug {this, value})
@@ -102,7 +102,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(kernel-debug str)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(kernel-debug str)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string))
 

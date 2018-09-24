@@ -16,16 +16,16 @@
 	(f-entry 'lisp 'func_pop {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_first {args} {_, args})
-	(v-call 'array 'get_length {args} {_, length})
+	(call 'vector 'get_first {args} {_, args})
+	(call 'array 'get_length {args} {_, length})
 	(vpif {length})
-		(v-call 'array 'ref_back {args} {_, value})
-		(v-call 'array 'pop_back {args})
+		(call 'array 'ref_back {args} {_, value})
+		(call 'array 'pop_back {args})
 	(else)
-		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
+		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
 (vp-label 'exit)
@@ -34,7 +34,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(pop array)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(pop array)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'array))
 

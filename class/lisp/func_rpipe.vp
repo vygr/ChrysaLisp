@@ -22,31 +22,31 @@
 	(f-entry 'lisp 'func_rpipe {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_first {args} {_, pipe})
-	(f-call 'pipe 'get_state {pipe} {_, state})
+	(call 'vector 'get_first {args} {_, pipe})
+	(call 'pipe 'get_state {pipe} {_, state})
 	(vpif {state == stream_mail_state_started})
-		(f-call 'pipe 'select {pipe, 0} {_, index})
-		(f-call 'vector 'get_element {pipe->pipe_streams, index} {_, stream})
-		(f-call 'string 'create_from_buffer {0, string_gap} {value})
-		(f-call 'stream_str 'create {value} {str_stream})
+		(call 'pipe 'select {pipe, 0} {_, index})
+		(call 'vector 'get_element {pipe->pipe_streams, index} {_, stream})
+		(call 'string 'create_from_buffer {0, string_gap} {value})
+		(call 'stream_str 'create {value} {str_stream})
 		(loop-start)
-			(f-call 'stream 'read_char {stream} {_, char})
+			(call 'stream 'read_char {stream} {_, char})
 			(breakif {char == -1})
-			(f-call 'stream 'write_char {str_stream, char})
-			(v-call 'stream 'read_ready {stream} {_, ready})
+			(call 'stream 'write_char {str_stream, char})
+			(call 'stream 'read_ready {stream} {_, ready})
 		(loop-untilnot {ready})
 		(vpif {char == -1})
 			;EOF
-			(f-call 'pipe 'set_state {pipe, stream_mail_state_stopping})
+			(call 'pipe 'set_state {pipe, stream_mail_state_stopping})
 		(endif)
-		(f-call 'stream_str 'ref_string {str_stream} {_, value})
-		(f-call 'obj 'deref {str_stream})
+		(call 'stream_str 'ref_string {str_stream} {_, value})
+		(call 'obj 'deref {str_stream})
 	(else)
 		;closed
-		(f-call 'obj 'ref {this->lisp_sym_nil} {value})
+		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
 (vp-label 'exit)
@@ -55,7 +55,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(pipe-read pipe)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(pipe-read pipe)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'pipe))
 

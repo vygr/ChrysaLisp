@@ -20,12 +20,12 @@
 	(f-entry 'lisp 'func_code {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_first {args} {_, value})
+	(call 'vector 'get_first {args} {_, value})
 	(assign {ubyte(value->string_data)} {char})
-	(f-call 'integer 'create {char} {value})
+	(call 'integer 'create {char} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_code {this, value})
@@ -33,7 +33,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(code str)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(code str)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string))
 

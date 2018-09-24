@@ -18,8 +18,8 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1)
-	(f-call 'sys_pii 'time nil {length})
-	(f-call 'integer 'create {length} {args})
+	(call 'sys_pii 'time nil {length})
+	(call 'integer 'create {length} {args})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_time {this, args})
@@ -27,7 +27,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(time)", error_msg_wrong_num_of_args, args} {_, args})
+	(call 'lisp 'repl_error {this, "(time)", error_msg_wrong_num_of_args, args} {_, args})
 	(goto 'exit))
 
 

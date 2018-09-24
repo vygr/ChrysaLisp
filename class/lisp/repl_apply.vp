@@ -41,7 +41,7 @@
 	(d-call 'vector 'get_length {func} {_, length})
 	(errorif {length < 2} 'error1))
 
-	(f-call 'vector 'get_iters {func} {_, iter_begin, iter_end})
+	(call 'vector 'get_iters {func} {_, iter_begin, iter_end})
 
 (errorcases
 	(assign {iter_begin[ptr_size * 0]} {value})
@@ -49,30 +49,30 @@
 		(errorif {value != this->lisp_sym_macro} 'error2)
 	(endif))
 
-	(f-call 'lisp 'env_push {this})
-	(f-call 'lisp 'env_bind {this, iter_begin[ptr_size * 1], args} {_, value})
+	(call 'lisp 'env_push {this})
+	(call 'lisp 'env_bind {this, iter_begin[ptr_size * 1], args} {_, value})
 	(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit1)
 
 	(assign {&iter_begin[ptr_size * 2]} {iter_begin})
 	(loop-while {iter_begin != iter_end})
-		(f-call 'obj 'deref {value})
-		(f-call 'lisp 'repl_eval {this, *iter_begin} {_, value})
+		(call 'obj 'deref {value})
+		(call 'lisp 'repl_eval {this, *iter_begin} {_, value})
 		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit1)
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-end)
 
 (vp-label 'exit1)
-	(f-call 'lisp 'env_pop {this})
+	(call 'lisp 'env_pop {this})
 (vp-label 'exit)
 	(f-exit 'lisp 'repl_apply {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_wrong_num_of_args, func} {_, value})
+	(call 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_wrong_num_of_args, func} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_not_a_lambda, func} {_, value})
+	(call 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_not_a_lambda, func} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

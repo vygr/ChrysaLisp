@@ -22,16 +22,16 @@
 	(f-entry 'lisp 'func_cmp {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {arg1, arg2})
 	(vpif {arg1 != arg2})
-		(f-call 'string 'compare {arg1, arg2} {_, result})
-		(f-call 'integer 'create {result} {value})
+		(call 'string 'compare {arg1, arg2} {_, result})
+		(call 'integer 'create {result} {value})
 	(else)
-		(f-call 'integer 'create {0} {value})
+		(call 'integer 'create {0} {value})
 	(endif)
 
 (vp-label 'exit)
@@ -40,7 +40,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(cmp str str)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(cmp str str)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string 'string))
 

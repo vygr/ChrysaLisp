@@ -21,12 +21,12 @@
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length} 'error1))
 
-	(f-call 'symbol 'create_from_long {this->lisp_nextsym, 10} {args})
-	(f-call 'symbol 'create_from_cstr {"G"} {prefix})
-	(f-call 'symbol 'append {prefix, args} {value})
-	(f-call 'obj 'deref {prefix})
-	(f-call 'obj 'deref {args})
-	(f-call 'symbol 'intern {value} {value})
+	(call 'symbol 'create_from_long {this->lisp_nextsym, 10} {args})
+	(call 'symbol 'create_from_cstr {"G"} {prefix})
+	(call 'symbol 'append {prefix, args} {value})
+	(call 'obj 'deref {prefix})
+	(call 'obj 'deref {args})
+	(call 'symbol 'intern {value} {value})
 	(assign {this->lisp_nextsym + 1} {this->lisp_nextsym})
 
 (vp-label 'exit)
@@ -35,7 +35,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(gensym)", error_msg_wrong_num_of_args, args} {_, value})
+	(call 'lisp 'repl_error {this, "(gensym)", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

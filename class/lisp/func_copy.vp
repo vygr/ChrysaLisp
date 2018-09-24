@@ -17,13 +17,13 @@
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error1)
-	(f-call 'vector 'get_first {args} {_, args})
+	(call 'vector 'get_first {args} {_, args})
 	(vpif (cat {args->obj_vtable == @} (f-path 'vector 'vtable)))
 		(d-call 'vector 'get_length {args} {_, length})
 		(d-call 'vector 'slice {args, 0, length} {_, args})
-		(f-call 'vector 'for_each {args, 0, length, $callback, 0})
+		(call 'vector 'for_each {args, 0, length, $callback, 0})
 	(else)
-		(f-call 'obj 'ref {args})
+		(call 'obj 'ref {args})
 	(endif)
 
 (vp-label 'exit)
@@ -32,7 +32,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(copy form)", error_msg_wrong_num_of_args, args} {_, args})
+	(call 'lisp 'repl_error {this, "(copy form)", error_msg_wrong_num_of_args, args} {_, args})
 	(goto 'exit))
 
 	(pop-scope-syms)
@@ -55,8 +55,8 @@
 	(vpif (cat {pdata->obj_vtable == @} (f-path 'vector 'vtable)))
 		(d-call 'vector 'get_length {pdata} {_, length})
 		(d-call 'vector 'slice {pdata, 0, length} {_, pdata})
-		(f-call 'vector 'for_each {pdata, 0, length, $callback, 0})
-		(f-call 'obj 'deref {*iter})
+		(call 'vector 'for_each {pdata, 0, length, $callback, 0})
+		(call 'obj 'deref {*iter})
 		(assign {pdata} {*iter})
 	(endif)
 

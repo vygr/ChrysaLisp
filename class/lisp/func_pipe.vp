@@ -18,11 +18,11 @@
 	(f-entry 'lisp 'func_pipe {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_first {args} {_, value})
-	(f-call 'pipe 'create {&value->string_data, value->string_length} {value})
+	(call 'vector 'get_first {args} {_, value})
+	(call 'pipe 'create {&value->string_data, value->string_length} {value})
 	(errorifnot {value} 'error2)
 
 (vp-label 'exit)
@@ -31,10 +31,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(pipe str)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(pipe str)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(pipe str)", error_msg_open_error, args} {_, value})
+	(call 'lisp 'repl_error {this, "(pipe str)", error_msg_open_error, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string))
 

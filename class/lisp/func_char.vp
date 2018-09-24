@@ -21,15 +21,15 @@
 	(errorifnot {length == 1 || length == 2} 'error1)
 	(assign {1} {width})
 	(vpif {length == 2})
-		(f-call 'vector 'get_second {args} {_, value})
+		(call 'vector 'get_second {args} {_, value})
 		(errorif (cat {value->obj_vtable != @} (f-path 'integer 'vtable)) 'error2)
-		(f-call 'integer 'get_value {value} {_, width})
+		(call 'integer 'get_value {value} {_, width})
 		(assign {((width - 1) & 7) + 1} {width})
 	(endif)
-	(f-call 'vector 'get_first {args} {_, value})
+	(call 'vector 'get_first {args} {_, value})
 	(errorif (cat {value->obj_vtable != @} (f-path 'integer 'vtable)) 'error2)
-	(f-call 'integer 'get_value {value} {_, length})
-	(f-call 'string 'create_from_buffer {&length, width} {value})
+	(call 'integer 'get_value {value} {_, length})
+	(call 'string 'create_from_buffer {&length, width} {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_char {this, value})
@@ -37,10 +37,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(char num [width])", error_msg_wrong_num_of_args, args} {_, value})
+	(call 'lisp 'repl_error {this, "(char num [width])", error_msg_wrong_num_of_args, args} {_, value})
 	(goto 'exit)
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(char num [width])", error_msg_not_a_number, args} {_, value})
+	(call 'lisp 'repl_error {this, "(char num [width])", error_msg_not_a_number, args} {_, value})
 	(goto 'exit))
 
 	(pop-scope-syms)

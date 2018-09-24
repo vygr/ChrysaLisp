@@ -20,12 +20,12 @@
 	(f-entry 'lisp 'func_split {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {str, value})
-	(f-call 'string 'split {str, ubyte(value->string_data)} {_, value})
+	(call 'string 'split {str, ubyte(value->string_data)} {_, value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_split {this, value})
@@ -33,7 +33,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(split str char)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(split str char)", error_msg_wrong_types, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string 'string))
 

@@ -12,12 +12,12 @@
 
 	(push-scope)
 
-	(f-call 'sys_kernel 'id nil {id})
+	(call 'sys_kernel 'id nil {id})
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 
 	(loop-start)
 		;read parcel
-		(f-call 'sys_mail 'mymail nil {msg, data})
+		(call 'sys_mail 'mymail nil {msg, data})
 
 		;create next parcel id
 		(assign {mail_statics->ml_statics_parcel_id + 1} {mail_statics->ml_statics_parcel_id})
@@ -31,8 +31,8 @@
 			(vpif {len > lk_data_size})
 				(assign {lk_data_size} {len})
 			(endif)
-			(f-call 'sys_heap 'alloc {&mail_statics->ml_statics_msg_heap} {_, frag})
-			(f-call 'obj 'ref {msg->msg_parcel_obj} {frag->msg_parcel_obj})
+			(call 'sys_heap 'alloc {&mail_statics->ml_statics_msg_heap} {_, frag})
+			(call 'obj 'ref {msg->msg_parcel_obj} {frag->msg_parcel_obj})
 
 			;fill in fragment
 			(assign {len} {frag->msg_length})
@@ -53,11 +53,11 @@
 			(lh-add-at-tail head node tmp)
 
 			;let links get at some packets
-			(f-call 'sys_task 'yield)
+			(call 'sys_task 'yield)
 		(loop-untilnot {ammount})
 
 		;free parcel
-		(f-call 'sys_mail 'free {msg})
+		(call 'sys_mail 'free {msg})
 	(loop-end)
 
 	(pop-scope)

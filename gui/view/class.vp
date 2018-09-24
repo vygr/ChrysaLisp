@@ -21,7 +21,7 @@
 	(vpif '(r1 != 0))
 		;init myself
 		(vp-push r0)
-		(f-call 'sys_mem 'clear '((& r0 view_start) (sub view_size view_start)))
+		(call 'sys_mem 'clear '((& r0 view_start) (sub view_size view_start)))
 		(vp-pop r0)
 		(vp-cpy-cr view_flag_solid r1)
 		(vp-cpy-ri-i r1 r0 view_flags)
@@ -42,15 +42,15 @@
 	(vp-push r0)
 
 	;sub view from any parent
-	(f-call 'view 'sub '(r0))
+	(call 'view 'sub '(r0))
 
 	;deref any child views
 	(vp-cpy-ir rsp 0 r0)
 	(loop-list-forward r0 view_list r0 r1)
 		(vp-sub-cr view_node r0)
 		(vp-push r1)
-		(f-call 'view 'sub '(r0))
-		(f-call 'view 'deref '(r0))
+		(call 'view 'sub '(r0))
+		(call 'view 'deref '(r0))
 		(vp-pop r1)
 	(loop-end)
 
@@ -59,10 +59,10 @@
 	(vp-lea-i r0 view_dirty_region r1)
 	(f-bind 'gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
-	(f-call 'region 'free '(r0 r1))
+	(call 'region 'free '(r0 r1))
 	(vp-cpy-ir rsp 0 r1)
 	(vp-add-cr view_opaque_region r1)
-	(f-call 'region 'free '(r0 r1))
+	(call 'region 'free '(r0 r1))
 
 	;deinit parent
 	(vp-pop r0)
@@ -79,7 +79,7 @@
 
 	;remove from any existing parent
 	(vp-cpy-rr r0 r3)
-	(f-call 'view 'sub '(r1))
+	(call 'view 'sub '(r1))
 
 	;add to parent
 	(vp-cpy-ri r3 r0 hash_map_parent)
@@ -110,7 +110,7 @@
 	(vp-cpy-cr 1 r2)
 	(vp-cpy-ri-b r2 r0 gui_statics_dirty_flag)
 	(vp-add-cr gui_statics_rect_heap r0)
-	(f-call 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
+	(call 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -125,7 +125,7 @@
 
 	;remove from any existing parent
 	(vp-cpy-rr r0 r3)
-	(f-call 'view 'sub '(r1))
+	(call 'view 'sub '(r1))
 
 	;add to parent
 	(vp-cpy-ri r3 r0 hash_map_parent)
@@ -154,7 +154,7 @@
 	(vp-lea-i r0 view_opaque_region r1)
 	(f-bind 'gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
-	(f-call 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
+	(call 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -293,7 +293,7 @@
 	(vp-cpy-ir-i r0 view_h r12)
 
 	;set new info
-	(f-call 'view 'set_bounds '(r0 r7 r8 r9 r10))
+	(call 'view 'set_bounds '(r0 r7 r8 r9 r10))
 
 	;layout if changed size
 	(vpif '(r9 == r11))
@@ -301,7 +301,7 @@
 			(vp-ret)
 		(endif)
 	(endif)
-	(v-jmp 'view 'layout '(r0))
+	(jump 'view 'layout '(r0))
 
 (def-func-end)
 
@@ -314,7 +314,7 @@
 	;paste dirty region
 	(vp-cpy-ir-i r0 view_w r9)
 	(vp-cpy-ir-i r0 view_h r10)
-	(f-jmp 'view 'add_dirty '(r0 0 0 r9 r10))
+	(jump 'view 'add_dirty '(r0 0 0 r9 r10))
 
 (def-func-end)
 
@@ -326,10 +326,10 @@
 
 	;iterate through views
 	;dirty all
-	(f-jmp 'view 'forward_tree '(r0 r0 ($ dirty_down_callback) ($ null_up_callback)))
+	(jump 'view 'forward_tree '(r0 r0 ($ dirty_down_callback) ($ null_up_callback)))
 
 (vp-label 'dirty_down_callback)
-	(f-call 'view 'dirty '(r0) '(r1))
+	(call 'view 'dirty '(r0) '(r1))
 (vp-label 'null_up_callback)
 	(vp-ret)
 
@@ -351,8 +351,8 @@
 	(push-scope)
 	(f-entry 'view 'draw_panel {this, ctx, flags, depth})
 
-	(f-call 'view 'get_long_prop {this, prop_color} {_, col})
-	(f-call 'ctx 'panel {ctx, col, flags, depth, 0, 0, this->view_w, this->view_h})
+	(call 'view 'get_long_prop {this, prop_color} {_, col})
+	(call 'ctx 'panel {ctx, col, flags, depth, 0, 0, this->view_w, this->view_h})
 
 	(f-exit 'view 'draw_panel {this})
 	(pop-scope)
@@ -377,7 +377,7 @@
 	(f-entry 'view 'event '((rsp local_this) (rsp local_data)))
 
 	;find target view
-	(f-call 'view 'find_id '(r0 (r1 ev_msg_target_id)) '(_ r0))
+	(call 'view 'find_id '(r0 (r1 ev_msg_target_id)) '(_ r0))
 	(vpif '(r0 != 0))
 		;what type of event ?
 		(vp-cpy-ir rsp local_data r1)
@@ -391,30 +391,30 @@
 				;was down previously
 				(vpif '(r2 != 0))
 					;is down now, so move
-					(v-call 'view 'mouse_move '(r0 r1))
+					(call 'view 'mouse_move '(r0 r1))
 				(else)
 					;is not down now, so release
 					(vp-cpy-ri-i r2 r0 view_last_buttons)
-					(v-call 'view 'mouse_up '(r0 r1))
+					(call 'view 'mouse_up '(r0 r1))
 				(endif)
 			(else)
 				;was not down previously
 				(vpif '(r2 != 0))
 					;is down now, so first down
 					(vp-cpy-ri-i r2 r0 view_last_buttons)
-					(v-call 'view 'mouse_down '(r0 r1))
+					(call 'view 'mouse_down '(r0 r1))
 				(else)
 					;is not down now, so hover
-					(v-call 'view 'mouse_hover '(r0 r1))
+					(call 'view 'mouse_hover '(r0 r1))
 				(endif)
 			(endif)
 			(break)
 		(case '(r2 == ev_type_key))
 			(vp-cpy-ir-ui r1 ev_msg_key_keycode r2)
 			(vpif '(r2 >= 0))
-				(v-call 'view 'key_down '(r0 r1))
+				(call 'view 'key_down '(r0 r1))
 			(else)
-				(v-call 'view 'key_up '(r0 r1))
+				(call 'view 'key_up '(r0 r1))
 			(endif)
 		(endswitch)
 	(endif)
@@ -448,7 +448,7 @@
 	(vp-cpy-ri r1 rsp local_view)
 
 	;iterate through views front to back
-	(f-call 'view 'forward_tree '(r0 rsp ($ down_callback) ($ up_callback)))
+	(call 'view 'forward_tree '(r0 rsp ($ down_callback) ($ up_callback)))
 
 	(f-exit 'view 'find_id '((rsp local_this) (rsp local_view)))
 	(vp-free local_size)
@@ -726,7 +726,7 @@
 	(vp-cpy-ri r1 rsp local_hit)
 
 	;iterate through views front to back
-	(f-call 'view 'forward_tree '(r0 rsp ($ hit_down_callback) ($ hit_up_callback)))
+	(call 'view 'forward_tree '(r0 rsp ($ hit_down_callback) ($ hit_up_callback)))
 
 	(vp-cpy-ir rsp local_this r0)
 	(vp-cpy-ir rsp local_hit r1)
@@ -744,7 +744,7 @@
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-ir r1 local_hit r1)
 	(vpif '(r1 == 0))
-		(v-call 'view 'hit '(r0 r7 r8) '(r0 r1))
+		(call 'view 'hit '(r0 r7 r8) '(r0 r1))
 		(vpif '(r1 != 0))
 			(vp-cpy-ri r0 r2 local_hit)
 			(vp-ret)
@@ -766,12 +766,12 @@
 	;all but r0
 
 	;remove any opaque region
-	(f-call 'view 'sub_opaque '(r0 -1000000 -1000000 2000000 2000000))
+	(call 'view 'sub_opaque '(r0 -1000000 -1000000 2000000 2000000))
 
 	;paste opaque region
 	(vp-cpy-ir-i r0 view_w r9)
 	(vp-cpy-ir-i r0 view_h r10)
-	(f-jmp 'view 'add_opaque '(r0 0 0 r9 r10))
+	(jump 'view 'add_opaque '(r0 0 0 r9 r10))
 
 (def-func-end)
 
@@ -790,8 +790,8 @@
 	(push-scope)
 	(f-entry 'view 'pref_size {this})
 
-	(f-call 'view 'get_long_prop {this, prop_min_width} {_, mw})
-	(f-call 'view 'get_long_prop {this, prop_min_height} {_, mh})
+	(call 'view 'get_long_prop {this, prop_min_width} {_, mw})
+	(call 'view 'get_long_prop {this, prop_min_height} {_, mh})
 
 	(f-exit 'view 'pref_size {this, mw, mh})
 	(pop-scope)
@@ -853,7 +853,7 @@
 	(vp-lea-i r0 view_opaque_region r1)
 	(f-bind 'gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
-	(f-call 'region 'remove_rect '(r0 r1 r7 r8 r9 r10))
+	(call 'region 'remove_rect '(r0 r1 r7 r8 r9 r10))
 	(vp-pop r0)
 	(vp-ret)
 
@@ -871,9 +871,9 @@
 	(ln-is-first r0 view_node r1)
 	(vpif '(r1 != 0))
 		(vp-push r0)
-		(f-call 'view 'add_front '((r0 hash_map_parent) r0))
+		(call 'view 'add_front '((r0 hash_map_parent) r0))
 		(vp-pop r0)
-		(f-jmp 'view 'dirty_all '(r0))
+		(jump 'view 'dirty_all '(r0))
 	(endif)
 	(vp-ret)
 

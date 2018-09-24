@@ -21,16 +21,16 @@
 	(f-entry 'lisp 'func_save {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {value, name})
-	(f-call 'sys_pii 'open {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth} {handle})
+	(call 'sys_pii 'open {&name->string_data, o_creat | o_rdwr | o_trunc, s_irusr | s_iwusr | s_irgrp | s_iroth} {handle})
 	(errorif {handle < 3} 'error2)
-	(f-call 'sys_pii 'write {handle, &value->string_data, value->string_length})
-	(f-call 'sys_pii 'close {handle})
-	(f-call 'obj 'ref {value})
+	(call 'sys_pii 'write {handle, &value->string_data, value->string_length})
+	(call 'sys_pii 'close {handle})
+	(call 'obj 'ref {value})
 
 (vp-label 'exit)
 	(f-exit 'lisp 'func_save {this, value})
@@ -38,9 +38,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(save str path)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(save str path)", error_msg_wrong_types, args} {_, value})
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(save str path)", error_msg_open_error, args} {_, value})
+	(call 'lisp 'repl_error {this, "(save str path)", error_msg_open_error, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'string 'string))
 

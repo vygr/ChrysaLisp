@@ -18,19 +18,19 @@
 	(f-entry 'lisp 'func_elemset {this, args})
 
 (errorcases
-	(f-call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
+	(call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
 	(errorifnot {value} 'error1))
 
-	(f-call 'vector 'get_begin {args} {_, iter_begin})
+	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {value, seq})
-	(f-call 'integer 'get_value {value} {_, index})
+	(call 'integer 'get_value {value} {_, index})
 	(d-call 'vector 'get_length {seq} {_, length})
 	(vpif {index < 0})
 		(assign {length + index + 1} {index})
 	(endif)
 	(errorif {index < 0 || index >= length} 'error2)
-	(f-call 'obj 'ref {iter_begin[ptr_size * 2]} {value})
-	(f-call 'obj 'ref {value})
+	(call 'obj 'ref {iter_begin[ptr_size * 2]} {value})
+	(call 'obj 'ref {value})
 	(d-call 'vector 'set_element {seq, value, index})
 
 (vp-label 'exit)
@@ -39,9 +39,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(f-call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_wrong_types, args} {_, value})
 (vp-label 'error2)
-	(f-call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_not_valid_index, args} {_, value})
+	(call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_not_valid_index, args} {_, value})
 	(goto 'exit)
 	(signature 'sig 'integer 'vector 'obj))
 
