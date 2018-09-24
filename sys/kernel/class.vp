@@ -523,7 +523,7 @@
 	(union
 		'(struct 'service 'id)
 		'(ptr 'num))
-	(ptr 'lines 'line)
+	(ptr 'lines 'line 'lf 'sp)
 	(pulong 'iter)
 
 	(push-scope)
@@ -539,8 +539,9 @@
 		(call 'vector 'set_capacity {lines, 5 * 16 + 2})
 		(call 'string 'create_from_cstr {reg14} {line})
 		(call 'vector 'push_back {lines, line})
-		(call 'string 'create_from_cstr (list (char 10)) {line})
-		(call 'vector 'push_back {lines, line})
+		(call 'string 'create_from_cstr (list (char 10)) {lf})
+		(call 'vector 'push_back {lines, lf})
+		(call 'string 'create_from_cstr {" "} {sp})
 		(assign {&reg0} {iter})
 		(loop-start)
 			(call 'string 'create_from_long {(iter - &reg0) >> 3, 10} {num})
@@ -552,9 +553,9 @@
 			(call 'vector 'push_back {lines, line})
 			(call 'vector 'push_back {lines, num})
 			(vpif {(iter - &reg0) & 8})
-				(call 'string 'create_from_cstr (list (char 10)) {line})
+				(call 'string 'ref {lf} {line})
 			(else)
-				(call 'string 'create_from_cstr {" "} {line})
+				(call 'string 'ref {sp} {line})
 			(endif)
 			(call 'vector 'push_back {lines, line})
 			(assign {iter + ptr_size} {iter})
@@ -563,6 +564,7 @@
 		(call 'sys_kernel 'debug {&line->string_data})
 		(call 'vector 'deref {lines})
 		(call 'string 'deref {line})
+		(call 'string 'deref {sp})
 	(endif)
 
 	(assign {reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7,
