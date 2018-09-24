@@ -49,7 +49,7 @@
 	(vp-push r0)
 	(call 'array 'deref '((r0 button_click_targets)))
 	(vp-pop r0)
-	(s-jmp 'button 'deinit '(r0))
+	(s-jump 'button 'deinit '(r0))
 
 (def-func-end)
 

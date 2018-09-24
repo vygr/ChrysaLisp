@@ -41,7 +41,7 @@
 	(vp-pop r0)
 
 	;deinit parent
-	(s-jmp 'hash_map 'deinit '(r0))
+	(s-jump 'hash_map 'deinit '(r0))
 
 (def-func-end)
 

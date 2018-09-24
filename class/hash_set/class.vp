@@ -70,7 +70,7 @@
 	(vp-push r0)
 	(call 'vector 'deref '((r0 hash_set_buckets)))
 	(vp-pop r0)
-	(s-jmp 'hash_set 'deinit '(r0))
+	(s-jump 'hash_set 'deinit '(r0))
 
 (def-func-end)
 

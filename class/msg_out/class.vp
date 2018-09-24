@@ -69,7 +69,7 @@
 	;parent deinit
 	(exit 'msg_out 'deinit {this})
 	(pop-scope)
-	(s-jmp 'msg_out 'deinit '(r0))
+	(s-jump 'msg_out 'deinit '(r0))
 
 (def-func-end)
 

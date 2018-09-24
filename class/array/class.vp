@@ -20,7 +20,7 @@
 		(call 'sys_mem 'free '(r2))
 		(vp-cpy-rr r4 r0)
 	(endif)
-	(s-jmp 'array 'deinit '(r0))
+	(s-jump 'array 'deinit '(r0))
 
 (def-func-end)
 

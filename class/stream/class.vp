@@ -49,7 +49,7 @@
 	(vp-pop r0)
 
 	;parent deinit
-	(s-jmp 'stream 'deinit '(r0))
+	(s-jump 'stream 'deinit '(r0))
 
 (def-func-end)
 

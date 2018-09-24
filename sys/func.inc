@@ -98,7 +98,7 @@
 	(if (def? p) ((eval p))
 		(vp-call-p (link-sym (fn-find-link p)))))
 
-(defcfun fn-jmp (p)
+(defcfun fn-jump (p)
 	(if (def? p) (throw "Can't jump to inline function !" p)
 		(vp-jmp-p (link-sym (fn-find-link p)))))
 

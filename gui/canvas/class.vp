@@ -187,7 +187,7 @@
 	(vp-push r0)
 	(call 'sys_task 'callback '(r0 ($ callback)))
 	(vp-pop r0)
-	(s-jmp 'canvas 'deinit '(r0))
+	(s-jump 'canvas 'deinit '(r0))
 
 (vp-label 'callback)
 	;inputs
@@ -884,7 +884,7 @@
 	(breakif '(r7 >= r5))
 	(breakif '(r8 >= r6))
 		(call 'canvas 'to_premul '(r0 r1) '(_ r1))
-		(r-jmp 'canvas 'set_plot '(r0 r1 r7 r8 r9))
+		(r-jump 'canvas 'set_plot '(r0 r1 r7 r8 r9))
 	(endswitch)
 
 	(exit 'canvas 'plot '(r0))

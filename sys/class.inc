@@ -132,7 +132,7 @@
 	(cond
 		((eql (elem 1 m) 'static)
 			(assign _3 (elem 2 m))
-			(fn-jmp (elem 0 m)))
+			(fn-jump (elem 0 m)))
 		(t
 			(setd _4 r14)
 			(defq _ (elem 2 m))
@@ -235,9 +235,9 @@
 	;_3 = in parameters
 	(defq m (method-lookup _1 _2))
 	(unless (eql (elem 1 m) 'static)
-		(throw "Method is not static ! Use v-jmp ?" (list _1 _2)))
+		(throw "Method is not static ! Use v-jump ?" (list _1 _2)))
 	(assign _3 (elem 2 m))
-	(fn-jmp (elem 0 m)))
+	(fn-jump (elem 0 m)))
 
 (defcfun f-bind (_1 _2 _3)
 	;_1 = class name
@@ -261,7 +261,7 @@
 	(fn-call (elem 0 m))
 	(if _4 (assign (elem 3 m) _4)))
 
-(defcfun s-jmp (_1 _2 &optional _3)
+(defcfun s-jump (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -270,7 +270,7 @@
 		(unless (eql _2 'init)
 			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
 	(assign _3 (elem 2 m))
-	(fn-jmp (elem 0 m)))
+	(fn-jump (elem 0 m)))
 
 (defcfun s-bind (_1 _2 _3)
 	;_1 = class name
@@ -299,7 +299,7 @@
 	(vp-call-i _5 (elem 4 m))
 	(if _4 (assign (elem 3 m) _4)))
 
-(defcfun v-jmp (_1 _2 &optional _3 _4)
+(defcfun v-jump (_1 _2 &optional _3 _4)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -338,7 +338,7 @@
 	(fn-call (elem 0 m))
 	(if _4 (assign (elem 3 m) _4)))
 
-(defcfun d-jmp (_1 _2 &optional _3)
+(defcfun d-jump (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -346,7 +346,7 @@
 	(if (eql (elem 1 m) 'static)
 		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
 	(assign _3 (elem 2 m))
-	(fn-jmp (elem 0 m)))
+	(fn-jump (elem 0 m)))
 
 (defcfun d-bind (_1 _2 _3)
 	;_1 = class name
@@ -371,7 +371,7 @@
 	(vp-call-r _5)
 	(if _4 (assign (elem 3 m) _4)))
 
-(defcfun r-jmp (_1 _2 &optional _3 _4)
+(defcfun r-jump (_1 _2 &optional _3 _4)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters

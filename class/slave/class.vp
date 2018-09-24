@@ -104,6 +104,6 @@
 	;deinit parent
 	(exit 'slave 'deinit {this})
 	(pop-scope)
-	(s-jmp 'slave 'deinit '(r0))
+	(s-jump 'slave 'deinit '(r0))
 
 (def-func-end)

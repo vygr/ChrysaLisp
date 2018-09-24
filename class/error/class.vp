@@ -65,7 +65,7 @@
 	(vp-cpy-ir rsp 0 r0)
 	(call 'obj 'deref '((r0 error_object)))
 	(vp-pop r0)
-	(s-jmp 'error 'deinit '(r0))
+	(s-jump 'error 'deinit '(r0))
 
 (def-func-end)
 

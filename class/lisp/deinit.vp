@@ -21,6 +21,6 @@
 	;deinit parent
 	(exit 'lisp 'deinit {this})
 	(pop-scope)
-	(s-jmp 'lisp 'deinit '(r0))
+	(s-jump 'lisp 'deinit '(r0))
 
 (def-func-end)

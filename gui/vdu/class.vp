@@ -48,7 +48,7 @@
 
 	;deinit parent
 	(vp-pop r0)
-	(s-jmp 'vdu 'deinit '(r0))
+	(s-jump 'vdu 'deinit '(r0))
 
 (def-func-end)
 

@@ -49,6 +49,6 @@
 	;deinit parent
 	(exit 'pipe 'deinit {this})
 	(pop-scope)
-	(s-jmp 'pipe 'deinit '(r0))
+	(s-jump 'pipe 'deinit '(r0))
 
 (def-func-end)

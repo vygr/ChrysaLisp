@@ -16,7 +16,7 @@
 	(vp-cpy-ir rsp 0 r0)
 	(call 'obj 'deref '((r0 pair_second)))
 	(vp-pop r0)
-	(s-jmp 'pair 'deinit '(r0))
+	(s-jump 'pair 'deinit '(r0))
 
 (def-func-end)
 

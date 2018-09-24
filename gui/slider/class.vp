@@ -48,7 +48,7 @@
 	(vp-push r0)
 	(call 'array 'deref '((r0 slider_value_targets)))
 	(vp-pop r0)
-	(s-jmp 'slider 'deinit '(r0))
+	(s-jump 'slider 'deinit '(r0))
 
 (def-func-end)
 

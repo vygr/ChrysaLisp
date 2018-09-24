@@ -11,7 +11,7 @@
 	;all but r0
 
 	(d-call 'vector 'clear '(r0) '(r0))
-	(s-jmp 'vector 'deinit '(r0))
+	(s-jump 'vector 'deinit '(r0))
 
 (def-func-end)
 

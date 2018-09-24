@@ -65,7 +65,7 @@
 	;parent deinit
 	(exit 'msg_in 'deinit {this})
 	(pop-scope)
-	(s-jmp 'msg_in 'deinit '(r0))
+	(s-jump 'msg_in 'deinit '(r0))
 
 (def-func-end)
 

@@ -46,7 +46,7 @@
 
 	;deinit parent
 	(vp-pop r0)
-	(s-jmp 'text 'deinit '(r0))
+	(s-jump 'text 'deinit '(r0))
 
 (def-func-end)
 

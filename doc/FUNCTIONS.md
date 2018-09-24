@@ -94,7 +94,7 @@ Load register with external function address via the local Vtable.
 
 Call external function address indirectly via the local Vtable.
 
-### fn-jmp
+### fn-jump
 
 Jump to external function address indirectly via the local Vtable.
 
@@ -104,7 +104,7 @@ Jump to external function address indirectly via the local Vtable.
 
 Call method statically.
 
-### f-jmp
+### f-jump
 
 Jump to method statically.
 
@@ -116,7 +116,7 @@ Bind to method statically.
 
 Super call method statically.
 
-### s-jmp
+### s-jump
 
 Super jump to method statically.
 
@@ -128,7 +128,7 @@ Super bind to method statically.
 
 Virtual call method.
 
-### v-jmp
+### v-jump
 
 Virtual jump to method.
 
@@ -140,7 +140,7 @@ Virtual bind to method.
 
 De-Virtualise call method.
 
-### d-jmp
+### d-jump
 
 De-Virtualise jump to method.
 
