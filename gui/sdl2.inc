@@ -41,8 +41,7 @@
 	;_4 = out parameters
 	;_5 = dispatch reg
 	(setd _5 r14)
-	(bind '(v m) (virtual-method-lookup _1 _2 0))
-	(defq x (list) s (elem 2 m))
+	(defq m (method-lookup _1 _2) x (list) s (elem 2 m))
 	(if (eql (elem 1 m) 'static)
 		(throw "Abi methods must be virtual !" (list _1 _2)))
 	(if (find _5 s)
@@ -52,7 +51,7 @@
 		(setq x (reduce-rev (lambda (x y) (push x y)) (slice la ls s) (list))))
 	(f-bind 'gui 'statics _5)
 	(vp-cpy-ir _5 gui_statics_sdl_funcs _5)
-	(vp-call-abi _5 v x)
+	(vp-call-abi _5 (sub (elem 4 m) ptr_size) x)
 	(if _4 (assign (elem 3 m) _4)))
 
 (defcvar 'SDL_INIT_TIMER 0x00000001)
