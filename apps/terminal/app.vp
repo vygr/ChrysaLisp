@@ -75,7 +75,7 @@
 
 			;output from a pipe element
 			(call 'vector 'get_element {myapp.local_pipe->pipe_streams, index} {_, stream})
-			(l-call 'pipe_output {&myapp, stream} {state})
+			(call 'pipe_output {&myapp, stream} {state})
 			(vpif {state == -1})
 				;EOF
 				(call 'pipe 'deref {myapp.local_pipe})
@@ -92,7 +92,7 @@
 			(breakifnot {data->ev_msg_target_id} loopexit)
 			(call 'view 'event {myapp.local_window, data})
 			(vpif {data->ev_msg_type == ev_type_key && data->ev_msg_key_keycode > 0})
-				(l-call 'terminal_input {&myapp, data->ev_msg_key_key})
+				(call 'terminal_input {&myapp, data->ev_msg_key_key})
 			(endif)
 			(call 'sys_mail 'free {msg})
 		(endif)
@@ -123,7 +123,7 @@
 	(loop-start)
 		(call 'stream 'read_char {stream} {_, char})
 		(breakif {char == -1})
-		(l-call 'terminal_output {local, char})
+		(call 'terminal_output {local, char})
 		(call 'stream 'read_ready {stream} {_, ready})
 	(loop-untilnot {ready})
 
@@ -144,7 +144,7 @@
 	(entry {local, char})
 
 	;echo char to terminal
-	(l-call 'terminal_output {local, char})
+	(call 'terminal_output {local, char})
 
 	;buffer char
 	(assign {char} {*local->local_bufp})
@@ -208,7 +208,7 @@
 				(call 'sys_mem 'copy {&string->string_data, &local->local_buffer, string->string_length} {_, local->local_bufp})
 				(call 'stream 'create {string, 0, &string->string_data, string->string_length} {stream})
 				(call 'vdu 'print_char {local->local_vdu, char_gt})
-				(l-call 'pipe_output {local, stream})
+				(call 'pipe_output {local, stream})
 				(call 'stream 'deref {stream})
 			(endif)
 		(endif)
@@ -228,7 +228,7 @@
 			(call 'sys_mem 'copy {&string->string_data, &local->local_buffer, string->string_length} {_, local->local_bufp})
 			(call 'stream 'create {string, 0, &string->string_data, string->string_length} {stream})
 			(call 'vdu 'print_char {local->local_vdu, char_gt})
-			(l-call 'pipe_output {local, stream})
+			(call 'pipe_output {local, stream})
 			(call 'stream 'deref {stream})
 		(endif)
 	(elseif {char == char_esc})

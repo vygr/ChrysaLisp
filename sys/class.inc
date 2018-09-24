@@ -10,7 +10,7 @@
 (defmacro super-sym (_)
 	`(sym-cat "_super_" ,_))
 
-(defcvar '*class* nil (class-sym 'null) (list '() '() 0) '*args* (list))
+(defcvar '*class* nil (class-sym 'null) '(()()0) '*args* (list))
 (each (lambda (_) (push *args* (list))) (range 0 16))
 
 (defcfun intern-args (l)
@@ -107,21 +107,37 @@
 	;_3 = in parameters
 	;_4 = out parameters
 	;_5 = dispatch reg
-	(defq m (method-lookup _1 _2))
 	(cond
-		((eql (elem 1 m) 'static)
-			(assign _3 (elem 2 m))
-			(fn-call (elem 0 m))
-			(if _4 (assign (elem 3 m) _4)))
+		((sym? _2)
+			(defq m (method-lookup _1 _2))
+			(cond
+				;f-call
+				((eql (elem 1 m) 'static)
+					(assign _3 (elem 2 m))
+					(fn-call (elem 0 m))
+					(if _4 (assign (elem 3 m) _4)))
+				;v-call
+				(t
+					(setd _5 r14)
+					(defq _ (elem 2 m))
+					(if (find _5 _)
+						(throw "Dispatch register conflicts with arg !" (list _5 _)))
+					(assign _3 _)
+					(vp-cpy-ir r0 obj_vtable _5)
+					(vp-call-i _5 (elem 4 m))
+					(if _4 (assign (elem 3 m) _4)))))
 		(t
-			(setd _5 r14)
-			(defq _ (elem 2 m))
-			(if (find _5 _)
-				(throw "Dispatch register conflicts with arg !" (list _5 _)))
-			(assign _3 _)
-			(vp-cpy-ir r0 obj_vtable _5)
-			(vp-call-i _5 (elem 4 m))
-			(if _4 (assign (elem 3 m) _4)))))
+			;l-call
+			(defq _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+			(cond
+				((not _2))
+				((str? _2) (assign _2 (slice 0 (length (split _2 ",")) _)))
+				(t (assign _2 (slice 0 (length _2) _))))
+			(vp-call _1)
+			(cond
+				((not _3))
+				((str? _3) (assign (slice 0 (length (split _3 ",")) _) _3))
+				(t (assign (slice 0 (length _3) _) _3))))))
 
 (defcfun jump (_1 _2 &optional _3 _4)
 	;_1 = class name

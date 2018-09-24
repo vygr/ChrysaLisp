@@ -137,7 +137,7 @@
 				(vpifnot {service})
 					(call 'sys_mail 'declare {&data->kn_msg_declare_name, data->kn_msg_reply_id.id_id})
 					;copy and send to all neighbors apart from old via
-					(l-call 'flood {mail_statics, msg, data, id})
+					(call 'flood {mail_statics, msg, data, id})
 				(endif)
 				(vp-jmp 'drop_msg)
 			(case {num == kn_call_route})
@@ -207,7 +207,7 @@
 				(assign {data->kn_msg_route_hops + 1} {data->kn_msg_route_hops})
 
 				;copy and send to all neighbors apart from old via
-				(l-call 'flood {mail_statics, msg, data, id})
+				(call 'flood {mail_statics, msg, data, id})
 			(vp-label 'drop_msg)
 				(call 'sys_mail 'free {msg})
 				(break)

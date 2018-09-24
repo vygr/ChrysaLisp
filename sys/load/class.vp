@@ -285,7 +285,7 @@
 		(vp-add-rr r3 r1)
 		(breakif '(r0 == r1))
 		(vp-push r3 r0)
-		(l-call 'func_entry '((r0 0)))
+		(call 'func_entry '((r0 0)))
 		(vpif '(r0 == 0))
 			;no such file
 			(call 'sys_pii 'write_str '(2 "Bind error: "))

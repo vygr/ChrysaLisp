@@ -28,7 +28,7 @@
 	(errorifnot {value} 'error1))
 
 	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
-	(assign {65536} {accum})
+	(assign {1 << fp_shift} {accum})
 	(loop-start)
 		(call 'integer 'get_value {*iter_begin} {_, num})
 		(assign {accum *> num} {accum})

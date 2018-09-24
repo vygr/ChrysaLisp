@@ -44,9 +44,9 @@
 	(call 'sys_mail 'send {msg})
 
 	;sign on
-	(l-call 'terminal_output_cstr {"ChrysaLisp Terminal 1.3"})
-	(l-call 'terminal_output_char {char_lf})
-	(l-call 'terminal_output_char {char_gt})
+	(call 'terminal_output_cstr {"ChrysaLisp Terminal 1.3"})
+	(call 'terminal_output_char {char_lf})
+	(call 'terminal_output_char {char_gt})
 
 	;app event loop
 	(loop-start)
@@ -59,19 +59,19 @@
 
 			;output from a pipe element
 			(call 'vector 'get_element {local.local_pipe->pipe_streams, index} {_, stream})
-			(l-call 'pipe_output {&local, stream} {state})
+			(call 'pipe_output {&local, stream} {state})
 			(vpif {state == -1})
 				;EOF
 				(call 'pipe 'deref {local.local_pipe})
 				(assign {0} {local.local_pipe})
-				(l-call 'terminal_output_char {char_lf})
-				(l-call 'terminal_output_char {char_gt})
+				(call 'terminal_output_char {char_lf})
+				(call 'terminal_output_char {char_gt})
 			(endif)
 		(else)
 		(vp-label 'from_mymailbox)
 			;dispatch event to terminal
 			(call 'sys_mail 'read {mbox_addr} {msg, data})
-			(l-call 'terminal_input {&local, data->stdin_msg_char})
+			(call 'terminal_input {&local, data->stdin_msg_char})
 			(call 'sys_mail 'free {msg})
 		(endif)
 		(call 'sys_task 'yield)
@@ -98,7 +98,7 @@
 	(loop-start)
 		(call 'stream 'read_char {stream} {_, char})
 		(breakif {char == -1})
-		(l-call 'terminal_output_char {char})
+		(call 'terminal_output_char {char})
 		(call 'stream 'read_ready {stream} {_, ready})
 	(loop-untilnot {ready})
 
@@ -119,7 +119,7 @@
 	(entry {local, char})
 
 	;echo char to terminal
-;	(l-call 'terminal_output {local, char})
+;	(call 'terminal_output {local, char})
 
 	;buffer char
 	(assign {char} {*local->local_bufp})
@@ -135,7 +135,7 @@
 				(call 'pipe 'create {&local->local_buffer, length} {local->local_pipe})
 				(breakif {local->local_pipe})
 			(default)
-				(l-call 'terminal_output_char {char_gt})
+				(call 'terminal_output_char {char_gt})
 			(endswitch)
 		(else)
 			;feed active pipe
@@ -199,7 +199,7 @@
 
 	;print chars
 	(loop-while {*charp})
-		(l-call 'terminal_output_char {*charp})
+		(call 'terminal_output_char {*charp})
 		(assign {charp + 1} {charp})
 	(loop-end)
 

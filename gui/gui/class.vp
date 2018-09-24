@@ -193,7 +193,7 @@
 			(assign {owner->tk_node_mbox_id} {user->local_key_mbox_id})
 
 			;cook key based on mods (very crude for now)
-			(l-call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,
+			(call 'cook_key {event.sdl_keyboard_event_keysym.sdl_keysym_sym,
 				event.sdl_keyboard_event_keysym.sdl_keysym_mod} {key})
 			
 			;send event message
