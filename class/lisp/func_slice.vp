@@ -17,7 +17,7 @@
 		'(int 'length 'start 'end))
 
 	(push-scope)
-	(f-entry 'lisp 'func_slice {this, args})
+	(entry 'lisp 'func_slice {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 3} {_, value1})
@@ -38,17 +38,17 @@
 	(errorif {start > end || start < 0 || end > length} 'error2)
 	(call 'sequence 'slice {slc, start, end} {_, value1})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_slice {this, value1})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_slice {this, value1})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(slice start end seq)", error_msg_wrong_types, args} {_, value1})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(slice start end seq)", error_msg_not_valid_index, args} {_, value1})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'integer 'integer 'sequence))
 
 	(pop-scope-syms)

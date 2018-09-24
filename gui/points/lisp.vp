@@ -15,7 +15,7 @@
 	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4)
 
 	(push-scope)
-	(f-entry 'points 'lisp_transform {this, args})
+	(entry 'points 'lisp_transform {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 5} {_, value})
@@ -25,14 +25,14 @@
 	(call 'points 'transform {arg0, arg1, arg2, arg3, arg4})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'points 'lisp_transform {this, value})
+(vp-label 'funcexit)
+	(exit 'points 'lisp_transform {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(points-transform dst src m1 m2 tr)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'points 'points 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -51,7 +51,7 @@
 	(ulong 'arg0 'arg1 'arg2 'arg3)
 
 	(push-scope)
-	(f-entry 'points 'lisp_simplify {this, args})
+	(entry 'points 'lisp_simplify {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
@@ -61,14 +61,14 @@
 	(call 'points 'simplify {arg0, arg1, arg2, arg3})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'points 'lisp_simplify {this, value})
+(vp-label 'funcexit)
+	(exit 'points 'lisp_simplify {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(points-simplify dst src stack tol)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'points 'points 'array 'integer))
 
 	(pop-scope-syms)
@@ -87,7 +87,7 @@
 	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5)
 
 	(push-scope)
-	(f-entry 'points 'lisp_gen_quadratic {this, args})
+	(entry 'points 'lisp_gen_quadratic {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 6} {_, value})
@@ -97,14 +97,14 @@
 	(call 'points 'gen_quadratic {arg0, arg1, arg2, arg3, arg4, arg5})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'points 'lisp_gen_quadratic {this, value})
+(vp-label 'funcexit)
+	(exit 'points 'lisp_gen_quadratic {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(points-gen-quadratic dst stack p1 p2 p3 tol)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'points 'array 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -123,7 +123,7 @@
 	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6)
 
 	(push-scope)
-	(f-entry 'points 'lisp_gen_cubic {this, args})
+	(entry 'points 'lisp_gen_cubic {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 7} {_, value})
@@ -133,14 +133,14 @@
 	(call 'points 'gen_cubic {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'points 'lisp_gen_cubic {this, value})
+(vp-label 'funcexit)
+	(exit 'points 'lisp_gen_cubic {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(points-gen-cubic dst stack p1 p2 p3 p4 tol)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'points 'array 'integer 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -159,7 +159,7 @@
 	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6)
 
 	(push-scope)
-	(f-entry 'points 'lisp_gen_arc {this, args})
+	(entry 'points 'lisp_gen_arc {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 7} {_, value})
@@ -169,14 +169,14 @@
 	(call 'points 'gen_arc {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'points 'lisp_gen_arc {this, value})
+(vp-label 'funcexit)
+	(exit 'points 'lisp_gen_arc {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(points-gen-arc dst stack center start end radius tol)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'points 'array 'integer 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -195,7 +195,7 @@
 	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7)
 
 	(push-scope)
-	(f-entry 'points 'lisp_stroke_polylines {this, args})
+	(entry 'points 'lisp_stroke_polylines {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 8} {_, value})
@@ -205,14 +205,14 @@
 	(call 'points 'stroke_polylines {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'points 'lisp_stroke_polylines {this, value})
+(vp-label 'funcexit)
+	(exit 'points 'lisp_stroke_polylines {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(points-stroke-polylines dst stack src join cap1 cap2 radius tol)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'vector 'array 'vector 'integer 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -231,7 +231,7 @@
 	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5)
 
 	(push-scope)
-	(f-entry 'points 'lisp_stroke_polygons {this, args})
+	(entry 'points 'lisp_stroke_polygons {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 6} {_, value})
@@ -241,14 +241,14 @@
 	(call 'points 'stroke_polygons {arg0, arg1, arg2, arg3, arg4, arg5})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'points 'lisp_stroke_polygons {this, value})
+(vp-label 'funcexit)
+	(exit 'points 'lisp_stroke_polygons {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(points-stroke-polygons dst stack src join radius tol)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'vector 'array 'vector 'integer 'integer 'integer))
 
 	(pop-scope-syms)

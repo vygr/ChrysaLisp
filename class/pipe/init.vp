@@ -26,7 +26,7 @@
 
 	;read init args
 	(push-scope)
-	(f-entry 'pipe 'init {this, vtable, buffer, length})
+	(entry 'pipe 'init {this, vtable, buffer, length})
 
 	;init parent
 	(s-call 'pipe 'init {this, vtable} {_, ok})
@@ -163,7 +163,7 @@
 		(pop-scope)
 	(endif)
 
-	(f-exit 'pipe 'init {this, ok})
+	(exit 'pipe 'init {this, ok})
 	(pop-scope)
 	(return)
 

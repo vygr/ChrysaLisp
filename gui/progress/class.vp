@@ -20,7 +20,7 @@
 
 	;save inputs
 	(push-scope)
-	(f-entry 'progress 'draw {this, ctx})
+	(entry 'progress 'draw {this, ctx})
 
 	;get properties
 	(call 'progress 'get_long_prop {this, prop_maximum} {_, max})
@@ -43,7 +43,7 @@
 	(call 'ctx 'set_color {ctx, col})
 	(call 'ctx 'filled_box {ctx, infill + 1, 1, width - 2 - infill, height - 2})
 
-	(f-exit 'progress 'draw {this})
+	(exit 'progress 'draw {this})
 	(pop-scope)
 	(return)
 
@@ -58,8 +58,8 @@
 	;trashes
 	;all but r0
 
-	(f-entry 'progress 'pref_size '(r0))
-	(f-exit 'progress 'pref_size '(r0 256 10))
+	(entry 'progress 'pref_size '(r0))
+	(exit 'progress 'pref_size '(r0 256 10))
 	(vp-ret)
 
 (def-func-end)

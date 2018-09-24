@@ -15,7 +15,7 @@
 	(ptr 'this 'form 'value 'func 'args)
 
 	(push-scope)
-	(f-entry 'lisp 'repl_eval {this, form})
+	(entry 'lisp 'repl_eval {this, form})
 
 	;evaluate based on type
 	(assign {form->obj_vtable} {func})
@@ -30,7 +30,7 @@
 		(errorifnot {form->array_length} 'error1)
 		(call 'vector 'get_first {form} {_, func})
 		(call 'lisp 'repl_eval {this, func} {_, value})
-		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit)
+		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'funcexit)
 		(assign {value} {func})
 		(switch)
 		(case (cat {func->obj_vtable == @} (f-path 'function 'vtable)))
@@ -54,17 +54,17 @@
 		(call 'obj 'ref {form} {value})
 	(endswitch)
 
-(vp-label 'exit)
-	(f-exit 'lisp 'repl_eval {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'repl_eval {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_not_a_lambda, form} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(eval form [env])", error_msg_symbol_not_bound, form} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

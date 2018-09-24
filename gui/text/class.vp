@@ -65,7 +65,7 @@
 
 	;save inputs
 	(push-scope)
-	(f-entry 'text 'draw {this, ctx})
+	(entry 'text 'draw {this, ctx})
 
 	;get properties, do checks for any changes
 	(call 'text 'get_long_prop {this, prop_text_color} {_, col})
@@ -92,7 +92,7 @@
 		(loop-until {words == words_end})
 	(endif)
 
-	(f-exit 'text 'draw {this})
+	(exit 'text 'draw {this})
 	(pop-scope)
 	(return)
 
@@ -113,7 +113,7 @@
 
 	;save inputs
 	(push-scope)
-	(f-entry 'text 'pref_size {this})
+	(entry 'text 'pref_size {this})
 
 	;get properties, do checks for any changes
 	(call 'text 'get_prop {this, prop_font} {_, font})
@@ -138,7 +138,7 @@
 		(assign {width + (length - 1) * (height >> 2)} {width})
 	(endif)
 
-	(f-exit 'text 'pref_size {this, width, height})
+	(exit 'text 'pref_size {this, width, height})
 	(pop-scope)
 	(return)
 
@@ -153,13 +153,13 @@
 	(ptr 'this)
 
 	(push-scope)
-	(f-entry 'text 'switch_text {this})
+	(entry 'text 'switch_text {this})
 
 	;create new split words
 	(call 'vector 'deref_if {this->text_words})
 	(call 'string 'split {this->text_string, char_space} {_, this->text_words})
 
-	(f-entry 'text 'switch_text {this})
+	(entry 'text 'switch_text {this})
 	(pop-scope)
 	(return)
 

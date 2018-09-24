@@ -16,7 +16,7 @@
 	(uint 'index_vars 'index_vals 'len_vars 'len_vals 'state)
 
 	(push-scope)
-	(f-entry 'lisp 'env_bind {this, vars, vals})
+	(entry 'lisp 'env_bind {this, vars, vals})
 
 (errorcases
 	(errorif (cat {vars->obj_vtable != @} (f-path 'vector 'vtable)) 'error1)
@@ -62,30 +62,30 @@
 			(assign {index_vars + 1, index_vals + 1} {index_vars, index_vals})
 			(call 'lisp 'env_bind {this, symbol, args} {_, value})
 			(call 'obj 'deref {args})
-			(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit)
+			(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'funcexit)
 		(endif)
 	(loop-end)
 	(errorif {index_vals != len_vals} 'error4)
 
-(vp-label 'exit)
-	(f-exit 'lisp 'env_bind {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'env_bind {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_not_a_list, vars} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_not_a_sequence, vals} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error3)
 	(call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_not_a_symbol, vars} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error4)
 	(call 'obj 'deref {value})
 (vp-label 'error)
 	(call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_wrong_num_of_args, vals} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

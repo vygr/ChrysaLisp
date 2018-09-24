@@ -17,7 +17,7 @@
 	(int 'eps)
 
 	(push-scope)
-	(f-entry 'points 'filter_polygon {this, that, eps})
+	(entry 'points 'filter_polygon {this, that, eps})
 
 	(call 'points 'filter_polyline {this, that, eps})
 	(call 'points 'get_iters {this} {_, iter_begin, iter_end})
@@ -38,7 +38,7 @@
 		(endif)
 	(endif)
 
-	(f-exit 'points 'filter_polygon {this})
+	(exit 'points 'filter_polygon {this})
 	(pop-scope)
 	(return)
 

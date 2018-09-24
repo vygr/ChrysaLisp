@@ -16,7 +16,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'sys_kernel 'lisp_total {this, args})
+	(entry 'sys_kernel 'lisp_total {this, args})
 
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
@@ -25,14 +25,14 @@
 	(call 'sys_kernel 'total nil {length})
 	(call 'integer 'create {length} {value})
 
-(vp-label 'exit)
-	(f-exit 'sys_kernel 'lisp_total {this, value})
+(vp-label 'funcexit)
+	(exit 'sys_kernel 'lisp_total {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(kernel-total)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 
@@ -50,7 +50,7 @@
 	(ulong 'arg0 'arg1)
 
 	(push-scope)
-	(f-entry 'sys_kernel 'lisp_declare {this, args})
+	(entry 'sys_kernel 'lisp_declare {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
@@ -60,14 +60,14 @@
 	(call 'sys_kernel 'declare {&arg0->string_data, arg1})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'sys_kernel 'lisp_declare {this, value})
+(vp-label 'funcexit)
+	(exit 'sys_kernel 'lisp_declare {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(kernel-declare name mbox)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'string 'integer))
 
 	(pop-scope-syms)
@@ -86,7 +86,7 @@
 	(ulong 'arg0)
 
 	(push-scope)
-	(f-entry 'sys_kernel 'lisp_debug {this, args})
+	(entry 'sys_kernel 'lisp_debug {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
@@ -96,14 +96,14 @@
 	(call 'sys_kernel 'debug {&arg0->string_data})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'sys_kernel 'lisp_debug {this, value})
+(vp-label 'funcexit)
+	(exit 'sys_kernel 'lisp_debug {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(kernel-debug str)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

@@ -17,7 +17,7 @@
 	;r1-r6
 
 	;save size of data
-	(f-entry 'string 'create_from_buffer '(r5 r6))
+	(entry 'string 'create_from_buffer '(r5 r6))
 
 	;create new string object
 	(call 'string 'new '((& r1 (add string_size byte_size))) '(r0))
@@ -57,14 +57,14 @@
 	;r1-r6
 
 	;save c string pointer
-	(f-entry 'string 'create_from_file '(r5))
+	(entry 'string 'create_from_file '(r5))
 
 	;get size of string from file size
 	(f-bind 'sys_load 'statics r6)
 	(vp-cpy-ir r6 ld_statics_stat_buffer r6)
 	(call 'sys_pii 'stat '(r0 r6) '(r0))
 	(vpif '(r0 != 0))
-	(vp-label 'exit)
+	(vp-label 'funcexit)
 		;no such file
 		(vp-xor-rr r0 r0)
 		(vp-ret)
@@ -73,7 +73,7 @@
 	;test for regular file only
 	(vp-cpy-ir-us r6 stat_mode r0)
 	(vp-and-cr s_ifmt r0)
-	(gotoif '(r0 != s_ifreg) 'exit)
+	(gotoif '(r0 != s_ifreg) 'funcexit)
 
 	;create new string object
 	(vp-cpy-ir r6 stat_fsize r1)
@@ -105,7 +105,7 @@
 	(long 'num 'base)
 
 	(push-scope)
-	(f-entry 'string 'create_from_long {num, base})
+	(entry 'string 'create_from_long {num, base})
 
 	(assign (cat "@" (f-path 'sys_load 'statics)) {reloc})
 	(assign {reloc->ld_statics_reloc_buffer} {reloc})
@@ -118,7 +118,7 @@
 	(call 'sys_string 'from_long {num, buffer, base})
 	(call 'string 'create_from_cstr {reloc} {this})
 
-	(f-exit 'string 'create_from_long {this})
+	(exit 'string 'create_from_long {this})
 	(pop-scope)
 	(return)
 
@@ -335,7 +335,7 @@
 	;r1-r6
 
 	;save inputs
-	(f-entry 'string 'append '(r5 r6))
+	(entry 'string 'append '(r5 r6))
 
 	;get size of strings
 	(vp-cpy-ir-ui r0 string_length r0)
@@ -419,7 +419,7 @@
 	;trashes
 	;r2-r7
 
-	(switch 'exit)
+	(switch 'lbreak)
 		(vpif '(r0 != r1))
 			(vp-cpy-ir-ui r0 string_length r2)
 			(vp-cpy-ir-ui r1 string_length r3)
@@ -432,7 +432,7 @@
 					(vp-cpy-dr-ub r4 r6 r1)
 					(vp-cpy-dr-ub r5 r6 r7)
 					(vp-sub-rr r7 r1)
-					(breakif '(r1 != 0) exit)
+					(breakif '(r1 != 0) lbreak)
 					(vp-add-cr byte_size r6)
 					(breakif '(r6 == r2))
 				(loop-until '(r6 == r3))
@@ -457,7 +457,7 @@
 	;trashes
 	;r2-r6
 
-	(switch 'exit)
+	(switch 'lbreak)
 		(vpif '(r0 != r1) 'same)
 			(vp-cpy-ir-ui r0 string_length r2)
 			(vp-cpy-ir-ui r1 string_length r3)
@@ -476,7 +476,7 @@
 							(vp-cpy-ir-b r4 0 r6)
 							(vp-cpy-ir-b r5 0 r1)
 							(vp-sub-rr r6 r1)
-							(breakif '(r1 != 0) exit)
+							(breakif '(r1 != 0) lbreak)
 							(vp-add-cr byte_size r4)
 							(vp-add-cr byte_size r5)
 						(loop-until '(r4 == r3))
@@ -488,12 +488,12 @@
 							(vp-cpy-ir r4 0 r6)
 							(vp-cpy-ir r5 0 r1)
 							(vp-sub-rr r6 r1)
-							(breakif '(r1 != 0) exit)
+							(breakif '(r1 != 0) lbreak)
 							(vp-add-cr long_size r4)
 							(vp-add-cr long_size r5)
 						(loop-until '(r4 == r3))
 					(endif)
-					(breakif '(r4 == r2) exit)
+					(breakif '(r4 == r2) lbreak)
 				(endif)
 				(loop-start)
 					(vp-cpy-ir-b r4 0 r6)
@@ -622,14 +622,14 @@
 
 	;save inputs
 	(push-scope)
-	(f-entry 'string 'split {this, char})
+	(entry 'string 'split {this, char})
 
 	;create string split
 	(call 'stream 'create {0, 0, &this->string_data, this->string_length} {stream})
 	(call 'stream 'split {stream, char} {_, splits})
 	(call 'stream 'deref {stream})
 
-	(f-exit 'string 'split {this, splits})
+	(exit 'string 'split {this, splits})
 	(pop-scope)
 	(return)
 

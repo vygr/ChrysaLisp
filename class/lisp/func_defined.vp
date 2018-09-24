@@ -15,7 +15,7 @@
 	(ptr 'this 'args 'value)
 
 	(push-scope)
-	(f-entry 'lisp 'func_defined {this, args})
+	(entry 'lisp 'func_defined {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
@@ -29,14 +29,14 @@
 		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_defined {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_defined {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(def? var)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'symbol))
 
 	(pop-scope-syms)

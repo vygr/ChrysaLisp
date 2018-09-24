@@ -11,7 +11,7 @@
 	(uint 'len)
 
 	(push-scope)
-	(f-entry 'sys_mail 'in {rx_msg})
+	(entry 'sys_mail 'in {rx_msg})
 
 	;look up parcel in mailbox
 	(call 'sys_mail 'mbox_addr {rx_msg->lk_msg_stamp.msg_dest.id_mbox} {mbox_addr})

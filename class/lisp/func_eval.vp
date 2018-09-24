@@ -14,7 +14,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'lisp 'func_eval {this, args})
+	(entry 'lisp 'func_eval {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(vpif {length == 1})
@@ -33,17 +33,17 @@
 		(assign {old} {this->lisp_environment})
 	(endif)
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_eval {this, args})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_eval {this, args})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(eval form [env])", error_msg_wrong_num_of_args, args} {_, args})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(eval form [env])", error_msg_not_an_environment, args} {_, args})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

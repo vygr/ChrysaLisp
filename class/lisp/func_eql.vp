@@ -16,7 +16,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'lisp 'func_eql {this, args})
+	(entry 'lisp 'func_eql {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
@@ -40,14 +40,14 @@
 	(endswitch)
 	(call 'obj 'ref {value})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_eql {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_eql {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(eql form form)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

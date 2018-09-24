@@ -15,7 +15,7 @@
 	(uint 'length))
 
 	(push-scope)
-	(f-entry 'lisp 'func_catch {this, args})
+	(entry 'lisp 'func_catch {this, args})
 
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
@@ -36,14 +36,14 @@
 		(endif)
 	(endif)
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_catch {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_catch {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(catch form eform)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

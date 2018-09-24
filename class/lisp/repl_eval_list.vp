@@ -13,21 +13,21 @@
 	(pptr 'iter_begin 'iter_end)
 
 	(push-scope)
-	(f-entry 'lisp 'repl_eval_list {this, value})
+	(entry 'lisp 'repl_eval_list {this, value})
 
 	(call 'vector 'get_iters {value} {_, iter_begin, iter_end})
 	(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(loop-while {iter_begin != iter_end})
 		(call 'obj 'deref {value})
 		(call 'lisp 'repl_eval {this, *iter_begin} {_, value})
-		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit)
+		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'funcexit)
 		(call 'obj 'deref {*iter_begin})
 		(call 'obj 'ref {value} {*iter_begin})
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-end)
 
-(vp-label 'exit)
-	(f-exit 'lisp 'repl_eval_list {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'repl_eval_list {this, value})
 	(pop-scope)
 	(return)
 

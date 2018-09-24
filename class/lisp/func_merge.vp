@@ -18,7 +18,7 @@
 		'(int 'index))
 
 	(push-scope)
-	(f-entry 'lisp 'func_merge {this, args})
+	(entry 'lisp 'func_merge {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, list1})
@@ -40,14 +40,14 @@
 	(loop-end)
 	(call 'obj 'ref {list1})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_merge {this, list1})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_merge {this, list1})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(merge-sym list list)", error_msg_wrong_types, args} {_, list1})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'vector 'vector))
 
 	(pop-scope-syms)

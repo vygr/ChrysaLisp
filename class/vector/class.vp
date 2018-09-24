@@ -132,7 +132,7 @@
 	;r1-r10
 
 	;save inputs
-	(f-entry 'vector 'slice '(r8 r9 r10))
+	(entry 'vector 'slice '(r8 r9 r10))
 
 	;create new vector
 	(call 'vector 'create '() '(r0))
@@ -161,7 +161,7 @@
 		(loop-until '(r2 == r10))
 	(endif)
 
-	(f-exit 'vector 'slice '(r0 r1))
+	(exit 'vector 'slice '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -178,7 +178,7 @@
 	;r1-r11
 
 	;save inputs
-	(f-entry 'vector 'append '(r0 r8 r9 r10))
+	(entry 'vector 'append '(r0 r8 r9 r10))
 
 	;extend vector
 	(vp-cpy-ir-ui r0 array_length r11)
@@ -209,7 +209,7 @@
 		(loop-until '(r2 == r10))
 	(endif)
 
-	(f-exit 'vector 'append '(r0))
+	(exit 'vector 'append '(r0))
 	(vp-ret)
 
 (def-func-end)

@@ -16,7 +16,7 @@
 	(uint 'length))
 
 	(push-scope)
-	(f-entry 'slider 'lisp_create {this, args})
+	(entry 'slider 'lisp_create {this, args})
 
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
@@ -24,14 +24,14 @@
 
 	(call 'slider 'create nil {value})
 
-(vp-label 'exit)
-	(f-exit 'slider 'lisp_create {this, value})
+(vp-label 'funcexit)
+	(exit 'slider 'lisp_create {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(create-slider)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 
@@ -49,7 +49,7 @@
 	(ulong 'arg0 'arg1)
 
 	(push-scope)
-	(f-entry 'slider 'lisp_connect_value {this, args})
+	(entry 'slider 'lisp_connect_value {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
@@ -59,14 +59,14 @@
 	(call 'slider 'connect_value {arg0, arg1})
 	(call 'slider 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'slider 'lisp_connect_value {this, value})
+(vp-label 'funcexit)
+	(exit 'slider 'lisp_connect_value {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(slider-connect-value slider id)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'slider 'integer))
 
 	(pop-scope-syms)

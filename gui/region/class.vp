@@ -13,7 +13,7 @@
 	;r4-r14
 
 	;check for any obvious errors in inputs
-	(f-entry 'region 'clip_rect '(r0 r1 r7 r8 r9 r10))
+	(entry 'region 'clip_rect '(r0 r1 r7 r8 r9 r10))
 	(vpif '(r9 > r7))
 		(vpif '(r10 > r8))
 			;run through source region list
@@ -55,7 +55,7 @@
 			(loop-end)
 		(endif)
 	(endif)
-	(f-exit 'region 'clip_rect '(r0))
+	(exit 'region 'clip_rect '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -73,7 +73,7 @@
 	;r1-r2, r4-r14
 
 	;check for any obvious errors in inputs
-	(f-entry 'region 'copy_rect '(r0 r1 r2 r7 r8 r9 r10))
+	(entry 'region 'copy_rect '(r0 r1 r2 r7 r8 r9 r10))
 	(vpif '(r9 > r7))
 		(vpif '(r10 > r8))
 			;run through source region list
@@ -212,7 +212,7 @@
 			(loop-end)
 		(endif)
 	(endif)
-	(f-exit 'region 'copy_rect '(r0))
+	(exit 'region 'copy_rect '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -238,7 +238,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'region 'copy_region '(r0 (rsp local_slist) (rsp local_dlist) r3 (rsp local_dx i) (rsp local_dy i)))
+	(entry 'region 'copy_region '(r0 (rsp local_slist) (rsp local_dlist) r3 (rsp local_dx i) (rsp local_dy i)))
 
 	;run through copy region list
 	(loop-flist r3 0 r1 r1)
@@ -255,7 +255,7 @@
 		(vp-cpy-ir rsp local_node r1)
 	(loop-end)
 
-	(f-exit 'region 'copy_region '(r0))
+	(exit 'region 'copy_region '(r0))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -272,7 +272,7 @@
 	;r10 = y1 (pixels)
 
 	;check for any obvious errors in inputs
-	(f-entry 'region 'cut_rect '(r0 r1 r2 r7 r8 r9 r10))
+	(entry 'region 'cut_rect '(r0 r1 r2 r7 r8 r9 r10))
 	(vpif '(r9 > r7))
 		(vpif '(r10 > r8))
 			;run through source region list
@@ -590,7 +590,7 @@
 			(vp-free 8)
 		(endif)
 	(endif)
-	(f-exit 'region 'cut_rect '(r0))
+	(exit 'region 'cut_rect '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -603,13 +603,13 @@
 	;r1-r3
 
 	;run through source region list
-	(f-entry 'region 'free '(r0 r1))
+	(entry 'region 'free '(r0 r1))
 	(loop-flist r1 0 r1 r2)
 		(vp-cpy-rr r1 r3)
 		(ln-remove-fnode r1 r2)
 		(hp-freecell r0 r3 r2)
 	(loop-end)
-	(f-exit 'region 'free '(r0))
+	(exit 'region 'free '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -626,7 +626,7 @@
 	;r1-r14
 
 	;check for any obvious errors in inputs
-	(f-entry 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
+	(entry 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
 	(vpif '(r9 > r7))
 		(vpif '(r10 > r8))
 			;run through source region list
@@ -813,7 +813,7 @@
 			(endswitch)
 		(endif)
 	(endif)
-	(f-exit 'region 'paste_rect '(r0))
+	(exit 'region 'paste_rect '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -837,7 +837,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'region 'paste_region '(r0 r1 (rsp local_dlist) (rsp local_dx i) (rsp local_dy i)))
+	(entry 'region 'paste_region '(r0 r1 (rsp local_dlist) (rsp local_dx i) (rsp local_dy i)))
 
 	;run through source region list
 	(loop-flist r1 0 r1 r1)
@@ -854,7 +854,7 @@
 		(vp-cpy-ir rsp local_node r1)
 	(loop-end)
 
-	(f-exit 'region 'paste_region '(r0))
+	(exit 'region 'paste_region '(r0))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -872,7 +872,7 @@
 	;r1-r2, r4-r14
 
 	;check for any obvious errors in inputs
-	(f-entry 'region 'remove_rect '(r0 r1 r7 r8 r9 r10))
+	(entry 'region 'remove_rect '(r0 r1 r7 r8 r9 r10))
 	(vpif '(r9 > r7))
 		(vpif '(r10 > r8))
 			;run through source region list
@@ -1109,7 +1109,7 @@
 			(loop-end)
 		(endif)
 	(endif)
-	(f-exit 'region 'remove_rect '(r0))
+	(exit 'region 'remove_rect '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -1133,7 +1133,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'region 'remove_region '(r0 r1 (rsp local_dlist) (rsp local_dx i) (rsp local_dy i)))
+	(entry 'region 'remove_region '(r0 r1 (rsp local_dlist) (rsp local_dx i) (rsp local_dy i)))
 
 	;run through source region list
 	(loop-flist r1 0 r1 r1)
@@ -1150,7 +1150,7 @@
 		(vp-cpy-ir rsp local_node r1)
 	(loop-end)
 
-	(f-exit 'region 'remove_region '(r0))
+	(exit 'region 'remove_region '(r0))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -1165,7 +1165,7 @@
 	;r1, r11-r14
 
 	;run through source region list
-	(f-entry 'region 'translate '(r1 r7 r8))
+	(entry 'region 'translate '(r1 r7 r8))
 	(loop-flist r1 0 r1 r1)
 		(assign '((r1 rect_x i) (r1 rect_y i) (r1 rect_x1 i) (r1 rect_y1 i)) '(r11 r12 r13 r14))
 		(vp-add-rr r7 r11)
@@ -1190,7 +1190,7 @@
 	;r1, r11-r14
 
 	;is empty ?
-	(f-entry 'region 'bounds '(r1))
+	(entry 'region 'bounds '(r1))
 	(vp-cpy-ir r1 ln_fnode_next r1)
 	(vpif '(r1 == 0))
 		(assign '(r1 r1 r1 r1) '(r7 r8 r9 r10))
@@ -1214,7 +1214,7 @@
 			(endif)
 		(loop-end)
 	(endif)
-	(f-exit 'region 'bounds '(r7 r8 r9 r10))
+	(exit 'region 'bounds '(r7 r8 r9 r10))
 	(vp-ret)
 
 (def-func-end)

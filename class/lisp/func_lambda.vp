@@ -9,9 +9,9 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(f-entry 'lisp 'func_lambda '(r2 r0))
+	(entry 'lisp 'func_lambda '(r2 r0))
 	(call 'obj 'ref '(r0) '(r0))
-	(f-exit 'lisp 'func_lambda '(r2 r0))
+	(exit 'lisp 'func_lambda '(r2 r0))
 	(return)
 
 (def-func-end)

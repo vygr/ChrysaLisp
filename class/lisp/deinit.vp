@@ -10,7 +10,7 @@
 	(ptr 'this)
 
 	(push-scope)
-	(f-entry 'lisp 'deinit {this})
+	(entry 'lisp 'deinit {this})
 
 	;deinit myself
 	(call 'obj 'deref {this->lisp_stdin})
@@ -19,7 +19,7 @@
 	(call 'obj 'deref {this->lisp_environment})
 
 	;deinit parent
-	(f-exit 'lisp 'deinit {this})
+	(exit 'lisp 'deinit {this})
 	(pop-scope)
 	(s-jmp 'lisp 'deinit '(r0))
 

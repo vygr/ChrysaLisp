@@ -15,7 +15,7 @@
 	(int 'next_char)
 
 	(push-scope)
-	(f-entry 'lisp 'func_read {this, args})
+	(entry 'lisp 'func_read {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
@@ -31,14 +31,14 @@
 	(call 'vector 'push_back {value, form})
 	(call 'vector 'push_back {value, args})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_read {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_read {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(read stream last_char)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'stream 'integer))
 
 	(pop-scope-syms)

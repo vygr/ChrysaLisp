@@ -18,7 +18,7 @@
 	(uint 'col)
 
 	(push-scope)
-	(f-entry 'backdrop 'draw {this, ctx})
+	(entry 'backdrop 'draw {this, ctx})
 
 	(call 'backdrop 'get_long_prop {this, prop_color} {_, col})
 	(call 'backdrop 'get_bounds {this} {_, _, _, w, h})
@@ -36,7 +36,7 @@
 		(assign {y + 32} {y})
 	(loop-end)
 
-	(f-exit 'backdrop 'draw {this})
+	(exit 'backdrop 'draw {this})
 	(pop-scope)
 	(return)
 
@@ -52,14 +52,14 @@
 	(uint 'col)
 
 	(push-scope)
-	(f-entry 'backdrop 'layout {this})
+	(entry 'backdrop 'layout {this})
 
 	(call 'backdrop 'get_long_prop {this, prop_color} {_, col})
 	(vpif {col >> 24 == 0xff})
 		(call 'backdrop 'opaque {this})
 	(endif)
 
-	(f-exit 'backdrop 'layout {this})
+	(exit 'backdrop 'layout {this})
 	(pop-scope)
 	(return)
 
@@ -74,8 +74,8 @@
 	;trashes
 	;all but r0
 
-	(f-entry 'backdrop 'pref_size '(r0))
-	(f-exit 'backdrop 'pref_size '(r0 640 480))
+	(entry 'backdrop 'pref_size '(r0))
+	(exit 'backdrop 'pref_size '(r0 640 480))
 	(vp-ret)
 
 (def-func-end)

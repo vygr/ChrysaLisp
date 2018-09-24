@@ -12,11 +12,11 @@
 	(ptr 'this 'args)
 
 	(push-scope)
-	(f-entry 'lisp 'func_list {this, args})
+	(entry 'lisp 'func_list {this, args})
 
 	(d-call 'vector 'slice {args, 0, args->array_length} {_, args})
 
-	(f-exit 'lisp 'func_list {this, args})
+	(exit 'lisp 'func_list {this, args})
 	(pop-scope)
 	(return)
 

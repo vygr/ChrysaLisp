@@ -28,7 +28,7 @@
 	(int 'length))
 
 	(push-scope)
-	(f-entry 'lisp 'func_part {this, args})
+	(entry 'lisp 'func_part {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
@@ -52,17 +52,17 @@
 	(call 'vector 'deref {params})
 	(call 'sys_task 'yield)
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_part {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_part {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(partition lambda list start end)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(partition lambda list start end)", error_msg_not_valid_index, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'obj 'vector 'integer 'integer))
 
 	(pop-scope-syms)
@@ -77,7 +77,7 @@
 		'(int 'result))
 
 	(push-scope)
-	(f-entry 'array 'sort_callback {pdata, liter, hiter})
+	(entry 'array 'sort_callback {pdata, liter, hiter})
 
 	(call 'obj 'ref {*liter} {liter})
 	(call 'obj 'ref {*hiter} {hiter})
@@ -91,7 +91,7 @@
 	(endif)
 	(call 'obj 'deref {value})
 
-	(f-exit 'array 'sort_callback {result})
+	(exit 'array 'sort_callback {result})
 	(pop-scope)
 	(return)
 

@@ -31,7 +31,7 @@
 		'(ulong 'ok))
 
 	(push-scope)
-	(f-entry 'window 'init {this, vtable, flags})
+	(entry 'window 'init {this, vtable, flags})
 
 	;init parent
 	(s-call 'window 'init {this, vtable} {_, ok})
@@ -103,7 +103,7 @@
 		(endif)
 	(endif)
 
-	(f-exit 'window 'init {this, ok})
+	(exit 'window 'init {this, ok})
 	(pop-scope)
 	(return)
 
@@ -118,7 +118,7 @@
 	(ptr 'this 'screen)
 
 	(push-scope)
-	(f-entry 'window 'deinit {this})
+	(entry 'window 'deinit {this})
 
 	;dirty my area on parent
 	(call 'window 'get_parent {this} {_, screen})
@@ -129,7 +129,7 @@
 	(call 'array 'deref {this->window_layout_targets})
 
 	;deinit parent
-	(f-exit 'window 'deinit {this})
+	(exit 'window 'deinit {this})
 	(pop-scope)
 	(s-jmp 'window 'deinit '(r0))
 
@@ -160,13 +160,13 @@
 	(uint 'depth)
 
 	(push-scope)
-	(f-entry 'window 'draw {this, ctx})
+	(entry 'window 'draw {this, ctx})
 
 	;draw panel
 	(call 'window 'get_long_prop {this, prop_border} {_, depth})
 	(call 'window 'draw_panel {this, ctx, 1, depth})
 
-	(f-exit 'window 'draw {this})
+	(exit 'window 'draw {this})
 	(pop-scope)
 	(return)
 
@@ -184,7 +184,7 @@
 		'(uint 'depth))
 
 	(push-scope)
-	(f-entry 'window 'layout {this})
+	(entry 'window 'layout {this})
 
 	(call 'window 'get_long_prop {this, prop_border} {_, depth})
 	(call 'flow 'change {this->window_flow, depth, depth,
@@ -197,7 +197,7 @@
 
 	(call 'window 'emit {this, this->window_layout_targets})
 
-	(f-exit 'window 'layout {this})
+	(exit 'window 'layout {this})
 	(pop-scope)
 	(return)
 
@@ -215,7 +215,7 @@
 	(int 'rx 'ry)
 
 	(push-scope)
-	(f-entry 'window 'mouse_down {this, evt})
+	(entry 'window 'mouse_down {this, evt})
 
 	(call 'window 'get_long_prop {this, prop_border} {_, depth})
 	(assign {0, evt->ev_msg_mouse_rx, evt->ev_msg_mouse_ry} {mode, rx, ry})
@@ -241,7 +241,7 @@
 	(assign {rx} {this->window_offset_x})
 	(assign {ry} {this->window_offset_y})
 
-	(f-exit 'window 'mouse_down {this})
+	(exit 'window 'mouse_down {this})
 	(pop-scope)
 	(return)
 
@@ -263,7 +263,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'window 'mouse_move '((rsp local_this) (rsp local_event)))
+	(entry 'window 'mouse_move '((rsp local_this) (rsp local_event)))
 
 	;dirty old area
 	(call 'window 'dirty '(r0))
@@ -374,12 +374,12 @@
 	(uint 'depth 'w 'h)
 
 	(push-scope)
-	(f-entry 'window 'pref_size {this})
+	(entry 'window 'pref_size {this})
 
 	(call 'window 'get_long_prop {this, prop_border} {_, depth})
 	(call 'flow 'pref_size {this->window_flow} {_, w, h})
 
-	(f-exit 'window 'pref_size {this, w + (depth * 2), h + (depth * 2)})
+	(exit 'window 'pref_size {this, w + (depth * 2), h + (depth * 2)})
 	(pop-scope)
 	(return)
 
@@ -393,14 +393,14 @@
 	(ptr 'this 'str)
 
 	(push-scope)
-	(f-entry 'window 'set_status {this, str})
+	(entry 'window 'set_status {this, str})
 
 	(vpif {this->window_status})
 		(call 'label 'set_string_prop {this->window_status, prop_text, str})
 		(call 'label 'layout {this->window_status})
 	(endif)
 
-	(f-exit 'window 'set_status {this})
+	(exit 'window 'set_status {this})
 	(pop-scope)
 	(return)
 
@@ -414,12 +414,12 @@
 	(ptr 'this 'str)
 
 	(push-scope)
-	(f-entry 'window 'set_status {this, str})
+	(entry 'window 'set_status {this, str})
 
 	(call 'title 'set_string_prop {this->window_title, prop_text, str})
 	(call 'title 'layout {this->window_title})
 
-	(f-exit 'window 'set_status {this})
+	(exit 'window 'set_status {this})
 	(pop-scope)
 	(return)
 

@@ -25,7 +25,7 @@
 
 	;read init args
 	(push-scope)
-	(f-entry 'slave 'init {this, vtable})
+	(entry 'slave 'init {this, vtable})
 
 	;init parent
 	(s-call 'slave 'init {this, vtable} {_, ok})
@@ -54,7 +54,7 @@
 		(endif)
 	(endif)
 
-	(f-exit 'slave 'init {this, ok})
+	(exit 'slave 'init {this, ok})
 	(pop-scope)
 	(return)
 
@@ -69,7 +69,7 @@
 	(ptr 'this)
 
 	(push-scope)
-	(f-entry 'slave 'deinit {this})
+	(entry 'slave 'deinit {this})
 
 	;flush remaining
 	(call 'msg_out 'write_flush {this->slave_stderr})
@@ -102,7 +102,7 @@
 	(call 'vector 'deref {this->slave_args})
 
 	;deinit parent
-	(f-exit 'slave 'deinit {this})
+	(exit 'slave 'deinit {this})
 	(pop-scope)
 	(s-jmp 'slave 'deinit '(r0))
 

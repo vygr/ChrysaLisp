@@ -20,7 +20,7 @@
 		'(uint 'length))
 
 	(push-scope)
-	(f-entry 'lisp 'func_prin {this, args})
+	(entry 'lisp 'func_prin {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(vpif {length})
@@ -39,7 +39,7 @@
 	(endif)
 	(call 'obj 'ref {value})
 
-	(f-exit 'lisp 'func_prin {this, value})
+	(exit 'lisp 'func_prin {this, value})
 	(pop-scope)
 	(return)
 

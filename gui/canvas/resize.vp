@@ -38,7 +38,7 @@
 	(endif)
 
 	(push-scope)
-	(f-entry 'canvas 'resize {this, source})
+	(entry 'canvas 'resize {this, source})
 
 	(assign {(this->canvas_width + 1) * int_size} {x})
 	(vpif {x > this->canvas_resize_buf_size})
@@ -166,7 +166,7 @@
 		(assign {y2 + 1} {y2})
 	(loop-end)
 
-	(f-exit 'canvas 'resize {this})
+	(exit 'canvas 'resize {this})
 	(pop-scope)
 	(return)
 
@@ -183,7 +183,7 @@
 
 	(vp-def (this source sdata xdata ydata data rb ga srb sga sw mga mrb))
 
-	(f-entry 'canvas 'resize_2 (list this source))
+	(entry 'canvas 'resize_2 (list this source))
 
 	(assign `((,this canvas_array) (,source canvas_array)) `(,data , sdata))
 	(assign `((,data array_array) (,sdata array_array) (,source canvas_stride ui)
@@ -237,7 +237,7 @@
 		(vp-add-rr sw sdata)
 	(loop-end)
 
-	(f-exit 'canvas 'resize_2 (list this))
+	(exit 'canvas 'resize_2 (list this))
 	(vp-ret)
 
 (def-func-end)
@@ -253,7 +253,7 @@
 
 	(vp-def (this source sdata xdata ydata data q rb ga srb sga sw mga mrb))
 
-	(f-entry 'canvas 'resize_3 (list this source))
+	(entry 'canvas 'resize_3 (list this source))
 
 	(assign `((,this canvas_array) (,source canvas_array)) `(,data , sdata))
 	(assign `(,(div (bit-shl 1 32) 9) (,data array_array) (,sdata array_array) (,source canvas_stride ui)
@@ -361,7 +361,7 @@
 		(vp-add-rr sw sdata)
 	(loop-end)
 
-	(f-exit 'canvas 'resize_3 (list this))
+	(exit 'canvas 'resize_3 (list this))
 	(vp-ret)
 
 (def-func-end)

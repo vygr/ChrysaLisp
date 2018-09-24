@@ -13,7 +13,7 @@
 	(pptr 'iter_begin 'iter_end 'clause_iter_begin 'clause_iter_end)
 
 	(push-scope)
-	(f-entry 'lisp 'func_cond {this, args})
+	(entry 'lisp 'func_cond {this, args})
 
 	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(assign {iter_begin + ptr_size} {iter_begin})
@@ -24,15 +24,15 @@
 		(errorif {clause_iter_begin == clause_iter_end} 'error1)
 		(call 'lisp 'repl_eval {this, *clause_iter_begin} {_, value})
 		(vpif {value != this->lisp_sym_nil})
-			(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit)
+			(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'funcexit)
 			(call 'obj 'deref {value})
 			(call 'obj 'ref {this->lisp_sym_nil} {value})
 			(loop-start)
 				(assign {clause_iter_begin + ptr_size} {clause_iter_begin})
-				(gotoif {clause_iter_begin == clause_iter_end} 'exit)
+				(gotoif {clause_iter_begin == clause_iter_end} 'funcexit)
 				(call 'obj 'deref {value})
 				(call 'lisp 'repl_eval {this, *clause_iter_begin} {_, value})
-				(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit)
+				(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'funcexit)
 			(loop-end)
 		(endif)
 		(call 'obj 'deref {value})
@@ -40,17 +40,17 @@
 	(loop-end)
 	(call 'obj 'ref {this->lisp_sym_nil} {value})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_cond {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_cond {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(cond (tst body) ...)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(cond (tst body) ...)", error_msg_not_a_list, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

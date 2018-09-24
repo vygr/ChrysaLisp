@@ -57,7 +57,7 @@
 	(uint 'length 'new_length)
 
 	(push-scope)
-	(f-entry 'stream_str 'write_next {this})
+	(entry 'stream_str 'write_next {this})
 
 	(assign {this->stream_bufp - this->stream_object} {length})
 	(call 'sys_mem 'alloc {length * 2} {new_str, new_length})
@@ -67,7 +67,7 @@
 	(call 'string 'deref {this->stream_object})
 	(assign {new_str} {this->stream_object})
 
-	(f-exit 'stream_str 'write_next {this})
+	(exit 'stream_str 'write_next {this})
 	(pop-scope)
 	(return)
 
@@ -84,13 +84,13 @@
 	(ptr 'this)
 
 	(push-scope)
-	(f-entry 'stream_str 'write_flush {this})
+	(entry 'stream_str 'write_flush {this})
 
 	(assign {0} {*this->stream_bufp})
 	(assign {&this->stream_object->string_data} {this->stream_bufp})
 	(call 'sys_pii 'write_str {1, this->stream_bufp})
 
-	(f-exit 'stream_str 'write_flush {this})
+	(exit 'stream_str 'write_flush {this})
 	(pop-scope)
 	(return)
 

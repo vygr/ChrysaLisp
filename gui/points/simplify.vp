@@ -22,7 +22,7 @@
 	(int 'eps 'max 'dist)
 
 	(push-scope)
-	(f-entry 'points 'simplify {this, that, stack, eps})
+	(entry 'points 'simplify {this, that, stack, eps})
 
 	;any point doing anything ?
 	(d-call 'points 'get_length {that} {_, length})
@@ -76,7 +76,7 @@
 		(loop-end)
 	(endif)
 
-	(f-exit 'points 'simplify {this})
+	(exit 'points 'simplify {this})
 	(pop-scope)
 	(return)
 

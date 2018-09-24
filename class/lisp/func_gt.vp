@@ -19,7 +19,7 @@
 	(long 'accum 'num)
 
 	(push-scope)
-	(f-entry 'lisp 'func_gt {this, args})
+	(entry 'lisp 'func_gt {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type (cat {this, args, @} (f-path 'integer 'vtable) {, -2}) {_, value})
@@ -38,8 +38,8 @@
 (vp-label 'exit1)
 	(call 'obj 'ref {value})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_gt {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_gt {this, value})
 	(return)
 
 (vp-label 'fail)
@@ -49,7 +49,7 @@
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(gt num num ...)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

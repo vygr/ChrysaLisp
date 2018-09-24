@@ -15,7 +15,7 @@
 	(ulong 'arg0)
 
 	(push-scope)
-	(f-entry 'gui 'lisp_add {this, args})
+	(entry 'gui 'lisp_add {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
@@ -25,14 +25,14 @@
 	(call 'gui 'add {arg0})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'gui 'lisp_add {this, value})
+(vp-label 'funcexit)
+	(exit 'gui 'lisp_add {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(gui-add view)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'view))
 
 	(pop-scope-syms)

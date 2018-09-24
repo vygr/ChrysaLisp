@@ -23,7 +23,7 @@
 		'(ulong 'ok))
 
 	(push-scope)
-	(f-entry 'slider 'init {this, vtable})
+	(entry 'slider 'init {this, vtable})
 
 	;init parent
 	(s-call 'slider 'init {this, vtable} {_, ok})
@@ -33,7 +33,7 @@
 		(call 'array 'create nil {this->slider_value_targets})
 	(endif)
 
-	(f-exit 'slider 'init {this, ok})
+	(exit 'slider 'init {this, ok})
 	(pop-scope)
 	(return)
 
@@ -65,7 +65,7 @@
 
 	;save inputs
 	(push-scope)
-	(f-entry 'slider 'draw {this, ctx})
+	(entry 'slider 'draw {this, ctx})
 
 	;get properties
 	(call 'slider 'get_long_prop {this, prop_maximum} {_, max})
@@ -108,7 +108,7 @@
 		(call 'ctx 'filled_box {ctx, 1, eo + 1, width - 2, portion})
 	(endif)
 
-	(f-exit 'slider 'draw {this})
+	(exit 'slider 'draw {this})
 	(pop-scope)
 	(return)
 
@@ -123,8 +123,8 @@
 	;trashes
 	;all but r0
 
-	(f-entry 'slider 'pref_size '(r0))
-	(f-exit 'slider 'pref_size '(r0 10 10))
+	(entry 'slider 'pref_size '(r0))
+	(exit 'slider 'pref_size '(r0 10 10))
 	(vp-ret)
 
 (def-func-end)
@@ -161,7 +161,7 @@
 	(int 'rx 'ry)
 
 	(push-scope)
-	(f-entry 'slider 'mouse_move {this, evt})
+	(entry 'slider 'mouse_move {this, evt})
 
 	;hit ?
 	(assign {evt->ev_msg_mouse_rx, evt->ev_msg_mouse_ry} {rx, ry})
@@ -213,7 +213,7 @@
 		(call 'slider 'dirty {this})
 	(endif)
 
-	(f-exit 'slider 'mouse_move {this})
+	(exit 'slider 'mouse_move {this})
 	(pop-scope)
 	(return)
 

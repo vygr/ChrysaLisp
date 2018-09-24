@@ -18,7 +18,7 @@
 		'(ptr 'name))
 
 	(push-scope)
-	(f-entry 'lisp 'func_save {this, args})
+	(entry 'lisp 'func_save {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
@@ -32,8 +32,8 @@
 	(call 'sys_pii 'close {handle})
 	(call 'obj 'ref {value})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_save {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_save {this, value})
 	(return)
 
 (errorcases
@@ -41,7 +41,7 @@
 	(call 'lisp 'repl_error {this, "(save str path)", error_msg_wrong_types, args} {_, value})
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(save str path)", error_msg_open_error, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'string 'string))
 
 	(pop-scope-syms)

@@ -31,7 +31,7 @@
 	(vp-cpy-rr rsp r2)
 	(push-scope)
 	(vp-and-cr -16 rsp)
-	(l-entry {argv, sdl, old_stack})
+	(entry {argv, sdl, old_stack})
 
 	;init allocator
 	(call 'sys_mem 'init)
@@ -281,7 +281,7 @@
 	(uint 'id 'via)
 
 	(push-scope)
-	(l-entry {mail_statics, msg, data, id})
+	(entry {mail_statics, msg, data, id})
 
 	(assign {data->kn_msg_flood_via} {via})
 	(assign {id} {data->kn_msg_flood_via})
@@ -306,7 +306,7 @@
 	;r0 = cpu ID (uint)
 
 	(f-bind 'sys_task 'statics r0)
-	(f-exit 'sys_kernel 'id '((r0 tk_statics_cpu_id ui)))
+	(exit 'sys_kernel 'id '((r0 tk_statics_cpu_id ui)))
 	(vp-ret)
 
 (def-func-end)
@@ -316,7 +316,7 @@
 	;r0 = cpu total (uint)
 
 	(f-bind 'sys_task 'statics r0)
-	(f-exit 'sys_kernel 'total '((r0 tk_statics_cpu_total ui)))
+	(exit 'sys_kernel 'total '((r0 tk_statics_cpu_total ui)))
 	(vp-ret)
 
 (def-func-end)
@@ -336,7 +336,7 @@
 	(int 'len)
 
 	(push-scope)
-	(f-entry 'sys_kernel 'opts {argv})
+	(entry 'sys_kernel 'opts {argv})
 
 	(loop-start)
 		(assign {*argv} {arg})
@@ -370,7 +370,7 @@
 	(ptr 'arg)
 
 	(push-scope)
-	(l-entry {arg})
+	(entry {arg})
 
 	;set cpu ID
 	(call 'sys_string 'to_long {arg, 10} (cat {@} (f-path 'sys_task 'statics) {.tk_statics_cpu_id}))
@@ -385,7 +385,7 @@
 	(ptr 'arg)
 
 	(push-scope)
-	(l-entry {arg})
+	(entry {arg})
 
 	;load and run task
 	(call 'sys_load 'bind {arg} {arg})
@@ -404,7 +404,7 @@
 	(struct 'mbox 'id)
 
 	(push-scope)
-	(l-entry {arg})
+	(entry {arg})
 
 	;start link
 	(call 'sys_task 'start (cat {@} (f-path 'sys_link 'link)) {_, mbox.id_id})
@@ -452,7 +452,7 @@
 
 	;save task info
 	(push-scope)
-	(f-entry 'sys_kernel 'declare {name, id})
+	(entry 'sys_kernel 'declare {name, id})
 
 	(call 'sys_string 'length {name} {_, length})
 	(call 'sys_mail 'alloc {length + 1 + kn_msg_declare_size} {msg, data})
@@ -480,7 +480,7 @@
 	(uint 'mbox_id 'length)
 
 	(push-scope)
-	(f-entry 'sys_kernel 'debug {debug_data})
+	(entry 'sys_kernel 'debug {debug_data})
 
 	;enquire of DEBUG_SERVICE
 	(call 'sys_mail 'enquire {"DEBUG_SERVICE"} {service.id_id})

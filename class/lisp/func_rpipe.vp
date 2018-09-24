@@ -19,7 +19,7 @@
 	(int 'char 'ready)
 
 	(push-scope)
-	(f-entry 'lisp 'func_rpipe {this, args})
+	(entry 'lisp 'func_rpipe {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
@@ -49,14 +49,14 @@
 		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_rpipe {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_rpipe {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(pipe-read pipe)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'pipe))
 
 	(pop-scope-syms)

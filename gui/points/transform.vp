@@ -21,7 +21,7 @@
 		'(int 'm1x 'm1y 'm2x 'm2y 'trx 'try))
 
 	(push-scope)
-	(f-entry 'points 'transform {this, that, m1, m2, tr})
+	(entry 'points 'transform {this, that, m1, m2, tr})
 
 	(call 'points 'get_iters {that} {_, iter_begin, iter_end})
 	(call 'points 'get_begin {this} {_, iter_this})
@@ -50,7 +50,7 @@
 		(vp-add-cr long_size j)
 	(loop-end)
 
-	(f-exit 'points 'transform {this})
+	(exit 'points 'transform {this})
 	(pop-scope)
 	(return)
 

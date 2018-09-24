@@ -43,7 +43,7 @@
 	(uint 'id 'mbox_id)
 
 	(push-scope)
-	(f-entry 'sys_task 'callback {usr, addr})
+	(entry 'sys_task 'callback {usr, addr})
 
 	;alloc temp mailbox
 	(call 'sys_mail 'alloc_mbox nil {mbox_id})
@@ -205,7 +205,7 @@
 	(ulong 'tcb_size)
 
 	(push-scope)
-	(f-entry 'sys_task 'start {func})
+	(entry 'sys_task 'start {func})
 
 	;increment task count
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
@@ -237,7 +237,7 @@
 	(endif)
 
 	;return tcb and mailbox id
-	(f-exit 'sys_task 'start {tcb, tcb->tk_node_mbox_id + (task_statics->tk_statics_cpu_id << 32)})
+	(exit 'sys_task 'start {tcb, tcb->tk_node_mbox_id + (task_statics->tk_statics_cpu_id << 32)})
 	(pop-scope)
 	(return)
 
@@ -326,7 +326,7 @@
 	;trashes
 	;all
 
-	(f-entry 'sys_task 'open_child '(r0 r1))
+	(entry 'sys_task 'open_child '(r0 r1))
 	(f-bind 'sys_task 'statics r3)
 	(jump 'sys_task 'open_remote '(r0 (r3 tk_statics_cpu_id ui) r1))
 
@@ -348,7 +348,7 @@
 
 	;save task info
 	(push-scope)
-	(f-entry 'sys_task 'open_remote {name, cpu, type})
+	(entry 'sys_task 'open_remote {name, cpu, type})
 
 	;alloc temp mailbox
 	(call 'sys_mail 'alloc_mbox nil {mbox_id})
@@ -374,7 +374,7 @@
 	(call 'sys_mail 'free_mbox {mbox_id})
 
 	;return ids array
-	(f-exit 'sys_task 'open_remote {id.id_id})
+	(exit 'sys_task 'open_remote {id.id_id})
 	(pop-scope)
 	(return)
 
@@ -399,7 +399,7 @@
 
 	;save task info
 	(push-scope)
-	(f-entry 'sys_task 'open_farm {name, index_end, type})
+	(entry 'sys_task 'open_farm {name, index_end, type})
 
 	;gather network info
 	(call 'sys_kernel 'id nil {cpu})
@@ -446,7 +446,7 @@
 	(call 'sys_mail 'free_mbox {mbox_id})
 
 	;return ids array
-	(f-exit 'sys_task 'open_farm {ids})
+	(exit 'sys_task 'open_farm {ids})
 	(pop-scope)
 	(return)
 
@@ -465,7 +465,7 @@
 
 	;save task info
 	(push-scope)
-	(f-entry 'sys_task 'open_pipe {tasks})
+	(entry 'sys_task 'open_pipe {tasks})
 
 	;create output array
 	(d-call 'vector 'get_length {tasks} {_, length})
@@ -507,7 +507,7 @@
 	(call 'sys_mail 'free_mbox {mbox_id})
 
 	;return ids array
-	(f-exit 'sys_task 'open_pipe {ids})
+	(exit 'sys_task 'open_pipe {ids})
 	(pop-scope)
 	(return)
 

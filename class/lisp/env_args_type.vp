@@ -18,7 +18,7 @@
 		'(int 'argc 'length))
 
 	(push-scope)
-	(f-entry 'lisp 'env_args_type {this, args, types, argc})
+	(entry 'lisp 'env_args_type {this, args, types, argc})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(vpif {argc <= 0})
@@ -26,7 +26,7 @@
 		(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 		(loop-while {iter_begin != iter_end})
 			(call 'obj 'inst_of {*iter_begin, types} {_, value})
-			(gotoifnot {value} 'exit)
+			(gotoifnot {value} 'funcexit)
 			(assign {iter_begin + ptr_size} {iter_begin})
 		(loop-end)
 	(else)
@@ -34,21 +34,21 @@
 		(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 		(loop-while {iter_begin != iter_end})
 			(call 'obj 'inst_of {*iter_begin, ptr(*types + types)} {_, value})
-			(gotoifnot {value} 'exit)
+			(gotoifnot {value} 'funcexit)
 			(assign {iter_begin + ptr_size} {iter_begin})
 			(assign {types + short_size} {types})
 		(loop-end)
 	(endif)
 	(assign {-1} {value})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'env_args_type {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'env_args_type {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error)
 	(assign {0} {value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

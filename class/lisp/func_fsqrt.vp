@@ -17,7 +17,7 @@
 		'(long 'num))
 
 	(push-scope)
-	(f-entry 'lisp 'func_fsqrt {this, args})
+	(entry 'lisp 'func_fsqrt {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type (cat {this, args, $sig, 1}) {_, value})
@@ -29,14 +29,14 @@
 	(call 'sys_math 'fsqrt '(r0) {num})
 	(call 'integer 'create {num} {value})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_fsqrt {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_fsqrt {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(fsqrt num)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'integer))
 
 	(pop-scope-syms)

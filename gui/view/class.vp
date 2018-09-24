@@ -349,12 +349,12 @@
 
 	;save inputs
 	(push-scope)
-	(f-entry 'view 'draw_panel {this, ctx, flags, depth})
+	(entry 'view 'draw_panel {this, ctx, flags, depth})
 
 	(call 'view 'get_long_prop {this, prop_color} {_, col})
 	(call 'ctx 'panel {ctx, col, flags, depth, 0, 0, this->view_w, this->view_h})
 
-	(f-exit 'view 'draw_panel {this})
+	(exit 'view 'draw_panel {this})
 	(pop-scope)
 	(return)
 
@@ -374,7 +374,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'view 'event '((rsp local_this) (rsp local_data)))
+	(entry 'view 'event '((rsp local_this) (rsp local_data)))
 
 	;find target view
 	(call 'view 'find_id '(r0 (r1 ev_msg_target_id)) '(_ r0))
@@ -419,7 +419,7 @@
 		(endswitch)
 	(endif)
 
-	(f-exit 'view 'event '((rsp local_this)))
+	(exit 'view 'event '((rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -443,14 +443,14 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'view 'find_id '((rsp local_this) (rsp local_id)))
+	(entry 'view 'find_id '((rsp local_this) (rsp local_id)))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 rsp local_view)
 
 	;iterate through views front to back
 	(call 'view 'forward_tree '(r0 rsp ($ down_callback) ($ up_callback)))
 
-	(f-exit 'view 'find_id '((rsp local_this) (rsp local_view)))
+	(exit 'view 'find_id '((rsp local_this) (rsp local_view)))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -788,12 +788,12 @@
 	(uint 'mw 'mh)
 
 	(push-scope)
-	(f-entry 'view 'pref_size {this})
+	(entry 'view 'pref_size {this})
 
 	(call 'view 'get_long_prop {this, prop_min_width} {_, mw})
 	(call 'view 'get_long_prop {this, prop_min_height} {_, mh})
 
-	(f-exit 'view 'pref_size {this, mw, mh})
+	(exit 'view 'pref_size {this, mw, mh})
 	(pop-scope)
 	(return)
 

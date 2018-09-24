@@ -15,7 +15,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'lisp 'func_sym {this, args})
+	(entry 'lisp 'func_sym {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error1)
@@ -28,17 +28,17 @@
 		(call 'symbol 'intern {value} {value})
 	(endif)
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_sym {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_sym {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(sym form)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(sym form)", error_msg_not_a_string, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

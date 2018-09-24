@@ -21,7 +21,7 @@
 	(int 'fchar 'char)
 
 	(push-scope)
-	(f-entry 'lisp 'read_sym {this, stream, char})
+	(entry 'lisp 'read_sym {this, stream, char})
 
 	(switch)
 		(assign {stream->stream_bufp, stream->stream_bufe, char} {bufp, bufe, fchar})
@@ -47,7 +47,7 @@
 	(endswitch)
 	(call 'symbol 'intern {value} {value})
 
-	(f-exit 'lisp 'read_sym {this, value, char})
+	(exit 'lisp 'read_sym {this, value, char})
 	(pop-scope)
 	(return)
 

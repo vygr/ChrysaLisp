@@ -13,7 +13,7 @@
 	;trashes
 	;all but r0
 
-	(f-entry 'lisp 'repl_apply '(r0 r1 r2))
+	(entry 'lisp 'repl_apply '(r0 r1 r2))
 
 	(assign `((r2 obj_vtable) (@ ,(f-path 'function 'vtable))) '(r3 r4))
 	(vpif '(r3 == r4))
@@ -63,17 +63,17 @@
 
 (vp-label 'exit1)
 	(call 'lisp 'env_pop {this})
-(vp-label 'exit)
-	(f-exit 'lisp 'repl_apply {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'repl_apply {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_wrong_num_of_args, func} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(lambda ([arg ...]) body)", error_msg_not_a_lambda, func} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

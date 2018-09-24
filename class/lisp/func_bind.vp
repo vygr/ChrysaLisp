@@ -16,21 +16,21 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'lisp 'func_bind {this, args})
+	(entry 'lisp 'func_bind {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 2} 'error1)
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(call 'lisp 'env_bind {this, iter_begin[0], iter_begin[ptr_size]} {_, args})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_bind {this, args})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_bind {this, args})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(bind (param ...) seq)", error_msg_wrong_num_of_args, args} {_, args})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

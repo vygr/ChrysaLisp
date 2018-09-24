@@ -31,7 +31,7 @@
 
 	(push-scope)
 	(used-syms 'l2_pv 'l1_vx 'l1_vy)
-	(f-entry 'points 'stroke_joints {this, stack, iter_i, iter_j, p1, p2, join_style, radius, eps})
+	(entry 'points 'stroke_joints {this, stack, iter_i, iter_j, p1, p2, join_style, radius, eps})
 
 	(vpif {iter_i != iter_j})
 		(vpif {iter_j > iter_i})
@@ -101,7 +101,7 @@
 		(loop-until {iter_i == iter_j})
 	(endif)
 
-	(f-exit 'points 'stroke_joints {this})
+	(exit 'points 'stroke_joints {this})
 	(pop-scope)
 	(return)
 

@@ -15,7 +15,7 @@
 	(int 'length 'index)
 
 	(push-scope)
-	(f-entry 'lisp 'func_elemset {this, args})
+	(entry 'lisp 'func_elemset {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
@@ -33,8 +33,8 @@
 	(call 'obj 'ref {value})
 	(d-call 'vector 'set_element {seq, value, index})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_elemset {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_elemset {this, value})
 	(return)
 
 (errorcases
@@ -42,7 +42,7 @@
 	(call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_wrong_types, args} {_, value})
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(elem-set index list val)", error_msg_not_valid_index, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'integer 'vector 'obj))
 
 	(pop-scope-syms)

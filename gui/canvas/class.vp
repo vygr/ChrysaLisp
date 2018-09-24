@@ -24,7 +24,7 @@
 	;all
 
 	;save inputs
-	(f-entry 'canvas 'create '(r4 r5 r6))
+	(entry 'canvas 'create '(r4 r5 r6))
 
 	;create new object
 	(call 'canvas 'new nil '(r0))
@@ -38,7 +38,7 @@
 		(endif)
 	(endif)
 
-	(f-exit 'canvas 'create '(r0))
+	(exit 'canvas 'create '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -52,7 +52,7 @@
 	;all
 
 	;save inputs
-	(f-entry 'canvas 'create_shared '(r4))
+	(entry 'canvas 'create_shared '(r4))
 
 	;create new object
 	(call 'canvas 'new nil '(r0))
@@ -66,7 +66,7 @@
 		(endif)
 	(endif)
 
-	(f-exit 'canvas 'create_shared '(r0))
+	(exit 'canvas 'create_shared '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -91,7 +91,7 @@
 
 	;save inputs
 	(push-scope)
-	(f-entry 'canvas 'init {this, vtable, this->canvas_width, this->canvas_height, this->canvas_aa_scale})
+	(entry 'canvas 'init {this, vtable, this->canvas_width, this->canvas_height, this->canvas_aa_scale})
 
 	;init parent
 	(s-call 'canvas 'init {this, vtable} {_, ok})
@@ -118,7 +118,7 @@
 		(call 'array 'create nil {this->canvas_stack})
 	(endif)
 
-	(f-exit 'canvas 'init {this, ok})
+	(exit 'canvas 'init {this, ok})
 	(pop-scope)
 	(return)
 
@@ -142,7 +142,7 @@
 
 	;save inputs
 	(push-scope)
-	(f-entry 'canvas 'init1 {this, vtable, src})
+	(entry 'canvas 'init1 {this, vtable, src})
 
 	;init parent
 	(s-call 'canvas 'init {this, vtable} {_, ok})
@@ -169,7 +169,7 @@
 		(call 'array 'create nil {this->canvas_stack})
 	(endif)
 
-	(f-exit 'canvas 'init1 {this, ok})
+	(exit 'canvas 'init1 {this, ok})
 	(pop-scope)
 	(return)
 
@@ -202,7 +202,7 @@
 	(vp-cpy-rr rsp r1)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(l-entry '((rsp local_this) (rsp local_old_stack)))
+	(entry '((rsp local_this) (rsp local_old_stack)))
 
 	;free edge trackers, sort intervals
 	(vp-cpy-ir rsp local_this r0)
@@ -248,7 +248,7 @@
 		'(pptr 'iter))
 
 	(push-scope)
-	(f-entry 'canvas 'load {name, flags})
+	(entry 'canvas 'load {name, flags})
 
 	;shared or not
 	(vpif {flags & load_flag_shared})
@@ -286,7 +286,7 @@
 		(call 'stream_str 'deref {stream})
 	(endif)
 
-	(f-exit 'canvas 'load {this})
+	(exit 'canvas 'load {this})
 	(pop-scope)
 	(return)
 
@@ -315,7 +315,7 @@
 	(vp-cpy-rr rsp r2)
 	(push-scope)
 	(vp-and-cr -16 rsp)
-	(l-entry {this, ctx, old_stack})
+	(entry {this, ctx, old_stack})
 
 	;if no texture then create from pixel buffer
 	(vpifnot {this->canvas_texture})
@@ -373,7 +373,7 @@
 	(vp-cpy-rr rsp r1)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(l-entry '(r0 (rsp local_old_stack)))
+	(entry '(r0 (rsp local_old_stack)))
 
 	;free any sdl texture
 	(vp-cpy-ir r0 canvas_texture r1)
@@ -401,8 +401,8 @@
 	(ptr 'this)
 
 	(push-scope)
-	(f-entry 'canvas 'pref_size {this})
-	(f-exit 'canvas 'pref_size {this, this->canvas_width / this->canvas_aa_scale,
+	(entry 'canvas 'pref_size {this})
+	(exit 'canvas 'pref_size {this, this->canvas_width / this->canvas_aa_scale,
 									this->canvas_height / this->canvas_aa_scale})
 	(pop-scope)
 	(return)
@@ -419,7 +419,7 @@
 	;trashes
 	;r2-r3
 
-	(f-entry 'canvas 'to_premul '(r0 r1))
+	(entry 'canvas 'to_premul '(r0 r1))
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-rr r1 r3)
@@ -436,7 +436,7 @@
 	(vp-add-rr r2 r1)
 	(vp-add-rr r3 r1)
 
-	(f-exit 'canvas 'to_premul '(r0 r1))
+	(exit 'canvas 'to_premul '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -451,7 +451,7 @@
 	;trashes
 	;r2-r4
 
-	(f-entry 'canvas 'to_argb '(r0 r1))
+	(entry 'canvas 'to_argb '(r0 r1))
 
 	(vp-cpy-rr r1 r3)
 	(vp-shr-cr 24 r3)
@@ -479,7 +479,7 @@
 		(endif)
 	(endif)
 
-	(f-exit 'canvas 'to_argb '(r0 r1))
+	(exit 'canvas 'to_argb '(r0 r1))
 	(vp-ret)
 
 (def-func-end)
@@ -493,7 +493,7 @@
 	;trashes
 	;r2-r4
 
-	(f-entry 'canvas 'fill '(r0 r1))
+	(entry 'canvas 'fill '(r0 r1))
 
 	(call 'canvas 'to_premul '(r0 r1) '(r0 r1))
 	(vp-cpy-ir r0 canvas_array r2)
@@ -507,7 +507,7 @@
 		(vp-add-cr int_size r2)
 	(loop-until '(r2 == r3))
 
-	(f-exit 'canvas 'fill '(r0))
+	(exit 'canvas 'fill '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -521,7 +521,7 @@
 	;trashes
 	;r1-r7
 
-	(f-entry 'canvas 'as_argb '(r0 r1))
+	(entry 'canvas 'as_argb '(r0 r1))
 
 	(vp-cpy-ir r0 canvas_array r5)
 	(vp-cpy-ir r1 canvas_array r7)
@@ -539,7 +539,7 @@
 		(vp-add-cr int_size r7)
 	(loop-until '(r5 == r6))
 
-	(f-exit 'canvas 'as_argb '(r0))
+	(exit 'canvas 'as_argb '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -553,7 +553,7 @@
 	;trashes
 	;r1-r6
 
-	(f-entry 'canvas 'as_premul '(r0 r1))
+	(entry 'canvas 'as_premul '(r0 r1))
 
 	(vp-cpy-ir r0 canvas_array r5)
 	(vp-cpy-ir r1 canvas_array r6)
@@ -571,7 +571,7 @@
 		(vp-add-cr int_size r6)
 	(loop-until '(r5 == r4))
 
-	(f-exit 'canvas 'as_premul '(r0))
+	(exit 'canvas 'as_premul '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -588,7 +588,7 @@
 	;trashes
 	;r1-r2
 
-	(f-entry 'canvas 'set_clip '(r0 r7 r8 r9 r10))
+	(entry 'canvas 'set_clip '(r0 r7 r8 r9 r10))
 
 	;clip check
 	(switch)
@@ -618,7 +618,7 @@
 	(vp-cpy-ri-i r10 r0 canvas_cy1)
 	(endswitch)
 
-	(f-exit 'canvas 'set_clip '(r0))
+	(exit 'canvas 'set_clip '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -634,7 +634,7 @@
 	;trashes
 	;r2-r3, r7-r8
 
-	(f-entry 'canvas 'set_pix_noclip '(r0 r1 r7 r8))
+	(entry 'canvas 'set_pix_noclip '(r0 r1 r7 r8))
 
 	(vp-cpy-ir-ui r0 canvas_stride r2)
 	(vp-cpy-ir r0 canvas_array r3)
@@ -644,7 +644,7 @@
 	(vp-add-rr r8 r3)
 	(vp-cpy-rd-i r1 r3 r7)
 
-	(f-exit 'canvas 'set_pix_noclip '(r0))
+	(exit 'canvas 'set_pix_noclip '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -661,7 +661,7 @@
 	;trashes
 	;r2-r3, r7-r9
 
-	(f-entry 'canvas 'set_span_noclip '(r0 r1 r7 r8 r9))
+	(entry 'canvas 'set_span_noclip '(r0 r1 r7 r8 r9))
 
 	(vp-cpy-ir-ui r0 canvas_stride r2)
 	(vp-cpy-ir r0 canvas_array r3)
@@ -675,7 +675,7 @@
 		(vp-add-cr int_size r7)
 	(loop-until '(r7 == r9))
 
-	(f-exit 'canvas 'set_span_noclip '(r0))
+	(exit 'canvas 'set_span_noclip '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -692,7 +692,7 @@
 	;trashes
 	;r2-r3, r7-r9
 
-	(f-entry 'canvas 'set_span '(r0 r1 r7 r8 r9))
+	(entry 'canvas 'set_span '(r0 r1 r7 r8 r9))
 
 	;clip check
 	(switch)
@@ -714,7 +714,7 @@
 		(jump 'canvas 'set_span_noclip '(r0 r1 r7 r8 r9))
 	(endswitch)
 
-	(f-exit 'canvas 'set_span '(r0))
+	(exit 'canvas 'set_span '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -730,7 +730,7 @@
 	;trashes
 	;r2-r3 r4-r8
 
-	(f-entry 'canvas 'blend_pix_noclip '(r0 r1 r7 r8))
+	(entry 'canvas 'blend_pix_noclip '(r0 r1 r7 r8))
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-cr 0xff r6)
@@ -761,7 +761,7 @@
 	(vp-add-rr r1 r2)
 	(vp-cpy-ri-i r2 r7 0)
 
-	(f-exit 'canvas 'blend_pix_noclip '(r0))
+	(exit 'canvas 'blend_pix_noclip '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -778,7 +778,7 @@
 	;trashes
 	;r2-r3 r4-r9
 
-	(f-entry 'canvas 'blend_span_noclip '(r0 r1 r7 r8 r9))
+	(entry 'canvas 'blend_span_noclip '(r0 r1 r7 r8 r9))
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-cr 0xff r6)
@@ -815,7 +815,7 @@
 		(vp-add-cr int_size r7)
 	(loop-until '(r7 == r9))
 
-	(f-exit 'canvas 'blend_span_noclip '(r0))
+	(exit 'canvas 'blend_span_noclip '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -832,7 +832,7 @@
 	;trashes
 	;r2-r3 r4-r9
 
-	(f-entry 'canvas 'blend_span '(r0 r1 r7 r8 r9))
+	(entry 'canvas 'blend_span '(r0 r1 r7 r8 r9))
 
 	;clip check
 	(switch)
@@ -854,7 +854,7 @@
 		(jump 'canvas 'blend_span_noclip '(r0 r1 r7 r8 r9))
 	(endswitch)
 
-	(f-exit 'canvas 'blend_span '(r0))
+	(exit 'canvas 'blend_span '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -871,7 +871,7 @@
 	;trashes
 	;all but r0
 
-	(f-entry 'canvas 'plot '(r0 r1 r9 r7 r8))
+	(entry 'canvas 'plot '(r0 r1 r9 r7 r8))
 
 	;clip check
 	(switch)
@@ -887,7 +887,7 @@
 		(r-jmp 'canvas 'set_plot '(r0 r1 r7 r8 r9))
 	(endswitch)
 
-	(f-exit 'canvas 'plot '(r0))
+	(exit 'canvas 'plot '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -911,7 +911,7 @@
 	(int 'x 'y 'w 'h)
 
 	(push-scope)
-	(f-entry 'canvas 'fbox {this, color, span, x, y, w, h})
+	(entry 'canvas 'fbox {this, color, span, x, y, w, h})
 
 	;clip check
 	(switch)
@@ -941,7 +941,7 @@
 		(loop-until {y == h})
 	(endswitch)
 
-	(f-exit 'canvas 'fbox {this})
+	(exit 'canvas 'fbox {this})
 	(pop-scope)
 	(return)
 

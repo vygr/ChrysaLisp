@@ -24,7 +24,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'hash_set 'init '((rsp local_this) r1 (r0 hash_set_key_callback) (r0 hash_set_num_buckets i)))
+	(entry 'hash_set 'init '((rsp local_this) r1 (r0 hash_set_key_callback) (r0 hash_set_num_buckets i)))
 
 	;init parent
 	(s-call 'hash_set 'init '(r0 r1) '(r0 r1))
@@ -157,7 +157,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'hash_set 'erase '((rsp local_this) (rsp local_iter) (rsp local_bucket)))
+	(entry 'hash_set 'erase '((rsp local_this) (rsp local_iter) (rsp local_bucket)))
 
 	;swap last entry for erased entry
 	(call 'obj 'deref '((r1 0)))
@@ -174,7 +174,7 @@
 		(vp-cpy-ri r1 r0 0)
 	(endif)
 
-	(f-exit 'hash_set 'erase '((rsp local_this)))
+	(exit 'hash_set 'erase '((rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -198,10 +198,10 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'hash_set 'find '(r0 (rsp local_key)))
+	(entry 'hash_set 'find '(r0 (rsp local_key)))
 
 	(vp-cpy-ir r0 hash_set_key_callback r2)
-	(vpif '(r2 == 0) 'exit)
+	(vpif '(r2 == 0) 'lbreak)
 		;search hash bucket
 		(call 'hash_set 'get_bucket '(r0 r1) '(r0 r2))
 		(vp-cpy-ir-ui r2 array_length r3)
@@ -211,7 +211,7 @@
 		(vp-cpy-ir rsp local_key r4)
 		(loop-while '(r1 != r3))
 			(vp-cpy-ir r1 0 r5)
-			(breakif '(r4 == r5) exit)
+			(breakif '(r4 == r5) lbreak)
 			(vp-add-cr long_size r1)
 		(loop-end)
 		(vp-xor-rr r1 r1)
@@ -223,7 +223,7 @@
 		(vp-cpy-ir rsp local_this r0)
 	(endif)
 
-	(f-exit 'hash_set 'find '(r0 r1 r2))
+	(exit 'hash_set 'find '(r0 r1 r2))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -270,7 +270,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'hash_set 'for_each '((rsp local_this) r1 r2))
+	(entry 'hash_set 'for_each '((rsp local_this) r1 r2))
 
 	;for all buckets
 	(vp-cpy-ir-ui r0 hash_set_num_buckets r3)
@@ -289,7 +289,7 @@
 		(endif)
 	(endif)
 
-	(f-exit 'hash_set 'for_each '((rsp local_this) r1 r2))
+	(exit 'hash_set 'for_each '((rsp local_this) r1 r2))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -371,7 +371,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'hash_set 'insert '(r0 (rsp local_key)))
+	(entry 'hash_set 'insert '(r0 (rsp local_key)))
 
 	;search hash bucket
 	(call 'hash_set 'find '(r0 r1) '(r0 r1 r2))
@@ -389,7 +389,7 @@
 		(vp-cpy-ir rsp local_this r0)
 	(endif)
 
-	(f-exit 'hash_set 'insert '(r0 r1 r2))
+	(exit 'hash_set 'insert '(r0 r1 r2))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -405,7 +405,7 @@
 	;trashes
 	;r3-r4
 
-	(f-entry 'hash_set 'get_iters '(r0))
+	(entry 'hash_set 'get_iters '(r0))
 
 	(vp-cpy-ir r0 hash_set_buckets r1)
 	(vp-cpy-ir-ui r0 hash_set_num_buckets r3)
@@ -413,7 +413,7 @@
 	(vp-cpy-ir r1 array_array r1)
 	(vp-shl-cr (log2 ptr_size) r2)
 	(vp-add-rr r1 r2)
-	(vpif '(r3 != 1) 'exit)
+	(vpif '(r3 != 1) 'lbreak)
 		(loop-start)
 			(vp-cpy-ir r1 0 r3)
 			(vp-cpy-ir-ui r3 array_length r4)
@@ -427,13 +427,13 @@
 				(vp-cpy-ir r3 array_array r2)
 				(vp-shl-cr (log2 ptr_size) r4)
 				(vp-add-rr r4 r2)
-				(break exit)
+				(break lbreak)
 			(endif)
 			(vp-add-cr ptr_size r1)
 		(loop-until '(r1 == r2))
 	(endif)
 
-	(f-exit 'hash_set 'get_iters '(r0 r1 r2))
+	(exit 'hash_set 'get_iters '(r0 r1 r2))
 	(vp-ret)
 
 (def-func-end)

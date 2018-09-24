@@ -16,7 +16,7 @@
 	(ptr 'this 'args 'value)
 
 	(push-scope)
-	(f-entry 'lisp 'func_filestream {this, args})
+	(entry 'lisp 'func_filestream {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
@@ -26,17 +26,17 @@
 	(call 'sys_string 'compare {&value->string_data, "stdin"} {args})
 	(vpifnot {args})
 		(call 'obj 'ref {this->lisp_stdin} {value})
-		(goto 'exit)
+		(goto 'funcexit)
 	(endif)
 	(call 'sys_string 'compare {&value->string_data, "stdout"} {args})
 	(vpifnot {args})
 		(call 'obj 'ref {this->lisp_stdout} {value})
-		(goto 'exit)
+		(goto 'funcexit)
 	(endif)
 	(call 'sys_string 'compare {&value->string_data, "stderr"} {args})
 	(vpifnot {args})
 		(call 'obj 'ref {this->lisp_stderr} {value})
-		(goto 'exit)
+		(goto 'funcexit)
 	(endif)
 	(call 'string 'create_from_file {&value->string_data} {value})
 	(vpif {value})
@@ -45,14 +45,14 @@
 		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_filestream {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_filestream {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(file-stream path)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

@@ -14,7 +14,7 @@
 	(ptr 'this 'args 'value)
 
 	(push-scope)
-	(f-entry 'lisp 'func_print {this, args})
+	(entry 'lisp 'func_print {this, args})
 
 	(call 'lisp 'func_prin {this, args} {_, value})
 	(call 'stream 'write_char {this->lisp_stdout, char_lf})
@@ -22,7 +22,7 @@
 		(call 'stream 'write_flush {this->lisp_stdout})
 	(endif)
 
-	(f-exit 'lisp 'func_print {this, value})
+	(exit 'lisp 'func_print {this, value})
 	(pop-scope)
 	(return)
 

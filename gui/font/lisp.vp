@@ -16,7 +16,7 @@
 	(ulong 'arg0 'arg1)
 
 	(push-scope)
-	(f-entry 'font 'lisp_create {this, args})
+	(entry 'font 'lisp_create {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
@@ -24,17 +24,17 @@
 
 	(call 'lisp 'env_args_set {this, args, &arg0, 0})
 	(call 'font 'open {&arg0->string_data, arg1} {value})
-	(gotoif {value} 'exit)
+	(gotoif {value} 'funcexit)
 	(call 'obj 'ref {this->lisp_sym_nil} {value})
 
-(vp-label 'exit)
-	(f-exit 'font 'lisp_create {this, value})
+(vp-label 'funcexit)
+	(exit 'font 'lisp_create {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(create-font name points)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'string 'integer))
 
 	(pop-scope-syms)

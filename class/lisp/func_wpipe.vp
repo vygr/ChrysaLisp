@@ -19,7 +19,7 @@
 		'(uint 'state))
 
 	(push-scope)
-	(f-entry 'lisp 'func_wpipe {this, args})
+	(entry 'lisp 'func_wpipe {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
@@ -34,17 +34,17 @@
 	(call 'stream 'write_flush {stream})
 	(call 'obj 'ref {value})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_wpipe {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_wpipe {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(pipe-write pipe str)", error_msg_open_error, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'pipe 'string))
 
 	(pop-scope-syms)

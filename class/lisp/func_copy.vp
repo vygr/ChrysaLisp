@@ -13,7 +13,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'lisp 'func_copy {this, args})
+	(entry 'lisp 'func_copy {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length != 1} 'error1)
@@ -26,14 +26,14 @@
 		(call 'obj 'ref {args})
 	(endif)
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_copy {this, args})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_copy {this, args})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(copy form)", error_msg_wrong_num_of_args, args} {_, args})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 
@@ -49,7 +49,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'array 'each_callback {pdata, iter})
+	(entry 'array 'each_callback {pdata, iter})
 
 	(assign {*iter} {pdata})
 	(vpif (cat {pdata->obj_vtable == @} (f-path 'vector 'vtable)))
@@ -60,7 +60,7 @@
 		(assign {pdata} {*iter})
 	(endif)
 
-	(f-exit 'array 'each_callback '(-1))
+	(exit 'array 'each_callback '(-1))
 	(pop-scope)
 	(return)
 

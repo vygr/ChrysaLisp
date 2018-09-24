@@ -16,7 +16,7 @@
 	(ulong 'arg0)
 
 	(push-scope)
-	(f-entry 'stream 'lisp_available {this, args})
+	(entry 'stream 'lisp_available {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
@@ -26,14 +26,14 @@
 	(call 'stream 'available {arg0} {_, arg0})
 	(call 'integer 'create {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'stream 'lisp_available {this, value})
+(vp-label 'funcexit)
+	(exit 'stream 'lisp_available {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(stream-available stream)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'stream))
 
 	(pop-scope-syms)
@@ -52,7 +52,7 @@
 	(ulong 'arg0)
 
 	(push-scope)
-	(f-entry 'stream 'lisp_write_flush {this, args})
+	(entry 'stream 'lisp_write_flush {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
@@ -62,14 +62,14 @@
 	(call 'stream 'write_flush {arg0})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'stream 'lisp_write_flush {this, value})
+(vp-label 'funcexit)
+	(exit 'stream 'lisp_write_flush {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(stream-write-flush stream)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'stream))
 
 	(pop-scope-syms)

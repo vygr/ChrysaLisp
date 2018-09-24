@@ -22,7 +22,7 @@
 		'(ulong 'ok))
 
 	(push-scope)
-	(f-entry 'button 'init {this, vtable})
+	(entry 'button 'init {this, vtable})
 
 	;init parent
 	(s-call 'button 'init {this, vtable} {_, ok})
@@ -34,7 +34,7 @@
 		(call 'button 'set_long_prop {this, prop_flow_flags, flow_flag_down | flow_flag_align_hcenter | flow_flag_align_vcenter})
 	(endif)
 
-	(f-exit 'button 'init {this, ok})
+	(exit 'button 'init {this, ok})
 	(pop-scope)
 	(return)
 
@@ -64,7 +64,7 @@
 	(uint 'depth)
 
 	(push-scope)
-	(f-entry 'button 'draw {this, ctx})
+	(entry 'button 'draw {this, ctx})
 
 	;draw panel, in or out
 	(call 'button 'get_long_prop {this, prop_border} {_, depth})
@@ -73,7 +73,7 @@
 	(endif)
 	(call 'button 'draw_panel {this, ctx, 1, depth})
 
-	(f-exit 'button 'draw {this})
+	(exit 'button 'draw {this})
 	(pop-scope)
 	(return)
 
@@ -89,7 +89,7 @@
 	(uint 'depth 'offset)
 
 	(push-scope)
-	(f-entry 'button 'layout {this})
+	(entry 'button 'layout {this})
 
 	;contents offset or not
 	(call 'button 'get_long_prop {this, prop_border} {_, depth})
@@ -100,7 +100,7 @@
 	(call 'button 'change {this->label_flow, offset, offset, this->view_w - (depth * 2), this->view_h - (depth * 2)})
 	(call 'button 'opaque {this})
 
-	(f-exit 'button 'layout {this})
+	(exit 'button 'layout {this})
 	(pop-scope)
 	(return)
 

@@ -15,7 +15,7 @@
 	(ulong 'age)
 
 	(push-scope)
-	(f-entry 'lisp 'func_age {this, value})
+	(entry 'lisp 'func_age {this, value})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, value, $sig, 1} {_, age})
@@ -25,14 +25,14 @@
 	(call 'sys_pii 'age {&value->string_data} {age})
 	(call 'integer 'create {age} {value})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_age {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_age {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(age path)", error_msg_wrong_types, value} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

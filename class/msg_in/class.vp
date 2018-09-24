@@ -22,7 +22,7 @@
 		'(ulong 'ok))
 
 	(push-scope)
-	(f-entry 'msg_in 'init {this, vtable})
+	(entry 'msg_in 'init {this, vtable})
 
 	;init parent
 	(s-call 'msg_in 'init {this, vtable, 0, 0, 0, 0} {_, ok})
@@ -38,7 +38,7 @@
 		(lh-init lst tmp)
 	(endif)
 
-	(f-exit 'msg_in 'init {this, ok})
+	(exit 'msg_in 'init {this, ok})
 	(pop-scope)
 	(return)
 
@@ -53,7 +53,7 @@
 	(ptr 'this)
 
 	(push-scope)
-	(f-entry 'msg_in 'deinit {this})
+	(entry 'msg_in 'deinit {this})
 
 	;free any mail message buffer
 	(call 'sys_mail 'free {this->stream_buffer})
@@ -63,7 +63,7 @@
 	(call 'sys_mail 'free_mbox {this->msg_in_mbox_id})
 
 	;parent deinit
-	(f-exit 'msg_in 'deinit {this})
+	(exit 'msg_in 'deinit {this})
 	(pop-scope)
 	(s-jmp 'msg_in 'deinit '(r0))
 
@@ -112,7 +112,7 @@
 	(ptr 'this 'msg 'data 'ack_msg)
 
 	(push-scope)
-	(f-entry 'msg_in 'next_msg {this})
+	(entry 'msg_in 'next_msg {this})
 
 	;free any current msg
 	(call 'sys_mail 'free {this->stream_buffer})
@@ -140,7 +140,7 @@
 		(assign {this->msg_in_ack_seqnum + 1} {this->msg_in_ack_seqnum})
 	(endif)
 
-	(f-exit 'msg_in 'next_msg {this})
+	(exit 'msg_in 'next_msg {this})
 	(pop-scope)
 	(return)
 
@@ -158,7 +158,7 @@
 	(ptr 'this)
 
 	(push-scope)
-	(f-entry 'msg_in 'read_next {this})
+	(entry 'msg_in 'read_next {this})
 
 	;if started state
 	(loop-while {this->msg_in_state == stream_mail_state_started})
@@ -166,7 +166,7 @@
 	(loop-until {this->stream_bufp != this->stream_bufe})
 
 	;return -1 if not in started state
-	(f-exit 'msg_in 'read_next {this, (this->msg_in_state == stream_mail_state_started) - 1})
+	(exit 'msg_in 'read_next {this, (this->msg_in_state == stream_mail_state_started) - 1})
 	(pop-scope)
 	(return)
 

@@ -97,6 +97,73 @@
 	;_2 = member name
 	(def-func (f-path _1 _2)))
 
+;;;;;;;;;;;;;;;;;;
+; function helpers
+;;;;;;;;;;;;;;;;;;
+
+(defcfun call (_1 _2 &optional _3 _4 _5)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = out parameters
+	;_5 = dispatch reg
+	(defq m (method-lookup _1 _2))
+	(cond
+		((eql (elem 1 m) 'static)
+			(assign _3 (elem 2 m))
+			(fn-call (elem 0 m))
+			(if _4 (assign (elem 3 m) _4)))
+		(t
+			(setd _5 r14)
+			(defq _ (elem 2 m))
+			(if (find _5 _)
+				(throw "Dispatch register conflicts with arg !" (list _5 _)))
+			(assign _3 _)
+			(vp-cpy-ir r0 obj_vtable _5)
+			(vp-call-i _5 (elem 4 m))
+			(if _4 (assign (elem 3 m) _4)))))
+
+(defcfun jump (_1 _2 &optional _3 _4)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = dispatch reg
+	(defq m (method-lookup _1 _2))
+	(cond
+		((eql (elem 1 m) 'static)
+			(assign _3 (elem 2 m))
+			(fn-jmp (elem 0 m)))
+		(t
+			(setd _4 r14)
+			(defq _ (elem 2 m))
+			(if (find _4 _)
+				(throw "Dispatch register conflicts with arg !" (list _4 _)))
+			(assign _3 _)
+			(vp-cpy-ir r0 obj_vtable _4)
+			(vp-jmp-i _4 (elem 4 m)))))
+
+(defcmacro entry (&rest _)
+	;either
+	;_1 = class name
+	;_2 = slot method name
+	;_3 = in parameters
+	;or
+	;_1 = in parameters
+	(if (eq (length _) 1)
+		(cat (list 'l-entry) _)
+		(cat (list 'f-entry) _)))
+
+(defcmacro exit (&rest _)
+	;either
+	;_1 = class name
+	;_2 = slot method name
+	;_3 = out parameters
+	;or
+	;_1 = out parameters
+	(if (eq (length _) 1)
+		(cat (list 'l-exit) _)
+		(cat (list 'f-exit) _)))
+
 ;;;;;;;;;;;;;;;
 ; class calling
 ;;;;;;;;;;;;;;;
@@ -149,47 +216,6 @@
 ;;;;;;;;;;;;;;;;
 ; method calling
 ;;;;;;;;;;;;;;;;
-
-(defcfun call (_1 _2 &optional _3 _4 _5)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = out parameters
-	;_5 = dispatch reg
-	(defq m (method-lookup _1 _2))
-	(cond
-		((eql (elem 1 m) 'static)
-			(assign _3 (elem 2 m))
-			(fn-call (elem 0 m))
-			(if _4 (assign (elem 3 m) _4)))
-		(t
-			(setd _5 r14)
-			(defq _ (elem 2 m))
-			(if (find _5 _)
-				(throw "Dispatch register conflicts with arg !" (list _5 _)))
-			(assign _3 _)
-			(vp-cpy-ir r0 obj_vtable _5)
-			(vp-call-i _5 (elem 4 m))
-			(if _4 (assign (elem 3 m) _4)))))
-
-(defcfun jump (_1 _2 &optional _3 _4)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = dispatch reg
-	(defq m (method-lookup _1 _2))
-	(cond
-		((eql (elem 1 m) 'static)
-			(assign _3 (elem 2 m))
-			(fn-jmp (elem 0 m)))
-		(t
-			(setd _4 r14)
-			(defq _ (elem 2 m))
-			(if (find _4 _)
-				(throw "Dispatch register conflicts with arg !" (list _4 _)))
-			(assign _3 _)
-			(vp-cpy-ir r0 obj_vtable _4)
-			(vp-jmp-i _4 (elem 4 m)))))
 
 (defcfun f-call (_1 _2 &optional _3 _4)
 	;_1 = class name

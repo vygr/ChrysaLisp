@@ -26,7 +26,7 @@
 	(int 'radius 'eps)
 
 	(push-scope)
-	(f-entry 'points 'gen_arc {this, stack, c, a1, a2, radius, eps})
+	(entry 'points 'gen_arc {this, stack, c, a1, a2, radius, eps})
 
 	(vec-set 0)
 	(vec-load 2 {a1, fp_2pi})
@@ -55,7 +55,7 @@
 		(call 'points 'gen_arc {this, stack, c, a1 + ah, a2, radius, eps})
 	(endif)
 
-	(f-exit 'points 'gen_arc {this})
+	(exit 'points 'gen_arc {this})
 	(pop-scope)
 	(return)
 

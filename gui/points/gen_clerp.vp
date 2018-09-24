@@ -25,7 +25,7 @@
 	(uint 'start 'length)
 
 	(push-scope)
-	(f-entry 'points 'gen_clerp {this, stack, c, v1, v2, radius, eps})
+	(entry 'points 'gen_clerp {this, stack, c, v1, v2, radius, eps})
 
 	(vec-set 0)
 	(vec-load 1 {256.0} {eps})
@@ -96,7 +96,7 @@
 	(vec-store 2 {bvx, bvy})
 	(call 'points 'push_back {this, bv})
 
-	(f-exit 'points 'gen_clerp {this})
+	(exit 'points 'gen_clerp {this})
 	(pop-scope)
 	(return)
 

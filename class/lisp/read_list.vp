@@ -17,7 +17,7 @@
 	(int 'char)
 
 	(push-scope)
-	(f-entry 'lisp 'read_list {this, stream, char})
+	(entry 'lisp 'read_list {this, stream, char})
 
 	;skip "(" and white space
 	(loop-start)
@@ -44,15 +44,15 @@
 	;skip ")"
 	(call 'stream 'read_char {stream} {_, char})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'read_list {this, list, char})
+(vp-label 'funcexit)
+	(exit 'lisp 'read_list {this, list, char})
 	(return)
 
 (errorcases
 (vp-label 'error)
 	(call 'obj 'deref {list})
 	(assign {ast} {list})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

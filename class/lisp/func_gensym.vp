@@ -15,7 +15,7 @@
 	(uint 'length))
 
 	(push-scope)
-	(f-entry 'lisp 'func_gensym {this, args})
+	(entry 'lisp 'func_gensym {this, args})
 
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
@@ -29,14 +29,14 @@
 	(call 'symbol 'intern {value} {value})
 	(assign {this->lisp_nextsym + 1} {this->lisp_nextsym})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_gensym {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_gensym {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(gensym)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

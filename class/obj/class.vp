@@ -43,10 +43,10 @@
 	(vp-lea-i r0 obj_vtable r1)
 	(loop-start)
 		(vp-cpy-ir r1 ln_fnode_next r1)
-		(gotoif '(r1 == 0) 'exit)
+		(gotoif '(r1 == 0) 'funcexit)
 	(loop-until '(r1 == r2))
 	(vp-cpy-ir r0 obj_vtable r1)
-(vp-label 'exit)
+(vp-label 'funcexit)
 	(vp-ret)
 
 (def-func-end)

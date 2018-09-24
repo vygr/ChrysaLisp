@@ -17,7 +17,7 @@
 	(int 'char)
 
 	(push-scope)
-	(f-entry 'lisp 'read {this, stream, char})
+	(entry 'lisp 'read {this, stream, char})
 
 	;skip white space
 (vp-label 'skip_white)
@@ -71,7 +71,7 @@
 		(call 'obj 'ref {this->lisp_sym_nil} {ast})
 	(endif)
 
-	(f-exit 'lisp 'read {this, ast, char})
+	(exit 'lisp 'read {this, ast, char})
 	(pop-scope)
 	(return)
 

@@ -15,7 +15,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'lisp 'func_defmacro {this, args})
+	(entry 'lisp 'func_defmacro {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 4} 'error1)
@@ -30,20 +30,20 @@
 	(call 'hash_map 'insert {this->lisp_environment, value, args})
 	(call 'obj 'deref {args})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_defmacro {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_defmacro {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(defmacro name ([arg ...]) body)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(defmacro name ([arg ...]) body)", error_msg_not_a_list, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error3)
 	(call 'lisp 'repl_error {this, "(defmacro name ([arg ...]) body)", error_msg_not_a_symbol, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

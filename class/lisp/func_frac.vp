@@ -17,7 +17,7 @@
 		'(long 'num))
 
 	(push-scope)
-	(f-entry 'lisp 'func_frac {this, args})
+	(entry 'lisp 'func_frac {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
@@ -31,14 +31,14 @@
 	(vec-store 1 {num})
 	(call 'integer 'create {num} {value})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_frac {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_frac {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(frac num)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'integer))
 
 	(pop-scope-syms)

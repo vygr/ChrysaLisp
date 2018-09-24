@@ -44,7 +44,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'array 'append '((rsp local_this) (rsp local_source) (rsp local_start i) (rsp local_end i)))
+	(entry 'array 'append '((rsp local_this) (rsp local_source) (rsp local_start i) (rsp local_end i)))
 
 	;extend existing array
 	(vp-cpy-ir-ui r0 array_length r1)
@@ -68,7 +68,7 @@
 	(vp-add-rr r3 r1)
 	(call 'sys_mem 'copy '(r1 r4 r2))
 
-	(f-exit 'array 'append '((rsp local_this)))
+	(exit 'array 'append '((rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -119,7 +119,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'array 'for_each '((rsp local_this) r1 r2 (rsp local_predicate) (rsp local_predicate_data)))
+	(entry 'array 'for_each '((rsp local_this) r1 r2 (rsp local_predicate) (rsp local_predicate_data)))
 
 	;process elements
 	(vp-cpy-ir r0 array_array r0)
@@ -357,7 +357,7 @@
 	;r1-r11
 
 	;save inputs
-	(f-entry 'array 'slice '(r8 r9 r10))
+	(entry 'array 'slice '(r8 r9 r10))
 
 	;create new array
 	(call 'array 'create '() '(r11))
@@ -374,7 +374,7 @@
 	(vp-sub-rr r9 r10)
 	(call 'sys_mem 'copy '((& r0 r9) r1 r10))
 
-	(f-exit 'array 'slice '(r8 r11))
+	(exit 'array 'slice '(r8 r11))
 	(vp-ret)
 
 (def-func-end)
@@ -412,7 +412,7 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(f-entry 'array 'partition '((rsp local_this) (rsp local_lower) (rsp local_upper) (rsp local_func) (rsp local_ctx)))
+	(entry 'array 'partition '((rsp local_this) (rsp local_lower) (rsp local_upper) (rsp local_func) (rsp local_ctx)))
 
 	(vp-cpy-ri r1 rsp local_iter)
 	(vp-cpy-ri r1 rsp local_pivot)
@@ -444,7 +444,7 @@
 		(vp-cpy-ri r3 r0 0)
 	(endif)
 
-	(f-exit 'array 'partition '((rsp local_this) r1))
+	(exit 'array 'partition '((rsp local_this) r1))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -482,7 +482,7 @@
 		'(uint 'start 'length))
 
 	(push-scope)
-	(f-entry 'array 'sort {this, stack, lower, upper, func, ctx})
+	(entry 'array 'sort {this, stack, lower, upper, func, ctx})
 
 	(call 'array 'get_begin {this} {_, iter_begin})
 	(assign {(lower - iter_begin) >> 3, (upper - iter_begin) >> 3} {low, high})
@@ -503,7 +503,7 @@
 		(d-call 'array 'pop_back {stack})
 	(loop-end)
 
-	(f-exit 'array 'sort {this})
+	(exit 'array 'sort {this})
 	(pop-scope)
 	(return)
 

@@ -15,7 +15,7 @@
 	(uint 'length))
 
 	(push-scope)
-	(f-entry 'grid 'lisp_create {this, args})
+	(entry 'grid 'lisp_create {this, args})
 
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
@@ -23,14 +23,14 @@
 
 	(call 'grid 'create nil {value})
 
-(vp-label 'exit)
-	(f-exit 'grid 'lisp_create {this, value})
+(vp-label 'funcexit)
+	(exit 'grid 'lisp_create {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(create-grid)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

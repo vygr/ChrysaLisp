@@ -83,7 +83,7 @@
 	(uint 'length 'cnt)
 
 	(push-scope)
-	(f-entry 'error 'get_msg {this})
+	(entry 'error 'get_msg {this})
 
 	(assign {"", $msgs, this->error_msg} {msg, next, cnt})
 	(loop-while {*next && cnt})
@@ -92,7 +92,7 @@
 		(assign {next + length + byte_size, cnt - 1} {next, cnt})
 	(loop-end)
 
-	(f-exit 'error 'get_msg {this, msg})
+	(exit 'error 'get_msg {this, msg})
 	(pop-scope)
 	(return)
 

@@ -23,7 +23,7 @@
 	(byte 'join_style)
 
 	(push-scope)
-	(f-entry 'points 'stroke_polygons {this, stack, in_polygons, join_style, radius, eps})
+	(entry 'points 'stroke_polygons {this, stack, in_polygons, join_style, radius, eps})
 
 	(vpif {radius >= 0.5})
 		(call 'vector 'get_iters {in_polygons} {_, iter_begin_polygons, iter_end_polygons})
@@ -42,7 +42,7 @@
 		(loop-end)
 	(endif)
 
-	(f-exit 'points 'stroke_polygons {this})
+	(exit 'points 'stroke_polygons {this})
 	(pop-scope)
 	(return)
 

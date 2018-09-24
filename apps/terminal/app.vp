@@ -65,7 +65,7 @@
 	;app event loop
 	(call 'sys_task 'mailbox nil {my_mbox_id})
 	(call 'sys_mail 'mbox_addr {my_mbox_id} {my_mbox_addr})
-	(loop-start 'exit)
+	(loop-start 'loopexit)
 		(vpif {myapp.local_pipe})
 			;select on multiple mailboxes
 			(call 'pipe 'select {myapp.local_pipe, my_mbox_addr} {_, index})
@@ -89,7 +89,7 @@
 		(else)
 		(vp-label 'from_mymailbox)
 			(call 'sys_mail 'read {my_mbox_addr} {msg, data})
-			(breakifnot {data->ev_msg_target_id} exit)
+			(breakifnot {data->ev_msg_target_id} loopexit)
 			(call 'view 'event {myapp.local_window, data})
 			(vpif {data->ev_msg_type == ev_type_key && data->ev_msg_key_keycode > 0})
 				(l-call 'terminal_input {&myapp, data->ev_msg_key_key})
@@ -118,7 +118,7 @@
 	(int 'char 'ready)
 
 	(push-scope)
-	(l-entry {local, stream})
+	(entry {local, stream})
 
 	(loop-start)
 		(call 'stream 'read_char {stream} {_, char})
@@ -127,7 +127,7 @@
 		(call 'stream 'read_ready {stream} {_, ready})
 	(loop-untilnot {ready})
 
-	(l-exit {char})
+	(exit {char})
 	(pop-scope)
 	(return)
 
@@ -141,7 +141,7 @@
 	(int 'char)
 
 	(push-scope)
-	(l-entry {local, char})
+	(entry {local, char})
 
 	;echo char to terminal
 	(l-call 'terminal_output {local, char})
@@ -265,7 +265,7 @@
 	(int 'char)
 
 	(push-scope)
-	(l-entry {local, char})
+	(entry {local, char})
 
 	(vpif {char == char_cr})
 		(assign {char_lf} {char})

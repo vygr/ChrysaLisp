@@ -26,7 +26,7 @@
 	(uint 'mode 'color 'length)
 
 	(push-scope)
-	(f-entry 'canvas 'fpoly {this, polygons, color, mode, span})
+	(entry 'canvas 'fpoly {this, polygons, color, mode, span})
 	(call 'canvas 'to_premul {this, color} {_, color})
 
 	;fill edges, find min and max xy, clip edges not visible or redundant
@@ -243,7 +243,7 @@
 		(loop-end)
 	(endif)
 
-	(f-exit 'canvas 'fpoly {this})
+	(exit 'canvas 'fpoly {this})
 	(pop-scope)
 	(return)
 

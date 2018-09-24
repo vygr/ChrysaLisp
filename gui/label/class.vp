@@ -23,7 +23,7 @@
 		'(ulong 'ok))
 
 	(push-scope)
-	(f-entry 'label 'init {this, vtable})
+	(entry 'label 'init {this, vtable})
 
 	;init parent
 	(s-call 'label 'init {this, vtable} {_, ok})
@@ -40,7 +40,7 @@
 		(call 'flow 'add_child {this->label_flow, this->label_text})
 	(endif)
 
-	(f-exit 'label 'init {this, ok})
+	(exit 'label 'init {this, ok})
 	(pop-scope)
 	(return)
 
@@ -57,13 +57,13 @@
 	(uint 'depth)
 
 	(push-scope)
-	(f-entry 'label 'draw {this, ctx})
+	(entry 'label 'draw {this, ctx})
 
 	;draw panel
 	(call 'label 'get_long_prop {this, prop_border} {_, depth})
 	(call 'label 'draw_panel {this, ctx, 1, depth})
 
-	(f-exit 'label 'draw {this})
+	(exit 'label 'draw {this})
 	(pop-scope)
 	(return)
 
@@ -81,7 +81,7 @@
 		'(uint 'depth))
 
 	(push-scope)
-	(f-entry 'label 'layout {this})
+	(entry 'label 'layout {this})
 
 	(call 'label 'get_long_prop {this, prop_border} {_, depth})
 	(call 'flow 'set_bounds {this->label_flow, depth, depth,
@@ -93,7 +93,7 @@
 		(call 'label 'opaque {this})
 	(endif)
 
-	(f-exit 'label 'layout {this})
+	(exit 'label 'layout {this})
 	(pop-scope)
 	(return)
 
@@ -112,7 +112,7 @@
 	(uint 'depth 'w 'h 'mw 'mh)
 
 	(push-scope)
-	(f-entry 'label 'pref_size {this})
+	(entry 'label 'pref_size {this})
 
 	(call 'label 'get_long_prop {this, prop_border} {_, depth})
 	(call 'label 'get_long_prop {this, prop_min_width} {_, mw})
@@ -126,7 +126,7 @@
 		(assign {mh} {h})
 	(endif)
 
-	(f-exit 'label 'pref_size {this, w + (depth * 2), h + (depth * 2)})
+	(exit 'label 'pref_size {this, w + (depth * 2), h + (depth * 2)})
 	(pop-scope)
 	(return)
 

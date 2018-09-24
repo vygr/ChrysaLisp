@@ -15,7 +15,7 @@
 	(long 'accum 'num)
 
 	(push-scope)
-	(f-entry 'lisp 'func_bor {this, args})
+	(entry 'lisp 'func_bor {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type (cat {this, args, @} (f-path 'integer 'vtable) {, -2}) {_, value})
@@ -30,14 +30,14 @@
 	(loop-until {iter_begin == iter_end})
 	(call 'integer 'create {accum} {value})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_bor {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_bor {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(bit-or num num ...)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

@@ -16,7 +16,7 @@
 	(uint 'length))
 
 	(push-scope)
-	(f-entry 'vdu 'lisp_create {this, args})
+	(entry 'vdu 'lisp_create {this, args})
 
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
@@ -24,14 +24,14 @@
 
 	(call 'vdu 'create nil {value})
 
-(vp-label 'exit)
-	(f-exit 'vdu 'lisp_create {this, value})
+(vp-label 'funcexit)
+	(exit 'vdu 'lisp_create {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(create-vdu)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 
@@ -49,7 +49,7 @@
 	(ulong 'arg0 'arg1)
 
 	(push-scope)
-	(f-entry 'vdu 'lisp_print {this, args})
+	(entry 'vdu 'lisp_print {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
@@ -59,14 +59,14 @@
 	(call 'vdu 'print_cstr {arg0, &arg1->string_data})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'vdu 'lisp_print {this, value})
+(vp-label 'funcexit)
+	(exit 'vdu 'lisp_print {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(vdu-print vdu str)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'vdu 'string))
 
 	(pop-scope-syms)

@@ -20,7 +20,7 @@
 	(uint 'msg 'line)
 
 	(push-scope)
-	(f-entry 'lisp 'repl_error {this, desc, msg, payload})
+	(entry 'lisp 'repl_error {this, desc, msg, payload})
 
 	(call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_name} {_, iter, _})
 	(vpif {iter})
@@ -43,7 +43,7 @@
 
 	(call 'error 'create {desc, msg, payload, file, line} {value})
 
-	(f-exit 'lisp 'repl_error {this, value})
+	(exit 'lisp 'repl_error {this, value})
 	(pop-scope)
 	(return)
 

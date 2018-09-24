@@ -13,7 +13,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'lisp 'func_progn {this, args})
+	(entry 'lisp 'func_progn {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(vpif {length})
@@ -22,7 +22,7 @@
 		(call 'obj 'ref {this->lisp_sym_nil} {args})
 	(endif)
 
-	(f-exit 'lisp 'func_progn {this, args})
+	(exit 'lisp 'func_progn {this, args})
 	(pop-scope)
 	(return)
 

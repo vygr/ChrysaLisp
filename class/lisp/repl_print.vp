@@ -29,7 +29,7 @@
 	(ptr 'value 'elem)
 
 	(push-scope)
-	(f-entry 'lisp 'repl_print {this, stream, value})
+	(entry 'lisp 'repl_print {this, stream, value})
 
 	(vpifnot {value})
 		(call 'stream 'write_char {stream, char_lf})
@@ -152,7 +152,7 @@
 		(endswitch)
 	(endif)
 
-	(f-exit 'lisp 'repl_print {this})
+	(exit 'lisp 'repl_print {this})
 	(pop-scope)
 	(return)
 
@@ -167,14 +167,14 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(f-entry 'array 'each_callback {pdata, iter})
+	(entry 'array 'each_callback {pdata, iter})
 
 	(call 'lisp 'repl_print {pdata->local_this, pdata->local_stream, *iter})
 	(vpif {pdata->local_iter_end != iter})
 		(call 'stream 'write_char {pdata->local_stream, char_space})
 	(endif)
 
-	(f-exit 'array 'each_callback '(-1))
+	(exit 'array 'each_callback '(-1))
 	(pop-scope)
 	(return)
 
@@ -189,7 +189,7 @@
 	(plong 'iter)
 
 	(push-scope)
-	(f-entry 'array 'each_callback {pdata, iter})
+	(entry 'array 'each_callback {pdata, iter})
 
 	(vpif {*iter < 0})
 		(call 'string 'create_from_long {-(*iter), 16} {value})
@@ -204,7 +204,7 @@
 		(call 'stream 'write_char {pdata->local_stream, char_space})
 	(endif)
 
-	(f-exit 'array 'each_callback '(-1))
+	(exit 'array 'each_callback '(-1))
 	(pop-scope)
 	(return)
 

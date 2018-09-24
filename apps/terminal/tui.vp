@@ -93,7 +93,7 @@
 	(int 'char 'ready)
 
 	(push-scope)
-	(l-entry {local, stream})
+	(entry {local, stream})
 
 	(loop-start)
 		(call 'stream 'read_char {stream} {_, char})
@@ -102,7 +102,7 @@
 		(call 'stream 'read_ready {stream} {_, ready})
 	(loop-untilnot {ready})
 
-	(l-exit {char})
+	(exit {char})
 	(pop-scope)
 	(return)
 
@@ -116,7 +116,7 @@
 	(int 'char)
 
 	(push-scope)
-	(l-entry {local, char})
+	(entry {local, char})
 
 	;echo char to terminal
 ;	(l-call 'terminal_output {local, char})
@@ -172,7 +172,7 @@
 	(int 'char)
 
 	(push-scope)
-	(l-entry {char})
+	(entry {char})
 
 	(vpif {char == char_tab})
 		;tab
@@ -195,7 +195,7 @@
 
 	;save inputs
 	(push-scope)
-	(l-entry {charp})
+	(entry {charp})
 
 	;print chars
 	(loop-while {*charp})

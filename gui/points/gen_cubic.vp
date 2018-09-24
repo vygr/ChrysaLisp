@@ -27,7 +27,7 @@
 
 	(push-scope)
 	(used-syms 'p23)
-	(f-entry 'points 'gen_cubic {this, stack, p1, p2, p3, p4, eps})
+	(entry 'points 'gen_cubic {this, stack, p1, p2, p3, p4, eps})
 
 	;output first point
 	(vec-set 0)
@@ -104,7 +104,7 @@
 	;output last point
 	(call 'points 'push_back {this, p4})
 
-	(f-exit 'points 'gen_cubic {this})
+	(exit 'points 'gen_cubic {this})
 	(pop-scope)
 	(return)
 

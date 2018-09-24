@@ -17,7 +17,7 @@
 		'(uint 'char))
 
 	(push-scope)
-	(f-entry 'lisp 'func_code {this, args})
+	(entry 'lisp 'func_code {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
@@ -27,14 +27,14 @@
 	(assign {ubyte(value->string_data)} {char})
 	(call 'integer 'create {char} {value})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_code {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_code {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(code str)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

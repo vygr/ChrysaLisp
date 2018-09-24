@@ -31,7 +31,7 @@
 
 	(push-scope)
 	(used-syms 'l2_pv 'l1_vx 'l1_vy)
-	(f-entry 'points 'stroke_polylines {this, stack, iter_end_polylines, join_style, cap1_style, cap2_style, radius, eps})
+	(entry 'points 'stroke_polylines {this, stack, iter_end_polylines, join_style, cap1_style, cap2_style, radius, eps})
 
 	(vpif {radius >= 0.5})
 		(vec-set 0)
@@ -188,7 +188,7 @@
 		(loop-end)
 	(endif)
 
-	(f-exit 'points 'stroke_polylines {this})
+	(exit 'points 'stroke_polylines {this})
 	(pop-scope)
 	(return)
 

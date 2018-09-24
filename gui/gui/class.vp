@@ -91,7 +91,7 @@
 	(vp-cpy-rr rsp r1)
 	(push-scope)
 	(vp-and-cr -16 rsp)
-	(l-entry {user, old_stack})
+	(entry {user, old_stack})
 
 	;create screen window ?
 	(vpifnot {user->local_statics->gui_statics_window})
@@ -226,7 +226,7 @@
 	(pubyte 'codes)
 
 	(push-scope)
-	(l-entry {key, mod})
+	(entry {key, mod})
 
 	(vpif {mod & 0x2003})
 		(assign {$shifted} {codes})
@@ -239,7 +239,7 @@
 		(loop-end)
 	(endif)
 
-	(l-exit {key})
+	(exit {key})
 	(pop-scope)
 	(return)
 
@@ -253,7 +253,7 @@
 	(vp-cpy-rr rsp r1)
 	(push-scope)
 	(vp-and-cr -16 rsp)
-	(l-entry {user, old_stack})
+	(entry {user, old_stack})
 
 	;free any screen
 	(vpif {user->local_statics->gui_statics_screen})

@@ -15,7 +15,7 @@
 		'(uint 'length))
 
 	(push-scope)
-	(f-entry 'lisp 'func_while {this, args})
+	(entry 'lisp 'func_while {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 2} 'error1)
@@ -25,24 +25,24 @@
 		(assign {iter_begin + ptr_size} {iter_begin})
 		(call 'lisp 'repl_eval {this, *iter_begin} {_, value})
 		(breakif {value == this->lisp_sym_nil})
-		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit)
+		(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'funcexit)
 		(loop-start)
 			(call 'obj 'deref {value})
 			(assign {iter_begin + ptr_size} {iter_begin})
 			(breakif {iter_begin == iter_end})
 			(call 'lisp 'repl_eval {this, *iter_begin} {_, value})
-			(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit)
+			(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'funcexit)
 		(loop-end)
 	(loop-end)
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_while {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_while {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(while tst body)", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

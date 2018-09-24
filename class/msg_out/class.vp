@@ -25,7 +25,7 @@
 
 	;save inputs
 	(push-scope)
-	(f-entry 'msg_out 'init {this, vtable, this->msg_out_id.id_id})
+	(entry 'msg_out 'init {this, vtable, this->msg_out_id.id_id})
 
 	;init parent
 	(s-call 'msg_out 'init {this, vtable, 0, 0, 0, 0} {_, ok})
@@ -38,7 +38,7 @@
 		(call 'sys_mail 'mbox_addr {this->msg_out_ack_mbox_id} {this->msg_out_ack_mbox_addr})
 	(endif)
 
-	(f-exit 'msg_out 'init {this, ok})
+	(exit 'msg_out 'init {this, ok})
 	(pop-scope)
 	(return)
 
@@ -53,7 +53,7 @@
 	(ptr 'this 'msg)
 
 	(push-scope)
-	(f-entry 'msg_out 'deinit {this})
+	(entry 'msg_out 'deinit {this})
 
 	;wait for final ack
 	(call 'sys_mail 'read {this->msg_out_ack_mbox_addr} {msg, _})
@@ -67,7 +67,7 @@
 	(call 'sys_mail 'free_mbox {this->msg_out_ack_mbox_id})
 
 	;parent deinit
-	(f-exit 'msg_out 'deinit {this})
+	(exit 'msg_out 'deinit {this})
 	(pop-scope)
 	(s-jmp 'msg_out 'deinit '(r0))
 
@@ -84,7 +84,7 @@
 	(ptr 'this 'msg 'data)
 
 	(push-scope)
-	(f-entry 'msg_out 'write_flush {this})
+	(entry 'msg_out 'write_flush {this})
 
 	(assign {this->stream_buffer} {msg})
 	(vpif {msg})
@@ -113,7 +113,7 @@
 		(s-call 'msg_out 'write_flush {this})
 	(endif)
 
-	(f-exit 'msg_out 'write_flush {this})
+	(exit 'msg_out 'write_flush {this})
 	(pop-scope)
 	(return)
 
@@ -130,7 +130,7 @@
 	(ptr 'this 'msg 'data)
 
 	(push-scope)
-	(f-entry 'msg_out 'write_next {this})
+	(entry 'msg_out 'write_next {this})
 
 	(call 'stream 'write_flush {this})
 	(call 'sys_mail 'alloc {lk_data_size} {msg, data})
@@ -138,7 +138,7 @@
 	(assign {&data->stream_msg_data + lk_data_size - stream_msg_data} {this->stream_bufe})
 	(assign {msg} {this->stream_buffer})
 
-	(f-exit 'msg_out 'write_next {this})
+	(exit 'msg_out 'write_next {this})
 	(pop-scope)
 	(return)
 

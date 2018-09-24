@@ -16,7 +16,7 @@
 	(uint 'start)
 
 	(push-scope)
-	(f-entry 'lisp 'env_args_set {this, args, dest, start})
+	(entry 'lisp 'env_args_set {this, args, dest, start})
 
 	(call 'vector 'get_iter {args, start} {_, iter_begin})
 	(call 'vector 'get_end {args} {_, iter_end})
@@ -29,7 +29,7 @@
 		(assign {iter_begin + ptr_size, dest + ptr_size} {iter_begin, dest})
 	(loop-end)
 
-	(f-exit 'lisp 'env_args_set {this})
+	(exit 'lisp 'env_args_set {this})
 	(pop-scope)
 	(return)
 

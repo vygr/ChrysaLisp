@@ -22,7 +22,7 @@
 	(int 'char 'cchar)
 
 	(push-scope)
-	(f-entry 'lisp 'read_str {this, stream, char, cchar})
+	(entry 'lisp 'read_str {this, stream, char, cchar})
 
 	(switch)
 		(assign {stream->stream_bufp, stream->stream_bufe} {bufp, bufe})
@@ -48,7 +48,7 @@
 	(endswitch)
 	(call 'stream 'read_char {stream} {_, char})
 
-	(f-exit 'lisp 'read_str {this, value, char})
+	(exit 'lisp 'read_str {this, value, char})
 	(pop-scope)
 	(return)
 

@@ -47,7 +47,7 @@
 	(ulong 'ok)
 
 	(push-scope)
-	(f-entry 'lisp 'init {this, vtable, stdin, stdout, stderr})
+	(entry 'lisp 'init {this, vtable, stdin, stdout, stderr})
 
 	;init parent
 	(s-call 'lisp 'init {this, vtable} {_, ok})
@@ -153,7 +153,7 @@
 		(endif)
 	(endif)
 
-	(f-exit 'lisp 'init {this, ok})
+	(exit 'lisp 'init {this, ok})
 	(pop-scope)
 	(return)
 

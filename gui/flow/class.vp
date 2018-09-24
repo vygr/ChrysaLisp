@@ -20,7 +20,7 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(f-entry 'flow 'layout '(r0))
+	(entry 'flow 'layout '(r0))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 rsp local_x)
 	(vp-cpy-ri-i r1 rsp local_y)
@@ -201,7 +201,7 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(f-entry 'flow 'pref_size '(r0))
+	(entry 'flow 'pref_size '(r0))
 	(vp-xor-rr r1 r1)
 	(vp-cpy-ri-i r1 rsp local_w)
 	(vp-cpy-ri-i r1 rsp local_h)

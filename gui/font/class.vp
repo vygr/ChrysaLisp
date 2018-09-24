@@ -26,7 +26,7 @@
 	(int 'same)
 
 	(push-scope)
-	(f-entry 'font 'open {name, points})
+	(entry 'font 'open {name, points})
 
 	(assign {ptr($fonts)} {flat_set})
 	(vpifnot {flat_set})
@@ -51,7 +51,7 @@
 		(call 'font 'ref {this})
 	(endif)
 
-	(f-exit 'font 'open {this})
+	(exit 'font 'open {this})
 	(pop-scope)
 	(return)
 
@@ -84,7 +84,7 @@
 	(uint 'points)
 
 	(push-scope)
-	(f-entry 'font 'init {this, vtable, name, points})
+	(entry 'font 'init {this, vtable, name, points})
 
 	;init parent
 	(s-call 'font 'init {this, vtable} {_, ok})
@@ -103,7 +103,7 @@
 		(endif)
 	(endif)
 
-	(f-exit 'font 'init {this, ok})
+	(exit 'font 'init {this, ok})
 	(pop-scope)
 	(return)
 
@@ -117,7 +117,7 @@
 	(vp-cpy-rr rsp r1)
 	(push-scope)
 	(vp-and-cr -16 rsp)
-	(l-entry {user, old_stack})
+	(entry {user, old_stack})
 
 	(sdl-call 'sdl 'ttf_open_font {&user->font_name->string_data, user->font_points} {user->font_handle})
 	(vpif {user->font_handle})
@@ -144,14 +144,14 @@
 	(ptr 'this)
 
 	(push-scope)
-	(f-entry 'font 'deinit {this})
+	(entry 'font 'deinit {this})
 
 	(call 'vector 'deref_if {this->font_chars})
 	(call 'hash_map 'deref {this->font_word_map})
 	(call 'string 'deref {this->font_name})
 	(call 'sys_task 'callback {this, $close_callback})
 
-	(f-exit 'font 'deinit {this})
+	(exit 'font 'deinit {this})
 	(pop-scope)
 	(s-jmp 'font 'deinit '(r0))
 
@@ -167,7 +167,7 @@
 	(vp-cpy-rr rsp r1)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(l-entry '(r0 (rsp local_old_stack)))
+	(entry '(r0 (rsp local_old_stack)))
 
 	(sdl-call 'sdl 'ttf_close_font '((r0 font_handle)))
 
@@ -194,7 +194,7 @@
 	(pptr 'iter 'bucket)
 
 	(push-scope)
-	(f-entry 'font 'ref_word {this, word})
+	(entry 'font 'ref_word {this, word})
 
 	;look up string in word map
 	(call 'hash_map 'find {this->font_word_map, word} {_, iter, bucket})
@@ -212,7 +212,7 @@
 	(endif)
 	(call 'texture 'ref {txt})
 
-	(f-exit 'font 'ref_word {this, txt})
+	(exit 'font 'ref_word {this, txt})
 	(pop-scope)
 	(return)
 
@@ -227,7 +227,7 @@
 	(vp-cpy-rr rsp r1)
 	(push-scope)
 	(vp-and-cr -16 rsp)
-	(l-entry {user, old_stack})
+	(entry {user, old_stack})
 
 	(sdl-call 'sdl 'ttf_render_utf8_blended {user->local_this->font_handle, &user->local_word->string_data, 0xffffff} {surface})
 	(vpif {surface})
@@ -262,7 +262,7 @@
 
 	;save inputs
 	(push-scope)
-	(f-entry 'font 'ref_chars {this})
+	(entry 'font 'ref_chars {this})
 
 	;lazy create char textures
 	(vpifnot {this->font_chars})
@@ -279,7 +279,7 @@
 	(endif)
 	(call 'vector 'ref {this->font_chars})
 
-	(f-exit 'font 'ref_chars {this, this->font_chars})
+	(exit 'font 'ref_chars {this, this->font_chars})
 	(pop-scope)
 	(return)
 

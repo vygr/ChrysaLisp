@@ -24,7 +24,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'lisp 'func_each {this, args})
+	(entry 'lisp 'func_each {this, args})
 	(call 'lisp 'env_push {this})
 
 	(d-call 'vector 'get_length {args} {_, length})
@@ -103,27 +103,27 @@
 	(endif)
 	(call 'obj 'ref {this->lisp_sym_nil} {value})
 
-(vp-label 'exit)
+(vp-label 'funcexit)
 	(call 'lisp 'env_pop {this})
-	(f-exit 'lisp 'func_each {this, value})
+	(exit 'lisp 'func_each {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(each! start|nil end|nil lambda|nil lambda (seq ...))", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(each! start|nil end|nil lambda|nil lambda (seq ...))", error_msg_not_a_list, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error3)
 	(call 'lisp 'repl_error {this, "(each! start|nil end|nil lambda|nil lambda (seq ...))", error_msg_not_a_sequence, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error4)
 	(call 'lisp 'repl_error {this, "(each! start|nil end|nil lambda|nil lambda (seq ...))", error_msg_not_valid_index, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error5)
 	(call 'vector 'deref {params})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

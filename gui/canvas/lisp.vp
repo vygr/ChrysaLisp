@@ -16,7 +16,7 @@
 	(ulong 'arg0 'arg1 'arg2)
 
 	(push-scope)
-	(f-entry 'canvas 'lisp_create {this, args})
+	(entry 'canvas 'lisp_create {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
@@ -25,14 +25,14 @@
 	(call 'lisp 'env_args_set {this, args, &arg0, 0})
 	(call 'canvas 'create {arg0, arg1, arg2} {value})
 
-(vp-label 'exit)
-	(f-exit 'canvas 'lisp_create {this, value})
+(vp-label 'funcexit)
+	(exit 'canvas 'lisp_create {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(create-canvas width height aa_scale)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -51,7 +51,7 @@
 	(ulong 'arg0 'arg1)
 
 	(push-scope)
-	(f-entry 'canvas 'lisp_load {this, args})
+	(entry 'canvas 'lisp_load {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
@@ -63,14 +63,14 @@
 		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
-(vp-label 'exit)
-	(f-exit 'canvas 'lisp_load {this, value})
+(vp-label 'funcexit)
+	(exit 'canvas 'lisp_load {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(canvas-load path flags)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'string 'integer))
 
 	(pop-scope-syms)
@@ -89,7 +89,7 @@
 	(ulong 'arg0 'arg1)
 
 	(push-scope)
-	(f-entry 'canvas 'lisp_fill {this, args})
+	(entry 'canvas 'lisp_fill {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
@@ -99,14 +99,14 @@
 	(call 'canvas 'fill {arg0, arg1})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'canvas 'lisp_fill {this, value})
+(vp-label 'funcexit)
+	(exit 'canvas 'lisp_fill {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(canvas-fill canvas argb)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'canvas 'integer))
 
 	(pop-scope-syms)
@@ -125,7 +125,7 @@
 	(ulong 'arg0)
 
 	(push-scope)
-	(f-entry 'canvas 'lisp_swap {this, args})
+	(entry 'canvas 'lisp_swap {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
@@ -136,14 +136,14 @@
 	(call 'canvas 'dirty {arg0})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'canvas 'lisp_swap {this, value})
+(vp-label 'funcexit)
+	(exit 'canvas 'lisp_swap {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(canvas-swap canvas)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'canvas))
 
 	(pop-scope-syms)
@@ -162,7 +162,7 @@
 	(ulong 'arg0 'arg1 'arg2 'arg3)
 
 	(push-scope)
-	(f-entry 'canvas 'lisp_set_plot {this, args})
+	(entry 'canvas 'lisp_set_plot {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
@@ -172,14 +172,14 @@
 	(call 'canvas 'set_plot {arg0, arg1, arg2, arg3})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'canvas 'lisp_set_plot {this, value})
+(vp-label 'funcexit)
+	(exit 'canvas 'lisp_set_plot {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(canvas-set-plot canvas argb x y)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'canvas 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -198,7 +198,7 @@
 	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5)
 
 	(push-scope)
-	(f-entry 'canvas 'lisp_set_fbox {this, args})
+	(entry 'canvas 'lisp_set_fbox {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 6} {_, value})
@@ -208,14 +208,14 @@
 	(call 'canvas 'set_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'canvas 'lisp_set_fbox {this, value})
+(vp-label 'funcexit)
+	(exit 'canvas 'lisp_set_fbox {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(canvas-set-fbox canvas argb x y w h)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'canvas 'integer 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -234,7 +234,7 @@
 	(ulong 'arg0 'arg1 'arg2 'arg3)
 
 	(push-scope)
-	(f-entry 'canvas 'lisp_set_fpoly {this, args})
+	(entry 'canvas 'lisp_set_fpoly {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
@@ -244,14 +244,14 @@
 	(call 'canvas 'set_fpoly {arg0, arg1, arg2, arg3})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'canvas 'lisp_set_fpoly {this, value})
+(vp-label 'funcexit)
+	(exit 'canvas 'lisp_set_fpoly {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(canvas-set-fpoly canvas list argb mode)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'canvas 'vector 'integer 'integer))
 
 	(pop-scope-syms)
@@ -270,7 +270,7 @@
 	(ulong 'arg0 'arg1 'arg2 'arg3)
 
 	(push-scope)
-	(f-entry 'canvas 'lisp_blend_plot {this, args})
+	(entry 'canvas 'lisp_blend_plot {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
@@ -280,14 +280,14 @@
 	(call 'canvas 'blend_plot {arg0, arg1, arg2, arg3})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'canvas 'lisp_blend_plot {this, value})
+(vp-label 'funcexit)
+	(exit 'canvas 'lisp_blend_plot {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(canvas-blend-plot canvas argb x y)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'canvas 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -306,7 +306,7 @@
 	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5)
 
 	(push-scope)
-	(f-entry 'canvas 'lisp_blend_fbox {this, args})
+	(entry 'canvas 'lisp_blend_fbox {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 6} {_, value})
@@ -316,14 +316,14 @@
 	(call 'canvas 'blend_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'canvas 'lisp_blend_fbox {this, value})
+(vp-label 'funcexit)
+	(exit 'canvas 'lisp_blend_fbox {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(canvas-blend-fbox canvas argb x y w h)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'canvas 'integer 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
@@ -342,7 +342,7 @@
 	(ulong 'arg0 'arg1 'arg2 'arg3)
 
 	(push-scope)
-	(f-entry 'canvas 'lisp_blend_fpoly {this, args})
+	(entry 'canvas 'lisp_blend_fpoly {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
@@ -352,14 +352,14 @@
 	(call 'canvas 'blend_fpoly {arg0, arg1, arg2, arg3})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'canvas 'lisp_blend_fpoly {this, value})
+(vp-label 'funcexit)
+	(exit 'canvas 'lisp_blend_fpoly {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(canvas-blend-fpoly canvas list argb mode)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'canvas 'vector 'integer 'integer))
 
 	(pop-scope-syms)

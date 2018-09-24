@@ -15,7 +15,7 @@
 	(uint 'length)
 
 	(push-scope)
-	(f-entry 'pipe 'deinit {this})
+	(entry 'pipe 'deinit {this})
 
 	;flush remaining
 	(call 'pipe 'get_input {this} {_, stream})
@@ -47,7 +47,7 @@
 	(call 'sys_mem 'free {this->pipe_select_array})
 
 	;deinit parent
-	(f-exit 'pipe 'deinit {this})
+	(exit 'pipe 'deinit {this})
 	(pop-scope)
 	(s-jmp 'pipe 'deinit '(r0))
 

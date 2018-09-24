@@ -12,7 +12,7 @@
 	;trashes
 	;all but r0
 
-	(f-entry 'texture 'deinit '(r0))
+	(entry 'texture 'deinit '(r0))
 
 	(vp-cpy-ir r0 texture_handle r1)
 	(vpif '(r1 != 0))
@@ -34,7 +34,7 @@
 	(vp-cpy-rr rsp r1)
 	(vp-alloc local_size)
 	(vp-and-cr -16 rsp)
-	(l-entry '(r0 (rsp local_old_stack)))
+	(entry '(r0 (rsp local_old_stack)))
 
 	(sdl-call 'sdl 'sdl_destroy_texture '(r0))
 

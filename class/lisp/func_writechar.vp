@@ -17,7 +17,7 @@
 	(uint 'width)
 
 	(push-scope)
-	(f-entry 'lisp 'func_writechar {this, args})
+	(entry 'lisp 'func_writechar {this, args})
 
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorifnot {length == 2 || length == 3} 'error1)
@@ -40,20 +40,20 @@
 	(call 'integer 'get_value {value} {_, length})
 	(call 'stream_str 'write {iter_begin[0], &length, width})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_writechar {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_writechar {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(write-char stream num [width])", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error2)
 	(call 'lisp 'repl_error {this, "(write-char stream num [width])", error_msg_not_a_stream, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'error3)
 	(call 'lisp 'repl_error {this, "(write-char stream num [width])", error_msg_not_a_number, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

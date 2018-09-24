@@ -17,7 +17,7 @@
 		'(uint 'length1 'length2))
 
 	(push-scope)
-	(f-entry 'lisp 'func_match {this, args})
+	(entry 'lisp 'func_match {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value1})
@@ -45,14 +45,14 @@
 	(endif)
 	(call 'obj 'ref {value1})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_match {this, value1})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_match {this, value1})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(match? list list)", error_msg_wrong_types, args} {_, value1})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'vector 'vector))
 
 	(pop-scope-syms)

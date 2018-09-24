@@ -27,7 +27,7 @@
 
 	;save inputs
 	(push-scope)
-	(f-entry 'canvas 'load_cpm {stream})
+	(entry 'canvas 'load_cpm {stream})
 
 	;read header
 	(assign {0} {this})
@@ -85,14 +85,14 @@
 		(endif)
 	(endif)
 
-(vp-label 'exit)
-	(f-exit 'canvas 'load_cpm {this})
+(vp-label 'funcexit)
+	(exit 'canvas 'load_cpm {this})
 	(return)
 
 (vp-label 'error)
 	(call 'canvas 'deref {this})
 	(assign {0} {this})
-	(goto 'exit)
+	(goto 'funcexit)
 
 	(pop-scope-syms)
 
@@ -108,7 +108,7 @@
 	(int 'type)
 
 	(push-scope)
-	(l-entry {stream, type})
+	(entry {stream, type})
 
 	(assign {0} {col})
 	(switch)
@@ -131,7 +131,7 @@
 		(assign {-1} {col})
 	(endif)
 
-	(l-exit {col})
+	(exit {col})
 	(pop-scope)
 	(return)
 
@@ -145,7 +145,7 @@
 	(uint 'col 'type)
 
 	(push-scope)
-	(l-entry {col, type})
+	(entry {col, type})
 
 	(switch)
 	(case {type == 32})
@@ -167,7 +167,7 @@
 		(assign {-1} {col})
 	(endswitch)
 
-	(l-exit {col})
+	(exit {col})
 	(pop-scope)
 	(return)
 

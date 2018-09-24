@@ -66,7 +66,7 @@
 	(plong 'iter_begin 'iter_end)
 
 	(push-scope)
-	(f-entry 'component 'emit {this, ids})
+	(entry 'component 'emit {this, ids})
 
 	(call 'component 'find_owner {this} {_, tcb})
 	(vpif {tcb})
@@ -83,7 +83,7 @@
 		(loop-end)
 	(endif)
 
-	(f-exit 'component 'emit {this})
+	(exit 'component 'emit {this})
 	(pop-scope)
 	(return)
 
@@ -104,7 +104,7 @@
 	(uint 'num 'length)
 
 	(push-scope)
-	(f-entry 'component 'get_prop_sym {this, num})
+	(entry 'component 'get_prop_sym {this, num})
 
 	(assign {ptr($symbols)} {array})
 	(vpifnot {array})
@@ -121,7 +121,7 @@
 	(endif)
 	(call 'array 'get_element {array, num} {_, sym})
 
-	(f-exit 'component 'get_prop_sym {this, sym})
+	(exit 'component 'get_prop_sym {this, sym})
 	(pop-scope)
 	(return)
 
@@ -156,12 +156,12 @@
 	(ulong 'num)
 
 	(push-scope)
-	(f-entry 'component 'ref_prop {this, num})
+	(entry 'component 'ref_prop {this, num})
 
 	(call 'component 'get_prop_sym {this, num} {_, sym})
 	(call 'component 'get {this, sym} {_, obj})
 
-	(f-exit 'component 'ref_prop {this, obj})
+	(exit 'component 'ref_prop {this, obj})
 	(pop-scope)
 	(return)
 
@@ -184,13 +184,13 @@
 	(ulong 'num)
 
 	(push-scope)
-	(f-entry 'component 'get_prop {this, num})
+	(entry 'component 'get_prop {this, num})
 
 	(call 'component 'get_prop_sym {this, num} {_, sym})
 	(call 'component 'get {this, sym} {_, obj})
 	(call 'obj 'deref_if {obj})
 
-	(f-exit 'component 'get_prop {this, obj})
+	(exit 'component 'get_prop {this, obj})
 	(pop-scope)
 	(return)
 
@@ -210,14 +210,14 @@
 	(ulong 'num 'value)
 
 	(push-scope)
-	(f-entry 'component 'set_long_prop {this, num, value})
+	(entry 'component 'set_long_prop {this, num, value})
 
 	(call 'component 'get_prop_sym {this, num} {_, sym})
 	(call 'integer 'create {value} {prop})
 	(call 'component 'insert {this, sym, prop})
 	(call 'integer 'deref {prop})
 
-	(f-exit 'component 'set_long_prop {this})
+	(exit 'component 'set_long_prop {this})
 	(pop-scope)
 	(return)
 
@@ -242,7 +242,7 @@
 		'(ulong 'value))
 
 	(push-scope)
-	(f-entry 'component 'get_long_prop {this, num})
+	(entry 'component 'get_long_prop {this, num})
 
 	(call 'component 'get_prop_sym {this, num} {_, sym})
 	(call 'component 'get {this, sym} {_, prop})
@@ -252,7 +252,7 @@
 		(call 'integer 'deref {prop})
 	(endif)
 
-	(f-exit 'component 'get_long_prop {this, value})
+	(exit 'component 'get_long_prop {this, value})
 	(pop-scope)
 	(return)
 
@@ -276,7 +276,7 @@
 	(ulong 'num 'points)
 
 	(push-scope)
-	(f-entry 'component 'set_font_prop {this, num, name, points})
+	(entry 'component 'set_font_prop {this, num, name, points})
 
 	(call 'component 'get_prop_sym {this, num} {_, sym})
 	(call 'font 'open {name, points} {font})
@@ -285,7 +285,7 @@
 		(call 'font 'deref {font})
 	(endif)
 
-	(f-exit 'component 'set_font_prop {this})
+	(exit 'component 'set_font_prop {this})
 	(pop-scope)
 	(return)
 
@@ -305,14 +305,14 @@
 	(ulong 'num)
 
 	(push-scope)
-	(f-entry 'component 'set_string_prop {this, num, str})
+	(entry 'component 'set_string_prop {this, num, str})
 
 	(call 'component 'get_prop_sym {this, num} {_, sym})
 	(call 'string 'create_from_cstr {str} {str})
 	(call 'component 'insert {this, sym, str})
 	(call 'string 'deref {str})
 
-	(f-exit 'component 'set_string_prop {this})
+	(exit 'component 'set_string_prop {this})
 	(pop-scope)
 	(return)
 

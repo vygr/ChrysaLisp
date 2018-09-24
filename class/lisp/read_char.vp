@@ -20,7 +20,7 @@
 	(ulong 'char)
 
 	(push-scope)
-	(f-entry 'lisp 'read_char {this, stream, char})
+	(entry 'lisp 'read_char {this, stream, char})
 
 	(vpif {char == char_lf})
 		(call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
@@ -31,7 +31,7 @@
 
 	(call 'stream 'read_char {stream} {_, char})
 
-	(f-exit 'lisp 'read_char {this, char})
+	(exit 'lisp 'read_char {this, char})
 	(pop-scope)
 	(return)
 

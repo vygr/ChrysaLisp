@@ -17,7 +17,7 @@
 		'(ptr 'stream))
 
 	(push-scope)
-	(f-entry 'lisp 'func_write {this, args})
+	(entry 'lisp 'func_write {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
@@ -28,14 +28,14 @@
 	(call 'obj 'ref {value})
 	(call 'stream_str 'write {stream, &value->string_data, value->string_length})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_write {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_write {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(write stream str)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'stream 'string))
 
 	(pop-scope-syms)

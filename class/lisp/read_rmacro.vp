@@ -20,19 +20,19 @@
 	(int 'char)
 
 	(push-scope)
-	(f-entry 'lisp 'read_rmacro {this, stream, char, sym})
+	(entry 'lisp 'read_rmacro {this, stream, char, sym})
 
 	(call 'stream 'read_char {stream} {_, char})
 	(call 'lisp 'read {this, stream, char} {_, value, char})
-	(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'exit)
+	(errorif (cat {value->obj_vtable == @} (f-path 'error 'vtable)) 'funcexit)
 	(call 'vector 'create nil {list})
 	(call 'obj 'ref {sym})
 	(call 'vector 'push_back {list, sym})
 	(call 'vector 'push_back {list, value})
 	(assign {list} {value})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'read_rmacro {this, value, char})
+(vp-label 'funcexit)
+	(exit 'lisp 'read_rmacro {this, value, char})
 	(pop-scope)
 	(return)
 

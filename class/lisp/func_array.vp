@@ -15,7 +15,7 @@
 		'(uint 'length))
 
 	(push-scope)
-	(f-entry 'lisp 'func_array {this, args})
+	(entry 'lisp 'func_array {this, args})
 
 	(call 'array 'create nil {value})
 	(d-call 'vector 'get_length {args} {_, length})
@@ -24,7 +24,7 @@
 	(call 'array 'get_begin {value} {_, iter_begin})
 	(call 'lisp 'env_args_set {this, args, iter_begin, 0})
 
-	(f-exit 'lisp 'func_array {this, value})
+	(exit 'lisp 'func_array {this, value})
 	(pop-scope)
 	(return)
 

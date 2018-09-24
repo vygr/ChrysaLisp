@@ -8,7 +8,7 @@
 	;outputs
 	;r0 = lisp object (ptr)
 
-	(f-entry 'lisp 'env_push '(r0))
+	(entry 'lisp 'env_push '(r0))
 
 	(vp-push r0)
 	(assign '((r0 lisp_environment)) '(r0))
@@ -18,7 +18,7 @@
 	(vp-pop r0)
 	(assign '(r1) '((r0 lisp_environment)))
 
-	(f-exit 'lisp 'env_push '(r0))
+	(exit 'lisp 'env_push '(r0))
 	(vp-ret)
 
 (def-func-end)

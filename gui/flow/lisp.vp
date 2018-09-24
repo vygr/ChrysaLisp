@@ -15,7 +15,7 @@
 	(uint 'length))
 
 	(push-scope)
-	(f-entry 'flow 'lisp_create {this, args})
+	(entry 'flow 'lisp_create {this, args})
 
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
@@ -23,14 +23,14 @@
 
 	(call 'flow 'create nil {value})
 
-(vp-label 'exit)
-	(f-exit 'flow 'lisp_create {this, value})
+(vp-label 'funcexit)
+	(exit 'flow 'lisp_create {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(create-flow)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 

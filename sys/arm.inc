@@ -101,11 +101,11 @@
 	(vp-cpy-ri r2 r1 (sub tk_state_size (mul ptr_size 2)))
 	(vp-lea-p 'start r4)
 	(vp-cpy-ri r4 r1 0)
-	(goto 'exit)
+	(goto 'funcexit)
 (vp-label 'start)
 	(vp-cpy-rr r1 r30)
 	(vp-jmp-r r0)
-(vp-label 'exit))
+(vp-label 'funcexit))
 
 (defcfun emit-alloc (c) (emit-sub-cr (align c stack_align) rsp))
 (defcfun emit-free (c) (emit-add-cr (align c stack_align) rsp))

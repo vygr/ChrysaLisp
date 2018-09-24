@@ -16,7 +16,7 @@
 	(pptr 'iter)
 
 	(push-scope)
-	(f-entry 'symbol 'intern {this})
+	(entry 'symbol 'intern {this})
 
 	(assign {ptr($symbols)} {set})
 	(vpifnot {set})
@@ -29,7 +29,7 @@
 	(call 'obj 'ref {*iter} {this})
 	(assign (cat {@} (f-path 'symbol 'vtable)) {this->obj_vtable})
 
-	(f-exit 'symbol 'intern {this})
+	(exit 'symbol 'intern {this})
 	(pop-scope)
 	(return)
 
@@ -51,7 +51,7 @@
 	;trashes
 	;all
 
-	(f-entry 'symbol 'intern_cstr '(r0))
+	(entry 'symbol 'intern_cstr '(r0))
 	(call 'symbol 'create_from_cstr '(r0) '(r0))
 	(jump 'symbol 'intern '(r0))
 

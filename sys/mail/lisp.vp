@@ -18,7 +18,7 @@
 	(uint 'length))
 
 	(push-scope)
-	(f-entry 'sys_mail 'lisp_mymail {this, args})
+	(entry 'sys_mail 'lisp_mymail {this, args})
 
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
@@ -27,14 +27,14 @@
 	(call 'sys_mail 'mymail nil {value, _})
 	(call 'sys_mail 'free_obj {value} {value, _, _})
 
-(vp-label 'exit)
-	(f-exit 'sys_mail 'lisp_mymail {this, value})
+(vp-label 'funcexit)
+	(exit 'sys_mail 'lisp_mymail {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(mail-mymail)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 
@@ -53,7 +53,7 @@
 	(uint 'length))
 
 	(push-scope)
-	(f-entry 'sys_mail 'lisp_trymail {this, args})
+	(entry 'sys_mail 'lisp_trymail {this, args})
 
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
@@ -66,14 +66,14 @@
 		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
-(vp-label 'exit)
-	(f-exit 'sys_mail 'lisp_trymail {this, value})
+(vp-label 'funcexit)
+	(exit 'sys_mail 'lisp_trymail {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(mail-trymail)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit))
+	(goto 'funcexit))
 
 	(pop-scope-syms)
 
@@ -91,7 +91,7 @@
 	(ulong 'arg0 'arg1 'arg2)
 
 	(push-scope)
-	(f-entry 'sys_mail 'lisp_send {this, args})
+	(entry 'sys_mail 'lisp_send {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
@@ -111,14 +111,14 @@
 	(call 'sys_mail 'send {arg2})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'sys_mail 'lisp_send {this, value})
+(vp-label 'funcexit)
+	(exit 'sys_mail 'lisp_send {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(mail-send obj mbox)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'obj 'integer))
 
 	(pop-scope-syms)
@@ -137,7 +137,7 @@
 	(ulong 'arg0 'arg1)
 
 	(push-scope)
-	(f-entry 'sys_mail 'lisp_declare {this, args})
+	(entry 'sys_mail 'lisp_declare {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
@@ -147,14 +147,14 @@
 	(call 'sys_mail 'declare {&arg0->string_data, arg1})
 	(call 'obj 'ref {arg0} {value})
 
-(vp-label 'exit)
-	(f-exit 'sys_mail 'lisp_declare {this, value})
+(vp-label 'funcexit)
+	(exit 'sys_mail 'lisp_declare {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(mail-declare name mbox)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'string 'integer))
 
 	(pop-scope-syms)
@@ -173,7 +173,7 @@
 	(ulong 'value 'arg0)
 
 	(push-scope)
-	(f-entry 'sys_mail 'lisp_enquire {this, args})
+	(entry 'sys_mail 'lisp_enquire {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
@@ -187,14 +187,14 @@
 		(call 'obj 'ref {this->lisp_sym_nil} {value})
 	(endif)
 
-(vp-label 'exit)
-	(f-exit 'sys_mail 'lisp_enquire {this, value})
+(vp-label 'funcexit)
+	(exit 'sys_mail 'lisp_enquire {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(mail-enquire name)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

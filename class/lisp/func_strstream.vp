@@ -14,7 +14,7 @@
 	(ptr 'this 'args 'value)
 
 	(push-scope)
-	(f-entry 'lisp 'func_strstream {this, args})
+	(entry 'lisp 'func_strstream {this, args})
 
 (errorcases
 	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
@@ -23,14 +23,14 @@
 	(d-call 'vector 'ref_element {args, 0} {_, value})
 	(call 'stream_str 'create {value} {value})
 
-(vp-label 'exit)
-	(f-exit 'lisp 'func_strstream {this, value})
+(vp-label 'funcexit)
+	(exit 'lisp 'func_strstream {this, value})
 	(return)
 
 (errorcases
 (vp-label 'error1)
 	(call 'lisp 'repl_error {this, "(string-stream str)", error_msg_wrong_types, args} {_, value})
-	(goto 'exit)
+	(goto 'funcexit)
 	(signature 'sig 'string))
 
 	(pop-scope-syms)

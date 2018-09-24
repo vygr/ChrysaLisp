@@ -25,7 +25,7 @@
 	(int 'eps)
 
 	(push-scope)
-	(f-entry 'points 'gen_quadratic {this, stack, p1, p2, p3, eps})
+	(entry 'points 'gen_quadratic {this, stack, p1, p2, p3, eps})
 
 	;output first point
 	(vec-set 0)
@@ -86,7 +86,7 @@
 	;output last point
 	(call 'points 'push_back {this, p3})
 
-	(f-exit 'points 'gen_quadratic {this})
+	(exit 'points 'gen_quadratic {this})
 	(pop-scope)
 	(return)
 

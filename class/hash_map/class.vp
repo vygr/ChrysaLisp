@@ -80,7 +80,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'hash_map 'copy '((rsp local_this) r1))
+	(entry 'hash_map 'copy '((rsp local_this) r1))
 
 	(call 'hash_map 'create '((r0 hash_set_key_callback) r1) '((rsp local_obj)))
 	(call 'hash_map 'get_parent '((rsp local_this)) '(_ r0))
@@ -88,7 +88,7 @@
 	(call 'hash_map 'set_parent '((rsp local_obj) r0))
 	(call 'hash_map 'for_each '((rsp local_this) ($ callback) rsp))
 
-	(f-exit 'hash_map 'copy '(r0 (rsp local_obj)))
+	(exit 'hash_map 'copy '(r0 (rsp local_obj)))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -126,10 +126,10 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'hash_map 'find '(r0 (rsp local_key)))
+	(entry 'hash_map 'find '(r0 (rsp local_key)))
 
 	(vp-cpy-ir r0 hash_set_key_callback r2)
-	(vpif '(r2 == 0) 'exit)
+	(vpif '(r2 == 0) 'lbreak)
 		;search hash bucket
 		(call 'hash_map 'get_bucket '(r0 r1) '(r0 r2))
 		(vp-cpy-ir-ui r2 array_length r3)
@@ -140,7 +140,7 @@
 		(loop-while '(r1 != r3))
 			(vp-cpy-ir r1 0 r5)
 			(vp-cpy-ir r5 pair_first r5)
-			(breakif '(r4 == r5) exit)
+			(breakif '(r4 == r5) lbreak)
 			(vp-add-cr long_size r1)
 		(loop-end)
 		(vp-xor-rr r1 r1)
@@ -152,7 +152,7 @@
 		(vp-cpy-ir rsp local_this r0)
 	(endif)
 
-	(f-exit 'hash_map 'find '(r0 r1 r2))
+	(exit 'hash_map 'find '(r0 r1 r2))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -194,7 +194,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(f-entry 'hash_map 'insert '((rsp local_this) (rsp local_key) (rsp local_value)))
+	(entry 'hash_map 'insert '((rsp local_this) (rsp local_key) (rsp local_value)))
 
 	;search hash bucket
 	(call 'hash_map 'find '(r0 r1) '(r0 r1 r2))
@@ -225,7 +225,7 @@
 		(vp-cpy-ir rsp local_bucket r2)
 	(endif)
 
-	(f-exit 'hash_map 'insert '((rsp local_this) r1 r2))
+	(exit 'hash_map 'insert '((rsp local_this) r1 r2))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -248,7 +248,7 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(f-entry 'hash_map 'search '((rsp local_this) (rsp local_key)))
+	(entry 'hash_map 'search '((rsp local_this) (rsp local_key)))
 
 	(loop-start)
 		(call 'hash_map 'find '(r0 (rsp local_key)) '(r0 r1 r2))
@@ -258,7 +258,7 @@
 		(vp-cpy-rr r1 r0)
 	(loop-end)
 
-	(f-exit 'hash_map 'search '((rsp local_this) r1 r2))
+	(exit 'hash_map 'search '((rsp local_this) r1 r2))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -281,7 +281,7 @@
 	(def-struct-end)
 
 	(vp-alloc local_size)
-	(f-entry 'hash_map 'set '(r0 r1 (rsp local_value)))
+	(entry 'hash_map 'set '(r0 r1 (rsp local_value)))
 
 	(call 'hash_map 'search '(r0 r1) '(r0 r1 _))
 	(vpif '(r1 != 0))
@@ -292,7 +292,7 @@
 		(assign '((rsp local_this) (rsp local_value)) '(r0 r1))
 	(endif)
 
-	(f-exit 'hash_map 'set '(r0 r1))
+	(exit 'hash_map 'set '(r0 r1))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -308,7 +308,7 @@
 	;trashes
 	;all but r0
 
-	(f-entry 'hash_map 'get '(r0 r1))
+	(entry 'hash_map 'get '(r0 r1))
 
 	(call 'hash_map 'search '(r0 r1) '(r0 r1 _))
 	(vpif '(r1 != 0))
@@ -317,7 +317,7 @@
 		(vp-pop r0)
 	(endif)
 
-	(f-exit 'hash_map 'get '(r0 r1))
+	(exit 'hash_map 'get '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

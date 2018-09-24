@@ -9,7 +9,7 @@
 	;trashes
 	;r1-r2
 
-	(f-entry 'sys_math 'random '(r0))
+	(entry 'sys_math 'random '(r0))
 
 	(vp-cpy-rr r0 r1)
 	(vp-cpy-pr 'seed r0)
@@ -21,7 +21,7 @@
 	(vp-div-rrr r1 r2 r0)
 	(vp-cpy-rr r2 r0)
 
-	(f-exit 'sys_math 'random '(r0))
+	(exit 'sys_math 'random '(r0))
 	(vp-ret)
 
 	(vp-align ptr_size)
@@ -38,7 +38,7 @@
 	;trashes
 	;r1-r3
 
-	(f-entry 'sys_math 'isqrt '(r1))
+	(entry 'sys_math 'isqrt '(r1))
 
 	(vp-xor-rr r0 r0)
 	(vp-cpy-cr 0x4000000000000000 r2)
@@ -61,7 +61,7 @@
 		(vp-add-cr 1 r0)
 	(endif)
 
-	(f-exit 'sys_math 'isqrt '(r0))
+	(exit 'sys_math 'isqrt '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -74,7 +74,7 @@
 	;trashes
 	;r1-r4
 
-	(f-entry 'sys_math 'fsin '(r0))
+	(entry 'sys_math 'fsin '(r0))
 	(vec-set 1)
 	(vec-load 1 '(fp_2pi))
 	(vec-fmod 1)
@@ -190,7 +190,7 @@
 	(vp-asr-cr fp_shift r0)
 	(vp-add-rr r3 r0)
 
-	(f-exit 'sys_math 'fsin '(r0))
+	(exit 'sys_math 'fsin '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -203,7 +203,7 @@
 	;trashes
 	;r1-r4
 
-	(f-entry 'sys_math 'fcos '(r0))
+	(entry 'sys_math 'fcos '(r0))
 	(vec-set 1)
 	(vec-load 1 '(fp_2pi))
 	(vec-fmod 1)
@@ -331,7 +331,7 @@
 	(vp-asr-cr fp_shift r0)
 	(vp-add-rr r3 r0)
 
-	(f-exit 'sys_math 'fcos '(r0))
+	(exit 'sys_math 'fcos '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -352,7 +352,7 @@
 		'(int 'p1x 'p1y 'v1x 'v1y 'p2x 'p2y 'v2x 'v2y))
 
 	(push-scope)
-	(f-entry 'sys_math 'intersect {p1, v1, p2, v2})
+	(entry 'sys_math 'intersect {p1, v1, p2, v2})
 
 	(vec-set 0)
 	(vec-load 2 {p1x, p1y})
@@ -400,7 +400,7 @@
 		(vec-store 2 {p1x, p1y})
 	(endif)
 
-	(f-exit 'sys_math 'intersect {p1})
+	(exit 'sys_math 'intersect {p1})
 	(pop-scope)
 	(return)
 
@@ -421,7 +421,7 @@
 		'(int 'px 'py 'p1x 'p1y 'p2x 'p2y))
 
 	(push-scope)
-	(f-entry 'sys_math 'distance_sqd {p, p1, p2})
+	(entry 'sys_math 'distance_sqd {p, p1, p2})
 
 	(vec-set 0)
 	(vec-load 2 {px, py})
@@ -456,7 +456,7 @@
 	(vec-set 4)
 	(vec-fdistance-squared 2)
 
-	(f-exit 'sys_math 'distance_sqd (vec-pop 1))
+	(exit 'sys_math 'distance_sqd (vec-pop 1))
 	(pop-scope)
 	(return)
 
