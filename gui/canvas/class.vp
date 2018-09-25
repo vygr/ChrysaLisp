@@ -241,17 +241,20 @@
 	;trashes
 	;all
 
-	(ptr 'this 'name 'hash 'sym)
-	(uint 'flags)
+	(ptr 'this 'name 'sym)
+	(union
+		'(ptr 'hash)
+		'(ptr 'bucket))
 	(union
 		'(ptr 'stream)
 		'(pptr 'iter))
+	(uint 'flags)
 
 	(push-scope)
 	(entry 'canvas 'load {name, flags})
 
 	;shared or not
-	(vpif {flags & load_flag_shared})
+	(vpif {flags & load_flag_shared} 'funcexit)
 		;create hash map ?
 		(assign {ptr($canvass)} {hash})
 		(vpifnot {hash})
@@ -261,8 +264,9 @@
 
 		;create interned name, lookup in map
 		(call 'symbol 'intern_cstr {name} {sym})
-		(call 'hash_map 'find {hash, sym} {_, iter, _})
-		(vpifnot {iter})
+		(call 'hash_map 'find {hash, sym} {_, iter, bucket})
+		(switch)
+		(casenot {iter})
 			;open file stream
 			(call 'string 'create_from_file {name} {this})
 			(breakifnot {this})
@@ -270,12 +274,14 @@
 			(call 'canvas 'load_cpm {stream} {this})
 			(call 'stream_str 'deref {stream})
 			(breakifnot {this})
-			(call 'hash_map 'insert {hash, sym, this})
+			(call 'pair 'create {sym, this} {iter})
+			(call 'vector 'push_back {bucket, iter})
 			(call 'canvas 'create_shared {this} {this})
-		(else)
+			(break funcexit)
+		(default)
 			(call 'pair 'get_second {*iter} {_, this})
 			(call 'canvas 'create_shared {this} {this})
-		(endif)
+		(endswitch)
 		(call 'symbol 'deref {sym})
 	(else)
 		;open file stream

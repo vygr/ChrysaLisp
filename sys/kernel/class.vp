@@ -541,7 +541,7 @@
 		(call 'vector 'push_back {lines, line})
 		(call 'string 'create_from_cstr (list (char 10)) {lf})
 		(call 'vector 'push_back {lines, lf})
-		(call 'string 'create_from_cstr {" "} {sp})
+		(call 'string 'create_from_cstr '(" ") {sp})
 		(assign {&reg0} {iter})
 		(loop-start)
 			(call 'string 'create_from_long {(iter - &reg0) >> 3, 10} {num})
