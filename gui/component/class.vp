@@ -6,7 +6,7 @@
 (import 'class/symbol/class.inc)
 (import 'class/integer/class.inc)
 (import 'gui/font/class.inc)
-(import 'class/array/class.inc)
+(import 'class/vector/class.inc)
 
 (gen-class 'component)
 
@@ -99,27 +99,27 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'sym 'array)
+	(ptr 'this 'sym 'syms)
 	(pubyte 'next)
 	(uint 'num 'length)
 
 	(push-scope)
 	(entry 'component 'get_prop_sym {this, num})
 
-	(assign {ptr($symbols)} {array})
-	(vpifnot {array})
-		(call 'array 'create nil {array})
-		(call 'array 'set_capacity (cat {array, } (str (length *props*))))
+	(assign {ptr($symbols)} {syms})
+	(vpifnot {syms})
+		(call 'vector 'create nil {syms})
+		(call 'vector 'set_capacity (cat {syms, } (str (length *props*))))
 		(assign {$props} {next})
 		(loop-start)
 			(call 'symbol 'intern_cstr {next} {sym})
-			(call 'array 'push_back {array, sym})
+			(call 'vector 'push_back {syms, sym})
 			(call 'sys_string 'length {next} {_, length})
 			(assign {next + length + byte_size} {next})
 		(loop-until {next == $props_end})
-		(assign {array} {ptr($symbols)})
+		(assign {syms} {ptr($symbols)})
 	(endif)
-	(call 'array 'get_element {array, num} {_, sym})
+	(call 'vector 'get_element {syms, num} {_, sym})
 
 	(exit 'component 'get_prop_sym {this, sym})
 	(pop-scope)
