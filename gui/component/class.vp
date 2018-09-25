@@ -153,7 +153,7 @@
 	(union
 		'(ptr 'sym)
 		'(ptr 'obj))
-	(ulong 'num)
+	(uint 'num)
 
 	(push-scope)
 	(entry 'component 'ref_prop {this, num})
@@ -181,7 +181,7 @@
 	(union
 		'(ptr 'sym)
 		'(ptr 'obj))
-	(ulong 'num)
+	(uint 'num)
 
 	(push-scope)
 	(entry 'component 'get_prop {this, num})
@@ -207,7 +207,8 @@
 	;all but r0
 
 	(ptr 'this 'sym 'prop)
-	(ulong 'num 'value)
+	(long 'value)
+	(uint 'num)
 
 	(push-scope)
 	(entry 'component 'set_long_prop {this, num, value})
@@ -238,8 +239,8 @@
 		'(ptr 'sym)
 		'(ptr 'prop))
 	(union
-		'(ulong 'num)
-		'(ulong 'value))
+		'(uint 'num)
+		'(long 'value))
 
 	(push-scope)
 	(entry 'component 'get_long_prop {this, num})
@@ -273,7 +274,7 @@
 	(union
 		'(ptr 'name)
 		'(ptr 'font))
-	(ulong 'num 'points)
+	(uint 'num 'points)
 
 	(push-scope)
 	(entry 'component 'set_font_prop {this, num, name, points})
@@ -302,7 +303,7 @@
 	;all but r0
 
 	(ptr 'this 'sym 'str)
-	(ulong 'num)
+	(uint 'num)
 
 	(push-scope)
 	(entry 'component 'set_string_prop {this, num, str})
