@@ -53,8 +53,7 @@
 (defun step (_)
 	(when (elem 2 _)
 		(mail-send "" (elem 2 _))
-		(elem-set 2 _ nil))
-	(elem-set 1 _ nil))
+		(elem-set 2 _ nil)))
 
 (defun reset (&optional _)
 	(setd _ -1)
