@@ -482,6 +482,6 @@
 ## write
 ### (write stream str)
 ## write-char
-### (write-char stream num [width])
+### (write-char stream list|num [width])
 ## write-line
 ### (write-line stream str)

@@ -28,27 +28,19 @@
 	(set (env) _ *pc*))
 
 (defcfun emit-byte (&rest _)
-	(defq s *out-stream*)
-	(each! nil nil nil (lambda (_)
-		(write-char s _ 1)) (list _))
+	(write-char *out-stream* _ 1)
 	(setq *pc* (add *pc* (length _))))
 
 (defcfun emit-short (&rest _)
-	(defq s *out-stream*)
-	(each! nil nil nil (lambda (_)
-		(write-char s _ 2)) (list _))
+	(write-char *out-stream* _ 2)
 	(setq *pc* (add *pc* (mul (length _) 2))))
 
 (defcfun emit-int (&rest _)
-	(defq s *out-stream*)
-	(each! nil nil nil (lambda (_)
-		(write-char s _ 4)) (list _))
+	(write-char *out-stream* _ 4)
 	(setq *pc* (add *pc* (mul (length _) 4))))
 
 (defcfun emit-long (&rest _)
-	(defq s *out-stream*)
-	(each! nil nil nil (lambda (_)
-		(write-char s _ 8)) (list _))
+	(write-char *out-stream* _ 8)
 	(setq *pc* (add *pc* (mul (length _) 8))))
 
 (defcfun emit-string (_)
