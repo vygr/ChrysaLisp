@@ -26,7 +26,7 @@
 	(call 'ctx 'set_color {ctx, col})
 	(call 'ctx 'filled_box {ctx, 0, 0, w, h})
 	(assign {0, 0} {x, y})
-	(call 'ctx 'set_color {ctx, 0xffffffff})
+	(call 'ctx 'set_color {ctx, argb_white})
 	(loop-while {x < w})
 		(call 'ctx 'filled_box {ctx, x, 0, 1, h})
 		(assign {x + 32} {x})

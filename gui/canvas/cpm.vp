@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'gui/canvas/class.inc)
+(import 'gui/ctx/class.inc)
 (import 'class/stream/class.inc)
 
 (def-struct 'cpm)
@@ -149,13 +150,13 @@
 
 	(switch)
 	(case {type == 32})
-		(assign {0xff000000 ^ col} {col})
+		(assign {argb_black ^ col} {col})
 		(break)
 	(case {type == 24})
-		(assign {0xff000000 + col} {col})
+		(assign {argb_black + col} {col})
 		(break)
 	(case {type == 16})
-		(assign {0xff000000
+		(assign {argb_black
 				+ ((col & 0b1111100000000000) << 8)
 				+ ((col & 0b1110000000000000) << 3)
 				+ ((col & 0b11111100000) << 5)

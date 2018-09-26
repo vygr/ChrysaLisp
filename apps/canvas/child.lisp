@@ -41,7 +41,7 @@
 (defun redraw ()
 	(canvas-fill canvas 0)
 
-	(fpoly 0xffff0000 1 (transform-norm (list (as-points (list
+	(fpoly argb_red 1 (transform-norm (list (as-points (list
 		(list -0.5 -0.5)
 		(list -0.25 0.5)
 		(list 0 -0.5)
@@ -76,7 +76,7 @@
 			(fmul canvas_width 0x0.1)
 			eps) angle))
 
-	(fpoly 0xffffff00 0 (defq p (transform
+	(fpoly argb_yellow 0 (defq p (transform
 		(points-stroke-polygons (list) stack
 			(points-stroke-polylines (list) stack
 				(list

@@ -5,6 +5,7 @@
 (import 'gui/title/class.inc)
 (import 'gui/button/class.inc)
 (import 'gui/flow/class.inc)
+(import 'gui/ctx/class.inc)
 (import 'class/string/class.inc)
 (import 'class/array/class.inc)
 
@@ -39,7 +40,7 @@
 		;init myself
 		(call 'sys_mem 'clear {&this->window_start, window_size - window_start})
 		(call 'window 'set_font_prop {this, prop_font, "fonts/OpenSans-Regular.ttf", 18})
-		(call 'window 'set_long_prop {this, prop_text_color, 0xff000000})
+		(call 'window 'set_long_prop {this, prop_text_color, argb_black})
 		(call 'window 'set_long_prop {this, prop_color, 0xffc0c0c0})
 		(call 'window 'set_long_prop {this, prop_border, 5})
 		(call 'window 'set_long_prop {this, prop_min_width, 0})

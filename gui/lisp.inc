@@ -4,9 +4,11 @@
 	flow_flag_align_hcenter flow_flag_align_hleft flow_flag_align_hright
 	flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom
 	window_flag_close window_flag_min window_flag_max window_flag_status
-	ev_msg_target_id ev_msg_action_source_id)
+	ev_msg_target_id ev_msg_action_source_id argb_black argb_white argb_red
+	argb_green argb_blue argb_yellow argb_cyan argb_magenta)
 	(within-compile-env (lambda ()
 		(import 'gui/gui/class.inc)
+		(import 'gui/ctx/class.inc)
 		(import 'gui/flow/class.inc)
 		(import 'gui/window/class.inc)
 		(import 'gui/canvas/class.inc)
@@ -15,7 +17,8 @@
 			flow_flag_align_hcenter flow_flag_align_hleft flow_flag_align_hright
 			flow_flag_align_vcenter flow_flag_align_vtop flow_flag_align_vbottom
 			window_flag_close window_flag_min window_flag_max  window_flag_status
-			ev_msg_target_id ev_msg_action_source_id))))
+			ev_msg_target_id ev_msg_action_source_id argb_black argb_white argb_red
+			argb_green argb_blue argb_yellow argb_cyan argb_magenta))))
 
 ;some helpful macros
 (defmacro get (_ b) `(eval ,b ,_))

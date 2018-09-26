@@ -10,8 +10,8 @@
 
 (ui-tree window (create-window (add window_flag_close window_flag_min window_flag_max)) nil
 	(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw flow_flag_lasth))
-		(ui-element display (create-label) ('text "0" 'color 0xffffffff 'flow_flags flow_flag_align_hright 'font (create-font "fonts/OpenSans-Regular.ttf" 24)))
-		(ui-element _ (create-grid) ('grid_width 4 'grid_height 4 'color 0xffffff00 'font (create-font "fonts/OpenSans-Regular.ttf" 42))
+		(ui-element display (create-label) ('text "0" 'color argb_white 'flow_flags flow_flag_align_hright 'font (create-font "fonts/OpenSans-Regular.ttf" 24)))
+		(ui-element _ (create-grid) ('grid_width 4 'grid_height 4 'color argb_yellow 'font (create-font "fonts/OpenSans-Regular.ttf" 42))
 			(each (lambda (text)
 				(button-connect-click
 					(ui-element _ (create-button) ('text (if (eql text "C") "AC" text)))

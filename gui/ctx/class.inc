@@ -15,3 +15,12 @@
 	(int 'x)
 	(int 'y)
 (def-struct-end)
+
+(defcvar 'argb_black 0xff000000)
+(defcvar 'argb_white 0xffffffff)
+(defcvar 'argb_blue 0xff0000ff)
+(defcvar 'argb_green 0xff00ff00)
+(defcvar 'argb_red 0xffff0000)
+(defcvar 'argb_cyan 0xff00ffff)
+(defcvar 'argb_yellow 0xffffff00)
+(defcvar 'argb_magenta 0xffff00ff)

@@ -58,7 +58,7 @@
 
 	;size, color and opaque
 	(call 'label 'change {locals.local_statics->gui_statics_screen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT})
-	(call 'label 'set_long_prop {locals.local_statics->gui_statics_screen, prop_color, 0xff000000})
+	(call 'label 'set_long_prop {locals.local_statics->gui_statics_screen, prop_color, argb_black})
 	(call 'label 'dirty_all {locals.local_statics->gui_statics_screen})
 
 	;for now fire up the test apps

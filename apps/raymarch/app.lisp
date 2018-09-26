@@ -12,7 +12,7 @@
 
 (window-set-title window "Raymarch")
 (window-connect-close window event_win_close)
-(view-opaque (canvas-fill canvas 0xff000000))
+(view-opaque (canvas-fill canvas argb_black))
 (bind '(w h) (view-pref-size window))
 (gui-add (view-change window 512 256 w h))
 

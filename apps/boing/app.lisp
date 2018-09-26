@@ -13,7 +13,7 @@
 	(canvas-load (cat "apps/boing/taoball_" (str _) ".cpm") load_flag_shared)) (range 1 12)))
 
 (ui-tree window (create-window (add window_flag_close window_flag_min window_flag_max)) nil
-	(ui-element backdrop (create-backdrop) ('color 0xff000000)
+	(ui-element backdrop (create-backdrop) ('color argb_black)
 		(ui-element frame (elem 0 frames))))
 
 (window-set-title window "Boing")

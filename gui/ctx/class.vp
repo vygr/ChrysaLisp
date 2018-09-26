@@ -47,7 +47,7 @@
 	;r2, r3
 
 	(vp-cpy-rr r1 r2)
-	(vp-cpy-cr 0xff000000 r3)
+	(vp-cpy-cr argb_black r3)
 	(vp-and-rr r3 r1)
 	(vp-and-cr 0x00fefefe r2)
 	(vp-shr-cr 1 r2)
@@ -66,7 +66,7 @@
 	;r2, r3
 
 	(vp-cpy-rr r1 r2)
-	(vp-cpy-cr 0xff000000 r3)
+	(vp-cpy-cr argb_black r3)
 	(vp-and-rr r3 r1)
 	(vp-and-cr 0x00fefefe r2)
 	(vp-shr-cr 1 r2)

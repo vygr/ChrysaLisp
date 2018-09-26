@@ -32,9 +32,9 @@
 				'font (create-font "fonts/Entypo.otf" 32))
 			(each (lambda (l)
 				(button-connect-click (ui-element __ (create-button)
-					('text l 'color (if (ge _ 4) 0xff00ffff 0xff00ff00))) (add event_win_play _)))
+					('text l 'color (if (ge _ 4) argb_cyan argb_green))) (add event_win_play _)))
 						'("" "" "" "" "" "" "" "")))
-		(slider-connect-value (ui-element hslider (create-slider) ('value 0 'color 0xffff0000)) event_win_hvalue)
+		(slider-connect-value (ui-element hslider (create-slider) ('value 0 'color argb_red)) event_win_hvalue)
 		(ui-element vdu (create-view))))
 
 (defun set-slider-values ()
@@ -68,7 +68,7 @@
 			(clear vdu_keys)
 			(setq vdu_index nil)
 			(view-sub vdu)
-			(def (setq vdu (create-vdu)) 'vdu_width vdu_width 'vdu_height vdu_height 'text_color 0xffffff00
+			(def (setq vdu (create-vdu)) 'vdu_width vdu_width 'vdu_height vdu_height 'text_color argb_yellow
 				'font (create-font "fonts/Hack-Regular.ttf" 16))
 			(view-layout (view-add-back vdu_flow vdu))
 			(view-dirty (vdu-print vdu (cat
@@ -98,7 +98,7 @@
 				index (find key vdu_keys))
 			(unless index
 				(def (defq new_vdu (create-vdu)) 'vdu_width vdu_width 'vdu_height vdu_height
-					'text_color 0xffffff00 'font (create-font "fonts/Hack-Regular.ttf" 16))
+					'text_color argb_yellow 'font (create-font "fonts/Hack-Regular.ttf" 16))
 				(push vdu_keys key)
 				(push vdu_list (list new_vdu nil nil))
 				(reset (setq index (dec (length vdu_list)))))
