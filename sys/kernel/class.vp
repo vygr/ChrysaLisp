@@ -554,7 +554,7 @@
 			(vpif {(iter - &reg0) & 8})
 				(assign {lf} {line})
 			(else)
-				(assign {lf} {line})
+				(assign {sp} {line})
 			(endif)
 			(call 'string 'ref {line} {line})
 			(call 'vector 'push_back {lines, line})
