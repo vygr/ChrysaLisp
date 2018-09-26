@@ -46,8 +46,7 @@
 	(entry 'sys_task 'callback {usr, addr})
 
 	;alloc temp mailbox
-	(call 'sys_mail 'alloc_mbox nil {mbox_id})
-	(call 'sys_mail 'mbox_addr {mbox_id} {mbox_addr})
+	(call 'sys_mail 'alloc_mbox nil {mbox_id, mbox_addr})
 
 	;allocate mail message
 	(call 'sys_mail 'alloc {kn_msg_callback_size} {msg, data})
@@ -217,8 +216,7 @@
 	(call 'sys_mem 'clear {tcb, tcb_size}))
 
 	;alloc task mailbox
-	(call 'sys_mail 'alloc_mbox nil {tcb->tk_node_mbox_id})
-	(call 'sys_mail 'mbox_addr {tcb->tk_node_mbox_id} {tcb->tk_node_mbox_addr})
+	(call 'sys_mail 'alloc_mbox nil {tcb->tk_node_mbox_id, tcb->tk_node_mbox_addr})
 
 	;init task control block stack, pc and stop address's
 	(assign {tcb, tcb + tcb_size, func} '(r0 r1 r4))
@@ -351,8 +349,7 @@
 	(entry 'sys_task 'open_remote {name, cpu, type})
 
 	;alloc temp mailbox
-	(call 'sys_mail 'alloc_mbox nil {mbox_id})
-	(call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
+	(call 'sys_mail 'alloc_mbox nil {mbox_id, mailbox})
 
 	;start task
 	(call 'sys_string 'length {name} {_, length})
@@ -411,8 +408,7 @@
 	(call 'array 'set_length {ids, index_end})
 
 	;alloc temp mailbox
-	(call 'sys_mail 'alloc_mbox nil {mbox_id})
-	(call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
+	(call 'sys_mail 'alloc_mbox nil {mbox_id, mailbox})
 
 	;start all tasks in parallel, centered around our cpu
 	(assign {cpu - (index_end >> 1)} {offset})
@@ -474,8 +470,7 @@
 	(call 'array 'set_length {ids, length})
 
 	;alloc temp mailbox
-	(call 'sys_mail 'alloc_mbox nil {mbox_id})
-	(call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
+	(call 'sys_mail 'alloc_mbox nil {mbox_id, mailbox})
 
 	;start all tasks, starting on kernel of this chip
 	(call 'sys_kernel 'id nil {cpu})

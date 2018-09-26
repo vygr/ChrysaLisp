@@ -69,6 +69,7 @@
 (def-method 'sys_mail 'alloc_mbox)
 	;outputs
 	;r0 = mailbox id (uint)
+	;r1 = mail address (ptr)
 	;trashes
 	;all
 
@@ -91,8 +92,9 @@
 		(d-call 'array 'get_length {mail_statics->ml_statics_mbox_array} {_, id})
 		(assign {id - 1} {id})
 	(endif)
+	(call 'array 'get_element {mail_statics->ml_statics_mbox_array, id} {_, mbox})
 
-	(exit 'sys_mail 'alloc_mbox {id})
+	(exit 'sys_mail 'alloc_mbox {id, mbox})
 	(pop-scope)
 	(return)
 
@@ -126,9 +128,9 @@
 	;trashes
 	;r0-r2
 
-	(entry 'sys_mail 'mbox_addr '(r1))
+	(entry 'sys_mail 'mbox_addr '(r0))
 
-	(vp-cpy-cr 0xffffffff r0)
+	(vp-cpy-cr 0xffffffff r1)
 	(vp-and-rr r0 r1)
 	(f-bind 'sys_mail 'statics r0)
 	(call 'array 'get_element '((r0 ml_statics_mbox_array) r1) '(_ r0))

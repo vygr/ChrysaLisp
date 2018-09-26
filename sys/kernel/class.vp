@@ -486,8 +486,7 @@
 	(call 'sys_mail 'enquire {"DEBUG_SERVICE"} {service.id_id})
 	(vpif {service.id_id})
 		;alloc temp mailbox
-		(call 'sys_mail 'alloc_mbox nil {mbox_id})
-		(call 'sys_mail 'mbox_addr {mbox_id} {mailbox})
+		(call 'sys_mail 'alloc_mbox nil {mbox_id, mailbox})
 
 		;send debug data
 		(call 'sys_string 'length {debug_data} {_, length})
@@ -553,10 +552,11 @@
 			(call 'vector 'push_back {lines, line})
 			(call 'vector 'push_back {lines, num})
 			(vpif {(iter - &reg0) & 8})
-				(call 'string 'ref {lf} {line})
+				(assign {lf} {line})
 			(else)
-				(call 'string 'ref {sp} {line})
+				(assign {lf} {line})
 			(endif)
+			(call 'string 'ref {line} {line})
 			(call 'vector 'push_back {lines, line})
 			(assign {iter + ptr_size} {iter})
 		(loop-until {iter > &reg15})

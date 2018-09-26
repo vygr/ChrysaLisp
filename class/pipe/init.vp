@@ -105,8 +105,7 @@
 				(loop-end)
 
 				;send args to pipe elements, wiring up id's as we go
-				(call 'sys_mail 'alloc_mbox nil {ack_mbox_id})
-				(call 'sys_mail 'mbox_addr {ack_mbox_id} {ack_mbox_addr})
+				(call 'sys_mail 'alloc_mbox nil {ack_mbox_id, ack_mbox_addr})
 				(assign {stream->msg_in_mbox_id} {mbox_id})
 				(call 'sys_kernel 'id nil {cpu})
 				(assign {index - 2} {index})
