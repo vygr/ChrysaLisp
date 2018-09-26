@@ -4245,6 +4245,7 @@ init the mail system
 ```
 outputs
 r0 = mailbox id (uint)
+r1 = mailbox address (ptr)
 trashes
 all
 ```
@@ -4260,7 +4261,7 @@ all
 inputs
 r0 = mailbox id (uint)
 outputs
-r0 = mail address (ptr)
+r0 = mailbox address (ptr)
 trashes
 r0-r2
 ```

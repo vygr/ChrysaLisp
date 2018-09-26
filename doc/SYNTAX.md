@@ -108,7 +108,7 @@
 ## curry
 ### (curry lambda var ...)
 ## debug
-### (debug [form] ...)
+### (debug [form ...])
 ## dec
 ### (dec num)
 ## def

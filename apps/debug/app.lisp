@@ -76,7 +76,7 @@
 				"Green buttons act on a single task." (char 10)
 				"Cyan buttons act on all tasks." (char 10)
 				"Red slider to switch between tasks." (char 10) (char 10)
-				"Add (debug [form] ...) statements to your Lisp code." (char 10)
+				"Add (debug [form ...]) statements to your Lisp code." (char 10)
 				"Or try (debug (env)) in Lisp functions !" (char 10)
 				"Add (debug-reg) in VP code." (char 10))))))
 	(set-slider-values))

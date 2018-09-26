@@ -156,7 +156,7 @@
 	`(repl (file-stream ,_) ,_))
 
 (defmacro debug (&rest _)
-	;(debug [form] ...)
+	;(debug [form ...])
 	`(kernel-debug (apply cat (map str (list ~_ (char 10))))))
 
 ;;;;;;;;
