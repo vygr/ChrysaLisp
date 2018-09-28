@@ -1,10 +1,10 @@
 # ChrysaLisp
 
-WARNING: There seams to be some issues with MacOS Mohave and the current SDL
+WARNING: There seams to be some issues with MacOS Mojave and the current SDL
 version. There is a new release of SDL out soon that should hopefully fix these
-problems. I'm looking at the Beta version of the new SDL on Mohave and there
+problems. I'm looking at the Beta version of the new SDL on Mojave and there
 still seams to be problems with it. An executable created on High Sierra works
-absolutly fine on Mohave, so it's most strange.
+absolutly fine on Mojave, so it's most strange.
 
 -------
 
