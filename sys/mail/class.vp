@@ -104,19 +104,12 @@
 	;inputs
 	;r0 = mailbox id (uint)
 	;trashes
-	;all
+	;r0-r7
 
-	(ptr 'mail_statics)
-	(uint 'id)
+	(entry 'sys_mail 'free_mbox '(r1))
 
-	(push-scope)
-	(entry 'sys_mail 'free_mbox {id})
-
-	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(call 'array 'push_back {mail_statics->ml_statics_mbox_free_array, id})
-
-	(pop-scope)
-	(return)
+	(f-bind 'sys_mail 'statics r0)
+	(jump 'array 'push_back '((r0 ml_statics_mbox_free_array) r1))
 
 (def-func-end)
 
@@ -227,18 +220,16 @@
 	;trashes
 	;all
 
-	(ptr 'msg)
+	(entry 'sys_mail 'free '(r0))
 
-	(push-scope)
-	(entry 'sys_mail 'free {msg})
-
-	(vpif {msg})
-		(call 'string 'deref {msg->msg_parcel_obj})
-		(call 'sys_heap 'free (cat {&@} (f-path 'sys_mail 'statics) {.ml_statics_msg_heap, msg}))
+	(vpif '(r0 != 0))
+		(vp-push r0)
+		(call 'string 'deref '((r0 msg_parcel_obj)))
+		(f-bind 'sys_mail 'statics r0)
+		(vp-pop r1)
+		(call 'sys_heap 'free '((& r0 ml_statics_msg_heap) r1))
 	(endif)
-
-	(pop-scope)
-	(return)
+	(vp-ret)
 
 (def-func-end)
 

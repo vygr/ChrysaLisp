@@ -25,15 +25,14 @@
 	(vpif '(r0 == 0))
 		(call 'hash_set 'create `((@ ,(f-path 'symbol 'same)) 101) '(r0))
 		(assign '(($ symbols)) '(r1))
-		(assign '(r0) '((r1 0)))
+		(vp-cpy-ri r0 r1 0)
 	(endif)
-
 	(call 'hash_set 'insert '(r0 (rsp local_this)) '(_ (rsp local_iter) _))
 	(call 'obj 'deref '((rsp local_this)))
 	(vp-cpy-ir rsp local_iter r0)
 	(call 'obj 'ref '((r0 0)) '(r0))
 	(assign `((@ ,(f-path 'symbol 'vtable))) '(r1))
-	(vp-cpy-ri 'r1 r0 obj_vtable)
+	(vp-cpy-ri r1 r0 obj_vtable)
 
 	(exit 'symbol 'intern '(r0))
 	(vp-free local_size)
