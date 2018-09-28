@@ -207,7 +207,7 @@
 			(call 'sys_mail 'send {msg})
 			(break)
 		(case {event.sdl_common_event_type == SDL_QUIT})
-			(assign {-1} {user->local_quit})
+			;(assign {-1} {user->local_quit})
 		(endswitch)
 	(loop-end)
 
