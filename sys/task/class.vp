@@ -197,6 +197,7 @@
 	;outputs
 	;r0 = new task control block (ptr)
 	;r1 = new task mailbox id (id)
+	;r2 = new task mailbox address (ptr)
 	;trashes
 	;all
 
@@ -234,8 +235,8 @@
 		(ln-add-node-before current_tcb tcb tmp)
 	(endif)
 
-	;return tcb and mailbox id
-	(exit 'sys_task 'start {tcb, tcb->tk_node_mbox_id + (task_statics->tk_statics_cpu_id << 32)})
+	;return tcb and mailbox info
+	(exit 'sys_task 'start {tcb, tcb->tk_node_mbox_id + (task_statics->tk_statics_cpu_id << 32), tcb->tk_node_mbox_addr})
 	(pop-scope)
 	(return)
 

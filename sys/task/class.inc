@@ -12,7 +12,7 @@
 (dec-method 'tcb 'sys/task/tcb 'static nil '(r0))
 (dec-method 'mailbox 'sys/task/mailbox 'static nil '(r0))
 (dec-method 'callback 'sys/task/callback 'static '(r0 r1))
-(dec-method 'start 'sys/task/start 'static '(r0) '(r0 r1))
+(dec-method 'start 'sys/task/start 'static '(r0) '(r0 r1 r2))
 (dec-method 'stop 'sys/task/stop)
 (dec-method 'restore 'sys/task/restore)
 (dec-method 'yield 'sys/task/yield)

@@ -48,8 +48,7 @@
 	;start kernel task (get's mailbox id of 0 !)
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(call 'sys_task 'start {$func_entry} {task_statics->tk_statics_kernel_tcb, mbox_id})
-	(call 'sys_mail 'mbox_addr {mbox_id} {mbox_addr})
+	(call 'sys_task 'start {$func_entry} {task_statics->tk_statics_kernel_tcb, mbox_id, mbox_addr})
 
 	;init mailer
 	(call 'sys_mail 'init1)
@@ -98,7 +97,7 @@
 					(call 'sys_pii 'age {&data->kn_msg_open_pathname} {func})
 					(breakifnot {func})
 					;start lisp run task and send args
-					(call 'sys_task 'start {@class/lisp/run} {_, data->kn_msg_reply_id.id_id})
+					(call 'sys_task 'start {@class/lisp/run} {_, data->kn_msg_reply_id.id_id, _})
 					(call 'string 'create_from_cstr {&data->kn_msg_open_pathname} {pathname})
 					(call 'sys_mail 'alloc_obj {pathname, &pathname->string_data, pathname->string_length} {new_msg})
 					(assign {data->kn_msg_reply_id.id_id} {new_msg->msg_dest.id_id})
@@ -109,7 +108,7 @@
 					(call 'sys_load 'bind {&data->kn_msg_open_pathname} {func})
 					(breakifnot {func})
 					;start this function as task
-					(call 'sys_task 'start {func} {_, data->kn_msg_reply_id.id_id})
+					(call 'sys_task 'start {func} {_, data->kn_msg_reply_id.id_id, _})
 				(endif)
 				(call 'sys_mail 'send {msg})
 				(break)
@@ -407,7 +406,7 @@
 	(entry {arg})
 
 	;start link
-	(call 'sys_task 'start (cat {@} (f-path 'sys_link 'link)) {_, mbox.id_id})
+	(call 'sys_task 'start (cat {@} (f-path 'sys_link 'link)) {_, mbox.id_id, _})
 
 	;params message
 	(call 'sys_mail 'alloc {5 + 7 + 1} {msg, data})

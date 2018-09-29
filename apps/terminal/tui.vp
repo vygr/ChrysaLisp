@@ -37,7 +37,7 @@
 	(assign {0} {local.local_pipe})
 
 	;start stdin polling task and send it tui mailbox id
-	(call 'sys_task 'start {@apps/terminal/tui_child} {_, stdin_id.id_id})
+	(call 'sys_task 'start {@apps/terminal/tui_child} {_, stdin_id.id_id, _})
 	(call 'sys_mail 'alloc {tui_msg_size} {msg, data})
 	(assign {stdin_id.id_id} {msg->msg_dest.id_id})
 	(assign {tui_id.id_id} {data->tui_msg_reply_id.id_id})
