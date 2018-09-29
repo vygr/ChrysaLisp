@@ -438,7 +438,9 @@
 		;outputs
 		;r0 = 0 if error, else object (ptr)
 		;trashes
-		;all
+		;r13-r14 r4-r12
+		;info
+		;trashes registers depends on init method
 		(assign _2 _3)
 		(call _1 'new nil '(r0))
 		(vpif '(r0 != 0))
