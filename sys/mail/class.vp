@@ -17,18 +17,12 @@
 	;info
 	;init the mbox array and mbox free array
 
-	(ptr 'mail_statics)
-
-	(push-scope)
-
-	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(call 'array 'create nil {mail_statics->ml_statics_mbox_array})
-	(call 'array 'set_capacity {mail_statics->ml_statics_mbox_array, 32})
-	(call 'array 'create nil {mail_statics->ml_statics_mbox_free_array})
-	(call 'sys_heap 'init {&mail_statics->ml_statics_mbox_heap, mbox_size, mbox_size * 32})
-
-	(pop-scope)
-	(return)
+	(f-bind 'sys_mail 'statics r12)
+	(call 'array 'create nil '(r0))
+	(call 'array 'set_capacity '(r0 32) '((r12 ml_statics_mbox_array)))
+	(call 'array 'create nil '((r12 ml_statics_mbox_free_array)))
+	(call 'sys_heap 'init '((& r12 ml_statics_mbox_heap) mbox_size (mul mbox_size 32)))
+	(vp-ret)
 
 (def-func-end)
 
@@ -36,33 +30,27 @@
 	;info
 	;init the mail system
 
-	(ptr 'mail_statics)
-	(uint 'mbox_id)
-
-	(push-scope)
-
 	;init off chip list
-	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(vp-def (lst tmp))
-	(assign {&mail_statics->ml_statics_offchip_list} (list lst))
-	(lh-init lst tmp)
+	(f-bind 'sys_mail 'statics r12)
+	(vp-lea-i r12 ml_statics_offchip_list r0)
+	(lh-init r0 r1)
 
 	;init out postmen task
-	(assign {0} {mail_statics->ml_statics_parcel_id})
-	(call 'sys_task 'start (cat {@} (f-path 'sys_mail 'out)) {_, mbox_id})
-	(call 'sys_mail 'mbox_addr {mbox_id} {mail_statics->ml_statics_out_mbox_addr})
+	(vp-xor-rr r0 r0)
+	(vp-cpy-ri-i r0 r12 ml_statics_parcel_id)
+	(call 'sys_task 'start `((@ ,(f-path 'sys_mail 'out))) '(_ _ r2))
+	(f-bind 'sys_mail 'statics r12)
+	(vp-cpy-ri r2 r12 ml_statics_out_mbox_addr)
 
 	;create link array
-	(call 'array 'create nil {mail_statics->ml_statics_links_array})
+	(call 'array 'create nil '((r12 ml_statics_links_array)))
 
 	;init header heap
-	(call 'sys_heap 'init {&mail_statics->ml_statics_msg_heap, msg_size, msg_size * 64})
+	(call 'sys_heap 'init '((& r12 ml_statics_msg_heap) msg_size (mul msg_size 64)))
 
 	;create declare map
-	(call 'hash_map 'create {0, 1} {mail_statics->ml_statics_declare_map})
-
-	(pop-scope)
-	(return)
+	(call 'hash_map 'create '(0 1) '((r12 ml_statics_declare_map)))
+	(vp-ret)
 
 (def-func-end)
 
