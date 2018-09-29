@@ -4254,7 +4254,7 @@ all
 inputs
 r0 = mailbox id (uint)
 trashes
-all
+r0-r7
 ```
 ### sys_mail::mbox_addr -> sys/mail/mbox_addr
 ```
@@ -4273,7 +4273,7 @@ outputs
 r0 = mail message (ptr)
 r1 = string data (pubyte)
 trashes
-all
+r2-r7
 ```
 ### sys_mail::free -> sys/mail/free
 ```
@@ -4291,7 +4291,7 @@ r2 = data length (bytes)
 outputs
 r0 = mail message (ptr)
 trashes
-all
+r1-r5
 ```
 ### sys_mail::free_obj -> sys/mail/free_obj
 ```
@@ -4302,7 +4302,7 @@ r0 = 0 if msg was 0, else object (ptr)
 r1 = data (pubyte)
 r2 = data length (bytes)
 trashes
-all
+r3-r5
 ```
 ### sys_mail::send -> sys/mail/send
 ```
