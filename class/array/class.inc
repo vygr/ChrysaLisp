@@ -18,7 +18,7 @@
 (dec-method 'get_third 'class/array/get_third 'static '(r0) '(r0 r1))
 (dec-method 'get_forth 'class/array/get_forth 'static '(r0) '(r0 r1))
 (dec-method 'get_element 'class/array/get_element 'static '(r0 r1) '(r0 r1))
-(dec-method 'push_back 'class/array/push_back 'static '(r0 r1) '(r0))
+(dec-method 'push_back 'class/array/push_back 'static '(r0 r1) '(r0 r1))
 (dec-method 'get_iter 'class/array/get_iter 'static '(r0 r1) '(r0 r1))
 (dec-method 'get_iters 'class/array/get_iters 'static '(r0) '(r0 r1 r2))
 (dec-method 'get_begin 'class/array/get_begin 'static '(r0) '(r0 r1))

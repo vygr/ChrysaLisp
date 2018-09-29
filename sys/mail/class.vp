@@ -59,32 +59,27 @@
 	;r0 = mailbox id (uint)
 	;r1 = mailbox address (ptr)
 	;trashes
-	;all
+	;r2-r7
 
-	(ptr 'mail_statics 'mbox)
-	(uint 'id 'length)
+	(f-bind 'sys_mail 'statics r4)
+	(d-call 'array 'get_length '((r4 ml_statics_mbox_free_array)) '(r0 r1))
+	(vpif '(r1 != 0))
+		(call 'array 'get_back '(r0) '(r0 r3))
+		(d-call 'array 'pop_back '(r0))
+		(call 'array 'get_element '((r4 ml_statics_mbox_array) r3) '(_ r1))
 
-	(push-scope)
-
-	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
-	(d-call 'array 'get_length {mail_statics->ml_statics_mbox_free_array} {_, length})
-	(vpif {length})
-		(call 'array 'get_back {mail_statics->ml_statics_mbox_free_array} {_, id})
-		(d-call 'array 'pop_back {mail_statics->ml_statics_mbox_free_array})
+		(exit 'sys_mail 'alloc_mbox '(r3 r1))
+		(vp-ret)
 	(else)
-		(call 'sys_heap 'alloc {mail_statics->ml_statics_mbox_heap} {_, mbox})
-		(vp-def (mbox tmp1 tmp2))
-		(assign {mbox} (list mbox))
-		(ml-init mbox tmp1 tmp2)
-		(call 'array 'push_back {mail_statics->ml_statics_mbox_array, mbox})
-		(d-call 'array 'get_length {mail_statics->ml_statics_mbox_array} {_, id})
-		(assign {id - 1} {id})
-	(endif)
-	(call 'array 'get_element {mail_statics->ml_statics_mbox_array, id} {_, mbox})
+		(call 'sys_heap 'alloc '((& r4 ml_statics_mbox_heap)) '(_ r1))
+		(ml-init r1 r2 r0)
+		(call 'array 'push_back '((r4 ml_statics_mbox_array) r1) '(r0 r1))
+		(vp-cpy-ir-ui r0 array_length r0)
+		(vp-sub-cr 1 r0)
 
-	(exit 'sys_mail 'alloc_mbox {id, mbox})
-	(pop-scope)
-	(return)
+		(exit 'sys_mail 'alloc_mbox '(r0 r1))
+		(vp-ret)
+	(endif)
 
 (def-func-end)
 

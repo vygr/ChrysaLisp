@@ -4247,7 +4247,7 @@ outputs
 r0 = mailbox id (uint)
 r1 = mailbox address (ptr)
 trashes
-all
+r2-r7
 ```
 ### sys_mail::free_mbox -> sys/mail/free_mbox
 ```
@@ -4883,6 +4883,7 @@ r0 = new task func pointer (ptr)
 outputs
 r0 = new task control block (ptr)
 r1 = new task mailbox id (id)
+r2 = new task mailbox address (ptr)
 trashes
 all
 ```
