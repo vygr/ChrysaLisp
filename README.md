@@ -1,18 +1,23 @@
 # ChrysaLisp
 
-WARNING: There seams to be some issues with MacOS Mojave and the current SDL
-version. There is a new release of SDL out soon that should hopefully fix these
-problems. I'm looking at the Beta version of the new SDL on Mojave and there
-still seams to be problems with it. An executable created on High Sierra works
-absolutly fine on Mojave, so it's most strange.
-
--------
-
 ![](./screen_shot_1.png)
 ![](./screen_shot_2.png)
 
 Assembler/C-Script/Lisp 64 bit OS. MIMD, multi CPU, multi threaded, multi core,
 multi user.
+
+-------
+
+WARNING: There seams to be some issues with MacOS Mojave and SDL. There is a
+new release of SDL out soon, but looking at the Beta version on Mojave there
+still seams to be problems with it. An executable created on High Sierra works
+absolutely fine on Mojave, and the executable created on Mojave works fine on
+High Sierra, so it's most strange. So temporally the High Sierra main bootstrap
+will be packaged with the snapshot.zip and make on Darwin will produce a file
+called main-d. Hopefully SDLs crew will switch to using Apples Metal API soon
+and then this problem will go away.
+
+-------
 
 Runs on OSX or Linux for x64, PI64 Linux for Aarch64. Will move to bare metal
 eventually but it's useful for now to run hosted while experimenting. When time
