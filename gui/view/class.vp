@@ -108,7 +108,7 @@
 	(vp-lea-i r0 view_dirty_region r1)
 	(f-bind 'gui 'statics r0)
 	(vp-cpy-cr 1 r2)
-	(vp-cpy-ri-b r2 r0 gui_statics_dirty_flag)
+	(vp-cpy-ri-i r2 r0 gui_statics_dirty_flag)
 	(vp-add-cr gui_statics_rect_heap r0)
 	(call 'region 'paste_rect '(r0 r1 r7 r8 r9 r10))
 	(vp-pop r0)

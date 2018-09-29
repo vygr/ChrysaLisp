@@ -30,7 +30,7 @@
 	(ulong 'renderer)
 	(ptr 'old_region)
 	(ulong 'next_id)
-	(ubyte 'dirty_flag)
+	(uint 'dirty_flag)
 (def-struct-end)
 
 ;;;;;;;;;;;;;;;;;;;;

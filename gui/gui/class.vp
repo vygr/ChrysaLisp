@@ -97,7 +97,7 @@
 	(vpifnot {user->local_statics->gui_statics_window})
 		;init sdl2
 		(sdl-call 'sdl 'sdl_set_main_ready)
-		(sdl-call 'sdl 'sdl_init {SDL_INIT_VIDEO})
+		(sdl-call 'sdl 'sdl_init {SDL_INIT_VIDEO | SDL_INIT_EVENTS})
 		(sdl-call 'sdl 'ttf_init)
 
 		;create window
