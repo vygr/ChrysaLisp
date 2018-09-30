@@ -67,6 +67,15 @@
 (defmacro opt-emit-write-ops ()
 	''(emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri))
 
+(defmacro opt-emit-write-ops1 ()
+	''(emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri))
+
+(defmacro opt-emit-read-ops1 ()
+	''(emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir))
+
+(defmacro opt-emit-read-ops2 ()
+	''(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub emit-cpy-ir))
+
 (defmacro opt-emit-call-ops ()
 	''(emit-label emit-syscall emit-call emit-call-abi emit-call-i emit-call-r emit-call-p))
 
@@ -116,6 +125,21 @@
 			((k b e) -1))) (list *emit-buffer*)))
 	(and _ (ne _ -1) _))
 
+(defcfun opt-emit-find-rw1 (k _ ra rb w b i)
+	(defq _ (some! _ 0 t (lambda (e)
+		(cond
+			((and (eql w (elem 0 e))
+				(eql b (elem 2 e))
+				(eq i (eval (elem 3 e))))
+				(setq c 1) _)
+			((and (or (eql ra (elem 0 e)) (eql rb (elem 0 e)))
+				(eql b (elem 1 e))
+				(not (eql b (elem 3 e)))
+				(eq i (eval (elem 2 e))))
+				(setq c 3) _)
+			((k b e) -1))) (list *emit-buffer*)))
+	(and _ (ne _ -1) _))
+
 (defcfun opt-emit-find-use (_ r o)
 	(defq _ (some! (inc _) nil t (lambda (e)
 		(cond
@@ -141,10 +165,11 @@
 								(lambda)
 								(list 'emit-cpy-rr r (elem 3 e)))))))
 			;write after write
-			((defq c (find o (opt-emit-write-ops)))
-				(when (defq w (opt-emit-find-rw opt-emit-trashes-with-kills? _
-								(elem c (opt-emit-read-ops))
-								(elem c (opt-emit-write-ops))
+			((defq c (find o (opt-emit-write-ops1)))
+				(when (defq w (opt-emit-find-rw1 opt-emit-trashes-with-kills? _
+								(elem c (opt-emit-read-ops1))
+								(elem c (opt-emit-read-ops2))
+								(elem c (opt-emit-write-ops1))
 								(elem 2 e) (eval (elem 3 e))))
 					(when (eq c 1)
 						(elem-set w *emit-buffer* (lambda)))))
