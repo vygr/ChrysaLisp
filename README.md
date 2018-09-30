@@ -143,23 +143,35 @@ An example network viewed with ps looks like this for a 4x4 mesh network:
 ./main -cpu 0 -l 000-012 -l 000-004 -l 000-003 -l 000-001 -run gui/gui
 ```
 
+## How to Make
 
-Make with:
-
-```
-make -j
-```
+### Install Dependencies
 
 Requires SDL2 and the SDL2_TTF library to be installed. SDL2 and SDL2_ttf are
 for the experimental GUI.
 
-Requirements:
+#### OSX
+
+OSX: Tested on Sierra 10.12.6
+```
+brew install sdl2
+brew install sdl2_ttf
+```
+
+#### Linux
+
 Linux: Tested on Ubuntu 16-10, 17-10 and Debian PI64
 ```
 sudo apt-get install libsdl2-ttf-dev
 ```
 
-Run with:
+### Make
+
+```
+make -j
+```
+
+### Run
 
 ```
 ./run_tui.sh <num_cpus>
