@@ -91,7 +91,7 @@
 						r (fmul r ref_coef)))
 			(vec-clamp color 0.0 0.999))))
 
-(defun line (y)
+(defun line (parent w h y)
 	(defq w2 (div w 2) h2 (div h 2) x -1 reply (char y int_size))
 	(while (lt (setq x (inc x)) w)
 		(defq
@@ -108,8 +108,6 @@
 	(mail-send reply parent))
 
 ;take a lines work, then migrate
-(defq msg (mail-mymail) parent (read-long work_parent_id msg)
-	w (read-long work_width msg) h (read-long work_height msg))
-(when (gt (length msg) work_ys)
-	(line (read-long (sub (length msg) long_size) msg))
+(when (gt (length (defq msg (mail-mymail))) work_ys)
+	(line (read-long work_parent_id msg) (read-long work_width msg) (read-long work_height msg) (read-long (sub (length msg) long_size) msg))
 	(mail-send (slice 0 (sub (length msg) long_size) msg) (open-child "apps/raymarch/child.lisp" kn_call_child)))
