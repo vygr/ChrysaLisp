@@ -147,18 +147,16 @@ An example network viewed with ps looks like this for a 4x4 mesh network:
 
 ### Install Dependencies
 
-Requires SDL2 and the SDL2_TTF library to be installed. SDL2 and SDL2_ttf are
-for the experimental GUI.
+Requires **SDL2** and the **SDL2_TTF** library to be installed. 
+SDL2 and SDL2_ttf are for the experimental GUI.
 
 #### OSX
 
-Download and install the SDL frameworks from:
+**Download and copy** `SDL2.framework` and `SDL2_ttf.framework` over 
+into your `/Library/Frameworks` folder.
 
 - [SDL](https://www.libsdl.org/download-2.0.php)
 - [SDL_TTF](https://www.libsdl.org/projects/SDL_ttf/)
-
-Get the development *.dmg* files for both frameworks and copy *SDL2.framework*
-and *SDL2_ttf.framework* over into your */Library/Frameworks* folder.
 
 #### Linux
 
