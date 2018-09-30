@@ -21,8 +21,7 @@
 	(call 'array 'create nil '(r0))
 	(call 'array 'set_capacity '(r0 32) '((r12 ml_statics_mbox_array)))
 	(call 'array 'create nil '((r12 ml_statics_mbox_free_array)))
-	(call 'sys_heap 'init '((& r12 ml_statics_mbox_heap) mbox_size (mul mbox_size 32)))
-	(vp-ret)
+	(jump 'sys_heap 'init '((& r12 ml_statics_mbox_heap) mbox_size (mul mbox_size 32)))
 
 (def-func-end)
 
@@ -45,12 +44,11 @@
 	;create link array
 	(call 'array 'create nil '((r12 ml_statics_links_array)))
 
-	;init header heap
-	(call 'sys_heap 'init '((& r12 ml_statics_msg_heap) msg_size (mul msg_size 64)))
-
 	;create declare map
 	(call 'hash_map 'create '(0 1) '((r12 ml_statics_declare_map)))
-	(vp-ret)
+
+	;init header heap
+	(jump 'sys_heap 'init '((& r12 ml_statics_msg_heap) msg_size (mul msg_size 64)))
 
 (def-func-end)
 
