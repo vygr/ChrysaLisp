@@ -1,5 +1,12 @@
-;math tools
+;math tools etc
+(run 'sys/lisp.inc)
 (run 'apps/math.inc)
+
+(structure 'work 0
+	(long 'parent_id)
+	(long 'width)
+	(long 'height)
+	(offset 'ys))
 
 (defq
 	eps 0.02
@@ -84,19 +91,25 @@
 						r (fmul r ref_coef)))
 			(vec-clamp color 0.0 0.999))))
 
-(defun line (w h &rest y)
-	(defq w2 (div w 2) h2 (div h 2))
-	(each (lambda (y)
-		(defq x -1)
-		(while (lt (setq x (inc x)) w)
-			(defq
-				ray_origin (list 0 0 -3.0)
-				ray_dir (vec-norm-3d (vec-sub-3d
-					(list
-						(div (mul (sub x w2) 1.0) w2)
-						(div (mul (sub y h2) 1.0) h2)
-						0.0) ray_origin)))
-			(bind '(r g b) (scene-ray ray_origin ray_dir))
-			(prin (char (add (bit-shr b 8) (bit-and g 0xff00) (bit-shl (bit-and r 0xff00) 8) 0xff000000) 4))
-			;while does a yield call !
-			(while nil))) y))
+(defun line (y)
+	(defq w2 (div w 2) h2 (div h 2) x -1 reply (char y int_size))
+	(while (lt (setq x (inc x)) w)
+		(defq
+			ray_origin (list 0 0 -3.0)
+			ray_dir (vec-norm-3d (vec-sub-3d
+				(list
+					(div (mul (sub x w2) 1.0) w2)
+					(div (mul (sub y h2) 1.0) h2)
+					0.0) ray_origin)))
+		(bind '(r g b) (scene-ray ray_origin ray_dir))
+		(setq reply (cat reply (char (add (bit-shr b 8) (bit-and g 0xff00) (bit-shl (bit-and r 0xff00) 8) 0xff000000) int_size)))
+		;while does a yield call !
+		(while nil))
+	(mail-send reply parent))
+
+;take a lines work, then migrate
+(defq msg (mail-mymail) parent (read-long work_parent_id msg)
+	w (read-long work_width msg) h (read-long work_height msg))
+(when (gt (length msg) work_ys)
+	(line (read-long (sub (length msg) long_size) msg))
+	(mail-send (slice 0 (sub (length msg) long_size) msg) (open-child "apps/raymarch/child.lisp" kn_call_child)))
