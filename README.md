@@ -152,15 +152,18 @@ for the experimental GUI.
 
 #### OSX
 
-OSX: Tested on Sierra 10.12.6
-```
-brew install sdl2
-brew install sdl2_ttf
-```
+Download and install the SDL frameworks from:
+
+- [SDL](https://www.libsdl.org/download-2.0.php)
+- [SDL_TTF](https://www.libsdl.org/projects/SDL_ttf/)
+
+Get the development *.dmg* files for both frameworks and copy *SDL2.framework*
+and *SDL2_ttf.framework* over into your */Library/Frameworks* folder.
 
 #### Linux
 
 Linux: Tested on Ubuntu 16-10, 17-10 and Debian PI64
+
 ```
 sudo apt-get install libsdl2-ttf-dev
 ```
