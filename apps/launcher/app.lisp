@@ -15,6 +15,7 @@
 	"apps/canvas/app.lisp"
 	"apps/raymarch/app.lisp"
 	"apps/calculator/app.lisp"
+	"apps/hello/app.lisp"
 	"tests/farm.lisp"
 	"tests/pipe.lisp"
 	"tests/global.lisp"
