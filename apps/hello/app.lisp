@@ -10,8 +10,9 @@
 (defq id t)
 
 ;create a window with a label
-(ui-tree window (create-window window_flag_close) nil
-	(ui-element display (create-label) ('text "ChrysaLisp" 'color argb_white 'flow_flags flow_flag_align_hleft 'font (create-font "fonts/OpenSans-Regular.ttf" 18))))
+(ui-tree window (create-window window_flag_close) nil	
+  (ui-element display (create-button) ('text "Press Me" 'text_color argb_blue 'color argb_green 'flow_flags flow_flag_align_hleft 'font (create-font "fonts/OpenSans-Regular.ttf" 18)))
+  (ui-element display (create-label) ('text "ChrysaLisp" 'color argb_white 'flow_flags flow_flag_align_hleft 'font (create-font "fonts/OpenSans-Regular.ttf" 18))))
 
 ;set a name to the window
 (window-set-title window "Hello")
