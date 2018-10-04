@@ -541,7 +541,10 @@
 	(add (read-short o s) (bit-shl (read-short (add o 2) s) 16)))
 (defun read-long (o s)
 	;(read-long index seq)
-	(add (read-int o s) (bit-shl (read-int (add o 4) s) 32)))
+	(cond
+		((str? s)
+			(add (read-int o s) (bit-shl (read-int (add o 4) s) 32)))
+		(t (elem (bit-shr o 3) s))))
 (defun read-cstr (o s)
 	;(read-cstr index seq)
 	(defq k o)
