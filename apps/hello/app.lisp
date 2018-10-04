@@ -8,7 +8,7 @@
 	(byte 'click))
 
 ;add event id
-(defq id t toggle nil)
+(defq id t toggle t)
 
 ;create a window with a label
 (ui-tree window (create-window window_flag_close) nil
@@ -35,6 +35,6 @@
 			(setq id nil))
 		((eq id event_click)
 			(set (view-dirty button) 'color (if (setq toggle (not toggle)) argb_green argb_red))
-			(set (view-dirty label) 'text (if toggle "The label is green!" "The label is red!"))
+			(set (view-dirty label) 'text (if toggle "The button is green!" "The button is red!"))
 			(view-layout label))
 		(t (view-event window msg))))
