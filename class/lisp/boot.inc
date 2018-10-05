@@ -445,9 +445,9 @@
 
 (defun pad (v c &optional f)
 	;(pad str length [char])
-	(defq f (opt f " ") v (str v) l (length v) c (max c l))
+	(defq f (opt f " ") v (str v) l (length v) c (sub (max c l) l))
 	(while (gt c (length f)) (setq f (cat f f)))
-	(cat (slice 0 (sub c l) f) v))
+	(cat (slice 0 c f) v))
 
 (defun log2 (_)
 	;(log2 num)
