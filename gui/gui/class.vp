@@ -64,6 +64,7 @@
 	;for now fire up the test apps
 	;this might be an gui auto run list eventually
 	(call 'sys_task 'open_child {"apps/launcher/app.lisp", kn_call_open})
+	(call 'sys_task 'open_child {"apps/clock/app.lisp", kn_call_open})
 
 	;gui event loop
 	(loop-start)

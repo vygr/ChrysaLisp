@@ -17,6 +17,7 @@
 (def-struct-end)
 
 (defcvar 'argb_black 0xff000000)
+(defcvar 'argb_grey 0xff777777)
 (defcvar 'argb_white 0xffffffff)
 (defcvar 'argb_blue 0xff0000ff)
 (defcvar 'argb_green 0xff00ff00)

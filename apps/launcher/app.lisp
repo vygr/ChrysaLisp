@@ -16,6 +16,7 @@
 	"apps/raymarch/app.lisp"
 	"apps/calculator/app.lisp"
 	"apps/hello/app.lisp"
+	"apps/clock/app.lisp"
 	"tests/farm.lisp"
 	"tests/pipe.lisp"
 	"tests/global.lisp"
@@ -28,7 +29,7 @@
 
 (window-set-title window "Launcher")
 (bind '(w h) (view-pref-size window))
-(gui-add (view-change window 32 32 (add w 32) h))
+(gui-add (view-change window 16 16 (add w 32) h))
 
 (while t
 	(cond
