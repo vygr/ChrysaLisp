@@ -12,5 +12,6 @@
 
 ;while not told to quit
 (until (mail-trymail)
-	(set (view-dirty display) 'text (make-time))
+	(set display 'text (make-time))
+	(view-dirty display)
 	(task-sleep 1000000))
