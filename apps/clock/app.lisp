@@ -11,7 +11,8 @@
 
 ;create a window with a label
 (ui-tree window (create-window window_flag_close) nil
-	(ui-element display (create-label) ('text "00:00:00" 'color argb_yellow 'flow_flags flow_flag_fillw
+	(ui-element display (create-label) ('text "00:00:00" 'color argb_black 'text_color argb_red
+		'flow_flags (add flow_flag_align_hcenter flow_flag_align_vcenter)
 		'font (create-font "fonts/Hack-Regular.ttf" 32))))
 
 ;set a name to the window
