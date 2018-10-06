@@ -108,11 +108,8 @@
 	(mail-send reply parent))
 
 ;take a lines work, then migrate
-(cond
-	((str? (defq msg (mail-mymail)))
-		(when (gt (length msg) work_ys)
-			(line (read-long work_parent_id msg) (read-long work_width msg) (read-long work_height msg) (read-long (sub (length msg) long_size) msg))
-			(mail-send (slice 0 (sub (length msg) long_size) msg) (open-child "apps/raymarch/child.lisp" kn_call_child))))
-	((gt (length msg) (bit-shr work_ys 3))
-		(line (read-long work_parent_id msg) (read-long work_width msg) (read-long work_height msg) (elem -2 msg))
-		(mail-send (slice 0 -2 msg) (open-child "apps/raymarch/child.lisp" kn_call_child))))
+(when (gt (length (defq msg (mail-mymail))) work_ys)
+	(line (read-long work_parent_id msg) (read-long work_width msg) (read-long work_height msg)
+		(read-long (sub (length msg) long_size) msg))
+	(mail-send (slice 0 (sub (length msg) long_size) msg)
+		(open-child "apps/raymarch/child.lisp" kn_call_child)))
