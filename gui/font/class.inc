@@ -19,11 +19,14 @@
 	(ptr 'word_map)
 	(ptr 'name)
 	(ptr 'chars)
+	(uint 'cnt)
 	(uint 'points)
 	(int 'ascent)
 	(int 'descent)
 	(int 'height)
 (def-struct-end)
+
+(defcvar 'font_max_word_cache 1024)
 
 ;;;;;;;;;;;;;;;;
 ; inline methods
