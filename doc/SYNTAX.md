@@ -279,6 +279,8 @@
 ### (opt var val [cond])
 ## or
 ### (or tst ...)
+## pad
+### (pad form width [str])
 ## partition
 ### (partition lambda list start end)
 ## pipe
