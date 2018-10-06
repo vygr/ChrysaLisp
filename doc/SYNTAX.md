@@ -328,19 +328,19 @@
 ## read
 ### (read stream last_char)
 ## read-byte
-### (read-byte index seq)
+### (read-byte index str)
 ## read-char
 ### (read-char stream [width])
 ## read-cstr
-### (read-cstr index seq)
+### (read-cstr index str)
 ## read-int
-### (read-int index seq)
+### (read-int index str)
 ## read-line
 ### (read-line stream)
 ## read-long
-### (read-long index seq)
+### (read-long index str)
 ## read-short
-### (read-short index seq)
+### (read-short index str)
 ## reduce
 ### (reduce lambda seq [accum])
 ## reduce-rev
