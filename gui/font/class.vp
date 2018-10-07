@@ -26,7 +26,7 @@
 	;trashes
 	;all
 
-	(ptr 'this 'name 'font_statics)
+	(ptr 'this 'name 'flat_set)
 	(pptr 'iter_begin 'iter_end)
 	(uint 'points)
 	(int 'same)
@@ -34,13 +34,14 @@
 	(push-scope)
 	(entry 'font 'open {name, points})
 
-	(assign (cat {@} (f-path 'font 'statics)) {font_statics})
-	(vpifnot {font_statics->font_statics_intern})
-		(call 'vector 'create {} {font_statics->font_statics_intern})
+	(assign (cat {@} (f-path 'font 'statics) {.font_statics_intern}) {flat_set})
+	(vpifnot {flat_set})
+		(call 'vector 'create {} {flat_set})
+		(assign {flat_set} (cat {@} (f-path 'font 'statics) {.font_statics_intern}))
 	(endif)
 
 	;intern font
-	(call 'vector 'get_iters {font_statics->font_statics_intern} {_, iter_begin, iter_end})
+	(call 'vector 'get_iters {flat_set} {_, iter_begin, iter_end})
 	(loop-while {iter_begin != iter_end})
 		(assign {*iter_begin} {this})
 		(vpif {this->font_points == points})
@@ -51,7 +52,7 @@
 	(loop-end)
 	(call 'font 'create {name, points} {this})
 	(vpif {this})
-		(call 'vector 'push_back {font_statics->font_statics_intern, this})
+		(call 'vector 'push_back {flat_set, this})
 	(vp-label 'found)
 		(call 'font 'ref {this})
 	(endif)
@@ -188,8 +189,9 @@
 	(def-struct-end)
 
 	(ptr 'this 'word 'txt)
-	(ptr 'font_statics)
-	(pptr 'iter 'bucket)
+	(union
+		'(ptr 'font_statics)
+		'(pptr 'iter 'bucket))
 
 	(push-scope)
 	(entry 'font 'ref_word {this, word})
@@ -202,22 +204,21 @@
 		(call 'symbol 'ref {word})
 		(call 'pair 'create {word, txt} {iter})
 		(call 'vector 'push_back {bucket, iter})
+		(call 'texture 'ref {txt})
+
+		;kernel callback for word texture creation
+		(call 'sys_task 'callback {&this, $word_callback})
 
 		;flush cache ?
 		(assign (cat {@} (f-path 'font 'statics)) {font_statics})
 		(assign {font_statics->font_statics_count + 1} {font_statics->font_statics_count})
 		(vpif {font_statics->font_statics_count >= font_max_word_cache})
-			(call 'texture 'ref {txt})
-			(call 'font 'flush_cache {this})
-			(call 'texture 'deref {txt})
+			(call 'font 'flush_cache)
 		(endif)
-
-		;kernel callback for word texture creation
-		(call 'sys_task 'callback {&this, $word_callback})
 	(else)
 		(call 'pair 'get_second {*iter} {_, txt})
+		(call 'texture 'ref {txt})
 	(endif)
-	(call 'texture 'ref {txt})
 
 	(exit 'font 'ref_word {this, txt})
 	(pop-scope)
@@ -284,7 +285,12 @@
 			(call 'symbol 'deref {word})
 			(assign {code + 1} {code})
 		(loop-until {code == 127})
-		(assign {chars} {this->font_chars})
+		(vpif {this->font_chars})
+			;another thread got to it during a flush_cache !
+			(call 'vector 'deref {chars})
+		(else)
+			(assign {chars} {this->font_chars})
+		(endif)
 	(endif)
 	(call 'vector 'ref {this->font_chars})
 
@@ -295,38 +301,38 @@
 (def-func-end)
 
 (def-method 'font 'flush_cache)
-	;inputs
-	;r0 = font object (ptr)
-	;outputs
-	;r0 = font object (ptr)
 	;trashes
 	;all but r0
 
-	(ptr 'this 'new_map 'font_statics 'font)
-	(pptr 'iter_begin 'iter_end)
+	(ptr 'font 'new_map 'flat_set 'tmp)
+	(uint 'length 'index)
 
 	(push-scope)
-	(entry 'font 'flush_cache {this})
 
-	(assign (cat {@} (f-path 'font 'statics)) {font_statics})
-	(call 'vector 'get_iters {font_statics->font_statics_intern} {_, iter_begin, iter_end})
-	(loop-while {iter_begin != iter_end})
-		(assign {*iter_begin} {font})
+	;must not use iters as kernel callbacks will deshedule us !
+	(assign (cat {0, @} (f-path 'font 'statics) {.font_statics_intern}) {index, flat_set})
+	(loop-start)
+		(call 'vector 'get_length {flat_set} {_, length})
+		(breakif {index == length})
+		(call 'vector 'get_element {flat_set, index} {_, font})
 		(vpif {font->font_chars})
 			(vpif {font->font_chars->obj_count == 1})
-				(call 'vector 'deref {font->font_chars})
+				;during deref font_chars could be written to !
+				(assign {font->font_chars} {tmp})
 				(assign {0} {font->font_chars})
+				(call 'vector 'deref {tmp})
 			(endif)
 		(endif)
 		(call 'hash_map 'create {font->font_word_map->hash_set_key_callback,
 			font->font_word_map->hash_set_num_buckets} {new_map})
 		(call 'hash_map 'for_each {font->font_word_map, $flush_callback, &new_map})
-		(call 'hash_map 'deref {font->font_word_map})
+		;during deref font_word_map could be written to !
+		(assign {font->font_word_map} {tmp})
 		(assign {new_map} {font->font_word_map})
-		(assign {iter_begin + ptr_size} {iter_begin})
+		(call 'hash_map 'deref {tmp})
+		(assign {index + 1} {index})
 	(loop-end)
 
-	(exit 'font 'flush_cache {this})
 	(pop-scope)
 	(return)
 
