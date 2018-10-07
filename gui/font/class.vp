@@ -12,6 +12,12 @@
 (gen-create 'font)
 (gen-class 'font)
 
+(def-method 'font 'statics)
+	;info
+	;font static data
+	(times font_statics_size (vp-byte 0))
+(def-func-end)
+
 (def-method 'font 'open)
 	;r0 = name c string (pubyte)
 	;r1 = font size (points)
@@ -20,7 +26,7 @@
 	;trashes
 	;all
 
-	(ptr 'this 'name 'flat_set)
+	(ptr 'this 'name 'font_statics)
 	(pptr 'iter_begin 'iter_end)
 	(uint 'points)
 	(int 'same)
@@ -28,14 +34,13 @@
 	(push-scope)
 	(entry 'font 'open {name, points})
 
-	(assign {ptr($fonts)} {flat_set})
-	(vpifnot {flat_set})
-		(call 'vector 'create {} {flat_set})
-		(assign {flat_set} {ptr($fonts)})
+	(assign (cat {@} (f-path 'font 'statics)) {font_statics})
+	(vpifnot {font_statics->font_statics_intern})
+		(call 'vector 'create {} {font_statics->font_statics_intern})
 	(endif)
 
 	;intern font
-	(call 'vector 'get_iters {flat_set} {_, iter_begin, iter_end})
+	(call 'vector 'get_iters {font_statics->font_statics_intern} {_, iter_begin, iter_end})
 	(loop-while {iter_begin != iter_end})
 		(assign {*iter_begin} {this})
 		(vpif {this->font_points == points})
@@ -46,7 +51,7 @@
 	(loop-end)
 	(call 'font 'create {name, points} {this})
 	(vpif {this})
-		(call 'vector 'push_back {flat_set, this})
+		(call 'vector 'push_back {font_statics->font_statics_intern, this})
 	(vp-label 'found)
 		(call 'font 'ref {this})
 	(endif)
@@ -54,14 +59,6 @@
 	(exit 'font 'open {this})
 	(pop-scope)
 	(return)
-
-;;;;;;;;;;;;;;;;;
-; interned fonts
-;;;;;;;;;;;;;;;;;
-
-	(vp-align ptr_size)
-(vp-label 'fonts)
-	(vp-long 0)
 
 (def-func-end)
 
@@ -90,7 +87,7 @@
 	(s-call 'font 'init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init state
-		(assign {0, 0, points} {this->font_cnt, this->font_chars, this->font_points})
+		(assign {0, points} {this->font_chars, this->font_points})
 		(call 'symbol 'intern_cstr {name} {this->font_name})
 		(call 'hash_map 'create (cat {@} (f-path 'symbol 'same) {, 61}) {this->font_word_map})
 
@@ -187,10 +184,11 @@
 	;all but r0
 
 	(def-struct 'local)
-		(ptr 'this 'word 'txt 'new_map)
+		(ptr 'this 'word 'txt)
 	(def-struct-end)
 
-	(ptr 'this 'word 'txt 'new_map)
+	(ptr 'this 'word 'txt)
+	(ptr 'font_statics)
 	(pptr 'iter 'bucket)
 
 	(push-scope)
@@ -204,16 +202,13 @@
 		(call 'symbol 'ref {word})
 		(call 'pair 'create {word, txt} {iter})
 		(call 'vector 'push_back {bucket, iter})
-		(assign {this->font_cnt + 1} {this->font_cnt})
 
 		;flush cache ?
-		(vpif {this->font_cnt >= font_max_word_cache})
+		(assign (cat {@} (f-path 'font 'statics)) {font_statics})
+		(assign {font_statics->font_statics_count + 1} {font_statics->font_statics_count})
+		(vpif {font_statics->font_statics_count >= font_max_word_cache})
 			(call 'texture 'ref {txt})
-			(call 'hash_map 'create {this->font_word_map->hash_set_key_callback,
-				this->font_word_map->hash_set_num_buckets} {new_map})
-			(call 'hash_map 'for_each {this->font_word_map, $flush_callback, &this})
-			(call 'hash_map 'deref {this->font_word_map})
-			(assign {new_map} {this->font_word_map})
+			(call 'font 'flush_cache {this})
 			(call 'texture 'deref {txt})
 		(endif)
 
@@ -258,31 +253,6 @@
 	(pop-scope-syms)
 	(return)
 
-(vp-label 'flush_callback)
-	;inputs
-	;r0 = predicate data (ptr)
-	;r1 = element iterator (pptr)
-	;outputs
-	;r1 = 0 if break, else not
-
-	(vp-cpy-ir r1 0 r1)
-	(vp-cpy-ir r1 pair_second r2)
-	(vp-cpy-ir-ui r2 obj_count r2)
-	(vpif '(r2 != 1))
-		(vp-cpy-ir r0 local_new_map r2)
-		(call 'obj 'ref '(r1))
-		(vp-push r0)
-		(call 'hash_set 'get_bucket '(r2 r0) '(_ r0))
-		(vp-pop r1)
-		(jump 'vector 'push_back '(r0 r1))
-	(else)
-		(vp-cpy-ir r0 local_this r0)
-		(vp-cpy-ir-ui r0 font_cnt r2)
-		(vp-sub-cr 1 r2)
-		(vp-cpy-ri-i r2 r0 font_cnt)
-	(endif)
-	(vp-ret)
-
 (def-func-end)
 
 (def-method 'font 'ref_chars)
@@ -294,7 +264,7 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'word 'txt)
+	(ptr 'this 'word 'txt 'chars)
 	(uint 'code)
 
 	;save inputs
@@ -303,21 +273,86 @@
 
 	;lazy create char textures
 	(vpifnot {this->font_chars})
-		(call 'vector 'create nil {this->font_chars})
-		(call 'vector 'set_capacity {this->font_chars, 128})
+		;note, don't write to member var yet in case flush_cache gets called !
+		(call 'vector 'create nil {chars})
+		(call 'vector 'set_capacity {chars, 127 - 33})
 		(assign {33} {code})
 		(loop-start)
 			(call 'symbol 'intern_cstr {&code} {word})
 			(call 'font 'ref_word {this, word} {_, txt})
-			(call 'vector 'push_back {this->font_chars, txt})
+			(call 'vector 'push_back {chars, txt})
 			(call 'symbol 'deref {word})
 			(assign {code + 1} {code})
 		(loop-until {code == 127})
+		(assign {chars} {this->font_chars})
 	(endif)
 	(call 'vector 'ref {this->font_chars})
 
 	(exit 'font 'ref_chars {this, this->font_chars})
 	(pop-scope)
 	(return)
+
+(def-func-end)
+
+(def-method 'font 'flush_cache)
+	;inputs
+	;r0 = font object (ptr)
+	;outputs
+	;r0 = font object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'new_map 'font_statics 'font)
+	(pptr 'iter_begin 'iter_end)
+
+	(push-scope)
+	(entry 'font 'flush_cache {this})
+
+	(assign (cat {@} (f-path 'font 'statics)) {font_statics})
+	(call 'vector 'get_iters {font_statics->font_statics_intern} {_, iter_begin, iter_end})
+	(loop-while {iter_begin != iter_end})
+		(assign {*iter_begin} {font})
+		(vpif {font->font_chars})
+			(vpif {font->font_chars->obj_count == 1})
+				(call 'vector 'deref {font->font_chars})
+				(assign {0} {font->font_chars})
+			(endif)
+		(endif)
+		(call 'hash_map 'create {font->font_word_map->hash_set_key_callback,
+			font->font_word_map->hash_set_num_buckets} {new_map})
+		(call 'hash_map 'for_each {font->font_word_map, $flush_callback, &new_map})
+		(call 'hash_map 'deref {font->font_word_map})
+		(assign {new_map} {font->font_word_map})
+		(assign {iter_begin + ptr_size} {iter_begin})
+	(loop-end)
+
+	(exit 'font 'flush_cache {this})
+	(pop-scope)
+	(return)
+
+(vp-label 'flush_callback)
+	;inputs
+	;r0 = predicate data (ptr)
+	;r1 = element iterator (pptr)
+	;outputs
+	;r1 = 0 if break, else not
+
+	(vp-cpy-ir r1 0 r1)
+	(vp-cpy-ir r1 pair_second r2)
+	(vp-cpy-ir-ui r2 obj_count r2)
+	(vpif '(r2 != 1))
+		(vp-cpy-ir r0 0 r2)
+		(call 'obj 'ref '(r1))
+		(vp-push r0)
+		(call 'hash_set 'get_bucket '(r2 r0) '(_ r0))
+		(vp-pop r1)
+		(jump 'vector 'push_back '(r0 r1))
+	(else)
+		(fn-bind (f-path 'font 'statics) r0)
+		(vp-cpy-ir r0 font_statics_count r2)
+		(vp-sub-cr 1 r2)
+		(vp-cpy-ri r2 r0 font_statics_count)
+	(endif)
+	(vp-ret)
 
 (def-func-end)
