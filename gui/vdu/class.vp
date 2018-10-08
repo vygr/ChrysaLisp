@@ -69,7 +69,7 @@
 	(entry 'vdu 'draw {this, ctx})
 
 	;get properties, do checks for any changes
-	(call 'vdu 'get_long_prop {this, prop_text_color} {_, col})
+	(call 'vdu 'get_long_prop {this, prop_ink_color} {_, col})
 	(call 'vdu 'get_long_prop {this, prop_vdu_width} {_, w})
 	(call 'vdu 'get_long_prop {this, prop_vdu_height} {_, h})
 	(call 'vdu 'get_prop {this, prop_font} {_, font})

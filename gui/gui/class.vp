@@ -6,6 +6,7 @@
 (import 'class/string/class.inc)
 (import 'gui/region/class.inc)
 (import 'gui/ctx/class.inc)
+(import 'apps/boing/backdrop/class.inc)
 
 (defcvar 'dual_buffers t)
 
@@ -54,12 +55,13 @@
 	(call 'sys_task 'callback {&locals, $update_callback})
 
 	;allocate background view for screen
-	(call 'label 'create nil {locals.local_statics->gui_statics_screen})
+	(call 'backdrop 'create nil {locals.local_statics->gui_statics_screen})
 
 	;size, color and opaque
-	(call 'label 'change {locals.local_statics->gui_statics_screen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT})
-	(call 'label 'set_long_prop {locals.local_statics->gui_statics_screen, prop_color, argb_black})
-	(call 'label 'dirty_all {locals.local_statics->gui_statics_screen})
+	(call 'backdrop 'change {locals.local_statics->gui_statics_screen, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT})
+	(call 'backdrop 'set_long_prop {locals.local_statics->gui_statics_screen, prop_color, argb_grey1})
+	(call 'backdrop 'set_long_prop {locals.local_statics->gui_statics_screen, prop_ink_color, argb_black})
+	(call 'backdrop 'dirty_all {locals.local_statics->gui_statics_screen})
 
 	;for now fire up the test apps
 	;this might be an gui auto run list eventually

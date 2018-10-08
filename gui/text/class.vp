@@ -68,7 +68,7 @@
 	(entry 'text 'draw {this, ctx})
 
 	;get properties, do checks for any changes
-	(call 'text 'get_long_prop {this, prop_text_color} {_, col})
+	(call 'text 'get_long_prop {this, prop_ink_color} {_, col})
 	(call 'text 'get_prop {this, prop_font} {_, font})
 	(call 'text 'get_prop {this, prop_text} {_, str})
 	(vpif {str && str != this->text_string})

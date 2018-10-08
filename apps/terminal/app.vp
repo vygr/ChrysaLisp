@@ -41,7 +41,7 @@
 
 	;add my vdu
 	(call 'vdu 'create nil {myapp.local_vdu})
-	(call 'vdu 'set_long_prop {myapp.local_vdu, prop_text_color, argb_green})
+	(call 'vdu 'set_long_prop {myapp.local_vdu, prop_ink_color, argb_green})
 	(call 'vdu 'set_long_prop {myapp.local_vdu, prop_vdu_width, 60})
 	(call 'vdu 'set_long_prop {myapp.local_vdu, prop_vdu_height, 40})
 	(call 'vdu 'set_font_prop {myapp.local_vdu, prop_font, "fonts/Hack-Regular.ttf", 16})

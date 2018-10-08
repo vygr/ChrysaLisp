@@ -15,18 +15,19 @@
 
 	(ptr 'this 'ctx)
 	(int 'x 'y 'w 'h)
-	(uint 'col)
+	(uint 'col 'ink)
 
 	(push-scope)
 	(entry 'backdrop 'draw {this, ctx})
 
 	(call 'backdrop 'get_long_prop {this, prop_color} {_, col})
+	(call 'backdrop 'get_long_prop {this, prop_ink_color} {_, ink})
 	(call 'backdrop 'get_bounds {this} {_, _, _, w, h})
 
 	(call 'ctx 'set_color {ctx, col})
 	(call 'ctx 'filled_box {ctx, 0, 0, w, h})
 	(assign {0, 0} {x, y})
-	(call 'ctx 'set_color {ctx, argb_white})
+	(call 'ctx 'set_color {ctx, ink})
 	(loop-while {x < w})
 		(call 'ctx 'filled_box {ctx, x, 0, 1, h})
 		(assign {x + 32} {x})

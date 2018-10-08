@@ -38,7 +38,7 @@
 (defprop "portion")
 (defprop "min_width")
 (defprop "min_height")
-(defprop "text_color")
+(defprop "ink_color")
 (defprop "flow_flags")
 (defprop "grid_width")
 (defprop "grid_height")

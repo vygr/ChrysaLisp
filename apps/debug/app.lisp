@@ -68,7 +68,7 @@
 			(clear vdu_keys)
 			(setq vdu_index nil)
 			(view-sub vdu)
-			(def (setq vdu (create-vdu)) 'vdu_width vdu_width 'vdu_height vdu_height 'text_color argb_yellow
+			(def (setq vdu (create-vdu)) 'vdu_width vdu_width 'vdu_height vdu_height 'ink_color argb_yellow
 				'font (create-font "fonts/Hack-Regular.ttf" 16))
 			(view-layout (view-add-back vdu_flow vdu))
 			(view-dirty (vdu-print vdu (cat
@@ -98,7 +98,7 @@
 				index (find key vdu_keys))
 			(unless index
 				(def (defq new_vdu (create-vdu)) 'vdu_width vdu_width 'vdu_height vdu_height
-					'text_color argb_yellow 'font (create-font "fonts/Hack-Regular.ttf" 16))
+					'ink_color argb_yellow 'font (create-font "fonts/Hack-Regular.ttf" 16))
 				(push vdu_keys key)
 				(push vdu_list (list new_vdu nil nil))
 				(reset (setq index (dec (length vdu_list)))))

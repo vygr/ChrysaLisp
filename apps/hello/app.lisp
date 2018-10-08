@@ -12,7 +12,7 @@
 
 ;create a window with a label
 (ui-tree window (create-window window_flag_close) nil
-	(ui-element button (create-button) ('text "Press Me" 'text_color argb_blue 'color argb_green
+	(ui-element button (create-button) ('text "Press Me" 'ink_color argb_blue 'color argb_green
 		'flow_flags flow_flag_fillw	'font (create-font "fonts/OpenSans-Regular.ttf" 18)))
 	(ui-element label (create-label) ('text "ChrysaLisp" 'color argb_white 'flow_flags flow_flag_fillw
 		'font (create-font "fonts/OpenSans-Regular.ttf" 18))))
