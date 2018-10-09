@@ -302,7 +302,7 @@
 
 (def-method 'font 'flush_cache)
 	;trashes
-	;all but r0
+	;all
 
 	(ptr 'font 'new_map 'flat_set 'tmp)
 	(uint 'length 'index)
