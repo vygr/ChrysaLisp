@@ -1764,7 +1764,7 @@ r0 = lisp object (ptr)
 inputs
 r0 = lisp object (ptr)
 r1 = args vector object (ptr) vector
-r2 = type/s pointer
+r2 = type/sig pointer
 r3 = - or 0 all same type check, else + for type signature check
 outputs
 r0 = lisp object (ptr)
