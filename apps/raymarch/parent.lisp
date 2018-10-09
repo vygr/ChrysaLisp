@@ -22,9 +22,9 @@
 	(each (lambda (c e)
 		(mail-send c e)) com farm)
 	(while (ge (setq h (dec h)) 0)
-		(defq msg (mail-mymail) x -1 y (read-int reply_y msg))
+		(defq msg (mail-mymail) x -1 y (get-int msg reply_y))
 		(while (lt (setq x (inc x)) w)
-			(canvas-set-plot canvas (read-int (add reply_data (mul x int_size)) msg) x y))
+			(canvas-set-plot canvas (get-int msg (add reply_data (mul x int_size))) x y))
 		(canvas-swap canvas)))
 
 ;read args from parent

@@ -1222,6 +1222,11 @@ r1 = return value object (ptr)
 ## font
 Super Class: obj
 ### font::vtable -> gui/class_font
+### font::statics -> gui/font/statics
+```
+info
+font static data
+```
 ### font::open -> gui/font/open
 ```
 r0 = name c string (pubyte)
@@ -1243,6 +1248,11 @@ r3 = font size (points)
 outputs
 r0 = font object (ptr)
 r1 = 0 if error, else ok
+trashes
+all but r0
+```
+### font::flush_cache -> gui/font/flush_cache
+```
 trashes
 all but r0
 ```

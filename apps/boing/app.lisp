@@ -44,7 +44,7 @@
 	(debug "Pos = " x "," y)
 	(while (defq msg (mail-trymail))
 		(cond
-			((eq (setq id (read-long ev_msg_target_id msg)) event_win_close)
+			((eq (setq id (get-long msg ev_msg_target_id)) event_win_close)
 				(setq id nil))
 			((eq id event_win_min)
 				;min button

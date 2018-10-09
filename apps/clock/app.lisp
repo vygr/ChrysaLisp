@@ -31,7 +31,7 @@
 ;main app loop
 (while id
 	(cond
-		((eq (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) event_close)
+		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_close)
 			(mail-send "" child_id)
 			(setq id nil))
 		(t (view-event window msg))))

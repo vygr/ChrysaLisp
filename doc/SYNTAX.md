@@ -62,7 +62,7 @@
 ## cmp
 ### (cmp str str)
 ## code
-### (code str)
+### (code str [width index])
 ## compose
 ### (compose lambda lambda)
 ## cond
@@ -185,6 +185,16 @@
 ### (ge num num ...)
 ## gensym
 ### (gensym)
+## get-byte
+### (get-byte str index)
+## get-cstr
+### (get-cstr str index)
+## get-int
+### (get-int str index)
+## get-long
+### (get-long str index)
+## get-short
+### (get-short str index)
 ## gt
 ### (gt num num ...)
 ## gui-add
@@ -327,20 +337,10 @@
 ### (rcurry lambda var ...)
 ## read
 ### (read stream last_char)
-## read-byte
-### (read-byte index str)
 ## read-char
 ### (read-char stream [width])
-## read-cstr
-### (read-cstr index str)
-## read-int
-### (read-int index str)
 ## read-line
 ### (read-line stream)
-## read-long
-### (read-long index str)
-## read-short
-### (read-short index str)
 ## reduce
 ### (reduce lambda seq [accum])
 ## reduce-rev

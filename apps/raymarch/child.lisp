@@ -109,7 +109,7 @@
 
 ;take a lines work, then migrate
 (when (gt (length (defq msg (mail-mymail))) work_ys)
-	(line (read-long work_parent_id msg) (read-long work_width msg) (read-long work_height msg)
-		(read-long (sub (length msg) long_size) msg))
+	(line (get-long msg work_parent_id) (get-long msg work_width) (get-long msg work_height)
+		(get-long msg (sub (length msg) long_size)))
 	(mail-send (slice 0 (sub (length msg) long_size) msg)
 		(open-child "apps/raymarch/child.lisp" kn_call_child)))

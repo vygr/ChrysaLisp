@@ -11,25 +11,25 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'length 'width)
+	(ptr 'this 'args)
+	(union
+		'(ptr 'value)
+		'(ulong 'arg0 'arg1))
+(errorcases
+	(uint 'length))
 
 	(push-scope)
 	(entry 'lisp 'func_char {this, args})
 
+(errorcases
 	(d-call 'vector 'get_length {args} {_, length})
-	(errorifnot {length == 1 || length == 2} 'error1)
-	(assign {1} {width})
-	(vpif {length == 2})
-		(call 'vector 'get_second {args} {_, value})
-		(errorif (cat {value->obj_vtable != @} (f-path 'integer 'vtable)) 'error2)
-		(call 'integer 'get_value {value} {_, width})
-		(assign {((width - 1) & 7) + 1} {width})
-	(endif)
-	(call 'vector 'get_first {args} {_, value})
-	(errorif (cat {value->obj_vtable != @} (f-path 'integer 'vtable)) 'error2)
-	(call 'integer 'get_value {value} {_, length})
-	(call 'string 'create_from_buffer {&length, width} {value})
+	(errorif {length < 1 || length > 2} 'error1)
+	(call 'lisp 'env_args_type (cat {this, args, @} (f-path 'integer 'vtable) {, 0}) {_, value})
+	(errorifnot {value} 'error2))
+
+	(assign {0, 1} {arg0, arg1})
+	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'string 'create_from_buffer {&arg0, ((arg1 - 1) & 7) + 1} {value})
 
 (vp-label 'funcexit)
 	(exit 'lisp 'func_char {this, value})

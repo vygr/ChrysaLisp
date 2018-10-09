@@ -58,7 +58,7 @@
 
 (while id
 	(cond
-		((eq (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) event_win_close)
+		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_close)
 			(setq id nil))
 		((eq id event_win_next)
 			(win-refresh (mod (inc index) (length images))))

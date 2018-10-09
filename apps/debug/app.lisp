@@ -90,10 +90,10 @@
 (while t
 	(cond
 		;new debug msg
-		((eq (defq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) event_win_debug)
-			(defq reply_id (read-long debug_msg_reply_id msg)
-				tcb (read-long debug_msg_tcb msg)
-				data (read-cstr debug_msg_data msg)
+		((eq (defq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_debug)
+			(defq reply_id (get-long msg debug_msg_reply_id)
+				tcb (get-long msg debug_msg_tcb)
+				data (get-cstr msg debug_msg_data)
 				key (sym-cat (str (bit-shr reply_id 32)) ":" (str tcb))
 				index (find key vdu_keys))
 			(unless index

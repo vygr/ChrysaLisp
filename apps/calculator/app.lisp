@@ -39,8 +39,8 @@
 (defq id t accum 0 value 0 num 0 lastop nil)
 (while id
 	(cond
-		((ge (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) event_win_button)
-			(defq op (get (view-find-id window (read-long ev_msg_action_source_id msg)) 'text))
+		((ge (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_button)
+			(defq op (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text))
 			(cond
 				((eql op "AC")
 					(setq accum 0 value 0 num 0 lastop nil))

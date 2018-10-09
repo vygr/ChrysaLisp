@@ -246,11 +246,11 @@ prin-base
 range
 reduce
 reduce-rev
-read-byte
-read-short
-read-int
-read-long
-read-cstr
+get-byte
+get-short
+get-int
+get-long
+get-cstr
 shuffle
 shuffled
 sign

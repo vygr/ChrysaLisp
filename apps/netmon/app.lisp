@@ -47,11 +47,11 @@
 			(setq cpu_count (dec cpu_count))
 			(mail-send sample_msg (elem cpu_count ids))))
 	(cond
-		((eq (setq id (read-long ev_msg_target_id (defq msg (mail-mymail)))) event_win_sample)
+		((eq (setq id (get-long (defq msg (mail-mymail)) ev_msg_target_id)) event_win_sample)
 			;reply from cpu
-			(defq cpu (read-long sample_reply_msg_cpu msg)
-				task_val (read-long sample_reply_msg_task_count msg)
-				memory_val (read-long sample_reply_msg_mem_used msg)
+			(defq cpu (get-long msg sample_reply_msg_cpu)
+				task_val (get-long msg sample_reply_msg_task_count)
+				memory_val (get-long msg sample_reply_msg_mem_used)
 				task_bar (elem cpu task_bars) memory_bar (elem cpu memory_bars))
 			(setq max_tasks (max max_tasks task_val) max_memory (max max_memory memory_val))
 			(def task_bar 'maximum max_tasks 'value task_val)
@@ -78,7 +78,7 @@
 
 ;wait for outstanding replies
 (while (ne cpu_count cpu_total)
-	(if (eq (read-long ev_msg_target_id (mail-mymail)) event_win_sample)
+	(if (eq (get-long (mail-mymail) ev_msg_target_id) event_win_sample)
 		(setq cpu_count (inc cpu_count))))
 
 ;send out multi-cast exit command
