@@ -1254,7 +1254,7 @@ all but r0
 ### font::flush_cache -> gui/font/flush_cache
 ```
 trashes
-all but r0
+all
 ```
 ### font::ref_word -> gui/font/ref_word
 ```
