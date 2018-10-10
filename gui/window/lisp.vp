@@ -19,10 +19,10 @@
 	(entry 'window 'lisp_create {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 1} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'create {arg0} {value})
 
 (vp-label 'funcexit)
@@ -54,10 +54,10 @@
 	(entry 'window 'lisp_connect_layout {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 2} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'connect_layout {arg0, arg1})
 	(call 'window 'ref {arg0} {value})
 
@@ -90,10 +90,10 @@
 	(entry 'window 'lisp_connect_close {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 2} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'connect_close {arg0, arg1})
 	(call 'window 'ref {arg0} {value})
 
@@ -126,10 +126,10 @@
 	(entry 'window 'lisp_connect_min {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 2} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'connect_min {arg0, arg1})
 	(call 'window 'ref {arg0} {value})
 
@@ -162,10 +162,10 @@
 	(entry 'window 'lisp_connect_max {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 2} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'connect_max {arg0, arg1})
 	(call 'window 'ref {arg0} {value})
 
@@ -198,10 +198,10 @@
 	(entry 'window 'lisp_set_status {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 2} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'set_status {arg0, &arg1->string_data})
 	(call 'window 'ref {arg0} {value})
 
@@ -234,10 +234,10 @@
 	(entry 'window 'lisp_set_title {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 2} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'set_title {arg0, &arg1->string_data})
 	(call 'window 'ref {arg0} {value})
 

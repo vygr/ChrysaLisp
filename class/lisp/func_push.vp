@@ -30,7 +30,7 @@
 		(call 'array 'set_capacity {value, alength})
 		(call 'array 'get_end {value} {_, iter_end})
 		(call 'array 'set_length {value, alength})
-		(call 'lisp 'env_args_set {this, args, iter_end, 1})
+		(call 'lisp 'env_args_set {args, iter_end, 1})
 	(endif)
 	(call 'obj 'ref {value})
 

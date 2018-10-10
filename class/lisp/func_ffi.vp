@@ -22,7 +22,7 @@
 	(entry 'lisp 'func_ffi {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 4} {value})
 	(errorifnot {value} 'error1))
 
 	(call 'vector 'get_third {args} {_, value})

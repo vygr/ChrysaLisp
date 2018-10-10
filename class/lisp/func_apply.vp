@@ -16,7 +16,7 @@
 	(entry 'lisp 'func_apply {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, iter_begin})
+	(call 'lisp 'env_args_type {args, $sig, 2} {iter_begin})
 	(errorifnot {iter_begin} 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})

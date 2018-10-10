@@ -19,10 +19,10 @@
 	(entry 'canvas 'lisp_create {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 3} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'create {arg0, arg1, arg2} {value})
 
 (vp-label 'funcexit)
@@ -54,10 +54,10 @@
 	(entry 'canvas 'lisp_load {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 2} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'load {&arg0->string_data, arg1} {value})
 	(vpifnot {value})
 		(call 'obj 'ref {this->lisp_sym_nil} {value})
@@ -92,10 +92,10 @@
 	(entry 'canvas 'lisp_fill {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 2} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'fill {arg0, arg1})
 	(call 'obj 'ref {arg0} {value})
 
@@ -128,10 +128,10 @@
 	(entry 'canvas 'lisp_swap {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 1} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'swap {arg0})
 	(call 'canvas 'dirty {arg0})
 	(call 'obj 'ref {arg0} {value})
@@ -165,10 +165,10 @@
 	(entry 'canvas 'lisp_set_plot {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 4} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'set_plot {arg0, arg1, arg2, arg3})
 	(call 'obj 'ref {arg0} {value})
 
@@ -201,10 +201,10 @@
 	(entry 'canvas 'lisp_set_fbox {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 6} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 6} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'set_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
 	(call 'obj 'ref {arg0} {value})
 
@@ -237,10 +237,10 @@
 	(entry 'canvas 'lisp_set_fpoly {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 4} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'set_fpoly {arg0, arg1, arg2, arg3})
 	(call 'obj 'ref {arg0} {value})
 
@@ -273,10 +273,10 @@
 	(entry 'canvas 'lisp_blend_plot {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 4} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'blend_plot {arg0, arg1, arg2, arg3})
 	(call 'obj 'ref {arg0} {value})
 
@@ -309,10 +309,10 @@
 	(entry 'canvas 'lisp_blend_fbox {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 6} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 6} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'blend_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
 	(call 'obj 'ref {arg0} {value})
 
@@ -345,10 +345,10 @@
 	(entry 'canvas 'lisp_blend_fpoly {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 4} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'blend_fpoly {arg0, arg1, arg2, arg3})
 	(call 'obj 'ref {arg0} {value})
 

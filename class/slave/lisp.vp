@@ -65,10 +65,10 @@
 	(entry 'slave 'lisp_get_args {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 1} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'slave 'get_args {arg0} {_, arg0})
 	(vpifnot {arg0})
 		(assign {this->lisp_sym_nil} {arg0})

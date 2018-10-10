@@ -18,7 +18,7 @@
 	(entry 'lisp 'func_age {this, value})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, value, $sig, 1} {_, age})
+	(call 'lisp 'env_args_type {value, $sig, 1} {age})
 	(errorifnot {age} 'error1))
 
 	(call 'vector 'get_first {value} {_, value})

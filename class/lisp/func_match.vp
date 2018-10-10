@@ -20,7 +20,7 @@
 	(entry 'lisp 'func_match {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value1})
+	(call 'lisp 'env_args_type {args, $sig, 2} {value1})
 	(errorifnot {value1} 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})

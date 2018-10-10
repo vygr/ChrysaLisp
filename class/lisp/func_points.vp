@@ -23,7 +23,7 @@
 	(call 'points 'set_capacity {value, length})
 	(call 'points 'set_length {value, length})
 	(call 'points 'get_begin {value} {_, iter_begin})
-	(call 'lisp 'env_args_set {this, args, iter_begin, 0})
+	(call 'lisp 'env_args_set {args, iter_begin, 0})
 
 	(exit 'lisp 'func_points {this, value})
 	(pop-scope)

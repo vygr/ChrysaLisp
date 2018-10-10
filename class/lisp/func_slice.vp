@@ -20,7 +20,7 @@
 	(entry 'lisp 'func_slice {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 3} {_, value1})
+	(call 'lisp 'env_args_type {args, $sig, 3} {value1})
 	(errorifnot {value1} 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})

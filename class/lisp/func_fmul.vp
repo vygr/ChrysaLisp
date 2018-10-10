@@ -24,7 +24,7 @@
 	(entry 'lisp 'func_fmul {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type (cat {this, args, @} (f-path 'integer 'vtable) {, -2}) {_, value})
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'integer 'vtable) {, -2}) {value})
 	(errorifnot {value} 'error1))
 
 	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})

@@ -17,7 +17,7 @@
 	(entry 'lisp 'func_strstream {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 1} {value})
 	(errorifnot {value} 'error1))
 
 	(d-call 'vector 'ref_element {args, 0} {_, value})

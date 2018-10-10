@@ -19,10 +19,10 @@
 	(entry 'stream 'lisp_available {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 1} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'stream 'available {arg0} {_, arg0})
 	(call 'integer 'create {arg0} {value})
 
@@ -55,10 +55,10 @@
 	(entry 'stream 'lisp_write_flush {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 1} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'stream 'write_flush {arg0})
 	(call 'obj 'ref {arg0} {value})
 

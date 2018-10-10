@@ -22,7 +22,7 @@
 	(call 'array 'set_capacity {value, length})
 	(call 'array 'set_length {value, length})
 	(call 'array 'get_begin {value} {_, iter_begin})
-	(call 'lisp 'env_args_set {this, args, iter_begin, 0})
+	(call 'lisp 'env_args_set {args, iter_begin, 0})
 
 	(exit 'lisp 'func_array {this, value})
 	(pop-scope)

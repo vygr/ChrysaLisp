@@ -18,7 +18,7 @@
 	(entry 'lisp 'func_elemset {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 3} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 3} {value})
 	(errorifnot {value} 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})

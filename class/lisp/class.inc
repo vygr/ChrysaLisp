@@ -12,8 +12,8 @@
 (dec-method 'env_push 'class/lisp/env_push 'static '(r0) '(r0))
 (dec-method 'env_pop 'class/lisp/env_pop 'static '(r0) '(r0))
 (dec-method 'env_bind 'class/lisp/env_bind 'static '(r0 r1 r2) '(r0 r1))
-(dec-method 'env_args_set 'class/lisp/env_args_set 'static '(r0 r1 r2 r3) '(r0))
-(dec-method 'env_args_type 'class/lisp/env_args_type 'static '(r0 r1 r2 r3) '(r0 r1))
+(dec-method 'env_args_set 'class/lisp/env_args_set 'static '(r0 r3 r1))
+(dec-method 'env_args_type 'class/lisp/env_args_type 'static '(r1 r3 r4) '(r1))
 
 (dec-method 'read 'class/lisp/read 'static '(r0 r1 r2) '(r0 r1 r2))
 (dec-method 'read_char 'class/lisp/read_char 'static '(r0 r1 r2) '(r0 r1))

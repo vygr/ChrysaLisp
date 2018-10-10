@@ -19,7 +19,7 @@
 	(entry 'lisp 'func_basr {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 2} {value})
 	(errorifnot {value} 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})

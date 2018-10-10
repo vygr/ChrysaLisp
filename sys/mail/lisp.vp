@@ -94,10 +94,10 @@
 	(entry 'sys_mail 'lisp_send {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 2} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'obj 'inst_of (cat {arg0, @} (f-path 'string 'vtable)) {_, value})
 	(vpif {value})
 		(call 'sys_mail 'alloc_obj {arg0, &arg0->string_data, arg0->string_length} {arg2})
@@ -147,10 +147,10 @@
 	(entry 'sys_mail 'lisp_declare {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 2} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 2} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_mail 'declare {&arg0->string_data, arg1})
 	(call 'obj 'ref {arg0} {value})
 
@@ -183,10 +183,10 @@
 	(entry 'sys_mail 'lisp_enquire {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 1} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 1} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_mail 'enquire {&arg0->string_data} {value})
 	(vpif {value})
 		(call 'integer 'create {value} {value})

@@ -18,10 +18,10 @@
 	(entry 'points 'lisp_transform {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 5} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 5} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'transform {arg0, arg1, arg2, arg3, arg4})
 	(call 'obj 'ref {arg0} {value})
 
@@ -54,10 +54,10 @@
 	(entry 'points 'lisp_simplify {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 4} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 4} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'simplify {arg0, arg1, arg2, arg3})
 	(call 'obj 'ref {arg0} {value})
 
@@ -90,10 +90,10 @@
 	(entry 'points 'lisp_gen_quadratic {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 6} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 6} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'gen_quadratic {arg0, arg1, arg2, arg3, arg4, arg5})
 	(call 'obj 'ref {arg0} {value})
 
@@ -126,10 +126,10 @@
 	(entry 'points 'lisp_gen_cubic {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 7} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 7} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'gen_cubic {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
 	(call 'obj 'ref {arg0} {value})
 
@@ -162,10 +162,10 @@
 	(entry 'points 'lisp_gen_arc {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 7} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 7} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'gen_arc {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
 	(call 'obj 'ref {arg0} {value})
 
@@ -198,10 +198,10 @@
 	(entry 'points 'lisp_stroke_polylines {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 8} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 8} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'stroke_polylines {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7})
 	(call 'obj 'ref {arg0} {value})
 
@@ -234,10 +234,10 @@
 	(entry 'points 'lisp_stroke_polygons {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {this, args, $sig, 6} {_, value})
+	(call 'lisp 'env_args_type {args, $sig, 6} {value})
 	(errorifnot {value} 'error1))
 
-	(call 'lisp 'env_args_set {this, args, &arg0, 0})
+	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'points 'stroke_polygons {arg0, arg1, arg2, arg3, arg4, arg5})
 	(call 'obj 'ref {arg0} {value})
 
