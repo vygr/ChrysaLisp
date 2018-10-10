@@ -10,34 +10,28 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this)
-	(pptr 'iter_begin)
-	(union
-		'(ptr 'args)
-		'(pptr 'iter_end))
-	(union
-		'(ptr 'value)
-		'(long 'num))
-	(long 'accum)
+	(ptr 'this 'args 'value)
 
 	(push-scope)
 	(entry 'lisp 'func_max {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type (cat {args, @} (f-path 'integer 'vtable) {, -2}) {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'integer 'vtable) {, -2}) '(r1))
+	(errorif '(r1 == 0) 'error1))
 
-	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
-	(call 'integer 'get_value {*iter_begin} {_, accum})
+	(call 'vector 'get_iters {args} '(_ r1 r2))
+	(vp-cpy-ir r1 0 r0)
+	(vp-add-cr ptr_size r1)
+	(vp-cpy-ir r0 integer_value r0)
 	(loop-start)
-		(assign {iter_begin + ptr_size} {iter_begin})
-		(breakif {iter_begin == iter_end})
-		(call 'integer 'get_value {*iter_begin} {_, num})
-		(vpif {num > accum})
-			(assign {num} {accum})
+		(vp-cpy-ir r1 0 r3)
+		(vp-add-cr ptr_size r1)
+		(vp-cpy-ir r3 integer_value r3)
+		(vpif '(r3 > r0))
+			(vp-cpy-rr r3 r0)
 		(endif)
-	(loop-end)
-	(call 'integer 'create {accum} {value})
+	(loop-until '(r1 == r2))
+	(call 'integer 'create '(r0) {value})
 
 (vp-label 'funcexit)
 	(exit 'lisp 'func_max {this, value})
