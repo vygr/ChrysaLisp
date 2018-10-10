@@ -10,7 +10,10 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
+	(ptr 'this)
+	(union
+		'(ptr 'args)
+		'(ptr 'value))
 
 	(push-scope)
 	(entry 'lisp 'func_max {this, args})
