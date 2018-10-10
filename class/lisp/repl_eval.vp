@@ -34,7 +34,7 @@
 		(assign {value} {func})
 		(switch)
 		(case (cat {func->obj_vtable == @} (f-path 'function 'vtable)))
-			(gotoifnot {func->function_value & 7} 'args_eval)
+			(gotoifnot {func->integer_value & 7} 'args_eval)
 			(call 'lisp 'repl_apply {this, form, func} {_, value})
 			(break)
 		(default)

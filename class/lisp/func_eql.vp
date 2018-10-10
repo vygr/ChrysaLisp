@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'class/string/class.inc)
-(import 'class/integer/class.inc)
+(import 'class/function/class.inc)
 (import 'class/lisp/class.inc)
 
 (def-method 'lisp 'func_eql)
@@ -32,8 +32,8 @@
 		(break)
 	(case (cat {arg1->obj_vtable == @} (f-path 'function 'vtable)
 		{|| arg1->obj_vtable == @} (f-path 'integer 'vtable)))
-		(call 'function 'get_value {arg1} {_, v1})
-		(call 'function 'get_value {arg2} {_, v2})
+		(call 'integer 'get_value {arg1} {_, v1})
+		(call 'integer 'get_value {arg2} {_, v2})
 		(breakif {v1 != v2})
 	(vp-label 'same)
 		(assign {this->lisp_sym_t} {value})

@@ -37,7 +37,7 @@
 	(endif)
 
 	(call 'integer 'create {0} {value})
-	(assign {&value->function_value} {chars})
+	(assign {&value->integer_value} {chars})
 	(loop-start)
 		(call 'stream_str 'read_char {iter_begin[0]} {_, length})
 		(vpif {length == -1})

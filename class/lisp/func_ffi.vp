@@ -1,6 +1,6 @@
 (import 'sys/func.inc)
 (import 'sys/load/class.inc)
-(import 'class/integer/class.inc)
+(import 'class/function/class.inc)
 (import 'class/symbol/class.inc)
 (import 'class/hash_map/class.inc)
 (import 'class/lisp/class.inc)

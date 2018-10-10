@@ -26,7 +26,7 @@
 		(call 'hash_map 'search {this->lisp_environment, this->lisp_sym_stream_line} {_, iter, _})
 		(breakifnot {iter})
 		(call 'pair 'get_second {*iter} {_, line})
-		(assign {line->function_value + 1} {line->function_value})
+		(assign {line->integer_value + 1} {line->integer_value})
 	(endif)
 
 	(call 'stream 'read_char {stream} {_, char})
