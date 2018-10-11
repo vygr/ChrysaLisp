@@ -1306,28 +1306,9 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ## function
-Super Class: obj
+Super Class: integer
 ### function::vtable -> class/class_function
 ### function::create -> class/function/create
-### function::new -> class/function/new
-### function::init -> class/function/init
-```
-inputs
-r0 = function object (ptr)
-r1 = vtable (pptr)
-r2 = initial value (ptr)
-outputs
-r0 = function object (ptr)
-r1 = 0 if error, else ok
-```
-### function::get_value -> class/function/get_value
-```
-inputs
-r0 = function object (ptr)
-outputs
-r0 = function object (ptr)
-r1 = value (ptr)
-```
 ## grid
 Super Class: view
 ### grid::vtable -> gui/class_grid
@@ -1646,9 +1627,28 @@ trashes
 all but r0
 ```
 ## integer
-Super Class: function
+Super Class: obj
 ### integer::vtable -> class/class_integer
 ### integer::create -> class/integer/create
+### integer::new -> class/integer/new
+### integer::init -> class/integer/init
+```
+inputs
+r0 = integer object (ptr)
+r1 = vtable (pptr)
+r2 = initial value (ptr)
+outputs
+r0 = integer object (ptr)
+r1 = 0 if error, else ok
+```
+### integer::get_value -> class/integer/get_value
+```
+inputs
+r0 = integer object (ptr)
+outputs
+r0 = integer object (ptr)
+r1 = value (ptr)
+```
 ## label
 Super Class: view
 ### label::vtable -> gui/class_label
@@ -1752,23 +1752,22 @@ r1 = return value object (ptr)
 ### lisp::env_args_set -> class/lisp/env_args_set
 ```
 inputs
-r0 = lisp object (ptr)
-r1 = args vector object (ptr)
-r2 = args dest (ptr)
-r3 = args offset (uint)
-outputs
-r0 = lisp object (ptr)
+r0 = args vector object (ptr)
+r3 = args dest (ptr)
+r1 = args offset (uint)
+trashes
+r0-r5
 ```
 ### lisp::env_args_type -> class/lisp/env_args_type
 ```
 inputs
-r0 = lisp object (ptr)
 r1 = args vector object (ptr) vector
-r2 = type/sig pointer
-r3 = - or 0 all same type check, else + for type signature check
+r3 = type/sig pointer
+r4 = - or 0 all same type check, else + for type signature check
 outputs
-r0 = lisp object (ptr)
 r1 = 0 if error, else ok
+trashes
+r0-r5
 ```
 ### lisp::read -> class/lisp/read
 ```
