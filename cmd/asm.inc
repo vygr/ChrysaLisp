@@ -131,7 +131,7 @@
 			(defun read-paths (_)
 				(defq l (list) i (get-short _ fn_header_links) e (get-short _ fn_header_paths))
 				(while (ne i e)
-					(push l (get-cstr _ (add (get-long _ i) i)))
+					(push l (sym (get-cstr _ (add (get-long _ i) i))))
 					(setq i (add i 8))) l)
 			(unless (lst? *funcs*)
 				(setq *funcs* (list *funcs*)))

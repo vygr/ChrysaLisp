@@ -537,23 +537,23 @@
 		(elem-set _2 _ _t)))
 
 (defmacro get-byte (s o)
-	;(get-byte str index)
-	`(code ,s 1 ,o))
+	;(get-byte str index) -> num
+	(list 'code s 1 o))
 (defmacro get-short (s o)
-	;(get-short str index)
-	`(code ,s 2 ,o))
+	;(get-short str index) -> num
+	(list 'code s 2 o))
 (defmacro get-int (s o)
-	;(get-int str index)
-	`(code ,s 4 ,o))
+	;(get-int str index) -> num
+	(list 'code s 4 o))
 (defmacro get-long (s o)
-	;(get-long str index)
-	`(code ,s 8 ,o))
+	;(get-long str index) -> num
+	(list 'code s 8 o))
 (defun get-cstr (s o)
-	;(get-cstr str index)
+	;(get-cstr str index) -> str
 	(defq k o)
 	(while (ne 0 (get-byte s o))
 		(setq o (inc o)))
-	(sym (slice k o s)))
+	(slice k o s))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment
