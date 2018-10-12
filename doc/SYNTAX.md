@@ -186,15 +186,15 @@
 ## gensym
 ### (gensym)
 ## get-byte
-### (get-byte str index)
+### (get-byte str index) -> num
 ## get-cstr
-### (get-cstr str index)
+### (get-cstr str index) -> str
 ## get-int
-### (get-int str index)
+### (get-int str index) -> num
 ## get-long
-### (get-long str index)
+### (get-long str index) -> num
 ## get-short
-### (get-short str index)
+### (get-short str index) -> num
 ## gt
 ### (gt num num ...)
 ## gui-add
