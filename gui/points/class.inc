@@ -3,18 +3,22 @@
 (def-class 'points 'array)
 (dec-method 'vtable 'gui/class_points)
 (dec-method 'create 'gui/points/create)
+(dec-method 'get_first_second 'gui/points/get_first_second 'static '(r0) '(r0 r1 r2))
+(dec-method 'get_element2 'gui/points/get_element2 'static '(r0 r1) '(r0 r1 r2))
+(dec-method 'push_back2 'gui/points/push_back2 'static '(r0 r1 r2) '(r0 r1 r2))
+(dec-method 'pop_back2 'gui/points/pop_back2 'static '(r0) '(r0))
 
 (dec-method 'filter_polyline 'gui/points/filter_polyline 'static '(r0 r1 r2) '(r0))
 (dec-method 'filter_polygon 'gui/points/filter_polygon 'static '(r0 r1 r2) '(r0))
-(dec-method 'transform 'gui/points/transform 'static '(r0 r1 r2 r3 r4) '(r0))
+(dec-method 'transform 'gui/points/transform 'static '(r0 r1 r2 r3 r4 r5 r6 r7) '(r0))
 (dec-method 'simplify 'gui/points/simplify 'static '(r0 r1 r2 r3) '(r0))
 
-(dec-method 'gen_clerp 'gui/points/gen_clerp 'static '(r0 r1 r2 r3 r4 r5 r6) '(r0))
-(dec-method 'gen_arc 'gui/points/gen_arc 'static '(r0 r1 r2 r3 r4 r5 r6) '(r0))
-(dec-method 'gen_quadratic 'gui/points/gen_quadratic 'static '(r0 r1 r2 r3 r4 r5) '(r0))
-(dec-method 'gen_cubic 'gui/points/gen_cubic 'static '(r0 r1 r2 r3 r4 r5 r6) '(r0))
+(dec-method 'gen_clerp 'gui/points/gen_clerp 'static '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9) '(r0))
+(dec-method 'gen_arc 'gui/points/gen_arc 'static '(r0 r1 r2 r3 r4 r5 r6 r7) '(r0))
+(dec-method 'gen_quadratic 'gui/points/gen_quadratic 'static '(r0 r1 r2 r3 r4 r5 r6 r7 r8) '(r0))
+(dec-method 'gen_cubic 'gui/points/gen_cubic 'static '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10) '(r0))
 
-(dec-method 'stroke_joints 'gui/points/stroke_joints 'static '(r0 r1 r2 r3 r4 r5 r6 r7 r8) '(r0))
+(dec-method 'stroke_joints 'gui/points/stroke_joints 'static '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10) '(r0))
 (dec-method 'stroke_polylines 'gui/points/stroke_polylines 'static '(r0 r1 r2 r3 r4 r5 r6 r7) '(r0))
 (dec-method 'stroke_polygons 'gui/points/stroke_polygons 'static '(r0 r1 r2 r3 r4 r5) '(r0))
 
@@ -40,3 +44,39 @@
 ;;;;;;;;;;;;;;;
 ;inline methods
 ;;;;;;;;;;;;;;;
+
+(defcfun gui/points/get_first_second ()
+	;inputs
+	;r0 = points object (ptr)
+	;outputs
+	;r0 = points object (ptr)
+	;r1 = element1 (long)
+	;r2 = element2 (long)
+	(vp-cpy-ir r0 array_array r2)
+	(vp-cpy-ir r2 0 r1)
+	(vp-cpy-ir r2 long_size r2))
+
+(defcfun gui/points/get_element2 ()
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = element index (uint)
+	;outputs
+	;r0 = array object (ptr)
+	;r1 = element1 (long)
+	;r2 = element2 (long)
+	(vp-cpy-ir r0 array_array r2)
+	(vp-shl-cr (log2 long_size) r1)
+	(vp-add-rr r1 r2)
+	(vp-cpy-ir r2 0 r1)
+	(vp-cpy-ir r2 long_size r2))
+
+(defcfun gui/points/pop_back2 ()
+	;inputs
+	;r0 = points object (ptr)
+	;outputs
+	;r0 = points object (ptr)
+	;trashes
+	;r1
+	(vp-cpy-ir-ui r0 array_length r1)
+	(vp-sub-cr 2 r1)
+	(vp-cpy-ri-i r1 r0 array_length))

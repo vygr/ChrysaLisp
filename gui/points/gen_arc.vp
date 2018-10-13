@@ -6,27 +6,25 @@
 	;inputs
 	;r0 = points object (ptr)
 	;r1 = stack array object (ptr)
-	;r2 = center xy (16.16/16.16)
-	;r3 = start angle (16.16)
-	;r4 = end angle (16.16)
-	;r5 = radius (16.16)
-	;r6 = tolerance (16.16)
+	;r2 = cx (16.16)
+	;r3 = cy (16.16)
+	;r4 = start angle (16.16)
+	;r5 = end angle (16.16)
+	;r6 = radius (16.16)
+	;r7 = tolerance (16.16)
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
 	;all but r0
 
 	(ptr 'this 'stack)
-	(union
-		'(ulong 'v1 'v2 'c)
-		'(int 'v1x 'v1y 'v2x 'v2y))
+	(int 'v1x 'v1y 'v2x 'v2y 'cx 'cy 'radius 'eps)
 	(union
 		'(int 'ca1 'ca2 'sa1 'sa2)
 		'(int 'a1 'a2 'ah))
-	(int 'radius 'eps)
 
 	(push-scope)
-	(entry 'points 'gen_arc {this, stack, c, a1, a2, radius, eps})
+	(entry 'points 'gen_arc {this, stack, cx, cy, a1, a2, radius, eps})
 
 	(vec-set 0)
 	(vec-load 2 {a1, fp_2pi})
@@ -47,12 +45,12 @@
 		(vec-load 5 {sa1, ca1, sa2, ca2, radius})
 		(vec-fscale 4)
 		(vec-store 2 {v2x, v2y} {v1x, v1y})
-		(call 'points 'gen_clerp {this, stack, c, v1, v2, radius, eps})
+		(call 'points 'gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius, eps})
 	(else)
 		(assign {a2 >>> 1} {ah})
 		(assign {a2 - ah} {a2})
-		(call 'points 'gen_arc {this, stack, c, a1, ah, radius, eps})
-		(call 'points 'gen_arc {this, stack, c, a1 + ah, a2, radius, eps})
+		(call 'points 'gen_arc {this, stack, cx, cy, a1, ah, radius, eps})
+		(call 'points 'gen_arc {this, stack, cx, cy, a1 + ah, a2, radius, eps})
 	(endif)
 
 	(exit 'points 'gen_arc {this})

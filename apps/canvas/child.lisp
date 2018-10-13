@@ -10,27 +10,21 @@
 
 (defq stack (array) eps 0.25 angle 0.0)
 
-(defun as-point ((x y))
-	(bit-or (bit-and 0xffffffff x) (bit-shl y 32)))
-
-(defun as-points (_)
-	(apply points (map as-point _)))
-
 (defun transform (_ angle)
 	(defq sa (fsin angle) ca (fcos angle))
 	(map (lambda (_)
 		(points-transform _ _
-			(as-point (list (fmul canvas_scale ca) (fmul canvas_scale (neg sa))))
-			(as-point (list (fmul canvas_scale sa) (fmul canvas_scale ca)))
-			(as-point (list (fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5))))) _))
+			(fmul canvas_scale ca) (fmul canvas_scale (neg sa))
+			(fmul canvas_scale sa) (fmul canvas_scale ca)
+			(fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5))) _))
 
 (defun transform-norm (_ angle)
 	(defq sa (fsin angle) ca (fcos angle))
 	(map (lambda (_)
 		(points-transform _ _
-			(as-point (list (fmul canvas_width canvas_scale ca) (fmul canvas_height canvas_scale (neg sa))))
-			(as-point (list (fmul canvas_width canvas_scale sa) (fmul canvas_height canvas_scale ca)))
-			(as-point (list (fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5))))) _))
+			(fmul canvas_width canvas_scale ca) (fmul canvas_height canvas_scale (neg sa))
+			(fmul canvas_width canvas_scale sa) (fmul canvas_height canvas_scale ca)
+			(fmul canvas_width canvas_scale 0.5) (fmul canvas_height canvas_scale 0.5))) _))
 
 (defun fpoly (col mode _)
 	(canvas-set-fpoly canvas _ col mode))
@@ -41,22 +35,16 @@
 (defun redraw ()
 	(canvas-fill canvas 0)
 
-	(fpoly argb_red 1 (transform-norm (list (as-points (list
-		(list -0.5 -0.5)
-		(list -0.25 0.5)
-		(list 0 -0.5)
-		(list 0.25 0.5)
-		(list 0.5 -0.5)
-		(list -0.05 0.5)))) (mul angle 2)))
+	(fpoly argb_red 1 (transform-norm (list
+		(points -0.5 -0.5 -0.25 0.5 0 -0.5 0.25 0.5 0.5 -0.5 -0.05 0.5)) (mul angle 2)))
 
 	(fpoly 0xff0ff0ff 0 (transform
 		(points-stroke-polylines (list) stack
-			(list
-				(points-gen-quadratic (points) stack
-					(as-point (list (fmul canvas_width -0.4) (fmul canvas_height 0.4)))
-					(as-point (list (fmul canvas_width -0.2) (fmul canvas_height -1.1)))
-					(as-point (list (fmul canvas_width 0.4) (fmul canvas_height 0.2)))
-					eps))
+			(list (points-gen-quadratic (points) stack
+				(fmul canvas_width -0.4) (fmul canvas_height 0.4)
+				(fmul canvas_width -0.2) (fmul canvas_height -1.1)
+				(fmul canvas_width 0.4) (fmul canvas_height 0.2)
+				eps))
 			join-bevel
 			cap-square
 			cap-square
@@ -65,11 +53,9 @@
 
 	(bpoly 0xc000ff00 1 (transform
 		(points-stroke-polylines (list) stack
-			(list
-				(as-points (list
-					(list (fmul canvas_width -0.4) (fmul canvas_height -0.4))
-					(list (fmul canvas_width 0.3) (fmul canvas_height -0.3))
-					(list (fmul canvas_width 0.4) (fmul canvas_height 0.4)))))
+			(list (points (fmul canvas_width -0.4) (fmul canvas_height -0.4)
+				(fmul canvas_width 0.3) (fmul canvas_height -0.3)
+				(fmul canvas_width 0.4) (fmul canvas_height 0.4)))
 			join-round
 			cap-round
 			cap-round
@@ -79,13 +65,12 @@
 	(fpoly argb_yellow 0 (defq p (transform
 		(points-stroke-polygons (list) stack
 			(points-stroke-polylines (list) stack
-				(list
-					(points-gen-cubic (points) stack
-						(as-point (list (fmul canvas_width -0.45) (fmul canvas_height 0.3)))
-						(as-point (list (fmul canvas_width -0.3) (fmul canvas_height -0.3)))
-						(as-point (list (fmul canvas_width 0.45) (fmul canvas_height 0.6)))
-						(as-point (list (fmul canvas_width 0.4) (fmul canvas_height -0.4)))
-						eps))
+				(list (points-gen-cubic (points) stack
+					(fmul canvas_width -0.45) (fmul canvas_height 0.3)
+					(fmul canvas_width -0.3) (fmul canvas_height -0.3)
+					(fmul canvas_width 0.45) (fmul canvas_height 0.6)
+					(fmul canvas_width 0.4) (fmul canvas_height -0.4)
+					eps))
 				join-bevel
 				cap-round
 				cap-arrow
@@ -98,13 +83,10 @@
 
 	(bpoly 0xd0ff00ff 0 (defq p (transform
 		(points-stroke-polygons (list) stack
-			(list
-				(points-gen-arc (points) stack
-					(as-point (list (fmul canvas_width 0.2) (fmul canvas_height 0.3)))
-					0.0
-					fp_2pi
-					(fmul canvas_width 0.125)
-					eps))
+			(list (points-gen-arc (points) stack
+				(fmul canvas_width 0.2) (fmul canvas_height 0.3)
+				0 fp_2pi
+				(fmul canvas_width 0.125) eps))
 			join-miter
 			(fmul canvas_width 0.02)
 			eps) angle)))
@@ -115,17 +97,13 @@
 			(points-stroke-polylines (list) stack
 				(list
 					(points-gen-arc (points) stack
-						(as-point (list (fmul canvas_width -0.1) (fmul canvas_height -0.2)))
-						0.9
-						1.5
-						(fmul canvas_width 0.2)
-						eps)
+						(fmul canvas_width -0.1) (fmul canvas_height -0.2)
+						0.9 1.5
+						(fmul canvas_width 0.2) eps)
 					(points-gen-arc (points) stack
-						(as-point (list (fmul canvas_width -0.2) (fmul canvas_height -0.2)))
-						4.0
-						2.0
-						(fmul canvas_width 0o0.1)
-						eps))
+						(fmul canvas_width -0.2) (fmul canvas_height -0.2)
+						4.0 2.0
+						(fmul canvas_width 0o0.1) eps))
 				join-bevel
 				cap-square
 				cap-tri

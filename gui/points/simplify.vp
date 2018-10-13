@@ -17,7 +17,7 @@
 	(union
 		'(ulong 'span 'rspan)
 		'(uint 'first 'last 'index 'rlast))
-	(ulong 'p1 'p2 'p3)
+	(int 'p1x 'p1y 'p2x 'p2y 'p3x 'p3y)
 	(uint 'start 'length)
 	(int 'eps 'max 'dist)
 
@@ -34,38 +34,37 @@
 		(assign {0, length - 1} {first, last})
 
 		;output first point
-		(call 'points 'get_first {that} {_, p1})
-		(call 'points 'push_back {this, p1})
+		(call 'points 'get_first_second {that} {_, p1x, p1y})
+		(call 'points 'push_back2 {this, p1x, p1y})
 
 		(d-call 'array 'get_length {stack} {_, start})
 		(loop-start)
 			(switch 'out)
-			(case {last - first > 1})
+			(case {last - first > 2})
 				;find max distance point
-				(assign {eps, first + 1} {max, length})
-				(call 'points 'get_element {that, first} {_, p2})
-				(call 'points 'get_element {that, last} {_, p3})
+				(assign {eps, first + 2} {max, length})
+				(call 'points 'get_element2 {that, first} {_, p2x, p2y})
+				(call 'points 'get_element2 {that, last} {_, p3x, p3y})
 				(loop-start)
-					(call 'points 'get_element {that, length} {_, p1})
-					(call 'sys_math 'distance_sqd {p1, p2, p3} {dist})
+					(call 'points 'get_element2 {that, length} {_, p1x, p1y})
+					(call 'sys_math 'distance_sqd {p1x, p2y, p2x, p2y, p3x, p3y} {dist})
 					(vpif {dist > max})
 						(assign {dist, length} {max, index})
 					(endif)
-					(assign {length + 1} {length})
+					(assign {length + 2} {length})
 				(loop-until {length == last})
 
 				;continue subdivision ?
 				(vpif {max > eps})
 					(assign {last} {rlast})
 					(assign {index} {last})
-					(call 'array 'push_back {stack, rspan})
-					(call 'array 'push_back {stack, span})
+					(call 'points 'push_back2 {stack, rspan, span})
 					(break out)
 				(endif)
 			(default)
 				;output point
-				(call 'points 'get_element {that, last} {_, p1})
-				(call 'points 'push_back {this, p1})
+				(call 'points 'get_element2 {that, last} {_, p1x, p1y})
+				(call 'points 'push_back2 {this, p1x, p1y})
 			(endswitch)
 
 			;next span

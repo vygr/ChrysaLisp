@@ -304,11 +304,11 @@
 ## points
 ### (points [form ...])
 ## points-gen-arc
-### (points-gen-arc dst stack center start end radius tol)
+### (points-gen-arc dst stack cx cy start end radius tol)
 ## points-gen-cubic
-### (points-gen-cubic dst stack p1 p2 p3 p4 tol)
+### (points-gen-cubic dst stack p1x p1y p2x p2y p3x p3y p4x p4y tol)
 ## points-gen-quadratic
-### (points-gen-quadratic dst stack p1 p2 p3 tol)
+### (points-gen-quadratic dst stack p1x p1y p2x p2y p3x p3y tol)
 ## points-simplify
 ### (points-simplify dst src stack tol)
 ## points-stroke-polygons
@@ -316,7 +316,7 @@
 ## points-stroke-polylines
 ### (points-stroke-polylines dst stack src join cap1 cap2 radius tol)
 ## points-transform
-### (points-transform dst src m1 m2 tr)
+### (points-transform dst src m1x m1y m2x m2y trx try)
 ## pop
 ### (pop array)
 ## prin

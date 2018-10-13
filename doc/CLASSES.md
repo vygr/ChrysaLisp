@@ -3074,6 +3074,47 @@ all but r0
 Super Class: array
 ### points::vtable -> gui/class_points
 ### points::create -> gui/points/create
+### points::get_first_second -> gui/points/get_first_second
+```
+inputs
+r0 = points object (ptr)
+outputs
+r0 = points object (ptr)
+r1 = element1 (long)
+r2 = element2 (long)
+```
+### points::get_element2 -> gui/points/get_element2
+```
+inputs
+r0 = points object (ptr)
+r1 = element index (uint)
+outputs
+r0 = array object (ptr)
+r1 = element1 (long)
+r2 = element2 (long)
+```
+### points::push_back2 -> gui/points/push_back2
+```
+inputs
+r0 = points object (ptr)
+r1 = element1 (long)
+r2 = element2 (long)
+outputs
+r0 = points object (ptr)
+r1 = element1 (long)
+r2 = element2 (long)
+trashes
+r2-r7
+```
+### points::pop_back2 -> gui/points/pop_back2
+```
+inputs
+r0 = points object (ptr)
+outputs
+r0 = points object (ptr)
+trashes
+r1
+```
 ### points::filter_polyline -> gui/points/filter_polyline
 ```
 inputs
@@ -3101,9 +3142,12 @@ all but r0
 inputs
 r0 = points object (ptr)
 r1 = source points object, can be same (ptr)
-r2 = m1 xy (16.16/16.16)
-r3 = m2 xy (16.16/16.16)
-r4 = tr xy (16.16/16.16)
+r2 = m1x (16.16)
+r3 = m1y (16.16)
+r4 = m2x (16.16)
+r5 = m2y (16.16)
+r6 = trx (16.16)
+r7 = try (16.16)
 outputs
 r0 = points object (ptr)
 trashes
@@ -3126,11 +3170,14 @@ all but r0
 inputs
 r0 = points object (ptr)
 r1 = stack array object (ptr)
-r2 = center xy (16.16/16.16)
-r3 = v1 (16.16/16.16)
-r4 = v2 (16.16/16.16)
-r5 = radius (16.16)
-r6 = tolerance (16.16)
+r2 = cx (16.16)
+r3 = cy (16.16)
+r4 = v1x (16.16)
+r5 = v1y (16.16)
+r6 = v2x (16.16)
+r7 = v2y (16.16)
+r8 = radius (16.16)
+r9 = tolerance (16.16)
 outputs
 r0 = points object (ptr)
 trashes
@@ -3141,11 +3188,12 @@ all but r0
 inputs
 r0 = points object (ptr)
 r1 = stack array object (ptr)
-r2 = center xy (16.16/16.16)
-r3 = start angle (16.16)
-r4 = end angle (16.16)
-r5 = radius (16.16)
-r6 = tolerance (16.16)
+r2 = cx (16.16)
+r3 = cy (16.16)
+r4 = start angle (16.16)
+r5 = end angle (16.16)
+r6 = radius (16.16)
+r7 = tolerance (16.16)
 outputs
 r0 = points object (ptr)
 trashes
@@ -3156,10 +3204,13 @@ all but r0
 inputs
 r0 = points object (ptr)
 r1 = stack array object (ptr)
-r2 = p1 xy (16.16/16.16)
-r3 = p2 xy (16.16/16.16)
-r4 = p3 xy (16.16/16.16)
-r5 = tolerance (16.16)
+r2 = p1x (16.16)
+r3 = p1y (16.16)
+r4 = p2x (16.16)
+r5 = p2y (16.16)
+r6 = p3x (16.16)
+r7 = p3y (16.16)
+r8 = tolerance (16.16)
 outputs
 r0 = points object (ptr)
 trashes
@@ -3170,11 +3221,15 @@ all but r0
 inputs
 r0 = points object (ptr)
 r1 = stack array object (ptr)
-r2 = p1 xy (16.16/16.16)
-r3 = p2 xy (16.16/16.16)
-r4 = p3 xy (16.16/16.16)
-r5 = p4 xy (16.16/16.16)
-r6 = tolerance (16.16)
+r2 = p1x (16.16)
+r3 = p1y (16.16)
+r4 = p2x (16.16)
+r5 = p2y (16.16)
+r6 = p3x (16.16)
+r7 = p3y (16.16)
+r8 = p4x (16.16)
+r9 = p4y (16.16)
+r10 = tolerance (16.16)
 outputs
 r0 = points object (ptr)
 trashes
@@ -3187,11 +3242,13 @@ r0 = points object (ptr)
 r1 = stack array object (ptr)
 r2 = in points start iter (plong)
 r3 = in points end iter (plong)
-r4 = p1 xy (16.16/16.16)
-r5 = p2 xy (16.16/16.16)
-r6 = join style (byte)
-r7 = radius (16.16)
-r8 = tolerance (16.16)
+r4 = p1x (16.16)
+r5 = p1y (16.16)
+r6 = p2x (16.16)
+r7 = p2y (16.16)
+r8 = join style (byte)
+r9 = radius (16.16)
+r10 = tolerance (16.16)
 outputs
 r0 = points object (ptr)
 trashes
@@ -4497,21 +4554,29 @@ r1-r4
 ### sys_math::intersect -> sys/math/intersect
 ```
 inputs
-r0 = p1 xy (16.16/16.16)
-r1 = v1 xy (16.16/16.16)
-r2 = p2 xy (16.16/16.16)
-r3 = v2 xy (16.16/16.16)
+r0 = p1x (16.16)
+r1 = p1y (16.16)
+r2 = p2x (16.16)
+r3 = p2y (16.16)
+r4 = v1x (16.16)
+r5 = v1y (16.16)
+r6 = v2x (16.16)
+r7 = v2y (16.16)
 outputs
-r0 = i xy (16.16/16.16)
+r0 = ix (16.16)
+r1 = iy (16.16)
 trashes
 all
 ```
 ### sys_math::distance_sqd -> sys/math/distance_sqd
 ```
 inputs
-r0 = p xy (16.16/16.16)
-r1 = p1 xy (16.16/16.16)
-r2 = p2 xy (16.16/16.16)
+r0 = px (16.16)
+r1 = py (16.16)
+r2 = p1x (16.16)
+r3 = p1y (16.16)
+r4 = p2x (16.16)
+r5 = p2y (16.16)
 outputs
 r0 = distance squared (16.16)
 trashes

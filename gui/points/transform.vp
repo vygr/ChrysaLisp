@@ -6,9 +6,12 @@
 	;inputs
 	;r0 = points object (ptr)
 	;r1 = source points object, can be same (ptr)
-	;r2 = m1 xy (16.16/16.16)
-	;r3 = m2 xy (16.16/16.16)
-	;r4 = tr xy (16.16/16.16)
+	;r2 = m1x (16.16)
+	;r3 = m1y (16.16)
+	;r4 = m2x (16.16)
+	;r5 = m2y (16.16)
+	;r6 = trx (16.16)
+	;r7 = try (16.16)
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
@@ -16,12 +19,10 @@
 
 	(ptr 'this 'that)
 	(pptr 'iter_begin 'iter_end 'iter_this)
-	(union
-		'(ulong 'm1 'm2 'tr)
-		'(int 'm1x 'm1y 'm2x 'm2y 'trx 'try))
+	(int 'm1x 'm1y 'm2x 'm2y 'trx 'try)
 
 	(push-scope)
-	(entry 'points 'transform {this, that, m1, m2, tr})
+	(entry 'points 'transform {this, that, m1x, m1y, m2x, m2y, trx, try})
 
 	(call 'points 'get_iters {that} {_, iter_begin, iter_end})
 	(call 'points 'get_begin {this} {_, iter_this})
@@ -37,7 +38,7 @@
 	(defq tr (vec-top 2))
 
 	(loop-while `(,i != ,e))
-		(vec-load-int 2 i)
+		(vec-load-long 2 i)
 		(defq xy (vec-top 2))
 
 		(vec-dup 2 m1)
@@ -45,9 +46,9 @@
 		(vec-dup 2 m2)
 		(vec-fdot 2 xy)
 		(vec-add 2 tr)
-		(vec-store-int 2 j)
-		(vp-add-cr long_size i)
-		(vp-add-cr long_size j)
+		(vec-store-long 2 j)
+		(vp-add-cr (mul 2 long_size) i)
+		(vp-add-cr (mul 2 long_size) j)
 	(loop-end)
 
 	(exit 'points 'transform {this})

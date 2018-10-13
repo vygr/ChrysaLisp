@@ -12,17 +12,17 @@
 	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4)
+	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7)
 
 	(push-scope)
 	(entry 'points 'lisp_transform {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 5} {value})
+	(call 'lisp 'env_args_type {args, $sig, 8} {value})
 	(errorifnot {value} 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'transform {arg0, arg1, arg2, arg3, arg4})
+	(call 'points 'transform {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7})
 	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'funcexit)
@@ -31,9 +31,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-transform dst src m1 m2 tr)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(points-transform dst src m1x m1y m2x m2y trx try)", error_msg_wrong_types, args} {_, value})
 	(goto 'funcexit)
-	(signature 'sig 'points 'points 'integer 'integer 'integer))
+	(signature 'sig 'points 'points 'integer 'integer 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
 
@@ -84,17 +84,17 @@
 	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5)
+	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7 'arg8)
 
 	(push-scope)
 	(entry 'points 'lisp_gen_quadratic {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 6} {value})
+	(call 'lisp 'env_args_type {args, $sig, 9} {value})
 	(errorifnot {value} 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'gen_quadratic {arg0, arg1, arg2, arg3, arg4, arg5})
+	(call 'points 'gen_quadratic {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8})
 	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'funcexit)
@@ -103,9 +103,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-gen-quadratic dst stack p1 p2 p3 tol)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(points-gen-quadratic dst stack p1x p1y p2x p2y p3x p3y tol)", error_msg_wrong_types, args} {_, value})
 	(goto 'funcexit)
-	(signature 'sig 'points 'array 'integer 'integer 'integer 'integer))
+	(signature 'sig 'points 'array 'integer 'integer 'integer 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
 
@@ -120,17 +120,17 @@
 	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6)
+	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7 'arg8 'arg9 'arg10)
 
 	(push-scope)
 	(entry 'points 'lisp_gen_cubic {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 7} {value})
+	(call 'lisp 'env_args_type {args, $sig, 11} {value})
 	(errorifnot {value} 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'gen_cubic {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
+	(call 'points 'gen_cubic {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10})
 	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'funcexit)
@@ -139,9 +139,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-gen-cubic dst stack p1 p2 p3 p4 tol)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(points-gen-cubic dst stack p1x p1y p2x p2y p3x p3y p4x p4y tol)", error_msg_wrong_types, args} {_, value})
 	(goto 'funcexit)
-	(signature 'sig 'points 'array 'integer 'integer 'integer 'integer 'integer))
+	(signature 'sig 'points 'array 'integer 'integer 'integer 'integer 'integer 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
 
@@ -156,17 +156,17 @@
 	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6)
+	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6 'arg7)
 
 	(push-scope)
 	(entry 'points 'lisp_gen_arc {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 7} {value})
+	(call 'lisp 'env_args_type {args, $sig, 8} {value})
 	(errorifnot {value} 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'points 'gen_arc {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
+	(call 'points 'gen_arc {arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7})
 	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'funcexit)
@@ -175,9 +175,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-gen-arc dst stack center start end radius tol)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(points-gen-arc dst stack cx cy start end radius tol)", error_msg_wrong_types, args} {_, value})
 	(goto 'funcexit)
-	(signature 'sig 'points 'array 'integer 'integer 'integer 'integer 'integer))
+	(signature 'sig 'points 'array 'integer 'integer 'integer 'integer 'integer 'integer))
 
 	(pop-scope-syms)
 

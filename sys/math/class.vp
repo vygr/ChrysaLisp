@@ -338,32 +338,27 @@
 
 (def-method 'sys_math 'intersect)
 	;inputs
-	;r0 = p1 xy (16.16/16.16)
-	;r1 = v1 xy (16.16/16.16)
-	;r2 = p2 xy (16.16/16.16)
-	;r3 = v2 xy (16.16/16.16)
+	;r0 = p1x (16.16)
+	;r1 = p1y (16.16)
+	;r2 = p2x (16.16)
+	;r3 = p2y (16.16)
+	;r4 = v1x (16.16)
+	;r5 = v1y (16.16)
+	;r6 = v2x (16.16)
+	;r7 = v2y (16.16)
 	;outputs
-	;r0 = i xy (16.16/16.16)
+	;r0 = ix (16.16)
+	;r1 = iy (16.16)
 	;trashes
 	;all
 
-	(union
-		'(ulong 'p1 'v1 'p2 'v2)
-		'(int 'p1x 'p1y 'v1x 'v1y 'p2x 'p2y 'v2x 'v2y))
+	(vec-set 8)
+	(entry 'sys_math 'intersect (vec-top 8))
 
-	(push-scope)
-	(entry 'sys_math 'intersect {p1, v1, p2, v2})
-
-	(vec-set 0)
-	(vec-load 2 {p1x, p1y})
-	(defq p1 (vec-top 2))
-	(vec-load 2 {p2x, p2y})
-	(defq p2 (vec-top 2))
-	(vec-load 2 {v1x, v1y})
-	(defq v1 (vec-top 2))
+	(bind '(p1x p1y p2x p2y v1x v1y v2x v2y) (vec-top 8))
+	(defq p1 (list p1x p1y) p2 (list p2x p2y)
+		v1 (list v1x v1y) v2 (list v2x v2y))
 	(bind '(v1x v1y) (map list v1))
-	(vec-load 2 {v2x, v2y})
-	(defq v2 (vec-top 2))
 	(bind '(v2x v2y) (map list v2))
 
 	(vec-dup 2 v2)
@@ -391,37 +386,35 @@
 		(vec-dup 2 (cat da v1y))
 		(vec-fdet 2 (cat db v2y))
 		(vec-fdiv 2 (cat axb axb))
-		(vec-store 2 {p1x, p1y})
+		(exit 'sys_math 'intersect (vec-pop 2))
 	(else)
 		(vec-set 4)
 		(vec-add 2)
 		(vec-load 1 {0.5})
 		(vec-fscale 2)
-		(vec-store 2 {p1x, p1y})
+		(exit 'sys_math 'intersect (vec-pop 2))
 	(endif)
-
-	(exit 'sys_math 'intersect {p1})
-	(pop-scope)
-	(return)
+	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_math 'distance_sqd)
 	;inputs
-	;r0 = p xy (16.16/16.16)
-	;r1 = p1 xy (16.16/16.16)
-	;r2 = p2 xy (16.16/16.16)
+	;r0 = px (16.16)
+	;r1 = py (16.16)
+	;r2 = p1x (16.16)
+	;r3 = p1y (16.16)
+	;r4 = p2x (16.16)
+	;r5 = p2y (16.16)
 	;outputs
 	;r0 = distance squared (16.16)
 	;trashes
 	;all
 
-	(union
-		'(ulong 'p 'p1 'p2)
-		'(int 'px 'py 'p1x 'p1y 'p2x 'p2y))
+	(int 'px 'py 'p1x 'p1y 'p2x 'p2y)
 
 	(push-scope)
-	(entry 'sys_math 'distance_sqd {p, p1, p2})
+	(entry 'sys_math 'distance_sqd {px, py, p1x, p1y, p2x, p2y})
 
 	(vec-set 0)
 	(vec-load 2 {px, py})

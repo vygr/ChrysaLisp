@@ -3,3 +3,39 @@
 
 (gen-create 'points)
 (gen-class 'points)
+
+(def-method 'points 'push_back2)
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = element1 (long)
+	;r2 = element2 (long)
+	;outputs
+	;r0 = points object (ptr)
+	;r1 = element1 (long)
+	;r2 = element2 (long)
+	;trashes
+	;r2-r7
+
+	;increase capacity ?
+	(vp-cpy-ir-ui r0 array_length r3)
+	(vp-cpy-ir-ui r0 array_capacity r4)
+	(vp-add-cr 2 r3)
+	(vp-cpy-ri-i r3 r0 array_length)
+	(vpif '(r3 > r4))
+		;double the capacity
+		(vp-add-rr r4 r4)
+		(vp-push r1 r2)
+		(call 'array 'set_capacity '(r0 r4) '(r0))
+		(vp-cpy-ir-ui r0 array_length r3)
+		(vp-pop r1 r2)
+	(endif)
+
+	;save object
+	(vp-cpy-ir r0 array_array r4)
+	(vp-shl-cr (log2 long_size) r3)
+	(vp-add-rr r3 r4)
+	(vp-cpy-ri r1 r4 (mul -2 long_size))
+	(vp-cpy-ri r2 r4 (neg long_size))
+	(vp-ret)
+
+(def-func-end)

@@ -10,8 +10,8 @@
 (dec-method 'fsqrt 'sys/math/fsqrt 'static '(r0) '(r0))
 (dec-method 'fsin 'sys/math/fsin 'static '(r0) '(r0))
 (dec-method 'fcos 'sys/math/fcos 'static '(r0) '(r0))
-(dec-method 'intersect 'sys/math/intersect 'static '(r0 r1 r2 r3) '(r0))
-(dec-method 'distance_sqd 'sys/math/distance_sqd 'static '(r0 r1 r2) '(r0))
+(dec-method 'intersect 'sys/math/intersect 'static '(r0 r1 r2 r3 r4 r5 r6 r7) '(r0 r1))
+(dec-method 'distance_sqd 'sys/math/distance_sqd 'static '(r0 r1 r2 r3 r4 r5) '(r0))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

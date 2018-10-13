@@ -18,7 +18,7 @@
 
 	(ptr 'this 'in_polygons 'stack 'polygon)
 	(pptr 'iter_begin_polygons 'iter_end_polygons)
-	(pulong 'iter_begin_polyline 'iter_end_polyline)
+	(plong 'iter_begin_polyline 'iter_end_polyline)
 	(int 'radius 'eps)
 	(byte 'join_style)
 
@@ -32,11 +32,14 @@
 			(call 'vector 'get_iters {*iter_begin_polygons} {_, iter_begin_polyline, iter_end_polyline})
 			(call 'points 'create nil {polygon})
 			(call 'points 'stroke_joints {polygon, stack, iter_begin_polyline, iter_end_polyline,
+				iter_end_polyline[-long_size * 4], iter_end_polyline[-long_size * 3],
 				iter_end_polyline[-long_size * 2], iter_end_polyline[-long_size], join_style, radius, eps})
 			(call 'vector 'push_back {this, polygon})
 			(call 'points 'create nil {polygon})
-			(call 'points 'stroke_joints {polygon, stack, iter_end_polyline - long_size, iter_begin_polyline - long_size,
-				iter_begin_polyline[long_size], *iter_begin_polyline, join_style, radius, eps})
+			(call 'points 'stroke_joints {polygon, stack, iter_end_polyline - 2 * long_size,
+				iter_begin_polyline - 2 * long_size,
+				iter_begin_polyline[long_size * 2], iter_begin_polyline[long_size * 3],
+				iter_begin_polyline[0], iter_begin_polyline[long_size], join_style, radius, eps})
 			(call 'vector 'push_back {this, polygon})
 			(assign {iter_begin_polygons + ptr_size} {iter_begin_polygons})
 		(loop-end)
