@@ -27,7 +27,7 @@
 	(call 'lisp 'env_args_type (cat {args, @} (f-path 'integer 'vtable) {, 0}) {value})
 	(errorifnot {value} 'error2))
 
-	(assign {0, 1} {arg0, arg1})
+	(assign {1} {arg1})
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'string 'create_from_buffer {&arg0, ((arg1 - 1) & 7) + 1} {value})
 
