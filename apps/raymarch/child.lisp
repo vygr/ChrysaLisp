@@ -111,5 +111,5 @@
 (when (gt (length (defq msg (mail-mymail))) work_ys)
 	(line (get-long msg work_parent_id) (get-long msg work_width) (get-long msg work_height)
 		(get-long msg (sub (length msg) long_size)))
-	(mail-send (slice 0 (sub (length msg) long_size) msg)
-		(open-child "apps/raymarch/child.lisp" kn_call_child)))
+	(when (gt (length (setq msg (slice 0 (sub (length msg) long_size) msg))) work_ys)
+		(mail-send msg (open-child "apps/raymarch/child.lisp" kn_call_child))))
