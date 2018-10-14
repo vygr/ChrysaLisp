@@ -307,8 +307,6 @@
 ### (points [form ...])
 ## points-add
 ### (points-add points points [points])
-## points-amod
-### (points-amod points points [points])
 ## points-div
 ### (points-div points points [points])
 ## points-fdiv
@@ -325,6 +323,8 @@
 ### (points-gen-cubic dst stack p1x p1y p2x p2y p3x p3y p4x p4y tol)
 ## points-gen-quadratic
 ### (points-gen-quadratic dst stack p1x p1y p2x p2y p3x p3y tol)
+## points-mod
+### (points-mod points points [points])
 ## points-mul
 ### (points-mul points points [points])
 ## points-simplify
