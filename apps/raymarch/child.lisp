@@ -31,9 +31,9 @@
 
 (defun get-normal ((x y z))
 	(vec-norm (points
-		(sub (scene (points (add x eps) y z)) (scene (points (sub x eps) y z)))
-		(sub (scene (points x (add y eps) z)) (scene (points x (sub y eps) z)))
-		(sub (scene (points x y (add z eps))) (scene (points x y (sub z eps)))))))
+		(sub (scene (list (add x eps) y z)) (scene (list (sub x eps) y z)))
+		(sub (scene (list x (add y eps) z)) (scene (list x (sub y eps) z)))
+		(sub (scene (list x y (add z eps))) (scene (list x y (sub z eps)))))))
 
 (defun ray-march (ray_origin ray_dir l max_l)
 	(defq i -1 d 1.0)
