@@ -41,60 +41,58 @@
 
 (def-func-end)
 
-(defmacro vecop (_)
-	`(progn
-		(vp-def (this iter_that1 iter_that2 iter_this iter_end))
+(defun vecop1 (_)
+	(vp-def (this iter_that1 iter_that2 iter_this iter_end))
 
-		(entry 'points ',_ (list this iter_that1 iter_that2))
+	(entry 'points _ (list this iter_that1 iter_that2))
 
-		(vp-cpy-ir this array_array iter_this)
-		(vp-cpy-ir-ui this array_length iter_end)
-		(vp-cpy-ir iter_that1 array_array iter_that1)
-		(vp-cpy-ir iter_that2 array_array iter_that2)
-		(vp-shl-cr (log2 long_size) iter_end)
-		(vp-add-rr iter_this iter_end)
+	(vp-cpy-ir this array_array iter_this)
+	(vp-cpy-ir-ui this array_length iter_end)
+	(vp-cpy-ir iter_that1 array_array iter_that1)
+	(vp-cpy-ir iter_that2 array_array iter_that2)
+	(vp-shl-cr (log2 long_size) iter_end)
+	(vp-add-rr iter_this iter_end)
 
-		(vec-set 5)
-		(loop-start)
-			(vec-load-long 1 iter_that1)
-			(vec-load-long 1 iter_that2)
-			(,(sym-cat "vec-" _) 1)
-			(vec-store-long 1 iter_this)
-			(vp-add-cr long_size iter_this)
-			(vp-add-cr long_size iter_that1)
-			(vp-add-cr long_size iter_that2)
-		(loop-until (list iter_this '== iter_end))
+	(vec-set 5)
+	(loop-start)
+		(vec-load-long 1 iter_that1)
+		(vec-load-long 1 iter_that2)
+		((eval (sym-cat "vec-" _)) 1)
+		(vec-store-long 1 iter_this)
+		(vp-add-cr long_size iter_this)
+		(vp-add-cr long_size iter_that1)
+		(vp-add-cr long_size iter_that2)
+	(loop-until (list iter_this '== iter_end))
 
-		(exit 'points ',_ (list this))
-		(vp-ret)))
+	(exit 'points _ (list this))
+	(vp-ret))
 
-(defmacro vecop1 (_)
-	`(progn
-		(vp-def (t0 t1 t2 t3 this iter_that1 iter_that2 iter_this iter_end))
+(defun vecop2 (_)
+	(vp-def (t0 t1 t2 t3 this iter_that1 iter_that2 iter_this iter_end))
 
-		(entry 'points ',_ (list t0 t1 t2))
+	(entry 'points _ (list t0 t1 t2))
 
-		(vp-cpy-rr t0 this)
-		(vp-cpy-ir t0 array_array iter_this)
-		(vp-cpy-ir-ui t0 array_length iter_end)
-		(vp-cpy-ir t1 array_array iter_that1)
-		(vp-cpy-ir t2 array_array iter_that2)
-		(vp-shl-cr (log2 long_size) iter_end)
-		(vp-add-rr iter_this iter_end)
+	(vp-cpy-rr t0 this)
+	(vp-cpy-ir t0 array_array iter_this)
+	(vp-cpy-ir-ui t0 array_length iter_end)
+	(vp-cpy-ir t1 array_array iter_that1)
+	(vp-cpy-ir t2 array_array iter_that2)
+	(vp-shl-cr (log2 long_size) iter_end)
+	(vp-add-rr iter_this iter_end)
 
-		(vec-set 0)
-		(loop-start)
-			(vec-load-long 1 iter_that1)
-			(vec-load-long 1 iter_that2)
-			(,(sym-cat "vec-" _) 1)
-			(vec-store-long 1 iter_this)
-			(vp-add-cr long_size iter_this)
-			(vp-add-cr long_size iter_that1)
-			(vp-add-cr long_size iter_that2)
-		(loop-until (list iter_this '== iter_end))
+	(vec-set 0)
+	(loop-start)
+		(vec-load-long 1 iter_that1)
+		(vec-load-long 1 iter_that2)
+		((eval (sym-cat "vec-" _)) 1)
+		(vec-store-long 1 iter_this)
+		(vp-add-cr long_size iter_this)
+		(vp-add-cr long_size iter_that1)
+		(vp-add-cr long_size iter_that2)
+	(loop-until (list iter_this '== iter_end))
 
-		(exit 'points ',_ (list this))
-		(vp-ret)))
+	(exit 'points _ (list this))
+	(vp-ret))
 
 (def-method 'points 'add)
 	;inputs
@@ -106,7 +104,7 @@
 	;trashes
 	;all but r0
 
-	(vecop add)
+	(vecop1 'add)
 
 (def-func-end)
 
@@ -120,7 +118,7 @@
 	;trashes
 	;all but r0
 
-	(vecop sub)
+	(vecop1 'sub)
 
 (def-func-end)
 
@@ -134,7 +132,7 @@
 	;trashes
 	;all but r0
 
-	(vecop mul)
+	(vecop1 'mul)
 
 (def-func-end)
 
@@ -148,7 +146,7 @@
 	;trashes
 	;all but r0
 
-	(vecop div)
+	(vecop2 'div)
 
 (def-func-end)
 
@@ -162,7 +160,7 @@
 	;trashes
 	;all but r0
 
-	(vecop1 mod)
+	(vecop2 'mod)
 
 (def-func-end)
 
@@ -176,7 +174,7 @@
 	;trashes
 	;all but r0
 
-	(vecop fmul)
+	(vecop1 'fmul)
 
 (def-func-end)
 
@@ -190,7 +188,7 @@
 	;trashes
 	;all but r0
 
-	(vecop1 fdiv)
+	(vecop2 'fdiv)
 
 (def-func-end)
 
@@ -204,7 +202,7 @@
 	;trashes
 	;all but r0
 
-	(vecop1 fmod)
+	(vecop2 'fmod)
 
 (def-func-end)
 
