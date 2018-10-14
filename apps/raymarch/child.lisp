@@ -27,7 +27,7 @@
 ;the scene
 (defun scene ((x y z))
 	(sphere (points (sub (frac x) 0.5) (sub (frac y) 0.5) (sub (frac z) 0.5))
-			(points 0.0 0.0 0.0) 0.35))
+			(const (points 0.0 0.0 0.0)) 0.35))
 
 (defun get-normal ((x y z))
 	(vec-norm (points
@@ -62,7 +62,7 @@
 		light_atten (min (fdiv 1.0 (fmul light_dis light_dis attenuation)) 1.0)
 		ref (vec-reflect (vec-scale light_norm -1.0) surface_norm)
 		ss (shadow surface_pos light_norm min_distance light_dis shadow_softness)
-		light_col (vec-scale (points 1.0 1.0 1.0) (fmul light_atten ss))
+		light_col (vec-scale (const (points 1.0 1.0 1.0)) (fmul light_atten ss))
 		diffuse (max 0.0 (vec-dot surface_norm light_norm))
 		specular (max 0.0 (vec-dot ref (vec-norm (vec-sub cam_pos surface_pos))))
 		specular (fmul specular specular specular specular)
@@ -74,7 +74,7 @@
 	(defq add add sub sub mul mul div div fmul fmul fdiv fdiv)
 	(defq l (ray-march ray_origin ray_dir 0.0 clipfar))
 	(if (ge l clipfar)
-		(points 0.0 0.0 0.0)
+		(const (points 0.0 0.0 0.0))
 		(progn
 			(defq surface_pos (vec-add ray_origin (vec-scale ray_dir l))
 				surface_norm (get-normal surface_pos)
@@ -95,12 +95,13 @@
 	(defq w2 (div w 2) h2 (div h 2) x -1 reply (char y int_size))
 	(while (lt (setq x (inc x)) w)
 		(defq
-			ray_origin (points 0 0 -3.0)
+			ray_origin (const (points 0 0 -3.0))
 			ray_dir (vec-norm (vec-sub
 				(points (div (mul (sub x w2) 1.0) w2) (div (mul (sub y h2) 1.0) h2) 0.0)
 				ray_origin)))
 		(bind '(r g b) (scene-ray ray_origin ray_dir))
-		(setq reply (cat reply (char (add (bit-shr b 8) (bit-and g 0xff00) (bit-shl (bit-and r 0xff00) 8) 0xff000000) int_size)))
+		(setq reply (cat reply (char (add (bit-shr b 8) (bit-and g 0xff00)
+			(bit-shl (bit-and r 0xff00) 8) 0xff000000) int_size)))
 		;while does a yield call !
 		(while nil))
 	(mail-send reply parent))

@@ -67,6 +67,8 @@
 ### (compose lambda lambda)
 ## cond
 ### (cond (tst body) ...)
+## const
+### (const form)
 ## copy
 ### (copy form)
 ## count-leading-ones

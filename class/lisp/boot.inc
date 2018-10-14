@@ -123,6 +123,10 @@
 	lisp_type_string (bit-shl 1 2)
 	lisp_type_symbol (bit-shl 1 3))
 
+(defmacro const (_)
+	;(const form)
+	(eval _))
+
 (defmacro defun (n a &rest _)
 	;(defun name ([arg ...]) body)
 	;(list [form ...])
