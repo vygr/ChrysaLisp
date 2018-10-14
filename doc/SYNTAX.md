@@ -303,18 +303,38 @@
 ### (platform)
 ## points
 ### (points [form ...])
+## points-add
+### (points-add points points [points])
+## points-amod
+### (points-amod points points [points])
+## points-div
+### (points-div points points [points])
+## points-fdiv
+### (points-fdiv points points [points])
+## points-fmod
+### (points-fmod points points [points])
+## points-fmul
+### (points-fmul points points [points])
+## points-fscale
+### (points-fscale points scale [points])
 ## points-gen-arc
 ### (points-gen-arc dst stack cx cy start end radius tol)
 ## points-gen-cubic
 ### (points-gen-cubic dst stack p1x p1y p2x p2y p3x p3y p4x p4y tol)
 ## points-gen-quadratic
 ### (points-gen-quadratic dst stack p1x p1y p2x p2y p3x p3y tol)
+## points-mul
+### (points-mul points points [points])
 ## points-simplify
 ### (points-simplify dst src stack tol)
 ## points-stroke-polygons
 ### (points-stroke-polygons dst stack src join radius tol)
 ## points-stroke-polylines
 ### (points-stroke-polylines dst stack src join cap1 cap2 radius tol)
+## points-sub
+### (points-sub points points [points])
+## points-sum
+### (points-sum points)
 ## points-transform
 ### (points-transform dst src m1x m1y m2x m2y trx try)
 ## pop

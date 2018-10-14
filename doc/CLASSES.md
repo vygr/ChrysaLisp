@@ -3074,7 +3074,7 @@ all but r0
 Super Class: array
 ### points::vtable -> gui/class_points
 ### points::create -> gui/points/create
-### points::get_first_second -> gui/points/get_first_second
+### points::get_first2 -> gui/points/get_first2
 ```
 inputs
 r0 = points object (ptr)
@@ -3089,7 +3089,7 @@ inputs
 r0 = points object (ptr)
 r1 = element index (uint)
 outputs
-r0 = array object (ptr)
+r0 = points object (ptr)
 r1 = element1 (long)
 r2 = element2 (long)
 ```
@@ -3114,6 +3114,115 @@ outputs
 r0 = points object (ptr)
 trashes
 r1
+```
+### points::add -> gui/points/add
+```
+inputs
+r0 = points object (ptr)
+r1 = source1 points object, can be same (ptr)
+r2 = source2 points object, can be same (ptr)
+outputs
+r0 = points object (ptr)
+trashes
+all but r0
+```
+### points::sub -> gui/points/sub
+```
+inputs
+r0 = points object (ptr)
+r1 = source1 points object, can be same (ptr)
+r2 = source2 points object, can be same (ptr)
+outputs
+r0 = points object (ptr)
+trashes
+all but r0
+```
+### points::mul -> gui/points/mul
+```
+inputs
+r0 = points object (ptr)
+r1 = source1 points object, can be same (ptr)
+r2 = source2 points object, can be same (ptr)
+outputs
+r0 = points object (ptr)
+trashes
+all but r0
+```
+### points::div -> gui/points/div
+```
+inputs
+r0 = points object (ptr)
+r1 = source1 points object, can be same (ptr)
+r2 = source2 points object, can be same (ptr)
+outputs
+r0 = points object (ptr)
+trashes
+all but r0
+```
+### points::mod -> gui/points/mod
+```
+inputs
+r0 = points object (ptr)
+r1 = source1 points object, can be same (ptr)
+r2 = source2 points object, can be same (ptr)
+outputs
+r0 = points object (ptr)
+trashes
+all but r0
+```
+### points::sum -> gui/points/sum
+```
+inputs
+r0 = points object (ptr)
+outputs
+r0 = points object (ptr)
+r1 = sum (long)
+trashes
+all but r0
+```
+### points::fmul -> gui/points/fmul
+```
+inputs
+r0 = points object (ptr)
+r1 = source1 points object, can be same (ptr)
+r2 = source2 points object, can be same (ptr)
+outputs
+r0 = points object (ptr)
+trashes
+all but r0
+```
+### points::fdiv -> gui/points/fdiv
+```
+inputs
+r0 = points object (ptr)
+r1 = source1 points object, can be same (ptr)
+r2 = source2 points object, can be same (ptr)
+outputs
+r0 = points object (ptr)
+trashes
+all but r0
+```
+### points::fmod -> gui/points/fmod
+```
+inputs
+r0 = points object (ptr)
+r1 = source1 points object, can be same (ptr)
+r2 = source2 points object, can be same (ptr)
+outputs
+r0 = points object (ptr)
+trashes
+all but r0
+```
+### points::fscale -> gui/points/fscale
+```
+inputs
+r0 = points object (ptr)
+r1 = source points object, can be same (ptr)
+r2 = scale (16.16)
+outputs
+r0 = points object (ptr)
+trashes
+all but r0
 ```
 ### points::filter_polyline -> gui/points/filter_polyline
 ```
@@ -3283,6 +3392,96 @@ outputs
 r0 = output vector of points objects (ptr)
 trashes
 all but r0
+```
+### points::lisp_add -> gui/points/lisp_add
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_sub -> gui/points/lisp_sub
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_mul -> gui/points/lisp_mul
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_div -> gui/points/lisp_div
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_mod -> gui/points/lisp_mod
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_sum -> gui/points/lisp_sum
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_fmul -> gui/points/lisp_fmul
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_fdiv -> gui/points/lisp_fdiv
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_fmod -> gui/points/lisp_fmod
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_fscale -> gui/points/lisp_fscale
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 ```
 ### points::lisp_transform -> gui/points/lisp_transform
 ```

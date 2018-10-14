@@ -254,3 +254,492 @@
 	(pop-scope-syms)
 
 (def-func-end)
+
+(def-method 'points 'lisp_add)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args)
+	(ptr 'arg0 'arg1 'value)
+	(uint 'length 'veclen)
+
+	(push-scope)
+	(entry 'points 'lisp_add {this, args})
+
+	(call 'vector 'get_length {args} {_, length})
+(errorcases
+	(errorif {length < 2} 'error1)
+	(errorif {length > 3} 'error1)
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) {value})
+	(errorifnot {value} 'error1))
+
+	(call 'lisp 'env_args_set {args, &arg0, 0})
+	(call 'points 'get_length {arg0} {_, veclen})
+	(errorif {veclen == 0} 'error1)
+	(errorif {veclen != arg1->array_length} 'error1)
+
+	(vpif {length == 2})
+		(call 'points 'create nil {value})
+		(call 'points 'set_capacity {value, veclen})
+		(call 'points 'set_length {value, veclen})
+	(else)
+		(errorif {veclen != value->array_length} 'error1)
+		(call 'obj 'ref {value})
+	(endif)
+	(call 'points 'add {value, arg0, arg1})
+
+(vp-label 'funcexit)
+	(exit 'points 'lisp_add {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(points-add points points [points])", error_msg_wrong_types, args} {_, value})
+	(goto 'funcexit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'points 'lisp_sub)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args)
+	(ptr 'arg0 'arg1 'value)
+	(uint 'length 'veclen)
+
+	(push-scope)
+	(entry 'points 'lisp_sub {this, args})
+
+	(call 'vector 'get_length {args} {_, length})
+(errorcases
+	(errorif {length < 2} 'error1)
+	(errorif {length > 3} 'error1)
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) {value})
+	(errorifnot {value} 'error1))
+
+	(call 'lisp 'env_args_set {args, &arg0, 0})
+	(call 'points 'get_length {arg0} {_, veclen})
+	(errorif {veclen == 0} 'error1)
+	(errorif {veclen != arg1->array_length} 'error1)
+
+	(vpif {length == 2})
+		(call 'points 'create nil {value})
+		(call 'points 'set_capacity {value, veclen})
+		(call 'points 'set_length {value, veclen})
+	(else)
+		(errorif {veclen != value->array_length} 'error1)
+		(call 'obj 'ref {value})
+	(endif)
+	(call 'points 'sub {value, arg0, arg1})
+
+(vp-label 'funcexit)
+	(exit 'points 'lisp_sub {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(points-sub points points [points])", error_msg_wrong_types, args} {_, value})
+	(goto 'funcexit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'points 'lisp_mul)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args)
+	(ptr 'arg0 'arg1 'value)
+	(uint 'length 'veclen)
+
+	(push-scope)
+	(entry 'points 'lisp_mul {this, args})
+
+	(call 'vector 'get_length {args} {_, length})
+(errorcases
+	(errorif {length < 2} 'error1)
+	(errorif {length > 3} 'error1)
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) {value})
+	(errorifnot {value} 'error1))
+
+	(call 'lisp 'env_args_set {args, &arg0, 0})
+	(call 'points 'get_length {arg0} {_, veclen})
+	(errorif {veclen == 0} 'error1)
+	(errorif {veclen != arg1->array_length} 'error1)
+
+	(vpif {length == 2})
+		(call 'points 'create nil {value})
+		(call 'points 'set_capacity {value, veclen})
+		(call 'points 'set_length {value, veclen})
+	(else)
+		(errorif {veclen != value->array_length} 'error1)
+		(call 'obj 'ref {value})
+	(endif)
+	(call 'points 'mul {value, arg0, arg1})
+
+(vp-label 'funcexit)
+	(exit 'points 'lisp_mul {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(points-mul points points [points])", error_msg_wrong_types, args} {_, value})
+	(goto 'funcexit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'points 'lisp_div)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args)
+	(ptr 'arg0 'arg1 'value)
+	(uint 'length 'veclen)
+
+	(push-scope)
+	(entry 'points 'lisp_div {this, args})
+
+	(call 'vector 'get_length {args} {_, length})
+(errorcases
+	(errorif {length < 2} 'error1)
+	(errorif {length > 3} 'error1)
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) {value})
+	(errorifnot {value} 'error1))
+
+	(call 'lisp 'env_args_set {args, &arg0, 0})
+	(call 'points 'get_length {arg0} {_, veclen})
+	(errorif {veclen == 0} 'error1)
+	(errorif {veclen != arg1->array_length} 'error1)
+
+	(vpif {length == 2})
+		(call 'points 'create nil {value})
+		(call 'points 'set_capacity {value, veclen})
+		(call 'points 'set_length {value, veclen})
+	(else)
+		(errorif {veclen != value->array_length} 'error1)
+		(call 'obj 'ref {value})
+	(endif)
+	(call 'points 'div {value, arg0, arg1})
+
+(vp-label 'funcexit)
+	(exit 'points 'lisp_div {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(points-div points points [points])", error_msg_wrong_types, args} {_, value})
+	(goto 'funcexit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'points 'lisp_mod)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args)
+	(ptr 'arg0 'arg1 'value)
+	(uint 'length 'veclen)
+
+	(push-scope)
+	(entry 'points 'lisp_mod {this, args})
+
+	(call 'vector 'get_length {args} {_, length})
+(errorcases
+	(errorif {length < 2} 'error1)
+	(errorif {length > 3} 'error1)
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) {value})
+	(errorifnot {value} 'error1))
+
+	(call 'lisp 'env_args_set {args, &arg0, 0})
+	(call 'points 'get_length {arg0} {_, veclen})
+	(errorif {veclen == 0} 'error1)
+	(errorif {veclen != arg1->array_length} 'error1)
+
+	(vpif {length == 2})
+		(call 'points 'create nil {value})
+		(call 'points 'set_capacity {value, veclen})
+		(call 'points 'set_length {value, veclen})
+	(else)
+		(errorif {veclen != value->array_length} 'error1)
+		(call 'obj 'ref {value})
+	(endif)
+	(call 'points 'mod {value, arg0, arg1})
+
+(vp-label 'funcexit)
+	(exit 'points 'lisp_mod {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(points-amod points points [points])", error_msg_wrong_types, args} {_, value})
+	(goto 'funcexit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'points 'lisp_fmul)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args)
+	(ptr 'arg0 'arg1 'value)
+	(uint 'length 'veclen)
+
+	(push-scope)
+	(entry 'points 'lisp_fmul {this, args})
+
+	(call 'vector 'get_length {args} {_, length})
+(errorcases
+	(errorif {length < 2} 'error1)
+	(errorif {length > 3} 'error1)
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) {value})
+	(errorifnot {value} 'error1))
+
+	(call 'lisp 'env_args_set {args, &arg0, 0})
+	(call 'points 'get_length {arg0} {_, veclen})
+	(errorif {veclen == 0} 'error1)
+	(errorif {veclen != arg1->array_length} 'error1)
+
+	(vpif {length == 2})
+		(call 'points 'create nil {value})
+		(call 'points 'set_capacity {value, veclen})
+		(call 'points 'set_length {value, veclen})
+	(else)
+		(errorif {veclen != value->array_length} 'error1)
+		(call 'obj 'ref {value})
+	(endif)
+	(call 'points 'fmul {value, arg0, arg1})
+
+(vp-label 'funcexit)
+	(exit 'points 'lisp_fmul {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(points-fmul points points [points])", error_msg_wrong_types, args} {_, value})
+	(goto 'funcexit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'points 'lisp_fdiv)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args)
+	(ptr 'arg0 'arg1 'value)
+	(uint 'length 'veclen)
+
+	(push-scope)
+	(entry 'points 'lisp_fdiv {this, args})
+
+	(call 'vector 'get_length {args} {_, length})
+(errorcases
+	(errorif {length < 2} 'error1)
+	(errorif {length > 3} 'error1)
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) {value})
+	(errorifnot {value} 'error1))
+
+	(call 'lisp 'env_args_set {args, &arg0, 0})
+	(call 'points 'get_length {arg0} {_, veclen})
+	(errorif {veclen == 0} 'error1)
+	(errorif {veclen != arg1->array_length} 'error1)
+
+	(vpif {length == 2})
+		(call 'points 'create nil {value})
+		(call 'points 'set_capacity {value, veclen})
+		(call 'points 'set_length {value, veclen})
+	(else)
+		(errorif {veclen != value->array_length} 'error1)
+		(call 'obj 'ref {value})
+	(endif)
+	(call 'points 'fdiv {value, arg0, arg1})
+
+(vp-label 'funcexit)
+	(exit 'points 'lisp_fdiv {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(points-fdiv points points [points])", error_msg_wrong_types, args} {_, value})
+	(goto 'funcexit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'points 'lisp_fmod)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args)
+	(ptr 'arg0 'arg1 'value)
+	(uint 'length 'veclen)
+
+	(push-scope)
+	(entry 'points 'lisp_fmod {this, args})
+
+	(call 'vector 'get_length {args} {_, length})
+(errorcases
+	(errorif {length < 2} 'error1)
+	(errorif {length > 3} 'error1)
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) {value})
+	(errorifnot {value} 'error1))
+
+	(call 'lisp 'env_args_set {args, &arg0, 0})
+	(call 'points 'get_length {arg0} {_, veclen})
+	(errorif {veclen == 0} 'error1)
+	(errorif {veclen != arg1->array_length} 'error1)
+
+	(vpif {length == 2})
+		(call 'points 'create nil {value})
+		(call 'points 'set_capacity {value, veclen})
+		(call 'points 'set_length {value, veclen})
+	(else)
+		(errorif {veclen != value->array_length} 'error1)
+		(call 'obj 'ref {value})
+	(endif)
+	(call 'points 'fmod {value, arg0, arg1})
+
+(vp-label 'funcexit)
+	(exit 'points 'lisp_fmod {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(points-fmod points points [points])", error_msg_wrong_types, args} {_, value})
+	(goto 'funcexit))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'points 'lisp_sum)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'value)
+	(union
+		'(ptr 'args)
+		'(long 'length))
+
+	(push-scope)
+	(entry 'points 'lisp_sum {this, args})
+
+(errorcases
+	(call 'lisp 'env_args_type {args, $sig, 1} {value})
+	(errorifnot {value} 'error1))
+
+	(call 'vector 'get_first {args} {_, value})
+	(call 'points 'get_length {value} {_, length})
+	(vpif {length})
+		(call 'points 'sum {value} {_, length})
+	(endif)
+	(call 'integer 'create {length} {value})
+
+(vp-label 'funcexit)
+	(exit 'points 'lisp_sum {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(points-sum points)", error_msg_wrong_types, args} {_, value})
+	(goto 'funcexit)
+	(signature 'sig 'points))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'points 'lisp_fscale)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args)
+	(ptr 'arg0 'arg1 'value)
+	(uint 'length 'veclen)
+
+	(push-scope)
+	(entry 'points 'lisp_fscale {this, args})
+
+	(call 'vector 'get_length {args} {_, length})
+(errorcases
+	(errorif {length < 2} 'error1)
+	(errorif {length > 3} 'error1)
+	(call 'lisp 'env_args_type {args, $sig, length} {value})
+	(errorifnot {value} 'error1))
+
+	(call 'lisp 'env_args_set {args, &arg0, 0})
+	(call 'points 'get_length {arg0} {_, veclen})
+	(vpif {length == 2})
+		(call 'points 'create nil {value})
+		(call 'points 'set_capacity {value, veclen})
+		(call 'points 'set_length {value, veclen})
+	(else)
+		(errorif {veclen != value->array_length} 'error1)
+		(call 'obj 'ref {value})
+	(endif)
+	(call 'points 'fscale {value, arg0, arg1})
+
+(vp-label 'funcexit)
+	(exit 'points 'lisp_fscale {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(points-fscale points scale [points])", error_msg_wrong_types, args} {_, value})
+	(goto 'funcexit)
+	(signature 'sig 'points 'integer 'points))
+
+	(pop-scope-syms)
+
+(def-func-end)

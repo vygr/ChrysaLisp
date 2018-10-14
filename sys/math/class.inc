@@ -159,7 +159,9 @@
 	(each (lambda (v3 v1)
 		(vp-ext-rr v1 v3)) v3 v1)
 	(each (lambda (v3 v2 v1)
-		(vp-mod-rrr v2 v3 v1)) v3 v2 v1))
+		(vp-div-rrr v2 v3 v1)) v3 v2 v1)
+	(each (lambda (v3 v1)
+		(vp-cpy-rr v3 v1)) v3 v1))
 
 (defcfun vec-fmul (n &optional v2 v1)
 	(vec-mul n v2 v1)

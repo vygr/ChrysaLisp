@@ -1,5 +1,6 @@
 (import 'sys/func.inc)
 (import 'gui/points/class.inc)
+(import 'sys/math/class.inc)
 
 (gen-create 'points)
 (gen-class 'points)
@@ -36,6 +37,234 @@
 	(vp-add-rr r3 r4)
 	(vp-cpy-ri r1 r4 (mul -2 long_size))
 	(vp-cpy-ri r2 r4 (neg long_size))
+	(vp-ret)
+
+(def-func-end)
+
+(defmacro vecop (_)
+	`(progn
+		(vp-def (this iter_that1 iter_that2 iter_this iter_end))
+
+		(entry 'points ',_ (list this iter_that1 iter_that2))
+
+		(vp-cpy-ir this array_array iter_this)
+		(vp-cpy-ir-ui this array_length iter_end)
+		(vp-cpy-ir iter_that1 array_array iter_that1)
+		(vp-cpy-ir iter_that2 array_array iter_that2)
+		(vp-shl-cr (log2 long_size) iter_end)
+		(vp-add-rr iter_this iter_end)
+
+		(vec-set 5)
+		(loop-start)
+			(vec-load-long 1 iter_that1)
+			(vec-load-long 1 iter_that2)
+			(,(sym-cat "vec-" _) 1)
+			(vec-store-long 1 iter_this)
+			(vp-add-cr long_size iter_this)
+			(vp-add-cr long_size iter_that1)
+			(vp-add-cr long_size iter_that2)
+		(loop-until (list iter_this '== iter_end))
+
+		(exit 'points ',_ (list this))
+		(vp-ret)))
+
+(defmacro vecop1 (_)
+	`(progn
+		(vp-def (t0 t1 t2 t3 this iter_that1 iter_that2 iter_this iter_end))
+
+		(entry 'points ',_ (list t0 t1 t2))
+
+		(vp-cpy-rr t0 this)
+		(vp-cpy-ir t0 array_array iter_this)
+		(vp-cpy-ir-ui t0 array_length iter_end)
+		(vp-cpy-ir t1 array_array iter_that1)
+		(vp-cpy-ir t2 array_array iter_that2)
+		(vp-shl-cr (log2 long_size) iter_end)
+		(vp-add-rr iter_this iter_end)
+
+		(vec-set 0)
+		(loop-start)
+			(vec-load-long 1 iter_that1)
+			(vec-load-long 1 iter_that2)
+			(,(sym-cat "vec-" _) 1)
+			(vec-store-long 1 iter_this)
+			(vp-add-cr long_size iter_this)
+			(vp-add-cr long_size iter_that1)
+			(vp-add-cr long_size iter_that2)
+		(loop-until (list iter_this '== iter_end))
+
+		(exit 'points ',_ (list this))
+		(vp-ret)))
+
+(def-method 'points 'add)
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = source1 points object, can be same (ptr)
+	;r2 = source2 points object, can be same (ptr)
+	;outputs
+	;r0 = points object (ptr)
+	;trashes
+	;all but r0
+
+	(vecop add)
+
+(def-func-end)
+
+(def-method 'points 'sub)
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = source1 points object, can be same (ptr)
+	;r2 = source2 points object, can be same (ptr)
+	;outputs
+	;r0 = points object (ptr)
+	;trashes
+	;all but r0
+
+	(vecop sub)
+
+(def-func-end)
+
+(def-method 'points 'mul)
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = source1 points object, can be same (ptr)
+	;r2 = source2 points object, can be same (ptr)
+	;outputs
+	;r0 = points object (ptr)
+	;trashes
+	;all but r0
+
+	(vecop mul)
+
+(def-func-end)
+
+(def-method 'points 'div)
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = source1 points object, can be same (ptr)
+	;r2 = source2 points object, can be same (ptr)
+	;outputs
+	;r0 = points object (ptr)
+	;trashes
+	;all but r0
+
+	(vecop div)
+
+(def-func-end)
+
+(def-method 'points 'mod)
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = source1 points object, can be same (ptr)
+	;r2 = source2 points object, can be same (ptr)
+	;outputs
+	;r0 = points object (ptr)
+	;trashes
+	;all but r0
+
+	(vecop1 mod)
+
+(def-func-end)
+
+(def-method 'points 'fmul)
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = source1 points object, can be same (ptr)
+	;r2 = source2 points object, can be same (ptr)
+	;outputs
+	;r0 = points object (ptr)
+	;trashes
+	;all but r0
+
+	(vecop fmul)
+
+(def-func-end)
+
+(def-method 'points 'fdiv)
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = source1 points object, can be same (ptr)
+	;r2 = source2 points object, can be same (ptr)
+	;outputs
+	;r0 = points object (ptr)
+	;trashes
+	;all but r0
+
+	(vecop1 fdiv)
+
+(def-func-end)
+
+(def-method 'points 'fmod)
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = source1 points object, can be same (ptr)
+	;r2 = source2 points object, can be same (ptr)
+	;outputs
+	;r0 = points object (ptr)
+	;trashes
+	;all but r0
+
+	(vecop1 fmod)
+
+(def-func-end)
+
+(def-method 'points 'sum)
+	;inputs
+	;r0 = points object (ptr)
+	;outputs
+	;r0 = points object (ptr)
+	;r1 = sum (long)
+	;trashes
+	;all but r0
+
+	(vp-def (this iter_this iter_end value num))
+
+	(entry 'points 'sum (list this))
+
+	(call 'points 'get_iters (list this) (list this iter_this iter_end))
+	(vp-cpy-ir iter_this 0 value)
+	(vp-add-cr long_size iter_this)
+	(loop-start)
+		(vp-cpy-ir iter_this 0 num)
+		(vp-add-cr long_size iter_this)
+		(vp-add-rr num value)
+	(loop-until (list iter_this '== iter_end))
+
+	(exit 'points 'sum (list this value))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'points 'fscale)
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = source points object, can be same (ptr)
+	;r2 = scale (16.16)
+	;outputs
+	;r0 = points object (ptr)
+	;trashes
+	;all but r0
+
+	(vp-def (this iter_that scale iter_this iter_end))
+
+	(entry 'points 'fscale (list this iter_that scale))
+
+	(vp-cpy-ir this array_array iter_this)
+	(vp-cpy-ir-ui this array_length iter_end)
+	(vp-cpy-ir iter_that array_array iter_that)
+	(vp-shl-cr (log2 long_size) iter_end)
+	(vp-add-rr iter_this iter_end)
+
+	(vec-set 5)
+	(loop-start)
+		(vec-load-long 1 iter_that)
+		(vec-fmul 1 (list scale))
+		(vec-store-long 1 iter_this)
+		(vp-add-cr long_size iter_this)
+		(vp-add-cr long_size iter_that)
+	(loop-until (list iter_this '== iter_end))
+
+	(exit 'points 'fscale (list this))
 	(vp-ret)
 
 (def-func-end)

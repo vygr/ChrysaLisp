@@ -34,7 +34,7 @@
 		(assign {0, length - 1} {first, last})
 
 		;output first point
-		(call 'points 'get_first_second {that} {_, p1x, p1y})
+		(call 'points 'get_first2 {that} {_, p1x, p1y})
 		(call 'points 'push_back2 {this, p1x, p1y})
 
 		(d-call 'array 'get_length {stack} {_, start})

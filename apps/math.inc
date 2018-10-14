@@ -19,50 +19,56 @@
 ;generic vector stuff
 
 (defun vec-clamp (p i j)
-	(map (lambda (_) (max i (min j _))) p))
+	(apply points (map (lambda (_) (max i (min j _))) p)))
 
 (defun vec-equal (p1 p2)
 	(eq (manhattan-distance p1 p2) 0))
 
-(defun vec-add (p1 p2)
-	(map add p1 p2))
+(defmacro vec-add (p1 p2)
+	(list 'points-add p1 p2))
 
-(defun vec-sub (p1 p2)
-	(map sub p1 p2))
+(defmacro vec-sub (p1 p2)
+	(list 'points-sub p1 p2))
 
-(defun vec-mul (p1 p2)
-	(map fmul p1 p2))
+(defmacro vec-mul (p1 p2)
+	(list 'points-fmul p1 p2))
 
-(defun vec-scale (p s)
-	(map (lambda (_) (fmul _ s)) p))
+(defmacro vec-scale (p s)
+	(list 'points-fscale p s))
 
 (defun vec-mod (p s)
-	(map (lambda (_) (fmod _ s)) p))
+	(apply points (map (lambda (_) (fmod _ s)) p)))
 
 (defun vec-floor (p)
-	(map (lambda (_) (floor _)) p))
+	(apply points (map (lambda (_) (floor _)) p)))
 
 (defun vec-frac (p)
-	(map (lambda (_) (frac _)) p))
+	(apply points (map (lambda (_) (frac _)) p)))
 
 (defun vec-dot (p1 p2)
-	(reduce add (map (lambda (x y) (fmul x y)) p1 p2)))
+	(points-sum (vec-mul p1 p2)))
+
+(defun vec-reflect (p n)
+	(defq _ (vec-mul p n))
+	(points-fscale n (fmul (points-sum _) 2.0) _)
+	(points-sub p _ _))
 
 (defun vec-length (p)
 	(fsqrt (vec-dot p p)))
 
 (defun vec-distance (p1 p2)
-	(vec-length (vec-sub p1 p2)))
+	(defq _ (vec-sub p1 p2))
+	(fsqrt (points-sum (points-fmul _ _ _))))
 
 (defun vec-distance-squared (p1 p2)
-	(defq p (vec-sub p1 p2))
-	(vec-dot p p))
+	(defq _ (vec-sub p1 p2))
+	(points-sum (points-fmul _ _ _)))
 
 (defun vec-norm (p)
-	(defq l (vec-length p))
+	(defq _ (vec-mul p p) l (fsqrt (points-sum _)))
 	(if (eq l 0)
-		(vec-scale p 0)
-		(vec-scale p (fdiv 1.0 l))))
+		(points-fscale p 0 _)
+		(points-fscale p (fdiv 1.0 l) _)))
 
 (defun vec-distance-to-line (p p1 p2)
 	(defq lv (vec-sub p2 p1)
