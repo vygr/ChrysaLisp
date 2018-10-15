@@ -42,8 +42,8 @@
 (defun vec-floor (p)
 	(apply points (map (lambda (_) (floor _)) p)))
 
-(defun vec-frac (p)
-	(apply points (map (lambda (_) (frac _)) p)))
+(defmacro vec-frac (p)
+	(list 'points-frac p))
 
 (defun vec-dot (p1 p2)
 	(points-sum (vec-mul p1 p2)))

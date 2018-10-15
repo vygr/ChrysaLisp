@@ -21,19 +21,20 @@
 	light_pos (points -0.1 -0.1 -3.0))
 
 ;field equation for a sphere
-(defun sphere (p c r)
-	(sub (vec-length (vec-sub p c)) r))
-
+;(defun sphere (p c r)
+;	(sub (vec-length (vec-sub p c)) r))
 ;the scene
-(defun scene ((x y z))
-	(sphere (points (sub (frac x) 0.5) (sub (frac y) 0.5) (sub (frac z) 0.5))
-			(const (points 0.0 0.0 0.0)) 0.35))
+(defun scene (p)
+	(sub (vec-length
+		(points-sub
+			(points-sub (defq _ (points-frac p)) (const (points 0.5 0.5 0.5)) _)
+			(const (points 0.0 0.0 0.0)) _)) 0.35))
 
 (defun get-normal ((x y z))
 	(vec-norm (points
-		(sub (scene (list (add x eps) y z)) (scene (list (sub x eps) y z)))
-		(sub (scene (list x (add y eps) z)) (scene (list x (sub y eps) z)))
-		(sub (scene (list x y (add z eps))) (scene (list x y (sub z eps)))))))
+		(sub (scene (points (add x eps) y z)) (scene (points (sub x eps) y z)))
+		(sub (scene (points x (add y eps) z)) (scene (points x (sub y eps) z)))
+		(sub (scene (points x y (add z eps))) (scene (points x y (sub z eps)))))))
 
 (defun ray-march (ray_origin ray_dir l max_l)
 	(defq i -1 d 1.0)
