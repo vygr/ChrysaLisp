@@ -255,13 +255,21 @@
 
 (def-func-end)
 
-(defun vecop1 (_)
-	(ptr 'this 'args)
+(def-method 'points 'lisp_vecop1)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;r2 = points method (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = 0 if error, else value object (ptr)
+
+	(ptr 'this 'args 'func)
 	(ptr 'arg0 'arg1 'value)
 	(uint 'length 'veclen)
 
 	(push-scope)
-	(entry 'points (sym-cat "lisp_" _) {this, args})
+	(entry 'points 'lisp_vecop1 {this, args, func})
 
 	(call 'vector 'get_length {args} {_, length})
 (errorcases
@@ -283,19 +291,34 @@
 		(errorif {veclen != value->array_length} 'error1)
 		(call 'obj 'ref {value})
 	(endif)
-	(call 'points _ {value, arg0, arg1})
+	(r-call 'points 'add {value, arg0, arg1, func})
 
-(vp-label 'funcexit)
-	(exit 'points (sym-cat "lisp_" _) {this, value})
-	(return))
+	(exit 'points 'lisp_vecop1 {this, value})
+	(return)
 
-(defun vecop2 (_)
-	(ptr 'this 'args)
+(vp-label 'error1)
+	(exit 'points 'lisp_vecop1 {this, 0})
+	(return)
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'points 'lisp_vecop2)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;r2 = points method (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = 0 if error, else value object (ptr)
+
+	(ptr 'this 'args 'func)
 	(ptr 'arg0 'value)
 	(uint 'length 'veclen)
 
 	(push-scope)
-	(entry 'points (sym-cat "lisp_" _) {this, args})
+	(entry 'points 'lisp_vecop2 {this, args, func})
 
 	(call 'vector 'get_length {args} {_, length})
 (errorcases
@@ -314,11 +337,18 @@
 		(errorif {veclen != value->array_length} 'error1)
 		(call 'obj 'ref {value})
 	(endif)
-	(call 'points _ {value, arg0})
+	(r-call 'points 'abs {value, arg0, func})
 
-(vp-label 'funcexit)
-	(exit 'points (sym-cat "lisp_" _) {this, value})
-	(return))
+	(exit 'points 'lisp_vecop1 {this, value})
+	(return)
+
+(vp-label 'error1)
+	(exit 'points 'lisp_vecop1 {this, 0})
+	(return)
+
+	(pop-scope-syms)
+
+(def-func-end)
 
 (def-method 'points 'lisp_add)
 	;inputs
@@ -328,14 +358,19 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vecop1 'add)
+	(entry 'points 'lisp_add '(r0 r1))
+	(vp-push r1)
+	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'add))) '(r0 r1))
+	(vp-pop r3)
+	(errorif '(r1 == 0) 'error1)
+	(exit 'points 'lisp_add '(r0 r1))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-add points points [points])", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(call 'lisp 'repl_error '(r0 "(points-add points points [points])" error_msg_wrong_types r3) '(r0 r1))
+	(exit 'points 'lisp_add '(r0 r1))
+	(vp-ret))
 
 (def-func-end)
 
@@ -347,14 +382,19 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vecop1 'sub)
+	(entry 'points 'lisp_sub '(r0 r1))
+	(vp-push r1)
+	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'sub))) '(r0 r1))
+	(vp-pop r3)
+	(errorif '(r1 == 0) 'error1)
+	(exit 'points 'lisp_sub '(r0 r1))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-sub points points [points])", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(call 'lisp 'repl_error '(r0 "(points-sub points points [points])" error_msg_wrong_types r3) '(r0 r1))
+	(exit 'points 'lisp_sub '(r0 r1))
+	(vp-ret))
 
 (def-func-end)
 
@@ -366,14 +406,19 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vecop1 'mul)
+	(entry 'points 'lisp_mul '(r0 r1))
+	(vp-push r1)
+	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'mul))) '(r0 r1))
+	(vp-pop r3)
+	(errorif '(r1 == 0) 'error1)
+	(exit 'points 'lisp_mul '(r0 r1))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-mul points points [points])", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(call 'lisp 'repl_error '(r0 "(points-mul points points [points])" error_msg_wrong_types r3) '(r0 r1))
+	(exit 'points 'lisp_mul '(r0 r1))
+	(vp-ret))
 
 (def-func-end)
 
@@ -385,14 +430,19 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vecop1 'div)
+	(entry 'points 'lisp_div '(r0 r1))
+	(vp-push r1)
+	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'div))) '(r0 r1))
+	(vp-pop r3)
+	(errorif '(r1 == 0) 'error1)
+	(exit 'points 'lisp_div '(r0 r1))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-div points points [points])", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(call 'lisp 'repl_error '(r0 "(points-div points points [points])" error_msg_wrong_types r3) '(r0 r1))
+	(exit 'points 'lisp_div '(r0 r1))
+	(vp-ret))
 
 (def-func-end)
 
@@ -404,14 +454,19 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vecop1 'mod)
+	(entry 'points 'lisp_mod '(r0 r1))
+	(vp-push r1)
+	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'mod))) '(r0 r1))
+	(vp-pop r3)
+	(errorif '(r1 == 0) 'error1)
+	(exit 'points 'lisp_mod '(r0 r1))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-mod points points [points])", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(call 'lisp 'repl_error '(r0 "(points-mod points points [points])" error_msg_wrong_types r3) '(r0 r1))
+	(exit 'points 'lisp_mod '(r0 r1))
+	(vp-ret))
 
 (def-func-end)
 
@@ -423,14 +478,19 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vecop1 'fmul)
+	(entry 'points 'lisp_fmul '(r0 r1))
+	(vp-push r1)
+	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'fmul))) '(r0 r1))
+	(vp-pop r3)
+	(errorif '(r1 == 0) 'error1)
+	(exit 'points 'lisp_fmul '(r0 r1))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-fmul points points [points])", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(call 'lisp 'repl_error '(r0 "(points-fmul points points [points])" error_msg_wrong_types r3) '(r0 r1))
+	(exit 'points 'lisp_fmul '(r0 r1))
+	(vp-ret))
 
 (def-func-end)
 
@@ -442,14 +502,19 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vecop1 'fdiv)
+	(entry 'points 'lisp_fdiv '(r0 r1))
+	(vp-push r1)
+	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'fdiv))) '(r0 r1))
+	(vp-pop r3)
+	(errorif '(r1 == 0) 'error1)
+	(exit 'points 'lisp_fdiv '(r0 r1))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-fdiv points points [points])", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(call 'lisp 'repl_error '(r0 "(points-fdiv points points [points])" error_msg_wrong_types r3) '(r0 r1))
+	(exit 'points 'lisp_fdiv '(r0 r1))
+	(vp-ret))
 
 (def-func-end)
 
@@ -461,14 +526,19 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vecop1 'fmod)
+	(entry 'points 'lisp_fmod '(r0 r1))
+	(vp-push r1)
+	(call 'points 'lisp_vecop1 `(r0 r1 (@ ,(f-path 'points 'fmod))) '(r0 r1))
+	(vp-pop r3)
+	(errorif '(r1 == 0) 'error1)
+	(exit 'points 'lisp_fmod '(r0 r1))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-fmod points points [points])", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(call 'lisp 'repl_error '(r0 "(points-fmod points points [points])" error_msg_wrong_types r3) '(r0 r1))
+	(exit 'points 'lisp_fmod '(r0 r1))
+	(vp-ret))
 
 (def-func-end)
 
@@ -569,14 +639,19 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vecop2 'abs)
+	(entry 'points 'lisp_abs '(r0 r1))
+	(vp-push r1)
+	(call 'points 'lisp_vecop2 `(r0 r1 (@ ,(f-path 'points 'abs))) '(r0 r1))
+	(vp-pop r3)
+	(errorif '(r1 == 0) 'error1)
+	(exit 'points 'lisp_abs '(r0 r1))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-abs points [points])", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(call 'lisp 'repl_error '(r0 "(points-abs points [points])" error_msg_wrong_types r3) '(r0 r1))
+	(exit 'points 'lisp_abs '(r0 r1))
+	(vp-ret))
 
 (def-func-end)
 
@@ -588,13 +663,18 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(vecop2 'frac)
+	(entry 'points 'lisp_frac '(r0 r1))
+	(vp-push r1)
+	(call 'points 'lisp_vecop2 `(r0 r1 (@ ,(f-path 'points 'frac))) '(r0 r1))
+	(vp-pop r3)
+	(errorif '(r1 == 0) 'error1)
+	(exit 'points 'lisp_frac '(r0 r1))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(points-frac points [points])", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(call 'lisp 'repl_error '(r0 "(points-frac points [points])" error_msg_wrong_types r3) '(r0 r1))
+	(exit 'points 'lisp_frac '(r0 r1))
+	(vp-ret))
 
 (def-func-end)

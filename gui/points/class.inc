@@ -34,6 +34,9 @@
 (dec-method 'stroke_polylines 'gui/points/stroke_polylines 'static '(r0 r1 r2 r3 r4 r5 r6 r7) '(r0))
 (dec-method 'stroke_polygons 'gui/points/stroke_polygons 'static '(r0 r1 r2 r3 r4 r5) '(r0))
 
+(dec-method 'lisp_vecop1 'gui/points/lisp_vecop1 'static '(r0 r1 r2) '(r0 r1))
+(dec-method 'lisp_vecop2 'gui/points/lisp_vecop2 'static '(r0 r1 r2) '(r0 r1))
+
 (dec-method 'lisp_add 'gui/points/lisp_add 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_sub 'gui/points/lisp_sub 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_mul 'gui/points/lisp_mul 'static '(r0 r1) '(r0 r1))
