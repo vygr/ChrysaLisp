@@ -317,6 +317,8 @@
 ### (points-fmod points points [points])
 ## points-fmul
 ### (points-fmul points points [points])
+## points-frac
+### (points-frac points [points])
 ## points-fscale
 ### (points-fscale points scale [points])
 ## points-gen-arc

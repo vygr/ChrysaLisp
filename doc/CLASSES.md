@@ -3234,6 +3234,16 @@ r0 = points object (ptr)
 trashes
 all but r0
 ```
+### points::frac -> gui/points/frac
+```
+inputs
+r0 = points object (ptr)
+r1 = source points object, can be same (ptr)
+outputs
+r0 = points object (ptr)
+trashes
+all but r0
+```
 ### points::filter_polyline -> gui/points/filter_polyline
 ```
 inputs
@@ -3403,6 +3413,26 @@ r0 = output vector of points objects (ptr)
 trashes
 all but r0
 ```
+### points::lisp_vecop1 -> gui/points/lisp_vecop1
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+r2 = points method (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = 0 if error, else value object (ptr)
+```
+### points::lisp_vecop2 -> gui/points/lisp_vecop2
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+r2 = points method (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = 0 if error, else value object (ptr)
+```
 ### points::lisp_add -> gui/points/lisp_add
 ```
 inputs
@@ -3494,6 +3524,15 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### points::lisp_abs -> gui/points/lisp_abs
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_frac -> gui/points/lisp_frac
 ```
 inputs
 r0 = lisp object (ptr)
