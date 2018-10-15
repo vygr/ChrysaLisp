@@ -3224,6 +3224,16 @@ r0 = points object (ptr)
 trashes
 all but r0
 ```
+### points::abs -> gui/points/abs
+```
+inputs
+r0 = points object (ptr)
+r1 = source points object, can be same (ptr)
+outputs
+r0 = points object (ptr)
+trashes
+all but r0
+```
 ### points::filter_polyline -> gui/points/filter_polyline
 ```
 inputs
@@ -3475,6 +3485,15 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
 ### points::lisp_fscale -> gui/points/lisp_fscale
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
+### points::lisp_abs -> gui/points/lisp_abs
 ```
 inputs
 r0 = lisp object (ptr)

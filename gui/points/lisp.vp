@@ -529,3 +529,50 @@
 	(pop-scope-syms)
 
 (def-func-end)
+
+(def-method 'points 'lisp_abs)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args vector object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+
+	(ptr 'this 'args)
+	(ptr 'arg0 'value)
+	(uint 'length 'veclen)
+
+	(push-scope)
+	(entry 'points 'lisp_abs {this, args})
+
+	(call 'vector 'get_length {args} {_, length})
+(errorcases
+	(errorif {length < 1} 'error1)
+	(errorif {length > 2} 'error1)
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'points 'vtable) {, 0}) {value})
+	(errorifnot {value} 'error1))
+
+	(call 'lisp 'env_args_set {args, &arg0, 0})
+	(call 'points 'get_length {arg0} {_, veclen})
+	(vpif {length == 1})
+		(call 'points 'create nil {value})
+		(call 'points 'set_capacity {value, veclen})
+		(call 'points 'set_length {value, veclen})
+	(else)
+		(errorif {veclen != value->array_length} 'error1)
+		(call 'obj 'ref {value})
+	(endif)
+	(call 'points 'abs {value, arg0})
+
+(vp-label 'funcexit)
+	(exit 'points 'lisp_abs {this, value})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'lisp 'repl_error {this, "(points-abs points [points])", error_msg_wrong_types, args} {_, value})
+	(goto 'funcexit))
+
+	(pop-scope-syms)
+
+(def-func-end)

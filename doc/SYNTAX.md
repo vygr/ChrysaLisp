@@ -305,6 +305,8 @@
 ### (platform)
 ## points
 ### (points [form ...])
+## points-abs
+### (points-abs points [points])
 ## points-add
 ### (points-add points points [points])
 ## points-div

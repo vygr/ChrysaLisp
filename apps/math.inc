@@ -1,20 +1,20 @@
 ;generic distance metric stuff
 
 (defun vec-manhattan-distance (p1 p2)
-	(reduce add (map (lambda (x y) (abs (sub x y))) p1 p2)))
+	(defq _ (points-sub p1 p2))
+	(points-sum (points-abs _ _)))
 
 (defun vec-euclidean-distance (p1 p2)
-	(fsqrt (reduce add (map (lambda (x y) (fmul (sub x y) (sub x y))) p1 p2))))
+	(defq _ (points-sub p1 p2))
+	(fsqrt (points-sum (points-fmul _ _ _))))
 
 (defun vec-squared-euclidean-distance (p1 p2)
-	(reduce add (map (lambda (x y) (fmul (sub x y) (sub x y))) p1 p2)))
+	(defq _ (points-sub p1 p2))
+	(points-sum (points-fmul _ _ _)))
 
 (defun vec-chebyshev-distance (p1 p2)
-	(reduce max (map (lambda (x y) (abs (sub x y))) p1 p2)))
-
-(defun vec-reciprocal-distance (p1 p2)
-	(defq d (manhattan-distance p1 p2))
-	(if (eq d 0) (1.0) (fdiv 1.0 d)))
+	(defq _ (points-sub p1 p2))
+	(reduce max (points-abs _ _)))
 
 ;generic vector stuff
 

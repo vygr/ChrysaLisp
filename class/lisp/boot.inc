@@ -114,6 +114,7 @@
 (ffi points-fdiv "gui/points/lisp_fdiv" 0)
 (ffi points-fmod "gui/points/lisp_fmod" 0)
 (ffi points-fscale "gui/points/lisp_fscale" 0)
+(ffi points-abs "gui/points/lisp_abs" 0)
 
 (ffi kernel-debug "sys/kernel/lisp_debug" 0)
 

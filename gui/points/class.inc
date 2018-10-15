@@ -17,6 +17,7 @@
 (dec-method 'fdiv 'gui/points/fdiv 'static '(r0 r1 r2) '(r0))
 (dec-method 'fmod 'gui/points/fmod 'static '(r0 r1 r2) '(r0))
 (dec-method 'fscale 'gui/points/fscale 'static '(r0 r1 r2) '(r0))
+(dec-method 'abs 'gui/points/abs 'static '(r0 r1) '(r0))
 
 (dec-method 'filter_polyline 'gui/points/filter_polyline 'static '(r0 r1 r2) '(r0))
 (dec-method 'filter_polygon 'gui/points/filter_polygon 'static '(r0 r1 r2) '(r0))
@@ -42,6 +43,7 @@
 (dec-method 'lisp_fdiv 'gui/points/lisp_fdiv 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_fmod 'gui/points/lisp_fmod 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_fscale 'gui/points/lisp_fscale 'static '(r0 r1) '(r0 r1))
+(dec-method 'lisp_abs 'gui/points/lisp_abs 'static '(r0 r1) '(r0 r1))
 
 (dec-method 'lisp_transform 'gui/points/lisp_transform 'static '(r0 r1) '(r0 r1))
 (dec-method 'lisp_simplify 'gui/points/lisp_simplify 'static '(r0 r1) '(r0 r1))

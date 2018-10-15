@@ -266,3 +266,36 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'points 'abs)
+	;inputs
+	;r0 = points object (ptr)
+	;r1 = source points object, can be same (ptr)
+	;outputs
+	;r0 = points object (ptr)
+	;trashes
+	;all but r0
+
+	(vp-def (this iter_that iter_this iter_end))
+
+	(entry 'points 'abs (list this iter_that))
+
+	(vp-cpy-ir this array_array iter_this)
+	(vp-cpy-ir-ui this array_length iter_end)
+	(vp-cpy-ir iter_that array_array iter_that)
+	(vp-shl-cr (log2 long_size) iter_end)
+	(vp-add-rr iter_this iter_end)
+
+	(vec-set 4)
+	(loop-start)
+		(vec-load-long 1 iter_that)
+		(vec-abs 1)
+		(vec-store-long 1 iter_this)
+		(vp-add-cr long_size iter_this)
+		(vp-add-cr long_size iter_that)
+	(loop-until (list iter_this '== iter_end))
+
+	(exit 'points 'abs (list this))
+	(vp-ret)
+
+(def-func-end)
