@@ -24,17 +24,25 @@
 (defun vec-equal (p1 p2)
 	(eq (manhattan-distance p1 p2) 0))
 
-(defmacro vec-add (p1 p2)
-	(list 'points-add p1 p2))
+(defmacro vec-add (p1 p2 &optional _)
+	(if _
+		(list 'points-add p1 p2 _)
+		(list 'points-add p1 p2)))
 
-(defmacro vec-sub (p1 p2)
-	(list 'points-sub p1 p2))
+(defmacro vec-sub (p1 p2 &optional _)
+	(if _
+		(list 'points-sub p1 p2 _)
+		(list 'points-sub p1 p2)))
 
-(defmacro vec-mul (p1 p2)
-	(list 'points-fmul p1 p2))
+(defmacro vec-mul (p1 p2 &optional _)
+	(if _
+		(list 'points-fmul p1 p2 _)
+		(list 'points-fmul p1 p2)))
 
-(defmacro vec-scale (p s)
-	(list 'points-fscale p s))
+(defmacro vec-scale (p s &optional _)
+	(if _
+		(list 'points-fscale p s _)
+		(list 'points-fscale p s)))
 
 (defun vec-mod (p s)
 	(apply points (map (lambda (_) (fmod _ s)) p)))
@@ -42,19 +50,35 @@
 (defun vec-floor (p)
 	(apply points (map (lambda (_) (floor _)) p)))
 
-(defmacro vec-frac (p)
-	(list 'points-frac p))
+(defmacro vec-frac (p &optional _)
+	(if _
+		(list 'points-frac p _)
+		(list 'points-frac p)))
 
-(defun vec-dot (p1 p2)
-	(points-sum (vec-mul p1 p2)))
+(defmacro vec-dot (p1 p2 &optional _)
+	(if _
+		(list 'points-sum (list 'vec-mul p1 p2 _))
+		(list 'points-sum (list 'vec-mul p1 p2))))
 
-(defun vec-reflect (p n)
-	(defq _ (vec-mul p n))
+(defun vec-reflect (p n &optional _)
+	(if _
+		(vec-mul p n _)
+		(defq _ (vec-mul p n)))
 	(points-fscale n (fmul (points-sum _) 2.0) _)
 	(points-sub p _ _))
 
-(defun vec-length (p)
-	(fsqrt (vec-dot p p)))
+(defmacro vec-length (p &optional _)
+	(if _
+		(list 'fsqrt (list 'vec-dot p p _))
+		(list 'fsqrt (list 'vec-dot p p))))
+
+(defun vec-norm (p &optional _)
+	(if _
+		(defq l (fsqrt (points-sum (vec-mul p p _))))
+		(defq _ (vec-mul p p) l (fsqrt (points-sum _))))
+	(if (eq l 0)
+		(points-fscale p 0 _)
+		(points-fscale p (fdiv 1.0 l) _)))
 
 (defun vec-distance (p1 p2)
 	(defq _ (vec-sub p1 p2))
@@ -63,12 +87,6 @@
 (defun vec-distance-squared (p1 p2)
 	(defq _ (vec-sub p1 p2))
 	(points-sum (points-fmul _ _ _)))
-
-(defun vec-norm (p)
-	(defq _ (vec-mul p p) l (fsqrt (points-sum _)))
-	(if (eq l 0)
-		(points-fscale p 0 _)
-		(points-fscale p (fdiv 1.0 l) _)))
 
 (defun vec-distance-to-line (p p1 p2)
 	(defq lv (vec-sub p2 p1)
