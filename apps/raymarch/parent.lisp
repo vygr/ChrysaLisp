@@ -14,7 +14,7 @@
 
 (defun screen ((canvas w h s))
 	(defq y -1 w (div (fmul w s) 1.0) h (div (fmul h s) 1.0)
-		farm (open-farm "apps/raymarch/child.lisp" 16 kn_call_child)
+		farm (open-farm "apps/raymarch/child.lisp" (mul (kernel-total) 2) kn_call_child)
 		com (map (lambda (_)
 			(array (task-mailbox) w h)) farm))
 	(while (lt (setq y (inc y)) h)
