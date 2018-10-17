@@ -107,9 +107,18 @@
 		(while nil))
 	(mail-send reply parent))
 
-;take a lines work, then migrate
-(when (gt (length (defq msg (mail-mymail))) work_ys)
-	(line (get-long msg work_parent_id) (get-long msg work_width) (get-long msg work_height)
-		(get-long msg (sub (length msg) long_size)))
-	(when (gt (length (setq msg (slice 0 (sub (length msg) long_size) msg))) work_ys)
-		(mail-send msg (open-child "apps/raymarch/child.lisp" kn_call_child))))
+(cond
+	(t
+		;take a lines work, then migrate
+		(when (gt (length (defq msg (mail-mymail))) work_ys)
+			(line (get-long msg work_parent_id) (get-long msg work_width) (get-long msg work_height)
+				(get-long msg (sub (length msg) long_size)))
+			(when (gt (length (setq msg (slice 0 (sub (length msg) long_size) msg))) work_ys)
+				(mail-send msg (open-child "apps/raymarch/child.lisp" kn_call_child)))))
+	(t
+		;take all the work, don't migrate
+		(when (gt (length (defq msg (mail-mymail))) work_ys)
+			(while (gt (length msg) work_ys)
+				(line (get-long msg work_parent_id) (get-long msg work_width) (get-long msg work_height)
+					(get-long msg (sub (length msg) long_size)))
+				(setq msg (slice 0 (sub (length msg) long_size) msg))))))
