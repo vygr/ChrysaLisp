@@ -12,20 +12,15 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this)
-	(union
-		'(ptr 'args)
-		'(ptr 'value))
+	(vp-def (this args num value iter_begin iter_end num1) '(r6 r7))
 
-	(push-scope)
-	(entry 'lisp 'func_lt {this, args})
+	(entry 'lisp 'func_lt (list this args))
 
 (errorcases
-	(call 'lisp 'env_args_type (cat {args, @} (f-path 'integer 'vtable) {, -2}) '(r1))
-	(errorif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type `(,args (@ ,(f-path 'integer 'vtable)) -2) (list value))
+	(errorif (list value '== 0) 'error1))
 
-	(vp-def (num iter_begin iter_end num1))
-	(call 'vector 'get_iters {args} (list '_ iter_begin iter_end))
+	(call 'vector 'get_iters (list args) (list '_ iter_begin iter_end))
 	(vp-cpy-ir iter_begin 0 num)
 	(vp-add-cr ptr_size iter_begin)
 	(vp-cpy-ir num integer_value num)
@@ -37,21 +32,17 @@
 		(vp-cpy-rr num1 num)
 	(loop-until (list iter_begin '== iter_end))
 
-	(call 'obj 'ref {this->lisp_sym_t} {value})
-	(exit 'lisp 'func_lt {this, value})
-	(return)
+	(call 'obj 'ref (list (list this lisp_sym_t)) (list value))
+	(exit 'lisp 'func_lt (list this value))
+	(vp-ret)
 
 (vp-label 'fail)
-	(call 'obj 'ref {this->lisp_sym_nil} {value})
-(vp-label 'funcexit)
-	(exit 'lisp 'func_lt {this, value})
-	(return)
+	(call 'obj 'ref (list (list this lisp_sym_nil)) (list value))
+	(exit 'lisp 'func_lt (list this value))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(lt num num ...)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(jump 'lisp 'repl_error (list this "(lt num num ...)" error_msg_wrong_types args)))
 
 (def-func-end)

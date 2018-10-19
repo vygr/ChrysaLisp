@@ -10,20 +10,15 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this)
-	(union
-		'(ptr 'args)
-		'(ptr 'value))
+	(vp-def (this args num value numhi iter_begin iter_end num1) '(r6 r7))
 
-	(push-scope)
-	(entry 'lisp 'func_div {this, args})
+	(entry 'lisp 'func_div (list this args))
 
 (errorcases
-	(call 'lisp 'env_args_type (cat {args, @} (f-path 'integer 'vtable) {, -2}) '(r1))
-	(errorif '(r1 == 0) 'error1))
+	(call 'lisp 'env_args_type `(,args (@ ,(f-path 'integer 'vtable)) -2) (list value))
+	(errorif (list value '== 0) 'error1))
 
-	(vp-def (num iter_begin numhi iter_end num1))
-	(call 'vector 'get_iters {args} (list '_ iter_begin iter_end))
+	(call 'vector 'get_iters (list args) (list '_ iter_begin iter_end))
 	(vp-cpy-ir iter_begin 0 num)
 	(vp-add-cr ptr_size iter_begin)
 	(vp-cpy-ir num integer_value num)
@@ -34,17 +29,13 @@
 		(vp-ext-rr num numhi)
 		(vp-div-rrr num1 numhi num)
 	(loop-until (list iter_begin '== iter_end))
-	(call 'integer 'create (list num) {value})
+	(call 'integer 'create (list num) (list value))
 
-(vp-label 'funcexit)
-	(exit 'lisp 'func_div {this, value})
-	(return)
+	(exit 'lisp 'func_div (list this value))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(div num num ...)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(jump 'lisp 'repl_error (list this "(div num num ...)" error_msg_wrong_types args)))
 
 (def-func-end)
