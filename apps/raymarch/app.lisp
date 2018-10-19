@@ -5,7 +5,7 @@
 (structure 'event 0
 	(byte 'win_close))
 
-(defq canvas_width 500 canvas_height 500 canvas_scale 1 id t)
+(defq canvas_width 600 canvas_height 600 canvas_scale 1 id t)
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element canvas (create-canvas canvas_width canvas_height canvas_scale)))
