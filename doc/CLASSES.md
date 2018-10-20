@@ -4424,7 +4424,7 @@ outputs
 r0 = heap (ptr)
 r1 = cell (ptr)
 trashes
-r2-r3
+r2
 ```
 ### sys_heap::free -> sys/heap/free
 ```
@@ -4864,7 +4864,7 @@ outputs
 r0 = 0 if failed, else address (ptr)
 r1 = 0 if failed, else size given (bytes)
 trashes
-r2-r3
+r2
 ```
 ### sys_mem::calloc -> sys/mem/calloc
 ```
@@ -4874,7 +4874,7 @@ outputs
 r0 = 0 if failed, else address (ptr)
 r1 = 0 if failed, else size given (bytes)
 trashes
-r2-r3
+r2
 ```
 ### sys_mem::free -> sys/mem/free
 ```

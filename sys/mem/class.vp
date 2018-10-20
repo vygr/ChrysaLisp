@@ -70,7 +70,7 @@
 	;r0 = 0 if failed, else address (ptr)
 	;r1 = 0 if failed, else size given (bytes)
 	;trashes
-	;r2-r3
+	;r2
 
 	(entry 'sys_mem 'alloc '(r0))
 	(errorif '(r0 > (sub mem_cell_max_size ptr_size)) 'error)
@@ -112,7 +112,7 @@
 	;r0 = 0 if failed, else address (ptr)
 	;r1 = 0 if failed, else size given (bytes)
 	;trashes
-	;r2-r3
+	;r2
 
 	(entry 'sys_mem 'calloc '(r0))
 	(call 'sys_mem 'alloc '(r0) '(r0 r1))

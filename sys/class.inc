@@ -433,14 +433,14 @@
 (defcfun gen-create (_1)
 	;_1 = class name
 	(defq m (method-lookup _1 'create) _2 (opt (elem 2 m) '())
-		_3 (slice 0 (length _2) '(r13 r14 r4 r5 r6 r7 r8 r9 r10 r11 r12)))
+		_3 (slice 0 (length _2) '(r14 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
 	(def-func (f-path _1 'create))
+		;inputs
+		;depends on init method
 		;outputs
 		;r0 = 0 if error, else object (ptr)
 		;trashes
-		;r13-r14 r4-r12
-		;info
-		;trashes registers depends on init method
+		;depends on init method
 		(assign _2 _3)
 		(call _1 'new nil '(r0))
 		(vpif '(r0 != 0))
@@ -461,6 +461,6 @@
 		;outputs
 		;r0 = 0 if error, else object (ptr)
 		;trashes
-		;r1-r3
+		;r1-r2
 		(jump 'sys_mem 'alloc `(,(sym-cat _1 "_size")))
 	(def-func-end))

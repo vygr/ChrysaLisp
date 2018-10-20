@@ -12,29 +12,23 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(uint 'length)
+	(vp-def (this args value len) '(r3 r4))
 
-	(push-scope)
-	(entry 'sys_kernel 'lisp_total {this, args})
+	(entry 'sys_kernel 'lisp_total (list this args))
 
 (errorcases
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length} 'error1))
+	(d-call 'vector 'get_length (list args) (list '_ len))
+	(errorif (list len '!= 0) 'error1))
 
-	(call 'sys_kernel 'total nil {length})
-	(call 'integer 'create {length} {value})
+	(call 'sys_kernel 'total nil (list value))
+	(call 'integer 'create (list value) (list value))
 
-(vp-label 'funcexit)
-	(exit 'sys_kernel 'lisp_total {this, value})
-	(return)
+	(exit 'sys_kernel 'lisp_total (list this value))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(kernel-total)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(jump 'lisp 'repl_error (list this "(kernel-total)" error_msg_wrong_types args)))
 
 (def-func-end)
 

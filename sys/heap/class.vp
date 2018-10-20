@@ -81,7 +81,7 @@
 	;r0 = heap (ptr)
 	;r1 = cell (ptr)
 	;trashes
-	;r2-r3
+	;r2
 
 	(entry 'sys_heap 'alloc '(r0))
 	(loop-start)
@@ -92,7 +92,7 @@
 			(exit 'sys_heap 'alloc '(r0 r1))
 			(vp-ret)
 		(endif)
-		(vp-push r4 r5)
+		(vp-push r3 r4 r5)
 		(if (and debug_mode nil)	;t for guard page allocator
 			(progn
 				;guard page allocator
@@ -150,7 +150,7 @@
 					(vp-cpy-rr r2 r1)
 				(loop-end)))
 		(vp-cpy-ri r4 r0 hp_heap_free_flist)
-		(vp-pop r4 r5)
+		(vp-pop r3 r4 r5)
 	(loop-end)
 
 (errorcases
