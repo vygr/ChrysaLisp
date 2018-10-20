@@ -368,9 +368,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error '(r0 "(points-add points points [points])" error_msg_wrong_types r3) '(r0 r1))
-	(exit 'points 'lisp_add '(r0 r1))
-	(vp-ret))
+	(jump 'lisp 'repl_error '(r0 "(points-add points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
 
@@ -392,9 +390,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error '(r0 "(points-sub points points [points])" error_msg_wrong_types r3) '(r0 r1))
-	(exit 'points 'lisp_sub '(r0 r1))
-	(vp-ret))
+	(jump 'lisp 'repl_error '(r0 "(points-sub points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
 
@@ -416,9 +412,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error '(r0 "(points-mul points points [points])" error_msg_wrong_types r3) '(r0 r1))
-	(exit 'points 'lisp_mul '(r0 r1))
-	(vp-ret))
+	(jump 'lisp 'repl_error '(r0 "(points-mul points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
 
@@ -440,9 +434,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error '(r0 "(points-div points points [points])" error_msg_wrong_types r3) '(r0 r1))
-	(exit 'points 'lisp_div '(r0 r1))
-	(vp-ret))
+	(jump 'lisp 'repl_error '(r0 "(points-div points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
 
@@ -464,9 +456,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error '(r0 "(points-mod points points [points])" error_msg_wrong_types r3) '(r0 r1))
-	(exit 'points 'lisp_mod '(r0 r1))
-	(vp-ret))
+	(jump 'lisp 'repl_error '(r0 "(points-mod points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
 
@@ -488,9 +478,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error '(r0 "(points-fmul points points [points])" error_msg_wrong_types r3) '(r0 r1))
-	(exit 'points 'lisp_fmul '(r0 r1))
-	(vp-ret))
+	(jump 'lisp 'repl_error '(r0 "(points-fmul points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
 
@@ -512,9 +500,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error '(r0 "(points-fdiv points points [points])" error_msg_wrong_types r3) '(r0 r1))
-	(exit 'points 'lisp_fdiv '(r0 r1))
-	(vp-ret))
+	(jump 'lisp 'repl_error '(r0 "(points-fdiv points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
 
@@ -536,9 +522,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error '(r0 "(points-fmod points points [points])" error_msg_wrong_types r3) '(r0 r1))
-	(exit 'points 'lisp_fmod '(r0 r1))
-	(vp-ret))
+	(jump 'lisp 'repl_error '(r0 "(points-fmod points points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
 
@@ -649,9 +633,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error '(r0 "(points-abs points [points])" error_msg_wrong_types r3) '(r0 r1))
-	(exit 'points 'lisp_abs '(r0 r1))
-	(vp-ret))
+	(jump 'lisp 'repl_error '(r0 "(points-abs points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
 
@@ -673,8 +655,6 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error '(r0 "(points-frac points [points])" error_msg_wrong_types r3) '(r0 r1))
-	(exit 'points 'lisp_frac '(r0 r1))
-	(vp-ret))
+	(jump 'lisp 'repl_error '(r0 "(points-frac points [points])" error_msg_wrong_types r3)))
 
 (def-func-end)
