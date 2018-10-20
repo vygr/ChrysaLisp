@@ -4216,7 +4216,7 @@ r1-r6
 ```
 inputs
 r0 = number (long)
-r1 = base (long)
+r1 = base, - for unsigned, (long)
 outputs
 r0 = 0 if error, else object (ptr)
 trashes

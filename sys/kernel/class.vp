@@ -546,7 +546,7 @@
 			(call 'string 'create_from_buffer {"R00", 3 - num->string_length} {line})
 			(call 'vector 'push_back {lines, line})
 			(call 'vector 'push_back {lines, num})
-			(call 'string 'create_from_long {*iter, 16} {num})
+			(call 'string 'create_from_long {*iter, -16} {num})
 			(call 'string 'create_from_buffer {": 0x0000000000000000", 20 - num->string_length} {line})
 			(call 'vector 'push_back {lines, line})
 			(call 'vector 'push_back {lines, num})
