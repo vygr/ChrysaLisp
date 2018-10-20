@@ -26,12 +26,12 @@
 
 	;any point doing anything ?
 	(d-call 'points 'get_length {that} {_, length})
-	(vpif '{length <= 2})
+	(vpif '{length <= 4})
 		;just append to output
 		(d-call 'points 'append {this, that, 0, length})
 	(else)
 		;first span
-		(assign {0, length - 1} {first, last})
+		(assign {0, length - 2} {first, last})
 
 		;output first point
 		(call 'points 'get_first2 {that} {_, p1x, p1y})
