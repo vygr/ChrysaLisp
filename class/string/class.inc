@@ -1,4 +1,4 @@
-(import 'class/sequence/class.inc)
+(include 'class/sequence/class.inc)
 
 (def-class 'string 'sequence)
 (dec-method 'vtable 'class/class_string)

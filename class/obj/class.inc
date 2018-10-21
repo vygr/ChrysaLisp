@@ -1,4 +1,4 @@
-(import 'sys/class.inc)
+(include 'sys/class.inc)
 
 (def-class 'obj)
 (dec-method 'vtable 'class/class_obj)

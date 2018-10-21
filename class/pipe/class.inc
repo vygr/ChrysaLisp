@@ -1,5 +1,5 @@
-(import 'class/obj/class.inc)
-(import 'class/vector/class.inc)
+(include 'class/obj/class.inc)
+(include 'class/vector/class.inc)
 
 (def-class 'pipe 'obj)
 (dec-method 'vtable 'class/class_pipe)

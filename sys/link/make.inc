@@ -1,1 +1,1 @@
-(import 'sys/link/class.vp)
+(include 'sys/link/class.vp)

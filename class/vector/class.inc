@@ -1,4 +1,4 @@
-(import 'class/array/class.inc)
+(include 'class/array/class.inc)
 
 (def-class 'vector 'array)
 (dec-method 'vtable 'class/class_vector)

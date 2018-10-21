@@ -1,1 +1,1 @@
-(import 'class/sequence/class.vp)
+(include 'class/sequence/class.vp)

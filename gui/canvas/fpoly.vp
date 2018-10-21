@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'gui/canvas/class.inc)
-(import 'class/vector/class.inc)
-(import 'gui/points/class.inc)
+(include 'sys/func.inc)
+(include 'gui/canvas/class.inc)
+(include 'class/vector/class.inc)
+(include 'gui/points/class.inc)
 
 (def-method 'canvas 'fpoly)
 	;inputs

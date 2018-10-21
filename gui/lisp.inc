@@ -7,11 +7,11 @@
 	ev_msg_target_id ev_msg_action_source_id argb_black argb_white argb_red
 	argb_green argb_blue argb_yellow argb_cyan argb_magenta)
 	(within-compile-env (lambda ()
-		(import 'gui/gui/class.inc)
-		(import 'gui/ctx/class.inc)
-		(import 'gui/flow/class.inc)
-		(import 'gui/window/class.inc)
-		(import 'gui/canvas/class.inc)
+		(include 'gui/gui/class.inc)
+		(include 'gui/ctx/class.inc)
+		(include 'gui/flow/class.inc)
+		(include 'gui/window/class.inc)
+		(include 'gui/canvas/class.inc)
 		(list load_flag_shared flow_flag_left flow_flag_right flow_flag_up flow_flag_down
 			flow_flag_fillw flow_flag_fillh flow_flag_lastw flow_flag_lasth
 			flow_flag_align_hcenter flow_flag_align_hleft flow_flag_align_hright
@@ -44,10 +44,10 @@
 			~x (pop _ui))))
 
 ;lisp bindings
-(include 'gui/points/lisp.inc)
-(include 'gui/canvas/lisp.inc)
-(include 'gui/view/lisp.inc)
-(include 'gui/window/lisp.inc)
+(import 'gui/points/lisp.inc)
+(import 'gui/canvas/lisp.inc)
+(import 'gui/view/lisp.inc)
+(import 'gui/window/lisp.inc)
 (ffi button-connect-click "gui/button/lisp_connect_click" 0)
 (ffi create-button "gui/button/lisp_create" 0)
 (ffi create-flow "gui/flow/lisp_create" 0)

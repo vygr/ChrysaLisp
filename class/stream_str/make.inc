@@ -1,2 +1,2 @@
-(import 'class/stream_str/class.vp)
+(include 'class/stream_str/class.vp)
 

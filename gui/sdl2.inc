@@ -1,4 +1,4 @@
-(import 'gui/gui/class.inc)
+(include 'gui/gui/class.inc)
 
 (def-class 'sdl)
 (dec-method 'sdl_set_main_ready nil 'virtual (abi-args 0) '(r0))

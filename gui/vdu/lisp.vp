@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'gui/vdu/class.inc)
-(import 'class/string/class.inc)
-(import 'class/lisp/class.inc)
+(include 'sys/func.inc)
+(include 'gui/vdu/class.inc)
+(include 'class/string/class.inc)
+(include 'class/lisp/class.inc)
 
 (def-method 'vdu 'lisp_create)
 	;inputs

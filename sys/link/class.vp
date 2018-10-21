@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'sys/link/class.inc)
-(import 'sys/kernel/class.inc)
-(import 'class/array/class.inc)
+(include 'sys/func.inc)
+(include 'sys/link/class.inc)
+(include 'sys/kernel/class.inc)
+(include 'class/array/class.inc)
 
 (def-method 'sys_link 'link)
 	;started by kernel for each link

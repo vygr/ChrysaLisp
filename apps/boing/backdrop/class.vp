@@ -1,6 +1,6 @@
-(import 'sys/func.inc)
-(import 'gui/ctx/class.inc)
-(import 'apps/boing/backdrop/class.inc)
+(include 'sys/func.inc)
+(include 'gui/ctx/class.inc)
+(include 'apps/boing/backdrop/class.inc)
 
 (gen-class 'backdrop)
 (gen-create 'backdrop)

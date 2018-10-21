@@ -1,6 +1,6 @@
-(import 'sys/func.inc)
-(import 'sys/heap/class.inc)
-(import 'sys/load/class.inc)
+(include 'sys/func.inc)
+(include 'sys/heap/class.inc)
+(include 'sys/load/class.inc)
 
 (def-method 'sys_heap 'init)
 	;inputs

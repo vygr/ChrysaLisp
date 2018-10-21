@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'sys/kernel/class.inc)
-(import 'sys/link/class.inc)
-(import 'sys/math/class.inc)
+(include 'sys/func.inc)
+(include 'sys/kernel/class.inc)
+(include 'sys/link/class.inc)
+(include 'sys/math/class.inc)
 
 ;;;;;;;;;;;
 ; test code

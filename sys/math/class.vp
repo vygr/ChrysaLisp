@@ -1,5 +1,5 @@
-(import 'sys/func.inc)
-(import 'sys/math/class.inc)
+(include 'sys/func.inc)
+(include 'sys/math/class.inc)
 
 (def-method 'sys_math 'random)
 	;inputs

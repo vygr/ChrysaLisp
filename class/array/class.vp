@@ -1,6 +1,6 @@
-(import 'sys/func.inc)
-(import 'class/array/class.inc)
-(import 'class/integer/class.inc)
+(include 'sys/func.inc)
+(include 'class/array/class.inc)
+(include 'class/integer/class.inc)
 
 (gen-new 'array)
 (gen-create 'array)

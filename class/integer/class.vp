@@ -1,5 +1,5 @@
-(import 'sys/func.inc)
-(import 'class/integer/class.inc)
+(include 'sys/func.inc)
+(include 'class/integer/class.inc)
 
 (gen-new 'integer)
 (gen-create 'integer)

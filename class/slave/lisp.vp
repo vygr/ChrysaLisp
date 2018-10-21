@@ -1,6 +1,6 @@
-(import 'sys/func.inc)
-(import 'class/slave/class.inc)
-(import 'class/lisp/class.inc)
+(include 'sys/func.inc)
+(include 'class/slave/class.inc)
+(include 'class/lisp/class.inc)
 
 (def-method 'slave 'lisp_create)
 	;inputs

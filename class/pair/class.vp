@@ -1,5 +1,5 @@
-(import 'sys/func.inc)
-(import 'class/pair/class.inc)
+(include 'sys/func.inc)
+(include 'class/pair/class.inc)
 
 (gen-new 'pair)
 (gen-create 'pair)

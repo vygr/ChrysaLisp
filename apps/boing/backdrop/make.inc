@@ -1,2 +1,2 @@
-(import 'apps/boing/backdrop/class.vp)
-(import 'apps/boing/backdrop/lisp.vp)
+(include 'apps/boing/backdrop/class.vp)
+(include 'apps/boing/backdrop/lisp.vp)

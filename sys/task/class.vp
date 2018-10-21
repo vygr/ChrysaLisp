@@ -1,8 +1,8 @@
-(import 'sys/func.inc)
-(import 'sys/kernel/class.inc)
-(import 'sys/string/class.inc)
-(import 'class/vector/class.inc)
-(import 'class/string/class.inc)
+(include 'sys/func.inc)
+(include 'sys/kernel/class.inc)
+(include 'sys/string/class.inc)
+(include 'class/vector/class.inc)
+(include 'class/string/class.inc)
 
 (def-method 'sys_task 'statics)
 	;info

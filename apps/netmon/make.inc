@@ -1,1 +1,1 @@
-(import 'apps/netmon/child.vp)
+(include 'apps/netmon/child.vp)

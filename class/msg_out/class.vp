@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'sys/kernel/class.inc)
-(import 'class/msg_out/class.inc)
-(import 'sys/link/class.inc)
+(include 'sys/func.inc)
+(include 'sys/kernel/class.inc)
+(include 'class/msg_out/class.inc)
+(include 'sys/link/class.inc)
 
 (gen-new 'msg_out)
 (gen-create 'msg_out)

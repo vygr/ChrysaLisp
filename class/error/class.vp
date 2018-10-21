@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'sys/string/class.inc)
-(import 'class/string/class.inc)
-(import 'class/error/class.inc)
+(include 'sys/func.inc)
+(include 'sys/string/class.inc)
+(include 'class/string/class.inc)
+(include 'class/error/class.inc)
 
 (gen-new 'error)
 (gen-create 'error)

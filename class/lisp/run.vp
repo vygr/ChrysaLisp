@@ -1,8 +1,8 @@
-(import 'sys/func.inc)
-(import 'sys/mail/class.inc)
-(import 'class/string/class.inc)
-(import 'class/stream_str/class.inc)
-(import 'class/lisp/class.inc)
+(include 'sys/func.inc)
+(include 'sys/mail/class.inc)
+(include 'class/string/class.inc)
+(include 'class/stream_str/class.inc)
+(include 'class/lisp/class.inc)
 
 (def-func 'class/lisp/run 8192)
 	;lisp run loop task

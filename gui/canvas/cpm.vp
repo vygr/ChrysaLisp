@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'gui/canvas/class.inc)
-(import 'gui/ctx/class.inc)
-(import 'class/stream/class.inc)
+(include 'sys/func.inc)
+(include 'gui/canvas/class.inc)
+(include 'gui/ctx/class.inc)
+(include 'class/stream/class.inc)
 
 (def-struct 'cpm)
 	(uint 'ident)		;ident '.CPM' or '.FLM'

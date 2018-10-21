@@ -1,10 +1,10 @@
-(import 'sys/func.inc)
-(import 'sys/link/class.inc)
-(import 'sys/load/class.inc)
-(import 'sys/kernel/class.inc)
-(import 'sys/string/class.inc)
-(import 'class/vector/class.inc)
-(import 'gui/sdl2.inc)
+(include 'sys/func.inc)
+(include 'sys/link/class.inc)
+(include 'sys/load/class.inc)
+(include 'sys/kernel/class.inc)
+(include 'sys/string/class.inc)
+(include 'class/vector/class.inc)
+(include 'gui/sdl2.inc)
 
 ;;;;;;;;;;;;;
 ; kernel task

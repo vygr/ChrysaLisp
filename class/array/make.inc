@@ -1,1 +1,1 @@
-(import 'class/array/class.vp)
+(include 'class/array/class.vp)

@@ -1,2 +1,2 @@
-(import 'gui/slider/class.vp)
-(import 'gui/slider/lisp.vp)
+(include 'gui/slider/class.vp)
+(include 'gui/slider/lisp.vp)

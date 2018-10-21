@@ -1,4 +1,4 @@
-(import 'class/stream/class.inc)
+(include 'class/stream/class.inc)
 
 (def-class 'stream_str 'stream)
 (dec-method 'vtable 'class/class_stream_str)

@@ -1,6 +1,6 @@
-(import 'sys/func.inc)
-(import 'class/symbol/class.inc)
-(import 'class/hash_set/class.inc)
+(include 'sys/func.inc)
+(include 'class/symbol/class.inc)
+(include 'class/hash_set/class.inc)
 
 (gen-class 'symbol)
 

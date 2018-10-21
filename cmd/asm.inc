@@ -34,7 +34,7 @@
 
 (defun compile-pipe (*files* *os* *cpu*)
 	(within-compile-env (lambda ()
-		(each import *files*)
+		(each include *files*)
 		(print "Done"))))
 
 ;;;;;;;;;;;;;
@@ -49,7 +49,7 @@
 				(eq 2 (length (defq s (split _ " ")))))
 			(defq _ (elem 0 s))
 			(cond
-				((eql _ "(import")
+				((eql _ "(include")
 					(push d (sym (trim-start (trim-end (elem 1 s) ")") "'"))))))) _) d)
 
 (defun make-info (_)
@@ -64,7 +64,7 @@
 					(defq c (sym (trim-start (elem 1 s) "'"))
 						m (sym (trim-start (trim-end (elem 2 s) ")") "'")))
 					(push p (f-path c m)))
-				((eql _ "(import")
+				((eql _ "(include")
 					(push d (sym (trim-start (trim-end (elem 1 s) ")") "'"))))
 				((eql _ "(gen-class")
 					(push p (f-path (sym (trim-start (trim-end (elem 1 s) ")") "'")) 'vtable)))
@@ -91,8 +91,8 @@
 				(or (def? s) (def *env* s (age _))))
 			;list of all file imports while defining dependencies and products
 			(within-compile-env (lambda ()
-				(import 'sys/func.inc)
-				(each import (all-class-files))
+				(include 'sys/func.inc)
+				(each include (all-class-files))
 				(each-mergeable (lambda (_)
 					(defq i (make-info _))
 					(bind '(d p) i)
@@ -116,7 +116,7 @@
 		(setd *funcs* (list) *os* (platform) *cpu* (cpu))
 		(defq *env* (env 31) z (cat (char 0 8) (char 0 4)))
 		(catch (progn
-			(import 'sys/func.inc)
+			(include 'sys/func.inc)
 			(defun func-sym (_)
 				(sym-cat 'f_ _))
 			(defun func-obj (_)
@@ -196,8 +196,8 @@
 	(setd *os* (platform) *cpu* (cpu))
 	(make-boot nil
 		(within-compile-env (lambda ()
-			(import 'sys/func.inc)
-			(each import (all-class-files))
+			(include 'sys/func.inc)
+			(each include (all-class-files))
 			(defq *imports* (list 'make.inc) *prods* (list))
 			;lists of all file imports and products
 			(each-mergeable (lambda (_)

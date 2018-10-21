@@ -203,10 +203,10 @@
 ### (gui-add view)
 ## if
 ### (if tst form [form])
+## import
+### (import path)
 ## inc
 ### (inc num)
-## include
-### (include path)
 ## insert
 ### (insert list str)
 ## insert-sym

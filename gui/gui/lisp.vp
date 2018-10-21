@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'gui/gui/class.inc)
-(import 'gui/view/class.inc)
-(import 'class/lisp/class.inc)
+(include 'sys/func.inc)
+(include 'gui/gui/class.inc)
+(include 'gui/view/class.inc)
+(include 'class/lisp/class.inc)
 
 (def-method 'gui 'lisp_add)
 	;inputs

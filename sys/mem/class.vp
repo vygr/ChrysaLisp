@@ -1,5 +1,5 @@
-(import 'sys/func.inc)
-(import 'sys/heap/class.inc)
+(include 'sys/func.inc)
+(include 'sys/heap/class.inc)
 
 (defcvar 'mem_cell_min_size 0x000020 'mem_cell_max_size 0x4000000 'mem_block_size (mul 32 1024))
 

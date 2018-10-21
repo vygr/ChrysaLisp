@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'sys/link/class.inc)
-(import 'class/obj/class.inc)
-(import 'sys/kernel/class.inc)
+(include 'sys/func.inc)
+(include 'sys/link/class.inc)
+(include 'class/obj/class.inc)
+(include 'sys/kernel/class.inc)
 
 (def-method 'sys_mail 'out)
 	;info

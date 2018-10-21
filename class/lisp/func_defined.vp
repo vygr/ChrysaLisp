@@ -1,8 +1,8 @@
-(import 'sys/func.inc)
-(import 'class/lisp/class.inc)
-(import 'class/pair/class.inc)
-(import 'class/hash_map/class.inc)
-(import 'class/symbol/class.inc)
+(include 'sys/func.inc)
+(include 'class/lisp/class.inc)
+(include 'class/pair/class.inc)
+(include 'class/hash_map/class.inc)
+(include 'class/symbol/class.inc)
 
 (def-method 'lisp 'func_defined)
 	;inputs

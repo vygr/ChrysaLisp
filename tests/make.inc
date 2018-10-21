@@ -1,1 +1,1 @@
-(import 'tests/tests.vp)
+(include 'tests/tests.vp)

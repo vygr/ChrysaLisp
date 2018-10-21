@@ -1,8 +1,8 @@
-(import 'sys/func.inc)
-(import 'sys/string/class.inc)
-(import 'sys/load/class.inc)
-(import 'class/string/class.inc)
-(import 'sys/pii/syscall.inc)
+(include 'sys/func.inc)
+(include 'sys/string/class.inc)
+(include 'sys/load/class.inc)
+(include 'class/string/class.inc)
+(include 'sys/pii/syscall.inc)
 
 (def-method 'sys_pii 'exit)
 	;inputs

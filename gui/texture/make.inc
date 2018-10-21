@@ -1,1 +1,1 @@
-(import 'gui/texture/class.vp)
+(include 'gui/texture/class.vp)

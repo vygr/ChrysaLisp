@@ -1,9 +1,9 @@
 ;import settings
-(include 'sys/lisp.inc)
-(include 'gui/lisp.inc)
+(import 'sys/lisp.inc)
+(import 'gui/lisp.inc)
 
 ;math tools
-(include 'apps/math.inc)
+(import 'apps/math.inc)
 
 ;read args from parent
 (bind '(canvas canvas_width canvas_height canvas_scale) (mail-mymail))

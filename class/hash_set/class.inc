@@ -1,4 +1,4 @@
-(import 'class/obj/class.inc)
+(include 'class/obj/class.inc)
 
 (def-class 'hash_set 'obj)
 (dec-method 'vtable 'class/class_hash_set)

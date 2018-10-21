@@ -1,6 +1,6 @@
 ;math tools etc
-(include 'sys/lisp.inc)
-(include 'apps/math.inc)
+(import 'sys/lisp.inc)
+(import 'apps/math.inc)
 
 (structure 'work 0
 	(long 'parent_id)

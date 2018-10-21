@@ -1,4 +1,4 @@
-(import 'sys/mail/class.vp)
-(import 'sys/mail/in.vp)
-(import 'sys/mail/out.vp)
-(import 'sys/mail/lisp.vp)
+(include 'sys/mail/class.vp)
+(include 'sys/mail/in.vp)
+(include 'sys/mail/out.vp)
+(include 'sys/mail/lisp.vp)

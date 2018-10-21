@@ -1,5 +1,5 @@
-(import 'sys/func.inc)
-(import 'sys/kernel/class.inc)
+(include 'sys/func.inc)
+(include 'sys/kernel/class.inc)
 
 (def-struct 'sample_msg)
 	(ulong 'command)

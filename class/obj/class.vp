@@ -1,5 +1,5 @@
-(import 'sys/func.inc)
-(import 'class/obj/class.inc)
+(include 'sys/func.inc)
+(include 'class/obj/class.inc)
 
 (gen-class 'obj)
 

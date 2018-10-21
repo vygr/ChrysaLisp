@@ -1,4 +1,4 @@
-(import 'sys/code.inc)
+(include 'sys/code.inc)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; system call register saves

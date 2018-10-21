@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'class/stream_str/class.inc)
-(import 'class/integer/class.inc)
-(import 'class/lisp/class.inc)
+(include 'sys/func.inc)
+(include 'class/stream_str/class.inc)
+(include 'class/integer/class.inc)
+(include 'class/lisp/class.inc)
 
 (def-method 'lisp 'func_writechar)
 	;inputs

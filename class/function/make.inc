@@ -1,1 +1,1 @@
-(import 'class/function/class.vp)
+(include 'class/function/class.vp)

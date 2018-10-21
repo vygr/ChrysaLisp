@@ -1,8 +1,8 @@
-(import 'sys/func.inc)
-(import 'gui/gui/class.inc)
-(import 'gui/ctx/class.inc)
-(import 'gui/region/class.inc)
-(import 'gui/view/class.inc)
+(include 'sys/func.inc)
+(include 'gui/gui/class.inc)
+(include 'gui/ctx/class.inc)
+(include 'gui/region/class.inc)
+(include 'gui/view/class.inc)
 
 (gen-create 'view)
 (gen-new 'view)

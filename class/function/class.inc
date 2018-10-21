@@ -1,4 +1,4 @@
-(import 'class/integer/class.inc)
+(include 'class/integer/class.inc)
 
 (def-class 'function 'integer)
 (dec-method 'vtable 'class/class_function)

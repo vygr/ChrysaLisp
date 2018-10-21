@@ -1,8 +1,8 @@
-(import 'sys/func.inc)
-(import 'sys/load/class.inc)
-(import 'class/string/class.inc)
-(import 'class/stream_str/class.inc)
-(import 'class/lisp/class.inc)
+(include 'sys/func.inc)
+(include 'sys/load/class.inc)
+(include 'class/string/class.inc)
+(include 'class/stream_str/class.inc)
+(include 'class/lisp/class.inc)
 
 (def-method 'lisp 'read_str)
 	;inputs

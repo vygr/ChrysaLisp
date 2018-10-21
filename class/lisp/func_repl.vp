@@ -1,9 +1,9 @@
-(import 'sys/func.inc)
-(import 'class/stream/class.inc)
-(import 'class/hash_map/class.inc)
-(import 'class/integer/class.inc)
-(import 'class/lisp/class.inc)
-(import 'class/symbol/class.inc)
+(include 'sys/func.inc)
+(include 'class/stream/class.inc)
+(include 'class/hash_map/class.inc)
+(include 'class/integer/class.inc)
+(include 'class/lisp/class.inc)
+(include 'class/symbol/class.inc)
 
 (def-method 'lisp 'func_repl)
 	;inputs

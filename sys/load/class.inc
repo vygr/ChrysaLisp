@@ -1,4 +1,4 @@
-(import 'sys/pii/class.inc)
+(include 'sys/pii/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; load static class

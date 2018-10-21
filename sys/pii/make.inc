@@ -1,1 +1,1 @@
-(import 'sys/pii/class.vp)
+(include 'sys/pii/class.vp)

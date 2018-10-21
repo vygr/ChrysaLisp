@@ -1,1 +1,1 @@
-(import 'class/obj/class.vp)
+(include 'class/obj/class.vp)

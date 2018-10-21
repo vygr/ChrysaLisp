@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'gui/sdl2.inc)
-(import 'gui/ctx/class.inc)
-(import 'gui/region/class.inc)
+(include 'sys/func.inc)
+(include 'gui/sdl2.inc)
+(include 'gui/ctx/class.inc)
+(include 'gui/region/class.inc)
 
 (def-method 'ctx 'set_color)
 	;inputs

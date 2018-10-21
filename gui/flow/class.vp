@@ -1,5 +1,5 @@
-(import 'sys/func.inc)
-(import 'gui/flow/class.inc)
+(include 'sys/func.inc)
+(include 'gui/flow/class.inc)
 
 (gen-new 'flow)
 (gen-create 'flow)

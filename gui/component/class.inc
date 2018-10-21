@@ -1,5 +1,5 @@
-(import 'sys/list/class.inc)
-(import 'class/hash_map/class.inc)
+(include 'sys/list/class.inc)
+(include 'class/hash_map/class.inc)
 
 (def-class 'component 'hash_map)
 (dec-method 'vtable 'gui/class_component)

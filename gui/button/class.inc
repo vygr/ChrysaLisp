@@ -1,4 +1,4 @@
-(import 'gui/label/class.inc)
+(include 'gui/label/class.inc)
 
 (def-class 'button 'label)
 (dec-method 'vtable 'gui/class_button)

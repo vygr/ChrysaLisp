@@ -1,4 +1,4 @@
-(import 'class/array/class.inc)
+(include 'class/array/class.inc)
 
 (def-class 'points 'array)
 (dec-method 'vtable 'gui/class_points)

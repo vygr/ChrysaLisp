@@ -1,6 +1,6 @@
 ;import settings
-(include 'sys/lisp.inc)
-(include 'gui/lisp.inc)
+(import 'sys/lisp.inc)
+(import 'gui/lisp.inc)
 
 (defun make-time ()
 	(defq sec (div (time) 1000000) seconds (mod sec 60)

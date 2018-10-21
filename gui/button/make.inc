@@ -1,2 +1,2 @@
-(import 'gui/button/class.vp)
-(import 'gui/button/lisp.vp)
+(include 'gui/button/class.vp)
+(include 'gui/button/lisp.vp)

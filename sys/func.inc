@@ -1,6 +1,6 @@
-(import 'sys/pii/class.inc)
-(import 'sys/task/class.inc)
-(import 'sys/vp.inc)
+(include 'sys/pii/class.inc)
+(include 'sys/task/class.inc)
+(include 'sys/vp.inc)
 
 ;;;;;;;;;;;;;;;;;
 ; func structures

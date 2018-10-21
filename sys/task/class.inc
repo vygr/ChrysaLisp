@@ -1,6 +1,6 @@
-(import 'sys/list/class.inc)
-(import 'sys/heap/class.inc)
-(import 'sys/mail/class.inc)
+(include 'sys/list/class.inc)
+(include 'sys/heap/class.inc)
+(include 'sys/mail/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; task static class

@@ -1,6 +1,6 @@
 ;import settings
-(include 'sys/lisp.inc)
-(include 'gui/lisp.inc)
+(import 'sys/lisp.inc)
+(import 'gui/lisp.inc)
 
 (ffi create-backdrop "apps/boing/backdrop/lisp_create" 0)
 

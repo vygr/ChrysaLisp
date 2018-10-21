@@ -1,4 +1,4 @@
-(import 'class/obj/class.inc)
+(include 'class/obj/class.inc)
 
 (def-class 'texture 'obj)
 (dec-method 'vtable 'gui/class_texture)

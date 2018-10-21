@@ -1,6 +1,6 @@
 ;import settings
-(include 'class/lisp.inc)
-(include 'cmd/asm.inc)
+(import 'class/lisp.inc)
+(import 'cmd/asm.inc)
 
 (defun make-doc ()
 	(defq *os* (platform) *cpu* (cpu))
@@ -18,8 +18,8 @@
 	(defq *imports* (list 'make.inc) classes (list) functions (list)
 		docs (list) syntax (list) state 'x)
 	(within-compile-env (lambda ()
-		(import 'sys/func.inc)
-		(each import (all-class-files))
+		(include 'sys/func.inc)
+		(each include (all-class-files))
 		(each-mergeable (lambda (_)
 			(each-line (lambda (_)
 				(defq l (trim-whitespace _))
@@ -30,7 +30,7 @@
 				(when (and (eql state 'x) (ge (length l) 10) (eql "(" (elem 0 l)))
 					(defq s (split l " ") _ (elem 0 s))
 					(cond
-						((eql _ "(import")
+						((eql _ "(include")
 							(insert-sym *imports* (trim-cruft (elem 1 s))))
 						((eql _ "(def-class")
 							(push classes (list (trim-cruft (elem 1 s))

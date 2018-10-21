@@ -1,6 +1,6 @@
-(import 'class/obj/class.inc)
-(import 'class/error/class.inc)
-(import 'class/vector/class.inc)
+(include 'class/obj/class.inc)
+(include 'class/error/class.inc)
+(include 'class/vector/class.inc)
 
 (def-class 'lisp 'obj)
 (dec-method 'vtable 'class/class_lisp)

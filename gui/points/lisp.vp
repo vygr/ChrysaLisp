@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'gui/points/class.inc)
-(import 'class/integer/class.inc)
-(import 'class/lisp/class.inc)
+(include 'sys/func.inc)
+(include 'gui/points/class.inc)
+(include 'class/integer/class.inc)
+(include 'class/lisp/class.inc)
 
 (def-method 'points 'lisp_transform)
 	;inputs

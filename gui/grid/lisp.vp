@@ -1,6 +1,6 @@
-(import 'sys/func.inc)
-(import 'gui/grid/class.inc)
-(import 'class/lisp/class.inc)
+(include 'sys/func.inc)
+(include 'gui/grid/class.inc)
+(include 'class/lisp/class.inc)
 
 (def-method 'grid 'lisp_create)
 	;inputs

@@ -1,4 +1,4 @@
-(import 'class/hash_set/class.inc)
+(include 'class/hash_set/class.inc)
 
 (def-class 'hash_map 'hash_set)
 (dec-method 'vtable 'class/class_hash_map)

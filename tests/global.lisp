@@ -1,5 +1,5 @@
 ;import system settings
-(include 'sys/lisp.inc)
+(import 'sys/lisp.inc)
 
 ;open farm of children, create multicast msg
 (defq ids (open-farm "tests/global_child" (mul (kernel-total) 3) kn_call_open)

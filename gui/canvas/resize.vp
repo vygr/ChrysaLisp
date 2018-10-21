@@ -1,6 +1,6 @@
-(import 'sys/func.inc)
-(import 'gui/canvas/class.inc)
-(import 'class/array/class.inc)
+(include 'sys/func.inc)
+(include 'gui/canvas/class.inc)
+(include 'class/array/class.inc)
 
 (def-method 'canvas 'resize)
 	;inputs

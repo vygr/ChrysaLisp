@@ -1,9 +1,9 @@
-(import 'sys/func.inc)
-(import 'sys/mail/class.inc)
-(import 'class/string/class.inc)
-(import 'class/array/class.inc)
-(import 'class/integer/class.inc)
-(import 'class/lisp/class.inc)
+(include 'sys/func.inc)
+(include 'sys/mail/class.inc)
+(include 'class/string/class.inc)
+(include 'class/array/class.inc)
+(include 'class/integer/class.inc)
+(include 'class/lisp/class.inc)
 
 (def-method 'sys_mail 'lisp_mymail)
 	;inputs

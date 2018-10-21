@@ -1,2 +1,2 @@
-(import 'apps/terminal/app.vp)
-(import 'apps/terminal/tui.vp)
+(include 'apps/terminal/app.vp)
+(include 'apps/terminal/tui.vp)

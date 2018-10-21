@@ -1,4 +1,4 @@
-(import 'gui/view/class.inc)
+(include 'gui/view/class.inc)
 
 (def-class 'text 'view)
 (dec-method 'vtable 'gui/class_text)

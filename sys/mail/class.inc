@@ -1,5 +1,5 @@
-(import 'sys/list/class.inc)
-(import 'sys/heap/class.inc)
+(include 'sys/list/class.inc)
+(include 'sys/heap/class.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; mail static class

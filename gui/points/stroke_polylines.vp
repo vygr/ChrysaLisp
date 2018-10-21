@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'gui/points/class.inc)
-(import 'class/vector/class.inc)
-(import 'sys/math/class.inc)
+(include 'sys/func.inc)
+(include 'gui/points/class.inc)
+(include 'class/vector/class.inc)
+(include 'sys/math/class.inc)
 
 (def-method 'points 'stroke_polylines)
 	;inputs

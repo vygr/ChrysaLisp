@@ -1,6 +1,6 @@
-(import 'sys/func.inc)
-(import 'class/string/class.inc)
-(import 'class/stream_str/class.inc)
+(include 'sys/func.inc)
+(include 'class/string/class.inc)
+(include 'class/stream_str/class.inc)
 
 (gen-new 'stream_str)
 (gen-create 'stream_str)

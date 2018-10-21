@@ -1,10 +1,10 @@
-(import 'sys/func.inc)
-(import 'sys/kernel/class.inc)
-(import 'class/string/class.inc)
-(import 'class/msg_out/class.inc)
-(import 'class/msg_in/class.inc)
-(import 'class/slave/class.inc)
-(import 'class/pipe/class.inc)
+(include 'sys/func.inc)
+(include 'sys/kernel/class.inc)
+(include 'class/string/class.inc)
+(include 'class/msg_out/class.inc)
+(include 'class/msg_in/class.inc)
+(include 'class/slave/class.inc)
+(include 'class/pipe/class.inc)
 
 (def-method 'pipe 'init)
 	;inputs

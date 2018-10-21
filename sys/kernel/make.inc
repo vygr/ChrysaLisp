@@ -1,2 +1,2 @@
-(import 'sys/kernel/class.vp)
-(import 'sys/kernel/lisp.vp)
+(include 'sys/kernel/class.vp)
+(include 'sys/kernel/lisp.vp)

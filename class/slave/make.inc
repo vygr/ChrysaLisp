@@ -1,2 +1,2 @@
-(import 'class/slave/class.vp)
-(import 'class/slave/lisp.vp)
+(include 'class/slave/class.vp)
+(include 'class/slave/lisp.vp)

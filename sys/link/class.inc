@@ -1,6 +1,6 @@
-(import 'sys/list/class.inc)
-(import 'sys/mail/class.inc)
-(import 'class/string/class.inc)
+(include 'sys/list/class.inc)
+(include 'sys/mail/class.inc)
+(include 'class/string/class.inc)
 
 (def-class 'sys_link)
 (dec-method 'init 'sys/link/init)

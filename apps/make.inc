@@ -1,3 +1,3 @@
-(import 'apps/netmon/make.inc)
-(import 'apps/terminal/make.inc)
-(import 'apps/boing/make.inc)
+(include 'apps/netmon/make.inc)
+(include 'apps/terminal/make.inc)
+(include 'apps/boing/make.inc)

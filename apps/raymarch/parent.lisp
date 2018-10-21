@@ -1,6 +1,6 @@
 ;import settings
-(include 'sys/lisp.inc)
-(include 'gui/canvas/lisp.inc)
+(import 'sys/lisp.inc)
+(import 'gui/canvas/lisp.inc)
 
 (structure 'work 0
 	(long 'parent_id)

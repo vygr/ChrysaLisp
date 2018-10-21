@@ -1,1 +1,1 @@
-(import 'gui/component/class.vp)
+(include 'gui/component/class.vp)

@@ -1,4 +1,4 @@
-(import 'sys/class.inc)
+(include 'sys/class.inc)
 
 (def-class 'sys_pii)
 (dec-method 'exit 'sys/pii/exit 'static '(r0))

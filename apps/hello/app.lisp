@@ -1,6 +1,6 @@
 ;import settings
-(include 'sys/lisp.inc)
-(include 'gui/lisp.inc)
+(import 'sys/lisp.inc)
+(import 'gui/lisp.inc)
 
 ;define events we will use
 (structure 'event 0

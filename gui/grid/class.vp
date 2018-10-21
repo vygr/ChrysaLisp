@@ -1,5 +1,5 @@
-(import 'sys/func.inc)
-(import 'gui/grid/class.inc)
+(include 'sys/func.inc)
+(include 'gui/grid/class.inc)
 
 (gen-new 'grid)
 (gen-create 'grid)

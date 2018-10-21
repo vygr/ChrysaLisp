@@ -1,6 +1,6 @@
-(import 'sys/func.inc)
-(import 'gui/points/class.inc)
-(import 'sys/math/class.inc)
+(include 'sys/func.inc)
+(include 'gui/points/class.inc)
+(include 'sys/math/class.inc)
 
 (def-method 'points 'gen_quadratic)
 	;inputs

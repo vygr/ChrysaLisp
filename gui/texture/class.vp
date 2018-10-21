@@ -1,6 +1,6 @@
-(import 'sys/func.inc)
-(import 'gui/texture/class.inc)
-(import 'gui/sdl2.inc)
+(include 'sys/func.inc)
+(include 'gui/texture/class.inc)
+(include 'gui/sdl2.inc)
 
 (gen-new 'texture)
 (gen-create 'texture)

@@ -1,4 +1,4 @@
-(import 'sys/mail/class.inc)
+(include 'sys/mail/class.inc)
 
 (def-class 'sys_kernel)
 (dec-method 'id 'sys/kernel/id 'static nil '(r0))

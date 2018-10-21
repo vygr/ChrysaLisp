@@ -1,2 +1,2 @@
-(import 'gui/window/class.vp)
-(import 'gui/window/lisp.vp)
+(include 'gui/window/class.vp)
+(include 'gui/window/lisp.vp)

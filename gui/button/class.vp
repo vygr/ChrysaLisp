@@ -1,8 +1,8 @@
-(import 'sys/func.inc)
-(import 'gui/gui/class.inc)
-(import 'gui/button/class.inc)
-(import 'gui/flow/class.inc)
-(import 'class/array/class.inc)
+(include 'sys/func.inc)
+(include 'gui/gui/class.inc)
+(include 'gui/button/class.inc)
+(include 'gui/flow/class.inc)
+(include 'class/array/class.inc)
 
 (gen-new 'button)
 (gen-create 'button)

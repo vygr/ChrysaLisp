@@ -1,3 +1,3 @@
-(import 'class/pipe/class.vp)
-(import 'class/pipe/init.vp)
-(import 'class/pipe/deinit.vp)
+(include 'class/pipe/class.vp)
+(include 'class/pipe/init.vp)
+(include 'class/pipe/deinit.vp)

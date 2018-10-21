@@ -1,4 +1,4 @@
-(import 'class/string/class.inc)
+(include 'class/string/class.inc)
 
 (def-class 'symbol 'string)
 (dec-method 'vtable 'class/class_symbol)

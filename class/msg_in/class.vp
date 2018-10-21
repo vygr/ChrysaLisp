@@ -1,6 +1,6 @@
-(import 'sys/func.inc)
-(import 'class/msg_out/class.inc)
-(import 'class/msg_in/class.inc)
+(include 'sys/func.inc)
+(include 'class/msg_out/class.inc)
+(include 'class/msg_in/class.inc)
 
 (gen-new 'msg_in)
 (gen-create 'msg_in)

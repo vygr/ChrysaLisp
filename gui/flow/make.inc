@@ -1,2 +1,2 @@
-(import 'gui/flow/class.vp)
-(import 'gui/flow/lisp.vp)
+(include 'gui/flow/class.vp)
+(include 'gui/flow/lisp.vp)

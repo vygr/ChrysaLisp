@@ -1,7 +1,7 @@
-(import 'sys/func.inc)
-(import 'gui/gui/class.inc)
-(import 'gui/ctx/class.inc)
-(import 'gui/progress/class.inc)
+(include 'sys/func.inc)
+(include 'gui/gui/class.inc)
+(include 'gui/ctx/class.inc)
+(include 'gui/progress/class.inc)
 
 (gen-new 'progress)
 (gen-create 'progress)

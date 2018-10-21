@@ -1,6 +1,6 @@
 ;import settings
-(include 'sys/lisp.inc)
-(include 'gui/lisp.inc)
+(import 'sys/lisp.inc)
+(import 'gui/lisp.inc)
 
 ;single instance only
 (unless (mail-enquire "DEBUG_SERVICE")

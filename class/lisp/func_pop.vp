@@ -1,5 +1,5 @@
-(import 'sys/func.inc)
-(import 'class/lisp/class.inc)
+(include 'sys/func.inc)
+(include 'class/lisp/class.inc)
 
 (def-method 'lisp 'func_pop)
 	;inputs

@@ -1,1 +1,1 @@
-(import 'class/hash_set/class.vp)
+(include 'class/hash_set/class.vp)
