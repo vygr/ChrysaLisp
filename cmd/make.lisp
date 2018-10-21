@@ -1,6 +1,6 @@
 ;import settings
-(run 'cmd/lisp.inc)
-(run 'cmd/asm.inc)
+(include 'class/lisp.inc)
+(include 'cmd/asm.inc)
 
 (defun make-doc ()
 	(defq *os* (platform) *cpu* (cpu))

@@ -205,6 +205,8 @@
 ### (if tst form [form])
 ## inc
 ### (inc num)
+## include
+### (include path)
 ## insert
 ### (insert list str)
 ## insert-sym
@@ -373,8 +375,6 @@
 ### (reduce-rev lambda seq [accum])
 ## repl
 ### (repl stream path)
-## run
-### (run path)
 ## save
 ### (save str path)
 ## set

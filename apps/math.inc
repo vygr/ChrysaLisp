@@ -1,4 +1,5 @@
 ;generic distance metric stuff
+(include 'gui/points/lisp.inc)
 
 (defun vec-manhattan-distance (p1 p2)
 	(defq _ (points-sub p1 p2))

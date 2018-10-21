@@ -150,4 +150,5 @@
 	(ptr 'sym_underscore)
 	(ptr 'sym_stream_name)
 	(ptr 'sym_stream_line)
+	(ptr 'sym_file_includes)
 (def-struct-end)

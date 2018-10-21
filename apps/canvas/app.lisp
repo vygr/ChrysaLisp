@@ -1,6 +1,6 @@
 ;import settings
-(run 'sys/lisp.inc)
-(run 'gui/lisp.inc)
+(include 'sys/lisp.inc)
+(include 'gui/lisp.inc)
 
 (structure 'event 0
 	(byte 'win_close))

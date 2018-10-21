@@ -104,19 +104,6 @@
 (ffi prin "class/lisp/func_prin" 0)
 (ffi print "class/lisp/func_print" 0)
 
-(ffi points-add "gui/points/lisp_add" 0)
-(ffi points-sub "gui/points/lisp_sub" 0)
-(ffi points-mul "gui/points/lisp_mul" 0)
-(ffi points-div "gui/points/lisp_div" 0)
-(ffi points-mod "gui/points/lisp_mod" 0)
-(ffi points-sum "gui/points/lisp_sum" 0)
-(ffi points-fmul "gui/points/lisp_fmul" 0)
-(ffi points-fdiv "gui/points/lisp_fdiv" 0)
-(ffi points-fmod "gui/points/lisp_fmod" 0)
-(ffi points-fscale "gui/points/lisp_fscale" 0)
-(ffi points-abs "gui/points/lisp_abs" 0)
-(ffi points-frac "gui/points/lisp_frac" 0)
-
 (ffi kernel-debug "sys/kernel/lisp_debug" 0)
 
 (defq t 't nil 'nil
@@ -167,10 +154,6 @@
 	(defq i -2 l (list 'setq))
 	(while (lt (setq i (add i 2)) (length _))
 		(push l (elem i _) `(opt ,(elem i _) ,(elem (inc i) _)))) l)
-
-(defmacro run (_)
-	;(run path)
-	`(repl (file-stream ,_) ,_))
 
 (defmacro debug (&rest _)
 	;(debug [form ...])
@@ -398,6 +381,12 @@
 			(defq _i (inc _i) _l (slice 0 _i _d) _d (slice _i -1 _d)
 				_v (every _f (split _l (char 10)))))))
 
+(defmacro include (_)
+	;(include path)
+	`(unless (find ,_ *file-includes*)
+		(push *file-includes* ,_)
+		(repl (file-stream ,_) ,_)))
+
 ;;;;;;;;;;;
 ; Utilities
 ;;;;;;;;;;;
@@ -591,8 +580,14 @@
 (defun within-compile-env (_)
 	;(within-compile-env lambda)
 	(defq *compile-env* (env 307) *compile-imports* (list))
-	(defmacro defcvar (&rest b) `(def *compile-env* ~b))
-	(defmacro defcfun (n a &rest b) `(def *compile-env* ',n (lambda ,a ~b)))
-	(defmacro defcmacro (n a &rest b) `(def *compile-env* ',n (macro ,a ~b)))
-	(defun import (_) (unless (find _ *compile-imports*) (push *compile-imports* _) (run _)))
+	(defmacro defcvar (&rest b)
+		`(def *compile-env* ~b))
+	(defmacro defcfun (n a &rest b)
+		`(def *compile-env* ',n (lambda ,a ~b)))
+	(defmacro defcmacro (n a &rest b)
+		`(def *compile-env* ',n (macro ,a ~b)))
+	(defun import (_)
+		(unless (find _ *compile-imports*)
+			(push *compile-imports* _)
+			(repl (file-stream _) _)))
 	(catch (progn (setq _ (_) *compile-env* nil) _) (setq *compile-env* nil)))

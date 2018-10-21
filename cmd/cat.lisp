@@ -1,5 +1,5 @@
 ;import settings
-(run 'cmd/lisp.inc)
+(include 'class/lisp.inc)
 
 ;cat a file to stdout
 (defun cat-file (_)

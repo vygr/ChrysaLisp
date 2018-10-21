@@ -1,6 +1,6 @@
 ;math tools etc
-(run 'sys/lisp.inc)
-(run 'apps/math.inc)
+(include 'sys/lisp.inc)
+(include 'apps/math.inc)
 
 (structure 'work 0
 	(long 'parent_id)

@@ -1,5 +1,5 @@
 ;import settings
-(run 'cmd/lisp.inc)
+(include 'class/lisp.inc)
 
 ;read up to chunk_size chars from stream
 (defun read-chunk (_)

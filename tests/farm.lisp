@@ -1,5 +1,5 @@
 ;import system settings
-(run 'sys/lisp.inc)
+(include 'sys/lisp.inc)
 
 ;open farm of children
 (defq ids (open-farm "tests/child" 128 kn_call_child))

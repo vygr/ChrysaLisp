@@ -87,13 +87,8 @@
 				(assign {table + built_in_hop} {table})
 			(loop-end)
 
-			;define *stream-name* and *stream-line*
-			(call 'string 'create_from_cstr {"ChrysaLisp"} {symbol})
-			(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
-			(call 'obj 'deref {symbol})
-			(call 'integer 'create {0} {symbol})
-			(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
-			(call 'obj 'deref {symbol})
+			;local define *stream-name* and *stream-line*
+			(call 'create_line_info {this})
 
 			;run any boot.inc
 			(call 'string 'create_from_file {"class/lisp/boot.inc"} {file})
@@ -144,16 +139,31 @@
 			(loop-end)
 
 			;local define *stream-name* and *stream-line*
-			(call 'string 'create_from_cstr {"ChrysaLisp"} {symbol})
-			(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
-			(call 'obj 'deref {symbol})
-			(call 'integer 'create {0} {symbol})
-			(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
-			(call 'obj 'deref {symbol})
+			(call 'create_line_info {this})
 		(endif)
 	(endif)
 
 	(exit 'lisp 'init {this, ok})
+	(pop-scope)
+	(return)
+
+(vp-label 'create_line_info)
+	(ptr 'this 'symbol)
+
+	(push-scope)
+	(entry {this})
+
+	;define *stream-name* and *stream-line*
+	(call 'string 'create_from_cstr {"ChrysaLisp"} {symbol})
+	(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
+	(call 'obj 'deref {symbol})
+	(call 'integer 'create {0} {symbol})
+	(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
+	(call 'obj 'deref {symbol})
+	(call 'vector 'create nil {symbol})
+	(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_file_includes, symbol})
+	(call 'obj 'deref {symbol})
+
 	(pop-scope)
 	(return)
 
@@ -186,6 +196,7 @@
 	(built-in "cat" lisp_sym_cat)
 	(built-in "*stream-name*" lisp_sym_stream_name)
 	(built-in "*stream-line*" lisp_sym_stream_line)
+	(built-in "*file-includes*" lisp_sym_file_includes)
 	(built-in "ffi" 0 'func_ffi func_type_args_raw)
 	(vp-short 0)
 
