@@ -2,8 +2,8 @@
 (import 'sys/lisp.inc)
 (import 'gui/lisp.inc)
 
-;add event id
-(defq id t)
+;add event id etc
+(defq clock_size 256 clock_scale 2 id t)
 
 ;define events we will use
 (structure 'event 0
@@ -13,7 +13,8 @@
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element display (create-label) ('text "00:00:00" 'color argb_black 'ink_color argb_red
 		'flow_flags (add flow_flag_align_hcenter flow_flag_align_vcenter)
-		'font (create-font "fonts/Hack-Regular.ttf" 48))))
+		'font (create-font "fonts/Hack-Regular.ttf" 48)))
+	(ui-element clock (create-canvas clock_size clock_size clock_scale)))
 
 ;set a name to the window
 (window-set-title window "Clock")
@@ -26,7 +27,8 @@
 (gui-add (view-change window 290 16 w h))
 
 ;create child and send args
-(mail-send (list display) (defq child_id (open-child "apps/clock/child.lisp" kn_call_open)))
+(mail-send (list display clock (mul clock_size 1.0) (mul clock_scale 1.0))
+	(defq child_id (open-child "apps/clock/child.lisp" kn_call_open)))
 
 ;main app loop
 (while id
