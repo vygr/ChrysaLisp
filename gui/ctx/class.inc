@@ -38,4 +38,5 @@
 (defcvar 'argb_grey11 0xffb0b0b0)
 (defcvar 'argb_grey12 0xffc0c0c0)
 (defcvar 'argb_grey13 0xffd0d0d0)
-(defcvar 'argb_grey15 0xffe0e0e0)
+(defcvar 'argb_grey14 0xffe0e0e0)
+(defcvar 'argb_grey15 0xfff0f0f0)
