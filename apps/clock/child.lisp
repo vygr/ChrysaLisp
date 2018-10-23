@@ -10,10 +10,10 @@
 		":" (pad (bit-shr minutes fp_shift) 2 "0")
 		":" (pad (bit-shr seconds fp_shift) 2 "0")))
 
-(defun transform (_ a s)
-	(defq sa (fsin a) ca (fcos a))
+(defun transform (_ a s &optional x y)
+	(defq sa (fsin a) ca (fcos a) x (opt x 0) y (opt y 0))
 	(points-transform _ _
-		(fmul s ca) (fmul s (neg sa)) (fmul s sa) (fmul s ca) (fmul s 0.5) (fmul s 0.5)))
+		(fmul s ca) (fmul s (neg sa)) (fmul s sa) (fmul s ca) (fmul s (add x 0.5)) (fmul s (add y 0.5))))
 
 ;read args from parent and init globals
 (bind '(display clock clock_size clock_scale) (mail-mymail))
@@ -40,15 +40,24 @@
 	(canvas-set-fpoly clock (slice 0 1 face) argb_white 0)
 	(canvas-set-fpoly clock face argb_black 1)
 	;hour and minute hands
+	(canvas-blend-fpoly clock
+		(points-stroke-polylines (list) stack
+			(list (transform (points 0.0 0.04 0.0 -0.22) (div (fmul hours fp_2pi) 12) scale 0.01 0.01)
+				(transform (points 0.0 0.04 0.0 -0.38) (div (fmul minutes fp_2pi) 60) scale 0.01 0.01))
+			join-miter cap-round cap-tri (const (fmul scale 0.02)) eps) 0x80000000 0)
 	(canvas-set-fpoly clock
 		(points-stroke-polylines (list) stack
 			(list (transform (points 0.0 0.04 0.0 -0.22) (div (fmul hours fp_2pi) 12) scale)
-				(transform (points 0.0 0.04 0.0 -0.40) (div (fmul minutes fp_2pi) 60) scale))
-			join-miter cap-round cap-tri (const (fmul scale 0.02)) eps) argb_black 0)
+				(transform (points 0.0 0.04 0.0 -0.38) (div (fmul minutes fp_2pi) 60) scale))
+			join-miter cap-round cap-tri (const (fmul scale 0.02)) eps) argb_green 0)
 	;second hand
+	(canvas-blend-fpoly clock
+		(points-stroke-polylines (list) stack
+			(list (transform (points 0.0 0.04 0.0 -0.34) (div (mul (bit-shr seconds fp_shift) fp_2pi) 60) scale 0.01 0.01))
+			join-miter cap-round cap-tri (const (fmul scale 0.01)) eps) 0x80000000 0)
 	(canvas-set-fpoly clock
 		(points-stroke-polylines (list) stack
-			(list (transform (points 0.0 0.05 0.0 -0.40) (div (mul (bit-shr seconds fp_shift) fp_2pi) 60) scale))
+			(list (transform (points 0.0 0.04 0.0 -0.34) (div (mul (bit-shr seconds fp_shift) fp_2pi) 60) scale))
 			join-miter cap-round cap-tri (const (fmul scale 0.01)) eps) argb_red 0)
 	(view-dirty display)
 	(canvas-swap clock)
