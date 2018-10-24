@@ -8,11 +8,11 @@
 	;r0 = output vector of points objects (ptr)
 	;r1 = stack array object (ptr)
 	;r2 = input vector of points objects (ptr)
-	;r3 = join style (byte)
-	;r4 = cap style1 (byte)
-	;r5 = cap style2 (byte)
-	;r6 = radius (16.16)
-	;r7 = tolerance (16.16)
+	;r3 = radius (16.16)
+	;r4 = tolerance (16.16)
+	;r5 = join style (byte)
+	;r6 = cap style1 (byte)
+	;r7 = cap style2 (byte)
 	;outputs
 	;r0 = output vector of points objects (ptr)
 	;trashes
@@ -31,7 +31,7 @@
 
 	(push-scope)
 	(used-syms 'l2_pv 'p3 'p4)
-	(entry 'points 'stroke_polylines {this, stack, iter_end_polylines, join_style, cap1_style, cap2_style, radius, eps})
+	(entry 'points 'stroke_polylines {this, stack, iter_end_polylines, radius, eps, join_style, cap1_style, cap2_style})
 
 	(vpif {radius >= 0.5})
 		(vec-set 0)

@@ -18,7 +18,7 @@
 (dec-method 'as_premul 'gui/canvas/as_premul 'static '(r0 r1) '(r0))
 (dec-method 'plot 'gui/canvas/plot 'static '(r0 r1 r2 r7 r8) '(r0))
 (dec-method 'fbox 'gui/canvas/fbox 'static '(r0 r1 r2 r7 r8 r9 r10) '(r0))
-(dec-method 'fpoly 'gui/canvas/fpoly 'static '(r0 r1 r2 r3 r4) '(r0))
+(dec-method 'fpoly 'gui/canvas/fpoly 'static '(r0 r1 r2 r3 r4 r5 r6 r7) '(r0))
 (dec-method 'set_clip 'gui/canvas/set_clip 'static '(r0 r7 r8 r9 r10) '(r0))
 
 (dec-method 'set_pix_noclip 'gui/canvas/set_pix_noclip 'static '(r0 r1 r7 r8) '(r0))
@@ -26,14 +26,14 @@
 (dec-method 'set_span 'gui/canvas/set_span 'static '(r0 r1 r7 r8 r9) '(r0))
 (dec-method 'set_plot 'gui/canvas/set_plot 'static '(r0 r1 r7 r8) '(r0))
 (dec-method 'set_fbox 'gui/canvas/set_fbox 'static '(r0 r1 r7 r8 r9 r10) '(r0))
-(dec-method 'set_fpoly 'gui/canvas/set_fpoly 'static '(r0 r1 r2 r3) '(r0))
+(dec-method 'set_fpoly 'gui/canvas/set_fpoly 'static '(r0 r1 r2 r3 r4 r5 r6) '(r0))
 
 (dec-method 'blend_pix_noclip 'gui/canvas/blend_pix_noclip 'static '(r0 r1 r7 r8) '(r0))
 (dec-method 'blend_span_noclip 'gui/canvas/blend_span_noclip 'static '(r0 r1 r7 r8 r9) '(r0))
 (dec-method 'blend_span 'gui/canvas/blend_span 'static '(r0 r1 r7 r8 r9) '(r0))
 (dec-method 'blend_plot 'gui/canvas/blend_plot 'static '(r0 r1 r7 r8) '(r0))
 (dec-method 'blend_fbox 'gui/canvas/blend_fbox 'static '(r0 r1 r7 r8 r9 r10) '(r0))
-(dec-method 'blend_fpoly 'gui/canvas/blend_fpoly 'static '(r0 r1 r2 r3) '(r0))
+(dec-method 'blend_fpoly 'gui/canvas/blend_fpoly 'static '(r0 r1 r2 r3 r4 r5 r6) '(r0))
 
 (dec-method 'load 'gui/canvas/load 'static '(r0 r1) '(r0))
 (dec-method 'load_cpm 'gui/canvas/load_cpm 'static '(r0) '(r0))
@@ -58,7 +58,6 @@
 	(ptr 'array)
 	(ptr 'edges)
 	(ptr 'edge_tracker)
-	(ptr 'stack)
 	(puint 'resize_buf)
 	(uint 'resize_buf_size)
 	(int 'aa_scale)
@@ -117,14 +116,17 @@
 (defcfun gui/canvas/set_fpoly ()
 	;inputs
 	;r0 = canvas object (ptr)
-	;r1 = vector of points objects (ptr)
+	;r1 = stack array object (ptr)
 	;r2 = color (argb)
-	;r3 = winding mode (0/1)
+	;r3 = x (16.16)
+	;r4 = y (16.16)
+	;r5 = winding mode (0/1)
+	;r6 = vector of points objects (ptr)
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
-	(call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'set_span)))))
+	(call 'canvas 'fpoly `(r0 r1 r2 r3 r4 r5 r6 (@ ,(f-path 'canvas 'set_span)))))
 
 (defcfun gui/canvas/blend_plot ()
 	;inputs
@@ -155,11 +157,14 @@
 (defcfun gui/canvas/blend_fpoly ()
 	;inputs
 	;r0 = canvas object (ptr)
-	;r1 = vector of points objects (ptr)
+	;r1 = stack array object (ptr)
 	;r2 = color (argb)
-	;r3 = winding mode (0/1)
+	;r3 = x (16.16)
+	;r4 = y (16.16)
+	;r5 = winding mode (0/1)
+	;r6 = vector of points objects (ptr)
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
-	(call 'canvas 'fpoly `(r0 r1 r2 r3 (@ ,(f-path 'canvas 'blend_span)))))
+	(call 'canvas 'fpoly `(r0 r1 r2 r3 r4 r5 r6 (@ ,(f-path 'canvas 'blend_span)))))

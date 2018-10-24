@@ -36,7 +36,7 @@
 ## canvas-blend-fbox
 ### (canvas-blend-fbox canvas argb x y w h)
 ## canvas-blend-fpoly
-### (canvas-blend-fpoly canvas list argb mode)
+### (canvas-blend-fpoly canvas stack argb x y mode list)
 ## canvas-blend-plot
 ### (canvas-blend-plot canvas argb x y)
 ## canvas-fill
@@ -46,7 +46,7 @@
 ## canvas-set-fbox
 ### (canvas-set-fbox canvas argb x y w h)
 ## canvas-set-fpoly
-### (canvas-set-fpoly canvas list argb mode)
+### (canvas-set-fpoly canvas stack argb x y mode list)
 ## canvas-set-plot
 ### (canvas-set-plot canvas argb x y)
 ## canvas-swap
@@ -324,11 +324,11 @@
 ## points-fscale
 ### (points-fscale points scale [points])
 ## points-gen-arc
-### (points-gen-arc dst stack cx cy start end radius tol)
+### (points-gen-arc stack cx cy start end radius tol dst) ->
 ## points-gen-cubic
-### (points-gen-cubic dst stack p1x p1y p2x p2y p3x p3y p4x p4y tol)
+### (points-gen-cubic stack p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst
 ## points-gen-quadratic
-### (points-gen-quadratic dst stack p1x p1y p2x p2y p3x p3y tol)
+### (points-gen-quadratic stack p1x p1y p2x p2y p3x p3y tol dst) -> dst
 ## points-mod
 ### (points-mod points points [points])
 ## points-mul
@@ -336,9 +336,9 @@
 ## points-simplify
 ### (points-simplify dst src stack tol)
 ## points-stroke-polygons
-### (points-stroke-polygons dst stack src join radius tol)
+### (points-stroke-polygons stack radius tol join src dst) -> dst
 ## points-stroke-polylines
-### (points-stroke-polylines dst stack src join cap1 cap2 radius tol)
+### (points-stroke-polylines stack radius tol join cap1 cap2 src dst) -> dst
 ## points-sub
 ### (points-sub points points [points])
 ## points-sum

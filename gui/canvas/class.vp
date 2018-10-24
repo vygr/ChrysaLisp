@@ -115,7 +115,6 @@
 		;edge arrays, sort interval stack
 		(call 'array 'create nil {this->canvas_edges})
 		(call 'array 'create nil {this->canvas_edge_tracker})
-		(call 'array 'create nil {this->canvas_stack})
 	(endif)
 
 	(exit 'canvas 'init {this, ok})
@@ -166,7 +165,6 @@
 		;edge arrays, sort interval stack
 		(call 'array 'create nil {this->canvas_edges})
 		(call 'array 'create nil {this->canvas_edge_tracker})
-		(call 'array 'create nil {this->canvas_stack})
 	(endif)
 
 	(exit 'canvas 'init1 {this, ok})
@@ -209,8 +207,6 @@
 	(call 'array 'deref '((r0 canvas_edges)))
 	(vp-cpy-ir rsp local_this r0)
 	(call 'array 'deref '((r0 canvas_edge_tracker)))
-	(vp-cpy-ir rsp local_this r0)
-	(call 'array 'deref '((r0 canvas_stack)))
 
 	;free any pixel buffer
 	(vp-cpy-ir rsp local_this r0)

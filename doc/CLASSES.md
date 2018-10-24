@@ -613,10 +613,13 @@ all but r0
 ```
 inputs
 r0 = canvas object (ptr)
-r1 = vector of points objects (ptr)
+r1 = stack array object (ptr)
 r2 = color (argb)
-r3 = winding mode (0/1)
-r4 = span function (ptr)
+r3 = x (16.16)
+r4 = y (16.16)
+r5 = winding mode (0/1)
+r6 = vector of points objects (ptr)
+r7 = span function (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
@@ -703,9 +706,12 @@ all but r0
 ```
 inputs
 r0 = canvas object (ptr)
-r1 = vector of points objects (ptr)
+r1 = stack array object (ptr)
 r2 = color (argb)
-r3 = winding mode (0/1)
+r3 = x (16.16)
+r4 = y (16.16)
+r5 = winding mode (0/1)
+r6 = vector of points objects (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
@@ -779,9 +785,12 @@ all but r0
 ```
 inputs
 r0 = canvas object (ptr)
-r1 = vector of points objects (ptr)
+r1 = stack array object (ptr)
 r2 = color (argb)
-r3 = winding mode (0/1)
+r3 = x (16.16)
+r4 = y (16.16)
+r5 = winding mode (0/1)
+r6 = vector of points objects (ptr)
 outputs
 r0 = canvas object (ptr)
 trashes
@@ -3375,9 +3384,9 @@ r4 = p1x (16.16)
 r5 = p1y (16.16)
 r6 = p2x (16.16)
 r7 = p2y (16.16)
-r8 = join style (byte)
-r9 = radius (16.16)
-r10 = tolerance (16.16)
+r8 = radius (16.16)
+r9 = tolerance (16.16)
+r10 = join style (byte)
 outputs
 r0 = points object (ptr)
 trashes
@@ -3389,11 +3398,11 @@ inputs
 r0 = output vector of points objects (ptr)
 r1 = stack array object (ptr)
 r2 = input vector of points objects (ptr)
-r3 = join style (byte)
-r4 = cap style1 (byte)
-r5 = cap style2 (byte)
-r6 = radius (16.16)
-r7 = tolerance (16.16)
+r3 = radius (16.16)
+r4 = tolerance (16.16)
+r5 = join style (byte)
+r6 = cap style1 (byte)
+r7 = cap style2 (byte)
 outputs
 r0 = output vector of points objects (ptr)
 trashes
@@ -3405,9 +3414,9 @@ inputs
 r0 = output vector of points objects (ptr)
 r1 = stack array object (ptr)
 r2 = input vector of points objects (ptr)
-r3 = join style (byte)
-r4 = radius (16.16)
-r5 = tolerance (16.16)
+r3 = radius (16.16)
+r4 = tolerance (16.16)
+r5 = join style (byte)
 outputs
 r0 = output vector of points objects (ptr)
 trashes

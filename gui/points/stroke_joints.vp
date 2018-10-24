@@ -13,9 +13,9 @@
 	;r5 = p1y (16.16)
 	;r6 = p2x (16.16)
 	;r7 = p2y (16.16)
-	;r8 = join style (byte)
-	;r9 = radius (16.16)
-	;r10 = tolerance (16.16)
+	;r8 = radius (16.16)
+	;r9 = tolerance (16.16)
+	;r10 = join style (byte)
 	;outputs
 	;r0 = points object (ptr)
 	;trashes
@@ -33,7 +33,7 @@
 
 	(push-scope)
 	(used-syms 'l2_pv 'l1_vx 'l1_vy 'p3)
-	(entry 'points 'stroke_joints {this, stack, iter_i, iter_j, p1x, p1y, p2x, p2y, join_style, radius, eps})
+	(entry 'points 'stroke_joints {this, stack, iter_i, iter_j, p1x, p1y, p2x, p2y, radius, eps, join_style})
 
 	(vpif {iter_i != iter_j})
 		(vpif {iter_j > iter_i})

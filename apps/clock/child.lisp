@@ -21,44 +21,34 @@
 	scale (fmul clock_size clock_scale) eps 0.125)
 
 ;create static clock face
-(points-stroke-polygons face stack
-	(list (points-gen-arc (points) stack (fmul scale 0.5) (fmul scale 0.5) 0 fp_2pi (fmul scale 0.48) eps))
-	join-miter (fmul scale 0.02) eps)
-(points-stroke-polylines face stack
-	(reduce (lambda (l a)
-		(push l (transform (points 0.0 0.35 0.0 0.44) (mul a fp_hpi) scale))) (range 0 4) (list))
-	join-miter cap-butt cap-butt (fmul scale 0.03) eps)
-(points-stroke-polylines face stack
+(points-stroke-polylines stack (fmul scale 0.01) eps join-miter cap-butt cap-butt
 	(reduce (lambda (l a)
 		(push l (transform (points 0.0 0.35 0.0 0.44) (div (mul a fp_2pi) 12) scale))) (range 0 12) (list))
-	join-miter cap-butt cap-butt (fmul scale 0.01) eps)
+	(points-stroke-polylines stack (fmul scale 0.03) eps join-miter cap-butt cap-butt
+		(reduce (lambda (l a)
+			(push l (transform (points 0.0 0.35 0.0 0.44) (mul a fp_hpi) scale))) (range 0 4) (list))
+		(points-stroke-polygons stack (fmul scale 0.02) eps join-miter
+			(list (points-gen-arc stack (fmul scale 0.5) (fmul scale 0.5) 0 fp_2pi (fmul scale 0.48) eps (points)))
+			face)))
 
 ;while not told to quit
 (until (mail-trymail)
 	(set display 'text (make-time))
-	(canvas-fill clock 0)
-	(canvas-set-fpoly clock (slice 0 1 face) argb_white 0)
-	(canvas-set-fpoly clock face argb_black 1)
+	(canvas-set-fpoly clock stack argb_white 0.0 0.0 0 (slice 0 1 face))
+	(canvas-set-fpoly clock stack argb_black 0.0 0.0 1 face)
 	;hour and minute hands
-	(canvas-blend-fpoly clock
-		(points-stroke-polylines (list) stack
-			(list (transform (points 0.0 0.04 0.0 -0.22) (div (fmul hours fp_2pi) 12) scale 0.01 0.01)
-				(transform (points 0.0 0.04 0.0 -0.38) (div (fmul minutes fp_2pi) 60) scale 0.01 0.01))
-			join-miter cap-round cap-tri (const (fmul scale 0.02)) eps) 0x80000000 0)
-	(canvas-set-fpoly clock
-		(points-stroke-polylines (list) stack
-			(list (transform (points 0.0 0.04 0.0 -0.22) (div (fmul hours fp_2pi) 12) scale)
-				(transform (points 0.0 0.04 0.0 -0.38) (div (fmul minutes fp_2pi) 60) scale))
-			join-miter cap-round cap-tri (const (fmul scale 0.02)) eps) argb_green 0)
+	(defq _ (points-stroke-polylines stack (const (fmul scale 0.02)) eps join-miter cap-round cap-tri
+		(list (transform (points 0.0 0.04 0.0 -0.22) (div (fmul hours fp_2pi) 12) scale)
+			(transform (points 0.0 0.04 0.0 -0.38) (div (fmul minutes fp_2pi) 60) scale))
+		(list)))
+	(canvas-blend-fpoly clock stack 0xa0000000 (fmul scale 0.01) (fmul scale 0.01) 0 _)
+	(canvas-set-fpoly clock stack argb_green 0.0 0.0 0 _)
 	;second hand
-	(canvas-blend-fpoly clock
-		(points-stroke-polylines (list) stack
-			(list (transform (points 0.0 0.04 0.0 -0.34) (div (mul (bit-shr seconds fp_shift) fp_2pi) 60) scale 0.01 0.01))
-			join-miter cap-round cap-tri (const (fmul scale 0.01)) eps) 0x80000000 0)
-	(canvas-set-fpoly clock
-		(points-stroke-polylines (list) stack
-			(list (transform (points 0.0 0.04 0.0 -0.34) (div (mul (bit-shr seconds fp_shift) fp_2pi) 60) scale))
-			join-miter cap-round cap-tri (const (fmul scale 0.01)) eps) argb_red 0)
+	(setq _ (points-stroke-polylines stack (const (fmul scale 0.01)) eps join-miter cap-round cap-tri
+		(list (transform (points 0.0 0.04 0.0 -0.34) (div (mul (bit-shr seconds fp_shift) fp_2pi) 60) scale 0.01 0.01))
+		(list)))
+	(canvas-blend-fpoly clock stack 0xa0000000 (fmul scale 0.01) (fmul scale 0.01) 0 _)
+	(canvas-set-fpoly clock stack argb_red 0.0 0.0 0 _)
 	(view-dirty display)
 	(canvas-swap clock)
 	(task-sleep 1000000))

@@ -6,31 +6,34 @@
 (def-method 'canvas 'fpoly)
 	;inputs
 	;r0 = canvas object (ptr)
-	;r1 = vector of points objects (ptr)
+	;r1 = stack array object (ptr)
 	;r2 = color (argb)
-	;r3 = winding mode (0/1)
-	;r4 = span function (ptr)
+	;r3 = x (16.16)
+	;r4 = y (16.16)
+	;r5 = winding mode (0/1)
+	;r6 = vector of points objects (ptr)
+	;r7 = span function (ptr)
 	;outputs
 	;r0 = canvas object (ptr)
 	;trashes
 	;all but r0
 
-	(ptr 'this 'span)
+	(ptr 'this 'span 'stack)
 	(union
 		'(ptr 'polygons)
 		'(pptr 'iter_end_polygons 'iter_begin_polygons)
 		'(pptr 'iter_i 'iter_j 'iter_k 'iter_end))
 	(pint 'iter_edge1 'iter_edge2)
 	(pint 'iter_begin_polygon 'iter_end_polygon)
-	(int 'ys 'ye 'xs 'xe)
+	(int 'ys 'ye 'xs 'xe 'x 'y)
 	(uint 'mode 'color 'length)
 
 	(push-scope)
-	(entry 'canvas 'fpoly {this, polygons, color, mode, span})
+	(entry 'canvas 'fpoly {this, stack, color, x, y, mode, polygons, span})
 	(call 'canvas 'to_premul {this, color} {_, color})
 
 	;fill edges, find min and max xy, clip edges not visible or redundant
-	(assign {max_int, min_int, max_int, min_int, 0} {xs, xe, ys, ye, length})
+	(assign {x + 0.5, y + 0.5, max_int, min_int, max_int, min_int, 0} {x, y, xs, xe, ys, ye, length})
 	(call 'vector 'get_iters {polygons} {_, iter_begin_polygons, iter_end_polygons})
 	(loop-while {iter_begin_polygons != iter_end_polygons})
 		(call 'points 'get_iters {*iter_begin_polygons} {_, iter_begin_polygon, iter_end_polygon})
@@ -43,15 +46,19 @@
 				(list iter_begin_polygon iter_end_polygon this iter_edge2 xs xe ys ye))
 			(vp-cpy-ir iter_end_polygon (neg long_size) y1)
 			(vp-cpy-ir iter_end_polygon (mul -2 long_size) x1)
-			(vp-add-cr 0.5 y1)
-			(vp-add-cr 0.5 x1)
+			(assign {y} (list xdifh))
+			(assign {x} (list xdifl))
+			(vp-add-rr xdifh y1)
+			(vp-add-rr xdifl x1)
 			(vp-asr-cr fp_shift y1)
 			(loop-start)
 				(vp-cpy-ir iter_begin_polygon 0 x2)
 				(vp-cpy-ir iter_begin_polygon long_size y2)
-				(vp-add-cr 0.5 x2)
+				(assign {x} (list xdifl))
+				(assign {y} (list xdifh))
+				(vp-add-rr xdifl x2)
+				(vp-add-rr xdifh y2)
 				(vp-cpy-rr x1 xdifl)
-				(vp-add-cr 0.5 y2)
 				(vp-asr-cr fp_shift xdifl)
 				(vp-asr-cr fp_shift y2)
 				(vpif `(,xdifl < ,xs))
@@ -107,8 +114,10 @@
 				(endif)
 				(vp-cpy-ir iter_begin_polygon 0 x1)
 				(vp-cpy-ir iter_begin_polygon long_size y1)
-				(vp-add-cr 0.5 x1)
-				(vp-add-cr 0.5 y1)
+				(assign {x} (list xdifl))
+				(assign {y} (list xdifh))
+				(vp-add-rr xdifl x1)
+				(vp-add-rr xdifh y1)
 				(vp-add-cr (mul long_size 2) iter_begin_polygon)
 				(vp-asr-cr fp_shift y1)
 			(loop-until `(,iter_begin_polygon == ,iter_end_polygon))
@@ -132,7 +141,7 @@
 			(vp-add-cr ptr_size iter_end)
 		(loop-end)
 		(assign (list iter_end) {iter_end})
-		(call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_end, $sort_on_y, 0})
+		(call 'array 'sort {this->canvas_edge_tracker, stack, iter_i, iter_end, $sort_on_y, 0})
 
 		(loop-while {ys < ye})
 			(breakif {ys >= this->canvas_cy1})
@@ -167,7 +176,7 @@
 
 			;sort on x ?, plus move all marked dead edges to front !
 			(vpif `(,lastx == max_int))
-				(call 'array 'sort {this->canvas_edge_tracker, this->canvas_stack, iter_i, iter_j, $sort_on_x, 0})
+				(call 'array 'sort {this->canvas_edge_tracker, stack, iter_i, iter_j, $sort_on_x, 0})
 			(endif)
 
 			;remove all dead edges

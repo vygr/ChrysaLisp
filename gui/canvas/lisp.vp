@@ -231,17 +231,17 @@
 	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3)
+	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6)
 
 	(push-scope)
 	(entry 'canvas 'lisp_set_fpoly {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 4} {value})
+	(call 'lisp 'env_args_type {args, $sig, 7} {value})
 	(errorifnot {value} 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'set_fpoly {arg0, arg1, arg2, arg3})
+	(call 'canvas 'set_fpoly {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
 	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'funcexit)
@@ -250,9 +250,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(canvas-set-fpoly canvas list argb mode)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(canvas-set-fpoly canvas stack argb x y mode list)", error_msg_wrong_types, args} {_, value})
 	(goto 'funcexit)
-	(signature 'sig 'canvas 'vector 'integer 'integer))
+	(signature 'sig 'canvas 'array 'integer 'integer 'integer 'integer 'vector))
 
 	(pop-scope-syms)
 
@@ -339,17 +339,17 @@
 	;r1 = return value object (ptr)
 
 	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2 'arg3)
+	(ulong 'arg0 'arg1 'arg2 'arg3 'arg4 'arg5 'arg6)
 
 	(push-scope)
 	(entry 'canvas 'lisp_blend_fpoly {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 4} {value})
+	(call 'lisp 'env_args_type {args, $sig, 7} {value})
 	(errorifnot {value} 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(call 'canvas 'blend_fpoly {arg0, arg1, arg2, arg3})
+	(call 'canvas 'blend_fpoly {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
 	(call 'obj 'ref {arg0} {value})
 
 (vp-label 'funcexit)
@@ -358,9 +358,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(canvas-blend-fpoly canvas list argb mode)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(canvas-blend-fpoly canvas stack argb x y mode list)", error_msg_wrong_types, args} {_, value})
 	(goto 'funcexit)
-	(signature 'sig 'canvas 'vector 'integer 'integer))
+	(signature 'sig 'canvas 'array 'integer 'integer 'integer 'integer 'vector))
 
 	(pop-scope-syms)
 
