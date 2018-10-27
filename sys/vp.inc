@@ -148,6 +148,14 @@
 			((find (elem 0 e) (opt-emit-call-ops)) -1))) (list *emit-buffer*)))
 	(and _ (ne _ -1) _))
 
+(defcfun opt-emit-find-rr (k _ rs rd o)
+	(defq _ (some! _ 0 t (lambda (e)
+		(cond
+			((match? e (list o rs rd)) _)
+			((opt-trashes? rs (elem 0 e) e) -1)
+			((k rd e) -1))) (list *emit-buffer*)))
+	(and _ (ne _ -1) _))
+
 (defcfun opt-emit-buffer ()
 	(each! 2 nil nil (lambda (e)
 		(cond
@@ -173,6 +181,10 @@
 								(elem 2 e) (eval (elem 3 e))))
 					(when (eq c 1)
 						(elem-set w *emit-buffer* (lambda)))))
+			;redundant copies
+			((eql o 'emit-cpy-rr)
+				(when (opt-emit-find-rr opt-emit-trashes-with-calls? _ (elem 2 e) (elem 1 e) 'emit-cpy-rr)
+					(elem-set _ *emit-buffer* (lambda))))
 			;compare constant forwarding
 			((and (eql o 'emit-cpy-cr) (le -0x80000000 (eval (elem 1 e)) 0x7fffffff))
 				(when (defq u (opt-emit-find-use _ (elem 2 e) 'emit-cmp-rr))
