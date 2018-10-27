@@ -10,32 +10,25 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'value)
-	(union
-		'(ptr 'args)
-		'(uint 'length))
+	(vp-def (this args value) '(r6 r7))
 
-	(push-scope)
-	(entry 'lisp 'func_length {this, args})
+	(entry 'lisp 'func_length (list this args))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type `(,args ($ sig) 1) (list value))
+	(errorif (list value '== 0) 'error1))
 
-	(call 'vector 'get_first {args} {_, args})
-	(call 'sequence 'get_length {args} {_, length})
-	(call 'integer 'create {length} {value})
+	(vp-cpy-ir args array_array value)
+	(vp-cpy-ir value 0 value)
+	(call 'sequence 'get_length (list value) (list '_ value))
+	(call 'integer 'create (list value) (list value))
 
-(vp-label 'funcexit)
-	(exit 'lisp 'func_length {this, value})
-	(return)
+	(exit 'lisp 'func_length (list this value))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(length seq)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(jump 'lisp 'repl_error (list this "(length seq)" error_msg_wrong_types args))
 	(signature 'sig 'sequence))
-
-	(pop-scope-syms)
 
 (def-func-end)

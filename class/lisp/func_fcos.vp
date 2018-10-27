@@ -11,33 +11,26 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'value)
-	(union
-		'(ptr 'args)
-		'(long 'num))
+	(vp-def (this args value) '(r6 r7))
 
-	(push-scope)
-	(entry 'lisp 'func_fcos {this, args})
+	(entry 'lisp 'func_fcos (list this args))
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type `(,args ($ sig) 1) (list value))
+	(errorif (list value '== 0) 'error1))
 
-	(call 'vector 'get_first {args} {_, value})
-	(call 'integer 'get_value {value} {_, num})
-	(call 'sys_math 'fcos {num} {num})
-	(call 'integer 'create {num} {value})
+	(vp-cpy-ir args array_array value)
+	(vp-cpy-ir value 0 value)
+	(vp-cpy-ir value integer_value value)
+	(call 'sys_math 'fcos (list value) (list value))
+	(call 'integer 'create (list value) (list value))
 
-(vp-label 'funcexit)
-	(exit 'lisp 'func_fcos {this, value})
-	(return)
+	(exit 'lisp 'func_fcos (list this value))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(fcos angle)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
+	(jump 'lisp 'repl_error (list this "(fcos angle)" error_msg_wrong_types args))
 	(signature 'sig 'integer))
-
-	(pop-scope-syms)
 
 (def-func-end)
