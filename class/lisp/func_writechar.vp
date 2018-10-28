@@ -25,8 +25,8 @@
 	(assign {iter_begin[0]} {stream})
 
 (errorcases
-	(call 'obj 'inst_of (cat {stream, @} (f-path 'stream 'vtable)) {_, value})
-	(errorifnot {value} 'error2))
+	(call 'obj 'inst_of (cat {stream, @} (f-path 'stream 'vtable)))
+	(errorif `(,(elem 1 (elem 3 (method-lookup 'obj 'inst_of))) == 0) 'error2))
 
 	(assign {1} {width})
 	(vpif {length == 3})

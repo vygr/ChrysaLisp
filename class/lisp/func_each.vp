@@ -14,8 +14,7 @@
 	(ptr 'this 'args 'value 'accum)
 	(union
 		'(ptr 'lists)
-		'(ptr 'func)
-		'(ptr 'type))
+		'(ptr 'func))
 	(pptr 'iter 'iter_begin 'iter_end 'params)
 	(int 'start 'end)
 	(union
@@ -38,8 +37,8 @@
 	(assign {iter_begin} {iter})
 	(loop-while {iter != iter_end})
 		(assign {*iter} {value})
-		(call 'obj 'inst_of (cat {value, @} (f-path 'sequence 'vtable)) {_, type})
-		(errorifnot {type} 'error3)
+		(call 'obj 'inst_of (cat {value, @} (f-path 'sequence 'vtable)))
+		(errorif `(,(elem 1 (elem 3 (method-lookup 'obj 'inst_of))) == 0) 'error3)
 		(call 'sequence 'get_length {value} {_, seq_length})
 		(vpif {seq_length < length})
 			(assign {seq_length} {length})

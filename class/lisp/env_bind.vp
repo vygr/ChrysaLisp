@@ -20,8 +20,8 @@
 
 (errorcases
 	(errorif (cat {vars->obj_vtable != @} (f-path 'vector 'vtable)) 'error1)
-	(call 'obj 'inst_of (cat {vals, @} (f-path 'sequence 'vtable)) {_, value})
-	(errorifnot {value} 'error2))
+	(call 'obj 'inst_of (cat {vals, @} (f-path 'sequence 'vtable)))
+	(errorif `(,(elem 1 (elem 3 (method-lookup 'obj 'inst_of))) == 0) 'error2))
 
 	(assign {0, 0, 0} {index_vars, index_vals, state})
 	(call 'obj 'ref {this->lisp_sym_nil} {value})

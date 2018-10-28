@@ -25,14 +25,14 @@
 	(call 'vector 'get_first {args} {_, stream})
 
 (errorcases
-	(call 'obj 'inst_of (cat {stream, @} (f-path 'stream 'vtable)) {_, value})
-	(errorifnot {value} 'error2))
+	(call 'obj 'inst_of (cat {stream, @} (f-path 'stream 'vtable)))
+	(errorif `(,(elem 1 (elem 3 (method-lookup 'obj 'inst_of))) == 0) 'error2))
 
 	(call 'vector 'get_second {args} {_, value})
 
 (errorcases
-	(call 'obj 'inst_of (cat {value, @} (f-path 'string 'vtable)) {_, old_file})
-	(errorifnot {old_file} 'error3))
+	(call 'obj 'inst_of (cat {value, @} (f-path 'string 'vtable)))
+	(errorif `(,(elem 1 (elem 3 (method-lookup 'obj 'inst_of))) == 0) 'error3))
 
 	;push old file and line, set to this stream info
 	(call 'hash_map 'get {this->lisp_environment, this->lisp_sym_stream_name} {_, old_file})
