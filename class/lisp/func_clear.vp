@@ -16,8 +16,8 @@
 	(entry 'lisp 'func_clear {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type (cat {args, @} (f-path 'array 'vtable) {, -1}) {value})
-	(errorifnot {value} 'error))
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'array 'vtable) {, -1}))
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error))
 
 	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(loop-start)

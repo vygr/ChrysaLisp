@@ -22,8 +22,8 @@
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 1 || length > 3} 'error1)
-	(call 'lisp 'env_args_type {args, $sig, length} {value})
-	(errorifnot {value} 'error2))
+	(call 'lisp 'env_args_type {args, $sig, length})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error2))
 
 	(assign {1, 0, 0} {arg1, arg2, value})
 	(call 'lisp 'env_args_set {args, &arg0, 0})

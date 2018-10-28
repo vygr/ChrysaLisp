@@ -19,8 +19,8 @@
 	(entry 'sys_task 'lisp_sleep {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_task 'sleep {arg0})
@@ -91,8 +91,8 @@
 	(entry 'sys_task 'lisp_open_child {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_task 'open_child {&arg0->string_data, arg1} {arg0})
@@ -127,8 +127,8 @@
 	(entry 'sys_task 'lisp_open_remote {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 3} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 3})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_task 'open_remote {&arg0->string_data, arg1, arg2} {arg0})
@@ -163,8 +163,8 @@
 	(entry 'sys_task 'lisp_open_farm {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 3} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 3})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_task 'open_farm {&arg0->string_data, arg1, arg2} {value})
@@ -198,14 +198,14 @@
 	(entry 'sys_task 'lisp_open_pipe {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 
 (errorcases
-	(call 'lisp 'env_args_type (cat {arg0, @} (f-path 'string 'vtable) {, -1}) {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type (cat {arg0, @} (f-path 'string 'vtable) {, -1}))
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'sys_task 'open_pipe {arg0} {value})
 

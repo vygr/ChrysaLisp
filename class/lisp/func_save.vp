@@ -21,8 +21,8 @@
 	(entry 'lisp 'func_save {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'vector 'get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0], iter_begin[ptr_size]} {value, name})

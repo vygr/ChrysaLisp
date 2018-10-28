@@ -19,8 +19,8 @@
 	(entry 'canvas 'lisp_create {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 3} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 3})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'create {arg0, arg1, arg2} {value})
@@ -54,8 +54,8 @@
 	(entry 'canvas 'lisp_load {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'load {&arg0->string_data, arg1} {value})
@@ -92,8 +92,8 @@
 	(entry 'canvas 'lisp_fill {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'fill {arg0, arg1})
@@ -128,8 +128,8 @@
 	(entry 'canvas 'lisp_swap {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'swap {arg0})
@@ -165,8 +165,8 @@
 	(entry 'canvas 'lisp_set_plot {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 4} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 4})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'set_plot {arg0, arg1, arg2, arg3})
@@ -201,8 +201,8 @@
 	(entry 'canvas 'lisp_set_fbox {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 6} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 6})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'set_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
@@ -237,8 +237,8 @@
 	(entry 'canvas 'lisp_set_fpoly {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 7} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 7})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'set_fpoly {arg0, arg1, arg2, arg3, arg4, arg5, arg6})
@@ -273,8 +273,8 @@
 	(entry 'canvas 'lisp_blend_plot {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 4} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 4})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'blend_plot {arg0, arg1, arg2, arg3})
@@ -309,8 +309,8 @@
 	(entry 'canvas 'lisp_blend_fbox {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 6} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 6})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'blend_fbox {arg0, arg1, arg2, arg3, arg4, arg5})
@@ -345,8 +345,8 @@
 	(entry 'canvas 'lisp_blend_fpoly {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 7} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 7})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'canvas 'blend_fpoly {arg0, arg1, arg2, arg3, arg4, arg5, arg6})

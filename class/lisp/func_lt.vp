@@ -17,8 +17,8 @@
 	(entry 'lisp 'func_lt (list this args))
 
 (errorcases
-	(call 'lisp 'env_args_type `(,args (@ ,(f-path 'integer 'vtable)) -2) (list value))
-	(errorif (list value '== 0) 'error1))
+	(call 'lisp 'env_args_type `(,args (@ ,(f-path 'integer 'vtable)) -2))
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'vector 'get_iters (list args) (list '_ iter_begin iter_end))
 	(vp-cpy-ir iter_begin 0 num)

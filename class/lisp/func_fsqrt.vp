@@ -16,8 +16,8 @@
 	(entry 'lisp 'func_fsqrt (list this args))
 
 (errorcases
-	(call 'lisp 'env_args_type `(,args ($ sig) 1) (list value))
-	(errorif (list value '== 0) 'error1))
+	(call 'lisp 'env_args_type `(,args ($ sig) 1))
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(vp-cpy-ir args array_array value)
 	(vp-cpy-ir value 0 value)

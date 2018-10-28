@@ -24,8 +24,8 @@
 (errorcases
 	(d-call 'vector 'get_length {args} {_, length})
 	(errorif {length < 1 || length > 2} 'error1)
-	(call 'lisp 'env_args_type (cat {args, @} (f-path 'integer 'vtable) {, 0}) {value})
-	(errorifnot {value} 'error2))
+	(call 'lisp 'env_args_type (cat {args, @} (f-path 'integer 'vtable) {, 0}))
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error2))
 
 	(assign {1} {arg1})
 	(call 'lisp 'env_args_set {args, &arg0, 0})

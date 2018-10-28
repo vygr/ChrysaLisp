@@ -15,8 +15,8 @@
 	(entry 'lisp 'func_bshr (list this args))
 
 (errorcases
-	(call 'lisp 'env_args_type `(,args ($ sig) 2) (list value))
-	(errorif (list value '== 0) 'error1))
+	(call 'lisp 'env_args_type `(,args ($ sig) 2))
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(vp-cpy-ir args array_array iter_begin)
 	(vp-cpy-ir iter_begin 0 num)

@@ -53,8 +53,8 @@
 	(entry 'view 'lisp_event {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'event {arg0, &arg1->string_data})
@@ -89,8 +89,8 @@
 	(entry 'view 'lisp_layout {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'layout {arg0})
@@ -125,8 +125,8 @@
 	(entry 'view 'lisp_find_id {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'find_id {arg0, arg1} {_, arg0})
@@ -164,8 +164,8 @@
 	(entry 'view 'lisp_sub {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'sub {arg0} {value})
@@ -199,8 +199,8 @@
 	(entry 'view 'lisp_add_child {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'add_child {arg0, arg1})
@@ -236,8 +236,8 @@
 	(entry 'view 'lisp_add_front {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'add_front {arg0, arg1})
@@ -273,8 +273,8 @@
 	(entry 'view 'lisp_add_back {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 2} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 2})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'add_back {arg0, arg1})
@@ -310,8 +310,8 @@
 	(entry 'view 'lisp_pref_size {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'pref_size {arg0} {_, arg1, arg2})
@@ -351,7 +351,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 5} {value})
-	(errorifnot {value} 'error1))
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'change {arg0, arg1, arg2, arg3, arg4})
@@ -387,7 +387,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 5} {value})
-	(errorifnot {value} 'error1))
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'set_bounds {arg0, arg1, arg2, arg3, arg4})
@@ -422,8 +422,8 @@
 	(entry 'view 'lisp_get_bounds {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'get_bounds {arg0} {_, arg1, arg2, arg3, arg4})
@@ -467,7 +467,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 5} {value})
-	(errorifnot {value} 'error1))
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'add_opaque {arg0, arg1, arg2, arg3, arg4})
@@ -503,7 +503,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 5} {value})
-	(errorifnot {value} 'error1))
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'sub_opaque {arg0, arg1, arg2, arg3, arg4})
@@ -538,8 +538,8 @@
 	(entry 'view 'lisp_opaque {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'opaque {arg0})
@@ -575,7 +575,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 5} {value})
-	(errorifnot {value} 'error1))
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'add_dirty {arg0, arg1, arg2, arg3, arg4})
@@ -610,8 +610,8 @@
 	(entry 'view 'lisp_dirty {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'dirty {arg0})
@@ -646,8 +646,8 @@
 	(entry 'view 'lisp_dirty_all {this, args})
 
 (errorcases
-	(call 'lisp 'env_args_type {args, $sig, 1} {value})
-	(errorifnot {value} 'error1))
+	(call 'lisp 'env_args_type {args, $sig, 1})
+	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'view 'dirty_all {arg0})
