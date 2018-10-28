@@ -26,7 +26,7 @@
 
 (errorcases
 	(call 'obj 'inst_of (cat {env, @} (f-path 'hash_map 'vtable)))
-	(errorif `(,(elem 1 (elem 3 (method-lookup 'obj 'inst_of))) == 0) 'error2))
+	(errorif (list (method-return 'obj 'inst_of 1) '== 0) 'error2))
 
 	(assign {&iter_begin[ptr_size * 1]} {iter_begin})
 	(assign {0} {val})

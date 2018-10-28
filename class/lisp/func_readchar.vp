@@ -26,7 +26,7 @@
 
 (errorcases
 	(call 'obj 'inst_of (cat {iter_begin[0], @} (f-path 'stream 'vtable)))
-	(errorif `(,(elem 1 (elem 3 (method-lookup 'obj 'inst_of))) == 0) 'error2))
+	(errorif (list (method-return 'obj 'inst_of 1) '== 0) 'error2))
 
 	(assign {1} {width})
 	(vpif {length == 2})

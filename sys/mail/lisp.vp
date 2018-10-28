@@ -95,21 +95,21 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
+	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'obj 'inst_of (cat {arg0, @} (f-path 'string 'vtable)))
-	(vpif `(,(elem 1 (elem 3 (method-lookup 'obj 'inst_of))) != 0))
+	(vpif (list (method-return 'obj 'inst_of 1) '!= 0))
 		(call 'sys_mail 'alloc_obj {arg0, &arg0->string_data, arg0->string_length} {arg2})
 		(goto 'sendit)
 	(endif)
 	(call 'obj 'inst_of (cat {arg0, @} (f-path 'vector 'vtable)))
-	(vpif `(,(elem 1 (elem 3 (method-lookup 'obj 'inst_of))) != 0))
+	(vpif (list (method-return 'obj 'inst_of 1) '!= 0))
 		(call 'sys_mail 'alloc_obj {arg0, arg0->array_array, arg0->array_length * long_size} {arg2})
 		(goto 'sendit)
 	(endif)
 	(call 'obj 'inst_of (cat {arg0, @} (f-path 'array 'vtable)))
-	(errorif `(,(elem 1 (elem 3 (method-lookup 'obj 'inst_of))) == 0) 'error1)
+	(errorif (list (method-return 'obj 'inst_of 1) '== 0) 'error1)
 	(call 'string 'create_from_buffer {arg0->array_array, arg0->array_length * long_size} {value})
 	(call 'sys_mail 'alloc_obj {value, &value->string_data, value->string_length} {arg2})
 	(call 'obj 'deref {value})
@@ -148,7 +148,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
+	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_mail 'declare {&arg0->string_data, arg1})
@@ -184,7 +184,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
+	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'sys_mail 'enquire {&arg0->string_data} {value})

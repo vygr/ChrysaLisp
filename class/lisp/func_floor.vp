@@ -21,7 +21,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (cat (elem 3 (method-lookup 'lisp 'env_args_type)) '(== 0)) 'error1))
+	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'vector 'get_first {args} {_, value})
 	(call 'integer 'get_value {value} {_, num})

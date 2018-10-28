@@ -347,7 +347,7 @@
 			(breakifnot {offset})
 			(assign {table + ptr_size} {table})
 			(call 'sys_string 'compare {table, arg})
-			(vpif (cat (elem 3 (method-lookup 'sys_string 'compare)) '(== 0)))
+			(vpif (list (method-return 'sys_string 'compare 0) '== 0))
 				(assign {*argv} {arg})
 				(breakifnot {arg} next_arg)
 				(assign {arg, $options_table + offset} '(r0 r1))
