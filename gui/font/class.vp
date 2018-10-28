@@ -29,7 +29,6 @@
 	(ptr 'this 'name 'flat_set)
 	(pptr 'iter_begin 'iter_end)
 	(uint 'points)
-	(int 'same)
 
 	(push-scope)
 	(entry 'font 'open {name, points})
@@ -45,8 +44,8 @@
 	(loop-while {iter_begin != iter_end})
 		(assign {*iter_begin} {this})
 		(vpif {this->font_points == points})
-			(call 'sys_string 'compare {this->font_name->string_data, name} {same})
-			(gotoifnot {same} 'found)
+			(call 'sys_string 'compare {this->font_name->string_data, name})
+			(gotoif (cat (elem 3 (method-lookup 'sys_string 'compare)) '(== 0)) 'found)
 		(endif)
 		(assign {iter_begin + ptr_size} {iter_begin})
 	(loop-end)
