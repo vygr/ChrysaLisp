@@ -89,26 +89,25 @@
 (defmacro opt-emit-multi-out-ops ()
 	''(emit-pop))
 
-(defmacro opt-trashes? (r o e)
+(defmacro opt-trashes? (r e)
 	`(cond
 		((eql ,r (elem -2 ,e)) t)
-		((find ,o (opt-emit-two-out-ops))
-			(eql ,r (elem -3 ,e)))
-		((find ,o (opt-emit-multi-out-ops))
-			(find ,r ,e))))
-
-(defcfun opt-emit-trashes-with-calls? (r e)
-	(or (find (defq o (elem 0 e)) (opt-emit-call-ops))
-		(opt-trashes? r o e)))
+		((find (elem 0 ,e) (opt-emit-two-out-ops)) (eql ,r (elem -3 ,e)))
+		((find (elem 0 ,e) (opt-emit-multi-out-ops)) (find ,r ,e))))
 
 (defcfun opt-emit-trashes-without-calls? (r e)
-	(defq o (elem 0 e))
-	(opt-trashes? r o e))
+	(opt-trashes? r e))
+
+(defcfun opt-emit-trashes-with-calls? (r e)
+	(cond
+		((find (elem 0 e) (opt-emit-call-ops)) t)
+		(t (opt-trashes? r e))))
 
 (defcfun opt-emit-trashes-with-kills? (r e)
-	(or (find (defq o (elem 0 e)) (opt-emit-kills-ops))
-		(find o (opt-emit-call-ops))
-		(opt-trashes? r o e)))
+	(cond
+		((find (elem 0 e) (opt-emit-kills-ops)) t)
+		((find (elem 0 e) (opt-emit-call-ops)) t)
+		(t (opt-trashes? r e))))
 
 (defcfun opt-emit-find-rw (k _ r w b i)
 	(defq _ (some! _ 0 t (lambda (e)
@@ -148,11 +147,11 @@
 			((find (elem 0 e) (opt-emit-call-ops)) -1))) (list *emit-buffer*)))
 	(and _ (ne _ -1) _))
 
-(defcfun opt-emit-find-rr (k _ rs rd o)
+(defcfun opt-emit-find-rr (k _ rs rd)
 	(defq _ (some! _ 0 t (lambda (e)
 		(cond
-			((match? e (list o rs rd)) _)
-			((opt-trashes? rs (elem 0 e) e) -1)
+			((match? e (list 'emit-cpy-rr rs rd)) _)
+			((opt-trashes? rs e) -1)
 			((k rd e) -1))) (list *emit-buffer*)))
 	(and _ (ne _ -1) _))
 
@@ -183,7 +182,7 @@
 						(elem-set w *emit-buffer* (lambda)))))
 			;redundant copies
 			((eql o 'emit-cpy-rr)
-				(when (opt-emit-find-rr opt-emit-trashes-with-calls? _ (elem 2 e) (elem 1 e) 'emit-cpy-rr)
+				(when (opt-emit-find-rr opt-emit-trashes-with-calls? _ (elem 2 e) (elem 1 e))
 					(elem-set _ *emit-buffer* (lambda))))
 			;compare constant forwarding
 			((and (eql o 'emit-cpy-cr) (le -0x80000000 (eval (elem 1 e)) 0x7fffffff))
