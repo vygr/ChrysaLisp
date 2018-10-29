@@ -196,16 +196,16 @@
 	;_2 = member name
 	;_3 = input paramater index, nil for entire list
 	(if _3
-		(elem _3 (elem 3 (method-lookup _1 _2)))
-		(elem 3 (method-lookup _1 _2))))
+		(elem _3 (elem 2 (method-lookup _1 _2)))
+		(elem 2 (method-lookup _1 _2))))
 
 (defcfun method-output (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = output paramater index, nil for entire list
 	(if _3
-		(elem _3 (elem 2 (method-lookup _1 _2)))
-		(elem 2 (method-lookup _1 _2))))
+		(elem _3 (elem 3 (method-lookup _1 _2)))
+		(elem 3 (method-lookup _1 _2))))
 
 (defcfun f-path (_1 _2)
 	;_1 = class name
