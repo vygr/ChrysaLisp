@@ -22,7 +22,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'vector 'get_first {args} {_, list1})
 	(call 'vector 'get_second {args} {_, list2})

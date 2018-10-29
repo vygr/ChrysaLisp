@@ -19,7 +19,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {value, $sig, 1})
-	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'vector 'get_first {value} {_, value})
 	(call 'sys_pii 'age {&value->string_data} {age})

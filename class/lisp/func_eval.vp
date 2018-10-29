@@ -25,7 +25,7 @@
 		(call 'vector 'get_second {args} {_, env})
 	(errorcases
 		(call 'obj 'inst_of (cat {env, @} (f-path 'hash_map 'vtable)))
-		(errorif (list (method-return 'obj 'inst_of 1) '== 0) 'error2))
+		(errorif (list (method-output 'obj 'inst_of 1) '== 0) 'error2))
 		(assign {this->lisp_environment} {old})
 		(assign {env} {this->lisp_environment})
 		(call 'vector 'get_first {args} {_, args})

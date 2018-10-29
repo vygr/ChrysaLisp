@@ -26,7 +26,7 @@
 	(vpif {iter})
 		(call 'pair 'get_second {*iter} {_, file})
 		(call 'obj 'inst_of (cat {file, @} (f-path 'string 'vtable)))
-		(gotoif (list (method-return 'obj 'inst_of 1) '== 0) 'nofile)
+		(gotoif (list (method-output 'obj 'inst_of 1) '== 0) 'nofile)
 		(assign {&file->string_data} {file})
 	(else)
 	(vp-label 'nofile)

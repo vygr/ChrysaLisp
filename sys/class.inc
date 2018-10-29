@@ -191,11 +191,21 @@
 	(unless _ (throw "No such method !" (list _1 _2)))
 	(elem _ (elem 1 c)))
 
-(defcfun method-return (_1 _2 _3)
+(defcfun method-input (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
-	;_3 = return paramater index
-	(elem _3 (elem 3 (method-lookup _1 _2))))
+	;_3 = input paramater index, nil for entire list
+	(if _3
+		(elem _3 (elem 3 (method-lookup _1 _2)))
+		(elem 3 (method-lookup _1 _2))))
+
+(defcfun method-output (_1 _2 &optional _3)
+	;_1 = class name
+	;_2 = member name
+	;_3 = output paramater index, nil for entire list
+	(if _3
+		(elem _3 (elem 2 (method-lookup _1 _2)))
+		(elem 2 (method-lookup _1 _2))))
 
 (defcfun f-path (_1 _2)
 	;_1 = class name

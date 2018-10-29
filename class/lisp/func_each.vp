@@ -38,7 +38,7 @@
 	(loop-while {iter != iter_end})
 		(assign {*iter} {value})
 		(call 'obj 'inst_of (cat {value, @} (f-path 'sequence 'vtable)))
-		(errorif (list (method-return 'obj 'inst_of 1) '== 0) 'error3)
+		(errorif (list (method-output 'obj 'inst_of 1) '== 0) 'error3)
 		(call 'sequence 'get_length {value} {_, seq_length})
 		(vpif {seq_length < length})
 			(assign {seq_length} {length})

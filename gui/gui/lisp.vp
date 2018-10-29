@@ -19,7 +19,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'gui 'add {arg0})

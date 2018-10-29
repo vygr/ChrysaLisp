@@ -20,7 +20,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 1})
-	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'create {arg0} {value})
@@ -55,7 +55,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'connect_layout {arg0, arg1})
@@ -91,7 +91,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'connect_close {arg0, arg1})
@@ -127,7 +127,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'connect_min {arg0, arg1})
@@ -163,7 +163,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'connect_max {arg0, arg1})
@@ -199,7 +199,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'set_status {arg0, &arg1->string_data})
@@ -235,7 +235,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type {args, $sig, 2})
-	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error1))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
 	(call 'lisp 'env_args_set {args, &arg0, 0})
 	(call 'window 'set_title {arg0, &arg1->string_data})

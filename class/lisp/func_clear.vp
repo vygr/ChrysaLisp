@@ -17,7 +17,7 @@
 
 (errorcases
 	(call 'lisp 'env_args_type (cat {args, @} (f-path 'array 'vtable) {, -1}))
-	(errorif (list (method-return 'lisp 'env_args_type 0) '== 0) 'error))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error))
 
 	(call 'vector 'get_iters {args} {_, iter_begin, iter_end})
 	(loop-start)
