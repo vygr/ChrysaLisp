@@ -10,28 +10,21 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-(errorcases
-	(uint 'length))
+	(vp-def (this args value) '(r6 r7))
 
-	(push-scope)
-	(entry 'backdrop 'lisp_create {this, args})
+	(entry 'backdrop 'lisp_create (list this args))
 
 (errorcases
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length} 'error1))
+	(d-call 'vector 'get_length (list args))
+	(errorif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
 
-	(call 'backdrop 'create nil {value})
+	(call 'backdrop 'create nil (list value))
 
-(vp-label 'funcexit)
-	(exit 'backdrop 'lisp_create {this, value})
-	(return)
+	(exit 'backdrop 'lisp_create (list this value))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(create-backdrop)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(jump 'lisp 'repl_error (list this "(create-backdrop)" error_msg_wrong_types args)))
 
 (def-func-end)

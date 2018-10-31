@@ -48,31 +48,23 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0)
-(errorcases
-	(uint 'length))
+	(vp-def (this args value) '(r6 r7))
 
-	(push-scope)
-	(entry 'sys_task 'lisp_mailbox {this, args})
+	(entry 'sys_task 'lisp_mailbox (list this args))
 
 (errorcases
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length} 'error1))
+	(d-call 'vector 'get_length (list args))
+	(errorif (list (method-output 'vector 'get_length 1) '!= 0) 'error1))
 
-	(call 'sys_task 'mailbox nil {arg0})
-	(call 'integer 'create {arg0} {value})
+	(call 'sys_task 'mailbox nil (list value))
+	(call 'integer 'create (list value) (list value))
 
-(vp-label 'funcexit)
-	(exit 'sys_task 'lisp_mailbox {this, value})
-	(return)
+	(exit 'sys_task 'lisp_mailbox (list this value))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(task-mailbox)", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit))
-
-	(pop-scope-syms)
+	(jump 'lisp 'repl_error (list this "(task-mailbox)" error_msg_wrong_types args)))
 
 (def-func-end)
 
