@@ -2,6 +2,26 @@
 
 ![](./screen_shot_1.png)
 
+Tight deadline at work at the moment so just getting an hour here and there to
+tidy up.
+
+Happy now with the polygon and stroking APIs after playing around with the new
+analogue clock face demo. Makes a real difference the the flow of the source
+code after rearranging the parameter ordering.
+
+------
+
+Implemented a set of long vector methods on the points class. Thinking along
+the lines of numpy. Even though there not specifically for short 2D and 3D
+vectors they have helped the Raymarch demo to go lots faster as far less churn
+of objects happens.
+
+Got plans to implement a genetic algorithm trained neural network 'evolving
+bugs' demo using the long vectors as a way to shake down the API and tune
+performance.
+
+------
+
 Implementation of system services allowed me to implement a multi-thread
 debugger and single stepping logger. The Boing demo and Global tasks test now
 exercise the features. New Debug app is in apps/debug/app.lisp, note there is
