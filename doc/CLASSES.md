@@ -581,12 +581,25 @@ r0 = canvas object (ptr)
 trashes
 r1-r6
 ```
+### canvas::pick -> gui/canvas/pick
+```
+inputs
+r0 = canvas object (ptr)
+r1 = pick function (ptr)
+r7 = x (pixels)
+r8 = y (pixels)
+outputs
+r0 = canvas object (ptr)
+r1 = color (argb)
+trashes
+all but r0
+```
 ### canvas::plot -> gui/canvas/plot
 ```
 inputs
 r0 = canvas object (ptr)
 r1 = color (argb)
-r2 = span function (ptr)
+r2 = plot function (ptr)
 r7 = x (pixels)
 r8 = y (pixels)
 outputs
@@ -638,7 +651,31 @@ r0 = canvas object (ptr)
 trashes
 r1-r2
 ```
-### canvas::set_pix_noclip -> gui/canvas/set_pix_noclip
+### canvas::get_pick_noclip -> gui/canvas/get_pick_noclip
+```
+inputs
+r0 = canvas object (ptr)
+r7 = x (pixels)
+r8 = y (pixels)
+outputs
+r0 = canvas object (ptr)
+r1 = color (argb)
+trashes
+r2, r7-r8
+```
+### canvas::get_pick -> gui/canvas/get_pick
+```
+inputs
+r0 = canvas object (ptr)
+r7 = x (pixels)
+r8 = y (pixels)
+outputs
+r0 = canvas object (ptr)
+r1 = color (argb)
+trashes
+all but r0
+```
+### canvas::set_plot_noclip -> gui/canvas/set_plot_noclip
 ```
 inputs
 r0 = canvas object (ptr)
@@ -717,7 +754,7 @@ r0 = canvas object (ptr)
 trashes
 all but r0
 ```
-### canvas::blend_pix_noclip -> gui/canvas/blend_pix_noclip
+### canvas::blend_plot_noclip -> gui/canvas/blend_plot_noclip
 ```
 inputs
 r0 = canvas object (ptr)

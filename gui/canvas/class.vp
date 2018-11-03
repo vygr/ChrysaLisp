@@ -625,7 +625,33 @@
 
 (def-func-end)
 
-(def-method 'canvas 'set_pix_noclip)
+(def-method 'canvas 'get_pick_noclip)
+	;inputs
+	;r0 = canvas object (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;outputs
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
+	;trashes
+	;r2, r7-r8
+
+	(entry 'canvas 'get_pick_noclip '(r0 r7 r8))
+
+	(vp-cpy-ir-ui r0 canvas_stride r1)
+	(vp-cpy-ir r0 canvas_array r2)
+	(vp-mul-rr r1 r8)
+	(vp-cpy-ir r2 array_array r2)
+	(vp-shl-cr (log2 int_size) r7)
+	(vp-add-rr r8 r2)
+	(vp-cpy-dr-i r2 r7 r1)
+
+	(exit 'canvas 'get_pick_noclip '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'canvas 'set_plot_noclip)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)
@@ -636,7 +662,7 @@
 	;trashes
 	;r2-r3, r7-r8
 
-	(entry 'canvas 'set_pix_noclip '(r0 r1 r7 r8))
+	(entry 'canvas 'set_plot_noclip '(r0 r1 r7 r8))
 
 	(vp-cpy-ir-ui r0 canvas_stride r2)
 	(vp-cpy-ir r0 canvas_array r3)
@@ -646,7 +672,7 @@
 	(vp-add-rr r8 r3)
 	(vp-cpy-rd-i r1 r3 r7)
 
-	(exit 'canvas 'set_pix_noclip '(r0))
+	(exit 'canvas 'set_plot_noclip '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -721,7 +747,7 @@
 
 (def-func-end)
 
-(def-method 'canvas 'blend_pix_noclip)
+(def-method 'canvas 'blend_plot_noclip)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)
@@ -732,7 +758,7 @@
 	;trashes
 	;r2-r3 r4-r8
 
-	(entry 'canvas 'blend_pix_noclip '(r0 r1 r7 r8))
+	(entry 'canvas 'blend_plot_noclip '(r0 r1 r7 r8))
 
 	(vp-cpy-rr r1 r2)
 	(vp-cpy-cr 0xff r6)
@@ -763,7 +789,7 @@
 	(vp-add-rr r1 r2)
 	(vp-cpy-ri-i r2 r7 0)
 
-	(exit 'canvas 'blend_pix_noclip '(r0))
+	(exit 'canvas 'blend_plot_noclip '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -861,11 +887,45 @@
 
 (def-func-end)
 
+(def-method 'canvas 'pick)
+	;inputs
+	;r0 = canvas object (ptr)
+	;r1 = pick function (ptr)
+	;r7 = x (pixels)
+	;r8 = y (pixels)
+	;outputs
+	;r0 = canvas object (ptr)
+	;r1 = color (argb)
+	;trashes
+	;all but r0
+
+	(entry 'canvas 'pick '(r0 r9 r7 r8))
+
+	;clip check
+	(switch)
+	(vp-cpy-ir-ui r0 canvas_cx r3)
+	(vp-cpy-ir-ui r0 canvas_cy r4)
+	(vp-cpy-ir-ui r0 canvas_cx1 r5)
+	(vp-cpy-ir-ui r0 canvas_cy1 r6)
+	(breakif '(r7 < r3))
+	(breakif '(r8 < r4))
+	(breakif '(r7 >= r5))
+	(breakif '(r8 >= r6))
+		(r-call 'canvas 'get_pick '(r0 r7 r8 r9) '(r0 r1))
+		(jump 'canvas 'to_argb '(r0 r1))
+	(endswitch)
+	(vp-xor-rr r1 r1)
+
+	(exit 'canvas 'pick '(r0 r1))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'canvas 'plot)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = color (argb)
-	;r2 = span function (ptr)
+	;r2 = plot function (ptr)
 	;r7 = x (pixels)
 	;r8 = y (pixels)
 	;outputs
