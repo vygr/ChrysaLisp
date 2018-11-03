@@ -444,25 +444,7 @@ r1 = return value object (ptr)
 Super Class: view
 ### canvas::vtable -> gui/class_canvas
 ### canvas::create -> gui/canvas/create
-```
-inputs
-r0 = width (pixels)
-r1 = height (pixels)
-r2 = aa scale (uint)
-outputs
-r0 = 0 if error, else canvas object (ptr)
-trashes
-all
-```
 ### canvas::create_shared -> gui/canvas/create_shared
-```
-inputs
-r0 = source canvas object (ptr)
-outputs
-r0 = 0 if error, else canvas object (ptr)
-trashes
-all
-```
 ### canvas::new -> gui/canvas/new
 ### canvas::init -> gui/canvas/init
 ```
@@ -478,7 +460,7 @@ r1 = 0 if error, else ok
 trashes
 all
 ```
-### canvas::init1 -> gui/canvas/init1
+### canvas::init_shared -> gui/canvas/init_shared
 ```
 inputs
 r0 = canvas object (ptr)

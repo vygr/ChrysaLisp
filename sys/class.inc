@@ -446,22 +446,23 @@
 		(vtable-emit _1)
 	(def-func-end))
 
-(defcfun gen-create (_1)
+(defcfun gen-create (_1 &optional _2)
 	;_1 = class name
-	(defq m (method-lookup _1 'create) _2 (opt (elem 2 m) '())
-		_3 (slice 0 (length _2) '(r14 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
-	(def-func (f-path _1 'create))
+	;_2 = create/init name
+	(defq m (method-lookup _1 (if _2 (sym-cat "create_" _2) 'create)) _3 (opt (elem 2 m) '())
+		_4 (slice 0 (length _3) '(r14 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
+	(def-func (f-path _1 (if _2 (sym-cat "create_" _2) 'create)))
 		;inputs
 		;depends on init method
 		;outputs
 		;r0 = 0 if error, else object (ptr)
 		;trashes
 		;depends on init method
-		(assign _2 _3)
+		(assign _3 _4)
 		(call _1 'new nil '(r0))
 		(vpif '(r0 != 0))
 			;init the object
-			(call _1 'init `(r0 (@ ,(f-path _1 'vtable)) ~_3) '(r0 r1))
+			(call _1 (if _2 (sym-cat "init_" _2) 'init) `(r0 (@ ,(f-path _1 'vtable)) ~_4) '(r0 r1))
 			(vpif '(r1 == 0))
 				;error with init
 				(call _1 'delete '(r0) nil r1)

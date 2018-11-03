@@ -6,7 +6,7 @@
 (dec-method 'create_shared 'gui/canvas/create_shared 'static '(r0) '(r0))
 (dec-method 'new 'gui/canvas/new 'static nil '(r0))
 (dec-method 'init 'gui/canvas/init 'static '(r0 r1 r2 r3 r4) '(r0 r1))
-(dec-method 'init1 'gui/canvas/init1 'static '(r0 r1 r2) '(r0 r1))
+(dec-method 'init_shared 'gui/canvas/init_shared 'static '(r0 r1 r2) '(r0 r1))
 (dec-method 'swap 'gui/canvas/swap 'static '(r0) '(r0))
 (dec-method 'resize 'gui/canvas/resize 'static '(r0 r1) '(r0))
 (dec-method 'resize_2 'gui/canvas/resize_2 'static '(r0 r1) '(r0))

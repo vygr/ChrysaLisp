@@ -1,10 +1,7 @@
 (include 'sys/func.inc)
 (include 'gui/sdl2.inc)
-(include 'gui/text/class.inc)
 (include 'gui/canvas/class.inc)
-(include 'gui/flow/class.inc)
 (include 'class/vector/class.inc)
-(include 'gui/points/class.inc)
 (include 'class/symbol/class.inc)
 (include 'class/stream_str/class.inc)
 (include 'class/pair/class.inc)
@@ -12,64 +9,8 @@
 
 (gen-new 'canvas)
 (gen-class 'canvas)
-
-(def-method 'canvas 'create)
-	;inputs
-	;r0 = width (pixels)
-	;r1 = height (pixels)
-	;r2 = aa scale (uint)
-	;outputs
-	;r0 = 0 if error, else canvas object (ptr)
-	;trashes
-	;all
-
-	;save inputs
-	(entry 'canvas 'create '(r4 r5 r6))
-
-	;create new object
-	(call 'canvas 'new nil '(r0))
-	(vpif '(r0 != 0))
-		;init the object
-		(call 'canvas 'init `(r0 (@ ,(f-path 'canvas 'vtable)) r4 r5 r6) '(r0 r1))
-		(vpif '(r1 == 0))
-			;error with init
-			(call 'canvas 'delete '(r0) '() 'r1)
-			(vp-xor-rr r0 r0)
-		(endif)
-	(endif)
-
-	(exit 'canvas 'create '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'canvas 'create_shared)
-	;inputs
-	;r0 = source canvas object (ptr)
-	;outputs
-	;r0 = 0 if error, else canvas object (ptr)
-	;trashes
-	;all
-
-	;save inputs
-	(entry 'canvas 'create_shared '(r4))
-
-	;create new object
-	(call 'canvas 'new nil '(r0))
-	(vpif '(r0 != 0))
-		;init the object
-		(call 'canvas 'init1 `(r0 (@ ,(f-path 'canvas 'vtable)) r4) '(r0 r1))
-		(vpif '(r1 == 0))
-			;error with init
-			(call 'canvas 'delete '(r0) '() 'r1)
-			(vp-xor-rr r0 r0)
-		(endif)
-	(endif)
-
-	(exit 'canvas 'create_shared '(r0))
-	(vp-ret)
-
-(def-func-end)
+(gen-create 'canvas)
+(gen-create 'canvas 'shared)
 
 (def-method 'canvas 'init)
 	;inputs
@@ -123,7 +64,7 @@
 
 (def-func-end)
 
-(def-method 'canvas 'init1)
+(def-method 'canvas 'init_shared)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = vtable (pptr)
@@ -141,7 +82,7 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'canvas 'init1 {this, vtable, src})
+	(entry 'canvas 'init_shared {this, vtable, src})
 
 	;init parent
 	(s-call 'canvas 'init {this, vtable} {_, ok})
@@ -167,7 +108,7 @@
 		(call 'array 'create nil {this->canvas_edge_tracker})
 	(endif)
 
-	(exit 'canvas 'init1 {this, ok})
+	(exit 'canvas 'init_shared {this, ok})
 	(pop-scope)
 	(return)
 
@@ -899,7 +840,7 @@
 	;trashes
 	;all but r0
 
-	(entry 'canvas 'pick '(r0 r9 r7 r8))
+	(entry 'canvas 'pick '(r0 r1 r7 r8))
 
 	;clip check
 	(switch)
@@ -911,7 +852,7 @@
 	(breakif '(r8 < r4))
 	(breakif '(r7 >= r5))
 	(breakif '(r8 >= r6))
-		(r-call 'canvas 'get_pick '(r0 r7 r8 r9) '(r0 r1))
+		(r-call 'canvas 'get_pick '(r0 r7 r8 r1) '(r0 r1))
 		(jump 'canvas 'to_argb '(r0 r1))
 	(endswitch)
 	(vp-xor-rr r1 r1)
