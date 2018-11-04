@@ -378,8 +378,8 @@
 	(vpif '(r1 == 0))
 		;new key
 		(vp-cpy-ri r0 rsp local_this)
-		(call 'obj 'ref '((rsp local_key)))
-		(call 'vector 'push_back '(r2 r0))
+		(call 'obj 'ref '((rsp local_key)) '(r0))
+		(call 'vector 'push_back '(r2 r0) '(r0 _))
 		(vp-cpy-rr r0 r2)
 		(vp-cpy-ir-ui r0 array_length r1)
 		(vp-cpy-ir r0 array_array r0)
