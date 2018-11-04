@@ -568,6 +568,8 @@
 		(vp-cpy-rr r2 r1)
 		(vp-shl-cr 15 r2)
 		(vp-add-rr r2 r1)
+		(vp-cpy-cr 0xffffffff r2)
+		(vp-and-rr r2 r1)
 		(vp-cpy-ri-i r1 r0 string_hashcode)
 	(endif)
 	(vp-ret)
