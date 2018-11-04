@@ -10,22 +10,13 @@
 (def-struct 'built_in)
 	(ushort 'symbol)
 	(ushort 'field)
-	(ushort 'function)
-	(ushort 'flags)
-	(offset 'hop)
-	;built_in_size would be aligned to long !
 (def-struct-end)
 
-(defun built-in (s f &optional u g)
+(defun built-in (s f)
 	;s = symbol
 	;f = field
-	;u = function
-	;g = flags
 	(vp-short
-		(list 'sub (label-sym (string-sym (fn-add-string s))) '*pc*)
-		f
-		(if u (list 'sub (label-sym (link-sym (fn-find-link (f-path 'lisp u)))) '*pc* 4) 0)
-		(if g g func_type_args_eval)))
+		(list 'sub (label-sym (string-sym (fn-add-string s))) '*pc*) f))
 
 (def-method 'lisp 'init)
 	;inputs
@@ -42,7 +33,7 @@
 
 	(ptr 'this)
 	(union
-		'(ptr 'vtable 'stdin 'stdout 'stderr 'symbol 'table 'func)
+		'(ptr 'vtable 'stdin 'stdout 'stderr 'func)
 		'(ptr 'repl_args 'value 'file 'stream))
 	(ulong 'ok)
 
@@ -69,26 +60,10 @@
 			(assign {-1} {ptr($boot_env)})
 
 			;intern standard built in symbols
-			;fixup built in functions
 			(call 'hash_map 'create {0, 101} {this->lisp_environment})
-			(assign {$built_ins} {table})
-			(loop-while {table->built_in_symbol})
-				(call 'symbol 'intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
-				(vpif {table->built_in_field})
-					(assign {symbol} {ptr(this + table->built_in_field)})
-				(endif)
-				(vpif {table->built_in_function})
-					(call 'function 'create {ptr(&table->built_in_function + table->built_in_function)
-						| table->built_in_flags} {func})
-					(call 'hash_map 'insert {this->lisp_environment, symbol, func})
-					(call 'obj 'deref {func})
-				(endif)
-				(call 'obj 'deref {symbol})
-				(assign {table + built_in_hop} {table})
-			(loop-end)
 
-			;local define *stream-name* and *stream-line*
-			(call 'create_line_info {this})
+			;local defines and symbols
+			(call 'create_env_info {this})
 
 			;run any boot.inc
 			(call 'string 'create_from_file {"class/lisp/boot.inc"} {file})
@@ -127,19 +102,8 @@
 			(call 'hash_map 'create {this->lisp_environment->hash_set_key_callback, 101} {func})
 			(call 'hash_map 'set_parent {func, this->lisp_environment} {this->lisp_environment})
 
-			;look up standard built in symbols
-			(assign {$built_ins} {table})
-			(loop-while {table->built_in_symbol})
-				(call 'symbol 'intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
-				(vpif {table->built_in_field})
-					(assign {symbol} {ptr(this + table->built_in_field)})
-				(endif)
-				(call 'obj 'deref {symbol})
-				(assign {table + built_in_hop} {table})
-			(loop-end)
-
-			;local define *stream-name* and *stream-line*
-			(call 'create_line_info {this})
+			;local defines and symbols
+			(call 'create_env_info {this})
 		(endif)
 	(endif)
 
@@ -147,13 +111,21 @@
 	(pop-scope)
 	(return)
 
-(vp-label 'create_line_info)
-	(ptr 'this 'symbol)
+(vp-label 'create_env_info)
+	(ptr 'this 'symbol 'table)
 
 	(push-scope)
 	(entry {this})
 
-	;define *stream-name* and *stream-line*
+	;look up standard built in symbols
+	(assign {$built_ins} {table})
+	(loop-while {table->built_in_symbol})
+		(call 'symbol 'intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
+		(assign {symbol} {ptr(this + table->built_in_field)})
+		(assign {table + built_in_size} {table})
+	(loop-end)
+
+	;defines
 	(call 'string 'create_from_cstr {"ChrysaLisp"} {symbol})
 	(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
 	(call 'obj 'deref {symbol})
@@ -162,6 +134,9 @@
 	(call 'obj 'deref {symbol})
 	(call 'vector 'create nil {symbol})
 	(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_file_includes, symbol})
+	(call 'obj 'deref {symbol})
+	(call 'function 'create (cat {@} (f-path 'lisp 'func_ffi) {+ func_type_args_raw}) {symbol})
+	(call 'hash_map 'insert {this->lisp_environment, this->lisp_sym_ffi, symbol})
 	(call 'obj 'deref {symbol})
 
 	(pop-scope)
@@ -197,7 +172,7 @@
 	(built-in "*stream-name*" lisp_sym_stream_name)
 	(built-in "*stream-line*" lisp_sym_stream_line)
 	(built-in "*file-includes*" lisp_sym_file_includes)
-	(built-in "ffi" 0 'func_ffi func_type_args_raw)
+	(built-in "ffi" lisp_sym_ffi)
 	(vp-short 0)
 
 (def-func-end)
