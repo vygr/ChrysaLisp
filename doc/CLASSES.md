@@ -4403,6 +4403,16 @@ r2-r6
 ## symbol
 Super Class: string
 ### symbol::vtable -> class/class_symbol
+### symbol::statics -> class/symbol/statics
+```
+info
+symbol static data
+```
+### symbol::flush -> class/symbol/flush
+```
+trashes
+all
+```
 ### symbol::intern -> class/symbol/intern
 ```
 inputs
