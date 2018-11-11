@@ -16,11 +16,7 @@
 	"apps/raymarch/app.lisp"
 	"apps/calculator/app.lisp"
 	"apps/hello/app.lisp"
-	"apps/clock/app.lisp"
-	"tests/farm.lisp"
-	"tests/pipe.lisp"
-	"tests/global.lisp"
-	"tests/migrate.lisp"))
+	"apps/clock/app.lisp"))
 
 (ui-tree window (create-window 0) nil
 	(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw) 'color argb_yellow)
