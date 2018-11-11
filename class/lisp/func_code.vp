@@ -11,42 +11,55 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'args 'value)
-	(ulong 'arg0 'arg1 'arg2)
-(errorcases
-	(uint 'length))
+	(vp-def (this args len value iter_begin width index) '(r6 r7 r8))
 
-	(push-scope)
-	(entry 'lisp 'func_code {this, args})
+	(entry 'lisp 'func_code (list this args))
+
+	(vp-cpy-ir-ui args array_length len)
 
 (errorcases
-	(d-call 'vector 'get_length {args} {_, length})
-	(errorif {length < 1 || length > 3} 'error1)
-	(call 'lisp 'env_args_type {args, $sig, length})
-	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error2))
+	(errorif (list len '< 1) 'error1)
+	(errorif (list len '> 3) 'error1)
+	(call 'lisp 'env_args_type (list args '($ sig) len))
+	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
-	(assign {1, 0, 0} {arg1, arg2, value})
-	(call 'lisp 'env_args_set {args, &arg0, 0})
-	(errorif {arg1 + arg2 > arg0->string_length} 'error3)
-	(call 'sys_mem 'copy {&arg0->string_data + arg2, &value, ((arg1 - 1) & 7) + 1})
-	(call 'integer 'create {value} {value})
+	(vp-cpy-ir args array_array iter_begin)
+	(vp-cpy-cr 1 width)
+	(vp-xor-rr index index)
+	(vp-cpy-ir iter_begin 0 value)
+	(vpif (list len '> 1))
+		(vp-cpy-ir iter_begin ptr_size width)
+		(vp-cpy-ir width integer_value width)
+		(vp-sub-cr 1 width)
+		(vp-and-cr (dec long_size) width)
+		(vp-add-cr 1 width)
+	(endif)
+	(vpif (list len '> 2))
+		(vp-cpy-ir iter_begin (mul 2 ptr_size) index)
+		(vp-cpy-ir index integer_value index)
+		(errorif (list index '< 0) 'error1)
+	(endif)
 
-(vp-label 'funcexit)
-	(exit 'lisp 'func_code {this, value})
-	(return)
+(errorcases
+	(vp-cpy-ir-ui value string_length len)
+	(vp-sub-rr width len)
+	(vp-sub-rr index len)
+	(errorif (list len '< 0) 'error1))
+
+	(vp-add-cr string_data value)
+	(vp-xor-rr len len)
+	(vp-add-rr index value)
+	(vp-push len)
+	(call 'sys_mem 'copy (list value rsp width))
+	(vp-pop value)
+	(call 'integer 'create (list value) (list value))
+
+	(exit 'lisp 'func_code (list this value))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(code str [width index])", error_msg_wrong_num_of_args, args} {_, value})
-	(goto 'funcexit)
-(vp-label 'error2)
-	(call 'lisp 'repl_error {this, "(code str [width index])", error_msg_wrong_types, args} {_, value})
-	(goto 'funcexit)
-(vp-label 'error3)
-	(call 'lisp 'repl_error {this, "(code str [width index])", error_msg_not_valid_index, args} {_, value})
-	(goto 'funcexit)
+	(jump 'lisp 'repl_error (list this "(code str [width index])" error_msg_wrong_types args))
 	(signature 'sig 'string 'integer 'integer))
-
-	(pop-scope-syms)
 
 (def-func-end)
