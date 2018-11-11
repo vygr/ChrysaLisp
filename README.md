@@ -2,6 +2,7 @@
 
 ![](./screen_shot_1.png)
 ![](./screen_shot_2.png)
+![](./screen_shot_3.png)
 
 Assembler/C-Script/Lisp 64 bit OS. MIMD, multi CPU, multi threaded, multi core,
 multi user.
