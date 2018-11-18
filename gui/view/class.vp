@@ -55,14 +55,12 @@
 	(loop-end)
 
 	;free view object data
-	(vp-cpy-ir rsp 0 r0)
-	(vp-lea-i r0 view_dirty_region r1)
 	(f-bind 'gui 'statics r0)
 	(vp-add-cr gui_statics_rect_heap r0)
-	(call 'region 'free '(r0 r1))
 	(vp-cpy-ir rsp 0 r1)
-	(vp-add-cr view_opaque_region r1)
-	(call 'region 'free '(r0 r1))
+	(call 'region 'free '(r0 (& r1 view_dirty_region)))
+	(vp-cpy-ir rsp 0 r1)
+	(call 'region 'free '(r0 (& r1 view_opaque_region)))
 
 	;deinit parent
 	(vp-pop r0)
