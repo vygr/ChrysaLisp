@@ -20,7 +20,6 @@
 	"apps/clock/app.lisp"))
 
 (defq auto_app_list '(
-	"apps/terminal/app"
 	"apps/clock/app.lisp"))
 
 ;auto start
