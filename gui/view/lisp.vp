@@ -206,7 +206,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-add-child view view)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(view-add-child parent child)", error_msg_wrong_types, args} {_, value})
 	(goto 'funcexit)
 	(signature 'sig 'view 'view))
 
@@ -243,7 +243,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-add-front view view)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(view-add-front parent child)", error_msg_wrong_types, args} {_, value})
 	(goto 'funcexit)
 	(signature 'sig 'view 'view))
 
@@ -280,7 +280,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(call 'lisp 'repl_error {this, "(view-add-back view view)", error_msg_wrong_types, args} {_, value})
+	(call 'lisp 'repl_error {this, "(view-add-back parent child)", error_msg_wrong_types, args} {_, value})
 	(goto 'funcexit)
 	(signature 'sig 'view 'view))
 
