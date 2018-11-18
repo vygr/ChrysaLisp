@@ -39,7 +39,7 @@
 	(bind '(w h) (view-pref-size index))
 	(def vslider 'maximum 0 'portion 0 'value 0)
 	(def index_view 'min_width w)
-	(view-add-child index_view (view-change index 0 0 w h))
+	(view-change index 0 0 w h)
 	(view-dirty-all (view-layout window)))
 
 (defun win-layout ()
