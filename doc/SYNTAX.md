@@ -456,13 +456,13 @@
 ## vdu-print
 ### (vdu-print vdu str)
 ## view-add-back
-### (view-add-back view view)
+### (view-add-back parent child)
 ## view-add-child
-### (view-add-child view view)
+### (view-add-child parent child)
 ## view-add-dirty
 ### (view-add-dirty view x y w h)
 ## view-add-front
-### (view-add-front view view)
+### (view-add-front parent child)
 ## view-add-opaque
 ### (view-add-opaque view x y w h)
 ## view-change
