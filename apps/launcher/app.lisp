@@ -19,6 +19,14 @@
 	"apps/hello/app.lisp"
 	"apps/clock/app.lisp"))
 
+(defq auto_app_list '(
+	"apps/terminal/app"
+	"apps/clock/app.lisp"))
+
+;auto start
+(each (lambda (_)
+	(open-child _ kn_call_open)) auto_app_list)
+
 (ui-tree window (create-window 0) nil
 	(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw) 'color argb_yellow)
 		(each (lambda (path)
