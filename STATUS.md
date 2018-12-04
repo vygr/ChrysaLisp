@@ -2,8 +2,10 @@
 
 ![](./screen_shot_1.png)
 
-Tight deadline at work at the moment so just getting an hour here and there to
-tidy up.
+I have a torn retina ! Not sure how this happened, but just had laser treament
+to weld things down. So not a lot of screen time at the moment !
+
+------
 
 Happy now with the polygon and stroking APIs after playing around with the new
 analogue clock face demo. Makes a real difference the the flow of the source
