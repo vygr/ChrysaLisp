@@ -1,0 +1,203 @@
+(include 'sys/func.inc)
+(include 'gui/scroll/class.inc)
+(include 'gui/slider/class.inc)
+
+(gen-new 'scroll)
+(gen-create 'scroll)
+(gen-class 'scroll)
+
+(def-method 'scroll 'init)
+	;inputs
+	;r0 = scroll object (ptr)
+	;r1 = vtable (pptr)
+	;r2 = options flags (ulong)
+	;outputs
+	;r0 = scroll object (ptr)
+	;r1 = 0 if error, else ok
+	;trashes
+	;all but r0-r1
+
+	(ptr 'this)
+	(ulong 'flags)
+	(union
+		'(ptr 'vtable)
+		'(ulong 'ok))
+
+	(push-scope)
+	(entry 'scroll 'init {this, vtable, flags})
+
+	;init parent
+	(s-call 'scroll 'init {this, vtable} {_, ok})
+	(vpif {ok})
+		;init myself
+		(assign {0} {this->scroll_child})
+		(assign {0} {this->scroll_vslider})
+		(assign {0} {this->scroll_hslider})
+
+		(vpif {flags & scroll_flag_vertical})
+			(call 'slider 'create nil {this->scroll_vslider})
+			(call 'slider 'set_long_prop {this->scroll_vslider, prop_maximum, 0})
+			(call 'slider 'set_long_prop {this->scroll_vslider, prop_portion, 0})
+			(call 'slider 'set_long_prop {this->scroll_vslider, prop_value, 0})
+			(call 'slider 'connect_value {this->scroll_vslider, this->component_id})
+			(call 'scroll 'add_front {this, this->scroll_vslider})
+		(endif)
+
+		(vpif {flags & scroll_flag_horizontal})
+			(call 'slider 'create nil {this->scroll_hslider})
+			(call 'slider 'set_long_prop {this->scroll_hslider, prop_maximum, 0})
+			(call 'slider 'set_long_prop {this->scroll_hslider, prop_portion, 0})
+			(call 'slider 'set_long_prop {this->scroll_hslider, prop_value, 0})
+			(call 'slider 'connect_value {this->scroll_hslider, this->component_id})
+			(call 'scroll 'add_front {this, this->scroll_hslider})
+		(endif)
+	(endif)
+
+	(exit 'scroll 'init {this, ok})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'scroll 'add_child)
+	;inputs
+	;r0 = scroll object (ptr)
+	;r1 = child view object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'child)
+
+	(push-scope)
+	(entry 'scroll 'add_child {this, child})
+
+	(vpif {this->scroll_child})
+		(call 'view 'sub {this->scroll_child})
+		(call 'view 'deref {this->scroll_child})
+	(endif)
+	(call 'view 'add_back {this, child})
+	(assign {child} {this->scroll_child})
+
+	;deinit parent
+	(exit 'scroll 'add_child {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'scroll 'layout)
+	;inputs
+	;r0 = scroll object (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(int 'w 'h 'cw 'ch 'sw 'sh)
+	(long 'hval 'vval 'mo)
+
+	(push-scope)
+	(entry 'scroll 'layout {this})
+
+	;position any sliders
+	(call 'scroll 'get_bounds {this} {_, _, _, w, h})
+	(assign {0, 0} {sw, sh})
+	(vpif {this->scroll_vslider})
+		(call 'slider 'pref_size {this->scroll_vslider} {_, sw, _})
+		(call 'slider 'change {this->scroll_vslider, w - sw, 0, sw, h})
+	(endif)
+	(vpif {this->scroll_hslider})
+		(call 'slider 'pref_size {this->scroll_hslider} {_, sh, _})
+		(call 'slider 'change {this->scroll_hslider, 0, h - sh, w - sw, sh})
+	(endif)
+
+	;position any child
+	(vpif {this->scroll_child})
+		(call 'scroll 'get_bounds {this->scroll_child} {_, _, _, cw, ch})
+		(assign {0, 0} {vval, hval})
+		(vpif {this->scroll_vslider})
+			(call 'slider 'get_long_prop {this->scroll_vslider, prop_value} {_, vval})
+			(assign {ch - (h - sh)} {mo})
+			(vpif {mo < 0})
+				(assign {0} {mo})
+			(endif)
+			(call 'slider 'set_long_prop {this->scroll_vslider, prop_maximum, mo})
+			(call 'slider 'set_long_prop {this->scroll_vslider, prop_portion, ch - sh})
+			(vpif {mo < vval})
+				(assign {mo} {vval})
+			(endif)
+			(call 'slider 'set_long_prop {this->scroll_vslider, prop_value, vval})
+		(endif)
+		(vpif {this->scroll_hslider})
+			(call 'slider 'get_long_prop {this->scroll_hslider, prop_value} {_, hval})
+			(assign {cw - (w - sw)} {mo})
+			(vpif {mo < 0})
+				(assign {0} {mo})
+			(endif)
+			(call 'slider 'set_long_prop {this->scroll_hslider, prop_maximum, mo})
+			(call 'slider 'set_long_prop {this->scroll_hslider, prop_portion, cw - sw})
+			(vpif {mo < hval})
+				(assign {mo} {hval})
+			(endif)
+			(call 'slider 'set_long_prop {this->scroll_hslider, prop_value, hval})
+		(endif)
+		(call 'view 'set_bounds {this->scroll_child, -hval, -vval, cw, ch})
+	(endif)
+
+	(exit 'scroll 'layout {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'scroll 'pref_size)
+	;inputs
+	;r0 = scroll object (ptr)
+	;outputs
+	;r0 = scroll object (ptr)
+	;r9 = preferred width (pixels)
+	;r10 = preferred height (pixels)
+	;trashes
+	;all but r0
+
+	(ptr 'this)
+	(uint 'w 'h 'sw)
+
+	(push-scope)
+	(entry 'scroll 'pref_size {this})
+
+	(s-call 'scroll 'pref_size {this} {_, w, h})
+	(vpif {this->scroll_vslider})
+		(call 'slider 'pref_size {this->scroll_vslider} {_, sw, _})
+		(assign {w + sw} {w})
+	(endif)
+	(vpif {this->scroll_hslider})
+		(call 'slider 'pref_size {this->scroll_hslider} {_, sw, _})
+		(assign {h + sw} {h})
+	(endif)
+
+	(exit 'scroll 'pref_size {this, w, h})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'scroll 'action)
+	;inputs
+	;r0 = scroll object (ptr)
+	;r1 = event data (ptr)
+	;trashes
+	;all but r0
+
+	(ptr 'this 'data)
+
+	(push-scope)
+	(entry 'scroll 'event {this, data})
+
+	(call 'scroll 'layout {this})
+	(call 'scroll 'dirty_all {this})
+
+	(exit 'scroll 'event {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)

@@ -414,6 +414,9 @@
 			(else)
 				(call 'view 'key_up '(r0 r1))
 			(endif)
+			(break)
+		(case '(r2 == ev_type_action))
+			(call 'view 'action '(r0 r1))
 		(endswitch)
 	(endif)
 

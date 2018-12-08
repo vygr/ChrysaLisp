@@ -3796,6 +3796,66 @@ r8 = y translation (pixels)
 trashes
 r1-r14
 ```
+## scroll
+Super Class: view
+### scroll::vtable -> gui/class_scroll
+### scroll::new -> gui/scroll/new
+### scroll::create -> gui/scroll/create
+### scroll::init -> gui/scroll/init
+```
+inputs
+r0 = scroll object (ptr)
+r1 = vtable (pptr)
+r2 = options flags (ulong)
+outputs
+r0 = scroll object (ptr)
+r1 = 0 if error, else ok
+trashes
+all but r0-r1
+```
+### scroll::add_child -> gui/scroll/add_child
+```
+inputs
+r0 = scroll object (ptr)
+r1 = child view object (ptr)
+trashes
+all but r0
+```
+### scroll::layout -> gui/scroll/layout
+```
+inputs
+r0 = scroll object (ptr)
+trashes
+all but r0
+```
+### scroll::pref_size -> gui/scroll/pref_size
+```
+inputs
+r0 = scroll object (ptr)
+outputs
+r0 = scroll object (ptr)
+r9 = preferred width (pixels)
+r10 = preferred height (pixels)
+trashes
+all but r0
+```
+### scroll::action -> gui/scroll/action
+```
+inputs
+r0 = scroll object (ptr)
+r1 = event data (ptr)
+trashes
+all but r0
+```
+### scroll::lisp_create -> gui/scroll/lisp_create
+```
+inputs
+r0 = lisp object (ptr)
+r1 = args vector object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+```
 ## sdl
 Super Class: null
 ### sdl::sdl_set_main_ready -> nil
@@ -6156,6 +6216,7 @@ all but r0
 ### view::mouse_hover -> class/obj/null
 ### view::key_down -> class/obj/null
 ### view::key_up -> class/obj/null
+### view::action -> class/obj/null
 ## window
 Super Class: view
 ### window::vtable -> gui/class_window

@@ -95,6 +95,8 @@
 ### (create-label)
 ## create-progress
 ### (create-progress)
+## create-scroll
+### (create-scroll flags)
 ## create-slave
 ### (create-slave)
 ## create-slider

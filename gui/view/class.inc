@@ -62,6 +62,7 @@
 (dec-method 'mouse_hover 'class/obj/null 'virtual '(r0 r1) '(r0))
 (dec-method 'key_down 'class/obj/null 'virtual '(r0 r1) '(r0))
 (dec-method 'key_up 'class/obj/null 'virtual '(r0 r1) '(r0))
+(dec-method 'action 'class/obj/null 'virtual '(r0 r1) '(r0))
 
 (def-bit 'view_flag)
 	(bit 'solid)
