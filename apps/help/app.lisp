@@ -43,8 +43,7 @@
 
 (populate-help)
 (bind '(w h) (view-pref-size index))
-(view-change index 0 0 w h)
-(def index_scroll 'min_width w)
+(view-change index 0 0 (def index_scroll 'min_width w) h)
 (window-set-title window "Help")
 (window-connect-close window event_win_close)
 (bind '(w h) (view-pref-size window))

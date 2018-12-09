@@ -13,7 +13,7 @@
 	apps/images/logo.cpm apps/images/mice.cpm apps/images/molecule.cpm
 	apps/images/nippon3.cpm apps/images/piramid.cpm apps/images/rings.cpm
 	apps/images/sharpend.cpm apps/images/stairs.cpm apps/images/temple.cpm
-	apps/images/vermin.cpm) index 0 image nil id t)
+	apps/images/vermin.cpm) index 0 id t)
 
 (ui-tree window (create-window window_flag_close) nil
 	(ui-element _ (create-flow) ('flow_flags (bit-or flow_flag_down flow_flag_fillw flow_flag_lasth)
@@ -26,9 +26,9 @@
 			('min_width 256 'min_height 256))))
 
 (defun win-refresh (_)
-	(bind '(w h) (view-pref-size (setq index _ image (canvas-load (elem index images) 0))))
+	(bind '(w h) (view-pref-size (defq image (canvas-load (elem (setq index _) images) 0))))
 	(view-layout (view-add-child image_scroll (view-set-bounds image 0 0 w h)))
-	(view-dirty-all (view-layout (window-set-title window (elem index images)))))
+	(view-dirty-all (view-layout (window-set-title window (elem _ images)))))
 
 (window-connect-close window event_win_close)
 (bind '(w h) (view-pref-size (win-refresh index)))
