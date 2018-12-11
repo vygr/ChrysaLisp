@@ -26,8 +26,7 @@
 			('min_width 256 'min_height 256))))
 
 (defun win-refresh (_)
-	(bind '(w h) (view-pref-size (defq image (canvas-load (elem (setq index _) images) 0))))
-	(view-layout (view-add-child image_scroll (view-set-bounds image 0 0 w h)))
+	(view-layout (view-add-child image_scroll (canvas-load (elem (setq index _) images) 0)))
 	(view-dirty-all (view-layout (window-set-title window (elem _ images)))))
 
 (window-connect-close window event_win_close)

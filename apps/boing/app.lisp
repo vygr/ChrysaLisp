@@ -9,7 +9,7 @@
 	(byte 'win_min)
 	(byte 'win_max))
 
-(defq id t index 0 frames (map (lambda (_)
+(defq id t index 0 xv 4 yv 0 frames (map (lambda (_)
 	(canvas-load (cat "apps/boing/taoball_" (str _) ".cpm") load_flag_shared)) (range 1 12)))
 
 (ui-tree window (create-window (add window_flag_close window_flag_min window_flag_max)) nil
@@ -22,10 +22,6 @@
 (window-connect-max window event_win_max)
 (bind '(w h) (view-pref-size window))
 (gui-add (view-change window 64 64 w h))
-
-(bind '(w h) (view-pref-size frame))
-(view-set-bounds frame 0 0 w h)
-(defq xv 4 yv 0)
 
 (while id
 	(bind '(_ _ backdrop_width backdrop_height) (view-get-bounds backdrop))

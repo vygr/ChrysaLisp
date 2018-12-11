@@ -47,13 +47,15 @@
 		(assign {this->canvas_aa_scale * this->canvas_height} {this->canvas_height})
 		(assign {this->canvas_width} {this->canvas_cx1})
 		(assign {this->canvas_height} {this->canvas_cy1})
+		(assign {this->canvas_width} {this->view_w})
+		(assign {this->canvas_height} {this->view_h})
 		(assign {this->canvas_width * int_size} {this->canvas_stride})
 
 		;alloc pixel array
 		(call 'array 'create nil {this->canvas_array})
 		(call 'array 'set_capacity {this->canvas_array, (this->canvas_stride * this->canvas_height) >> 3})
 
-		;edge arrays, sort interval stack
+		;edge arrays
 		(call 'array 'create nil {this->canvas_edges})
 		(call 'array 'create nil {this->canvas_edge_tracker})
 	(endif)
@@ -98,12 +100,14 @@
 		(assign {src->canvas_height} {this->canvas_height})
 		(assign {src->canvas_width} {this->canvas_cx1})
 		(assign {src->canvas_height} {this->canvas_cy1})
+		(assign {src->canvas_width} {this->view_w})
+		(assign {src->canvas_height} {this->view_h})
 		(assign {src->canvas_stride} {this->canvas_stride})
 
 		;ref src pixel array
 		(call 'obj 'ref {src->canvas_array} {this->canvas_array})
 
-		;edge arrays, sort interval stack
+		;edge arrays
 		(call 'array 'create nil {this->canvas_edges})
 		(call 'array 'create nil {this->canvas_edge_tracker})
 	(endif)
@@ -143,7 +147,7 @@
 	(vp-and-cr -16 rsp)
 	(entry '((rsp local_this) (rsp local_old_stack)))
 
-	;free edge trackers, sort intervals
+	;free edge trackers
 	(vp-cpy-ir rsp local_this r0)
 	(call 'array 'deref '((r0 canvas_edges)))
 	(vp-cpy-ir rsp local_this r0)
