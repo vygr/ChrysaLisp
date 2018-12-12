@@ -47,9 +47,8 @@
 		(assign {this->canvas_aa_scale * this->canvas_height} {this->canvas_height})
 		(assign {this->canvas_width} {this->canvas_cx1})
 		(assign {this->canvas_height} {this->canvas_cy1})
-		(assign {this->canvas_width} {this->view_w})
-		(assign {this->canvas_height} {this->view_h})
 		(assign {this->canvas_width * int_size} {this->canvas_stride})
+		(call 'canvas 'pref_size {this} {_, this->view_w, this->view_h})
 
 		;alloc pixel array
 		(call 'array 'create nil {this->canvas_array})
@@ -100,9 +99,8 @@
 		(assign {src->canvas_height} {this->canvas_height})
 		(assign {src->canvas_width} {this->canvas_cx1})
 		(assign {src->canvas_height} {this->canvas_cy1})
-		(assign {src->canvas_width} {this->view_w})
-		(assign {src->canvas_height} {this->view_h})
 		(assign {src->canvas_stride} {this->canvas_stride})
+		(call 'canvas 'pref_size {this} {_, this->view_w, this->view_h})
 
 		;ref src pixel array
 		(call 'obj 'ref {src->canvas_array} {this->canvas_array})
