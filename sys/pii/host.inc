@@ -1,6 +1,6 @@
-(include 'gui/gui/class.inc)
+(include 'sys/pii/class.inc)
 
-(def-class 'sdl)
+(def-class 'host)
 (dec-method 'sdl_set_main_ready nil 'virtual (abi-args 0) '(r0))
 (dec-method 'sdl_init nil 'virtual (abi-args 1) '(r0))
 (dec-method 'sdl_get_error nil 'virtual (abi-args 0) '(r0))
@@ -34,7 +34,7 @@
 (dec-method 'ttf_font_height nil 'virtual (abi-args 1) '(r0))
 (dec-method 'ttf_render_utf8_blended nil 'virtual (abi-args 3) '(r0))
 
-(defcfun sdl-call (_1 _2 &optional _3 _4 _5)
+(defcfun host-call (_1 _2 &optional _3 _4 _5)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
@@ -49,8 +49,8 @@
 	(assign _3 s)
 	(when (gt (defq ls (length s)) (defq la (length (abi-args))))
 		(setq x (reduce-rev (lambda (x y) (push x y)) (slice la ls s) (list))))
-	(f-bind 'gui 'statics _5)
-	(vp-cpy-ir _5 gui_statics_sdl_funcs _5)
+	(f-bind 'sys_pii 'statics _5)
+	(vp-cpy-ir _5 sys_pii_statics_host_funcs _5)
 	(vp-call-abi _5 (sub (elem 4 m) ptr_size) x)
 	(if _4 (assign (elem 3 m) _4)))
 

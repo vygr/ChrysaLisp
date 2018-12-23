@@ -6,7 +6,7 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-static void (*sdl_funcs[]) = {
+static void (*host_funcs[]) = {
 SDL_SetMainReady,
 SDL_Init,
 SDL_GetError,
@@ -50,6 +50,6 @@ int main(int argc, char *argv[])
 	read(fd, data, filestat.st_size);
 	void(*boot)(char*[], void*[]) = (void(*)(char*[], void*[]))((char*)data + data[5]);
 //	printf("image start address: 0x%llx\n", (unsigned long long)data);
-	boot(argv, sdl_funcs);
+	boot(argv, host_funcs);
 	return 0;
 }

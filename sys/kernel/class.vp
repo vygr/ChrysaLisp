@@ -4,7 +4,8 @@
 (include 'sys/kernel/class.inc)
 (include 'sys/string/class.inc)
 (include 'class/vector/class.inc)
-(include 'gui/sdl2.inc)
+(include 'sys/pii/host.inc)
+(include 'gui/gui/class.inc)
 
 ;;;;;;;;;;;;;
 ; kernel task
@@ -13,12 +14,12 @@
 (def-method 'sys_kernel 'kernel)
 	;inputs
 	;r0 = argv pointer (pptr)
-	;r1 = SDL func table (pptr)
+	;r1 = host funcs table (pptr)
 	;info
 	;loader is already initialized when we get here !
 
 	(union
-		'(ptr 'argv 'sdl)
+		'(ptr 'argv 'host_funcs)
 		'(ptr 'link 'mbox_addr))
 	(ptr 'task_statics 'mail_statics 'func 'old_stack)
 	(ptr 'msg 'data 'new_msg 'pathname)
@@ -31,7 +32,7 @@
 	(vp-cpy-rr rsp r2)
 	(push-scope)
 	(vp-and-cr -16 rsp)
-	(entry {argv, sdl, old_stack})
+	(entry {argv, host_funcs, old_stack})
 
 	;init allocator
 	(call 'sys_mem 'init)
@@ -39,8 +40,11 @@
 	;init tasks
 	(call 'sys_task 'init)
 
+	;init pii
+	(call 'sys_pii 'init {host_funcs})
+
 	;init gui
-	(call 'gui 'init {sdl})
+	(call 'gui 'init)
 
 	;init mailer mailbox vector
 	(call 'sys_mail 'init)
@@ -254,7 +258,7 @@
 		(vpif '(r0 < 1))
 			(vp-cpy-cr 1 r0)
 		(endif)
-		(sdl-call 'sdl 'sdl_delay '(r0))
+		(host-call 'host 'sdl_delay '(r0))
 	(loop-end)
 
 	;free any kernel routing table

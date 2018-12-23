@@ -4,6 +4,21 @@
 (include 'class/string/class.inc)
 (include 'sys/pii/syscall.inc)
 
+(def-method 'sys_pii 'statics)
+	(times sys_pii_statics_size (vp-byte 0))
+(def-func-end)
+
+(def-method 'sys_pii 'init)
+	;inputs
+	;r0 = host function table (pptr)
+
+	;init host function table
+	(f-bind 'sys_pii 'statics r4)
+	(vp-cpy-ri r0 r4 sys_pii_statics_host_funcs)
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'sys_pii 'exit)
 	;inputs
 	;r0 = code (long)

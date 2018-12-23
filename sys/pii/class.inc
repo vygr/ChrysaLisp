@@ -1,6 +1,8 @@
 (include 'sys/class.inc)
 
 (def-class 'sys_pii)
+(dec-method 'statics 'sys/pii/statics)
+(dec-method 'init 'sys/pii/init 'static '(r0))
 (dec-method 'exit 'sys/pii/exit 'static '(r0))
 (dec-method 'mmap 'sys/pii/mmap 'static '(r0 r1 r2 r3 r4 r5) '(r0))
 (dec-method 'munmap 'sys/pii/munmap 'static '(r0 r1) '(r0))
@@ -19,6 +21,10 @@
 (dec-method 'read_char 'sys/pii/read_char 'static '(r0) '(r0))
 (dec-method 'age 'sys/pii/age 'static '(r0) '(r0))
 (dec-method 'time 'sys/pii/time 'static nil '(r0))
+
+(def-struct 'sys_pii_statics)
+	(ptr 'host_funcs)
+(def-struct-end)
 
 ;debug helpers
 (defcfun debug-num (s n)

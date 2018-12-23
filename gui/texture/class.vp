@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'gui/texture/class.inc)
-(include 'gui/sdl2.inc)
+(include 'sys/pii/host.inc)
 
 (gen-new 'texture)
 (gen-create 'texture)
@@ -36,7 +36,7 @@
 	(vp-and-cr -16 rsp)
 	(entry '(r0 (rsp local_old_stack)))
 
-	(sdl-call 'sdl 'sdl_destroy_texture '(r0))
+	(host-call 'host 'sdl_destroy_texture '(r0))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)

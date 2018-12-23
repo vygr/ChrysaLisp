@@ -6,7 +6,8 @@
 (include 'class/vector/class.inc)
 (include 'class/hash_map/class.inc)
 (include 'class/pair/class.inc)
-(include 'gui/sdl2.inc)
+(include 'sys/pii/host.inc)
+(include 'gui/gui/class.inc)
 
 (gen-new 'font)
 (gen-create 'font)
@@ -116,12 +117,12 @@
 	(vp-and-cr -16 rsp)
 	(entry {user, old_stack})
 
-	(sdl-call 'sdl 'ttf_open_font {&user->font_name->string_data, user->font_points} {user->font_handle})
+	(host-call 'host 'ttf_open_font {&user->font_name->string_data, user->font_points} {user->font_handle})
 	(vpif {user->font_handle})
 		;fill in ascent, descent and height
-		(sdl-call 'sdl 'ttf_font_ascent {user->font_handle} {user->font_ascent})
-		(sdl-call 'sdl 'ttf_font_descent {user->font_handle} {user->font_descent})
-		(sdl-call 'sdl 'ttf_font_height {user->font_handle} {user->font_height})
+		(host-call 'host 'ttf_font_ascent {user->font_handle} {user->font_ascent})
+		(host-call 'host 'ttf_font_descent {user->font_handle} {user->font_descent})
+		(host-call 'host 'ttf_font_height {user->font_handle} {user->font_height})
 	(endif)
 
 	(assign {old_stack} '(rsp))
@@ -166,7 +167,7 @@
 	(vp-and-cr -16 rsp)
 	(entry '(r0 (rsp local_old_stack)))
 
-	(sdl-call 'sdl 'ttf_close_font '((r0 font_handle)))
+	(host-call 'host 'ttf_close_font '((r0 font_handle)))
 
 	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
@@ -236,17 +237,17 @@
 	(vp-and-cr -16 rsp)
 	(entry {user, old_stack})
 
-	(sdl-call 'sdl 'ttf_render_utf8_blended {user->local_this->font_handle, &user->local_word->string_data, 0xffffff} {surface})
+	(host-call 'host 'ttf_render_utf8_blended {user->local_this->font_handle, &user->local_word->string_data, 0xffffff} {surface})
 	(vpif {surface})
 		;create word texture
-		(sdl-call 'sdl 'sdl_create_texture_from_surface (cat {@} (f-path 'gui 'statics) {.gui_statics_renderer, surface}) {handle})
+		(host-call 'host 'sdl_create_texture_from_surface (cat {@} (f-path 'gui 'statics) {.gui_statics_renderer, surface}) {handle})
 		(vpif {handle})
 			;texture blend mode and save details
-			(sdl-call 'sdl 'sdl_set_texture_blend_mode {handle, SDL_BLENDMODE_BLEND})
+			(host-call 'host 'sdl_set_texture_blend_mode {handle, SDL_BLENDMODE_BLEND})
 			(assign {handle, surface->sdl_surface_w, surface->sdl_surface_h}
 				{user->local_txt->texture_handle, user->local_txt->texture_width, user->local_txt->texture_height})
 		(endif)
-		(sdl-call 'sdl 'sdl_free_surface {surface})
+		(host-call 'host 'sdl_free_surface {surface})
 	(endif)
 
 	(assign {old_stack} '(rsp))
