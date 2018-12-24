@@ -14,34 +14,27 @@
 (def-method 'sys_kernel 'kernel)
 	;inputs
 	;r0 = argv pointer (pptr)
-	;r1 = host funcs table (pptr)
 	;info
 	;loader is already initialized when we get here !
 
 	(union
-		'(ptr 'argv 'host_funcs)
+		'(ptr 'argv)
 		'(ptr 'link 'mbox_addr))
-	(ptr 'task_statics 'mail_statics 'func 'old_stack)
+	(ptr 'task_statics 'mail_statics 'func)
 	(ptr 'msg 'data 'new_msg 'pathname)
 	(pptr 'iter_begin 'iter_end)
 	(ulong 'service)
 	(struct 'routes 'lk_table)
 	(uint 'id 'num 'best_cnt 'best_id 'route_index 'hops 'new_hops 'length 'mbox_id)
 
-	;align stack
-	(vp-cpy-rr rsp r2)
 	(push-scope)
-	(vp-and-cr -16 rsp)
-	(entry {argv, host_funcs, old_stack})
+	(entry {argv})
 
 	;init allocator
 	(call 'sys_mem 'init)
 
 	;init tasks
 	(call 'sys_task 'init)
-
-	;init pii
-	(call 'sys_pii 'init {host_funcs})
 
 	;init gui
 	(call 'gui 'init)
@@ -267,9 +260,8 @@
 	;deinit allocator
 	(call 'sys_mem 'deinit)
 
-	;restore stack, exit back to main.c
-	(assign {old_stack} '(rsp))
-	(pop-scope-syms)
+	;exit back to main.c
+	(pop-scope)
 	(return)
 
 (vp-label 'flood)

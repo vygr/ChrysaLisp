@@ -1,15 +1,16 @@
 (include 'sys/code.inc)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; system call register saves
-; and sys-call macro
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;
+; system call info
+;;;;;;;;;;;;;;;;;;
 
 (cond
 	((eql *os* 'Darwin)
 		(defcfun sys-call (_) (vp-syscall (add _ 0x2000000)))
 		(cond
 			((eql *cpu* 'x86_64)
+				(defcmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r0 r3 r4)))
+				(defmacro abi-trashed () ''(r1 r2 r5 r6 r7 r8 r9))
 				(defmacro sys-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r6 r5 r2 r9 r7 r8)))
 				(defmacro sys-trashed () ''(r1 r2 r5 r6 r7 r8 r9 r10)))
 			(t (throw "Unknown CPU for Darwin !" *cpu*))))
@@ -17,13 +18,20 @@
 		(defcfun sys-call (_) (vp-syscall _))
 		(cond
 			((eql *cpu* 'x86_64)
+				(defcmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r0 r3 r4)))
+				(defmacro abi-trashed () ''(r1 r2 r5 r6 r7 r8 r9))
 				(defmacro sys-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r6 r5 r2 r9 r7 r8)))
 				(defmacro sys-trashed () ''(r1 r2 r5 r6 r7 r8 r9 r10)))
 			((eql *cpu* 'aarch64)
+				(defcmacro abi-args (&optional _ o) (setd _ 8 o 0) `',(slice o (add o _) '(r0 r1 r2 r3 r4 r5 r6 r7 r8)))
+				(defmacro abi-trashed () ''(r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
 				(defmacro sys-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r0 r1 r2 r3 r4 r5)))
 				(defmacro sys-trashed () ''(r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)))
 			(t (throw "Unknown CPU for Linux !" *cpu*)))))
 
+(defcmacro abi-push-trashed (&rest b) (merge-sym b (abi-trashed)) `(vp-push ~b))
+(defcmacro abi-pop-trashed (&rest b) (merge-sym b (abi-trashed)) `(vp-pop ~b))
+(defcmacro abi-arg (_) (elem _ (abi-args 6)))
 (defcmacro sys-push-trashed (&rest b) (merge-sym b (sys-trashed)) `(vp-push ~b))
 (defcmacro sys-pop-trashed (&rest b) (merge-sym b (sys-trashed)) `(vp-pop ~b))
 (defcmacro sys-arg (_) (elem _ (sys-args 6)))
@@ -61,18 +69,6 @@
 	(int 'dsttime)
 (def-struct-end)
 
-(defcfun sys-open (_1 _2)
-	;path, flags, mode
-	(assign (cat '(at_fdcwd) _1) (sys-args 4))
-	(sys-call sys_openat)
-	(assign '(r0) _2))
-
-(defcfun sys-unlink (_1 _2)
-	;name
-	(assign (cat '(at_fdcwd) _1 '(0)) (sys-args 3))
-	(sys-call sys_unlinkat)
-	(assign '(r0) _2))
-
 (defcfun sys-stat (_1 _2)
 	;path, buffer
 	(assign (cat '(at_fdcwd) _1 '(0)) (sys-args 4))
@@ -83,22 +79,6 @@
 	;return code
 	(assign _ (sys-args 1))
 	(sys-call sys_exit))
-
-(defcfun sys-read (_1 _2)
-	;fd, buffer, length
-	(assign _1 (sys-args 3))
-	(sys-call sys_read)
-	(assign '(r0) _2))
-
-(defcfun sys-read-char (_1 _2)
-	;fd
-	(assign _1 (sys-args 1))
-	(vp-xor-rr (sys-arg 1) (sys-arg 1))
-	(vp-push (sys-arg 1))
-	(assign '(rsp 1) (sys-args 2 1))
-	(sys-call sys_read)
-	(vp-pop r0)
-	(assign '(r0) _2))
 
 (defcfun sys-write (_1 _2)
 	;fd, string, length
@@ -131,22 +111,4 @@
 	;addr, len
 	(assign _1 (sys-args 2))
 	(sys-call sys_munmap)
-	(assign '(r0) _2))
-
-(defcfun sys-close (_1 _2)
-	;fd
-	(assign _1 (sys-args 1))
-	(sys-call sys_close)
-	(assign '(r0) _2))
-
-(defcfun sys-ftruncate (_1 _2)
-	;fd, offset
-	(assign _1 (sys-args 2))
-	(sys-call sys_ftruncate)
-	(assign '(r0) _2))
-
-(defcfun sys-fcntl (_1 _2)
-	;fd, cmd, arg
-	(assign _1 (sys-args 3))
-	(sys-call sys_fcntl)
 	(assign '(r0) _2))

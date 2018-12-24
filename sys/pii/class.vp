@@ -2,29 +2,14 @@
 (include 'sys/string/class.inc)
 (include 'sys/load/class.inc)
 (include 'class/string/class.inc)
-(include 'sys/pii/syscall.inc)
-
-(def-method 'sys_pii 'statics)
-	(times sys_pii_statics_size (vp-byte 0))
-(def-func-end)
-
-(def-method 'sys_pii 'init)
-	;inputs
-	;r0 = host function table (pptr)
-
-	;init host function table
-	(f-bind 'sys_pii 'statics r4)
-	(vp-cpy-ri r0 r4 sys_pii_statics_host_funcs)
-	(vp-ret)
-
-(def-func-end)
+(include 'sys/pii/host.inc)
 
 (def-method 'sys_pii 'exit)
 	;inputs
 	;r0 = code (long)
 
 	(entry 'sys_pii 'exit '(r0))
-	(sys-exit '(r0))
+	(host-call 'host 'exit '(r0))
 
 (def-func-end)
 
@@ -39,9 +24,9 @@
 	;none
 
 	(entry 'sys_pii 'open '(r0 r1 r2))
-	(sys-push-trashed r1 r2)
-	(sys-open '(r0 r1 r2) '(r0))
-	(sys-pop-trashed r1 r2)
+	(abi-push-trashed r1 r2)
+	(host-call 'host 'open '(r0 r1 r2) '(r0))
+	(abi-pop-trashed r1 r2)
 	(exit 'sys_pii 'open '(r0))
 	(vp-ret)
 
@@ -56,9 +41,9 @@
 	;none
 
 	(entry 'sys_pii 'close '(r0))
-	(sys-push-trashed)
-	(sys-close '(r0) '(r0))
-	(sys-pop-trashed)
+	(abi-push-trashed)
+	(host-call 'host 'close '(r0) '(r0))
+	(abi-pop-trashed)
 	(exit 'sys_pii 'close '(r0))
 	(vp-ret)
 
@@ -110,9 +95,11 @@
 	;none
 
 	(entry 'sys_pii 'write_char '(r0 r1))
-	(sys-push-trashed r1)
-	(sys-write-char '(r0 r1) '(r0))
-	(sys-pop-trashed r1)
+	(abi-push-trashed r1)
+	(vp-push r1)
+	(host-call 'host 'write '(r0 rsp 1) '(r0))
+	(vp-free ptr_size)
+	(abi-pop-trashed r1)
 	(exit 'sys_pii 'write_char '(r0))
 	(vp-ret)
 
@@ -129,9 +116,9 @@
 	;none
 
 	(entry 'sys_pii 'write '(r0 r1 r2))
-	(sys-push-trashed r1 r2)
-	(sys-write '(r0 r1 r2) '(r0))
-	(sys-pop-trashed r1 r2)
+	(abi-push-trashed r1 r2)
+	(host-call 'host 'write '(r0 r1 r2) '(r0))
+	(abi-pop-trashed r1 r2)
 	(exit 'sys_pii 'write '(r0))
 	(vp-ret)
 
@@ -147,11 +134,11 @@
 	;none
 
 	(entry 'sys_pii 'write_str '(r0 r1))
-	(sys-push-trashed r1 r3)
+	(abi-push-trashed r1 r3)
 	(vp-cpy-rr r0 r3)
 	(call 'sys_string 'length '(r1) '(r0 r1))
-	(sys-write '(r3 r0 r1) '(r0))
-	(sys-pop-trashed r1 r3)
+	(host-call 'host 'write '(r3 r0 r1) '(r0))
+	(abi-pop-trashed r1 r3)
 	(exit 'sys_pii 'write_str '(r0))
 	(vp-ret)
 
@@ -273,9 +260,9 @@
 	;none
 
 	(entry 'sys_pii 'read '(r0 r1 r2))
-	(sys-push-trashed r1 r2)
-	(sys-read '(r0 r1 r2) '(r0))
-	(sys-pop-trashed r1 r2)
+	(abi-push-trashed r1 r2)
+	(host-call 'host 'read '(r0 r1 r2) '(r0))
+	(abi-pop-trashed r1 r2)
 	(exit 'sys_pii 'read '(r0))
 	(vp-ret)
 
@@ -290,9 +277,12 @@
 	;none
 
 	(entry 'sys_pii 'read_char '(r0))
-	(sys-push-trashed)
-	(sys-read-char '(r0) '(r0))
-	(sys-pop-trashed)
+	(abi-push-trashed)
+	(vp-xor-rr r1 r1)
+	(vp-push r1)
+	(host-call 'host 'read '(r0 rsp 1))
+	(vp-pop r0)
+	(abi-pop-trashed)
 	(exit 'sys_pii 'read_char '(r0))
 	(vp-ret)
 
@@ -308,9 +298,9 @@
 	;none
 
 	(entry 'sys_pii 'ftruncate '(r0 r1))
-	(sys-push-trashed r1)
-	(sys-ftruncate '(r0 r1) '(r0))
-	(sys-pop-trashed r1)
+	(abi-push-trashed r1)
+	(host-call 'host 'ftruncate '(r0 r1) '(r0))
+	(abi-pop-trashed r1)
 	(exit 'sys_pii 'ftruncate '(r0))
 	(vp-ret)
 
@@ -325,9 +315,9 @@
 	;none
 
 	(entry 'sys_pii 'unlink '(r0))
-	(sys-push-trashed)
-	(sys-unlink '(r0) '(r0))
-	(sys-pop-trashed)
+	(abi-push-trashed)
+	(host-call 'host 'unlink '(r0) '(r0))
+	(abi-pop-trashed)
 	(exit 'sys_pii 'unlink '(r0))
 	(vp-ret)
 
@@ -362,9 +352,9 @@
 	;none
 
 	(entry 'sys_pii 'fcntl '(r0 r1 r2))
-	(sys-push-trashed r1 r2)
-	(sys-fcntl '(r0 r1 r2) '(r0))
-	(sys-pop-trashed r1 r2)
+	(abi-push-trashed r1 r2)
+	(host-call 'host 'fcntl '(r0 r1 r2) '(r0))
+	(abi-pop-trashed r1 r2)
 	(exit 'sys_pii 'fcntl '(r0))
 	(vp-ret)
 

@@ -2,8 +2,6 @@
 ; x64 Emit Functions
 ;;;;;;;;;;;;;;;;;;;;
 
-(defcmacro abi-args (&optional _) (setd _ 6) `',(slice 0 _ '(r6 r5 r2 r1 r7 r8 r0 r3 r4)))
-
 (defcfun reg (r)
 	(find r '(r0 r1 r2 r3 rsp r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14)))
 
@@ -192,10 +190,13 @@
 (defcfun emit-call-i (d c) (emit-call-jump-i 0x10 d c))
 (defcfun emit-call-p (l) (emit-call-jump-p 0x15 (sub l *pc*)))
 
-(defcfun emit-call-abi (d c &rest x)
+(defcfun emit-call-abi (r b c &rest x)
+	(setq x (cat (list r r) x))
+	(emit-cpy-rr rsp r)
+	(emit-and-cr -16 rsp)
 	(apply emit-push x)
-	(emit-call-jump-i 0x10 d c)
-	(emit-free (mul ptr_size (length x))))
+	(emit-call-jump-i 0x10 b c)
+	(emit-cpy-ir rsp (mul ptr_size (sub (length x) 2)) rsp))
 
 (defcfun emit-jmp (l d)
 	(defq m (elem d *distance*) c (sub l *pc*))

@@ -1,4 +1,6 @@
 (include 'sys/pii/class.inc)
+(include 'sys/pii/syscall.inc)
+(include 'sys/load/class.inc)
 
 (def-class 'host)
 (dec-method 'sdl_set_main_ready nil 'virtual (abi-args 0) '(r0))
@@ -34,24 +36,34 @@
 (dec-method 'ttf_font_height nil 'virtual (abi-args 1) '(r0))
 (dec-method 'ttf_render_utf8_blended nil 'virtual (abi-args 3) '(r0))
 
-(defcfun host-call (_1 _2 &optional _3 _4 _5)
+(dec-method 'open nil 'virtual (abi-args 3) '(r0))
+(dec-method 'close nil 'virtual (abi-args 1) '(r0))
+(dec-method 'read nil 'virtual (abi-args 3) '(r0))
+(dec-method 'write nil 'virtual (abi-args 3) '(r0))
+(dec-method 'ftruncate nil 'virtual (abi-args 2) '(r0))
+(dec-method 'unlink nil 'virtual (abi-args 1) '(r0))
+(dec-method 'fcntl nil 'virtual (abi-args 3) '(r0))
+(dec-method 'exit nil 'virtual (abi-args 1))
+
+(defcfun host-call (_1 _2 &optional _3 _4 _5 _6)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
 	;_4 = out parameters
 	;_5 = dispatch reg
-	(setd _5 r14)
+	;_6 = temp reg
+	(setd _5 r14 _6 r13)
 	(defq m (method-lookup _1 _2) x (list) s (elem 2 m))
 	(if (eql (elem 1 m) 'static)
 		(throw "Abi methods must be virtual !" (list _1 _2)))
-	(if (find _5 s)
-		(throw "Dispatch register conflicts with arg !" (list _5 s)))
+	(if (or (find _5 s) (find _6 s))
+		(throw "Dispatch/Temp register conflicts with arg !" (list _5 _6 s)))
 	(assign _3 s)
 	(when (gt (defq ls (length s)) (defq la (length (abi-args))))
 		(setq x (reduce-rev (lambda (x y) (push x y)) (slice la ls s) (list))))
-	(f-bind 'sys_pii 'statics _5)
-	(vp-cpy-ir _5 sys_pii_statics_host_funcs _5)
-	(vp-call-abi _5 (sub (elem 4 m) ptr_size) x)
+	(f-bind 'sys_load 'statics _5)
+	(vp-cpy-ir _5 ld_statics_host_funcs _5)
+	(vp-call-abi _6 _5 (sub (elem 4 m) ptr_size) x)
 	(if _4 (assign (elem 3 m) _4)))
 
 (defcvar 'SDL_INIT_TIMER 0x00000001)

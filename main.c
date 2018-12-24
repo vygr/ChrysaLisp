@@ -38,7 +38,16 @@ TTF_SizeUTF8,
 TTF_FontAscent,
 TTF_FontDescent,
 TTF_FontHeight,
-TTF_RenderUTF8_Blended
+TTF_RenderUTF8_Blended,
+
+open,
+close,
+read,
+write,
+ftruncate,
+unlink,
+fcntl,
+exit
 };
 
 int main(int argc, char *argv[])

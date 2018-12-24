@@ -136,14 +136,10 @@
 
 	(def-struct 'local)
 		(ptr 'this)
-		(ptr 'old_stack)
 	(def-struct-end)
 
-	;align stack for SDL
-	(vp-cpy-rr rsp r1)
 	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(entry '((rsp local_this) (rsp local_old_stack)))
+	(entry '((rsp local_this)))
 
 	;free edge trackers
 	(vp-cpy-ir rsp local_this r0)
@@ -166,7 +162,7 @@
 		(host-call 'host 'sdl_destroy_texture '(r1))
 	(endif)
 
-	(vp-cpy-ir rsp local_old_stack rsp)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -254,13 +250,10 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'ctx 'surface 'temp_canvas 'old_stack)
+	(ptr 'this 'ctx 'surface 'temp_canvas)
 
-	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r2)
 	(push-scope)
-	(vp-and-cr -16 rsp)
-	(entry {this, ctx, old_stack})
+	(entry {this, ctx})
 
 	;if no texture then create from pixel buffer
 	(vpifnot {this->canvas_texture})
@@ -286,8 +279,7 @@
 			this->canvas_width / this->canvas_aa_scale, this->canvas_height / this->canvas_aa_scale})
 	(endif)
 
-	(assign {this, old_stack} '(r0 rsp))
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (def-func-end)
@@ -310,16 +302,6 @@
 	;inputs
 	;r0 = user data
 
-	(def-struct 'local)
-		(ptr 'old_stack)
-	(def-struct-end)
-
-	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r1)
-	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(entry '(r0 (rsp local_old_stack)))
-
 	;free any sdl texture
 	(vp-cpy-ir r0 canvas_texture r1)
 	(vpif '(r1 != 0))
@@ -327,8 +309,6 @@
 		(vp-cpy-ri r2 r0 canvas_texture)
 		(host-call 'host 'sdl_destroy_texture '(r1))
 	(endif)
-
-	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)

@@ -109,13 +109,10 @@
 	;inputs
 	;r0 = user data
 
-	(ptr 'user 'old_stack)
+	(ptr 'user)
 
-	;align stack
-	(vp-cpy-rr rsp r1)
 	(push-scope)
-	(vp-and-cr -16 rsp)
-	(entry {user, old_stack})
+	(entry {user})
 
 	(host-call 'host 'ttf_open_font {&user->font_name->string_data, user->font_points} {user->font_handle})
 	(vpif {user->font_handle})
@@ -125,8 +122,7 @@
 		(host-call 'host 'ttf_font_height {user->font_handle} {user->font_height})
 	(endif)
 
-	(assign {old_stack} '(rsp))
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (def-func-end)
@@ -157,19 +153,7 @@
 	;inputs
 	;r0 = user data
 
-	(def-struct 'local)
-		(ptr 'old_stack)
-	(def-struct-end)
-
-	;align stack
-	(vp-cpy-rr rsp r1)
-	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(entry '(r0 (rsp local_old_stack)))
-
 	(host-call 'host 'ttf_close_font '((r0 font_handle)))
-
-	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)
@@ -228,14 +212,11 @@
 	;inputs
 	;r0 = user data
 
-	(ptr 'user 'surface 'old_stack)
+	(ptr 'user 'surface)
 	(ulong 'handle)
 
-	;align stack
-	(vp-cpy-rr rsp r1)
 	(push-scope)
-	(vp-and-cr -16 rsp)
-	(entry {user, old_stack})
+	(entry {user})
 
 	(host-call 'host 'ttf_render_utf8_blended {user->local_this->font_handle, &user->local_word->string_data, 0xffffff} {surface})
 	(vpif {surface})
@@ -250,8 +231,7 @@
 		(host-call 'host 'sdl_free_surface {surface})
 	(endif)
 
-	(assign {old_stack} '(rsp))
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (def-func-end)

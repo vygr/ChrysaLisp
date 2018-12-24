@@ -10,16 +10,6 @@
 	;trashes
 	;all
 
-	(def-struct 'local)
-		(ptr 'old_stack)
-	(def-struct-end)
-
-	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r14)
-	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r14 rsp local_old_stack)
-
 	(vp-cpy-rr r1 r7)
 	(vp-cpy-rr r1 r8)
 	(vp-cpy-rr r1 r9)
@@ -32,8 +22,6 @@
 	(vp-and-cr 0xff r9)
 	(vp-and-cr 0xff r10)
 	(host-call 'host 'sdl_set_render_draw_color '((r0 ctx_sdl_ctx) r7 r8 r9 r10))
-
-	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)
@@ -134,14 +122,9 @@
 		(ptr 'ctx)
 		(ulong 'texture)
 		(ptr 'dirty_rect)
-		(ptr 'old_stack)
 	(def-struct-end)
 
-	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r14)
 	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r14 rsp local_old_stack)
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 rsp local_ctx)
@@ -176,7 +159,7 @@
 		(host-call 'host 'sdl_render_copy '((r0 ctx_sdl_ctx) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))
 	)
 
-	(vp-cpy-ir rsp local_old_stack rsp)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -196,14 +179,9 @@
 		(struct 'clip_rect 'sdl_rect)
 		(ptr 'ctx)
 		(ptr 'dirty_rect)
-		(ptr 'old_stack)
 	(def-struct-end)
 
-	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r14)
 	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r14 rsp local_old_stack)
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 rsp local_ctx)
@@ -222,7 +200,7 @@
 		(host-call 'host 'sdl_render_draw_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))
 	)
 
-	(vp-cpy-ir rsp local_old_stack rsp)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
@@ -242,14 +220,9 @@
 		(struct 'clip_rect 'sdl_rect)
 		(ptr 'ctx)
 		(ptr 'dirty_rect)
-		(ptr 'old_stack)
 	(def-struct-end)
 
-	;align stack to 16 bytes for SDl
-	(vp-cpy-rr rsp r14)
 	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(vp-cpy-ri r14 rsp local_old_stack)
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 rsp local_ctx)
@@ -268,7 +241,7 @@
 		(host-call 'host 'sdl_render_fill_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))
 	)
 
-	(vp-cpy-ir rsp local_old_stack rsp)
+	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)

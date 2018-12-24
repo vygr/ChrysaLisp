@@ -80,15 +80,12 @@
 	;inputs
 	;r0 = user data
 
-	(ptr 'user 'old_stack 'owner 'msg 'data 'view)
+	(ptr 'user 'owner 'msg 'data 'view)
 	(int 'flag 'key)
 	(struct 'event 256)
 
-	;align stack
-	(vp-cpy-rr rsp r1)
 	(push-scope)
-	(vp-and-cr -16 rsp)
-	(entry {user, old_stack})
+	(entry {user})
 
 	;create screen window ?
 	(vpifnot {user->local_statics->gui_statics_window})
@@ -208,8 +205,7 @@
 		(endswitch)
 	(loop-end)
 
-	(assign {old_stack} '(rsp))
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (vp-label 'cook_key)
@@ -244,13 +240,10 @@
 	;inputs
 	;r0 = user data
 
-	(ptr 'user 'old_stack)
+	(ptr 'user)
 
-	;align stack
-	(vp-cpy-rr rsp r1)
 	(push-scope)
-	(vp-and-cr -16 rsp)
-	(entry {user, old_stack})
+	(entry {user})
 
 	;free any screen
 	(vpif {user->local_statics->gui_statics_screen})
@@ -269,8 +262,7 @@
 	(call 'region 'free {user->local_statics->gui_statics_rect_heap, user->local_statics->gui_statics_old_region})
 	(call 'sys_heap 'deinit {user->local_statics->gui_statics_rect_heap})
 
-	(assign {old_stack} '(rsp))
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (vp-label 'title)
