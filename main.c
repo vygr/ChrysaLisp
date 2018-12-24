@@ -1,10 +1,18 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <SDL.h>
 #include <SDL_ttf.h>
+
+long long gettime()
+{
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return tv.tv_sec * 1000000 + tv.tv_usec;
+}
 
 static void (*host_funcs[]) = {
 SDL_SetMainReady,
@@ -50,7 +58,9 @@ fcntl,
 mmap,
 munmap,
 mprotect,
-exit
+exit,
+stat,
+gettime
 };
 
 int main(int argc, char *argv[])

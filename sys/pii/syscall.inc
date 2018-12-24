@@ -40,35 +40,6 @@
 ; syscall macros
 ;;;;;;;;;;;;;;;;
 
-(when (eql *os* 'Darwin)
-	(defcfun sys-gettimeofday (_)
-		;time, timezone
-		(assign _ (sys-args 2))
-		(vp-push (sys-arg 0))
-		(vp-xor-rr (sys-arg 2) (sys-arg 2))
-		(sys-call sys_gettimeofday)
-		(vp-pop (sys-arg 1))
-		(vpif '(r0 != 0))
-			(vp-cpy-ri r0 (sys-arg 1) timeval_sec)
-			(vp-cpy-ri (sys-arg 2) (sys-arg 1) timeval_usec)
-		(endif)))
-
-(when (eql *os* 'Linux)
-	(defcfun sys-gettimeofday (_)
-		;time, timezone
-		(assign _ (sys-args 2))
-		(sys-call sys_gettimeofday)))
-
-(def-struct 'timeval)
-	(long 'sec)
-	(long 'usec)
-(def-struct-end)
-
-(def-struct 'timezone)
-	(int 'minuteswest)
-	(int 'dsttime)
-(def-struct-end)
-
 (defcfun sys-stat (_1 _2)
 	;path, buffer
 	(assign (cat '(at_fdcwd) _1 '(0)) (sys-args 4))

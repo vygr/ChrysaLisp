@@ -176,15 +176,9 @@
 	;trashes
 	;none
 
-	(sys-push-trashed r1)
-	(vp-alloc timeval_size)
-	(sys-gettimeofday '(rsp 0))
-	(vp-cpy-ir rsp timeval_sec r0)
-	(vp-mul-cr 1000000 r0)
-	(vp-cpy-ir rsp timeval_usec r1)
-	(vp-add-rr r1 r0)
-	(vp-free timeval_size)
-	(sys-pop-trashed r1)
+	(abi-push-trashed r1 r13 r14)
+	(host-call 'host 'gettime nil '(r0))
+	(abi-pop-trashed r1 r13 r14)
 	(exit 'sys_pii 'time '(r0))
 	(vp-ret)
 
@@ -222,9 +216,9 @@
 	;none
 
 	(entry 'sys_pii 'munmap '(r0 r1))
-	(abi-push-trashed r1)
+	(abi-push-trashed r1 r13 r14)
 	(host-call 'host 'munmap '(r0 r1) '(r0))
-	(abi-pop-trashed r1)
+	(abi-pop-trashed r1 r13 r14)
 	(exit 'sys_pii 'munmap '(r0))
 	(vp-ret)
 

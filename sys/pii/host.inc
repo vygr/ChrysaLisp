@@ -47,6 +47,8 @@
 (dec-method 'munmap nil 'virtual (abi-args 2) '(r0))
 (dec-method 'mprotect nil 'virtual (abi-args 3) '(r0))
 (dec-method 'exit nil 'virtual (abi-args 1))
+(dec-method 'stat nil 'virtual (abi-args 2) '(r0))
+(dec-method 'gettime nil 'virtual '() '(r0))
 
 (defcfun host-call-table (_1 _2 _5 &optional _3 _4 _6)
 	;_1 = class name
