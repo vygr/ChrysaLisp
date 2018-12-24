@@ -10,7 +10,7 @@
 		(cond
 			((eql *cpu* 'x86_64)
 				(defcmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r0 r3 r4)))
-				(defmacro abi-trashed () ''(r1 r2 r5 r6 r7 r8 r9))
+				(defmacro abi-trashed () ''(r1 r2 r5 r6 r7 r8 r9 r10))
 				(defmacro sys-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r6 r5 r2 r9 r7 r8)))
 				(defmacro sys-trashed () ''(r1 r2 r5 r6 r7 r8 r9 r10)))
 			(t (throw "Unknown CPU for Darwin !" *cpu*))))
@@ -19,7 +19,7 @@
 		(cond
 			((eql *cpu* 'x86_64)
 				(defcmacro abi-args (&optional _ o) (setd _ 6 o 0) `',(slice o (add o _) '(r6 r5 r2 r1 r7 r8 r0 r3 r4)))
-				(defmacro abi-trashed () ''(r1 r2 r5 r6 r7 r8 r9))
+				(defmacro abi-trashed () ''(r1 r2 r5 r6 r7 r8 r9 r10))
 				(defmacro sys-args (_ &optional o) (setd o 0) `',(slice o (add o _) '(r6 r5 r2 r9 r7 r8)))
 				(defmacro sys-trashed () ''(r1 r2 r5 r6 r7 r8 r9 r10)))
 			((eql *cpu* 'aarch64)
@@ -73,42 +73,4 @@
 	;path, buffer
 	(assign (cat '(at_fdcwd) _1 '(0)) (sys-args 4))
 	(sys-call sys_fstatat)
-	(assign '(r0) _2))
-
-(defcfun sys-exit (_)
-	;return code
-	(assign _ (sys-args 1))
-	(sys-call sys_exit))
-
-(defcfun sys-write (_1 _2)
-	;fd, string, length
-	(assign _1 (sys-args 3))
-	(sys-call sys_write)
-	(assign '(r0) _2))
-
-(defcfun sys-write-char (_1 _2)
-	;fd, char
-	(assign _1 (sys-args 2))
-	(vp-push (sys-arg 1))
-	(assign '(rsp 1) (sys-args 2 1))
-	(sys-call sys_write)
-	(vp-free ptr_size)
-	(assign '(r0) _2))
-
-(defcfun sys-mmap (_1 _2)
-	;addr, len, prot, flags, fd, pos
-	(assign _1 (sys-args 6))
-	(sys-call sys_mmap)
-	(assign '(r0) _2))
-
-(defcfun sys-mprotect (_1 _2)
-	;addr, len, prot
-	(assign _1 (sys-args 3))
-	(sys-call sys_mprotect)
-	(assign '(r0) _2))
-
-(defcfun sys-munmap (_1 _2)
-	;addr, len
-	(assign _1 (sys-args 2))
-	(sys-call sys_munmap)
 	(assign '(r0) _2))

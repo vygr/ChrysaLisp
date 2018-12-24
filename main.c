@@ -47,6 +47,9 @@ write,
 ftruncate,
 unlink,
 fcntl,
+mmap,
+munmap,
+mprotect,
 exit
 };
 

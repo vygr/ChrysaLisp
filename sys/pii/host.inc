@@ -43,7 +43,29 @@
 (dec-method 'ftruncate nil 'virtual (abi-args 2) '(r0))
 (dec-method 'unlink nil 'virtual (abi-args 1) '(r0))
 (dec-method 'fcntl nil 'virtual (abi-args 3) '(r0))
+(dec-method 'mmap nil 'virtual (abi-args 6) '(r0))
+(dec-method 'munmap nil 'virtual (abi-args 2) '(r0))
+(dec-method 'mprotect nil 'virtual (abi-args 3) '(r0))
 (dec-method 'exit nil 'virtual (abi-args 1))
+
+(defcfun host-call-table (_1 _2 _5 &optional _3 _4 _6)
+	;_1 = class name
+	;_2 = member name
+	;_5 = host function table
+	;_3 = in parameters
+	;_4 = out parameters
+	;_6 = temp reg
+	(setd _6 r13)
+	(defq m (method-lookup _1 _2) x (list) s (elem 2 m))
+	(if (eql (elem 1 m) 'static)
+		(throw "Abi methods must be virtual !" (list _1 _2)))
+	(if (or (find _5 s) (find _6 s))
+		(throw "Dispatch/Temp register conflicts with arg !" (list _5 _6 s)))
+	(assign _3 s)
+	(when (gt (defq ls (length s)) (defq la (length (abi-args))))
+		(setq x (reduce-rev (lambda (x y) (push x y)) (slice la ls s) (list))))
+	(vp-call-abi _6 _5 (sub (elem 4 m) ptr_size) x)
+	(if _4 (assign (elem 3 m) _4)))
 
 (defcfun host-call (_1 _2 &optional _3 _4 _5 _6)
 	;_1 = class name
@@ -53,18 +75,9 @@
 	;_5 = dispatch reg
 	;_6 = temp reg
 	(setd _5 r14 _6 r13)
-	(defq m (method-lookup _1 _2) x (list) s (elem 2 m))
-	(if (eql (elem 1 m) 'static)
-		(throw "Abi methods must be virtual !" (list _1 _2)))
-	(if (or (find _5 s) (find _6 s))
-		(throw "Dispatch/Temp register conflicts with arg !" (list _5 _6 s)))
-	(assign _3 s)
-	(when (gt (defq ls (length s)) (defq la (length (abi-args))))
-		(setq x (reduce-rev (lambda (x y) (push x y)) (slice la ls s) (list))))
 	(f-bind 'sys_load 'statics _5)
 	(vp-cpy-ir _5 ld_statics_host_funcs _5)
-	(vp-call-abi _6 _5 (sub (elem 4 m) ptr_size) x)
-	(if _4 (assign (elem 3 m) _4)))
+	(host-call-table _1 _2 _5 _3 _4 _6))
 
 (defcvar 'SDL_INIT_TIMER 0x00000001)
 (defcvar 'SDL_INIT_AUDIO 0x00000010)

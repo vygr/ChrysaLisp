@@ -3,7 +3,7 @@
 (include 'sys/string/class.inc)
 (include 'sys/kernel/class.inc)
 (include 'class/string/class.inc)
-(include 'sys/pii/syscall.inc)
+(include 'sys/pii/host.inc)
 
 (def-method 'sys_load 'statics)
 	(times ld_statics_size (vp-byte 0))
@@ -19,7 +19,7 @@
 
 	;save inputs
 	(vp-push (sys-arg 0))
-	(vp-cpy-rr (sys-arg 1) r0)
+	(vp-cpy-rr (sys-arg 1) r14)
 
 	;get loader statics and bind function !
 	(vp-lea-p 'func_start r5)
@@ -34,7 +34,7 @@
 	(vp-add-rr r1 r4)
 
 	;save host function table
-	(vp-cpy-ri r0 r5 ld_statics_host_funcs)
+	(vp-cpy-ri r14 r5 ld_statics_host_funcs)
 	(vp-push r4 r5)
 
 	;set prebound functions as read/write/executable
@@ -47,10 +47,10 @@
 	(loop-end)
 	(vp-and-cr (neg ld_page_size) r0)
 	(vp-sub-rr r0 r1)
-	(sys-mprotect '(r0 r1 (bit-or prot_read prot_write prot_exec)) '(_))
+	(host-call-table 'host 'mprotect r14 '(r0 r1 (bit-or prot_read prot_write prot_exec)) '(_))
 
 	;allocate relloc/stat/name buffer
-	(sys-mmap '(0 ld_reloc_buf_size (bit-or prot_read prot_write) (bit-or map_private map_anon) -1 0) '(r0))
+	(host-call-table 'host 'mmap r14 '(0 ld_reloc_buf_size (bit-or prot_read prot_write) (bit-or map_private map_anon) -1 0) '(r0))
 
 	;init reloc buffer address etc
 	(vp-pop r4 r5)
@@ -88,7 +88,7 @@
 			(vpif '(r0 == 0))
 				;no such function
 				(vp-lea-p 'bind_error r0)
-				(sys-write `(2 r0 (sub ,(label-sym 'bind_error_end) ,(label-sym 'bind_error))) '(_))
+				(host-call-table 'host 'write r14 `(2 r0 (sub ,(label-sym 'bind_error_end) ,(label-sym 'bind_error))) '(_))
 				(vp-cpy-ir rsp (mul ptr_size 3) r0)
 				(vp-cpy-ir r0 0 r2)
 				(vp-add-rr r2 r0)
@@ -98,10 +98,9 @@
 				(vp-cpy-ir r0 0 r2)
 				(vp-add-rr r2 r0)
 				(vp-sub-rr r0 r1)
-				(sys-write '(2 r0 r1) '(_))
-				(vp-cpy-cr char_lf r1)
-				(sys-write-char '(2 r1) '(_))
-				(sys-exit '(1))
+				(host-call-table 'host 'write r14 '(2 r0 r1) '(_))
+				(host-call-table 'host 'write r14 '(2 ($ bind_error_end) 1) '(_))
+				(host-call-table 'host 'exit r14 '(1))
 			(endif)
 			(vp-cpy-rr r0 r1)
 			(vp-pop r0 r2 r3 r4)
@@ -127,6 +126,7 @@
 (vp-label 'bind_error)
 	(vp-string "Prebind error: ")
 (vp-label 'bind_error_end)
+	(vp-byte char_lf)
 
 (def-func-end)
 
