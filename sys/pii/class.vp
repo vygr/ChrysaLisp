@@ -15,16 +15,15 @@
 	;inputs
 	;r0 = c string filename (pubyte)
 	;r1 = mode (ulong)
-	;r2 = flags (ulong)
 	;outputs
 	;r0 = fd (ulong)
 	;trashes
 	;none
 
-	(entry 'sys_pii 'open '(r0 r1 r2))
-	(abi-push-trashed r1 r2 r13 r14)
-	(host-call 'host 'open '(r0 r1 r2) '(r0))
-	(abi-pop-trashed r1 r2 r13 r14)
+	(entry 'sys_pii 'open '(r0 r1))
+	(abi-push-trashed r1 r13 r14)
+	(host-call 'host 'open '(r0 r1) '(r0))
+	(abi-pop-trashed r1 r13 r14)
 	(exit 'sys_pii 'open '(r0))
 	(vp-ret)
 
@@ -307,21 +306,16 @@
 
 (def-func-end)
 
-(def-method 'sys_pii 'fcntl)
-	;inputs
-	;r0 = fd (ulong)
-	;r1 = command (ulong)
-	;r2 = arg (ulong)
+(def-method 'sys_pii 'noneblk)
 	;outputs
 	;r0 = error code (ulong)
 	;trashes
 	;none
 
-	(entry 'sys_pii 'fcntl '(r0 r1 r2))
-	(abi-push-trashed r1 r2 r13 r14)
-	(host-call 'host 'fcntl '(r0 r1 r2) '(r0))
-	(abi-pop-trashed r1 r2 r13 r14)
-	(exit 'sys_pii 'fcntl '(r0))
+	(abi-push-trashed r13 r14)
+	(host-call 'host 'noneblk nil '(r0))
+	(abi-pop-trashed r13 r14)
+	(exit 'sys_pii 'noneblk '(r0))
 	(vp-ret)
 
 (def-func-end)

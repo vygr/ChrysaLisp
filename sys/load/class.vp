@@ -207,7 +207,7 @@
 	(endif)
 
 	;open function file
-	(call 'sys_pii 'open '(r6 o_rdonly 0) '(r6))
+	(call 'sys_pii 'open '(r6 file_open_read) '(r6))
 
 	;read into buffer
 	(vp-cpy-ir r7 ld_statics_stat_buffer r2)

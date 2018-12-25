@@ -1375,10 +1375,6 @@ r1 = return value object (ptr)
 Super Class: null
 ### gui::statics -> gui/gui/statics
 ### gui::init -> gui/gui/init
-```
-inputs
-r0 = sdl function table (pptr)
-```
 ### gui::update -> gui/gui/update
 ```
 inputs
@@ -1654,6 +1650,53 @@ r0 = hash_set object (ptr)
 trashes
 all but r0
 ```
+## host
+Super Class: null
+### host::sdl_set_main_ready -> nil
+### host::sdl_init -> nil
+### host::sdl_get_error -> nil
+### host::sdl_quit -> nil
+### host::sdl_create_window -> nil
+### host::sdl_create_window_and_renderer -> nil
+### host::sdl_destroy_window -> nil
+### host::sdl_delay -> nil
+### host::sdl_create_renderer -> nil
+### host::sdl_set_render_draw_color -> nil
+### host::sdl_render_fill_rect -> nil
+### host::sdl_render_present -> nil
+### host::sdl_render_set_clip_rect -> nil
+### host::sdl_set_render_draw_blend_mode -> nil
+### host::sdl_poll_event -> nil
+### host::sdl_render_draw_rect -> nil
+### host::sdl_free_surface -> nil
+### host::sdl_create_texture_from_surface -> nil
+### host::sdl_destroy_texture -> nil
+### host::sdl_render_copy -> nil
+### host::sdl_set_texture_blend_mode -> nil
+### host::sdl_set_texture_color_mod -> nil
+### host::sdl_create_rgb_surface_from -> nil
+### host::ttf_init -> nil
+### host::ttf_quit -> nil
+### host::ttf_open_font -> nil
+### host::ttf_close_font -> nil
+### host::ttf_size_utf8 -> nil
+### host::ttf_font_ascent -> nil
+### host::ttf_font_descent -> nil
+### host::ttf_font_height -> nil
+### host::ttf_render_utf8_blended -> nil
+### host::exit -> nil
+### host::noneblk -> nil
+### host::stat -> nil
+### host::open -> nil
+### host::close -> nil
+### host::ftruncate -> nil
+### host::unlink -> nil
+### host::read -> nil
+### host::write -> nil
+### host::mmap -> nil
+### host::munmap -> nil
+### host::mprotect -> nil
+### host::gettime -> nil
 ## integer
 Super Class: obj
 ### integer::vtable -> class/class_integer
@@ -3856,40 +3899,6 @@ outputs
 r0 = lisp object (ptr)
 r1 = return value object (ptr)
 ```
-## sdl
-Super Class: null
-### sdl::sdl_set_main_ready -> nil
-### sdl::sdl_init -> nil
-### sdl::sdl_get_error -> nil
-### sdl::sdl_quit -> nil
-### sdl::sdl_create_window -> nil
-### sdl::sdl_create_window_and_renderer -> nil
-### sdl::sdl_destroy_window -> nil
-### sdl::sdl_delay -> nil
-### sdl::sdl_create_renderer -> nil
-### sdl::sdl_set_render_draw_color -> nil
-### sdl::sdl_render_fill_rect -> nil
-### sdl::sdl_render_present -> nil
-### sdl::sdl_render_set_clip_rect -> nil
-### sdl::sdl_set_render_draw_blend_mode -> nil
-### sdl::sdl_poll_event -> nil
-### sdl::sdl_render_draw_rect -> nil
-### sdl::sdl_free_surface -> nil
-### sdl::sdl_create_texture_from_surface -> nil
-### sdl::sdl_destroy_texture -> nil
-### sdl::sdl_render_copy -> nil
-### sdl::sdl_set_texture_blend_mode -> nil
-### sdl::sdl_set_texture_color_mod -> nil
-### sdl::sdl_create_rgb_surface_from -> nil
-### sdl::ttf_init -> nil
-### sdl::ttf_quit -> nil
-### sdl::ttf_open_font -> nil
-### sdl::ttf_close_font -> nil
-### sdl::ttf_size_utf8 -> nil
-### sdl::ttf_font_ascent -> nil
-### sdl::ttf_font_descent -> nil
-### sdl::ttf_font_height -> nil
-### sdl::ttf_render_utf8_blended -> nil
 ## sequence
 Super Class: obj
 ### sequence::vtable -> class/class_sequence
@@ -4565,7 +4574,6 @@ all
 ```
 inputs
 r0 = argv pointer (pptr)
-r1 = SDL func table (pptr)
 info
 loader is already initialized when we get here !
 ```
@@ -4631,10 +4639,10 @@ Super Class: null
 ```
 inputs
 system argv
-SDL function table
+host function table
 info
 register inputs are dependant on the platform ABI
-they are extracted via (sys-arg 0) and (sys-arg 1)
+they are extracted via (abi-arg 0) and (abi-arg 1)
 ```
 ### sys_load::bind -> sys/load/bind
 ```
@@ -5090,7 +5098,6 @@ none
 inputs
 r0 = c string filename (pubyte)
 r1 = mode (ulong)
-r2 = flags (ulong)
 outputs
 r0 = fd (ulong)
 trashes
@@ -5134,12 +5141,8 @@ r0 = error code (ulong)
 trashes
 none
 ```
-### sys_pii::fcntl -> sys/pii/fcntl
+### sys_pii::noneblk -> sys/pii/noneblk
 ```
-inputs
-r0 = fd (ulong)
-r1 = command (ulong)
-r2 = arg (ulong)
 outputs
 r0 = error code (ulong)
 trashes
@@ -5204,15 +5207,6 @@ inputs
 r0 = fd (ulong)
 outputs
 r0 = char (ulong)
-trashes
-none
-```
-### sys_pii::age -> sys/pii/age
-```
-inputs
-r0 = c string file name (pubyte)
-outputs
-r0 = 0 if error, else modified date (ulong)
 trashes
 none
 ```

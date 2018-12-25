@@ -7,29 +7,52 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-long long gettime()
+enum
 {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return tv.tv_sec * 1000000 + tv.tv_usec;
+	file_open_read,
+	file_open_write,
+	file_open_readwrite
+};
+
+int myopen(char *path, int mode)
+{
+	switch (mode)
+	{
+		case file_open_read: return open(path, O_RDONLY, 0);
+		case file_open_write: return open(path, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		case file_open_readwrite: return open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+		default: return -1;
+	}
 }
 
 struct stat fs;
-
-struct mystat
+struct finfo
 {
 	long long mtime;
 	long long fsize;
 	unsigned short mode;
 };
 
-long long mystat(char *path, struct mystat *st)
+long long mystat(char *path, struct finfo *st)
 {
 	if (stat(path, &fs) != 0) return -1;
 	st->mtime = fs.st_mtime;
 	st->fsize = fs.st_size;
 	st->mode = fs.st_mode;
 	return 0;
+}
+
+long long noneblk()
+{
+	int m = fcntl(0, F_GETFL, 0);
+	return fcntl(0, F_SETFL, m | O_NONBLOCK);
+}
+
+long long gettime()
+{
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
 static void (*host_funcs[]) = {
@@ -66,19 +89,19 @@ TTF_FontDescent,
 TTF_FontHeight,
 TTF_RenderUTF8_Blended,
 
-open,
+exit,
+noneblk,
+mystat,
+myopen,
 close,
-read,
-write,
 ftruncate,
 unlink,
-fcntl,
+read,
+write,
 mmap,
 munmap,
 mprotect,
-exit,
-mystat,
-gettime
+gettime,
 };
 
 int main(int argc, char *argv[])

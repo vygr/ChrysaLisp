@@ -56,7 +56,7 @@
 	(call 'sys_mail 'send {msg})
 
 	;open shared memory file
-	(call 'sys_pii 'open {pdata, o_creat | o_rdwr, s_irusr | s_iwusr} {handle})
+	(call 'sys_pii 'open {pdata, file_open_readwrite} {handle})
 
 	;set size of region
 	(call 'sys_pii 'ftruncate {handle, lk_buffer_size})
