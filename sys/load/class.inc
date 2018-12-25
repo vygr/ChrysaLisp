@@ -1,4 +1,5 @@
-(include 'sys/pii/class.inc)
+(include 'sys/class.inc)
+(include 'sys/pii/syscall.inc)
 
 ;;;;;;;;;;;;;;;;;;;
 ; load static class

@@ -3,7 +3,7 @@
 (include 'sys/string/class.inc)
 (include 'sys/kernel/class.inc)
 (include 'class/string/class.inc)
-(include 'sys/pii/host.inc)
+(include 'sys/pii/class.inc)
 
 (def-method 'sys_load 'statics)
 	(times ld_statics_size (vp-byte 0))
@@ -15,11 +15,11 @@
 	;host function table
 	;info
 	;register inputs are dependant on the platform ABI
-	;they are extracted via (sys-arg 0) and (sys-arg 1)
+	;they are extracted via (abi-arg 0) and (abi-arg 1)
 
 	;save inputs
-	(vp-push (sys-arg 0))
-	(vp-cpy-rr (sys-arg 1) r14)
+	(vp-push (abi-arg 0))
+	(vp-cpy-rr (abi-arg 1) r14)
 
 	;get loader statics and bind function !
 	(vp-lea-p 'func_start r5)

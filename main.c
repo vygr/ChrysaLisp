@@ -14,6 +14,24 @@ long long gettime()
 	return tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
+struct stat fs;
+
+struct mystat
+{
+	long long mtime;
+	long long fsize;
+	unsigned short mode;
+};
+
+long long mystat(char *path, struct mystat *st)
+{
+	if (stat(path, &fs) != 0) return -1;
+	st->mtime = fs.st_mtime;
+	st->fsize = fs.st_size;
+	st->mode = fs.st_mode;
+	return 0;
+}
+
 static void (*host_funcs[]) = {
 SDL_SetMainReady,
 SDL_Init,
@@ -59,17 +77,16 @@ mmap,
 munmap,
 mprotect,
 exit,
-stat,
+mystat,
 gettime
 };
 
 int main(int argc, char *argv[])
 {
-	struct stat filestat;
-	stat(argv[1], &filestat);
-	uint16_t *data = mmap(NULL, filestat.st_size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0);
+	stat(argv[1], &fs);
+	uint16_t *data = mmap(NULL, fs.st_size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0);
 	int fd = open(argv[1], O_RDONLY);
-	read(fd, data, filestat.st_size);
+	read(fd, data, fs.st_size);
 	void(*boot)(char*[], void*[]) = (void(*)(char*[], void*[]))((char*)data + data[5]);
 //	printf("image start address: 0x%llx\n", (unsigned long long)data);
 	boot(argv, host_funcs);

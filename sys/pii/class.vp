@@ -1,8 +1,6 @@
 (include 'sys/func.inc)
 (include 'sys/string/class.inc)
-(include 'sys/load/class.inc)
-(include 'class/string/class.inc)
-(include 'sys/pii/host.inc)
+(include 'sys/pii/class.inc)
 
 (def-method 'sys_pii 'exit)
 	;inputs
@@ -140,32 +138,6 @@
 	(host-call 'host 'write '(r3 r0 r1) '(r0))
 	(abi-pop-trashed r1 r3 r13 r14)
 	(exit 'sys_pii 'write_str '(r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'sys_pii 'age)
-	;inputs
-	;r0 = c string file name (pubyte)
-	;outputs
-	;r0 = 0 if error, else modified date (ulong)
-	;trashes
-	;none
-
-	(entry 'sys_pii 'age '(r0))
-	(sys-push-trashed r1)
-	(f-bind 'sys_load 'statics r1)
-	(vp-cpy-ir r1 ld_statics_stat_buffer r1)
-	(sys-stat '(r0 r1) '(r0))
-	(vpif '(r0 != 0))
-		(vp-xor-rr r0 r0)
-	(else)
-		(f-bind 'sys_load 'statics r1)
-		(vp-cpy-ir r1 ld_statics_stat_buffer r1)
-		(vp-cpy-ir r1 stat_mtime r0)
-	(endif)
-	(sys-pop-trashed r1)
-	(exit 'sys_pii 'age '(r0))
 	(vp-ret)
 
 (def-func-end)
@@ -327,9 +299,9 @@
 	;none
 
 	(entry 'sys_pii 'stat '(r0 r1))
-	(sys-push-trashed r1)
-	(sys-stat '(r0 r1) '(r0))
-	(sys-pop-trashed r1)
+	(abi-push-trashed r1 r13 r14)
+	(host-call 'host 'stat '(r0 r1) '(r0))
+	(abi-pop-trashed r1 r13 r14)
 	(exit 'sys_pii 'stat '(r0))
 	(vp-ret)
 

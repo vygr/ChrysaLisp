@@ -1,5 +1,5 @@
 (include 'sys/func.inc)
-(include 'sys/pii/host.inc)
+(include 'sys/pii/class.inc)
 (include 'gui/canvas/class.inc)
 (include 'class/vector/class.inc)
 (include 'class/symbol/class.inc)

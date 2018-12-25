@@ -11,7 +11,7 @@
 	;r0 = lisp object (ptr)
 	;r1 = return value object (ptr)
 
-	(ptr 'this 'value)
+	(ptr 'this 'value 'stat_buf)
 	(ulong 'age)
 
 	(push-scope)
@@ -21,8 +21,14 @@
 	(call 'lisp 'env_args_type {value, $sig, 1})
 	(errorif (list (method-output 'lisp 'env_args_type 0) '== 0) 'error1))
 
+	(assign (cat {@} (f-path 'sys_load 'statics) {.ld_statics_stat_buffer}) {stat_buf})
 	(call 'vector 'get_first {value} {_, value})
-	(call 'sys_pii 'age {&value->string_data} {age})
+	(call 'sys_pii 'stat {&value->string_data, stat_buf} {age})
+	(vpifnot {age})
+		(assign {stat_buf->stat_mtime} {age})
+	(else)
+		(assign {0} {age})
+	(endif)
 	(call 'integer 'create {age} {value})
 
 (vp-label 'funcexit)

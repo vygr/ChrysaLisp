@@ -4,7 +4,7 @@
 (include 'sys/kernel/class.inc)
 (include 'sys/string/class.inc)
 (include 'class/vector/class.inc)
-(include 'sys/pii/host.inc)
+(include 'sys/pii/class.inc)
 (include 'gui/gui/class.inc)
 
 ;;;;;;;;;;;;;
@@ -20,7 +20,7 @@
 	(union
 		'(ptr 'argv)
 		'(ptr 'link 'mbox_addr))
-	(ptr 'task_statics 'mail_statics 'func)
+	(ptr 'task_statics 'mail_statics 'load_statics 'func)
 	(ptr 'msg 'data 'new_msg 'pathname)
 	(pptr 'iter_begin 'iter_end)
 	(ulong 'service)
@@ -43,6 +43,7 @@
 	(call 'sys_mail 'init)
 
 	;start kernel task (get's mailbox id of 0 !)
+	(assign (cat {@} (f-path 'sys_load 'statics)) {load_statics})
 	(assign (cat {@} (f-path 'sys_task 'statics)) {task_statics})
 	(assign (cat {@} (f-path 'sys_mail 'statics)) {mail_statics})
 	(call 'sys_task 'start {$func_entry} {task_statics->tk_statics_kernel_tcb, mbox_id, mbox_addr})
@@ -91,8 +92,8 @@
 				(endif)
 				(vpifnot {length})
 					;yup it's a .lisp file, check it exists
-					(call 'sys_pii 'age {&data->kn_msg_open_pathname} {func})
-					(breakifnot {func})
+					(call 'sys_pii 'stat {&data->kn_msg_open_pathname, load_statics->ld_statics_stat_buffer} {func})
+					(breakif {func})
 					;start lisp run task and send args
 					(call 'sys_task 'start {@class/lisp/run} {_, data->kn_msg_reply_id.id_id, _})
 					(call 'string 'create_from_cstr {&data->kn_msg_open_pathname} {pathname})

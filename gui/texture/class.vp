@@ -1,6 +1,6 @@
 (include 'sys/func.inc)
 (include 'gui/texture/class.inc)
-(include 'sys/pii/host.inc)
+(include 'sys/pii/class.inc)
 
 (gen-new 'texture)
 (gen-create 'texture)
