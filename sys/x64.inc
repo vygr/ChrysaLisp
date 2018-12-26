@@ -186,14 +186,6 @@
 (defcfun emit-call-i (d c) (emit-call-jump-i 0x10 d c))
 (defcfun emit-call-p (l) (emit-call-jump-p 0x15 (sub l *pc*)))
 
-(defcfun emit-call-abi (r b c &rest x)
-	(setq x (cat (list r r) x))
-	(emit-cpy-rr rsp r)
-	(emit-and-cr -16 rsp)
-	(apply emit-push x)
-	(emit-call-jump-i 0x10 b c)
-	(emit-cpy-ir rsp (mul ptr_size (sub (length x) 2)) rsp))
-
 (defcfun emit-jmp (l d)
 	(defq m (elem d *distance*) c (sub l *pc*))
 	(and (ne *pass* 0) (gt (abs c) (abs m)) (elem-set d *distance* (setq m c)))
