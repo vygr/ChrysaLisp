@@ -43,7 +43,7 @@
 (dec-method 'unlink nil 'virtual (abi-args 1) '(r0))
 (dec-method 'read nil 'virtual (abi-args 3) '(r0))
 (dec-method 'write nil 'virtual (abi-args 3) '(r0))
-(dec-method 'mmap nil 'virtual (abi-args 6) '(r0))
+(dec-method 'mmap nil 'virtual (abi-args 5) '(r0))
 (dec-method 'munmap nil 'virtual (abi-args 2) '(r0))
 (dec-method 'mprotect nil 'virtual (abi-args 3) '(r0))
 (dec-method 'gettime nil 'virtual '() '(r0))
@@ -220,7 +220,7 @@
 
 (def-class 'sys_pii)
 (dec-method 'exit 'sys/pii/exit 'static '(r0))
-(dec-method 'mmap 'sys/pii/mmap 'static '(r0 r1 r2 r3 r4 r5) '(r0))
+(dec-method 'mmap 'sys/pii/mmap 'static '(r0 r1 r2 r3 r4) '(r0))
 (dec-method 'munmap 'sys/pii/munmap 'static '(r0 r1) '(r0))
 (dec-method 'mprotect 'sys/pii/mprotect 'static '(r0 r1 r2) '(r0))
 (dec-method 'open 'sys/pii/open 'static '(r0 r1) '(r0))

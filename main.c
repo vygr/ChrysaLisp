@@ -55,6 +55,38 @@ long long gettime()
 	return tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
+enum
+{
+	mprotect_none
+};
+
+int mymprotect(void *addr, size_t len, int mode)
+{
+	switch (mode)
+	{
+		case mprotect_none: return mprotect(addr, len, 0);
+		default: return -1;
+	}
+}
+
+enum
+{
+	mmap_data,
+	mmap_exec,
+	mmap_shared
+};
+
+void *mymmap(void *addr, size_t len, int mode, int fd, off_t pos)
+{
+	switch (mode)
+	{
+		case mmap_data: return mmap(addr, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, fd, pos);
+		case mmap_exec: return mmap(addr, len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON, fd, pos);
+		case mmap_shared: return mmap(addr, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, pos);
+		default: return 0;
+	}
+}
+
 static void (*host_funcs[]) = {
 SDL_SetMainReady,
 SDL_Init,
@@ -98,9 +130,9 @@ ftruncate,
 unlink,
 read,
 write,
-mmap,
+mymmap,
 munmap,
-mprotect,
+mymprotect,
 gettime,
 };
 

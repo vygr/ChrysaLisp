@@ -159,19 +159,18 @@
 	;inputs
 	;r0 = address (ptr)
 	;r1 = len (ulong)
-	;r2 = prot (ulong)
-	;r3 = flags (ulong)
-	;r4 = fd (ulong)
-	;r5 = pos (ulong)
+	;r2 = mode (ulong)
+	;r3 = fd (ulong)
+	;r4 = pos (ulong)
 	;outputs
 	;r0 = buffer (ptr)
 	;trashes
 	;none
 
-	(entry 'sys_pii 'mmap '(r0 r1 r2 r3 r4 r5))
-	(abi-push-trashed r1 r2 r3 r4 r5 r13 r14)
-	(host-call 'host 'mmap '(r0 r1 r2 r3 r4 r5) '(r0))
-	(abi-pop-trashed r1 r2 r3 r4 r5 r13 r14)
+	(entry 'sys_pii 'mmap '(r0 r1 r2 r3 r4))
+	(abi-push-trashed r1 r2 r3 r4 r13 r14)
+	(host-call 'host 'mmap '(r0 r1 r2 r3 r4) '(r0))
+	(abi-pop-trashed r1 r2 r3 r4 r13 r14)
 	(exit 'sys_pii 'mmap '(r0))
 	(vp-ret)
 

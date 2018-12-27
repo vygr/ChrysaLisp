@@ -62,7 +62,7 @@
 	(call 'sys_pii 'ftruncate {handle, lk_buffer_size})
 
 	;map shared object
-	(call 'sys_pii 'mmap {0, lk_buffer_size, prot_read | prot_write, map_shared, handle, 0} {mem})
+	(call 'sys_pii 'mmap {0, lk_buffer_size, mmap_shared, handle, 0} {mem})
 
 	;tx channel, rx channel
 	;tx msg, rx msg

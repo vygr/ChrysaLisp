@@ -53,60 +53,20 @@
 (defcmacro abi-pop-trashed (&rest b) (merge-sym b (abi-trashed)) `(vp-pop ~b))
 (defcmacro abi-arg (_) (elem _ (abi-args 6)))
 
-(when (eql *os* 'Darwin)
-	;;;;;;;;;;;;;;;;;
-	; syscall for OSX
-	;;;;;;;;;;;;;;;;;
-
-	(defcvar 'prot_none 0x0)
-	(defcvar 'prot_read 0x1)
-	(defcvar 'prot_write 0x2)
-	(defcvar 'prot_exec 0x4)
-	(defcvar 'map_shared 0x1)
-	(defcvar 'map_private 0x2)
-	(defcvar 'map_fixed 0x10)
-	(defcvar 'map_anon 0x1000)
-	(defcvar 's_ifmt 0xf000)
-	(defcvar 's_ifdir 0x4000)
-	(defcvar 's_ifreg 0x8000)
-)(when (and (eql *os* 'Linux) (eql *cpu* 'x86_64))
-	;;;;;;;;;;;;;;;;;;;;;;;
-	; syscall for Linux x64
-	;;;;;;;;;;;;;;;;;;;;;;;
-
-	(defcvar 'prot_none 0x0)
-	(defcvar 'prot_read 0x1)
-	(defcvar 'prot_write 0x2)
-	(defcvar 'prot_exec 0x4)
-	(defcvar 'map_shared 0x1)
-	(defcvar 'map_private 0x2)
-	(defcvar 'map_fixed 0x10)
-	(defcvar 'map_anon 0x20)
-	(defcvar 's_ifmt 0xf000)
-	(defcvar 's_ifdir 0x4000)
-	(defcvar 's_ifreg 0x8000)
-)(when (and (eql *os* 'Linux) (eql *cpu* 'aarch64))
-	;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	; syscall for Linux aarch64
-	;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-	(defcvar 'prot_none 0x0)
-	(defcvar 'prot_read 0x1)
-	(defcvar 'prot_write 0x2)
-	(defcvar 'prot_exec 0x4)
-	(defcvar 'map_shared 0x1)
-	(defcvar 'map_private 0x2)
-	(defcvar 'map_fixed 0x10)
-	(defcvar 'map_anon 0x20)
-	(defcvar 's_ifmt 0xf000)
-	(defcvar 's_ifdir 0x4000)
-	(defcvar 's_ifreg 0x8000)
-)
-
 (def-enum 'file_open)
 	(enum 'read)
 	(enum 'write)
 	(enum 'readwrite)
+(def-enum-end)
+
+(def-enum 'mmap)
+	(enum 'data)
+	(enum 'exec)
+	(enum 'shared)
+(def-enum-end)
+
+(def-enum 'mprotect)
+	(enum 'none)
 (def-enum-end)
 
 (def-struct 'stat)
@@ -114,3 +74,7 @@
 	(long 'fsize)
 	(ushort 'mode)
 (def-struct-end)
+
+(defcvar 's_ifmt 0xf000)
+(defcvar 's_ifdir 0x4000)
+(defcvar 's_ifreg 0x8000)
