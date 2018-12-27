@@ -7,6 +7,12 @@ to weld things down. So not a lot of screen time at the moment !
 
 ------
 
+Big drive to get the platform isolation interface (PII) as simple as possible.
+Started a windows branch for the windows port, thanks to some prompting by
+BannanaEarwig.
+
+------
+
 Happy now with the polygon and stroking APIs after playing around with the new
 analogue clock face demo. Makes a real difference the the flow of the source
 code after rearranging the parameter ordering.
