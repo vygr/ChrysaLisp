@@ -244,21 +244,25 @@
 
 (defun make-platforms ()
 	(make 'Darwin 'x86_64)
+	(make 'Windows 'x86_64)
 	(make 'Linux 'x86_64)
 	(make 'Linux 'aarch64))
 
 (defun make-all-platforms ()
 	(make-all 'Darwin 'x86_64)
+	(make-all 'Windows 'x86_64)
 	(make-all 'Linux 'x86_64)
 	(make-all 'Linux 'aarch64))
 
 (defun remake-platforms ()
 	(remake 'Darwin 'x86_64)
+	(remake 'Windows 'x86_64)
 	(remake 'Linux 'x86_64)
 	(remake 'Linux 'aarch64))
 
 (defun remake-all-platforms ()
 	(remake-all 'Darwin 'x86_64)
+	(remake-all 'Windows 'x86_64)
 	(remake-all 'Linux 'x86_64)
 	(remake-all 'Linux 'aarch64))
 
