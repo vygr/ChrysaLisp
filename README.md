@@ -9,9 +9,9 @@ multi user.
 
 -------
 
-WARNING: There seams to be some issues with MacOS Mojave and SDL. There is a
+WARNING: There seems to be some issues with MacOS Mojave and SDL. There is a
 new release of SDL out soon, but looking at the Beta version on Mojave there
-still seams to be problems with it. An executable created on High Sierra works
+still seems to be problems with it. An executable created on High Sierra works
 absolutely fine on Mojave, and the executable created on Mojave works fine on
 High Sierra, so it's most strange. So temporally the High Sierra main bootstrap
 will be packaged with the snapshot.zip and make on Darwin will produce a file
