@@ -11,7 +11,7 @@
 (dec-method 'pref_size 'gui/slider/pref_size 'final)
 (dec-method 'draw 'gui/slider/draw 'final)
 (dec-method 'layout 'gui/view/opaque 'final)
-(dec-method 'mouse_down 'gui/slider/mouse_move 'final)
+(dec-method 'mouse_down 'gui/slider/mouse_down 'final)
 (dec-method 'mouse_up 'gui/slider/mouse_up 'final)
 (dec-method 'mouse_move 'gui/slider/mouse_move 'final)
 
@@ -24,5 +24,6 @@
 
 (def-struct 'slider 'view)
 	(ulong 'state)
+	(ulong 'offset)
 	(ptr 'value_targets)
 (def-struct-end)

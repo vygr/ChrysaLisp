@@ -5063,10 +5063,9 @@ r0 = code (long)
 inputs
 r0 = address (ptr)
 r1 = len (ulong)
-r2 = prot (ulong)
-r3 = flags (ulong)
-r4 = fd (ulong)
-r5 = pos (ulong)
+r2 = mode (ulong)
+r3 = fd (ulong)
+r4 = pos (ulong)
 outputs
 r0 = buffer (ptr)
 trashes
@@ -5953,7 +5952,7 @@ inputs
 r0 = view object (ptr)
 r1 = draw ctx (ptr)
 r2 = flags (ulong)
-r3 = depth (uint)
+r3 = depth (int)
 trashes
 all but r0
 ```

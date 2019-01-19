@@ -56,10 +56,10 @@
 		((eq id event_win_button)
 			(defq _ (find (sym (get (view-find-id window (get-long msg ev_msg_action_source_id)) 'text)) keys))
 			(when _
-				(vdu-print vdu (char 10))
 				(vdu-print vdu "----------------------") (vdu-print vdu (char 10))
 				(vdu-print vdu (elem _ keys)) (vdu-print vdu (char 10))
 				(vdu-print vdu "----------------------") (vdu-print vdu (char 10))
 				(vdu-print vdu (elem _ vals))
-				(vdu-print vdu "----------------------") (vdu-print vdu (char 10))))
+				(vdu-print vdu "----------------------") (vdu-print vdu (char 10))
+				(vdu-print vdu (char 10))))
 		(t (view-event window msg))))
