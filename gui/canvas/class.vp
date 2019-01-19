@@ -116,7 +116,7 @@
 
 (def-func-end)
 
-(def-method 'canvas 'deinit)
+(def-method 'canvas 'deinit 16)
 	;inputs
 	;r0 = canvas object (ptr)
 	;outputs
@@ -136,10 +136,13 @@
 
 	(def-struct 'local)
 		(ptr 'this)
+		(ptr 'old_stack)
 	(def-struct-end)
 
+	(vp-cpy-rr rsp r1)
 	(vp-alloc local_size)
-	(entry '((rsp local_this)))
+	(vp-and-cr -16 rsp)
+	(entry '((rsp local_this) (rsp local_old_stack)))
 
 	;free edge trackers
 	(vp-cpy-ir rsp local_this r0)
@@ -162,7 +165,7 @@
 		(host-call 'host 'sdl_destroy_texture '(r1))
 	(endif)
 
-	(vp-free local_size)
+	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)
@@ -241,7 +244,7 @@
 
 (def-func-end)
 
-(def-method 'canvas 'draw)
+(def-method 'canvas 'draw 16)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = draw ctx (ptr)
@@ -250,10 +253,12 @@
 	;trashes
 	;all but r0
 
-	(ptr 'this 'ctx 'surface 'temp_canvas)
+	(ptr 'this 'ctx 'surface 'temp_canvas 'old_stack)
 
+	(vp-cpy-rr rsp r2)
 	(push-scope)
-	(entry {this, ctx})
+	(vp-and-cr -16 rsp)
+	(entry {this, ctx, old_stack})
 
 	;if no texture then create from pixel buffer
 	(vpifnot {this->canvas_texture})
@@ -279,12 +284,13 @@
 			this->canvas_width / this->canvas_aa_scale, this->canvas_height / this->canvas_aa_scale})
 	(endif)
 
-	(pop-scope)
+	(assign {old_stack} '(rsp))
+	(pop-scope-syms)
 	(return)
 
 (def-func-end)
 
-(def-method 'canvas 'swap)
+(def-method 'canvas 'swap 16)
 	;inputs
 	;r0 = canvas object (ptr)
 	;outputs
@@ -302,6 +308,15 @@
 	;inputs
 	;r0 = user data
 
+	(def-struct 'local)
+		(ptr 'old_stack)
+	(def-struct-end)
+
+	(vp-cpy-rr rsp r1)
+	(vp-alloc local_size)
+	(vp-and-cr -16 rsp)
+	(entry '(r0 (rsp local_old_stack)))
+
 	;free any sdl texture
 	(vp-cpy-ir r0 canvas_texture r1)
 	(vpif '(r1 != 0))
@@ -309,6 +324,8 @@
 		(vp-cpy-ri r2 r0 canvas_texture)
 		(host-call 'host 'sdl_destroy_texture '(r1))
 	(endif)
+
+	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)

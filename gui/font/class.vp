@@ -63,7 +63,7 @@
 
 (def-func-end)
 
-(def-method 'font 'init)
+(def-method 'font 'init 16)
 	;inputs
 	;r0 = font object (ptr)
 	;r1 = vtable (pptr)
@@ -109,10 +109,12 @@
 	;inputs
 	;r0 = user data
 
-	(ptr 'user)
+	(ptr 'user 'old_stack)
 
+	(vp-cpy-rr rsp r1)
 	(push-scope)
-	(entry {user})
+	(vp-and-cr -16 rsp)
+	(entry {user, old_stack})
 
 	(host-call 'host 'ttf_open_font {&user->font_name->string_data, user->font_points} {user->font_handle})
 	(vpif {user->font_handle})
@@ -122,7 +124,8 @@
 		(host-call 'host 'ttf_font_height {user->font_handle} {user->font_height})
 	(endif)
 
-	(pop-scope)
+	(assign {old_stack} '(rsp))
+	(pop-scope-syms)
 	(return)
 
 (def-func-end)
@@ -158,7 +161,7 @@
 
 (def-func-end)
 
-(def-method 'font 'ref_word)
+(def-method 'font 'ref_word 16)
 	;inputs
 	;r0 = font object (ptr)
 	;r1 = string object (ptr)
@@ -212,11 +215,13 @@
 	;inputs
 	;r0 = user data
 
-	(ptr 'user 'surface)
+	(ptr 'user 'surface 'old_stack)
 	(ulong 'handle)
 
+	(vp-cpy-rr rsp r1)
 	(push-scope)
-	(entry {user})
+	(vp-and-cr -16 rsp)
+	(entry {user, old_stack})
 
 	(host-call 'host 'ttf_render_utf8_blended {user->local_this->font_handle, &user->local_word->string_data, 0xffffff} {surface})
 	(vpif {surface})
@@ -231,7 +236,8 @@
 		(host-call 'host 'sdl_free_surface {surface})
 	(endif)
 
-	(pop-scope)
+	(assign {old_stack} '(rsp))
+	(pop-scope-syms)
 	(return)
 
 (def-func-end)

@@ -59,7 +59,7 @@
 		(sym (trim-start (trim-end _ ")") "'")))
 	(each-line (lambda (_)
 		(when (and (ge (length _) 10) (eql "(" (elem 0 _))
-				(le 2 (length (defq s (split _ " "))) 3))
+				(le 2 (length (defq s (split _ " "))) 4))
 			(defq _ (elem 0 s))
 			(cond
 				((eql _ "(def-method")

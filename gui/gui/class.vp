@@ -23,7 +23,7 @@
 
 (def-func-end)
 
-(def-func 'gui/gui/gui 8192)
+(def-func 'gui/gui/gui 16 8192)
 	;gui process
 
 	(def-struct 'local)
@@ -80,12 +80,14 @@
 	;inputs
 	;r0 = user data
 
-	(ptr 'user 'owner 'msg 'data 'view)
+	(ptr 'user 'owner 'msg 'data 'view 'old_stack)
 	(int 'flag 'key)
 	(struct 'event 256)
 
+	(vp-cpy-rr rsp r1)
 	(push-scope)
-	(entry {user})
+	(vp-and-cr -16 rsp)
+	(entry {user, old_stack})
 
 	;create screen window ?
 	(vpifnot {user->local_statics->gui_statics_window})
@@ -205,7 +207,40 @@
 		(endswitch)
 	(loop-end)
 
-	(pop-scope)
+	(assign {old_stack} '(rsp))
+	(pop-scope-syms)
+	(return)
+
+(vp-label 'deinit_callback)
+	;inputs
+	;r0 = user data
+
+	(ptr 'user 'old_stack)
+
+	(vp-cpy-rr rsp r1)
+	(push-scope)
+	(vp-and-cr -16 rsp)
+	(entry {user, old_stack})
+
+	;free any screen
+	(vpif {user->local_statics->gui_statics_screen})
+		(call 'view 'deref {user->local_statics->gui_statics_screen})
+		(assign {0} {user->local_statics->gui_statics_screen})
+	(endif)
+
+	;destroy any window
+	(vpif {user->local_statics->gui_statics_window})
+		(host-call 'host 'sdl_destroy_window {user->local_statics->gui_statics_window})
+		(host-call 'host 'ttf_quit)
+		(host-call 'host 'sdl_quit)
+	(endif)
+
+	;free old region and deinit region heap
+	(call 'region 'free {user->local_statics->gui_statics_rect_heap, user->local_statics->gui_statics_old_region})
+	(call 'sys_heap 'deinit {user->local_statics->gui_statics_rect_heap})
+
+	(assign {old_stack} '(rsp))
+	(pop-scope-syms)
 	(return)
 
 (vp-label 'cook_key)
@@ -233,35 +268,6 @@
 	(endif)
 
 	(exit {key})
-	(pop-scope)
-	(return)
-
-(vp-label 'deinit_callback)
-	;inputs
-	;r0 = user data
-
-	(ptr 'user)
-
-	(push-scope)
-	(entry {user})
-
-	;free any screen
-	(vpif {user->local_statics->gui_statics_screen})
-		(call 'view 'deref {user->local_statics->gui_statics_screen})
-		(assign {0} {user->local_statics->gui_statics_screen})
-	(endif)
-
-	;destroy any window
-	(vpif {user->local_statics->gui_statics_window})
-		(host-call 'host 'sdl_destroy_window {user->local_statics->gui_statics_window})
-		(host-call 'host 'ttf_quit)
-		(host-call 'host 'sdl_quit)
-	(endif)
-
-	;free old region and deinit region heap
-	(call 'region 'free {user->local_statics->gui_statics_rect_heap, user->local_statics->gui_statics_old_region})
-	(call 'sys_heap 'deinit {user->local_statics->gui_statics_rect_heap})
-
 	(pop-scope)
 	(return)
 
