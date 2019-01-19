@@ -4,7 +4,7 @@
 (include 'class/stream_str/class.inc)
 (include 'class/lisp/class.inc)
 
-(def-func 'class/lisp/run 8192)
+(def-func 'class/lisp/run nil 8192)
 	;lisp run loop task
 	;inputs
 	;msg of lisp filename

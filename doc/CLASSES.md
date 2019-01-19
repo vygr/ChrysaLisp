@@ -4009,7 +4009,7 @@ r0 = view object (ptr)
 trashes
 all but r0
 ```
-### slider::mouse_down -> gui/slider/mouse_move
+### slider::mouse_down -> gui/slider/mouse_down
 ```
 inputs
 r0 = slider object (ptr)

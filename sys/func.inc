@@ -19,7 +19,7 @@
 ; functions
 ;;;;;;;;;;;
 
-(defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil)
+(defcvar '*func-name* nil '*strings* nil '*paths* nil '*links* nil '*func-align* nil)
 
 (defcfun link-sym (p)
 	(cat "ref_link_" (str p)))
@@ -30,17 +30,18 @@
 (defcfun string-sym (p)
 	(cat "ref_string_" (str p)))
 
-(defcfun def-func (*name* &optional *func-stack*)
+(defcfun def-func (*name* &optional falign fstack)
 	(print "-> " (cat "obj/" *os* "/" *cpu* "/" (str *name*)))
 	(emit-reset)
-	(setq *func-name* *name* *switch-nxt* 0 *strings* (list) *paths* (list) *links* (list))
+	(setq *func-name* *name* *switch-nxt* 0 *strings* (list) *paths* (list)
+		*links* (list) *func-align* (opt falign stack_align))
 (vp-label 'func_start)
 	(vp-long -1)
 	(vp-short (list 'sub (label-sym 'func_end) (label-sym 'func_start))
 		(list 'sub (label-sym 'func_entry) (label-sym 'func_start))
 		(list 'sub (label-sym 'func_links) (label-sym 'func_start))
 		(list 'sub (label-sym 'func_paths) (label-sym 'func_start))
-		(opt *func-stack* tk_stack_size))
+		(opt fstack tk_stack_size))
 (vp-label 'func_name_start)
 	(vp-string (str *name*))
 	(vp-byte 0 (list 'sub (label-sym 'func_entry) (label-sym 'func_name_start)))

@@ -103,7 +103,7 @@
 			(vp-cpy-ir rsp local_dirty_rect r0)
 		(loop-end)))
 
-(def-method 'ctx 'blit)
+(def-method 'ctx 'blit 16)
 	;inputs
 	;r0 = draw ctx (ptr)
 	;r1 = texture id (ulong)
@@ -122,9 +122,13 @@
 		(ptr 'ctx)
 		(ulong 'texture)
 		(ptr 'dirty_rect)
+		(ptr 'old_stack)
 	(def-struct-end)
 
+	(vp-cpy-rr rsp r3)
 	(vp-alloc local_size)
+	(vp-and-cr -16 rsp)
+	(vp-cpy-ri r3 rsp local_old_stack)
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 rsp local_ctx)
@@ -159,12 +163,12 @@
 		(host-call 'host 'sdl_render_copy '((r0 ctx_sdl_ctx) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))
 	)
 
-	(vp-free local_size)
+	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'ctx 'box)
+(def-method 'ctx 'box 16)
 	;inputs
 	;r0 = draw ctx (ptr)
 	;r7 = x (pixels)
@@ -179,9 +183,13 @@
 		(struct 'clip_rect 'sdl_rect)
 		(ptr 'ctx)
 		(ptr 'dirty_rect)
+		(ptr 'old_stack)
 	(def-struct-end)
 
+	(vp-cpy-rr rsp r3)
 	(vp-alloc local_size)
+	(vp-and-cr -16 rsp)
+	(vp-cpy-ri r3 rsp local_old_stack)
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 rsp local_ctx)
@@ -200,12 +208,12 @@
 		(host-call 'host 'sdl_render_draw_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))
 	)
 
-	(vp-free local_size)
+	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'ctx 'filled_box)
+(def-method 'ctx 'filled_box 16)
 	;inputs
 	;r0 = draw ctx (ptr)
 	;r7 = x (pixels)
@@ -220,9 +228,13 @@
 		(struct 'clip_rect 'sdl_rect)
 		(ptr 'ctx)
 		(ptr 'dirty_rect)
+		(ptr 'old_stack)
 	(def-struct-end)
 
+	(vp-cpy-rr rsp r3)
 	(vp-alloc local_size)
+	(vp-and-cr -16 rsp)
+	(vp-cpy-ri r3 rsp local_old_stack)
 
 	;save draw rectangle info
 	(vp-cpy-ri r0 rsp local_ctx)
@@ -241,7 +253,7 @@
 		(host-call 'host 'sdl_render_fill_rect '((r0 ctx_sdl_ctx) (& rsp local_rect)))
 	)
 
-	(vp-free local_size)
+	(vp-cpy-ir rsp local_old_stack rsp)
 	(vp-ret)
 
 (def-func-end)

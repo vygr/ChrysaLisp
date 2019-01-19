@@ -92,10 +92,11 @@
 				(throw "Method does not exist !" _1))
 			(t (throw "Must use static, virtual, final or override ! " _3)))))
 
-(defcfun def-method (_1 _2)
+(defcfun def-method (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
-	(def-func (f-path _1 _2)))
+	;_3 = function stack alignment
+	(def-func (f-path _1 _2) _3))
 
 ;;;;;;;;;;;;;;;;;;
 ; function helpers
