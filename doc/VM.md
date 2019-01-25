@@ -81,7 +81,7 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 (vp-land-rr rs rd)
 ```
 
-#### Memory to Register
+#### Register to Memory
 
 ```
 (vp-cpy-rp rs label)
@@ -95,7 +95,7 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 (vp-cpy-rd-i rs rb ri)
 ```
 
-#### Register to Memory
+#### Memory to Register
 
 ```
 (vp-cpy-pr label rd)
@@ -133,7 +133,7 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 (vp-bge-rr rs rd label)
 ```
 
-#### Lea
+#### Effective address
 
 ```
 (vp-lea-i rb i rd)
@@ -175,7 +175,7 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 (vp-ext-rr rs rd)
 ```
 
-#### Psudo ops
+#### Pseudo ops
 
 ```
 (vp-label label)
