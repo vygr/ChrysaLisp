@@ -56,7 +56,7 @@
 	(max s 0.1))
 
 (defun lighting (surface_pos surface_norm cam_pos)
-	(defq  _ (points 0 0 0) obj_color (vec-floor (vec-mod surface_pos 2.0))
+	(defq _ (points 0 0 0) obj_color (vec-floor (vec-mod surface_pos 2.0))
 		light_vec (vec-sub light_pos surface_pos)
 		light_dis (vec-length light_vec)
 		light_norm (vec-scale light_vec (fdiv 1.0 light_dis) light_vec)

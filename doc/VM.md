@@ -30,10 +30,11 @@ code ! It makes no difference to the aarch64 emit functions, so one does tend
 to make VP divide code use r0 and r2 as it really helps the x86_64 code
 generation quality.
 
-You can use the (vp-def) macro to assign register equated symbols to help your
-source look nice. Or to bind symbols to registers, via (method-input) and
-(method-output), that match function entry/exit parameters if you desire. A
-great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
+You can use the `(vp-def)` macro to assign register equated symbols to help
+your source look nice. Or to bind symbols to registers, via `(method-input)`
+and `(method-output)`, that match function entry/exit parameters if you desire.
+A great example of this is the `canvas::fpoly`, or the `canvas::resize_2`
+functions.
 
 ### VP Assembler
 
@@ -191,8 +192,8 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 
 Simple answer is there is none. The better answer is that all calls, apart from
 host OS ABI calls, take parameters in registers and not via the stack ! All
-functions define there register inputs and outputs, and trashes documented if
-they can. The (assign) function will do any parameter mapping and copying for
+functions define their register inputs and outputs, and trashes documented if
+they can. The `(assign)` function will do any parameter mapping and copying for
 you, it will tell you if it can't due to a circular mapping so you can add a
 temp. Assignment will not attempt to spill to the stack or assign temp
 registers !
@@ -203,9 +204,9 @@ inability to support features, like function chaining, as a result. You will
 often see a ChrysaLisp function jump out to another function in order to save
 on stack space with the eventual return going back to the original caller.
 Prime example are deinit methods that chain on to their parent deinit with a
-direct (s-jmp), but this happens all over the code base where possible.
+direct `(s-jmp)`, but this happens all over the code base where possible.
 
-The (dec-method) function takes the lists of input and output parameter
+The `(dec-method)` function takes the lists of input and output parameter
 registers. If the list of inputs or outputs is nil this means to inherit the
 list from the parent class declaration.
 
