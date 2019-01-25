@@ -147,7 +147,7 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 (vp-call label)
 (vp-call-r rd)
 (vp-call-i rb i)
-(vp-call-p label-sym)
+(vp-call-p label)
 (vp-call-abi rt rb i arg-list)
 
 (vp-jmp label)
@@ -186,3 +186,46 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 (vp-int int ...)
 (vp-long long ...)
 ```
+
+## Calling Convention
+
+Simple answer is there is none. The better answer is that all calls, apart from
+host OS ABI calls, take parameters in registers and not via the stack ! All
+functions define there register inputs and outputs, and trashes documented if
+they can. The (assign) function will do any parameter mapping and copying for
+you, it will tell you if it can't due to a circular mapping so you can add a
+temp. Assignment will not attempt to spill to the stack or assign temp
+registers !
+
+In other systems, OS and Compilers, they adopt some convention for register
+parameter layout and stack layout, but suffer performance problems and
+inability to support features, like function chaining, as a result. You will
+often see a ChrysaLisp function jump out to another function in order to save
+on stack space with the eventual return going back to the original caller.
+Prime example are deinit methods that chain on to their parent deinit with a
+direct (s-jmp), but this happens all over the code base where possible.
+
+The (dec-method) function takes the lists of input and output parameter
+registers. If the list of inputs or outputs is nil this means to inherit the
+list from the parent class declaration.
+
+An example from the array class.inc.
+
+```
+(dec-method 'find 'class/array/find 'static '(r0 r1) '(r0 r1))
+(dec-method 'for_each 'class/array/for_each 'static '(r0 r1 r2 r3 r4) '(r0 r1))
+(dec-method 'sort 'class/array/sort 'static '(r0 r1 r2 r3 r4 r5) '(r0))
+(dec-method 'partition 'class/array/partition 'static '(r0 r1 r2 r3 r4) '(r0 r1))
+```
+
+Core functions in the kernel and class libs are very careful to track and
+document their register trashing. Higher level functions often use the next
+registers available while calling lower functions in order to avoid stack
+push/pop or other memory read/write instructions.
+
+Any use of the script expression compiler means that all bets are off as
+regards register trashing, so you will see that all such functions are
+documented as 'trashes all'. However the expression compiler can be constrained
+to use only a specific set of registers to do it's work, but that's an advanced
+topic for specialist code generation, the vector math DSL takes full advantage
+of this feature.
