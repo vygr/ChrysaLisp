@@ -19,7 +19,9 @@ simple load/store addressing modes.
 
 ### Registers
 
+```
 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, rsp
+```
 
 These are mapped to real physical registers by the target processor 'emit'
 functions. On certain processors, like the x86_64, it's worth knowing that r0
@@ -37,6 +39,7 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 
 #### Constant to register
 
+```
 (vp-cpy-cr c rd)
 (vp-add-cr c rd)
 (vp-sub-cr c rd)
@@ -49,9 +52,11 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 (vp-shl-cr c rd)
 (vp-shr-cr c rd)
 (vp-asr-cr c rd)
+```
 
 #### Register to register
 
+```
 (vp-cpy-rr rs rd)
 (vp-add-rr rs rd)
 (vp-sub-rr rs rd)
@@ -67,14 +72,18 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 
 (vp-div-rrr rs rdh rdl)
 (vp-div-rrr-u rs rdh rdl)
+```
 
 #### Logical And, Not
 
+```
 (vp-lnot-rr rt rd)
 (vp-land-rr rs rd)
+```
 
 #### Memory to Register
 
+```
 (vp-cpy-rp rs label)
 (vp-cpy-ri rs rb i)
 (vp-cpy-rd rs rb ri)
@@ -84,9 +93,11 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 (vp-cpy-rd-s rs rb ri)
 (vp-cpy-ri-i rs rb i)
 (vp-cpy-rd-i rs rb ri)
+```
 
 #### Register to Memory
 
+```
 (vp-cpy-pr label rd)
 (vp-cpy-ir rb i rd)
 (vp-cpy-dr rb ri rd)
@@ -102,9 +113,11 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 (vp-cpy-dr-i rb ri rd)
 (vp-cpy-ir-ui rb i rd)
 (vp-cpy-dr-ui rb ri rd)
+```
 
 #### Branch
 
+```
 (vp-beq-cr c rd label)
 (vp-bne-cr c rd label)
 (vp-blt-cr c rd label)
@@ -118,15 +131,19 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 (vp-ble-rr rs rd label)
 (vp-bgt-rr rs rd label)
 (vp-bge-rr rs rd label)
+```
 
 #### Lea
 
+```
 (vp-lea-i rb i rd)
 (vp-lea-d rb i rd)
 (vp-lea-p label rd)
+```
 
 #### Call, Jump, Ret
 
+```
 (vp-call label)
 (vp-call-r rd)
 (vp-call-i rb i)
@@ -139,22 +156,28 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 (vp-jmp-p label)
 
 (vp-ret)
+```
 
 #### Push, Pop
 
+```
 (vp-push rx ry ...)
 (vp-pop rx ry ...)
 
 (vp-alloc c)
 (vp-free c)
+```
 
 #### Swap, Extend
 
+```
 (vp-swp-rr rs rd)
 (vp-ext-rr rs rd)
+```
 
 #### Psudo ops
 
+```
 (vp-label label)
 (vp-align align [byte])
 (vp-string string)
@@ -162,3 +185,4 @@ great example of this is the canvas::fpoly, or the canvas::resize_2 functions.
 (vp-short short ...)
 (vp-int int ...)
 (vp-long long ...)
+```
