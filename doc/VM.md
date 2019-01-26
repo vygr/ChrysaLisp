@@ -138,7 +138,7 @@ functions.
 
 ```
 (vp-lea-i rb i rd)
-(vp-lea-d rb i rd)
+(vp-lea-d rb ri rd)
 (vp-lea-p label rd)
 ```
 
