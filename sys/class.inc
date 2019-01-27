@@ -57,15 +57,6 @@
 				(if (eql (elem 1 m) 'static)
 					(override)
 					(throw "Virtual method already exists !" _1)))
-			((eql _3 'virtual)
-				(throw "Method already exists !, use override ?" _1))
-			((eql _3 'override)
-				(cond
-					((eql (elem 1 m) 'virtual)
-						(override))
-					((eql (elem 1 m) 'final)
-						(throw "Virtual method is final !" _1))
-					(t (throw "Static method already exists !" _1))))
 			((eql _3 'final)
 				(cond
 					((eql (elem 1 m) 'virtual)
@@ -74,6 +65,15 @@
 					((eql (elem 1 m) 'final)
 						(throw "Virtual method is final !" _1))
 					(t (throw "Static method already exists !" _1))))
+			((eql _3 'override)
+				(cond
+					((eql (elem 1 m) 'virtual)
+						(override))
+					((eql (elem 1 m) 'final)
+						(throw "Virtual method is final !" _1))
+					(t (throw "Static method already exists !" _1))))
+			((eql _3 'virtual)
+				(throw "Method already exists !, use override ?" _1))
 			(t (throw "Must use static, virtual, final or override ! " _3)))
 		(cond
 			;new method
