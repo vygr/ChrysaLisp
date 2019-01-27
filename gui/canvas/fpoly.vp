@@ -192,7 +192,7 @@
 
 			(vpif {ys >= this->canvas_cy})
 				(vp-def (this col x1 y x2 w v iter_k iter_j iter_edge1 iter_edge2 span)
-					(method-output 'canvas 'set_span))
+					(method-input 'canvas 'set_span))
 				(vpif {mode})
 					;odd even
 					(assign {this} (list this))

@@ -28,21 +28,21 @@
 	(cond
 		((eql c 'c)
 			(cond
-				((eql o '==) (vp-beq-cr s d l))
 				((eql o '!=) (vp-bne-cr s d l))
+				((eql o '==) (vp-beq-cr s d l))
 				((eql o '<) (vp-blt-cr s d l))
 				((eql o '>) (vp-bgt-cr s d l))
-				((eql o '<=) (vp-ble-cr s d l))
 				((eql o '>=) (vp-bge-cr s d l))
+				((eql o '<=) (vp-ble-cr s d l))
 				(t (throw "No such comparator" o))))
 		((eql c 'r)
 			(cond
+				((eql o '>=) (vp-bge-rr s d l))
 				((eql o '==) (vp-beq-rr s d l))
+				((eql o '<=) (vp-ble-rr s d l))
 				((eql o '!=) (vp-bne-rr s d l))
 				((eql o '<) (vp-blt-rr s d l))
 				((eql o '>) (vp-bgt-rr s d l))
-				((eql o '<=) (vp-ble-rr s d l))
-				((eql o '>=) (vp-bge-rr s d l))
 				(t (throw "No such comparator" o))))
 		(t (throw "No such compare mode" c))))
 
@@ -55,12 +55,12 @@
 	(cond
 		((eql c 'c)
 			(cond
-				((eql o '==) (vp-bne-cr s d l))
 				((eql o '!=) (vp-beq-cr s d l))
-				((eql o '<) (vp-bge-cr s d l))
+				((eql o '==) (vp-bne-cr s d l))
 				((eql o '>) (vp-ble-cr s d l))
-				((eql o '<=) (vp-bgt-cr s d l))
+				((eql o '<) (vp-bge-cr s d l))
 				((eql o '>=) (vp-blt-cr s d l))
+				((eql o '<=) (vp-bgt-cr s d l))
 				(t (throw "No such comparator" o))))
 		((eql c 'r)
 			(cond
@@ -68,8 +68,8 @@
 				((eql o '!=) (vp-beq-rr s d l))
 				((eql o '<) (vp-bge-rr s d l))
 				((eql o '>) (vp-ble-rr s d l))
-				((eql o '<=) (vp-bgt-rr s d l))
 				((eql o '>=) (vp-blt-rr s d l))
+				((eql o '<=) (vp-bgt-rr s d l))
 				(t (throw "No such comparator" o))))
 		(t (throw "No such compare mode" c))))
 
@@ -461,26 +461,26 @@
 					(setq i (type y))
 					(cond
 						((eql i 'r) (vp-cpy-rr x y))
+						((eql i 'ii) (vp-cpy-ri-i x (elem 0 y) (elem 1 y)))
 						((eql i 'i) (vp-cpy-ri x (elem 0 y) (elem 1 y)))
 						((eql i 'ib) (vp-cpy-ri-b x (elem 0 y) (elem 1 y)))
 						((eql i 'is) (vp-cpy-ri-s x (elem 0 y) (elem 1 y)))
-						((eql i 'ii) (vp-cpy-ri-i x (elem 0 y) (elem 1 y)))
 						((eql i 'd) (vp-cpy-rd x (elem 0 y) (elem 1 y)))
 						(t (throw "Invalid dst parameter !" i))))
 				((eql i 'c) (vp-cpy-cr x y))
 				((eql i 'i) (vp-cpy-ir (elem 0 x) (elem 1 x) y))
-				((eql i 'ib) (vp-cpy-ir-b (elem 0 x) (elem 1 x) y))
-				((eql i 'iub) (vp-cpy-ir-ub (elem 0 x) (elem 1 x) y))
-				((eql i 'is) (vp-cpy-ir-s (elem 0 x) (elem 1 x) y))
-				((eql i 'ius) (vp-cpy-ir-us (elem 0 x) (elem 1 x) y))
 				((eql i 'ii) (vp-cpy-ir-i (elem 0 x) (elem 1 x) y))
-				((eql i 'iui) (vp-cpy-ir-ui (elem 0 x) (elem 1 x) y))
-				((eql i 'd) (vp-cpy-dr (elem 0 x) (elem 1 x) y))
-				((eql i '&i) (vp-lea-i (elem 1 x) (elem 2 x) y))
-				((eql i '&d) (vp-lea-d (elem 1 x) (elem 2 x) y))
-				((eql i 's) (fn-string x y))
 				((eql i '@) (fn-bind (elem 1 x) y))
+				((eql i 's) (fn-string x y))
 				((eql i '$) (vp-lea-p (elem 1 x) y))
+				((eql i 'iui) (vp-cpy-ir-ui (elem 0 x) (elem 1 x) y))
+				((eql i '&i) (vp-lea-i (elem 1 x) (elem 2 x) y))
+				((eql i 'd) (vp-cpy-dr (elem 0 x) (elem 1 x) y))
+				((eql i '&d) (vp-lea-d (elem 1 x) (elem 2 x) y))
+				((eql i 'iub) (vp-cpy-ir-ub (elem 0 x) (elem 1 x) y))
+				((eql i 'ius) (vp-cpy-ir-us (elem 0 x) (elem 1 x) y))
+				((eql i 'is) (vp-cpy-ir-s (elem 0 x) (elem 1 x) y))
+				((eql i 'ib) (vp-cpy-ir-b (elem 0 x) (elem 1 x) y))
 				(t (throw "Invalid src parameter !" i)))) *src* *dst*)))
 
 ;;;;;;;;;;
@@ -512,6 +512,16 @@
 			s (find c {@$"-*~!+.^)(][</%&|=>}) ;"
 			s (if s (add s 2) 0))
 		(cond
+			((eq m 1)
+				;symbol mode
+				(if (is_symbol_char c)
+					(setq c nil)
+					(progn
+						(if (find (sym (defq s (slice p i l)))
+								'(byte ubyte short ushort int uint long ulong ptr))
+							(token-push s 5)
+							(token-push s m))
+						(setq p i u 0 m -1))))
 			((eq m -1)
 				;scanning
 				(if (is_white_space_char c)
@@ -549,23 +559,13 @@
 						(setq p i m -1))
 					(t
 						(setq c nil))))
-			((eq m 0)
-				;number mode
-				(if (is_allowed_number_char c)
+			((eq m 4)
+				;string mode
+				(if (ne s 4)
 					(setq c nil)
 					(progn
 						(token-push (slice p i l) m)
-						(setq p i u 0 m -1))))
-			((eq m 1)
-				;symbol mode
-				(if (is_symbol_char c)
-					(setq c nil)
-					(progn
-						(if (find (sym (defq s (slice p i l)))
-								'(byte ubyte short ushort int uint long ulong ptr))
-							(token-push s 5)
-							(token-push s m))
-						(setq p i u 0 m -1))))
+						(setq p (inc i) u 0 m -1))))
 			((eq m 2)
 				;bind
 				(if (is_symbol_char c)
@@ -580,13 +580,14 @@
 					(progn
 						(token-push (slice p i l) m)
 						(setq p i u 0 m -1))))
-			(t
-				;string mode
-				(if (ne s 4)
+			((eq m 0)
+				;number mode
+				(if (is_allowed_number_char c)
 					(setq c nil)
 					(progn
 						(token-push (slice p i l) m)
-						(setq p (inc i) u 0 m -1)))))
+						(setq p i u 0 m -1))))
+			(t (throw "Unknown parse mode !" m)))
 		(unless c (setq i (inc i))))
 	(unless (eq p i)
 		(token-push (slice p i l) m))
@@ -614,7 +615,7 @@
 						(while (and (not (eql "[" (setq k (pop o)))) k)
 							(rpn-push k -1))
 						(rpn-push "[]" -1))
-					(t ;precedence
+					(t  ;precedence
 						(unless (defq s (get-sym k))
 							(throw "Operator not defined !" k))
 						(defq v (sub (elem 2 s) (elem 3 s)) x t)
@@ -1098,14 +1099,14 @@
 	(setd _1 '() _2 '())
 	(defq s (str? _1) d (str? _2))
 	(cond
-		((and s d)
-			;script -> script
-			(assign-script-to-script _1 _2 _3))
 		((and s (not d))
 			;script -> asm
 			(assign-script-to-asm _1 _2 _3))
+		((and (not s) (not d))
+			;asm -> asm
+			(assign-asm-to-asm _1 _2))
 		((and (not s) d)
 			;asm -> script
 			(assign-asm-to-script _1 _2 _3))
-		(t	;asm -> asm
-			(assign-asm-to-asm _1 _2))))
+		(t ;script -> script
+			(assign-script-to-script _1 _2 _3))))

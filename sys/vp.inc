@@ -210,6 +210,7 @@
 			(cond
 				((reg o) 'r)
 				(t 'c)))
+		((eq i lisp_type_integer) 'c)
 		((eq i lisp_type_list)
 			(setq i (elem 0 o))
 			(cond
@@ -219,13 +220,11 @@
 							(sym-cat "i" (elem 2 o)))))
 				((eql i '@) i)
 				((eql i '$) i)
-				((eql i '?) i)
 				((eql i '&)
 					(if (reg (elem 1 o))
 						(if (reg (elem 2 o)) '&d '&i) nil))
 				(t 'c)))
 		((eq i lisp_type_string) 's)
-		((eq i lisp_type_integer) 'c)
 		(t nil)))
 
 (defcfun label-sym (s)

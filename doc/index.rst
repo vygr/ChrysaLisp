@@ -18,8 +18,9 @@ Welcome to ChrysaLisp's documentation!
 
    INTRO
    LISP
-   FUNCTIONS
    SYNTAX
+   VM
+   FUNCTIONS
    CLASSES
    TODO
    TAOS
