@@ -278,9 +278,9 @@ So let's go through the important lines in this function.
 First of all the `(def-method 'sys_string 'compare)` is doing the same job as a
 `(def-func)` would do, it's a wrapper function to simplify writing the
 `(def-func)` that also does some extra checks to make sure you actually do have
-a `(dec-method)` for it in the include file. The `(def-fun-end)` just wraps the
-function, matching any `(def-func)` or `(def-method)`. If want to dive into
-what these calls do to get yor function compiled and written out, look in
+a `(dec-method)` for it in the include file. The `(def-func-end)` just wraps
+the function, matching any `(def-func)` or `(def-method)`. If want to dive into
+what these calls do to get your function compiled and written out, look in
 `sys/func.inc` where all the magic happens.
 
 Next there is a section of documentation, this format can be parsed out by the
@@ -295,7 +295,7 @@ here is auto assigned from and to the declared register input and output lists
 ! In this case the entry of `'(r0 r1)` turns into an `(assign '(r0 r1) '(r0
 r1))` which ends up emitting no code, but the exit of `'(r2)` does an `(assign
 '(r2) '(r0))` which emits a `(vp-cpy-rr r2 r0)` ensuring that the result in r2
-ends up copied to the declared output r0. So entry and exit helper ensure your
+ends up copied to the declared output r0. So entry and exit helpers ensure your
 function sticks to its declared contract with the outside world.
 
 The other lines that are not basic VP code instructions are `(loop-start)`,
