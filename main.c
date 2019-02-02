@@ -44,13 +44,13 @@ long long mystat(char *path, struct finfo *st)
 
 long long noneblk()
 {
-	int m = fcntl(0, F_GETFL, 0);
-	return fcntl(0, F_SETFL, m | O_NONBLOCK);
+	return fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
 }
+
+struct timeval tv;
 
 long long gettime()
 {
-	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return tv.tv_sec * 1000000 + tv.tv_usec;
 }

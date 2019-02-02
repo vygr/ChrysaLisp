@@ -2,7 +2,7 @@
 (include 'class/hash_map/class.inc)
 
 (def-class 'component 'hash_map)
-(dec-method 'vtable 'gui/class_component)
+(dec-method 'vtable 'gui/component/vtable)
 (dec-method 'init 'gui/component/init 'static '(r0 r1))
 (dec-method 'find_owner 'gui/component/find_owner 'static '(r0) '(r0 r1))
 (dec-method 'emit 'gui/component/emit 'static '(r0 r1) '(r0))

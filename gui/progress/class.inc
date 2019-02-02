@@ -1,7 +1,7 @@
 (include 'gui/view/class.inc)
 
 (def-class 'progress 'view)
-(dec-method 'vtable 'gui/class_progress)
+(dec-method 'vtable 'gui/progress/vtable)
 (dec-method 'create 'gui/progress/create 'static '() '(r0))
 (dec-method 'new 'gui/progress/new 'static nil '(r0))
 

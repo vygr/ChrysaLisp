@@ -30,6 +30,11 @@
 (defcfun string-sym (p)
 	(cat "ref_string_" (str p)))
 
+(defmacro trace_starts_with (_)
+	`(and (ge (length *name*) ,(length _)) (eql (slice 0 ,(length _) *name*) ,_)))
+(defmacro trace_ends_with (_)
+	`(and (ge (length *name*) ,(length _)) (eql (slice ,(neg (inc (length _))) -1 *name*) ,_)))
+
 (defcfun def-func (*name* &optional falign fstack)
 	(print "-> " (cat "obj/" *os* "/" *cpu* "/" (str *name*)))
 	(emit-reset)
@@ -47,7 +52,19 @@
 	(vp-byte 0 (list 'sub (label-sym 'func_entry) (label-sym 'func_name_start)))
 	(vp-align ptr_size (list 'sub (label-sym 'func_entry) (label-sym 'func_name_start)))
 (vp-label 'func_entry)
-	(push-scope))
+	(push-scope)
+	(when (and debug_trace debug_mode
+			(not (trace_ends_with "/statics"))				;not statics
+			(not (trace_ends_with "/vtable"))				;not vtables
+			(not (trace_starts_with "sys/pii/"))			;not pii functions
+			(or
+				(trace_starts_with "class/")
+				(trace_starts_with "sys/mem/")))
+		(debug-str (cat "entry: " *name*))
+		(vp-call 'func_entry_1)
+		(debug-str (cat "exit: " *name*))
+		(vp-ret)
+	(vp-label 'func_entry_1)))
 
 (defcfun def-func-end ()
 	(pop-scope-checked)

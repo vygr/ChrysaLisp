@@ -1,7 +1,7 @@
 (include 'gui/label/class.inc)
 
 (def-class 'button 'label)
-(dec-method 'vtable 'gui/class_button)
+(dec-method 'vtable 'gui/button/vtable)
 (dec-method 'create 'gui/button/create)
 (dec-method 'new 'gui/button/new)
 (dec-method 'init 'gui/button/init)

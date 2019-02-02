@@ -1,7 +1,7 @@
 (include 'class/string/class.inc)
 
 (def-class 'symbol 'string)
-(dec-method 'vtable 'class/class_symbol)
+(dec-method 'vtable 'class/symbol/vtable)
 (dec-method 'statics 'class/symbol/statics)
 (dec-method 'flush 'class/symbol/flush)
 (dec-method 'intern 'class/symbol/intern 'static '(r0) '(r0))

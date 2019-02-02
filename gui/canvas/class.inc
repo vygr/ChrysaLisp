@@ -1,7 +1,7 @@
 (include 'gui/view/class.inc)
 
 (def-class 'canvas 'view)
-(dec-method 'vtable 'gui/class_canvas)
+(dec-method 'vtable 'gui/canvas/vtable)
 (dec-method 'create 'gui/canvas/create 'static '(r0 r1 r2) '(r0))
 (dec-method 'create_shared 'gui/canvas/create_shared 'static '(r0) '(r0))
 (dec-method 'new 'gui/canvas/new 'static nil '(r0))

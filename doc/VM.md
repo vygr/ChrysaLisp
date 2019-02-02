@@ -230,3 +230,78 @@ documented as 'trashes all'. However the expression compiler can be constrained
 to use only a specific set of registers to do it's work, but that's an advanced
 topic for specialist code generation, the vector math DSL takes full advantage
 of this feature.
+
+## VP level function example
+
+This is the system level string compare function. `sys_string::compare`
+
+Register inputs and outputs are declared in the `sys/string/class.inc` file.
+
+```
+(def-class 'sys_string)
+(dec-method 'compare 'sys/string/compare 'static '(r0 r1) '(r0))
+```
+
+So this function will take the pointers to the C style input char*'s in
+registers r0 and r1, and will return the comparison value in register r0.
+
+Implementation of the function is defined in the `sys/string/class.vp` file.
+
+```
+(def-method 'sys_string 'compare)
+	;inputs
+	;r0 = c string1 (pubyte)
+	;r1 = c string2 (pubyte)
+	;outputs
+	;r0 = 0 if same, else -, +
+	;trashes
+	;r0-r3
+
+	(entry 'sys_string 'compare '(r0 r1))
+	(loop-start)
+		(vp-cpy-ir-ub r0 0 r2)
+		(vp-cpy-ir-ub r1 0 r3)
+		(vp-sub-rr r3 r2)
+		(breakif '(r2 != 0))
+		(breakif '(r3 == 0))
+		(vp-add-cr byte_size r0)
+		(vp-add-cr byte_size r1)
+	(loop-end)
+	(exit 'sys_string 'compare '(r2))
+	(vp-ret)
+
+(def-func-end)
+```
+
+So let's go through the important lines in this function.
+
+First of all the `(def-method 'sys_string 'compare)` is doing the same job as a
+`(def-func)` would do, it's a wrapper function to simplify writing the
+`(def-func)` that also does some extra checks to make sure you actually do have
+a `(dec-method)` for it in the include file. The `(def-func-end)` just wraps
+the function, matching any `(def-func)` or `(def-method)`. If you want to dive
+into what these calls do to get your function compiled and written out, look in
+`sys/func.inc` where all the magic happens.
+
+Next there is a section of documentation, this format can be parsed out by the
+`make doc` command line tool. Parsed documentation ends up in the
+`doc/CLASSES.md` file.
+
+The `(entry 'sys_string 'compare '(r0 r1))` and `(exit 'sys_string 'compare
+'(r2))` calls are helpers to make sure input and output parameters get copied
+to the correct registers. They enforce the `(def-method)` input and output
+register declarations by use of two `(assign)` calls. The register list
+provided here is auto assigned from and to the declared register input and
+output lists ! In this case the entry of `'(r0 r1)` turns into an `(assign '(r0
+r1) '(r0 r1))` which ends up emitting no code, but the exit of `'(r2)` does an
+`(assign '(r2) '(r0))` which emits a `(vp-cpy-rr r2 r0)` ensuring that the
+result in r2 ends up copied to the declared output r0. So entry and exit
+helpers ensure your function sticks to its declared contract with the outside
+world.
+
+The other lines that are not basic VP code instructions are `(loop-start)`,
+`(loop-end)` and `(breakif)` functions. These are structured coding functions
+defined within the `sys/code.inc` file. There are many such helper functions
+that allow all the basic structured code concepts to be used, even within VP
+code as well as C-Script level code. These will be covered in detail in other
+documents, but here the use is fairly obvious.

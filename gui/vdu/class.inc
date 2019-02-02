@@ -1,7 +1,7 @@
 (include 'gui/view/class.inc)
 
 (def-class 'vdu 'view)
-(dec-method 'vtable 'gui/class_vdu)
+(dec-method 'vtable 'gui/vdu/vtable)
 (dec-method 'create 'gui/vdu/create 'static '() '(r0))
 (dec-method 'new 'gui/vdu/new 'static nil '(r0))
 (dec-method 'init 'gui/vdu/init)

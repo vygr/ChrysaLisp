@@ -3,7 +3,7 @@
 (include 'class/vector/class.inc)
 
 (def-class 'lisp 'obj)
-(dec-method 'vtable 'class/class_lisp)
+(dec-method 'vtable 'class/lisp/vtable)
 (dec-method 'create 'class/lisp/create 'static '(r0 r1 r2) '(r0))
 (dec-method 'new 'class/lisp/new 'static nil '(r0))
 (dec-method 'init 'class/lisp/init 'static '(r0 r1 r2 r3 r4))

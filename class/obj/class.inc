@@ -1,7 +1,7 @@
 (include 'sys/class.inc)
 
 (def-class 'obj)
-(dec-method 'vtable 'class/class_obj)
+(dec-method 'vtable 'class/obj/vtable)
 (dec-method 'null 'class/obj/null)
 (dec-method 'destroy 'class/obj/destroy 'static '(r0))
 (dec-method 'init 'class/obj/init 'static '(r0 r1) '(r0 r1))

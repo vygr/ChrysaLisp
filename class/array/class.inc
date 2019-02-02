@@ -1,7 +1,7 @@
 (include 'class/sequence/class.inc)
 
 (def-class 'array 'sequence)
-(dec-method 'vtable 'class/class_array)
+(dec-method 'vtable 'class/array/vtable)
 (dec-method 'create 'class/array/create 'static nil '(r0))
 (dec-method 'new 'class/array/new 'static nil '(r0))
 (dec-method 'init 'class/array/init)
