@@ -1,7 +1,7 @@
 (include 'gui/view/class.inc)
 
 (def-class 'flow 'view)
-(dec-method 'vtable 'gui/class_flow)
+(dec-method 'vtable 'gui/flow/vtable)
 (dec-method 'create 'gui/flow/create 'static '() '(r0))
 (dec-method 'new 'gui/flow/new)
 

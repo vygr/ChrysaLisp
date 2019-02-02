@@ -1,7 +1,7 @@
 (include 'class/array/class.inc)
 
 (def-class 'vector 'array)
-(dec-method 'vtable 'class/class_vector)
+(dec-method 'vtable 'class/vector/vtable)
 (dec-method 'create 'class/vector/create)
 
 (dec-method 'deinit 'class/vector/deinit 'final)

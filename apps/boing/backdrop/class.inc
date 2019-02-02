@@ -1,7 +1,7 @@
 (include 'gui/view/class.inc)
 
 (def-class 'backdrop 'view)
-(dec-method 'vtable 'apps/boing/class_backdrop)
+(dec-method 'vtable 'apps/boing/backdrop/vtable)
 (dec-method 'create 'apps/boing/backdrop/create 'static '() '(r0))
 (dec-method 'new 'apps/boing/backdrop/new 'static nil '(r0))
 

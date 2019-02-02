@@ -1,7 +1,7 @@
 (include 'class/obj/class.inc)
 
 (def-class 'integer 'obj)
-(dec-method 'vtable 'class/class_integer)
+(dec-method 'vtable 'class/integer/vtable)
 (dec-method 'create 'class/integer/create 'static '(r0) '(r0))
 (dec-method 'new 'class/integer/new 'static nil '(r0))
 (dec-method 'init 'class/integer/init 'static '(r0 r1 r2))
