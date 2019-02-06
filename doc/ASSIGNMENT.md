@@ -128,9 +128,9 @@ implementation in detail in the `sys/code.inc` file. It's quite a simple parse
 While it's possible to use the compilation to do basic things like math, it
 really starts to get interesting when combined with some other functions that
 allow management of local stack variables. Any symbols appearing in the parsed
-output will be search for in the nested symbol scopes. These symbols are not
-the same as the Lisp level symbols, they are managed by a few scope creation
-and symbol declaration functions.
+output will be search for in the nested variable scopes. These variables are
+not the same as Lisp level symbols, they are managed by a few scope creation
+and variable declaration functions.
 
 ```
 	(byte 'x 'y ...)
@@ -154,15 +154,15 @@ and symbol declaration functions.
 	(union '(...) '(...) ...)
 ```
 
-After declaring the symbols and their types, you follow this with a
+After declaring the variables and their types, you follow this with a
 `(push-scope)`, and when done with them a `(pop-scope)` or `(pop-scope-syms)`.
 These scope functions just emit the required `(vp-alloc)` and `(vp-free)` calls
 that allocate and free space on the stack for the current set of declared
-symbols. This can be nested if desired.
+variables. This can be nested if desired.
 
 A special helper function `(return)` is provided that will emit any required
-`(vp-free)` along with a `(vp-ret)` instruction anywhere down the nested set of
-`(push-scope)`, `(pop-scope)`.
+`(vp-free)` along with a `(vp-ret)` instruction anywhere inside the nested set
+of `(push-scope)`, `(pop-scope)`.
 
 ## C-Script function example
 
@@ -208,7 +208,7 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 Here we have to declare the function as trashing all as use of the C-Script
 compiler could end up allocating and therefore invalidating any register. We
 are also aliasing the name and id variables to do double duty to save some
-stack space and avoid a union ! Naughty maybe , but heck this is how we get the
+stack space and avoid a union ! Naughty maybe, but heck this is how we get the
 performance and why we write in assembler :)
 
 The {} are just another way of declaring a string, like with "", just that {}
@@ -222,9 +222,9 @@ use of the debug_emit and debug_inst flags. A `(setq debug_inst t)` will enable
 printing of each expression compilation, `(setq debug_emit t)` will enable
 printing of the entire functions final instructions. Be sure to `(setq
 debug_inst nil)` and `(setq debug_emit nil)` after the section of code or
-function to turn emit printing back off.
+function to turn emit printing off.
 
-This is the output from wrapping the 'hash_map 'insert line above as:
+This is the output from wrapping the 'hash_map 'insert line above:
 
 ```
 	(setq debug_inst t)
