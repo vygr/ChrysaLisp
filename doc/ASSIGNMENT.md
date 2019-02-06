@@ -29,8 +29,8 @@ Let's start with a simple example.
 	(assign '(r0 r1 42) '(r1 r2 r3))
 ```
 
-We wish to assign register r0 to r1 and register r1 to r2. Sounds simple
-enough. So we just emit:
+We wish to assign register r0 to r1 and register r1 to r2 and the constant 42
+to r3. Sounds simple enough. So we just emit:
 
 ```
 	(vp-cpy-rr r0 r1)
@@ -95,7 +95,7 @@ the worlds most powerful languages as your assembler macro system !
 ## VP Assignment operators
 
 You can add operators to your parameters that assignment will emit effective
-address or resource binding instructions.
+address or resource binding instructions for.
 
 ```
 	(assign '((& r0 6)) '(r1))
@@ -126,7 +126,7 @@ implementation in detail in the `sys/code.inc` file. It's quite a simple parse
 -> reverse-polish -> compile -> optimise -> emit.
 
 While it's possible to use the compilation to do basic things like math, it
-really starts to get interesting when combined with some other function that
+really starts to get interesting when combined with some other functions that
 allow management of local stack variables. Any symbols appearing in the parsed
 output will be search for in the nested symbol scopes. These symbols are not
 the same as the Lisp level symbols, they are managed by a few scope creation
@@ -205,8 +205,11 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 (def-func-end)
 ```
 
-Here we have to declare function as trashing all as use of the C-Script
-compiler could end up allocating and therefore invalidating any register.
+Here we have to declare the function as trashing all as use of the C-Script
+compiler could end up allocating and therefore invalidating any register. We
+are also aliasing the name and id variables to do double duty to save some
+stack space and avoid a union ! Naughty maybe , but heck this is how we get the
+performance and why we write in assembler :)
 
 The {} are just another way of declaring a string, like with "", just that {}
 allows embedded "" and via-versa. It's just a string in the end that gets
@@ -214,8 +217,8 @@ passed too `(assign)`.
 
 The C-Script compiler emits all the code required to read and write the
 variables, with their correct data type. If you are curious to see the code
-emitted by the compiler you can switch on print out of the emitted code by use
-of the debug_emit and debug_inst flags. A `(setq debug_inst t)` will enable
+emitted by the compiler you can switch on printing out of the emitted code by
+use of the debug_emit and debug_inst flags. A `(setq debug_inst t)` will enable
 printing of each expression compilation, `(setq debug_emit t)` will enable
 printing of the entire functions final instructions. Be sure to `(setq
 debug_inst nil)` and `(setq debug_emit nil)` after the section of code or
