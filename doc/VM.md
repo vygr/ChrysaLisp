@@ -9,8 +9,8 @@ how code gets executed, called and so forth.
 The lowest level of ChrysaLisp is the Virtual Processor (VP), this is an
 imaginary RISC like processor that the assembler and script compiler target.
 
-It is, currently, a very simple 64 bit 16 register load/store machine. It may be
-extended in the future with features like floating point registers or vector
+It is, currently, a very simple 64 bit 16 register load/store machine. It may
+be extended in the future with features like floating point registers or vector
 instructions, but for now I'm preferring to see just how far you can push such
 a simple integer design.
 
@@ -204,7 +204,7 @@ inability to support features, like function chaining, as a result. You will
 often see a ChrysaLisp function jump out to another function in order to save
 on stack space with the eventual return going back to the original caller.
 Prime example are deinit methods that chain on to their parent deinit with a
-direct `(s-jmp)`, but this happens all over the code base where possible.
+direct `(s-jump)`, but this happens all over the code base where possible.
 
 The `(dec-method)` function takes the lists of input and output parameter
 registers. If the list of inputs or outputs is nil this means to inherit the
@@ -231,7 +231,7 @@ to use only a specific set of registers to do it's work, but that's an advanced
 topic for specialist code generation, the vector math DSL takes full advantage
 of this feature.
 
-## VP level function example
+## VP function example
 
 This is the system level string compare function. `sys_string::compare`
 
@@ -242,8 +242,8 @@ Register inputs and outputs are declared in the `sys/string/class.inc` file.
 (dec-method 'compare 'sys/string/compare 'static '(r0 r1) '(r0))
 ```
 
-So this function will take the pointers to the C style input char*'s in
-registers r0 and r1, and will return the comparison value in register r0.
+So this function will take the C style input char*'s in registers r0 and r1,
+and will return the comparison value in register r0.
 
 Implementation of the function is defined in the `sys/string/class.vp` file.
 
