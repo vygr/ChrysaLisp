@@ -1,25 +1,24 @@
 # ASSIGNMENT
 
-This document covers how the `(assign)` function is used to copy parameters
+This document covers how the `(assign)` function is used to copy parameter
 lists, provide easy access to resource binding operators and invoke the
-C-Script expression compiler to extend the basic VP level coding of functions.
+C-Script expression compiler to extend basic VP level coding of functions.
 
 The `(assign src dst)` function takes source and destination parameters. These
-can be a list or a string. So this gives us four possible combinations. When a
-string is found this invokes the C-Script expression compiler on that string
+can be lists or strings, thus giving us four possible combinations. When a
+string is used this invokes the C-Script expression compiler, on that string,
 and this emits VP operations that evaluate that expression. The C-Script syntax
-is a subset of C/C++ style syntax that most C/C++ programmer will be familiar
-with.
+is a subset of C/C++ syntax that most C/C++ programmer will be familiar with.
 
 Assignment can be used directly by use of the `(assign)` function in your
-source, but it is always used, under the hood, by functions like `(entry)`,
+source, but it is always used under the hood, by functions like `(entry)`,
 `(exit)`, `(call)` etc. The input and output parameters you declare in such
-calls are processed by an `(assign)` function inside those functions.
+calls are processed by an `(assign)` function within those functions.
 
 Remember that whenever you pass an input or take an output using a string
 parameter you will invoke the C-Script parser and compiler to generate code for
-you. When passing lists you will be using VP level or VP level helper operators
-to emit `(vp-cpy-xxx)` instructions for you.
+you. When passing a list you will be using VP level or VP level helper
+operators to emit `(vp-cpy-xxx)` instructions for you.
 
 ## VP Assignment
 
@@ -80,8 +79,8 @@ This will emit:
 
 Often you will be using the `(vp-def)` macro to use register equated names, or
 be needing to calculate a value as part of the assignment parameters. You can
-either construct the parameters list with the `(list)` function or using the
-quasi-quote and comma syntax. Or whatever you can dream up in Lisp that will
+either construct the parameter lists with the `(list)` function or using the
+quasi-quote and comma syntax, or whatever you can dream up in Lisp that will
 output a parameter list or string that `(assign)` can consume. This is where
 the real power of the Lisp based assembler kicks in ! You have access to one of
 the worlds most powerful languages as your assembler macro system !
@@ -94,7 +93,7 @@ the worlds most powerful languages as your assembler macro system !
 
 ## VP Assignment operators
 
-You can add operators to your parameters that assignment will emit effective
+You can add operators to your parameters that assignment emits effective
 address or resource binding instructions for.
 
 ```
@@ -128,9 +127,9 @@ implementation in detail in the `sys/code.inc` file. It's quite a simple parse
 While it's possible to use the compilation to do basic things like math, it
 really starts to get interesting when combined with some other functions that
 allow management of local stack variables. Any symbols appearing in the parsed
-output will be search for in the nested variable scopes. These variables are
-not the same as Lisp level symbols, they are managed by a few scope creation
-and variable declaration functions.
+output will be search for in the variable scopes. These variables are not the
+same as Lisp level symbols, they are managed by a few scope creation and
+variable declaration functions.
 
 ```
 	(byte 'x 'y ...)
@@ -158,11 +157,11 @@ After declaring the variables and their types, you follow this with a
 `(push-scope)`, and when done with them a `(pop-scope)` or `(pop-scope-syms)`.
 These scope functions just emit the required `(vp-alloc)` and `(vp-free)` calls
 that allocate and free space on the stack for the current set of declared
-variables. This can be nested if desired.
+variables. Scopes can be nested if desired.
 
 A special helper function `(return)` is provided that will emit any required
-`(vp-free)` along with a `(vp-ret)` instruction anywhere inside the nested set
-of `(push-scope)`, `(pop-scope)`.
+`(vp-free)` along with a `(vp-ret)` instruction anywhere inside a nested set of
+`(push-scope)`, `(pop-scope)`.
 
 ## C-Script function example
 
@@ -205,20 +204,20 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 (def-func-end)
 ```
 
-Here we have to declare the function as trashing all as use of the C-Script
-compiler could end up allocating and therefore invalidating any register. We
-are also aliasing the name and id variables to do double duty to save some
-stack space and avoid a union ! Naughty maybe, but heck this is how we get the
-performance and why we write in assembler :)
+Here we have to declare the function as trashing all registers as use of the
+C-Script compiler could end up allocating and therefore invalidating any
+register. We are also aliasing the name and id variables to do double duty to
+save some stack space and avoid a union ! Naughty maybe, but heck this is how
+we get the performance and why we write in assembler :)
 
 The {} are just another way of declaring a string, like with "", just that {}
 allows embedded "" and via-versa. It's just a string in the end that gets
-passed too `(assign)`.
+passed to `(assign)`.
 
 The C-Script compiler emits all the code required to read and write the
 variables, with their correct data type. If you are curious to see the code
-emitted by the compiler you can switch on printing out of the emitted code by
-use of the debug_emit and debug_inst flags. A `(setq debug_inst t)` will enable
+emitted by the compiler you can switch on printing of the emitted code by use
+of the debug_emit and debug_inst flags. A `(setq debug_inst t)` will enable
 printing of each expression compilation, `(setq debug_emit t)` will enable
 printing of the entire functions final instructions. Be sure to `(setq
 debug_inst nil)` and `(setq debug_emit nil)` after the section of code or
