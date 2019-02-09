@@ -20,6 +20,7 @@ Welcome to ChrysaLisp's documentation!
    LISP
    SYNTAX
    VM
+   ASSIGNMENT
    FUNCTIONS
    CLASSES
    TUTORIAL
